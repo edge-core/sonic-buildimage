@@ -1,0 +1,13 @@
+#!/bin/sh -e
+case $1 in
+  prereqs)
+    exit 0
+    ;;
+esac
+mkdir -p ${rootmnt}/host/rw
+mount -n -o dirs=${rootmnt}/host/rw:${rootmnt}=ro -t aufs root-aufs ${rootmnt}
+mount ${ROOT} ${rootmnt}/host
+mkdir -p /root/var/lib/docker
+mount --bind /root/host/var/lib/docker /root/var/lib/docker
+mkdir -p /root/boot
+mount --bind /root/host/boot /root/boot
