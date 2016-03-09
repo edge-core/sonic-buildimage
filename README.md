@@ -1,7 +1,5 @@
 # Build Switch Images - buildimage
 
-### This software repository must be treated as private and is only shared under NDA terms with Microsoft until publicly released.
-
 # Description
 Build an [Open Network Install Environment (ONIE)](https://github.com/opencomputeproject/onie) compatiable network operating system (NOS) installer image for network switches, and also build docker images running inside the NOS.
 
