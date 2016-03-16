@@ -1,0 +1,55 @@
+# Copyright (C) 2016 Arista Networks, Inc.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# Aboot stage 0 boot
+
+set -x
+
+bootconfigvars="SWI SWI_COPY POST_LEVEL CONSOLESPEED PASSWORD NETDEV NETAUTO NETIP NETMASK NETGW NETDOMAIN NETDNS NETHW memtest"
+
+parseenvironmentconfig() {
+    for n in ${bootconfigvars}; do
+        eval v="\$$n"
+        if [ "$v" ]; then
+            echo "$n=$v"
+        fi
+    done
+}
+
+kernel=boot/vmlinuz-3.16.0-4-amd64
+initrd=boot/initrd.img-3.16.0-4-amd64
+
+TARGET_PATH=/mnt/flash
+if [ -d "${swipath}" ]; then
+    # Not expect a directory name for swipath
+    exit 1
+fi
+
+## Determine whether installing by hash file in the image
+GIT_REVISION=$(unzip -p ${swipath} .imagehash)
+LOCAL_IMAGEHASH=$(cat $TARGET_PATH/.imagehash 2>/dev/null || true)
+if [ "$GIT_REVISION" != "$LOCAL_IMAGEHASH" ]; then
+    unzip -oq ${swipath} -x boot0 -d ${TARGET_PATH}
+fi
+
+echo "${append}" >/tmp/append
+parseenvironmentconfig >>/tmp/append
+cat /etc/cmdline | sed "/^\(${bootconfigvars// /\|}\|crashkernel\|loglevel\|ignore_loglevel\)\(\$\|=\)/d;/^\$/d" >>/tmp/append
+
+echo "root=/dev/sda1 rw loop=fs.squashfs loopfstype=squashfs apparmor=1 security=apparmor quiet" >>/tmp/append
+
+kexec --load --initrd=${TARGET_PATH}/${initrd} --append="$(tr '\n' ' ' </tmp/append)" ${TARGET_PATH}/${kernel}
+[ -z "${testonly}" ] || exit 0
+kexec --exec
