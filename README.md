@@ -3,14 +3,23 @@
 # Description
 Build an [Open Network Install Environment (ONIE)](https://github.com/opencomputeproject/onie) compatiable network operating system (NOS) installer image for network switches, and also build docker images running inside the NOS.
 
+# Prerequisite
+## 1. Linux kernel with switch drivers
+Build the [Azure/sonic-linux-kernel](https://github.com/Azure/sonic-linux-kernel) project and copy the output .deb file into ./deps directory.
+
+## 2. initramfs-tools with loop device support
+Run the script to build the .deb file into ./deps directory.
+
+    ./get_deps.sh
+
 # Usage
 ## Build NOS installer image
 
     ./build_debian USERNAME PASSWORD_ENCRYPTED && ./build_image.sh
     
-For example, the user name is 'acsadmin' and the password is 'YourPaSsWoRd'.
+For example, the user name is 'admin' and the password is 'YourPaSsWoRd'.
 
-    ./build_debian.sh "acsadmin" "$(perl -e 'print crypt("YourPaSsWoRd", "salt"),"\n"')" && ./build_image.sh
+    ./build_debian.sh "admin" "$(perl -e 'print crypt("YourPaSsWoRd", "salt"),"\n"')" && ./build_image.sh
 
 The root is disabled, but the created user could sudo.
 
