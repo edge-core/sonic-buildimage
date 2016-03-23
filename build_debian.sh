@@ -169,7 +169,6 @@ sudo LANG=C chroot $FILESYSTEM_ROOT pip uninstall -y pip
 
 echo '[INFO] Install apt-transport-sftp package from deps directory'
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install libssh2-1
-sudo dpkg --root=$FILESYSTEM_ROOT -i deps/apt-transport-sftp_*.deb
 
 ## Config DHCP for eth0
 sudo tee -a $FILESYSTEM_ROOT/etc/network/interfaces > /dev/null <<EOF
