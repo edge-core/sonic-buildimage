@@ -4,10 +4,12 @@
 Build an [Open Network Install Environment (ONIE)](https://github.com/opencomputeproject/onie) compatiable network operating system (NOS) installer image for network switches, and also build docker images running inside the NOS.
 
 # Prerequisite
-## 1. Linux kernel with switch drivers
+## 1. Build environment
+Preferably use [the Dockerfile](https://github.com/Azure/sonic-build-tools/blob/master/sonic-slave/Dockerfile), or use Debian Jessie and manually install packages appearing in the Dockerfile.
+## 2. Linux kernel with switch drivers
 Build the [Azure/sonic-linux-kernel](https://github.com/Azure/sonic-linux-kernel) project and copy the output .deb file into ./deps directory.
 
-## 2. initramfs-tools with loop device support
+## 3. initramfs-tools with loop device support
 Run the script to build the .deb file into ./deps directory.
 
     ./get_deps.sh
