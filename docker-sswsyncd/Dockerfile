@@ -1,21 +1,17 @@
-FROM debian:jessie
+FROM docker-base
 
-## Set the apt source
-COPY files/sources.list /etc/sources.list
-RUN apt-get clean && apt-get update
-
-## Pre-install the fundamental packages
-## TODO: sswsyncd depends on ifupdown
-RUN apt-get -y install  \
-    python              \
-    ifupdown            \
-    rsyslog
+RUN apt-get update
 
 COPY deps /deps
+RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /deps/python-tabulate_*.deb
 RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /deps/libopennsl_*.deb
 RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /deps/libsaibcm_*.deb
 RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /deps/libsswsdk_*.deb
 RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /deps/sswsyncd_*.deb
+
+## Clean up
+RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
+RUN rm -rf /deps
 
 ENTRYPOINT service rsyslog start    \
     && service sswsyncd start       \

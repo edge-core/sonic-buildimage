@@ -1,14 +1,14 @@
-FROM debian:jessie
-
-## Set the apt source
-COPY files/sources.list /etc/sources.list
-RUN apt-get clean && apt-get update
+FROM docker-base
 
 ## Pre-install the fundamental packages
-RUN apt-get -y install                  \
-    rsyslog                             \
+RUN apt-get update && apt-get -y install    \
     redis-server
 
-ENTRYPOINT service rsyslog start    \
-    && service redis-server start   \
-    && /bin/bash
+RUN sed -ri 's/^daemonize yes$/daemonize no/' /etc/redis/redis.conf                 \
+ && sed -ri 's/^logfile .*$/logfile ""/' /etc/redis/redis.conf                      \
+ && sed -ri 's/^# syslog-enabled no$/syslog-enabled no/' /etc/redis/redis.conf
+
+## Clean up
+RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
+
+ENTRYPOINT service redis-server start

@@ -33,6 +33,7 @@ The root is disabled, but the created user could sudo.
     ./build_docker.sh docker-bgp
     ./build_docker.sh docker-snmp
     ./build_docker.sh docker-lldp
+    ./build_docker.sh docker-basic_router
 
 # Contribution guide
 

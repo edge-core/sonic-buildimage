@@ -1,0 +1,3 @@
+[submodule "docker-base"]
+	path = docker-base
+	url = https://github.com/Azure/sonic-docker-base.git

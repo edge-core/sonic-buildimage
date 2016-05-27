@@ -61,7 +61,7 @@ mkdir -p $FILESYSTEM_ROOT
 
 ## Build a basic Debian system by debootstrap
 echo '[INFO] Debootstrap...'
-sudo debootstrap --arch amd64 jessie $FILESYSTEM_ROOT http://ftp.us.debian.org/debian
+sudo debootstrap --variant=minbase --arch amd64 jessie $FILESYSTEM_ROOT http://ftp.us.debian.org/debian
 
 ## Config hostname and hosts, otherwise 'sudo ...' will complain 'sudo: unable to resolve host ...'
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo '$HOSTNAME' > /etc/hostname"
@@ -82,11 +82,13 @@ clean_sys() {
                 $FILESYSTEM_ROOT/sys/fs/cgroup              \
                 $FILESYSTEM_ROOT/sys || true
 }
-trap_push 'sudo umount $FILESYSTEM_ROOT/sys || true'
+trap_push clean_sys
 sudo LANG=C chroot $FILESYSTEM_ROOT mount sysfs /sys -t sysfs
 
 ## Pointing apt to public apt mirrors and getting latest packages, needed for latest security updates
-sudo cp files/sources.list $FILESYSTEM_ROOT/etc/apt/
+sudo cp docker-base/sources.list $FILESYSTEM_ROOT/etc/apt/
+sudo cp files/apt/apt.conf.d/81norecommends $FILESYSTEM_ROOT/etc/apt/apt.conf.d/
+sudo LANG=C chroot $FILESYSTEM_ROOT bash -c 'apt-mark auto `apt-mark showmanual`'
 
 ## Note: set lang to prevent locale warnings in your chroot
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y update
@@ -110,7 +112,7 @@ sudo dpkg --root=$FILESYSTEM_ROOT -i deps/initramfs-tools_*.deb || \
     sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
 sudo dpkg --root=$FILESYSTEM_ROOT -i deps/linux-image-3.16.0-4-amd64_*.deb || \
     sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
-    
+
 ## Update initramfs for booting with squashfs+aufs
 cat files/initramfs-tools/modules | sudo tee -a $FILESYSTEM_ROOT/etc/initramfs-tools/modules > /dev/null
 
@@ -129,7 +131,6 @@ curl -sSL https://get.docker.com/ | sudo LANG=C chroot $FILESYSTEM_ROOT sh
 ## Remove garbage left by docker installation script
 sudo rm $FILESYSTEM_ROOT/etc/apt/sources.list.d/docker.list
 sudo chroot $FILESYSTEM_ROOT service docker stop
-sudo chroot $FILESYSTEM_ROOT service dbus stop
 ## Add docker config drop-in to select aufs, otherwise it may other storage driver
 ## Note: $_ means last argument of last command
 sudo mkdir -p $FILESYSTEM_ROOT/etc/systemd/system/docker.service.d/
@@ -149,16 +150,23 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install      \
 ## Note: gdisk is needed for sgdisk in install.sh
 ## Note: parted is needed for partprobe in install.sh
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install      \
+    file                    \
+    ifupdown                \
+    iproute2                \
+    isc-dhcp-client         \
     sudo                    \
     vim                     \
     tcpdump                 \
     ntp                     \
+    ntpstat                 \
     openssh-server          \
     python                  \
     python-setuptools       \
+    rsyslog                 \
     python-apt              \
-    gdisk                   \
-    parted                  \
+    traceroute              \
+    iputils-ping            \
+    net-tools               \
     efibootmgr
 
 ## docker-py is needed by Ansible docker module
@@ -166,9 +174,6 @@ sudo LANG=C chroot $FILESYSTEM_ROOT easy_install pip
 sudo LANG=C chroot $FILESYSTEM_ROOT pip install 'docker-py==1.6.0'
 ## Remove pip which is unnecessary in the base image
 sudo LANG=C chroot $FILESYSTEM_ROOT pip uninstall -y pip
-
-echo '[INFO] Install apt-transport-sftp package from deps directory'
-sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install libssh2-1
 
 ## Config DHCP for eth0
 sudo tee -a $FILESYSTEM_ROOT/etc/network/interfaces > /dev/null <<EOF
@@ -178,10 +183,13 @@ allow-hotplug eth0
 iface eth0 inet dhcp
 EOF
 
+sudo cp files/dhcp/rfc3442-classless-routes $FILESYSTEM_ROOT/etc/dhcp/dhclient-exit-hooks.d
+
 ## Clean up apt
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get autoremove
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get autoclean
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get clean
-sudo LANG=C chroot $FILESYSTEM_ROOT rm -rf /tmp/*
+sudo LANG=C chroot $FILESYSTEM_ROOT bash -c 'rm -rf /usr/share/doc/* /usr/share/locale/* /var/lib/apt/lists/* /tmp/*'
 
 ## Umount all
 echo '[INFO] Umount all'
@@ -195,6 +203,8 @@ sudo mkdir $FILESYSTEM_ROOT/host
 
 ## Compress most file system into squashfs file
 sudo rm -f $ONIE_INSTALLER_PAYLOAD $FILESYSTEM_SQUASHFS
+## Output the file system total size for diag purpose
+sudo du -hs $FILESYSTEM_ROOT
 sudo mksquashfs $FILESYSTEM_ROOT $FILESYSTEM_SQUASHFS -e boot -e var/lib/docker
 
 ## Compress together with /boot and /var/lib/docker as an installer payload zip file
