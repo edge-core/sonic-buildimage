@@ -13,6 +13,11 @@ Build the [Azure/sonic-linux-kernel](https://github.com/Azure/sonic-linux-kernel
 Run the script to build the .deb file into ./deps directory.
 
     ./get_deps.sh
+    
+## 4. Fetch the git submodule
+If there is no files under ./docker-base, manually fetch them.
+
+    git submodule update --init --recursive
 
 # Usage
 ## Build NOS installer image
