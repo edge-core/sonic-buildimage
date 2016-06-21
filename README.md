@@ -42,7 +42,7 @@ The root is disabled, but the created user could sudo.
 
 # Contribution guide
 
-All contributors must sign a contribution license agreement before contributions can be accepted.  Contact kasubra@microsoft.com or daloher@microsoft.com.  Later this will be automated.
+All contributors must sign a contribution license agreement before contributions can be accepted.  Contact daloher@microsoft.com.  Later this will be automated.
 
 ### GitHub Workflow
 
@@ -76,3 +76,5 @@ For example:
 * Push your changes to your private fork and do "pull-request" to this repository
 * Use a pull request to do code review
 * Use issues to keep track of what is going on
+
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
