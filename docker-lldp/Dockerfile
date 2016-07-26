@@ -1,21 +1,18 @@
 FROM docker-base
 
+COPY deps/*py2*.whl deps/python-sswsdk_*.deb deps/lldpsyncd_*.deb deps/lldpd_*.deb /deps/
+
 ## Pre-install the fundamental packages
-RUN apt-get update && apt-get -y install    \
-    lldpd
-
-COPY deps /deps
-
 ## Install Python SSWSDK (lldpsyncd dependancy)
-## Note: dpkg_apt function has the benefit to detect missing .deb file
-RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /deps/python-sswsdk_*.deb
 ## Install LLDP Sync Daemon
 ## Note: dpkg_apt function has the benefit to detect missing .deb file
-RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /deps/lldpsyncd_*.deb
-
 ## Clean up
-RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
-RUN rm -rf /deps
+RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; } &&        \
+    dpkg_apt /deps/lldpd_*.deb &&                                                       \
+    dpkg_apt /deps/lldpsyncd_*.deb &&                                                           \
+    apt-get clean -y && apt-get autoclean -y && apt-get autoremove -y &&                        \
+    pip install --no-cache-dir /deps/*.whl && \
+    rm -rf /deps
 
 ## There is a known bug: agetty processes at 100% cpu
 ## When:

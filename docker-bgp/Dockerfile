@@ -1,11 +1,12 @@
 FROM docker-base
 
-COPY deps /deps
-RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /deps/quagga_*.deb
+COPY deps/quagga_*.deb /deps/
+RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; } &&        \
+    dpkg_apt /deps/quagga_*.deb &&                                                              \
+    apt-get clean -y && apt-get autoclean -y && apt-get autoremove -y &&                        \
+    rm -rf /deps
 
-## Clean up
-RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
-RUN rm -rf /deps
+COPY daemons /etc/quagga/
 
 ENTRYPOINT service rsyslog start    \
     && service quagga start         \

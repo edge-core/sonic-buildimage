@@ -39,6 +39,28 @@ if [ $(id -u) -ne 0 ]
     exit 1
 fi
 
+# get running machine from conf file
+[ -r /etc/machine.conf ] && . /etc/machine.conf
+
+echo "onie_platform: $onie_platform"
+
+# default console settings
+CONSOLE_PORT=0x3f8
+CONSOLE_DEV=0
+CONSOLE_SPEED=9600
+
+# Get platform specific linux kernel command line arguments
+ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=""
+# platform specific configurations
+if [ "$onie_platform" == "x86_64-dell_s6000_s1220-r0" ]; then
+    `pwd`/dell-s6000-replace-reboot.sh
+elif [ "$onie_platform" == "x86_64-mlnx_x86-r5.0.1400" ]; then
+    ONIE_PLATFORM_EXTRA_CMDLINE_LINUX="acpi_enforce_resources=lax acpi=noirq"
+elif [ "$onie_platform" == "x86_64-dell_s6100_c2538-r0" ]; then
+    CONSOLE_PORT=0x2f8
+    CONSOLE_DEV=1
+fi
+
 # Install demo on same block device as ONIE
 onie_dev=$(blkid | grep ONIE-BOOT | head -n 1 | awk '{print $1}' |  sed -e 's/:.*$//')
 blk_dev=$(echo $onie_dev | sed -e 's/[1-9][0-9]*$//' | sed -e 's/\([0-9]\)\(p\)/\1/')
@@ -180,6 +202,7 @@ create_demo_gpt_partition()
         --attributes=${demo_part}:=:$attr_bitmask \
         --change-name=${demo_part}:$demo_volume_revision_label $blk_dev \
     || {
+        echo "Warning: The first trial of creating partition failed, trying the largest aligned available block of sectors on the disk"
         begin=$(sgdisk -F $blk_dev)
         end=$(sgdisk -E $blk_dev)
         sgdisk --new=${demo_part}:$begin:$end \
@@ -379,7 +402,10 @@ ${onie_bin} mount -t ext4 -o defaults,rw $demo_dev $demo_mnt || {
 # Decompress the file for the file system directly to the partition
 unzip $ONIE_INSTALLER_PAYLOAD -d $demo_mnt
 
-# store installation log in demo file system
+# Store machine description in target file system
+cp /etc/machine.conf $demo_mnt
+
+# Store installation log in target file system
 rm -f $onie_initrd_tmp/tmp/onie-support.tar.bz2
 ${onie_bin} onie-support /tmp
 mv $onie_initrd_tmp/tmp/onie-support.tar.bz2 $demo_mnt
@@ -408,8 +434,8 @@ trap_push "rm $grub_cfg || true"
 
 [ -r ./platform.conf ] && . ./platform.conf
 
-DEFAULT_GRUB_SERIAL_COMMAND="serial --port=%%CONSOLE_PORT%% --speed=%%CONSOLE_SPEED%% --word=8 --parity=no --stop=1"
-DEFAULT_GRUB_CMDLINE_LINUX="console=tty0 console=ttyS%%CONSOLE_DEV%%,%%CONSOLE_SPEED%%n8 quiet"
+DEFAULT_GRUB_SERIAL_COMMAND="serial --port=${CONSOLE_PORT} --speed=${CONSOLE_SPEED} --word=8 --parity=no --stop=1"
+DEFAULT_GRUB_CMDLINE_LINUX="console=tty0 console=ttyS${CONSOLE_DEV},${CONSOLE_SPEED}n8 quiet"
 GRUB_SERIAL_COMMAND=${GRUB_SERIAL_COMMAND:-"$DEFAULT_GRUB_SERIAL_COMMAND"}
 GRUB_CMDLINE_LINUX=${GRUB_CMDLINE_LINUX:-"$DEFAULT_GRUB_CMDLINE_LINUX"}
 export GRUB_SERIAL_COMMAND
@@ -460,7 +486,7 @@ menuentry '$demo_grub_entry' {
         insmod ext2
         linux   /boot/vmlinuz-3.16.0-4-amd64 root=$demo_dev rw $GRUB_CMDLINE_LINUX  \
                 loop=$FILESYSTEM_SQUASHFS loopfstype=squashfs                       \
-                apparmor=1 security=apparmor
+                apparmor=1 security=apparmor $ONIE_PLATFORM_EXTRA_CMDLINE_LINUX
         echo    'Loading $demo_volume_revision_label $demo_type initial ramdisk ...'
         initrd  /boot/initrd.img-3.16.0-4-amd64
 }
@@ -474,3 +500,5 @@ mkdir -p $onie_initrd_tmp/$demo_mnt/grub
 cp $grub_cfg $onie_initrd_tmp/$demo_mnt/grub/grub.cfg
 
 cd /
+
+echo "Installed SONiC base image $demo_volume_revision_label successfully"

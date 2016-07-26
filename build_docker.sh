@@ -1,10 +1,45 @@
 #!/bin/bash
 ## This script is to automate the preparation for docker images for ACS.
 ## If registry server and port provided, the images will be pushed there.
-## Usage:
-##   sudo ./build_docker.sh DOCKER_BUILD_DIR [REGISTRY_SERVER REGISTRY_PORT]
 
-set -x -e
+set -e
+
+. ./functions.sh
+
+usage() {
+    cat >&2 <<EOF
+Usage:
+  sudo ./build_docker.sh -i=DOCKER_IMAGE_NAME DOCKER_BUILD_DIR [REGISTRY_SERVER REGISTRY_PORT]
+  
+Description:
+  -i DOCKER_IMAGE_NAME
+       Specifi the docker images name, by default it is DOCKER_BUILD_DIR
+  DOCKER_BUILD_DIR
+       The directory containing Dockerfile
+  REGISTRY_SERVER
+       The server name of the docker registry
+  REGISTRY_PORT
+       The port of the docker registry
+       
+Example:
+  ./build_docker.sh -i docker-orchagent-mlnx docker-orchagent
+EOF
+}
+
+docker_image_name=''
+while getopts ":i:" opt; do
+  case $opt in
+    i)
+      docker_image_name=$OPTARG
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      usage
+      exit 1
+      ;;
+  esac
+done
+shift "$((OPTIND - 1))"
 
 ## Dockerfile directory
 DOCKER_BUILD_DIR=$1
@@ -18,36 +53,39 @@ REGISTRY_PASSWD=$5
     exit 1
 }
 
-## Docker image label, so no need to remember its hash
-docker_image_name=$DOCKER_BUILD_DIR
-remote_image_name=$REGISTRY_SERVER:$REGISTRY_PORT/$docker_image_name
-
-## File name for docker image
-docker_image_gz=$docker_image_name.gz
-
-[ -n "$docker_image_gz" ] || {
-    echo "Error: Output docker image filename is empty"
-    exit 1
+[ -n "$docker_image_name" ] || {
+    docker_image_name=$DOCKER_BUILD_DIR
 }
 
-function cleanup {
-    rm -rf $DOCKER_BUILD_DIR/files
-    rm -rf $DOCKER_BUILD_DIR/deps
-    docker rmi $remote_image_name || true
+[ ${BUILD_NUMBER} ] || {
+    echo "No BUILD_NUMBER found, setting to 0."
+    BUILD_NUMBER="0"
 }
-trap cleanup exit
+
+remote_image_name=$REGISTRY_SERVER:$REGISTRY_PORT/$docker_image_name:latest
+timestamp="$(date -u +%Y%m%d)"
+build_version="${timestamp}.${BUILD_NUMBER}"
+build_remote_image_name=$REGISTRY_SERVER:$REGISTRY_PORT/$docker_image_name:$build_version
 
 ## Copy dependencies
 ## Note: Dockerfile ADD doesn't support reference files outside the folder, so copy it locally
 if ls deps/* 1>/dev/null 2>&1; then
+    trap_push "rm -rf $DOCKER_BUILD_DIR/deps"
     mkdir -p $DOCKER_BUILD_DIR/deps
     cp -r deps/* $DOCKER_BUILD_DIR/deps
 fi
 
 ## Copy the suggested Debian sources
 ## ref: https://wiki.debian.org/SourcesList
+trap_push "rm -rf $DOCKER_BUILD_DIR/deps"
 cp -r files $DOCKER_BUILD_DIR/files
+docker_try_rmi $docker_image_name
+
+## Build the docker image
 docker build --no-cache -t $docker_image_name $DOCKER_BUILD_DIR
+## Get the ID of the built image
+## Note: inspect output has quotation characters, so sed to remove it as an argument
+image_id=$(docker inspect --format="{{json .Id}}" $docker_image_name | sed -e 's/^"//' -e 's/"$//')
 
 ## Flatten the image by importing an exported container on this image
 ## Note: it will squash the image with only one layer and lost all metadata such as ENTRYPOINT,
@@ -57,18 +95,30 @@ docker build --no-cache -t $docker_image_name $DOCKER_BUILD_DIR
 if [ "$docker_image_name" = "docker-base" ]; then
     tmp_container=$(docker run -d ${docker_image_name} /bin/bash)
     docker export $tmp_container | docker import - ${docker_image_name}
-    docker rm -f $tmp_container || true
+    trap_push "docker rmi $image_id"
+    trap_push "docker rm -f $tmp_container || true"
 fi
 
+image_sha=''
 if [ -n "$REGISTRY_SERVER" ] && [ -n "$REGISTRY_PORT" ]; then
     ## Add registry information as tag, so will push as latest
+    ## Add additional tag with build information
     ## Temporarily add -f option to prevent error message of Docker engine version < 1.10.0
-    docker tag -f $docker_image_name $remote_image_name
+    docker tag $docker_image_name $remote_image_name
+    docker tag $docker_image_name $build_remote_image_name
 
     ## Login the docker image registry server
-    ## Note: user name and password are passed from command line, use fake email address to bypass login check
-    docker login -u $REGISTRY_USERNAME -p "$REGISTRY_PASSWD" -e "@" $REGISTRY_SERVER:$REGISTRY_PORT
-    docker push $remote_image_name
+    ## Note: user name and password are passed from command line
+    docker login -u $REGISTRY_USERNAME -p "$REGISTRY_PASSWD" $REGISTRY_SERVER:$REGISTRY_PORT
+    
+    ## Push image to registry server
+    ## And get the image digest SHA256
+    trap_push "docker rmi $remote_image_name"
+    trap_push "docker rmi $build_remote_image_name"
+    image_sha=$(docker push $remote_image_name | sed -n "s/.*: digest: sha256:\([0-9a-f]*\).*/\\1/p")
+    docker push $build_remote_image_name
 fi
 
-docker save $docker_image_name | gzip -c > $docker_image_gz
+mkdir -p target
+rm -f target/$docker_image_name.*.gz
+docker save $docker_image_name | gzip -c > target/$docker_image_name.$image_sha.gz

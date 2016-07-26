@@ -1,3 +1,4 @@
+#!/bin/sh
 # Copyright (C) 2016 Arista Networks, Inc.
 #
 # This program is free software: you can redistribute it and/or modify
@@ -37,11 +38,33 @@ if [ -d "${swipath}" ]; then
     exit 1
 fi
 
-## Determine whether installing by hash file in the image
+## Check the hash file in the image, and determine to install or just skip
 GIT_REVISION=$(unzip -p ${swipath} .imagehash)
 LOCAL_IMAGEHASH=$(cat $TARGET_PATH/.imagehash 2>/dev/null || true)
 if [ "$GIT_REVISION" != "$LOCAL_IMAGEHASH" ]; then
+    ## Clean old directory for read-write layer
+    rm -rf ${TARGET_PATH}/rw
+
+    ## Unzip the image
     unzip -oq ${swipath} -x boot0 -d ${TARGET_PATH}
+
+    ## Detect SKU and create a hardware description file
+    aboot_version=`grep ^Aboot /etc/cmdline | sed 's/^.*norcal.-//'`
+    aboot_build_date=`stat -c %y /bin/sysinit | sed 's/ /T/'`
+    if `grep -q platform=raven /etc/cmdline`; then
+        aboot_machine=arista_7050_qx32
+    else
+        aboot_machine=arista_7050_qx32s
+    fi
+    cat <<EOF > ${TARGET_PATH}/machine.conf
+aboot_version=$aboot_version
+aboot_vendor=arista
+aboot_platform=x86_64-$aboot_machine
+aboot_machine=$aboot_machine
+aboot_arch=x86_64
+aboot_build_date=$aboot_build_date
+EOF
+
 fi
 
 echo "${append}" >/tmp/append

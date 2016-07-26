@@ -4,10 +4,15 @@ case $1 in
     exit 0
     ;;
 esac
+
+## Mount the aufs file system: rw layer over squashfs
 mkdir -p ${rootmnt}/host/rw
 mount -n -o dirs=${rootmnt}/host/rw:${rootmnt}=ro -t aufs root-aufs ${rootmnt}
+## Mount the raw partition again
 mount ${ROOT} ${rootmnt}/host
-mkdir -p /root/var/lib/docker
-mount --bind /root/host/var/lib/docker /root/var/lib/docker
-mkdir -p /root/boot
-mount --bind /root/host/boot /root/boot
+## Mount the working directory of docker engine in the raw partition, bypass the aufs
+mkdir -p ${rootmnt}/var/lib/docker
+mount --bind ${rootmnt}/host/var/lib/docker ${rootmnt}/var/lib/docker
+## Mount the boot directory in the raw partition, bypass the aufs
+mkdir -p ${rootmnt}/boot
+mount --bind ${rootmnt}/host/boot ${rootmnt}/boot

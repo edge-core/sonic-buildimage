@@ -36,3 +36,10 @@ die() {
     warn "$message"
     exit 1
 }
+
+docker_try_rmi() {
+    local image_name="$1"
+    ## Note: inspect output has quotation characters, so sed to remove it as an argument
+    local image_id=$(docker inspect --format="{{json .Id}}" $image_name | sed -e 's/^"//' -e 's/"$//')
+    [ -z "$image_id" ] || docker rmi $image_name
+}

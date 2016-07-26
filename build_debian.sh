@@ -32,6 +32,9 @@ PASSWORD_ENCRYPTED=$2
 ## Enable debug output for script
 set -x -e
 
+## docker engine version (with platform)
+DOCKER_VERSION=1.11.1-0~jessie_amd64
+
 ## Working directory to prepare the file system
 FILESYSTEM_ROOT=./fsroot
 ## Hostname for the linux image
@@ -127,13 +130,21 @@ sudo chroot $FILESYSTEM_ROOT update-initramfs -u
 
 ## Install docker
 echo '[INFO] Install docker'
-curl -sSL https://get.docker.com/ | sudo LANG=C chroot $FILESYSTEM_ROOT sh
-## Remove garbage left by docker installation script
-sudo rm $FILESYSTEM_ROOT/etc/apt/sources.list.d/docker.list
+## Install apparmor utils since they're missing and apparmor is enabled in the kernel
+## Otherwise Docker will fail to start
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install apparmor
+docker_deb_url=https://apt.dockerproject.org/repo/pool/main/d/docker-engine/docker-engine_${DOCKER_VERSION}.deb
+docker_deb_temp=`mktemp`
+trap_push "rm -f $docker_deb_temp"
+wget $docker_deb_url -qO $docker_deb_temp && {                                                  \
+    sudo dpkg --root=$FILESYSTEM_ROOT -i $docker_deb_temp ||                                    \
+    sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f;   \
+}
+sudo chroot $FILESYSTEM_ROOT docker version
 sudo chroot $FILESYSTEM_ROOT service docker stop
 ## Add docker config drop-in to select aufs, otherwise it may other storage driver
-## Note: $_ means last argument of last command
 sudo mkdir -p $FILESYSTEM_ROOT/etc/systemd/system/docker.service.d/
+## Note: $_ means last argument of last command
 sudo cp files/docker/docker.service.conf $_
 
 ## Create default user
@@ -149,6 +160,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install      \
 ## Pre-install the fundamental packages
 ## Note: gdisk is needed for sgdisk in install.sh
 ## Note: parted is needed for partprobe in install.sh
+## Note: ca-certificates is needed for easy_install
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install      \
     file                    \
     ifupdown                \
@@ -167,7 +179,33 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install      \
     traceroute              \
     iputils-ping            \
     net-tools               \
+    bsdmainutils            \
+    ca-certificates         \
+    i2c-tools               \
     efibootmgr
+
+## Remove sshd host keys, and will regenerate on first sshd start
+sudo rm -f $FILESYSTEM_ROOT/etc/ssh/ssh_host_*_key*
+sudo cp files/sshd/host-ssh-keygen.sh $FILESYSTEM_ROOT/usr/local/bin/
+sudo cp -f files/sshd/sshd.service $FILESYSTEM_ROOT/lib/systemd/system/ssh.service
+## Config sshd
+sudo augtool --autosave "set /files/etc/ssh/sshd_config/UseDNS no" -r $FILESYSTEM_ROOT
+
+## Config sysctl
+sudo mkdir -p $FILESYSTEM_ROOT/var/core
+sudo augtool --autosave "
+set /files/etc/sysctl.conf/kernel.core_pattern '|/usr/bin/coredump-compress %e %p'
+set /files/etc/sysctl.conf/net.ipv4.conf.default.arp_accept 0
+set /files/etc/sysctl.conf/net.ipv4.conf.default.arp_announce 0
+set /files/etc/sysctl.conf/net.ipv4.conf.default.arp_filter 0
+set /files/etc/sysctl.conf/net.ipv4.conf.default.arp_notify 0
+set /files/etc/sysctl.conf/net.ipv4.conf.default.arp_ignore 0
+set /files/etc/sysctl.conf/net.ipv4.conf.all.arp_accept 0
+set /files/etc/sysctl.conf/net.ipv4.conf.all.arp_announce 1
+set /files/etc/sysctl.conf/net.ipv4.conf.all.arp_filter 0
+set /files/etc/sysctl.conf/net.ipv4.conf.all.arp_notify 1
+set /files/etc/sysctl.conf/net.ipv4.conf.all.arp_ignore 2
+" -r $FILESYSTEM_ROOT
 
 ## docker-py is needed by Ansible docker module
 sudo LANG=C chroot $FILESYSTEM_ROOT easy_install pip

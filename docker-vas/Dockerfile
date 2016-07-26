@@ -1,17 +1,18 @@
 FROM docker-base
 
+COPY deps/vasclnt_*.deb deps/vasgp_*.deb /deps/
+COPY user-override /etc/opt/quest/vas/user-override
+
 ## Pre-install the fundamental packages
-RUN apt-get update && apt-get -y install    \
-    sudo
-
-COPY deps /deps
-RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; };  \
-    dpkg_apt /deps/vasclnt_*.deb && \
-    dpkg_apt /deps/vasgp_*.deb
-
 ## Clean up
-RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
-RUN rm -rf /deps
+RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; } &&        \
+    apt-get -y install                                                                          \
+        sudo                                                                                    \
+        &&                                                                                      \
+    dpkg_apt /deps/vasclnt_*.deb &&                                                             \
+    dpkg_apt /deps/vasgp_*.deb &&                                                               \
+    apt-get clean -y && apt-get autoclean -y && apt-get autoremove -y &&                        \
+    rm -rf /deps
 
 ## Expose to host, ie. image content will copy to host when container started
 ## For .so
