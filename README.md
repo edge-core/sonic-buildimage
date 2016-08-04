@@ -1,44 +1,42 @@
-# Build Switch Images - buildimage
+# Build SONiC Switch Images - buildimage
 
 # Description
 Build an [Open Network Install Environment (ONIE)](https://github.com/opencomputeproject/onie) compatiable network operating system (NOS) installer image for network switches, and also build docker images running inside the NOS.
 
 # Prerequisite
-## 1. Build environment
-Preferably use [the Dockerfile](https://github.com/Azure/sonic-build-tools/blob/master/sonic-slave/Dockerfile), or use Debian Jessie and manually install packages appearing in the Dockerfile.
-## 2. Linux kernel with switch drivers
-Build the [Azure/sonic-linux-kernel](https://github.com/Azure/sonic-linux-kernel) project and copy the output .deb file into ./deps directory.
+## 1. Clone or fetch the code repository with all git submodules
+To clone the code repository recursively, assuming git version 1.9 or newer
 
-## 3. initramfs-tools with loop device support
-Run the script to build the .deb file into ./deps directory.
+    git clone --recursive https://github.com/Azure/sonic-buildimage.git
 
-    ./get_deps.sh
-    
-## 4. Fetch the git submodule
-If there is no files under ./docker-base, manually fetch them.
+If it is already cloned, however there is no files under ./dockers/docker-base/ or ./src/sonic-linux-kernel/, manually fetch all the git submodules.
 
     git submodule update --init --recursive
 
+## 2. Build environment
+Build a docker image by [the Dockerfile](https://github.com/Azure/sonic-build-tools/blob/master/sonic-slave/Dockerfile) and build all remains in the docker container.
+
 # Usage
-## Build NOS installer image
+## Build NOS installer image and docker images
 
-    ./build_debian USERNAME PASSWORD_ENCRYPTED && ./build_image.sh
-    
-For example, the user name is 'admin' and the password is 'YourPaSsWoRd'.
+    make [VENDOR]-all USERNAME=[USERNAME] PASSWORD_ENCRYPTED=[PASSWORD_ENCRYPTED]
 
-    ./build_debian.sh "admin" "$(perl -e 'print crypt("YourPaSsWoRd", "salt"),"\n"')" && ./build_image.sh
+Supported VENDOR are:
+- brcm: Broadcom
+- mlnx: Mellanox
+
+For example, the user name is 'admin' and the password is 'YourPaSsWoRd'. To build all the images for Broadcom platform, use the command:
+
+    make brcm-all USERNAME="admin" PASSWORD_ENCRYPTED="$(perl -e 'print crypt("YourPaSsWoRd", "salt"),"\n"')"
 
 The root is disabled, but the created user could sudo.
 
-
-## Build docker images
-
-    ./build_docker.sh docker-sswsyncd
-    ./build_docker.sh docker-database
-    ./build_docker.sh docker-bgp
-    ./build_docker.sh docker-snmp
-    ./build_docker.sh docker-lldp
-    ./build_docker.sh docker-basic_router
+The target directory is ./target, containing the NOS installer image and docker images.
+- acs-generic.bin: SONiC switch installer image (ONIE compatiable)
+- docker-base.gz: base docker image where others are built from (gzip tar archive)
+- docker-fpm.gz: docker image for quagga with fpm module enabled (gzip tar archive)
+- docker-orchagent.gz: docker image for SWitch State Service (SWSS)
+- docker-syncd.gz: docker image for the daemon to sync database and switch ASIC
 
 # Contribution guide
 

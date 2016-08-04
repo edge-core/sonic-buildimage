@@ -42,19 +42,19 @@ done
 shift "$((OPTIND - 1))"
 
 ## Dockerfile directory
-DOCKER_BUILD_DIR=$1
+DOCKER_BUILD_DIR=dockers/$1
 REGISTRY_SERVER=$2
 REGISTRY_PORT=$3
 REGISTRY_USERNAME=$4
 REGISTRY_PASSWD=$5
 
-[ -d "$DOCKER_BUILD_DIR" ] || {
+[ -f "$DOCKER_BUILD_DIR"/Dockerfile ] || {
     echo "Invalid DOCKER_BUILD_DIR directory" >&2
     exit 1
 }
 
 [ -n "$docker_image_name" ] || {
-    docker_image_name=$DOCKER_BUILD_DIR
+    docker_image_name=$(basename $DOCKER_BUILD_DIR)
 }
 
 [ ${BUILD_NUMBER} ] || {
@@ -93,10 +93,14 @@ image_id=$(docker inspect --format="{{json .Id}}" $docker_image_name | sed -e 's
 ## TODO: wait docker-squash supporting Docker 1.10+
 ## ref: https://github.com/jwilder/docker-squash/issues/45
 if [ "$docker_image_name" = "docker-base" ]; then
+    ## Run old image in a container
     tmp_container=$(docker run -d ${docker_image_name} /bin/bash)
+    ## Export the container's filesystem, then import as a new image
     docker export $tmp_container | docker import - ${docker_image_name}
-    trap_push "docker rmi $image_id"
-    trap_push "docker rm -f $tmp_container || true"
+    ## Remove the container
+    docker rm -f $tmp_container || true
+    ## Remove the old image
+    docker rmi -f $image_id || true
 fi
 
 image_sha=''
@@ -113,8 +117,8 @@ if [ -n "$REGISTRY_SERVER" ] && [ -n "$REGISTRY_PORT" ]; then
     
     ## Push image to registry server
     ## And get the image digest SHA256
-    trap_push "docker rmi $remote_image_name"
-    trap_push "docker rmi $build_remote_image_name"
+    trap_push "docker rmi $remote_image_name || true"
+    trap_push "docker rmi $build_remote_image_name || true"
     image_sha=$(docker push $remote_image_name | sed -n "s/.*: digest: sha256:\([0-9a-f]*\).*/\\1/p")
     docker push $build_remote_image_name
 fi

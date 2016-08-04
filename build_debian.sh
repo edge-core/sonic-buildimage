@@ -89,7 +89,7 @@ trap_push clean_sys
 sudo LANG=C chroot $FILESYSTEM_ROOT mount sysfs /sys -t sysfs
 
 ## Pointing apt to public apt mirrors and getting latest packages, needed for latest security updates
-sudo cp docker-base/sources.list $FILESYSTEM_ROOT/etc/apt/
+sudo cp dockers/docker-base/sources.list $FILESYSTEM_ROOT/etc/apt/
 sudo cp files/apt/apt.conf.d/81norecommends $FILESYSTEM_ROOT/etc/apt/apt.conf.d/
 sudo LANG=C chroot $FILESYSTEM_ROOT bash -c 'apt-mark auto `apt-mark showmanual`'
 
@@ -142,7 +142,7 @@ wget $docker_deb_url -qO $docker_deb_temp && {                                  
 }
 sudo chroot $FILESYSTEM_ROOT docker version
 sudo chroot $FILESYSTEM_ROOT service docker stop
-## Add docker config drop-in to select aufs, otherwise it may other storage driver
+## Add docker config drop-in to select aufs, otherwise it may select other storage driver
 sudo mkdir -p $FILESYSTEM_ROOT/etc/systemd/system/docker.service.d/
 ## Note: $_ means last argument of last command
 sudo cp files/docker/docker.service.conf $_

@@ -15,11 +15,11 @@ RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return
 ## TODO: add kmod into Depends
 RUN apt-get install -f kmod
 
-COPY ["deps/dsserve", "deps/bcmcmd", "start.sh", "/usr/local/bin/"]
+COPY ["deps/dsserve", "deps/bcmcmd", "start.sh", "/usr/bin/"]
 
 ## Clean up
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /deps
 
-ENTRYPOINT /usr/local/bin/start.sh      \
+ENTRYPOINT /usr/bin/start.sh      \
         && /bin/bash

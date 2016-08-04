@@ -19,6 +19,7 @@
 }
 GIT_REVISION=$(git rev-parse --short HEAD)
 
+mkdir -p `dirname $OUTPUT_ONIE_IMAGE`
 sudo rm -f $OUTPUT_ONIE_IMAGE
 if [ "$TARGET_MACHINE" = "generic" ]; then
     ## Generate an ONIE installer image
