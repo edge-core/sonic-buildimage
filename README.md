@@ -16,12 +16,15 @@ If it is already cloned, however there is no files under ./dockers/docker-base/ 
 ## 2. Build environment
 Build a docker image by [the Dockerfile](https://github.com/Azure/sonic-build-tools/blob/master/sonic-slave/Dockerfile) and build all remains in the docker container.
 
+## 3. Get vendor SAI SDK
+Obtain Switch Abstraction Interface (SAI) SDK from one of supported vendors (see the list in [Usage](#usage) Section), and place it in the directory ./src/[VENDOR]-sdk/ as filelist.txt in that directory.
+
 # Usage
-## Build NOS installer image and docker images
+To build NOS installer image and docker images, run command line
 
     make [VENDOR]-all USERNAME=[USERNAME] PASSWORD_ENCRYPTED=[PASSWORD_ENCRYPTED]
 
-Supported VENDOR are:
+Supported VENDORs are:
 - brcm: Broadcom
 - mlnx: Mellanox
 
