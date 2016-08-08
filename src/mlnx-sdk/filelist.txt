@@ -1,3 +1,6 @@
+## Get vendor SAI SDK
+## https://github.com/Azure/sonic-buildimage/blob/master/README.md#3-get-vendor-sai-sdk
+
 applibs-dev_1.mlnx.4.2.2100_amd64.deb
 applibs_1.mlnx.4.2.2100_amd64.deb
 iproute2-dev_1.mlnx.4.2.2100_amd64.deb

@@ -43,7 +43,7 @@ The target directory is ./target, containing the NOS installer image and docker 
 
 # Contribution guide
 
-All contributors must sign a contribution license agreement before contributions can be accepted.  Contact daloher@microsoft.com.  Later this will be automated.
+All contributors must sign a contribution license agreement before contributions can be accepted.  Contact sonic-cla-agreements@microsoft.com.
 
 ### GitHub Workflow
 
