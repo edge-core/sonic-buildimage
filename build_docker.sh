@@ -1,5 +1,5 @@
 #!/bin/bash
-## This script is to automate the preparation for docker images for ACS.
+## This script is to automate the preparation for docker images for SONiC.
 ## If registry server and port provided, the images will be pushed there.
 
 set -e
