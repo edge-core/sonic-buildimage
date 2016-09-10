@@ -145,7 +145,7 @@ fi
 # Returns the created partition number in $demo_part
 demo_part=""
 # TODO: remove reference to "ACS-OS" after all baseimages are upgraded
-legacy_volume_label="ACS_OS"
+legacy_volume_label="ACS-OS"
 create_demo_gpt_partition()
 {
     blk_dev="$1"
