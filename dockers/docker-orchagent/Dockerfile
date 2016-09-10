@@ -11,7 +11,7 @@ RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return
 RUN apt-get install -f -y ifupdown bridge-utils
 
 ## Copy executable binaries
-COPY ["deps/orchagent","deps/swssconfig","deps/portsyncd","deps/intfsyncd","deps/neighsyncd","/usr/local/bin/"]
+COPY ["deps/orchagent","deps/swssconfig","deps/portsyncd","deps/intfsyncd","deps/neighsyncd","/usr/bin/"]
 
 COPY start.sh /usr/bin/start.sh
 
@@ -19,5 +19,5 @@ COPY start.sh /usr/bin/start.sh
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /deps
 
-ENTRYPOINT /usr/bin/start.sh    \
-        && /bin/bash
+ENTRYPOINT ["/bin/bash"]
+CMD ["/usr/bin/start.sh"]

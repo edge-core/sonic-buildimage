@@ -1,2 +1,14 @@
 deps/
-
+dockers/*/files/
+*.bin
+*.deb
+*.zip
+fsroot/
+fs.*
+src/hiredis/hiredis_*
+src/hiredis/hiredis-*/
+src/quagga/quagga_*
+src/quagga/quagga/
+src/initramfs-tools/initramfs-tools/
+src/redis/redis_*
+src/redis/redis-*/

@@ -21,5 +21,5 @@ COPY ["deps/dsserve", "deps/bcmcmd", "start.sh", "/usr/bin/"]
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /deps
 
-ENTRYPOINT /usr/bin/start.sh      \
-        && /bin/bash
+ENTRYPOINT ["/bin/bash"]
+CMD ["/usr/bin/start.sh"]

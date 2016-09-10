@@ -10,23 +10,12 @@ COPY deps/*py2*.whl deps/lldpsyncd_*.deb deps/lldpd_*.deb /deps/
 RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; } &&        \
     dpkg_apt /deps/lldpd_*.deb &&                                                       \
     dpkg_apt /deps/lldpsyncd_*.deb &&                                                           \
-    apt-get install -y python-pip && \
+    apt-get install -y python-pip supervisor && \
     pip install /deps/*.whl && \
     apt-get remove -y python-pip && \
-    apt-get clean -y && apt-get autoclean -y && apt-get autoremove -y &&                        \
+    apt-get purge -y && apt-get autoclean -y && apt-get autoremove -y &&                        \
     rm -rf /deps
 
-## There is a known bug: agetty processes at 100% cpu
-## When:
-##   1. running container in --privileged mode
-##   2. container runs /sbin/init
-## ref: https://github.com/docker/docker/issues/4040
-## Temporary solution:
-##   Disable tty services permanently
-RUN systemctl --no-pager list-unit-files --type=service | grep getty | awk '{print $1}' | xargs systemctl mask
-## Note: getty@.service in last grep output will not mask below cases
-RUN systemctl mask getty@tty1.service
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-## Specify init as CMD to enable systemd
-## Note: don't provide ENTRYPOINT at the same time
-CMD ["/sbin/init"]
+ENTRYPOINT ["/usr/bin/supervisord"]

@@ -76,7 +76,7 @@ tmp_dir=$(mktemp --directory)
 tmp_installdir="$tmp_dir/installer"
 mkdir $tmp_installdir || clean_up 1
 
-cp $installer_dir/$arch/* $tmp_installdir || clean_up 1
+cp -r $installer_dir/$arch/* $tmp_installdir || clean_up 1
 cp onie-image.conf $tmp_installdir
 
 # Escape special chars in the user provide kernel cmdline string for use in

@@ -1,0 +1,2 @@
+ONIE_PLATFORM_EXTRA_CMDLINE_LINUX="processor.max_cstate=1 intel_idle.max_cstate=0"
+./dell-s6000-replace-reboot.sh

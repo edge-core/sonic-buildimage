@@ -1,4 +1,4 @@
-FROM docker-syncd-mlnx
+FROM docker-syncd
 
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive

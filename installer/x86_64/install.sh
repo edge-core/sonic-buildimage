@@ -51,15 +51,7 @@ CONSOLE_SPEED=9600
 
 # Get platform specific linux kernel command line arguments
 ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=""
-# platform specific configurations
-if [ "$onie_platform" == "x86_64-dell_s6000_s1220-r0" ]; then
-    `pwd`/dell-s6000-replace-reboot.sh
-elif [ "$onie_platform" == "x86_64-mlnx_x86-r5.0.1400" ]; then
-    ONIE_PLATFORM_EXTRA_CMDLINE_LINUX="acpi_enforce_resources=lax acpi=noirq"
-elif [ "$onie_platform" == "x86_64-dell_s6100_c2538-r0" ]; then
-    CONSOLE_PORT=0x2f8
-    CONSOLE_DEV=1
-fi
+source platforms/$onie_platform
 
 # Install demo on same block device as ONIE
 onie_dev=$(blkid | grep ONIE-BOOT | head -n 1 | awk '{print $1}' |  sed -e 's/:.*$//')
@@ -362,7 +354,7 @@ demo_install_uefi_grub()
     grub_install_log=$(mktemp)
     grub-install \
         --no-nvram \
-        --bootloader-id="$onie_initrd_tmp/$demo_volume_label" \
+        --bootloader-id="$demo_volume_label" \
         --efi-directory="/boot/efi" \
         --boot-directory="$demo_mnt" \
         --recheck \

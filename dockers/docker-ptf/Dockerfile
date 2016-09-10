@@ -9,11 +9,11 @@ COPY deps /root/deps
 ENV DEBIAN_FRONTEND=noninteractive
 
 ## Set the apt source, update package cache and install necessary packages
-RUN echo "deb http://ftp.us.debian.org/debian/ jessie main contrib non-free" > /etc/apt/sources.list \
-    && apt-get update           \
-    && apt-get upgrade -y       \
+RUN sed --in-place 's/httpredir.debian.org/debian-archive.trafficmanager.net/' /etc/apt/sources.list \
+    && apt-get update          \
+    && apt-get upgrade -y   \
     && apt-get dist-upgrade -y  \
-    && apt-get install -y --no-install-recommends \
+    && apt-get install -y   \
         openssh-server      \
         vim                 \
         python              \
@@ -47,14 +47,15 @@ RUN echo "deb http://ftp.us.debian.org/debian/ jessie main contrib non-free" > /
     && tar xvfz 1.0.0.tar.gz \
     && cd nanomsg-1.0.0    \
     && mkdir -p build      \
-    && cmake .             \
+    && cd build            \
+    && cmake ..            \
     && make install        \
     && ldconfig            \
-    && cd ..               \
+    && cd ../..            \
     && rm -fr nanomsg-1.0.0 \
     && rm -f 1.0.0.tar.gz  \
-    && pip install cffi    \
-    && pip install --upgrade cffi \
+    && pip install cffi==1.7.0    \
+    && pip install --upgrade cffi==1.7.0 \
     && pip install nnpy    \
     && mkdir -p /opt       \
     && cd /opt             \
@@ -69,7 +70,10 @@ RUN mkdir /var/run/sshd \
  && mkdir /root/deps
 
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY sshd.conf /etc/supervisor/conf.d/sshd.conf
+COPY ptf_nn_agent.conf /etc/supervisor/conf.d/ptf_nn_agent.conf
 
 EXPOSE 22
 
-ENTRYPOINT ["/usr/bin/supervisord"]
+ENTRYPOINT while [ "x$( ifconfig eth3 | grep RUNNING )" = 'x' ] ; do sleep 1 ; done \
+           && /usr/bin/supervisord

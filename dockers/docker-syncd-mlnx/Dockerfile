@@ -24,10 +24,11 @@ RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return
 
 RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /deps/syncd_*.deb
 
+COPY ["start.sh", "/usr/bin/"]
+
 ## Clean up
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /deps
 
-ENTRYPOINT service rsyslog start \
-    && service syncd start       \
-    && /bin/bash
+ENTRYPOINT ["/bin/bash"]
+CMD ["/usr/bin/start.sh"]

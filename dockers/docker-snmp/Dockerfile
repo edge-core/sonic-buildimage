@@ -19,7 +19,7 @@ RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return
     rm -rf /deps 
 
 # install subagent
-RUN apt-get -y install build-essential wget libssl-dev openssl && \
+RUN apt-get -y install build-essential wget libssl-dev openssl supervisor && \
     rm -rf /var/lib/apt/lists/* && \
     wget https://www.python.org/ftp/python/3.5.2/Python-3.5.2.tgz && \
     tar xvf Python-3.5.2.tgz && cd Python-3.5.2 && \
@@ -36,27 +36,14 @@ RUN apt-get -y install build-essential wget libssl-dev openssl && \
     rm -rf /usr/lib/python3.5/idlelib && \
     rm -rf /usr/lib/python3.5/email && \
     rm -rf /usr/lib/python3.5/test && \
-    apt-get -y remove build-essential wget libssl-dev openssl && \
+    apt-get -y purge build-essential wget libssl-dev openssl && \
     apt-get clean -y && apt-get autoclean -y && apt-get autoremove -y && \
-    python3 -m acs_ax_impl install && \
     find / | grep -E "__pycache__" | xargs rm -rf && \
-    rm -rf ~/.cache && \
-    systemctl enable acs-snmp-subagent.service
+    rm -rf ~/.cache
 
-## There is a known bug: agetty processes at 100% cpu
-## When:
-##   1. running container in --privileged mode
-##   2. container runs /sbin/init
-## ref: https://github.com/docker/docker/issues/4040
-## Temporary solution:
-##   Disable tty services permanently
-RUN systemctl --no-pager list-unit-files --type=service | grep getty | awk '{print $1}' | xargs systemctl mask
-## Note: getty@.service in last grep output will not mask below cases
-RUN systemctl mask getty@tty1.service
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 ## Although exposing ports is not need for host net mode, keep it for possible bridge mode
 EXPOSE 161/udp 162/udp
 
-## Specify init as CMD to enable systemd
-## Note: don't provide ENTRYPOINT at the same time
-CMD ["/sbin/init"]
+ENTRYPOINT ["/usr/bin/supervisord"]
