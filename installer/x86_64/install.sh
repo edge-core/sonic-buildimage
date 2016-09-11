@@ -106,7 +106,7 @@ git_revision="%%GIT_REVISION%%"
 timestamp="$(date -u +%Y%m%d)"
 
 demo_volume_label="SONiC-${demo_type}"
-demo_volume_revision_label="SONiC-${demo_type}-${timestamp}-${git_revision}"
+demo_volume_revision_label="SONiC-${demo_type}-${git_revision}"
 
 # auto-detect whether BIOS or UEFI
 if [ -d "/sys/firmware/efi/efivars" ] ; then
