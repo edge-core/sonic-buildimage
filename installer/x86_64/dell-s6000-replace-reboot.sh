@@ -12,5 +12,10 @@ echo 0 > /sys/class/gpio/gpio2/value
 
 # replace the original reboot binary with the following command
 rm /sbin/reboot
-echo 'i2cset -y 0 0x31 1 0xfd' > /sbin/reboot
+cat <<EOF >> /sbin/reboot
+#!/bin/sh
+sync
+i2cset -y 0 0x31 1 0xfd
+EOF
+
 chmod a+x /sbin/reboot
