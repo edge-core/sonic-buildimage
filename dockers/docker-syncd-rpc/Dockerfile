@@ -26,8 +26,8 @@ RUN apt-get update \
  && cd ..               \
  && rm -fr nanomsg-1.0.0 \
  && rm -f 1.0.0.tar.gz  \
- && pip install cffi    \
- && pip install --upgrade cffi \
+ && pip install cffi==1.7.0    \
+ && pip install --upgrade cffi==1.7.0 \
  && pip install nnpy    \
  && mkdir -p /opt       \
  && cd /opt             \
