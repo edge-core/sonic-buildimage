@@ -38,7 +38,7 @@ DOCKER_VERSION=1.11.1-0~jessie_amd64
 ## Working directory to prepare the file system
 FILESYSTEM_ROOT=./fsroot
 ## Hostname for the linux image
-HOSTNAME=acs
+HOSTNAME=sonic
 DEFAULT_USERINFO="Default admin user,,,"
 
 ## Read ONIE image related config file
