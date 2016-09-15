@@ -11,6 +11,8 @@ echo 0 > /sys/class/gpio/gpio1/value
 echo 0 > /sys/class/gpio/gpio2/value
 
 # replace the original reboot binary with the following command
+# sync flushes file system buffers
+# i2cset command triggers a hard system reboot, required by ASIC to operate correctly
 rm /sbin/reboot
 cat <<EOF >> /sbin/reboot
 #!/bin/sh
