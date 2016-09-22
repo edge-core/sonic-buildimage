@@ -1,10 +1,18 @@
 #!/bin/bash
 
+function start_app {
+    orchagent $ORCHAGENT_ARGS &
+    portsyncd $PORTSYNCD_ARGS &
+    intfsyncd &
+    neighsyncd &
+    swssconfig &
+}
+
 function clean_up {
-    kill -9 $ORCHAGENT_PID
-    kill -9 $PORTSYNCD_PID
-    kill -9 $INTFSYNCD_PID
-    kill -9 $NEIGHSYNCD_PID
+    pkill -9 orchagent
+    pkill -9 portsyncd
+    pkill -9 intfsyncd
+    pkill -9 neighsyncd
     service rsyslog stop
     exit
 }
@@ -27,16 +35,12 @@ elif [ "$onie_platform" == "x86_64-mlnx_x86-r5.0.1400" ]; then
 fi
 
 service rsyslog start
-orchagent $ORCHAGENT_ARGS &
-ORCHAGENT_PID=$!
-sleep 5
-portsyncd $PORTSYNCD_ARGS &
-PORTSYNCD_PID=$!
-sleep 5
-intfsyncd &
-INTFSYNCD_PID=$!
-sleep 5
-neighsyncd &
-NEIGHSYNCD_PID=$!
-
-read
+while true; do
+    # Check if syncd starts
+    result=`echo -en "SELECT 1\nHLEN HIDDEN" | redis-cli | sed -n 2p`
+    if [ "$result" != "0" ]; then
+        start_app
+        read
+    fi
+    sleep 1
+done
