@@ -86,11 +86,11 @@ target/docker-syncd-mlnx.gz: target/docker-base.gz $(addprefix dockers/docker-sy
 	docker load < $<
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 	
-target/docker-orchagent.gz: target/docker-base.gz $(addprefix dockers/docker-orchagent/deps/,libhiredis0.13_0.13.3-2_amd64.deb libswsscommon_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb orchagent swssconfig portsyncd intfsyncd neighsyncd)
+target/docker-orchagent.gz: target/docker-base.gz $(addprefix dockers/docker-orchagent/deps/,libhiredis0.13_0.13.3-2_amd64.deb libswsscommon_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb swss_1.0.0_amd64.deb)
 	docker load < $<
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 	
-target/docker-orchagent-mlnx.gz: target/docker-base.gz $(addprefix dockers/docker-orchagent-mlnx/deps/,libhiredis0.13_0.13.3-2_amd64.deb libswsscommon_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb orchagent swssconfig portsyncd intfsyncd neighsyncd)
+target/docker-orchagent-mlnx.gz: target/docker-base.gz $(addprefix dockers/docker-orchagent-mlnx/deps/,libhiredis0.13_0.13.3-2_amd64.deb libswsscommon_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb swss_1.0.0_amd64.deb)
 	docker load < $<
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 	
