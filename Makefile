@@ -10,6 +10,7 @@ SHELL := /bin/bash
 ## Capture all the files in SDK directories
 MLNX-SDK-DEBS=$(notdir $(wildcard src/mlnx-sdk/*.deb))
 BRCM-SDK-DEBS=$(notdir $(wildcard src/brcm-sdk/*.deb))
+CAVM-SDK-DEBS=$(notdir $(wildcard src/cavm-sdk/*.deb))
 
 ## Function: build_docker, image_name save_file
 ## build a docker image and save to a file
@@ -20,7 +21,7 @@ define build_docker
 endef
 	
 ## Rules
-.phony : brcm-all mlnx-all
+.phony : brcm-all mlnx-all cavm-all
 
 src/%:
 	$(MAKE) -C src $(subst src/,,$@)
@@ -42,11 +43,20 @@ dockers/docker-orchagent/deps/%.deb: src/%.deb
 	
 dockers/docker-orchagent/deps/%: src/brcm/%
 	mkdir -p `dirname $@` && cp $< $@
+
+dockers/docker-orchagent-cavm/deps/%.deb: src/%.deb
+	mkdir -p `dirname $@` && cp $< $@
+
+dockers/docker-orchagent-cavm/deps/%: src/cavm/%
+	mkdir -p `dirname $@` && cp $< $@
 	
 dockers/docker-%-mlnx/deps/syncd_1.0.0_amd64.deb: src/mlnx/syncd_1.0.0_amd64.deb
 	mkdir -p `dirname $@` && cp $< $@
 	
 dockers/docker-%/deps/syncd_1.0.0_amd64.deb: src/brcm/syncd_1.0.0_amd64.deb
+	mkdir -p `dirname $@` && cp $< $@
+
+dockers/docker-%-cavm/deps/syncd_1.0.0_amd64.deb: src/cavm/syncd_1.0.0_amd64.deb
 	mkdir -p `dirname $@` && cp $< $@
 	
 dockers/docker-%-mlnx/deps/libsairedis_1.0.0_amd64.deb: src/mlnx/syncd_1.0.0_amd64.deb
@@ -54,17 +64,26 @@ dockers/docker-%-mlnx/deps/libsairedis_1.0.0_amd64.deb: src/mlnx/syncd_1.0.0_amd
 	
 dockers/docker-%/deps/libsairedis_1.0.0_amd64.deb: src/brcm/syncd_1.0.0_amd64.deb
 	mkdir -p `dirname $@` && cp $< $@
+
+dockers/docker-%-cavm/deps/libsairedis_1.0.0_amd64.deb: src/cavm/libsairedis_1.0.0_amd64.deb
+	mkdir -p `dirname $@` && cp $< $@
 	
 $(addprefix dockers/docker-syncd-mlnx/deps/,$(MLNX-SDK-DEBS)) : dockers/docker-syncd-mlnx/deps/%.deb : src/mlnx-sdk/%.deb
 	mkdir -p `dirname $@` && cp $< $@
 	
 $(addprefix dockers/docker-syncd/deps/,$(BRCM-SDK-DEBS)) : dockers/docker-syncd/deps/%.deb : src/brcm-sdk/%.deb
 	mkdir -p `dirname $@` && cp $< $@
+
+$(addprefix dockers/docker-syncd-cavm/deps/,$(CAVM-SDK-DEBS)) : dockers/docker-syncd-cavm/deps/%.deb : src/cavm-sdk/%.deb
+	mkdir -p `dirname $@` && cp $< $@
 	
 dockers/docker-syncd-mlnx/deps/%.deb: src/%.deb
 	mkdir -p `dirname $@` && cp $< $@
 	
 dockers/docker-syncd/deps/%.deb: src/%.deb
+	mkdir -p `dirname $@` && cp $< $@
+
+dockers/docker-syncd-cavm/deps/%.deb: src/%.deb
 	mkdir -p `dirname $@` && cp $< $@
 	
 deps/linux-image-3.16.0-4-amd64_%.deb: src/sonic-linux-kernel/linux-image-3.16.0-4-amd64_%.deb
@@ -85,12 +104,20 @@ target/docker-syncd.gz: target/docker-base.gz $(addprefix dockers/docker-syncd/d
 target/docker-syncd-mlnx.gz: target/docker-base.gz $(addprefix dockers/docker-syncd-mlnx/deps/,$(MLNX-SDK-DEBS) applibs_1.mlnx.4.2.2100_amd64.deb libhiredis0.13_0.13.3-2_amd64.deb libswsscommon_1.0.0_amd64.deb syncd_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb)
 	docker load < $<
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
+
+target/docker-syncd-cavm.gz: target/docker-base.gz $(addprefix dockers/docker-syncd-cavm/deps/,$(CAVM-SDK-DEBS) libhiredis0.13_0.13.3-2_amd64.deb libswsscommon_1.0.0_amd64.deb syncd_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb)
+	docker load < $<
+	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 	
 target/docker-orchagent.gz: target/docker-base.gz $(addprefix dockers/docker-orchagent/deps/,libhiredis0.13_0.13.3-2_amd64.deb libswsscommon_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb swss_1.0.0_amd64.deb)
 	docker load < $<
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 	
 target/docker-orchagent-mlnx.gz: target/docker-base.gz $(addprefix dockers/docker-orchagent-mlnx/deps/,libhiredis0.13_0.13.3-2_amd64.deb libswsscommon_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb swss_1.0.0_amd64.deb)
+	docker load < $<
+	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
+
+target/docker-orchagent-cavm.gz: target/docker-base.gz $(addprefix dockers/docker-orchagent-cavm/deps/,libhiredis0.13_0.13.3-2_amd64.deb libswsscommon_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb orchagent swssconfig portsyncd intfsyncd neighsyncd)
 	docker load < $<
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 	
@@ -113,3 +140,6 @@ brcm-all: target/sonic-generic.bin $(addprefix target/,docker-syncd.gz docker-or
 
 ## Note: docker-fpm.gz must be the last to build the implicit dependency fpmsyncd
 mlnx-all: target/sonic-generic.bin $(addprefix target/,docker-syncd-mlnx.gz docker-orchagent-mlnx.gz docker-fpm.gz docker-database.gz)
+
+## Note: docker-fpm.gz must be the last to build the implicit dependency fpmsyncd
+cavm-all: $(addprefix target/,docker-syncd-cavm.gz docker-orchagent-cavm.gz docker-fpm.gz docker-database.gz)

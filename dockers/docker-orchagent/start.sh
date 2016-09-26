@@ -32,9 +32,17 @@ if [ "$onie_platform" == "x86_64-dell_s6000_s1220-r0" ]; then
     PORTSYNCD_ARGS+="-p /etc/ssw/ACS-S6000/port_config.ini"
 elif [ "$onie_platform" == "x86_64-mlnx_x86-r5.0.1400" ]; then
     PORTSYNCD_ARGS+="-p /etc/ssw/ACS-MSN2700/port_config.ini"
+elif [ "$onie_platform" == "x86_64-accton_as7512_32x-r0" ]; then
+    ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
+    PORTSYNCD_ARGS+="-p /etc/ssw/AS7512/port_config.ini"
 fi
 
 service rsyslog start
+
+if [ "$onie_platform" == "x86_64-accton_as7512_32x-r0" ]; then
+    swssconfig /etc/ssw/AS7512/copp.json
+fi
+
 while true; do
     # Check if syncd starts
     result=`echo -en "SELECT 1\nHLEN HIDDEN" | redis-cli | sed -n 2p`

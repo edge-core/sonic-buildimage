@@ -43,6 +43,12 @@ mlnx/syncd_1.0.0_amd64.deb mlnx/libsairedis_1.0.0_amd64.deb mlnx/libsairedis-dev
 	$(call build_project, sonic-sairedis)
 	mkdir -p mlnx
 	cp syncd_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb libsairedis-dev_1.0.0_amd64.deb mlnx/
+
+cavm/syncd_1.0.0_amd64.deb cavm/libsairedis_1.0.0_amd64.deb cavm/libsairedis-dev_1.0.0_amd64.deb: libswsscommon_1.0.0_amd64.deb libswsscommon-dev_1.0.0_amd64.deb cavm-sdk/libsai.deb cavm-sdk/xp-tools.deb cavm-sdk/xpshell.deb
+	$(foreach dep, $^, $(call install_deb, $(dep)))
+	$(call build_project, sonic-sairedis)
+	mkdir -p cavm
+	cp syncd_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb libsairedis-dev_1.0.0_amd64.deb cavm/
 	
 ## Note: fpmsyncd is one implicit target
 brcm/swss_1.0.0_amd64.deb brcm/intfsyncd brcm/neighsyncd brcm/orchagent brcm/portsyncd brcm/routeresync brcm/swssconfig: brcm/syncd_1.0.0_amd64.deb brcm/libsairedis_1.0.0_amd64.deb brcm/libsairedis-dev_1.0.0_amd64.deb
@@ -58,6 +64,14 @@ mlnx/swss_1.0.0_amd64.deb mlnx/intfsyncd mlnx/neighsyncd mlnx/orchagent mlnx/por
 	$(call build_project, sonic-swss)
 	cp swss_1.0.0_amd64.deb mlnx/
 	cp sonic-swss/debian/swss/usr/bin/* mlnx/
+	cp sonic-swss/debian/swss/usr/bin/fpmsyncd .
+
+## Note: fpmsyncd is one implicit target
+cavm/swss_1.0.0_amd64.deb cavm/intfsyncd cavm/neighsyncd cavm/orchagent cavm/portsyncd cavm/routeresync cavm/swssconfig: cavm/syncd_1.0.0_amd64.deb cavm/libsairedis_1.0.0_amd64.deb cavm/libsairedis-dev_1.0.0_amd64.deb
+	$(foreach dep, $^, $(call install_deb, $(dep)))
+	$(call build_project, sonic-swss)
+	cp swss_1.0.0_amd64.deb cavm/
+	cp sonic-swss/debian/swss/usr/bin/* cavm/
 	cp sonic-swss/debian/swss/usr/bin/fpmsyncd .
 	
 $(addprefix sonic-linux-kernel/,linux-headers-3.16.0-4-amd64_3.16.7-ckt11-2+acs8u2_amd64.deb linux-headers-3.16.0-4-common_3.16.7-ckt11-2+acs8u2_amd64.deb linux-image-3.16.0-4-amd64-dbg_3.16.7-ckt11-2+acs8u2_amd64.deb linux-image-3.16.0-4-amd64_3.16.7-ckt11-2+acs8u2_amd64.deb xen-linux-system-3.16.0-4-amd64_3.16.7-ckt11-2+acs8u2_amd64.deb):
