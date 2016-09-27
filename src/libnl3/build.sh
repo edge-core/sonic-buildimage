@@ -20,3 +20,4 @@ quilt push
 dpkg-buildpackage -rfakeroot -b -us -uc
 
 popd
+cp *.deb ..

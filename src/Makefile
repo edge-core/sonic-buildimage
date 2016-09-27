@@ -19,6 +19,9 @@ install_deb = \
     [ -f $(1) ] && { sudo dpkg -i $(1) || sudo apt-get -y install -f; } || return 1;
 
 ## Rules
+libnl-%.deb:
+	pushd libnl3; ./build.sh; popd
+
 quagga_0.99.24.1-2_amd64.deb:
 	pushd quagga; ./build.sh; popd
 	
@@ -55,7 +58,6 @@ brcm/swss_1.0.0_amd64.deb brcm/intfsyncd brcm/neighsyncd brcm/orchagent brcm/por
 	$(foreach dep, $^, $(call install_deb, $(dep)))
 	$(call build_project, sonic-swss)
 	cp swss_1.0.0_amd64.deb brcm/
-	cp sonic-swss/debian/swss/usr/bin/* brcm/
 	cp sonic-swss/debian/swss/usr/bin/fpmsyncd .
 
 ## Note: fpmsyncd is one implicit target
@@ -63,7 +65,6 @@ mlnx/swss_1.0.0_amd64.deb mlnx/intfsyncd mlnx/neighsyncd mlnx/orchagent mlnx/por
 	$(foreach dep, $^, $(call install_deb, $(dep)))
 	$(call build_project, sonic-swss)
 	cp swss_1.0.0_amd64.deb mlnx/
-	cp sonic-swss/debian/swss/usr/bin/* mlnx/
 	cp sonic-swss/debian/swss/usr/bin/fpmsyncd .
 
 ## Note: fpmsyncd is one implicit target
@@ -71,7 +72,6 @@ cavm/swss_1.0.0_amd64.deb cavm/intfsyncd cavm/neighsyncd cavm/orchagent cavm/por
 	$(foreach dep, $^, $(call install_deb, $(dep)))
 	$(call build_project, sonic-swss)
 	cp swss_1.0.0_amd64.deb cavm/
-	cp sonic-swss/debian/swss/usr/bin/* cavm/
 	cp sonic-swss/debian/swss/usr/bin/fpmsyncd .
 	
 $(addprefix sonic-linux-kernel/,linux-headers-3.16.0-4-amd64_3.16.7-ckt11-2+acs8u2_amd64.deb linux-headers-3.16.0-4-common_3.16.7-ckt11-2+acs8u2_amd64.deb linux-image-3.16.0-4-amd64-dbg_3.16.7-ckt11-2+acs8u2_amd64.deb linux-image-3.16.0-4-amd64_3.16.7-ckt11-2+acs8u2_amd64.deb xen-linux-system-3.16.0-4-amd64_3.16.7-ckt11-2+acs8u2_amd64.deb):
