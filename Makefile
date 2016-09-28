@@ -38,17 +38,23 @@ dockers/docker-fpm/deps/%.deb: src/%.deb
 ## Rules: docker-orchagent-mlnx
 dockers/docker-orchagent-mlnx/deps/libsairedis_1.0.0_amd64.deb: src/mlnx/libsairedis_1.0.0_amd64.deb
 	mkdir -p `dirname $@` && cp $< $(dir $@)
+dockers/docker-orchagent-mlnx/deps/swss_1.0.0_amd64.deb: src/mlnx/swss_1.0.0_amd64.deb
+	mkdir -p `dirname $@` && cp $< $(dir $@)
 dockers/docker-orchagent-mlnx/deps/%.deb: src/%.deb
 	mkdir -p `dirname $@` && cp $< $(dir $@)
 	
 ## Rules: docker-orchagent-cavm
 dockers/docker-orchagent-cavm/deps/libsairedis_1.0.0_amd64.deb: src/cavm/libsairedis_1.0.0_amd64.deb
 	mkdir -p `dirname $@` && cp $< $(dir $@)
+dockers/docker-orchagent-cavm/deps/swss_1.0.0_amd64.deb: src/cavm/swss_1.0.0_amd64.deb
+	mkdir -p `dirname $@` && cp $< $(dir $@)
 dockers/docker-orchagent-cavm/deps/%.deb: src/%.deb
 	mkdir -p `dirname $@` && cp $< $(dir $@)
 
 ## Rules: docker-orchagent (brcm)
 dockers/docker-orchagent/deps/libsairedis_1.0.0_amd64.deb: src/brcm/libsairedis_1.0.0_amd64.deb
+	mkdir -p `dirname $@` && cp $< $(dir $@)
+dockers/docker-orchagent/deps/swss_1.0.0_amd64.deb: src/brcm/swss_1.0.0_amd64.deb
 	mkdir -p `dirname $@` && cp $< $(dir $@)
 dockers/docker-orchagent/deps/%.deb: src/%.deb
 	mkdir -p `dirname $@` && cp $< $(dir $@)
