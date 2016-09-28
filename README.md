@@ -16,8 +16,13 @@ If it is already cloned, however there is no files under ./dockers/docker-base/ 
 ## 2. Build environment
 Build a docker image by [the Dockerfile](https://github.com/Azure/sonic-build-tools/blob/master/sonic-slave/Dockerfile) and build all remains in the docker container.
 
+    git clone https://github.com/Azure/sonic-build-tools
+    cd sonic-build-tools
+    ./build.sh sonic-slave
+    docker run -v /var/run/docker.sock:/var/run/docker.sock -it local/sonic-slave bash
+
 ## 3. Get vendor SAI SDK
-Obtain Switch Abstraction Interface (SAI) SDK from one of supported vendors (see the list in [Usage](#usage) Section), and place it in the directory ./src/[VENDOR]-sdk/ as filelist.txt in that directory.
+Obtain Switch Abstraction Interface (SAI) SDK from one of supported vendors (see the list in [Usage](#usage) Section), and place it in the directory ./src/[VENDOR]-sdk/ as filelist.txt in that directory. Skip this step for p4 since it is an open source software switch.
 
 # Usage
 To build NOS installer image and docker images, run command line
@@ -27,6 +32,8 @@ To build NOS installer image and docker images, run command line
 Supported VENDORs are:
 - brcm: Broadcom
 - mlnx: Mellanox
+- cavm: Cavium
+- p4: barefoot
 
 For example, the user name is 'admin' and the password is 'YourPaSsWoRd'. To build all the images for Broadcom platform, use the command:
 
@@ -43,6 +50,7 @@ The target directory is ./target, containing the NOS installer image and docker 
 - docker-orchagent.gz: docker image for SWitch State Service (SWSS) (gzip tar archive)
 - docker-syncd.gz: docker image for the daemon to sync database and Broadcom switch ASIC (gzip tar archive)
 - docker-syncd-mlnx.gz: docker image for the daemon to sync database and Mellanox switch ASIC (gzip tar archive)
+- docker-sonic-p4.gz: docker image for all-in-one for p4 software switch (gzip tar archive)
 
 # Contribution guide
 

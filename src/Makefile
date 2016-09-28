@@ -31,6 +31,26 @@ redis-server_3.0.7-2_amd64.deb redis-tools_3.0.7-2_amd64.deb redis-sentinel_3.0.
 libhiredis0.13_0.13.3-2_amd64.deb libhiredis-dbg_0.13.3-2_amd64.deb libhiredis-dev_0.13.3-2_amd64.deb: redis-server_3.0.7-2_amd64.deb redis-tools_3.0.7-2_amd64.deb redis-sentinel_3.0.7-2_amd64.deb
 	pushd hiredis; ./build.sh; popd
 
+libthrift-0.9.3_0.9.3-2_amd64.deb libthrift-dev_0.9.3-2_amd64.deb python-thrift_0.9.3-2_amd64.deb thrift-compiler_0.9.3-2_amd64.deb:
+	pushd thrift; ./build.sh; popd
+
+p4-bmv2_1.0.0_amd64.deb: thrift-compiler_0.9.3-2_amd64.deb python-thrift_0.9.3-2_amd64.deb libthrift-0.9.3_0.9.3-2_amd64.deb libthrift-dev_0.9.3-2_amd64.deb
+	$(foreach dep, $^, $(call install_deb, $(dep)))
+	pushd p4-bmv2; ./build.sh; popd
+
+python-p4-hlir_0.9.36-1_all.deb:
+	pushd p4-hlir; ./build.sh; popd
+
+python-p4c-bm_1.0.0-5415c416-1_all.deb:
+	pushd p4c-bm; ./build.sh; popd
+
+python-tenjin_1.1.1-1_all.deb:
+	pushd tenjin; ./build.sh; popd
+
+p4-switch_1.0.0_amd64.deb: thrift-compiler_0.9.3-2_amd64.deb python-thrift_0.9.3-2_amd64.deb libthrift-0.9.3_0.9.3-2_amd64.deb libthrift-dev_0.9.3-2_amd64.deb python-p4-hlir_0.9.36-1_all.deb python-p4c-bm_1.0.0-5415c416-1_all.deb p4-bmv2_1.0.0_amd64.deb 
+	$(foreach dep, $^, $(call install_deb, $(dep)))
+	pushd p4-switch; ./build.sh; popd
+	
 libswsscommon_1.0.0_amd64.deb libswsscommon-dev_1.0.0_amd64.deb: redis-server_3.0.7-2_amd64.deb redis-tools_3.0.7-2_amd64.deb libhiredis0.13_0.13.3-2_amd64.deb libhiredis-dev_0.13.3-2_amd64.deb
 	$(foreach dep, $^, $(call install_deb, $(dep)))
 	$(call build_project, sonic-swss-common)
@@ -53,6 +73,12 @@ cavm/syncd_1.0.0_amd64.deb cavm/libsairedis_1.0.0_amd64.deb cavm/libsairedis-dev
 	mkdir -p cavm
 	cp syncd_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb libsairedis-dev_1.0.0_amd64.deb cavm/
 	
+p4/syncd_1.0.0_amd64.deb p4/libsairedis_1.0.0_amd64.deb p4/libsairedis-dev_1.0.0_amd64.deb: libswsscommon_1.0.0_amd64.deb libswsscommon-dev_1.0.0_amd64.deb p4-switch_1.0.0_amd64.deb p4-bmv2_1.0.0_amd64.deb libthrift-0.9.3_0.9.3-2_amd64.deb
+	$(foreach dep, $^, $(call install_deb, $(dep)))
+	$(call build_project, sonic-sairedis)
+	mkdir -p p4
+	cp syncd_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb libsairedis-dev_1.0.0_amd64.deb p4/
+
 ## Note: fpmsyncd is one implicit target
 brcm/swss_1.0.0_amd64.deb brcm/intfsyncd brcm/neighsyncd brcm/orchagent brcm/portsyncd brcm/routeresync brcm/swssconfig: brcm/syncd_1.0.0_amd64.deb brcm/libsairedis_1.0.0_amd64.deb brcm/libsairedis-dev_1.0.0_amd64.deb
 	$(foreach dep, $^, $(call install_deb, $(dep)))
@@ -74,6 +100,11 @@ cavm/swss_1.0.0_amd64.deb cavm/intfsyncd cavm/neighsyncd cavm/orchagent cavm/por
 	cp swss_1.0.0_amd64.deb cavm/
 	cp sonic-swss/debian/swss/usr/bin/fpmsyncd .
 	
+p4/swss_1.0.0_amd64.deb: p4/syncd_1.0.0_amd64.deb p4/libsairedis_1.0.0_amd64.deb p4/libsairedis-dev_1.0.0_amd64.deb
+	$(foreach dep, $^, $(call install_deb, $(dep)))
+	$(call build_project, sonic-swss)
+	cp swss_1.0.0_amd64.deb p4/
+
 $(addprefix sonic-linux-kernel/,linux-headers-3.16.0-4-amd64_3.16.7-ckt11-2+acs8u2_amd64.deb linux-headers-3.16.0-4-common_3.16.7-ckt11-2+acs8u2_amd64.deb linux-image-3.16.0-4-amd64-dbg_3.16.7-ckt11-2+acs8u2_amd64.deb linux-image-3.16.0-4-amd64_3.16.7-ckt11-2+acs8u2_amd64.deb xen-linux-system-3.16.0-4-amd64_3.16.7-ckt11-2+acs8u2_amd64.deb):
 	pushd sonic-linux-kernel; sudo ./build.sh; popd
 

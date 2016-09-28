@@ -23,7 +23,7 @@ define build_docker
 endef
 	
 ## Rules: phony targets
-.phony : brcm-all mlnx-all cavm-all
+.phony : brcm-all mlnx-all cavm-all p4-all
 
 ## Rules: redirect to sub directory
 src/%:
@@ -66,7 +66,7 @@ $(addprefix dockers/docker-syncd-mlnx/deps/,syncd_1.0.0_amd64.deb libsairedis_1.
 	mkdir -p `dirname $@` && cp $< $(dir $@)
 dockers/docker-syncd-mlnx/deps/%.deb: src/%.deb
 	mkdir -p `dirname $@` && cp $< $(dir $@)
-	
+
 ## Rules: docker-syncd-cavm
 $(addprefix dockers/docker-syncd-cavm/deps/,$(CAVM-SDK-DEBS)) : dockers/docker-syncd-cavm/deps/%.deb : src/cavm-sdk/%.deb
 	mkdir -p `dirname $@` && cp $< $(dir $@)
@@ -81,6 +81,12 @@ $(addprefix dockers/docker-syncd/deps/,$(BRCM-SDK-DEBS)) : dockers/docker-syncd/
 $(addprefix dockers/docker-syncd/deps/,syncd_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb): dockers/docker-syncd/deps/%.deb : src/brcm/%.deb
 	mkdir -p `dirname $@` && cp $< $(dir $@)
 dockers/docker-syncd/deps/%.deb: src/%.deb
+	mkdir -p `dirname $@` && cp $< $(dir $@)
+
+## Rules: docker-sonic (p4)
+$(addprefix dockers/docker-sonic-p4/deps/,swss_1.0.0_amd64.deb syncd_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb) : dockers/docker-sonic-p4/deps/%.deb : src/p4/%.deb
+	mkdir -p `dirname $@` && cp $< $(dir $@)
+dockers/docker-sonic-p4/deps/%.deb: src/%.deb
 	mkdir -p `dirname $@` && cp $< $(dir $@)
 
 ## Rules: docker images
@@ -121,13 +127,16 @@ target/docker-database.gz: target/docker-base.gz
 	docker load < $<
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 
+target/docker-sonic-p4.gz: target/docker-base.gz $(addprefix dockers/docker-sonic-p4/deps/,libswsscommon_1.0.0_amd64.deb libhiredis0.13_0.13.3-2_amd64.deb quagga_0.99.24.1-2_amd64.deb syncd_1.0.0_amd64.deb swss_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb libthrift-0.9.3_0.9.3-2_amd64.deb redis-server_3.0.7-2_amd64.deb redis-tools_3.0.7-2_amd64.deb p4-bmv2_1.0.0_amd64.deb p4-switch_1.0.0_amd64.deb)
+	docker load < $<
+	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
+
 ## Rules: linux image content
 deps/linux-image-3.16.0-4-amd64_%.deb: src/sonic-linux-kernel/linux-image-3.16.0-4-amd64_%.deb
 	mkdir -p `dirname $@` && cp $< $(dir $@)
 deps/initramfs-tools_%.deb: src/initramfs-tools/initramfs-tools_%.deb
 	mkdir -p `dirname $@` && cp $< $(dir $@)
 
-## Rules: linux image
 target/sonic-generic.bin: deps/linux-image-3.16.0-4-amd64_3.16.7-ckt11-2+acs8u2_amd64.deb deps/initramfs-tools_0.120_all.deb
 	./build_debian.sh "$(USERNAME)" "$(PASSWORD_ENCRYPTED)" && TARGET_MACHINE=generic ./build_image.sh
 target/sonic-aboot.bin: deps/linux-image-3.16.0-4-amd64_3.16.7-ckt11-2+acs8u2_amd64.deb deps/initramfs-tools_0.120_all.deb
@@ -141,3 +150,5 @@ mlnx-all: target/sonic-generic.bin $(addprefix target/,docker-syncd-mlnx.gz dock
 
 ## Note: docker-fpm.gz must be the last to build the implicit dependency fpmsyncd
 cavm-all: $(addprefix target/,docker-syncd-cavm.gz docker-orchagent-cavm.gz docker-fpm.gz docker-database.gz)
+
+p4-all: $(addprefix target/,docker-sonic-p4.gz)
