@@ -4,7 +4,17 @@
 Build an [Open Network Install Environment (ONIE)](https://github.com/opencomputeproject/onie) compatiable network operating system (NOS) installer image for network switches, and also build docker images running inside the NOS.
 
 # Prerequisite
-## 1. Clone or fetch the code repository with all git submodules
+## 1. Build environment
+Build a docker image by [the Dockerfile](https://github.com/Azure/sonic-build-tools/blob/master/sonic-slave/Dockerfile) and build all remains in the docker container.
+
+    git clone https://github.com/Azure/sonic-build-tools
+    cd sonic-build-tools
+    ./build.sh sonic-slave
+    docker run -v /var/run/docker.sock:/var/run/docker.sock -it local/sonic-slave bash
+    
+Note that all the below steps should be executed in the docker container, not in the host machine.
+
+## 2. Clone or fetch the code repository with all git submodules
 To clone the code repository recursively, assuming git version 1.9 or newer
 
     git clone --recursive https://github.com/Azure/sonic-buildimage.git
@@ -12,14 +22,6 @@ To clone the code repository recursively, assuming git version 1.9 or newer
 If it is already cloned, however there is no files under ./dockers/docker-base/ or ./src/sonic-linux-kernel/, manually fetch all the git submodules.
 
     git submodule update --init --recursive
-
-## 2. Build environment
-Build a docker image by [the Dockerfile](https://github.com/Azure/sonic-build-tools/blob/master/sonic-slave/Dockerfile) and build all remains in the docker container.
-
-    git clone https://github.com/Azure/sonic-build-tools
-    cd sonic-build-tools
-    ./build.sh sonic-slave
-    docker run -v /var/run/docker.sock:/var/run/docker.sock -it local/sonic-slave bash
 
 ## 3. Get vendor SAI SDK
 Obtain Switch Abstraction Interface (SAI) SDK from one of supported vendors (see the list in [Usage](#usage) Section), and place it in the directory ./src/[VENDOR]-sdk/ as filelist.txt in that directory. Skip this step for p4 since it is an open source software switch.
