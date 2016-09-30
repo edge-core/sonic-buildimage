@@ -29,7 +29,7 @@ PORTSYNCD_ARGS=""
 
 if [ "$onie_platform" == "x86_64-dell_s6000_s1220-r0" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
-    PORTSYNCD_ARGS+="-p /etc/ssw/ACS-S6000/port_config.ini"
+    PORTSYNCD_ARGS+="-p /etc/ssw/Force10-S6000/port_config.ini"
 elif [ "$onie_platform" == "x86_64-mlnx_x86-r5.0.1400" ]; then
     PORTSYNCD_ARGS+="-p /etc/ssw/ACS-MSN2700/port_config.ini"
 elif [ "$onie_platform" == "x86_64-accton_as7512_32x-r0" ]; then
