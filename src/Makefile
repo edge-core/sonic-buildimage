@@ -48,7 +48,7 @@ python-p4c-bm_1.0.0-5415c416-1_all.deb: python-tenjin_1.1.1-1_all.deb
 python-tenjin_1.1.1-1_all.deb:
 	pushd tenjin; ./build.sh; popd
 
-p4-switch_1.0.0_amd64.deb: thrift-compiler_0.9.3-2_amd64.deb python-thrift_0.9.3-2_amd64.deb libthrift-0.9.3_0.9.3-2_amd64.deb libthrift-dev_0.9.3-2_amd64.deb python-p4-hlir_0.9.36-1_all.deb python-p4c-bm_1.0.0-5415c416-1_all.deb p4-bmv2_1.0.0_amd64.deb 
+p4-switch_1.0.0_amd64.deb: thrift-compiler_0.9.3-2_amd64.deb python-thrift_0.9.3-2_amd64.deb libthrift-0.9.3_0.9.3-2_amd64.deb libthrift-dev_0.9.3-2_amd64.deb python-p4-hlir_0.9.36-1_all.deb python-tenjin_1.1.1-1_all.deb python-p4c-bm_1.0.0-5415c416-1_all.deb p4-bmv2_1.0.0_amd64.deb 
 	$(foreach dep, $^, $(call install_deb, $(dep)))
 	pushd p4-switch; ./build.sh; popd
 	
