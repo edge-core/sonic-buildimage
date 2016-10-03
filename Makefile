@@ -115,7 +115,7 @@ target/docker-orchagent-mlnx.gz: target/docker-base.gz $(addprefix dockers/docke
 	docker load < $<
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 
-target/docker-orchagent-cavm.gz: target/docker-base.gz $(addprefix dockers/docker-orchagent-cavm/deps/,libhiredis0.13_0.13.3-2_amd64.deb libswsscommon_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb)
+target/docker-orchagent-cavm.gz: target/docker-base.gz $(addprefix dockers/docker-orchagent-cavm/deps/,libhiredis0.13_0.13.3-2_amd64.deb libswsscommon_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb swss_1.0.0_amd64.deb $(LIBNL-DEBS))
 	docker load < $<
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 	

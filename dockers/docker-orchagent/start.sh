@@ -39,10 +39,6 @@ fi
 
 service rsyslog start
 
-if [ "$onie_platform" == "x86_64-accton_as7512_32x-r0" ]; then
-    swssconfig /etc/ssw/AS7512/copp.json
-fi
-
 while true; do
     # Check if syncd starts
     result=`echo -en "SELECT 1\nHLEN HIDDEN" | redis-cli | sed -n 2p`
