@@ -41,7 +41,7 @@ p4-bmv2_1.0.0_amd64.deb: thrift-compiler_0.9.3-2_amd64.deb python-thrift_0.9.3-2
 python-p4-hlir_0.9.36-1_all.deb:
 	pushd p4-hlir; ./build.sh; popd
 
-python-p4c-bm_1.0.0-5415c416-1_all.deb: python-tenjin_1.1.1-1_all.deb
+python-p4c-bm_1.0.0-5415c416-1_all.deb: python-tenjin_1.1.1-1_all.deb python-p4-hlir_0.9.36-1_all.deb
 	$(foreach dep, $^, $(call install_deb, $(dep)))
 	pushd p4c-bm; ./build.sh; popd
 
