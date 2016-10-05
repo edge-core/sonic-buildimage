@@ -19,9 +19,6 @@ sx-gen-utils-dev_1.mlnx.4.2.2100_amd64.deb
 sx-gen-utils_1.mlnx.4.2.2100_amd64.deb
 sx-kernel-dev_1.mlnx.4.2.2100_amd64.deb
 sx-kernel_1.mlnx.4.2.2100_amd64.deb
-sx-libnl-dev-static_1.mlnx.4.2.2100_amd64.deb
-sx-libnl-dev_1.mlnx.4.2.2100_amd64.deb
-sx-libnl_1.mlnx.4.2.2100_amd64.deb
 sx-scew-dev-static_1.mlnx.4.2.2100_amd64.deb
 sx-scew-dev_1.mlnx.4.2.2100_amd64.deb
 sx-scew_1.mlnx.4.2.2100_amd64.deb
