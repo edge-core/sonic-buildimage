@@ -25,9 +25,6 @@ libnl-%.deb:
 libteam5_1.26-1_amd64.deb libteam-dev_1.26-1_amd64.deb libteam-utils_1.26-1_amd64.deb libteamdctl0_1.26-1_amd64.deb: libnl-%.deb
 	pushd libteam; ./build.sh; popd
 
-quagga_0.99.24.1-2_amd64.deb:
-	pushd quagga; ./build.sh; popd
-	
 redis-server_3.0.7-2_amd64.deb redis-tools_3.0.7-2_amd64.deb redis-sentinel_3.0.7-2_amd64.deb:
 	pushd redis; ./build.sh; popd
 	
@@ -54,6 +51,9 @@ python-tenjin_1.1.1-1_all.deb:
 p4-switch_1.0.0_amd64.deb: thrift-compiler_0.9.3-2_amd64.deb python-thrift_0.9.3-2_amd64.deb libthrift-0.9.3_0.9.3-2_amd64.deb libthrift-dev_0.9.3-2_amd64.deb python-p4-hlir_0.9.36-1_all.deb python-tenjin_1.1.1-1_all.deb python-p4c-bm_1.0.0-5415c416-1_all.deb p4-bmv2_1.0.0_amd64.deb 
 	$(foreach dep, $^, $(call install_deb, $(dep)))
 	pushd p4-switch; ./build.sh; popd
+	
+quagga_0.99.24.1-2.1_amd64.deb:
+	$(call build_project, sonic-quagga)
 	
 libswsscommon_1.0.0_amd64.deb libswsscommon-dev_1.0.0_amd64.deb: redis-server_3.0.7-2_amd64.deb redis-tools_3.0.7-2_amd64.deb libhiredis0.13_0.13.3-2_amd64.deb libhiredis-dev_0.13.3-2_amd64.deb
 	$(foreach dep, $^, $(call install_deb, $(dep)))
