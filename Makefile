@@ -73,6 +73,8 @@ $(addprefix dockers/docker-syncd-mlnx/deps/,syncd_1.0.0_amd64.deb libsairedis_1.
 	mkdir -p `dirname $@` && cp $< $(dir $@)
 dockers/docker-syncd-mlnx/deps/%.deb: src/%.deb
 	mkdir -p `dirname $@` && cp $< $(dir $@)
+dockers/docker-syncd-mlnx/deps/fw-SPC.mfa: src/mlnx-sdk/fw-SPC.mfa
+	mkdir -p `dirname $@` && cp $< $(dir $@)
 
 ## Rules: docker-syncd-cavm
 $(addprefix dockers/docker-syncd-cavm/deps/,$(CAVM-SDK-DEBS)) : dockers/docker-syncd-cavm/deps/%.deb : src/cavm-sdk/%.deb
@@ -106,7 +108,7 @@ target/docker-syncd.gz: target/docker-base.gz $(addprefix dockers/docker-syncd/d
 	docker load < $<
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 	
-target/docker-syncd-mlnx.gz: target/docker-base.gz $(addprefix dockers/docker-syncd-mlnx/deps/,$(MLNX-SDK-DEBS) applibs_1.mlnx.4.2.2100_amd64.deb libhiredis0.13_0.13.3-2_amd64.deb libswsscommon_1.0.0_amd64.deb syncd_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb $(LIBNL-DEBS))
+target/docker-syncd-mlnx.gz: target/docker-base.gz $(addprefix dockers/docker-syncd-mlnx/deps/,$(MLNX-SDK-DEBS) applibs_1.mlnx.4.2.2100_amd64.deb libhiredis0.13_0.13.3-2_amd64.deb libswsscommon_1.0.0_amd64.deb syncd_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb $(LIBNL-DEBS)) dockers/docker-syncd-mlnx/deps/fw-SPC.mfa
 	docker load < $<
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 

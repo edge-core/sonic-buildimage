@@ -183,7 +183,9 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install      \
     bsdmainutils            \
     ca-certificates         \
     i2c-tools               \
-    efibootmgr
+    efibootmgr              \
+    usbutils                \
+    pciutils
 
 ## Remove sshd host keys, and will regenerate on first sshd start
 sudo rm -f $FILESYSTEM_ROOT/etc/ssh/ssh_host_*_key*

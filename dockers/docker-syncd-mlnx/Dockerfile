@@ -27,6 +27,8 @@ RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return
 RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /deps/syncd_*.deb
 
 COPY ["start.sh", "/usr/bin/"]
+COPY ["mlnx-fw-upgrade.sh", "/usr/bin/"]
+COPY ["/deps/fw-SPC.mfa", "/etc/mlnx/"]
 
 ## Clean up
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
