@@ -51,7 +51,7 @@ CONSOLE_SPEED=9600
 
 # Get platform specific linux kernel command line arguments
 ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=""
-source platforms/$onie_platform
+[ -r platforms/$onie_platform ] && source platforms/$onie_platform
 
 # Install demo on same block device as ONIE
 onie_dev=$(blkid | grep ONIE-BOOT | head -n 1 | awk '{print $1}' |  sed -e 's/:.*$//')
