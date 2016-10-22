@@ -38,6 +38,9 @@ p4-bmv2_1.0.0_amd64.deb: thrift-compiler_0.9.3-2_amd64.deb python-thrift_0.9.3-2
 	$(foreach dep, $^, $(call install_deb, $(dep)))
 	pushd p4-bmv2; ./build.sh; popd
 
+kernel-mft-dkms_4.5.0-3.16.0-4-amd64_all.deb mft-4.5.0-31.amd64.deb:
+	pushd mft; ./build.sh; popd
+
 python-p4-hlir_0.9.36-1_all.deb:
 	pushd p4-hlir; ./build.sh; popd
 

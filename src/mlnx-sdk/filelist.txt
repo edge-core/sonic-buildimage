@@ -5,7 +5,6 @@ applibs-dev_1.mlnx.4.2.2100_amd64.deb
 applibs_1.mlnx.4.2.2100_amd64.deb
 iproute2-dev_1.mlnx.4.2.2100_amd64.deb
 iproute2_1.mlnx.4.2.2100_amd64.deb
-mft_4.1.0-28_amd64.deb
 mlnx-sai_1.mlnx.160712_amd64.deb
 python-sdk-api_1.mlnx.4.2.2100_amd64.deb
 sx-acl-rm-dev_1.mlnx.4.2.2100_amd64.deb
