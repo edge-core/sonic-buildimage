@@ -30,7 +30,7 @@ RUN apt-get -y install build-essential wget libssl-dev openssl supervisor && \
     cd .. && rm -rf Python-3.5.2 && rm Python-3.5.2.tgz && \
     pip3 install --no-cache-dir /python3/*py3*.whl hiredis && \
     rm -rf /python3 && \
-    python3 -m acs_ax_impl install && \
+    python3 -m sonic_ax_impl install && \
     python3 -m pip uninstall -y pip setuptools && \
     /bin/bash -c "rm -rf /usr/lib/python3.5/{unittest,lib2to3,tkinter,idlelib,email,test}" && \
     apt-get -y purge build-essential wget libssl-dev openssl && \
