@@ -22,7 +22,8 @@ RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return
     && dpkg_apt /deps/libnl-route-3-200_*.deb   \
     && dpkg_apt /deps/libswsscommon_*.deb       \
     && dpkg_apt /deps/mlnx-sai_*.deb            \
-    && dpkg_apt /deps/libsairedis_*.deb
+    && dpkg_apt /deps/libsairedis_*.deb         \
+    && dpkg_apt /deps/libsaimetadata_*.deb
 
 RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /deps/syncd_*.deb
 

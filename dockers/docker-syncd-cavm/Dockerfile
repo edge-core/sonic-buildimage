@@ -2,7 +2,7 @@ FROM docker-base
 
 RUN apt-get update
 
-COPY ["deps/libhiredis0.13*.deb", "deps/libswsscommon_*.deb", "deps/libsairedis_*.deb", "deps/syncd_*.deb", "deps/sai*.deb", "deps/libsai*.deb", "deps/xp-tools*.deb", "deps/xpshell*.deb", "/deps/"]
+COPY ["deps/libhiredis0.13*.deb", "deps/libswsscommon_*.deb", "deps/libsairedis_*.deb", "deps/libsaimetadata_*.deb", "deps/syncd_*.deb", "deps/sai*.deb", "deps/libsai*.deb", "deps/xp-tools*.deb", "deps/xpshell*.deb", "/deps/"]
 
 RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; \
     dpkg_apt /deps/libhiredis0.13*.deb    \
@@ -12,6 +12,7 @@ RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return
     && dpkg_apt /deps/xp-tools*.deb       \
     && dpkg_apt /deps/xpshell*.deb        \
     && dpkg_apt /deps/libsairedis_*.deb   \
+    && dpkg_apt /deps/libsaimetadata_*.deb\
     && dpkg_apt /deps/syncd_*.deb
 
 RUN apt-get -y install libpcap-dev libxml2-dev python-dev swig libsensors4-dev
