@@ -2,7 +2,7 @@ FROM docker-base
 
 RUN apt-get update
 
-RUN apt-get install -y net-tools ethtool tcpdump ifupdown
+RUN apt-get install -y net-tools ethtool tcpdump ifupdown bridge-utils
 
 COPY ["deps/libthrift-0.9.3_*.deb", "deps/libhiredis0.13*.deb", "deps/redis-tools_*.deb", "deps/redis-server_*.deb", "deps/libswsscommon_*.deb", "deps/p4-bmv2_*.deb", "deps/p4-switch_*.deb", "deps/libsairedis_*.deb", "deps/libsaimetadata_*.deb", "deps/syncd_*.deb", "deps/swss_*.deb", "deps/quagga_*.deb", "/deps/"]
 
