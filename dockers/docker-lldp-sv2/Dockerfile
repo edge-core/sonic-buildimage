@@ -18,5 +18,6 @@ RUN apt-get update && \
     rm -rf /deps ~/.cache
 
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY reconfigure.sh /opt/reconfigure.sh
 
 ENTRYPOINT ["/usr/bin/supervisord"]
