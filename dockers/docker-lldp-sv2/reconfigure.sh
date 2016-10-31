@@ -44,6 +44,9 @@ do
     wait_until_if_exists
   done
 
+  echo Wait 10 seconds
+  sleep 10
+
   # apply lldpd configuration
   echo apply lldpd configuration
   lldpcli -c /etc/lldpd.conf
