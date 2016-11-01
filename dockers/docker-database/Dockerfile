@@ -1,10 +1,13 @@
 FROM docker-base
 
-## Pre-install the fundamental packages
+COPY ["deps/redis-tools_*.deb", "deps/redis-server_*.deb", "/deps/"]
+
+## Install packages
 ## Clean up
-RUN apt-get -y install                                                              \
-        redis-server                                                                \
-        &&                                                                          \
+RUN apt-get update &&                                                                   \
+    dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; };  \
+    dpkg_apt /deps/redis-tools_*.deb &&                                                 \
+    dpkg_apt /deps/redis-server_*.deb &&                                                \
     apt-get clean -y && apt-get autoclean -y && apt-get autoremove -y
 
 RUN sed -ri 's/^daemonize yes$/daemonize no/' /etc/redis/redis.conf                 \

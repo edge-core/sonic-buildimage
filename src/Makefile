@@ -3,6 +3,8 @@
 .ONESHELL:
 SHELL := /bin/bash
 
+REDIS_VERSION=3.2.4-1~bpo8+1_amd64
+
 ## Function: build_project, directory
 ## Build the project and save the .deb target in the same directory
 ## TRICK: clean dh state so it will force recreating .deb later
@@ -25,10 +27,10 @@ libnl-%.deb:
 libteam5_1.26-1_amd64.deb libteam-dev_1.26-1_amd64.deb libteam-utils_1.26-1_amd64.deb libteamdctl0_1.26-1_amd64.deb: libnl-%.deb
 	pushd libteam; ./build.sh; popd
 
-redis-server_3.0.7-2_amd64.deb redis-tools_3.0.7-2_amd64.deb redis-sentinel_3.0.7-2_amd64.deb:
+redis-sentinel_$(REDIS_VERSION).deb redis-$(REDIS_VERSION).deb redis-tools_$(REDIS_VERSION).deb:
 	pushd redis; ./build.sh; popd
 	
-libhiredis0.13_0.13.3-2_amd64.deb libhiredis-dbg_0.13.3-2_amd64.deb libhiredis-dev_0.13.3-2_amd64.deb: redis-server_3.0.7-2_amd64.deb redis-tools_3.0.7-2_amd64.deb redis-sentinel_3.0.7-2_amd64.deb
+libhiredis0.13_0.13.3-2_amd64.deb libhiredis-dbg_0.13.3-2_amd64.deb libhiredis-dev_0.13.3-2_amd64.deb: redis-server_$(REDIS_VERSION).deb redis-tools_$(REDIS_VERSION).deb redis-sentinel_$(REDIS_VERSION).deb
 	pushd hiredis; ./build.sh; popd
 
 libthrift-0.9.3_0.9.3-2_amd64.deb libthrift-dev_0.9.3-2_amd64.deb python-thrift_0.9.3-2_amd64.deb thrift-compiler_0.9.3-2_amd64.deb:
@@ -58,7 +60,7 @@ p4-switch_1.0.0_amd64.deb: thrift-compiler_0.9.3-2_amd64.deb python-thrift_0.9.3
 quagga_0.99.24.1-2.1_amd64.deb:
 	$(call build_project, sonic-quagga)
 	
-libswsscommon_1.0.0_amd64.deb libswsscommon-dev_1.0.0_amd64.deb: redis-server_3.0.7-2_amd64.deb redis-tools_3.0.7-2_amd64.deb libhiredis0.13_0.13.3-2_amd64.deb libhiredis-dev_0.13.3-2_amd64.deb
+libswsscommon_1.0.0_amd64.deb libswsscommon-dev_1.0.0_amd64.deb: redis-server_$(REDIS_VERSION).deb redis-tools_$(REDIS_VERSION).deb libhiredis0.13_0.13.3-2_amd64.deb libhiredis-dev_0.13.3-2_amd64.deb
 	$(foreach dep, $^, $(call install_deb, $(dep)))
 	$(call build_project, sonic-swss-common)
 
