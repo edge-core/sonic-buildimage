@@ -16,6 +16,7 @@ RUN apt-get update \
     python-dev          \
     wget                \
     cmake               \
+    supervisor          \
  && wget https://github.com/nanomsg/nanomsg/archive/1.0.0.tar.gz \
  && tar xvfz 1.0.0.tar.gz \
  && cd nanomsg-1.0.0    \
@@ -44,5 +45,4 @@ COPY ptf_nn_agent.conf /etc/supervisor/conf.d/ptf_nn_agent.conf
 
 ENTRYPOINT service rsyslog start \
     && service syncd start       \
-    && while [ "x$( ifconfig Ethernet12 | grep RUNNING )" = 'x' ] ; do sleep 1 ; done \
     && /usr/bin/supervisord
