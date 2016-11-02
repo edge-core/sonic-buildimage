@@ -129,7 +129,7 @@ target/docker-orchagent-cavm.gz: target/docker-base.gz $(addprefix dockers/docke
 	docker load < $<
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 
-target/docker-fpm.gz: target/docker-base.gz $(addprefix dockers/docker-fpm/deps/,libswsscommon_1.0.0_amd64.deb libhiredis0.13_0.13.3-2_amd64.deb quagga_0.99.24.1-2_amd64.deb fpmsyncd)
+target/docker-fpm.gz: target/docker-base.gz $(addprefix dockers/docker-fpm/deps/,libswsscommon_1.0.0_amd64.deb libhiredis0.13_0.13.3-2_amd64.deb quagga_0.99.24.1-2.1_amd64.deb fpmsyncd)
 	docker load < $<
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 
@@ -141,7 +141,7 @@ target/docker-database.gz: target/docker-base.gz $(addprefix dockers/docker-data
 	docker load < $<
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 
-target/docker-sonic-p4.gz: target/docker-base.gz $(addprefix dockers/docker-sonic-p4/deps/,libswsscommon_1.0.0_amd64.deb libhiredis0.13_0.13.3-2_amd64.deb quagga_0.99.24.1-2_amd64.deb syncd_1.0.0_amd64.deb swss_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb libsaimetadata_1.0.0_amd64.deb libthrift-0.9.3_0.9.3-2_amd64.deb redis-server_$(REDIS_VERSION).deb redis-tools_$(REDIS_VERSION).deb p4-bmv2_1.0.0_amd64.deb p4-switch_1.0.0_amd64.deb)
+target/docker-sonic-p4.gz: target/docker-base.gz $(addprefix dockers/docker-sonic-p4/deps/,libswsscommon_1.0.0_amd64.deb libhiredis0.13_0.13.3-2_amd64.deb quagga_0.99.24.1-2.1_amd64.deb syncd_1.0.0_amd64.deb swss_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb libsaimetadata_1.0.0_amd64.deb libthrift-0.9.3_0.9.3-2_amd64.deb redis-server_$(REDIS_VERSION).deb redis-tools_$(REDIS_VERSION).deb p4-bmv2_1.0.0_amd64.deb p4-switch_1.0.0_amd64.deb)
 	docker load < $<
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 
