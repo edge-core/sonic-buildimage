@@ -89,7 +89,7 @@ p4/syncd_1.0.0_amd64.deb p4/libsairedis_1.0.0_amd64.deb p4/libsairedis-dev_1.0.0
 	cp syncd_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb libsairedis-dev_1.0.0_amd64.deb libsaimetadata_1.0.0_amd64.deb libsaimetadata-dev_1.0.0_amd64.deb p4/
 
 ## Note: fpmsyncd and teamsyncd are two implicit targets
-brcm/swss_1.0.0_amd64.deb: brcm/syncd_1.0.0_amd64.deb brcm/libsairedis_1.0.0_amd64.deb brcm/libsairedis-dev_1.0.0_amd64.deb brcm/libsaimetadata_1.0.0_amd64.deb
+brcm/swss_1.0.0_amd64.deb: brcm/syncd_1.0.0_amd64.deb brcm/libsairedis_1.0.0_amd64.deb brcm/libsairedis-dev_1.0.0_amd64.deb brcm/libsaimetadata_1.0.0_amd64.deb brcm/libsaimetadata-dev_1.0.0_amd64.deb
 	$(foreach dep, $^, $(call install_deb, $(dep)))
 	$(call build_project, sonic-swss)
 	cp swss_1.0.0_amd64.deb brcm/
@@ -97,7 +97,7 @@ brcm/swss_1.0.0_amd64.deb: brcm/syncd_1.0.0_amd64.deb brcm/libsairedis_1.0.0_amd
 	cp sonic-swss/debian/swss/usr/bin/teamsyncd .
 
 ## Note: fpmsyncd and teamsyncd are two implicit targets
-mlnx/swss_1.0.0_amd64.deb: mlnx/syncd_1.0.0_amd64.deb mlnx/libsairedis_1.0.0_amd64.deb mlnx/libsairedis-dev_1.0.0_amd64.deb mlnx/libsaimetadata_1.0.0_amd64.deb
+mlnx/swss_1.0.0_amd64.deb: mlnx/syncd_1.0.0_amd64.deb mlnx/libsairedis_1.0.0_amd64.deb mlnx/libsairedis-dev_1.0.0_amd64.deb mlnx/libsaimetadata_1.0.0_amd64.deb mlnx/libsaimetadata-dev_1.0.0_amd64.deb
 	$(foreach dep, $^, $(call install_deb, $(dep)))
 	$(call build_project, sonic-swss)
 	cp swss_1.0.0_amd64.deb mlnx/
@@ -105,14 +105,14 @@ mlnx/swss_1.0.0_amd64.deb: mlnx/syncd_1.0.0_amd64.deb mlnx/libsairedis_1.0.0_amd
 	cp sonic-swss/debian/swss/usr/bin/teamsyncd .
 
 ## Note: fpmsyncd and teamsyncd are two implicit targets
-cavm/swss_1.0.0_amd64.deb: cavm/syncd_1.0.0_amd64.deb cavm/libsairedis_1.0.0_amd64.deb cavm/libsairedis-dev_1.0.0_amd64.deb cavm/libsaimetadata_1.0.0_amd64.deb
+cavm/swss_1.0.0_amd64.deb: cavm/syncd_1.0.0_amd64.deb cavm/libsairedis_1.0.0_amd64.deb cavm/libsairedis-dev_1.0.0_amd64.deb cavm/libsaimetadata_1.0.0_amd64.deb cavm/libsaimetadata-dev_1.0.0_amd64.deb
 	$(foreach dep, $^, $(call install_deb, $(dep)))
 	$(call build_project, sonic-swss)
 	cp swss_1.0.0_amd64.deb cavm/
 	cp sonic-swss/debian/swss/usr/bin/fpmsyncd .
 	cp sonic-swss/debian/swss/usr/bin/teamsyncd .
 	
-p4/swss_1.0.0_amd64.deb: p4/syncd_1.0.0_amd64.deb p4/libsairedis_1.0.0_amd64.deb p4/libsairedis-dev_1.0.0_amd64.deb p4/libsaimetadata_1.0.0_amd64.deb
+p4/swss_1.0.0_amd64.deb: p4/syncd_1.0.0_amd64.deb p4/libsairedis_1.0.0_amd64.deb p4/libsairedis-dev_1.0.0_amd64.deb p4/libsaimetadata_1.0.0_amd64.deb p4/libsaimetadata-dev_1.0.0_amd64.deb
 	$(foreach dep, $^, $(call install_deb, $(dep)))
 	$(call build_project, sonic-swss)
 	cp swss_1.0.0_amd64.deb p4/
