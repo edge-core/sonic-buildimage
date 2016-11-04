@@ -133,7 +133,7 @@ target/docker-fpm.gz: target/docker-base.gz $(addprefix dockers/docker-fpm/deps/
 	docker load < $<
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 
-target/docker-team.gz: target/docker-base.gz $(addprefix dockers/docker-team/deps/,libswsscommon_1.0.0_amd64.deb libhiredis0.13_0.13.3-2_amd64.deb $(LIBTEAM-DEBS))
+target/docker-team.gz: target/docker-base.gz $(addprefix dockers/docker-team/deps/,libswsscommon_1.0.0_amd64.deb libhiredis0.13_0.13.3-2_amd64.deb $(LIBNL-DEBS) libnl-cli-3-200_3.2.27-1_amd64.deb libnl-nf-3-200_3.2.27-1_amd64.deb $(LIBTEAM-DEBS) teamsyncd)
 	docker load < $<
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 
