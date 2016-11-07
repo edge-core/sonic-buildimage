@@ -15,7 +15,7 @@ MLNX-SDK-DEBS=$(notdir $(wildcard src/mlnx-sdk/*.deb))
 BRCM-SDK-DEBS=$(notdir $(wildcard src/brcm-sdk/*.deb))
 CAVM-SDK-DEBS=$(notdir $(wildcard src/cavm-sdk/*.deb))
 
-LIBNL-DEBS=libnl-3-200_3.2.27-1_amd64.deb libnl-genl-3-200_3.2.27-1_amd64.deb libnl-route-3-200_3.2.27-1_amd64.deb
+LIBNL-DEBS=libnl-3-200_3.2.27-1_amd64.deb libnl-genl-3-200_3.2.27-1_amd64.deb libnl-route-3-200_3.2.27-1_amd64.deb libnl-cli-3-200_3.2.27-1_amd64.deb libnl-nf-3-200_3.2.27-1_amd64.deb
 LIBTEAM-DEBS=libteam5_1.26-1_amd64.deb libteam-dev_1.26-1_amd64.deb libteam-utils_1.26-1_amd64.deb libteamdctl0_1.26-1_amd64.deb
 
 ## Function: build_docker, image_name save_file
@@ -133,7 +133,7 @@ target/docker-fpm.gz: target/docker-base.gz $(addprefix dockers/docker-fpm/deps/
 	docker load < $<
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 
-target/docker-team.gz: target/docker-base.gz $(addprefix dockers/docker-team/deps/,libswsscommon_1.0.0_amd64.deb libhiredis0.13_0.13.3-2_amd64.deb $(LIBNL-DEBS) libnl-cli-3-200_3.2.27-1_amd64.deb libnl-nf-3-200_3.2.27-1_amd64.deb $(LIBTEAM-DEBS) teamsyncd)
+target/docker-team.gz: target/docker-base.gz $(addprefix dockers/docker-team/deps/,libswsscommon_1.0.0_amd64.deb libhiredis0.13_0.13.3-2_amd64.deb $(LIBNL-DEBS) $(LIBTEAM-DEBS) teamsyncd)
 	docker load < $<
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 
