@@ -90,7 +90,7 @@ trap_push clean_sys
 sudo LANG=C chroot $FILESYSTEM_ROOT mount sysfs /sys -t sysfs
 
 ## Pointing apt to public apt mirrors and getting latest packages, needed for latest security updates
-sudo cp dockers/docker-base/sources.list $FILESYSTEM_ROOT/etc/apt/
+sudo cp files/apt/sources.list $FILESYSTEM_ROOT/etc/apt/
 sudo cp files/apt/apt.conf.d/81norecommends $FILESYSTEM_ROOT/etc/apt/apt.conf.d/
 sudo LANG=C chroot $FILESYSTEM_ROOT bash -c 'apt-mark auto `apt-mark showmanual`'
 
