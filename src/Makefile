@@ -4,6 +4,8 @@
 SHELL := /bin/bash
 
 REDIS_VERSION=3.2.4-1~bpo8+1_amd64
+LIBNL-DEBS=libnl-3-200_3.2.27-1_amd64.deb libnl-3-dev_3.2.27-1_amd64.deb libnl-genl-3-200_3.2.27-1_amd64.deb libnl-genl-3-dev_3.2.27-1_amd64.deb libnl-route-3-200_3.2.27-1_amd64.deb libnl-route-3-dev_3.2.27-1_amd64.deb  libnl-nf-3-200_3.2.27-1_amd64.deb libnl-nf-3-dev_3.2.27-1_amd64.deb libnl-cli-3-200_3.2.27-1_amd64.deb libnl-cli-3-dev_3.2.27-1_amd64.deb
+LIBTEAM-DEBS=libteam5_1.26-1_amd64.deb libteamdctl0_1.26-1_amd64.deb libteam-dev_1.26-1_amd64.deb libteam-utils_1.26-1_amd64.deb
 
 ## Function: build_project, directory
 ## Build the project and save the .deb target in the same directory
@@ -21,16 +23,18 @@ install_deb = \
     [ -f $(1) ] && { sudo dpkg -i $(1) || sudo apt-get -y install -f; } || return 1;
 
 ## Rules
-libnl-%.deb:
+$(LIBNL-DEBS):
 	pushd libnl3; ./build.sh; popd
 
-libteam5_1.26-1_amd64.deb libteam-dev_1.26-1_amd64.deb libteam-utils_1.26-1_amd64.deb libteamdctl0_1.26-1_amd64.deb: libnl-%.deb
+$(LIBTEAM-DEBS): $(LIBNL-DEBS)
+	$(foreach dep, $^, $(call install_deb, $(dep)))
 	pushd libteam; ./build.sh; popd
 
 redis-sentinel_$(REDIS_VERSION).deb redis-server_$(REDIS_VERSION).deb redis-tools_$(REDIS_VERSION).deb:
 	pushd redis; ./build.sh; popd
 	
 libhiredis0.13_0.13.3-2_amd64.deb libhiredis-dbg_0.13.3-2_amd64.deb libhiredis-dev_0.13.3-2_amd64.deb: redis-server_$(REDIS_VERSION).deb redis-tools_$(REDIS_VERSION).deb redis-sentinel_$(REDIS_VERSION).deb
+	$(foreach dep, $^, $(call install_deb, $(dep)))
 	pushd hiredis; ./build.sh; popd
 
 libthrift-0.9.3_0.9.3-2_amd64.deb libthrift-dev_0.9.3-2_amd64.deb python-thrift_0.9.3-2_amd64.deb thrift-compiler_0.9.3-2_amd64.deb:
@@ -60,7 +64,7 @@ p4-switch_1.0.0_amd64.deb: thrift-compiler_0.9.3-2_amd64.deb python-thrift_0.9.3
 quagga_0.99.24.1-2.1_amd64.deb:
 	$(call build_project, sonic-quagga)
 	
-libswsscommon_1.0.0_amd64.deb libswsscommon-dev_1.0.0_amd64.deb: redis-server_$(REDIS_VERSION).deb redis-tools_$(REDIS_VERSION).deb libhiredis0.13_0.13.3-2_amd64.deb libhiredis-dev_0.13.3-2_amd64.deb
+libswsscommon_1.0.0_amd64.deb libswsscommon-dev_1.0.0_amd64.deb: redis-server_$(REDIS_VERSION).deb redis-tools_$(REDIS_VERSION).deb libhiredis0.13_0.13.3-2_amd64.deb libhiredis-dev_0.13.3-2_amd64.deb $(LIBNL-DEBS)
 	$(foreach dep, $^, $(call install_deb, $(dep)))
 	$(call build_project, sonic-swss-common)
 
@@ -89,7 +93,7 @@ p4/syncd_1.0.0_amd64.deb p4/libsairedis_1.0.0_amd64.deb p4/libsairedis-dev_1.0.0
 	cp syncd_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb libsairedis-dev_1.0.0_amd64.deb libsaimetadata_1.0.0_amd64.deb libsaimetadata-dev_1.0.0_amd64.deb p4/
 
 ## Note: fpmsyncd and teamsyncd are two implicit targets
-brcm/swss_1.0.0_amd64.deb: brcm/syncd_1.0.0_amd64.deb brcm/libsairedis_1.0.0_amd64.deb brcm/libsairedis-dev_1.0.0_amd64.deb brcm/libsaimetadata_1.0.0_amd64.deb brcm/libsaimetadata-dev_1.0.0_amd64.deb libteam5_1.26-1_amd64.deb libteamdctl0_1.26-1_amd64.deb libteam-dev_1.26-1_amd64.deb
+brcm/swss_1.0.0_amd64.deb: brcm/syncd_1.0.0_amd64.deb brcm/libsairedis_1.0.0_amd64.deb brcm/libsairedis-dev_1.0.0_amd64.deb brcm/libsaimetadata_1.0.0_amd64.deb brcm/libsaimetadata-dev_1.0.0_amd64.deb $(LIBTEAM-DEBS) $(LIBNL-DEBS)
 	$(foreach dep, $^, $(call install_deb, $(dep)))
 	$(call build_project, sonic-swss)
 	cp swss_1.0.0_amd64.deb brcm/
@@ -97,7 +101,7 @@ brcm/swss_1.0.0_amd64.deb: brcm/syncd_1.0.0_amd64.deb brcm/libsairedis_1.0.0_amd
 	cp sonic-swss/debian/swss/usr/bin/teamsyncd .
 
 ## Note: fpmsyncd and teamsyncd are two implicit targets
-mlnx/swss_1.0.0_amd64.deb: mlnx/syncd_1.0.0_amd64.deb mlnx/libsairedis_1.0.0_amd64.deb mlnx/libsairedis-dev_1.0.0_amd64.deb mlnx/libsaimetadata_1.0.0_amd64.deb mlnx/libsaimetadata-dev_1.0.0_amd64.deb libteam5_1.26-1_amd64.deb libteamdctl0_1.26-1_amd64.deb libteam-dev_1.26-1_amd64.deb
+mlnx/swss_1.0.0_amd64.deb: mlnx/syncd_1.0.0_amd64.deb mlnx/libsairedis_1.0.0_amd64.deb mlnx/libsairedis-dev_1.0.0_amd64.deb mlnx/libsaimetadata_1.0.0_amd64.deb mlnx/libsaimetadata-dev_1.0.0_amd64.deb $(LIBTEAM-DEBS) $(LIBNL-DEBS)
 	$(foreach dep, $^, $(call install_deb, $(dep)))
 	$(call build_project, sonic-swss)
 	cp swss_1.0.0_amd64.deb mlnx/
@@ -105,14 +109,14 @@ mlnx/swss_1.0.0_amd64.deb: mlnx/syncd_1.0.0_amd64.deb mlnx/libsairedis_1.0.0_amd
 	cp sonic-swss/debian/swss/usr/bin/teamsyncd .
 
 ## Note: fpmsyncd and teamsyncd are two implicit targets
-cavm/swss_1.0.0_amd64.deb: cavm/syncd_1.0.0_amd64.deb cavm/libsairedis_1.0.0_amd64.deb cavm/libsairedis-dev_1.0.0_amd64.deb cavm/libsaimetadata_1.0.0_amd64.deb cavm/libsaimetadata-dev_1.0.0_amd64.deb libteam5_1.26-1_amd64.deb libteamdctl0_1.26-1_amd64.deb libteam-dev_1.26-1_amd64.deb
+cavm/swss_1.0.0_amd64.deb: cavm/syncd_1.0.0_amd64.deb cavm/libsairedis_1.0.0_amd64.deb cavm/libsairedis-dev_1.0.0_amd64.deb cavm/libsaimetadata_1.0.0_amd64.deb cavm/libsaimetadata-dev_1.0.0_amd64.deb $(LIBTEAM-DEBS) $(LIBNL-DEBS)
 	$(foreach dep, $^, $(call install_deb, $(dep)))
 	$(call build_project, sonic-swss)
 	cp swss_1.0.0_amd64.deb cavm/
 	cp sonic-swss/debian/swss/usr/bin/fpmsyncd .
 	cp sonic-swss/debian/swss/usr/bin/teamsyncd .
 	
-p4/swss_1.0.0_amd64.deb: p4/syncd_1.0.0_amd64.deb p4/libsairedis_1.0.0_amd64.deb p4/libsairedis-dev_1.0.0_amd64.deb p4/libsaimetadata_1.0.0_amd64.deb p4/libsaimetadata-dev_1.0.0_amd64.deb libteam5_1.26-1_amd64.deb libteamdctl0_1.26-1_amd64.deb libteam-dev_1.26-1_amd64.deb
+p4/swss_1.0.0_amd64.deb: p4/syncd_1.0.0_amd64.deb p4/libsairedis_1.0.0_amd64.deb p4/libsairedis-dev_1.0.0_amd64.deb p4/libsaimetadata_1.0.0_amd64.deb p4/libsaimetadata-dev_1.0.0_amd64.deb $(LIBTEAM-DEBS) $(LIBNL-DEBS)
 	$(foreach dep, $^, $(call install_deb, $(dep)))
 	$(call build_project, sonic-swss)
 	cp swss_1.0.0_amd64.deb p4/

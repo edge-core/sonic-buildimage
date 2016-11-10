@@ -15,8 +15,8 @@ MLNX-SDK-DEBS=$(notdir $(wildcard src/mlnx-sdk/*.deb))
 BRCM-SDK-DEBS=$(notdir $(wildcard src/brcm-sdk/*.deb))
 CAVM-SDK-DEBS=$(notdir $(wildcard src/cavm-sdk/*.deb))
 
-LIBNL-DEBS=libnl-3-200_3.2.27-1_amd64.deb libnl-genl-3-200_3.2.27-1_amd64.deb libnl-route-3-200_3.2.27-1_amd64.deb libnl-cli-3-200_3.2.27-1_amd64.deb libnl-nf-3-200_3.2.27-1_amd64.deb
-LIBTEAM-DEBS=libteam5_1.26-1_amd64.deb libteam-dev_1.26-1_amd64.deb libteam-utils_1.26-1_amd64.deb libteamdctl0_1.26-1_amd64.deb
+LIBNL-DEBS=libnl-3-200_3.2.27-1_amd64.deb libnl-3-dev_3.2.27-1_amd64.deb libnl-genl-3-200_3.2.27-1_amd64.deb libnl-genl-3-dev_3.2.27-1_amd64.deb libnl-route-3-200_3.2.27-1_amd64.deb libnl-route-3-dev_3.2.27-1_amd64.deb  libnl-nf-3-200_3.2.27-1_amd64.deb libnl-nf-3-dev_3.2.27-1_amd64.deb libnl-cli-3-200_3.2.27-1_amd64.deb libnl-cli-3-dev_3.2.27-1_amd64.deb
+LIBTEAM-DEBS=libteam5_1.26-1_amd64.deb libteamdctl0_1.26-1_amd64.deb libteam-dev_1.26-1_amd64.deb libteam-utils_1.26-1_amd64.deb
 
 ## Function: build_docker, image_name save_file
 ## build a docker image and save to a file
@@ -31,7 +31,11 @@ endef
 
 ## Rules: redirect to sub directory
 src/%:
-	$(MAKE) REDIS_VERSION=$(REDIS_VERSION) -C src $(subst src/,,$@)
+	$(MAKE) 											\
+	REDIS_VERSION=$(REDIS_VERSION)						\
+	LIBNL-DEBS="$(LIBNL-DEBS)"							\
+	LIBTEAM-DEBS="$(LIBTEAM-DEBS)"						\
+	-C src $(subst src/,,$@)
 
 ## Rules: docker-fpm
 dockers/docker-fpm/deps/fpmsyncd: src/fpmsyncd
@@ -58,7 +62,7 @@ dockers/docker-orchagent-cavm/deps/%.deb: src/%.deb
 	mkdir -p `dirname $@` && cp $< $(dir $@)
 
 ## Rules: docker-orchagent (brcm)
-$(addprefix dockers/docker-orchagent/deps/,libsairedis_1.0.0_amd64.deb libsaimetadata_1.0.0_amd64.deb swss_1.0.0_amd64.deb) : dockers/docker-orchagent/deps/%.deb : src/%.deb
+$(addprefix dockers/docker-orchagent/deps/,libsairedis_1.0.0_amd64.deb libsaimetadata_1.0.0_amd64.deb swss_1.0.0_amd64.deb) : dockers/docker-orchagent/deps/%.deb : src/brcm/%.deb
 	mkdir -p `dirname $@` && cp $< $(dir $@)
 dockers/docker-orchagent/deps/%.deb: src/%.deb
 	mkdir -p `dirname $@` && cp $< $(dir $@)
