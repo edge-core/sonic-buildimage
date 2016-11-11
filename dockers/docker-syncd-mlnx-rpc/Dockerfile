@@ -44,5 +44,6 @@ COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY ptf_nn_agent.conf /etc/supervisor/conf.d/ptf_nn_agent.conf
 
 ENTRYPOINT service rsyslog start \
+    && sysctl -w net.core.rmem_max=509430500 \
     && service syncd start       \
     && /usr/bin/supervisord
