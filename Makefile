@@ -133,7 +133,7 @@ target/docker-orchagent-cavm.gz: target/docker-base.gz $(addprefix dockers/docke
 	docker load < $<
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 
-target/docker-fpm.gz: target/docker-base.gz $(addprefix dockers/docker-fpm/deps/,libswsscommon_1.0.0_amd64.deb libhiredis0.13_0.13.3-2_amd64.deb quagga_0.99.24.1-2.1_amd64.deb fpmsyncd)
+target/docker-fpm.gz: target/docker-base.gz $(addprefix dockers/docker-fpm/deps/,libswsscommon_1.0.0_amd64.deb libhiredis0.13_0.13.3-2_amd64.deb quagga_0.99.24.1-2.1_amd64.deb fpmsyncd $(LIBNL-DEBS))
 	docker load < $<
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 
