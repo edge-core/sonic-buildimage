@@ -10,8 +10,10 @@ RUN apt-get update &&                                                           
     dpkg_apt /deps/redis-server_*.deb &&                                                \
     apt-get clean -y && apt-get autoclean -y && apt-get autoremove -y
 
-RUN sed -ri 's/^daemonize yes$/daemonize no/' /etc/redis/redis.conf                 \
- && sed -ri 's/^logfile .*$/logfile ""/' /etc/redis/redis.conf                      \
- && sed -ri 's/^# syslog-enabled no$/syslog-enabled no/' /etc/redis/redis.conf
+RUN sed -ri 's/^daemonize yes$/daemonize no/;                                           \
+             s/^logfile .*$/logfile ""/;                                                \
+             s/^# syslog-enabled no$/syslog-enabled no/;                                \
+             s/^# unixsocket/unixsocket/                                                \
+            ' /etc/redis/redis.conf
 
 ENTRYPOINT service redis-server start
