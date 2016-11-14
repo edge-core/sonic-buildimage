@@ -7,8 +7,6 @@ iproute2-dev_1.mlnx.4.2.2100_amd64.deb
 iproute2_1.mlnx.4.2.2100_amd64.deb
 mlnx-sai_1.mlnx.160712_amd64.deb
 python-sdk-api_1.mlnx.4.2.2100_amd64.deb
-sx-acl-rm-dev_1.mlnx.4.2.2100_amd64.deb
-sx-acl-rm_1.mlnx.4.2.2100_amd64.deb
 sx-complib-dev-static_1.mlnx.4.2.2100_amd64.deb
 sx-complib-dev_1.mlnx.4.2.2100_amd64.deb
 sx-complib_1.mlnx.4.2.2100_amd64.deb
@@ -21,11 +19,6 @@ sx-kernel_1.mlnx.4.2.2100_amd64.deb
 sx-scew-dev-static_1.mlnx.4.2.2100_amd64.deb
 sx-scew-dev_1.mlnx.4.2.2100_amd64.deb
 sx-scew_1.mlnx.4.2.2100_amd64.deb
-sx-sdn-hal-dev-static_1.mlnx.4.2.2100_amd64.deb
-sx-sdn-hal-dev_1.mlnx.4.2.2100_amd64.deb
-sx-sdn-hal_1.mlnx.4.2.2100_amd64.deb
 sxd-libs-dev-static_1.mlnx.4.2.2100_amd64.deb
 sxd-libs-dev_1.mlnx.4.2.2100_amd64.deb
 sxd-libs_1.mlnx.4.2.2100_amd64.deb
-testx-dev_1.mlnx.4.2.2100_amd64.deb
-testx_1.mlnx.4.2.2100_amd64.deb
