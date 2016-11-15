@@ -4,8 +4,22 @@
 SHELL := /bin/bash
 
 REDIS_VERSION=3.2.4-1~bpo8+1_amd64
-LIBNL-DEBS=libnl-3-200_3.2.27-1_amd64.deb libnl-3-dev_3.2.27-1_amd64.deb libnl-genl-3-200_3.2.27-1_amd64.deb libnl-genl-3-dev_3.2.27-1_amd64.deb libnl-route-3-200_3.2.27-1_amd64.deb libnl-route-3-dev_3.2.27-1_amd64.deb  libnl-nf-3-200_3.2.27-1_amd64.deb libnl-nf-3-dev_3.2.27-1_amd64.deb libnl-cli-3-200_3.2.27-1_amd64.deb libnl-cli-3-dev_3.2.27-1_amd64.deb
-LIBTEAM-DEBS=libteam5_1.26-1_amd64.deb libteamdctl0_1.26-1_amd64.deb libteam-dev_1.26-1_amd64.deb libteam-utils_1.26-1_amd64.deb
+
+LIBNL-DEBS=libnl-3-200_3.2.27-1_amd64.deb \
+           libnl-3-dev_3.2.27-1_amd64.deb \
+           libnl-genl-3-200_3.2.27-1_amd64.deb \
+           libnl-genl-3-dev_3.2.27-1_amd64.deb \
+           libnl-route-3-200_3.2.27-1_amd64.deb \
+           libnl-route-3-dev_3.2.27-1_amd64.deb \
+           libnl-nf-3-200_3.2.27-1_amd64.deb \
+           libnl-nf-3-dev_3.2.27-1_amd64.deb \
+           libnl-cli-3-200_3.2.27-1_amd64.deb \
+           libnl-cli-3-dev_3.2.27-1_amd64.deb
+
+LIBTEAM-DEBS=libteam5_1.26-1_amd64.deb \
+             libteamdctl0_1.26-1_amd64.deb \
+             libteam-dev_1.26-1_amd64.deb \
+             libteam-utils_1.26-1_amd64.deb
 
 ## Function: build_project, directory
 ## Build the project and save the .deb target in the same directory
