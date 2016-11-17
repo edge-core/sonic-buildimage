@@ -1,3 +1,5 @@
+Mellanox[![Mellanox](https://sonic-jenkins.westus.cloudapp.azure.com/job/mellanox/job/buildimage-mlnx-all/badge/icon)](https://sonic-jenkins.westus.cloudapp.azure.com/job/mellanox/job/buildimage-mlnx-all)
+
 # Build SONiC Switch Images - buildimage
 
 # Description
