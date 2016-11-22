@@ -113,7 +113,7 @@ target/docker-syncd.gz: target/docker-base.gz $(addprefix dockers/docker-syncd/d
 	docker load < $<
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 
-target/docker-syncd-mlnx.gz: target/docker-base.gz $(addprefix dockers/docker-syncd-mlnx/deps/,$(MLNX-SDK-DEBS) applibs_1.mlnx.4.2.2100_amd64.deb libhiredis0.13_0.13.3-2_amd64.deb libswsscommon_1.0.0_amd64.deb syncd_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb libsaimetadata_1.0.0_amd64.deb $(LIBNL-DEBS)) dockers/docker-syncd-mlnx/deps/fw-SPC.mfa
+target/docker-syncd-mlnx.gz: target/docker-base.gz $(addprefix dockers/docker-syncd-mlnx/deps/,$(MLNX-SDK-DEBS) libhiredis0.13_0.13.3-2_amd64.deb libswsscommon_1.0.0_amd64.deb syncd_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb libsaimetadata_1.0.0_amd64.deb $(LIBNL-DEBS)) dockers/docker-syncd-mlnx/deps/fw-SPC.mfa
 	docker load < $<
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 
