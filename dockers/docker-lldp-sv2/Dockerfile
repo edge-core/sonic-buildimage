@@ -1,9 +1,9 @@
 FROM docker-base
 
-COPY deps/sswsdk*.whl deps/sonic_d*.whl deps/lldpsyncd_*.deb deps/lldpd_*.deb /deps/
+COPY deps/sswsdk*.whl deps/sonic_d*.whl deps/lldpd_*.deb /deps/
 
 ## Pre-install the fundamental packages
-## Install Python SSWSDK (lldpsyncd dependency)
+## Install Python SSWSDK
 ## Install LLDP Sync Daemon
 ## Note: dpkg_apt function has the benefit to detect missing .deb file
 ## Clean up
