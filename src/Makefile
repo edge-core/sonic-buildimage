@@ -21,6 +21,18 @@ LIBTEAM-DEBS=libteam5_1.26-1_amd64.deb \
              libteam-dev_1.26-1_amd64.deb \
              libteam-utils_1.26-1_amd64.deb
 
+MPDECIMAL_VER=2.4.2-1
+
+MPDECIMAL-DEBS=libmpdec2_$(MPDECIMAL_VER)_amd64.deb \
+               libmpdec-dev_$(MPDECIMAL_VER)_amd64.deb
+
+PYTHON3_5_VER=3.5.2-8
+               
+PYTHON3_5-DEBS=libpython3.5-minimal_$(PYTHON3_5_VER)_amd64.deb \
+               python3.5-minimal_$(PYTHON3_5_VER)_amd64.deb \
+               libpython3.5-stdlib_$(PYTHON3_5_VER)_amd64.deb \
+               python3.5_$(PYTHON3_5_VER)_amd64.deb
+
 ## Function: build_project, directory
 ## Build the project and save the .deb target in the same directory
 ## TRICK: clean dh state so it will force recreating .deb later
@@ -43,6 +55,13 @@ $(LIBNL-DEBS):
 $(LIBTEAM-DEBS): $(LIBNL-DEBS)
 	$(foreach dep, $^, $(call install_deb, $(dep)))
 	pushd libteam; ./build.sh; popd
+
+$(MPDECIMAL-DEBS):
+	pushd mpdecimal; ./build.sh; popd
+
+$(PYTHON3_5-DEBS): $(MPDECIMAL-DEBS)
+	$(foreach dep, $^, $(call install_deb, $(dep)))
+	pushd python3.5; ./build.sh; popd
 
 redis-sentinel_$(REDIS_VERSION).deb redis-server_$(REDIS_VERSION).deb redis-tools_$(REDIS_VERSION).deb:
 	pushd redis; ./build.sh; popd
