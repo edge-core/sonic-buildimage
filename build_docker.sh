@@ -9,11 +9,13 @@ set -e
 usage() {
     cat >&2 <<EOF
 Usage:
-  sudo ./build_docker.sh -i=DOCKER_IMAGE_NAME DOCKER_BUILD_DIR [REGISTRY_SERVER REGISTRY_PORT REGISTRY_USERNAME REGISTRY_PASSWD]
+  sudo ./build_docker.sh [-i DOCKER_IMAGE_NAME] [-t DOCKER_IMAGE_TAG] DOCKER_BUILD_DIR [REGISTRY_SERVER REGISTRY_PORT REGISTRY_USERNAME REGISTRY_PASSWD]
   
 Description:
   -i DOCKER_IMAGE_NAME
-       Specifi the docker images name, by default it is DOCKER_BUILD_DIR
+       Specify the docker image's name, by default it is DOCKER_BUILD_DIR
+  -t DOCKER_IMAGE_TAG
+       Specify the docker image's tag, by default it is latest
   DOCKER_BUILD_DIR
        The directory containing Dockerfile
   REGISTRY_SERVER
@@ -27,10 +29,14 @@ EOF
 }
 
 docker_image_name=''
-while getopts ":i:" opt; do
+docker_image_tag=latest
+while getopts ":it:" opt; do
   case $opt in
     i)
       docker_image_name=$OPTARG
+      ;;
+    t)
+      docker_image_tag=$OPTARG
       ;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
@@ -62,7 +68,7 @@ REGISTRY_PASSWD=$5
     BUILD_NUMBER="0"
 }
 
-remote_image_name=$REGISTRY_SERVER:$REGISTRY_PORT/$docker_image_name:latest
+remote_image_name=$REGISTRY_SERVER:$REGISTRY_PORT/$docker_image_name:$docker_image_tag
 timestamp="$(date -u +%Y%m%d)"
 build_version="${timestamp}.${BUILD_NUMBER}"
 build_remote_image_name=$REGISTRY_SERVER:$REGISTRY_PORT/$docker_image_name:$build_version
