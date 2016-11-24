@@ -16,6 +16,7 @@ BRCM-SDK-DEBS=$(notdir $(wildcard src/brcm-sdk/*.deb))
 CAVM-SDK-DEBS=$(notdir $(wildcard src/cavm-sdk/*.deb))
 
 LIBNL-DEBS=libnl-3-200_3.2.27-1_amd64.deb libnl-3-dev_3.2.27-1_amd64.deb libnl-genl-3-200_3.2.27-1_amd64.deb libnl-genl-3-dev_3.2.27-1_amd64.deb libnl-route-3-200_3.2.27-1_amd64.deb libnl-route-3-dev_3.2.27-1_amd64.deb  libnl-nf-3-200_3.2.27-1_amd64.deb libnl-nf-3-dev_3.2.27-1_amd64.deb libnl-cli-3-200_3.2.27-1_amd64.deb libnl-cli-3-dev_3.2.27-1_amd64.deb
+
 LIBTEAM-DEBS=libteam5_1.26-1_amd64.deb libteamdctl0_1.26-1_amd64.deb libteam-dev_1.26-1_amd64.deb libteam-utils_1.26-1_amd64.deb
 
 ## Function: build_docker, image_name save_file
@@ -36,6 +37,18 @@ src/%:
 	LIBNL-DEBS="$(LIBNL-DEBS)"							\
 	LIBTEAM-DEBS="$(LIBTEAM-DEBS)"						\
 	-C src $(subst src/,,$@)
+
+## Rules: docker-snmp-sv2
+dockers/docker-snmp-sv2/deps/%.deb: src/%.deb
+	mkdir -p `dirname $@` && cp $< $(dir $@)
+dockers/docker-snmp-sv2/deps/python3/%.whl: src/%.whl
+	mkdir -p `dirname $@` && cp $< $(dir $@)
+
+## Rules: docker-lldp-sv2
+dockers/docker-lldp-sv2/deps/%.deb: src/%.deb
+	mkdir -p `dirname $@` && cp $< $(dir $@)
+dockers/docker-lldp-sv2/deps/%.whl: src/%.whl
+	mkdir -p `dirname $@` && cp $< $(dir $@)
 
 ## Rules: docker-fpm
 dockers/docker-fpm/deps/fpmsyncd: src/fpmsyncd
@@ -107,6 +120,14 @@ dockers/docker-sonic-p4/deps/%.deb: src/%.deb
 target/docker-base.gz:
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 
+target/docker-snmp-sv2.gz: target/docker-base.gz $(addprefix dockers/docker-snmp-sv2/deps/,python3/sswsdk-2.0.1-py3-none-any.whl python3/asyncsnmp-2.1.0-py3-none-any.whl libsnmp-base_5.7.3+dfsg-1.5_all.deb libsnmp30_5.7.3+dfsg-1.5_amd64.deb snmp_5.7.3+dfsg-1.5_amd64.deb snmpd_5.7.3+dfsg-1.5_amd64.deb)
+	docker load < $<
+	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
+
+target/docker-lldp-sv2.gz: target/docker-base.gz $(addprefix dockers/docker-lldp-sv2/deps/,sswsdk-2.0.1-py2-none-any.whl sonic_d-2.0.0-py2-none-any.whl lldpd_0.9.5-0_amd64.deb)
+	docker load < $<
+	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
+
 target/docker-syncd.gz: target/docker-base.gz $(addprefix dockers/docker-syncd/deps/,$(BRCM-SDK-DEBS) libhiredis0.13_0.13.3-2_amd64.deb libswsscommon_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb syncd_1.0.0_amd64.deb libsaimetadata_1.0.0_amd64.deb $(LIBNL-DEBS))
 	## TODO: remove placeholders for the dependencies
 	touch dockers/docker-syncd/deps/{dsserve,bcmcmd}
@@ -161,12 +182,12 @@ target/sonic-aboot.bin: deps/linux-image-3.16.0-4-amd64_3.16.7-ckt11-2+acs8u2_am
 	./build_debian.sh "$(USERNAME)" "$(PASSWORD_ENCRYPTED)" && TARGET_MACHINE=aboot ./build_image.sh
 
 ## Note: docker-fpm.gz must be the last to build the implicit dependency fpmsyncd
-brcm-all: target/sonic-generic.bin $(addprefix target/,docker-syncd.gz docker-orchagent.gz docker-fpm.gz docker-team.gz docker-database.gz)
+brcm-all: target/sonic-generic.bin $(addprefix target/,docker-syncd.gz docker-orchagent.gz docker-fpm.gz docker-team.gz docker-database.gz docker-snmp-sv2.gz docker-lldp-sv2.gz)
 
 ## Note: docker-fpm.gz must be the last to build the implicit dependency fpmsyncd
-mlnx-all: target/sonic-generic.bin $(addprefix target/,docker-syncd-mlnx.gz docker-orchagent-mlnx.gz docker-fpm.gz docker-team.gz docker-database.gz)
+mlnx-all: target/sonic-generic.bin $(addprefix target/,docker-syncd-mlnx.gz docker-orchagent-mlnx.gz docker-fpm.gz docker-team.gz docker-database.gz docker-snmp-sv2.gz docker-lldp-sv2.gz)
 
 ## Note: docker-fpm.gz must be the last to build the implicit dependency fpmsyncd
-cavm-all: target/sonic-generic.bin $(addprefix target/,docker-syncd-cavm.gz docker-orchagent-cavm.gz docker-fpm.gz docker-team.gz docker-database.gz)
+cavm-all: target/sonic-generic.bin $(addprefix target/,docker-syncd-cavm.gz docker-orchagent-cavm.gz docker-fpm.gz docker-team.gz docker-database.gz docker-snmp-sv2.gz docker-lldp-sv2.gz)
 
 p4-all: $(addprefix target/,docker-sonic-p4.gz)
