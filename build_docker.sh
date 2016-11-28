@@ -30,7 +30,10 @@ EOF
 
 docker_image_name=''
 docker_image_tag=latest
-while getopts ":it:" opt; do
+## The option-string tells getopts which options to expect and which of them must have an argument
+## When you want getopts to expect an argument for an option, just place a : (colon) after the proper option flag
+## If the very first character of the option-string is a :, getopts switches to "silent error reporting mode".
+while getopts "i:t:" opt; do
   case $opt in
     i)
       docker_image_name=$OPTARG
