@@ -18,7 +18,7 @@ RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return
     && dpkg_apt /deps/libsaimetadata_*.deb          \
     && dpkg_apt /deps/syncd_*.deb
 
-RUN apt-get -y install libpcap-dev libxml2-dev python-dev swig libsensors4-dev
+RUN apt-get -y install libpcap-dev libxml2-dev python-dev swig libsensors4-dev redis-tools
 
 COPY ["start.sh", "/usr/bin/"]
 
