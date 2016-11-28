@@ -156,6 +156,8 @@ brcm/syncd_1.0.0_amd64.deb brcm/libsairedis_1.0.0_amd64.deb brcm/libsairedis-dev
 	cp syncd_1.0.0_amd64.deb libsairedis_1.0.0_amd64.deb libsairedis-dev_1.0.0_amd64.deb libsaimetadata_1.0.0_amd64.deb libsaimetadata-dev_1.0.0_amd64.deb brcm/
 
 mlnx/syncd_1.0.0_amd64.deb mlnx/libsairedis_1.0.0_amd64.deb mlnx/libsairedis-dev_1.0.0_amd64.deb mlnx/libsaimetadata_1.0.0_amd64.deb mlnx/libsaimetadata-dev_1.0.0_amd64.deb: libswsscommon_1.0.0_amd64.deb libswsscommon-dev_1.0.0_amd64.deb mlnx-sdk/*.deb
+	## Install applibs first for late depending packages
+	$(call install_deb, mlnx-sdk/applibs_1.mlnx.*.deb)
 	$(foreach dep, $^, $(call install_deb, $(dep)))
 	$(call build_project, sonic-sairedis)
 	mkdir -p mlnx
