@@ -140,6 +140,9 @@ p4-switch_1.0.0_amd64.deb: thrift-compiler_0.9.3-2_amd64.deb python-thrift_0.9.3
 	pushd p4-switch; ./build.sh; popd
 
 lldpd_0.9.5-0_amd64.deb liblldpctl-dev_0.9.5-0_amd64.deb:
+	## Install build dependency for lldpd
+	## Note: lldpd and snmpd conflict on Build-Depends, so install before build
+	sudo apt-get -y build-dep lldpd
 	$(call build_project, lldpd)
 
 quagga_0.99.24.1-2.1_amd64.deb:
