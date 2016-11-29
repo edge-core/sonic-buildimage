@@ -37,7 +37,7 @@ RUN sed --in-place 's/httpredir.debian.org/debian-archive.trafficmanager.net/' /
         cmake               \
     && dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; } \
     && dpkg_apt /root/deps/python-ptf_*.deb \
-    && dpkg_apt /root/deps/libthrift-0.9.2_*.deb \
+    && dpkg_apt /root/deps/libthrift-0.9.3_*.deb \
     && dpkg_apt /root/deps/python-thrift_*.deb \
     && rm -rf /root/deps \
     && apt-get -y autoclean \
