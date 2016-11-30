@@ -170,6 +170,10 @@ target/docker-sonic-p4.gz: target/docker-base.gz $(addprefix dockers/docker-soni
 	docker load < $<
 	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
 
+target/docker-platform-monitor.gz: target/docker-base.gz
+	docker load < $<
+	$(call build_docker,$(patsubst target/%.gz,%,$@),$@)
+
 ## Rules: linux image content
 deps/linux-image-3.16.0-4-amd64_%.deb: src/sonic-linux-kernel/linux-image-3.16.0-4-amd64_%.deb
 	mkdir -p `dirname $@` && cp $< $(dir $@)
@@ -182,12 +186,12 @@ target/sonic-aboot.bin: deps/linux-image-3.16.0-4-amd64_3.16.7-ckt11-2+acs8u2_am
 	./build_debian.sh "$(USERNAME)" "$(PASSWORD_ENCRYPTED)" && TARGET_MACHINE=aboot ./build_image.sh
 
 ## Note: docker-fpm.gz must be the last to build the implicit dependency fpmsyncd
-brcm-all: target/sonic-generic.bin $(addprefix target/,docker-syncd.gz docker-orchagent.gz docker-fpm.gz docker-team.gz docker-database.gz docker-snmp-sv2.gz docker-lldp-sv2.gz)
+brcm-all: target/sonic-generic.bin $(addprefix target/,docker-syncd.gz docker-orchagent.gz docker-fpm.gz docker-team.gz docker-database.gz docker-snmp-sv2.gz docker-lldp-sv2.gz docker-platform-monitor.gz)
 
 ## Note: docker-fpm.gz must be the last to build the implicit dependency fpmsyncd
-mlnx-all: target/sonic-generic.bin $(addprefix target/,docker-syncd-mlnx.gz docker-orchagent-mlnx.gz docker-fpm.gz docker-team.gz docker-database.gz docker-snmp-sv2.gz docker-lldp-sv2.gz)
+mlnx-all: target/sonic-generic.bin $(addprefix target/,docker-syncd-mlnx.gz docker-orchagent-mlnx.gz docker-fpm.gz docker-team.gz docker-database.gz docker-snmp-sv2.gz docker-lldp-sv2.gz docker-platform-monitor.gz)
 
 ## Note: docker-fpm.gz must be the last to build the implicit dependency fpmsyncd
-cavm-all: target/sonic-generic.bin $(addprefix target/,docker-syncd-cavm.gz docker-orchagent-cavm.gz docker-fpm.gz docker-team.gz docker-database.gz docker-snmp-sv2.gz docker-lldp-sv2.gz)
+cavm-all: target/sonic-generic.bin $(addprefix target/,docker-syncd-cavm.gz docker-orchagent-cavm.gz docker-fpm.gz docker-team.gz docker-database.gz docker-snmp-sv2.gz docker-lldp-sv2.gz docker-platform-monitor.gz)
 
 p4-all: $(addprefix target/,docker-sonic-p4.gz)
