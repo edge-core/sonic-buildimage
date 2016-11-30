@@ -36,7 +36,7 @@ RUN apt-get update \
  && dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; } \
  && dpkg -r syncd \
  && dpkg_apt /deps/syncd_*.deb \
- && dpkg_apt /deps/libthrift-0.9.2_*.deb \
+ && dpkg_apt /deps/libthrift-0.9.3_*.deb \
  && apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y \
  && rm -rf /deps
 
