@@ -13,7 +13,13 @@ Build a docker image by [the Dockerfile](https://github.com/Azure/sonic-build-to
     cd sonic-build-tools
     ./build.sh sonic-slave
     docker run -v /var/run/docker.sock:/var/run/docker.sock -it --privileged local/sonic-slave bash
-    
+
+You can also download sonic-slave docker from sonicdev docker registry using following command:
+
+    docker login -u 1dafc8d7-d19c-4f58-8653-e8d904f30dab -p sonic sonicdev-microsoft.azurecr.io:443
+    docker pull sonicdev-microsoft.azurecr.io:443/sonic-slave
+    docker run -v /var/run/docker.sock:/var/run/docker.sock -it --privileged sonicdev-microsoft.azurecr.io:443/sonic-slave bash
+
 Note that all the below steps should be executed in the docker container, not in the host machine.
 
 ## 2. Clone or fetch the code repository with all git submodules
