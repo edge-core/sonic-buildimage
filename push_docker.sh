@@ -23,7 +23,6 @@ build_remote_image_name=$REGISTRY_SERVER:$REGISTRY_PORT/$docker_image_name:$buil
 
 ## Add registry information as tag, so will push as latest
 ## Add additional tag with build information
-## Temporarily add -f option to prevent error message of Docker engine version < 1.10.0
 docker tag $docker_image_name $remote_image_name
 docker tag $docker_image_name $build_remote_image_name
 
