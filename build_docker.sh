@@ -52,10 +52,7 @@ shift "$((OPTIND - 1))"
 
 ## Dockerfile directory
 DOCKER_BUILD_DIR=dockers/$1
-REGISTRY_SERVER=$2
-REGISTRY_PORT=$3
-REGISTRY_USERNAME=$4
-REGISTRY_PASSWD=$5
+shift 1
 
 [ -f "$DOCKER_BUILD_DIR"/Dockerfile ] || {
     echo "Invalid DOCKER_BUILD_DIR directory" >&2
@@ -65,16 +62,6 @@ REGISTRY_PASSWD=$5
 [ -n "$docker_image_name" ] || {
     docker_image_name=$(basename $DOCKER_BUILD_DIR)
 }
-
-[ ${BUILD_NUMBER} ] || {
-    echo "No BUILD_NUMBER found, setting to 0."
-    BUILD_NUMBER="0"
-}
-
-remote_image_name=$REGISTRY_SERVER:$REGISTRY_PORT/$docker_image_name:$docker_image_tag
-timestamp="$(date -u +%Y%m%d)"
-build_version="${timestamp}.${BUILD_NUMBER}"
-build_remote_image_name=$REGISTRY_SERVER:$REGISTRY_PORT/$docker_image_name:$build_version
 
 ## Copy dependencies
 ## Note: Dockerfile ADD doesn't support reference files outside the folder, so copy it locally
@@ -112,27 +99,10 @@ if [ "$docker_image_name" = "docker-base" ]; then
     docker rmi -f $image_id || true
 fi
 
-image_sha=''
-if [ -n "$REGISTRY_SERVER" ] && [ -n "$REGISTRY_PORT" ]; then
-    ## Add registry information as tag, so will push as latest
-    ## Add additional tag with build information
-    ## Temporarily add -f option to prevent error message of Docker engine version < 1.10.0
-    docker tag $docker_image_name $remote_image_name
-    docker tag $docker_image_name $build_remote_image_name
-
-    ## Login the docker image registry server
-    ## Note: user name and password are passed from command line
-    docker login -u $REGISTRY_USERNAME -p "$REGISTRY_PASSWD" $REGISTRY_SERVER:$REGISTRY_PORT
-    
-    ## Push image to registry server
-    ## And get the image digest SHA256
-    trap_push "docker rmi $remote_image_name || true"
-    trap_push "docker rmi $build_remote_image_name || true"
-    image_sha=$(docker push $remote_image_name | sed -n "s/.*: digest: sha256:\([0-9a-f]*\).*/\\1/p")
-    docker push $build_remote_image_name
-fi
-
+## Save the docker image in a gz file
 mkdir -p target
-rm -f target/$docker_image_name.*.gz
-docker save $docker_image_name | gzip -c > target/$docker_image_name.$build_version.gz
-echo "Image sha256: $image_sha"
+docker save $docker_image_name | gzip -c > target/$docker_image_name.gz
+
+if [ -n "$1" ]; then
+    ./push_docker.sh target/$docker_image_name.gz $@ $docker_image_tag
+fi
