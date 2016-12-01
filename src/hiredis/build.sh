@@ -1,7 +1,5 @@
 #!/bin/bash -x
 
-sudo apt-get install -y libjemalloc-dev
-
 # Install redis-server
 sudo dpkg -i redis/*.deb
 
