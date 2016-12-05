@@ -1,0 +1,23 @@
+FROM docker-base
+
+COPY deps /deps
+COPY python-wheels /python-wheels
+
+RUN apt-get update && apt-get install -y python-pip supervisor libbsd0 libevent-2.0-5 libjansson4 libwrap0 libxml2 libpci3 libperl5.20
+
+## Pre-install the fundamental packages
+## Install Python SSWSDK
+## Install LLDP Sync Daemon
+
+SED_DPKG
+
+RUN pip install /python-wheels/sswsdk-2.0.1-py2-none-any.whl && \
+    pip install /python-wheels/sonic_d-2.0.0-py2-none-any.whl && \
+    apt-get remove -y python-pip && \
+    apt-get purge -y && apt-get autoclean -y && apt-get autoremove -y && \
+    rm -rf /deps /python-wheels ~/.cache
+
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY reconfigure.sh /opt/reconfigure.sh
+
+ENTRYPOINT ["/usr/bin/supervisord"]

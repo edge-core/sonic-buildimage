@@ -1,0 +1,7 @@
+# docker platform monitor image
+
+DOCKER_PLATFORM_MONITOR = docker-platform-monitor.gz
+$(DOCKER_PLATFORM_MONITOR)_PATH = $(DOCKERS_PATH)/docker-platform-monitor
+$(DOCKER_PLATFORM_MONITOR)_LOAD_DOCKERS = $(DOCKER_BASE)
+
+SONIC_SIMPLE_DOCKER_IMAGES += $(DOCKER_PLATFORM_MONITOR)

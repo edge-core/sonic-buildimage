@@ -1,0 +1,7 @@
+# asyncsnmp python2 wheel
+
+ASYNCSNMP_PY3 = asyncsnmp-2.1.0-py3-none-any.whl
+$(ASYNCSNMP_PY3)_SRC_PATH = $(SRC_PATH)/sonic-snmpagent
+$(ASYNCSNMP_PY3)_PYTHON_VERSION = 3
+$(ASYNCSNMP_PY3)_DEPENDS += $(SSWSDK_PY3)
+SONIC_PYTHON_WHEELS += $(ASYNCSNMP_PY3)

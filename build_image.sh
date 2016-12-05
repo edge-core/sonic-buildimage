@@ -13,7 +13,7 @@
 }
 
 ## Retrieval short version of Git revision hash for partition metadata
-[ -z "$(git status --untracked-files=no -s)" ] || {
+[ -z "$(git status --untracked-files=no -s --ignore-submodules)" ] || {
     echo "Error: There is local changes not committed to git repo. Cannot get a revision hash for partition metadata."
     exit 1
 }

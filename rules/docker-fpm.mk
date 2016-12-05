@@ -1,0 +1,7 @@
+# docker image for fpm
+
+DOCKER_FPM = docker-fpm.gz
+$(DOCKER_FPM)_PATH = $(DOCKERS_PATH)/docker-fpm
+$(DOCKER_FPM)_DEPENDS += $(QUAGGA) $(SWSS)
+$(DOCKER_FPM)_LOAD_DOCKERS += $(DOCKER_BASE)
+SONIC_DOCKER_IMAGES += $(DOCKER_FPM)

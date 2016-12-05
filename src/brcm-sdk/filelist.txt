@@ -1,7 +1,0 @@
-## Get vendor SAI SDK
-## https://github.com/Azure/sonic-buildimage/blob/master/README.md#3-get-vendor-sai-sdk
-
-libopennsl_6.4.11-1+0~20160719212144.23~1.gbp8ec2d1_amd64.deb
-libsaibcm-dbg_1.0.2~20160727172452.52_amd64.deb
-libsaibcm-dev_1.0.2~20160727172452.52_amd64.deb
-libsaibcm_1.0.2~20160727172452.52_amd64.deb

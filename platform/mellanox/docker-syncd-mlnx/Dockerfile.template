@@ -1,0 +1,20 @@
+FROM docker-base
+
+RUN apt-get update
+
+COPY deps /deps
+
+RUN apt-get install -y libxml2
+
+SED_DPKG
+
+COPY ["start.sh", "/usr/bin/"]
+COPY ["mlnx-fw-upgrade.sh", "/usr/bin/"]
+COPY ["/deps/fw-SPC.mfa", "/etc/mlnx/"]
+
+## Clean up
+RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
+RUN rm -rf /deps
+
+ENTRYPOINT ["/bin/bash"]
+CMD ["/usr/bin/start.sh"]

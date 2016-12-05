@@ -1,0 +1,20 @@
+FROM docker-base
+
+RUN apt-get update
+
+RUN apt-get install -y net-tools ethtool tcpdump ifupdown bridge-utils
+
+COPY deps /deps
+
+SED_DPKG
+
+ADD port_config.ini /port_config.ini
+ADD startup.sh /scripts/startup.sh
+
+ADD rsyslog.conf /etc/rsyslog.conf
+
+## Clean up
+RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
+RUN rm -rf /deps
+
+ENTRYPOINT /bin/bash

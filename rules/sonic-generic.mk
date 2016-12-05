@@ -1,0 +1,6 @@
+# sonic generic installer
+
+SONIC_GENERIC = sonic-generic.bin
+$(SONIC_GENERIC)_MACHINE = generic
+$(SONIC_GENERIC)_DEPENDS += $(LINUX_KERNEL) $(INITRAMFS_TOOLS)
+SONIC_INSTALLERS += $(SONIC_GENERIC)

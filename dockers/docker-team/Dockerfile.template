@@ -1,0 +1,15 @@
+FROM docker-base
+
+RUN apt-get update && apt-get install -f -y libdbus-1-3 libdaemon0 libjansson4
+
+COPY deps /deps
+
+SED_DPKG
+
+COPY start.sh /usr/bin/start.sh
+
+RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
+RUN rm -rf /deps
+
+ENTRYPOINT ["/bin/bash"]
+CMD ["/usr/bin/start.sh"]
