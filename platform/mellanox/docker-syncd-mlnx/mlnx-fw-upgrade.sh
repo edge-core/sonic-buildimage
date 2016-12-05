@@ -1,7 +1,7 @@
 #!/bin/bash
 
 query_retry_count_max="10"
-required_fw_version="13.1130.0010"
+required_fw_version="13.1200.0116"
 fw_file=/etc/mlnx/fw-SPC.mfa
 
 run_or_fail() {
