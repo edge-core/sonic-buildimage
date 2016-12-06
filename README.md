@@ -6,23 +6,7 @@ Mellanox[![Mellanox](https://sonic-jenkins.westus.cloudapp.azure.com/job/mellano
 Build an [Open Network Install Environment (ONIE)](https://github.com/opencomputeproject/onie) compatiable network operating system (NOS) installer image for network switches, and also build docker images running inside the NOS.
 
 # Prerequisite
-## 1. Build environment
-Build a docker image by [the Dockerfile](https://github.com/Azure/sonic-build-tools/blob/master/sonic-slave/Dockerfile) and build all remains in the docker container.
-
-    git clone https://github.com/Azure/sonic-build-tools
-    cd sonic-build-tools
-    ./build.sh sonic-slave
-    docker run -v /var/run/docker.sock:/var/run/docker.sock -it --privileged local/sonic-slave bash
-
-You can also download sonic-slave docker from sonicdev docker registry using following command:
-
-    docker login -u 1dafc8d7-d19c-4f58-8653-e8d904f30dab -p sonic sonicdev-microsoft.azurecr.io:443
-    docker pull sonicdev-microsoft.azurecr.io:443/sonic-slave
-    docker run -v /var/run/docker.sock:/var/run/docker.sock -it --privileged sonicdev-microsoft.azurecr.io:443/sonic-slave bash
-
-Note that all the below steps should be executed in the docker container, not in the host machine.
-
-## 2. Clone or fetch the code repository with all git submodules
+## Clone or fetch the code repository with all git submodules
 To clone the code repository recursively, assuming git version 1.9 or newer
 
     git clone --recursive https://github.com/Azure/sonic-buildimage.git
@@ -31,23 +15,38 @@ If it is already cloned, however there is no files under ./dockers/docker-base/ 
 
     git submodule update --init --recursive
 
-## 3. Get vendor SAI SDK
-Obtain Switch Abstraction Interface (SAI) SDK from one of supported vendors (see the list in [Usage](#usage) Section), and place it in the directory ./src/[VENDOR]-sdk/ as filelist.txt in that directory. Skip this step for p4 since it is an open source software switch.
-
 # Usage
 To build NOS installer image and docker images, run command line
 
-    make [VENDOR]-all USERNAME=[USERNAME] PASSWORD_ENCRYPTED=[PASSWORD_ENCRYPTED]
+    make configure PLATFORM=[VENDOR]
+    make
 
 Supported VENDORs are:
-- brcm: Broadcom
-- mlnx: Mellanox
-- cavm: Cavium
-- p4: barefoot
+- broadcom
+- mellanox
+- cavium
+- p4
 
-For example, the user name is 'admin' and the password is 'YourPaSsWoRd'. To build all the images for Broadcom platform, use the command:
+You can find rules/config file useful. It contains configuration options for build process, like adding more verbosity or showing dependencies, username and password for base image etc.
 
-    make brcm-all USERNAME="admin" PASSWORD_ENCRYPTED="$(perl -e 'print crypt("YourPaSsWoRd", "salt"),"\n"')"
+Every docker image is built and saved to target/ directory.
+So, for instance, to build only docker-database, execute
+
+    make target/docker-database.gz
+
+Same goes for debian packages, which are under target/debs/:
+
+    make target/debs/swss_1.0.0_amd64.deb
+
+Every target has a clean target, so in order to clean swss, execute
+
+    make target/debs/swss_1.0.0_amd64.deb-clean
+
+It is recommended to use clean targets to clean all packages, that are built together, like dev packages for instance.
+
+# Note:
+If you are running make for the first time, a sonic-slave-${USER} docker image will be built automatically.
+It is a one time action, so be patient.
 
 The root is disabled, but the created user could sudo.
 
