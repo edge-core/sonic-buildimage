@@ -12,7 +12,8 @@ SONIC_ALL += $(DOCKER_SYNCD_MLNX) \
 	     $(DOCKER_LLDP_SV2) \
 	     $(DOCKER_SNMP_SV2) \
 	     $(DOCKER_TEAM) \
-	     $(DOCKER_PLATFORM_MONITOR)
+	     $(DOCKER_PLATFORM_MONITOR) \
+	     debs/$(MLNX_HW_MANAGEMENT)
 
 # Inject mlnx sai into sairedis
 $(LIBSAIREDIS)_DEPENDS += $(MLNX_SAI)
