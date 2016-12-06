@@ -12,5 +12,7 @@ SED_DPKG
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /deps
 
+COPY ["start.sh", "/usr/bin/"]
+
 ENTRYPOINT /usr/bin/start.sh    \
         && /bin/bash
