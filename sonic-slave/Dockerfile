@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y libreadline-dev texlive-latex-base texl
 RUN apt-get install -y cdbs
 
 # For SAI meta build
-RUN apt-get update && apt-get install -y libxml-simple-perl
+RUN apt-get update && apt-get install -y libxml-simple-perl graphviz
 
 # For linux build
 RUN apt-get update && apt-get install -y bc fakeroot build-essential devscripts quilt stgit
@@ -63,6 +63,9 @@ RUN apt-get update && apt-get install -y libjemalloc-dev
 
 # For mft kernel module build
 RUN apt-get update && apt-get install -y dkms
+
+# For python3.5 build
+RUN apt-get update && apt-get install -y sharutils libncursesw5-dev libbz2-dev liblzma-dev libgdbm-dev tk-dev blt-dev libmpdec-dev libbluetooth-dev locales libsqlite3-dev libgpm2 time net-tools xvfb python-sphinx python3-sphinx
 
 RUN mkdir /var/run/sshd
 EXPOSE 22
