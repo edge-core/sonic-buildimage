@@ -146,7 +146,7 @@ $(addprefix $(DEBS_PATH)/, $(SONIC_PYTHON_STDEB_DEBS)) : $(DEBS_PATH)/% : .platf
 	$(HEADER)
 	# Build project and take package
 	pushd $($*_SRC_PATH) $(LOG)
-	python setup.py --command-packages=stdeb.command bdist_deb
+	python setup.py --command-packages=stdeb.command bdist_deb $(LOG)
 	popd $(LOG)
 	mv $(addprefix $($*_SRC_PATH)/deb_dist/, $* $($*_DERIVED_DEBS)) $(DEBS_PATH) $(LOG)
 	$(FOOTER)
