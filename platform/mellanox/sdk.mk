@@ -37,6 +37,8 @@ SXD_LIBS_DEV = sxd-libs-dev_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
 $(eval $(call add_derived_package,$(SXD_LIBS),$(SXD_LIBS_DEV)))
 SXD_LIBS_DEV_STATIC = sxd-libs-dev-static_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
 $(eval $(call add_derived_package,$(SXD_LIBS),$(SXD_LIBS_DEV_STATIC)))
+#packages that are required for runtime only
+PYTHON_SDK_API = python-sdk-api_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
 
 define make_url
 	$(1)_URL = $(MLNX_SDK_BASE_URL)/$(1)
@@ -45,5 +47,6 @@ endef
 
 $(eval $(foreach deb,$(MLNX_SDK_DEBS),$(call make_url,$(deb))))
 $(eval $(foreach deb,$(MLNX_SDK_RDEBS),$(call make_url,$(deb))))
+$(eval $(foreach deb,$(PYTHON_SDK_API),$(call make_url,$(deb))))
 
-SONIC_ONLINE_DEBS += $(MLNX_SDK_RDEBS)
+SONIC_ONLINE_DEBS += $(MLNX_SDK_RDEBS) $(PYTHON_SDK_API)
