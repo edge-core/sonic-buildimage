@@ -3,7 +3,7 @@ FROM debian:jessie
 MAINTAINER Pavel Shirshov
 
 ## Copy dependencies
-COPY deps /root/deps
+COPY debs /debs
 
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
@@ -35,11 +35,15 @@ RUN sed --in-place 's/httpredir.debian.org/debian-archive.trafficmanager.net/' /
         python-dev          \
         wget                \
         cmake               \
-    && dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; } \
-    && dpkg_apt /root/deps/python-ptf_*.deb \
-    && dpkg_apt /root/deps/libthrift-0.9.3_*.deb \
-    && dpkg_apt /root/deps/python-thrift_*.deb \
-    && rm -rf /root/deps \
+        libqt5core5a        \
+        libqt5network5
+
+RUN dpkg -i \
+{% for deb in docker_ptf_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor %}
+
+RUN rm -rf /debs \
     && apt-get -y autoclean \
     && apt-get -y autoremove \
     && rm -rf /var/lib/apt/lists/* \
