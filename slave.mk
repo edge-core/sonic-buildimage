@@ -63,6 +63,31 @@ MAKEFLAGS += -j $(SONIC_CONFIG_BUILD_JOBS)
 ###############################################################################
 
 ###############################################################################
+## Local targets
+###############################################################################
+
+# Copy debian packages from local directory
+# Add new package for copy:
+#     SOME_NEW_DEB = some_new_deb.deb
+#     $(SOME_NEW_DEB)_PATH = path/to/some_new_deb.deb
+#     SONIC_COPY_DEBS += $(SOME_NEW_DEB)
+$(addprefix $(DEBS_PATH)/, $(SONIC_COPY_DEBS)) : $(DEBS_PATH)/% : .platform
+	$(HEADER)
+	$(foreach deb,$* $($*_DERIVED_DEBS), \
+	    { cp $($(deb)_PATH)/$(deb) $(DEBS_PATH)/ $(LOG) || exit 1 ; } ; )
+	$(FOOTER)
+
+# Copy regular files from local directory
+# Add new package for copy:
+#     SOME_NEW_FILE = some_new_file
+#     $(SOME_NEW_FILE)_PATH = path/to/some_new_file
+#     SONIC_COPY_FILES += $(SOME_NEW_FILE)
+$(addprefix $(DEBS_PATH)/, $(SONIC_COPY_FILES)) : $(DEBS_PATH)/% : .platform
+	$(HEADER)
+	cp $($*_PATH)/$* $(DEBS_PATH)/ $(LOG) || exit 1
+	$(FOOTER)
+
+###############################################################################
 ## Online targets
 ###############################################################################
 
@@ -86,17 +111,6 @@ $(addprefix $(DEBS_PATH)/, $(SONIC_ONLINE_DEBS)) : $(DEBS_PATH)/% : .platform
 $(addprefix $(DEBS_PATH)/, $(SONIC_ONLINE_FILES)) : $(DEBS_PATH)/% : .platform
 	$(HEADER)
 	wget -O  $@ $($*_URL) $(LOG)
-	$(FOOTER)
-
-# Copy debian packages from local directory
-# Add new package for copy:
-#     SOME_NEW_DEB = some_new_deb.deb
-#     $(SOME_NEW_DEB)_PATH = path/to/some_new_deb.deb
-#     SONIC_COPY_DEBS += $(SOME_NEW_DEB)
-$(addprefix $(DEBS_PATH)/, $(SONIC_COPY_DEBS)) : $(DEBS_PATH)/% : .platform
-	$(HEADER)
-	$(foreach deb,$* $($*_DERIVED_DEBS), \
-	    { cp $($(deb)_PATH) $(DEBS_PATH)/ $(LOG) || exit 1 ; } ; )
 	$(FOOTER)
 
 ###############################################################################
@@ -271,6 +285,7 @@ SONIC_CLEAN_DEBS = $(addsuffix -clean,$(addprefix $(DEBS_PATH)/, \
 		   $(SONIC_ONLINE_DEBS) \
 		   $(SONIC_ONLINE_FILES) \
 		   $(SONIC_COPY_DEBS) \
+		   $(SONIC_COPY_FILES) \
 		   $(SONIC_MAKE_DEBS) \
 		   $(SONIC_DPKG_DEBS) \
 		   $(SONIC_PYTHON_STDEB_DEBS) \

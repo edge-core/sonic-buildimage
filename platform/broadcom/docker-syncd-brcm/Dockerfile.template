@@ -1,0 +1,19 @@
+FROM docker-base
+
+RUN apt-get update
+
+COPY deps /deps
+
+SED_DPKG
+
+## TODO: add kmod into Depends
+RUN apt-get install -f kmod
+
+COPY ["deps/dsserve", "deps/bcmcmd", "start.sh", "/usr/bin/"]
+
+## Clean up
+RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
+RUN rm -rf /deps
+
+ENTRYPOINT ["/bin/bash"]
+CMD ["/usr/bin/start.sh"]

@@ -1,0 +1,10 @@
+BRCM_SAI = libsaibcm_2.0.3.7~20161214010054.112_amd64.deb
+$(BRCM_SAI)_PATH = $(PLATFORM_PATH)/sdk
+BRCM_SAI_DEV = libsaibcm-dev_2.0.3.7~20161214010054.112_amd64.deb
+$(BRCM_SAI_DEV)_PATH = $(PLATFORM_PATH)/sdk
+$(eval $(call add_derived_package,$(BRCM_SAI),$(BRCM_SAI_DEV)))
+
+SONIC_COPY_DEBS += $(BRCM_SAI)
+
+$(BRCM_SAI)_DEPENDS += $(BRCM_OPENNSL)
+$(BRCM_SAI_DEV)_DEPENDS += $(BRCM_SAI)
