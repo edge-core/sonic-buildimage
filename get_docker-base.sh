@@ -16,5 +16,6 @@ BASE_URL="https://sonicstorage.blob.core.windows.net/packages/docker-base.ea5077
 
 base_image_name=docker-base
 docker_try_rmi $base_image_name
+mkdir -p $TARGET_PATH
 wget --no-use-server-timestamps -O $TARGET_PATH/$base_image_name.gz "$BASE_URL"
 docker load < $TARGET_PATH/$base_image_name.gz
