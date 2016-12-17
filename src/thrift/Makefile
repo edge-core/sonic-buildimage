@@ -19,6 +19,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 
 	dpkg-source -x thrift_$(THRIFT_VERSION_FULL).dsc
 	pushd thrift-$(THRIFT_VERSION)
+	patch -p1 < ../patch/THRIFT-3577-assertion-failed.patch
 	dpkg-buildpackage -d -rfakeroot -b -us -uc
 	popd
 
