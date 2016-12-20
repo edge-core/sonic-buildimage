@@ -1,5 +1,5 @@
-MLNX_SDK_BASE_URL = https://github.com/Mellanox/SAI-Implementation/raw/9ae5a29e344e23cd4ce92805f990f8ce8fab292a/sdk
-MLNX_SDK_VERSION = 4.2.3002
+MLNX_SDK_BASE_URL = https://github.com/Mellanox/SAI-Implementation/raw/35e5e8739bec80c19053b7bb9cf6d083b8144fb5/sdk
+MLNX_SDK_VERSION = 4.2.3102
 MLNX_SDK_RDEBS += $(APPLIBS) $(IPROUTE2) $(SX_ACL_RM) $(SX_COMPLIB) \
 		  $(SX_EXAMPLES) $(SX_GEN_UTILS) $(SX_SCEW) $(SX_SDN_HAL) \
 		  $(SXD_LIBS) $(TESTX)
@@ -11,6 +11,7 @@ MLNX_SDK_DEBS += $(APPLIBS_DEV) $(IPROUTE2_DEV) $(SX_ACL_RM_DEV) \
 		 $(SXD_LIBS_DEV_STATIC) $(TESTX_DEV)
 
 APPLIBS = applibs_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
+$(APPLIBS)_DEPENDS += $(SX_COMPLIB) $(SX_GEN_UTILS) $(SXD_LIBS) $(LIBNL3) $(LIBNL_GENL3)
 APPLIBS_DEV = applibs-dev_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
 $(eval $(call add_derived_package,$(APPLIBS),$(APPLIBS_DEV)))
 IPROUTE2 = iproute2_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
@@ -22,9 +23,11 @@ $(eval $(call add_derived_package,$(SX_COMPLIB),$(SX_COMPLIB_DEV)))
 SX_COMPLIB_DEV_STATIC = sx-complib-dev-static_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
 $(eval $(call add_derived_package,$(SX_COMPLIB),$(SX_COMPLIB_DEV_STATIC)))
 SX_EXAMPLES = sx-examples_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
+$(SX_EXAMPLES)_DEPENDS += $(APPLIBS) $(SX_SCEW) $(SXD_LIBS)
 SX_EXAMPLES_DEV = sx-examples-dev_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
 $(eval $(call add_derived_package,$(SX_EXAMPLES),$(SX_EXAMPLES_DEV)))
 SX_GEN_UTILS = sx-gen-utils_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
+$(SX_GEN_UTILS)_DEPENDS += $(SX_COMPLIB)
 SX_GEN_UTILS_DEV = sx-gen-utils-dev_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
 $(eval $(call add_derived_package,$(SX_GEN_UTILS),$(SX_GEN_UTILS_DEV)))
 SX_SCEW = sx-scew_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
@@ -39,6 +42,7 @@ SXD_LIBS_DEV_STATIC = sxd-libs-dev-static_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
 $(eval $(call add_derived_package,$(SXD_LIBS),$(SXD_LIBS_DEV_STATIC)))
 #packages that are required for runtime only
 PYTHON_SDK_API = python-sdk-api_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
+$(PYTHON_SDK_API)_DEPENDS += $(APPLIBS) $(SXD_LIBS)
 SX_KERNEL = sx-kernel_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
 SX_KERNEL_DEV = sx-kernel-dev_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
 $(eval $(call add_derived_package,$(SX_KERNEL),$(SX_KERNEL_DEV)))
