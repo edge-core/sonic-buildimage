@@ -18,6 +18,9 @@ If it is already cloned, however there is no files under ./dockers/docker-base/ 
     git submodule update --init --recursive
 
 # Usage
+
+**NOTE:** In order to be more familiar with build process and make some hanges to it, it is recommended to read this short [Documentation](README.buildsystem.md)
+
 To build NOS installer image and docker images, run command line
 
     make configure PLATFORM=[VENDOR]
