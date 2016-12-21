@@ -2,7 +2,8 @@ FROM docker-base
 
 ## Pre-install the fundamental packages
 ## Clean up
-RUN apt-get -y install                                                              \
+RUN apt-get update &&                                                               \
+    apt-get -y install                                                              \
         smartmontools                                                               \
         sensord                                                                     \
         &&                                                                          \
