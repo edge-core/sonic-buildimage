@@ -192,13 +192,13 @@ SONIC_DOCKER_IMAGES += $(SOME_DOCKER) # add docker to this group
 ## Tips & Tricks
 Although every target is built inside a sonic-slave container, which exits at the end of build, you can enter bash of sonic-slave using this command:
 ```
-$ sonic-slave-bash
+$ make sonic-slave-bash
 ```
 It is very useful for debugging when you add a new target and facing some trubles.
 
 sonic-slave environment is built only once, but if sonic-slave/Dockerfile was updated, you can rebuild it with this command:
 ```
-$ sonic-slave-build
+$ make sonic-slave-build
 ```
 
 All target groups are used by one or another recipe, so use those recipes as a reference when adding new ones.
