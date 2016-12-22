@@ -17,7 +17,7 @@ RUN apt-get update && \
     dpkg_apt /deps/libsnmp30_*.deb &&                                                           \
     dpkg_apt /deps/snmp_*.deb &&                                                                \
     dpkg_apt /deps/snmpd_*.deb &&                                                               \
-    rm -rf /deps 
+    rm -rf /deps
 
 # install subagent
 RUN apt-get -y install build-essential wget libssl-dev openssl supervisor && \

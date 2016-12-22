@@ -5,7 +5,8 @@ COPY user-override /etc/opt/quest/vas/user-override
 
 ## Pre-install the fundamental packages
 ## Clean up
-RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; } &&        \
+RUN apt-get update &&                                                                           \
+    dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; } &&        \
     apt-get -y install                                                                          \
         sudo                                                                                    \
         &&                                                                                      \
