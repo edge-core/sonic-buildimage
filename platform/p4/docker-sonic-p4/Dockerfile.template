@@ -17,4 +17,10 @@ ADD rsyslog.conf /etc/rsyslog.conf
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /deps
 
+RUN sed -ri 's/^daemonize yes$/daemonize no/;                                           \
+             s/^logfile .*$/logfile ""/;                                                \
+             s/^# syslog-enabled no$/syslog-enabled no/;                                \
+             s/^# unixsocket/unixsocket/                                                \
+            ' /etc/redis/redis.conf
+
 ENTRYPOINT /bin/bash
