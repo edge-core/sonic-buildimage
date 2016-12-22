@@ -8,7 +8,7 @@ P4[![Broadcom](https://sonic-jenkins.westus.cloudapp.azure.com/job/p4/job/buildi
 Build an [Open Network Install Environment (ONIE)](https://github.com/opencomputeproject/onie) compatiable network operating system (NOS) installer image for network switches, and also build docker images running inside the NOS.
 
 # Prerequisite
-## SAI Version 
+# SAI Version 
 SONiC V2 is using [SAI 0.9.4](https://github.com/opencomputeproject/SAI/tree/v0.9.4). 
 
 # Clone or fetch the code repository with all git submodules
