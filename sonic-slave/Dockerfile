@@ -103,6 +103,10 @@ RUN useradd $user -u $uid -g $guid -d /var/$user -m -s /bin/bash
 
 RUN gpasswd -a $user docker
 
+# Config git for stg
+RUN su $user -c "git config --global user.name $user"
+RUN su $user -c "git config --global user.email $user@company.com"
+
 COPY sonic-jenkins-id_rsa.pub /var/$user/.ssh/authorized_keys2
 RUN chown $user /var/$user/.ssh -R
 RUN chmod go= /var/$user/.ssh -R
