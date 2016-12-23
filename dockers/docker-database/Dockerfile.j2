@@ -2,17 +2,20 @@ FROM docker-base
 
 RUN apt-get update
 
-COPY deps/ deps
+COPY debs/ debs
 
 ## Install redis-tools dependencies
 ## TODO: implicitly install dependencies
 RUN apt-get -y install libjemalloc1
 
-SED_DPKG
+RUN dpkg -i \
+{% for deb in docker_database_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor %}
 
 ## Clean up
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
-RUN rm -rf /deps
+RUN rm -rf /debs
 
 RUN sed -ri 's/^daemonize yes$/daemonize no/;                                           \
              s/^logfile .*$/logfile ""/;                                                \

@@ -4,9 +4,12 @@ RUN apt-get update
 
 RUN apt-get install -y net-tools ethtool tcpdump ifupdown bridge-utils python-ply libqt5core5a libqt5network5 libboost-program-options1.55.0 libboost-system1.55.0 libboost-thread1.55.0 libgmp10 libjudydebian1 libnanomsg0 libdaemon0 libjansson4 libjemalloc1
 
-COPY deps /deps
+COPY debs /debs
 
-SED_DPKG
+RUN dpkg -i \
+{% for deb in docker_sonic_p4_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor %}
 
 ADD port_config.ini /port_config.ini
 ADD startup.sh /scripts/startup.sh
@@ -15,7 +18,7 @@ ADD rsyslog.conf /etc/rsyslog.conf
 
 ## Clean up
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
-RUN rm -rf /deps
+RUN rm -rf /debs
 
 RUN sed -ri 's/^daemonize yes$/daemonize no/;                                           \
              s/^logfile .*$/logfile ""/;                                                \

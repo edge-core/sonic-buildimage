@@ -1,6 +1,6 @@
 FROM docker-base
 
-COPY deps /deps
+COPY debs /debs
 COPY python-wheels /python-wheels
 
 # enable -O for all Python calls
@@ -12,9 +12,12 @@ ENV PYTHONOPTIMIZE 1
 ## Clean up
 RUN apt-get update && apt-get install -y libmysqlclient-dev libmysqld-dev libperl-dev libpci-dev libpci3 libsensors4 libsensors4-dev libwrap0-dev
 
-SED_DPKG
+RUN dpkg -i \
+{% for deb in docker_snmp_sv2_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor %}
 
-RUN rm -rf /deps
+RUN rm -rf /debs
 
 # install subagent
 RUN apt-get -y install build-essential wget libssl-dev openssl supervisor && \

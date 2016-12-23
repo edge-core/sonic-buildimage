@@ -2,18 +2,21 @@ FROM docker-base
 
 RUN apt-get update
 
-COPY deps /deps
+COPY debs /debs
 
-SED_DPKG
+RUN dpkg -i \
+{% for deb in docker_syncd_brcm_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor %}
 
 ## TODO: add kmod into Depends
 RUN apt-get install -f kmod
 
-COPY ["deps/dsserve", "deps/bcmcmd", "start.sh", "/usr/bin/"]
+COPY ["debs/dsserve", "debs/bcmcmd", "start.sh", "/usr/bin/"]
 
 ## Clean up
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
-RUN rm -rf /deps
+RUN rm -rf /debs
 
 ENTRYPOINT ["/bin/bash"]
 CMD ["/usr/bin/start.sh"]
