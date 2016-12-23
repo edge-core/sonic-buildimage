@@ -1,3 +1,5 @@
+include $(PLATFORM_GENERIC_PATH)/rules.mk
+
 include $(PLATFORM_PATH)/sdk.mk
 include $(PLATFORM_PATH)/fw.mk
 include $(PLATFORM_PATH)/mft.mk

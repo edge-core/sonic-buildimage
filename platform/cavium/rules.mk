@@ -1,3 +1,5 @@
+include $(PLATFORM_GENERIC_PATH)/rules.mk
+
 CAVM_LIBSAI = libsai.deb
 $(CAVM_LIBSAI)_PATH = $(PLATFORM_PATH)/cavm_sdk
 CAVM_SAI = sai.deb

@@ -1,3 +1,5 @@
+include $(PLATFORM_GENERIC_PATH)/rules.mk
+
 include $(PLATFORM_PATH)/sdk.mk
 include $(PLATFORM_PATH)/sai.mk
 include $(PLATFORM_PATH)/docker-orchagent-brcm.mk
