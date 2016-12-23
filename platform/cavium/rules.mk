@@ -1,23 +1,15 @@
 include $(PLATFORM_GENERIC_PATH)/rules.mk
 
-CAVM_LIBSAI = libsai.deb
-$(CAVM_LIBSAI)_PATH = $(PLATFORM_PATH)/cavm_sdk
-CAVM_SAI = sai.deb
-$(CAVM_SAI)_PATH = $(PLATFORM_PATH)/cavm_sdk
-XP_TOOLS = xp-tools.deb
-$(XP_TOOLS)_PATH = $(PLATFORM_PATH)/cavm_sdk
-XPSHELL = xpshell.deb
-$(XPSHELL)_PATH = $(PLATFORM_PATH)/cavm_sdk
+include $(PLATFORM_PATH)/cavm-sai.mk
+include $(PLATFORM_PATH)/docker-syncd-cavm.mk
+include $(PLATFORM_PATH)/docker-orchagent-cavm.mk
 
-SONIC_COPY_DEBS += $(CAVM_LIBSAI) $(CAVM_SAI) $(XP_TOOLS) $(XPSHELL)
+SONIC_ALL += $(DOCKER_SYNCD_CAVM) \
+	     $(DOCKER_ORCHAGENT_CAVM)
 
-# TODO: Put dependencies for SDK packages
+# Inject cavium sai into sairedis
+$(LIBSAIREDIS)_DEPENDS += $(CAVM_SAI) $(CAVM_LIBSAI)
 
-SONIC_ALL += $(SONIC_GENERIC) $(DOCKER_SYNCD_CAVM) $(DOCKER_ORCHAGENT) \
-	     $(DOCKER_FPM)
+# Runtime dependency on cavium sai is set only for syncd
+$(SYNCD)_RDEPENDS += $(CAVM_SAI)
 
-# Inject cavm sai into sairedis
-$(LIBSAIREDIS)_DEPENDS += $(CAVM_LIBSAI)
-
-# Runtime dependency on cavm sai is set only for syncd
-$(SYNCD)_RDEPENDS += $(CAVM_LIBSAI)
