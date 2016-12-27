@@ -1,0 +1,21 @@
+FROM docker-base
+
+RUN apt-get update
+
+COPY debs /debs
+
+RUN apt-get -y install libpcap-dev libxml2-dev python-dev swig libsensors4-dev libjemalloc1
+
+RUN dpkg -i \
+{% for deb in docker_syncd_cavm_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor %}
+
+COPY ["start.sh", "/usr/bin/"]
+
+## Clean up
+RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
+RUN rm -rf /debs
+
+ENTRYPOINT ["/bin/bash"]
+CMD ["/usr/bin/start.sh"]
