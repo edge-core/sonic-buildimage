@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "Set onie_platform to x86_64-barefoot_p4-r0"
+export onie_platform=x86_64-barefoot_p4-r0
+
 echo "Start rsyslog"
 service rsyslog start
 
