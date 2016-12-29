@@ -1,4 +1,5 @@
 Broadcom[![Broadcom](https://sonic-jenkins.westus.cloudapp.azure.com/job/broadcom/job/buildimage-brcm-all/badge/icon)](https://sonic-jenkins.westus.cloudapp.azure.com/job/broadcom/job/buildimage-brcm-all)
+Cavium[![Cavium](https://sonic-jenkins.westus.cloudapp.azure.com/job/cavium/job/buildimage-cavm-all/badge/icon)](https://sonic-jenkins.westus.cloudapp.azure.com/job/cavium/job/buildimage-cavm-all/)
 Mellanox[![Mellanox](https://sonic-jenkins.westus.cloudapp.azure.com/job/mellanox/job/buildimage-mlnx-all/badge/icon)](https://sonic-jenkins.westus.cloudapp.azure.com/job/mellanox/job/buildimage-mlnx-all)
 P4[![Broadcom](https://sonic-jenkins.westus.cloudapp.azure.com/job/p4/job/buildimage-p4-all/badge/icon)](https://sonic-jenkins.westus.cloudapp.azure.com/job/p4/job/buildimage-p4-all)
 
@@ -64,8 +65,11 @@ The target directory is ./target, containing the NOS installer image and docker 
 - docker-base.gz: base docker image where other docker images are built from, only used in build process (gzip tar archive)
 - docker-database.gz: docker image for in-memory key-value store, used as inter-process communication (gzip tar archive)
 - docker-fpm.gz: docker image for quagga with fpm module enabled (gzip tar archive)
-- docker-orchagent.gz: docker image for SWitch State Service (SWSS) (gzip tar archive)
-- docker-syncd.gz: docker image for the daemon to sync database and Broadcom switch ASIC (gzip tar archive)
+- docker-orchagent-brcm.gz: docker image for SWitch State Service (SWSS) on Broadcom platform (gzip tar archive)
+- docker-orchagent-cavm.gz: docker image for SWitch State Service (SWSS) on Cavium platform (gzip tar archive)
+- docker-orchagent-mlnx.gz: docker image for SWitch State Service (SWSS) on Mellanox platform (gzip tar archive)
+- docker-syncd-brcm.gz: docker image for the daemon to sync database and Broadcom switch ASIC (gzip tar archive)
+- docker-syncd-cavm.gz: docker image for the daemon to sync database and Cavium switch ASIC (gzip tar archive)
 - docker-syncd-mlnx.gz: docker image for the daemon to sync database and Mellanox switch ASIC (gzip tar archive)
 - docker-sonic-p4.gz: docker image for all-in-one for p4 software switch (gzip tar archive)
 
