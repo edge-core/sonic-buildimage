@@ -1,0 +1,37 @@
+From 548db654a498a017ce121292f12820176544e6ed Mon Sep 17 00:00:00 2001
+From: Guohan Lu <gulv@microsoft.com>
+Date: Tue, 27 Dec 2016 23:21:22 +0000
+Subject: [PATCH] add support for BCM54616 phy for intel igb driver
+
+---
+ src/e1000_82575.c   | 1 +
+ src/e1000_defines.h | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/src/e1000_82575.c b/src/e1000_82575.c
+index b4b973e..248c670 100644
+--- a/src/e1000_82575.c
++++ b/src/e1000_82575.c
+@@ -223,6 +223,7 @@ static s32 e1000_init_phy_params_82575(struct e1000_hw *hw)
+ 	case M88E1112_E_PHY_ID:
+ 	case M88E1340M_E_PHY_ID:
+ 	case M88E1111_I_PHY_ID:
++	case BCM54616_E_PHY_ID:
+ 		phy->type		= e1000_phy_m88;
+ 		phy->ops.check_polarity	= e1000_check_polarity_m88;
+ 		phy->ops.get_info	= e1000_get_phy_info_m88;
+diff --git a/src/e1000_defines.h b/src/e1000_defines.h
+index 6de3988..d5da148 100644
+--- a/src/e1000_defines.h
++++ b/src/e1000_defines.h
+@@ -1185,6 +1185,7 @@
+ #define I210_I_PHY_ID		0x01410C00
+ #define IGP04E1000_E_PHY_ID	0x02A80391
+ #define M88_VENDOR		0x0141
++#define BCM54616_E_PHY_ID	0x03625D10
+ 
+ /* M88E1000 Specific Registers */
+ #define M88E1000_PHY_SPEC_CTRL		0x10  /* PHY Specific Control Reg */
+-- 
+1.9.1
+

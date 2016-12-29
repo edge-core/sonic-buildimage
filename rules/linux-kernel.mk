@@ -1,4 +1,4 @@
-# redis package
+# linux kernel package
 
 KVERSION = 3.16.0-4-amd64
 
