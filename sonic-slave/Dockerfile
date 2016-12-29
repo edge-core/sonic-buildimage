@@ -105,7 +105,7 @@ RUN gpasswd -a $user docker
 
 # Config git for stg
 RUN su $user -c "git config --global user.name $user"
-RUN su $user -c "git config --global user.email $user@company.com"
+RUN su $user -c "git config --global user.email $user@contoso.com"
 
 COPY sonic-jenkins-id_rsa.pub /var/$user/.ssh/authorized_keys2
 RUN chown $user /var/$user/.ssh -R
