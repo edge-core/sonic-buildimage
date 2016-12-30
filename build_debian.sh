@@ -81,13 +81,6 @@ echo '[INFO] Mount all'
 mount
 trap_push 'sudo umount $FILESYSTEM_ROOT/proc || true'
 sudo LANG=C chroot $FILESYSTEM_ROOT mount proc /proc -t proc
-clean_sys() {
-    sudo umount $FILESYSTEM_ROOT/sys/fs/cgroup/*            \
-                $FILESYSTEM_ROOT/sys/fs/cgroup              \
-                $FILESYSTEM_ROOT/sys || true
-}
-trap_push clean_sys
-sudo LANG=C chroot $FILESYSTEM_ROOT mount sysfs /sys -t sysfs
 
 ## Pointing apt to public apt mirrors and getting latest packages, needed for latest security updates
 sudo cp files/apt/sources.list $FILESYSTEM_ROOT/etc/apt/
@@ -132,6 +125,15 @@ sudo chroot $FILESYSTEM_ROOT update-initramfs -u
 ## Install latest intel igb driver
 sudo cp target/debs/igb.ko $FILESYSTEM_ROOT/lib/modules/3.16.0-4-amd64/kernel/drivers/net/ethernet/intel/igb/igb.ko
 
+## Install package without starting service
+## ref: https://wiki.debian.org/chroot
+trap_push 'sudo rm -f $FILESYSTEM_ROOT/usr/sbin/policy-rc.d'
+sudo tee -a $FILESYSTEM_ROOT/usr/sbin/policy-rc.d > /dev/null <<EOF
+#!/bin/sh
+exit 1
+EOF
+sudo chmod a+x $FILESYSTEM_ROOT/usr/sbin/policy-rc.d
+
 ## Install docker
 echo '[INFO] Install docker'
 ## Install apparmor utils since they're missing and apparmor is enabled in the kernel
@@ -144,8 +146,6 @@ wget $docker_deb_url -qO $docker_deb_temp && {                                  
     sudo dpkg --root=$FILESYSTEM_ROOT -i $docker_deb_temp ||                                    \
     sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f;   \
 }
-sudo chroot $FILESYSTEM_ROOT docker version
-sudo chroot $FILESYSTEM_ROOT service docker stop
 ## Add docker config drop-in to select aufs, otherwise it may select other storage driver
 sudo mkdir -p $FILESYSTEM_ROOT/etc/systemd/system/docker.service.d/
 ## Note: $_ means last argument of last command
@@ -249,8 +249,6 @@ sudo LANG=C chroot $FILESYSTEM_ROOT bash -c 'rm -rf /usr/share/doc/* /usr/share/
 
 ## Umount all
 echo '[INFO] Umount all'
-sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /sys || true
-sudo LANG=C chroot $FILESYSTEM_ROOT umount -lf /sys
 sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /proc || true
 sudo LANG=C chroot $FILESYSTEM_ROOT umount /proc
 
