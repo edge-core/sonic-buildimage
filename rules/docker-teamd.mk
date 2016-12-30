@@ -1,0 +1,7 @@
+# docker image for teamd agent
+
+DOCKER_TEAMD = docker-teamd.gz
+$(DOCKER_TEAMD)_PATH = $(DOCKERS_PATH)/docker-teamd
+$(DOCKER_TEAMD)_DEPENDS += $(SWSS) $(LIBTEAMDCT) $(LIBTEAM_UTILS)
+$(DOCKER_TEAMD)_LOAD_DOCKERS += $(DOCKER_BASE)
+SONIC_DOCKER_IMAGES += $(DOCKER_TEAMD)

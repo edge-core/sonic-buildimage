@@ -14,7 +14,7 @@ SONIC_ALL += $(DOCKER_SYNCD_MLNX) \
 	     $(DOCKER_DATABASE) \
 	     $(DOCKER_LLDP_SV2) \
 	     $(DOCKER_SNMP_SV2) \
-	     $(DOCKER_TEAM) \
+	     $(DOCKER_TEAMD) \
 	     $(DOCKER_PLATFORM_MONITOR) \
 	     debs/$(MLNX_HW_MANAGEMENT) \
 	     debs/$(SX_KERNEL)
