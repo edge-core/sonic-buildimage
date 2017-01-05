@@ -44,3 +44,6 @@
 [submodule "src/ptf"]
 	path = src/ptf
 	url = https://github.com/p4lang/ptf.git
+[submodule "src/sonic-utilities"]
+	path = src/sonic-utilities
+	url = https://github.com/Azure/sonic-utilities
