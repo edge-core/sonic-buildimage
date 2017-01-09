@@ -13,6 +13,7 @@ debs/{{ deb }}{{' '}}
 RUN apt-get install -f kmod
 
 COPY ["debs/dsserve", "debs/bcmcmd", "start.sh", "/usr/bin/"]
+RUN chmod +x /usr/bin/dsserve /usr/bin/bcmcmd
 
 ## Clean up
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
