@@ -16,7 +16,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	dpkg-source -x redis_$(REDIS_VERSION_FULL).dsc
 
 	pushd redis-$(REDIS_VERSION)
-	fakeroot debian/rules binary
+	DEB_BUILD_OPTIONS=nocheck dpkg-buildpackage -us -uc -b
 	popd
 
 	mv $(DERIVED_TARGETS) $* $(DEST)/
