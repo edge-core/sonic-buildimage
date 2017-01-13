@@ -3,6 +3,7 @@ include $(PLATFORM_GENERIC_PATH)/rules.mk
 include $(PLATFORM_PATH)/cavm-sai.mk
 include $(PLATFORM_PATH)/docker-syncd-cavm.mk
 include $(PLATFORM_PATH)/docker-orchagent-cavm.mk
+include $(PLATFORM_PATH)/cavm_platform_modules.mk
 
 SONIC_ALL += $(DOCKER_SYNCD_CAVM) \
 	     $(DOCKER_ORCHAGENT_CAVM)
