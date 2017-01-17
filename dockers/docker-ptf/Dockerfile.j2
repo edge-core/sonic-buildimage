@@ -79,5 +79,4 @@ COPY ptf_nn_agent.conf /etc/supervisor/conf.d/ptf_nn_agent.conf
 
 EXPOSE 22
 
-ENTRYPOINT while [ "x$( ifconfig eth3 | grep RUNNING )" = 'x' ] ; do sleep 1 ; done \
-           && /usr/bin/supervisord
+ENTRYPOINT ["/usr/bin/supervisord"]
