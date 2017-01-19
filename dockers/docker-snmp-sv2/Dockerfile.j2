@@ -1,6 +1,11 @@
 FROM docker-base
 
-COPY debs /debs
+COPY \
+{% for deb in docker_snmp_sv2_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor -%}
+debs/
+
 COPY python-wheels /python-wheels
 
 # enable -O for all Python calls

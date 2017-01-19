@@ -8,7 +8,11 @@ RUN apt-get install -f -y ifupdown bridge-utils libdbus-1-3 libdaemon0 libjansso
 ## TODO: implicitly install dependencies
 RUN apt-get -y install libjemalloc1
 
-COPY debs /debs
+COPY \
+{% for deb in docker_orchagent_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor -%}
+debs/
 
 RUN dpkg -i \
 {% for deb in docker_orchagent_debs.split(' ') -%}

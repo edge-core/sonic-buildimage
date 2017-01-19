@@ -2,7 +2,11 @@ FROM docker-base
 
 RUN apt-get update
 
-COPY debs /debs
+COPY \
+{% for deb in docker_syncd_cavm_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor -%}
+debs/
 
 RUN apt-get -y install libpcap-dev libxml2-dev python-dev swig libsensors4-dev libjemalloc1
 

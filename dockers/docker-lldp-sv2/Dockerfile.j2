@@ -1,6 +1,11 @@
 FROM docker-base
 
-COPY debs /debs
+COPY \
+{% for deb in docker_lldp_sv2_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor -%}
+debs/
+
 COPY python-wheels /python-wheels
 
 RUN apt-get update && apt-get install -y python-pip supervisor libbsd0 libevent-2.0-5 libjansson4 libwrap0 libxml2 libpci3 libperl5.20

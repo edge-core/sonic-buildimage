@@ -2,7 +2,11 @@ FROM docker-base
 
 RUN apt-get update
 
-COPY debs/ debs
+COPY \
+{% for deb in docker_database_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor -%}
+debs/
 
 ## Install redis-tools dependencies
 ## TODO: implicitly install dependencies

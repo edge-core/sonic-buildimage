@@ -3,7 +3,11 @@ FROM debian:jessie
 MAINTAINER Pavel Shirshov
 
 ## Copy dependencies
-COPY debs /debs
+COPY \
+{% for deb in docker_ptf_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor -%}
+debs/
 
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive

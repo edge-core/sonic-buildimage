@@ -2,7 +2,11 @@ FROM docker-base
 
 RUN apt-get update
 
-COPY debs /debs
+COPY \
+{% for deb in docker_syncd_mlnx_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor -%}
+debs/
 
 RUN apt-get install -y libxml2
 

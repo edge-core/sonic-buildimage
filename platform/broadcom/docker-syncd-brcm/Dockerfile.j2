@@ -2,7 +2,11 @@ FROM docker-base
 
 RUN apt-get update
 
-COPY debs /debs
+COPY \
+{% for deb in docker_syncd_brcm_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor -%}
+debs/
 
 RUN dpkg -i \
 {% for deb in docker_syncd_brcm_debs.split(' ') -%}
