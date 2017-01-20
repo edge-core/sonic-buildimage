@@ -8,7 +8,10 @@ debs/
 
 COPY python-wheels /python-wheels
 
-RUN apt-get update && apt-get install -y python-pip supervisor libbsd0 libevent-2.0-5 libjansson4 libwrap0 libxml2 libpci3 libperl5.20
+RUN apt-get update && apt-get install -y python-pip supervisor libbsd0 libevent-2.0-5 libjansson4 libwrap0 libxml2 libpci3 libperl5.20 
+
+# Dependencies for sonic-cfggen                                                                                                                                                           
+RUN apt-get install -y python-lxml python-jinja2 python-netaddr python-ipaddr python-yaml 
 
 ## Pre-install the fundamental packages
 ## Install Python SSWSDK
@@ -27,5 +30,8 @@ RUN pip install /python-wheels/sswsdk-2.0.1-py2-none-any.whl && \
 
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY reconfigure.sh /opt/reconfigure.sh
+COPY ["config.sh", "/usr/bin/"]
+COPY ["lldpd.conf.j2", "/etc/swss/lldp/"]
+COPY ["lldpd", "/etc/default/"]
 
-ENTRYPOINT ["/usr/bin/supervisord"]
+ENTRYPOINT /usr/bin/config.sh && /usr/bin/supervisord

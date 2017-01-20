@@ -17,6 +17,9 @@ ENV PYTHONOPTIMIZE 1
 ## Clean up
 RUN apt-get update && apt-get install -y libmysqlclient-dev libmysqld-dev libperl-dev libpci-dev libpci3 libsensors4 libsensors4-dev libwrap0-dev
 
+# Dependencies for sonic-cfggen                                                                                                                                                           
+RUN apt-get install -y python-lxml python-jinja2 python-netaddr python-ipaddr python-yaml 
+
 RUN dpkg -i \
 {% for deb in docker_snmp_sv2_debs.split(' ') -%}
 debs/{{ deb }}{{' '}}
@@ -44,8 +47,11 @@ RUN apt-get -y install build-essential wget libssl-dev openssl supervisor && \
     rm -rf ~/.cache
 
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY ["*.j2", "/etc/swss/snmp/"]
+COPY ["snmpd", "/etc/default/"]
+COPY ["config.sh", "/usr/bin/"]
 
 ## Although exposing ports is not need for host net mode, keep it for possible bridge mode
 EXPOSE 161/udp 162/udp
 
-ENTRYPOINT ["/usr/bin/supervisord"]
+ENTRYPOINT /usr/bin/config.sh && /usr/bin/supervisord 

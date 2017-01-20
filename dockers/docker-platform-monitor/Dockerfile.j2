@@ -1,26 +1,28 @@
 FROM docker-base
 
-RUN apt-get update && apt-get install -f -y libdbus-1-3 libdaemon0 libjansson4
+RUN apt-get update
 
+RUN apt-get install -y smartmontools sensord 
 
 # Dependencies for sonic-cfggen                                                                                                                                                           
 RUN apt-get install -y python-lxml python-jinja2 python-netaddr python-ipaddr python-yaml 
 
-COPY \
-{% for deb in docker_teamd_debs.split(' ') -%}
-debs/{{ deb }}{{' '}}
-{%- endfor -%}
-debs/
+COPY debs/ debs
 
 RUN dpkg -i \
-{% for deb in docker_teamd_debs.split(' ') -%}
+{% for deb in docker_fpm_debs.split(' ') -%}
 debs/{{ deb }}{{' '}}
 {%- endfor %}
 
-COPY ["start.sh", "config.sh", "/usr/bin/"]
-COPY ["teamd.j2", "/etc/swss/teamd/"]
-
+## Clean up
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /debs
 
-ENTRYPOINT /usr/bin/config.sh && /usr/bin/start.sh
+COPY ["config.sh", "/usr/bin/"]
+
+ENTRYPOINT /usr/bin/config.sh       \
+    && service rsyslog start        \
+    && service lm-sensors start     \
+    && service smartmontools start  \
+    && service sensord start        \
+    && /bin/bash

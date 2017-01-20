@@ -2,7 +2,10 @@ FROM docker-base
 
 RUN apt-get update
 
-RUN apt-get install -y libdbus-1-3 libdaemon0 libjansson4
+RUN apt-get install -y libdbus-1-3 libdaemon0 libjansson4 
+
+# Dependencies for sonic-cfggen 
+RUN apt-get install -y python-lxml python-jinja2 python-netaddr python-ipaddr python-yaml 
 
 COPY \
 {% for deb in docker_fpm_debs.split(' ') -%}
@@ -19,7 +22,9 @@ debs/{{ deb }}{{' '}}
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /debs
 
-COPY ["start.sh", "/usr/bin/"]
+COPY ["*.j2", "/etc/swss/bgp/"]
+COPY ["start.sh", "config.sh", "/usr/bin/"]
 
-ENTRYPOINT /usr/bin/start.sh    \
+ENTRYPOINT /usr/bin/config.sh   \
+        && /usr/bin/start.sh    \
         && /bin/bash

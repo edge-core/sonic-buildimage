@@ -1,0 +1,3 @@
+{% for member in alias_map %}
+configure ports {{member['sonic']}} lldp portidsubtype local {{member['origin']}}
+{% endfor %}

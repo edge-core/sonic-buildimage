@@ -169,12 +169,12 @@ def parse_dpg(dpg, hname):
                 intfs.append(intf)
 
         pcintfs = child.find(str(QName(ns, "PortChannelInterfaces")))
-        pc_intfs = []
+        pc_intfs = {}
         for pcintf in pcintfs.findall(str(QName(ns, "PortChannel"))):
             pcintfname = pcintf.find(str(QName(ns, "Name"))).text
             pcintfmbr = pcintf.find(str(QName(ns, "AttachTo"))).text
             pcmbr_list = pcintfmbr.split(';', 1)
-            pc_intfs.append({'name': pcintfname, 'members': pcmbr_list})
+            pc_intfs[pcintfname]=pcmbr_list
 
         lointfs = child.find(str(QName(ns, "LoopbackIPInterfaces")))
         lo_intfs = []
@@ -209,7 +209,7 @@ def parse_dpg(dpg, hname):
             vintfname = vintf.find(str(QName(ns, "Name"))).text
             vlanid = vintf.find(str(QName(ns, "VlanID"))).text
             vintfmbr = vintf.find(str(QName(ns, "AttachTo"))).text
-            vmbr_list = vintfmbr.split(';'))
+            vmbr_list = vintfmbr.split(';')
             vlan_attributes = {'name': vintfname, 'members': vmbr_list, 'vlanid': vlanid}
             for addrtuple in vlan_map.get(vintfname, []):
                 vlan_attributes.update(addrtuple)
@@ -285,6 +285,17 @@ def get_mgmt_info(devices, dev, port):
 
     return ret_val
 
+def get_alias_map_list(hwsku):
+    alias_map_json = os.path.join('/usr/share/sonic', hwsku, 'alias_map.json')
+    if not os.path.isfile(alias_map_json):
+        return None
+    with open(alias_map_json) as data:
+        alias_map_dict = json.load(data)
+    alias_map_list = []
+    for k,v in alias_map_dict.items():
+        alias_map_list.append({'sonic': k, 'origin': v})
+    return alias_map_list
+
 def parse_xml(filename):
     root = ET.parse(filename).getroot()
     mini_graph_path = filename
@@ -312,14 +323,10 @@ def parse_xml(filename):
             hostname = child.text
 
     # port_alias_map maps ngs port name to sonic port name
-    if hwsku == "Force10-S6000":
-        for i in range(0, 128, 4):
-            port_alias_map["fortyGigE0/%d" % i] = "Ethernet%d" % i
-    elif hwsku == "Arista-7050-QX32":
-        for i in range(1, 25):
-            port_alias_map["Ethernet%d/1" % i] = "Ethernet%d" % ((i - 1) * 4)
-        for i in range(25, 33):
-            port_alias_map["Ethernet%d" % i] = "Ethernet%d" % ((i - 1) * 4)
+    alias_map_list = get_alias_map_list(hwsku)
+    if alias_map_list != None:
+        for item in alias_map_list:
+            port_alias_map[item['origin']] = item['sonic']
 
     for child in root:
         if child.tag == str(QName(ns, "DpgDec")):
@@ -340,9 +347,9 @@ def parse_xml(filename):
         vlan['members'] = " ".join(vlan['members'])
 
     # Replace port with alias in port channel interfaces members
-    for pc in pc_intfs:
-        for i,member in enumerate(pc['members']):
-            pc['members'][i] = port_alias_map[member]
+    for pc in pc_intfs.keys():
+        for i,member in enumerate(pc_intfs[pc]):
+            pc_intfs[pc][i] = port_alias_map[member]
 
     Tree = lambda: defaultdict(Tree)
 
@@ -367,6 +374,7 @@ def parse_xml(filename):
     results['minigraph_console'] = get_console_info(devices, console_dev, console_port)
     results['minigraph_mgmt'] = get_mgmt_info(devices, mgmt_dev, mgmt_port)
     results['inventory_hostname'] = hostname
+    results['alias_map'] = alias_map_list
 
     return results
 
