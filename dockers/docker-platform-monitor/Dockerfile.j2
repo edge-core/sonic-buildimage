@@ -7,10 +7,15 @@ RUN apt-get install -y smartmontools sensord
 # Dependencies for sonic-cfggen                                                                                                                                                           
 RUN apt-get install -y python-lxml python-jinja2 python-netaddr python-ipaddr python-yaml 
 
-COPY debs/ debs
+COPY \
+{% for deb in docker_platform_monitor_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor -%}
+debs/
+
 
 RUN dpkg -i \
-{% for deb in docker_fpm_debs.split(' ') -%}
+{% for deb in docker_platform_monitor_debs.split(' ') -%}
 debs/{{ deb }}{{' '}}
 {%- endfor %}
 

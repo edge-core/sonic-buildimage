@@ -29,3 +29,4 @@ dockers/docker-lldp-sv2/Dockerfile
 dockers/docker-orchagent/Dockerfile
 dockers/docker-snmp-sv2/Dockerfile
 dockers/docker-team/Dockerfile
+dockers/docker-platform-monitor/Dockerfile
