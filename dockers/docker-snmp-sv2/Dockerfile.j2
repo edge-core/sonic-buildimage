@@ -41,7 +41,7 @@ RUN apt-get -y install build-essential wget libssl-dev openssl supervisor && \
     python3 -m sonic_ax_impl install && \
     python3 -m pip uninstall -y pip setuptools && \
     /bin/bash -c "rm -rf /usr/lib/python3.5/{unittest,lib2to3,tkinter,idlelib,email,test}" && \
-    apt-get -y purge build-essential wget libssl-dev openssl && \
+    apt-get -y purge build-essential libssl-dev openssl && \
     apt-get clean -y && apt-get autoclean -y && apt-get autoremove -y && \
     find / | grep -E "__pycache__" | xargs rm -rf && \
     rm -rf ~/.cache
