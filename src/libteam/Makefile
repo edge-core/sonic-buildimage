@@ -13,8 +13,12 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	git clone https://github.com/jpirko/libteam.git
 	pushd ./libteam
 	git checkout -f v1.26
+
+	# Apply patch
+	git apply ../0001-libteam-Add-team_get_port_enabled-function.patch
 	popd
 
+	# Obtain debian packaging
 	git clone https://anonscm.debian.org/git/collab-maint/libteam.git tmp
 	pushd ./tmp
 	git checkout -f da006f2 # v1.26
