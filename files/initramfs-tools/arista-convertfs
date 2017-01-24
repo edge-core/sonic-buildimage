@@ -1,0 +1,170 @@
+#!/bin/sh
+
+case $1 in
+    prereqs)
+        exit 0
+        ;;
+esac
+
+set -e
+# set -x
+total_mem=$(free | awk '/^Mem:/{print $2}')
+tmpfs_size=$(( $total_mem / 20 *  17 ))
+free_mem_thres=$(( $total_mem / 20 * 18 ))
+tmp_mnt='/mnt/ramdisk-convfs'
+root_mnt='/mnt/root-convfs'
+root_dev=''
+flash_dev=''
+block_flash=''
+aboot_flag=''
+backup_file=''
+
+# Get the fullpath of flash device, e.g., /dev/sda
+get_flash_dev() {
+    for dev in $(ls /sys/block); do
+        local is_mmc=$(echo "$dev" | grep 'mmcblk.*boot.*' | cat)
+        if [ -n "$is_mmc" ]; then
+            continue
+        fi
+        local devid=$(realpath "/sys/block/$dev/device")
+        local is_device=$(echo "$devid" | grep '^/sys/devices/' | cat)
+        local is_flash=$(echo "$devid" | grep "$block_flash" | cat)
+        if [ -n "$is_device" -a -n "$is_flash" ]; then
+            flash_dev="/dev/$dev"
+            return 0
+        fi
+    done
+    return 1
+}
+
+# Wait for root_dev to be ready
+wait_for_root_dev() {
+    local try_rounds=30
+    while [ $try_rounds -gt 0 ]; do
+        if [ -e "$root_dev" ]; then
+            return 0
+        fi
+        sleep 1
+        try_rounds=$(( $try_rounds - 1 ))
+    done
+    return 1
+}
+
+# Alway run cleanup before exit
+cleanup() {
+    if grep -q "$root_mnt" /proc/mounts; then
+        umount "$root_mnt"
+    fi
+    if grep -q "$tmp_mnt" /proc/mounts; then
+        umount "$tmp_mnt"
+    fi
+    [ -e "$root_mnt" ] && rmdir "$root_mnt"
+    [ -e "$tmp_mnt" ] && rmdir "$tmp_mnt"
+}
+trap cleanup EXIT
+
+notification() {
+cat << EOF
+A failure happend in modifying the root file system which stopped the upgrade. Manual interventions are needed to fix the issue. Note that:
+1) files in the old root file system may have been lost and the old partition table may have been corrupted;
+2) The files in the old root file system were copied to $tmp_mnt;
+3) The old partition table was dumped to the file $tmp_mnt/$backup_file by sfdisk;
+4) Quitting the current shell will lose all files mentioned above permanently.
+EOF
+}
+
+run_cmd() {
+    if ! eval "$1"; then
+        echo "$2"
+        notification
+        sh
+        exit 1
+    fi
+}
+
+# Extract kernel parameters
+set -- $(cat /proc/cmdline)
+for x in "$@"; do
+    case "$x" in
+        block_flash=*)
+            block_flash="${x#block_flash=}"
+            ;;
+        Aboot=*)
+            aboot_flag="${x#Aboot=}"
+    esac
+done
+root_dev="$ROOT"
+
+#Check aboot and root_dev is vfat
+[ -z "$aboot_flag" ] && exit 0
+if [ -z "$root_dev" ]; then
+    echo "Error: root device name is not provided"
+    exit 1
+fi
+if ! wait_for_root_dev; then
+    echo "Error: timeout in waiting for $root_dev"
+    exit 1
+fi
+blkid | grep "$root_dev.*vfat" -q || exit 0
+
+
+# Get flash dev name
+if [ -z "$block_flash" ]; then
+    echo "Error: flash device info is not provided"
+    exit 1
+fi
+if ! get_flash_dev; then
+    echo "Error: flash device is not found"
+    exit 1
+fi
+
+# Check memory size for tmpfs
+free_mem=$(free | awk '/^Mem:/{print $4}')
+if [ "$free_mem" -lt "$free_mem_thres" ]; then
+    echo "Error: memory is not enough"
+    exit 1
+fi
+
+# Backup partition table
+mkdir -p "$root_mnt"
+mount "$root_dev" "$root_mnt"
+backup_file=backup.$(date +%Y-%m-%d.%H-%M-%S)
+sfdisk -d "$flash_dev" > "$root_mnt/$backup_file"
+
+# Check total size of files in root
+total_file_size=$(du -s "$root_mnt" | awk '{print $1}')
+if [ "$total_file_size" -gt "$tmpfs_size" ]; then
+    echo "Error: total file size is too large"
+    exit 1
+fi
+
+# Create tmpfs, and copy files to tmpfs
+mkdir -p "$tmp_mnt"
+mount -t tmpfs -o size="${tmpfs_size}k" tmpfs "$tmp_mnt"
+cp -a "$root_mnt/." "$tmp_mnt/"
+umount "$root_mnt"
+
+#### Lines below will modify the root file system, so any failure will be trapped to shell for manual interventions.
+
+# Create a new partition table (content in flash_dev will be deleted)
+err_msg="Error: repartitioning $flash_dev failed"
+cmd="echo ';' | sfdisk $flash_dev"
+run_cmd "$cmd" "$err_msg"
+
+sleep 5
+err_msg="Error: timeout in waiting for $root_dev after repartition"
+cmd="wait_for_root_dev"
+run_cmd "$cmd" "$err_msg"
+
+err_msg="Error: formatting to ext4 failed"
+cmd="mke2fs -t ext4 -m2 -F -O '^huge_file' $root_dev"
+run_cmd "$cmd" "$err_msg"
+
+err_msg="Error: mounting $root_dev to $root_mnt failed"
+cmd="mount -t ext4 $root_dev $root_mnt"
+run_cmd "$cmd" "$err_msg"
+
+err_msg="Error: copying files form $tmp_mnt to $root_mnt failed"
+cmd="cp -a $tmp_mnt/. $root_mnt/"
+run_cmd "$cmd" "$err_msg"
+

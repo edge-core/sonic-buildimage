@@ -113,6 +113,13 @@ sudo dpkg --root=$FILESYSTEM_ROOT -i target/debs/linux-image-3.16.0-4-amd64_*.de
 ## Update initramfs for booting with squashfs+aufs
 cat files/initramfs-tools/modules | sudo tee -a $FILESYSTEM_ROOT/etc/initramfs-tools/modules > /dev/null
 
+## Hook into initramfs: change fs type from vfat to ext4 on arista switches
+sudo mkdir -p $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-premount/
+sudo cp files/initramfs-tools/arista-convertfs $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-premount/arista-convertfs
+sudo chmod +x $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-premount/arista-convertfs
+sudo cp files/initramfs-tools/mke2fs $FILESYSTEM_ROOT/etc/initramfs-tools/hooks/mke2fs
+sudo chmod +x $FILESYSTEM_ROOT/etc/initramfs-tools/hooks/mke2fs
+
 ## Hook into initramfs: after partition mount and loop file mount
 ## 1. Prepare layered file system
 ## 2. Bind-mount docker working directory (docker aufs cannot work over aufs rootfs)
