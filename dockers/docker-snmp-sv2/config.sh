@@ -10,4 +10,6 @@ sonic-cfggen -m /etc/sonic/minigraph.xml -y /etc/sonic/snmp.yml -t /etc/swss/snm
 hwsku=`sonic-cfggen -m /etc/sonic/minigraph.xml -v minigraph_hwsku`
 /bin/cp -rf /usr/share/sonic/$hwsku/alias_map.json /etc/snmp/
 
+mkdir -p /var/sonic
+echo "# Config files managed by sonic-config-engine" >/var/sonic/config_status
 

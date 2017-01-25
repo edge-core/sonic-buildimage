@@ -12,3 +12,6 @@ sonic-cfggen -m /etc/sonic/minigraph.xml -t /etc/swss/bgp/unisolate.j2 >/usr/sbi
 chown root:root /usr/sbin/bgp-unisolate
 chmod 0755 /usr/sbin/bgp-unisolate
 
+mkdir -p /var/sonic
+echo "# Config files managed by sonic-config-engine" >/var/sonic/config_status
+
