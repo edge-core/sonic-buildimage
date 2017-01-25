@@ -1,2 +1,5 @@
 squashfs
 aufs
+vfat
+nls_cp437
+nls_utf8
