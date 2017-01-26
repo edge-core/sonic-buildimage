@@ -65,6 +65,7 @@ RUN rm -rf /debs \
     && pip install cffi==1.7.0    \
     && pip install --upgrade cffi==1.7.0 \
     && pip install nnpy    \
+    && pip install dpkt    \
     && mkdir -p /opt       \
     && cd /opt             \
     && wget https://raw.githubusercontent.com/p4lang/ptf/master/ptf_nn/ptf_nn_agent.py
