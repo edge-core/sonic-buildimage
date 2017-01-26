@@ -9,11 +9,11 @@ def get_platform_file_list():
       data_path = os.path.join(repo_path, 'platform')
       platforms = os.listdir(data_path)
       for platform in platforms:
-          data_files.append( (os.path.join('/usr/share/sonic', platform),
-                             ['platform/' + platform + '/alias_map.json', 
-                              'platform/' + platform + '/port_config.ini', 
-                              'platform/' + platform + '/sensors.conf']  
-                             ))
+          files = ['platform/' + platform + '/alias_map.json', 
+                   'platform/' + platform + '/port_config.ini']
+          if os.path.isfile( os.path.join(data_path, platform, 'sensors.conf') ):
+              files.append('platform/' + platform + '/sensors.conf')    #Not all platforms need to have a sensors.conf file
+          data_files.append( (os.path.join('/usr/share/sonic', platform), files) )
       return data_files
 
 setup(name='sonic-config-engine',
