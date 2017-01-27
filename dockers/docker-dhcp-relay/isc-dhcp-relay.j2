@@ -1,0 +1,7 @@
+SERVERS="{{ dhcp_servers | join(' ') }}"
+
+INTERFACES="{{ minigraph_vlan_interfaces | join(' ') }}"
+
+# '-a' option provides option 82 circuit id information
+OPTIONS="-a"
+

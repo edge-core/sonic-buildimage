@@ -10,9 +10,11 @@ RUN apt-get update                          \
     && apt-get autoclean -y                 \
     && apt-get autoremove -y
 
-COPY isc-dhcp-relay /etc/default/isc-dhcp-relay
+COPY ["isc-dhcp-relay.j2", "/usr/share/dhcp-relay/"]
+COPY ["config.sh", "/usr/bin/"]
 
-ENTRYPOINT service rsyslog start    \
+ENTRYPOINT /usr/bin/config.sh       \
+    && service rsyslog start        \
     && service isc-dhcp-relay start \
     && /bin/bash
 

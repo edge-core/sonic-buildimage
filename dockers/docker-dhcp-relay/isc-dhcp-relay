@@ -1,6 +1,0 @@
-SERVERS=""
-
-INTERFACES=""
-
-#-a provides option 82 circuit id information
-OPTIONS="-a"
