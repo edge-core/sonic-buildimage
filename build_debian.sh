@@ -132,15 +132,6 @@ sudo chroot $FILESYSTEM_ROOT update-initramfs -u
 ## Install latest intel igb driver
 sudo cp target/debs/igb.ko $FILESYSTEM_ROOT/lib/modules/3.16.0-4-amd64/kernel/drivers/net/ethernet/intel/igb/igb.ko
 
-## Install package without starting service
-## ref: https://wiki.debian.org/chroot
-trap_push 'sudo rm -f $FILESYSTEM_ROOT/usr/sbin/policy-rc.d'
-sudo tee -a $FILESYSTEM_ROOT/usr/sbin/policy-rc.d > /dev/null <<EOF
-#!/bin/sh
-exit 1
-EOF
-sudo chmod a+x $FILESYSTEM_ROOT/usr/sbin/policy-rc.d
-
 ## Install docker
 echo '[INFO] Install docker'
 ## Install apparmor utils since they're missing and apparmor is enabled in the kernel
@@ -172,7 +163,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install      \
 ## Note: gdisk is needed for sgdisk in install.sh
 ## Note: parted is needed for partprobe in install.sh
 ## Note: ca-certificates is needed for easy_install
-sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install      \
+sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install      \
     file                    \
     ifupdown                \
     iproute2                \
@@ -195,7 +186,9 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install      \
     i2c-tools               \
     efibootmgr              \
     usbutils                \
-    pciutils
+    pciutils                \
+    iptables-persistent     \
+    logrotate
 
 ## Remove sshd host keys, and will regenerate on first sshd start
 sudo rm -f $FILESYSTEM_ROOT/etc/ssh/ssh_host_*_key*
@@ -248,6 +241,10 @@ EOF
 
 sudo cp files/dhcp/rfc3442-classless-routes $FILESYSTEM_ROOT/etc/dhcp/dhclient-exit-hooks.d
 
+if [ -f sonic_debian_extension.sh ]; then
+    ./sonic_debian_extension.sh $FILESYSTEM_ROOT
+fi
+
 ## Clean up apt
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get autoremove
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get autoclean
@@ -268,6 +265,9 @@ sudo rm -f $ONIE_INSTALLER_PAYLOAD $FILESYSTEM_SQUASHFS
 sudo du -hs $FILESYSTEM_ROOT
 sudo mksquashfs $FILESYSTEM_ROOT $FILESYSTEM_SQUASHFS -e boot -e var/lib/docker
 
+## Compress docker files
+pushd $FILESYSTEM_ROOT && sudo tar czf $OLDPWD/$FILESYSTEM_DOCKERFS var/lib/docker; popd
+
 ## Compress together with /boot and /var/lib/docker as an installer payload zip file
-pushd $FILESYSTEM_ROOT && sudo zip $OLDPWD/$ONIE_INSTALLER_PAYLOAD -r boot/ -r var/lib/docker; popd
-sudo zip -g $ONIE_INSTALLER_PAYLOAD $FILESYSTEM_SQUASHFS
+pushd $FILESYSTEM_ROOT && sudo zip $OLDPWD/$ONIE_INSTALLER_PAYLOAD -r boot/; popd
+sudo zip -g $ONIE_INSTALLER_PAYLOAD $FILESYSTEM_SQUASHFS $FILESYSTEM_DOCKERFS

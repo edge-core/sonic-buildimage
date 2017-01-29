@@ -24,9 +24,9 @@ DEBS_PATH = $(TARGET_PATH)/debs
 PYTHON_WHEELS_PATH = $(TARGET_PATH)/python-wheels
 PROJECT_ROOT = $(shell pwd)
 
-CONFIGURED_PLATFORM := $(shell [ -f .platform ] && cat .platform || echo undefined)
+CONFIGURED_PLATFORM := $(shell [ -f .platform ] && cat .platform || echo generic)
+CONFIGURED_SKU := $(shell [ -f .sku ] && cat .sku || echo undefined)
 PLATFORM_PATH = platform/$(CONFIGURED_PLATFORM)
-PLATFORM_GENERIC_PATH = platform/generic
 
 ###############################################################################
 ## Utility rules
@@ -34,20 +34,30 @@ PLATFORM_GENERIC_PATH = platform/generic
 ###############################################################################
 
 .platform :
+ifneq ($(CONFIGURED_PLATFORM),generic)
 	@echo Build system is not configured, please run make configure
 	@exit 1
+endif
+
+.sku :
+ifneq ($(CONFIGURED_PLATFORM),generic)
+	@echo Build system is not configured, please run make configure
+	@exit 1
+endif
 
 configure :
 	@mkdir -p target/debs
 	@mkdir -p target/python-wheels
 	@echo $(PLATFORM) > .platform
+	@echo $(SKU) > .sku
 
-distclean : .platform clean
-	@rm -f .platform
+distclean : .platform .sku clean
+	@rm -f .platform .sku
 
 ###############################################################################
 ## Include other rules
 ###############################################################################
+
 
 include $(RULES_PATH)/config
 include $(RULES_PATH)/functions
@@ -55,6 +65,7 @@ include $(RULES_PATH)/*.mk
 ifneq ($(CONFIGURED_PLATFORM), undefined)
 include $(PLATFORM_PATH)/rules.mk
 endif
+export CONFIGURED_SKU
 
 MAKEFLAGS += -j $(SONIC_CONFIG_BUILD_JOBS)
 
@@ -274,10 +285,47 @@ $(DOCKER_LOAD_TARGETS) : $(TARGET_PATH)/%.gz-load : .platform docker-start $$(TA
 ###############################################################################
 
 # targets for building installers with base image
-$(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : .platform $$(addprefix $(DEBS_PATH)/,$$($$*_DEPENDS))
+$(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : .platform $$(addprefix $(DEBS_PATH)/,$$($$*_DEPENDS)) $(addprefix $(DEBS_PATH)/,$(INITRAMFS_TOOLS) $(LINUX_KERNEL) $(IGB_DRIVER)) $(addprefix $(DEBS_PATH)/,$(SONIC_CONFIG_ENGINE)) $$(addprefix $(TARGET_PATH)/,$$($$*_DOCKERS))
 	$(HEADER)
+	## Pass initramfs and linux kernel explicitly. They are used for all platforms
+	export initramfs_tools="$(DEBS_PATH)/$(INITRAMFS_TOOLS)"
+	export linux_kernel="$(DEBS_PATH)/$(LINUX_KERNEL)"
+	export kversion="$(KVERSION)"
+	export installer_debs="$(addprefix $(DEBS_PATH)/,$($*_DEPENDS))"
+	export installer_images="$(addprefix $(TARGET_PATH)/,$($*_DOCKERS))"
+	export config_engine="$(addprefix $(DEBS_PATH)/,$(SONIC_CONFIG_ENGINE))"
+	export image_type="$($*_IMAGE_TYPE)"
+	export sonicadmin_user="$(USERNAME)"
+	export sonic_hwsku="$(CONFIGURED_SKU)"
+	$(foreach docker, $($*_DOCKERS),\
+		export docker_image="$(docker)"
+		export docker_image_name="$(basename $(docker))"
+		export docker_container_name="$($(docker)_CONTAINER_NAME)"
+		export docker_image_run_opt="$($(docker)_RUN_OPT)"
+		j2 files/build_templates/docker_image_ctl.j2 > $($(docker)_CONTAINER_NAME).sh
+		j2 files/build_templates/$($(docker)_CONTAINER_NAME).service.j2 > $($(docker)_CONTAINER_NAME).service
+		chmod +x $($(docker)_CONTAINER_NAME).sh
+	)
+
+	export installer_start_scrips="$(foreach docker, $($*_DOCKERS),$(addsuffix .sh, $($(docker)_CONTAINER_NAME)))"
+	export installer_services="$(foreach docker, $($*_DOCKERS),$(addsuffix .service, $($(docker)_CONTAINER_NAME)))"
+
+	$(if $($*_DOCKERS), 
+		j2 files/build_templates/sonic_debian_extension.j2 > sonic_debian_extension.sh
+		chmod +x sonic_debian_extension.sh,
+	)
+
 	./build_debian.sh "$(USERNAME)" "$(shell perl -e 'print crypt("$(PASSWORD)", "salt"),"\n"')" $(LOG)
-	TARGET_MACHINE=$($*_MACHINE) ./build_image.sh $(LOG)
+	TARGET_MACHINE=$($*_MACHINE) IMAGE_TYPE=$($*_IMAGE_TYPE) ./build_image.sh $(LOG)
+
+	$(foreach docker, $($*_DOCKERS), \
+		rm $($(docker)_CONTAINER_NAME).sh
+		rm $($(docker)_CONTAINER_NAME).service
+	)
+
+	$(if $($*_DOCKERS),
+		rm sonic_debian_extension.sh,
+	)
 	$(FOOTER)
 
 ###############################################################################
@@ -326,4 +374,4 @@ all : .platform $$(addprefix $(TARGET_PATH)/,$$(SONIC_ALL))
 
 .PHONY : $(SONIC_CLEAN_DEBS) $(SONIC_CLEAN_TARGETS) $(SONIC_CLEAN_WHEELS) clean distclean configure
 
-.INTERMEDIATE : $(SONIC_INSTALL_TARGETS) $(SONIC_INSTALL_WHEELS) $(DOCKER_LOAD_TARGETS) docker-start
+.INTERMEDIATE : $(SONIC_INSTALL_TARGETS) $(SONIC_INSTALL_WHEELS) $(DOCKER_LOAD_TARGETS) docker-start .platform .sku

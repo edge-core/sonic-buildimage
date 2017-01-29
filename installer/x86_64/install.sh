@@ -397,6 +397,10 @@ ${onie_bin} mount -t ext4 -o defaults,rw $demo_dev $demo_mnt || {
 # Decompress the file for the file system directly to the partition
 unzip $ONIE_INSTALLER_PAYLOAD -d $demo_mnt
 
+if [ -f $demo_mnt/$FILESYSTEM_DOCKERFS ]; then
+    cd $demo_mnt && tar xf $FILESYSTEM_DOCKERFS; cd $OLDPWD
+fi
+
 # Store machine description in target file system
 cp /etc/machine.conf $demo_mnt
 

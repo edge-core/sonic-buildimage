@@ -1,0 +1,124 @@
+#!/bin/bash
+## This script is to automate loading of vendor specific docker images
+## and instalation of configuration files and vendor specific packages
+## to debian file system.
+##
+## USAGE:
+##   ./sonic_debian_extension.sh FILESYSTEM_ROOT
+## PARAMETERS:
+##   FILESYSTEM_ROOT
+##          Path to debian file system root directory
+
+FILESYSTEM_ROOT=$1
+[ -n "$FILESYSTEM_ROOT" ] || {
+    echo "Error: no or empty FILESYSTEM_ROOT argument"
+    exit 1
+}
+
+## Enable debug output for script
+set -x -e
+
+. functions.sh
+BUILD_TEMPLATES=files/build_templates
+IMAGE_CONFIGS=files/image_config
+VENDOR_CONFIGS=src/sonic-config-engine/platform
+
+{% if installer_debs.strip() -%}
+clean_sys() {
+    sudo umount $FILESYSTEM_ROOT/sys/fs/cgroup/*            \
+                $FILESYSTEM_ROOT/sys/fs/cgroup              \
+                $FILESYSTEM_ROOT/sys || true
+}
+trap_push clean_sys
+sudo LANG=C chroot $FILESYSTEM_ROOT mount sysfs /sys -t sysfs
+
+sudo chroot $FILESYSTEM_ROOT service docker start
+sudo chroot $FILESYSTEM_ROOT docker version
+
+# Install config engine dependencies
+sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install \
+    python-lxml    \
+    python-jinja2  \
+    python-netaddr \
+    python-ipaddr  \
+    python-yaml
+
+sudo dpkg --root=$FILESYSTEM_ROOT -i {{config_engine}}
+
+# Create all needed directories
+sudo mkdir -p $FILESYSTEM_ROOT/etc/ssw/
+sudo mkdir -p $FILESYSTEM_ROOT/etc/sonic/
+sudo mkdir -p $FILESYSTEM_ROOT/etc/sonic/templates/
+
+# Apply apt configuration files
+sudo cp $IMAGE_CONFIGS/apt/sources.list $FILESYSTEM_ROOT/etc/apt/
+sudo cp -R $IMAGE_CONFIGS/apt/sources.list.d/ $FILESYSTEM_ROOT/etc/apt/
+cat $IMAGE_CONFIGS/apt/sonic-dev.gpg.key | sudo LANG=C chroot $FILESYSTEM_ROOT apt-key add -
+
+# Apply environtment configuration files
+sudo cp $IMAGE_CONFIGS/environment/environment $FILESYSTEM_ROOT/etc/
+sudo cp $IMAGE_CONFIGS/environment/motd $FILESYSTEM_ROOT/etc/
+
+# Copy default minigraph
+sudo cp $IMAGE_CONFIGS/minigraph/minigraph_{{sonic_hwsku}}.xml $FILESYSTEM_ROOT/etc/sonic/minigraph.xml
+
+# Copy NTP configuration files and templates
+sudo cp $IMAGE_CONFIGS/ntp/ntp-config.service $FILESYSTEM_ROOT/etc/systemd/system/
+sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable ntp-config.service
+sudo cp $IMAGE_CONFIGS/ntp/ntp-config.sh $FILESYSTEM_ROOT/usr/bin/
+sudo cp $IMAGE_CONFIGS/ntp/ntp.conf.j2 $FILESYSTEM_ROOT/etc/sonic/templates/
+sudo cp $IMAGE_CONFIGS/ntp/ntp.yml $FILESYSTEM_ROOT/etc/sonic/
+
+# Copy rsyslog configuration files and templates
+sudo cp $IMAGE_CONFIGS/rsyslog/rsyslog-config.service  $FILESYSTEM_ROOT/etc/systemd/system/
+sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable rsyslog-config.service
+sudo cp $IMAGE_CONFIGS/rsyslog/rsyslog-config.sh $FILESYSTEM_ROOT/usr/bin/
+sudo cp $IMAGE_CONFIGS/rsyslog/rsyslog.conf.j2 $FILESYSTEM_ROOT/etc/sonic/templates/
+sudo cp $IMAGE_CONFIGS/rsyslog/rsyslog.yml $FILESYSTEM_ROOT/etc/sonic/
+sudo cp $IMAGE_CONFIGS/rsyslog/rsyslog.d/* $FILESYSTEM_ROOT/etc/rsyslog.d/
+
+# Copy interfaces configuration files and templates
+sudo cp $IMAGE_CONFIGS/interfaces/interfaces-config.service  $FILESYSTEM_ROOT/etc/systemd/system/
+sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable interfaces-config.service
+sudo cp $IMAGE_CONFIGS/interfaces/interfaces-config.sh $FILESYSTEM_ROOT/usr/bin/
+sudo cp $IMAGE_CONFIGS/interfaces/*.j2 $FILESYSTEM_ROOT/etc/sonic/templates/
+
+# Copy SNMP configuration files
+sudo cp $IMAGE_CONFIGS/snmp/snmp.yml $FILESYSTEM_ROOT/etc/sonic/
+
+# Generate system desription file
+export git_revision=$(git rev-parse --short HEAD)
+export sonic_hwsku={{sonic_hwsku}}
+export debian_version=`cat $FILESYSTEM_ROOT/etc/debian_version`
+export kernel_version={{kversion}}
+j2 $BUILD_TEMPLATES/sysDescription.j2 > sysDescription 
+sudo mv sysDescription $FILESYSTEM_ROOT/etc/ssw/
+
+# Copy sudoers configuration file
+sudo cp $IMAGE_CONFIGS/sudoers/sudoers $FILESYSTEM_ROOT/etc/
+
+# Copy vendor specific configuration files
+sudo cp -R $VENDOR_CONFIGS/{{sonic_hwsku}}/ $FILESYSTEM_ROOT/etc/ssw/
+
+{% for deb in installer_debs.strip().split(' ') -%}
+sudo dpkg --extract {{deb}} $FILESYSTEM_ROOT
+{% endfor %}
+## Run depmod command for target kernel modules
+sudo LANG=C chroot $FILESYSTEM_ROOT depmod -a {{kversion}}
+{% endif %}
+{% if installer_images.strip() -%}
+{% for image in installer_images.strip().split(' ') -%}
+sudo LANG=C chroot $FILESYSTEM_ROOT docker load < {{image}}
+{% endfor %}
+sudo chroot $FILESYSTEM_ROOT service docker stop
+{% for script in installer_start_scrips.split(' ') -%}
+sudo cp {{script}} $FILESYSTEM_ROOT/usr/bin/
+{% endfor %}
+{% for service in installer_services.split(' ') -%}
+sudo cp {{service}} $FILESYSTEM_ROOT/etc/systemd/system/
+sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable {{service}}
+{% endfor %}
+sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /sys || true
+sudo LANG=C chroot $FILESYSTEM_ROOT umount -lf /sys
+{% endif %}
+

@@ -1,0 +1,11 @@
+[Unit]
+Description=Update interfaces configuration
+Before=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/interfaces-config.sh
+
+[Install]
+WantedBy=multi-user.target
+

@@ -1,9 +1,8 @@
-include $(PLATFORM_GENERIC_PATH)/rules.mk
-
 include $(PLATFORM_PATH)/sdk.mk
 include $(PLATFORM_PATH)/sai.mk
 include $(PLATFORM_PATH)/docker-orchagent-brcm.mk
 include $(PLATFORM_PATH)/docker-syncd-brcm.mk
+include $(PLATFORM_PATH)/single-image.mk
 
 BCMCMD = bcmcmd
 $(BCMCMD)_URL = "https://sonicstorage.blob.core.windows.net/packages/bcmcmd?sv=2015-04-05&sr=b&sig=X3bFApmsNFmcnWM9mSGRxBugPcg%2FgJCHh5hhSuV1M2c%3D&se=2030-08-23T14%3A41%3A56Z&sp=r"
@@ -13,9 +12,7 @@ $(DSSERVE)_URL = "https://sonicstorage.blob.core.windows.net/packages/dsserve?sv
 
 SONIC_ONLINE_FILES += $(BCMCMD) $(DSSERVE)
 
-SONIC_ALL += $(DOCKER_SYNCD_BRCM) \
-	     $(DOCKER_ORCHAGENT_BRCM) \
-	     debs/$(BRCM_OPENNSL_KERNEL)
+SONIC_ALL += $(SONIC_SINGLE_IMAGE)
 
 # Inject brcm sai into sairedis
 $(LIBSAIREDIS)_DEPENDS += $(BRCM_OPENNSL) $(BRCM_SAI) $(BRCM_SAI_DEV)

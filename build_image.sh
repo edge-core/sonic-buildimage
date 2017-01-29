@@ -21,14 +21,14 @@ GIT_REVISION=$(git rev-parse --short HEAD)
 
 mkdir -p `dirname $OUTPUT_ONIE_IMAGE`
 sudo rm -f $OUTPUT_ONIE_IMAGE
-if [ "$TARGET_MACHINE" = "generic" ]; then
+if [ "$IMAGE_TYPE" = "onie" ]; then
     ## Generate an ONIE installer image
     ## Note: Don't leave blank between lines. It is single line command.
     ./onie-mk-demo.sh $TARGET_PLATFORM $TARGET_MACHINE $TARGET_PLATFORM-$TARGET_MACHINE-$ONIEIMAGE_VERSION \
-          installer $TARGET_MACHINE/platform.conf $OUTPUT_ONIE_IMAGE OS $GIT_REVISION $ONIE_IMAGE_PART_SIZE \
+          installer platform/$TARGET_MACHINE/platform.conf $OUTPUT_ONIE_IMAGE OS $GIT_REVISION $ONIE_IMAGE_PART_SIZE \
           $ONIE_INSTALLER_PAYLOAD
 ## Use 'aboot' as target machine category which includes Aboot as bootloader
-elif [ "$TARGET_MACHINE" = "aboot" ]; then
+elif [ "$IMAGE_TYPE" = "aboot" ]; then
     ## Add Aboot boot0 file into the image
     cp $ONIE_INSTALLER_PAYLOAD $OUTPUT_ONIE_IMAGE
     pushd files/Aboot && sudo zip -g $OLDPWD/$OUTPUT_ONIE_IMAGE boot0; popd

@@ -1,0 +1,25 @@
+#!/bin/bash
+
+start() {
+    docker inspect --type container {{docker_container_name}} &>/dev/null
+    if [ "$?" -eq "0" ]; then
+        docker start -a {{docker_container_name}}
+    else
+        docker run {{docker_image_run_opt}} --name={{docker_container_name}} {{docker_image_name}}
+    fi
+}
+
+stop() {
+    docker stop {{docker_container_name}}
+}
+
+case "$1" in
+    start|stop)
+        $1
+        ;;
+    *)
+        echo "Usage: $0 {start|stop}"
+        exit 1
+        ;;
+esac
+
