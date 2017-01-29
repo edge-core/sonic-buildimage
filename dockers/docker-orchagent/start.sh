@@ -46,7 +46,7 @@ elif [ "$aboot_platform" == "x86_64-arista_7050_qx32" ]; then
     PORTSYNCD_ARGS+="-p /etc/ssw/Arista-7050-QX32/port_config.ini"
     SWSSCONFIG_ARGS+="td2.32ports.qos.1.json td2.32ports.qos.2.json td2.32ports.qos.3.json td2.32ports.qos.4.json td2.32ports.qos.5.json td2.32ports.qos.6.json "
     SWSSCONFIG_ARGS+="td2.32ports.buffers.1.json td2.32ports.buffers.2.json td2.32ports.buffers.3.json "
-elif [ "$onie_platform" == "x86_64-mlnx_x86-r5.0.1400" ]; then
+elif [ "$onie_platform" == "x86_64-mlnx_x86-r5.0.1400" ] || [ "$onie_platform" == "x86_64-mlnx_msn2700-r0" ]; then
     PORTSYNCD_ARGS+="-p /etc/ssw/ACS-MSN2700/port_config.ini"
 elif [ "$onie_platform" == "x86_64-accton_as7512_32x-r0" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
