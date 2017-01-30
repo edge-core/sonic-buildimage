@@ -27,14 +27,14 @@ If it is already cloned, however there is no files under ./dockers/docker-base/ 
 
 To build NOS installer image and docker images, run command line
 
-    make configure PLATFORM=[VENDOR]
+    make configure PLATFORM=[ASIC_VENDOR] SKU=[HW_SKU]
     make
 
-Supported VENDORs are:
-- broadcom
-- mellanox
-- cavium
-- p4
+Supported PLATFORM AND SKU are:
+- PLATFORM=broadcom SKU=Force10-S6000
+- PLATFORM=mellanox SKU=ACS-MSN2700
+- PLATFORM=cavium SKU=AS7512
+- PLATFORM=p4
 
 You can find rules/config file useful. It contains configuration options for build process, like adding more verbosity or showing dependencies, username and password for base image etc.
 
