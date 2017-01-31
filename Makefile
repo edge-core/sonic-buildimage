@@ -11,7 +11,7 @@ MAKEFLAGS += -B
 
 DOCKER_RUN := docker run --rm=true --privileged \
     -v $(PWD):/sonic \
-    -it sonic-slave-$(USER)
+    -i$(SONIC_SLAVE_TTY)
 
 DOCKER_BUILD = docker build --no-cache \
 	       --build-arg user=$(USER) \
@@ -26,7 +26,7 @@ DOCKER_BUILD = docker build --no-cache \
 
 %::
 	@docker inspect --type image sonic-slave-$(USER) &> /dev/null || $(DOCKER_BUILD)
-	@$(DOCKER_RUN) make \
+	@$(DOCKER_RUN) sonic-slave-$(USER) make \
 	    -C sonic \
 	    -f slave.mk \
 	    PLATFORM=$(PLATFORM) \
@@ -37,4 +37,4 @@ sonic-slave-build :
 	@$(DOCKER_BUILD)
 
 sonic-slave-bash :
-	@$(DOCKER_RUN) bash
+	@$(DOCKER_RUN) -t sonic-slave-$(USER) bash
