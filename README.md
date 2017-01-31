@@ -21,6 +21,10 @@ If it is already cloned, however there is no files under ./dockers/docker-base/ 
 
     git submodule update --init --recursive
 
+You also need to change all git paths to relative path as we build all submodules inside the docker.
+
+    git submodule foreach --recursive '[ -f .git ] && echo "gitdir: $(realpath --relative-to=. $(cut -d" " -f2 .git))" > .git'
+    
 # Usage
 
 **NOTE:** In order to be more familiar with build process and make some hanges to it, it is recommended to read this short [Documentation](README.buildsystem.md)
