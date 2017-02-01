@@ -271,3 +271,6 @@ pushd $FILESYSTEM_ROOT && sudo tar czf $OLDPWD/$FILESYSTEM_DOCKERFS var/lib/dock
 ## Compress together with /boot and /var/lib/docker as an installer payload zip file
 pushd $FILESYSTEM_ROOT && sudo zip $OLDPWD/$ONIE_INSTALLER_PAYLOAD -r boot/; popd
 sudo zip -g $ONIE_INSTALLER_PAYLOAD $FILESYSTEM_SQUASHFS $FILESYSTEM_DOCKERFS
+
+## Remove fsroot
+sudo rm -rf $FILESYSTEM_ROOT
