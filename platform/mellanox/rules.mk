@@ -5,9 +5,9 @@ include $(PLATFORM_PATH)/mlnx-sai.mk
 include $(PLATFORM_PATH)/hw-management.mk
 include $(PLATFORM_PATH)/docker-syncd-mlnx.mk
 include $(PLATFORM_PATH)/docker-orchagent-mlnx.mk
-include $(PLATFORM_PATH)/single-image.mk
+include $(PLATFORM_PATH)/one-image.mk
 
-SONIC_ALL += $(SONIC_SINGLE_IMAGE)
+SONIC_ALL += $(SONIC_ONE_IMAGE)
 
 # Inject mlnx sai into sairedis
 $(LIBSAIREDIS)_DEPENDS += $(MLNX_SAI)
