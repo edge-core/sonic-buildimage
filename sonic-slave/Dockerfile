@@ -99,7 +99,7 @@ ARG guid
 
 RUN groupadd -f -r -g $guid g$user
 
-RUN useradd $user -u $uid -g $guid -d /var/$user -m -s /bin/bash
+RUN useradd $user -l -u $uid -g $guid -d /var/$user -m -s /bin/bash
 
 RUN gpasswd -a $user docker
 
