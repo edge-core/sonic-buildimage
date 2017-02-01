@@ -24,6 +24,7 @@ RUN rm -rf /debs
 
 COPY ["*.j2", "/etc/swss/bgp/"]
 COPY ["start.sh", "config.sh", "/usr/bin/"]
+COPY ["daemons", "/etc/quagga/"]
 
 ENTRYPOINT /usr/bin/config.sh   \
         && /usr/bin/start.sh    \
