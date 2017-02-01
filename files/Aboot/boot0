@@ -18,9 +18,20 @@
 
 set -x
 
+kernel=boot/vmlinuz-3.16.0-4-amd64
+initrd=boot/initrd.img-3.16.0-4-amd64
+kernel_params=kernel-params
+
+aboot_machine="arista_unknown"
+
+target_path=/mnt/flash
+
+# expect the swi to be a non empty file
+[ -s "$swipath" ] || exit 1
+
 bootconfigvars="SWI SWI_COPY POST_LEVEL CONSOLESPEED PASSWORD NETDEV NETAUTO NETIP NETMASK NETGW NETDOMAIN NETDNS NETHW memtest"
 
-parseenvironmentconfig() {
+parse_environment_config() {
     for n in ${bootconfigvars}; do
         eval v="\$$n"
         if [ "$v" ]; then
@@ -29,34 +40,19 @@ parseenvironmentconfig() {
     done
 }
 
-kernel=boot/vmlinuz-3.16.0-4-amd64
-initrd=boot/initrd.img-3.16.0-4-amd64
-
-TARGET_PATH=/mnt/flash
-if [ -d "${swipath}" ]; then
-    # Not expect a directory name for swipath
-    exit 1
-fi
-
-## Check the hash file in the image, and determine to install or just skip
-GIT_REVISION=$(unzip -p ${swipath} .imagehash)
-LOCAL_IMAGEHASH=$(cat $TARGET_PATH/.imagehash 2>/dev/null || true)
-if [ "$GIT_REVISION" != "$LOCAL_IMAGEHASH" ]; then
+extract_image() {
     ## Clean old directory for read-write layer
-    rm -rf ${TARGET_PATH}/rw
+    rm -rf "$target_path/rw"
 
     ## Unzip the image
-    unzip -oq ${swipath} -x boot0 -d ${TARGET_PATH}
+    unzip -oq "$swipath" -x boot0 -d "$target_path"
+}
 
+write_machine_config() {
     ## Detect SKU and create a hardware description file
-    aboot_version=`grep ^Aboot /etc/cmdline | sed 's/^.*norcal.-//'`
-    aboot_build_date=`stat -c %y /bin/sysinit | sed 's/ /T/'`
-    if `grep -q platform=raven /etc/cmdline`; then
-        aboot_machine=arista_7050_qx32
-    else
-        aboot_machine=arista_7050_qx32s
-    fi
-    cat <<EOF > ${TARGET_PATH}/machine.conf
+    aboot_version=$(grep ^Aboot /etc/cmdline | sed 's/^.*norcal.-//')
+    aboot_build_date=$(stat -c %y /bin/sysinit | sed 's/ /T/')
+    cat <<EOF > ${target_path}/machine.conf
 aboot_version=$aboot_version
 aboot_vendor=arista
 aboot_platform=x86_64-$aboot_machine
@@ -64,15 +60,58 @@ aboot_machine=$aboot_machine
 aboot_arch=x86_64
 aboot_build_date=$aboot_build_date
 EOF
+}
 
-fi
+platform_specific() {
+    local platform="$(grep -Eo 'platform=[^ ]+' /etc/cmdline | cut -f2 -d=)"
+    # This is temporary as the platform= parameter doesn't provide enough
+    # information to identify the SKU
+    # An initramfs hook or a later processing done by the initscripts will be
+    # required
+    if [ "$platform" = "raven" ]; then
+        aboot_machine=arista_7050_qx32
+        echo "modprobe.blacklist=radeon" >>/tmp/append
+    fi
+    if [ "$platform" = "crow" ]; then
+        aboot_machine=arista_7050_qx32s
+    fi
+}
 
-echo "${append}" >/tmp/append
-parseenvironmentconfig >>/tmp/append
+echo "$append" >/tmp/append
+parse_environment_config >>/tmp/append
 cat /etc/cmdline | sed "/^\(${bootconfigvars// /\|}\|crashkernel\|loglevel\|ignore_loglevel\)\(\$\|=\)/d;/^\$/d" >>/tmp/append
 
-echo "root=/dev/sda1 rw loop=fs.squashfs loopfstype=squashfs apparmor=1 security=apparmor quiet" >>/tmp/append
+echo "rw loop=fs.squashfs loopfstype=squashfs apparmor=1 security=apparmor quiet" >>/tmp/append
 
-kexec --load --initrd=${TARGET_PATH}/${initrd} --append="$(tr '\n' ' ' </tmp/append)" ${TARGET_PATH}/${kernel}
-[ -z "${testonly}" ] || exit 0
+# process platform specific operations
+platform_specific
+
+# use extra parameters from kernel-params hook if the file exists
+if [ -f "$target_path/$kernel_params" ]; then
+    cat "$target_path/$kernel_params" >>/tmp/append
+fi
+
+# setting root partition if not overridden by kernel-params
+if ! grep -q "root=" /tmp/append; then
+   rootdev=$(mount | grep '/mnt/flash' | cut -f1 -d' ')
+   rootfstype=$(mount | grep '/mnt/flash' | cut -f5 -d' ')
+   # reformat if vfat?
+   echo "root=$rootdev" >>/tmp/append
+fi
+
+# check the hash file in the image, and determine to install or just skip
+GIT_REVISION=$(unzip -p "$swipath" .imagehash)
+LOCAL_IMAGEHASH=$(cat $target_path/.imagehash 2>/dev/null || true)
+if [ "$GIT_REVISION" != "$LOCAL_IMAGEHASH" ]; then
+    extract_image
+    write_machine_config
+fi
+
+# chainloading using kexec
+initrd_path="$target_path/$initrd"
+kernel_path="$target_path/$kernel"
+cmdline="$(tr '\n' ' ' </tmp/append)"
+
+kexec --load --initrd="$initrd_path" --append="$cmdline" "$kernel_path"
+[ -z "$testonly" ] || exit 0
 kexec --exec
