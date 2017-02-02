@@ -1,0 +1,20 @@
+#!/bin/bash
+# This script is to update hostname of the system.
+
+if [ "$reason" != BOUND ] && [ "$reason" != RENEW ] \
+     && [ "$reason" != REBIND ] && [ "$reason" != REBOOT ]
+then
+    exit 0
+fi
+
+current_host_name=`hostname -s`
+
+if [ "$current_host_name" != "$new_host_name" ]
+then
+    echo $new_host_name > /etc/hostname
+    line_to_replace=`grep 127.0.0.1.*$current_host_name /etc/hosts`
+    new_line=`echo $line_to_replace | sed "s/$current_host_name/$new_host_name/"`
+    sed -i "s/$line_to_replace/$new_line/" /etc/hosts
+
+    hostname -F /etc/hostname
+fi
