@@ -1,5 +1,8 @@
 FROM docker-base
 
+# Dependencies for sonic-cfggen
+RUN apt-get install -y python-lxml python-jinja2 python-netaddr python-ipaddr python-yaml
+
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
