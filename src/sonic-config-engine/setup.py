@@ -9,8 +9,9 @@ def get_platform_file_list():
       data_path = os.path.join(repo_path, 'platform')
       platforms = os.listdir(data_path)
       for platform in platforms:
-          files = ['platform/' + platform + '/alias_map.json', 
-                   'platform/' + platform + '/port_config.ini']
+          files = ['platform/' + platform + '/port_config.ini']
+          if os.path.isfile( os.path.join(data_path, platform, 'alias_map.json') ):
+              files.append('platform/' + platform + '/alias_map.json')  #If a platform doesnot have alias_map.json minigraph.py will fall back to no alias mapping
           if os.path.isfile( os.path.join(data_path, platform, 'sensors.conf') ):
               files.append('platform/' + platform + '/sensors.conf')    #Not all platforms need to have a sensors.conf file
           data_files.append( (os.path.join('/usr/share/sonic', platform), files) )

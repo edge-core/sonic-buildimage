@@ -21,7 +21,6 @@ set -x -e
 . functions.sh
 BUILD_TEMPLATES=files/build_templates
 IMAGE_CONFIGS=files/image_config
-VENDOR_CONFIGS=src/sonic-config-engine/platform
 
 {% if installer_debs.strip() -%}
 clean_sys() {
@@ -46,7 +45,6 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
 sudo dpkg --root=$FILESYSTEM_ROOT -i {{config_engine}}
 
 # Create all needed directories
-sudo mkdir -p $FILESYSTEM_ROOT/etc/ssw/
 sudo mkdir -p $FILESYSTEM_ROOT/etc/sonic/
 sudo mkdir -p $FILESYSTEM_ROOT/etc/sonic/templates/
 
@@ -86,19 +84,16 @@ sudo cp $IMAGE_CONFIGS/interfaces/*.j2 $FILESYSTEM_ROOT/etc/sonic/templates/
 # Copy SNMP configuration files
 sudo cp $IMAGE_CONFIGS/snmp/snmp.yml $FILESYSTEM_ROOT/etc/sonic/
 
-# Generate system desription file
+# Generate build version file
 export git_revision=$(git rev-parse --short HEAD)
 export sonic_hwsku={{sonic_hwsku}}
 export debian_version=`cat $FILESYSTEM_ROOT/etc/debian_version`
 export kernel_version={{kversion}}
-j2 $BUILD_TEMPLATES/sysDescription.j2 > sysDescription 
-sudo mv sysDescription $FILESYSTEM_ROOT/etc/ssw/
+j2 $BUILD_TEMPLATES/sonic_version.yml.j2 > sonic_version.yml
+sudo mv sonic_version.yml $FILESYSTEM_ROOT/etc/sonic/
 
 # Copy sudoers configuration file
 sudo cp $IMAGE_CONFIGS/sudoers/sudoers $FILESYSTEM_ROOT/etc/
-
-# Copy vendor specific configuration files
-sudo cp -R $VENDOR_CONFIGS/{{sonic_hwsku}}/ $FILESYSTEM_ROOT/etc/ssw/
 
 {% for deb in installer_debs.strip().split(' ') -%}
 sudo dpkg --extract {{deb}} $FILESYSTEM_ROOT
