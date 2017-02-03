@@ -1,5 +1,6 @@
 include $(PLATFORM_PATH)/sdk.mk
 include $(PLATFORM_PATH)/sai.mk
+include $(PLATFORM_PATH)/platform-modules-s6000.mk
 include $(PLATFORM_PATH)/docker-orchagent-brcm.mk
 include $(PLATFORM_PATH)/docker-syncd-brcm.mk
 include $(PLATFORM_PATH)/one-image.mk
