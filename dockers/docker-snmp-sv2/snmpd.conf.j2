@@ -1,6 +1,5 @@
 ###############################################################################
-# Managed by Ansible
-# file: ansible/roles/acs/templates/snmpd.conf.j2
+# Managed by sonic-config-engine
 ###############################################################################
 #
 # EXAMPLE.conf:
@@ -14,6 +13,7 @@
 #  AGENT BEHAVIOUR
 #
 
+{% if minigraph_mgmt_interface.addr | ipv4 %}
 #  Listen for connections on localhost, loopback ip and mgmt (eth0) ip
 agentAddress udp:127.0.0.1:161
 agentAddress udp:{{ minigraph_mgmt_interface.addr }}:161
@@ -23,6 +23,11 @@ agentAddress udp:{{ minigraph_mgmt_interface.addr }}:161
 agentAddress udp:{{ minigraph_lo_interface.addr }}:161
 {% endif %}
 {% endfor %}
+{% else %}
+# Listen on all addresses as mgmt ip not specified in minigraph
+agentAddress udp:161
+{% endif %}
+
 ###############################################################################
 #
 #  ACCESS CONTROL
