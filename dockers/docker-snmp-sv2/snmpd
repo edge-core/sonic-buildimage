@@ -8,4 +8,4 @@ export MIBS=
 SNMPDRUN=yes
 
 # snmpd options (use syslog, close stdin/out/err).
-SNMPDOPTS='-LS4d -Lf /dev/null -u snmp -g snmp -I -smux,mteTrigger,mteTriggerConf,ifTable,ifXTable -p /run/snmpd.pid'
+SNMPDOPTS='-LS4d -Lf /dev/null -u Debian-snmp -g Debian-snmp -I -smux,mteTrigger,mteTriggerConf,ifTable,ifXTable -p /run/snmpd.pid'
