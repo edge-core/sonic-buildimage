@@ -31,6 +31,3 @@ USERNAME = admin
 
 # PASSWORD - password for installer build
 PASSWORD = YourPaSsWoRd
-
-# SONIC_CONFIG_DEBUG - install debug packages
-SONIC_CONFIG_DEBUG = n
