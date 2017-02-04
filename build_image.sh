@@ -35,6 +35,9 @@ elif [ "$IMAGE_TYPE" = "aboot" ]; then
     echo "$GIT_REVISION" >> .imagehash
     zip -g $OUTPUT_ONIE_IMAGE .imagehash
     rm .imagehash
+    echo "SWI_VERSION=42.0.0" > version
+    zip -g $OUTPUT_ONIE_IMAGE version
+    rm version
 else
     echo "Error: Non supported target platform: $TARGET_PLATFORM"
     exit 1
