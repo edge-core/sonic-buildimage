@@ -64,16 +64,22 @@ EOF
 
 platform_specific() {
     local platform="$(grep -Eo 'platform=[^ ]+' /etc/cmdline | cut -f2 -d=)"
-    # This is temporary as the platform= parameter doesn't provide enough
+    local sid="$(grep -Eo 'sid=[^ ]+' /etc/cmdline | cut -f2 -d=)"
+    # This is temporary as the platform= and sid= parameters don't provide enough
     # information to identify the SKU
     # An initramfs hook or a later processing done by the initscripts will be
-    # required
+    # required to read the system eeprom
     if [ "$platform" = "raven" ]; then
         aboot_machine=arista_7050_qx32
         echo "modprobe.blacklist=radeon" >>/tmp/append
     fi
     if [ "$platform" = "crow" ]; then
         aboot_machine=arista_7050_qx32s
+        echo "modprobe.blacklist=radeon" >>/tmp/append
+    fi
+    if [ "$sid" = "Upperlake" ]; then
+        aboot_machine=arista_7060_cx32s
+        echo "amd_iommu=off" >> /tmp/append
     fi
 }
 
@@ -95,7 +101,6 @@ fi
 if ! grep -q "root=" /tmp/append; then
    rootdev=$(mount | grep '/mnt/flash' | cut -f1 -d' ')
    rootfstype=$(mount | grep '/mnt/flash' | cut -f5 -d' ')
-   # reformat if vfat?
    echo "root=$rootdev" >>/tmp/append
 fi
 
