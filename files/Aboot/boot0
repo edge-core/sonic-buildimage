@@ -46,6 +46,15 @@ extract_image() {
 
     ## Unzip the image
     unzip -oq "$swipath" -x boot0 -d "$target_path"
+
+    ## Clean old directory for docker
+    rm -rf "$target_path/var/lib/docker"
+
+    ## Further extract docker archive 
+    tar xf "$target_path/dockerfs.tar.gz" -C "$target_path"
+
+    ## clean up docker archive
+    rm -f "$target_path/dockerfs.tar.gz"
 }
 
 write_machine_config() {
