@@ -44,17 +44,23 @@ extract_image() {
     ## Clean old directory for read-write layer
     rm -rf "$target_path/rw"
 
+    ## Clean docker directory
+    rm -rf "$target_path/var"
+
     ## Unzip the image
     unzip -oq "$swipath" -x boot0 -d "$target_path"
 
-    ## Clean old directory for docker
-    rm -rf "$target_path/var/lib/docker"
+    ## Remove installer swi as it has lots of redundunt contents
+    rm -f $swipath
 
-    ## Further extract docker archive 
-    tar xf "$target_path/dockerfs.tar.gz" -C "$target_path"
+    ## Further extract docker archive
+    tar xf "$target_path/{{ FILESYSTEM_DOCKERFS }}" -C "$target_path"
 
     ## clean up docker archive
-    rm -f "$target_path/dockerfs.tar.gz"
+    rm -f "$target_path/{{ FILESYSTEM_DOCKERFS }}"
+
+    ## replace with boot swi
+    mv "$target_path/{{ ABOOT_BOOT_IMAGE }}" "$swipath"
 }
 
 write_machine_config() {
