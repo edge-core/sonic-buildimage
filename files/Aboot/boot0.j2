@@ -53,11 +53,19 @@ extract_image() {
     ## Remove installer swi as it has lots of redundunt contents
     rm -f $swipath
 
-    ## Further extract docker archive
-    tar xf "$target_path/{{ FILESYSTEM_DOCKERFS }}" -C "$target_path"
+    ## detect rootfs type
+    rootfs_type=`grep /mnt/flash /proc/mounts | cut -d' ' -f3`
 
-    ## clean up docker archive
-    rm -f "$target_path/{{ FILESYSTEM_DOCKERFS }}"
+    ## vfat does not support symbol link
+    if [ $rootfs_type != "vfat" ]; then
+        ## Further extract docker archive
+        tar xf "$target_path/{{ FILESYSTEM_DOCKERFS }}" -C "$target_path"
+
+        ## clean up docker archive
+        rm -f "$target_path/{{ FILESYSTEM_DOCKERFS }}"
+    else
+        echo "/mnt/flash is $rootfs_type, extract {{ FILESYSTEM_DOCKERFS }} in later stage"
+    fi
 
     ## replace with boot swi
     mv "$target_path/{{ ABOOT_BOOT_IMAGE }}" "$swipath"

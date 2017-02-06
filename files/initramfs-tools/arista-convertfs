@@ -164,7 +164,10 @@ err_msg="Error: mounting $root_dev to $root_mnt failed"
 cmd="mount -t ext4 $root_dev $root_mnt"
 run_cmd "$cmd" "$err_msg"
 
+err_msg="Error: extract docker directory"
+cmd="[ -f $tmp_mnt/dockerfs.tar.gz ] && rm -rf $tmp_mnt/var && tar xzf $tmp_mnt/dockerfs.tar.gz -C $root_mnt && rm -f $tmp_mnt/dockerfs.tar.gz"
+run_cmd "$cmd" "$err_msg"
+
 err_msg="Error: copying files form $tmp_mnt to $root_mnt failed"
 cmd="cp -a $tmp_mnt/. $root_mnt/"
 run_cmd "$cmd" "$err_msg"
-
