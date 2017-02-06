@@ -4,6 +4,7 @@ SHELL = /bin/bash
 
 MAIN_TARGET = cavm_platform_modules.deb
 DEB_BUILD_DIR = cavm-platform-modules-deb
+SCRIPT_SRC = $(DEB_BUILD_DIR)/
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# get sources
@@ -16,8 +17,10 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	KERNEL_SRC=/lib/modules/$(KVERSION)/build make
 	popd
 	mkdir -p $(DEB_BUILD_DIR)/lib/modules/$(KVERSION)
+	mkdir -p $(DEB_BUILD_DIR)/usr/bin
 
 	cp SONiC/AS7512-32X/module/*.ko $(DEB_BUILD_DIR)/lib/modules/$(KVERSION)
+	cp SONiC/AS7512-32X/accton_as7512_util.py $(DEB_BUILD_DIR)/usr/bin
 	cp -r DEBIAN $(DEB_BUILD_DIR)
 	dpkg-deb -b  $(DEB_BUILD_DIR) $(MAIN_TARGET)
 
