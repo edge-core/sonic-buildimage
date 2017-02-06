@@ -12,7 +12,7 @@ mount -n -o dirs=${rootmnt}/host/rw:${rootmnt}=ro -t aufs root-aufs ${rootmnt}
 mount ${ROOT} ${rootmnt}/host
 ## Mount the working directory of docker engine in the raw partition, bypass the aufs
 mkdir -p ${rootmnt}/var/lib/docker
-mount --bind ${rootmnt}/host/var/lib/docker ${rootmnt}/var/lib/docker
+mount --bind ${rootmnt}/host/{{ DOCKERFS_DIR }} ${rootmnt}/var/lib/docker
 ## Mount the boot directory in the raw partition, bypass the aufs
 mkdir -p ${rootmnt}/boot
 mount --bind ${rootmnt}/host/boot ${rootmnt}/boot

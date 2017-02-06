@@ -165,7 +165,7 @@ cmd="mount -t ext4 $root_dev $root_mnt"
 run_cmd "$cmd" "$err_msg"
 
 err_msg="Error: extract docker directory"
-cmd="[ -f $tmp_mnt/dockerfs.tar.gz ] && rm -rf $tmp_mnt/var && tar xzf $tmp_mnt/dockerfs.tar.gz -C $root_mnt && rm -f $tmp_mnt/dockerfs.tar.gz"
+cmd="[ -f $tmp_mnt/{{ FILESYSTEM_DOCKERFS }} ] && rm -rf $root_mnt/{{ DOCKERFS_DIR }} && mkdir $root_mnt/{{ DOCKERFS_DIR }} && tar xzf $tmp_mnt/{{ FILESYSTEM_DOCKERFS }} -C $root_mnt/{{ DOCKERFS_DIR }} && rm -f $tmp_mnt/{{ FILESYSTEM_DOCKERFS }}"
 run_cmd "$cmd" "$err_msg"
 
 err_msg="Error: copying files form $tmp_mnt to $root_mnt failed"

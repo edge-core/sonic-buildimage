@@ -398,7 +398,7 @@ ${onie_bin} mount -t ext4 -o defaults,rw $demo_dev $demo_mnt || {
 unzip $ONIE_INSTALLER_PAYLOAD -d $demo_mnt
 
 if [ -f $demo_mnt/$FILESYSTEM_DOCKERFS ]; then
-    cd $demo_mnt && tar xf $FILESYSTEM_DOCKERFS; cd $OLDPWD
+    cd $demo_mnt && mkdir -p $DOCKERFS_DIR && tar xf $FILESYSTEM_DOCKERFS -C $DOCKERFS_DIR; cd $OLDPWD
 fi
 
 # Store machine description in target file system
