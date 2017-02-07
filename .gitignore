@@ -30,3 +30,6 @@ dockers/docker-orchagent/Dockerfile
 dockers/docker-snmp-sv2/Dockerfile
 dockers/docker-team/Dockerfile
 dockers/docker-platform-monitor/Dockerfile
+dockers/docker-dhcp-relay/Dockerfile
+dockers/docker-teamd/Dockerfile
+platform/broadcom/docker-syncd-brcm/Dockerfile
