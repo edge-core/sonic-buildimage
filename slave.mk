@@ -254,7 +254,7 @@ docker-start :
 # targets for building simple docker images that do not depend on any debian packages
 $(addprefix $(TARGET_PATH)/, $(SONIC_SIMPLE_DOCKER_IMAGES)) : $(TARGET_PATH)/%.gz : .platform docker-start $$(addsuffix -load,$$(addprefix $(TARGET_PATH)/,$$($$*.gz_LOAD_DOCKERS)))
 	$(HEADER)
-	docker build --no-cache -t $* $($*.gz_PATH) $(LOG)
+	docker build --squash --no-cache -t $* $($*.gz_PATH) $(LOG)
 	docker save $* | gzip -c > $@
 	$(FOOTER)
 
@@ -268,7 +268,7 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_DOCKER_IMAGES)) : $(TARGET_PATH)/%.gz : .pl
 	# Export variables for j2. Use path for unique variable names, e.g. docker_orchagent_debs
 	$(eval export $(subst -,_,$(notdir $($*.gz_PATH)))_debs=$(shell printf "$(subst $(SPACE),\n,$(call expand,$($*.gz_DEPENDS),RDEPENDS))\n" | awk '!a[$$0]++'))
 	j2 $($*.gz_PATH)/Dockerfile.j2 > $($*.gz_PATH)/Dockerfile
-	docker build --no-cache -t $* $($*.gz_PATH) $(LOG)
+	docker build --squash --no-cache -t $* $($*.gz_PATH) $(LOG)
 	docker save $* | gzip -c > $@
 	$(FOOTER)
 
