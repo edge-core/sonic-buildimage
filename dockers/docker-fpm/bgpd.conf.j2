@@ -46,6 +46,9 @@ router bgp {{ minigraph_bgp_asn }}
 {% if bgp_session['asn'] != 0 %}
   neighbor {{ bgp_session['addr'] }} remote-as {{ bgp_session['asn'] }}
   neighbor {{ bgp_session['addr'] }} description {{ bgp_session['name'] }}
+{% if minigraph_devices[inventory_hostname]['type'] == 'ToRRouter' %}
+  neighbor {{ bgp_session['addr'] }} allowas-in 1
+{% endif %}
 {% if bgp_session['addr'] | ipv6 %}
   address-family ipv6
     neighbor {{ bgp_session['addr'] }} activate
