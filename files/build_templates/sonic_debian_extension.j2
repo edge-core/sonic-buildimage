@@ -117,3 +117,11 @@ sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /sys || true
 sudo LANG=C chroot $FILESYSTEM_ROOT umount -lf /sys
 {% endif %}
 
+{% for file in installer_extra_files.split(' ') -%}
+{% if file.strip() -%}
+{% set src = file.split(':')[0] -%}
+{% set dst = file.split(':')[1] -%}
+sudo cp {{src}} $FILESYSTEM_ROOT/{{dst}}
+{% endif -%}
+{% endfor -%}
+
