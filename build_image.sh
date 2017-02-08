@@ -45,6 +45,8 @@ elif [ "$IMAGE_TYPE" = "aboot" ]; then
     zip -g $ABOOT_BOOT_IMAGE .imagehash
     rm .imagehash
     echo "SWI_VERSION=42.0.0" > version
+    echo "SWI_MAX_HWEPOCH=1" >> version
+    echo "SWI_VARIANT=US" >> version
     zip -g $OUTPUT_ABOOT_IMAGE version
     zip -g $ABOOT_BOOT_IMAGE version
     rm version
