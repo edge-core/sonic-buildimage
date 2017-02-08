@@ -1,4 +1,4 @@
-FROM docker-base
+FROM docker-config-engine
 
 COPY \
 {% for deb in docker_lldp_sv2_debs.split(' ') -%}
@@ -9,9 +9,6 @@ debs/
 COPY python-wheels /python-wheels
 
 RUN apt-get update && apt-get install -y python-pip supervisor libbsd0 libevent-2.0-5 libjansson4 libwrap0 libxml2 libpci3 libperl5.20 
-
-# Dependencies for sonic-cfggen                                                                                                                                                           
-RUN apt-get install -y python-lxml python-jinja2 python-netaddr python-ipaddr python-yaml 
 
 ## Pre-install the fundamental packages
 ## Install Python SSWSDK

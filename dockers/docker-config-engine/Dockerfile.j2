@@ -1,0 +1,21 @@
+FROM docker-base
+
+RUN apt-get update
+
+# Dependencies for sonic-cfggen 
+RUN apt-get install -y python-lxml python-jinja2 python-netaddr python-ipaddr python-yaml 
+
+COPY \
+{% for deb in docker_config_engine_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor -%}
+debs/
+
+RUN dpkg -i \
+{% for deb in docker_config_engine_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor %}
+
+## Clean up
+RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
+RUN rm -rf /debs

@@ -1,25 +1,10 @@
-FROM docker-base
+FROM docker-config-engine
 
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
 ## Update APT package lists
 RUN apt-get update
-
-## Dependencies for sonic-cfggen
-RUN apt-get -y install python-lxml python-jinja2 python-netaddr python-ipaddr python-yaml
-
-
-COPY \
-{% for deb in docker_dhcp_relay_debs.split(' ') -%}
-debs/{{ deb }}{{' '}}
-{%- endfor -%}
-debs/
-
-RUN dpkg -i \
-{% for deb in docker_dhcp_relay_debs.split(' ') -%}
-debs/{{ deb }}{{' '}}
-{%- endfor %}
 
 ## Install isc-dhcp-relay Debian package
 RUN apt-get -y install isc-dhcp-relay

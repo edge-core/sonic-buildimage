@@ -1,4 +1,4 @@
-FROM docker-base
+FROM docker-config-engine
 
 COPY \
 {% for deb in docker_snmp_sv2_debs.split(' ') -%}
@@ -16,9 +16,6 @@ ENV PYTHONOPTIMIZE 1
 ## Install SNMP subagent
 ## Clean up
 RUN apt-get update && apt-get install -y libmysqlclient-dev libmysqld-dev libperl-dev libpci-dev libpci3 libsensors4 libsensors4-dev libwrap0-dev
-
-# Dependencies for sonic-cfggen                                                                                                                                                           
-RUN apt-get install -y python-lxml python-jinja2 python-netaddr python-ipaddr python-yaml 
 
 RUN dpkg -i \
 {% for deb in docker_snmp_sv2_debs.split(' ') -%}
