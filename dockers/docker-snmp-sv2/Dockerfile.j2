@@ -1,45 +1,39 @@
 FROM docker-config-engine
 
-COPY \
+COPY [ \
 {% for deb in docker_snmp_sv2_debs.split(' ') -%}
-debs/{{ deb }}{{' '}}
-{%- endfor -%}
-debs/
+    "debs/{{ deb }}",
+{%- endfor %} \
+    "/debs/"]
 
-COPY python-wheels /python-wheels
+COPY python-wheels/sswsdk-*-py3-*.whl /python-wheels/
+COPY python-wheels/asyncsnmp-*-py3-*.whl /python-wheels/
 
 # enable -O for all Python calls
 ENV PYTHONOPTIMIZE 1
 
-## Pre-install the fundamental packages
-## Install Python SSWSDK (SNMP subagent dependency)
-## Install SNMP subagent
-## Clean up
-RUN apt-get update && apt-get install -y libmysqlclient-dev libmysqld-dev libperl-dev libpci-dev libpci3 libsensors4 libsensors4-dev libwrap0-dev
-
-RUN dpkg -i \
-{% for deb in docker_snmp_sv2_debs.split(' ') -%}
-debs/{{ deb }}{{' '}}
-{%- endfor %}
-
-RUN rm -rf /debs
-
+# install supervisor
+# install libsnmp30 dependencies
+# install libpython3.6-dev dependencies
+# install pip dependencies
+# TODO: remove libpython3.6-dev, its and pip's dependencies if we can get pip3 directly
 # install subagent
-RUN apt-get -y install build-essential wget libssl-dev openssl supervisor && \
-    rm -rf /var/lib/apt/lists/* && \
-    wget https://www.python.org/ftp/python/3.5.2/Python-3.5.2.tgz && \
-    tar xvf Python-3.5.2.tgz && cd Python-3.5.2 && \
-    ./configure --without-doc-strings --prefix=/usr --without-pymalloc --enable-shared && \
-    make && make install && \
-    ldconfig && \
-    cd .. && rm -rf Python-3.5.2 && rm Python-3.5.2.tgz && \
-    pip3 install --no-cache-dir /python-wheels/*py3*.whl hiredis && \
+# clean up
+RUN apt-get update && apt-get install -y supervisor \
+            libperl5.20 libpci3 libwrap0 \
+            libexpat1-dev \
+            curl gcc && \
+    dpkg -i \
+{% for deb in docker_snmp_sv2_debs.split(' ') -%}
+        debs/{{ deb }}{{' '}}
+{%- endfor %} && \
+    rm -rf /debs && \
+    curl https://bootstrap.pypa.io/get-pip.py | python3.6 && \
+    python3.6 -m pip install --no-cache-dir /python-wheels/*py3*.whl hiredis && \
     rm -rf /python-wheels && \
-    python3 -m sonic_ax_impl install && \
-    python3 -m pip uninstall -y pip setuptools && \
-    /bin/bash -c "rm -rf /usr/lib/python3.5/{unittest,lib2to3,tkinter,idlelib,email,test}" && \
-    apt-get -y purge build-essential libssl-dev openssl && \
-    apt-get clean -y && apt-get autoclean -y && apt-get autoremove -y && \
+    python3.6 -m sonic_ax_impl install && \
+    apt-get -y purge libpython3.6-dev libexpat1-dev curl gcc && \
+    apt-get clean -y && apt-get autoclean -y && apt-get autoremove -y --purge && \
     find / | grep -E "__pycache__" | xargs rm -rf && \
     rm -rf ~/.cache
 
@@ -51,4 +45,4 @@ COPY ["config.sh", "/usr/bin/"]
 ## Although exposing ports is not need for host net mode, keep it for possible bridge mode
 EXPOSE 161/udp 162/udp
 
-ENTRYPOINT /usr/bin/config.sh && /usr/bin/supervisord 
+ENTRYPOINT /usr/bin/config.sh && /usr/bin/supervisord
