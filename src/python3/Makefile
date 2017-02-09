@@ -23,10 +23,16 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	## Build
 	dpkg-source -x $(PYTHON_PNAME)_$(PYTHON_VER)-$(PYTHON_DEB_VER).dsc
 	pushd $(PYTHON_PNAME)-$(PYTHON_VER)
-	sudo apt-get install devscripts
 	mk-build-deps
-	sudo dpkg -i $(PYTHON_PNAME)-build-deps_$(PYTHON_VER)-$(PYTHON_DEB_VER)_amd64.deb || sudo apt-get install -f
-	dpkg-buildpackage -us -uc -b
+
+	# put a lock here because dpkg does not allow installing packages in parallel
+	while true; do
+	if mkdir $(DEST)/dpkg_lock &> /dev/null; then
+	{ echo here && (sudo dpkg -i $(PYTHON_PNAME)-build-deps_$(PYTHON_VER)-$(PYTHON_DEB_VER)_amd64.deb || sudo apt-get install -f) && rm -d $(DEST)/dpkg_lock && break; } || { rm -d $(DEST)/dpkg_lock && exit 1 ; }
+	fi
+	done
+
+	dpkg-buildpackage -rfakeroot -us -uc -b
 	popd
 
 	cp $(DERIVED_TARGETS) $* $(DEST)/
