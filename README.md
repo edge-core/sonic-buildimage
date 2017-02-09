@@ -27,13 +27,13 @@ You also need to change all git paths to relative path as we build all submodule
     
 # Usage
 
-**NOTE:** In order to be more familiar with build process and make some hanges to it, it is recommended to read this short [Documentation](README.buildsystem.md)
-
 To build NOS installer image and docker images, run command line
 
     make configure PLATFORM=[ASIC_VENDOR] SKU=[HW_SKU]
     make
 
+ **NOTE**: We recommend to reserve 50G free space to build one platform.
+    
 Supported PLATFORM AND SKU are:
 - PLATFORM=broadcom SKU=Force10-S6000
 - PLATFORM=mellanox SKU=ACS-MSN2700
@@ -55,7 +55,7 @@ Every target has a clean target, so in order to clean swss, execute
 
     make target/debs/swss_1.0.0_amd64.deb-clean
 
-It is recommended to use clean targets to clean all packages, that are built together, like dev packages for instance.
+It is recommended to use clean targets to clean all packages, that are built together, like dev packages for instance. In order to be more familiar with build process and make some changes to it, it is recommended to read this short [Documentation](README.buildsystem.md).
 
 # Note:
 If you are running make for the first time, a sonic-slave-${USER} docker image will be built automatically.
