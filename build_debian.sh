@@ -58,7 +58,7 @@ DEFAULT_USERINFO="Default admin user,,,"
 
 ## Prepare the file system directory
 if [[ -d $FILESYSTEM_ROOT ]]; then
-    sudo rm -r $FILESYSTEM_ROOT || die "Failed to clean chroot directory"
+    sudo rm -rf $FILESYSTEM_ROOT || die "Failed to clean chroot directory"
 fi
 mkdir -p $FILESYSTEM_ROOT
 
@@ -272,6 +272,3 @@ pushd $FILESYSTEM_ROOT && sudo tar czf $OLDPWD/$FILESYSTEM_DOCKERFS -C var/lib/d
 ## Compress together with /boot and /var/lib/docker as an installer payload zip file
 pushd $FILESYSTEM_ROOT && sudo zip $OLDPWD/$ONIE_INSTALLER_PAYLOAD -r boot/; popd
 sudo zip -g $ONIE_INSTALLER_PAYLOAD $FILESYSTEM_SQUASHFS $FILESYSTEM_DOCKERFS
-
-## Remove fsroot
-sudo rm -rf $FILESYSTEM_ROOT

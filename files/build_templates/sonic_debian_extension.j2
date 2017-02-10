@@ -95,9 +95,24 @@ sudo mv sonic_version.yml $FILESYSTEM_ROOT/etc/sonic/
 # Copy sudoers configuration file
 sudo cp $IMAGE_CONFIGS/sudoers/sudoers $FILESYSTEM_ROOT/etc/
 
+## Install package without starting service
+## ref: https://wiki.debian.org/chroot
+sudo tee -a $FILESYSTEM_ROOT/usr/sbin/policy-rc.d > /dev/null <<EOF
+#!/bin/sh
+exit 101
+EOF
+sudo chmod a+x $FILESYSTEM_ROOT/usr/sbin/policy-rc.d
+
 {% for deb in installer_debs.strip().split(' ') -%}
+if [ $sonic_asic_platform == "mellanox" ]; then
 sudo dpkg --extract {{deb}} $FILESYSTEM_ROOT
+else
+sudo dpkg --root=$FILESYSTEM_ROOT -i {{deb}} || sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
+fi
 {% endfor %}
+
+sudo rm -f $FILESYSTEM_ROOT/usr/sbin/policy-rc.d
+
 ## Run depmod command for target kernel modules
 sudo LANG=C chroot $FILESYSTEM_ROOT depmod -a {{kversion}}
 {% endif %}
