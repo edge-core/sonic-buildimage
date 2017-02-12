@@ -44,6 +44,19 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
 
 sudo dpkg --root=$FILESYSTEM_ROOT -i {{config_engine}}
 
+# Python tabulate required for sonic-utilities
+python_tabulate_url=http://packages.microsoft.com/repos/sonic-dev/pool/main/p/python-tabulate/python-tabulate_0.7.7-1_all.deb
+python_template_deb_temp=`mktemp`
+trap_push "rm -f $python_template_deb_temp"
+wget $python_tabulate_url -qO $python_template_deb_temp && {                                  \
+    sudo dpkg --root=$FILESYSTEM_ROOT -i $python_template_deb_temp ||                         \
+    sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f; \
+}
+
+# Sonic utilities
+sudo dpkg --root=$FILESYSTEM_ROOT -i target/debs/sonic-utilities_*.deb || \
+    sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
+
 # Create all needed directories
 sudo mkdir -p $FILESYSTEM_ROOT/etc/sonic/
 sudo mkdir -p $FILESYSTEM_ROOT/etc/sonic/templates/
