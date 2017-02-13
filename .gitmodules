@@ -1,6 +1,3 @@
-[submodule "docker-base"]
-	path = dockers/docker-base
-	url = https://github.com/Azure/sonic-docker-base.git
 [submodule "sonic-swss-common"]
 	path = src/sonic-swss-common
 	url = https://github.com/Azure/sonic-swss-common
