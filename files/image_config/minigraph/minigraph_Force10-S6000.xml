@@ -1037,6 +1037,12 @@
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
     </DeviceInterfaceLinks>
+    <Devices>
+      <Device i:type="LeafRouter">
+        <Hostname>switch1</Hostname>
+        <HwSku>Force10-S6000</HwSku>
+      </Device>
+    </Devices>
   </PngDec>
   <Hostname>switch1</Hostname>
   <HwSku>Force10-S6000</HwSku>
