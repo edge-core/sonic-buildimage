@@ -31,6 +31,7 @@ DOCKER_BUILD = docker build --no-cache \
 	    -f slave.mk \
 	    PLATFORM=$(PLATFORM) \
 	    SKU=$(SKU) \
+	    DEBUG_BUILD=$(DEBUG_BUILD) \
 	    $@
 
 sonic-slave-build :

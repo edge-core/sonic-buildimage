@@ -11,6 +11,10 @@
 # Uncomment next line to enable:
 # SONIC_CONFIG_PRINT_DEPENDENCIES = y
 
+# DEBUG_BUILD - enable building image with uncommitted local changes.
+# Uncomment next line to enable:
+# DEBUG_BUILD = y
+
 # SONIC_CONFIG_BUILD_JOBS - set number of jobs for parallel build.
 # Corresponding -j argument will be passed to make command inside docker
 # container.
