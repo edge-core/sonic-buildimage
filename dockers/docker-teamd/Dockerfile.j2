@@ -19,4 +19,5 @@ COPY ["teamd.j2", "/etc/swss/teamd/"]
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /debs
 
-ENTRYPOINT /usr/bin/config.sh && /usr/bin/start.sh
+ENTRYPOINT ["/bin/bash"]
+CMD ["/usr/bin/config.sh && /usr/bin/start.sh"]
