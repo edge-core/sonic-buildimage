@@ -8,6 +8,8 @@ esac
 ## Mount the aufs file system: rw layer over squashfs
 mkdir -p ${rootmnt}/host/rw
 mount -n -o dirs=${rootmnt}/host/rw:${rootmnt}=ro -t aufs root-aufs ${rootmnt}
+## Check if the root block device is still there
+[ -b ${ROOT} ] || mdev -s
 ## Mount the raw partition again
 mount ${ROOT} ${rootmnt}/host
 ## Mount the working directory of docker engine in the raw partition, bypass the aufs
