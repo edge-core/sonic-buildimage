@@ -51,6 +51,10 @@ CONSOLE_SPEED=9600
 
 # Get platform specific linux kernel command line arguments
 ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=""
+
+# Default var/log device size in MB
+VAR_LOG_SIZE=4096
+
 [ -r platforms/$onie_platform ] && source platforms/$onie_platform
 
 # Install demo on same block device as ONIE
@@ -399,6 +403,13 @@ unzip $ONIE_INSTALLER_PAYLOAD -d $demo_mnt
 
 if [ -f $demo_mnt/$FILESYSTEM_DOCKERFS ]; then
     cd $demo_mnt && mkdir -p $DOCKERFS_DIR && tar xf $FILESYSTEM_DOCKERFS -C $DOCKERFS_DIR; cd $OLDPWD
+fi
+
+# Create loop device for /var/log to limit its size to $VAR_LOG_SIZE MB
+if [ "$VAR_LOG_SIZE" != "0" ]; then
+    mkdir -p $demo_mnt/disk-img
+    dd if=/dev/zero of=$demo_mnt/disk-img/var-log.ext4 count=$((2048*$VAR_LOG_SIZE))
+    mkfs.ext4 -q $demo_mnt/disk-img/var-log.ext4 -F
 fi
 
 # Store machine description in target file system

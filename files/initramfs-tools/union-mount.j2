@@ -18,3 +18,5 @@ mount --bind ${rootmnt}/host/{{ DOCKERFS_DIR }} ${rootmnt}/var/lib/docker
 ## Mount the boot directory in the raw partition, bypass the aufs
 mkdir -p ${rootmnt}/boot
 mount --bind ${rootmnt}/host/boot ${rootmnt}/boot
+## Mount loop device for /var/log
+[ -f ${rootmnt}/host/disk-img/var-log.ext4 ] && mount -t ext4 -o loop,rw ${rootmnt}/host/disk-img/var-log.ext4 ${rootmnt}/var/log
