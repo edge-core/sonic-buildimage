@@ -285,18 +285,33 @@ def get_mgmt_info(devices, dev, port):
 
     return ret_val
 
-def get_alias_map_list(hwsku):
-    alias_map_json = os.path.join('/usr/share/sonic', hwsku, 'alias_map.json')
-    if not os.path.isfile(alias_map_json):
+def get_alias_map_list(hwsku, platform=None):
+    port_config_candidates = []
+    port_config_candidates.append('/usr/share/sonic/sku/port_config.ini')
+    if platform != None:
+        port_config_candidates.append(os.path.join('/usr/share/sonic/device', platform, hwsku, 'port_config.ini'))
+    port_config_candidates.append(os.path.join('/usr/share/sonic/device', hwsku, 'port_config.ini'))
+    port_config_candidates.append(os.path.join('/usr/share/sonic', hwsku, 'port_config.ini'))
+    port_config = None
+    for candidate in port_config_candidates:
+        if os.path.isfile(candidate):
+            port_config = candidate
+            break
+    if port_config == None:
         return None
-    with open(alias_map_json) as data:
-        alias_map_dict = json.load(data)
+    
     alias_map_list = []
-    for k,v in alias_map_dict.items():
-        alias_map_list.append({'sonic': k, 'origin': v})
+    with open(port_config) as data:
+        for line in data:
+            if line.startswith('#'):
+                continue
+            tokens = line.split()
+            if len(tokens) < 3:
+                continue
+            alias_map_list.append({'sonic': tokens[0], 'origin': tokens[2].strip()})
     return alias_map_list
 
-def parse_xml(filename):
+def parse_xml(filename, platform=None):
     root = ET.parse(filename).getroot()
     mini_graph_path = filename
 
@@ -322,8 +337,7 @@ def parse_xml(filename):
         if child.tag == str(hostname_qn):
             hostname = child.text
 
-    # port_alias_map maps ngs port name to sonic port name
-    alias_map_list = get_alias_map_list(hwsku)
+    alias_map_list = get_alias_map_list(hwsku, platform)
     if alias_map_list != None:
         for item in alias_map_list:
             port_alias_map[item['origin']] = item['sonic']
@@ -373,6 +387,7 @@ def parse_xml(filename):
     results['minigraph_as_xml'] = mini_graph_path
     results['minigraph_console'] = get_console_info(devices, console_dev, console_port)
     results['minigraph_mgmt'] = get_mgmt_info(devices, mgmt_dev, mgmt_port)
+    results['minigraph_hostname'] = hostname
     results['inventory_hostname'] = hostname
     results['alias_map'] = alias_map_list
 
