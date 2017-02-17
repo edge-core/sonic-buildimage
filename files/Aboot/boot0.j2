@@ -71,6 +71,9 @@ extract_image() {
 
     ## replace with boot swi
     mv "$target_path/{{ ABOOT_BOOT_IMAGE }}" "$swipath"
+
+    ## sync disk operations
+    sync
 }
 
 write_machine_config() {
