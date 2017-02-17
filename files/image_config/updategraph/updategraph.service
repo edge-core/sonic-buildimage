@@ -1,0 +1,12 @@
+[Unit]
+Description=download minigraph from graph service
+Before=ntp-config.service
+Before=rsyslog-config.service
+Before=interfaces-config.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/updategraph
+
+[Install]
+WantedBy=multi-user.target

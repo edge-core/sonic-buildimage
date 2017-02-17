@@ -94,6 +94,21 @@ sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable interfaces-config.service
 sudo cp $IMAGE_CONFIGS/interfaces/interfaces-config.sh $FILESYSTEM_ROOT/usr/bin/
 sudo cp $IMAGE_CONFIGS/interfaces/*.j2 $FILESYSTEM_ROOT/etc/sonic/templates/
 
+# Copy initial interfaces configuration file, will be overwritten on first boot
+sudo cp $IMAGE_CONFIGS/interfaces/init_interfaces $FILESYSTEM_ROOT/etc/network
+
+# Copy updategraph script and service file
+sudo cp $IMAGE_CONFIGS/updategraph/updategraph.service  $FILESYSTEM_ROOT/etc/systemd/system/
+sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable updategraph.service
+sudo cp $IMAGE_CONFIGS/updategraph/updategraph $FILESYSTEM_ROOT/usr/bin/
+{% if enable_dhcp_graph_service == "y" %}
+sudo bash -c "echo enabled=true > $FILESYSTEM_ROOT/etc/sonic/updategraph.conf"
+sudo bash -c "echo src=dhcp >> $FILESYSTEM_ROOT/etc/sonic/updategraph.conf"
+sudo bash -c "echo dhcp_as_static=true >> $FILESYSTEM_ROOT/etc/sonic/updategraph.conf"
+{% else %}
+sudo bash -c "echo enabled=false > $FILESYSTEM_ROOT/etc/sonic/updategraph.conf"
+{% endif %}
+
 # Copy SNMP configuration files
 sudo cp $IMAGE_CONFIGS/snmp/snmp.yml $FILESYSTEM_ROOT/etc/sonic/
 

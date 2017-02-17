@@ -35,3 +35,10 @@ USERNAME = admin
 
 # PASSWORD - password for installer build
 PASSWORD = YourPaSsWoRd
+
+# ENABLE_DHCP_GRAPH_SERVICE - specify the source of minigraph to generate configuration file.
+# If set to y SONiC will get the minigraph from graph service. Graph service URL need to be 
+# passed through DHCP option 225.
+# If not set (default behavior) the default minigraph built into the image will be used.
+# ENABLE_DHCP_GRAPH_SERVICE = y
+

@@ -1,6 +1,6 @@
 [Unit]
 Description=Update interfaces configuration
-Before=network.target
+Before=database.service
 
 [Service]
 Type=oneshot
