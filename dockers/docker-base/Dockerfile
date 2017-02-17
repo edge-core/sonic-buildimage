@@ -13,6 +13,9 @@ RUN rm -rf                              \
         /var/cache/man/*                \
         /usr/share/locale/*
 
+## Make apt-get non-interactive
+ENV DEBIAN_FRONTEND=noninteractive
+
 ## Set the apt source
 COPY sources.list /etc/apt/sources.list
 COPY dpkg_01_drop /etc/dpkg/dpkg.cfg.d/01_drop

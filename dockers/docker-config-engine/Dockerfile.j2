@@ -1,5 +1,8 @@
 FROM docker-base
 
+## Make apt-get non-interactive
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update
 
 # Dependencies for sonic-cfggen 

@@ -1,5 +1,8 @@
 FROM docker-base
 
+## Make apt-get non-interactive
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update
 
 COPY ["deps/applibs_*.deb", "/deps/applibs-dev_*.deb", "/deps/sx-complib_*.deb", "/deps/sxd-libs_*.deb", "/deps/sx-scew_*.deb", "/deps/sx-examples_*.deb", "/deps/sx-gen-utils_*.deb", "/deps/python-sdk-api_*.deb", "/deps/iproute2_*.deb", "/deps/mlnx-sai_*.deb", "/deps/libthrift-0.9.3_*.deb", "/deps/libnl-3-200_*.deb", "/deps/libnl-genl-3-200_*.deb", "/deps/libnl-route-3-200_*.deb", "/deps/"]

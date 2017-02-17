@@ -1,5 +1,8 @@
 FROM docker-ptf
 
+## Make apt-get non-interactive
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update
 
 COPY ["deps/saithrift-0.9.tar.gz", "/deps/"]

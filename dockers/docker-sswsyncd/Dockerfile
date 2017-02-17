@@ -8,6 +8,9 @@ COPY                                                                            
     deps/sswsyncd_*.deb                                                                         \
     /deps/
 
+## Make apt-get non-interactive
+ENV DEBIAN_FRONTEND=noninteractive
+
 ## Install packages
 ## Clean up
 RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; } &&        \

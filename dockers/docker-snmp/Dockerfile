@@ -6,6 +6,9 @@ COPY deps/python3/*.whl /python3/
 # enable -O for all Python calls
 ENV PYTHONOPTIMIZE 1
 
+## Make apt-get non-interactive
+ENV DEBIAN_FRONTEND=noninteractive
+
 ## Pre-install the fundamental packages
 ## Install Python SSWSDK (SNMP subagent dependency)
 ## Install SNMP subagent

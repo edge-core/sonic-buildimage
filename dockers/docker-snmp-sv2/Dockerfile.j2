@@ -12,6 +12,9 @@ COPY python-wheels/asyncsnmp-*-py3-*.whl /python-wheels/
 # enable -O for all Python calls
 ENV PYTHONOPTIMIZE 1
 
+## Make apt-get non-interactive
+ENV DEBIAN_FRONTEND=noninteractive
+
 # install supervisor
 # install libsnmp30 dependencies
 # install libpython3.6-dev dependencies

@@ -2,6 +2,9 @@ FROM docker-base
 
 COPY deps/sswsdk*.whl deps/lldpsyncd_*.deb deps/lldpd_*.deb /deps/
 
+## Make apt-get non-interactive
+ENV DEBIAN_FRONTEND=noninteractive
+
 ## Pre-install the fundamental packages
 ## Install Python SSWSDK (lldpsyncd dependency)
 ## Install LLDP Sync Daemon

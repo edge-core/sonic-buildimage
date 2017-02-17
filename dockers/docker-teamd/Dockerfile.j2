@@ -16,6 +16,9 @@ debs/{{ deb }}{{' '}}
 COPY ["start.sh", "config.sh", "/usr/bin/"]
 COPY ["teamd.j2", "/etc/swss/teamd/"]
 
+## Make apt-get non-interactive
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /debs
 
