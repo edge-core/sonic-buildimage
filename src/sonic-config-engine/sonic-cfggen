@@ -62,11 +62,12 @@ def main():
 
     data = {}
     machine_info = get_machine_info()
-    data.update(machine_info)
-    if machine_info.has_key('onie_platform'):
-        data['platform'] = machine_info['onie_platform']
-    elif machine_info.has_key('aboot_platform'):
-        data['platform'] = machine_info['aboot_platform']
+    if machine_info != None:
+        data.update(machine_info)
+        if machine_info.has_key('onie_platform'):
+            data['platform'] = machine_info['onie_platform']
+        elif machine_info.has_key('aboot_platform'):
+            data['platform'] = machine_info['aboot_platform']
 
     if args.minigraph != None:
         minigraph = args.minigraph
