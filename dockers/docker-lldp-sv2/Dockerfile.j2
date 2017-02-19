@@ -31,7 +31,7 @@ RUN pip install /python-wheels/sswsdk-2.0.1-py2-none-any.whl && \
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY reconfigure.sh /opt/reconfigure.sh
 COPY ["config.sh", "/usr/bin/"]
-COPY ["lldpd.conf.j2", "/etc/swss/lldp/"]
+COPY ["lldpd.conf.j2", "/usr/share/sonic/templates/"]
 COPY ["lldpd", "/etc/default/"]
 
 ENTRYPOINT /usr/bin/config.sh && /usr/bin/supervisord

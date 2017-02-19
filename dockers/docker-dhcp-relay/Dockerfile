@@ -13,7 +13,7 @@ RUN apt-get -y install isc-dhcp-relay
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /debs
 
-COPY ["isc-dhcp-relay.j2", "/usr/share/dhcp-relay/"]
+COPY ["isc-dhcp-relay.j2", "/usr/share/sonic/templates/"]
 COPY ["config.sh", "/usr/bin/"]
 
 ENTRYPOINT /usr/bin/config.sh       \

@@ -59,7 +59,7 @@ sudo dpkg --root=$FILESYSTEM_ROOT -i target/debs/sonic-utilities_*.deb || \
 
 # Create all needed directories
 sudo mkdir -p $FILESYSTEM_ROOT/etc/sonic/
-sudo mkdir -p $FILESYSTEM_ROOT/etc/sonic/templates/
+sudo mkdir -p $FILESYSTEM_ROOT/usr/share/sonic/templates/
 
 # Apply apt configuration files
 sudo cp $IMAGE_CONFIGS/apt/sources.list $FILESYSTEM_ROOT/etc/apt/
@@ -77,14 +77,14 @@ sudo cp $IMAGE_CONFIGS/minigraph/minigraph_{{sonic_hwsku}}.xml $FILESYSTEM_ROOT/
 sudo cp $IMAGE_CONFIGS/ntp/ntp-config.service $FILESYSTEM_ROOT/etc/systemd/system/
 sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable ntp-config.service
 sudo cp $IMAGE_CONFIGS/ntp/ntp-config.sh $FILESYSTEM_ROOT/usr/bin/
-sudo cp $IMAGE_CONFIGS/ntp/ntp.conf.j2 $FILESYSTEM_ROOT/etc/sonic/templates/
+sudo cp $IMAGE_CONFIGS/ntp/ntp.conf.j2 $FILESYSTEM_ROOT/usr/share/sonic/templates/
 sudo cp $IMAGE_CONFIGS/ntp/ntp.yml $FILESYSTEM_ROOT/etc/sonic/
 
 # Copy rsyslog configuration files and templates
 sudo cp $IMAGE_CONFIGS/rsyslog/rsyslog-config.service  $FILESYSTEM_ROOT/etc/systemd/system/
 sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable rsyslog-config.service
 sudo cp $IMAGE_CONFIGS/rsyslog/rsyslog-config.sh $FILESYSTEM_ROOT/usr/bin/
-sudo cp $IMAGE_CONFIGS/rsyslog/rsyslog.conf.j2 $FILESYSTEM_ROOT/etc/sonic/templates/
+sudo cp $IMAGE_CONFIGS/rsyslog/rsyslog.conf.j2 $FILESYSTEM_ROOT/usr/share/sonic/templates/
 sudo cp $IMAGE_CONFIGS/rsyslog/rsyslog.yml $FILESYSTEM_ROOT/etc/sonic/
 sudo cp $IMAGE_CONFIGS/rsyslog/rsyslog.d/* $FILESYSTEM_ROOT/etc/rsyslog.d/
 
@@ -92,7 +92,7 @@ sudo cp $IMAGE_CONFIGS/rsyslog/rsyslog.d/* $FILESYSTEM_ROOT/etc/rsyslog.d/
 sudo cp $IMAGE_CONFIGS/interfaces/interfaces-config.service  $FILESYSTEM_ROOT/etc/systemd/system/
 sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable interfaces-config.service
 sudo cp $IMAGE_CONFIGS/interfaces/interfaces-config.sh $FILESYSTEM_ROOT/usr/bin/
-sudo cp $IMAGE_CONFIGS/interfaces/*.j2 $FILESYSTEM_ROOT/etc/sonic/templates/
+sudo cp $IMAGE_CONFIGS/interfaces/*.j2 $FILESYSTEM_ROOT/usr/share/sonic/templates/
 
 # Copy initial interfaces configuration file, will be overwritten on first boot
 sudo cp $IMAGE_CONFIGS/interfaces/init_interfaces $FILESYSTEM_ROOT/etc/network

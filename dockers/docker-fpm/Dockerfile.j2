@@ -22,7 +22,7 @@ debs/{{ deb }}{{' '}}
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /debs
 
-COPY ["*.j2", "/etc/swss/bgp/"]
+COPY ["*.j2", "/usr/share/sonic/templates/"]
 COPY ["start.sh", "config.sh", "/usr/bin/"]
 COPY ["daemons", "/etc/quagga/"]
 
