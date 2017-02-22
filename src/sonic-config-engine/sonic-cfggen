@@ -54,6 +54,7 @@ def main():
     parser.add_argument("-a", "--additional-data", help="addition data, in json string")
     group = parser.add_mutually_exclusive_group()
     group.add_argument("-t", "--template", help="render the data with the template file")
+    group.add_argument("-s", "--alias-mapping", help="print alias mapping json if available", action='store_true')
     group.add_argument("-v", "--var", help="print the value of a variable")
     group.add_argument("--var-json", help="print the value of a variable, in json format")
     group.add_argument("--var-keys", help="print all keys of a map variable")
@@ -101,6 +102,13 @@ def main():
     if args.var_keys != None:
         for key in data[args.var_keys].keys():
           print key
+    
+    if args.alias_mapping != None:
+        mapping = {}
+        if data.has_key('alias_map'):
+            for item in data['alias_map']:
+                mapping[item['sonic']] = item['origin']
+        print json.dumps(mapping)
 
     if args.print_data:
         print data
