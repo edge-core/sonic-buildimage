@@ -42,3 +42,6 @@ PASSWORD = YourPaSsWoRd
 # If not set (default behavior) the default minigraph built into the image will be used.
 # ENABLE_DHCP_GRAPH_SERVICE = y
 
+# SONIC_CONFIG_DEBUG - install debug packages
+# Uncomment next line to enable:
+# SONIC_CONFIG_DEBUG = y

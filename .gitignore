@@ -32,4 +32,5 @@ dockers/docker-snmp-sv2/Dockerfile
 dockers/docker-team/Dockerfile
 dockers/docker-teamd/Dockerfile
 dockers/docker-config-engine/Dockerfile
+dockers/docker-base/Dockerfile
 platform/broadcom/docker-syncd-brcm/Dockerfile
