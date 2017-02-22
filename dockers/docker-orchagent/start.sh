@@ -49,6 +49,8 @@ elif [ "$HWSKU" == "Arista-7060-CX32S" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
 elif [ "$HWSKU" == "AS7512" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
+elif [ "$HWSKU" == "ingrasys-s9100" ]; then
+    ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
 fi
 
 service rsyslog start
