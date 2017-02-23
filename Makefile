@@ -32,6 +32,7 @@ DOCKER_BUILD = docker build --no-cache \
 	    PLATFORM=$(PLATFORM) \
 	    SKU=$(SKU) \
 	    DEBUG_BUILD=$(DEBUG_BUILD) \
+	    ENABLE_DHCP_GRAPH_SERVICE=$(ENABLE_DHCP_GRAPH_SERVICE) \
 	    $@
 
 sonic-slave-build :
