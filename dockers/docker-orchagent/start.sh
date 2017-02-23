@@ -51,6 +51,8 @@ elif [ "$HWSKU" == "AS7512" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
 elif [ "$HWSKU" == "ingrasys-s9100" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
+elif [ "$HWSKU" == "ACS-MSN2700" ]; then
+    SWSSCONFIG_ARGS+="msn2700.32ports.buffers.json msn2700.32ports.qos.json "
 fi
 
 service rsyslog start
