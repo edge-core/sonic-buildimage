@@ -103,7 +103,7 @@ def main():
         for key in data[args.var_keys].keys():
           print key
     
-    if args.alias_mapping != None:
+    if args.alias_mapping:
         mapping = {}
         if data.has_key('alias_map'):
             for item in data['alias_map']:
