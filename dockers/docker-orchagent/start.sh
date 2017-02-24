@@ -41,6 +41,8 @@ if [ "$HWSKU" == "Force10-S6000" ]; then
     SWSSCONFIG_ARGS+="td2.32ports.buffers.1.json td2.32ports.buffers.2.json td2.32ports.buffers.3.json "
 elif [ "$HWSKU" == "Force10-S6100" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
+elif [ "$HWSKU" == "Force10-Z9100" ]; then
+    ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
 elif [ "$HWSKU" == "Arista-7050-QX32" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
     SWSSCONFIG_ARGS+="td2.32ports.qos.1.json td2.32ports.qos.2.json td2.32ports.qos.3.json td2.32ports.qos.4.json td2.32ports.qos.5.json td2.32ports.qos.6.json "
