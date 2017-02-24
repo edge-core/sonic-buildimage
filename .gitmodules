@@ -50,3 +50,6 @@
 [submodule "platform/broadcom/sonic-platform-modules-arista"]
 	path = platform/broadcom/sonic-platform-modules-arista
 	url = https://github.com/aristanetworks/sonic
+[submodule "platform/broadcom/sonic-platform-modules-dell"]
+	path = platform/broadcom/sonic-platform-modules-dell
+	url = https://github.com/Azure/sonic-platform-modules-dell
