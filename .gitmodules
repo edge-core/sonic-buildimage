@@ -53,3 +53,6 @@
 [submodule "platform/broadcom/sonic-platform-modules-dell"]
 	path = platform/broadcom/sonic-platform-modules-dell
 	url = https://github.com/Azure/sonic-platform-modules-dell
+[submodule "platform/broadcom/sonic-platform-modules-ingrasys-s9100"]
+	path = platform/broadcom/sonic-platform-modules-ingrasys-s9100
+	url = https://github.com/Ingrasys-sonic/sonic-platform-ingrasys-s9100
