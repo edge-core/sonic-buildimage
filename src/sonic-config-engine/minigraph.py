@@ -65,9 +65,14 @@ def parse_png(png, hname):
                 startport = link.find(str(QName(ns, "StartPort"))).text
 
                 if enddevice == hname:
+                    if port_alias_map.has_key(endport):
+                        endport = port_alias_map[endport]
                     neighbors[endport] = {'name': startdevice, 'port': startport}
                 else:
+                    if port_alias_map.has_key(startport):
+                        endport = port_alias_map[startport]
                     neighbors[startport] = {'name': enddevice, 'port': endport}
+
         if child.tag == str(QName(ns, "Devices")):
             for device in child.findall(str(QName(ns, "Device"))):
                 lo_addr = None
@@ -174,7 +179,10 @@ def parse_dpg(dpg, hname):
             pcintfname = pcintf.find(str(QName(ns, "Name"))).text
             pcintfmbr = pcintf.find(str(QName(ns, "AttachTo"))).text
             pcmbr_list = pcintfmbr.split(';', 1)
-            pc_intfs[pcintfname]=pcmbr_list
+            for i,member in enumerate(pcmbr_list):
+                if port_alias_map.has_key(member):
+                    pcmbr_list[i] = port_alias_map[member]
+            pc_intfs[pcintfname] = pcmbr_list
 
         lointfs = child.find(str(QName(ns, "LoopbackIPInterfaces")))
         lo_intfs = []
@@ -210,10 +218,14 @@ def parse_dpg(dpg, hname):
             vlanid = vintf.find(str(QName(ns, "VlanID"))).text
             vintfmbr = vintf.find(str(QName(ns, "AttachTo"))).text
             vmbr_list = vintfmbr.split(';')
-            vlan_attributes = {'name': vintfname, 'members': vmbr_list, 'vlanid': vlanid}
+            for i,member in enumerate(vmbr_list):
+                if port_alias_map.has_key(member):
+                    vmbr_list[i] = port_alias_map[member]
+            vlan_attributes = {'name': vintfname, 'members': " ".join(vmbr_list), 'vlanid': vlanid}
             for addrtuple in vlan_map.get(vintfname, []):
                 vlan_attributes.update(addrtuple)
                 vlan_intfs.append(copy.deepcopy(vlan_attributes))
+
                 
         return intfs, lo_intfs, mgmt_intf, vlan_intfs, pc_intfs
     return None, None, None, None, None
@@ -352,19 +364,6 @@ def parse_xml(filename, platform=None):
         elif child.tag == str(QName(ns, "UngDec")):
             (u_neighbors, u_devices, _, _, _, _) = parse_png(child, hostname)
 
-    # Replace port with alias in Vlan interfaces members
-    for vlan in vlan_intfs:
-        for i,member in enumerate(vlan['members']):
-            vlan['members'][i] = port_alias_map[member]
-
-        # Convert vlan members into a space-delimited string
-        vlan['members'] = " ".join(vlan['members'])
-
-    # Replace port with alias in port channel interfaces members
-    for pc in pc_intfs.keys():
-        for i,member in enumerate(pc_intfs[pc]):
-            pc_intfs[pc][i] = port_alias_map[member]
-
     Tree = lambda: defaultdict(Tree)
 
     results = Tree()
@@ -385,14 +384,14 @@ def parse_xml(filename, platform=None):
     results['minigraph_underlay_neighbors'] = u_neighbors
     results['minigraph_underlay_devices'] = u_devices
     results['minigraph_as_xml'] = mini_graph_path
-    results['minigraph_console'] = get_console_info(devices, console_dev, console_port)
-    results['minigraph_mgmt'] = get_mgmt_info(devices, mgmt_dev, mgmt_port)
+    if devices != None:
+        results['minigraph_console'] = get_console_info(devices, console_dev, console_port)
+        results['minigraph_mgmt'] = get_mgmt_info(devices, mgmt_dev, mgmt_port)
     results['minigraph_hostname'] = hostname
     results['inventory_hostname'] = hostname
     results['alias_map'] = alias_map_list
 
     return results
-
 
 port_alias_map = {}
 
