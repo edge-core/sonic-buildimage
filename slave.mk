@@ -286,13 +286,14 @@ $(DOCKER_LOAD_TARGETS) : $(TARGET_PATH)/%.gz-load : .platform docker-start $$(TA
 ###############################################################################
 
 # targets for building installers with base image
-$(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : .platform onie-image.conf $$(addprefix $(DEBS_PATH)/,$$($$*_DEPENDS)) $(addprefix $(DEBS_PATH)/,$(INITRAMFS_TOOLS) $(LINUX_KERNEL) $(IGB_DRIVER) $(SONIC_CONFIG_ENGINE) $(SONIC_DEVICE_DATA) $(SONIC_UTILS)) $$(addprefix $(TARGET_PATH)/,$$($$*_DOCKERS))
+$(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : .platform onie-image.conf $$(addprefix $(DEBS_PATH)/,$$($$*_DEPENDS)) $$(addprefix $(DEBS_PATH)/,$$($$*_INSTALLS)) $(addprefix $(DEBS_PATH)/,$(INITRAMFS_TOOLS) $(LINUX_KERNEL) $(IGB_DRIVER) $(SONIC_CONFIG_ENGINE) $(SONIC_DEVICE_DATA) $(SONIC_UTILS)) $$(addprefix $(TARGET_PATH)/,$$($$*_DOCKERS))
 	$(HEADER)
 	## Pass initramfs and linux kernel explicitly. They are used for all platforms
 	export initramfs_tools="$(DEBS_PATH)/$(INITRAMFS_TOOLS)"
 	export linux_kernel="$(DEBS_PATH)/$(LINUX_KERNEL)"
 	export kversion="$(KVERSION)"
 	export installer_debs="$(addprefix $(DEBS_PATH)/,$($*_DEPENDS))"
+	export lazy_installer_debs="$(foreach deb, $($*_INSTALLS),$(addprefix $($(deb)_PLATFORM)@, $(DEBS_PATH)/$(deb)))"
 	export installer_images="$(addprefix $(TARGET_PATH)/,$($*_DOCKERS))"
 	export config_engine="$(addprefix $(DEBS_PATH)/,$(SONIC_CONFIG_ENGINE))"
 	export image_type="$($*_IMAGE_TYPE)"

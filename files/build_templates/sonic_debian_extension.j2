@@ -4,7 +4,7 @@
 ## to debian file system.
 ##
 ## USAGE:
-##   ./sonic_debian_extension.sh FILESYSTEM_ROOT
+##   ./sonic_debian_extension.sh FILESYSTEM_ROOT PLATFORM_DIR
 ## PARAMETERS:
 ##   FILESYSTEM_ROOT
 ##          Path to debian file system root directory
@@ -15,6 +15,12 @@ FILESYSTEM_ROOT=$1
     exit 1
 }
 
+PLATFORM_DIR=$2
+[ -n "$PLATFORM_DIR" ] || {
+    echo "Error: no or empty PLATFORM_DIR argument"
+    exit 1
+}
+
 ## Enable debug output for script
 set -x -e
 
@@ -22,7 +28,6 @@ set -x -e
 BUILD_TEMPLATES=files/build_templates
 IMAGE_CONFIGS=files/image_config
 
-{% if installer_debs.strip() -%}
 clean_sys() {
     sudo umount $FILESYSTEM_ROOT/sys/fs/cgroup/*            \
                 $FILESYSTEM_ROOT/sys/fs/cgroup              \
@@ -130,6 +135,7 @@ exit 101
 EOF
 sudo chmod a+x $FILESYSTEM_ROOT/usr/sbin/policy-rc.d
 
+{% if installer_debs.strip() -%}
 {% for deb in installer_debs.strip().split(' ') -%}
 if [ $sonic_asic_platform == "mellanox" ]; then
 sudo dpkg --extract {{deb}} $FILESYSTEM_ROOT
@@ -137,12 +143,38 @@ else
 sudo dpkg --root=$FILESYSTEM_ROOT -i {{deb}} || sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
 fi
 {% endfor %}
-
-sudo rm -f $FILESYSTEM_ROOT/usr/sbin/policy-rc.d
+{% endif %}
 
 ## Run depmod command for target kernel modules
 sudo LANG=C chroot $FILESYSTEM_ROOT depmod -a {{kversion}}
+
+## download all dependency packages for platform debian packages
+{% if lazy_installer_debs.strip() -%}
+{% for file in lazy_installer_debs.strip().split(' ') -%}
+
+{% set dev = file.split('@')[0] -%}
+{% set deb = file.split('@')[1] -%}
+{% set debfilename = deb.split('/')|last -%}
+{% set debname = debfilename.split('_')|first -%}
+
+sudo dpkg --root=$FILESYSTEM_ROOT -i {{deb}} || sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f --download-only
+
+sudo mkdir -p $FILESYSTEM_ROOT/$PLATFORM_DIR/{{dev}}
+sudo cp {{ deb }} $FILESYSTEM_ROOT/$PLATFORM_DIR/{{dev}}/
+for f in `find $FILESYSTEM_ROOT/var/cache/apt/archives -name "*.deb"`; do
+    sudo mv $f $FILESYSTEM_ROOT/$PLATFORM_DIR/{{dev}}/
+done
+
+sudo dpkg --root=$FILESYSTEM_ROOT -P {{ debname }}
+
+{% endfor %}
 {% endif %}
+
+sudo rm -f $FILESYSTEM_ROOT/usr/sbin/policy-rc.d
+
+## copy platform rc.local
+sudo cp $IMAGE_CONFIGS/platform/rc.local $FILESYSTEM_ROOT/etc/
+
 {% if installer_images.strip() -%}
 {% for image in installer_images.strip().split(' ') -%}
 sudo LANG=C chroot $FILESYSTEM_ROOT docker load < {{image}}

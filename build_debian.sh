@@ -37,6 +37,7 @@ DOCKER_VERSION=1.11.1-0~jessie_amd64
 
 ## Working directory to prepare the file system
 FILESYSTEM_ROOT=./fsroot
+PLATFORM_DIR=platform
 ## Hostname for the linux image
 HOSTNAME=sonic
 DEFAULT_USERINFO="Default admin user,,,"
@@ -61,6 +62,8 @@ if [[ -d $FILESYSTEM_ROOT ]]; then
     sudo rm -rf $FILESYSTEM_ROOT || die "Failed to clean chroot directory"
 fi
 mkdir -p $FILESYSTEM_ROOT
+mkdir -p $FILESYSTEM_ROOT/$PLATFORM_DIR
+touch $FILESYSTEM_ROOT/$PLATFORM_DIR/firsttime
 
 ## Build a basic Debian system by debootstrap
 echo '[INFO] Debootstrap...'
@@ -247,7 +250,7 @@ sudo cp files/dhcp/snmpcommunity $FILESYSTEM_ROOT/etc/dhcp/dhclient-exit-hooks.d
 sudo cp files/dhcp/dhclient.conf $FILESYSTEM_ROOT/etc/dhcp/
 
 if [ -f sonic_debian_extension.sh ]; then
-    ./sonic_debian_extension.sh $FILESYSTEM_ROOT
+    ./sonic_debian_extension.sh $FILESYSTEM_ROOT $PLATFORM_DIR
 fi
 
 ## Clean up apt
@@ -268,11 +271,11 @@ sudo mkdir $FILESYSTEM_ROOT/host
 sudo rm -f $ONIE_INSTALLER_PAYLOAD $FILESYSTEM_SQUASHFS
 ## Output the file system total size for diag purpose
 sudo du -hs $FILESYSTEM_ROOT
-sudo mksquashfs $FILESYSTEM_ROOT $FILESYSTEM_SQUASHFS -e boot -e var/lib/docker
+sudo mksquashfs $FILESYSTEM_ROOT $FILESYSTEM_SQUASHFS -e boot -e var/lib/docker -e $PLATFORM_DIR
 
 ## Compress docker files
 pushd $FILESYSTEM_ROOT && sudo tar czf $OLDPWD/$FILESYSTEM_DOCKERFS -C var/lib/docker .; popd
 
-## Compress together with /boot and /var/lib/docker as an installer payload zip file
-pushd $FILESYSTEM_ROOT && sudo zip $OLDPWD/$ONIE_INSTALLER_PAYLOAD -r boot/; popd
+## Compress together with /boot, /var/lib/docker and $PLATFORM_DIR as an installer payload zip file
+pushd $FILESYSTEM_ROOT && sudo zip $OLDPWD/$ONIE_INSTALLER_PAYLOAD -r boot/ $PLATFORM_DIR/; popd
 sudo zip -g $ONIE_INSTALLER_PAYLOAD $FILESYSTEM_SQUASHFS $FILESYSTEM_DOCKERFS
