@@ -299,10 +299,10 @@ def get_mgmt_info(devices, dev, port):
 
 def get_alias_map_list(hwsku, platform=None):
     port_config_candidates = []
-    port_config_candidates.append('/usr/share/sonic/sku/port_config.ini')
+    port_config_candidates.append('/usr/share/sonic/hwsku/port_config.ini')
     if platform != None:
         port_config_candidates.append(os.path.join('/usr/share/sonic/device', platform, hwsku, 'port_config.ini'))
-    port_config_candidates.append(os.path.join('/usr/share/sonic/device', hwsku, 'port_config.ini'))
+    port_config_candidates.append(os.path.join('/usr/share/sonic/platform', hwsku, 'port_config.ini'))
     port_config_candidates.append(os.path.join('/usr/share/sonic', hwsku, 'port_config.ini'))
     port_config = None
     for candidate in port_config_candidates:

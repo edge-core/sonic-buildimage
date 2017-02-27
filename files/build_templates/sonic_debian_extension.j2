@@ -34,7 +34,26 @@ sudo LANG=C chroot $FILESYSTEM_ROOT mount sysfs /sys -t sysfs
 sudo chroot $FILESYSTEM_ROOT service docker start
 sudo chroot $FILESYSTEM_ROOT docker version
 
-# Install config engine dependencies
+# Apply apt configuration files
+sudo cp $IMAGE_CONFIGS/apt/sources.list $FILESYSTEM_ROOT/etc/apt/
+sudo cp -R $IMAGE_CONFIGS/apt/sources.list.d/ $FILESYSTEM_ROOT/etc/apt/
+cat $IMAGE_CONFIGS/apt/sonic-dev.gpg.key | sudo LANG=C chroot $FILESYSTEM_ROOT apt-key add -
+
+# Update apt's snapshot of its repos
+sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get update
+
+# Apply environtment configuration files
+sudo cp $IMAGE_CONFIGS/environment/environment $FILESYSTEM_ROOT/etc/
+sudo cp $IMAGE_CONFIGS/environment/motd $FILESYSTEM_ROOT/etc/
+
+# Create all needed directories
+sudo mkdir -p $FILESYSTEM_ROOT/etc/sonic/
+sudo mkdir -p $FILESYSTEM_ROOT/usr/share/sonic/templates/
+
+# Copy default minigraph
+sudo cp $IMAGE_CONFIGS/minigraph/minigraph_{{sonic_hwsku}}.xml $FILESYSTEM_ROOT/etc/sonic/minigraph.xml
+
+# Install dependencies for SONiC config engine
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install \
     python-lxml    \
     python-jinja2  \
@@ -42,36 +61,16 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     python-ipaddr  \
     python-yaml
 
+# Install SONiC config engine
 sudo dpkg --root=$FILESYSTEM_ROOT -i {{config_engine}}
 
-# Python tabulate required for sonic-utilities
-python_tabulate_url=http://packages.microsoft.com/repos/sonic-dev/pool/main/p/python-tabulate/python-tabulate_0.7.7-1_all.deb
-python_template_deb_temp=`mktemp`
-trap_push "rm -f $python_template_deb_temp"
-wget $python_tabulate_url -qO $python_template_deb_temp && {                                  \
-    sudo dpkg --root=$FILESYSTEM_ROOT -i $python_template_deb_temp ||                         \
-    sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f; \
-}
-
-# Sonic utilities
-sudo dpkg --root=$FILESYSTEM_ROOT -i target/debs/sonic-utilities_*.deb || \
+# Install SONiC Utilities (and its dependencies via 'apt-get -y install -f')
+sudo dpkg --root=$FILESYSTEM_ROOT -i target/debs/python-sonic-utilities_*.deb || \
     sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
 
-# Create all needed directories
-sudo mkdir -p $FILESYSTEM_ROOT/etc/sonic/
-sudo mkdir -p $FILESYSTEM_ROOT/usr/share/sonic/templates/
-
-# Apply apt configuration files
-sudo cp $IMAGE_CONFIGS/apt/sources.list $FILESYSTEM_ROOT/etc/apt/
-sudo cp -R $IMAGE_CONFIGS/apt/sources.list.d/ $FILESYSTEM_ROOT/etc/apt/
-cat $IMAGE_CONFIGS/apt/sonic-dev.gpg.key | sudo LANG=C chroot $FILESYSTEM_ROOT apt-key add -
-
-# Apply environtment configuration files
-sudo cp $IMAGE_CONFIGS/environment/environment $FILESYSTEM_ROOT/etc/
-sudo cp $IMAGE_CONFIGS/environment/motd $FILESYSTEM_ROOT/etc/
-
-# Copy default minigraph
-sudo cp $IMAGE_CONFIGS/minigraph/minigraph_{{sonic_hwsku}}.xml $FILESYSTEM_ROOT/etc/sonic/minigraph.xml
+# Install SONiC Device Data  (and its dependencies via 'apt-get -y install -f')
+sudo dpkg --root=$FILESYSTEM_ROOT -i target/debs/sonic-device-data_*.deb || \
+    sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
 
 # Copy NTP configuration files and templates
 sudo cp $IMAGE_CONFIGS/ntp/ntp-config.service $FILESYSTEM_ROOT/etc/systemd/system/
