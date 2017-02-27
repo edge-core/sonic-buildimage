@@ -334,6 +334,8 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : .platform
 	$(if $($*_DOCKERS),
 		rm sonic_debian_extension.sh,
 	)
+
+	chmod a+x $@
 	$(FOOTER)
 
 ###############################################################################
