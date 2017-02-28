@@ -21,6 +21,7 @@ To clone the code repository recursively, assuming git version 1.9 or newer:
     git clone --recursive https://github.com/Azure/sonic-buildimage.git
 
 NOTE: If the repo has already been cloned, however there are no files under the submodule directories (e.g., src/lldpd, src/ptf, src/sonic-linux-kernel, etc.), you can manually fetch all the git submodules as follows:
+
     git submodule update --init --recursive
 
 You also need to change all git paths to relative path as we build all submodules inside the docker:
