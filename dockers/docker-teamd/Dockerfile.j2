@@ -22,5 +22,5 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /debs
 
-ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["/bin/bash", "-c"]
 CMD ["/usr/bin/config.sh && /usr/bin/start.sh"]
