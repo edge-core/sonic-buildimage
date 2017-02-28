@@ -8,6 +8,7 @@ import jinja2
 import netaddr
 import json
 from minigraph import parse_xml
+from minigraph import minigraph_encoder
 
 
 def is_ipv4(value):
@@ -55,9 +56,9 @@ def main():
     group = parser.add_mutually_exclusive_group()
     group.add_argument("-t", "--template", help="render the data with the template file")
     group.add_argument("-s", "--alias-mapping", help="print alias mapping json if available", action='store_true')
-    group.add_argument("-v", "--var", help="print the value of a variable")
+    group.add_argument("-v", "--var", help="print the value of a variable, support jinja2 expression")
     group.add_argument("--var-json", help="print the value of a variable, in json format")
-    group.add_argument("--var-keys", help="print all keys of a map variable")
+    group.add_argument("--var-keys", help="print all keys of a map variable - to be deprecated, use -v and keys()")
     group.add_argument("--print-data", help="print all data", action='store_true')
     args = parser.parse_args()
 
@@ -94,10 +95,11 @@ def main():
         print template.render(data)
     
     if args.var != None:
-        print data[args.var]
+        template = jinja2.Template('{{' + args.var + '}}')
+        print template.render(data)
 
     if args.var_json != None:
-        print json.dumps(data[args.var_json])
+        print json.dumps(data[args.var_json], indent=4, cls=minigraph_encoder)
 
     if args.var_keys != None:
         for key in data[args.var_keys].keys():
@@ -111,7 +113,7 @@ def main():
         print json.dumps(mapping)
 
     if args.print_data:
-        print data
+        print json.dumps(data, indent=4, cls=minigraph_encoder)
 
 if __name__ == "__main__":
     main()
