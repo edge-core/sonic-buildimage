@@ -2,7 +2,7 @@
 
 mkdir -p /etc/teamd
 
-for pc in `sonic-cfggen -m /etc/sonic/minigraph.xml -v "minigraph_portchannel_interfaces.keys()"`; do
+for pc in `sonic-cfggen -m /etc/sonic/minigraph.xml -v "' '.join(minigraph_portchannel_interfaces.keys())"`; do
   sonic-cfggen -m /etc/sonic/minigraph.xml -a '{"pc":"'$pc'"}' -t /usr/share/sonic/templates/teamd.j2 >/etc/teamd/$pc.conf
 done
 
