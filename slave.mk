@@ -322,7 +322,9 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : .platform
 		export docker_container_name="$($(docker)_CONTAINER_NAME)"
 		export docker_image_run_opt="$($(docker)_RUN_OPT)"
 		j2 files/build_templates/docker_image_ctl.j2 > $($(docker)_CONTAINER_NAME).sh
-		j2 files/build_templates/$($(docker)_CONTAINER_NAME).service.j2 > $($(docker)_CONTAINER_NAME).service
+		if [ -f files/build_templates/$($(docker)_CONTAINER_NAME).service.j2 ]; then
+			j2 files/build_templates/$($(docker)_CONTAINER_NAME).service.j2 > $($(docker)_CONTAINER_NAME).service
+		fi
 		chmod +x $($(docker)_CONTAINER_NAME).sh
 	)
 
@@ -342,8 +344,8 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : .platform
 	TARGET_MACHINE=$($*_MACHINE) IMAGE_TYPE=$($*_IMAGE_TYPE) DEBUG_BUILD=$(DEBUG_BUILD) ./build_image.sh $(LOG)
 
 	$(foreach docker, $($*_DOCKERS), \
-		rm $($(docker)_CONTAINER_NAME).sh
-		rm $($(docker)_CONTAINER_NAME).service
+		rm -f $($(docker)_CONTAINER_NAME).sh
+		rm -f $($(docker)_CONTAINER_NAME).service
 	)
 
 	$(if $($*_DOCKERS),

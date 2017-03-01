@@ -1,18 +1,40 @@
 [Unit]
-Description=switch state service container
+Description=switch state service
 Requires=database.service
 After=database.service
 
 [Service]
-User={{ sonicadmin_user }}
 # Wait for redis server start before database clean
 ExecStartPre=/bin/bash -c "while true; do if [ \"$(/usr/bin/docker exec database redis-cli ping)\" == \"PONG\" ]; then break; fi; sleep 1; done"
 ExecStartPre=/usr/bin/docker exec database redis-cli -n 0 FLUSHDB
 ExecStartPre=/usr/bin/docker exec database redis-cli -n 1 FLUSHDB
 ExecStartPre=/usr/bin/docker exec database redis-cli -n 2 FLUSHDB
-ExecStart=/usr/bin/{{docker_container_name}}.sh start
+
+{% if sonic_hwsku == 'ACS-MSN2700' %}
+ExecStartPre=/etc/init.d/sxdkernel start
+ExecStartPre=/usr/bin/mst start
+ExecStartPre=/etc/mlnx/msn2700 start
+{% elif sonic_hwsku == 'AS7512' %}
+ExecStartPre=-/etc/init.d/xpnet.sh stop
+ExecStartPre=/etc/init.d/xpnet.sh start
+{% endif %}
+
+# systemd allows only one parent process within service,
+# so we spawn both dockers from single bash parent
+ExecStart=/bin/bash -c "/usr/bin/{{docker_container_name}}.sh start & /usr/bin/syncd.sh start & wait -n 0"
+
 ExecStop=/usr/bin/{{docker_container_name}}.sh stop
 ExecStopPost=/usr/bin/syncd.sh stop
+
+{% if sonic_hwsku == 'ACS-MSN2700' %}
+ExecStopPost=/etc/mlnx/msn2700 stop
+ExecStopPost=/etc/init.d/sxdkernel stop
+ExecStopPost=/usr/bin/mst stop
+{% elif sonic_hwsku == 'AS7512' %}
+ExecStopPost=/etc/init.d/xpnet.sh stop
+ExecStopPost=/etc/init.d/xpnet.sh start
+{% endif %}
+
 
 [Install]
 WantedBy=multi-user.target

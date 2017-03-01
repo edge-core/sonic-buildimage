@@ -184,8 +184,10 @@ sudo chroot $FILESYSTEM_ROOT service docker stop
 sudo cp {{script}} $FILESYSTEM_ROOT/usr/bin/
 {% endfor %}
 {% for service in installer_services.split(' ') -%}
-sudo cp {{service}} $FILESYSTEM_ROOT/etc/systemd/system/
-sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable {{service}}
+if [ -f {{service}} ]; then
+    sudo cp {{service}} $FILESYSTEM_ROOT/etc/systemd/system/
+    sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable {{service}}
+fi
 {% endfor %}
 sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /sys || true
 sudo LANG=C chroot $FILESYSTEM_ROOT umount -lf /sys
