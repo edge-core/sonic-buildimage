@@ -16,7 +16,7 @@ DOCKER_RUN := docker run --rm=true --privileged \
     -v $(PWD):/sonic \
     -i$(SONIC_SLAVE_TTY)
 
-DOCKER_BUILD = docker build \
+DOCKER_BUILD = docker build --no-cache \
 	       --build-arg user=$(USER) \
 	       --build-arg uid=$(shell id -u) \
 	       --build-arg guid=$(shell id -g) \
