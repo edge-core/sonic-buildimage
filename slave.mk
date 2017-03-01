@@ -140,7 +140,7 @@ $(addprefix $(DEBS_PATH)/, $(SONIC_ONLINE_FILES)) : $(DEBS_PATH)/% : .platform
 $(addprefix $(DEBS_PATH)/, $(SONIC_MAKE_DEBS)) : $(DEBS_PATH)/% : .platform $$(addsuffix -install,$$(addprefix $(DEBS_PATH)/,$$($$*_DEPENDS)))
 	$(HEADER)
 	# remove target to force rebuild
-	rm -f $(addprefix $(DEBS_PATH)/, $* $($*_DERIVED_DEBS))
+	rm -f $(addprefix $(DEBS_PATH)/, $* $($*_DERIVED_DEBS) $($*_EXTRA_DEBS))
 	# build project and take package
 	make DEST=$(shell pwd)/$(DEBS_PATH) -C $($*_SRC_PATH) $(shell pwd)/$(DEBS_PATH)/$* $(LOG)
 	$(FOOTER)
@@ -159,7 +159,7 @@ $(addprefix $(DEBS_PATH)/, $(SONIC_DPKG_DEBS)) : $(DEBS_PATH)/% : .platform $$(a
 	[ ! -f ./autogen.sh ] || ./autogen.sh $(LOG)
 	dpkg-buildpackage -rfakeroot -b -us -uc $(LOG)
 	popd $(LOG)
-	mv $(addprefix $($*_SRC_PATH)/../, $* $($*_DERIVED_DEBS)) $(DEBS_PATH) $(LOG)
+	mv $(addprefix $($*_SRC_PATH)/../, $* $($*_DERIVED_DEBS) $($*_EXTRA_DEBS)) $(DEBS_PATH) $(LOG)
 	$(FOOTER)
 
 # Build project with python setup.py --command-packages=stdeb.command
@@ -190,6 +190,19 @@ $(addprefix $(DEBS_PATH)/, $(SONIC_DERIVED_DEBS)) : $(DEBS_PATH)/% : .platform $
 	[ -f $@ ] && touch $@
 	$(FOOTER)
 
+# Rules for extra debian packages
+# All noise takes place in main deb recipe, so we are just telling that
+# we need to build the main deb and move our deb to other targets
+# Add new dev package:
+#     $(eval $(call add_extra_package,$(ORIGINAL_DEB),extra_deb_file.deb))
+$(addprefix $(DEBS_PATH)/, $(SONIC_EXTRA_DEBS)) : $(DEBS_PATH)/% : .platform $$(addprefix $(DEBS_PATH)/,$$($$*_MAIN_DEB))
+	$(HEADER)
+	# All noise takes place in main deb recipe, so we are just telling that
+	# we depend on it
+	# Put newer timestamp
+	[ -f $@ ] && touch $@
+	$(FOOTER)
+
 # Targets for installing debian packages prior to build one that depends on them
 SONIC_INSTALL_TARGETS = $(addsuffix -install,$(addprefix $(DEBS_PATH)/, \
 			$(SONIC_ONLINE_DEBS) \
@@ -197,7 +210,8 @@ SONIC_INSTALL_TARGETS = $(addsuffix -install,$(addprefix $(DEBS_PATH)/, \
 			$(SONIC_MAKE_DEBS) \
 			$(SONIC_DPKG_DEBS) \
 			$(SONIC_PYTHON_STDEB_DEBS) \
-			$(SONIC_DERIVED_DEBS)))
+			$(SONIC_DERIVED_DEBS) \
+			$(SONIC_EXTRA_DEBS)))
 $(SONIC_INSTALL_TARGETS) : $(DEBS_PATH)/%-install : .platform $$(addsuffix -install,$$(addprefix $(DEBS_PATH)/,$$($$*_DEPENDS))) $(DEBS_PATH)/$$*
 	$(HEADER)
 	[ -f $(DEBS_PATH)/$* ] || { echo $(DEBS_PATH)/$* does not exist $(LOG) && exit 1; }
@@ -351,11 +365,12 @@ SONIC_CLEAN_DEBS = $(addsuffix -clean,$(addprefix $(DEBS_PATH)/, \
 		   $(SONIC_MAKE_DEBS) \
 		   $(SONIC_DPKG_DEBS) \
 		   $(SONIC_PYTHON_STDEB_DEBS) \
-		   $(SONIC_DERIVED_DEBS)))
-$(SONIC_CLEAN_DEBS) : $(DEBS_PATH)/%-clean : .platform $$(addsuffix -clean,$$(addprefix $(DEBS_PATH)/,$$($$*_DERIVED_FROM)))
-	@# remove derived targets if main one is removed, because we treat them
+		   $(SONIC_DERIVED_DEBS) \
+		   $(SONIC_EXTRA_DEBS)))
+$(SONIC_CLEAN_DEBS) : $(DEBS_PATH)/%-clean : .platform $$(addsuffix -clean,$$(addprefix $(DEBS_PATH)/,$$($$*_MAIN_DEB)))
+	@# remove derived or extra targets if main one is removed, because we treat them
 	@# as part of one package
-	@rm -f $(addprefix $(DEBS_PATH)/, $* $($*_DERIVED_DEBS))
+	@rm -f $(addprefix $(DEBS_PATH)/, $* $($*_DERIVED_DEBS) $($*_EXTRA_DEBS))
 
 SONIC_CLEAN_TARGETS += $(addsuffix -clean,$(addprefix $(TARGET_PATH)/, \
 		       $(SONIC_DOCKER_IMAGES) \
