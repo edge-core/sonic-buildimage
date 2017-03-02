@@ -6,6 +6,8 @@
 fsroot/
 fs.*
 target/
+*.deb
+*.changes
 
 # Subdirectories in src
 src/hiredis/*

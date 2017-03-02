@@ -25,7 +25,6 @@ PYTHON_WHEELS_PATH = $(TARGET_PATH)/python-wheels
 PROJECT_ROOT = $(shell pwd)
 
 CONFIGURED_PLATFORM := $(shell [ -f .platform ] && cat .platform || echo generic)
-CONFIGURED_SKU := $(shell [ -f .sku ] && cat .sku || echo undefined)
 PLATFORM_PATH = platform/$(CONFIGURED_PLATFORM)
 
 ###############################################################################
@@ -49,7 +48,6 @@ configure :
 	@mkdir -p target/debs
 	@mkdir -p target/python-wheels
 	@echo $(PLATFORM) > .platform
-	@echo $(SKU) > .sku
 
 distclean : .platform .sku clean
 	@rm -f .platform .sku
@@ -65,7 +63,6 @@ include $(RULES_PATH)/*.mk
 ifneq ($(CONFIGURED_PLATFORM), undefined)
 include $(PLATFORM_PATH)/rules.mk
 endif
-export CONFIGURED_SKU
 
 MAKEFLAGS += -j $(SONIC_CONFIG_BUILD_JOBS)
 
@@ -312,7 +309,6 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : .platform
 	export config_engine="$(addprefix $(DEBS_PATH)/,$(SONIC_CONFIG_ENGINE))"
 	export image_type="$($*_IMAGE_TYPE)"
 	export sonicadmin_user="$(USERNAME)"
-	export sonic_hwsku="$(CONFIGURED_SKU)"
 	export sonic_asic_platform="$(CONFIGURED_PLATFORM)"
 	export enable_dhcp_graph_service="$(ENABLE_DHCP_GRAPH_SERVICE)"
 	

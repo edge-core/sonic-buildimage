@@ -4,17 +4,18 @@ Requires=database.service
 After=database.service
 
 [Service]
+User=root
 # Wait for redis server start before database clean
 ExecStartPre=/bin/bash -c "while true; do if [ \"$(/usr/bin/docker exec database redis-cli ping)\" == \"PONG\" ]; then break; fi; sleep 1; done"
 ExecStartPre=/usr/bin/docker exec database redis-cli -n 0 FLUSHDB
 ExecStartPre=/usr/bin/docker exec database redis-cli -n 1 FLUSHDB
 ExecStartPre=/usr/bin/docker exec database redis-cli -n 2 FLUSHDB
 
-{% if sonic_hwsku == 'ACS-MSN2700' %}
+{% if sonic_asic_platform == 'mellanox' %}
 ExecStartPre=/etc/init.d/sxdkernel start
 ExecStartPre=/usr/bin/mst start
 ExecStartPre=/etc/mlnx/msn2700 start
-{% elif sonic_hwsku == 'AS7512' %}
+{% elif sonic_asic_platform == 'cavium' %}
 ExecStartPre=-/etc/init.d/xpnet.sh stop
 ExecStartPre=/etc/init.d/xpnet.sh start
 {% endif %}
@@ -26,11 +27,11 @@ ExecStart=/bin/bash -c "/usr/bin/{{docker_container_name}}.sh start & /usr/bin/s
 ExecStop=/usr/bin/{{docker_container_name}}.sh stop
 ExecStopPost=/usr/bin/syncd.sh stop
 
-{% if sonic_hwsku == 'ACS-MSN2700' %}
+{% if sonic_asic_platform == 'mellanox' %}
 ExecStopPost=/etc/mlnx/msn2700 stop
 ExecStopPost=/etc/init.d/sxdkernel stop
 ExecStopPost=/usr/bin/mst stop
-{% elif sonic_hwsku == 'AS7512' %}
+{% elif sonic_asic_platform == 'cavium' %}
 ExecStopPost=/etc/init.d/xpnet.sh stop
 ExecStopPost=/etc/init.d/xpnet.sh start
 {% endif %}

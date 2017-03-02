@@ -55,9 +55,6 @@ sudo cp $IMAGE_CONFIGS/environment/motd $FILESYSTEM_ROOT/etc/
 sudo mkdir -p $FILESYSTEM_ROOT/etc/sonic/
 sudo mkdir -p $FILESYSTEM_ROOT/usr/share/sonic/templates/
 
-# Copy default minigraph
-sudo cp $IMAGE_CONFIGS/minigraph/minigraph_{{sonic_hwsku}}.xml $FILESYSTEM_ROOT/etc/sonic/minigraph.xml
-
 # Install dependencies for SONiC config engine
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install \
     python-lxml    \
@@ -118,7 +115,6 @@ sudo cp $IMAGE_CONFIGS/snmp/snmp.yml $FILESYSTEM_ROOT/etc/sonic/
 
 # Generate build version file
 export git_revision=$(git rev-parse --short HEAD)
-export sonic_hwsku={{sonic_hwsku}}
 export debian_version=`cat $FILESYSTEM_ROOT/etc/debian_version`
 export kernel_version={{kversion}}
 j2 $BUILD_TEMPLATES/sonic_version.yml.j2 > sonic_version.yml

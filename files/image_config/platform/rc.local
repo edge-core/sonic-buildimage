@@ -16,9 +16,23 @@
 echo "install platform dependent packages at the first boot time"
 
 if [ -f /host/platform/firsttime ]; then
-    if [ -d /host/platform/$onie_platform ]; then
-        dpkg -i /host/platform/$onie_platform/*.deb
+
+    if [ -n $aboot_platform ]; then
+        platform=$aboot_platform
+    elif [ -n $onie_platform ]; then
+        platform=$onie_platform
+    else
+        echo "Unknown sonic platform"
+        rm /host/platform/firsttime
+        exit 0
     fi
+
+    cp /usr/share/sonic/device/$platform/minigraph.xml /etc/sonic/
+
+    if [ -d /host/platform/$platform ]; then
+        dpkg -i /host/platform/$platform/*.deb
+    fi
+
     rm /host/platform/firsttime
 fi
 
