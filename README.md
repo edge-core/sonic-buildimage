@@ -39,8 +39,10 @@ To build NOS installer image and docker images, run the following commands:
     
 Supported PLATFORM are:
 - PLATFORM=broadcom
+- PLATFORM=marvell (*pending*)
 - PLATFORM=mellanox
 - PLATFORM=cavium
+- PLATFORM=centec (*pending*)
 - PLATFORM=p4
 
 You may find the rules/config file useful. It contains configuration options for the build process, like adding more verbosity or showing dependencies, username and password for base image etc.
