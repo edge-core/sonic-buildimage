@@ -17,9 +17,9 @@ echo "install platform dependent packages at the first boot time"
 
 if [ -f /host/platform/firsttime ]; then
 
-    if [ -n $aboot_platform ]; then
+    if [ -n "$aboot_platform" ]; then
         platform=$aboot_platform
-    elif [ -n $onie_platform ]; then
+    elif [ -n "$onie_platform" ]; then
         platform=$onie_platform
     else
         echo "Unknown sonic platform"
