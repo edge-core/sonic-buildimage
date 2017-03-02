@@ -16,6 +16,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 
 	# Apply patch
 	git apply ../0001-libteam-Add-team_get_port_enabled-function.patch
+	git apply ../0002-libteam-Temporarily-remove-redundant-debug-mes.patch
 	popd
 
 	# Obtain debian packaging
