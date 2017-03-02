@@ -38,19 +38,13 @@ ifneq ($(CONFIGURED_PLATFORM),generic)
 	@exit 1
 endif
 
-.sku :
-ifneq ($(CONFIGURED_PLATFORM),generic)
-	@echo Build system is not configured, please run make configure
-	@exit 1
-endif
-
 configure :
 	@mkdir -p target/debs
 	@mkdir -p target/python-wheels
 	@echo $(PLATFORM) > .platform
 
-distclean : .platform .sku clean
-	@rm -f .platform .sku
+distclean : .platform clean
+	@rm -f .platform
 
 ###############################################################################
 ## Include other rules
@@ -398,4 +392,4 @@ all : .platform $$(addprefix $(TARGET_PATH)/,$$(SONIC_ALL))
 
 .PHONY : $(SONIC_CLEAN_DEBS) $(SONIC_CLEAN_TARGETS) $(SONIC_CLEAN_WHEELS) clean distclean configure
 
-.INTERMEDIATE : $(SONIC_INSTALL_TARGETS) $(SONIC_INSTALL_WHEELS) $(DOCKER_LOAD_TARGETS) docker-start .platform .sku
+.INTERMEDIATE : $(SONIC_INSTALL_TARGETS) $(SONIC_INSTALL_WHEELS) $(DOCKER_LOAD_TARGETS) docker-start .platform
