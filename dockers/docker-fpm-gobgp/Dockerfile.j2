@@ -1,0 +1,31 @@
+FROM docker-fpm
+
+## Make apt-get non-interactive
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y supervisor
+
+COPY \
+{% for deb in docker_fpm_gobgp_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor -%}
+debs/
+
+RUN dpkg -i \
+{% for deb in docker_fpm_gobgp_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor %}
+
+## Clean up
+RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
+RUN rm -rf /debs
+
+COPY ["*.j2", "/usr/share/sonic/templates/"]
+COPY ["start.sh", "config.sh", "/usr/bin/"]
+COPY ["daemons", "/etc/quagga/"]
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+ENTRYPOINT /usr/bin/config.sh   \
+        && /usr/bin/start.sh    \
+        && /usr/bin/supervisord \
+        && /bin/bash
