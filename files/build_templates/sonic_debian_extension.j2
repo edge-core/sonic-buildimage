@@ -37,7 +37,6 @@ trap_push clean_sys
 sudo LANG=C chroot $FILESYSTEM_ROOT mount sysfs /sys -t sysfs
 
 sudo chroot $FILESYSTEM_ROOT service docker start
-sudo chroot $FILESYSTEM_ROOT docker version
 
 # Apply apt configuration files
 sudo cp $IMAGE_CONFIGS/apt/sources.list $FILESYSTEM_ROOT/etc/apt/
