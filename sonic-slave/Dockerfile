@@ -72,7 +72,7 @@ RUN apt-get update && apt-get install -y dkms
 RUN apt-get update && apt-get install -y sharutils libncursesw5-dev libbz2-dev liblzma-dev libgdbm-dev tk-dev blt-dev libmpdec-dev libbluetooth-dev locales libsqlite3-dev libgpm2 time net-tools xvfb python-sphinx python3-sphinx
 
 # For gobgp build
-RUN apt-get -yt jessie-backports install golang-go
+RUN apt-get -yt jessie-backports install golang-go golang-github-golang-mock-dev
 
 RUN mkdir /var/run/sshd
 EXPOSE 22
