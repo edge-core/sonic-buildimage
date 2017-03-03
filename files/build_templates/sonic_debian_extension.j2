@@ -56,6 +56,7 @@ sudo mkdir -p $FILESYSTEM_ROOT/etc/sonic/
 sudo mkdir -p $FILESYSTEM_ROOT/usr/share/sonic/templates/
 
 # Install dependencies for SONiC config engine
+# TODO: pip-install instead of apt-get after config engine wrapped into a wheel, even better use pip implicitly installing dependencies
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install \
     python-lxml    \
     python-jinja2  \
