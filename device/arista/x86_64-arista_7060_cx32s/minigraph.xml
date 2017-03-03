@@ -645,162 +645,162 @@
       <IPInterfaces>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet0</AttachTo>
+          <AttachTo>Ethernet1/1</AttachTo>
           <Prefix>10.0.0.0/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet4</AttachTo>
+          <AttachTo>Ethernet2/1</AttachTo>
           <Prefix>10.0.0.2/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet8</AttachTo>
+          <AttachTo>Ethernet3/1</AttachTo>
           <Prefix>10.0.0.4/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet12</AttachTo>
+          <AttachTo>Ethernet4/1</AttachTo>
           <Prefix>10.0.0.6/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet16</AttachTo>
+          <AttachTo>Ethernet5/1</AttachTo>
           <Prefix>10.0.0.8/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet20</AttachTo>
+          <AttachTo>Ethernet6/1</AttachTo>
           <Prefix>10.0.0.10/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet24</AttachTo>
+          <AttachTo>Ethernet7/1</AttachTo>
           <Prefix>10.0.0.12/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet28</AttachTo>
+          <AttachTo>Ethernet8/1</AttachTo>
           <Prefix>10.0.0.14/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet32</AttachTo>
+          <AttachTo>Ethernet9/1</AttachTo>
           <Prefix>10.0.0.16/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet36</AttachTo>
+          <AttachTo>Ethernet10/1</AttachTo>
           <Prefix>10.0.0.18/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet40</AttachTo>
+          <AttachTo>Ethernet11/1</AttachTo>
           <Prefix>10.0.0.20/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet44</AttachTo>
+          <AttachTo>Ethernet12/1</AttachTo>
           <Prefix>10.0.0.22/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet48</AttachTo>
+          <AttachTo>Ethernet13/1</AttachTo>
           <Prefix>10.0.0.24/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet52</AttachTo>
+          <AttachTo>Ethernet14/1</AttachTo>
           <Prefix>10.0.0.26/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet56</AttachTo>
+          <AttachTo>Ethernet15/1</AttachTo>
           <Prefix>10.0.0.28/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet60</AttachTo>
+          <AttachTo>Ethernet16/1</AttachTo>
           <Prefix>10.0.0.30/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet64</AttachTo>
+          <AttachTo>Ethernet17/1</AttachTo>
           <Prefix>10.0.0.32/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet68</AttachTo>
+          <AttachTo>Ethernet18/1</AttachTo>
           <Prefix>10.0.0.34/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet72</AttachTo>
+          <AttachTo>Ethernet19/1</AttachTo>
           <Prefix>10.0.0.36/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet76</AttachTo>
+          <AttachTo>Ethernet20/1</AttachTo>
           <Prefix>10.0.0.38/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet80</AttachTo>
+          <AttachTo>Ethernet21/1</AttachTo>
           <Prefix>10.0.0.40/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet84</AttachTo>
+          <AttachTo>Ethernet22/1</AttachTo>
           <Prefix>10.0.0.42/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet88</AttachTo>
+          <AttachTo>Ethernet23/1</AttachTo>
           <Prefix>10.0.0.44/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet92</AttachTo>
+          <AttachTo>Ethernet24/1</AttachTo>
           <Prefix>10.0.0.46/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet96</AttachTo>
+          <AttachTo>Ethernet25/1</AttachTo>
           <Prefix>10.0.0.48/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet100</AttachTo>
+          <AttachTo>Ethernet26/1</AttachTo>
           <Prefix>10.0.0.50/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet104</AttachTo>
+          <AttachTo>Ethernet27/1</AttachTo>
           <Prefix>10.0.0.52/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet108</AttachTo>
+          <AttachTo>Ethernet28/1</AttachTo>
           <Prefix>10.0.0.54/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet112</AttachTo>
+          <AttachTo>Ethernet29/1</AttachTo>
           <Prefix>10.0.0.56/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet116</AttachTo>
+          <AttachTo>Ethernet30/1</AttachTo>
           <Prefix>10.0.0.58/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet120</AttachTo>
+          <AttachTo>Ethernet31/1</AttachTo>
           <Prefix>10.0.0.60/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet124</AttachTo>
+          <AttachTo>Ethernet32/1</AttachTo>
           <Prefix>10.0.0.62/31</Prefix>
         </IPInterface>
       </IPInterfaces>
@@ -815,224 +815,224 @@
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet0</EndPort>
+        <EndPort>Ethernet1/1</EndPort>
         <StartDevice>ARISTA01T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet4</EndPort>
+        <EndPort>Ethernet2/1</EndPort>
         <StartDevice>ARISTA02T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet8</EndPort>
+        <EndPort>Ethernet3/1</EndPort>
         <StartDevice>ARISTA03T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet12</EndPort>
+        <EndPort>Ethernet4/1</EndPort>
         <StartDevice>ARISTA04T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet16</EndPort>
+        <EndPort>Ethernet5/1</EndPort>
         <StartDevice>ARISTA05T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet20</EndPort>
+        <EndPort>Ethernet6/1</EndPort>
         <StartDevice>ARISTA06T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet24</EndPort>
+        <EndPort>Ethernet7/1</EndPort>
         <StartDevice>ARISTA07T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet28</EndPort>
+        <EndPort>Ethernet8/1</EndPort>
         <StartDevice>ARISTA08T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet32</EndPort>
+        <EndPort>Ethernet9/1</EndPort>
         <StartDevice>ARISTA09T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet36</EndPort>
+        <EndPort>Ethernet10/1</EndPort>
         <StartDevice>ARISTA10T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet40</EndPort>
+        <EndPort>Ethernet11/1</EndPort>
         <StartDevice>ARISTA11T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet44</EndPort>
+        <EndPort>Ethernet12/1</EndPort>
         <StartDevice>ARISTA12T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet48</EndPort>
+        <EndPort>Ethernet13/1</EndPort>
         <StartDevice>ARISTA13T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet52</EndPort>
+        <EndPort>Ethernet14/1</EndPort>
         <StartDevice>ARISTA14T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet56</EndPort>
+        <EndPort>Ethernet15/1</EndPort>
         <StartDevice>ARISTA15T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet60</EndPort>
+        <EndPort>Ethernet16/1</EndPort>
         <StartDevice>ARISTA16T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet64</EndPort>
+        <EndPort>Ethernet17/1</EndPort>
         <StartDevice>ARISTA01T0</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet68</EndPort>
+        <EndPort>Ethernet18/1</EndPort>
         <StartDevice>ARISTA02T0</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet72</EndPort>
+        <EndPort>Ethernet19/1</EndPort>
         <StartDevice>ARISTA03T0</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet76</EndPort>
+        <EndPort>Ethernet20/1</EndPort>
         <StartDevice>ARISTA04T0</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet80</EndPort>
+        <EndPort>Ethernet21/1</EndPort>
         <StartDevice>ARISTA05T0</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet84</EndPort>
+        <EndPort>Ethernet22/1</EndPort>
         <StartDevice>ARISTA06T0</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet88</EndPort>
+        <EndPort>Ethernet23/1</EndPort>
         <StartDevice>ARISTA07T0</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet92</EndPort>
+        <EndPort>Ethernet24/1</EndPort>
         <StartDevice>ARISTA08T0</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet96</EndPort>
+        <EndPort>Ethernet25/1</EndPort>
         <StartDevice>ARISTA09T0</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet100</EndPort>
+        <EndPort>Ethernet26/1</EndPort>
         <StartDevice>ARISTA10T0</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet104</EndPort>
+        <EndPort>Ethernet27/1</EndPort>
         <StartDevice>ARISTA11T0</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet108</EndPort>
+        <EndPort>Ethernet28/1</EndPort>
         <StartDevice>ARISTA12T0</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet112</EndPort>
+        <EndPort>Ethernet29/1</EndPort>
         <StartDevice>ARISTA13T0</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet116</EndPort>
+        <EndPort>Ethernet30/1</EndPort>
         <StartDevice>ARISTA14T0</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet120</EndPort>
+        <EndPort>Ethernet31/1</EndPort>
         <StartDevice>ARISTA15T0</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>switch1</EndDevice>
-        <EndPort>Ethernet124</EndPort>
+        <EndPort>Ethernet32/1</EndPort>
         <StartDevice>ARISTA16T0</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
@@ -1040,10 +1040,10 @@
     <Devices>
       <Device i:type="LeafRouter">
         <Hostname>switch1</Hostname>
-        <HwSku>AS7512</HwSku>
+        <HwSku>Arista-7060-CX32S</HwSku>
       </Device>
     </Devices>
   </PngDec>
   <Hostname>switch1</Hostname>
-  <HwSku>AS7512</HwSku>
+  <HwSku>Arista-7060-CX32S</HwSku>
 </DeviceMiniGraph>

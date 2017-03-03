@@ -23,15 +23,13 @@ function clean_up {
 
 trap clean_up SIGTERM SIGKILL
 
-. /host/machine.conf
-
 HWSKU=`sonic-cfggen -m /etc/sonic/minigraph.xml -v minigraph_hwsku`
 
 MAC_ADDRESS=`ip link show eth0 | grep ether | awk '{print $2}'`
 
 ORCHAGENT_ARGS=""
 
-PORTSYNCD_ARGS="-p /usr/share/sonic/$HWSKU/port_config.ini"
+PORTSYNCD_ARGS="-p /usr/share/sonic/hwsku/port_config.ini"
 
 SWSSCONFIG_ARGS="00-copp.config.json "
 
@@ -49,7 +47,7 @@ elif [ "$HWSKU" == "Arista-7060-CX32S" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
 elif [ "$HWSKU" == "AS7512" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
-elif [ "$HWSKU" == "ingrasys-s9100" ]; then
+elif [ "$HWSKU" == "INGRASYS-S9100-C32" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
 elif [ "$HWSKU" == "ACS-MSN2700" ]; then
     SWSSCONFIG_ARGS+="msn2700.32ports.buffers.json msn2700.32ports.qos.json "
