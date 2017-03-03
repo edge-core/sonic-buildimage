@@ -36,7 +36,7 @@ service rsyslog start
 while true; do
     # Check if front-panel ports are configured
     result=`echo -en "SELECT 0\nHGETALL PORT_TABLE:ConfigDone" | redis-cli | sed -n 3p`
-    if [ "$result" != "0" ]; then
+    if [ "$result" == "0" ]; then
         start_app
         read
     fi
