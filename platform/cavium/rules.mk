@@ -4,7 +4,8 @@ include $(PLATFORM_PATH)/docker-orchagent-cavm.mk
 include $(PLATFORM_PATH)/cavm_platform_modules.mk
 include $(PLATFORM_PATH)/one-image.mk
 
-SONIC_ALL += $(SONIC_ONE_IMAGE)
+SONIC_ALL += $(SONIC_ONE_IMAGE) \
+             $(DOCKER_FPM_GOBGP)
 
 # Inject cavium sai into sairedis
 $(LIBSAIREDIS)_DEPENDS += $(CAVM_SAI) $(CAVM_LIBSAI)

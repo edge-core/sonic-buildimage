@@ -7,7 +7,8 @@ include $(PLATFORM_PATH)/docker-syncd-mlnx.mk
 include $(PLATFORM_PATH)/docker-orchagent-mlnx.mk
 include $(PLATFORM_PATH)/one-image.mk
 
-SONIC_ALL += $(SONIC_ONE_IMAGE)
+SONIC_ALL += $(SONIC_ONE_IMAGE) \
+             $(DOCKER_FPM_GOBGP)
 
 # Inject mlnx sai into sairedis
 $(LIBSAIREDIS)_DEPENDS += $(MLNX_SAI)

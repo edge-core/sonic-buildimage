@@ -17,7 +17,8 @@ $(DSSERVE)_URL = "https://sonicstorage.blob.core.windows.net/packages/dsserve?sv
 
 SONIC_ONLINE_FILES += $(BCMCMD) $(DSSERVE)
 
-SONIC_ALL += $(SONIC_ONE_IMAGE) $(SONIC_ONE_ABOOT_IMAGE)
+SONIC_ALL += $(SONIC_ONE_IMAGE) $(SONIC_ONE_ABOOT_IMAGE) \
+             $(DOCKER_FPM_GOBGP)
 
 # Inject brcm sai into sairedis
 $(LIBSAIREDIS)_DEPENDS += $(BRCM_OPENNSL) $(BRCM_SAI) $(BRCM_SAI_DEV)
