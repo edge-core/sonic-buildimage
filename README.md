@@ -30,21 +30,30 @@ You also need to change all git paths to relative path as we build all submodule
     
 ## Usage
 
-To build NOS installer image and docker images, run the following commands:
+To build SONiC installer image and docker images, run the following commands:
 
     make configure PLATFORM=[ASIC_VENDOR]
     make
 
  **NOTE**: We recommend reserving 50G free space to build one platform.
     
-Supported PLATFORM are:
+The SONIiC installer contains all docker images needed. SONiC use one image for all switches devices of a same ASIC vendor. The supported ASIC vendors are:
+
 - PLATFORM=broadcom
 - PLATFORM=marvell (*pending*)
 - PLATFORM=mellanox
 - PLATFORM=cavium
-- PLATFORM=centec (*pending*)
+- PLATFORM=centec
 - PLATFORM=p4
 
+For Broadcom ASIC, we build ONIE and EOS image. EOS image is used for Arista devices, ONIE image is used for all other Broadcom ASIC based devices. 
+
+    make configure PLATFORM=broadcom
+    # build ONIE image
+    make target/sonic-broadcom.bin
+    # build EOS image
+    make target/sonic-aboot-broadcom.swi
+ 
 You may find the rules/config file useful. It contains configuration options for the build process, like adding more verbosity or showing dependencies, username and password for base image etc.
 
 Every docker image is built and saved to target/ directory.
