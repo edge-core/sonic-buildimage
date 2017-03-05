@@ -1,5 +1,6 @@
 Broadcom: [![Broadcom](https://sonic-jenkins.westus.cloudapp.azure.com/job/broadcom/job/buildimage-brcm-all/badge/icon)](https://sonic-jenkins.westus.cloudapp.azure.com/job/broadcom/job/buildimage-brcm-all)
 Cavium: [![Cavium](https://sonic-jenkins.westus.cloudapp.azure.com/job/cavium/job/buildimage-cavm-all/badge/icon)](https://sonic-jenkins.westus.cloudapp.azure.com/job/cavium/job/buildimage-cavm-all/)
+Centec: [![Centec](https://sonic-jenkins.westus.cloudapp.azure.com/job/centec/job/buildimage-centec-all/badge/icon)](https://sonic-jenkins.westus.cloudapp.azure.com/job/centec/job/buildimage-centec-all/)
 Mellanox: [![Mellanox](https://sonic-jenkins.westus.cloudapp.azure.com/job/mellanox/job/buildimage-mlnx-all/badge/icon)](https://sonic-jenkins.westus.cloudapp.azure.com/job/mellanox/job/buildimage-mlnx-all)
 P4: [![Broadcom](https://sonic-jenkins.westus.cloudapp.azure.com/job/p4/job/buildimage-p4-all/badge/icon)](https://sonic-jenkins.westus.cloudapp.azure.com/job/p4/job/buildimage-p4-all)
 
