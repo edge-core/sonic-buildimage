@@ -266,6 +266,25 @@ def parse_cpg(cpg, hname):
 
     return bgp_sessions, myasn
 
+def parse_meta(meta, hname):
+    syslog_servers = []
+    dhcp_servers = []
+    ntp_servers = []
+    device_metas = meta.find(str(QName(ns, "Devices")))
+    for device in device_metas.findall(str(QName(ns1, "DeviceMetadata"))):
+        if device.find(str(QName(ns1, "Name"))).text == hname:
+            properties = device.find(str(QName(ns1, "Properties")))
+            for device_property in properties.findall(str(QName(ns1, "DeviceProperty"))):
+                name = device_property.find(str(QName(ns1, "Name"))).text
+                value = device_property.find(str(QName(ns1, "Value"))).text
+                value_group = value.split(';') if value and value != "" else []
+                if name == "DhcpResources":
+                    dhcp_servers = value_group
+                elif name == "NtpResources":
+                    ntp_servers = value_group
+                elif name == "SyslogResources":
+                    syslog_servers = value_group
+    return syslog_servers, dhcp_servers, ntp_servers                
 
 def get_console_info(devices, dev, port):
     for k, v in devices.items():
@@ -340,6 +359,9 @@ def parse_xml(filename, platform=None):
     neighbors = None
     devices = None
     hostname = None
+    syslog_servers = []
+    dhcp_servers = []
+    ntp_servers = []
 
     hwsku_qn = QName(ns, "HwSku")
     hostname_qn = QName(ns, "Hostname")
@@ -363,6 +385,8 @@ def parse_xml(filename, platform=None):
             (neighbors, devices, console_dev, console_port, mgmt_dev, mgmt_port) = parse_png(child, hostname)
         elif child.tag == str(QName(ns, "UngDec")):
             (u_neighbors, u_devices, _, _, _, _) = parse_png(child, hostname)
+        elif child.tag == str(QName(ns, "MetadataDeclaration")):
+            (syslog_servers, dhcp_servers, ntp_servers) = parse_meta(child, hostname)
 
     Tree = lambda: defaultdict(Tree)
 
@@ -389,6 +413,9 @@ def parse_xml(filename, platform=None):
         results['minigraph_mgmt'] = get_mgmt_info(devices, mgmt_dev, mgmt_port)
     results['minigraph_hostname'] = hostname
     results['inventory_hostname'] = hostname
+    results['syslog_servers'] = syslog_servers
+    results['dhcp_servers'] = dhcp_servers
+    results['ntp_servers'] = ntp_servers
     results['alias_map'] = alias_map_list
 
     return results

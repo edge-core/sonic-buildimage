@@ -1,4 +1,4 @@
-SERVERS="{{ dhcp_servers }}"
+SERVERS="{{ dhcp_servers | join(' ') }}"
 
 INTERFACES="{{ minigraph_vlan_interfaces[0]['name'] }}"
 

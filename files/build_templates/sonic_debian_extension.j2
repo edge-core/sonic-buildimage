@@ -83,14 +83,12 @@ sudo cp $IMAGE_CONFIGS/ntp/ntp-config.service $FILESYSTEM_ROOT/etc/systemd/syste
 sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable ntp-config.service
 sudo cp $IMAGE_CONFIGS/ntp/ntp-config.sh $FILESYSTEM_ROOT/usr/bin/
 sudo cp $IMAGE_CONFIGS/ntp/ntp.conf.j2 $FILESYSTEM_ROOT/usr/share/sonic/templates/
-sudo cp $IMAGE_CONFIGS/ntp/ntp.yml $FILESYSTEM_ROOT/etc/sonic/
 
 # Copy rsyslog configuration files and templates
 sudo cp $IMAGE_CONFIGS/rsyslog/rsyslog-config.service  $FILESYSTEM_ROOT/etc/systemd/system/
 sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable rsyslog-config.service
 sudo cp $IMAGE_CONFIGS/rsyslog/rsyslog-config.sh $FILESYSTEM_ROOT/usr/bin/
 sudo cp $IMAGE_CONFIGS/rsyslog/rsyslog.conf.j2 $FILESYSTEM_ROOT/usr/share/sonic/templates/
-sudo cp $IMAGE_CONFIGS/rsyslog/rsyslog.yml $FILESYSTEM_ROOT/etc/sonic/
 sudo cp $IMAGE_CONFIGS/rsyslog/rsyslog.d/* $FILESYSTEM_ROOT/etc/rsyslog.d/
 
 # Copy interfaces configuration files and templates
