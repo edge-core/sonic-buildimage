@@ -18,7 +18,7 @@
 # SONIC_CONFIG_BUILD_JOBS - set number of jobs for parallel build.
 # Corresponding -j argument will be passed to make command inside docker
 # container.
-SONIC_CONFIG_BUILD_JOBS = $(shell nproc)
+SONIC_CONFIG_BUILD_JOBS = 1
 
 # SONIC_CONFIG_LOG_TO_FILES - print output from execution of rule for each
 # target into separate log file under target/log/.
