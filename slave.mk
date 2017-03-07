@@ -366,7 +366,8 @@ $(SONIC_CLEAN_DEBS) : $(DEBS_PATH)/%-clean : .platform $$(addsuffix -clean,$$(ad
 
 SONIC_CLEAN_TARGETS += $(addsuffix -clean,$(addprefix $(TARGET_PATH)/, \
 		       $(SONIC_DOCKER_IMAGES) \
-		       $(SONIC_SIMPLE_DOCKER_IMAGES)))
+		       $(SONIC_SIMPLE_DOCKER_IMAGES) \
+		       $(SONIC_INSTALLERS)))
 $(SONIC_CLEAN_TARGETS) : $(TARGET_PATH)/%-clean : .platform
 	@rm -f $(TARGET_PATH)/$*
 
