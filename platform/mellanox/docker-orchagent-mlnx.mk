@@ -14,3 +14,5 @@ $(DOCKER_ORCHAGENT_MLNX)_RUN_OPT += -v /etc/network/interfaces:/etc/network/inte
 $(DOCKER_ORCHAGENT_MLNX)_RUN_OPT += -v /etc/network/interfaces.d/:/etc/network/interfaces.d/:ro
 $(DOCKER_ORCHAGENT_MLNX)_RUN_OPT += -v /host/machine.conf:/host/machine.conf
 $(DOCKER_ORCHAGENT_MLNX)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
+
+$(DOCKER_ORCHAGENT_MLNX)_BASE_IMAGE_FILES += swssloglevel:/usr/bin/swssloglevel
