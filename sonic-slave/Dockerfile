@@ -92,6 +92,9 @@ RUN apt-get update && apt-get install -y docutils-common libjs-sphinxdoc libjs-u
 # For templating
 RUN pip install j2cli
 
+# For lockfile
+RUN apt-get update && apt-get install -y procmail
+
 # Install depot-tools (for git-retry)
 RUN git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git /usr/share/depot_tools
 ENV PATH /usr/share/depot_tools:$PATH
