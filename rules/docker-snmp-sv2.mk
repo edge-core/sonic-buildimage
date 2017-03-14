@@ -12,3 +12,4 @@ SONIC_INSTALL_DOCKER_IMAGES += $(DOCKER_SNMP_SV2)
 $(DOCKER_SNMP_SV2)_CONTAINER_NAME = snmp
 $(DOCKER_SNMP_SV2)_RUN_OPT += --net=host --privileged -t
 $(DOCKER_SNMP_SV2)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
+$(DOCKER_SNMP_SV2)_RUN_OPT += --volumes-from database
