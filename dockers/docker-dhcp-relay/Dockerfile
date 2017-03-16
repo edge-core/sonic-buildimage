@@ -15,8 +15,9 @@ RUN rm -rf /debs
 
 COPY ["isc-dhcp-relay.j2", "/usr/share/sonic/templates/"]
 COPY ["config.sh", "/usr/bin/"]
+COPY ["start.sh", "/usr/bin/"]
 
-ENTRYPOINT /usr/bin/config.sh       \
-    && service rsyslog start        \
-    && service isc-dhcp-relay start \
+ENTRYPOINT /usr/bin/config.sh \
+    && service rsyslog start  \
+    && /usr/bin/start.sh      \
     && /bin/bash
