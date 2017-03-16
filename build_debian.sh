@@ -193,7 +193,11 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     pciutils                \
     iptables-persistent     \
     logrotate               \
-    curl
+    curl                    \
+    kexec-tools
+
+## Disable kexec supported reboot which was installed by default
+sudo sed -i 's/LOAD_KEXEC=true/LOAD_KEXEC=false/' $FILESYSTEM_ROOT/etc/default/kexec
 
 ## Remove sshd host keys, and will regenerate on first sshd start
 sudo rm -f $FILESYSTEM_ROOT/etc/ssh/ssh_host_*_key*
