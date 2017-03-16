@@ -44,7 +44,7 @@ class minigraph_encoder(json.JSONEncoder):
         if isinstance(obj, (ipaddress.IPv4Network, ipaddress.IPv6Network, ipaddress.IPv4Address, ipaddress.IPv6Address)):
             return str(obj)
         return json.JSONEncoder.default(self, obj)
-        
+
 def parse_png(png, hname):
     neighbors = {}
     devices = {}
@@ -125,6 +125,7 @@ def parse_dpg(dpg, hname):
         ipintfs = child.find(str(QName(ns, "IPInterfaces")))
         intfs = []
         vlan_map = {}
+        pc_map = {}
         for ipintf in ipintfs.findall(str(QName(ns, "IPInterface"))):
             intfname = ipintf.find(str(QName(ns, "AttachTo"))).text
             ipprefix = ipintf.find(str(QName(ns, "Prefix"))).text
@@ -134,27 +135,31 @@ def parse_dpg(dpg, hname):
             addr_bits = ipn.max_prefixlen
             subnet = ipaddress.IPNetwork(str(ipn.network) + '/' + str(prefix_len))
             ipmask = ipn.netmask
-            
+
             intf = {'addr': ipaddr, 'subnet': subnet}
             if isinstance(ipn, ipaddress.IPv4Network):
                 intf['mask'] = ipmask
             else:
                 intf['mask'] = str(prefix_len)
-                    
+
             if intfname[0:4] == "Vlan":
                 if intfname in vlan_map:
                     vlan_map[intfname].append(intf)
-                    
                 else:
                     vlan_map[intfname] = [intf]
+            elif intfname[0:11] == "PortChannel":
+                if intfname in pc_map:
+                    pc_map[intfname].append(intf)
+                else:
+                    pc_map[intfname] = [intf]
             else:
                 intf.update({'name': intfname, 'prefixlen': int(prefix_len)})
-                    
+
                 if port_alias_map.has_key(intfname):
                     intf['alias'] = port_alias_map[intfname]
                 else:
                     intf['alias'] = intfname
-                    
+
                 # TODO: remove peer_addr after dependency removed
                 ipaddr_val = int(ipn.ip)
                 peer_addr_val = None
@@ -168,13 +173,13 @@ def parse_dpg(dpg, hname):
                         peer_addr_val = ipaddr_val + 1
                     else:
                         peer_addr_val = ipaddr_val - 1
-                        
+
                 if peer_addr_val is not None:
                     intf['peer_addr'] = ipaddress.IPAddress(peer_addr_val)
                 intfs.append(intf)
 
         pcintfs = child.find(str(QName(ns, "PortChannelInterfaces")))
-        pc_intfs = {}
+        pc_intfs = []
         for pcintf in pcintfs.findall(str(QName(ns, "PortChannel"))):
             pcintfname = pcintf.find(str(QName(ns, "Name"))).text
             pcintfmbr = pcintf.find(str(QName(ns, "AttachTo"))).text
@@ -182,7 +187,10 @@ def parse_dpg(dpg, hname):
             for i,member in enumerate(pcmbr_list):
                 if port_alias_map.has_key(member):
                     pcmbr_list[i] = port_alias_map[member]
-            pc_intfs[pcintfname] = pcmbr_list
+            pc_attributes = {'name': pcintfname, 'members': pcmbr_list}
+            for addrtuple in pc_map.get(pcintfname, []):
+                pc_attributes.update(addrtuple)
+                pc_intfs.append(copy.deepcopy(pc_attributes))
 
         lointfs = child.find(str(QName(ns, "LoopbackIPInterfaces")))
         lo_intfs = []
@@ -221,12 +229,12 @@ def parse_dpg(dpg, hname):
             for i,member in enumerate(vmbr_list):
                 if port_alias_map.has_key(member):
                     vmbr_list[i] = port_alias_map[member]
-            vlan_attributes = {'name': vintfname, 'members': " ".join(vmbr_list), 'vlanid': vlanid}
+            vlan_attributes = {'name': vintfname, 'members': vmbr_list, 'vlanid': vlanid}
             for addrtuple in vlan_map.get(vintfname, []):
                 vlan_attributes.update(addrtuple)
                 vlan_intfs.append(copy.deepcopy(vlan_attributes))
 
-                
+
         return intfs, lo_intfs, mgmt_intf, vlan_intfs, pc_intfs
     return None, None, None, None, None
 
@@ -284,7 +292,7 @@ def parse_meta(meta, hname):
                     ntp_servers = value_group
                 elif name == "SyslogResources":
                     syslog_servers = value_group
-    return syslog_servers, dhcp_servers, ntp_servers                
+    return syslog_servers, dhcp_servers, ntp_servers
 
 def get_console_info(devices, dev, port):
     for k, v in devices.items():
@@ -330,7 +338,7 @@ def get_alias_map_list(hwsku, platform=None):
             break
     if port_config == None:
         return None
-    
+
     alias_map_list = []
     with open(port_config) as data:
         for line in data:

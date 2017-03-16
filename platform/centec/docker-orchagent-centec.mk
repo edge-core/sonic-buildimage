@@ -16,3 +16,4 @@ $(DOCKER_ORCHAGENT_CENTEC)_RUN_OPT += -v /host/machine.conf:/host/machine.conf
 $(DOCKER_ORCHAGENT_CENTEC)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
 
 $(DOCKER_ORCHAGENT_CENTEC)_BASE_IMAGE_FILES += swssloglevel:/usr/bin/swssloglevel
+$(DOCKER_ORCHAGENT_CENTEC)_BASE_IMAGE_FILES += brctl:/usr/bin/brctl

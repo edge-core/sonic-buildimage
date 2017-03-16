@@ -35,6 +35,15 @@ def is_ipv6(value):
             return False
     return addr.version == 6
 
+def unique_name(l):
+    name_list = []
+    new_list = []
+    for item in l:
+        if item['name'] not in name_list:
+            name_list.append(item['name'])
+            new_list.append(item)
+    return new_list
+
 def get_machine_info():
     if not os.path.isfile('/host/machine.conf'):
         return None
@@ -91,6 +100,7 @@ def main():
         env = jinja2.Environment(loader=jinja2.FileSystemLoader('/'), trim_blocks=True)
         env.filters['ipv4'] = is_ipv4
         env.filters['ipv6'] = is_ipv6
+        env.filters['unique_name'] = unique_name
         template = env.get_template(template_file)
         print template.render(data)
     
