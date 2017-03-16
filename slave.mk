@@ -229,7 +229,9 @@ $(SONIC_INSTALL_TARGETS) : $(DEBS_PATH)/%-install : .platform $$(addsuffix -inst
 $(addprefix $(PYTHON_WHEELS_PATH)/, $(SONIC_PYTHON_WHEELS)) : $(PYTHON_WHEELS_PATH)/% : .platform $$(addsuffix -install,$$(addprefix $(PYTHON_WHEELS_PATH)/,$$($$*_DEPENDS)))
 	$(HEADER)
 	pushd $($*_SRC_PATH) $(LOG)
+	if [ -f ../$(notdir $($*_SRC_PATH)).patch/series ]; then QUILT_PATCHES=../$(notdir $($*_SRC_PATH)).patch/series quilt push -a; fi
 	python$($*_PYTHON_VERSION) setup.py bdist_wheel $(LOG)
+	if [ -f ../$(notdir $($*_SRC_PATH)).patch/series ]; then quilt pop -a; fi
 	popd $(LOG)
 	mv $($*_SRC_PATH)/dist/$* $(PYTHON_WHEELS_PATH) $(LOG)
 	$(FOOTER)
