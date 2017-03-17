@@ -1,1 +1,2 @@
 recursive-include platform *.json *.ini *.conf
+recursive-include tests *.j2 *.yml *.xml

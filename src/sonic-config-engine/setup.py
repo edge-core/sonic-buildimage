@@ -2,6 +2,7 @@
 
 from setuptools import setup
 import os.path
+import unittest
 
 def get_platform_file_list():
       data_files = []
@@ -15,6 +16,11 @@ def get_platform_file_list():
           data_files.append( (os.path.join('/usr/share/sonic', platform), files) )
       return data_files
 
+def get_test_suite():
+      test_loader = unittest.TestLoader()
+      test_suite = test_loader.discover('tests', pattern='*.py')
+      return test_suite
+
 setup(name='sonic-config-engine',
       version='1.0',
       description='Utilities for generating SONiC configuration files',
@@ -25,4 +31,5 @@ setup(name='sonic-config-engine',
       scripts=['sonic-cfggen'],
       data_files=get_platform_file_list(),
       install_requires=['lxml', 'jinja2', 'netaddr', 'ipaddr', 'pyyaml'],
+      test_suite='setup.get_test_suite',
      )
