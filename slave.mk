@@ -306,7 +306,7 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : .platform
 	export linux_kernel="$(DEBS_PATH)/$(LINUX_KERNEL)"
 	export kversion="$(KVERSION)"
 	export installer_debs="$(addprefix $(DEBS_PATH)/,$($*_DEPENDS))"
-	export lazy_installer_debs="$(foreach deb, $($*_INSTALLS),$(addprefix $($(deb)_PLATFORM)@, $(DEBS_PATH)/$(deb)))"
+	export lazy_installer_debs="$(foreach deb, $($*_INSTALLS),$(foreach device, $($(deb)_PLATFORM),$(addprefix $(device)@, $(DEBS_PATH)/$(deb))))"
 	export installer_images="$(addprefix $(TARGET_PATH)/,$($*_DOCKERS))"
 	export config_engine="$(addprefix $(DEBS_PATH)/,$(SONIC_CONFIG_ENGINE))"
 	export image_type="$($*_IMAGE_TYPE)"
