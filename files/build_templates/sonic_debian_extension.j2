@@ -54,17 +54,17 @@ sudo cp $IMAGE_CONFIGS/environment/motd $FILESYSTEM_ROOT/etc/
 sudo mkdir -p $FILESYSTEM_ROOT/etc/sonic/
 sudo mkdir -p $FILESYSTEM_ROOT/usr/share/sonic/templates/
 
-# Install dependencies for SONiC config engine
-# TODO: pip-install instead of apt-get after config engine wrapped into a wheel, even better use pip implicitly installing dependencies
+# Install dependencies for SONiC config engine 
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install \
+    python-dev     \
     python-lxml    \
-    python-jinja2  \
-    python-netaddr \
-    python-ipaddr  \
-    python-yaml
+    python-yaml    \
+    python-bitarray
 
 # Install SONiC config engine
-sudo dpkg --root=$FILESYSTEM_ROOT -i {{config_engine}}
+CONFIG_ENGINE_WHL_NAME=`basename {{config_engine}}`
+sudo cp {{config_engine}} $FILESYSTEM_ROOT/$CONFIG_ENGINE_WHL_NAME
+sudo chroot $FILESYSTEM_ROOT pip install $CONFIG_ENGINE_WHL_NAME
 
 # Install SONiC Utilities (and its dependencies via 'apt-get -y install -f')
 sudo dpkg --root=$FILESYSTEM_ROOT -i target/debs/python-sonic-utilities_*.deb || \
@@ -190,6 +190,10 @@ fi
 sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /sys || true
 sudo LANG=C chroot $FILESYSTEM_ROOT umount -lf /sys
 {% endif %}
+
+sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get remove -y python-dev 
+sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get clean -y
+sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get autoremove -y 
 
 {% for file in installer_extra_files.split(' ') -%}
 {% if file.strip() -%}

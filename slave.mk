@@ -280,6 +280,7 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_DOCKER_IMAGES)) : $(TARGET_PATH)/%.gz : .pl
 	sudo mount --bind $(PYTHON_WHEELS_PATH) $($*.gz_PATH)/python-wheels $(LOG)
 	# Export variables for j2. Use path for unique variable names, e.g. docker_orchagent_debs
 	$(eval export $(subst -,_,$(notdir $($*.gz_PATH)))_debs=$(shell printf "$(subst $(SPACE),\n,$(call expand,$($*.gz_DEPENDS),RDEPENDS))\n" | awk '!a[$$0]++'))
+	$(eval export $(subst -,_,$(notdir $($*.gz_PATH)))_whls=$(shell printf "$(subst $(SPACE),\n,$(call expand,$($*.gz_PYTHON_WHEELS)))\n" | awk '!a[$$0]++'))
 	$(eval export $(subst -,_,$(notdir $($*.gz_PATH)))_dbgs=$(shell printf "$(subst $(SPACE),\n,$(call expand,$($*.gz_DBG_PACKAGES)))\n" | awk '!a[$$0]++'))
 	j2 $($*.gz_PATH)/Dockerfile.j2 > $($*.gz_PATH)/Dockerfile
 	docker build --squash --no-cache -t $* $($*.gz_PATH) $(LOG)
@@ -299,7 +300,7 @@ $(DOCKER_LOAD_TARGETS) : $(TARGET_PATH)/%.gz-load : .platform docker-start $$(TA
 ###############################################################################
 
 # targets for building installers with base image
-$(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : .platform onie-image.conf $$(addprefix $(DEBS_PATH)/,$$($$*_DEPENDS)) $$(addprefix $(DEBS_PATH)/,$$($$*_INSTALLS)) $(addprefix $(DEBS_PATH)/,$(INITRAMFS_TOOLS) $(LINUX_KERNEL) $(IGB_DRIVER) $(SONIC_CONFIG_ENGINE) $(SONIC_DEVICE_DATA) $(SONIC_UTILS)) $$(addprefix $(TARGET_PATH)/,$$($$*_DOCKERS))
+$(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : .platform onie-image.conf $$(addprefix $(DEBS_PATH)/,$$($$*_DEPENDS)) $$(addprefix $(DEBS_PATH)/,$$($$*_INSTALLS)) $(addprefix $(DEBS_PATH)/,$(INITRAMFS_TOOLS) $(LINUX_KERNEL) $(IGB_DRIVER) $(SONIC_DEVICE_DATA) $(SONIC_UTILS)) $$(addprefix $(TARGET_PATH)/,$$($$*_DOCKERS)) $$(addprefix $(PYTHON_WHEELS_PATH)/,$(SONIC_CONFIG_ENGINE))
 	$(HEADER)
 	## Pass initramfs and linux kernel explicitly. They are used for all platforms
 	export initramfs_tools="$(DEBS_PATH)/$(INITRAMFS_TOOLS)"
@@ -308,7 +309,7 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : .platform
 	export installer_debs="$(addprefix $(DEBS_PATH)/,$($*_DEPENDS))"
 	export lazy_installer_debs="$(foreach deb, $($*_INSTALLS),$(foreach device, $($(deb)_PLATFORM),$(addprefix $(device)@, $(DEBS_PATH)/$(deb))))"
 	export installer_images="$(addprefix $(TARGET_PATH)/,$($*_DOCKERS))"
-	export config_engine="$(addprefix $(DEBS_PATH)/,$(SONIC_CONFIG_ENGINE))"
+	export config_engine="$(addprefix $(PYTHON_WHEELS_PATH)/,$(SONIC_CONFIG_ENGINE))"
 	export image_type="$($*_IMAGE_TYPE)"
 	export sonicadmin_user="$(USERNAME)"
 	export sonic_asic_platform="$(CONFIGURED_PLATFORM)"
