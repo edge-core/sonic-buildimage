@@ -19,6 +19,11 @@ interface {{ interface['alias'] }}
 link-detect
 !
 {% endfor %}
+{% for interface in minigraph_portchannel_interfaces %}
+interface {{ interface['name'] }}
+link-detect
+!
+{% endfor %}
 {% endblock interfaces %}
 !
 {% block default_route %}

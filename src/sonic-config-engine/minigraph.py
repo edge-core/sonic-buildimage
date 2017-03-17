@@ -180,6 +180,7 @@ def parse_dpg(dpg, hname):
 
         pcintfs = child.find(str(QName(ns, "PortChannelInterfaces")))
         pc_intfs = []
+        pcs = {}
         for pcintf in pcintfs.findall(str(QName(ns, "PortChannel"))):
             pcintfname = pcintf.find(str(QName(ns, "Name"))).text
             pcintfmbr = pcintf.find(str(QName(ns, "AttachTo"))).text
@@ -191,6 +192,7 @@ def parse_dpg(dpg, hname):
             for addrtuple in pc_map.get(pcintfname, []):
                 pc_attributes.update(addrtuple)
                 pc_intfs.append(copy.deepcopy(pc_attributes))
+            pcs[pcintfname] = pc_attributes
 
         lointfs = child.find(str(QName(ns, "LoopbackIPInterfaces")))
         lo_intfs = []
@@ -221,6 +223,7 @@ def parse_dpg(dpg, hname):
 
         vlanintfs = child.find(str(QName(ns, "VlanInterfaces")))
         vlan_intfs = []
+        vlans = {}
         for vintf in vlanintfs.findall(str(QName(ns, "VlanInterface"))):
             vintfname = vintf.find(str(QName(ns, "Name"))).text
             vlanid = vintf.find(str(QName(ns, "VlanID"))).text
@@ -233,9 +236,10 @@ def parse_dpg(dpg, hname):
             for addrtuple in vlan_map.get(vintfname, []):
                 vlan_attributes.update(addrtuple)
                 vlan_intfs.append(copy.deepcopy(vlan_attributes))
+            vlans[vintfname] = vlan_attributes
 
 
-        return intfs, lo_intfs, mgmt_intf, vlan_intfs, pc_intfs
+        return intfs, lo_intfs, mgmt_intf, vlan_intfs, pc_intfs, vlans, pcs
     return None, None, None, None, None
 
 def parse_cpg(cpg, hname):
@@ -362,6 +366,8 @@ def parse_xml(filename, platform=None):
     intfs = None
     vlan_intfs = None
     pc_intfs = None
+    vlans = None
+    pcs = None
     mgmt_intf = None
     lo_intf = None
     neighbors = None
@@ -386,7 +392,7 @@ def parse_xml(filename, platform=None):
 
     for child in root:
         if child.tag == str(QName(ns, "DpgDec")):
-            (intfs, lo_intfs, mgmt_intf, vlan_intfs, pc_intfs) = parse_dpg(child, hostname)
+            (intfs, lo_intfs, mgmt_intf, vlan_intfs, pc_intfs, vlans, pcs) = parse_dpg(child, hostname)
         elif child.tag == str(QName(ns, "CpgDec")):
             (bgp_sessions, bgp_asn) = parse_cpg(child, hostname)
         elif child.tag == str(QName(ns, "PngDec")):
@@ -409,6 +415,8 @@ def parse_xml(filename, platform=None):
     results['minigraph_interfaces'] = sorted(intfs, key=lambda x: x['name'])
     results['minigraph_vlan_interfaces'] = vlan_intfs
     results['minigraph_portchannel_interfaces'] = pc_intfs
+    results['minigraph_vlans'] = vlans
+    results['minigraph_portchannels'] = pcs
     results['minigraph_mgmt_interface'] = mgmt_intf
     results['minigraph_lo_interfaces'] = lo_intfs
     results['minigraph_neighbors'] = neighbors
