@@ -11,10 +11,10 @@
         "name": "ethtool"
     },
     "ports": {
-        {% for member in minigraph_portchannels[pc]['members'] %}
-"{{member}}": {}{% if not loop.last %},{% endif %}
+{% for member in minigraph_portchannels[pc]['members'] %}
+        "{{member}}": {}{% if not loop.last %},{% endif %}
 
-        {% endfor %}
+{% endfor %}
     }
 }
 

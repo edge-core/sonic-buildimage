@@ -60,6 +60,7 @@ def get_machine_info():
 def main():
     parser=argparse.ArgumentParser(description="Render configuration file from minigraph data and jinja2 template.")
     parser.add_argument("-m", "--minigraph", help="minigraph xml file")
+    parser.add_argument("-p", "--port-config", help="port config file, used with -m")
     parser.add_argument("-y", "--yaml", help="yaml file that contains addtional variables")
     parser.add_argument("-a", "--additional-data", help="addition data, in json string")
     group = parser.add_mutually_exclusive_group()
@@ -83,9 +84,15 @@ def main():
     if args.minigraph != None:
         minigraph = args.minigraph
         if data.has_key('platform'):
-            data.update(parse_xml(minigraph, data['platform']))
+            if args.port_config != None:
+                data.update(parse_xml(minigraph, data['platform'], args.port_config))
+            else:
+                data.update(parse_xml(minigraph, data['platform']))
         else:
-            data.update(parse_xml(minigraph))
+            if args.port_config != None:
+                data.update(parse_xml(minigraph, port_config_file=args.port_config))
+            else:
+                data.update(parse_xml(minigraph))
 
     if args.yaml != None:
         with open(args.yaml, 'r') as stream:

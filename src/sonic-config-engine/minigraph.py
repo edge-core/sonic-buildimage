@@ -328,8 +328,10 @@ def get_mgmt_info(devices, dev, port):
 
     return ret_val
 
-def get_alias_map_list(hwsku, platform=None):
+def get_alias_map_list(hwsku, platform=None, port_config_file=None):
     port_config_candidates = []
+    if port_config_file != None:
+        port_config_candidates.append(port_config_file)
     port_config_candidates.append('/usr/share/sonic/hwsku/port_config.ini')
     if platform != None:
         port_config_candidates.append(os.path.join('/usr/share/sonic/device', platform, hwsku, 'port_config.ini'))
@@ -354,7 +356,7 @@ def get_alias_map_list(hwsku, platform=None):
             alias_map_list.append({'sonic': tokens[0], 'origin': tokens[2].strip()})
     return alias_map_list
 
-def parse_xml(filename, platform=None):
+def parse_xml(filename, platform=None, port_config_file=None):
     root = ET.parse(filename).getroot()
     mini_graph_path = filename
 
@@ -385,7 +387,7 @@ def parse_xml(filename, platform=None):
         if child.tag == str(hostname_qn):
             hostname = child.text
 
-    alias_map_list = get_alias_map_list(hwsku, platform)
+    alias_map_list = get_alias_map_list(hwsku, platform, port_config_file)
     if alias_map_list != None:
         for item in alias_map_list:
             port_alias_map[item['origin']] = item['sonic']
@@ -437,7 +439,6 @@ def parse_xml(filename, platform=None):
     return results
 
 port_alias_map = {}
-
 
 def print_parse_xml(filename):
     results = parse_xml(filename)
