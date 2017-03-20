@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Obtain our platform and HWSKU as we will mount directories with these names in each docker
-PLATFORM=`/usr/bin/sonic-cfggen -v platform`
-HWSKU=`/usr/bin/sonic-cfggen -m /etc/sonic/minigraph.xml -v minigraph_hwsku`
+PLATFORM=`sonic-cfggen -v platform`
+HWSKU=`sonic-cfggen -m /etc/sonic/minigraph.xml -v minigraph_hwsku`
 
 start() {
     docker inspect --type container {{docker_container_name}} &>/dev/null
