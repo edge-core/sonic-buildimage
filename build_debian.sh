@@ -171,6 +171,7 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     file                    \
     ifupdown                \
     iproute2                \
+    bridge-utils            \
     isc-dhcp-client         \
     sudo                    \
     vim                     \

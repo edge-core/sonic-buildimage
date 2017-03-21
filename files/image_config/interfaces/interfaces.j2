@@ -75,8 +75,8 @@ iface {{ interface }} inet manual
 {% block vlan_interfaces %}
 {% for vlan_interface in minigraph_vlan_interfaces %}
 auto {{ vlan_interface['name'] }}
-allow-hotplug {{ vlan_interface['name'] }}
 iface {{ vlan_interface['name'] }} {{ 'inet' if vlan_interface['addr'] | ipv4 else 'inet6' }} static
+    bridge_ports none
     address {{ vlan_interface['addr'] }}
     netmask {{ vlan_interface['mask'] }}
 #
