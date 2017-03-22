@@ -1,4 +1,4 @@
-FROM docker-syncd
+FROM docker-syncd-brcm
 
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
@@ -43,7 +43,7 @@ RUN apt-get update \
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY ptf_nn_agent.conf /etc/supervisor/conf.d/ptf_nn_agent.conf
 
-ENTRYPOINT service rsyslog start \
-    && sysctl -w net.core.rmem_max=509430500 \
-    && service syncd start       \
-    && /usr/bin/supervisord
+RUN sed -i 's/read/sysctl -w net.core.rmem_max=509430500 ; \/usr\/bin\/supervisord/' /usr/bin/start.sh
+
+ENTRYPOINT ["/bin/bash"]
+CMD ["/usr/bin/start.sh"]
