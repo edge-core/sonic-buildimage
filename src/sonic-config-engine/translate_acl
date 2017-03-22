@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 
-import openconfig_acl 
-import pyangbind.lib.pybindJSON as pybindJSON
-
 import sys
 import os.path
 import json
 import argparse
+
+import openconfig_acl 
+import pyangbind.lib.pybindJSON as pybindJSON
+from minigraph import parse_xml
 
 def dump_json(filename, data):
     with open(filename, 'w') as outfile:
@@ -97,7 +98,7 @@ def generate_rule_json(table_name, rule, max_priority):
     return rule_data
 
 def generate_table_json(aclset, aclname, port, max_priority, output_path='.'):
-    table_name = aclname.replace(" ", "_")
+    table_name = aclname.replace(" ", "_").replace("-", "_")
     #table_name = generate_random_table_name()
 
     table_props = {}
@@ -119,21 +120,38 @@ def generate_table_json(aclset, aclname, port, max_priority, output_path='.'):
 
     dump_json(os.path.join(output_path, "rules_for_"+table_name+".json"), rule_data)
 
-def translate_acl(filename, output_path, port, max_priority):
+def translate_acl_fixed_port(filename, output_path, port, max_priority):
     yang_acl = pybindJSON.load(filename, openconfig_acl, "openconfig_acl")
     for aclsetname in yang_acl.acl.acl_sets.acl_set:
-         aclset = yang_acl.acl.acl_sets.acl_set[aclsetname]
-         generate_table_json(aclset, aclsetname, port, max_priority, output_path)
+        aclset = yang_acl.acl.acl_sets.acl_set[aclsetname]
+        generate_table_json(aclset, aclsetname, port, max_priority, output_path)
+    return
+
+def translate_acl(filename, output_path, attach_to, max_priority):
+    yang_acl = pybindJSON.load(filename, openconfig_acl, "openconfig_acl")
+    print attach_to.keys()
+    for aclsetname in yang_acl.acl.acl_sets.acl_set:
+        tablename = aclsetname.replace(" ", "_").replace("-", "_")
+        if attach_to.has_key(tablename):
+            port = ','.join(attach_to[tablename])
+            aclset = yang_acl.acl.acl_sets.acl_set[aclsetname]
+            generate_table_json(aclset, aclsetname, port, max_priority, output_path)
     return
 
 def main():
     parser = argparse.ArgumentParser(description="Translate openconfig ACL json into SONiC ACL jsons")
     parser.add_argument('input', metavar='INPUT', help='input json file in openconfig format')
-    parser.add_argument('-p', '--port', default='Ethernet0', help='the port(s) that this ACL is binding to')
-    parser.add_argument('-m', '--max-priority', type=int, default=10000, help='the priority number of the first rule in ACL entries')
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('-p', '--port', help='the port(s) that this ACL is attached to')
+    group.add_argument('-m', '--minigraph', help='read ACL attaching information from minigraph')
+    parser.add_argument('-n', '--max-priority', type=int, default=10000, help='the priority number of the first rule in ACL entries')
     parser.add_argument('-o', '--output-path', default='.', help='output directory where SONiC ACL jsons will be generated')
     args = parser.parse_args()
-    translate_acl(args.input, args.output_path, args.port, args.max_priority)
+    if args.port:
+        translate_acl_fixed_port(args.input, args.output_path, args.port, args.max_priority)
+    elif args.minigraph:
+        mini_data = parse_xml(args.minigraph)
+        translate_acl(args.input, args.output_path, mini_data['minigraph_acls'], args.max_priority)
 
 if __name__ == "__main__":
     main()

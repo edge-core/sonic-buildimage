@@ -8,6 +8,7 @@ class TestCfgGen(TestCase):
         self.test_dir = os.path.dirname(os.path.realpath(__file__))
         self.script_file = os.path.join(self.test_dir, '..', 'sonic-cfggen')
         self.sample_graph = os.path.join(self.test_dir, 'sample_graph.xml')
+        self.sample_graph_t0 = os.path.join(self.test_dir, 't0-sample-graph.xml')
 
     def run_script(self, argument):
         print '\n    Running sonic-cfggen ' + argument
@@ -58,4 +59,9 @@ class TestCfgGen(TestCase):
         argument = '-y ' + os.path.join(self.test_dir, 'test.yml') + ' -t' + os.path.join(self.test_dir, 'test.j2')
         output = self.run_script(argument)
         self.assertEqual(output.strip(), 'value1\nvalue2')
+
+    def test_minigraph_acl(self):
+        argument = '-m "' + self.sample_graph_t0 + '" -v minigraph_acls'
+        output = self.run_script(argument)
+        self.assertEqual(output.strip(), "{'DataAcl': ['Ethernet112', 'Ethernet116', 'Ethernet120', 'Ethernet124']}")
 

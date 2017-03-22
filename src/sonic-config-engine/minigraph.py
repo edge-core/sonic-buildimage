@@ -124,6 +124,7 @@ def parse_dpg(dpg, hname):
 
         ipintfs = child.find(str(QName(ns, "IPInterfaces")))
         intfs = []
+        intfnames = {}
         vlan_map = {}
         pc_map = {}
         for ipintf in ipintfs.findall(str(QName(ns, "IPInterface"))):
@@ -177,6 +178,7 @@ def parse_dpg(dpg, hname):
                 if peer_addr_val is not None:
                     intf['peer_addr'] = ipaddress.IPAddress(peer_addr_val)
                 intfs.append(intf)
+                intfnames[intf['alias']] = { 'alias': intf['name'] }
 
         pcintfs = child.find(str(QName(ns, "PortChannelInterfaces")))
         pc_intfs = []
@@ -237,10 +239,27 @@ def parse_dpg(dpg, hname):
                 vlan_attributes.update(addrtuple)
                 vlan_intfs.append(copy.deepcopy(vlan_attributes))
             vlans[vintfname] = vlan_attributes
+        aclintfs = child.find(str(QName(ns, "AclInterfaces")))
+        acls = {}
+        for aclintf in aclintfs.findall(str(QName(ns, "AclInterface"))):
+            aclname = aclintf.find(str(QName(ns, "InAcl"))).text
+            aclattach = aclintf.find(str(QName(ns, "AttachTo"))).text.split(';')
+            acl_intfs = []
+            for member in aclattach:
+                member = member.strip()
+                if port_alias_map.has_key(member):
+                    member = port_alias_map[member]
+                if pcs.has_key(member):
+                    acl_intfs.extend(pcs[member]['members'])  # For ACL attaching to port channels, we break them into port channel members
+                elif vlans.has_key(member):
+                    print >> sys.stderr, "Warning: ACL "+aclname+" is attached to a Vlan interface, which is currently not supported"
+                elif intfnames.has_key(member):
+                    acl_intfs.append(member)
+            if acl_intfs:
+                acls[aclname] = acl_intfs
 
-
-        return intfs, lo_intfs, mgmt_intf, vlan_intfs, pc_intfs, vlans, pcs
-    return None, None, None, None, None
+        return intfs, lo_intfs, mgmt_intf, vlan_intfs, pc_intfs, intfnames, vlans, pcs, acls
+    return None, None, None, None, None, None, None, None
 
 def parse_cpg(cpg, hname):
     bgp_sessions = []
@@ -394,7 +413,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
 
     for child in root:
         if child.tag == str(QName(ns, "DpgDec")):
-            (intfs, lo_intfs, mgmt_intf, vlan_intfs, pc_intfs, vlans, pcs) = parse_dpg(child, hostname)
+            (intfs, lo_intfs, mgmt_intf, vlan_intfs, pc_intfs, ports, vlans, pcs, acls) = parse_dpg(child, hostname)
         elif child.tag == str(QName(ns, "CpgDec")):
             (bgp_sessions, bgp_asn) = parse_cpg(child, hostname)
         elif child.tag == str(QName(ns, "PngDec")):
@@ -418,9 +437,11 @@ def parse_xml(filename, platform=None, port_config_file=None):
     results['minigraph_vlan_interfaces'] = vlan_intfs
     results['minigraph_portchannel_interfaces'] = pc_intfs
     results['minigraph_vlans'] = vlans
+    results['minigraph_ports'] = ports
     results['minigraph_portchannels'] = pcs
     results['minigraph_mgmt_interface'] = mgmt_intf
     results['minigraph_lo_interfaces'] = lo_intfs
+    results['minigraph_acls'] = acls
     results['minigraph_neighbors'] = neighbors
     results['minigraph_devices'] = devices
     results['minigraph_underlay_neighbors'] = u_neighbors

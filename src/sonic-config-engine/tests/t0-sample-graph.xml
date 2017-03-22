@@ -251,7 +251,14 @@
         </IPInterface>
       </IPInterfaces>
       <DataAcls/>
-      <AclInterfaces/>
+      <AclInterfaces>
+        <AclInterface>
+          <AttachTo>
+            PortChannel01;PortChannel02;PortChannel03;PortChannel04
+          </AttachTo>
+          <InAcl>DataAcl</InAcl>
+        </AclInterface>
+      </AclInterfaces>
       <DownstreamSummaries/>
       <DownstreamSummarySet xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
     </DeviceDataPlaneInfo>
