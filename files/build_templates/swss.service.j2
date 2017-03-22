@@ -20,9 +20,9 @@ ExecStartPre=-/etc/init.d/xpnet.sh stop
 ExecStartPre=/etc/init.d/xpnet.sh start
 {% endif %}
 
-# systemd allows only one parent process within service,
-# so we spawn both dockers from single bash parent
-ExecStart=/bin/bash -c "/usr/bin/{{docker_container_name}}.sh start & /usr/bin/syncd.sh start & wait -n 0"
+ExecStartPre=/usr/bin/{{docker_container_name}}.sh start 
+ExecStartPre=/usr/bin/syncd.sh start
+ExecStart=/usr/bin/{{docker_container_name}}.sh attach
 
 ExecStop=/usr/bin/{{docker_container_name}}.sh stop
 ExecStopPost=/usr/bin/syncd.sh stop

@@ -7,13 +7,17 @@ HWSKU=`sonic-cfggen -m /etc/sonic/minigraph.xml -v minigraph_hwsku`
 start() {
     docker inspect --type container {{docker_container_name}} &>/dev/null
     if [ "$?" -eq "0" ]; then
-        docker start -a {{docker_container_name}}
+        docker start {{docker_container_name}}
     else
-        docker run {{docker_image_run_opt}} \
+        docker run -d {{docker_image_run_opt}} \
             -v /usr/share/sonic/device/$PLATFORM:/usr/share/sonic/platform:ro \
             -v /usr/share/sonic/device/$PLATFORM/$HWSKU:/usr/share/sonic/hwsku:ro \
             --name={{docker_container_name}} {{docker_image_name}}
     fi
+}
+
+attach() {
+    docker attach --no-stdin {{docker_container_name}}
 }
 
 stop() {
@@ -21,11 +25,11 @@ stop() {
 }
 
 case "$1" in
-    start|stop)
+    start|stop|attach)
         $1
         ;;
     *)
-        echo "Usage: $0 {start|stop}"
+        echo "Usage: $0 {start|stop|attach}"
         exit 1
         ;;
 esac
