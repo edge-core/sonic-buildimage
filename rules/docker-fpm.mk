@@ -9,7 +9,6 @@ SONIC_INSTALL_DOCKER_IMAGES += $(DOCKER_FPM)
 
 $(DOCKER_FPM)_CONTAINER_NAME = bgp
 $(DOCKER_FPM)_RUN_OPT += --net=host --privileged -t
-$(DOCKER_FPM)_RUN_OPT += --volumes-from database
 $(DOCKER_FPM)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
 
 $(DOCKER_FPM)_BASE_IMAGE_FILES += vtysh:/usr/bin/vtysh

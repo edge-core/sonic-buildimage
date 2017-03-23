@@ -12,7 +12,6 @@ $(DOCKER_SYNCD_BRCM)_CONTAINER_NAME = syncd
 $(DOCKER_SYNCD_BRCM)_RUN_OPT += --net=host --privileged -t
 $(DOCKER_SYNCD_BRCM)_RUN_OPT += -v /host/machine.conf:/etc/machine.conf
 $(DOCKER_SYNCD_BRCM)_RUN_OPT += -v /var/run/docker-syncd:/var/run/sswsyncd
-$(DOCKER_SYNCD_BRCM)_RUN_OPT += --volumes-from database
 $(DOCKER_SYNCD_BRCM)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
 
 $(DOCKER_SYNCD_BRCM)_BASE_IMAGE_FILES += bcmcmd:/usr/bin/bcmcmd

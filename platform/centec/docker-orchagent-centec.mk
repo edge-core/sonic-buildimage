@@ -9,7 +9,6 @@ SONIC_INSTALL_DOCKER_IMAGES += $(DOCKER_ORCHAGENT_CENTEC)
 
 $(DOCKER_ORCHAGENT_CENTEC)_CONTAINER_NAME = swss
 $(DOCKER_ORCHAGENT_CENTEC)_RUN_OPT += --net=host --privileged -t
-$(DOCKER_ORCHAGENT_CENTEC)_RUN_OPT += --volumes-from database
 $(DOCKER_ORCHAGENT_CENTEC)_RUN_OPT += -v /etc/network/interfaces:/etc/network/interfaces:ro
 $(DOCKER_ORCHAGENT_CENTEC)_RUN_OPT += -v /etc/network/interfaces.d/:/etc/network/interfaces.d/:ro
 $(DOCKER_ORCHAGENT_CENTEC)_RUN_OPT += -v /host/machine.conf:/host/machine.conf

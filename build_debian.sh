@@ -240,6 +240,9 @@ sudo LANG=C chroot $FILESYSTEM_ROOT easy_install pip
 sudo LANG=C chroot $FILESYSTEM_ROOT pip install 'docker-py==1.6.0'
 ## Note: keep pip installed for maintainance purpose
 
+## Create /var/run/redis folder for docker-database to mount
+sudo mkdir -p $FILESYSTEM_ROOT/var/run/redis
+
 ## Config DHCP for eth0
 sudo tee -a $FILESYSTEM_ROOT/etc/network/interfaces > /dev/null <<EOF
 

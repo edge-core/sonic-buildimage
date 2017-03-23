@@ -9,7 +9,9 @@ start() {
     if [ "$?" -eq "0" ]; then
         docker start {{docker_container_name}}
     else
+
         docker run -d {{docker_image_run_opt}} \
+            -v /var/run/redis:/var/run/redis:rw \
             -v /usr/share/sonic/device/$PLATFORM:/usr/share/sonic/platform:ro \
             -v /usr/share/sonic/device/$PLATFORM/$HWSKU:/usr/share/sonic/hwsku:ro \
             --name={{docker_container_name}} {{docker_image_name}}

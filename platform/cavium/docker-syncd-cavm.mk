@@ -10,5 +10,4 @@ SONIC_INSTALL_DOCKER_IMAGES += $(DOCKER_SYNCD_CAVM)
 $(DOCKER_SYNCD_CAVM)_CONTAINER_NAME = syncd
 $(DOCKER_SYNCD_CAVM)_RUN_OPT += --net=host --privileged -t
 $(DOCKER_SYNCD_CAVM)_RUN_OPT += -v /host/machine.conf:/etc/machine.conf
-$(DOCKER_SYNCD_CAVM)_RUN_OPT += --volumes-from database
 $(DOCKER_SYNCD_CAVM)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro

@@ -11,6 +11,5 @@ SONIC_INSTALL_DOCKER_IMAGES += $(DOCKER_LLDP_SV2)
 $(DOCKER_LLDP_SV2)_CONTAINER_NAME = lldp
 $(DOCKER_LLDP_SV2)_RUN_OPT += --net=host --privileged -t
 $(DOCKER_LLDP_SV2)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
-$(DOCKER_LLDP_SV2)_RUN_OPT += --volumes-from database
 
 $(DOCKER_LLDP_SV2)_BASE_IMAGE_FILES += lldpctl:/usr/bin/lldpctl
