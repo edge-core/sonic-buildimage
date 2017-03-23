@@ -301,6 +301,7 @@ def parse_meta(meta, hname):
     syslog_servers = []
     dhcp_servers = []
     ntp_servers = []
+    mgmt_routes = []
     device_metas = meta.find(str(QName(ns, "Devices")))
     for device in device_metas.findall(str(QName(ns1, "DeviceMetadata"))):
         if device.find(str(QName(ns1, "Name"))).text == hname:
@@ -315,7 +316,9 @@ def parse_meta(meta, hname):
                     ntp_servers = value_group
                 elif name == "SyslogResources":
                     syslog_servers = value_group
-    return syslog_servers, dhcp_servers, ntp_servers
+                elif name == "ForcedMgmtRoutes":
+                    mgmt_routes = value_group
+    return syslog_servers, dhcp_servers, ntp_servers, mgmt_routes
 
 def get_console_info(devices, dev, port):
     for k, v in devices.items():
@@ -397,6 +400,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
     syslog_servers = []
     dhcp_servers = []
     ntp_servers = []
+    mgmt_routes = []
 
     hwsku_qn = QName(ns, "HwSku")
     hostname_qn = QName(ns, "Hostname")
@@ -421,7 +425,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
         elif child.tag == str(QName(ns, "UngDec")):
             (u_neighbors, u_devices, _, _, _, _) = parse_png(child, hostname)
         elif child.tag == str(QName(ns, "MetadataDeclaration")):
-            (syslog_servers, dhcp_servers, ntp_servers) = parse_meta(child, hostname)
+            (syslog_servers, dhcp_servers, ntp_servers, mgmt_routes) = parse_meta(child, hostname)
 
     Tree = lambda: defaultdict(Tree)
 
@@ -455,6 +459,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
     results['syslog_servers'] = syslog_servers
     results['dhcp_servers'] = dhcp_servers
     results['ntp_servers'] = ntp_servers
+    results['forced_mgmt_routes'] = mgmt_routes
     results['alias_map'] = alias_map_list
 
     return results
