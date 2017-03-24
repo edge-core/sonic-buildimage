@@ -1,7 +1,13 @@
 [Unit]
 Description=switch state service
 Requires=database.service
+{% if sonic_asic_platform == 'broadcom' %}
+Requires=opennsl-modules-3.16.0-4-amd64.service
+{% endif %}
 After=database.service
+{% if sonic_asic_platform == 'broadcom' %}
+After=opennsl-modules-3.16.0-4-amd64.service
+{% endif %}
 
 [Service]
 User=root
@@ -35,7 +41,6 @@ ExecStopPost=/usr/bin/mst stop
 ExecStopPost=/etc/init.d/xpnet.sh stop
 ExecStopPost=/etc/init.d/xpnet.sh start
 {% endif %}
-
 
 [Install]
 WantedBy=multi-user.target
