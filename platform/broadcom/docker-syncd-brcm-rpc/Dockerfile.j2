@@ -1,9 +1,21 @@
-FROM docker-syncd-mlnx
+FROM docker-syncd-brcm
 
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
-COPY deps /deps
+COPY \
+{% for deb in docker_syncd_brcm_rpc_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor -%}
+debs/
+
+RUN dpkg -r syncd
+
+RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; } ; \
+dpkg_apt  \
+{% for deb in docker_syncd_brcm_rpc_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor %}
 
 ## Pre-install the fundamental packages
 RUN apt-get update \
@@ -34,9 +46,6 @@ RUN apt-get update \
  && cd /opt             \
  && wget https://raw.githubusercontent.com/p4lang/ptf/master/ptf_nn/ptf_nn_agent.py \
  && dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; } \
- && dpkg -r syncd \
- && dpkg_apt /deps/syncd_*.deb \
- && dpkg_apt /deps/libthrift-0.9.3_*.deb \
  && apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y \
  && rm -rf /deps
 
