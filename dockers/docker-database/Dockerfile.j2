@@ -30,4 +30,4 @@ RUN sed -ri 's/^daemonize yes$/daemonize no/;                                   
              s/^# unixsocket/unixsocket/                                                \
             ' /etc/redis/redis.conf
 
-ENTRYPOINT service redis-server start
+ENTRYPOINT ["/usr/bin/redis-server", "/etc/redis/redis.conf"]
