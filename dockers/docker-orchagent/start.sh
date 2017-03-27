@@ -35,14 +35,14 @@ SWSSCONFIG_ARGS="00-copp.config.json "
 
 if [ "$HWSKU" == "Force10-S6000" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
-    SWSSCONFIG_ARGS+="td2.32ports.qos.json td2.32ports.buffers.json "
+    SWSSCONFIG_ARGS+="td2.32ports.buffers.json td2.32ports.qos.json "
 elif [ "$HWSKU" == "Force10-S6100" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
 elif [ "$HWSKU" == "Force10-Z9100" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
 elif [ "$HWSKU" == "Arista-7050-QX32" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
-    SWSSCONFIG_ARGS+="td2.32ports.qos.json td2.32ports.buffers.json "
+    SWSSCONFIG_ARGS+="td2.32ports.buffers.json td2.32ports.qos.json "
 elif [ "$HWSKU" == "Arista-7060-CX32S" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
 elif [ "$HWSKU" == "AS7512" ]; then
