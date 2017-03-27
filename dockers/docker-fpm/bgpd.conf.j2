@@ -14,6 +14,7 @@ log facility local4
 ! enable password {# {{ en_passwd }} TODO: param needed #}
 {% endblock system_init %}
 !
+{% if minigraph_bgp_asn is not none %}
 {% block bgp_init %}
 !
 ! bgp multiple-instance
@@ -34,6 +35,7 @@ router bgp {{ minigraph_bgp_asn }}
 {% endif %}
 {% endfor %}
 {% endblock bgp_init %}
+{% endif %}
 {% block vlan_advertisement %}
 {% for vlan_interface in minigraph_vlan_interfaces %}
   network {{ vlan_interface['subnet'] }}
@@ -57,8 +59,10 @@ router bgp {{ minigraph_bgp_asn }}
 {% endfor %}
 {% endblock bgp_sessions %}
 !
+{% if minigraph_bgp_asn is not none %}
 maximum-paths 64
 !
 route-map ISOLATE permit 10
 set as-path prepend {{ minigraph_bgp_asn }}
+{% endif %}
 !
