@@ -56,3 +56,8 @@
 [submodule "platform/broadcom/sonic-platform-modules-ingrasys-s9100"]
 	path = platform/broadcom/sonic-platform-modules-ingrasys-s9100
 	url = https://github.com/Ingrasys-sonic/sonic-platform-ingrasys-s9100
+[submodule "src/SAI"]
+	path = src/SAI
+	url = https://github.com/opencomputeproject/SAI
+	branch = v0.9.4
+

@@ -3,6 +3,8 @@ include $(PLATFORM_PATH)/sai.mk
 include $(PLATFORM_PATH)/docker-orchagent-centec.mk
 include $(PLATFORM_PATH)/docker-syncd-centec.mk
 include $(PLATFORM_PATH)/one-image.mk
+include $(PLATFORM_PATH)/libsaithrift-dev.mk
+include $(PLATFORM_PATH)/python-saithrift.mk
 
 SONIC_ALL += $(SONIC_ONE_IMAGE)
 
