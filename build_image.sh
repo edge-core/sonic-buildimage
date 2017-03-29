@@ -27,6 +27,18 @@ if [ "$IMAGE_TYPE" = "onie" ]; then
     echo "Build ONIE installer"
     mkdir -p `dirname $OUTPUT_ONIE_IMAGE`
     sudo rm -f $OUTPUT_ONIE_IMAGE
+
+    # Copy platform-specific ONIE installer config files where onie-mk-demo.sh expects them
+    rm -rf ./installer/x86_64/platforms/
+    mkdir -p ./installer/x86_64/platforms/
+    for VENDOR in `ls ./device`; do
+        for PLATFORM in `ls ./device/$VENDOR`; do
+            if [ -f ./device/$VENDOR/$PLATFORM/installer.conf ]; then
+                cp ./device/$VENDOR/$PLATFORM/installer.conf ./installer/x86_64/platforms/$PLATFORM
+            fi
+        done
+    done
+
     ## Generate an ONIE installer image
     ## Note: Don't leave blank between lines. It is single line command.
     ./onie-mk-demo.sh $TARGET_PLATFORM $TARGET_MACHINE $TARGET_PLATFORM-$TARGET_MACHINE-$ONIEIMAGE_VERSION \

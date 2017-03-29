@@ -1,6 +1,5 @@
 # Build system related
 .platform
-.sku
 
 # Build artifacts
 fsroot/
@@ -39,3 +38,5 @@ dockers/docker-base/Dockerfile
 platform/*/docker-syncd-*/Dockerfile
 platform/*/docker-syncd-*-rpc/Dockerfile
 
+# Installer-related files and directories
+installer/x86_64/platforms/
