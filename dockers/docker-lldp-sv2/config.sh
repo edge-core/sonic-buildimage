@@ -5,3 +5,4 @@ sonic-cfggen -m /etc/sonic/minigraph.xml -t /usr/share/sonic/templates/lldpd.con
 mkdir -p /var/sonic
 echo "# Config files managed by sonic-config-engine" >/var/sonic/config_status
 
+rm -f /var/run/rsyslogd.pid

@@ -13,6 +13,7 @@ start_bcm()
 
 trap clean_up SIGTERM SIGKILL
 
+rm -f /var/run/rsyslogd.pid
 service rsyslog start
 
 start_bcm

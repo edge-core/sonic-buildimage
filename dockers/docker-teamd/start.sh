@@ -28,6 +28,7 @@ function clean_up {
 
 trap clean_up SIGTERM SIGKILL
 
+rm -f /var/run/rsyslogd.pid
 service rsyslog start
 
 # Before teamd could automatically add newly created host interfaces into the

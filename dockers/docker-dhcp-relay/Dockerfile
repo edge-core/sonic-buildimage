@@ -18,6 +18,5 @@ COPY ["config.sh", "/usr/bin/"]
 COPY ["start.sh", "/usr/bin/"]
 
 ENTRYPOINT /usr/bin/config.sh \
-    && service rsyslog start  \
     && /usr/bin/start.sh      \
     && /bin/bash

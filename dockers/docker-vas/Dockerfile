@@ -30,7 +30,8 @@ VOLUME /var/opt/quest/vas/vasd/
 VOLUME /home/
 
 ## Delete the symlinks and create full copies to host folder
-ENTRYPOINT service rsyslog start                                                        \
+ENTRYPOINT rm -f /var/run/rsyslogd.pid                                                  \
+    && service rsyslog start                                                            \
     && cp --remove-destination /opt/quest/lib64/nss/libnss_vas4.so.2                    \
                                /host/lib/x86_64-linux-gnu/                              \
     && cp --remove-destination /opt/quest/lib64/security/pam_vas3.so                    \

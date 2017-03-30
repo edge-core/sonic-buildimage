@@ -11,6 +11,7 @@ start_mlnx()
 
 trap clean_up SIGTERM SIGKILL
 
+rm -f /var/run/rsyslogd.pid
 service rsyslog start
 
 start_mlnx

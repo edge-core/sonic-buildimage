@@ -1,5 +1,8 @@
 #!/bin/bash
 
+rm -f /var/run/rsyslogd.pid
+service rsyslog start
+
 VLAN_IFACE_NAME=`sonic-cfggen -m /etc/sonic/minigraph.xml -v "minigraph_vlan_interfaces[0]['name']"`
 
 # Wait for the VLAN to come up (i.e., 'ip link show' returns 0)

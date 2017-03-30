@@ -2,6 +2,7 @@
 
 export XP_ROOT=/usr/bin/
 
+rm -f /var/run/rsyslogd.pid
 service rsyslog start
 
 while true; do

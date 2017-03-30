@@ -17,5 +17,6 @@ RUN dpkg -i /deps/libopennsl_*.deb;         \
 
 RUN mv /deps/basic_router /usr/sbin/basic_router
 
-ENTRYPOINT service rsyslog start    \
+ENTRYPOINT rm -f /var/run/rsyslogd.pid  \
+    && service rsyslog start            \
     && /bin/bash

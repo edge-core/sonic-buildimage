@@ -65,6 +65,7 @@ elif [ "$HWSKU" == "ACS-MSN2700" ]; then
     SWSSCONFIG_ARGS+="msn2700.32ports.buffers.json msn2700.32ports.qos.json "
 fi
 
+rm -f /var/run/rsyslogd.pid
 service rsyslog start
 
 while true; do
