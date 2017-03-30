@@ -10,7 +10,6 @@ ENV PYTHONOPTIMIZE 1
 ENV DEBIAN_FRONTEND=noninteractive
 
 ## Pre-install the fundamental packages
-## Install Python SSWSDK (SNMP subagent dependency)
 ## Install SNMP subagent
 ## Note: dpkg_apt function has the benefit to detect missing .deb file
 ## Clean up

@@ -6,7 +6,8 @@ COPY [ \
 {%- endfor %} \
     "/debs/"]
 
-COPY python-wheels/sswsdk-*-py3-*.whl /python-wheels/
+# Install Python SwSSSDK (SNMP subagent dependency)
+COPY python-wheels/swsssdk-*-py3-*.whl /python-wheels/
 COPY python-wheels/asyncsnmp-*-py3-*.whl /python-wheels/
 
 # enable -O for all Python calls
