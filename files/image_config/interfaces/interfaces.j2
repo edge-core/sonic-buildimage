@@ -37,7 +37,7 @@ iface eth0 inet static
 {% for prefix in forced_mgmt_routes %}
     down ip route delete {{ prefix }} via {{ minigraph_mgmt_interface['gwaddr'] }} dev eth0
 {% endfor %}
-    {# TODO: COPP policy type rules #}
+{# TODO: COPP policy type rules #}
 {% else %}
 iface eth0 inet dhcp
 {% endif %}
@@ -46,53 +46,53 @@ iface eth0 inet dhcp
 {% block front_panel_interfaces %}
 # The switch front panel interfaces
 {% for interface in minigraph_interfaces %}
-auto {{ interface['alias'] }}
-allow-hotplug {{ interface['alias'] }}
-iface {{ interface['alias'] }} {{ 'inet' if interface['addr'] | ipv4 else 'inet6' }} static
+auto {{ interface['attachto'] }}
+allow-hotplug {{ interface['attachto'] }}
+iface {{ interface['attachto'] }} {{ 'inet' if interface['addr'] | ipv4 else 'inet6' }} static
     address {{ interface['addr'] }}
     netmask {{ interface['mask'] }}
 #
 {% endfor %}
-{% for vlan_interface in minigraph_vlan_interfaces|unique_name %}
-{% for interface in vlan_interface['members'] %}
-auto {{ interface }}
-allow-hotplug {{ interface }}
-iface {{ interface }} inet manual
-    pre-up ifconfig {{ interface }} up
-    post-up brctl addif {{ vlan_interface['name'] }} {{ interface }}
-    post-down ifconfig {{ interface }} down
+{% for vlan in minigraph_vlans.keys()|sort %}
+{% for member in minigraph_vlans[vlan]['members'] %}
+auto {{ member }}
+allow-hotplug {{ member }}
+iface {{ member }} inet manual
+    pre-up ifconfig {{ member }} up
+    post-up brctl addif {{ vlan }} {{ member }}
+    post-down ifconfig {{ member }} down
 #
 {% endfor %}
 {% endfor %}
-# Add || true to suppress the error when docker-teamd starts after docker-swss
-{% for pc_interface in minigraph_portchannel_interfaces|unique_name %}
-{% for interface in pc_interface['members'] %}
-{% if pc_interface['name'] not in pc_set %}
-auto {{ interface }}
-allow-hotplug {{ interface }}
-iface {{ interface }} inet manual
-    pre-up teamdctl {{ pc_interface['name'] }} port add {{ interface }} || true
-    post-down ifconfig {{ interface }} down
+# "|| true" is added to suppress the error when docker-teamd starts after docker-swss
+{% for pc in minigraph_portchannels.keys()|sort %}
+{% for member in minigraph_portchannels[pc]['members'] %}
+auto {{ member }}
+allow-hotplug {{ member }}
+iface {{ member }} inet manual
+    pre-up teamdctl {{ pc }} port add {{ member }} || true
+    post-down ifconfig {{ member }} down
 #
-{% endif %}
 {% endfor %}
 {% endfor %}
 {% endblock front_panel_interfaces %}
 {% block vlan_interfaces %}
+# Vlan interfaces
 {% for vlan_interface in minigraph_vlan_interfaces %}
-auto {{ vlan_interface['name'] }}
-iface {{ vlan_interface['name'] }} {{ 'inet' if vlan_interface['addr'] | ipv4 else 'inet6' }} static
+auto {{ vlan_interface['attachto'] }}
+iface {{ vlan_interface['attachto'] }} {{ 'inet' if vlan_interface['addr'] | ipv4 else 'inet6' }} static
     bridge_ports none
     address {{ vlan_interface['addr'] }}
     netmask {{ vlan_interface['mask'] }}
-#
 {% endfor %}
+#
 {% endblock vlan_interfaces %}
 {% block pc_interfaces %}
+# Portchannel interfaces
 {% for pc_interface in minigraph_portchannel_interfaces %}
-auto {{ pc_interface['name'] }}
-allow-hotplug {{ pc_interface['name'] }}
-iface {{ pc_interface['name'] }} {{ 'inet' if pc_interface['addr'] | ipv4 else 'inet6' }} static
+auto {{ pc_interface['attachto'] }}
+allow-hotplug {{ pc_interface['attachto'] }}
+iface {{ pc_interface['attachto'] }} {{ 'inet' if pc_interface['addr'] | ipv4 else 'inet6' }} static
     address {{ pc_interface['addr'] }}
     netmask {{ pc_interface['mask'] }}
 #

@@ -39,11 +39,14 @@ ns1 = "http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolut
 ns2 = "Microsoft.Search.Autopilot.NetMux"
 ns3 = "http://www.w3.org/2001/XMLSchema-instance"
 
+
 class minigraph_encoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, (ipaddress.IPv4Network, ipaddress.IPv6Network, ipaddress.IPv4Address, ipaddress.IPv6Address)):
+        if isinstance(obj,
+                      (ipaddress.IPv4Network, ipaddress.IPv6Network, ipaddress.IPv4Address, ipaddress.IPv6Address)):
             return str(obj)
         return json.JSONEncoder.default(self, obj)
+
 
 def parse_png(png, hname):
     neighbors = {}
@@ -112,7 +115,6 @@ def parse_png(png, hname):
                             elif node.tag == str(QName(ns, "EndDevice")):
                                 mgmt_dev = node.text
 
-
     return (neighbors, devices, console_dev, console_port, mgmt_dev, mgmt_port)
 
 
@@ -124,11 +126,12 @@ def parse_dpg(dpg, hname):
 
         ipintfs = child.find(str(QName(ns, "IPInterfaces")))
         intfs = []
-        intfnames = {}
-        vlan_map = {}
-        pc_map = {}
         for ipintf in ipintfs.findall(str(QName(ns, "IPInterface"))):
-            intfname = ipintf.find(str(QName(ns, "AttachTo"))).text
+            intfalias = ipintf.find(str(QName(ns, "AttachTo"))).text
+            if port_alias_map.has_key(intfalias):
+                intfname = port_alias_map[intfalias]
+            else:
+                intfname = intfalias
             ipprefix = ipintf.find(str(QName(ns, "Prefix"))).text
             ipn = ipaddress.IPNetwork(ipprefix)
             ipaddr = ipn.ip
@@ -142,59 +145,24 @@ def parse_dpg(dpg, hname):
                 intf['mask'] = ipmask
             else:
                 intf['mask'] = str(prefix_len)
+            intf.update({'attachto': intfname, 'prefixlen': int(prefix_len)})
 
-            if intfname[0:4] == "Vlan":
-                if intfname in vlan_map:
-                    vlan_map[intfname].append(intf)
+            # TODO: remove peer_addr after dependency removed
+            ipaddr_val = int(ipn.ip)
+            peer_addr_val = None
+            if int(prefix_len) == addr_bits - 2:
+                if ipaddr_val & 0x3 == 1:
+                    peer_addr_val = ipaddr_val + 1
                 else:
-                    vlan_map[intfname] = [intf]
-            elif intfname[0:11] == "PortChannel":
-                if intfname in pc_map:
-                    pc_map[intfname].append(intf)
+                    peer_addr_val = ipaddr_val - 1
+            elif int(prefix_len) == addr_bits - 1:
+                if ipaddr_val & 0x1 == 0:
+                    peer_addr_val = ipaddr_val + 1
                 else:
-                    pc_map[intfname] = [intf]
-            else:
-                intf.update({'name': intfname, 'prefixlen': int(prefix_len)})
-
-                if port_alias_map.has_key(intfname):
-                    intf['alias'] = port_alias_map[intfname]
-                else:
-                    intf['alias'] = intfname
-
-                # TODO: remove peer_addr after dependency removed
-                ipaddr_val = int(ipn.ip)
-                peer_addr_val = None
-                if int(prefix_len) == addr_bits - 2:
-                    if ipaddr_val & 0x3 == 1:
-                        peer_addr_val = ipaddr_val + 1
-                    else:
-                        peer_addr_val = ipaddr_val - 1
-                elif int(prefix_len) == addr_bits - 1:
-                    if ipaddr_val & 0x1 == 0:
-                        peer_addr_val = ipaddr_val + 1
-                    else:
-                        peer_addr_val = ipaddr_val - 1
-
-                if peer_addr_val is not None:
-                    intf['peer_addr'] = ipaddress.IPAddress(peer_addr_val)
-                intfs.append(intf)
-                intfnames[intf['alias']] = { 'alias': intf['name'] }
-
-        pcintfs = child.find(str(QName(ns, "PortChannelInterfaces")))
-        pc_intfs = []
-        pcs = {}
-        for pcintf in pcintfs.findall(str(QName(ns, "PortChannel"))):
-            pcintfname = pcintf.find(str(QName(ns, "Name"))).text
-            pcintfmbr = pcintf.find(str(QName(ns, "AttachTo"))).text
-            pcmbr_list = pcintfmbr.split(';', 1)
-            for i,member in enumerate(pcmbr_list):
-                if port_alias_map.has_key(member):
-                    pcmbr_list[i] = port_alias_map[member]
-            pc_attributes = {'name': pcintfname, 'members': pcmbr_list}
-            for addrtuple in pc_map.get(pcintfname, []):
-                pc_attributes.update(addrtuple)
-                pc_intfs.append(copy.deepcopy(pc_attributes))
-            pcs[pcintfname] = pc_attributes
+                    peer_addr_val = ipaddr_val - 1
+            if peer_addr_val is not None:
+                intf['peer_addr'] = ipaddress.IPAddress(peer_addr_val)
+            intfs.append(intf)
 
         lointfs = child.find(str(QName(ns, "LoopbackIPInterfaces")))
         lo_intfs = []
@@ -223,6 +191,17 @@ def parse_dpg(dpg, hname):
             gwaddr = ipaddress.IPAddress(int(mgmtipn.network) + 1)
             mgmt_intf = {'addr': ipaddr, 'prefixlen': prefix_len, 'mask': ipmask, 'gwaddr': gwaddr}
 
+        pcintfs = child.find(str(QName(ns, "PortChannelInterfaces")))
+        pc_intfs = []
+        pcs = {}
+        for pcintf in pcintfs.findall(str(QName(ns, "PortChannel"))):
+            pcintfname = pcintf.find(str(QName(ns, "Name"))).text
+            pcintfmbr = pcintf.find(str(QName(ns, "AttachTo"))).text
+            pcmbr_list = pcintfmbr.split(';', 1)
+            for i, member in enumerate(pcmbr_list):
+                pcmbr_list[i] = port_alias_map[member]
+            pcs[pcintfname] = {'name': pcintfname, 'members': pcmbr_list}
+
         vlanintfs = child.find(str(QName(ns, "VlanInterfaces")))
         vlan_intfs = []
         vlans = {}
@@ -231,14 +210,11 @@ def parse_dpg(dpg, hname):
             vlanid = vintf.find(str(QName(ns, "VlanID"))).text
             vintfmbr = vintf.find(str(QName(ns, "AttachTo"))).text
             vmbr_list = vintfmbr.split(';')
-            for i,member in enumerate(vmbr_list):
-                if port_alias_map.has_key(member):
-                    vmbr_list[i] = port_alias_map[member]
+            for i, member in enumerate(vmbr_list):
+                vmbr_list[i] = port_alias_map[member]
             vlan_attributes = {'name': vintfname, 'members': vmbr_list, 'vlanid': vlanid}
-            for addrtuple in vlan_map.get(vintfname, []):
-                vlan_attributes.update(addrtuple)
-                vlan_intfs.append(copy.deepcopy(vlan_attributes))
             vlans[vintfname] = vlan_attributes
+
         aclintfs = child.find(str(QName(ns, "AclInterfaces")))
         acls = {}
         for aclintf in aclintfs.findall(str(QName(ns, "AclInterface"))):
@@ -247,19 +223,18 @@ def parse_dpg(dpg, hname):
             acl_intfs = []
             for member in aclattach:
                 member = member.strip()
-                if port_alias_map.has_key(member):
-                    member = port_alias_map[member]
                 if pcs.has_key(member):
                     acl_intfs.extend(pcs[member]['members'])  # For ACL attaching to port channels, we break them into port channel members
                 elif vlans.has_key(member):
-                    print >> sys.stderr, "Warning: ACL "+aclname+" is attached to a Vlan interface, which is currently not supported"
-                elif intfnames.has_key(member):
-                    acl_intfs.append(member)
+                    print >> sys.stderr, "Warning: ACL " + aclname + " is attached to a Vlan interface, which is currently not supported"
+                elif port_alias_map.has_key(member):
+                    acl_intfs.append(port_alias_map[member])
             if acl_intfs:
                 acls[aclname] = acl_intfs
 
-        return intfs, lo_intfs, mgmt_intf, vlan_intfs, pc_intfs, intfnames, vlans, pcs, acls
+        return intfs, lo_intfs, mgmt_intf, vlans, pcs, acls
     return None, None, None, None, None, None, None, None
+
 
 def parse_cpg(cpg, hname):
     bgp_sessions = []
@@ -297,6 +272,7 @@ def parse_cpg(cpg, hname):
 
     return bgp_sessions, myasn
 
+
 def parse_meta(meta, hname):
     syslog_servers = []
     dhcp_servers = []
@@ -320,6 +296,7 @@ def parse_meta(meta, hname):
                     mgmt_routes = value_group
     return syslog_servers, dhcp_servers, ntp_servers, mgmt_routes
 
+
 def get_console_info(devices, dev, port):
     for k, v in devices.items():
         if k == dev:
@@ -334,6 +311,7 @@ def get_console_info(devices, dev, port):
     })
 
     return ret_val
+
 
 def get_mgmt_info(devices, dev, port):
     for k, v in devices.items():
@@ -350,7 +328,8 @@ def get_mgmt_info(devices, dev, port):
 
     return ret_val
 
-def get_alias_map_list(hwsku, platform=None, port_config_file=None):
+
+def parse_port_config(hwsku, platform=None, port_config_file=None):
     port_config_candidates = []
     if port_config_file != None:
         port_config_candidates.append(port_config_file)
@@ -367,16 +346,23 @@ def get_alias_map_list(hwsku, platform=None, port_config_file=None):
     if port_config == None:
         return None
 
-    alias_map_list = []
+    ports = {}
     with open(port_config) as data:
         for line in data:
             if line.startswith('#'):
                 continue
             tokens = line.split()
-            if len(tokens) < 3:
+            if len(tokens) < 2:
                 continue
-            alias_map_list.append({'sonic': tokens[0], 'origin': tokens[2].strip()})
-    return alias_map_list
+            name = tokens[0].strip()
+            if len(tokens) == 2:
+                alias = name
+            else:
+                alias = tokens[2].strip()
+            ports[name] = {'name': name, 'alias': alias}
+            port_alias_map[alias] = name
+    return ports
+
 
 def parse_xml(filename, platform=None, port_config_file=None):
     root = ET.parse(filename).getroot()
@@ -410,14 +396,11 @@ def parse_xml(filename, platform=None, port_config_file=None):
         if child.tag == str(hostname_qn):
             hostname = child.text
 
-    alias_map_list = get_alias_map_list(hwsku, platform, port_config_file)
-    if alias_map_list != None:
-        for item in alias_map_list:
-            port_alias_map[item['origin']] = item['sonic']
+    ports = parse_port_config(hwsku, platform, port_config_file)
 
     for child in root:
         if child.tag == str(QName(ns, "DpgDec")):
-            (intfs, lo_intfs, mgmt_intf, vlan_intfs, pc_intfs, ports, vlans, pcs, acls) = parse_dpg(child, hostname)
+            (intfs, lo_intfs, mgmt_intf, vlans, pcs, acls) = parse_dpg(child, hostname)
         elif child.tag == str(QName(ns, "CpgDec")):
             (bgp_sessions, bgp_asn) = parse_cpg(child, hostname)
         elif child.tag == str(QName(ns, "PngDec")):
@@ -437,11 +420,24 @@ def parse_xml(filename, platform=None, port_config_file=None):
     results['minigraph_bgp'] = sorted(bgp_sessions, key=lambda x: x['addr'])
     results['minigraph_bgp_asn'] = bgp_asn
     # TODO: sort does not work properly on all interfaces of varying lengths. Need to sort by integer group(s).
-    results['minigraph_interfaces'] = sorted(intfs, key=lambda x: x['name'])
-    results['minigraph_vlan_interfaces'] = vlan_intfs
-    results['minigraph_portchannel_interfaces'] = pc_intfs
-    results['minigraph_vlans'] = vlans
+
+    phyport_intfs = []
+    vlan_intfs = []
+    pc_intfs = []
+    for intf in intfs:
+        intfname = intf['attachto']
+        if intfname[0:4] == 'Vlan':
+            vlan_intfs.append(intf)
+        elif intfname[0:11] == 'PortChannel':
+            pc_intfs.append(intf)
+        else:
+            phyport_intfs.append(intf)
+
+    results['minigraph_interfaces'] = sorted(phyport_intfs, key=lambda x: x['attachto'])
+    results['minigraph_vlan_interfaces'] = sorted(vlan_intfs, key=lambda x: x['attachto'])
+    results['minigraph_portchannel_interfaces'] = sorted(pc_intfs, key=lambda x: x['attachto'])
     results['minigraph_ports'] = ports
+    results['minigraph_vlans'] = vlans
     results['minigraph_portchannels'] = pcs
     results['minigraph_mgmt_interface'] = mgmt_intf
     results['minigraph_lo_interfaces'] = lo_intfs
@@ -460,7 +456,6 @@ def parse_xml(filename, platform=None, port_config_file=None):
     results['dhcp_servers'] = dhcp_servers
     results['ntp_servers'] = ntp_servers
     results['forced_mgmt_routes'] = mgmt_routes
-    results['alias_map'] = alias_map_list
 
     return results
 
@@ -469,5 +464,3 @@ port_alias_map = {}
 def print_parse_xml(filename):
     results = parse_xml(filename)
     print(json.dumps(results, indent=3, cls=minigraph_encoder))
-
-

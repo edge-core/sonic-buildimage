@@ -1,0 +1,5 @@
+{
+{% for member in minigraph_ports.keys() %}
+  "{{member}}": "{{minigraph_ports[member]['alias']}}"
+{% endfor %}
+}

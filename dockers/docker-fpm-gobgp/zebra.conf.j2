@@ -15,7 +15,12 @@ enable password zebra
 {% block interfaces %}
 ! Enable link-detect (default disabled)
 {% for interface in minigraph_interfaces %}
-interface {{ interface['alias'] }}
+interface {{ interface['attachto'] }}
+link-detect
+!
+{% endfor %}
+{% for interface in minigraph_portchannels.keys() %}
+interface {{ interface }}
 link-detect
 !
 {% endfor %}

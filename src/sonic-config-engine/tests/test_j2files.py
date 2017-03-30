@@ -16,6 +16,11 @@ class TestJ2Files(TestCase):
         print 'CMD: sonic-cfggen ' + argument
         return subprocess.check_output(self.script_file + ' ' + argument, shell=True)
 
+    def test_interfaces(self):
+        interfaces_template = os.path.join(self.test_dir, '..', '..', '..', 'files', 'image_config', 'interfaces', 'interfaces.j2')
+        argument = '-m "' + self.t0_minigraph + '" -p "' + self.t0_port_config + '" -t "' + interfaces_template + '"'
+        output = self.run_script(argument) 
+
     def test_teamd(self):
         argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -v "minigraph_portchannels.keys() | join(\' \')"'
         output = self.run_script(argument) # Mock the output via config.sh in docker-teamd
