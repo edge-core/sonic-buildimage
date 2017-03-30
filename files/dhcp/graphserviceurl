@@ -5,8 +5,5 @@ case $reason in
         else
             echo "N/A" > /tmp/dhcp_graph_url
         fi
-        if [ -n "$new_acl_url" ]; then
-            echo $new_acl_url > /tmp/dhcp_acl_url
-        fi
         ;;
 esac
