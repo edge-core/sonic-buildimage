@@ -22,6 +22,10 @@ log facility local4
 router bgp {{ minigraph_bgp_asn }}
   bgp log-neighbor-changes
   bgp bestpath as-path multipath-relax
+{# Advertise graceful restart capability for ToR #}
+{% if minigraph_devices[inventory_hostname]['type'] == 'ToRRouter' %}
+  bgp graceful-restart
+{% endif %}
 {# TODO: use lo[0] for backward compatibility, will revisit the case with multiple lo interfaces #}
   bgp router-id {{ minigraph_lo_interfaces[0]['addr'] }}
 {# advertise loopback #}
