@@ -41,11 +41,13 @@ parse_environment_config() {
 }
 
 extract_image() {
-    ## Clean old directory for read-write layer
-    rm -rf "$target_path/rw"
-
-    ## Clean docker directory
-    rm -rf "$target_path/{{ DOCKERFS_DIR }}"
+    ## Remove all the other unnecssary files except swi file, boot-config
+    for f in $(ls -A $target_path); do
+        if [ $f != "${swipath##*/}" ] && [ $f != "boot-config" ]; then
+            rm -rf "$target_path/$f"
+        fi
+    done
+        
 
     ## Unzip the image
     unzip -oq "$swipath" -x boot0 -d "$target_path"
