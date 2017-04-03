@@ -1,6 +1,6 @@
 # Cavium SAI
 
-CAVM_SAI_GITHUB = https://github.com/XPliant/OpenXPS/raw/d8868c604ef32dd3f254c3ba58b3453d21bc5722/SAI/cavm-sai/
+CAVM_SAI_GITHUB = https://github.com/XPliant/OpenXPS/raw/1b28b78400656114c3b1ce46381e0e8ab3ecd6da/SAI/cavm-sai/
 
 CAVM_LIBSAI = libsai.deb
 CAVM_SAI = sai.deb
