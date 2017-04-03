@@ -12,6 +12,18 @@ function start_app {
     done
 }
 
+function config_acl {
+    if [ -f "/etc/sonic/acl.json" ]; then
+        mkdir -p /etc/swss/config.d/acl
+        rm -rf /etc/swss/config.d/acl/*
+        translate_acl -m /etc/sonic/minigraph.xml -o /etc/swss/config.d/acl /etc/sonic/acl.json
+        for filename in /etc/swss/config.d/acl/*.json; do
+            [ -e "$filename" ] || break
+            swssconfig $filename
+        done
+    fi
+}
+
 function clean_up {
     pkill -9 orchagent
     pkill -9 portsyncd
@@ -61,6 +73,7 @@ while true; do
     result=`echo -en "SELECT 1\nHLEN HIDDEN" | redis-cli | sed -n 2p`
     if [ "$result" != "0" ]; then
         start_app
+        config_acl
         read
     fi
     sleep 1

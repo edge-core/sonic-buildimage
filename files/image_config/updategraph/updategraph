@@ -12,6 +12,8 @@ if [ "$enabled" != "true" ]; then
     exit 0
 fi
 
+ACL_URL=$acl_src
+
 if [ "$src" = "dhcp" ]; then
     while [ ! -f /tmp/dhcp_graph_url ]; do
         echo "Waiting for DHCP response..."
@@ -38,6 +40,18 @@ if [ "$src" = "dhcp" ]; then
         sed -i "/src=/d" /etc/sonic/updategraph.conf
         echo "src=\"$GRAPH_URL\"" >> /etc/sonic/updategraph.conf
     fi
+
+    if [ -f /tmp/dhcp_acl_url ]; then
+        ACL_URL=`sonic-cfggen -t /tmp/dhcp_acl_url -a "{\"hostname\": \"$HOSTNAME\"}"`
+        if [[ ! $ACL_URL =~ $URL_REGEX ]]; then
+            echo "\"$ACL_URL\" is not a valid url. Skipping acl update."
+            ACL_URL=""
+        fi
+        if [ "$dhcp_as_static" = "true" ]; then
+            sed -i "/acl_src=/d" /etc/sonic/updategraph.conf
+            echo "acl_src=\"$ACL_URL\"" >> /etc/sonic/updategraph.conf
+        fi
+    fi
 else
     GRAPH_URL=$src
 fi
@@ -53,3 +67,19 @@ while true; do
     curl -f $GRAPH_URL -o /etc/sonic/minigraph.xml --connect-timeout 15 && break
     sleep 5
 done
+
+if [ -n "$ACL_URL" ]; then
+    if [ -f /etc/sonic/acl.json ]; then
+        echo "Renaming acl.json to acl.json.old"
+        mv /etc/sonic/acl.json /etc/sonic/acl.json.old
+    fi
+    echo "Getting ACL config from $ACL_URL"
+
+    while true; do
+        curl -f $ACL_URL -o /etc/sonic/acl.json --connect-timeout 15 && break
+        sleep 5
+    done
+else
+    echo "Skip ACL config download."
+fi
+

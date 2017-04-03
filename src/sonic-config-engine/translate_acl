@@ -129,7 +129,6 @@ def translate_acl_fixed_port(filename, output_path, port, max_priority):
 
 def translate_acl(filename, output_path, attach_to, max_priority):
     yang_acl = pybindJSON.load(filename, openconfig_acl, "openconfig_acl")
-    print attach_to.keys()
     for aclsetname in yang_acl.acl.acl_sets.acl_set:
         tablename = aclsetname.replace(" ", "_").replace("-", "_")
         if attach_to.has_key(tablename):
@@ -151,7 +150,8 @@ def main():
         translate_acl_fixed_port(args.input, args.output_path, args.port, args.max_priority)
     elif args.minigraph:
         mini_data = parse_xml(args.minigraph)
-        translate_acl(args.input, args.output_path, mini_data['minigraph_acls'], args.max_priority)
+        if mini_data['minigraph_acls']:
+            translate_acl(args.input, args.output_path, mini_data['minigraph_acls'], args.max_priority)
 
 if __name__ == "__main__":
     main()
