@@ -61,13 +61,20 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     python-yaml    \
     python-bitarray
 
-# Install SONiC config engine
-CONFIG_ENGINE_WHL_NAME=`basename {{config_engine}}`
-sudo cp {{config_engine}} $FILESYSTEM_ROOT/$CONFIG_ENGINE_WHL_NAME
-sudo LANG=C chroot $FILESYSTEM_ROOT pip install $CONFIG_ENGINE_WHL_NAME
+# Install SONiC config engine Python package
+CONFIG_ENGINE_WHEEL_NAME=$(basename {{config_engine_wheel_path}})
+sudo cp {{config_engine_wheel_path}} $FILESYSTEM_ROOT/$CONFIG_ENGINE_WHEEL_NAME
+sudo LANG=C chroot $FILESYSTEM_ROOT pip install $CONFIG_ENGINE_WHEEL_NAME
+sudo rm -rf $FILESYSTEM_ROOT/$CONFIG_ENGINE_WHEEL_NAME
 
 # Install Python client for Redis
 sudo LANG=C chroot $FILESYSTEM_ROOT pip install redis
+
+# Install SwSS SDK Python 2 package
+SWSSSDK_PY2_WHEEL_NAME=$(basename {{swsssdk_py2_wheel_path}})
+sudo cp {{swsssdk_py2_wheel_path}} $FILESYSTEM_ROOT/$SWSSSDK_PY2_WHEEL_NAME
+sudo LANG=C chroot $FILESYSTEM_ROOT pip install $SWSSSDK_PY2_WHEEL_NAME
+sudo rm -rf $FILESYSTEM_ROOT/$SWSSSDK_PY2_WHEEL_NAME
 
 # Install SONiC Utilities (and its dependencies via 'apt-get -y install -f')
 sudo dpkg --root=$FILESYSTEM_ROOT -i target/debs/python-sonic-utilities_*.deb || \
@@ -120,7 +127,7 @@ sudo cp $IMAGE_CONFIGS/snmp/snmp.yml $FILESYSTEM_ROOT/etc/sonic/
 
 # Generate build version file
 export git_revision=$(git rev-parse --short HEAD)
-export debian_version=`cat $FILESYSTEM_ROOT/etc/debian_version`
+export debian_version=$(cat $FILESYSTEM_ROOT/etc/debian_version)
 export kernel_version={{kversion}}
 j2 $BUILD_TEMPLATES/sonic_version.yml.j2 > sonic_version.yml
 sudo mv sonic_version.yml $FILESYSTEM_ROOT/etc/sonic/
@@ -162,7 +169,7 @@ sudo dpkg --root=$FILESYSTEM_ROOT -i {{deb}} || sudo LANG=C DEBIAN_FRONTEND=noni
 
 sudo mkdir -p $FILESYSTEM_ROOT/$PLATFORM_DIR/{{dev}}
 sudo cp {{ deb }} $FILESYSTEM_ROOT/$PLATFORM_DIR/{{dev}}/
-for f in `find $FILESYSTEM_ROOT/var/cache/apt/archives -name "*.deb"`; do
+for f in $(find $FILESYSTEM_ROOT/var/cache/apt/archives -name "*.deb"); do
     sudo mv $f $FILESYSTEM_ROOT/$PLATFORM_DIR/{{dev}}/
 done
 
@@ -181,7 +188,7 @@ sudo cp $IMAGE_CONFIGS/platform/rc.local $FILESYSTEM_ROOT/etc/
 sudo LANG=C chroot $FILESYSTEM_ROOT docker load < {{image}}
 {% endfor %}
 sudo chroot $FILESYSTEM_ROOT service docker stop
-{% for script in installer_start_scrips.split(' ') -%}
+{% for script in installer_start_scripts.split(' ') -%}
 sudo cp {{script}} $FILESYSTEM_ROOT/usr/bin/
 {% endfor %}
 {% for service in installer_services.split(' ') -%}
