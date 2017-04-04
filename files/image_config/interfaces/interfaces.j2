@@ -53,29 +53,36 @@ iface {{ interface['attachto'] }} {{ 'inet' if interface['addr'] | ipv4 else 'in
     netmask {{ interface['mask'] }}
 #
 {% endfor %}
+{% if minigraph_vlans.keys() | length %}
+# "|| true" is added to suppress the error when interface is already a member of VLAN
+{% endif %}
 {% for vlan in minigraph_vlans.keys()|sort %}
 {% for member in minigraph_vlans[vlan]['members'] %}
 auto {{ member }}
 allow-hotplug {{ member }}
 iface {{ member }} inet manual
     pre-up ifconfig {{ member }} up
-    post-up brctl addif {{ vlan }} {{ member }}
+    post-up brctl addif {{ vlan }} {{ member }} || true
     post-down ifconfig {{ member }} down
 #
 {% endfor %}
 {% endfor %}
-# "|| true" is added to suppress the error when docker-teamd starts after docker-swss
+{% if minigraph_portchannels.keys() | length %}
+# "|| true" is added to suppress the error when interface is already a member of LAG
+{% endif %}
 {% for pc in minigraph_portchannels.keys()|sort %}
 {% for member in minigraph_portchannels[pc]['members'] %}
 auto {{ member }}
 allow-hotplug {{ member }}
 iface {{ member }} inet manual
     pre-up teamdctl {{ pc }} port add {{ member }} || true
+    post-up ifconfig {{ member }} up
     post-down ifconfig {{ member }} down
 #
 {% endfor %}
 {% endfor %}
 {% endblock front_panel_interfaces %}
+{% if minigraph_vlans.keys() | length %}
 {% block vlan_interfaces %}
 # Vlan interfaces
 {% for vlan_interface in minigraph_vlan_interfaces %}
@@ -87,6 +94,8 @@ iface {{ vlan_interface['attachto'] }} {{ 'inet' if vlan_interface['addr'] | ipv
 {% endfor %}
 #
 {% endblock vlan_interfaces %}
+{% endif %}
+{% if minigraph_portchannels.keys() | length %}
 {% block pc_interfaces %}
 # Portchannel interfaces
 {% for pc_interface in minigraph_portchannel_interfaces %}
@@ -98,3 +107,4 @@ iface {{ pc_interface['attachto'] }} {{ 'inet' if pc_interface['addr'] | ipv4 el
 #
 {% endfor %}
 {% endblock pc_interfaces %}
+{% endif %}
