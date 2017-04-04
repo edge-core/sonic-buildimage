@@ -22,7 +22,6 @@ ExecStartPre=/etc/init.d/sxdkernel start
 ExecStartPre=/usr/bin/mst start
 ExecStartPre=/etc/mlnx/msn2700 start
 {% elif sonic_asic_platform == 'cavium' %}
-ExecStartPre=-/etc/init.d/xpnet.sh stop
 ExecStartPre=/etc/init.d/xpnet.sh start
 {% endif %}
 
