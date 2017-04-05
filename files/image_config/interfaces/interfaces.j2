@@ -76,7 +76,7 @@ auto {{ member }}
 allow-hotplug {{ member }}
 iface {{ member }} inet manual
     pre-up teamdctl {{ pc }} port add {{ member }} || true
-    post-up ifconfig {{ member }} up
+    post-up ip link show {{ pc }} && ifconfig {{ member }} up
     post-down ifconfig {{ member }} down
 #
 {% endfor %}
