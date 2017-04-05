@@ -110,6 +110,10 @@ RUN echo "DOCKER_OPTS=\"--experimental\"" >> /etc/default/docker
 ARG user
 ARG uid
 ARG guid
+ARG hostname
+
+ENV BUILD_HOSTNAME $hostname
+ENV USER $user
 
 RUN groupadd -f -r -g $guid g$user
 

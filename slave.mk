@@ -26,6 +26,7 @@ PROJECT_ROOT = $(shell pwd)
 
 CONFIGURED_PLATFORM := $(shell [ -f .platform ] && cat .platform || echo generic)
 PLATFORM_PATH = platform/$(CONFIGURED_PLATFORM)
+export BUILD_NUMBER
 
 ###############################################################################
 ## Utility rules
@@ -342,7 +343,7 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : .platform
 	)
 
 	./build_debian.sh "$(USERNAME)" "$(shell perl -e 'print crypt("$(PASSWORD)", "salt"),"\n"')" $(LOG)
-	TARGET_MACHINE=$($*_MACHINE) IMAGE_TYPE=$($*_IMAGE_TYPE) DEBUG_BUILD=$(DEBUG_BUILD) ./build_image.sh $(LOG)
+	TARGET_MACHINE=$($*_MACHINE) IMAGE_TYPE=$($*_IMAGE_TYPE) ./build_image.sh $(LOG)
 
 	$(foreach docker, $($*_DOCKERS), \
 		rm -f $($(docker)_CONTAINER_NAME).sh

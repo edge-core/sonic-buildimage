@@ -257,6 +257,17 @@ sudo cp files/dhcp/graphserviceurl $FILESYSTEM_ROOT/etc/dhcp/dhclient-exit-hooks
 sudo cp files/dhcp/snmpcommunity $FILESYSTEM_ROOT/etc/dhcp/dhclient-exit-hooks.d/
 sudo cp files/dhcp/dhclient.conf $FILESYSTEM_ROOT/etc/dhcp/
 
+## Version file
+sudo mkdir -p $FILESYSTEM_ROOT/etc/sonic
+sudo tee $FILESYSTEM_ROOT/etc/sonic/sonic_version.yml > /dev/null <<EOF
+build_version: $(sonic_get_version)
+debian_version: $(cat $FILESYSTEM_ROOT/etc/debian_version)
+kernel_version: $kversion
+asic_type: $sonic_asic_platform
+build_date: $(date -u)
+built_by: $USER@$BUILD_HOSTNAME
+EOF
+
 if [ -f sonic_debian_extension.sh ]; then
     ./sonic_debian_extension.sh $FILESYSTEM_ROOT $PLATFORM_DIR
 fi

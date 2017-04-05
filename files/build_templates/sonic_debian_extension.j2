@@ -125,13 +125,6 @@ sudo bash -c "echo enabled=false > $FILESYSTEM_ROOT/etc/sonic/updategraph.conf"
 # Copy SNMP configuration files
 sudo cp $IMAGE_CONFIGS/snmp/snmp.yml $FILESYSTEM_ROOT/etc/sonic/
 
-# Generate build version file
-export git_revision=$(git rev-parse --short HEAD)
-export debian_version=$(cat $FILESYSTEM_ROOT/etc/debian_version)
-export kernel_version={{kversion}}
-j2 $BUILD_TEMPLATES/sonic_version.yml.j2 > sonic_version.yml
-sudo mv sonic_version.yml $FILESYSTEM_ROOT/etc/sonic/
-
 # Copy sudoers configuration file
 sudo cp $IMAGE_CONFIGS/sudoers/sudoers $FILESYSTEM_ROOT/etc/
 

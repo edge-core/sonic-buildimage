@@ -20,6 +20,7 @@ DOCKER_BUILD = docker build --no-cache \
 	       --build-arg user=$(USER) \
 	       --build-arg uid=$(shell id -u) \
 	       --build-arg guid=$(shell id -g) \
+	       --build-arg hostname=$(shell echo $$HOSTNAME) \
 	       -t $(SLAVE_IMAGE) \
 	       sonic-slave && \
 	       docker tag $(SLAVE_IMAGE):latest $(SLAVE_IMAGE):$(SLAVE_TAG)
@@ -36,7 +37,7 @@ DOCKER_BUILD = docker build --no-cache \
 	    -C sonic \
 	    -f slave.mk \
 	    PLATFORM=$(PLATFORM) \
-	    DEBUG_BUILD=$(DEBUG_BUILD) \
+	    BUILD_NUMBER=$(BUILD_NUMBER) \
 	    ENABLE_DHCP_GRAPH_SERVICE=$(ENABLE_DHCP_GRAPH_SERVICE) \
 	    $@
 

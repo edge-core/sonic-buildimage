@@ -12,16 +12,7 @@
     exit 1
 }
 
-## Retrieval short version of Git revision hash for partition metadata
-if [ -z "$(git status --untracked-files=no -s --ignore-submodules)" ]; then 
-    GIT_REVISION=$(git rev-parse --short HEAD)
-elif [ ! "$DEBUG_BUILD" = "y" ]; then
-    echo "Error: There are local changes not committed to git repo. Cannot get a revision hash for partition metadata."
-    exit 1
-else 
-    echo "Warning: There are local changes not committed to git repo, revision hash won't be tracked. Never deploy this image for other than debugging purpose."
-    GIT_REVISION=$(git rev-parse --short HEAD)"_local_debug"
-fi
+IMAGE_VERSION=$(. functions.sh && sonic_get_version)
 
 if [ "$IMAGE_TYPE" = "onie" ]; then
     echo "Build ONIE installer"
@@ -42,7 +33,7 @@ if [ "$IMAGE_TYPE" = "onie" ]; then
     ## Generate an ONIE installer image
     ## Note: Don't leave blank between lines. It is single line command.
     ./onie-mk-demo.sh $TARGET_PLATFORM $TARGET_MACHINE $TARGET_PLATFORM-$TARGET_MACHINE-$ONIEIMAGE_VERSION \
-          installer platform/$TARGET_MACHINE/platform.conf $OUTPUT_ONIE_IMAGE OS $GIT_REVISION $ONIE_IMAGE_PART_SIZE \
+          installer platform/$TARGET_MACHINE/platform.conf $OUTPUT_ONIE_IMAGE OS $IMAGE_VERSION $ONIE_IMAGE_PART_SIZE \
           $ONIE_INSTALLER_PAYLOAD
 ## Use 'aboot' as target machine category which includes Aboot as bootloader
 elif [ "$IMAGE_TYPE" = "aboot" ]; then
@@ -56,7 +47,7 @@ elif [ "$IMAGE_TYPE" = "aboot" ]; then
     j2 -f env files/Aboot/boot0.j2 ./onie-image.conf > files/Aboot/boot0
     pushd files/Aboot && zip -g $OLDPWD/$OUTPUT_ABOOT_IMAGE boot0; popd
     pushd files/Aboot && zip -g $OLDPWD/$ABOOT_BOOT_IMAGE boot0; popd
-    echo "$GIT_REVISION" >> .imagehash
+    echo "$IMAGE_VERSION" >> .imagehash
     zip -g $OUTPUT_ABOOT_IMAGE .imagehash
     zip -g $ABOOT_BOOT_IMAGE .imagehash
     rm .imagehash
