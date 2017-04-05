@@ -233,7 +233,7 @@ def parse_dpg(dpg, hname):
                 acls[aclname] = acl_intfs
 
         return intfs, lo_intfs, mgmt_intf, vlans, pcs, acls
-    return None, None, None, None, None, None, None, None
+    return None, None, None, None, None, None
 
 
 def parse_cpg(cpg, hname):
