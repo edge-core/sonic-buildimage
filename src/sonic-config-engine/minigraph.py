@@ -73,7 +73,7 @@ def parse_png(png, hname):
                     neighbors[endport] = {'name': startdevice, 'port': startport}
                 else:
                     if port_alias_map.has_key(startport):
-                        endport = port_alias_map[startport]
+                        startport = port_alias_map[startport]
                     neighbors[startport] = {'name': enddevice, 'port': endport}
 
         if child.tag == str(QName(ns, "Devices")):

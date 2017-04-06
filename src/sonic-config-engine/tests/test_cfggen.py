@@ -87,3 +87,7 @@ class TestCfgGen(TestCase):
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "[{'subnet': IPv4Network('10.0.0.56/31'), 'peer_addr': IPv4Address('10.0.0.57'), 'addr': IPv4Address('10.0.0.56'), 'mask': IPv4Address('255.255.255.254'), 'attachto': 'PortChannel01', 'prefixlen': 31}, {'subnet': IPv6Network('fc00::70/126'), 'peer_addr': IPv6Address('fc00::72'), 'addr': IPv6Address('fc00::71'), 'mask': '126', 'attachto': 'PortChannel01', 'prefixlen': 126}]")
 
+    def test_minigraph_neighbors(self):
+        argument = '-m "' + self.sample_graph_t0 + '" -p "' + self.port_config + '" -v minigraph_neighbors'
+        output = self.run_script(argument)
+        self.assertEqual(output.strip(), "{'Ethernet116': {'name': 'ARISTA02T1', 'port': 'Ethernet1/1'}, 'Ethernet124': {'name': 'ARISTA04T1', 'port': 'Ethernet1/1'}, 'Ethernet112': {'name': 'ARISTA01T1', 'port': 'Ethernet1/1'}, 'Ethernet120': {'name': 'ARISTA03T1', 'port': 'Ethernet1/1'}}")
