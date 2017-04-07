@@ -218,9 +218,10 @@ def parse_dpg(dpg, hname):
         aclintfs = child.find(str(QName(ns, "AclInterfaces")))
         acls = {}
         for aclintf in aclintfs.findall(str(QName(ns, "AclInterface"))):
-            aclname = aclintf.find(str(QName(ns, "InAcl"))).text
+            aclname = aclintf.find(str(QName(ns, "InAcl"))).text.lower().replace(" ", "_").replace("-", "_")
             aclattach = aclintf.find(str(QName(ns, "AttachTo"))).text.split(';')
             acl_intfs = []
+            is_mirror = False
             for member in aclattach:
                 member = member.strip()
                 if pcs.has_key(member):
@@ -229,9 +230,13 @@ def parse_dpg(dpg, hname):
                     print >> sys.stderr, "Warning: ACL " + aclname + " is attached to a Vlan interface, which is currently not supported"
                 elif port_alias_map.has_key(member):
                     acl_intfs.append(port_alias_map[member])
+                elif member.lower() == 'erspan':
+                    is_mirror = True;
+                    # Erspan session will be attached to all front panel ports
+                    acl_intfs = port_alias_map.values()
+                    break;
             if acl_intfs:
-                acls[aclname] = acl_intfs
-
+                acls[aclname] = { 'AttachTo': acl_intfs, 'IsMirror': is_mirror }
         return intfs, lo_intfs, mgmt_intf, vlans, pcs, acls
     return None, None, None, None, None, None
 

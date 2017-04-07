@@ -1,1 +1,1 @@
-recursive-include tests *.j2 *.yml *.xml
+recursive-include tests *.j2 *.yml *.xml *.json

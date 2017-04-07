@@ -1,0 +1,29 @@
+[
+    {
+        "ACL_RULE_TABLE:dataacl:Rule_1":{
+            "IP_PROTOCOL":17,
+            "PACKET_ACTION":"FORWARD",
+            "SRC_IP":"10.0.0.0/8",
+            "priority":9999
+        },
+        "OP":"SET"
+    },
+    {
+        "ACL_RULE_TABLE:dataacl:Rule_3":{
+            "IP_PROTOCOL":17,
+            "PACKET_ACTION":"FORWARD",
+            "SRC_IP":"25.0.0.0/8",
+            "priority":9997
+        },
+        "OP":"SET"
+    },
+    {
+        "ACL_RULE_TABLE:dataacl:Rule_2":{
+            "IP_PROTOCOL":17,
+            "PACKET_ACTION":"FORWARD",
+            "SRC_IP":"100.64.0.0/10",
+            "priority":9998
+        },
+        "OP":"SET"
+    }
+]

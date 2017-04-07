@@ -1,0 +1,14 @@
+[
+    {
+        "ACL_RULE_TABLE:everflow:Rule_1":{
+            "DST_IP":"127.0.0.1/32",
+            "IP_PROTOCOL":6,
+            "L4_DST_PORT":0,
+            "L4_SRC_PORT":0,
+            "MIRROR_ACTION":"everflow",
+            "SRC_IP":"127.0.0.1/32",
+            "priority":9999
+        },
+        "OP":"SET"
+    }
+]

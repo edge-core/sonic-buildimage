@@ -1,0 +1,10 @@
+[
+    {
+        "ACL_TABLE:dataacl":{
+            "policy_desc":"dataacl",
+            "ports":"Ethernet112,Ethernet116,Ethernet120,Ethernet124",
+            "type":"L3"
+        },
+        "OP":"SET"
+    }
+]

@@ -91,6 +91,7 @@ RUN apt-get update && apt-get install -y docutils-common libjs-sphinxdoc libjs-u
 
 # For sonic config engine testing
 RUN apt-get install -y python-lxml python-jinja2 python-netaddr python-ipaddr python-yaml 
+RUN pip install pyangbind
 
 # For templating
 RUN pip install j2cli
