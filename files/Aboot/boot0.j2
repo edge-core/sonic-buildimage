@@ -47,7 +47,6 @@ extract_image() {
             rm -rf "$target_path/$f"
         fi
     done
-        
 
     ## Unzip the image
     unzip -oq "$swipath" -x boot0 -d "$target_path"
@@ -102,6 +101,8 @@ platform_specific() {
     if [ "$platform" = "raven" ]; then
         aboot_machine=arista_7050_qx32
         echo "modprobe.blacklist=radeon" >>/tmp/append
+        # set varlog size to 100MB
+        echo "varlog_size=100" >>/tmp/append
     fi
     if [ "$platform" = "crow" ]; then
         aboot_machine=arista_7050_qx32s
