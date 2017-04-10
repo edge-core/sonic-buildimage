@@ -53,6 +53,7 @@ docker_try_rmi() {
 sonic_get_version() {
     local describe=$(git describe --tags)
     local latest_tag=$(git describe --tags --abbrev=0)
+    local branch_name=$(git rev-parse --abbrev-ref HEAD)
     if [ -n "$(git status --untracked-files=no -s --ignore-submodules)" ]; then
         local dirty="-dirty"
     fi
@@ -61,6 +62,6 @@ sonic_get_version() {
     if [ "$describe" == "$latest_tag" ]; then
         echo "${latest_tag}${dirty}"
     else
-        echo "${latest_tag}.${BUILD_NUMBER}${dirty:--$(git rev-parse --short HEAD)}"
+        echo "${branch_name}.${BUILD_NUMBER}${dirty:--$(git rev-parse --short HEAD)}"
     fi
 }
