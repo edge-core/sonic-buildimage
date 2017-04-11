@@ -47,7 +47,6 @@ class minigraph_encoder(json.JSONEncoder):
             return str(obj)
         return json.JSONEncoder.default(self, obj)
 
-
 def parse_png(png, hname):
     neighbors = {}
     devices = {}

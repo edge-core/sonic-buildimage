@@ -7,9 +7,10 @@ import yaml
 import jinja2
 import netaddr
 import json
-from minigraph import parse_xml
 from minigraph import minigraph_encoder
-
+from minigraph import parse_xml
+from sonic_platform import get_machine_info
+from sonic_platform import get_platform_info
 
 def is_ipv4(value):
     if not value:
@@ -44,19 +45,6 @@ def unique_name(l):
             new_list.append(item)
     return new_list
 
-def get_machine_info():
-    if not os.path.isfile('/host/machine.conf'):
-        return None
-    machine_vars = {}
-    with open('/host/machine.conf') as machine_file:
-        for line in machine_file:
-            tokens = line.split('=')
-            if len(tokens) < 2:
-                continue
-            machine_vars[tokens[0]] = tokens[1].strip()
-    return machine_vars    
-
-
 def main():
     parser=argparse.ArgumentParser(description="Render configuration file from minigraph data and jinja2 template.")
     parser.add_argument("-m", "--minigraph", help="minigraph xml file")
@@ -74,10 +62,9 @@ def main():
     machine_info = get_machine_info()
     if machine_info != None:
         data.update(machine_info)
-        if machine_info.has_key('onie_platform'):
-            data['platform'] = machine_info['onie_platform']
-        elif machine_info.has_key('aboot_platform'):
-            data['platform'] = machine_info['aboot_platform']
+        platform_info = get_platform_info(machine_info)
+        if platform_info != None:
+            data['platform'] = platform_info
 
     if args.minigraph != None:
         minigraph = args.minigraph
