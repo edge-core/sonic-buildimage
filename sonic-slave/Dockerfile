@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install -y libreadline-dev texlive-latex-base texl
 RUN apt-get install -y cdbs
 
 # For SAI meta build
-RUN apt-get update && apt-get install -y libxml-simple-perl graphviz
+RUN apt-get update && apt-get install -y libxml-simple-perl graphviz aspell
 
 # For linux build
 RUN apt-get update && apt-get install -y bc fakeroot build-essential devscripts quilt stgit
