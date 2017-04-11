@@ -10,6 +10,7 @@ class TestCfgGen(TestCase):
         self.sample_graph = os.path.join(self.test_dir, 'sample_graph.xml')
         self.sample_graph_t0 = os.path.join(self.test_dir, 't0-sample-graph.xml')
         self.sample_graph_simple = os.path.join(self.test_dir, 'simple-sample-graph.xml')
+        self.sample_graph_pc_test = os.path.join(self.test_dir, 'pc-test-graph.xml')
         self.port_config = os.path.join(self.test_dir, 't0-sample-port-config.ini')
 
     def run_script(self, argument):
@@ -82,7 +83,12 @@ class TestCfgGen(TestCase):
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "{'PortChannel01': {'name': 'PortChannel01', 'members': ['Ethernet4']}}")
 
-    def test_minigraph_portchannels(self):
+    def test_minigraph_portchannels_more_member(self):
+        argument = '-m "' + self.sample_graph_pc_test + '" -p "' + self.port_config + '" -v minigraph_portchannels'
+        output = self.run_script(argument)
+        self.assertEqual(output.strip(), "{'PortChannel01': {'name': 'PortChannel01', 'members': ['Ethernet112', 'Ethernet116', 'Ethernet120', 'Ethernet124']}}")
+
+    def test_minigraph_portchannel_interfaces(self):
         argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v minigraph_portchannel_interfaces'
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "[{'subnet': IPv4Network('10.0.0.56/31'), 'peer_addr': IPv4Address('10.0.0.57'), 'addr': IPv4Address('10.0.0.56'), 'mask': IPv4Address('255.255.255.254'), 'attachto': 'PortChannel01', 'prefixlen': 31}, {'subnet': IPv6Network('fc00::70/126'), 'peer_addr': IPv6Address('fc00::72'), 'addr': IPv6Address('fc00::71'), 'mask': '126', 'attachto': 'PortChannel01', 'prefixlen': 126}]")

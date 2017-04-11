@@ -197,7 +197,7 @@ def parse_dpg(dpg, hname):
         for pcintf in pcintfs.findall(str(QName(ns, "PortChannel"))):
             pcintfname = pcintf.find(str(QName(ns, "Name"))).text
             pcintfmbr = pcintf.find(str(QName(ns, "AttachTo"))).text
-            pcmbr_list = pcintfmbr.split(';', 1)
+            pcmbr_list = pcintfmbr.split(';')
             for i, member in enumerate(pcmbr_list):
                 pcmbr_list[i] = port_alias_map[member]
             pcs[pcintfname] = {'name': pcintfname, 'members': pcmbr_list}
