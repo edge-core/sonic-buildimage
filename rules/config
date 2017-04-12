@@ -26,11 +26,11 @@ SONIC_CONFIG_LOG_TO_FILES = y
 # Comment next line to disable:
 # SONIC_CONFIG_ENABLE_COLORS = y
 
-# USERNAME - username for installer build
-USERNAME = admin
+# DEFAULT_USERNAME - default username for installer build
+DEFAULT_USERNAME = admin
 
-# PASSWORD - password for installer build
-PASSWORD = YourPaSsWoRd
+# DEFAULT_PASSWORD - default password for installer build
+DEFAULT_PASSWORD = YourPaSsWoRd
 
 # ENABLE_DHCP_GRAPH_SERVICE - specify the source of minigraph to generate configuration file.
 # If set to y SONiC will get the minigraph from graph service. Graph service URL need to be 

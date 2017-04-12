@@ -59,6 +59,14 @@ ifneq ($(CONFIGURED_PLATFORM), undefined)
 include $(PLATFORM_PATH)/rules.mk
 endif
 
+ifeq ($(USERNAME),)
+override USERNAME := $(DEFAULT_USERNAME)
+endif
+
+ifeq ($(PASSWORD),)
+override PASSWORD := $(DEFAULT_PASSWORD)
+endif
+
 MAKEFLAGS += -j $(SONIC_CONFIG_BUILD_JOBS)
 
 ###############################################################################
