@@ -69,6 +69,7 @@ iface {{ member }} inet manual
 {% endfor %}
 {% if minigraph_portchannels.keys() | length %}
 # "|| true" is added to suppress the error when interface is already a member of LAG
+# "ip link show | grep -q master" is added to ensure interface is enslaved
 {% endif %}
 {% for pc in minigraph_portchannels.keys()|sort %}
 {% for member in minigraph_portchannels[pc]['members'] %}
@@ -76,7 +77,7 @@ auto {{ member }}
 allow-hotplug {{ member }}
 iface {{ member }} inet manual
     pre-up teamdctl {{ pc }} port add {{ member }} || true
-    post-up ip link show {{ pc }} && ifconfig {{ member }} up
+    post-up ip link show {{ member }} | grep -q master && ifconfig {{ member }} up
     post-down ifconfig {{ member }} down
 #
 {% endfor %}
