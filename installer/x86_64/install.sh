@@ -199,14 +199,14 @@ create_demo_gpt_partition()
     fi
     sgdisk --new=${demo_part}::+${demo_part_size}MB \
         --attributes=${demo_part}:=:$attr_bitmask \
-        --change-name=${demo_part}:$demo_volume_revision_label $blk_dev \
+        --change-name=${demo_part}:$demo_volume_label $blk_dev \
     || {
         echo "Warning: The first trial of creating partition failed, trying the largest aligned available block of sectors on the disk"
         begin=$(sgdisk -F $blk_dev)
         end=$(sgdisk -E $blk_dev)
         sgdisk --new=${demo_part}:$begin:$end \
             --attributes=${demo_part}:=:$attr_bitmask \
-            --change-name=${demo_part}:$demo_volume_revision_label $blk_dev
+            --change-name=${demo_part}:$demo_volume_label $blk_dev
     } || {
         echo "Error: Unable to create partition $demo_part on $blk_dev"
         exit 1
@@ -385,7 +385,7 @@ eval $create_demo_partition $blk_dev
 demo_dev=$(echo $blk_dev | sed -e 's/\(mmcblk[0-9]\)/\1p/')$demo_part
 
 # Make filesystem
-mkfs.ext4 -L $demo_volume_revision_label $demo_dev
+mkfs.ext4 -L $demo_volume_label $demo_dev
 
 # Mount demo filesystem
 demo_mnt=$(${onie_bin} mktemp -d) || {
@@ -488,7 +488,7 @@ fi
 demo_grub_entry="$demo_volume_revision_label"
 cat <<EOF >> $grub_cfg
 menuentry '$demo_grub_entry' {
-        search --no-floppy --label --set=root $demo_volume_revision_label
+        search --no-floppy --label --set=root $demo_volume_label
         echo    'Loading $demo_volume_revision_label $demo_type kernel ...'
         insmod gzio
         if [ x$grub_platform = xxen ]; then insmod xzio; insmod lzopio; fi
