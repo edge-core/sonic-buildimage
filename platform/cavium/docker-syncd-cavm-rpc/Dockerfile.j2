@@ -1,10 +1,10 @@
-FROM docker-syncd-brcm
+FROM docker-syncd-cavm
 
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
 COPY \
-{% for deb in docker_syncd_brcm_rpc_debs.split(' ') -%}
+{% for deb in docker_syncd_cavm_rpc_debs.split(' ') -%}
 debs/{{ deb }}{{' '}}
 {%- endfor -%}
 debs/
@@ -12,7 +12,7 @@ debs/
 RUN dpkg -P syncd
 
 RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; } ; \
-{% for deb in docker_syncd_brcm_rpc_debs.split(' ') -%}
+{% for deb in docker_syncd_cavm_rpc_debs.split(' ') -%}
 dpkg_apt debs/{{ deb }}{{'; '}}
 {%- endfor %}
 

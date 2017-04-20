@@ -15,7 +15,7 @@ SONIC_ALL += $(SONIC_ONE_IMAGE) \
              $(DOCKER_SYNCD_MLNX_RPC)
 
 # Inject mlnx sai into sairedis
-$(LIBSAIREDIS)_DEPENDS += $(MLNX_SAI)
+$(LIBSAIREDIS)_DEPENDS += $(MLNX_SAI) $(LIBSAITHRIFT_DEV_MLNX)
 
 # Runtime dependency on mlnx sai is set only for syncd
 $(SYNCD)_RDEPENDS += $(MLNX_SAI)

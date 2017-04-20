@@ -45,7 +45,7 @@ RUN apt-get update \
  && cd /opt             \
  && wget https://raw.githubusercontent.com/p4lang/ptf/master/ptf_nn/ptf_nn_agent.py \
  && apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y \
- && rm -rf /deps
+ && rm -rf /root/deps
 
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY ptf_nn_agent.conf /etc/supervisor/conf.d/ptf_nn_agent.conf

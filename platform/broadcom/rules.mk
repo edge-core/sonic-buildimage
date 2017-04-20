@@ -25,7 +25,7 @@ SONIC_ALL += $(SONIC_ONE_IMAGE) $(SONIC_ONE_ABOOT_IMAGE) \
              $(DOCKER_SYNCD_BRCM_RPC)
 
 # Inject brcm sai into sairedis
-$(LIBSAIREDIS)_DEPENDS += $(BRCM_OPENNSL) $(BRCM_SAI) $(BRCM_SAI_DEV)
+$(LIBSAIREDIS)_DEPENDS += $(BRCM_OPENNSL) $(BRCM_SAI) $(BRCM_SAI_DEV) $(LIBSAITHRIFT_DEV_BRCM)
 
 # Runtime dependency on brcm sai is set only for syncd
 $(SYNCD)_RDEPENDS += $(BRCM_OPENNSL) $(BRCM_SAI)
