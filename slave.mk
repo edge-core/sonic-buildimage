@@ -70,6 +70,18 @@ endif
 MAKEFLAGS += -j $(SONIC_CONFIG_BUILD_JOBS)
 
 ###############################################################################
+## Dumping key config attributes associated to current building exercise
+###############################################################################
+
+ifndef $(CONFIGURED_PLATFORM)
+$(info CONFIGURED_PLATFORM is $(CONFIGURED_PLATFORM))
+endif
+
+ifndef $(SONIC_ROUTING_STACK)
+$(info ROUTING_STACK is $(SONIC_ROUTING_STACK))
+endif
+
+###############################################################################
 ## Generic rules section
 ## All rules must go after includes for propper targets expansion
 ###############################################################################

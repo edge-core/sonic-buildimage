@@ -55,6 +55,14 @@ RUN apt-get clean && apt-get update && apt-get install -y \
         libpcre3-dev \
         gawk \
         chrpath \
+# For frr build
+        libc-ares-dev \
+        hardening-wrapper \
+        libsnmp-dev \
+        libjson0 \
+        libjson0-dev \
+        libsystemd-dev \
+        python-ipaddr \
 # For libnl3 (local) build
         cdbs \
 # For SAI meta build
