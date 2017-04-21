@@ -1,0 +1,43 @@
+/var/log/syslog
+/var/log/quagga/*.log
+/var/log/teamd.log
+{
+    rotate 7
+# Removed 'daily' interval, as we now call logrotate more frequently via cron
+# and we want to check these logs every time
+#    daily
+    size 100M
+    missingok
+    notifempty
+    compress
+    delaycompress
+    postrotate
+        invoke-rc.d rsyslog rotate > /dev/null
+    endscript
+}
+/var/log/mail.info
+/var/log/mail.warn
+/var/log/mail.err
+/var/log/mail.log
+/var/log/daemon.log
+/var/log/kern.log
+/var/log/auth.log
+/var/log/user.log
+/var/log/lpr.log
+/var/log/cron.log
+/var/log/debug
+/var/log/messages
+{
+    rotate 4
+    weekly
+    size 100M
+    missingok
+    notifempty
+    compress
+    delaycompress
+    sharedscripts
+    postrotate
+        invoke-rc.d rsyslog rotate > /dev/null
+    endscript
+}
+
