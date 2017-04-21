@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export platform=`sonic-cfggen -m /etc/sonic/minigraph.xml -v platform`
+
 function start_app {
     orchagent $ORCHAGENT_ARGS &
     portsyncd $PORTSYNCD_ARGS &
