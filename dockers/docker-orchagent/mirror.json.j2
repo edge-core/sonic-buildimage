@@ -1,0 +1,21 @@
+[
+{% if erspan_dst %}
+    {
+        "MIRROR_SESSION_TABLE:everflow": {
+            "src_ip": "{{ minigraph_lo_interfaces[0]['addr'] }}",
+            "dst_ip": "{{ erspan_dst[0] }}",
+{% if minigraph_hwsku in [ 'ACS-MSN2700', 'ACS-MSN2410', 'ACS-MSN2100' ] %}
+            "gre_type": "0x6558",
+            "queue": "1",
+{% else %}
+            "gre_type": "0x88be",
+            "queue": "0",
+{% endif %}
+            "dscp": "8",
+            "ttl": "255"
+        },
+        "OP": "SET"
+    }
+{% endif %}
+]
+

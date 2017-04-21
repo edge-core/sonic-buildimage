@@ -46,6 +46,25 @@ class TestJ2Files(TestCase):
             assert pc_name in pc_list
             test_render_teamd(self, pc_name)
 
+    def test_ipinip(self):
+        ipinip_file = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-orchagent', 'ipinip.json.j2')
+        argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -t ' + ipinip_file + ' > ' + self.output_file
+        self.run_script(argument)
+
+        sample_output_file = os.path.join(self.test_dir, 'sample_output', 'ipinip.json')
+
+        assert filecmp.cmp(sample_output_file, self.output_file)
+
+    def test_everflow(self):
+        everflow_file = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-orchagent', 'mirror.json.j2')
+        argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -t ' + everflow_file + ' > ' + self.output_file
+        self.run_script(argument)
+
+        sample_output_file = os.path.join(self.test_dir, 'sample_output', 'mirror.json')
+
+        assert filecmp.cmp(sample_output_file, self.output_file)
+
+
     def tearDown(self):
         try:
             os.remove(self.output_file)

@@ -23,6 +23,9 @@ debs/{{ deb }}{{' '}}
 {%- endfor %}
 
 COPY start.sh /usr/bin/start.sh
+COPY config.sh /usr/bin/config.sh
+COPY ipinip.json.j2 /usr/share/sonic/templates/ipinip.json.j2
+COPY mirror.json.j2 /usr/share/sonic/templates/mirror.json.j2
 
 ## Clean up
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
