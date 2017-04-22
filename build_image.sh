@@ -45,6 +45,7 @@ elif [ "$IMAGE_TYPE" = "aboot" ]; then
     cp $ONIE_INSTALLER_PAYLOAD $OUTPUT_ABOOT_IMAGE
     ## Add Aboot boot0 file
     j2 -f env files/Aboot/boot0.j2 ./onie-image.conf > files/Aboot/boot0
+    sed -i -e "s/%%IMAGE_VERSION%%/$IMAGE_VERSION/g" files/Aboot/boot0
     pushd files/Aboot && zip -g $OLDPWD/$OUTPUT_ABOOT_IMAGE boot0; popd
     pushd files/Aboot && zip -g $OLDPWD/$ABOOT_BOOT_IMAGE boot0; popd
     echo "$IMAGE_VERSION" >> .imagehash

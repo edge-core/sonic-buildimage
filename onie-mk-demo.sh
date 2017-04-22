@@ -12,7 +12,7 @@ installer_dir=$4
 platform_conf=$5
 output_file=$6
 demo_type=$7
-git_revision=$8
+image_version=$8
 onie_image_part_size=$9
 
 shift 9
@@ -29,7 +29,7 @@ if  [ ! -d $installer_dir/$arch ] || \
     exit 1
 fi
 
-[ -n "$git_revision" ] || {
+[ -n "$image_version" ] || {
     echo "Error: Invalid git revisions"
     exit 1
 }
@@ -85,7 +85,7 @@ EXTRA_CMDLINE_LINUX=`echo $EXTRA_CMDLINE_LINUX | sed -e 's/[\/&]/\\\&/g'`
 
 # Tailor the demo installer for OS mode or DIAG mode
 sed -i -e "s/%%DEMO_TYPE%%/$demo_type/g" \
-       -e "s/%%GIT_REVISION%%/$git_revision/g" \
+       -e "s/%%IMAGE_VERSION%%/$image_version/g" \
        -e "s/%%ONIE_IMAGE_PART_SIZE%%/$onie_image_part_size/" \
        -e "s/%%EXTRA_CMDLINE_LINUX%%/$EXTRA_CMDLINE_LINUX/" \
     $tmp_installdir/install.sh || clean_up 1

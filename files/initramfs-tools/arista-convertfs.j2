@@ -116,6 +116,10 @@ for x in "$@"; do
             ;;
         varlog_size=*)
             varlog_size="${x#varlog_size=}"
+            ;;
+        image_dir=*)
+            x1="${x#loop=}"
+            image_dir="${x1%/*}"
     esac
 done
 root_dev="$ROOT"
@@ -191,7 +195,7 @@ cmd="mount -t ext4 $root_dev $root_mnt"
 run_cmd "$cmd" "$err_msg"
 
 err_msg="Error: extract docker directory"
-cmd="[ -f $tmp_mnt/{{ FILESYSTEM_DOCKERFS }} ] && rm -rf $root_mnt/{{ DOCKERFS_DIR }} && mkdir $root_mnt/{{ DOCKERFS_DIR }} && tar xzf $tmp_mnt/{{ FILESYSTEM_DOCKERFS }} -C $root_mnt/{{ DOCKERFS_DIR }} && rm -f $tmp_mnt/{{ FILESYSTEM_DOCKERFS }}"
+cmd="[ -f $tmp_mnt/$image_dir/{{ FILESYSTEM_DOCKERFS }} ] && rm -rf $root_mnt/$image_dir/{{ DOCKERFS_DIR }} && mkdir -p $root_mnt/$image_dir/{{ DOCKERFS_DIR }} && tar xzf $tmp_mnt/$image_dir/{{ FILESYSTEM_DOCKERFS }} -C $root_mnt/$image_dir/{{ DOCKERFS_DIR }} && rm -f $tmp_mnt/$image_dir/{{ FILESYSTEM_DOCKERFS }}"
 run_cmd "$cmd" "$err_msg"
 
 err_msg="Error: copying files form $tmp_mnt to $root_mnt failed"
