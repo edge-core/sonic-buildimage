@@ -117,7 +117,7 @@ for x in "$@"; do
         varlog_size=*)
             varlog_size="${x#varlog_size=}"
             ;;
-        image_dir=*)
+        loop=*)
             x1="${x#loop=}"
             image_dir="${x1%/*}"
     esac
