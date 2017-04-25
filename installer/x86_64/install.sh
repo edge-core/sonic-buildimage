@@ -489,10 +489,13 @@ set timeout=5
 
 EOF
 
-# Add the logic to support grub-reboot
+# Add the logic to support grub-reboot and grub-set-default
 cat <<EOF >> $grub_cfg
 if [ -s \$prefix/grubenv ]; then
   load_env
+fi
+if [ "\${saved_entry}" ] ; then
+   set default="\${saved_entry}"
 fi
 if [ "\${next_entry}" ] ; then
    set default="\${next_entry}"
