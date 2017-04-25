@@ -69,6 +69,7 @@ sudo rm -rf $FILESYSTEM_ROOT/$CONFIG_ENGINE_WHEEL_NAME
 
 # Install Python client for Redis
 sudo LANG=C chroot $FILESYSTEM_ROOT pip install redis
+sudo LANG=C chroot $FILESYSTEM_ROOT pip install redis-dump-load
 
 # Install SwSS SDK Python 2 package
 SWSSSDK_PY2_WHEEL_NAME=$(basename {{swsssdk_py2_wheel_path}})
