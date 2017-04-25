@@ -3,16 +3,18 @@
 /var/log/teamd.log
 {
     rotate 7
-# Removed 'daily' interval, as we now call logrotate more frequently via cron
-# and we want to check these logs every time
-#    daily
-    size 100M
+    daily
+    maxsize 100M
     missingok
     notifempty
     compress
     delaycompress
     postrotate
-        invoke-rc.d rsyslog rotate > /dev/null
+        # Calling kill directly instead of 'service rsyslog rotate >/dev/null' due
+        # to bug in init-system-helpers. Bug has apparently been fixed in v1.47.
+        # However, Debian Jessie is still using v1.22.
+        # See https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=672218
+        kill -HUP $(cat /var/run/rsyslogd.pid)
     endscript
 }
 /var/log/mail.info
@@ -30,14 +32,18 @@
 {
     rotate 4
     weekly
-    size 100M
+    maxsize 100M
     missingok
     notifempty
     compress
     delaycompress
     sharedscripts
     postrotate
-        invoke-rc.d rsyslog rotate > /dev/null
+        # Calling kill directly instead of 'service rsyslog rotate >/dev/null' due
+        # to bug in init-system-helpers. Bug has apparently been fixed in v1.47.
+        # However, Debian Jessie is still using v1.22.
+        # See https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=672218
+        kill -HUP $(cat /var/run/rsyslogd.pid)
     endscript
 }
 
