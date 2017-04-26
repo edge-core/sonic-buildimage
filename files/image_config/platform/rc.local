@@ -29,7 +29,12 @@ if [ -f /host/image-$sonic_version/platform/firsttime ]; then
         exit 0
     fi
 
-    cp /usr/share/sonic/device/$platform/minigraph.xml /etc/sonic/
+    # Try to take minigraph saved during installation
+    if [ -f /host/minigraph.xml ]; then
+        mv /host/minigraph.xml /etc/sonic/
+    else
+        cp /usr/share/sonic/device/$platform/minigraph.xml /etc/sonic/
+    fi
 
     if [ -d /host/image-$sonic_version/platform/$platform ]; then
         dpkg -i /host/image-$sonic_version/platform/$platform/*.deb
