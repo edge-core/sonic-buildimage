@@ -11,3 +11,8 @@ SONIC_DPKG_DEBS += $(LIBSWSSCOMMON)
 
 LIBSWSSCOMMON_DEV = libswsscommon-dev_1.0.0_amd64.deb
 $(eval $(call add_derived_package,$(LIBSWSSCOMMON),$(LIBSWSSCOMMON_DEV)))
+
+LIBSWSSCOMMON_DBG = libswsscommon-dbg_1.0.0_amd64.deb
+$(LIBSWSSCOMMON_DBG)_DEPENDS += $(LIBSWSSCOMMON)
+$(LIBSWSSCOMMON_DBG)_RDEPENDS += $(LIBSWSSCOMMON)
+$(eval $(call add_derived_package,$(LIBSWSSCOMMON),$(LIBSWSSCOMMON_DBG)))
