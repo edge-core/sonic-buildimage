@@ -11,6 +11,9 @@ start() {
     else
 
         docker run -d {{docker_image_run_opt}} \
+{%- if '--log-driver=json-file' in docker_image_run_opt or '--log-driver' not in docker_image_run_opt %}
+            --log-opt max-size=2M --log-opt max-file=5 \
+{%- endif %}
             -v /var/run/redis:/var/run/redis:rw \
             -v /usr/share/sonic/device/$PLATFORM:/usr/share/sonic/platform:ro \
             -v /usr/share/sonic/device/$PLATFORM/$HWSKU:/usr/share/sonic/hwsku:ro \
