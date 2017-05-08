@@ -18,7 +18,8 @@ RUN dpkg -i \
 debs/{{ deb }}{{' '}}
 {%- endfor %}
 
-COPY ["start.sh", "/usr/bin/"]
+COPY ["start.sh", "syncd.sh", "/usr/bin/"]
+COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 
 COPY ["profile.ini", "/etc/ssw/AS7512/"]
 
@@ -26,5 +27,4 @@ COPY ["profile.ini", "/etc/ssw/AS7512/"]
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /debs
 
-ENTRYPOINT ["/bin/bash"]
-CMD ["/usr/bin/start.sh"]
+ENTRYPOINT ["/usr/bin/supervisord"]

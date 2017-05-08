@@ -19,11 +19,12 @@ debs/{{ deb }}{{' '}}
 ## TODO: add kmod into Depends
 RUN apt-get install -f kmod
 
-COPY ["start.sh", "/usr/bin/"]
+COPY ["start.sh", "syncd.sh", "/usr/bin/"]
+COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 
 ## Clean up
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /debs
 
-ENTRYPOINT ["/bin/bash"]
-CMD ["/usr/bin/start.sh"]
+ENTRYPOINT ["/usr/bin/supervisord"]
+

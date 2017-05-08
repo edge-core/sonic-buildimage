@@ -22,10 +22,10 @@ debs/{{ deb }}{{' '}}
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /debs
 
+COPY ["start.sh", "/usr/bin/"]
+COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 COPY ["*.j2", "/usr/share/sonic/templates/"]
-COPY ["start.sh", "config.sh", "/usr/bin/"]
 COPY ["daemons", "/etc/quagga/"]
 
-ENTRYPOINT /usr/bin/config.sh   \
-        && /usr/bin/start.sh    \
-        && /bin/bash
+ENTRYPOINT ["/usr/bin/supervisord"]
+

@@ -3,7 +3,7 @@ FROM docker-fpm-quagga
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y supervisor
+RUN apt-get update
 
 COPY \
 {% for deb in docker_fpm_gobgp_debs.split(' ') -%}
@@ -20,12 +20,10 @@ debs/{{ deb }}{{' '}}
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /debs
 
+COPY ["start.sh", "/usr/bin/"]
+COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 COPY ["*.j2", "/usr/share/sonic/templates/"]
-COPY ["start.sh", "config.sh", "/usr/bin/"]
 COPY ["daemons", "/etc/quagga/"]
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-ENTRYPOINT /usr/bin/config.sh   \
-        && /usr/bin/start.sh    \
-        && /usr/bin/supervisord \
-        && /bin/bash
+ENTRYPOINT ["/usr/bin/supervisord"]
+

@@ -16,15 +16,13 @@ ENV PYTHONOPTIMIZE 1
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
-# install supervisor
 # install libsnmp30 dependencies
 # install libpython3.6-dev dependencies
 # install pip dependencies
 # TODO: remove libpython3.6-dev, its and pip's dependencies if we can get pip3 directly
 # install subagent
 # clean up
-RUN apt-get update && apt-get install -y supervisor \
-            libperl5.20 libpci3 libwrap0 \
+RUN apt-get update && apt-get install -y libperl5.20 libpci3 libwrap0 \
             libexpat1-dev \
             curl gcc && \
     dpkg -i \
@@ -41,11 +39,12 @@ RUN apt-get update && apt-get install -y supervisor \
     find / | grep -E "__pycache__" | xargs rm -rf && \
     rm -rf ~/.cache
 
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY ["start.sh", "/usr/bin/"]
+COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 COPY ["*.j2", "/usr/share/sonic/templates/"]
-COPY ["config.sh", "/usr/bin/"]
 
-## Although exposing ports is not need for host net mode, keep it for possible bridge mode
+## Although exposing ports is not needed for host net mode, keep it for possible bridge mode
 EXPOSE 161/udp 162/udp
 
-ENTRYPOINT /usr/bin/config.sh && /usr/bin/supervisord
+ENTRYPOINT ["/usr/bin/supervisord"]
+

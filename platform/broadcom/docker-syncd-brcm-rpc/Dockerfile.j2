@@ -27,7 +27,6 @@ RUN apt-get update \
     python-dev          \
     wget                \
     cmake               \
-    supervisor          \
  && wget https://github.com/nanomsg/nanomsg/archive/1.0.0.tar.gz \
  && tar xvfz 1.0.0.tar.gz \
  && cd nanomsg-1.0.0    \
@@ -47,10 +46,8 @@ RUN apt-get update \
  && apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y \
  && rm -rf /root/deps
 
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY ptf_nn_agent.conf /etc/supervisor/conf.d/ptf_nn_agent.conf
+COPY ["ptf_nn_agent.conf", "/etc/supervisor/conf.d/"]
+COPY ["99-syncd.conf", "/etc/sysctl.d/"]
 
-RUN sed -i "/service rsyslog start/a sysctl -w net.core.rmem_max=509430500 ; \/usr\/bin\/supervisord" /usr/bin/start.sh
+ENTRYPOINT ["/usr/bin/supervisord"]
 
-ENTRYPOINT ["/bin/bash"]
-CMD ["/usr/bin/start.sh"]

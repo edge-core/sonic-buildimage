@@ -17,10 +17,12 @@ RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return
 
 COPY ["deps/saiserver", "start.sh", "/usr/bin/"]
 
+COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
+
 COPY ["profile.ini", "portmap.ini", "/etc/sai/"]
 
 ## Clean up
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y; rm -rf /deps
 
-ENTRYPOINT ["/bin/bash"]
-CMD ["/usr/bin/start.sh"]
+ENTRYPOINT ["/usr/bin/supervisord"]
+

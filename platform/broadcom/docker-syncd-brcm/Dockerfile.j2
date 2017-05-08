@@ -19,12 +19,14 @@ debs/{{ deb }}{{' '}}
 ## TODO: add kmod into Depends
 RUN apt-get install -f kmod
 
-COPY ["debs/dsserve", "debs/bcmcmd", "start.sh", "/usr/bin/"]
+COPY ["debs/dsserve", "debs/bcmcmd", "start.sh", "syncd.sh", "/usr/bin/"]
 RUN chmod +x /usr/bin/dsserve /usr/bin/bcmcmd
+
+COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 
 ## Clean up
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /debs
 
-ENTRYPOINT ["/bin/bash"]
-CMD ["/usr/bin/start.sh"]
+ENTRYPOINT ["/usr/bin/supervisord"]
+

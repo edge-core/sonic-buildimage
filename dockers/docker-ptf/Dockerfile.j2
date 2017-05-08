@@ -82,9 +82,7 @@ RUN mkdir /var/run/sshd \
  && sed -i '$aUseDNS no' /etc/ssh/sshd_config \
  && mkdir /root/deps
 
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY sshd.conf /etc/supervisor/conf.d/sshd.conf
-COPY ptf_nn_agent.conf /etc/supervisor/conf.d/ptf_nn_agent.conf
+COPY ["supervisord.conf", "sshd.conf", "ptf_nn_agent.conf", "/etc/supervisor/conf.d/"]
 
 EXPOSE 22
 

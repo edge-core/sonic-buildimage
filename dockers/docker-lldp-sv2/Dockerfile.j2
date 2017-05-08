@@ -11,7 +11,7 @@ COPY python-wheels /python-wheels
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y python-pip supervisor libbsd0 libevent-2.0-5 libjansson4 libwrap0 libxml2 libpci3 libperl5.20 
+RUN apt-get update && apt-get install -y python-pip libbsd0 libevent-2.0-5 libjansson4 libwrap0 libxml2 libpci3 libperl5.20 
 
 # Pre-install the fundamental packages
 # Install Python SwSS SDK
@@ -28,10 +28,11 @@ RUN pip install /python-wheels/swsssdk-2.0.1-py2-none-any.whl && \
     apt-get purge -y && apt-get autoclean -y && apt-get autoremove -y && \
     rm -rf /debs /python-wheels ~/.cache
 
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY reconfigure.sh /opt/reconfigure.sh
-COPY ["config.sh", "/usr/bin/"]
+COPY ["start.sh", "/usr/bin/"]
+COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
+COPY ["reconfigure.sh", "/opt/"]
 COPY ["lldpd.conf.j2", "/usr/share/sonic/templates/"]
 COPY ["lldpd", "/etc/default/"]
 
-ENTRYPOINT /usr/bin/config.sh && /usr/bin/supervisord
+ENTRYPOINT ["/usr/bin/supervisord"]
+

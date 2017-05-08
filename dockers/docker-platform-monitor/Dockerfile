@@ -5,17 +5,14 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update
 
-RUN apt-get install -y smartmontools sensord 
+RUN apt-get install -y sensord
 
 ## Clean up
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /debs
 
-COPY ["config.sh", "/usr/bin/"]
+COPY ["start.sh", "lm-sensors.sh", "/usr/bin/"]
+COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 
-ENTRYPOINT /usr/bin/config.sh       \
-    && service rsyslog start        \
-    && service lm-sensors start     \
-    && service smartmontools start  \
-    && service sensord start        \
-    && /bin/bash
+ENTRYPOINT ["/usr/bin/supervisord"]
+

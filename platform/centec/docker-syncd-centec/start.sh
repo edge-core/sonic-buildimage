@@ -1,15 +1,8 @@
-#!/bin/bash
-
-function clean_up {
-    service syncd stop
-    service rsyslog stop
-    exit
-}
-
-trap clean_up SIGTERM SIGKILL
+#!/usr/bin/env bash
 
 rm -f /var/run/rsyslogd.pid
-service rsyslog start
-service syncd start
 
-read
+supervisorctl start rsyslogd
+
+supervisorctl start syncd
+

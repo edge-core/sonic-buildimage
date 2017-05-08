@@ -1,7 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+sonic-cfggen -m /etc/sonic/minigraph.xml -t /usr/share/sonic/templates/isc-dhcp-relay.j2 > /etc/default/isc-dhcp-relay
 
 rm -f /var/run/rsyslogd.pid
-service rsyslog start
+
+supervisorctl start rsyslogd
 
 VLAN_IFACE_NAME=`sonic-cfggen -m /etc/sonic/minigraph.xml -v "minigraph_vlan_interfaces[0]['attachto']"`
 
@@ -11,5 +14,5 @@ until ip link show $VLAN_IFACE_NAME > /dev/null 2>&1; do
 done
 
 # Start the DHCP relay
-service isc-dhcp-relay start
+supervisorctl start isc-dhcp-relay
 

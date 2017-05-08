@@ -1,19 +1,16 @@
-#!/bin/bash
-
-function clean_up {
-    service rsyslog stop
-}
+#!/usr/bin/env bash
 
 start_mlnx()
 {
     [ -e /dev/sxdevs/sxcdev ] || ( mkdir -p /dev/sxdevs && mknod /dev/sxdevs/sxcdev c 231 193 )
 }
 
-trap clean_up SIGTERM SIGKILL
 
 rm -f /var/run/rsyslogd.pid
-service rsyslog start
+
+supervisorctl start rsyslogd
 
 start_mlnx
 
-/usr/bin/saiserver -p /etc/sai/profile.ini -f /etc/sai/portmap.ini
+supervisorctl start saiserver
+

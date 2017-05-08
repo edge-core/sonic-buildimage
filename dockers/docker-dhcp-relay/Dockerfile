@@ -1,22 +1,21 @@
 FROM docker-config-engine
 
-## Make apt-get non-interactive
+# Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
-## Update APT package lists
+# Update apt's cache of available packages
 RUN apt-get update
 
-## Install isc-dhcp-relay Debian package
+# Install isc-dhcp-relay Debian package
 RUN apt-get -y install isc-dhcp-relay
 
-## Clean up
+# Clean up
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /debs
 
+COPY ["start.sh", "isc-dhcp-relay.sh", "/usr/bin/"]
+COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 COPY ["isc-dhcp-relay.j2", "/usr/share/sonic/templates/"]
-COPY ["config.sh", "/usr/bin/"]
-COPY ["start.sh", "/usr/bin/"]
 
-ENTRYPOINT /usr/bin/config.sh \
-    && /usr/bin/start.sh      \
-    && /bin/bash
+ENTRYPOINT ["/usr/bin/supervisord"]
+
