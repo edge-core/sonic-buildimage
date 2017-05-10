@@ -12,6 +12,9 @@ P4: [![Broadcom](https://sonic-jenkins.westus.cloudapp.azure.com/job/p4/job/buil
 
 Following is the instruction on how to build an [(ONIE)](https://github.com/opencomputeproject/onie) compatiable network operating system (NOS) installer image for network switches, and also how to build docker images running inside the NOS. Note that SONiC image are build per ASIC platform. Switches using the same ASIC platform share a common image. For a list of supported switches and ASIC, please refer to this [document](https://sonic-jenkins.westus.cloudapp.azure.com/job/p4/job/buildimage-p4-all).
 
+# Hardware
+Any server can be a build image server. We are using a server with 1T hard disk. The OS is Ubuntu 16.04.
+
 # Prerequisites
 
 ## SAI Version 
