@@ -68,6 +68,10 @@ while true; do
     sleep 5
 done
 
+# Mark as disabled after graph is successfully downloaded
+sed -i "/enabled=/d" /etc/sonic/updategraph.conf
+echo "enabled=false" >> /etc/sonic/updategraph.conf
+
 if [ -n "$ACL_URL" ]; then
     if [ -f /etc/sonic/acl.json ]; then
         echo "Renaming acl.json to acl.json.old"
