@@ -26,7 +26,7 @@ debs/{{ deb }}{{' '}}
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /debs
 
-COPY ["start.sh", "orchagent.sh", "/usr/bin/"]
+COPY ["start.sh", "orchagent.sh", "swssconfig.sh", "/usr/bin/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 COPY ["ipinip.json.j2", "/usr/share/sonic/templates/"]
 COPY ["mirror.json.j2", "/usr/share/sonic/templates/"]
