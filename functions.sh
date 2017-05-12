@@ -59,9 +59,10 @@ sonic_get_version() {
     fi
     BUILD_NUMBER=${BUILD_NUMBER:-0}
     ## Check if we are on tagged commit
+    ## Note: escape the version string by sed: / -> _
     if [ "$describe" == "$latest_tag" ]; then
-        echo "${latest_tag}${dirty}"
+        echo "${latest_tag}${dirty}" | sed 's/\//_/g'
     else
-        echo "${branch_name}.${BUILD_NUMBER}${dirty:--$(git rev-parse --short HEAD)}"
+        echo "${branch_name}.${BUILD_NUMBER}${dirty:--$(git rev-parse --short HEAD)}" | sed 's/\//_/g'
     fi
 }
