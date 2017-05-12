@@ -8,7 +8,8 @@ GDB = gdb
 VIM = vim
 OPENSSH = openssh-client
 SSHPASS = sshpass
-$(DOCKER_BASE)_DBG_PACKAGES += $(GDB) $(VIM) $(OPENSSH) $(SSHPASS)
+STRACE = strace
+$(DOCKER_BASE)_DBG_PACKAGES += $(GDB) $(VIM) $(OPENSSH) $(SSHPASS) $(STRACE)
 endif
 
 SONIC_DOCKER_IMAGES += $(DOCKER_BASE)

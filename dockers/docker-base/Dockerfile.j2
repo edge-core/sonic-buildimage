@@ -27,10 +27,12 @@ RUN apt-get -y install \
     supervisor         \
     vim-tiny           \
     perl               \
-    python
+    python             \
+    less
 
 COPY ["etc/rsyslog.conf", "/etc/rsyslog.conf"]
 COPY ["etc/rsyslog.d/*", "/etc/rsyslog.d/"]
+COPY ["root/.vimrc", "/root/.vimrc"]
 
 RUN apt-get -y purge   \
     exim4              \
@@ -44,6 +46,8 @@ RUN apt-get -y install \
 {% for dbg_pkg in docker_base_dbgs.split(' ') -%}
     {{ dbg_pkg }}{{' '}}
 {%- endfor %}
+{% else %}
+RUN ln /usr/bin/vim.tiny /usr/bin/vim
 {% endif %}
 
 ## Clean up apt
