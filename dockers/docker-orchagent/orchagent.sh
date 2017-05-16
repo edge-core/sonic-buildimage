@@ -14,6 +14,8 @@ elif [ "$HWSKU" == "Force10-Z9100" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
 elif [ "$HWSKU" == "Arista-7050-QX32" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
+elif [ "$HWSKU" == "Arista-7050-QX32S" ]; then
+    ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
 elif [ "$HWSKU" == "Arista-7060-CX32S" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
 elif [ "$HWSKU" == "AS7512" ]; then

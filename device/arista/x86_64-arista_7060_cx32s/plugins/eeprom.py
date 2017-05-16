@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Arista 7050QX-32 eeprom plugin
+Arista 7060CX-32S eeprom plugin
 Uses the arista driver library to obtain the TlvInfoDecoder
 """
 
