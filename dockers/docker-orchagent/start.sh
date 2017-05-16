@@ -32,3 +32,8 @@ supervisorctl start neighsyncd
 
 supervisorctl start swssconfig
 
+# Start arp_update when VLAN exists
+VLAN=`sonic-cfggen -m /etc/sonic/minigraph.xml -v 'minigraph_vlans.keys() | join(" ")'`
+if [ "$VLAN" != "" ]; then
+    supervisorctl start arp_update
+fi

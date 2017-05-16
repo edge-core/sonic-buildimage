@@ -1,0 +1,17 @@
+#!/bin/bash
+#
+# usage:
+# arp_update: Send gratuitous ARP requests to VLAN member neighbors to refresh
+# the neighbors state.
+
+VLAN=`sonic-cfggen -m /etc/sonic/minigraph.xml -v 'minigraph_vlans.keys() | join(" ")'`
+for vlan in $VLAN; do
+    # generate a list of arping commands:
+    #   arping -q -w 0 -c 1 -i <VLAN interface> <IP 1>;
+    #   arping -q -w 0 -c 1 -i <VLAN interface> <IP 2>;
+    #   ...
+    arpingcmd="sed -e 's/ / -i /' -e 's/^/arping -q -w 0 -c 1 /' -e 's/$/;/'"
+    ipcmd="ip -4 neigh show | grep $vlan | cut -d ' ' -f 1,3 | $arpingcmd"
+
+    eval `eval $ipcmd`
+done
