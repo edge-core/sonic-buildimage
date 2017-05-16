@@ -57,7 +57,7 @@ sysServices    72
 #
 #  Process Monitoring
 #
-# todo: should we enable snmp based monitoring of sswsyncd and other processes?
+# TODO: should we enable snmp based monitoring of sswsyncd and other processes?
 
 # At least one 'sendmail' process, but no more than 10
 #proc  sendmail 10 1
@@ -72,7 +72,12 @@ sysServices    72
                                # 10MBs required on root disk, 5% free on /var, 10% free on all other disks
 disk       /     10000
 disk       /var  5%
-includeAllDisks  10%
+
+# Note: includeAllDisks will conflict with ignoredisk
+# TODO: /root/* are introduced by aufs union mount, happening in initramfs stage. Clean them in the mount list.
+ignoredisk /root/host
+ignoredisk /root/dev
+ignoredisk /root/dev/pts
 
 #  Walk the UCD-SNMP-MIB::dskTable to see the resulting output
 #  Note that this table will be empty if there are no "disk" entries in the snmpd.conf file
@@ -110,7 +115,7 @@ load   12 10 5
 #  Event MIB - automatically generate alerts
 #
 # Remember to activate the 'createUser' lines above
-#iquerySecName   internalUser       
+#iquerySecName   internalUser
 #rouser          internalUser
 # generate traps on UCD error conditions
 #defaultMonitors          yes
