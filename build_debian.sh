@@ -182,6 +182,7 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     python                  \
     python-setuptools       \
     rsyslog                 \
+    monit                   \
     python-apt              \
     traceroute              \
     iputils-ping            \
@@ -208,6 +209,27 @@ sudo cp files/sshd/host-ssh-keygen.sh $FILESYSTEM_ROOT/usr/local/bin/
 sudo cp -f files/sshd/sshd.service $FILESYSTEM_ROOT/lib/systemd/system/ssh.service
 ## Config sshd
 sudo augtool --autosave "set /files/etc/ssh/sshd_config/UseDNS no" -r $FILESYSTEM_ROOT
+
+## Config monit
+sudo sed -i '
+    s/^# set logfile syslog/set logfile syslog/;
+    s/^\s*set logfile \/var/# set logfile \/var/;
+    s/^# set httpd port/set httpd port/;
+    s/^#    use address localhost/   use address localhost/;
+    s/^#    allow localhost/   allow localhost/;
+    s/^#    allow admin:monit/   allow admin:monit/;
+    s/^#    allow @monit/   allow @monit/;
+    s/^#    allow @users readonly/   allow @users readonly/
+    ' $FILESYSTEM_ROOT/etc/monit/monitrc
+
+sudo tee -a $FILESYSTEM_ROOT/etc/monit/monitrc > /dev/null <<'EOF'
+check filesystem root-aufs with path /
+  if space usage > 90% for 5 times within 10 cycles then alert
+check system $HOST
+  if memory usage > 90% for 5 times within 10 cycles then alert
+  if cpu usage (user) > 90% for 5 times within 10 cycles then alert
+  if cpu usage (system) > 90% for 5 times within 10 cycles then alert
+EOF
 
 ## Config sysctl
 sudo mkdir -p $FILESYSTEM_ROOT/var/core
