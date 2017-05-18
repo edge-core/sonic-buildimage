@@ -47,7 +47,6 @@ RUN apt-get update \
  && rm -rf /root/deps
 
 COPY ["ptf_nn_agent.conf", "/etc/supervisor/conf.d/"]
-COPY ["99-syncd.conf", "/etc/sysctl.d/"]
  
 ENTRYPOINT ["/usr/bin/supervisord"]
 
