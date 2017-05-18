@@ -22,6 +22,10 @@ elif [ "$HWSKU" == "AS7512" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
 elif [ "$HWSKU" == "INGRASYS-S9100-C32" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
+elif [ "$HWSKU" == "INGRASYS-S8900-54XC" ]; then
+    ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
+elif [ "$HWSKU" == "INGRASYS-S8900-64XC" ]; then
+    ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
 fi
 
 exec /usr/bin/orchagent ${ORCHAGENT_ARGS}
