@@ -39,3 +39,4 @@ echo "Image sha256: $image_sha"
 echo "Pushing $build_remote_image_name"
 docker push $build_remote_image_name
 docker rmi $build_remote_image_name || true
+docker rmi $docker_image_name || true
