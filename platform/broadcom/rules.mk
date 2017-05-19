@@ -13,10 +13,10 @@ include $(PLATFORM_PATH)/libsaithrift-dev.mk
 include $(PLATFORM_PATH)/python-saithrift.mk
 
 BCMCMD = bcmcmd
-$(BCMCMD)_URL = "https://sonicstorage.blob.core.windows.net/packages/bcmcmd?sv=2015-04-05&sr=b&sig=X3bFApmsNFmcnWM9mSGRxBugPcg%2FgJCHh5hhSuV1M2c%3D&se=2030-08-23T14%3A41%3A56Z&sp=r"
+$(BCMCMD)_URL = "https://sonicstorage.blob.core.windows.net/packages/20170518/bcmcmd?sv=2015-04-05&sr=b&sig=OCW4mfmbQ6D0BH8nllpAWrS8XL9uczrw32w3XgL4jws%3D&se=2030-03-31T23%3A06%3A15Z&sp=r"
 
 DSSERVE = dsserve
-$(DSSERVE)_URL = "https://sonicstorage.blob.core.windows.net/packages/dsserve?sv=2015-04-05&sr=b&sig=aMlnRA%2FXZNmHPgmOj%2FNMJMYLWyvva1QrN4HcsVXvqKA%3D&se=2030-08-23T14%3A42%3A32Z&sp=r"
+$(DSSERVE)_URL = "https://sonicstorage.blob.core.windows.net/packages/20170518/dsserve?sv=2015-04-05&sr=b&sig=gyNbgSL%2FvpMXDdpboVkIJcTKMRdGgEaOR9OukHhEsu8%3D&se=2030-03-31T23%3A06%3A35Z&sp=r"
 
 SONIC_ONLINE_FILES += $(BCMCMD) $(DSSERVE)
 
