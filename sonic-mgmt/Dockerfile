@@ -35,7 +35,8 @@ RUN pip install ipaddr \
                 six \
                 pexpect \
                 pyasn1==0.1.9 \
-                pysnmp==4.2.5
+                pysnmp==4.2.5 \
+                jinja2==2.7.2
 
 RUN git clone https://github.com/ansible/ansible
 RUN cd ansible && git checkout v2.0.0.2-1 -b v2.0.0.2-1 && git submodule update --init --recursive && make && make install
