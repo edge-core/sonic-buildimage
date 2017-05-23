@@ -31,8 +31,8 @@
 /var/log/messages
 {
     rotate 4
-    weekly
-    maxsize 100M
+    daily
+    maxsize 50M
     missingok
     notifempty
     compress
