@@ -1,4 +1,4 @@
-FROM docker-base
+FROM docker-config-engine
 
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
@@ -18,7 +18,7 @@ RUN dpkg -i \
 debs/{{ deb }}{{' '}}
 {%- endfor %}
 
-COPY ["start.sh", "syncd.sh", "mlnx-fw-upgrade.sh", "/usr/bin/"]
+COPY ["start.sh", "mlnx-fw-upgrade.sh", "/usr/bin/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 COPY ["/debs/fw-SPC.mfa", "/etc/mlnx/"]
 

@@ -4,5 +4,8 @@ rm -f /var/run/rsyslogd.pid
 
 supervisorctl start rsyslogd
 
-supervisorctl start syncd
+# mlnx-fw-upgrade.sh will exit if firmware was actually upgraded
+# or if some error occurs
+. mlnx-fw-upgrade.sh
 
+supervisorctl start syncd

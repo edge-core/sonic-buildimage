@@ -1,4 +1,4 @@
-FROM docker-base
+FROM docker-config-engine
 
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
@@ -19,7 +19,7 @@ debs/{{ deb }}{{' '}}
 ## TODO: add kmod into Depends
 RUN apt-get install -f kmod
 
-COPY ["debs/dsserve", "debs/bcmcmd", "start.sh", "syncd.sh", "/usr/bin/"]
+COPY ["debs/dsserve", "debs/bcmcmd", "start.sh", "/usr/bin/"]
 RUN chmod +x /usr/bin/dsserve /usr/bin/bcmcmd
 
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
