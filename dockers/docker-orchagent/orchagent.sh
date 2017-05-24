@@ -8,6 +8,8 @@ ORCHAGENT_ARGS=""
 
 if [ "$HWSKU" == "Force10-S6000" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
+elif [ "$HWSKU" == "Force10-S6000-Q32" ]; then
+    ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
 elif [ "$HWSKU" == "Force10-S6100" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
 elif [ "$HWSKU" == "Force10-Z9100" ]; then

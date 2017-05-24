@@ -42,6 +42,8 @@ SWSSCONFIG_ARGS="00-copp.config.json ipinip.json mirror.json "
 
 if [ "$HWSKU" == "Force10-S6000" ]; then
     SWSSCONFIG_ARGS+="td2.32ports.buffers.json td2.32ports.qos.json "
+elif [ "$HWSKU" == "Force10-S6000-Q32" ]; then
+    SWSSCONFIG_ARGS+="td2.32ports.buffers.json td2.32ports.qos.json "
 elif [ "$HWSKU" == "Arista-7050-QX32" ]; then
     SWSSCONFIG_ARGS+="td2.32ports.buffers.json td2.32ports.qos.json "
 elif [ "$HWSKU" == "ACS-MSN2700" ]; then
