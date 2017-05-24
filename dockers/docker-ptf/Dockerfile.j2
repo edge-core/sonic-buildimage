@@ -41,6 +41,7 @@ RUN sed --in-place 's/httpredir.debian.org/debian-archive.trafficmanager.net/' /
         cmake               \
         libqt5core5a        \
         libqt5network5      \
+        less                \
         iputils-ping
 
 
@@ -70,6 +71,9 @@ RUN rm -rf /debs \
     && pip install dpkt    \
     && pip install ipaddress \
     && pip install pysubnettree \
+    && pip install 'ipython<6.0' \
+    && pip install paramiko \
+    && pip install parallel-ssh \
     && mkdir -p /opt       \
     && cd /opt             \
     && wget https://raw.githubusercontent.com/p4lang/ptf/master/ptf_nn/ptf_nn_agent.py
