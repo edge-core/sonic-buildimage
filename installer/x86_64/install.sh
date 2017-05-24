@@ -417,7 +417,8 @@ fi
 unzip $ONIE_INSTALLER_PAYLOAD -d $demo_mnt/$image_dir
 
 if [ -f $demo_mnt/$image_dir/$FILESYSTEM_DOCKERFS ]; then
-    cd $demo_mnt/$image_dir && mkdir -p $DOCKERFS_DIR && tar xf $FILESYSTEM_DOCKERFS -C $DOCKERFS_DIR && rm -f $FILESYSTEM_DOCKERFS; cd $OLDPWD
+    TAR_EXTRA_OPTION="--numeric-owner"
+    cd $demo_mnt/$image_dir && mkdir -p $DOCKERFS_DIR && tar x $TAR_EXTRA_OPTION -f $FILESYSTEM_DOCKERFS -C $DOCKERFS_DIR && rm -f $FILESYSTEM_DOCKERFS; cd $OLDPWD
 fi
 
 # Create loop device for /var/log to limit its size to $VAR_LOG_SIZE MB
