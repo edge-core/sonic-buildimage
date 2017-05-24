@@ -12,6 +12,30 @@ function config_acl {
     fi
 }
 
+function fast_reboot {
+  case "$(cat /proc/cmdline)" in
+    *fast-reboot*)
+      if [[ -f /fdb.json ]];
+      then
+        swssconfig /fdb.json
+        rm -f /fdb.json
+      fi
+
+      if [[ -f /arp.json ]];
+      then
+        swssconfig /arp.json
+        rm -f /arp.json
+      fi
+      ;;
+    *)
+      ;;
+  esac
+}
+
+
+# Restore FDB and ARP table ASAP
+fast_reboot
+
 HWSKU=`sonic-cfggen -m /etc/sonic/minigraph.xml -v minigraph_hwsku`
 
 SWSSCONFIG_ARGS="00-copp.config.json ipinip.json mirror.json "
