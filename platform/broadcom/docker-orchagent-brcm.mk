@@ -11,7 +11,8 @@ $(DOCKER_ORCHAGENT_BRCM)_CONTAINER_NAME = swss
 $(DOCKER_ORCHAGENT_BRCM)_RUN_OPT += --net=host --privileged -t
 $(DOCKER_ORCHAGENT_BRCM)_RUN_OPT += -v /etc/network/interfaces:/etc/network/interfaces:ro
 $(DOCKER_ORCHAGENT_BRCM)_RUN_OPT += -v /etc/network/interfaces.d/:/etc/network/interfaces.d/:ro
-$(DOCKER_ORCHAGENT_BRCM)_RUN_OPT += -v /host/machine.conf:/host/machine.conf
+$(DOCKER_ORCHAGENT_BRCM)_RUN_OPT += -v /host/machine.conf:/host/machine.conf:ro
 $(DOCKER_ORCHAGENT_BRCM)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
+$(DOCKER_ORCHAGENT_BRCM)_RUN_OPT += -v /var/log:/var/log:rw
 
 $(DOCKER_ORCHAGENT_BRCM)_BASE_IMAGE_FILES += swssloglevel:/usr/bin/swssloglevel

@@ -4,7 +4,9 @@ HWSKU=`sonic-cfggen -m /etc/sonic/minigraph.xml -v minigraph_hwsku`
 
 MAC_ADDRESS=`ip link show eth0 | grep ether | awk '{print $2}'`
 
-ORCHAGENT_ARGS=""
+# Create a folder for SsWW record files
+mkdir -p /var/log/swss
+ORCHAGENT_ARGS="-d /var/log/swss "
 
 if [ "$HWSKU" == "Force10-S6000" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
