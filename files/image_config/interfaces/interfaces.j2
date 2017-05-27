@@ -29,13 +29,13 @@ iface eth0 inet static
     up ip route add default via {{ minigraph_mgmt_interface['gwaddr'] }} dev eth0 table default
     up ip rule add from {{ minigraph_mgmt_interface['addr'] }}/32 table default
 {% for prefix in forced_mgmt_routes %}
-    up ip route add {{ prefix }} via {{ minigraph_mgmt_interface['gwaddr'] }} dev eth0
+    up ip rule add to {{ prefix }} table default
 {% endfor %}
     # management port down rules
     down ip route delete default via {{ minigraph_mgmt_interface['gwaddr'] }} dev eth0 table default
     down ip rule delete from {{ minigraph_mgmt_interface['addr'] }}/32 table default
 {% for prefix in forced_mgmt_routes %}
-    down ip route delete {{ prefix }} via {{ minigraph_mgmt_interface['gwaddr'] }} dev eth0
+    down ip rule delete to {{ prefix }} table default
 {% endfor %}
 {# TODO: COPP policy type rules #}
 {% else %}
