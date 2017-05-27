@@ -13,6 +13,6 @@ $(DOCKER_ORCHAGENT_CAVM)_RUN_OPT += -v /etc/network/interfaces:/etc/network/inte
 $(DOCKER_ORCHAGENT_CAVM)_RUN_OPT += -v /etc/network/interfaces.d/:/etc/network/interfaces.d/:ro
 $(DOCKER_ORCHAGENT_CAVM)_RUN_OPT += -v /host/machine.conf:/host/machine.conf:ro
 $(DOCKER_ORCHAGENT_CAVM)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
-$(DOCKER_ORCHAGENT_CAVM)_RUN_OPT += -v /var/log:/var/log:rw
+$(DOCKER_ORCHAGENT_CAVM)_RUN_OPT += -v /var/log/swss:/var/log/swss:rw
 
 $(DOCKER_ORCHAGENT_CAVM)_BASE_IMAGE_FILES += swssloglevel:/usr/bin/swssloglevel
