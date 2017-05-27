@@ -9,9 +9,11 @@ include $(PLATFORM_PATH)/docker-orchagent-mlnx.mk
 include $(PLATFORM_PATH)/one-image.mk
 include $(PLATFORM_PATH)/libsaithrift-dev.mk
 include $(PLATFORM_PATH)/python-saithrift.mk
+include $(PLATFORM_PATH)/docker-ptf-mlnx.mk
 
 SONIC_ALL += $(SONIC_ONE_IMAGE) \
              $(DOCKER_FPM) \
+             $(DOCKER_PTF_MLNX) \
              $(DOCKER_SYNCD_MLNX_RPC)
 
 # Inject mlnx sai into sairedis

@@ -1,0 +1,17 @@
+FROM docker-ptf
+
+## Make apt-get non-interactive
+ENV DEBIAN_FRONTEND=noninteractive
+
+COPY \
+{% for deb in docker_ptf_saithrift_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor -%}
+debs/
+
+RUN dpkg -i \
+{% for deb in docker_ptf_saithrift_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor %}
+
+COPY ["*.ini", "/etc/ptf/"]
