@@ -49,6 +49,7 @@ iface eth0 inet dhcp
 auto {{ interface['attachto'] }}
 allow-hotplug {{ interface['attachto'] }}
 iface {{ interface['attachto'] }} {{ 'inet' if interface['addr'] | ipv4 else 'inet6' }} static
+    mtu 9216
     address {{ interface['addr'] }}
     netmask {{ interface['mask'] }}
 #
@@ -61,7 +62,7 @@ iface {{ interface['attachto'] }} {{ 'inet' if interface['addr'] | ipv4 else 'in
 auto {{ member }}
 allow-hotplug {{ member }}
 iface {{ member }} inet manual
-    pre-up ifconfig {{ member }} up
+    pre-up ifconfig {{ member }} up mtu 9216
     post-up brctl addif {{ vlan }} {{ member }} || true
     post-down ifconfig {{ member }} down
 #
@@ -103,6 +104,7 @@ iface {{ vlan_interface['attachto'] }} {{ 'inet' if vlan_interface['addr'] | ipv
 auto {{ pc_interface['attachto'] }}
 allow-hotplug {{ pc_interface['attachto'] }}
 iface {{ pc_interface['attachto'] }} {{ 'inet' if pc_interface['addr'] | ipv4 else 'inet6' }} static
+    mtu 9216
     address {{ pc_interface['addr'] }}
     netmask {{ pc_interface['mask'] }}
 #
