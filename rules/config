@@ -46,3 +46,7 @@ DEFAULT_PASSWORD = YourPaSsWoRd
 # Quagga will be the default routing-stack for all the SONiC platforms. Other supported
 # routing-stacks: frr, gobgp.
 SONIC_ROUTING_STACK = quagga
+
+# ENABLE_SYNCD_RPC - build docker-syncd with rpc packages for testing purposes.
+# Uncomment to enable:
+# ENABLE_SYNCD_RPC = y

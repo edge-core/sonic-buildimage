@@ -67,6 +67,10 @@ ifeq ($(PASSWORD),)
 override PASSWORD := $(DEFAULT_PASSWORD)
 endif
 
+ifeq ($(SONIC_ENABLE_SYNCD_RPC),y)
+ENABLE_SYNCD_RPC = y
+endif
+
 MAKEFLAGS += -j $(SONIC_CONFIG_BUILD_JOBS)
 
 ###############################################################################
