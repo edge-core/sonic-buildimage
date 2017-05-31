@@ -30,6 +30,9 @@ elif [ "$HWSKU" == "INGRASYS-S8900-54XC" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
 elif [ "$HWSKU" == "INGRASYS-S8900-64XC" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
+else
+    echo "Unsupported HWSKU:$HWSKU. Exiting..." > /dev/stderr
+    exit 1
 fi
 
 exec /usr/bin/orchagent ${ORCHAGENT_ARGS}
