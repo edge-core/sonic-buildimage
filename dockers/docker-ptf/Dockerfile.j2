@@ -44,7 +44,8 @@ RUN sed --in-place 's/httpredir.debian.org/debian-archive.trafficmanager.net/' /
         less                \
         ipython             \
         git                 \
-        iputils-ping
+        iputils-ping        \
+        hping3
 
 ## Reinstall scapy by version from p4lang
 RUN git clone https://github.com/p4lang/scapy-vxlan.git && cd scapy-vxlan && python setup.py install
