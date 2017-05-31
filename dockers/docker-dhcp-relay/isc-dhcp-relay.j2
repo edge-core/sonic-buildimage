@@ -1,6 +1,28 @@
 SERVERS="{{ dhcp_servers | join(' ') }}"
 
-INTERFACES="{{ minigraph_vlan_interfaces[0]['attachto'] }}"
+INTERFACES="
+{%- set add_preceding_space = { 'flag': False } %}
+{%- for interface in minigraph_interfaces %}
+{%- if interface['addr'] | ipv4 %}
+{%- if add_preceding_space.flag %} {% endif %}
+{{ interface['attachto'] }}
+{%- set _dummy = add_preceding_space.update({'flag': True}) %}
+{%- endif %}
+{%- endfor %}
+{%- for vlan_interface in minigraph_vlan_interfaces %}
+{%- if vlan_interface['addr'] | ipv4 %}
+{%- if add_preceding_space.flag %} {% endif %}
+{{ vlan_interface['attachto'] }}
+{%- set _dummy = add_preceding_space.update({'flag': True}) %}
+{%- endif %}
+{%- endfor %}
+{%- for pc_interface in minigraph_portchannel_interfaces %}
+{%- if pc_interface['addr'] | ipv4 %}
+{%- if add_preceding_space.flag %} {% endif %}
+{{ pc_interface['attachto'] }}
+{%- set _dummy = add_preceding_space.update({'flag': True}) %}
+{%- endif %}
+{%- endfor %}"
 
 # '-a' option provides option 82 circuit id information
 OPTIONS="-a"
