@@ -67,8 +67,12 @@ extract_image() {
     if [ -n "$sonic_upgrade" ] || [ "$rootfs_type" != "vfat" ]; then
         mkdir -p "$image_path/{{ DOCKERFS_DIR }}"
 
+        if [ -n "$sonic_upgrade" ]; then
+            TAR_EXTRA_OPTION="--numeric-owner"
+        fi
+
         ## extract docker archive
-        tar xf "$image_path/{{ FILESYSTEM_DOCKERFS }}" -C "$image_path/{{ DOCKERFS_DIR }}"
+        tar xf "$image_path/{{ FILESYSTEM_DOCKERFS }}" -C "$image_path/{{ DOCKERFS_DIR }}" $TAR_EXTRA_OPTION
 
         ## clean up docker archive
         rm -f "$image_path/{{ FILESYSTEM_DOCKERFS }}"
