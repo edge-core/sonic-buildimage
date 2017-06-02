@@ -84,7 +84,7 @@ run_cmd() {
 
 create_varlog_file() {
     local err_msg="Error: create var-log ext4 file"
-    local cmd="[ -n $varlog_size ] && mkdir -p $root_mnt/disk-img && dd if=/dev/zero of=$root_mnt/disk-img/var-log.ext4 count=$((2048*$varlog_size)) && mke2fs -t ext4 -q -F $root_mnt/disk-img/var-log.ext4"
+    local cmd="[ -n "$varlog_size" ] && mkdir -p $root_mnt/disk-img && dd if=/dev/zero of=$root_mnt/disk-img/var-log.ext4 count=$((2048*$varlog_size)) && mke2fs -t ext4 -q -F $root_mnt/disk-img/var-log.ext4"
     run_cmd "$cmd" "$err_msg"
 }
 
