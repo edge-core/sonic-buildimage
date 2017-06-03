@@ -30,6 +30,8 @@ elif [ "$HWSKU" == "INGRASYS-S8900-54XC" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
 elif [ "$HWSKU" == "INGRASYS-S8900-64XC" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
+elif [ "$HWSKU" == "Facebook-W100-C32" ]; then
+    ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
 else
     echo "Unsupported HWSKU:$HWSKU. Exiting..." > /dev/stderr
     exit 1
