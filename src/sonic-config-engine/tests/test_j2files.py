@@ -37,7 +37,7 @@ class TestJ2Files(TestCase):
         def test_render_teamd(self, pc):
             teamd_file = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-teamd', 'teamd.j2')
             sample_output_file = os.path.join(self.test_dir, 'sample_output',pc + '.conf')
-            argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -a \'{\"pc\":\"' + pc + '\"}\' -t ' + teamd_file + ' > ' + self.output_file
+            argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -a \'{\"pc\":\"' + pc + '\",\"hwaddr\":\"e4:1d:2d:a5:f3:ad\"}\' -t ' + teamd_file + ' > ' + self.output_file
             self.run_script(argument)
             assert filecmp.cmp(sample_output_file, self.output_file)
 
