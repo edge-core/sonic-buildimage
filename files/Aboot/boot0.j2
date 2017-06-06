@@ -57,11 +57,8 @@ extract_image() {
 
     mkdir -p "$image_path"
 
-    ## Unzip the image
-    unzip -oq "$swipath" -x boot0 -d "$image_path"
-
-    ## Remove installer swi as it has lots of redundunt contents
-    rm -f $swipath
+    ## Unzip the image except boot0 and dockerfs archive
+    unzip -oq "$swipath" -x boot0 {{ FILESYSTEM_DOCKERFS }} -d "$image_path"
 
     ## detect rootfs type
     rootfs_type=`grep " $target_path " /proc/mounts | cut -d' ' -f3`
@@ -75,16 +72,18 @@ extract_image() {
         fi
 
         ## extract docker archive
-        tar xf "$image_path/{{ FILESYSTEM_DOCKERFS }}" -C "$image_path/{{ DOCKERFS_DIR }}" $TAR_EXTRA_OPTION
-
-        ## clean up docker archive
-        rm -f "$image_path/{{ FILESYSTEM_DOCKERFS }}"
+        unzip -oqp "$swipath" {{ FILESYSTEM_DOCKERFS }} | tar xzf - -C "$image_path/{{ DOCKERFS_DIR }}" $TAR_EXTRA_OPTION
     else
+        ## save dockerfs archive in the image directory
+        unzip -oq "$swipath" {{ FILESYSTEM_DOCKERFS }} -d "$image_path"
         echo "$target_path is $rootfs_type, extract {{ FILESYSTEM_DOCKERFS }} in later stage"
     fi
 
     ## use new reduced-size boot swi
     echo "SWI=flash:image-%%IMAGE_VERSION%%/{{ ABOOT_BOOT_IMAGE }}" > "$target_path/boot-config"
+
+    ## Remove installer swi as it has lots of redundunt contents
+    rm -f "$swipath"
 
     ## sync disk operations
     sync
