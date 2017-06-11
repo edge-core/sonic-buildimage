@@ -2,7 +2,7 @@
 
 mkdir -p /etc/sensors.d
 if [ -e /usr/share/sonic/platform/sensors.conf ]; then
-  /bin/cp -rf /usr/share/sonic/platform/sensors.conf /etc/sensors.d/
+    /bin/cp -rf /usr/share/sonic/platform/sensors.conf /etc/sensors.d/
 fi
 
 mkdir -p /var/sonic
@@ -12,4 +12,5 @@ rm -f /var/run/rsyslogd.pid
 
 supervisorctl start rsyslogd
 supervisorctl start lm-sensors
+supervisorctl start ledd
 

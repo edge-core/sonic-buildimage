@@ -1,0 +1,61 @@
+FROM docker-config-engine
+
+# Make apt-get non-interactive
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Update apt's package index files
+RUN apt-get update
+
+RUN apt-get install -y python-pip sensord
+
+{% if docker_platform_monitor_debs.strip() %}
+# Copy built Debian packages
+COPY \
+{% for deb in docker_platform_monitor_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor -%}
+debs/
+{%- endif %}
+
+{% if docker_platform_monitor_debs.strip() %}
+# Install built Debian packages
+RUN dpkg -i \
+{% for deb in docker_platform_monitor_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor %}
+{%- endif %}
+
+{% if docker_platform_monitor_whls.strip() %}
+# Copy built Python wheels
+COPY \
+{% for whl in docker_platform_monitor_whls.split(' ') -%}
+python-wheels/{{ whl }}{{' '}}
+{%- endfor -%}
+python-wheels/
+{%- endif %}
+
+{% if docker_platform_monitor_whls.strip() %}
+# Install built Python wheels
+RUN pip install \
+{% for whl in docker_platform_monitor_whls.split(' ') -%}
+python-wheels/{{ whl }}{{' '}}
+{%- endfor %}
+{%- endif %}
+
+COPY python-wheels /python-wheels
+
+# Install Python SwSS SDK (dependency of sonic-ledd)
+RUN pip install /python-wheels/swsssdk-2.0.1-py2-none-any.whl
+
+# Clean up
+RUN apt-get remove -y python-pip
+RUN apt-get clean -y
+RUN apt-get autoclean -y
+RUN apt-get autoremove -y
+RUN rm -rf /debs /python-wheels ~/.cache
+
+COPY ["start.sh", "lm-sensors.sh", "/usr/bin/"]
+COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
+
+ENTRYPOINT ["/usr/bin/supervisord"]
+
