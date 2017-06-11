@@ -11,7 +11,7 @@ RUN echo "deb http://debian-archive.trafficmanager.net/debian/ jessie main contr
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get clean && apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y \
         apt-utils \
         default-jre-headless \
         openssh-server \
