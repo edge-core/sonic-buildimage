@@ -131,7 +131,10 @@ sudo bash -c "echo dhcp_as_static=true >> $FILESYSTEM_ROOT/etc/sonic/updategraph
 {% else %}
 sudo bash -c "echo enabled=false > $FILESYSTEM_ROOT/etc/sonic/updategraph.conf"
 {% endif %}
-
+{% if shutdown_bgp_on_start == "y" %}
+sudo bash -c "echo bgp_admin_state: > $FILESYSTEM_ROOT/etc/sonic/bgp_admin.yml"
+sudo bash -c "echo '  all: off' >> $FILESYSTEM_ROOT/etc/sonic/bgp_admin.yml"
+{% endif %}
 # Copy SNMP configuration files
 sudo cp $IMAGE_CONFIGS/snmp/snmp.yml $FILESYSTEM_ROOT/etc/sonic/
 

@@ -50,6 +50,9 @@ router bgp {{ minigraph_bgp_asn }}
 {% if bgp_session['asn'] != 0 %}
   neighbor {{ bgp_session['addr'] }} remote-as {{ bgp_session['asn'] }}
   neighbor {{ bgp_session['addr'] }} description {{ bgp_session['name'] }}
+{% if bgp_admin_state and bgp_admin_state.has_key(bgp_session['addr']) and bgp_admin_state[bgp_session['addr']]==False or bgp_admin_state and not bgp_admin_state.has_key(bgp_session['addr']) and bgp_admin_state.has_key('all') and bgp_admin_state['all']==False %}
+  neighbor {{ bgp_session['addr'] }} shutdown
+{% endif %}
 {% if minigraph_devices[inventory_hostname]['type'] == 'ToRRouter' %}
   neighbor {{ bgp_session['addr'] }} allowas-in 1
 {% endif %}
