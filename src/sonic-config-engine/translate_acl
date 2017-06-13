@@ -97,7 +97,7 @@ def generate_rule_json(table_name, rule, max_priority, mirror):
         if flag == "TCP_CWR":
             tcp_flags = tcp_flags | 0x80
     if tcp_flags != 0x00:
-        rule_props["TCP_FLAGS"] = '0x{:02x}'.format(tcp_flags)
+        rule_props["TCP_FLAGS"] = '0x{:02x}/0x{:02x}'.format(tcp_flags, tcp_flags)
     return rule_data
 
 def generate_table_json(aclset, aclname, ports, mirror, max_priority, output_path='.'):
