@@ -212,7 +212,8 @@ def parse_dpg(dpg, hname):
             for i, member in enumerate(vmbr_list):
                 vmbr_list[i] = port_alias_map[member]
             vlan_attributes = {'name': vintfname, 'members': vmbr_list, 'vlanid': vlanid}
-            vlans[vintfname] = vlan_attributes
+            sonic_vlan_name = "Vlan%s" % vlanid
+            vlans[sonic_vlan_name] = vlan_attributes
 
         aclintfs = child.find(str(QName(ns, "AclInterfaces")))
         acls = {}
