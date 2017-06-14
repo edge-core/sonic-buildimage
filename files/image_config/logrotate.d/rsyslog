@@ -1,6 +1,7 @@
 /var/log/syslog
 /var/log/quagga/*.log
 /var/log/teamd.log
+/var/log/swss/*.rec
 {
     rotate 7
     daily
