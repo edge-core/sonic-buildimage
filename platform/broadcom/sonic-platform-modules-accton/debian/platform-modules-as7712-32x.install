@@ -1,0 +1,2 @@
+as7712-32x/scripts/as7712_32x_platform_init.sh usr/local/bin
+as7712-32x/cfg/as7712_32x-modules.conf etc/modules-load.d

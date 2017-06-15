@@ -1,0 +1,44 @@
+#!/bin/bash
+
+### BEGIN INIT INFO
+# Provides:          setup-board
+# Required-Start:
+# Required-Stop:
+# Should-Start:
+# Should-Stop:
+# Default-Start:     S
+# Default-Stop:      0 6
+# Short-Description: Setup AS7712-32X board.
+### END INIT INFO
+
+case "$1" in
+start)
+    echo -n "Setting up board... "
+
+    modprobe i2c_dev
+    modprobe i2c_mux_pca954x
+    modprobe accton_i2c_cpld
+    modprobe accton_as7712_32x_fan
+    modprobe accton_as7712_32x_sfp
+    modprobe leds-accton_as7712_32x
+    modprobe accton_as7712_32x_psu
+
+    echo "done."
+    ;;
+
+stop)
+    echo "done."
+
+    ;;
+
+force-reload|restart)
+    echo "Not supported"
+    ;;
+
+*)
+    echo "Usage: /etc/init.d/platform-modules-as7712-32x.init {start|stop}"
+    exit 1
+    ;;
+esac
+
+exit 0
