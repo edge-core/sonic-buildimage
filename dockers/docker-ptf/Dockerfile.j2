@@ -45,7 +45,8 @@ RUN sed --in-place 's/httpredir.debian.org/debian-archive.trafficmanager.net/' /
         ipython             \
         git                 \
         iputils-ping        \
-        hping3
+        hping3              \
+        curl
 
 ## Reinstall scapy by version from p4lang
 RUN git clone https://github.com/p4lang/scapy-vxlan.git && cd scapy-vxlan && python setup.py install
@@ -78,6 +79,8 @@ RUN rm -rf /debs \
     && pip install pysubnettree \
     && pip install paramiko \
     && pip install parallel-ssh \
+    && pip install flask   \
+    && pip install exabgp==3.4.17\
     && mkdir -p /opt       \
     && cd /opt             \
     && wget https://raw.githubusercontent.com/p4lang/ptf/master/ptf_nn/ptf_nn_agent.py
