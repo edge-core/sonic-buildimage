@@ -36,7 +36,14 @@ if [ $(id -u) -ne 0 ]
 fi
 
 # get running machine from conf file
-[ -r /etc/machine.conf ] && . /etc/machine.conf
+if [ -r /etc/machine.conf ]; then
+    . /etc/machine.conf
+elif [ -r /host/machine.conf ]; then
+    . /host/machine.conf
+else
+    echo "cannot find machine.conf"
+    exit 1
+fi
 
 echo "onie_platform: $onie_platform"
 
@@ -57,8 +64,9 @@ if [ -d "/etc/sonic" ]; then
 else
     echo "Installing SONiC in ONIE"
     install_env="onie"
-    [ -r platforms/$onie_platform ] && source platforms/$onie_platform
 fi
+
+[ -r platforms/$onie_platform ] && . platforms/$onie_platform
 
 # Install demo on same block device as ONIE
 onie_dev=$(blkid | grep ONIE-BOOT | head -n 1 | awk '{print $1}' |  sed -e 's/:.*$//')
