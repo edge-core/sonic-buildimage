@@ -1,7 +1,6 @@
 /var/log/syslog
 /var/log/quagga/*.log
 /var/log/teamd.log
-/var/log/swss/*.rec
 {
     rotate 7
     daily
@@ -16,6 +15,20 @@
         # However, Debian Jessie is still using v1.22.
         # See https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=672218
         kill -HUP $(cat /var/run/rsyslogd.pid)
+    endscript
+}
+/var/log/swss/*.rec
+{
+    rotate 7
+    daily
+    maxsize 20M
+    missingok
+    notifempty
+    compress
+    delaycompress
+    sharedscripts
+    postrotate
+        pgrep -x orchagent | xargs /bin/kill -HUP 2>/dev/null || true
     endscript
 }
 /var/log/mail.info
