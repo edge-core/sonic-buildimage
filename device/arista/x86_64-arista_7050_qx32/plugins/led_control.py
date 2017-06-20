@@ -48,21 +48,23 @@ class LedControl(LedControlBase):
         if qsfp_index <= 0:
             return
 
-        # QSFP indices 1-24 are breakout-capable and have four LEDs,
+        # QSFP indices 1-24 are breakout-capable and have four LEDs, and each LED indicate one lane.
         # whereas indices 25-32 are not breakout-capable, and only have one
         if qsfp_index <= self.QSFP_BREAKOUT_END_IDX:
-            led_sysfs_path = self.LED_SYSFS_PATH_BREAKOUT_CAPABLE.format(qsfp_index, 1)
+            # assuming 40G, then we need to control four lanes
+            led_sysfs_paths = [ self.LED_SYSFS_PATH_BREAKOUT_CAPABLE.format(qsfp_index, i) for i in range(1, 5) ]
         else:
-            led_sysfs_path = self.LED_SYSFS_PATH_NO_BREAKOUT.format(qsfp_index)
+            led_sysfs_paths = [ self.LED_SYSFS_PATH_NO_BREAKOUT.format(qsfp_index) ]
 
-        led_file = open(led_sysfs_path, "w")
+        for led_sysfs_path in led_sysfs_paths:
+            led_file = open(led_sysfs_path, "w")
 
-        if state == "up":
-            led_file.write("%d" % self.LED_COLOR_GREEN)
-        else:
-            led_file.write("%d" % self.LED_COLOR_OFF)
+            if state == "up":
+                led_file.write("%d" % self.LED_COLOR_GREEN)
+            else:
+                led_file.write("%d" % self.LED_COLOR_OFF)
 
-        led_file.close()
+            led_file.close()
 
     # Constructor
     def __init__(self):
