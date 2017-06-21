@@ -29,8 +29,11 @@ if [ -f /host/image-$sonic_version/platform/firsttime ]; then
         exit 0
     fi
 
-    # Try to take minigraph saved during installation
-    if [ -f /host/minigraph.xml ]; then
+    # Try to take old configuration saved during installation
+    if [ -d /host/old_config ]; then
+        rm -f /host/old_config/sonic_version.yml
+        mv -f /host/old_config/* /etc/sonic/
+    elif [ -f /host/minigraph.xml ]; then
         mv /host/minigraph.xml /etc/sonic/
     else
         cp /usr/share/sonic/device/$platform/minigraph.xml /etc/sonic/
