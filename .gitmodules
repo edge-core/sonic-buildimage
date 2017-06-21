@@ -63,3 +63,6 @@
 [submodule "src/sonic-platform-daemons"]
 	path = src/sonic-platform-daemons
 	url = https://github.com/Azure/sonic-platform-daemons
+[submodule "platform/broadcom/sonic-platform-modules-accton"]
+	path = platform/broadcom/sonic-platform-modules-accton
+	url = https://github.com/edge-core/sonic-platform-modules-accton.git
