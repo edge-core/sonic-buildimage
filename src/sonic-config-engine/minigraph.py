@@ -244,6 +244,7 @@ def parse_dpg(dpg, hname):
 def parse_cpg(cpg, hname):
     bgp_sessions = []
     myasn = None
+    bgp_peers_with_range = []
     for child in cpg:
         tag = child.tag
         if tag == str(QName(ns, "PeeringSessions")):
@@ -270,12 +271,22 @@ def parse_cpg(cpg, hname):
                 hostname = router.find(str(QName(ns1, "Hostname"))).text
                 if hostname == hname:
                     myasn = int(asn)
+                    peers = router.find(str(QName(ns1, "Peers")))
+                    for bgpPeer in peers.findall(str(QName(ns, "BGPPeer"))):
+			addr = bgpPeer.find(str(QName(ns, "Address"))).text
+                        if bgpPeer.find(str(QName(ns1, "PeersRange"))) is not None:
+                            name = bgpPeer.find(str(QName(ns1, "Name"))).text
+                            ip_range = bgpPeer.find(str(QName(ns1, "PeersRange"))).text
+                            bgp_peers_with_range.append({
+                                'name': name,
+                                'ip_range': ip_range
+                            })
                 else:
                     for bgp_session in bgp_sessions:
                         if hostname == bgp_session['name']:
                             bgp_session['asn'] = int(asn)
 
-    return bgp_sessions, myasn
+    return bgp_sessions, myasn, bgp_peers_with_range
 
 
 def parse_meta(meta, hname):
@@ -284,6 +295,7 @@ def parse_meta(meta, hname):
     ntp_servers = []
     mgmt_routes = []
     erspan_dst = []
+    deployment_id = None
     device_metas = meta.find(str(QName(ns, "Devices")))
     for device in device_metas.findall(str(QName(ns1, "DeviceMetadata"))):
         if device.find(str(QName(ns1, "Name"))).text == hname:
@@ -302,7 +314,9 @@ def parse_meta(meta, hname):
                     mgmt_routes = value_group
                 elif name == "ErspanDestinationIpv4":
                     erspan_dst = value_group
-    return syslog_servers, dhcp_servers, ntp_servers, mgmt_routes, erspan_dst
+                elif name == "DeploymentId":
+                    deployment_id = value
+    return syslog_servers, dhcp_servers, ntp_servers, mgmt_routes, erspan_dst, deployment_id
 
 
 def get_console_info(devices, dev, port):
@@ -396,6 +410,8 @@ def parse_xml(filename, platform=None, port_config_file=None):
     ntp_servers = []
     mgmt_routes = []
     erspan_dst = []
+    bgp_peers_with_range = None
+    deployment_id = None
 
     hwsku_qn = QName(ns, "HwSku")
     hostname_qn = QName(ns, "Hostname")
@@ -411,13 +427,13 @@ def parse_xml(filename, platform=None, port_config_file=None):
         if child.tag == str(QName(ns, "DpgDec")):
             (intfs, lo_intfs, mgmt_intf, vlans, pcs, acls) = parse_dpg(child, hostname)
         elif child.tag == str(QName(ns, "CpgDec")):
-            (bgp_sessions, bgp_asn) = parse_cpg(child, hostname)
+            (bgp_sessions, bgp_asn, bgp_peers_with_range) = parse_cpg(child, hostname)
         elif child.tag == str(QName(ns, "PngDec")):
             (neighbors, devices, console_dev, console_port, mgmt_dev, mgmt_port) = parse_png(child, hostname)
         elif child.tag == str(QName(ns, "UngDec")):
             (u_neighbors, u_devices, _, _, _, _) = parse_png(child, hostname)
         elif child.tag == str(QName(ns, "MetadataDeclaration")):
-            (syslog_servers, dhcp_servers, ntp_servers, mgmt_routes, erspan_dst) = parse_meta(child, hostname)
+            (syslog_servers, dhcp_servers, ntp_servers, mgmt_routes, erspan_dst, deployment_id) = parse_meta(child, hostname)
 
     Tree = lambda: defaultdict(Tree)
 
@@ -428,6 +444,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
     # TODO: alternatively (preferred), implement class containers for multiple-attribute entries, enabling sort by attr
     results['minigraph_bgp'] = sorted(bgp_sessions, key=lambda x: x['addr'])
     results['minigraph_bgp_asn'] = bgp_asn
+    results['minigraph_bgp_peers_with_range'] = bgp_peers_with_range
     # TODO: sort does not work properly on all interfaces of varying lengths. Need to sort by integer group(s).
 
     phyport_intfs = []
@@ -466,6 +483,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
     results['ntp_servers'] = ntp_servers
     results['forced_mgmt_routes'] = mgmt_routes
     results['erspan_dst'] = erspan_dst
+    results['deployment_id'] = deployment_id
 
     return results
 

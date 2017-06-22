@@ -11,6 +11,7 @@ class TestCfgGen(TestCase):
         self.sample_graph_t0 = os.path.join(self.test_dir, 't0-sample-graph.xml')
         self.sample_graph_simple = os.path.join(self.test_dir, 'simple-sample-graph.xml')
         self.sample_graph_pc_test = os.path.join(self.test_dir, 'pc-test-graph.xml')
+        self.sample_graph_bgp_speaker = os.path.join(self.test_dir, 't0-sample-bgp-speaker.xml')
         self.port_config = os.path.join(self.test_dir, 't0-sample-port-config.ini')
 
     def run_script(self, argument):
@@ -97,3 +98,13 @@ class TestCfgGen(TestCase):
         argument = '-m "' + self.sample_graph_t0 + '" -p "' + self.port_config + '" -v minigraph_neighbors'
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "{'Ethernet116': {'name': 'ARISTA02T1', 'port': 'Ethernet1/1'}, 'Ethernet124': {'name': 'ARISTA04T1', 'port': 'Ethernet1/1'}, 'Ethernet112': {'name': 'ARISTA01T1', 'port': 'Ethernet1/1'}, 'Ethernet120': {'name': 'ARISTA03T1', 'port': 'Ethernet1/1'}}")
+
+    def test_minigraph_peers_with_range(self):
+        argument = '-m "' + self.sample_graph_bgp_speaker + '" -p "' + self.port_config + '" -v minigraph_bgp_peers_with_range'
+        output = self.run_script(argument)
+        self.assertEqual(output.strip(), "[{'name': 'BGPSLBPassive', 'ip_range': '10.10.10.10/26'}]")
+
+    def test_minigraph_deployment_id(self):
+        argument = '-m "' + self.sample_graph_bgp_speaker + '" -p "' + self.port_config + '" -v deployment_id'
+        output = self.run_script(argument)
+        self.assertEqual(output.strip(), "1")

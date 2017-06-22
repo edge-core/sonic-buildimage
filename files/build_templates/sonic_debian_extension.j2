@@ -138,6 +138,9 @@ sudo bash -c "echo '  all: off' >> $FILESYSTEM_ROOT/etc/sonic/bgp_admin.yml"
 # Copy SNMP configuration files
 sudo cp $IMAGE_CONFIGS/snmp/snmp.yml $FILESYSTEM_ROOT/etc/sonic/
 
+# Copy ASN configuration files
+sudo cp $IMAGE_CONFIGS/asn/deployment_id_asn_map.yml $FILESYSTEM_ROOT/etc/sonic/
+
 # Copy sudoers configuration file
 sudo cp $IMAGE_CONFIGS/sudoers/sudoers $FILESYSTEM_ROOT/etc/
 
