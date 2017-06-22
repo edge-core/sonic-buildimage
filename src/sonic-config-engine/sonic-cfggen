@@ -49,7 +49,7 @@ def main():
     parser=argparse.ArgumentParser(description="Render configuration file from minigraph data and jinja2 template.")
     parser.add_argument("-m", "--minigraph", help="minigraph xml file")
     parser.add_argument("-p", "--port-config", help="port config file, used with -m")
-    parser.add_argument("-y", "--yaml", help="yaml file that contains addtional variables")
+    parser.add_argument("-y", "--yaml", help="yaml file that contains addtional variables", action='append', default=[])
     parser.add_argument("-a", "--additional-data", help="addition data, in json string")
     group = parser.add_mutually_exclusive_group()
     group.add_argument("-t", "--template", help="render the data with the template file")
@@ -79,8 +79,8 @@ def main():
             else:
                 data.update(parse_xml(minigraph))
 
-    if args.yaml != None:
-        with open(args.yaml, 'r') as stream:
+    for yaml_file in args.yaml:
+        with open(yaml_file, 'r') as stream:
             additional_data = yaml.load(stream)      
             data.update(additional_data)
 
