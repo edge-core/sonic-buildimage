@@ -127,10 +127,7 @@ def parse_dpg(dpg, hname):
         intfs = []
         for ipintf in ipintfs.findall(str(QName(ns, "IPInterface"))):
             intfalias = ipintf.find(str(QName(ns, "AttachTo"))).text
-            if port_alias_map.has_key(intfalias):
-                intfname = port_alias_map[intfalias]
-            else:
-                intfname = intfalias
+            intfname = port_alias_map.get(intfalias, intfalias)
             ipprefix = ipintf.find(str(QName(ns, "Prefix"))).text
             ipn = ipaddress.IPNetwork(ipprefix)
             ipaddr = ipn.ip
@@ -198,7 +195,7 @@ def parse_dpg(dpg, hname):
             pcintfmbr = pcintf.find(str(QName(ns, "AttachTo"))).text
             pcmbr_list = pcintfmbr.split(';')
             for i, member in enumerate(pcmbr_list):
-                pcmbr_list[i] = port_alias_map[member]
+                pcmbr_list[i] = port_alias_map.get(member, member)
             pcs[pcintfname] = {'name': pcintfname, 'members': pcmbr_list}
 
         vlanintfs = child.find(str(QName(ns, "VlanInterfaces")))
@@ -210,7 +207,7 @@ def parse_dpg(dpg, hname):
             vintfmbr = vintf.find(str(QName(ns, "AttachTo"))).text
             vmbr_list = vintfmbr.split(';')
             for i, member in enumerate(vmbr_list):
-                vmbr_list[i] = port_alias_map[member]
+                vmbr_list[i] = port_alias_map.get(member, member)
             vlan_attributes = {'name': vintfname, 'members': vmbr_list, 'vlanid': vlanid}
             sonic_vlan_name = "Vlan%s" % vlanid
             vlans[sonic_vlan_name] = vlan_attributes
