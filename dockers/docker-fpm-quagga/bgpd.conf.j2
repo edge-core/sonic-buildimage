@@ -57,11 +57,16 @@ router bgp {{ minigraph_bgp_asn }}
 {% if bgp_admin_state and bgp_admin_state.has_key(bgp_session['addr']) and bgp_admin_state[bgp_session['addr']]==False or bgp_admin_state and not bgp_admin_state.has_key(bgp_session['addr']) and bgp_admin_state.has_key('all') and bgp_admin_state['all']==False %}
   neighbor {{ bgp_session['addr'] }} shutdown
 {% endif %}
+{% if bgp_session['addr'] | ipv4 %}
 {% if minigraph_devices[inventory_hostname]['type'] == 'ToRRouter' %}
   neighbor {{ bgp_session['addr'] }} allowas-in 1
 {% endif %}
+{% endif %}
 {% if bgp_session['addr'] | ipv6 %}
   address-family ipv6
+{% if minigraph_devices[inventory_hostname]['type'] == 'ToRRouter' %}
+    neighbor {{ bgp_session['addr'] }} allowas-in 1
+{% endif %}
     neighbor {{ bgp_session['addr'] }} activate
     maximum-paths 64
   exit-address-family
