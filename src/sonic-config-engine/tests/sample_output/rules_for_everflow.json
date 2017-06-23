@@ -1,6 +1,6 @@
 [
     {
-        "ACL_RULE_TABLE:everflow:Rule_1":{
+        "ACL_RULE_TABLE:EVERFLOW:RULE_1":{
             "DST_IP":"127.0.0.1/32",
             "IP_PROTOCOL":6,
             "L4_DST_PORT":0,

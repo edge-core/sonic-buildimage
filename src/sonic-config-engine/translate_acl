@@ -13,11 +13,21 @@ def dump_json(filename, data):
     with open(filename, 'w') as outfile:
         json.dump(data, outfile, indent=4, sort_keys=True, separators=(',', ':'))
 
+def default_deny_rule(table_name):
+    rule_props = {}
+    rule_data = {}
+    rule_data["ACL_RULE_TABLE:"+table_name.upper()+":DEFAULT_RULE"] = rule_props
+    rule_data["OP"] = "SET"
+    rule_props["priority"] = 1
+    rule_props["ETHER_TYPE"] = "0x0800"
+    rule_props["PACKET_ACTION"] = "DROP"
+    return rule_data
+
 def generate_rule_json(table_name, rule, max_priority, mirror):
     rule_idx = rule.config.sequence_id
     rule_props = {}
     rule_data = {}
-    rule_data["ACL_RULE_TABLE:"+table_name+":Rule_"+str(rule_idx)] = rule_props
+    rule_data["ACL_RULE_TABLE:"+table_name.upper()+":RULE_"+str(rule_idx)] = rule_props
     rule_data["OP"] = "SET"
     
     rule_props["priority"] = max_priority - rule_idx
@@ -120,7 +130,8 @@ def generate_table_json(aclset, aclname, ports, mirror, max_priority, output_pat
         rule_props = generate_rule_json(table_name, aclentry, max_priority, mirror)
         if rule_props:
             rule_data.append(rule_props)
-
+    if not mirror:
+        rule_data.append(default_deny_rule(table_name))
     dump_json(os.path.join(output_path, "rules_for_"+table_name+".json"), rule_data)
 
 def translate_acl_fixed_port(filename, output_path, port, max_priority):

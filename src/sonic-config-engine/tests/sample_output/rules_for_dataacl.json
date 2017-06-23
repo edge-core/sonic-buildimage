@@ -1,6 +1,6 @@
 [
     {
-        "ACL_RULE_TABLE:dataacl:Rule_1":{
+        "ACL_RULE_TABLE:DATAACL:RULE_1":{
             "IP_PROTOCOL":17,
             "PACKET_ACTION":"FORWARD",
             "SRC_IP":"10.0.0.0/8",
@@ -9,7 +9,7 @@
         "OP":"SET"
     },
     {
-        "ACL_RULE_TABLE:dataacl:Rule_3":{
+        "ACL_RULE_TABLE:DATAACL:RULE_3":{
             "IP_PROTOCOL":17,
             "PACKET_ACTION":"FORWARD",
             "SRC_IP":"25.0.0.0/8",
@@ -18,7 +18,7 @@
         "OP":"SET"
     },
     {
-        "ACL_RULE_TABLE:dataacl:Rule_2":{
+        "ACL_RULE_TABLE:DATAACL:RULE_2":{
             "IP_PROTOCOL":17,
             "PACKET_ACTION":"FORWARD",
             "SRC_IP":"100.64.0.0/10",
@@ -27,11 +27,19 @@
         "OP":"SET"
     },
     {
-        "ACL_RULE_TABLE:dataacl:Rule_4":{
+        "ACL_RULE_TABLE:DATAACL:RULE_4":{
             "IP_PROTOCOL":6,
             "PACKET_ACTION":"FORWARD",
             "TCP_FLAGS":"0x10/0x10",
             "priority":9996
+        },
+        "OP":"SET"
+    },
+    {
+        "ACL_RULE_TABLE:DATAACL:DEFAULT_RULE":{
+            "ETHER_TYPE":"0x0800",
+            "PACKET_ACTION":"DROP",
+            "priority":1
         },
         "OP":"SET"
     }
