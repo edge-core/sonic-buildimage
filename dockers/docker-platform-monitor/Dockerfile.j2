@@ -6,7 +6,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Update apt's package index files
 RUN apt-get update
 
-RUN apt-get install -y python-pip sensord
+# Install required packages
+RUN apt-get install -y python-pip sensord fancontrol
 
 {% if docker_platform_monitor_debs.strip() %}
 # Copy built Debian packages
