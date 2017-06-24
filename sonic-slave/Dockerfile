@@ -216,6 +216,9 @@ RUN apt-get update && apt-get install -y \
 # For sonic config engine testing
         pyangbind
 
+# Install dependencies for building isc-dhcp-relay
+RUN apt-get -y build-dep isc-dhcp
+
 RUN cd /usr/src/gtest && cmake . && make -C /usr/src/gtest
 
 RUN mkdir /var/run/sshd

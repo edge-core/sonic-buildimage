@@ -29,6 +29,7 @@ src/sonic-device-data/src/device/
 dockers/docker-base/Dockerfile
 dockers/docker-config-engine/Dockerfile
 dockers/docker-database/Dockerfile
+dockers/docker-dhcp-relay/Dockerfile
 dockers/docker-fpm-frr/Dockerfile
 dockers/docker-fpm-gobgp/Dockerfile
 dockers/docker-fpm-quagga/Dockerfile

@@ -1,0 +1,289 @@
+This patch adds the following functionality to dhcrelay in isc-dhcp v4.3.1-6:
+* Add customizable Circuit ID and Remote ID fields
+* Support for obtaining name of physical interface of interfaces that are part of a bridge interface
+
+diff -ruN a/isc-dhcp/relay/dhcrelay.c b/isc-dhcp/relay/dhcrelay.c
+--- a/isc-dhcp/relay/dhcrelay.c	2014-08-06 22:35:02.000000000 +0000
++++ b/isc-dhcp/relay/dhcrelay.c	2017-06-08 21:39:53.856192546 +0000
+@@ -73,6 +73,8 @@
+ 				   did not match any known circuit ID. */
+ int missing_circuit_id = 0;	/* Circuit ID option in matching RAI option
+ 				   was missing. */
++const char *agent_circuit_id_fmt = NULL; /* Circuit ID custom format string. */
++const char *agent_remote_id_fmt = NULL;  /* Remote ID custom format string. */
+ int max_hop_count = 10;		/* Maximum hop count */
+ 
+ #ifdef DHCPv6
+@@ -140,9 +142,19 @@
+ static const char url[] =
+ "For info, please visit https://www.isc.org/software/dhcp/";
+ 
++#define DHCRELAY_OPTION82_USAGE \
++"circuit_id/remote_id interpreted sequences are:\n" \
++"\n" \
++"  %%%%  A single %%\n" \
++"  %%h  Hostname of device\n" \
++"  %%p  Name of interface that generated the request\n" \
++"  %%P  Hardware address of interface that generated the request\n" \
++"  %%C  Client hardware address\n" \
++"  %%I  DHCP relay agent IP Address\n" \
++
+ #ifdef DHCPv6
+ #define DHCRELAY_USAGE \
+-"Usage: dhcrelay [-4] [-d] [-q] [-a] [-D]\n"\
++"Usage: dhcrelay [-4] [-d] [-q] [-a <circuit_id> <remote_id>] [-D]\n"\
+ "                     [-A <length>] [-c <hops>] [-p <port>]\n" \
+ "                     [-pf <pid-file>] [--no-pid]\n"\
+ "                     [-m append|replace|forward|discard]\n" \
+@@ -154,14 +166,15 @@
+ "                     -l lower0 [ ... -l lowerN]\n" \
+ "                     -u upper0 [ ... -u upperN]\n" \
+ "       lower (client link): [address%%]interface[#index]\n" \
+-"       upper (server link): [address%%]interface"
++"       upper (server link): [address%%]interface\n\n" DHCRELAY_OPTION82_USAGE
+ #else
+ #define DHCRELAY_USAGE \
+-"Usage: dhcrelay [-d] [-q] [-a] [-D] [-A <length>] [-c <hops>] [-p <port>]\n" \
+-"                [-pf <pid-file>] [--no-pid]\n" \
++"Usage: dhcrelay [-d] [-q] [-a <circuit_id> <remote_id>] [-D]\n" \
++"                [-A <length>] [-c <hops>] [-p <port>]\n" \
++"                [-pf <pid-file>] [--no-pid]\n"\
+ "                [-m append|replace|forward|discard]\n" \
+ "                [-i interface0 [ ... -i interfaceN]\n" \
+-"                server0 [ ... serverN]\n\n"
++"                server0 [ ... serverN]\n\n" DHCRELAY_OPTION82_USAGE
+ #endif
+ 
+ static void usage() {
+@@ -287,6 +300,15 @@
+ 			local_family_set = 1;
+ 			local_family = AF_INET;
+ #endif
++			if (++i == argc)
++				usage();
++
++			if (argv[i] != NULL && argv[i][0] != '-')
++				agent_circuit_id_fmt = argv[i++];
++
++			if (argv[i] != NULL && argv[i][0] != '-')
++				agent_remote_id_fmt = argv[i];
++
+ 			add_agent_options = 1;
+ 		} else if (!strcmp(argv[i], "-A")) {
+ #ifdef DHCPv6
+@@ -937,6 +959,166 @@
+ 	return (-1);
+ }
+ 
++static int
++_bridgefdbquery(const char *hwAddr, char *interface, int *vlanid) {
++
++#define xstr(s) str(s)
++#define str(s) #s
++#define FDB_STRING_LEN  100
++#define FDB_BUFFER_LEN  (FDB_STRING_LEN + 1)
++
++/*
++ * Format for sscanf() to read the 1st, 3th, and 5th
++ * space-delimited fields
++ *
++ * bridge fdb show output
++ * 6c:64:1a:00:06:13 dev swp35 vlan 0 master bridge permanent
++ */
++#define FDB_LINE_FORMAT "%" xstr(FDB_STRING_LEN) "s %*s " \
++						 "%" xstr(FDB_STRING_LEN) "s %*s %d %*s"
++
++	char cmdstr[FDB_BUFFER_LEN];
++	char buf[FDB_BUFFER_LEN];
++	char macAddr[FDB_BUFFER_LEN];
++
++	if ((interface == NULL) || (vlanid == NULL)) {
++		return 0;
++	}
++	sprintf(cmdstr, "bridge fdb show | grep -m 1 %s", hwAddr);
++	FILE *cmd = popen(cmdstr, "r");
++
++	if (cmd != NULL) {
++		while (fgets(buf, sizeof(buf), cmd)) {
++			sscanf(buf, FDB_LINE_FORMAT, macAddr, interface, vlanid);
++			log_debug ("bridgefdbquery: macAddr:%s interface: %s vlanid %d",
++					   macAddr,
++					   interface, *vlanid);
++		}
++		pclose(cmd);
++		return 0;
++	}
++
++	return -1;
++}
++
++/*
++ * Format the message that will be used by circuit_id and remote_id
++ */
++static int
++format_relay_agent_rfc3046_msg(struct interface_info *ip, struct dhcp_packet *packet,
++								const char *format, char *msg, size_t msgn) {
++	size_t len = 0;
++	char hostname[HOST_NAME_MAX + 1] = { 0 };
++	char ifname[IFNAMSIZ + 1] = { 0 };
++	char *buf = msg;
++
++	for ( ; format && *format && len < msgn; ++format) {
++		size_t strn = 0;
++		const char *str = NULL;
++
++		if (*format == '%') {
++			switch (*++format) {
++				case '\0':
++					--format;
++				break;
++
++				case '%':  /* A literal '%' */
++					str = "%";
++				break;
++
++				case 'h': /* Hostname */
++					gethostname(hostname, HOST_NAME_MAX);
++					str = hostname;
++				break;
++
++				case 'p':  /* Name of interface that we received the request from */
++					/*
++					* Query FDB to identify the exact physical interface only when source MAC address 
++					* is present and '20: DHCP relay agent IP address' (giaddr) is not present
++					*/
++					if (packet->htype && !packet->giaddr.s_addr) {
++						int ret = 0, vlanid = 0;
++
++						ret = _bridgefdbquery(print_hw_addr(packet->htype, packet->hlen, packet->chaddr),
++											  ip->name,
++											  &vlanid);
++
++						if (ret < 0) {
++							log_debug("MAC Address: %s (interface:%s vlan:%d) not found in bridge fdb show",
++									  print_hw_addr (packet->htype, packet->hlen, packet->chaddr),
++									  ip->name,
++									  vlanid);
++							strncpy(ifname, ip->name, IFNAMSIZ);
++						}
++						else if (strlen(ip->name) > 0) {
++							char cmdstr[256] = { 0 };
++							char cmdout[256] = { 0 };
++
++							log_debug("Adding option 82 interface name for MAC Address: %s as %s",
++									  print_hw_addr (packet->htype, packet->hlen, packet->chaddr),
++									  ip->name);
++
++						// Translate SONiC interface name to vendor alias
++						sprintf(cmdstr, "sonic-cfggen -m /etc/sonic/minigraph.xml -v \"minigraph_ports['%s'].alias\"", ip->name);
++
++						FILE *cmd = popen(cmdstr, "r");
++
++						if (cmd != NULL) {
++							while (fgets(cmdout, sizeof(cmdout), cmd)) {
++								// Strip any trailing newline
++								if (cmdout[strlen(cmdout) - 1] == '\n')
++									cmdout[strlen(cmdout) - 1] = '\0';
++
++								log_debug ("Retrieved alias %s for interface %s", buf, ip->name);
++							}
++
++							pclose(cmd);
++						}
++
++						strncpy(ifname, cmdout, IFNAMSIZ);
++					}
++
++					str = ifname;
++				}
++				break;
++
++				case 'P': /* Physical address of interface that we received the request from */
++					str = print_hw_addr(ip->hw_address.hbuf[0], ip->hw_address.hlen - 1, &ip->hw_address.hbuf[1]);
++				break;
++
++				case 'C': /* 24: Client hardware address  */
++					str = print_hw_addr(packet->htype, packet->hlen, packet->chaddr);
++				break;
++
++				case 'I': /* 20: DHCP relay agent IP address */
++					str = inet_ntoa(packet->giaddr);
++				break;
++
++				default:
++					log_error("Option %%%c is unrecognized and will not be formatted!", *format);
++					continue;
++			}
++
++			if (str)
++				strn = strlen(str);
++		} else {
++			str = format;
++			strn += 1;
++		}
++
++		// Do we have room?
++		if ((strn+len) > msgn) {
++			return 0;
++		}
++
++		memcpy(buf+len, str, strn);
++		len += strn;
++	}
++
++	return len;
++}
++
++
+ /*
+  * Examine a packet to see if it's a candidate to have a Relay
+  * Agent Information option tacked onto its tail.   If it is, tack
+@@ -948,6 +1130,8 @@
+ 	int is_dhcp = 0, mms;
+ 	unsigned optlen;
+ 	u_int8_t *op, *nextop, *sp, *max, *end_pad = NULL;
++	char circuit_id_buf[255] = { '\0', };
++	char remote_id_buf[255] = { '\0', };
+ 
+ 	/* If we're not adding agent options to packets, we can skip
+ 	   this. */
+@@ -1077,6 +1261,38 @@
+ 	op = sp;
+ #endif
+ 
++	/* option82: custom string for circuit_id */
++	if (agent_circuit_id_fmt) {
++		size_t len = 0;
++
++		len = format_relay_agent_rfc3046_msg(ip, packet, agent_circuit_id_fmt,
++											 circuit_id_buf, sizeof(circuit_id_buf));
++
++		if (len > 0) {
++			ip->circuit_id = (uint8_t *)circuit_id_buf;
++			ip->circuit_id_len = len;
++
++			log_debug("sending on %s option82:circuit_id='%s'(%d)",
++					  ip->name, (char *)ip->circuit_id, ip->circuit_id_len);
++		}
++	}
++
++	/* option82: custom string for remote_id */
++	if (agent_remote_id_fmt) {
++		size_t len = 0;
++
++		len = format_relay_agent_rfc3046_msg(ip, packet, agent_remote_id_fmt,
++											 remote_id_buf, sizeof(remote_id_buf));
++
++		if (len > 0) {
++			ip->remote_id = (uint8_t *)remote_id_buf;
++			ip->remote_id_len = len;
++
++			log_debug("sending on %s option82:remote_id='%s'(%d)",
++					  ip->name, (char *)ip->remote_id, ip->remote_id_len);
++		}
++	}
++
+ 	/* Sanity check.  Had better not ever happen. */
+ 	if ((ip->circuit_id_len > 255) ||(ip->circuit_id_len < 1))
+ 		log_fatal("Circuit ID length %d out of range [1-255] on "
+

@@ -6,8 +6,17 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Update apt's cache of available packages
 RUN apt-get update
 
-# Install isc-dhcp-relay Debian package
-RUN apt-get -y install isc-dhcp-relay
+{% if docker_dhcp_relay_debs.strip() -%}
+# Copy built Debian packages
+{%- for deb in docker_dhcp_relay_debs.split(' ') %}
+COPY debs/{{ deb }} debs/
+{%- endfor %}
+
+# Install built Debian packages and implicitly install their dependencies
+{%- for deb in docker_dhcp_relay_debs.split(' ') %}
+RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt debs/{{ deb }}
+{%- endfor %}
+{%- endif %}
 
 # Clean up
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
