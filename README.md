@@ -42,7 +42,7 @@ To build SONiC installer image and docker images, run the following commands:
 
  **NOTE**: We recommend reserving 50G free space to build one platform.
     
-The SONIiC installer contains all docker images needed. SONiC use one image for all switches devices of a same ASIC vendor. The supported ASIC vendors are:
+The SONiC installer contains all docker images needed. SONiC uses one image for all devices of a same ASIC vendor. The supported ASIC vendors are:
 
 - PLATFORM=broadcom
 - PLATFORM=marvell (*pending*)
