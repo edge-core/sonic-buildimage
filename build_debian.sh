@@ -265,6 +265,8 @@ set /files/etc/sysctl.conf/net.ipv6.conf.default.accept_dad 0
 set /files/etc/sysctl.conf/net.ipv6.conf.all.accept_dad 0
 
 set /files/etc/sysctl.conf/net.ipv6.conf.eth0.accept_ra_defrtr 0
+
+set /files/etc/sysctl.conf/net.core.rmem_max 2097152
 " -r $FILESYSTEM_ROOT
 
 ## docker-py is needed by Ansible docker module
