@@ -41,7 +41,8 @@ RUN pip install ipaddr \
                 pysnmp==4.2.5 \
                 jinja2==2.7.2 \
                 cffi==1.10.0 \
-                paramiko==2.1.2
+                paramiko==2.1.2 \
+                adal
 
 RUN git clone https://github.com/ansible/ansible
 RUN cd ansible && git checkout v2.0.0.2-1 -b v2.0.0.2-1 && git submodule update --init --recursive && make && make install
