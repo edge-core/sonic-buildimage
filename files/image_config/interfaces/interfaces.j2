@@ -46,7 +46,6 @@ iface eth0 inet dhcp
 {% block front_panel_interfaces %}
 # The switch front panel interfaces
 {% for interface in minigraph_interfaces %}
-auto {{ interface['attachto'] }}
 allow-hotplug {{ interface['attachto'] }}
 iface {{ interface['attachto'] }} {{ 'inet' if interface['addr'] | ipv4 else 'inet6' }} static
     mtu 9216
@@ -59,7 +58,6 @@ iface {{ interface['attachto'] }} {{ 'inet' if interface['addr'] | ipv4 else 'in
 {% endif %}
 {% for vlan in minigraph_vlans.keys()|sort %}
 {% for member in minigraph_vlans[vlan]['members'] %}
-auto {{ member }}
 allow-hotplug {{ member }}
 iface {{ member }} inet manual
     pre-up ifconfig {{ member }} up mtu 9216
@@ -74,7 +72,6 @@ iface {{ member }} inet manual
 {% endif %}
 {% for pc in minigraph_portchannels.keys()|sort %}
 {% for member in minigraph_portchannels[pc]['members'] %}
-auto {{ member }}
 allow-hotplug {{ member }}
 iface {{ member }} inet manual
     pre-up teamdctl {{ pc }} port add {{ member }} || true
@@ -101,7 +98,6 @@ iface {{ vlan_interface['attachto'] }} {{ 'inet' if vlan_interface['addr'] | ipv
 {% block pc_interfaces %}
 # Portchannel interfaces
 {% for pc_interface in minigraph_portchannel_interfaces %}
-auto {{ pc_interface['attachto'] }}
 allow-hotplug {{ pc_interface['attachto'] }}
 iface {{ pc_interface['attachto'] }} {{ 'inet' if pc_interface['addr'] | ipv4 else 'inet6' }} static
     mtu 9216
