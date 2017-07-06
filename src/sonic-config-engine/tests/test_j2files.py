@@ -10,6 +10,7 @@ class TestJ2Files(TestCase):
         self.test_dir = os.path.dirname(os.path.realpath(__file__))
         self.script_file = os.path.join(self.test_dir, '..', 'sonic-cfggen')
         self.t0_minigraph = os.path.join(self.test_dir, 't0-sample-graph.xml')
+        self.pc_minigraph = os.path.join(self.test_dir, 'pc-test-graph.xml')
         self.t0_port_config = os.path.join(self.test_dir, 't0-sample-port-config.ini')
         self.output_file = os.path.join(self.test_dir, 'output')
 
@@ -30,21 +31,33 @@ class TestJ2Files(TestCase):
         self.assertEqual(data["Ethernet4"], "fortyGigE0/4")        
         
     def test_teamd(self):
+
+        def test_render_teamd(self, pc, minigraph, sample_output):
+            teamd_file = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-teamd', 'teamd.j2')
+            argument = '-m ' + minigraph + ' -p ' + self.t0_port_config + ' -a \'{\"pc\":\"' + pc + '\",\"hwaddr\":\"e4:1d:2d:a5:f3:ad\"}\' -t ' + teamd_file + ' > ' + self.output_file
+            self.run_script(argument)
+            self.assertTrue(filecmp.cmp(sample_output, self.output_file))
+
+        # Test T0 minigraph
         argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -v "minigraph_portchannels.keys() | join(\' \')"'
         output = self.run_script(argument) # Mock the output via config.sh in docker-teamd
         pc_list = output.split()
 
-        def test_render_teamd(self, pc):
-            teamd_file = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-teamd', 'teamd.j2')
-            sample_output_file = os.path.join(self.test_dir, 'sample_output',pc + '.conf')
-            argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -a \'{\"pc\":\"' + pc + '\",\"hwaddr\":\"e4:1d:2d:a5:f3:ad\"}\' -t ' + teamd_file + ' > ' + self.output_file
-            self.run_script(argument)
-            assert filecmp.cmp(sample_output_file, self.output_file)
-
         for i in range(1, 5):
             pc_name = 'PortChannel0' + str(i)
-            assert pc_name in pc_list
-            test_render_teamd(self, pc_name)
+            self.assertTrue(pc_name in pc_list)
+            sample_output = os.path.join(self.test_dir, 'sample_output', 't0_sample_output', pc_name + '.conf')
+            test_render_teamd(self, pc_name, self.t0_minigraph, sample_output)
+
+        # Test port channel test minigraph
+        argument = '-m ' + self.pc_minigraph + ' -p ' + self.t0_port_config + ' -v "minigraph_portchannels.keys() | join(\' \')"'
+        output = self.run_script(argument) # Mock the output via config.sh in docker-teamd
+        pc_list = output.split()
+
+        pc_name = 'PortChannel01'
+        self.assertTrue(pc_name in pc_list)
+        sample_output = os.path.join(self.test_dir, 'sample_output', 'pc_sample_output', pc_name + '.conf')
+        test_render_teamd(self, pc_name, self.pc_minigraph, sample_output)
 
     def test_ipinip(self):
         ipinip_file = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-orchagent', 'ipinip.json.j2')

@@ -5,7 +5,7 @@
         "name": "lacp",
         "active": true,
 {# Use 75% links upperbound as min-links #}
-        "min_ports": {{ minigraph_portchannels[pc]['members'] | length * 0.75 | round(0, 'ceil') | int}},
+        "min_ports": {{ (minigraph_portchannels[pc]['members'] | length * 0.75) | round(0, 'ceil') | int }},
         "tx_hash": ["eth", "ipv4", "ipv6"]
     },
     "link_watch": {
@@ -13,7 +13,7 @@
     },
     "ports": {
 {% for member in minigraph_portchannels[pc]['members'] %}
-        "{{member}}": {}{% if not loop.last %},{% endif %}
+        "{{ member }}": {}{% if not loop.last %},{% endif %}
 
 {% endfor %}
     }
