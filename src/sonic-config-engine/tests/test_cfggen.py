@@ -12,6 +12,7 @@ class TestCfgGen(TestCase):
         self.sample_graph_simple = os.path.join(self.test_dir, 'simple-sample-graph.xml')
         self.sample_graph_pc_test = os.path.join(self.test_dir, 'pc-test-graph.xml')
         self.sample_graph_bgp_speaker = os.path.join(self.test_dir, 't0-sample-bgp-speaker.xml')
+        self.sample_device_desc = os.path.join(self.test_dir, 'device.xml')
         self.port_config = os.path.join(self.test_dir, 't0-sample-port-config.ini')
 
     def run_script(self, argument):
@@ -29,6 +30,16 @@ class TestCfgGen(TestCase):
         output = self.run_script(argument)
         self.assertEqual(output, '')
     
+    def test_device_desc(self):
+        argument = '-v minigraph_hwsku -M "' + self.sample_device_desc + '"'
+        output = self.run_script(argument)
+        self.assertEqual(output.strip(), 'ACS-MSN2700')
+
+    def test_device_desc_mgmt_ip(self):
+        argument = '-v "minigraph_mgmt_interface[\'addr\']" -M "' + self.sample_device_desc + '"'
+        output = self.run_script(argument)
+        self.assertEqual(output.strip(), '10.0.1.5')
+
     def test_minigraph_sku(self):
         argument = '-v minigraph_hwsku -m "' + self.sample_graph + '"'
         output = self.run_script(argument)

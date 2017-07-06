@@ -42,10 +42,32 @@ ns3 = "http://www.w3.org/2001/XMLSchema-instance"
 
 class minigraph_encoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj,
-                      (ipaddress.IPv4Network, ipaddress.IPv6Network, ipaddress.IPv4Address, ipaddress.IPv6Address)):
+        if isinstance(obj, (
+            ipaddress.IPv4Network, ipaddress.IPv6Network, 
+            ipaddress.IPv4Address, ipaddress.IPv6Address
+            )):
             return str(obj)
         return json.JSONEncoder.default(self, obj)
+
+def parse_device(device):
+    lo_prefix = None
+    mgmt_prefix = None
+    d_type = None   # don't shadow type()
+    hwsku = None
+    name = None
+    if str(QName(ns3, "type")) in device.attrib:
+        d_type = device.attrib[str(QName(ns3, "type"))]
+
+    for node in device:
+        if node.tag == str(QName(ns, "Address")):
+            lo_prefix = node.find(str(QName(ns2, "IPPrefix"))).text
+        elif node.tag == str(QName(ns, "ManagementAddress")):
+            mgmt_prefix = node.find(str(QName(ns2, "IPPrefix"))).text
+        elif node.tag == str(QName(ns, "Hostname")):
+            name = node.text
+        elif node.tag == str(QName(ns, "HwSku")):
+            hwsku = node.text
+    return (lo_prefix, mgmt_prefix, name, hwsku, d_type)
 
 def parse_png(png, hname):
     neighbors = {}
@@ -77,24 +99,9 @@ def parse_png(png, hname):
 
         if child.tag == str(QName(ns, "Devices")):
             for device in child.findall(str(QName(ns, "Device"))):
-                lo_addr = None
-                # don't shadow type()
-                d_type = None
-                mgmt_addr = None
-                hwsku = None
-                if str(QName(ns3, "type")) in device.attrib:
-                    d_type = device.attrib[str(QName(ns3, "type"))]
-
-                for node in device:
-                    if node.tag == str(QName(ns, "Address")):
-                        lo_addr = node.find(str(QName(ns2, "IPPrefix"))).text.split('/')[0]
-                    elif node.tag == str(QName(ns, "ManagementAddress")):
-                        mgmt_addr = node.find(str(QName(ns2, "IPPrefix"))).text.split('/')[0]
-                    elif node.tag == str(QName(ns, "Hostname")):
-                        name = node.text
-                    elif node.tag == str(QName(ns, "HwSku")):
-                        hwsku = node.text
-
+                (lo_prefix, mgmt_prefix, name, hwsku, d_type) = parse_device(device)
+                lo_addr = None if not lo_prefix else lo_prefix.split('/')[0]
+                mgmt_addr = None if not mgmt_prefix else mgmt_prefix.split('/')[0]
                 devices[name] = {'lo_addr': lo_addr, 'type': d_type, 'mgmt_addr': mgmt_addr, 'hwsku': hwsku}
 
         if child.tag == str(QName(ns, "DeviceInterfaceLinks")):
@@ -270,7 +277,7 @@ def parse_cpg(cpg, hname):
                     myasn = int(asn)
                     peers = router.find(str(QName(ns1, "Peers")))
                     for bgpPeer in peers.findall(str(QName(ns, "BGPPeer"))):
-			addr = bgpPeer.find(str(QName(ns, "Address"))).text
+                        addr = bgpPeer.find(str(QName(ns, "Address"))).text
                         if bgpPeer.find(str(QName(ns1, "PeersRange"))) is not None:
                             name = bgpPeer.find(str(QName(ns1, "Name"))).text
                             ip_range = bgpPeer.find(str(QName(ns1, "PeersRange"))).text
@@ -382,7 +389,6 @@ def parse_port_config(hwsku, platform=None, port_config_file=None):
             port_alias_map[alias] = name
     return ports
 
-
 def parse_xml(filename, platform=None, port_config_file=None):
     root = ET.parse(filename).getroot()
     mini_graph_path = filename
@@ -432,9 +438,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
         elif child.tag == str(QName(ns, "MetadataDeclaration")):
             (syslog_servers, dhcp_servers, ntp_servers, mgmt_routes, erspan_dst, deployment_id) = parse_meta(child, hostname)
 
-    Tree = lambda: defaultdict(Tree)
-
-    results = Tree()
+    results = {}
     results['minigraph_hwsku'] = hwsku
     # sorting by lambdas are not easily done without custom filters.
     # TODO: add jinja2 filter to accept a lambda to sort a list of dictionaries by attribute.
@@ -482,6 +486,38 @@ def parse_xml(filename, platform=None, port_config_file=None):
     results['erspan_dst'] = erspan_dst
     results['deployment_id'] = deployment_id
 
+    return results
+
+def parse_device_desc_xml(filename):
+    root = ET.parse(filename).getroot()
+    (lo_prefix, mgmt_prefix, hostname, hwsku, d_type) = parse_device(root)
+
+    results = {}
+    results['minigraph_hwsku'] = hwsku
+    results['minigraph_hostname'] = hostname
+    results['inventory_hostname'] = hostname
+
+    lo_intfs = []
+    ipn = ipaddress.IPNetwork(lo_prefix)
+    ipaddr = ipn.ip
+    prefix_len = ipn.prefixlen
+    ipmask = ipn.netmask
+    lo_intf = {'name': None, 'addr': ipaddr, 'prefixlen': prefix_len}
+    if isinstance(ipn, ipaddress.IPv4Network):
+        lo_intf['mask'] = ipmask
+    else:
+        lo_intf['mask'] = str(prefix_len)
+    lo_intfs.append(lo_intf)
+    results['minigraph_lo_interfaces'] = lo_intfs
+
+    mgmt_intf = None
+    mgmt_ipn = ipaddress.IPNetwork(mgmt_prefix)
+    ipaddr = mgmt_ipn.ip
+    prefix_len = str(mgmt_ipn.prefixlen)
+    ipmask = mgmt_ipn.netmask
+    gwaddr = ipaddress.IPAddress(int(mgmt_ipn.network) + 1)
+    mgmt_intf = {'addr': ipaddr, 'prefixlen': prefix_len, 'mask': ipmask, 'gwaddr': gwaddr}
+    results['minigraph_mgmt_interface'] = mgmt_intf
     return results
 
 port_alias_map = {}
