@@ -16,6 +16,11 @@
 # container.
 SONIC_CONFIG_BUILD_JOBS = 1
 
+# SONIC_CONFIG_BUILD_JOBS - set number of jobs for number of jobs per package.
+# Corresponding -j argument will be passed to make/dpkg commands that build separate packages
+# container.
+SONIC_CONFIG_MAKE_JOBS = $(shell nproc)
+
 # SONIC_CONFIG_LOG_TO_FILES - print output from execution of rule for each
 # target into separate log file under target/log/.
 # Useful when executing parallel build

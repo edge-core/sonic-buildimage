@@ -20,7 +20,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	dpkg-source -x thrift_$(THRIFT_VERSION_FULL).dsc
 	pushd thrift-$(THRIFT_VERSION)
 	patch -p1 < ../patch/THRIFT-3577-assertion-failed.patch
-	DEB_BUILD_OPTIONS=nocheck dpkg-buildpackage -d -rfakeroot -b -us -uc
+	DEB_BUILD_OPTIONS=nocheck dpkg-buildpackage -d -rfakeroot -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS)
 	popd
 
 	mv $(DERIVED_TARGETS) $* $(DEST)/

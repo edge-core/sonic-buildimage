@@ -15,7 +15,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 
 	# Build the package
 	rm -f debian/*.debhelper.log
-	dpkg-buildpackage -rfakeroot -b -us -uc
+	dpkg-buildpackage -rfakeroot -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS)
 	popd
 
 	mv $* $(DEST)/

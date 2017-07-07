@@ -14,7 +14,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 
 	dpkg-source -x hiredis_$(HIREDIS_VERSION_FULL).dsc
 	pushd hiredis-$(HIREDIS_VERSION)
-	fakeroot debian/rules binary
+	fakeroot debian/rules -j$(SONIC_CONFIG_MAKE_JOBS) binary
 	popd
 
 	mv $* $(DERIVED_TARGETS) $(DEST)/

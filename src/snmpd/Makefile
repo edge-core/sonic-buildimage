@@ -23,7 +23,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	dpkg-source -x net-snmp_$(SNMPD_VERSION_FULL).dsc
 
 	pushd net-snmp-$(SNMPD_VERSION)
-	fakeroot debian/rules binary
+	fakeroot debian/rules -j$(SONIC_CONFIG_MAKE_JOBS) binary
 	popd
 
 	mv $(DERIVED_TARGETS) $* $(DEST)/

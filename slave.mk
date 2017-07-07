@@ -71,6 +71,7 @@ override PASSWORD := $(DEFAULT_PASSWORD)
 endif
 
 MAKEFLAGS += -j $(SONIC_CONFIG_BUILD_JOBS)
+export SONIC_CONFIG_MAKE_JOBS
 
 ###############################################################################
 ## Dumping key config attributes associated to current building exercise
@@ -178,7 +179,7 @@ $(addprefix $(DEBS_PATH)/, $(SONIC_DPKG_DEBS)) : $(DEBS_PATH)/% : .platform $$(a
 	if [ -f $($*_SRC_PATH).patch/series ]; then pushd $($*_SRC_PATH) && QUILT_PATCHES=../$(notdir $($*_SRC_PATH)).patch quilt push -a; popd; fi
 	pushd $($*_SRC_PATH) $(LOG)
 	[ ! -f ./autogen.sh ] || ./autogen.sh $(LOG)
-	dpkg-buildpackage -rfakeroot -b -us -uc $(LOG)
+	dpkg-buildpackage -rfakeroot -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS) $(LOG)
 	popd $(LOG)
 	# clean up
 	if [ -f $($*_SRC_PATH).patch/series ]; then pushd $($*_SRC_PATH) && quilt pop -a -f; popd; fi

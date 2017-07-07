@@ -32,7 +32,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	fi
 	done
 
-	dpkg-buildpackage -rfakeroot -us -uc -b
+	dpkg-buildpackage -rfakeroot -us -uc -b -j$(SONIC_CONFIG_MAKE_JOBS)
 	popd
 
 	cp $(DERIVED_TARGETS) $* $(DEST)/

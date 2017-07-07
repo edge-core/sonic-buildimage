@@ -27,7 +27,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	quilt push
 	quilt push
 	quilt push
-	dpkg-buildpackage -rfakeroot -b -us -uc
+	dpkg-buildpackage -rfakeroot -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS)
 	popd
 
 	mv $(DERIVED_TARGETS) $* $(DEST)/
