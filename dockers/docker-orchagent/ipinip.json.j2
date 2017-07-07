@@ -4,7 +4,7 @@
             "tunnel_type":"IPINIP",
             "src_ip":"{{ minigraph_lo_interfaces[0]['addr'] }}",
             "dst_ip":"{{ minigraph_lo_interfaces[0]['addr'] }}",
-{% if minigraph_hwsku in [ 'ACS-MSN2700', 'ACS-MSN2410', 'ACS-MSN2100' ] %}
+{% if onie_switch_asic == "mlnx" %}
             "dscp_mode":"uniform",
             "ecn_mode":"standard",
 {% else %}

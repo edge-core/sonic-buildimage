@@ -20,7 +20,7 @@ debs/{{ deb }}{{' '}}
 
 COPY ["start.sh", "mlnx-fw-upgrade.sh", "/usr/bin/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
-COPY ["/debs/fw-SPC.mfa", "/etc/mlnx/"]
+COPY ["/debs/fw-SPC-*-EVB.mfa", "/etc/mlnx/fw-SPC.mfa"]
 
 ## Clean up
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
