@@ -120,7 +120,7 @@ def generate_table_json(aclset, aclname, ports, mirror, max_priority, output_pat
     table_props["ports"] = ports
 
     table_data = [{}]
-    table_data[0]["ACL_TABLE:"+table_name] = table_props
+    table_data[0]["ACL_TABLE:"+table_name.upper()] = table_props
     table_data[0]["OP"] = "SET"
     dump_json(os.path.join(output_path, "table_"+table_name+".json"), table_data)
 

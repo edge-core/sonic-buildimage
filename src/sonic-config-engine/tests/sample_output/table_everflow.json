@@ -1,6 +1,6 @@
 [
     {
-        "ACL_TABLE:everflow":{
+        "ACL_TABLE:EVERFLOW":{
             "policy_desc":"everflow",
             "ports":"Ethernet24,Ethernet40,Ethernet20,Ethernet44,Ethernet48,Ethernet28,Ethernet96,Ethernet92,Ethernet76,Ethernet116,Ethernet72,Ethernet112,Ethernet52,Ethernet108,Ethernet56,Ethernet32,Ethernet16,Ethernet36,Ethernet12,Ethernet120,Ethernet8,Ethernet4,Ethernet0,Ethernet124,Ethernet68,Ethernet84,Ethernet100,Ethernet80,Ethernet60,Ethernet104,Ethernet64,Ethernet88",
             "type":"mirror"
