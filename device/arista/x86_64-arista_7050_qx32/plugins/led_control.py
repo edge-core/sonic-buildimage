@@ -7,12 +7,14 @@
 
 try:
     from sonic_led.led_control_base import LedControlBase
+    import swsssdk
 except ImportError, e:
     raise ImportError (str(e) + " - required module not found")
 
 
 class LedControl(LedControlBase):
     """Platform specific LED control class"""
+    PORT_TABLE_PREFIX = "PORT_TABLE:"
 
     SONIC_PORT_NAME_PREFIX = "Ethernet"
 
@@ -36,23 +38,28 @@ class LedControl(LedControlBase):
 
         sonic_port_num = int(port_name[len(self.SONIC_PORT_NAME_PREFIX):])
 
+        swss = swsssdk.SonicV2Connector()
+        swss.connect(swss.APPL_DB)
+
+        lanes = swss.get(swss.APPL_DB, self.PORT_TABLE_PREFIX + port_name, 'lanes')
+
         # SONiC port nums are 0-based and increment by 4
         # Arista QSFP indices are 1-based and increment by 1
-        return ((sonic_port_num/4) + 1)
+        return (((sonic_port_num/4) + 1), sonic_port_num%4, len(lanes.split(',')))
 
     # Concrete implementation of port_link_state_change() method
     def port_link_state_change(self, port, state):
-        qsfp_index = self._port_name_to_qsfp_index(port)
+        qsfp_index, lane_index, lanes = self._port_name_to_qsfp_index(port)
         
         # Ignore invalid QSFP indices
-        if qsfp_index <= 0:
+        if qsfp_index <= 0 or lanes <= 0 or lanes > 4:
             return
 
         # QSFP indices 1-24 are breakout-capable and have four LEDs, and each LED indicate one lane.
         # whereas indices 25-32 are not breakout-capable, and only have one
         if qsfp_index <= self.QSFP_BREAKOUT_END_IDX:
             # assuming 40G, then we need to control four lanes
-            led_sysfs_paths = [ self.LED_SYSFS_PATH_BREAKOUT_CAPABLE.format(qsfp_index, i) for i in range(1, 5) ]
+            led_sysfs_paths = [ self.LED_SYSFS_PATH_BREAKOUT_CAPABLE.format(qsfp_index, i) for i in range(lane_index + 1, lane_index + 1 + lanes) ]
         else:
             led_sysfs_paths = [ self.LED_SYSFS_PATH_NO_BREAKOUT.format(qsfp_index) ]
 
