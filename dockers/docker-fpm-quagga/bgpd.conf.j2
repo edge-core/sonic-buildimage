@@ -84,7 +84,9 @@ router bgp {{ minigraph_bgp_asn }}
   neighbor {{ bgp_peer['name'] }} update-source Loopback0
   neighbor {{ bgp_peer['name'] }} route-map FROM_BGP_SPEAKER_V4 in
   neighbor {{ bgp_peer['name'] }} route-map TO_BGP_SPEAKER_V4 out
-  bgp listen range {{ bgp_peer['ip_range'] }} peer-group {{ bgp_peer['name'] }}
+{% for ip_range in bgp_peer['ip_range'] %}
+  bgp listen range {{ip_range}} peer-group {{ bgp_peer['name'] }}
+{% endfor %}
 {% endfor %}
 {% endblock bgp_peers_with_range %}
 !

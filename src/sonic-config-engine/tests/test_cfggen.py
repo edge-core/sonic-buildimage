@@ -113,7 +113,7 @@ class TestCfgGen(TestCase):
     def test_minigraph_peers_with_range(self):
         argument = '-m "' + self.sample_graph_bgp_speaker + '" -p "' + self.port_config + '" -v minigraph_bgp_peers_with_range'
         output = self.run_script(argument)
-        self.assertEqual(output.strip(), "[{'name': 'BGPSLBPassive', 'ip_range': '10.10.10.10/26'}]")
+        self.assertEqual(output.strip(), "[{'name': 'BGPSLBPassive', 'ip_range': ['10.10.10.10/26', '100.100.100.100/26']}]")
 
     def test_minigraph_deployment_id(self):
         argument = '-m "' + self.sample_graph_bgp_speaker + '" -p "' + self.port_config + '" -v deployment_id'
