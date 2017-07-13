@@ -20,4 +20,3 @@ COPY ["start.sh", "/usr/bin/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 
 ENTRYPOINT ["/usr/bin/supervisord"]
-

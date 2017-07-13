@@ -8,4 +8,3 @@ ExecStart=/usr/bin/rsyslog-config.sh
 
 [Install]
 WantedBy=multi-user.target
-

@@ -33,4 +33,3 @@ LIBPY3_DEV = lib$(PYTHON_PNAME)-dev_$(PYTHON_VER)_amd64.deb
 $(eval $(call add_derived_package,$(LIBPY3_MIN),$(LIBPY3_DEV)))
 $(LIBPY3_DEV)_DEPENDS += $(LIBPY3) $($(LIBPY3)_DEPENDS)
 $(LIBPY3_DEV)_RDEPENDS += $(LIBPY3) $($(LIBPY3)_RDEPENDS)
-

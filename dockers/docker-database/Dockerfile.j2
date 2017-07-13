@@ -35,4 +35,3 @@ RUN sed -ri 's/^(save .*$)/# \1/g;                                              
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 
 ENTRYPOINT ["/usr/bin/supervisord"]
-

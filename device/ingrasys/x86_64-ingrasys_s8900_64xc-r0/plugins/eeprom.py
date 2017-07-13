@@ -20,4 +20,3 @@ class board(eeprom_tlvinfo.TlvInfoDecoder):
     def __init__(self, name, path, cpld_root, ro):
         self.eeprom_path = "/sys/class/i2c-adapter/i2c-7/7-0054/eeprom"
         super(board, self).__init__(self.eeprom_path, 0, '', True)
-

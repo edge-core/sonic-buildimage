@@ -27,4 +27,3 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	mv $* $(DERIVED_TARGETS) $(DEST)/
 
 $(addprefix $(DEST)/, $(DERIVED_TARGETS)): $(DEST)/% : $(DEST)/$(MAIN_TARGET)
-

@@ -86,4 +86,3 @@ class LedControl(LedControlBase):
             led_sysfs_path = self.LED_SYSFS_PATH_NO_BREAKOUT.format(qsfp_index)
             with open(led_sysfs_path, 'w') as led_file:
                 led_file.write("%d" % self.LED_COLOR_OFF)
-

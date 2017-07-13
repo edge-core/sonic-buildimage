@@ -9,4 +9,3 @@ MINTEMP=hwmon2/device/pwm2=20 hwmon2/device/pwm1=20
 MAXTEMP=hwmon2/device/pwm2=60 hwmon2/device/pwm1=60
 MINSTART=hwmon2/device/pwm2=75 hwmon2/device/pwm1=75
 MINSTOP=hwmon2/device/pwm2=22 hwmon2/device/pwm1=22
-

@@ -10,4 +10,3 @@ SONIC_MAKE_DEBS += $(ISC_DHCP_COMMON)
 
 ISC_DHCP_RELAY = isc-dhcp-relay_$(ISC_DHCP_VERSION)_amd64.deb
 $(eval $(call add_derived_package,$(ISC_DHCP_COMMON),$(ISC_DHCP_RELAY)))
-

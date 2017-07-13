@@ -11,4 +11,3 @@ supervisorctl start rsyslogd
 supervisorctl start lldpd
 supervisorctl start lldpd-conf-reload
 supervisorctl start lldp-syncd
-

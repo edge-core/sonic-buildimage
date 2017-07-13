@@ -30,4 +30,3 @@ class board(eeprom_tlvinfo.TlvInfoDecoder):
     def __init__(self, name, path, cpld_root, ro):
         self.eeprom_path = "/bsp/eeprom/sys_eeprom"
         super(board, self).__init__(self.eeprom_path, 0, '', True)
-

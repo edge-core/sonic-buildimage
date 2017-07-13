@@ -19,4 +19,3 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 
 	# Move the newly-built .deb packages to the destination directory
 	mv ./supervisor/deb_dist/$* $(DEST)/
-

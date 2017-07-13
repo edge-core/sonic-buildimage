@@ -1,3 +1,2 @@
 # Attempt to rotate system logs once per minute
 * * * * * root /usr/sbin/logrotate /etc/logrotate.d/rsyslog
-

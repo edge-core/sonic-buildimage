@@ -19,4 +19,3 @@ $(LIBSAIREDIS)_DEPENDS += $(CAVM_SAI) $(CAVM_LIBSAI) $(LIBSAITHRIFT_DEV_CAVM)
 
 # Runtime dependency on cavium sai is set only for syncd
 $(SYNCD)_RDEPENDS += $(CAVM_SAI)
-

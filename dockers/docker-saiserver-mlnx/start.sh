@@ -13,4 +13,3 @@ supervisorctl start rsyslogd
 start_mlnx
 
 supervisorctl start saiserver
-

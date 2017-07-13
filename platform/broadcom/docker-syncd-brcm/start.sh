@@ -20,4 +20,3 @@ if [ -r ${PLATFORM_DIR}/led_proc_init.soc ]; then
 
     /usr/bin/bcmcmd -t 60 "rcload ${PLATFORM_DIR}/led_proc_init.soc"
 fi
-

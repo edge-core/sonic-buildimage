@@ -27,4 +27,3 @@ COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 COPY ["isc-dhcp-relay.j2", "/usr/share/sonic/templates/"]
 
 ENTRYPOINT ["/usr/bin/supervisord"]
-

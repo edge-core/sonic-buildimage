@@ -11,4 +11,3 @@ $(DOCKER_FPM_FRR)_RUN_OPT += --net=host --privileged -t
 $(DOCKER_FPM_FRR)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
 
 $(DOCKER_FPM_FRR)_BASE_IMAGE_FILES += vtysh:/usr/bin/vtysh
-

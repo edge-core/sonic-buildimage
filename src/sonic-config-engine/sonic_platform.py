@@ -29,4 +29,3 @@ def get_platform_info(machine_info):
         elif machine_info.has_key('aboot_platform'):
             return machine_info['aboot_platform']
     return None
-

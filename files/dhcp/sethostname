@@ -10,4 +10,3 @@ case $reason in
         fi
         ;;
 esac
-

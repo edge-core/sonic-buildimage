@@ -17,4 +17,3 @@ $(DOCKER_SYNCD_BRCM)_RUN_OPT += -v /var/run/docker-syncd:/var/run/sswsyncd
 $(DOCKER_SYNCD_BRCM)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
 
 $(DOCKER_SYNCD_BRCM)_BASE_IMAGE_FILES += bcmcmd:/usr/bin/bcmcmd
-

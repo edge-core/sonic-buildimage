@@ -7540,5 +7540,3 @@ and operational state data
 
 
   _pyangbind_elements = {'acl': acl, }
-
-

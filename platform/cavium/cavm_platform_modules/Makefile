@@ -31,4 +31,3 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 
 	mv $(MAIN_TARGET) $(DEST)/
 	rm -rf $(DEB_BUILD_DIR)
-

@@ -16,4 +16,3 @@ if test "$INTERFACES" != ""; then
 fi
 
 exec /usr/sbin/dhcrelay -d -q ${OPTIONS} ${IFCMD} ${SERVERS}
-

@@ -8,4 +8,3 @@ iface lo inet loopback
 # The management network interface
 auto eth0
 iface eth0 inet dhcp
-

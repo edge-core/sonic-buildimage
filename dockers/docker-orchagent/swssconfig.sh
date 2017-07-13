@@ -58,4 +58,3 @@ for file in $SWSSCONFIG_ARGS; do
 done
 
 config_acl
-

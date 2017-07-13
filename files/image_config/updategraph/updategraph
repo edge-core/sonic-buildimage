@@ -86,4 +86,3 @@ if [ -n "$ACL_URL" ]; then
 else
     echo "Skip ACL config download."
 fi
-
