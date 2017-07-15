@@ -206,9 +206,11 @@ RUN apt-get update && apt-get install -y \
 RUN apt-get -y build-dep linux
 
 # For gobgp build
-RUN apt-get -yt jessie-backports install \
-        golang-go \
-        golang-github-golang-mock-dev
+RUN export VERSION=1.8.3 \
+ && wget https://storage.googleapis.com/golang/go$VERSION.linux-amd64.tar.gz \
+ && tar -C /usr/local -xzf go$VERSION.linux-amd64.tar.gz \
+ && echo 'export GOROOT=/usr/local/go' >> /etc/bash.bashrc \
+ && echo 'export PATH=$PATH:$GOROOT/bin' >> /etc/bash.bashrc
 
 # For p4 build
 RUN pip install \
