@@ -1,0 +1,69 @@
+#!/bin/bash
+
+### BEGIN INIT INFO
+# Provides:          setup-board
+# Required-Start:
+# Required-Stop:
+# Should-Start:
+# Should-Stop:
+# Default-Start:     S
+# Default-Stop:      0 6
+# Short-Description: Setup Inventec d7032q28b  board.
+### END INIT INFO
+
+case "$1" in
+start)
+	echo -n "Setting up board... "
+	
+	depmod -a
+	modprobe inv_platform
+	modprobe inv_psoc
+	modprobe inv_cpld
+	
+	/usr/local/bin/onie-syseeprom -S /tmp/eeprom
+	# Attach 32 instances of EEPROM driver QSFP ports on IO module 1
+	#eeprom can dump data using below command
+	for ((i=22;i<=29;i++));
+	do
+	echo sff8436 0x50 > /sys/bus/i2c/devices/i2c-0/i2c-4/i2c-$i/new_device 
+	done
+
+	for ((i=30;i<=37;i++));
+	do
+	echo sff8436 0x50 > /sys/bus/i2c/devices/i2c-0/i2c-5/i2c-$i/new_device 
+	done
+
+	for ((i=6;i<=13;i++));
+	do
+	echo sff8436 0x50 > /sys/bus/i2c/devices/i2c-0/i2c-2/i2c-$i/new_device 
+	done
+
+	for ((i=14;i<=21;i++));
+	do
+	echo sff8436 0x50 > /sys/bus/i2c/devices/i2c-0/i2c-3/i2c-$i/new_device 
+	done
+	
+	echo "done."
+	;;
+
+stop)
+	
+	rmmod inv_cpld
+	rmmod inv_psoc
+	rmmod inv_platform 
+	
+	echo "done."
+
+	;;
+
+force-reload|restart)
+	echo "Not supported"
+	;;
+
+*)
+	echo "Usage: /etc/init.d/platform-modules-d7032q28b.init {start|stop}"
+	exit 1
+	;;
+esac
+
+exit 0
