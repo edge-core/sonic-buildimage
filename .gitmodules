@@ -66,3 +66,6 @@
 [submodule "platform/broadcom/sonic-platform-modules-accton"]
 	path = platform/broadcom/sonic-platform-modules-accton
 	url = https://github.com/edge-core/sonic-platform-modules-accton.git
+[submodule "platform/broadcom/sonic-platform-modules-cel"]
+	path = platform/broadcom/sonic-platform-modules-cel
+	url = https://github.com/celestica-Inc/sonic-platform-modules-cel.git
