@@ -25,21 +25,7 @@ DOCKER_BUILD = docker build --no-cache \
 	       sonic-slave && \
 	       docker tag $(SLAVE_IMAGE):latest $(SLAVE_IMAGE):$(SLAVE_TAG)
 
-
-MGMT_TAG = $(shell shasum sonic-mgmt/Dockerfile | awk '{print substr($$1,0,11);}')
-MGMT_IMAGE = sonic-mgmt-$(USER)
-
-DOCKER_MGMT_BUILD = docker build --no-cache \
-	       --build-arg user=$(USER) \
-	       --build-arg uid=$(shell id -u) \
-	       --build-arg guid=$(shell id -g) \
-	       --build-arg hostname=$(shell echo $$HOSTNAME) \
-	       -t $(MGMT_IMAGE) \
-	       sonic-mgmt && \
-	       docker tag $(MGMT_IMAGE):latest $(MGMT_IMAGE):$(MGMT_TAG)
-
-
-.PHONY: sonic-slave-build sonic-slave-bash sonic-mgmt-build
+.PHONY: sonic-slave-build sonic-slave-bash
 
 .DEFAULT_GOAL :=  all
 
@@ -67,6 +53,3 @@ sonic-slave-bash :
 	    { echo Image $(SLAVE_IMAGE):$(SLAVE_TAG) not found. Building... ; \
 	    $(DOCKER_BUILD) ; }
 	@$(DOCKER_RUN) -t $(SLAVE_IMAGE):$(SLAVE_TAG) bash
-
-sonic-mgmt-build :
-	@$(DOCKER_MGMT_BUILD)

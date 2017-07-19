@@ -20,7 +20,7 @@ RUN apt-get install -y \
                 libxslt1-dev \
                 python-setuptools
 
-# For JNLP launcher 
+# For JNLP launcher
 RUN apt-get install -y default-jre
 
 # For syslog test
@@ -43,6 +43,19 @@ RUN pip install ipaddr \
                 cffi==1.10.0 \
                 paramiko==2.1.2 \
                 adal
+
+
+## Copy and install sonic-mgmt docker dependencies
+COPY \
+{% for deb in docker_sonic_mgmt_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor -%}
+debs/
+
+RUN dpkg -i \
+{% for deb in docker_sonic_mgmt_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor %}
 
 RUN git clone https://github.com/ansible/ansible
 RUN cd ansible && git checkout v2.0.0.2-1 -b v2.0.0.2-1 && git submodule update --init --recursive && make && make install
