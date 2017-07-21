@@ -130,7 +130,7 @@ $(addprefix $(DEBS_PATH)/, $(SONIC_COPY_FILES)) : $(DEBS_PATH)/% : .platform
 $(addprefix $(DEBS_PATH)/, $(SONIC_ONLINE_DEBS)) : $(DEBS_PATH)/% : .platform
 	$(HEADER)
 	$(foreach deb,$* $($*_DERIVED_DEBS), \
-	    { wget -O $(DEBS_PATH)/$(deb) $($(deb)_URL) $(LOG) || exit 1 ; } ; )
+	    { wget --no-use-server-timestamps -O $(DEBS_PATH)/$(deb) $($(deb)_URL) $(LOG) || exit 1 ; } ; )
 	$(FOOTER)
 
 # Download regular files from online location
@@ -141,7 +141,7 @@ $(addprefix $(DEBS_PATH)/, $(SONIC_ONLINE_DEBS)) : $(DEBS_PATH)/% : .platform
 #     SONIC_ONLINE_FILES += $(SOME_NEW_FILE)
 $(addprefix $(DEBS_PATH)/, $(SONIC_ONLINE_FILES)) : $(DEBS_PATH)/% : .platform
 	$(HEADER)
-	wget -O  $@ $($*_URL) $(LOG)
+	wget --no-use-server-timestamps -O  $@ $($*_URL) $(LOG)
 	$(FOOTER)
 
 ###############################################################################
