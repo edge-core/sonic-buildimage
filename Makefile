@@ -14,6 +14,7 @@ SLAVE_IMAGE = sonic-slave-$(USER)
 
 DOCKER_RUN := docker run --rm=true --privileged \
     -v $(PWD):/sonic \
+    -w /sonic \
     -i$(if $(TERM),t,)
 
 DOCKER_BUILD = docker build --no-cache \
@@ -34,7 +35,6 @@ DOCKER_BUILD = docker build --no-cache \
 	    { echo Image $(SLAVE_IMAGE):$(SLAVE_TAG) not found. Building... ; \
 	    $(DOCKER_BUILD) ; }
 	@$(DOCKER_RUN) $(SLAVE_IMAGE):$(SLAVE_TAG) make \
-	    -C sonic \
 	    -f slave.mk \
 	    PLATFORM=$(PLATFORM) \
 	    BUILD_NUMBER=$(BUILD_NUMBER) \
