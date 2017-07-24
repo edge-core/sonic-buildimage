@@ -96,8 +96,11 @@ RUN mkdir /var/run/sshd \
  && sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config \
  && sed -i '$aUseDNS no' /etc/ssh/sshd_config
 
-COPY ["supervisord.conf", "sshd.conf", "ptf_nn_agent.conf", "/etc/supervisor/conf.d/"]
+COPY ["supervisord.conf", "/etc/supervisor/"]
+COPY ["conf.d/supervisord.conf", "conf.d/sshd.conf", "conf.d/ptf_nn_agent.conf", "/etc/supervisor/conf.d/"]
+
+RUN mkdir -p /var/log/supervisor
 
 EXPOSE 22
 
-ENTRYPOINT ["/usr/bin/supervisord"]
+ENTRYPOINT ["/usr/local/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
