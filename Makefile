@@ -14,7 +14,7 @@ SLAVE_IMAGE = sonic-slave-$(USER)
 
 DOCKER_RUN := docker run --rm=true --privileged \
     -v $(PWD):/sonic \
-    -i$(SONIC_SLAVE_TTY)
+    -i$(if $(TERM),t,)
 
 DOCKER_BUILD = docker build --no-cache \
 	       --build-arg user=$(USER) \
