@@ -2,10 +2,6 @@
 ## Configuration parameters for SONiC build system
 ###############################################################################
 
-# SONIC_CONFIG_VERBOSE - enable echoing for rules commands.
-# Uncomment next line to enable:
-# SONIC_CONFIG_VERBOSE = y
-
 # SONIC_CONFIG_PRINT_DEPENDENCIES - show dependencies for each invoked target.
 # Before executing rule for each target its dependencies are printed to console.
 # Uncomment next line to enable:
@@ -20,12 +16,6 @@ SONIC_CONFIG_BUILD_JOBS = 1
 # Corresponding -j argument will be passed to make/dpkg commands that build separate packages
 # container.
 SONIC_CONFIG_MAKE_JOBS = $(shell nproc)
-
-# SONIC_CONFIG_LOG_TO_FILES - print output from execution of rule for each
-# target into separate log file under target/log/.
-# Useful when executing parallel build
-# Uncomment next line to enable:
-SONIC_CONFIG_LOG_TO_FILES = y
 
 # SONIC_CONFIG_ENABLE_COLORS - enable colored output in build system.
 # Comment next line to disable:

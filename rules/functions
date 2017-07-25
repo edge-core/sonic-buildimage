@@ -41,43 +41,30 @@ log_green = echo -e "$(GREEN)$(1)$(GRAY)"
 ## Logging
 ###############################################################################
 
-ifeq ($(SONIC_CONFIG_LOG_TO_FILES),y)
 FLUSH_LOG = rm -f $@.log
 
-LOG = &>> $(PROJECT_ROOT)/$@.log || { [ $$? -eq 0 ] || cat  $(PROJECT_ROOT)/$@.log ; false ; }
-endif
+LOG = &>> $(PROJECT_ROOT)/$@.log || { [ $$? -eq 0 ] || pushd $(PROJECT_ROOT) > /dev/null ; ./update_screen.sh -e $@ ; popd > /dev/null ; false ; }
 
 ###############################################################################
 ## Header and footer for each target
 ###############################################################################
 
-# Print name of target being built
-PRINT_TARGET = $(call log_purple,Executing rules for $@)
-
-# Print name of target that finished build
-PRINT_END_TARGET = $(call log_green,Finished $@)
-
 # Dump targets taht current depends on
 ifeq ($(SONIC_CONFIG_PRINT_DEPENDENCIES),y)
-PRINT_DEPENDENCIES = $(call log_blue,Dependencies for $@ are $^)
-endif
-
-# Enable verbose mode
-ifneq ($(SONIC_CONFIG_VERBOSE),y)
-ENABLE_VERBOSE = @
+PRINT_DEPENDENCIES = echo Dependencies for $@ are $^ $(LOG)
 endif
 
 # header for each rule
 define HEADER
-$(ENABLE_VERBOSE)
-$(PRINT_TARGET)
+@
 $(PRINT_DEPENDENCIES)
 $(FLUSH_LOG)
+./update_screen.sh -a $@
 endef
 
 # footer for each rule
 define FOOTER
-$(PRINT_END_TARGET)
+./update_screen.sh -d $@
 endef
 
 ###############################################################################

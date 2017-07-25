@@ -80,13 +80,21 @@ export SONIC_CONFIG_MAKE_JOBS
 ## Dumping key config attributes associated to current building exercise
 ###############################################################################
 
-ifndef $(CONFIGURED_PLATFORM)
-$(info CONFIGURED_PLATFORM is $(CONFIGURED_PLATFORM))
-endif
-
-ifndef $(SONIC_ROUTING_STACK)
-$(info ROUTING_STACK is $(SONIC_ROUTING_STACK))
-endif
+$(info SONiC Build System)
+$(info )
+$(info Build Configuration)
+$(info "CONFIGURED_PLATFORM"             : "$(if $(PLATFORM),$(PLATFORM),$(CONFIGURED_PLATFORM))")
+$(info "SONIC_CONFIG_PRINT_DEPENDENCIES" : "$(SONIC_CONFIG_PRINT_DEPENDENCIES)")
+$(info "SONIC_CONFIG_BUILD_JOBS"         : "$(SONIC_CONFIG_BUILD_JOBS)")
+$(info "SONIC_CONFIG_MAKE_JOBS"          : "$(SONIC_CONFIG_MAKE_JOBS)")
+$(info "DEFAULT_USERNAME"                : "$(DEFAULT_USERNAME)")
+$(info "DEFAULT_PASSWORD"                : "$(DEFAULT_PASSWORD)")
+$(info "ENABLE_DHCP_GRAPH_SERVICE"       : "$(ENABLE_DHCP_GRAPH_SERVICE)")
+$(info "SHUTDOWN_BGP_ON_START"           : "$(SHUTDOWN_BGP_ON_START)")
+$(info "SONIC_CONFIG_DEBUG"              : "$(SONIC_CONFIG_DEBUG)")
+$(info "ROUTING_STACK"                   : "$(SONIC_ROUTING_STACK)")
+$(info "ENABLE_SYNCD_RPC"                : "$(ENABLE_SYNCD_RPC)")
+$(info )
 
 ###############################################################################
 ## Generic rules section
@@ -241,7 +249,7 @@ SONIC_INSTALL_TARGETS = $(addsuffix -install,$(addprefix $(DEBS_PATH)/, \
 			$(SONIC_EXTRA_DEBS)))
 $(SONIC_INSTALL_TARGETS) : $(DEBS_PATH)/%-install : .platform $$(addsuffix -install,$$(addprefix $(DEBS_PATH)/,$$($$*_DEPENDS))) $(DEBS_PATH)/$$*
 	$(HEADER)
-	[ -f $(DEBS_PATH)/$* ] || { echo $(DEBS_PATH)/$* does not exist $(LOG) && exit 1; }
+	[ -f $(DEBS_PATH)/$* ] || { echo $(DEBS_PATH)/$* does not exist $(LOG) && false $(LOG) }
 	# put a lock here because dpkg does not allow installing packages in parallel
 	while true; do
 	if mkdir $(DEBS_PATH)/dpkg_lock &> /dev/null; then
