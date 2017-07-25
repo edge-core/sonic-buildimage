@@ -1,0 +1,259 @@
+#
+# =============== Managed by SONiC Config Engine DO NOT EDIT! ===============
+# generated from /usr/share/sonic/templates/interfaces.j2 using sonic-cfggen
+# file: /etc/network/interfaces
+#
+# The loopback network interface
+auto lo
+iface lo inet loopback
+# Use command 'ip addr list dev lo' to check all addresses
+iface lo inet static
+    address 10.1.0.32
+    netmask 255.255.255.255
+#
+iface lo inet6 static
+    address fc00:1::32
+    netmask 128
+#
+# The management network interface
+auto eth0
+iface eth0 inet static
+    address 10.0.0.100
+    netmask 255.255.255.0
+    ########## management network policy routing rules
+    # management port up rules
+    up ip route add default via 10.0.0.1 dev eth0 table default
+    up ip rule add from 10.0.0.100/32 table default
+    # management port down rules
+    down ip route delete default via 10.0.0.1 dev eth0 table default
+    down ip rule delete from 10.0.0.100/32 table default
+#
+# The switch front panel interfaces
+# "|| true" is added to suppress the error when interface is already a member of VLAN
+allow-hotplug fortyGigE0/4
+iface fortyGigE0/4 inet manual
+    pre-up ifconfig fortyGigE0/4 up mtu 9216
+    post-up brctl addif Vlan1000 fortyGigE0/4 || true
+    post-down ifconfig fortyGigE0/4 down
+#
+allow-hotplug fortyGigE0/8
+iface fortyGigE0/8 inet manual
+    pre-up ifconfig fortyGigE0/8 up mtu 9216
+    post-up brctl addif Vlan1000 fortyGigE0/8 || true
+    post-down ifconfig fortyGigE0/8 down
+#
+allow-hotplug fortyGigE0/12
+iface fortyGigE0/12 inet manual
+    pre-up ifconfig fortyGigE0/12 up mtu 9216
+    post-up brctl addif Vlan1000 fortyGigE0/12 || true
+    post-down ifconfig fortyGigE0/12 down
+#
+allow-hotplug fortyGigE0/16
+iface fortyGigE0/16 inet manual
+    pre-up ifconfig fortyGigE0/16 up mtu 9216
+    post-up brctl addif Vlan1000 fortyGigE0/16 || true
+    post-down ifconfig fortyGigE0/16 down
+#
+allow-hotplug fortyGigE0/20
+iface fortyGigE0/20 inet manual
+    pre-up ifconfig fortyGigE0/20 up mtu 9216
+    post-up brctl addif Vlan1000 fortyGigE0/20 || true
+    post-down ifconfig fortyGigE0/20 down
+#
+allow-hotplug fortyGigE0/24
+iface fortyGigE0/24 inet manual
+    pre-up ifconfig fortyGigE0/24 up mtu 9216
+    post-up brctl addif Vlan1000 fortyGigE0/24 || true
+    post-down ifconfig fortyGigE0/24 down
+#
+allow-hotplug fortyGigE0/28
+iface fortyGigE0/28 inet manual
+    pre-up ifconfig fortyGigE0/28 up mtu 9216
+    post-up brctl addif Vlan1000 fortyGigE0/28 || true
+    post-down ifconfig fortyGigE0/28 down
+#
+allow-hotplug fortyGigE0/32
+iface fortyGigE0/32 inet manual
+    pre-up ifconfig fortyGigE0/32 up mtu 9216
+    post-up brctl addif Vlan1000 fortyGigE0/32 || true
+    post-down ifconfig fortyGigE0/32 down
+#
+allow-hotplug fortyGigE0/36
+iface fortyGigE0/36 inet manual
+    pre-up ifconfig fortyGigE0/36 up mtu 9216
+    post-up brctl addif Vlan1000 fortyGigE0/36 || true
+    post-down ifconfig fortyGigE0/36 down
+#
+allow-hotplug fortyGigE0/40
+iface fortyGigE0/40 inet manual
+    pre-up ifconfig fortyGigE0/40 up mtu 9216
+    post-up brctl addif Vlan1000 fortyGigE0/40 || true
+    post-down ifconfig fortyGigE0/40 down
+#
+allow-hotplug fortyGigE0/44
+iface fortyGigE0/44 inet manual
+    pre-up ifconfig fortyGigE0/44 up mtu 9216
+    post-up brctl addif Vlan1000 fortyGigE0/44 || true
+    post-down ifconfig fortyGigE0/44 down
+#
+allow-hotplug fortyGigE0/48
+iface fortyGigE0/48 inet manual
+    pre-up ifconfig fortyGigE0/48 up mtu 9216
+    post-up brctl addif Vlan1000 fortyGigE0/48 || true
+    post-down ifconfig fortyGigE0/48 down
+#
+allow-hotplug fortyGigE0/52
+iface fortyGigE0/52 inet manual
+    pre-up ifconfig fortyGigE0/52 up mtu 9216
+    post-up brctl addif Vlan1000 fortyGigE0/52 || true
+    post-down ifconfig fortyGigE0/52 down
+#
+allow-hotplug fortyGigE0/56
+iface fortyGigE0/56 inet manual
+    pre-up ifconfig fortyGigE0/56 up mtu 9216
+    post-up brctl addif Vlan1000 fortyGigE0/56 || true
+    post-down ifconfig fortyGigE0/56 down
+#
+allow-hotplug fortyGigE0/60
+iface fortyGigE0/60 inet manual
+    pre-up ifconfig fortyGigE0/60 up mtu 9216
+    post-up brctl addif Vlan1000 fortyGigE0/60 || true
+    post-down ifconfig fortyGigE0/60 down
+#
+allow-hotplug fortyGigE0/64
+iface fortyGigE0/64 inet manual
+    pre-up ifconfig fortyGigE0/64 up mtu 9216
+    post-up brctl addif Vlan1000 fortyGigE0/64 || true
+    post-down ifconfig fortyGigE0/64 down
+#
+allow-hotplug fortyGigE0/68
+iface fortyGigE0/68 inet manual
+    pre-up ifconfig fortyGigE0/68 up mtu 9216
+    post-up brctl addif Vlan1000 fortyGigE0/68 || true
+    post-down ifconfig fortyGigE0/68 down
+#
+allow-hotplug fortyGigE0/72
+iface fortyGigE0/72 inet manual
+    pre-up ifconfig fortyGigE0/72 up mtu 9216
+    post-up brctl addif Vlan1000 fortyGigE0/72 || true
+    post-down ifconfig fortyGigE0/72 down
+#
+allow-hotplug fortyGigE0/76
+iface fortyGigE0/76 inet manual
+    pre-up ifconfig fortyGigE0/76 up mtu 9216
+    post-up brctl addif Vlan1000 fortyGigE0/76 || true
+    post-down ifconfig fortyGigE0/76 down
+#
+allow-hotplug fortyGigE0/80
+iface fortyGigE0/80 inet manual
+    pre-up ifconfig fortyGigE0/80 up mtu 9216
+    post-up brctl addif Vlan1000 fortyGigE0/80 || true
+    post-down ifconfig fortyGigE0/80 down
+#
+allow-hotplug fortyGigE0/84
+iface fortyGigE0/84 inet manual
+    pre-up ifconfig fortyGigE0/84 up mtu 9216
+    post-up brctl addif Vlan1000 fortyGigE0/84 || true
+    post-down ifconfig fortyGigE0/84 down
+#
+allow-hotplug fortyGigE0/88
+iface fortyGigE0/88 inet manual
+    pre-up ifconfig fortyGigE0/88 up mtu 9216
+    post-up brctl addif Vlan1000 fortyGigE0/88 || true
+    post-down ifconfig fortyGigE0/88 down
+#
+allow-hotplug fortyGigE0/92
+iface fortyGigE0/92 inet manual
+    pre-up ifconfig fortyGigE0/92 up mtu 9216
+    post-up brctl addif Vlan1000 fortyGigE0/92 || true
+    post-down ifconfig fortyGigE0/92 down
+#
+allow-hotplug fortyGigE0/96
+iface fortyGigE0/96 inet manual
+    pre-up ifconfig fortyGigE0/96 up mtu 9216
+    post-up brctl addif Vlan1000 fortyGigE0/96 || true
+    post-down ifconfig fortyGigE0/96 down
+#
+# "|| true" is added to suppress the error when interface is already a member of LAG
+# "ip link show | grep -q master" is added to ensure interface is enslaved
+allow-hotplug fortyGigE0/112
+iface fortyGigE0/112 inet manual
+    pre-up teamdctl PortChannel01 port add fortyGigE0/112 || true
+    post-up ip link show fortyGigE0/112 | grep -q master && ifconfig fortyGigE0/112 up
+    post-down ifconfig fortyGigE0/112 down
+#
+allow-hotplug fortyGigE0/116
+iface fortyGigE0/116 inet manual
+    pre-up teamdctl PortChannel02 port add fortyGigE0/116 || true
+    post-up ip link show fortyGigE0/116 | grep -q master && ifconfig fortyGigE0/116 up
+    post-down ifconfig fortyGigE0/116 down
+#
+allow-hotplug fortyGigE0/120
+iface fortyGigE0/120 inet manual
+    pre-up teamdctl PortChannel03 port add fortyGigE0/120 || true
+    post-up ip link show fortyGigE0/120 | grep -q master && ifconfig fortyGigE0/120 up
+    post-down ifconfig fortyGigE0/120 down
+#
+allow-hotplug fortyGigE0/124
+iface fortyGigE0/124 inet manual
+    pre-up teamdctl PortChannel04 port add fortyGigE0/124 || true
+    post-up ip link show fortyGigE0/124 | grep -q master && ifconfig fortyGigE0/124 up
+    post-down ifconfig fortyGigE0/124 down
+#
+# Vlan interfaces
+auto Vlan1000
+iface Vlan1000 inet static
+    bridge_ports none
+    address 192.168.0.1
+    netmask 255.255.255.224
+#
+# Portchannel interfaces
+allow-hotplug PortChannel01
+iface PortChannel01 inet static
+    mtu 9216
+    address 10.0.0.56
+    netmask 255.255.255.254
+#
+allow-hotplug PortChannel01
+iface PortChannel01 inet6 static
+    mtu 9216
+    address fc00::71
+    netmask 126
+#
+allow-hotplug PortChannel02
+iface PortChannel02 inet static
+    mtu 9216
+    address 10.0.0.58
+    netmask 255.255.255.254
+#
+allow-hotplug PortChannel02
+iface PortChannel02 inet6 static
+    mtu 9216
+    address fc00::75
+    netmask 126
+#
+allow-hotplug PortChannel03
+iface PortChannel03 inet static
+    mtu 9216
+    address 10.0.0.60
+    netmask 255.255.255.254
+#
+allow-hotplug PortChannel03
+iface PortChannel03 inet6 static
+    mtu 9216
+    address fc00::79
+    netmask 126
+#
+allow-hotplug PortChannel04
+iface PortChannel04 inet static
+    mtu 9216
+    address 10.0.0.62
+    netmask 255.255.255.254
+#
+allow-hotplug PortChannel04
+iface PortChannel04 inet6 static
+    mtu 9216
+    address fc00::7d
+    netmask 126
+#
+
