@@ -7,6 +7,9 @@ SHELL = /bin/bash
 USER := $(shell id -un)
 PWD := $(shell pwd)
 
+# Remove lock file in case previous run was forcefully stopped
+$(shell rm -f .screen)
+
 MAKEFLAGS += -B
 
 SLAVE_TAG = $(shell shasum sonic-slave/Dockerfile | awk '{print substr($$1,0,11);}')
