@@ -221,3 +221,9 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get autor
 sudo cp {{src}} $FILESYSTEM_ROOT/{{dst}}
 {% endif -%}
 {% endfor -%}
+
+{% if sonic_asic_platform == "mellanox" %}
+sudo mkdir -p $FILESYSTEM_ROOT/etc/mlnx/
+sudo cp target/files/$MLNX_FW $FILESYSTEM_ROOT/etc/mlnx/fw-SPC.mfa
+sudo cp platform/mellanox/mlnx-fw-upgrade.sh $FILESYSTEM_ROOT/usr/bin/
+{% endif %}
