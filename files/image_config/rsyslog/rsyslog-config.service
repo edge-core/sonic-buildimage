@@ -1,6 +1,5 @@
 [Unit]
 Description=Update rsyslog configuration
-Before=rsyslog.service
 
 [Service]
 Type=oneshot
