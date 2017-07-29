@@ -201,4 +201,9 @@ sonic-slave environment is built only once, but if sonic-slave/Dockerfile was up
 $ make sonic-slave-build
 ```
 
+One can print out all available targets by executing the following command:
+```
+$ make list
+```
+
 All target groups are used by one or another recipe, so use those recipes as a reference when adding new ones.
