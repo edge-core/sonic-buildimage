@@ -18,6 +18,7 @@ ExecStartPre=/usr/bin/docker exec database redis-cli -n 1 FLUSHDB
 ExecStartPre=/usr/bin/docker exec database redis-cli -n 2 FLUSHDB
 
 {% if sonic_asic_platform == 'mellanox' %}
+Environment=FAST_BOOT=1
 TimeoutStartSec=3min
 ExecStartPre=/usr/bin/mst start
 ExecStartPre=/usr/bin/mlnx-fw-upgrade.sh

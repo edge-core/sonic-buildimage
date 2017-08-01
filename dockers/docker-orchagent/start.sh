@@ -11,17 +11,6 @@ rm -f /var/run/rsyslogd.pid
 
 supervisorctl start rsyslogd
 
-# Wait for syncd to start
-while true; do
-    RESULT=$(echo -en "SELECT 1\nHLEN HIDDEN" | redis-cli | sed -n 2p)
-
-    if [ "$RESULT" != "0" ]; then
-        break
-    fi
-
-    sleep 1
-done
-
 supervisorctl start orchagent
 
 supervisorctl start portsyncd
