@@ -1042,7 +1042,7 @@
         <Hostname>switch2</Hostname>
         <HwSku>ACS-MSN2700</HwSku>
       </Device>
-    </Devices>`
+    </Devices>
   </PngDec>
   <MetadataDeclaration>
     <Devices xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
