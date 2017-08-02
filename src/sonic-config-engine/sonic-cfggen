@@ -1,4 +1,19 @@
 #!/usr/bin/env python
+"""sonic-cfggen
+
+A tool to read SONiC config data from one or more of the following sources:
+minigraph file, config DB, json file(s), yaml files(s), command line input,
+and write the data into DB, print as json, or render a jinja2 config template.
+
+Examples:
+    Render template with minigraph:        
+        sonic-cfggen -m -t /usr/share/template/bgpd.conf.j2
+    Dump config DB content into json file: 
+        sonic-cfggen -d --print-data > db_dump.json
+    Load content of json file into config DB:
+        sonic-cfggen -j db_dump.json --write-to-db
+See usage string for detail description for arguments.
+"""
 
 import sys
 import os.path
@@ -12,6 +27,7 @@ from minigraph import parse_xml
 from minigraph import parse_device_desc_xml
 from sonic_platform import get_machine_info
 from sonic_platform import get_platform_info
+from swsssdk import ConfigDBConnector
 
 def is_ipv4(value):
     if not value:
@@ -46,18 +62,64 @@ def unique_name(l):
             new_list.append(item)
     return new_list
 
+
+class FormatConverter:
+    """Convert config DB based schema to legacy minigraph based schema for backward capability.
+We will move to DB schema and remove this class when the config templates are modified.
+
+TODO(taoyl): Current version of config db only supports BGP admin states.
+    All other configuration are still loaded from minigraph. Plan to remove 
+    minigraph and move everything into config db in a later commit.
+    """
+    @staticmethod
+    def db_to_output(db_data):
+        data_bgp_admin = {}
+        for table_name, content in db_data.iteritems():
+            if table_name == 'BGP_NEIGHBOR':
+                for key, value in content.iteritems():
+                    if value.has_key('admin_status'):
+                        data_bgp_admin[key] = (value['admin_status'] == 'up')
+            elif table_name == 'DEVICE_METADATA':
+                if content['localhost'].has_key('bgp_default_status'):
+                    data_bgp_admin['all'] = (content['localhost']['bgp_default_status'] == 'up')
+
+        output_data = {'bgp_admin_state': data_bgp_admin} if data_bgp_admin else {}
+        return output_data
+
+    @staticmethod
+    def output_to_db(output_data):
+        db_data = {}
+        for key, value in output_data.iteritems():
+            if key == 'bgp_admin_state':
+                for neighbor, state in value.iteritems():
+                    if neighbor == 'all':
+                        if not db_data.has_key('DEVICE_METADATA'):
+                            db_data['DEVICE_METADATA'] = {'localhost': {}}
+                        db_data['DEVICE_METADATA']['localhost']['bgp_default_status'] = 'up' if state else 'down'
+                    else:
+                        if not db_data.has_key('BGP_NEIGHBOR'):
+                            db_data['BGP_NEIGHBOR'] = {}
+                        if not db_data['BGP_NEIGHBOR'].has_key(neighbor):
+                            db_data['BGP_NEIGHBOR'][neighbor] = {}
+                        db_data['BGP_NEIGHBOR'][neighbor]['admin_status'] = 'up' if state else 'down'
+        return db_data
+
+
 def main():
     parser=argparse.ArgumentParser(description="Render configuration file from minigraph data and jinja2 template.")
     group = parser.add_mutually_exclusive_group()
-    group.add_argument("-m", "--minigraph", help="minigraph xml file")
+    group.add_argument("-m", "--minigraph", help="minigraph xml file", nargs='?', const='/etc/sonic/minigraph.xml')
     group.add_argument("-M", "--device-description", help="device description xml file")
     parser.add_argument("-p", "--port-config", help="port config file, used with -m")
-    parser.add_argument("-y", "--yaml", help="yaml file that contains addtional variables", action='append', default=[])
+    parser.add_argument("-y", "--yaml", help="yaml file that contains additional variables", action='append', default=[])
+    parser.add_argument("-j", "--json", help="json file that contains additional variables", action='append', default=[])
     parser.add_argument("-a", "--additional-data", help="addition data, in json string")
+    parser.add_argument("-d", "--from-db", help="read config from configdb", action='store_true')
     group = parser.add_mutually_exclusive_group()
     group.add_argument("-t", "--template", help="render the data with the template file")
     group.add_argument("-v", "--var", help="print the value of a variable, support jinja2 expression")
     group.add_argument("--var-json", help="print the value of a variable, in json format")
+    group.add_argument("--write-to-db", help="write config into configdb", action='store_true')
     group.add_argument("--print-data", help="print all data", action='store_true')
     args = parser.parse_args()
 
@@ -90,8 +152,17 @@ def main():
             additional_data = yaml.load(stream)      
             data.update(additional_data)
 
+    for json_file in args.json:
+        with open(json_file, 'r') as stream:
+            data.update(json.load(stream))
+
     if args.additional_data != None:
         data.update(json.loads(args.additional_data))
+  
+    if args.from_db:
+        configdb = ConfigDBConnector()
+        configdb.connect()
+        data.update(FormatConverter.db_to_output(configdb.get_config()))
 
     if args.template != None:
         template_file = os.path.abspath(args.template)
@@ -109,8 +180,14 @@ def main():
     if args.var_json != None:
         print json.dumps(data[args.var_json], indent=4, cls=minigraph_encoder)
 
+    if args.write_to_db:
+        configdb = ConfigDBConnector()
+        configdb.connect(False)
+        configdb.set_config(FormatConverter.output_to_db(data))
+
     if args.print_data:
         print json.dumps(data, indent=4, cls=minigraph_encoder)
+
 
 if __name__ == "__main__":
     main()

@@ -1,4 +1,4 @@
-FROM docker-base
+FROM docker-config-engine
 
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
@@ -33,5 +33,6 @@ RUN sed -ri 's/^(save .*$)/# \1/g;                                              
             ' /etc/redis/redis.conf
 
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
+COPY ["configdb-load.sh", "/usr/bin/"]
 
 ENTRYPOINT ["/usr/bin/supervisord"]
