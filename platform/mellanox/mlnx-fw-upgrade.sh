@@ -1,7 +1,6 @@
 #!/bin/bash
 
 query_retry_count_max="10"
-required_fw_version="13.1224.0140"
 fw_file=/etc/mlnx/fw-SPC.mfa
 
 run_or_fail() {
@@ -14,37 +13,35 @@ run_or_fail() {
 
 # wait until devices will be available
 query_retry_count="0"
-mlxfwmanager --query > /dev/null
+query_cmd="mlxfwmanager --query -i ${fw_file}"
+${query_cmd} > /dev/null
 
 while [[ (${query_retry_count} -lt ${query_retry_count_max}) && ($? -ne "0") ]]; do
 	sleep 1
 	query_retry_count=$[${query_retry_count}+1]
-	mlxfwmanager --query > /dev/null
+	${query_cmd} > /dev/null
 done
 
-run_or_fail "mlxfwmanager --query" > /tmp/mlnxfwmanager-query.txt
+run_or_fail "${query_cmd}" > /tmp/mlnxfwmanager-query.txt
 
-# get current firmware version
-found_fw=false
-for word in `cat /tmp/mlnxfwmanager-query.txt`
-do
-	if [[ ${found_fw} == true ]]; then
-		fw_version=${word}
-		break
-	fi
-	if [[ ${word} == FW ]]; then
-		found_fw=true
-	fi
-done
+# get current firmware version and required version
+fw_info=$(grep FW /tmp/mlnxfwmanager-query.txt)
+fw_current=$(echo $fw_info | cut -f2 -d' ')
+fw_required=$(echo $fw_info | cut -f3 -d' ')
 
-if [[ -z ${fw_version} ]]; then
+if [[ -z ${fw_current} ]]; then
 	echo "Could not retreive current FW version."
 	exit 1
 fi
 
-if [[ ${required_fw_version} == ${fw_version} ]]; then
+if [[ -z ${fw_required} ]]; then
+	echo "Could not retreive required FW version."
+	exit 1
+fi
+
+if [[ ${fw_current} == ${fw_required} ]]; then
 	echo "Mellanox firmware is up to date."
 else
-	echo "Mellanox firmware required version is ${required_fw_version}. Installing compatible version..."
+	echo "Mellanox firmware required version is ${fw_required}. Installing compatible version..."
 	run_or_fail "mlxfwmanager -i ${fw_file} -u -f -y"
 fi
