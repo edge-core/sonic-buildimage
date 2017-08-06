@@ -65,6 +65,9 @@ extract_image() {
 
     ## vfat does not support symbol link
     if [ -n "$sonic_upgrade" ] || [ "$rootfs_type" != "vfat" ]; then
+        ## on ext4, other doesn't have access to the flash by default
+        chmod o+rx "$target_path"
+
         mkdir -p "$image_path/{{ DOCKERFS_DIR }}"
 
         if [ -n "$sonic_upgrade" ]; then
@@ -108,7 +111,7 @@ platform_specific() {
     local sid="$(grep -Eo 'sid=[^ ]+' /etc/cmdline | cut -f2 -d=)"
 
     # set varlog size to 100MB
-    echo "varlog_size=100" >>/tmp/append
+    local varlog_size=100
 
     # This is temporary as the platform= and sid= parameters don't provide enough
     # information to identify the SKU
@@ -122,10 +125,19 @@ platform_specific() {
         aboot_machine=arista_7050_qx32s
         echo "modprobe.blacklist=radeon" >>/tmp/append
     fi
-    if [ "$sid" = "Upperlake" ]; then
+    if [ "$sid" = "Upperlake" ] || [ "$sid" = "UpperlakeES" ]; then
         aboot_machine=arista_7060_cx32s
         echo "amd_iommu=off" >> /tmp/append
     fi
+    if [ "$sid" = "Gardena" ] || [ "$sid" = "GardenaSsd" ]; then
+        aboot_machine=arista_7260cx3_64
+    fi
+    if [ "$platform" = "rook" ]; then
+        varlog_size=200
+        readprefdl -f /tmp/.system-prefdl -d > /mnt/flash/.system-prefdl
+    fi
+
+    echo "varlog_size=$varlog_size" >>/tmp/append
 }
 
 # check the hash file in the image, and determine to install or just skip
