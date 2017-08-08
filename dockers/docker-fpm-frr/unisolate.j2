@@ -8,13 +8,13 @@ exit $?
 ## vtysh script start from next line, which line number MUST eqaul in 'sed' command above
 
 configure terminal
-  router bgp {{ minigraph_bgp_asn }}
-{% for bgp_session in minigraph_bgp %}
-    no neighbor {{ bgp_session['addr'] }} route-map ISOLATE out
+  router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
+{% for neighbor_ip in BGP_NEIGHBOR %}
+    no neighbor {{ neighbor_ip }} route-map ISOLATE out
 {% endfor %}
   exit
 exit
 
-{% for bgp_session in minigraph_bgp %}
-clear ip bgp {{ bgp_session['addr'] }} soft out
+{% for neighbor_ip in BGP_NEIGHBOR %}
+clear ip bgp {{ neighbor_ip }} soft out
 {% endfor %}

@@ -73,36 +73,24 @@ TODO(taoyl): Current version of config db only supports BGP admin states.
     """
     @staticmethod
     def db_to_output(db_data):
-        data_bgp_admin = {}
-        for table_name, content in db_data.iteritems():
-            if table_name == 'BGP_NEIGHBOR':
-                for key, value in content.iteritems():
-                    if value.has_key('admin_status'):
-                        data_bgp_admin[key] = (value['admin_status'] == 'up')
-            elif table_name == 'DEVICE_METADATA':
-                if content['localhost'].has_key('bgp_default_status'):
-                    data_bgp_admin['all'] = (content['localhost']['bgp_default_status'] == 'up')
-
-        output_data = {'bgp_admin_state': data_bgp_admin} if data_bgp_admin else {}
-        return output_data
+        return db_data
 
     @staticmethod
     def output_to_db(output_data):
         db_data = {}
-        for key, value in output_data.iteritems():
-            if key == 'bgp_admin_state':
-                for neighbor, state in value.iteritems():
-                    if neighbor == 'all':
-                        if not db_data.has_key('DEVICE_METADATA'):
-                            db_data['DEVICE_METADATA'] = {'localhost': {}}
-                        db_data['DEVICE_METADATA']['localhost']['bgp_default_status'] = 'up' if state else 'down'
-                    else:
-                        if not db_data.has_key('BGP_NEIGHBOR'):
-                            db_data['BGP_NEIGHBOR'] = {}
-                        if not db_data['BGP_NEIGHBOR'].has_key(neighbor):
-                            db_data['BGP_NEIGHBOR'][neighbor] = {}
-                        db_data['BGP_NEIGHBOR'][neighbor]['admin_status'] = 'up' if state else 'down'
+        for table_name in output_data:
+            if table_name == 'BGP_NEIGHBOR' or table_name == 'BGP_PEER_RANGE' or table_name == 'DEVICE_METADATA':
+                db_data[table_name] = output_data[table_name]
         return db_data
+
+def deep_update(dst, src):
+    for key, value in src.iteritems():
+        if isinstance(value, dict):
+             node = dst.setdefault(key, {})
+             deep_update(node, value)
+        else:
+             dst[key] = value
+    return dst
 
 
 def main():
@@ -126,7 +114,7 @@ def main():
     data = {}
     machine_info = get_machine_info()
     if machine_info != None:
-        data.update(machine_info)
+        deep_update(data, machine_info)
         platform_info = get_platform_info(machine_info)
         if platform_info != None:
             data['platform'] = platform_info
@@ -135,34 +123,34 @@ def main():
         minigraph = args.minigraph
         if data.has_key('platform'):
             if args.port_config != None:
-                data.update(parse_xml(minigraph, data['platform'], args.port_config))
+                deep_update(data, parse_xml(minigraph, data['platform'], args.port_config))
             else:
-                data.update(parse_xml(minigraph, data['platform']))
+                deep_update(data, parse_xml(minigraph, data['platform']))
         else:
             if args.port_config != None:
-                data.update(parse_xml(minigraph, port_config_file=args.port_config))
+                deep_update(data, parse_xml(minigraph, port_config_file=args.port_config))
             else:
-                data.update(parse_xml(minigraph))
+                deep_update(data, parse_xml(minigraph))
 
     if args.device_description != None:
-        data.update(parse_device_desc_xml(args.device_description))
+        deep_update(data, parse_device_desc_xml(args.device_description))
 
     for yaml_file in args.yaml:
         with open(yaml_file, 'r') as stream:
             additional_data = yaml.load(stream)      
-            data.update(additional_data)
+            deep_update(data, additional_data)
 
     for json_file in args.json:
         with open(json_file, 'r') as stream:
-            data.update(json.load(stream))
+            deep_update(data, json.load(stream))
 
     if args.additional_data != None:
-        data.update(json.loads(args.additional_data))
+        deep_update(data, json.loads(args.additional_data))
   
     if args.from_db:
         configdb = ConfigDBConnector()
         configdb.connect()
-        data.update(FormatConverter.db_to_output(configdb.get_config()))
+        deep_update(data, FormatConverter.db_to_output(configdb.get_config()))
 
     if args.template != None:
         template_file = os.path.abspath(args.template)

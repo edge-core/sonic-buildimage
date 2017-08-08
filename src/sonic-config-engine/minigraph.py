@@ -249,9 +249,9 @@ def parse_dpg(dpg, hname):
 
 
 def parse_cpg(cpg, hname):
-    bgp_sessions = []
+    bgp_sessions = {}
     myasn = None
-    bgp_peers_with_range = []
+    bgp_peers_with_range = {}
     for child in cpg:
         tag = child.tag
         if tag == str(QName(ns, "PeeringSessions")):
@@ -261,17 +261,15 @@ def parse_cpg(cpg, hname):
                 end_router = session.find(str(QName(ns, "EndRouter"))).text
                 end_peer = session.find(str(QName(ns, "EndPeer"))).text
                 if end_router == hname:
-                    bgp_sessions.append({
+                    bgp_sessions[start_peer] = {
                         'name': start_router,
-                        'addr': start_peer,
-                        'peer_addr': end_peer
-                    })
+                        'local_addr': end_peer
+                    }
                 else:
-                    bgp_sessions.append({
+                    bgp_sessions[end_peer] = {
                         'name': end_router,
-                        'addr': end_peer,
-                        'peer_addr': start_peer
-                    })
+                        'local_addr': start_peer
+                    }
         elif child.tag == str(QName(ns, "Routers")):
             for router in child.findall(str(QName(ns1, "BGPRouterDeclaration"))):
                 asn = router.find(str(QName(ns1, "ASN"))).text
@@ -285,12 +283,13 @@ def parse_cpg(cpg, hname):
                             name = bgpPeer.find(str(QName(ns1, "Name"))).text
                             ip_range = bgpPeer.find(str(QName(ns1, "PeersRange"))).text
                             ip_range_group = ip_range.split(';') if ip_range and ip_range != "" else []
-                            bgp_peers_with_range.append({
+                            bgp_peers_with_range[name] = {
                                 'name': name,
                                 'ip_range': ip_range_group
-                            })
+                            }
                 else:
-                    for bgp_session in bgp_sessions:
+                    for peer in bgp_sessions:
+                        bgp_session = bgp_sessions[peer]
                         if hostname == bgp_session['name']:
                             bgp_session['asn'] = int(asn)
 
@@ -447,9 +446,9 @@ def parse_xml(filename, platform=None, port_config_file=None):
     # sorting by lambdas are not easily done without custom filters.
     # TODO: add jinja2 filter to accept a lambda to sort a list of dictionaries by attribute.
     # TODO: alternatively (preferred), implement class containers for multiple-attribute entries, enabling sort by attr
-    results['minigraph_bgp'] = sorted(bgp_sessions, key=lambda x: x['addr'])
-    results['minigraph_bgp_asn'] = bgp_asn
-    results['minigraph_bgp_peers_with_range'] = bgp_peers_with_range
+    results['BGP_NEIGHBOR'] = bgp_sessions
+    results['DEVICE_METADATA'] = {'localhost': { 'bgp_asn': bgp_asn }}
+    results['BGP_PEER_RANGE'] = bgp_peers_with_range
     # TODO: sort does not work properly on all interfaces of varying lengths. Need to sort by integer group(s).
 
     phyport_intfs = []
