@@ -12,7 +12,9 @@ $(shell rm -f .screen)
 
 MAKEFLAGS += -B
 
-SLAVE_TAG = $(shell shasum sonic-slave/Dockerfile | awk '{print substr($$1,0,11);}')
+SLAVE_BASE_TAG = $(shell shasum sonic-slave/Dockerfile | awk '{print substr($$1,0,11);}')
+SLAVE_TAG = $(shell shasum sonic-slave/Dockerfile.user | awk '{print substr($$1,0,11);}')
+SLAVE_BASE_IMAGE = sonic-slave-base
 SLAVE_IMAGE = sonic-slave-$(USER)
 
 DOCKER_RUN := docker run --rm=true --privileged \
@@ -20,12 +22,18 @@ DOCKER_RUN := docker run --rm=true --privileged \
     -w /sonic \
     -i$(if $(TERM),t,)
 
+DOCKER_BASE_BUILD = docker build --no-cache \
+		    -t $(SLAVE_BASE_IMAGE) \
+		    sonic-slave && \
+		    docker tag $(SLAVE_BASE_IMAGE):latest $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG)
+
 DOCKER_BUILD = docker build --no-cache \
 	       --build-arg user=$(USER) \
 	       --build-arg uid=$(shell id -u) \
 	       --build-arg guid=$(shell id -g) \
 	       --build-arg hostname=$(shell echo $$HOSTNAME) \
 	       -t $(SLAVE_IMAGE) \
+	       -f sonic-slave/Dockerfile.user \
 	       sonic-slave && \
 	       docker tag $(SLAVE_IMAGE):latest $(SLAVE_IMAGE):$(SLAVE_TAG)
 
@@ -34,6 +42,9 @@ DOCKER_BUILD = docker build --no-cache \
 .DEFAULT_GOAL :=  all
 
 %::
+	@docker inspect --type image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) &> /dev/null || \
+	    { echo Image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) not found. Building... ; \
+	    $(DOCKER_BASE_BUILD) ; }
 	@docker inspect --type image $(SLAVE_IMAGE):$(SLAVE_TAG) &> /dev/null || \
 	    { echo Image $(SLAVE_IMAGE):$(SLAVE_TAG) not found. Building... ; \
 	    $(DOCKER_BUILD) ; }
@@ -49,9 +60,13 @@ DOCKER_BUILD = docker build --no-cache \
 	    $@
 
 sonic-slave-build :
-	@$(DOCKER_BUILD)
+	$(DOCKER_BASE_BUILD)
+	$(DOCKER_BUILD)
 
 sonic-slave-bash :
+	@docker inspect --type image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) &> /dev/null || \
+	    { echo Image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) not found. Building... ; \
+	    $(DOCKER_BASE_BUILD) ; }
 	@docker inspect --type image $(SLAVE_IMAGE):$(SLAVE_TAG) &> /dev/null || \
 	    { echo Image $(SLAVE_IMAGE):$(SLAVE_TAG) not found. Building... ; \
 	    $(DOCKER_BUILD) ; }
