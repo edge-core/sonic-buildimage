@@ -1,5 +1,6 @@
 # Build system related
 .platform
+.screen
 
 # Build artifacts
 fsroot/
