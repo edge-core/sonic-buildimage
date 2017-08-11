@@ -178,7 +178,7 @@ umount "$root_mnt"
 
 # Create a new partition table (content in flash_dev will be deleted)
 err_msg="Error: repartitioning $flash_dev failed"
-cmd="echo ';' | sfdisk $flash_dev"
+cmd="echo ';' | sfdisk $flash_dev || (sleep 3; blockdev --rereadpt $flash_dev && fdisk -l $flash_dev | grep -q ${root_dev}.*Linux)"
 run_cmd "$cmd" "$err_msg"
 
 sleep 5

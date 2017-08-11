@@ -111,7 +111,7 @@ class TestCfgGen(TestCase):
         self.assertEqual(output.strip(), "{'Ethernet116': {'name': 'ARISTA02T1', 'port': 'Ethernet1/1'}, 'Ethernet124': {'name': 'ARISTA04T1', 'port': 'Ethernet1/1'}, 'Ethernet112': {'name': 'ARISTA01T1', 'port': 'Ethernet1/1'}, 'Ethernet120': {'name': 'ARISTA03T1', 'port': 'Ethernet1/1'}}")
 
     def test_minigraph_peers_with_range(self):
-        argument = '-m "' + self.sample_graph_bgp_speaker + '" -p "' + self.port_config + '" -v minigraph_bgp_peers_with_range'
+        argument = '-m "' + self.sample_graph_bgp_speaker + '" -p "' + self.port_config + '" -v BGP_PEER_RANGE.values\(\)'
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "[{'name': 'BGPSLBPassive', 'ip_range': ['10.10.10.10/26', '100.100.100.100/26']}]")
 

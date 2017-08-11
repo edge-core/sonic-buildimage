@@ -1,17 +1,17 @@
 [global.config]
-  as = {{ minigraph_bgp_asn }}
+  as = {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
   router-id = "{{ minigraph_lo_interfaces[0]['addr'] }}"
-{% for bgp_session in minigraph_bgp %}
+{% for neighbor_addr, bgp_session in BGP_NEIGHBOR.iteritems() %}
 {% if bgp_session['asn'] != 0 %}
 [[neighbors]]
   [neighbors.config]
     peer-as = {{ bgp_session['asn'] }}
-    neighbor-address = "{{ bgp_session['addr'] }}"
+    neighbor-address = "{{ neighbor_addr }}"
   [neighbors.graceful-restart.config]
     enabled = true
   [[neighbors.afi-safis]]
     [neighbors.afi-safis.config]
-{% if bgp_session['addr'] | ipv6 %}
+{% if neighbor_addr | ipv6 %}
       afi-safi-name = "ipv6-unicast"
 {% else %}
       afi-safi-name = "ipv4-unicast"

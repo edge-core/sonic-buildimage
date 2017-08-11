@@ -68,6 +68,13 @@ while true; do
     sleep 5
 done
 
+echo "Regenerating config DB from minigraph..."
+if [ -f /etc/sonic/init_cfg.json ]; then
+    sonic-cfggen -m -j /etc/sonic/init_cfg.json --print-data > /etc/sonic/config_db.json
+else
+    sonic-cfggen -m --print-data > /etc/sonic/config_db.json
+fi
+
 # Mark as disabled after graph is successfully downloaded
 sed -i "/enabled=/d" /etc/sonic/updategraph.conf
 echo "enabled=false" >> /etc/sonic/updategraph.conf

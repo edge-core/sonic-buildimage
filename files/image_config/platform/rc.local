@@ -35,8 +35,20 @@ if [ -f /host/image-$sonic_version/platform/firsttime ]; then
         mv -f /host/old_config/* /etc/sonic/
     elif [ -f /host/minigraph.xml ]; then
         mv /host/minigraph.xml /etc/sonic/
+        # Combine information in minigraph and init_cfg.json to form initiate config DB dump file.
+        # TODO: After moving all information from minigraph to DB, sample config DB dump should be provide
+        if [ -f /etc/sonic/init_cfg.json ]; then
+            sonic-cfggen -m -j /etc/sonic/init_cfg.json --print-data > /etc/sonic/config_db.json
+        else
+            sonic-cfggen -m --print-data > /etc/sonic/config_db.json
+        fi
     else
         cp /usr/share/sonic/device/$platform/minigraph.xml /etc/sonic/
+        if [ -f /etc/sonic/init_cfg.json ]; then
+            sonic-cfggen -m -j /etc/sonic/init_cfg.json --print-data > /etc/sonic/config_db.json
+        else
+            sonic-cfggen -m --print-data > /etc/sonic/config_db.json
+        fi
     fi
 
     if [ -d /host/image-$sonic_version/platform/$platform ]; then

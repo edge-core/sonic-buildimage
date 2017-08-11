@@ -1,3 +1,5 @@
 {% for member in minigraph_ports.keys() %}
+{% if member in minigraph_neighbors %}
 configure ports {{ member }} lldp portidsubtype local {{ minigraph_ports[member]['alias'] }} description {{ minigraph_neighbors[member]['name'] }}:{{ minigraph_neighbors[member]['port'] }}
+{% endif %}
 {% endfor %}

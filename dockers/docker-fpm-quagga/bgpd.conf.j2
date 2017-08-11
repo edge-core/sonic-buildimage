@@ -14,7 +14,7 @@ log facility local4
 ! enable password {# {{ en_passwd }} TODO: param needed #}
 {% endblock system_init %}
 !
-{% if minigraph_bgp_asn is not none %}
+{% if DEVICE_METADATA['localhost'].has_key('bgp_asn') %}
 {% block bgp_init %}
 !
 ! bgp multiple-instance
@@ -23,7 +23,7 @@ route-map FROM_BGP_SPEAKER_V4 permit 10
 !
 route-map TO_BGP_SPEAKER_V4 deny 10
 !
-router bgp {{ minigraph_bgp_asn }}
+router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
   bgp log-neighbor-changes
   bgp bestpath as-path multipath-relax
 {# Advertise graceful restart capability for ToR #}
@@ -50,24 +50,24 @@ router bgp {{ minigraph_bgp_asn }}
 {% endfor %}
 {% endblock vlan_advertisement %}
 {% block bgp_sessions %}
-{% for bgp_session in minigraph_bgp %}
+{% for neighbor_addr, bgp_session in BGP_NEIGHBOR.iteritems() %}
 {% if bgp_session['asn'] != 0 %}
-  neighbor {{ bgp_session['addr'] }} remote-as {{ bgp_session['asn'] }}
-  neighbor {{ bgp_session['addr'] }} description {{ bgp_session['name'] }}
-{% if bgp_admin_state and bgp_admin_state.has_key(bgp_session['addr']) and bgp_admin_state[bgp_session['addr']]==False or bgp_admin_state and not bgp_admin_state.has_key(bgp_session['addr']) and bgp_admin_state.has_key('all') and bgp_admin_state['all']==False %}
-  neighbor {{ bgp_session['addr'] }} shutdown
+  neighbor {{ neighbor_addr }} remote-as {{ bgp_session['asn'] }}
+  neighbor {{ neighbor_addr }} description {{ bgp_session['name'] }}
+{% if bgp_session.has_key('admin_status') and bgp_session['admin_status'] == 'down' or not bgp_session.has_key('admin_status') and DEVICE_METADATA['localhost'].has_key('default_bgp_status') and DEVICE_METADATA['localhost']['default_bgp_status'] == 'down' %}
+  neighbor {{ neighbor_addr }} shutdown
 {% endif %}
-{% if bgp_session['addr'] | ipv4 %}
+{% if neighbor_addr | ipv4 %}
 {% if minigraph_devices[inventory_hostname]['type'] == 'ToRRouter' %}
-  neighbor {{ bgp_session['addr'] }} allowas-in 1
+  neighbor {{ neighbor_addr }} allowas-in 1
 {% endif %}
 {% endif %}
-{% if bgp_session['addr'] | ipv6 %}
+{% if neighbor_addr | ipv6 %}
   address-family ipv6
 {% if minigraph_devices[inventory_hostname]['type'] == 'ToRRouter' %}
-    neighbor {{ bgp_session['addr'] }} allowas-in 1
+    neighbor {{ neighbor_addr }} allowas-in 1
 {% endif %}
-    neighbor {{ bgp_session['addr'] }} activate
+    neighbor {{ neighbor_addr }} activate
     maximum-paths 64
   exit-address-family
 {% endif %}
@@ -75,7 +75,7 @@ router bgp {{ minigraph_bgp_asn }}
 {% endfor %}
 {% endblock bgp_sessions %}
 {% block bgp_peers_with_range %}
-{% for bgp_peer in minigraph_bgp_peers_with_range %}
+{% for bgp_peer in BGP_PEER_RANGE.values() %}
   neighbor {{ bgp_peer['name'] }} peer-group
   neighbor {{ bgp_peer['name'] }} passive
   neighbor {{ bgp_peer['name'] }} remote-as {{deployment_id_asn_map[deployment_id] }}
@@ -90,10 +90,10 @@ router bgp {{ minigraph_bgp_asn }}
 {% endfor %}
 {% endblock bgp_peers_with_range %}
 !
-{% if minigraph_bgp_asn is not none %}
+{% if DEVICE_METADATA['localhost'].has_key('bgp_asn') %}
 maximum-paths 64
 !
 route-map ISOLATE permit 10
-set as-path prepend {{ minigraph_bgp_asn }}
+set as-path prepend {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
 {% endif %}
 !
