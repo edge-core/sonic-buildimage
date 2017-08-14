@@ -75,6 +75,26 @@ class LedControl(LedControlBase):
 
     # Constructor
     def __init__(self):
+        # Initialize all front-panel status LEDs to green
+        with open("/sys/class/leds/status/brightness", "w") as f:
+            f.write("1")
+        with open("/sys/class/leds/fan_status/brightness", "w") as f:
+            f.write("1")
+        with open("/sys/class/leds/psu1/brightness", "w") as f:
+            f.write("1")
+        with open("/sys/class/leds/psu2/brightness", "w") as f:
+            f.write("1")
+
+        # Initialize all fan LEDs to green
+        with open("/sys/devices/platform/sb800-fans/hwmon/hwmon1/fan1_led", "w") as f:
+            f.write("3")
+        with open("/sys/devices/platform/sb800-fans/hwmon/hwmon1/fan2_led", "w") as f:
+            f.write("3")
+        with open("/sys/devices/platform/sb800-fans/hwmon/hwmon1/fan3_led", "w") as f:
+            f.write("3")
+        with open("/sys/devices/platform/sb800-fans/hwmon/hwmon1/fan4_led", "w") as f:
+            f.write("3")
+
         # Initialize: Turn all front panel QSFP LEDs off
         for qsfp_index in range(self.QSFP_BREAKOUT_START_IDX, self.QSFP_BREAKOUT_END_IDX + 1):
             for lane in range(1, 5):
