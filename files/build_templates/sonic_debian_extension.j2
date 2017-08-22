@@ -223,6 +223,7 @@ sudo cp {{src}} $FILESYSTEM_ROOT/{{dst}}
 
 {% if sonic_asic_platform == "mellanox" %}
 sudo mkdir -p $FILESYSTEM_ROOT/etc/mlnx/
-sudo cp target/files/$MLNX_FW $FILESYSTEM_ROOT/etc/mlnx/fw-SPC.mfa
-sudo cp platform/mellanox/mlnx-fw-upgrade.sh $FILESYSTEM_ROOT/usr/bin/
+sudo cp target/files/$MLNX_FW_FILE $FILESYSTEM_ROOT/etc/mlnx/fw-SPC.mfa
+j2 platform/mellanox/mlnx-fw-upgrade.j2 | sudo tee $FILESYSTEM_ROOT/usr/bin/mlnx-fw-upgrade.sh
+sudo chmod 755 $FILESYSTEM_ROOT/usr/bin/mlnx-fw-upgrade.sh
 {% endif %}
