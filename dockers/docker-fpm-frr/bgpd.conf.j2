@@ -21,6 +21,7 @@ log facility local4
 router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
   bgp log-neighbor-changes
   bgp bestpath as-path multipath-relax
+  no bgp default ipv4-unicast
 {# TODO: use lo[0] for backward compatibility, will revisit the case with multiple lo interfaces #}
   bgp router-id {{ minigraph_lo_interfaces[0]['addr'] }}
 {# advertise loopback #}
@@ -52,6 +53,12 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
   neighbor {{ neighbor_addr }} description {{ bgp_session['name'] }}
 {% if minigraph_devices[inventory_hostname]['type'] == 'ToRRouter' %}
   neighbor {{ neighbor_addr }} allowas-in 1
+{% endif %}
+{% if neighbor_addr | ipv4 %}
+  address-family ipv4
+    neighbor {{ neighbor_addr }} activate
+    maximum-paths 64
+  exit-address-family
 {% endif %}
 {% if neighbor_addr | ipv6 %}
   address-family ipv6
