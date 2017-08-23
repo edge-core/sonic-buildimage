@@ -1,5 +1,6 @@
 #!/bin/bash
 
+fw_required="{{ MLNX_FW_VERSION }}"
 query_retry_count_max="10"
 fw_file=/etc/mlnx/fw-SPC.mfa
 
@@ -13,7 +14,7 @@ run_or_fail() {
 
 # wait until devices will be available
 query_retry_count="0"
-query_cmd="mlxfwmanager --query -i ${fw_file}"
+query_cmd="mlxfwmanager --query"
 ${query_cmd} > /dev/null
 
 while [[ (${query_retry_count} -lt ${query_retry_count_max}) && ($? -ne "0") ]]; do
@@ -27,7 +28,6 @@ run_or_fail "${query_cmd}" > /tmp/mlnxfwmanager-query.txt
 # get current firmware version and required version
 fw_info=$(grep FW /tmp/mlnxfwmanager-query.txt)
 fw_current=$(echo $fw_info | cut -f2 -d' ')
-fw_required=$(echo $fw_info | cut -f3 -d' ')
 
 if [[ -z ${fw_current} ]]; then
 	echo "Could not retreive current FW version."

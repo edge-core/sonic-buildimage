@@ -22,7 +22,8 @@ supervisorctl start bgpcfgd
 
 supervisorctl start rsyslogd
 
-# Quagga has its own monitor process, 'watchquagga'
-service quagga start
+# Start Quagga processes
+supervisorctl start zebra
+supervisorctl start bgpd
 
 supervisorctl start fpmsyncd

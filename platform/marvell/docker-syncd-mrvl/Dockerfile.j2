@@ -5,25 +5,25 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update
 
-RUN apt-get install -y libdbus-1-3 libdaemon0 libjansson4 
-
 COPY \
-{% for deb in docker_fpm_quagga_debs.split(' ') -%}
+{% for deb in docker_syncd_mrvl_debs.split(' ') -%}
 debs/{{ deb }}{{' '}}
 {%- endfor -%}
 debs/
 
+RUN apt-get -y install libpcap-dev libxml2-dev python-dev swig libsensors4-dev libjemalloc1 nfs-common
+
 RUN dpkg -i \
-{% for deb in docker_fpm_quagga_debs.split(' ') -%}
+{% for deb in docker_syncd_mrvl_debs.split(' ') -%}
 debs/{{ deb }}{{' '}}
 {%- endfor %}
+
+COPY ["start.sh", "syncd.sh", "/usr/bin/"]
+COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 
 ## Clean up
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /debs
 
-COPY ["bgpcfgd", "start.sh", "/usr/bin/"]
-COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
-COPY ["*.j2", "/usr/share/sonic/templates/"]
-
 ENTRYPOINT ["/usr/bin/supervisord"]
+

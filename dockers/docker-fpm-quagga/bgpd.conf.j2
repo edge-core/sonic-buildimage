@@ -46,7 +46,13 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
 {% endif %}
 {% block vlan_advertisement %}
 {% for vlan_interface in minigraph_vlan_interfaces %}
+{% if vlan_interface['addr'] | ipv4 %}
   network {{ vlan_interface['subnet'] }}
+{% elif vlan_interface['addr'] | ipv6 %}
+  address-family ipv6
+   network {{ vlan_interface['subnet'] }}
+  exit-address-family
+{% endif %}
 {% endfor %}
 {% endblock vlan_advertisement %}
 {% block bgp_sessions %}

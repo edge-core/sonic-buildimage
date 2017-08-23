@@ -1,0 +1,61 @@
+#!/bin/sh
+
+case $1 in
+    prereqs)
+        exit 0
+        ;;
+esac
+
+set -e
+
+# Extract kernel parameters
+set -- $(cat /proc/cmdline)
+items=""
+for x in "$@"; do
+    case "$x" in
+        Aboot=*)
+            aboot_flag="${x#Aboot=}"
+            ;;
+        net_*)
+            item="${x#net_}"
+            items="$items $item"
+            ;;
+        platform=*)
+            platform_flag="${x#platform=}"
+            ;;
+    esac
+done
+
+arista_net_rename() {
+    local device_path="$1"
+    local new_name="$2"
+    local from_name="$3"
+    for path in $(ls -d /sys/class/net/$from_name* 2>/dev/null); do
+        local devid="$(realpath "$path/device")"
+        if echo "$devid" | grep -q "$device_path"; then
+            local cur_name="${path##*/}"
+            ip link set "$cur_name" name "$new_name"
+            return
+        fi
+    done
+}
+
+# Iterate over all the net_maX items found in the cmdline two times.
+# First time renaming the interfaces to maX.
+# The second time renaming them to their final name ethX.
+if [ -n "$aboot_flag" -a "$platform_flag" == 'rook' ]; then
+    for item in $items; do
+        key="${item%=*}"
+        value="${item#*=}"
+        arista_net_rename "$value" "$key" eth
+    done
+    for item in $items; do
+        key="${item%=*}"
+        value="${item#*=}"
+        index="${key#ma}"
+        index="$(( $index - 1 ))"
+        newKey="eth$index"
+        arista_net_rename "$value" "$newKey" ma
+    done
+fi
+
