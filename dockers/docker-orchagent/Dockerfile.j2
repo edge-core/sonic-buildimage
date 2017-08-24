@@ -30,5 +30,6 @@ COPY ["arp_update", "start.sh", "orchagent.sh", "swssconfig.sh", "/usr/bin/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 COPY ["ipinip.json.j2", "/usr/share/sonic/templates/"]
 COPY ["mirror.json.j2", "/usr/share/sonic/templates/"]
+COPY ["ports.json.j2", "/usr/share/sonic/templates/"]
 
 ENTRYPOINT ["/usr/bin/supervisord"]

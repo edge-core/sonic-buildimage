@@ -119,3 +119,8 @@ class TestCfgGen(TestCase):
         argument = '-m "' + self.sample_graph_bgp_speaker + '" -p "' + self.port_config + '" -v deployment_id'
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "1")
+
+    def test_minigraph_ethernet_interfaces(self):
+        argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v ethernet_interfaces'
+        output = self.run_script(argument)
+        self.assertEqual(output.strip(), "[{'speed': '10000', 'name': 'fortyGigE0/0'}, {'speed': '25000', 'name': 'fortyGigE0/4'}, {'speed': '40000', 'name': 'fortyGigE0/8'}, {'speed': '1000000', 'name': 'fortyGigE0/12'}]")

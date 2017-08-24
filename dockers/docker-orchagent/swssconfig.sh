@@ -38,7 +38,7 @@ fast_reboot
 
 HWSKU=`sonic-cfggen -m /etc/sonic/minigraph.xml -v minigraph_hwsku`
 
-SWSSCONFIG_ARGS="00-copp.config.json ipinip.json mirror.json "
+SWSSCONFIG_ARGS="00-copp.config.json ipinip.json mirror.json ports.json "
 
 if [ "$HWSKU" == "Force10-S6000" ]; then
     SWSSCONFIG_ARGS+="td2.32ports.buffers.json td2.32ports.qos.json "
