@@ -809,7 +809,7 @@
     <Devices>
       <Device i:type="LeafRouter">
         <Hostname>sonic</Hostname>
-        <HwSku>Arista-7260CX3-64</HwSku>
+        <HwSku>Arista-7260CX3-C64</HwSku>
       </Device>
     </Devices>
   </PngDec>
@@ -844,5 +844,5 @@
     <Properties xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
   </MetadataDeclaration>
   <Hostname>sonic</Hostname>
-  <HwSku>Arista-7260CX3-64</HwSku>
+  <HwSku>Arista-7260CX3-C64</HwSku>
 </DeviceMiniGraph>
