@@ -14,11 +14,8 @@
 
 IMAGE_VERSION=$(. functions.sh && sonic_get_version)
 
-if [ "$IMAGE_TYPE" = "onie" ]; then
-    echo "Build ONIE installer"
-    mkdir -p `dirname $OUTPUT_ONIE_IMAGE`
-    sudo rm -f $OUTPUT_ONIE_IMAGE
-
+generate_onie_installer_image()
+{
     # Copy platform-specific ONIE installer config files where onie-mk-demo.sh expects them
     rm -rf ./installer/x86_64/platforms/
     mkdir -p ./installer/x86_64/platforms/
@@ -26,6 +23,11 @@ if [ "$IMAGE_TYPE" = "onie" ]; then
         for PLATFORM in `ls ./device/$VENDOR`; do
             if [ -f ./device/$VENDOR/$PLATFORM/installer.conf ]; then
                 cp ./device/$VENDOR/$PLATFORM/installer.conf ./installer/x86_64/platforms/$PLATFORM
+            fi
+
+            if [ "$IMAGE_TYPE" = "raw" ] && [ -f ./device/$VENDOR/$PLATFORM/nos_to_sonic_grub.cfg ]; then
+                sed -i -e "s/%%IMAGE_VERSION%%/$IMAGE_VERSION/g" ./device/$VENDOR/$PLATFORM/nos_to_sonic_grub.cfg
+                echo "IMAGE_VERSION is $IMAGE_VERSION"
             fi
         done
     done
@@ -35,6 +37,50 @@ if [ "$IMAGE_TYPE" = "onie" ]; then
     ./onie-mk-demo.sh $TARGET_PLATFORM $TARGET_MACHINE $TARGET_PLATFORM-$TARGET_MACHINE-$ONIEIMAGE_VERSION \
           installer platform/$TARGET_MACHINE/platform.conf $OUTPUT_ONIE_IMAGE OS $IMAGE_VERSION $ONIE_IMAGE_PART_SIZE \
           $ONIE_INSTALLER_PAYLOAD
+}
+
+if [ "$IMAGE_TYPE" = "onie" ]; then
+    echo "Build ONIE installer"
+    mkdir -p `dirname $OUTPUT_ONIE_IMAGE`
+    sudo rm -f $OUTPUT_ONIE_IMAGE
+
+    generate_onie_installer_image
+
+## Build a raw partition dump image using the ONIE installer that can be
+## used to dd' in-lieu of using the onie-nos-installer. Used while migrating
+## into SONiC from other NOS.
+elif [ "$IMAGE_TYPE" = "raw" ]; then
+
+    echo "Build RAW image"
+    mkdir -p `dirname $OUTPUT_RAW_IMAGE`
+    sudo rm -f $OUTPUT_RAW_IMAGE
+
+    generate_onie_installer_image
+
+    echo "Creating SONiC raw partition : $OUTPUT_RAW_IMAGE of size $RAW_IMAGE_DISK_SIZE MB"
+    fallocate -l "$RAW_IMAGE_DISK_SIZE"M $OUTPUT_RAW_IMAGE
+
+    ## Generate a compressed 8GB partition dump that can be used to 'dd' in-lieu of using the onie-nos-installer
+    ## Run the installer 
+    ## The 'build' install mode of the installer is used to generate this dump.
+    sudo chmod a+x $OUTPUT_ONIE_IMAGE
+    sudo ./$OUTPUT_ONIE_IMAGE
+
+    [ -r $OUTPUT_RAW_IMAGE ] || {
+        echo "Error : $OUTPUT_RAW_IMAGE not generated!"
+        exit 1
+    }
+
+    gzip $OUTPUT_RAW_IMAGE
+
+    [ -r $OUTPUT_RAW_IMAGE.gz ] || {
+        echo "Error : gzip $OUTPUT_RAW_IMAGE failed!"
+        exit 1
+    }
+
+    mv $OUTPUT_RAW_IMAGE.gz $OUTPUT_RAW_IMAGE
+    echo "The compressed raw image is in $OUTPUT_RAW_IMAGE"
+
 ## Use 'aboot' as target machine category which includes Aboot as bootloader
 elif [ "$IMAGE_TYPE" = "aboot" ]; then
     echo "Build Aboot installer"

@@ -27,6 +27,7 @@ echo " OK."
 
 # Untar and launch install script in a tmpfs
 cur_wd=$(pwd)
+export cur_wd
 archive_path=$(realpath "$0")
 tmp_dir=$(mktemp -d)
 if [ "$(id -u)" = "0" ] ; then
