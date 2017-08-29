@@ -1,28 +1,62 @@
-#! /usr/bin/python
+# sfputil.py
+#
+# Platform-specific SFP transceiver interface for SONiC
+#
 
 try:
-    from sonic_sfp.sfputilbase import sfputilbase
-except ImportError, e:
-    raise ImportError (str(e) + "- required module not found")
+    import time
+    from sonic_sfp.sfputilbase import SfpUtilBase
+except ImportError as e:
+    raise ImportError("%s - required module not found" % str(e))
 
 
-class sfputil(sfputilbase):
-    """Platform specific sfputil class"""
+class SfpUtil(SfpUtilBase):
+    """Platform-specific SfpUtil class"""
 
-    port_start = 0
-    port_end = 15
-    ports_in_block = 16
+    PORT_START = 0
+    PORT_END = 15
+    PORTS_IN_BLOCK = 16
 
-    eeprom_offset = 1
+    EEPROM_OFFSET = 1
 
-    port_to_eeprom_mapping = {}
+    _port_to_eeprom_mapping = {}
 
-    _qsfp_ports = range(0, ports_in_block + 1)
+    @property
+    def port_start(self):
+        return self.PORT_START
 
-    def __init__(self, port_num):
-        # Override port_to_eeprom_mapping for class initialization
-        eeprom_path = '/bsp/qsfp/qsfp{0}'
+    @property
+    def port_end(self):
+        return self.PORT_END
+
+    @property
+    def qsfp_ports(self):
+        return range(0, self.PORTS_IN_BLOCK + 1)
+
+    @property
+    def port_to_eeprom_mapping(self):
+        return self._port_to_eeprom_mapping
+
+    def __init__(self):
+        eeprom_path = "/bsp/qsfp/qsfp{0}"
+
         for x in range(0, self.port_end + 1):
-            self.port_to_eeprom_mapping[x] = eeprom_path.format(x + self.eeprom_offset)
-        sfputilbase.__init__(self, port_num)
-        
+            self._port_to_eeprom_mapping[x] = eeprom_path.format(x + self.EEPROM_OFFSET)
+
+        SfpUtilBase.__init__(self)
+
+    def get_presence(self, port_num):
+
+        raise NotImplementedError
+
+    def get_low_power_mode(self, port_num):
+
+        raise NotImplementedError
+
+    def set_low_power_mode(self, port_num, lpmode):
+
+        raise NotImplementedError
+
+    def reset(self, port_num):
+
+        raise NotImplementedError

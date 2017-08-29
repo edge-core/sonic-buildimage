@@ -1,0 +1,11 @@
+[
+{% for interface in ethernet_interfaces %}
+    {
+        "PORT_TABLE:{{ interface['name'] }}": {
+            "speed": "{{ interface['speed'] }}"
+        },
+        "OP": "SET"
+    }{% if not loop.last %},{% endif %}
+
+{% endfor %}
+]

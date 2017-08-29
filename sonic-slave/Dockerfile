@@ -221,7 +221,7 @@ RUN pip install \
 RUN pip install j2cli
 
 # For sonic config engine testing
-RUN pip install pyangbind
+RUN pip install pyangbind==0.5.10
 
 # For supervisor build
 RUN pip install meld3 mock

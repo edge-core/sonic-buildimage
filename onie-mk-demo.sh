@@ -83,11 +83,16 @@ cp onie-image.conf $tmp_installdir
 # sed. Special chars are: \ / &
 EXTRA_CMDLINE_LINUX=`echo $EXTRA_CMDLINE_LINUX | sed -e 's/[\/&]/\\\&/g'`
 
+output_raw_image=$(cat onie-image.conf | grep OUTPUT_RAW_IMAGE | cut -f2 -d"=")
+[ -z "$TARGET_MACHINE" ] && output_raw_image=$(echo $output_raw_image | sed -e 's/$TARGET_MACHINE/$machine/g')
+output_raw_image=$(eval echo $output_raw_image)
+
 # Tailor the demo installer for OS mode or DIAG mode
 sed -i -e "s/%%DEMO_TYPE%%/$demo_type/g" \
        -e "s/%%IMAGE_VERSION%%/$image_version/g" \
        -e "s/%%ONIE_IMAGE_PART_SIZE%%/$onie_image_part_size/" \
        -e "s/%%EXTRA_CMDLINE_LINUX%%/$EXTRA_CMDLINE_LINUX/" \
+       -e "s@%%OUTPUT_RAW_IMAGE%%@$output_raw_image@" \
     $tmp_installdir/install.sh || clean_up 1
 echo -n "."
 cp -r $* $tmp_installdir || clean_up 1

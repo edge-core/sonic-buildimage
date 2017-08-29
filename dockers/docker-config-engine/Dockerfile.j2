@@ -10,7 +10,7 @@ RUN apt-get install -y python-lxml python-yaml python-bitarray python-pip python
 
 RUN pip install --upgrade pip
 
-RUN pip install netaddr ipaddr jinja2 pyangbind
+RUN pip install netaddr ipaddr jinja2 pyangbind==0.5.10
 
 {% if docker_config_engine_debs.strip() %}
 COPY \

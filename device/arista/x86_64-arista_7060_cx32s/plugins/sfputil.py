@@ -1,9 +1,12 @@
-#!/usr/bin/env python
+# sfputil.py
+#
+# Platform-specific SFP transceiver interface for SONiC
+#
 
 try:
     import arista.utils.sonic_sfputil as arista_sfputil
-except ImportError, e:
-    raise ImportError (str(e) + "- required module not found")
+except ImportError as e:
+    raise ImportError("%s - required module not found" % str(e))
 
 
-sfputil = arista_sfputil.getSfpUtil()
+SfpUtil = arista_sfputil.getSfpUtil()
