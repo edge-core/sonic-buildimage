@@ -239,10 +239,11 @@ EOF
 ## Config sysctl
 sudo mkdir -p $FILESYSTEM_ROOT/var/core
 sudo augtool --autosave "
-set /files/etc/sysctl.conf/kernel.core_pattern '|/usr/bin/coredump-compress %e %p'
+set /files/etc/sysctl.conf/kernel.core_pattern '|/usr/bin/coredump-compress %e %t %p'
 
 set /files/etc/sysctl.conf/kernel.softlockup_panic 1
 set /files/etc/sysctl.conf/kernel.panic 10
+set /files/etc/sysctl.conf/fs.suid_dumpable 2
 
 set /files/etc/sysctl.conf/net.ipv4.conf.default.forwarding 1
 set /files/etc/sysctl.conf/net.ipv4.conf.all.forwarding 1
