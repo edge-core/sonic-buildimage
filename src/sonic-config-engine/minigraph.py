@@ -458,15 +458,14 @@ def parse_xml(filename, platform=None, port_config_file=None):
             ethernet_interfaces = parse_deviceinfo(child, hwsku)
 
     results = {}
+    results['minigraph_hwsku'] = hwsku
+    # sorting by lambdas are not easily done without custom filters.
+    # TODO: add jinja2 filter to accept a lambda to sort a list of dictionaries by attribute.
+    # TODO: alternatively (preferred), implement class containers for multiple-attribute entries, enabling sort by attr
     results['BGP_NEIGHBOR'] = bgp_sessions
-    results['DEVICE_METADATA'] = {'localhost': { 
-        'bgp_asn': bgp_asn,
-        'deployment_id': deployment_id,
-        'hostname': hostname,
-        'hwsku': hwsku,
-        'type': devices[hostname]['type']
-        }}
+    results['DEVICE_METADATA'] = {'localhost': { 'bgp_asn': bgp_asn }}
     results['BGP_PEER_RANGE'] = bgp_peers_with_range
+    # TODO: sort does not work properly on all interfaces of varying lengths. Need to sort by integer group(s).
 
     phyport_intfs = []
     vlan_intfs = []
@@ -497,11 +496,14 @@ def parse_xml(filename, platform=None, port_config_file=None):
     if devices != None:
         results['minigraph_console'] = get_console_info(devices, console_dev, console_port)
         results['minigraph_mgmt'] = get_mgmt_info(devices, mgmt_dev, mgmt_port)
+    results['minigraph_hostname'] = hostname
+    results['inventory_hostname'] = hostname
     results['syslog_servers'] = syslog_servers
     results['dhcp_servers'] = dhcp_servers
     results['ntp_servers'] = ntp_servers
     results['forced_mgmt_routes'] = mgmt_routes
     results['erspan_dst'] = erspan_dst
+    results['deployment_id'] = deployment_id
     results['ethernet_interfaces'] = ethernet_interfaces
 
     return results
@@ -511,10 +513,9 @@ def parse_device_desc_xml(filename):
     (lo_prefix, mgmt_prefix, hostname, hwsku, d_type) = parse_device(root)
 
     results = {}
-    results['DEVICE_METADATA'] = {'localhost': { 
-        'hostname': hostname,
-        'hwsku': hwsku,
-        }}
+    results['minigraph_hwsku'] = hwsku
+    results['minigraph_hostname'] = hostname
+    results['inventory_hostname'] = hostname
 
     lo_intfs = []
     ipn = ipaddress.IPNetwork(lo_prefix)

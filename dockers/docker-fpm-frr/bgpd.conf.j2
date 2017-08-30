@@ -7,7 +7,7 @@
 {% endblock banner %}
 !
 {% block system_init %}
-hostname {{ DEVICE_METADATA['localhost']['hostname'] }}
+hostname {{ inventory_hostname }}
 password zebra
 log syslog informational
 log facility local4
@@ -51,7 +51,7 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
 {% if bgp_session['asn'] != 0 %}
   neighbor {{ neighbor_addr }} remote-as {{ bgp_session['asn'] }}
   neighbor {{ neighbor_addr }} description {{ bgp_session['name'] }}
-{% if DEVICE_METADATA['localhost']['type'] == 'ToRRouter' %}
+{% if minigraph_devices[inventory_hostname]['type'] == 'ToRRouter' %}
   neighbor {{ neighbor_addr }} allowas-in 1
 {% endif %}
 {% if neighbor_addr | ipv4 %}

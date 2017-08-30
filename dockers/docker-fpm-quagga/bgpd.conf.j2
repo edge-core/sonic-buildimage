@@ -7,7 +7,7 @@
 {% endblock banner %}
 !
 {% block system_init %}
-hostname {{ DEVICE_METADATA['localhost']['hostname'] }}
+hostname {{ inventory_hostname }}
 password zebra
 log syslog informational
 log facility local4
@@ -27,7 +27,7 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
   bgp log-neighbor-changes
   bgp bestpath as-path multipath-relax
 {# Advertise graceful restart capability for ToR #}
-{% if DEVICE_METADATA['localhost']['type'] == 'ToRRouter' %}
+{% if minigraph_devices[inventory_hostname]['type'] == 'ToRRouter' %}
   bgp graceful-restart
 {% endif %}
 {# TODO: use lo[0] for backward compatibility, will revisit the case with multiple lo interfaces #}
@@ -64,13 +64,13 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
   neighbor {{ neighbor_addr }} shutdown
 {% endif %}
 {% if neighbor_addr | ipv4 %}
-{% if DEVICE_METADATA['localhost']['type'] == 'ToRRouter' %}
+{% if minigraph_devices[inventory_hostname]['type'] == 'ToRRouter' %}
   neighbor {{ neighbor_addr }} allowas-in 1
 {% endif %}
 {% endif %}
 {% if neighbor_addr | ipv6 %}
   address-family ipv6
-{% if DEVICE_METADATA['locahost']['type'] == 'ToRRouter' %}
+{% if minigraph_devices[inventory_hostname]['type'] == 'ToRRouter' %}
     neighbor {{ neighbor_addr }} allowas-in 1
 {% endif %}
     neighbor {{ neighbor_addr }} activate

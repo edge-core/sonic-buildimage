@@ -22,7 +22,6 @@ import yaml
 import jinja2
 import netaddr
 import json
-from functools import partial
 from minigraph import minigraph_encoder
 from minigraph import parse_xml
 from minigraph import parse_device_desc_xml
@@ -53,16 +52,6 @@ def is_ipv6(value):
         except:
             return False
     return addr.version == 6
-
-def prefix_attr(attr, value):
-    if not value:
-        return None
-    else:
-        try:
-            prefix = netaddr.IPNetwork(str(value))
-        except:
-            return None
-    return str(getattr(prefix, attr))
 
 def unique_name(l):
     name_list = []
@@ -169,8 +158,6 @@ def main():
         env.filters['ipv4'] = is_ipv4
         env.filters['ipv6'] = is_ipv6
         env.filters['unique_name'] = unique_name
-        for attr in ['ip', 'network', 'prefixlen', 'netmask']:
-            env.filters[attr] = partial(prefix_attr, attr)
         template = env.get_template(template_file)
         print template.render(data)
     

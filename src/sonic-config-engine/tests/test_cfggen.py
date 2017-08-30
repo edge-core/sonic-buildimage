@@ -31,7 +31,7 @@ class TestCfgGen(TestCase):
         self.assertEqual(output, '')
     
     def test_device_desc(self):
-        argument = '-v "DEVICE_METADATA[\'localhost\'][\'hwsku\']" -M "' + self.sample_device_desc + '"'
+        argument = '-v minigraph_hwsku -M "' + self.sample_device_desc + '"'
         output = self.run_script(argument)
         self.assertEqual(output.strip(), 'ACS-MSN2700')
 
@@ -41,7 +41,7 @@ class TestCfgGen(TestCase):
         self.assertEqual(output.strip(), '10.0.1.5')
 
     def test_minigraph_sku(self):
-        argument = '-v "DEVICE_METADATA[\'localhost\'][\'hwsku\']" -m "' + self.sample_graph + '"'
+        argument = '-v minigraph_hwsku -m "' + self.sample_graph + '"'
         output = self.run_script(argument)
         self.assertEqual(output.strip(), 'Force10-Z9100')
     
@@ -51,7 +51,7 @@ class TestCfgGen(TestCase):
         self.assertTrue(len(output.strip()) > 0)
     
     def test_jinja_expression(self):
-        argument = '-m "' + self.sample_graph + '" -v "DEVICE_METADATA[\'localhost\'][\'type\']"'
+        argument = '-m "' + self.sample_graph + '" -v "minigraph_devices[minigraph_hostname][\'type\']"'
         output = self.run_script(argument)
         self.assertEqual(output.strip(), 'LeafRouter')
     
@@ -116,7 +116,7 @@ class TestCfgGen(TestCase):
         self.assertEqual(output.strip(), "[{'name': 'BGPSLBPassive', 'ip_range': ['10.10.10.10/26', '100.100.100.100/26']}]")
 
     def test_minigraph_deployment_id(self):
-        argument = '-m "' + self.sample_graph_bgp_speaker + '" -p "' + self.port_config + '" -v "DEVICE_METADATA[\'localhost\'][\'deployment_id\']"'
+        argument = '-m "' + self.sample_graph_bgp_speaker + '" -p "' + self.port_config + '" -v deployment_id'
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "1")
 

@@ -7,7 +7,7 @@
 {% endblock banner %}
 !
 {% block sys_init %}
-hostname {{ DEVICE_METADATA['localhost']['hostname'] }}
+hostname {{ inventory_hostname }}
 password zebra
 enable password zebra
 {% endblock sys_init %}
