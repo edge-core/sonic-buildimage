@@ -447,6 +447,8 @@ $(DOCKER_LOAD_TARGETS) : $(TARGET_PATH)/%.gz-load : .platform docker-start $$(TA
 $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
         .platform \
         onie-image.conf \
+        build_debian.sh \
+        build_image.sh \
         $$(addsuffix -install,$$(addprefix $(DEBS_PATH)/,$$($$*_DEPENDS))) \
         $$(addprefix $(DEBS_PATH)/,$$($$*_INSTALLS)) \
         $$(addprefix $(DEBS_PATH)/,$$($$*_LAZY_INSTALLS)) \
