@@ -12,9 +12,8 @@
 # container.
 SONIC_CONFIG_BUILD_JOBS = 1
 
-# SONIC_CONFIG_BUILD_JOBS - set number of jobs for number of jobs per package.
+# SONIC_CONFIG_MAKE_JOBS - set number of parallel make jobs per package.
 # Corresponding -j argument will be passed to make/dpkg commands that build separate packages
-# container.
 SONIC_CONFIG_MAKE_JOBS = $(shell nproc)
 
 # SONIC_CONFIG_ENABLE_COLORS - enable colored output in build system.
