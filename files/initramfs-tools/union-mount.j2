@@ -11,18 +11,19 @@ case $1 in
     ;;
 esac
 
-## Mount the aufs file system: rw layer over squashfs
+## Mount the overlay file system: rw layer over squashfs
 image_dir=$(cat /proc/cmdline | sed -e 's/.*loop=\(\S*\)\/.*/\1/')
 mkdir -p ${rootmnt}/host/$image_dir/rw
-mount -n -o dirs=${rootmnt}/host/$image_dir/rw:${rootmnt}=ro -t aufs root-aufs ${rootmnt}
+mkdir -p ${rootmnt}/host/$image_dir/work
+mount -n -o lowerdir=${rootmnt},upperdir=${rootmnt}/host/$image_dir/rw,workdir=${rootmnt}/host/$image_dir/work -t overlay root-overlay ${rootmnt}
 ## Check if the root block device is still there
 [ -b ${ROOT} ] || mdev -s
 ## Mount the raw partition again
 mount ${ROOT} ${rootmnt}/host
-## Mount the working directory of docker engine in the raw partition, bypass the aufs
+## Mount the working directory of docker engine in the raw partition, bypass the overlay
 mkdir -p ${rootmnt}/var/lib/docker
 mount --bind ${rootmnt}/host/$image_dir/{{ DOCKERFS_DIR }} ${rootmnt}/var/lib/docker
-## Mount the boot directory in the raw partition, bypass the aufs
+## Mount the boot directory in the raw partition, bypass the overlay
 mkdir -p ${rootmnt}/boot
 mount --bind ${rootmnt}/host/$image_dir/boot ${rootmnt}/boot
 ## Mount loop device for /var/log
