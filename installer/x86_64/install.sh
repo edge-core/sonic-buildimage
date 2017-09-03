@@ -571,6 +571,7 @@ menuentry '$demo_grub_entry' {
         insmod part_msdos
         insmod ext2
         linux   /$image_dir/boot/vmlinuz-4.9.0-3-amd64 root=$grub_cfg_root rw $GRUB_CMDLINE_LINUX  \
+                net.ifnames=0 biosdevname=0 \
                 loop=$image_dir/$FILESYSTEM_SQUASHFS loopfstype=squashfs                       \
                 apparmor=1 security=apparmor varlog_size=$VAR_LOG_SIZE usbcore.autosuspend=-1 $ONIE_PLATFORM_EXTRA_CMDLINE_LINUX
         echo    'Loading $demo_volume_label $demo_type initial ramdisk ...'
