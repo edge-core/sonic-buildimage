@@ -1,6 +1,6 @@
 # initramfs-tools package
 
-IGB_DRIVER_VERSION = 5.3.5.4
+IGB_DRIVER_VERSION = 5.3.5.10
 export IGB_DRIVER_VERSION
 
 IGB_DRIVER = igb.ko
