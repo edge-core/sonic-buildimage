@@ -29,7 +29,7 @@
 set -x -e
 
 ## docker engine version (with platform)
-DOCKER_VERSION=1.11.1-0~jessie_amd64
+DOCKER_VERSION=1.11.1-0~stretch_amd64
 
 ## Working directory to prepare the file system
 FILESYSTEM_ROOT=./fsroot
@@ -64,7 +64,7 @@ touch $FILESYSTEM_ROOT/$PLATFORM_DIR/firsttime
 
 ## Build a basic Debian system by debootstrap
 echo '[INFO] Debootstrap...'
-sudo http_proxy=$http_proxy debootstrap --variant=minbase --arch amd64 jessie $FILESYSTEM_ROOT http://debian-archive.trafficmanager.net/debian
+sudo http_proxy=$http_proxy debootstrap --variant=minbase --arch amd64 stretch $FILESYSTEM_ROOT http://debian-archive.trafficmanager.net/debian
 
 ## Config hostname and hosts, otherwise 'sudo ...' will complain 'sudo: unable to resolve host ...'
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo '$HOSTNAME' > /etc/hostname"
