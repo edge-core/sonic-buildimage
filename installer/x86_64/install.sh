@@ -450,24 +450,6 @@ TAR_EXTRA_OPTION="--numeric-owner"
 mkdir -p $demo_mnt/$image_dir/$DOCKERFS_DIR
 unzip -op $ONIE_INSTALLER_PAYLOAD "$FILESYSTEM_DOCKERFS" | tar xz $TAR_EXTRA_OPTION -f - -C $demo_mnt/$image_dir/$DOCKERFS_DIR
 
-# Create loop device for /var/log to limit its size to $VAR_LOG_SIZE MB
-if [ -f $demo_mnt/disk-img/var-log.ext4 ]; then
-    current_log_size_mb=$(ls -l --block-size=M $demo_mnt/disk-img/var-log.ext4 | cut -f5 -d" ")
-    if [ "$current_log_size_mb" = "$VAR_LOG_SIZE"M ]; then
-        echo "Log file system already exists. Size: ${VAR_LOG_SIZE}MB"
-        VAR_LOG_SIZE=0
-    else
-        rm -rf $demo_mnt/disk-img
-    fi
-fi
-
-if [ "$VAR_LOG_SIZE" != "0" ]; then
-    echo "Creating new log file system. Size: ${VAR_LOG_SIZE}MB"
-    mkdir -p $demo_mnt/disk-img
-    dd if=/dev/zero of=$demo_mnt/disk-img/var-log.ext4 count=$((2048*$VAR_LOG_SIZE))
-    mkfs.ext4 -q $demo_mnt/disk-img/var-log.ext4 -F
-fi
-
 if [ "$install_env" = "onie" ]; then
     # Store machine description in target file system
     cp /etc/machine.conf $demo_mnt
@@ -563,7 +545,7 @@ menuentry '$demo_grub_entry' {
         insmod ext2
         linux   /$image_dir/boot/vmlinuz-3.16.0-4-amd64 root=$demo_dev rw $GRUB_CMDLINE_LINUX  \
                 loop=$image_dir/$FILESYSTEM_SQUASHFS loopfstype=squashfs                       \
-                apparmor=1 security=apparmor $ONIE_PLATFORM_EXTRA_CMDLINE_LINUX
+                apparmor=1 security=apparmor varlog_size=$VAR_LOG_SIZE $ONIE_PLATFORM_EXTRA_CMDLINE_LINUX
         echo    'Loading $demo_volume_label $demo_type initial ramdisk ...'
         initrd  /$image_dir/boot/initrd.img-3.16.0-4-amd64
 }

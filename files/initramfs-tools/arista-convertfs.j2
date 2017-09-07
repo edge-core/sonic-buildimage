@@ -82,28 +82,6 @@ run_cmd() {
     fi
 }
 
-create_varlog_file() {
-    local err_msg="Error: create var-log ext4 file"
-    local cmd="[ -n "$varlog_size" ] && mkdir -p $root_mnt/disk-img && dd if=/dev/zero of=$root_mnt/disk-img/var-log.ext4 count=$((2048*$varlog_size)) && mke2fs -t ext4 -q -F $root_mnt/disk-img/var-log.ext4"
-    run_cmd "$cmd" "$err_msg"
-}
-
-mount_and_create_varlog_file() {
-    [ -z "$varlog_size" ] && exit 0
-    mkdir -p "$root_mnt"
-    mount -t ext4 "$root_dev" "$root_mnt"
-    # exit when the var_log.ext4 exists and the size matches
-    if [ -e "$root_mnt/disk-img/var-log.ext4" ]; then
-        cur_varlog_size=$(ls -l $root_mnt/disk-img/var-log.ext4 | awk '{print $5}')
-        if [ $cur_varlog_size == $((1024*1024*$varlog_size)) ]; then
-            exit 0
-        fi
-    fi
-    create_varlog_file
-    umount "$root_mnt"
-    exit 0
-}
-
 # Extract kernel parameters
 set -- $(cat /proc/cmdline)
 for x in "$@"; do
@@ -113,9 +91,6 @@ for x in "$@"; do
             ;;
         Aboot=*)
             aboot_flag="${x#Aboot=}"
-            ;;
-        varlog_size=*)
-            varlog_size="${x#varlog_size=}"
             ;;
         loop=*)
             x1="${x#loop=}"
@@ -135,8 +110,8 @@ if ! wait_for_root_dev; then
     exit 1
 fi
 
-# mount, create varlog file and exit when the root is ext4
-blkid | grep "$root_dev.*vfat" -q || mount_and_create_varlog_file
+# exit when the root is ext4
+blkid | grep "$root_dev.*vfat" -q || exit 0
 
 # Get flash dev name
 if [ -z "$block_flash" ]; then
@@ -201,5 +176,3 @@ run_cmd "$cmd" "$err_msg"
 err_msg="Error: copying files form $tmp_mnt to $root_mnt failed"
 cmd="cp -a $tmp_mnt/. $root_mnt/"
 run_cmd "$cmd" "$err_msg"
-
-create_varlog_file

@@ -1,6 +1,12 @@
 #!/bin/sh -e
+
+PREREQS="varlog"
+
+prereqs() { echo "$PREREQS"; }
+
 case $1 in
   prereqs)
+  prereqs
     exit 0
     ;;
 esac
