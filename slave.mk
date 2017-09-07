@@ -179,13 +179,13 @@ SONIC_TARGET_LIST += $(addprefix $(FILES_PATH)/, $(SONIC_ONLINE_FILES))
 #     SONIC_MAKE_DEBS += $(SOME_NEW_DEB)
 $(addprefix $(DEBS_PATH)/, $(SONIC_MAKE_DEBS)) : $(DEBS_PATH)/% : .platform $$(addsuffix -install,$$(addprefix $(DEBS_PATH)/,$$($$*_DEPENDS)))
 	$(HEADER)
-	# remove target to force rebuild
+	# Remove target to force rebuild
 	rm -f $(addprefix $(DEBS_PATH)/, $* $($*_DERIVED_DEBS) $($*_EXTRA_DEBS))
-	# apply series of patches if exist
+	# Apply series of patches if exist
 	if [ -f $($*_SRC_PATH).patch/series ]; then pushd $($*_SRC_PATH) && QUILT_PATCHES=../$(notdir $($*_SRC_PATH)).patch quilt push -a; popd; fi
-	# build project and take package
+	# Build project and take package
 	make DEST=$(shell pwd)/$(DEBS_PATH) -C $($*_SRC_PATH) $(shell pwd)/$(DEBS_PATH)/$* $(LOG)
-	# clean up
+	# Clean up
 	if [ -f $($*_SRC_PATH).patch/series ]; then pushd $($*_SRC_PATH) && quilt pop -a -f; popd; fi
 	$(FOOTER)
 
@@ -199,16 +199,18 @@ SONIC_TARGET_LIST += $(addprefix $(DEBS_PATH)/, $(SONIC_MAKE_DEBS))
 #     SONIC_DPKG_DEBS += $(SOME_NEW_DEB)
 $(addprefix $(DEBS_PATH)/, $(SONIC_DPKG_DEBS)) : $(DEBS_PATH)/% : .platform $$(addsuffix -install,$$(addprefix $(DEBS_PATH)/,$$($$*_DEPENDS)))
 	$(HEADER)
-	# Build project and take package
+	# Remove old build logs if they exist
 	rm -f $($*_SRC_PATH)/debian/*.debhelper.log
-	# apply series of patches if exist
+	# Apply series of patches if exist
 	if [ -f $($*_SRC_PATH).patch/series ]; then pushd $($*_SRC_PATH) && QUILT_PATCHES=../$(notdir $($*_SRC_PATH)).patch quilt push -a; popd; fi
+	# Build project
 	pushd $($*_SRC_PATH) $(LOG)
 	[ ! -f ./autogen.sh ] || ./autogen.sh $(LOG)
 	dpkg-buildpackage -rfakeroot -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS) $(LOG)
 	popd $(LOG)
-	# clean up
+	# Clean up
 	if [ -f $($*_SRC_PATH).patch/series ]; then pushd $($*_SRC_PATH) && quilt pop -a -f; popd; fi
+	# Take built package(s)
 	mv $(addprefix $($*_SRC_PATH)/../, $* $($*_DERIVED_DEBS) $($*_EXTRA_DEBS)) $(DEBS_PATH) $(LOG)
 	$(FOOTER)
 
@@ -222,10 +224,15 @@ SONIC_TARGET_LIST += $(addprefix $(DEBS_PATH)/, $(SONIC_DPKG_DEBS))
 #     SONIC_PYTHON_STDEB_DEBS += $(SOME_NEW_DEB)
 $(addprefix $(DEBS_PATH)/, $(SONIC_PYTHON_STDEB_DEBS)) : $(DEBS_PATH)/% : .platform $$(addsuffix -install,$$(addprefix $(DEBS_PATH)/,$$($$*_DEPENDS)))
 	$(HEADER)
-	# Build project and take package
+	# Apply series of patches if exist
+	if [ -f $($*_SRC_PATH).patch/series ]; then pushd $($*_SRC_PATH) && QUILT_PATCHES=../$(notdir $($*_SRC_PATH)).patch quilt push -a; popd; fi
+	# Build project
 	pushd $($*_SRC_PATH) $(LOG)
 	python setup.py --command-packages=stdeb.command bdist_deb $(LOG)
 	popd $(LOG)
+	# Clean up
+	if [ -f $($*_SRC_PATH).patch/series ]; then pushd $($*_SRC_PATH) && quilt pop -a -f; popd; fi
+	# Take built package(s)
 	mv $(addprefix $($*_SRC_PATH)/deb_dist/, $* $($*_DERIVED_DEBS)) $(DEBS_PATH) $(LOG)
 	$(FOOTER)
 
@@ -374,7 +381,7 @@ $(DOCKER_LOAD_TARGETS) : $(TARGET_PATH)/%.gz-load : .platform docker-start $$(TA
 # targets for building installers with base image
 $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : .platform onie-image.conf $$(addprefix $(DEBS_PATH)/,$$($$*_DEPENDS)) $$(addprefix $(DEBS_PATH)/,$$($$*_INSTALLS)) $$(addprefix $(FILES_PATH)/,$$($$*_FILES)) $(addprefix $(DEBS_PATH)/,$(INITRAMFS_TOOLS) $(LINUX_KERNEL) $(IGB_DRIVER) $(SONIC_DEVICE_DATA) $(SONIC_UTILS)) $$(addprefix $(TARGET_PATH)/,$$($$*_DOCKERS)) $$(addprefix $(PYTHON_WHEELS_PATH)/,$(SONIC_CONFIG_ENGINE))
 	$(HEADER)
-	## Pass initramfs and linux kernel explicitly. They are used for all platforms
+	# Pass initramfs and linux kernel explicitly. They are used for all platforms
 	export initramfs_tools="$(DEBS_PATH)/$(INITRAMFS_TOOLS)"
 	export linux_kernel="$(DEBS_PATH)/$(LINUX_KERNEL)"
 	export kversion="$(KVERSION)"
