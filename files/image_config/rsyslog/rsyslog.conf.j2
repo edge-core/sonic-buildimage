@@ -30,11 +30,6 @@ $UDPServerRun 514
 ###########################
 #### GLOBAL DIRECTIVES ####
 ###########################
-#Set remote syslog server
-{% for server in syslog_servers %}
-*.* @{{ server }}:514
-{% endfor %}
-
 #
 # Use traditional timestamp format.
 # To enable high precision timestamps, comment out the following line.
@@ -44,6 +39,11 @@ $UDPServerRun 514
 # Define a custom template
 $template SONiCFileFormat,"%TIMESTAMP%.%timestamp:::date-subseconds% %HOSTNAME% %syslogseverity-text:::uppercase% %syslogtag%%msg:::sp-if-no-1st-sp%%msg:::drop-last-lf%\n"
 $ActionFileDefaultTemplate SONiCFileFormat
+
+#Set remote syslog server
+{% for server in syslog_servers %}
+*.* @{{ server }}:514;SONiCFileFormat
+{% endfor %}
 
 #
 # Set the default permissions for all log files.
