@@ -400,6 +400,7 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : .platform
 		export docker_image="$(docker)"
 		export docker_image_name="$(basename $(docker))"
 		export docker_container_name="$($(docker)_CONTAINER_NAME)"
+		$(eval $(docker)_RUN_OPT += $($(docker)_$($*_IMAGE_TYPE)_RUN_OPT))
 		export docker_image_run_opt="$($(docker)_RUN_OPT)"
 		j2 files/build_templates/docker_image_ctl.j2 > $($(docker)_CONTAINER_NAME).sh
 		if [ -f files/build_templates/$($(docker)_CONTAINER_NAME).service.j2 ]; then
