@@ -2,8 +2,8 @@
     {
         "TUNNEL_DECAP_TABLE:IPINIP_TUNNEL" : {
             "tunnel_type":"IPINIP",
-            "src_ip":"{{ minigraph_lo_interfaces[0]['addr'] }}",
-            "dst_ip":"{{ minigraph_lo_interfaces[0]['addr'] }}",
+            "src_ip":"{{ LOOPBACK_INTERFACE.keys()[0][1] | ip }}",
+            "dst_ip":"{{ LOOPBACK_INTERFACE.keys()[0][1] | ip }}",
 {% if onie_switch_asic == "mlnx" %}
             "dscp_mode":"uniform",
             "ecn_mode":"standard",

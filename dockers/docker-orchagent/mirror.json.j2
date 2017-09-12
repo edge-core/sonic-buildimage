@@ -1,9 +1,10 @@
 [
-{% if erspan_dst %}
+{% if MIRROR_SESSION %}
+{% for session in MIRROR_SESSION %}
     {
-        "MIRROR_SESSION_TABLE:everflow": {
-            "src_ip": "{{ minigraph_lo_interfaces[0]['addr'] }}",
-            "dst_ip": "{{ erspan_dst[0] }}",
+        "MIRROR_SESSION_TABLE:{{session}}": {
+            "src_ip": "{{ MIRROR_SESSION[session]['src_ip'] }}",
+            "dst_ip": "{{ MIRROR_SESSION[session]['dst_ip'] }}",
 {% if onie_switch_asic == "mlnx" %}
             "gre_type": "0x6558",
             "queue": "1",
@@ -15,7 +16,9 @@
             "ttl": "255"
         },
         "OP": "SET"
-    }
+    }{% if not loop.last %},{% endif %}
+
+{% endfor %}
 {% endif %}
 ]
 

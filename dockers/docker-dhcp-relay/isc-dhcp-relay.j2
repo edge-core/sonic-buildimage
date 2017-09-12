@@ -1,25 +1,25 @@
-SERVERS="{{ dhcp_servers | join(' ') }}"
+SERVERS="{{ DHCP_SERVER | join(' ') }}"
 
 INTERFACES="
 {%- set add_preceding_space = { 'flag': False } %}
-{%- for interface in minigraph_interfaces %}
-{%- if interface['addr'] | ipv4 %}
+{%- for (name, prefix) in INTERFACE %}
+{%- if prefix | ipv4 %}
 {%- if add_preceding_space.flag %} {% endif %}
-{{ interface['attachto'] }}
+{{ name }}
 {%- set _dummy = add_preceding_space.update({'flag': True}) %}
 {%- endif %}
 {%- endfor %}
-{%- for vlan_interface in minigraph_vlan_interfaces %}
-{%- if vlan_interface['addr'] | ipv4 %}
+{%- for (name, prefix) in VLAN_INTERFACE %}
+{%- if prefix | ipv4 %}
 {%- if add_preceding_space.flag %} {% endif %}
-{{ vlan_interface['attachto'] }}
+{{ name }}
 {%- set _dummy = add_preceding_space.update({'flag': True}) %}
 {%- endif %}
 {%- endfor %}
-{%- for pc_interface in minigraph_portchannel_interfaces %}
-{%- if pc_interface['addr'] | ipv4 %}
+{%- for (name, prefix) in PORTCHANNEL_INTERFACE %}
+{%- if prefix | ipv4 %}
 {%- if add_preceding_space.flag %} {% endif %}
-{{ pc_interface['attachto'] }}
+{{ name }}
 {%- set _dummy = add_preceding_space.update({'flag': True}) %}
 {%- endif %}
 {%- endfor %}"

@@ -40,7 +40,7 @@ class TestJ2Files(TestCase):
             self.assertTrue(filecmp.cmp(sample_output, self.output_file))
 
         # Test T0 minigraph
-        argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -v "minigraph_portchannels.keys() | join(\' \')"'
+        argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -v "PORTCHANNEL.keys() | join(\' \') if PORTCHANNEL"'
         output = self.run_script(argument) # Mock the output via config.sh in docker-teamd
         pc_list = output.split()
 
@@ -51,7 +51,7 @@ class TestJ2Files(TestCase):
             test_render_teamd(self, pc_name, self.t0_minigraph, sample_output)
 
         # Test port channel test minigraph
-        argument = '-m ' + self.pc_minigraph + ' -p ' + self.t0_port_config + ' -v "minigraph_portchannels.keys() | join(\' \')"'
+        argument = '-m ' + self.pc_minigraph + ' -p ' + self.t0_port_config + ' -v "PORTCHANNEL.keys() | join(\' \') if PORTCHANNEL"'
         output = self.run_script(argument) # Mock the output via config.sh in docker-teamd
         pc_list = output.split()
 

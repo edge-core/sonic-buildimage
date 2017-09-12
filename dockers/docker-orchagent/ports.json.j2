@@ -1,11 +1,15 @@
 [
-{% for interface in ethernet_interfaces %}
+{% if PORT %}
+{% for port in PORT %}
+{% if PORT[port].has_key('speed') %}
     {
-        "PORT_TABLE:{{ interface['name'] }}": {
-            "speed": "{{ interface['speed'] }}"
+        "PORT_TABLE:{{ port }}": {
+            "speed": "{{ PORT[port]['speed'] }}"
         },
         "OP": "SET"
     }{% if not loop.last %},{% endif %}
 
+{% endif %}
 {% endfor %}
+{% endif %}
 ]

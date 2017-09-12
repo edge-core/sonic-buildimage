@@ -31,17 +31,17 @@ class TestCfgGen(TestCase):
         self.assertEqual(output, '')
     
     def test_device_desc(self):
-        argument = '-v minigraph_hwsku -M "' + self.sample_device_desc + '"'
+        argument = '-v "DEVICE_METADATA[\'localhost\'][\'hwsku\']" -M "' + self.sample_device_desc + '"'
         output = self.run_script(argument)
         self.assertEqual(output.strip(), 'ACS-MSN2700')
 
     def test_device_desc_mgmt_ip(self):
-        argument = '-v "minigraph_mgmt_interface[\'addr\']" -M "' + self.sample_device_desc + '"'
+        argument = '-v "MGMT_INTERFACE.keys()[0]" -M "' + self.sample_device_desc + '"'
         output = self.run_script(argument)
-        self.assertEqual(output.strip(), '10.0.1.5')
+        self.assertEqual(output.strip(), "('eth0', '10.0.1.5/28')")
 
     def test_minigraph_sku(self):
-        argument = '-v minigraph_hwsku -m "' + self.sample_graph + '"'
+        argument = '-v "DEVICE_METADATA[\'localhost\'][\'hwsku\']" -m "' + self.sample_graph + '"'
         output = self.run_script(argument)
         self.assertEqual(output.strip(), 'Force10-Z9100')
     
@@ -51,7 +51,7 @@ class TestCfgGen(TestCase):
         self.assertTrue(len(output.strip()) > 0)
     
     def test_jinja_expression(self):
-        argument = '-m "' + self.sample_graph + '" -v "minigraph_devices[minigraph_hostname][\'type\']"'
+        argument = '-m "' + self.sample_graph + '" -v "DEVICE_METADATA[\'localhost\'][\'type\']"'
         output = self.run_script(argument)
         self.assertEqual(output.strip(), 'LeafRouter')
     
@@ -71,44 +71,44 @@ class TestCfgGen(TestCase):
         self.assertEqual(output.strip(), 'value1\nvalue2')
 
     def test_minigraph_acl(self):
-        argument = '-m "' + self.sample_graph_t0 + '" -p "' + self.port_config + '" -v minigraph_acls'
+        argument = '-m "' + self.sample_graph_t0 + '" -p "' + self.port_config + '" -v ACL_TABLE'
         output = self.run_script(argument)
-        self.assertEqual(output.strip(), "{'dataacl': {'IsMirror': False, 'AttachTo': ['Ethernet112', 'Ethernet116', 'Ethernet120', 'Ethernet124']}}")
+        self.assertEqual(output.strip(), "{'dataacl': {'type': 'L3', 'policy_desc': 'dataacl', 'ports': ['Ethernet112', 'Ethernet116', 'Ethernet120', 'Ethernet124']}}")
 
     def test_minigraph_interfaces(self):
-        argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v minigraph_interfaces'
+        argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v \'INTERFACE.keys()\''
         output = self.run_script(argument)
-        self.assertEqual(output.strip(), "[{'subnet': IPv4Network('10.0.0.58/31'), 'peer_addr': IPv4Address('10.0.0.59'), 'addr': IPv4Address('10.0.0.58'), 'mask': IPv4Address('255.255.255.254'), 'attachto': 'Ethernet0', 'prefixlen': 31}, {'subnet': IPv6Network('fc00::74/126'), 'peer_addr': IPv6Address('fc00::76'), 'addr': IPv6Address('fc00::75'), 'mask': '126', 'attachto': 'Ethernet0', 'prefixlen': 126}]")
+        self.assertEqual(output.strip(), "[('Ethernet0', '10.0.0.58/31'), ('Ethernet0', 'FC00::75/126')]")
         
     def test_minigraph_vlans(self):
-        argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v minigraph_vlans'
+        argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v VLAN'
         output = self.run_script(argument)
-        self.assertEqual(output.strip(), "{'Vlan1000': {'name': 'Vlan1000', 'members': ['Ethernet8'], 'vlanid': '1000'}}")
+        self.assertEqual(output.strip(), "{'Vlan1000': {'members': ['Ethernet8'], 'vlanid': '1000'}}")
 
     def test_minigraph_vlan_interfaces(self):
-        argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v minigraph_vlan_interfaces'
+        argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v "VLAN_INTERFACE.keys()"'
         output = self.run_script(argument)
-        self.assertEqual(output.strip(), "[{'prefixlen': 27, 'subnet': IPv4Network('192.168.0.0/27'), 'mask': IPv4Address('255.255.255.224'), 'addr': IPv4Address('192.168.0.1'), 'attachto': 'Vlan1000'}]")
+        self.assertEqual(output.strip(), "[('Vlan1000', '192.168.0.1/27')]")
 
     def test_minigraph_portchannels(self):
-        argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v minigraph_portchannels'
+        argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v PORTCHANNEL'
         output = self.run_script(argument)
-        self.assertEqual(output.strip(), "{'PortChannel01': {'name': 'PortChannel01', 'members': ['Ethernet4']}}")
+        self.assertEqual(output.strip(), "{'PortChannel01': {'members': ['Ethernet4']}}")
 
     def test_minigraph_portchannels_more_member(self):
-        argument = '-m "' + self.sample_graph_pc_test + '" -p "' + self.port_config + '" -v minigraph_portchannels'
+        argument = '-m "' + self.sample_graph_pc_test + '" -p "' + self.port_config + '" -v PORTCHANNEL'
         output = self.run_script(argument)
-        self.assertEqual(output.strip(), "{'PortChannel01': {'name': 'PortChannel01', 'members': ['Ethernet112', 'Ethernet116', 'Ethernet120', 'Ethernet124']}}")
+        self.assertEqual(output.strip(), "{'PortChannel01': {'members': ['Ethernet112', 'Ethernet116', 'Ethernet120', 'Ethernet124']}}")
 
     def test_minigraph_portchannel_interfaces(self):
-        argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v minigraph_portchannel_interfaces'
+        argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v "PORTCHANNEL_INTERFACE.keys()"'
         output = self.run_script(argument)
-        self.assertEqual(output.strip(), "[{'subnet': IPv4Network('10.0.0.56/31'), 'peer_addr': IPv4Address('10.0.0.57'), 'addr': IPv4Address('10.0.0.56'), 'mask': IPv4Address('255.255.255.254'), 'attachto': 'PortChannel01', 'prefixlen': 31}, {'subnet': IPv6Network('fc00::70/126'), 'peer_addr': IPv6Address('fc00::72'), 'addr': IPv6Address('fc00::71'), 'mask': '126', 'attachto': 'PortChannel01', 'prefixlen': 126}]")
+        self.assertEqual(output.strip(), "[('PortChannel01', 'FC00::71/126'), ('PortChannel01', '10.0.0.56/31')]")
 
     def test_minigraph_neighbors(self):
-        argument = '-m "' + self.sample_graph_t0 + '" -p "' + self.port_config + '" -v minigraph_neighbors'
+        argument = '-m "' + self.sample_graph_t0 + '" -p "' + self.port_config + '" -v "DEVICE_NEIGHBOR[\'ARISTA01T1\']"'
         output = self.run_script(argument)
-        self.assertEqual(output.strip(), "{'Ethernet116': {'name': 'ARISTA02T1', 'port': 'Ethernet1/1'}, 'Ethernet124': {'name': 'ARISTA04T1', 'port': 'Ethernet1/1'}, 'Ethernet112': {'name': 'ARISTA01T1', 'port': 'Ethernet1/1'}, 'Ethernet120': {'name': 'ARISTA03T1', 'port': 'Ethernet1/1'}}")
+        self.assertEqual(output.strip(), "{'mgmt_addr': None, 'hwsku': 'Arista', 'lo_addr': None, 'local_port': 'Ethernet112', 'type': 'LeafRouter', 'port': 'Ethernet1/1'}")
 
     def test_minigraph_peers_with_range(self):
         argument = '-m "' + self.sample_graph_bgp_speaker + '" -p "' + self.port_config + '" -v BGP_PEER_RANGE.values\(\)'
@@ -116,11 +116,11 @@ class TestCfgGen(TestCase):
         self.assertEqual(output.strip(), "[{'name': 'BGPSLBPassive', 'ip_range': ['10.10.10.10/26', '100.100.100.100/26']}]")
 
     def test_minigraph_deployment_id(self):
-        argument = '-m "' + self.sample_graph_bgp_speaker + '" -p "' + self.port_config + '" -v deployment_id'
+        argument = '-m "' + self.sample_graph_bgp_speaker + '" -p "' + self.port_config + '" -v "DEVICE_METADATA[\'localhost\'][\'deployment_id\']"'
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "1")
 
     def test_minigraph_ethernet_interfaces(self):
-        argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v ethernet_interfaces'
+        argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v "PORT[\'Ethernet8\']"'
         output = self.run_script(argument)
-        self.assertEqual(output.strip(), "[{'speed': '10000', 'name': 'fortyGigE0/0'}, {'speed': '25000', 'name': 'fortyGigE0/4'}, {'speed': '40000', 'name': 'fortyGigE0/8'}, {'speed': '1000000', 'name': 'fortyGigE0/12'}]")
+        self.assertEqual(output.strip(), "{'alias': 'fortyGigE0/8', 'speed': '40000'}")

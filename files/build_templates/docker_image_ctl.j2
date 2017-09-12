@@ -2,7 +2,9 @@
 
 # Obtain our platform and HWSKU as we will mount directories with these names in each docker
 PLATFORM=`sonic-cfggen -v platform`
-HWSKU=`sonic-cfggen -m /etc/sonic/minigraph.xml -v minigraph_hwsku`
+{%- if docker_container_name != "database" %}
+HWSKU=`sonic-cfggen -d -v 'DEVICE_METADATA["localhost"]["hwsku"]'`
+{%- endif %}
 
 start() {
     docker inspect --type container {{docker_container_name}} &>/dev/null
@@ -16,9 +18,19 @@ start() {
 {%- endif %}
             -v /var/run/redis:/var/run/redis:rw \
             -v /usr/share/sonic/device/$PLATFORM:/usr/share/sonic/platform:ro \
+{%- if docker_container_name != "database" %}
             -v /usr/share/sonic/device/$PLATFORM/$HWSKU:/usr/share/sonic/hwsku:ro \
+{%- endif %}
             --name={{docker_container_name}} {{docker_image_name}}:latest
     fi
+{%- if docker_container_name == "database" %}
+    while true; do
+        if [[ "$(docker exec -i database redis-cli ping)" =~ PONG.* ]]; then
+            break
+        fi
+        sleep 1
+    done
+{%- endif %}
 }
 
 attach() {

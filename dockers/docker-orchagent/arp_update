@@ -4,7 +4,7 @@
 # arp_update: Send gratuitous ARP requests to VLAN member neighbors to refresh
 # the neighbors state.
 
-VLAN=`sonic-cfggen -m /etc/sonic/minigraph.xml -v 'minigraph_vlans.keys() | join(" ")'`
+VLAN=`sonic-cfggen -d -v 'VLAN.keys() | join(" ") if VLAN'`
 for vlan in $VLAN; do
     # generate a list of arping commands:
     #   arping -q -w 0 -c 1 -i <VLAN interface> <IP 1>;

@@ -13,18 +13,22 @@
 #  AGENT BEHAVIOUR
 #
 
-{% if minigraph_mgmt_interface.addr | ipv4 %}
+{% if MGMT_INTERFACE %}
 #  Listen for connections on localhost, loopback ip and mgmt (eth0) ip
 agentAddress udp:127.0.0.1:161
-agentAddress udp:{{ minigraph_mgmt_interface.addr }}:161
-{% for minigraph_lo_interface in minigraph_lo_interfaces %}
+{% for (name, prefix) in MGMT_INTERFACE %}
+{% if prefix | ipv4 %}
+agentAddress udp:{{ prefix | ip }}:161
+{% endif %}
+{% endfor %}
 # TODO: only support ipv4 lo addresses, add ipv6 support later
-{% if minigraph_lo_interface.addr | ipv4 %}
-agentAddress udp:{{ minigraph_lo_interface.addr }}:161
+{% for (name, prefix) in LOOPBACK_INTERFACE %}
+{% if prefix | ipv4 %}
+agentAddress udp:{{ prefix | ip }}:161
 {% endif %}
 {% endfor %}
 {% else %}
-# Listen on all addresses as mgmt ip not specified in minigraph
+# Listen on all addresses as mgmt ip not specified 
 agentAddress udp:161
 {% endif %}
 

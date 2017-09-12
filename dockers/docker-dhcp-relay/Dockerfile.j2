@@ -25,5 +25,6 @@ RUN rm -rf /debs
 COPY ["start.sh", "isc-dhcp-relay.sh", "/usr/bin/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 COPY ["isc-dhcp-relay.j2", "/usr/share/sonic/templates/"]
+COPY ["wait_for_intf.sh.j2", "/usr/share/sonic/templates/"]
 
 ENTRYPOINT ["/usr/bin/supervisord"]

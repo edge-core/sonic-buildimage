@@ -2,11 +2,11 @@
 
 mkdir -p /etc/swss/config.d/
 
-sonic-cfggen -m /etc/sonic/minigraph.xml -t /usr/share/sonic/templates/ipinip.json.j2 > /etc/swss/config.d/ipinip.json
-sonic-cfggen -m /etc/sonic/minigraph.xml -t /usr/share/sonic/templates/mirror.json.j2 > /etc/swss/config.d/mirror.json
-sonic-cfggen -m /etc/sonic/minigraph.xml -t /usr/share/sonic/templates/ports.json.j2 > /etc/swss/config.d/ports.json
+sonic-cfggen -m /etc/sonic/minigraph.xml -d -t /usr/share/sonic/templates/ipinip.json.j2 > /etc/swss/config.d/ipinip.json
+sonic-cfggen -m /etc/sonic/minigraph.xml -d -t /usr/share/sonic/templates/mirror.json.j2 > /etc/swss/config.d/mirror.json
+sonic-cfggen -m /etc/sonic/minigraph.xml -d -t /usr/share/sonic/templates/ports.json.j2 > /etc/swss/config.d/ports.json
 
-export platform=`sonic-cfggen -m /etc/sonic/minigraph.xml -v platform`
+export platform=`sonic-cfggen -v platform`
 
 rm -f /var/run/rsyslogd.pid
 
@@ -34,7 +34,7 @@ supervisorctl start neighsyncd
 supervisorctl start swssconfig
 
 # Start arp_update when VLAN exists
-VLAN=`sonic-cfggen -m /etc/sonic/minigraph.xml -v 'minigraph_vlans.keys() | join(" ")'`
+VLAN=`sonic-cfggen -d -v 'VLAN.keys() | join(" ") if VLAN'`
 if [ "$VLAN" != "" ]; then
     supervisorctl start arp_update
 fi

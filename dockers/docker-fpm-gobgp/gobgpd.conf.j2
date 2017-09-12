@@ -1,6 +1,6 @@
 [global.config]
   as = {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
-  router-id = "{{ minigraph_lo_interfaces[0]['addr'] }}"
+  router-id = "{{ LOOPBACK_INTERFACE.keys()[0][1] }}"
 {% for neighbor_addr, bgp_session in BGP_NEIGHBOR.iteritems() %}
 {% if bgp_session['asn'] != 0 %}
 [[neighbors]]

@@ -1,6 +1,7 @@
 [Unit]
 Description=Update interfaces configuration
-Before=database.service
+Requires=database.service
+After=database.service
 
 [Service]
 Type=oneshot

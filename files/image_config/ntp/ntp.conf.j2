@@ -23,13 +23,15 @@ filegen clockstats file clockstats type day enable
 # pool.ntp.org maps to about 1000 low-stratum NTP servers.  Your server will
 # pick a different set every time it starts up.  Please consider joining the
 # pool: <http://www.pool.ntp.org/join.html>
-{% for ntp_server in ntp_servers %}
+{% for ntp_server in NTP_SERVER %}
 server {{ ntp_server }} iburst
 {% endfor %}
 
 #only listen on localhost and eth0 ips (default is to listen on all ip addresses)
 interface ignore wildcard
-interface listen {{ minigraph_mgmt_interface.addr }}
+{% for (mgmt_intf, mgmt_prefix) in MGMT_INTERFACE %}
+interface listen {{ mgmt_prefix | ip }}
+{% endfor %}
 interface listen 127.0.0.1
 
 # Access control configuration; see /usr/share/doc/ntp-doc/html/accopt.html for

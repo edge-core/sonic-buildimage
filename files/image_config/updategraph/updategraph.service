@@ -1,8 +1,6 @@
 [Unit]
 Description=download minigraph from graph service
-Before=ntp-config.service
-Before=rsyslog-config.service
-Before=interfaces-config.service
+Before=database.service
 
 [Service]
 Type=oneshot

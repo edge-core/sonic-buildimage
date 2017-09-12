@@ -1,5 +1,5 @@
 {
-{% for member in minigraph_ports.keys() %}
-  "{{member}}": "{{minigraph_ports[member]['alias']}}"{% if not loop.last %},{% endif %}
+{% for member in PORT %}
+  "{{member}}": "{{PORT[member]['alias']}}"{% if not loop.last %},{% endif %}
 {% endfor %}
 }

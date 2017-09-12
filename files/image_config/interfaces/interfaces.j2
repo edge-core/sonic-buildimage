@@ -10,34 +10,36 @@
 auto lo
 iface lo inet loopback
 # Use command 'ip addr list dev lo' to check all addresses
-{% for minigraph_lo_interface in minigraph_lo_interfaces %}
-iface lo {{ 'inet' if minigraph_lo_interface['addr'] | ipv4 else 'inet6' }} static
-    address {{ minigraph_lo_interface['addr'] }}
-    netmask {{ minigraph_lo_interface['mask'] }}
+{% for (name, prefix) in LOOPBACK_INTERFACE %}
+iface lo {{ 'inet' if prefix | ipv4 else 'inet6' }} static
+    address {{ prefix | ip }}
+    netmask {{ prefix | netmask if prefix | ipv4 else prefix | prefixlen }}
 #
 {% endfor %}
 {% endblock loopback %}
 {% block mgmt_interface %}
 # The management network interface
 auto eth0
-{% if minigraph_mgmt_interface['addr'] %}
-iface eth0 inet static
-    address {{ minigraph_mgmt_interface['addr'] }}
-    netmask {{ minigraph_mgmt_interface['mask'] }}
+{% if MGMT_INTERFACE %}
+{% for (name, prefix) in MGMT_INTERFACE %}
+iface eth0 {{ 'inet' if prefix | ipv4 else 'inet6' }} static
+    address {{ prefix | ip }}
+    netmask {{ prefix | netmask if prefix | ipv4 else prefix | prefixlen }}
     ########## management network policy routing rules
     # management port up rules
-    up ip route add default via {{ minigraph_mgmt_interface['gwaddr'] }} dev eth0 table default
-    up ip rule add from {{ minigraph_mgmt_interface['addr'] }}/32 table default
-{% for prefix in forced_mgmt_routes %}
-    up ip rule add to {{ prefix }} table default
+    up ip route add default via {{ MGMT_INTERFACE[(name, prefix)]['gwaddr'] }} dev eth0 table default
+    up ip rule add from {{ prefix | ip }}/32 table default
+{% for route in MGMT_INTERFACE[(name, prefix)]['forced_mgmt_routes'] %}
+    up ip rule add to {{ route }} table default
 {% endfor %}
     # management port down rules
-    down ip route delete default via {{ minigraph_mgmt_interface['gwaddr'] }} dev eth0 table default
-    down ip rule delete from {{ minigraph_mgmt_interface['addr'] }}/32 table default
-{% for prefix in forced_mgmt_routes %}
-    down ip rule delete to {{ prefix }} table default
+    down ip route delete default via {{ MGMT_INTERFACE[(name, prefix)]['gwaddr'] }} dev eth0 table default
+    down ip rule delete from {{ prefix | ip }}/32 table default
+{% for route in MGMT_INTERFACE[(name, prefix)]['forced_mgmt_routes'] %}
+    down ip rule delete to {{ route }} table default
 {% endfor %}
 {# TODO: COPP policy type rules #}
+{% endfor %}
 {% else %}
 iface eth0 inet dhcp
 {% endif %}
@@ -45,19 +47,18 @@ iface eth0 inet dhcp
 {% endblock mgmt_interface %}
 {% block front_panel_interfaces %}
 # The switch front panel interfaces
-{% for interface in minigraph_interfaces %}
-allow-hotplug {{ interface['attachto'] }}
-iface {{ interface['attachto'] }} {{ 'inet' if interface['addr'] | ipv4 else 'inet6' }} static
+{% for (name, prefix) in INTERFACE %}
+allow-hotplug {{ name }}
+iface {{ name }} {{ 'inet' if prefix | ipv4 else 'inet6' }} static
     mtu 9216
-    address {{ interface['addr'] }}
-    netmask {{ interface['mask'] }}
+    address {{ prefix | ip }}
+    netmask {{ prefix | netmask if prefix | ipv4 else prefix | prefixlen }}
 #
 {% endfor %}
-{% if minigraph_vlans.keys() | length %}
+{% if VLAN %}
 # "|| true" is added to suppress the error when interface is already a member of VLAN
-{% endif %}
-{% for vlan in minigraph_vlans.keys()|sort %}
-{% for member in minigraph_vlans[vlan]['members'] %}
+{% for vlan in VLAN.keys()|sort %}
+{% for member in VLAN[vlan]['members'] %}
 allow-hotplug {{ member }}
 iface {{ member }} inet manual
     pre-up ifconfig {{ member }} up mtu 9216
@@ -66,12 +67,12 @@ iface {{ member }} inet manual
 #
 {% endfor %}
 {% endfor %}
-{% if minigraph_portchannels.keys() | length %}
+{% endif %}
+{% if PORTCHANNEL %}
 # "|| true" is added to suppress the error when interface is already a member of LAG
 # "ip link show | grep -q master" is added to ensure interface is enslaved
-{% endif %}
-{% for pc in minigraph_portchannels.keys()|sort %}
-{% for member in minigraph_portchannels[pc]['members'] %}
+{% for pc in PORTCHANNEL.keys()|sort %}
+{% for member in PORTCHANNEL[pc]['members'] %}
 allow-hotplug {{ member }}
 iface {{ member }} inet manual
     pre-up teamdctl {{ pc }} port add {{ member }} || true
@@ -80,30 +81,31 @@ iface {{ member }} inet manual
 #
 {% endfor %}
 {% endfor %}
+{% endif %}
 {% endblock front_panel_interfaces %}
-{% if minigraph_vlans.keys() | length %}
 {% block vlan_interfaces %}
+{% if VLAN_INTERFACE %}
 # Vlan interfaces
-{% for vlan_interface in minigraph_vlan_interfaces %}
-auto {{ vlan_interface['attachto'] }}
-iface {{ vlan_interface['attachto'] }} {{ 'inet' if vlan_interface['addr'] | ipv4 else 'inet6' }} static
+{% for (name, prefix) in VLAN_INTERFACE.keys() | sort %}
+auto {{ name }}
+iface {{ name }} {{ 'inet' if prefix | ipv4 else 'inet6' }} static
     bridge_ports none
-    address {{ vlan_interface['addr'] }}
-    netmask {{ vlan_interface['mask'] }}
+    address {{ prefix | ip }}
+    netmask {{ prefix | netmask if prefix | ipv4 else prefix | prefixlen }}
 {% endfor %}
 #
+{% endif %}
 {% endblock vlan_interfaces %}
-{% endif %}
-{% if minigraph_portchannels.keys() | length %}
 {% block pc_interfaces %}
+{% if PORTCHANNEL_INTERFACE %}
 # Portchannel interfaces
-{% for pc_interface in minigraph_portchannel_interfaces %}
-allow-hotplug {{ pc_interface['attachto'] }}
-iface {{ pc_interface['attachto'] }} {{ 'inet' if pc_interface['addr'] | ipv4 else 'inet6' }} static
+{% for (name, prefix) in PORTCHANNEL_INTERFACE.keys() | sort %}
+allow-hotplug {{ name }}
+iface {{ name }} {{ 'inet' if prefix | ipv4 else 'inet6' }} static
     mtu 9216
-    address {{ pc_interface['addr'] }}
-    netmask {{ pc_interface['mask'] }}
+    address {{ prefix | ip }}
+    netmask {{ prefix | netmask if prefix | ipv4 else prefix | prefixlen }}
 #
 {% endfor %}
-{% endblock pc_interfaces %}
 {% endif %}
+{% endblock pc_interfaces %}

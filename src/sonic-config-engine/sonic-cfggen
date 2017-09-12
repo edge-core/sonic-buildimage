@@ -22,6 +22,7 @@ import yaml
 import jinja2
 import netaddr
 import json
+from functools import partial
 from minigraph import minigraph_encoder
 from minigraph import parse_xml
 from minigraph import parse_device_desc_xml
@@ -32,11 +33,11 @@ from swsssdk import ConfigDBConnector
 def is_ipv4(value):
     if not value:
         return False
-    if isinstance(value, netaddr.IPAddress):
+    if isinstance(value, netaddr.IPNetwork):
         addr = value
     else:
         try:
-            addr = netaddr.IPAddress(str(value))
+            addr = netaddr.IPNetwork(str(value))
         except:
             return False
     return addr.version == 4
@@ -44,14 +45,24 @@ def is_ipv4(value):
 def is_ipv6(value):
     if not value:
         return False
-    if isinstance(value, netaddr.IPAddress):
+    if isinstance(value, netaddr.IPNetwork):
         addr = value
     else:
         try:
-            addr = netaddr.IPAddress(str(value))
+            addr = netaddr.IPNetwork(str(value))
         except:
             return False
     return addr.version == 6
+
+def prefix_attr(attr, value):
+    if not value:
+        return None
+    else:
+        try:
+            prefix = netaddr.IPNetwork(str(value))
+        except:
+            return None
+    return str(getattr(prefix, attr))
 
 def unique_name(l):
     name_list = []
@@ -79,9 +90,30 @@ TODO(taoyl): Current version of config db only supports BGP admin states.
     def output_to_db(output_data):
         db_data = {}
         for table_name in output_data:
-            if table_name == 'BGP_NEIGHBOR' or table_name == 'BGP_PEER_RANGE' or table_name == 'DEVICE_METADATA':
+            if table_name[0].isupper():
                 db_data[table_name] = output_data[table_name]
         return db_data
+
+    @staticmethod
+    def to_serialized(data):
+        for table in data:
+            if type(data[table]) is dict:
+                for key in data[table].keys():
+                    new_key = ConfigDBConnector.serialize_key(key)
+                    if new_key != key:
+                        data[table][new_key] = data[table].pop(key)
+        return data
+
+    @staticmethod
+    def to_deserialized(data):
+        for table in data:
+            if type(data[table]) is dict:
+                for key in data[table].keys():
+                    new_key = ConfigDBConnector.deserialize_key(key)
+                    if new_key != key:
+                        data[table][new_key] = data[table].pop(key)
+        return data
+
 
 def deep_update(dst, src):
     for key, value in src.iteritems():
@@ -138,11 +170,11 @@ def main():
     for yaml_file in args.yaml:
         with open(yaml_file, 'r') as stream:
             additional_data = yaml.load(stream)      
-            deep_update(data, additional_data)
+            deep_update(data, FormatConverter.to_deserialized(additional_data))
 
     for json_file in args.json:
         with open(json_file, 'r') as stream:
-            deep_update(data, json.load(stream))
+            deep_update(data, FormatConverter.to_deserialized(json.load(stream)))
 
     if args.additional_data != None:
         deep_update(data, json.loads(args.additional_data))
@@ -158,6 +190,8 @@ def main():
         env.filters['ipv4'] = is_ipv4
         env.filters['ipv6'] = is_ipv6
         env.filters['unique_name'] = unique_name
+        for attr in ['ip', 'network', 'prefixlen', 'netmask']:
+            env.filters[attr] = partial(prefix_attr, attr)
         template = env.get_template(template_file)
         print template.render(data)
     
@@ -174,7 +208,7 @@ def main():
         configdb.set_config(FormatConverter.output_to_db(data))
 
     if args.print_data:
-        print json.dumps(data, indent=4, cls=minigraph_encoder)
+        print json.dumps(FormatConverter.to_serialized(data), indent=4, cls=minigraph_encoder)
 
 
 if __name__ == "__main__":

@@ -110,13 +110,14 @@ def generate_rule_json(table_name, rule, max_priority, mirror):
         rule_props["TCP_FLAGS"] = '0x{:02x}/0x{:02x}'.format(tcp_flags, tcp_flags)
     return rule_data
 
-def generate_table_json(aclset, aclname, ports, mirror, max_priority, output_path='.'):
+def generate_table_json(aclset, aclname, ports, t_type, max_priority, output_path='.'):
     table_name = aclname.replace(" ", "_").replace("-", "_")
     #table_name = generate_random_table_name()
+    mirror = (t_type == 'mirror')
 
     table_props = {}
     table_props["policy_desc"] = table_name
-    table_props["type"] = "mirror" if mirror else "L3"
+    table_props["type"] = t_type
     table_props["ports"] = ports
 
     table_data = [{}]
@@ -138,7 +139,7 @@ def translate_acl_fixed_port(filename, output_path, port, max_priority):
     yang_acl = pybindJSON.load(filename, openconfig_acl, "openconfig_acl")
     for aclsetname in yang_acl.acl.acl_sets.acl_set:
         aclset = yang_acl.acl.acl_sets.acl_set[aclsetname]
-        generate_table_json(aclset, aclsetname, port, max_priority, output_path)
+        generate_table_json(aclset, aclsetname, port, 'l3', max_priority, output_path)
     return
 
 def translate_acl(filename, output_path, mini_acl, max_priority):
@@ -146,10 +147,10 @@ def translate_acl(filename, output_path, mini_acl, max_priority):
     for aclsetname in yang_acl.acl.acl_sets.acl_set:
         tablename = aclsetname.replace(" ", "_").replace("-", "_")
         if mini_acl.has_key(tablename):
-            is_mirror = mini_acl[tablename]['IsMirror']
-            ports = ','.join(mini_acl[tablename]['AttachTo'])
+            t_type = mini_acl[tablename]['type']
+            ports = ','.join(mini_acl[tablename]['ports'])
             aclset = yang_acl.acl.acl_sets.acl_set[aclsetname]
-            generate_table_json(aclset, aclsetname, ports, is_mirror, max_priority, output_path)
+            generate_table_json(aclset, aclsetname, ports, t_type, max_priority, output_path)
     return
 
 def main():
@@ -166,8 +167,8 @@ def main():
         translate_acl_fixed_port(args.input, args.output_path, args.port, args.max_priority)
     elif args.minigraph:
         mini_data = parse_xml(args.minigraph, port_config_file=args.port_config)
-        if mini_data['minigraph_acls']:
-            translate_acl(args.input, args.output_path, mini_data['minigraph_acls'], args.max_priority)
+        if mini_data['ACL_TABLE']:
+            translate_acl(args.input, args.output_path, mini_data['ACL_TABLE'], args.max_priority)
 
 if __name__ == "__main__":
     main()

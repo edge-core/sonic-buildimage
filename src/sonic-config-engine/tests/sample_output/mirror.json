@@ -1,6 +1,6 @@
 [
     {
-        "MIRROR_SESSION_TABLE:everflow": {
+        "MIRROR_SESSION_TABLE:everflow0": {
             "src_ip": "10.1.0.32",
             "dst_ip": "2.2.2.2",
             "gre_type": "0x88be",
