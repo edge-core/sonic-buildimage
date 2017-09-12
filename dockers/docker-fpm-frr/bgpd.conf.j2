@@ -57,12 +57,18 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
 {% if neighbor_addr | ipv4 %}
   address-family ipv4
     neighbor {{ neighbor_addr }} activate
+{% if bgp_session['rrclient'] != 0 %}
+    neighbor {{ neighbor_addr }} route-reflector-client
+{% endif %}
     maximum-paths 64
   exit-address-family
 {% endif %}
 {% if neighbor_addr | ipv6 %}
   address-family ipv6
     neighbor {{ neighbor_addr }} activate
+{% if bgp_session['rrclient'] != 0 %}
+    neighbor {{ neighbor_addr }} route-reflector-client
+{% endif %}
     maximum-paths 64
   exit-address-family
 {% endif %}

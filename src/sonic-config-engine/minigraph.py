@@ -233,6 +233,10 @@ def parse_cpg(cpg, hname):
             for router in child.findall(str(QName(ns1, "BGPRouterDeclaration"))):
                 asn = router.find(str(QName(ns1, "ASN"))).text
                 hostname = router.find(str(QName(ns1, "Hostname"))).text
+                if router.find(str(QName(ns1, "RRClient"))):
+                    rrclient = '1'
+                else:
+                    rrclient = '0'
                 if hostname == hname:
                     myasn = int(asn)
                     peers = router.find(str(QName(ns1, "Peers")))
@@ -251,6 +255,7 @@ def parse_cpg(cpg, hname):
                         bgp_session = bgp_sessions[peer]
                         if hostname == bgp_session['name']:
                             bgp_session['asn'] = int(asn)
+                        bgp_session['rrclient'] = int(rrclient)
 
     return bgp_sessions, myasn, bgp_peers_with_range
 
