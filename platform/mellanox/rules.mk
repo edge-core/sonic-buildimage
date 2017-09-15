@@ -12,12 +12,10 @@ include $(PLATFORM_PATH)/python-saithrift.mk
 include $(PLATFORM_PATH)/docker-ptf-mlnx.mk
 
 SONIC_ALL += $(SONIC_ONE_IMAGE) \
-             $(DOCKER_FPM) \
-             $(DOCKER_PTF_MLNX) \
-             $(DOCKER_SYNCD_MLNX_RPC)
+             $(DOCKER_FPM)
 
 # Inject mlnx sai into sairedis
-$(LIBSAIREDIS)_DEPENDS += $(MLNX_SAI) $(LIBSAITHRIFT_DEV_MLNX)
+$(LIBSAIREDIS)_DEPENDS += $(MLNX_SAI) #$(LIBSAITHRIFT_DEV_MLNX)
 
 # Runtime dependency on mlnx sai is set only for syncd
 $(SYNCD)_RDEPENDS += $(MLNX_SAI)

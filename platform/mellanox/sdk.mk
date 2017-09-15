@@ -1,5 +1,5 @@
-MLNX_SDK_BASE_URL = https://github.com/Mellanox/SAI-Implementation/raw/ba3ccd6de8e5b82fa2cdfc30f9b8b1f1882bfede/sdk
-MLNX_SDK_VERSION = 4.2.3130
+MLNX_SDK_BASE_URL = https://github.com/Mellanox/SAI-Implementation/raw/sonicv1.0.2/sdk
+MLNX_SDK_VERSION = 4.2.5008
 MLNX_SDK_RDEBS += $(APPLIBS) $(IPROUTE2) $(SX_ACL_RM) $(SX_COMPLIB) \
 		  $(SX_EXAMPLES) $(SX_GEN_UTILS) $(SX_SCEW) $(SX_SDN_HAL) \
 		  $(SXD_LIBS) $(TESTX)
@@ -20,8 +20,6 @@ $(eval $(call add_derived_package,$(IPROUTE2),$(IPROUTE2_DEV)))
 SX_COMPLIB = sx-complib_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
 SX_COMPLIB_DEV = sx-complib-dev_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
 $(eval $(call add_derived_package,$(SX_COMPLIB),$(SX_COMPLIB_DEV)))
-SX_COMPLIB_DEV_STATIC = sx-complib-dev-static_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
-$(eval $(call add_derived_package,$(SX_COMPLIB),$(SX_COMPLIB_DEV_STATIC)))
 SX_EXAMPLES = sx-examples_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
 $(SX_EXAMPLES)_DEPENDS += $(APPLIBS) $(SX_SCEW) $(SXD_LIBS)
 SX_EXAMPLES_DEV = sx-examples-dev_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
@@ -33,13 +31,9 @@ $(eval $(call add_derived_package,$(SX_GEN_UTILS),$(SX_GEN_UTILS_DEV)))
 SX_SCEW = sx-scew_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
 SX_SCEW_DEV = sx-scew-dev_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
 $(eval $(call add_derived_package,$(SX_SCEW),$(SX_SCEW_DEV)))
-SX_SCEW_DEV_STATIC = sx-scew-dev-static_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
-$(eval $(call add_derived_package,$(SX_SCEW),$(SX_SCEW_DEV_STATIC)))
 SXD_LIBS = sxd-libs_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
 SXD_LIBS_DEV = sxd-libs-dev_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
 $(eval $(call add_derived_package,$(SXD_LIBS),$(SXD_LIBS_DEV)))
-SXD_LIBS_DEV_STATIC = sxd-libs-dev-static_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
-$(eval $(call add_derived_package,$(SXD_LIBS),$(SXD_LIBS_DEV_STATIC)))
 #packages that are required for runtime only
 PYTHON_SDK_API = python-sdk-api_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
 $(PYTHON_SDK_API)_DEPENDS += $(APPLIBS) $(SXD_LIBS)

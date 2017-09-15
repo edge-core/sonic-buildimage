@@ -32,7 +32,6 @@ function fast_reboot {
   esac
 }
 
-
 # Restore FDB and ARP table ASAP
 fast_reboot
 
