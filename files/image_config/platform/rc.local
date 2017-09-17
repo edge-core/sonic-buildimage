@@ -29,12 +29,33 @@ if [ ! -e /host/machine.conf ]; then
         done
     fi
 
+    migration="TRUE"
     umount /mnt/onie-boot
 fi
 
 . /host/machine.conf
 
 echo "install platform dependent packages at the first boot time"
+
+firsttime_exit()
+{
+    rm /host/image-$sonic_version/platform/firsttime
+    exit 0
+}
+
+# Given a string of tuples of the form field=value, extract the value for a field
+# In : $string, $field
+# Out: $value
+value_extract()
+{
+set -- $string
+for x in "$@"; do
+    case "$x" in
+        $field=*)
+            value="${x#$field=}"
+    esac
+done
+}
 
 sonic_version=$(cat /etc/sonic/sonic_version.yml | grep build_version | cut -f2 -d" ")
 
@@ -46,8 +67,7 @@ if [ -f /host/image-$sonic_version/platform/firsttime ]; then
         platform=$onie_platform
     else
         echo "Unknown sonic platform"
-        rm /host/image-$sonic_version/platform/firsttime
-        exit 0
+        firsttime_exit
     fi
 
     # Try to take old configuration saved during installation
@@ -74,6 +94,88 @@ if [ -f /host/image-$sonic_version/platform/firsttime ]; then
 
     if [ -d /host/image-$sonic_version/platform/$platform ]; then
         dpkg -i /host/image-$sonic_version/platform/$platform/*.deb
+    fi
+
+    # If the unit booted into SONiC from another NOS's grub,
+    # we now install a grub for SONiC.
+    if [ -n "$onie_platform" ] && [ -n "$migration" ]; then
+
+        grub_bin=$(ls /host/image-$sonic_version/platform/x86_64-grub/grub-pc-bin*.deb 2> /dev/null)
+        if [ -z "$grub_bin" ]; then
+            echo "Unable to locate grub package !" >> /etc/migration.log
+            firsttime_exit
+        fi
+
+        dpkg -i $grub_bin > /dev/null 2>&1
+        if [ $? != 0 ]; then
+            echo "Unable to install grub package !" >> /etc/migration.log
+            firsttime_exit
+        fi
+
+        # Determine the block device to install grub
+        sonic_dev=$(blkid | grep SONiC-OS | head -n 1 | awk '{print $1}' |  sed -e 's/[0-9]:.*$//')
+        if [ -z "$sonic_dev" ]; then
+            echo "Unable to determine sonic partition !" >> /etc/migration.log
+            firsttime_exit
+        fi
+
+        grub-install --boot-directory=/host --recheck $sonic_dev 2>/dev/null
+        if [ $? != 0 ]; then
+            echo "grub install failed !" >> /etc/migration.log
+            firsttime_exit
+        fi
+
+        # The SONiC "raw" build mode has already generated a proto grub.cfg
+        # as part of the migration. Platform specific constants need to be
+        # retrieved from installer.conf (if present) and assigned.
+        . /usr/share/sonic/device/$platform/installer.conf
+
+        if [ ! -z "$CONSOLE_PORT" ]; then
+            field="\-\-port"
+            string=$(grep $field /host/grub.cfg)
+            value_extract $string $field
+            console_port=$value
+            if [ ! -z "$console_port" ] && [ "$console_port" != "$CONSOLE_PORT" ]; then
+                sed -i -e "s/\-\-port=$console_port/\-\-port=$CONSOLE_PORT/g" /host/grub.cfg
+            fi
+            echo "grub.cfg console port=$console_port & installer.conf CONSOLE_PORT=$CONSOLE_PORT" >> /etc/migration.log
+        fi
+
+        if [ ! -z "$CONSOLE_DEV" ]; then
+            field="console"
+            string=$(grep $field /host/grub.cfg)
+            value_extract $string $field
+            console_dev_name=$(echo $value | sed -e "s/^.*=//" -e "s/,.*//")
+            console_dev="${console_dev_name#ttyS}"
+            if [ "$console_dev" != "$CONSOLE_DEV" ]; then
+                sed -i -e "s/console=ttyS$console_dev/console=ttyS$CONSOLE_DEV/g" /host/grub.cfg
+            fi
+            echo "grub.cfg console dev=$console_dev & installer.conf CONSOLE_DEV=$CONSOLE_DEV" >> /etc/migration.log
+        fi
+
+        if [ ! -z "$VAR_LOG_SIZE" ]; then
+            field="var_log_size"
+            string=$(grep $field /host/grub.cfg)
+            value_extract $string $field
+            var_log_size=$value
+            if [ ! -z "$var_log_size" ] && [ "$var_log_size" != "$VAR_LOG_SIZE" ]; then
+                sed -i -e "s/var_log_size=$var_log_size/var_log_size=$VAR_LOG_SIZE/g" /host/grub.cfg
+            fi
+            echo "grub.cfg var_log_size=$var_log_size & installer.conf VAR_LOG_SIZE=$VAR_LOG_SIZE" >> /etc/migration.log
+        fi
+
+        # Set the root based on the label
+        sonic_root=$(blkid | grep SONiC-OS | head -n 1 | awk '{print $1}' |  sed -e 's/:.*$//')
+        sonic_root=$(echo "$sonic_root" | sed 's/\//\\\//g')
+        sed -i -e "s/%%SONIC_ROOT%%/$sonic_root/g" /host/grub.cfg
+
+        # Add the Diag and ONIE entries
+        mount $onie_dev /mnt/onie-boot
+        . /mnt/onie-boot/onie/grub.d/50_onie_grub >> /host/grub.cfg
+        umount /mnt/onie-boot
+
+        # Initialize the SONiC's grub config
+        mv /host/grub.cfg /host/grub/grub.cfg
     fi
 
     rm /host/image-$sonic_version/platform/firsttime
