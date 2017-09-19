@@ -48,3 +48,6 @@ SONIC_ROUTING_STACK = quagga
 # ENABLE_SYNCD_RPC - build docker-syncd with rpc packages for testing purposes.
 # Uncomment to enable:
 # ENABLE_SYNCD_RPC = y
+ 
+# Enable Origanization Extensions - Specific to the deployment scenarios of the Organization
+ENABLE_ORGANIZATION_EXTENSIONS = y
