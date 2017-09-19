@@ -35,7 +35,7 @@ function fast_reboot {
 # Restore FDB and ARP table ASAP
 fast_reboot
 
-HWSKU=`sonic-cfggen -m /etc/sonic/minigraph.xml -d -v DEVICE_METADATA["localhost"]["hwsku"]`
+HWSKU=`sonic-cfggen -m /etc/sonic/minigraph.xml -d -v "DEVICE_METADATA['localhost']['hwsku']"`
 
 SWSSCONFIG_ARGS="00-copp.config.json ipinip.json mirror.json ports.json "
 
