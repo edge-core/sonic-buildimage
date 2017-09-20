@@ -50,7 +50,7 @@ iface eth0 inet dhcp
 {% for (name, prefix) in INTERFACE %}
 allow-hotplug {{ name }}
 iface {{ name }} {{ 'inet' if prefix | ipv4 else 'inet6' }} static
-    mtu 9216
+    mtu 9100
     address {{ prefix | ip }}
     netmask {{ prefix | netmask if prefix | ipv4 else prefix | prefixlen }}
 #
@@ -61,7 +61,7 @@ iface {{ name }} {{ 'inet' if prefix | ipv4 else 'inet6' }} static
 {% for member in VLAN[vlan]['members'] %}
 allow-hotplug {{ member }}
 iface {{ member }} inet manual
-    pre-up ifconfig {{ member }} up mtu 9216
+    pre-up ifconfig {{ member }} up mtu 9100
     post-up brctl addif {{ vlan }} {{ member }} || true
     post-down ifconfig {{ member }} down
 #
@@ -102,7 +102,7 @@ iface {{ name }} {{ 'inet' if prefix | ipv4 else 'inet6' }} static
 {% for (name, prefix) in PORTCHANNEL_INTERFACE.keys() | sort %}
 allow-hotplug {{ name }}
 iface {{ name }} {{ 'inet' if prefix | ipv4 else 'inet6' }} static
-    mtu 9216
+    mtu 9100
     address {{ prefix | ip }}
     netmask {{ prefix | netmask if prefix | ipv4 else prefix | prefixlen }}
 #
