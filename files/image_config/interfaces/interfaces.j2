@@ -27,14 +27,14 @@ iface eth0 {{ 'inet' if prefix | ipv4 else 'inet6' }} static
     netmask {{ prefix | netmask if prefix | ipv4 else prefix | prefixlen }}
     ########## management network policy routing rules
     # management port up rules
-    up ip route add default via {{ MGMT_INTERFACE[(name, prefix)]['gwaddr'] }} dev eth0 table default
-    up ip rule add from {{ prefix | ip }}/32 table default
+    up ip {{ '-4' if prefix | ipv4 else '-6' }} route add default via {{ MGMT_INTERFACE[(name, prefix)]['gwaddr'] }} dev eth0 table default
+    up ip {{ '-4' if prefix | ipv4 else '-6' }} rule add from {{ prefix | ip }}/{{ '32' if prefix | ipv4 else '128' }} table default
 {% for route in MGMT_INTERFACE[(name, prefix)]['forced_mgmt_routes'] %}
     up ip rule add to {{ route }} table default
 {% endfor %}
     # management port down rules
-    down ip route delete default via {{ MGMT_INTERFACE[(name, prefix)]['gwaddr'] }} dev eth0 table default
-    down ip rule delete from {{ prefix | ip }}/32 table default
+    down ip {{ '-4' if prefix | ipv4 else '-6' }} route delete default via {{ MGMT_INTERFACE[(name, prefix)]['gwaddr'] }} dev eth0 table default
+    down ip {{ '-4' if prefix | ipv4 else '-6' }} rule delete from {{ prefix | ip }}/{{ '32' if prefix | ipv4 else '128' }} table default
 {% for route in MGMT_INTERFACE[(name, prefix)]['forced_mgmt_routes'] %}
     down ip rule delete to {{ route }} table default
 {% endfor %}
