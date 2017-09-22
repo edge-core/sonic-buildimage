@@ -1,5 +1,18 @@
 ###############################################################################
 ## Wrapper for starting make inside sonic-slave container
+#
+#  Supported parameters:
+#
+#  * PLATFORM: Specific platform we wish to build images for.
+#  * BUILD_NUMBER: Desired version-number to pass to the building-system.
+#  * ENABLE_DHCP_GRAPH_SERVICE: Enables get-graph service to fetch minigraph files
+#    through http.
+#  * SHUTDOWN_BGP_ON_START: Sets admin-down state for all bgp peerings after restart.
+#  * SONIC_ENABLE_SYNCD_RPC: Enables rpc-based syncd builds.
+#  * USERNAME: Desired username -- default at rules/config
+#  * PASSWORD: Desired password -- default at rules/config
+#  * KEEP_SLAVE_ON: Keeps slave container up after building-process concludes.
+#
 ###############################################################################
 
 SHELL = /bin/bash
@@ -37,6 +50,16 @@ DOCKER_BUILD = docker build --no-cache \
 	       sonic-slave && \
 	       docker tag $(SLAVE_IMAGE):latest $(SLAVE_IMAGE):$(SLAVE_TAG)
 
+SONIC_BUILD_INSTRUCTION :=  make \
+                           -f slave.mk \
+                           PLATFORM=$(PLATFORM) \
+                           BUILD_NUMBER=$(BUILD_NUMBER) \
+                           ENABLE_DHCP_GRAPH_SERVICE=$(ENABLE_DHCP_GRAPH_SERVICE) \
+                           SHUTDOWN_BGP_ON_START=$(SHUTDOWN_BGP_ON_START) \
+                           SONIC_ENABLE_SYNCD_RPC=$(ENABLE_SYNCD_RPC) \
+                           PASSWORD=$(PASSWORD) \
+                           USERNAME=$(USERNAME)
+
 .PHONY: sonic-slave-build sonic-slave-bash
 
 .DEFAULT_GOAL :=  all
@@ -48,16 +71,11 @@ DOCKER_BUILD = docker build --no-cache \
 	@docker inspect --type image $(SLAVE_IMAGE):$(SLAVE_TAG) &> /dev/null || \
 	    { echo Image $(SLAVE_IMAGE):$(SLAVE_TAG) not found. Building... ; \
 	    $(DOCKER_BUILD) ; }
-	@$(DOCKER_RUN) $(SLAVE_IMAGE):$(SLAVE_TAG) make \
-	    -f slave.mk \
-	    PLATFORM=$(PLATFORM) \
-	    BUILD_NUMBER=$(BUILD_NUMBER) \
-	    ENABLE_DHCP_GRAPH_SERVICE=$(ENABLE_DHCP_GRAPH_SERVICE) \
-	    SHUTDOWN_BGP_ON_START=$(SHUTDOWN_BGP_ON_START) \
-	    SONIC_ENABLE_SYNCD_RPC=$(ENABLE_SYNCD_RPC) \
-	    PASSWORD=$(PASSWORD) \
-	    USERNAME=$(USERNAME) \
-	    $@
+ifeq "$(KEEP_SLAVE_ON)" "yes"
+	@$(DOCKER_RUN) $(SLAVE_IMAGE):$(SLAVE_TAG) bash -c "$(SONIC_BUILD_INSTRUCTION) $@; /bin/bash"
+else
+	@$(DOCKER_RUN) $(SLAVE_IMAGE):$(SLAVE_TAG) $(SONIC_BUILD_INSTRUCTION) $@
+endif
 
 sonic-slave-build :
 	$(DOCKER_BASE_BUILD)
