@@ -32,7 +32,7 @@ MAKEFLAGS += -B
 
 ifeq ($(BLDENV), stretch)
 SLAVE_BASE_TAG = $(shell sha1sum sonic-slave-stretch/Dockerfile | awk '{print substr($$1,0,11);}')
-SLAVE_TAG = $(shell sha1sum sonic-slave-stretch/Dockerfile.user | awk '{print substr($$1,0,11);}')
+SLAVE_TAG = $(shell cat sonic-slave-stretch/Dockerfile.user sonic-slave-stretch/Dockerfile | sha1sum | awk '{print substr($$1,0,11);}')
 SLAVE_BASE_IMAGE = sonic-slave-stretch-base
 SLAVE_IMAGE = sonic-slave-stretch-$(USER)
 SLAVE_DIR = sonic-slave-stretch
