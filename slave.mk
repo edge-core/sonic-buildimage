@@ -423,6 +423,8 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : .platform
 		chmod +x sonic_debian_extension.sh,
 	)
 
+	DIRTY_SUFFIX="$(shell date +%Y%m%d\.%H%M%S)"
+	export DIRTY_SUFFIX
 	./build_debian.sh "$(USERNAME)" "$(shell perl -e 'print crypt("$(PASSWORD)", "salt"),"\n"')" $(LOG)
 	TARGET_MACHINE=$($*_MACHINE) IMAGE_TYPE=$($*_IMAGE_TYPE) ./build_image.sh $(LOG)
 
