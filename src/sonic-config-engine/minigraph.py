@@ -101,6 +101,7 @@ def parse_png(png, hname):
             for device in child.findall(str(QName(ns, "Device"))):
                 (lo_prefix, mgmt_prefix, name, hwsku, d_type) = parse_device(device)
                 device_data = {'lo_addr': lo_prefix, 'type': d_type, 'mgmt_addr': mgmt_prefix, 'hwsku': hwsku } 
+                name = name.replace('"', '')
                 if neighbors.has_key(name):
                     neighbors[name].update(device_data)
                 else:
