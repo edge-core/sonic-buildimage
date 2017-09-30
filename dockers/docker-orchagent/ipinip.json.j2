@@ -1,9 +1,16 @@
+{# only IPv4 decapsulation is supported #}
+{% set ipv4_loopback_addresses = [] %}
+{% for (name, prefix) in LOOPBACK_INTERFACE %}
+    {%- if prefix | ipv4 %}
+        {%- set ipv4_loopback_addresses = ipv4_loopback_addresses.append(prefix) %}
+    {%- endif %}
+{% endfor %}
 [
     {
         "TUNNEL_DECAP_TABLE:IPINIP_TUNNEL" : {
             "tunnel_type":"IPINIP",
-            "src_ip":"{{ LOOPBACK_INTERFACE.keys()[0][1] | ip }}",
-            "dst_ip":"{{ LOOPBACK_INTERFACE.keys()[0][1] | ip }}",
+            "src_ip":"{{ ipv4_loopback_addresses | first | ip }}",
+            "dst_ip":"{% for prefix in ipv4_loopback_addresses %}{{ prefix | ip }}{% if not loop.last %},{% endif %}{% endfor %}",
 {% if onie_switch_asic == "mlnx" %}
             "dscp_mode":"uniform",
             "ecn_mode":"standard",
@@ -16,4 +23,3 @@
         "OP": "SET"
     }
 ]
-
