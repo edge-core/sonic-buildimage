@@ -18,6 +18,9 @@ fi
 # If this platform has a fancontrol config file, copy it to it's proper place
 # and start fancontrol
 if [ -e /usr/share/sonic/platform/fancontrol ]; then
+    # Remove stale pid file if it exists
+    rm -f /var/run/fancontrol.pid
+
     /bin/cp -f /usr/share/sonic/platform/fancontrol /etc/
     supervisorctl start fancontrol
 fi
