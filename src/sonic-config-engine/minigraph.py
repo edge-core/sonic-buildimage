@@ -91,21 +91,17 @@ def parse_png(png, hname):
                 if enddevice == hname:
                     if port_alias_map.has_key(endport):
                         endport = port_alias_map[endport]
-                    neighbors[startdevice] = {'local_port': endport, 'port': startport}
+                    neighbors[endport] = {'name': startdevice, 'port': startport}
                 else:
                     if port_alias_map.has_key(startport):
                         startport = port_alias_map[startport]
-                    neighbors[enddevice] = {'local_port': startport, 'port': endport}
+                    neighbors[startport] = {'name': enddevice, 'port': endport}
 
         if child.tag == str(QName(ns, "Devices")):
             for device in child.findall(str(QName(ns, "Device"))):
                 (lo_prefix, mgmt_prefix, name, hwsku, d_type) = parse_device(device)
                 device_data = {'lo_addr': lo_prefix, 'type': d_type, 'mgmt_addr': mgmt_prefix, 'hwsku': hwsku } 
-                name = name.replace('"', '')
-                if neighbors.has_key(name):
-                    neighbors[name].update(device_data)
-                else:
-                    devices[name] = device_data
+                devices[name] = device_data
 
         if child.tag == str(QName(ns, "DeviceInterfaceLinks")):
             for if_link in child.findall(str(QName(ns, 'DeviceLinkBase'))):
