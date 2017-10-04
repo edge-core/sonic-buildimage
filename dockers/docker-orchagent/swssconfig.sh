@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 function config_acl {
     if [ -f "/etc/sonic/acl.json" ]; then
         mkdir -p /etc/swss/config.d/acl
