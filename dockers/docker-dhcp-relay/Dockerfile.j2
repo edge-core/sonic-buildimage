@@ -22,9 +22,7 @@ RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /debs
 
-COPY ["start.sh", "isc-dhcp-relay.sh", "/usr/bin/"]
-COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
-COPY ["isc-dhcp-relay.j2", "/usr/share/sonic/templates/"]
-COPY ["wait_for_intf.sh.j2", "/usr/share/sonic/templates/"]
+COPY ["docker_init.sh", "start.sh", "/usr/bin/"]
+COPY ["docker-dhcp-relay.supervisord.conf.j2", "wait_for_intf.sh.j2", "/usr/share/sonic/templates/"]
 
-ENTRYPOINT ["/usr/bin/supervisord"]
+ENTRYPOINT ["/usr/bin/docker_init.sh"]
