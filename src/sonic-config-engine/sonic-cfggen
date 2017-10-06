@@ -200,7 +200,7 @@ def main():
         print template.render(data)
 
     if args.var_json != None:
-        print json.dumps(data[args.var_json], indent=4, cls=minigraph_encoder)
+        print json.dumps(FormatConverter.to_serialized(data[args.var_json]), indent=4, cls=minigraph_encoder)
 
     if args.write_to_db:
         configdb = ConfigDBConnector()
