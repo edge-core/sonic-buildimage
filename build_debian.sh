@@ -207,7 +207,8 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     kexec-tools             \
     less                    \
     unzip                   \
-    gdisk
+    gdisk                   \
+    grub2-common
 
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y download \
     grub-pc-bin
