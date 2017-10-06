@@ -1,7 +1,5 @@
 # sonic utilities package
 
-SONIC_UTILITIES = sonic_utilities-1.1-py2-none-any.whl
-$(SONIC_UTILITIES)_SRC_PATH = $(SRC_PATH)/sonic-utilities
-$(SONIC_UTILITIES)_PYTHON_VERSION = 2
-$(SONIC_UTILITIES)_DEPENDS += $(SWSSSDK_PY2)
-SONIC_PYTHON_WHEELS += $(SONIC_UTILITIES)
+SONIC_UTILS = python-sonic-utilities_1.1-1_all.deb
+$(SONIC_UTILS)_SRC_PATH = $(SRC_PATH)/sonic-utilities
+SONIC_PYTHON_STDEB_DEBS += $(SONIC_UTILS)
