@@ -193,7 +193,10 @@ sudo cp $IMAGE_CONFIGS/platform/rc.local $FILESYSTEM_ROOT/etc/
 
 {% if installer_images.strip() -%}
 {% for image in installer_images.strip().split(' ') -%}
+{% set imagefilename = image.split('/')|last -%}
+{% set imagename = imagefilename.split('.')|first -%}
 sudo LANG=C chroot $FILESYSTEM_ROOT docker load < {{image}}
+sudo LANG=C chroot $FILESYSTEM_ROOT docker tag {{imagename}}:latest {{imagename}}:$(sonic_get_version)
 {% endfor %}
 sudo chroot $FILESYSTEM_ROOT service docker stop
 {% for script in installer_start_scripts.split(' ') -%}
