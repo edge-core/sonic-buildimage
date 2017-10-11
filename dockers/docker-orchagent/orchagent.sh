@@ -4,7 +4,7 @@
 # vendor specific code.
 export platform=`sonic-cfggen -v onie_switch_asic`
 
-ASIC=`sonic-cfggen -y /etc/sonic/sonic_version.yml -v asic_type`
+export ASIC=`sonic-cfggen -y /etc/sonic/sonic_version.yml -v asic_type`
 
 MAC_ADDRESS=`ip link show eth0 | grep ether | awk '{print $2}'`
 
