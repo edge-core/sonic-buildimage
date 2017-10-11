@@ -51,6 +51,7 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
 {% if bgp_session['asn'] | int != 0 %}
   neighbor {{ neighbor_addr }} remote-as {{ bgp_session['asn'] }}
   neighbor {{ neighbor_addr }} description {{ bgp_session['name'] }}
+  neighbor {{ neighbor_addr }} timers {{ bgp_session['keepalive'] }} {{ bgp_session['holdtime'] }}
 {% if DEVICE_METADATA['localhost']['type'] == 'ToRRouter' %}
   neighbor {{ neighbor_addr }} allowas-in 1
 {% endif %}
@@ -60,6 +61,9 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
 {% if bgp_session['rrclient'] | int != 0 %}
     neighbor {{ neighbor_addr }} route-reflector-client
 {% endif %}
+{% if bgp_session['nhopself'] | int != 0 %}
+    neighbor {{ neighbor_addr }} next-hop-self
+{% endif %}
     maximum-paths 64
   exit-address-family
 {% endif %}
@@ -68,6 +72,12 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
     neighbor {{ neighbor_addr }} activate
 {% if bgp_session['rrclient'] | int != 0 %}
     neighbor {{ neighbor_addr }} route-reflector-client
+{% endif %}
+{% if bgp_session['nhopself'] | int != 0 %}
+    neighbor {{ neighbor_addr }} next-hop-self
+{% endif %}
+{% if bgp_session['asn'] != DEVICE_METADATA['localhost']['bgp_asn'] %}
+    neighbor {{ neighbor_addr }} route-map set-next-hop-global-v6 in
 {% endif %}
     maximum-paths 64
   exit-address-family
@@ -80,4 +90,7 @@ maximum-paths 64
 !
 route-map ISOLATE permit 10
 set as-path prepend {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
+!
+route-map set-next-hop-global-v6 permit 10
+set ipv6 next-hop prefer-global
 !
