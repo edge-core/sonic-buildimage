@@ -56,7 +56,7 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            BUILD_NUMBER=$(BUILD_NUMBER) \
                            ENABLE_DHCP_GRAPH_SERVICE=$(ENABLE_DHCP_GRAPH_SERVICE) \
                            SHUTDOWN_BGP_ON_START=$(SHUTDOWN_BGP_ON_START) \
-                           SONIC_ENABLE_SYNCD_RPC=$(ENABLE_SYNCD_RPC) \
+                           ENABLE_SYNCD_RPC=$(ENABLE_SYNCD_RPC) \
                            PASSWORD=$(PASSWORD) \
                            USERNAME=$(USERNAME)
 

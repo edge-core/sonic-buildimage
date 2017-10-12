@@ -59,10 +59,6 @@ list :
 ## Include other rules
 ###############################################################################
 
-ifeq ($(SONIC_ENABLE_SYNCD_RPC),y)
-ENABLE_SYNCD_RPC = y
-endif
-
 include $(RULES_PATH)/config
 include $(RULES_PATH)/functions
 include $(RULES_PATH)/*.mk
