@@ -18,7 +18,7 @@ Any server can be a build image server. We are using a server with 1T hard disk.
 # Prerequisites
 
 ## SAI Version 
-SONiC V2 is using [SAI 0.9.4](https://github.com/opencomputeproject/SAI/tree/v0.9.4). 
+Please refer to [SONiC roadmap](https://github.com/Azure/SONiC/wiki/Sonic-Roadmap-Planning) on the SAI version for each SONiC release. 
 
 ## Clone or fetch the code repository with all git submodules
 To clone the code repository recursively, assuming git version 1.9 or newer:
