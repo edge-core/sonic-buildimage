@@ -29,9 +29,13 @@ server {{ ntp_server }} iburst
 
 #only listen on localhost and eth0 ips (default is to listen on all ip addresses)
 interface ignore wildcard
+{% if MGMT_INTERFACE %}
 {% for (mgmt_intf, mgmt_prefix) in MGMT_INTERFACE %}
 interface listen {{ mgmt_prefix | ip }}
 {% endfor %}
+{% else %}
+interface listen eth0
+{% endif %}
 interface listen 127.0.0.1
 
 # Access control configuration; see /usr/share/doc/ntp-doc/html/accopt.html for
