@@ -45,7 +45,7 @@ To build SONiC installer image and docker images, run the following commands:
 The SONiC installer contains all docker images needed. SONiC uses one image for all devices of a same ASIC vendor. The supported ASIC vendors are:
 
 - PLATFORM=broadcom
-- PLATFORM=marvell (*pending*)
+- PLATFORM=marvell 
 - PLATFORM=mellanox
 - PLATFORM=cavium
 - PLATFORM=centec
