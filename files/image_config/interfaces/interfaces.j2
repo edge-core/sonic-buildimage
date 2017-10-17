@@ -90,6 +90,7 @@ iface {{ member }} inet manual
 auto {{ name }}
 iface {{ name }} {{ 'inet' if prefix | ipv4 else 'inet6' }} static
     bridge_ports none
+    hwaddress ether {{ hwaddr }}
     address {{ prefix | ip }}
     netmask {{ prefix | netmask if prefix | ipv4 else prefix | prefixlen }}
 {% endfor %}

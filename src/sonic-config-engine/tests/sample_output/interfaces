@@ -214,6 +214,7 @@ iface fortyGigE0/124 inet manual
 auto Vlan1000
 iface Vlan1000 inet static
     bridge_ports none
+    hwaddress ether e4:1d:2d:a5:f3:ad
     address 192.168.0.1
     netmask 255.255.255.224
 #
