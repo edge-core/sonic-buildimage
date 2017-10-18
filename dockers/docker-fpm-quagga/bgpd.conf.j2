@@ -43,7 +43,7 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
   network {{ prefix | ip }}/32
 {% elif prefix | ipv6 %}
   address-family ipv6
-    network {{ prefix | ip }}/128
+    network {{ prefix | ip }}/64
   exit-address-family
 {% endif %}
 {% endfor %}
