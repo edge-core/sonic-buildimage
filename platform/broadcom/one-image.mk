@@ -13,6 +13,7 @@ $(SONIC_ONE_IMAGE)_INSTALLS += $(DELL_S6000_PLATFORM_MODULE) \
                                $(INGRASYS_S8810_32Q_PLATFORM_MODULE) \
                                $(ACCTON_AS7712_32X_PLATFORM_MODULE) \
                                $(INVENTEC_D7032Q28B_PLATFORM_MODULE) \
+                               $(INVENTEC_D7054Q28B_PLATFORM_MODULE) \
                                $(CEL_DX010_PLATFORM_MODULE)
 $(SONIC_ONE_IMAGE)_DOCKERS += $(SONIC_INSTALL_DOCKER_IMAGES)
 SONIC_INSTALLERS += $(SONIC_ONE_IMAGE)

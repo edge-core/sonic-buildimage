@@ -4,4 +4,3 @@ obj-m += inv_eeprom.o
 obj-m += swps.o
 swps-objs := inv_swps.o io_expander.o transceiver.o
 
-

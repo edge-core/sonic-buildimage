@@ -1,0 +1,5 @@
+description "SONiC platform service"
+
+respawn
+
+exec /usr/local/bin/inventec_d7054_util.py -f install

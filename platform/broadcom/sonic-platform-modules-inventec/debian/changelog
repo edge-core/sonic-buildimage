@@ -1,3 +1,8 @@
+sonic-inventec-platform-modules (1.1.0) unstable; urgency=low
+  * Add support for Inventec d7054
+
+ -- developer <swsp@inventec.com>  Tue, 18 Jul 2017 16:30:45 +0800
+
 sonic-inventec-platform-modules (1.0.0) unstable; urgency=low
 
   * Add support for Inventec d7032
