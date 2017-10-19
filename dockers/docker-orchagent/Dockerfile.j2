@@ -31,5 +31,6 @@ COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 COPY ["ipinip.json.j2", "/usr/share/sonic/templates/"]
 COPY ["mirror.json.j2", "/usr/share/sonic/templates/"]
 COPY ["ports.json.j2", "/usr/share/sonic/templates/"]
+COPY ["msn27xx.32ports.buffers.json.j2", "/usr/share/sonic/templates/"]
 
 ENTRYPOINT ["/usr/bin/supervisord"]

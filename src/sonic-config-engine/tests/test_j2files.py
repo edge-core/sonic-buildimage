@@ -12,6 +12,8 @@ class TestJ2Files(TestCase):
         self.t0_minigraph = os.path.join(self.test_dir, 't0-sample-graph.xml')
         self.pc_minigraph = os.path.join(self.test_dir, 'pc-test-graph.xml')
         self.t0_port_config = os.path.join(self.test_dir, 't0-sample-port-config.ini')
+        self.t1_mlnx_minigraph = os.path.join(self.test_dir, 't1-sample-graph-mlnx.xml')
+        self.mlnx_port_config = os.path.join(self.test_dir, 'sample-port-config-mlnx.ini')
         self.output_file = os.path.join(self.test_dir, 'output')
 
     def run_script(self, argument):
@@ -83,6 +85,15 @@ class TestJ2Files(TestCase):
         sample_output_file = os.path.join(self.test_dir, 'sample_output', 'mirror.json')
 
         assert filecmp.cmp(sample_output_file, self.output_file)
+
+    def test_msn27xx_32ports_buffers(self):
+        buffer_file = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-orchagent', 'msn27xx.32ports.buffers.json.j2')
+        argument = '-m ' + self.t1_mlnx_minigraph + ' -p ' + self.mlnx_port_config + ' -t ' + buffer_file + ' > ' + self.output_file
+        self.run_script(argument)
+
+        sample_output_file = os.path.join(self.test_dir, 'sample_output', 'msn27.32ports.json')
+
+        self.assertTrue(filecmp.cmp(sample_output_file, self.output_file))
 
 
     def tearDown(self):
