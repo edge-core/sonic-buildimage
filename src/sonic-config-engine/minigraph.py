@@ -274,7 +274,7 @@ def parse_cpg(cpg, hname):
                         bgp_session = bgp_sessions[peer]
                         if hostname == bgp_session['name']:
                             bgp_session['asn'] = asn
-
+    bgp_sessions = { key: bgp_sessions[key] for key in bgp_sessions if bgp_sessions[key].has_key('asn') and int(bgp_sessions[key]['asn']) != 0 }
     return bgp_sessions, myasn, bgp_peers_with_range
 
 

@@ -32,16 +32,15 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
   bgp graceful-restart
 {% endif %}
 {% for (name, prefix) in LOOPBACK_INTERFACE %}
-{# TODO: use v4 lo for backward compatibility, will revisit the case with multiple lo interfaces #}
-{% if prefix | ipv4 %}
+{% if prefix | ipv4 and name == 'Loopback0' %}
   bgp router-id {{ prefix | ip }}
 {% endif %}
 {% endfor %}
 {# advertise loopback #}
 {% for (name, prefix) in LOOPBACK_INTERFACE %}
-{% if prefix | ipv4 %}
+{% if prefix | ipv4 and name == 'Loopback0' %}
   network {{ prefix | ip }}/32
-{% elif prefix | ipv6 %}
+{% elif prefix | ipv6 and name == 'Loopback0' %}
   address-family ipv6
     network {{ prefix | ip }}/64
   exit-address-family
@@ -97,7 +96,11 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
   neighbor {{ bgp_peer['name'] }} remote-as {{ deployment_id_asn_map[DEVICE_METADATA['localhost']['deployment_id']] }}
   neighbor {{ bgp_peer['name'] }} ebgp-multihop 255
   neighbor {{ bgp_peer['name'] }} soft-reconfiguration inbound
-  neighbor {{ bgp_peer['name'] }} update-source Loopback0
+{% for (name, prefix) in LOOPBACK_INTERFACE %}
+{% if name == 'Loopback1' %}
+  neighbor {{ bgp_peer['name'] }} update-source {{ prefix | ip }}
+{% endif %}
+{% endfor %}
   neighbor {{ bgp_peer['name'] }} route-map FROM_BGP_SPEAKER_V4 in
   neighbor {{ bgp_peer['name'] }} route-map TO_BGP_SPEAKER_V4 out
 {% for ip_range in bgp_peer['ip_range'] %}
