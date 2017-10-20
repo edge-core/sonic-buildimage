@@ -46,8 +46,23 @@ class SfpUtil(SfpUtilBase):
         SfpUtilBase.__init__(self)
 
     def get_presence(self, port_num):
+        # Check for invalid port_num
+        if port_num < self.port_start or port_num > self.port_end:
+            return False
 
-        raise NotImplementedError
+        try:
+            reg_file = open("/bsp/qsfp/qsfp%d_status" % (port_num+1))
+        except IOError as e:
+            print "Error: unable to open file: %s" % str(e)
+            return False
+
+        content = reg_file.readline().rstrip()
+
+        # content is a string with the qsfp status
+        if content == "good":
+            return True
+
+        return False
 
     def get_low_power_mode(self, port_num):
 
