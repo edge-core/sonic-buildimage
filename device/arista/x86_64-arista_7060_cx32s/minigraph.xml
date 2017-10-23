@@ -1040,7 +1040,7 @@
     <Devices>
       <Device i:type="LeafRouter">
         <Hostname>switch1</Hostname>
-        <HwSku>Arista-7060-CX32S</HwSku>
+        <HwSku>Arista-7060-CX-32S</HwSku>
       </Device>
     </Devices>
   </PngDec>
@@ -1075,5 +1075,5 @@
     <Properties xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
   </MetadataDeclaration>
   <Hostname>switch1</Hostname>
-  <HwSku>Arista-7060-CX32S</HwSku>
+  <HwSku>Arista-7060-CX-32S</HwSku>
 </DeviceMiniGraph>
