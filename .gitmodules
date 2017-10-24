@@ -66,3 +66,6 @@
 [submodule "platform/broadcom/sonic-platform-modules-cel"]
 	path = platform/broadcom/sonic-platform-modules-cel
 	url = https://github.com/celestica-Inc/sonic-platform-modules-cel.git
+[submodule "src/sonic-frr/frr"]
+	path = src/sonic-frr/frr
+	url = https://github.com/FRRouting/frr.git

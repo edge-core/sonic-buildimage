@@ -5,11 +5,6 @@ SHELL = /bin/bash
 MAIN_TARGET = frr_$(FRR_VERSION)_amd64.deb
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
-        # Cloning FRR repo if not already done
-	if [ ! -d "frr" ]; then \
-		git clone -b stable/$(FRR_VERSION) https://github.com/FRRouting/frr.git; \
-	fi
-
         # Replacing frr's rules/install files with SONiC's own versions to activate
         # specific knobs and adjust install process to address SONiC's needs.
 	cp sonic_frr.rules frr/debian/rules
