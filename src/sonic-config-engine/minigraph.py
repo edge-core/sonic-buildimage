@@ -12,27 +12,13 @@ from collections import defaultdict
 from lxml import etree as ET
 from lxml.etree import QName
 
-DOCUMENTATION = '''
----
-module: minigraph_facts
+from portconfig import get_port_config
+
+"""minigraph.py
 version_added: "1.9"
 author: Guohan Lu (gulv@microsoft.com)
-short_description: Retrive minigraph facts for a device.
-description:
-    - Retrieve minigraph facts for a device, the facts will be
-      inserted to the ansible_facts key.
-options:
-    host:
-        description:
-            - Set to target snmp server (normally {{inventory_hostname}})
-        required: true
-'''
-
-EXAMPLES = '''
-# Gather minigraph facts
-- name: Gathering minigraph facts about the device
-  minigraph_facts: host={{ hostname }}
-'''
+short_description: Parse minigraph xml file and device description xml file
+"""
 
 ns = "Microsoft.Search.Autopilot.Evolution"
 ns1 = "http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"
@@ -319,40 +305,6 @@ def parse_deviceinfo(meta, hwsku):
                 ethernet_interfaces[port_alias_map.get(alias, alias)] = speed
     return ethernet_interfaces
 
-def parse_port_config(hwsku, platform=None, port_config_file=None):
-    port_config_candidates = []
-    if port_config_file != None:
-        port_config_candidates.append(port_config_file)
-    port_config_candidates.append('/usr/share/sonic/hwsku/port_config.ini')
-    if platform != None:
-        port_config_candidates.append(os.path.join('/usr/share/sonic/device', platform, hwsku, 'port_config.ini'))
-    port_config_candidates.append(os.path.join('/usr/share/sonic/platform', hwsku, 'port_config.ini'))
-    port_config_candidates.append(os.path.join('/usr/share/sonic', hwsku, 'port_config.ini'))
-    port_config = None
-    for candidate in port_config_candidates:
-        if os.path.isfile(candidate):
-            port_config = candidate
-            break
-    if port_config == None:
-        return None
-
-    ports = {}
-    with open(port_config) as data:
-        for line in data:
-            if line.startswith('#'):
-                continue
-            tokens = line.split()
-            if len(tokens) < 2:
-                continue
-            name = tokens[0].strip()
-            if len(tokens) == 2:
-                alias = name
-            else:
-                alias = tokens[2].strip()
-            ports[name] = {'alias': alias}
-            port_alias_map[alias] = name
-    return ports
-
 def parse_xml(filename, platform=None, port_config_file=None):
     root = ET.parse(filename).getroot()
     mini_graph_path = filename
@@ -389,8 +341,8 @@ def parse_xml(filename, platform=None, port_config_file=None):
         if child.tag == str(hostname_qn):
             hostname = child.text
 
-    ports = parse_port_config(hwsku, platform, port_config_file)
-
+    (ports, alias_map) = get_port_config(hwsku, platform, port_config_file)
+    port_alias_map.update(alias_map)
     for child in root:
         if child.tag == str(QName(ns, "DpgDec")):
             (intfs, lo_intfs, mgmt_intf, vlans, pcs, acls) = parse_dpg(child, hostname)
