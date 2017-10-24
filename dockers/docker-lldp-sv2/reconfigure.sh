@@ -2,9 +2,8 @@
 
 set -e
 
-num_of_interfaces=32
-if_step=4
-last_if_idx=$((num_of_interfaces*if_step - if_step))
+# TODO: Listen to state database when it is ready
+interfaces=$(sonic-cfggen -d -v "PORT.keys() | join(' ')")
 
 function wait_until_if_exists
 {
@@ -31,23 +30,23 @@ function wait_until_if_not_exists
 while /bin/true ;
 do
   # wait until all interfaces are created
-  echo Wait until all ifaces are created
-  for i in $(seq 0 $if_step $last_if_idx)
+  echo Wait until all interfaces are created
+  for i in $interfaces
   do
-    wait_until_if_exists "Ethernet$i"
+    wait_until_if_exists $i
   done
 
   echo Wait 10 seconds while lldpd finds new interfaces
   sleep 10
 
   # apply lldpd configuration
-  echo apply lldpd configuration
+  echo Apply lldpd configuration
   lldpcli -c /etc/lldpd.conf
 
   # wait until all interfaces are destroyed
   echo Wait until all ifaces are destroyed
-  for i in $(seq 0 $if_step $last_if_idx)
+  for i in $interfaces
   do
-    wait_until_if_not_exists "Ethernet$i"
+    wait_until_if_not_exists $i
   done
 done
