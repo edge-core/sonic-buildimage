@@ -60,7 +60,7 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            PASSWORD=$(PASSWORD) \
                            USERNAME=$(USERNAME)
 
-.PHONY: sonic-slave-build sonic-slave-bash
+.PHONY: sonic-slave-build sonic-slave-bash init
 
 .DEFAULT_GOAL :=  all
 
@@ -89,3 +89,7 @@ sonic-slave-bash :
 	    { echo Image $(SLAVE_IMAGE):$(SLAVE_TAG) not found. Building... ; \
 	    $(DOCKER_BUILD) ; }
 	@$(DOCKER_RUN) -t $(SLAVE_IMAGE):$(SLAVE_TAG) bash
+
+init :
+	git submodule update --init --recursive
+	git submodule foreach --recursive '[ -f .git ] && echo "gitdir: $$(realpath --relative-to=. $$(cut -d" " -f2 .git))" > .git'
