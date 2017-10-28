@@ -1,0 +1,31 @@
+FROM docker-config-engine
+
+## Make apt-get non-interactive
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update
+
+COPY \
+{% for deb in docker_syncd_nephos_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor -%}
+debs/
+
+RUN dpkg -i \
+{% for deb in docker_syncd_nephos_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor %}
+
+## TODO: add kmod into Depends
+RUN apt-get install -f kmod
+
+COPY ["files/dsserve", "files/npx_diag", "start.sh", "/usr/bin/"]
+RUN chmod +x /usr/bin/dsserve /usr/bin/npx_diag
+
+COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
+
+## Clean up
+RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
+RUN rm -rf /debs
+
+ENTRYPOINT ["/usr/bin/supervisord"]

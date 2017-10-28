@@ -1,0 +1,2 @@
+SAI_INIT_CONFIG_FILE=/etc/nps/tau-s9130-32x100G.cfg
+SAI_DSH_CONFIG_FILE=/etc/nps/tau-s9130-32x100G.dsh

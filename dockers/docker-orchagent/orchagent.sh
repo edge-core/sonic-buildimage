@@ -20,6 +20,8 @@ if [ "$ASIC" == "broadcom" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
 elif [ "$ASIC" == "cavium" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
+elif [ "$ASIC" == "nephos" ]; then
+    ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
 fi
 
 exec /usr/bin/orchagent ${ORCHAGENT_ARGS}
