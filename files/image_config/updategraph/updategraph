@@ -20,14 +20,32 @@ if [ "$src" = "dhcp" ]; then
         sleep 1
     done
 
-    if [ "`cat /tmp/dhcp_graph_url`" = "N/A" ]; then
-        echo "No graph_url option in DHCP response. Skipping graph update."
+    if [ "`cat /tmp/dhcp_graph_url`" = "default" ]; then
+        echo "No graph_url option in DHCP response. Skipping graph update and using existing minigraph."
         if [ "$dhcp_as_static" = "true" ]; then
             sed -i "/enabled=/d" /etc/sonic/updategraph.conf
             echo "enabled=false" >> /etc/sonic/updategraph.conf
         fi
         exit 0
     fi
+    if [ "`cat /tmp/dhcp_graph_url`" = "N/A" ]; then
+        echo "'N/A' found in DHCP response. Skipping graph update and generating an empty configuration."
+        echo '{"DEVICE_METADATA":' > /tmp/device_meta.json
+        sonic-cfggen -m /etc/sonic/minigraph.xml --var-json DEVICE_METADATA >> /tmp/device_meta.json
+        echo '}' >> /tmp/device_meta.json
+        if [ -f /etc/sonic/init_cfg.json ]; then
+            sonic-cfggen -j /tmp/device_meta.json -j /etc/sonic/init_cfg.json --print-data > /etc/sonic/config_db.json
+        else
+            cp -f /tmp/device_meta.json /etc/sonic/config_db.json
+        fi
+        
+        if [ "$dhcp_as_static" = "true" ]; then
+            sed -i "/enabled=/d" /etc/sonic/updategraph.conf
+            echo "enabled=false" >> /etc/sonic/updategraph.conf
+        fi
+        exit 0
+    fi
+
 
     HOSTNAME=`hostname -s`
     GRAPH_URL=`sonic-cfggen -t /tmp/dhcp_graph_url -a "{\"hostname\": \"$HOSTNAME\"}"`
