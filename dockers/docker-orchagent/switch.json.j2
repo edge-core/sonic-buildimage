@@ -1,0 +1,18 @@
+{# set default hash seed to 0 #}
+{% set hash_seed = 0 %}
+{% if DEVICE_METADATA.localhost.type %}
+{% if DEVICE_METADATA.localhost.type == "ToRRouter" %}
+{% set hash_seed = 10 %}
+{% elif DEVICE_METADATA.localhost.type == "LeafRouter" %}
+{% set hash_seed = 20 %}
+{% endif %}
+{% endif %}
+[
+    {
+        "SWITCH_TABLE:switch": {
+            "ecmp_hash_seed": "{{ hash_seed }}",
+            "lag_hash_seed": "{{ hash_seed }}"
+        },
+        "OP": "SET"
+    }
+]
