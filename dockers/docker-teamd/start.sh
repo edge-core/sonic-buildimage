@@ -17,6 +17,12 @@ fi
 
 for pc in `sonic-cfggen -d -v "PORTCHANNEL.keys() | join(' ') if PORTCHANNEL"`; do
     sonic-cfggen -d -a '{"pc":"'$pc'","hwaddr":"'$MAC_ADDRESS'"}' -t /usr/share/sonic/templates/teamd.j2 > $TEAMD_CONF_PATH/$pc.conf
+    # bring down all member ports before starting teamd
+    for member in $(sonic-cfggen -d -v "PORTCHANNEL['$pc']['members'] | join(' ')" ); do
+        if [ -L /sys/class/net/$member ]; then
+            ip link set $member down
+        fi
+    done
 done
 
 mkdir -p /var/sonic
