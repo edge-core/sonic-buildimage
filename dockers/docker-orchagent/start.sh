@@ -4,7 +4,6 @@ mkdir -p /etc/swss/config.d/
 
 sonic-cfggen -m /etc/sonic/minigraph.xml -d -t /usr/share/sonic/templates/switch.json.j2 > /etc/swss/config.d/switch.json
 sonic-cfggen -m /etc/sonic/minigraph.xml -d -t /usr/share/sonic/templates/ipinip.json.j2 > /etc/swss/config.d/ipinip.json
-sonic-cfggen -m /etc/sonic/minigraph.xml -d -t /usr/share/sonic/templates/mirror.json.j2 > /etc/swss/config.d/mirror.json
 sonic-cfggen -m /etc/sonic/minigraph.xml -d -t /usr/share/sonic/templates/ports.json.j2 > /etc/swss/config.d/ports.json
 
 export platform=`sonic-cfggen -v platform`

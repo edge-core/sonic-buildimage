@@ -29,7 +29,7 @@ ns3 = "http://www.w3.org/2001/XMLSchema-instance"
 class minigraph_encoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, (
-            ipaddress.IPv4Network, ipaddress.IPv6Network, 
+            ipaddress.IPv4Network, ipaddress.IPv6Network,
             ipaddress.IPv4Address, ipaddress.IPv6Address
             )):
             return str(obj)
@@ -129,7 +129,7 @@ def parse_dpg(dpg, hname):
             intfname = lointf.find(str(QName(ns, "AttachTo"))).text
             ipprefix = lointf.find(str(QName(ns1, "PrefixStr"))).text
             lo_intfs[(intfname, ipprefix)] = {}
-            
+
         mgmtintfs = child.find(str(QName(ns, "ManagementIPInterfaces")))
         mgmt_intf = {}
         for mgmtintf in mgmtintfs.findall(str(QName(ns1, "ManagementIPInterface"))):
@@ -175,7 +175,7 @@ def parse_dpg(dpg, hname):
         aclintfs = child.find(str(QName(ns, "AclInterfaces")))
         acls = {}
         for aclintf in aclintfs.findall(str(QName(ns, "AclInterface"))):
-            aclname = aclintf.find(str(QName(ns, "InAcl"))).text.lower().replace(" ", "_").replace("-", "_")
+            aclname = aclintf.find(str(QName(ns, "InAcl"))).text.upper().replace(" ", "_").replace("-", "_")
             aclattach = aclintf.find(str(QName(ns, "AttachTo"))).text.split(';')
             acl_intfs = []
             is_mirror = False
@@ -193,7 +193,7 @@ def parse_dpg(dpg, hname):
                     acl_intfs = port_alias_map.values()
                     break;
             if acl_intfs:
-                acls[aclname] = { 'policy_desc': aclname, 'ports': acl_intfs, 'type': 'mirror' if is_mirror else 'L3'}
+                acls[aclname] = { 'policy_desc': aclname, 'ports': acl_intfs, 'type': 'MIRROR' if is_mirror else 'L3'}
         return intfs, lo_intfs, mgmt_intf, vlans, pcs, acls
     return None, None, None, None, None, None
 
@@ -358,7 +358,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
             port_speeds = parse_deviceinfo(child, hwsku)
 
     results = {}
-    results['DEVICE_METADATA'] = {'localhost': { 
+    results['DEVICE_METADATA'] = {'localhost': {
         'bgp_asn': bgp_asn,
         'deployment_id': deployment_id,
         'hostname': hostname,
@@ -423,13 +423,13 @@ def parse_device_desc_xml(filename):
     (lo_prefix, mgmt_prefix, hostname, hwsku, d_type) = parse_device(root)
 
     results = {}
-    results['DEVICE_METADATA'] = {'localhost': { 
+    results['DEVICE_METADATA'] = {'localhost': {
         'hostname': hostname,
         'hwsku': hwsku,
         }}
 
     results['LOOPBACK_INTERFACE'] = {('lo', lo_prefix): {}}
-            
+
     mgmt_intf = {}
     mgmtipn = ipaddress.IPNetwork(mgmt_prefix)
     gwaddr = ipaddress.IPAddress(int(mgmtipn.network) + 1)

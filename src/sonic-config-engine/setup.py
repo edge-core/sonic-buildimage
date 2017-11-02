@@ -16,7 +16,7 @@ setup(name='sonic-config-engine',
       author_email='taoyl@microsoft.com',
       url='https://github.com/Azure/sonic-buildimage',
       py_modules=['portconfig', 'minigraph', 'openconfig_acl', 'sonic_platform'],
-      scripts=['sonic-cfggen', 'translate_acl'],
+      scripts=['sonic-cfggen'],
       install_requires=['lxml', 'jinja2', 'netaddr', 'ipaddr', 'pyyaml', 'pyangbind'],
       test_suite='setup.get_test_suite',
      )

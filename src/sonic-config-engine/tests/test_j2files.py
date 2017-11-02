@@ -31,14 +31,14 @@ class TestJ2Files(TestCase):
         argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -t ' + alias_map_template
         output = self.run_script(argument)
         data = json.loads(output)
-        self.assertEqual(data["Ethernet4"], "fortyGigE0/4")        
+        self.assertEqual(data["Ethernet4"], "fortyGigE0/4")
 
     def test_lldp(self):
         lldpd_conf_template = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-lldp-sv2', 'lldpd.conf.j2')
         argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -t ' + lldpd_conf_template + ' > ' + self.output_file
         self.run_script(argument)
         self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', 'lldpd.conf'), self.output_file))
-        
+
     def test_teamd(self):
 
         def test_render_teamd(self, pc, minigraph, sample_output):
@@ -74,15 +74,6 @@ class TestJ2Files(TestCase):
         self.run_script(argument)
 
         sample_output_file = os.path.join(self.test_dir, 'sample_output', 'ipinip.json')
-
-        assert filecmp.cmp(sample_output_file, self.output_file)
-
-    def test_everflow(self):
-        everflow_file = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-orchagent', 'mirror.json.j2')
-        argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -t ' + everflow_file + ' > ' + self.output_file
-        self.run_script(argument)
-
-        sample_output_file = os.path.join(self.test_dir, 'sample_output', 'mirror.json')
 
         assert filecmp.cmp(sample_output_file, self.output_file)
 

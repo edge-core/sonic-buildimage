@@ -3,7 +3,7 @@ import subprocess
 import os
 
 class TestCfgGen(TestCase):
-    
+
     def setUp(self):
         self.test_dir = os.path.dirname(os.path.realpath(__file__))
         self.script_file = os.path.join(self.test_dir, '..', 'sonic-cfggen')
@@ -29,7 +29,7 @@ class TestCfgGen(TestCase):
         argument = ''
         output = self.run_script(argument)
         self.assertEqual(output, '')
-    
+
     def test_device_desc(self):
         argument = '-v "DEVICE_METADATA[\'localhost\'][\'hwsku\']" -M "' + self.sample_device_desc + '"'
         output = self.run_script(argument)
@@ -44,17 +44,17 @@ class TestCfgGen(TestCase):
         argument = '-v "DEVICE_METADATA[\'localhost\'][\'hwsku\']" -m "' + self.sample_graph + '"'
         output = self.run_script(argument)
         self.assertEqual(output.strip(), 'Force10-Z9100')
-    
+
     def test_print_data(self):
         argument = '-m "' + self.sample_graph + '" --print-data'
         output = self.run_script(argument)
         self.assertTrue(len(output.strip()) > 0)
-    
+
     def test_jinja_expression(self):
         argument = '-m "' + self.sample_graph + '" -v "DEVICE_METADATA[\'localhost\'][\'type\']"'
         output = self.run_script(argument)
         self.assertEqual(output.strip(), 'LeafRouter')
-    
+
     def test_additional_json_data(self):
         argument = '-a \'{"key1":"value1"}\' -v key1'
         output = self.run_script(argument)
@@ -64,7 +64,7 @@ class TestCfgGen(TestCase):
         argument = '-v yml_item -y ' + os.path.join(self.test_dir, 'test.yml')
         output = self.run_script(argument)
         self.assertEqual(output.strip(), '[\'value1\', \'value2\']')
-    
+
     def test_render_template(self):
         argument = '-y ' + os.path.join(self.test_dir, 'test.yml') + ' -t ' + os.path.join(self.test_dir, 'test.j2')
         output = self.run_script(argument)
@@ -73,13 +73,18 @@ class TestCfgGen(TestCase):
     def test_minigraph_acl(self):
         argument = '-m "' + self.sample_graph_t0 + '" -p "' + self.port_config + '" -v ACL_TABLE'
         output = self.run_script(argument)
-        self.assertEqual(output.strip(), "{'dataacl': {'type': 'L3', 'policy_desc': 'dataacl', 'ports': ['Ethernet112', 'Ethernet116', 'Ethernet120', 'Ethernet124']}}")
+        self.assertEqual(output.strip(), "{'DATAACL': {'type': 'L3', 'policy_desc': 'DATAACL', 'ports': ['Ethernet112', 'Ethernet116', 'Ethernet120', 'Ethernet124']}}")
+
+    def test_minigraph_everflow(self):
+        argument = '-m "' + self.sample_graph_t0 + '" -p "' + self.port_config + '" -v MIRROR_SESSION'
+        output = self.run_script(argument)
+        self.assertEqual(output.strip(), "{'everflow0': {'src_ip': '10.1.0.32', 'dst_ip': '2.2.2.2'}}")
 
     def test_minigraph_interfaces(self):
         argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v \'INTERFACE.keys()\''
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "[('Ethernet0', '10.0.0.58/31'), ('Ethernet0', 'FC00::75/126')]")
-        
+
     def test_minigraph_vlans(self):
         argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v VLAN'
         output = self.run_script(argument)
