@@ -10,7 +10,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	rm -rf ./isc-dhcp
 
 	# Clone isc-dhcp repo
-	git clone git://anonscm.debian.org/pkg-dhcp/isc-dhcp.git
+	git clone https://anonscm.debian.org/cgit/pkg-dhcp/isc-dhcp.git
 	pushd ./isc-dhcp
 	git checkout -f debian/4.3.1-6
 	popd

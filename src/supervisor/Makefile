@@ -8,8 +8,8 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# Remove any stale files
 	rm -rf ./supervisor
 
-	# Clone isc-dhcp repo
-	git clone git://github.com/Supervisor/supervisor.git
+	# Clone supervisor repo
+	git clone https://github.com/Supervisor/supervisor.git
 	pushd ./supervisor
 	git checkout -f 3.3.2
 
