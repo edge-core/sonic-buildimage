@@ -82,6 +82,13 @@ run_cmd() {
     fi
 }
 
+fixup_flash_permissions() {
+    # properly set flash permissions for others
+    # this allows the sonic admin user to have read access on the flash
+    local flash_mnt="$1"
+    chmod o+rx "$flash_mnt"
+}
+
 # Extract kernel parameters
 set -- $(cat /proc/cmdline)
 for x in "$@"; do
@@ -111,7 +118,14 @@ if ! wait_for_root_dev; then
 fi
 
 # exit when the root is ext4
-blkid | grep "$root_dev.*vfat" -q || exit 0
+if ! blkid | grep "$root_dev.*vfat" -q; then
+   mkdir -p "$root_mnt"
+   mount -t ext4 "$root_dev" "$root_mnt"
+   fixup_flash_permissions "$root_mnt"
+   umount "$root_mnt"
+   rmdir "$root_mnt"
+   exit 0
+fi
 
 # Get flash dev name
 if [ -z "$block_flash" ]; then
@@ -176,3 +190,5 @@ run_cmd "$cmd" "$err_msg"
 err_msg="Error: copying files form $tmp_mnt to $root_mnt failed"
 cmd="cp -a $tmp_mnt/. $root_mnt/"
 run_cmd "$cmd" "$err_msg"
+
+fixup_flash_permissions "$root_mnt"

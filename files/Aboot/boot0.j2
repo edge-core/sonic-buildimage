@@ -65,9 +65,6 @@ extract_image() {
 
     ## vfat does not support symbol link
     if [ -n "$sonic_upgrade" ] || [ "$rootfs_type" != "vfat" ]; then
-        ## on ext4, other doesn't have access to the flash by default
-        chmod o+rx "$target_path"
-
         mkdir -p "$image_path/{{ DOCKERFS_DIR }}"
 
         if [ -n "$sonic_upgrade" ]; then
