@@ -5,14 +5,6 @@
 {% endfor %}
 {% set port_names = port_names_list | join(',') %}
     {
-        "BUFFER_POOL_TABLE:ingress_lossless_pool": {
-            "size": "3024486",
-            "type": "ingress",
-            "mode": "dynamic"
-        },
-        "OP": "SET"
-    },
-    {
         "BUFFER_POOL_TABLE:ingress_lossy_pool": {
             "size": "6422528",
             "type": "ingress",
@@ -106,6 +98,7 @@
     },
 
 {# The following template part is for variable PG profile configuration #}
+{% set non_pg_lossless_pool_size = 866726 %}
 {% set pg_range = '3-4' %}
 {# Lists of supported speed and cable length #}
 {% set supported_speed = [10000, 25000, 40000, 50000, 100000] %}
@@ -239,7 +232,7 @@
     {%- set profile_config = pg_profiles[profile_name] %}
     {
         "BUFFER_PROFILE_TABLE:{{ profile_name }}": {
-            "pool":"[BUFFER_POOL_TABLE:ingress_lossless_pg_pool]",
+            "pool":"[BUFFER_POOL_TABLE:ingress_lossless_pool]",
             "xon":"{{ profile_config['xon'] }}",
             "xoff":"{{ profile_config['xoff'] }}",
             "size":"{{ profile_config['size'] }}",
@@ -249,10 +242,10 @@
     },
 {% endfor -%}
 
-    {# Pool declaration #}
+    {# Lossless pool declaration #}
     {
-        "BUFFER_POOL_TABLE:ingress_lossless_pg_pool": {
-            "size": "{{ ingress_lossless_pg_pool_size | sum }}",
+        "BUFFER_POOL_TABLE:ingress_lossless_pool": {
+            "size": "{{ ingress_lossless_pg_pool_size | sum + non_pg_lossless_pool_size }}",
             "type": "ingress",
             "mode": "dynamic"
         },
