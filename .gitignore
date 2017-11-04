@@ -51,6 +51,7 @@ dockers/docker-teamd/Dockerfile
 dockers/docker-sonic-mgmt/Dockerfile
 platform/*/docker-syncd-*/Dockerfile
 platform/*/docker-syncd-*-rpc/Dockerfile
+platform/vs/docker-sonic-vs/Dockerfile
 
 # Installer-related files and directories
 installer/x86_64/platforms/

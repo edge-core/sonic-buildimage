@@ -25,7 +25,8 @@ RUN apt-get install -y net-tools \
                        openssh-client \
                        openssh-server \
                        libc-ares2 \
-                       iproute
+                       iproute \
+                       libpython2.7
 
 COPY \
 {% for deb in docker_sonic_vs_debs.split(' ') -%}
