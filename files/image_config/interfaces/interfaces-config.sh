@@ -12,6 +12,9 @@ fi
 
 sonic-cfggen -d -a '{"hwaddr":"'$SYSTEM_MAC_ADDRESS'"}' -t /usr/share/sonic/templates/interfaces.j2 > /etc/network/interfaces
 
+# Also store the system mac to configDB switch table. User configured switch_mac is not supported for now.
+/usr/bin/docker exec database redis-cli -n 4 hset SWITCH\|SWITCH_ATTR switch_mac $SYSTEM_MAC_ADDRESS
+
 [ -f /var/run/dhclient.eth0.pid ] && kill `cat /var/run/dhclient.eth0.pid` && rm -f /var/run/dhclient.eth0.pid
 
 systemctl restart networking
