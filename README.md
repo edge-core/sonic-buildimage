@@ -80,10 +80,9 @@ The SONiC installer contains all docker images needed. SONiC uses one image for 
 For Broadcom ASIC, we build ONIE and EOS image. EOS image is used for Arista devices, ONIE image is used for all other Broadcom ASIC based devices. 
 
     make configure PLATFORM=broadcom
+    BLDENV=stretch make target/debs/linux-headers-4.9.0-3-common_4.9.30-2+deb9u5_all.deb target/debs/igb.ko
     # build ONIE image
     make target/sonic-broadcom.bin
-    # build EOS image
-    make target/sonic-aboot-broadcom.swi
  
 You may find the rules/config file useful. It contains configuration options for the build process, like adding more verbosity or showing dependencies, username and password for base image etc.
 
