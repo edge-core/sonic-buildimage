@@ -22,6 +22,10 @@ supervisorctl start neighsyncd
 
 supervisorctl start swssconfig
 
+supervisorctl start vlanmgrd
+
+supervisorctl start intfmgrd
+
 # Start arp_update when VLAN exists
 VLAN=`sonic-cfggen -d -v 'VLAN.keys() | join(" ") if VLAN'`
 if [ "$VLAN" != "" ]; then

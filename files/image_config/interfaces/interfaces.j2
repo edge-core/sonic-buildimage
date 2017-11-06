@@ -55,19 +55,6 @@ iface {{ name }} {{ 'inet' if prefix | ipv4 else 'inet6' }} static
     netmask {{ prefix | netmask if prefix | ipv4 else prefix | prefixlen }}
 #
 {% endfor %}
-{% if VLAN %}
-# "|| true" is added to suppress the error when interface is already a member of VLAN
-{% for vlan in VLAN.keys()|sort %}
-{% for member in VLAN[vlan]['members'] %}
-allow-hotplug {{ member }}
-iface {{ member }} inet manual
-    pre-up ifconfig {{ member }} up mtu 9100
-    post-up brctl addif {{ vlan }} {{ member }} || true
-    post-down ifconfig {{ member }} down
-#
-{% endfor %}
-{% endfor %}
-{% endif %}
 {% if PORTCHANNEL %}
 # "|| true" is added to suppress the error when interface is already a member of LAG
 # "ip link show | grep -q master" is added to ensure interface is enslaved
@@ -83,20 +70,6 @@ iface {{ member }} inet manual
 {% endfor %}
 {% endif %}
 {% endblock front_panel_interfaces %}
-{% block vlan_interfaces %}
-{% if VLAN_INTERFACE %}
-# Vlan interfaces
-{% for (name, prefix) in VLAN_INTERFACE.keys() | sort %}
-auto {{ name }}
-iface {{ name }} {{ 'inet' if prefix | ipv4 else 'inet6' }} static
-    bridge_ports none
-    hwaddress ether {{ hwaddr }}
-    address {{ prefix | ip }}
-    netmask {{ prefix | netmask if prefix | ipv4 else prefix | prefixlen }}
-{% endfor %}
-#
-{% endif %}
-{% endblock vlan_interfaces %}
 {% block pc_interfaces %}
 {% if PORTCHANNEL_INTERFACE %}
 # Portchannel interfaces

@@ -88,7 +88,12 @@ class TestCfgGen(TestCase):
     def test_minigraph_vlans(self):
         argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v VLAN'
         output = self.run_script(argument)
-        self.assertEqual(output.strip(), "{'Vlan1000': {'dhcp_servers': ['192.0.0.1', '192.0.0.2'], 'members': ['Ethernet8'], 'vlanid': '1000'}}")
+        self.assertEqual(output.strip(), "{'Vlan1000': {'dhcp_servers': ['192.0.0.1', '192.0.0.2'], 'vlanid': '1000'}}")
+
+    def test_minigraph_vlan_members(self):
+        argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v VLAN_MEMBER'
+        output = self.run_script(argument)
+        self.assertEqual(output.strip(), "{'Vlan1000|Ethernet8': {'tagging_mode': 'untagged'}}")
 
     def test_minigraph_vlan_interfaces(self):
         argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v "VLAN_INTERFACE.keys()"'
