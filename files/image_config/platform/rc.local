@@ -43,6 +43,15 @@ firsttime_exit()
     exit 0
 }
 
+test_config()
+{
+    if [ -d /host/old_config ] && ( [ -f /host/old_config/minigraph.xml ] || [ -f /host/old_config/config_db.json ] ); then
+        return 0
+    fi
+
+    return 1
+}
+
 # Given a string of tuples of the form field=value, extract the value for a field
 # In : $string, $field
 # Out: $value
@@ -70,26 +79,39 @@ if [ -f /host/image-$sonic_version/platform/firsttime ]; then
         firsttime_exit
     fi
 
+    # setup initial switch mac
+    SONIC_ASIC_TYPE=$(sonic-cfggen -y /etc/sonic/sonic_version.yml -v asic_type)
+    SYSTEM_MAC_ADDRESS=$(ip link show eth0 | grep ether | awk '{print $2}')
+
+    # Align last byte of MAC if necessary
+    if [ "$SONIC_ASIC_TYPE" == "mellanox" -o "$SONIC_ASIC_TYPE" == "centec" ]; then
+        last_byte=$(python -c "print '$SYSTEM_MAC_ADDRESS'[-2:]")
+        aligned_last_byte=$(python -c "print format(int(int('$last_byte', 16) & 0b11000000), '02x')")  # put mask and take away the 0x prefix
+        SYSTEM_MAC_ADDRESS=$(python -c "print '$SYSTEM_MAC_ADDRESS'[:-2] + '$aligned_last_byte'")      # put aligned byte into the end of MAC
+    fi
+
+    if [ -f /etc/sonic/init_cfg.json ]; then
+        sonic-cfggen -j /etc/sonic/init_cfg.json -a '{"DEVICE_METADATA":{"localhost": {"mac": "'$SYSTEM_MAC_ADDRESS'"}}}' --print-data > /etc/sonic/init_cfg.json
+    else
+        sonic-cfggen -a '{"DEVICE_METADATA":{"localhost": {"mac": "'$SYSTEM_MAC_ADDRESS'"}}}' --print-data > /etc/sonic/init_cfg.json
+    fi
+
     # Try to take old configuration saved during installation
-    if [ -d /host/old_config ]; then
+    if test_config; then
         rm -f /host/old_config/sonic_version.yml
         mv -f /host/old_config/* /etc/sonic/
+        if [ ! -f /etc/sonic/config_db.json ]; then
+            sonic-cfggen -m -j /etc/sonic/init_cfg.json --print-data > /etc/sonic/config_db.json
+        fi
     elif [ -f /host/minigraph.xml ]; then
         mv /host/minigraph.xml /etc/sonic/
         # Combine information in minigraph and init_cfg.json to form initiate config DB dump file.
         # TODO: After moving all information from minigraph to DB, sample config DB dump should be provide
-        if [ -f /etc/sonic/init_cfg.json ]; then
-            sonic-cfggen -m -j /etc/sonic/init_cfg.json --print-data > /etc/sonic/config_db.json
-        else
-            sonic-cfggen -m --print-data > /etc/sonic/config_db.json
-        fi
+        sonic-cfggen -m -j /etc/sonic/init_cfg.json --print-data > /etc/sonic/config_db.json
     else
+        # Use default minigraph.xml
         cp /usr/share/sonic/device/$platform/minigraph.xml /etc/sonic/
-        if [ -f /etc/sonic/init_cfg.json ]; then
-            sonic-cfggen -m -j /etc/sonic/init_cfg.json --print-data > /etc/sonic/config_db.json
-        else
-            sonic-cfggen -m --print-data > /etc/sonic/config_db.json
-        fi
+        sonic-cfggen -m -j /etc/sonic/init_cfg.json --print-data > /etc/sonic/config_db.json
     fi
 
     if [ -d /host/image-$sonic_version/platform/$platform ]; then

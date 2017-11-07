@@ -18,6 +18,7 @@ ExecStartPre=/usr/bin/docker exec database redis-cli -n 0 FLUSHDB
 ExecStartPre=/usr/bin/docker exec database redis-cli -n 1 FLUSHDB
 ExecStartPre=/usr/bin/docker exec database redis-cli -n 2 FLUSHDB
 ExecStartPre=/usr/bin/docker exec database redis-cli -n 5 FLUSHDB
+ExecStartPre=/usr/bin/docker exec database redis-cli -n 6 FLUSHDB
 
 {% if sonic_asic_platform == 'mellanox' %}
 TimeoutStartSec=3min
