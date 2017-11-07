@@ -1,6 +1,5 @@
 [Unit]
 Description=Update NTP configuration
-Before=ntp.service
 Requires=database.service
 After=database.service
 
