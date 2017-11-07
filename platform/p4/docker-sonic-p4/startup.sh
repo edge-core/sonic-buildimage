@@ -8,16 +8,16 @@ rm -f /var/run/rsyslogd.pid
 service rsyslog start
 
 echo "Start redis server"
-service redis-server start
+service redis-server start &
+sleep 3
+
+redis-cli flushall
 
 echo "Veth setup"
-/usr/share/bmpd/tools/veth_setup.sh  > /tmp/veth_setup.log 2>&1
-
-echo "Disable IPv6"
-/usr/share/bmpd/tools/veth_disable_ipv6.sh > /tmp/veth_disable.log 2>&1
+veth_setup.sh  > /tmp/veth_setup.log 2>&1
 
 echo "Start BMV2"
-/run_bm.sh > /tmp/run_bm.log 2>&1 &
+/scripts/run_bm.sh > /tmp/run_bm.log 2>&1 &
 sleep 15
 
 redis-cli -n 1 set LOGLEVEL DEBUG

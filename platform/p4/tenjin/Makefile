@@ -9,7 +9,7 @@ MAIN_TARGET = python-tenjin_$(TENJIN_VERSION_FULL)_all.deb
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	rm -rf Tenjin-$(TENJIN_VERSION)
 
-	wget -nc http://pypi.python.org/packages/source/T/Tenjin/Tenjin-$(TENJIN_VERSION).tar.gz
+	wget -nc https://pypi.python.org/packages/source/T/Tenjin/Tenjin-$(TENJIN_VERSION).tar.gz
 	tar xzf Tenjin-$(TENJIN_VERSION).tar.gz
 
 	pushd Tenjin-$(TENJIN_VERSION)
