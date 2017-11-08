@@ -91,7 +91,8 @@ if [ -f /host/image-$sonic_version/platform/firsttime ]; then
     fi
 
     if [ -f /etc/sonic/init_cfg.json ]; then
-        sonic-cfggen -j /etc/sonic/init_cfg.json -a '{"DEVICE_METADATA":{"localhost": {"mac": "'$SYSTEM_MAC_ADDRESS'"}}}' --print-data > /etc/sonic/init_cfg.json
+        sonic-cfggen -j /etc/sonic/init_cfg.json -a '{"DEVICE_METADATA":{"localhost": {"mac": "'$SYSTEM_MAC_ADDRESS'"}}}' --print-data > /tmp/init_cfg.json
+        mv /tmp/init_cfg.json /etc/sonic/init_cfg.json
     else
         sonic-cfggen -a '{"DEVICE_METADATA":{"localhost": {"mac": "'$SYSTEM_MAC_ADDRESS'"}}}' --print-data > /etc/sonic/init_cfg.json
     fi
