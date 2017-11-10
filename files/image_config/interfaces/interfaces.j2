@@ -50,7 +50,7 @@ iface eth0 inet dhcp
 {% for (name, prefix) in INTERFACE %}
 allow-hotplug {{ name }}
 iface {{ name }} {{ 'inet' if prefix | ipv4 else 'inet6' }} static
-    mtu 9100
+    mtu {{ PORT[name]['mtu'] if PORT[name]['mtu'] else 9100 }}
     address {{ prefix | ip }}
     netmask {{ prefix | netmask if prefix | ipv4 else prefix | prefixlen }}
 #
@@ -76,7 +76,7 @@ iface {{ member }} inet manual
 {% for (name, prefix) in PORTCHANNEL_INTERFACE.keys() | sort %}
 allow-hotplug {{ name }}
 iface {{ name }} {{ 'inet' if prefix | ipv4 else 'inet6' }} static
-    mtu 9100
+    mtu {{ PORTCHANNEL[name]['mtu'] if PORTCHANNEL[name]['mtu'] else 9100 }}
     address {{ prefix | ip }}
     netmask {{ prefix | netmask if prefix | ipv4 else prefix | prefixlen }}
 #
