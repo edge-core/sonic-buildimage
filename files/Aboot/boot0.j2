@@ -130,7 +130,7 @@ platform_specific() {
         aboot_machine=arista_7260cx3_64
     fi
     if [ "$platform" = "rook" ]; then
-        varlog_size=200
+        varlog_size=4096
         readprefdl -f /tmp/.system-prefdl -d > /mnt/flash/.system-prefdl
     fi
 
