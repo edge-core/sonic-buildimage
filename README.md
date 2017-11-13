@@ -3,10 +3,13 @@ Mellanox: [![Mellanox](https://sonic-jenkins.westus2.cloudapp.azure.com/job/mell
 P4: [![P4](https://sonic-jenkins.westus2.cloudapp.azure.com/job/p4/job/buildimage-p4-all/badge/icon)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/p4/job/buildimage-p4-all)
 VS: [![VS](https://sonic-jenkins.westus2.cloudapp.azure.com/job/vs/job/buildimage-vs-all/badge/icon)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/vs/job/buildimage-vs-all)
 
-*201709*: Cavium: [![Cavium](https://sonic-jenkins.westus2.cloudapp.azure.com/job/cavium/job/buildimage-cavm-all/badge/icon)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/cavium/job/buildimage-cavm-all/)
+*201709*: 
+Broadcom: [![Broadcom](https://sonic-jenkins.westus2.cloudapp.azure.com/job/broadcom/job/buildimage-brcm-201709/badge/icon)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/broadcom/job/buildimage-brcm-201709/)
+Cavium: [![Cavium](https://sonic-jenkins.westus2.cloudapp.azure.com/job/cavium/job/buildimage-cavm-all/badge/icon)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/cavium/job/buildimage-cavm-all/)
 Centec: [![Centec](https://sonic-jenkins.westus2.cloudapp.azure.com/job/centec/job/buildimage-centec-all/badge/icon)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/centec/job/buildimage-centec-all/)
 Nephos: [![Nephos](https://sonic-jenkins.westus2.cloudapp.azure.com/job/nephos/job/buildimage-nephos-all/badge/icon)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/nephos/job/buildimage-nephos-all/)
 Marvell: [![Marvell](https://sonic-jenkins.westus2.cloudapp.azure.com/job/marvell/job/buildimage-mrvl-all/badge/icon)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/marvell/job/buildimage-mrvl-all/)
+Mellanox: [![Mellanox](https://sonic-jenkins.westus2.cloudapp.azure.com/job/mellanox/job/buildimage-mlnx-201709/badge/icon)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/mellanox/job/buildimage-mlnx-201709/)
 
 # sonic-buildimage
 
