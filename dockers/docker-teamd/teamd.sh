@@ -1,28 +1,15 @@
 #!/usr/bin/env bash
 
-TEAMD_CONF_PATH=/etc/teamd
-
-function start_app {
-    rm -f /var/run/teamd/*
-    if [ "$(ls -A $TEAMD_CONF_PATH)" ]; then
-        for f in $TEAMD_CONF_PATH/*; do
-            teamd -f $f -d
-        done
-    fi
-    teamsyncd &
-}
+TEAMD_CONF_FILE=$1
 
 function clean_up {
-    if [ "$(ls -A $TEAMD_CONF_PATH)" ]; then
-        for f in $TEAMD_CONF_PATH/*; do
-            teamd -f $f -k
-        done
-    fi
-    pkill -9 teamsyncd
-    exit
+    teamd -f $TEAMD_CONF_FILE -k
+    exit $?
 }
 
 trap clean_up SIGTERM SIGKILL
 
-start_app
-read
+teamd -f $TEAMD_CONF_FILE &
+TEAMD_PID=$!
+wait $TEAMD_PID
+exit $?

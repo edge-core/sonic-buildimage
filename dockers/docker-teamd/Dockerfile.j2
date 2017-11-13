@@ -22,11 +22,10 @@ RUN dpkg -i \
 debs/{{ deb }}{{' '}}
 {%- endfor %}
 
-COPY ["start.sh", "teamd.sh", "/usr/bin/"]
-COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
-COPY ["teamd.j2", "/usr/share/sonic/templates/"]
+COPY ["docker-teamd-init.sh", "docker-teamd-start.sh", "teamd.sh", "/usr/bin/"]
+COPY ["docker-teamd.supervisord.conf.j2", "teamd.j2", "/usr/share/sonic/templates/"]
 
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /debs
 
-ENTRYPOINT ["/usr/bin/supervisord"]
+ENTRYPOINT ["/usr/bin/docker-teamd-init.sh"]

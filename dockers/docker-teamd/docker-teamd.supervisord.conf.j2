@@ -1,0 +1,52 @@
+[supervisord]
+logfile_maxbytes=1MB
+logfile_backups=2
+nodaemon=true
+
+[program:docker-teamd-start.sh]
+command=/usr/bin/docker-teamd-start.sh
+priority=1
+autostart=true
+autorestart=false
+stdout_logfile=syslog
+stderr_logfile=syslog
+
+[program:rsyslogd]
+command=/usr/sbin/rsyslogd -n
+priority=2
+autostart=false
+autorestart=false
+stdout_logfile=syslog
+stderr_logfile=syslog
+
+{# If there are LAGs... #}
+{% if lags -%}
+[group:teamd]
+programs=
+{%- set add_preceding_comma = { 'flag': False } -%}
+{%- for lag in lags -%}
+{%- if add_preceding_comma.flag %},{% endif -%}
+{%- set _dummy = add_preceding_comma.update({'flag': True}) -%}
+teamd-{{ lag['name'] }}
+{%- endfor %}
+
+{# Create a program entry for each teamd instance #}
+{% for lag in lags %}
+
+[program:teamd-{{ lag['name'] }}]
+command=/usr/bin/teamd.sh {{ lag['file'] }}
+priority=3
+autostart=false
+autorestart=false
+stdout_logfile=syslog
+stderr_logfile=syslog
+{% endfor %}
+
+[program:teamsyncd]
+command=/usr/bin/teamsyncd
+priority=4
+autostart=false
+autorestart=false
+stdout_logfile=syslog
+stderr_logfile=syslog
+{% endif %}
