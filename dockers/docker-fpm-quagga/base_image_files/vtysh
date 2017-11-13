@@ -1,2 +1,2 @@
 #!/bin/bash
-docker exec -i bgp vtysh "$@"
+docker exec -it bgp vtysh "$@"
