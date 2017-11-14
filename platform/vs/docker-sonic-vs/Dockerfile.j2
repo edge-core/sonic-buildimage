@@ -28,8 +28,8 @@ RUN apt-get install -y net-tools \
                        iproute \
                        libpython2.7
 
-RUN pip install setuptools \
-                py2_ipaddress
+RUN pip install setuptools
+RUN pip install py2_ipaddress
 
 COPY \
 {% for deb in docker_sonic_vs_debs.split(' ') -%}
