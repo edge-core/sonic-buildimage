@@ -46,6 +46,7 @@ dockers/docker-fpm-quagga/Dockerfile
 dockers/docker-lldp-sv2/Dockerfile
 dockers/docker-orchagent/Dockerfile
 dockers/docker-platform-monitor/Dockerfile
+dockers/docker-router-advertiser/Dockerfile
 dockers/docker-snmp-sv2/Dockerfile
 dockers/docker-teamd/Dockerfile
 dockers/docker-sonic-mgmt/Dockerfile

@@ -1,0 +1,32 @@
+FROM docker-config-engine
+
+# Make apt-get non-interactive
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Update apt's cache of available packages
+RUN apt-get update
+
+# Install radvd Debian package
+RUN apt-get -y install radvd
+
+{% if docker_router_advertiser_debs.strip() -%}
+# Copy built Debian packages
+{%- for deb in docker_router_advertiser_debs.split(' ') %}
+COPY debs/{{ deb }} debs/
+{%- endfor %}
+
+# Install built Debian packages and implicitly install their dependencies
+{%- for deb in docker_router_advertiser_debs.split(' ') %}
+RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt debs/{{ deb }}
+{%- endfor %}
+{%- endif %}
+
+# Clean up
+RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
+RUN rm -rf /debs
+
+COPY ["start.sh", "/usr/bin/"]
+COPY ["docker-router-advertiser.supervisord.conf", "/etc/supervisor/conf.d/"]
+COPY ["radvd.conf.j2", "/usr/share/sonic/templates/"]
+
+ENTRYPOINT ["/usr/bin/supervisord"]
