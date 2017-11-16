@@ -33,19 +33,6 @@ class TestJ2Files(TestCase):
         data = json.loads(output)
         self.assertEqual(data["Ethernet4"], "fortyGigE0/4")
 
-    def test_dhcp_relay(self):
-        # Test generation of wait_for_intf.sh
-        template_path = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-dhcp-relay', 'wait_for_intf.sh.j2')
-        argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -t ' + template_path + ' > ' + self.output_file
-        self.run_script(argument)
-        self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', 'wait_for_intf.sh'), self.output_file))
-
-        # Test generation of docker-dhcp-relay.supervisord.conf
-        template_path = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-dhcp-relay', 'docker-dhcp-relay.supervisord.conf.j2')
-        argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -t ' + template_path + ' > ' + self.output_file
-        self.run_script(argument)
-        self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', 'docker-dhcp-relay.supervisord.conf'), self.output_file))
-
     def test_lldp(self):
         lldpd_conf_template = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-lldp-sv2', 'lldpd.conf.j2')
         argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -t ' + lldpd_conf_template + ' > ' + self.output_file
@@ -62,7 +49,7 @@ class TestJ2Files(TestCase):
 
         # Test T0 minigraph
         argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -v "PORTCHANNEL.keys() | join(\' \') if PORTCHANNEL"'
-        output = self.run_script(argument) # Mock the output via docker-teamd-init.sh in docker-teamd
+        output = self.run_script(argument) # Mock the output via config.sh in docker-teamd
         pc_list = output.split()
 
         for i in range(1, 5):
@@ -71,26 +58,15 @@ class TestJ2Files(TestCase):
             sample_output = os.path.join(self.test_dir, 'sample_output', 't0_sample_output', pc_name + '.conf')
             test_render_teamd(self, pc_name, self.t0_minigraph, sample_output)
 
-        # Test port channel test minigraph (for testing proper 'min_ports' attribute generation)
+        # Test port channel test minigraph
         argument = '-m ' + self.pc_minigraph + ' -p ' + self.t0_port_config + ' -v "PORTCHANNEL.keys() | join(\' \') if PORTCHANNEL"'
-        output = self.run_script(argument) # Mock the output via docker-teamd-init.sh in docker-teamd
+        output = self.run_script(argument) # Mock the output via config.sh in docker-teamd
         pc_list = output.split()
 
         pc_name = 'PortChannel01'
         self.assertTrue(pc_name in pc_list)
         sample_output = os.path.join(self.test_dir, 'sample_output', 'pc_sample_output', pc_name + '.conf')
         test_render_teamd(self, pc_name, self.pc_minigraph, sample_output)
-
-        # Test generation of docker-teamd.supervisord.conf
-        template_path = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-teamd', 'docker-teamd.supervisord.conf.j2')
-        teamd_conf_dir = os.path.join(self.test_dir, 'sample_output', 't0_sample_output')
-
-        lags_dict = {}
-        lags_dict['lags'] = [{'name': os.path.basename(file).split('.')[0], 'file': os.path.join(teamd_conf_dir, file)} for file in sorted(os.listdir(teamd_conf_dir))]
-        argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -a \'' + json.dumps(lags_dict) + '\' -t ' + template_path + ' > ' + self.output_file
-
-        self.run_script(argument)
-        self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', 'docker-teamd.supervisord.conf'), self.output_file))
 
     def test_ipinip(self):
         ipinip_file = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-orchagent', 'ipinip.json.j2')
