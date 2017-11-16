@@ -380,7 +380,20 @@ $(DOCKER_LOAD_TARGETS) : $(TARGET_PATH)/%.gz-load : .platform docker-start $$(TA
 ###############################################################################
 
 # targets for building installers with base image
-$(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : .platform onie-image.conf $$(addprefix $(DEBS_PATH)/,$$($$*_DEPENDS)) $$(addprefix $(DEBS_PATH)/,$$($$*_INSTALLS)) $$(addprefix $(FILES_PATH)/,$$($$*_FILES)) $(addprefix $(DEBS_PATH)/,$(INITRAMFS_TOOLS) $(LINUX_KERNEL) $(IGB_DRIVER) $(SONIC_DEVICE_DATA) $(SONIC_UTILS)) $$(addprefix $(TARGET_PATH)/,$$($$*_DOCKERS)) $$(addprefix $(PYTHON_WHEELS_PATH)/,$(SONIC_CONFIG_ENGINE))
+$(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
+        .platform \
+        onie-image.conf \
+        $$(addsuffix -install,$$(addprefix $(DEBS_PATH)/,$$($$*_DEPENDS))) \
+        $$(addprefix $(DEBS_PATH)/,$$($$*_INSTALLS)) \
+        $$(addprefix $(DEBS_PATH)/,$$($$*_LAZY_INSTALLS)) \
+        $$(addprefix $(FILES_PATH)/,$$($$*_FILES)) \
+        $(addprefix $(DEBS_PATH)/,$(INITRAMFS_TOOLS) \
+                $(LINUX_KERNEL) \
+                $(IGB_DRIVER) \
+                $(SONIC_DEVICE_DATA) \
+                $(SONIC_UTILS)) \
+        $$(addprefix $(TARGET_PATH)/,$$($$*_DOCKERS)) \
+        $$(addprefix $(PYTHON_WHEELS_PATH)/,$(SONIC_CONFIG_ENGINE))
 	$(HEADER)
 	# Pass initramfs and linux kernel explicitly. They are used for all platforms
 	export initramfs_tools="$(DEBS_PATH)/$(INITRAMFS_TOOLS)"
@@ -392,8 +405,8 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : .platform
 	export enable_organization_extensions="$(ENABLE_ORGANIZATION_EXTENSIONS)" 
 	export enable_dhcp_graph_service="$(ENABLE_DHCP_GRAPH_SERVICE)"
 	export shutdown_bgp_on_start="$(SHUTDOWN_BGP_ON_START)"
-	export installer_debs="$(addprefix $(DEBS_PATH)/,$($*_DEPENDS))"
-	export lazy_installer_debs="$(foreach deb, $($*_INSTALLS),$(foreach device, $($(deb)_PLATFORM),$(addprefix $(device)@, $(DEBS_PATH)/$(deb))))"
+	export installer_debs="$(addprefix $(DEBS_PATH)/,$($*_INSTALLS))"
+	export lazy_installer_debs="$(foreach deb, $($*_LAZY_INSTALLS),$(foreach device, $($(deb)_PLATFORM),$(addprefix $(device)@, $(DEBS_PATH)/$(deb))))"
 	export installer_images="$(addprefix $(TARGET_PATH)/,$($*_DOCKERS))"
 	export config_engine_wheel_path="$(addprefix $(PYTHON_WHEELS_PATH)/,$(SONIC_CONFIG_ENGINE))"
 	export swsssdk_py2_wheel_path="$(addprefix $(PYTHON_WHEELS_PATH)/,$(SWSSSDK_PY2))"
