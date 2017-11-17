@@ -1,6 +1,6 @@
 # isc-dhcp packages
 
-ISC_DHCP_VERSION = 4.3.1-6
+ISC_DHCP_VERSION = 4.3.3-6
 
 export ISC_DHCP_VERSION
 
