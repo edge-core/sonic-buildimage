@@ -1,0 +1,10 @@
+INTERVAL=5
+DEVPATH=hwmon1=devices/pci0000:00/0000:00:1c.0/0000:06:00.0/i2c-1/1-004c hwmon3=devices/pci0000:ff/0000:ff:0b.3/i2c-85/85-0060
+DEVNAME=hwmon1=max6658 hwmon3=rook_cpld
+FCTEMPS=hwmon3/pwm4=hwmon1/temp1_input hwmon3/pwm3=hwmon1/temp1_input hwmon3/pwm2=hwmon1/temp1_input hwmon3/pwm1=hwmon1/temp1_input
+FCFANS=hwmon3/pwm4=hwmon3/fan4_input hwmon3/pwm3=hwmon3/fan3_input hwmon3/pwm2=hwmon3/fan2_input hwmon3/pwm1=hwmon3/fan1_input
+MINTEMP=hwmon3/pwm4=50 hwmon3/pwm3=50 hwmon3/pwm2=50 hwmon3/pwm1=50
+MINPWM=hwmon3/pwm4=102 hwmon3/pwm3=102 hwmon3/pwm2=102 hwmon3/pwm1=102
+MAXTEMP=hwmon3/pwm4=60 hwmon3/pwm3=60 hwmon3/pwm2=60 hwmon3/pwm1=60
+MINSTART=hwmon3/pwm4=102 hwmon3/pwm3=102 hwmon3/pwm2=102 hwmon3/pwm1=102
+MINSTOP=hwmon3/pwm4=102 hwmon3/pwm3=102 hwmon3/pwm2=102 hwmon3/pwm1=102
