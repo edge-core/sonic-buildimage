@@ -84,7 +84,7 @@ if [ -f /host/image-$sonic_version/platform/firsttime ]; then
     SYSTEM_MAC_ADDRESS=$(ip link show eth0 | grep ether | awk '{print $2}')
 
     # Align last byte of MAC if necessary
-    if [ "$SONIC_ASIC_TYPE" == "mellanox" -o "$SONIC_ASIC_TYPE" == "centec" ]; then
+    if [ "$SONIC_ASIC_TYPE" = "mellanox" ] || [ "$SONIC_ASIC_TYPE" = "centec" ]; then
         last_byte=$(python -c "print '$SYSTEM_MAC_ADDRESS'[-2:]")
         aligned_last_byte=$(python -c "print format(int(int('$last_byte', 16) & 0b11000000), '02x')")  # put mask and take away the 0x prefix
         SYSTEM_MAC_ADDRESS=$(python -c "print '$SYSTEM_MAC_ADDRESS'[:-2] + '$aligned_last_byte'")      # put aligned byte into the end of MAC
