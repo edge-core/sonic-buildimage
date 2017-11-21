@@ -1,27 +1,42 @@
 #!/usr/bin/env bash
 
-function wait_until_iface_exists
+function wait_until_iface_ready
 {
     IFACE=$1
 
-    echo "Waiting for interface ${IFACE}..."
+    echo "Waiting until interface $IFACE is up..."
 
     # Wait for the interface to come up (i.e., 'ip link show' returns 0)
-    until ip link show $IFACE > /dev/null 2>&1; do
+    until ip link show dev $IFACE up > /dev/null 2>&1; do
         sleep 1
     done
 
-    echo "Interface ${IFACE} is created"
+    echo "Interface $IFACE is up"
+
+    echo "Waiting until interface $IFACE has an IPv4 address..."
+
+    # Wait until the interface gets assigned an IPv4 address
+    while true; do
+        IP=$(ip -4 addr show dev $IFACE | grep "inet " | awk '{ print $2 }' | cut -d '/' -f1)
+
+        if [ -n "$IP" ]; then
+            break
+        fi
+
+        sleep 1
+    done
+
+    echo "Interface $IFACE is configured with IP $IP"
 }
 
 
-# Wait for all interfaces to come up before starting the DHCP relay
+# Wait for all interfaces to come up and have IPv4 addresses assigned
 {% for (name, prefix) in INTERFACE %}
-wait_until_iface_exists {{ name }}
+wait_until_iface_ready {{ name }}
 {% endfor %}
 {% for (name, prefix) in VLAN_INTERFACE %}
-wait_until_iface_exists {{ name }}
+wait_until_iface_ready {{ name }}
 {% endfor %}
 {% for (name, prefix) in PORTCHANNEL_INTERFACE %}
-wait_until_iface_exists {{ name }}
+wait_until_iface_ready {{ name }}
 {% endfor %}
