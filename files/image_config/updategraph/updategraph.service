@@ -1,5 +1,6 @@
 [Unit]
 Description=download minigraph from graph service
+After=rc-local.service
 Before=database.service
 
 [Service]
