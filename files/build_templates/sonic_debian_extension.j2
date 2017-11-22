@@ -120,6 +120,11 @@ sudo cp $IMAGE_CONFIGS/interfaces/*.j2 $FILESYSTEM_ROOT/usr/share/sonic/template
 # Copy initial interfaces configuration file, will be overwritten on first boot
 sudo cp $IMAGE_CONFIGS/interfaces/init_interfaces $FILESYSTEM_ROOT/etc/network
 
+# Copy hostname configuration scripts
+sudo cp $IMAGE_CONFIGS/hostname/hostname-config.service  $FILESYSTEM_ROOT/etc/systemd/system/
+sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable hostname-config.service
+sudo cp $IMAGE_CONFIGS/hostname/hostname-config.sh $FILESYSTEM_ROOT/usr/bin/
+
 # Copy updategraph script and service file
 sudo cp $IMAGE_CONFIGS/updategraph/updategraph.service  $FILESYSTEM_ROOT/etc/systemd/system/
 sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable updategraph.service
