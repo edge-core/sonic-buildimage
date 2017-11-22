@@ -112,6 +112,12 @@ if [ -f /host/image-$sonic_version/platform/firsttime ]; then
     else
         # Use default minigraph.xml
         cp /usr/share/sonic/device/$platform/minigraph.xml /etc/sonic/
+        HWSKU=`sonic-cfggen -m /etc/sonic/minigraph.xml -v "DEVICE_METADATA['localhost']['hwsku']"`
+        if [ -f /usr/share/sonic/device/$platform/$HWSKU/qos.json ]; then
+            # merge qos configuration into init config file
+            sonic-cfggen -j /etc/sonic/init_cfg.json -j /usr/share/sonic/device/$platform/$HWSKU/qos.json --print-data > /tmp/init_cfg.json
+            mv /tmp/init_cfg.json /etc/sonic/init_cfg.json
+        fi
         sonic-cfggen -m -j /etc/sonic/init_cfg.json --print-data > /etc/sonic/config_db.json
     fi
 
