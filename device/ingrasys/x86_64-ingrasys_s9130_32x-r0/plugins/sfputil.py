@@ -13,10 +13,10 @@ except ImportError as e:
 class SfpUtil(SfpUtilBase):
     """Platform-specific SfpUtil class"""
 
-    PORT_START = 1
-    PORT_END = 32
+    PORT_START = 0
+    PORT_END = 31
     PORTS_IN_BLOCK = 32
-    EEPROM_OFFSET = 20
+    EEPROM_OFFSET = 21
     ABS_GPIO_BASE_0_15 = 240
     ABS_GPIO_BASE_16_31 = 224
     LP_MODE_GPIO_BASE_0_15 = 176
@@ -61,11 +61,11 @@ class SfpUtil(SfpUtilBase):
 
         # open corrsponding gpio file
         try:
-            if port_num <= 16:
+            if port_num <= 15:
                gpio_base = self.ABS_GPIO_BASE_0_15
             else :
                gpio_base = self.ABS_GPIO_BASE_16_31
-            gpio_index = gpio_base + ((port_num - 1) % 16)
+            gpio_index = gpio_base + (port_num % 16)
             gpio_file_path = self.GPIO_VAL_PATH.format(gpio_index)
             gpio_file = open(gpio_file_path)
         except IOError as e:
@@ -89,11 +89,11 @@ class SfpUtil(SfpUtilBase):
 
         # open corrsponding gpio file
         try:
-            if port_num <= 16:
+            if port_num <= 15:
                 gpio_base = self.LP_MODE_GPIO_BASE_0_15
             else :
                 gpio_base = self.LP_MODE_GPIO_BASE_16_31
-            gpio_index = gpio_base + ((port_num - 1) % 16)
+            gpio_index = gpio_base + (port_num % 16)
             gpio_file_path = self.GPIO_VAL_PATH.format(gpio_index)
             gpio_file = open(gpio_file_path)
         except IOError as e:
@@ -116,11 +116,11 @@ class SfpUtil(SfpUtilBase):
 
         # open corrsponding gpio file
         try:
-            if port_num <= 16:
+            if port_num <= 15:
                 gpio_base = self.LP_MODE_GPIO_BASE_0_15
             else :
                 gpio_base = self.LP_MODE_GPIO_BASE_16_31
-            gpio_index = gpio_base + ((port_num - 1) % 16)
+            gpio_index = gpio_base + (port_num % 16)
             gpio_file_path = self.GPIO_VAL_PATH.format(gpio_index)
             gpio_file = open(gpio_file_path, "r+")
         except IOError as e:
@@ -147,11 +147,11 @@ class SfpUtil(SfpUtilBase):
 
         # open corrsponding gpio file
         try:
-            if port_num <= 16:
+            if port_num <= 15:
                 gpio_base = self.RST_GPIO_BASE_0_15
             else :
                 gpio_base = self.RST_GPIO_BASE_16_31
-            gpio_index = gpio_base + ((port_num - 1) % 16)
+            gpio_index = gpio_base + (port_num % 16)
             gpio_file_path = self.GPIO_VAL_PATH.format(gpio_index)
             gpio_file = open(gpio_file_path, "w")
         except IOError as e:
