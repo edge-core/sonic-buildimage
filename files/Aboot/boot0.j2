@@ -110,24 +110,26 @@ platform_specific() {
     # set varlog size to 100MB
     local varlog_size=100
 
-    # This is temporary as the platform= and sid= parameters don't provide enough
-    # information to identify the SKU
-    # An initramfs hook or a later processing done by the initscripts will be
-    # required to read the system eeprom
+    local flash_size=$(($(df | grep flash | tr -s ' ' | cut -f2 -d' ') / 1000))
+
     if [ "$platform" = "raven" ]; then
         aboot_machine=arista_7050_qx32
+        flash_size=2000
         echo "modprobe.blacklist=radeon" >>/tmp/append
     fi
     if [ "$platform" = "crow" ]; then
         aboot_machine=arista_7050_qx32s
+        flash_size=3700
         echo "modprobe.blacklist=radeon" >>/tmp/append
     fi
     if [ "$sid" = "Upperlake" ] || [ "$sid" = "UpperlakeES" ]; then
         aboot_machine=arista_7060_cx32s
+        flash_size=3700
         echo "amd_iommu=off" >> /tmp/append
     fi
     if [ "$sid" = "Gardena" ] || [ "$sid" = "GardenaSsd" ]; then
         aboot_machine=arista_7260cx3_64
+        flash_size=28000
     fi
     if [ "$platform" = "rook" ]; then
         varlog_size=4096
