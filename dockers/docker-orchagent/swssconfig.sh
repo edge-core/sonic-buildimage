@@ -25,7 +25,7 @@ function fast_reboot {
 # Restore FDB and ARP table ASAP
 fast_reboot
 
-HWSKU=`sonic-cfggen -m /etc/sonic/minigraph.xml -d -v "DEVICE_METADATA['localhost']['hwsku']"`
+HWSKU=`sonic-cfggen -d -v "DEVICE_METADATA['localhost']['hwsku']"`
 
 SWSSCONFIG_ARGS="00-copp.config.json ipinip.json ports.json switch.json "
 
@@ -38,7 +38,7 @@ elif [ "$HWSKU" == "Force10-S6100" ]; then
 elif [ "$HWSKU" == "Arista-7050-QX32" ]; then
     SWSSCONFIG_ARGS+="td2.32ports.buffers.json td2.32ports.qos.json "
 elif [[ "$HWSKU" == "ACS-MSN27"* ]]; then
-    sonic-cfggen -m /etc/sonic/minigraph.xml -t /usr/share/sonic/templates/msn27xx.32ports.buffers.json.j2 > /etc/swss/config.d/msn27xx.32ports.buffers.json
+    sonic-cfggen -d -t /usr/share/sonic/templates/msn27xx.32ports.buffers.json.j2 > /etc/swss/config.d/msn27xx.32ports.buffers.json
     SWSSCONFIG_ARGS+="msn27xx.32ports.buffers.json "
 fi
 
