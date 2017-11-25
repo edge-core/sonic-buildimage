@@ -87,6 +87,9 @@ fixup_flash_permissions() {
     # this allows the sonic admin user to have read access on the flash
     local flash_mnt="$1"
     chmod o+rx "$flash_mnt"
+
+    # remove all the filesystem acls from the flash
+    setfacl -Rb "$flash_mnt"
 }
 
 # Extract kernel parameters
