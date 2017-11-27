@@ -7,6 +7,7 @@ include $(PLATFORM_PATH)/platform-modules-ingrasys.mk
 include $(PLATFORM_PATH)/platform-modules-accton.mk
 include $(PLATFORM_PATH)/platform-modules-inventec.mk
 include $(PLATFORM_PATH)/platform-modules-cel.mk
+include $(PLATFORM_PATH)/platform-modules-delta.mk
 include $(PLATFORM_PATH)/docker-orchagent-brcm.mk
 include $(PLATFORM_PATH)/docker-syncd-brcm.mk
 include $(PLATFORM_PATH)/docker-syncd-brcm-rpc.mk
