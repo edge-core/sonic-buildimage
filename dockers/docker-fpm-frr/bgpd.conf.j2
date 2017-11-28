@@ -23,8 +23,13 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
   bgp bestpath as-path multipath-relax
   no bgp default ipv4-unicast
 {# TODO: use lo[0] for backward compatibility, will revisit the case with multiple lo interfaces #}
-  bgp router-id {{ LOOPBACK_INTERFACE.keys()[0][1] }}
+{% for (name, prefix) in LOOPBACK_INTERFACE %}
+{% if prefix | ipv4 and name == 'Loopback0' %}
+  bgp router-id {{ prefix | ip }}
+{% endif %}
+{% endfor %}
 {# advertise loopback #}
+
 {% for (name, prefix) in LOOPBACK_INTERFACE %}
 {% if prefix | ipv4 %}
   network {{ prefix | ip }}/32
