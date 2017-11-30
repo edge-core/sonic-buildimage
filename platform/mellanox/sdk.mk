@@ -1,10 +1,10 @@
 MLNX_SDK_BASE_URL = https://github.com/Mellanox/SAI-Implementation/raw/564703412781016766b248b98266bd6f2c161431/sdk
 MLNX_SDK_VERSION = 4.2.6011
-MLNX_SDK_RDEBS += $(APPLIBS) $(IPROUTE2) $(SX_ACL_RM) $(SX_COMPLIB) \
+MLNX_SDK_RDEBS += $(APPLIBS) $(IPROUTE2_MLNX) $(SX_ACL_RM) $(SX_COMPLIB) \
 		  $(SX_EXAMPLES) $(SX_GEN_UTILS) $(SX_SCEW) $(SX_SDN_HAL) \
 		  $(SXD_LIBS) $(TESTX)
 
-MLNX_SDK_DEBS += $(APPLIBS_DEV) $(IPROUTE2_DEV) $(SX_ACL_RM_DEV) \
+MLNX_SDK_DEBS += $(APPLIBS_DEV) $(IPROUTE2_MLNX_DEV) $(SX_ACL_RM_DEV) \
 		 $(SX_COMPLIB_DEV) $(SX_COMPLIB_DEV_STATIC) $(SX_EXAMPLES_DEV) \
 		 $(SX_GEN_UTILS_DEV) $(SX_SCEW_DEV) $(SX_SCEW_DEV_STATIC) \
 		 $(SX_SDN_HAL_DEV) $(SX_SDN_HAL_DEV_STATIC) $(SXD_LIBS_DEV) \
@@ -14,9 +14,9 @@ APPLIBS = applibs_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
 $(APPLIBS)_DEPENDS += $(SX_COMPLIB) $(SX_GEN_UTILS) $(SXD_LIBS) $(LIBNL3) $(LIBNL_GENL3)
 APPLIBS_DEV = applibs-dev_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
 $(eval $(call add_derived_package,$(APPLIBS),$(APPLIBS_DEV)))
-IPROUTE2 = iproute2_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
-IPROUTE2_DEV = iproute2-dev_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
-$(eval $(call add_derived_package,$(IPROUTE2),$(IPROUTE2_DEV)))
+IPROUTE2_MLNX = iproute2_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
+IPROUTE2_MLNX_DEV = iproute2-dev_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
+$(eval $(call add_derived_package,$(IPROUTE2_MLNX),$(IPROUTE2_MLNX_DEV)))
 SX_COMPLIB = sx-complib_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
 SX_COMPLIB_DEV = sx-complib-dev_1.mlnx.$(MLNX_SDK_VERSION)_amd64.deb
 $(eval $(call add_derived_package,$(SX_COMPLIB),$(SX_COMPLIB_DEV)))

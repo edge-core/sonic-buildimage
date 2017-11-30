@@ -1,0 +1,7 @@
+# iproute2 package
+
+IPROUTE2_VERSION = 4.9.0-1
+
+IPROUTE2 = iproute2_$(IPROUTE2_VERSION)_amd64.deb
+$(IPROUTE2)_SRC_PATH = $(SRC_PATH)/iproute2
+SONIC_MAKE_DEBS += $(IPROUTE2)

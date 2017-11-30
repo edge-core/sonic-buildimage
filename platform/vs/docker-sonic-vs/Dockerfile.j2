@@ -3,9 +3,13 @@ FROM docker-config-engine
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
+COPY ["sonic-dev.gpg.key", "/etc/apt/"]
+RUN apt-key add /etc/apt/sonic-dev.gpg.key
+RUN echo "deb http://packages.microsoft.com/repos/sonic-dev/ jessie main" >> /etc/apt/sources.list
 RUN apt-get update
 
 RUN apt-get install -y net-tools \
+                       arping \
                        ethtool \
                        tcpdump \
                        ifupdown \
@@ -26,7 +30,15 @@ RUN apt-get install -y net-tools \
                        openssh-server \
                        libc-ares2 \
                        iproute \
-                       libpython2.7
+                       libpython2.7 \
+                       grub2-common \
+                       python-click-default-group \
+                       python-click \
+                       python-natsort \
+                       python-tabulate \
+                       bash-completion \
+                       libelf1 \
+                       libmnl0
 
 RUN pip install setuptools
 RUN pip install py2_ipaddress
@@ -51,6 +63,7 @@ RUN sed -ri 's/^(save .*$)/# \1/g;                                              
              s/^logfile .*$/logfile ""/;                                                \
              s/^# syslog-enabled no$/syslog-enabled no/;                                \
              s/^# unixsocket/unixsocket/;                                               \
+             s/notify-keyspace-events ""/notify-keyspace-events AKE/;                   \
              s/^client-output-buffer-limit pubsub [0-9]+mb [0-9]+mb [0-9]+/client-output-buffer-limit pubsub 0 0 0/ \
             ' /etc/redis/redis.conf
 
@@ -58,7 +71,10 @@ COPY ["50-default.conf", "/etc/rsyslog.d/"]
 COPY ["start.sh", "orchagent.sh", "/usr/bin/"]
 COPY ["brcm.profile.ini", "/usr/share/sonic/device/vswitch/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
+COPY ["files/configdb-load.sh", "/usr/bin/"]
+COPY ["files/arp_update", "/usr/bin"]
 
 RUN echo "docker-sonic-vs" > /etc/hostname
+RUN touch /etc/quagga/zebra.conf
 
 ENTRYPOINT ["/usr/bin/supervisord"]

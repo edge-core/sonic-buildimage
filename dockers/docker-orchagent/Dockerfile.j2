@@ -26,7 +26,8 @@ debs/{{ deb }}{{' '}}
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /debs
 
-COPY ["arp_update", "start.sh", "orchagent.sh", "swssconfig.sh", "/usr/bin/"]
+COPY ["files/arp_update", "/usr/bin"]
+COPY ["start.sh", "orchagent.sh", "swssconfig.sh", "/usr/bin/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 
 ## Copy all Jinja2 template files into the templates folder

@@ -16,3 +16,4 @@ $(DOCKER_ORCHAGENT_MLNX)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
 $(DOCKER_ORCHAGENT_MLNX)_RUN_OPT += -v /var/log/swss:/var/log/swss:rw
 
 $(DOCKER_ORCHAGENT_MLNX)_BASE_IMAGE_FILES += swssloglevel:/usr/bin/swssloglevel
+$(DOCKER_ORCHAGENT_MLNX)_FILES += $(ARP_UPDATE_SCRIPT)

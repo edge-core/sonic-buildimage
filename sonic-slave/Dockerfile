@@ -202,7 +202,17 @@ RUN apt-get update && apt-get install -y \
         libgtest-dev \
         cmake \
 # For python-based swsscommon
-        swig3.0
+        swig3.0 \
+# For iproute2
+        cm-super-minimal \
+        libatm1-dev \
+        libelf-dev \
+        libmnl-dev \
+        libselinux1-dev \
+        linuxdoc-tools \
+        lynx \
+        texlive-latex-extra \
+        texlive-latex-recommended
 
 # For linux build
 RUN apt-get -y build-dep linux
