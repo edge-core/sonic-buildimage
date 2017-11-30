@@ -100,6 +100,10 @@ RUN mkdir /var/run/sshd \
 COPY ["supervisord.conf", "/etc/supervisor/"]
 COPY ["conf.d/supervisord.conf", "conf.d/sshd.conf", "conf.d/ptf_nn_agent.conf", "/etc/supervisor/conf.d/"]
 
+# Move tcpdump into /usr/bin Otherwise it's impossible to run tcpdump due to a docker bug
+RUN mv /usr/sbin/tcpdump /usr/bin/tcpdump
+RUN ln -s /usr/bin/tcpdump /usr/sbin/tcpdump
+
 RUN mkdir -p /var/log/supervisor
 
 EXPOSE 22
