@@ -336,7 +336,7 @@ $(SONIC_INSTALL_WHEELS) : $(PYTHON_WHEELS_PATH)/%-install : .platform $$(addsuff
 
 # start docker daemon
 docker-start :
-	@sudo service docker start &> /dev/null && sleep 1
+	@sudo service docker status &> /dev/null || ( sudo service docker start &> /dev/null && sleep 1 )
 
 # targets for building simple docker images that do not depend on any debian packages
 $(addprefix $(TARGET_PATH)/, $(SONIC_SIMPLE_DOCKER_IMAGES)) : $(TARGET_PATH)/%.gz : .platform docker-start $$(addsuffix -load,$$(addprefix $(TARGET_PATH)/,$$($$*.gz_LOAD_DOCKERS)))
