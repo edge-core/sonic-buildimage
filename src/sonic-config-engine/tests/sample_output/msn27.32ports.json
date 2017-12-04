@@ -27,7 +27,7 @@
         "BUFFER_PROFILE_TABLE:ingress_lossless_profile": {
             "pool":"[BUFFER_POOL_TABLE:ingress_lossless_pool]",
             "size":"0",
-            "dynamic_th":"7"
+            "dynamic_th":"1"
         },
         "OP": "SET"
     },
@@ -42,7 +42,7 @@
     {
         "BUFFER_PROFILE_TABLE:egress_lossless_profile": {
             "pool":"[BUFFER_POOL_TABLE:egress_lossless_pool]",
-            "size":"1518",
+            "size":"0",
             "dynamic_th":"7"
         },
         "OP": "SET"
@@ -59,7 +59,7 @@
         "BUFFER_PROFILE_TABLE:pg_lossy_profile": {
             "pool":"[BUFFER_POOL_TABLE:ingress_lossy_pool]",
             "size":"0",
-            "dynamic_th":"3"
+            "dynamic_th":"7"
         },
         "OP": "SET"
     },
@@ -75,7 +75,7 @@
         "BUFFER_PROFILE_TABLE:q_lossy_profile": {
             "pool":"[BUFFER_POOL_TABLE:egress_lossy_pool]",
             "size":"0",
-            "dynamic_th":"1"
+            "dynamic_th":"7"
         },
         "OP": "SET"
     },
