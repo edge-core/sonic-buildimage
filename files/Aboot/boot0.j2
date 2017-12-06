@@ -132,8 +132,13 @@ platform_specific() {
         flash_size=28000
     fi
     if [ "$platform" = "rook" ]; then
-        varlog_size=4096
         readprefdl -f /tmp/.system-prefdl -d > /mnt/flash/.system-prefdl
+    fi
+
+    if [ $flash_size -ge 28000 ]; then
+        varlog_size=4096
+    elif [ $flash_size -ge 3700 ]; then
+        varlog_size=400
     fi
 
     echo "varlog_size=$varlog_size" >>/tmp/append
