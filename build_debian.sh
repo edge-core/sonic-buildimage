@@ -151,9 +151,6 @@ sudo chmod +x $FILESYSTEM_ROOT/etc/initramfs-tools/hooks/union-fsck
 pushd $FILESYSTEM_ROOT/usr/share/initramfs-tools/scripts/init-bottom && sudo patch -p1 < $OLDPWD/files/initramfs-tools/udev.patch; popd
 sudo chroot $FILESYSTEM_ROOT update-initramfs -u
 
-## Install latest intel igb driver
-sudo cp target/debs/igb.ko $FILESYSTEM_ROOT/lib/modules/${LINUX_KERNEL_VERSION}-amd64/kernel/drivers/net/ethernet/intel/igb/igb.ko
-
 ## Install latest intel ixgbe driver
 sudo cp target/debs/ixgbe.ko $FILESYSTEM_ROOT/lib/modules/3.16.0-5-amd64/kernel/drivers/net/ethernet/intel/ixgbe/ixgbe.ko
 
