@@ -89,6 +89,14 @@ sudo cp -f $IMAGE_CONFIGS/bash/bash.bashrc $FILESYSTEM_ROOT/etc/
 sudo dpkg --root=$FILESYSTEM_ROOT -i target/debs/sonic-device-data_*.deb || \
     sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
 
+# Install pam-tacplus and nss-tacplus
+sudo dpkg --root=$FILESYSTEM_ROOT -i target/debs/libtac2_*.deb
+sudo dpkg --root=$FILESYSTEM_ROOT -i target/debs/libpam-tacplus_*.deb
+sudo dpkg --root=$FILESYSTEM_ROOT -i target/debs/libnss-tacplus_*.deb
+# Disable tacplus by default
+sudo LANG=C chroot $FILESYSTEM_ROOT pam-auth-update --remove tacplus
+sudo sed -i -e '/^passwd/s/ tacplus//' $FILESYSTEM_ROOT/etc/nsswitch.conf
+
 # Copy crontabs
 sudo cp -f $IMAGE_CONFIGS/cron.d/* $FILESYSTEM_ROOT/etc/cron.d/
 

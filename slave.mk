@@ -391,7 +391,9 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
                 $(LINUX_KERNEL) \
                 $(IGB_DRIVER) \
                 $(SONIC_DEVICE_DATA) \
-                $(SONIC_UTILS)) \
+                $(SONIC_UTILS) \
+                $(LIBPAM_TACPLUS) \
+                $(LIBNSS_TACPLUS)) \
         $$(addprefix $(TARGET_PATH)/,$$($$*_DOCKERS)) \
         $$(addprefix $(PYTHON_WHEELS_PATH)/,$(SONIC_CONFIG_ENGINE))
 	$(HEADER)

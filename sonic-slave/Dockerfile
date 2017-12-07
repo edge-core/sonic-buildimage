@@ -204,6 +204,8 @@ RUN apt-get update && apt-get install -y \
 # For gtest
         libgtest-dev \
         cmake \
+# For pam_tacplus build
+        autoconf-archive \
 # For python-based swsscommon
         swig3.0 \
 # For iproute2
