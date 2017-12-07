@@ -306,7 +306,7 @@ $(addprefix $(PYTHON_WHEELS_PATH)/, $(SONIC_PYTHON_WHEELS)) : $(PYTHON_WHEELS_PA
 	pushd $($*_SRC_PATH) $(LOG)
 	# apply series of patches if exist
 	if [ -f ../$(notdir $($*_SRC_PATH)).patch/series ]; then QUILT_PATCHES=../$(notdir $($*_SRC_PATH)).patch quilt push -a; fi
-	python$($*_PYTHON_VERSION) setup.py test $(LOG)
+	[ "$($*_TEST)" = "n" ] || python$($*_PYTHON_VERSION) setup.py test $(LOG)
 	python$($*_PYTHON_VERSION) setup.py bdist_wheel $(LOG)
 	# clean up
 	if [ -f ../$(notdir $($*_SRC_PATH)).patch/series ]; then quilt pop -a -f; fi

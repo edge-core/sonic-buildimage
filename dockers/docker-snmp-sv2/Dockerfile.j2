@@ -7,6 +7,7 @@ COPY [ \
     "/debs/"]
 
 # Install Python SwSSSDK (SNMP subagent dependency)
+COPY python-wheels/sonic_utilities-*-py3-*.whl /python-wheels/
 COPY python-wheels/swsssdk-*-py3-*.whl /python-wheels/
 COPY python-wheels/asyncsnmp-*-py3-*.whl /python-wheels/
 
