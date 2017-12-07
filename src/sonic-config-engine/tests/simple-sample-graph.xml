@@ -243,6 +243,7 @@
           <PortName>0</PortName>
           <Priority>0</Priority>
           <Speed>40000</Speed>
+          <Description>Interface description</Description>
         </a:EthernetInterface>
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
