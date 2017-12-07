@@ -135,6 +135,7 @@ def main():
     parser.add_argument("-j", "--json", help="json file that contains additional variables", action='append', default=[])
     parser.add_argument("-a", "--additional-data", help="addition data, in json string")
     parser.add_argument("-d", "--from-db", help="read config from configdb", action='store_true')
+    parser.add_argument("-s", "--redis-unix-sock-file", help="unix sock file for redis connection")
     group = parser.add_mutually_exclusive_group()
     group.add_argument("-t", "--template", help="render the data with the template file")
     group.add_argument("-v", "--var", help="print the value of a variable, support jinja2 expression")
@@ -150,6 +151,10 @@ def main():
         platform_info = get_platform_info(machine_info)
         if platform_info != None:
             data['platform'] = platform_info
+
+    db_kwargs = {}
+    if args.redis_unix_sock_file != None:
+        db_kwargs['unix_socket_path'] = args.redis_unix_sock_file
 
     if args.minigraph != None:
         minigraph = args.minigraph
@@ -180,7 +185,7 @@ def main():
         deep_update(data, json.loads(args.additional_data))
   
     if args.from_db:
-        configdb = ConfigDBConnector()
+        configdb = ConfigDBConnector(**db_kwargs)
         configdb.connect()
         deep_update(data, FormatConverter.db_to_output(configdb.get_config()))
 
@@ -203,7 +208,7 @@ def main():
         print json.dumps(FormatConverter.to_serialized(data[args.var_json]), indent=4, cls=minigraph_encoder)
 
     if args.write_to_db:
-        configdb = ConfigDBConnector()
+        configdb = ConfigDBConnector(**db_kwargs)
         configdb.connect(False)
         configdb.set_config(FormatConverter.output_to_db(data))
 
