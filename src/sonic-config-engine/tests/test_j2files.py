@@ -9,6 +9,7 @@ class TestJ2Files(TestCase):
     def setUp(self):
         self.test_dir = os.path.dirname(os.path.realpath(__file__))
         self.script_file = os.path.join(self.test_dir, '..', 'sonic-cfggen')
+        self.simple_minigraph = os.path.join(self.test_dir, 'simple-sample-graph.xml')
         self.t0_minigraph = os.path.join(self.test_dir, 't0-sample-graph.xml')
         self.pc_minigraph = os.path.join(self.test_dir, 'pc-test-graph.xml')
         self.t0_port_config = os.path.join(self.test_dir, 't0-sample-port-config.ini')
@@ -32,6 +33,12 @@ class TestJ2Files(TestCase):
         output = self.run_script(argument)
         data = json.loads(output)
         self.assertEqual(data["Ethernet4"], "fortyGigE0/4")
+
+    def test_ports_json(self):
+        ports_template = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-orchagent', 'ports.json.j2')
+        argument = '-m ' + self.simple_minigraph + ' -p ' + self.t0_port_config + ' -t ' + ports_template + ' > ' + self.output_file
+        self.run_script(argument)
+        self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', 'ports.json'), self.output_file))
 
     def test_lldp(self):
         lldpd_conf_template = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-lldp-sv2', 'lldpd.conf.j2')

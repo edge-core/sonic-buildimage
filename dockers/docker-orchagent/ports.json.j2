@@ -4,7 +4,7 @@
 {% if PORT[port].has_key('speed') %}
     {
         "PORT_TABLE:{{ port }}": {
-            "speed": "{{ PORT[port]['speed'] }}"
+            "speed": "{{ PORT[port]['speed'] }}",
             "description": "{{ PORT[port]['description'] }}"
         },
         "OP": "SET"
