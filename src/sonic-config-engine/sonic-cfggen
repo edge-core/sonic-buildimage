@@ -210,7 +210,7 @@ def main():
     if args.write_to_db:
         configdb = ConfigDBConnector(**db_kwargs)
         configdb.connect(False)
-        configdb.set_config(FormatConverter.output_to_db(data))
+        configdb.mod_config(FormatConverter.output_to_db(data))
 
     if args.print_data:
         print json.dumps(FormatConverter.to_serialized(data), indent=4, cls=minigraph_encoder)
