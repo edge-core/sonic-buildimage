@@ -1,13 +1,14 @@
 [
 {% if PORT %}
+{% set ns = {'firstPrinted': False} %}
 {% for port in PORT %}
 {% if PORT[port].has_key('speed') %}
-    {
+    {% if ns.firstPrinted %},{% endif %}{
         "PORT_TABLE:{{ port }}": {
             "speed": "{{ PORT[port]['speed'] }}"
         },
         "OP": "SET"
-    }{% if not loop.last %},{% endif %}
+    }{% if ns.update({'firstPrinted': True}) %} {% endif %}
 
 {% endif %}
 {% endfor %}
