@@ -1,11 +1,47 @@
-FROM docker-base
+FROM docker-config-engine
 
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
+COPY ["sonic-dev.gpg.key", "/etc/apt/"]
+RUN apt-key add /etc/apt/sonic-dev.gpg.key
+RUN echo "deb http://packages.microsoft.com/repos/sonic-dev/ jessie main" >> /etc/apt/sources.list
 RUN apt-get update
 
-RUN apt-get install -y net-tools ethtool tcpdump ifupdown bridge-utils python-ply libqt5core5a libqt5network5 libboost-program-options1.55.0 libboost-system1.55.0 libboost-thread1.55.0 libgmp10 libjudydebian1 libnanomsg0 libdaemon0 libjansson4 libjemalloc1 openssh-client openssh-server libc-ares2 iproute
+RUN apt-get install -y net-tools \
+                       arping \
+                       ethtool \
+                       tcpdump \
+                       ifupdown \
+                       bridge-utils \
+                       python-ply \
+                       libqt5core5a \
+                       libqt5network5 \
+                       libboost-program-options1.55.0 \
+                       libboost-system1.55.0 \
+                       libboost-thread1.55.0 \
+                       libgmp10 \
+                       libjudydebian1 \
+                       libnanomsg0 \
+                       libdaemon0 \
+                       libjansson4 \
+                       libjemalloc1 \
+                       openssh-client \
+                       openssh-server \
+                       libc-ares2 \
+                       iproute \
+                       libpython2.7 \
+                       grub2-common \
+                       python-click-default-group \
+                       python-click \
+                       python-natsort \
+                       python-tabulate \
+                       bash-completion \
+                       libelf1 \
+                       libmnl0
+
+RUN pip install setuptools
+RUN pip install py2_ipaddress
 
 COPY \
 {% for deb in docker_sonic_p4_debs.split(' ') -%}
@@ -18,20 +54,26 @@ RUN dpkg -i \
 debs/{{ deb }}{{' '}}
 {%- endfor %}
 
-ADD port_config.ini /port_config.ini
-ADD startup.sh /scripts/startup.sh
-ADD run_bm.sh /scripts/run_bm.sh
-
-ADD rsyslog.conf /etc/rsyslog.conf
-
 ## Clean up
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /debs
 
-RUN sed -ri 's/^daemonize yes$/daemonize no/;                                           \
+RUN sed -ri 's/^(save .*$)/# \1/g;                                                      \
+             s/^daemonize yes$/daemonize no/;                                           \
              s/^logfile .*$/logfile ""/;                                                \
              s/^# syslog-enabled no$/syslog-enabled no/;                                \
-             s/^# unixsocket/unixsocket/                                                \
+             s/^# unixsocket/unixsocket/;                                               \
+             s/notify-keyspace-events ""/notify-keyspace-events AKE/;                   \
+             s/^client-output-buffer-limit pubsub [0-9]+mb [0-9]+mb [0-9]+/client-output-buffer-limit pubsub 0 0 0/ \
             ' /etc/redis/redis.conf
 
-ENTRYPOINT /bin/bash
+ADD port_config.ini /port_config.ini
+ADD rsyslog.conf /etc/rsyslog.conf
+COPY ["start.sh", "orchagent.sh", "config_bm.sh", "/usr/bin/"]
+COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
+COPY ["files/configdb-load.sh", "/usr/bin/"]
+COPY ["files/arp_update", "/usr/bin"]
+RUN echo "docker-sonic-p4" > /etc/hostname
+RUN touch /etc/quagga/zebra.conf
+
+ENTRYPOINT ["/bin/bash"]
