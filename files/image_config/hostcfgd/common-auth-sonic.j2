@@ -1,0 +1,43 @@
+# THIS IS AN AUTO-GENERATED FILE
+#
+# /etc/pam.d/common-auth- authentication settings common to all services
+# This file is included from other service-specific PAM config files,
+# and should contain a list of the authentication modules that define
+# the central authentication scheme for use on the system
+# (e.g., /etc/shadow, LDAP, Kerberos, etc.). The default is to use the
+# traditional Unix authentication mechanisms.
+#
+# here are the per-package modules (the "Primary" block)
+
+{% if auth['login'] == 'local' %}
+auth	[success=1 default=ignore]	pam_unix.so nullok try_first_pass
+
+{% elif auth['login'] == 'local,tacacs+' %}
+auth	[success=done new_authtok_reqd=done default=ignore{{ ' auth_err=die' if not auth['failthrough'] }}]	pam_unix.so nullok try_first_pass
+{% for server in servers | sub(0, -1) %}
+auth	[success=done new_authtok_reqd=done default=ignore{{ ' auth_err=die' if not auth['failthrough'] }}]	pam_tacplus.so server={{ server.ip }}:{{ server.tcp_port }} secret={{ server.passkey }} login={{ server.auth_type }} timeout={{ server.timeout }} try_first_pass
+{% endfor %}
+{% if servers | count %}
+{% set last_server = servers | last %}
+auth	[success=1 default=ignore]	pam_tacplus.so server={{ last_server.ip }}:{{ last_server.tcp_port }} secret={{ last_server.passkey }} login={{ last_server.auth_type }} timeout={{ last_server.timeout }} try_first_pass
+
+{% endif %}
+{% elif auth['login'] == 'tacacs+' or auth['login'] == 'tacacs+,local' %}
+{% for server in servers %}
+auth	[success=done new_authtok_reqd=done default=ignore{{ ' auth_err=die' if not auth['failthrough'] }}]	pam_tacplus.so server={{ server.ip }}:{{ server.tcp_port }} secret={{ server.passkey }} login={{ server.auth_type }} timeout={{ server.timeout }} try_first_pass
+{% endfor %}
+auth	[success=1 default=ignore]	pam_unix.so nullok try_first_pass
+
+{% else %}
+auth	[success=1 default=ignore]	pam_unix.so nullok try_first_pass
+
+{% endif %}
+#
+# here's the fallback if no module succeeds
+auth    requisite                       pam_deny.so
+# prime the stack with a positive return value if there isn't one already;
+# this avoids us returning an error just because nothing sets a success code
+# since the modules above will each just jump around
+auth    required                        pam_permit.so
+# and here are more per-package modules (the "Additional" block)
+

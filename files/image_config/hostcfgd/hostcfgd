@@ -1,0 +1,172 @@
+#!/usr/bin/python -u
+# -*- coding: utf-8 -*-
+
+import os
+import sys
+import subprocess
+import syslog
+import jinja2
+from swsssdk import ConfigDBConnector
+
+# FILE
+PAM_AUTH_CONF = "/etc/pam.d/common-auth-sonic"
+PAM_AUTH_CONF_TEMPLATE = "/usr/share/sonic/templates/common-auth-sonic.j2"
+NSS_TACPLUS_CONF = "/etc/tacplus_nss.conf"
+NSS_TACPLUS_CONF_TEMPLATE = "/usr/share/sonic/templates/tacplus_nss.conf.j2"
+NSS_CONF = "/etc/nsswitch.conf"
+
+# TACACS+
+TACPLUS_SERVER_PASSKEY_DEFAULT = ""
+TACPLUS_SERVER_TIMEOUT_DEFAULT = "5"
+TACPLUS_SERVER_AUTH_TYPE_DEFAULT = "pap"
+
+
+def is_true(val):
+    if val == 'True' or val == 'true':
+        return True
+    else:
+        return False
+
+
+def sub(l, start, end):
+    return l[start:end]
+
+
+class AaaCfg(object):
+    def __init__(self):
+        self.auth_default = {
+            'login': 'local',
+            'failthrough': True,
+            'fallback': True
+        }
+        self.tacplus_global_default = {
+            'auth_type': TACPLUS_SERVER_AUTH_TYPE_DEFAULT,
+            'timeout': TACPLUS_SERVER_TIMEOUT_DEFAULT,
+            'passkey': TACPLUS_SERVER_PASSKEY_DEFAULT
+        }
+        self.auth = {}
+        self.tacplus_global = {}
+        self.tacplus_servers = {}
+        self.debug = False
+
+    # Load conf from ConfigDb
+    def load(self, aaa_conf, tac_global_conf, tacplus_conf):
+        for row in aaa_conf:
+            self.aaa_update(row, aaa_conf[row], modify_conf=False)
+        for row in tac_global_conf:
+            self.tacacs_global_update(row, tac_global_conf[row], modify_conf=False)
+        for row in tacplus_conf:
+            self.tacacs_server_update(row, tacplus_conf[row], modify_conf=False)
+        self.modify_conf_file()
+
+    def aaa_update(self, key, data, modify_conf=True):
+        if key == 'authentication':
+            self.auth = data
+            if 'failthrough' in data:
+                self.auth['failthrough'] = is_true(data['failthrough'])
+            if 'debug' in data:
+                self.debug = is_true(data['debug'])
+        if modify_conf:
+            self.modify_conf_file()
+
+    def tacacs_global_update(self, key, data, modify_conf=True):
+        if key == 'global':
+            self.tacplus_global = data
+            if modify_conf:
+                self.modify_conf_file()
+
+    def tacacs_server_update(self, key, data, modify_conf=True):
+        if data == {}:
+            if key in self.tacplus_servers:
+                del self.tacplus_servers[key]
+        else:
+            self.tacplus_servers[key] = data
+
+        if modify_conf:
+            self.modify_conf_file()
+
+    def modify_conf_file(self):
+        auth = self.auth_default.copy()
+        auth.update(self.auth)
+        tacplus_global = self.tacplus_global_default.copy()
+        tacplus_global.update(self.tacplus_global)
+
+        servers_conf = []
+        if self.tacplus_servers:
+            for addr in self.tacplus_servers:
+                server = tacplus_global.copy()
+                server['ip'] = addr
+                server.update(self.tacplus_servers[addr])
+                servers_conf.append(server)
+            sorted(servers_conf, key=lambda t: t['priority'], reverse=True)
+
+        template_file = os.path.abspath(PAM_AUTH_CONF_TEMPLATE)
+        env = jinja2.Environment(loader=jinja2.FileSystemLoader('/'), trim_blocks=True)
+        env.filters['sub'] = sub
+        template = env.get_template(template_file)
+        pam_conf = template.render(auth=auth, servers=servers_conf)
+        with open(PAM_AUTH_CONF, 'w') as f:
+            f.write(pam_conf)
+
+        # Modify common-auth include file in /etc/pam.d/login and sshd
+        if os.path.isfile(PAM_AUTH_CONF):
+            os.system("sed -i -e '/^@include/s/common-auth$/common-auth-sonic/' /etc/pam.d/sshd")
+            os.system("sed -i -e '/^@include/s/common-auth$/common-auth-sonic/' /etc/pam.d/login")
+        else:
+            os.system("sed -i -e '/^@include/s/common-auth-sonic$/common-auth/' /etc/pam.d/sshd")
+            os.system("sed -i -e '/^@include/s/common-auth-sonic$/common-auth/' /etc/pam.d/login")
+
+        # Add tacplus in nsswitch.conf if TACACS+ enable
+        if 'tacacs+' in auth['login']:
+            if os.path.isfile(NSS_CONF):
+                os.system("sed -i -e '/tacplus/b' -e '/^passwd/s/compat/& tacplus/' /etc/nsswitch.conf")
+        else:
+            if os.path.isfile(NSS_CONF):
+                os.system("sed -i -e '/^passwd/s/ tacplus//' /etc/nsswitch.conf")
+
+        # Set tacacs+ server in nss-tacplus conf
+        template_file = os.path.abspath(NSS_TACPLUS_CONF_TEMPLATE)
+        template = env.get_template(template_file)
+        nss_tacplus_conf = template.render(debug=self.debug, servers=servers_conf)
+        with open(NSS_TACPLUS_CONF, 'w') as f:
+            f.write(nss_tacplus_conf)
+
+
+class HostConfigDaemon:
+    def __init__(self):
+        self.config_db = ConfigDBConnector()
+        self.config_db.connect(wait_for_init=True, retry_on=True)
+        syslog.syslog(syslog.LOG_INFO, 'ConfigDB connect success')
+        aaa = self.config_db.get_table('AAA')
+        tacacs_global = self.config_db.get_table('TACPLUS')
+        tacacs_server = self.config_db.get_table('TACPLUS_SERVER')
+        self.aaacfg = AaaCfg()
+        self.aaacfg.load(aaa, tacacs_global, tacacs_server)
+
+    def aaa_handler(self, key, data):
+        syslog.syslog(syslog.LOG_DEBUG, 'value for {} changed to {}'.format(key, data))
+        self.aaacfg.aaa_update(key, data)
+
+    def tacacs_server_handler(self, key, data):
+        syslog.syslog(syslog.LOG_DEBUG, 'value for {} changed to {}'.format(key, data))
+        self.aaacfg.tacacs_server_update(key, data)
+
+    def tacacs_global_handler(self, key, data):
+        syslog.syslog(syslog.LOG_DEBUG, 'value for {} changed to {}'.format(key, data))
+        self.aaacfg.tacacs_global_update(key, data)
+
+    def start(self):
+        self.config_db.subscribe('AAA', lambda table, key, data: self.aaa_handler(key, data))
+        self.config_db.subscribe('TACPLUS_SERVER', lambda table, key, data: self.tacacs_server_handler(key, data))
+        self.config_db.subscribe('TACPLUS', lambda table, key, data: self.tacacs_global_handler(key, data))
+        self.config_db.listen()
+
+
+def main():
+    daemon = HostConfigDaemon()
+    daemon.start()
+
+
+if __name__ == "__main__":
+    main()
+

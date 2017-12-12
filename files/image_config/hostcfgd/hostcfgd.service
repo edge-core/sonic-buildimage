@@ -1,0 +1,11 @@
+[Unit]
+Description=Host config enforcer daemon
+Requires=database.service
+After=database.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/hostcfgd
+
+[Install]
+WantedBy=multi-user.target
