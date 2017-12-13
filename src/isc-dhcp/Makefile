@@ -12,14 +12,17 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# Clone isc-dhcp repo
 	git clone https://anonscm.debian.org/cgit/pkg-dhcp/isc-dhcp.git
 	pushd ./isc-dhcp
-	git checkout -f debian/$(ISC_DHCP_VERSION)
-	popd
 
-	# Apply patch
-	patch -p1 < isc-dhcp-$(ISC_DHCP_VERSION)_dhcrelay-custom-circuit_id-remote_id-and-bridge-iface-support.patch
+	# Reset HEAD to the commit of the proper tag
+	# NOTE: Using "git checkout <tag_name>" here detaches our HEAD,
+	# which stg doesn't like, so we use this method instead
+	git reset --hard debian/$(ISC_DHCP_VERSION)
+
+	# Apply patches
+	stg init
+	stg import -s ../patch/series
 
 	# Build source and Debian packages
-	pushd ./isc-dhcp
 	dpkg-buildpackage -rfakeroot -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS)
 	popd
 
