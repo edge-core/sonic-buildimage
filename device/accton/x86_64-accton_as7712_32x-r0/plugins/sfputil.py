@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 try:
+    import time
     from sonic_sfp.sfputilbase import SfpUtilBase 
 except ImportError, e:
     raise ImportError (str(e) + "- required module not found")
@@ -59,14 +60,33 @@ class SfpUtil(SfpUtilBase):
         SfpUtilBase.__init__(self)
 
     def reset(self, port_num):
-         return True
-    def set_low_power_mode(self, port_nuM, lpmode):
-         return True
-    def get_low_power_mode(self, port_num):
-         return True
+        # Check for invalid port_num
+        if port_num < self._port_start or port_num > self._port_end:
+            return False
 
-#    def get_presence(self, port_num):
-#         return True
+        path = "/sys/bus/i2c/devices/{0}-0050/sfp_port_reset"
+        port_ps = path.format(self.port_to_i2c_mapping[port_num+1])
+          
+        try:
+            reg_file = open(port_ps, 'w')
+        except IOError as e:
+            print "Error: unable to open file: %s" % str(e)
+            return False
+
+        #toggle reset
+        reg_file.seek(0)
+        reg_file.write('1')
+        time.sleep(1)
+        reg_file.seek(0)
+        reg_file.write('0')
+        reg_file.close()
+        return True
+
+    def set_low_power_mode(self, port_nuM, lpmode):
+        raise NotImplementedErro
+
+    def get_low_power_mode(self, port_num):
+        raise NotImplementedErro
         
     def get_presence(self, port_num):
         # Check for invalid port_num
