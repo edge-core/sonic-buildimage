@@ -18,6 +18,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	git apply ../0001-libteam-Add-team_get_port_enabled-function.patch
 	git apply ../0002-libteam-Temporarily-remove-redundant-debug-mes.patch
 	git apply ../0003-teamd-lacp-runner-will-send-lacp-update-right-after-.patch
+	git apply ../0004-libteam-Add-lacp-fallback-support-for-single-member-.patch
 	popd
 
 	# Obtain debian packaging

@@ -148,7 +148,10 @@ def parse_dpg(dpg, hname):
             pcmbr_list = pcintfmbr.split(';')
             for i, member in enumerate(pcmbr_list):
                 pcmbr_list[i] = port_alias_map.get(member, member)
-            pcs[pcintfname] = {'members': pcmbr_list}
+            if pcintf.find(str(QName(ns, "Fallback"))) != None:
+                pcs[pcintfname] = {'members': pcmbr_list, 'fallback': pcintf.find(str(QName(ns, "Fallback"))).text}
+            else:
+                pcs[pcintfname] = {'members': pcmbr_list}
 
         vlanintfs = child.find(str(QName(ns, "VlanInterfaces")))
         vlan_intfs = []
