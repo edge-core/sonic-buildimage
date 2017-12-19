@@ -1,14 +1,14 @@
-From 42319f1b56ba6362c874cd64383a055ba6498bee Mon Sep 17 00:00:00 2001
+From 284c87ff4b3873d0215904273fe3c86b07b4ba94 Mon Sep 17 00:00:00 2001
 From: Joe LeVeque <jolevequ@microsoft.com>
 Date: Mon, 11 Dec 2017 23:21:08 +0000
 Subject: [PATCH 1/3] Customizable Option 82 circuit ID and remote ID fields
 
 ---
- relay/dhcrelay.c | 172 +++++++++++++++++++++++++++++++++++++++++++++++--------
- 1 file changed, 147 insertions(+), 25 deletions(-)
+ relay/dhcrelay.c | 182 ++++++++++++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 152 insertions(+), 30 deletions(-)
 
 diff --git a/relay/dhcrelay.c b/relay/dhcrelay.c
-index 15b4997..a26efca 100644
+index 15b4997..b9f8326 100644
 --- a/relay/dhcrelay.c
 +++ b/relay/dhcrelay.c
 @@ -73,6 +73,8 @@ int bad_circuit_id = 0;		/* Circuit ID option in matching RAI option
@@ -158,9 +158,12 @@ index 15b4997..a26efca 100644
   * Examine a packet to see if it's a candidate to have a Relay
   * Agent Information option tacked onto its tail.   If it is, tack
   * the option on.
-@@ -948,6 +1044,9 @@ add_relay_agent_options(struct interface_info *ip, struct dhcp_packet *packet,
+@@ -946,8 +1042,11 @@ static int
+ add_relay_agent_options(struct interface_info *ip, struct dhcp_packet *packet,
+ 			unsigned length, struct in_addr giaddr) {
  	int is_dhcp = 0, mms;
- 	unsigned optlen;
+-	unsigned optlen;
++	unsigned optlen = 0;
  	u_int8_t *op, *nextop, *sp, *max, *end_pad = NULL;
 +    char circuit_id_buf[256] = { '\0' };
 +    char remote_id_buf[256] = { '\0' };
@@ -177,16 +180,32 @@ index 15b4997..a26efca 100644
 -		log_fatal("Circuit ID length %d out of range [1-255] on "
 -			  "%s\n", ip->circuit_id_len, ip->name);
 -	optlen = ip->circuit_id_len + 2;            /* RAI_CIRCUIT_ID + len */
+-
+-	if (ip->remote_id) {
+-		if (ip->remote_id_len > 255 || ip->remote_id_len < 1)
+-			log_fatal("Remote ID length %d out of range [1-255] "
+-				  "on %s\n", ip->circuit_id_len, ip->name);
+-		optlen += ip->remote_id_len + 2;    /* RAI_REMOTE_ID + len */
+-	}
 +    /* option82: custom string for circuit_id */
 +    if (agent_circuit_id_fmt) {
 +        circuit_id_len = format_relay_agent_rfc3046_msg(ip, packet, agent_circuit_id_fmt,
 +                                             circuit_id_buf, sizeof(circuit_id_buf));
 +
-+        if (circuit_id_len == 0)
++        if (circuit_id_len == 0) {
 +            strncpy(circuit_id_buf, ip->name, sizeof(ip->name));
++            circuit_id_len = strlen(circuit_id_buf);
++        }
++
++        /* Sanity check. Had better not ever happen. */
++        if (circuit_id_len > 255 || circuit_id_len < 1)
++            log_fatal("Circuit ID length %d out of range [1-255] on %s\n",
++                      (int)circuit_id_len, ip->name);
++
++        optlen = circuit_id_len + 2;  // RAI_CIRCUIT_ID + len
 +
 +        //log_debug("Sending on %s option82:circuit_id='%s' (%d)",
-+        //          ip->name, circuit_id_buf, circuit_id_len);
++        //          ip->name, circuit_id_buf, (int)circuit_id_len);
 +    }
 +
 +    /* option82: custom string for remote_id */
@@ -194,28 +213,15 @@ index 15b4997..a26efca 100644
 +        remote_id_len = format_relay_agent_rfc3046_msg(ip, packet, agent_remote_id_fmt,
 +                                             remote_id_buf, sizeof(remote_id_buf));
 +
++        if (remote_id_len > 255 || remote_id_len < 1)
++            log_fatal("Remote ID length %d out of range [1-255] on %s\n",
++                      (int)remote_id_len, ip->name);
++
++        optlen += remote_id_len + 2;  // RAI_REMOTE_ID + len
++
 +        //log_debug("Sending on %s option82:remote_id='%s' (%d)",
-+        //          ip->name, remote_id_buf, remote_id_len);
++        //          ip->name, remote_id_buf, (int)remote_id_len);
 +    }
-+
-+	/* Sanity check. Had better not ever happen. */
-+	if (circuit_id_len > 255 || circuit_id_len < 1)
-+		log_fatal("Circuit ID length %d out of range [1-255] on %s\n",
-+                  circuit_id_len, ip->name);
-+
-+	optlen = circuit_id_len + 2;  // RAI_CIRCUIT_ID + len
- 
- 	if (ip->remote_id) {
--		if (ip->remote_id_len > 255 || ip->remote_id_len < 1)
--			log_fatal("Remote ID length %d out of range [1-255] "
--				  "on %s\n", ip->circuit_id_len, ip->name);
--		optlen += ip->remote_id_len + 2;    /* RAI_REMOTE_ID + len */
-+		if (remote_id_len > 255 || remote_id_len < 1)
-+			log_fatal("Remote ID length %d out of range [1-255] on %s\n",
-+                      remote_id_len, ip->name);
-+
-+		optlen += remote_id_len + 2;  // RAI_REMOTE_ID + len
- 	}
  
 -	/* We do not support relay option fragmenting(multiple options to
 -	 * support an option data exceeding 255 bytes).
@@ -250,7 +256,8 @@ index 15b4997..a26efca 100644
 +		sp += circuit_id_len;
  
  		/* Copy in remote ID... */
- 		if (ip->remote_id) {
+-		if (ip->remote_id) {
++		if (remote_id_len > 0) {
  			*sp++ = RAI_REMOTE_ID;
 -			*sp++ = ip->remote_id_len;
 -			memcpy(sp, ip->remote_id, ip->remote_id_len);

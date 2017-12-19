@@ -1,4 +1,4 @@
-From 18ca48b7c307e1644f653df4c8503f4ce2677f62 Mon Sep 17 00:00:00 2001
+From caad3e05c31c9fad8cda378ce95a1969def771a2 Mon Sep 17 00:00:00 2001
 From: Joe LeVeque <jolevequ@microsoft.com>
 Date: Mon, 11 Dec 2017 23:39:10 +0000
 Subject: [PATCH 2/3] Support for obtaining name of physical interface that is
@@ -9,7 +9,7 @@ Subject: [PATCH 2/3] Support for obtaining name of physical interface that is
  1 file changed, 67 insertions(+), 2 deletions(-)
 
 diff --git a/relay/dhcrelay.c b/relay/dhcrelay.c
-index a26efca..84ec79d 100644
+index b9f8326..8458ea9 100644
 --- a/relay/dhcrelay.c
 +++ b/relay/dhcrelay.c
 @@ -758,6 +758,7 @@ do_relay4(struct interface_info *ip, struct dhcp_packet *packet,
@@ -63,7 +63,7 @@ index a26efca..84ec79d 100644
 +    if (cmd != NULL) {
 +        while (fgets(buf, sizeof(buf), cmd)) {
 +            sscanf(buf, FDB_LINE_FORMAT, macAddr, interface, vlanid);
-+            //log_debug("bridgefdbquery: macAddr:%s interface: %s vlanid %d",
++            //log_debug("bridgefdbquery: macAddr: %s interface: %s vlanid: %d",
 +            //          macAddr, interface, *vlanid);
 +        }
 +        pclose(cmd);

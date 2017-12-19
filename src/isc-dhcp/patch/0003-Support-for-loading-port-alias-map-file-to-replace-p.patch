@@ -1,15 +1,15 @@
-From 3be065305283b90ddfef92a8736221cbf7cf06e0 Mon Sep 17 00:00:00 2001
+From 3a42b497716375c9347b51c3a28c5e91e7cd4cf4 Mon Sep 17 00:00:00 2001
 From: Joe LeVeque <jolevequ@microsoft.com>
 Date: Tue, 12 Dec 2017 00:49:09 +0000
-Subject: [PATCH 3/3] Support for loading port alias map file to replace
- port name with alias in circuit id
+Subject: [PATCH 3/3] Support for loading port alias map file to replace port
+ name with alias in circuit id
 
 ---
- relay/dhcrelay.c | 103 ++++++++++++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 102 insertions(+), 1 deletion(-)
+ relay/dhcrelay.c | 106 ++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 105 insertions(+), 1 deletion(-)
 
 diff --git a/relay/dhcrelay.c b/relay/dhcrelay.c
-index 84ec79d..0b56e2d 100644
+index 8458ea9..15f0acf 100644
 --- a/relay/dhcrelay.c
 +++ b/relay/dhcrelay.c
 @@ -122,6 +122,14 @@ static void setup_streams(void);
@@ -81,24 +81,34 @@ index 84ec79d..0b56e2d 100644
  	return (0);
  }
  
-@@ -1056,6 +1077,16 @@ format_relay_agent_rfc3046_msg(const struct interface_info *ip, struct dhcp_pack
+@@ -1040,6 +1061,7 @@ format_relay_agent_rfc3046_msg(const struct interface_info *ip, struct dhcp_pack
+                     */
+                     if (packet->htype && !packet->giaddr.s_addr) {
+                         int ret = 0, vlanid = 0;
++                        char ifalias[IFNAMSIZ] = { 0 };
+ 
+                         ret = _bridgefdbquery(print_hw_addr(packet->htype, packet->hlen, packet->chaddr),
+                                               ifname,
+@@ -1056,6 +1078,18 @@ format_relay_agent_rfc3046_msg(const struct interface_info *ip, struct dhcp_pack
                              strncpy(ifname, ip->name, IFNAMSIZ);
                          }
  
 +                        // Attempt to translate SONiC interface name to vendor alias
-+                        if (get_interface_alias_by_name(ip->name, ifname) < 0) {
-+                            //log_debug("Failed to retrieve alias for interface name '%s'. Defaulting to interface name.", ip->name);
-+                            strncpy(ifname, ip->name, IFNAMSIZ);
++                        ret = get_interface_alias_by_name(ifname, ifalias);
++                        if (ret < 0) {
++                            //log_debug("Failed to retrieve alias for interface name '%s'. Defaulting to interface name.", ifname);
 +                        }
 +                        else {
 +                            //log_debug("Mapped interface name '%s' to alias '%s'. Adding as option 82 interface alias for MAC Address %s",
-+                            //          ip->name, ifname, print_hw_addr (packet->htype, packet->hlen, packet->chaddr),
++                            //          ifname, ifalias, print_hw_addr (packet->htype, packet->hlen, packet->chaddr));
++
++                            strncpy(ifname, ifalias, IFNAMSIZ);
 +                        }
 +
                          str = ifname;
                      }
                  break;
-@@ -1922,3 +1953,73 @@ dhcp_set_control_state(control_object_state_t oldstate,
+@@ -1922,3 +1956,73 @@ dhcp_set_control_state(control_object_state_t oldstate,
  
  	exit(0);
  }
