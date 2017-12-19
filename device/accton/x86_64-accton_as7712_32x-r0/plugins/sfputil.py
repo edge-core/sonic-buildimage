@@ -83,10 +83,10 @@ class SfpUtil(SfpUtilBase):
         return True
 
     def set_low_power_mode(self, port_nuM, lpmode):
-        raise NotImplementedErro
+        raise NotImplementedError
 
     def get_low_power_mode(self, port_num):
-        raise NotImplementedErro
+        raise NotImplementedError
         
     def get_presence(self, port_num):
         # Check for invalid port_num
