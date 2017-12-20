@@ -1,0 +1,30 @@
+From 7fe46584c3d9cb6b1ecdee47ff5ac2b777f96ec6 Mon Sep 17 00:00:00 2001
+From: Joe LeVeque <jolevequ@microsoft.com>
+Date: Wed, 20 Dec 2017 02:18:10 +0000
+Subject: [PATCH 1/4] Always undef VLAN_TCI_PRESENT so as not to treat
+ VLAN-tagged packets differently
+
+---
+ configure.ac | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 3f1415b..fcfeba0 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -600,9 +600,9 @@ AC_CHECK_MEMBER(struct msghdr.msg_control,,
+ #include <sys/socket.h>
+ 	])
+ 
+-AC_CHECK_MEMBER(struct tpacket_auxdata.tp_vlan_tci,
+-    [AC_DEFINE([VLAN_TCI_PRESENT], [1], [tpacket_auxdata.tp_vlan_tci present])]
+-    ,, [#include <linux/if_packet.h>])
++#AC_CHECK_MEMBER(struct tpacket_auxdata.tp_vlan_tci,
++#    [AC_DEFINE([VLAN_TCI_PRESENT], [1], [tpacket_auxdata.tp_vlan_tci present])]
++#    ,, [#include <linux/if_packet.h>])
+ 
+ libbind=
+ AC_ARG_WITH(libbind,
+-- 
+2.1.4
+
