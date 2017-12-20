@@ -17,6 +17,9 @@ function postStartAction()
         sleep 1
     done
 {%- endif %}
+{%- if docker_container_name == "snmp" %}
+    docker exec -i database redis-cli -n 6 HSET 'DEVICE_METADATA|localhost' chassis_serial_number $(decode-syseeprom -s)
+{%- endif %}
 }
 
 # Obtain our platform as we will mount directories with these names in each docker
