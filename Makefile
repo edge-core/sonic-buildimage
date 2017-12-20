@@ -13,6 +13,7 @@
 #  * PASSWORD: Desired password -- default at rules/config
 #  * KEEP_SLAVE_ON: Keeps slave container up after building-process concludes.
 #  * SOURCE_FOLDER: host path to be mount as /var/src, only effective when KEEP_SLAVE_ON=yes
+#  * SONIC_BUILD_JOB: Specifying number of concurrent build job(s) to run
 #
 ###############################################################################
 
@@ -59,7 +60,8 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            SHUTDOWN_BGP_ON_START=$(SHUTDOWN_BGP_ON_START) \
                            ENABLE_SYNCD_RPC=$(ENABLE_SYNCD_RPC) \
                            PASSWORD=$(PASSWORD) \
-                           USERNAME=$(USERNAME)
+                           USERNAME=$(USERNAME) \
+                           SONIC_BUILD_JOBS=$(SONIC_BUILD_JOBS)
 
 .PHONY: sonic-slave-build sonic-slave-bash init
 

@@ -74,7 +74,11 @@ ifeq ($(PASSWORD),)
 override PASSWORD := $(DEFAULT_PASSWORD)
 endif
 
-MAKEFLAGS += -j $(SONIC_CONFIG_BUILD_JOBS)
+ifeq ($(SONIC_BUILD_JOBS),)
+override SONIC_BUILD_JOBS := $(SONIC_CONFIG_BUILD_JOBS)
+endif
+
+MAKEFLAGS += -j $(SONIC_BUILD_JOBS)
 export SONIC_CONFIG_MAKE_JOBS
 
 ###############################################################################
@@ -86,7 +90,7 @@ $(info )
 $(info Build Configuration)
 $(info "CONFIGURED_PLATFORM"             : "$(if $(PLATFORM),$(PLATFORM),$(CONFIGURED_PLATFORM))")
 $(info "SONIC_CONFIG_PRINT_DEPENDENCIES" : "$(SONIC_CONFIG_PRINT_DEPENDENCIES)")
-$(info "SONIC_CONFIG_BUILD_JOBS"         : "$(SONIC_CONFIG_BUILD_JOBS)")
+$(info "SONIC_BUILD_JOBS"                : "$(SONIC_BUILD_JOBS)")
 $(info "SONIC_CONFIG_MAKE_JOBS"          : "$(SONIC_CONFIG_MAKE_JOBS)")
 $(info "DEFAULT_USERNAME"                : "$(DEFAULT_USERNAME)")
 $(info "DEFAULT_PASSWORD"                : "$(DEFAULT_PASSWORD)")
