@@ -21,6 +21,7 @@ Cmnd_Alias      READ_ONLY_CMDS = /usr/bin/decode-syseeprom, \
                                  /usr/bin/docker images *, \
                                  /usr/bin/docker exec -it snmp cat /etc/snmp/snmpd.conf, \
                                  /usr/bin/docker exec -it bgp cat /etc/quagga/bgpd.conf, \
+                                 /usr/bin/docker ps, \
                                  /usr/bin/generate_dump, \
                                  /usr/bin/lldpctl, \
                                  /usr/bin/lldpshow, \
