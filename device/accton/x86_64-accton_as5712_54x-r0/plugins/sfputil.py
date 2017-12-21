@@ -16,12 +16,13 @@ class SfpUtil(SfpUtilBase):
     PORT_START = 0
     PORT_END = 71
     PORTS_IN_BLOCK = 72
-    QSFP_PORT_START = 72
+    QSFP_PORT_START = 48
     QSFP_PORT_END = 72
 
     BASE_VAL_PATH = "/sys/class/i2c-adapter/i2c-{0}/{1}-0050/"
 
     _port_to_is_present = {}
+    _port_to_lp_mode = {}
 
     _port_to_eeprom_mapping = {}
     _port_to_i2c_mapping = {
@@ -108,6 +109,14 @@ class SfpUtil(SfpUtilBase):
         return self.PORT_END
 
     @property
+    def qsfp_port_start(self):
+        return self.QSFP_PORT_START
+
+    @property
+    def qsfp_port_end(self):
+        return self.QSFP_PORT_END
+    
+    @property
     def qsfp_ports(self):
         return range(self.QSFP_PORT_START, self.PORTS_IN_BLOCK + 1)
 
@@ -148,11 +157,66 @@ class SfpUtil(SfpUtilBase):
 
         return False
 
-    def get_low_power_mode(self, port_num):
-        raise NotImplementedError
+    def get_low_power_mode(self, port_num):             
+        if port_num < self.qsfp_port_start or port_num > self.qsfp_port_end:
+            return False
+        
+        lp_mode_path = self.BASE_VAL_PATH + "sfp_lp_mode"        
+        self.__port_to_lp_mode = lp_mode_path.format(self._port_to_i2c_mapping[port_num][0], self._port_to_i2c_mapping[port_num][1])
+        
+        try:
+            val_file = open(self.__port_to_lp_mode)
+        except IOError as e:
+            print "Error: unable to open file: %s" % str(e)          
+            return False
 
-    def set_low_power_mode(self, port_num, lpmode):
-        raise NotImplementedError
+        content = val_file.readline().rstrip()
+        val_file.close()
+
+        # content is a string, either "0" or "1"
+        if content == "1":
+            return True
+
+        return False
+
+    def set_low_power_mode(self, port_num, lpmode):                
+        if port_num < self.qsfp_port_start or port_num > self.qsfp_port_end:
+            return False    
+              
+        lp_mode_path = self.BASE_VAL_PATH + "sfp_lp_mode"     
+        self.__port_to_lp_mode = lp_mode_path.format(self._port_to_i2c_mapping[port_num][0], self._port_to_i2c_mapping[port_num][1])
+        
+        try:
+            reg_file = open(self.__port_to_lp_mode, 'r+')
+        except IOError as e:
+            print "Error: unable to open file: %s" % str(e)          
+            return False
+
+        if lpmode is True:
+            reg_value = '1'
+        else:
+            reg_value = '0'
+
+        reg_file.write(reg_value)
+        reg_file.close()
+
+        return True
 
     def reset(self, port_num):
-        raise NotImplementedError
+        if port_num < self.qsfp_port_start or port_num > self.qsfp_port_end:
+            return False
+         
+        mod_rst_path = self.BASE_VAL_PATH + "sfp_mod_rst"
+        self.__port_to_mod_rst = mod_rst_path.format(self._port_to_i2c_mapping[port_num][0], self._port_to_i2c_mapping[port_num][1])
+        try:
+            reg_file = open(self.__port_to_mod_rst, 'r+')
+        except IOError as e:
+            print "Error: unable to open file: %s" % str(e)          
+            return False
+
+        reg_value = '1'
+
+        reg_file.write(reg_value)
+        reg_file.close()
+        
+        return True
