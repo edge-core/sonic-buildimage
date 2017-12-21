@@ -63,7 +63,7 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            USERNAME=$(USERNAME) \
                            SONIC_BUILD_JOBS=$(SONIC_BUILD_JOBS)
 
-.PHONY: sonic-slave-build sonic-slave-bash init
+.PHONY: sonic-slave-build sonic-slave-bash init reset
 
 .DEFAULT_GOAL :=  all
 
@@ -98,5 +98,18 @@ sonic-slave-bash :
 	@$(DOCKER_RUN) -t $(SLAVE_IMAGE):$(SLAVE_TAG) bash
 
 init :
-	git submodule update --init --recursive
-	git submodule foreach --recursive '[ -f .git ] && echo "gitdir: $$(realpath --relative-to=. $$(cut -d" " -f2 .git))" > .git'
+	@git submodule update --init --recursive
+	@git submodule foreach --recursive '[ -f .git ] && echo "gitdir: $$(realpath --relative-to=. $$(cut -d" " -f2 .git))" > .git'
+
+reset :
+	@echo && echo -n "Warning! All local changes will be lost. Proceed? [y/N]: "
+	@read ans && \
+	 if [ $$ans == y ]; then \
+	     git clean -xfdf; \
+	     git reset --hard; \
+	     git submodule foreach --recursive git clean -xfdf; \
+	     git submodule foreach --recursive git reset --hard; \
+	     git submodule update --init --recursive;\
+	 else \
+	     echo "Reset aborted"; \
+	 fi
