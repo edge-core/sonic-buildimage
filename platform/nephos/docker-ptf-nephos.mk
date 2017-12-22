@@ -1,0 +1,7 @@
+# docker image for docker-ptf-nephos
+
+DOCKER_PTF_NEPHOS = docker-ptf-nephos.gz
+$(DOCKER_PTF_NEPHOS)_PATH = $(DOCKERS_PATH)/docker-ptf-saithrift
+$(DOCKER_PTF_NEPHOS)_DEPENDS += $(PYTHON_SAITHRIFT_NEPHOS)
+$(DOCKER_PTF_NEPHOS)_LOAD_DOCKERS += $(DOCKER_PTF)
+#SONIC_DOCKER_IMAGES += $(DOCKER_PTF_NEPHOS)

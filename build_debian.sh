@@ -144,6 +144,9 @@ sudo chroot $FILESYSTEM_ROOT update-initramfs -u
 ## Install latest intel igb driver
 sudo cp target/debs/igb.ko $FILESYSTEM_ROOT/lib/modules/3.16.0-4-amd64/kernel/drivers/net/ethernet/intel/igb/igb.ko
 
+## Install latest intel ixgbe driver
+sudo cp target/debs/ixgbe.ko $FILESYSTEM_ROOT/lib/modules/3.16.0-4-amd64/kernel/drivers/net/ethernet/intel/ixgbe/ixgbe.ko
+
 ## Install docker
 echo '[INFO] Install docker'
 ## Install apparmor utils since they're missing and apparmor is enabled in the kernel
