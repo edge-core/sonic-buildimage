@@ -44,8 +44,11 @@ To build SONiC installer image and docker images, run the following commands:
 
     make
 
- **NOTE**: We recommend reserving 50G free space to build one platform.
-    
+ **NOTE**:
+
+- We recommend reserving 50G free space to build one platform.
+- Use ```http_proxy=[your_proxy] https_proxy=[your_proxy] make``` to enable http(s) proxy in the build process.
+
 The SONiC installer contains all docker images needed. SONiC uses one image for all devices of a same ASIC vendor. The supported ASIC vendors are:
 
 - PLATFORM=broadcom

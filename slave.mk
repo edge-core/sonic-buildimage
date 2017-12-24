@@ -100,6 +100,8 @@ $(info "SONIC_CONFIG_DEBUG"              : "$(SONIC_CONFIG_DEBUG)")
 $(info "ROUTING_STACK"                   : "$(SONIC_ROUTING_STACK)")
 $(info "ENABLE_SYNCD_RPC"                : "$(ENABLE_SYNCD_RPC)")
 $(info "ENABLE_ORGANIZATION_EXTENSIONS"  : "$(ENABLE_ORGANIZATION_EXTENSIONS)")
+$(info "HTTP_PROXY"                      : "$(HTTP_PROXY)")
+$(info "HTTPS_PROXY"                     : "$(HTTPS_PROXY)")
 $(info )
 
 ###############################################################################
@@ -329,7 +331,7 @@ $(SONIC_INSTALL_WHEELS) : $(PYTHON_WHEELS_PATH)/%-install : .platform $$(addsuff
 	# put a lock here to avoid race conditions
 	while true; do
 	if mkdir $(PYTHON_WHEELS_PATH)/pip_lock &> /dev/null; then
-	{ sudo pip$($*_PYTHON_VERSION) install $(PYTHON_WHEELS_PATH)/$* $(LOG) && rm -d $(PYTHON_WHEELS_PATH)/pip_lock && break; } || { rm -d $(PYTHON_WHEELS_PATH)/pip_lock && exit 1 ; }
+	{ sudo -E pip$($*_PYTHON_VERSION) install $(PYTHON_WHEELS_PATH)/$* $(LOG) && rm -d $(PYTHON_WHEELS_PATH)/pip_lock && break; } || { rm -d $(PYTHON_WHEELS_PATH)/pip_lock && exit 1 ; }
 	fi
 	done
 	$(FOOTER)
@@ -340,12 +342,20 @@ $(SONIC_INSTALL_WHEELS) : $(PYTHON_WHEELS_PATH)/%-install : .platform $$(addsuff
 
 # start docker daemon
 docker-start :
+	@sudo sed -i '/http_proxy/d' /etc/default/docker
+	@sudo bash -c "echo \"export http_proxy=$$http_proxy\" >> /etc/default/docker"
 	@sudo service docker status &> /dev/null || ( sudo service docker start &> /dev/null && sleep 1 )
 
 # targets for building simple docker images that do not depend on any debian packages
 $(addprefix $(TARGET_PATH)/, $(SONIC_SIMPLE_DOCKER_IMAGES)) : $(TARGET_PATH)/%.gz : .platform docker-start $$(addsuffix -load,$$(addprefix $(TARGET_PATH)/,$$($$*.gz_LOAD_DOCKERS)))
 	$(HEADER)
-	docker build --squash --no-cache --build-arg user=$(USER) --build-arg uid=$(UID) --build-arg guid=$(GUID) -t $* $($*.gz_PATH) $(LOG)
+	docker build --squash --no-cache \
+		--build-arg http_proxy=$(HTTP_PROXY) \
+		--build-arg https_proxy=$(HTTPS_PROXY) \
+		--build-arg user=$(USER) \
+		--build-arg uid=$(UID) \
+		--build-arg guid=$(GUID) \
+		-t $* $($*.gz_PATH) $(LOG)
 	docker save $* | gzip -c > $@
 	$(FOOTER)
 
@@ -365,7 +375,13 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_DOCKER_IMAGES)) : $(TARGET_PATH)/%.gz : .pl
 	$(eval export $(subst -,_,$(notdir $($*.gz_PATH)))_whls=$(shell printf "$(subst $(SPACE),\n,$(call expand,$($*.gz_PYTHON_WHEELS)))\n" | awk '!a[$$0]++'))
 	$(eval export $(subst -,_,$(notdir $($*.gz_PATH)))_dbgs=$(shell printf "$(subst $(SPACE),\n,$(call expand,$($*.gz_DBG_PACKAGES)))\n" | awk '!a[$$0]++'))
 	j2 $($*.gz_PATH)/Dockerfile.j2 > $($*.gz_PATH)/Dockerfile
-	docker build --squash --no-cache --build-arg user=$(USER) --build-arg uid=$(UID) --build-arg guid=$(GUID) -t $* $($*.gz_PATH) $(LOG)
+	docker build --squash --no-cache \
+		--build-arg http_proxy=$(HTTP_PROXY) \
+		--build-arg https_proxy=$(HTTPS_PROXY) \
+		--build-arg user=$(USER) \
+		--build-arg uid=$(UID) \
+		--build-arg guid=$(GUID) \
+		-t $* $($*.gz_PATH) $(LOG)
 	docker save $* | gzip -c > $@
 	$(FOOTER)
 

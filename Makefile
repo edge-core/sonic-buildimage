@@ -35,10 +35,14 @@ SLAVE_IMAGE = sonic-slave-$(USER)
 DOCKER_RUN := docker run --rm=true --privileged \
     -v $(PWD):/sonic \
     -w /sonic \
+    -e "http_proxy=$(http_proxy)" \
+    -e "https_proxy=$(https_proxy)" \
     -i$(if $(TERM),t,)
 
 DOCKER_BASE_BUILD = docker build --no-cache \
 		    -t $(SLAVE_BASE_IMAGE) \
+		    --build-arg http_proxy=$(http_proxy) \
+		    --build-arg https_proxy=$(https_proxy) \
 		    sonic-slave && \
 		    docker tag $(SLAVE_BASE_IMAGE):latest $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG)
 
@@ -61,7 +65,9 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            ENABLE_SYNCD_RPC=$(ENABLE_SYNCD_RPC) \
                            PASSWORD=$(PASSWORD) \
                            USERNAME=$(USERNAME) \
-                           SONIC_BUILD_JOBS=$(SONIC_BUILD_JOBS)
+                           SONIC_BUILD_JOBS=$(SONIC_BUILD_JOBS) \
+                           HTTP_PROXY=$(http_proxy) \
+                           HTTPS_PROXY=$(https_proxy)
 
 .PHONY: sonic-slave-build sonic-slave-bash init reset
 

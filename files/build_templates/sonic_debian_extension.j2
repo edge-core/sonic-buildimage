@@ -64,17 +64,17 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
 # Install SONiC config engine Python package
 CONFIG_ENGINE_WHEEL_NAME=$(basename {{config_engine_wheel_path}})
 sudo cp {{config_engine_wheel_path}} $FILESYSTEM_ROOT/$CONFIG_ENGINE_WHEEL_NAME
-sudo LANG=C chroot $FILESYSTEM_ROOT pip install $CONFIG_ENGINE_WHEEL_NAME
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install $CONFIG_ENGINE_WHEEL_NAME
 sudo rm -rf $FILESYSTEM_ROOT/$CONFIG_ENGINE_WHEEL_NAME
 
 # Install Python client for Redis
-sudo LANG=C chroot $FILESYSTEM_ROOT pip install redis
-sudo LANG=C chroot $FILESYSTEM_ROOT pip install redis-dump-load
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install redis
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install redis-dump-load
 
 # Install SwSS SDK Python 2 package
 SWSSSDK_PY2_WHEEL_NAME=$(basename {{swsssdk_py2_wheel_path}})
 sudo cp {{swsssdk_py2_wheel_path}} $FILESYSTEM_ROOT/$SWSSSDK_PY2_WHEEL_NAME
-sudo LANG=C chroot $FILESYSTEM_ROOT pip install $SWSSSDK_PY2_WHEEL_NAME
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install $SWSSSDK_PY2_WHEEL_NAME
 sudo rm -rf $FILESYSTEM_ROOT/$SWSSSDK_PY2_WHEEL_NAME
 
 # Install SONiC Utilities (and its dependencies via 'apt-get -y install -f')
