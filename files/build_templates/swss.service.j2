@@ -3,11 +3,15 @@ Description=switch state service
 Requires=database.service
 {% if sonic_asic_platform == 'broadcom' %}
 Requires=opennsl-modules-3.16.0-4-amd64.service
+{% elif sonic_asic_platform == 'nephos' %}
+Requires=nps-modules-3.16.0-4-amd64.service
 {% endif %}
 After=database.service
 After=interfaces-config.service
 {% if sonic_asic_platform == 'broadcom' %}
 After=opennsl-modules-3.16.0-4-amd64.service
+{% elif sonic_asic_platform == 'nephos' %}
+After=nps-modules-3.16.0-4-amd64.service
 {% endif %}
 
 [Service]

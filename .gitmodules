@@ -68,3 +68,6 @@
 [submodule "platform/p4/SAI-P4-BM"]
 	path = platform/p4/SAI-P4-BM
 	url = https://github.com/Mellanox/SAI-P4-BM.git
+[submodule "platform/nephos/sonic-platform-modules-ingrasys"]
+	path = platform/nephos/sonic-platform-modules-ingrasys
+	url = https://github.com/Ingrasys-sonic/sonic-platform-modules-ingrasys-nephos.git
