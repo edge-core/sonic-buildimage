@@ -15,8 +15,8 @@ except ImportError as e:
 class PsuUtil(PsuBase):
     """Platform-specific PSUutil class"""
 
-    SYSFS_PSU_DIR = ["/sys/bus/i2c/devices/i2c-18/18-0050",
-                     "/sys/bus/i2c/devices/i2c-17/17-0050"]
+    SYSFS_PSU_DIR = ["/sys/bus/i2c/devices/i2c-10/10-0050",
+                     "/sys/bus/i2c/devices/i2c-9/9-0050"]
 
     def __init__(self):
         PsuBase.__init__(self)
