@@ -31,11 +31,16 @@ Please refer to [SONiC roadmap](https://github.com/Azure/SONiC/wiki/Sonic-Roadma
 ## Clone or fetch the code repository with all git submodules
 To clone the code repository recursively, assuming git version 1.9 or newer:
 
-    git clone --recursive https://github.com/Azure/sonic-buildimage.git
+    git clone https://github.com/Azure/sonic-buildimage.git
 
 ## Usage
 
 To build SONiC installer image and docker images, run the following commands:
+
+    cd sonic-buildimage
+
+    # (Optional) Checkout a specific branch. By default, it uses master branch
+    git checkout [branch_name]
 
     # Execute make init once after cloning the repo, or fetched remote repo with submodule updates
     make init
