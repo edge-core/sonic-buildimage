@@ -318,7 +318,7 @@ sudo cp files/dhcp/dhclient.conf $FILESYSTEM_ROOT/etc/dhcp/
 sudo mkdir -p $FILESYSTEM_ROOT/etc/sonic
 sudo tee $FILESYSTEM_ROOT/etc/sonic/sonic_version.yml > /dev/null <<EOF
 build_version: $(sonic_get_version)
-debian_version: $(cat $FILESYSTEM_ROOT/etc/debian_version)
+debian_version: '$(cat $FILESYSTEM_ROOT/etc/debian_version)'
 kernel_version: $kversion
 asic_type: $sonic_asic_platform
 commit_id: $(git rev-parse --short HEAD)
