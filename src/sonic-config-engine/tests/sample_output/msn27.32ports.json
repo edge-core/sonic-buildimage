@@ -1,7 +1,15 @@
 [
     {
+        "BUFFER_POOL_TABLE:ingress_lossless_pool": {
+            "size": "2097152",
+            "type": "ingress",
+            "mode": "dynamic"
+        },
+        "OP": "SET"
+    },
+    {
         "BUFFER_POOL_TABLE:ingress_lossy_pool": {
-            "size": "6422528",
+            "size": "5242880",
             "type": "ingress",
             "mode": "dynamic"
         },
@@ -9,7 +17,7 @@
     },
     {
         "BUFFER_POOL_TABLE:egress_lossless_pool": {
-            "size": "7291456",
+            "size": "16777152",
             "type": "egress",
             "mode": "dynamic"
         },
@@ -17,7 +25,7 @@
     },
     {
         "BUFFER_POOL_TABLE:egress_lossy_pool": {
-            "size": "8254464",
+            "size": "5242880",
             "type": "egress",
             "mode": "dynamic"
         },
@@ -27,7 +35,7 @@
         "BUFFER_PROFILE_TABLE:ingress_lossless_profile": {
             "pool":"[BUFFER_POOL_TABLE:ingress_lossless_pool]",
             "size":"0",
-            "dynamic_th":"1"
+            "dynamic_th":"0"
         },
         "OP": "SET"
     },
@@ -35,7 +43,7 @@
         "BUFFER_PROFILE_TABLE:ingress_lossy_profile": {
             "pool":"[BUFFER_POOL_TABLE:ingress_lossy_pool]",
             "size":"0",
-            "dynamic_th":"7"
+            "dynamic_th":"3"
         },
         "OP": "SET"
     },
@@ -51,7 +59,7 @@
         "BUFFER_PROFILE_TABLE:egress_lossy_profile": {
             "pool":"[BUFFER_POOL_TABLE:egress_lossy_pool]",
             "size":"4096",
-            "dynamic_th":"7"
+            "dynamic_th":"3"
         },
         "OP": "SET"
     },
@@ -59,7 +67,7 @@
         "BUFFER_PROFILE_TABLE:pg_lossy_profile": {
             "pool":"[BUFFER_POOL_TABLE:ingress_lossy_pool]",
             "size":"0",
-            "dynamic_th":"7"
+            "dynamic_th":"3"
         },
         "OP": "SET"
     },
@@ -75,7 +83,7 @@
         "BUFFER_PROFILE_TABLE:q_lossy_profile": {
             "pool":"[BUFFER_POOL_TABLE:egress_lossy_pool]",
             "size":"0",
-            "dynamic_th":"7"
+            "dynamic_th":"3"
         },
         "OP": "SET"
     },
@@ -293,15 +301,7 @@
             "xon":"18432",
             "xoff":"75776",
             "size":"94208",
-            "dynamic_th":"1"
-        },
-        "OP": "SET"
-    },
-    {
-        "BUFFER_POOL_TABLE:ingress_lossless_pool": {
-            "size": "3881382",
-            "type": "ingress",
-            "mode": "dynamic"
+            "dynamic_th":"0"
         },
         "OP": "SET"
     },
