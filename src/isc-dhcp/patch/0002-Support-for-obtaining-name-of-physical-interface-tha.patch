@@ -1,7 +1,7 @@
-From 236d4f1cb0afa2bee22f47a48b725427bfcb5a9c Mon Sep 17 00:00:00 2001
+From caad3e05c31c9fad8cda378ce95a1969def771a2 Mon Sep 17 00:00:00 2001
 From: Joe LeVeque <jolevequ@microsoft.com>
 Date: Mon, 11 Dec 2017 23:39:10 +0000
-Subject: [PATCH 3/4] Support for obtaining name of physical interface that is
+Subject: [PATCH 2/3] Support for obtaining name of physical interface that is
  a member of a bridge interface
 
 ---

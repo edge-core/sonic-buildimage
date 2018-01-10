@@ -1,7 +1,7 @@
-From 1092578a8415b9d49182c2b9825753e96481246a Mon Sep 17 00:00:00 2001
+From 3a42b497716375c9347b51c3a28c5e91e7cd4cf4 Mon Sep 17 00:00:00 2001
 From: Joe LeVeque <jolevequ@microsoft.com>
 Date: Tue, 12 Dec 2017 00:49:09 +0000
-Subject: [PATCH 4/4] Support for loading port alias map file to replace port
+Subject: [PATCH 3/3] Support for loading port alias map file to replace port
  name with alias in circuit id
 
 ---
