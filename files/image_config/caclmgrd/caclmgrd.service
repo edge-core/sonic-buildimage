@@ -1,0 +1,11 @@
+[Unit]
+Description=Control Plane ACL configuration daemon
+Requires=database.service
+After=database.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/caclmgrd-start.sh
+
+[Install]
+WantedBy=multi-user.target
