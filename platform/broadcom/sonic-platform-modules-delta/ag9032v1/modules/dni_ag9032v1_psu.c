@@ -2,9 +2,9 @@
  * An hwmon driver for delta AG9032v1 PSU
  * dps_800ab_16_d.c - Support for DPS-800AB-16 D Power Supply Module
  *
- * Copyright (C) 2017 Delta Networks, Inc.
+ * Copyright (C) 2016 Delta Network Technology Corporation
  *
- * Aries Lin <aries.lin@deltaww.com>
+ * DNI <DNIsales@delta.com.tw>
  *
  * Based on ym2651y.c
  * Based on ad7414.c
@@ -361,6 +361,7 @@ static struct dps_800ab_16_d_data *dps_800ab_16_d_update_device( \
 			if (status < 0) {
 				dev_dbg(&client->dev, "reg %d, err %d\n",
 					regs_byte[i].reg, status);
+				*(regs_byte[i].value) = 0;
 			} else {
 				*(regs_byte[i].value) = status;
 			}
@@ -372,28 +373,31 @@ static struct dps_800ab_16_d_data *dps_800ab_16_d_update_device( \
 			if (status < 0) {
 				dev_dbg(&client->dev, "reg %d, err %d\n",
 					regs_word[i].reg, status);
+				*(regs_word[i].value) = 0;
 			} else {
 				*(regs_word[i].value) = status;
 			}
 		}
 
 		command = 0x9a;		/* PSU mfr_model */
+		//data->mfr_model[1] = '\0';
 		status = dps_800ab_16_d_read_block(client, command, 
-			data->mfr_model, ARRAY_SIZE(data->mfr_model) - 1);
-        	data->mfr_model[ARRAY_SIZE(data->mfr_model) - 1] = '\0';
-        	if (status < 0) {
-                	dev_dbg(&client->dev, "reg %d, err %d\n", command, 
-								status);
-        	}
+		data->mfr_model, ARRAY_SIZE(data->mfr_model) - 1);
+    	data->mfr_model[ARRAY_SIZE(data->mfr_model) - 1] = '\0';
+    	if (status < 0) {
+        	dev_dbg(&client->dev, "reg %d, err %d\n", command,status);
+        	data->mfr_model[1] = '\0';
+    	}
 
-        	command = 0x9e;		/* PSU mfr_serial */
-        	status = dps_800ab_16_d_read_block(client, command, 
-			data->mfr_serial, ARRAY_SIZE(data->mfr_serial) - 1);
-        	data->mfr_serial[ARRAY_SIZE(data->mfr_serial) - 1] = '\0';
-        	if (status < 0) {
-                	dev_dbg(&client->dev, "reg %d, err %d\n", command, 
-								status);
-       		}	
+    	command = 0x9e;		/* PSU mfr_serial */
+    	//data->mfr_serial[1] = '\0';
+    	status = dps_800ab_16_d_read_block(client, command, 
+		data->mfr_serial, ARRAY_SIZE(data->mfr_serial) - 1);
+    	data->mfr_serial[ARRAY_SIZE(data->mfr_serial) - 1] = '\0';
+    	if (status < 0) {
+            dev_dbg(&client->dev, "reg %d, err %d\n", command,status);
+            data->mfr_serial[1] = '\0';
+   		}	
 		
 		data->valid = 1;
 	}
