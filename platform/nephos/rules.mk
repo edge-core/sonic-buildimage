@@ -10,7 +10,7 @@ include $(PLATFORM_PATH)/python-saithrift.mk
 #include $(PLATFORM_PATH)/docker-ptf-nephos.mk
 
 NPX_DIAG = npx_diag
-$(NPX_DIAG)_URL = "https://github.com/NephosInc/SONiC/raw/master/sdk/npx_diag_2.0.1-20171020"
+$(NPX_DIAG)_URL = "https://github.com/NephosInc/SONiC/raw/master/sdk/npx_diag"
 
 DSSERVE = dsserve
 $(DSSERVE)_URL = "https://sonicstorage.blob.core.windows.net/packages/20170518/dsserve?sv=2015-04-05&sr=b&sig=gyNbgSL%2FvpMXDdpboVkIJcTKMRdGgEaOR9OukHhEsu8%3D&se=2030-03-31T23%3A06%3A35Z&sp=r"
