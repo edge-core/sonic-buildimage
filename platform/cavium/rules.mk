@@ -15,7 +15,7 @@ SONIC_ALL += $(SONIC_ONE_IMAGE) \
              $(DOCKER_SYNCD_CAVM_RPC)
 
 # Inject cavium sai into sairedis
-$(LIBSAIREDIS)_DEPENDS += $(CAVM_SAI) $(CAVM_LIBSAI) #$(LIBSAITHRIFT_DEV_CAVM)
+$(LIBSAIREDIS)_DEPENDS += $(CAVM_SAI) $(CAVM_LIBSAI) $(LIBSAITHRIFT_DEV_CAVM)
 
 # Runtime dependency on cavium sai is set only for syncd
 $(SYNCD)_RDEPENDS += $(CAVM_SAI)
