@@ -21,7 +21,7 @@ copy_exec /sbin/mke2fs
 copy_exec /sbin/sfdisk
 copy_exec /sbin/fdisk
 
-fstypes="ext4"
+fstypes="ext4 ext3"
 
 for type in $fstypes; do
     prog="/sbin/mkfs.${type}"
