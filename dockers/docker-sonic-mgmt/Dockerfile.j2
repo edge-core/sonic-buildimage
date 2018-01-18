@@ -18,7 +18,9 @@ RUN apt-get install -y \
                 sshpass \
                 libxml2 \
                 libxslt1-dev \
-                python-setuptools
+                python-setuptools \
+                build-essential \
+                curl
 
 # For JNLP launcher
 RUN apt-get install -y default-jre
@@ -87,4 +89,10 @@ RUN echo "$user ALL=(ALL) NOPASSWD:ALL" >>/etc/sudoers
 
 USER $user
 
-RUN cd /var/$user && git clone https://github.com/Azure/sonic-mgmt
+# Install Azure CLI
+WORKDIR /var/$user
+RUN curl -L https://aka.ms/InstallAzureCliBundled -o azure-cli_bundle.tar.gz
+RUN tar -xvzf azure-cli_bundle.tar.gz
+RUN azure-cli_bundle_*/installer
+
+RUN git clone https://github.com/Azure/sonic-mgmt
