@@ -35,6 +35,7 @@ src/sonic-device-data/src/device/
 src/sonic-device-data/src/debian/
 src/supervisor/*
 !src/supervisor/Makefile
+!src/supervisor/patch/
 src/thrift/*
 !src/thrift/Makefile
 

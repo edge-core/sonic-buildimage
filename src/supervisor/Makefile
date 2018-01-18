@@ -2,7 +2,7 @@
 SHELL = /bin/bash
 .SHELLFLAGS += -e
 
-MAIN_TARGET = python-supervisor_3.3.2-1_all.deb
+MAIN_TARGET = python-supervisor_$(SUPERVISOR_VERSION)-1_all.deb
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# Remove any stale files
@@ -11,7 +11,15 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# Clone supervisor repo
 	git clone https://github.com/Supervisor/supervisor.git
 	pushd ./supervisor
-	git checkout -f 3.3.2
+
+	# Reset HEAD to the commit of the proper tag
+	# NOTE: Using "git checkout <tag_name>" here detaches our HEAD,
+	# which stg doesn't like, so we use this method instead
+	git reset --hard $(SUPERVISOR_VERSION)
+
+	# Apply patches
+	stg init
+	stg import -s ../patch/series
 
 	# Build Python and Debian package
 	python setup.py --command-packages=stdeb.command bdist_deb

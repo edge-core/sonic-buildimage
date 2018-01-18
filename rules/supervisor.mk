@@ -1,5 +1,9 @@
 # supervisor package
 
-SUPERVISOR = python-supervisor_3.3.2-1_all.deb
+SUPERVISOR_VERSION = 3.3.2
+
+export SUPERVISOR_VERSION
+
+SUPERVISOR = python-supervisor_$(SUPERVISOR_VERSION)-1_all.deb
 $(SUPERVISOR)_SRC_PATH = $(SRC_PATH)/supervisor
 SONIC_MAKE_DEBS += $(SUPERVISOR)
