@@ -1,11 +1,8 @@
 #!/usr/bin/env bash
 
 # Wait until redis starts
-while true; do
-    if [ `redis-cli ping` == "PONG" ]; then
-        break
-    fi
-    sleep 1
+until [[ $(redis-cli ping | grep -c PONG) -gt 0 ]]; do
+  sleep 1;
 done
 
 # If there is a config db dump file, load it
