@@ -9,44 +9,30 @@ RUN apt-get update
 # Install required packages
 RUN apt-get install -y python-pip sensord fancontrol
 
-{% if docker_platform_monitor_debs.strip() %}
-# Copy built Debian packages
-COPY \
-{% for deb in docker_platform_monitor_debs.split(' ') -%}
+{% if docker_platform_monitor_debs.strip() -%}
+# Copy all locally-built Debian package dependencies
+COPY{{' '}}
+{%- for deb in docker_platform_monitor_debs.split(' ') -%}
 debs/{{ deb }}{{' '}}
 {%- endfor -%}
-debs/
-{%- endif %}
+/debs/
 
-{% if docker_platform_monitor_debs.strip() %}
-# Install built Debian packages
-RUN dpkg -i \
-{% for deb in docker_platform_monitor_debs.split(' ') -%}
-debs/{{ deb }}{{' '}}
-{%- endfor %}
-{%- endif %}
+# Install all locally-built Debian package dependencies
+# and implicitly install their dependencies
+RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /debs/*.deb
+{% endif %}
 
-{% if docker_platform_monitor_whls.strip() %}
-# Copy built Python wheels
-COPY \
-{% for whl in docker_platform_monitor_whls.split(' ') -%}
+{% if docker_platform_monitor_whls.strip() -%}
+# Copy all locally-built Python wheel dependencies
+COPY{{' '}}
+{%- for whl in docker_platform_monitor_whls.split(' ') -%}
 python-wheels/{{ whl }}{{' '}}
 {%- endfor -%}
-python-wheels/
-{%- endif %}
+/python-wheels/
 
-{% if docker_platform_monitor_whls.strip() %}
-# Install built Python wheels
-RUN pip install \
-{% for whl in docker_platform_monitor_whls.split(' ') -%}
-python-wheels/{{ whl }}{{' '}}
-{%- endfor %}
-{%- endif %}
-
-COPY python-wheels /python-wheels
-
-# Install Python SwSS SDK (dependency of sonic-ledd)
-RUN pip install /python-wheels/swsssdk-2.0.1-py2-none-any.whl
+# Install all locally-built Python wheel dependencies
+RUN pip install /python-wheels/*.whl
+{% endif %}
 
 # Clean up
 RUN apt-get remove -y python-pip
