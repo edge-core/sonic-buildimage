@@ -3,7 +3,7 @@
     <IsisRouters xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
     <PeeringSessions>
       <BGPSession>
-        <StartRouter>switch2</StartRouter>
+        <StartRouter>sonic</StartRouter>
         <StartPeer>10.0.0.0</StartPeer>
         <EndRouter>ARISTA01T2</EndRouter>
         <EndPeer>10.0.0.1</EndPeer>
@@ -12,7 +12,7 @@
         <KeepAliveTime>60</KeepAliveTime>
       </BGPSession>
       <BGPSession>
-        <StartRouter>switch2</StartRouter>
+        <StartRouter>sonic</StartRouter>
         <StartPeer>10.0.0.2</StartPeer>
         <EndRouter>ARISTA02T2</EndRouter>
         <EndPeer>10.0.0.3</EndPeer>
@@ -21,7 +21,7 @@
         <KeepAliveTime>60</KeepAliveTime>
       </BGPSession>
       <BGPSession>
-        <StartRouter>switch2</StartRouter>
+        <StartRouter>sonic</StartRouter>
         <StartPeer>10.0.0.4</StartPeer>
         <EndRouter>ARISTA03T2</EndRouter>
         <EndPeer>10.0.0.5</EndPeer>
@@ -30,7 +30,7 @@
         <KeepAliveTime>60</KeepAliveTime>
       </BGPSession>
       <BGPSession>
-        <StartRouter>switch2</StartRouter>
+        <StartRouter>sonic</StartRouter>
         <StartPeer>10.0.0.6</StartPeer>
         <EndRouter>ARISTA04T2</EndRouter>
         <EndPeer>10.0.0.7</EndPeer>
@@ -39,7 +39,7 @@
         <KeepAliveTime>60</KeepAliveTime>
       </BGPSession>
       <BGPSession>
-        <StartRouter>switch2</StartRouter>
+        <StartRouter>sonic</StartRouter>
         <StartPeer>10.0.0.8</StartPeer>
         <EndRouter>ARISTA05T2</EndRouter>
         <EndPeer>10.0.0.9</EndPeer>
@@ -48,7 +48,7 @@
         <KeepAliveTime>60</KeepAliveTime>
       </BGPSession>
       <BGPSession>
-        <StartRouter>switch2</StartRouter>
+        <StartRouter>sonic</StartRouter>
         <StartPeer>10.0.0.10</StartPeer>
         <EndRouter>ARISTA06T2</EndRouter>
         <EndPeer>10.0.0.11</EndPeer>
@@ -57,7 +57,7 @@
         <KeepAliveTime>60</KeepAliveTime>
       </BGPSession>
       <BGPSession>
-        <StartRouter>switch2</StartRouter>
+        <StartRouter>sonic</StartRouter>
         <StartPeer>10.0.0.12</StartPeer>
         <EndRouter>ARISTA07T2</EndRouter>
         <EndPeer>10.0.0.13</EndPeer>
@@ -66,7 +66,7 @@
         <KeepAliveTime>60</KeepAliveTime>
       </BGPSession>
       <BGPSession>
-        <StartRouter>switch2</StartRouter>
+        <StartRouter>sonic</StartRouter>
         <StartPeer>10.0.0.14</StartPeer>
         <EndRouter>ARISTA08T2</EndRouter>
         <EndPeer>10.0.0.15</EndPeer>
@@ -75,7 +75,7 @@
         <KeepAliveTime>60</KeepAliveTime>
       </BGPSession>
       <BGPSession>
-        <StartRouter>switch2</StartRouter>
+        <StartRouter>sonic</StartRouter>
         <StartPeer>10.0.0.16</StartPeer>
         <EndRouter>ARISTA09T2</EndRouter>
         <EndPeer>10.0.0.17</EndPeer>
@@ -84,7 +84,7 @@
         <KeepAliveTime>60</KeepAliveTime>
       </BGPSession>
       <BGPSession>
-        <StartRouter>switch2</StartRouter>
+        <StartRouter>sonic</StartRouter>
         <StartPeer>10.0.0.18</StartPeer>
         <EndRouter>ARISTA10T2</EndRouter>
         <EndPeer>10.0.0.19</EndPeer>
@@ -93,7 +93,7 @@
         <KeepAliveTime>60</KeepAliveTime>
       </BGPSession>
       <BGPSession>
-        <StartRouter>switch2</StartRouter>
+        <StartRouter>sonic</StartRouter>
         <StartPeer>10.0.0.20</StartPeer>
         <EndRouter>ARISTA11T2</EndRouter>
         <EndPeer>10.0.0.21</EndPeer>
@@ -102,7 +102,7 @@
         <KeepAliveTime>60</KeepAliveTime>
       </BGPSession>
       <BGPSession>
-        <StartRouter>switch2</StartRouter>
+        <StartRouter>sonic</StartRouter>
         <StartPeer>10.0.0.22</StartPeer>
         <EndRouter>ARISTA12T2</EndRouter>
         <EndPeer>10.0.0.23</EndPeer>
@@ -111,7 +111,7 @@
         <KeepAliveTime>60</KeepAliveTime>
       </BGPSession>
       <BGPSession>
-        <StartRouter>switch2</StartRouter>
+        <StartRouter>sonic</StartRouter>
         <StartPeer>10.0.0.24</StartPeer>
         <EndRouter>ARISTA13T2</EndRouter>
         <EndPeer>10.0.0.25</EndPeer>
@@ -120,7 +120,7 @@
         <KeepAliveTime>60</KeepAliveTime>
       </BGPSession>
       <BGPSession>
-        <StartRouter>switch2</StartRouter>
+        <StartRouter>sonic</StartRouter>
         <StartPeer>10.0.0.26</StartPeer>
         <EndRouter>ARISTA14T2</EndRouter>
         <EndPeer>10.0.0.27</EndPeer>
@@ -129,7 +129,7 @@
         <KeepAliveTime>60</KeepAliveTime>
       </BGPSession>
       <BGPSession>
-        <StartRouter>switch2</StartRouter>
+        <StartRouter>sonic</StartRouter>
         <StartPeer>10.0.0.28</StartPeer>
         <EndRouter>ARISTA15T2</EndRouter>
         <EndPeer>10.0.0.29</EndPeer>
@@ -138,7 +138,7 @@
         <KeepAliveTime>60</KeepAliveTime>
       </BGPSession>
       <BGPSession>
-        <StartRouter>switch2</StartRouter>
+        <StartRouter>sonic</StartRouter>
         <StartPeer>10.0.0.30</StartPeer>
         <EndRouter>ARISTA16T2</EndRouter>
         <EndPeer>10.0.0.31</EndPeer>
@@ -150,7 +150,7 @@
     <Routers xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
       <a:BGPRouterDeclaration>
         <a:ASN>65100</a:ASN>
-        <a:Hostname>switch2</a:Hostname>
+        <a:Hostname>sonic</a:Hostname>
         <a:Peers>
           <BGPPeer>
             <Address>10.0.0.1</Address>
@@ -335,7 +335,7 @@
       <MplsInterfaces/>
       <MplsTeInterfaces/>
       <RsvpInterfaces/>
-      <Hostname>switch2</Hostname>
+      <Hostname>sonic</Hostname>
       <PortChannelInterfaces/>
       <VlanInterfaces/>
       <IPInterfaces>
@@ -430,112 +430,112 @@
     <DeviceInterfaceLinks>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>switch2</EndDevice>
+        <EndDevice>sonic</EndDevice>
         <EndPort>Ethernet0</EndPort>
         <StartDevice>ARISTA01T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>switch2</EndDevice>
+        <EndDevice>sonic</EndDevice>
         <EndPort>Ethernet4</EndPort>
         <StartDevice>ARISTA02T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>switch2</EndDevice>
+        <EndDevice>sonic</EndDevice>
         <EndPort>Ethernet8</EndPort>
         <StartDevice>ARISTA03T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>switch2</EndDevice>
+        <EndDevice>sonic</EndDevice>
         <EndPort>Ethernet12</EndPort>
         <StartDevice>ARISTA04T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>switch2</EndDevice>
+        <EndDevice>sonic</EndDevice>
         <EndPort>Ethernet16</EndPort>
         <StartDevice>ARISTA05T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>switch2</EndDevice>
+        <EndDevice>sonic</EndDevice>
         <EndPort>Ethernet20</EndPort>
         <StartDevice>ARISTA06T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>switch2</EndDevice>
+        <EndDevice>sonic</EndDevice>
         <EndPort>Ethernet24</EndPort>
         <StartDevice>ARISTA07T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>switch2</EndDevice>
+        <EndDevice>sonic</EndDevice>
         <EndPort>Ethernet28</EndPort>
         <StartDevice>ARISTA08T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>switch2</EndDevice>
+        <EndDevice>sonic</EndDevice>
         <EndPort>Ethernet32</EndPort>
         <StartDevice>ARISTA09T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>switch2</EndDevice>
+        <EndDevice>sonic</EndDevice>
         <EndPort>Ethernet36</EndPort>
         <StartDevice>ARISTA10T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>switch2</EndDevice>
+        <EndDevice>sonic</EndDevice>
         <EndPort>Ethernet40</EndPort>
         <StartDevice>ARISTA11T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>switch2</EndDevice>
+        <EndDevice>sonic</EndDevice>
         <EndPort>Ethernet44</EndPort>
         <StartDevice>ARISTA12T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>switch2</EndDevice>
+        <EndDevice>sonic</EndDevice>
         <EndPort>Ethernet48</EndPort>
         <StartDevice>ARISTA13T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>switch2</EndDevice>
+        <EndDevice>sonic</EndDevice>
         <EndPort>Ethernet52</EndPort>
         <StartDevice>ARISTA14T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>switch2</EndDevice>
+        <EndDevice>sonic</EndDevice>
         <EndPort>Ethernet56</EndPort>
         <StartDevice>ARISTA15T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>switch2</EndDevice>
+        <EndDevice>sonic</EndDevice>
         <EndPort>Ethernet60</EndPort>
         <StartDevice>ARISTA16T2</StartDevice>
         <StartPort>Ethernet1</StartPort>
@@ -543,7 +543,7 @@
     </DeviceInterfaceLinks>
     <Devices>
       <Device i:type="LeafRouter">
-        <Hostname>switch2</Hostname>
+        <Hostname>sonic</Hostname>
         <HwSku>ACS-MSN2700</HwSku>
       </Device>
     </Devices>`
@@ -551,7 +551,7 @@
   <MetadataDeclaration>
     <Devices xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
       <a:DeviceMetadata>
-        <a:Name>switch2</a:Name>
+        <a:Name>sonic</a:Name>
         <a:Properties>
           <a:DeviceProperty>
             <a:Name>DhcpResources</a:Name>
@@ -573,6 +573,6 @@
     </Devices>
     <Properties xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
   </MetadataDeclaration>
-  <Hostname>switch2</Hostname>
+  <Hostname>sonic</Hostname>
   <HwSku>ACS-MSN2100</HwSku>
 </DeviceMiniGraph>

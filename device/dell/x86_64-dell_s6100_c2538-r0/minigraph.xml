@@ -5,7 +5,7 @@
       <BGPSession>
         <StartRouter>ARISTA01T1</StartRouter>
         <StartPeer>10.0.0.1</StartPeer>
-        <EndRouter>switch1</EndRouter>
+        <EndRouter>sonic</EndRouter>
         <EndPeer>10.0.0.0</EndPeer>
         <Multihop>1</Multihop>
         <HoldTime>180</HoldTime>
@@ -14,7 +14,7 @@
       <BGPSession>
         <StartRouter>ARISTA02T1</StartRouter>
         <StartPeer>10.0.0.5</StartPeer>
-        <EndRouter>switch1</EndRouter>
+        <EndRouter>sonic</EndRouter>
         <EndPeer>10.0.0.4</EndPeer>
         <Multihop>1</Multihop>
         <HoldTime>180</HoldTime>
@@ -23,7 +23,7 @@
       <BGPSession>
         <StartRouter>ARISTA03T1</StartRouter>
         <StartPeer>10.0.0.9</StartPeer>
-        <EndRouter>switch1</EndRouter>
+        <EndRouter>sonic</EndRouter>
         <EndPeer>10.0.0.8</EndPeer>
         <Multihop>1</Multihop>
         <HoldTime>180</HoldTime>
@@ -32,7 +32,7 @@
       <BGPSession>
         <StartRouter>ARISTA04T1</StartRouter>
         <StartPeer>10.0.0.13</StartPeer>
-        <EndRouter>switch1</EndRouter>
+        <EndRouter>sonic</EndRouter>
         <EndPeer>10.0.0.12</EndPeer>
         <Multihop>1</Multihop>
         <HoldTime>180</HoldTime>
@@ -41,7 +41,7 @@
       <BGPSession>
         <StartRouter>ARISTA01T1</StartRouter>
         <StartPeer>FC00::2</StartPeer>
-        <EndRouter>switch1</EndRouter>
+        <EndRouter>sonic</EndRouter>
         <EndPeer>FC00::1</EndPeer>
         <Multihop>1</Multihop>
         <HoldTime>180</HoldTime>
@@ -50,7 +50,7 @@
       <BGPSession>
         <StartRouter>ARISTA02T1</StartRouter>
         <StartPeer>FC00::A</StartPeer>
-        <EndRouter>switch1</EndRouter>
+        <EndRouter>sonic</EndRouter>
         <EndPeer>FC00::9</EndPeer>
         <Multihop>1</Multihop>
         <HoldTime>180</HoldTime>
@@ -59,7 +59,7 @@
       <BGPSession>
         <StartRouter>ARISTA03T1</StartRouter>
         <StartPeer>FC00::12</StartPeer>
-        <EndRouter>switch1</EndRouter>
+        <EndRouter>sonic</EndRouter>
         <EndPeer>FC00::11</EndPeer>
         <Multihop>1</Multihop>
         <HoldTime>180</HoldTime>
@@ -68,7 +68,7 @@
       <BGPSession>
         <StartRouter>ARISTA04T1</StartRouter>
         <StartPeer>FC00::1A</StartPeer>
-        <EndRouter>switch1</EndRouter>
+        <EndRouter>sonic</EndRouter>
         <EndPeer>FC00::19</EndPeer>
         <Multihop>1</Multihop>
         <HoldTime>180</HoldTime>
@@ -78,7 +78,7 @@
     <Routers xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
       <a:BGPRouterDeclaration>
         <a:ASN>64601</a:ASN>
-        <a:Hostname>switch1</a:Hostname>
+        <a:Hostname>sonic</a:Hostname>
         <a:Peers>
           <BGPPeer>
             <ElementType>BGPPeer</ElementType>
@@ -187,7 +187,7 @@
       <MplsInterfaces/>
       <MplsTeInterfaces/>
       <RsvpInterfaces/>
-      <Hostname>switch1</Hostname>
+      <Hostname>sonic</Hostname>
       <PortChannelInterfaces>
         <PortChannel>
           <ElementType>PortChannelInterface</ElementType>
@@ -298,7 +298,7 @@
                 <EndDevice>ARISTA01T1</EndDevice>
                 <EndPort>Ethernet1</EndPort>
                 <FlowControl>true</FlowControl>
-                <StartDevice>switch1</StartDevice>
+                <StartDevice>sonic</StartDevice>
                 <StartPort>fortyGigE1/1/1</StartPort>
             </DeviceLinkBase>
             <DeviceLinkBase i:type="DeviceInterfaceLink">
@@ -308,7 +308,7 @@
                 <EndDevice>ARISTA01T1</EndDevice>
                 <EndPort>Ethernet2</EndPort>
                 <FlowControl>true</FlowControl>
-                <StartDevice>switch1</StartDevice>
+                <StartDevice>sonic</StartDevice>
                 <StartPort>fortyGigE1/1/2</StartPort>
             </DeviceLinkBase>
             <DeviceLinkBase i:type="DeviceInterfaceLink">
@@ -318,7 +318,7 @@
                 <EndDevice>ARISTA02T1</EndDevice>
                 <EndPort>Ethernet1</EndPort>
                 <FlowControl>true</FlowControl>
-                <StartDevice>switch1</StartDevice>
+                <StartDevice>sonic</StartDevice>
                 <StartPort>fortyGigE1/1/5</StartPort>
             </DeviceLinkBase>
             <DeviceLinkBase i:type="DeviceInterfaceLink">
@@ -328,7 +328,7 @@
                 <EndDevice>ARISTA02T1</EndDevice>
                 <EndPort>Ethernet2</EndPort>
                 <FlowControl>true</FlowControl>
-                <StartDevice>switch1</StartDevice>
+                <StartDevice>sonic</StartDevice>
                 <StartPort>fortyGigE1/1/6</StartPort>
             </DeviceLinkBase>
             <DeviceLinkBase i:type="DeviceInterfaceLink">
@@ -338,7 +338,7 @@
                 <EndDevice>ARISTA03T1</EndDevice>
                 <EndPort>Ethernet1</EndPort>
                 <FlowControl>true</FlowControl>
-                <StartDevice>switch1</StartDevice>
+                <StartDevice>sonic</StartDevice>
                 <StartPort>fortyGigE1/2/1</StartPort>
             </DeviceLinkBase>
             <DeviceLinkBase i:type="DeviceInterfaceLink">
@@ -348,7 +348,7 @@
                 <EndDevice>ARISTA03T1</EndDevice>
                 <EndPort>Ethernet2</EndPort>
                 <FlowControl>true</FlowControl>
-                <StartDevice>switch1</StartDevice>
+                <StartDevice>sonic</StartDevice>
                 <StartPort>fortyGigE1/2/2</StartPort>
             </DeviceLinkBase>
             <DeviceLinkBase i:type="DeviceInterfaceLink">
@@ -358,7 +358,7 @@
                 <EndDevice>ARISTA04T1</EndDevice>
                 <EndPort>Ethernet1</EndPort>
                 <FlowControl>true</FlowControl>
-                <StartDevice>switch1</StartDevice>
+                <StartDevice>sonic</StartDevice>
                 <StartPort>fortyGigE1/2/5</StartPort>
             </DeviceLinkBase>
             <DeviceLinkBase i:type="DeviceInterfaceLink">
@@ -368,14 +368,14 @@
                 <EndDevice>ARISTA04T1</EndDevice>
                 <EndPort>Ethernet2</EndPort>
                 <FlowControl>true</FlowControl>
-                <StartDevice>switch1</StartDevice>
+                <StartDevice>sonic</StartDevice>
                 <StartPort>fortyGigE1/2/6</StartPort>
             </DeviceLinkBase>
             <DeviceLinkBase i:type="DeviceInterfaceLink">
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/1/7</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-01</StartDevice>
@@ -385,7 +385,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/1/8</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-02</StartDevice>
@@ -395,7 +395,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/1/9</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-03</StartDevice>
@@ -405,7 +405,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/1/10</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-04</StartDevice>
@@ -415,7 +415,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/1/11</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-05</StartDevice>
@@ -425,7 +425,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/1/12</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-06</StartDevice>
@@ -435,7 +435,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/1/13</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-07</StartDevice>
@@ -445,7 +445,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/1/14</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-08</StartDevice>
@@ -455,7 +455,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/1/15</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-09</StartDevice>
@@ -465,7 +465,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/1/16</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-10</StartDevice>
@@ -475,7 +475,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/3/1</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-11</StartDevice>
@@ -485,7 +485,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/3/5</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-12</StartDevice>
@@ -495,7 +495,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/3/6</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-13</StartDevice>
@@ -505,7 +505,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/3/7</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-14</StartDevice>
@@ -515,7 +515,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/3/8</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-15</StartDevice>
@@ -525,7 +525,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/3/9</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-16</StartDevice>
@@ -535,7 +535,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/3/10</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-17</StartDevice>
@@ -545,7 +545,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/3/11</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-18</StartDevice>
@@ -555,7 +555,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/2/7</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-19</StartDevice>
@@ -565,7 +565,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/2/8</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-20</StartDevice>
@@ -575,7 +575,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/2/9</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-21</StartDevice>
@@ -585,7 +585,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/2/10</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-22</StartDevice>
@@ -595,7 +595,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/2/11</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-23</StartDevice>
@@ -605,7 +605,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/2/12</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-24</StartDevice>
@@ -615,7 +615,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/2/13</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-25</StartDevice>
@@ -625,7 +625,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/2/14</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-26</StartDevice>
@@ -635,7 +635,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/2/15</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-27</StartDevice>
@@ -645,7 +645,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/2/16</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-28</StartDevice>
@@ -655,7 +655,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/4/1</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-29</StartDevice>
@@ -665,7 +665,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/4/5</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-30</StartDevice>
@@ -675,7 +675,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/4/6</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-31</StartDevice>
@@ -685,7 +685,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/4/7</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-32</StartDevice>
@@ -695,7 +695,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/4/8</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-33</StartDevice>
@@ -705,7 +705,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/4/9</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-34</StartDevice>
@@ -715,7 +715,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/4/10</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-35</StartDevice>
@@ -725,7 +725,7 @@
                 <ElementType>DeviceInterfaceLink</ElementType>
                 <AutoNegotiation>true</AutoNegotiation>
                 <Bandwidth>40000</Bandwidth>
-                <EndDevice>switch1</EndDevice>
+                <EndDevice>sonic</EndDevice>
                 <EndPort>fortyGigE1/4/11</EndPort>
                 <FlowControl>true</FlowControl>
                 <StartDevice>server-36</StartDevice>
@@ -734,7 +734,7 @@
     </DeviceInterfaceLinks>
     <Devices>
       <Device i:type="ToRRouter">
-        <Hostname>switch1</Hostname>
+        <Hostname>sonic</Hostname>
         <HwSku>Force10-S6100</HwSku>
       </Device>
     </Devices>
@@ -742,7 +742,7 @@
   <MetadataDeclaration>
     <Devices xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
       <a:DeviceMetadata>
-        <a:Name>switch1</a:Name>
+        <a:Name>sonic</a:Name>
         <a:Properties>
           <a:DeviceProperty>
             <a:Name>DhcpResources</a:Name>
@@ -769,6 +769,6 @@
     </Devices>
     <Properties xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
   </MetadataDeclaration>
-  <Hostname>switch1</Hostname>
+  <Hostname>sonic</Hostname>
   <HwSku>Force10-S6100</HwSku>
 </DeviceMiniGraph>
