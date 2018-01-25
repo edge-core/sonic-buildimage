@@ -71,3 +71,6 @@
 [submodule "platform/nephos/sonic-platform-modules-ingrasys"]
 	path = platform/nephos/sonic-platform-modules-ingrasys
 	url = https://github.com/Ingrasys-sonic/sonic-platform-modules-ingrasys-nephos.git
+[submodule "platform/centec/sonic-platform-modules-e582"]
+	path = platform/centec/sonic-platform-modules-e582
+	url = https://github.com/CentecNetworks/sonic-platform-modules-e582

@@ -1,4 +1,4 @@
-include $(PLATFORM_PATH)/sdk.mk
+include $(PLATFORM_PATH)/platform-modules-centec-e582-48x6q.mk
 include $(PLATFORM_PATH)/sai.mk
 include $(PLATFORM_PATH)/docker-orchagent-centec.mk
 include $(PLATFORM_PATH)/docker-syncd-centec.mk
