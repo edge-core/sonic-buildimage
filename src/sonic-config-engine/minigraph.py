@@ -202,15 +202,14 @@ def parse_dpg(dpg, hname):
             if acl_intfs:
                 acls[aclname] = {'policy_desc': aclname,
                                  'ports': acl_intfs,
-                                 'type': 'MIRROR' if is_mirror else 'L3',
-                                 'service': 'N/A'}
+                                 'type': 'MIRROR' if is_mirror else 'L3'}
             else:
                 # This ACL has no interfaces to attach to -- consider this a control plane ACL
                 aclservice = aclintf.find(str(QName(ns, "Type"))).text
                 acls[aclname] = {'policy_desc': aclname,
                                  'ports': acl_intfs,
                                  'type': 'CTRLPLANE',
-                                 'service': aclservice if aclservice is not None else ''}
+                                 'service': aclservice if aclservice is not None else 'UNKNOWN'}
         return intfs, lo_intfs, mgmt_intf, vlans, vlan_members, pcs, acls
     return None, None, None, None, None, None, None
 
