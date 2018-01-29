@@ -11,7 +11,9 @@ if [ -f /etc/sonic/config_db.json ]; then
     sonic-cfggen -j /etc/sonic/config_db.json -j /etc/sonic/init_cfg.json --print-data > /tmp/config_db.json
     mv /tmp/config_db.json /etc/sonic/config_db.json
 else
-    sonic-cfggen -j /etc/sonic/init_cfg.json --print-data > /etc/sonic/config_db.json
+    # generate and merge buffers configuration into config file
+    sonic-cfggen -t /usr/share/sonic/device/vswitch/buffers.json.j2 > /tmp/buffers.json
+    sonic-cfggen -j /etc/sonic/init_cfg.json -j /tmp/buffers.json --print-data > /etc/sonic/config_db.json
 fi
 
 mkdir -p /etc/swss/config.d/
@@ -51,6 +53,8 @@ supervisorctl start intfmgrd
 supervisorctl start vlanmgrd
 
 supervisorctl start zebra
+
+supervisorctl start buffermgrd
 
 # Start arp_update when VLAN exists
 VLAN=`sonic-cfggen -d -v 'VLAN.keys() | join(" ") if VLAN'`

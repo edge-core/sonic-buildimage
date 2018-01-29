@@ -70,6 +70,8 @@ RUN sed -ri 's/^(save .*$)/# \1/g;                                              
 COPY ["50-default.conf", "/etc/rsyslog.d/"]
 COPY ["start.sh", "orchagent.sh", "/usr/bin/"]
 COPY ["brcm.profile.ini", "/usr/share/sonic/device/vswitch/"]
+COPY ["buffers.json.j2", "/usr/share/sonic/device/vswitch/"]
+COPY ["pg_profile_lookup.ini", "/usr/share/sonic/device/vswitch/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 COPY ["files/configdb-load.sh", "/usr/bin/"]
 COPY ["files/arp_update", "/usr/bin"]

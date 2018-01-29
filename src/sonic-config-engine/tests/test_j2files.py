@@ -85,14 +85,13 @@ class TestJ2Files(TestCase):
         assert filecmp.cmp(sample_output_file, self.output_file)
 
     def test_msn27xx_32ports_buffers(self):
-        buffer_file = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-orchagent', 'msn27xx.32ports.buffers.json.j2')
+        buffer_file = os.path.join(self.test_dir, '..', '..', '..', 'device', 'mellanox', 'x86_64-mlnx_msn2700-r0', 'ACS-MSN2700', 'buffers.json.j2')
         argument = '-m ' + self.t1_mlnx_minigraph + ' -p ' + self.mlnx_port_config + ' -t ' + buffer_file + ' > ' + self.output_file
         self.run_script(argument)
 
         sample_output_file = os.path.join(self.test_dir, 'sample_output', 'msn27.32ports.json')
 
         self.assertTrue(filecmp.cmp(sample_output_file, self.output_file))
-
 
     def tearDown(self):
         try:
