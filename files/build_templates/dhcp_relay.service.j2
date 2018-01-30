@@ -1,6 +1,6 @@
 [Unit]
 Description=DHCP relay container
-Requires=docker.service
+Requires=docker.service teamd.service
 After=swss.service
 
 [Service]
