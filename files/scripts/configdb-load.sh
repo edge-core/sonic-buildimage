@@ -10,5 +10,4 @@ if [ -r /etc/sonic/config_db.json ]; then
     sonic-cfggen -j /etc/sonic/config_db.json --write-to-db
 fi
 
-echo -en "SELECT 4\nSET CONFIG_DB_INITIALIZED true" | redis-cli
-
+redis-cli -n 4 SET "CONFIG_DB_INITIALIZED" "1"
