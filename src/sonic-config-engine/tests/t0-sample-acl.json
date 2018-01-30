@@ -112,6 +112,63 @@
                     "config": {
                         "name": "everflow"
                     }
+                },
+                "SNMP-ACL": {
+                    "acl-entries": {
+                        "acl-entry": {
+                            "1": {
+                                "actions": {
+                                    "config": {
+                                        "forwarding-action": "ACCEPT"
+                                    }
+                                },
+                                "config": {
+                                    "sequence-id": 1
+                                },
+                                "ip": {
+                                    "config": {
+                                        "protocol": "IP_UDP",
+                                        "source-ip-address": "10.0.0.0/8"
+                                    }
+                                }
+                            },
+                            "2": {
+                                "actions": {
+                                    "config": {
+                                        "forwarding-action": "ACCEPT"
+                                    }
+                                },
+                                "config": {
+                                    "sequence-id": 2
+                                },
+                                "ip": {
+                                    "config": {
+                                        "protocol": "IP_UDP",
+                                        "source-ip-address": "100.64.0.0/10"
+                                    }
+                                }
+                            },
+                            "3": {
+                                "actions": {
+                                    "config": {
+                                        "forwarding-action": "ACCEPT"
+                                    }
+                                },
+                                "config": {
+                                    "sequence-id": 3
+                                },
+                                "ip": {
+                                    "config": {
+                                        "protocol": "IP_UDP",
+                                        "source-ip-address": "25.0.0.0/8"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "config": {
+                        "name": "SNMP-ACL"
+                    }
                 }
             }
         }
