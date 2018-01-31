@@ -15,7 +15,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 
 	# Build the package
 	pushd src
-	export BUILD_KERNEL=3.16.0-4-amd64
+	export BUILD_KERNEL=$(KVERSION)
 	make
 	popd
 
