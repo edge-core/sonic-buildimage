@@ -45,10 +45,54 @@ class SfpUtil(SfpUtilBase):
         SfpUtilBase.__init__(self)
 
     def get_presence(self, port_num):
-        raise NotImplementedError
+        # Check for invalid port_num
+        if port_num < self.port_start or port_num > self.port_end:
+            return False
+
+        try:
+            reg_file = open("/sys/devices/platform/dx010_cpld/qsfp_modprs", "r")
+        except IOError as e:
+            print "Error: unable to open file: %s" % str(e)
+            return False
+
+        content = reg_file.readline().rstrip()
+
+        # content is a string containing the hex representation of the register
+        reg_value = int(content, 16)
+
+        # Mask off the bit corresponding to our port
+        mask = (1 << port_num)
+
+        # ModPrsL is active low
+        if reg_value & mask == 0:
+            return True
+
+        return False
 
     def get_low_power_mode(self, port_num):
-        raise NotImplementedError
+        # Check for invalid port_num
+        if port_num < self.port_start or port_num > self.port_end:
+            return False
+
+        try:
+            reg_file = open("/sys/devices/platform/dx010_cpld/qsfp_lpmode", "r")
+        except IOError as e:
+            print "Error: unable to open file: %s" % str(e)
+            return False
+
+        content = reg_file.readline().rstrip()
+
+        # content is a string containing the hex representation of the register
+        reg_value = int(content, 16)
+
+        # Mask off the bit corresponding to our port
+        mask = (1 << port_num)
+
+        # LPMode is active high
+        if reg_value & mask == 0:
+            return False
+
+        return True
 
     def set_low_power_mode(self, port_num, lpmode):
         raise NotImplementedError
