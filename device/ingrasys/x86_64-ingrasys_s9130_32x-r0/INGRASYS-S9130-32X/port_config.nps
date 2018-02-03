@@ -312,7 +312,7 @@ port set portlist=0-31 speed=100g
 port set portlist=129-130 speed=10g
 port set portlist=0-31 medium-type=sr4
 port set portlist=129-130 medium-type=kr
-port set portlist=0-31 fec=rs
+port set portlist=0-31 fec=disable
 port advertise portlist=129-130 speed-10g-kr
 port set portlist=129-130 an=enable
 port set portlist=0-31,129-130 admin=enable
