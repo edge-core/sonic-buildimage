@@ -20,10 +20,11 @@ class PsuUtil(PsuBase):
 
     # Get a mailbox register
     def get_pmc_register(self, reg_name):
-        mailbox_dir = "/sys/devices/platform/dell_s6100_lpc"
+        mailbox_dir = "/sys/devices/platform/SMF.512/hwmon/hwmon1"
         retval = 'ERR'
         mb_reg_file = mailbox_dir+'/' + reg_name
         if (not os.path.isfile(mb_reg_file)):
+            print mb_reg_file,  'not found !'
             return retval
 
         try:
@@ -52,7 +53,7 @@ class PsuUtil(PsuBase):
         faulty
         """
         status = 0
-        psu_status = self.get_pmc_register('psu_'+str(index)+'_status')
+        psu_status = self.get_pmc_register('psu'+str(index)+'_presence')
         if (psu_status != 'ERR'):
             psu_status = int(psu_status, 16)
             # Check for PSU statuse
@@ -69,7 +70,7 @@ class PsuUtil(PsuBase):
         :return: Boolean, True if PSU is plugged, False if not
         """
         status = 0
-        psu_presence = self.get_pmc_register('psu_'+str(index)+'_status')
+        psu_presence = self.get_pmc_register('psu'+str(index)+'_presence')
         if (psu_presence != 'ERR'):
             psu_presence = int(psu_presence, 16)
             # Check for PSU presence
