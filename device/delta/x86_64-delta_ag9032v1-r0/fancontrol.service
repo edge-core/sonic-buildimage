@@ -69,6 +69,17 @@ function LoadConfig
 	FCMAXTEMP=$MAXTEMP
 	FCMINSTART=$MINSTART
 	FCMINSTOP=$MINSTOP
+	AFCTEMP_1_LOWER=(00 39 36 41 46 55)
+	AFCTEMP_1_UPPER=(39 39 44 49 54 150)
+	AFCTEMP_2_LOWER=(00 61 65 69 73 82)
+	AFCTEMP_2_UPPER=(63 67 71 75 79 150)
+	AFCTEMP_3_LOWER=(00 51 55 59 63 71)
+	AFCTEMP_3_UPPER=(53 57 61 65 69 150)
+	AFCTEMP_4_LOWER=(00 46 50 54 58 65)
+	AFCTEMP_4_UPPER=(45 52 56 60 64 150)
+	AFCTEMP_5_LOWER=(00 46 50 54 58 65)
+	AFCTEMP_5_UPPER=(45 52 56 60 64 150)
+
 
 	FCFANS=`egrep '^FCFANS=.*$' $1 | sed -e 's/FCFANS=//g'`
 
@@ -98,7 +109,6 @@ function LoadConfig
 		AFCTEMP[$fcvcount]=$( echo "$temp_string" | cut -d" " -f $fcvcount )
 		AFCTEMP[$fcvcount]=$( echo "${AFCTEMP[$fcvcount]}" | sed 's/hwmon1/\/sys\/bus\/i2c\/devices/g' )
 		AFCTEMP_PATH[$fcvcount]=$( echo "${AFCTEMP[$fcvcount]}" | sed 's/hwmon1/\/sys\/bus\/i2c\/devices/g' )
-
         AFCTEMP[$fcvcount]=$( cat ${AFCTEMP[$fcvcount]} )
 		AFCTEMP[$fcvcount]=$(( AFCTEMP[$fcvcount]/1000 ))
 	done
@@ -165,39 +175,79 @@ then
 fi
 echo $$ > "$PIDFILE"
 
-
 # main function
 function UpdateThermalSensors
 {
-	echo ""
-	TEMP_HIGHEST=0
-	FAN_PERCENTAGE=0
-
-	for i in ${AFCTEMP_PATH[@]}; do 
-    	if (( $(cat $i) > $TEMP_HIGHEST )); then 
-        	TEMP_HIGHEST=$(cat $i); 
-    	fi;
+	fcvcount=0
+	for fcv in $FCTEMPS
+	do
+		fcvcount=$((fcvcount+1))
+        AFCTEMP[$fcvcount]=$( cat ${AFCTEMP_PATH[$fcvcount]} )
+		AFCTEMP[$fcvcount]=$(( AFCTEMP[$fcvcount]/1000 ))
 	done
-	TEMP_HIGHEST=$((TEMP_HIGHEST/1000))
-	echo "The highest temperature of thermal sensors: $TEMP_HIGHEST °C"
+}
+
+function UpdateThermalLevel
+{
+	AFCTEMP_NUM=$((6-${AFCTEMP_LEVEL[$i]}))
+ 	AFCTEMP_UPPER_BUF=AFCTEMP_"$i"_UPPER["$AFCTEMP_NUM"]
+ 	AFCTEMP_LOWER_BUF=AFCTEMP_"$i"_LOWER["$AFCTEMP_NUM"]
+
+	AFCTEMP_UPPER=${!AFCTEMP_UPPER_BUF}
+ 	AFCTEMP_LOWER=${!AFCTEMP_LOWER_BUF}
+
+
+	if (( ("${AFCTEMP[$i]}" <= "$AFCTEMP_UPPER") && ("${AFCTEMP[$i]}" >= "$AFCTEMP_LOWER") )) ; then 
+	    FLAG=2
+	elif (( "${AFCTEMP[$i]}" > "$AFCTEMP_UPPER" )); then 
+	    AFCTEMP_LEVEL[$i]=$((${AFCTEMP_LEVEL[$i]} - 1))
+	    FLAG=1
+	elif (( "${AFCTEMP[$i]}" < "$AFCTEMP_LOWER" )); then     
+		AFCTEMP_LEVEL[$i]=$((${AFCTEMP_LEVEL[$i]} + 1))
+		FLAG=1
+	else
+		AFCTEMP_LEVEL[$i]=1
+		FLAG=2
+	fi
 }
 
 function UpdateFanSpeeds
 {
-	if [ $TEMP_HIGHEST -lt 51 ]; then #TEMP<=50
-    	FAN_PERCENTAGE=40
-	elif [ $TEMP_HIGHEST -lt 56 -a $TEMP_HIGHEST -gt 50 ]; then #50<TEMP<=55
-	    FAN_PERCENTAGE=60
-	elif [ $TEMP_HIGHEST -lt 61 -a $TEMP_HIGHEST -gt 55 ]; then #55<TEMP<=60
+	#echo "num tmp lev  F   L   H"
+	#Update level
+	for i in 1 2 3 4 5
+	do
+		#echo "----------------------"
+		FLAG=0
+		#FLAG=0 : initial flag
+		#FLAG=1 : update level
+		#FLAG=2 : final level
+		while [ $FLAG -ne 2 ]
+		do
+			UpdateThermalLevel
+			#echo " $i  ${AFCTEMP[$i]}   ${AFCTEMP_LEVEL[$i]}   $FLAG  $AFCTEMP_LOWER  $AFCTEMP_UPPER "
+		done
+	done
+
+	min=${AFCTEMP_LEVEL[0]}
+	for j in "${AFCTEMP_LEVEL[@]}"; do
+	  (( j < min )) && min=$j
+	done
+
+	if (($min == 1 || $min == 2)); then 
+    	FAN_PERCENTAGE=100
+	elif (($min == 3)); then 
 	    FAN_PERCENTAGE=80
-	elif [ $TEMP_HIGHEST -lt 66 -a $TEMP_HIGHEST -gt 60 ]; then #60<TEMP<=65
-	    FAN_PERCENTAGE=90
-	elif [ $TEMP_HIGHEST -gt 65 ]; then # 65<TEMP
-	    FAN_PERCENTAGE=100
+	elif (($min == 4)); then
+	    FAN_PERCENTAGE=60
+	elif (($min == 5)); then
+	    FAN_PERCENTAGE=40
+	elif (($min == 6)); then
+	    FAN_PERCENTAGE=30
 	else
 	    FAN_PERCENTAGE=100
 	fi
-
+	echo "The lowest level of thermal sensors: $min "
 	echo "Trying to set fan speed to $FAN_PERCENTAGE %"
 	#Set speed to fan1~fan10
 	let fcvcount=0
@@ -211,33 +261,28 @@ function UpdateFanSpeeds
 		then
 			AFCFAN[$fcvcount]=$zero
 		fi
+		echo "FAN fan$fcvcount = ${AFCFAN[$fcvcount]} (rpm)"
 	done
 
-	if [ $TEMP_HIGHEST -lt 51 ]; then #TEMP<=50
-    	FAN_ON_PSU_PERCENTAGE=50
-	elif [ $TEMP_HIGHEST -lt 100 -a $TEMP_HIGHEST -gt 50 ]; then #50<TEMP<100
-		FAN_ON_PSU_PERCENTAGE=100
-	else
-		echo "Unable to get thermal temperature"
-		FAN_ON_PSU_PERCENTAGE=100
-	fi
+	FAN_ON_PSU_PERCENTAGE=$FAN_PERCENTAGE
 	#Set speed to PSU_FAN1
-	#echo  "0x00" > '/sys/bus/i2c/devices/4-0058/psu_select_member'
 	echo "$FAN_ON_PSU_PERCENTAGE" > '/sys/bus/i2c/devices/40-0058/fan1_set_percentage'
 	echo "PSU fan1 =$( cat '/sys/bus/i2c/devices/40-0058/fan1_input' ) (rpm)"
 	#Set speed to PSU_FAN2
-	#echo  "0x20" > '/sys/bus/i2c/devices/4-0058/psu_select_member'
 	echo "$FAN_ON_PSU_PERCENTAGE" > '/sys/bus/i2c/devices/41-0058/fan1_set_percentage'
 	echo "PSU fan2 =$( cat '/sys/bus/i2c/devices/41-0058/fan1_input' ) (rpm)"
 
 	rm -f "$PIDFILE"
 }
+
 # main loop calling the main function at specified intervals
+AFCTEMP_LEVEL=(9 4 4 4 4 4) #inttial level
 while true
 do
 	UpdateThermalSensors
 	UpdateFanSpeeds
 	echo "Sleep $INTERVAL seconds ..."
+	echo
 	# Sleep while still handling signals
 	sleep $INTERVAL &
 	wait $!
