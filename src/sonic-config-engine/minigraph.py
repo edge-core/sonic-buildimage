@@ -177,6 +177,8 @@ def parse_dpg(dpg, hname):
                 vlan_attributes['dhcp_servers'] = vdhcpserver_list
 
             sonic_vlan_name = "Vlan%s" % vlanid
+            if sonic_vlan_name != vintfname:
+                vlan_attributes['alias'] = vintfname
             vlans[sonic_vlan_name] = vlan_attributes
 
         aclintfs = child.find(str(QName(ns, "AclInterfaces")))
@@ -398,9 +400,13 @@ def parse_xml(filename, platform=None, port_config_file=None):
     phyport_intfs = {}
     vlan_intfs = {}
     pc_intfs = {}
+    vlan_invert_mapping = { v['alias']:k for k,v in vlans.items() if v.has_key('alias') }
+
     for intf in intfs:
         if intf[0][0:4] == 'Vlan':
             vlan_intfs[intf] = {}
+        elif vlan_invert_mapping.has_key(intf[0]):
+            vlan_intfs[(vlan_invert_mapping[intf[0]], intf[1])] = {}
         elif intf[0][0:11] == 'PortChannel':
             pc_intfs[intf] = {}
         else:

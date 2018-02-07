@@ -89,7 +89,7 @@ class TestCfgGen(TestCase):
     def test_minigraph_vlans(self):
         argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v VLAN'
         output = self.run_script(argument)
-        self.assertEqual(output.strip(), "{'Vlan1000': {'dhcp_servers': ['192.0.0.1', '192.0.0.2'], 'vlanid': '1000'}}")
+        self.assertEqual(output.strip(), "{'Vlan1000': {'alias': 'ab1', 'dhcp_servers': ['192.0.0.1', '192.0.0.2'], 'vlanid': '1000'}}")
 
     def test_minigraph_vlan_members(self):
         argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v VLAN_MEMBER'
