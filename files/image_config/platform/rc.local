@@ -116,17 +116,18 @@ if [ -f /host/image-$sonic_version/platform/firsttime ]; then
     fi
 
     HWSKU=`sonic-cfggen -m /etc/sonic/minigraph.xml -v "DEVICE_METADATA['localhost']['hwsku']"`
-    if [ -f /usr/share/sonic/device/$platform/$HWSKU/qos.json ]; then
-        # merge qos configuration into init config file
-        sonic-cfggen -j /etc/sonic/config_db.json -j /usr/share/sonic/device/$platform/$HWSKU/qos.json --print-data > /tmp/config_db.json
-        mv /tmp/config_db.json /etc/sonic/config_db.json
-    fi
-
     if [ -f /usr/share/sonic/device/$platform/$HWSKU/buffers.json.j2 ]; then
         # generate and merge buffers configuration into config file
         sonic-cfggen -m -t /usr/share/sonic/device/$platform/$HWSKU/buffers.json.j2 > /tmp/buffers.json
         sonic-cfggen -j /etc/sonic/config_db.json -j /tmp/buffers.json --print-data > /tmp/config_db.json
         mv /tmp/config_db.json /etc/sonic/config_db.json
+
+        # Only apply qos.json when buffer configuration is available.
+        if [ -f /usr/share/sonic/device/$platform/$HWSKU/qos.json ]; then
+            # merge qos configuration into init config file
+            sonic-cfggen -j /etc/sonic/config_db.json -j /usr/share/sonic/device/$platform/$HWSKU/qos.json --print-data > /tmp/config_db.json
+            mv /tmp/config_db.json /etc/sonic/config_db.json
+        fi
     fi
 
     if [ -d /host/image-$sonic_version/platform/$platform ]; then
