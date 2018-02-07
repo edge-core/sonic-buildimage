@@ -20,6 +20,8 @@ esac
 copy_exec /sbin/mke2fs
 copy_exec /sbin/sfdisk
 copy_exec /sbin/fdisk
+copy_exec /sbin/resize2fs
+copy_exec /sbin/findfs
 
 fstypes="ext4 ext3"
 

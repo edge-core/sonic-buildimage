@@ -56,7 +56,7 @@ elif [ "$IMAGE_TYPE" = "raw" ]; then
     echo "Creating SONiC raw partition : $OUTPUT_RAW_IMAGE of size $RAW_IMAGE_DISK_SIZE MB"
     fallocate -l "$RAW_IMAGE_DISK_SIZE"M $OUTPUT_RAW_IMAGE
 
-    ## Generate a compressed 8GB partition dump that can be used to 'dd' in-lieu of using the onie-nos-installer
+    ## Generate a partition dump that can be used to 'dd' in-lieu of using the onie-nos-installer
     ## Run the installer 
     ## The 'build' install mode of the installer is used to generate this dump.
     sudo chmod a+x $OUTPUT_ONIE_IMAGE
