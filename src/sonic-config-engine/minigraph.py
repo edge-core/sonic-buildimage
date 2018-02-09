@@ -418,6 +418,8 @@ def parse_xml(filename, platform=None, port_config_file=None):
 
     for port_name in port_speeds:
         ports.setdefault(port_name, {})['speed'] = port_speeds[port_name]
+        if port_speeds[port_name] == '100000':
+            ports.setdefault(port_name, {})['fec'] = 'rs'
     for port_name in port_descriptions:
         ports.setdefault(port_name, {})['description'] = port_descriptions[port_name]
 

@@ -260,7 +260,7 @@
           <MultiPortsInterface>false</MultiPortsInterface>
           <PortName>0</PortName>
           <Priority>0</Priority>
-          <Speed>1000000</Speed>
+          <Speed>100000</Speed>
           <Description>Interface description</Description>
         </a:EthernetInterface>
       </EthernetInterfaces>
