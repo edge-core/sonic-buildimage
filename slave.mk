@@ -414,6 +414,7 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
                 $(IXGBE_DRIVER) \
                 $(SONIC_DEVICE_DATA) \
                 $(SONIC_UTILS) \
+                $(LIBWRAP) \
                 $(LIBPAM_TACPLUS) \
                 $(LIBNSS_TACPLUS)) \
         $$(addprefix $(TARGET_PATH)/,$$($$*_DOCKERS)) \

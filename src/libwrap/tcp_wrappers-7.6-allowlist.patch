@@ -1,0 +1,306 @@
+--- a/debian/libwrap0.symbols        2017-11-15 21:25:07.631105657 +0000
++++ b/debian/libwrap0.symbols   2017-11-16 00:19:41.156453123 +0000
+@@ -9,6 +9,7 @@ libwrap.so.0 libwrap0 #MINVER#
+  eval_hostaddr@Base 7.6-4~
+  eval_hostinfo@Base 7.6-4~
+  eval_hostname@Base 7.6-4~
++ eval_hostport@Base 7.6.q-25
+  eval_port@Base 7.6-4~
+  eval_server@Base 7.6-4~
+  eval_user@Base 7.6-4~
+@@ -32,6 +33,7 @@ libwrap.so.0 libwrap0 #MINVER#
+  sock_host@Base 7.6-4~
+  sock_hostaddr@Base 7.6-4~
+  sock_hostname@Base 7.6-4~
++ sock_hostport@Base 7.6.q-25
+  split_at@Base 7.6-4~
+  tcpd_buf@Base 7.6-4~
+  tcpd_context@Base 7.6-4~
+diff -up a/eval.c b/eval.c
+--- a/eval.c	2017-11-15 21:25:07.631105657 +0000
++++ b/eval.c	2017-11-15 21:41:00.597460658 +0000
+@@ -66,6 +66,18 @@ struct host_info *host;
+     return (host->addr);
+ }
+ 
++/* eval_hostport - look up host port */
++char *eval_hostport(host)
++struct host_info *host;
++{
++    if (host->port[0] == 0) {
++        strcpy(host->port, unknown);
++	if (host->request->hostport != 0)
++	    host->request->hostport(host);
++    }
++    return (host->port);
++}
++
+ /* eval_hostname - look up host name */
+ 
+ char   *eval_hostname(host)
+diff -up a/hosts_access.c b/hosts_access.c
+--- a/hosts_access.c	2017-11-15 21:25:07.631105657 +0000
++++ b/hosts_access.c	2017-11-15 21:51:44.804345530 +0000
+@@ -39,6 +39,10 @@ static char sccsid[] = "@(#) hosts_acces
+ #include <errno.h>
+ #include <setjmp.h>
+ #include <string.h>
++#include <stdlib.h>
++#include <sys/stat.h>
++#include <sys/file.h>
++#include <unistd.h>
+ #ifdef INET6
+ #include <netdb.h>
+ #endif
+@@ -89,6 +93,7 @@ int	aclexec_matched = 0;
+ /* Forward declarations. */
+ 
+ static int table_match();
++static void update_counters();
+ static int list_match();
+ static int server_match();
+ static int client_match();
+@@ -130,6 +135,26 @@ struct request_info *request;
+     if (resident <= 0)
+ 	resident++;
+     verdict = setjmp(tcpd_buf);
++    if (request->daemon[0] != '\0') {
++        char daemon_access_table[STRING_LENGTH];
++        /* contruct an access table name based on the daemon name.  If it exists
++         * consult it rather than the standard hosts.allow/hosts.deny files.
++         */
++        snprintf(daemon_access_table, sizeof(daemon_access_table)-1,
++                "/etc/%s.allow", request->daemon);
++        if (access(daemon_access_table, R_OK) == 0) {
++            /* if we longjmp'ed back from earlier setjmp due to an explict allow/deny
++             * action, then update counters and return here
++             */
++            if (verdict != 0) {
++                update_counters(request->daemon);
++                return (verdict == AC_PERMIT);
++            }
++            int match = table_match(daemon_access_table, request);
++            update_counters(request->daemon);
++            return (match == YES) ? (YES) : (NO);
++        }
++    }
+     if (verdict != 0)
+ 	return (verdict == AC_PERMIT);
+     if (table_match(hosts_allow_table, request) == YES)
+@@ -162,6 +187,7 @@ struct request_info *request;
+     if ((fp = fopen(table, "r")) != 0) {
+ 	tcpd_context.file = table;
+ 	tcpd_context.line = 0;
++	tcpd_context.rule = 0;
+ 	while (match == NO && xgets(sv_list, sizeof(sv_list), fp) != 0) {
+ 	    if (sv_list[strlen(sv_list) - 1] != '\n') {
+ 		tcpd_warn("missing newline or line too long");
+@@ -178,6 +204,7 @@ struct request_info *request;
+ 	    sh_cmd = split_at(cl_list, ':');
+ 	    match = list_match(sv_list, request, server_match)
+ 		&& list_match(cl_list, request, client_match);
++	    tcpd_context.rule++;
+ 	}
+ 	(void) fclose(fp);
+     } else if (errno != ENOENT) {
+@@ -202,11 +229,59 @@ struct request_info *request;
+ 	    shell_cmd(percent_x(cmd, sizeof(cmd), sh_cmd, request));
+ #endif
+ 	}
++    } else {
++        /* restore the context if no match */
++	tcpd_context = saved_context;
++	tcpd_context.rule = 0;
+     }
+-    tcpd_context = saved_context;
+     return (match);
+ }
+ 
++/* update_counters - open a daemon/rule specific counter file and increment its
++ * counter by one.
++ */
++void update_counters(daemon_name)
++const char *daemon_name;
++{
++    char counter_file[STRING_LENGTH];
++    FILE *fp;
++    int count = 0;
++
++    snprintf(counter_file, sizeof(counter_file)-1, "/tmp/%s-cnt", daemon_name);
++    /* put the counters in a per-daemon directory in /tmp */
++    if (access( counter_file, W_OK)) {
++       if (mkdir(counter_file, 0777) < 0) {
++          return;
++       }
++    }
++
++    /* no rule matched */
++    if (tcpd_context.rule == 0) {
++      snprintf(counter_file, sizeof(counter_file)-1, "/tmp/%s-cnt/norule",
++               daemon_name);
++    } else {
++      snprintf(counter_file, sizeof(counter_file)-1, "/tmp/%s-cnt/%d", daemon_name,
++               tcpd_context.rule);
++    }
++
++    /* try openining the counter file if it exists - if not create it */
++    fp = fopen(counter_file, "r+");
++    if (fp == NULL) {
++       fp = fopen(counter_file, "w+");
++    }
++    /* Lock the file to prevent conflcting read/modify/write */
++    if (flock(fileno(fp), LOCK_EX) < 0) {
++       return;
++    }
++    fscanf(fp, "%d\n", &count);
++    count++;
++    rewind(fp);
++    fprintf(fp, "%d\n", count );
++    fflush(fp);
++    flock(fileno(fp), LOCK_UN);
++    fclose(fp);
++}
++
+ /* list_match - match a request against a list of patterns with exceptions */
+ 
+ static int list_match(list, request, match_fn)
+diff -up a/options.c b/options.c
+--- a/options.c	2017-11-15 21:25:07.631105657 +0000
++++ b/options.c	2017-11-15 22:15:08.593913199 +0000
+@@ -88,6 +88,7 @@ static void severity_option();		/* execu
+ static void allow_option();		/* execute "allow" option */
+ static void deny_option();		/* execute "deny" option */
+ static void banners_option();		/* execute "banners path" option */
++static void log_option();               /* execute "log value" option */
+ 
+ /* Structure of the options table. */
+ 
+@@ -128,6 +129,7 @@ static struct option option_table[] = {
+     "allow", allow_option, USE_LAST,
+     "deny", deny_option, USE_LAST,
+     "banners", banners_option, NEED_ARG,
++    "log", log_option, NEED_ARG | EXPAND_ARG,
+     0,
+ };
+ 
+@@ -504,6 +506,18 @@ struct request_info *request;
+ 	tcpd_jump("memory allocation failure");
+ }
+ 
++/* log_option - do syslog */
++
++/* ARGSUSED */
++
++static void log_option(value, request)
++const char *value;
++struct request_info *request;
++{
++   /* use allow_severity which is LOG_INFO by default */
++   syslog(allow_severity, value, 0);
++}
++
+  /*
+   * The severity option goes last because it comes with a huge amount of ugly
+   * #ifdefs and tables.
+@@ -539,6 +553,10 @@ static struct syslog_names log_fac[] = {
+ #ifdef LOG_UUCP
+     "uucp", LOG_UUCP,
+ #endif
++#ifndef LOG_AUTHPRIV
++#define LOG_AUTHPRIV (10<<3)
++#endif
++    { "authpriv", LOG_AUTHPRIV },
+ #ifdef LOG_CRON
+     "cron", LOG_CRON,
+ #endif
+diff -up a/percent_x.c b/percent_x.c
+--- a/percent_x.c	2017-11-15 21:25:07.631105657 +0000
++++ b/percent_x.c	2017-11-15 21:41:00.597460658 +0000
+@@ -56,6 +56,8 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+ 	    expansion =
+ 		ch == 'a' ? eval_hostaddr(request->client) :
+ 		ch == 'A' ? eval_hostaddr(request->server) :
++                ch == 't' ? eval_hostport(request->client) :
++                ch == 'T' ? eval_hostport(request->server) :
+ 		ch == 'c' ? eval_client(request) :
+ 		ch == 'd' ? eval_daemon(request) :
+ 		ch == 'h' ? eval_hostinfo(request->client) :
+diff -up a/socket.c b/socket.c
+--- a/socket.c	2017-11-15 21:25:07.631105657 +0000
++++ b/socket.c	2017-11-15 21:41:00.597460658 +0000
+@@ -178,6 +178,28 @@ struct host_info *host;
+ #endif
+ }
+ 
++/* sock_hostport - get host port */
++void    sock_hostport(host)
++struct host_info *host;
++{
++    unsigned short port;
++#ifdef INET6
++    struct sockaddr *sin = host->sin;
++    if (!sin)
++	return;
++
++    port = (sin->sa_family == AF_INET) ? ntohs(((struct sockaddr_in*)sin)->sin_port)
++				       : ntohs(((struct sockaddr_in6*)sin)->sin6_port);
++#else
++    struct sockaddr_in *sin = host->sin;
++    if (!sin)
++        return;
++
++    port = ntohs(sin->sin_port);
++#endif
++    sprintf(host->port, "%hu", port);
++}
++
+ /* sock_hostname - map endpoint address to host name */
+ 
+ void    sock_hostname(host)
+diff -up a/tcpd.h b/tcpd.h
+--- a/tcpd.h	2017-11-15 21:25:07.631105657 +0000
++++ b/tcpd.h	2017-11-15 21:59:43.507517375 +0000
+@@ -20,6 +20,7 @@ __BEGIN_DECLS
+ struct host_info {
+     char    name[STRING_LENGTH];	/* access via eval_hostname(host) */
+     char    addr[STRING_LENGTH];	/* access via eval_hostaddr(host) */
++    char    port[8];                    /* access via eval_hostport(host) */
+ #ifdef INET6
+     struct sockaddr *sin;		/* socket address or 0 */
+ #else
+@@ -41,6 +42,7 @@ struct request_info {
+     void  (*sink) (int);		/* datagram sink function or 0 */
+     void  (*hostname) (struct host_info *); /* address to printable hostname */
+     void  (*hostaddr) (struct host_info *); /* address to printable address */
++    void  (*hostport) (struct host_info *); /* address to printable port */
+     void  (*cleanup) (struct request_info *); /* cleanup function or 0 */
+     struct netconfig *config;		/* netdir handle */
+ };
+@@ -147,6 +149,7 @@ extern char *eval_user(struct request_in
+ extern char *eval_hostname(struct host_info *);	/* printable hostname */
+ extern char *eval_hostaddr(struct host_info *);	/* printable host address */
+ extern char *eval_hostinfo(struct host_info *);	/* host name or address */
++extern char *eval_hostport(struct host_info *); /* printable host port */
+ extern char *eval_client(struct request_info *);/* whatever is available */
+ extern char *eval_server(struct request_info *);/* whatever is available */
+ #ifdef INET6
+@@ -165,8 +168,10 @@ extern void sock_host(struct request_inf
+ extern void sock_hostname(struct host_info *);
+ /* address to printable address */
+ extern void sock_hostaddr(struct host_info *);
++/* address to printable port */
++extern void sock_hostport (struct host_info *);
+ #define sock_methods(r) \
+-	{ (r)->hostname = sock_hostname; (r)->hostaddr = sock_hostaddr; }
++	{ (r)->hostname = sock_hostname; (r)->hostaddr = sock_hostaddr; (r)->hostport = sock_hostport; }
+ 
+ /* The System V Transport-Level Interface (TLI) interface. */
+ 
+@@ -191,6 +196,7 @@ extern void tcpd_jump();
+ struct tcpd_context {
+     char   *file;			/* current file */
+     int     line;			/* current line */
++    int     rule;			/* matched rule */
+ };
+ extern struct tcpd_context tcpd_context;
+ 

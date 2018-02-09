@@ -3,6 +3,7 @@
 DOCKER_BASE = docker-base.gz
 $(DOCKER_BASE)_PATH = $(DOCKERS_PATH)/docker-base
 $(DOCKER_BASE)_DEPENDS += $(SUPERVISOR)
+$(DOCKER_BASE)_DEPENDS += $(LIBWRAP)
 
 ifeq ($(SONIC_CONFIG_DEBUG),y)
 GDB = gdb

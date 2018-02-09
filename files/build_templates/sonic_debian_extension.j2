@@ -224,6 +224,18 @@ if [ "$image_type" = "aboot" ]; then
     sudo sed -i 's/udevadm settle/udevadm settle -E \/sys\/class\/net\/eth0/' $FILESYSTEM_ROOT/etc/init.d/networking
 fi
 
+# Service to update the sshd config file based on database changes
+sudo cp $IMAGE_CONFIGS/ssh/sshd-config-updater.service $FILESYSTEM_ROOT/etc/systemd/system
+sudo mkdir -p $FILESYSTEM_ROOT/etc/systemd/system/multi-user.target.wants
+cd $FILESYSTEM_ROOT/etc/systemd/system/multi-user.target.wants/
+sudo ln -s ../sshd-config-updater.service sshd-config-updater.service
+cd -
+sudo cp $IMAGE_CONFIGS/ssh/sshd-config-updater $FILESYSTEM_ROOT/usr/bin/
+sudo chmod +x $FILESYSTEM_ROOT/usr/bin/sshd-config-updater
+sudo cp $IMAGE_CONFIGS/ssh/sshd-clear-denied-sessions $FILESYSTEM_ROOT/usr/bin
+sudo chmod +x $FILESYSTEM_ROOT/usr/bin/sshd-clear-denied-sessions
+sudo cp src/libwrap/tcp-wrappers-7.6.q/tcpdmatch $FILESYSTEM_ROOT/usr/bin
+
 ## copy platform rc.local
 sudo cp $IMAGE_CONFIGS/platform/rc.local $FILESYSTEM_ROOT/etc/
 

@@ -1,0 +1,133 @@
+#!/usr/bin/env python
+
+# Daemon that listens to updates from redis about the source IP prefixes from which
+# SSH connections are allowed. In case of change, it will update the SSHD configuration
+# file accordingly. SSHD will notice the file has changed next time a connection comes in.
+# Future enhancement: if an entry it modified/removed, go through all existing ssh
+# connections and recompute their permission, and in case one is now denied, kill it.
+
+# Currently this code uses redis, but may have to be rewritten to use the abstracted
+# apis from ./sonic-py-swsssdk/src/swsssdk/configdb.py
+
+import os
+import sys
+import time
+import redis
+
+service="sshd"
+config_file_path="/etc"
+redis_key="SSH_ALLOW_LIST"   # the redis list we listen to
+subscription='__keyspace@0__:%s' % redis_key
+temporization_duration = 3 # how long we wait for changes to settle (ride out a bursts of changes in redis_key)
+fake_infinite = 9999 # How often we wake up when nothing is going on --get_message()'s timeout has no 'infinite' value
+# after these operations we may need to revisit existing ssh connections because they removed or modified existing entries
+delete_operations = ["lrem", "lpop", "rpop", "blpop", "brpop", "brpoplpush", "rpoplpush", "ltrim", "del", "lset"]
+
+r = redis.StrictRedis(host='localhost')
+p = r.pubsub()
+
+# If redis is not up yet, this can fail, so wait for redis to be available
+while True:
+   try:
+      p.subscribe(subscription)
+      break
+   except redis.exceptions.ConnectionError:
+     time.sleep(3)
+
+# We could lose contact with redis at a later stage, in which case we will exit with
+# return code -2 and supervisor will restart us, at which point we are back in the
+# while loop above waiting for redis to be ready.
+try:
+
+  # By default redis does enable events, so enable them
+  r.config_set("notify-keyspace-events", "KAE")
+  
+  # To update the configuration file 
+  #
+  # Example config file for reference:
+  #   root@sonic:/# cat /etc/snmp/snmpd.conf
+  #   bash# cat /etc/sshd.allow
+  #   sshd: [fd7a:629f:52a4:b0c3:ec4:7aff:fe99:201e]/128
+  #   sshd: 172.17.0.1/32
+  #   sshd: 172.18.1.0/24
+  # Note that any matches are 'permits', and the default action is 'denied'
+  # We assume the database contains valid ip addresses/hostnames. 
+  def write_configuration_file(v):
+    filename="%s/%s.allow" % (config_file_path, service)
+    if len(v) == 0:
+      if os.path.exists(filename): os.remove(filename)
+      return
+    filename_tmp = filename + ".tmp"
+    f=open(filename_tmp, "w")
+    for value in v:
+       f.write("%s: %s\n" % (service, value))
+    f.close()
+    os.rename(filename_tmp, filename)
+    # some previously accepted sessions might no longer be allowed: clear them
+    os.system("/usr/bin/sshd-clear-denied-sessions")
+
+  # write initial configuration
+  write_configuration_file(r.lrange(redis_key, 0, -1))
+  
+  # listen for changes and rewrite configuration file if needed, after some temporization
+  #
+  # How those subscribed to messages look like, for reference:
+  #   {'pattern': None, 'type': 'subscribe', 'channel': '__keyspace@0__:SNMP_PERMIT_LIST', 'data': 1L}
+  #   {'pattern': None, 'type': 'message',   'channel': '__keyspace@0__:SNMP_PERMIT_LIST', 'data': 'rpush'}
+  #   {'pattern': None, 'type': 'message',   'channel': '__keyspace@0__:SNMP_PERMIT_LIST', 'data': 'lpush'}
+  #   {'pattern': None, 'type': 'message',   'channel': '__keyspace@0__:SNMP_PERMIT_LIST', 'data': 'lrem'}
+  #   {'pattern': None, 'type': 'message',   'channel': '__keyspace@0__:SNMP_PERMIT_LIST', 'data': 'lset'}
+  #   {'pattern': None, 'type': 'message',   'channel': '__keyspace@0__:SNMP_PERMIT_LIST', 'data': 'del'}
+
+  select_timeout = fake_infinite
+  config_changed = False
+  while True:
+     try:
+       m = p.get_message(timeout=select_timeout)
+     except Exception:
+       sys.exit(-2)
+     # temporization: no change after 'timeout' seconds -> commit any accumulated changes
+     if not m and config_changed:
+        write_configuration_file(r.lrange(redis_key, 0, -1))
+        config_changed = False
+        select_timeout = fake_infinite
+     if m and m['type'] == "message":
+        if m['channel'] != subscription:
+           print "WTF: unexpected case"
+           continue
+        config_changed = True
+        select_timeout = temporization_duration
+        # some debugs for now
+        print "-------------------- config change: ",
+        if m["data"] in delete_operations:
+           print "DELETE"
+        else:
+           print ""
+        v = r.lrange(redis_key, 0, -1)
+        for value in v:
+           print value
+
+except redis.exceptions.ConnectionError as e:
+  sys.exit(-2)
+
+# redis list operations, cli cheat sheet
+# -create/set
+#   LPUSH   key value [value ...]          : Prepend one or multiple values to a list
+#   RPUSH   key value [value ...]          : Append  one or multiple values to a list
+#   LPUSHX  key value                      : Prepend               a value  to a list, only if the list exists
+#   RPUSHX  key value                      : Append                a value  to a list, only if the list exists
+#   LINSERT key BEFORE|AFTER pivot value   : Insert an element before or after another element in a list
+#   LSET    key index value                : Set the value of an element in a list by its index
+# -get
+#   LINDEX key index                       : Get an element from a list by its index
+#   LRANGE key start stop                  : Get a range of elements from a list
+#   LLEN   key                             : Get the length of a list
+# -remove
+#   LREM  key count value                  : Remove elements from a list
+#   LPOP  key                              : Remove and get the first element in a list
+#   RPOP  key                              : Remove and get the last  element in a list
+#   BLPOP key [key ...] timeout            : Remove and get the first element in a list,                        or block until one is available
+#   BRPOP key [key ...] timeout            : Remove and get the last  element in a list,                        or block until one is available
+#   BRPOPLPUSH source destination timeout  : Remove a value from a list, push it to another list and return it; or block until one is available
+#   RPOPLPUSH  source destination          : Remove the last element in a list, prepend it to another list and return it
+#   LTRIM key start stop                   : Trim a list to the specified range

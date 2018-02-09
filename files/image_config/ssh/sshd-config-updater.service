@@ -1,0 +1,14 @@
+[Unit]
+Description=Takes care of updates to ssh config file with respect to the SSH allow list
+After=network.target auditd.service
+ConditionPathExists=!/etc/ssh/sshd_not_to_be_run
+
+[Service]
+ExecStart=/usr/bin/sshd-config-updater
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
