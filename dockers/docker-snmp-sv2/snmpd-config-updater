@@ -1,132 +1,204 @@
 #!/usr/bin/env python
 
-# Daemon that listens to updates about the source IP prefixes from which snmp access
-# is allowed. In case of change, it will update the snmp configuration file accordingly. 
-# Also, after a change, it will notify snmpd to re-read its config file (service reload).
+# Daemon that listens to updates from ConfigDB about the source IP prefixes from which
+# SNMP connections are allowed. In case of change, it will update the SNMP configuration
+# file accordingly. After a change, it will notify snmpd to re-read its config file
+# via SIGHUP.
+#
+# This daemon is meant to be run on Arista platforms only. Service ACLs on all other
+# platforms will be managed by caclmgrd.
+#
 
 import os
 import re
+import subprocess
 import sys
+import syslog
 import time
-import redis
+from swsssdk import ConfigDBConnector
 
-service="snmpd"
-config_file_path="/etc/snmp"
-redis_key="SNMP_ALLOW_LIST"   # the redis list we listen to
-subscription='__keyspace@0__:%s' % redis_key
-temporization_duration = 3 # how long we wait for changes to settle (ride out a bursts of changes in redis_key)
-fake_infinite = 9999 # How often we wake up when nothing is going on --get_message()'s timeout has no 'infinite' value
-# after these operations we may need to revisit existing ssh connections because they removed or modified existing entries
-delete_operations = ["lrem", "lpop", "rpop", "blpop", "brpop", "brpoplpush", "rpoplpush", "ltrim", "del", "lset"]
+VERSION = "1.0"
 
-r = redis.StrictRedis(host='localhost')
-p = r.pubsub()
-
-# If redis is not up yet, this can fail, so wait for redis to be available
-while True:
-   try:
-      p.subscribe(subscription)
-      break
-   except redis.exceptions.ConnectionError:
-     time.sleep(3)
-
-# We could loose contact with redis at a later stage, in which case we will exit with
-# return code -2 and supervisor will restart us, at which point we are back in the
-# while loop above waiting for redis to be ready.
-try:
-
-  # By default redis does enable events, so enable them
-  r.config_set("notify-keyspace-events", "KAE")
-  
-
-  # To update the configuration file 
-  #
-  # Example config file for reference:
-  #   root@sonic:/# cat /etc/snmp/snmpd.conf
-  #   <...some snmp config, like udp port to use etc...>
-  #   rocommunity public 172.20.61.0/24
-  #   rocommunity public 172.20.60.0/24
-  #   rocommunity public 127.00.00.0/8
-  #   <...some more snmp config...>
-  #   root@sonic:/#
-  #
-  # snmpd.conf supports include file, like so:
-  #  includeFile /etc/snmp/community.conf
-  #  includeDir /etc/snmp/config.d
-  # which could make file massaging simpler, but even then we still deal with lines 
-  # that have shared "masters", since some other entity controls the community strings 
-  # part of that line.
-  # If other database attributes need to be written to the snmp config file, then
-  # it should be done by this daemon as well (sure, we could inotify on the file
-  # and correct it back, but that's glitchy).
-  
-  def write_configuration_file(v):
-    filename="%s/%s.conf" % (config_file_path, service)
-    filename_tmp = filename + ".tmp"
-    f=open(filename, "r")
-    snmpd_config = f.read()
-    f.close()
-    f=open(filename_tmp, "w")
-    this_community = "not_a_community"
-    for l in snmpd_config.split('\n'):
-      m = re.match("^(..)community (\S+)", l)
-      if not m:
-          f.write(l)
-          f.write("\n")
-      else:
-        if not l.startswith(this_community): # already handled community (each community is duplicated per allow entry)
-           this_community="%scommunity %s" % (m.group(1), m.group(2))   
-           if len(v):
-             for value in v:
-               f.write("%s %s\n" % (this_community, value))
-           else:
-             f.write("%s\n" % this_community)
-    f.close()
-    os.rename(filename_tmp, filename)
-    os.system("kill -HUP $(pgrep snmpd) > /dev/null 2> /dev/null || :")
-
-  # write initial configuration
-  write_configuration_file(r.lrange(redis_key, 0, -1))
-  
-  # listen for changes and rewrite configuration file if needed, after some temporization
-  #
-  # How those subscribed to messages look like, for reference:
-  #   {'pattern': None, 'type': 'subscribe', 'channel': '__keyspace@0__:SNMP_PERMIT_LIST', 'data': 1L}
-  #   {'pattern': None, 'type': 'message',   'channel': '__keyspace@0__:SNMP_PERMIT_LIST', 'data': 'rpush'}
-  #   {'pattern': None, 'type': 'message',   'channel': '__keyspace@0__:SNMP_PERMIT_LIST', 'data': 'lpush'}
-  #   {'pattern': None, 'type': 'message',   'channel': '__keyspace@0__:SNMP_PERMIT_LIST', 'data': 'lrem'}
-  #   {'pattern': None, 'type': 'message',   'channel': '__keyspace@0__:SNMP_PERMIT_LIST', 'data': 'lset'}
-  #   {'pattern': None, 'type': 'message',   'channel': '__keyspace@0__:SNMP_PERMIT_LIST', 'data': 'del'}
-
-  select_timeout = fake_infinite
-  config_changed = False
-  while True:
-     try:
-       m = p.get_message(timeout=select_timeout)
-     except Exception:
-       sys.exit(-2)
-     # temporization: no change after 'timeout' seconds -> commit any accumulated changes
-     if not m and config_changed:
-        write_configuration_file(r.lrange(redis_key, 0, -1))
-        config_changed = False
-        select_timeout = fake_infinite
-     if m and m['type'] == "message":
-        if m['channel'] != subscription:
-           print "WTF: unexpected case"
-           continue
-        config_changed = True
-        select_timeout = temporization_duration
-        # some debugs for now
-        print "-------------------- config change: ",
-        if m["data"] in delete_operations:
-           print "DELETE"
-        else:
-           print ""
-        v = r.lrange(redis_key, 0, -1)
-        for value in v:
-           print value
-
-except redis.exceptions.ConnectionError as e:
-  sys.exit(-2)
+SYSLOG_IDENTIFIER = "snmpd-config-updater"
 
 
+# ============================== Classes ==============================
+
+class ConfigUpdater(object):
+    SERVICE = "snmpd"
+    CONFIG_FILE_PATH = "/etc/snmp"
+
+    ACL_TABLE = "ACL_TABLE"
+    ACL_RULE = "ACL_RULE"
+
+    ACL_TABLE_TYPE_CTRLPLANE = "CTRLPLANE"
+
+    ACL_SERVICE_SNMP = "SNMP"
+
+    def get_src_ip_allow_list(self):
+        src_ip_allow_list = []
+
+        # Get current ACL tables and rules from Config DB
+        tables_db_info = self.config_db.get_table(self.ACL_TABLE)
+        rules_db_info = self.config_db.get_table(self.ACL_RULE)
+
+        # Walk the ACL tables
+        for (table_name, table_data) in tables_db_info.iteritems():
+            # Ignore non-control-plane ACL tables
+            if table_data["type"] != self.ACL_TABLE_TYPE_CTRLPLANE:
+                continue
+
+            # Ignore non-SSH service ACLs
+            if table_data["service"] != self.ACL_SERVICE_SNMP:
+                continue
+
+            acl_rules = {}
+
+            for ((rule_table_name, rule_id), rule_props) in rules_db_info.iteritems():
+                if rule_table_name == table_name:
+                    acl_rules[rule_props["PRIORITY"]] = rule_props
+
+            # For each ACL rule in this table (in descending order of priority)
+            for priority in sorted(acl_rules.iterkeys(), reverse=True):
+                rule_props = acl_rules[priority]
+
+                if "PACKET_ACTION" not in rule_props:
+                    log_error("ACL rule does not contain PACKET_ACTION property")
+                    continue
+
+                # We're only interested in ACCEPT rules
+                if rule_props["PACKET_ACTION"] != "ACCEPT":
+                    continue
+
+                if "SRC_IP" in rule_props and rule_props["SRC_IP"]:
+                    src_ip_allow_list.append(rule_props["SRC_IP"])
+
+        return src_ip_allow_list
+
+    # To update the configuration file
+    #
+    # Example config file for reference:
+    #   root@sonic:/# cat /etc/snmp/snmpd.conf
+    #   <...some snmp config, like udp port to use etc...>
+    #   rocommunity public 172.20.61.0/24
+    #   rocommunity public 172.20.60.0/24
+    #   rocommunity public 127.00.00.0/8
+    #   <...some more snmp config...>
+    #   root@sonic:/#
+    #
+    # snmpd.conf supports include file, like so:
+    #  includeFile /etc/snmp/community.conf
+    #  includeDir /etc/snmp/config.d
+    # which could make file massaging simpler, but even then we still deal with lines
+    # that have shared "masters", since some other entity controls the community strings
+    # part of that line.
+    # If other database attributes need to be written to the snmp config file, then
+    # it should be done by this daemon as well (sure, we could inotify on the file
+    # and correct it back, but that's glitchy).
+    #
+    # src_ip_allow_list may contain individual IP addresses or blocks of
+    # IP addresses using CIDR notation.
+    def write_configuration_file(self, src_ip_allow_list):
+        filename = "%s/%s.conf" % (self.CONFIG_FILE_PATH, self.SERVICE)
+        filename_tmp = filename + ".tmp"
+
+        f = open(filename, "r")
+        snmpd_config = f.read()
+        f.close()
+
+        f = open(filename_tmp, "w")
+        this_community = "not_a_community"
+        for line in snmpd_config.split('\n'):
+            m = re.match("^(..)community (\S+)", line)
+            if not m:
+                f.write(line)
+                f.write("\n")
+            else:
+                if not line.startswith(this_community):  # already handled community (each community is duplicated per allow entry)
+                    this_community = "%scommunity %s" % (m.group(1), m.group(2))
+                    if len(src_ip_allow_list):
+                        for value in src_ip_allow_list:
+                            f.write("%s %s\n" % (this_community, value))
+                    else:
+                        f.write("%s\n" % this_community)
+        f.close()
+
+        os.rename(filename_tmp, filename)
+
+        # Force snmpd to reload its configuration
+        os.system("kill -HUP $(pgrep snmpd) > /dev/null 2> /dev/null || :")
+
+    def notification_handler(self, key, data):
+        log_info("ACL configuration changed. Updating {} config accordingly...".format(self.SERVICE))
+        self.write_configuration_file(self.get_src_ip_allow_list())
+
+    def run(self):
+        # Open a handle to the Config database
+        self.config_db = ConfigDBConnector()
+        self.config_db.connect()
+
+        # Write initial configuration
+        self.write_configuration_file(self.get_src_ip_allow_list())
+
+        # Subscribe to notifications when ACL tables or rules change
+        self.config_db.subscribe(self.ACL_TABLE,
+                lambda table, key, data: self.notification_handler(key, data))
+        self.config_db.subscribe(self.ACL_RULE,
+                lambda table, key, data: self.notification_handler(key, data))
+
+        # Indefinitely listen for Config DB notifications
+        self.config_db.listen()
+
+
+# ========================== Syslog wrappers ==========================
+
+def log_info(msg):
+    syslog.openlog(SYSLOG_IDENTIFIER)
+    syslog.syslog(syslog.LOG_INFO, msg)
+    syslog.closelog()
+
+
+def log_warning(msg):
+    syslog.openlog(SYSLOG_IDENTIFIER)
+    syslog.syslog(syslog.LOG_WARNING, msg)
+    syslog.closelog()
+
+
+def log_error(msg):
+    syslog.openlog(SYSLOG_IDENTIFIER)
+    syslog.syslog(syslog.LOG_ERR, msg)
+    syslog.closelog()
+
+
+# Determine whether we are running on an Arista platform
+def is_platform_arista():
+    proc = subprocess.Popen(["sonic-cfggen", "-v", "platform"],
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    (stdout, stderr) = proc.communicate()
+
+    if proc.returncode != 0:
+        log_error("Failed to retrieve platform string")
+        return false
+
+    return "arista" in stdout
+
+
+def main():
+    log_info("Starting up...")
+
+    if not os.geteuid() == 0:
+        log_error("Must be root to run this daemon")
+        print "Error: Must be root to run this daemon"
+        sys.exit(1)
+
+    if not is_platform_arista():
+        log_info("Platform is not an Arista platform. Exiting...")
+        sys.exit(0)
+
+    # Instantiate a ConfigUpdater object
+    config_updater = ConfigUpdater()
+    config_updater.run()
+
+if __name__ == "__main__":
+    main()

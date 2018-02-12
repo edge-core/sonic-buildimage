@@ -224,7 +224,7 @@ if [ "$image_type" = "aboot" ]; then
     sudo sed -i 's/udevadm settle/udevadm settle -E \/sys\/class\/net\/eth0/' $FILESYSTEM_ROOT/etc/init.d/networking
 fi
 
-# Service to update the sshd config file based on database changes
+# Service to update the sshd config file based on database changes for Arista devices
 sudo cp $IMAGE_CONFIGS/ssh/sshd-config-updater.service $FILESYSTEM_ROOT/etc/systemd/system
 sudo mkdir -p $FILESYSTEM_ROOT/etc/systemd/system/multi-user.target.wants
 cd $FILESYSTEM_ROOT/etc/systemd/system/multi-user.target.wants/

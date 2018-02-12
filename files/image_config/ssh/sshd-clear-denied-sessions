@@ -12,71 +12,70 @@ import subprocess
 
 # Run utmpdump, capture and return its output
 def run_utmpdump(_utmpFilename):
-   devnull = file("/dev/null", "w" )
-   p = subprocess.Popen(args=["utmpdump", _utmpFilename], stdout=subprocess.PIPE, stderr=devnull)
-   (stdout, stderr) = p.communicate()
-   rc = p.returncode
-   assert rc is not None # because p.communicate() should wait.
-   out = (stdout or '') + (stderr or '')
-   if rc:
-      e = SystemCommandError("%r: error code %d" % (" ".join(argv), rc))
-      e.error = rc
-      e.output = out
-      raise e
-   return stdout
+    devnull = file("/dev/null", "w" )
+    p = subprocess.Popen(args=["utmpdump", _utmpFilename], stdout=subprocess.PIPE, stderr=devnull)
+    (stdout, stderr) = p.communicate()
+    rc = p.returncode
+    assert rc is not None # because p.communicate() should wait.
+    out = (stdout or '') + (stderr or '')
+    if rc:
+        e = SystemCommandError("%r: error code %d" % (" ".join(argv), rc))
+        e.error = rc
+        e.output = out
+        raise e
+    return stdout
 
 # Run utmpdump and parse its output into a list of dicts and return that
 def get_utmp_data(utmpFileName=None):
-   """Reads the specified utmp file.
-   Returns a list of dictionaries, one for each utmp entry.
-   All dictionary keys and values are strings
-   Values are right padded with spaces and may contain all
-   spaces if that utmp field is empty.
-   Dictionary keys:
-      "type":     See UTMP_TYPE_* above
-      "pid":      Process ID as a string
-      "tty":      TTY (line) name - device name of tty w/o "/dev/"
-      "tty4":     4 char abbreivated TTY (line) name
-      "user":     User ID
-      "host":     Hostname for remote login,
-                  kernel release for Run Level and Boot Time
-      "ipAddr":   IP Address
-      "time":     Time and date entry was made
-   See linux docs on utmp and utmpdemp for more info.
-   Example output from utmpdump:
-         pid     tty4   user       tty            host          ipAddr            time
-     [7] [22953] [/238] [myname  ] [pts/238     ] [example.com] [253.122.98.159 ] [Mon Dec 18 21:08:09 2017 PST]
-   """
-   if not utmpFileName:
-      utmpFileName = os.environ.get( "DEFAULT_UTMP_FILE", "/var/run/utmp" )
-   if not os.path.exists(utmpFileName):
-      return []
-   output = run_utmpdump(utmpFileName)
-   lines  = re.split("\n", output)
-   regExp = re.compile(
-      r"\[(?P<type>"   r"[^\]]*?)\s*\] \[(?P<pid>"  r"[^\]]*?)\s*\] " \
-      r"\[(?P<tty4>"   r"[^\]]*?)\s*\] \[(?P<user>" r"[^\]]*?)\s*\] " \
-      r"\[(?P<tty>"    r"[^\]]*?)\s*\] \[(?P<host>" r"[^\]]*?)\s*\] " \
-      r"\[(?P<ipAddr>" r"[^\]]*?)\s*\] \[(?P<time>" r"[^\]]*?)\s*\]"  )
-   entries = []
-   for line in lines:
-      m = regExp.match(line)
-      if not m:
-         # Skip header and any other lines we don't recognize
-         continue
-      entry = m.groupdict()
-      entries.append(entry)
-   return entries
+    """Reads the specified utmp file.
+    Returns a list of dictionaries, one for each utmp entry.
+    All dictionary keys and values are strings
+    Values are right padded with spaces and may contain all
+    spaces if that utmp field is empty.
+    Dictionary keys:
+        "type":     See UTMP_TYPE_* above
+        "pid":      Process ID as a string
+        "tty":      TTY (line) name - device name of tty w/o "/dev/"
+        "tty4":     4 char abbreivated TTY (line) name
+        "user":     User ID
+        "host":     Hostname for remote login,
+                    kernel release for Run Level and Boot Time
+        "ipAddr":   IP Address
+        "time":     Time and date entry was made
+    See linux docs on utmp and utmpdemp for more info.
+    Example output from utmpdump:
+          pid     tty4   user       tty            host          ipAddr            time
+      [7] [22953] [/238] [myname  ] [pts/238     ] [example.com] [253.122.98.159 ] [Mon Dec 18 21:08:09 2017 PST]
+    """
+    if not utmpFileName:
+        utmpFileName = os.environ.get( "DEFAULT_UTMP_FILE", "/var/run/utmp" )
+    if not os.path.exists(utmpFileName):
+        return []
+    output = run_utmpdump(utmpFileName)
+    lines  = re.split("\n", output)
+    regExp = re.compile(
+        r"\[(?P<type>"   r"[^\]]*?)\s*\] \[(?P<pid>"  r"[^\]]*?)\s*\] " \
+        r"\[(?P<tty4>"   r"[^\]]*?)\s*\] \[(?P<user>" r"[^\]]*?)\s*\] " \
+        r"\[(?P<tty>"    r"[^\]]*?)\s*\] \[(?P<host>" r"[^\]]*?)\s*\] " \
+        r"\[(?P<ipAddr>" r"[^\]]*?)\s*\] \[(?P<time>" r"[^\]]*?)\s*\]"  )
+    entries = []
+    for line in lines:
+        m = regExp.match(line)
+        if not m:
+            # Skip header and any other lines we don't recognize
+            continue
+        entry = m.groupdict()
+        entries.append(entry)
+    return entries
 
 # Find the source ip addresses of all ssh sessions, verify they are still allowed, and if not kill the ssh session
 if __name__ == '__main__':
-   for e in get_utmp_data():
-     if e["host"] and e["ipAddr"] != "0.0.0.0": # entry is for a live connection
-        # check allowness
-        r = os.system('tcpdmatch sshd %s | grep "access.*granted" > /dev/null' % e["ipAddr"])
-        # print some debugs
-        print "From:", e["ipAddr"], "ssh pid:", e["pid"], "allowed" if r == 0 else "denied"
-        # if needed go for the kill
-        if r != 0:
-           os.system("kill -1 %s" % e["pid"])
-
+    for e in get_utmp_data():
+        if e["host"] and e["ipAddr"] != "0.0.0.0": # entry is for a live connection
+            # check allowness
+            r = os.system('tcpdmatch sshd %s | grep "access.*granted" > /dev/null' % e["ipAddr"])
+            # print some debugs
+            print "From:", e["ipAddr"], "ssh pid:", e["pid"], "allowed" if r == 0 else "denied"
+            # if needed go for the kill
+            if r != 0:
+                os.system("kill -1 %s" % e["pid"])
