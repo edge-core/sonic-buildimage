@@ -409,8 +409,8 @@ elif [ "$install_env" = "sonic" ]; then
     running_sonic_revision=$(cat /etc/sonic/sonic_version.yml | grep build_version | cut -f2 -d" ")
     # Prevent installing existing SONiC if it is running
     if [ "$image_dir" = "image-$running_sonic_revision" ]; then
-        echo "Error: Unable to install SONiC version $running_sonic_revision. Running SONiC has the same version"
-        exit 1
+        echo "Not installing SONiC version $running_sonic_revision, as current running SONiC has the same version"
+        exit 0
     fi
     # Remove extra SONiC images if any
     for f in $demo_mnt/image-* ; do
