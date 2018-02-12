@@ -80,7 +80,13 @@ The SONiC installer contains all docker images needed. SONiC uses one image for 
 For Broadcom ASIC, we build ONIE and EOS image. EOS image is used for Arista devices, ONIE image is used for all other Broadcom ASIC based devices. 
 
     make configure PLATFORM=broadcom
-    BLDENV=stretch make target/debs/linux-headers-4.9.0-3-common_4.9.30-2+deb9u5_all.deb
+    BLDENV=stretch make target/debs/linux-headers-4.9.0-3-common_4.9.30-2+deb9u5_all.deb \
+                        target/debs/sonic-platform-quanta-ix1b-32x_1.0_amd64.deb \
+                        target/debs/platform-modules-d7032q28b_1.1.0_amd64.deb \
+                        target/debs/sonic-platform-accton-as7712-32x_1.1_amd64.deb \
+                        target/debs/sonic-platform-ingrasys-s9100_1.1.0_amd64.deb \
+                        target/debs/platform-modules-z9100_1.1_amd64.deb \
+                        target/debs/platform-modules-s6000_1.0_amd64.deb
     # build ONIE image
     make target/sonic-broadcom.bin
  
