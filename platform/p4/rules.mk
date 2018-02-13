@@ -6,8 +6,9 @@ include $(PLATFORM_PATH)/p4c-bm.mk
 include $(PLATFORM_PATH)/p4-bmv.mk
 include $(PLATFORM_PATH)/p4-switch.mk
 include $(PLATFORM_PATH)/docker-sonic-p4.mk
+include $(PLATFORM_PATH)/libsaithrift-dev.mk
 
 SONIC_ALL += $(DOCKER_SONIC_P4)
 
-$(LIBSAIREDIS)_DEPENDS += $(P4_SWITCH)
+$(LIBSAIREDIS)_DEPENDS += $(P4_SWITCH) $(LIBSAITHRIFT_DEV_P4)
 $(LIBSAIREDIS)_RDEPENDS += $(P4_SWITCH)
