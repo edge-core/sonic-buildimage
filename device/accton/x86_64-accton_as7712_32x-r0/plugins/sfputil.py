@@ -53,7 +53,7 @@ class SfpUtil(SfpUtilBase):
     _qsfp_ports = range(0, ports_in_block + 1)
 
     def __init__(self):
-        eeprom_path = '/sys/bus/i2c/devices/{0}-0050/sfp_eeprom'
+        eeprom_path = '/sys/bus/i2c/devices/{0}-0050/eeprom'
         for x in range(0, self._port_end + 1):
             port_eeprom_path = eeprom_path.format(self.port_to_i2c_mapping[x+1])
             self._port_to_eeprom_mapping[x] = port_eeprom_path
@@ -64,9 +64,9 @@ class SfpUtil(SfpUtilBase):
         if port_num < self._port_start or port_num > self._port_end:
             return False
 
-        path = "/sys/bus/i2c/devices/{0}-0050/sfp_port_reset"
-        port_ps = path.format(self.port_to_i2c_mapping[port_num+1])
-          
+        path = "/sys/bus/i2c/devices/4-0060/module_reset_{0}"
+        port_ps = path.format(port_num+1)
+        
         try:
             reg_file = open(port_ps, 'w')
         except IOError as e:
@@ -93,8 +93,8 @@ class SfpUtil(SfpUtilBase):
         if port_num < self._port_start or port_num > self._port_end:
             return False
 
-        path = "/sys/bus/i2c/devices/{0}-0050/sfp_is_present"
-        port_ps = path.format(self.port_to_i2c_mapping[port_num+1])
+        path = "/sys/bus/i2c/devices/4-0060/module_present_{0}"
+        port_ps = path.format(port_num+1)
 
           
         try:
