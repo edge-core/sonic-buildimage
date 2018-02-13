@@ -77,4 +77,6 @@
 [submodule "platform/broadcom/sonic-platform-modules-quanta"]
 	path = platform/broadcom/sonic-platform-modules-quanta
 	url = https://github.com/QuantaSwitchONIE/sonic-platform-modules-quanta.git
-
+[submodule "platform/broadcom/sonic-platform-modules-mitac"]
+	path = platform/broadcom/sonic-platform-modules-mitac
+	url = https://github.com/MiTAC-EBU/sonic-platform-modules-mitac.git
