@@ -1,6 +1,6 @@
 # supervisor package
 
-SUPERVISOR_VERSION = 3.3.2
+SUPERVISOR_VERSION = 3.3.3
 
 export SUPERVISOR_VERSION
 
