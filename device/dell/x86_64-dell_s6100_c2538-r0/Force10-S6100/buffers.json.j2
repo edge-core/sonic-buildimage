@@ -35,7 +35,25 @@
     {%- if cable_len -%}
         {{ cable_len.0 }}
     {%- else -%}
-        {{ default_cable }}
+        {%- if switch_role == 'ToRRouter' -%}
+            {%- for local_port in VLAN_MEMBER -%}
+                {%- set vlan_port = local_port.split("|") -%}
+                {%- if vlan_port[1] == port_name -%}
+                    {%- set roles3 = switch_role + '_' + 'server' -%}
+                    {%- set roles3 = roles3 | lower -%}
+                    {%- if roles3 in ports2cable -%}
+                        {%- if cable_len.append(ports2cable[roles3]) -%}{%- endif -%}
+                    {%- endif -%}
+                {%- endif -%}
+            {%- endfor -%}
+            {%- if cable_len -%}
+                {{cable_len.0}}
+            {%- else -%}
+                {{ default_cable }}
+            {%- endif -%}
+        {%- else -%}
+            {{ default_cable }}
+        {%- endif -%}
     {%- endif -%}
 {% endmacro %}
 
