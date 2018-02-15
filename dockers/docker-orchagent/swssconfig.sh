@@ -16,6 +16,13 @@ function fast_reboot {
         swssconfig /arp.json
         rm -f /arp.json
       fi
+
+      if [[ -f /default_routes.json ]];
+      then
+        swssconfig /default_routes.json
+        rm -f /default_routes.json
+      fi
+
       ;;
     *)
       ;;
