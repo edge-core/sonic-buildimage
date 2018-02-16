@@ -7,6 +7,9 @@
 # Precompiled Headers
 *.gch
 *.pch
+*.mod.c
+*.ko.cmd
+*.o.cmd
 
 # Libraries
 *.lib
