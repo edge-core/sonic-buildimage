@@ -60,13 +60,13 @@ and directories with more complcated components, that provide their own Makefile
 Every **platform/[VENDOR]/** directory is a derived part of buildimage frontend, that defines rules and targets for a concrete vendor.  
 
 ### Build output
-**target/** is basically a build output. You can find all biuld artifacts there.  
+**target/** is basically a build output. You can find all build artifacts there.  
 
 ## Recipes and target groups
 Now let's go over a definition of recipes and target groups.  
 **Recipe** is a small makefile that defines a target and set of variables for building it.
 If you want to add a new target to buildimage (.deb package or docker image), you have to create a recipe for this target.  
-**Target group** is a set of targets that are built according to the same rulels.
+**Target group** is a set of targets that are built according to the same rules.
 Every recipe sets a target group to which this target belongs.  
 
 ### Recipe example
@@ -119,7 +119,7 @@ SONIC_PYTHON_STDEB_DEBS += $(SOME_NEW_DEB) # add package to this target group
 
 **SONIC_MAKE_DEBS**  
 This is a bit more flexible case.
-If you have to do some specific type of build or apply pathes prior to build, just define your owm Makefile and add it to buildomage.
+If you have to do some specific type of build or apply pathes prior to build, just define your own Makefile and add it to buildimage.
 Define:
 ```make
 SOME_NEW_DEB = some_new_deb.deb # name of your package
@@ -194,7 +194,7 @@ Although every target is built inside a sonic-slave container, which exits at th
 ```
 $ make sonic-slave-bash
 ```
-It is very useful for debugging when you add a new target and facing some trubles.
+It is very useful for debugging when you add a new target and facing some troubles.
 
 sonic-slave environment is built only once, but if sonic-slave/Dockerfile was updated, you can rebuild it with this command:
 ```
