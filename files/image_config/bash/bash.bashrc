@@ -53,3 +53,6 @@ if [ -x /usr/lib/command-not-found -o -x /usr/share/command-not-found/command-no
         fi
     }
 fi
+
+# enable auto-logout for console ttyS* sessions
+tty | grep ttyS >/dev/null && TMOUT=300
