@@ -31,7 +31,7 @@ if [ "$src" = "dhcp" ]; then
     if [ "`cat /tmp/dhcp_graph_url`" = "N/A" ]; then
         echo "'N/A' found in DHCP response. Skipping graph update and generating an empty configuration."
         echo '{"DEVICE_METADATA":' > /tmp/device_meta.json
-        sonic-cfggen -m /etc/sonic/minigraph.xml --var-json DEVICE_METADATA >> /tmp/device_meta.json
+        sonic-cfggen -H -m /etc/sonic/minigraph.xml --var-json DEVICE_METADATA >> /tmp/device_meta.json
         echo '}' >> /tmp/device_meta.json
         if [ -f /etc/sonic/init_cfg.json ]; then
             sonic-cfggen -j /tmp/device_meta.json -j /etc/sonic/init_cfg.json --print-data > /etc/sonic/config_db.json
@@ -88,9 +88,9 @@ done
 
 echo "Regenerating config DB from minigraph..."
 if [ -f /etc/sonic/init_cfg.json ]; then
-    sonic-cfggen -m -j /etc/sonic/init_cfg.json --print-data > /etc/sonic/config_db.json
+    sonic-cfggen -H -m -j /etc/sonic/init_cfg.json --print-data > /etc/sonic/config_db.json
 else
-    sonic-cfggen -m --print-data > /etc/sonic/config_db.json
+    sonic-cfggen -H -m --print-data > /etc/sonic/config_db.json
 fi
 
 # Mark as disabled after graph is successfully downloaded

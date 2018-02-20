@@ -20,7 +20,7 @@ function postStartAction()
 }
 
 # Obtain our platform as we will mount directories with these names in each docker
-PLATFORM=`sonic-cfggen -v platform`
+PLATFORM=`sonic-cfggen -H -v DEVICE_METADATA.localhost.platform`
 
 {%- if docker_container_name == "database" %}
 # Don't mount HWSKU in {{docker_container_name}} container.

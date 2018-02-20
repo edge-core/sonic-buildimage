@@ -30,7 +30,7 @@ ExecStartPre=/usr/bin/mst start
 ExecStartPre=/usr/bin/mlnx-fw-upgrade.sh
 ExecStartPre=/etc/init.d/sxdkernel start
 ExecStartPre=/sbin/modprobe i2c-dev
-ExecStartPre=/bin/bash -c "/usr/share/sonic/device/$(sonic-cfggen -v platform)/hw-management start"
+ExecStartPre=/bin/bash -c "/usr/share/sonic/device/$(sonic-cfggen -H -v DEVICE_METADATA.localhost.platform)/hw-management start"
 {% elif sonic_asic_platform == 'cavium' %}
 ExecStartPre=/etc/init.d/xpnet.sh start
 {% endif %}
@@ -43,7 +43,7 @@ ExecStop=/usr/bin/{{docker_container_name}}.sh stop
 ExecStopPost=/usr/bin/syncd.sh stop
 
 {% if sonic_asic_platform == 'mellanox' %}
-ExecStopPost=/bin/bash -c "/usr/share/sonic/device/$(sonic-cfggen -v platform)/hw-management stop"
+ExecStopPost=/bin/bash -c "/usr/share/sonic/device/$(sonic-cfggen -H -v DEVICE_METADATA.localhost.platform)/hw-management stop"
 ExecStopPost=/etc/init.d/sxdkernel stop
 ExecStopPost=/usr/bin/mst stop
 {% elif sonic_asic_platform == 'cavium' %}

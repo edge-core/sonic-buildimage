@@ -6,7 +6,7 @@ sonic-cfggen -d -t /usr/share/sonic/templates/switch.json.j2 > /etc/swss/config.
 sonic-cfggen -d -t /usr/share/sonic/templates/ipinip.json.j2 > /etc/swss/config.d/ipinip.json
 sonic-cfggen -d -t /usr/share/sonic/templates/ports.json.j2 > /etc/swss/config.d/ports.json
 
-export platform=`sonic-cfggen -v platform`
+export platform=`sonic-cfggen -H -v DEVICE_METADATA.localhost.platform`
 
 rm -f /var/run/rsyslogd.pid
 
