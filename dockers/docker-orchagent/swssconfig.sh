@@ -29,6 +29,13 @@ function fast_reboot {
   esac
 }
 
+# Wait until swss.sh in the host system create file swss:/ready
+until [[ -e /ready ]]; do
+    sleep 0.1;
+done
+
+rm -f /ready
+
 # Restore FDB and ARP table ASAP
 fast_reboot
 

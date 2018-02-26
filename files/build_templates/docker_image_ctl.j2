@@ -7,15 +7,24 @@ function getMountPoint()
 
 function postStartAction()
 {
-{%- if docker_container_name != "database" %}
-    :
-{%- else %}
+{%- if docker_container_name == "database" %}
     until [[ $(/usr/bin/docker exec database redis-cli ping | grep -c PONG) -gt 0 ]]; do
       sleep 1;
     done
-{%- endif %}
-{%- if docker_container_name == "snmp" %}
+{%- elif docker_container_name == "swss" %}
+    docker exec swss rm -f /ready   # remove cruft
+    if [[ -d /host/fast-reboot ]];
+    then
+        test -e /host/fast-reboot/fdb.json && docker cp /host/fast-reboot/fdb.json swss:/
+        test -e /host/fast-reboot/arp.json && docker cp /host/fast-reboot/arp.json swss:/
+        test -e /host/fast-reboot/default_routes.json && docker cp /host/fast-reboot/default_routes.json swss:/
+        rm -fr /host/fast-reboot
+    fi
+    docker exec swss touch /ready   # signal swssconfig.sh to go
+{%- elif docker_container_name == "snmp" %}
     docker exec -i database redis-cli -n 6 HSET 'DEVICE_METADATA|localhost' chassis_serial_number $(decode-syseeprom -s)
+{%- else %}
+    # nothing
 {%- endif %}
 }
 
