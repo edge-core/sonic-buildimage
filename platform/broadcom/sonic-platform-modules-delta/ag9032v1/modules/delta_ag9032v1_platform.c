@@ -13,6 +13,8 @@
 #include <linux/i2c-mux.h>
 #include <linux/i2c-mux-gpio.h>
 #include <linux/i2c/sff-8436.h>
+#include <linux/hwmon.h>
+#include <linux/hwmon-sysfs.h>
 
 #define BUS3_DEV_NUM 9
 #define BUS4_DEV_NUM 6
@@ -581,6 +583,82 @@ enum cpld_type {
 struct cpld_platform_data {
     int reg_addr;
     struct i2c_client *client;
+    //struct kobject *kobj;
+};
+
+enum swpld_attributes {
+    SW_BOARD_ID,
+    SW_BOARD_VER,
+    SWPLD_VER,
+    SYS_RST,
+    B56960_RST,
+    MB_A_PLD_RST,
+    MB_B_PLD_RST,
+    PSU1_PWR_OK,
+    PSU2_PWR_OK,
+    HS1_PWR_OK,
+    HS2_PWR_OK,
+    B54616_RST,
+    B54616_INT,
+    B54616_MASK_INT,
+    PB_HS_INT,
+    MB_HS_INT,
+    PB_PWR_INT,
+    MB_PWR_INT,
+    FAN_INT,
+    PB_HS_MASK_INT,
+    MB_HS_MASK_INT,
+    PB_PWR1_MASK_INT,
+    PB_PWR2_MASK_INT,
+    FAN_MASK_INT,
+    QSFP_01TO08_INT,
+    QSFP_08TO16_INT,
+    QSFP_17TO24_INT,
+    QSFP_25TO32_INT,
+    QSFP_01TO08_ABS,
+    QSFP_08TO16_ABS,
+    QSFP_17TO24_ABS,
+    QSFP_25TO32_ABS,
+    QSFP_01TO08_MASK_INT,
+    QSFP_08TO16_MASK_INT,
+    QSFP_17TO24_MASK_INT,
+    QSFP_25TO32_MASK_INT,
+    QSFP_01TO08_MASK_ABS,
+    QSFP_08TO16_MASK_ABS,
+    QSFP_17TO24_MASK_ABS,
+    QSFP_25TO32_MASK_ABS,
+    QSFP01_MOD_INT,
+    QSFP02_MOD_INT,
+    QSFP03_MOD_INT,
+    QSFP04_MOD_INT,
+    QSFP05_MOD_INT,
+    QSFP06_MOD_INT,
+    QSFP07_MOD_INT,
+    QSFP08_MOD_INT,
+    QSFP09_MOD_INT,
+    QSFP10_MOD_INT,
+    QSFP11_MOD_INT,
+    QSFP12_MOD_INT,
+    QSFP13_MOD_INT,
+    QSFP14_MOD_INT,
+    QSFP15_MOD_INT,
+    QSFP16_MOD_INT,
+    QSFP17_MOD_INT,
+    QSFP18_MOD_INT,
+    QSFP19_MOD_INT,
+    QSFP20_MOD_INT,
+    QSFP21_MOD_INT,
+    QSFP22_MOD_INT,
+    QSFP23_MOD_INT,
+    QSFP24_MOD_INT,
+    QSFP25_MOD_INT,
+    QSFP26_MOD_INT,
+    QSFP27_MOD_INT,
+    QSFP28_MOD_INT,
+    QSFP29_MOD_INT,
+    QSFP30_MOD_INT,
+    QSFP31_MOD_INT,
+    QSFP32_MOD_INT,
 };
 
 static struct cpld_platform_data ag9032v1_cpld_platform_data[] = {
@@ -590,11 +668,370 @@ static struct cpld_platform_data ag9032v1_cpld_platform_data[] = {
 };
 
 static struct platform_device ag9032v1_cpld = {
-    .name               = "delta-ag9032v1-cpld",
+    .name               = "delta-ag9032v1-swpld",
     .id                 = 0,
     .dev                = {
                 .platform_data   = ag9032v1_cpld_platform_data,
                 .release         = device_release
+    },
+};
+
+static struct swpld_attribute_data {   
+    int reg_addr;
+    int reg_mask;
+    char reg_note[150];
+};
+
+static struct swpld_attribute_data controller_interrupt_data[] = {
+//BOARD
+    [SYS_RST] = {
+        .reg_addr = 0x04,
+        .reg_mask = 7,
+        .reg_note = "“1” = Normal operation\n“0” = Reset"
+    },
+    [B56960_RST] = {
+        .reg_addr = 0x04,
+        .reg_mask = 6,
+        .reg_note = "“1” = Normal operation\n“0” = Reset"
+    },
+    [MB_A_PLD_RST] = {
+        .reg_addr = 0x04,
+        .reg_mask = 4,
+        .reg_note = "“1” = Normal operation\n“0” = Reset"
+    },
+    [MB_B_PLD_RST] = {
+        .reg_addr = 0x04,
+        .reg_mask = 3,
+        .reg_note = "“1” = Normal operation\n“0” = Reset"
+    },
+//PSU
+    [PSU1_PWR_OK] = {
+        .reg_addr = 0x0a,
+        .reg_mask = 7,
+        .reg_note = "‘0’ = Power rail is failed\n‘1’ = Power rail is good"
+    },
+    [PSU2_PWR_OK] = {
+        .reg_addr = 0x0a,
+        .reg_mask = 6,
+        .reg_note = "‘0’ = Power rail is failed\n‘1’ = Power rail is good"
+    },
+//HOT SWAP
+    [HS1_PWR_OK] = {
+        .reg_addr = 0x08,
+        .reg_mask = 5,
+        .reg_note = "‘0’ = Hot swap controller disabled\n‘1’ = Hot swap controller enabled"
+    },
+    [HS2_PWR_OK] = {
+        .reg_addr = 0x08,
+        .reg_mask = 4,
+        .reg_note = "‘0’ = Hot swap controller disabled\n‘1’ = Hot swap controller enabled"
+    },
+//BCM54616S
+    [B54616_RST] = {
+        .reg_addr = 0x04,
+        .reg_mask = 5,
+        .reg_note = "“0” = Reset\n“1” = Normal operation"
+    },
+    [B54616_INT] = {
+        .reg_addr = 0x16,
+        .reg_mask = 7,
+        .reg_note = "‘0’ = Interrupt occurs\n‘1’ = Interrupt doesn’t occur"
+    },
+    [B54616_MASK_INT] = {
+        .reg_addr = 0x17,
+        .reg_mask = 7,
+        .reg_note = "“0” = Interrupt doesn’t masked\n“1” = Interrupt masked"
+    },
+//QSFP
+    [PB_HS_INT] = {
+        .reg_addr = 0x10,
+        .reg_mask = 7,
+        .reg_note = "‘0’ = Interrupt occurs\n‘1’ = Interrupt doesn’t occur"
+    },
+    [MB_HS_INT] = {
+        .reg_addr = 0x10,
+        .reg_mask = 6,
+        .reg_note = "‘0’ = Interrupt occurs\n‘1’ = Interrupt doesn’t occur"
+    },
+    [PB_PWR_INT] = {
+        .reg_addr = 0x10,
+        .reg_mask = 5,
+        .reg_note = "‘0’ = Interrupt occurs\n‘1’ = Interrupt doesn’t occur"
+    },
+    [MB_PWR_INT] = {
+        .reg_addr = 0x10,
+        .reg_mask = 4,
+        .reg_note = "‘0’ = Interrupt occurs\n‘1’ = Interrupt doesn’t occur"
+    },
+    [FAN_INT] = {
+        .reg_addr = 0x10,
+        .reg_mask = 3,
+        .reg_note = "‘0’ = Interrupt occurs\n‘1’ = Interrupt doesn’t occur"
+    },
+    [PB_HS_MASK_INT] = {
+        .reg_addr = 0x11,
+        .reg_mask = 7,
+        .reg_note = "‘0’ = Interrupt doesn’t masked\n‘1’ = Interrupt masked"
+    },
+    [MB_HS_MASK_INT] = {
+        .reg_addr = 0x11,
+        .reg_mask = 6,
+        .reg_note = "‘0’ = Interrupt doesn’t masked\n‘1’ = Interrupt masked"
+    },
+    [PB_PWR1_MASK_INT] = {
+        .reg_addr = 0x11,
+        .reg_mask = 5,
+        .reg_note = "‘0’ = Interrupt doesn’t masked\n‘1’ = Interrupt masked"
+    },
+    [PB_PWR2_MASK_INT] = {
+        .reg_addr = 0x11,
+        .reg_mask = 4,
+        .reg_note = "‘0’ = Interrupt doesn’t masked\n‘1’ = Interrupt masked"
+    },
+    [FAN_MASK_INT] = {
+        .reg_addr = 0x11,
+        .reg_mask = 3,
+        .reg_note = "‘0’ = Interrupt doesn’t masked\n‘1’ = Interrupt masked"
+    },
+    [QSFP_01TO08_INT] = {
+        .reg_addr = 0x12,
+        .reg_mask = 7,
+        .reg_note = "“0” = Interrupt occurs\n“1” = Interrupt doesn’t occur"
+    },
+    [QSFP_08TO16_INT] = {
+        .reg_addr = 0x12,
+        .reg_mask = 6,
+        .reg_note = "“0” = Interrupt occurs\n“1” = Interrupt doesn’t occur"
+    },
+    [QSFP_17TO24_INT] = {
+        .reg_addr = 0x12,
+        .reg_mask = 5,
+        .reg_note = "“0” = Interrupt occurs\n“1” = Interrupt doesn’t occur"
+    },
+    [QSFP_25TO32_INT] = {
+        .reg_addr = 0x12,
+        .reg_mask = 4,
+        .reg_note = "“0” = Interrupt occurs\n“1” = Interrupt doesn’t occur"
+    },
+    [QSFP_01TO08_ABS] = {
+        .reg_addr = 0x12,
+        .reg_mask = 3,
+        .reg_note = "“0” = Absence status change\n“1” = Absence status not changes"
+    },
+    [QSFP_08TO16_ABS] = {
+        .reg_addr = 0x12,
+        .reg_mask = 2,
+        .reg_note = "“0” = Absence status change\n“1” = Absence status not changes"
+    },
+    [QSFP_17TO24_ABS] = {
+        .reg_addr = 0x12,
+        .reg_mask = 1,
+        .reg_note = "“0” = Absence status change\n“1” = Absence status not changes"
+    },
+    [QSFP_25TO32_ABS] = {
+        .reg_addr = 0x12,
+        .reg_mask = 0,
+        .reg_note = "“0” = Absence status change\n“1” = Absence status not changes"
+    },
+    [QSFP_01TO08_MASK_INT] = {
+        .reg_addr = 0x13,
+        .reg_mask = 7,
+        .reg_note = "“0” = Interrupt doesn’t masked\n“1” = Interrupt masked"
+    },
+    [QSFP_08TO16_MASK_INT] = {
+        .reg_addr = 0x13,
+        .reg_mask = 6,
+        .reg_note = "“0” = Interrupt doesn’t masked\n“1” = Interrupt masked"
+    },
+    [QSFP_17TO24_MASK_INT] = {
+        .reg_addr = 0x13,
+        .reg_mask = 5,
+        .reg_note = "“0” = Interrupt doesn’t masked\n“1” = Interrupt masked"
+    },
+    [QSFP_25TO32_MASK_INT] = {
+        .reg_addr = 0x13,
+        .reg_mask = 4,
+        .reg_note = "“0” = Interrupt doesn’t masked\n“1” = Interrupt masked"
+    },
+    [QSFP_01TO08_MASK_ABS] = {
+        .reg_addr = 0x13,
+        .reg_mask = 3,
+        .reg_note = "“0” = Interrupt doesn’t masked\n“1” = Interrupt masked"
+    },
+    [QSFP_08TO16_MASK_ABS] = {
+        .reg_addr = 0x13,
+        .reg_mask = 2,
+        .reg_note = "“0” = Interrupt doesn’t masked\n“1” = Interrupt masked"
+    },
+    [QSFP_17TO24_MASK_ABS] = {
+        .reg_addr = 0x13,
+        .reg_mask = 1,
+        .reg_note = "“0” = Interrupt doesn’t masked\n“1” = Interrupt masked"
+    },
+    [QSFP_25TO32_MASK_ABS] = {
+        .reg_addr = 0x13,
+        .reg_mask = 0,
+        .reg_note = "“0” = Interrupt doesn’t masked\n“1” = Interrupt masked"
+    },
+    [QSFP01_MOD_INT] = {
+        .reg_addr = 0x40,
+        .reg_mask = 7,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
+    },
+    [QSFP02_MOD_INT] = {
+        .reg_addr = 0x40,
+        .reg_mask = 6,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
+    },
+    [QSFP03_MOD_INT] = {
+        .reg_addr = 0x40,
+        .reg_mask = 5,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
+    },
+    [QSFP04_MOD_INT] = {
+        .reg_addr = 0x40,
+        .reg_mask = 4,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
+    },
+    [QSFP05_MOD_INT] = {
+        .reg_addr = 0x40,
+        .reg_mask = 3,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
+    },
+    [QSFP06_MOD_INT] = {
+        .reg_addr = 0x40,
+        .reg_mask = 2,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
+    },
+    [QSFP07_MOD_INT] = {
+        .reg_addr = 0x40,
+        .reg_mask = 1,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
+    },
+    [QSFP08_MOD_INT] = {
+        .reg_addr = 0x40,
+        .reg_mask = 0,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
+    },
+    [QSFP09_MOD_INT] = {
+        .reg_addr = 0x41,
+        .reg_mask = 7,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
+    },
+    [QSFP10_MOD_INT] = {
+        .reg_addr = 0x41,
+        .reg_mask = 6,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
+    },
+    [QSFP11_MOD_INT] = {
+        .reg_addr = 0x41,
+        .reg_mask = 5,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
+    },
+    [QSFP12_MOD_INT] = {
+        .reg_addr = 0x41,
+        .reg_mask = 4,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
+    },
+    [QSFP13_MOD_INT] = {
+        .reg_addr = 0x41,
+        .reg_mask = 3,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
+    },
+    [QSFP14_MOD_INT] = {
+        .reg_addr = 0x41,
+        .reg_mask = 2,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
+    },
+    [QSFP15_MOD_INT] = {
+        .reg_addr = 0x41,
+        .reg_mask = 1,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
+    },
+    [QSFP16_MOD_INT] = {
+        .reg_addr = 0x41,
+        .reg_mask = 0,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
+    },
+    [QSFP17_MOD_INT] = {
+        .reg_addr = 0x42,
+        .reg_mask = 7,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
+    },
+    [QSFP18_MOD_INT] = {
+        .reg_addr = 0x42,
+        .reg_mask = 6,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
+    },
+    [QSFP19_MOD_INT] = {
+        .reg_addr = 0x42,
+        .reg_mask = 5,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
+    },
+    [QSFP20_MOD_INT] = {
+        .reg_addr = 0x42,
+        .reg_mask = 4,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
+    },
+    [QSFP21_MOD_INT] = {
+        .reg_addr = 0x42,
+        .reg_mask = 3,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
+    },
+    [QSFP22_MOD_INT] = {
+        .reg_addr = 0x42,
+        .reg_mask = 2,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
+    },
+    [QSFP23_MOD_INT] = {
+        .reg_addr = 0x42,
+        .reg_mask = 1,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
+    },
+    [QSFP24_MOD_INT] = {
+        .reg_addr = 0x42,
+        .reg_mask = 0,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
+    },
+    [QSFP25_MOD_INT] = {
+        .reg_addr = 0x43,
+        .reg_mask = 7,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
+    },
+    [QSFP26_MOD_INT] = {
+        .reg_addr = 0x43,
+        .reg_mask = 6,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
+    },
+    [QSFP27_MOD_INT] = {
+        .reg_addr = 0x43,
+        .reg_mask = 5,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
+    },
+    [QSFP28_MOD_INT] = {
+        .reg_addr = 0x43,
+        .reg_mask = 4,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
+    },
+    [QSFP29_MOD_INT] = {
+        .reg_addr = 0x43,
+        .reg_mask = 3,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
+    },
+    [QSFP30_MOD_INT] = {
+        .reg_addr = 0x43,
+        .reg_mask = 2,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
+    },
+    [QSFP31_MOD_INT] = {
+        .reg_addr = 0x43,
+        .reg_mask = 1,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
+    },
+    [QSFP32_MOD_INT] = {
+        .reg_addr = 0x43,
+        .reg_mask = 0,
+        .reg_note = "“0” = The module issue the interrupt\n“1” = The module NOT issue the interrupt"
     },
 };
 
@@ -977,7 +1414,6 @@ static struct platform_led_data led_data[] = {
 	},
 };
 	
-
 static ssize_t get_led_color(struct device *dev, struct device_attribute *devattr, char *buf)
 {
     char str[9][20] = {0};
@@ -1032,15 +1468,74 @@ static ssize_t set_led_color(struct device *dev, struct device_attribute *devatt
     return count;
 }
 
+static unsigned char swpld_reg_addr;
+static ssize_t get_swpld_reg_value(struct device *dev, struct device_attribute *devattr, char *buf) 
+{
+    int ret;
+    struct cpld_platform_data *pdata = dev->platform_data;
 
+    ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, swpld_reg_addr);
+    return sprintf(buf, "0x%02x\n", ret);
+}
+
+static ssize_t set_swpld_reg_value(struct device *dev, struct device_attribute *attr,
+             const char *buf, size_t count)
+{
+    unsigned long data;
+    int err;
+    struct cpld_platform_data *pdata = dev->platform_data;
+    err = kstrtoul(buf, 0, &data);
+    if (err){
+        return err;
+    }
+
+    if (data > 0xff){
+        printk(KERN_ALERT "address out of range (0x00-0xFF)\n");
+        return count;
+    }
+
+    i2c_smbus_write_byte_data(pdata[system_cpld].client, swpld_reg_addr, data);
+
+    return count;
+}
+
+static ssize_t get_swpld_reg_addr(struct device *dev, struct device_attribute *devattr, char *buf) 
+{
+
+    return sprintf(buf, "0x%02x\n", swpld_reg_addr);
+}
+
+static ssize_t set_swpld_reg_addr(struct device *dev, struct device_attribute *attr,
+             const char *buf, size_t count)
+{
+    unsigned long data;
+    int err;
+
+    err = kstrtoul(buf, 0, &data);
+    if (err){
+        return err;
+    }
+    if (data > 0xff){
+        printk(KERN_ALERT "address out of range (0x00-0xFF)\n");
+        return count;
+    }
+    swpld_reg_addr = data;
+
+    return count;
+}
+
+static DEVICE_ATTR(swpld_reg_value, S_IRUGO | S_IWUSR, get_swpld_reg_value, set_swpld_reg_value);
+static DEVICE_ATTR(swpld_reg_addr,  S_IRUGO | S_IWUSR, get_swpld_reg_addr,  set_swpld_reg_addr);
 static DEVICE_ATTR(sfp_present,  S_IRUGO,           get_present,   NULL         );
-static DEVICE_ATTR(sfp_lpmode,   S_IWUSR | S_IRUGO, get_lpmode,    set_lpmode   );
-static DEVICE_ATTR(sfp_reset,    S_IWUSR | S_IRUGO, get_reset,     set_reset    );
-static DEVICE_ATTR(sfp_response, S_IWUSR | S_IRUGO, get_response,  set_response );
+static DEVICE_ATTR(sfp_lpmode,   S_IRUGO | S_IWUSR, get_lpmode,    set_lpmode   );
+static DEVICE_ATTR(sfp_reset,    S_IRUGO | S_IWUSR, get_reset,     set_reset    );
+static DEVICE_ATTR(sfp_response, S_IRUGO | S_IWUSR, get_response,  set_response );
 static DEVICE_ATTR(led_control,  S_IRUGO | S_IWUSR, get_led_color, set_led_color);
 
 static struct attribute *ag9032v1_cpld_attrs[] = {
-    &dev_attr_sfp_response.attr,    
+    &dev_attr_swpld_reg_value.attr,
+    &dev_attr_swpld_reg_addr.attr,
+    &dev_attr_sfp_response.attr,
     &dev_attr_sfp_present.attr,
     &dev_attr_sfp_lpmode.attr,
     &dev_attr_sfp_reset.attr,
@@ -1052,12 +1547,297 @@ static struct attribute_group ag9032v1_cpld_attr_grp = {
     .attrs = ag9032v1_cpld_attrs,
 };
 
+static struct kobject *kobj_board;
+static struct kobject *kobj_psu;
+static struct kobject *kobj_hot_swap;
+static struct kobject *kobj_controller_interrupt;
+static struct kobject *kobj_BCM54616S;
+
+static ssize_t get_swpld_data(struct device *dev, struct device_attribute *dev_attr, char *buf) 
+{
+    int ret;
+    struct sensor_device_attribute *attr = to_sensor_dev_attr(dev_attr);
+    struct device *i2cdev = kobj_to_dev(kobj_board->parent);
+    struct cpld_platform_data *pdata = i2cdev->platform_data;
+    unsigned char reg;
+    int mask;
+    int value;
+    char note[150];
+        
+    switch (attr->index) {
+    //attributes on BOARD
+        case SW_BOARD_ID:
+            reg  = 0x00;
+            ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, reg);
+            value = ret >> 4;
+            sprintf(note, "\n“0x00”: L9032NB-AL-R\n“0x01”: AK9032-R\n“0x02”: AG9032-R\n“0x03”: AG9032R-R\n“0x04”: AG9032 V1-R\n");
+            return sprintf(buf, "0x%02x%s", value, note);
+            break;
+        case SW_BOARD_VER:
+            reg  = 0x00;
+            ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, reg);
+            value = ret & 0x0F;
+            sprintf(note, "\n“0x00”: proto-A\n“0x01”: proto-B\n");
+            return sprintf(buf, "0x%02x%s", value, note);
+            break;
+        case SWPLD_VER:
+            reg  = 0x01;
+            ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, reg);
+            value = ret & 0xFF;
+            sprintf(note, " ");
+            return sprintf(buf, "0x%02x%s", value, note);
+            break;
+    //other attributes
+        case SYS_RST ... QSFP32_MOD_INT:
+            reg  = controller_interrupt_data[attr->index].reg_addr;
+            mask = controller_interrupt_data[attr->index].reg_mask;
+            sprintf(note, "\n%s\n",controller_interrupt_data[attr->index].reg_note);
+            break; 
+        default:
+            return sprintf(buf, "%d not found", attr->index);
+    }  
+    ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, reg);
+    value = (ret & (1 << mask)) >> mask;
+    return sprintf(buf, "%d%s", value, note);
+}
+
+static ssize_t set_swpld_data(struct device *dev, struct device_attribute *dev_attr, const char *buf, size_t count)
+{
+    int ret;
+    struct sensor_device_attribute *attr = to_sensor_dev_attr(dev_attr);
+    struct device *i2cdev = kobj_to_dev(kobj_board->parent);
+    struct cpld_platform_data *pdata = i2cdev->platform_data;
+    unsigned char reg;
+    int mask;
+    int value;
+    char note[180];
+    int data;
+    int val;
+    u8 mask_out;
+
+    ret = kstrtoul(buf, 0, &val);
+
+    if (ret)
+    {
+    return ret;
+    }
+    if (val > 1)
+    {
+    return -EINVAL;
+    }
+    
+    switch (attr->index) {
+        case SYS_RST ... MB_B_PLD_RST:
+        case HS1_PWR_OK ... HS2_PWR_OK:
+        case B54616_RST:
+        case QSFP_01TO08_MASK_INT... QSFP_25TO32_MASK_ABS:
+            reg  = controller_interrupt_data[attr->index].reg_addr;
+            mask = controller_interrupt_data[attr->index].reg_mask;
+            sprintf(note, "\n%s\n",controller_interrupt_data[attr->index].reg_note);
+            break;          
+        default:
+            return sprintf(buf, "%d not found", attr->index);
+    }  
+    ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, reg);
+    mask_out = ret & ~((u8)(1 << mask));
+    data = mask_out | (val << mask);
+    i2c_smbus_write_byte_data(pdata[system_cpld].client, reg, (u8)(data & 0xff));
+    ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, reg);
+    return count;
+}
+
+static SENSOR_DEVICE_ATTR(sw_board_id,     S_IRUGO,           get_swpld_data, NULL,           SW_BOARD_ID);
+static SENSOR_DEVICE_ATTR(sw_board_ver,    S_IRUGO,           get_swpld_data, NULL,           SW_BOARD_VER);
+static SENSOR_DEVICE_ATTR(swpld_ver,       S_IRUGO,           get_swpld_data, NULL,           SWPLD_VER);
+static SENSOR_DEVICE_ATTR(sys_rst,         S_IRUGO | S_IWUSR, get_swpld_data, set_swpld_data, SYS_RST);
+static SENSOR_DEVICE_ATTR(B56960_rst,      S_IRUGO | S_IWUSR, get_swpld_data, set_swpld_data, B56960_RST);
+static SENSOR_DEVICE_ATTR(mb_a_pld_rst,    S_IRUGO | S_IWUSR, get_swpld_data, set_swpld_data, MB_A_PLD_RST);
+static SENSOR_DEVICE_ATTR(mb_b_pld_rst,    S_IRUGO | S_IWUSR, get_swpld_data, set_swpld_data, MB_B_PLD_RST);
+
+static struct attribute *ag9032v1_swpld_attrs_board[] = {
+    &sensor_dev_attr_sw_board_id.dev_attr.attr,
+    &sensor_dev_attr_sw_board_ver.dev_attr.attr,
+    &sensor_dev_attr_swpld_ver.dev_attr.attr,
+    &sensor_dev_attr_sys_rst.dev_attr.attr,
+    &sensor_dev_attr_B56960_rst.dev_attr.attr,
+    &sensor_dev_attr_mb_a_pld_rst.dev_attr.attr,
+    &sensor_dev_attr_mb_b_pld_rst.dev_attr.attr,
+    NULL,
+};
+
+static SENSOR_DEVICE_ATTR(psu1_pwr_ok,      S_IRUGO, get_swpld_data, NULL, PSU1_PWR_OK);
+static SENSOR_DEVICE_ATTR(psu2_pwr_ok,      S_IRUGO, get_swpld_data, NULL, PSU2_PWR_OK);
+
+static struct attribute *ag9032v1_swpld_attrs_psu[] = {
+    &sensor_dev_attr_psu1_pwr_ok.dev_attr.attr,
+    &sensor_dev_attr_psu2_pwr_ok.dev_attr.attr,
+    NULL,
+};
+
+static SENSOR_DEVICE_ATTR(hs1_pwr_ok,      S_IRUGO | S_IWUSR, get_swpld_data, set_swpld_data, HS1_PWR_OK);
+static SENSOR_DEVICE_ATTR(hs2_pwr_ok,      S_IRUGO | S_IWUSR, get_swpld_data, set_swpld_data, HS2_PWR_OK);
+
+static struct attribute *ag9032v1_swpld_attrs_hot_swap[] = {
+    &sensor_dev_attr_hs1_pwr_ok.dev_attr.attr,
+    &sensor_dev_attr_hs2_pwr_ok.dev_attr.attr,
+    NULL,
+};
+
+static SENSOR_DEVICE_ATTR(B54616_rst,      S_IRUGO | S_IWUSR, get_swpld_data, set_swpld_data,  B54616_RST     );
+static SENSOR_DEVICE_ATTR(B54616_int,      S_IRUGO,           get_swpld_data, NULL,            B54616_INT     );
+static SENSOR_DEVICE_ATTR(B54616_mask_int, S_IRUGO,           get_swpld_data, NULL,            B54616_MASK_INT);
+
+static struct attribute *ag9032v1_swpld_attrs_BCM54616S[] = {
+    &sensor_dev_attr_B54616_rst.dev_attr.attr,
+    &sensor_dev_attr_B54616_int.dev_attr.attr,
+    &sensor_dev_attr_B54616_mask_int.dev_attr.attr,
+    NULL,
+};
+
+static SENSOR_DEVICE_ATTR(pb_hs_int,            S_IRUGO, get_swpld_data, NULL, PB_HS_INT);
+static SENSOR_DEVICE_ATTR(mb_hs_int,            S_IRUGO, get_swpld_data, NULL, MB_HS_INT);
+static SENSOR_DEVICE_ATTR(pb_pwr_int,           S_IRUGO, get_swpld_data, NULL, PB_PWR_INT);
+static SENSOR_DEVICE_ATTR(mb_pwr_int,           S_IRUGO, get_swpld_data, NULL, MB_PWR_INT);
+static SENSOR_DEVICE_ATTR(fan_int,              S_IRUGO, get_swpld_data, NULL, FAN_INT);
+static SENSOR_DEVICE_ATTR(pb_hs_mask_int,       S_IRUGO, get_swpld_data, NULL, PB_HS_MASK_INT);
+static SENSOR_DEVICE_ATTR(mb_hs_mask_int,       S_IRUGO, get_swpld_data, NULL, MB_HS_MASK_INT);
+static SENSOR_DEVICE_ATTR(pb_pwr1_mask_int,     S_IRUGO, get_swpld_data, NULL, PB_PWR1_MASK_INT);
+static SENSOR_DEVICE_ATTR(pb_pwr2_mask_int,     S_IRUGO, get_swpld_data, NULL, PB_PWR2_MASK_INT);
+static SENSOR_DEVICE_ATTR(fan_mask_int,         S_IRUGO, get_swpld_data, NULL, FAN_MASK_INT);
+static SENSOR_DEVICE_ATTR(qsfp_01to08_int,      S_IRUGO, get_swpld_data, NULL, QSFP_01TO08_INT);
+static SENSOR_DEVICE_ATTR(qsfp_08to16_int,      S_IRUGO, get_swpld_data, NULL, QSFP_08TO16_INT);
+static SENSOR_DEVICE_ATTR(qsfp_17to24_int,      S_IRUGO, get_swpld_data, NULL, QSFP_17TO24_INT);
+static SENSOR_DEVICE_ATTR(qsfp_25to32_int,      S_IRUGO, get_swpld_data, NULL, QSFP_25TO32_INT);
+static SENSOR_DEVICE_ATTR(qsfp_01to08_abs,      S_IRUGO, get_swpld_data, NULL, QSFP_01TO08_ABS);
+static SENSOR_DEVICE_ATTR(qsfp_08to16_abs,      S_IRUGO, get_swpld_data, NULL, QSFP_08TO16_ABS);
+static SENSOR_DEVICE_ATTR(qsfp_17to24_abs,      S_IRUGO, get_swpld_data, NULL, QSFP_17TO24_ABS);
+static SENSOR_DEVICE_ATTR(qsfp_25to32_abs,      S_IRUGO, get_swpld_data, NULL, QSFP_25TO32_ABS);
+static SENSOR_DEVICE_ATTR(qsfp_01to08_mask_int, S_IRUGO | S_IWUSR, get_swpld_data, set_swpld_data, QSFP_01TO08_MASK_INT);
+static SENSOR_DEVICE_ATTR(qsfp_08to16_mask_int, S_IRUGO | S_IWUSR, get_swpld_data, set_swpld_data, QSFP_08TO16_MASK_INT);
+static SENSOR_DEVICE_ATTR(qsfp_17to24_mask_int, S_IRUGO | S_IWUSR, get_swpld_data, set_swpld_data, QSFP_17TO24_MASK_INT);
+static SENSOR_DEVICE_ATTR(qsfp_25to32_mask_int, S_IRUGO | S_IWUSR, get_swpld_data, set_swpld_data, QSFP_25TO32_MASK_INT);
+static SENSOR_DEVICE_ATTR(qsfp_01to08_mask_abs, S_IRUGO | S_IWUSR, get_swpld_data, set_swpld_data, QSFP_01TO08_MASK_ABS);
+static SENSOR_DEVICE_ATTR(qsfp_08to16_mask_abs, S_IRUGO | S_IWUSR, get_swpld_data, set_swpld_data, QSFP_08TO16_MASK_ABS);
+static SENSOR_DEVICE_ATTR(qsfp_17to24_mask_abs, S_IRUGO | S_IWUSR, get_swpld_data, set_swpld_data, QSFP_17TO24_MASK_ABS);
+static SENSOR_DEVICE_ATTR(qsfp_25to32_mask_abs, S_IRUGO | S_IWUSR, get_swpld_data, set_swpld_data, QSFP_25TO32_MASK_ABS);
+static SENSOR_DEVICE_ATTR(qsfp01_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP01_MOD_INT);
+static SENSOR_DEVICE_ATTR(qsfp02_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP02_MOD_INT);
+static SENSOR_DEVICE_ATTR(qsfp03_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP03_MOD_INT);
+static SENSOR_DEVICE_ATTR(qsfp04_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP04_MOD_INT);
+static SENSOR_DEVICE_ATTR(qsfp05_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP05_MOD_INT);
+static SENSOR_DEVICE_ATTR(qsfp06_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP06_MOD_INT);
+static SENSOR_DEVICE_ATTR(qsfp07_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP07_MOD_INT);
+static SENSOR_DEVICE_ATTR(qsfp08_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP08_MOD_INT);
+static SENSOR_DEVICE_ATTR(qsfp09_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP09_MOD_INT);
+static SENSOR_DEVICE_ATTR(qsfp10_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP10_MOD_INT);
+static SENSOR_DEVICE_ATTR(qsfp11_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP11_MOD_INT);
+static SENSOR_DEVICE_ATTR(qsfp12_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP12_MOD_INT);
+static SENSOR_DEVICE_ATTR(qsfp13_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP13_MOD_INT);
+static SENSOR_DEVICE_ATTR(qsfp14_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP14_MOD_INT);
+static SENSOR_DEVICE_ATTR(qsfp15_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP15_MOD_INT);
+static SENSOR_DEVICE_ATTR(qsfp16_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP16_MOD_INT);
+static SENSOR_DEVICE_ATTR(qsfp17_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP17_MOD_INT);
+static SENSOR_DEVICE_ATTR(qsfp18_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP18_MOD_INT);
+static SENSOR_DEVICE_ATTR(qsfp19_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP19_MOD_INT);
+static SENSOR_DEVICE_ATTR(qsfp20_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP20_MOD_INT);
+static SENSOR_DEVICE_ATTR(qsfp21_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP21_MOD_INT);
+static SENSOR_DEVICE_ATTR(qsfp22_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP22_MOD_INT);
+static SENSOR_DEVICE_ATTR(qsfp23_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP23_MOD_INT);
+static SENSOR_DEVICE_ATTR(qsfp24_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP24_MOD_INT);
+static SENSOR_DEVICE_ATTR(qsfp25_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP25_MOD_INT);
+static SENSOR_DEVICE_ATTR(qsfp26_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP26_MOD_INT);
+static SENSOR_DEVICE_ATTR(qsfp27_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP27_MOD_INT);
+static SENSOR_DEVICE_ATTR(qsfp28_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP28_MOD_INT);
+static SENSOR_DEVICE_ATTR(qsfp29_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP29_MOD_INT);
+static SENSOR_DEVICE_ATTR(qsfp30_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP30_MOD_INT);
+static SENSOR_DEVICE_ATTR(qsfp31_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP31_MOD_INT);
+static SENSOR_DEVICE_ATTR(qsfp32_mod_int, S_IRUGO, get_swpld_data, NULL, QSFP32_MOD_INT);
+
+static struct attribute *ag9032v1_swpld_attrs_controller_interrupt[] = {
+    &sensor_dev_attr_pb_hs_int.dev_attr.attr,
+    &sensor_dev_attr_mb_hs_int.dev_attr.attr,
+    &sensor_dev_attr_pb_pwr_int.dev_attr.attr,
+    &sensor_dev_attr_mb_pwr_int.dev_attr.attr,
+    &sensor_dev_attr_fan_int.dev_attr.attr,
+    &sensor_dev_attr_pb_hs_mask_int.dev_attr.attr,
+    &sensor_dev_attr_mb_hs_mask_int.dev_attr.attr,
+    &sensor_dev_attr_pb_pwr1_mask_int.dev_attr.attr,
+    &sensor_dev_attr_pb_pwr2_mask_int.dev_attr.attr,
+    &sensor_dev_attr_fan_mask_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp_01to08_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp_08to16_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp_17to24_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp_25to32_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp_01to08_abs.dev_attr.attr,
+    &sensor_dev_attr_qsfp_08to16_abs.dev_attr.attr,
+    &sensor_dev_attr_qsfp_17to24_abs.dev_attr.attr,
+    &sensor_dev_attr_qsfp_25to32_abs.dev_attr.attr,
+    &sensor_dev_attr_qsfp_01to08_mask_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp_08to16_mask_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp_17to24_mask_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp_25to32_mask_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp_01to08_mask_abs.dev_attr.attr,
+    &sensor_dev_attr_qsfp_08to16_mask_abs.dev_attr.attr,
+    &sensor_dev_attr_qsfp_17to24_mask_abs.dev_attr.attr,
+    &sensor_dev_attr_qsfp_25to32_mask_abs.dev_attr.attr,
+    &sensor_dev_attr_qsfp01_mod_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp02_mod_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp03_mod_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp04_mod_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp05_mod_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp06_mod_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp07_mod_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp08_mod_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp09_mod_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp10_mod_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp11_mod_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp12_mod_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp13_mod_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp14_mod_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp15_mod_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp16_mod_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp17_mod_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp18_mod_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp19_mod_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp20_mod_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp21_mod_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp22_mod_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp23_mod_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp24_mod_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp25_mod_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp26_mod_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp27_mod_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp28_mod_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp29_mod_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp30_mod_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp31_mod_int.dev_attr.attr,
+    &sensor_dev_attr_qsfp32_mod_int.dev_attr.attr,
+    NULL,
+};
+
+static struct attribute_group ag9032v1_swpld_attr_grp_board = {
+    .attrs = ag9032v1_swpld_attrs_board,
+};
+static struct attribute_group ag9032v1_swpld_attr_grp_psu = {
+    .attrs = ag9032v1_swpld_attrs_psu,
+};
+static struct attribute_group ag9032v1_swpld_attr_grp_hot_swap = {
+    .attrs = ag9032v1_swpld_attrs_hot_swap,
+};
+static struct attribute_group ag9032v1_swpld_attr_grp_BCM54616S = {
+    .attrs = ag9032v1_swpld_attrs_BCM54616S,
+};
+static struct attribute_group ag9032v1_swpld_attr_grp_controller_interrupt = {
+    .attrs = ag9032v1_swpld_attrs_controller_interrupt,
+};
+
 /*    CPLD  -- driver   */
 static int __init cpld_probe(struct platform_device *pdev)
 {
     struct cpld_platform_data *pdata;
     struct i2c_adapter *parent;
     int ret;
+
     pdata = pdev->dev.platform_data;
     if (!pdata) {
         dev_err(&pdev->dev, "CPLD platform data not found\n");
@@ -1066,7 +1846,7 @@ static int __init cpld_probe(struct platform_device *pdev)
 
     parent = i2c_get_adapter(BUS6);
     if (!parent) {
-        printk(KERN_WARNING "Parent adapter (%d) not found\n",BUS6);
+        printk(KERN_WARNING "Parent adapter (%d) not found\n", BUS6);
         return -ENODEV;
     }
 
@@ -1076,18 +1856,83 @@ static int __init cpld_probe(struct platform_device *pdev)
         goto error;
     }
 
+    kobj_board = kobject_create_and_add("Board", &pdev->dev.kobj);
+    if (!kobj_board){
+        printk(KERN_WARNING "Fail to create directory");
+        goto error;
+    }
+
+    kobj_psu = kobject_create_and_add("PSU", &pdev->dev.kobj);
+    if (!kobj_psu){
+        printk(KERN_WARNING "Fail to create directory");
+        goto error;
+    }
+
+    kobj_hot_swap = kobject_create_and_add("HOT_SWAP", &pdev->dev.kobj);
+    if (!kobj_hot_swap){
+        printk(KERN_WARNING "Fail to create directory");
+        goto error;
+    }
+
+    kobj_controller_interrupt = kobject_create_and_add("Controller_interrupt", &pdev->dev.kobj);
+    if (!kobj_controller_interrupt){
+        printk(KERN_WARNING "Fail to create directory");
+        goto error;
+    }
+
+    kobj_BCM54616S = kobject_create_and_add("BCM54616S", &pdev->dev.kobj);
+    if (!kobj_BCM54616S){
+        printk(KERN_WARNING "Fail to create directory");
+        goto error;
+    }
+
+    ret = sysfs_create_group(kobj_board, &ag9032v1_swpld_attr_grp_board);
+    if (ret) {
+        printk(KERN_WARNING "Fail to create cpld attribute group");
+        goto error;
+    }
+
+    ret = sysfs_create_group(kobj_psu, &ag9032v1_swpld_attr_grp_psu);
+    if (ret) {
+        printk(KERN_WARNING "Fail to create cpld attribute group");
+        goto error;
+    }
+
+    ret = sysfs_create_group(kobj_hot_swap, &ag9032v1_swpld_attr_grp_hot_swap);
+    if (ret) {
+        printk(KERN_WARNING "Fail to create cpld attribute group");
+        goto error;
+    }
+
+    ret = sysfs_create_group(kobj_BCM54616S, &ag9032v1_swpld_attr_grp_BCM54616S);
+    if (ret) {
+        printk(KERN_WARNING "Fail to create cpld attribute group");
+        goto error;
+    }
+
+    ret = sysfs_create_group(kobj_controller_interrupt, &ag9032v1_swpld_attr_grp_controller_interrupt);
+    if (ret) {
+        printk(KERN_WARNING "Fail to create cpld attribute group");
+        goto error;
+    }
+
     ret = sysfs_create_group(&pdev->dev.kobj, &ag9032v1_cpld_attr_grp);
-   if (ret) {
+    if (ret) {
         printk(KERN_WARNING "Fail to create cpld attribute group");
         goto error;
    }
 
     return 0;
 
-error:    
+error:
+    kobject_put(kobj_board);
+    kobject_put(kobj_psu);
+    kobject_put(kobj_hot_swap);
+    kobject_put(kobj_controller_interrupt);
+    kobject_put(kobj_BCM54616S);
     i2c_unregister_device(pdata[system_cpld].client);
     i2c_put_adapter(parent);
-    
+
     return -ENODEV; 
 }
 
@@ -1096,16 +1941,22 @@ static int __exit cpld_remove(struct platform_device *pdev)
     struct i2c_adapter *parent = NULL;
     struct cpld_platform_data *pdata = pdev->dev.platform_data;
     sysfs_remove_group(&pdev->dev.kobj, &ag9032v1_cpld_attr_grp);
+    sysfs_remove_group(kobj_board, &ag9032v1_swpld_attr_grp_board);
 
     if (!pdata) {
         dev_err(&pdev->dev, "Missing platform data\n");
     } 
     else {
+        kobject_put(kobj_board);
+        kobject_put(kobj_psu);
+        kobject_put(kobj_hot_swap);
+        kobject_put(kobj_controller_interrupt);
+        kobject_put(kobj_BCM54616S);
         if (pdata[system_cpld].client) {
             if (!parent) {
                 parent = (pdata[system_cpld].client)->adapter;
             }
-        i2c_unregister_device(pdata[system_cpld].client);
+            i2c_unregister_device(pdata[system_cpld].client);
         }
     }
     i2c_put_adapter(parent);
@@ -1118,7 +1969,7 @@ static struct platform_driver cpld_driver = {
     .remove = __exit_p(cpld_remove),
     .driver = {
         .owner  = THIS_MODULE,
-        .name   = "delta-ag9032v1-cpld",
+        .name   = "delta-ag9032v1-swpld",
     },
 };
 
