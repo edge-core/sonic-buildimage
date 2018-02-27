@@ -24,7 +24,7 @@ function postStartAction()
 {%- elif docker_container_name == "snmp" %}
     docker exec -i database redis-cli -n 6 HSET 'DEVICE_METADATA|localhost' chassis_serial_number $(decode-syseeprom -s)
 {%- else %}
-    # nothing
+    : # nothing
 {%- endif %}
 }
 
