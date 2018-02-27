@@ -197,7 +197,10 @@ def main():
 
     if args.template != None:
         template_file = os.path.abspath(args.template)
-        env = jinja2.Environment(loader=jinja2.FileSystemLoader('/'), trim_blocks=True)
+        paths  = ['/', '/usr/share/sonic/templates', os.path.dirname(template_file)]
+        loader = jinja2.FileSystemLoader(paths)
+
+        env = jinja2.Environment(loader=loader, trim_blocks=True)
         env.filters['ipv4'] = is_ipv4
         env.filters['ipv6'] = is_ipv6
         env.filters['unique_name'] = unique_name
