@@ -2,623 +2,8 @@
   <CpgDec>
     <IsisRouters xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
     <PeeringSessions>
-      <BGPSession>
-        <StartRouter>ARISTA01T0</StartRouter>
-        <StartPeer>10.0.0.33</StartPeer>
-        <EndRouter>sonic</EndRouter>
-        <EndPeer>10.0.0.32</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
-      <BGPSession>
-        <StartRouter>sonic</StartRouter>
-        <StartPeer>10.0.0.0</StartPeer>
-        <EndRouter>ARISTA01T2</EndRouter>
-        <EndPeer>10.0.0.1</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
-      <BGPSession>
-        <StartRouter>ARISTA02T0</StartRouter>
-        <StartPeer>10.0.0.35</StartPeer>
-        <EndRouter>sonic</EndRouter>
-        <EndPeer>10.0.0.34</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
-      <BGPSession>
-        <StartRouter>sonic</StartRouter>
-        <StartPeer>10.0.0.2</StartPeer>
-        <EndRouter>ARISTA02T2</EndRouter>
-        <EndPeer>10.0.0.3</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
-      <BGPSession>
-        <StartRouter>ARISTA03T0</StartRouter>
-        <StartPeer>10.0.0.37</StartPeer>
-        <EndRouter>sonic</EndRouter>
-        <EndPeer>10.0.0.36</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
-      <BGPSession>
-        <StartRouter>sonic</StartRouter>
-        <StartPeer>10.0.0.4</StartPeer>
-        <EndRouter>ARISTA03T2</EndRouter>
-        <EndPeer>10.0.0.5</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
-      <BGPSession>
-        <StartRouter>ARISTA04T0</StartRouter>
-        <StartPeer>10.0.0.39</StartPeer>
-        <EndRouter>sonic</EndRouter>
-        <EndPeer>10.0.0.38</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
-      <BGPSession>
-        <StartRouter>sonic</StartRouter>
-        <StartPeer>10.0.0.6</StartPeer>
-        <EndRouter>ARISTA04T2</EndRouter>
-        <EndPeer>10.0.0.7</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
-      <BGPSession>
-        <StartRouter>ARISTA05T0</StartRouter>
-        <StartPeer>10.0.0.41</StartPeer>
-        <EndRouter>sonic</EndRouter>
-        <EndPeer>10.0.0.40</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
-      <BGPSession>
-        <StartRouter>sonic</StartRouter>
-        <StartPeer>10.0.0.8</StartPeer>
-        <EndRouter>ARISTA05T2</EndRouter>
-        <EndPeer>10.0.0.9</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
-      <BGPSession>
-        <StartRouter>ARISTA06T0</StartRouter>
-        <StartPeer>10.0.0.43</StartPeer>
-        <EndRouter>sonic</EndRouter>
-        <EndPeer>10.0.0.42</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
-      <BGPSession>
-        <StartRouter>sonic</StartRouter>
-        <StartPeer>10.0.0.10</StartPeer>
-        <EndRouter>ARISTA06T2</EndRouter>
-        <EndPeer>10.0.0.11</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
-      <BGPSession>
-        <StartRouter>ARISTA07T0</StartRouter>
-        <StartPeer>10.0.0.45</StartPeer>
-        <EndRouter>sonic</EndRouter>
-        <EndPeer>10.0.0.44</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
-      <BGPSession>
-        <StartRouter>sonic</StartRouter>
-        <StartPeer>10.0.0.12</StartPeer>
-        <EndRouter>ARISTA07T2</EndRouter>
-        <EndPeer>10.0.0.13</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
-      <BGPSession>
-        <StartRouter>ARISTA08T0</StartRouter>
-        <StartPeer>10.0.0.47</StartPeer>
-        <EndRouter>sonic</EndRouter>
-        <EndPeer>10.0.0.46</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
-      <BGPSession>
-        <StartRouter>sonic</StartRouter>
-        <StartPeer>10.0.0.14</StartPeer>
-        <EndRouter>ARISTA08T2</EndRouter>
-        <EndPeer>10.0.0.15</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
-      <BGPSession>
-        <StartRouter>ARISTA09T0</StartRouter>
-        <StartPeer>10.0.0.49</StartPeer>
-        <EndRouter>sonic</EndRouter>
-        <EndPeer>10.0.0.48</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
-      <BGPSession>
-        <StartRouter>sonic</StartRouter>
-        <StartPeer>10.0.0.16</StartPeer>
-        <EndRouter>ARISTA09T2</EndRouter>
-        <EndPeer>10.0.0.17</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
-      <BGPSession>
-        <StartRouter>ARISTA10T0</StartRouter>
-        <StartPeer>10.0.0.51</StartPeer>
-        <EndRouter>sonic</EndRouter>
-        <EndPeer>10.0.0.50</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
-      <BGPSession>
-        <StartRouter>sonic</StartRouter>
-        <StartPeer>10.0.0.18</StartPeer>
-        <EndRouter>ARISTA10T2</EndRouter>
-        <EndPeer>10.0.0.19</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
-      <BGPSession>
-        <StartRouter>ARISTA11T0</StartRouter>
-        <StartPeer>10.0.0.53</StartPeer>
-        <EndRouter>sonic</EndRouter>
-        <EndPeer>10.0.0.52</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
-      <BGPSession>
-        <StartRouter>sonic</StartRouter>
-        <StartPeer>10.0.0.20</StartPeer>
-        <EndRouter>ARISTA11T2</EndRouter>
-        <EndPeer>10.0.0.21</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
-      <BGPSession>
-        <StartRouter>ARISTA12T0</StartRouter>
-        <StartPeer>10.0.0.55</StartPeer>
-        <EndRouter>sonic</EndRouter>
-        <EndPeer>10.0.0.54</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
-      <BGPSession>
-        <StartRouter>sonic</StartRouter>
-        <StartPeer>10.0.0.22</StartPeer>
-        <EndRouter>ARISTA12T2</EndRouter>
-        <EndPeer>10.0.0.23</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
-      <BGPSession>
-        <StartRouter>ARISTA13T0</StartRouter>
-        <StartPeer>10.0.0.57</StartPeer>
-        <EndRouter>sonic</EndRouter>
-        <EndPeer>10.0.0.56</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
-      <BGPSession>
-        <StartRouter>sonic</StartRouter>
-        <StartPeer>10.0.0.24</StartPeer>
-        <EndRouter>ARISTA13T2</EndRouter>
-        <EndPeer>10.0.0.25</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
-      <BGPSession>
-        <StartRouter>ARISTA14T0</StartRouter>
-        <StartPeer>10.0.0.59</StartPeer>
-        <EndRouter>sonic</EndRouter>
-        <EndPeer>10.0.0.58</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
-      <BGPSession>
-        <StartRouter>sonic</StartRouter>
-        <StartPeer>10.0.0.26</StartPeer>
-        <EndRouter>ARISTA14T2</EndRouter>
-        <EndPeer>10.0.0.27</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
-      <BGPSession>
-        <StartRouter>ARISTA15T0</StartRouter>
-        <StartPeer>10.0.0.61</StartPeer>
-        <EndRouter>sonic</EndRouter>
-        <EndPeer>10.0.0.60</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
-      <BGPSession>
-        <StartRouter>sonic</StartRouter>
-        <StartPeer>10.0.0.28</StartPeer>
-        <EndRouter>ARISTA15T2</EndRouter>
-        <EndPeer>10.0.0.29</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
-      <BGPSession>
-        <StartRouter>ARISTA16T0</StartRouter>
-        <StartPeer>10.0.0.63</StartPeer>
-        <EndRouter>sonic</EndRouter>
-        <EndPeer>10.0.0.62</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
-      <BGPSession>
-        <StartRouter>sonic</StartRouter>
-        <StartPeer>10.0.0.30</StartPeer>
-        <EndRouter>ARISTA16T2</EndRouter>
-        <EndPeer>10.0.0.31</EndPeer>
-        <Multihop>1</Multihop>
-        <HoldTime>180</HoldTime>
-        <KeepAliveTime>60</KeepAliveTime>
-      </BGPSession>
     </PeeringSessions>
     <Routers xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
-      <a:BGPRouterDeclaration>
-        <a:ASN>65100</a:ASN>
-        <a:Hostname>sonic</a:Hostname>
-        <a:Peers>
-          <BGPPeer>
-            <Address>10.0.0.33</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-          <BGPPeer>
-            <Address>10.0.0.1</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-          <BGPPeer>
-            <Address>10.0.0.35</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-          <BGPPeer>
-            <Address>10.0.0.3</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-          <BGPPeer>
-            <Address>10.0.0.37</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-          <BGPPeer>
-            <Address>10.0.0.5</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-          <BGPPeer>
-            <Address>10.0.0.39</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-          <BGPPeer>
-            <Address>10.0.0.7</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-          <BGPPeer>
-            <Address>10.0.0.41</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-          <BGPPeer>
-            <Address>10.0.0.9</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-          <BGPPeer>
-            <Address>10.0.0.43</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-          <BGPPeer>
-            <Address>10.0.0.11</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-          <BGPPeer>
-            <Address>10.0.0.45</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-          <BGPPeer>
-            <Address>10.0.0.13</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-          <BGPPeer>
-            <Address>10.0.0.47</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-          <BGPPeer>
-            <Address>10.0.0.15</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-          <BGPPeer>
-            <Address>10.0.0.49</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-          <BGPPeer>
-            <Address>10.0.0.17</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-          <BGPPeer>
-            <Address>10.0.0.51</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-          <BGPPeer>
-            <Address>10.0.0.19</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-          <BGPPeer>
-            <Address>10.0.0.53</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-          <BGPPeer>
-            <Address>10.0.0.21</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-          <BGPPeer>
-            <Address>10.0.0.55</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-          <BGPPeer>
-            <Address>10.0.0.23</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-          <BGPPeer>
-            <Address>10.0.0.57</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-          <BGPPeer>
-            <Address>10.0.0.25</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-          <BGPPeer>
-            <Address>10.0.0.59</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-          <BGPPeer>
-            <Address>10.0.0.27</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-          <BGPPeer>
-            <Address>10.0.0.61</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-          <BGPPeer>
-            <Address>10.0.0.29</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-          <BGPPeer>
-            <Address>10.0.0.63</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-          <BGPPeer>
-            <Address>10.0.0.31</Address>
-            <RouteMapIn i:nil="true"/>
-            <RouteMapOut i:nil="true"/>
-          </BGPPeer>
-        </a:Peers>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>64001</a:ASN>
-        <a:Hostname>ARISTA01T0</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>65200</a:ASN>
-        <a:Hostname>ARISTA01T2</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>64002</a:ASN>
-        <a:Hostname>ARISTA02T0</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>65200</a:ASN>
-        <a:Hostname>ARISTA02T2</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>64003</a:ASN>
-        <a:Hostname>ARISTA03T0</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>65200</a:ASN>
-        <a:Hostname>ARISTA03T2</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>64004</a:ASN>
-        <a:Hostname>ARISTA04T0</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>65200</a:ASN>
-        <a:Hostname>ARISTA04T2</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>64005</a:ASN>
-        <a:Hostname>ARISTA05T0</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>65200</a:ASN>
-        <a:Hostname>ARISTA05T2</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>64006</a:ASN>
-        <a:Hostname>ARISTA06T0</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>65200</a:ASN>
-        <a:Hostname>ARISTA06T2</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>64007</a:ASN>
-        <a:Hostname>ARISTA07T0</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>65200</a:ASN>
-        <a:Hostname>ARISTA07T2</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>64008</a:ASN>
-        <a:Hostname>ARISTA08T0</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>65200</a:ASN>
-        <a:Hostname>ARISTA08T2</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>64009</a:ASN>
-        <a:Hostname>ARISTA09T0</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>65200</a:ASN>
-        <a:Hostname>ARISTA09T2</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>64010</a:ASN>
-        <a:Hostname>ARISTA10T0</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>65200</a:ASN>
-        <a:Hostname>ARISTA10T2</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>64011</a:ASN>
-        <a:Hostname>ARISTA11T0</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>65200</a:ASN>
-        <a:Hostname>ARISTA11T2</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>64012</a:ASN>
-        <a:Hostname>ARISTA12T0</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>65200</a:ASN>
-        <a:Hostname>ARISTA12T2</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>64013</a:ASN>
-        <a:Hostname>ARISTA13T0</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>65200</a:ASN>
-        <a:Hostname>ARISTA13T2</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>64014</a:ASN>
-        <a:Hostname>ARISTA14T0</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>65200</a:ASN>
-        <a:Hostname>ARISTA14T2</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>64015</a:ASN>
-        <a:Hostname>ARISTA15T0</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>65200</a:ASN>
-        <a:Hostname>ARISTA15T2</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>64016</a:ASN>
-        <a:Hostname>ARISTA16T0</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
-      <a:BGPRouterDeclaration>
-        <a:ASN>65200</a:ASN>
-        <a:Hostname>ARISTA16T2</a:Hostname>
-        <a:RouteMaps/>
-      </a:BGPRouterDeclaration>
     </Routers>
   </CpgDec>
   <DpgDec>
@@ -645,163 +30,323 @@
       <IPInterfaces>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet0</AttachTo>
+          <AttachTo>hundredGigE1</AttachTo>
           <Prefix>10.0.0.0/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet4</AttachTo>
+          <AttachTo>hundredGigE2</AttachTo>
           <Prefix>10.0.0.2/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet8</AttachTo>
+          <AttachTo>hundredGigE3</AttachTo>
           <Prefix>10.0.0.4/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet12</AttachTo>
+          <AttachTo>hundredGigE4</AttachTo>
           <Prefix>10.0.0.6/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet16</AttachTo>
+          <AttachTo>hundredGigE5</AttachTo>
           <Prefix>10.0.0.8/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet20</AttachTo>
+          <AttachTo>hundredGigE6</AttachTo>
           <Prefix>10.0.0.10/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet24</AttachTo>
+          <AttachTo>hundredGigE7</AttachTo>
           <Prefix>10.0.0.12/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet28</AttachTo>
+          <AttachTo>hundredGigE8</AttachTo>
           <Prefix>10.0.0.14/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet32</AttachTo>
+          <AttachTo>hundredGigE9</AttachTo>
           <Prefix>10.0.0.16/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet36</AttachTo>
+          <AttachTo>hundredGigE10</AttachTo>
           <Prefix>10.0.0.18/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet40</AttachTo>
+          <AttachTo>hundredGigE11</AttachTo>
           <Prefix>10.0.0.20/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet44</AttachTo>
+          <AttachTo>hundredGigE12</AttachTo>
           <Prefix>10.0.0.22/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet48</AttachTo>
+          <AttachTo>hundredGigE13</AttachTo>
           <Prefix>10.0.0.24/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet52</AttachTo>
+          <AttachTo>hundredGigE14</AttachTo>
           <Prefix>10.0.0.26/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet56</AttachTo>
+          <AttachTo>hundredGigE15</AttachTo>
           <Prefix>10.0.0.28/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet60</AttachTo>
+          <AttachTo>hundredGigE16</AttachTo>
           <Prefix>10.0.0.30/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet64</AttachTo>
+          <AttachTo>hundredGigE17</AttachTo>
           <Prefix>10.0.0.32/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet68</AttachTo>
+          <AttachTo>hundredGigE18</AttachTo>
           <Prefix>10.0.0.34/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet72</AttachTo>
+          <AttachTo>hundredGigE19</AttachTo>
           <Prefix>10.0.0.36/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet76</AttachTo>
+          <AttachTo>hundredGigE20</AttachTo>
           <Prefix>10.0.0.38/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet80</AttachTo>
+          <AttachTo>hundredGigE21</AttachTo>
           <Prefix>10.0.0.40/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet84</AttachTo>
+          <AttachTo>hundredGigE22</AttachTo>
           <Prefix>10.0.0.42/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet88</AttachTo>
+          <AttachTo>hundredGigE23</AttachTo>
           <Prefix>10.0.0.44/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet92</AttachTo>
+          <AttachTo>hundredGigE24</AttachTo>
           <Prefix>10.0.0.46/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet96</AttachTo>
+          <AttachTo>hundredGigE25</AttachTo>
           <Prefix>10.0.0.48/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet100</AttachTo>
+          <AttachTo>hundredGigE26</AttachTo>
           <Prefix>10.0.0.50/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet104</AttachTo>
+          <AttachTo>hundredGigE27</AttachTo>
           <Prefix>10.0.0.52/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet108</AttachTo>
+          <AttachTo>hundredGigE28</AttachTo>
           <Prefix>10.0.0.54/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet112</AttachTo>
+          <AttachTo>hundredGigE29</AttachTo>
           <Prefix>10.0.0.56/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet116</AttachTo>
+          <AttachTo>hundredGigE30</AttachTo>
           <Prefix>10.0.0.58/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet120</AttachTo>
+          <AttachTo>hundredGigE31</AttachTo>
           <Prefix>10.0.0.60/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>Ethernet124</AttachTo>
+          <AttachTo>hundredGigE32</AttachTo>
           <Prefix>10.0.0.62/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE33</AttachTo>
+          <Prefix>10.0.0.64/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE34</AttachTo>
+          <Prefix>10.0.0.66/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE35</AttachTo>
+          <Prefix>10.0.0.68/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE36</AttachTo>
+          <Prefix>10.0.0.70/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE37</AttachTo>
+          <Prefix>10.0.0.72/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE38</AttachTo>
+          <Prefix>10.0.0.74/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE39</AttachTo>
+          <Prefix>10.0.0.76/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE40</AttachTo>
+          <Prefix>10.0.0.78/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE41</AttachTo>
+          <Prefix>10.0.0.80/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE42</AttachTo>
+          <Prefix>10.0.0.82/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE43</AttachTo>
+          <Prefix>10.0.0.84/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE44</AttachTo>
+          <Prefix>10.0.0.86/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE45</AttachTo>
+          <Prefix>10.0.0.88/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE46</AttachTo>
+          <Prefix>10.0.0.90/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE47</AttachTo>
+          <Prefix>10.0.0.92/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE48</AttachTo>
+          <Prefix>10.0.0.94/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE49</AttachTo>
+          <Prefix>10.0.0.96/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE50</AttachTo>
+          <Prefix>10.0.0.98/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE51</AttachTo>
+          <Prefix>10.0.0.100/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE52</AttachTo>
+          <Prefix>10.0.0.102/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE53</AttachTo>
+          <Prefix>10.0.0.104/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE54</AttachTo>
+          <Prefix>10.0.0.106/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE55</AttachTo>
+          <Prefix>10.0.0.108/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE56</AttachTo>
+          <Prefix>10.0.0.110/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE57</AttachTo>
+          <Prefix>10.0.0.112/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE58</AttachTo>
+          <Prefix>10.0.0.114/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE59</AttachTo>
+          <Prefix>10.0.0.116/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE60</AttachTo>
+          <Prefix>10.0.0.118/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE61</AttachTo>
+          <Prefix>10.0.0.120/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE62</AttachTo>
+          <Prefix>10.0.0.122/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE63</AttachTo>
+          <Prefix>10.0.0.124/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE64</AttachTo>
+          <Prefix>10.0.0.126/31</Prefix>
         </IPInterface>
       </IPInterfaces>
       <DataAcls/>
@@ -814,233 +359,457 @@
     <DeviceInterfaceLinks>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet0</EndPort>
-        <StartDevice>ARISTA01T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE1</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE1</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet4</EndPort>
-        <StartDevice>ARISTA02T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE2</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE2</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet8</EndPort>
-        <StartDevice>ARISTA03T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE3</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE3</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet12</EndPort>
-        <StartDevice>ARISTA04T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE4</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE4</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet16</EndPort>
-        <StartDevice>ARISTA05T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE5</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE5</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet20</EndPort>
-        <StartDevice>ARISTA06T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE6</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE6</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet24</EndPort>
-        <StartDevice>ARISTA07T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE7</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE7</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet28</EndPort>
-        <StartDevice>ARISTA08T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE8</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE8</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet32</EndPort>
-        <StartDevice>ARISTA09T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE9</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE9</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet36</EndPort>
-        <StartDevice>ARISTA10T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE10</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE10</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet40</EndPort>
-        <StartDevice>ARISTA11T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE11</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE11</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet44</EndPort>
-        <StartDevice>ARISTA12T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE12</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE12</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet48</EndPort>
-        <StartDevice>ARISTA13T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE13</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE13</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet52</EndPort>
-        <StartDevice>ARISTA14T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE14</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE14</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet56</EndPort>
-        <StartDevice>ARISTA15T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE15</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE15</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet60</EndPort>
-        <StartDevice>ARISTA16T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE16</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE16</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet64</EndPort>
-        <StartDevice>ARISTA01T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE17</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE17</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet68</EndPort>
-        <StartDevice>ARISTA02T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE18</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE18</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet72</EndPort>
-        <StartDevice>ARISTA03T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE19</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE19</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet76</EndPort>
-        <StartDevice>ARISTA04T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE20</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE20</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet80</EndPort>
-        <StartDevice>ARISTA05T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE21</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE21</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet84</EndPort>
-        <StartDevice>ARISTA06T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE22</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE22</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet88</EndPort>
-        <StartDevice>ARISTA07T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE23</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE23</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet92</EndPort>
-        <StartDevice>ARISTA08T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE24</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE24</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet96</EndPort>
-        <StartDevice>ARISTA09T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE25</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE25</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet100</EndPort>
-        <StartDevice>ARISTA10T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE26</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE26</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet104</EndPort>
-        <StartDevice>ARISTA11T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE27</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE27</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet108</EndPort>
-        <StartDevice>ARISTA12T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE28</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE28</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet112</EndPort>
-        <StartDevice>ARISTA13T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE29</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE29</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet116</EndPort>
-        <StartDevice>ARISTA14T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE30</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE30</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet120</EndPort>
-        <StartDevice>ARISTA15T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE31</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE31</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>Ethernet124</EndPort>
-        <StartDevice>ARISTA16T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE32</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE32</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE33</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE33</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE34</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE34</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE35</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE35</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE36</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE36</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE37</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE37</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE38</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE38</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE39</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE39</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE40</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE40</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE41</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE41</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE42</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE42</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE43</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE43</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE44</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE44</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE45</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE45</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE46</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE46</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE47</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE47</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE48</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE48</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE49</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE49</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE50</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE50</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE51</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE51</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE52</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE52</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE53</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE53</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE54</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE54</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE55</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE55</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE56</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE56</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE57</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE57</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE58</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE58</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE59</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE59</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE60</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE60</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE61</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE61</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE62</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE62</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE63</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE63</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>sonic-target</EndDevice>
+        <EndPort>hundredGigE64</EndPort>
+        <StartDevice>sonic</StartDevice>
+        <StartPort>hundredGigE64</StartPort>
       </DeviceLinkBase>
     </DeviceInterfaceLinks>
     <Devices>
       <Device i:type="LeafRouter">
         <Hostname>sonic</Hostname>
-        <HwSku>Accton-AS7712-32X</HwSku>
+        <HwSku>Accton-AS7816-64X</HwSku>
       </Device>
     </Devices>
   </PngDec>
@@ -1064,11 +833,16 @@
             <a:Reference i:nil="true"/>
             <a:Value></a:Value>
           </a:DeviceProperty>
+          <a:DeviceProperty>
+            <a:Name>ErspanDestinationIpv4</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>2.2.2.2</a:Value>
+          </a:DeviceProperty>
         </a:Properties>
       </a:DeviceMetadata>
     </Devices>
     <Properties xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
   </MetadataDeclaration>
   <Hostname>sonic</Hostname>
-  <HwSku>Accton-AS7712-32X</HwSku>
+  <HwSku>Accton-AS7816-64X</HwSku>
 </DeviceMiniGraph>
