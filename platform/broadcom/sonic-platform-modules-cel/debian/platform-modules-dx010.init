@@ -20,6 +20,7 @@ start)
         modprobe i2c-mux-pca954x
         modprobe dx010_wdt
         modprobe leds-dx010
+        modprobe lm75
 
         found=0
         for devnum in 0 1; do
@@ -56,11 +57,11 @@ start)
         echo 24lc64t 0x50 > /sys/bus/i2c/devices/i2c-12/new_device
 
         # Attach temperature sensors
-        echo dx010_lm75b 0x48 > /sys/bus/i2c/devices/i2c-5/new_device
-        echo dx010_lm75b 0x49 > /sys/bus/i2c/devices/i2c-6/new_device
-        echo dx010_lm75b 0x4a > /sys/bus/i2c/devices/i2c-7/new_device
-        echo dx010_lm75b 0x48 > /sys/bus/i2c/devices/i2c-14/new_device
-        echo dx010_lm75b 0x4e > /sys/bus/i2c/devices/i2c-15/new_device
+        echo lm75b 0x48 > /sys/bus/i2c/devices/i2c-5/new_device
+        echo lm75b 0x49 > /sys/bus/i2c/devices/i2c-6/new_device
+        echo lm75b 0x4a > /sys/bus/i2c/devices/i2c-7/new_device
+        echo lm75b 0x48 > /sys/bus/i2c/devices/i2c-14/new_device
+        echo lm75b 0x4e > /sys/bus/i2c/devices/i2c-15/new_device
 
         # Attach fans
         echo emc2305 0x2e > /sys/bus/i2c/devices/i2c-13/new_device
