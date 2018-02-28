@@ -645,322 +645,322 @@
       <IPInterfaces>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/1</AttachTo>
+          <AttachTo>Eth1/1</AttachTo>
           <Prefix>10.0.0.0/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/2</AttachTo>
+          <AttachTo>Eth1/2</AttachTo>
           <Prefix>10.0.0.2/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/3</AttachTo>
+          <AttachTo>Eth2/1</AttachTo>
           <Prefix>10.0.0.4/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/4</AttachTo>
+          <AttachTo>Eth2/2</AttachTo>
           <Prefix>10.0.0.6/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/5</AttachTo>
+          <AttachTo>Eth3/1</AttachTo>
           <Prefix>10.0.0.8/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/6</AttachTo>
+          <AttachTo>Eth3/2</AttachTo>
           <Prefix>10.0.0.10/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/7</AttachTo>
+          <AttachTo>Eth4/1</AttachTo>
           <Prefix>10.0.0.12/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/8</AttachTo>
+          <AttachTo>Eth4/2</AttachTo>
           <Prefix>10.0.0.14/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/9</AttachTo>
+          <AttachTo>Eth5/1</AttachTo>
           <Prefix>10.0.0.16/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/10</AttachTo>
+          <AttachTo>Eth5/2</AttachTo>
           <Prefix>10.0.0.18/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/11</AttachTo>
+          <AttachTo>Eth6/1</AttachTo>
           <Prefix>10.0.0.20/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/12</AttachTo>
+          <AttachTo>Eth6/2</AttachTo>
           <Prefix>10.0.0.22/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/13</AttachTo>
+          <AttachTo>Eth7/1</AttachTo>
           <Prefix>10.0.0.24/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/14</AttachTo>
+          <AttachTo>Eth7/2</AttachTo>
           <Prefix>10.0.0.26/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/15</AttachTo>
+          <AttachTo>Eth8/1</AttachTo>
           <Prefix>10.0.0.28/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/16</AttachTo>
+          <AttachTo>Eth8/2</AttachTo>
           <Prefix>10.0.0.30/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/17</AttachTo>
+          <AttachTo>Eth9/1</AttachTo>
           <Prefix>10.0.0.32/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/18</AttachTo>
+          <AttachTo>Eth9/2</AttachTo>
           <Prefix>10.0.0.34/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/19</AttachTo>
+          <AttachTo>Eth10/1</AttachTo>
           <Prefix>10.0.0.36/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/20</AttachTo>
+          <AttachTo>Eth10/2</AttachTo>
           <Prefix>10.0.0.38/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/21</AttachTo>
+          <AttachTo>Eth11/1</AttachTo>
           <Prefix>10.0.0.40/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/22</AttachTo>
+          <AttachTo>Eth11/2</AttachTo>
           <Prefix>10.0.0.42/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/23</AttachTo>
+          <AttachTo>Eth12/1</AttachTo>
           <Prefix>10.0.0.44/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/24</AttachTo>
+          <AttachTo>Eth12/2</AttachTo>
           <Prefix>10.0.0.46/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/25</AttachTo>
+          <AttachTo>Eth13/1</AttachTo>
           <Prefix>10.0.0.48/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/26</AttachTo>
+          <AttachTo>Eth13/2</AttachTo>
           <Prefix>10.0.0.50/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/27</AttachTo>
+          <AttachTo>Eth14/1</AttachTo>
           <Prefix>10.0.0.52/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/28</AttachTo>
+          <AttachTo>Eth14/2</AttachTo>
           <Prefix>10.0.0.54/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/29</AttachTo>
+          <AttachTo>Eth15/1</AttachTo>
           <Prefix>10.0.0.56/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/30</AttachTo>
+          <AttachTo>Eth15/2</AttachTo>
           <Prefix>10.0.0.58/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/31</AttachTo>
+          <AttachTo>Eth16/1</AttachTo>
           <Prefix>10.0.0.60/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/32</AttachTo>
+          <AttachTo>Eth16/2</AttachTo>
           <Prefix>10.0.0.62/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/33</AttachTo>
+          <AttachTo>Eth17/1</AttachTo>
           <Prefix>10.0.0.64/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/34</AttachTo>
+          <AttachTo>Eth17/2</AttachTo>
           <Prefix>10.0.0.66/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/35</AttachTo>
+          <AttachTo>Eth18/1</AttachTo>
           <Prefix>10.0.0.68/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/36</AttachTo>
+          <AttachTo>Eth18/2</AttachTo>
           <Prefix>10.0.0.70/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/37</AttachTo>
+          <AttachTo>Eth19/1</AttachTo>
           <Prefix>10.0.0.72/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/38</AttachTo>
+          <AttachTo>Eth19/2</AttachTo>
           <Prefix>10.0.0.74/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/39</AttachTo>
+          <AttachTo>Eth20/1</AttachTo>
           <Prefix>10.0.0.76/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/40</AttachTo>
+          <AttachTo>Eth20/2</AttachTo>
           <Prefix>10.0.0.78/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/41</AttachTo>
+          <AttachTo>Eth21/1</AttachTo>
           <Prefix>10.0.0.80/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/42</AttachTo>
+          <AttachTo>Eth21/2</AttachTo>
           <Prefix>10.0.0.82/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/43</AttachTo>
+          <AttachTo>Eth22/1</AttachTo>
           <Prefix>10.0.0.84/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/44</AttachTo>
+          <AttachTo>Eth22/2</AttachTo>
           <Prefix>10.0.0.86/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/45</AttachTo>
+          <AttachTo>Eth23/1</AttachTo>
           <Prefix>10.0.0.88/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/46</AttachTo>
+          <AttachTo>Eth23/2</AttachTo>
           <Prefix>10.0.0.90/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/47</AttachTo>
+          <AttachTo>Eth24/1</AttachTo>
           <Prefix>10.0.0.92/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/48</AttachTo>
+          <AttachTo>Eth24/2</AttachTo>
           <Prefix>10.0.0.94/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/49</AttachTo>
+          <AttachTo>Eth25/1</AttachTo>
           <Prefix>10.0.0.96/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/50</AttachTo>
+          <AttachTo>Eth25/2</AttachTo>
           <Prefix>10.0.0.98/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/51</AttachTo>
+          <AttachTo>Eth26/1</AttachTo>
           <Prefix>10.0.0.100/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/52</AttachTo>
+          <AttachTo>Eth26/2</AttachTo>
           <Prefix>10.0.0.102/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/53</AttachTo>
+          <AttachTo>Eth27/1</AttachTo>
           <Prefix>10.0.0.104/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/54</AttachTo>
+          <AttachTo>Eth27/2</AttachTo>
           <Prefix>10.0.0.106/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/55</AttachTo>
+          <AttachTo>Eth28/1</AttachTo>
           <Prefix>10.0.0.108/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/56</AttachTo>
+          <AttachTo>Eth28/2</AttachTo>
           <Prefix>10.0.0.110/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/57</AttachTo>
+          <AttachTo>Eth29/1</AttachTo>
           <Prefix>10.0.0.112/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/58</AttachTo>
+          <AttachTo>Eth29/2</AttachTo>
           <Prefix>10.0.0.114/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/59</AttachTo>
+          <AttachTo>Eth30/1</AttachTo>
           <Prefix>10.0.0.116/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/60</AttachTo>
+          <AttachTo>Eth30/2</AttachTo>
           <Prefix>10.0.0.118/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/61</AttachTo>
+          <AttachTo>Eth31/1</AttachTo>
           <Prefix>10.0.0.120/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/62</AttachTo>
+          <AttachTo>Eth31/2</AttachTo>
           <Prefix>10.0.0.122/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/63</AttachTo>
+          <AttachTo>Eth32/1</AttachTo>
           <Prefix>10.0.0.124/31</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:Name="true"/>
-          <AttachTo>fiftyGigE1/64</AttachTo>
+          <AttachTo>Eth32/2</AttachTo>
           <Prefix>10.0.0.126/31</Prefix>
         </IPInterface>
       </IPInterfaces>
@@ -971,232 +971,6 @@
     </DeviceDataPlaneInfo>
   </DpgDec>
   <PngDec>
-    <DeviceInterfaceLinks>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/1</EndPort>
-        <StartDevice>ARISTA01T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/2</EndPort>
-        <StartDevice>ARISTA02T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/3</EndPort>
-        <StartDevice>ARISTA03T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/4</EndPort>
-        <StartDevice>ARISTA04T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/5</EndPort>
-        <StartDevice>ARISTA05T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/6</EndPort>
-        <StartDevice>ARISTA06T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/7</EndPort>
-        <StartDevice>ARISTA07T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/8</EndPort>
-        <StartDevice>ARISTA08T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/9</EndPort>
-        <StartDevice>ARISTA09T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/10</EndPort>
-        <StartDevice>ARISTA10T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/11</EndPort>
-        <StartDevice>ARISTA11T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/12</EndPort>
-        <StartDevice>ARISTA12T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/13</EndPort>
-        <StartDevice>ARISTA13T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/14</EndPort>
-        <StartDevice>ARISTA14T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/15</EndPort>
-        <StartDevice>ARISTA15T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/16</EndPort>
-        <StartDevice>ARISTA16T2</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/17</EndPort>
-        <StartDevice>ARISTA01T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/18</EndPort>
-        <StartDevice>ARISTA02T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/19</EndPort>
-        <StartDevice>ARISTA03T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/20</EndPort>
-        <StartDevice>ARISTA04T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/21</EndPort>
-        <StartDevice>ARISTA05T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/22</EndPort>
-        <StartDevice>ARISTA06T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/23</EndPort>
-        <StartDevice>ARISTA07T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/24</EndPort>
-        <StartDevice>ARISTA08T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/25</EndPort>
-        <StartDevice>ARISTA09T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/26</EndPort>
-        <StartDevice>ARISTA10T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/27</EndPort>
-        <StartDevice>ARISTA11T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/28</EndPort>
-        <StartDevice>ARISTA12T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/29</EndPort>
-        <StartDevice>ARISTA13T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/30</EndPort>
-        <StartDevice>ARISTA14T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/31</EndPort>
-        <StartDevice>ARISTA15T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-      <DeviceLinkBase>
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>sonic</EndDevice>
-        <EndPort>fiftyGigE1/32</EndPort>
-        <StartDevice>ARISTA16T0</StartDevice>
-        <StartPort>Ethernet1</StartPort>
-      </DeviceLinkBase>
-    </DeviceInterfaceLinks>
     <Devices>
       <Device i:type="LeafRouter">
         <Hostname>sonic</Hostname>
