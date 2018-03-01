@@ -15,3 +15,5 @@ $(eval $(call add_derived_package,$(MFT),$(KERNEL_MFT)))
 
 MFT_OEM = mft-oem-$(MFT_VERSION)-$(MFT_REVISION).amd64.deb
 $(eval $(call add_derived_package,$(MFT),$(MFT_OEM)))
+
+SONIC_STRETCH_DEBS += $(KERNEL_MFT)
