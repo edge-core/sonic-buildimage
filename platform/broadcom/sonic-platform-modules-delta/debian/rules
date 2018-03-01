@@ -8,7 +8,7 @@ MOD_SRC_DIR:= $(shell pwd)
 MODULE_DIRS:= ag9032v1 ag9064 ag5648
 
 %:
-	dh $@
+	dh $@ --with=systemd
 
 override_dh_auto_build:
 	(for mod in $(MODULE_DIRS); do \
