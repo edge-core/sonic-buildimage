@@ -583,7 +583,6 @@ enum cpld_type {
 struct cpld_platform_data {
     int reg_addr;
     struct i2c_client *client;
-    //struct kobject *kobj;
 };
 
 enum swpld_attributes {
@@ -672,7 +671,7 @@ static struct platform_device ag9032v1_cpld = {
     .id                 = 0,
     .dev                = {
                 .platform_data   = ag9032v1_cpld_platform_data,
-                .release         = device_release
+                .release         = device_release,
     },
 };
 
@@ -1547,6 +1546,7 @@ static struct attribute_group ag9032v1_cpld_attr_grp = {
     .attrs = ag9032v1_cpld_attrs,
 };
 
+static struct kobject *kobj_swpld;
 static struct kobject *kobj_board;
 static struct kobject *kobj_psu;
 static struct kobject *kobj_hot_swap;
@@ -1557,8 +1557,10 @@ static ssize_t get_swpld_data(struct device *dev, struct device_attribute *dev_a
 {
     int ret;
     struct sensor_device_attribute *attr = to_sensor_dev_attr(dev_attr);
-    struct device *i2cdev = kobj_to_dev(kobj_board->parent);
+    struct device *i2cdev = kobj_to_dev(kobj_swpld);
     struct cpld_platform_data *pdata = i2cdev->platform_data;
+
+
     unsigned char reg;
     int mask;
     int value;
@@ -1572,33 +1574,29 @@ static ssize_t get_swpld_data(struct device *dev, struct device_attribute *dev_a
             value = ret >> 4;
             sprintf(note, "\n“0x00”: L9032NB-AL-R\n“0x01”: AK9032-R\n“0x02”: AG9032-R\n“0x03”: AG9032R-R\n“0x04”: AG9032 V1-R\n");
             return sprintf(buf, "0x%02x%s", value, note);
-            break;
         case SW_BOARD_VER:
             reg  = 0x00;
             ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, reg);
             value = ret & 0x0F;
             sprintf(note, "\n“0x00”: proto-A\n“0x01”: proto-B\n");
             return sprintf(buf, "0x%02x%s", value, note);
-            break;
         case SWPLD_VER:
             reg  = 0x01;
             ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, reg);
             value = ret & 0xFF;
             sprintf(note, " ");
             return sprintf(buf, "0x%02x%s", value, note);
-            break;
     //other attributes
         case SYS_RST ... QSFP32_MOD_INT:
             reg  = controller_interrupt_data[attr->index].reg_addr;
             mask = controller_interrupt_data[attr->index].reg_mask;
             sprintf(note, "\n%s\n",controller_interrupt_data[attr->index].reg_note);
-            break; 
+            ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, reg);
+            value = (ret & (1 << mask)) >> mask;
+            return sprintf(buf, "%d%s", value, note);            
         default:
             return sprintf(buf, "%d not found", attr->index);
     }  
-    ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, reg);
-    value = (ret & (1 << mask)) >> mask;
-    return sprintf(buf, "%d%s", value, note);
 }
 
 static ssize_t set_swpld_data(struct device *dev, struct device_attribute *dev_attr, const char *buf, size_t count)
@@ -1633,7 +1631,6 @@ static ssize_t set_swpld_data(struct device *dev, struct device_attribute *dev_a
         case QSFP_01TO08_MASK_INT... QSFP_25TO32_MASK_ABS:
             reg  = controller_interrupt_data[attr->index].reg_addr;
             mask = controller_interrupt_data[attr->index].reg_mask;
-            sprintf(note, "\n%s\n",controller_interrupt_data[attr->index].reg_note);
             break;          
         default:
             return sprintf(buf, "%d not found", attr->index);
@@ -1856,6 +1853,7 @@ static int __init cpld_probe(struct platform_device *pdev)
         goto error;
     }
 
+    kobj_swpld = &pdev->dev.kobj;
     kobj_board = kobject_create_and_add("Board", &pdev->dev.kobj);
     if (!kobj_board){
         printk(KERN_WARNING "Fail to create directory");
@@ -1925,6 +1923,7 @@ static int __init cpld_probe(struct platform_device *pdev)
     return 0;
 
 error:
+    kobject_put(kobj_swpld);
     kobject_put(kobj_board);
     kobject_put(kobj_psu);
     kobject_put(kobj_hot_swap);
@@ -1947,6 +1946,7 @@ static int __exit cpld_remove(struct platform_device *pdev)
         dev_err(&pdev->dev, "Missing platform data\n");
     } 
     else {
+        kobject_put(kobj_swpld);
         kobject_put(kobj_board);
         kobject_put(kobj_psu);
         kobject_put(kobj_hot_swap);
@@ -2266,7 +2266,7 @@ static void __init delta_ag9032v1_platform_init(void)
     struct i2c_client *client;
     struct i2c_adapter *adapter;
     struct cpld_platform_data *cpld_pdata;
-    struct swpld_mux_platform_data *swpld_pdata;
+    struct swpld_mux_platform_data *swpld_mux_pdata;
     int ret,i = 0;
     printk("ag9032v1_platform module initialization\n");
     
@@ -2308,8 +2308,8 @@ static void __init delta_ag9032v1_platform_init(void)
 
     for (i = 0; i < ARRAY_SIZE(ag9032v1_swpld_mux); i++)
     {
-        swpld_pdata = ag9032v1_swpld_mux[i].dev.platform_data;
-        swpld_pdata->cpld = cpld_pdata[system_cpld].client;  
+        swpld_mux_pdata = ag9032v1_swpld_mux[i].dev.platform_data;
+        swpld_mux_pdata->cpld = cpld_pdata[system_cpld].client;  
         ret = platform_device_register(&ag9032v1_swpld_mux[i]);          
         if (ret) {
             printk(KERN_WARNING "Fail to create swpld mux %d\n", i);
