@@ -43,11 +43,7 @@ HWSKU=`sonic-cfggen -d -v "DEVICE_METADATA['localhost']['hwsku']"`
 
 SWSSCONFIG_ARGS="00-copp.config.json ipinip.json ports.json switch.json "
 
-if [ "$HWSKU" == "Force10-S6000" ]; then
-    SWSSCONFIG_ARGS+="td2.32ports.buffers.json td2.32ports.qos.json "
-elif [ "$HWSKU" == "Force10-S6000-Q32" ]; then
-    SWSSCONFIG_ARGS+="td2.32ports.buffers.json td2.32ports.qos.json "
-elif [ "$HWSKU" == "Force10-S6100" ]; then
+if [ "$HWSKU" == "Force10-S6100" ]; then
     SWSSCONFIG_ARGS+="th.64ports.buffers.json th.64ports.qos.json "
 elif [ "$HWSKU" == "Arista-7050-QX32" ]; then
     SWSSCONFIG_ARGS+="td2.32ports.buffers.json td2.32ports.qos.json "
