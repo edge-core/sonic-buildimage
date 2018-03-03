@@ -32,6 +32,13 @@ def sub(l, start, end):
     return l[start:end]
 
 
+def obfuscate(data):
+    if data:
+        return data[0] + '*****'
+    else:
+        return data
+
+
 class AaaCfg(object):
     def __init__(self):
         self.auth_default = {
@@ -144,16 +151,19 @@ class HostConfigDaemon:
         self.aaacfg.load(aaa, tacacs_global, tacacs_server)
 
     def aaa_handler(self, key, data):
-        syslog.syslog(syslog.LOG_DEBUG, 'value for {} changed to {}'.format(key, data))
         self.aaacfg.aaa_update(key, data)
 
     def tacacs_server_handler(self, key, data):
-        syslog.syslog(syslog.LOG_DEBUG, 'value for {} changed to {}'.format(key, data))
         self.aaacfg.tacacs_server_update(key, data)
+        if data.has_key('passkey'):
+            data['passkey'] = obfuscate(data['passkey'])
+        syslog.syslog(syslog.LOG_DEBUG, 'value for {} changed to {}'.format(key, data))
 
     def tacacs_global_handler(self, key, data):
-        syslog.syslog(syslog.LOG_DEBUG, 'value for {} changed to {}'.format(key, data))
         self.aaacfg.tacacs_global_update(key, data)
+        if data.has_key('passkey'):
+            data['passkey'] = obfuscate(data['passkey'])
+        syslog.syslog(syslog.LOG_DEBUG, 'value for {} changed to {}'.format(key, data))
 
     def start(self):
         self.config_db.subscribe('AAA', lambda table, key, data: self.aaa_handler(key, data))
