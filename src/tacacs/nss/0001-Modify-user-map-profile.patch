@@ -619,9 +619,9 @@ index 79e62b9..ecfa0b0 100644
 +        useradd_info_t *user;
 +
 +        for(n = 0; n < tac_srv_no; n++) {
-+            syslog(LOG_DEBUG, "%s: server[%d] { addr=%s, key=%s, timeout=%d }",
++            syslog(LOG_DEBUG, "%s: server[%d] { addr=%s, key=%c*****, timeout=%d }",
 +                        nssname, n, tac_ntop(tac_srv[n].addr->ai_addr),
-+                        tac_srv[n].key, tac_srv[n].timeout);
++                        tac_srv[n].key[0], tac_srv[n].timeout);
 +        }
 +        syslog(LOG_DEBUG, "%s: many_to_one %s", nssname, 1 == many_to_one
 +                    ? "enable" : "disable");
