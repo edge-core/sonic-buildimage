@@ -1613,7 +1613,7 @@ static ssize_t set_swpld_data(struct device *dev, struct device_attribute *dev_a
     int val;
     u8 mask_out;
 
-    ret = kstrtoul(buf, 0, &val);
+    ret = kstrtoint(buf, 0, &val);
 
     if (ret)
     {

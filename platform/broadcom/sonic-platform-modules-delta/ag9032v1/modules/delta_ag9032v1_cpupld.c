@@ -348,7 +348,7 @@ static struct platform_driver cpld_driver = {
 
 
 /*----------------   module initialization     ------------- */
-static void __init delta_ag9032v1_cpupld_init(void)
+static int __init delta_ag9032v1_cpupld_init(void)
 {
     int ret;
     printk(KERN_WARNING "ag9032v1_platform_cpupld module initialization\n");
