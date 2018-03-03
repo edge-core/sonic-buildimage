@@ -9,5 +9,5 @@ rm -f /var/run/rsyslogd.pid
 
 supervisorctl start rsyslogd
 supervisorctl start lldpd
-supervisorctl start lldpd-conf-reload
 supervisorctl start lldp-syncd
+supervisorctl start lldpmgrd
