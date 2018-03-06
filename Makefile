@@ -8,6 +8,8 @@
 #  * ENABLE_DHCP_GRAPH_SERVICE: Enables get-graph service to fetch minigraph files
 #    through http.
 #  * SHUTDOWN_BGP_ON_START: Sets admin-down state for all bgp peerings after restart.
+#  * ENABLE_PFCWD_ON_START: Enable PFC Watchdog (PFCWD) on server-facing ports
+#  * by default for TOR switch.
 #  * SONIC_ENABLE_SYNCD_RPC: Enables rpc-based syncd builds.
 #  * USERNAME: Desired username -- default at rules/config
 #  * PASSWORD: Desired password -- default at rules/config
@@ -62,6 +64,7 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            BUILD_NUMBER=$(BUILD_NUMBER) \
                            ENABLE_DHCP_GRAPH_SERVICE=$(ENABLE_DHCP_GRAPH_SERVICE) \
                            SHUTDOWN_BGP_ON_START=$(SHUTDOWN_BGP_ON_START) \
+                           SONIC_ENABLE_PFCWD_ON_START=$(ENABLE_PFCWD_ON_START) \
                            ENABLE_SYNCD_RPC=$(ENABLE_SYNCD_RPC) \
                            PASSWORD=$(PASSWORD) \
                            USERNAME=$(USERNAME) \

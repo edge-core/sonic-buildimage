@@ -36,6 +36,10 @@ DEFAULT_PASSWORD = YourPaSsWoRd
 # bgp service starts.
 # SHUTDOWN_BGP_ON_START = y
 
+# ENABLE_PFCWD_ON_START - if set to y PFC Watchdog (PFCWD) will be enabled all server-facing ports
+# by default for TOR switch
+# ENABLE_PFCWD_ON_START = y
+
 # SONIC_CONFIG_DEBUG - install debug packages
 # Uncomment next line to enable:
 # SONIC_CONFIG_DEBUG = y

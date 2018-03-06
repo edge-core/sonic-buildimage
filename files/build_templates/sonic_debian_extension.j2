@@ -168,6 +168,10 @@ sudo bash -c "echo enabled=false > $FILESYSTEM_ROOT/etc/sonic/updategraph.conf"
 {% if shutdown_bgp_on_start == "y" %}
 sudo bash -c "echo '{ \"DEVICE_METADATA\": { \"localhost\": { \"default_bgp_status\": \"down\" } } }' >> $FILESYSTEM_ROOT/etc/sonic/init_cfg.json"
 {% endif %}
+{% if enable_pfcwd_on_start == "y" %}
+sudo bash -c "echo '{ \"DEVICE_METADATA\": { \"localhost\": { \"default_pfcwd_status\": \"enable\" } } }' >> $FILESYSTEM_ROOT/etc/sonic/init_cfg.json"
+{% endif %}
+
 # Copy SNMP configuration files
 sudo cp $IMAGE_CONFIGS/snmp/snmp.yml $FILESYSTEM_ROOT/etc/sonic/
 
