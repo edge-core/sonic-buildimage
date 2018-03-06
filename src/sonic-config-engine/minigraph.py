@@ -239,18 +239,18 @@ def parse_cpg(cpg, hname):
                     keepalive = 60
                 nhopself = 1 if session.find(str(QName(ns, "NextHopSelf"))) is not None else 0
                 if end_router == hname:
-                    bgp_sessions[start_peer] = {
+                    bgp_sessions[start_peer.lower()] = {
                         'name': start_router,
-                        'local_addr': end_peer,
+                        'local_addr': end_peer.lower(),
                         'rrclient': rrclient,
                         'holdtime': holdtime,
                         'keepalive': keepalive,
                         'nhopself': nhopself
                     }
                 else:
-                    bgp_sessions[end_peer] = {
+                    bgp_sessions[end_peer.lower()] = {
                         'name': end_router,
-                        'local_addr': start_peer,
+                        'local_addr': start_peer.lower(),
                         'rrclient': rrclient,
                         'holdtime': holdtime,
                         'keepalive': keepalive,
