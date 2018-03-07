@@ -14,23 +14,55 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Aboot stage 0 boot
+# Aboot stage 0 boot script
+#
+# This boot0 script can be used in different scenario
+#  - Installation and boot from Aboot (manual or reboot on a new image)
+#  - EOS to SONiC fast-reboot (installation and kexec in EOS)
+#  - SONiC to SONiC fast-reboot (installation and kexec in SONiC)
+#
+# Use it this way:
+#   - swipath=path/to/swi install=true boot0
+#   - swipath=path/to/swi install=true force=true boot0
+#   - swipath=path/to/swi kexec=true boot0
+#
+# The logic defaults to the first scenario but providing extra environment variable
+# will affect the behavior of the script.
+# The list of variables is maintained here
+#   - KERNEL : relative path to the kernel to execute
+#   - INITRD : relative path to the initrd to load
+#   - CMDLINE : place to find the default kernel cmdline to use for the platform
+#
+# By default the boot0 script will behave for an Aboot based behavior.
+# Options can be provided to only run some features of this script.
+#
+# Extra kernel parameters can be provided at runtime by the user by adding them
+# into a kernel-params file.
 
 set -x
 
-kernel=boot/vmlinuz-3.16.0-5-amd64
-initrd=boot/initrd.img-3.16.0-5-amd64
-kernel_params=kernel-params
+image_name="image-%%IMAGE_VERSION%%"
+
+do_not_clean="do-not-clean"
+kernel_params="kernel-params"
 
 aboot_machine="arista_unknown"
 
-[ -z "$target_path" ] && target_path=/mnt/flash
-image_path="$target_path/image-%%IMAGE_VERSION%%"
 
-# expect the swi to be a non empty file
-[ -s "$swipath" ] || exit 1
+# extract mount point from the swi path, e.g., /mnt/flash/sonic.swi --> /mnt/flash
+if [ -z "$target_path" ]; then
+    if [ -z "$swipath" ]; then
+       echo "target_path= is required when swipath= is not provided"
+       exit 1
+    fi
+    target_path=$(df "$swipath" | tail -1 | tr -s " " | cut -d ' ' -f6)
+fi
+image_path="$target_path/$image_name"
 
-bootconfigvars="SWI SWI_COPY POST_LEVEL CONSOLESPEED PASSWORD NETDEV NETAUTO NETIP NETMASK NETGW NETDOMAIN NETDNS NETHW memtest"
+cmdline_base="$target_path/kernel-params-base"
+cmdline_image="$image_path/kernel-cmdline"
+
+bootconfigvars="KERNEL INITRD CONSOLESPEED PASSWORD NETDEV NETAUTO NETIP NETMASK NETGW NETDOMAIN NETDNS NETHW memtest"
 
 parse_environment_config() {
     for n in ${bootconfigvars}; do
@@ -46,6 +78,8 @@ clean_flash() {
     for f in $(ls -A $target_path); do
         if [ $f != "${swipath##*/}" ] &&
            [ $f != "boot-config" ] &&
+           [ $f != "$kernel_params" ] &&
+           [ $f != "$cmdline_base" ] &&
            [ $f != "minigraph.xml" ]
         then
             rm -rf "$target_path/$f"
@@ -54,7 +88,6 @@ clean_flash() {
 }
 
 extract_image() {
-
     mkdir -p "$image_path"
 
     ## Unzip the image except boot0 and dockerfs archive
@@ -80,7 +113,7 @@ extract_image() {
     fi
 
     ## use new reduced-size boot swi
-    echo "SWI=flash:image-%%IMAGE_VERSION%%/{{ ABOOT_BOOT_IMAGE }}" > "$target_path/boot-config"
+    echo "SWI=flash:$image_name/{{ ABOOT_BOOT_IMAGE }}" > "$target_path/boot-config"
 
     ## Remove installer swi as it has lots of redundunt contents
     rm -f "$swipath"
@@ -91,8 +124,12 @@ extract_image() {
 
 write_machine_config() {
     ## Detect SKU and create a hardware description file
-    aboot_version=$(grep ^Aboot /etc/cmdline | sed 's/^.*norcal.-//')
-    aboot_build_date=$(stat -c %y /bin/sysinit | sed 's/ /T/')
+    aboot_version=$(grep ^Aboot "$cmdline_base" | sed 's/^.*norcal.-//' | tail -n 1)
+    if [ -x /bin/sysinit ]; then
+       aboot_build_date=$(stat -c %y /bin/sysinit | sed 's/ /T/')
+    else
+       aboot_build_date="unknown"
+    fi
     cat <<EOF > ${target_path}/machine.conf
 aboot_version=$aboot_version
 aboot_vendor=arista
@@ -101,16 +138,17 @@ aboot_machine=$aboot_machine
 aboot_arch=x86_64
 aboot_build_date=$aboot_build_date
 EOF
+    chmod a+r "${target_path}/machine.conf"
 }
 
 platform_specific() {
-    local platform="$(grep -Eo 'platform=[^ ]+' /etc/cmdline | cut -f2 -d=)"
-    local sid="$(grep -Eo 'sid=[^ ]+' /etc/cmdline | cut -f2 -d=)"
+    local platform="$(grep -Eo 'platform=[^ ]+' "$cmdline_base" | cut -f2 -d=)"
+    local sid="$(grep -Eo 'sid=[^ ]+' "$cmdline_base" | cut -f2 -d=)"
 
     # set varlog size to 100MB
     local varlog_size=100
 
-    local flash_size=$(($(df | grep flash | tr -s ' ' | cut -f2 -d' ') / 1000))
+    local flash_size=$(($(df | grep -E '/mnt/flash|/host' | tr -s ' ' | cut -f2 -d' ') / 1000))
 
     if [ "$platform" = "raven" ]; then
         aboot_machine=arista_7050_qx32
@@ -132,7 +170,12 @@ platform_specific() {
         flash_size=28000
     fi
     if [ "$platform" = "rook" ]; then
-        readprefdl -f /tmp/.system-prefdl -d > /mnt/flash/.system-prefdl
+        if [ -x /bin/readprefdl ]; then
+           readprefdl -f /tmp/.system-prefdl -d > /mnt/flash/.system-prefdl
+        elif [ -f /etc/prefdl ]; then
+           cp /etc/prefdl /mnt/flash/.system-prefdl
+           chmod a+r /mnt/flash/.system-prefdl
+        fi
     fi
 
     if [ $flash_size -ge 28000 ]; then
@@ -144,45 +187,119 @@ platform_specific() {
     echo "varlog_size=$varlog_size" >>/tmp/append
 }
 
-# check the hash file in the image, and determine to install or just skip
-GIT_REVISION=$(unzip -p "$swipath" .imagehash)
-LOCAL_IMAGEHASH=$(cat $image_path/.imagehash 2>/dev/null || true)
-if [ "$GIT_REVISION" != "$LOCAL_IMAGEHASH" ]; then
-    [ -z "$sonic_upgrade" ] && clean_flash
-    extract_image
+get_uuid_for() {
+    local dev="$1"
+
+    if type lsblk 2>&1 > /dev/null; then
+       lsblk "$dev" -n --output UUID
+    elif type blkid 2>&1 > /dev/null; then
+       blkid | grep "^$dev" | sed -n "s/^.* UUID=\"//p" | grep -Eo '[^"]+'
+    fi
+}
+
+write_boot_configs() {
+    if $in_aboot; then
+        # generate the default kernel parameters for the platform
+        echo "$append" > $cmdline_base
+        cat /etc/cmdline | sed "/^\(${bootconfigvars// /\|}\|crashkernel\|loglevel\|ignore_loglevel\)\(\$\|=\)/d;/^\$/d" >> $cmdline_base
+        parse_environment_config >> $cmdline_base
+    elif [ ! -f "$cmdline_base" ]; then
+        # some systems were started with other versions of this script and therefore
+        # do not have the $cmdline_base file. we assume that we are on Sonic or EOS.
+        cat /proc/cmdline > $cmdline_base
+        sed -Ei 's/^(.*) rw .*$/\1/' $cmdline_base
+    fi
+
+    cp $cmdline_base /tmp/append
+
+    platform_specific
+    echo "rw loop=$image_name/fs.squashfs loopfstype=squashfs apparmor=1 security=apparmor quiet" >> /tmp/append
+
+
+    # use extra parameters from kernel-params hook if the file exists
+    if [ -f "$target_path/$kernel_params" ]; then
+        cat "$target_path/$kernel_params" >> /tmp/append
+    fi
+
+    # setting root partition if not overridden by kernel-params
+    if ! grep -q "root=" /tmp/append; then
+        rootdev="$(mount | grep -E '/mnt/flash|/host' | cut -f1 -d' ')"
+        rootfstype="$(mount | grep -E '/mnt/flash|/host' | cut -f5 -d' ')"
+        rootuuid="$(get_uuid_for $rootdev)"
+        if [ -z "$rootuuid" ] || [ "$rootfstype" = "vfat" ] ; then
+            echo "root=$rootdev" >> /tmp/append
+        else
+            echo "root=UUID=$rootuuid" >> /tmp/append
+        fi
+    fi
+
+    mv /tmp/append $cmdline_image
+    [ -e ${target_path}/machine.conf ] || write_machine_config
+}
+
+run_kexec() {
+    local cmdline="$(cat $cmdline_image | tr '\n' ' ')"
+    local kernel="${KERNEL:-$(find $image_path/boot -name 'vmlinuz-*' -type f | head -n 1)}"
+    local initrd="${INITRD:-$(find $image_path/boot -name 'initrd.img-*' -type f | head -n 1)}"
+
+    kexec --load --initrd="$initrd" --append="$cmdline" "$kernel"
+
+    [ -z "$testonly" ] || exit 0
+    echo "kexecing..."
+    kexec --exec
+}
+
+# In Aboot no option will be provided therefore these are the default values to use
+in_aboot=true
+do_clean=true
+do_install=true
+do_kexec=true
+
+# prevent the flash from being cleaned if the do-not-clean file exists
+if [ -f "$target_path/$do_not_clean" ]; then
+    do_clean=false
 fi
 
-[ -z "$sonic_upgrade" ] || exit 0
-
-# build the new cmdline
-echo "$append" >/tmp/append
-parse_environment_config >>/tmp/append
-cat /etc/cmdline | sed "/^\(${bootconfigvars// /\|}\|crashkernel\|loglevel\|ignore_loglevel\)\(\$\|=\)/d;/^\$/d" >>/tmp/append
-
-echo "rw loop=image-%%IMAGE_VERSION%%/fs.squashfs loopfstype=squashfs apparmor=1 security=apparmor quiet" >>/tmp/append
-
-# process platform specific operations
-platform_specific
-
-[ -e ${taget_path}/machine.conf ] || write_machine_config
-
-# use extra parameters from kernel-params hook if the file exists
-if [ -f "$image_path/$kernel_params" ]; then
-    cat "$image_path/$kernel_params" >>/tmp/append
+# Parse the cmdline options (used from EOS or from SONiC)
+if [ ! -z "$install" ] || [ ! -z "$sonic_upgrade" ]; then
+    # install from SONiC or EOS
+    in_aboot=false
+    do_clean=false
+    do_kexec=false
+elif [ ! -z "$kexec" ]; then
+    # kexec from SONiC or EOS
+    in_aboot=false
+    do_install=false
+    do_clean=false
+elif [ $# -ne 0 ]; then
+    echo "usage: $0 (see code)"
+    exit 1
 fi
 
-# setting root partition if not overridden by kernel-params
-if ! grep -q "root=" /tmp/append; then
-   rootdev=$(mount | grep '/mnt/flash' | cut -f1 -d' ')
-   rootfstype=$(mount | grep '/mnt/flash' | cut -f5 -d' ')
-   echo "root=$rootdev" >>/tmp/append
+# install the image if newer
+if $do_install; then
+    # we expect the swi to install to be a non empty file
+    if [ ! -s "$swipath" ]; then
+        echo "The swipath= environment variable does not point to a valid SWI"
+        exit 1
+    fi
+
+    # check the hash file in the image, and determine to install or just skip
+    GIT_REVISION=$(unzip -p "$swipath" .imagehash)
+    LOCAL_IMAGEHASH=$(cat $image_path/.imagehash 2>/dev/null || true)
+
+    if [ "$GIT_REVISION" != "$LOCAL_IMAGEHASH" ] || [ ! -z "$force" ]; then
+        if $do_clean; then
+            clean_flash
+        fi
+
+        extract_image
+        write_boot_configs
+    fi
 fi
 
 # chainloading using kexec
-initrd_path="$image_path/$initrd"
-kernel_path="$image_path/$kernel"
-cmdline="$(tr '\n' ' ' </tmp/append)"
+if $do_kexec; then
+    run_kexec
+fi
 
-kexec --load --initrd="$initrd_path" --append="$cmdline" "$kernel_path"
-[ -z "$testonly" ] || exit 0
-kexec --exec
