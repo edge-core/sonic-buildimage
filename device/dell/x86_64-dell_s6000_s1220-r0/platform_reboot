@@ -1,0 +1,3 @@
+#!/bin/sh
+
+echo 1 > /sys/devices/platform/dell-s6000-cpld.0/power_reset
