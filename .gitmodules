@@ -26,9 +26,6 @@
 [submodule "src/sonic-py-swsssdk"]
 	path = src/sonic-py-swsssdk
 	url = https://github.com/Azure/sonic-py-swsssdk.git
-[submodule "src/lldpd"]
-	path = src/lldpd
-	url = https://github.com/vincentbernat/lldpd.git
 [submodule "src/sonic-snmpagent"]
 	path = src/sonic-snmpagent
 	url = https://github.com/Azure/sonic-snmpagent

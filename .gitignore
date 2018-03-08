@@ -23,6 +23,9 @@ src/libnl3/*
 !src/libnl3/Makefile
 src/libteam/*
 !src/libteam/Makefile
+src/lldpd/*
+!src/lldpd/Makefile
+!src/lldpd/patch/
 src/mpdecimal/*
 !src/mpdecimal/Makefile
 src/python3/*
