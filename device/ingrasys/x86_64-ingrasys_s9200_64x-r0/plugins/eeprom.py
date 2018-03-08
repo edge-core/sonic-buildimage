@@ -19,6 +19,6 @@ class board(eeprom_tlvinfo.TlvInfoDecoder):
 
     def __init__(self, name, path, cpld_root, ro):
         i2c_bus = "0"
-        i2c_addr = "0055"
+        i2c_addr = "0051"
         self.eeprom_path = "/sys/class/i2c-adapter/i2c-" + i2c_bus + "/" + i2c_bus + "-" + i2c_addr + "/eeprom"
         super(board, self).__init__(self.eeprom_path, 0, '', True)
