@@ -1,0 +1,28 @@
+From 2bb21fcf4a9ad7535867809c50d2cf0ba1088e17 Mon Sep 17 00:00:00 2001
+From: Joe LeVeque <jolevequ@microsoft.com>
+Date: Fri, 9 Mar 2018 01:43:35 +0000
+Subject: [PATCH] [Bugfix] Don't print log messages to stderr in release builds
+
+---
+ omapip/errwarn.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/omapip/errwarn.c b/omapip/errwarn.c
+index 7c91d9d..aa74fd8 100644
+--- a/omapip/errwarn.c
++++ b/omapip/errwarn.c
+@@ -39,9 +39,9 @@
+ #include <syslog.h>
+ 
+ #ifdef DEBUG
+-int log_perror = -1;
+-#else
+ int log_perror = 1;
++#else
++int log_perror = 0;
+ #endif
+ void (*log_cleanup) (void);
+ 
+-- 
+2.1.4
+
