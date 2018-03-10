@@ -30,6 +30,8 @@ from sonic_platform import get_machine_info
 from sonic_platform import get_platform_info
 from sonic_platform import get_system_mac
 from swsssdk import ConfigDBConnector
+from collections import OrderedDict
+from natsort import natsorted
 
 def is_ipv4(value):
     if not value:
@@ -99,6 +101,7 @@ TODO(taoyl): Current version of config db only supports BGP admin states.
     def to_serialized(data):
         for table in data:
             if type(data[table]) is dict:
+                data[table] = OrderedDict(natsorted(data[table].items()))
                 for key in data[table].keys():
                     new_key = ConfigDBConnector.serialize_key(key)
                     if new_key != key:
