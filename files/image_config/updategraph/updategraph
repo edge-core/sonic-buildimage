@@ -1,11 +1,85 @@
 #!/bin/bash
 
+CONFIG_DB_INDEX=4
+
+reload_minigraph()
+{
+    echo "Reloading minigraph..."
+    if [ ! -f /etc/sonic/init_cfg.json ]; then
+        echo "{}" > /etc/sonic/init_cfg.json
+    fi
+    redis-cli -n $CONFIG_DB_INDEX FLUSHDB
+    sonic-cfggen -H -m -j /etc/sonic/init_cfg.json --write-to-db
+    redis-cli -n $CONFIG_DB_INDEX SET "CONFIG_DB_INITIALIZED" "1"
+    if [ -f /etc/sonic/acl.json ]; then
+        acl-loader update full /etc/sonic/acl.json
+    fi
+    config qos reload
+}
+
+copy_default_minigraph()
+{
+    . /host/machine.conf
+    if [ -n "$aboot_platform" ]; then
+        platform=$aboot_platform
+    elif [ -n "$onie_platform" ]; then
+        platform=$onie_platform
+    else
+        echo "Unknown sonic platform."
+        exit 1
+    fi
+    echo "Copying default minigraph..."
+    cp /usr/share/sonic/device/$platform/minigraph.xml /etc/sonic/
+}
+
+
 if [ ! -f /etc/sonic/updategraph.conf ]; then
     echo "No updategraph.conf found, generating a default one."
     echo "enabled=false" >/etc/sonic/updategraph.conf
 fi
 
 . /etc/sonic/updategraph.conf
+
+if [ -f /tmp/pending_config_migration ]; then
+    if [ "$enabled" = "true" ]; then
+        echo "Use minigraph.xml from old system..."
+        cp /etc/sonic/old_config/minigraph.xml /etc/sonic/
+        if [ -f /etc/sonic/old_config/init_cfg.json ]; then
+            cp /etc/sonic/old_config/init_cfg.json /etc/sonic/
+        fi
+        if [ -f /etc/sonic/old_config/snmp.yml ]; then
+            cp /etc/sonic/old_config/snmp.yml /etc/sonic/
+        fi
+        if [ -f /etc/sonic/old_config/acl.json ]; then
+            cp /etc/sonic/old_config/acl.json /etc/sonic/
+        fi
+        reload_minigraph
+        sonic-cfggen -d --print-data > /etc/sonic/config_db.json
+    else
+        echo "Use config_db.json from old system..."
+        cp /etc/sonic/old_config/config_db.json /etc/sonic/
+        sonic-cfggen -j /etc/sonic/config_db.json --write-to-db
+    fi
+    rm -f /tmp/pending_config_migration
+    sed -i "/enabled=/d" /etc/sonic/updategraph.conf
+    echo "enabled=false" >> /etc/sonic/updategraph.conf
+    exit 0
+fi
+
+if [ -f /tmp/pending_config_initialization ] && [ "$enabled" != "true" ]; then 
+    copy_default_minigraph
+    reload_minigraph
+    sonic-cfggen -d --print-data > /etc/sonic/config_db.json
+    rm -f /tmp/pending_config_initialization
+    exit 0
+fi
+
+if [ "$enabled" = "reload_only" ]; then
+    reload_minigraph
+    sed -i "/enabled=/d" /etc/sonic/updategraph.conf
+    echo "enabled=false" >> /etc/sonic/updategraph.conf
+    exit 0
+fi
 
 if [ "$enabled" != "true" ]; then
     echo "Disabled in updategraph.conf. Skipping graph update."
@@ -38,7 +112,9 @@ if [ "$src" = "dhcp" ]; then
         else
             cp -f /tmp/device_meta.json /etc/sonic/config_db.json
         fi
-        
+        redis-cli -n $CONFIG_DB_INDEX FLUSHDB
+        sonic-cfggen -j /etc/sonic/config_db.json --write-to-db
+        redis-cli -n $CONFIG_DB_INDEX SET "CONFIG_DB_INITIALIZED" "1"
         if [ "$dhcp_as_static" = "true" ]; then
             sed -i "/enabled=/d" /etc/sonic/updategraph.conf
             echo "enabled=false" >> /etc/sonic/updategraph.conf
@@ -86,17 +162,6 @@ while true; do
     sleep 5
 done
 
-echo "Regenerating config DB from minigraph..."
-if [ -f /etc/sonic/init_cfg.json ]; then
-    sonic-cfggen -H -m -j /etc/sonic/init_cfg.json --print-data > /etc/sonic/config_db.json
-else
-    sonic-cfggen -H -m --print-data > /etc/sonic/config_db.json
-fi
-
-# Mark as disabled after graph is successfully downloaded
-sed -i "/enabled=/d" /etc/sonic/updategraph.conf
-echo "enabled=false" >> /etc/sonic/updategraph.conf
-
 if [ -n "$ACL_URL" ]; then
     if [ -f /etc/sonic/acl.json ]; then
         echo "Renaming acl.json to acl.json.old"
@@ -111,3 +176,11 @@ if [ -n "$ACL_URL" ]; then
 else
     echo "Skip ACL config download."
 fi
+
+reload_minigraph
+sonic-cfggen -d --print-data > /etc/sonic/config_db.json
+
+# Mark as disabled after graph is successfully downloaded
+sed -i "/enabled=/d" /etc/sonic/updategraph.conf
+echo "enabled=false" >> /etc/sonic/updategraph.conf
+

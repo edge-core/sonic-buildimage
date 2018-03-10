@@ -1,7 +1,7 @@
 [Unit]
 Description=Router advertiser container
-Requires=docker.service
-After=swss.service
+Requires=updategraph.service
+After=updategraph.service swss.service
 
 [Service]
 User={{ sonicadmin_user }}

@@ -1,6 +1,7 @@
 [Unit]
 Description=Takes care of updates to SSH config file with respect to the SSH allow list
-After=database.service
+After=updategraph.service
+Requires=updategraph.service
 ConditionPathExists=!/etc/ssh/sshd_not_to_be_run
 
 [Service]

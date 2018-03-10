@@ -157,15 +157,6 @@ firsttime_exit()
     exit 0
 }
 
-test_config()
-{
-    if [ -d /host/old_config ] && ( [ -f /host/old_config/minigraph.xml ] || [ -f /host/old_config/config_db.json ] ); then
-        return 0
-    fi
-
-    return 1
-}
-
 # Given a string of tuples of the form field=value, extract the value for a field
 # In : $string, $field
 # Out: $value
@@ -193,46 +184,21 @@ if [ -f /host/image-$sonic_version/platform/firsttime ]; then
         firsttime_exit
     fi
 
-    if [ ! -f /etc/sonic/init_cfg.json ]; then
-        # Generate an empty init_cfg.json
-        echo '{}' > /etc/sonic/init_cfg.json
-    fi
-
     # Try to take old configuration saved during installation
-    if test_config; then
-        rm -f /host/old_config/sonic_version.yml
-        mv -f /host/old_config/* /etc/sonic/
-        if [ ! -f /etc/sonic/config_db.json ]; then
-            sonic-cfggen -H -m -j /etc/sonic/init_cfg.json --print-data > /etc/sonic/config_db.json
-        fi
+    # and create a flag in /tmp/ to let updategraph service know
+    if [ -d /host/old_config ]; then
+        mv -f /host/old_config /etc/sonic/
+        touch /tmp/pending_config_migration
     elif [ -f /host/minigraph.xml ]; then
-        mv /host/minigraph.xml /etc/sonic/
-        # Combine information in minigraph and init_cfg.json to form initiate config DB dump file.
-        # TODO: After moving all information from minigraph to DB, sample config DB dump should be provide
-        sonic-cfggen -H -m -j /etc/sonic/init_cfg.json --print-data > /etc/sonic/config_db.json
+        mkdir -p /etc/sonic/old_config
+        mv /host/minigraph.xml /etc/sonic/old_config/
+        touch /tmp/pending_config_migration
     elif [ -n "$migration" ] && [ -f /host/migration/minigraph.xml ];  then
-        # Use the minigraph that was imported from the NOS
-        mv /host/migration/minigraph.xml /etc/sonic/
-        sonic-cfggen -m -j /etc/sonic/init_cfg.json --print-data > /etc/sonic/config_db.json
+        mkdir -p /etc/sonic/old_config
+        mv /host/migration/minigraph.xml /etc/sonic/old_config/
+        touch /tmp/pending_config_migration
     else
-        # Use default minigraph.xml
-        cp /usr/share/sonic/device/$platform/minigraph.xml /etc/sonic/
-        sonic-cfggen -H -m -j /etc/sonic/init_cfg.json --print-data > /etc/sonic/config_db.json
-    fi
-
-    HWSKU=`sonic-cfggen -m /etc/sonic/minigraph.xml -v DEVICE_METADATA.localhost.hwsku`
-    if [ -f /usr/share/sonic/device/$platform/$HWSKU/buffers.json.j2 ]; then
-        # generate and merge buffers configuration into config file
-        sonic-cfggen -m -t /usr/share/sonic/device/$platform/$HWSKU/buffers.json.j2 > /tmp/buffers.json
-        sonic-cfggen -j /etc/sonic/config_db.json -j /tmp/buffers.json --print-data > /tmp/config_db.json
-        mv /tmp/config_db.json /etc/sonic/config_db.json
-
-        # Only apply qos.json when buffer configuration is available.
-        if [ -f /usr/share/sonic/device/$platform/$HWSKU/qos.json ]; then
-            # merge qos configuration into init config file
-            sonic-cfggen -j /etc/sonic/config_db.json -j /usr/share/sonic/device/$platform/$HWSKU/qos.json --print-data > /tmp/config_db.json
-            mv /tmp/config_db.json /etc/sonic/config_db.json
-        fi
+        touch /tmp/pending_config_initialization
     fi
 
     if [ -d /host/image-$sonic_version/platform/$platform ]; then

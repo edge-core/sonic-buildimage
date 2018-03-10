@@ -1,7 +1,7 @@
 [Unit]
 Description=SNMP container
-Requires=database.service swss.service
-After=database.service swss.service
+Requires=updategraph.service swss.service
+After=updategraph.service swss.service
 
 [Service]
 ExecStartPre=/usr/bin/{{docker_container_name}}.sh start
