@@ -68,15 +68,10 @@
     }
     },
     "BUFFER_POOL": {
-        "ingress_lossless_pool0": {
-            "size": "3637248",
+        "ingress_lossless_pool": {
+            "size": "7274496",
             "type": "ingress",
-            "mode": "static"
-        },
-        "ingress_lossless_pool1": {
-            "size": "3637248",
-            "type": "ingress",
-            "mode": "static"
+            "mode": "dynamic"
         },
         "ingress_lossy_pool": {
             "size": "5491712",
@@ -100,19 +95,13 @@
         }
     },
     "BUFFER_PROFILE": {
-        "ingress_lossless_profile0": {
-            "pool":"[BUFFER_POOL|ingress_lossless_pool0]",
+        "ingress_lossless_profile": {
+            "pool":"[BUFFER_POOL|ingress_lossless_pool]",
             "xon":"18432",
             "xoff":"76800",
-            "size":"113664",
-            "static_th":"0"
-        },
-        "ingress_lossless_profile1": {
-            "pool":"[BUFFER_POOL|ingress_lossless_pool1]",
-            "xon":"18432",
-            "xoff":"76800",
-            "size":"113664",
-            "static_th":"0"
+            "size":"78048",
+            "dynamic_th":"-3",
+            "xon_offset":"2496"
         },
         "ingress_lossy_profile": {
             "pool":"[BUFFER_POOL|ingress_lossy_pool]",
@@ -136,11 +125,8 @@
         }
     },
     "BUFFER_PG": {
-        "{{ port_names }}|3": {
-            "profile" : "[BUFFER_PROFILE|ingress_lossless_profile0]"
-        },
-        "{{ port_names }}|4": {
-            "profile" : "[BUFFER_PROFILE|ingress_lossless_profile1]"
+        "{{ port_names }}|3-4": {
+            "profile" : "[BUFFER_PROFILE|ingress_lossless_profile]"
         },
         "{{ port_names }}|0-1": {
             "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
