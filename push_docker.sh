@@ -18,7 +18,7 @@ docker load < $DOCKER_IMAGE_FILE
 docker_image_name=$(basename $DOCKER_IMAGE_FILE | cut -d. -f1)
 remote_image_name=$REGISTRY_SERVER:$REGISTRY_PORT/$docker_image_name:$DOCKER_IMAGE_TAG
 timestamp="$(date -u +%Y%m%d)"
-build_version="${timestamp}.${BUILD_NUMBER}"
+build_version="${timestamp}.bld-${BUILD_NUMBER}"
 build_remote_image_name=$REGISTRY_SERVER:$REGISTRY_PORT/$docker_image_name:$build_version
 
 ## Add registry information as tag, so will push as latest
