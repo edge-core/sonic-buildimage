@@ -43,10 +43,6 @@ HWSKU=`sonic-cfggen -d -v "DEVICE_METADATA['localhost']['hwsku']"`
 
 SWSSCONFIG_ARGS="00-copp.config.json ipinip.json ports.json switch.json "
 
-if [ "$HWSKU" == "Force10-S6100" ]; then
-    SWSSCONFIG_ARGS+="th.64ports.buffers.json th.64ports.qos.json "
-fi
-
 for file in $SWSSCONFIG_ARGS; do
     swssconfig /etc/swss/config.d/$file
     sleep 1
