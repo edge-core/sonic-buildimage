@@ -23,6 +23,8 @@ start)
     modprobe i2c-mei
     modprobe i2c-mux-pca954x
     modprobe at24
+    modprobe ipmi_devintf
+    modprobe ipmi_si trydefaults=1
     modprobe delta_ag9064_platform
 
     /usr/local/bin/ag9064_platform_init.sh
