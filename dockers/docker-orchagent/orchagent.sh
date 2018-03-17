@@ -20,6 +20,8 @@ elif [ "$platform" == "cavium" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
 elif [ "$platform" == "nephos" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
+elif [ "$platform" == "barefoot" ]; then
+    ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
 fi
 
 exec /usr/bin/orchagent ${ORCHAGENT_ARGS}

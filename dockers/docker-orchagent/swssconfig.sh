@@ -27,7 +27,13 @@ fast_reboot
 
 HWSKU=`sonic-cfggen -d -v "DEVICE_METADATA['localhost']['hwsku']"`
 
-SWSSCONFIG_ARGS="00-copp.config.json ipinip.json ports.json switch.json "
+SWSSCONFIG_ARGS="00-copp.config.json "
+
+if [ "$HWSKU" != "montara" ] && [ "$HWSKU" != "mavericks" ] && [ "$HWSKU" != "OSW1800-48x6q" ] && [ "$HWSKU" != "INGRASYS-S9180-32X"]; then
+    SWSSCONFIG_ARGS+="ipinip.json "
+fi
+
+SWSSCONFIG_ARGS+="ports.json switch.json "
 
 if [ "$HWSKU" == "Force10-S6000" ]; then
     SWSSCONFIG_ARGS+="td2.32ports.buffers.json td2.32ports.qos.json "

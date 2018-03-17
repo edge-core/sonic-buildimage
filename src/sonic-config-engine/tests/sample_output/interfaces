@@ -15,6 +15,10 @@ iface lo inet6 static
     address fc00:1::32
     netmask 128
 #
+# BMC interface
+auto usb0
+iface usb0 inet6 auto
+
 # The management network interface
 auto eth0
 iface eth0 inet static

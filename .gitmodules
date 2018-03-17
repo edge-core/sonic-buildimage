@@ -74,3 +74,6 @@
 [submodule "platform/centec/sonic-platform-modules-e582"]
 	path = platform/centec/sonic-platform-modules-e582
 	url = https://github.com/CentecNetworks/sonic-platform-modules-e582
+[submodule "platform/barefoot/sonic-platform-modules-ingrasys"]
+	path = platform/barefoot/sonic-platform-modules-ingrasys
+	url = https://github.com/Ingrasys-sonic/sonic-platform-modules-ingrasys-barefoot.git

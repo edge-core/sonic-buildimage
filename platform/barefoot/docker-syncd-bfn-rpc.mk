@@ -1,0 +1,15 @@
+# docker image for syncd with rpc
+
+DOCKER_SYNCD_BFN_RPC = docker-syncd-bfn-rpc.gz
+$(DOCKER_SYNCD_BFN_RPC)_PATH = $(PLATFORM_PATH)/docker-syncd-bfn-rpc
+$(DOCKER_SYNCD_BFN_RPC)_DEPENDS += $(SYNCD_RPC) $(LIBTHRIFT)
+$(DOCKER_SYNCD_BFN_RPC)_LOAD_DOCKERS += $(DOCKER_SYNCD_BFN)
+SONIC_DOCKER_IMAGES += $(DOCKER_SYNCD_BFN_RPC)
+ifeq ($(ENABLE_SYNCD_RPC),y)
+SONIC_INSTALL_DOCKER_IMAGES += $(DOCKER_SYNCD_BFN_RPC)
+endif
+
+$(DOCKER_SYNCD_BFN_RPC)_CONTAINER_NAME = syncd
+$(DOCKER_SYNCD_BFN_RPC)_RUN_OPT += --net=host --privileged -t
+$(DOCKER_SYNCD_BFN_RPC)_RUN_OPT += -v /host/machine.conf:/etc/machine.conf
+$(DOCKER_SYNCD_BFN_RPC)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
