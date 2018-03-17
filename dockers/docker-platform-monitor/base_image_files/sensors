@@ -1,2 +1,10 @@
 #!/bin/bash
-docker exec -i pmon sensors "$@"
+
+DOCKER_EXEC_FLAGS="i"
+
+# Determine whether stdout is on a terminal
+if [ -t 1 ] ; then
+    DOCKER_EXEC_FLAGS+="t"
+fi
+
+docker exec -$DOCKER_EXEC_FLAGS pmon sensors "$@"
