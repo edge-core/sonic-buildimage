@@ -452,7 +452,13 @@ unzip -op $ONIE_INSTALLER_PAYLOAD "$FILESYSTEM_DOCKERFS" | tar xz $TAR_EXTRA_OPT
 
 if [ "$install_env" = "onie" ]; then
     # Store machine description in target file system
-    cp /etc/machine.conf $demo_mnt
+    if [ -f /etc/machine-build.conf ]; then
+        # onie_ variable are generate at runtime.
+        # they are no longer hardcoded in /etc/machine.conf
+        set | grep ^onie_ > $demo_mnt/machine.conf
+    else
+        cp /etc/machine.conf $demo_mnt
+    fi
 
     # Store installation log in target file system
     rm -f $onie_initrd_tmp/tmp/onie-support*.tar.bz2
