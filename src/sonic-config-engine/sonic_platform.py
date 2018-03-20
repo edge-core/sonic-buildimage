@@ -33,10 +33,10 @@ def get_platform_info(machine_info):
     return None
 
 def get_sonic_version_info():
-    if not os.path.isfile('/etc/sonic/version.yml'):
+    if not os.path.isfile('/etc/sonic/sonic_version.yml'):
         return None
     data = {}
-    with open('/etc/sonic/version.yml') as stream:
+    with open('/etc/sonic/sonic_version.yml') as stream:
         data = yaml.load(stream)
     return data
 
