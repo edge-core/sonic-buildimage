@@ -247,9 +247,6 @@ sudo augtool --autosave "set /files/etc/ssh/sshd_config/UseDNS no" -r $FILESYSTE
 sudo sed -i 's/^ListenAddress ::/#ListenAddress ::/' $FILESYSTEM_ROOT/etc/ssh/sshd_config
 sudo sed -i 's/^#ListenAddress 0.0.0.0/ListenAddress 0.0.0.0/' $FILESYSTEM_ROOT/etc/ssh/sshd_config
 
-## Copy fstrim service
-sudo cp $FILESYSTEM_ROOT/usr/share/doc/util-linux/examples/fstrim.{service,timer} $FILESYSTEM_ROOT/etc/systemd/system
-
 ## Config monit
 sudo sed -i '
     s/^# set logfile syslog/set logfile syslog/;
