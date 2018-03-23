@@ -197,6 +197,7 @@ if [ -f /host/image-$sonic_version/platform/firsttime ]; then
         mkdir -p /etc/sonic/old_config
         mv /host/migration/minigraph.xml /etc/sonic/old_config/
         touch /tmp/pending_config_migration
+        [ -f /etc/sonic/updategraph.conf ] && sed -i -e "s/enabled=false/enabled=true/g" /etc/sonic/updategraph.conf
     else
         touch /tmp/pending_config_initialization
     fi
