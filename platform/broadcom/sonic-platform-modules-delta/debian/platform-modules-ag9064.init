@@ -26,6 +26,8 @@ start)
     modprobe ipmi_devintf
     modprobe ipmi_si trydefaults=1
     modprobe delta_ag9064_platform
+    modprobe delta_ag9064_cpld
+    modprobe delta_ag9064_swpld
 
     /usr/local/bin/ag9064_platform_init.sh
 

@@ -1,86 +1,14 @@
-#include <linux/device.h>
-#include <linux/module.h>
-#include <linux/kernel.h>
-#include <linux/sysfs.h>
 #include <linux/init.h>
 #include <linux/slab.h>
 #include <linux/dmi.h>
 #include <linux/version.h>
 #include <linux/ctype.h>
-#include <linux/platform_device.h>
-#include <linux/i2c.h>
 #include <linux/i2c/pca954x.h>
 #include <linux/i2c-mux.h>
 #include <linux/i2c-mux-gpio.h>
 #include <linux/i2c/sff-8436.h>
-#include <linux/hwmon.h>
 
-#include <linux/mutex.h>
-#include <linux/completion.h>
-#include <linux/ipmi.h>
-#include <linux/ipmi_smi.h>
-
-#define DEFAULT_NUM  1
-#define BUS9_DEV_NUM 64
-#define BUS9_BASE_NUM 20
-
-#define IPMI_MAX_INTF (4)
-#define DELTA_NETFN 0x38
-#define BMC_BUS_5 0x04
-#define CMD_SETDATA 0x3
-#define CMD_GETDATA 0x2
-
-#define CPLD_REG   0x31
-#define SWPLD1_ADDR 0x35
-#define SWPLD2_ADDR 0x34
-#define SWPLD3_ADDR 0x33
-#define SWPLD4_ADDR 0x32
-#define QSFP_PORT_MUX_REG 0x13
-
-#define QSFP_PRESENCE_1    0x3
-#define QSFP_PRESENCE_2    0x3
-#define QSFP_PRESENCE_3    0x24
-#define QSFP_PRESENCE_4    0x24
-#define QSFP_PRESENCE_5    0x4
-#define QSFP_PRESENCE_6    0x4
-#define QSFP_PRESENCE_7    0x25
-#define QSFP_PRESENCE_8    0x25
-
-#define QSFP_LP_MODE_1     0x0c
-#define QSFP_LP_MODE_2     0x0c
-#define QSFP_LP_MODE_3     0x2a
-#define QSFP_LP_MODE_4     0x2a
-#define QSFP_LP_MODE_5     0x0d
-#define QSFP_LP_MODE_6     0x0d
-#define QSFP_LP_MODE_7     0x2b
-#define QSFP_LP_MODE_8     0x2b
-
-#define QSFP_RESET_1       0x06
-#define QSFP_RESET_2       0x06
-#define QSFP_RESET_3       0x26
-#define QSFP_RESET_4       0x26
-#define QSFP_RESET_5       0x07
-#define QSFP_RESET_6       0x07
-#define QSFP_RESET_7       0x27
-#define QSFP_RESET_8       0x27
-
-#define QSFP_RESPONSE_1    0x09
-#define QSFP_RESPONSE_2    0x09
-#define QSFP_RESPONSE_3    0x28
-#define QSFP_RESPONSE_4    0x28
-#define QSFP_RESPONSE_5    0x0a
-#define QSFP_RESPONSE_6    0x0a
-#define QSFP_RESPONSE_7    0x29
-#define QSFP_RESPONSE_8    0x29
-
-#define QSFP_INTERRUPT_1    0x0f
-#define QSFP_INTERRUPT_2    0x0f
-#define QSFP_INTERRUPT_3    0x2c
-#define QSFP_INTERRUPT_4    0x2c 
-#define QSFP_INTERRUPT_5    0x10
-#define QSFP_INTERRUPT_6    0x10
-#define QSFP_INTERRUPT_7    0x2d
-#define QSFP_INTERRUPT_8    0x2d
+#include "delta_ag9064_common.h"
 
 #define SFF8436_INFO(data) \
     .type = "sff8436", .addr = 0x50, .platform_data = (data)
@@ -97,55 +25,7 @@
         },                                                                  \
 }
 
-
-static void msg_handler(struct ipmi_recv_msg *recv_msg,void* handler_data)
-{
-    struct completion *comp = recv_msg->user_msg_data;
-    if (comp)
-         complete(comp);
-    else
-        ipmi_free_recv_msg(recv_msg);
-    return;
-}
-
-static ipmi_user_t ipmi_mh_user = NULL;
-static struct ipmi_user_hndl ipmi_hndlrs = {   .ipmi_recv_hndl = msg_handler,};
-
-static atomic_t dummy_count = ATOMIC_INIT(0);
-static void dummy_smi_free(struct ipmi_smi_msg *msg)
-{
-        atomic_dec(&dummy_count);
-}
-static void dummy_recv_free(struct ipmi_recv_msg *msg)
-{
-        atomic_dec(&dummy_count);
-}
-static struct ipmi_smi_msg halt_smi_msg = {
-        .done = dummy_smi_free
-};
-static struct ipmi_recv_msg halt_recv_msg = {
-        .done = dummy_recv_free
-};
-
 struct i2c_client * i2c_client_9548;
-
-enum{
-    BUS0 = 0,
-    BUS1,
-    BUS2,
-    BUS3,
-    BUS4,
-    BUS5,
-    BUS6,
-    BUS7,
-    BUS8,
-    BUS9,
-    BUS10,
-    BUS11,
-    BUS12,
-    BUS13,
-    BUS14,
-};
 
 /* pca9548 - add 8 bus */
 static struct pca954x_platform_mode pca954x_mode[] = 
@@ -265,8 +145,45 @@ static struct sff_8436_platform_data sff_8436_port[] = {
     { SFF_8346_PORT() },
 };
 
-/*----------------   IPMI - start   ------------- */
+void device_release(struct device *dev)
+{
+    return;
+}
+EXPORT_SYMBOL(device_release);
 
+void msg_handler(struct ipmi_recv_msg *recv_msg, void* handler_data)
+{
+    struct completion *comp = recv_msg->user_msg_data;
+    if (comp)
+         complete(comp);
+    else
+        ipmi_free_recv_msg(recv_msg);
+    return;
+}
+EXPORT_SYMBOL(msg_handler);
+
+void dummy_smi_free(struct ipmi_smi_msg *msg)
+{
+        atomic_dec(&dummy_count);
+}
+EXPORT_SYMBOL(dummy_smi_free);
+
+void dummy_recv_free(struct ipmi_recv_msg *msg)
+{
+        atomic_dec(&dummy_count);
+}
+EXPORT_SYMBOL(dummy_recv_free);
+
+unsigned char dni_log2 (unsigned char num){
+    unsigned char num_log2 = 0;
+    while(num > 0){
+        num = num >> 1;
+        num_log2 += 1;
+    }
+    return num_log2 -1;
+}
+EXPORT_SYMBOL(dni_log2);
+/*----------------   IPMI - start   ------------- */
 int dni_create_user(void)
 { 
     int rv, i;
@@ -281,6 +198,7 @@ int dni_create_user(void)
         return rv;
     }
 }
+EXPORT_SYMBOL(dni_create_user);
 
 int dni_bmc_cmd(char set_cmd, char *cmd_data, int cmd_data_len)
 {
@@ -299,7 +217,7 @@ int dni_bmc_cmd(char set_cmd, char *cmd_data, int cmd_data_len)
     msg.data = cmd_data;
     
     init_completion(&comp);
-    rv = ipmi_request_supply_msgs(ipmi_mh_user, (struct ipmi_addr*)&addr, 0,&msg, &comp, &halt_smi_msg, &halt_recv_msg, 0);
+    rv = ipmi_request_supply_msgs(ipmi_mh_user, (struct ipmi_addr*)&addr, 0, &msg, &comp, &halt_smi_msg, &halt_recv_msg, 0);
     if (rv) {
         return -6;
     }
@@ -334,15 +252,10 @@ int dni_bmc_cmd(char set_cmd, char *cmd_data, int cmd_data_len)
 
     return rv;
 }
-
+EXPORT_SYMBOL(dni_bmc_cmd);
 /*----------------   IPMI - stop   ------------- */
 
 /*----------------   I2C device   - start   ------------- */
-
-static void device_release(struct device *dev)
-{
-    return;
-}
 
 struct i2c_device_platform_data {
     int parent;
@@ -1014,7 +927,6 @@ alloc_failed:
     return ret;
 }
 
-
 static int __exit swpld_mux_remove(struct platform_device *pdev)
 {
     int i;
@@ -1063,656 +975,7 @@ static struct platform_driver swpld_mux_driver = {
         .name   = "delta-ag9064-swpld-mux",
     },
 };
-
 /*----------------    MUX   - end   ------------- */
-
-/*----------------    CPLD  - start   ------------- */
-
-/*    CPLD  -- device   */
-
-static ssize_t get_present(struct device *dev, struct device_attribute \
-                            *dev_attr, char *buf)
-{
-    int ret;
-    u64 data = 0;
-    uint8_t cmd_data[4]={0};
-    uint8_t set_cmd;
-    int cmd_data_len;
-
-    set_cmd = CMD_GETDATA;
-
-    /*QSFP1~8*/
-    cmd_data[0] = BMC_BUS_5;
-    cmd_data[1] = SWPLD1_ADDR;
-    cmd_data[2] = QSFP_PRESENCE_1;
-    cmd_data[3] = 1;
-    cmd_data_len = sizeof(cmd_data);
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data = (u64)(ret & 0xff);
-
-    /*QSFP9~16*/
-    cmd_data[1] = SWPLD2_ADDR;
-    cmd_data[2] = QSFP_PRESENCE_2;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 8;
-
-    /*QSFP17~24*/
-    cmd_data[1] = SWPLD4_ADDR;
-    cmd_data[2] = QSFP_PRESENCE_3;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 16;
-
-    /*QSFP25~32*/
-    cmd_data[1] = SWPLD3_ADDR;
-    cmd_data[2] = QSFP_PRESENCE_4;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 24;
-
-    /*QSFP33~40*/
-    cmd_data[1] = SWPLD1_ADDR;
-    cmd_data[2] = QSFP_PRESENCE_5;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 32;
-
-    /*QSFP41~48*/
-    cmd_data[1] = SWPLD2_ADDR;
-    cmd_data[2] = QSFP_PRESENCE_6;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 40;
-
-    /*QSFP49~56*/
-    cmd_data[1] = SWPLD4_ADDR;
-    cmd_data[2] = QSFP_PRESENCE_7;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 48;
-
-    /*QSFP57~64*/
-    cmd_data[1] = SWPLD3_ADDR;
-    cmd_data[2] = QSFP_PRESENCE_8;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 56;
-
-    return sprintf(buf, "0x%016llx\n", data);
-}
-
-static ssize_t get_lpmode(struct device *dev, struct device_attribute \
-                            *dev_attr, char *buf)
-{
-    int ret;
-    u64 data = 0;
-    uint8_t cmd_data[4]={0};
-    uint8_t set_cmd;
-    int cmd_data_len;
-
-    set_cmd = CMD_GETDATA;
-
-    /*QSFP1~8*/
-    cmd_data[0] = BMC_BUS_5;
-    cmd_data[1] = SWPLD1_ADDR;
-    cmd_data[2] = QSFP_LP_MODE_1;
-    cmd_data[3] = 1;
-    cmd_data_len = sizeof(cmd_data);
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data = (u64)(ret & 0xff);
-
-    /*QSFP9~16*/
-    cmd_data[1] = SWPLD2_ADDR;
-    cmd_data[2] = QSFP_LP_MODE_2;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 8;
-
-    /*QSFP17~24*/
-    cmd_data[1] = SWPLD4_ADDR;
-    cmd_data[2] = QSFP_LP_MODE_3;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 16;
-
-    /*QSFP25~32*/
-    cmd_data[1] = SWPLD3_ADDR;
-    cmd_data[2] = QSFP_LP_MODE_4;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 24;
-
-    /*QSFP33~40*/
-    cmd_data[1] = SWPLD1_ADDR;
-    cmd_data[2] = QSFP_LP_MODE_5;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 32;
-
-    /*QSFP41~48*/
-    cmd_data[1] = SWPLD2_ADDR;
-    cmd_data[2] = QSFP_LP_MODE_6;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 40;
-
-    /*QSFP49~56*/
-    cmd_data[1] = SWPLD4_ADDR;
-    cmd_data[2] = QSFP_LP_MODE_7;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 48;
-
-    /*QSFP57~64*/
-    cmd_data[1] = SWPLD3_ADDR;
-    cmd_data[2] = QSFP_LP_MODE_8;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 56;
-
-    return sprintf(buf, "0x%016llx\n", data);
-}
-
-static ssize_t get_reset(struct device *dev, struct device_attribute \
-                            *dev_attr, char *buf)
-{
-    int ret;
-    u64 data = 0;
-    uint8_t cmd_data[4]={0};
-    uint8_t set_cmd;
-    int cmd_data_len;
-
-    set_cmd = CMD_GETDATA;
-
-    /*QSFP1~8*/
-    cmd_data[0] = BMC_BUS_5;
-    cmd_data[1] = SWPLD1_ADDR;
-    cmd_data[2] = QSFP_RESET_1;
-    cmd_data[3] = 1;
-    cmd_data_len = sizeof(cmd_data);
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data = (u64)(ret & 0xff);
-
-    /*QSFP9~16*/
-    cmd_data[1] = SWPLD2_ADDR;
-    cmd_data[2] = QSFP_RESET_2;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 8;
-
-    /*QSFP17~24*/
-    cmd_data[1] = SWPLD4_ADDR;
-    cmd_data[2] = QSFP_RESET_3;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 16;
-
-    /*QSFP25~32*/
-    cmd_data[1] = SWPLD3_ADDR;
-    cmd_data[2] = QSFP_RESET_4;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 24;
-
-    /*QSFP33~40*/
-    cmd_data[1] = SWPLD1_ADDR;
-    cmd_data[2] = QSFP_RESET_5;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 32;
-
-    /*QSFP41~48*/
-    cmd_data[1] = SWPLD2_ADDR;
-    cmd_data[2] = QSFP_RESET_6;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 40;
-
-    /*QSFP49~56*/
-    cmd_data[1] = SWPLD4_ADDR;
-    cmd_data[2] = QSFP_RESET_7;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 48;
-
-    /*QSFP57~64*/
-    cmd_data[1] = SWPLD3_ADDR;
-    cmd_data[2] = QSFP_RESET_8;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 56;
-
-    return sprintf(buf, "0x%016llx\n", data);
-}
-
-static ssize_t get_response(struct device *dev, struct device_attribute \
-                            *dev_attr, char *buf)
-{
-    int ret;
-    u64 data = 0;
-    uint8_t cmd_data[4]={0};
-    uint8_t set_cmd;
-    int cmd_data_len;
-
-    set_cmd = CMD_GETDATA;
-
-    /*QSFP1~8*/
-    cmd_data[0] = BMC_BUS_5;
-    cmd_data[1] = SWPLD1_ADDR;
-    cmd_data[2] = QSFP_RESPONSE_1;
-    cmd_data[3] = 1;
-    cmd_data_len = sizeof(cmd_data);
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data = (u64)(ret & 0xff);
-
-    /*QSFP9~16*/
-    cmd_data[1] = SWPLD2_ADDR;
-    cmd_data[2] = QSFP_RESPONSE_2;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 8;
-
-    /*QSFP17~24*/
-    cmd_data[1] = SWPLD4_ADDR;
-    cmd_data[2] = QSFP_RESPONSE_3;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 16;
-
-    /*QSFP25~32*/
-    cmd_data[1] = SWPLD3_ADDR;
-    cmd_data[2] = QSFP_RESPONSE_4;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 24;
-
-    /*QSFP33~40*/
-    cmd_data[1] = SWPLD1_ADDR;
-    cmd_data[2] = QSFP_RESPONSE_5;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 32;
-
-    /*QSFP41~48*/
-    cmd_data[1] = SWPLD2_ADDR;
-    cmd_data[2] = QSFP_RESPONSE_6;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 40;
-
-    /*QSFP49~56*/
-    cmd_data[1] = SWPLD4_ADDR;
-    cmd_data[2] = QSFP_RESPONSE_7;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 48;
-
-    /*QSFP57~64*/
-    cmd_data[1] = SWPLD3_ADDR;
-    cmd_data[2] = QSFP_RESPONSE_8;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 56;
-
-    return sprintf(buf, "0x%016llx\n", data);
-}
-
-static ssize_t get_interrupt(struct device *dev, struct device_attribute \
-                            *dev_attr, char *buf)
-{
-    int ret;
-    u64 data = 0;
-    uint8_t cmd_data[4]={0};
-    uint8_t set_cmd;
-    int cmd_data_len;
-
-    set_cmd = CMD_GETDATA;
-
-    /*QSFP1~8*/
-    cmd_data[0] = BMC_BUS_5;
-    cmd_data[1] = SWPLD1_ADDR;
-    cmd_data[2] = QSFP_INTERRUPT_1;
-    cmd_data[3] = 1;
-    cmd_data_len = sizeof(cmd_data);
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data = (u64)(ret & 0xff);
-
-    /*QSFP9~16*/
-    cmd_data[1] = SWPLD2_ADDR;
-    cmd_data[2] = QSFP_INTERRUPT_2;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 8;
-
-    /*QSFP17~24*/
-    cmd_data[1] = SWPLD4_ADDR;
-    cmd_data[2] = QSFP_INTERRUPT_3;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 16;
-
-    /*QSFP25~32*/
-    cmd_data[1] = SWPLD3_ADDR;
-    cmd_data[2] = QSFP_INTERRUPT_4;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 24;
-
-    /*QSFP33~40*/
-    cmd_data[1] = SWPLD1_ADDR;
-    cmd_data[2] = QSFP_INTERRUPT_5;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 32;
-
-    /*QSFP41~48*/
-    cmd_data[1] = SWPLD2_ADDR;
-    cmd_data[2] = QSFP_INTERRUPT_6;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 40;
-
-    /*QSFP49~56*/
-    cmd_data[1] = SWPLD4_ADDR;
-    cmd_data[2] = QSFP_INTERRUPT_7;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 48;
-
-    /*QSFP57~64*/
-    cmd_data[1] = SWPLD3_ADDR;
-    cmd_data[2] = QSFP_INTERRUPT_8;
-    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-    data |= (u64)(ret & 0xff) << 56;
-
-    return sprintf(buf, "0x%016llx\n", data);
-}
-
-
-static ssize_t set_lpmode(struct device *dev, struct device_attribute *devattr, const char *buf, size_t count)
-{
-    unsigned long long set_data;
-    int err;
-    
-    err = kstrtoull(buf, 16, &set_data);
-    if (err){
-        return err;
-    } 
-    uint8_t cmd_data[4]={0};
-    uint8_t set_cmd;
-    int cmd_data_len;
-
-    set_cmd = CMD_SETDATA;
-    /*QSFP1~8*/
-    cmd_data[0] = BMC_BUS_5;
-    cmd_data[1] = SWPLD1_ADDR;
-    cmd_data[2] = QSFP_LP_MODE_1;
-    cmd_data[3] = (set_data & 0xff);
-    cmd_data_len = sizeof(cmd_data);
-    dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-
-    /*QSFP9~16*/
-    cmd_data[1] = SWPLD2_ADDR;
-    cmd_data[2] = QSFP_LP_MODE_2;
-    cmd_data[3] = ((set_data >> 8 ) & 0xff);
-    dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-
-    /*QSFP17~24*/
-    cmd_data[1] = SWPLD4_ADDR;
-    cmd_data[2] = QSFP_LP_MODE_3;
-    cmd_data[3] = ((set_data >> 16 ) & 0xff);
-    dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-
-    /*QSFP25~32*/
-    cmd_data[1] = SWPLD3_ADDR;
-    cmd_data[2] = QSFP_LP_MODE_4;
-    cmd_data[3] = ((set_data >> 24 ) & 0xff);
-    dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-
-    /*QSFP33~40*/
-    cmd_data[1] = SWPLD1_ADDR;
-    cmd_data[2] = QSFP_LP_MODE_5;
-    cmd_data[3] = ((set_data >> 32 ) & 0xff);
-    dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-
-    /*QSFP41~48*/
-    cmd_data[1] = SWPLD2_ADDR;
-    cmd_data[2] = QSFP_LP_MODE_6;
-    cmd_data[3] = ((set_data >> 40 ) & 0xff);
-    dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-
-    /*QSFP49~56*/
-    cmd_data[1] = SWPLD4_ADDR;
-    cmd_data[2] = QSFP_LP_MODE_7;
-    cmd_data[3] = ((set_data >> 48 ) & 0xff);
-    dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-
-    /*QSFP57~64*/
-    cmd_data[1] = SWPLD3_ADDR;
-    cmd_data[2] = QSFP_LP_MODE_8;
-    cmd_data[3] = ((set_data >> 56 ) & 0xff);
-    dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-
-    return count;
-}
-
-static ssize_t set_reset(struct device *dev, struct device_attribute *devattr, const char *buf, size_t count)
-{
-    unsigned long long set_data;
-    int err;
-
-    err = kstrtoull(buf, 16, &set_data);
-    if (err){
-        return err;
-    }
-    uint8_t cmd_data[4]={0};
-    uint8_t set_cmd;
-    int cmd_data_len;
-
-    set_cmd = CMD_SETDATA;
-
-    /*QSFP1~8*/
-    cmd_data[0] = BMC_BUS_5;
-    cmd_data[1] = SWPLD1_ADDR;
-    cmd_data[2] = QSFP_RESET_1;
-    cmd_data[3] = (set_data & 0xff);
-    cmd_data_len = sizeof(cmd_data);
-    dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-
-    /*QSFP9~16*/
-    cmd_data[1] = SWPLD2_ADDR;
-    cmd_data[2] = QSFP_RESET_2;
-    cmd_data[3] = ((set_data >> 8 ) & 0xff);
-    dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-
-    /*QSFP17~24*/
-    cmd_data[1] = SWPLD4_ADDR;
-    cmd_data[2] = QSFP_RESET_3;
-    cmd_data[3] = ((set_data >> 16 ) & 0xff);
-    dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-
-    /*QSFP25~32*/
-    cmd_data[1] = SWPLD3_ADDR;
-    cmd_data[2] = QSFP_RESET_4;
-    cmd_data[3] = ((set_data >> 24 ) & 0xff);
-    dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-
-    /*QSFP33~40*/
-    cmd_data[1] = SWPLD1_ADDR;
-    cmd_data[2] = QSFP_RESET_5;
-    cmd_data[3] = ((set_data >> 32 ) & 0xff);
-    dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-
-    /*QSFP41~48*/
-    cmd_data[1] = SWPLD2_ADDR;
-    cmd_data[2] = QSFP_RESET_6;
-    cmd_data[3] = ((set_data >> 40 ) & 0xff);
-    dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-
-    /*QSFP49~56*/
-    cmd_data[1] = SWPLD4_ADDR;
-    cmd_data[2] = QSFP_RESET_7;
-    cmd_data[3] = ((set_data >> 48 ) & 0xff);
-    dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-
-    /*QSFP57~64*/
-    cmd_data[1] = SWPLD3_ADDR;
-    cmd_data[2] = QSFP_RESET_8;
-    cmd_data[3] = ((set_data >> 56 ) & 0xff);
-    dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-
-    return count;
-}
-
-static ssize_t set_response(struct device *dev, struct device_attribute *devattr, const char *buf, size_t count)
-{
-    unsigned long long set_data;
-    int err;
-
-    err = kstrtoull(buf, 16, &set_data);
-    if (err){
-        return err;
-    }
-    uint8_t cmd_data[4]={0};
-    uint8_t set_cmd;
-    int cmd_data_len;
-
-    set_cmd = CMD_SETDATA;
-
-    /*QSFP1~8*/
-    cmd_data[0] = BMC_BUS_5;
-    cmd_data[1] = SWPLD1_ADDR;
-    cmd_data[2] = QSFP_RESPONSE_1;
-    cmd_data[3] = (set_data & 0xff);
-    cmd_data_len = sizeof(cmd_data);
-    dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-
-    /*QSFP9~16*/
-    cmd_data[1] = SWPLD2_ADDR;
-    cmd_data[2] = QSFP_RESPONSE_2;
-    cmd_data[3] = ((set_data >> 8 ) & 0xff);
-    dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-
-    /*QSFP17~24*/
-    cmd_data[1] = SWPLD4_ADDR;
-    cmd_data[2] = QSFP_RESPONSE_3;
-    cmd_data[3] = ((set_data >> 16 ) & 0xff);
-    dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-
-    /*QSFP25~32*/
-    cmd_data[1] = SWPLD3_ADDR;
-    cmd_data[2] = QSFP_RESPONSE_4;
-    cmd_data[3] = ((set_data >> 24 ) & 0xff);
-    dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-
-    /*QSFP33~40*/
-    cmd_data[1] = SWPLD1_ADDR;
-    cmd_data[2] = QSFP_RESPONSE_5;
-    cmd_data[3] = ((set_data >> 32 ) & 0xff);
-    dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-
-    /*QSFP41~48*/
-    cmd_data[1] = SWPLD2_ADDR;
-    cmd_data[2] = QSFP_RESPONSE_6;
-    cmd_data[3] = ((set_data >> 40 ) & 0xff);
-    dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-
-    /*QSFP49~56*/
-    cmd_data[1] = SWPLD4_ADDR;
-    cmd_data[2] = QSFP_RESPONSE_7;
-    cmd_data[3] = ((set_data >> 48 ) & 0xff);
-    dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
-
-    /*QSFP57~64*/
-    cmd_data[1] = SWPLD3_ADDR;
-    cmd_data[2] = QSFP_RESPONSE_8;
-    cmd_data[3] = ((set_data >> 56 ) & 0xff);
-    dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
- 
-    return count;
-}
-
-static DEVICE_ATTR(qsfp_present, S_IRUGO, get_present, NULL);
-static DEVICE_ATTR(qsfp_lpmode, S_IWUSR | S_IRUGO, get_lpmode, set_lpmode);
-static DEVICE_ATTR(qsfp_reset, S_IWUSR | S_IRUGO, get_reset, set_reset);
-static DEVICE_ATTR(qsfp_modsel, S_IWUSR | S_IRUGO, get_response, set_response);
-static DEVICE_ATTR(qsfp_interrupt, S_IRUGO, get_interrupt, NULL);
-
-static struct attribute *ag9064_cpld_attrs[] = {
-    &dev_attr_qsfp_present.attr,
-    &dev_attr_qsfp_lpmode.attr,
-    &dev_attr_qsfp_reset.attr,
-    &dev_attr_qsfp_modsel.attr,
-    &dev_attr_qsfp_interrupt.attr,
-    NULL,
-};
-
-static struct attribute_group ag9064_cpld_attr_grp = {
-    .attrs = ag9064_cpld_attrs,
-};
-
-enum cpld_type {
-    system_cpld,
-};
-
-struct cpld_platform_data {
-    int reg_addr;
-    struct i2c_client *client;
-};
-
-static struct cpld_platform_data ag9064_cpld_platform_data[] = {
-    [system_cpld] = {
-        .reg_addr = CPLD_REG,
-    },
-};
-
-static struct platform_device ag9064_cpld = {
-    .name               = "delta-ag9064-cpld",
-    .id                 = 0,
-    .dev                = {
-                .platform_data   = ag9064_cpld_platform_data,
-                .release         = device_release
-    },
-};
-
-static int __init cpld_probe(struct platform_device *pdev)
-{
-    struct cpld_platform_data *pdata;
-    struct i2c_adapter *parent;
-    int ret;
-
-    pdata = pdev->dev.platform_data;
-    if (!pdata) {
-        dev_err(&pdev->dev, "CPLD platform data not found\n");
-        return -ENODEV;
-    }
-
-    parent = i2c_get_adapter(BUS7);
-    if (!parent) {
-        printk(KERN_WARNING "Parent adapter (%d) not found\n",BUS7);
-        return -ENODEV;
-    }
-
-    pdata[system_cpld].client = i2c_new_dummy(parent, pdata[system_cpld].reg_addr);
-    if (!pdata[system_cpld].client) {
-        printk(KERN_WARNING "Fail to create dummy i2c client for addr %d\n", pdata[system_cpld].reg_addr);
-        goto error;
-    }
-
-    ret = sysfs_create_group(&pdev->dev.kobj, &ag9064_cpld_attr_grp);
-   if (ret) {
-        printk(KERN_WARNING "Fail to create cpld attribute group");
-        goto error;
-   }
-
-    return 0;
-
-error:
-    i2c_unregister_device(pdata[system_cpld].client);
-    i2c_put_adapter(parent);
-
-    return -ENODEV;
-}
-
-static int __exit cpld_remove(struct platform_device *pdev)
-{
-    struct i2c_adapter *parent = NULL;
-    struct cpld_platform_data *pdata = pdev->dev.platform_data;
-    sysfs_remove_group(&pdev->dev.kobj, &ag9064_cpld_attr_grp);
-
-    if (!pdata) {
-        dev_err(&pdev->dev, "Missing platform data\n");
-    }
-    else {
-        if (pdata[system_cpld].client) {
-            if (!parent) {
-                parent = (pdata[system_cpld].client)->adapter;
-            }
-        i2c_unregister_device(pdata[system_cpld].client);
-        }
-    }
-    i2c_put_adapter(parent);
-
-    return 0;
-}
-
-static struct platform_driver cpld_driver = {
-    .probe  = cpld_probe,
-    .remove = __exit_p(cpld_remove),
-    .driver = {
-        .owner  = THIS_MODULE,
-        .name   = "delta-ag9064-cpld",
-    },
-};
-
-/*----------------    CPLD  - end   ------------- */
 
 /*----------------   module initialization     ------------- */
 
@@ -1734,12 +997,6 @@ static void __init delta_ag9064_platform_init(void)
         printk(KERN_WARNING "Fail to create IPMI user\n");
     }
 
-    ret = platform_driver_register(&cpld_driver);
-    if (ret) {
-        printk(KERN_WARNING "Fail to register cpld driver\n");
-        goto error_cpld_driver;
-    }
-
     // register the mux prob which call the SWPLD
     ret = platform_driver_register(&swpld_mux_driver);
     if (ret) {
@@ -1752,13 +1009,6 @@ static void __init delta_ag9064_platform_init(void)
     if (ret) {
         printk(KERN_WARNING "Fail to register i2c device driver\n");
         goto error_i2c_device_driver;
-    }
-
-    // register the CPLD
-    ret = platform_device_register(&ag9064_cpld);
-    if (ret) {
-        printk(KERN_WARNING "Fail to create cpld device\n");
-        goto error_ag9064_cpld;
     }
 
     swpld_pdata = ag9064_swpld_mux[0].dev.platform_data;
@@ -1794,14 +1044,10 @@ error_ag9064_swpld_mux:
     for (; i >= 0; i--) {
         platform_device_unregister(&ag9064_swpld_mux);
     }
-    platform_driver_unregister(&ag9064_cpld);
-error_ag9064_cpld:
     platform_driver_unregister(&i2c_device_driver);
 error_i2c_device_driver:
     platform_driver_unregister(&swpld_mux_driver);
 error_swpld_mux_driver:
-    platform_driver_unregister(&cpld_driver);
-error_cpld_driver:
     return ret;
 }
 
@@ -1814,10 +1060,8 @@ static void __exit delta_ag9064_platform_exit(void)
     }
 
     platform_device_unregister(&ag9064_swpld_mux);
-    platform_device_unregister(&ag9064_cpld);
     platform_driver_unregister(&i2c_device_driver);  
     platform_driver_unregister(&swpld_mux_driver);
-    platform_driver_unregister(&cpld_driver);
     i2c_unregister_device(i2c_client_9548);
 }
 
