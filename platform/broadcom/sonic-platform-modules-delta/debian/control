@@ -14,3 +14,8 @@ Package: platform-modules-ag9064
 Architecture: amd64
 Depends: linux-image-3.16.0-5-amd64
 Description: kernel modules for platform devices such as fan, led, sfp
+
+Package: platform-modules-ag5648
+Architecture: amd64
+Depends: linux-image-3.16.0-5-amd64
+Description: kernel modules for platform devices such as fan, led, sfp
