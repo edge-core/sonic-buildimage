@@ -81,13 +81,13 @@ class LedControl(LedControlBase):
             f.write("1")
 
         # Initialize all fan LEDs to green
-        with open("/sys/devices/pci0000:00/0000:00:02.2/0000:02:00.0/i2c-3/3-0060/hwmon/hwmon2/fan1_led", "w") as f:
+        with open("/sys/devices/pci0000:00/0000:00:02.2/0000:02:00.0/i2c-3/3-0060/hwmon/hwmon4/fan1_led", "w") as f:
             f.write("1")
-        with open("/sys/devices/pci0000:00/0000:00:02.2/0000:02:00.0/i2c-3/3-0060/hwmon/hwmon2/fan2_led", "w") as f:
+        with open("/sys/devices/pci0000:00/0000:00:02.2/0000:02:00.0/i2c-3/3-0060/hwmon/hwmon4/fan2_led", "w") as f:
             f.write("1")
-        with open("/sys/devices/pci0000:00/0000:00:02.2/0000:02:00.0/i2c-3/3-0060/hwmon/hwmon2/fan3_led", "w") as f:
+        with open("/sys/devices/pci0000:00/0000:00:02.2/0000:02:00.0/i2c-3/3-0060/hwmon/hwmon4/fan3_led", "w") as f:
             f.write("1")
-        with open("/sys/devices/pci0000:00/0000:00:02.2/0000:02:00.0/i2c-3/3-0060/hwmon/hwmon2/fan4_led", "w") as f:
+        with open("/sys/devices/pci0000:00/0000:00:02.2/0000:02:00.0/i2c-3/3-0060/hwmon/hwmon4/fan4_led", "w") as f:
             f.write("1")
 
 
