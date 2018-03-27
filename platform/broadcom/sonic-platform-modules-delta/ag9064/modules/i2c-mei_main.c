@@ -147,9 +147,10 @@ static  int mei_TxRx(u8 sensor_bus, u16 addr,  u8 command, char read_write, int 
 	int i = 0;
 
 	struct mei_msg * msg;
-	unsigned char  blen;
+//	unsigned char  blen;
 
 	UINT32 timeout, dwTimeout;
+        UINT32 blen;
 	HECI_DEVICE sHeciDev;
 
 	recv_buf = kmalloc(sizeof(unsigned char) * (32), GFP_KERNEL);

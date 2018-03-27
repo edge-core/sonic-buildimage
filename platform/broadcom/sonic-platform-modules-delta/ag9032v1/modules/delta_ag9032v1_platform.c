@@ -554,7 +554,7 @@ static int __exit i2c_deivce_remove(struct platform_device *pdev)
     }
 
     if (pdata->client) {
-        parent = i2c_get_adapter(pdata->parent);
+        parent = (pdata->client)->adapter;
         i2c_unregister_device(pdata->client);
         i2c_put_adapter(parent);
     }
