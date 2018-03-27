@@ -70,7 +70,8 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            USERNAME=$(USERNAME) \
                            SONIC_BUILD_JOBS=$(SONIC_BUILD_JOBS) \
                            HTTP_PROXY=$(http_proxy) \
-                           HTTPS_PROXY=$(https_proxy)
+                           HTTPS_PROXY=$(https_proxy) \
+                           ENABLE_SYSTEM_TELEMETRY=$(ENABLE_SYSTEM_TELEMETRY)
 
 .PHONY: sonic-slave-build sonic-slave-bash init reset
 

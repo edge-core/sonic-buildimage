@@ -57,6 +57,7 @@ dockers/docker-router-advertiser/Dockerfile
 dockers/docker-snmp-sv2/Dockerfile
 dockers/docker-teamd/Dockerfile
 dockers/docker-sonic-mgmt/Dockerfile
+dockers/docker-sonic-telemetry/Dockerfile
 platform/*/docker-syncd-*/Dockerfile
 platform/*/docker-syncd-*-rpc/Dockerfile
 platform/vs/docker-sonic-vs/Dockerfile
