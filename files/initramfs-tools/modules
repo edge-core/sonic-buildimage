@@ -1,5 +1,6 @@
 squashfs
 overlay
 vfat
+nls_ascii
 nls_cp437
 nls_utf8
