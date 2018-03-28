@@ -5,6 +5,7 @@ import os
 import sys
 import subprocess
 import syslog
+import copy
 import jinja2
 from swsssdk import ConfigDBConnector
 
@@ -155,15 +156,17 @@ class HostConfigDaemon:
 
     def tacacs_server_handler(self, key, data):
         self.aaacfg.tacacs_server_update(key, data)
-        if data.has_key('passkey'):
-            data['passkey'] = obfuscate(data['passkey'])
-        syslog.syslog(syslog.LOG_DEBUG, 'value for {} changed to {}'.format(key, data))
+        log_data = copy.deepcopy(data)
+        if log_data.has_key('passkey'):
+            log_data['passkey'] = obfuscate(log_data['passkey'])
+        syslog.syslog(syslog.LOG_DEBUG, 'value of {} changed to {}'.format(key, log_data))
 
     def tacacs_global_handler(self, key, data):
         self.aaacfg.tacacs_global_update(key, data)
-        if data.has_key('passkey'):
-            data['passkey'] = obfuscate(data['passkey'])
-        syslog.syslog(syslog.LOG_DEBUG, 'value for {} changed to {}'.format(key, data))
+        log_data = copy.deepcopy(data)
+        if log_data.has_key('passkey'):
+            log_data['passkey'] = obfuscate(log_data['passkey'])
+        syslog.syslog(syslog.LOG_DEBUG, 'value of {} changed to {}'.format(key, log_data))
 
     def start(self):
         self.config_db.subscribe('AAA', lambda table, key, data: self.aaa_handler(key, data))
