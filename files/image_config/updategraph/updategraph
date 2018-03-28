@@ -66,12 +66,14 @@ if [ -f /tmp/pending_config_migration ]; then
     exit 0
 fi
 
-if [ -f /tmp/pending_config_initialization ] && [ "$enabled" != "true" ]; then 
-    copy_default_minigraph
-    reload_minigraph
-    sonic-cfggen -d --print-data > /etc/sonic/config_db.json
+if [ -f /tmp/pending_config_initialization ]; then
     rm -f /tmp/pending_config_initialization
-    exit 0
+    if [ "$enabled" != "true" ]; then 
+        copy_default_minigraph
+        reload_minigraph
+        sonic-cfggen -d --print-data > /etc/sonic/config_db.json
+        exit 0
+    fi
 fi
 
 if [ "$enabled" = "reload_only" ]; then
