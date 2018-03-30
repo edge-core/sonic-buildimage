@@ -455,7 +455,8 @@ if [ "$install_env" = "onie" ]; then
     if [ -f /etc/machine-build.conf ]; then
         # onie_ variable are generate at runtime.
         # they are no longer hardcoded in /etc/machine.conf
-        set | grep ^onie_ > $demo_mnt/machine.conf
+        # also remove single quotes around the value
+        set | grep ^onie | sed -e "s/='/=/" -e "s/'$//" > $demo_mnt/machine.conf
     else
         cp /etc/machine.conf $demo_mnt
     fi
