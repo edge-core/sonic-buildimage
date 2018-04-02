@@ -286,6 +286,7 @@ def parse_meta(meta, hname):
     syslog_servers = []
     dhcp_servers = []
     ntp_servers = []
+    tacacs_servers = []
     mgmt_routes = []
     erspan_dst = []
     deployment_id = None
@@ -296,20 +297,22 @@ def parse_meta(meta, hname):
             for device_property in properties.findall(str(QName(ns1, "DeviceProperty"))):
                 name = device_property.find(str(QName(ns1, "Name"))).text
                 value = device_property.find(str(QName(ns1, "Value"))).text
-                value_group = value.split(';') if value and value != "" else []
+                value_group = value.strip().split(';') if value and value != "" else []
                 if name == "DhcpResources":
                     dhcp_servers = value_group
                 elif name == "NtpResources":
                     ntp_servers = value_group
                 elif name == "SyslogResources":
                     syslog_servers = value_group
+                elif name == "TacacsServer":
+                    tacacs_servers = value_group
                 elif name == "ForcedMgmtRoutes":
                     mgmt_routes = value_group
                 elif name == "ErspanDestinationIpv4":
                     erspan_dst = value_group
                 elif name == "DeploymentId":
                     deployment_id = value
-    return syslog_servers, dhcp_servers, ntp_servers, mgmt_routes, erspan_dst, deployment_id
+    return syslog_servers, dhcp_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id
 
 def parse_deviceinfo(meta, hwsku):
     port_speeds = {}
@@ -352,6 +355,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
     syslog_servers = []
     dhcp_servers = []
     ntp_servers = []
+    tacacs_servers = []
     mgmt_routes = []
     erspan_dst = []
     bgp_peers_with_range = None
@@ -377,7 +381,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
         elif child.tag == str(QName(ns, "UngDec")):
             (u_neighbors, u_devices, _, _, _, _) = parse_png(child, hostname)
         elif child.tag == str(QName(ns, "MetadataDeclaration")):
-            (syslog_servers, dhcp_servers, ntp_servers, mgmt_routes, erspan_dst, deployment_id) = parse_meta(child, hostname)
+            (syslog_servers, dhcp_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id) = parse_meta(child, hostname)
         elif child.tag == str(QName(ns, "DeviceInfos")):
             (port_speeds, port_descriptions) = parse_deviceinfo(child, hwsku)
 
@@ -433,6 +437,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
     results['SYSLOG_SERVER'] = dict((item, {}) for item in syslog_servers)
     results['DHCP_SERVER'] = dict((item, {}) for item in dhcp_servers)
     results['NTP_SERVER'] = dict((item, {}) for item in ntp_servers)
+    results['TACPLUS_SERVER'] = dict((item, {'priority': '1', 'tcp_port': '49'}) for item in tacacs_servers)
 
     results['ACL_TABLE'] = acls
     mirror_sessions = {}
