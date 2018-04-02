@@ -10,6 +10,7 @@ class TestCfgGen(TestCase):
         self.sample_graph = os.path.join(self.test_dir, 'sample_graph.xml')
         self.sample_graph_t0 = os.path.join(self.test_dir, 't0-sample-graph.xml')
         self.sample_graph_simple = os.path.join(self.test_dir, 'simple-sample-graph.xml')
+        self.sample_graph_metadata = os.path.join(self.test_dir, 'simple-sample-graph-metadata.xml')
         self.sample_graph_pc_test = os.path.join(self.test_dir, 'pc-test-graph.xml')
         self.sample_graph_bgp_speaker = os.path.join(self.test_dir, 't0-sample-bgp-speaker.xml')
         self.sample_device_desc = os.path.join(self.test_dir, 'device.xml')
@@ -143,3 +144,19 @@ class TestCfgGen(TestCase):
         argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v "PORT[\'Ethernet12\']"'
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "{'alias': 'fortyGigE0/12', 'lanes': '33,34,35,36', 'fec': 'rs', 'speed': '100000', 'description': 'Interface description'}")
+
+    def test_metadata_everflow(self):
+        argument = '-m "' + self.sample_graph_metadata + '" -p "' + self.port_config + '" -v "MIRROR_SESSION"'
+        output = self.run_script(argument)
+        self.assertEqual(output.strip(), "{'everflow0': {'src_ip': '10.1.0.32', 'dst_ip': '10.0.100.1'}}")
+
+    def test_metadata_tacacs(self):
+        argument = '-m "' + self.sample_graph_metadata + '" -p "' + self.port_config + '" -v "TACPLUS_SERVER"'
+        output = self.run_script(argument)
+        self.assertEqual(output.strip(), "{'10.0.10.7': {'priority': '1', 'tcp_port': '49'}, '10.0.10.8': {'priority': '1', 'tcp_port': '49'}}")
+
+    def test_metadata_ntp(self):
+        argument = '-m "' + self.sample_graph_metadata + '" -p "' + self.port_config + '" -v "NTP_SERVER"'
+        output = self.run_script(argument)
+        self.assertEqual(output.strip(), "{'10.0.10.1': {}, '10.0.10.2': {}}")
+
