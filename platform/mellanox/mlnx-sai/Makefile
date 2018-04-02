@@ -6,8 +6,8 @@ MAIN_TARGET = mlnx-sai_1.mlnx.$(MLNX_SAI_VERSION)_amd64.deb
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# get sources
-	rm -rf SAI-Implementation
-	git clone https://github.com/Mellanox/SAI-Implementation.git
+	#rm -rf SAI-Implementation
+	#git clone https://github.com/Mellanox/SAI-Implementation.git
 
 	# build
 	pushd SAI-Implementation
