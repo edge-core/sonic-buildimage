@@ -206,8 +206,7 @@ write_boot_configs() {
     elif [ ! -f "$cmdline_base" ]; then
         # some systems were started with other versions of this script and therefore
         # do not have the $cmdline_base file. we assume that we are on Sonic or EOS.
-        cat /proc/cmdline > $cmdline_base
-        sed -Ei 's/^(.*) rw .*$/\1/' $cmdline_base
+        cat /proc/cmdline | sed -E 's/^(.*) rw .*$/\1/' | tr ' ' '\n' > $cmdline_base
     fi
 
     cp $cmdline_base /tmp/append
@@ -215,6 +214,10 @@ write_boot_configs() {
     platform_specific
     echo "rw loop=$image_name/fs.squashfs loopfstype=squashfs apparmor=1 security=apparmor quiet" >> /tmp/append
 
+    # Pass the MAC address to the new kernel as a command line parameter. This makes it
+    # possible to restore the MAC address in the new kernel without requiring driver modifications.
+    [ "${NETDEV}" ] || NETDEV=ma1
+    echo "hwaddr_${NETDEV}=$(cat /sys/class/net/${NETDEV}/address)" >> /tmp/append
 
     # use extra parameters from kernel-params hook if the file exists
     if [ -f "$target_path/$kernel_params" ]; then

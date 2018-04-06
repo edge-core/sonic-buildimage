@@ -26,19 +26,71 @@ for x in "$@"; do
     esac
 done
 
-arista_net_rename() {
-    local device_path="$1"
-    local new_name="$2"
-    local from_name="$3"
-    for path in $(ls -d /sys/class/net/$from_name* 2>/dev/null); do
+random() {
+    echo $(od -vAn -N1 -tu1 < /dev/urandom)
+}
+
+arista_net_devname() {
+    local pciaddr="$1"
+    local devname_prefix="$2"
+    for path in $(ls -d /sys/class/net/${devname_prefix}* 2>/dev/null); do
         local devid="$(realpath "$path/device")"
-        if echo "$devid" | grep -q "$device_path"; then
-            local cur_name="${path##*/}"
-            ip link set "$cur_name" name "$new_name"
+        if echo "$devid" | grep -q "$pciaddr"; then
+            echo "${path##*/}"
             return
         fi
     done
 }
+
+arista_net_rename() {
+    local device_path="$1"
+    local new_name="$2"
+    local from_name="$3"
+    devname=$(arista_net_devname "$device_path" "$from_name")
+    [ -n "$devname" ] && ip link set "$devname" name "$new_name"
+}
+
+# Sets the MAC address to the value passed by Aboot through /proc/cmdline
+tg3fixhwaddr()
+{
+    local default_tg3_hwaddr="00:10:18:00:00:00"
+    local pciaddr="$1"
+    local hwaddr="$2"
+
+    devname=$(arista_net_devname "$pciaddr")
+    if [ -z "$devname" ]; then
+        return
+    fi
+
+    driver=$(basename $(readlink "/sys/class/net/$devname/device/driver"))
+    if [ "$driver" != "tg3" ]; then
+        return 0
+    fi
+
+    if [ "$hwaddr" = "$default_tg3_hwaddr" ]; then
+        hwaddr=$(cat /sys/class/net/$devname/address)
+    fi
+
+    if [ "$hwaddr" = "$default_tg3_hwaddr" ]; then
+        hwaddr=$(printf "%02x" "$(($(random) & 0xfe | 0x02))")
+        for i in 1 2 3 4 5; do
+            hwaddr=$(printf "$hwaddr:%02x" "$(($(random) & 0xfe | 0x02))")
+        done
+    fi
+
+    ip link set dev "$devname" addr "$hwaddr"
+}
+
+if [ -n "$aboot_flag" ]; then
+    for item in $items; do
+        key="${item%=*}"
+        value="${item#*=}"
+        hwaddr=$(eval echo \${hwaddr_${key}})
+        if [ -n "$hwaddr" ]; then
+            tg3fixhwaddr "$value" "$hwaddr"
+        fi
+    done
+fi
 
 # Iterate over all the net_maX items found in the cmdline two times.
 # First time renaming the interfaces to maX.
