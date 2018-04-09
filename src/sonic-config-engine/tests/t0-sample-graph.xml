@@ -271,6 +271,20 @@
           <InAcl>SNMP_ACL</InAcl>
           <Type>SNMP</Type>
         </AclInterface>
+        <AclInterface>
+          <AttachTo>NTP</AttachTo>
+          <InAcl>NTP_ACL</InAcl>
+          <Type>NTP</Type>
+        </AclInterface>
+        <AclInterface>
+          <AttachTo>SSH</AttachTo>
+          <InAcl>SSH_ACL</InAcl>
+          <Type>SSH</Type>
+        </AclInterface>
+        <AclInterface>
+          <AttachTo>NTP</AttachTo>
+          <InAcl>NTP_ACL</InAcl>
+        </AclInterface>
       </AclInterfaces>
       <DownstreamSummaries/>
       <DownstreamSummarySet xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
