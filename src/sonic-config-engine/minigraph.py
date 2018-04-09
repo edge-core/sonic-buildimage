@@ -207,11 +207,15 @@ def parse_dpg(dpg, hname):
                                  'type': 'MIRROR' if is_mirror else 'L3'}
             else:
                 # This ACL has no interfaces to attach to -- consider this a control plane ACL
-                aclservice = aclintf.find(str(QName(ns, "Type"))).text
-                acls[aclname] = {'policy_desc': aclname,
-                                 'ports': acl_intfs,
-                                 'type': 'CTRLPLANE',
-                                 'service': aclservice if aclservice is not None else 'UNKNOWN'}
+                try:
+                    aclservice = aclintf.find(str(QName(ns, "Type"))).text
+                    acls[aclname] = {'policy_desc': aclname,
+                                     'ports': acl_intfs,
+                                     'type': 'CTRLPLANE',
+                                     'service': aclservice if aclservice is not None else 'UNKNOWN'}
+                except:
+                    print >> sys.stderr, "Warning: Ingore Control Plane ACL %s without type" % aclname
+
         return intfs, lo_intfs, mgmt_intf, vlans, vlan_members, pcs, acls
     return None, None, None, None, None, None, None
 

@@ -16,9 +16,13 @@ class TestCfgGen(TestCase):
         self.sample_device_desc = os.path.join(self.test_dir, 'device.xml')
         self.port_config = os.path.join(self.test_dir, 't0-sample-port-config.ini')
 
-    def run_script(self, argument):
+    def run_script(self, argument, check_stderr=False):
         print '\n    Running sonic-cfggen ' + argument
-        output = subprocess.check_output(self.script_file + ' ' + argument, shell=True)
+        if check_stderr:
+            output = subprocess.check_output(self.script_file + ' ' + argument, stderr=subprocess.STDOUT, shell=True)
+        else:
+            output = subprocess.check_output(self.script_file + ' ' + argument, shell=True)
+
         linecount = output.strip().count('\n')
         if linecount <= 0:
             print '    Output: ' + output.strip()
@@ -73,10 +77,12 @@ class TestCfgGen(TestCase):
 
     def test_minigraph_acl(self):
         argument = '-m "' + self.sample_graph_t0 + '" -p "' + self.port_config + '" -v ACL_TABLE'
-        output = self.run_script(argument)
-        self.assertEqual(output.strip(), "{'SNMP_ACL': {'type': 'CTRLPLANE', 'policy_desc': 'SNMP_ACL', 'service': 'SNMP', 'ports': []},"
-                                         " 'DATAACL': {'type': 'L3', 'policy_desc': 'DATAACL', 'ports': ['Ethernet112', 'Ethernet116', 'Ethernet120', 'Ethernet124']}}")
-
+        output = self.run_script(argument, True)
+        self.assertEqual(output.strip(), "Warning: Ingore Control Plane ACL NTP_ACL without type\n"
+                                         "{'SSH_ACL': {'type': 'CTRLPLANE', 'policy_desc': 'SSH_ACL', 'service': 'SSH', 'ports': []},"
+                                         " 'SNMP_ACL': {'type': 'CTRLPLANE', 'policy_desc': 'SNMP_ACL', 'service': 'SNMP', 'ports': []},"
+                                         " 'DATAACL': {'type': 'L3', 'policy_desc': 'DATAACL', 'ports': ['Ethernet112', 'Ethernet116', 'Ethernet120', 'Ethernet124']},"
+                                         " 'NTP_ACL': {'type': 'CTRLPLANE', 'policy_desc': 'NTP_ACL', 'service': 'NTP', 'ports': []}}")
     def test_minigraph_everflow(self):
         argument = '-m "' + self.sample_graph_t0 + '" -p "' + self.port_config + '" -v MIRROR_SESSION'
         output = self.run_script(argument)
