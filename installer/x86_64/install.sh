@@ -163,11 +163,21 @@ create_demo_gpt_partition()
         while read -r part_index; do
             if [ "$blk_dev$part_index" = "$cur_part" ]; then continue; fi
             echo "deleting partition $part_index ..."
+            # if the partition is already mounted, umount first
+            df $blk_dev$part_index 2>/dev/null && {
+                umount $blk_dev$part_index || {
+                    echo "Error: Unable to umount $blk_dev$part_index"
+                    exit 1
+                }
+            }
             sgdisk -d $part_index $blk_dev || {
                 echo "Error: Unable to delete partition $part_index on $blk_dev"
                 exit 1
             }
-            partprobe
+            partprobe || {
+                echo "Error: Unable to partprobe"
+                exit 1
+            }
         done < $tmpfifo
     fi
 
