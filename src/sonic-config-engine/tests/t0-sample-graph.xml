@@ -282,6 +282,16 @@
           <Type>SSH</Type>
         </AclInterface>
         <AclInterface>
+          <AttachTo>SSH</AttachTo>
+          <InAcl>ROUTER-PROTECT</InAcl>
+          <Type>SSH</Type>
+        </AclInterface>
+        <AclInterface>
+          <AttachTo>SNMP</AttachTo>
+          <InAcl>ROUTER-PROTECT</InAcl>
+          <Type>SNMP</Type>
+        </AclInterface>
+        <AclInterface>
           <AttachTo>NTP</AttachTo>
           <InAcl>NTP_ACL</InAcl>
         </AclInterface>

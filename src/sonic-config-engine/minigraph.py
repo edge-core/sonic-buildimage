@@ -188,6 +188,10 @@ def parse_dpg(dpg, hname):
             aclattach = aclintf.find(str(QName(ns, "AttachTo"))).text.split(';')
             acl_intfs = []
             is_mirror = False
+
+            # TODO: Ensure that acl_intfs will only ever contain front-panel interfaces (e.g.,
+            # maybe we should explicity ignore management and loopback interfaces?) because we
+            # decide an ACL is a Control Plane ACL if acl_intfs is empty below.
             for member in aclattach:
                 member = member.strip()
                 if pcs.has_key(member):
@@ -209,12 +213,22 @@ def parse_dpg(dpg, hname):
                 # This ACL has no interfaces to attach to -- consider this a control plane ACL
                 try:
                     aclservice = aclintf.find(str(QName(ns, "Type"))).text
-                    acls[aclname] = {'policy_desc': aclname,
-                                     'ports': acl_intfs,
-                                     'type': 'CTRLPLANE',
-                                     'service': aclservice if aclservice is not None else 'UNKNOWN'}
+
+                    # If we already have an ACL with this name and this ACL is bound to a different service,
+                    # append the service to our list of services
+                    if aclname in acls:
+                        if acls[aclname]['type'] != 'CTRLPLANE':
+                            print >> sys.stderr, "Warning: ACL '%s' type mismatch. Not updating ACL." % aclname
+                        elif acls[aclname]['services'] == aclservice:
+                            print >> sys.stderr, "Warning: ACL '%s' already contains service '%s'. Not updating ACL." % (aclname, aclservice)
+                        else:
+                            acls[aclname]['services'].append(aclservice)
+                    else:
+                        acls[aclname] = {'policy_desc': aclname,
+                                         'type': 'CTRLPLANE',
+                                         'services': [aclservice]}
                 except:
-                    print >> sys.stderr, "Warning: Ingore Control Plane ACL %s without type" % aclname
+                    print >> sys.stderr, "Warning: Ignoring Control Plane ACL %s without type" % aclname
 
         return intfs, lo_intfs, mgmt_intf, vlans, vlan_members, pcs, acls
     return None, None, None, None, None, None, None

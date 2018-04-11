@@ -123,80 +123,76 @@ class ControlPlaneAclManager(object):
             if table_data["type"] != self.ACL_TABLE_TYPE_CTRLPLANE:
                 continue
 
-            acl_service = table_data["service"]
+            acl_services = table_data["services"]
 
-            if acl_service not in self.ACL_SERVICES:
-                log_warning("Ignoring control plane ACL '{}' with unrecognized service '{}'"
-                        .format(table_name, acl_service))
-                continue
-
-            log_info("Translating ACL rules for control plane ACL '{}' (service: '{}')"
-                    .format(table_name, acl_service))
-
-            # Obtain default IP protocol(s) and destination port(s) for this service
-            ip_protocols = self.ACL_SERVICES[acl_service]["ip_protocols"]
-            dst_ports = self.ACL_SERVICES[acl_service]["dst_ports"]
-
-            acl_rules = {}
-
-            for ((rule_table_name, rule_id), rule_props) in self._rules_db_info.iteritems():
-                if rule_table_name == table_name:
-                    acl_rules[rule_props["PRIORITY"]] = rule_props
-
-            # For each ACL rule in this table (in descending order of priority)
-            for priority in sorted(acl_rules.iterkeys(), reverse=True):
-                rule_props = acl_rules[priority]
-
-                if "PACKET_ACTION" not in rule_props:
-                    log_error("ACL rule does not contain PACKET_ACTION property")
+            for acl_service in acl_services:
+                if acl_service not in self.ACL_SERVICES:
+                    log_warning("Ignoring control plane ACL '{}' with unrecognized service '{}'"
+                            .format(table_name, acl_service))
                     continue
 
-                # If the rule contains an IP protocol, we will use it.
-                # Otherwise, we will apply the rule to the default
-                # protocol(s) for this ACL service
-                if "IP_PROTOCOL" in rule_props:
-                    ip_protocols = [rule_props["IP_PROTOCOL"]]
+                log_info("Translating ACL rules for control plane ACL '{}' (service: '{}')"
+                        .format(table_name, acl_service))
 
-                for ip_protocol in ip_protocols:
-                    for dst_port in dst_ports:
-                        rule_cmd = "iptables -A INPUT -p {}".format(ip_protocol)
+                # Obtain default IP protocol(s) and destination port(s) for this service
+                ip_protocols = self.ACL_SERVICES[acl_service]["ip_protocols"]
+                dst_ports = self.ACL_SERVICES[acl_service]["dst_ports"]
 
-                        if "SRC_IP" in rule_props and rule_props["SRC_IP"]:
-                            rule_cmd += " -s {}".format(rule_props["SRC_IP"])
+                acl_rules = {}
 
-                        rule_cmd += " --dport {}".format(dst_port)
+                for ((rule_table_name, rule_id), rule_props) in self._rules_db_info.iteritems():
+                    if rule_table_name == table_name:
+                        acl_rules[rule_props["PRIORITY"]] = rule_props
 
-                        # If there are TCP flags present, append them
-                        if "TCP_FLAGS" in rule_props and rule_props["TCP_FLAGS"]:
-                            tcp_flags = int(rule_props["TCP_FLAGS"], 16)
+                # For each ACL rule in this table (in descending order of priority)
+                for priority in sorted(acl_rules.iterkeys(), reverse=True):
+                    rule_props = acl_rules[priority]
 
-                            if tcp_flags > 0:
-                                rule_cmd += " --tcp-flags "
+                    if "PACKET_ACTION" not in rule_props:
+                        log_error("ACL rule does not contain PACKET_ACTION property")
+                        continue
 
-                                if tcp_flags & 0x01:
-                                    rule_cmd += "FIN,"
-                                if tcp_flags & 0x02:
-                                    rule_cmd += "SYN,"
-                                if tcp_flags & 0x04:
-                                    rule_cmd += "RST,"
-                                if tcp_flags & 0x08:
-                                    rule_cmd += "PSH,"
-                                if tcp_flags & 0x10:
-                                    rule_cmd += "ACK,"
-                                if tcp_flags & 0x20:
-                                    rule_cmd += "URG,"
-                                if tcp_flags & 0x40:
-                                    rule_cmd += "ECE,"
-                                if tcp_flags & 0x80:
-                                    rule_cmd += "CWR,"
+                    # Apply the rule to the default protocol(s) for this ACL service
+                    for ip_protocol in ip_protocols:
+                        for dst_port in dst_ports:
+                            rule_cmd = "iptables -A INPUT -p {}".format(ip_protocol)
 
-                                # Delete the trailing comma
-                                rule_cmd = rule_cmd[:-1]
+                            if "SRC_IP" in rule_props and rule_props["SRC_IP"]:
+                                rule_cmd += " -s {}".format(rule_props["SRC_IP"])
 
-                        # Append the packet action as the jump target
-                        rule_cmd += " -j {}".format(rule_props["PACKET_ACTION"])
+                            rule_cmd += " --dport {}".format(dst_port)
 
-                        iptables_cmds.append(rule_cmd)
+                            # If there are TCP flags present, append them
+                            if "TCP_FLAGS" in rule_props and rule_props["TCP_FLAGS"]:
+                                tcp_flags = int(rule_props["TCP_FLAGS"], 16)
+
+                                if tcp_flags > 0:
+                                    rule_cmd += " --tcp-flags "
+
+                                    if tcp_flags & 0x01:
+                                        rule_cmd += "FIN,"
+                                    if tcp_flags & 0x02:
+                                        rule_cmd += "SYN,"
+                                    if tcp_flags & 0x04:
+                                        rule_cmd += "RST,"
+                                    if tcp_flags & 0x08:
+                                        rule_cmd += "PSH,"
+                                    if tcp_flags & 0x10:
+                                        rule_cmd += "ACK,"
+                                    if tcp_flags & 0x20:
+                                        rule_cmd += "URG,"
+                                    if tcp_flags & 0x40:
+                                        rule_cmd += "ECE,"
+                                    if tcp_flags & 0x80:
+                                        rule_cmd += "CWR,"
+
+                                    # Delete the trailing comma
+                                    rule_cmd = rule_cmd[:-1]
+
+                            # Append the packet action as the jump target
+                            rule_cmd += " -j {}".format(rule_props["PACKET_ACTION"])
+
+                            iptables_cmds.append(rule_cmd)
 
         return iptables_cmds
 

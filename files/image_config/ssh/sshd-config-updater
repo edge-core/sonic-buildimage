@@ -49,7 +49,7 @@ class ConfigUpdater(object):
                 continue
 
             # Ignore non-SSH service ACLs
-            if table_data["service"] != self.ACL_SERVICE_SSH:
+            if self.ACL_SERVICE_SSH not in table_data["services"]:
                 continue
 
             acl_rules = {}
