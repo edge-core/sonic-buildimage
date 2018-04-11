@@ -109,10 +109,8 @@ class LldpManager(object):
         corresponding port alias in the Config database, then form the
         appropriate lldpcli configuration command and run it.
         """
-        TABLE_SEPARATOR = "|"
-
         # Retrieve all entires for this port from the Port table
-        port_table = swsscommon.Table(self.config_db, swsscommon.CFG_PORT_TABLE_NAME, TABLE_SEPARATOR)
+        port_table = swsscommon.Table(self.config_db, swsscommon.CFG_PORT_TABLE_NAME)
         (status, fvp) = port_table.get(port_name)
         if status:
             # Convert list of tuples to a dictionary
@@ -130,7 +128,7 @@ class LldpManager(object):
         lldpcli_cmd = "lldpcli configure ports {0} lldp portidsubtype local {1}".format(port_name, port_alias)
 
         # Retrieve all entires for this port from the Device Neighbor table
-        device_neighbor_table = swsscommon.Table(self.config_db, swsscommon.CFG_DEVICE_NEIGHBOR_TABLE_NAME, TABLE_SEPARATOR)
+        device_neighbor_table = swsscommon.Table(self.config_db, swsscommon.CFG_DEVICE_NEIGHBOR_TABLE_NAME)
         (status, fvp) = device_neighbor_table.get(port_name)
         if status:
             # Convert list of tuples to a dictionary
