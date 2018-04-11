@@ -216,8 +216,13 @@ write_boot_configs() {
 
     # Pass the MAC address to the new kernel as a command line parameter. This makes it
     # possible to restore the MAC address in the new kernel without requiring driver modifications.
-    [ "${NETDEV}" ] || NETDEV=ma1
-    echo "hwaddr_${NETDEV}=$(cat /sys/class/net/${NETDEV}/address)" >> /tmp/append
+    if [ -f /sys/class/net/ma1/address ]; then
+        echo "hwaddr_ma1=$(cat /sys/class/net/ma1/address)" >> /tmp/append
+    elif [ -f /sys/class/net/eth0/address ]; then
+        echo "hwaddr_ma1=$(cat /sys/class/net/eth0/address)" >> /tmp/append
+    else
+        echo "ERROR: Management port is not found."
+    fi
 
     # use extra parameters from kernel-params hook if the file exists
     if [ -f "$target_path/$kernel_params" ]; then
