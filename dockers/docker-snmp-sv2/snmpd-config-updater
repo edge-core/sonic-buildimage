@@ -48,8 +48,8 @@ class ConfigUpdater(object):
             if table_data["type"] != self.ACL_TABLE_TYPE_CTRLPLANE:
                 continue
 
-            # Ignore non-SSH service ACLs
-            if table_data["service"] != self.ACL_SERVICE_SNMP:
+            # Ignore non-SNMP service ACLs
+            if self.ACL_SERVICE_SNMP not in table_data["services"]:
                 continue
 
             acl_rules = {}

@@ -78,11 +78,13 @@ class TestCfgGen(TestCase):
     def test_minigraph_acl(self):
         argument = '-m "' + self.sample_graph_t0 + '" -p "' + self.port_config + '" -v ACL_TABLE'
         output = self.run_script(argument, True)
-        self.assertEqual(output.strip(), "Warning: Ingore Control Plane ACL NTP_ACL without type\n"
-                                         "{'SSH_ACL': {'type': 'CTRLPLANE', 'policy_desc': 'SSH_ACL', 'service': 'SSH', 'ports': []},"
-                                         " 'SNMP_ACL': {'type': 'CTRLPLANE', 'policy_desc': 'SNMP_ACL', 'service': 'SNMP', 'ports': []},"
+        self.assertEqual(output.strip(), "Warning: Ignoring Control Plane ACL NTP_ACL without type\n"
+                                         "{'SSH_ACL': {'services': ['SSH'], 'type': 'CTRLPLANE', 'policy_desc': 'SSH_ACL'},"
+                                         " 'SNMP_ACL': {'services': ['SNMP'], 'type': 'CTRLPLANE', 'policy_desc': 'SNMP_ACL'},"
                                          " 'DATAACL': {'type': 'L3', 'policy_desc': 'DATAACL', 'ports': ['Ethernet112', 'Ethernet116', 'Ethernet120', 'Ethernet124']},"
-                                         " 'NTP_ACL': {'type': 'CTRLPLANE', 'policy_desc': 'NTP_ACL', 'service': 'NTP', 'ports': []}}")
+                                         " 'NTP_ACL': {'services': ['NTP'], 'type': 'CTRLPLANE', 'policy_desc': 'NTP_ACL'},"
+                                         " 'ROUTER_PROTECT': {'services': ['SSH', 'SNMP'], 'type': 'CTRLPLANE', 'policy_desc': 'ROUTER_PROTECT'}}")
+
     def test_minigraph_everflow(self):
         argument = '-m "' + self.sample_graph_t0 + '" -p "' + self.port_config + '" -v MIRROR_SESSION'
         output = self.run_script(argument)
