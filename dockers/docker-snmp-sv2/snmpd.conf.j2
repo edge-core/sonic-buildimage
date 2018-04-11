@@ -13,24 +13,9 @@
 #  AGENT BEHAVIOUR
 #
 
-{% if MGMT_INTERFACE %}
-#  Listen for connections on localhost, loopback ip and mgmt (eth0) ip
-agentAddress udp:127.0.0.1:161
-{% for (name, prefix) in MGMT_INTERFACE %}
-{% if prefix | ipv4 %}
-agentAddress udp:{{ prefix | ip }}:161
-{% endif %}
-{% endfor %}
-# TODO: only support ipv4 lo addresses, add ipv6 support later
-{% for (name, prefix) in LOOPBACK_INTERFACE %}
-{% if prefix | ipv4 %}
-agentAddress udp:{{ prefix | ip }}:161
-{% endif %}
-{% endfor %}
-{% else %}
-# Listen on all addresses as mgmt ip not specified
+#  Listen for connections on all ip addresses, including eth0, ipv4 lo
 agentAddress udp:161
-{% endif %}
+# TODO: only support ipv4 lo addresses, add ipv6 support later
 
 ###############################################################################
 #
