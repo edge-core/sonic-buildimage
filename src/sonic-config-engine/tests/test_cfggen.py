@@ -148,7 +148,7 @@ class TestCfgGen(TestCase):
     def test_minigraph_ethernet_interfaces(self):
         argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v "PORT[\'Ethernet8\']"'
         output = self.run_script(argument)
-        self.assertEqual(output.strip(), "{'alias': 'fortyGigE0/8', 'lanes': '37,38,39,40', 'description': 'Interface description', 'speed': '40000'}")
+        self.assertEqual(output.strip(), "{'alias': 'fortyGigE0/8', 'lanes': '37,38,39,40', 'description': 'Interface description', 'speed': '1000'}")
         argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v "PORT[\'Ethernet12\']"'
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "{'alias': 'fortyGigE0/12', 'lanes': '33,34,35,36', 'fec': 'rs', 'speed': '100000', 'description': 'Interface description'}")
@@ -157,7 +157,7 @@ class TestCfgGen(TestCase):
         argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v "PORT"'
         output = self.run_script(argument)
         self.assertEqual(output.strip(), \
-                "{'Ethernet8': {'alias': 'fortyGigE0/8', 'lanes': '37,38,39,40', 'description': 'Interface description', 'speed': '40000'}, "
+                "{'Ethernet8': {'alias': 'fortyGigE0/8', 'lanes': '37,38,39,40', 'description': 'Interface description', 'speed': '1000'}, "
                 "'Ethernet0': {'alias': 'fortyGigE0/0', 'lanes': '29,30,31,32', 'speed': '10000'}, "
                 "'Ethernet4': {'alias': 'fortyGigE0/4', 'lanes': '25,26,27,28', 'speed': '25000'}, "
                 "'Ethernet108': {'alias': 'fortyGigE0/108', 'lanes': '81,82,83,84'}, "
