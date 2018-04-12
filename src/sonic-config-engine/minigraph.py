@@ -439,10 +439,18 @@ def parse_xml(filename, platform=None, port_config_file=None):
     results['PORTCHANNEL_INTERFACE'] = pc_intfs
 
     for port_name in port_speeds:
+        # ignore port not in port_config.ini
+        if not ports.has_key(port_name):
+            continue
+
         ports.setdefault(port_name, {})['speed'] = port_speeds[port_name]
         if port_speeds[port_name] == '100000':
             ports.setdefault(port_name, {})['fec'] = 'rs'
     for port_name in port_descriptions:
+        # ignore port not in port_config.ini
+        if not ports.has_key(port_name):
+            continue
+
         ports.setdefault(port_name, {})['description'] = port_descriptions[port_name]
 
     results['PORT'] = ports
