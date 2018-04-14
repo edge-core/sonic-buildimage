@@ -142,7 +142,8 @@ static ssize_t set_swpld_reg(struct device *dev, struct device_attribute *dev_at
     int cmd_data_len;    
     uint8_t cmd_data[4]={0};
     uint8_t set_cmd;
-    uint8_t get_cmd;    
+    uint8_t get_cmd;
+    unsigned long set_data_ul;
     unsigned char mask;  
     unsigned char mask_out;      
     struct sensor_device_attribute *attr = to_sensor_dev_attr(dev_attr);
@@ -151,7 +152,7 @@ static ssize_t set_swpld_reg(struct device *dev, struct device_attribute *dev_at
     set_cmd = CMD_SETDATA;
     get_cmd = CMD_GETDATA;
 
-    err = kstrtoul(buf, 0, &set_data);
+    err = kstrtoul(buf, 0, &set_data_ul);
     if (err){
         return err;
     }
@@ -160,6 +161,8 @@ static ssize_t set_swpld_reg(struct device *dev, struct device_attribute *dev_at
         printk(KERN_ALERT "address out of range (0x00-0xFF)\n");
         return count;
     }
+
+    set_data = (int)set_data_ul;
     if (attr->index <= SWPLD4_REG_VALUE){
         cmd_data[0] = BMC_BUS_5;
         cmd_data[3] = set_data;
@@ -516,7 +519,7 @@ static struct platform_driver swpld4_driver = {
 /*----------------    CPLD  - end   ------------- */
 
 /*----------------   module initialization     ------------- */
-static void __init delta_ag9064_swpld_init(void)
+static int __init delta_ag9064_swpld_init(void)
 {
     int ret;
     printk(KERN_WARNING "ag9064_platform_swpld module initialization\n");
@@ -586,15 +589,15 @@ static void __init delta_ag9064_swpld_init(void)
 error_swpld4_device:
     platform_driver_unregister(&swpld4_driver);
 error_swpld4_driver:
-    platform_driver_unregister(&swpld3_device);
+    platform_device_unregister(&swpld3_device);
 error_swpld3_device:
     platform_driver_unregister(&swpld3_driver);
 error_swpld3_driver:
-    platform_driver_unregister(&swpld2_device);
+    platform_device_unregister(&swpld2_device);
 error_swpld2_device:
     platform_driver_unregister(&swpld2_driver);
 error_swpld2_driver:
-    platform_driver_unregister(&swpld1_device);
+    platform_device_unregister(&swpld1_device);
 error_swpld1_device:
     platform_driver_unregister(&swpld1_driver);
 error_swpld1_driver:

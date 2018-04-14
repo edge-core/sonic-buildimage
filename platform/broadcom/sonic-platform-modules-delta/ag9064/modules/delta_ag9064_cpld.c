@@ -631,7 +631,8 @@ static ssize_t set_cpld_reg(struct device *dev, struct device_attribute *dev_att
 {
     int err;
     int value;
-    int set_data;    
+    int set_data;
+    unsigned long set_data_ul;
     unsigned char reg;
     unsigned char mask;  
     unsigned char mask_out;      
@@ -639,11 +640,12 @@ static ssize_t set_cpld_reg(struct device *dev, struct device_attribute *dev_att
     struct sensor_device_attribute *attr = to_sensor_dev_attr(dev_attr);
     struct cpld_platform_data *pdata = dev->platform_data;
 
-    err = kstrtoul(buf, 0, &set_data);
+    err = kstrtoul(buf, 0, &set_data_ul);
     if (err){
         return err;
     }
-
+    
+    set_data = (int)set_data_ul;
     if (set_data > 0xff){
         printk(KERN_ALERT "address out of range (0x00-0xFF)\n");
         return count;
@@ -816,7 +818,7 @@ static struct platform_driver cpld_driver = {
 /*----------------    CPLD  - end   ------------- */
 
 /*----------------   module initialization     ------------- */
-static void __init delta_ag9064_cpupld_init(void)
+static int __init delta_ag9064_cpupld_init(void)
 {
     int ret;
     printk(KERN_WARNING "ag9064_platform_cpupld module initialization\n");
