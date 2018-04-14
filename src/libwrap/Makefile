@@ -3,6 +3,7 @@ SHELL = /bin/bash
 .SHELLFLAGS += -e
 
 MAIN_TARGET = libwrap0_$(LIBWRAP_VERSION)_amd64.deb
+DERIVED_TARGETS = tcpd_$(LIBWRAP_VERSION)_amd64.deb
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# Remove any stale files
@@ -19,5 +20,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	popd
 
 	# Move the newly-built .deb packages to the destination directory
-	mv $* $(DEST)/
+	mv $(DERIVED_TARGETS) $* $(DEST)/
+
+$(addprefix $(DEST)/, $(DERIVED_TARGETS)): $(DEST)/% : $(DEST)/$(MAIN_TARGET)
 

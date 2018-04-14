@@ -246,7 +246,10 @@ sudo cp $IMAGE_CONFIGS/ssh/sshd-config-updater $FILESYSTEM_ROOT/usr/bin/
 sudo chmod +x $FILESYSTEM_ROOT/usr/bin/sshd-config-updater
 sudo cp $IMAGE_CONFIGS/ssh/sshd-clear-denied-sessions $FILESYSTEM_ROOT/usr/bin
 sudo chmod +x $FILESYSTEM_ROOT/usr/bin/sshd-clear-denied-sessions
-sudo cp src/libwrap/tcp-wrappers-7.6.q/tcpdmatch $FILESYSTEM_ROOT/usr/bin
+sudo dpkg --root=$FILESYSTEM_ROOT -i target/debs/libwrap0_*_amd64.deb || \
+    sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
+sudo dpkg --root=$FILESYSTEM_ROOT -i target/debs/tcpd_*_amd64.deb || \
+    sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
 
 ## copy platform rc.local
 sudo cp $IMAGE_CONFIGS/platform/rc.local $FILESYSTEM_ROOT/etc/
