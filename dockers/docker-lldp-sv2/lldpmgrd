@@ -195,7 +195,7 @@ class LldpManager(object):
 
         # Listen indefinitely for changes to the PORT table in the State DB
         while True:
-            (state, c, fd) = sel.select(SELECT_TIMEOUT_MS)
+            (state, c) = sel.select(SELECT_TIMEOUT_MS)
 
             if state == swsscommon.Select.OBJECT:
                 (key, op, fvp) = sst.pop()
