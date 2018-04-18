@@ -11,7 +11,7 @@
             "tunnel_type":"IPINIP",
             "src_ip":"{{ ipv4_loopback_addresses | first | ip }}",
             "dst_ip":"{% for prefix in ipv4_loopback_addresses %}{{ prefix | ip }}{% if not loop.last %},{% endif %}{% endfor %}",
-{% if onie_switch_asic == "mlnx" %}
+{% if "mlnx" in DEVICE_METADATA.localhost.platform %}
             "dscp_mode":"uniform",
             "ecn_mode":"standard",
 {% else %}
