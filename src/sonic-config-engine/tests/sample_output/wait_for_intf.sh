@@ -32,12 +32,12 @@ function wait_until_iface_ready
 
 # Wait for all interfaces to come up and have IPv4 addresses assigned
 wait_until_iface_ready Vlan1000
-wait_until_iface_ready PortChannel04
+wait_until_iface_ready PortChannel01
+wait_until_iface_ready PortChannel01
+wait_until_iface_ready PortChannel02
 wait_until_iface_ready PortChannel02
 wait_until_iface_ready PortChannel03
 wait_until_iface_ready PortChannel03
-wait_until_iface_ready PortChannel01
-wait_until_iface_ready PortChannel02
 wait_until_iface_ready PortChannel04
-wait_until_iface_ready PortChannel01
+wait_until_iface_ready PortChannel04
 

@@ -128,6 +128,12 @@ def deep_update(dst, src):
              dst[key] = value
     return dst
 
+def sort_data(data):
+    for table in data:
+        if type(data[table]) is dict:
+            data[table] = OrderedDict(natsorted(data[table].items()))
+    return data
+
 
 def main():
     parser=argparse.ArgumentParser(description="Render configuration file from minigraph data and jinja2 template.")
@@ -210,8 +216,8 @@ def main():
         for attr in ['ip', 'network', 'prefixlen', 'netmask']:
             env.filters[attr] = partial(prefix_attr, attr)
         template = env.get_template(template_file)
-        print template.render(data)
-    
+        print template.render(sort_data(data))
+
     if args.var != None:
         template = jinja2.Template('{{' + args.var + '}}')
         print template.render(data)

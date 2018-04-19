@@ -1,38 +1,38 @@
 {
     "CABLE_LENGTH": {
         "AZURE": {
-            "Ethernet8": "300m",
             "Ethernet0": "300m",
             "Ethernet4": "300m",
-            "Ethernet108": "300m",
-            "Ethernet100": "300m",
-            "Ethernet104": "300m",
-            "Ethernet68": "300m",
-            "Ethernet96": "300m",
-            "Ethernet124": "300m",
-            "Ethernet92": "300m",
-            "Ethernet120": "300m",
+            "Ethernet8": "300m",
+            "Ethernet12": "300m",
+            "Ethernet16": "300m",
+            "Ethernet20": "300m",
+            "Ethernet24": "300m",
+            "Ethernet28": "300m",
+            "Ethernet32": "300m",
+            "Ethernet36": "300m",
+            "Ethernet40": "300m",
+            "Ethernet44": "300m",
+            "Ethernet48": "300m",
             "Ethernet52": "300m",
             "Ethernet56": "300m",
-            "Ethernet76": "300m",
-            "Ethernet72": "300m",
-            "Ethernet64": "300m",
-            "Ethernet32": "300m",
-            "Ethernet16": "300m",
-            "Ethernet36": "300m",
-            "Ethernet12": "300m",
-            "Ethernet88": "300m",
-            "Ethernet116": "300m",
-            "Ethernet80": "300m",
-            "Ethernet112": "300m",
-            "Ethernet84": "300m",
-            "Ethernet48": "300m",
-            "Ethernet44": "300m",
-            "Ethernet40": "300m",
-            "Ethernet28": "300m",
             "Ethernet60": "300m",
-            "Ethernet20": "300m",
-            "Ethernet24": "300m"
+            "Ethernet64": "300m",
+            "Ethernet68": "300m",
+            "Ethernet72": "300m",
+            "Ethernet76": "300m",
+            "Ethernet80": "300m",
+            "Ethernet84": "300m",
+            "Ethernet88": "300m",
+            "Ethernet92": "300m",
+            "Ethernet96": "300m",
+            "Ethernet100": "300m",
+            "Ethernet104": "300m",
+            "Ethernet108": "300m",
+            "Ethernet112": "300m",
+            "Ethernet116": "300m",
+            "Ethernet120": "300m",
+            "Ethernet124": "300m"
         }
     },
     "BUFFER_POOL": {
@@ -95,25 +95,25 @@
         }
     },
     "BUFFER_PORT_INGRESS_PROFILE_LIST": {
-        "Ethernet8,Ethernet0,Ethernet4,Ethernet108,Ethernet100,Ethernet104,Ethernet68,Ethernet96,Ethernet124,Ethernet92,Ethernet120,Ethernet52,Ethernet56,Ethernet76,Ethernet72,Ethernet64,Ethernet32,Ethernet16,Ethernet36,Ethernet12,Ethernet88,Ethernet116,Ethernet80,Ethernet112,Ethernet84,Ethernet48,Ethernet44,Ethernet40,Ethernet28,Ethernet60,Ethernet20,Ethernet24": {
+        "Ethernet0,Ethernet4,Ethernet8,Ethernet12,Ethernet16,Ethernet20,Ethernet24,Ethernet28,Ethernet32,Ethernet36,Ethernet40,Ethernet44,Ethernet48,Ethernet52,Ethernet56,Ethernet60,Ethernet64,Ethernet68,Ethernet72,Ethernet76,Ethernet80,Ethernet84,Ethernet88,Ethernet92,Ethernet96,Ethernet100,Ethernet104,Ethernet108,Ethernet112,Ethernet116,Ethernet120,Ethernet124": {
             "profile_list" : "[BUFFER_PROFILE|ingress_lossless_profile],[BUFFER_PROFILE|ingress_lossy_profile]"
         }
     },
     "BUFFER_PORT_EGRESS_PROFILE_LIST": {
-        "Ethernet8,Ethernet0,Ethernet4,Ethernet108,Ethernet100,Ethernet104,Ethernet68,Ethernet96,Ethernet124,Ethernet92,Ethernet120,Ethernet52,Ethernet56,Ethernet76,Ethernet72,Ethernet64,Ethernet32,Ethernet16,Ethernet36,Ethernet12,Ethernet88,Ethernet116,Ethernet80,Ethernet112,Ethernet84,Ethernet48,Ethernet44,Ethernet40,Ethernet28,Ethernet60,Ethernet20,Ethernet24": {
+        "Ethernet0,Ethernet4,Ethernet8,Ethernet12,Ethernet16,Ethernet20,Ethernet24,Ethernet28,Ethernet32,Ethernet36,Ethernet40,Ethernet44,Ethernet48,Ethernet52,Ethernet56,Ethernet60,Ethernet64,Ethernet68,Ethernet72,Ethernet76,Ethernet80,Ethernet84,Ethernet88,Ethernet92,Ethernet96,Ethernet100,Ethernet104,Ethernet108,Ethernet112,Ethernet116,Ethernet120,Ethernet124": {
             "profile_list" : "[BUFFER_PROFILE|egress_lossless_profile],[BUFFER_PROFILE|egress_lossy_profile]"
         }
     },
     "BUFFER_PG": {
-        "Ethernet8,Ethernet0,Ethernet4,Ethernet108,Ethernet100,Ethernet104,Ethernet68,Ethernet96,Ethernet124,Ethernet92,Ethernet120,Ethernet52,Ethernet56,Ethernet76,Ethernet72,Ethernet64,Ethernet32,Ethernet16,Ethernet36,Ethernet12,Ethernet88,Ethernet116,Ethernet80,Ethernet112,Ethernet84,Ethernet48,Ethernet44,Ethernet40,Ethernet28,Ethernet60,Ethernet20,Ethernet24|0-1": {
+        "Ethernet0,Ethernet4,Ethernet8,Ethernet12,Ethernet16,Ethernet20,Ethernet24,Ethernet28,Ethernet32,Ethernet36,Ethernet40,Ethernet44,Ethernet48,Ethernet52,Ethernet56,Ethernet60,Ethernet64,Ethernet68,Ethernet72,Ethernet76,Ethernet80,Ethernet84,Ethernet88,Ethernet92,Ethernet96,Ethernet100,Ethernet104,Ethernet108,Ethernet112,Ethernet116,Ethernet120,Ethernet124|0-1": {
             "profile" : "[BUFFER_PROFILE|pg_lossy_profile]"
         }
     },
     "BUFFER_QUEUE": {
-        "Ethernet8,Ethernet0,Ethernet4,Ethernet108,Ethernet100,Ethernet104,Ethernet68,Ethernet96,Ethernet124,Ethernet92,Ethernet120,Ethernet52,Ethernet56,Ethernet76,Ethernet72,Ethernet64,Ethernet32,Ethernet16,Ethernet36,Ethernet12,Ethernet88,Ethernet116,Ethernet80,Ethernet112,Ethernet84,Ethernet48,Ethernet44,Ethernet40,Ethernet28,Ethernet60,Ethernet20,Ethernet24|3-4": {
+        "Ethernet0,Ethernet4,Ethernet8,Ethernet12,Ethernet16,Ethernet20,Ethernet24,Ethernet28,Ethernet32,Ethernet36,Ethernet40,Ethernet44,Ethernet48,Ethernet52,Ethernet56,Ethernet60,Ethernet64,Ethernet68,Ethernet72,Ethernet76,Ethernet80,Ethernet84,Ethernet88,Ethernet92,Ethernet96,Ethernet100,Ethernet104,Ethernet108,Ethernet112,Ethernet116,Ethernet120,Ethernet124|3-4": {
             "profile" : "[BUFFER_PROFILE|q_lossless_profile]"
         },
-        "Ethernet8,Ethernet0,Ethernet4,Ethernet108,Ethernet100,Ethernet104,Ethernet68,Ethernet96,Ethernet124,Ethernet92,Ethernet120,Ethernet52,Ethernet56,Ethernet76,Ethernet72,Ethernet64,Ethernet32,Ethernet16,Ethernet36,Ethernet12,Ethernet88,Ethernet116,Ethernet80,Ethernet112,Ethernet84,Ethernet48,Ethernet44,Ethernet40,Ethernet28,Ethernet60,Ethernet20,Ethernet24|0-1": {
+        "Ethernet0,Ethernet4,Ethernet8,Ethernet12,Ethernet16,Ethernet20,Ethernet24,Ethernet28,Ethernet32,Ethernet36,Ethernet40,Ethernet44,Ethernet48,Ethernet52,Ethernet56,Ethernet60,Ethernet64,Ethernet68,Ethernet72,Ethernet76,Ethernet80,Ethernet84,Ethernet88,Ethernet92,Ethernet96,Ethernet100,Ethernet104,Ethernet108,Ethernet112,Ethernet116,Ethernet120,Ethernet124|0-1": {
             "profile" : "[BUFFER_PROFILE|q_lossy_profile]"
         }
     }
