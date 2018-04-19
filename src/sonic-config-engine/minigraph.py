@@ -77,7 +77,7 @@ def parse_png(png, hname):
                 bandwidth_node = link.find(str(QName(ns, "Bandwidth")))
                 bandwidth = bandwidth_node.text if bandwidth_node is not None else None
 
-                if enddevice == hname:
+                if enddevice.lower() == hname.lower():
                     if port_alias_map.has_key(endport):
                         endport = port_alias_map[endport]
                     neighbors[endport] = {'name': startdevice, 'port': startport}
@@ -119,7 +119,7 @@ def parse_png(png, hname):
 def parse_dpg(dpg, hname):
     for child in dpg:
         hostname = child.find(str(QName(ns, "Hostname")))
-        if hostname.text != hname:
+        if hostname.text.lower() != hname.lower():
             continue
 
         ipintfs = child.find(str(QName(ns, "IPInterfaces")))
@@ -263,7 +263,7 @@ def parse_cpg(cpg, hname):
                 else:
                     keepalive = 60
                 nhopself = 1 if session.find(str(QName(ns, "NextHopSelf"))) is not None else 0
-                if end_router == hname:
+                if end_router.lower() == hname.lower():
                     bgp_sessions[start_peer.lower()] = {
                         'name': start_router,
                         'local_addr': end_peer.lower(),
@@ -285,7 +285,7 @@ def parse_cpg(cpg, hname):
             for router in child.findall(str(QName(ns1, "BGPRouterDeclaration"))):
                 asn = router.find(str(QName(ns1, "ASN"))).text
                 hostname = router.find(str(QName(ns1, "Hostname"))).text
-                if hostname == hname:
+                if hostname.lower() == hname.lower():
                     myasn = asn
                     peers = router.find(str(QName(ns1, "Peers")))
                     for bgpPeer in peers.findall(str(QName(ns, "BGPPeer"))):
@@ -301,7 +301,7 @@ def parse_cpg(cpg, hname):
                 else:
                     for peer in bgp_sessions:
                         bgp_session = bgp_sessions[peer]
-                        if hostname == bgp_session['name']:
+                        if hostname.lower() == bgp_session['name'].lower():
                             bgp_session['asn'] = asn
     bgp_sessions = { key: bgp_sessions[key] for key in bgp_sessions if bgp_sessions[key].has_key('asn') and int(bgp_sessions[key]['asn']) != 0 }
     return bgp_sessions, myasn, bgp_peers_with_range
@@ -317,7 +317,7 @@ def parse_meta(meta, hname):
     deployment_id = None
     device_metas = meta.find(str(QName(ns, "Devices")))
     for device in device_metas.findall(str(QName(ns1, "DeviceMetadata"))):
-        if device.find(str(QName(ns1, "Name"))).text == hname:
+        if device.find(str(QName(ns1, "Name"))).text.lower() == hname.lower():
             properties = device.find(str(QName(ns1, "Properties")))
             for device_property in properties.findall(str(QName(ns1, "DeviceProperty"))):
                 name = device_property.find(str(QName(ns1, "Name"))).text
@@ -411,13 +411,14 @@ def parse_xml(filename, platform=None, port_config_file=None):
         elif child.tag == str(QName(ns, "DeviceInfos")):
             (port_speeds_default, port_descriptions) = parse_deviceinfo(child, hwsku)
 
-    results = {}
+    current_device = [devices[key] for key in devices if key.lower() == hostname.lower()][0]
+    results = {}    
     results['DEVICE_METADATA'] = {'localhost': {
         'bgp_asn': bgp_asn,
         'deployment_id': deployment_id,
         'hostname': hostname,
         'hwsku': hwsku,
-        'type': devices[hostname]['type']
+        'type': current_device['type']
         }}
     results['BGP_NEIGHBOR'] = bgp_sessions
     results['BGP_PEER_RANGE'] = bgp_peers_with_range
@@ -476,7 +477,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
     results['VLAN_MEMBER'] = vlan_members
 
     results['DEVICE_NEIGHBOR'] = neighbors
-    results['DEVICE_NEIGHBOR_METADATA'] = { key:devices[key] for key in devices if key != hostname }
+    results['DEVICE_NEIGHBOR_METADATA'] = { key:devices[key] for key in devices if key.lower() != hostname.lower() }
     results['SYSLOG_SERVER'] = dict((item, {}) for item in syslog_servers)
     results['DHCP_SERVER'] = dict((item, {}) for item in dhcp_servers)
     results['NTP_SERVER'] = dict((item, {}) for item in ntp_servers)
