@@ -3,35 +3,34 @@ FROM docker-config-engine
 # Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Update apt's package index files
+# Update apt's cache of available packages
 RUN apt-get update
 
 # Install required packages
-RUN apt-get install -y python-pip sensord fancontrol
+RUN apt-get install -y python-pip libpython2.7 sensord fancontrol
 
 {% if docker_platform_monitor_debs.strip() -%}
-# Copy all locally-built Debian package dependencies
-COPY{{' '}}
-{%- for deb in docker_platform_monitor_debs.split(' ') -%}
-debs/{{ deb }}{{' '}}
-{%- endfor -%}
-/debs/
+# Copy locally-built Debian package dependencies
+{%- for deb in docker_platform_monitor_debs.split(' ') %}
+COPY debs/{{ deb }} /debs/
+{%- endfor %}
 
-# Install all locally-built Debian package dependencies
-# and implicitly install their dependencies
-RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /debs/*.deb
-{% endif %}
+# Install locally-built Debian packages and implicitly install their dependencies
+{%- for deb in docker_platform_monitor_debs.split(' ') %}
+RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /debs/{{ deb }}
+{%- endfor %}
+{%- endif %}
 
 {% if docker_platform_monitor_whls.strip() -%}
-# Copy all locally-built Python wheel dependencies
-COPY{{' '}}
-{%- for whl in docker_platform_monitor_whls.split(' ') -%}
-python-wheels/{{ whl }}{{' '}}
-{%- endfor -%}
-/python-wheels/
+# Copy locally-built Python wheel dependencies
+{%- for whl in docker_platform_monitor_whls.split(' ') %}
+COPY python-wheels/{{ whl }} /python-wheels/
+{%- endfor %}
 
-# Install all locally-built Python wheel dependencies
-RUN pip install /python-wheels/*.whl
+# Install locally-built Python wheel dependencies
+{%- for whl in docker_platform_monitor_whls.split(' ') %}
+RUN pip install /python-wheels/{{ whl }}
+{%- endfor %}
 {% endif %}
 
 # Clean up
