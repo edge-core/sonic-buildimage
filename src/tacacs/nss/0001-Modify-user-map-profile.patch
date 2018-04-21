@@ -564,9 +564,9 @@ index 79e62b9..ecfa0b0 100644
 +    useradd_info_t *user;
 +
 +    user = &useradd_grp_list[MIN_TACACS_USER_PRIV];
-+    user->gid = 999;
++    user->gid = 100;
 +    user->info = strdup("remote_user");
-+    user->secondary_grp = strdup("docker");
++    user->secondary_grp = strdup("users");
 +    user->shell = strdup("/bin/bash");
 +
 +    user = &useradd_grp_list[MAX_TACACS_USER_PRIV];
