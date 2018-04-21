@@ -11,6 +11,7 @@
 
 import os
 import re
+import signal
 import subprocess
 import sys
 import syslog
@@ -23,6 +24,62 @@ SYSLOG_IDENTIFIER = "snmpd-config-updater"
 
 
 # ============================== Classes ==============================
+
+class Process(object):
+    def __init__(self, pid):
+        self.pid = pid
+        self.path = '/proc/%d/status' % pid
+        self.status = None
+
+    def read_proc_status(self):
+        data = {}
+        with open(self.path) as f:
+            for line in f.readlines():
+                key, value = line.split(':', 1)
+                data[ key ] = value.strip()
+        self.status = data
+
+    def get_proc_signals(self):
+        assert self.status
+        sigBlk = int(self.status[ 'SigBlk' ], 16)
+        sigIgn = int(self.status[ 'SigIgn' ], 16)
+        sigCgt = int(self.status[ 'SigCgt' ], 16)
+        return (sigBlk, sigIgn, sigCgt)
+
+    def handle_signal(self, sig):
+        sigBlk, sigIgn, sigCgt = self.get_proc_signals()
+        mask = 1 << ( sig - 1 )
+        if mask & sigBlk:
+            return True
+        if mask & sigIgn:
+            return True
+        if mask & sigCgt:
+            return True
+        return False
+
+    def send_signal(self, sig):
+        log_info('Sending signal %s to %d' % (sig, self.pid))
+        os.kill(self.pid, sig)
+
+    def safe_send_signal(self, sig):
+        self.read_proc_status()
+        if not self.handle_signal(sig):
+            return False
+        self.send_signal(sig)
+        return True
+
+    def wait_send_signal(self, sig, interval=0.1):
+        while not self.safe_send_signal(sig):
+            log_info('Process %s has not yet registered %s' % (self.pid, sig))
+            time.sleep(interval)
+
+    @staticmethod
+    def by_name(name):
+        try:
+            pid = subprocess.check_output([ 'pidof', '-s', name ])
+        except subprocess.CalledProcessError:
+            return None
+        return Process(int(pid.rstrip()))
 
 class ConfigUpdater(object):
     SERVICE = "snmpd"
@@ -125,8 +182,10 @@ class ConfigUpdater(object):
 
         os.rename(filename_tmp, filename)
 
-        # Force snmpd to reload its configuration
-        os.system("kill -HUP $(pgrep snmpd) > /dev/null 2> /dev/null || :")
+        # Force snmpd process to reload its configuration if it is running
+        proc = Process.by_name(self.SERVICE)
+        if proc:
+           proc.wait_send_signal(signal.SIGHUP)
 
     def notification_handler(self, key, data):
         log_info("ACL configuration changed. Updating {} config accordingly...".format(self.SERVICE))
