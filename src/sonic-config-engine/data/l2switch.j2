@@ -1,0 +1,21 @@
+{
+    "DEVICE_METADATA": {{ DEVICE_METADATA | tojson }},
+    "PORT": {{ PORT | tojson }},
+    "VLAN": {
+        "Vlan1000": {
+            "vlanid": "1000"
+        }
+    },
+    {% set ns = {'firstPrinted': False} -%}
+    "VLAN_MEMBER": {
+        {%- for port in PORT -%}
+        {%- if ns.firstPrinted %},{% endif %}
+
+        "Vlan1000|{{ port }}": {
+            "tagging_mode": "untagged"
+        }
+        {%- if ns.update({'firstPrinted': True}) %}{% endif -%}
+        {%- endfor %}
+
+    }
+}

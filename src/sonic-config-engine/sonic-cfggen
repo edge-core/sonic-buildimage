@@ -15,6 +15,7 @@ Examples:
 See usage string for detail description for arguments.
 """
 
+from __future__ import print_function
 import sys
 import os.path
 import argparse
@@ -26,6 +27,7 @@ from functools import partial
 from minigraph import minigraph_encoder
 from minigraph import parse_xml
 from minigraph import parse_device_desc_xml
+from portconfig import get_port_config
 from sonic_platform import get_machine_info
 from sonic_platform import get_platform_info
 from sonic_platform import get_system_mac
@@ -134,7 +136,8 @@ def main():
     group = parser.add_mutually_exclusive_group()
     group.add_argument("-m", "--minigraph", help="minigraph xml file", nargs='?', const='/etc/sonic/minigraph.xml')
     group.add_argument("-M", "--device-description", help="device description xml file")
-    parser.add_argument("-p", "--port-config", help="port config file, used with -m")
+    group.add_argument("-k", "--hwsku", help="HwSKU")
+    parser.add_argument("-p", "--port-config", help="port config file, used with -m or -k", nargs='?', const=None)
     parser.add_argument("-y", "--yaml", help="yaml file that contains additional variables", action='append', default=[])
     parser.add_argument("-j", "--json", help="json file that contains additional variables", action='append', default=[])
     parser.add_argument("-a", "--additional-data", help="addition data, in json string")
@@ -156,7 +159,18 @@ def main():
         db_kwargs['unix_socket_path'] = args.redis_unix_sock_file
 
     data = {}
+    hwsku = args.hwsku
 
+    if hwsku is not None:
+        hardware_data = {'DEVICE_METADATA': {'localhost': {
+            'hwsku': hwsku
+            }}}
+        deep_update(data, hardware_data)
+        (ports, _) = get_port_config(hwsku, platform, args.port_config)
+        if not ports:
+            print('Failed to get port config', file=sys.stderr)
+            sys.exit(1)
+        deep_update(data, {'PORT': ports})
 
     if args.minigraph != None:
         minigraph = args.minigraph
@@ -166,10 +180,7 @@ def main():
             else:
                 deep_update(data, parse_xml(minigraph, platform))
         else:
-            if args.port_config != None:
-                deep_update(data, parse_xml(minigraph, port_config_file=args.port_config))
-            else:
-                deep_update(data, parse_xml(minigraph))
+            deep_update(data, parse_xml(minigraph, port_config_file=args.port_config))
 
     if args.device_description != None:
         deep_update(data, parse_device_desc_xml(args.device_description))
@@ -210,14 +221,14 @@ def main():
         for attr in ['ip', 'network', 'prefixlen', 'netmask']:
             env.filters[attr] = partial(prefix_attr, attr)
         template = env.get_template(template_file)
-        print template.render(data)
-    
+        print(template.render(data))
+
     if args.var != None:
         template = jinja2.Template('{{' + args.var + '}}')
-        print template.render(data)
+        print(template.render(data))
 
     if args.var_json != None:
-        print json.dumps(FormatConverter.to_serialized(data[args.var_json]), indent=4, cls=minigraph_encoder)
+        print(json.dumps(FormatConverter.to_serialized(data[args.var_json]), indent=4, cls=minigraph_encoder))
 
     if args.write_to_db:
         configdb = ConfigDBConnector(**db_kwargs)
@@ -225,7 +236,7 @@ def main():
         configdb.mod_config(FormatConverter.output_to_db(data))
 
     if args.print_data:
-        print json.dumps(FormatConverter.to_serialized(data), indent=4, cls=minigraph_encoder)
+        print(json.dumps(FormatConverter.to_serialized(data), indent=4, cls=minigraph_encoder))
 
 
 if __name__ == "__main__":
