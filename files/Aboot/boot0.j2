@@ -175,6 +175,8 @@ platform_specific() {
         echo "hugepages=128" >> /tmp/append
     fi
     if [ "$platform" = "rook" ]; then
+        echo "iommu=on intel_iommu=on tsc=reliable pcie_ports=native" >>/tmp/append
+        echo "rhash_entries=1 usb-storage.delay_use=0" >>/tmp/append
         if [ -x /bin/readprefdl ]; then
            readprefdl -f /tmp/.system-prefdl -d > /mnt/flash/.system-prefdl
         elif [ -f /etc/prefdl ]; then
