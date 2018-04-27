@@ -20,6 +20,7 @@ try:
     import subprocess
     import sys
     import syslog
+    import os.path
     from swsscommon import swsscommon
 except ImportError as err:
     raise ImportError("%s - required module not found" % str(err))
@@ -70,6 +71,19 @@ def signal_handler(sig, frame):
     else:
         log_warning("Caught unhandled signal '" + sig + "'")
 
+# ========================== Helpers ==================================
+
+def is_port_up(port_name):
+    filename = "/sys/class/net/%s/operstate" % port_name
+    if not os.path.exists(filename):
+        return False
+
+    with open(filename) as fp:
+        state = fp.read()
+        if 'up' in state:
+            return True
+        else:
+            return False
 
 # ============================== Classes ==============================
 
@@ -161,6 +175,11 @@ class LldpManager(object):
         to_delete = []
 
         for (port_name, cmd) in self.pending_cmds.iteritems():
+            if not is_port_up(port_name):
+                # it doesn't make any sense to configure lldpd if the target port is unavailable
+                # let's postpone the command for the next iteration
+                continue
+
             log_debug("Running command: '{}'".format(cmd))
 
             proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
