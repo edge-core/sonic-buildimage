@@ -1,6 +1,3 @@
 {% if MGMT_INTERFACE %}
 configure ports eth0 lldp portidsubtype local {{ MGMT_INTERFACE.keys()[0][0] }}
 {% endif %}
-{% for local_port in DEVICE_NEIGHBOR %}
-configure ports {{ local_port }} lldp portidsubtype local {{ PORT[local_port]['alias'] }} description {{ DEVICE_NEIGHBOR[local_port]['name'] }}:{{ DEVICE_NEIGHBOR[local_port]['port'] }}
-{% endfor %}
