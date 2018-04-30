@@ -57,8 +57,8 @@
 
         VAR_LOG_SIZE_KB=$(df -k /var/log | sed -n 2p | awk '{ print $2 }')
 
-        # Limit usable space to 95% of the partition minus the reserved space for other logs
-        USABLE_SPACE_KB=$(( (VAR_LOG_SIZE_KB * 95 / 100) - RESERVED_SPACE_KB))
+        # Limit usable space to 90% of the partition minus the reserved space for other logs
+        USABLE_SPACE_KB=$(( (VAR_LOG_SIZE_KB * 90 / 100) - RESERVED_SPACE_KB))
 
         # Set our threshold so as to maintain enough space to write all logs from empty to full
         # Most likely, some logs will have non-zero size when this is called, so this errs on the side
