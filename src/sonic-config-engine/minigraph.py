@@ -216,6 +216,8 @@ def parse_dpg(dpg, hname):
                 acls[aclname] = {'policy_desc': aclname,
                                  'ports': acl_intfs,
                                  'type': 'MIRROR' if is_mirror else 'L3'}
+            elif is_mirror:
+                acls[aclname] = {'policy_desc': aclname, 'type': 'MIRROR'}
             else:
                 # This ACL has no interfaces to attach to -- consider this a control plane ACL
                 try:
