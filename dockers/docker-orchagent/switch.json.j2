@@ -1,10 +1,11 @@
+{# the range of hash_seed is 0-15 #}
 {# set default hash seed to 0 #}
 {% set hash_seed = 0 %}
 {% if DEVICE_METADATA.localhost.type %}
 {% if DEVICE_METADATA.localhost.type == "ToRRouter" %}
-{% set hash_seed = 10 %}
+{% set hash_seed = 0 %}
 {% elif DEVICE_METADATA.localhost.type == "LeafRouter" %}
-{% set hash_seed = 20 %}
+{% set hash_seed = 10 %}
 {% endif %}
 {% endif %}
 [
