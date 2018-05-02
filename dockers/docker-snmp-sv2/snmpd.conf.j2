@@ -60,6 +60,14 @@ sysServices    72
 #  Note that this table will be empty if there are no "proc" entries in the snmpd.conf file
 
 
+#
+#  Disk Monitoring
+#
+                               # 10MBs required on root disk, 5% free on /var, 10% free on all other disks
+disk       /     10000
+disk       /var  5%
+includeAllDisks  10%
+
 #  Walk the UCD-SNMP-MIB::dskTable to see the resulting output
 #  Note that this table will be empty if there are no "disk" entries in the snmpd.conf file
 
