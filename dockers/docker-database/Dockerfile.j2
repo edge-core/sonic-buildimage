@@ -1,34 +1,34 @@
 FROM docker-config-engine
 
-## Make apt-get non-interactive
+# Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Update apt's cache of available packages
 RUN apt-get update
 
-COPY \
-{% for deb in docker_database_debs.split(' ') -%}
-debs/{{ deb }}{{' '}}
-{%- endfor -%}
-debs/
-
-## Install redis-tools dependencies
-## TODO: implicitly install dependencies
-RUN apt-get -y install libjemalloc1
-
-RUN dpkg -i \
-{% for deb in docker_database_debs.split(' ') -%}
-debs/{{ deb }}{{' '}}
+{% if docker_database_debs.strip() -%}
+# Copy locally-built Debian package dependencies
+{%- for deb in docker_database_debs.split(' ') %}
+COPY debs/{{ deb }} /debs/
 {%- endfor %}
 
-## Clean up
-RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
-RUN rm -rf /debs
+# Install locally-built Debian packages and implicitly install their dependencies
+{%- for deb in docker_database_debs.split(' ') %}
+RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /debs/{{ deb }}
+{%- endfor %}
+{%- endif %}
 
-RUN sed -ri 's/^(save .*$)/# \1/g;                                                    \
-             s/^daemonize yes$/daemonize no/;                                           \
-             s/^logfile .*$/logfile ""/;                                                \
-             s/^# syslog-enabled no$/syslog-enabled no/;                                \
-             s/^# unixsocket/unixsocket/;                                               \
+# Clean up
+RUN apt-get clean -y
+RUN apt-get autoclean -y
+RUN apt-get autoremove -y
+RUN rm -rf /debs ~/.cache
+
+RUN sed -ri 's/^(save .*$)/# \1/g;                       \
+             s/^daemonize yes$/daemonize no/;            \
+             s/^logfile .*$/logfile ""/;                 \
+             s/^# syslog-enabled no$/syslog-enabled no/; \
+             s/^# unixsocket/unixsocket/;                \
              s/^client-output-buffer-limit pubsub [0-9]+mb [0-9]+mb [0-9]+/client-output-buffer-limit pubsub 0 0 0/ \
             ' /etc/redis/redis.conf
 

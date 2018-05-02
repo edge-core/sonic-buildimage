@@ -5,8 +5,8 @@ $(DOCKER_SONIC_P4)_PATH = $(PLATFORM_PATH)/docker-sonic-p4
 $(DOCKER_SONIC_P4)_DEPENDS += $(SWSS) \
                               $(SYNCD) \
                               $(P4_SWITCH) \
-                              $(REDIS_SERVER) \
                               $(REDIS_TOOLS) \
+                              $(REDIS_SERVER) \
                               $(PYTHON_SWSSCOMMON) \
                               $(LIBTEAMDCT) \
                               $(LIBTEAM_UTILS) \
