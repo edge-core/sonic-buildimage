@@ -1,7 +1,7 @@
 {# only IPv4 decapsulation is supported #}
 {% set ipv4_loopback_addresses = [] %}
 {% for (name, prefix) in LOOPBACK_INTERFACE %}
-    {%- if prefix | ipv4 %}
+    {%- if prefix | ipv4 and name == 'Loopback0' %}
         {%- set ipv4_loopback_addresses = ipv4_loopback_addresses.append(prefix) %}
     {%- endif %}
 {% endfor %}

@@ -15,6 +15,10 @@ iface lo inet6 static
     address fc00:1::32
     netmask 128
 #
+iface lo inet static
+    address 10.10.0.99
+    netmask 255.255.255.255
+#
 # The management network interface
 auto eth0
 iface eth0 inet static
