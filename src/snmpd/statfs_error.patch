@@ -1,0 +1,22 @@
+--- agent/mibgroup/hardware/fsys/fsys_mntctl.c.old	2018-04-30 23:26:58.097636453 +0000
++++ agent/mibgroup/hardware/fsys/fsys_mntctl.c	2018-04-30 23:27:36.189499479 +0000
+@@ -163,8 +163,6 @@
+             continue;
+ 
+         if ( statfs( entry->path, &stat_buf ) < 0 ) {
+-            snprintf( tmpbuf, sizeof(tmpbuf), "Cannot statfs %s", entry->path );
+-            snmp_log_perror( tmpbuf );
+             continue;
+         }
+         entry->units =  stat_buf.f_bsize;
+--- agent/mibgroup/hardware/fsys/fsys_mntent.c.old	2018-04-30 23:26:54.569649140 +0000
++++ agent/mibgroup/hardware/fsys/fsys_mntent.c	2018-04-30 23:27:22.001550497 +0000
+@@ -238,8 +238,6 @@
+         if ( NSFS_STATFS( entry->path, &stat_buf ) < 0 )
+ #endif
+         {
+-            snprintf( tmpbuf, sizeof(tmpbuf), "Cannot statfs %s", entry->path );
+-            snmp_log_perror( tmpbuf );
+             continue;
+         }
+         entry->units =  stat_buf.NSFS_SIZE;
