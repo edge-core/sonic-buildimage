@@ -40,11 +40,13 @@ ip route 0.0.0.0/0 {{ MGMT_INTERFACE[(name, prefix)]['gwaddr'] }} 200
 {% set lo_ipv6_addrs = [] %}
 {% if LOOPBACK_INTERFACE %}
 {%   for (name, prefix) in LOOPBACK_INTERFACE %}
-{%     if prefix | ipv6 %}
-{%       if lo_ipv6_addrs.append(prefix) %}
-{%       endif %}
-{%     else %}
-{%       if lo_ipv4_addrs.append(prefix) %}
+{%     if name == 'Loopback0' %}
+{%       if prefix | ipv6 %}
+{%         if lo_ipv6_addrs.append(prefix) %}
+{%         endif %}
+{%       else %}
+{%         if lo_ipv4_addrs.append(prefix) %}
+{%         endif %}
 {%       endif %}
 {%     endif %}
 {%   endfor %}
