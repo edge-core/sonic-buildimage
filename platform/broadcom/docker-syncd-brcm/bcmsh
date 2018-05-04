@@ -1,0 +1,35 @@
+#!/bin/bash
+usage="$(basename "$0") [-h] [-q] -- interactive shell for bcm service
+
+where:
+    -h  show this help text
+    -q  quite, no banner (default: verbose)"
+
+banner="Press Enter to show prompt.
+Press Ctrl+C to exit.
+"
+
+# Default verbose
+quiet=false
+
+while getopts 'hq' option; do
+  case "$option" in
+    h) echo "$usage"
+       exit
+       ;;
+    q) quiet=true
+       ;;
+   \?) printf "illegal option: -%s\n" "$OPTARG" >&2
+       echo "$usage" >&2
+       exit 1
+       ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+if [ "$quiet" = false ]; then
+    echo "$banner"
+fi
+
+/usr/bin/socat - UNIX-CONNECT:/var/run/sswsyncd/sswsyncd.socket
+

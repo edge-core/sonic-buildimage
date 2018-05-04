@@ -31,6 +31,9 @@ RUN apt-get -y install \
     python             \
     less
 
+# Pre-install troubleshooting packages
+RUN apt-get -y install socat
+
 COPY ["etc/rsyslog.conf", "/etc/rsyslog.conf"]
 COPY ["etc/rsyslog.d/*", "/etc/rsyslog.d/"]
 COPY ["root/.vimrc", "/root/.vimrc"]
