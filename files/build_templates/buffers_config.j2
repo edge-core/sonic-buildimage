@@ -4,7 +4,7 @@
 {%- else %}
 def
 {%- endif %}
-{%- endmacro %}
+{%- endmacro -%}
 
 {# Determine device topology and filename postfix #}
 {%- if DEVICE_METADATA is defined %}
@@ -19,12 +19,12 @@ def
 {%- else %}
 {%-     set filename_postfix = set_default_topology() %}
 {%-     set switch_role      = '' %}
-{%- endif %}
+{%- endif -%}
 
 {# Import default values from device HWSKU folder #}
 {%- import 'buffers_defaults_%s.j2' % filename_postfix as defs %}
 
-{%- set default_cable = defs.default_cable %}
+{%- set default_cable = defs.default_cable -%}
 
 {# Port configuration to cable length look-up table #}
 {# Each record describes mapping of DUT (DUT port) role and neighbor role to cable length #}
@@ -106,13 +106,28 @@ def
     {% endfor %}
     }
     },
-{% set bufs = defs.generate_buffer_pool_and_profiles() %}
-{{ bufs }}
+
+{% if defs.generate_buffer_pool_and_profiles is defined %}
+{{ defs.generate_buffer_pool_and_profiles() }}
+{% endif %}
+
+{%- if defs.generate_profile_lists is defined %}
+{{ defs.generate_profile_lists(port_names_all) }},
+{% endif %}
+
+{%- if defs.generate_pg_profils is defined %}
+{{ defs.generate_pg_profils }},
+{% else %}
     "BUFFER_PG": {
         "{{ port_names_all }}|0-1": {
             "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
         }
     },
+{% endif %}
+
+{% if defs.generate_queue_buffers is defined %}
+{{ defs.generate_queue_buffers(port_names_all) }}
+{% else %}
     "BUFFER_QUEUE": {
         "{{ port_names_all }}|3-4": {
             "profile" : "[BUFFER_PROFILE|egress_lossless_profile]"
@@ -121,4 +136,5 @@ def
             "profile" : "[BUFFER_PROFILE|egress_lossy_profile]"
         }
     }
+{% endif %}
 }
