@@ -12,8 +12,8 @@ GUID = $(shell id -g)
 
 .SECONDEXPANSION:
 
-SPACE :=
-SPACE +=
+NULL :=
+SPACE := $(NULL) $(NULL)
 
 ###############################################################################
 ## General definitions
