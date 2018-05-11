@@ -44,7 +44,7 @@ sw-srv0 (id: 5)
 2. Start sonic virtual switch docker
 
 ```
-$ docker run --privileged --network container:sw -d docker-sonic-vs
+$ docker run --privileged --network container:sw --name vs -d docker-sonic-vs
 ```
 
 3. Setup IP in the virtual switch docker
