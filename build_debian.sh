@@ -301,6 +301,7 @@ set /files/etc/sysctl.conf/net.ipv6.conf.eth0.forwarding 0
 
 set /files/etc/sysctl.conf/net.ipv6.conf.default.accept_dad 0
 set /files/etc/sysctl.conf/net.ipv6.conf.all.accept_dad 0
+set /files/etc/sysctl.conf/net.ipv6.conf.eth0.accept_dad 0
 
 set /files/etc/sysctl.conf/net.ipv6.conf.eth0.accept_ra_defrtr 0
 
