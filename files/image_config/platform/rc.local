@@ -126,19 +126,31 @@ if [ ! -e /host/machine.conf ]; then
 
     if [ -n "$nos_dev" ]; then
         # Mount the previous NOS's partition
-        mkdir -p /mnt/nos_migration
-        mount $nos_dev /mnt/nos_migration
+        NOS_DIR=/mnt/nos_migration
+        MG_GZFILE=$NOS_DIR/minigraph.xml.gz.base64.txt
+        MG_FILE=$NOS_DIR/minigraph.xml
+        ACL_GZFILE=$NOS_DIR/acl.json.gz.base64.txt
+        ACL_FILE=$NOS_DIR/acl.json
+        SNMP_FILE=$NOS_DIR/snmp.yml
+        mkdir -p $NOS_DIR
+        mount $nos_dev $NOS_DIR
         mkdir -p /host/fast-reboot
 
-        # Copy relevant files
-        nos_migration_import /mnt/nos_migration/mgmt_interface.cfg /host/migration
-        nos_migration_import /mnt/nos_migration/minigraph.xml /host/migration
-        nos_migration_import /mnt/nos_migration/arp.json /host/fast-reboot
-        nos_migration_import /mnt/nos_migration/fdb.json /host/fast-reboot
-        nos_migration_import /mnt/nos_migration/default_routes.json /host/fast-reboot
+        # decode & unzip minigraph.xml.gz.base64.txt
+        [ -f $MG_GZFILE ] && /usr/bin/base64 -d $MG_GZFILE | /bin/gunzip > $MG_FILE
+        [ -f $ACL_GZFILE ] && /usr/bin/base64 -d $ACL_GZFILE | /bin/gunzip > $ACL_FILE
 
-        umount /mnt/nos_migration
-        rmdir /mnt/nos_migration
+        # Copy relevant files
+        nos_migration_import $NOS_DIR/mgmt_interface.cfg /host/migration
+        nos_migration_import $MG_FILE /host/migration
+        nos_migration_import $ACL_FILE /host/migration
+        nos_migration_import $SNMP_FILE /host/migration
+        nos_migration_import $NOS_DIR/arp.json /host/fast-reboot
+        nos_migration_import $NOS_DIR/fdb.json /host/fast-reboot
+        nos_migration_import $NOS_DIR/default_routes.json /host/fast-reboot
+
+        umount $NOS_DIR
+        rmdir $NOS_DIR
     fi
 
     update_mgmt_interface_macaddr /host/migration/mgmt_interface.cfg
@@ -196,6 +208,8 @@ if [ -f /host/image-$sonic_version/platform/firsttime ]; then
     elif [ -n "$migration" ] && [ -f /host/migration/minigraph.xml ];  then
         mkdir -p /etc/sonic/old_config
         mv /host/migration/minigraph.xml /etc/sonic/old_config/
+        [ -f /host/migration/acl.json ] && mv /host/migration/acl.json /etc/sonic/old_config/
+        [ -f /host/migration/snmp.yml ] && mv /host/migration/snmp.yml /etc/sonic/old_config/
         touch /tmp/pending_config_migration
         [ -f /etc/sonic/updategraph.conf ] && sed -i -e "s/enabled=false/enabled=true/g" /etc/sonic/updategraph.conf
     else
