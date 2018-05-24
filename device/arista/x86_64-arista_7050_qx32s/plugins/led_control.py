@@ -80,17 +80,6 @@ class LedControl(LedControlBase):
         with open("/sys/class/leds/psu2/brightness", "w") as f:
             f.write("1")
 
-        # Initialize all fan LEDs to green
-        with open("/sys/devices/pci0000:00/0000:00:02.2/0000:02:00.0/i2c-3/3-0060/hwmon/hwmon4/fan1_led", "w") as f:
-            f.write("1")
-        with open("/sys/devices/pci0000:00/0000:00:02.2/0000:02:00.0/i2c-3/3-0060/hwmon/hwmon4/fan2_led", "w") as f:
-            f.write("1")
-        with open("/sys/devices/pci0000:00/0000:00:02.2/0000:02:00.0/i2c-3/3-0060/hwmon/hwmon4/fan3_led", "w") as f:
-            f.write("1")
-        with open("/sys/devices/pci0000:00/0000:00:02.2/0000:02:00.0/i2c-3/3-0060/hwmon/hwmon4/fan4_led", "w") as f:
-            f.write("1")
-
-
         # Initialize: Turn all front panel QSFP LEDs off
         for qsfp_index in range(self.QSFP_BREAKOUT_START_IDX, self.QSFP_BREAKOUT_END_IDX + 1):
             for lane in range(1, 5):
