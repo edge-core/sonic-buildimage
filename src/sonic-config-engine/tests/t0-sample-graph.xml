@@ -338,6 +338,17 @@
         <StartDevice>switch-t0</StartDevice>
         <StartPort>fortyGigE0/124</StartPort>
       </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <AutoNegotiation>true</AutoNegotiation>
+        <Bandwidth>10000</Bandwidth>
+        <EndDevice>switch-t0</EndDevice>
+        <EndPort>fortyGigE0/2</EndPort>
+        <FlowControl>true</FlowControl>
+        <StartDevice>ARISTA05T1</StartDevice>
+        <StartPort>Ethernet1/33</StartPort>
+        <Validate>true</Validate>
+      </DeviceLinkBase>
     </DeviceInterfaceLinks>
     <Devices>
       <Device i:type="ToRRouter">
