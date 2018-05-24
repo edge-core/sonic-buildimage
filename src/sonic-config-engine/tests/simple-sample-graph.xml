@@ -125,6 +125,11 @@
           <AttachTo>fortyGigE0/4</AttachTo>
           <SubInterface/>
         </PortChannel>
+        <PortChannel>
+          <Name>PortChannel1001</Name>
+          <AttachTo>fortyGigE0/1;fortyGigE0/2</AttachTo>
+          <SubInterface/>
+        </PortChannel>
       </PortChannelInterfaces>
       <VlanInterfaces>
         <VlanInterface>
@@ -146,6 +151,16 @@
           <Name i:Name="true"/>
           <AttachTo>PortChannel01</AttachTo>
           <Prefix>FC00::71/126</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:nil="true"/>
+          <AttachTo>PortChannel1001</AttachTo>
+          <Prefix>10.0.0.57/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>PortChannel1001</AttachTo>
+          <Prefix>FC00::72/126</Prefix>
         </IPInterface>
         <IPInterface>
           <Name i:nil="true"/>
@@ -191,6 +206,28 @@
         <FlowControl>true</FlowControl>
         <StartDevice>switch-t0</StartDevice>
         <StartPort>fortyGigE0/8</StartPort>
+        <Validate>true</Validate>
+      </DeviceLinkBase>
+      <DeviceLinkBase i:type="DeviceInterfaceLink">
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <AutoNegotiation>true</AutoNegotiation>
+        <Bandwidth>10000</Bandwidth>
+        <EndDevice>switch-t0</EndDevice>
+        <EndPort>fortyGigE0/1</EndPort>
+        <FlowControl>true</FlowControl>
+        <StartDevice>ARISTA05T1</StartDevice>
+        <StartPort>Ethernet1/32</StartPort>
+        <Validate>true</Validate>
+      </DeviceLinkBase>
+      <DeviceLinkBase i:type="DeviceInterfaceLink">
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <AutoNegotiation>true</AutoNegotiation>
+        <Bandwidth>10000</Bandwidth>
+        <EndDevice>switch-t0</EndDevice>
+        <EndPort>fortyGigE0/2</EndPort>
+        <FlowControl>true</FlowControl>
+        <StartDevice>ARISTA06T1</StartDevice>
+        <StartPort>Ethernet1/33</StartPort>
         <Validate>true</Validate>
       </DeviceLinkBase>
     </DeviceInterfaceLinks>
@@ -240,7 +277,20 @@
           <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
-          <InterfaceName>fortyGigE0/1</InterfaceName>
+          <InterfaceName>Ethernet1</InterfaceName>
+          <InterfaceType i:nil="true"/>
+          <MultiPortsInterface>false</MultiPortsInterface>
+          <PortName>0</PortName>
+          <Priority>0</Priority>
+          <Speed>10000</Speed>
+        </a:EthernetInterface>
+        <a:EthernetInterface>
+          <ElementType>DeviceInterface</ElementType>
+          <AlternateSpeeds i:nil="true"/>
+          <EnableAutoNegotiation>true</EnableAutoNegotiation>
+          <EnableFlowControl>true</EnableFlowControl>
+          <Index>1</Index>
+          <InterfaceName>Ethernet2</InterfaceName>
           <InterfaceType i:nil="true"/>
           <MultiPortsInterface>false</MultiPortsInterface>
           <PortName>0</PortName>
