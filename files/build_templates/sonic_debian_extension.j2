@@ -154,6 +154,11 @@ sudo cp $IMAGE_CONFIGS/hostname/hostname-config.service  $FILESYSTEM_ROOT/etc/sy
 sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable hostname-config.service
 sudo cp $IMAGE_CONFIGS/hostname/hostname-config.sh $FILESYSTEM_ROOT/usr/bin/
 
+# Copy serial-port-watchdog configuration scripts
+sudo cp $IMAGE_CONFIGS/serial-port-watchdog/serial-port-watchdog.service  $FILESYSTEM_ROOT/etc/systemd/system/
+sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable serial-port-watchdog.service
+sudo cp $IMAGE_CONFIGS/serial-port-watchdog/serial-port-watchdog.py $FILESYSTEM_ROOT/usr/bin/
+
 # Copy updategraph script and service file
 sudo cp $IMAGE_CONFIGS/updategraph/updategraph.service  $FILESYSTEM_ROOT/etc/systemd/system/
 sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable updategraph.service

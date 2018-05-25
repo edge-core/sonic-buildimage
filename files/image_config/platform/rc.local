@@ -183,15 +183,51 @@ for x in "$@"; do
 done
 }
 
-eval sonic_version=$(cat /etc/sonic/sonic_version.yml | grep build_version | cut -f2 -d" ")
-
-if [ -f /host/image-$sonic_version/platform/firsttime ]; then
-
+setup_platform()
+{
     if [ -n "$aboot_platform" ]; then
         platform=$aboot_platform
     elif [ -n "$onie_platform" ]; then
         platform=$onie_platform
     else
+        platform=''
+    fi
+}
+
+# Setup default values in this function before reading installer.conf
+# installer.conf could override the value set in this function.
+setup_platform_defaults()
+{
+    # Default serial port: ttyS0
+    CONSOLE_DEV=0
+}
+
+load_platform_installer_config()
+{
+    INSTALLER_CFG=/usr/share/sonic/device/$platform/installer.conf
+    if [ -f $INSTALLER_CFG ]; then
+        . $INSTALLER_CFG
+    fi
+}
+
+program_serial_port()
+{
+    sed -i "s|ttyS.|ttyS$CONSOLE_DEV|g" /etc/systemd/system/serial-port-watchdog.service
+    systemctl daemon-reload
+    systemctl restart serial-port-watchdog.service
+}
+
+eval sonic_version=$(cat /etc/sonic/sonic_version.yml | grep build_version | cut -f2 -d" ")
+
+setup_platform
+setup_platform_defaults
+load_platform_installer_config
+
+program_serial_port
+
+if [ -f /host/image-$sonic_version/platform/firsttime ]; then
+
+    if [ -z "$platform" ]; then
         echo "Unknown sonic platform"
         firsttime_exit
     fi
