@@ -52,7 +52,7 @@ start() {
 
         # docker created with a different HWSKU, remove and recreate
         echo "Removing obsolete {{docker_container_name}} container with HWSKU $DOCKERMOUNT"
-        docker rm {{docker_container_name}}
+        docker rm -f {{docker_container_name}}
     fi
 
 {%- if docker_container_name == "database" %}
