@@ -106,6 +106,9 @@ if [ "$src" = "dhcp" ]; then
     fi
     if [ "`cat /tmp/dhcp_graph_url`" = "N/A" ]; then
         echo "'N/A' found in DHCP response. Skipping graph update and generating an empty configuration."
+        if [ ! -f /etc/sonic/minigraph.xml ]; then
+            copy_default_minigraph
+        fi
         echo '{"DEVICE_METADATA":' > /tmp/device_meta.json
         sonic-cfggen -H -m /etc/sonic/minigraph.xml --var-json DEVICE_METADATA >> /tmp/device_meta.json
         echo '}' >> /tmp/device_meta.json
