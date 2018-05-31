@@ -1,7 +1,5 @@
 [Unit]
 Description=Monitor serial port processes, kill stuck ones
-Requires=
-After=rc.local.Service
 
 [Service]
 ExecStart=/usr/bin/serial-port-watchdog.py -t ttyS0
