@@ -127,35 +127,23 @@
         }
     },
     "WRED_PROFILE": {
-        "AZURE_LOSSY" : {
-            "wred_green_enable":"true",
-            "wred_yellow_enable":"true",
-            "ecn":"ecn_all",
-            "red_max_threshold":"512000",
-            "red_min_threshold":"512000",
-            "yellow_max_threshold":"512000",
-            "yellow_min_threshold":"512000",
-            "green_max_threshold": "184320",
-            "green_min_threshold": "184320"
-        },
         "AZURE_LOSSLESS" : {
             "wred_green_enable":"true",
             "wred_yellow_enable":"true",
+            "wred_red_enable":"true",
             "ecn":"ecn_all",
-            "red_max_threshold":"512000",
-            "red_min_threshold":"512000",
-            "yellow_max_threshold":"512000",
-            "yellow_min_threshold":"512000",
-            "green_max_threshold": "184320",
-            "green_min_threshold": "184320"
+            "red_max_threshold":"312000",
+            "red_min_threshold":"104000",
+            "yellow_max_threshold":"312000",
+            "yellow_min_threshold":"104000",
+            "green_max_threshold": "312000",
+            "green_min_threshold": "104000"
         }
     },
     "QUEUE": {
-        "Ethernet0,Ethernet1,Ethernet2,Ethernet3,Ethernet4,Ethernet5,Ethernet6,Ethernet7,Ethernet8,Ethernet9,Ethernet10,Ethernet11,Ethernet12,Ethernet13,Ethernet14,Ethernet15,Ethernet16,Ethernet17,Ethernet18,Ethernet19,Ethernet20,Ethernet21,Ethernet22,Ethernet23,Ethernet24,Ethernet25,Ethernet26,Ethernet27,Ethernet28,Ethernet29,Ethernet30,Ethernet31,Ethernet32,Ethernet33,Ethernet34,Ethernet35,Ethernet36,Ethernet37,Ethernet38,Ethernet39,Ethernet40,Ethernet41,Ethernet42,Ethernet43,Ethernet44,Ethernet45,Ethernet46,Ethernet47,Ethernet48,Ethernet49,Ethernet50,Ethernet51,Ethernet52,Ethernet53,Ethernet54,Ethernet55,Ethernet56,Ethernet57,Ethernet58,Ethernet59,Ethernet60,Ethernet61,Ethernet62,Ethernet63|0-1" : {
-            "wred_profile"  :   "[WRED_PROFILE|AZURE_LOSSY]"
-        },
         "Ethernet0,Ethernet1,Ethernet2,Ethernet3,Ethernet4,Ethernet5,Ethernet6,Ethernet7,Ethernet8,Ethernet9,Ethernet10,Ethernet11,Ethernet12,Ethernet13,Ethernet14,Ethernet15,Ethernet16,Ethernet17,Ethernet18,Ethernet19,Ethernet20,Ethernet21,Ethernet22,Ethernet23,Ethernet24,Ethernet25,Ethernet26,Ethernet27,Ethernet28,Ethernet29,Ethernet30,Ethernet31,Ethernet32,Ethernet33,Ethernet34,Ethernet35,Ethernet36,Ethernet37,Ethernet38,Ethernet39,Ethernet40,Ethernet41,Ethernet42,Ethernet43,Ethernet44,Ethernet45,Ethernet46,Ethernet47,Ethernet48,Ethernet49,Ethernet50,Ethernet51,Ethernet52,Ethernet53,Ethernet54,Ethernet55,Ethernet56,Ethernet57,Ethernet58,Ethernet59,Ethernet60,Ethernet61,Ethernet62,Ethernet63|3-4" : {
-            "scheduler"     :   "[SCHEDULER|scheduler.0]"
+            "scheduler"     :   "[SCHEDULER|scheduler.0]",
+            "wred_profile"  :   "[WRED_PROFILE|AZURE_LOSSLESS]"
         },
         "Ethernet0,Ethernet1,Ethernet2,Ethernet3,Ethernet4,Ethernet5,Ethernet6,Ethernet7,Ethernet8,Ethernet9,Ethernet10,Ethernet11,Ethernet12,Ethernet13,Ethernet14,Ethernet15,Ethernet16,Ethernet17,Ethernet18,Ethernet19,Ethernet20,Ethernet21,Ethernet22,Ethernet23,Ethernet24,Ethernet25,Ethernet26,Ethernet27,Ethernet28,Ethernet29,Ethernet30,Ethernet31,Ethernet32,Ethernet33,Ethernet34,Ethernet35,Ethernet36,Ethernet37,Ethernet38,Ethernet39,Ethernet40,Ethernet41,Ethernet42,Ethernet43,Ethernet44,Ethernet45,Ethernet46,Ethernet47,Ethernet48,Ethernet49,Ethernet50,Ethernet51,Ethernet52,Ethernet53,Ethernet54,Ethernet55,Ethernet56,Ethernet57,Ethernet58,Ethernet59,Ethernet60,Ethernet61,Ethernet62,Ethernet63|0" : {
             "scheduler"     :   "[SCHEDULER|scheduler.1]"
