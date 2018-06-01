@@ -16,7 +16,7 @@ DERIVED_TARGETS = libnl-3-dev_$(LIBNL3_VERSION)_amd64.deb \
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# Obtaining the libnl3
 	rm -rf ./libnl3
-	git clone https://anonscm.debian.org/git/collab-maint/libnl3.git
+	git clone https://github.com/qiluo-msft/libnl3.git
 	pushd ./libnl3
 	git checkout -f b77c0e49cb
 

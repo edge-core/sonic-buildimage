@@ -11,7 +11,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	rm -rf ./isc-dhcp
 
 	# Clone isc-dhcp repo
-	git clone https://anonscm.debian.org/cgit/pkg-dhcp/isc-dhcp.git
+	git clone https://salsa.debian.org/berni/isc-dhcp.git
 	pushd ./isc-dhcp
 
 	# Reset HEAD to the commit of the proper tag

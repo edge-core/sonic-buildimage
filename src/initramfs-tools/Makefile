@@ -7,7 +7,7 @@ MAIN_TARGET = initramfs-tools_$(INITRAMFS_TOOLS_VERSION)_all.deb
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# Obtaining the initramfs-tools
 	rm -rf ./initramfs-tools
-	git clone --branch v0.120 https://anonscm.debian.org/git/kernel/initramfs-tools.git ./initramfs-tools
+	git clone --branch v0.120 https://salsa.debian.org/kernel-team/initramfs-tools.git ./initramfs-tools
 
 	# Patch
 	pushd ./initramfs-tools
