@@ -22,7 +22,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	popd
 
 	# Obtain debian packaging
-	git clone https://anonscm.debian.org/git/collab-maint/libteam.git tmp
+	git clone https://salsa.debian.org/debian/libteam.git tmp
 	pushd ./tmp
 	git checkout -f da006f2 # v1.26
 	popd
