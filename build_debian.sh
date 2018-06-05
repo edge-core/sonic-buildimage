@@ -239,6 +239,12 @@ sudo dpkg --root=$FILESYSTEM_ROOT -i target/debs/libwrap0_*.deb || \
 ## Disable kexec supported reboot which was installed by default
 sudo sed -i 's/LOAD_KEXEC=true/LOAD_KEXEC=false/' $FILESYSTEM_ROOT/etc/default/kexec
 
+## Fix ping tools permission so non root user can directly use them
+## Note: this is a workaround since aufs doesn't support extended attributes
+## Ref: https://github.com/moby/moby/issues/5650#issuecomment-303499489
+## TODO: remove workaround when the overlay filesystem support extended attributes
+sudo chmod u+s $FILESYSTEM_ROOT/bin/ping{,6}
+
 ## Remove sshd host keys, and will regenerate on first sshd start
 sudo rm -f $FILESYSTEM_ROOT/etc/ssh/ssh_host_*_key*
 sudo cp files/sshd/host-ssh-keygen.sh $FILESYSTEM_ROOT/usr/local/bin/
