@@ -1,12 +1,12 @@
 .ONESHELL:
 SHELL = /bin/bash
 
-MFT_NAME = mft-4.5.0-31-x86_64-deb
+MFT_NAME = mft-$(MFT_VERSION)-$(MFT_REVISION)-x86_64-deb
 MFT_TGZ = $(MFT_NAME).tgz
-SRC_DEB = kernel-mft-dkms_4.5.0-31_all.deb
+SRC_DEB = kernel-mft-dkms_$(MFT_VERSION)-$(MFT_REVISION)_all.deb
 
-MAIN_TARGET = mft-4.5.0-31.amd64.deb
-DERIVED_TARGETS = kernel-mft-dkms_4.5.0-$(KVERSION)_all.deb
+MAIN_TARGET = mft-$(MFT_VERSION)-$(MFT_REVISION).amd64.deb
+DERIVED_TARGETS = kernel-mft-dkms_$(MFT_VERSION)-$(KVERSION)_all.deb mft-oem-$(MFT_VERSION)-$(MFT_REVISION).amd64.deb
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	rm -rf $(MFT_NAME)
@@ -21,11 +21,11 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	fi
 	done
 
-	tar xvf `sudo dkms mkdriverdisk kernel-mft-dkms/4.5.0 -a all -d ubuntu -k $(KVERSION) --media tar | grep "Disk image location" | cut -d':' -f2`
+	tar xvf `sudo dkms mkdriverdisk kernel-mft-dkms/$(MFT_VERSION) -a all -d ubuntu -k $(KVERSION) --media tar | grep "Disk image location" | cut -d':' -f2`
 	popd
 
 	# fix timestamp because we do not actually build tools, only kernel
-	touch $(MFT_NAME)/DEBS/$*
-	mv $(MFT_NAME)/SDEBS/ubuntu-drivers/3.16.0/$(DERIVED_TARGETS) $(MFT_NAME)/DEBS/$* $(DEST)
+	touch $(MFT_NAME)/DEBS/*
+	mv $(MFT_NAME)/SDEBS/ubuntu-drivers/3.16.0/kernel-mft-dkms_$(MFT_VERSION)-$(KVERSION)_all.deb $(MFT_NAME)/DEBS/* $(DEST)
 
 $(addprefix $(DEST)/, $(DERIVED_TARGETS)): $(DEST)/% : $(DEST)/$(MAIN_TARGET)
