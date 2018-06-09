@@ -76,10 +76,14 @@ endif
 
 ifeq ($(USERNAME),)
 override USERNAME := $(DEFAULT_USERNAME)
+else
+$(warning USERNAME given on command line: could be visible to other users)
 endif
 
 ifeq ($(PASSWORD),)
 override PASSWORD := $(DEFAULT_PASSWORD)
+else
+$(warning PASSWORD given on command line: could be visible to other users)
 endif
 
 ifeq ($(SONIC_BUILD_JOBS),)
@@ -100,8 +104,8 @@ $(info "CONFIGURED_PLATFORM"             : "$(if $(PLATFORM),$(PLATFORM),$(CONFI
 $(info "SONIC_CONFIG_PRINT_DEPENDENCIES" : "$(SONIC_CONFIG_PRINT_DEPENDENCIES)")
 $(info "SONIC_BUILD_JOBS"                : "$(SONIC_BUILD_JOBS)")
 $(info "SONIC_CONFIG_MAKE_JOBS"          : "$(SONIC_CONFIG_MAKE_JOBS)")
-$(info "DEFAULT_USERNAME"                : "$(DEFAULT_USERNAME)")
-$(info "DEFAULT_PASSWORD"                : "$(DEFAULT_PASSWORD)")
+$(info "USERNAME"                        : "$(USERNAME)")
+$(info "PASSWORD"                        : "$(PASSWORD)")
 $(info "ENABLE_DHCP_GRAPH_SERVICE"       : "$(ENABLE_DHCP_GRAPH_SERVICE)")
 $(info "SHUTDOWN_BGP_ON_START"           : "$(SHUTDOWN_BGP_ON_START)")
 $(info "ENABLE_PFCWD_ON_START"           : "$(ENABLE_PFCWD_ON_START)")
@@ -484,8 +488,14 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
 
 	DIRTY_SUFFIX="$(shell date +%Y%m%d\.%H%M%S)"
 	export DIRTY_SUFFIX
-	./build_debian.sh "$(USERNAME)" "$(shell perl -e 'print crypt("$(PASSWORD)", "salt"),"\n"')" $(LOG)
-	TARGET_MACHINE=$($*_MACHINE) IMAGE_TYPE=$($*_IMAGE_TYPE) ./build_image.sh $(LOG)
+
+	USERNAME="$(USERNAME)" \
+	PASSWORD="$(PASSWORD)" \
+		./build_debian.sh $(LOG)
+
+	TARGET_MACHINE=$($*_MACHINE) \
+	IMAGE_TYPE=$($*_IMAGE_TYPE) \
+		./build_image.sh $(LOG)
 
 	$(foreach docker, $($*_DOCKERS), \
 		rm -f $($(docker)_CONTAINER_NAME).sh
