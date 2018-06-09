@@ -4,8 +4,8 @@ DOCKER_SONIC_VS = docker-sonic-vs.gz
 $(DOCKER_SONIC_VS)_PATH = $(PLATFORM_PATH)/docker-sonic-vs
 $(DOCKER_SONIC_VS)_DEPENDS += $(SWSS) \
                               $(SYNCD_VS) \
-                              $(REDIS_SERVER) \
                               $(REDIS_TOOLS) \
+                              $(REDIS_SERVER) \
                               $(PYTHON_SWSSCOMMON) \
                               $(LIBTEAMDCT) \
                               $(LIBTEAM_UTILS) \

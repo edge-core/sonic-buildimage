@@ -1,50 +1,62 @@
 FROM docker-config-engine
 
-COPY [ \
-{% for deb in docker_snmp_sv2_debs.split(' ') -%}
-    "debs/{{ deb }}",
-{%- endfor %} \
-    "/debs/"]
-
-# Install Python SwSSSDK (SNMP subagent dependency)
-COPY python-wheels/sonic_utilities-*-py3-*.whl /python-wheels/
-COPY python-wheels/swsssdk-*-py3-*.whl /python-wheels/
-COPY python-wheels/asyncsnmp-*-py3-*.whl /python-wheels/
-
-# enable -O for all Python calls
+# Enable -O for all Python calls
 ENV PYTHONOPTIMIZE 1
 
-## Make apt-get non-interactive
+# Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
-# install libsnmp30 dependencies
-# install libpython3.6-dev dependencies
-# install pip dependencies
-# TODO: remove libpython3.6-dev, its and pip's dependencies if we can get pip3 directly
-# install subagent
-# clean up
-RUN apt-get update && apt-get install -y libperl5.20 libpci3 libwrap0 \
-            libexpat1-dev \
-            curl gcc && \
-    dpkg -i \
-{% for deb in docker_snmp_sv2_debs.split(' ') -%}
-        debs/{{ deb }}{{' '}}
-{%- endfor %} && \
-    rm -rf /debs && \
-    curl https://bootstrap.pypa.io/get-pip.py | python3.6 && \
-    python3.6 -m pip install --no-cache-dir /python-wheels/*py3*.whl hiredis && \
-    rm -rf /python-wheels && \
-    python3.6 -m sonic_ax_impl install && \
-    apt-get -y purge libpython3.6-dev libexpat1-dev curl gcc && \
-    apt-get clean -y && apt-get autoclean -y && apt-get autoremove -y --purge && \
-    find / | grep -E "__pycache__" | xargs rm -rf && \
-    rm -rf ~/.cache
+# Update apt's cache of available packages
+RUN apt-get update
+
+# Install curl so we can download and install pip later
+# Also install major root CA certificates for curl to reference
+RUN apt-get install -y curl ca-certificates
+
+# Install gcc which is required for installing hiredis
+RUN apt-get install -y gcc
+
+{% if docker_snmp_sv2_debs.strip() -%}
+# Copy locally-built Debian package dependencies
+{%- for deb in docker_snmp_sv2_debs.split(' ') %}
+COPY debs/{{ deb }} /debs/
+{%- endfor %}
+
+# Install locally-built Debian packages and implicitly install their dependencies
+{%- for deb in docker_snmp_sv2_debs.split(' ') %}
+RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /debs/{{ deb }}
+{%- endfor %}
+{%- endif %}
+
+# Install up-to-date version of pip
+RUN curl https://bootstrap.pypa.io/get-pip.py | python3.6
+RUN python3.6 -m pip install --no-cache-dir hiredis
+
+{% if docker_snmp_sv2_whls.strip() -%}
+# Copy locally-built Python wheel dependencies
+{%- for whl in docker_snmp_sv2_whls.split(' ') %}
+COPY python-wheels/{{ whl }} /python-wheels/
+{%- endfor %}
+
+# Install locally-built Python wheel dependencies
+{%- for whl in docker_snmp_sv2_whls.split(' ') %}
+RUN pip install /python-wheels/{{ whl }}
+{%- endfor %}
+{% endif %}
+
+RUN python3.6 -m sonic_ax_impl install
+
+# Clean up
+RUN apt-get -y purge libpython3.6-dev curl gcc
+RUN apt-get clean -y && apt-get autoclean -y && apt-get autoremove -y --purge
+RUN find / | grep -E "__pycache__" | xargs rm -rf
+RUN rm -rf /debs /python-wheels ~/.cache
 
 COPY ["start.sh", "/usr/bin/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 COPY ["*.j2", "/usr/share/sonic/templates/"]
 
-## Although exposing ports is not needed for host net mode, keep it for possible bridge mode
+# Although exposing ports is not needed for host net mode, keep it for possible bridge mode
 EXPOSE 161/udp 162/udp
 
 ENTRYPOINT ["/usr/bin/supervisord"]

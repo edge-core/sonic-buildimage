@@ -43,20 +43,23 @@ RUN apt-get install -y net-tools \
 RUN pip install setuptools
 RUN pip install py2_ipaddress
 
-COPY \
-{% for deb in docker_sonic_vs_debs.split(' ') -%}
-debs/{{ deb }}{{' '}}
-{%- endfor -%}
-debs/
-
-RUN dpkg -i \
-{% for deb in docker_sonic_vs_debs.split(' ') -%}
-debs/{{ deb }}{{' '}}
+{% if docker_sonic_vs_debs.strip() -%}
+# Copy locally-built Debian package dependencies
+{%- for deb in docker_sonic_vs_debs.split(' ') %}
+COPY debs/{{ deb }} /debs/
 {%- endfor %}
 
-## Clean up
-RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
-RUN rm -rf /debs
+# Install locally-built Debian packages and implicitly install their dependencies
+{%- for deb in docker_sonic_vs_debs.split(' ') %}
+RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /debs/{{ deb }}
+{%- endfor %}
+{%- endif %}
+
+# Clean up
+RUN apt-get clean -y
+RUN apt-get autoclean -y
+RUN apt-get autoremove -y
+RUN rm -rf /debs ~/.cache
 
 RUN sed -ri 's/^(save .*$)/# \1/g;                                                      \
              s/^daemonize yes$/daemonize no/;                                           \
