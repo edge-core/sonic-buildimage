@@ -5,7 +5,7 @@ sed -n -e '9,$p' < "$0" | vtysh "$@"
 ## Exit with vtysh return code
 exit $?
 
-## vtysh script start from next line, which line number MUST eqaul in 'sed' command above
+## vtysh script start from next line, which line number MUST equal in 'sed' command above
 
 configure terminal
   router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
