@@ -53,3 +53,6 @@ def get_system_mac():
         mac = mac[:-2] + aligned_last_byte
     return mac
 
+def get_fast_reboot_status():
+    with open('/proc/cmdline') as fp:
+        return 'fast-reboot' in fp.read()

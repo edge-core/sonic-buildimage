@@ -1,0 +1,2 @@
+# Change linkscan interval to 0.25 sec after 3 minutes after start on Dell S6100
+@reboot root sleep 180 && [ $(/usr/local/bin/sonic-cfggen -H -v DEVICE_METADATA.localhost.platform) = 'x86_64-dell_s6100_c2538-r0' ] && [ $(/usr/local/bin/sonic-cfggen -H -v DEVICE_METADATA.localhost.fast_reboot) = 'True' ] && /usr/bin/docker exec -i syncd bcmcmd 'linkscan i=250000' > /dev/null 2>&1

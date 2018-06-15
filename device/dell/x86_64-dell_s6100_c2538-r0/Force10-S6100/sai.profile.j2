@@ -11,3 +11,13 @@
 {%- endif %}
 {# Write the contents of sai_ profile_filename to sai.profile file #}
 {{ sai_profile_contents }}
+{# make linkscan interval time equal to 2.0 sec to make Fast-Reboot faster #}
+{%- if DEVICE_METADATA is defined and DEVICE_METADATA['localhost'] is defined and DEVICE_METADATA['localhost']['fast_reboot'] is defined -%}
+{%-     set fast_reboot = DEVICE_METADATA['localhost']['fast_reboot'] -%}
+{%-     if fast_reboot %}
+{%-         set sai_profile_contents = 'SAI_BCM_LINKSCAN_INTERVAL=2000000' -%}
+{%-     else %}
+{%-         set sai_profile_contents = '' -%}
+{%-     endif %}
+{{ sai_profile_contents }}
+{%- endif %}
