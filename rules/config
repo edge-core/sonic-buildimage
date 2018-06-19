@@ -40,9 +40,9 @@ DEFAULT_PASSWORD = YourPaSsWoRd
 # by default for TOR switch
 # ENABLE_PFCWD_ON_START = y
 
-# SONIC_CONFIG_DEBUG - install debug packages
+# SONIC_INSTALL_DEBUG_TOOLS - installs debugging tools in baseline docker
 # Uncomment next line to enable:
-# SONIC_CONFIG_DEBUG = y
+# SONIC_INSTALL_DEBUG_TOOLS = y
 
 # SONIC_ROUTING_STACK - specify the routing-stack being elected to drive SONiC's control-plane.
 # Quagga will be the default routing-stack for all the SONiC platforms. Other supported
@@ -55,6 +55,14 @@ SONIC_ROUTING_STACK = quagga
 
 # Enable Origanization Extensions - Specific to the deployment scenarios of the Organization
 ENABLE_ORGANIZATION_EXTENSIONS = y
+
+# Debugging option allows sonic debian packages to get built including symbols
+# information. Profiling option, disables compiler optimizations (-O0) as well
+# as includes symbols information. Given that 'profiling' option is a superset
+# of 'debugging' one, user should only enable either one option or the other --
+# if both options are enabled, the 'profiling' one will prevail.
+#SONIC_DEBUGGING_ON = y
+#SONIC_PROFILING_ON = y
 
 # ENABLE_SYSTEM_TELEMETRY - build docker-sonic-telemetry for system telemetry support
 # ENABLE_SYSTEM_TELEMETRY = y

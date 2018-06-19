@@ -5,7 +5,7 @@ $(DOCKER_BASE)_PATH = $(DOCKERS_PATH)/docker-base
 $(DOCKER_BASE)_DEPENDS += $(SUPERVISOR)
 $(DOCKER_BASE)_DEPENDS += $(LIBWRAP)
 
-ifeq ($(SONIC_CONFIG_DEBUG),y)
+ifeq ($(SONIC_INSTALL_DEBUG_TOOLS),y)
 GDB = gdb
 VIM = vim
 OPENSSH = openssh-client
