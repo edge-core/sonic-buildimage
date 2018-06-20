@@ -89,6 +89,32 @@ class ControlPlaneAclManager(object):
             if proc.returncode != 0:
                 log_error("Error running command '{}'".format(cmd))
 
+    def parse_int_to_tcp_flags(self, hex_value):
+        tcp_flags_str = ""
+        if hex_value & 0x01:
+            tcp_flags_str += "FIN,"
+        if hex_value & 0x02:
+            tcp_flags_str += "SYN,"
+        if hex_value & 0x04:
+            tcp_flags_str += "RST,"
+        if hex_value & 0x08:
+            tcp_flags_str += "PSH,"
+        if hex_value & 0x10:
+            tcp_flags_str += "ACK,"
+        if hex_value & 0x20:
+            tcp_flags_str += "URG,"
+        # iptables doesn't handle the flags below now. It has some special keys for it:
+        #   --ecn-tcp-cwr   This matches if the TCP ECN CWR (Congestion Window Received) bit is set.
+        #   --ecn-tcp-ece   This matches if the TCP ECN ECE (ECN Echo) bit is set.
+        # if hex_value & 0x40:
+        #     tcp_flags_str += "ECE,"
+        # if hex_value & 0x80:
+        #     tcp_flags_str += "CWR,"
+
+        # Delete the trailing comma
+        tcp_flags_str = tcp_flags_str[:-1]
+        return tcp_flags_str
+
     def get_acl_rules_and_translate_to_iptables_commands(self):
         """
         Retrieves current ACL tables and rules from Config DB, translates
@@ -191,32 +217,15 @@ class ControlPlaneAclManager(object):
 
                             rule_cmd += " --dport {}".format(dst_port)
 
-                            # If there are TCP flags present, append them
-                            if "TCP_FLAGS" in rule_props and rule_props["TCP_FLAGS"]:
-                                tcp_flags = int(rule_props["TCP_FLAGS"], 16)
+                            # If there are TCP flags present and ip protocol is TCP, append them
+                            if ip_protocol == "tcp" and "TCP_FLAGS" in rule_props and rule_props["TCP_FLAGS"]:
+                                tcp_flags, tcp_flags_mask = rule_props["TCP_FLAGS"].split("/")
 
-                                if tcp_flags > 0:
-                                    rule_cmd += " --tcp-flags "
+                                tcp_flags = int(tcp_flags, 16)
+                                tcp_flags_mask = int(tcp_flags_mask, 16)
 
-                                    if tcp_flags & 0x01:
-                                        rule_cmd += "FIN,"
-                                    if tcp_flags & 0x02:
-                                        rule_cmd += "SYN,"
-                                    if tcp_flags & 0x04:
-                                        rule_cmd += "RST,"
-                                    if tcp_flags & 0x08:
-                                        rule_cmd += "PSH,"
-                                    if tcp_flags & 0x10:
-                                        rule_cmd += "ACK,"
-                                    if tcp_flags & 0x20:
-                                        rule_cmd += "URG,"
-                                    if tcp_flags & 0x40:
-                                        rule_cmd += "ECE,"
-                                    if tcp_flags & 0x80:
-                                        rule_cmd += "CWR,"
-
-                                    # Delete the trailing comma
-                                    rule_cmd = rule_cmd[:-1]
+                                if tcp_flags_mask > 0:
+                                    rule_cmd += " --tcp-flags {mask} {flags}".format(mask = self.parse_int_to_tcp_flags(tcp_flags_mask), flags =  self.parse_int_to_tcp_flags(tcp_flags))
 
                             # Append the packet action as the jump target
                             rule_cmd += " -j {}".format(rule_props["PACKET_ACTION"])
