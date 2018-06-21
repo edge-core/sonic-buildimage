@@ -1,0 +1,121 @@
+
+{
+    "CABLE_LENGTH": {
+        "AZURE": {
+            "Ethernet0": "5m",
+            "Ethernet1": "5m",
+            "Ethernet2": "5m",
+            "Ethernet3": "5m",
+            "Ethernet4": "5m",
+            "Ethernet5": "5m",
+            "Ethernet6": "5m",
+            "Ethernet7": "5m",
+            "Ethernet8": "5m",
+            "Ethernet9": "5m",
+            "Ethernet10": "5m",
+            "Ethernet11": "5m",
+            "Ethernet12": "5m",
+            "Ethernet13": "5m",
+            "Ethernet14": "5m",
+            "Ethernet15": "5m",
+            "Ethernet16": "5m",
+            "Ethernet17": "5m",
+            "Ethernet18": "5m",
+            "Ethernet19": "5m",
+            "Ethernet20": "5m",
+            "Ethernet21": "5m",
+            "Ethernet22": "5m",
+            "Ethernet23": "5m",
+            "Ethernet24": "5m",
+            "Ethernet25": "5m",
+            "Ethernet26": "5m",
+            "Ethernet27": "5m",
+            "Ethernet28": "5m",
+            "Ethernet29": "5m",
+            "Ethernet30": "5m",
+            "Ethernet31": "5m",
+            "Ethernet32": "5m",
+            "Ethernet33": "5m",
+            "Ethernet34": "5m",
+            "Ethernet35": "5m",
+            "Ethernet36": "5m",
+            "Ethernet37": "5m",
+            "Ethernet38": "5m",
+            "Ethernet39": "5m",
+            "Ethernet40": "5m",
+            "Ethernet41": "5m",
+            "Ethernet42": "5m",
+            "Ethernet43": "5m",
+            "Ethernet44": "5m",
+            "Ethernet45": "5m",
+            "Ethernet46": "5m",
+            "Ethernet47": "5m",
+            "Ethernet48": "5m",
+            "Ethernet49": "5m",
+            "Ethernet50": "5m",
+            "Ethernet51": "5m",
+            "Ethernet52": "5m",
+            "Ethernet53": "5m",
+            "Ethernet54": "5m",
+            "Ethernet55": "5m",
+            "Ethernet56": "5m",
+            "Ethernet57": "5m",
+            "Ethernet58": "5m",
+            "Ethernet59": "5m",
+            "Ethernet60": "5m",
+            "Ethernet61": "5m",
+            "Ethernet62": "5m",
+            "Ethernet63": "5m"
+        }
+    },
+
+    "BUFFER_POOL": {
+        "ingress_lossless_pool": {
+            "size": "11213696",
+            "type": "ingress",
+            "mode": "dynamic",
+            "xoff": "3855488"
+        },
+        "egress_lossy_pool": {
+            "size": "9532224",
+            "type": "egress",
+            "mode": "dynamic"
+        },
+        "egress_lossless_pool": {
+            "size": "15982720",
+            "type": "egress",
+            "mode": "static"
+        }
+    },
+    "BUFFER_PROFILE": {
+        "ingress_lossy_profile": {
+            "pool":"[BUFFER_POOL|ingress_lossless_pool]",
+            "size":"0",
+            "dynamic_th":"3"
+        },
+        "egress_lossless_profile": {
+            "pool":"[BUFFER_POOL|egress_lossless_pool]",
+            "size":"1518",
+            "static_th":"3995680"
+        },
+        "egress_lossy_profile": {
+            "pool":"[BUFFER_POOL|egress_lossy_pool]",
+            "size":"1518",
+            "dynamic_th":"3"
+        }
+    },
+    "BUFFER_PG": {
+        "Ethernet0,Ethernet1,Ethernet4,Ethernet5,Ethernet6,Ethernet7,Ethernet8,Ethernet9,Ethernet10,Ethernet11,Ethernet12,Ethernet13,Ethernet14,Ethernet15,Ethernet16,Ethernet17,Ethernet20,Ethernet21,Ethernet22,Ethernet23,Ethernet24,Ethernet25,Ethernet26,Ethernet27,Ethernet28,Ethernet29,Ethernet30,Ethernet31,Ethernet32,Ethernet36,Ethernet37,Ethernet38,Ethernet39,Ethernet40,Ethernet41,Ethernet42,Ethernet48,Ethernet52,Ethernet53,Ethernet54,Ethernet55,Ethernet56,Ethernet57,Ethernet58|0-1": {
+            "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
+        }
+    },
+
+    "BUFFER_QUEUE": {
+        "Ethernet0,Ethernet1,Ethernet4,Ethernet5,Ethernet6,Ethernet7,Ethernet8,Ethernet9,Ethernet10,Ethernet11,Ethernet12,Ethernet13,Ethernet14,Ethernet15,Ethernet16,Ethernet17,Ethernet20,Ethernet21,Ethernet22,Ethernet23,Ethernet24,Ethernet25,Ethernet26,Ethernet27,Ethernet28,Ethernet29,Ethernet30,Ethernet31,Ethernet32,Ethernet36,Ethernet37,Ethernet38,Ethernet39,Ethernet40,Ethernet41,Ethernet42,Ethernet48,Ethernet52,Ethernet53,Ethernet54,Ethernet55,Ethernet56,Ethernet57,Ethernet58|3-4": {
+            "profile" : "[BUFFER_PROFILE|egress_lossless_profile]"
+        },
+        "Ethernet0,Ethernet1,Ethernet4,Ethernet5,Ethernet6,Ethernet7,Ethernet8,Ethernet9,Ethernet10,Ethernet11,Ethernet12,Ethernet13,Ethernet14,Ethernet15,Ethernet16,Ethernet17,Ethernet20,Ethernet21,Ethernet22,Ethernet23,Ethernet24,Ethernet25,Ethernet26,Ethernet27,Ethernet28,Ethernet29,Ethernet30,Ethernet31,Ethernet32,Ethernet36,Ethernet37,Ethernet38,Ethernet39,Ethernet40,Ethernet41,Ethernet42,Ethernet48,Ethernet52,Ethernet53,Ethernet54,Ethernet55,Ethernet56,Ethernet57,Ethernet58|0-1": {
+            "profile" : "[BUFFER_PROFILE|egress_lossy_profile]"
+        }
+    }
+}
