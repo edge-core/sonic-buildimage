@@ -10,6 +10,7 @@ Defaults        env_reset
 #Defaults        mail_badpass
 Defaults        secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 Defaults        env_keep += "VTYSH_PAGER"
+Defaults        lecture_file = /etc/sudoers.lecture
 
 # Host alias specification
 
