@@ -1,12 +1,9 @@
 [Unit]
 Description=SNMP container
-Requires=updategraph.service swss.service
-After=updategraph.service swss.service
+Requires=updategraph.service swss.service enable_counters.service
+After=updategraph.service swss.service enable_counters.service
 
 [Service]
 ExecStartPre=/usr/bin/{{docker_container_name}}.sh start
 ExecStart=/usr/bin/{{docker_container_name}}.sh attach
 ExecStop=/usr/bin/{{docker_container_name}}.sh stop
-
-[Install]
-WantedBy=multi-user.target

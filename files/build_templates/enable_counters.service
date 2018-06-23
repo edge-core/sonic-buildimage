@@ -1,0 +1,7 @@
+[Unit]
+Description=Enable SONiC counters
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/counterpoll queue enable
+RemainAfterExit=yes
