@@ -1,0 +1,7 @@
+[Unit]
+Description=Enable SONiC counters
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c '/usr/bin/counterpoll queue enable ; /usr/bin/counterpoll port enable ; /usr/bin/pfcwd counter_poll enable'
+RemainAfterExit=yes
