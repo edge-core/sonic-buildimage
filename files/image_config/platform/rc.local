@@ -11,6 +11,9 @@
 #
 # By default this script does nothing.
 
+SONIC_VERSION=$(sonic-cfggen -y /etc/sonic/sonic_version.yml -v build_version)
+FIRST_BOOT_FILE="/host/image-${SONIC_VERSION}/platform/firsttime"
+
 # In case the unit is migrating from another NOS, save the logs
 log_migration() {
     echo $1 >> /host/migration/migration.log
@@ -84,6 +87,51 @@ update_mgmt_interface_macaddr() {
     log_migration "/etc/udev/rules.d/70-persistent-net.rules : replacing $old_mac with $new_mac for eth0"
     sed -i "/eth0/ s/ATTR{address}==\"$old_mac\"/ATTR{address}==\"$new_mac\"/g" /etc/udev/rules.d/70-persistent-net.rules
 }
+
+firsttime_exit() {
+    rm -rf $FIRST_BOOT_FILE
+    exit 0
+}
+
+# Given a string of tuples of the form field=value, extract the value for a field
+# In : $string, $field
+# Out: $value
+value_extract() {
+    set -- $string
+    for x in "$@"; do
+        case "$x" in
+            $field=*)
+                value="${x#$field=}"
+        esac
+    done
+}
+
+# Set up previous and next reboot cause files
+process_reboot_cause() {
+    REBOOT_CAUSE_FILE="/var/cache/sonic/reboot-cause.txt"
+    PREVIOUS_REBOOT_CAUSE_FILE="/var/cache/sonic/previous-reboot-cause.txt"
+
+    # Set the previous reboot cause accordingly
+    # If this is the first boot after an image install, state that as the
+    # cause. Otherwise, move REBOOT_CAUSE_FILE to PREVIOUS_REBOOT_CAUSE_FILE.
+    # REBOOT_CAUSE_FILE should always exist, but we add the else case
+    # to ensure we always generate PREVIOUS_REBOOT_CAUSE_FILE here
+    if [ -f $FIRST_BOOT_FILE ]; then
+        echo "SONiC image installation" > $PREVIOUS_REBOOT_CAUSE_FILE
+    elif [ -f $REBOOT_CAUSE_FILE ]; then
+        mv -f $REBOOT_CAUSE_FILE $PREVIOUS_REBOOT_CAUSE_FILE
+    else
+        echo "Unknown reboot cause" > $PREVIOUS_REBOOT_CAUSE_FILE
+    fi
+
+    # Set the default cause for the next reboot
+    echo "Unexpected reboot" > $REBOOT_CAUSE_FILE
+}
+
+#### Begin Main Body ####
+
+# Set up previous and next reboot cause files
+process_reboot_cause
 
 # If the machine.conf is absent, it indicates that the unit booted
 # into SONiC from another NOS. Extract the machine.conf from ONIE.
@@ -161,38 +209,16 @@ fi
 
 . /host/machine.conf
 
-echo "install platform dependent packages at the first boot time"
+if [ -f $FIRST_BOOT_FILE ]; then
 
-firsttime_exit()
-{
-    rm /host/image-$sonic_version/platform/firsttime
-    exit 0
-}
-
-# Given a string of tuples of the form field=value, extract the value for a field
-# In : $string, $field
-# Out: $value
-value_extract()
-{
-set -- $string
-for x in "$@"; do
-    case "$x" in
-        $field=*)
-            value="${x#$field=}"
-    esac
-done
-}
-
-eval sonic_version=$(cat /etc/sonic/sonic_version.yml | grep build_version | cut -f2 -d" ")
-
-if [ -f /host/image-$sonic_version/platform/firsttime ]; then
+    echo "First boot detected. Performing first boot tasks..."
 
     if [ -n "$aboot_platform" ]; then
         platform=$aboot_platform
     elif [ -n "$onie_platform" ]; then
         platform=$onie_platform
     else
-        echo "Unknown sonic platform"
+        echo "Unknown SONiC platform"
         firsttime_exit
     fi
 
@@ -216,15 +242,15 @@ if [ -f /host/image-$sonic_version/platform/firsttime ]; then
         touch /tmp/pending_config_initialization
     fi
 
-    if [ -d /host/image-$sonic_version/platform/$platform ]; then
-        dpkg -i /host/image-$sonic_version/platform/$platform/*.deb
+    if [ -d /host/image-$SONIC_VERSION/platform/$platform ]; then
+        dpkg -i /host/image-$SONIC_VERSION/platform/$platform/*.deb
     fi
 
     # If the unit booted into SONiC from another NOS's grub,
     # we now install a grub for SONiC.
     if [ -n "$onie_platform" ] && [ -n "$migration" ]; then
 
-        grub_bin=$(ls /host/image-$sonic_version/platform/x86_64-grub/grub-pc-bin*.deb 2> /dev/null)
+        grub_bin=$(ls /host/image-$SONIC_VERSION/platform/x86_64-grub/grub-pc-bin*.deb 2> /dev/null)
         if [ -z "$grub_bin" ]; then
             log_migration "Unable to locate grub package !"
             firsttime_exit
@@ -302,7 +328,7 @@ if [ -f /host/image-$sonic_version/platform/firsttime ]; then
         mv /host/grub.cfg /host/grub/grub.cfg
     fi
 
-    rm /host/image-$sonic_version/platform/firsttime
+    firsttime_exit
 fi
 
 exit 0
