@@ -193,8 +193,6 @@ RUN apt-get update && apt-get install -y \
         python-netaddr \
         python-ipaddr \
         python-yaml \
-# For sonic utilities
-        python3-netaddr \
 # For lockfile
         procmail \
 # For gtest
@@ -213,7 +211,17 @@ RUN apt-get update && apt-get install -y \
         linuxdoc-tools \
         lynx \
         texlive-latex-extra \
-        texlive-latex-recommended
+        texlive-latex-recommended \
+# For python-click build
+        python-sphinx \
+        python-docutils \
+        python3-all \
+        python3-setuptools \
+        python3-sphinx \
+        python3-docutils \
+        python3-requests \
+        python3-pytest \
+        python3-colorama
 
 # For linux build
 RUN apt-get -y build-dep linux
