@@ -107,6 +107,10 @@ sonic-slave-bash :
 	    $(DOCKER_BUILD) ; }
 	@$(DOCKER_RUN) -t $(SLAVE_IMAGE):$(SLAVE_TAG) bash
 
+showtag:
+	@echo $(SLAVE_IMAGE):$(SLAVE_TAG)
+	@echo $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG)
+
 init :
 	@git submodule update --init --recursive
 	@git submodule foreach --recursive '[ -f .git ] && echo "gitdir: $$(realpath --relative-to=. $$(cut -d" " -f2 .git))" > .git'
