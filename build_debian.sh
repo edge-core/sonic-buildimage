@@ -222,7 +222,11 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     sysfsutils              \
     grub2-common            \
     ethtool                 \
-    screen
+    screen                  \
+    hping3                  \
+    python-scapy            \
+    tcptraceroute           \
+    mtr-tiny
 
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y download \
     grub-pc-bin
