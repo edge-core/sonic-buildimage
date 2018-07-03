@@ -10,6 +10,7 @@ include $(PLATFORM_PATH)/one-image.mk
 include $(PLATFORM_PATH)/libsaithrift-dev.mk
 include $(PLATFORM_PATH)/python-saithrift.mk
 include $(PLATFORM_PATH)/docker-ptf-mlnx.mk
+include $(PLATFORM_PATH)/mlnx-sfpd.mk
 
 SONIC_ALL += $(SONIC_ONE_IMAGE) \
              $(DOCKER_FPM)
