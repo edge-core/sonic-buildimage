@@ -169,6 +169,11 @@ platform_specific() {
         aboot_machine=arista_7260cx3_64
         flash_size=28000
     fi
+    if [ "$sid" = "Alhambra" ] || [ "$sid" = "AlhambraSsd" ]; then
+        aboot_machine=arista_7170_64c
+        flash_size=28000
+        echo "hugepages=128" >> /tmp/append
+    fi
     if [ "$platform" = "rook" ]; then
         if [ -x /bin/readprefdl ]; then
            readprefdl -f /tmp/.system-prefdl -d > /mnt/flash/.system-prefdl
@@ -176,6 +181,7 @@ platform_specific() {
            cp /etc/prefdl /mnt/flash/.system-prefdl
            chmod a+r /mnt/flash/.system-prefdl
         fi
+        echo "reassign_prefmem" >> /tmp/append
     fi
 
     if [ $flash_size -ge 28000 ]; then

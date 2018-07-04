@@ -77,3 +77,6 @@
 [submodule "platform/broadcom/sonic-platform-modules-mitac"]
 	path = platform/broadcom/sonic-platform-modules-mitac
 	url = https://github.com/MiTAC-EBU/sonic-platform-modules-mitac.git
+[submodule "platform/p4/sonic-platform-modules-arista"]
+	path = platform/p4/sonic-platform-modules-arista
+	url = https://github.com/aristanetworks/sonic

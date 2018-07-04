@@ -1,4 +1,6 @@
 # include $(PLATFORM_PATH)/p4-softswitch.mk
+include $(PLATFORM_PATH)/platform-modules-arista.mk
+include $(PLATFORM_PATH)/one-aboot.mk
 include $(PLATFORM_PATH)/tenjin.mk
 include $(PLATFORM_PATH)/p4-hlir.mk
 include $(PLATFORM_PATH)/p4c-bm.mk
