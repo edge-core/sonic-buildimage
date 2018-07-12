@@ -1,7 +1,8 @@
 [Unit]
 Description=Enable SONiC counters
+PartOf=swss.service
 
 [Service]
 Type=oneshot
-ExecStart=/bin/bash -c '/usr/bin/counterpoll queue enable ; /usr/bin/counterpoll port enable ; /usr/bin/pfcwd counter_poll enable'
+ExecStart=/bin/bash -c 'sleep 60 ; /usr/bin/counterpoll queue enable ; /usr/bin/counterpoll port enable ; /usr/bin/pfcwd counter_poll enable'
 RemainAfterExit=yes
