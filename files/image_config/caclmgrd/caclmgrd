@@ -147,6 +147,10 @@ class ControlPlaneAclManager(object):
         iptables_cmds.append("ip6tables -F")
         iptables_cmds.append("ip6tables -X")
 
+        # Add iptables commands to allow all IPv4 and IPv6 traffic from localhost
+        iptables_cmds.append("iptables -A INPUT -s 127.0.0.1 -i lo -j ACCEPT")
+        iptables_cmds.append("ip6tables -A INPUT -s ::1 -i lo -j ACCEPT")
+
         # Get current ACL tables and rules from Config DB
         self._tables_db_info = self.config_db.get_table(self.ACL_TABLE)
         self._rules_db_info = self.config_db.get_table(self.ACL_RULE)
