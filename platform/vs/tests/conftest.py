@@ -90,6 +90,11 @@ class VirtualServer(object):
 
     def __del__(self):
         if self.cleanup:
+            pids = subprocess.check_output("ip netns pids %s" % (self.nsname), shell=True)
+            if pids:
+                for pid in pids.split('\n'):
+                    if len(pid) > 0:
+                        os.system("kill %s" % int(pid))
             os.system("ip netns delete %s" % self.nsname)
 
     def runcmd(self, cmd):
