@@ -6,7 +6,12 @@ rm -rf $TEAMD_CONF_PATH
 mkdir -p $TEAMD_CONF_PATH
 
 SONIC_ASIC_TYPE=$(sonic-cfggen -y /etc/sonic/sonic_version.yml -v asic_type)
-MAC_ADDRESS=$(ip link show eth0 | grep ether | awk '{print $2}')
+
+if [ "$SONIC_ASIC_TYPE" == "mellanox" ]; then
+    MAC_ADDRESS=$(sonic-cfggen -d -v DEVICE_METADATA.localhost.mac)
+else
+    MAC_ADDRESS=$(ip link show eth0 | grep ether | awk '{print $2}')
+fi
 
 # Align last byte
 if [ "$SONIC_ASIC_TYPE" == "mellanox" -o "$SONIC_ASIC_TYPE" == "centec" ]; then

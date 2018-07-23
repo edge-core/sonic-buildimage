@@ -162,7 +162,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable hostname-config.service
 sudo cp $IMAGE_CONFIGS/hostname/hostname-config.sh $FILESYSTEM_ROOT/usr/bin/
 
 # Copy updategraph script and service file
-sudo cp $IMAGE_CONFIGS/updategraph/updategraph.service  $FILESYSTEM_ROOT/etc/systemd/system/
+j2 files/build_templates/updategraph.service.j2 | sudo tee $FILESYSTEM_ROOT/etc/systemd/system/updategraph.service
 sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable updategraph.service
 sudo cp $IMAGE_CONFIGS/updategraph/updategraph $FILESYSTEM_ROOT/usr/bin/
 {% if enable_dhcp_graph_service == "y" %}
