@@ -41,12 +41,21 @@ def get_sonic_version_info():
     return data
 
 def get_system_mac():
-    proc = subprocess.Popen("ip link show eth0 | grep ether | awk '{print $2}'", shell=True, stdout=subprocess.PIPE)
+    version_info = get_sonic_version_info()
+
+    if (version_info['asic_type'] == 'mellanox'):
+        get_mac_cmd = "sudo decode-syseeprom -m"
+    else:
+        get_mac_cmd = "ip link show eth0 | grep ether | awk '{print $2}'"
+
+    proc = subprocess.Popen(get_mac_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (mac, err) = proc.communicate()
+    if err:
+        return None
+
     mac = mac.strip()
     
     # Align last byte of MAC if necessary
-    version_info = get_sonic_version_info()
     if version_info and (version_info['asic_type'] == 'mellanox' or version_info['asic_type'] == 'centec'):
         last_byte = mac[-2:]
         aligned_last_byte = format(int(int(last_byte, 16) & 0b11000000), '02x')
