@@ -6,7 +6,7 @@ import json
 
 def test_InvalidNexthop(dvs):
 
-    dvs.copy_file("/etc/quagga/", "bgp/files/bgpd.conf")
+    dvs.copy_file("/etc/quagga/", "bgp/files/invalid_nexthop/bgpd.conf")
     dvs.runcmd("supervisorctl start bgpd")
     dvs.runcmd("ip addr add fc00::1/126 dev Ethernet0")
     dvs.runcmd("ifconfig Ethernet0 up")
@@ -18,7 +18,7 @@ def test_InvalidNexthop(dvs):
 
     print dvs.runcmd("supervisorctl status")
 
-    p = dvs.servers[0].runcmd_async("exabgp -d bgp/files/invalid_nexthop.conf")
+    p = dvs.servers[0].runcmd_async("exabgp -d bgp/files/invalid_nexthop/invalid_nexthop.conf")
 
     time.sleep(10)
 
