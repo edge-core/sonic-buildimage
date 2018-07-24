@@ -18,6 +18,7 @@ iface lo {{ 'inet' if prefix | ipv4 else 'inet6' }} static
 {% endfor %}
 {% endblock loopback %}
 {% block mgmt_interface %}
+
 # The management network interface
 auto eth0
 {% if MGMT_INTERFACE %}

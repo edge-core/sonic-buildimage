@@ -125,7 +125,7 @@ def
 {% endif %}
 
 {%- if defs.generate_pg_profils is defined %}
-{{ defs.generate_pg_profils }},
+{{ defs.generate_pg_profils(port_names_active) }}
 {% else %}
     "BUFFER_PG": {
         "{{ port_names_active }}|0-1": {

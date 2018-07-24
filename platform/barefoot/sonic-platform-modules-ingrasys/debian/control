@@ -1,0 +1,10 @@
+Source: platform-driver
+Section: unknown
+Priority: optional
+Maintainer: Wade He <wade.ce.he@ingrasys.com>
+Build-Depends: debhelper (>= 9), dh-systemd
+Standards-Version: 1.0.0
+
+Package: sonic-platform-ingrasys-s9180-32x
+Architecture: amd64 
+Description: This package contains S9180-32X platform driver utility for SONiC project.

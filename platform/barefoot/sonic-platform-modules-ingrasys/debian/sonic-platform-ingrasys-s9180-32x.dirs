@@ -1,0 +1,4 @@
+usr/sbin
+lib/systemd/system
+etc/
+etc/init.d/

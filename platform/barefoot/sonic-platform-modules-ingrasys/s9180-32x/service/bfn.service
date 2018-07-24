@@ -1,0 +1,13 @@
+[Unit]
+Description=Barefoot Kernel Module
+After=local-fs.target
+Before=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=-/etc/init.d/bfn start
+ExecStop=-/etc/init.d/bfn stop
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

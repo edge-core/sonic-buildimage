@@ -1,0 +1,44 @@
+#!/bin/bash
+# This script load/unload Barefoot kernel modules
+
+### BEGIN INIT INFO
+# Provides:          
+# Required-Start:
+# Required-Stop:
+# Should-Start:
+# Should-Stop:
+# Default-Start:     S
+# Default-Stop:      0 6
+# Short-Description: Load Barefoot kernel modules
+### END INIT INFO
+
+case "$1" in
+start)
+	echo -n "Load Barefoot kernel modules... "
+
+        modprobe bf_kdrv
+        modprobe bf_tun
+
+	echo "done."
+	;;
+
+stop)
+	echo -n "Unload Barefoot kernel modules... "
+
+        rmmod bf_tun
+        rmmod bf_kdrv
+
+	echo "done."
+	;;
+
+force-reload|restart)
+	echo "Not supported"
+	;;
+
+*)
+	echo "Usage: /etc/init.d/bfn {start|stop}"
+	exit 1
+	;;
+esac
+
+exit 0
