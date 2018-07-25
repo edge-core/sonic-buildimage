@@ -99,6 +99,10 @@ ifeq ($(SONIC_BUILD_JOBS),)
 override SONIC_BUILD_JOBS := $(SONIC_CONFIG_BUILD_JOBS)
 endif
 
+ifeq ($(KERNEL_PROCURE_METHOD),)
+override KERNEL_PROCURE_METHOD := $(DEFAULT_KERNEL_PROCURE_METHOD)
+endif
+
 MAKEFLAGS += -j $(SONIC_BUILD_JOBS)
 export SONIC_CONFIG_MAKE_JOBS
 
@@ -127,12 +131,15 @@ $(info "HTTPS_PROXY"                     : "$(HTTPS_PROXY)")
 $(info "ENABLE_SYSTEM_TELEMETRY"         : "$(ENABLE_SYSTEM_TELEMETRY)")
 $(info "SONIC_DEBUGGING_ON"              : "$(SONIC_DEBUGGING_ON)")
 $(info "SONIC_PROFILING_ON"              : "$(SONIC_PROFILING_ON)")
+$(info "KERNEL_PROCURE_METHOD"           : "$(KERNEL_PROCURE_METHOD)")
 $(info )
 
 ###############################################################################
 ## Generic rules section
 ## All rules must go after includes for propper targets expansion
 ###############################################################################
+
+export kernel_procure_method="$(KERNEL_PROCURE_METHOD)"
 
 ###############################################################################
 ## Local targets
@@ -148,6 +155,7 @@ $(addprefix $(DEBS_PATH)/, $(SONIC_COPY_DEBS)) : $(DEBS_PATH)/% : .platform
 	$(foreach deb,$* $($*_DERIVED_DEBS), \
 	    { cp $($(deb)_PATH)/$(deb) $(DEBS_PATH)/ $(LOG) || exit 1 ; } ; )
 	$(FOOTER)
+
 
 SONIC_TARGET_LIST += $(addprefix $(DEBS_PATH)/, $(SONIC_COPY_DEBS))
 

@@ -15,7 +15,8 @@
 #  * PASSWORD: Desired password -- default at rules/config
 #  * KEEP_SLAVE_ON: Keeps slave container up after building-process concludes.
 #  * SOURCE_FOLDER: host path to be mount as /var/$(USER)/src, only effective when KEEP_SLAVE_ON=yes
-#  * SONIC_BUILD_JOB: Specifying number of concurrent build job(s) to run
+#  * SONIC_BUILD_JOBS: Specifying number of concurrent build job(s) to run
+#  * KERNEL_PROCURE_METHOD: Specifying method of obtaining kernel Debian package: download or build
 #
 ###############################################################################
 
@@ -69,6 +70,7 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            PASSWORD=$(PASSWORD) \
                            USERNAME=$(USERNAME) \
                            SONIC_BUILD_JOBS=$(SONIC_BUILD_JOBS) \
+                           KERNEL_PROCURE_METHOD=$(KERNEL_PROCURE_METHOD) \
                            HTTP_PROXY=$(http_proxy) \
                            HTTPS_PROXY=$(https_proxy) \
                            SONIC_ENABLE_SYSTEM_TELEMETRY=$(ENABLE_SYSTEM_TELEMETRY)
