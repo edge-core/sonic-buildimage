@@ -28,6 +28,8 @@ supervisorctl start intfmgrd
 
 supervisorctl start buffermgrd
 
+supervisorctl start enable_counters
+
 # Start arp_update when VLAN exists
 VLAN=`sonic-cfggen -d -v 'VLAN.keys() | join(" ") if VLAN'`
 if [ "$VLAN" != "" ]; then
