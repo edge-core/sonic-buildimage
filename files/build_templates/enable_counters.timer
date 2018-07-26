@@ -1,9 +1,0 @@
-[Unit]
-Description=Delays the SONiC counters gathering until SONiC has started
-
-[Timer]
-OnBootSec=2min
-Unit=enable_counters.service
-
-[Install]
-WantedBy=timers.target

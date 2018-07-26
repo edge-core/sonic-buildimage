@@ -27,6 +27,7 @@ RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /debs
 
 COPY ["files/arp_update", "/usr/bin"]
+COPY ["enable_counters.py", "/usr/bin"]
 COPY ["start.sh", "orchagent.sh", "swssconfig.sh", "/usr/bin/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 
