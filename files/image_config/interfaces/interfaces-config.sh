@@ -10,6 +10,7 @@ if [[ "$platform" == "x86_64-accton_wedge100bf_32x-r0" || "$platform" == "x86_64
 cat <<'EOF' >> /etc/network/interfaces
 # BMC interface
 auto usb0
+allow-hotplug usb0
 iface usb0 inet6 auto
 up ifconfig usb0 txqueuelen 64
 EOF
