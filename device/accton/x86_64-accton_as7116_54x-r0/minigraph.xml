@@ -1,4 +1,4 @@
-<DeviceMiniGraph xmlns="Microsoft.Search.Autopilot.Evolution" xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+<DeviceMiniGraph xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Search.Autopilot.Evolution">
   <CpgDec>
     <IsisRouters xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
   </CpgDec>
@@ -9,10 +9,10 @@
         <a:LoopbackIPInterface>
           <Name>HostIP</Name>
           <AttachTo>Loopback0</AttachTo>
-          <a:Prefix xmlns:b="Microsoft.Search.Autopilot.NetMux">
-            <b:IPPrefix>100.0.0.9/32</b:IPPrefix>
+          <a:Prefix xmlns:b="Microsoft.Search.Autopilot.Evolution">
+            <b:IPPrefix>10.1.0.32/32</b:IPPrefix>
           </a:Prefix>
-          <a:PrefixStr>100.0.0.9/32</a:PrefixStr>
+          <a:PrefixStr>10.1.0.32/32</a:PrefixStr>
         </a:LoopbackIPInterface>
       </LoopbackIPInterfaces>
       <ManagementIPInterfaces xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
@@ -20,7 +20,7 @@
       <MplsInterfaces/>
       <MplsTeInterfaces/>
       <RsvpInterfaces/>
-      <Hostname>OCPSCH01040GGLF</Hostname>
+      <Hostname>switch1</Hostname>
       <PortChannelInterfaces/>
       <VlanInterfaces/>
       <IPInterfaces/>
@@ -31,18 +31,17 @@
     </DeviceDataPlaneInfo>
   </DpgDec>
   <PngDec>
-    <DeviceInterfaceLinks/>
     <Devices>
       <Device i:type="LeafRouter">
-        <Hostname>OCPSCH01040GGLF</Hostname>
-        <HwSku>INGRASYS-S9130-32X</HwSku>
+        <Hostname>switch1</Hostname>
+        <HwSku>Accton-AS7116-54X</HwSku>
       </Device>
     </Devices>
-   </PngDec>
+  </PngDec>
   <MetadataDeclaration>
     <Devices xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
       <a:DeviceMetadata>
-        <a:Name>OCPSCH01040GGLF</a:Name>
+        <a:Name>switch1</a:Name>
         <a:Properties>
           <a:DeviceProperty>
             <a:Name>DhcpResources</a:Name>
@@ -64,6 +63,6 @@
     </Devices>
     <Properties xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
   </MetadataDeclaration>
-  <Hostname>OCPSCH01040GGLF</Hostname>
-  <HwSku>INGRASYS-S9130-32X</HwSku>
+  <Hostname>switch1</Hostname>
+  <HwSku>Accton-AS7116-54X</HwSku>
 </DeviceMiniGraph>
