@@ -226,6 +226,7 @@ if [ -f $FIRST_BOOT_FILE ]; then
     # and create a flag in /tmp/ to let updategraph service know
     if [ -d /host/old_config ]; then
         mv -f /host/old_config /etc/sonic/
+        rm -rf /etc/sonic/old_config/old_config
         touch /tmp/pending_config_migration
     elif [ -f /host/minigraph.xml ]; then
         mkdir -p /etc/sonic/old_config
