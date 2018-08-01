@@ -1,3 +1,4 @@
+include $(PLATFORM_PATH)/platform-modules-arista.mk
 include $(PLATFORM_PATH)/platform-modules-bfn.mk
 include $(PLATFORM_PATH)/platform-modules-bfn-montara.mk
 include $(PLATFORM_PATH)/platform-modules-wnc-osw1800.mk
@@ -6,6 +7,7 @@ include $(PLATFORM_PATH)/bfn-sai.mk
 include $(PLATFORM_PATH)/docker-syncd-bfn.mk
 include $(PLATFORM_PATH)/docker-syncd-bfn-rpc.mk
 include $(PLATFORM_PATH)/docker-orchagent-bfn.mk
+include $(PLATFORM_PATH)/one-aboot.mk
 include $(PLATFORM_PATH)/one-image.mk
 include $(PLATFORM_PATH)/libsaithrift-dev.mk
 include $(PLATFORM_PATH)/python-saithrift.mk
@@ -13,7 +15,8 @@ include $(PLATFORM_PATH)/docker-ptf-bfn.mk
 include $(PLATFORM_PATH)/bfn-platform.mk
 include $(PLATFORM_PATH)/bfn-platform-wnc.mk
 include $(PLATFORM_PATH)/bfn-platform-ingrasys.mk
-SONIC_ALL += $(SONIC_ONE_IMAGE) \
+
+SONIC_ALL += $(SONIC_ONE_IMAGE) $(SONIC_ONE_ABOOT) \
              $(DOCKER_FPM)
 
 # Inject sai into sairedis
