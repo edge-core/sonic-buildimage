@@ -72,6 +72,7 @@ NUM_FRU_MUX_CHAN2_DEVICE=$(( ${NUM_FRU_MUX_CHAN0_DEVICE} + 2 )) # FAN
 NUM_CPLD_DEVICE=$(( ${NUM_MUX7_CHAN0_DEVICE} + 3 )) # CPLD
 NUM_SFP1_DEVICE=$(( ${NUM_MUX7_CHAN0_DEVICE} + 4 )) # CPLD
 NUM_SFP2_DEVICE=$(( ${NUM_MUX7_CHAN0_DEVICE} + 5 )) # CPLD
+NUM_ROV_DEVICE=${NUM_MAIN_MUX_CHAN6_DEVICE}
 
 PATH_SYS_I2C_DEVICES="/sys/bus/i2c/devices"
 PATH_HWMON_ROOT_DEVICES="/sys/class/hwmon"
@@ -89,11 +90,19 @@ PATH_MUX_CHAN7_DEVICE="${PATH_SYS_I2C_DEVICES}/i2c-${NUM_MUX1_CHAN7_DEVICE}"
 PATH_MUX7_CHAN0_DEVICE="${PATH_SYS_I2C_DEVICES}/i2c-${NUM_MUX7_CHAN0_DEVICE}"
 PATH_MAIN_MUX_CHAN0_DEVICE="${PATH_SYS_I2C_DEVICES}/i2c-${NUM_MAIN_MUX_CHAN0_DEVICE}"
 
+# i2c address for deviecs
+CPLD_I2C_ADDR=0x33
+ROV_I2C_ADDR=0x22
+
 #Power Supply Status
 PSU_DC_ON=1
 PSU_DC_OFF=0
 PSU_EXIST=1
 PSU_NOT_EXIST=0
+
+# vdd value for mac
+rov_val_array=( 0.85 0.82 0.77 0.87 0.74 0.84 0.79 0.89 )
+rov_reg_array=( 0x24 0x21 0x1c 0x26 0x19 0x23 0x1e 0x28 )
 
 # Help usage function
 function _help {
@@ -159,6 +168,7 @@ function _i2c_init {
     modprobe i2c_i801
     modprobe i2c_dev
     modprobe i2c_mux_pca954x force_deselect_on_exit=1
+    #modprobe cpld_wdt
 
     if [ ! -e "${PATH_SYS_I2C_DEVICES}/i2c-${NUM_MUX1_CHAN0_DEVICE}" ]; then
         _retry "echo 'pca9548 0x70' > ${PATH_I801_DEVICE}/new_device"
@@ -227,9 +237,35 @@ function _i2c_init {
     _i2c_led_fan_status_set
     _i2c_led_fan_tray_status_set
 
+    # rov for mac init
+    _mac_vdd_init
+
     #SYS LED set green
     COLOR_SYS_LED="green"
     _i2c_sys_led
+
+}
+
+function _mac_vdd_init {
+    # read mac vid register value from CPLD
+    val=`i2cget -y ${NUM_CPLD_DEVICE} ${CPLD_I2C_ADDR} 0x42 2>/dev/null`
+
+    # get vid form register value [0:2]
+    vid=$(($val & 0x7))
+
+    # get rov val and reg according to vid
+    rov_val=${rov_val_array[$vid]}
+    rov_reg=${rov_reg_array[$vid]}
+    echo "vid=${vid}, rov_val=${rov_val}, rov_reg=${rov_reg}"
+
+    # write the rov reg to rov
+    i2cset -y -r ${NUM_ROV_DEVICE} ${ROV_I2C_ADDR} 0x21 ${rov_reg} w
+
+    if [ $? -eq 0 ]; then
+        echo "set ROV for mac vdd done"
+    else
+        echo "set ROV for mac vdd fail"
+    fi
 }
 
 #I2C Deinit
@@ -290,7 +326,7 @@ function _i2c_io_exp_init {
     i2cset -y -r ${NUM_I801_DEVICE} 0x26 5 0x00
     i2cset -y -r ${NUM_I801_DEVICE} 0x26 2 0x3F
     i2cset -y -r ${NUM_I801_DEVICE} 0x26 3 0x1F
-    i2cset -y -r ${NUM_I801_DEVICE} 0x26 6 0xC0
+    i2cset -y -r ${NUM_I801_DEVICE} 0x26 6 0xD0
     i2cset -y -r ${NUM_I801_DEVICE} 0x26 7 0x00
 
     #CPU Baord
@@ -914,7 +950,7 @@ function _i2c_qsfp_eeprom_init {
 
         if [ "${action}" == "new" ] && \
            ! [ -L ${PATH_SYS_I2C_DEVICES}/$eeprombus-$(printf "%04x" $eepromAddr) ]; then
-            echo "sff8436 $eepromAddr" > ${PATH_SYS_I2C_DEVICES}/i2c-$eeprombus/new_device
+            echo "optoe1 $eepromAddr" > ${PATH_SYS_I2C_DEVICES}/i2c-$eeprombus/new_device
         elif [ "${action}" == "delete" ] && \
              [ -L ${PATH_SYS_I2C_DEVICES}/$eeprombus-$(printf "%04x" $eepromAddr) ]; then
             echo "$eepromAddr" > ${PATH_SYS_I2C_DEVICES}/i2c-$eeprombus/delete_device
@@ -1006,7 +1042,7 @@ function _i2c_sfp_eeprom_init {
         return
     fi
 
-    #Init 1-32 ports EEPROM
+    #Init 33-34 ports EEPROM
     if [ "${action}" == "new" ] && \
        ! [ -L ${PATH_SYS_I2C_DEVICES}/${NUM_SFP1_DEVICE}-0050 ] && \
        ! [ -L ${PATH_SYS_I2C_DEVICES}/${NUM_SFP2_DEVICE}-0050 ]; then

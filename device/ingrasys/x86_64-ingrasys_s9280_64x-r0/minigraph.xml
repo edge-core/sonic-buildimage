@@ -112,7 +112,7 @@
     <Devices>
       <Device i:type="LeafRouter">
         <Hostname>OCPSCH01040GGLF</Hostname>
-        <HwSku>INGRASYS-S9180-32X</HwSku>
+        <HwSku>INGRASYS-S9280-64X</HwSku>
       </Device>
     </Devices>
    </PngDec>
@@ -147,5 +147,5 @@
     <Properties xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
   </MetadataDeclaration>
   <Hostname>OCPSCH01040GGLF</Hostname>
-  <HwSku>INGRASYS-S9180-32X</HwSku>
+  <HwSku>INGRASYS-S9280-64X</HwSku>
 </DeviceMiniGraph>

@@ -1,7 +1,0 @@
-description "SONiC platform service"
-
-respawn
-
-exec /usr/sbin/s9180_32x_monitor.sh
-exec /usr/sbin/qsfp_monitor.sh
-exec /etc/init.d/bfn start
