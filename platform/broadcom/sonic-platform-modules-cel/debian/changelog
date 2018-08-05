@@ -1,3 +1,9 @@
+sonic-cel-platform-modules (0.8) unstable; urgency=low
+
+  * Add haliburton platform
+
+ -- Supakit Fuangkaew <sfuangk@celestica.com>  Thu, 5 Apr 2018 09:09:09 +0700
+
 sonic-cel-platform-modules (0.7) unstable; urgency=low
 
   * Add dx010 plaform gpio sysfs exported when module load.
