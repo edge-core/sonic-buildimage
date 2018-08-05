@@ -449,6 +449,14 @@ show_fan_div(struct device *dev, struct device_attribute *da, char *buf)
 }
 
 static ssize_t
+show_fan_alarm(struct device *dev, struct device_attribute *da, char *buf)
+{
+	struct emc2305_fan_data *fan = emc2305_update_device_fan(dev, da);
+	bool fault = ((fan->tach & 0x1fe0) == 0x1fe0);
+	return sprintf(buf, "%d\n", fault ? 1 : 0);
+}
+
+static ssize_t
 set_fan_div(struct device *dev, struct device_attribute *da,
 	    const char *buf, size_t count)
 {
@@ -577,6 +585,7 @@ static ssize_t set_pwm(struct device *dev, struct device_attribute *da,
 		EMC2305_ATTR_RO(fan, input, _num),			\
 		EMC2305_ATTR_RO(fan, fault, _num),			\
 		EMC2305_ATTR_RW(fan, div, _num),			\
+		EMC2305_ATTR_RO(fan, alarm, _num),			\
 		EMC2305_ATTR_RW(fan, target, _num),			\
 		EMC2305_ATTR_RW(pwm, enable, _num),			\
 		EMC2305_ATTR_RW2(pwm, _num)			\
