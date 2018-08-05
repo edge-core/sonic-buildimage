@@ -1,0 +1,810 @@
+<DeviceMiniGraph xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Search.Autopilot.Evolution">
+  <CpgDec>
+    <IsisRouters xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
+    <PeeringSessions>
+      <BGPSession>
+        <StartRouter>ARISTA01T1</StartRouter>
+        <StartPeer>10.0.0.1</StartPeer>
+        <EndRouter>sonic</EndRouter>
+        <EndPeer>10.0.0.0</EndPeer>
+        <Multihop>1</Multihop>
+        <HoldTime>180</HoldTime>
+        <KeepAliveTime>60</KeepAliveTime>
+      </BGPSession>
+      <BGPSession>
+        <StartRouter>ARISTA02T1</StartRouter>
+        <StartPeer>10.0.0.5</StartPeer>
+        <EndRouter>sonic</EndRouter>
+        <EndPeer>10.0.0.4</EndPeer>
+        <Multihop>1</Multihop>
+        <HoldTime>180</HoldTime>
+        <KeepAliveTime>60</KeepAliveTime>
+      </BGPSession>
+      <BGPSession>
+        <StartRouter>ARISTA03T1</StartRouter>
+        <StartPeer>10.0.0.9</StartPeer>
+        <EndRouter>sonic</EndRouter>
+        <EndPeer>10.0.0.8</EndPeer>
+        <Multihop>1</Multihop>
+        <HoldTime>180</HoldTime>
+        <KeepAliveTime>60</KeepAliveTime>
+      </BGPSession>
+      <BGPSession>
+        <StartRouter>ARISTA04T1</StartRouter>
+        <StartPeer>10.0.0.13</StartPeer>
+        <EndRouter>sonic</EndRouter>
+        <EndPeer>10.0.0.12</EndPeer>
+        <Multihop>1</Multihop>
+        <HoldTime>180</HoldTime>
+        <KeepAliveTime>60</KeepAliveTime>
+      </BGPSession>
+      <BGPSession>
+        <StartRouter>ARISTA01T1</StartRouter>
+        <StartPeer>FC00::2</StartPeer>
+        <EndRouter>sonic</EndRouter>
+        <EndPeer>FC00::1</EndPeer>
+        <Multihop>1</Multihop>
+        <HoldTime>180</HoldTime>
+        <KeepAliveTime>60</KeepAliveTime>
+      </BGPSession>
+      <BGPSession>
+        <StartRouter>ARISTA02T1</StartRouter>
+        <StartPeer>FC00::A</StartPeer>
+        <EndRouter>sonic</EndRouter>
+        <EndPeer>FC00::9</EndPeer>
+        <Multihop>1</Multihop>
+        <HoldTime>180</HoldTime>
+        <KeepAliveTime>60</KeepAliveTime>
+      </BGPSession>
+      <BGPSession>
+        <StartRouter>ARISTA03T1</StartRouter>
+        <StartPeer>FC00::12</StartPeer>
+        <EndRouter>sonic</EndRouter>
+        <EndPeer>FC00::11</EndPeer>
+        <Multihop>1</Multihop>
+        <HoldTime>180</HoldTime>
+        <KeepAliveTime>60</KeepAliveTime>
+      </BGPSession>
+      <BGPSession>
+        <StartRouter>ARISTA04T1</StartRouter>
+        <StartPeer>FC00::1A</StartPeer>
+        <EndRouter>sonic</EndRouter>
+        <EndPeer>FC00::19</EndPeer>
+        <Multihop>1</Multihop>
+        <HoldTime>180</HoldTime>
+        <KeepAliveTime>60</KeepAliveTime>
+      </BGPSession>
+    </PeeringSessions>
+    <Routers xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
+      <a:BGPRouterDeclaration>
+        <a:ASN>64601</a:ASN>
+        <a:Hostname>sonic</a:Hostname>
+        <a:Peers>
+          <BGPPeer>
+            <ElementType>BGPPeer</ElementType>
+            <Address>10.0.0.1</Address>
+            <RouteMapIn i:nil="true"/>
+            <RouteMapOut i:nil="true"/>
+            <Vrf i:nil="true"/>
+          </BGPPeer>
+          <BGPPeer>
+            <ElementType>BGPPeer</ElementType>
+            <Address>10.0.0.5</Address>
+            <RouteMapIn i:nil="true"/>
+            <RouteMapOut i:nil="true"/>
+            <Vrf i:nil="true"/>
+          </BGPPeer>
+          <BGPPeer>
+            <ElementType>BGPPeer</ElementType>
+            <Address>10.0.0.9</Address>
+            <RouteMapIn i:nil="true"/>
+            <RouteMapOut i:nil="true"/>
+            <Vrf i:nil="true"/>
+          </BGPPeer>
+          <BGPPeer>
+            <ElementType>BGPPeer</ElementType>
+            <Address>10.0.0.13</Address>
+            <RouteMapIn i:nil="true"/>
+            <RouteMapOut i:nil="true"/>
+            <Vrf i:nil="true"/>
+          </BGPPeer>
+          <BGPPeer>
+            <ElementType>BGPPeer</ElementType>
+            <Address>FC00::2</Address>
+            <RouteMapIn i:nil="true"/>
+            <RouteMapOut i:nil="true"/>
+            <Vrf i:nil="true"/>
+          </BGPPeer>
+          <BGPPeer>
+            <ElementType>BGPPeer</ElementType>
+            <Address>FC00::A</Address>
+            <RouteMapIn i:nil="true"/>
+            <RouteMapOut i:nil="true"/>
+            <Vrf i:nil="true"/>
+          </BGPPeer>
+          <BGPPeer>
+            <ElementType>BGPPeer</ElementType>
+            <Address>FC00::12</Address>
+            <RouteMapIn i:nil="true"/>
+            <RouteMapOut i:nil="true"/>
+            <Vrf i:nil="true"/>
+          </BGPPeer>
+          <BGPPeer>
+            <ElementType>BGPPeer</ElementType>
+            <Address>FC00::1A</Address>
+            <RouteMapIn i:nil="true"/>
+            <RouteMapOut i:nil="true"/>
+            <Vrf i:nil="true"/>
+          </BGPPeer>
+        </a:Peers>
+        <a:RouteMaps/>
+      </a:BGPRouterDeclaration>
+      <a:BGPRouterDeclaration>
+        <a:ASN>64802</a:ASN>
+        <a:Hostname>ARISTA01T1</a:Hostname>
+        <a:RouteMaps/>
+      </a:BGPRouterDeclaration>
+      <a:BGPRouterDeclaration>
+        <a:ASN>64802</a:ASN>
+        <a:Hostname>ARISTA02T1</a:Hostname>
+        <a:RouteMaps/>
+      </a:BGPRouterDeclaration>
+      <a:BGPRouterDeclaration>
+        <a:ASN>64802</a:ASN>
+        <a:Hostname>ARISTA03T1</a:Hostname>
+        <a:RouteMaps/>
+      </a:BGPRouterDeclaration>
+      <a:BGPRouterDeclaration>
+        <a:ASN>64802</a:ASN>
+        <a:Hostname>ARISTA04T1</a:Hostname>
+        <a:RouteMaps/>
+      </a:BGPRouterDeclaration>
+    </Routers>
+  </CpgDec>
+  <DpgDec>
+    <DeviceDataPlaneInfo>
+      <IPSecTunnels/>
+      <LoopbackIPInterfaces xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
+        <a:LoopbackIPInterface>
+          <Name>HostIP</Name>
+          <AttachTo>Loopback0</AttachTo>
+          <a:Prefix xmlns:b="Microsoft.Search.Autopilot.Evolution">
+            <b:IPPrefix>10.1.0.32/32</b:IPPrefix>
+          </a:Prefix>
+          <a:PrefixStr>10.1.0.32/32</a:PrefixStr>
+        </a:LoopbackIPInterface>
+        <a:LoopbackIPInterface>
+          <Name>HostIP1</Name>
+          <AttachTo>Loopback0</AttachTo>
+          <a:Prefix xmlns:b="Microsoft.Search.Autopilot.Evolution">
+            <b:IPPrefix>FC00:1::32/128</b:IPPrefix>
+          </a:Prefix>
+          <a:PrefixStr>FC00:1::32/128</a:PrefixStr>
+        </a:LoopbackIPInterface>
+      </LoopbackIPInterfaces>
+      <ManagementIPInterfaces xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
+        <a:ManagementIPInterface>
+          <Name>HostIP</Name>
+          <AttachTo>eth0</AttachTo>
+          <a:Prefix xmlns:b="Microsoft.Search.Autopilot.Evolution">
+            <b:IPPrefix>10.251.0.243/23</b:IPPrefix>
+          </a:Prefix>
+          <a:PrefixStr>10.251.0.243/23</a:PrefixStr>
+        </a:ManagementIPInterface>
+      </ManagementIPInterfaces>
+      <MplsInterfaces/>
+      <MplsTeInterfaces/>
+      <RsvpInterfaces/>
+      <Hostname>sonic</Hostname>
+      <PortChannelInterfaces/>
+      <VlanInterfaces>
+        <VlanInterface>
+          <ElementType>VlanInterface</ElementType>
+          <Name>Vlan2</Name>
+          <AttachTo>etp1;etp2;etp3;etp4;etp5;etp6;etp7;etp8;etp9;etp10;etp11;etp12;etp13;etp14;etp15;etp16;etp17;etp18;etp19;etp20;etp21;etp22;etp23;etp24;etp25;etp26;etp27;etp28;etp29;etp30;etp31;etp32;etp33;etp34;etp35;etp36;etp37;etp38;etp39;etp40;etp41;etp42;etp43;etp44;etp45;etp46;etp47;etp48</AttachTo>
+          <NoDhcpRelay>False</NoDhcpRelay>
+          <StaticDHCPRelay>0.0.0.0/0</StaticDHCPRelay>
+          <Type i:nil="true"/>
+          <VlanID>2</VlanID>
+          <Tag>2</Tag>
+          <Subnets>172.0.0.0/26</Subnets>
+        </VlanInterface>
+      </VlanInterfaces>
+      <IPInterfaces>
+        <IPInterface>
+          <ElementType>IPInterface</ElementType>
+          <Name i:Name="true"/>
+          <AttachTo>etp49</AttachTo>
+          <Prefix>10.0.0.0/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <ElementType>IPInterface</ElementType>
+          <Name i:Name="true"/>
+          <AttachTo>etp50</AttachTo>
+          <Prefix>10.0.0.4/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <ElementType>IPInterface</ElementType>
+          <Name i:Name="true"/>
+          <AttachTo>etp51</AttachTo>
+          <Prefix>10.0.0.8/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <ElementType>IPInterface</ElementType>
+          <Name i:Name="true"/>
+          <AttachTo>etp52</AttachTo>
+          <Prefix>10.0.0.12/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <ElementType>IPInterface</ElementType>
+          <Name i:Name="true"/>
+          <AttachTo>etp49</AttachTo>
+          <Prefix>FC00::1/126</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <ElementType>IPInterface</ElementType>
+          <Name i:Name="true"/>
+          <AttachTo>etp50</AttachTo>
+          <Prefix>FC00::9/126</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <ElementType>IPInterface</ElementType>
+          <Name i:Name="true"/>
+          <AttachTo>etp51</AttachTo>
+          <Prefix>FC00::11/126</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <ElementType>IPInterface</ElementType>
+          <Name i:Name="true"/>
+          <AttachTo>etp52</AttachTo>
+          <Prefix>FC00::19/126</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <ElementType>IPInterface</ElementType>
+          <Name i:nil="true"/>
+          <AttachTo>Vlan2</AttachTo>
+          <Prefix>172.0.0.1/26</Prefix>
+        </IPInterface>
+      </IPInterfaces>
+      <DataAcls/>
+      <AclInterfaces/>
+      <DownstreamSummaries/>
+      <DownstreamSummarySet xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
+    </DeviceDataPlaneInfo>
+  </DpgDec>
+  <PngDec>
+    <DeviceInterfaceLinks>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>10000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet1</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>etp49</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>10000</Bandwidth>
+                <EndDevice>ARISTA02T1</EndDevice>
+                <EndPort>Ethernet1</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>etp50</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>10000</Bandwidth>
+                <EndDevice>ARISTA03T1</EndDevice>
+                <EndPort>Ethernet1</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>etp51</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>10000</Bandwidth>
+                <EndDevice>ARISTA04T1</EndDevice>
+                <EndPort>Ethernet1</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>etp52</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp1</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-01</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp2</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-02</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp3</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-03</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp4</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-04</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp5</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-05</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp6</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-06</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp7</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-07</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp8</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-08</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp9</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-09</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp10</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-10</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp11</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-11</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp12</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-12</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp13</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-13</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp14</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-14</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp15</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-15</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp16</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-16</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp17</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-17</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp18</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-18</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp19</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-19</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp20</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-20</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp21</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-21</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp22</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-22</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp23</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-23</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp24</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-24</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp25</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-25</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp26</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-26</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp27</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-27</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp28</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-28</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp29</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-29</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp30</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-30</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp31</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-31</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp32</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-32</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp33</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-33</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp34</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-34</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp35</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-35</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp36</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-36</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp37</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-37</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp38</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-38</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp39</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-39</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp40</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-40</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp41</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-41</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp42</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-42</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp43</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-43</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp44</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-44</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp45</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-45</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp46</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-46</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp47</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-47</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>1000</Bandwidth>
+                <EndDevice>sonic</EndDevice>
+                <EndPort>etp48</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>server-48</StartDevice>
+                <StartPort>0</StartPort>
+            </DeviceLinkBase>
+    </DeviceInterfaceLinks>
+    <Devices>
+      <Device i:type="ToRRouter">
+        <Hostname>sonic</Hostname>
+        <HwSku>Celestica-E1031-T48S4</HwSku>
+        <ManagementAddress xmlns:a="Microsoft.Search.Autopilot.NetMux">
+          <a:IPPrefix>10.251.0.243</a:IPPrefix>
+        </ManagementAddress>
+      </Device>
+    </Devices>
+  </PngDec>
+  <Hostname>sonic</Hostname>
+  <HwSku>Celestica-E1031-T48S4</HwSku>
+</DeviceMiniGraph>
