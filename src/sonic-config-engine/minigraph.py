@@ -41,6 +41,7 @@ def parse_device(device):
     d_type = None   # don't shadow type()
     hwsku = None
     name = None
+    deployment_id = None
     if str(QName(ns3, "type")) in device.attrib:
         d_type = device.attrib[str(QName(ns3, "type"))]
 
@@ -53,7 +54,9 @@ def parse_device(device):
             name = node.text
         elif node.tag == str(QName(ns, "HwSku")):
             hwsku = node.text
-    return (lo_prefix, mgmt_prefix, name, hwsku, d_type)
+        elif node.tag == str(QName(ns, "DeploymentId")):
+            deployment_id = node.text
+    return (lo_prefix, mgmt_prefix, name, hwsku, d_type, deployment_id)
 
 def parse_png(png, hname):
     neighbors = {}
@@ -92,8 +95,10 @@ def parse_png(png, hname):
 
         if child.tag == str(QName(ns, "Devices")):
             for device in child.findall(str(QName(ns, "Device"))):
-                (lo_prefix, mgmt_prefix, name, hwsku, d_type) = parse_device(device)
+                (lo_prefix, mgmt_prefix, name, hwsku, d_type, deployment_id) = parse_device(device)
                 device_data = {'lo_addr': lo_prefix, 'type': d_type, 'mgmt_addr': mgmt_prefix, 'hwsku': hwsku }
+                if deployment_id:
+                    device_data['deployment_id'] = deployment_id
                 devices[name] = device_data
 
         if child.tag == str(QName(ns, "DeviceInterfaceLinks")):
@@ -546,7 +551,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
 
 def parse_device_desc_xml(filename):
     root = ET.parse(filename).getroot()
-    (lo_prefix, mgmt_prefix, hostname, hwsku, d_type) = parse_device(root)
+    (lo_prefix, mgmt_prefix, hostname, hwsku, d_type, _) = parse_device(root)
 
     results = {}
     results['DEVICE_METADATA'] = {'localhost': {
