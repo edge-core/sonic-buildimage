@@ -182,6 +182,15 @@
   </DpgDec>
   <PngDec>
     <DeviceInterfaceLinks>
+      <DeviceLinkBase i:type="DeviceSerialLink">
+        <ElementType>DeviceSerialLink</ElementType>
+        <Bandwidth>9600</Bandwidth>
+        <EndDevice>switch-t0</EndDevice>
+        <EndPort>1</EndPort>
+        <FlowControl>true</FlowControl>
+        <StartDevice>managed_device</StartDevice>
+        <StartPort>console</StartPort>
+      </DeviceLinkBase>
       <DeviceLinkBase i:type="DeviceInterfaceLink">
         <ElementType>DeviceInterfaceLink</ElementType>
         <AutoNegotiation>true</AutoNegotiation>

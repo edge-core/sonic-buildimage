@@ -66,10 +66,32 @@ def parse_png(png, hname):
     mgmt_dev = ''
     mgmt_port = ''
     port_speeds = {}
+    console_ports = {}
     for child in png:
         if child.tag == str(QName(ns, "DeviceInterfaceLinks")):
             for link in child.findall(str(QName(ns, "DeviceLinkBase"))):
                 linktype = link.find(str(QName(ns, "ElementType"))).text
+                if linktype == "DeviceSerialLink":
+                    enddevice = link.find(str(QName(ns, "EndDevice"))).text
+                    endport = link.find(str(QName(ns, "EndPort"))).text
+                    startdevice = link.find(str(QName(ns, "StartDevice"))).text
+                    startport = link.find(str(QName(ns, "StartPort"))).text
+                    baudrate = link.find(str(QName(ns, "Bandwidth"))).text
+                    flowcontrol = 1 if link.find(str(QName(ns, "FlowControl"))) is not None and link.find(str(QName(ns, "FlowControl"))).text == 'true' else 0
+                    if enddevice.lower() == hname.lower():
+                        console_ports[endport] = {
+                            'remote_device': startdevice,
+                            'baud_rate': baudrate,
+                            'flow_control': flowcontrol
+                            }
+                    else:
+                        console_ports[startport] = {
+                            'remote_device': enddevice,
+                            'baud_rate': baudrate,
+                            'flow_control': flowcontrol
+                            }
+                    continue
+                     
                 if linktype != "DeviceInterfaceLink" and linktype != "UnderlayInterfaceLink":
                     continue
 
@@ -118,7 +140,7 @@ def parse_png(png, hname):
                             elif node.tag == str(QName(ns, "EndDevice")):
                                 mgmt_dev = node.text
 
-    return (neighbors, devices, console_dev, console_port, mgmt_dev, mgmt_port, port_speeds)
+    return (neighbors, devices, console_dev, console_port, mgmt_dev, mgmt_port, port_speeds, console_ports)
 
 
 def parse_dpg(dpg, hname):
@@ -399,6 +421,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
     port_speeds_default = {}
     port_speed_png = {}
     port_descriptions = {}
+    console_ports = {}
     syslog_servers = []
     dhcp_servers = []
     ntp_servers = []
@@ -424,9 +447,9 @@ def parse_xml(filename, platform=None, port_config_file=None):
         elif child.tag == str(QName(ns, "CpgDec")):
             (bgp_sessions, bgp_asn, bgp_peers_with_range) = parse_cpg(child, hostname)
         elif child.tag == str(QName(ns, "PngDec")):
-            (neighbors, devices, console_dev, console_port, mgmt_dev, mgmt_port, port_speed_png) = parse_png(child, hostname)
+            (neighbors, devices, console_dev, console_port, mgmt_dev, mgmt_port, port_speed_png, console_ports) = parse_png(child, hostname)
         elif child.tag == str(QName(ns, "UngDec")):
-            (u_neighbors, u_devices, _, _, _, _, _) = parse_png(child, hostname)
+            (u_neighbors, u_devices, _, _, _, _, _, _) = parse_png(child, hostname)
         elif child.tag == str(QName(ns, "MetadataDeclaration")):
             (syslog_servers, dhcp_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id) = parse_meta(child, hostname)
         elif child.tag == str(QName(ns, "DeviceInfos")):
@@ -494,6 +517,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
         ports.setdefault(port_name, {})['description'] = port_descriptions[port_name]
 
     results['PORT'] = ports
+    results['CONSOLE_PORT'] = console_ports
 
     if port_config_file:
         port_set = set(ports.keys())

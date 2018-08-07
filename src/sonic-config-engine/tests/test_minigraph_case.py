@@ -89,6 +89,11 @@ class TestCfgGenCaseInsensitive(TestCase):
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "{'PortChannel01': {'members': ['Ethernet4']}}")
 
+    def test_minigraph_console_port(self):
+        argument = '-m "' + self.sample_graph + '" -p "' + self.port_config + '" -v CONSOLE_PORT'
+        output = self.run_script(argument)
+        self.assertEqual(output.strip(), "{'1': {'baud_rate': '9600', 'remote_device': 'managed_device', 'flow_control': 1}}")
+
     def test_minigraph_deployment_id(self):
         argument = '-m "' + self.sample_graph + '" -p "' + self.port_config + '" -v "DEVICE_METADATA[\'localhost\'][\'deployment_id\']"'
         output = self.run_script(argument)
