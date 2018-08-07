@@ -109,7 +109,17 @@ enum sysfs_fan_attributes {
     FAN2_REAR_FAULT,
     FAN3_REAR_FAULT,
     FAN4_REAR_FAULT,
-    FAN5_REAR_FAULT
+    FAN5_REAR_FAULT,
+    FAN1_INPUT, /* FAN1_FRONT_SPEED_RPM, */
+    FAN2_INPUT, /* FAN2_FRONT_SPEED_RPM, */
+    FAN3_INPUT, /* FAN3_FRONT_SPEED_RPM, */
+    FAN4_INPUT, /* FAN4_FRONT_SPEED_RPM, */
+    FAN5_INPUT, /* FAN5_FRONT_SPEED_RPM, */
+    FAN6_INPUT, /* FAN1_REAR_SPEED_RPM, */
+    FAN7_INPUT, /* FAN2_REAR_SPEED_RPM, */
+    FAN8_INPUT, /* FAN3_REAR_SPEED_RPM, */
+    FAN9_INPUT, /* FAN4_REAR_SPEED_RPM, */
+    FAN10_INPUT, /* FAN5_REAR_SPEED_RPM */
 };
 
 /* Define attributes
@@ -138,6 +148,10 @@ enum sysfs_fan_attributes {
 #define DECLARE_FAN_SPEED_RPM_ATTR(index)  &sensor_dev_attr_fan##index##_front_speed_rpm.dev_attr.attr, \
                                            &sensor_dev_attr_fan##index##_rear_speed_rpm.dev_attr.attr
 
+#define DECLARE_FAN_INPUT_SENSOR_DEV_ATTR(index) \
+    static SENSOR_DEVICE_ATTR(fan##index##_input, S_IRUGO, fan_show_value, NULL, FAN##index##_INPUT)
+#define DECLARE_FAN_INPUT_ATTR(index)  &sensor_dev_attr_fan##index##_input.dev_attr.attr
+        
 /* 6 fan fault attributes in this platform */
 DECLARE_FAN_FAULT_SENSOR_DEV_ATTR(1);
 DECLARE_FAN_FAULT_SENSOR_DEV_ATTR(2);
@@ -165,6 +179,19 @@ DECLARE_FAN_DIRECTION_SENSOR_DEV_ATTR(5);
 /* 1 fan duty cycle attribute in this platform */
 DECLARE_FAN_DUTY_CYCLE_SENSOR_DEV_ATTR();
 
+/* fan input attributes in this platform */
+DECLARE_FAN_INPUT_SENSOR_DEV_ATTR(1);
+DECLARE_FAN_INPUT_SENSOR_DEV_ATTR(2);
+DECLARE_FAN_INPUT_SENSOR_DEV_ATTR(3);
+DECLARE_FAN_INPUT_SENSOR_DEV_ATTR(4);
+DECLARE_FAN_INPUT_SENSOR_DEV_ATTR(5);
+
+DECLARE_FAN_INPUT_SENSOR_DEV_ATTR(6);
+DECLARE_FAN_INPUT_SENSOR_DEV_ATTR(7);
+DECLARE_FAN_INPUT_SENSOR_DEV_ATTR(8);
+DECLARE_FAN_INPUT_SENSOR_DEV_ATTR(9);
+DECLARE_FAN_INPUT_SENSOR_DEV_ATTR(10);
+
 static struct attribute *as7116_54x_fan_attributes[] = {
     /* fan related attributes */
     DECLARE_FAN_FAULT_ATTR(1),
@@ -188,6 +215,16 @@ static struct attribute *as7116_54x_fan_attributes[] = {
     DECLARE_FAN_DIRECTION_ATTR(4),
     DECLARE_FAN_DIRECTION_ATTR(5),
     DECLARE_FAN_DUTY_CYCLE_ATTR(),
+    DECLARE_FAN_INPUT_ATTR(1),
+    DECLARE_FAN_INPUT_ATTR(2),
+    DECLARE_FAN_INPUT_ATTR(3),
+    DECLARE_FAN_INPUT_ATTR(4),
+    DECLARE_FAN_INPUT_ATTR(5),
+    DECLARE_FAN_INPUT_ATTR(6),
+    DECLARE_FAN_INPUT_ATTR(7),
+    DECLARE_FAN_INPUT_ATTR(8),
+    DECLARE_FAN_INPUT_ATTR(9),
+    DECLARE_FAN_INPUT_ATTR(10),
     NULL
 };
 
@@ -339,6 +376,19 @@ static ssize_t fan_show_value(struct device *dev, struct device_attribute *da,
             ret = sprintf(buf, "%d\n",
                           reg_val_to_direction(data->reg_val[FAN_DIRECTION_REG],
                           attr->index - FAN1_DIRECTION));
+            break;
+        case FAN1_INPUT:
+        case FAN2_INPUT:
+        case FAN3_INPUT:
+        case FAN4_INPUT:
+        case FAN5_INPUT:
+        case FAN6_INPUT:
+        case FAN7_INPUT:
+        case FAN8_INPUT:
+        case FAN9_INPUT:
+        case FAN10_INPUT:
+            ret = sprintf(buf, "%u\n", reg_val_to_speed_rpm(data->reg_val[attr->index
+                                                                          - FAN1_INPUT + FAN1_FRONT_SPEED_RPM]));
             break;
         default:
             break;
