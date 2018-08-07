@@ -1,0 +1,2 @@
+#Changing value of this Knet filter
+CFGFLAGS += -UKCOM_FILTER_MAX -DKCOM_FILTER_MAX=256
