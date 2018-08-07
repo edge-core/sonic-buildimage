@@ -181,27 +181,33 @@
     </DeviceDataPlaneInfo>
   </DpgDec>
   <PngDec>
-    <DeviceInterfaceLinks/>
+    <DeviceInterfaceLinks>
+      <DeviceLinkBase i:type="DeviceInterfaceLink">
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <AutoNegotiation>true</AutoNegotiation>
+        <Bandwidth>10000</Bandwidth>
+        <EndDevice>switch-t0</EndDevice>
+        <EndPort>fortyGigE0/0</EndPort>
+        <StartDevice>switch-01t1</StartDevice>
+        <StartPort>port1</StartPort>
+      </DeviceLinkBase>
+    </DeviceInterfaceLinks>
     <Devices>
       <Device i:type="ToRRouter">
         <Hostname>switch-t0</Hostname>
         <HwSku>Force10-S6000</HwSku>
       </Device>
       <Device i:type="LeafRouter">
-        <Hostname>ARISTA01T1</Hostname>
-        <HwSku>Arista</HwSku>
-      </Device>
-      <Device i:type="LeafRouter">
-        <Hostname>ARISTA02T1</Hostname>
-        <HwSku>Arista</HwSku>
-      </Device>
-      <Device i:type="LeafRouter">
-        <Hostname>ARISTA03T1</Hostname>
-        <HwSku>Arista</HwSku>
-      </Device>
-      <Device i:type="LeafRouter">
-        <Hostname>ARISTA04T1</Hostname>
-        <HwSku>Arista</HwSku>
+        <Hostname>switch-01t1</Hostname>
+        <Address xmlns:a="Microsoft.Search.Autopilot.NetMux">
+          <a:IPPrefix>10.1.0.186/32</a:IPPrefix>
+        </Address>
+        <DeploymentId>2</DeploymentId>
+        <DeviceLocation i:nil="true"/>
+        <ManagementAddress xmlns:a="Microsoft.Search.Autopilot.NetMux">
+          <a:IPPrefix>10.7.0.196/26</a:IPPrefix>
+        </ManagementAddress> 
+        <HwSku>Force10-S6000</HwSku>
       </Device>
     </Devices>
   </PngDec>
