@@ -101,6 +101,7 @@ RUN azure-cli_bundle_*/installer
 
 # Known bug: azure keyvault cannot work behind a proxy
 # Temporary fix: upgrade the azure-keyvault package within az cli
-RUN ~/lib/azure-cli/bin/python -m pip install azure-keyvault -U
+# TODO: if azure-cli contains newer version azure-keyvault, remove this
+RUN ~/lib/azure-cli/bin/python -m pip install azure-keyvault==0.3.7 -U
 
 RUN git clone https://github.com/Azure/sonic-mgmt
