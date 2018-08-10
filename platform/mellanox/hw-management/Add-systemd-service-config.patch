@@ -1,0 +1,58 @@
+From 22fef644b1150677353ab0559828ea45a982d901 Mon Sep 17 00:00:00 2001
+From: Andriy Moroz <c_andriym@mellanox.com>
+Date: Wed, 11 Jul 2018 16:51:07 +0300
+Subject: [PATCH] Add systemd service config
+
+Signed-off-by: Andriy Moroz <c_andriym@mellanox.com>
+---
+ debian/control               |  2 +-
+ debian/hw-management.service | 10 ++++++++++
+ debian/rules                 |  2 +-
+ 3 files changed, 12 insertions(+), 2 deletions(-)
+ create mode 100644 debian/hw-management.service
+
+diff --git a/debian/control b/debian/control
+index 048cd61..7e3a545 100644
+--- a/debian/control
++++ b/debian/control
+@@ -1,7 +1,7 @@
+ Source: hw-management
+ Priority: extra
+ Maintainer: MellanoxBSP <system-sw-low-level@mellanox.com>
+-Build-Depends:
++Build-Depends: dh-systemd
+ Standards-Version:
+ Section: libs
+ Homepage: http://www.mellanox.com
+diff --git a/debian/hw-management.service b/debian/hw-management.service
+new file mode 100644
+index 0000000..d18916d
+--- /dev/null
++++ b/debian/hw-management.service
+@@ -0,0 +1,10 @@
++[Unit]
++Description=Mellanox Hardware Management
++
++[Service]
++Type=oneshot
++EnvironmentFile=/host/machine.conf
++ExecStart=/bin/bash -c "/etc/mlnx/mlnx-hw-management start"
++
++[Install]
++WantedBy=multi-user.target
+diff --git a/debian/rules b/debian/rules
+index fc38817..fba4150 100755
+--- a/debian/rules
++++ b/debian/rules
+@@ -8,7 +8,7 @@ K_SRC ?= "/lib/modules/$(KVERSION)/build"
+ pwd=$(shell pwd)
+ 
+ %:
+-	dh $@
++	dh $@ --with systemd
+ 
+ override_dh_auto_configure:
+ 
+-- 
+1.9.1
+
