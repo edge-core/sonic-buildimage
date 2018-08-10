@@ -1,6 +1,6 @@
 # lldpd package
 
-LLDPD_VERSION = 0.9.5
+LLDPD_VERSION = 0.9.6
 
 LLDPD = lldpd_$(LLDPD_VERSION)-0_amd64.deb
 $(LLDPD)_DEPENDS += $(LIBSNMP_DEV)
