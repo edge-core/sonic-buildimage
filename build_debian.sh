@@ -204,7 +204,6 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     openssh-server          \
     python                  \
     python-setuptools       \
-    rsyslog                 \
     monit                   \
     python-apt              \
     traceroute              \
@@ -226,6 +225,10 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     sysfsutils              \
     grub2-common            \
     ethtool
+
+# Install a newer version of rsyslog from jessie-backports in hopes of
+# eliminating memory leaks
+sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y -t jessie-backports install rsyslog
 
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y download \
     grub-pc-bin
