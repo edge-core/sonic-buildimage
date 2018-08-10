@@ -25,11 +25,14 @@ RUN apt-get update
 
 # Pre-install fundamental packages
 RUN apt-get -y install \
-    rsyslog            \
     vim-tiny           \
     perl               \
     python             \
     less
+
+# Install a newer version of rsyslog from jessie-backports in hopes of
+# eliminating memory leaks
+RUN apt-get -y -t jessie-backports install rsyslog
 
 # Pre-install troubleshooting packages
 RUN apt-get -y install socat
