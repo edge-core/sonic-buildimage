@@ -1,6 +1,6 @@
 #!/bin/bash
 
-[ -r /etc/ssh/ssh_host_key ] || {
+[ -r /etc/ssh/ssh_host_rsa_key ] || {
     rm -f /etc/ssh/ssh_host_*_key*
     /usr/bin/ssh-keygen -t rsa -N '' -f /etc/ssh/ssh_host_rsa_key
     /usr/bin/ssh-keygen -t dsa -N '' -f /etc/ssh/ssh_host_dsa_key
