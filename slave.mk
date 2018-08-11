@@ -139,7 +139,7 @@ $(info )
 ## All rules must go after includes for propper targets expansion
 ###############################################################################
 
-export kernel_procure_method="$(KERNEL_PROCURE_METHOD)"
+export kernel_procure_method=$(KERNEL_PROCURE_METHOD)
 
 ###############################################################################
 ## Local targets
