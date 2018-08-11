@@ -3,7 +3,7 @@
 	url = https://github.com/Azure/sonic-swss-common
 [submodule "sonic-linux-kernel"]
 	path = src/sonic-linux-kernel
-	url = https://github.com/lguohan/sonic-linux-kernel
+	url = https://github.com/Azure/sonic-linux-kernel
 	branch = stretch
 [submodule "sonic-sairedis"]
 	path = src/sonic-sairedis
@@ -38,14 +38,14 @@
 	url = https://github.com/Azure/sonic-utilities
 [submodule "platform/broadcom/sonic-platform-modules-s6000"]
 	path = platform/broadcom/sonic-platform-modules-s6000
-	url = https://github.com/lguohan/sonic-platform-modules-s6000
+	url = https://github.com/Azure/sonic-platform-modules-s6000
 	branch = stretch
 [submodule "platform/broadcom/sonic-platform-modules-arista"]
 	path = platform/broadcom/sonic-platform-modules-arista
 	url = https://github.com/aristanetworks/sonic
 [submodule "platform/broadcom/sonic-platform-modules-dell"]
 	path = platform/broadcom/sonic-platform-modules-dell
-	url = https://github.com/lguohan/sonic-platform-modules-dell
+	url = https://github.com/Azure/sonic-platform-modules-dell
 	branch = stretch
 [submodule "src/sonic-platform-common"]
 	path = src/sonic-platform-common
