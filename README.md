@@ -62,7 +62,7 @@ To build SONiC installer image and docker images, run the following commands:
     BLDENV=stretch make stretch
 
     # build SONiC image
-    make
+    make all
 
  **NOTE**:
 
@@ -82,6 +82,14 @@ The SONiC installer contains all docker images needed. SONiC uses one image for 
 - PLATFORM=vs
 
 For Broadcom ASIC, we build ONIE and EOS image. EOS image is used for Arista devices, ONIE image is used for all other Broadcom ASIC based devices. 
+
+    make configure PLATFORM=broadcom
+    # build debian stretch required targets
+    BLDENV=stretch make stretch
+    # build ONIE image
+    make target/sonic-broadcom.bin
+    # build EOS image
+    make target/sonic-aboot-broadcom.swi
 
 You may find the rules/config file useful. It contains configuration options for the build process, like adding more verbosity or showing dependencies, username and password for base image etc.
 
