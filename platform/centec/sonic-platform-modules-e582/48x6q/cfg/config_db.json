@@ -1,0 +1,303 @@
+{
+    "DEVICE_METADATA": {
+        "localhost": {
+            "bgp_asn": 65100, 
+            "deployment_id": null, 
+            "hostname": "switch1", 
+            "type": "LeafRouter", 
+            "hwsku": "E582-48x6q"
+
+        }
+    }, 
+    "BGP_PEER_RANGE": {}, 
+    "VLAN": {}, 
+    "PORT": {
+        "Ethernet1": {
+            "alias": "Ethernet1", 
+            "lanes": "4",
+            "speed": "1000"
+        }, 
+        "Ethernet2": {
+            "alias": "Ethernet2", 
+            "lanes": "5",
+            "speed": "1000"
+        }, 
+                "Ethernet3": {
+            "alias": "Ethernet3", 
+            "lanes": "6",
+            "speed": "1000"
+        }, 
+                "Ethernet4": {
+            "alias": "Ethernet4", 
+            "lanes": "8",
+            "speed": "1000"
+        }, 
+                "Ethernet5": {
+            "alias": "Ethernet5", 
+            "lanes": "9",
+            "speed": "1000"
+        }, 
+                "Ethernet6": {
+            "alias": "Ethernet6", 
+            "lanes": "10",
+            "speed": "1000"
+        }, 
+                "Ethernet7": {
+            "alias": "Ethernet7", 
+            "lanes": "12",
+            "speed": "1000"
+        }, 
+                "Ethernet8": {
+            "alias": "Ethernet8", 
+            "lanes": "13",
+            "speed": "1000"
+        }, 
+                "Ethernet9": {
+            "alias": "Ethernet9", 
+            "lanes": "14",
+            "speed": "1000"
+        }, 
+                "Ethernet10": {
+            "alias": "Ethernet10", 
+            "lanes": "16",
+            "speed": "1000"
+        }, 
+                "Ethernet11": {
+            "alias": "Ethernet11", 
+            "lanes": "17",
+            "speed": "1000"
+        }, 
+                "Ethernet12": {
+            "alias": "Ethernet12", 
+            "lanes": "18",
+            "speed": "1000"
+        }, 
+                "Ethernet13": {
+            "alias": "Ethernet13", 
+            "lanes": "20",
+            "speed": "10000"
+        }, 
+                "Ethernet14": {
+            "alias": "Ethernet14", 
+            "lanes": "21",
+            "speed": "10000"
+        }, 
+                "Ethernet15": {
+            "alias": "Ethernet15", 
+            "lanes": "22",
+            "speed": "10000"
+        }, 
+                "Ethernet16": {
+            "alias": "Ethernet16", 
+            "lanes": "24",
+            "speed": "10000"
+        }, 
+                "Ethernet17": {
+            "alias": "Ethernet17", 
+            "lanes": "25",
+            "speed": "10000"
+        }, 
+                "Ethernet18": {
+            "alias": "Ethernet18", 
+            "lanes": "26",
+            "speed": "10000"
+        }, 
+                "Ethernet19": {
+            "alias": "Ethernet19", 
+            "lanes": "28",
+            "speed": "10000"
+        }, 
+                "Ethernet20": {
+            "alias": "Ethernet20", 
+            "lanes": "30",
+            "speed": "10000"
+        }, 
+                "Ethernet21": {
+            "alias": "Ethernet21", 
+            "lanes": "31",
+            "speed": "10000"
+        }, 
+                "Ethernet22": {
+            "alias": "Ethernet22", 
+            "lanes": "32",
+            "speed": "10000"
+        }, 
+                "Ethernet23": {
+            "alias": "Ethernet23", 
+            "lanes": "34",
+            "speed": "10000"
+        }, 
+                "Ethernet24": {
+            "alias": "Ethernet24", 
+            "lanes": "35",
+            "speed": "10000"
+        }, 
+                "Ethernet25": {
+            "alias": "Ethernet25", 
+            "lanes": "40",
+            "speed": "10000"
+        }, 
+                "Ethernet26": {
+            "alias": "Ethernet26", 
+            "lanes": "41",
+            "speed": "10000"
+        }, 
+                "Ethernet27": {
+            "alias": "Ethernet27", 
+            "lanes": "43",
+            "speed": "10000"
+        }, 
+                "Ethernet28": {
+            "alias": "Ethernet28", 
+            "lanes": "36",
+            "speed": "10000"
+        }, 
+                "Ethernet29": {
+            "alias": "Ethernet29", 
+            "lanes": "37",
+            "speed": "10000"
+        }, 
+                "Ethernet30": {
+            "alias": "Ethernet30", 
+            "lanes": "39",
+            "speed": "10000"
+        }, 
+                "Ethernet31": {
+            "alias": "Ethernet31", 
+            "lanes": "44",
+            "speed": "10000"
+        }, 
+                "Ethernet32": {
+            "alias": "Ethernet32", 
+            "lanes": "45",
+            "speed": "10000"
+        }, 
+                "Ethernet33": {
+            "alias": "Ethernet33", 
+            "lanes": "46",
+            "speed": "10000"
+        }, 
+                "Ethernet34": {
+            "alias": "Ethernet34", 
+            "lanes": "47",
+            "speed": "10000"
+        }, 
+                "Ethernet35": {
+            "alias": "Ethernet35", 
+            "lanes": "80",
+            "speed": "10000"
+        }, 
+                "Ethernet36": {
+            "alias": "Ethernet36", 
+            "lanes": "81",
+            "speed": "10000"
+        }, 
+                "Ethernet37": {
+            "alias": "Ethernet37", 
+            "lanes": "82",
+            "speed": "10000"
+        }, 
+                "Ethernet38": {
+            "alias": "Ethernet38", 
+            "lanes": "88",
+            "speed": "10000"
+        }, 
+                "Ethernet39": {
+            "alias": "Ethernet39", 
+            "lanes": "89",
+            "speed": "10000"
+        }, 
+                "Ethernet40": {
+            "alias": "Ethernet40", 
+            "lanes": "90",
+            "speed": "10000"
+        }, 
+                "Ethernet41": {
+            "alias": "Ethernet41", 
+            "lanes": "84",
+            "speed": "10000"
+        }, 
+                "Ethernet42": {
+            "alias": "Ethernet42", 
+            "lanes": "85",
+            "speed": "10000"
+        }, 
+                "Ethernet43": {
+            "alias": "Ethernet43", 
+            "lanes": "86",
+            "speed": "10000"
+        }, 
+                "Ethernet44": {
+            "alias": "Ethernet44", 
+            "lanes": "87",
+            "speed": "10000"
+        }, 
+                "Ethernet45": {
+            "alias": "Ethernet45", 
+            "lanes": "92",
+            "speed": "10000"
+        }, 
+                "Ethernet46": {
+            "alias": "Ethernet46", 
+            "lanes": "93",
+            "speed": "10000"
+        }, 
+                "Ethernet47": {
+            "alias": "Ethernet47", 
+            "lanes": "94",
+            "speed": "10000"
+        }, 
+                "Ethernet48": {
+            "alias": "Ethernet48", 
+            "lanes": "95",
+            "speed": "10000"
+        }, 
+                "Ethernet49": {
+            "alias": "Ethernet49", 
+            "lanes": "52,53,54,55",
+            "speed": "40000"
+        }, 
+                "Ethernet50": {
+            "alias": "Ethernet50", 
+            "lanes": "56,57,58,59",
+            "speed": "40000"
+        }, 
+                "Ethernet51": {
+            "alias": "Ethernet51", 
+            "lanes": "60,61,62,63",
+            "speed": "40000"
+        }, 
+                "Ethernet52": {
+            "alias": "Ethernet52", 
+            "lanes": "68,69,70,71",
+            "speed": "40000"
+        }, 
+                "Ethernet53": {
+            "alias": "Ethernet53", 
+            "lanes": "72,73,74,75",
+            "speed": "40000"
+        }, 
+        "Ethernet54": {
+            "alias": "Ethernet54", 
+            "lanes": "76,77,78,79",
+            "speed": "40000"
+        }
+    }, 
+    "SYSLOG_SERVER": {}, 
+    "VLAN_INTERFACE": {}, 
+    "PORTCHANNEL_INTERFACE": {}, 
+    "PORTCHANNEL": {}, 
+    "MGMT_INTERFACE": {}, 
+    "DHCP_SERVER": {}, 
+    "LOOPBACK_INTERFACE": {
+        "Loopback0|127.0.0.1/8": {}
+    }, 
+    "ACL_TABLE": {}, 
+    "INTERFACE": {
+        "Ethernet1|192.168.1.1/24": {}, 
+        "Ethernet2|192.168.2.1/24": {}, 
+        "Ethernet3|192.168.3.1/24": {}, 
+        "Ethernet4|192.168.4.1/24": {}
+    }
+}
+
