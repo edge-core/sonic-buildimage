@@ -16,6 +16,8 @@ class SfpUtil(SfpUtilBase):
     PORT_START = 0
     PORT_END = 31
     PORTS_IN_BLOCK = 32
+    QSFP_PORT_START = 0
+    QSFP_PORT_END = 31
 
     _port_to_eeprom_mapping = {}
     port_to_i2c_mapping = {
@@ -60,6 +62,14 @@ class SfpUtil(SfpUtilBase):
     @property
     def port_end(self):
         return self.PORT_END
+
+    @property
+    def qsfp_port_start(self):
+        return self.QSFP_PORT_START
+
+    @property
+    def qsfp_port_end(self):
+        return self.QSFP_PORT_END
 
     @property
     def qsfp_ports(self):

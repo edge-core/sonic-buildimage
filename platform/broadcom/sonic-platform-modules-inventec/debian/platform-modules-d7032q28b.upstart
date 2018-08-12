@@ -1,5 +1,0 @@
-description "SONiC platform service"
-
-respawn
-
-exec /usr/local/bin/inventec_d7032_util.py -f install

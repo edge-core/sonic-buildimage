@@ -11,18 +11,40 @@
 # Short-Description: Setup Inventec d7054q28b  board.
 ### END INIT INFO
 
+DIR=/usr/share/sonic/device/x86_64-inventec_d7054q28b-r0/plugins
+MONITOR_DAEMON=$DIR/transceiver_monitor.py
+MONITOR_DAEMON_NAME=transceiver_monitor
+LED_DAEMON=$DIR/led_proc.py
+LED_DAEMON_NAME=led_proc
+
+# The process ID of the script when it runs is stored here:
+MONITOR_PIDFILE=/var/run/$MONITOR_DAEMON_NAME.pid
+LED_PIDFILE=/var/run/$LED_DAEMON_NAME.pid
+
+do_monitor_start() {
+    /sbin/start-stop-daemon --quiet --oknodo --pidfile $LED_PIDFILE --make-pidfile --startas $LED_DAEMON --start --background  -- $DAEMON_OPTS
+    /sbin/start-stop-daemon --quiet --oknodo --pidfile $MONITOR_PIDFILE --make-pidfile --startas $MONITOR_DAEMON --start --background -- $DAEMON_OPTS
+}
+
+do_monitor_stop() {
+    /sbin/start-stop-daemon --quiet --oknodo --stop --pidfile $MONITOR_PIDFILE --retry 10
+    /sbin/start-stop-daemon --quiet --oknodo --stop --pidfile $LED_PIDFILE --retry 10
+}
+
 case "$1" in
 start)
 	echo -n "Setting up board... "
 	
 	depmod -a    
 	/usr/local/bin/inventec_d7054_util.py -f install
+        do_monitor_${1}
 	echo "done."
 	;;
 
 stop)
     
         /usr/local/bin/inventec_d7054_util.py -f clean
+        do_monitor_${1}
 	echo "done."
 
 	;;

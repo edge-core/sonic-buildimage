@@ -1,1 +1,4 @@
 d7054q28b/utils/inventec_d7054_util.py usr/local/bin
+common/utils/transceiver_monitor.py usr/share/sonic/device/x86_64-inventec_d7054q28b-r0/plugins
+common/utils/led_proc.py usr/share/sonic/device/x86_64-inventec_d7054q28b-r0/plugins
+
