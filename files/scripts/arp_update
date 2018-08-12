@@ -1,10 +1,28 @@
 #!/bin/bash
 #
 # usage:
-# arp_update: Send gratuitous ARP requests to VLAN member neighbors to refresh
-# the neighbors state.
+# arp_update:
+# Send ipv6 multicast pings to all "UP" L3 interfaces including vlan interfaces to
+# refresh link-local addresses from neighbors.
+# Send gratuitous ARP/NDP requests to VLAN member neighbors to refresh
+# the ipv4/ipv6 neighbors state.
 
 while /bin/true; do
+  # find L3 interfaces which are UP, send ipv6 multicast pings
+  echo "{% for (name, prefix) in INTERFACE %} {{name}} {% endfor %}" > /tmp/intf_tmp.j2
+  INTERFACE=`sonic-cfggen -d -t /tmp/intf_tmp.j2`
+  echo "{% for (name, prefix) in PORTCHANNEL_INTERFACE %} {{name}} {% endfor %}" > /tmp/pc_intf_tmp.j2
+  PC_INTERFACE=`sonic-cfggen -d -t /tmp/pc_intf_tmp.j2`
+
+  ALL_INTERFACE="$INTERFACE $PC_INTERFACE"
+  for intf in $ALL_INTERFACE; do
+      ping6cmd="ping6 -I $intf -n -q -i 0 -c 1 -W 0 ff02::1 >/dev/null"
+      intf_up=$(ip link show $intf | grep "state UP")
+      if [[ -n "$intf_up" ]]; then
+          eval $ping6cmd
+      fi
+  done
+
   VLAN=`sonic-cfggen -d -v 'VLAN.keys() | join(" ") if VLAN'`
   for vlan in $VLAN; do
       # generate a list of arping commands:
@@ -15,6 +33,18 @@ while /bin/true; do
       ipcmd="ip -4 neigh show | grep $vlan | cut -d ' ' -f 1,3 | $arpingcmd"
 
       eval `eval $ipcmd`
+
+      # send ipv6 multicast pings to Vlan interfaces to get/refresh link-local addrs
+      ping6cmd="ping6 -I $vlan -n -q -i 0 -c 1 -W 0 ff02::1 >/dev/null"
+      eval $ping6cmd
+
+      # generate a list of ndisc6 commands (exclude link-local addrs since it is done above):
+      #   ndisc6 -q -w 0 -1 <IP 1> <VLAN interface>;
+      #   ndisc6 -q -w 0 -1 <IP 2> <VLAN interface>;
+      #   ...
+      ndisc6cmd="sed -e 's/^/ndisc6 -q -w 0 -1 /' -e 's/$/;/'"
+      ip6cmd="ip -6 neigh show | grep -v fe80 | grep $vlan | cut -d ' ' -f 1,3 | $ndisc6cmd"
+      eval `eval $ip6cmd`
   done
   sleep 300
 done
