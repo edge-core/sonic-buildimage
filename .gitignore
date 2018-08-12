@@ -8,6 +8,7 @@ fs.*
 target/
 *.deb
 *.changes
+*.buildinfo
 
 # Subdirectories in src
 src/hiredis/*
