@@ -14,10 +14,10 @@
 #include <linux/i2c-mux-gpio.h>
 #include <linux/i2c/sff-8436.h>
 
-#define BUS4_DEV_NUM 54
-#define DEFAULT_NUM  1
-#define BUS4_BASE_NUM 10
-#define BUS4_MUX_REG 0x18
+#define BUS4_DEV_NUM    54
+#define DEFAULT_NUM      1
+#define BUS4_BASE_NUM   10
+#define BUS4_MUX_REG  0x18
 
 #define TEMP_FAN_VAL  0x06
 #define FANIO_CTL_VAL 0x07
@@ -51,7 +51,7 @@
 #define SFF8436_INFO(data) \
     .type = "sff8436", .addr = 0x50, .platform_data = (data)
 
-#define SFF_8346_PORT(eedata) \
+#define SFF_8436_PORT(eedata) \
     .byte_len = 256, .page_size = 1, .flags = SFF_8436_FLAG_READONLY
 	
 #define ag5648_i2c_device_num(NUM){                                           \
@@ -99,7 +99,7 @@ struct i2c_device_platform_data {
     struct i2c_board_info           info;
     struct i2c_client              *client;
 };
-/* pca9547 - add 8 bus */
+/* pca9548 - add 8 bus */
 static struct pca954x_platform_mode pca954x_mode[] = {
   { .adap_id = 2,
     .deselect_on_exit = 1,
@@ -142,60 +142,60 @@ static struct i2c_board_info __initdata i2c_info_pca9548[] =
 
 
 static struct sff_8436_platform_data sff_8436_port[] = {
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
-    { SFF_8346_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
+    { SFF_8436_PORT() },
 };
 
 
@@ -213,30 +213,30 @@ static struct i2c_device_platform_data ag5648_i2c_device_platform_data[] = {
         .client = NULL,
     },
     {
-        /* tmp75 (0x4d) */
+        /* tmp75 (0x49) */
         .parent = 3,
         .info = { I2C_BOARD_INFO("tmp75", 0x49) },
         .client = NULL,
     },
     {
-        /* tmp75 (0x4d) */
+        /* tmp75 (0x4b) */
         .parent = 3,
         .info = { I2C_BOARD_INFO("tmp75", 0x4b) },
     },
     {
-        /* tmp75 (0x4d) */
+        /* tmp75 (0x4c) */
         .parent = 3,
         .info = { I2C_BOARD_INFO("tmp75", 0x4c) },
         .client = NULL,
     },
     {
-        /* tmp75 (0x4d) */
+        /* tmp75 (0x4e) */
         .parent = 3,
         .info = { I2C_BOARD_INFO("tmp75", 0x4e) },
         .client = NULL,
     },
     {
-        /* tmp75 (0x4d) */
+        /* tmp75 (0x4f) */
         .parent = 3,
         .info = { I2C_BOARD_INFO("tmp75", 0x4f) },
     },
@@ -253,13 +253,13 @@ static struct i2c_device_platform_data ag5648_i2c_device_platform_data[] = {
         .client = NULL,
     },
     {
-        /* tmp75 (0x4d) */
+        /* tmp75 (0x40) */
         .parent = 3,
         .info = { I2C_BOARD_INFO("ltc4215", 0x40) },
         .client = NULL,
     },
     {
-        /* tmp75 (0x4d) */
+        /* tmp75 (0x42) */
         .parent = 3,
         .info = { I2C_BOARD_INFO("ltc4215", 0x42) },
     },
@@ -281,319 +281,319 @@ static struct i2c_device_platform_data ag5648_i2c_device_platform_data[] = {
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 2 (0x50) */
         .parent = 11,
         .info = { SFF8436_INFO(&sff_8436_port[1]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 3 (0x50) */
         .parent = 12,
         .info = { SFF8436_INFO(&sff_8436_port[2]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 4 (0x50) */
         .parent = 13,
         .info = { SFF8436_INFO(&sff_8436_port[3]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 5 (0x50) */
         .parent = 14,
         .info = { SFF8436_INFO(&sff_8436_port[4]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 6 (0x50) */
         .parent = 15,
         .info = { SFF8436_INFO(&sff_8436_port[5]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 7 (0x50) */
         .parent = 16,
         .info = { SFF8436_INFO(&sff_8436_port[6]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 8 (0x50) */
         .parent = 17,
         .info = { SFF8436_INFO(&sff_8436_port[7]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 9 (0x50) */
         .parent = 18,
         .info = { SFF8436_INFO(&sff_8436_port[8]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 10 (0x50) */
         .parent = 19,
         .info = { SFF8436_INFO(&sff_8436_port[9]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 11 (0x50) */
         .parent = 20,
         .info = { SFF8436_INFO(&sff_8436_port[10]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 12 (0x50) */
         .parent = 21,
         .info = { SFF8436_INFO(&sff_8436_port[11]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 13 (0x50) */
         .parent = 22,
         .info = { SFF8436_INFO(&sff_8436_port[12]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 14 (0x50) */
         .parent = 23,
         .info = { SFF8436_INFO(&sff_8436_port[13]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 15 (0x50) */
         .parent = 24,
         .info = { SFF8436_INFO(&sff_8436_port[14]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 16 (0x50) */
         .parent = 25,
         .info = { SFF8436_INFO(&sff_8436_port[15]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 17 (0x50) */
         .parent = 26,
         .info = { SFF8436_INFO(&sff_8436_port[16]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 18 (0x50) */
         .parent = 27,
         .info = { SFF8436_INFO(&sff_8436_port[17]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 19 (0x50) */
         .parent = 28,
         .info = { SFF8436_INFO(&sff_8436_port[18]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 20 (0x50) */
         .parent = 29,
         .info = { SFF8436_INFO(&sff_8436_port[19]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 21 (0x50) */
         .parent = 30,
         .info = { SFF8436_INFO(&sff_8436_port[20]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 22 (0x50) */
         .parent = 31,
         .info = { SFF8436_INFO(&sff_8436_port[21]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 23 (0x50) */
         .parent = 32,
         .info = { SFF8436_INFO(&sff_8436_port[22]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 24 (0x50) */
         .parent = 33,
         .info = { SFF8436_INFO(&sff_8436_port[23]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 25 (0x50) */
         .parent = 34,
         .info = { SFF8436_INFO(&sff_8436_port[24]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 26 (0x50) */
         .parent = 35,
         .info = { SFF8436_INFO(&sff_8436_port[25]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 27 (0x50) */
         .parent = 36,
         .info = { SFF8436_INFO(&sff_8436_port[26]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 28 (0x50) */
         .parent = 37,
         .info = { SFF8436_INFO(&sff_8436_port[27]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 29 (0x50) */
         .parent = 38,
         .info = { SFF8436_INFO(&sff_8436_port[28]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 30 (0x50) */
         .parent = 39,
         .info = { SFF8436_INFO(&sff_8436_port[29]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 31 (0x50) */
         .parent = 40,
         .info = { SFF8436_INFO(&sff_8436_port[30]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 32 (0x50) */
         .parent = 41,
         .info = { SFF8436_INFO(&sff_8436_port[31]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 33 (0x50) */
         .parent = 42,
         .info = { SFF8436_INFO(&sff_8436_port[32]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 34 (0x50) */
         .parent = 43,
         .info = { SFF8436_INFO(&sff_8436_port[33]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 35 (0x50) */
         .parent = 44,
         .info = { SFF8436_INFO(&sff_8436_port[34]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 36 (0x50) */
         .parent = 45,
         .info = { SFF8436_INFO(&sff_8436_port[35]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 37 (0x50) */
         .parent = 46,
         .info = { SFF8436_INFO(&sff_8436_port[36]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 38 (0x50) */
         .parent = 47,
         .info = { SFF8436_INFO(&sff_8436_port[37]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 39 (0x50) */
         .parent = 48,
         .info = { SFF8436_INFO(&sff_8436_port[38]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 40 (0x50) */
         .parent = 49,
         .info = { SFF8436_INFO(&sff_8436_port[39]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 41 (0x50) */
         .parent = 50,
         .info = { SFF8436_INFO(&sff_8436_port[40]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 42 (0x50) */
         .parent = 51,
         .info = { SFF8436_INFO(&sff_8436_port[41]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 43 (0x50) */
         .parent = 52,
         .info = { SFF8436_INFO(&sff_8436_port[42]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 44 (0x50) */
         .parent = 53,
         .info = { SFF8436_INFO(&sff_8436_port[43]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 45 (0x50) */
         .parent = 54,
         .info = { SFF8436_INFO(&sff_8436_port[44]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 46 (0x50) */
         .parent = 55,
         .info = { SFF8436_INFO(&sff_8436_port[45]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 47 (0x50) */
         .parent = 56,
         .info = { SFF8436_INFO(&sff_8436_port[46]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 48 (0x50) */
         .parent = 57,
         .info = { SFF8436_INFO(&sff_8436_port[47]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 49 (0x50) */
         .parent = 58,
         .info = { SFF8436_INFO(&sff_8436_port[48]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 50 (0x50) */
         .parent = 59,
         .info = { SFF8436_INFO(&sff_8436_port[49]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 51 (0x50) */
         .parent = 60,
         .info = { SFF8436_INFO(&sff_8436_port[50]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 52 (0x50) */
         .parent = 61,
         .info = { SFF8436_INFO(&sff_8436_port[51]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 53 (0x50) */
         .parent = 62,
         .info = { SFF8436_INFO(&sff_8436_port[52]) },
         .client = NULL,
     },
     {
-        /* qsfp 1 (0x50) */
+        /* qsfp 54 (0x50) */
         .parent = 63,
         .info = { SFF8436_INFO(&sff_8436_port[53]) },
         .client = NULL,
@@ -714,7 +714,7 @@ static int __exit i2c_deivce_remove(struct platform_device *pdev)
     }
 
     if (pdata->client) {
-        parent = i2c_get_adapter(pdata->parent);
+	parent = (pdata->client)->adapter;
         i2c_unregister_device(pdata->client);
         i2c_put_adapter(parent);
     }
@@ -772,48 +772,48 @@ static ssize_t get_present(struct device *dev, struct device_attribute \
                             *dev_attr, char *buf)
 {
     int ret;
-    u64 data = 0;
-    u64 data2 = 0;
+    u32 data = 0;
+    u32 data2 = 0;
     struct cpld_platform_data *pdata = dev->platform_data;
 
     ret = i2c_smbus_read_byte_data(pdata[slave_cpld].client, SFP_PRESENCE_1);
     if (ret < 0)
-        return sprintf(buf, "error number(%ld)",ret);
+        return sprintf(buf, "error number(%d)",ret);
     data = (u32)(ret & 0xff);
 
     ret = i2c_smbus_read_byte_data(pdata[slave_cpld].client, SFP_PRESENCE_2);
     if (ret < 0)
-        return sprintf(buf, "error number(%ld)",ret);
+        return sprintf(buf, "error number(%d)",ret);
     data |= (u32)(ret & 0xff) << 8;
 
     ret = i2c_smbus_read_byte_data(pdata[slave_cpld].client, SFP_PRESENCE_3);
     if (ret < 0)
-        return sprintf(buf, "error number(%ld)",ret);
+        return sprintf(buf, "error number(%d)",ret);
     data |= (u32)(ret & 0xff) << 16;
 
     ret = i2c_smbus_read_byte_data(pdata[slave_cpld].client, SFP_PRESENCE_4);
     if (ret < 0)
-        return sprintf(buf, "error number(%ld)",ret);
+        return sprintf(buf, "error number(%d)",ret);
     data |= (u32)(ret & 0xff) << 24;
 
     ret = i2c_smbus_read_byte_data(pdata[slave_cpld].client, SFP_PRESENCE_5);
     if (ret < 0)
-        return sprintf(buf, "error number(%ld)",ret);
+        return sprintf(buf, "error number(%d)",ret);
     data2 = ((u32)(ret & 0xf)) ;
 
     ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, SFP_PRESENCE_6);
     if (ret < 0)
-        return sprintf(buf, "error number(%ld)",ret);
+        return sprintf(buf, "error number(%d)",ret);
     data2 |= (u32)(ret & 0xff) << 4;
 
     ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, SFP_PRESENCE_7);
     if (ret < 0)
-        return sprintf(buf, "error number(%ld)",ret);
+        return sprintf(buf, "error number(%d)",ret);
     data2 |= (u32)((ret >> 4) & 0xf) << 12;
 
     ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, QSFP_PRESENCE);
     if (ret < 0)
-        return sprintf(buf, "error number(%ld)",ret);
+        return sprintf(buf, "error number(%d)",ret);
     data2 |= (u32)(ret & 0x3f) << 16;
 
     return sprintf(buf, "0x%06x%x\n", data2, data);
@@ -827,10 +827,10 @@ static ssize_t get_lpmode(struct device *dev, struct device_attribute *devattr, 
 
     ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, QSFP_LP_MODE);
     if (ret < 0)
-        return sprintf(buf, "error number(%ld)",ret);
+        return sprintf(buf, "error number(%d)",ret);
     data = ((u8)ret & 0x3f) ;
 
-    return sprintf(buf, "0x%02x%012x\n", data);
+    return sprintf(buf, "0x%02x%012x\n", data, 0);
 }
 
 static ssize_t set_lpmode(struct device *dev, struct device_attribute *devattr, const char *buf, size_t count) 
@@ -853,16 +853,16 @@ static ssize_t set_lpmode(struct device *dev, struct device_attribute *devattr, 
 static ssize_t get_reset(struct device *dev, struct device_attribute *devattr, char *buf) 
 {
     int ret;
-    u64 data = 0;
+    u32 data = 0;
     struct cpld_platform_data *pdata = dev->platform_data;
 
     ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, QSFP_RESET);
     if (ret < 0)
-        return sprintf(buf, "error number(%ld)",ret);
+        return sprintf(buf, "error number(%d)",ret);
 
     data = ((u8)ret & 0x3f);
 
-    return sprintf(buf, "0x%02x%012x\n", data);
+    return sprintf(buf, "0x%02x%012x\n", data, 0);
 }
 
 static ssize_t set_reset(struct device *dev, struct device_attribute *devattr, const char *buf, size_t count) 
@@ -889,10 +889,10 @@ static ssize_t get_response(struct device *dev, struct device_attribute *devattr
     ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, QSFP_RESPONSE);
 
     if (ret < 0)
-        return sprintf(buf, "error number(%ld)",ret);
+        return sprintf(buf, "error number(%d)",ret);
     data = (u8)ret & 0x3f;
 
-    return sprintf(buf, "0x%02x%012x\n", data);
+    return sprintf(buf, "0x%02x%012x\n", data, 0);
 }
 
 static ssize_t set_response(struct device *dev, struct device_attribute *devattr, const char *buf, size_t count) 
@@ -957,26 +957,26 @@ static struct platform_led_status led_info[] = {
         .led_status = "sys_Amber",
         .led_id = 1,
     },
-	{
-		.reg_data = 0x00,
-		.led_status = "pwr_off",
-		.led_id = 2,
-	},
-	{
-		.reg_data = 1 << 1,
-		.led_status = "pwr_Amber",
-		.led_id = 2,
-	},
-	{
-		.reg_data = 2 << 1,
-		.led_status = "pwr_green",
-		.led_id = 2,
-	},
-	{
-		.reg_data = 3 << 1,
-		.led_status = "pwr_Blinking_Amber",
-		.led_id = 2,
-	},
+    {
+    	.reg_data = 0x00,
+    	.led_status = "pwr_off",
+    	.led_id = 2,
+    },
+    {
+    	.reg_data = 1 << 1,
+    	.led_status = "pwr_Amber",
+    	.led_id = 2,
+    },
+    {
+    	.reg_data = 2 << 1,
+    	.led_status = "pwr_green",
+    	.led_id = 2,
+    },
+    {
+    	.reg_data = 3 << 1,
+    	.led_status = "pwr_Blinking_Amber",
+    	.led_id = 2,
+    },
     {
         .reg_data = 0x00,
         .led_status = "fan4_off",
@@ -1046,17 +1046,17 @@ struct platform_led_data{
 	
 static struct platform_led_data led_data[] = {	
     {
-		.reg_addr = LED_REG,    //0x04
-		.mask = 0xc0,//1100 0000		
-	},
-	{
-		.reg_addr = LED_REG,
+	.reg_addr = LED_REG,    //0x04
+	.mask = 0xc0,//1100 0000		
+    },
+    {
+	.reg_addr = LED_REG,
         .mask = 0x30,//0011 0000	
-	},
-	{
-		.reg_addr = LED_REG,
+    },
+    {
+	.reg_addr = LED_REG,
         .mask = 0x06,//0000 0110	
-	},
+    },
     {
         .reg_addr = FAN_LED_REG,//0x05
         .mask = 0xc0,//1100 0000        
@@ -1080,24 +1080,24 @@ static ssize_t get_led_color(struct device *dev, struct device_attribute *devatt
 {
     char str[9][20] = {0};
     int board_data;
-	int led_data_number;
-	int led_info_number;
+    int led_data_number;
+    int led_info_number;
     struct cpld_platform_data *pdata = dev->platform_data;
 
-	for(led_data_number = 0; led_data_number < ARRAY_SIZE(led_data); led_data_number++){	
+    for(led_data_number = 0; led_data_number < ARRAY_SIZE(led_data); led_data_number++){	
         board_data = i2c_smbus_read_byte_data(pdata[slave_cpld].client, led_data[led_data_number].reg_addr);	
         if(board_data >= 0){
-		    board_data &= led_data[led_data_number].mask;		
-		    for(led_info_number = 0; led_info_number < ARRAY_SIZE(led_info); led_info_number++){
-	            if (led_data_number == led_info[led_info_number].led_id \
-                    && board_data == led_info[led_info_number].reg_data){
-                    sprintf(str[led_data_number], "%s", led_info[led_info_number].led_status);
-			    }		
-		    }
-		}
-		else
-			printk( KERN_ERR "Missing LED board data\n");
-	}		    		
+                board_data &= led_data[led_data_number].mask;		
+                for(led_info_number = 0; led_info_number < ARRAY_SIZE(led_info); led_info_number++){
+                    if (led_data_number == led_info[led_info_number].led_id \
+                          && board_data == led_info[led_info_number].reg_data){
+                        sprintf(str[led_data_number], "%s", led_info[led_info_number].led_status);
+                    }		
+                }
+        }
+        else
+            printk( KERN_ERR "Missing LED board data\n");
+        }		    		
 	return sprintf(buf,"%s\n%s\n%s\n%s\n%s\n%s\n%s\n",str[0],str[1],str[2],str[3],str[4],str[5],str[6]);
 }
 
@@ -1281,6 +1281,7 @@ static int cpld_reg_write_byte(struct i2c_client *client, u8 regaddr, u8 val)
                                              regaddr, I2C_SMBUS_BYTE_DATA, &data);
 }
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,7,0)
 static int swpld_mux_select(struct i2c_adapter *adap, void *data, u8 chan)
 {
     struct swpld_mux *mux = data;
@@ -1297,7 +1298,26 @@ static int swpld_mux_select(struct i2c_adapter *adap, void *data, u8 chan)
 
     return cpld_reg_write_byte(mux->data.cpld, mux->data.reg_addr, (u8)(swpld_mux_val & 0xff));
 }
+#else // #if LINUX_VERSION_CODE >= KERNEL_VERSION(4,7,0)
+static int swpld_mux_select(struct i2c_mux_core *muxc, u32 chan)
+{
+    struct swpld_mux *mux = i2c_mux_priv(muxc);
+    u8 swpld_mux_val=0; 
+    if ( mux->data.base_nr == BUS4_BASE_NUM )
+    {
+        swpld_mux_val = (chan + 0x01);
+    }
+    else
+    {
+        swpld_mux_val = 0x00;
+    }
+    swpld_mux_val=swpld_mux_val & (u8)0x3F;
 
+    return cpld_reg_write_byte(mux->data.cpld, mux->data.reg_addr, (u8)(swpld_mux_val & 0xff));
+}
+#endif
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,7,0)
 static int __init swpld_mux_probe(struct platform_device *pdev)
 {
     struct swpld_mux *mux;
@@ -1371,8 +1391,81 @@ alloc_failed:
 
     return ret;
 }
+#else // #if LINUX_VERSION_CODE >= KERNEL_VERSION(4,7,0)
+static int __init swpld_mux_probe(struct platform_device *pdev)
+{
+    struct i2c_mux_core *muxc;
+    struct swpld_mux *mux;
+    struct swpld_mux_platform_data *pdata;
+    struct i2c_adapter *parent;
+    int i, ret, dev_num;
+
+    pdata = pdev->dev.platform_data;
+    if (!pdata) {
+        dev_err(&pdev->dev, "SWPLD platform data not found\n");
+        return -ENODEV;
+    }
+
+    mux = kzalloc(sizeof(*mux), GFP_KERNEL);
+    if (!mux) {
+        printk(KERN_ERR "Failed to allocate memory for mux\n");
+        return -ENOMEM;
+    }
+    mux->data = *pdata;
+
+    parent = i2c_get_adapter(pdata->parent);
+    if (!parent) {
+        kfree(mux);
+        dev_err(&pdev->dev, "Parent adapter (%d) not found\n", pdata->parent);
+        return -ENODEV;
+    }
+
+    /* Judge bus number to decide how many devices*/
+    switch (pdata->parent) {
+        case BUS4:
+            dev_num = BUS4_DEV_NUM;
+            break;
+        default :
+            dev_num = DEFAULT_NUM;  
+            break;
+    }
+
+    muxc = i2c_mux_alloc(parent, &pdev->dev, dev_num, 0, 0,
+                                            swpld_mux_select, NULL);
+    if (!muxc) {
+        ret = -ENOMEM;
+        goto alloc_failed;
+    }
+    muxc->priv = mux;
+    platform_set_drvdata(pdev, muxc);
 
 
+    for (i = 0; i < dev_num; i++) {
+        int nr = pdata->base_nr + i;
+        unsigned int class = 0;
+
+        ret = i2c_mux_add_adapter(muxc, nr, i, class);
+        if (ret) {
+            dev_err(&pdev->dev, "Failed to add adapter %d\n", i);
+            goto add_adapter_failed;
+        }
+    }
+
+    dev_info(&pdev->dev, "%d port mux on %s adapter\n", dev_num, parent->name);
+
+    return 0;
+
+add_adapter_failed:
+    i2c_mux_del_adapters(muxc);
+alloc_failed:
+    kfree(mux);
+    i2c_put_adapter(parent);
+
+    return ret;
+}
+#endif
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,7,0)
 static int __exit swpld_mux_remove(struct platform_device *pdev)
 {
     int i;
@@ -1412,6 +1505,17 @@ static int __exit swpld_mux_remove(struct platform_device *pdev)
 
     return 0;
 }
+#else // #if LINUX_VERSION_CODE >= KERNEL_VERSION(4,7,0)
+static int __exit swpld_mux_remove(struct platform_device *pdev)
+{
+    struct i2c_mux_core *muxc = platform_get_drvdata(pdev);
+
+    i2c_mux_del_adapters(muxc);
+    i2c_put_adapter(muxc->parent);
+
+    return 0;
+}
+#endif
 
 static struct platform_driver swpld_mux_driver = {
     .probe  = swpld_mux_probe,
@@ -1425,17 +1529,17 @@ static struct platform_driver swpld_mux_driver = {
 
 
 /*----------------   module initialization     ------------- */
-static void __init delta_ag5648_platform_init(void)
+static int __init delta_ag5648_platform_init(void)
 {
-    struct i2c_client *client;
+    //struct i2c_client *client;
     struct i2c_adapter *adapter;
     struct cpld_platform_data *cpld_pdata;
     struct swpld_mux_platform_data *swpld_pdata;
     int ret,i = 0;
 
-    //Use pca9547 in i2c_mux_pca954x.c
+    //Use pca9548 in i2c_mux_pca954x.c
     adapter = i2c_get_adapter(BUS1); 
-    //client = i2c_new_device(adapter, &i2c_info_pca9548[0]);
+    
     i2c_client_9548 = i2c_new_device(adapter, &i2c_info_pca9548[0]);
     i2c_put_adapter(adapter);
 
@@ -1489,7 +1593,6 @@ static void __init delta_ag5648_platform_init(void)
 
     if (ret)
         goto error_ag5648_swpld_mux;
-
     return 0;
 
 error_ag5648_i2c_device:
@@ -1503,7 +1606,7 @@ error_ag5648_swpld_mux:
     for (; i >= 0; i--) {
         platform_device_unregister(&ag5648_swpld_mux[0]);
     }
-    platform_driver_unregister(&ag5648_cpld);
+    platform_device_unregister(&ag5648_cpld);
 error_ag5648_cpld:
     platform_driver_unregister(&i2c_device_driver);
 error_i2c_device_driver:
@@ -1530,7 +1633,6 @@ static void __exit delta_ag5648_platform_exit(void)
     platform_driver_unregister(&i2c_device_driver);
     platform_driver_unregister(&cpld_driver);
     platform_driver_unregister(&swpld_mux_driver);
-
     i2c_unregister_device(i2c_client_9548);
 }
 

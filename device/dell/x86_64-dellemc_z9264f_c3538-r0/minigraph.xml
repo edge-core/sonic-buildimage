@@ -1,0 +1,1541 @@
+<DeviceMiniGraph xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="Microsoft.Search.Autopilot.Evolution">
+  <CpgDec>
+    <IsisRouters xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
+    <PeeringSessions>
+      <BGPSession>
+        <StartRouter>ARISTA01T0</StartRouter>
+        <StartPeer>10.0.0.33</StartPeer>
+        <EndRouter>sonic</EndRouter>
+        <EndPeer>10.0.0.32</EndPeer>
+        <Multihop>1</Multihop>
+        <HoldTime>10</HoldTime>
+        <KeepAliveTime>3</KeepAliveTime>
+      </BGPSession>
+      <BGPSession>
+        <StartRouter>ARISTA01T0</StartRouter>
+        <StartPeer>FC00::42</StartPeer>
+        <EndRouter>sonic</EndRouter>
+        <EndPeer>FC00::41</EndPeer>
+        <Multihop>1</Multihop>
+        <HoldTime>10</HoldTime>
+        <KeepAliveTime>3</KeepAliveTime>
+      </BGPSession>
+      <BGPSession>
+        <StartRouter>sonic</StartRouter>
+        <StartPeer>10.0.0.0</StartPeer>
+        <EndRouter>ARISTA01T2</EndRouter>
+        <EndPeer>10.0.0.1</EndPeer>
+        <Multihop>1</Multihop>
+        <HoldTime>10</HoldTime>
+        <KeepAliveTime>3</KeepAliveTime>
+      </BGPSession>
+      <BGPSession>
+        <StartRouter>sonic</StartRouter>
+        <StartPeer>FC00::1</StartPeer>
+        <EndRouter>ARISTA01T2</EndRouter>
+        <EndPeer>FC00::2</EndPeer>
+        <Multihop>1</Multihop>
+        <HoldTime>10</HoldTime>
+        <KeepAliveTime>3</KeepAliveTime>
+      </BGPSession>
+      <BGPSession>
+        <StartRouter>ARISTA02T0</StartRouter>
+        <StartPeer>10.0.0.35</StartPeer>
+        <EndRouter>sonic</EndRouter>
+        <EndPeer>10.0.0.34</EndPeer>
+        <Multihop>1</Multihop>
+        <HoldTime>10</HoldTime>
+        <KeepAliveTime>3</KeepAliveTime>
+      </BGPSession>
+      <BGPSession>
+        <StartRouter>ARISTA02T0</StartRouter>
+        <StartPeer>FC00::46</StartPeer>
+        <EndRouter>sonic</EndRouter>
+        <EndPeer>FC00::45</EndPeer>
+        <Multihop>1</Multihop>
+        <HoldTime>10</HoldTime>
+        <KeepAliveTime>3</KeepAliveTime>
+      </BGPSession>
+      <BGPSession>
+        <StartRouter>sonic</StartRouter>
+        <StartPeer>10.0.0.2</StartPeer>
+        <EndRouter>ARISTA02T2</EndRouter>
+        <EndPeer>10.0.0.3</EndPeer>
+        <Multihop>1</Multihop>
+        <HoldTime>10</HoldTime>
+        <KeepAliveTime>3</KeepAliveTime>
+	</BGPSession>
+      <BGPSession>
+        <StartRouter>ARISTA04T1</StartRouter>
+        <StartPeer>FC00::1A</StartPeer>
+        <EndRouter>sonic</EndRouter>
+        <EndPeer>FC00::19</EndPeer>
+        <Multihop>1</Multihop>
+        <HoldTime>180</HoldTime>
+        <KeepAliveTime>60</KeepAliveTime>
+      </BGPSession>
+    </PeeringSessions>
+    <Routers xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
+      <a:BGPRouterDeclaration>
+        <a:ASN>65100</a:ASN>
+        <a:Hostname>sonic</a:Hostname>
+        <a:Peers>
+          <BGPPeer>
+            <Address>10.0.0.33</Address>
+            <RouteMapIn i:nil="true"/>
+            <RouteMapOut i:nil="true"/>
+          </BGPPeer>
+          <BGPPeer>
+            <Address>10.0.0.1</Address>
+            <RouteMapIn i:nil="true"/>
+            <RouteMapOut i:nil="true"/>
+          </BGPPeer>
+          <BGPPeer>
+            <ElementType>BGPPeer</ElementType>
+	    <Address>10.0.0.5</Address>
+            <RouteMapIn i:nil="true"/>
+            <RouteMapOut i:nil="true"/>
+          </BGPPeer>
+          <BGPPeer>
+            <ElementType>BGPPeer</ElementType>
+            <Address>10.0.0.9</Address>
+            <RouteMapIn i:nil="true"/>
+            <RouteMapOut i:nil="true"/>
+          </BGPPeer>
+          <BGPPeer>
+            <ElementType>BGPPeer</ElementType>
+            <Address>10.0.0.13</Address>
+            <RouteMapIn i:nil="true"/>
+            <RouteMapOut i:nil="true"/>
+          </BGPPeer>
+          <BGPPeer>
+	<ElementType>BGPPeer</ElementType>
+            <Address>FC00::2</Address>
+            <RouteMapIn i:nil="true"/>
+            <RouteMapOut i:nil="true"/>
+          </BGPPeer>
+          <BGPPeer>
+            <Address>10.0.0.27</Address>
+            <RouteMapIn i:nil="true"/>
+            <RouteMapOut i:nil="true"/>
+          </BGPPeer>
+          <BGPPeer>
+            <Address>10.0.0.61</Address>
+            <RouteMapIn i:nil="true"/>
+            <RouteMapOut i:nil="true"/>
+          </BGPPeer>
+          <BGPPeer>
+            <Address>10.0.0.29</Address>
+            <RouteMapIn i:nil="true"/>
+            <RouteMapOut i:nil="true"/>
+          </BGPPeer>
+          <BGPPeer>
+            <Address>10.0.0.63</Address>
+            <RouteMapIn i:nil="true"/>
+            <RouteMapOut i:nil="true"/>
+          </BGPPeer>
+          <BGPPeer>
+            <Address>10.0.0.31</Address>
+            <RouteMapIn i:nil="true"/>
+            <RouteMapOut i:nil="true"/>
+          </BGPPeer>
+        </a:Peers>
+        <a:RouteMaps/>
+      </a:BGPRouterDeclaration>
+      <a:BGPRouterDeclaration>
+        <a:ASN>64001</a:ASN>
+        <a:Hostname>ARISTA01T0</a:Hostname>
+        <a:RouteMaps/>
+      </a:BGPRouterDeclaration>
+      <a:BGPRouterDeclaration>
+        <a:ASN>65200</a:ASN>
+        <a:Hostname>ARISTA01T2</a:Hostname>
+        <a:RouteMaps/>
+      </a:BGPRouterDeclaration>
+      <a:BGPRouterDeclaration>
+        <a:ASN>64002</a:ASN>
+        <a:Hostname>ARISTA02T0</a:Hostname>
+        <a:RouteMaps/>
+      </a:BGPRouterDeclaration>
+      <a:BGPRouterDeclaration>
+        <a:ASN>65200</a:ASN>
+        <a:Hostname>ARISTA02T2</a:Hostname>
+        <a:RouteMaps/>
+      </a:BGPRouterDeclaration>
+      <a:BGPRouterDeclaration>
+        <a:ASN>64003</a:ASN>
+        <a:Hostname>ARISTA03T0</a:Hostname>
+        <a:RouteMaps/>
+      </a:BGPRouterDeclaration>
+    </Routers>
+  </CpgDec>
+  <DpgDec>
+    <DeviceDataPlaneInfo>
+      <IPSecTunnels/>
+      <LoopbackIPInterfaces xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
+        <a:LoopbackIPInterface>
+          <Name>HostIP</Name>
+          <AttachTo>Loopback0</AttachTo>
+          <a:Prefix xmlns:b="Microsoft.Search.Autopilot.Evolution">
+            <b:IPPrefix>10.1.0.32/32</b:IPPrefix>
+          </a:Prefix>
+          <a:PrefixStr>10.1.0.32/32</a:PrefixStr>
+        </a:LoopbackIPInterface>
+        <a:LoopbackIPInterface>
+          <Name>HostIP1</Name>
+          <AttachTo>Loopback0</AttachTo>
+          <a:Prefix xmlns:b="Microsoft.Search.Autopilot.Evolution">
+            <b:IPPrefix>FC00:1::32/128</b:IPPrefix>
+          </a:Prefix>
+          <a:PrefixStr>FC00:1::32/128</a:PrefixStr>
+        </a:LoopbackIPInterface>
+      </LoopbackIPInterfaces>
+      <ManagementIPInterfaces xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
+     </ManagementIPInterfaces>
+      <MplsInterfaces/>
+      <MplsTeInterfaces/>
+      <RsvpInterfaces/>
+      <Hostname>sonic</Hostname>
+      <PortChannelInterfaces/>
+      <VlanInterfaces/>
+      <IPInterfaces>
+        <IPInterface>
+          <ElementType>IPInterface</ElementType>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>10.0.0.1/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/1</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/2</AttachTo>
+          <Prefix>10.0.0.3/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/5</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/3</AttachTo>
+          <Prefix>10.0.0.5/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/9</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/4</AttachTo>
+          <Prefix>10.0.0.7/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/D</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/5</AttachTo>
+          <Prefix>10.0.0.9/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/11</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/6</AttachTo>
+          <Prefix>10.0.0.11/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/15</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/7</AttachTo>
+          <Prefix>10.0.0.13/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/19</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/8</AttachTo>
+          <Prefix>10.0.0.15/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/1D</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/9</AttachTo>
+          <Prefix>10.0.0.17/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/21</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/10</AttachTo>
+          <Prefix>10.0.0.19/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/25</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/11</AttachTo>
+          <Prefix>10.0.0.21/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/29</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/12</AttachTo>
+          <Prefix>10.0.0.23/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/2D</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/13</AttachTo>
+          <Prefix>10.0.0.25/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/31</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/14</AttachTo>
+          <Prefix>10.0.0.27/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/35</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/15</AttachTo>
+          <Prefix>10.0.0.29/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/39</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/16</AttachTo>
+          <Prefix>10.0.0.31/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/3D</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/17</AttachTo>
+          <Prefix>10.0.0.33/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/41</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/18</AttachTo>
+          <Prefix>10.0.0.35/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/45</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/19</AttachTo>
+          <Prefix>10.0.0.37/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/49</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/20</AttachTo>
+          <Prefix>10.0.0.39/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/4D</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/21</AttachTo>
+          <Prefix>10.0.0.41/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/51</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/22</AttachTo>
+          <Prefix>10.0.0.43/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/55</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/23</AttachTo>
+          <Prefix>10.0.0.45/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/59</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/24</AttachTo>
+          <Prefix>10.0.0.47/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/5D</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/25</AttachTo>
+          <Prefix>10.0.0.49/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/61</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/26</AttachTo>
+          <Prefix>10.0.0.51/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/65</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/27</AttachTo>
+          <Prefix>10.0.0.53/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/69</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/28</AttachTo>
+          <Prefix>10.0.0.55/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/6D</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/29</AttachTo>
+          <Prefix>10.0.0.57/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/71</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/30</AttachTo>
+          <Prefix>10.0.0.59/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/75</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <ElementType>IPInterface</ElementType>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/31</AttachTo>
+          <Prefix>10.0.0.61/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/79</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <ElementType>IPInterface</ElementType>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/32</AttachTo>
+          <Prefix>10.0.0.63/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/7D</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <ElementType>IPInterface</ElementType>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/33</AttachTo>
+          <Prefix>10.0.0.65/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/81</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/34</AttachTo>
+          <Prefix>10.0.0.67/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/85</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <ElementType>IPInterface</ElementType>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/35</AttachTo>
+          <Prefix>10.0.0.69/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/89</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <ElementType>IPInterface</ElementType>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/36</AttachTo>
+          <Prefix>10.0.0.71/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/8D</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <ElementType>IPInterface</ElementType>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/37</AttachTo>
+          <Prefix>10.0.0.73/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/91</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/38</AttachTo>
+          <Prefix>10.0.0.75/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/95</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/39</AttachTo>
+          <Prefix>10.0.0.77/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/99</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/40</AttachTo>
+          <Prefix>10.0.0.79/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/9D</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/41</AttachTo>
+          <Prefix>10.0.0.81/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/A1</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/42</AttachTo>
+          <Prefix>10.0.0.83/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/A5</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/43</AttachTo>
+          <Prefix>10.0.0.85/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/A9</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/44</AttachTo>
+          <Prefix>10.0.0.87/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/AD</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/45</AttachTo>
+          <Prefix>10.0.0.89/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/B1</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/46</AttachTo>
+          <Prefix>10.0.0.91/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/B5</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/47</AttachTo>
+          <Prefix>10.0.0.93/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/B9</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/48</AttachTo>
+          <Prefix>10.0.0.95/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/BD</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/49</AttachTo>
+          <Prefix>10.0.0.97/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/C1</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/50</AttachTo>
+          <Prefix>10.0.0.99/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/C5</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/51</AttachTo>
+          <Prefix>10.0.0.101/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/C9</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/52</AttachTo>
+          <Prefix>10.0.0.103/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/CD</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/53</AttachTo>
+          <Prefix>10.0.0.105/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/D1</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/54</AttachTo>
+          <Prefix>10.0.0.107/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/D5</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/55</AttachTo>
+          <Prefix>10.0.0.109/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/D9</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/56</AttachTo>
+          <Prefix>10.0.0.111/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/DD</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/57</AttachTo>
+          <Prefix>10.0.0.113/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/E1</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/58</AttachTo>
+          <Prefix>10.0.0.115/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/E5</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/59</AttachTo>
+          <Prefix>10.0.0.117/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/E9</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/60</AttachTo>
+          <Prefix>10.0.0.119/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/ED</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/61</AttachTo>
+          <Prefix>10.0.0.121/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/F1</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/62</AttachTo>
+          <Prefix>10.0.0.123/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/F5</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/63</AttachTo>
+          <Prefix>10.0.0.125/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/F9</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/64</AttachTo>
+          <Prefix>10.0.0.127/31</Prefix>
+          </IPInterface>
+          <IPInterface>
+          <Name i:Name="true"/>
+          <AttachTo>hundredGigE1/1</AttachTo>
+          <Prefix>FC00::1/FD</Prefix>
+        </IPInterface>
+      </IPInterfaces>
+      <DataAcls/>
+      <AclInterfaces/>
+      <DownstreamSummaries/>
+      <DownstreamSummarySet xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
+    </DeviceDataPlaneInfo>
+  </DpgDec>
+  <PngDec>
+    <DeviceInterfaceLinks>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet1</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/1</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet2</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/2</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet3</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/3</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet4</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/4</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet5</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/5</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet6</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/6</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet7</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/7</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet8</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/8</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet9</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/9</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet10</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/10</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet11</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/11</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet12</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/12</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet13</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/13</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet14</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/14</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet15</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/15</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet16</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/16</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet17</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/17</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet18</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/18</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet19</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/19</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet20</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/20</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet21</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/21</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet22</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/22</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet23</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/23</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet24</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/24</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet25</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/25</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet26</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/26</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet27</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/27</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet28</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/28</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet29</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/29</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet30</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/30</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet31</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/31</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet32</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/32</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet33</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/33</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet34</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/34</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet35</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/35</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet36</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/36</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet37</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/37</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet38</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/38</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet39</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/39</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet40</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/40</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet41</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/41</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet42</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/42</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet43</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/43</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet44</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/44</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet45</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/45</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet46</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/46</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet47</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/47</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet48</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/48</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet49</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/49</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet50</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/50</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet51</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/51</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet52</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/52</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet53</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/53</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet54</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/54</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet55</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/55</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet56</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/56</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet57</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/57</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet58</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/58</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet59</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/59</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet60</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/60</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet61</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/61</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet62</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/62</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet63</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/63</StartPort>
+                </DeviceLinkBase>
+            <DeviceLinkBase i:type="DeviceInterfaceLink">
+                <ElementType>DeviceInterfaceLink</ElementType>
+                <AutoNegotiation>true</AutoNegotiation>
+                <Bandwidth>100000</Bandwidth>
+                <EndDevice>ARISTA01T1</EndDevice>
+                <EndPort>Ethernet64</EndPort>
+                <FlowControl>true</FlowControl>
+                <StartDevice>sonic</StartDevice>
+                <StartPort>hundredGigE1/64</StartPort>
+                </DeviceLinkBase>
+    </DeviceInterfaceLinks>
+    <Devices>
+      <Device i:type="ToRRouter">
+        <Hostname>sonic</Hostname>
+        <HwSku>DellEMC-Z9264f</HwSku>
+        <ManagementAddress xmlns:a="Microsoft.Search.Autopilot.NetMux">
+          <a:IPPrefix>10.11.150.26</a:IPPrefix>
+        </ManagementAddress>
+      </Device>
+    </Devices>
+  </PngDec>
+  <MetadataDeclaration>
+    <Devices xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
+      <a:DeviceMetadata>
+        <a:Name>sonic</a:Name>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>DhcpResources</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value></a:Value>
+          </a:DeviceProperty>
+          <a:DeviceProperty>
+            <a:Name>SnmpResources</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>10.0.0.9</a:Value>
+          </a:DeviceProperty>
+          <a:DeviceProperty>
+            <a:Name>SyslogResources</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>10.0.0.5;10.0.0.6</a:Value>
+          </a:DeviceProperty>
+          <a:DeviceProperty>
+            <a:Name>ErspanDestinationIpv4</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>10.0.0.7</a:Value>
+         </a:DeviceProperty>
+        </a:Properties>
+      </a:DeviceMetadata>
+    </Devices>
+    <Properties xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
+  </MetadataDeclaration>
+  <Hostname>sonic</Hostname>
+  <HwSku>DellEMC-Z9264f</HwSku>
+</DeviceMiniGraph>

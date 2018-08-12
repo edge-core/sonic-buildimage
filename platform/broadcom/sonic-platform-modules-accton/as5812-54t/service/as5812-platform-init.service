@@ -1,0 +1,13 @@
+[Unit]
+Description=Accton AS5712-54T Platform initialization service
+Before=pmon.service
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/accton_as5812_54t_util.py install
+ExecStop=/usr/local/bin/accton_as5812_54t_util.py clean
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,48 @@
+opennsl (3.4.1.11-1) unstable; urgency=medium
+
+  * Port Broadcom SAI 3.4.1.11
+  * Cherry-pick change from master branch, 3.4.1.11-1
+
+ -- Ying Xie <yinxi@microsoft.com>  Fri, 05 Jan 2018 23:21:47 +0000
+
+opennsl (3.4.1.10-1) unstable; urgency=medium
+
+  * Upgrade to 3.4.1.10-1
+
+ -- Ying Xie <yinxi@microsoft.com>  Tue, 19 Dec 2017 21:33:48 +0000
+
+opennsl (3.4.1.9-1) unstable; urgency=medium
+
+  * Upgrade to 3.4.1.9-1
+
+ -- Ying Xie <yinxi@microsoft.com>  Thu, 14 Dec 2017 22:04:11 +0000
+
+opennsl (3.4.1.7-2) unstable; urgency=medium
+
+  * Add Arista 7260cx3 Rev2 hardware support
+
+ -- Ying Xie <yinxi@microsoft.com>  Mon, 27 Nov 2017 18:13:50 +0000
+
+opennsl (3.4.1.7-1) unstable; urgency=medium
+
+  * Importing opennsl 3.4.1.7
+
+ -- Ying Xie <yinxi@microsoft.com>  Mon, 23 Oct 2017 23:47:25 +0000
+
+opennsl (3.4.1.5-2) unstable; urgency=medium
+
+  * Importing TD2 changes from opennsl 3.2.2.2
+
+ -- Ying Xie <yinxi@microsoft.com>  Tue, 26 Sep 2017 01:28:44 +0000
+
+opennsl (3.4.1.5-1) unstable; urgency=medium
+
+  * Importing opennsl 3.4.1.5
+
+ -- Ying Xie <yinxi@microsoft.com>  Wed, 20 Sep 2017 16:42:12 +0000
+
+opennsl (3.4.1.3-1) unstable; urgency=low
+
+  * Initial release
+
+ -- Guohan Lu <gulv@microsoft.com>  Fri, 17 Jul 2015 04:46:01 -0700

@@ -153,12 +153,12 @@ platform_specific() {
     if [ "$platform" = "raven" ]; then
         aboot_machine=arista_7050_qx32
         flash_size=2000
-        echo "modprobe.blacklist=radeon" >>/tmp/append
+        echo "modprobe.blacklist=radeon,sp5100_tco acpi=off" >>/tmp/append
     fi
     if [ "$platform" = "crow" ]; then
         aboot_machine=arista_7050_qx32s
         flash_size=3700
-        echo "modprobe.blacklist=radeon" >>/tmp/append
+        echo "modprobe.blacklist=radeon,sp5100_tco" >>/tmp/append
     fi
     if [ "$sid" = "Upperlake" ] || [ "$sid" = "UpperlakeES" ]; then
         aboot_machine=arista_7060_cx32s
@@ -175,6 +175,8 @@ platform_specific() {
         echo "hugepages=128" >> /tmp/append
     fi
     if [ "$platform" = "rook" ]; then
+        echo "iommu=on intel_iommu=on tsc=reliable pcie_ports=native" >>/tmp/append
+        echo "rhash_entries=1 usb-storage.delay_use=0" >>/tmp/append
         if [ -x /bin/readprefdl ]; then
            readprefdl -f /tmp/.system-prefdl -d > /mnt/flash/.system-prefdl
         elif [ -f /etc/prefdl ]; then
@@ -191,6 +193,8 @@ platform_specific() {
     fi
 
     echo "varlog_size=$varlog_size" >>/tmp/append
+    # disable deterministic interface naming
+    echo "net.ifnames=0" >>/tmp/append
 }
 
 get_uuid_for() {

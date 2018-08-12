@@ -1,5 +1,6 @@
 .ONESHELL:
 SHELL = /bin/bash
+.SHELLFLAGS += -e
 
 MFT_NAME = mft-$(MFT_VERSION)-$(MFT_REVISION)-x86_64-deb
 MFT_TGZ = $(MFT_NAME).tgz
@@ -17,7 +18,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# put a lock here because dpkg does not allow installing packages in parallel
 	while true; do
 	if mkdir $(DEST)/dpkg_lock &> /dev/null; then
-	{ echo here && sudo dpkg -i $(SRC_DEB) && rm -d $(DEST)/dpkg_lock && break; } || { rm -d $(DEST)/dpkg_lock && exit 1 ; }
+	{ sudo dpkg -i $(SRC_DEB) && rm -d $(DEST)/dpkg_lock && break; } || { rm -d $(DEST)/dpkg_lock && exit 1 ; }
 	fi
 	done
 
@@ -26,6 +27,6 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 
 	# fix timestamp because we do not actually build tools, only kernel
 	touch $(MFT_NAME)/DEBS/*
-	mv $(MFT_NAME)/SDEBS/ubuntu-drivers/3.16.0/kernel-mft-dkms_$(MFT_VERSION)-$(KVERSION)_all.deb $(MFT_NAME)/DEBS/* $(DEST)
+	mv $(MFT_NAME)/SDEBS/ubuntu-drivers/4.9.0/kernel-mft-dkms_$(MFT_VERSION)-$(KVERSION)_all.deb $(MFT_NAME)/DEBS/* $(DEST)
 
 $(addprefix $(DEST)/, $(DERIVED_TARGETS)): $(DEST)/% : $(DEST)/$(MAIN_TARGET)

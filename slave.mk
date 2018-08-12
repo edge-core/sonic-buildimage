@@ -139,7 +139,7 @@ $(info )
 ## All rules must go after includes for propper targets expansion
 ###############################################################################
 
-export kernel_procure_method="$(KERNEL_PROCURE_METHOD)"
+export kernel_procure_method=$(KERNEL_PROCURE_METHOD)
 
 ###############################################################################
 ## Local targets
@@ -447,13 +447,14 @@ $(DOCKER_LOAD_TARGETS) : $(TARGET_PATH)/%.gz-load : .platform docker-start $$(TA
 $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
         .platform \
         onie-image.conf \
+        build_debian.sh \
+        build_image.sh \
         $$(addsuffix -install,$$(addprefix $(DEBS_PATH)/,$$($$*_DEPENDS))) \
         $$(addprefix $(DEBS_PATH)/,$$($$*_INSTALLS)) \
         $$(addprefix $(DEBS_PATH)/,$$($$*_LAZY_INSTALLS)) \
         $$(addprefix $(FILES_PATH)/,$$($$*_FILES)) \
         $(addprefix $(DEBS_PATH)/,$(INITRAMFS_TOOLS) \
                 $(LINUX_KERNEL) \
-                $(IGB_DRIVER) \
                 $(IXGBE_DRIVER) \
                 $(SONIC_DEVICE_DATA) \
                 $(PYTHON_CLICK) \
@@ -585,6 +586,8 @@ clean : .platform clean-logs $$(SONIC_CLEAN_DEBS) $$(SONIC_CLEAN_FILES) $$(SONIC
 ###############################################################################
 
 all : .platform $$(addprefix $(TARGET_PATH)/,$$(SONIC_ALL))
+
+stretch : $$(addprefix $(DEBS_PATH)/,$$(SONIC_STRETCH_DEBS))
 
 ###############################################################################
 ## Standard targets

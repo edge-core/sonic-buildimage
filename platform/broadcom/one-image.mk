@@ -5,6 +5,7 @@ $(SONIC_ONE_IMAGE)_MACHINE = broadcom
 $(SONIC_ONE_IMAGE)_IMAGE_TYPE = onie
 $(SONIC_ONE_IMAGE)_INSTALLS += $(BRCM_OPENNSL_KERNEL)
 $(SONIC_ONE_IMAGE)_LAZY_INSTALLS += $(DELL_S6000_PLATFORM_MODULE) \
+                               $(DELL_Z9264F_PLATFORM_MODULE) \
                                $(DELL_Z9100_PLATFORM_MODULE) \
                                $(DELL_S6100_PLATFORM_MODULE) \
                                $(INGRASYS_S8900_54XC_PLATFORM_MODULE) \
@@ -22,9 +23,11 @@ $(SONIC_ONE_IMAGE)_LAZY_INSTALLS += $(DELL_S6000_PLATFORM_MODULE) \
                                $(INVENTEC_D7032Q28B_PLATFORM_MODULE) \
                                $(INVENTEC_D7054Q28B_PLATFORM_MODULE) \
                                $(CEL_DX010_PLATFORM_MODULE) \
+                               $(CEL_HALIBURTON_PLATFORM_MODULE) \
                                $(DELTA_AG9032V1_PLATFORM_MODULE) \
                                $(DELTA_AG9064_PLATFORM_MODULE) \
                                $(DELTA_AG5648_PLATFORM_MODULE) \
+                               $(DELTA_ET6248BRB_PLATFORM_MODULE) \
                                $(QUANTA_IX1B_32X_PLATFORM_MODULE) \
                                $(MITAC_LY1200_32X_PLATFORM_MODULE)
 $(SONIC_ONE_IMAGE)_DOCKERS += $(SONIC_INSTALL_DOCKER_IMAGES)

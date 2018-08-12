@@ -27,6 +27,7 @@
 
 struct i2c_client * i2c_client_9548;
 
+
 /* pca9548 - add 8 bus */
 static struct pca954x_platform_mode pca954x_mode[] = 
 {
@@ -150,7 +151,6 @@ void device_release(struct device *dev)
     return;
 }
 EXPORT_SYMBOL(device_release);
-
 void msg_handler(struct ipmi_recv_msg *recv_msg, void* handler_data)
 {
     struct completion *comp = recv_msg->user_msg_data;
@@ -161,19 +161,16 @@ void msg_handler(struct ipmi_recv_msg *recv_msg, void* handler_data)
     return;
 }
 EXPORT_SYMBOL(msg_handler);
-
 void dummy_smi_free(struct ipmi_smi_msg *msg)
 {
         atomic_dec(&dummy_count);
 }
 EXPORT_SYMBOL(dummy_smi_free);
-
 void dummy_recv_free(struct ipmi_recv_msg *msg)
 {
         atomic_dec(&dummy_count);
 }
 EXPORT_SYMBOL(dummy_recv_free);
-
 unsigned char dni_log2 (unsigned char num){
     unsigned char num_log2 = 0;
     while(num > 0){
@@ -183,7 +180,9 @@ unsigned char dni_log2 (unsigned char num){
     return num_log2 -1;
 }
 EXPORT_SYMBOL(dni_log2);
+
 /*----------------   IPMI - start   ------------- */
+
 int dni_create_user(void)
 { 
     int rv, i;
@@ -217,7 +216,7 @@ int dni_bmc_cmd(char set_cmd, char *cmd_data, int cmd_data_len)
     msg.data = cmd_data;
     
     init_completion(&comp);
-    rv = ipmi_request_supply_msgs(ipmi_mh_user, (struct ipmi_addr*)&addr, 0, &msg, &comp, &halt_smi_msg, &halt_recv_msg, 0);
+    rv = ipmi_request_supply_msgs(ipmi_mh_user, (struct ipmi_addr*)&addr, 0,&msg, &comp, &halt_smi_msg, &halt_recv_msg, 0);
     if (rv) {
         return -6;
     }
@@ -776,7 +775,7 @@ static int __exit i2c_deivce_remove(struct platform_device *pdev)
     }
 
     if (pdata->client) {
-        parent = i2c_get_adapter(pdata->parent);
+        parent = (pdata->client)->adapter;
         i2c_unregister_device(pdata->client);
         i2c_put_adapter(parent);
     }
@@ -799,7 +798,7 @@ static struct platform_driver i2c_device_driver = {
 struct swpld_mux_platform_data {
     int parent;
     int base_nr;
-    struct i2c_client *cpld;
+//    struct i2c_client *cpld;
 };
 
 struct swpld_mux {
@@ -812,7 +811,7 @@ static struct swpld_mux_platform_data ag9064_swpld_mux_platform_data[] = {
     {
         .parent         = BUS9,
         .base_nr        = BUS9_BASE_NUM,
-        .cpld           = NULL,
+//        .cpld           = NULL,
     },
 };
 
@@ -827,11 +826,11 @@ static struct platform_device ag9064_swpld_mux[] =
         },
     },
 };
-
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,7,0)
 static int swpld_mux_select(struct i2c_adapter *adap, void *data, u8 chan)
 {
-    struct swpld_mux *mux = data;
     uint8_t cmd_data[4]={0};
+    struct swpld_mux *mux = data;
     uint8_t set_cmd;
     int cmd_data_len;
 
@@ -851,7 +850,34 @@ static int swpld_mux_select(struct i2c_adapter *adap, void *data, u8 chan)
         return 0;
     }
 }
+#else
+static int swpld_mux_select(struct i2c_mux_core *muxc, u32 chan)
+{
+    uint8_t cmd_data[4]={0};
+    struct swpld_mux  *mux = i2c_mux_priv(muxc);
+    uint8_t set_cmd;
+    int cmd_data_len;
 
+    if ( mux->data.base_nr == BUS9_BASE_NUM )
+    {
+        set_cmd = CMD_SETDATA;
+        cmd_data[0] = BMC_BUS_5;
+        cmd_data[1] = SWPLD2_ADDR;
+        cmd_data[2] = QSFP_PORT_MUX_REG;
+        cmd_data[3] = chan + 1;
+        cmd_data_len = sizeof(cmd_data);
+        return dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
+    }
+    else
+    {
+        printk(KERN_ERR "Swpld mux QSFP select port error\n");
+        return 0;
+    }
+
+}
+#endif
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,7,0)
 static int __init swpld_mux_probe(struct platform_device *pdev)
 {
     struct swpld_mux *mux;
@@ -926,7 +952,76 @@ alloc_failed:
 
     return ret;
 }
+#else // #if LINUX_VERSION_CODE >= KERNEL_VERSION(4,7,0)
+static int __init swpld_mux_probe(struct platform_device *pdev)
+{
+    struct i2c_mux_core *muxc;
+    struct swpld_mux *mux;
+    struct swpld_mux_platform_data *pdata;
+    struct i2c_adapter *parent;
+    int i, ret, dev_num;
 
+    pdata = pdev->dev.platform_data;
+    if (!pdata) {
+        dev_err(&pdev->dev, "SWPLD platform data not found\n");
+        return -ENODEV;
+    }
+    mux = kzalloc(sizeof(*mux), GFP_KERNEL);
+    if (!mux) {
+        printk(KERN_ERR "Failed to allocate memory for mux\n");
+        return -ENOMEM;
+    }
+    mux->data = *pdata;
+
+    parent = i2c_get_adapter(pdata->parent);
+    if (!parent) {
+        kfree(mux);
+        dev_err(&pdev->dev, "Parent adapter (%d) not found\n", pdata->parent);
+        return -ENODEV;
+    }
+    /* Judge bus number to decide how many devices*/
+    switch (pdata->parent) {
+        case BUS9:
+            dev_num = BUS9_DEV_NUM;
+            break;
+        default :
+            dev_num = DEFAULT_NUM;
+            break;
+    }
+
+    muxc = i2c_mux_alloc(parent, &pdev->dev, dev_num, 0, 0,swpld_mux_select, NULL);
+    if (!muxc) {
+        ret = -ENOMEM;
+        goto alloc_failed;
+    }
+    muxc->priv = mux;
+    platform_set_drvdata(pdev, muxc);
+
+    for (i = 0; i < dev_num; i++) 
+    {
+        int nr = pdata->base_nr + i;
+        unsigned int class = 0;
+       	ret = i2c_mux_add_adapter(muxc, nr, i, class);
+        if (ret) {
+            dev_err(&pdev->dev, "Failed to add adapter %d\n", i);
+            goto add_adapter_failed;
+        }
+    }
+    dev_info(&pdev->dev, "%d port mux on %s adapter\n", dev_num, parent->name);
+    return 0;
+
+add_adapter_failed:
+    i2c_mux_del_adapters(muxc);
+alloc_failed2:
+    kfree(mux);
+alloc_failed:
+    i2c_put_adapter(parent);
+
+    return ret;
+}
+#endif
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,7,0)
 static int __exit swpld_mux_remove(struct platform_device *pdev)
 {
     int i;
@@ -966,6 +1061,18 @@ static int __exit swpld_mux_remove(struct platform_device *pdev)
 
     return 0;
 }
+#else // #if LINUX_VERSION_CODE >= KERNEL_VERSION(4,7,0)
+static int __exit swpld_mux_remove(struct platform_device *pdev)
+{
+    struct i2c_mux_core *muxc = platform_get_drvdata(pdev);
+    struct i2c_adapter *parent=muxc->parent;
+
+    i2c_mux_del_adapters(muxc);
+    i2c_put_adapter(parent);
+
+    return 0;
+}
+#endif
 
 static struct platform_driver swpld_mux_driver = {
     .probe  = swpld_mux_probe,
@@ -975,15 +1082,17 @@ static struct platform_driver swpld_mux_driver = {
         .name   = "delta-ag9064-swpld-mux",
     },
 };
+
 /*----------------    MUX   - end   ------------- */
 
 /*----------------   module initialization     ------------- */
 
-static void __init delta_ag9064_platform_init(void)
+static int __init delta_ag9064_platform_init(void)
 {
-    struct i2c_client *client;
+//    struct i2c_client *client;
     struct i2c_adapter *adapter;
     struct swpld_mux_platform_data *swpld_pdata;
+//    struct cpld_platform_data * cpld_pdata;
     int ret,i = 0;
 
     printk("ag9064_platform module initialization\n");
@@ -1010,10 +1119,9 @@ static void __init delta_ag9064_platform_init(void)
         printk(KERN_WARNING "Fail to register i2c device driver\n");
         goto error_i2c_device_driver;
     }
-
+	
     swpld_pdata = ag9064_swpld_mux[0].dev.platform_data;
-    //swpld_pdata->cpld = cpld_pdata[system_cpld].client;
-    ret = platform_device_register(&ag9064_swpld_mux);
+    ret = platform_device_register(&ag9064_swpld_mux[0]);
     if (ret) {
         printk(KERN_WARNING "Fail to create swpld mux\n");
         goto error_ag9064_swpld_mux;
@@ -1040,10 +1148,7 @@ error_ag9064_i2c_device:
     }
     i = ARRAY_SIZE(ag9064_swpld_mux);
 error_ag9064_swpld_mux:
-    i--;
-    for (; i >= 0; i--) {
-        platform_device_unregister(&ag9064_swpld_mux);
-    }
+    platform_device_unregister(&ag9064_swpld_mux[0]);
     platform_driver_unregister(&i2c_device_driver);
 error_i2c_device_driver:
     platform_driver_unregister(&swpld_mux_driver);
@@ -1059,7 +1164,7 @@ static void __exit delta_ag9064_platform_exit(void)
         platform_device_unregister(&ag9064_i2c_device[i]);
     }
 
-    platform_device_unregister(&ag9064_swpld_mux);
+    platform_device_unregister(&ag9064_swpld_mux[0]);
     platform_driver_unregister(&i2c_device_driver);  
     platform_driver_unregister(&swpld_mux_driver);
     i2c_unregister_device(i2c_client_9548);

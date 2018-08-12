@@ -248,25 +248,25 @@ static struct i2c_device_platform_data ag9032v1_i2c_device_platform_data[] = {
     {
         /* psu 1 (0x58) */
         .parent = 40,
-        .info = { .type = "dni_ag9032v1_psu", .addr = 0x58, .platform_data = 0 },
+        .info = { .type = "dni_ag9032v1_psu", .addr = 0x58, .platform_data = (void *) 0 },
         .client = NULL,
     },
     {
         /* psu 2 (0x58) */
         .parent = 41,
-        .info = { .type = "dni_ag9032v1_psu", .addr = 0x58, .platform_data = 1 },
+        .info = { .type = "dni_ag9032v1_psu", .addr = 0x58, .platform_data = (void *) 1 },
         .client = NULL,
     },
     {
         /* hot-swap 1 (0x40) */
         .parent = 42,
-        .info = { .type = "ltc4215", .addr = 0x40, .platform_data = 0 },
+        .info = { .type = "ltc4215", .addr = 0x40, .platform_data = (void *) 0 },
         .client = NULL,
     },
     {
         /* hot-swap 2 (0x40) */
         .parent = 43,
-        .info = { .type = "ltc4215", .addr = 0x40, .platform_data = 1 },
+        .info = { .type = "ltc4215", .addr = 0x40, .platform_data = (void *) 1 },
         .client = NULL,
     },
     {
@@ -554,7 +554,7 @@ static int __exit i2c_deivce_remove(struct platform_device *pdev)
     }
 
     if (pdata->client) {
-        parent = i2c_get_adapter(pdata->parent);
+        parent = (pdata->client)->adapter;
         i2c_unregister_device(pdata->client);
         i2c_put_adapter(parent);
     }
@@ -1043,22 +1043,22 @@ static ssize_t get_present(struct device *dev, struct device_attribute \
 
     ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, SFP_PRESENCE_1);
     if (ret < 0)
-        return sprintf(buf, "error number(%ld)",ret);
+        return sprintf(buf, "error number(%d)",ret);
     data = (u32)reverse_8bits(ret) & 0xff;
  
     ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, SFP_PRESENCE_2);
     if (ret < 0)
-        return sprintf(buf, "error number(%ld)",ret);
+        return sprintf(buf, "error number(%d)",ret);
     data |= (u32)(reverse_8bits(ret) & 0xff) << 8;
  
     ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, SFP_PRESENCE_3);
     if (ret < 0)
-        return sprintf(buf, "error number(%ld)",ret);
+        return sprintf(buf, "error number(%d)",ret);
     data |= (u32)(reverse_8bits(ret) & 0xff) << 16;
         
     ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, SFP_PRESENCE_4);
     if (ret < 0)
-        return sprintf(buf, "error number(%ld)",ret);
+        return sprintf(buf, "error number(%d)",ret);
     data |= (u32)(reverse_8bits(ret) & 0xff) << 24;
         
     return sprintf(buf, "0x%08x\n", data); //return 32bits data
@@ -1072,22 +1072,22 @@ static ssize_t get_lpmode(struct device *dev, struct device_attribute *devattr, 
 
     ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, SFP_LP_MODE_1);
     if (ret < 0)
-        return sprintf(buf, "error number(%ld)",ret);
+        return sprintf(buf, "error number(%d)",ret);
     data = (u32)(reverse_8bits(ret) & 0xff);
  
     ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, SFP_LP_MODE_2);
     if (ret < 0)
-        return sprintf(buf, "error number(%ld)",ret);
+        return sprintf(buf, "error number(%d)",ret);
     data |= (u32)(reverse_8bits(ret) & 0xff) << 8;
  
     ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, SFP_LP_MODE_3);
     if (ret < 0)
-        return sprintf(buf, "error number(%ld)",ret);
+        return sprintf(buf, "error number(%d)",ret);
     data |= (u32)(reverse_8bits(ret) & 0xff) << 16;
         
     ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, SFP_LP_MODE_4);
     if (ret < 0)
-        return sprintf(buf, "error number(%ld)",ret);
+        return sprintf(buf, "error number(%d)",ret);
     data |= (u32)(reverse_8bits(ret) & 0xff) << 24;
         
     return sprintf(buf, "0x%08x\n", data); //return 32bits data
@@ -1119,22 +1119,22 @@ static ssize_t get_reset(struct device *dev, struct device_attribute *devattr, c
 
     ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, SFP_RESET_1);
     if (ret < 0)
-        return sprintf(buf, "error number(%ld)",ret);
+        return sprintf(buf, "error number(%d)",ret);
     data = (u32)(reverse_8bits(ret) & 0xff);
  
     ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, SFP_RESET_2);
     if (ret < 0)
-        return sprintf(buf, "error number(%ld)",ret);
+        return sprintf(buf, "error number(%d)",ret);
     data |= (u32)(reverse_8bits(ret) & 0xff) << 8;
  
     ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, SFP_RESET_3);
     if (ret < 0)
-        return sprintf(buf, "error number(%ld)",ret);
+        return sprintf(buf, "error number(%d)",ret);
     data |= (u32)(reverse_8bits(ret) & 0xff) << 16;
         
     ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, SFP_RESET_4);
     if (ret < 0)
-        return sprintf(buf, "error number(%ld)",ret);
+        return sprintf(buf, "error number(%d)",ret);
     data |= (u32)(reverse_8bits(ret) & 0xff) << 24;
  
     return sprintf(buf, "0x%08x\n", data); //return 32bits data
@@ -1166,22 +1166,22 @@ static ssize_t get_response(struct device *dev, struct device_attribute *devattr
 
     ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, SFP_RESPONSE_1);
     if (ret < 0)
-        return sprintf(buf, "error number(%ld)",ret);
+        return sprintf(buf, "error number(%d)",ret);
     data = (u32)(reverse_8bits(ret) & 0xff);
  
     ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, SFP_RESPONSE_2);
     if (ret < 0)
-        return sprintf(buf, "error number(%ld)",ret);
+        return sprintf(buf, "error number(%d)",ret);
     data |= (u32)(reverse_8bits(ret) & 0xff) << 8;
  
     ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, SFP_RESPONSE_3);
     if (ret < 0)
-        return sprintf(buf, "error number(%ld)",ret);
+        return sprintf(buf, "error number(%d)",ret);
     data |= (u32)(reverse_8bits(ret) & 0xff) << 16;
         
     ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, SFP_RESPONSE_4);
     if (ret < 0)
-        return sprintf(buf, "error number(%ld)",ret);
+        return sprintf(buf, "error number(%d)",ret);
     data |= (u32)(reverse_8bits(ret) & 0xff) << 24;
  
     return sprintf(buf, "0x%08x\n", data); //return 32bits data
@@ -1613,7 +1613,7 @@ static ssize_t set_swpld_data(struct device *dev, struct device_attribute *dev_a
     int val;
     u8 mask_out;
 
-    ret = kstrtoul(buf, 0, &val);
+    ret = kstrtoint(buf, 0, &val);
 
     if (ret)
     {
@@ -2048,6 +2048,7 @@ static int cpld_reg_write_byte(struct i2c_client *client, u8 regaddr, u8 val)
                                              regaddr, I2C_SMBUS_BYTE_DATA, &data);
 }
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,7,0)
 static int swpld_mux_select(struct i2c_adapter *adap, void *data, u8 chan)
 {
     struct swpld_mux *mux = data;
@@ -2123,7 +2124,86 @@ static int swpld_mux_select(struct i2c_adapter *adap, void *data, u8 chan)
     }
     return cpld_reg_write_byte(mux->data.cpld, mux->data.reg_addr, (u8)(swpld_mux_val & 0xff));
 }
+#else // #if LINUX_VERSION_CODE >= KERNEL_VERSION(4,7,0)
+static int swpld_mux_select(struct i2c_mux_core *muxc, u32 chan)
+{
+    struct swpld_mux  *mux = i2c_mux_priv(muxc);
+    u8 swpld_mux_val=0; 
 
+    if ( mux->data.base_nr == BUS3_BASE_NUM )
+    {
+        switch (chan) {  
+            case 0:
+                swpld_mux_val = TEMP_FAN_VAL;
+                break;
+            case 1:
+                swpld_mux_val = FAN_EEPROM1_VAL;
+                break;
+            case 2:
+                swpld_mux_val = FAN_EEPROM2_VAL;
+                break;
+            case 3:
+                swpld_mux_val = FAN_EEPROM3_VAL;
+                break;
+            case 4:
+                swpld_mux_val = FAN_EEPROM4_VAL;
+                break;
+            case 5:
+                swpld_mux_val = FAN_EEPROM5_VAL;
+                break;
+            case 6:
+                swpld_mux_val = FANIO_CTL_VAL;
+                break;
+            case 7:
+            case 8:
+                swpld_mux_val = FAN_CTRL_VAL; 
+                break;
+        }
+    }
+    else if ( mux->data.base_nr == BUS4_BASE_NUM )
+    {
+        switch (chan) {
+            case 0:
+                swpld_mux_val = PSU1_VAL;
+                break;
+            case 1:
+                swpld_mux_val = PSU2_VAL;
+                break;
+            case 2:
+                swpld_mux_val = HOT_SWAP1_VAL; 
+                break;
+            case 3:
+                swpld_mux_val = HOT_SWAP2_VAL;  
+                break;
+        }
+    }
+    else if ( mux->data.base_nr == BUS5_BASE_NUM ){
+        if (chan < 9){
+            swpld_mux_val = (u8)(chan) + 0x01;
+        }
+        else if (8 < chan && chan < 19){
+            swpld_mux_val = (u8)(chan - 9) + 0x10;
+        }
+        else if (18 < chan && chan < 29){
+            swpld_mux_val = (u8)(chan - 19) + 0x20;
+        }
+        else if (28 < chan && chan < 39){
+            swpld_mux_val = (u8)(chan - 29) + 0x30;
+        }
+        else{
+            swpld_mux_val = 0x00;
+        }
+    }
+    else
+    {
+        swpld_mux_val = 0x00;
+    }
+    
+    return cpld_reg_write_byte(mux->data.cpld, mux->data.reg_addr, (u8)(swpld_mux_val & 0xff));
+}
+#endif // #if LINUX_VERSION_CODE < KERNEL_VERSION(4,7,0)
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,7,0)
 static int __init swpld_mux_probe(struct platform_device *pdev)
 {
     struct swpld_mux *mux;
@@ -2202,8 +2282,89 @@ alloc_failed:
 
     return ret;
 }
+#else // #if LINUX_VERSION_CODE >= KERNEL_VERSION(4,7,0)
+static int __init swpld_mux_probe(struct platform_device *pdev)
+{
+	struct i2c_mux_core *muxc;
+    struct swpld_mux *mux;
+    struct swpld_mux_platform_data *pdata;
+    struct i2c_adapter *parent;
+    int i, ret, dev_num;
+
+    pdata = pdev->dev.platform_data;
+    if (!pdata) {
+        dev_err(&pdev->dev, "SWPLD platform data not found\n");
+        return -ENODEV;
+    }
+
+    mux = kzalloc(sizeof(*mux), GFP_KERNEL);
+    if (!mux) {
+        printk(KERN_ERR "Failed to allocate memory for mux\n");
+        return -ENOMEM;
+    }
+    mux->data = *pdata;
+
+    parent = i2c_get_adapter(pdata->parent);
+    if (!parent) {
+		kfree(mux);
+        dev_err(&pdev->dev, "Parent adapter (%d) not found\n", pdata->parent);
+        return -ENODEV;
+    }
+    
+	/* Judge bus number to decide how many devices*/
+    switch (pdata->parent) {
+        case BUS3:
+            dev_num = BUS3_DEV_NUM;
+            break;
+        case BUS4:
+            dev_num = BUS4_DEV_NUM;
+            break;
+        case BUS5:
+            dev_num = BUS5_DEV_NUM; 
+            break;
+        default :
+            dev_num = DEFAULT_NUM;  
+            break;
+    }
 
 
+
+	muxc = i2c_mux_alloc(parent, &pdev->dev, dev_num, 0, 0,
+						swpld_mux_select, NULL);
+    if (!muxc) {
+        ret = -ENOMEM;
+        goto alloc_failed;
+    }
+    muxc->priv = mux;
+    platform_set_drvdata(pdev, muxc);
+
+
+    for (i = 0; i < dev_num; i++) {
+        int nr = pdata->base_nr + i;
+        unsigned int class = 0;
+
+        ret = i2c_mux_add_adapter(muxc, nr, i, class);
+        if (ret) {
+            dev_err(&pdev->dev, "Failed to add adapter %d\n", i);
+            goto add_adapter_failed;
+        }
+    }
+
+    dev_info(&pdev->dev, "%d port mux on %s adapter\n", dev_num, parent->name);
+
+    return 0;
+
+add_adapter_failed:
+        i2c_mux_del_adapters(muxc);
+alloc_failed:
+    kfree(mux);
+    i2c_put_adapter(parent);
+
+    return ret;
+}
+#endif // #if LINUX_VERSION_CODE < KERNEL_VERSION(4,7,0)
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,7,0)
 static int __exit swpld_mux_remove(struct platform_device *pdev)
 {
     int i;
@@ -2249,6 +2410,18 @@ static int __exit swpld_mux_remove(struct platform_device *pdev)
 
     return 0;
 }
+#else // #if LINUX_VERSION_CODE >= KERNEL_VERSION(4,7,0)
+static int __exit swpld_mux_remove(struct platform_device *pdev)
+{
+    struct i2c_mux_core *muxc = platform_get_drvdata(pdev);
+    struct i2c_adapter *parent=muxc->parent;
+
+    i2c_mux_del_adapters(muxc);
+    i2c_put_adapter(parent);
+
+    return 0;
+}
+#endif
 
 static struct platform_driver swpld_mux_driver = {
     .probe  = swpld_mux_probe,
@@ -2261,9 +2434,9 @@ static struct platform_driver swpld_mux_driver = {
 /*----------------    MUX   - end   ------------- */
 
 /*----------------   module initialization     ------------- */
-static void __init delta_ag9032v1_platform_init(void)
+static int __init delta_ag9032v1_platform_init(void)
 {
-    struct i2c_client *client;
+//    struct i2c_client *client;
     struct i2c_adapter *adapter;
     struct cpld_platform_data *cpld_pdata;
     struct swpld_mux_platform_data *swpld_mux_pdata;
@@ -2342,7 +2515,7 @@ error_ag9032v1_swpld_mux:
     for (; i >= 0; i--) {
         platform_device_unregister(&ag9032v1_swpld_mux[i]);
     }
-    platform_driver_unregister(&ag9032v1_cpld);
+    platform_driver_unregister((struct platform_driver *) &ag9032v1_cpld);
 error_ag9032v1_cpld:
     platform_driver_unregister(&i2c_device_driver);
 error_i2c_device_driver:

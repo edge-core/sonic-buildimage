@@ -228,8 +228,9 @@ RUN apt-get update && apt-get install -y \
         python3-pytest \
         python3-colorama \
 # For bash
-        texi2html
-
+        texi2html \
+# For initramfs
+        bash-completion
 
 # For linux build
 RUN apt-get -y build-dep linux

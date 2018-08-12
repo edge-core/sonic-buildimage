@@ -421,7 +421,7 @@ static SENSOR_DEVICE_ATTR(temp1_input,	\
 		S_IRUGO, for_linear_data,	NULL, PSU_TEMP1_INPUT);
 static SENSOR_DEVICE_ATTR(fan1_target,	\
 		S_IRUGO, for_fan_target, 	NULL, PSU_FAN1_FAULT);
-static SENSOR_DEVICE_ATTR(fan1_set_percentage, S_IWUGO | S_IRUGO, \
+static SENSOR_DEVICE_ATTR(fan1_set_percentage, S_IWUSR | S_IRUGO, \
 		for_linear_data, set_fan_duty_cycle_input, PSU_FAN1_DUTY_CYCLE);
 static SENSOR_DEVICE_ATTR(fan1_input, 	\
 		S_IRUGO, for_linear_data,	NULL, PSU_FAN1_SPEED);

@@ -2,16 +2,16 @@
 Description=switch state service
 Requires=database.service updategraph.service
 {% if sonic_asic_platform == 'broadcom' %}
-Requires=opennsl-modules-3.16.0-5-amd64.service
+Requires=opennsl-modules-4.9.0-5-amd64.service
 {% elif sonic_asic_platform == 'nephos' %}
-Requires=nps-modules-3.16.0-5-amd64.service
+Requires=nps-modules-4.9.0-5-amd64.service
 {% endif %}
 After=database.service updategraph.service
 After=interfaces-config.service
 {% if sonic_asic_platform == 'broadcom' %}
-After=opennsl-modules-3.16.0-5-amd64.service
+After=opennsl-modules-4.9.0-5-amd64.service
 {% elif sonic_asic_platform == 'nephos' %}
-After=nps-modules-3.16.0-5-amd64.service
+After=nps-modules-4.9.0-5-amd64.service
 {% endif %}
 
 [Service]
@@ -31,7 +31,7 @@ ExecStartPre=/usr/bin/mst start
 ExecStartPre=/usr/bin/mlnx-fw-upgrade.sh
 ExecStartPre=/etc/init.d/sxdkernel start
 ExecStartPre=/sbin/modprobe i2c-dev
-ExecStartPre=/bin/bash -c "/usr/share/sonic/device/$(sonic-cfggen -H -v DEVICE_METADATA.localhost.platform)/hw-management start"
+ExecStartPre=/bin/bash -c "/etc/mlnx/mlnx-hw-management start"
 {% elif sonic_asic_platform == 'cavium' %}
 ExecStartPre=/etc/init.d/xpnet.sh start
 {% endif %}
@@ -44,7 +44,7 @@ ExecStop=/usr/bin/{{docker_container_name}}.sh stop
 ExecStopPost=/usr/bin/syncd.sh stop
 
 {% if sonic_asic_platform == 'mellanox' %}
-ExecStopPost=/bin/bash -c "/usr/share/sonic/device/$(sonic-cfggen -H -v DEVICE_METADATA.localhost.platform)/hw-management stop"
+ExecStartPre=/bin/bash -c "/etc/mlnx/mlnx-hw-management stop"
 ExecStopPost=/etc/init.d/sxdkernel stop
 ExecStopPost=/usr/bin/mst stop
 {% elif sonic_asic_platform == 'cavium' %}

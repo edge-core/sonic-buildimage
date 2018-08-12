@@ -29,7 +29,8 @@
 set -x -e
 
 ## docker engine version (with platform)
-DOCKER_VERSION=1.11.1-0~jessie_amd64
+DOCKER_VERSION=1.11.1-0~stretch_amd64
+LINUX_KERNEL_VERSION=4.9.0-5
 
 ## Working directory to prepare the file system
 FILESYSTEM_ROOT=./fsroot
@@ -64,7 +65,7 @@ touch $FILESYSTEM_ROOT/$PLATFORM_DIR/firsttime
 
 ## Build a basic Debian system by debootstrap
 echo '[INFO] Debootstrap...'
-sudo http_proxy=$http_proxy debootstrap --variant=minbase --arch amd64 jessie $FILESYSTEM_ROOT http://debian-archive.trafficmanager.net/debian
+sudo http_proxy=$http_proxy debootstrap --variant=minbase --arch amd64 stretch $FILESYSTEM_ROOT http://debian-archive.trafficmanager.net/debian
 
 ## Config hostname and hosts, otherwise 'sudo ...' will complain 'sudo: unable to resolve host ...'
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo '$HOSTNAME' > /etc/hostname"
@@ -94,7 +95,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT bash -c 'apt-mark auto `apt-mark showmanual`
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y update
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y upgrade
 echo '[INFO] Install packages for building image'
-sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install makedev psmisc
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install makedev psmisc systemd-sysv
 
 ## Create device files
 echo '[INFO] MAKEDEV'
@@ -108,12 +109,15 @@ sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'cd /dev && MAKEDEV generic'
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install busybox
 echo '[INFO] Install SONiC linux kernel image'
 ## Note: duplicate apt-get command to ensure every line return zero
+sudo dpkg --root=$FILESYSTEM_ROOT -i target/debs/initramfs-tools-core_*.deb || \
+    sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
 sudo dpkg --root=$FILESYSTEM_ROOT -i target/debs/initramfs-tools_*.deb || \
     sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
-sudo dpkg --root=$FILESYSTEM_ROOT -i target/debs/linux-image-3.16.0-5-amd64_*.deb || \
+sudo dpkg --root=$FILESYSTEM_ROOT -i target/debs/linux-image-${LINUX_KERNEL_VERSION}-amd64_*.deb || \
     sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
+sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install acl
 
-## Update initramfs for booting with squashfs+aufs
+## Update initramfs for booting with squashfs+overlay
 cat files/initramfs-tools/modules | sudo tee -a $FILESYSTEM_ROOT/etc/initramfs-tools/modules > /dev/null
 
 ## Hook into initramfs: change fs type from vfat to ext4 on arista switches
@@ -145,13 +149,10 @@ sudo cp files/initramfs-tools/mgmt-intf-dhcp $FILESYSTEM_ROOT/etc/initramfs-tool
 sudo chmod +x $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-bottom/mgmt-intf-dhcp
 sudo cp files/initramfs-tools/union-fsck $FILESYSTEM_ROOT/etc/initramfs-tools/hooks/union-fsck
 sudo chmod +x $FILESYSTEM_ROOT/etc/initramfs-tools/hooks/union-fsck
-sudo chroot $FILESYSTEM_ROOT update-initramfs -u
-
-## Install latest intel igb driver
-sudo cp target/debs/igb.ko $FILESYSTEM_ROOT/lib/modules/3.16.0-5-amd64/kernel/drivers/net/ethernet/intel/igb/igb.ko
+pushd $FILESYSTEM_ROOT/usr/share/initramfs-tools/scripts/init-bottom && sudo patch -p1 < $OLDPWD/files/initramfs-tools/udev.patch; popd
 
 ## Install latest intel ixgbe driver
-sudo cp target/debs/ixgbe.ko $FILESYSTEM_ROOT/lib/modules/3.16.0-5-amd64/kernel/drivers/net/ethernet/intel/ixgbe/ixgbe.ko
+sudo cp target/debs/ixgbe.ko $FILESYSTEM_ROOT/lib/modules/${LINUX_KERNEL_VERSION}-amd64/kernel/drivers/net/ethernet/intel/ixgbe/ixgbe.ko
 
 ## Install docker
 echo '[INFO] Install docker'
@@ -220,16 +221,13 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     gdisk                   \
     sysfsutils              \
     grub2-common            \
+    rsyslog                 \
     ethtool                 \
     screen                  \
     hping3                  \
     python-scapy            \
     tcptraceroute           \
     mtr-tiny
-
-# Install a newer version of rsyslog from jessie-backports in hopes of
-# eliminating memory leaks
-sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y -t jessie-backports install rsyslog
 
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y download \
     grub-pc-bin
@@ -270,7 +268,7 @@ sudo sed -i '
     ' $FILESYSTEM_ROOT/etc/monit/monitrc
 
 sudo tee -a $FILESYSTEM_ROOT/etc/monit/monitrc > /dev/null <<'EOF'
-check filesystem root-aufs with path /
+check filesystem root-overlay with path /
   if space usage > 90% for 5 times within 10 cycles then alert
 check filesystem var-log with path /var/log
   if space usage > 90% for 5 times within 10 cycles then alert
@@ -366,6 +364,9 @@ if [ "${enable_organization_extensions}" = "y" ]; then
       ./files/build_templates/organization_extensions.sh -f $FILESYSTEM_ROOT -h $HOSTNAME
    fi
 fi
+
+## Update initramfs
+sudo chroot $FILESYSTEM_ROOT update-initramfs -u
 
 ## Clean up apt
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get autoremove

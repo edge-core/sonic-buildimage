@@ -41,6 +41,9 @@ get_flash_dev() {
 wait_for_root_dev() {
     local try_rounds=30
     while [ $try_rounds -gt 0 ]; do
+        if blkid | sed 's/"//g' | grep -q "$root_dev"; then
+            return 0
+        fi
         if [ -e "$root_dev" ]; then
             return 0
         fi

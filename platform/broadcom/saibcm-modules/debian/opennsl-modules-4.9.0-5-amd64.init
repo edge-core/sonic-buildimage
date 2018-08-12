@@ -1,0 +1,47 @@
+#!/bin/bash
+# This script load/unload opennsl kernel modules
+
+### BEGIN INIT INFO
+# Provides:          load-opennsl-modules
+# Required-Start:
+# Required-Stop:
+# Should-Start:
+# Should-Stop:
+# Default-Start:     S
+# Default-Stop:      0 6
+# Short-Description: Load OpenNSL kernel modules
+### END INIT INFO
+
+case "$1" in
+start)
+	echo -n "Load OpenNSL kernel modules... "
+
+        modprobe linux-kernel-bde dmasize=32M maxpayload=128
+        modprobe linux-user-bde
+        modprobe linux-bcm-knet use_rx_skb=1 rx_buffer_size=9238
+
+	echo "done."
+	;;
+
+stop)
+	echo -n "Unload OpenNSL kernel modules... "
+
+        rmmod linux-bcm-knet
+        rmmod linux-user-bde
+        rmmod linux-kernel-bde
+
+	echo "done."
+	;;
+
+force-reload|restart)
+	echo "Not supported"
+	;;
+
+*)
+	echo "Usage: /etc/init.d/opennsl-modules-4.9.0-5-amd64.init {start|stop}"
+	exit 1
+	;;
+esac
+
+exit 0
+

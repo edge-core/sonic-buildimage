@@ -18,7 +18,7 @@ index 048cd61..7e3a545 100644
 @@ -1,7 +1,7 @@
  Source: hw-management
  Priority: extra
- Maintainer: Adir Atias <adira@dev-r-vrt-128-008>
+ Maintainer: MellanoxBSP <system-sw-low-level@mellanox.com>
 -Build-Depends:
 +Build-Depends: dh-systemd
  Standards-Version:
@@ -29,15 +29,14 @@ new file mode 100644
 index 0000000..d18916d
 --- /dev/null
 +++ b/debian/hw-management.service
-@@ -0,0 +1,11 @@
+@@ -0,0 +1,10 @@
 +[Unit]
 +Description=Mellanox Hardware Management
 +
 +[Service]
 +Type=oneshot
 +EnvironmentFile=/host/machine.conf
-+ExecStart=/bin/bash -c "/usr/share/sonic/device/$onie_platform/hw-management start"
-+ExecStop=/bin/bash -c "/usr/share/sonic/device/$onie_platform/hw-management stop"
++ExecStart=/bin/bash -c "/etc/mlnx/mlnx-hw-management start"
 +
 +[Install]
 +WantedBy=multi-user.target
