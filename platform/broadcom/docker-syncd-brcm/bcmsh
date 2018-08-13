@@ -31,5 +31,5 @@ if [ "$quiet" = false ]; then
     echo "$banner"
 fi
 
-/usr/bin/socat - UNIX-CONNECT:/var/run/sswsyncd/sswsyncd.socket
+/usr/bin/socat readline UNIX-CONNECT:/var/run/sswsyncd/sswsyncd.socket
 

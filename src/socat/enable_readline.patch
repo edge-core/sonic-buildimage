@@ -1,0 +1,13 @@
+--- debian/rules.old	2018-08-12 11:48:42.220230100 +0000
++++ debian/rules	2018-08-12 11:48:52.072230100 +0000
+@@ -12,9 +12,6 @@
+ %:
+ 	dh $@ --with=autoreconf
+ 
+-override_dh_auto_configure:
+-	dh_auto_configure -- --disable-readline
+-
+ override_dh_auto_test:
+ 
+-.PHONY: override_dh_auto_configure override_dh_auto_test
++.PHONY: override_dh_auto_test
