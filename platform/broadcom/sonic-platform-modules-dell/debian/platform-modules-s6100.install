@@ -1,0 +1,9 @@
+s6100/scripts/io_rd_wr.py usr/local/bin
+s6100/scripts/iom_power_*.sh usr/local/bin
+s6100/scripts/s6100_platform.sh usr/local/bin
+common/dell_i2c_utils.sh usr/local/bin
+common/fstrim.timer etc/systemd/system
+common/fstrim.service etc/systemd/system
+s6100/scripts/platform_sensors.py usr/local/bin
+s6100/scripts/sensors usr/bin
+

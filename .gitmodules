@@ -36,17 +36,9 @@
 [submodule "src/sonic-utilities"]
 	path = src/sonic-utilities
 	url = https://github.com/Azure/sonic-utilities
-[submodule "platform/broadcom/sonic-platform-modules-s6000"]
-	path = platform/broadcom/sonic-platform-modules-s6000
-	url = https://github.com/Azure/sonic-platform-modules-s6000
-	branch = stretch
 [submodule "platform/broadcom/sonic-platform-modules-arista"]
 	path = platform/broadcom/sonic-platform-modules-arista
 	url = https://github.com/aristanetworks/sonic
-[submodule "platform/broadcom/sonic-platform-modules-dell"]
-	path = platform/broadcom/sonic-platform-modules-dell
-	url = https://github.com/Azure/sonic-platform-modules-dell
-	branch = stretch
 [submodule "src/sonic-platform-common"]
 	path = src/sonic-platform-common
 	url = https://github.com/Azure/sonic-platform-common
