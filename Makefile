@@ -25,6 +25,10 @@ SHELL = /bin/bash
 USER := $(shell id -un)
 PWD := $(shell pwd)
 
+ifeq ($(USER), root)
+$(error Add your user account to docker group and use your user account to make. root or sudo are not supported!)
+endif
+
 # Remove lock file in case previous run was forcefully stopped
 $(shell rm -f .screen)
 
