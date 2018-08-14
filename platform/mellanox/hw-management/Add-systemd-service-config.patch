@@ -29,7 +29,7 @@ new file mode 100644
 index 0000000..d18916d
 --- /dev/null
 +++ b/debian/hw-management.service
-@@ -0,0 +1,10 @@
+@@ -0,0 +1,11 @@
 +[Unit]
 +Description=Mellanox Hardware Management
 +
@@ -37,6 +37,7 @@ index 0000000..d18916d
 +Type=oneshot
 +EnvironmentFile=/host/machine.conf
 +ExecStart=/bin/bash -c "/etc/mlnx/mlnx-hw-management start"
++ExecStop=/bin/bash -c "/etc/mlnx/mlnx-hw-management stop"
 +
 +[Install]
 +WantedBy=multi-user.target
