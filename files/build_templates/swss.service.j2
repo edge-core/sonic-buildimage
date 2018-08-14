@@ -44,7 +44,7 @@ ExecStop=/usr/bin/{{docker_container_name}}.sh stop
 ExecStopPost=/usr/bin/syncd.sh stop
 
 {% if sonic_asic_platform == 'mellanox' %}
-ExecStartPre=/bin/bash -c "/etc/mlnx/mlnx-hw-management stop"
+ExecStopPost=/bin/bash -c "/etc/mlnx/mlnx-hw-management stop"
 ExecStopPost=/etc/init.d/sxdkernel stop
 ExecStopPost=/usr/bin/mst stop
 {% elif sonic_asic_platform == 'cavium' %}
