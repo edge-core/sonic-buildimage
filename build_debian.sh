@@ -162,10 +162,10 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install apparmor
 docker_deb_url=https://apt.dockerproject.org/repo/pool/main/d/docker-engine/docker-engine_${DOCKER_VERSION}.deb
 docker_deb_temp=`mktemp`
 trap_push "rm -f $docker_deb_temp"
-wget $docker_deb_url -qO $docker_deb_temp && {                                                  \
-    sudo dpkg --root=$FILESYSTEM_ROOT -i $docker_deb_temp ||                                    \
-    sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f;   \
-}
+wget $docker_deb_url -qO $docker_deb_temp
+sudo dpkg --root=$FILESYSTEM_ROOT -i $docker_deb_temp || \
+    sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
+
 ## Add docker config drop-in to select aufs, otherwise it may select other storage driver
 sudo mkdir -p $FILESYSTEM_ROOT/etc/systemd/system/docker.service.d/
 ## Note: $_ means last argument of last command
