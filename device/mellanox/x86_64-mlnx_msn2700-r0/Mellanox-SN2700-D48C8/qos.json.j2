@@ -1,3 +1,30 @@
+{%- set PORT_ALL  = [] %}
+
+{%- if PORT is not defined %}
+    {%- for port_idx in range(0,64) %}
+        {%- if PORT_ALL.append("Ethernet%d" % (port_idx)) %}{%- endif %}
+    {%- endfor %}
+{%- else %}
+    {%- for port in PORT %}
+        {%- if PORT_ALL.append(port) %}{%- endif %}
+    {%- endfor %}
+{%- endif %}
+
+{%- set PORT_ACTIVE  = [] %}
+{%- if DEVICE_NEIGHBOR is not defined %}
+    {%- set PORT_ACTIVE = PORT_ALL %}
+{%- else %}
+    {%- for port in DEVICE_NEIGHBOR.keys() %}
+        {%- if PORT_ACTIVE.append(port) %}{%- endif %}
+    {%- endfor %}
+{%- endif %}
+
+{%- set port_names_list_active  = [] %}
+{%- for port in PORT_ACTIVE %}
+    {%- if port_names_list_active.append(port) %}{%- endif %}
+{%- endfor %}
+{%- set port_names_active  = port_names_list_active  | join(',') %}
+
 {
     "TC_TO_PRIORITY_GROUP_MAP": {
         "AZURE": {
@@ -114,7 +141,7 @@
         }
     },
     "PORT_QOS_MAP": {
-        "Ethernet8,Ethernet2,Ethernet0,Ethernet6,Ethernet4,Ethernet108,Ethernet100,Ethernet104,Ethernet106,Ethernet58,Ethernet126,Ethernet96,Ethernet124,Ethernet122,Ethernet92,Ethernet120,Ethernet50,Ethernet52,Ethernet54,Ethernet56,Ethernet76,Ethernet74,Ethernet18,Ethernet70,Ethernet32,Ethernet72,Ethernet16,Ethernet36,Ethernet78,Ethernet60,Ethernet28,Ethernet62,Ethernet14,Ethernet88,Ethernet118,Ethernet24,Ethernet116,Ethernet82,Ethernet114,Ethernet80,Ethernet112,Ethernet86,Ethernet110,Ethernet84,Ethernet48,Ethernet10,Ethernet44,Ethernet42,Ethernet40,Ethernet64,Ethernet66,Ethernet12,Ethernet46,Ethernet20,Ethernet22,Ethernet68": {
+        "{{ port_names_active }}": {
             "dscp_to_tc_map"  : "[DSCP_TO_TC_MAP|AZURE]",
             "tc_to_queue_map" : "[TC_TO_QUEUE_MAP|AZURE]",
             "tc_to_pg_map"    : "[TC_TO_PRIORITY_GROUP_MAP|AZURE]",
@@ -148,19 +175,15 @@
         }
     },
     "QUEUE": {
-        "Ethernet8,Ethernet2,Ethernet0,Ethernet6,Ethernet4,Ethernet108,Ethernet100,Ethernet104,Ethernet106,Ethernet58,Ethernet126,Ethernet96,Ethernet124,Ethernet122,Ethernet92,Ethernet120,Ethernet50,Ethernet52,Ethernet54,Ethernet56,Ethernet76,Ethernet74,Ethernet18,Ethernet70,Ethernet32,Ethernet72,Ethernet16,Ethernet36,Ethernet78,Ethernet60,Ethernet28,Ethernet62,Ethernet14,Ethernet88,Ethernet118,Ethernet24,Ethernet116,Ethernet82,Ethernet114,Ethernet80,Ethernet112,Ethernet86,Ethernet110,Ethernet84,Ethernet48,Ethernet10,Ethernet44,Ethernet42,Ethernet40,Ethernet64,Ethernet66,Ethernet12,Ethernet46,Ethernet20,Ethernet22,Ethernet68|0": {
-            "scheduler"     :   "[SCHEDULER|scheduler.1]"
-        },
-        "Ethernet8,Ethernet2,Ethernet0,Ethernet6,Ethernet4,Ethernet108,Ethernet100,Ethernet104,Ethernet106,Ethernet58,Ethernet126,Ethernet96,Ethernet124,Ethernet122,Ethernet92,Ethernet120,Ethernet50,Ethernet52,Ethernet54,Ethernet56,Ethernet76,Ethernet74,Ethernet18,Ethernet70,Ethernet32,Ethernet72,Ethernet16,Ethernet36,Ethernet78,Ethernet60,Ethernet28,Ethernet62,Ethernet14,Ethernet88,Ethernet118,Ethernet24,Ethernet116,Ethernet82,Ethernet114,Ethernet80,Ethernet112,Ethernet86,Ethernet110,Ethernet84,Ethernet48,Ethernet10,Ethernet44,Ethernet42,Ethernet40,Ethernet64,Ethernet66,Ethernet12,Ethernet46,Ethernet20,Ethernet22,Ethernet68|1": {
-            "scheduler"     :   "[SCHEDULER|scheduler.2]"
-        },
-        "Ethernet0,Ethernet4,Ethernet8,Ethernet12,Ethernet16,Ethernet20,Ethernet24,Ethernet28,Ethernet32,Ethernet36,Ethernet40,Ethernet44,Ethernet48,Ethernet52,Ethernet56,Ethernet60,Ethernet64,Ethernet68,Ethernet72,Ethernet76,Ethernet80,Ethernet84,Ethernet88,Ethernet92,Ethernet96,Ethernet100,Ethernet104,Ethernet108,Ethernet112,Ethernet116,Ethernet120,Ethernet124|0-1": {
-            "wred_profile"  :   "[WRED_PROFILE|AZURE_LOSSY]"
-        },
-        "Ethernet8,Ethernet2,Ethernet0,Ethernet6,Ethernet4,Ethernet108,Ethernet100,Ethernet104,Ethernet106,Ethernet58,Ethernet126,Ethernet96,Ethernet124,Ethernet122,Ethernet92,Ethernet120,Ethernet50,Ethernet52,Ethernet54,Ethernet56,Ethernet76,Ethernet74,Ethernet18,Ethernet70,Ethernet32,Ethernet72,Ethernet16,Ethernet36,Ethernet78,Ethernet60,Ethernet28,Ethernet62,Ethernet14,Ethernet88,Ethernet118,Ethernet24,Ethernet116,Ethernet82,Ethernet114,Ethernet80,Ethernet112,Ethernet86,Ethernet110,Ethernet84,Ethernet48,Ethernet10,Ethernet44,Ethernet42,Ethernet40,Ethernet64,Ethernet66,Ethernet12,Ethernet46,Ethernet20,Ethernet22,Ethernet68|3-4": {
+        "{{ port_names_active }}|3-4" : {
             "scheduler"     :   "[SCHEDULER|scheduler.0]",
             "wred_profile"  :   "[WRED_PROFILE|AZURE_LOSSLESS]"
+        },
+        "{{ port_names_active }}|0" : {
+            "scheduler"     :   "[SCHEDULER|scheduler.1]"
+        },
+        "{{ port_names_active }}|1" : {
+            "scheduler"     :   "[SCHEDULER|scheduler.2]"
         }
     }
 }
-
