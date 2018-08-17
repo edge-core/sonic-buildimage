@@ -201,7 +201,9 @@ RUN apt-get update && apt-get install -y \
 # For pam_tacplus build
         autoconf-archive \
 # For initramfs
-        bash-completion
+        bash-completion \
+# For picocom
+        pandoc
 
 # For linux build
 RUN apt-get -y build-dep linux
