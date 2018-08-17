@@ -11,6 +11,7 @@ import time
 import syslog
 import signal
 import json
+import threading
 from python_sdk_api.sx_api import *
 from swsssdk import SonicV2Connector
 
@@ -26,10 +27,11 @@ STATUS_PLUGIN = '1'
 STATUS_PLUGOUT = '0'
 STATUS_UNKNOWN = '2'
 
+SFPD_LIVENESS_UPDATE_INTERVAL_SECS = 30
+
 sfp_value_status_dict = {SDK_SFP_STATE_IN:STATUS_PLUGIN, SDK_SFP_STATE_OUT:STATUS_PLUGOUT}
 
-#========================== Syslog wrappers ==========================
-
+# ========================== Syslog wrappers ==========================
 def log_info(msg, also_print_to_console=False):
     syslog.openlog(SYSLOG_IDENTIFIER)
     syslog.syslog(syslog.LOG_INFO, msg)
@@ -54,8 +56,7 @@ def log_error(msg, also_print_to_console=False):
     if also_print_to_console:
         print(msg)
 
-#========================== Signal Handling ==========================
-
+# ========================== Signal Handling ==========================
 def signal_handler(sig, frame):
     if sig == signal.SIGHUP:
         log_info("Caught SIGHUP - ignoring...")
@@ -83,11 +84,14 @@ def sx_recv(fd_p, handle):
     port_cnt_p = new_uint32_t_p()
     uint32_t_p_assign(port_cnt_p,64)
     label_port_list = []
+    status = True
+    module_state = 0
 
     rc = sx_lib_host_ifc_recv(fd_p, pkt, pkt_size_p, recv_info_p)
     if rc != 0:
         log_error("event receive exit with error, rc %d" % rc)
-        exit(rc)
+        status = False
+        return status, label_port_list, module_state
 
     pmpe_t = recv_info_p.event_info.pmpe
     port_list_size = pmpe_t.list_size
@@ -99,20 +103,49 @@ def sx_recv(fd_p, handle):
         rc = sx_api_port_device_get(handle, 1 , 0, port_attributes_list,  port_cnt_p)
         port_cnt = uint32_t_p_value(port_cnt_p)
 
-        for i in range(0,port_cnt):
+        for i in range(0, port_cnt):
             port_attributes = sx_port_attributes_t_arr_getitem(port_attributes_list,i)
             if port_attributes.log_port == logical_port:
                 lable_port = port_attributes.port_mapping.module_port
                 break
         label_port_list.append(lable_port)
 
-    return label_port_list, module_state
+    return status, label_port_list, module_state, 
 
 def send_sfp_notification(db, interface, state):
-    sfp_notify = [interface,state]
-    msg = json.dumps(sfp_notify,separators=(',',':'))
-    db.publish('STATE_DB','TRANSCEIVER_NOTIFY', msg)
+    sfp_notify = [interface, state]
+    msg = json.dumps(sfp_notify, separators=(',', ':'))
+    db.publish('STATE_DB', 'TRANSCEIVER_NOTIFY', msg)
     return
+
+def update_sfpd_liveness_key(db, timeout_secs):
+    if db.exists('STATE_DB', 'MLNX_SFPD_TASK|LIVENESS'):
+        db.expire('STATE_DB', 'MLNX_SFPD_TASK|LIVENESS', timeout_secs)
+    else:
+        db.set('STATE_DB', 'MLNX_SFPD_TASK|LIVENESS', 'value', 'ok')
+        db.expire('STATE_DB', 'MLNX_SFPD_TASK|LIVENESS', timeout_secs)
+
+# Timer thread wrapper class to update mlnx-sfpd liveness info to DB periodically
+class sfpd_liveness_update_task:
+    def __init__(self, db):
+        self.task_stopping_event = threading.Event()
+        self.task_timer = None
+        self.state_db = db
+
+    def task_run(self):
+        if self.task_stopping_event.isSet():
+            log_error("Error: sfpd liveness update thread received stop event, exiting...")
+            return
+
+        update_sfpd_liveness_key(self.state_db, 2*SFPD_LIVENESS_UPDATE_INTERVAL_SECS)
+
+        self.task_timer = threading.Timer(SFPD_LIVENESS_UPDATE_INTERVAL_SECS, self.task_run)
+        self.task_timer.start()
+
+    def task_stop(self):
+        self.task_stopping_event.set()
+        self.task_timer.join()
+
 
 # main start
 def main():
@@ -121,26 +154,30 @@ def main():
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
-    #open SDK handler
+    # Connect to state db for notification sending
+    state_db = SonicV2Connector(host=REDIS_HOSTIP)
+    state_db.connect(state_db.STATE_DB)
+
+    # Open SDK handler
     log_info("starting mlnx-sfpd...")
     rc, handle = sx_api_open(None)
-    retry_time  = 1
+    retry_time = 1
     while rc != SX_STATUS_SUCCESS:
         time.sleep(2**retry_time)
         retry_time += 1
         rc, handle = sx_api_open(None)
         if retry_time > 20:
-            log_error("Failed to open api handle.\nPlease check that SDK is running.")
+            log_error("Failed to open api handle. Please check that SDK is running.")
             sys.exit(errno.EACCES)
 
-    #open recv fd
-    rx_fd_p  =  new_sx_fd_t_p()
+    # Open recv fd
+    rx_fd_p = new_sx_fd_t_p()
     rc = sx_api_host_ifc_open(handle, rx_fd_p)
     if rc != 0:
         log_error("sx_api_host_ifc_open exit with error, rc %d" % rc)
         exit(rc)
 
-    # set up general host ifc parameters
+    # Set up general host ifc parameters
     swid = 0
     cmd = SX_ACCESS_CMD_REGISTER
     uc_p = new_sx_user_channel_t_p()
@@ -153,26 +190,34 @@ def main():
         log_error("sx_api_host_ifc_trap_id_register_set exit with error, rc %d" % rc)
         exit(rc)
 
-    #connect to state db for notification sending
-    state_db = SonicV2Connector(host=REDIS_HOSTIP)
-    state_db.connect(state_db.STATE_DB)
+    liveness_info_update = sfpd_liveness_update_task(state_db)
+    liveness_info_update.task_run()
 
-    #main loop for sfp event listening
+    # Main loop for sfp event listening
     log_info("mlnx-sfpd started")
     while True:
-        state = STATUS_UNKNOWN
-        port_list, module_state = sx_recv(rx_fd_p, handle)
-        if module_state in sfp_value_status_dict: state = sfp_value_status_dict[module_state]
+        sfp_state = STATUS_UNKNOWN
+        rc, port_list, module_state = sx_recv(rx_fd_p, handle)
+        if not rc:
+            log_error("Failed to recv event from SDK, please check that SDK is running.")
+            break
 
-        if state != STATUS_UNKNOWN:
+        if module_state in sfp_value_status_dict: sfp_state = sfp_value_status_dict[module_state]
+
+        if sfp_state != STATUS_UNKNOWN:
             for port in port_list:
-                log_info("SFP on port %d state %s" % (port, state))
-                send_sfp_notification(state_db, str(port), state)
+                log_info("SFP on port %d state %s" % (port, sfp_state))
+                send_sfp_notification(state_db, str(port), sfp_state)
 
             log_info("sfp change event handling done")
 
-    '''
-    # TODO: clean open handlers before exit, need find out which errors can be raised by SDK in this case.
+    # Stop liveness update task
+    liveness_info_update.task_stop()
+
+    # Remove mlnx-sfpd liveness key in DB if not expired yet.
+    if state_db.exists('STATE_DB', 'MLNX_SFPD_TASK|LIVENESS'):
+        state_db.delete(state_db, 'MLNX_SFPD_TASK|LIVENESS')
+
     # unregister trap id
     cmd = SX_ACCESS_CMD_DEREGISTER
     rc = sx_api_host_ifc_trap_id_register_set(handle, cmd, swid, trap_id, uc_p)
@@ -180,20 +225,20 @@ def main():
         log_error("sx_api_host_ifc_trap_id_register_set exit with error, rc %d" % rc)
         exit(rc)
 
-    # close read fp
+    # Close read fp
     rc = sx_api_host_ifc_close(handle, rx_fd_p)
     if rc != 0:
         log_error("sx_api_host_ifc_close exit with error, rc %d" % rc)
         exit(rc)
 
-    # close sdk handler
+    # Close sdk handler
     rc = sx_api_close(handle)
     if rc != 0:
-        log_error("exit with error, rc %d" % rc)
+        log_error("sx_api_close exit with error, rc %d" % rc)
         exit(rc)
 
     log_info("mlnx-sfpd exited")
-    '''
+
 
 if __name__ == '__main__':
     main()

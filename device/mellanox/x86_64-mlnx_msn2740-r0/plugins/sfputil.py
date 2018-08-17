@@ -30,6 +30,7 @@ class SfpUtil(SfpUtilBase):
     db_sel_object = None
     db_sel_tbl = None
     state_db = None
+    sfpd_status_tbl = None
 
     @property
     def port_start(self):
@@ -176,6 +177,12 @@ class SfpUtil(SfpUtilBase):
             self.db_sel.addSelectable(self.db_sel_tbl)
             self.db_sel_timeout = swsscommon.Select.TIMEOUT
             self.db_sel_object = swsscommon.Select.OBJECT
+            self.sfpd_status_tbl = swsscommon.Table(self.state_db, 'MLNX_SFPD_TASK')
+
+        # Check the liveness of mlnx-sfpd, if it failed, return false
+        keys = self.sfpd_status_tbl.getKeys()
+        if 'LIVENESS' not in keys:
+            return False, phy_port_dict
 
         (state, c) = self.db_sel.select(timeout)
         if state == self.db_sel_timeout:
