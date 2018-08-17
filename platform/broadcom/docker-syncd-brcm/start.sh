@@ -29,11 +29,13 @@ wait_syncd() {
         fi
         sleep 1
     done
+
+    # wait until bcm sdk is ready to get a request
+    sleep 3
 }
 
 # If this platform has an initialization file for the Broadcom LED microprocessor, load it
 if [ -r ${PLATFORM_DIR}/led_proc_init.soc ]; then
     wait_syncd
-    sleep 60 # wait until bcm sdk is ready to get a request
     supervisorctl start ledinit
 fi
