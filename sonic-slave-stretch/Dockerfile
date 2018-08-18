@@ -6,7 +6,7 @@ RUN echo "deb http://debian-archive.trafficmanager.net/debian/ stretch main cont
         echo "deb-src http://debian-archive.trafficmanager.net/debian/ stretch main contrib non-free" >> /etc/apt/sources.list && \
         echo "deb http://debian-archive.trafficmanager.net/debian-security/ stretch/updates main contrib non-free" >> /etc/apt/sources.list && \
         echo "deb-src http://debian-archive.trafficmanager.net/debian-security/ stretch/updates main contrib non-free" >> /etc/apt/sources.list && \
-        echo 'deb http://debian-archive.trafficmanager.net/debian stretch-backports main' >> /etc/apt/sources.list
+        echo "deb http://debian-archive.trafficmanager.net/debian stretch-backports main" >> /etc/apt/sources.list
 
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
@@ -201,9 +201,7 @@ RUN apt-get update && apt-get install -y \
 # For pam_tacplus build
         autoconf-archive \
 # For initramfs
-        bash-completion \
-# For picocom
-        pandoc
+        bash-completion
 
 # For linux build
 RUN apt-get -y build-dep linux
