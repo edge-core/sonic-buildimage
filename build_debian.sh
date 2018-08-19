@@ -272,6 +272,7 @@ check system $HOST
 EOF
 
 ## Config sysctl
+## TODO: ipfrag* are for mitigating CVE-2018-5391, remove after kernel upgraded
 sudo mkdir -p $FILESYSTEM_ROOT/var/core
 sudo augtool --autosave "
 set /files/etc/sysctl.conf/kernel.core_pattern '|/usr/bin/coredump-compress %e %t %p'
@@ -309,6 +310,9 @@ set /files/etc/sysctl.conf/net.ipv6.conf.eth0.accept_ra_defrtr 0
 
 set /files/etc/sysctl.conf/net.core.rmem_max 2097152
 set /files/etc/sysctl.conf/net.core.wmem_max 2097152
+
+set /files/etc/sysctl.conf/net.ipv4.ipfrag_high_thresh 262144
+set /files/etc/sysctl.conf/net.ipv4.ipfrag_low_thresh 196608
 " -r $FILESYSTEM_ROOT
 
 ## docker-py is needed by Ansible docker module
