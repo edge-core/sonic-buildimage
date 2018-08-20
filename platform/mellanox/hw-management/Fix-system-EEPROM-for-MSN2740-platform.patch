@@ -1,0 +1,25 @@
+From cebfa8338c2e5953a097de2a776bb680e7a34410 Mon Sep 17 00:00:00 2001
+From: Volodymyr Samotiy <volodymyrs@mellanox.com>
+Date: Fri, 17 Aug 2018 13:27:16 +0300
+Subject: Fix system EEPROM for MSN2740 platform
+
+Signed-off-by: Volodymyr Samotiy <volodymyrs@mellanox.com>
+---
+ usr/etc/mlnx/mlnx-hw-management | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/usr/etc/mlnx/mlnx-hw-management b/usr/etc/mlnx/mlnx-hw-management
+index 54cdd30..4f0d265 100755
+--- a/usr/etc/mlnx/mlnx-hw-management
++++ b/usr/etc/mlnx/mlnx-hw-management
+@@ -107,6 +107,7 @@ msn2740_connect_table=(	mlxsw_minimal 0x48 2 \
+ 			max11603 0x64 5 \
+ 			tmp102 0x49 6 \
+ 			tmp102 0x48 7 \
++                        24c32 0x51 8 \
+ 			max11603 0x6d 15 \
+ 			24c32 0x51 16)
+ 
+-- 
+1.9.1
+
