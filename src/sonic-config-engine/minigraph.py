@@ -91,7 +91,7 @@ def parse_png(png, hname):
                             'flow_control': flowcontrol
                             }
                     continue
-                     
+
                 if linktype != "DeviceInterfaceLink" and linktype != "UnderlayInterfaceLink":
                     continue
 
@@ -516,6 +516,15 @@ def parse_xml(filename, platform=None, port_config_file=None):
 
         ports.setdefault(port_name, {})['description'] = port_descriptions[port_name]
 
+    # set default port MTU as 9100
+    for port in ports.itervalues():
+        port['mtu'] = '9100'
+
+    # set physical port default admin status up
+    for port in phyport_intfs:
+        if port[0] in ports:
+            ports.get(port[0])['admin_status'] = 'up'
+
     results['PORT'] = ports
     results['CONSOLE_PORT'] = console_ports
 
@@ -527,6 +536,11 @@ def parse_xml(filename, platform=None, port_config_file=None):
             if not set(mbr_map['members']).issubset(port_set):
                 print >> sys.stderr, "Warning: ignore '%s' as part of its member interfaces is not in the port_config.ini" % pc_name
                 del pcs[pc_name]
+
+    # set default port channel MTU as 9100 and admin status up
+    for pc in pcs.itervalues():
+        pc['mtu'] = '9100'
+        pc['admin_status'] = 'up'
 
     results['PORTCHANNEL'] = pcs
 

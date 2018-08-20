@@ -26,6 +26,8 @@ supervisorctl start vlanmgrd
 
 supervisorctl start intfmgrd
 
+supervisorctl start portmgrd
+
 supervisorctl start buffermgrd
 
 supervisorctl start enable_counters

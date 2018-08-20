@@ -42,6 +42,8 @@ supervisorctl start teamsyncd
 
 supervisorctl start fpmsyncd
 
+supervisorctl start portmgrd
+
 supervisorctl start intfmgrd
 
 supervisorctl start vlanmgrd
