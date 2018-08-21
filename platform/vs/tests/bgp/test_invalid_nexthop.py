@@ -22,11 +22,11 @@ def test_InvalidNexthop(dvs):
 
     time.sleep(10)
 
-    output = dvs.runcmd(["vtysh", "-c", "show ipv6 bgp"])
+    (exit_code, output) = dvs.runcmd(["vtysh", "-c", "show ipv6 bgp"])
 
     p.terminate()
     p = p.wait()
 
-    print output
+    print exit_code, output
 
     assert "3333::/64" in output

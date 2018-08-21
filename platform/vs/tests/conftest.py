@@ -55,20 +55,7 @@ class AsicDbValidator(object):
         keys = atbl.getKeys()
 
         assert len(keys) >= 1
-        # Filter out DTel Acl tables
-        default_table_found = False
-        for k in keys:
-            if default_table_found:
-                break
-            (status, fvs) = atbl.get(k)
-            for item in fvs:
-                if item[0] == "SAI_ACL_TABLE_ATTR_ACL_BIND_POINT_TYPE_LIST":
-                    if 'SAI_ACL_BIND_POINT_TYPE_PORT' in item[1]:
-                        self.default_acl_table = k
-                        default_table_found = True
-                        break
-                    else:
-                        break
+        self.default_acl_tables = keys
 
         atbl = swsscommon.Table(self.adb, "ASIC_STATE:SAI_OBJECT_TYPE_ACL_ENTRY")
         keys = atbl.getKeys()
@@ -179,9 +166,13 @@ class DockerVirtualSwitch(object):
                     network_mode="container:%s" % self.ctn_sw.name,
                     volumes={ self.mount: { 'bind': '/var/run/redis', 'mode': 'rw' } })
 
-        self.ctn.exec_run("sysctl -w net.ipv6.conf.all.disable_ipv6=0")
-        self.check_ready()
-        self.init_asicdb_validator()
+        try:
+            self.ctn.exec_run("sysctl -w net.ipv6.conf.all.disable_ipv6=0")
+            self.check_ready()
+            self.init_asicdb_validator()
+        except:
+            self.destroy()
+            raise
 
     def destroy(self):
         if self.cleanup:
@@ -199,7 +190,11 @@ class DockerVirtualSwitch(object):
         started = 0
         while True:
             # get process status
-            out = self.ctn.exec_run("supervisorctl status")
+            res = self.ctn.exec_run("supervisorctl status")
+            try:
+                out = res.output
+            except AttributeError:
+                out = res
             for l in out.split('\n'):
                 fds = re_space.split(l)
                 if len(fds) < 2:
@@ -231,7 +226,14 @@ class DockerVirtualSwitch(object):
         self.asicdb = AsicDbValidator(self)
 
     def runcmd(self, cmd):
-        return self.ctn.exec_run(cmd)
+        res = self.ctn.exec_run(cmd)
+        try:
+            exitcode = res.exit_code
+            out = res.output
+        except AttributeError:
+            exitcode = 0
+            out = res
+        return (exitcode, out)
 
     def copy_file(self, path, filename):
         tarstr = StringIO.StringIO()
