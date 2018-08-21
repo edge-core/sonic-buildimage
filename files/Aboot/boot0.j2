@@ -63,6 +63,7 @@ cmdline_base="$target_path/kernel-params-base"
 cmdline_image="$image_path/kernel-cmdline"
 
 bootconfigvars="KERNEL INITRD CONSOLESPEED PASSWORD NETDEV NETAUTO NETIP NETMASK NETGW NETDOMAIN NETDNS NETHW memtest"
+flash_re=" /mnt/flash| /host"
 
 parse_environment_config() {
     for n in ${bootconfigvars}; do
@@ -148,7 +149,8 @@ platform_specific() {
     # set varlog size to 100MB
     local varlog_size=100
 
-    local flash_size=$(($(df | grep -E '/mnt/flash|/host' | tr -s ' ' | cut -f2 -d' ') / 1000))
+    # detect the size of the flash partition from name in Aboot/EOS/SONiC
+    local flash_size=$(($(df | grep -E "$flash_re" | tr -s ' ' | cut -f2 -d' ') / 1000))
 
     if [ "$platform" = "raven" ]; then
         aboot_machine=arista_7050_qx32
@@ -223,8 +225,8 @@ write_boot_configs() {
 
     # setting root partition if not overridden by kernel-params
     if ! grep -q "root=" /tmp/append; then
-        rootdev="$(mount | grep -E '/mnt/flash|/host' | cut -f1 -d' ')"
-        rootfstype="$(mount | grep -E '/mnt/flash|/host' | cut -f5 -d' ')"
+        rootdev="$(mount | grep -E "$flash_re" | cut -f1 -d' ')"
+        rootfstype="$(mount | grep -E "$flash_re" | cut -f5 -d' ')"
         rootuuid="$(get_uuid_for $rootdev)"
         if [ -z "$rootuuid" ] || [ "$rootfstype" = "vfat" ] ; then
             echo "root=$rootdev" >> /tmp/append
