@@ -10,6 +10,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 
 	# build
 	pushd hw-management
+	git am ../*.patch
 	sed "s~@SED_VERSION@~$(MLNX_HW_MANAGEMENT_VERSION)~" -i debian/changelog
 	chmod +x ./debian/rules
 	sudo ./debian/rules binary KVERSION=$(KVERSION)

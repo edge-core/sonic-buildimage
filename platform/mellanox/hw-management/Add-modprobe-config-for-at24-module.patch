@@ -1,0 +1,21 @@
+From 2f70f5df445820fb86e3bd7f95707e0fb97b553f Mon Sep 17 00:00:00 2001
+From: Volodymyr Samotiy <volodymyrs@mellanox.com>
+Date: Thu, 16 Aug 2018 17:21:37 +0300
+Subject: Add modprobe config for "at24" module
+
+Signed-off-by: Volodymyr Samotiy <volodymyrs@mellanox.com>
+---
+ usr/etc/modprobe.d/mellanox-system-whitelist.conf | 1 +
+ 1 file changed, 1 insertion(+)
+ create mode 100644 usr/etc/modprobe.d/mellanox-system-whitelist.conf
+
+diff --git a/usr/etc/modprobe.d/mellanox-system-whitelist.conf b/usr/etc/modprobe.d/mellanox-system-whitelist.conf
+new file mode 100644
+index 0000000..a3eef57
+--- /dev/null
++++ b/usr/etc/modprobe.d/mellanox-system-whitelist.conf
+@@ -0,0 +1 @@
++options at24 io_limit=32
+-- 
+1.9.1
+
