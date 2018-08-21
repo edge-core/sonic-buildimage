@@ -5,6 +5,8 @@ SHELL = /bin/bash
 MAIN_TARGET = initramfs-tools_$(INITRAMFS_TOOLS_VERSION)_all.deb
 DERIVED_TARGETS = initramfs-tools-core_$(INITRAMFS_TOOLS_VERSION)_all.deb
 
+INITRAMFS_TOOLS_REVISION = 18fc98e1b63b012f9bcf06ae3f5477872a5880c0
+
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# Obtaining the initramfs-tools
 	rm -rf ./initramfs-tools
@@ -12,6 +14,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 
 	# Patch
 	pushd ./initramfs-tools
+	git checkout $(INITRAMFS_TOOLS_REVISION)
 	patch -p1 < ../loopback-file-system-support.patch
 
 	# Build the package
