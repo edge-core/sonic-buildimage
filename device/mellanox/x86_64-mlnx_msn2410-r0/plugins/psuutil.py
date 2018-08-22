@@ -21,9 +21,9 @@ class PsuUtil(PsuBase):
     def __init__(self):
         PsuBase.__init__(self)
 
-        self.psu_path = "/sys/bus/i2c/devices/2-0060/"
+        self.psu_path = "/bsp/module/"
         self.psu_presence = "psu{}_status"
-        self.psu_oper_status = "psu{}_pg_status"
+        self.psu_oper_status = "psu{}_pwr_status"
 
     def get_num_psus(self):
         """
