@@ -27,6 +27,7 @@ set -x -e
 . functions.sh
 BUILD_TEMPLATES=files/build_templates
 IMAGE_CONFIGS=files/image_config
+SCRIPTS_DIR=files/scripts
 
 # Define target fold macro
 FILESYSTEM_ROOT_USR="$FILESYSTEM_ROOT/usr"
@@ -291,6 +292,9 @@ fi
 sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /sys || true
 sudo LANG=C chroot $FILESYSTEM_ROOT umount -lf /sys
 {% endif %}
+
+# Copy swss service script
+sudo LANG=C cp $SCRIPTS_DIR/swss.sh $FILESYSTEM_ROOT/usr/local/bin/swss.sh
 
 # Copy systemd timer configuration
 # It implements delayed start of services
