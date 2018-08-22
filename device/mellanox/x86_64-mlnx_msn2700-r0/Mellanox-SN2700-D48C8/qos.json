@@ -127,6 +127,7 @@
         "AZURE_LOSSY": {
             "wred_green_enable":"true",
             "wred_yellow_enable":"true",
+            "wred_red_enable":"true",
             "ecn":"ecn_all",
             "red_max_threshold":"516096",
             "red_min_threshold":"516096",
@@ -138,6 +139,7 @@
         "AZURE_LOSSLESS": {
             "wred_green_enable":"true",
             "wred_yellow_enable":"true",
+            "wred_red_enable":"true",
             "ecn":"ecn_all",
             "red_max_threshold":"516096",
             "red_min_threshold":"516096",
