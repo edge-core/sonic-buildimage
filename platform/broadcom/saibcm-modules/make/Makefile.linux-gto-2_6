@@ -1,18 +1,17 @@
 #
-#  Unless you and Broadcom execute a separate written software license
-#  agreement governing use of this software, this software is licensed to
-#  you under the terms of the GNU General Public License version 2 (the
-#  "GPL"), available at http://www.broadcom.com/licenses/GPLv2.php,
-#  with the following added to such license:
+#  Copyright 2017 Broadcom
 #  
-#  As a special exception, the copyright holders of this software give
-#  you permission to link this software with independent modules, and to
-#  copy and distribute the resulting executable under terms of your
-#  choice, provided that you also meet, for each linked independent
-#  module, the terms and conditions of the license of that module.  An
-#  independent module is a module which is not derived from this
-#  software.  The special exception does not apply to any modifications
-#  of the software.
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License, version 2, as
+#  published by the Free Software Foundation (the "GPL").
+#  
+#  This program is distributed in the hope that it will be useful, but
+#  WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  General Public License version 2 (GPLv2) for more details.
+#  
+#  You should have received a copy of the GNU General Public License
+#  version 2 (GPLv2) along with this source code.
 #
 # $Id: Makefile.linux-gto-2_6,v 1.42 Broadcom SDK $
 # $Copyright: (c) 2005 Broadcom Corp.
@@ -255,7 +254,13 @@ CFLAGS += -DBCM_PLX9656_LOCAL_BUS -DBDE_LINUX_NON_INTERRUPTIBLE -DSHADOW_SVK
 endif
 
 ifeq (,$(KFLAGS))
-KFLAGS := -D__KERNEL__ -m32 -nostdinc -isystem $(KFLAG_INCLD) -I$(LINUX_INCLUDE) -include $(LINUX_INCLUDE)/linux/version.h -include $(LINUX_INCLUDE)/generated/autoconf.h -I$(KERNDIR)/arch/powerpc -I$(KERNDIR)/arch/powerpc -I$(KERNDIR)/arch/powerpc/include -I$(KERNDIR)/include/asm-powerpc -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -msoft-float -pipe -ffixed-r2 -mmultiple -mno-altivec -funit-at-a-time -Wa,-me500 -fomit-frame-pointer  -Wdeclaration-after-statement -Wno-pointer-sign
+#autoconf.h was moved in later kernels
+LINUX_AUTOCONF = $(LINUX_INCLUDE)/generated/autoconf.h
+ifeq (,$(shell ls $(LINUX_AUTOCONF) 2>/dev/null))
+LINUX_AUTOCONF = $(LINUX_INCLUDE)/linux/autoconf.h
+endif
+
+KFLAGS := -D__KERNEL__ -m32 -nostdinc -isystem $(KFLAG_INCLD) -I$(LINUX_INCLUDE) -include $(LINUX_INCLUDE)/linux/version.h -include $(LINUX_AUTOCONF) -I$(KERNDIR)/arch/powerpc -I$(KERNDIR)/arch/powerpc -I$(KERNDIR)/arch/powerpc/include -I$(KERNDIR)/include/asm-powerpc -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -msoft-float -pipe -ffixed-r2 -mmultiple -mno-altivec -funit-at-a-time -Wa,-me500 -fomit-frame-pointer  -Wdeclaration-after-statement -Wno-pointer-sign
 endif
 
 #Wind river Linux 3.0 needs addtional flags
