@@ -139,7 +139,6 @@ switch_board_qsfp() {
 init_devnum
 
 if [[ "$1" == "init" ]]; then
-    depmod -a
     modprobe i2c-dev
     modprobe i2c-mux-pca954x force_deselect_on_exit=1
     modprobe dell_mailbox
