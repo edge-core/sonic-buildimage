@@ -4784,7 +4784,7 @@ bkn_tx(struct sk_buff *skb, struct net_device *dev)
         bkn_suspend_tx(sinfo);
     }
 
-    dev->trans_start = jiffies;
+    netif_trans_update(dev);
 
     spin_unlock_irqrestore(&sinfo->lock, flags);
 
