@@ -15,10 +15,8 @@ case "$1" in
 start)
         echo -n "Setting up board... "
 
-        depmod -a
-        modprobe i2c-dev
-        modprobe i2c-mux-pca954x
-
+	modprobe smc
+        
         found=0
         for devnum in 0 1; do
                 devname=`cat /sys/bus/i2c/devices/i2c-${devnum}/name`
@@ -56,15 +54,11 @@ start)
         # Attach fans
         echo emc2305 0x4d > /sys/bus/i2c/devices/i2c-23/new_device
 
-        # Attach PSUs
-        echo dps200 0x5a > /sys/bus/i2c/devices/i2c-12/new_device
-        echo dps200 0x5b > /sys/bus/i2c/devices/i2c-13/new_device
-
-	# Attach 4 SFP+ Uplink
-        echo optoe1 0x50 > /sys/bus/i2c/devices/i2c-14/new_device
-        echo optoe1 0x50 > /sys/bus/i2c/devices/i2c-15/new_device
-        echo optoe1 0x50 > /sys/bus/i2c/devices/i2c-16/new_device
-        echo optoe1 0x50 > /sys/bus/i2c/devices/i2c-17/new_device
+        # Attach 4 SFP+ Uplink
+        echo optoe2 0x50 > /sys/bus/i2c/devices/i2c-14/new_device
+        echo optoe2 0x50 > /sys/bus/i2c/devices/i2c-15/new_device
+        echo optoe2 0x50 > /sys/bus/i2c/devices/i2c-16/new_device
+        echo optoe2 0x50 > /sys/bus/i2c/devices/i2c-17/new_device
 
         echo "done."
         ;;

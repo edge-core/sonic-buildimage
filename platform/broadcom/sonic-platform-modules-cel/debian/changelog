@@ -1,8 +1,15 @@
+sonic-cel-platform-modules (0.9) unstable; urgency=low
+
+  * Add haliburton platform module.
+
+ -- Wirut Getbamrung <wgetbumr@celestica.com>  Fri, 17 Aug 2018 10:10:10 +0700
+
 sonic-cel-platform-modules (0.8) unstable; urgency=low
 
-  * Add haliburton platform
+  * Add dx010 platform fan led control.
+  * The platform gpio init moved to kernel space. 
 
- -- Supakit Fuangkaew <sfuangk@celestica.com>  Thu, 5 Apr 2018 09:09:09 +0700
+ -- Pradchaya Phucharoen <pphuchar@celestica.com>  Mon, 1 Jul 2018 11:09:13 +0700
 
 sonic-cel-platform-modules (0.7) unstable; urgency=low
 
