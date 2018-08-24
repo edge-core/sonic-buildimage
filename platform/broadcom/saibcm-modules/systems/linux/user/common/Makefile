@@ -130,6 +130,9 @@ ADD_TO_CFLAGS += -I$(SDK)/systems/linux/kernel/modules/include
 COND_KNET_LIBS = libuser.$(libext)
 endif
 
+#SAI_FIXUP
+.NOTPARALLEL:
+
 all: $(BLDDIR)/.tree $(all_targets)
 
 ifeq ($(NO_LOCAL_TARGETS),)
@@ -146,15 +149,18 @@ ADD_TO_CFLAGS += -I$(SDK)/systems/bde/linux/include
 ADD_TO_CFLAGS += -DPROXY_SUPPORT=0
 
 CFLAGS += $(ADD_TO_CFLAGS)
+#SAI_FIXUP
+CFLAGS:=$(filter-out -fPIC, $(CFLAGS))
+
 
 kernel_modules:
 	$(MAKE) -C $(SDK)/systems/bde/linux/kernel kernel_version=$(kernel_version)
 	$(MAKE) -C $(SDK)/systems/bde/linux/user/kernel kernel_version=$(kernel_version)
 ifeq ($(BUILD_KNET),1)
-	$(MAKE) -C $(SDK)/systems/linux/kernel/modules kernel_version=$(kernel_version) \
+	$(MAKE) -j1 -C $(SDK)/systems/linux/kernel/modules kernel_version=$(kernel_version) \
 		subdirs="shared bcm-knet" override-target=linux-$(platform) CFLAGS="$(CFLAGS)"
 ifdef BUILD_KNET_CB
-	$(MAKE) -C $(SDK)/systems/linux/kernel/modules kernel_version=$(kernel_version) \
+	$(MAKE) -j1 -C $(SDK)/systems/linux/kernel/modules kernel_version=$(kernel_version) \
 		subdirs="knet-cb" override-target=linux-$(platform) CFLAGS="$(CFLAGS)"
 endif
 endif

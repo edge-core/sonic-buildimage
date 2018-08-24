@@ -461,7 +461,8 @@ typedef struct kcom_msg_filter_destroy_s {
  * Get list of currently defined packet filters.
  */
 #ifndef KCOM_FILTER_MAX
-#define KCOM_FILTER_MAX         128
+/* SAI_FIXUP - Increased the filters to 1024 from 128 */
+#define KCOM_FILTER_MAX          1024
 #endif
 
 typedef struct kcom_msg_filter_list_s {
