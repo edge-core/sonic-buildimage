@@ -5,7 +5,7 @@
 
 
 import os.path
-import commands
+import subprocess
 import logging
 
 try:
@@ -17,59 +17,58 @@ DEBUG = False
 
 def show_log(txt):
     if DEBUG == True:
-        print "[IX1B]"+txt
+        print("[IX2]"+txt)
     return
 
 def exec_cmd(cmd, show):
     logging.info('Run :'+cmd)
-    status, output = commands.getstatusoutput(cmd)
-    show_log (cmd +"with result:" + str(status))
-    show_log ("      output:"+output)
-    if status:
-        logging.info('Failed :'+cmd)
+    try:
+        output = subprocess.check_output(cmd, shell=True)
+        show_log (cmd +"output:"+str(output))
+    except subprocess.CalledProcessError as e:
+        logging.info("Failed :"+cmd)
         if show:
-            print('Failed :'+cmd)
-    return  status, output
+            print("Failed :"+cmd +"returncode = {}, err msg: {}".format(e.returncode, e.output))
+    return  output
 
 def my_log(txt):
     if DEBUG == True:
-        print "[QUANTA DBG]: "+txt
+        print("[QUANTA DBG]: "+txt)
     return
 
 def log_os_system(cmd, show):
     logging.info('Run :'+cmd)
     status = 1
     output = ""
-    status, output = commands.getstatusoutput(cmd)
-    my_log (cmd +"with result:" + str(status))
-    my_log ("cmd:" + cmd)
-    my_log ("      output:"+output)
-    if status:
+    try:
+        output = subprocess.check_output(cmd, shell=True)
+        my_log (cmd +"output:"+str(output))
+    except subprocess.CalledProcessError as e:
         logging.info('Failed :'+cmd)
         if show:
-            print('Failed :'+cmd)
-    return  status, output
+            print("Failed :"+cmd +"returncode = {}, err msg: {}".format(e.returncode, e.output))
+    return  output
 
 def gpio16_exist():
-    ret, ls = log_os_system("ls /sys/class/gpio/ | grep gpio16", 0)
+    ls = log_os_system("ls /sys/class/gpio/ | grep gpio16", 0)
     logging.info('mods:'+ls)
     if len(ls) ==0:
         return False
 
 def gpio17_exist():
-    ret, ls = log_os_system("ls /sys/class/gpio/ | grep gpio17", 0)
+    ls = log_os_system("ls /sys/class/gpio/ | grep gpio17", 0)
     logging.info('mods:'+ls)
     if len(ls) ==0:
         return False
 
 def gpio19_exist():
-    ret, ls = log_os_system("ls /sys/class/gpio/ | grep gpio19", 0)
+    ls = log_os_system("ls /sys/class/gpio/ | grep gpio19", 0)
     logging.info('mods:'+ls)
     if len(ls) ==0:
         return False
 
 def gpio20_exist():
-    ret, ls = log_os_system("ls /sys/class/gpio/ | grep gpio20", 0)
+    ls = log_os_system("ls /sys/class/gpio/ | grep gpio20", 0)
     logging.info('mods:'+ls)
     if len(ls) ==0:
         return False
@@ -86,20 +85,20 @@ class PsuUtil(PsuBase):
         PsuBase.__init__(self)
 
         if gpio16_exist() == False:
-            status, output = exec_cmd("echo 16 > /sys/class/gpio/export ", 1)
-            status, output = exec_cmd("echo in > /sys/class/gpio/gpio16/direction ", 1)
+            output = exec_cmd("echo 16 > /sys/class/gpio/export ", 1)
+            output = exec_cmd("echo in > /sys/class/gpio/gpio16/direction ", 1)
 
         if gpio17_exist() == False:
-            status, output = exec_cmd("echo 17 > /sys/class/gpio/export ", 1)
-            status, output = exec_cmd("echo in > /sys/class/gpio/gpio17/direction ", 1)
+            output = exec_cmd("echo 17 > /sys/class/gpio/export ", 1)
+            output = exec_cmd("echo in > /sys/class/gpio/gpio17/direction ", 1)
 
         if gpio19_exist() == False:
-            status, output = exec_cmd("echo 19 > /sys/class/gpio/export ", 1)
-            status, output = exec_cmd("echo in > /sys/class/gpio/gpio19/direction ", 1)
+            output = exec_cmd("echo 19 > /sys/class/gpio/export ", 1)
+            output = exec_cmd("echo in > /sys/class/gpio/gpio19/direction ", 1)
 
         if gpio20_exist() == False:
-            status, output = exec_cmd("echo 20 > /sys/class/gpio/export ", 1)
-            status, output = exec_cmd("echo in > /sys/class/gpio/gpio20/direction ", 1)
+            output = exec_cmd("echo 20 > /sys/class/gpio/export ", 1)
+            output = exec_cmd("echo in > /sys/class/gpio/gpio20/direction ", 1)
 
     # Get sysfs attribute
     def get_attr_value(self, attr_path):

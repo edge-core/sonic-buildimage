@@ -12,8 +12,11 @@ parity_enable=1
 # Control to disable parity correction
 parity_correction=1
 
-l2_mem_entries=<40960>
-l3_mem_entries=<40960>
+ipv6_lpm_128b_enable=1
+l3_alpm_enable=2
+
+l2_mem_entries=40960
+l3_mem_entries=40960
 
 portmap_1=1:100
 portmap_2=5:100
