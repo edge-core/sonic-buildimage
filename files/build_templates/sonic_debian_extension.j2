@@ -45,7 +45,6 @@ sudo LANG=C chroot $FILESYSTEM_ROOT mount sysfs /sys -t sysfs
 
 sudo bash -c "echo \"DOCKER_OPTS=\"--storage-driver=overlay\"\" >> $FILESYSTEM_ROOT/etc/default/docker"
 sudo chroot $FILESYSTEM_ROOT service docker start
-sudo chroot $FILESYSTEM_ROOT docker info
 
 # Apply apt configuration files
 sudo cp $IMAGE_CONFIGS/apt/sources.list $FILESYSTEM_ROOT/etc/apt/
@@ -273,6 +272,7 @@ sudo dpkg --root=$FILESYSTEM_ROOT -i target/debs/tcpd_*_amd64.deb || \
 sudo cp $IMAGE_CONFIGS/platform/rc.local $FILESYSTEM_ROOT/etc/
 
 {% if installer_images.strip() -%}
+sudo chroot $FILESYSTEM_ROOT docker info
 {% for image in installer_images.strip().split(' ') -%}
 {% set imagefilename = image.split('/')|last -%}
 {% set imagename = imagefilename.split('.')|first -%}
