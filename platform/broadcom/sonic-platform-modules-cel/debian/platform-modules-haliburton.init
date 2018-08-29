@@ -60,6 +60,10 @@ start)
         echo optoe2 0x50 > /sys/bus/i2c/devices/i2c-16/new_device
         echo optoe2 0x50 > /sys/bus/i2c/devices/i2c-17/new_device
 
+        # Enable SFP module presence interrupt
+        echo "both" > /sys/devices/platform/e1031.smc/SFP/modabs_trig
+        echo 0 > /sys/devices/platform/e1031.smc/SFP/modabs_mask
+
         echo "done."
         ;;
 

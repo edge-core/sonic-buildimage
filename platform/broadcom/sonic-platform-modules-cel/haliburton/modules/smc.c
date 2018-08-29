@@ -116,6 +116,22 @@ enum MASTER_LED {
 #define FAN_2           1
 #define FAN_1           0
 
+/* SFP PORT INT TRIGGER MODE
+ * [7:6] RESERVED
+ * [5:4] RXLOS 
+ * [3:2] MODABS
+ * [1:0] TXFAULT
+ * 00: falling edge,
+ * 01: rising edge,
+ * 10: Both edges,
+ * 11: low level detect
+ */
+#define TRIG_MODE       0x0240
+#define TXFAULT_TRIG    0
+#define MODABS_TRIG     2
+#define RXLOS_TRIG      4
+
+
 /* SFP PORT STATUS
  * [7:4] RESERVED
  * [3:0] TX_FAULT / MODABS / RXLOS
@@ -123,6 +139,24 @@ enum MASTER_LED {
 #define SFP_TXFAULT     0x0242
 #define SFP_MODABS      0x0243
 #define SFP_RXLOS       0x0244
+
+/* SFP PORT INTERRUPT
+ * [7:4] RESERVED
+ * [3:0] TX_FAULT / MODABS / RXLOS
+ * 1: int, 0: no int
+ */
+#define TXFAULT_INT     0x0246
+#define MODABS_INT      0x0247
+#define RXLOS_INT       0x0248
+
+/* INTERRUPT MASK REGISTER
+ * [7:4] RESERVED
+ * [3:0] TX_FAULT / MODABS / RXLOS
+ * 1: mask, 0: not mask
+ */
+#define TXFAULT_MSK     0x024A
+#define MODABS_MSK      0x024B
+#define RXLOS_MSK       0x024C
 
 /* SFP PORT CTRL
  * [7:4] RATE SEL (RS0/RS1)
@@ -250,7 +284,7 @@ static ssize_t setreg_store(struct device *dev, struct device_attribute *devattr
 }
 
 /**
- * Show status led
+ * @brief          Show status led
  * @param  dev     kernel device
  * @param  devattr kernel device attribute
  * @param  buf     buffer for get value
@@ -269,7 +303,7 @@ static ssize_t status_led_show(struct device *dev, struct device_attribute *deva
 }
 
 /**
- * Set the status led
+ * @brief          Set the status led
  * @param  dev     kernel device
  * @param  devattr kernel device attribute
  * @param  buf     buffer of set value - off/on/blink
@@ -301,7 +335,7 @@ static ssize_t status_led_store(struct device *dev, struct device_attribute *dev
 }
 
 /**
- * Show master led
+ * @brief          Show master led
  * @param  dev     kernel device
  * @param  devattr kernel device attribute
  * @param  buf     buffer for get value
@@ -320,7 +354,7 @@ static ssize_t master_led_show(struct device *dev, struct device_attribute *deva
 }
 
 /**
- * Set the master led
+ * @brief          Set the master led
  * @param  dev     kernel device
  * @param  devattr kernel device attribute
  * @param  buf     buffer of set value - off/green/amber
@@ -401,8 +435,6 @@ static ssize_t fan_dir_show(struct device *dev, struct device_attribute *devattr
     struct sensor_device_attribute *sa = to_sensor_dev_attr(devattr);
     int index = sa->index;
     unsigned char data = 0;
-
-    // Use index to determind the status bit
     mutex_lock(&cpld_data->cpld_lock);
     data = inb(DEV_STAT);
     mutex_unlock(&cpld_data->cpld_lock);
@@ -413,48 +445,41 @@ static ssize_t fan_dir_show(struct device *dev, struct device_attribute *devattr
 static ssize_t sfp_txfault_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
     unsigned char data;
-    struct sfp_device_data *dev_data = dev_get_drvdata(dev);
-    unsigned int port_bit = dev_data->portid - 1;
-
     mutex_lock(&cpld_data->cpld_lock);
     data = inb(SFP_TXFAULT);
+    data = data & 0x0F;
     mutex_unlock(&cpld_data->cpld_lock);
-    return sprintf(buf, "%d\n", (data >> port_bit ) & 1U);
+    return sprintf(buf, "0x%x\n", data);
 }
 
 static ssize_t sfp_modabs_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
     unsigned char data;
-    struct sfp_device_data *dev_data = dev_get_drvdata(dev);
-    unsigned int port_bit = dev_data->portid - 1;
-
     mutex_lock(&cpld_data->cpld_lock);
     data = inb(SFP_MODABS);
+    data = data & 0x0F;
     mutex_unlock(&cpld_data->cpld_lock);
-    return sprintf(buf, "%d\n", (data >> port_bit ) & 1U);
+    return sprintf(buf, "0x%x\n", data);
 }
 
 static ssize_t sfp_rxlos_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
     unsigned char data;
-    struct sfp_device_data *dev_data = dev_get_drvdata(dev);
-    unsigned int port_bit = dev_data->portid - 1;
-
     mutex_lock(&cpld_data->cpld_lock);
     data = inb(SFP_RXLOS);
+    data = data & 0x0F;
     mutex_unlock(&cpld_data->cpld_lock);
-    return sprintf(buf, "%d\n", (data >> port_bit ) & 1U);
+    return sprintf(buf, "0x%x\n", data);
 }
 
 static ssize_t sfp_txdis_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
     unsigned char data;
-    struct sfp_device_data *dev_data = dev_get_drvdata(dev);
-    unsigned int port_bit = dev_data->portid - 1;
     mutex_lock(&cpld_data->cpld_lock);
     data = inb(SFP_TXCTRL);
+    data = data & 0x0F;
     mutex_unlock(&cpld_data->cpld_lock);
-    return sprintf(buf, "%d\n", (data >> port_bit ) & 1U);
+    return sprintf(buf, "0x%x\n", data);
 }
 
 static ssize_t sfp_txdis_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t size)
@@ -462,18 +487,13 @@ static ssize_t sfp_txdis_store(struct device *dev, struct device_attribute *attr
     long value;
     ssize_t status;
     unsigned char data;
-    struct sfp_device_data *dev_data = dev_get_drvdata(dev);
-    unsigned int port_bit = dev_data->portid - 1;
 
     mutex_lock(&cpld_data->cpld_lock);
     status = kstrtol(buf, 0, &value);
     if (status == 0) {
-        // check if value is 0, clear
         data = inb(SFP_TXCTRL);
-        if (!value)
-            data = data & ~( 1U << port_bit);
-        else
-            data = data | ( 1U << port_bit);
+        data = data & ~(0x0F);
+        data = data | (value & 0x0F);
         outb(data, SFP_TXCTRL);
         status = size;
     }
@@ -484,15 +504,11 @@ static ssize_t sfp_txdis_store(struct device *dev, struct device_attribute *attr
 static ssize_t sfp_rs_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
     unsigned char data;
-    struct sfp_device_data *dev_data = dev_get_drvdata(dev);
-    unsigned int port_bit = dev_data->portid - 1;
-
-    // High nibble
-    port_bit = port_bit + 4;
     mutex_lock(&cpld_data->cpld_lock);
-    data = inb(SFP_TXCTRL);
+    data = inb(SFP_TXCTRL) >> 4;
+    data = data & 0x0F;
     mutex_unlock(&cpld_data->cpld_lock);
-    return sprintf(buf, "%d\n", (data >> port_bit ) & 1U);
+    return sprintf(buf, "0x%x\n", data);
 }
 
 static ssize_t sfp_rs_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t size)
@@ -500,24 +516,285 @@ static ssize_t sfp_rs_store(struct device *dev, struct device_attribute *attr, c
     long value;
     ssize_t status;
     unsigned char data;
-    struct sfp_device_data *dev_data = dev_get_drvdata(dev);
-    unsigned int port_bit = dev_data->portid - 1;
 
-    // High nibble
-    port_bit = port_bit + 4;
     mutex_lock(&cpld_data->cpld_lock);
     status = kstrtol(buf, 0, &value);
+    value = (value & 0x0F) << 4;
     if (status == 0) {
-        // check if value is 0, clear
         data = inb(SFP_TXCTRL);
-        if (!value)
-            data = data & ~( 1U << port_bit);
-        else
-            data = data | ( 1U << port_bit);
+        data = data & ~(0xF0);
+        data = data | value;
         outb(data, SFP_TXCTRL);
         status = size;
     }
     mutex_unlock(&cpld_data->cpld_lock);
+    return status;
+}
+
+/**
+ * @brief      Show the avaliable interrupt trigger mode.
+ *             "none" means the interrupt is masked.
+ *
+ * @return     Current trigger mode.
+ */
+static ssize_t txfault_trig_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+    unsigned char mode;
+    char *mode_str[5] = {"falling", "rising", "both", "low"};
+
+    mutex_lock(&cpld_data->cpld_lock);
+    mode = inb(TRIG_MODE) >> TXFAULT_TRIG;
+    mode = mode & 0x3;
+    mutex_unlock(&cpld_data->cpld_lock);
+    return sprintf(buf, "%s\n", mode_str[mode]);
+}
+
+/**
+ * @brief      Set the trigger mode of each interrupt type.
+ *             Only one trigger mode allow in a type.
+ *
+ * @param      buf   The trigger mode of follwings 
+ *                   "falling", "rising", "both"
+ */
+static ssize_t txfault_trig_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t size)
+{
+    ssize_t status;
+    unsigned char data, trig_mode;
+
+    if (sysfs_streq(buf, "falling")) {
+        trig_mode = 0;
+    } else if (sysfs_streq(buf, "rising")) {
+        trig_mode = 1;
+    } else if (sysfs_streq(buf, "both")) {
+        trig_mode = 2;
+    } else if (sysfs_streq(buf, "low")) {
+        trig_mode = 3;
+    } else {
+        status = -EINVAL;
+        return status;
+    }
+
+    mutex_lock(&cpld_data->cpld_lock);
+    data = inb(TRIG_MODE);
+    data = data & ~(0x03 << TXFAULT_TRIG);
+    data = data | trig_mode << TXFAULT_TRIG;
+    outb(data, TRIG_MODE);
+    mutex_unlock(&cpld_data->cpld_lock);
+    status = size;
+    return status;
+}
+
+/**
+ * @brief      Show the avaliable interrupt trigger mode.
+ *             "none" means the interrupt is masked.
+ *
+ * @return     Current trigger mode.
+ */
+static ssize_t modabs_trig_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+    unsigned char mode;
+    char *mode_str[5] = {"falling", "rising", "both", "low"};
+
+    mutex_lock(&cpld_data->cpld_lock);
+    mode = inb(TRIG_MODE) >> MODABS_TRIG;
+    mode = mode & 0x3;
+    mutex_unlock(&cpld_data->cpld_lock);
+    return sprintf(buf, "%s\n", mode_str[mode]);
+}
+
+/**
+ * @brief      Set the trigger mode of each interrupt type.
+ *             Only one trigger mode allow in a type.
+ *
+ * @param      buf   The trigger mode of follwings 
+ *                   "falling", "rising", "both", "low"            
+ */
+static ssize_t modabs_trig_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t size)
+{
+    ssize_t status;
+    unsigned char data, trig_mode;
+
+    if (sysfs_streq(buf, "falling")) {
+        trig_mode = 0;
+    } else if (sysfs_streq(buf, "rising")) {
+        trig_mode = 1;
+    } else if (sysfs_streq(buf, "both")) {
+        trig_mode = 2;
+    } else if (sysfs_streq(buf, "low")) {
+        trig_mode = 3;
+    } else {
+        status = -EINVAL;
+        return status;
+    }
+
+    mutex_lock(&cpld_data->cpld_lock);
+    data = inb(TRIG_MODE);
+    data = data & ~(0x03 << MODABS_TRIG);
+    data = data | trig_mode << MODABS_TRIG;
+    outb(data, TRIG_MODE);
+    mutex_unlock(&cpld_data->cpld_lock);
+    status = size;
+    return status;
+}
+
+/**
+ * @brief      Show the avaliable interrupt trigger mode.
+ *             "none" means the interrupt is masked.
+ *
+ * @return     Current trigger mode.
+ */
+static ssize_t rxlos_trig_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+    unsigned char mode;
+    char *mode_str[5] = {"falling", "rising", "both", "low"};
+
+    mutex_lock(&cpld_data->cpld_lock);
+    mode = inb(TRIG_MODE) >> RXLOS_TRIG;
+    mode = mode & 0x3;
+    mutex_unlock(&cpld_data->cpld_lock);
+    return sprintf(buf, "%s\n", mode_str[mode]);
+}
+
+/**
+ * @brief      Set the trigger mode of each interrupt type.
+ *             Only one trigger mode allow in a type.
+ *
+ * @param      buf   The trigger mode of follwings 
+ *                   "falling", "rising", "both", "low"
+ */
+static ssize_t rxlos_trig_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t size)
+{
+    ssize_t status;
+    unsigned char data, trig_mode;
+
+    if (sysfs_streq(buf, "falling")) {
+        trig_mode = 0;
+    } else if (sysfs_streq(buf, "rising")) {
+        trig_mode = 1;
+    } else if (sysfs_streq(buf, "both")) {
+        trig_mode = 2;
+    } else if (sysfs_streq(buf, "low")) {
+        trig_mode = 3;
+    } else {
+        status = -EINVAL;
+        return status;
+    }
+
+    mutex_lock(&cpld_data->cpld_lock);
+    data = inb(TRIG_MODE);
+    data = data & ~(0x03 << RXLOS_TRIG);
+    data = data | trig_mode << RXLOS_TRIG;
+    outb(data, TRIG_MODE);
+    mutex_unlock(&cpld_data->cpld_lock);
+    status = size;
+    return status;
+}
+
+static ssize_t txfault_int_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+    unsigned char data;
+    mutex_lock(&cpld_data->cpld_lock);
+    data = inb(TXFAULT_INT);
+    data = data & 0x0F;
+    mutex_unlock(&cpld_data->cpld_lock);
+    return sprintf(buf, "0x%x\n", data);
+}
+
+static ssize_t modabs_int_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+    unsigned char data;
+    mutex_lock(&cpld_data->cpld_lock);
+    data = inb(MODABS_INT);
+    data = data & 0x0F;
+    mutex_unlock(&cpld_data->cpld_lock);
+    return sprintf(buf, "0x%x\n", data);
+}
+
+static ssize_t rxlos_int_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+    unsigned char data;
+    mutex_lock(&cpld_data->cpld_lock);
+    data = inb(RXLOS_INT);
+    data = data & 0x0F;
+    mutex_unlock(&cpld_data->cpld_lock);
+    return sprintf(buf, "0x%x\n", data);
+}
+
+static ssize_t txfault_mask_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+    unsigned char data;
+    mutex_lock(&cpld_data->cpld_lock);
+    data = inb(TXFAULT_MSK);
+    data = data & 0x0F;
+    mutex_unlock(&cpld_data->cpld_lock);
+    return sprintf(buf, "0x%x\n", data);
+}
+
+static ssize_t txfault_mask_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t size)
+{
+    long value;
+    ssize_t status;
+
+    status = kstrtol(buf, 0, &value);
+    value = value & 0x0F;
+    if (status == 0) {
+        mutex_lock(&cpld_data->cpld_lock);
+        outb(value, TXFAULT_MSK);
+        mutex_unlock(&cpld_data->cpld_lock);
+        status = size;
+    }
+    return status;
+}
+
+static ssize_t modabs_mask_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+    unsigned char data;
+    mutex_lock(&cpld_data->cpld_lock);
+    data = inb(MODABS_MSK);
+    data = data & 0x0F;
+    mutex_unlock(&cpld_data->cpld_lock);
+    return sprintf(buf, "0x%x\n", data);
+}
+
+static ssize_t modabs_mask_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t size)
+{
+    long value;
+    ssize_t status;
+
+    status = kstrtol(buf, 0, &value);
+    value = value & 0x0F;
+    if (status == 0) {
+        mutex_lock(&cpld_data->cpld_lock);
+        outb(value, MODABS_MSK);
+        mutex_unlock(&cpld_data->cpld_lock);
+        status = size;
+    }
+    return status;
+}
+
+static ssize_t rxlos_mask_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+    unsigned char data;
+    mutex_lock(&cpld_data->cpld_lock);
+    data = inb(RXLOS_MSK);
+    data = data & 0x0F;
+    mutex_unlock(&cpld_data->cpld_lock);
+    return sprintf(buf, "0x%x\n", data);
+}
+
+static ssize_t rxlos_mask_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t size)
+{
+    long value;
+    ssize_t status;
+
+    status = kstrtol(buf, 0, &value);
+    value = value & 0x0F;
+    if (status == 0) {
+        mutex_lock(&cpld_data->cpld_lock);
+        outb(value, RXLOS_MSK);
+        mutex_unlock(&cpld_data->cpld_lock);
+        status = size;
+    }
     return status;
 }
 
@@ -578,6 +855,15 @@ static DEVICE_ATTR_RO(sfp_modabs);
 static DEVICE_ATTR_RO(sfp_rxlos);
 static DEVICE_ATTR_RW(sfp_txdis);
 static DEVICE_ATTR_RW(sfp_rs);
+static DEVICE_ATTR_RW(txfault_trig);
+static DEVICE_ATTR_RW(modabs_trig);
+static DEVICE_ATTR_RW(rxlos_trig);
+static DEVICE_ATTR_RO(txfault_int);
+static DEVICE_ATTR_RO(modabs_int);
+static DEVICE_ATTR_RO(rxlos_int);
+static DEVICE_ATTR_RW(txfault_mask);
+static DEVICE_ATTR_RW(modabs_mask);
+static DEVICE_ATTR_RW(rxlos_mask);
 static SENSOR_DEVICE_ATTR(fan1_dir, S_IRUGO, fan_dir_show, NULL, FAN_1);
 static SENSOR_DEVICE_ATTR(fan2_dir, S_IRUGO, fan_dir_show, NULL, FAN_2);
 static SENSOR_DEVICE_ATTR(fan3_dir, S_IRUGO, fan_dir_show, NULL, FAN_3);
@@ -619,6 +905,15 @@ static struct attribute *sfp_attrs[] = {
     &dev_attr_sfp_rxlos.attr,
     &dev_attr_sfp_txdis.attr,
     &dev_attr_sfp_rs.attr,
+    &dev_attr_txfault_trig.attr,
+    &dev_attr_modabs_trig.attr,
+    &dev_attr_rxlos_trig.attr,
+    &dev_attr_txfault_int.attr,
+    &dev_attr_modabs_int.attr,
+    &dev_attr_rxlos_int.attr,
+    &dev_attr_txfault_mask.attr,
+    &dev_attr_modabs_mask.attr,
+    &dev_attr_rxlos_mask.attr,
     NULL,
 };
 
@@ -631,26 +926,6 @@ static struct resource cpld_resources[] = {
         .flags  = IORESOURCE_IO,
     },
 };
-
-static struct device * sfp_init(int portid) {
-    struct sfp_device_data *new_data;
-    struct device *new_device;
-
-    new_data = kzalloc(sizeof(*new_data), GFP_KERNEL);
-    if (!new_data) {
-        printk(KERN_ALERT "Cannot alloc sff device data @port%d", portid);
-        return NULL;
-    }
-    /* Front panel port ID start from 1 */
-    new_data->portid = portid + 1;
-    new_device = device_create_with_groups(celplatform, cpld_data->fpp_node, MKDEV(0, 0), new_data, sfp_groups, "SFP%d", new_data->portid);
-    if (IS_ERR(new_device)) {
-        printk(KERN_ALERT "Cannot create sff device @port%d", portid);
-        kfree(new_data);
-        return NULL;
-    }
-    return new_device;
-}
 
 static void cpld_dev_release( struct device * dev)
 {
@@ -670,7 +945,7 @@ static struct platform_device cpld_dev = {
 static int cpld_drv_probe(struct platform_device *pdev)
 {
     struct resource *res;
-    int err, i = 0;
+    int err;
 
     cpld_data = devm_kzalloc(&pdev->dev, sizeof(struct cpld_data),
                              GFP_KERNEL);
@@ -700,7 +975,8 @@ static int cpld_drv_probe(struct platform_device *pdev)
         return PTR_ERR(celplatform);
     }
 
-    cpld_data->fpp_node = device_create(celplatform, NULL, MKDEV(0, 0), NULL, "optical_ports");
+    cpld_data->fpp_node = device_create_with_groups(celplatform, NULL, MKDEV(0, 0), NULL, sfp_groups, "optical_ports");
+
     if (IS_ERR(cpld_data->fpp_node)) {
         class_destroy(celplatform);
         sysfs_remove_group(&pdev->dev.kobj, &cpld_group);
@@ -716,11 +992,6 @@ static int cpld_drv_probe(struct platform_device *pdev)
         return err;
     }
 
-    // Creae SFP devices
-    for ( i = 0; i < 4; i++) {
-        cpld_data->sfp_devices[i] = sfp_init(i);
-    }
-
     // Clear all reset signals
     outb(0xFF, SPR_RESET);
     return 0;
@@ -728,17 +999,8 @@ static int cpld_drv_probe(struct platform_device *pdev)
 
 static int cpld_drv_remove(struct platform_device *pdev)
 {
-    struct sfp_device_data *rem_data;
-    int i;
-
-    for ( i = 0; i < 4; i++ ) {
-        rem_data = dev_get_drvdata(cpld_data->sfp_devices[i]);
-        put_device(cpld_data->sfp_devices[i]);
-        device_unregister(cpld_data->sfp_devices[i]);
-        kzfree(rem_data);
-    }
-    put_device(cpld_data->fpp_node);
     device_unregister(cpld_data->fpp_node);
+    put_device(cpld_data->fpp_node);
     sysfs_remove_group(&pdev->dev.kobj, &cpld_group);
     class_destroy(celplatform);
     return 0;
@@ -773,5 +1035,5 @@ module_exit(cpld_exit);
 
 MODULE_AUTHOR("Celestica Inc.");
 MODULE_DESCRIPTION("Celestica E1031 SMC driver");
-MODULE_VERSION("0.0.3");
+MODULE_VERSION("1.0.0");
 MODULE_LICENSE("GPL");

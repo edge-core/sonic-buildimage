@@ -14,58 +14,58 @@ class SfpUtil(SfpUtilBase):
     PORT_START = 1
     PORT_END = 52
     port_to_i2c_mapping = {
-         1 : None,
-         2 : None,
-         3 : None,
-         4 : None,
-         5 : None,
-         6 : None,
-         7 : None,
-         8 : None,
-         9 : None,
-        10 : None,
-        11 : None,
-        12 : None,
-        13 : None,
-        14 : None,
-        15 : None,
-        16 : None,
-        17 : None,
-        18 : None,
-        19 : None,
-        20 : None,
-        21 : None,
-        22 : None,
-        23 : None,
-        24 : None,
-        25 : None,
-        26 : None,
-        27 : None,
-        28 : None,
-        29 : None,
-        30 : None,
-        31 : None,
-        32 : None,
-        33 : None,
-        34 : None,
-        35 : None,
-        36 : None,
-        37 : None,
-        38 : None,
-        39 : None,
-        40 : None,
-        41 : None,
-        42 : None,
-        43 : None,
-        44 : None,
-        45 : None,
-        46 : None,
-        47 : None,
-        48 : None,
-        49 : 15,
-        50 : 14,
-        51 : 17,
-        52 : 16
+         1: None,
+         2: None,
+         3: None,
+         4: None,
+         5: None,
+         6: None,
+         7: None,
+         8: None,
+         9: None,
+        10: None,
+        11: None,
+        12: None,
+        13: None,
+        14: None,
+        15: None,
+        16: None,
+        17: None,
+        18: None,
+        19: None,
+        20: None,
+        21: None,
+        22: None,
+        23: None,
+        24: None,
+        25: None,
+        26: None,
+        27: None,
+        28: None,
+        29: None,
+        30: None,
+        31: None,
+        32: None,
+        33: None,
+        34: None,
+        35: None,
+        36: None,
+        37: None,
+        38: None,
+        39: None,
+        40: None,
+        41: None,
+        42: None,
+        43: None,
+        44: None,
+        45: None,
+        46: None,
+        47: None,
+        48: None,
+        49: 15,
+        50: 14,
+        51: 17,
+        52: 16
     }
     _port_to_eeprom_mapping = {}
     _sfp_port = range(49, PORT_END + 1)
@@ -94,30 +94,42 @@ class SfpUtil(SfpUtilBase):
             self.port_to_eeprom_mapping[x] = port_eeprom_path
         SfpUtilBase.__init__(self)
 
+
     def get_presence(self, port_num):
-        sfp_modabs_path = '/sys/devices/platform/e1031.smc/SFP/SFP{0}/sfp_modabs'
+        sfp_modabs_path = '/sys/devices/platform/e1031.smc/SFP/sfp_modabs'
 
         if port_num not in self._sfp_port:
             return False
-        
+
         status = 1
         try:
-            with open(sfp_modabs_path.format(port_num - 48), 'r') as port_status:
-                status = int(port_status.read())
-        except IOError:            
+            with open(sfp_modabs_path, 'r') as port_status:
+                status = int(port_status.read(), 16)
+                status = (status >> (port_num - 49)) & 1
+        except IOError:
             return False
 
         return status == 0
 
-
     def get_low_power_mode(self, port_num):
-	    raise NotImplementedError
+        raise NotImplementedError
 
     def set_low_power_mode(self, port_num, lpmode):
-	    raise NotImplementedError
+        raise NotImplementedError
 
     def reset(self, port_num):
-	    raise NotImplementedError
-
-    def get_transceiver_change_event(self):
         raise NotImplementedError
+
+    def get_transceiver_change_event(self, timeout=0):
+        modabs_interrupt_path = '/sys/devices/platform/e1031.smc/SFP/modabs_int'
+        ports_evt = {}
+        try:
+            with open(modabs_interrupt_path, 'r') as port_changes:
+                changes = int(port_changes.read(), 16)
+                for port_num in self._sfp_port:
+                    change = (changes >> ( port_num - 49)) & 1
+                    if change == 1:
+                        ports_evt[str(port_num)] = str(self.get_presence(port_num))
+        except IOError:
+            return False, {}
+        return True, ports_evt
