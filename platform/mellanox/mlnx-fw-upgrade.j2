@@ -23,25 +23,46 @@ while [[ (${query_retry_count} -lt ${query_retry_count_max}) && ($? -ne "0") ]];
 	${query_cmd} > /dev/null
 done
 
-run_or_fail "${query_cmd}" > /tmp/mlnxfwmanager-query.txt
+function upgrade() {
+    if [ ! -z "$1" ]; then
+        fw_file="$1"
+        if [ ! -f "$fw_file" ]; then
+            >&2 echo "No such file: $fw_file"
+            exit 1
+        fi
 
-# get current firmware version and required version
-fw_info=$(grep FW /tmp/mlnxfwmanager-query.txt)
-fw_current=$(echo $fw_info | cut -f2 -d' ')
+        run_or_fail "${query_cmd} -i ${fw_file}" > /tmp/mlnxfwmanager-query.txt
 
-if [[ -z ${fw_current} ]]; then
-	echo "Could not retreive current FW version."
-	exit 1
-fi
+        # get current firmware version and available version from $fw_file
+        fw_info=$(grep FW /tmp/mlnxfwmanager-query.txt)
+        fw_current=$(echo $fw_info | cut -f2 -d' ')
+        fw_available=$(echo $fw_info | cut -f3 -d' ')
 
-if [[ -z ${fw_required} ]]; then
-	echo "Could not retreive required FW version."
-	exit 1
-fi
+        fw_required=$fw_available
+    else
+        run_or_fail "${query_cmd}" > /tmp/mlnxfwmanager-query.txt
 
-if [[ ${fw_current} == ${fw_required} ]]; then
-	echo "Mellanox firmware is up to date."
-else
-	echo "Mellanox firmware required version is ${fw_required}. Installing compatible version..."
-	run_or_fail "mlxfwmanager -i ${fw_file} -u -f -y"
-fi
+        # get current firmware version and required version
+        fw_info=$(grep FW /tmp/mlnxfwmanager-query.txt)
+        fw_current=$(echo $fw_info | cut -f2 -d' ')
+    fi
+    
+    if [[ -z ${fw_current} ]]; then
+        echo "Could not retreive current FW version."
+        exit 1
+    fi
+    
+    if [[ -z ${fw_required} ]]; then
+        echo "Could not retreive required FW version."
+        exit 1
+    fi
+    
+    if [[ ${fw_current} == ${fw_required} ]]; then
+        echo "Mellanox firmware is up to date."
+    else
+        echo "Mellanox firmware required version is ${fw_required}. Installing compatible version..."
+        run_or_fail "mlxfwmanager -i ${fw_file} -u -f -y"
+    fi
+}
+
+upgrade "$1"
