@@ -49,6 +49,13 @@ MODULE_AUTHOR("Broadcom Corporation");
 MODULE_DESCRIPTION("Broadcom Linux KNET Call-Back Driver");
 MODULE_LICENSE("GPL");
 
+
+static int debug;
+LKM_MOD_PARAM(debug, "i", int, 0);
+MODULE_PARM_DESC(debug,
+"Debug level (default 0)");
+
+
 /* Module Information */
 #define MODULE_MAJOR 121
 #define MODULE_NAME "linux-knet-cb"
@@ -152,7 +159,9 @@ get_tag_status(int dcb_type, void *meta)
             break;
     }
 #ifdef KNET_CB_DEBUG
-    gprintk("%s; DCB Type: %d; tag status: %d\n", __func__, dcb_type, tag_status);
+    if (debug & 0x1) {
+        gprintk("%s; DCB Type: %d; tag status: %d\n", __func__, dcb_type, tag_status);
+    }
 #endif    
     return tag_status;
 }
@@ -171,8 +180,10 @@ strip_tag_rx_cb(struct sk_buff *skb, int dev_no, void *meta)
      */
 
 #ifdef KNET_CB_DEBUG
-    gprintk("%s Enter; netif Flags: %08X filter_flags %08X \n",
-            __func__, netif_flags, filter_flags);
+    if (debug & 0x1) {
+        gprintk("%s Enter; netif Flags: %08X filter_flags %08X \n",
+                __func__, netif_flags, filter_flags);
+    }
 #endif
 
     /* KNET implements this already */
@@ -196,7 +207,9 @@ strip_tag_rx_cb(struct sk_buff *skb, int dev_no, void *meta)
     tag_status = get_tag_status(dcb_type, meta);
 
 #ifdef KNET_CB_DEBUG
-    gprintk("%s; DCB Type: %d; tag status: %d\n", __func__, dcb_type, tag_status);
+    if (debug & 0x1) {
+        gprintk("%s; DCB Type: %d; tag status: %d\n", __func__, dcb_type, tag_status);
+    }
 #endif
 
     if (tag_status < 0) {
@@ -208,14 +221,18 @@ strip_tag_rx_cb(struct sk_buff *skb, int dev_no, void *meta)
    
     if (strip_tag) {
 #ifdef KNET_CB_DEBUG
-        gprintk("%s; Stripping VLAN\n", __func__);
+        if (debug & 0x1) {
+            gprintk("%s; Stripping VLAN\n", __func__);
+        }
 #endif
         strip_stats.stripped++;
         strip_vlan_tag(skb);
     }
 #ifdef KNET_CB_DEBUG
     else {
-        gprintk("%s; Preserve VLAN\n", __func__);
+        if (debug & 0x1) {
+            gprintk("%s; Preserve VLAN\n", __func__);
+        }
     }
 #endif
 
