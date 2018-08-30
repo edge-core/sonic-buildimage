@@ -2,9 +2,9 @@
 #
 # Platform-specific SFP transceiver interface for SONiC
 #
-
 try:
     import time
+    import os
     from sonic_sfp.sfputilbase import SfpUtilBase
 except ImportError as e:
     raise ImportError("%s - required module not found" % str(e))
@@ -21,8 +21,14 @@ class SfpUtil(SfpUtilBase):
 
     BASE_VAL_PATH = "/sys/class/i2c-adapter/i2c-{0}/{1}-0050/"
     BASE_OOM_PATH = "/sys/bus/i2c/devices/{0}-0050/"
-    BASE_CPLD2_PATH = "/sys/bus/i2c/devices/0-0061/"
-    BASE_CPLD3_PATH = "/sys/bus/i2c/devices/0-0062/"
+    BASE_CPLD2_PATH = "/sys/bus/i2c/devices/{0}-0061/"
+    BASE_CPLD3_PATH = "/sys/bus/i2c/devices/{0}-0062/"
+    I2C_BUS_ORDER = -1
+
+    #The sidebands of QSFP is different. 
+    #present is in-order. 
+    #But lp_mode and reset are not. 	
+    qsfp_sb_map = [1, 3, 5, 2, 4, 6]
 
     _port_to_is_present = {}
     _port_to_lp_mode = {}
@@ -137,18 +143,30 @@ class SfpUtil(SfpUtilBase):
 
         SfpUtilBase.__init__(self)
 
+    #Two i2c buses might get flipped order, check them both.
+    def update_i2c_order(self):
+        if self.I2C_BUS_ORDER < 0:
+            eeprom_path = "/sys/bus/i2c/devices/1-0057/eeprom"
+            if os.path.exists(eeprom_path):
+                self.I2C_BUS_ORDER = 0
+            eeprom_path = "/sys/bus/i2c/devices/0-0057/eeprom"
+            if os.path.exists(eeprom_path):
+                self.I2C_BUS_ORDER = 1
+        return self.I2C_BUS_ORDER 
+
     def get_presence(self, port_num):
         # Check for invalid port_num
         if port_num < self.port_start or port_num > self.port_end:
             return False
 
+        order = self.update_i2c_order()
         if port_num < 24:
-            present_path = self.BASE_CPLD2_PATH + "module_present_" + str(self._port_to_i2c_mapping[port_num][0])            
+            present_path = self.BASE_CPLD2_PATH.format(order)         
         else:
-            present_path = self.BASE_CPLD3_PATH + "module_present_" + str(self._port_to_i2c_mapping[port_num][0])
+            present_path = self.BASE_CPLD3_PATH.format(order)
         
+        present_path = present_path + "module_present_" + str(self._port_to_i2c_mapping[port_num][0])            
         self.__port_to_is_present = present_path
-            
 
         try:
             val_file = open(self.__port_to_is_present)
@@ -165,11 +183,21 @@ class SfpUtil(SfpUtilBase):
 
         return False
 
+    def qsfp_sb_remap(self, port_num):
+        qsfp_start = self.qsfp_port_start
+        qsfp_index = self._port_to_i2c_mapping[port_num][0] - qsfp_start
+        qsfp_index = self.qsfp_sb_map[qsfp_index-1]
+        return qsfp_start+qsfp_index
+
     def get_low_power_mode(self, port_num):             
         if port_num < self.qsfp_port_start or port_num > self.qsfp_port_end:
             return False
         
-        lp_mode_path = self.BASE_CPLD3_PATH + "module_lp_mode_" + str(self._port_to_i2c_mapping[port_num][0])
+        order = self.update_i2c_order()
+        lp_mode_path = self.BASE_CPLD3_PATH.format(order)
+        lp_mode_path = lp_mode_path + "module_lp_mode_" 
+        q = self.qsfp_sb_remap(port_num)
+        lp_mode_path = lp_mode_path + str(q)
         
         try:
             val_file = open(lp_mode_path)
@@ -190,7 +218,11 @@ class SfpUtil(SfpUtilBase):
         if port_num < self.qsfp_port_start or port_num > self.qsfp_port_end:
             return False    
               
-        lp_mode_path = self.BASE_CPLD3_PATH + "module_lp_mode_" + str(self._port_to_i2c_mapping[port_num][0])
+        order = self.update_i2c_order()
+        lp_mode_path = self.BASE_CPLD3_PATH.format(order)
+        lp_mode_path = lp_mode_path + "module_lp_mode_" 
+        q = self.qsfp_sb_remap(port_num)
+        lp_mode_path = lp_mode_path + str(q)
         
         try:
             reg_file = open(lp_mode_path, 'r+')
@@ -212,7 +244,11 @@ class SfpUtil(SfpUtilBase):
         if port_num < self.qsfp_port_start or port_num > self.qsfp_port_end:
             return False
          
-        mod_rst_path = lp_mode_path = self.BASE_CPLD3_PATH + "module_reset_" + str(self._port_to_i2c_mapping[port_num][0])
+        order = self.update_i2c_order()
+        lp_mode_path = self.BASE_CPLD3_PATH.format(order)
+        mod_rst_path = lp_mode_path + "module_reset_" 
+        q = self.qsfp_sb_remap(port_num)
+        mod_rst_path = mod_rst_path + str(q)
         
         try:
             reg_file = open(mod_rst_path, 'r+')
@@ -220,9 +256,13 @@ class SfpUtil(SfpUtilBase):
             print "Error: unable to open file: %s" % str(e)          
             return False
 
-        reg_value = '1'
-
-        reg_file.write(reg_value)
+        #toggle reset
+        reg_file.seek(0)
+        reg_file.write('0')
+        time.sleep(1)
+        reg_file.seek(0)
+        reg_file.write('1')
         reg_file.close()
+        return True
         
         return True
