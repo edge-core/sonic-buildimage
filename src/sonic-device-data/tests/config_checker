@@ -10,28 +10,8 @@ def usage():
     sys.exit(1)
 
 def check_property(p):
+
     if p in permitted_properties:
-        return True
-    # Try to remove trailing .<digits>
-    if re.sub(r".\d+$", "", p) in permitted_properties:
-        return True
-    # Try to remove trailing _<digits>.<digits>
-    if re.sub(r"_\d+.\d+$", "", p) in permitted_properties:
-        return True
-    # Try to remove trailing _hg.<digits>
-    if re.sub(r"_hg.0$", "", p) in permitted_properties:
-        return True
-    # Try to remove trailing _[cx]e<digits>
-    if re.sub(r"_[cx]e\d*$", "", p) in permitted_properties:
-        return True
-    # Try to remove trailing _lane<digit>_<digits>
-    if re.sub(r"_lane\d_\d+$", "", p) in permitted_properties:
-        return True
-    # Try to remove trailing _lane<digit>_<digits>.<digits>
-    if re.sub(r"_lane\d_\d+.\d+$", "", p) in permitted_properties:
-        return True
-    # Try to remove trailing _lane<digit>_[cx]e<digits>
-    if re.sub(r"_lane\d_[cx]e\d+$", "", p) in permitted_properties:
         return True
     return False
 
@@ -45,12 +25,27 @@ def check_file(file_name):
                 lineno = lineno + 1
                 # Check both commented and uncommented lines
                 line = line.strip().lstrip('#').strip().lower()
+                # Check if = in the line
                 if line.find("=") == -1:
                     continue
                 p = line.split("=", 1)[0]
-                # Remove trailing "{<number>.<number>}"
-                p = re.sub('{[0-9]+\.[0-9]+}', '', p)
-                # Check if = in the line
+
+                # Remove trailing unit ".<number>$"
+                p = re.sub(r"\.[0-9]+$", '', p)
+                # Remove trailing port name
+                p = re.sub(r"_[cxg]e(\d+)?$", '', p)
+                # Remove trailing port name example
+                p = re.sub(r"_<port>$", '', p)
+                # Remove trailing port number
+                if p != "phy_84752" and p != "phy_84328":
+                    p = re.sub(r"_(port)?\d+$", '', p)
+                # Remove trailing higig port
+                p = re.sub(r"_hg$", '', p)
+                # Remove trailing lane number
+                p = re.sub(r"_lane\d+$", '', p)
+                # Remove trailing "{<number>.<number>}$"
+                p = re.sub(r"{[0-9]+\.[0-9]+}$", '', p)
+
                 if not check_property(p):
                     file_ok = False
                     print("[line %d] Error: %s is not permitted" % (lineno, p))
