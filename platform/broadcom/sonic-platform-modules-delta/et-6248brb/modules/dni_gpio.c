@@ -401,6 +401,7 @@ static struct ichx_desc avoton_desc = {
 	.reglen = avoton_reglen,
 	.use_outlvl_cache = true,
 };
+
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4,7,0)
 static int ichx_gpio_request_regions(struct resource *res_base,
 						const char *name, u8 use_gpio)
@@ -558,6 +559,7 @@ static int ichx_gpio_remove(struct platform_device *pdev)
 
 	return 0;
 }
+
 #else // #if LINUX_VERSION_CODE >= KERNEL_VERSION(4,7,0)
 static int ichx_gpio_request_regions(struct device *dev,
         struct resource *res_base, const char *name, u8 use_gpio)

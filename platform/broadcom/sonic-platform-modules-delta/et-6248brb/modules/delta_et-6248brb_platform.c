@@ -545,7 +545,7 @@ static ssize_t set_gpio_reg(struct device *dev, struct device_attribute *dev_att
 {
     int err;
     int value;
-    unsigned long set_data;    
+    unsigned long set_data;
     unsigned char set_reg;
     unsigned char mask;  
     unsigned char mask_out;
