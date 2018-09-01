@@ -28,7 +28,6 @@ start)
     modprobe delta_ag9032v1_cpupld
 
     /usr/local/bin/ag9032v1_platform_init.sh
-
     echo "done."
     ;;
 

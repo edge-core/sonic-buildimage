@@ -120,7 +120,7 @@ class SfpUtil(SfpUtilBase):
             reg_value = reg_value & ~mask
 
         # Convert our register value back to a hex string and write back
-        content = hex(reg_value)
+        content = hex(reg_value).rstrip("L") or "0"
 
         reg_file.seek(0)
         reg_file.write(content)

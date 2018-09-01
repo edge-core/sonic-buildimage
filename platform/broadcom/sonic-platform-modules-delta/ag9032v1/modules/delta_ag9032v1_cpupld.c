@@ -384,4 +384,4 @@ module_exit(delta_ag9032v1_cpupld_exit);
 
 MODULE_DESCRIPTION("DNI ag9032v1 CPLD Platform Support");
 MODULE_AUTHOR("Stanley Chi <stanley.chi@deltaww.com>");
-MODULE_LICENSE("GPL"); 
+MODULE_LICENSE("GPL");

@@ -2551,4 +2551,4 @@ module_exit(delta_ag9032v1_platform_exit);
 
 MODULE_DESCRIPTION("DNI ag9032v1 Platform Support");
 MODULE_AUTHOR("Neal Tai <neal.tai@deltaww.com>");
-MODULE_LICENSE("GPL");    
+MODULE_LICENSE("GPL"); 
