@@ -23,7 +23,14 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	dpkg-source -x net-snmp_$(SNMPD_VERSION_FULL).dsc
 
 	pushd net-snmp-$(SNMPD_VERSION)
-	patch -p0 < ../statfs_error.patch
+	git init
+	git add -f *
+	git commit -m "unmodified snmpd source"
+
+	# Apply patches
+	stg init
+	stg import -s ../patch-$(SNMPD_VERSION)/series
+
 	fakeroot debian/rules -j$(SONIC_CONFIG_MAKE_JOBS) binary
 	popd
 
