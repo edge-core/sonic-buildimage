@@ -298,4 +298,4 @@ RUN add-apt-repository \
            stable"
 RUN apt-get update
 RUN apt-get install -y docker-ce=17.03.2~ce-0~debian-jessie
-RUN echo "DOCKER_OPTS=\"--experimental\"" >> /etc/default/docker
+RUN echo "DOCKER_OPTS=\"--experimental --storage-driver=vfs\"" >> /etc/default/docker
