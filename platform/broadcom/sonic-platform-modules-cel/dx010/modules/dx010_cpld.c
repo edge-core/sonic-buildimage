@@ -30,6 +30,13 @@
 
 #define DRIVER_NAME "dx010_cpld"
 
+#define RESET0108   0x250
+#define RESET0910   0x251
+#define RESET1118   0x2d0
+#define RESET1921   0x2d1
+#define RESET2229   0x3d0
+#define RESET3032   0x3d1
+
 #define LPMOD0108   0x252
 #define LPMOD0910   0x253
 #define LPMOD1118   0x2d2
@@ -50,6 +57,7 @@
 #define INT1921     0x2d7
 #define INT2229     0x3d6
 #define INT3032     0x3d7
+
 
 #define LENGTH_PORT_CPLD        34
 #define PORT_BANK1_START        1
@@ -105,6 +113,53 @@ struct dx010_cpld_data {
 };
 
 struct dx010_cpld_data *cpld_data;
+
+static ssize_t get_reset(struct device *dev, struct device_attribute *devattr,
+                char *buf)
+{
+        unsigned long reset = 0;
+
+        mutex_lock(&cpld_data->cpld_lock);
+
+        reset =
+                (inb(RESET3032) & 0x07) << (24+5) |
+                inb(RESET2229) << (24-3)  |
+                (inb(RESET1921) & 0x07) << (16 + 2) |
+                inb(RESET1118) << (16-6) |
+                (inb(RESET0910) & 0x03 ) << 8 |
+                inb(RESET0108);
+
+        mutex_unlock(&cpld_data->cpld_lock);
+
+        return sprintf(buf,"0x%8.8lx\n", reset & 0xffffffff);
+}
+
+static ssize_t set_reset(struct device *dev, struct device_attribute *devattr,
+                const char *buf, size_t count)
+{
+        unsigned long reset;
+        int err;
+
+        mutex_lock(&cpld_data->cpld_lock);
+
+        err = kstrtoul(buf, 16, &reset);
+        if (err)
+        {
+                mutex_unlock(&cpld_data->cpld_lock);
+                return err;
+        }
+
+        outb( (reset >> 0)  & 0xFF, RESET0108);
+        outb( (reset >> 8)  & 0x03, RESET0910);
+        outb( (reset >> 10) & 0xFF, RESET1118);
+        outb( (reset >> 18) & 0x07, RESET1921);
+        outb( (reset >> 21) & 0xFF, RESET2229);
+        outb( (reset >> 29) & 0x07, RESET3032);
+
+        mutex_unlock(&cpld_data->cpld_lock);
+
+        return count;
+}
 
 static ssize_t get_lpmode(struct device *dev, struct device_attribute *devattr,
                 char *buf)
@@ -193,11 +248,13 @@ static ssize_t get_modirq(struct device *dev, struct device_attribute *devattr,
         return sprintf(buf,"0x%8.8lx\n", irq  & 0xffffffff);
 }
 
+static DEVICE_ATTR(qsfp_reset, S_IRUGO | S_IWUSR, get_reset, set_reset);
 static DEVICE_ATTR(qsfp_lpmode, S_IRUGO | S_IWUSR, get_lpmode, set_lpmode);
 static DEVICE_ATTR(qsfp_modprs, S_IRUGO, get_modprs, NULL);
 static DEVICE_ATTR(qsfp_modirq, S_IRUGO, get_modirq, NULL);
 
 static struct attribute *dx010_lpc_attrs[] = {
+        &dev_attr_qsfp_reset.attr,
         &dev_attr_qsfp_lpmode.attr,
         &dev_attr_qsfp_modprs.attr,
         &dev_attr_qsfp_modirq.attr,
@@ -247,7 +304,6 @@ static int i2c_read_eeprom(struct i2c_adapter *a, u16 addr,
         short temp;
         short portid, opcode, devaddr, cmdbyte0, ssrr, writedata, readdata;
         __u16 word_data;
-        char read_byte;
         int error = -EIO;
 
         mutex_lock(&cpld_data->cpld_lock);
@@ -465,7 +521,6 @@ static int cel_dx010_lpc_drv_probe(struct platform_device *pdev)
 static int cel_dx010_lpc_drv_remove(struct platform_device *pdev)
 {
         int portid_count;
-        struct dx010_i2c_data *new_data;
 
         sysfs_remove_group(&pdev->dev.kobj, &dx010_lpc_attr_grp);
 

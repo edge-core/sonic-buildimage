@@ -33,7 +33,6 @@ case "$1" in
 start)
         echo -n "Setting up board... "
 
-        depmod -a
         modprobe i2c-dev
         modprobe i2c-mux-pca954x
         modprobe dx010_wdt
