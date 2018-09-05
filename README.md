@@ -47,21 +47,25 @@ To clone the code repository recursively, assuming git version 1.9 or newer:
 
 To build SONiC installer image and docker images, run the following commands:
 
+    # Ensure the 'overlay' module is loaded on your development system
+    sudo modprobe overlay
+
+    # Enter the source directory
     cd sonic-buildimage
 
     # (Optional) Checkout a specific branch. By default, it uses master branch
     git checkout [branch_name]
 
-    # Execute make init once after cloning the repo, or fetched remote repo with submodule updates
+    # Execute make init once after cloning the repo, or after fetching remote repo with submodule updates
     make init
 
     # Execute make configure once to configure ASIC
     make configure PLATFORM=[ASIC_VENDOR]
 
-    # build debian stretch required targets (optional)
+    # Build Debian Stretch required targets (Manual execution optional; will also be executed as part of the build)
     BLDENV=stretch make stretch
 
-    # build SONiC image
+    # Build SONiC image
     make all
 
  **NOTE**:
