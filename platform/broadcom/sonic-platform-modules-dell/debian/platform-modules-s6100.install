@@ -6,4 +6,4 @@ common/fstrim.timer etc/systemd/system
 common/fstrim.service etc/systemd/system
 s6100/scripts/platform_sensors.py usr/local/bin
 s6100/scripts/sensors usr/bin
-
+s6100/systemd/platform-modules-s6100.service etc/systemd/system/multi-user.target.wants

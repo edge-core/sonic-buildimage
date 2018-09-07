@@ -6,3 +6,4 @@ common/fstrim.service etc/systemd/system
 z9100/scripts/platform_sensors.py usr/local/bin
 z9100/scripts/sensors usr/bin
 z9100/cfg/z9100-modules.conf etc/modules-load.d
+z9100/systemd/platform-modules-z9100.service etc/systemd/system/multi-user.target.wants

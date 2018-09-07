@@ -16,7 +16,7 @@ Z9100_MAX_FAN_TRAYS = 5
 Z9100_MAX_PSUS = 2
 S6100_MAX_IOMS = 4
 
-MAILBOX_DIR = "/sys/devices/platform/SMF.512/hwmon/hwmon1"
+MAILBOX_DIR = "/sys/devices/platform/SMF.512/hwmon/hwmon0"
 
 # Get a mailbox register
 
@@ -42,10 +42,10 @@ def get_pmc_register(reg_name):
 logging.basicConfig(level=logging.DEBUG)
 
 if (os.path.isdir(MAILBOX_DIR)):
-    print 'dell-s6100-lpc'
-    print 'Adapter: S6100 Platform Management Controller'
+    print 'dell-z9100-lpc'
+    print 'Adapter: Z9100 Platform Management Controller'
 else:
-    logging.error('S6100 Platform Management Controller module not loaded !')
+    logging.error('Z9100 Platform Management Controller module not loaded !')
     # sys.exit(0)
 
 # Print the information for temperature sensors
