@@ -171,11 +171,32 @@ switch_board_qsfp_lpmode() {
     echo $value > /sys/class/i2c-adapter/i2c-17/17-003e/qsfp_lpmode
 }
 
+# Enable/Disable xcvr presence interrupts
+xcvr_presence_interrupts() {
+    case $1 in
+        "enable")
+                      for ((i=14;i<=17;i++));
+                      do
+                          echo 0x0 > /sys/class/i2c-adapter/i2c-$i/$i-003e/qsfp_abs_mask
+                      done
+                      ;;
+        "disable")
+                      for ((i=14;i<=17;i++));
+                      do
+                          echo 0xffff > /sys/class/i2c-adapter/i2c-$i/$i-003e/qsfp_abs_mask
+                      done
+                      ;;
+        *)            echo "s6100_platform: xcvr_presence_interrupts: invalid command !"
+                      ;;
+    esac
+}
+
 init_devnum
 
 if [[ "$1" == "init" ]]; then
     modprobe i2c-dev
     modprobe i2c-mux-pca954x force_deselect_on_exit=1
+    modprobe dell_ich
     modprobe dell_s6100_iom_cpld
     modprobe dell_s6100_lpc
 
@@ -187,7 +208,9 @@ if [[ "$1" == "init" ]]; then
     switch_board_sfp "new_device"
     switch_board_qsfp "new_device"
     switch_board_qsfp_lpmode "disable"
+    xcvr_presence_interrupts "enable"
 elif [[ "$1" == "deinit" ]]; then
+    xcvr_presence_interrupts "disable"
     switch_board_sfp "delete_device"
     switch_board_cpld "delete_device"
     switch_board_mux "delete_device"
@@ -200,6 +223,7 @@ elif [[ "$1" == "deinit" ]]; then
     modprobe -r dell_s6100_iom_cpld
     modprobe -r i2c-mux-pca954x
     modprobe -r i2c-dev
+    modprobe -r dell_ich
 else
      echo "s6100_platform : Invalid option !"
 fi

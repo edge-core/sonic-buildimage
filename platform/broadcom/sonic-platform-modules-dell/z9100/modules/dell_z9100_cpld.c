@@ -32,6 +32,21 @@
 #define  QSFP_MOD_PRS_REG0 0x16 
 #define  QSFP_MOD_PRS_REG1 0x17 
 
+//qsfp interrupt registers
+#define  QSFP_INT_STA_REG0 0x14
+#define  QSFP_INT_STA_REG1 0x15
+#define  QSFP_ABS_STA_REG0 0x16
+#define  QSFP_ABS_STA_REG1 0x17
+#define  QSFP_TRIG_MOD     0x20
+#define  QSFP_INT_COMBINE  0x21
+#define  QSFP_INT0         0x22
+#define  QSFP_INT1         0x23
+#define  QSFP_ABS_INT0     0x24
+#define  QSFP_ABS_INT1     0x25
+#define  QSFP_INT_MASK0    0x26
+#define  QSFP_INT_MASK1    0x27
+#define  QSFP_ABS_MASK0    0x28
+#define  QSFP_ABS_MASK1    0x29
 
 struct cpld_data {
     struct i2c_client *client;
@@ -189,16 +204,219 @@ static ssize_t set_reset(struct device *dev, struct device_attribute *devattr, c
     return count;
 }
 
+static ssize_t get_int_sta(struct device *dev, struct device_attribute *devattr, char *buf)
+{
+    int ret;
+    u16 devdata=0;
+    struct cpld_data *data = dev_get_drvdata(dev);
+
+    ret = dell_z9100_iom_cpld_read(data,QSFP_INT_STA_REG0);
+    if(ret < 0)
+        return sprintf(buf, "read error");
+    devdata = (u16)ret & 0xff;
+
+    ret = dell_z9100_iom_cpld_read(data,QSFP_INT_STA_REG1);
+    if(ret < 0)
+        return sprintf(buf, "read error");
+    devdata |= (u16)(ret & 0xff) << 8;
+
+    return sprintf(buf,"0x%04x\n",devdata);
+}
+
+static ssize_t get_abs_sta(struct device *dev, struct device_attribute *devattr, char *buf)
+{
+    int ret;
+    u16 devdata=0;
+    struct cpld_data *data = dev_get_drvdata(dev);
+
+    ret = dell_z9100_iom_cpld_read(data,QSFP_ABS_STA_REG0);
+    if(ret < 0)
+        return sprintf(buf, "read error");
+    devdata = (u16)ret & 0xff;
+
+    ret = dell_z9100_iom_cpld_read(data,QSFP_ABS_STA_REG1);
+    if(ret < 0)
+        return sprintf(buf, "read error");
+    devdata |= (u16)(ret & 0xff) << 8;
+
+    return sprintf(buf,"0x%04x\n",devdata);
+}
+
+static ssize_t get_trig_mod(struct device *dev, struct device_attribute *devattr, char *buf)
+{
+    int ret;
+    u8 devdata=0;
+    struct cpld_data *data = dev_get_drvdata(dev);
+
+    ret = dell_z9100_iom_cpld_read(data,QSFP_TRIG_MOD);
+    if(ret < 0)
+        return sprintf(buf, "read error");
+    devdata = (u8)ret & 0xff;
+    return sprintf(buf,"0x%02x\n",devdata);
+}
+
+static ssize_t set_trig_mod(struct device *dev, struct device_attribute *devattr, const char *buf, size_t count)
+{
+    unsigned long devdata;
+    int err;
+    struct cpld_data *data = dev_get_drvdata(dev);
+
+    err = kstrtoul(buf, 16, &devdata);
+    if (err)
+        return err;
+
+    dell_z9100_iom_cpld_write(data,QSFP_TRIG_MOD,(u8)(devdata & 0xff));
+
+    return count;
+}
+
+static ssize_t get_int_combine(struct device *dev, struct device_attribute *devattr, char *buf)
+{
+    int ret;
+    u8 devdata=0;
+    struct cpld_data *data = dev_get_drvdata(dev);
+
+    ret = dell_z9100_iom_cpld_read(data,QSFP_INT_COMBINE);
+    if(ret < 0)
+        return sprintf(buf, "read error");
+    devdata = (u8)ret & 0xff;
+    return sprintf(buf,"0x%02x\n",devdata);
+}
+
+static ssize_t get_int(struct device *dev, struct device_attribute *devattr, char *buf)
+{
+    int ret;
+    u16 devdata=0;
+    struct cpld_data *data = dev_get_drvdata(dev);
+
+    ret = dell_z9100_iom_cpld_read(data,QSFP_INT0);
+    if(ret < 0)
+        return sprintf(buf, "read error");
+    devdata = (u16)ret & 0xff;
+
+    ret = dell_z9100_iom_cpld_read(data,QSFP_INT1);
+    if(ret < 0)
+        return sprintf(buf, "read error");
+    devdata |= (u16)(ret & 0xff) << 8;
+
+    return sprintf(buf,"0x%04x\n",devdata);
+}
+
+static ssize_t get_abs_int(struct device *dev, struct device_attribute *devattr, char *buf)
+{
+    int ret;
+    u16 devdata=0;
+    struct cpld_data *data = dev_get_drvdata(dev);
+
+    ret = dell_z9100_iom_cpld_read(data,QSFP_ABS_INT0);
+    if(ret < 0)
+        return sprintf(buf, "read error");
+    devdata = (u16)ret & 0xff;
+
+    ret = dell_z9100_iom_cpld_read(data,QSFP_ABS_INT1);
+    if(ret < 0)
+        return sprintf(buf, "read error");
+    devdata |= (u16)(ret & 0xff) << 8;
+
+    return sprintf(buf,"0x%04x\n",devdata);
+}
+
+static ssize_t get_int_mask(struct device *dev, struct device_attribute *devattr, char *buf)
+{
+    int ret;
+    u16 devdata=0;
+    struct cpld_data *data = dev_get_drvdata(dev);
+
+    ret = dell_z9100_iom_cpld_read(data,QSFP_INT_MASK0);
+    if(ret < 0)
+        return sprintf(buf, "read error");
+    devdata = (u16)ret & 0xff;
+
+    ret = dell_z9100_iom_cpld_read(data,QSFP_INT_MASK1);
+    if(ret < 0)
+        return sprintf(buf, "read error");
+    devdata |= (u16)(ret & 0xff) << 8;
+
+    return sprintf(buf,"0x%04x\n",devdata);
+}
+
+static ssize_t set_int_mask(struct device *dev, struct device_attribute *devattr, const char *buf, size_t count)
+{
+    unsigned long devdata;
+    int err;
+    struct cpld_data *data = dev_get_drvdata(dev);
+
+    err = kstrtoul(buf, 16, &devdata);
+    if (err)
+        return err;
+
+    dell_z9100_iom_cpld_write(data,QSFP_INT_MASK0,(u8)(devdata & 0xff));
+    dell_z9100_iom_cpld_write(data,QSFP_INT_MASK1,(u8)((devdata >> 8) & 0xff));
+
+    return count;
+}
+
+static ssize_t get_abs_mask(struct device *dev, struct device_attribute *devattr, char *buf)
+{
+    int ret;
+    u16 devdata=0;
+    struct cpld_data *data = dev_get_drvdata(dev);
+
+    ret = dell_z9100_iom_cpld_read(data,QSFP_ABS_MASK0);
+    if(ret < 0)
+        return sprintf(buf, "read error");
+    devdata = (u16)ret & 0xff;
+
+    ret = dell_z9100_iom_cpld_read(data,QSFP_ABS_MASK1);
+    if(ret < 0)
+        return sprintf(buf, "read error");
+    devdata |= (u16)(ret & 0xff) << 8;
+
+    return sprintf(buf,"0x%04x\n",devdata);
+}
+
+static ssize_t set_abs_mask(struct device *dev, struct device_attribute *devattr, const char *buf, size_t count)
+{
+    unsigned long devdata;
+    int err;
+    struct cpld_data *data = dev_get_drvdata(dev);
+
+    err = kstrtoul(buf, 16, &devdata);
+    if (err)
+        return err;
+
+    dell_z9100_iom_cpld_write(data,QSFP_ABS_MASK0,(u8)(devdata & 0xff));
+    dell_z9100_iom_cpld_write(data,QSFP_ABS_MASK1,(u8)((devdata >> 8) & 0xff));
+
+    return count;
+}
+
 static DEVICE_ATTR(iom_cpld_vers,S_IRUGO,get_cpldver, NULL);
 static DEVICE_ATTR(qsfp_modprs, S_IRUGO,get_modprs, NULL);
 static DEVICE_ATTR(qsfp_lpmode, S_IRUGO | S_IWUSR,get_lpmode,set_lpmode);
 static DEVICE_ATTR(qsfp_reset,  S_IRUGO | S_IWUSR,get_reset, set_reset);
+static DEVICE_ATTR(qsfp_int_sta, S_IRUGO, get_int_sta, NULL);
+static DEVICE_ATTR(qsfp_abs_sta, S_IRUGO, get_abs_sta, NULL);
+static DEVICE_ATTR(qsfp_trig_mod, S_IRUGO | S_IWUSR, get_trig_mod, set_trig_mod);
+static DEVICE_ATTR(qsfp_int_combine, S_IRUGO, get_int_combine, NULL);
+static DEVICE_ATTR(qsfp_int, S_IRUGO, get_int, NULL);
+static DEVICE_ATTR(qsfp_abs_int, S_IRUGO, get_abs_int, NULL);
+static DEVICE_ATTR(qsfp_int_mask, S_IRUGO | S_IWUSR, get_int_mask, set_int_mask);
+static DEVICE_ATTR(qsfp_abs_mask, S_IRUGO | S_IWUSR, get_abs_mask, set_abs_mask);
 
 static struct attribute *i2c_cpld_attrs[] = {
     &dev_attr_qsfp_lpmode.attr,
     &dev_attr_qsfp_reset.attr,
     &dev_attr_qsfp_modprs.attr,
     &dev_attr_iom_cpld_vers.attr,
+    &dev_attr_qsfp_int_sta.attr,
+    &dev_attr_qsfp_abs_sta.attr,
+    &dev_attr_qsfp_trig_mod.attr,
+    &dev_attr_qsfp_int_combine.attr,
+    &dev_attr_qsfp_int.attr,
+    &dev_attr_qsfp_abs_int.attr,
+    &dev_attr_qsfp_int_mask.attr,
+    &dev_attr_qsfp_abs_mask.attr,
     NULL,
 };
 
