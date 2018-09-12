@@ -44,9 +44,6 @@ if [ -f /tmp/pending_config_migration ]; then
     if [ "$enabled" = "true" ]; then
         echo "Use minigraph.xml from old system..."
         cp /etc/sonic/old_config/minigraph.xml /etc/sonic/
-        if [ -f /etc/sonic/old_config/init_cfg.json ]; then
-            cp /etc/sonic/old_config/init_cfg.json /etc/sonic/
-        fi
         if [ -f /etc/sonic/old_config/snmp.yml ]; then
             cp /etc/sonic/old_config/snmp.yml /etc/sonic/
         fi
