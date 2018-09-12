@@ -190,3 +190,11 @@ class SfpUtil(SfpUtilBase):
 	status = self.pci_set_value(self.BASE_RES_PATH, reg_value, port_offset)
 
         return True
+
+    def get_transceiver_change_event(self):
+        """
+        TODO: This function need to be implemented
+        when decide to support monitoring SFP(Xcvrd)
+        on this platform.
+        """
+        raise NotImplementedError

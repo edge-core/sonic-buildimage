@@ -173,3 +173,11 @@ class SfpUtil(SfpUtilBase):
         reg_file.close()
 
         return True
+
+    def get_transceiver_change_event(self):
+        """
+        TODO: This function need to be implemented
+        when decide to support monitoring SFP(Xcvrd)
+        on this platform.
+        """
+        raise NotImplementedError

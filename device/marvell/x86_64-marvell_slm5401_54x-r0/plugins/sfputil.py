@@ -125,3 +125,11 @@ class sfputil(SfpUtilBase):
     @property 
     def port_to_eeprom_mapping(self):
          return self._port_to_eeprom_mapping
+
+    def get_transceiver_change_event(self):
+        """
+        TODO: This function need to be implemented
+        when decide to support monitoring SFP(Xcvrd)
+        on this platform.
+        """
+        raise NotImplementedError
