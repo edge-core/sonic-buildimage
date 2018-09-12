@@ -13,7 +13,17 @@
 #  * SONIC_ENABLE_SYNCD_RPC: Enables rpc-based syncd builds.
 #  * USERNAME: Desired username -- default at rules/config
 #  * PASSWORD: Desired password -- default at rules/config
-#  * KEEP_SLAVE_ON: Keeps slave container up after building-process concludes.
+#  * KEEP_SLAVE_ON: Keeps slave container up and active after building process concludes.
+#  *                Note that rm=true is still set, so once user quits from the docker
+#  *                           session, the docker will be removed.
+#  *                Please note that with current Stretch build structure,
+#  *                user of KEEP_SLAVE_ON feature will have to be conscious
+#  *                about which docker to stay inside after build is done.
+#  *                - If user desires to stay inside Stretch docker, please issue
+#  *                  make KEEP_SLAVE_ON=yes stretch
+#  *                - If user desires to stay inside Jessie docker, please issue
+#  *                  (a successful "make stretch" may be needed before the following command)
+#  *                  make NOSTRETCH=1 KEEP_SLAVE_ON=yes <any jessie target>
 #  * SOURCE_FOLDER: host path to be mount as /var/$(USER)/src, only effective when KEEP_SLAVE_ON=yes
 #  * SONIC_BUILD_JOBS: Specifying number of concurrent build job(s) to run
 #  * KERNEL_PROCURE_METHOD: Specifying method of obtaining kernel Debian package: download or build
