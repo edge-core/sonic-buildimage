@@ -176,6 +176,7 @@ def parse_dpg(dpg, hname):
         pcintfs = child.find(str(QName(ns, "PortChannelInterfaces")))
         pc_intfs = []
         pcs = {}
+        pc_members = {}
         intfs_inpc = [] # List to hold all the LAG member interfaces 
         for pcintf in pcintfs.findall(str(QName(ns, "PortChannel"))):
             pcintfname = pcintf.find(str(QName(ns, "Name"))).text
@@ -185,6 +186,7 @@ def parse_dpg(dpg, hname):
             for i, member in enumerate(pcmbr_list):
                 pcmbr_list[i] = port_alias_map.get(member, member)
                 intfs_inpc.append(pcmbr_list[i])
+                pc_members[pcintfname + KEY_SEPARATOR + pcmbr_list[i]] = {'NULL': 'NULL'}
             if pcintf.find(str(QName(ns, "Fallback"))) != None:
                 pcs[pcintfname] = {'members': pcmbr_list, 'fallback': pcintf.find(str(QName(ns, "Fallback"))).text}
             else:
@@ -280,7 +282,7 @@ def parse_dpg(dpg, hname):
                 except:
                     print >> sys.stderr, "Warning: Ignoring Control Plane ACL %s without type" % aclname
 
-        return intfs, lo_intfs, mgmt_intf, vlans, vlan_members, pcs, acls
+        return intfs, lo_intfs, mgmt_intf, vlans, vlan_members, pcs, pc_members, acls
     return None, None, None, None, None, None, None
 
 
@@ -443,7 +445,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
     port_alias_map.update(alias_map)
     for child in root:
         if child.tag == str(QName(ns, "DpgDec")):
-            (intfs, lo_intfs, mgmt_intf, vlans, vlan_members, pcs, acls) = parse_dpg(child, hostname)
+            (intfs, lo_intfs, mgmt_intf, vlans, vlan_members, pcs, pc_members, acls) = parse_dpg(child, hostname)
         elif child.tag == str(QName(ns, "CpgDec")):
             (bgp_sessions, bgp_asn, bgp_peers_with_range) = parse_cpg(child, hostname)
         elif child.tag == str(QName(ns, "PngDec")):
@@ -543,7 +545,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
         pc['admin_status'] = 'up'
 
     results['PORTCHANNEL'] = pcs
-
+    results['PORTCHANNEL_MEMBER'] = pc_members
 
     for pc_intf in pc_intfs.keys():
         # remove portchannels not in PORTCHANNEL dictionary
