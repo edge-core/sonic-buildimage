@@ -432,10 +432,119 @@ class SfpUtil(SfpUtilBase):
 
         return True
 
-    def get_transceiver_change_event(self):
-        """
-        TODO: This function need to be implemented
-        when decide to support monitoring SFP(Xcvrd)
-        on this platform.
-        """
-        raise NotImplementedError
+
+    def get_register(self, reg_file):
+            retval = 'ERR'
+
+            if (not os.path.isfile(reg_file)):
+                print reg_file,  'not found !'
+                return retval
+
+            try:
+                with open(reg_file, 'r') as fd:
+                    retval = fd.read()
+            except Exception as error:
+                logging.error("Unable to open ", reg_file, "file !")
+
+            retval = retval.rstrip('\r\n')
+            retval = retval.lstrip(" ")
+            return retval
+
+    def get_transceiver_change_event(self, timeout=0):
+            epoll = select.epoll()
+            port_dict = {}
+            try:
+               # We get notified when there is an SCI interrupt from GPIO SUS6
+               fd = open("/sys/devices/platform/dell_ich.0/sci_int_gpio_sus6", "r")
+               epoll.register(fd.fileno(), select.EPOLLIN)
+               events = epoll.poll(timeout=timeout if timeout != 0 else -1)
+               if events:
+                  # Read the QSFP ABS interrupt & status registers
+                  cpld2_abs_int = self.get_register("/sys/class/i2c-adapter/i2c-14/14-003e/qsfp_abs_int")
+                  cpld2_abs_sta = self.get_register("/sys/class/i2c-adapter/i2c-14/14-003e/qsfp_abs_sta")
+                  cpld3_abs_int = self.get_register("/sys/class/i2c-adapter/i2c-15/15-003e/qsfp_abs_int")
+                  cpld3_abs_sta = self.get_register("/sys/class/i2c-adapter/i2c-15/15-003e/qsfp_abs_sta")
+                  cpld4_abs_int = self.get_register("/sys/class/i2c-adapter/i2c-16/16-003e/qsfp_abs_int")
+                  cpld4_abs_sta = self.get_register("/sys/class/i2c-adapter/i2c-16/16-003e/qsfp_abs_sta")
+                  cpld5_abs_int = self.get_register("/sys/class/i2c-adapter/i2c-17/17-003e/qsfp_abs_int")
+                  cpld5_abs_sta = self.get_register("/sys/class/i2c-adapter/i2c-17/17-003e/qsfp_abs_sta")
+
+
+                  if (cpld2_abs_int == 'read error' or cpld2_abs_sta == 'read error' or \
+                      cpld3_abs_int == 'read error' or cpld3_abs_sta == 'read error' or \
+                      cpld4_abs_int == 'read error' or cpld4_abs_sta == 'read error' or \
+                      cpld4_abs_int == 'read error' or cpld4_abs_sta == 'read error' ):
+                      return False, {}
+
+                  cpld2_abs_int = int(cpld2_abs_int, 16)
+                  cpld2_abs_sta = int(cpld2_abs_sta, 16)
+                  cpld3_abs_int = int(cpld3_abs_int, 16)
+                  cpld3_abs_sta = int(cpld3_abs_sta, 16)
+                  cpld4_abs_int = int(cpld4_abs_int, 16)
+                  cpld4_abs_sta = int(cpld4_abs_sta, 16)
+                  cpld5_abs_int = int(cpld5_abs_int, 16)
+                  cpld5_abs_sta = int(cpld5_abs_sta, 16)
+
+                  port=self.port_start
+
+                  while port >= self.iom1_port_start and port <= self.iom1_port_end:
+
+                        interrupt_reg = cpld2_abs_int
+                        status_reg = cpld2_abs_sta
+
+                        if interrupt_reg & (1<<port):
+                            if status_reg & (1<<port):
+                                  # status reg 1 => optics is removed
+                                  port_dict[port] = '0'
+                            else:
+                                  # status reg 0 => optics is inserted
+                                  port_dict[port] = '1'
+                        port += 1
+
+                  while port >= self.iom2_port_start and port <= self.iom2_port_end:
+
+                        interrupt_reg = cpld4_abs_int
+                        status_reg = cpld4_abs_sta
+
+                        if interrupt_reg & (1<<port):
+                            if status_reg & (1<<port):
+                                  # status reg 1 => optics is removed
+                                  port_dict[port] = '0'
+                            else:
+                                  # status reg 0 => optics is inserted
+                                  port_dict[port] = '1'
+                        port += 1
+
+                  while port >= self.iom3_port_start and port <= self.iom3_port_end:
+
+                        interrupt_reg = cpld3_abs_int
+                        status_reg = cpld3_abs_sta
+
+                        if interrupt_reg & (1<<port):
+                            if status_reg & (1<<port):
+                                  # status reg 1 => optics is removed
+                                  port_dict[port] = '0'
+                            else:
+                                  # status reg 0 => optics is inserted
+                                  port_dict[port] = '1'
+                        port += 1
+
+                  while port >= self.iom4_port_start and port <= self.iom4_port_end:
+
+                        interrupt_reg = cpld5_abs_int
+                        status_reg = cpld5_sta
+
+                        if interrupt_reg & (1<<port):
+                            if status_reg & (1<<port):
+                                  # status reg 1 => optics is removed
+                                  port_dict[port] = '0'
+                            else:
+                                  # status reg 0 => optics is inserted
+                                  port_dict[port] = '1'
+                        port += 1
+                  return True, port_dict
+            finally:
+                  fd.close()
+                  epoll.close()
+
+            return False, {}
