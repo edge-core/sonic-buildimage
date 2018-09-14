@@ -127,13 +127,14 @@ drivers =[
 'inv_platform',
 'inv_psoc',
 'inv_cpld',
+'inv_pthread',
 'swps']
  
 
                     
 def system_install():
     global FORCE
-	
+
     #install drivers
     for i in range(0,len(drivers)):
        status, output = exec_cmd("modprobe "+drivers[i], 1)
@@ -209,7 +210,7 @@ def install():
             if FORCE == 0:        
                 return  status        
     else:
-        print " D7032 devices detected...."           
+        print " D7054 devices detected...."           
     return
 
 def uninstall():

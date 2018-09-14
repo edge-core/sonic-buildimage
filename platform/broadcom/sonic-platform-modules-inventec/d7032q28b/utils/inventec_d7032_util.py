@@ -124,7 +124,8 @@ drivers =[
 'inv_platform',
 'inv_psoc',
 'inv_cpld',
-'swps']
+'swps',
+'inv_pthread']
  
 
                     
@@ -134,6 +135,9 @@ def system_install():
     #remove default drivers to avoid modprobe order conflicts
     status, output = exec_cmd("rmmod i2c_ismt ", 1)
     status, output = exec_cmd("rmmod i2c-i801 ", 1)
+    status, output = exec_cmd("rmmod gpio_ich",1)
+    status, output = exec_cmd("insmod /lib/modules/3.16.0-5-amd64/extra/gpio-ich.ko gpiobase=0",1)
+
     #install drivers
     for i in range(0,len(drivers)):
        status, output = exec_cmd("modprobe "+drivers[i], 1)
@@ -196,6 +200,7 @@ def install():
 
 def uninstall():
     global FORCE
+    exec_cmd("rmmod gpio_ich",1)
     #uninstall drivers
     for i in range(len(drivers)-1,-1,-1):
        status, output = exec_cmd("rmmod "+drivers[i], 1)

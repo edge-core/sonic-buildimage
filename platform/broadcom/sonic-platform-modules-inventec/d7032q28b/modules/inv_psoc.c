@@ -493,10 +493,9 @@ static ssize_t set_switch_tmp(struct device *dev,
 	//struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
 	struct i2c_client *client = to_i2c_client(dev);
 	struct psoc_data *data = i2c_get_clientdata(client);
-
 	long temp = simple_strtol(buf, NULL, 10);
     u16 temp2 =  ( (temp/1000) <<8 ) & 0xFF00 ;
-    
+
     //printk("set_switch_tmp temp=%d, temp2=0x%x (%x,%x)\n", temp, temp2, ( ( (temp/1000) <<8 ) & 0xFF00 ),  (( (temp%1000) / 10 ) & 0xFF));
     
 	mutex_lock(&data->update_lock);
@@ -750,6 +749,7 @@ static SENSOR_DEVICE_ATTR(rpm_psu1, S_IRUGO,		show_rpm, 0, 8*2  + RPM_OFFSET);
 static SENSOR_DEVICE_ATTR(rpm_psu2, S_IRUGO,		show_rpm, 0, 9*2  + RPM_OFFSET);
 
 static SENSOR_DEVICE_ATTR(switch_tmp, S_IWUSR|S_IRUGO,			show_switch_tmp, set_switch_tmp, 0);
+static SENSOR_DEVICE_ATTR(temp6_input, S_IWUSR|S_IRUGO,			show_switch_tmp, set_switch_tmp, 0);
 
 static SENSOR_DEVICE_ATTR(diag, S_IWUSR|S_IRUGO,			show_diag, set_diag, 0);
 static SENSOR_DEVICE_ATTR(version, S_IRUGO,			show_version, 0, 0);
@@ -809,6 +809,15 @@ static SENSOR_DEVICE_ATTR(psoc_psu2_iin,      S_IRUGO,			        show_psu_psoc, 
 static SENSOR_DEVICE_ATTR(psoc_psu2_iout,     S_IRUGO,			        show_psu_psoc,  0,           PSOC_PSU_OFF(psu2_iout));
 static SENSOR_DEVICE_ATTR(psoc_psu2_pin,      S_IRUGO,			        show_psu_psoc,  0,           PSOC_PSU_OFF(psu2_pin)); 
 static SENSOR_DEVICE_ATTR(psoc_psu2_pout,     S_IRUGO,			        show_psu_psoc,  0,           PSOC_PSU_OFF(psu2_pout));
+
+static SENSOR_DEVICE_ATTR(in1_input,        S_IRUGO,        show_psu_psoc,  0,           PSOC_PSU_OFF(psu1_vin));
+static SENSOR_DEVICE_ATTR(in2_input,        S_IRUGO,        show_psu_psoc,  0,           PSOC_PSU_OFF(psu2_vin));
+static SENSOR_DEVICE_ATTR(curr1_input,      S_IRUGO,        show_psu_psoc,  0,           PSOC_PSU_OFF(psu1_iin));
+static SENSOR_DEVICE_ATTR(curr2_input,      S_IRUGO,        show_psu_psoc,  0,           PSOC_PSU_OFF(psu2_iin));
+static SENSOR_DEVICE_ATTR(power1_input,     S_IRUGO,        show_psu_psoc,  0,           PSOC_PSU_OFF(psu1_pin));
+static SENSOR_DEVICE_ATTR(power2_input,     S_IRUGO,        show_psu_psoc,  0,           PSOC_PSU_OFF(psu2_pin));
+
+
 			
 static struct attribute *psoc_attributes[] = {
     //thermal
@@ -852,6 +861,7 @@ static struct attribute *psoc_attributes[] = {
     
     //switch temperature
 	&sensor_dev_attr_switch_tmp.dev_attr.attr,
+	&sensor_dev_attr_temp6_input.dev_attr.attr,
 
     //diag flag
 	&sensor_dev_attr_diag.dev_attr.attr,
@@ -919,6 +929,14 @@ static struct attribute *psoc_attributes[] = {
 	&sensor_dev_attr_psoc_psu2_iout.dev_attr.attr,
 	&sensor_dev_attr_psoc_psu2_pin.dev_attr.attr,
 	&sensor_dev_attr_psoc_psu2_pout.dev_attr.attr,
+
+        // Add new fields which matching standard
+        &sensor_dev_attr_in1_input.dev_attr.attr,
+        &sensor_dev_attr_in2_input.dev_attr.attr,
+        &sensor_dev_attr_curr1_input.dev_attr.attr,
+        &sensor_dev_attr_curr2_input.dev_attr.attr,
+        &sensor_dev_attr_power1_input.dev_attr.attr,
+        &sensor_dev_attr_power2_input.dev_attr.attr,
 
 	NULL
 };

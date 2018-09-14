@@ -93,7 +93,6 @@
   <PngDec>
     <DeviceInterfaceLinks>
       <DeviceLinkBase i:type="DeviceInterfaceLink">
-        <Bandwidth>40000</Bandwidth>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>OCPSCH0104001MS</EndDevice>
         <EndPort>Ethernet24</EndPort>
@@ -101,7 +100,6 @@
         <StartPort>Ethernet0</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase i:type="DeviceInterfaceLink">
-        <Bandwidth>40000</Bandwidth>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>OCPSCH0104002MS</EndDevice>
         <EndPort>Ethernet24</EndPort>

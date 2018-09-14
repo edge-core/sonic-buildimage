@@ -115,6 +115,7 @@ instantiate =[
 'echo inv_eeprom 0x53> /sys/bus/i2c/devices/i2c-0/new_device']
 
 drivers =[
+'gpio-ich',
 'lpc_ich',
 'i2c-i801',
 'i2c-mux',
@@ -124,9 +125,9 @@ drivers =[
 'inv_platform',
 'inv_psoc',
 'inv_cpld',
+'inv_pthread',
 'swps']
  
-
                     
 def system_install():
     global FORCE
@@ -213,7 +214,7 @@ def install():
         status = system_install() 
         if status:
             if FORCE == 0:        
-                return  status        
+                return  status
     else:
         print " D7264 devices detected...."           
     return

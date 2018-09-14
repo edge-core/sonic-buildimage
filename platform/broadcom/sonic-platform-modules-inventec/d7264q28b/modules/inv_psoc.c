@@ -50,7 +50,6 @@ DEFINE_MUTEX(ipmi_mutex);
 DEFINE_MUTEX(ipmi2_mutex);
 static struct ipmi_result ipmiresult;
 static struct device *hwmon_dev;
-static struct kobject *device_kobj;
 static ipmi_user_t ipmi_mh_user = NULL;
 static void msg_handler(struct ipmi_recv_msg *msg,void* handler_data);
 static struct ipmi_user_hndl ipmi_hndlrs = {   .ipmi_recv_hndl = msg_handler,};
@@ -588,6 +587,7 @@ static SENSOR_DEVICE_ATTR(rpm_psu1, S_IRUGO,		show_rpm, 0, 8);
 static SENSOR_DEVICE_ATTR(rpm_psu2, S_IRUGO,		show_rpm, 0, 9);
 
 static SENSOR_DEVICE_ATTR(switch_tmp, S_IWUSR|S_IRUGO,			show_switch_tmp, set_switch_tmp, 0);
+static SENSOR_DEVICE_ATTR(temp6_input, S_IWUSR|S_IRUGO,                 show_switch_tmp, set_switch_tmp, 0);
 
 static SENSOR_DEVICE_ATTR(diag, S_IWUSR|S_IRUGO,			show_diag, set_diag, 0);
 static SENSOR_DEVICE_ATTR(version, S_IRUGO,			show_version, 0, 0);
@@ -617,6 +617,13 @@ static SENSOR_DEVICE_ATTR(psoc_psu2_iin,      S_IRUGO,			        show_psu_psoc, 
 static SENSOR_DEVICE_ATTR(psoc_psu2_iout,     S_IRUGO,			        show_psu_psoc,  0,           PSOC_PSU_OFF(psu2_iout));
 static SENSOR_DEVICE_ATTR(psoc_psu2_pin,      S_IRUGO,			        show_psu_psoc,  0,           PSOC_PSU_OFF(psu2_pin)); 
 static SENSOR_DEVICE_ATTR(psoc_psu2_pout,     S_IRUGO,			        show_psu_psoc,  0,           PSOC_PSU_OFF(psu2_pout));
+
+static SENSOR_DEVICE_ATTR(in1_input,        S_IRUGO,		show_psu_psoc,	0,		PSOC_PSU_OFF(psu1_vin));
+static SENSOR_DEVICE_ATTR(in2_input,        S_IRUGO,		show_psu_psoc,	0,		PSOC_PSU_OFF(psu2_vin));
+static SENSOR_DEVICE_ATTR(curr1_input,		S_IRUGO,		show_psu_psoc,	0,		PSOC_PSU_OFF(psu1_iin));
+static SENSOR_DEVICE_ATTR(curr2_input,		S_IRUGO,		show_psu_psoc,	0,		PSOC_PSU_OFF(psu2_iin));
+static SENSOR_DEVICE_ATTR(power1_input,		S_IRUGO,		show_psu_psoc,	0,		PSOC_PSU_OFF(psu1_pin));
+static SENSOR_DEVICE_ATTR(power2_input,		S_IRUGO,		show_psu_psoc,	0,		PSOC_PSU_OFF(psu2_pin));
 
 //IPMI
 static SENSOR_DEVICE_ATTR(thermal2_psu1,	S_IRUGO,                show_ipmi_pmbus, 0, PSU1 | PMBus_Temp2);
@@ -665,7 +672,7 @@ static struct attribute *psoc_attributes[] = {
     
     //switch temperature
 	&sensor_dev_attr_switch_tmp.dev_attr.attr,
-
+        &sensor_dev_attr_temp6_input.dev_attr.attr,
     //diag flag
 	&sensor_dev_attr_diag.dev_attr.attr,
 	
@@ -702,6 +709,14 @@ static struct attribute *psoc_attributes[] = {
 	&sensor_dev_attr_psoc_psu2_pin.dev_attr.attr,
 	&sensor_dev_attr_psoc_psu2_pout.dev_attr.attr,
 
+	// Add new fields which matching standard
+	&sensor_dev_attr_in1_input.dev_attr.attr,
+	&sensor_dev_attr_in2_input.dev_attr.attr,
+	&sensor_dev_attr_curr1_input.dev_attr.attr,
+	&sensor_dev_attr_curr2_input.dev_attr.attr,	
+	&sensor_dev_attr_power1_input.dev_attr.attr,
+	&sensor_dev_attr_power2_input.dev_attr.attr,
+
 	//ipmi_i2c_command
 	&sensor_dev_attr_thermal2_psu1.dev_attr.attr,
 	&sensor_dev_attr_psoc_psu1_vender.dev_attr.attr,
@@ -732,13 +747,8 @@ static int __init inv_psoc_init(void)
 	if (IS_ERR(hwmon_dev)) {
 		goto fail_hwmon_device_register;
 	}	
-	
-	device_kobj = kobject_create_and_add("device", &hwmon_dev->kobj);
-	if(!device_kobj) {
-		goto fail_hwmon_device_register;	
-	}
-	
-	ret = sysfs_create_group(device_kobj, &psoc_group);
+
+	ret = sysfs_create_group(&hwmon_dev->kobj, &psoc_group);
 	if (ret) {
 		goto fail_create_group_hwmon;
 	}
@@ -754,9 +764,10 @@ fail_hwmon_device_register:
 
 static void __exit inv_psoc_exit(void)
 {
+	sysfs_remove_group(&hwmon_dev->kobj, &psoc_group);
+
 	if(ipmi_mh_user!=NULL) {ipmi_destroy_user(ipmi_mh_user);}
 	if(hwmon_dev != NULL) hwmon_device_unregister(hwmon_dev);
-	sysfs_remove_group(device_kobj, &psoc_group);
 }
 
 MODULE_AUTHOR("Ting.Jack <ting.jack@inventec>");

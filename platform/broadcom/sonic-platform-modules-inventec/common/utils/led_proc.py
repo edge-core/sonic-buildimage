@@ -1,5 +1,19 @@
 #!/usr/bin/env python
 #
+# Copyright (C) 2018 Inventec, Inc.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import time
@@ -7,20 +21,28 @@ import syslog
 import re
 from sonic_sfp.bcmshell import bcmshell
 
+
 # =====================================================================
 #  global variable init
 # =====================================================================
-
+# port object
+PORT_LIST               = []
+# object is to execute bcm shell command
+BCM_SHELL   = None
+SHELL_READY = False
+# port status that is auto update by chip in data ram
+STATUS_RX               = 1<<0
+STATUS_TX               = 1<<1
 # define data ram address
 PORT_DATA_OFFSET_ADDR   = 0xA0
-PORT_DATA_START_ADDR    = 0xF2
-TOTAL_SCAN_BITS_ADDR    = 0xF4
-SYNC_START_LEN_ADDR     = 0xF6
-SYNC_STOP_LEN_ADDR      = 0xF8
-# bit streaming rule for CPLD decode
-TOTAL_SCAN_BITS         = None
-SYNC_S                  = None
-SYNC_P                  = None
+# define board type
+INV_MAGNOLIA            = "SONiC-Inventec-d6254qs"
+INV_REDWOOD             = "SONiC-Inventec-d7032-100"
+INV_CYPRESS             = "SONiC-Inventec-d7054"
+INV_MAPLE               = "SONiC-Inventec-d6556"
+INV_SEQUOIA             = ""
+BOARD_TPYE              = ""
+EAGLE_CORE              = []
 # define port data for bit streaming
 BIT_LINK                = None
 BIT_FAULT               = None
@@ -33,86 +55,41 @@ SPEED_100G              = 100
 SPEED_40G               = 40
 SPEED_25G               = 25
 SPEED_10G               = 10
-# the amount of LED processor
-AMOUNT_LED_UP           = None
-# define board type
-INV_REDWOOD             = "SONiC-Inventec-d7032-100"
-INV_CYPRESS             = "SONiC-Inventec-d7054"
-INV_SEQUOIA             = ""
-BOARD_TPYE              = ""
-EAGLE_CORE              = []
-
-PORT_LIST               = []
-
-# port status that is auto update by chip in data ram
-# there are two byte to indicate each port status
-'''
-RX              equ     0x0     ; received packet
-TX              equ     0x1     ; transmitted packet
-COLL            equ     0x2     ; collision indicator
-SPEED_C         equ     0x3     ; 100 Mbps
-SPEED_M         equ     0x4     ; 1000 Mbps
-DUPLEX          equ     0x5     ; half/full duplex
-FLOW            equ     0x6     ; flow control capable
-LINKUP          equ     0x7     ; link down/up status
-LINKEN          equ     0x8     ; link disabled/enabled status
-ZERO            equ     0xE     ; always 0
-ONE             equ     0xF     ; always 1
-'''
-STATUS_ENABLE           = 1<<0
-STATUS_RX               = 1<<0
-STATUS_TX               = 1<<1
-
-# object is to execute bcm shell command
-BCM_SHELL = None
-
 
 
 # =====================================================================
 #  class object
 # =====================================================================
-class Led():
+class Port():
 
-    up  = None
-    pfw = None
+    port_num        = None
+    name            = None
+    bcm_id          = None
+    led_up          = None
+    s_addr          = None
+    write2_up       = None
+    led_index       = None
+    link_status     = None
+    speed           = None
 
-    def __init__(self, led_number, program_fw):
-        self.up = led_number
-        self.pfw = program_fw
+    def write_data_ram(self, data):
+        BCM_SHELL.cmd("setreg CMIC_LEDUP{0}_DATA_RAM({1}) {2}".format(self.write2_up, self.led_index, data))
 
-    def led_start(self):
-        BCM_SHELL.cmd("led {0} start".format(self.up))
-        syslog.syslog(syslog.LOG_INFO, "Start Led({0})".format(self.up))
-
-    def led_stop(self):
-        BCM_SHELL.cmd("led {0} stop".format(self.up))
-        syslog.syslog(syslog.LOG_INFO, "Stop Led({0})".format(self.up))
-
-    def load_prog(self):
-        BCM_SHELL.cmd("led {0} prog {1}".format(self.up, self.pfw))
-        syslog.syslog(syslog.LOG_INFO, "Load Led({0}) program firmware".format(self.up))
-
-    def write_port_data(self, addr, data):
-        BCM_SHELL.cmd("setreg CMIC_LEDUP{0}_DATA_RAM({1}) {2}".format(self.up, addr, data))
-        #syslog.syslog(syslog.LOG_DEBUG, "Write Led({0}) data_ram({1}): {2}".format(self.up, addr, data))
-
-    def read_data_ram(self, offset):
-        return_string = BCM_SHELL.run("getreg CMIC_LEDUP{0}_DATA_RAM({1})".format(self.up, offset))
-        for line in return_string.split("\n"):
-            re_obj = re.search(r"\<DATA\=(?P<data>.+)\>",line)
+    def read_data_ram(self):
+        r_string = BCM_SHELL.run("getreg CMIC_LEDUP{0}_DATA_RAM({1})".format(self.led_up, self.s_addr))
+        for line in r_string.split("\n"):
+            re_obj = re.search(r"\<DATA\=(?P<data>.+)\>", line)
             if re_obj is not None:
-                #syslog.syslog(syslog.LOG_DEBUG, "Read Led({0}) data_ram({1}): {2}".format(self.up, offset, re_obj.group("data")))
+                #syslog.syslog(syslog.LOG_DEBUG, "Read Led({0}) data_ram({1}): {2}".format(self.up, addr, re_obj.group("data")))
                 return int(re_obj.group("data"), 16)
 
-        return None
 
 
 # =====================================================================
 #  Function
 # =====================================================================
-def _remap_registers():
+def _remap_registers(fp):
 
-    fp = open('/usr/share/sonic/device/x86_64-inventec_d7032q28b-r0/led_proc_init.soc', "r")
     content = fp.readlines()
     fp.close()
     err = False
@@ -125,60 +102,13 @@ def _remap_registers():
             syslog.syslog(syslog.LOG_ERR, "remap register abnormal: {0}".format(str(e)))
 
     if not err:
-        pass
-        #syslog.syslog(syslog.LOG_DEBUG, "remap Led registers successfully")
+        syslog.syslog(syslog.LOG_INFO, "remap Led registers successfully")
 
 
 
-def _update_port_list():
-
-    global PORT_LIST
-    PORT_LIST = []
-    number = 0
-    count = 0
-
-    content = BCM_SHELL.run("ps")
-    for line in content.split("\n"):
-        re_obj = re.search(r"(?P<port_name>(xe|ce)\d+)\(\s*(?P<bcm_id>\d+)\)\s+(?P<link>(up|down|!ena)).+\s+(?P<speed>\d+)G",line)
-        if re_obj is not None:
-            if int(re_obj.group("bcm_id")) not in EAGLE_CORE:
-                PORT_LIST.append({"port_id":number, "name":re_obj.group("port_name"), "bcm_id":int(re_obj.group("bcm_id")), "link":re_obj.group("link"), "speed":int(re_obj.group("speed"))})
-                number += 1
-
-    content = BCM_SHELL.run("led status")
-    for line in content.split("\n"):
-        re_obj = re.search(r"(?P<bcm_id>\d+).+(?P<led_up>\d)\:(?P<offset>\d+)",line)
-        if re_obj is not None:
-            if int(re_obj.group("bcm_id")) not in EAGLE_CORE:
-                PORT_LIST[count]["led_up"] = int(re_obj.group("led_up"))
-                PORT_LIST[count]["offset"] = int(re_obj.group("offset"))
-                count += 1
-
-    if number is not count:
-        PORT_LIST = []
-        syslog.syslog(syslog.LOG_ERR, "The amount of port is not match")
-    else:
-        pass
-        #syslog.syslog(syslog.LOG_DEBUG, "update port list successfully")
-
-
-
-def _lookup_led_index(p):
-
-    index = 0
-    for port in PORT_LIST:
-        if p["bcm_id"] == port["bcm_id"]:
-            break
-        if p["led_up"] == port["led_up"]:
-            index += 1
-    return index + PORT_DATA_OFFSET_ADDR
-
-
-
-def _led_init():
+def _board_init():
 
     global BOARD_TPYE
-    global AMOUNT_LED_UP
     global BIT_LINK
     global BIT_FAULT
     global BIT_TX
@@ -193,24 +123,29 @@ def _led_init():
     cmd = "uname -n"
     platform = os.popen(cmd).read()
 
-    if platform.rstrip() == INV_REDWOOD:
+    if platform.rstrip() == INV_MAGNOLIA:
+        BOARD_TPYE      = "inventec_d6254qs"
+        BIT_RX          = 1<<0  #0x01
+        BIT_TX          = 1<<1  #0x02
+        BIT_SPEED1      = 1<<4  #0x10
+        BIT_LINK        = 1<<7  #0x80
+        fp = open('/usr/share/sonic/device/x86_64-inventec_d6254qs-r0/led_proc_init.soc', "r")
+        _remap_registers(fp)
+
+    elif platform.rstrip() == INV_REDWOOD:
         BOARD_TPYE      = "inventec_d7032q28b"
-        AMOUNT_LED_UP   = 2
         BIT_RX          = 1<<0  #0x01
         BIT_TX          = 1<<1  #0x02
         BIT_SPEED0      = 1<<3  #0x08
         BIT_SPEED1      = 1<<4  #0x10
         BIT_FAULT       = 1<<6  #0x40
         BIT_LINK        = 1<<7  #0x80
-        TOTAL_SCAN_BITS = 32*1*4
-        SYNC_S          = 15
-        SYNC_P          = 3
         EAGLE_CORE      = [66, 100]
-        _remap_registers()
+        fp = open('/usr/share/sonic/device/x86_64-inventec_d7032q28b-r0/led_proc_init.soc', "r")
+        _remap_registers(fp)
 
     elif platform.rstrip() == INV_CYPRESS:
         BOARD_TPYE      = "inventec_d7054q28b"
-        AMOUNT_LED_UP   = 2
         BIT_LINK        = 1<<0  #0x01
         BIT_FAULT       = 1<<1  #0x02
         BIT_SPEED0      = 1<<2  #0x04
@@ -218,97 +153,220 @@ def _led_init():
 
     elif platform.rstrip() == INV_SEQUOIA:
         BOARD_TPYE = "inventec_d7264q28b"
-        AMOUNT_LED_UP = 4
+
+    elif platform.rstrip() == INV_MAPLE:
+        BOARD_TPYE = "inventec_d6556"
+        fp = open('/usr/share/sonic/device/x86_64-inventec_d6556-r0/led_proc_init.soc', "r")
+        _remap_registers(fp)
+        #led process: m0 led process that is controlled by linkscan_led_fw.bin and custom_led.bin
+        syslog.syslog(syslog.LOG_INFO, "Found device: {0}".format(BOARD_TPYE))
+        exit(0)
 
     else:
         BOARD_TPYE = "not found"
+        syslog.syslog(syslog.LOG_ERR, "Found device: {0}".format(BOARD_TPYE))
+        exit(0)
 
-    syslog.syslog(syslog.LOG_INFO, "Device: {0}".format(BOARD_TPYE))
-    #syslog.syslog(syslog.LOG_DEBUG, "led_amount: {0}".format(AMOUNT_LED_UP))
+    syslog.syslog(syslog.LOG_INFO, "Found device: {0}".format(BOARD_TPYE))
 
+
+
+def _lookup_led_index(p):
+
+    index = 0
+    if BOARD_TPYE == "inventec_d6254qs":
+        if 0 <= p.port_num <= 47:
+            index = p.port_num + (p.port_num / 4)
+            p.write2_up = 0
+        elif 48 <= p.port_num <= 71:
+            index = p.port_num - 48
+            p.write2_up = 1
+        if p.led_up == 0:
+            p.s_addr = p.port_num * 2
+        elif p.led_up == 1:
+            p.s_addr = (p.port_num - 36) * 2
+
+    elif BOARD_TPYE == "inventec_d7032q28b":
+        p.write2_up = 0
+        index = p.port_num
+        if 0 <= p.port_num <= 7:
+            p.s_addr = p.port_num * 8
+        elif 8 <= p.port_num <= 23:
+            p.s_addr = (p.port_num - 8) * 8
+        elif 24 <= p.port_num <= 31:
+            p.s_addr = (p.port_num - 16) * 8
+
+    else:
+        p.write2_up = p.led_up
+        for port in PORT_LIST:
+            if p.bcm_id == port.bcm_id:
+                break
+            if p.led_up == port.led_up:
+                index += 1
+
+    return PORT_DATA_OFFSET_ADDR + index
+
+
+def _update_port_list(only_update):
+
+    global PORT_LIST
+    number      = 0
+    count       = 0
+
+    content = BCM_SHELL.run("ps")
+    for line in content.split("\n"):
+        re_obj = re.search(r"(?P<port_name>(xe|ce)\d+)\(\s*(?P<bcm_id>\d+)\)\s+(?P<link>(up|down|!ena)).+\s+(?P<speed>\d+)G", line)
+        if re_obj is not None:
+            if int(re_obj.group("bcm_id")) not in EAGLE_CORE:
+                if only_update:
+                    PORT_LIST[number].link_status = re_obj.group("link")
+                else:
+                    # create port object while first time
+                    port_obj = Port()
+                    port_obj.port_num = number
+                    port_obj.name = re_obj.group("port_name")
+                    port_obj.bcm_id = int(re_obj.group("bcm_id"))
+                    port_obj.link_status = re_obj.group("link")
+                    port_obj.speed = int(re_obj.group("speed"))
+                    PORT_LIST.append(port_obj)
+                number += 1
+
+    if not only_update:
+        content = BCM_SHELL.run("led status")
+        for line in content.split("\n"):
+            re_obj = re.search(r"(?P<bcm_id>\d+).+(?P<led_up>\d)\:", line)
+            if re_obj is not None:
+                if int(re_obj.group("bcm_id")) not in EAGLE_CORE:
+                    PORT_LIST[count].led_up = int(re_obj.group("led_up"))
+                    PORT_LIST[count].led_index = _lookup_led_index(PORT_LIST[count])
+                    count += 1
+
+        if number is not count:
+            PORT_LIST = []
+            syslog.syslog(syslog.LOG_ERR, "The amount of port is not match")
+
+
+
+def sync_bcmsh_socket():
+
+    global BCM_SHELL
+    global SHELL_READY
+    waitSyncd   = True
+    retryCount  = 0
+
+    while waitSyncd:
+        time.sleep(10)
+        try:
+            BCM_SHELL = bcmshell()
+            BCM_SHELL.run("Echo")
+            waitSyncd = False
+        except Exception, e:
+            print "{0}, Retry times({1})".format(str(e),retryCount)
+            #syslog.syslog(syslog.LOG_DEBUG, "{0}, Retry times({1})".format(str(e),retryCount))
+            retryCount += 1
+
+    syslog.syslog(syslog.LOG_INFO, "bcmshell socket create successfully")
+
+    if SHELL_READY is False:
+        SHELL_READY = True
+        return
+    elif SHELL_READY is True:
+        update_led_status()
+
+
+
+def update_led_status():
+
+    led_thread      = True  # True/False (gate to turn on/off)
+    reset_sec       = 2
+    count_down      = 0
+    queue_active    = []
+    port_data       = None
+    s_byte          = None
+
+
+    # thread for keeping update port status in data ram
+    while led_thread:
+        try:
+            if count_down == 0:
+                queue_active = []
+                _update_port_list(1)
+                for port in PORT_LIST:
+                    if port.link_status == "up":
+                        queue_active.append(port)
+                    else:
+                        port_data = 0
+                        port.write_data_ram(port_data)
+                count_down = reset_sec
+            else:
+                for port in queue_active:
+                    port_data = 0
+
+                    if BOARD_TPYE == "inventec_d6254qs":
+                        s_byte = port.read_data_ram()
+                        if s_byte&STATUS_RX:
+                            port_data |= BIT_RX
+                        if s_byte&STATUS_TX:
+                            port_data |= BIT_TX
+                        port_data |= BIT_LINK
+
+                    elif BOARD_TPYE == "inventec_d7032q28b":
+                        s_byte = port.read_data_ram()
+                        if s_byte&STATUS_RX:
+                            port_data |= BIT_RX
+                        if s_byte&STATUS_TX:
+                            port_data |= BIT_TX
+                        if port.speed == SPEED_100G:
+                            port_data |= BIT_SPEED0
+                            port_data |= BIT_SPEED1
+                        elif port.speed == SPEED_40G:
+                            port_data |= BIT_SPEED1
+                        elif port.speed == SPEED_25G:
+                            port_data |= BIT_SPEED0
+                        else:
+                            pass
+                        port_data |= BIT_LINK
+
+                    elif BOARD_TPYE == "inventec_d7054q28b":
+                        if port.speed != SPEED_100G and port.speed != SPEED_25G:
+                            port_data |= BIT_SPEED0
+
+                    # write data to update data ram for specific port
+                    port.write_data_ram(port_data)
+
+                time.sleep(0.5)
+                count_down -= 1
+
+        except Exception, e:
+            syslog.syslog(syslog.LOG_WARNING, "{0}".format(str(e)))
+            sync_bcmsh_socket()
+
+
+
+def debug_print():
+
+    for port in PORT_LIST:
+        output = ""
+        output += "name:{0} | ".format(port.name)
+        output += "port_num:{0} | ".format(port.port_num)
+        output += "bcm_id:{0} | ".format(port.bcm_id)
+        output += "link_status:{0} | ".format(port.link_status)
+        output += "speed:{0} | ".format(port.speed)
+        output += "led_up:{0} | ".format(port.led_up)
+        output += "s_addr:{0} | ".format(port.s_addr)
+        output += "write2_up:{0} | ".format(port.write2_up)
+        output += "led_index:{0} | ".format(port.led_index)
+        print output
 
 
 if __name__ == "__main__":
 
-    waitSyncd = True
-    retryCount = 0
     syslog.openlog("led_proc", syslog.LOG_PID, facility=syslog.LOG_DAEMON)
 
-    while waitSyncd:
-        try:
-            BCM_SHELL = bcmshell()
-            waitSyncd = False
-        except Exception, e:
-            syslog.syslog(syslog.LOG_WARNING, "{0}, Retry times({1})".format(str(e),retryCount))
-            retryCount += 1
-        time.sleep(5)
-
-
-    _led_init()
-    led_obj = []
-    for idx in range(AMOUNT_LED_UP):
-        led_obj.append(Led(idx, ""))
-        #syslog.syslog(syslog.LOG_DEBUG, "create object led({0}) successfully".format(idx))
-
-        if BOARD_TPYE == "inventec_d7032q28b":
-            led_obj[idx].write_port_data(PORT_DATA_START_ADDR, PORT_DATA_OFFSET_ADDR)
-            led_obj[idx].write_port_data(TOTAL_SCAN_BITS_ADDR, TOTAL_SCAN_BITS)
-            led_obj[idx].write_port_data(SYNC_START_LEN_ADDR, SYNC_S)
-            led_obj[idx].write_port_data(SYNC_STOP_LEN_ADDR, SYNC_P)
-
-
-    reset_sec = 2
-    count_down = 0
-    queue_active = []
-    port_data = None
-    while True:
-        if count_down == 0:
-            queue_active = []
-            _update_port_list()
-            for port in PORT_LIST:
-                if port["link"] == "up":
-                    queue_active.append(port)
-                else:
-                    port_data = 0
-                    # redwood bit streaming for CPLD decode is only use led up0
-                    led_obj[0].write_port_data(PORT_DATA_OFFSET_ADDR + port["port_id"], port_data)
-            count_down = reset_sec
-        else:
-            for port in queue_active:
-                port_data = 0
-
-                if BOARD_TPYE == "inventec_d7032q28b":
-                    port_data |= BIT_LINK
-                    addr = 2*(port["offset"]-1)
-                    byte1 = led_obj[port["led_up"]].read_data_ram(addr)
-                    byte2 = led_obj[port["led_up"]].read_data_ram(addr+1)
-                    if byte1&STATUS_RX:
-                        port_data |= BIT_RX
-                    if byte1&STATUS_TX:
-                        port_data |= BIT_TX
-                    if port["speed"] == SPEED_100G:
-                        port_data |= BIT_SPEED0
-                        port_data |= BIT_SPEED1
-                    elif port["speed"] == SPEED_40G:
-                        port_data |= BIT_SPEED1
-                    elif port["speed"] == SPEED_25G:
-                        port_data |= BIT_SPEED0
-                    else:
-                        pass
-
-                    # redwood bit streaming for CPLD decode is only use led up0
-                    led_obj[0].write_port_data(PORT_DATA_OFFSET_ADDR + port["port_id"], port_data)
-                    continue
-
-                elif BOARD_TPYE == "inventec_d7054q28b":
-                    if port["speed"] != SPEED_100G and port["speed"] != SPEED_25G:
-                        port_data |= BIT_SPEED0
-
-                led_index = _lookup_led_index(port)
-                led_obj[port["led_up"]].write_port_data(led_index, port_data)
-
-            time.sleep(0.5)
-            count_down -= 1
+    sync_bcmsh_socket()
+    _board_init()
+    _update_port_list(0)
+    #debug_print()
+    update_led_status()
 
     syslog.closelog()
-

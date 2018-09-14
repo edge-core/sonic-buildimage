@@ -15,12 +15,12 @@ portmap_135=263:10
 
 #  64 ports config for 100G
 # For Tomahawk FalconCore:
-#	Physical ports in FalconCore[0  - 15] must map to logical port[1 -   32] at any order
-#	Physical ports in FalconCore[16 - 31] must map to logical port[34 -  65] at any order
-#	Physical ports in FalconCore[32 - 47] must map to logical port[68 -  99] at any order
-#	Physical ports in FalconCore[48 - 63] must map to logical port[102 - 133] at any order
+#Physical ports in FalconCore[0-15] must map to logical port[1-32] at any order
+#Physical ports in FalconCore[16-31] must map to logical port[34-65] at any order
+#Physical ports in FalconCore[32-47] must map to logical port[68-99] at any order
+#Physical ports in FalconCore[48-63] must map to logical port[102-133] at any order
 
-## FalconCore[0 - 15]
+## FalconCore[0-15]
 portmap_1=9:100
 portmap_2=1:100
 portmap_3=13:100
@@ -38,7 +38,7 @@ portmap_14=49:100
 portmap_15=61:100
 portmap_16=53:100
 
-## FalconCore[16 - 31]
+## FalconCore[16-31]
 portmap_34=73:100
 portmap_35=65:100
 portmap_36=77:100
@@ -839,3 +839,72 @@ dport_map_port_112=114
 dport_map_port_113=115
 dport_map_port_114=48
 dport_map_port_115=49
+
+## ce
+## POST: 24(18) MAIN: 62(3E) PRE: 8(08)
+serdes_preemphasis_1=0x183E08
+serdes_preemphasis_2=0x193E08
+serdes_preemphasis_5=0x173E08
+serdes_preemphasis_6=0x173E08
+serdes_preemphasis_9=0x163E07
+serdes_preemphasis_10=0x173E08
+serdes_preemphasis_13=0x154007
+serdes_preemphasis_14=0x154007
+serdes_preemphasis_34=0x134007
+serdes_preemphasis_35=0x144007
+serdes_preemphasis_38=0x133F07
+serdes_preemphasis_39=0x133F07
+serdes_preemphasis_42=0x133F07
+serdes_preemphasis_43=0x133F06
+serdes_preemphasis_46=0x113E06
+serdes_preemphasis_47=0x113E05
+serdes_preemphasis_68=0x103F06
+serdes_preemphasis_69=0x103F06
+serdes_preemphasis_72=0x113F06
+serdes_preemphasis_73=0x103F06
+serdes_preemphasis_76=0x124006
+serdes_preemphasis_77=0x124006
+serdes_preemphasis_80=0x144007
+serdes_preemphasis_81=0x144007
+serdes_preemphasis_102=0x144007
+serdes_preemphasis_103=0x144007
+serdes_preemphasis_106=0x153F08
+serdes_preemphasis_107=0x153F08
+serdes_preemphasis_110=0x164008
+serdes_preemphasis_111=0x164008
+serdes_preemphasis_114=0x184008
+serdes_preemphasis_115=0x184008
+serdes_preemphasis_3=0x184108
+serdes_preemphasis_4=0x184108
+serdes_preemphasis_7=0x173F08
+serdes_preemphasis_8=0x174108
+serdes_preemphasis_11=0x154007
+serdes_preemphasis_12=0x154007
+serdes_preemphasis_15=0x144007
+serdes_preemphasis_16=0x144007
+serdes_preemphasis_36=0x133F07
+serdes_preemphasis_37=0x133F07
+serdes_preemphasis_40=0x133F07
+serdes_preemphasis_41=0x123F07
+serdes_preemphasis_44=0x113F07
+serdes_preemphasis_45=0x113F07
+serdes_preemphasis_48=0x113F06
+serdes_preemphasis_49=0x103F06
+serdes_preemphasis_70=0x113F06
+serdes_preemphasis_71=0x103F06
+serdes_preemphasis_74=0x113F06
+serdes_preemphasis_75=0x113F06
+serdes_preemphasis_78=0x123F07
+serdes_preemphasis_79=0x134007
+serdes_preemphasis_82=0x144007
+serdes_preemphasis_83=0x144007
+serdes_preemphasis_104=0x164007
+serdes_preemphasis_105=0x154107
+serdes_preemphasis_108=0x174107
+serdes_preemphasis_109=0x163F07
+serdes_preemphasis_112=0x194107
+serdes_preemphasis_113=0x174107
+serdes_preemphasis_116=0x1B4108
+serdes_preemphasis_117=0x194108
+
+
