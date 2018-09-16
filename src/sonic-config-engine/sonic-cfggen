@@ -31,6 +31,8 @@ from portconfig import get_port_config
 from sonic_platform import get_machine_info
 from sonic_platform import get_platform_info
 from sonic_platform import get_system_mac
+from config_samples import generate_sample_config
+from config_samples import get_available_config
 from swsssdk import ConfigDBConnector
 from collections import OrderedDict
 from natsort import natsorted
@@ -156,6 +158,7 @@ def main():
     group.add_argument("--var-json", help="print the value of a variable, in json format")
     group.add_argument("--write-to-db", help="write config into configdb", action='store_true')
     group.add_argument("--print-data", help="print all data", action='store_true')
+    group.add_argument("--preset", help="generate sample configuration from a preset template", choices=get_available_config())
     args = parser.parse_args()
 
     platform = get_platform_info(get_machine_info())
@@ -242,6 +245,10 @@ def main():
         configdb.mod_config(FormatConverter.output_to_db(data))
 
     if args.print_data:
+        print(json.dumps(FormatConverter.to_serialized(data), indent=4, cls=minigraph_encoder))
+
+    if args.preset != None:
+        data = generate_sample_config(data, args.preset)
         print(json.dumps(FormatConverter.to_serialized(data), indent=4, cls=minigraph_encoder))
 
 
