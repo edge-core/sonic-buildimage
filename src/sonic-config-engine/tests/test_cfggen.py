@@ -115,12 +115,12 @@ class TestCfgGen(TestCase):
     def test_minigraph_portchannels(self):
         argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v PORTCHANNEL'
         output = self.run_script(argument)
-        self.assertEqual(output.strip(), "{'PortChannel01': {'admin_status': 'up', 'members': ['Ethernet4'], 'mtu': '9100'}}")
+        self.assertEqual(output.strip(), "{'PortChannel01': {'admin_status': 'up', 'min_links': '1', 'members': ['Ethernet4'], 'mtu': '9100'}}")
 
     def test_minigraph_portchannel_with_more_member(self):
         argument = '-m "' + self.sample_graph_pc_test + '" -p "' + self.port_config + '" -v PORTCHANNEL'
         output = self.run_script(argument)
-        self.assertEqual(output.strip(), "{'PortChannel01': {'admin_status': 'up', 'members': ['Ethernet112', 'Ethernet116', 'Ethernet120', 'Ethernet124'], 'mtu': '9100'}}")
+        self.assertEqual(output.strip(), "{'PortChannel01': {'admin_status': 'up', 'min_links': '3', 'members': ['Ethernet112', 'Ethernet116', 'Ethernet120', 'Ethernet124'], 'mtu': '9100'}}")
 
     def test_minigraph_portchannel_members(self):
         argument = '-m "' + self.sample_graph_pc_test + '" -p "' + self.port_config + '" -v "PORTCHANNEL_MEMBER.keys()"'
