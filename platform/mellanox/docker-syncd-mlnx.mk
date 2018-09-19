@@ -2,7 +2,7 @@
 
 DOCKER_SYNCD_MLNX = docker-syncd-mlnx.gz
 $(DOCKER_SYNCD_MLNX)_PATH = $(PLATFORM_PATH)/docker-syncd-mlnx
-$(DOCKER_SYNCD_MLNX)_DEPENDS += $(SYNCD) $(PYTHON_SDK_API) $(MLNX_SFPD)
+$(DOCKER_SYNCD_MLNX)_DEPENDS += $(SYNCD) $(PYTHON_SDK_API) $(MLNX_SFPD) $(CRIU)
 $(DOCKER_SYNCD_MLNX)_LOAD_DOCKERS += $(DOCKER_CONFIG_ENGINE)
 SONIC_DOCKER_IMAGES += $(DOCKER_SYNCD_MLNX)
 ifneq ($(ENABLE_SYNCD_RPC),y)
@@ -13,3 +13,4 @@ $(DOCKER_SYNCD_MLNX)_CONTAINER_NAME = syncd
 $(DOCKER_SYNCD_MLNX)_RUN_OPT += --net=host --privileged -t
 $(DOCKER_SYNCD_MLNX)_RUN_OPT += -v /host/machine.conf:/etc/machine.conf
 $(DOCKER_SYNCD_MLNX)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
+$(DOCKER_SYNCD_MLNX)_RUN_OPT += --tmpfs /run/criu
