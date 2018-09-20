@@ -48,7 +48,6 @@ kernel_params="kernel-params"
 
 aboot_machine="arista_unknown"
 
-
 # extract mount point from the swi path, e.g., /mnt/flash/sonic.swi --> /mnt/flash
 if [ -z "$target_path" ]; then
     if [ -z "$swipath" ]; then
@@ -61,6 +60,7 @@ image_path="$target_path/$image_name"
 
 cmdline_base="$target_path/kernel-params-base"
 cmdline_image="$image_path/kernel-cmdline"
+boot_config="$target_path/boot-config"
 
 bootconfigvars="KERNEL INITRD CONSOLESPEED PASSWORD NETDEV NETAUTO NETIP NETMASK NETGW NETDOMAIN NETDNS NETHW memtest"
 flash_re=" /mnt/flash| /host"
@@ -86,6 +86,33 @@ clean_flash() {
             rm -rf "$target_path/$f"
         fi
     done
+}
+
+update_boot_config() {
+    local key="$1"
+    local value="$2"
+
+    if grep "$key" "$boot_config" 2>&1 > /dev/null; then
+        sed -i "s#^$key=.*\$#$key=$value#" "$boot_config"
+    else
+        echo "$key=$value" >> "$boot_config"
+    fi
+}
+
+get_boot_config() {
+    local key="$1"
+
+    sed -n "s#^$key=##p" "$boot_config" || :
+}
+
+update_next_boot() {
+    local default="$(get_boot_config SWI_DEFAULT)"
+
+    if [ -z "$default" ]; then
+        echo "warning: no variable SWI_DEFAULT available"
+    else
+        update_boot_config SWI "$default"
+    fi
 }
 
 extract_image() {
@@ -114,7 +141,9 @@ extract_image() {
     fi
 
     ## use new reduced-size boot swi
-    echo "SWI=flash:$image_name/{{ ABOOT_BOOT_IMAGE }}" > "$target_path/boot-config"
+    local swi_boot_path="flash:$image_name/{{ ABOOT_BOOT_IMAGE }}"
+    update_boot_config SWI "$swi_boot_path"
+    update_boot_config SWI_DEFAULT "$swi_boot_path"
 
     ## Remove installer swi as it has lots of redundunt contents
     rm -f "$swipath"
@@ -320,6 +349,7 @@ fi
 
 # chainloading using kexec
 if $do_kexec; then
+    update_next_boot
     run_kexec
 fi
 
