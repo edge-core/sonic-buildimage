@@ -1,0 +1,54 @@
+Source: sonic-platform-arista
+Section: main
+Priority: extra
+Maintainer: Samuel Angebault <staphylo@arista.com>
+Build-Depends:
+   dh-python,
+   debhelper (>= 9.0.0),
+   python-all,
+   python(>=2.7-3~),
+   python-setuptools,
+   python3(>=3.2),
+   python3-setuptools,
+   bzip2
+Standards-Version: 1.0.0
+X-Python-Version: >= 2.7
+X-Python3-Version: >= 3.2
+XS-Python-Version: >= 2.7
+XS-Python3-Version: >= 3.2
+
+Package: drivers-sonic-platform-arista
+Architecture: amd64
+Depends:
+   ${misc:Depends},
+   linux-image-3.16.0-5-amd64
+Description: Arista kernel modules for arista platform devices such as fan, led, sfp, psu
+
+Package: python-sonic-platform-arista
+Architecture: all
+Depends:
+   ${python:Depends},
+   ${misc:Depends},
+   python-smbus
+Description: Arista python2 libraries
+ These libraries allow to work with devices such as fan, led, sfp, psu
+
+Package: python3-sonic-platform-arista
+Architecture: all
+Depends:
+   ${python3:Depends},
+   ${misc:Depends}
+Recommends:
+   python3-smbus
+Description: Arista python3 libraries
+ These libraries allow to work with devices such as fan, led, sfp, psu
+
+Package: sonic-platform-arista
+Architecture: amd64
+Depends:
+   ${python:Depends},
+   ${misc:Depends},
+   python-sonic-platform-arista,
+   python(>=2.7),
+   i2c-tools
+Description: Miscellaneous Arista scripts and tools

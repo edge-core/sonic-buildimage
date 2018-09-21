@@ -1,0 +1,47 @@
+#!/bin/bash
+
+### BEGIN INIT INFO
+# Provides:          setup-board
+# Required-Start:
+# Required-Stop:
+# Should-Start:
+# Should-Stop:
+# Default-Start:     S
+# Default-Stop:      0 6
+# Short-Description: Setup Arista platform
+### END INIT INFO
+
+drivers_start() {
+    echo "Loading arista drivers..."
+    depmod -a
+    if grep -q sid=Gardena /proc/cmdline; then
+        timeout=600
+        echo "Enabling watchdog for $timeout seconds"
+        /usr/bin/arista-gardena-watchdog -o $timeout
+    fi
+    /usr/bin/arista --syslog -l /var/log/arista.log setup --reset --background
+    echo "done."
+}
+drivers_stop() {
+    echo "Unloading arista drivers..."
+    /usr/bin/arista --syslog -l /var/log/arista.log clean
+    echo "done."
+}
+
+case "$1" in
+    start) drivers_start ;;
+    stop) drivers_stop ;;
+    force-reload) echo "Not supported";;
+    restart)
+        drivers_stop
+        drivers_start
+        ;;
+
+    *)
+        echo "Usage: $0 {start|stop}"
+        exit 1
+        ;;
+esac
+
+exit 0
+

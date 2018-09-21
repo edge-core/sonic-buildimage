@@ -1,0 +1,180 @@
+#!/bin/bash
+
+set -u
+DEBUG_MODE=false
+PREFIX=/sys/bus/pci/devices/
+DEVICES=()
+EXIT_CODE=0
+
+debug() {
+   $DEBUG_MODE && echo "$@"
+}
+
+fatal() {
+   echo "ERROR: $@" 1>&2
+   exit 1
+}
+
+warn() {
+   echo "WARNING: $@" 1>&2
+   EXIT_CODE=1
+}
+
+cmd_help () {
+   echo "usage: reset -s <on/off> -d <device> [-l]"
+   echo "    -s state: set the resetting state to \"on\" or \"off\""
+   echo "    -d device: name for a specific device, or \"ALL\" for all devices"
+   echo "    -l: list devices that support reset"
+}
+
+error_and_help() {
+   echo "ERROR: $@" 1>&2
+   cmd_help
+   exit 1
+}
+
+get_scd_address() {
+   SCD_ADDRESS=`ls /sys/module/scd/drivers/pci\:scd | grep -E '[0-9]{4}:[0-9]{2}:[0-9]{2}'`
+   debug "$SCD_ADDRESS"
+   [ -z "$SCD_ADDRESS" ] && fatal 'Scd address not not exist.'
+   local scd_num=`ls -l /sys/module/scd/drivers/pci\:scd  | wc -l`
+   debug $scd_num
+   if [ $scd_num -lt 1 ]; then
+      fatal "Scd address not found."
+   elif [ $scd_num -gt 1 ]; then
+      fatal "More than 1 SCD, not supported."
+   fi
+}
+
+#obtain device list
+get_devices() {
+   #scd address
+   PREFIX=${PREFIX}${SCD_ADDRESS}
+   #update device list
+   for device_path in `echo ${PREFIX}/*_reset`; do
+      local device_name=`basename $device_path | rev | cut -f2- -d '_' | rev`
+      DEVICES+=("$device_name")
+   done
+}
+
+write_file() {
+   if [ ! -f $1 ]; then
+      warn "Sys file not found: $1."
+      return 1
+   fi
+   echo $2 > $1
+   if [ $? != 0 ]; then
+      warn "Sys file write error: $1."
+      return 1
+   fi
+   return 0
+}
+
+READ_BUFFER="Unknown"
+read_file() {
+   READ_BUFFER="Unknown"
+   local result=`cat $1 2>/dev/null`
+   if [ $? != 0 ]; then
+      warn "Sys file read error: $1."
+      return 1
+   else
+      READ_BUFFER="$result"
+      return 0
+   fi
+}
+
+#enter reset for 1 device
+set_reset () {
+   local device="$1"
+   local state="$2"
+   debug "$device $state"
+   write_file "$PREFIX/${device}_reset/direction" out || return 1
+   read_file "$PREFIX/${device}_reset/active_low" || return 1
+   local active_low="$READ_BUFFER"
+   if [[ ( "$state" == "on" && "$active_low" == "0" ) || \
+         ( "$state" == "off" && "$active_low" == "1" ) ]]; then
+      data='1'
+   else
+      data='0'
+   fi
+   local value_file="$PREFIX/${device}_reset/value"
+   write_file "$value_file" "$data" || return 1
+}
+
+
+list_all_devices() {
+   printf '%-15s %-10s %-10s %-10s\n' 'name' 'direction' 'value' 'active_low'
+   for dev in "${DEVICES[@]}"; do
+      read_file "$PREFIX/${dev}_reset/direction"
+      local direction="$READ_BUFFER"
+      read_file "$PREFIX/${dev}_reset/value"
+      local value="$READ_BUFFER"
+      read_file "$PREFIX/${dev}_reset/active_low"
+      local active_low="$READ_BUFFER"
+      printf '%-15s %-10s %-10s %-10s\n' "$dev" "$direction" "$value" "$active_low"
+   done
+}
+
+set_reset_all() {
+   for dev in "${DEVICES[@]}"; do
+      set_reset "$dev" "$1" || warn "Failed to set device $dev."
+   done
+}
+
+########## main start ###########
+if [ $EUID -ne 0 ]; then
+   echo "Please run as root."
+   exit 1
+fi
+
+STATE=""
+DEVICE=""
+LIST=false
+
+while getopts ":s:d:hl" opt; do
+   case $opt in
+      s)
+         [ "$STATE" ] && error_and_help "Duplicate: $opt."
+         STATE="$OPTARG"
+         ;;
+      d)
+         [ "$DEVICE" ] && error_and_help "Duplicate: $opt."
+         DEVICE="$OPTARG"
+         ;;
+      l)
+         LIST=true
+         break
+         ;;
+      h)
+         cmd_help
+         exit 0
+         ;;
+      *)
+         error_and_help "Unknown argument: $opt."
+         ;;
+   esac
+done
+
+get_scd_address
+get_devices
+
+if [ $LIST == true ]; then
+   list_all_devices
+   exit $EXIT_CODE
+fi
+
+[ -z "$DEVICE" ] && error_and_help 'Device not specified.'
+[ -z "$STATE" ] && error_and_help 'State not specified.'
+
+if [ "$STATE" == "on" ] || [ "$STATE" == "off" ]; then
+   if [ "$DEVICE" == "ALL" ]; then
+      set_reset_all "$STATE"
+   else
+      set_reset "$DEVICE" "$STATE" || warn "Failed to set device $DEVICE."
+   fi
+else
+   error_and_help "Illegal argument -s."
+fi
+
+exit $EXIT_CODE
+########## main end ###########

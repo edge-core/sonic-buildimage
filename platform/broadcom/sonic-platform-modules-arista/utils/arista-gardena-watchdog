@@ -1,0 +1,144 @@
+#!/usr/bin/env python
+
+# Copyright (c) 2018 Arista Networks, Inc.  All rights reserved.
+# Arista Networks, Inc. Confidential and Proprietary.
+
+from __future__ import print_function
+import sys
+import mmap, os
+import argparse
+import subprocess
+from struct import pack, unpack
+
+WATCHDOG_REG = 0x0120
+
+class MmapResource( object ):
+   """Resource implementation for a directly-mapped memory region."""
+   def __init__( self, path ):
+      try:
+         fd = os.open( path, os.O_RDWR )
+      except EnvironmentError:
+         print( "FAIL can not open scd memory-map resource file" )
+         print( "FAIL are you running on the proper platform?" )
+         sys.exit( 1 )
+
+      try:
+         size = os.fstat( fd ).st_size
+      except EnvironmentError:
+         print( "FAIL can not fstat scd memory-map resource file" )
+         print( "FAIL are you running on the proper platform?" )
+         sys.exit( 1 )
+
+      try:
+         self.mmap_ = mmap.mmap( fd, size, mmap.MAP_SHARED,
+                                 mmap.PROT_READ | mmap.PROT_WRITE )
+      except EnvironmentError:
+         print( "FAIL can not map scd memory-map file" )
+         print( "FAIL are you running on the proper platform?" )
+         sys.exit( 1 )
+      finally:
+         try:
+            # Note that closing the file descriptor has no effect on the memory map
+            os.close( fd )
+         except EnvironmentError:
+            print( "FAIL failed to close scd memory-map file" )
+            sys.exit( 1 )
+
+   def read32( self, addr ):
+      return unpack( '<L', self.mmap_[ addr : addr + 4 ] )[ 0 ]
+
+   def write32( self, addr, value ):
+      self.mmap_[ addr: addr + 4 ] = pack( '<L', value )
+
+def klog( msg, level=2, *args ):
+   try:
+      with open( '/dev/kmsg', 'w' ) as f:
+         f.write( '<%d>arista: %s\n' % ( level, msg % tuple( *args ) ) )
+   except:
+      pass
+
+def scdRegTest( scd, offset, val1, count ):
+   scd.write32( offset, val1 )
+   val2 = scd.read32( offset )
+   if val1 != val2:
+      print( "FAIL: scd write 0x%08x but read back 0x%08x in iter %d" %
+             ( val1, val2, count ) )
+      sys.exit( 17 )
+
+def scdScrRegTest( scd ):
+   scrOffset = 0x0130
+   for i in range( 0, 3 ):
+      scdRegTest( scd, scrOffset, 0xdeadbeef, i )
+      scdRegTest( scd, scrOffset, 0xa5a5a5a5, i )
+      scdRegTest( scd, scrOffset, 0x00000000, i )
+
+def arm( scd, time ):
+   regValue = 0
+
+   if time > 0:
+      # Set enable bit
+      regValue |= 1 << 31
+
+      # Powercycle
+      regValue |= 2 << 29
+
+      # Timeout value
+      regValue |= time
+
+   print( 'Reg = {0:32b}'.format( regValue ) )
+   scd.write32( WATCHDOG_REG, regValue )
+
+def convertToTensMs( timeSec ):
+   return timeSec * 100
+
+def status( scd ):
+   regValue = scd.read32( WATCHDOG_REG )
+   enabled = bool( regValue >> 31 )
+   timeout = regValue & ( ( 1 << 16 ) - 1 )
+   return {
+      "enabled": enabled,
+      "timeout": timeout,
+   }
+
+def main():
+   parser = argparse.ArgumentParser()
+   parser.add_argument( '-o', '--arm', type=int,
+                        help='Arm the watchdog for X seconds' )
+   parser.add_argument( '--stop',  action='store_true',
+                        help='Disable the watchdog' )
+   parser.add_argument( '--status', action='store_true',
+                        help='Show watchdog status' )
+   args = parser.parse_args()
+
+   if not args.arm and not args.stop and not args.status:
+      print( 'No option specified' )
+      sys.exit( 1 )
+
+   busName = "/sys/bus/pci/devices/0000:06:00.0/resource0"
+   subprocess.call( [ 'modprobe', 'scd' ] )
+   scd = MmapResource( busName )
+
+   scdScrRegTest( scd )
+
+   if args.status:
+      s = status( scd )
+      kv = ' '.join( '%s=%s' % ( k, v ) for k, v in s.items() )
+      print( 'watchdog: %s' % kv )
+      sys.exit( 0 )
+
+
+   time = 0
+   if args.arm:
+      klog( 'watchdog: arm for %ds' % args.arm )
+      # Tens of milliseconds
+      time = args.arm * 100
+      if time >= 65536:
+         print( 'Error Time value is too big' )
+         sys.exit( 1 )
+   else:
+      klog( 'watchdog: disable' )
+
+   arm( scd, time )
+
+if __name__ == "__main__":
+   main()

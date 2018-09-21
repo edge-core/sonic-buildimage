@@ -1,0 +1,7 @@
+# postinst script for S6100
+
+# Enable fstrim
+systemctl enable fstrim.timer
+systemctl start fstrim.timer
+
+#DEBHELPER#

@@ -1,0 +1,6 @@
+# rule to create a uio device name for the scds uio devices, 
+# name is "/dev/uio+$PCI_ADDRESS+$REG+$INDEX" where 
+# PCI_ADDRESS is the scd's pci address in DDDD:BB:SS.F format,
+# REG is the irq register index on the scd (there can be more than 1 on modular)
+# INDEX is the zero-based index of the uio on the scd (the bit)
+KERNEL=="uio*", DRIVERS=="scd", SYMLINK+="%s{name}"

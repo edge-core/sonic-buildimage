@@ -1,0 +1,12 @@
+[Unit]
+Description=Discard unused blocks once a week
+Documentation=man:fstrim
+
+[Timer]
+OnCalendar=weekly
+OnBootSec=10min
+AccuracySec=1h
+Persistent=true
+
+[Install]
+WantedBy=multi-user.target

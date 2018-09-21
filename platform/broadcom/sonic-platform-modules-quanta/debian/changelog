@@ -1,0 +1,6 @@
+sonic-quanta-platform-modules (1.0) unstable; urgency=low
+
+  * Add support for Quanta IX1B-32X
+  * Initial release
+
+ -- Chih-Pei Chang <Chih-Pei.Chang@qct.io> Jonathan Tsai <jonathan.tsai@quantatw.com>  Wed, 20 Dec 2017 09:26:01 +0800

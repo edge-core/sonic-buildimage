@@ -1,0 +1,12 @@
+Source: sonic-quanta-platform-modules
+Section: main
+Priority: extra
+Maintainer: Chih-Pei Chang <Chih-Pei.Chang@qct.io>, Jonathan Tsai <jonathan.tsai@quantatw.com> 
+Build-Depends: debhelper (>= 8.0.0), bzip2
+Standards-Version: 3.9.3
+
+Package: sonic-platform-quanta-ix1b-32x
+Architecture: amd64
+Depends: linux-image-3.16.0-5-amd64
+Description: kernel modules for platform devices such as psu, led, sfp
+

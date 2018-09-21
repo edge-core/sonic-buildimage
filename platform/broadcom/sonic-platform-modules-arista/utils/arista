@@ -1,0 +1,233 @@
+#!/usr/bin/env python
+
+from __future__ import print_function, with_statement
+
+import logging
+import logging.handlers
+import argparse
+import tempfile
+import time
+import sys
+import os
+
+import arista.platforms
+import arista.core.utils as utils
+from arista.core.platform import getPlatform, getSysEeprom, getPlatforms
+from arista.core.component import Priority
+
+lock_file = '/var/lock/arista.lock'
+
+def checkRootPermissions():
+   if utils.inSimulation():
+      return
+
+   if os.geteuid() != 0:
+      log.error('You must be root to use this feature')
+      sys.exit(1)
+
+def getHostname():
+   import socket
+   try:
+      return socket.gethostname()
+   except:
+      return 'localhost'
+
+def setupLogging(verbose=False, logfile=None, syslog=False):
+   loglevel = logging.DEBUG if verbose else logging.INFO
+   dateFmt = '%Y-%m-%d %H:%M:%S'
+
+   log = logging.getLogger()
+   log.setLevel(logging.DEBUG)
+
+   logOut = logging.StreamHandler(sys.stdout)
+   logOut.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
+   logOut.setLevel(loglevel)
+   log.addHandler(logOut)
+
+   if logfile:
+      logFile = logging.FileHandler(logfile)
+      logFile.setFormatter(logging.Formatter(
+            '%(asctime)s.%(msecs)03d %(levelname)s: %(message)s', datefmt=dateFmt))
+      log.addHandler(logFile)
+
+   if syslog:
+      logSys = logging.handlers.SysLogHandler()
+      # format to rfc5424 format
+      logSys.setFormatter(
+            logging.Formatter('{} arista: %(message)s'.format(getHostname())))
+      logSys.setLevel(logging.WARNING)
+      log.addHandler(logSys)
+      try:
+         # the connection to the syslog socket happens with the first message
+         log.info('Attaching to syslog')
+      except:
+         log.warning('Failed open syslog')
+
+
+def setupSimulation():
+   global lock_file, log_file
+
+   utils.simulation = True
+   assert utils.inSimulation()
+
+   logging.info('Running in simulation mode')
+   lock_file = tempfile.mktemp(prefix='arista-', suffix='.lock')
+   log_file = tempfile.mktemp(prefix='arista-', suffix='.log')
+
+def forkForLateInitialization(platform):
+      try:
+         pid = os.fork()
+      except OSError:
+         logging.warn('fork failed, setting up background drivers normally')
+      else:
+         if pid > 0:
+            logging.debug('initializing slow drivers in child %d', pid)
+            platform.waitForIt()
+            os._exit(0)
+
+def doSetup(args, platform):
+   checkRootPermissions()
+
+   if args.debug:
+      utils.debug = True
+
+   with utils.FileLock(lock_file):
+      logging.debug('setting up critical drivers')
+      platform.setup(Priority.DEFAULT)
+
+      # NOTE: This assumes that none of the resetable devices are
+      #       initialized in background.
+      #       This should stay true in the future.
+      if args.reset:
+         logging.debug('taking devices out of reset')
+         platform.resetOut()
+
+      if args.background:
+         logging.debug('forking and setting up slow drivers in background')
+         forkForLateInitialization(platform)
+      else:
+         logging.debug('setting up slow drivers normally')
+
+      platform.setup(Priority.BACKGROUND)
+
+      if not args.background:
+         platform.waitForIt()
+
+def doClean(args, platform):
+   checkRootPermissions()
+
+   if args.reset:
+      logging.debug('putting devices in reset')
+      platform.resetIn()
+
+   logging.debug('cleaning up platform')
+   with utils.FileLock(lock_file):
+      platform.clean()
+
+def doReset(args, platform):
+   if args.reset_out:
+      platform.resetOut()
+   elif args.reset_in:
+      platform.resetIn()
+   elif args.reset_toggle:
+      platform.resetIn()
+      time.sleep(args.reset_delay)
+      platform.resetOut()
+   else:
+      logging.info('nothing to do')
+
+def doPlatforms(args):
+   print('supported platforms:')
+   for platform in sorted(getPlatforms()):
+      print(' -', platform)
+
+def doSysEeprom(args):
+   for key, value in getSysEeprom().items():
+      print('%s: %s' % (key, value))
+
+def todo(*args, **kwargs):
+   raise NotImplementedError
+
+def parseArgs():
+   parser = argparse.ArgumentParser(
+      description='Arista driver initialisation framework',
+      formatter_class=argparse.ArgumentDefaultsHelpFormatter
+   )
+   parser.add_argument('-p', '--platform', type=str,
+                       help='name of the platform to load')
+   parser.add_argument('-l', '--logfile', type=str,
+                       help='log file to log to')
+   parser.add_argument('-v', '--verbose', action='store_true',
+                       help='increase verbosity')
+   parser.add_argument('-s', '--simulation', action='store_true',
+                       help='force simulation mode')
+   parser.add_argument('--syslog', action='store_true',
+                       help='also send logs to syslog' )
+
+   subparsers = parser.add_subparsers(dest='action')
+   sub = subparsers.add_parser('help', help='print a help message')
+   sub = subparsers.add_parser('platforms', help='show supported platforms')
+   sub = subparsers.add_parser('syseeprom', help='show system eeprom content')
+
+   sub = subparsers.add_parser('dump', help='dump information on this platform')
+   sub = subparsers.add_parser('setup', help='setup drivers for this platform')
+   sub.add_argument('-r', '--reset', action='store_true',
+                    help='put devices out of reset after init')
+   sub.add_argument('-d', '--debug', action='store_true',
+                    help='enable debug features for the drivers')
+   sub.add_argument('-b', '--background', action='store_true',
+                    help='initialize slow, non-critical drivers in background')
+   sub = subparsers.add_parser('clean', help='unload drivers for this platform')
+   sub.add_argument('-r', '--reset', action='store_true',
+                    help='put devices in reset before cleanup')
+   sub = subparsers.add_parser('reset', help='put component in or out reset')
+   sub.add_argument('device', nargs='*', # TODO: use this
+                    help='device(s) to put in or out of reset')
+   sub.add_argument('-t', '--toggle', action='store_true', dest='reset_toggle',
+                    help='put components in and out of reset')
+   sub.add_argument('-i', '--in', action='store_true', dest='reset_in',
+                    help='put components in reset')
+   sub.add_argument('-o', '--out', action='store_true', dest='reset_out',
+                    help='put components out of reset')
+   sub.add_argument('-d', '--delay', type=int, default=1, dest='reset_delay',
+                    help='time to wait between in and out in seconds')
+
+   args = parser.parse_args()
+   if args.action == 'help':
+      parser.print_help()
+      sys.exit(0)
+   return args
+
+def main():
+   args = parseArgs()
+
+   setupLogging(args.verbose, args.logfile, args.syslog)
+
+   if args.simulation:
+      setupSimulation()
+
+   logging.debug(args)
+
+   generic_commands = {
+      'platforms': doPlatforms,
+      'syseeprom': doSysEeprom,
+   }
+
+   platform_commands = {
+      'dump':  lambda _, x: x.dump(),
+      'setup': doSetup,
+      'clean': doClean,
+      'status': todo,
+      'reset': doReset,
+   }
+
+   if args.action in generic_commands:
+      generic_commands[args.action](args)
+   elif args.action in platform_commands:
+      platform_commands[args.action](args, getPlatform(args.platform))
+   else:
+      logging.error("Command %s doesn't exists", args.command)
+
+if __name__ == '__main__':
+   main()
+

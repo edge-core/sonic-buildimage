@@ -1,0 +1,8 @@
+z9100/scripts/check_qsfp.sh usr/local/bin
+z9100/scripts/z9100_platform.sh usr/local/bin
+common/dell_i2c_utils.sh usr/local/bin
+common/fstrim.timer etc/systemd/system
+common/fstrim.service etc/systemd/system
+z9100/scripts/platform_sensors.py usr/local/bin
+z9100/scripts/sensors usr/bin
+z9100/cfg/z9100-modules.conf etc/modules-load.d

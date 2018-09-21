@@ -1,0 +1,54 @@
+#!/usr/bin/make -f
+
+include /usr/share/dpkg/pkg-info.mk
+
+#export DH_VERBOSE = 1
+
+export INSTALL_MOD_DIR:=extra
+
+SCRIPT_FILES   := reset
+BIN_FILES      := arista boot-eos arista-gardena-watchdog
+SERVICE_FILES  := gardena-watchdog-stop.service
+
+KVERSION       ?= $(shell uname -r)
+KERNEL_SRC     ?= /lib/modules/$(KVERSION)/build
+KERNEL_DST     := /lib/modules/$(KVERSION)
+BASE_DIR       := $(shell pwd)
+MODULE_SRC     := $(BASE_DIR)/src
+TEST_DIR       := $(BASE_DIR)/tests
+SCRIPT_SRC     := $(addprefix $(BASE_DIR)/utils/,$(SCRIPT_FILES))
+BIN_SRC        := $(addprefix $(BASE_DIR)/utils/,$(BIN_FILES))
+SERVICE_SRC    := $(addprefix $(BASE_DIR)/confs/,$(SERVICE_FILES))
+
+%:
+	dh $@ --with python2,python3,systemd --buildsystem=pybuild
+
+override_dh_auto_build:
+	$(MAKE) -C $(KERNEL_SRC) M=$(MODULE_SRC)
+	python2 setup.py build
+
+override_dh_auto_install:
+	dh_installdirs -p$(DEB_SOURCE) usr/bin
+	cp $(BIN_SRC) debian/$(DEB_SOURCE)/usr/bin
+	dh_installdirs -p$(DEB_SOURCE) usr/share/arista
+	cp $(SCRIPT_SRC) debian/$(DEB_SOURCE)/usr/share/arista
+	dh_installdirs -p$(DEB_SOURCE) lib/systemd/system
+	cp $(SERVICE_SRC) debian/$(DEB_SOURCE)/lib/systemd/system
+	dh_installdirs -pdrivers-$(DEB_SOURCE) $(KERNEL_DST)/$(INSTALL_MOD_DIR)
+	cp $(MODULE_SRC)/*.ko debian/drivers-$(DEB_SOURCE)/$(KERNEL_DST)/$(INSTALL_MOD_DIR)
+	python2 setup.py install --root=$(BASE_DIR)/debian/python-$(DEB_SOURCE) --install-layout=deb
+	python3 setup.py install --root=$(BASE_DIR)/debian/python3-$(DEB_SOURCE) --install-layout=deb
+
+override_dh_clean:
+	dh_clean
+	$(RM) $(MODULE_SRC)/*.o $(MODULE_SRC)/*.ko $(MODULE_SRC)/*.mod.c $(MODULE_SRC)/.*.cmd
+	$(RM) $(MODULE_SRC)/Module.markers $(MODULE_SRC)/Module.symvers $(MODULE_SRC)/modules.order
+	$(RM) -r $(MODULE_SRC)/.tmp_versions
+	$(RM) -r $(BASE_DIR)/*.egg-info $(BASE_DIR)/build
+
+override_dh_auto_test:
+	PYTHON=python2 PYTHONPATH=$(BASE_DIR) $(TEST_DIR)/all-platforms.sh
+	PYTHON=python3 PYTHONPATH=$(BASE_DIR) $(TEST_DIR)/all-platforms.sh
+
+print-%:
+	@echo $($*)

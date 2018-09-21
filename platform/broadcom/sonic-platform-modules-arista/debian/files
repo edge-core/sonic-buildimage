@@ -1,0 +1,4 @@
+drivers-sonic-platform-arista_1.0_amd64.deb main extra
+python-sonic-platform-arista_1.0_all.deb main extra
+python3-sonic-platform-arista_1.0_all.deb main extra
+sonic-platform-arista_1.0_amd64.deb main extra
