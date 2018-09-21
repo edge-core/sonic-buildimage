@@ -51,6 +51,7 @@ docker_try_rmi() {
 }
 
 sonic_get_version() {
+    DIRTY_SUFFIX="$(date +%Y%m%d\.%H%M%S)"
     local describe=$(git describe --tags)
     local latest_tag=$(git describe --tags --abbrev=0)
     local branch_name=$(git rev-parse --abbrev-ref HEAD)
