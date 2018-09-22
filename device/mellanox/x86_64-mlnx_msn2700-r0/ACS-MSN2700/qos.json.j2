@@ -177,6 +177,9 @@
         }
     },
     "QUEUE": {
+        "{{ port_names_active }}|0-1" : {
+            "wred_profile"  :   "[WRED_PROFILE|AZURE_LOSSY]"
+        },
         "{{ port_names_active }}|3-4" : {
             "scheduler"     :   "[SCHEDULER|scheduler.0]",
             "wred_profile"  :   "[WRED_PROFILE|AZURE_LOSSLESS]"

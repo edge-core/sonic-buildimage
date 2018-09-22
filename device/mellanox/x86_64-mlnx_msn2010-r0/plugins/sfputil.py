@@ -10,17 +10,27 @@ try:
 except ImportError as e:
     raise ImportError("%s - required module not found" % str(e))
 
+# parameters for DB connection
+REDIS_HOSTNAME = "localhost"
+REDIS_PORT = 6379
+REDIS_TIMEOUT_USECS = 0
 
 class SfpUtil(SfpUtilBase):
     """Platform-specific SfpUtil class"""
-
     PORT_START = 0
-    PORT_END = 55
-    PORTS_IN_BLOCK = 56
-
+    PORT_END = 21
+    PORTS_IN_BLOCK = 22
+    QSFP_PORT_START = 18
     EEPROM_OFFSET = 1
 
     _port_to_eeprom_mapping = {}
+
+    db_sel = None
+    db_sel_timeout = None
+    db_sel_object = None
+    db_sel_tbl = None
+    state_db = None
+    sfpd_status_tbl = None
 
     @property
     def port_start(self):
@@ -32,7 +42,7 @@ class SfpUtil(SfpUtilBase):
 
     @property
     def qsfp_ports(self):
-        return range(0, self.PORTS_IN_BLOCK + 1)
+        return range(self.QSFP_PORT_START, self.PORTS_IN_BLOCK + 1)
 
     @property
     def port_to_eeprom_mapping(self):
@@ -45,6 +55,7 @@ class SfpUtil(SfpUtilBase):
             self._port_to_eeprom_mapping[x] = eeprom_path.format(x + self.EEPROM_OFFSET)
 
         SfpUtilBase.__init__(self)
+
 
     def get_presence(self, port_num):
         # Check for invalid port_num
@@ -149,3 +160,39 @@ class SfpUtil(SfpUtilBase):
             return False
 
         return False
+
+    def get_transceiver_change_event(self, timeout=0):
+        phy_port_dict = {}
+        status = True
+
+        if self.db_sel == None:
+            from swsscommon import swsscommon
+            self.state_db = swsscommon.DBConnector(swsscommon.STATE_DB,
+                                             REDIS_HOSTNAME,
+                                             REDIS_PORT,
+                                             REDIS_TIMEOUT_USECS)
+
+            # Subscribe to state table for SFP change notifications
+            self.db_sel = swsscommon.Select()
+            self.db_sel_tbl = swsscommon.NotificationConsumer(self.state_db, 'TRANSCEIVER_NOTIFY')
+            self.db_sel.addSelectable(self.db_sel_tbl)
+            self.db_sel_timeout = swsscommon.Select.TIMEOUT
+            self.db_sel_object = swsscommon.Select.OBJECT
+            self.sfpd_status_tbl = swsscommon.Table(self.state_db, 'MLNX_SFPD_TASK')
+
+        # Check the liveness of mlnx-sfpd, if it failed, return false
+        keys = self.sfpd_status_tbl.getKeys()
+        if 'LIVENESS' not in keys:
+            return False, phy_port_dict
+
+        (state, c) = self.db_sel.select(timeout)
+        if state == self.db_sel_timeout:
+            status = True
+        elif state != self.db_sel_object:
+            status = False
+        else:
+            (key, op, fvp) = self.db_sel_tbl.pop()
+            phy_port_dict[key] = op
+
+        return status, phy_port_dict
+

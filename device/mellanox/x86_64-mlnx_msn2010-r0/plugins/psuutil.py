@@ -64,10 +64,11 @@ class PsuUtil(PsuBase):
         if index is None:
             return False
 
+        status = 0
         try:
             with open(self.psu_path + self.psu_presence.format(index), 'r') as presence_status:
-                return True
+                status = int(presence_status.read())
         except IOError:
             return False
 
-        return False
+        return status == 1
