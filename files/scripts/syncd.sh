@@ -1,7 +1,7 @@
 #!/bin/bash
 
-SERVICE="swss"
-PEER="syncd"
+SERVICE="syncd"
+PEER="swss"
 DEBUGLOG="/tmp/swss-syncd-debug.log"
 LOCKFILE="/tmp/swss-syncd-lock"
 
@@ -30,22 +30,11 @@ function unlock_service_state_change()
 function check_warm_boot()
 {
     SYSTEM_WARM_START=`/usr/bin/redis-cli -n 4 hget "WARM_RESTART|system" enable`
-    SERVICE_WARM_START=`/usr/bin/redis-cli -n 4 hget "WARM_RESTART|${SERVICE}" enable`
-    if [[ x"$SYSTEM_WARM_START" == x"true" ]] || [[ x"$SERVICE_WARM_START" == x"true" ]]; then
+    # SYSTEM_WARM_START could be empty, always make WARM_BOOT meaningful.
+    if [[ x"$SYSTEM_WARM_START" == x"true" ]]; then
         WARM_BOOT="true"
     else
         WARM_BOOT="false"
-    fi
-}
-
-function validate_restart_count()
-{
-    if [[ x"$WARM_BOOT" == x"true" ]]; then
-        RESTART_COUNT=`/usr/bin/redis-cli -n 6 hget "WARM_RESTART_TABLE|orchagent" restart_count`
-        # We have to make sure db data has not been flushed.
-        if [[ -z "$RESTART_COUNT" ]]; then
-            WARM_BOOT="false"
-        fi
     fi
 }
 
@@ -69,35 +58,36 @@ start() {
 
     wait_for_database_service
     check_warm_boot
-    validate_restart_count
 
     debug "Warm boot flag: ${SERVICE} ${WARM_BOOT}."
 
     # Don't flush DB during warm boot
     if [[ x"$WARM_BOOT" != x"true" ]]; then
-        /usr/bin/docker exec database redis-cli -n 0 FLUSHDB
-        /usr/bin/docker exec database redis-cli -n 2 FLUSHDB
-        /usr/bin/docker exec database redis-cli -n 5 FLUSHDB
-        /usr/bin/docker exec database redis-cli -n 6 FLUSHDB
+        /usr/bin/docker exec database redis-cli -n 1 FLUSHDB
+
+        # platform specific tasks
+        if [ x$sonic_asic_platform == x'mellanox' ]; then
+            FAST_BOOT=1
+            /usr/bin/mst start
+            /usr/bin/mlnx-fw-upgrade.sh
+            /etc/init.d/sxdkernel start
+            /sbin/modprobe i2c-dev
+            /etc/mlnx/mlnx-hw-management start
+        elif [ x$sonic_asic_platform == x'cavium' ]; then
+            /etc/init.d/xpnet.sh start
+        fi
     fi
 
     # start service docker
     /usr/bin/${SERVICE}.sh start
     debug "Started ${SERVICE} service..."
 
-    # Unlock has to happen before reaching out to peer service
     unlock_service_state_change
-
-    if [[ x"$WARM_BOOT" != x"true" ]]; then
-        /bin/systemctl start ${PEER}
-    fi
     /usr/bin/${SERVICE}.sh attach
 }
 
 stop() {
     debug "Stopping ${SERVICE} service..."
-
-    [[ -f ${LOCKFILE} ]] || /usr/bin/touch ${LOCKFILE}
 
     lock_service_state_change
     check_warm_boot
@@ -106,13 +96,20 @@ stop() {
     /usr/bin/${SERVICE}.sh stop
     debug "Stopped ${SERVICE} service..."
 
-    # Unlock has to happen before reaching out to peer service
-    unlock_service_state_change
-
-    # if warm start enabled or peer lock exists, don't stop peer service docker
+    # if warm start enabled, don't stop peer service docker
     if [[ x"$WARM_BOOT" != x"true" ]]; then
-        /bin/systemctl stop ${PEER}
+        # platform specific tasks
+        if [ x$sonic_asic_platform == x'mellanox' ]; then
+            /etc/mlnx/mlnx-hw-management stop
+            /etc/init.d/sxdkernel stop
+            /usr/bin/mst stop
+        elif [ x$sonic_asic_platform == x'cavium' ]; then
+            /etc/init.d/xpnet.sh stop
+            /etc/init.d/xpnet.sh start
+        fi
     fi
+
+    unlock_service_state_change
 }
 
 case "$1" in

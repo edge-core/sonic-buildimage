@@ -1,5 +1,5 @@
 [Unit]
-Description=switch state service
+Description=syncd service
 Requires=database.service updategraph.service
 {% if sonic_asic_platform == 'broadcom' %}
 Requires=opennsl-modules-4.9.0-7-amd64.service
@@ -8,12 +8,17 @@ Requires=nps-modules-4.9.0-7-amd64.service
 {% endif %}
 After=database.service updategraph.service
 After=interfaces-config.service
+{% if sonic_asic_platform == 'broadcom' %}
+After=opennsl-modules-4.9.0-7-amd64.service
+{% elif sonic_asic_platform == 'nephos' %}
+After=nps-modules-4.9.0-7-amd64.service
+{% endif %}
 
 [Service]
 User=root
 Environment=sonic_asic_platform={{ sonic_asic_platform }}
-ExecStart=/usr/local/bin/swss.sh start
-ExecStop=/usr/local/bin/swss.sh stop
+ExecStart=/usr/local/bin/syncd.sh start
+ExecStop=/usr/local/bin/syncd.sh stop
 
 [Install]
 WantedBy=multi-user.target
