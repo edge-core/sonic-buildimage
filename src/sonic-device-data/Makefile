@@ -12,7 +12,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 
 	# Create a new dir and copy all ONIE-platform-string-named dirs into it
 	mkdir ./device
-	cp -r -H ../../../device/*/* ./device/
+	cp -r -L ../../../device/*/* ./device/
 
 	# Build the package
 	dpkg-buildpackage -rfakeroot -b -us -uc
