@@ -92,6 +92,11 @@ class TestCfgGen(TestCase):
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "{'everflow0': {'src_ip': '10.1.0.32', 'dst_ip': '2.2.2.2'}}")
 
+    def test_minigraph_mgmt_ports(self):
+        argument = '-m "' + self.sample_graph + '" -p "' + self.port_config + '" -v MGMT_PORT'
+        output = self.run_script(argument)
+        self.assertEqual(output.strip(), "{'eth0': {'alias': 'Management0', 'admin_status': 'up'}}")
+
     def test_minigraph_interfaces(self):
         argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v "INTERFACE.keys()"'
         output = self.run_script(argument)

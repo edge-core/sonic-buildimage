@@ -472,7 +472,20 @@ def parse_xml(filename, platform=None, port_config_file=None):
     if mgmt_routes:
         # TODO: differentiate v4 and v6
         mgmt_intf.itervalues().next()['forced_mgmt_routes'] = mgmt_routes
-    results['MGMT_INTERFACE'] = mgmt_intf
+    results['MGMT_PORT'] = {}
+    results['MGMT_INTERFACE'] = {}
+    mgmt_intf_count = 0
+    mgmt_alias_reverse_mapping = {}
+    for key in mgmt_intf:
+        alias = key[0]
+        if mgmt_alias_reverse_mapping.has_key(alias):
+            name = mgmt_alias_reverse_mapping[alias]
+        else:
+            name = 'eth' + str(mgmt_intf_count)
+            mgmt_intf_count += 1
+            mgmt_alias_reverse_mapping[alias] = name
+        results['MGMT_PORT'][name] = {'alias': alias, 'admin_status': 'up'}
+        results['MGMT_INTERFACE'][(name, key[1])] = mgmt_intf[key]
     results['LOOPBACK_INTERFACE'] = lo_intfs
 
     phyport_intfs = {}
