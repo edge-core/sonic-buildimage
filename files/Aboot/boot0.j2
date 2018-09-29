@@ -81,6 +81,7 @@ clean_flash() {
            [ $f != "boot-config" ] &&
            [ $f != "$kernel_params" ] &&
            [ $f != "$cmdline_base" ] &&
+           [ $f != "old_config" ] &&
            [ $f != "minigraph.xml" ]
         then
             rm -rf "$target_path/$f"

@@ -193,6 +193,7 @@ RUN apt-get update && apt-get install -y \
         python-netaddr \
         python-ipaddr \
         python-yaml \
+        python3-yaml \
 # For lockfile
         procmail \
 # For gtest
