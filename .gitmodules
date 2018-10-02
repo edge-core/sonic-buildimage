@@ -46,7 +46,7 @@
 	url = https://github.com/Azure/sonic-platform-daemons
 [submodule "src/sonic-frr/frr"]
 	path = src/sonic-frr/frr
-	url = https://github.com/FRRouting/frr.git
+	url = https://github.com/Azure/sonic-frr.git
 [submodule "platform/p4/p4-hlir/p4-hlir-v1.1"]
 	path = platform/p4/p4-hlir/p4-hlir-v1.1
 	url = https://github.com/p4lang/p4-hlir.git

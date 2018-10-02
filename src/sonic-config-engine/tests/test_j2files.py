@@ -64,17 +64,23 @@ class TestJ2Files(TestCase):
         self.run_script(argument)
         self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', 'lldpd.conf'), self.output_file))
 
-    def test_bgpd(self):
+    def test_bgpd_quagga(self):
         conf_template = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-fpm-quagga', 'bgpd.conf.j2')
         argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -t ' + conf_template + ' > ' + self.output_file
         self.run_script(argument)
-        self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', 'bgpd.conf'), self.output_file))
+        self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', 'bgpd_quagga.conf'), self.output_file))
 
-    def test_zebra(self):
+    def test_zebra_quagga(self):
         conf_template = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-fpm-quagga', 'zebra.conf.j2')
         argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -t ' + conf_template + ' > ' + self.output_file
         self.run_script(argument)
-        self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', 'zebra.conf'), self.output_file))
+        self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', 'zebra_quagga.conf'), self.output_file))
+
+    def test_config_frr(self):
+        conf_template = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-fpm-frr', 'frr.conf.j2')
+        argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -t ' + conf_template + ' > ' + self.output_file
+        self.run_script(argument)
+        self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', 'frr.conf'), self.output_file))
 
     def test_teamd(self):
 

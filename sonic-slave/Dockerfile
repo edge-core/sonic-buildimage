@@ -63,6 +63,7 @@ RUN apt-get update && apt-get install -y \
         libjson0-dev \
         libsystemd-dev \
         python-ipaddr \
+        install-info \
 # For libnl3 (local) build
         cdbs \
 # For SAI meta build

@@ -33,7 +33,8 @@ RUN rm -rf /debs ~/.cache
 COPY ["*.j2", "/usr/share/sonic/templates/"]
 COPY ["start.sh", "config.sh", "/usr/bin/"]
 COPY ["daemons", "/etc/frr/"]
-COPY ["debian.conf", "/etc/frr/"]
+COPY ["daemons.conf", "/etc/frr/"]
+COPY ["vtysh.conf", "/etc/frr/"]
 
 ENTRYPOINT /usr/bin/config.sh   \
         && /usr/bin/start.sh    \
