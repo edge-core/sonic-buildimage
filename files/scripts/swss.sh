@@ -38,12 +38,12 @@ function check_warm_boot()
     fi
 }
 
-function validate_restart_count()
+function validate_restore_count()
 {
     if [[ x"$WARM_BOOT" == x"true" ]]; then
-        RESTART_COUNT=`/usr/bin/redis-cli -n 6 hget "WARM_RESTART_TABLE|orchagent" restart_count`
+        RESTORE_COUNT=`/usr/bin/redis-cli -n 6 hget "WARM_RESTART_TABLE|orchagent" restore_count`
         # We have to make sure db data has not been flushed.
-        if [[ -z "$RESTART_COUNT" ]]; then
+        if [[ -z "$RESTORE_COUNT" ]]; then
             WARM_BOOT="false"
         fi
     fi
@@ -69,7 +69,7 @@ start() {
 
     wait_for_database_service
     check_warm_boot
-    validate_restart_count
+    validate_restore_count
 
     debug "Warm boot flag: ${SERVICE} ${WARM_BOOT}."
 

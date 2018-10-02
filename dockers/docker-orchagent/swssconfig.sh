@@ -47,8 +47,8 @@ SYSTEM_WARM_START=`redis-cli -n 4 hget "WARM_RESTART|system" enable`
 SWSS_WARM_START=`redis-cli -n 4 hget "WARM_RESTART|swss" enable`
 if [[ "$SYSTEM_WARM_START" == "true" ]] || [[ "$SWSS_WARM_START" == "true" ]]; then
   # We have to make sure db data has not been flushed.
-  RESTART_COUNT=`redis-cli -n 6 hget "WARM_RESTART_TABLE|orchagent" restart_count`
-  if [[ -n "$RESTART_COUNT" ]] && [[ "$RESTART_COUNT" != "0" ]]; then
+  RESTORE_COUNT=`redis-cli -n 6 hget "WARM_RESTART_TABLE|orchagent" restore_count`
+  if [[ -n "$RESTORE_COUNT" ]] && [[ "$RESTORE_COUNT" != "0" ]]; then
     exit 0
   fi
 fi
