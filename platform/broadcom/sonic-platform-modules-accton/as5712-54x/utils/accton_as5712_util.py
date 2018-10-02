@@ -14,7 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 """
 Usage: %(scriptName)s [options] command object
 
@@ -36,6 +35,7 @@ import sys, getopt
 import logging
 import re
 import time
+import pickle
 from collections import namedtuple
 
 PROJECT_NAME = 'as5712_54x'
@@ -62,7 +62,7 @@ hwmon_nodes = {'led': ['brightness'] ,
                'fan3': ['fan3_duty_cycle_percentage','fan3_fault', 'fan3_speed_rpm', 'fan3_direction', 'fanr3_fault', 'fanr3_speed_rpm'],
                'fan4': ['fan4_duty_cycle_percentage','fan4_fault', 'fan4_speed_rpm', 'fan4_direction', 'fanr4_fault', 'fanr4_speed_rpm'],
                'fan5': ['fan5_duty_cycle_percentage','fan5_fault', 'fan5_speed_rpm', 'fan5_direction', 'fanr5_fault', 'fanr5_speed_rpm'],
-	      }
+              }
 hwmon_prefix ={'led': led_prefix,
                'fan1': fan_prefix,
                'fan2': fan_prefix,
@@ -80,12 +80,19 @@ i2c_nodes = {
            'psu': ['psu_present ', 'psu_power_good']    ,
            'sfp': ['sfp_is_present ', 'sfp_tx_disable']}
 
+QSFP_START = 48
+I2C_BUS_ORDER = -1
+
 sfp_map =  [2, 3, 4, 5, 6, 7, 8, 9, 10,
             11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
             21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
             31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
             41, 42, 43, 44, 45, 46, 47, 48, 49,
             50, 52, 54, 51, 53, 55]
+
+port_cpld_path = [ "/sys/bus/i2c/devices/0-0061/"
+                  ,'/sys/bus/i2c/devices/0-0062/']
+
 mknod =[
 'echo as5712_54x_cpld1 0x60 > /sys/bus/i2c/devices/i2c-0/new_device',
 'echo as5712_54x_cpld2 0x61 > /sys/bus/i2c/devices/i2c-0/new_device',
@@ -131,7 +138,7 @@ mknod2 =[
 'echo lm75 0x4a > /sys/bus/i2c/devices/i2c-63/new_device',
 
 #EERPOM
-'echo 24c02 0x57 > /sys/bus/i2c/devices/i2c-1/new_device',
+'echo 24c02 0x57 > /sys/bus/i2c/devices/i2c-0/new_device',
 ]
 
 FORCE = 0
@@ -207,7 +214,7 @@ def  show_set_help():
     print  cmd +" [led|sfp|fan]"
     print  "    use \""+ cmd + " led 0-4 \"  to set led color"
     print  "    use \""+ cmd + " fan 0-100\" to set fan duty percetage"
-    print  "    use \""+ cmd + " sfp 1-54 {0|1}\" to set sfp# tx_disable"
+    print  "    use \""+ cmd + " sfp 1-48 {0|1}\" to set sfp# tx_disable"
     sys.exit(0)
 
 def  show_eeprom_help():
@@ -289,10 +296,28 @@ def i2c_order_check():
     status, output = log_os_system(tmp, 0)
     return order
 
+def update_i2c_order():
+    global I2C_BUS_ORDER
+   
+    order = i2c_order_check()
+    pickle.dump(order, open("/tmp/accton_util.p", "wb"))  # save it
+    I2C_BUS_ORDER = order
+    print "[%s]Detected I2C_BUS_ORDER:%d" % (os.path.basename(__file__), I2C_BUS_ORDER)
+
+def get_i2c_order():
+    global I2C_BUS_ORDER
+    if I2C_BUS_ORDER < 0:
+        if os.path.exists("/tmp/accton_util.p"):
+            I2C_BUS_ORDER = pickle.load(open("/tmp/accton_util.p", "rb"))
+        else:
+            update_i2c_order()
+
 def device_install():
     global FORCE
+    global I2C_BUS_ORDER
 
-    order = i2c_order_check()
+    update_i2c_order()
+    order = I2C_BUS_ORDER
     # if 0x76 is not exist @i2c-0, use reversed bus order
     if order:
         for i in range(0,len(mknod2)):
@@ -318,7 +343,10 @@ def device_install():
                     return status
          
     for i in range(0,len(sfp_map)):
-        status, output =log_os_system("echo optoe1 0x50 > /sys/bus/i2c/devices/i2c-"+str(sfp_map[i])+"/new_device", 1)
+        if i < QSFP_START:
+            status, output =log_os_system("echo optoe2 0x50 > /sys/bus/i2c/devices/i2c-"+str(sfp_map[i])+"/new_device", 1)
+        else:
+            status, output =log_os_system("echo optoe1 0x50 > /sys/bus/i2c/devices/i2c-"+str(sfp_map[i])+"/new_device", 1)
         if status:
             print output
             if FORCE == 0:
@@ -333,13 +361,10 @@ def device_install():
 
 def device_uninstall():
     global FORCE
+    global I2C_BUS_ORDER
 
-    status, output =log_os_system("ls /sys/bus/i2c/devices/0-0070", 0)
-    if status==0:
-        I2C_ORDER=1
-    else:
-    	I2C_ORDER=0
-
+    get_i2c_order()
+    order = I2C_BUS_ORDER
     for i in range(0,len(sfp_map)):
         target = "/sys/bus/i2c/devices/i2c-"+str(sfp_map[i])+"/delete_device"
         status, output =log_os_system("echo 0x50 > "+ target, 1)
@@ -348,7 +373,7 @@ def device_uninstall():
             if FORCE == 0:
                 return status
 
-    if I2C_ORDER==0:
+    if order == 0:
         nodelist = mknod
     else:
         nodelist = mknod2
@@ -476,7 +501,7 @@ def show_eeprom(index):
     if len(ALL_DEVICE)==0:
         devices_info()
     node = ALL_DEVICE['sfp'] ['sfp'+str(index)][0]
-    node = node.replace(node.split("/")[-1], 'sfp_eeprom')
+    node = node.replace(node.split("/")[-1], 'eeprom')
     # check if got hexdump command in current environment
     ret, log = log_os_system("which hexdump", 0)
     ret, log2 = log_os_system("which busybox hexdump", 0)
@@ -497,6 +522,43 @@ def show_eeprom(index):
     else:
         print "**********device no found**********"
     return
+
+
+def get_cpld_path(index):
+    global I2C_BUS_ORDER
+
+    if I2C_BUS_ORDER < 0:
+       get_i2c_order()
+
+    if I2C_BUS_ORDER !=0 :
+        return port_cpld_path[index].replace("0-", "1-")
+    else:
+        return port_cpld_path[index]
+
+def cpld_path_of_port(port_index):
+    if port_index < 1 and port_index > DEVICE_NO['sfp']:
+        return None 
+    if port_index < 25:
+        return get_cpld_path(0)
+    else:
+        return get_cpld_path(1)
+
+def get_path_sfp_tx_dis(port_index):
+    cpld_p = cpld_path_of_port(port_index)
+    if cpld_p == None:
+        return False, ''
+    else:
+        dev = cpld_p+"module_tx_disable_"+str(port_index)
+        return True, dev  
+
+def get_path_sfp_presence(port_index):
+    cpld_p = cpld_path_of_port(port_index)
+    if cpld_p == None:
+        return False, ''
+    else:
+        dev = cpld_p+"module_present_"+str(port_index)
+        return True, dev  
+
 
 def set_device(args):
     global DEVICE_NO
@@ -535,7 +597,9 @@ def set_device(args):
             print ("Current fan duty: " + args[1] +"%")
         return ret
     elif args[0]=='sfp':
-        if int(args[1])> DEVICE_NO[args[0]] or int(args[1])==0:
+        #if int(args[1])> DEVICE_NO[args[0]] or int(args[1])==0:
+        #There no tx_disable for QSFP port
+        if int(args[1]) > QSFP_START or int(args[1])==0:
             show_set_help()
             return
         if len(args)<2:
@@ -546,14 +610,13 @@ def set_device(args):
             show_set_help()
             return
 
-        #print  ALL_DEVICE[args[0]]
-        for i in range(0,len(ALL_DEVICE[args[0]])):
-            for j in ALL_DEVICE[args[0]][args[0]+str(args[1])]:
-                if j.find('tx_disable')!= -1:
-                    ret, log = log_os_system("echo "+args[2]+" >"+ j, 1)
-                    if ret:
-                        return ret
-
+        port_index = int(args[1])
+        ret, dev = get_path_sfp_tx_dis(port_index)
+        if ret == False:
+            return False
+        else:
+            ret, log = log_os_system("echo "+args[2]+" >"+ dev, 1)
+            return ret
     return
 
 #get digits inside a string.
@@ -562,6 +625,16 @@ def get_value(input):
     digit = re.findall('\d+', input)
     return int(digit[0])
 
+def print_1_device_traversal(i, j, k):
+    ret, log = log_os_system("cat "+k, 0)
+    func = k.split("/")[-1].strip()
+    func = re.sub(j+'_','',func,1)
+    func = re.sub(i.lower()+'_','',func,1)
+    if ret==0:
+        return func+"="+log+" "
+    else:
+        return func+"="+"X"+" "
+ 
 def device_traversal():
     if system_ready()==False:
         print("System's not ready.")
@@ -577,15 +650,26 @@ def device_traversal():
 
         for j in sorted(ALL_DEVICE[i].keys(), key=get_value):
             print "   "+j+":",
-            for k in (ALL_DEVICE[i][j]):
-                ret, log = log_os_system("cat "+k, 0)
-                func = k.split("/")[-1].strip()
-                func = re.sub(j+'_','',func,1)
-                func = re.sub(i.lower()+'_','',func,1)
-                if ret==0:
-                    print func+"="+log+" ",
-                else:
-                    print func+"="+"X"+" ",
+            if i == 'sfp':
+                port_index = int(filter(str.isdigit,  j))
+                for k in (ALL_DEVICE[i][j]):
+                    if k.find('tx_disable')!= -1:
+                        ret, k = get_path_sfp_tx_dis(port_index)
+                        if ret == False:
+                            continue
+                        log = print_1_device_traversal(i, j, k)
+                        print log, 
+                    if k.find('present')!= -1:
+                        ret, k = get_path_sfp_presence(port_index)
+                        if ret == False:
+                            continue
+                        log = print_1_device_traversal(i, j, k)
+                        print log, 
+                     
+            else:
+                for k in (ALL_DEVICE[i][j]):
+                    log = print_1_device_traversal(i, j, k)
+                    print log, 
             print
             print("----------------------------------------------------------------")
 
