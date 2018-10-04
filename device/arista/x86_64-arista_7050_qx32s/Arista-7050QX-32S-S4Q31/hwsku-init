@@ -1,1 +1,52 @@
-echo 1 > /sys/devices/pci0000:00/0000:00:02.2/0000:02:00.0/mux
+#!/usr/bin/python
+from __future__ import print_function
+
+import mmap
+import os
+import sys
+from struct import pack, unpack
+
+class MmapResource( object ):
+   """Resource implementation for a directly-mapped memory region."""
+   def __init__( self, path ):
+      try:
+         fd = os.open( path, os.O_RDWR )
+      except EnvironmentError:
+         print( "FAIL can not open scd memory-map resource file" )
+         print( "FAIL are you running on the proper platform?" )
+         sys.exit( 1 )
+      try:
+         size = os.fstat( fd ).st_size
+      except EnvironmentError:
+         print( "FAIL can not fstat scd memory-map resource file" )
+         print( "FAIL are you running on the proper platform?" )
+         sys.exit( 1 )
+      try:
+         self.mmap_ = mmap.mmap( fd, size, mmap.MAP_SHARED,
+                                 mmap.PROT_READ | mmap.PROT_WRITE )
+      except EnvironmentError:
+         print( "FAIL can not map scd memory-map file" )
+         print( "FAIL are you running on the proper platform?" )
+         sys.exit( 1 )
+      finally:
+         try:
+            # Note that closing the file descriptor has no effect on the memory map
+            os.close( fd )
+         except EnvironmentError:
+            print( "FAIL failed to close scd memory-map file" )
+            sys.exit( 1 )
+   def read32( self, addr ):
+      return unpack( '<L', self.mmap_[ addr : addr + 4 ] )[ 0 ]
+   def write32( self, addr, value ):
+      self.mmap_[ addr: addr + 4 ] = pack( '<L', value )
+
+m = MmapResource( '/sys/bus/pci/devices/0000:02:00.0/resource0' )
+for addr in range( 0x5210, 0x5250, 0x10 ):
+    v = m.read32( addr )
+    m.write32( addr, v & ~( 1 << 6 ) )
+    print( "orig=%04x new=%04x" % ( v, m.read32( addr ) ) )
+
+with open( "/sys/devices/pci0000:00/0000:00:02.2/0000:02:00.0/mux_sfp_qsfp/direction", "w" ) as fdir:
+    fdir.write( "out" )
+with open( "/sys/devices/pci0000:00/0000:00:02.2/0000:02:00.0/mux_sfp_qsfp/value", "w" ) as fval:
+    fval.write( "1" )
