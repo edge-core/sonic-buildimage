@@ -11,9 +11,9 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 
 	# clean up the previous build
 	rm -rf debian
-	rm frr*.tar.gz
-	rm frr*.tar.xz
-	rm frr*.dsc
+	rm -f frr*.tar.gz
+	rm -f frr*.tar.xz
+	rm -f frr*.dsc
 
 	# make a dist tarball
 	./bootstrap.sh
