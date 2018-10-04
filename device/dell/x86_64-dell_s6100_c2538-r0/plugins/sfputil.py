@@ -15,6 +15,8 @@
 try:
     import time
     import os
+    import logging
+    import select
     from sonic_sfp.sfputilbase import SfpUtilBase
 except ImportError as e:
     raise ImportError("%s - required module not found" % str(e))
