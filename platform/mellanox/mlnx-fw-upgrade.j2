@@ -1,68 +1,143 @@
 #!/bin/bash
 
-fw_required="{{ MLNX_FW_VERSION }}"
-query_retry_count_max="10"
-fw_file=/etc/mlnx/fw-SPC.mfa
+declare -r SCRIPT_NAME="$(basename "$0")"
+declare -r SCRIPT_PATH="$(readlink -f "$0")"
+declare -r SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
 
-run_or_fail() {
-	$1
-	if [[ $? != 0 ]]; then
-		echo $1 failed
-		exit 1
-	fi
+declare -r EXIT_SUCCESS="0"
+declare -r EXIT_ERROR="1"
+
+declare -r QUERY_CMD="mlxfwmanager --query"
+declare -r BURN_CMD="mlxfwmanager -u -f -y"
+
+declare -r FW_FILE="/etc/mlnx/fw-SPC.mfa"
+declare -r QUERY_FILE="/tmp/mlnxfwmanager-query.txt"
+
+declare -r FW_REQUIRED="{{ MLNX_FW_VERSION }}"
+
+IMAGE_UPGRADE="no"
+
+function PrintHelp() {
+    echo
+    echo "Usage: ./${SCRIPT_NAME} [OPTIONS]"
+    echo
+    echo "OPTIONS:"
+    echo "  -u, --upgrade  Upgrade MLNX ASIC firmware using next boot image (useful after SONiC-To-SONiC update)"
+    echo "  -h, --help     Print help"
+    echo
+    echo "Examples:"
+    echo "  ./${SCRIPT_NAME}"
+    echo "  ./${SCRIPT_NAME} --upgrade"
+    echo "  ./${SCRIPT_NAME} --help"
+    echo
 }
 
-# wait until devices will be available
-query_retry_count="0"
-query_cmd="mlxfwmanager --query"
-${query_cmd} > /dev/null
+function ParseArguments() {
+    while [ $# -ge 1 ]; do
+        case "$1" in
+            -u|--upgrade)
+                IMAGE_UPGRADE="yes"
+            ;;
+            -h|--help)
+                PrintHelp
+                exit "${EXIT_SUCCESS}"
+            ;;
+        esac
+        shift
+    done
+}
 
-while [[ (${query_retry_count} -lt ${query_retry_count_max}) && ($? -ne "0") ]]; do
-	sleep 1
-	query_retry_count=$[${query_retry_count}+1]
-	${query_cmd} > /dev/null
-done
+function WaitForDevice() {
+    local -i QUERY_RETRY_COUNT_MAX="10"
+    local -i QUERY_RETRY_COUNT="0"
 
-function upgrade() {
-    if [ ! -z "$1" ]; then
-        fw_file="$1"
-        if [ ! -f "$fw_file" ]; then
-            >&2 echo "No such file: $fw_file"
-            exit 1
+    ${QUERY_CMD} > /dev/null
+
+    while [[ ("${QUERY_RETRY_COUNT}" -lt "${QUERY_RETRY_COUNT_MAX}") && ("$?" -ne "0") ]]; do
+        sleep 1s
+        ((QUERY_RETRY_COUNT++))
+        ${QUERY_CMD} > /dev/null
+    done
+}
+
+function RunCmd() {
+    $1
+    if [[ $? != 0 ]]; then
+        echo "Command failed: cmd=$1, errno=$?"
+        exit "${EXIT_ERROR}"
+    fi
+}
+
+function UpgradeFW() {
+    local _FW_FILE="$1"
+
+    if [ ! -z "${_FW_FILE}" ]; then
+        if [ ! -f "${_FW_FILE}" ]; then
+            echo "No such file: ${_FW_FILE}"
+            exit "${EXIT_ERROR}"
         fi
 
-        run_or_fail "${query_cmd} -i ${fw_file}" > /tmp/mlnxfwmanager-query.txt
+        RunCmd "${QUERY_CMD} -i ${_FW_FILE}" > "${QUERY_FILE}"
 
-        # get current firmware version and available version from $fw_file
-        fw_info=$(grep FW /tmp/mlnxfwmanager-query.txt)
-        fw_current=$(echo $fw_info | cut -f2 -d' ')
-        fw_available=$(echo $fw_info | cut -f3 -d' ')
-
-        fw_required=$fw_available
+        local -r _FW_INFO="$(grep FW ${QUERY_FILE})"
+        local -r _FW_CURRENT="$(echo ${_FW_INFO} | cut -f2 -d' ')"
+        local -r _FW_AVAILABLE="$(echo ${_FW_INFO} | cut -f3 -d' ')"
     else
-        run_or_fail "${query_cmd}" > /tmp/mlnxfwmanager-query.txt
+        RunCmd "${QUERY_CMD}" > "${QUERY_FILE}"
 
-        # get current firmware version and required version
-        fw_info=$(grep FW /tmp/mlnxfwmanager-query.txt)
-        fw_current=$(echo $fw_info | cut -f2 -d' ')
+        local -r _FW_INFO="$(grep FW ${QUERY_FILE})"
+        local -r _FW_CURRENT="$(echo ${_FW_INFO} | cut -f2 -d' ')"
+        local -r _FW_AVAILABLE="${FW_REQUIRED}"
+
+        _FW_FILE="${FW_FILE}"
     fi
-    
-    if [[ -z ${fw_current} ]]; then
-        echo "Could not retreive current FW version."
-        exit 1
+
+    if [[ -z "${_FW_CURRENT}" ]]; then
+        echo "Could not retreive current FW version"
+        exit "${EXIT_ERROR}"
     fi
-    
-    if [[ -z ${fw_required} ]]; then
-        echo "Could not retreive required FW version."
-        exit 1
+
+    if [[ -z "${_FW_AVAILABLE}" ]]; then
+        echo "Could not retreive available FW version"
+        exit "${EXIT_ERROR}"
     fi
-    
-    if [[ ${fw_current} == ${fw_required} ]]; then
-        echo "Mellanox firmware is up to date."
+
+    if [[ "${_FW_CURRENT}" == "${_FW_AVAILABLE}" ]]; then
+        echo "Mellanox firmware is up to date"
     else
-        echo "Mellanox firmware required version is ${fw_required}. Installing compatible version..."
-        run_or_fail "mlxfwmanager -i ${fw_file} -u -f -y"
+        echo "Mellanox firmware upgrade is required. Installing compatible version..."
+        RunCmd "${BURN_CMD} -i ${_FW_FILE}"
     fi
 }
 
-upgrade "$1"
+function UpgradeFWFromImage() {
+    local -r _NEXT_SONIC_IMAGE="$(sonic_installer list | grep "Next: " | cut -f2 -d' ')"
+    local -r _CURRENT_SONIC_IMAGE="$(sonic_installer list | grep "Current: " | cut -f2 -d' ')"
+
+    local -r _FS_PATH="/host/image-${_NEXT_SONIC_IMAGE#SONiC-OS-}/fs.squashfs"
+    local -r _FS_MOUNTPOINT="/tmp/image-${_NEXT_SONIC_IMAGE#SONiC-OS-}-fs"
+
+    if [[ "${_CURRENT_SONIC_IMAGE}" == "${_NEXT_SONIC_IMAGE}" ]]; then
+        echo "Mellanox firmware is up to date"
+    else
+        mkdir -p "${_FS_MOUNTPOINT}"
+        mount -t squashfs "${_FS_PATH}" "${_FS_MOUNTPOINT}"
+
+        UpgradeFW "${_FS_MOUNTPOINT}/etc/mlnx/fw-SPC.mfa"
+
+        umount -rf "${_FS_MOUNTPOINT}"
+        rm -rf "${_FS_MOUNTPOINT}"
+    fi
+}
+
+ParseArguments "$@"
+
+WaitForDevice
+
+if [ "${IMAGE_UPGRADE}" != "yes" ]; then
+    UpgradeFW
+else
+    UpgradeFWFromImage
+fi
+
+exit "${EXIT_SUCCESS}"
