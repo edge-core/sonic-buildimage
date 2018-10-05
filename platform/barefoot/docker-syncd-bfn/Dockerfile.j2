@@ -11,7 +11,7 @@ debs/{{ deb }}{{' '}}
 {%- endfor -%}
 debs/
 
-RUN apt-get install -y libxml2 libpcap-dev libusb-1.0-0-dev libcurl3 libcurl4-gnutls-dev libunwind8-dev
+RUN apt-get install -y libxml2 libpcap-dev libusb-1.0-0-dev libcurl3 libcurl4-gnutls-dev libunwind8-dev libpython3.4
 
 RUN dpkg -i \
 {% for deb in docker_syncd_bfn_debs.split(' ') -%}
