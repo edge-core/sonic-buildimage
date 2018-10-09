@@ -102,6 +102,9 @@ sudo dpkg --root=$FILESYSTEM_ROOT -i target/debs/python-click*_all.deb || \
 # using pip install instead to get a more recent version than is available through debian
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install pexpect
 
+# Install tabulate >= 0.8.1 via pip in order to support multi-line row output for sonic-utilities
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install tabulate==0.8.2
+
 # Install SONiC Utilities (and its dependencies via 'apt-get -y install -f')
 sudo dpkg --root=$FILESYSTEM_ROOT -i target/debs/python-sonic-utilities_*.deb || \
     sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
