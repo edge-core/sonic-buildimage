@@ -74,7 +74,6 @@ start() {
             /usr/bin/mlnx-fw-upgrade.sh
             /etc/init.d/sxdkernel start
             /sbin/modprobe i2c-dev
-            /etc/mlnx/mlnx-hw-management start
         elif [ x$sonic_asic_platform == x'cavium' ]; then
             /etc/init.d/xpnet.sh start
         fi
@@ -115,7 +114,6 @@ stop() {
     if [[ x"$WARM_BOOT" != x"true" ]]; then
         # platform specific tasks
         if [ x$sonic_asic_platform == x'mellanox' ]; then
-            /etc/mlnx/mlnx-hw-management stop
             /etc/init.d/sxdkernel stop
             /usr/bin/mst stop
         elif [ x$sonic_asic_platform == x'cavium' ]; then
