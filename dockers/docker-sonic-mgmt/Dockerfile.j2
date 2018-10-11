@@ -48,8 +48,8 @@ RUN pip install ipaddr \
                 paramiko==2.1.2
 
 # Install Microsoft Azure Kusto Library for Python
-RUN pip install azure-kusto-data \
-                azure-kusto-ingest
+RUN pip install azure-kusto-data==0.0.13 \
+                azure-kusto-ingest==0.0.13
 
 ## Copy and install sonic-mgmt docker dependencies
 COPY \
