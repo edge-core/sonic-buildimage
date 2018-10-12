@@ -12,8 +12,6 @@ lpm_ipv6_128b_reserved=0
 parity_correction=1
 parity_enable=1
 
-scache_filename=/tmp/scach
-
 #PIPE0
 portmap_1=17:25
 portmap_2=18:25

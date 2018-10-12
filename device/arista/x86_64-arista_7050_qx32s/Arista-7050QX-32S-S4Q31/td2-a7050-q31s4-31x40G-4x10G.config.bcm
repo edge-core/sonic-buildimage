@@ -210,7 +210,6 @@ portmap_101.0=117:40
 portmap_102.0=113:40
 portmap_103.0=1:40
 portmap_104.0=5:40
-scache_filename=/tmp/scache
 schan_intr_enable=0
 serdes_firmware_mode_1.0=2
 serdes_firmware_mode_5.0=2

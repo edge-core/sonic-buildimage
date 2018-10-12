@@ -18,8 +18,6 @@ ipv6_lpm_128b_enable=1
 parity_correction=1
 parity_enable=1
 
-scache_filename=/tmp/scache
-
 dport_map_enable=1
 
 dport_map_enable=1

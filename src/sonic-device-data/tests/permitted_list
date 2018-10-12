@@ -109,7 +109,6 @@ rate_ext_mdio_divisor
 robust_hash_disable_egress_vlan
 robust_hash_disable_mpls
 robust_hash_disable_vlan
-scache_filename
 schan_intr_enable
 schan_timeout_usec
 serdes_automed

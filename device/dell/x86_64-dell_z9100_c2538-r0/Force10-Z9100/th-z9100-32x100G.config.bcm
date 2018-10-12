@@ -13,8 +13,6 @@ os=unix
 parity_correction=1
 parity_enable=1
 
-scache_filename=/tmp/scache
-
 #Port configuration
 portmap_38=49:100
 portmap_39=53:100

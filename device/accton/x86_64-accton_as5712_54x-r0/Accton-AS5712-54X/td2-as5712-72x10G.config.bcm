@@ -142,4 +142,3 @@ l3_max_ecmp_mode=1
 max_vp_lags=0
 
 stable_size=0x2000000
-scache_filename=/tmp/scache

@@ -44,7 +44,6 @@ max_vp_lags=0
 miim_intr_enable=0
 mmu_lossless=0
 module_64ports=0
-scache_filename=/tmp/scache
 schan_intr_enable=0
 stable_size=0x2000000
 tdma_timeout_usec=5000000

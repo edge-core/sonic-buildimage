@@ -2,7 +2,6 @@
 os=unix
 
 module_64ports=0
-scache_filename=/tmp/scache
 schan_intr_enable=0
 stable_size=0x2000000
 

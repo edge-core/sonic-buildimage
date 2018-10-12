@@ -18,8 +18,6 @@ mmu_lossless=0
 parity_correction=1
 parity_enable=1
 
-scache_filename=/tmp/scach
-
 #PIPE0
 portmap_1=5:100
 portmap_2=1:100
