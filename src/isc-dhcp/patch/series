@@ -3,3 +3,7 @@
 0002-Support-for-obtaining-name-of-physical-interface-tha.patch
 0003-Support-for-loading-port-alias-map-file-to-replace-p.patch
 0004-Bugfix-Don-t-print-log-messages-to-stderr-in-release.patch
+0005-CVE-2017-3144.patch
+0006-CVE-2018-5733.patch
+0007-CVE-2018-5732.patch 
+
