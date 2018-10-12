@@ -15,6 +15,9 @@ REDIS_HOSTNAME = "localhost"
 REDIS_PORT = 6379
 REDIS_TIMEOUT_USECS = 0
 
+# parameters for SFP presence
+SFP_STATUS_INSERTED = '1'
+
 class SfpUtil(SfpUtilBase):
     """Platform-specific SfpUtil class"""
     PORT_START = 0
@@ -71,7 +74,7 @@ class SfpUtil(SfpUtilBase):
         content = reg_file.readline().rstrip()
 
         # content is a string with the qsfp status
-        if content == "good":
+        if content == SFP_STATUS_INSERTED:
             return True
 
         return False
