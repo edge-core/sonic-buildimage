@@ -70,6 +70,10 @@ ifeq ($(SONIC_ENABLE_SYSTEM_TELEMETRY),y)
 ENABLE_SYSTEM_TELEMETRY = y
 endif
 
+ifeq ($(SONIC_ENABLE_SYNCD_RPC),y)
+ENABLE_SYNCD_RPC = y
+endif
+
 include $(RULES_PATH)/config
 include $(RULES_PATH)/functions
 include $(RULES_PATH)/*.mk
