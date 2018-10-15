@@ -1,16 +1,68 @@
-{# only IPv4 decapsulation is supported #}
+{% set ipv4_addresses = [] %}
+{% set ipv6_addresses = [] %}
 {% set ipv4_loopback_addresses = [] %}
+{% set ipv6_loopback_addresses = [] %}
 {% for (name, prefix) in LOOPBACK_INTERFACE %}
     {%- if prefix | ipv4 and name == 'Loopback0' %}
+        {%- set ipv4_addresses = ipv4_addresses.append(prefix) %}
         {%- set ipv4_loopback_addresses = ipv4_loopback_addresses.append(prefix) %}
+    {%- endif %}
+    {%- if prefix | ipv6 and name == 'Loopback0' %}
+        {%- set ipv6_addresses = ipv6_addresses.append(prefix) %}
+        {%- set ipv6_loopback_addresses = ipv6_loopback_addresses.append(prefix) %}
+    {%- endif %}
+{% endfor %}
+{% for (name, prefix) in INTERFACE %}
+    {%- if prefix | ipv4 %}
+        {%- set ipv4_addresses = ipv4_addresses.append(prefix) %}
+    {%- endif %}
+    {%- if prefix | ipv6 %}
+        {%- set ipv6_addresses = ipv6_addresses.append(prefix) %}
+    {%- endif %}
+{% endfor %}
+{% for (name, prefix) in PORTCHANNEL_INTERFACE %}
+    {%- if prefix | ipv4 %}
+        {%- set ipv4_addresses = ipv4_addresses.append(prefix) %}
+    {%- endif %}
+    {%- if prefix | ipv6 %}
+        {%- set ipv6_addresses = ipv6_addresses.append(prefix) %}
+    {%- endif %}
+{% endfor %}
+{% for (name, prefix) in VLAN_INTERFACE %}
+    {%- if prefix | ipv4 %}
+        {%- set ipv4_addresses = ipv4_addresses.append(prefix) %}
+    {%- endif %}
+    {%- if prefix | ipv6 %}
+        {%- set ipv6_addresses = ipv6_addresses.append(prefix) %}
     {%- endif %}
 {% endfor %}
 [
+{% if ipv4_loopback_addresses %}
     {
         "TUNNEL_DECAP_TABLE:IPINIP_TUNNEL" : {
             "tunnel_type":"IPINIP",
             "src_ip":"{{ ipv4_loopback_addresses | first | ip }}",
-            "dst_ip":"{% for prefix in ipv4_loopback_addresses %}{{ prefix | ip }}{% if not loop.last %},{% endif %}{% endfor %}",
+            "dst_ip":"{% for prefix in ipv4_addresses %}{{ prefix | ip }}{% if not loop.last %},{% endif %}{% endfor %}",
+{% if "mlnx" in DEVICE_METADATA.localhost.platform %}
+            "dscp_mode":"uniform",
+            "ecn_mode":"standard",
+{% else %}
+            "dscp_mode":"pipe",
+            "ecn_mode":"copy_from_outer",
+{% endif %}
+            "ttl_mode":"pipe"
+        },
+        "OP": "SET"
+    } 
+{% endif %}
+{% if ipv4_loopback_addresses and ipv6_loopback_addresses %}    ,
+{% endif %}
+{% if ipv6_loopback_addresses %}
+    {
+        "TUNNEL_DECAP_TABLE:IPINIP_V6_TUNNEL" : {
+            "tunnel_type":"IPINIP",
+            "src_ip":"{{ ipv6_loopback_addresses | first | ip }}",
+            "dst_ip":"{% for prefix in ipv6_addresses %}{{ prefix | ip }}{% if not loop.last %},{% endif %}{% endfor %}",
 {% if "mlnx" in DEVICE_METADATA.localhost.platform %}
             "dscp_mode":"uniform",
             "ecn_mode":"standard",
@@ -22,4 +74,5 @@
         },
         "OP": "SET"
     }
+{% endif %}
 ]
