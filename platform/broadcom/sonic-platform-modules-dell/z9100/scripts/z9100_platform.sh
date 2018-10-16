@@ -151,6 +151,11 @@ if [[ "$1" == "init" ]]; then
     switch_board_qsfp_mux "new_device"
     switch_board_sfp "new_device"
     switch_board_qsfp "new_device"
+    value=0x0
+    echo $value > /sys/class/i2c-adapter/i2c-14/14-003e/qsfp_lpmode
+    echo $value > /sys/class/i2c-adapter/i2c-15/15-003e/qsfp_lpmode
+    echo $value > /sys/class/i2c-adapter/i2c-16/16-003e/qsfp_lpmode
+
 elif [[ "$1" == "deinit" ]]; then
     switch_board_sfp "delete_device"
     switch_board_cpld "delete_device"
