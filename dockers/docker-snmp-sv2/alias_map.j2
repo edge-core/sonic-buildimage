@@ -1,5 +1,0 @@
-{
-{% for member in PORT %}
-  "{{member}}": "{{PORT[member]['alias']}}"{% if not loop.last %},{% endif %}
-{% endfor %}
-}
