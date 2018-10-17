@@ -1,4 +1,3 @@
-
 {
     "TC_TO_PRIORITY_GROUP_MAP": {
         "AZURE": {
@@ -38,83 +37,83 @@
     },
     "DSCP_TO_TC_MAP": {
         "AZURE": {
-            "0":"0",
-            "1":"0",
-            "2":"0",
-            "3":"3",
-            "4":"4",
-            "5":"0",
-            "6":"0",
-            "7":"0",
-            "8":"1",
-            "9":"0",
-            "10":"0",
-            "11":"0",
-            "12":"0",
-            "13":"0",
-            "14":"0",
-            "15":"0",
-            "16":"0",
-            "17":"0",
-            "18":"0",
-            "19":"0",
-            "20":"0",
-            "21":"0",
-            "22":"0",
-            "23":"0",
-            "24":"0",
-            "25":"0",
-            "26":"0",
-            "27":"0",
-            "28":"0",
-            "29":"0",
-            "30":"0",
-            "31":"0",
-            "32":"0",
-            "33":"0",
-            "34":"0",
-            "35":"0",
-            "36":"0",
-            "37":"0",
-            "38":"0",
-            "39":"0",
-            "40":"0",
-            "41":"0",
-            "42":"0",
-            "43":"0",
-            "44":"0",
-            "45":"0",
-            "46":"0",
-            "47":"0",
-            "48":"0",
-            "49":"0",
-            "50":"0",
-            "51":"0",
-            "52":"0",
-            "53":"0",
-            "54":"0",
-            "55":"0",
-            "56":"0",
-            "57":"0",
-            "58":"0",
-            "59":"0",
-            "60":"0",
-            "61":"0",
-            "62":"0",
-            "63":"0"
+            "0" : "0",
+            "1" : "0",
+            "2" : "0",
+            "3" : "3",
+            "4" : "4",
+            "5" : "0",
+            "6" : "0",
+            "7" : "0",
+            "8" : "1",
+            "9" : "0",
+            "10": "0",
+            "11": "0",
+            "12": "0",
+            "13": "0",
+            "14": "0",
+            "15": "0",
+            "16": "0",
+            "17": "0",
+            "18": "0",
+            "19": "0",
+            "20": "0",
+            "21": "0",
+            "22": "0",
+            "23": "0",
+            "24": "0",
+            "25": "0",
+            "26": "0",
+            "27": "0",
+            "28": "0",
+            "29": "0",
+            "30": "0",
+            "31": "0",
+            "32": "0",
+            "33": "0",
+            "34": "0",
+            "35": "0",
+            "36": "0",
+            "37": "0",
+            "38": "0",
+            "39": "0",
+            "40": "0",
+            "41": "0",
+            "42": "0",
+            "43": "0",
+            "44": "0",
+            "45": "0",
+            "46": "0",
+            "47": "0",
+            "48": "0",
+            "49": "0",
+            "50": "0",
+            "51": "0",
+            "52": "0",
+            "53": "0",
+            "54": "0",
+            "55": "0",
+            "56": "0",
+            "57": "0",
+            "58": "0",
+            "59": "0",
+            "60": "0",
+            "61": "0",
+            "62": "0",
+            "63": "0"
         }
     },
     "SCHEDULER": {
-        "scheduler.0" : {
-            "type":"DWRR",
+        "scheduler.0": {
+            "type"  : "DWRR",
             "weight": "25"
         },
-        "scheduler.1" : {
-            "type":"DWRR",
+        "scheduler.1": {
+            "type"  : "DWRR",
             "weight": "30"
         },
-        "scheduler.2" : {
-            "type":"DWRR",
+        "scheduler.2": {
+            "type"  : "DWRR",
             "weight": "20"
         }
     },
@@ -124,33 +123,551 @@
             "tc_to_queue_map" : "[TC_TO_QUEUE_MAP|AZURE]",
             "tc_to_pg_map"    : "[TC_TO_PRIORITY_GROUP_MAP|AZURE]",
             "pfc_to_queue_map": "[MAP_PFC_PRIORITY_TO_QUEUE|AZURE]",
-            "pfc_enable": "3,4"
+            "pfc_enable"      : "3,4"
         }
     },
     "WRED_PROFILE": {
         "AZURE_LOSSLESS" : {
-            "wred_green_enable":"true",
-            "wred_yellow_enable":"true",
-            "wred_red_enable":"true",
-            "ecn":"ecn_all",
-            "red_max_threshold":"312000",
-            "red_min_threshold":"104000",
-            "yellow_max_threshold":"312000",
-            "yellow_min_threshold":"104000",
-            "green_max_threshold": "312000",
-            "green_min_threshold": "104000"
+            "wred_green_enable"   : "true",
+            "wred_yellow_enable"  : "true",
+            "wred_red_enable"     : "true",
+            "ecn"                 : "ecn_all",
+            "green_max_threshold" : "312000",
+            "green_min_threshold" : "104000",
+            "yellow_max_threshold": "312000",
+            "yellow_min_threshold": "104000",
+            "red_max_threshold"   : "312000",
+            "red_min_threshold"   : "104000"
         }
     },
     "QUEUE": {
-        "Ethernet0,Ethernet1,Ethernet4,Ethernet5,Ethernet6,Ethernet7,Ethernet8,Ethernet9,Ethernet10,Ethernet11,Ethernet12,Ethernet13,Ethernet14,Ethernet15,Ethernet16,Ethernet17,Ethernet20,Ethernet21,Ethernet22,Ethernet23,Ethernet24,Ethernet25,Ethernet26,Ethernet27,Ethernet28,Ethernet29,Ethernet30,Ethernet31,Ethernet32,Ethernet36,Ethernet37,Ethernet38,Ethernet39,Ethernet40,Ethernet41,Ethernet42,Ethernet48,Ethernet52,Ethernet53,Ethernet54,Ethernet55,Ethernet56,Ethernet57,Ethernet58|3-4" : {
-            "scheduler"     :   "[SCHEDULER|scheduler.0]",
-            "wred_profile"  :   "[WRED_PROFILE|AZURE_LOSSLESS]"
+        "Ethernet0|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
         },
-        "Ethernet0,Ethernet1,Ethernet4,Ethernet5,Ethernet6,Ethernet7,Ethernet8,Ethernet9,Ethernet10,Ethernet11,Ethernet12,Ethernet13,Ethernet14,Ethernet15,Ethernet16,Ethernet17,Ethernet20,Ethernet21,Ethernet22,Ethernet23,Ethernet24,Ethernet25,Ethernet26,Ethernet27,Ethernet28,Ethernet29,Ethernet30,Ethernet31,Ethernet32,Ethernet36,Ethernet37,Ethernet38,Ethernet39,Ethernet40,Ethernet41,Ethernet42,Ethernet48,Ethernet52,Ethernet53,Ethernet54,Ethernet55,Ethernet56,Ethernet57,Ethernet58|0" : {
-            "scheduler"     :   "[SCHEDULER|scheduler.1]"
+        "Ethernet1|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
         },
-        "Ethernet0,Ethernet1,Ethernet4,Ethernet5,Ethernet6,Ethernet7,Ethernet8,Ethernet9,Ethernet10,Ethernet11,Ethernet12,Ethernet13,Ethernet14,Ethernet15,Ethernet16,Ethernet17,Ethernet20,Ethernet21,Ethernet22,Ethernet23,Ethernet24,Ethernet25,Ethernet26,Ethernet27,Ethernet28,Ethernet29,Ethernet30,Ethernet31,Ethernet32,Ethernet36,Ethernet37,Ethernet38,Ethernet39,Ethernet40,Ethernet41,Ethernet42,Ethernet48,Ethernet52,Ethernet53,Ethernet54,Ethernet55,Ethernet56,Ethernet57,Ethernet58|1" : {
-            "scheduler"     :   "[SCHEDULER|scheduler.2]"
+        "Ethernet4|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet5|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet6|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet7|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet8|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet9|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet10|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet11|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet12|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet13|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet14|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet15|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet16|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet17|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet20|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet21|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet22|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet23|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet24|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet25|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet26|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet27|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet28|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet29|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet30|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet31|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet32|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet36|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet37|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet38|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet39|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet40|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet41|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet42|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet48|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet52|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet53|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet54|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet55|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet56|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet57|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet58|3": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet0|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet1|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet4|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet5|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet6|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet7|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet8|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet9|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet10|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet11|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet12|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet13|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet14|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet15|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet16|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet17|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet20|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet21|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet22|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet23|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet24|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet25|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet26|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet27|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet28|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet29|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet30|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet31|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet32|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet36|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet37|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet38|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet39|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet40|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet41|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet42|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet48|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet52|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet53|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet54|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet55|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet56|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet57|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet58|4": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+        "Ethernet0|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet1|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet4|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet5|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet6|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet7|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet8|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet9|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet10|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet11|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet12|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet13|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet14|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet15|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet16|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet17|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet20|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet21|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet22|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet23|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet24|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet25|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet26|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet27|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet28|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet29|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet30|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet31|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet32|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet36|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet37|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet38|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet39|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet40|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet41|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet42|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet48|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet52|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet53|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet54|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet55|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet56|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet57|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet58|0": {
+            "scheduler": "[SCHEDULER|scheduler.1]"
+        },
+        "Ethernet0|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet1|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet4|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet5|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet6|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet7|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet8|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet9|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet10|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet11|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet12|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet13|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet14|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet15|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet16|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet17|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet20|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet21|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet22|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet23|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet24|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet25|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet26|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet27|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet28|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet29|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet30|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet31|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet32|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet36|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet37|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet38|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet39|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet40|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet41|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet42|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet48|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet52|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet53|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet54|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet55|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet56|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet57|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
+        },
+        "Ethernet58|1": {
+            "scheduler": "[SCHEDULER|scheduler.2]"
         }
     }
 }

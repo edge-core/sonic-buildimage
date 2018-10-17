@@ -37,6 +37,12 @@ from swsssdk import ConfigDBConnector
 from collections import OrderedDict
 from natsort import natsorted
 
+def sort_by_port_index(value):
+    if not value:
+        return
+    if isinstance(value, list):
+        value.sort(key = lambda k: int(k[8:]))
+
 def is_ipv4(value):
     if not value:
         return False
@@ -224,6 +230,7 @@ def main():
         loader = jinja2.FileSystemLoader(paths)
 
         env = jinja2.Environment(loader=loader, trim_blocks=True)
+        env.filters['sort_by_port_index'] = sort_by_port_index
         env.filters['ipv4'] = is_ipv4
         env.filters['ipv6'] = is_ipv6
         env.filters['unique_name'] = unique_name

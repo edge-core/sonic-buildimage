@@ -124,8 +124,17 @@ class TestJ2Files(TestCase):
         dell_dir_path = os.path.join(self.test_dir, '..', '..', '..', 'device', 'dell', 'x86_64-dell_s6100_c2538-r0', 'Force10-S6100')
         qos_file = os.path.join(dell_dir_path, 'qos.json.j2')
         port_config_ini_file = os.path.join(dell_dir_path, 'port_config.ini')
+
+        # copy qos_config.j2 to the Dell S6100 directory to have all templates in one directory
+        qos_config_file = os.path.join(self.test_dir, '..', '..', '..', 'files', 'build_templates', 'qos_config.j2')
+        shutil.copy2(qos_config_file, dell_dir_path)
+
         argument = '-m ' + self.dell6100_t0_minigraph + ' -p ' + port_config_ini_file + ' -t ' + qos_file + ' > ' + self.output_file
         self.run_script(argument)
+
+        # cleanup
+        qos_config_file_new = os.path.join(dell_dir_path, 'qos_config.j2')
+        os.remove(qos_config_file_new)
 
         sample_output_file = os.path.join(self.test_dir, 'sample_output', 'qos-dell6100.json')
         assert filecmp.cmp(sample_output_file, self.output_file)
