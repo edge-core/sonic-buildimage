@@ -127,10 +127,10 @@ class AaaCfg(object):
         # Add tacplus in nsswitch.conf if TACACS+ enable
         if 'tacacs+' in auth['login']:
             if os.path.isfile(NSS_CONF):
-                os.system("sed -i -e '/tacplus/b' -e '/^passwd/s/compat/& tacplus/' /etc/nsswitch.conf")
+                os.system("sed -i -e '/tacplus/b' -e '/^passwd/s/compat/tacplus &/' /etc/nsswitch.conf")
         else:
             if os.path.isfile(NSS_CONF):
-                os.system("sed -i -e '/^passwd/s/ tacplus//' /etc/nsswitch.conf")
+                os.system("sed -i -e '/^passwd/s/tacplus //' /etc/nsswitch.conf")
 
         # Set tacacs+ server in nss-tacplus conf
         template_file = os.path.abspath(NSS_TACPLUS_CONF_TEMPLATE)
