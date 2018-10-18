@@ -6,7 +6,7 @@ function start_app {
     rm -f /var/run/teamd/*
     if [ "$(ls -A $TEAMD_CONF_PATH)" ]; then
         for f in $TEAMD_CONF_PATH/*; do
-            teamd -f $f -d
+            teamd -f $f -d -r
         done
     fi
     teamsyncd &
