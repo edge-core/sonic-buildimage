@@ -13,7 +13,8 @@ if [ -f /etc/sonic/config_db.json ]; then
 else
     # generate and merge buffers configuration into config file
     sonic-cfggen -t /usr/share/sonic/device/vswitch/buffers.json.j2 > /tmp/buffers.json
-    sonic-cfggen -j /etc/sonic/init_cfg.json -j /tmp/buffers.json --print-data > /etc/sonic/config_db.json
+    sonic-cfggen -p /usr/share/sonic/device/x86_64-dell_s6000_s1220-r0/Force10-S6000/port_config.ini -k Force10-S6000 --print-data > /tmp/ports.json
+    sonic-cfggen -j /etc/sonic/init_cfg.json -j /tmp/buffers.json -j /tmp/ports.json --print-data > /etc/sonic/config_db.json
 fi
 
 mkdir -p /etc/swss/config.d/
