@@ -47,30 +47,4 @@ iface eth0 inet6 static
     down ip -6 route delete 2603:10e2:0:2902::/64 dev eth0 table default
     down ip -6 rule delete from 2603:10e2:0:2902::8/128 table default
 #
-# "|| true" is added to suppress the error when interface is already a member of LAG
-# "ip link show | grep -q master" is added to ensure interface is enslaved
-allow-hotplug fortyGigE0/112
-iface fortyGigE0/112 inet manual
-    pre-up teamdctl PortChannel01 port add fortyGigE0/112 || true
-    post-up ip link show fortyGigE0/112 | grep -q master && ifconfig fortyGigE0/112 up
-    post-down ifconfig fortyGigE0/112 down
-#
-allow-hotplug fortyGigE0/116
-iface fortyGigE0/116 inet manual
-    pre-up teamdctl PortChannel02 port add fortyGigE0/116 || true
-    post-up ip link show fortyGigE0/116 | grep -q master && ifconfig fortyGigE0/116 up
-    post-down ifconfig fortyGigE0/116 down
-#
-allow-hotplug fortyGigE0/120
-iface fortyGigE0/120 inet manual
-    pre-up teamdctl PortChannel03 port add fortyGigE0/120 || true
-    post-up ip link show fortyGigE0/120 | grep -q master && ifconfig fortyGigE0/120 up
-    post-down ifconfig fortyGigE0/120 down
-#
-allow-hotplug fortyGigE0/124
-iface fortyGigE0/124 inet manual
-    pre-up teamdctl PortChannel04 port add fortyGigE0/124 || true
-    post-up ip link show fortyGigE0/124 | grep -q master && ifconfig fortyGigE0/124 up
-    post-down ifconfig fortyGigE0/124 down
-#
 

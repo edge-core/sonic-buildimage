@@ -48,19 +48,3 @@ iface eth0 inet dhcp
 {% endif %}
 #
 {% endblock mgmt_interface %}
-{% block front_panel_interfaces %}
-{% if PORTCHANNEL %}
-# "|| true" is added to suppress the error when interface is already a member of LAG
-# "ip link show | grep -q master" is added to ensure interface is enslaved
-{% for pc in PORTCHANNEL.keys()|sort %}
-{% for member in PORTCHANNEL[pc]['members'] %}
-allow-hotplug {{ member }}
-iface {{ member }} inet manual
-    pre-up teamdctl {{ pc }} port add {{ member }} || true
-    post-up ip link show {{ member }} | grep -q master && ifconfig {{ member }} up
-    post-down ifconfig {{ member }} down
-#
-{% endfor %}
-{% endfor %}
-{% endif %}
-{% endblock front_panel_interfaces %}

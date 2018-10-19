@@ -75,35 +75,6 @@ class TestJ2Files(TestCase):
         self.run_script(argument)
         self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', 'frr.conf'), self.output_file))
 
-    def test_teamd(self):
-
-        def test_render_teamd(self, pc, minigraph, sample_output):
-            teamd_file = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-teamd', 'teamd.j2')
-            argument = '-m ' + minigraph + ' -p ' + self.t0_port_config + ' -a \'{\"pc\":\"' + pc + '\",\"hwaddr\":\"e4:1d:2d:a5:f3:ad\"}\' -t ' + teamd_file + ' > ' + self.output_file
-            self.run_script(argument)
-            self.assertTrue(filecmp.cmp(sample_output, self.output_file))
-
-        # Test T0 minigraph
-        argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -v "PORTCHANNEL.keys() | join(\' \') if PORTCHANNEL"'
-        output = self.run_script(argument) # Mock the output via config.sh in docker-teamd
-        pc_list = output.split()
-
-        for i in range(1, 5):
-            pc_name = 'PortChannel0' + str(i)
-            self.assertTrue(pc_name in pc_list)
-            sample_output = os.path.join(self.test_dir, 'sample_output', 't0_sample_output', pc_name + '.conf')
-            test_render_teamd(self, pc_name, self.t0_minigraph, sample_output)
-
-        # Test port channel test minigraph
-        argument = '-m ' + self.pc_minigraph + ' -p ' + self.t0_port_config + ' -v "PORTCHANNEL.keys() | join(\' \') if PORTCHANNEL"'
-        output = self.run_script(argument) # Mock the output via config.sh in docker-teamd
-        pc_list = output.split()
-
-        pc_name = 'PortChannel01'
-        self.assertTrue(pc_name in pc_list)
-        sample_output = os.path.join(self.test_dir, 'sample_output', 'pc_sample_output', pc_name + '.conf')
-        test_render_teamd(self, pc_name, self.pc_minigraph, sample_output)
-
     def test_ipinip(self):
         ipinip_file = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-orchagent', 'ipinip.json.j2')
         argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -t ' + ipinip_file + ' > ' + self.output_file
