@@ -7,7 +7,7 @@ $(DOCKER_BASE)_DEPENDS += $(LIBWRAP)
 $(DOCKER_BASE)_DEPENDS += $(BASH)
 $(DOCKER_BASE)_DEPENDS += $(SOCAT)
 
-ifeq ($(SONIC_INSTALL_DEBUG_TOOLS),y)
+ifeq ($(INSTALL_DEBUG_TOOLS),y)
 GDB = gdb
 VIM = vim
 OPENSSH = openssh-client

@@ -13,6 +13,13 @@ $(DOCKER_SONIC_VS)_DEPENDS += $(SWSS) \
                               $(SONIC_UTILS) \
                               $(IPROUTE2)
 
+ifeq ($(INSTALL_DEBUG_TOOLS), y)
+$(DOCKER_SONIC_VS)_DEPENDS += $(SWSS_DBG) \
+                              $(LIBSWSSCOMMON_DBG) \
+                              $(LIBSAIREDIS_DBG) \
+                              $(SYNCD_VS_DBG)
+endif
+
 ifeq ($(SONIC_ROUTING_STACK), quagga)
 $(DOCKER_SONIC_VS)_DEPENDS += $(QUAGGA)
 else ifeq ($(SONIC_ROUTING_STACK), frr)
