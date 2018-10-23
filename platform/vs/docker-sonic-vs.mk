@@ -17,6 +17,7 @@ ifeq ($(INSTALL_DEBUG_TOOLS), y)
 $(DOCKER_SONIC_VS)_DEPENDS += $(SWSS_DBG) \
                               $(LIBSWSSCOMMON_DBG) \
                               $(LIBSAIREDIS_DBG) \
+                              $(LIBSAIVS_DBG) \
                               $(SYNCD_VS_DBG)
 endif
 
