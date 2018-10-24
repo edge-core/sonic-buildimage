@@ -58,6 +58,8 @@
 #include <linux/version.h>
 #include <linux/wait.h>
 #include <linux/poll.h>
+#include <linux/dma-mapping.h>
+#include "bf_ioctl.h"
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
   #include <linux/sched/signal.h>
@@ -74,12 +76,18 @@
 #endif
 
 /* TBD: Need to build with CONFIG_PCI_MSI */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 0)
+extern int pci_enable_msi_block(struct pci_dev *dev, unsigned int nvec);
+extern int pci_enable_msix(struct pci_dev *dev, struct msix_entry *entries, int nvec);
+#else
 extern int pci_enable_msi_range(struct pci_dev *dev, int minvec, int maxvec);
 extern int pci_enable_msix_range(struct pci_dev *dev, struct msix_entry *entries, int minvec, int maxvec);
+#endif
 
 #define PCI_VENDOR_ID_BF                0x1d1c
 #define TOFINO_DEV_ID_A0                0x01
 #define TOFINO_DEV_ID_B0                0x10
+#define TOFINO2_DEV_ID_A0               0x0100
 
 #ifndef PCI_MSIX_ENTRY_SIZE
 #define PCI_MSIX_ENTRY_SIZE             16
@@ -671,10 +679,62 @@ static ssize_t bf_write(struct file *filep, const char __user *buf,
   return ret ? ret : sizeof(s32);
 }
 
+static long bf_ioctl(struct file *filep, unsigned int cmd, unsigned long arg)
+{
+  struct bf_listener *listener = filep->private_data;
+  struct bf_pci_dev *bfdev = listener->bfdev;
+  bf_dma_bus_map_t dma_map;
+  void *addr = (void __user *)arg;
+  dma_addr_t dma_hndl;
+
+  if (!bfdev || !addr) {
+    return EFAULT;
+  }
+  switch(cmd) {
+  case BF_IOCMAPDMAADDR:
+    if (access_ok(VERIFY_WRITE, addr, sizeof(bf_dma_bus_map_t))) {
+      if (copy_from_user(&dma_map, addr, sizeof(bf_dma_bus_map_t))) {
+        return EFAULT;
+      }
+      if (!dma_map.phy_addr || !dma_map.size) {
+        return EFAULT;
+      }
+      dma_hndl = dma_map_single(&bfdev->pdev->dev, phys_to_virt(dma_map.phy_addr), dma_map.size, DMA_BIDIRECTIONAL);
+      if (dma_mapping_error(&bfdev->pdev->dev, dma_hndl)) {
+        return EFAULT;
+      }
+      dma_map.dma_addr = (void *)dma_hndl;
+      if (copy_to_user(addr, &dma_map, sizeof(bf_dma_bus_map_t))) {
+        return EFAULT;
+      }
+    } else {
+      return EFAULT;
+    }
+    break;
+  case BF_IOCUNMAPDMAADDR:
+    if (access_ok(VERIFY_READ, addr, sizeof(bf_dma_bus_map_t))) {
+      if (copy_from_user(&dma_map, addr, sizeof(bf_dma_bus_map_t))) {
+        return EFAULT;
+      }
+      if (!dma_map.dma_addr || !dma_map.size) {
+        return EFAULT;
+      }
+      dma_unmap_single(&bfdev->pdev->dev, (dma_addr_t)dma_map.dma_addr, dma_map.size, DMA_BIDIRECTIONAL);
+    } else {
+      return EFAULT;
+    }
+    break;
+  default:
+    return EINVAL;
+  }
+  return 0;
+}
+
 static const struct file_operations bf_fops = {
   .owner          = THIS_MODULE,
   .open           = bf_open,
   .release        = bf_release,
+  .unlocked_ioctl = bf_ioctl,
   .read           = bf_read,
   .write          = bf_write,
   .mmap           = bf_mmap,
@@ -883,11 +943,35 @@ static inline struct device *pci_dev_to_dev(struct pci_dev *pdev)
   return &pdev->dev;
 }
 
+static void bf_disable_int_dma(struct bf_pci_dev *bfdev) {
+  u8 *bf_base_addr, i;
+  u32 *bf_addr;
+  volatile u32 val;
+
+  /* maskinterrupts and DMA */
+  bf_base_addr = (bfdev->info.mem[0].internal_addr);
+  /* return if called before mmap */
+  if (!bf_base_addr) {
+    return;
+  }
+  /* mask interrupt  at shadow level */
+  bf_addr = (u32 *)((u8 *)bf_base_addr + 0xc0);
+  for (i = 0; i < 16; i++) {
+    *bf_addr = 0xffffffff;
+    bf_addr++;
+  }
+  /* mask DMA */
+  bf_addr = (u32 *)((u8 *)bf_base_addr + 0x14);
+  val = *bf_addr;
+  val &= 0xfffffffeUL;
+  *bf_addr = val;
+}
+
 static int
 bf_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 {
   struct bf_pci_dev *bfdev;
-  int err, pci_use_highmem;
+  int err;
   int i, num_irq;
 
   memset(bf_global, 0, sizeof(bf_global));
@@ -933,7 +1017,6 @@ bf_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 
   if (!dma_set_mask(pci_dev_to_dev(pdev), DMA_BIT_MASK(64)) &&
       !dma_set_coherent_mask(pci_dev_to_dev(pdev), DMA_BIT_MASK(64))) {
-    pci_use_highmem = 1;
   } else {
     err = dma_set_mask(pci_dev_to_dev(pdev), DMA_BIT_MASK(32));
     if (err) {
@@ -945,7 +1028,6 @@ bf_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 		    goto fail_release_iomem;
       }
     }
-    pci_use_highmem = 0;
   }
 
   /* enable pci error reporting */
@@ -959,6 +1041,8 @@ bf_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
    * to indicate the error condition.
    */
   pci_enable_pcie_error_reporting(pdev);
+
+  bf_disable_int_dma(bfdev);
 
   /* enable bus mastering on the device */
   pci_set_master(pdev);
@@ -981,6 +1065,19 @@ bf_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
     for (i = 0; i < BF_MSIX_ENTRY_CNT; i++) {
       bfdev->info.msix_entries[i].entry= i;
     }
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 0)
+    num_irq = pci_enable_msix(pdev, bfdev->info.msix_entries,
+                              BF_MSIX_ENTRY_CNT);
+    if (num_irq == 0) {
+	    dev_dbg(&pdev->dev, "using MSI-X");
+      bfdev->info.num_irq = BF_MSIX_ENTRY_CNT;
+		  bfdev->info.irq = bfdev->info.msix_entries[0].vector;
+		  bfdev->mode = BF_INTR_MODE_MSIX;
+      printk(KERN_DEBUG "bf using %d MSIX irq from %ld\n", num_irq,
+             bfdev->info.irq);
+		  break;
+    }
+#else
     num_irq = pci_enable_msix_range(pdev, bfdev->info.msix_entries,
                                     BF_MSIX_ENTRY_CNT, BF_MSIX_ENTRY_CNT);
     if (num_irq == BF_MSIX_ENTRY_CNT) {
@@ -999,8 +1096,22 @@ bf_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
       printk(KERN_ERR "bf error allocating MSIX vectors. Trying MSI...\n");
       /* and, fall back to MSI */
     }
+#endif /* LINUX_VERSION_CODE */
     /* ** intentional no-break */
   case BF_INTR_MODE_MSI:
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 0)
+    num_irq = pci_enable_msi_block(pdev, BF_MSI_ENTRY_CNT);
+    /* we must get requested number of MSI vectors enabled */
+    if (num_irq == 0) {
+      dev_dbg(&pdev->dev, "using MSI");
+      bfdev->info.num_irq = BF_MSI_ENTRY_CNT;
+		  bfdev->info.irq = pdev->irq;
+		  bfdev->mode = BF_INTR_MODE_MSI;
+      printk(KERN_DEBUG "bf using %d MSI irq from %ld\n", bfdev->info.num_irq,
+             bfdev->info.irq);
+      break;
+    }
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(4, 10, 0)
     num_irq = pci_enable_msi_range(pdev, BF_MSI_ENTRY_CNT, BF_MSI_ENTRY_CNT);
     if (num_irq > 0) {
       dev_dbg(&pdev->dev, "using MSI");
@@ -1011,6 +1122,19 @@ bf_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
              bfdev->info.irq);
       break;
     }
+#else
+    num_irq = pci_alloc_irq_vectors_affinity(pdev, BF_MSI_ENTRY_CNT,
+                  BF_MSI_ENTRY_CNT, PCI_IRQ_MSI | PCI_IRQ_AFFINITY, NULL);
+    if (num_irq > 0) {
+      dev_dbg(&pdev->dev, "using MSI");
+      bfdev->info.num_irq = num_irq;
+		  bfdev->info.irq = pci_irq_vector(pdev, 0);
+		  bfdev->mode = BF_INTR_MODE_MSI;
+      printk(KERN_DEBUG "bf using %d MSI irq from %ld\n", bfdev->info.num_irq,
+             bfdev->info.irq);
+      break;
+    }
+#endif /* LINUX_VERSION_CODE */
 #endif /* CONFIG_PCI_MSI */
     /* fall back to Legacy Interrupt, intentional no-break */
 
@@ -1075,12 +1199,14 @@ fail_free:
   return err;
 }
 
+
 static void
 bf_pci_remove(struct pci_dev *pdev)
 {
   struct bf_pci_dev *bfdev = pci_get_drvdata(pdev);
   struct bf_listener *cur_listener;
 
+  bf_disable_int_dma(bfdev);
   bf_unregister_device(bfdev);
   if (bfdev->mode == BF_INTR_MODE_MSIX) {
     pci_disable_msix(pdev);
@@ -1189,9 +1315,10 @@ bf_config_intr_mode(char *intr_str)
     bf_intr_mode_default = BF_INTR_MODE_LEGACY;
     pr_info("Use legacy interrupt\n");
   } else {
-    pr_info("Error: bad parameter - %s\n", intr_str);
-    return -EINVAL;
+    bf_intr_mode_default = BF_INTR_MODE_NONE;
+    pr_info(" No Interrupt \n");
   }
+  
 
   return 0;
 }
@@ -1199,6 +1326,7 @@ bf_config_intr_mode(char *intr_str)
 static const struct pci_device_id bf_pci_tbl[] = {
   {PCI_VDEVICE(BF, TOFINO_DEV_ID_A0), 0},
   {PCI_VDEVICE(BF, TOFINO_DEV_ID_B0), 0},
+  {PCI_VDEVICE(BF, TOFINO2_DEV_ID_A0), 0},
   /* required last entry */
   { .device = 0 }
 };

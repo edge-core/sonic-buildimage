@@ -1,4 +1,10 @@
-platform-modules-bfn-montara (1.0) unstable; urgency=low
+sonic-platform-modules-bfn-montara (1.1) unstable; urgency=low
+
+  * Remove bfn asic kernel modules from platform package
+
+ -- Support <support@barefootnetworks.com>  Mon, 22 Oct 2018 15:40:00 -0800
+
+sonic-platform-modules-bfn-montara (1.0) unstable; urgency=low
 
   * Initial release
 
