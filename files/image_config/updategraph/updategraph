@@ -15,6 +15,7 @@ reload_minigraph()
         acl-loader update full /etc/sonic/acl.json
     fi
     config qos reload
+    pfcwd start_default
 }
 
 copy_default_minigraph()
