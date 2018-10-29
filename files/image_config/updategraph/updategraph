@@ -82,16 +82,8 @@ if [ "$src" = "dhcp" ]; then
         sleep 1
     done
 
-    if [ "`cat /tmp/dhcp_graph_url`" = "default" ]; then
-        echo "No graph_url option in DHCP response. Skipping graph update and using existing minigraph."
-        if [ "$dhcp_as_static" = "true" ]; then
-            sed -i "/enabled=/d" /etc/sonic/updategraph.conf
-            echo "enabled=false" >> /etc/sonic/updategraph.conf
-        fi
-        exit 0
-    fi
     if [ "`cat /tmp/dhcp_graph_url`" = "N/A" ]; then
-        echo "'N/A' found in DHCP response. Skipping graph update and generating an empty configuration."
+        echo "No graph_url option in DHCP response. Skipping graph update and generating an empty configuration."
         PLATFORM=`sonic-cfggen -H -v DEVICE_METADATA.localhost.platform`
         if [ -f /etc/sonic/minigraph.xml ]; then
             sonic-cfggen -H -m /etc/sonic/minigraph.xml --preset empty > /tmp/device_meta.json
