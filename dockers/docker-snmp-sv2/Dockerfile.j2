@@ -58,8 +58,6 @@ RUN rm -rf /debs /python-wheels ~/.cache
 COPY ["start.sh", "/usr/bin/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 COPY ["*.j2", "/usr/share/sonic/templates/"]
-COPY ["snmpd-config-updater", "/usr/bin/snmpd-config-updater"]
-RUN chmod +x /usr/bin/snmpd-config-updater
 
 # Although exposing ports is not needed for host net mode, keep it for possible bridge mode
 EXPOSE 161/udp 162/udp

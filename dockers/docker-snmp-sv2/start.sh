@@ -12,6 +12,5 @@ echo "# Config files managed by sonic-config-engine" > /var/sonic/config_status
 rm -f /var/run/rsyslogd.pid
 
 supervisorctl start rsyslogd
-supervisorctl start snmpd-config-updater
 supervisorctl start snmpd
 supervisorctl start snmp-subagent

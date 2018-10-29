@@ -5,7 +5,7 @@ After=updategraph.service
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/caclmgrd-start.sh
+ExecStart=/usr/bin/caclmgrd
 
 [Install]
 WantedBy=multi-user.target
