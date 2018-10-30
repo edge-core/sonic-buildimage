@@ -542,6 +542,11 @@ def parse_xml(filename, platform=None, port_config_file=None):
         if port[0] in ports:
             ports.get(port[0])['admin_status'] = 'up'
 
+    for member in pc_members.keys() + vlan_members.keys():
+        port = ports.get(member.split(KEY_SEPARATOR)[1])
+        if port:
+            port['admin_status'] = 'up'
+
     results['PORT'] = ports
     results['CONSOLE_PORT'] = console_ports
 
