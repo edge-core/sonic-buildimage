@@ -4,17 +4,18 @@ PAM_TACPLUS_VERSION = 1.4.1-1
 
 export PAM_TACPLUS_VERSION
 
+LIBTAC2 = libtac2_$(PAM_TACPLUS_VERSION)_amd64.deb
+$(LIBTAC2)_SRC_PATH = $(SRC_PATH)/tacacs/pam
+SONIC_MAKE_DEBS += $(LIBTAC2)
+
 LIBPAM_TACPLUS = libpam-tacplus_$(PAM_TACPLUS_VERSION)_amd64.deb
 $(LIBPAM_TACPLUS)_RDEPENDS += $(LIBTAC2)
-$(LIBPAM_TACPLUS)_SRC_PATH = $(SRC_PATH)/tacacs/pam
-SONIC_MAKE_DEBS += $(LIBPAM_TACPLUS)
+$(eval $(call add_extra_package,$(LIBTAC2),$(LIBPAM_TACPLUS)))
 
 LIBTAC_DEV = libtac-dev_$(PAM_TACPLUS_VERSION)_amd64.deb
 $(LIBTAC_DEV)_DEPENDS += $(LIBTAC2)
 $(eval $(call add_derived_package,$(LIBTAC2),$(LIBTAC_DEV)))
 
-LIBTAC2 = libtac2_$(PAM_TACPLUS_VERSION)_amd64.deb
-$(eval $(call add_extra_package,$(LIBPAM_TACPLUS),$(LIBTAC2)))
 
 
 # libnss-tacplus packages
