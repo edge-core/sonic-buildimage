@@ -1,3 +1,4 @@
 0001-SNMP-Stop-spamming-logs-with-statfs-permission-denie.patch
 0002-at.c-properly-check-return-status-from-realloc.-Than.patch
 0003-CHANGES-BUG-2743-snmpd-crashes-when-receiving-a-GetN.patch
+0004-Disable-SNMPv1.patch
