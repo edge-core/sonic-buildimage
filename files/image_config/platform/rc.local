@@ -85,6 +85,19 @@ update_mgmt_interface_macaddr() {
     sed -i "/eth0/ s/ATTR{address}==\"$old_mac\"/ATTR{address}==\"$new_mac\"/g" /etc/udev/rules.d/70-persistent-net.rules
 }
 
+program_console_speed()
+{
+    speed=$(cat /proc/cmdline | grep -Eo 'console=ttyS[0-9]+,[0-9]+' | cut -d "," -f2)
+    if [ -z "$speed" ]; then
+        CONSOLE_SPEED=9600
+    else
+        CONSOLE_SPEED=$speed
+    fi
+
+    sed -i "s|\-\-keep\-baud .* %I| $CONSOLE_SPEED %I|g" /lib/systemd/system/serial-getty@.service
+    systemctl daemon-reload
+}
+
 # If the machine.conf is absent, it indicates that the unit booted
 # into SONiC from another NOS. Extract the machine.conf from ONIE.
 if [ ! -e /host/machine.conf ]; then
@@ -184,6 +197,8 @@ done
 }
 
 eval sonic_version=$(cat /etc/sonic/sonic_version.yml | grep build_version | cut -f2 -d" ")
+
+program_console_speed
 
 if [ -f /host/image-$sonic_version/platform/firsttime ]; then
 
