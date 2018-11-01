@@ -128,6 +128,19 @@ process_reboot_cause() {
     echo "Unexpected reboot" > $REBOOT_CAUSE_FILE
 }
 
+program_console_speed()
+{
+    speed=$(cat /proc/cmdline | grep -Eo 'console=ttyS[0-9]+,[0-9]+' | cut -d "," -f2)
+    if [ -z "$speed" ]; then
+        CONSOLE_SPEED=9600
+    else
+        CONSOLE_SPEED=$speed
+    fi
+
+    sed -i "s|\-\-keep\-baud .* %I| $CONSOLE_SPEED %I|g" /lib/systemd/system/serial-getty@.service
+    systemctl daemon-reload
+}
+
 #### Begin Main Body ####
 
 # Set up previous and next reboot cause files
@@ -208,6 +221,8 @@ if [ ! -e /host/machine.conf ]; then
 fi
 
 . /host/machine.conf
+
+program_console_speed
 
 if [ -f $FIRST_BOOT_FILE ]; then
 
