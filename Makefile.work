@@ -70,6 +70,12 @@ DOCKER_RUN := docker run --rm=true --privileged \
     -e "https_proxy=$(https_proxy)" \
     -i$(if $(TERM),t,)
 
+include rules/config
+
+ifeq ($(SONIC_CONFIG_USE_NATIVE_DOCKERD_FOR_BUILD), y)
+    DOCKER_RUN += -v /var/run/docker.sock:/var/run/docker.sock
+endif
+
 DOCKER_BASE_BUILD = docker build --no-cache \
 		    -t $(SLAVE_BASE_IMAGE) \
 		    --build-arg http_proxy=$(http_proxy) \
