@@ -2,19 +2,56 @@
 
 function getMountPoint()
 {
-    echo $1 |  python -c "import sys, json, os; mnts = [x for x in json.load(sys.stdin)[0]['Mounts'] if x['Destination'] == '/usr/share/sonic/hwsku']; print '' if len(mnts) == 0 else os.path.basename(mnts[0]['Source'])" 2>/dev/null
+    echo $1 | python -c "import sys, json, os; mnts = [x for x in json.load(sys.stdin)[0]['Mounts'] if x['Destination'] == '/usr/share/sonic/hwsku']; print '' if len(mnts) == 0 else os.path.basename(mnts[0]['Source'])" 2>/dev/null
+}
+
+function getBootType()
+{
+    local TYPE
+    case "$(cat /proc/cmdline)" in
+    *SONIC_BOOT_TYPE=fast*)
+        TYPE='fast'
+        ;;
+    *SONIC_BOOT_TYPE=warm*)
+        TYPE='warm'
+        ;;
+    *)
+        TYPE="normal"
+    esac
+    echo $TYPE
 }
 
 function postStartAction()
 {
 {%- if docker_container_name == "database" %}
-    until [[ $(/usr/bin/docker exec database redis-cli ping | grep -c PONG) -gt 0 ]]; do
+    REDIS_SOCK="/var/run/redis/redis.sock"
+    until [[ $(/usr/bin/docker exec database redis-cli -s $REDIS_SOCK ping | grep -c PONG) -gt 0 ]]; do
       sleep 1;
     done
+    WARM_DIR=/host/warmboot
+    SUDO="sudo -n"
+    BOOT_TYPE=`getBootType`
+    if [[ "$BOOT_TYPE" == "warm" && -d $WARM_DIR ]]; then
+        function redisLoadAndDelete()
+        {
+            DB="$1"
+            FILENAME="$2"
+            test -e $FILENAME || { echo "No file $FILENAME" >&2; exit 10; }
+            $SUDO redis-load -s $REDIS_SOCK -d $DB -e EMPTY $FILENAME || { echo "Failed to redis-load $FILENAME" >&2; exit 11; }
+            $SUDO rm $FILENAME || exit 12
+        }
+        # Load applDB from /host/warm-reboot/appl_db.json
+        redisLoadAndDelete 0 $WARM_DIR/appl_db.json
+        # Load configDB from /host/warm-reboot/config_db.json
+        redisLoadAndDelete 4 $WARM_DIR/config_db.json
+        # Load stateDB from /host/warm-reboot/state_db.json
+        redisLoadAndDelete 6 $WARM_DIR/state_db.json
+        # Load asicDB from /host/warm-reboot/asic_db.json
+        redisLoadAndDelete 1 $WARM_DIR/asic_db.json
+    fi
 {%- elif docker_container_name == "swss" %}
     docker exec swss rm -f /ready   # remove cruft
-    if [[ -d /host/fast-reboot ]];
-    then
+    if [[ "$BOOT_TYPE" == "fast" && -d /host/fast-reboot ]]; then
         test -e /host/fast-reboot/fdb.json && docker cp /host/fast-reboot/fdb.json swss:/
         test -e /host/fast-reboot/arp.json && docker cp /host/fast-reboot/arp.json swss:/
         test -e /host/fast-reboot/default_routes.json && docker cp /host/fast-reboot/default_routes.json swss:/
@@ -58,7 +95,7 @@ start() {
             echo "Starting existing {{docker_container_name}} container with HWSKU $HWSKU"
             docker start {{docker_container_name}}
             postStartAction
-            exit 0
+            exit $?
         fi
 
         # docker created with a different HWSKU, remove and recreate
