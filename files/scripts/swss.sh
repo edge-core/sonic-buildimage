@@ -62,6 +62,21 @@ function wait_for_database_service()
     done
 }
 
+# This function cleans up the tables with specific prefixes from the database
+# $1 the index of the database
+# $2 the string of a list of table prefixes
+function clean_up_tables()
+{
+    redis-cli -n $1 EVAL "
+    local tables = {$2}
+    for i = 1, table.getn(tables) do
+        local matches = redis.call('KEYS', tables[i])
+        for j,name in ipairs(matches) do
+            redis.call('DEL', name)
+        end
+    end" 0
+}
+
 start() {
     debug "Starting ${SERVICE} service..."
 
@@ -78,7 +93,7 @@ start() {
         /usr/bin/docker exec database redis-cli -n 0 FLUSHDB
         /usr/bin/docker exec database redis-cli -n 2 FLUSHDB
         /usr/bin/docker exec database redis-cli -n 5 FLUSHDB
-        /usr/bin/docker exec database redis-cli -n 6 FLUSHDB
+        clean_up_tables 6 "'PORT_TABLE*', 'MGMT_PORT_TABLE*', 'VLAN_TABLE*', 'VLAN_MEMBER_TABLE*', 'INTERFACE_TABLE*', 'MIRROR_SESSION*', 'WARM_RESTART_TABLE*'"
     fi
 
     # start service docker
