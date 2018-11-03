@@ -4,34 +4,33 @@ import re
 import json
 
 def test_PortChannel(dvs):
+    appldb = swsscommon.DBConnector(0, dvs.redis_sock, 0)
+    statdb = swsscommon.DBConnector(6, dvs.redis_sock, 0)
 
-    dvs.copy_file("/etc/teamd/", "teamd/files/po01.conf")
-    dvs.runcmd("teamd -f /etc/teamd/po01.conf -d")
-    dvs.runcmd("ifconfig PortChannel0001 up")
-
+    # create the lag
+    dvs.runcmd("config portchannel add PortChannel0001")
     time.sleep(1)
 
-    # test lag table in app db
-    appdb = swsscommon.DBConnector(0, dvs.redis_sock, 0)
-
-    tbl = swsscommon.Table(appdb, "LAG_TABLE")
-
+    # test lag table in appl db
+    tbl = swsscommon.Table(appldb, "LAG_TABLE")
     (status, fvs) = tbl.get("PortChannel0001")
-
-    assert status == True
-
-    # test lag member table in app db
-    tbl = swsscommon.Table(appdb, "LAG_MEMBER_TABLE")
-
-    (status, fvs) = tbl.get("PortChannel0001:Ethernet112")
-
     assert status == True
 
     # test lag table in state db
-    confdb = swsscommon.DBConnector(6, dvs.redis_sock, 0)
-
-    tbl = swsscommon.Table(confdb, "LAG_TABLE")
-
+    tbl = swsscommon.Table(statdb, "LAG_TABLE")
     (status, fvs) = tbl.get("PortChannel0001")
-
     assert status == True
+
+    # create the lag member
+    dvs.runcmd("config portchannel member add PortChannel0001 Ethernet112")
+
+    # test lag member table in appl db
+    tbl = swsscommon.Table(appldb, "LAG_MEMBER_TABLE")
+    (status, fvs) = tbl.get("PortChannel0001:Ethernet112")
+    assert status == True
+
+    # remove the lag member
+    dvs.runcmd("config portchannel member del PortChannel0001 Ethernet112")
+
+    # remove the lag
+    dvs.runcmd("config portchannel del PortChannel0001")
