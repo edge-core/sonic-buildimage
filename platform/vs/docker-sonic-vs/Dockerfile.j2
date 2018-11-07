@@ -42,7 +42,10 @@ RUN apt-get install -y net-tools \
                        python-tabulate \
                        bash-completion \
                        libelf1 \
-                       libmnl0
+                       libmnl0 \
+                       logrotate \
+                       apt-utils \
+                       psmisc
 
 RUN pip install setuptools
 RUN pip install py2_ipaddress
