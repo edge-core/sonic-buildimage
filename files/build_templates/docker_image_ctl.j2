@@ -48,6 +48,8 @@ function postStartAction()
         redisLoadAndDelete 6 $WARM_DIR/state_db.json
         # Load asicDB from /host/warm-reboot/asic_db.json
         redisLoadAndDelete 1 $WARM_DIR/asic_db.json
+        # Load loglevelDB from /host/warm-reboot/loglevel_db.json
+        redisLoadAndDelete 3 $WARM_DIR/loglevel_db.json
     fi
 {%- elif docker_container_name == "swss" %}
     docker exec swss rm -f /ready   # remove cruft
