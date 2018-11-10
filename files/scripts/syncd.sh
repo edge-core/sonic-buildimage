@@ -70,7 +70,7 @@ start() {
 
         # platform specific tasks
         if [ x$sonic_asic_platform == x'mellanox' ]; then
-            FAST_BOOT=1
+            export FAST_BOOT=1
             /usr/bin/mst start
             /usr/bin/mlnx-fw-upgrade.sh
             /etc/init.d/sxdkernel start
