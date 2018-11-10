@@ -19,6 +19,8 @@ supervisorctl start rsyslogd
 
 supervisorctl start orchagent
 
+supervisorctl start restore_neighbors
+
 supervisorctl start portsyncd
 
 supervisorctl start intfsyncd

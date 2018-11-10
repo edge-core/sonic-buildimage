@@ -10,7 +10,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
 
 # Install required packages
-RUN apt-get install -y libdbus-1-3 libdaemon0 libjansson4
+RUN apt-get install -y libdbus-1-3 libdaemon0 libjansson4 libpython2.7
 
 {% if docker_fpm_quagga_debs.strip() -%}
 # Copy locally-built Debian package dependencies
