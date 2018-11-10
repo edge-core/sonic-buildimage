@@ -4,7 +4,7 @@ import re
 import time
 import json
 
-def test_bounce(dvs):
+def test_bounce(dvs, testlog):
     dvs.servers[0].runcmd("pkill -f exabgp")
     dvs.copy_file("/etc/quagga/", "bgp/files/no_export/bgpd.conf")
     dvs.runcmd("supervisorctl start bgpd")

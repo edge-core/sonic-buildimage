@@ -4,7 +4,7 @@ import re
 import time
 import json
 
-def test_InvalidNexthop(dvs):
+def test_InvalidNexthop(dvs, testlog):
 
     dvs.copy_file("/etc/quagga/", "bgp/files/invalid_nexthop/bgpd.conf")
     dvs.runcmd("supervisorctl start bgpd")
