@@ -5,10 +5,10 @@ INSTALL := /usr/bin/install
 all: gobgp gobgpd
 
 gobgpd:
-	go get -v github.com/osrg/gobgp/gobgpd
+	/usr/local/go/bin/go get -v github.com/osrg/gobgp/cmd/gobgpd
 
 gobgp:
-	go get -v github.com/osrg/gobgp/gobgp
+	/usr/local/go/bin/go get -v github.com/osrg/gobgp/cmd/gobgp
 
 install:
 	$(INSTALL) -D ${GOPATH}/bin/gobgp $(DESTDIR)/usr/bin/gobgp
