@@ -96,17 +96,21 @@ stop() {
     debug "Warm boot flag: ${SERVICE} ${WARM_BOOT}."
 
     if [[ x"$WARM_BOOT" == x"true" ]]; then
-        debug "Warm shutdown syncd process ..."
-        /usr/bin/docker exec -i syncd /usr/bin/syncd_request_shutdown --warm
-
-        # wait until syncd quits gracefully
-        while docker top syncd | grep -q /usr/bin/syncd; do
-            sleep 0.1
-        done
-
-        /usr/bin/docker exec -i syncd /bin/sync
-        debug "Finished warm shutdown syncd process ..."
+        TYPE=warm
+    else
+        TYPE=cold
     fi
+
+    debug "${TYPE} shutdown syncd process ..."
+    /usr/bin/docker exec -i syncd /usr/bin/syncd_request_shutdown --${TYPE}
+
+    # wait until syncd quits gracefully
+    while docker top syncd | grep -q /usr/bin/syncd; do
+        sleep 0.1
+    done
+
+    /usr/bin/docker exec -i syncd /bin/sync
+    debug "Finished ${TYPE} shutdown syncd process ..."
 
     /usr/bin/${SERVICE}.sh stop
     debug "Stopped ${SERVICE} service..."
