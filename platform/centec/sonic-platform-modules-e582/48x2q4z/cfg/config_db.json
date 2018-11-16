@@ -264,22 +264,22 @@
         }, 
         "Ethernet51": {
             "alias": "eth-0-51", 
-            "speed": "40000", 
+            "speed": "100000", 
             "mtu": "9100"
         }, 
         "Ethernet52": {
             "alias": "eth-0-52", 
-            "speed": "40000", 
+            "speed": "100000", 
             "mtu": "9100"
         }, 
         "Ethernet53": {
             "alias": "eth-0-53", 
-            "speed": "40000", 
+            "speed": "100000", 
             "mtu": "9100"
         }, 
         "Ethernet54": {
             "alias": "eth-0-54", 
-            "speed": "40000", 
+            "speed": "100000", 
             "mtu": "9100"
         }
     }, 

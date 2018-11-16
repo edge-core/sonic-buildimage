@@ -845,7 +845,7 @@ enum led_brightness e582_48x6q_led_get(struct led_classdev *led_cdev)
     if (ret != 0)
     {
         printk(KERN_CRIT "Error: read %s led attr failed\n", led_cdev->name);
-        return;
+        return 0;
     }
 
     led_value = ((led_value & mask) >> shift);
@@ -1189,7 +1189,8 @@ static ssize_t e582_48x6q_sfp_write_enable(struct device *dev, struct device_att
     ret = e582_48x6q_smbus_write_reg(i2c_sfp_client, dir_bank, 0x0);
     if (ret != 0)
     {
-        return sprintf(buf, "Error: read sfp data:%s set dir-ctl failed\n", attr->attr.name);
+        printk(KERN_CRIT "Error: read sfp data:%s set dir-ctl failed\n", attr->attr.name);
+        return size;
     }
     
     input_bank = (reg_no/8) + 0x8;
@@ -1221,7 +1222,7 @@ static ssize_t e582_48x6q_sfp_write_enable(struct device *dev, struct device_att
 }
 
 static DEVICE_ATTR(sfp_presence, S_IRUGO, e582_48x6q_sfp_read_presence, NULL);
-static DEVICE_ATTR(sfp_enable, S_IRUGO|S_IWUGO, e582_48x6q_sfp_read_enable, e582_48x6q_sfp_write_enable);
+static DEVICE_ATTR(sfp_enable, S_IRUGO|S_IWUSR, e582_48x6q_sfp_read_enable, e582_48x6q_sfp_write_enable);
 static int e582_48x6q_init_sfp(void)
 {
     int ret = 0;

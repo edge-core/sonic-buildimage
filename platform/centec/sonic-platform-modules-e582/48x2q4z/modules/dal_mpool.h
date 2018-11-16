@@ -47,16 +47,16 @@ extern int
 dal_mpool_init(void);
 
 extern dal_mpool_mem_t*
-dal_mpool_create(void* base_ptr, int size);
+dal_mpool_create(unsigned char lchip, void* base_ptr, int size);
 
 extern void*
-dal_mpool_alloc(dal_mpool_mem_t* pool, int size, int type);
+dal_mpool_alloc(unsigned char lchip, dal_mpool_mem_t* pool, int size, int type);
 
 extern void
-dal_mpool_free(dal_mpool_mem_t* pool, void* addr);
+dal_mpool_free(unsigned char lchip, dal_mpool_mem_t* pool, void* addr);
 
 extern int
-dal_mpool_destroy(dal_mpool_mem_t* pool);
+dal_mpool_destroy(unsigned char lchip, dal_mpool_mem_t* pool);
 
 extern int
 dal_mpool_usage(dal_mpool_mem_t* pool, int type);
@@ -68,4 +68,5 @@ dal_mpool_debug(dal_mpool_mem_t* pool);
 #endif
 
 #endif /* !_DMA_MPOOL_H */
+
 

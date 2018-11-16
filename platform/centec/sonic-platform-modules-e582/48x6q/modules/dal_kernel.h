@@ -54,7 +54,7 @@ typedef  unsigned int uintptr;
 #define DAL_ONE_MB (1024*1024)
 struct dal_chip_parm_s
 {
-    unsigned int chip_id;     /*tmp should be uint8*/
+    unsigned int lchip;     /*tmp should be uint8*/
     unsigned int fpga_id;     /*tmp add*/
     unsigned int reg_addr;
     unsigned int value;
@@ -78,7 +78,7 @@ typedef struct dal_irq_mapping_s dal_irq_mapping_t;
 struct dal_user_dev_s
 {
     unsigned int chip_num;   /*output: local chip number*/
-    unsigned int chip_id;       /*input: local chip id*/
+    unsigned int lchip;       /*input: local chip id*/
     unsigned int phy_base0; /* low 32bits physical base address */
     unsigned int phy_base1; /* high 32bits physical base address */
     unsigned int bus_no;
@@ -100,7 +100,7 @@ typedef struct dma_info_s dma_info_t;
 
 struct dal_pci_cfg_ioctl_s
 {
-    unsigned int chip_id;                      /* Device ID */
+    unsigned int lchip;                      /* Device ID */
     unsigned int offset;
     unsigned int value;
 };
@@ -167,4 +167,5 @@ typedef enum dal_version_e dal_version_t;
 #endif
 
 #endif
+
 
