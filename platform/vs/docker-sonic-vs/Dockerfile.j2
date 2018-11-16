@@ -97,4 +97,7 @@ RUN mv /usr/sbin/tcpdump /usr/bin/tcpdump
 RUN echo "docker-sonic-vs" > /etc/hostname
 RUN touch /etc/quagga/zebra.conf
 
+# Create /var/warmboot/teamd folder for teammgrd
+RUN mkdir -p /var/warmboot/teamd
+
 ENTRYPOINT ["/usr/bin/supervisord"]
