@@ -23,6 +23,7 @@ def test_PortChannel(dvs, testlog):
 
     # create the lag member
     dvs.runcmd("config portchannel member add PortChannel0001 Ethernet112")
+    time.sleep(1)
 
     # test lag member table in appl db
     tbl = swsscommon.Table(appldb, "LAG_MEMBER_TABLE")
