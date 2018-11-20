@@ -17,6 +17,7 @@ try:
     import warnings
     import os
     import sys
+    from cStringIO import StringIO
     from sonic_eeprom import eeprom_base
     from sonic_eeprom import eeprom_tlvinfo
     import subprocess
@@ -30,3 +31,11 @@ class board(eeprom_tlvinfo.TlvInfoDecoder):
     def __init__(self, name, path, cpld_root, ro):
         self.eeprom_path = "/bsp/eeprom/vpd_info"
         super(board, self).__init__(self.eeprom_path, 0, '', True)
+
+    def decode_eeprom(self, e):
+        original_stdout = sys.stdout
+        sys.stdout = StringIO()
+        eeprom_tlvinfo.TlvInfoDecoder.decode_eeprom(self, e)
+        decode_output = sys.stdout.getvalue()
+        sys.stdout = original_stdout
+        print(decode_output.replace('\0', ''))
