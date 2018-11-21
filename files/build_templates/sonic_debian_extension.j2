@@ -63,7 +63,7 @@ sudo mkdir -p $FILESYSTEM_ROOT/etc/sonic/
 sudo mkdir -p $FILESYSTEM_ROOT/var/cache/sonic/
 sudo mkdir -p $FILESYSTEM_ROOT_USR_SHARE_SONIC_TEMPLATES/
 
-# Install dependencies for SONiC config engine 
+# Install dependencies for SONiC config engine
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install \
     python-dev     \
     python-lxml    \
@@ -78,7 +78,12 @@ sudo rm -rf $FILESYSTEM_ROOT/$CONFIG_ENGINE_WHEEL_NAME
 
 # Install Python client for Redis
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install "redis==2.10.6"
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install redis-dump-load
+
+# Install redis-dump-load Python 2 package
+REDIS_DUMP_LOAD_PY2_WHEEL_NAME=$(basename {{redis_dump_load_py2_wheel_path}})
+sudo cp {{redis_dump_load_py2_wheel_path}} $FILESYSTEM_ROOT/$REDIS_DUMP_LOAD_PY2_WHEEL_NAME
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install $REDIS_DUMP_LOAD_PY2_WHEEL_NAME
+sudo rm -rf $FILESYSTEM_ROOT/$REDIS_DUMP_LOAD_PY2_WHEEL_NAME
 
 # Install SwSS SDK Python 2 package
 SWSSSDK_PY2_WHEEL_NAME=$(basename {{swsssdk_py2_wheel_path}})
@@ -292,9 +297,9 @@ sudo LANG=C cp $SCRIPTS_DIR/syncd.sh $FILESYSTEM_ROOT/usr/local/bin/syncd.sh
 sudo cp $BUILD_TEMPLATES/snmp.timer $FILESYSTEM_ROOT/etc/systemd/system/
 sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable snmp.timer
 
-sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get remove -y python-dev 
+sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get remove -y python-dev
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get clean -y
-sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get autoremove -y 
+sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get autoremove -y
 
 {% for file in installer_extra_files.split(' ') -%}
 {% if file.strip() -%}
