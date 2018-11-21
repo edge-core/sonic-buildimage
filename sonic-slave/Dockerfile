@@ -232,7 +232,7 @@ RUN apt-get update && apt-get install -y \
         texi2html \
 # For initramfs
         bash-completion \
-#For Mellanox CRIU build
+# For Mellanox CRIU build
         libprotobuf-dev \
         libprotobuf-c0-dev \
         protobuf-c-compiler \
@@ -244,7 +244,11 @@ RUN apt-get update && apt-get install -y \
         libaio-dev \
         asciidoc \
         xmlto \
-        checkinstall
+        checkinstall \
+# For sonic vs image build
+        dosfstools \
+        qemu-kvm \
+        libvirt-bin
 
 # For linux build
 RUN apt-get -y build-dep linux
@@ -278,6 +282,9 @@ RUN pip install click-default-group click natsort tabulate
 
 # For supervisor build
 RUN pip install meld3 mock
+
+# For vs image build
+RUN pip install pexpect==4.6.0
 
 # Install dependencies for isc-dhcp-relay build
 RUN apt-get -y build-dep isc-dhcp

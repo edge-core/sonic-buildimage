@@ -22,7 +22,7 @@ for srv in `seq 0 $SERVERS`; do
 
     # add virtual link between neighbor and the virtual switch docker
 
-    IF="vEthernet$((srv*4))"
+    IF="eth$((srv+1))"
 
     ip link add ${SRV}eth0 type veth peer name $IF
     ip link set ${SRV}eth0 netns $SRV
