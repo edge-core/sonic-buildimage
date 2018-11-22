@@ -64,8 +64,13 @@ start() {
 
     debug "Warm boot flag: ${SERVICE} ${WARM_BOOT}."
 
-    # Don't flush DB during warm boot
-    if [[ x"$WARM_BOOT" != x"true" ]]; then
+    if [[ x"$WARM_BOOT" == x"true" ]]; then
+        # Leave a mark for syncd scripts running inside docker.
+        touch /host/warmboot/warm-starting
+    else
+        rm -f /host/warmboot/warm-starting
+
+        # Flush DB during non-warm start
         /usr/bin/docker exec database redis-cli -n 1 FLUSHDB
 
         # platform specific tasks
