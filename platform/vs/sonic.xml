@@ -30,7 +30,9 @@
       <target port='0'/>
       <protocol type='telnet'/>
     </serial>
-    <interface type='user'/>
+    <interface type='user'>
+        <model type='e1000' />
+    </interface>
     <interface type='ethernet' />
     <interface type='ethernet' />
     <interface type='ethernet' />

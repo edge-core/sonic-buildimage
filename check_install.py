@@ -49,6 +49,10 @@ def main():
     time.sleep(5)
     p.sendline('show version')
     p.expect([cmd_prompt])
+    p.sendline('show ip bgp sum')
+    p.expect([cmd_prompt])
+    p.sendline('sync')
+    p.expect([cmd_prompt])
 
 if __name__ == '__main__':
     main()
