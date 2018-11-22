@@ -36,6 +36,5 @@ RUN sed -ri 's/^(save .*$)/# \1/g;                       \
             ' /etc/redis/redis.conf
 
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
-COPY ["files/configdb-load.sh", "/usr/bin/"]
 
 ENTRYPOINT ["/usr/bin/supervisord"]
