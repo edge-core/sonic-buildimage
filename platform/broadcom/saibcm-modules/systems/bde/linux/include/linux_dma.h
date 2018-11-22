@@ -58,7 +58,7 @@
 #define DMA_BIT_MASK(n) (((n) == 64) ? ~0ULL : ((1ULL<<(n))-1))
 #endif
 
-extern void _dma_init(int robo_switch);
+extern void _dma_init(int robo_switch, int dev_index);
 extern int _dma_cleanup(void);
 extern void _dma_pprint(void);
 extern uint32_t *_salloc(int d, int size, const char *name);

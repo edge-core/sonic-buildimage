@@ -590,9 +590,7 @@ _pgcleanup(void)
 static void
 _alloc_mpool(size_t size)
 {
-    int i, ndevices;
     unsigned long pbase = 0;
-    unsigned long orig_pbase = 0;
 
 #if defined(__arm__) && !defined(CONFIG_HIGHMEM)
     if (_use_himem) {
@@ -649,27 +647,18 @@ _alloc_mpool(size_t size)
                 return;
             }
             _cpu_pbase = virt_to_bus(_dma_vbase);
-            ndevices = BDE_NUM_DEVICES(BDE_ALL_DEVICES);
-            for (i = 0; i < ndevices && DMA_DEV(i); i ++) {
-                /* Use dma_map_single to obtain DMA bus address or IOVA if iommu is present. */
-                pbase = dma_map_single(DMA_DEV(i), _dma_vbase, size, DMA_BIDIRECTIONAL);
-                if (_use_dma_mapping && (orig_pbase != pbase)) {
-                    /* Bus address/IOVA must be identical for all devices. */
-                    gprintk("deivce %d has different pbase: %lx (should be %lx)\n",
-                             i, pbase, orig_pbase);
-                    dma_unmap_single(DMA_DEV(i), (dma_addr_t)pbase, size, DMA_BIDIRECTIONAL);
-                    while (--i >= 0 && DMA_DEV(i)) {
-                        dma_unmap_single(DMA_DEV(i), (dma_addr_t)orig_pbase, size, DMA_BIDIRECTIONAL);
-                    }
-                    _use_dma_mapping = 0;
+            /* Use dma_map_single to obtain DMA bus address or IOVA if iommu is present. */
+            if (DMA_DEV(0)) {
+                pbase = dma_map_single(DMA_DEV(0), _dma_vbase, size, DMA_BIDIRECTIONAL);
+                if (dma_mapping_error(DMA_DEV(0), pbase)) {
+                    gprintk("Failed to map memory at %p\n", _dma_vbase);
                     _pgcleanup();
                     _dma_vbase = NULL;
+                    _cpu_pbase = 0;
                     return;
                 }
-                orig_pbase = pbase;
                 _use_dma_mapping = 1;
-            }
-            if (!_use_dma_mapping) {
+            } else {
                 /* Device has not been probed. */
                 pbase = _cpu_pbase;
             }
@@ -730,8 +719,20 @@ _dma_cleanup(void)
     return 0;
 }
 
-void _dma_init(int robo_switch)
+void _dma_init(int robo_switch, int dev_index)
 {
+    unsigned long pbase;
+
+    if (dev_index > 0) {
+        if ((_use_dma_mapping == 1) && DMA_DEV(dev_index) && _dma_vbase) {
+            pbase = dma_map_single(DMA_DEV(dev_index), _dma_vbase, _dma_mem_size, DMA_BIDIRECTIONAL);
+            if (dma_mapping_error(DMA_DEV(dev_index), pbase)) {
+                gprintk("Failed to map memory for device %d at %p\n", dev_index, _dma_vbase);
+            }
+        }
+        return;
+    }
+
     /* DMA Setup */
     if (dmasize) {
         if ((dmasize[strlen(dmasize)-1] & ~0x20) == 'M') {

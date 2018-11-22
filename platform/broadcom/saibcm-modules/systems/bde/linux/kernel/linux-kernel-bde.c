@@ -540,6 +540,40 @@ _parse_eb_args(char *str, char * format, ...)
     return 0;
 }
 
+static void
+_bde_add_device(void)
+{
+    /*
+     * In order to be backward compatible with the user mode BDE
+     * (specifically the interrupt IOCTLs) and the CM, switch devices
+     * *must* come first. If this is not the case (due to the probing
+     * order), we let the non-switch device(s) drop down to the end of
+     * the device array.
+     */
+    if (_switch_ndevices > 0) {
+        bde_ctrl_t tmp_dev;
+        int i, s = 0;
+
+        while (s < _switch_ndevices) {
+            if (_devices[s].dev_type & BDE_SWITCH_DEV_TYPE) {
+                s++;
+                continue;
+            }
+            tmp_dev = _devices[s];
+            for (i = s; i < _ndevices - 1; i++) {
+                _devices[i] = _devices[i+1];
+            }
+            _devices[i] = tmp_dev;
+        }
+    }
+
+    /* Initialize device locks and dma */
+    if (_ndevices > 0) {
+        spin_lock_init(&_devices[_ndevices-1].lock);
+        _dma_init(robo_switch, _ndevices-1);
+    }
+}
+
 static int
 _eb_device_create(resource_size_t paddr, int irq, int rd_hw, int wr_hw)
 {
@@ -574,6 +608,8 @@ _eb_device_create(resource_size_t paddr, int irq, int rd_hw, int wr_hw)
     ctrl->iLine = irq;
     ctrl->isr = NULL;
     ctrl->isr_data = NULL;
+
+    _bde_add_device();
 
     gprintk("Created EB device at BA=%x IRQ=%d RD16=%d WR16=%d device=0x%x\n",
             (unsigned int)paddr, irq, rd_hw, wr_hw, ctrl->bde_dev.device);
@@ -626,6 +662,10 @@ sand_device_create(void)
     if ((ctrl->bde_dev.device == ACP_PCI_DEVICE_ID)) {
         ctrl->dev_type |= BDE_PCI_DEV_TYPE | BDE_SWITCH_DEV_TYPE;
     }
+
+#ifndef __DUNE_LINUX_BCM_CPU_PCIE__
+    _bde_add_device();
+#endif
 
     return 0;
 }
@@ -734,6 +774,7 @@ iproc_cmicd_probe(struct platform_device *pldev)
 #endif
 
     /* Let's boogie */
+    _bde_add_device();
     return 0;
 }
 
@@ -991,6 +1032,7 @@ _ics_bde_create(void)
 
         ctrl->isr = NULL;
         ctrl->isr_data = NULL;
+        _bde_add_device();
         printk("Created ICS device ..%x\n", ctrl->bde_dev.base_address);
     }
 
@@ -2629,6 +2671,10 @@ _pci_probe(struct pci_dev *dev, const struct pci_device_id *ent)
     ctrl->dma_dev = &dev->dev;
 #endif
 
+    if (!rescan) {
+        _bde_add_device();
+    }
+
     if (debug >= 2) {
         gprintk("_pci_probe: configured dev:0x%x rev:0x%x with base_addresses: 0x%lx 0x%lx\n",
           (unsigned)ctrl->bde_dev.device, (unsigned)ctrl->bde_dev.rev,
@@ -2968,6 +3014,7 @@ probe_robo_switch_iproc_spi(void)
         ctrl->isr = NULL;
         ctrl->isr_data = NULL;
         robo_switch++;
+        _bde_add_device();
 
     }
 
@@ -3181,6 +3228,7 @@ probe_robo_switch(void)
 #if defined(KEYSTONE) 
         spi_freq = _spi_id_table[match_idx].spifreq;
 #endif
+        _bde_add_device();
     }
 
 #if defined(KEYSTONE) 
@@ -3226,6 +3274,8 @@ map_local_bus(uint64_t addr, uint32_t size)
     ctrl->bde_dev.base_address = (sal_vaddr_t)IOREMAP(addr, size);
     ctrl->phys_address = addr;
 
+    _bde_add_device();
+	
     return(ctrl);
 }
 
@@ -3376,6 +3426,8 @@ map_local_bus2(bde_ctrl_t *plx_ctrl, uint32_t dev_base, uint32_t size)
     dev_rev_id = readl(addr);
     ctrl->bde_dev.device = dev_rev_id >> 16;
     ctrl->bde_dev.rev = (dev_rev_id & 0xFF);
+
+    _bde_add_device();
 
     switch (ctrl->bde_dev.device) {
     case BCM88130_DEVICE_ID:
@@ -3695,41 +3747,6 @@ _init(void)
                     &eb_ba, &irq, &eb_rd16bit, &eb_wr16bit);
             _eb_device_create(eb_ba, irq, eb_rd16bit, eb_wr16bit);
             tok = strtok(NULL,",");
-        }
-    }
-    
-    _dma_init(robo_switch);
-
-    /*
-     * In order to be backward compatible with the user mode BDE
-     * (specifically the interrupt IOCTLs) and the CM, switch devices
-     * *must* come first. If this is not the case (due to the probing
-     * order), we let the non-switch device(s) drop down to the end of
-     * the device array.
-     */
-    if (_switch_ndevices > 0) {
-        bde_ctrl_t tmp_dev;
-        int i, s = 0;
-
-        while (s < _switch_ndevices) {
-            if (_devices[s].dev_type & BDE_SWITCH_DEV_TYPE) {
-                s++;
-                continue;
-            }
-            tmp_dev = _devices[s];
-            for (i = s; i < _ndevices - 1; i++) {
-                _devices[i] = _devices[i+1];
-            }
-            _devices[i] = tmp_dev;
-        }
-    }
-
-    /* Initialize device locks */
-    if (_ndevices > 0) {
-        int i;
-
-        for (i = 0; i < _ndevices; i++) {
-            spin_lock_init(&_devices[i].lock);
         }
     }
 
