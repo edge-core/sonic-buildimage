@@ -24,7 +24,7 @@ def main():
     cmd_prompt = "%s@sonic:~\$ $" % args.u
     grub_selection = "The highlighted entry will be executed"
 
-    p = pexpect.spawn("telnet localhost %s" % args.p, timeout=600, logfile=sys.stdout)
+    p = pexpect.spawn("telnet 127.0.0.1 %s" % args.p, timeout=600, logfile=sys.stdout)
 
     # select ONIE embed
     p.expect(grub_selection)

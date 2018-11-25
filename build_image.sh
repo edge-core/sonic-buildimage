@@ -87,6 +87,11 @@ elif [ "$IMAGE_TYPE" = "kvm" ]; then
 
     SONIC_USERNAME=$USERNAME PASSWD=$PASSWORD sudo -E ./build_kvm_image.sh $KVM_IMAGE_DISK $onie_recovery_image $OUTPUT_ONIE_IMAGE $KVM_IMAGE_DISK_SIZE
 
+    if [ $? -ne 0 ]; then
+        echo "Error : build kvm image failed"
+        exit 1
+    fi
+
     [ -r $KVM_IMAGE_DISK ] || {
         echo "Error : $KVM_IMAGE_DISK not generated!"
         exit 1
