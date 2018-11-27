@@ -422,6 +422,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
     neighbors = None
     devices = None
     hostname = None
+    docker_routing_config_mode = "unified"
     port_speeds_default = {}
     port_speed_png = {}
     port_descriptions = {}
@@ -437,11 +438,14 @@ def parse_xml(filename, platform=None, port_config_file=None):
 
     hwsku_qn = QName(ns, "HwSku")
     hostname_qn = QName(ns, "Hostname")
+    docker_routing_config_mode_qn = QName(ns, "DockerRoutingConfigMode")
     for child in root:
         if child.tag == str(hwsku_qn):
             hwsku = child.text
         if child.tag == str(hostname_qn):
             hostname = child.text
+        if child.tag == str(docker_routing_config_mode_qn):
+            docker_routing_config_mode = child.text
 
     (ports, alias_map) = get_port_config(hwsku, platform, port_config_file)
     port_alias_map.update(alias_map)
@@ -464,6 +468,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
     results['DEVICE_METADATA'] = {'localhost': {
         'bgp_asn': bgp_asn,
         'deployment_id': deployment_id,
+        'docker_routing_config_mode': docker_routing_config_mode,
         'hostname': hostname,
         'hwsku': hwsku,
         'type': current_device['type']

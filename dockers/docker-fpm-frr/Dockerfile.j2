@@ -1,6 +1,9 @@
 FROM docker-config-engine
 
 ARG docker_container_name
+ARG frr_user_uid
+ARG frr_user_gid
+
 RUN [ -f /etc/rsyslog.conf ] && sed -ri "s/%syslogtag%/$docker_container_name#%syslogtag%/;" /etc/rsyslog.conf
 
 # Make apt-get non-interactive
@@ -17,6 +20,9 @@ RUN apt-get install -y libdbus-1-3 libdaemon0 libjansson4 libc-ares2 iproute lib
 {%- for deb in docker_fpm_frr_debs.split(' ') %}
 COPY debs/{{ deb }} /debs/
 {%- endfor %}
+
+RUN groupadd -g ${frr_user_gid} frr
+RUN useradd -u ${frr_user_uid} -g ${frr_user_gid} -M -s /bin/false frr
 
 # Install locally-built Debian packages and implicitly install their dependencies
 {%- for deb in docker_fpm_frr_debs.split(' ') %}

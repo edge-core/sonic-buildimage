@@ -75,3 +75,12 @@ ENABLE_ORGANIZATION_EXTENSIONS = y
 #   build:    build kernel from source
 #   download: download pre-built kernel from Azure storage.
 DEFAULT_KERNEL_PROCURE_METHOD = build
+
+# FRR user and group id values. These only take effect when SONIC_ROUTING_STACK is frr.
+# Note: these values match the admin uid/gid of the host's admin account. If these values
+# change and user doesn't want the frr uid/gid to potentially match a random user on the
+# host, then either the appropriate account and group will need to be created on the host
+# manually or changes need to be made when the image is built to create the account and
+# group during installation.
+FRR_USER_UID = 1000
+FRR_USER_GID = 1000

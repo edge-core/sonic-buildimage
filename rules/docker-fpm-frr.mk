@@ -9,5 +9,6 @@ SONIC_DOCKER_IMAGES += $(DOCKER_FPM_FRR)
 $(DOCKER_FPM_FRR)_CONTAINER_NAME = bgp
 $(DOCKER_FPM_FRR)_RUN_OPT += --net=host --privileged -t
 $(DOCKER_FPM_FRR)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
+$(DOCKER_FPM_FRR)_RUN_OPT += -v /etc/sonic/frr:/etc/frr:rw
 
 $(DOCKER_FPM_FRR)_BASE_IMAGE_FILES += vtysh:/usr/bin/vtysh

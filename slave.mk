@@ -117,6 +117,14 @@ MAKEFLAGS += -j $(SONIC_BUILD_JOBS)
 export SONIC_CONFIG_MAKE_JOBS
 
 ###############################################################################
+## Routing stack related exports
+###############################################################################
+
+export SONIC_ROUTING_STACK
+export FRR_USER_UID
+export FRR_USER_GID
+
+###############################################################################
 ## Dumping key config attributes associated to current building exercise
 ###############################################################################
 
@@ -134,6 +142,10 @@ $(info "SHUTDOWN_BGP_ON_START"           : "$(SHUTDOWN_BGP_ON_START)")
 $(info "ENABLE_PFCWD_ON_START"           : "$(ENABLE_PFCWD_ON_START)")
 $(info "INSTALL_DEBUG_TOOLS"             : "$(INSTALL_DEBUG_TOOLS)")
 $(info "ROUTING_STACK"                   : "$(SONIC_ROUTING_STACK)")
+ifeq ($(SONIC_ROUTING_STACK),frr)
+$(info "FRR_USER_UID"                    : "$(FRR_USER_UID)")
+$(info "FRR_USER_GID"                    : "$(FRR_USER_GID)")
+endif
 $(info "ENABLE_SYNCD_RPC"                : "$(ENABLE_SYNCD_RPC)")
 $(info "ENABLE_ORGANIZATION_EXTENSIONS"  : "$(ENABLE_ORGANIZATION_EXTENSIONS)")
 $(info "HTTP_PROXY"                      : "$(HTTP_PROXY)")
@@ -463,6 +475,8 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_DOCKER_IMAGES)) : $(TARGET_PATH)/%.gz : .pl
 		--build-arg uid=$(UID) \
 		--build-arg guid=$(GUID) \
 		--build-arg docker_container_name=$($*.gz_CONTAINER_NAME) \
+		--build-arg frr_user_uid=$(FRR_USER_UID) \
+		--build-arg frr_user_gid=$(FRR_USER_GID) \
 		--label Tag=$(SONIC_GET_VERSION) \
 		-t $* $($*.gz_PATH) $(LOG)
 	docker save $* | gzip -c > $@
