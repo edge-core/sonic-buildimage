@@ -27,10 +27,7 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
   bgp log-neighbor-changes
   bgp bestpath as-path multipath-relax
   no bgp default ipv4-unicast
-{# Advertise graceful restart capability for ToR #}
-{% if DEVICE_METADATA['localhost']['type'] == 'ToRRouter' %}
   bgp graceful-restart
-{% endif %}
 {% for (name, prefix) in LOOPBACK_INTERFACE %}
 {% if prefix | ipv4 and name == 'Loopback0' %}
   bgp router-id {{ prefix | ip }}
