@@ -1,7 +1,7 @@
 [Unit]
 Description=Update NTP configuration
 Requires=updategraph.service
-After=updategraph.service
+After=updategraph.service bgp.service dhcp_relay.service lldp.service pmon.service radv.service snmp.service swss.service syncd.service teamd.service
 
 [Service]
 Type=oneshot
