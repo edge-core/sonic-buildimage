@@ -2,6 +2,7 @@
 Description=SNMP container
 Requires=updategraph.service swss.service
 After=updategraph.service swss.service
+Before=ntp-config.service
 
 [Service]
 ExecStartPre=/usr/bin/{{docker_container_name}}.sh start
