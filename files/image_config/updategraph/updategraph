@@ -77,6 +77,10 @@ fi
 ACL_URL=$acl_src
 
 if [ "$src" = "dhcp" ]; then
+    # Enable dhcp client on management port eth0
+    /sbin/dhclient -4 -v -pf /run/dhclient.eth0.pid -lf /var/lib/dhcp/dhclient.eth0.leases -I -df /var/lib/dhcp/dhclient6.eth0.leases eth0 &
+    disown
+
     while [ ! -f /tmp/dhcp_graph_url ]; do
         echo "Waiting for DHCP response..."
         sleep 1
