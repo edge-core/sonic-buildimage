@@ -36,11 +36,38 @@ index 0000000..d18916d
 +[Service]
 +Type=oneshot
 +EnvironmentFile=/host/machine.conf
-+ExecStart=/bin/bash -c "/usr/share/sonic/device/$onie_platform/hw-management start"
-+ExecStop=/bin/bash -c "/usr/share/sonic/device/$onie_platform/hw-management stop"
++ExecStart=/bin/bash -c "/usr/bin/hw-management-service.sh $onie_platform start"
++ExecStop=/bin/bash -c "/usr/bin/hw-management-service.sh $onie_platform stop"
 +
 +[Install]
 +WantedBy=multi-user.target
+diff --git a/usr/usr/bin/hw-management-service.sh b/usr/usr/bin/hw-management-service.sh
+new file mode 100755
+index 0000000..e3774e5
+--- /dev/null
++++ b/usr/usr/bin/hw-management-service.sh
+@@ -0,0 +1,21 @@
++#!/bin/bash
++
++if [ $# -ne 2 ]
++then
++    echo "Error: Invalid parameters"
++    exit 1
++fi
++
++if [ -f /etc/sonic/config_db.json ]
++then
++    mac_exist=$(grep -c "\"mac\"" /etc/sonic/config_db.json)
++    mac_is_none=$(grep "\"mac\"" /etc/sonic/config_db.json | grep -c "\"None\"")
++    if [ "$mac_exist" == "0" ] || [ "$mac_is_none" == "1" ]
++    then
++        echo "No MAC address, need hw-management service in updategraph"
++        exec /usr/share/sonic/device/$1/hw-management $2
++        exit 0
++    fi
++fi
++
++echo "MAC address already exists in config_db.json, do nothing"
 diff --git a/debian/rules b/debian/rules
 index fc38817..fba4150 100755
 --- a/debian/rules
