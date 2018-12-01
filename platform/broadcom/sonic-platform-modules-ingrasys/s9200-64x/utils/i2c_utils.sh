@@ -15,6 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# trun on for more debug output
+#DEBUG="on"
+
 VERSION="1.0.0"
 TRUE=200
 FALSE=404
@@ -602,6 +605,35 @@ function _i2c_io_exp_init {
     i2cset -y -r ${i2c_bus} ${i2c_addr} ${REG_CFG_0} 0x00
     i2cset -y -r ${i2c_bus} ${i2c_addr} ${REG_CFG_1} $((2#00011111))
 
+    #PCA9555 on BMC Dummy Board
+    #set SYSTEM_LED_RST_L before init PCA9539 LED BOARD IO Expander 
+    echo "Init PCA9555 MUX RST IO Expander"
+    #PCA9555 MUX RST Expander
+    #0.0 FRU_I2C_MUX_RST_L   OUT 1
+    #0.1 MAIN_I2C_MUX_RST_L  OUT 1
+    #0.2 SYSTEM_LED_RST_L    OUT 1
+    #0.3 BMC_TO_UCD_RST_L    OUT 1
+    #0.4 BMC_TO_HOST_RST_L   OUT 1
+    #0.5 ETHX_RST_L          OUT 1
+    #0.6 GPIOF4              IN 
+    #0.7 N/A
+    #1.0 CPU_to_FRU_I2C_EN   OUT 1
+    #1.1 CPU_to_MAIN_I2C_EN  OUT 1
+    #1.2 P3V3_FAN_EN         OUT 1
+    #1.3 P3V3_I2C_EN         OUT 1
+    #1.4 UCD9090_CNTRL       OUT 1
+    #1.5 UART_MUX_SEL        OUT 0
+    #1.6 USB_MUX_SEL         OUT 0
+    #1.7 ETHX_CPU_EEPROM_SEL OUT 0
+    i2c_bus=${I2C_BUS_MUX_RST}
+    i2c_addr=${I2C_ADDR_MUX_RST}
+    i2cset -y -r ${i2c_bus} ${i2c_addr} ${REG_OUT_0} $((2#00111111))
+    i2cset -y -r ${i2c_bus} ${i2c_addr} ${REG_OUT_1} $((2#00011111))
+    i2cset -y -r ${i2c_bus} ${i2c_addr} ${REG_POLARITY_0} 0x00 
+    i2cset -y -r ${i2c_bus} ${i2c_addr} ${REG_POLARITY_1} 0x00
+    i2cset -y -r ${i2c_bus} ${i2c_addr} ${REG_CFG_0} $((2#01000000))
+    i2cset -y -r ${i2c_bus} ${i2c_addr} ${REG_CFG_1} 0x00
+
     echo "Init PCA9539 LED BOARD IO Expander"
     #PCA9539 LED BOARD
     #0.0 SYS_LED_G    OUT 1 
@@ -720,34 +752,6 @@ function _i2c_io_exp_init {
     i2cset -y -r ${i2c_bus} ${i2c_addr} ${REG_POLARITY_1} 0x00
     i2cset -y -r ${i2c_bus} ${i2c_addr} ${REG_CFG_0} $((2#11011011))
     i2cset -y -r ${i2c_bus} ${i2c_addr} ${REG_CFG_1} $((2#11100011))
-
-    #PCA9555 on BMC Dummy Board
-    echo "Init PCA9555 MUX RST IO Expander"
-    #PCA9555 MUX RST Expander
-    #0.0 FRU_I2C_MUX_RST_L   OUT 1
-    #0.1 MAIN_I2C_MUX_RST_L  OUT 1
-    #0.2 SYSTEM_LED_RST_L    OUT 1
-    #0.3 BMC_TO_UCD_RST_L    OUT 1
-    #0.4 BMC_TO_HOST_RST_L   OUT 1
-    #0.5 ETHX_RST_L          OUT 1
-    #0.6 GPIOF4              IN 
-    #0.7 N/A
-    #1.0 CPU_to_FRU_I2C_EN   OUT 1
-    #1.1 CPU_to_MAIN_I2C_EN  OUT 1
-    #1.2 P3V3_FAN_EN         OUT 1
-    #1.3 P3V3_I2C_EN         OUT 1
-    #1.4 UCD9090_CNTRL       OUT 1
-    #1.5 UART_MUX_SEL        OUT 0
-    #1.6 USB_MUX_SEL         OUT 0
-    #1.7 ETHX_CPU_EEPROM_SEL OUT 0
-    i2c_bus=${I2C_BUS_MUX_RST}
-    i2c_addr=${I2C_ADDR_MUX_RST}
-    i2cset -y -r ${i2c_bus} ${i2c_addr} ${REG_OUT_0} $((2#00111111))
-    i2cset -y -r ${i2c_bus} ${i2c_addr} ${REG_OUT_1} $((2#00011111))
-    i2cset -y -r ${i2c_bus} ${i2c_addr} ${REG_POLARITY_0} 0x00 
-    i2cset -y -r ${i2c_bus} ${i2c_addr} ${REG_POLARITY_1} 0x00
-    i2cset -y -r ${i2c_bus} ${i2c_addr} ${REG_CFG_0} $((2#01000000))
-    i2cset -y -r ${i2c_bus} ${i2c_addr} ${REG_CFG_1} 0x00
 
     #PCA9539 on CPU Board
     echo "Init PCA9539 CPLD IO Expander on CPU"
@@ -1021,6 +1025,17 @@ function _i2c_led_test {
     _i2c_fan_led
     _pause 'Check [FAN LED] = Amber and Press [Enter] key to continue...'
 
+    #PSU1 led (green)
+    _i2c_reset_led
+    COLOR_LED="green"
+    _i2c_psu1_led
+    _pause 'Check [PSU1 LED] = Green and Press [Enter] key to continue...'
+    #PSU1 led (amber)
+    _i2c_reset_led
+    COLOR_LED="amber"
+    _i2c_psu1_led
+    _pause 'Check [PSU1 LED] = Amber and Press [Enter] key to continue...'
+
     #PSU2 led (green)
     _i2c_reset_led
     COLOR_LED="green"
@@ -1031,17 +1046,6 @@ function _i2c_led_test {
     COLOR_LED="amber"
     _i2c_psu2_led
     _pause 'Check [PSU2 LED] = Amber and Press [Enter] key to continue...'
-
-    #PSU1 led (green)
-    _i2c_reset_led
-    COLOR_LED="green"
-    _i2c_psu1_led
-    _pause 'Check [PSU1 LED] = Green and Press [Enter] key to continue...'
-    #PSU2 led (amber)
-    _i2c_reset_led
-    COLOR_LED="amber"
-    _i2c_psu1_led
-    _pause 'Check [PSU1 LED] = Amber and Press [Enter] key to continue...'
 
     #Turn OFF All LED
     _i2c_reset_led
@@ -1090,6 +1094,7 @@ function _qsfp_port_i2c_var_set {
         ;;
         *)
             echo "Please input 1~${PORT_NUM}"
+            exit
         ;;
     esac
 
@@ -1930,13 +1935,17 @@ function _main {
         exit ${FALSE}
     fi
 
-    end_time_str=`date`
-    end_time_sec=$(date +%s)
-    diff_time=$[ ${end_time_sec} - ${start_time_sec} ]
-    echo "------------------------------"    
-    echo "Total Execution Time: ${diff_time} sec"
+    if [ "$DEBUG" == "on" ]; then
+        echo "-----------------------------------------------------"
+        end_time_str=`date`
+        end_time_sec=$(date +%s)
+        diff_time=$[ ${end_time_sec} - ${start_time_sec} ]
+        echo "Start Time: ${start_time_str} (${start_time_sec})"
+        echo "End Time  : ${end_time_str} (${end_time_sec})"
+        echo "Total Execution Time: ${diff_time} sec"
 
-    echo "DONE"
+        echo "done!!!"
+    fi
 }
 
 _main

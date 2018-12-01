@@ -15,9 +15,26 @@ except ImportError as e:
 class PsuUtil(PsuBase):
     """Platform-specific PSUutil class"""
 
+    GPIO_OFFSET = 0
     SYS_GPIO_DIR = "/sys/class/gpio/"
 
+    def set_gpio_offset(self):
+        sys_gpio_dir = "/sys/class/gpio"
+        self.GPIO_OFFSET = 0 
+        gpiochip_no = 0 
+        for d in os.listdir(sys_gpio_dir):
+            if "gpiochip" in d:
+                try:
+                    gpiochip_no = int(d[8:],10)
+                except ValueError as e:
+                    print "Error: %s" % str(e)
+                if gpiochip_no > 255:
+                    self.GPIO_OFFSET=256
+                    return True
+        return True
+
     def __init__(self):
+        self.set_gpio_offset()
         PsuBase.__init__(self)
 
 
@@ -54,7 +71,7 @@ class PsuUtil(PsuBase):
         faulty
         """
         status = 0
-        gpio_path = [ 'gpio99/value', 'gpio96/value' ]
+        gpio_path = [ 'gpio'+str(99+self.GPIO_OFFSET)+'/value', 'gpio'+str(96+self.GPIO_OFFSET)+'/value' ]
         attr_path = self.SYS_GPIO_DIR + gpio_path[index-1]
 
         attr_value = self.get_attr_value(attr_path)
@@ -75,7 +92,7 @@ class PsuUtil(PsuBase):
         :return: Boolean, True if PSU is plugged, False if not
         """
         status = 0
-        gpio_path = [ 'gpio100/value', 'gpio97/value' ]
+        gpio_path = [ 'gpio'+str(100+self.GPIO_OFFSET)+'/value', 'gpio'+str(97+self.GPIO_OFFSET)+'/value' ]
         attr_path = self.SYS_GPIO_DIR + gpio_path[index-1]
 
         attr_value = self.get_attr_value(attr_path)

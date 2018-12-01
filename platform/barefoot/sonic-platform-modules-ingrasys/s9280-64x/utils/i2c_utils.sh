@@ -322,6 +322,7 @@ function _help {
     echo "         : ${0} i2c_sfp_status_get [${MIN_SFP_PORT_NUM}-${MAX_SFP_PORT_NUM}]"
     echo "         : ${0} i2c_qsfp_type_get [${MIN_QSFP_PORT_NUM}-${MAX_QSFP_PORT_NUM}]"
     echo "         : ${0} i2c_sfp_type_get [${MIN_SFP_PORT_NUM}-${MAX_SFP_PORT_NUM}]"
+    echo "         : ${0} i2c_qsfp_ddm_get [${MIN_QSFP_PORT_NUM}-${MAX_QSFP_PORT_NUM}]"
     echo "         : ${0} i2c_board_type_get"
     echo "         : ${0} i2c_bmc_board_type_get"
     echo "         : ${0} i2c_cpld_version"
@@ -945,7 +946,7 @@ function _i2c_led_test {
 
     #Turn OFF All LED (can't trun off system led)
     COLOR_LED="off"
-    _i2c_sys_led
+    #_i2c_sys_led
     _i2c_fan_led
     _i2c_psu1_led
     _i2c_psu2_led
@@ -962,7 +963,6 @@ function _qsfp_cpld_var_set {
     local reg_port_base
     local reg_port_shift
     
-    echo "_qsfp_cpld_var_set port=$port" 
     if [[ $1 -le 12  && $1 -ge 1 ]]; then
         cpld_index=1
         reg_port_base=0
@@ -1068,7 +1068,7 @@ function _i2c_qsfp_eeprom_get {
     local phy_port=0
 
     # input parameter validation
-    _util_input_check ${QSFP_PORT} ${MIN_QSFP_PORT_NUM} ${MAX_QSFP_PORT_NUM}
+    _util_input_check "${QSFP_PORT}" "${MIN_QSFP_PORT_NUM}" "${MAX_QSFP_PORT_NUM}"
 
     #get physical port
     phy_port=$(_port_fp2phy $QSFP_PORT)
@@ -1112,8 +1112,8 @@ function _i2c_qsfp_eeprom_init {
 
         if [ "${action}" == "new" ] && \
            ! [ -L ${PATH_SYS_I2C_DEVICES}/$eepromBus-$(printf "%04x" $eepromAddr) ]; then
-            echo "sff8436 $eepromAddr" > ${PATH_SYS_I2C_DEVICES}/i2c-$eepromBus/new_device
-            #echo "optoe1 $eepromAddr" > ${PATH_SYS_I2C_DEVICES}/i2c-$eepromBus/new_device
+            #echo "sff8436 $eepromAddr" > ${PATH_SYS_I2C_DEVICES}/i2c-$eepromBus/new_device
+            echo "optoe1 $eepromAddr" > ${PATH_SYS_I2C_DEVICES}/i2c-$eepromBus/new_device
         elif [ "${action}" == "delete" ] && \
              [ -L ${PATH_SYS_I2C_DEVICES}/$eepromBus-$(printf "%04x" $eepromAddr) ]; then
             echo "$eepromAddr" > ${PATH_SYS_I2C_DEVICES}/i2c-$eepromBus/delete_device
@@ -1126,7 +1126,7 @@ function _i2c_qsfp_eeprom_init {
 function _i2c_sfp_eeprom_get {
 
     # input parameter validation
-    _util_input_check ${SFP_PORT} ${MIN_SFP_PORT_NUM} ${MAX_SFP_PORT_NUM}
+    _util_input_check "${SFP_PORT}" "${MIN_SFP_PORT_NUM}" "${MAX_SFP_PORT_NUM}"
     _util_get_sfp_pres
 
     if [ $status = 0 ]; then
@@ -1160,8 +1160,8 @@ function _i2c_sfp_eeprom_init {
 
         if [ "${action}" == "new" ] && \
            ! [ -L ${PATH_SYS_I2C_DEVICES}/$eepromBus-$(printf "%04x" $eepromAddr) ]; then
-            echo "sff8436 $eepromAddr" > ${PATH_SYS_I2C_DEVICES}/i2c-$eepromBus/new_device
-            #echo "optoe1 $eepromAddr" > ${PATH_SYS_I2C_DEVICES}/i2c-$eepromBus/new_device
+            #echo "sff8436 $eepromAddr" > ${PATH_SYS_I2C_DEVICES}/i2c-$eepromBus/new_device
+            echo "optoe1 $eepromAddr" > ${PATH_SYS_I2C_DEVICES}/i2c-$eepromBus/new_device
         elif [ "${action}" == "delete" ] && \
              [ -L ${PATH_SYS_I2C_DEVICES}/$eepromBus-$(printf "%04x" $eepromAddr) ]; then
             echo "$eepromAddr" > ${PATH_SYS_I2C_DEVICES}/i2c-$eepromBus/delete_device
@@ -1242,7 +1242,7 @@ function _i2c_psu_deinit {
 function _i2c_qsfp_status_get {
 
     # input parameter validation
-    _util_input_check ${QSFP_PORT} ${MIN_QSFP_PORT_NUM} ${MAX_QSFP_PORT_NUM}
+    _util_input_check "${QSFP_PORT}" "${MIN_QSFP_PORT_NUM}" "${MAX_QSFP_PORT_NUM}"
 
     local stat
     _util_get_qsfp_abs
@@ -1256,12 +1256,15 @@ function _i2c_qsfp_type_get {
     phy_port=$(_port_fp2phy ${QSFP_PORT})
 
     # input parameter validation
-    _util_input_check ${QSFP_PORT} ${MIN_QSFP_PORT_NUM} ${MAX_QSFP_PORT_NUM}
+    _util_input_check "${QSFP_PORT}" "${MIN_QSFP_PORT_NUM}" "${MAX_QSFP_PORT_NUM}"
 
     _qsfp_eeprom_var_set ${phy_port}
 
     #Get QSFP EEPROM info
-    qsfp_info=$(base64 ${PATH_SYS_I2C_DEVICES}/$eepromBus-$(printf "%04x" $eepromAddr)/eeprom)
+    local size=255
+    eeprom_path="${PATH_SYS_I2C_DEVICES}/$eepromBus-$(printf "%04x" $eepromAddr)/eeprom"
+    #echo "get ${eeprom_path}"
+    qsfp_info=$(dd if=${eeprom_path} bs=${size} count=1 2>/dev/null | base64)
 
     identifier=$(echo $qsfp_info | base64 -d -i | hexdump -s 128 -n 1 -e '"%x"')
     connector=$(echo $qsfp_info | base64 -d -i | hexdump -s 130 -n 1 -e '"%x"')
@@ -1275,7 +1278,7 @@ function _i2c_qsfp_type_get {
 function _i2c_sfp_status_get {
 
     # input parameter validation
-    _util_input_check ${SFP_PORT} ${MIN_SFP_PORT_NUM} ${MAX_SFP_PORT_NUM}
+    _util_input_check "${SFP_PORT}" "${MIN_SFP_PORT_NUM}" "${MAX_SFP_PORT_NUM}"
 
     local stat
     _util_get_sfp_pres
@@ -1292,7 +1295,7 @@ function _i2c_sfp_status_get {
 function _i2c_sfp_type_get {
 
     # input parameter validation
-    _util_input_check ${SFP_PORT} ${MIN_SFP_PORT_NUM} ${MAX_SFP_PORT_NUM}
+    _util_input_check "${SFP_PORT}" "${MIN_SFP_PORT_NUM}" "${MAX_SFP_PORT_NUM}"
 
     _sfp_eeprom_var_set ${SFP_PORT}
 
@@ -1653,8 +1656,6 @@ function _i2c_cpld_reg_read {
 
     reg_file_path="${PATH_SYS_I2C_DEVICES}/${cpld_i2c_bus}-$(printf "%04x" ${cpld_i2c_addr})/${file_name}"
     cpld_reg_val=`cat ${reg_file_path}`
-    # TODO: debug 
-    echo "cat ${reg_file_path} => ${cpld_reg_val}"
 }
 
 #util functions
@@ -1688,7 +1689,6 @@ function _util_get_qsfp_abs {
     #get physical port
     phy_port=$(_port_fp2phy $QSFP_PORT)
 
-    echo "fp port $QSFP_PORT => phy port $phy_port"
     # read status from cpld
     _qsfp_cpld_var_set ${phy_port}
     cpld_reg_file_name="${CPLD_QSFP_STATUS_KEY}_${cpld_port_index}"
@@ -1743,6 +1743,88 @@ function _config_rmem {
     echo "109430400" > /proc/sys/net/core/rmem_max
 }
 
+# util function to get logx value
+function logx {
+    v=$1
+    n=$2
+    logx_res=$(echo "${v} ${n}" | awk '{printf "%f\n",log($1)/log($2)}')
+}
+
+# get qsfp ddm data
+function _i2c_qsfp_ddm_get {
+    local phy_port=0
+
+    phy_port=$(_port_fp2phy ${QSFP_PORT})
+
+    # input parameter validation
+    _util_input_check "${QSFP_PORT}" "${MIN_QSFP_PORT_NUM}" "${MAX_QSFP_PORT_NUM}"
+
+    # check if port presence
+    #status: 0 -> Down, 1 -> Up
+    _util_get_qsfp_abs
+    if [ "${status}" == "0" ]; then
+        echo "port ${QSFP_PORT} not presence"
+        return
+    fi
+
+    _qsfp_eeprom_var_set ${phy_port}
+
+    # Get QSFP EEPROM info
+    # only need first 128 bytes (page0) for ddm parsing
+    local size=128
+    eeprom_path="${PATH_SYS_I2C_DEVICES}/$eepromBus-$(printf "%04x" $eepromAddr)/eeprom"
+    #echo "get ${eeprom_path}"
+    qsfp_info=$(dd if=${eeprom_path} bs=${size} count=1 2>/dev/null | base64)
+
+    # temperature
+    temp_val1=$(echo $qsfp_info | base64 -d -i | hexdump -s 22 -n 1 -e '"%d"')
+    temp_val2=$(echo $qsfp_info | base64 -d -i | hexdump -s 23 -n 1 -e '"%d"')
+    temp=$(echo "$temp_val1 $temp_val2" | awk '{printf "%f\n", $1 + $2/256.0}')
+    #temp=$(( ${temp_val1} + ${temp_val2}/256.0 ))
+    echo "temp=$temp"
+    # voltage
+    volt_val1=$(echo $qsfp_info | base64 -d -i | hexdump -s 26 -n 1 -e '"%d"')
+    volt_val2=$(echo $qsfp_info | base64 -d -i | hexdump -s 27 -n 1 -e '"%d"')
+    #volt=$(((($volt_val1 << 8) | volt_val2) / 10000))
+    volt_val3=$(( ($volt_val1 << 8) | $volt_val2 ))
+    volt=$(echo "$volt_val3" | awk '{printf "%f\n", $1/10000.0}')
+    echo "volt=$volt"
+
+    # 4 channels
+    for i in {0..3};
+    do
+        echo "channel $i:"
+        # txBias
+        offset=$(( 42 + $i*2 ))
+        txBias_val1=$(echo $qsfp_info | base64 -d -i | hexdump -s $offset -n 1 -e '"%d"')
+        offset=$(( 43 + $i*2 ))
+        txBias_val2=$(echo $qsfp_info | base64 -d -i | hexdump -s $offset -n 1 -e '"%d"')
+        txBias_val3=$(( ($txBias_val1 << 8) | $txBias_val2 ))
+        txBias=$(echo "$txBias_val3" | awk '{printf "%f\n", (131.0*$1)/65535}')
+        echo "   txBias=$txBias"
+        # txPower
+        offset=$(( 50 + $i*2 ))
+        txPower_val1=$(echo $qsfp_info | base64 -d -i | hexdump -s $offset -n 1 -e '"%d"')
+        offset=$(( 51 + $i*2 ))
+        txPower_val2=$(echo $qsfp_info | base64 -d -i | hexdump -s $offset -n 1 -e '"%d"')
+        txPower_val3=$(( ($txPower_val1 << 8) | $txPower_val2 ))
+        txPower_val4=$(echo "$txPower_val3" | awk '{printf "%f\n", $1*0.0001}')
+        logx $txPower_val4 10
+        txPower=$(echo "$logx_res" | awk '{printf "%f\n", $1*10}')
+        echo "   txPower=$txPower"
+        # rxPower
+        offset=$(( 34 + $i*2 ))
+        rxPower_val1=$(echo $qsfp_info | base64 -d -i | hexdump -s $offset -n 1 -e '"%d"')
+        offset=$(( 35 + $i*2 ))
+        rxPower_val2=$(echo $qsfp_info | base64 -d -i | hexdump -s $offset -n 1 -e '"%d"')
+        rxPower_val3=$(( ($rxPower_val1 << 8) | $rxPower_val2 ))
+        rxPower_val4=$(echo "$rxPower_val3" | awk '{printf "%f\n", $1*0.0001}')
+        logx $rxPower_val4 10
+        rxPower=$(echo "$logx_res" | awk '{printf "%f\n", $1*10}')
+        echo "   rxPower=$rxPower"
+    done
+}
+
 #Main Function
 function _main {
     tart_time_str=`date`
@@ -1788,6 +1870,8 @@ function _main {
         _i2c_qsfp_type_get
     elif [ "${EXEC_FUNC}" == "i2c_sfp_type_get" ]; then
         _i2c_sfp_type_get
+    elif [ "${EXEC_FUNC}" == "i2c_qsfp_ddm_get" ]; then
+        _i2c_qsfp_ddm_get
     elif [ "${EXEC_FUNC}" == "i2c_led_psu_status_set" ]; then
         _i2c_led_psu_status_set
     elif [ "${EXEC_FUNC}" == "i2c_led_fan_status_set" ]; then

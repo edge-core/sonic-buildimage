@@ -3,6 +3,8 @@
 # Platform-specific SFP transceiver interface for SONiC
 #
 
+import os
+
 try:
     import time
     from sonic_sfp.sfputilbase import SfpUtilBase
@@ -17,6 +19,7 @@ class SfpUtil(SfpUtilBase):
     PORT_END = 53
     QSFP_PORT_START = 48
     PORTS_IN_BLOCK = 54
+    GPIO_OFFSET = 0
     
     BASE_DIR_PATH = "/sys/class/gpio/gpio{0}/direction"
     BASE_VAL_PATH = "/sys/class/gpio/gpio{0}/value"
@@ -79,80 +82,9 @@ class SfpUtil(SfpUtilBase):
         53: 71
     }
 
-    abs_to_gpio_mapping = {
-        0: 192,
-        1: 193,
-        2: 194,
-        3: 195,
-        4: 196,
-        5: 197,
-        6: 198,
-        7: 199,
-        8: 200,
-        9: 201,
-        10: 202,
-        11: 203,
-        12: 204,
-        13: 205,
-        14: 206,
-        15: 207,
-        16: 176,
-        17: 177,
-        18: 178,
-        19: 179,
-        20: 180,
-        21: 181,
-        22: 182,
-        23: 183,
-        24: 184,
-        25: 185,
-        26: 186,
-        27: 187,
-        28: 188,
-        29: 189,
-        30: 190,
-        31: 191,
-        32: 160,
-        33: 161,
-        34: 162,
-        35: 163,
-        36: 164,
-        37: 165,
-        38: 166,
-        39: 167,
-        40: 168,
-        41: 169,
-        42: 170,
-        43: 171,
-        44: 172,
-        45: 173,
-        46: 174,
-        47: 175,
-        48: 240,
-        49: 241,
-        50: 242,
-        51: 243,
-        52: 244,
-        53: 245
-    }
-
-    lpmode_to_gpio_mapping = {
-        48: 224,
-        49: 225,
-        50: 226,
-        51: 227,
-        52: 228,
-        53: 229
-    }
-
-    reset_to_gpio_mapping = {
-        48: 208,
-        49: 209,
-        50: 210,
-        51: 211,
-        52: 212,
-        53: 213
-    }
+    abs_to_gpio_mapping = {}
+    lpmode_to_gpio_mapping = {}
+    reset_to_gpio_mapping = {}
 
     @property
     def port_start(self):
@@ -174,7 +106,109 @@ class SfpUtil(SfpUtilBase):
     def port_to_eeprom_mapping(self):
         return self._port_to_eeprom_mapping
 
+    def set_gpio_offset(self):
+        sys_gpio_dir = "/sys/class/gpio"
+        self.GPIO_OFFSET = 0
+        gpiochip_no = 0
+        for d in os.listdir(sys_gpio_dir):
+            if "gpiochip" in d:
+                try:
+                    gpiochip_no = int(d[8:],10)
+                except ValueError as e:
+                    print "Error: %s" % str(e)
+                if gpiochip_no > 255:
+                    self.GPIO_OFFSET=256
+                    return True
+        return True
+
+    def init_abs_to_gpio_mapping(self):
+        self.abs_to_gpio_mapping = {
+            0: 192+self.GPIO_OFFSET,
+            1: 193+self.GPIO_OFFSET,
+            2: 194+self.GPIO_OFFSET,
+            3: 195+self.GPIO_OFFSET,
+            4: 196+self.GPIO_OFFSET,
+            5: 197+self.GPIO_OFFSET,
+            6: 198+self.GPIO_OFFSET,
+            7: 199+self.GPIO_OFFSET,
+            8: 200+self.GPIO_OFFSET,
+            9: 201+self.GPIO_OFFSET,
+            10: 202+self.GPIO_OFFSET,
+            11: 203+self.GPIO_OFFSET,
+            12: 204+self.GPIO_OFFSET,
+            13: 205+self.GPIO_OFFSET,
+            14: 206+self.GPIO_OFFSET,
+            15: 207+self.GPIO_OFFSET,
+            16: 176+self.GPIO_OFFSET,
+            17: 177+self.GPIO_OFFSET,
+            18: 178+self.GPIO_OFFSET,
+            19: 179+self.GPIO_OFFSET,
+            20: 180+self.GPIO_OFFSET,
+            21: 181+self.GPIO_OFFSET,
+            22: 182+self.GPIO_OFFSET,
+            23: 183+self.GPIO_OFFSET,
+            24: 184+self.GPIO_OFFSET,
+            25: 185+self.GPIO_OFFSET,
+            26: 186+self.GPIO_OFFSET,
+            27: 187+self.GPIO_OFFSET,
+            28: 188+self.GPIO_OFFSET,
+            29: 189+self.GPIO_OFFSET,
+            30: 190+self.GPIO_OFFSET,
+            31: 191+self.GPIO_OFFSET,
+            32: 160+self.GPIO_OFFSET,
+            33: 161+self.GPIO_OFFSET,
+            34: 162+self.GPIO_OFFSET,
+            35: 163+self.GPIO_OFFSET,
+            36: 164+self.GPIO_OFFSET,
+            37: 165+self.GPIO_OFFSET,
+            38: 166+self.GPIO_OFFSET,
+            39: 167+self.GPIO_OFFSET,
+            40: 168+self.GPIO_OFFSET,
+            41: 169+self.GPIO_OFFSET,
+            42: 170+self.GPIO_OFFSET,
+            43: 171+self.GPIO_OFFSET,
+            44: 172+self.GPIO_OFFSET,
+            45: 173+self.GPIO_OFFSET,
+            46: 174+self.GPIO_OFFSET,
+            47: 175+self.GPIO_OFFSET,
+            48: 240+self.GPIO_OFFSET,
+            49: 241+self.GPIO_OFFSET,
+            50: 242+self.GPIO_OFFSET,
+            51: 243+self.GPIO_OFFSET,
+            52: 244+self.GPIO_OFFSET,
+            53: 245+self.GPIO_OFFSET
+        }
+        return True
+    
+    def init_lpmode_to_gpio_mapping(self):
+        self.lpmode_to_gpio_mapping = {
+            48: 224+self.GPIO_OFFSET,
+            49: 225+self.GPIO_OFFSET,
+            50: 226+self.GPIO_OFFSET,
+            51: 227+self.GPIO_OFFSET,
+            52: 228+self.GPIO_OFFSET,
+            53: 229+self.GPIO_OFFSET
+        }
+        return True
+    
+    def init_reset_to_gpio_mapping(self):
+        self.reset_to_gpio_mapping = {
+            48: 208+self.GPIO_OFFSET,
+            49: 209+self.GPIO_OFFSET,
+            50: 210+self.GPIO_OFFSET,
+            51: 211+self.GPIO_OFFSET,
+            52: 212+self.GPIO_OFFSET,
+            53: 213+self.GPIO_OFFSET
+        }
+        return True
+
     def __init__(self):
+        # Init abs, lpmode, and reset to gpio mapping
+        self.set_gpio_offset()
+        self.init_abs_to_gpio_mapping()
+        self.init_lpmode_to_gpio_mapping()
+        self.init_reset_to_gpio_mapping()
+
         # Override port_to_eeprom_mapping for class initialization
         eeprom_path = "/sys/class/i2c-adapter/i2c-{0}/{0}-0050/eeprom"
 

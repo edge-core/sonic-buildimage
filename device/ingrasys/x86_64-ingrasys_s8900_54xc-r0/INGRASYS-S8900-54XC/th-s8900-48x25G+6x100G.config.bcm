@@ -1,12 +1,17 @@
-#2017/05/31
+#2018/03/31
 
 os=unix
 
 oversubscribe_mode=1
 pbmp_xport_xe=0x7f00001fff4003ffffc0001fffe
 
-lpm_scaling_enable=1
-lpm_ipv6_128b_reserved=0
+l3_alpm_enable=2
+ipv6_lpm_128b_enable=1
+l3_mem_entries=40960
+l2_mem_entries=40960
+
+l2xmsg_mode=1
+mmu_lossless=0
 
 #Parity
 parity_correction=1

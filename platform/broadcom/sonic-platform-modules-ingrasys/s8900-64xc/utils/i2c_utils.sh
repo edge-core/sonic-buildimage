@@ -15,6 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# trun on for more debug output
+#DEBUG="on"
+
 VERSION="1.0.0"
 TRUE=200
 FALSE=404
@@ -1144,14 +1147,17 @@ function _main {
         exit ${FALSE}
     fi
 
-    end_time_str=`date`
-    end_time_sec=$(date +%s)
-    diff_time=$[ ${end_time_sec} - ${start_time_sec} ]
-    echo "Start Time: ${start_time_str} (${start_time_sec})"
-    echo "End Time  : ${end_time_str} (${end_time_sec})"
-    echo "Total Execution Time: ${diff_time} sec"
+    if [ "$DEBUG" == "on" ]; then
+        echo "-----------------------------------------------------"
+        end_time_str=`date`
+        end_time_sec=$(date +%s)
+        diff_time=$[ ${end_time_sec} - ${start_time_sec} ]
+        echo "Start Time: ${start_time_str} (${start_time_sec})"
+        echo "End Time  : ${end_time_str} (${end_time_sec})"
+        echo "Total Execution Time: ${diff_time} sec"
 
-    echo "done!!!"
+        echo "done!!!"
+    fi
 }
 
 _main

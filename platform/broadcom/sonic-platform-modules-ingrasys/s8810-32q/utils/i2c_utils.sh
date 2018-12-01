@@ -15,7 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-VERSION="1.0.0"
+# trun on for more debug output
+#DEBUG="on"
+
+VERSION="1.1.0"
 TRUE=200
 FALSE=404
 
@@ -165,11 +168,14 @@ REG_CFG_1=7
 #Bit Mask
 BIT_MASK=(1 2 4 8 16 32 64 128)
 
+#GPIO Offset
+GPIO_OFFSET=0
 
 # Help usage function
 function _help {
     echo "========================================================="
     echo "# Description: Help Function"
+    echo "# Version    : ${VERSION}"
     echo "========================================================="
     echo "----------------------------------------------------"
     echo "EX       : ${0} help"
@@ -315,7 +321,9 @@ function _i2c_init {
     modprobe gpio-pca953x
     _i2c_fan_init
     _i2c_io_exp_init
+    rmmod gpio_ich
     _i2c_gpio_init
+    modprobe gpio_ich
     _i2c_psu_init
     _i2c_qsfp_eeprom_init "new"
     _i2c_mb_eeprom_init "new"
@@ -576,14 +584,30 @@ function _clear_gpiomap {
     rm -rf ${PATH_GPIOMAP}
 }
 
+# To set the global variable GPIO_OFFSET
+function _set_gpio_offset {
+    GPIO_OFFSET=0
+    for d in `ls /sys/class/gpio/ | grep gpiochip`
+    do
+        gpiochip_no=${d##gpiochip}
+        if [ $gpiochip_no -gt 255 ]; then
+            GPIO_OFFSET=256
+            break
+        fi
+    done
+    #echo "set GPIO_OFFSET=${GPIO_OFFSET}"
+}
+
 #GPIO Init
 function _i2c_gpio_init {
     local i=0
 
     #ABS Port 0-31
     echo "pca9535 ${I2C_ADDR_MUX_9535_1}" > ${PATH_SYS_I2C_DEVICES}/i2c-${NUM_MUX_9548_1_CHAN1}/new_device
+    _set_gpio_offset
     echo "pca9535 ${I2C_ADDR_MUX_9535_0}" > ${PATH_SYS_I2C_DEVICES}/i2c-${NUM_MUX_9548_1_CHAN1}/new_device
-    for i in {224..255}
+    #for i in {224..255}
+    for((i=${GPIO_OFFSET}+224;i<=${GPIO_OFFSET}+255;i++));
     do
         _gpio_export ${i} ${DIR_IN} ${ACTIVE_LOW}
         _set_gpiomap ${i} "QSFP$(( i - 223 ))_ABS"
@@ -592,7 +616,8 @@ function _i2c_gpio_init {
     #INT Port 0-31
     echo "pca9535 ${I2C_ADDR_MUX_9535_3}" > ${PATH_SYS_I2C_DEVICES}/i2c-${NUM_MUX_9548_1_CHAN1}/new_device
     echo "pca9535 ${I2C_ADDR_MUX_9535_2}" > ${PATH_SYS_I2C_DEVICES}/i2c-${NUM_MUX_9548_1_CHAN1}/new_device
-    for i in {192..223}
+    #for i in {192..223}
+    for((i=${GPIO_OFFSET}+192;i<=${GPIO_OFFSET}+223;i++));
     do
         _gpio_export ${i} ${DIR_IN} ${ACTIVE_LOW}
         _set_gpiomap ${i} "QSFP$(( i - 191 ))_INT"
@@ -601,7 +626,8 @@ function _i2c_gpio_init {
     #LP Mode Port 0-31
     echo "pca9535 ${I2C_ADDR_MUX_9535_5}" > ${PATH_SYS_I2C_DEVICES}/i2c-${NUM_MUX_9548_1_CHAN2}/new_device
     echo "pca9535 ${I2C_ADDR_MUX_9535_4}" > ${PATH_SYS_I2C_DEVICES}/i2c-${NUM_MUX_9548_1_CHAN2}/new_device
-    for i in {160..191}
+    #for i in {160..191}
+    for((i=${GPIO_OFFSET}+160;i<=${GPIO_OFFSET}+191;i++));
     do
         _gpio_export ${i} ${DIR_OUT} ${ACTIVE_HIGH}
         _set_gpiomap ${i} "QSFP$(( i - 159 ))_LPMODE"
@@ -610,7 +636,8 @@ function _i2c_gpio_init {
     #RST Port 0-31
     echo "pca9535 ${I2C_ADDR_MUX_9535_7}" > ${PATH_SYS_I2C_DEVICES}/i2c-${NUM_MUX_9548_1_CHAN2}/new_device
     echo "pca9535 ${I2C_ADDR_MUX_9535_6}" > ${PATH_SYS_I2C_DEVICES}/i2c-${NUM_MUX_9548_1_CHAN2}/new_device
-    for i in {128..159}
+    #for i in {128..159}
+    for((i=${GPIO_OFFSET}+128;i<=${GPIO_OFFSET}+159;i++));
     do
         _gpio_export ${i} ${DIR_OUT} ${ACTIVE_LOW}
         _set_gpiomap ${i} "QSFP$(( i - 127 ))_RST"
@@ -622,7 +649,8 @@ function _i2c_gpio_init {
     #MODSEL Port 0-31
     echo "pca9535 ${I2C_ADDR_MUX_9535_9}" > ${PATH_SYS_I2C_DEVICES}/i2c-${NUM_MUX_9548_1_CHAN3}/new_device
     echo "pca9535 ${I2C_ADDR_MUX_9535_8}" > ${PATH_SYS_I2C_DEVICES}/i2c-${NUM_MUX_9548_1_CHAN3}/new_device
-    for i in {96..127}
+    #for i in {96..127}
+    for((i=${GPIO_OFFSET}+96;i<=${GPIO_OFFSET}+127;i++));
     do
         _gpio_export ${i} ${DIR_OUT} ${ACTIVE_LOW}
         _set_gpiomap ${i} "QSFP$(( i - 95 ))_MODSEL"
@@ -965,31 +993,36 @@ function _qsfp_port_i2c_var_set {
             regAddr=0x20
             dataAddr=0
             eeprombusbase=${NUM_MUX_9548_2_CHAN0}
-            gpioBase=224
+            gpioBase=$((${GPIO_OFFSET}+224))
+            #gpioBase=224
         ;;
         9|10|11|12|13|14|15|16)
             i2cbus=${NUM_MUX_9548_1_CHAN1}
             regAddr=0x20
             dataAddr=1
             eeprombusbase=${NUM_MUX_9548_3_CHAN0}
-            gpioBase=224
+            gpioBase=$((${GPIO_OFFSET}+224))
+            #gpioBase=224
         ;;
         17|18|19|20|21|22|23|24)
             i2cbus=${NUM_MUX_9548_1_CHAN1}
             regAddr=0x21
             dataAddr=0
             eeprombusbase=${NUM_MUX_9548_4_CHAN0}
-            gpioBase=240
+            gpioBase=$((${GPIO_OFFSET}+240))
+            #gpioBase=240
         ;;
         25|26|27|28|29|30|31|32)
             i2cbus=${NUM_MUX_9548_1_CHAN1}
             regAddr=0x21
             dataAddr=1
             eeprombusbase=${NUM_MUX_9548_5_CHAN0}
-            gpioBase=240
+            gpioBase=$((${GPIO_OFFSET}+240))
+            #gpioBase=240
         ;;
         *)
             echo "Please input 1~32"
+            exit
         ;;
     esac
 }
@@ -1366,6 +1399,7 @@ function _main {
     start_time_str=`date`
     start_time_sec=$(date +%s)
 
+    _set_gpio_offset
     if [ "${EXEC_FUNC}" == "help" ]; then
         _help
     elif [ "${EXEC_FUNC}" == "i2c_init" ]; then
@@ -1439,14 +1473,17 @@ function _main {
         exit ${FALSE}
     fi
 
-    end_time_str=`date`
-    end_time_sec=$(date +%s)
-    diff_time=$[ ${end_time_sec} - ${start_time_sec} ]
-    echo "Start Time: ${start_time_str} (${start_time_sec})"
-    echo "End Time  : ${end_time_str} (${end_time_sec})"
-    echo "Total Execution Time: ${diff_time} sec"
+    if [ "$DEBUG" == "on" ]; then
+        echo "-----------------------------------------------------"
+        end_time_str=`date`
+        end_time_sec=$(date +%s)
+        diff_time=$[ ${end_time_sec} - ${start_time_sec} ]
+        echo "Start Time: ${start_time_str} (${start_time_sec})"
+        echo "End Time  : ${end_time_str} (${end_time_sec})"
+        echo "Total Execution Time: ${diff_time} sec"
 
-    echo "done!!!"
+        echo "done!!!"
+    fi
 }
 
 _main

@@ -15,7 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-VERSION="1.0.0"
+# trun on for more debug output
+#DEBUG="on"
+
+VERSION="1.1.0"
 TRUE=200
 FALSE=404
 
@@ -78,10 +81,14 @@ PSU_DC_OFF=0
 PSU_EXIST=1
 PSU_NOT_EXIST=0
 
+#GPIO Offset
+GPIO_OFFSET=0
+
 # Help usage function
 function _help {
     echo "========================================================="
     echo "# Description: Help Function"
+    echo "# Version    : ${VERSION}"
     echo "========================================================="
     echo "----------------------------------------------------"
     echo "EX       : ${0} help"
@@ -191,7 +198,9 @@ function _i2c_init {
     modprobe gpio-pca953x
     _i2c_fan_init
     _i2c_io_exp_init
+    rmmod gpio_ich
     _i2c_gpio_init
+    modprobe gpio_ich
     _i2c_cpld_init
     _i2c_qsfp_eeprom_init "new"
     _i2c_mb_eeprom_init "new"
@@ -367,351 +376,420 @@ function _i2c_io_exp_init {
     i2cset -y -r ${NUM_MUX1_CHAN7_DEVICE} 0x20 7 0xCC
 }
 
+# To set the global variable GPIO_OFFSET
+function _set_gpio_offset {
+    GPIO_OFFSET=0
+    for d in `ls /sys/class/gpio/ | grep gpiochip`
+    do
+        gpiochip_no=${d##gpiochip}
+        if [ $gpiochip_no -gt 255 ]; then
+            GPIO_OFFSET=256
+            break
+        fi
+    done
+    #echo "set GPIO_OFFSET=${GPIO_OFFSET}"
+}
+
 #GPIO Init
 function _i2c_gpio_init {
-    #ABS Port 0-15
+    #ABS Port 0-15 (zQSFP00 ~ zQSFP15)
     echo "pca9535 0x20" > /sys/bus/i2c/devices/i2c-${NUM_MUX1_CHAN4_DEVICE}/new_device
-    echo 240 > /sys/class/gpio/export
-    echo 241 > /sys/class/gpio/export
-    echo 242 > /sys/class/gpio/export
-    echo 243 > /sys/class/gpio/export
-    echo 244 > /sys/class/gpio/export
-    echo 245 > /sys/class/gpio/export
-    echo 246 > /sys/class/gpio/export
-    echo 247 > /sys/class/gpio/export
-    echo 248 > /sys/class/gpio/export
-    echo 249 > /sys/class/gpio/export
-    echo 250 > /sys/class/gpio/export
-    echo 251 > /sys/class/gpio/export
-    echo 252 > /sys/class/gpio/export
-    echo 253 > /sys/class/gpio/export
-    echo 254 > /sys/class/gpio/export
-    echo 255 > /sys/class/gpio/export
-    echo 1 > /sys/class/gpio/gpio241/active_low #zQSFP00
-    echo 1 > /sys/class/gpio/gpio240/active_low #zQSFP01
-    echo 1 > /sys/class/gpio/gpio243/active_low #zQSFP02
-    echo 1 > /sys/class/gpio/gpio242/active_low #zQSFP03
-    echo 1 > /sys/class/gpio/gpio245/active_low #zQSFP04
-    echo 1 > /sys/class/gpio/gpio244/active_low #zQSFP05
-    echo 1 > /sys/class/gpio/gpio247/active_low #zQSFP06
-    echo 1 > /sys/class/gpio/gpio246/active_low #zQSFP07
-    echo 1 > /sys/class/gpio/gpio249/active_low #zQSFP08
-    echo 1 > /sys/class/gpio/gpio248/active_low #zQSFP09
-    echo 1 > /sys/class/gpio/gpio251/active_low #zQSFP10
-    echo 1 > /sys/class/gpio/gpio250/active_low #zQSFP11
-    echo 1 > /sys/class/gpio/gpio253/active_low #zQSFP12
-    echo 1 > /sys/class/gpio/gpio252/active_low #zQSFP13
-    echo 1 > /sys/class/gpio/gpio255/active_low #zQSFP14
-    echo 1 > /sys/class/gpio/gpio254/active_low #zQSFP15
+    _set_gpio_offset
+    for((i=${GPIO_OFFSET}+240;i<=${GPIO_OFFSET}+255;i++));
+    do
+        echo $i > /sys/class/gpio/export
+        echo 1 > /sys/class/gpio/gpio${i}/active_low
+    done
 
-    #ABS Port 16-31
+    #echo 240 > /sys/class/gpio/export
+    #echo 241 > /sys/class/gpio/export
+    #echo 242 > /sys/class/gpio/export
+    #echo 243 > /sys/class/gpio/export
+    #echo 244 > /sys/class/gpio/export
+    #echo 245 > /sys/class/gpio/export
+    #echo 246 > /sys/class/gpio/export
+    #echo 247 > /sys/class/gpio/export
+    #echo 248 > /sys/class/gpio/export
+    #echo 249 > /sys/class/gpio/export
+    #echo 250 > /sys/class/gpio/export
+    #echo 251 > /sys/class/gpio/export
+    #echo 252 > /sys/class/gpio/export
+    #echo 253 > /sys/class/gpio/export
+    #echo 254 > /sys/class/gpio/export
+    #echo 255 > /sys/class/gpio/export
+    #echo 1 > /sys/class/gpio/gpio241/active_low #zQSFP00
+    #echo 1 > /sys/class/gpio/gpio240/active_low #zQSFP01
+    #echo 1 > /sys/class/gpio/gpio243/active_low #zQSFP02
+    #echo 1 > /sys/class/gpio/gpio242/active_low #zQSFP03
+    #echo 1 > /sys/class/gpio/gpio245/active_low #zQSFP04
+    #echo 1 > /sys/class/gpio/gpio244/active_low #zQSFP05
+    #echo 1 > /sys/class/gpio/gpio247/active_low #zQSFP06
+    #echo 1 > /sys/class/gpio/gpio246/active_low #zQSFP07
+    #echo 1 > /sys/class/gpio/gpio249/active_low #zQSFP08
+    #echo 1 > /sys/class/gpio/gpio248/active_low #zQSFP09
+    #echo 1 > /sys/class/gpio/gpio251/active_low #zQSFP10
+    #echo 1 > /sys/class/gpio/gpio250/active_low #zQSFP11
+    #echo 1 > /sys/class/gpio/gpio253/active_low #zQSFP12
+    #echo 1 > /sys/class/gpio/gpio252/active_low #zQSFP13
+    #echo 1 > /sys/class/gpio/gpio255/active_low #zQSFP14
+    #echo 1 > /sys/class/gpio/gpio254/active_low #zQSFP15
+
+    #ABS Port 16-31 (zQSFP16 ~ zQSFP31)
     echo "pca9535 0x21" > /sys/bus/i2c/devices/i2c-${NUM_MUX1_CHAN4_DEVICE}/new_device
-    echo 224 > /sys/class/gpio/export
-    echo 225 > /sys/class/gpio/export
-    echo 226 > /sys/class/gpio/export
-    echo 227 > /sys/class/gpio/export
-    echo 228 > /sys/class/gpio/export
-    echo 229 > /sys/class/gpio/export
-    echo 230 > /sys/class/gpio/export
-    echo 231 > /sys/class/gpio/export
-    echo 232 > /sys/class/gpio/export
-    echo 233 > /sys/class/gpio/export
-    echo 234 > /sys/class/gpio/export
-    echo 235 > /sys/class/gpio/export
-    echo 236 > /sys/class/gpio/export
-    echo 237 > /sys/class/gpio/export
-    echo 238 > /sys/class/gpio/export
-    echo 239 > /sys/class/gpio/export
-    echo 1 > /sys/class/gpio/gpio225/active_low #zQSFP16
-    echo 1 > /sys/class/gpio/gpio224/active_low #zQSFP17
-    echo 1 > /sys/class/gpio/gpio227/active_low #zQSFP18
-    echo 1 > /sys/class/gpio/gpio226/active_low #zQSFP19
-    echo 1 > /sys/class/gpio/gpio229/active_low #zQSFP20
-    echo 1 > /sys/class/gpio/gpio228/active_low #zQSFP21
-    echo 1 > /sys/class/gpio/gpio231/active_low #zQSFP22
-    echo 1 > /sys/class/gpio/gpio230/active_low #zQSFP23
-    echo 1 > /sys/class/gpio/gpio233/active_low #zQSFP24
-    echo 1 > /sys/class/gpio/gpio232/active_low #zQSFP25
-    echo 1 > /sys/class/gpio/gpio235/active_low #zQSFP26
-    echo 1 > /sys/class/gpio/gpio234/active_low #zQSFP27
-    echo 1 > /sys/class/gpio/gpio237/active_low #zQSFP28
-    echo 1 > /sys/class/gpio/gpio236/active_low #zQSFP29
-    echo 1 > /sys/class/gpio/gpio239/active_low #zQSFP30
-    echo 1 > /sys/class/gpio/gpio238/active_low #zQSFP31
+    for((i=${GPIO_OFFSET}+224;i<=${GPIO_OFFSET}+239;i++));
+    do
+        echo $i > /sys/class/gpio/export
+        echo 1 > /sys/class/gpio/gpio${i}/active_low
+    done
 
-    #INT Port 0-15
+    #echo 224 > /sys/class/gpio/export
+    #echo 225 > /sys/class/gpio/export
+    #echo 226 > /sys/class/gpio/export
+    #echo 227 > /sys/class/gpio/export
+    #echo 228 > /sys/class/gpio/export
+    #echo 229 > /sys/class/gpio/export
+    #echo 230 > /sys/class/gpio/export
+    #echo 231 > /sys/class/gpio/export
+    #echo 232 > /sys/class/gpio/export
+    #echo 233 > /sys/class/gpio/export
+    #echo 234 > /sys/class/gpio/export
+    #echo 235 > /sys/class/gpio/export
+    #echo 236 > /sys/class/gpio/export
+    #echo 237 > /sys/class/gpio/export
+    #echo 238 > /sys/class/gpio/export
+    #echo 239 > /sys/class/gpio/export
+    #echo 1 > /sys/class/gpio/gpio225/active_low #zQSFP16
+    #echo 1 > /sys/class/gpio/gpio224/active_low #zQSFP17
+    #echo 1 > /sys/class/gpio/gpio227/active_low #zQSFP18
+    #echo 1 > /sys/class/gpio/gpio226/active_low #zQSFP19
+    #echo 1 > /sys/class/gpio/gpio229/active_low #zQSFP20
+    #echo 1 > /sys/class/gpio/gpio228/active_low #zQSFP21
+    #echo 1 > /sys/class/gpio/gpio231/active_low #zQSFP22
+    #echo 1 > /sys/class/gpio/gpio230/active_low #zQSFP23
+    #echo 1 > /sys/class/gpio/gpio233/active_low #zQSFP24
+    #echo 1 > /sys/class/gpio/gpio232/active_low #zQSFP25
+    #echo 1 > /sys/class/gpio/gpio235/active_low #zQSFP26
+    #echo 1 > /sys/class/gpio/gpio234/active_low #zQSFP27
+    #echo 1 > /sys/class/gpio/gpio237/active_low #zQSFP28
+    #echo 1 > /sys/class/gpio/gpio236/active_low #zQSFP29
+    #echo 1 > /sys/class/gpio/gpio239/active_low #zQSFP30
+    #echo 1 > /sys/class/gpio/gpio238/active_low #zQSFP31
+
+    #INT Port 0-15 (zQSFP00 ~ zQSFP15)
     echo "pca9535 0x22" > /sys/bus/i2c/devices/i2c-${NUM_MUX1_CHAN4_DEVICE}/new_device
-    echo 208 > /sys/class/gpio/export
-    echo 209 > /sys/class/gpio/export
-    echo 210 > /sys/class/gpio/export
-    echo 211 > /sys/class/gpio/export
-    echo 212 > /sys/class/gpio/export
-    echo 213 > /sys/class/gpio/export
-    echo 214 > /sys/class/gpio/export
-    echo 215 > /sys/class/gpio/export
-    echo 216 > /sys/class/gpio/export
-    echo 217 > /sys/class/gpio/export
-    echo 218 > /sys/class/gpio/export
-    echo 219 > /sys/class/gpio/export
-    echo 220 > /sys/class/gpio/export
-    echo 221 > /sys/class/gpio/export
-    echo 222 > /sys/class/gpio/export
-    echo 223 > /sys/class/gpio/export
-    echo 1 > /sys/class/gpio/gpio208/active_low
-    echo 1 > /sys/class/gpio/gpio209/active_low
-    echo 1 > /sys/class/gpio/gpio210/active_low
-    echo 1 > /sys/class/gpio/gpio211/active_low
-    echo 1 > /sys/class/gpio/gpio212/active_low
-    echo 1 > /sys/class/gpio/gpio213/active_low
-    echo 1 > /sys/class/gpio/gpio214/active_low
-    echo 1 > /sys/class/gpio/gpio215/active_low
-    echo 1 > /sys/class/gpio/gpio216/active_low
-    echo 1 > /sys/class/gpio/gpio217/active_low
-    echo 1 > /sys/class/gpio/gpio218/active_low
-    echo 1 > /sys/class/gpio/gpio219/active_low
-    echo 1 > /sys/class/gpio/gpio220/active_low
-    echo 1 > /sys/class/gpio/gpio221/active_low
-    echo 1 > /sys/class/gpio/gpio222/active_low
-    echo 1 > /sys/class/gpio/gpio223/active_low
+    for((i=${GPIO_OFFSET}+208;i<=${GPIO_OFFSET}+223;i++));
+    do
+        echo $i > /sys/class/gpio/export
+        echo 1 > /sys/class/gpio/gpio${i}/active_low
+    done
 
-    #INT Port 16-31
+    #echo 208 > /sys/class/gpio/export
+    #echo 209 > /sys/class/gpio/export
+    #echo 210 > /sys/class/gpio/export
+    #echo 211 > /sys/class/gpio/export
+    #echo 212 > /sys/class/gpio/export
+    #echo 213 > /sys/class/gpio/export
+    #echo 214 > /sys/class/gpio/export
+    #echo 215 > /sys/class/gpio/export
+    #echo 216 > /sys/class/gpio/export
+    #echo 217 > /sys/class/gpio/export
+    #echo 218 > /sys/class/gpio/export
+    #echo 219 > /sys/class/gpio/export
+    #echo 220 > /sys/class/gpio/export
+    #echo 221 > /sys/class/gpio/export
+    #echo 222 > /sys/class/gpio/export
+    #echo 223 > /sys/class/gpio/export
+    #echo 1 > /sys/class/gpio/gpio208/active_low
+    #echo 1 > /sys/class/gpio/gpio209/active_low
+    #echo 1 > /sys/class/gpio/gpio210/active_low
+    #echo 1 > /sys/class/gpio/gpio211/active_low
+    #echo 1 > /sys/class/gpio/gpio212/active_low
+    #echo 1 > /sys/class/gpio/gpio213/active_low
+    #echo 1 > /sys/class/gpio/gpio214/active_low
+    #echo 1 > /sys/class/gpio/gpio215/active_low
+    #echo 1 > /sys/class/gpio/gpio216/active_low
+    #echo 1 > /sys/class/gpio/gpio217/active_low
+    #echo 1 > /sys/class/gpio/gpio218/active_low
+    #echo 1 > /sys/class/gpio/gpio219/active_low
+    #echo 1 > /sys/class/gpio/gpio220/active_low
+    #echo 1 > /sys/class/gpio/gpio221/active_low
+    #echo 1 > /sys/class/gpio/gpio222/active_low
+    #echo 1 > /sys/class/gpio/gpio223/active_low
+
+    #INT Port 16-31 (zQSFP16 ~ zQSFP31)
     echo "pca9535 0x23" > /sys/bus/i2c/devices/i2c-${NUM_MUX1_CHAN4_DEVICE}/new_device
-    echo 192 > /sys/class/gpio/export
-    echo 193 > /sys/class/gpio/export
-    echo 194 > /sys/class/gpio/export
-    echo 195 > /sys/class/gpio/export
-    echo 196 > /sys/class/gpio/export
-    echo 197 > /sys/class/gpio/export
-    echo 198 > /sys/class/gpio/export
-    echo 199 > /sys/class/gpio/export
-    echo 200 > /sys/class/gpio/export
-    echo 201 > /sys/class/gpio/export
-    echo 202 > /sys/class/gpio/export
-    echo 203 > /sys/class/gpio/export
-    echo 204 > /sys/class/gpio/export
-    echo 205 > /sys/class/gpio/export
-    echo 206 > /sys/class/gpio/export
-    echo 207 > /sys/class/gpio/export
-    echo 1 > /sys/class/gpio/gpio192/active_low
-    echo 1 > /sys/class/gpio/gpio193/active_low
-    echo 1 > /sys/class/gpio/gpio194/active_low
-    echo 1 > /sys/class/gpio/gpio195/active_low
-    echo 1 > /sys/class/gpio/gpio196/active_low
-    echo 1 > /sys/class/gpio/gpio197/active_low
-    echo 1 > /sys/class/gpio/gpio198/active_low
-    echo 1 > /sys/class/gpio/gpio199/active_low
-    echo 1 > /sys/class/gpio/gpio200/active_low
-    echo 1 > /sys/class/gpio/gpio201/active_low
-    echo 1 > /sys/class/gpio/gpio202/active_low
-    echo 1 > /sys/class/gpio/gpio203/active_low
-    echo 1 > /sys/class/gpio/gpio204/active_low
-    echo 1 > /sys/class/gpio/gpio205/active_low
-    echo 1 > /sys/class/gpio/gpio206/active_low
-    echo 1 > /sys/class/gpio/gpio207/active_low
+    for((i=${GPIO_OFFSET}+192;i<=${GPIO_OFFSET}+207;i++));
+    do
+        echo $i > /sys/class/gpio/export
+        echo 1 > /sys/class/gpio/gpio${i}/active_low
+    done
+
+    #echo 192 > /sys/class/gpio/export
+    #echo 193 > /sys/class/gpio/export
+    #echo 194 > /sys/class/gpio/export
+    #echo 195 > /sys/class/gpio/export
+    #echo 196 > /sys/class/gpio/export
+    #echo 197 > /sys/class/gpio/export
+    #echo 198 > /sys/class/gpio/export
+    #echo 199 > /sys/class/gpio/export
+    #echo 200 > /sys/class/gpio/export
+    #echo 201 > /sys/class/gpio/export
+    #echo 202 > /sys/class/gpio/export
+    #echo 203 > /sys/class/gpio/export
+    #echo 204 > /sys/class/gpio/export
+    #echo 205 > /sys/class/gpio/export
+    #echo 206 > /sys/class/gpio/export
+    #echo 207 > /sys/class/gpio/export
+    #echo 1 > /sys/class/gpio/gpio192/active_low
+    #echo 1 > /sys/class/gpio/gpio193/active_low
+    #echo 1 > /sys/class/gpio/gpio194/active_low
+    #echo 1 > /sys/class/gpio/gpio195/active_low
+    #echo 1 > /sys/class/gpio/gpio196/active_low
+    #echo 1 > /sys/class/gpio/gpio197/active_low
+    #echo 1 > /sys/class/gpio/gpio198/active_low
+    #echo 1 > /sys/class/gpio/gpio199/active_low
+    #echo 1 > /sys/class/gpio/gpio200/active_low
+    #echo 1 > /sys/class/gpio/gpio201/active_low
+    #echo 1 > /sys/class/gpio/gpio202/active_low
+    #echo 1 > /sys/class/gpio/gpio203/active_low
+    #echo 1 > /sys/class/gpio/gpio204/active_low
+    #echo 1 > /sys/class/gpio/gpio205/active_low
+    #echo 1 > /sys/class/gpio/gpio206/active_low
+    #echo 1 > /sys/class/gpio/gpio207/active_low
 
     #LP Mode Port 0-15
     echo "pca9535 0x20" > /sys/bus/i2c/devices/i2c-${NUM_MUX1_CHAN5_DEVICE}/new_device
-    echo 176 > /sys/class/gpio/export
-    echo 177 > /sys/class/gpio/export
-    echo 178 > /sys/class/gpio/export
-    echo 179 > /sys/class/gpio/export
-    echo 180 > /sys/class/gpio/export
-    echo 181 > /sys/class/gpio/export
-    echo 182 > /sys/class/gpio/export
-    echo 183 > /sys/class/gpio/export
-    echo 184 > /sys/class/gpio/export
-    echo 185 > /sys/class/gpio/export
-    echo 186 > /sys/class/gpio/export
-    echo 187 > /sys/class/gpio/export
-    echo 188 > /sys/class/gpio/export
-    echo 189 > /sys/class/gpio/export
-    echo 190 > /sys/class/gpio/export
-    echo 191 > /sys/class/gpio/export
-    echo out > /sys/class/gpio/gpio176/direction
-    echo out > /sys/class/gpio/gpio177/direction
-    echo out > /sys/class/gpio/gpio178/direction
-    echo out > /sys/class/gpio/gpio179/direction
-    echo out > /sys/class/gpio/gpio180/direction
-    echo out > /sys/class/gpio/gpio181/direction
-    echo out > /sys/class/gpio/gpio182/direction
-    echo out > /sys/class/gpio/gpio183/direction
-    echo out > /sys/class/gpio/gpio184/direction
-    echo out > /sys/class/gpio/gpio185/direction
-    echo out > /sys/class/gpio/gpio186/direction
-    echo out > /sys/class/gpio/gpio187/direction
-    echo out > /sys/class/gpio/gpio188/direction
-    echo out > /sys/class/gpio/gpio189/direction
-    echo out > /sys/class/gpio/gpio190/direction
-    echo out > /sys/class/gpio/gpio191/direction
+    for((i=${GPIO_OFFSET}+176;i<=${GPIO_OFFSET}+191;i++));
+    do
+        echo $i > /sys/class/gpio/export
+        echo out > /sys/class/gpio/gpio${i}/direction
+    done
+
+    #echo 176 > /sys/class/gpio/export
+    #echo 177 > /sys/class/gpio/export
+    #echo 178 > /sys/class/gpio/export
+    #echo 179 > /sys/class/gpio/export
+    #echo 180 > /sys/class/gpio/export
+    #echo 181 > /sys/class/gpio/export
+    #echo 182 > /sys/class/gpio/export
+    #echo 183 > /sys/class/gpio/export
+    #echo 184 > /sys/class/gpio/export
+    #echo 185 > /sys/class/gpio/export
+    #echo 186 > /sys/class/gpio/export
+    #echo 187 > /sys/class/gpio/export
+    #echo 188 > /sys/class/gpio/export
+    #echo 189 > /sys/class/gpio/export
+    #echo 190 > /sys/class/gpio/export
+    #echo 191 > /sys/class/gpio/export
+    #echo out > /sys/class/gpio/gpio176/direction
+    #echo out > /sys/class/gpio/gpio177/direction
+    #echo out > /sys/class/gpio/gpio178/direction
+    #echo out > /sys/class/gpio/gpio179/direction
+    #echo out > /sys/class/gpio/gpio180/direction
+    #echo out > /sys/class/gpio/gpio181/direction
+    #echo out > /sys/class/gpio/gpio182/direction
+    #echo out > /sys/class/gpio/gpio183/direction
+    #echo out > /sys/class/gpio/gpio184/direction
+    #echo out > /sys/class/gpio/gpio185/direction
+    #echo out > /sys/class/gpio/gpio186/direction
+    #echo out > /sys/class/gpio/gpio187/direction
+    #echo out > /sys/class/gpio/gpio188/direction
+    #echo out > /sys/class/gpio/gpio189/direction
+    #echo out > /sys/class/gpio/gpio190/direction
+    #echo out > /sys/class/gpio/gpio191/direction
 
     #LP Mode Port 16-31
     echo "pca9535 0x21" > /sys/bus/i2c/devices/i2c-${NUM_MUX1_CHAN5_DEVICE}/new_device
-    echo 160 > /sys/class/gpio/export
-    echo 161 > /sys/class/gpio/export
-    echo 162 > /sys/class/gpio/export
-    echo 163 > /sys/class/gpio/export
-    echo 164 > /sys/class/gpio/export
-    echo 165 > /sys/class/gpio/export
-    echo 166 > /sys/class/gpio/export
-    echo 167 > /sys/class/gpio/export
-    echo 168 > /sys/class/gpio/export
-    echo 169 > /sys/class/gpio/export
-    echo 170 > /sys/class/gpio/export
-    echo 171 > /sys/class/gpio/export
-    echo 172 > /sys/class/gpio/export
-    echo 173 > /sys/class/gpio/export
-    echo 174 > /sys/class/gpio/export
-    echo 175 > /sys/class/gpio/export
-    echo out > /sys/class/gpio/gpio160/direction
-    echo out > /sys/class/gpio/gpio161/direction
-    echo out > /sys/class/gpio/gpio162/direction
-    echo out > /sys/class/gpio/gpio163/direction
-    echo out > /sys/class/gpio/gpio164/direction
-    echo out > /sys/class/gpio/gpio165/direction
-    echo out > /sys/class/gpio/gpio166/direction
-    echo out > /sys/class/gpio/gpio167/direction
-    echo out > /sys/class/gpio/gpio168/direction
-    echo out > /sys/class/gpio/gpio169/direction
-    echo out > /sys/class/gpio/gpio170/direction
-    echo out > /sys/class/gpio/gpio171/direction
-    echo out > /sys/class/gpio/gpio172/direction
-    echo out > /sys/class/gpio/gpio173/direction
-    echo out > /sys/class/gpio/gpio174/direction
-    echo out > /sys/class/gpio/gpio175/direction
+    for((i=${GPIO_OFFSET}+160;i<=${GPIO_OFFSET}+175;i++));
+    do
+        echo $i > /sys/class/gpio/export
+        echo out > /sys/class/gpio/gpio${i}/direction
+    done
+
+    #echo 160 > /sys/class/gpio/export
+    #echo 161 > /sys/class/gpio/export
+    #echo 162 > /sys/class/gpio/export
+    #echo 163 > /sys/class/gpio/export
+    #echo 164 > /sys/class/gpio/export
+    #echo 165 > /sys/class/gpio/export
+    #echo 166 > /sys/class/gpio/export
+    #echo 167 > /sys/class/gpio/export
+    #echo 168 > /sys/class/gpio/export
+    #echo 169 > /sys/class/gpio/export
+    #echo 170 > /sys/class/gpio/export
+    #echo 171 > /sys/class/gpio/export
+    #echo 172 > /sys/class/gpio/export
+    #echo 173 > /sys/class/gpio/export
+    #echo 174 > /sys/class/gpio/export
+    #echo 175 > /sys/class/gpio/export
+    #echo out > /sys/class/gpio/gpio160/direction
+    #echo out > /sys/class/gpio/gpio161/direction
+    #echo out > /sys/class/gpio/gpio162/direction
+    #echo out > /sys/class/gpio/gpio163/direction
+    #echo out > /sys/class/gpio/gpio164/direction
+    #echo out > /sys/class/gpio/gpio165/direction
+    #echo out > /sys/class/gpio/gpio166/direction
+    #echo out > /sys/class/gpio/gpio167/direction
+    #echo out > /sys/class/gpio/gpio168/direction
+    #echo out > /sys/class/gpio/gpio169/direction
+    #echo out > /sys/class/gpio/gpio170/direction
+    #echo out > /sys/class/gpio/gpio171/direction
+    #echo out > /sys/class/gpio/gpio172/direction
+    #echo out > /sys/class/gpio/gpio173/direction
+    #echo out > /sys/class/gpio/gpio174/direction
+    #echo out > /sys/class/gpio/gpio175/direction
 
     #RST Port 0-15
     echo "pca9535 0x22" > /sys/bus/i2c/devices/i2c-${NUM_MUX1_CHAN5_DEVICE}/new_device
-    echo 144 > /sys/class/gpio/export
-    echo 145 > /sys/class/gpio/export
-    echo 146 > /sys/class/gpio/export
-    echo 147 > /sys/class/gpio/export
-    echo 148 > /sys/class/gpio/export
-    echo 149 > /sys/class/gpio/export
-    echo 150 > /sys/class/gpio/export
-    echo 151 > /sys/class/gpio/export
-    echo 152 > /sys/class/gpio/export
-    echo 153 > /sys/class/gpio/export
-    echo 154 > /sys/class/gpio/export
-    echo 155 > /sys/class/gpio/export
-    echo 156 > /sys/class/gpio/export
-    echo 157 > /sys/class/gpio/export
-    echo 158 > /sys/class/gpio/export
-    echo 159 > /sys/class/gpio/export
-    echo out > /sys/class/gpio/gpio144/direction
-    echo out > /sys/class/gpio/gpio145/direction
-    echo out > /sys/class/gpio/gpio146/direction
-    echo out > /sys/class/gpio/gpio147/direction
-    echo out > /sys/class/gpio/gpio148/direction
-    echo out > /sys/class/gpio/gpio149/direction
-    echo out > /sys/class/gpio/gpio150/direction
-    echo out > /sys/class/gpio/gpio151/direction
-    echo out > /sys/class/gpio/gpio152/direction
-    echo out > /sys/class/gpio/gpio153/direction
-    echo out > /sys/class/gpio/gpio154/direction
-    echo out > /sys/class/gpio/gpio155/direction
-    echo out > /sys/class/gpio/gpio156/direction
-    echo out > /sys/class/gpio/gpio157/direction
-    echo out > /sys/class/gpio/gpio158/direction
-    echo out > /sys/class/gpio/gpio159/direction
-    echo 1 > /sys/class/gpio/gpio144/active_low
-    echo 1 > /sys/class/gpio/gpio145/active_low
-    echo 1 > /sys/class/gpio/gpio146/active_low
-    echo 1 > /sys/class/gpio/gpio147/active_low
-    echo 1 > /sys/class/gpio/gpio148/active_low
-    echo 1 > /sys/class/gpio/gpio149/active_low
-    echo 1 > /sys/class/gpio/gpio150/active_low
-    echo 1 > /sys/class/gpio/gpio151/active_low
-    echo 1 > /sys/class/gpio/gpio152/active_low
-    echo 1 > /sys/class/gpio/gpio153/active_low
-    echo 1 > /sys/class/gpio/gpio154/active_low
-    echo 1 > /sys/class/gpio/gpio155/active_low
-    echo 1 > /sys/class/gpio/gpio156/active_low
-    echo 1 > /sys/class/gpio/gpio157/active_low
-    echo 1 > /sys/class/gpio/gpio158/active_low
-    echo 1 > /sys/class/gpio/gpio159/active_low
-    echo 0 > /sys/class/gpio/gpio144/value
-    echo 0 > /sys/class/gpio/gpio145/value
-    echo 0 > /sys/class/gpio/gpio146/value
-    echo 0 > /sys/class/gpio/gpio147/value
-    echo 0 > /sys/class/gpio/gpio148/value
-    echo 0 > /sys/class/gpio/gpio149/value
-    echo 0 > /sys/class/gpio/gpio150/value
-    echo 0 > /sys/class/gpio/gpio151/value
-    echo 0 > /sys/class/gpio/gpio152/value
-    echo 0 > /sys/class/gpio/gpio153/value
-    echo 0 > /sys/class/gpio/gpio154/value
-    echo 0 > /sys/class/gpio/gpio155/value
-    echo 0 > /sys/class/gpio/gpio156/value
-    echo 0 > /sys/class/gpio/gpio157/value
-    echo 0 > /sys/class/gpio/gpio158/value
-    echo 0 > /sys/class/gpio/gpio159/value
+    for((i=${GPIO_OFFSET}+144;i<=${GPIO_OFFSET}+159;i++));        
+    do
+        echo $i > /sys/class/gpio/export
+        echo 1 > /sys/class/gpio/gpio${i}/active_low
+        echo low > /sys/class/gpio/gpio${i}/direction
+        #echo out > /sys/class/gpio/gpio${i}/direction
+        #echo 0 > /sys/class/gpio/gpio${i}/value
+    done
+
+    #echo 144 > /sys/class/gpio/export
+    #echo 145 > /sys/class/gpio/export
+    #echo 146 > /sys/class/gpio/export
+    #echo 147 > /sys/class/gpio/export
+    #echo 148 > /sys/class/gpio/export
+    #echo 149 > /sys/class/gpio/export
+    #echo 150 > /sys/class/gpio/export
+    #echo 151 > /sys/class/gpio/export
+    #echo 152 > /sys/class/gpio/export
+    #echo 153 > /sys/class/gpio/export
+    #echo 154 > /sys/class/gpio/export
+    #echo 155 > /sys/class/gpio/export
+    #echo 156 > /sys/class/gpio/export
+    #echo 157 > /sys/class/gpio/export
+    #echo 158 > /sys/class/gpio/export
+    #echo 159 > /sys/class/gpio/export
+    #echo out > /sys/class/gpio/gpio144/direction
+    #echo out > /sys/class/gpio/gpio145/direction
+    #echo out > /sys/class/gpio/gpio146/direction
+    #echo out > /sys/class/gpio/gpio147/direction
+    #echo out > /sys/class/gpio/gpio148/direction
+    #echo out > /sys/class/gpio/gpio149/direction
+    #echo out > /sys/class/gpio/gpio150/direction
+    #echo out > /sys/class/gpio/gpio151/direction
+    #echo out > /sys/class/gpio/gpio152/direction
+    #echo out > /sys/class/gpio/gpio153/direction
+    #echo out > /sys/class/gpio/gpio154/direction
+    #echo out > /sys/class/gpio/gpio155/direction
+    #echo out > /sys/class/gpio/gpio156/direction
+    #echo out > /sys/class/gpio/gpio157/direction
+    #echo out > /sys/class/gpio/gpio158/direction
+    #echo out > /sys/class/gpio/gpio159/direction
+    #echo 1 > /sys/class/gpio/gpio144/active_low
+    #echo 1 > /sys/class/gpio/gpio145/active_low
+    #echo 1 > /sys/class/gpio/gpio146/active_low
+    #echo 1 > /sys/class/gpio/gpio147/active_low
+    #echo 1 > /sys/class/gpio/gpio148/active_low
+    #echo 1 > /sys/class/gpio/gpio149/active_low
+    #echo 1 > /sys/class/gpio/gpio150/active_low
+    #echo 1 > /sys/class/gpio/gpio151/active_low
+    #echo 1 > /sys/class/gpio/gpio152/active_low
+    #echo 1 > /sys/class/gpio/gpio153/active_low
+    #echo 1 > /sys/class/gpio/gpio154/active_low
+    #echo 1 > /sys/class/gpio/gpio155/active_low
+    #echo 1 > /sys/class/gpio/gpio156/active_low
+    #echo 1 > /sys/class/gpio/gpio157/active_low
+    #echo 1 > /sys/class/gpio/gpio158/active_low
+    #echo 1 > /sys/class/gpio/gpio159/active_low
+    #echo 0 > /sys/class/gpio/gpio144/value
+    #echo 0 > /sys/class/gpio/gpio145/value
+    #echo 0 > /sys/class/gpio/gpio146/value
+    #echo 0 > /sys/class/gpio/gpio147/value
+    #echo 0 > /sys/class/gpio/gpio148/value
+    #echo 0 > /sys/class/gpio/gpio149/value
+    #echo 0 > /sys/class/gpio/gpio150/value
+    #echo 0 > /sys/class/gpio/gpio151/value
+    #echo 0 > /sys/class/gpio/gpio152/value
+    #echo 0 > /sys/class/gpio/gpio153/value
+    #echo 0 > /sys/class/gpio/gpio154/value
+    #echo 0 > /sys/class/gpio/gpio155/value
+    #echo 0 > /sys/class/gpio/gpio156/value
+    #echo 0 > /sys/class/gpio/gpio157/value
+    #echo 0 > /sys/class/gpio/gpio158/value
+    #echo 0 > /sys/class/gpio/gpio159/value
 
     #RST Port 16-31
     echo "pca9535 0x23" > /sys/bus/i2c/devices/i2c-${NUM_MUX1_CHAN5_DEVICE}/new_device
-    echo 128 > /sys/class/gpio/export
-    echo 129 > /sys/class/gpio/export
-    echo 130 > /sys/class/gpio/export
-    echo 131 > /sys/class/gpio/export
-    echo 132 > /sys/class/gpio/export
-    echo 133 > /sys/class/gpio/export
-    echo 134 > /sys/class/gpio/export
-    echo 135 > /sys/class/gpio/export
-    echo 136 > /sys/class/gpio/export
-    echo 137 > /sys/class/gpio/export
-    echo 138 > /sys/class/gpio/export
-    echo 139 > /sys/class/gpio/export
-    echo 140 > /sys/class/gpio/export
-    echo 141 > /sys/class/gpio/export
-    echo 142 > /sys/class/gpio/export
-    echo 143 > /sys/class/gpio/export
-    echo out > /sys/class/gpio/gpio128/direction
-    echo out > /sys/class/gpio/gpio129/direction
-    echo out > /sys/class/gpio/gpio130/direction
-    echo out > /sys/class/gpio/gpio131/direction
-    echo out > /sys/class/gpio/gpio132/direction
-    echo out > /sys/class/gpio/gpio133/direction
-    echo out > /sys/class/gpio/gpio134/direction
-    echo out > /sys/class/gpio/gpio135/direction
-    echo out > /sys/class/gpio/gpio136/direction
-    echo out > /sys/class/gpio/gpio137/direction
-    echo out > /sys/class/gpio/gpio138/direction
-    echo out > /sys/class/gpio/gpio139/direction
-    echo out > /sys/class/gpio/gpio140/direction
-    echo out > /sys/class/gpio/gpio141/direction
-    echo out > /sys/class/gpio/gpio142/direction
-    echo out > /sys/class/gpio/gpio143/direction
-    echo 1 > /sys/class/gpio/gpio128/active_low
-    echo 1 > /sys/class/gpio/gpio129/active_low
-    echo 1 > /sys/class/gpio/gpio130/active_low
-    echo 1 > /sys/class/gpio/gpio131/active_low
-    echo 1 > /sys/class/gpio/gpio132/active_low
-    echo 1 > /sys/class/gpio/gpio133/active_low
-    echo 1 > /sys/class/gpio/gpio134/active_low
-    echo 1 > /sys/class/gpio/gpio135/active_low
-    echo 1 > /sys/class/gpio/gpio136/active_low
-    echo 1 > /sys/class/gpio/gpio137/active_low
-    echo 1 > /sys/class/gpio/gpio138/active_low
-    echo 1 > /sys/class/gpio/gpio139/active_low
-    echo 1 > /sys/class/gpio/gpio140/active_low
-    echo 1 > /sys/class/gpio/gpio141/active_low
-    echo 1 > /sys/class/gpio/gpio142/active_low
-    echo 1 > /sys/class/gpio/gpio143/active_low
-    echo 0 > /sys/class/gpio/gpio128/value
-    echo 0 > /sys/class/gpio/gpio129/value
-    echo 0 > /sys/class/gpio/gpio130/value
-    echo 0 > /sys/class/gpio/gpio131/value
-    echo 0 > /sys/class/gpio/gpio132/value
-    echo 0 > /sys/class/gpio/gpio133/value
-    echo 0 > /sys/class/gpio/gpio134/value
-    echo 0 > /sys/class/gpio/gpio135/value
-    echo 0 > /sys/class/gpio/gpio136/value
-    echo 0 > /sys/class/gpio/gpio137/value
-    echo 0 > /sys/class/gpio/gpio138/value
-    echo 0 > /sys/class/gpio/gpio139/value
-    echo 0 > /sys/class/gpio/gpio140/value
-    echo 0 > /sys/class/gpio/gpio141/value
-    echo 0 > /sys/class/gpio/gpio142/value
-    echo 0 > /sys/class/gpio/gpio143/value
+    for((i=${GPIO_OFFSET}+128;i<=${GPIO_OFFSET}+143;i++));
+    do
+        echo $i > /sys/class/gpio/export
+        echo 1 > /sys/class/gpio/gpio${i}/active_low
+        echo low > /sys/class/gpio/gpio${i}/direction
+        #echo out > /sys/class/gpio/gpio${i}/direction
+        #echo 0 > /sys/class/gpio/gpio${i}/value
+    done
+
+    #echo 128 > /sys/class/gpio/export
+    #echo 129 > /sys/class/gpio/export
+    #echo 130 > /sys/class/gpio/export
+    #echo 131 > /sys/class/gpio/export
+    #echo 132 > /sys/class/gpio/export
+    #echo 133 > /sys/class/gpio/export
+    #echo 134 > /sys/class/gpio/export
+    #echo 135 > /sys/class/gpio/export
+    #echo 136 > /sys/class/gpio/export
+    #echo 137 > /sys/class/gpio/export
+    #echo 138 > /sys/class/gpio/export
+    #echo 139 > /sys/class/gpio/export
+    #echo 140 > /sys/class/gpio/export
+    #echo 141 > /sys/class/gpio/export
+    #echo 142 > /sys/class/gpio/export
+    #echo 143 > /sys/class/gpio/export
+    #echo out > /sys/class/gpio/gpio128/direction
+    #echo out > /sys/class/gpio/gpio129/direction
+    #echo out > /sys/class/gpio/gpio130/direction
+    #echo out > /sys/class/gpio/gpio131/direction
+    #echo out > /sys/class/gpio/gpio132/direction
+    #echo out > /sys/class/gpio/gpio133/direction
+    #echo out > /sys/class/gpio/gpio134/direction
+    #echo out > /sys/class/gpio/gpio135/direction
+    #echo out > /sys/class/gpio/gpio136/direction
+    #echo out > /sys/class/gpio/gpio137/direction
+    #echo out > /sys/class/gpio/gpio138/direction
+    #echo out > /sys/class/gpio/gpio139/direction
+    #echo out > /sys/class/gpio/gpio140/direction
+    #echo out > /sys/class/gpio/gpio141/direction
+    #echo out > /sys/class/gpio/gpio142/direction
+    #echo out > /sys/class/gpio/gpio143/direction
+    #echo 1 > /sys/class/gpio/gpio128/active_low
+    #echo 1 > /sys/class/gpio/gpio129/active_low
+    #echo 1 > /sys/class/gpio/gpio130/active_low
+    #echo 1 > /sys/class/gpio/gpio131/active_low
+    #echo 1 > /sys/class/gpio/gpio132/active_low
+    #echo 1 > /sys/class/gpio/gpio133/active_low
+    #echo 1 > /sys/class/gpio/gpio134/active_low
+    #echo 1 > /sys/class/gpio/gpio135/active_low
+    #echo 1 > /sys/class/gpio/gpio136/active_low
+    #echo 1 > /sys/class/gpio/gpio137/active_low
+    #echo 1 > /sys/class/gpio/gpio138/active_low
+    #echo 1 > /sys/class/gpio/gpio139/active_low
+    #echo 1 > /sys/class/gpio/gpio140/active_low
+    #echo 1 > /sys/class/gpio/gpio141/active_low
+    #echo 1 > /sys/class/gpio/gpio142/active_low
+    #echo 1 > /sys/class/gpio/gpio143/active_low
+    #echo 0 > /sys/class/gpio/gpio128/value
+    #echo 0 > /sys/class/gpio/gpio129/value
+    #echo 0 > /sys/class/gpio/gpio130/value
+    #echo 0 > /sys/class/gpio/gpio131/value
+    #echo 0 > /sys/class/gpio/gpio132/value
+    #echo 0 > /sys/class/gpio/gpio133/value
+    #echo 0 > /sys/class/gpio/gpio134/value
+    #echo 0 > /sys/class/gpio/gpio135/value
+    #echo 0 > /sys/class/gpio/gpio136/value
+    #echo 0 > /sys/class/gpio/gpio137/value
+    #echo 0 > /sys/class/gpio/gpio138/value
+    #echo 0 > /sys/class/gpio/gpio139/value
+    #echo 0 > /sys/class/gpio/gpio140/value
+    #echo 0 > /sys/class/gpio/gpio141/value
+    #echo 0 > /sys/class/gpio/gpio142/value
+    #echo 0 > /sys/class/gpio/gpio143/value
 
 }
 
@@ -1008,41 +1086,48 @@ function _qsfp_port_i2c_var_set {
             regAddr=0x20
             dataAddr=0
             eeprombusbase=${NUM_MUX3_CHAN0_DEVICE}
-            gpioBase=240
+            gpioBase=$((${GPIO_OFFSET}+240))
+            #gpioBase=240
         ;;
         9|10|11|12|13|14|15|16)
             i2cbus=${NUM_MUX1_CHAN4_DEVICE}
             regAddr=0x20
             dataAddr=1
             eeprombusbase=${NUM_MUX4_CHAN0_DEVICE}
-            gpioBase=240
+            gpioBase=$((${GPIO_OFFSET}+240))
+            #gpioBase=240
         ;;
         17|18|19|20|21|22|23|24)
             i2cbus=${NUM_MUX1_CHAN4_DEVICE}
             regAddr=0x21
             dataAddr=0
             eeprombusbase=${NUM_MUX5_CHAN0_DEVICE}
-            gpioBase=$((224 - 16))
+            gpioBase=$((${GPIO_OFFSET}+224-16))
+            #gpioBase=$((224 - 16))
         ;;
         25|26|27|28|29|30|31|32)
             i2cbus=${NUM_MUX1_CHAN4_DEVICE}
             regAddr=0x21
             dataAddr=1
             eeprombusbase=${NUM_MUX6_CHAN0_DEVICE}
-            gpioBase=$((224 - 16))
+            gpioBase=$((${GPIO_OFFSET}+224-16))
+            #gpioBase=$((224 - 16))
         ;;
-        33)
-            i2cbus=${NUM_MUX1_CHAN7_DEVICE}
-            regAddr=0x22
-            dataAddr=0
-        ;;
-        34)
-            i2cbus=${NUM_MUX1_CHAN7_DEVICE}
-            regAddr=0x22
-            dataAddr=1
-        ;;
+        #33)
+        #    i2cbus=${NUM_MUX1_CHAN7_DEVICE}
+        #    regAddr=0x22
+        #    dataAddr=0
+        #    gpioBase=${GPIO_OFFSET}
+        #;;
+        #34)
+        #    i2cbus=${NUM_MUX1_CHAN7_DEVICE}
+        #    regAddr=0x22
+        #    dataAddr=1
+        #    gpioBase=${GPIO_OFFSET}
+        #;;
         *)
             echo "Please input 1~32"
+            exit
         ;;
     esac
 }
@@ -1428,6 +1513,7 @@ function _main {
     tart_time_str=`date`
     start_time_sec=$(date +%s)
 
+    _set_gpio_offset
     if [ "${EXEC_FUNC}" == "help" ]; then
         _help
     elif [ "${EXEC_FUNC}" == "i2c_init" ]; then
@@ -1505,14 +1591,17 @@ function _main {
         exit ${FALSE}
     fi
 
-    end_time_str=`date`
-    end_time_sec=$(date +%s)
-    diff_time=$[ ${end_time_sec} - ${start_time_sec} ]
-    echo "Start Time: ${start_time_str} (${start_time_sec})"
-    echo "End Time  : ${end_time_str} (${end_time_sec})"
-    echo "Total Execution Time: ${diff_time} sec"
+    if [ "$DEBUG" == "on" ]; then
+        echo "-----------------------------------------------------"
+        end_time_str=`date`
+        end_time_sec=$(date +%s)
+        diff_time=$[ ${end_time_sec} - ${start_time_sec} ]
+        echo "Start Time: ${start_time_str} (${start_time_sec})"
+        echo "End Time  : ${end_time_str} (${end_time_sec})"
+        echo "Total Execution Time: ${diff_time} sec"
 
-    echo "done!!!"
+        echo "done!!!"
+    fi
 }
 
 _main

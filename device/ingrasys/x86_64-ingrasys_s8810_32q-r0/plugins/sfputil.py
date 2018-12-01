@@ -3,6 +3,8 @@
 # Platform-specific SFP transceiver interface for SONiC
 #
 
+import os
+
 try:
     import time
     from sonic_sfp.sfputilbase import SfpUtilBase
@@ -23,6 +25,7 @@ class SfpUtil(SfpUtilBase):
     #INT_GPIO_BASE = 192
     LP_GPIO_BASE = 160
     RST_GPIO_BASE = 128
+    GPIO_OFFSET = 0
     
     BASE_DIR_PATH = "/sys/class/gpio/gpio{0}/direction"
     BASE_VAL_PATH = "/sys/class/gpio/gpio{0}/value"
@@ -45,7 +48,32 @@ class SfpUtil(SfpUtilBase):
     def port_to_eeprom_mapping(self):
         return self._port_to_eeprom_mapping
 
+    def set_gpio_offset(self):
+        sys_gpio_dir = "/sys/class/gpio"
+        self.GPIO_OFFSET = 0
+        gpiochip_no = 0
+        for d in os.listdir(sys_gpio_dir):
+            if "gpiochip" in d:
+                try:
+                    gpiochip_no = int(d[8:],10)
+                except ValueError as e:
+                    print "Error: %s" % str(e)
+                if gpiochip_no > 255:
+                    self.GPIO_OFFSET=256
+                    return True
+        return True
+
+    def update_gpio_base(self):
+        self.ABS_GPIO_BASE = 224 + self.GPIO_OFFSET
+        self.LP_GPIO_BASE = 160 + self.GPIO_OFFSET
+        self.RST_GPIO_BASE = 128 + self.GPIO_OFFSET
+        return True
+
     def __init__(self):
+        # Update abs, lpmode, and reset gpio base
+        self.set_gpio_offset()
+        self.update_gpio_base()
+
         # Override port_to_eeprom_mapping for class initialization
         eeprom_path = "/sys/class/i2c-adapter/i2c-{0}/{0}-0050/eeprom"
 

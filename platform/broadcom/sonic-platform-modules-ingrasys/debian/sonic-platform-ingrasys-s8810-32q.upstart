@@ -1,6 +1,0 @@
-description "SONiC platform service"
-
-respawn
-
-exec /usr/sbin/s8810_32q_monitor.sh
-exec /usr/sbin/qsfp_monitor.sh
