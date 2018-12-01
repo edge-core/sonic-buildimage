@@ -4417,7 +4417,8 @@ bkn_tx(struct sk_buff *skb, struct net_device *dev)
             }
         } else {
             if (sinfo->cmic_type == 'x' && priv->port >= 0) {
-                if (skb_header_cloned(skb) || skb_headroom(skb) < hdrlen + 4) {
+                if (skb_header_cloned(skb) || skb_headroom(skb) < hdrlen + 4 ||
+                    ((unsigned long)skb->data % 4)) {
                     /* Current SKB cannot be modified */
                     DBG_SKB(("Realloc Tx SKB\n"));
                     new_skb = dev_alloc_skb(pktlen + hdrlen + 4);
@@ -4784,8 +4785,11 @@ bkn_tx(struct sk_buff *skb, struct net_device *dev)
         bkn_suspend_tx(sinfo);
     }
 
+#if (LINUX_VERSION_CODE <= KERNEL_VERSION(4,6,0))                  
+    dev->trans_start = jiffies;
+#else
     netif_trans_update(dev);
-
+#endif
     spin_unlock_irqrestore(&sinfo->lock, flags);
 
     return 0;
