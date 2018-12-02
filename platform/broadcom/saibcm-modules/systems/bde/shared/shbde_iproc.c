@@ -1,18 +1,17 @@
 /*
- * Unless you and Broadcom execute a separate written software license
- * agreement governing use of this software, this software is licensed to
- * you under the terms of the GNU General Public License version 2 (the
- * "GPL"), available at http://www.broadcom.com/licenses/GPLv2.php,
- * with the following added to such license:
+ * Copyright 2017 Broadcom
  * 
- * As a special exception, the copyright holders of this software give
- * you permission to link this software with independent modules, and to
- * copy and distribute the resulting executable under terms of your
- * choice, provided that you also meet, for each linked independent
- * module, the terms and conditions of the license of that module.  An
- * independent module is a module which is not derived from this
- * software.  The special exception does not apply to any modifications
- * of the software.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License, version 2, as
+ * published by the Free Software Foundation (the "GPL").
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License version 2 (GPLv2) for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * version 2 (GPLv2) along with this source code.
  */
 /*
  * $Id: $
@@ -145,12 +144,14 @@ shbde_iproc_config_init(shbde_iproc_config_t *icfg,
         icfg->dma_hi_bits = 0x2;
         break;
     case 0xb560: /* Apache */
+    case 0xb670: /* MO */
     case 0xb760: /* Maverick */
         icfg->iproc_ver = 0xB;
         break;
     case 0xb160: /* Hurricane3 */
-    case 0x8440: /* Wolfhound2 */
+    case 0x8440: /* Buckhound2 */
     case 0x8430: /* Foxhound2 */
+    case 0x8540: /* Wolfhound2 */
         icfg->iproc_ver = 10;
         icfg->dma_hi_bits = 0x2;
         break;
@@ -272,17 +273,17 @@ shbde_iproc_paxb_init(shbde_hal_t *shbde, void *iproc_regs,
     reg = ROFFS(iproc_regs, BAR0_PAXB_PCIE_EP_AXI_CONFIG);
     iproc32_write(shbde, reg, 0x0);
     if(icfg->cmic_ver < 4) { /* Non-CMICX */
-        reg = ROFFS(iproc_regs, BAR0_PAXB_OARR_2);
-        iproc32_write(shbde, reg, 0x1);
-        reg = ROFFS(iproc_regs, BAR0_PAXB_OARR_2_UPPER);
-        iproc32_write(shbde, reg, icfg->dma_hi_bits);
+    reg = ROFFS(iproc_regs, BAR0_PAXB_OARR_2);
+    iproc32_write(shbde, reg, 0x1);
+    reg = ROFFS(iproc_regs, BAR0_PAXB_OARR_2_UPPER);
+    iproc32_write(shbde, reg, icfg->dma_hi_bits);
 
-        /* Configure MSI interrupt page */
-        if (icfg->use_msi) {
-            reg = ROFFS(iproc_regs, BAR0_PAXB_OARR_FUNC0_MSI_PAGE);
-            data = iproc32_read(shbde, reg);
-            iproc32_write(shbde, reg, data | 0x1);
-        }
+    /* Configure MSI interrupt page */
+    if (icfg->use_msi) {
+        reg = ROFFS(iproc_regs, BAR0_PAXB_OARR_FUNC0_MSI_PAGE);
+        data = iproc32_read(shbde, reg);
+        iproc32_write(shbde, reg, data | 0x1);
+    }
     }
     return pci_num;
 }
@@ -318,15 +319,15 @@ shbde_iproc_pci_read(shbde_hal_t *shbde, void *iproc_regs,
         /* Route the INTC block access through IMAP0_6 */
         reg = ROFFS(iproc_regs, 0x6000 + (addr & 0xfff));
     } else {
-        /* Update base address for sub-window 7 */
+    /* Update base address for sub-window 7 */
         subwin_base |= 1; /* Valid bit */
-        reg = ROFFS(iproc_regs, BAR0_PAXB_IMAP0_7);
-        iproc32_write(shbde, reg, subwin_base);
+    reg = ROFFS(iproc_regs, BAR0_PAXB_IMAP0_7);
+    iproc32_write(shbde, reg, subwin_base);
         /* Read it to make sure the write actually goes through */
         subwin_base = iproc32_read(shbde, reg);
 
-        /* Read register through sub-window 7 */
-        reg = ROFFS(iproc_regs, 0x7000 + (addr & 0xfff));
+    /* Read register through sub-window 7 */
+    reg = ROFFS(iproc_regs, 0x7000 + (addr & 0xfff));
     }
 
     return iproc32_read(shbde, reg);
@@ -364,15 +365,15 @@ shbde_iproc_pci_write(shbde_hal_t *shbde, void *iproc_regs,
         /* Route the INTC block access through IMAP0_6 */
         reg = ROFFS(iproc_regs, 0x6000 + (addr & 0xfff));
     } else {
-        /* Update base address for sub-window 7 */
+    /* Update base address for sub-window 7 */
         subwin_base |= 1; /* Valid bit */
-        reg = ROFFS(iproc_regs, BAR0_PAXB_IMAP0_7);
-        iproc32_write(shbde, reg, subwin_base);
+    reg = ROFFS(iproc_regs, BAR0_PAXB_IMAP0_7);
+    iproc32_write(shbde, reg, subwin_base);
         /* Read it to make sure the write actually goes through */
         subwin_base = iproc32_read(shbde, reg);
 
         /* Read register through sub-window 7 */
-        reg = ROFFS(iproc_regs, 0x7000 + (addr & 0xfff));
+    reg = ROFFS(iproc_regs, 0x7000 + (addr & 0xfff));
     }
 
     iproc32_write(shbde, reg, data);

@@ -1,21 +1,20 @@
 /*
- * Unless you and Broadcom execute a separate written software license
- * agreement governing use of this software, this software is licensed to
- * you under the terms of the GNU General Public License version 2 (the
- * "GPL"), available at http://www.broadcom.com/licenses/GPLv2.php,
- * with the following added to such license:
+ * Copyright 2017 Broadcom
  * 
- * As a special exception, the copyright holders of this software give
- * you permission to link this software with independent modules, and to
- * copy and distribute the resulting executable under terms of your
- * choice, provided that you also meet, for each linked independent
- * module, the terms and conditions of the license of that module.  An
- * independent module is a module which is not derived from this
- * software.  The special exception does not apply to any modifications
- * of the software.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License, version 2, as
+ * published by the Free Software Foundation (the "GPL").
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License version 2 (GPLv2) for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * version 2 (GPLv2) along with this source code.
  */
 /*
- * $Id:
+ * $Id: $
  * $Copyright: (c) 2017 Broadcom Corp.
  * All Rights Reserved.$
  */
@@ -50,12 +49,22 @@ MODULE_AUTHOR("Broadcom Corporation");
 MODULE_DESCRIPTION("Broadcom Linux KNET Call-Back Driver");
 MODULE_LICENSE("GPL");
 
+
+static int debug;
+LKM_MOD_PARAM(debug, "i", int, 0);
+MODULE_PARM_DESC(debug,
+"Debug level (default 0)");
+
+
 /* Module Information */
 #define MODULE_MAJOR 121
 #define MODULE_NAME "linux-knet-cb"
 
 /* set KNET_CB_DEBUG for debug info */
 #define KNET_CB_DEBUG
+
+#define FILTER_TAG_STRIP 0
+#define FILTER_TAG_KEEP  1
 
 /* Maintain tag strip statistics */
 struct strip_stats_s {
@@ -113,63 +122,84 @@ get_tag_status(int dcb_type, void *meta)
     uint32     *dcb = (uint32 *) meta;
     int         tag_status;
     switch (dcb_type) {
-      case 14:
-      case 19:
-      case 20:
-      case 21:
-      case 22:
-      case 30:
-          tag_status = (dcb[12] > 10) & 0x3;
-          break;
-      case 23:
-      case 29:
-      case 31:
-      case 34:
-      case 37:
-      case 26:
-      case 32:
-      case 33:
-      case 35:
-          tag_status = dcb[13] & 0x3;
-          break;
-      default:
-          tag_status = -1;
-          break;
+        case 14:
+        case 19:
+        case 20:
+        case 21:
+        case 22:
+        case 30:
+            tag_status = (dcb[12] > 10) & 0x3;
+            break;
+        case 23:
+        case 29:
+        case 31:
+        case 34:
+        case 37:
+        case 26:
+        case 32:
+        case 33:
+        case 35:
+            tag_status = dcb[13] & 0x3;
+            break;
+        case 36:
+            /* TD3 */
+            tag_status = ((dcb[13] >> 9) & 0x3);
+            break;
+        break;
+        case 38:
+        {
+            /* untested */
+            /* TH3 only parses outer tag. */
+            const int   tag_map[4] = { 0, 2, -1, -1 };            
+            tag_status = tag_map[(dcb[9] >> 13) & 0x3];
+        }
+        break;
+        default:
+            tag_status = -1;
+            break;
     }
+#ifdef KNET_CB_DEBUG
+    if (debug & 0x1) {
+        gprintk("%s; DCB Type: %d; tag status: %d\n", __func__, dcb_type, tag_status);
+    }
+#endif    
     return tag_status;
 }
-
-/*
- * SDK-134189 added the ability to pass two 4 byte unsigned values to the
- * KNET callback function, one from the matching filter and one from the
- * network interface. The usage of this data is completely defined by the
- * user. In this case, if bit 0 of the interface value is set, tag stripping
- * is enabled for that interface. When creating the interface and filter,
- * something like the following is necessary: "netif.cb_user_data = uflags".
- */
-#define NETIF_UNTAGGED_STRIP  (1 << 0)
 
 /* Rx packet callback function */
 static struct sk_buff *
 strip_tag_rx_cb(struct sk_buff *skb, int dev_no, void *meta)
 {
     unsigned    netif_flags = KNET_SKB_CB(skb)->netif_user_data;
+    unsigned    filter_flags =  KNET_SKB_CB(skb)->filter_user_data;
     unsigned    dcb_type;
     int         tag_status;
+    unsigned    int strip_tag = 0;
     /* Currently not using filter flags:
      * unsigned    filter_flags = KNET_SKB_CB(skb)->filter_user_data;
      */
 
 #ifdef KNET_CB_DEBUG
-    gprintk("%s Enter; Flags: %08X\n", __func__, netif_flags);
+    if (debug & 0x1) {
+        gprintk("%s Enter; netif Flags: %08X filter_flags %08X \n",
+                __func__, netif_flags, filter_flags);
+    }
 #endif
 
-    if ((netif_flags & NETIF_UNTAGGED_STRIP) == 0) {
-        /* Untagged stripping not enabled on this netif */
+    /* KNET implements this already */
+    if (filter_flags == FILTER_TAG_KEEP)
+    {
         strip_stats.skipped++;
         return skb;
     }
 
+    /* SAI strip implies always strip. If the packet is untagged or
+       inner taged, SDK adds a .1q tag, so we need to strip tag
+       anyway */
+    if (filter_flags == FILTER_TAG_STRIP)
+    {
+        strip_tag = 1;
+    }
     /* Get DCB type for this packet, passed by KNET driver */
     dcb_type = KNET_SKB_CB(skb)->dcb_type;
 
@@ -177,7 +207,9 @@ strip_tag_rx_cb(struct sk_buff *skb, int dev_no, void *meta)
     tag_status = get_tag_status(dcb_type, meta);
 
 #ifdef KNET_CB_DEBUG
-    gprintk("%s; DCB Type: %d; tag status: %d\n", __func__, dcb_type, tag_status);
+    if (debug & 0x1) {
+        gprintk("%s; DCB Type: %d; tag status: %d\n", __func__, dcb_type, tag_status);
+    }
 #endif
 
     if (tag_status < 0) {
@@ -186,22 +218,24 @@ strip_tag_rx_cb(struct sk_buff *skb, int dev_no, void *meta)
     }
 
     strip_stats.checked++;
-    /*
-     * Untagged and inner tagged packet will get a new tag from the switch
-     * device, we need to strip this off.
-     */
-    if (tag_status < 2) {
+   
+    if (strip_tag) {
 #ifdef KNET_CB_DEBUG
-        gprintk("%s; Stripping VLAN\n", __func__);
+        if (debug & 0x1) {
+            gprintk("%s; Stripping VLAN\n", __func__);
+        }
 #endif
         strip_stats.stripped++;
         strip_vlan_tag(skb);
     }
 #ifdef KNET_CB_DEBUG
     else {
-        gprintk("%s; Preserve VLAN\n", __func__);
+        if (debug & 0x1) {
+            gprintk("%s; Preserve VLAN\n", __func__);
+        }
     }
 #endif
+
     return skb;
 }
 
@@ -216,7 +250,7 @@ strip_tag_tx_cb(struct sk_buff *skb, int dev_no, void *meta)
 /* Filter callback not used */
 static int
 strip_tag_filter_cb(uint8_t * pkt, int size, int dev_no, void *meta,
-               int chan, kcom_filter_t *kf)
+                    int chan, kcom_filter_t *kf)
 {
     /* Pass through for now */
     return 0;

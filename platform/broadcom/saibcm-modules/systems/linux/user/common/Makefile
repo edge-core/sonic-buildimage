@@ -1,18 +1,17 @@
 #
-#  Unless you and Broadcom execute a separate written software license
-#  agreement governing use of this software, this software is licensed to
-#  you under the terms of the GNU General Public License version 2 (the
-#  "GPL"), available at http://www.broadcom.com/licenses/GPLv2.php,
-#  with the following added to such license:
+#  Copyright 2017 Broadcom
 #  
-#  As a special exception, the copyright holders of this software give
-#  you permission to link this software with independent modules, and to
-#  copy and distribute the resulting executable under terms of your
-#  choice, provided that you also meet, for each linked independent
-#  module, the terms and conditions of the license of that module.  An
-#  independent module is a module which is not derived from this
-#  software.  The special exception does not apply to any modifications
-#  of the software.
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License, version 2, as
+#  published by the Free Software Foundation (the "GPL").
+#  
+#  This program is distributed in the hope that it will be useful, but
+#  WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  General Public License version 2 (GPLv2) for more details.
+#  
+#  You should have received a copy of the GNU General Public License
+#  version 2 (GPLv2) along with this source code.
 #
 # -*- Makefile -*-
 # $Id: Makefile,v 1.4 Broadcom SDK $
@@ -86,11 +85,11 @@ KERNEL_BDE :=$(DEST_DIR)/$(KERNEL_BDE_LOCAL)
 USER_BDE_LOCAL :=linux-user-bde.$(KOBJ)
 USER_BDE=$(DEST_DIR)/$(USER_BDE_LOCAL)
 
-BCM_KNET_LOCAL :=linux-bcm-knet.$(KOBJ)
-BCM_KNET=$(DEST_DIR)/$(BCM_KNET_LOCAL)
-
 KNET_CB_LOCAL := linux-knet-cb.$(KOBJ)
 KNET_CB := $(DEST_DIR)/$(KNET_CB_LOCAL)
+
+BCM_KNET_LOCAL :=linux-bcm-knet.$(KOBJ)
+BCM_KNET=$(DEST_DIR)/$(BCM_KNET_LOCAL)
 
 ifeq (,$(findstring DELIVER,$(MAKECMDGOALS)))
 .DEFAULT_GOAL := all
@@ -118,11 +117,7 @@ LOCAL_TARGETS +=$(patsubst %,../$(platform)/%,$(BCM_KNET_LOCAL))
 all_targets +=$(LOCAL_TARGETS)
 endif
 
-ADD_TO_CFLAGS += -I$(SDK)/systems/linux/kernel/modules/include
-COND_KNET_LIBS = libuser.$(libext)
-
-ifeq ($(BUILD_KNET_CB),1)
-# KNET callback module support
+ifdef BUILD_KNET_CB
 all_targets += $(KNET_CB)
 
 ifeq ($(NO_LOCAL_TARGETS),)
@@ -131,9 +126,11 @@ all_targets +=$(LOCAL_TARGETS)
 endif
 endif
 
+ADD_TO_CFLAGS += -I$(SDK)/systems/linux/kernel/modules/include
+COND_KNET_LIBS = libuser.$(libext)
 endif
 
-#OPENNSL_FIXUP
+#SAI_FIXUP
 .NOTPARALLEL:
 
 all: $(BLDDIR)/.tree $(all_targets)
@@ -152,24 +149,20 @@ ADD_TO_CFLAGS += -I$(SDK)/systems/bde/linux/include
 ADD_TO_CFLAGS += -DPROXY_SUPPORT=0
 
 CFLAGS += $(ADD_TO_CFLAGS)
+#SAI_FIXUP
+CFLAGS:=$(filter-out -fPIC, $(CFLAGS))
 
-# Kernel network support
-ifdef BUILD_KNET
-
-knet_subdirs = shared bcm-knet
-
-ifdef BUILD_KNET_CB
-knet_subdirs += knet-cb
-endif
-
-endif # BUILD_KNET
 
 kernel_modules:
 	$(MAKE) -C $(SDK)/systems/bde/linux/kernel kernel_version=$(kernel_version)
 	$(MAKE) -C $(SDK)/systems/bde/linux/user/kernel kernel_version=$(kernel_version)
 ifeq ($(BUILD_KNET),1)
 	$(MAKE) -j1 -C $(SDK)/systems/linux/kernel/modules kernel_version=$(kernel_version) \
-		subdirs="$(knet_subdirs)" override-target=linux-$(platform) CFLAGS="$(CFLAGS)"
+		subdirs="shared bcm-knet" override-target=linux-$(platform) CFLAGS="$(CFLAGS)"
+ifdef BUILD_KNET_CB
+	$(MAKE) -j1 -C $(SDK)/systems/linux/kernel/modules kernel_version=$(kernel_version) \
+		subdirs="knet-cb" override-target=linux-$(platform) CFLAGS="$(CFLAGS)"
+endif
 endif
 
 $(KERNEL_BDE): $(KERN_BLDROOT)/linux-kernel-bde.$(KOBJ)
@@ -193,14 +186,14 @@ clean::
 	$(MAKE) -C $(SDK)/systems/bde/linux/kernel $@
 	$(MAKE) -C $(SDK)/systems/bde/linux/user/kernel $@
 	$(MAKE) -C $(SDK)/systems/linux/kernel/modules \
-		subdirs="$(knet_subdirs)" \
+		subdirs="shared bcm-knet knet-cb" \
 		override-target=linux-$(platform) $@
 	$(RM) $(KERNEL_BDE) $(USER_BDE)
-	$(RM) $(BCM_KNET)
-	$(RM) $(KNET_CB)
+	$(RM) $(BCM_KNET) $(KNET_CB)
 	$(RM) $(KERN_BLDROOT)/linux-kernel-bde.$(KOBJ)
 	$(RM) $(KERN_BLDROOT)/linux-user-bde.$(KOBJ)
 	$(RM) $(KERN_BLDROOT)/linux-bcm-knet.$(KOBJ)
+	$(RM) $(KERN_BLDROOT)/linux-knet-cb.$(KOBJ)
 	$(RM) $(LOCAL_TARGETS)
 
 distclean:: clean

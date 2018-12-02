@@ -1,18 +1,17 @@
 /*
- * Unless you and Broadcom execute a separate written software license
- * agreement governing use of this software, this software is licensed to
- * you under the terms of the GNU General Public License version 2 (the
- * "GPL"), available at http://www.broadcom.com/licenses/GPLv2.php,
- * with the following added to such license:
+ * Copyright 2017 Broadcom
  * 
- * As a special exception, the copyright holders of this software give
- * you permission to link this software with independent modules, and to
- * copy and distribute the resulting executable under terms of your
- * choice, provided that you also meet, for each linked independent
- * module, the terms and conditions of the license of that module.  An
- * independent module is a module which is not derived from this
- * software.  The special exception does not apply to any modifications
- * of the software.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License, version 2, as
+ * published by the Free Software Foundation (the "GPL").
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License version 2 (GPLv2) for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * version 2 (GPLv2) along with this source code.
  */
 /*
  * $Id: linux-user-bde.c,v 1.80 Broadcom SDK $
@@ -64,6 +63,8 @@ MODULE_LICENSE("GPL");
 #define CMIC_CMCx_IRQ_STAT6_OFFSET(x)                    (0x314b4 + (0x1000 * x))
 #define CMIC_CMCx_PCIE_IRQ_MASK5_OFFSET(x)               (0x314b8 + (0x1000 * x))
 #define CMIC_CMCx_PCIE_IRQ_MASK6_OFFSET(x)               (0x314bc + (0x1000 * x))
+#define CMIC_CMCx_UC0_IRQ_MASK5_OFFSET(x)                (0x314c0 + (0x1000 * x))
+#define CMIC_CMCx_UC0_IRQ_MASK6_OFFSET(x)                (0x314c4 + (0x1000 * x))
 
 #define CMIC_CMCx_UC0_IRQ_MASK0_OFFSET(x)                (0x31428 + (0x1000 * x))
 #define CMIC_CMCx_UC0_IRQ_MASK1_OFFSET(x)                (0x3142c + (0x1000 * x))
@@ -72,16 +73,17 @@ MODULE_LICENSE("GPL");
 #define CMIC_CMCx_UC0_IRQ_MASK4_OFFSET(x)                (0x31438 + (0x1000 * x))
 
 /* CMICX defines */
-#define INTC_INTR_REG_NUM          (8)
+#define INTC_INTR_REG_NUM               (8)
 
-#define INTC_INTR_ENABLE_REG0          (0x180130f0)
-#define INTC_INTR_STATUS_REG0          (0x18013190)
-#define INTC_INTR_RAW_STATUS_REG0      (0x18013140)
+#define INTC_INTR_ENABLE_REG0           (0x180130f0)
+#define INTC_INTR_STATUS_REG0           (0x18013190)
+#define INTC_INTR_RAW_STATUS_REG0       (0x18013140)
 
-#define INTC_INTR_ENABLE_BASE          (INTC_INTR_ENABLE_REG0)
-#define INTC_INTR_STATUS_BASE          (INTC_INTR_STATUS_REG0)
-#define INTC_INTR_RAW_STATUS_BASE      (INTC_INTR_RAW_STATUS_REG0)
+#define INTC_INTR_ENABLE_BASE           (INTC_INTR_ENABLE_REG0)
+#define INTC_INTR_STATUS_BASE           (INTC_INTR_STATUS_REG0)
+#define INTC_INTR_RAW_STATUS_BASE       (INTC_INTR_RAW_STATUS_REG0)
 
+#define INTC_PDMA_INTR_REG_IND          4
 
 #define READ_INTC_INTR(d, reg, v) \
         (v =  user_bde->iproc_read(d, reg))
@@ -220,18 +222,45 @@ _cmic_interrupt(bde_ctrl_t *ctrl)
 static void 
 _cmicx_interrupt(bde_ctrl_t *ctrl)
 {
-    int d, i;
+    int d, ind;
+    uint32 stat, iena, mask, fmask;
     bde_inst_resource_t *res;
 
     d = (((uint8 *)ctrl - (uint8 *)_devices) / sizeof (bde_ctrl_t));
     res = &_bde_inst_resource[ctrl->inst];
 
+    lkbde_irq_mask_get(d, &mask, &fmask);
+
+    if (fmask) {
+        READ_INTC_INTR(d, INTC_INTR_STATUS_BASE + 4 * INTC_PDMA_INTR_REG_IND, stat);
+        READ_INTC_INTR(d, INTC_INTR_ENABLE_BASE + 4 * INTC_PDMA_INTR_REG_IND, iena);
+        if (stat & iena) {
+            WRITE_INTC_INTR(d, INTC_INTR_ENABLE_BASE + 4 * INTC_PDMA_INTR_REG_IND, 0);
+            for (ind = 0; ind < INTC_INTR_REG_NUM; ind++) {
+                if (ind == INTC_PDMA_INTR_REG_IND) {
+                    continue;
+                }
+                READ_INTC_INTR(d, INTC_INTR_STATUS_BASE + 4 * ind, stat);
+                READ_INTC_INTR(d, INTC_INTR_ENABLE_BASE + 4 * ind, iena);
+                if (stat & iena) {
+                    break;
+                }
+            }
+            if (ind >= INTC_INTR_REG_NUM) {
+                return;
+            }
+        }
+    }
+
     /* Disable all interrupts.. Re-enable unserviced interrupts later
      * So as to avoid getting new interrupts until the user level driver
      * enumerates the interrupts to be serviced
      */
-    for (i = 0 ; i < INTC_INTR_REG_NUM ; i++) {
-        WRITE_INTC_INTR(d, (INTC_INTR_ENABLE_BASE + 4*i), 0);
+    for (ind = 0; ind < INTC_INTR_REG_NUM; ind++) {
+        if (fmask && ind == INTC_PDMA_INTR_REG_IND) {
+            continue;
+        }
+        WRITE_INTC_INTR(d, INTC_INTR_ENABLE_BASE + 4 * ind, 0);
     }
 
     /* Notify */
@@ -327,8 +356,108 @@ _cmicm_interrupt(bde_ctrl_t *ctrl)
 #endif
 }
 
+/* some device has cmc0 only */
+static void
+_cmicd_cmc0_interrupt(bde_ctrl_t *ctrl)
+{
+    int d;
+    int cmc = 0;
+    uint32 stat, mask = 0, fmask = 0, imask = 0;
+    bde_inst_resource_t *res;
 
-static void 
+    d = (((uint8 *)ctrl - (uint8 *)_devices) / sizeof (bde_ctrl_t));
+    res = &_bde_inst_resource[ctrl->inst];
+    lkbde_irq_mask_get(d, &mask, &fmask);
+
+    while (fmask) {
+        stat = user_bde->read(d, CMIC_CMCx_IRQ_STAT0_OFFSET(cmc));
+        imask = mask & ~fmask;
+        if (stat & imask) {
+            break;
+        }
+        stat = user_bde->read(d, CMIC_CMCx_IRQ_STAT1_OFFSET(cmc));
+        if (ctrl->dev_type & BDE_AXI_DEV_TYPE) {
+            mask = user_bde->read(d, CMIC_CMCx_UC0_IRQ_MASK1_OFFSET(cmc));
+        } else {
+            mask = user_bde->read(d, CMIC_CMCx_PCIE_IRQ_MASK1_OFFSET(cmc));
+        }
+        if (stat & mask) {
+            break;
+        }
+        stat = user_bde->read(d, CMIC_CMCx_IRQ_STAT2_OFFSET(cmc));
+        if (ctrl->dev_type & BDE_AXI_DEV_TYPE) {
+            mask = user_bde->read(d, CMIC_CMCx_UC0_IRQ_MASK2_OFFSET(cmc));
+        } else {
+            mask = user_bde->read(d, CMIC_CMCx_PCIE_IRQ_MASK2_OFFSET(cmc));
+        }
+        if (stat & mask) {
+            break;
+        }
+        stat = user_bde->read(d, CMIC_CMCx_IRQ_STAT3_OFFSET(cmc));
+        if (ctrl->dev_type & BDE_AXI_DEV_TYPE) {
+            mask = user_bde->read(d, CMIC_CMCx_UC0_IRQ_MASK3_OFFSET(cmc));
+        } else {
+            mask = user_bde->read(d, CMIC_CMCx_PCIE_IRQ_MASK3_OFFSET(cmc));
+        }
+        if (stat & mask) {
+            break;
+        }
+        stat = user_bde->read(d, CMIC_CMCx_IRQ_STAT4_OFFSET(cmc));
+        if (ctrl->dev_type & BDE_AXI_DEV_TYPE) {
+            mask = user_bde->read(d, CMIC_CMCx_UC0_IRQ_MASK4_OFFSET(cmc));
+        } else {
+            mask = user_bde->read(d, CMIC_CMCx_PCIE_IRQ_MASK4_OFFSET(cmc));
+        }
+        if (stat & mask) {
+            break;
+        }
+        stat = user_bde->read(d, CMIC_CMCx_IRQ_STAT5_OFFSET(cmc));
+        if (ctrl->dev_type & BDE_AXI_DEV_TYPE) {
+            mask = user_bde->read(d, CMIC_CMCx_UC0_IRQ_MASK5_OFFSET(cmc));
+        } else {
+            mask = user_bde->read(d, CMIC_CMCx_PCIE_IRQ_MASK5_OFFSET(cmc));
+        }
+        if (stat & mask) {
+            break;
+        }
+        stat = user_bde->read(d, CMIC_CMCx_IRQ_STAT6_OFFSET(cmc));
+        if (ctrl->dev_type & BDE_AXI_DEV_TYPE) {
+            mask = user_bde->read(d, CMIC_CMCx_UC0_IRQ_MASK6_OFFSET(cmc));
+        } else {
+            mask = user_bde->read(d, CMIC_CMCx_PCIE_IRQ_MASK6_OFFSET(cmc));
+        }
+        if (stat & mask) {
+            break;
+        }
+        return;
+    }
+
+    if (ctrl->dev_type & BDE_AXI_DEV_TYPE) {
+        lkbde_irq_mask_set(d, CMIC_CMCx_UC0_IRQ_MASK0_OFFSET(cmc), 0, 0);
+        user_bde->write(d, CMIC_CMCx_UC0_IRQ_MASK1_OFFSET(cmc), 0);
+        user_bde->write(d, CMIC_CMCx_UC0_IRQ_MASK2_OFFSET(cmc), 0);
+        user_bde->write(d, CMIC_CMCx_UC0_IRQ_MASK3_OFFSET(cmc), 0);
+        user_bde->write(d, CMIC_CMCx_UC0_IRQ_MASK4_OFFSET(cmc), 0);
+        user_bde->write(d, CMIC_CMCx_UC0_IRQ_MASK5_OFFSET(cmc), 0);
+        user_bde->write(d, CMIC_CMCx_UC0_IRQ_MASK6_OFFSET(cmc), 0);
+    } else {
+        lkbde_irq_mask_set(d, CMIC_CMCx_PCIE_IRQ_MASK0_OFFSET(cmc), 0, 0);
+        user_bde->write(d, CMIC_CMCx_PCIE_IRQ_MASK1_OFFSET(cmc), 0);
+        user_bde->write(d, CMIC_CMCx_PCIE_IRQ_MASK2_OFFSET(cmc), 0);
+        user_bde->write(d, CMIC_CMCx_PCIE_IRQ_MASK3_OFFSET(cmc), 0);
+        user_bde->write(d, CMIC_CMCx_PCIE_IRQ_MASK4_OFFSET(cmc), 0);
+        user_bde->write(d, CMIC_CMCx_PCIE_IRQ_MASK5_OFFSET(cmc), 0);
+        user_bde->write(d, CMIC_CMCx_PCIE_IRQ_MASK6_OFFSET(cmc), 0);
+    }
+    atomic_set(&res->intr, 1);
+#ifdef BDE_LINUX_NON_INTERRUPTIBLE
+    wake_up(&res->intr_wq);
+#else
+    wake_up_interruptible(&res->intr_wq);
+#endif
+}
+
+static void
 _cmicd_interrupt(bde_ctrl_t *ctrl)
 {
     int d;
@@ -347,46 +476,83 @@ _cmicd_interrupt(bde_ctrl_t *ctrl)
             break;
         }
         stat = user_bde->read(d, CMIC_CMCx_IRQ_STAT1_OFFSET(cmc));
-        mask = user_bde->read(d, CMIC_CMCx_PCIE_IRQ_MASK1_OFFSET(cmc));
+        if (ctrl->dev_type & BDE_AXI_DEV_TYPE) {
+            mask = user_bde->read(d, CMIC_CMCx_UC0_IRQ_MASK1_OFFSET(cmc));
+        } else {
+            mask = user_bde->read(d, CMIC_CMCx_PCIE_IRQ_MASK1_OFFSET(cmc));
+        }
         if (stat & mask) {
             break;
         }
         stat = user_bde->read(d, CMIC_CMCx_IRQ_STAT2_OFFSET(cmc));
-        mask = user_bde->read(d, CMIC_CMCx_PCIE_IRQ_MASK2_OFFSET(cmc));
+        if (ctrl->dev_type & BDE_AXI_DEV_TYPE) {
+            mask = user_bde->read(d, CMIC_CMCx_UC0_IRQ_MASK2_OFFSET(cmc));
+        } else {
+            mask = user_bde->read(d, CMIC_CMCx_PCIE_IRQ_MASK2_OFFSET(cmc));
+        }
         if (stat & mask) {
             break;
         }
         stat = user_bde->read(d, CMIC_CMCx_IRQ_STAT3_OFFSET(cmc));
-        mask = user_bde->read(d, CMIC_CMCx_PCIE_IRQ_MASK3_OFFSET(cmc));
+        if (ctrl->dev_type & BDE_AXI_DEV_TYPE) {
+            mask = user_bde->read(d, CMIC_CMCx_UC0_IRQ_MASK3_OFFSET(cmc));
+        } else {
+            mask = user_bde->read(d, CMIC_CMCx_PCIE_IRQ_MASK3_OFFSET(cmc));
+        }
         if (stat & mask) {
             break;
         }
         stat = user_bde->read(d, CMIC_CMCx_IRQ_STAT4_OFFSET(cmc));
-        mask = user_bde->read(d, CMIC_CMCx_PCIE_IRQ_MASK4_OFFSET(cmc));
+        if (ctrl->dev_type & BDE_AXI_DEV_TYPE) {
+            mask = user_bde->read(d, CMIC_CMCx_UC0_IRQ_MASK4_OFFSET(cmc));
+        } else {
+            mask = user_bde->read(d, CMIC_CMCx_PCIE_IRQ_MASK4_OFFSET(cmc));
+        }
         if (stat & mask) {
             break;
         }
         stat = user_bde->read(d, CMIC_CMCx_IRQ_STAT5_OFFSET(cmc));
-        mask = user_bde->read(d, CMIC_CMCx_PCIE_IRQ_MASK5_OFFSET(cmc));
+        if (ctrl->dev_type & BDE_AXI_DEV_TYPE) {
+            mask = user_bde->read(d, CMIC_CMCx_UC0_IRQ_MASK5_OFFSET(cmc));
+        } else {
+            mask = user_bde->read(d, CMIC_CMCx_PCIE_IRQ_MASK5_OFFSET(cmc));
+        }
         if (stat & mask) {
             break;
         }
         stat = user_bde->read(d, CMIC_CMCx_IRQ_STAT6_OFFSET(cmc));
-        mask = user_bde->read(d, CMIC_CMCx_PCIE_IRQ_MASK6_OFFSET(cmc));
+        if (ctrl->dev_type & BDE_AXI_DEV_TYPE) {
+            mask = user_bde->read(d, CMIC_CMCx_UC0_IRQ_MASK6_OFFSET(cmc));
+        } else {
+            mask = user_bde->read(d, CMIC_CMCx_PCIE_IRQ_MASK6_OFFSET(cmc));
+        }
         if (stat & mask) {
             break;
         }
         return;
     }
 
-    lkbde_irq_mask_set(d, CMIC_CMCx_PCIE_IRQ_MASK0_OFFSET(cmc), 0, 0);
-    user_bde->write(d, CMIC_CMCx_PCIE_IRQ_MASK1_OFFSET(cmc), 0);
-    user_bde->write(d, CMIC_CMCx_PCIE_IRQ_MASK2_OFFSET(cmc), 0);
-    user_bde->write(d, CMIC_CMCx_PCIE_IRQ_MASK3_OFFSET(cmc), 0);
-    user_bde->write(d, CMIC_CMCx_PCIE_IRQ_MASK4_OFFSET(cmc), 0);
-    user_bde->write(d, CMIC_CMCx_PCIE_IRQ_MASK5_OFFSET(cmc), 0);
-    user_bde->write(d, CMIC_CMCx_PCIE_IRQ_MASK6_OFFSET(cmc), 0);
-
+    if (ctrl->dev_type & BDE_AXI_DEV_TYPE) {
+        lkbde_irq_mask_set(d, CMIC_CMCx_UC0_IRQ_MASK0_OFFSET(cmc), 0, 0);
+        user_bde->write(d, CMIC_CMCx_UC0_IRQ_MASK1_OFFSET(cmc), 0);
+        user_bde->write(d, CMIC_CMCx_UC0_IRQ_MASK2_OFFSET(cmc), 0);
+        user_bde->write(d, CMIC_CMCx_UC0_IRQ_MASK3_OFFSET(cmc), 0);
+        user_bde->write(d, CMIC_CMCx_UC0_IRQ_MASK4_OFFSET(cmc), 0);
+        user_bde->write(d, CMIC_CMCx_UC0_IRQ_MASK5_OFFSET(cmc), 0);
+        user_bde->write(d, CMIC_CMCx_UC0_IRQ_MASK6_OFFSET(cmc), 0);
+        user_bde->write(d, CMIC_CMCx_UC0_IRQ_MASK0_OFFSET(1), 0);
+        user_bde->write(d, CMIC_CMCx_UC0_IRQ_MASK0_OFFSET(2), 0);
+    } else {
+        lkbde_irq_mask_set(d, CMIC_CMCx_PCIE_IRQ_MASK0_OFFSET(cmc), 0, 0);
+        user_bde->write(d, CMIC_CMCx_PCIE_IRQ_MASK1_OFFSET(cmc), 0);
+        user_bde->write(d, CMIC_CMCx_PCIE_IRQ_MASK2_OFFSET(cmc), 0);
+        user_bde->write(d, CMIC_CMCx_PCIE_IRQ_MASK3_OFFSET(cmc), 0);
+        user_bde->write(d, CMIC_CMCx_PCIE_IRQ_MASK4_OFFSET(cmc), 0);
+        user_bde->write(d, CMIC_CMCx_PCIE_IRQ_MASK5_OFFSET(cmc), 0);
+        user_bde->write(d, CMIC_CMCx_PCIE_IRQ_MASK6_OFFSET(cmc), 0);
+        user_bde->write(d, CMIC_CMCx_PCIE_IRQ_MASK0_OFFSET(1), 0);
+        user_bde->write(d, CMIC_CMCx_PCIE_IRQ_MASK0_OFFSET(2), 0);
+    }
     atomic_set(&res->intr, 1);
 #ifdef BDE_LINUX_NON_INTERRUPTIBLE
     wake_up(&res->intr_wq);
@@ -551,6 +717,7 @@ static struct _intr_mode_s {
     { (isr_f)_cmic_interrupt,       "CMIC/CMICe" },
     { (isr_f)_cmicm_interrupt,      "CMICm" },
     { (isr_f)_cmicd_interrupt,      "CMICd" },
+    { (isr_f)_cmicd_cmc0_interrupt, "CMICd CMC0" },
     { (isr_f)_qe2k_interrupt,       "QE2K" },
     { (isr_f)_fe2k_interrupt,       "FE2K" },
     { (isr_f)_fe2kxt_interrupt,     "FE2KXT" },
@@ -580,7 +747,9 @@ static void
 _devices_init(int d)
 {
     bde_ctrl_t *ctrl;
-	uint32 ver;
+    uint32 ver;
+    uint16 device_id_mask = 0xFFF0;
+    uint16 device_id;
 
     ctrl = &_devices[d];
     /* Initialize our control info */
@@ -616,7 +785,10 @@ _devices_init(int d)
         case BCM88752_DEVICE_ID:
             ctrl->isr = (isr_f)_bcm88750_interrupt;
             break;
-        /* FIXME: might use _devices[i].dev_type & BDE_AXI_DEV_TYPE*/
+        case BCM53540_DEVICE_ID:
+        case BCM53547_DEVICE_ID:
+        case BCM53548_DEVICE_ID:
+        case BCM53549_DEVICE_ID:
         case BCM88670_DEVICE_ID:
         case BCM88671_DEVICE_ID:
         case BCM88671M_DEVICE_ID:
@@ -662,29 +834,35 @@ _devices_init(int d)
         case BCM88474H_DEVICE_ID:
         case BCM88476_DEVICE_ID:
         case BCM88477_DEVICE_ID:
-
         case BCM88270_DEVICE_ID:
         case BCM88272_DEVICE_ID:
         case BCM88273_DEVICE_ID:
         case BCM88278_DEVICE_ID:
+        case BCM88279_DEVICE_ID:
         case BCM8206_DEVICE_ID:
         case BCM88950_DEVICE_ID:
         case BCM88953_DEVICE_ID:
         case BCM88954_DEVICE_ID:
         case BCM88955_DEVICE_ID:
         case BCM88956_DEVICE_ID:
-        case BCM88790_DEVICE_ID:
         case BCM88772_DEVICE_ID:
         case BCM88952_DEVICE_ID:
-            ctrl->isr = (isr_f)_cmicd_interrupt;
+            ctrl->isr = (isr_f)_cmicd_cmc0_interrupt;
             break;
         default:
             /* Get CMIC version */
             if (user_bde->get_cmic_ver(d, &ver) != 0) {
                 ver = -1;
             }
+            device_id = ctrl->devid & device_id_mask;
+            /* TH/TH+/TH2 should use cmicd interrupt handler */
+            if (BCM56960_DEVICE_ID == device_id ||
+                BCM56930_DEVICE_ID == device_id ||
+                BCM56970_DEVICE_ID == device_id) {
+                ctrl->isr = (isr_f)_cmicd_interrupt;
+            }
             /* check if version is CMICX */
-            if (ver == 0x04) {
+            else if (ver == 0x04) {
                  ctrl->isr = (isr_f)_cmicx_interrupt;
             } else {
                 ctrl->isr = (isr_f)_cmic_interrupt;
@@ -697,6 +875,10 @@ _devices_init(int d)
                 }
             }
             break;
+        }
+        /*All Ramon devices from 0x8790 to 0x879F*/
+        if ((user_bde->get_dev(d)->device & BCM88790_DEVICE_ID) == BCM88790_DEVICE_ID) {
+            ctrl->isr = (isr_f)_cmicx_interrupt;
         }
         if (_intr_mode_str(ctrl->isr) == NULL) {
             gprintk("Warning: Unknown interrupt mode\n");
@@ -1002,7 +1184,7 @@ _ioctl(unsigned int cmd, unsigned long arg)
         break;
     case LUBDE_GET_DEVICE:
         if (!VALID_DEVICE(io.dev)) {
-          return -EINVAL;
+            return -EINVAL;
         }
         bde_dev = user_bde->get_dev(io.dev);
         if (bde_dev) {
@@ -1019,7 +1201,7 @@ _ioctl(unsigned int cmd, unsigned long arg)
         break;
     case LUBDE_GET_DEVICE_TYPE:
         if (!VALID_DEVICE(io.dev)) {
-          return -EINVAL;
+            return -EINVAL;
         }
         io.d0 = _devices[io.dev].dev_type;
         break;
@@ -1029,7 +1211,7 @@ _ioctl(unsigned int cmd, unsigned long arg)
         break;
     case LUBDE_PCI_CONFIG_PUT32:
         if (!VALID_DEVICE(io.dev)) {
-          return -EINVAL;
+            return -EINVAL;
         }
         if (_devices[io.dev].dev_type & BDE_PCI_DEV_TYPE) {
             user_bde->pci_conf_write(io.dev, io.d0, io.d1);
@@ -1039,7 +1221,7 @@ _ioctl(unsigned int cmd, unsigned long arg)
         break;
     case LUBDE_PCI_CONFIG_GET32:
         if (!VALID_DEVICE(io.dev)) {
-          return -EINVAL;
+            return -EINVAL;
         }
         if (_devices[io.dev].dev_type & BDE_PCI_DEV_TYPE) {
             io.d0 = user_bde->pci_conf_read(io.dev, io.d0);
@@ -1068,7 +1250,7 @@ _ioctl(unsigned int cmd, unsigned long arg)
         break;
     case LUBDE_ENABLE_INTERRUPTS:
         if (!VALID_DEVICE(io.dev)) {
-          return -EINVAL;
+            return -EINVAL;
         }
         if (_devices[io.dev].dev_type & BDE_SWITCH_DEV_TYPE) {
             if (_devices[io.dev].isr && !_devices[io.dev].enabled) {
@@ -1090,7 +1272,7 @@ _ioctl(unsigned int cmd, unsigned long arg)
         break;
     case LUBDE_DISABLE_INTERRUPTS:
         if (!VALID_DEVICE(io.dev)) {
-          return -EINVAL;
+            return -EINVAL;
         }
         if (_devices[io.dev].enabled) {
             user_bde->interrupt_disconnect(io.dev);
@@ -1099,7 +1281,7 @@ _ioctl(unsigned int cmd, unsigned long arg)
         break;
     case LUBDE_WAIT_FOR_INTERRUPT:
         if (!VALID_DEVICE(io.dev)) {
-          return -EINVAL;
+            return -EINVAL;
         }
         if (_devices[io.dev].dev_type & BDE_SWITCH_DEV_TYPE) {
             res = &_bde_inst_resource[_devices[io.dev].inst];
@@ -1200,7 +1382,7 @@ _ioctl(unsigned int cmd, unsigned long arg)
 #endif
     case LUBDE_DEV_RESOURCE:
         if (!VALID_DEVICE(io.dev)) {
-          return -EINVAL;
+            return -EINVAL;
         }
         bde_dev = user_bde->get_dev(io.dev);
         if (bde_dev) {
@@ -1235,7 +1417,7 @@ _ioctl(unsigned int cmd, unsigned long arg)
         io.rc = LUBDE_FAIL;
         break;
     }
-  
+
     if (copy_to_user((void *)arg, &io, sizeof(io))) {
         return -EFAULT;
     }
