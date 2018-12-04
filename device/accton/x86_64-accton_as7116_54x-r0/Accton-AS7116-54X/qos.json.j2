@@ -104,13 +104,6 @@
         }
     },
     "PORT_QOS_MAP": {
-        "Ethernet0,Ethernet1,Ethernet2,Ethernet3,Ethernet4,Ethernet5,Ethernet6,Ethernet7,Ethernet8,Ethernet9,Ethernet10,Ethernet11,Ethernet12,Ethernet13,Ethernet14,Ethernet15,Ethernet16,Ethernet17,Ethernet18,Ethernet19,Ethernet20,Ethernet21,Ethernet22,Ethernet23,Ethernet24,Ethernet25,Ethernet26,Ethernet27,Ethernet28,Ethernet29,Ethernet30,Ethernet31,Ethernet32,Ethernet33,Ethernet34,Ethernet35,Ethernet36,Ethernet37,Ethernet38,Ethernet39,Ethernet40,Ethernet41,Ethernet42,Ethernet43,Ethernet44,Ethernet45,Ethernet46,Ethernet47,Ethernet48,Ethernet49,Ethernet50,Ethernet51,Ethernet52,Ethernet53": {
-            "dscp_to_tc_map"  : "[DSCP_TO_TC_MAP|AZURE]",
-            "tc_to_queue_map" : "[TC_TO_QUEUE_MAP|AZURE]",
-            "tc_to_pg_map"    : "[TC_TO_PRIORITY_GROUP_MAP|AZURE]",
-            "pfc_to_queue_map": "[MAP_PFC_PRIORITY_TO_QUEUE|AZURE]",
-            "pfc_enable": "3,4"
-        }
     },
     "WRED_PROFILE": {
         "AZURE_LOSSY" : {
@@ -118,36 +111,26 @@
             "wred_yellow_enable":"true",
             "wred_red_enable":"true",
             "ecn":"ecn_all",
-            "red_max_threshold":"516096",
-            "red_min_threshold":"516096",
-            "yellow_max_threshold":"516096",
-            "yellow_min_threshold":"516096",
-            "green_max_threshold": "184128",
-            "green_min_threshold": "184128"
+            "red_max_threshold":"613984",  
+            "red_min_threshold":"76608",
+            "yellow_max_threshold":"628320",
+            "yellow_min_threshold":"78400",
+            "green_max_threshold": "642656",
+            "green_min_threshold": "80192"
         },
         "AZURE_LOSSLESS" : {
             "wred_green_enable":"true",
             "wred_yellow_enable":"true",
             "wred_red_enable":"true",
             "ecn":"ecn_all",
-            "red_max_threshold":"516096",
-            "red_min_threshold":"516096",
-            "yellow_max_threshold":"516096",
-            "yellow_min_threshold":"516096",
-            "green_max_threshold": "184128",
-            "green_min_threshold": "184128"
+            "red_max_threshold":"613984",  
+            "red_min_threshold":"76608",
+            "yellow_max_threshold":"628320",
+            "yellow_min_threshold":"78400",
+            "green_max_threshold": "642656",
+            "green_min_threshold": "80192"
         }
     },
     "QUEUE": {
-        "Ethernet0,Ethernet1,Ethernet2,Ethernet3,Ethernet4,Ethernet5,Ethernet6,Ethernet7,Ethernet8,Ethernet9,Ethernet10,Ethernet11,Ethernet12,Ethernet13,Ethernet14,Ethernet15,Ethernet16,Ethernet17,Ethernet18,Ethernet19,Ethernet20,Ethernet21,Ethernet22,Ethernet23,Ethernet24,Ethernet25,Ethernet26,Ethernet27,Ethernet28,Ethernet29,Ethernet30,Ethernet31,Ethernet32,Ethernet33,Ethernet34,Ethernet35,Ethernet36,Ethernet37,Ethernet38,Ethernet39,Ethernet40,Ethernet41,Ethernet42,Ethernet43,Ethernet44,Ethernet45,Ethernet46,Ethernet47,Ethernet48,Ethernet49,Ethernet50,Ethernet51,Ethernet52,Ethernet53|3-4" : {
-            "scheduler"     :   "[SCHEDULER|scheduler.0]",
-            "wred_profile"  :   "[WRED_PROFILE|AZURE_LOSSY]"
-        },
-        "Ethernet0,Ethernet1,Ethernet2,Ethernet3,Ethernet4,Ethernet5,Ethernet6,Ethernet7,Ethernet8,Ethernet9,Ethernet10,Ethernet11,Ethernet12,Ethernet13,Ethernet14,Ethernet15,Ethernet16,Ethernet17,Ethernet18,Ethernet19,Ethernet20,Ethernet21,Ethernet22,Ethernet23,Ethernet24,Ethernet25,Ethernet26,Ethernet27,Ethernet28,Ethernet29,Ethernet30,Ethernet31,Ethernet32,Ethernet33,Ethernet34,Ethernet35,Ethernet36,Ethernet37,Ethernet38,Ethernet39,Ethernet40,Ethernet41,Ethernet42,Ethernet43,Ethernet44,Ethernet45,Ethernet46,Ethernet47,Ethernet48,Ethernet49,Ethernet50,Ethernet51,Ethernet52,Ethernet53|0" : {
-            "scheduler"     :   "[SCHEDULER|scheduler.1]"
-        },
-        "Ethernet0,Ethernet1,Ethernet2,Ethernet3,Ethernet4,Ethernet5,Ethernet6,Ethernet7,Ethernet8,Ethernet9,Ethernet10,Ethernet11,Ethernet12,Ethernet13,Ethernet14,Ethernet15,Ethernet16,Ethernet17,Ethernet18,Ethernet19,Ethernet20,Ethernet21,Ethernet22,Ethernet23,Ethernet24,Ethernet25,Ethernet26,Ethernet27,Ethernet28,Ethernet29,Ethernet30,Ethernet31,Ethernet32,Ethernet33,Ethernet34,Ethernet35,Ethernet36,Ethernet37,Ethernet38,Ethernet39,Ethernet40,Ethernet41,Ethernet42,Ethernet43,Ethernet44,Ethernet45,Ethernet46,Ethernet47,Ethernet48,Ethernet49,Ethernet50,Ethernet51,Ethernet52,Ethernet53|1" : {
-            "scheduler"     :   "[SCHEDULER|scheduler.2]"
-        }
     }
 }

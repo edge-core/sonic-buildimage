@@ -1,2 +1,2 @@
-SAI_INIT_CONFIG_FILE=/etc/nps/tau-as7116-4806.cfg
-SAI_DSH_CONFIG_FILE=/etc/nps/tau-as7116-4806.dsh
+SAI_INIT_CONFIG_FILE=/usr/share/sonic/platform/led_proc_init.nps
+SAI_DSH_CONFIG_FILE=/usr/share/sonic/hwsku/port_config.nps

@@ -308,6 +308,40 @@ phy set pre-emphasis unit=0 portlist=130 lane-cnt=1 property=c2 data=0x01
 phy set pre-emphasis unit=0 portlist=130 lane-cnt=1 property=cn1 data=0x01
 phy set pre-emphasis unit=0 portlist=130 lane-cnt=1 property=c0 data=0x02
 phy set pre-emphasis unit=0 portlist=130 lane-cnt=1 property=c1 data=0x03
+phy set mdio portlist=0  devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=1  devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=2  devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=3  devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=4  devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=5  devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=6  devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=7  devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=8  devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=9  devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=10 devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=11 devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=12 devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=13 devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=14 devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=15 devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=16 devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=17 devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=18 devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=19 devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=20 devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=21 devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=22 devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=23 devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=24 devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=25 devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=26 devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=27 devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=28 devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=29 devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=30 devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=31 devad=0x1E addr=0x2 data=0x8000
+phy set mdio portlist=129 devad=0x1E addr=0x2 data=0x0000
+phy set mdio portlist=130 devad=0x1E addr=0x2 data=0x0000
 port set property unit=0 portlist=0-31 speed=100g
 port set property unit=0 portlist=129-130 speed=10g
 port set property unit=0 portlist=0-31 medium-type=sr4

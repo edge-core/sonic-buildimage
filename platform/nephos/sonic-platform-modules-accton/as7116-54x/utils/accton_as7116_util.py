@@ -251,7 +251,15 @@ def device_install():
         if status:
             print output
             if FORCE == 0:            
-                return status                                  
+                return status
+
+        if i <= 47:
+            status, output =log_os_system("echo as7116_54x_sfp"+str(i+1)+" 0x51 > /sys/bus/i2c/devices/i2c-"+str(sfp_map[i])+"/new_device", 1)
+            if status:
+                print output
+                if FORCE == 0:
+                    return status
+
     return 
     
 def device_uninstall():
