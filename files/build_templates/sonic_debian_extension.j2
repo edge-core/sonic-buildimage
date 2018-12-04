@@ -75,7 +75,7 @@ sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install $CONFIG
 sudo rm -rf $FILESYSTEM_ROOT/$CONFIG_ENGINE_WHEEL_NAME
 
 # Install Python client for Redis
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install redis
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install "redis==2.10.6"
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install redis-dump-load
 
 # Install SwSS SDK Python 2 package
