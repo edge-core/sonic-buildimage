@@ -1,0 +1,69 @@
+#!/usr/bin/env python
+"""
+Part of Mellanox platform specific fastfast boot implementation for warm-boot.
+Notifies SYNCD proccess once boot is finished after warm-reboot.
+Once SYNCD received such notification it should set appropriate SAI attribute.
+Then SAI will notify SDK to end ISSU mode for the FFB.
+"""
+
+
+import time
+import swsssdk
+from threading import Timer
+
+
+class FFB(object):
+    """Provides implementation for Mellanox fastfast boot"""
+    DB_WARM_TABLE_KEY = 'WARM_RESTART_TABLE|bgp'
+    DB_STATE_ENTRY_NAME = 'state'
+    DB_STATE_TYPE_RECONCILED = 'reconciled'
+    DB_CHANNEL_NAME = 'MLNX_FFB'
+    DB_CHANNEL_MSG = '["SET","ISSU_END"]' # message should be in the following format: ["<operation>","<data>"]
+    SUB_THREAD_TIMEOUT = 1
+    STOP_TIMER_TIMEOUT = 180
+
+    def __init__(self):
+        self.state_db = swsssdk.SonicV2Connector()
+        self.state_db.connect(self.state_db.STATE_DB)
+
+        self.prevState = self.state_db.get(self.state_db.STATE_DB, self.DB_WARM_TABLE_KEY, self.DB_STATE_ENTRY_NAME)
+
+        self.pubSub = self.state_db.redis_clients[self.state_db.STATE_DB].pubsub()
+        self.pubSub.psubscribe(**{'__key*@6__:{}'.format(self.DB_WARM_TABLE_KEY): self.eventHandler})
+
+        self.timeoutTimer = Timer(self.STOP_TIMER_TIMEOUT, self.finish)
+
+    def run(self):
+        # Start event thread in order to get required events
+        self.eventThread = self.pubSub.run_in_thread(sleep_time=self.SUB_THREAD_TIMEOUT)
+        # Start oneshot timer in order to exit in case required event is not received during defined timeout
+        self.timeoutTimer.start()
+
+    def finish(self):
+        # Stop event thread and timeout timer
+        self.eventThread.stop()
+        self.timeoutTimer.cancel()
+
+        # Publish "FFB END" event to SYNCD process
+        time.sleep(60) # W/A: Wait until configuration is applied to HW since it takes some time
+        self.state_db.publish(self.state_db.STATE_DB, self.DB_CHANNEL_NAME, self.DB_CHANNEL_MSG)
+
+    def eventHandler(self, msg):
+        # Only "set" operations are needed so just skip all others
+        if msg['data'] != 'hset':
+            return
+
+        state = self.state_db.get(self.state_db.STATE_DB, self.DB_WARM_TABLE_KEY, self.DB_STATE_ENTRY_NAME)
+
+        if (state != self.prevState) and (state == self.DB_STATE_TYPE_RECONCILED):
+            self.finish()
+        else:
+            self.prevState = state
+
+
+def main():
+    FFB().run()
+
+
+if __name__ == '__main__':
+    main()

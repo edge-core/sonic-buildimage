@@ -2,7 +2,7 @@
 
 DOCKER_SYNCD_MLNX_RPC = docker-syncd-mlnx-rpc.gz
 $(DOCKER_SYNCD_MLNX_RPC)_PATH = $(PLATFORM_PATH)/docker-syncd-mlnx-rpc
-$(DOCKER_SYNCD_MLNX_RPC)_DEPENDS += $(SYNCD_RPC) $(LIBTHRIFT) $(MLNX_SFPD)
+$(DOCKER_SYNCD_MLNX_RPC)_DEPENDS += $(SYNCD_RPC) $(LIBTHRIFT) $(MLNX_SFPD) $(MLNX_ISSU)
 $(DOCKER_SYNCD_MLNX_RPC)_LOAD_DOCKERS += $(DOCKER_SYNCD_MLNX)
 SONIC_DOCKER_IMAGES += $(DOCKER_SYNCD_MLNX_RPC)
 ifeq ($(ENABLE_SYNCD_RPC),y)
@@ -13,3 +13,4 @@ $(DOCKER_SYNCD_MLNX_RPC)_CONTAINER_NAME = syncd
 $(DOCKER_SYNCD_MLNX_RPC)_RUN_OPT += --net=host --privileged -t
 $(DOCKER_SYNCD_MLNX_RPC)_RUN_OPT += -v /host/machine.conf:/etc/machine.conf
 $(DOCKER_SYNCD_MLNX_RPC)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
+$(DOCKER_SYNCD_MLNX_RPC)_RUN_OPT += -v /host/warmboot:/var/warmboot

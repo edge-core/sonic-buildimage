@@ -7,18 +7,21 @@ function getMountPoint()
 
 function getBootType()
 {
-    local TYPE
-    case "$(cat /proc/cmdline)" in
-    *SONIC_BOOT_TYPE=fast*)
-        TYPE='fast'
-        ;;
-    *SONIC_BOOT_TYPE=warm*)
+    local BOOT_TYPE
+    case "$(cat /proc/cmdline | grep -o 'SONIC_BOOT_TYPE=\S*' | cut -d'=' -f2)" in
+    warm*)
         TYPE='warm'
+        ;;
+    fastfast)
+        TYPE='fastfast'
+        ;;
+    fast*)
+        TYPE='fast'
         ;;
     *)
         TYPE='cold'
     esac
-    echo $TYPE
+    echo "${TYPE}"
 }
 
 function preStartAction()
@@ -26,7 +29,7 @@ function preStartAction()
 {%- if docker_container_name == "database" %}
     WARM_DIR=/host/warmboot
     if [[ "$BOOT_TYPE" == "warm" && -f $WARM_DIR/dump.rdb ]]; then
-        # Load redis content from /host/warm-reboot/dump.rdb
+        # Load redis content from /host/warmboot/dump.rdb
         docker cp $WARM_DIR/dump.rdb database:/var/lib/redis/dump.rdb
     else
         # Create an emtpy file and overwrite any RDB if already there
@@ -46,7 +49,6 @@ function postStartAction()
     until [[ $(/usr/bin/docker exec database redis-cli -s $REDIS_SOCK ping | grep -c PONG) -gt 0 ]]; do
         sleep 1;
     done
-
     if [[ "$BOOT_TYPE" == "warm" && -f $WARM_DIR/dump.rdb ]]; then
         rm -f $WARM_DIR/dump.rdb
     else
@@ -59,7 +61,7 @@ function postStartAction()
     fi
 {%- elif docker_container_name == "swss" %}
     docker exec swss rm -f /ready   # remove cruft
-    if [[ "$BOOT_TYPE" == "fast" && -d /host/fast-reboot ]]; then
+    if [[ "$BOOT_TYPE" == "fast" || "$BOOT_TYPE" == "fastfast" ]] && [[ -d /host/fast-reboot ]]; then
         test -e /host/fast-reboot/fdb.json && docker cp /host/fast-reboot/fdb.json swss:/
         test -e /host/fast-reboot/arp.json && docker cp /host/fast-reboot/arp.json swss:/
         test -e /host/fast-reboot/default_routes.json && docker cp /host/fast-reboot/default_routes.json swss:/
