@@ -17,6 +17,7 @@ try:
     import warnings
     import os
     import sys
+    import syslog
     from cStringIO import StringIO
     from sonic_eeprom import eeprom_base
     from sonic_eeprom import eeprom_tlvinfo
@@ -45,7 +46,7 @@ class board(eeprom_tlvinfo.TlvInfoDecoder):
             else:
                 break  
                       
-        if not (os.path.islink(EEPROM_SYMLINK) or os.isfile(CACHE_FILE)):
+        if not (os.path.exists(EEPROM_SYMLINK) or os.path.isfile(CACHE_FILE)):
             log_error("Nowhere to read syseeprom from! No symlink or cache file found")
             raise RuntimeError("No syseeprom symlink or cache file found")
 
