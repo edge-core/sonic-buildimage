@@ -11,7 +11,7 @@ debug=on
 # Default: None (no TACACS+ server)
 # server=1.1.1.1:49,secret=test,timeout=3
 {% for server in servers %}
-server={{ server.ip }}:{{ server.tcp_port }},secret={{ server.passkey }},timeout={{ server.timeout }}
+server={{ server.ip }}:{{ server.tcp_port }},secret={{ server.passkey }},timeout={{ server.timeout }}{% if server.vrf %},vrf={{ server.vrf }}{% endif %}{{''}}
 {% endfor %}
 
 # user_priv - set the map between TACACS+ user privilege and local user's passwd

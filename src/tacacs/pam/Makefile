@@ -17,6 +17,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	git apply ../0001-Don-t-init-declarations-in-a-for-loop.patch
 	git apply ../0002-Fix-libtac2-bin-install-directory-error.patch
 	git apply ../0003-Obfuscate-key-before-printing-to-syslog.patch
+	git apply ../0004-management-vrf-support.patch
 
 	dpkg-buildpackage -rfakeroot -b -us -uc
 	popd
