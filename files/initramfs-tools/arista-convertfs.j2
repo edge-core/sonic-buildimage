@@ -19,20 +19,25 @@ block_flash=''
 aboot_flag=''
 backup_file=''
 
-# Get the fullpath of flash device, e.g., /dev/sda
-get_flash_dev() {
-    for dev in $(ls /sys/block); do
-        local is_mmc=$(echo "$dev" | grep 'mmcblk.*boot.*' | cat)
-        if [ -n "$is_mmc" ]; then
-            continue
-        fi
-        local devid=$(realpath "/sys/block/$dev/device")
-        local is_device=$(echo "$devid" | grep '^/sys/devices/' | cat)
-        local is_flash=$(echo "$devid" | grep "$block_flash" | cat)
-        if [ -n "$is_device" -a -n "$is_flash" ]; then
-            flash_dev="/dev/$dev"
-            return 0
-        fi
+# Wait until get the fullpath of flash device, e.g., /dev/sda
+wait_get_flash_dev() {
+    local try_rounds=30
+    while [ $try_rounds -gt 0 ]; do
+        for dev in $(ls /sys/block); do
+            local is_mmc=$(echo "$dev" | grep 'mmcblk.*boot.*' | cat)
+            if [ -n "$is_mmc" ]; then
+                continue
+            fi
+            local devid=$(realpath "/sys/block/$dev/device")
+            local is_device=$(echo "$devid" | grep '^/sys/devices/' | cat)
+            local is_flash=$(echo "$devid" | grep "$block_flash" | cat)
+            if [ -n "$is_device" -a -n "$is_flash" ]; then
+                flash_dev="/dev/$dev"
+                return 0
+            fi
+        done
+        sleep 1
+        try_rounds=$(( $try_rounds - 1 ))
     done
     return 1
 }
@@ -95,6 +100,22 @@ fixup_flash_permissions() {
     setfacl -Rb "$flash_mnt"
 }
 
+# Update ROOT device referring to the path under block_flash
+# This is for the occasional name swap between /dev/sda and /dev/sdb
+update_root() {
+    # Check that root=/dev/*, ignoring any cases like root=UUID=*
+    [ "${ROOT#/dev}" = "${ROOT}" ] && return 0
+
+    # Replace the beginning chars of ROOT by the ones of flash_dev with same index
+{% raw %}
+    prefix_length="${#flash_dev}"
+{% endraw %}
+    part_id="${ROOT:$prefix_length}"
+    ROOT="$flash_dev$part_id"
+
+    echo "ROOT=$ROOT" > /conf/param.conf
+}
+
 # Extract kernel parameters
 set -- $(cat /proc/cmdline)
 for x in "$@"; do
@@ -111,10 +132,24 @@ for x in "$@"; do
             ;;
     esac
 done
-root_dev="$ROOT"
 
-#Check aboot and root_dev is vfat
+#Check aboot
 [ -z "$aboot_flag" ] && exit 0
+
+# Get flash dev name
+if [ -z "$block_flash" ]; then
+    echo "Error: flash device info is not provided"
+    exit 1
+fi
+if ! wait_get_flash_dev; then
+    echo "Error: flash device is not found"
+    exit 1
+fi
+
+# If root=/dev/*, update ROOT to the device under block_flash
+update_root
+
+root_dev="$ROOT"
 if [ -z "$root_dev" ]; then
     echo "Error: root device name is not provided"
     exit 1
@@ -126,22 +161,12 @@ fi
 
 # exit when the root is ext4
 if ! blkid | grep "$root_dev.*vfat" -q; then
-   mkdir -p "$root_mnt"
-   mount -t ext4 "$root_dev" "$root_mnt"
-   fixup_flash_permissions "$root_mnt"
-   umount "$root_mnt"
-   rmdir "$root_mnt"
-   exit 0
-fi
-
-# Get flash dev name
-if [ -z "$block_flash" ]; then
-    echo "Error: flash device info is not provided"
-    exit 1
-fi
-if ! get_flash_dev; then
-    echo "Error: flash device is not found"
-    exit 1
+    mkdir -p "$root_mnt"
+    mount -t ext4 "$root_dev" "$root_mnt"
+    fixup_flash_permissions "$root_mnt"
+    umount "$root_mnt"
+    rmdir "$root_mnt"
+    exit 0
 fi
 
 # Check memory size for tmpfs

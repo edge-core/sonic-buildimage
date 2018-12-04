@@ -32,6 +32,7 @@
 #   - KERNEL : relative path to the kernel to execute
 #   - INITRD : relative path to the initrd to load
 #   - CMDLINE : place to find the default kernel cmdline to use for the platform
+#   - VERBOSE : setting it to 1 will enable debug traces
 #
 # By default the boot0 script will behave for an Aboot based behavior.
 # Options can be provided to only run some features of this script.
@@ -39,24 +40,29 @@
 # Extra kernel parameters can be provided at runtime by the user by adding them
 # into a kernel-params file.
 
-set -x
-
 image_name="image-%%IMAGE_VERSION%%"
+dockerfs="{{ FILESYSTEM_DOCKERFS }}"
 
 do_not_clean="do-not-clean"
 kernel_params="kernel-params"
 
 aboot_machine="arista_unknown"
 
+info() { printf "%04.2f: $@\n" "$(cut -f1 -d' ' /proc/uptime)"; }
+err() { info "Error: $@"; }
+warn() { info "Warning: $@"; }
+
 # extract mount point from the swi path, e.g., /mnt/flash/sonic.swi --> /mnt/flash
 if [ -z "$target_path" ]; then
     if [ -z "$swipath" ]; then
-       echo "target_path= is required when swipath= is not provided"
+       err "target_path= is required when swipath= is not provided"
        exit 1
     fi
     target_path=$(df "$swipath" | tail -1 | tr -s " " | cut -d ' ' -f6)
 fi
 image_path="$target_path/$image_name"
+hook_path="$image_path/platform/hooks"
+data_path="$image_path/platform/data"
 
 cmdline_base="$target_path/kernel-params-base"
 cmdline_image="$image_path/kernel-cmdline"
@@ -64,6 +70,9 @@ boot_config="$target_path/boot-config"
 
 bootconfigvars="KERNEL INITRD CONSOLESPEED PASSWORD NETDEV NETAUTO NETIP NETMASK NETGW NETDOMAIN NETDNS NETHW memtest"
 flash_re=" /mnt/flash| /host"
+
+# for backward compatibility with the sonic_upgrade= behavior
+install="${install:-${sonic_upgrade:-}}"
 
 parse_environment_config() {
     for n in ${bootconfigvars}; do
@@ -81,6 +90,7 @@ clean_flash() {
            [ $f != "boot-config" ] &&
            [ $f != "$kernel_params" ] &&
            [ $f != "$cmdline_base" ] &&
+           [ $f != "aquota.user" ] &&
            [ $f != "old_config" ] &&
            [ $f != "minigraph.xml" ]
         then
@@ -110,7 +120,7 @@ update_next_boot() {
     local default="$(get_boot_config SWI_DEFAULT)"
 
     if [ -z "$default" ]; then
-        echo "warning: no variable SWI_DEFAULT available"
+        warn "boot-config has no variable SWI_DEFAULT"
     else
         update_boot_config SWI "$default"
     fi
@@ -119,26 +129,29 @@ update_next_boot() {
 extract_image() {
     mkdir -p "$image_path"
 
+    info "Extracting swi content"
     ## Unzip the image except boot0 and dockerfs archive
-    unzip -oq "$swipath" -x boot0 {{ FILESYSTEM_DOCKERFS }} -d "$image_path"
+    unzip -oq "$swipath" -x boot0 "$dockerfs" -d "$image_path"
 
     ## detect rootfs type
     rootfs_type=`grep " $target_path " /proc/mounts | cut -d' ' -f3`
 
+    info "Extracting $dockerfs from swi"
     ## vfat does not support symbol link
-    if [ -n "$sonic_upgrade" ] || [ "$rootfs_type" != "vfat" ]; then
+    if [ -n "$install" ] || [ "$rootfs_type" != "vfat" ]; then
         mkdir -p "$image_path/{{ DOCKERFS_DIR }}"
 
-        if [ -n "$sonic_upgrade" ]; then
-            TAR_EXTRA_OPTION="--numeric-owner"
+        if [ -n "$install" ]; then
+            TAR_EXTRA_OPTION="--numeric-owner --warning=no-timestamp"
         fi
 
         ## extract docker archive
-        unzip -oqp "$swipath" {{ FILESYSTEM_DOCKERFS }} | tar xzf - -C "$image_path/{{ DOCKERFS_DIR }}" $TAR_EXTRA_OPTION
+        info "Unpacking $dockerfs"
+        unzip -oqp "$swipath" "$dockerfs" | tar xzf - -C "$image_path/{{ DOCKERFS_DIR }}" $TAR_EXTRA_OPTION
     else
         ## save dockerfs archive in the image directory
-        unzip -oq "$swipath" {{ FILESYSTEM_DOCKERFS }} -d "$image_path"
-        echo "$target_path is $rootfs_type, extract {{ FILESYSTEM_DOCKERFS }} in later stage"
+        unzip -oq "$swipath" "$dockerfs" -d "$image_path"
+        info "Unpacking $dockerfs delayed to initrd because $target_path is $rootfs_type"
     fi
 
     ## use new reduced-size boot swi
@@ -263,7 +276,7 @@ write_boot_configs() {
     elif [ -f /sys/class/net/eth0/address ]; then
         echo "hwaddr_ma1=$(cat /sys/class/net/eth0/address)" >> /tmp/append
     else
-        echo "ERROR: Management port is not found."
+        err "Management port not found."
     fi
 
     # use extra parameters from kernel-params hook if the file exists
@@ -292,11 +305,32 @@ run_kexec() {
     local kernel="${KERNEL:-$(find $image_path/boot -name 'vmlinuz-*' -type f | head -n 1)}"
     local initrd="${INITRD:-$(find $image_path/boot -name 'initrd.img-*' -type f | head -n 1)}"
 
+    if ! $verbose; then
+       # Start showing systemd information from the first failing unit if any.
+       # systemd.show_status=false or quiet can be used to silence systemd entierly
+       cmdline="$cmdline systemd.show_status=auto"
+    fi
+
     kexec --load --initrd="$initrd" --append="$cmdline" "$kernel"
 
     [ -z "$testonly" ] || exit 0
-    echo "kexecing..."
+    info "Kexecing..."
     kexec --exec
+}
+
+get_sorted_hooks() {
+    echo $(find "$1" -name '[0-9][0-9]-*' -type f)
+}
+
+run_hooks() {
+    if [ -d "$hook_path/$1" ]; then
+        for hook in $(get_sorted_hooks "$hook_path/$1"); do
+            if [ ! -z "$hook" ]; then
+                info "Running hook $hook"
+                . "$hook"
+            fi
+        done
+    fi
 }
 
 # In Aboot no option will be provided therefore these are the default values to use
@@ -311,7 +345,7 @@ if [ -f "$target_path/$do_not_clean" ]; then
 fi
 
 # Parse the cmdline options (used from EOS or from SONiC)
-if [ ! -z "$install" ] || [ ! -z "$sonic_upgrade" ]; then
+if [ ! -z "$install" ]; then
     # install from SONiC or EOS
     in_aboot=false
     do_clean=false
@@ -326,11 +360,24 @@ elif [ $# -ne 0 ]; then
     exit 1
 fi
 
+# Verbosity can be defined by the caller, default to false otherwise
+verbose=${verbose:-false}
+if [ -f "$target_path/verbose-boot" ] ||
+   [ "$(get_boot_config VERBOSE)" = "1" ] ||
+   ! $in_aboot; then
+   verbose=true
+fi
+
+# enable shell debug mode to get the most verbosity
+if $verbose; then
+   set -x
+fi
+
 # install the image if newer
 if $do_install; then
     # we expect the swi to install to be a non empty file
     if [ ! -s "$swipath" ]; then
-        echo "The swipath= environment variable does not point to a valid SWI"
+        err "The swipath= environment variable does not point to a valid SWI"
         exit 1
     fi
 
@@ -340,17 +387,25 @@ if $do_install; then
 
     if [ "$GIT_REVISION" != "$LOCAL_IMAGEHASH" ] || [ ! -z "$force" ]; then
         if $do_clean; then
+            info "Cleaning flash content $target_path"
             clean_flash
         fi
 
+        info "Installing image under $image_path"
         extract_image
+
+        info "Generating boot-config, machine.conf and cmdline"
         write_boot_configs
+
+        run_hooks post-install
+    else
+        info "Using previously installed image"
     fi
 fi
 
 # chainloading using kexec
 if $do_kexec; then
+    run_hooks pre-kexec
     update_next_boot
     run_kexec
 fi
-
