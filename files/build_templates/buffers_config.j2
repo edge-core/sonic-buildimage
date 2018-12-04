@@ -60,8 +60,7 @@ def
     {%- else %}
         {%- if switch_role.lower() == 'torrouter' %}
             {%- for local_port in VLAN_MEMBER %}
-                {%- set vlan_port = local_port.split("|") %}
-                {%- if vlan_port[1] == port_name %}
+                {%- if local_port[1] == port_name %}
                     {%- set roles3 = switch_role + '_' + 'server' %}
                     {%- set roles3 = roles3 | lower %}
                     {%- if roles3 in ports2cable %}

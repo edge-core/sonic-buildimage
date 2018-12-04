@@ -25,7 +25,6 @@ ns = "Microsoft.Search.Autopilot.Evolution"
 ns1 = "http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"
 ns2 = "Microsoft.Search.Autopilot.NetMux"
 ns3 = "http://www.w3.org/2001/XMLSchema-instance"
-KEY_SEPARATOR = '|'
 
 class minigraph_encoder(json.JSONEncoder):
     def default(self, obj):
@@ -187,7 +186,7 @@ def parse_dpg(dpg, hname):
             for i, member in enumerate(pcmbr_list):
                 pcmbr_list[i] = port_alias_map.get(member, member)
                 intfs_inpc.append(pcmbr_list[i])
-                pc_members[pcintfname + KEY_SEPARATOR + pcmbr_list[i]] = {'NULL': 'NULL'}
+                pc_members[(pcintfname, pcmbr_list[i])] = {'NULL': 'NULL'}
             if pcintf.find(str(QName(ns, "Fallback"))) != None:
                 pcs[pcintfname] = {'members': pcmbr_list, 'fallback': pcintf.find(str(QName(ns, "Fallback"))).text, 'min_links': str(int(math.ceil(len() * 0.75)))}
             else:
@@ -204,8 +203,8 @@ def parse_dpg(dpg, hname):
             vmbr_list = vintfmbr.split(';')
             for i, member in enumerate(vmbr_list):
                 vmbr_list[i] = port_alias_map.get(member, member)
-                sonic_vlan_member_name = "Vlan%s%s%s" % (vlanid, KEY_SEPARATOR, vmbr_list[i])
-                vlan_members[sonic_vlan_member_name] = {'tagging_mode': 'untagged'}
+                sonic_vlan_member_name = "Vlan%s" % (vlanid)
+                vlan_members[(sonic_vlan_member_name, vmbr_list[i])] = {'tagging_mode': 'untagged'}
 
             vlan_attributes = {'vlanid': vlanid}
 
@@ -548,7 +547,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
             ports.get(port[0])['admin_status'] = 'up'
 
     for member in pc_members.keys() + vlan_members.keys():
-        port = ports.get(member.split(KEY_SEPARATOR)[1])
+        port = ports.get(member[1])
         if port:
             port['admin_status'] = 'up'
 
