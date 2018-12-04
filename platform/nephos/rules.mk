@@ -2,6 +2,7 @@ include $(PLATFORM_PATH)/sdk.mk
 include $(PLATFORM_PATH)/sai.mk
 include $(PLATFORM_PATH)/platform-modules-ingrasys.mk
 include $(PLATFORM_PATH)/platform-modules-accton.mk
+include $(PLATFORM_PATH)/platform-modules-pegatron.mk
 include $(PLATFORM_PATH)/docker-orchagent-nephos.mk
 include $(PLATFORM_PATH)/docker-syncd-nephos.mk
 include $(PLATFORM_PATH)/docker-syncd-nephos-rpc.mk
