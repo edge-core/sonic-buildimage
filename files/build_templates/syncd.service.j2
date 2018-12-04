@@ -13,6 +13,7 @@ After=opennsl-modules-4.9.0-7-amd64.service
 {% elif sonic_asic_platform == 'nephos' %}
 After=nps-modules-4.9.0-7-amd64.service
 {% endif %}
+Before=ntp-config.service
 
 [Service]
 User=root

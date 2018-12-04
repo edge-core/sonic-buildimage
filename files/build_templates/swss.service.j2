@@ -8,6 +8,7 @@ Requires=nps-modules-4.9.0-7-amd64.service
 {% endif %}
 After=database.service updategraph.service
 After=interfaces-config.service
+Before=ntp-config.service
 
 [Service]
 User=root

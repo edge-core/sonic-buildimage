@@ -2,6 +2,7 @@
 Description=BGP container
 Requires=updategraph.service
 After=updategraph.service
+Before=ntp-config.service
 
 [Service]
 User={{ sonicadmin_user }}

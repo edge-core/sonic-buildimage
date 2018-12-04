@@ -2,6 +2,7 @@
 Description=Router advertiser container
 Requires=updategraph.service swss.service
 After=updategraph.service swss.service
+Before=ntp-config.service
 
 [Service]
 User={{ sonicadmin_user }}
