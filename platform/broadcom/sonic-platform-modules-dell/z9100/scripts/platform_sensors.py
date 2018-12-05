@@ -16,7 +16,9 @@ Z9100_MAX_FAN_TRAYS = 5
 Z9100_MAX_PSUS = 2
 S6100_MAX_IOMS = 4
 
-MAILBOX_DIR = "/sys/devices/platform/SMF.512/hwmon/hwmon0"
+HWMON_DIR = "/sys/devices/platform/SMF.512/hwmon/"
+HWMON_NODE = os.listdir(HWMON_DIR)[0]
+MAILBOX_DIR = HWMON_DIR + HWMON_NODE
 
 # Get a mailbox register
 

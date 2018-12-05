@@ -11,6 +11,8 @@ try:
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
+HWMON_DIR = "/sys/devices/platform/SMF.512/hwmon/"
+HWMON_NODE = os.listdir(HWMON_DIR)[0]
 
 class PsuUtil(PsuBase):
     """Platform-specific PSUutil class"""
@@ -20,7 +22,7 @@ class PsuUtil(PsuBase):
 
     # Get a mailbox register
     def get_pmc_register(self, reg_name):
-        mailbox_dir = "/sys/devices/platform/SMF.512/hwmon/hwmon1"
+        mailbox_dir = HWMON_DIR + HWMON_NODE
         retval = 'ERR'
         mb_reg_file = mailbox_dir+'/' + reg_name
         if (not os.path.isfile(mb_reg_file)):
