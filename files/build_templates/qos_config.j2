@@ -120,7 +120,7 @@
             "43": "0",
             "44": "0",
             "45": "0",
-            "46": "0",
+            "46": "5",
             "47": "0",
             "48": "0",
             "49": "0",
@@ -142,14 +142,6 @@
     },
     "SCHEDULER": {
         "scheduler.0": {
-            "type"  : "DWRR",
-            "weight": "25"
-        },
-        "scheduler.1": {
-            "type"  : "DWRR",
-            "weight": "30"
-        },
-        "scheduler.2": {
             "type"  : "DWRR",
             "weight": "20"
         }
@@ -176,37 +168,47 @@
     },
     "WRED_PROFILE": {
         "AZURE_LOSSLESS" : {
-            "wred_green_enable"   : "true",
-            "wred_yellow_enable"  : "true",
-            "wred_red_enable"     : "true",
-            "ecn"                 : "ecn_all",
-            "green_max_threshold" : "312000",
-            "green_min_threshold" : "104000",
-            "yellow_max_threshold": "312000",
-            "yellow_min_threshold": "104000",
-            "red_max_threshold"   : "312000",
-            "red_min_threshold"   : "104000"
+            "wred_green_enable"      : "true",
+            "wred_yellow_enable"     : "true",
+            "wred_red_enable"        : "true",
+            "ecn"                    : "ecn_all",
+            "green_max_threshold"    : "2097152",
+            "green_min_threshold"    : "1048576",
+            "yellow_max_threshold"   : "2097152",
+            "yellow_min_threshold"   : "1048576",
+            "red_max_threshold"      : "2097152",
+            "red_min_threshold"      : "1048576",
+            "green_drop_probability" : "5",
+            "yellow_drop_probability": "5",
+            "red_drop_probability"   : "5"
         }
     },
     "QUEUE": {
 {% for port in PORT_ACTIVE %}
         "{{ port }}|3": {
-            "scheduler": "[SCHEDULER|scheduler.0]"
+            "scheduler"   : "[SCHEDULER|scheduler.0]",
+            "wred_profile": "[WRED_PROFILE|AZURE_LOSSLESS]"
         },
 {% endfor %}
 {% for port in PORT_ACTIVE %}
         "{{ port }}|4": {
-            "scheduler": "[SCHEDULER|scheduler.0]"
+            "scheduler"   : "[SCHEDULER|scheduler.0]",
+            "wred_profile": "[WRED_PROFILE|AZURE_LOSSLESS]"
         },
 {% endfor %}
 {% for port in PORT_ACTIVE %}
         "{{ port }}|0": {
-            "scheduler": "[SCHEDULER|scheduler.1]"
+            "scheduler": "[SCHEDULER|scheduler.0]"
         },
 {% endfor %}
 {% for port in PORT_ACTIVE %}
         "{{ port }}|1": {
-            "scheduler": "[SCHEDULER|scheduler.2]"
+            "scheduler": "[SCHEDULER|scheduler.0]"
+        },
+{% endfor %}
+{% for port in PORT_ACTIVE %}
+        "{{ port }}|5": {
+            "scheduler": "[SCHEDULER|scheduler.0]"
         }{% if not loop.last %},{% endif %}
 
 {% endfor %}
