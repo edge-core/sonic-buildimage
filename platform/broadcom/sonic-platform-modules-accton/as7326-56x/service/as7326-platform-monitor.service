@@ -1,7 +1,7 @@
 [Unit]
 Description=Accton AS7326-56X Platform Monitoring service
 Before=pmon.service
-After=sysinit.target
+After=as7326-platform-handle_mac.service
 DefaultDependencies=no
 
 [Service]
