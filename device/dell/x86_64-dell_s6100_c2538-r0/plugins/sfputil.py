@@ -236,6 +236,11 @@ class SfpUtil(SfpUtilBase):
                                 self.port_to_eeprom_mapping[port_num] =\
                                                         "No IOM"
 
+        self.oir_fd = open(self.OIR_FD_PATH, "r")
+        self.epoll = select.epoll()
+        if self.oir_fd != -1:
+            self.epoll.register(self.oir_fd.fileno(), select.EPOLLIN)
+
         SfpUtilBase.__init__(self)
 
     def __del__(self):
