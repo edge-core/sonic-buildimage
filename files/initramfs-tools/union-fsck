@@ -27,7 +27,7 @@ for type in $(get_fstypes_boot | sort | uniq); do
     if [ -h "$prog" ]; then
         link=$(readlink -f "$prog")
         copy_exec "$link"
-        ln -s "$link" "${DESTDIR}/$prog"
+        ln -sf "$link" "${DESTDIR}/$prog"
     elif [ -x "$prog" ] ; then
         copy_exec "$prog"
     else
