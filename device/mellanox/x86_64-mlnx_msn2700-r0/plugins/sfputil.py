@@ -123,31 +123,9 @@ class SfpUtil(SfpUtilBase):
         if curr_lpmode == lpmode:
             return True
 
+        # Compose LPM command
         lpm = 'on' if lpmode else 'off'
         lpm_cmd = "docker exec syncd python /usr/share/sonic/platform/plugins/sfplpmset.py {} {}".format(port_num, lpm)
-        sfp_port_names = self.physical_to_logical[port_num]
-
-        # Get port admin status
-        try:
-            enabled_ports = subprocess.check_output("ip link show up", shell=True)
-        except subprocess.CalledProcessError as e:
-            print "Error! Unable to get ports status, err msg: {}".format(e.output)
-            return False
-
-        port_to_disable = []
-        for port in sfp_port_names:
-            if port in enabled_ports:
-                port_to_disable.append(port)
-
-        # Disable ports before LPM settings
-        for port in port_to_disable:
-            try:
-                subprocess.check_output("ifconfig {} down".format(port), shell=True)
-            except subprocess.CalledProcessError as e:
-                print "Error! Unable to set admin status to DOWN for {}, rc = {}, err msg: {}".format(port, e.returncode, e.output)
-                return False
-
-        time.sleep(3)
 
         # Set LPM
         try:
@@ -155,14 +133,6 @@ class SfpUtil(SfpUtilBase):
         except subprocess.CalledProcessError as e:
             print "Error! Unable to set LPM for {}, rc = {}, err msg: {}".format(port_num, e.returncode, e.output)
             return False
-
-        # Enable ports after LPM settings
-        for port in port_to_disable:
-            try:
-                subprocess.check_output("ifconfig {} up".format(port), shell=True)
-            except subprocess.CalledProcessError as e:
-                print "Error! Unable to set admin status to UP for {}, rc = {}, err msg: {}".format(port, e.returncode, e.output)
-                return False
 
         return True
 
