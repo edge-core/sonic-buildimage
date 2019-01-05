@@ -29,7 +29,7 @@
 set -x -e
 
 ## docker engine version (with platform)
-DOCKER_VERSION=1.11.1-0~stretch_amd64
+DOCKER_VERSION=5:18.09.0~3-0~debian-stretch
 LINUX_KERNEL_VERSION=4.9.0-8
 
 ## Working directory to prepare the file system
@@ -62,6 +62,11 @@ mkdir -p $FILESYSTEM_ROOT
 mkdir -p $FILESYSTEM_ROOT/$PLATFORM_DIR
 mkdir -p $FILESYSTEM_ROOT/$PLATFORM_DIR/x86_64-grub
 touch $FILESYSTEM_ROOT/$PLATFORM_DIR/firsttime
+
+## make / as a mountpoint in chroot env, needed by dockerd
+pushd $FILESYSTEM_ROOT
+sudo mount --bind . .
+popd
 
 ## Build a basic Debian system by debootstrap
 echo '[INFO] Debootstrap...'
@@ -159,12 +164,19 @@ echo '[INFO] Install docker'
 ## Install apparmor utils since they're missing and apparmor is enabled in the kernel
 ## Otherwise Docker will fail to start
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install apparmor
-docker_deb_url=https://apt.dockerproject.org/repo/pool/main/d/docker-engine/docker-engine_${DOCKER_VERSION}.deb
-docker_deb_temp=`mktemp`
-trap_push "rm -f $docker_deb_temp"
-wget $docker_deb_url -qO $docker_deb_temp
-sudo dpkg --root=$FILESYSTEM_ROOT -i $docker_deb_temp || \
-    sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install apt-transport-https \
+                                                       ca-certificates \
+                                                       curl \
+                                                       gnupg2 \
+                                                       software-properties-common
+sudo LANG=C chroot $FILESYSTEM_ROOT curl -o /tmp/docker.gpg -fsSL https://download.docker.com/linux/debian/gpg
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-key add /tmp/docker.gpg
+sudo LANG=C chroot $FILESYSTEM_ROOT rm /tmp/docker.gpg
+sudo LANG=C chroot $FILESYSTEM_ROOT add-apt-repository \
+                                    "deb [arch=amd64] https://download.docker.com/linux/debian stretch stable"
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get update
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install docker-ce=${DOCKER_VERSION}
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y remove software-properties-common gnupg2
 
 ## Add docker config drop-in to select aufs, otherwise it may select other storage driver
 sudo mkdir -p $FILESYSTEM_ROOT/etc/systemd/system/docker.service.d/

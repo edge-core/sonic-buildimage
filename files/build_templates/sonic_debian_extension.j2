@@ -43,7 +43,8 @@ clean_sys() {
 trap_push clean_sys
 sudo LANG=C chroot $FILESYSTEM_ROOT mount sysfs /sys -t sysfs
 
-sudo bash -c "echo \"DOCKER_OPTS=\"--storage-driver=overlay\"\" >> $FILESYSTEM_ROOT/etc/default/docker"
+sudo bash -c "echo \"DOCKER_OPTS=\"--storage-driver=overlay2\"\" >> $FILESYSTEM_ROOT/etc/default/docker"
+sudo cp files/docker/docker $FILESYSTEM_ROOT/etc/init.d/
 sudo chroot $FILESYSTEM_ROOT service docker start
 
 # Apply apt configuration files
@@ -280,6 +281,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT docker load < {{image}}
 sudo LANG=C chroot $FILESYSTEM_ROOT docker tag {{imagename}}:latest {{imagename}}:$(sonic_get_version)
 {% endfor %}
 sudo chroot $FILESYSTEM_ROOT service docker stop
+sudo rm $FILESYSTEM_ROOT/etc/init.d/docker
 {% for script in installer_start_scripts.split(' ') -%}
 sudo cp {{script}} $FILESYSTEM_ROOT/usr/bin/
 {% endfor %}
