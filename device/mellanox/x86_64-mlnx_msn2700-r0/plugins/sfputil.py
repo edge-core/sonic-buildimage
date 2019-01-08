@@ -176,7 +176,11 @@ class SfpUtil(SfpUtilBase):
         if 'LIVENESS' not in keys:
             return False, phy_port_dict
 
-        (state, c) = self.db_sel.select(timeout)
+        if timeout:
+            (state, c) = self.db_sel.select(timeout)
+        else:
+            (state, c) = self.db_sel.select()
+
         if state == self.db_sel_timeout:
             status = True
         elif state != self.db_sel_object:
