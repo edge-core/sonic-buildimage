@@ -27,6 +27,8 @@ class SfpUtil(SfpUtilBase):
 
     _port_to_eeprom_mapping = {}
 
+    _global_port_pres_dict = {}
+
     @property
     def port_start(self):
         return self.PORT_START
@@ -44,28 +46,42 @@ class SfpUtil(SfpUtilBase):
         return self._port_to_eeprom_mapping
 
     def pci_mem_read(self, mm, offset):
-	mm.seek(offset)
-	read_data_stream=mm.read(4)
-	reg_val=struct.unpack('I',read_data_stream)
-	mem_val = str(reg_val)[1:-2]
-	# print "reg_val read:%x"%reg_val
-	return mem_val
+        mm.seek(offset)
+        read_data_stream=mm.read(4)
+        reg_val=struct.unpack('I',read_data_stream)
+        mem_val = str(reg_val)[1:-2]
+        # print "reg_val read:%x"%reg_val
+        return mem_val
 
     def pci_mem_write(self, mm, offset, data):
-	mm.seek(offset)
-	# print "data to write:%x"%data
-	mm.write(struct.pack('I',data))
+        mm.seek(offset)
+        # print "data to write:%x"%data
+        mm.write(struct.pack('I',data))
 
     def pci_set_value(self, resource, val, offset):
-	fd=open(resource,O_RDWR)
-	mm=mmap(fd,0)
-	return self.pci_mem_write(mm,offset,val)
+        fd = open(resource, O_RDWR)
+        mm = mmap(fd, 0)
+        val = self.pci_mem_write(mm, offset, val)
+        mm.close()
+        close(fd)
+        return val
 
     def pci_get_value(self, resource, offset):
-	fd=open(resource,O_RDWR)
-	mm=mmap(fd,0)
-	return self.pci_mem_read(mm, offset)
+        fd = open(resource, O_RDWR)
+        mm = mmap(fd, 0)
+        val = self.pci_mem_read(mm, offset)
+        mm.close()
+        close(fd)
+        return val
 	
+    def init_global_port_presence(self):
+        for port_num in range(self.port_start, (self.port_end + 1)):
+            presence = self.get_presence(port_num)
+            if(presence):
+                self._global_port_pres_dict[port_num] = '1'
+            else:
+                self._global_port_pres_dict[port_num] = '0'
+ 
     def __init__(self):
         eeprom_path = "/sys/class/i2c-adapter/i2c-{0}/{0}-0050/eeprom"
 
@@ -74,6 +90,7 @@ class SfpUtil(SfpUtilBase):
             self.port_to_eeprom_mapping[x] = eeprom_path.format(
                         port_num)
             port_num = 0
+        self.init_global_port_presence()
         
         SfpUtilBase.__init__(self)
 
@@ -192,9 +209,19 @@ class SfpUtil(SfpUtilBase):
         return True
 
     def get_transceiver_change_event(self):
-        """
-        TODO: This function need to be implemented
-        when decide to support monitoring SFP(Xcvrd)
-        on this platform.
-        """
-        raise NotImplementedError
+        port_dict = {}
+        while True:
+            for port_num in range(self.port_start, (self.port_end + 1)):
+                presence = self.get_presence(port_num)
+                if(presence and self._global_port_pres_dict[port_num] == '0'):
+                    self._global_port_pres_dict[port_num] = '1'
+                    port_dict[port_num] = '1'
+                elif(not presence and
+                     self._global_port_pres_dict[port_num] == '1'):
+                    self._global_port_pres_dict[port_num] = '0'
+                    port_dict[port_num] = '0'
+
+                if(len(port_dict) > 0):
+                    return True, port_dict
+
+            time.sleep(0.5)

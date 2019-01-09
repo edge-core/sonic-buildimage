@@ -18,5 +18,5 @@ except ImportError, e:
 class board(eeprom_tlvinfo.TlvInfoDecoder):
 
     def __init__(self, name, path, cpld_root, ro):
-        self.eeprom_path = "/sys/class/i2c-adapter/i2c-0/0-0053/eeprom"
+        self.eeprom_path = "/sys/class/i2c-adapter/i2c-0/0-0050/eeprom"
         super(board, self).__init__(self.eeprom_path, 0, '', True)

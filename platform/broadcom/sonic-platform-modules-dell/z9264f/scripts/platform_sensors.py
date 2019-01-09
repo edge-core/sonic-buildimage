@@ -189,10 +189,14 @@ def print_psu(psu):
         # psu1_fan_status = int(get_pmc_register('PSU1_status'),16)
 
         print '    PSU1:'
-        print '       FAN Temperature:              ',\
-            get_pmc_register('PSU1_temp')
+        print '       FAN Normal Temperature:              ',\
+            get_pmc_register('PSU1_Normal_temp')
+        print '       FAN System Temperature:              ',\
+            get_pmc_register('PSU1_Sys_temp')
+        print '       FAN Chassis Temperature:              ',\
+            get_pmc_register('PSU1_Chass_temp')
         print '       FAN AirFlow Temperature:      ',\
-            get_pmc_register('PSU1_AF_temp')
+            get_pmc_register('PSU1AF_temp')
         print '       FAN RPM:                      ',\
             get_pmc_register('PSU1_rpm')
         # print '    FAN Status:      ', Psu_Fan_Status[psu1_fan_status]
@@ -215,10 +219,14 @@ def print_psu(psu):
 
         # psu2_fan_status = int(get_pmc_register('PSU1_status'),16)
         print '    PSU2:'
-        print '       FAN Temperature:              ',\
-            get_pmc_register('PSU2_temp')
+        print '       FAN Normal Temperature:              ',\
+            get_pmc_register('PSU2_Normal_temp')
+        print '       FAN System Temperature:              ',\
+            get_pmc_register('PSU2_Sys_temp')
+        print '       FAN Chassis Temperature:              ',\
+            get_pmc_register('PSU2_Chass_temp')
         print '       FAN AirFlow Temperature:      ',\
-            get_pmc_register('PSU2_AF_temp')
+            get_pmc_register('PSU2AF_temp')
         print '       FAN RPM:                      ',\
             get_pmc_register('PSU2_rpm')
         # print '    FAN Status:      ', Psu_Fan_Status[psu2_fan_status]

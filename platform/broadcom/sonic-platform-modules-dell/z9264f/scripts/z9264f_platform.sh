@@ -17,9 +17,9 @@ init_devnum() {
 # Attach/Detach syseeprom on CPU board
 sys_eeprom() {
     case $1 in
-        "new_device")    echo 24c02 0x53 > /sys/bus/i2c/devices/i2c-0/$1
+        "new_device")    echo 24c16 0x50 > /sys/bus/i2c/devices/i2c-0/$1
                          ;;
-        "delete_device") echo 0x53 > /sys/bus/i2c/devices/i2c-0/$1
+        "delete_device") echo 0x50 > /sys/bus/i2c/devices/i2c-0/$1
                          ;;
         *)               echo "z9264f_platform: sys_eeprom : invalid command !"
                          ;;
@@ -30,34 +30,20 @@ sys_eeprom() {
 switch_board_qsfp_mux() {
     case $1 in
         "new_device")
-                      for ((i=74;i<=77;i++));
+                      for ((i=603;i<=611;i++));
                       do
-                          echo "Attaching PCA9548 @ $i"
-                          echo pca9548 0x$i > /sys/bus/i2c/devices/i2c-604/$1
-                          sleep 2
+                          echo "Attaching PCA9548 @ 0x74"
+                          echo pca9548 0x74 > /sys/bus/i2c/devices/i2c-$i/$1
                       done
 
-                      for ((i=74;i<=77;i++));
-                      do
-                          echo "Attaching PCA9548 @ $i"
-                          echo pca9548 0x$i > /sys/bus/i2c/devices/i2c-603/$1
-                          sleep 2
-                      done
                       ;;
         "delete_device")
-                      for ((i=74;i<=77;i++));
+                      for ((i=603;i<=611;i++));
                       do
-                          echo "Detaching PCA9548 @ $i"
-                          echo 0x$i > /sys/bus/i2c/devices/i2c-604/$1
-                          sleep 2
+                          echo "Detaching PCA9548 @ 0x74"
+                          echo 0x74 > /sys/bus/i2c/devices/i2c-$i/$1
                       done
 
-                      for ((i=74;i<=77;i++));
-                      do
-                          echo "Detaching PCA9548 @ $i"
-                          echo 0x$i > /sys/bus/i2c/devices/i2c-603/$1
-                          sleep 2
-                      done
                       ;;
         *)            echo "z9264f_platform: switch_board_qsfp_mux: invalid command !"
                       ;;
@@ -94,9 +80,9 @@ switch_board_modsel() {
 	resource="/sys/bus/pci/devices/0000:04:00.0/resource0"
 	for ((i=1;i<=64;i++));
 	do
-		port_addr=$( 16384 + ((i - 1) * 16))
+		port_addr=$(( 16384 + ((i - 1) * 16)))
 		hex=$( printf "0x%x" $port_addr )
-		python /bin/pcisysfs.py --set --offset $hex --val 0x41 --res $resource  > /dev/null 2>&1
+		python /usr/bin/pcisysfs.py --set --offset $hex --val 0x41 --res $resource  > /dev/null 2>&1
 	done
 }
 init_devnum
@@ -104,6 +90,8 @@ init_devnum
 if [ "$1" == "init" ]; then
     modprobe i2c-dev
     modprobe i2c-mux-pca954x force_deselect_on_exit=1
+    modprobe ipmi_devintf
+    modprobe ipmi_si
     modprobe i2c_ocores
     modprobe dell_z9264f_fpga_ocores
     sys_eeprom "new_device"

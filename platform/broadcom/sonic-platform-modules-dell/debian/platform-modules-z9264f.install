@@ -4,3 +4,4 @@ z9264f/scripts/platform_sensors.py usr/local/bin
 z9264f/scripts/sensors usr/bin
 z9264f/scripts/pcisysfs.py usr/bin
 z9264f/cfg/z9264f-modules.conf etc/modules-load.d
+z9264f/systemd/platform-modules-z9264f.service etc/systemd/system

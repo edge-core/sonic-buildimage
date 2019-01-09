@@ -10,7 +10,7 @@ import commands
 
 
 Z9264F_MAX_PSUS = 2
-IPMI_SENSOR_DATA = "ipmitool sdr list"
+IPMI_SENSOR_DATA = "docker exec -it pmon ipmitool sdr list"
 PSU_PRESENCE = "PSU{0}_state"
 # Use this for older firmware
 # PSU_PRESENCE="PSU{0}_prsnt"
