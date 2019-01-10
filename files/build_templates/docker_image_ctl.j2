@@ -28,7 +28,7 @@ function preStartAction()
 {
 {%- if docker_container_name == "database" %}
     WARM_DIR=/host/warmboot
-    if [[ "$BOOT_TYPE" == "warm" && -f $WARM_DIR/dump.rdb ]]; then
+    if [[ ("$BOOT_TYPE" == "warm" || "$BOOT_TYPE" == "fastfast")  && -f $WARM_DIR/dump.rdb ]]; then
         # Load redis content from /host/warmboot/dump.rdb
         docker cp $WARM_DIR/dump.rdb database:/var/lib/redis/dump.rdb
     else
@@ -49,7 +49,7 @@ function postStartAction()
     until [[ $(/usr/bin/docker exec database redis-cli -s $REDIS_SOCK ping | grep -c PONG) -gt 0 ]]; do
         sleep 1;
     done
-    if [[ "$BOOT_TYPE" == "warm" && -f $WARM_DIR/dump.rdb ]]; then
+    if [[ ("$BOOT_TYPE" == "warm" || "$BOOT_TYPE" == "fastfast") && -f $WARM_DIR/dump.rdb ]]; then
         rm -f $WARM_DIR/dump.rdb
     else
         # If there is a config db dump file, load it
@@ -61,7 +61,7 @@ function postStartAction()
     fi
 {%- elif docker_container_name == "swss" %}
     docker exec swss rm -f /ready   # remove cruft
-    if [[ "$BOOT_TYPE" == "fast" || "$BOOT_TYPE" == "fastfast" ]] && [[ -d /host/fast-reboot ]]; then
+    if [[ "$BOOT_TYPE" == "fast" ]] && [[ -d /host/fast-reboot ]]; then
         test -e /host/fast-reboot/fdb.json && docker cp /host/fast-reboot/fdb.json swss:/
         test -e /host/fast-reboot/arp.json && docker cp /host/fast-reboot/arp.json swss:/
         test -e /host/fast-reboot/default_routes.json && docker cp /host/fast-reboot/default_routes.json swss:/

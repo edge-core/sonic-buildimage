@@ -90,11 +90,7 @@ start() {
 
     # Don't flush DB during warm boot
     if [[ x"$WARM_BOOT" != x"true" ]]; then
-        # Don't flush APP_DB during MLNX fastfast boot
-        BOOT_TYPE="$(cat /proc/cmdline | grep -o 'SONIC_BOOT_TYPE=\S*' | cut -d'=' -f2)"
-        if [[ x"$BOOT_TYPE" != x"fastfast" ]] && [[ ! -f /var/warmboot/issu_started ]]; then
-            /usr/bin/docker exec database redis-cli -n 0 FLUSHDB
-        fi
+        /usr/bin/docker exec database redis-cli -n 0 FLUSHDB
         /usr/bin/docker exec database redis-cli -n 2 FLUSHDB
         /usr/bin/docker exec database redis-cli -n 5 FLUSHDB
         clean_up_tables 6 "'PORT_TABLE*', 'MGMT_PORT_TABLE*', 'VLAN_TABLE*', 'VLAN_MEMBER_TABLE*', 'INTERFACE_TABLE*', 'MIRROR_SESSION*'"

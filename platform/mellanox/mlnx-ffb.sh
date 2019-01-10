@@ -62,6 +62,19 @@ check_sdk_upgrade()
     return "${CHECK_RESULT}"
 }
 
+check_ffb()
+{
+    check_issu_enabled || {
+        echo "ISSU is not enabled on this HWSKU"
+        return "${FFB_FAILURE}"
+    }
+    check_sdk_upgrade || {
+        echo "SDK upgrade check failued"
+        return "${FFB_FAILURE}"
+    }
+    return "${FFB_SUCCESS}";
+}
+
 # Perform ISSU start
 issu_start()
 {
@@ -69,8 +82,6 @@ issu_start()
     ${ISSU_START_CMD} > /dev/null
 
     EXIT_CODE=$?
-
-    touch /host/warmboot/issu_started
 
     return $EXIT_CODE
 }

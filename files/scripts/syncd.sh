@@ -90,14 +90,12 @@ start() {
 
         # Flush DB during non-warm start
         /usr/bin/docker exec database redis-cli -n 1 FLUSHDB
-
-        # platform specific tasks
-        if [ x$sonic_asic_platform == x'cavium' ]; then
-            /etc/init.d/xpnet.sh start
-        fi
     fi
 
     # platform specific tasks
+
+    # start mellanox drivers regardless of
+    # boot type
     if [ x"$sonic_asic_platform" == x"mellanox" ]; then
         BOOT_TYPE=`getBootType`
         if [[ x"$WARM_BOOT" == x"true" || x"$BOOT_TYPE" == x"fast" ]]; then
@@ -108,6 +106,13 @@ start() {
         /etc/init.d/sxdkernel start
         /sbin/modprobe i2c-dev
     fi
+
+    if [[ x"$WARM_BOOT" != x"true" ]]; then
+        if [ x$sonic_asic_platform == x'cavium' ]; then
+            /etc/init.d/xpnet.sh start
+        fi
+    fi
+
 
     # start service docker
     /usr/bin/${SERVICE}.sh start
@@ -146,19 +151,21 @@ stop() {
     /usr/bin/${SERVICE}.sh stop
     debug "Stopped ${SERVICE} service..."
 
-    # if warm start enabled, don't stop peer service docker
+    # platform specific tasks
+
+    # stop mellanox driver regardless of
+    # shutdown type
+    if [ x$sonic_asic_platform == x'mellanox' ]; then
+        /etc/init.d/sxdkernel stop
+        /usr/bin/mst stop
+    fi
+
+
     if [[ x"$WARM_BOOT" != x"true" ]]; then
-        # platform specific tasks
         if [ x$sonic_asic_platform == x'cavium' ]; then
             /etc/init.d/xpnet.sh stop
             /etc/init.d/xpnet.sh start
         fi
-    fi
-
-    # platform specific tasks
-    if [ x"$sonic_asic_platform" == x"mellanox" ]; then
-        /etc/init.d/sxdkernel stop
-        /usr/bin/mst stop
     fi
 
     unlock_service_state_change
