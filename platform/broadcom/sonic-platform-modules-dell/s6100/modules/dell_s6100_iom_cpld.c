@@ -11,6 +11,8 @@
 //iom cpld slave address
 #define  IOM_CPLD_SLAVE_ADD   0x3e
 
+#define  CPLD_SEP_RST0 0x5
+
 //iom cpld ver register
 #define  IOM_CPLD_SLAVE_VER   0x00
 
@@ -182,16 +184,46 @@ static ssize_t set_reset(struct device *dev, struct device_attribute *devattr, c
     return count;
 }
 
+static ssize_t get_sep_reset(struct device *dev, struct device_attribute *devattr, char *buf)
+{
+    int ret;
+    u8 devdata=0;
+    struct cpld_data *data = dev_get_drvdata(dev);
+
+    ret = dell_s6100_iom_cpld_read(data,IOM_CPLD_SLAVE_ADD,CPLD_SEP_RST0);
+    if(ret < 0)
+        return sprintf(buf, "read error");
+    devdata = (u8)ret & 0xff;
+    return sprintf(buf,"0x%02x\n",devdata);
+}
+
+static ssize_t set_sep_reset(struct device *dev, struct device_attribute *devattr, const char *buf, size_t count)
+{
+    unsigned long devdata;
+    int err;
+    struct cpld_data *data = dev_get_drvdata(dev);
+
+    err = kstrtoul(buf, 16, &devdata);
+    if (err)
+        return err;
+
+    dell_s6100_iom_cpld_write(data,IOM_CPLD_SLAVE_ADD,CPLD_SEP_RST0,(u8)(devdata & 0xff));
+
+    return count;
+}
+
 static DEVICE_ATTR(iom_cpld_vers,S_IRUGO,get_cpldver, NULL);
 static DEVICE_ATTR(qsfp_modprs, S_IRUGO,get_modprs, NULL);
 static DEVICE_ATTR(qsfp_lpmode, S_IRUGO | S_IWUSR,get_lpmode,set_lpmode);
 static DEVICE_ATTR(qsfp_reset,  S_IRUGO | S_IWUSR,get_reset, set_reset);
+static DEVICE_ATTR(sep_reset, S_IRUGO | S_IWUSR, get_sep_reset, set_sep_reset);
 
 static struct attribute *i2c_cpld_attrs[] = {
     &dev_attr_qsfp_lpmode.attr,
     &dev_attr_qsfp_reset.attr,
     &dev_attr_qsfp_modprs.attr,
     &dev_attr_iom_cpld_vers.attr,
+    &dev_attr_sep_reset.attr,
     NULL,
 };
 
