@@ -1038,5 +1038,6 @@ MODULE_LICENSE("GPL");
 MODULE_ALIAS("platform:"DRV_NAME);
 MODULE_PARM_DESC(force_id, "Override the detected device ID");
 
+MODULE_SOFTDEP("pre: lpc_ich");
 module_init(dell_ich_init);
 module_exit(dell_ich_exit);
