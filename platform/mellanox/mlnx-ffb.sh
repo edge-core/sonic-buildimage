@@ -37,21 +37,26 @@ check_sdk_upgrade()
         mkdir -p "${FS_MOUNTPOINT}"
         mount -t squashfs "${FS_PATH}" "${FS_MOUNTPOINT}" || {
             >&2 echo "Failed to mount next SONiC image"
-            break;
+            break
         }
 
-        SDK_VERSION_FILE_PATH="${FS_MOUNTPOINT}/etc/mlnx/sdk-version"
+        ISSU_VERSION_FILE_PATH="/etc/mlnx/issu-version"
 
-        [ -f "${SDK_VERSION_FILE_PATH}" ] && {
-            NEXT_SDK_VERSION="$(cat ${FS_MOUNTPOINT}/etc/mlnx/sdk-version)"
-        } || {
-            >&2 echo "No SDK version file ${SDK_VERSION_FILE_PATH}"
-            break;
+        [ -f "${SDK_VERSION_FILE_PATH}" ] || {
+            >&2 echo "No ISSU version file found ${ISSU_VERSION_FILE_PATH}"
+            break
         }
 
-        ISSU_CHECK_CMD="docker exec -t syncd issu --check ${NEXT_SDK_VERSION}"
+        CURRENT_ISSU_VERSION="$(cat ${ISSU_VERSION_FILE_PATH})"
+        NEXT_ISSU_VERSION="$(cat ${FS_MOUNTPOINT}/${ISSU_VERSION_FILE_PATH})"
 
-        ${ISS_CHECK_CMD} > /dev/null && CHECK_RESULT="${FFB_SUCCESS}"
+        if [[ "${CURRENT_ISSU_VERSION}" == "${NEXT_ISSU_VERSION}" ]]; then
+            CHECK_RESULT="${FFB_SUCCESS}"
+        else
+            >&2 echo "Current and next ISSU version do not match:"
+            >&2 echo "Current ISSU version: ${CURRENT_ISSU_VERSION}"
+            >&2 echo "Next ISSU version: ${NEXT_ISSU_VERSION}"
+        fi
 
         break
     done
@@ -65,34 +70,15 @@ check_sdk_upgrade()
 check_ffb()
 {
     check_issu_enabled || {
-        echo "ISSU is not enabled on this HWSKU"
+        >&2 echo "ISSU is not enabled on this HWSKU"
         return "${FFB_FAILURE}"
     }
+
     check_sdk_upgrade || {
-        echo "SDK upgrade check failued"
+        >&2 echo "SDK upgrade check failued"
         return "${FFB_FAILURE}"
     }
-    return "${FFB_SUCCESS}";
+
+    return "${FFB_SUCCESS}"
 }
 
-# Perform ISSU start
-issu_start()
-{
-    ISSU_START_CMD="docker exec -t syncd issu --start"
-    ${ISSU_START_CMD} > /dev/null
-
-    EXIT_CODE=$?
-
-    return $EXIT_CODE
-}
-
-# Perform ISSU end
-issu_end()
-{
-    ISSU_END_CMD="docker exec -t syncd issu --end"
-    ${ISSU_END_CMD} > /dev/null
-
-    EXIT_CODE=$?
-
-    return $EXIT_CODE
-}
