@@ -82,5 +82,5 @@ DEFAULT_KERNEL_PROCURE_METHOD = build
 # host, then either the appropriate account and group will need to be created on the host
 # manually or changes need to be made when the image is built to create the account and
 # group during installation.
-FRR_USER_UID = 1000
-FRR_USER_GID = 1000
+FRR_USER_UID = 300
+FRR_USER_GID = 300

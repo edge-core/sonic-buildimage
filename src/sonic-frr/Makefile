@@ -9,32 +9,13 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# Build the package
 	pushd ./frr
 
-	# clean up the previous build
-	rm -rf debian
-	rm -f frr*.tar.gz
-	rm -f frr*.tar.xz
-	rm -f frr*.dsc
-
-	# make a dist tarball
-	./bootstrap.sh
-	./configure
-	make dist
-
-	# Create backports debian sources
-	cp -a debianpkg debian
-	make -f debian/rules backports
-
-	# new directory to build the package 
-	rm -rf frrpkg
-	mkdir frrpkg
-	cd frrpkg
-	tar xf ../frr_*.orig.tar.gz
-	cd frr*
-	tar xf ../../frr_*sonic.debian8*.debian.tar.xz
-
-	# build package
-	dpkg-buildpackage -rfakeroot -b -us -uc
+	# This could very well be tools/tarsource.sh -V -e sonic
+	tools/tarsource.sh -V
+	# This is a no-op but here in case the changelog stops being a symlink
+	debchange -b -v $(FRR_VERSION)-1~sonic.debian8+1 'SONiC FRR debian package build'
+	dpkg-buildpackage -rfakeroot -b -us -uc -Ppkg.frr.nortrlib
 	cd ..
+	mv frr_$(FRR_VERSION)-*_amd64.deb frr_$(FRR_VERSION)-1~sonic.debian8+1_amd64.deb
 	mv $* $(DEST)/
 
 	popd
