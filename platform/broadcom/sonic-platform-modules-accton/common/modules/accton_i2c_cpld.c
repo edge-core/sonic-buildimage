@@ -194,7 +194,7 @@ struct attrs plain_common[] = {
 struct base_attrs portly_attrs[] =
 {
     [SFP_PRESENT] = {"module_present", S_IRUGO, show_bit, NULL},
-    [SFP_RESET] = {"module_reset", S_IRUGO|S_IWUGO, show_bit, set_1bit},
+    [SFP_RESET] = {"module_reset", S_IRUGO|S_IWUSR, show_bit, set_1bit},
 };
 
 struct attrs as7712_port[] = {
