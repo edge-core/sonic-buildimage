@@ -236,11 +236,6 @@ class SfpUtil(SfpUtilBase):
                                 self.port_to_eeprom_mapping[port_num] =\
                                                         "No IOM"
 
-        self.oir_fd = open(self.OIR_FD_PATH, "r")
-        self.epoll = select.epoll()
-        if self.oir_fd != -1:
-            self.epoll.register(self.oir_fd.fileno(), select.EPOLLIN)
-
         SfpUtilBase.__init__(self)
 
     def __del__(self):
@@ -582,13 +577,40 @@ class SfpUtil(SfpUtilBase):
             port_dict = {}
             try:
                 # We get notified when there is an SCI interrupt from GPIO SUS6
+                # Open the sysfs file and register the epoll object
+                self.oir_fd = open(self.OIR_FD_PATH, "r")
+                if self.oir_fd != -1:
+                    # Do a dummy read before epoll register
+                    self.oir_fd.read()
+                    self.epoll = select.epoll()
+                    self.epoll.register(self.oir_fd.fileno(),
+                                        select.EPOLLIN & select.EPOLLET)
+                else:
+                    print("get_transceiver_change_event : unable to create fd")
+                    return False, {}
+
                 # Check for missed interrupts by invoking self.check_interrupts
-                # it will update the port_dict.
-                # Then poll for new xcvr insertion/removal and
-                # call self.check_interrupts again and return
-                retval, is_port_dict_updated = self.check_interrupts(port_dict)
-                if ((retval == 0) and (is_port_dict_updated is True)):
-                    return True, port_dict
+                # which will update the port_dict.
+                while True:
+                    interrupt_count_start = self.get_register(self.OIR_FD_PATH)
+
+                    retval, is_port_dict_updated = \
+                        self.check_interrupts(port_dict)
+                    if ((retval == 0) and (is_port_dict_updated is True)):
+                        return True, port_dict
+
+                    interrupt_count_end = self.get_register(self.OIR_FD_PATH)
+
+                    if (interrupt_count_start == 'ERR' or
+                            interrupt_count_end == 'ERR'):
+                        print("get_transceiver_change_event : \
+                            unable to retrive interrupt count")
+                        break
+
+                    # check_interrupts() itself may take upto 100s of msecs.
+                    # We detect a missed interrupt based on the count
+                    if interrupt_count_start == interrupt_count_end:
+                        break
 
                 # Block until an xcvr is inserted or removed with timeout = -1
                 events = self.epoll.poll(
@@ -599,9 +621,17 @@ class SfpUtil(SfpUtilBase):
                                               self.check_interrupts(port_dict)
                     if (retval != 0):
                         return False, {}
+
                 return True, port_dict
             except:
                 return False, {}
+            finally:
+                if self.oir_fd != -1:
+                    self.epoll.unregister(self.oir_fd.fileno())
+                    self.epoll.close()
+                    self.oir_fd.close()
+                    self.oir_fd = -1
+                    self.epoll = -1
 
             return False, {}
 
