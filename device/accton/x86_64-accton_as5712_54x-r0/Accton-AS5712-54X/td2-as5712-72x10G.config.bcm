@@ -3,8 +3,12 @@ bcm_stat_flags=0
 parity_enable=0
 parity_correction=0
 
-l2_mem_entries=163840
-l3_mem_entries=81920
+bcm_num_cos=8
+l2_mem_entries=32768
+l3_mem_entries=16384
+l3_alpm_enable=2
+ipv6_lpm_128b_enable=1
+
 mmu_lossless=0
 lls_num_l2uc=12
 module_64ports=0
