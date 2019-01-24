@@ -183,7 +183,15 @@ class ControlPlaneAclManager(object):
 
                 for ((rule_table_name, rule_id), rule_props) in self._rules_db_info.iteritems():
                     if rule_table_name == table_name:
-                        acl_rules[rule_props["PRIORITY"]] = rule_props
+                        if not rule_props:
+                            log_warning("rule_props for rule_id {} empty or null!".format(rule_id))
+                            continue
+
+                        try:
+                            acl_rules[rule_props["PRIORITY"]] = rule_props
+                        except KeyError:
+                            log_error("rule_props for rule_id {} does not have key 'PRIORITY'!".format(rule_id))
+                            continue
 
                         # If we haven't determined the IP version for this ACL table yet,
                         # try to do it now. We determine heuristically based on whether the
