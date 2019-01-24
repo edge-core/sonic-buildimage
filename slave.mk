@@ -98,11 +98,11 @@ $(warning PASSWORD given on command line: could be visible to other users)
 endif
 
 ifeq ($(SONIC_DEBUGGING_ON),y)
-DEB_BUILD_OPTIONS_GENERIC := "nostrip"
+DEB_BUILD_OPTIONS_GENERIC := nostrip
 endif
 
 ifeq ($(SONIC_PROFILING_ON),y)
-DEB_BUILD_OPTIONS_GENERIC := "nostrip noopt"
+DEB_BUILD_OPTIONS_GENERIC := nostrip noopt
 endif
 
 ifeq ($(SONIC_BUILD_JOBS),)
