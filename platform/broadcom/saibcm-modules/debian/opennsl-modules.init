@@ -64,7 +64,7 @@ force-reload|restart)
     ;;
 
 *)
-    echo "Usage: /etc/init.d/opennsl-modules-4.9.0-8-amd64.init {start|stop}"
+    echo "Usage: /etc/init.d/opennsl-modules.init {start|stop}"
     exit 1
     ;;
 esac

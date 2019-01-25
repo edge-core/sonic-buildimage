@@ -30,7 +30,7 @@ set -x -e
 
 ## docker engine version (with platform)
 DOCKER_VERSION=5:18.09.0~3-0~debian-stretch
-LINUX_KERNEL_VERSION=4.9.0-8
+LINUX_KERNEL_VERSION=4.9.0-8-2
 
 ## Working directory to prepare the file system
 FILESYSTEM_ROOT=./fsroot
