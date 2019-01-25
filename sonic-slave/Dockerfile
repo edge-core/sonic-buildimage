@@ -237,6 +237,9 @@ RUN apt-get update && apt-get install -y \
         qemu-kvm \
         libvirt-bin
 
+# For jenkins slave
+RUN apt-get -y install ca-certificates-java=20161107~bpo8+1 openjdk-8-jdk
+
 # For linux build
 RUN apt-get -y build-dep linux
 
