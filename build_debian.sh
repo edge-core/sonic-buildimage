@@ -243,7 +243,8 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     python-scapy            \
     tcptraceroute           \
     mtr-tiny                \
-    locales
+    locales                 \
+    cgroup-tools
 
 #Adds a locale to a debian system in non-interactive mode
 sudo sed -i '/^#.* en_US.* /s/^#//' $FILESYSTEM_ROOT/etc/locale.gen && \
@@ -344,6 +345,7 @@ set /files/etc/sysctl.conf/net.ipv6.conf.eth0.keep_addr_on_down 1
 set /files/etc/sysctl.conf/net.ipv6.conf.eth0.accept_ra_defrtr 0
 
 set /files/etc/sysctl.conf/net.ipv4.tcp_l3mdev_accept 1
+set /files/etc/sysctl.conf/net.ipv4.udp_l3mdev_accept 1
 
 set /files/etc/sysctl.conf/net.core.rmem_max 2097152
 set /files/etc/sysctl.conf/net.core.wmem_max 2097152
