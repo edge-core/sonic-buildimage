@@ -166,12 +166,15 @@ init :
 reset :
 	@echo && echo -n "Warning! All local changes will be lost. Proceed? [y/N]: "
 	@read ans && \
-	 if [ $$ans == y ]; then \
-	     git clean -xfdf; \
-	     git reset --hard; \
-	     git submodule foreach --recursive git clean -xfdf; \
-	     git submodule foreach --recursive git reset --hard; \
-	     git submodule update --init --recursive;\
-	 else \
-	     echo "Reset aborted"; \
-	 fi
+	    if [ $$ans == y ]; then \
+	        echo "Resetting local repository. Please wait..."; \
+	        $(DOCKER_RUN) $(SLAVE_IMAGE):$(SLAVE_TAG) sudo rm -rf fsroot; \
+	        git clean -xfdf; \
+	        git reset --hard; \
+	        git submodule foreach --recursive git clean -xfdf; \
+	        git submodule foreach --recursive git reset --hard; \
+	        git submodule update --init --recursive; \
+			echo "Reset complete!"; \
+	    else \
+	        echo "Reset aborted"; \
+	    fi
