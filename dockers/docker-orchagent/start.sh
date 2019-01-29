@@ -23,8 +23,6 @@ supervisorctl start restore_neighbors
 
 supervisorctl start portsyncd
 
-supervisorctl start intfsyncd
-
 supervisorctl start neighsyncd
 
 supervisorctl start swssconfig
