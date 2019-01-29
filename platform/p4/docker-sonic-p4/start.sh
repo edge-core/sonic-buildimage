@@ -55,9 +55,6 @@ supervisorctl start orchagent
 echo "Start portsyncd"
 supervisorctl start portsyncd
 
-echo "Start intfsyncd"
-supervisorctl start intfsyncd
-
 echo "Start neighsyncd"
 supervisorctl start neighsyncd
 

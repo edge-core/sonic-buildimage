@@ -41,8 +41,6 @@ supervisorctl start orchagent
 
 supervisorctl start portsyncd
 
-supervisorctl start intfsyncd
-
 supervisorctl start neighsyncd
 
 supervisorctl start teamsyncd
