@@ -64,6 +64,10 @@ $WorkDirectory /var/spool/rsyslog
 #
 $IncludeConfig /etc/rsyslog.d/*.conf
 
+#
+# Suppress duplicate messages and report "message repeated n times"
+#
+$RepeatedMsgReduction on
 
 ###############
 #### RULES ####
