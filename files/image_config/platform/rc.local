@@ -106,23 +106,30 @@ value_extract() {
     done
 }
 
-# Set up previous and next reboot cause files
+# Set up previous and next reboot cause files accordingly
 process_reboot_cause() {
-    REBOOT_CAUSE_FILE="/var/cache/sonic/reboot-cause.txt"
-    PREVIOUS_REBOOT_CAUSE_FILE="/var/cache/sonic/previous-reboot-cause.txt"
+    REBOOT_CAUSE_DIR="/host/reboot-cause"
+    REBOOT_CAUSE_FILE="${REBOOT_CAUSE_DIR}/reboot-cause.txt"
+    PREVIOUS_REBOOT_CAUSE_FILE="${REBOOT_CAUSE_DIR}/previous-reboot-cause.txt"
 
-    # Set the previous reboot cause accordingly
-    # If this is the first boot after an image install, state that as the
-    # cause. Otherwise, move REBOOT_CAUSE_FILE to PREVIOUS_REBOOT_CAUSE_FILE.
-    # REBOOT_CAUSE_FILE should always exist, but we add the else case
-    # to ensure we always generate PREVIOUS_REBOOT_CAUSE_FILE here
+    mkdir -p $REBOOT_CAUSE_DIR
+
+    # If this is the first boot after an image install, store that as the
+    # previous reboot cause.
     if [ -f $FIRST_BOOT_FILE ]; then
         echo "SONiC image installation" > $PREVIOUS_REBOOT_CAUSE_FILE
-    elif [ -f $REBOOT_CAUSE_FILE ]; then
+    fi
+
+    # If there is an existing REBOOT_CAUSE_FILE, copy that file to
+    # PREVIOUS_REBOOT_CAUSE_FILE.
+    if [ -f $REBOOT_CAUSE_FILE ]; then
         mv -f $REBOOT_CAUSE_FILE $PREVIOUS_REBOOT_CAUSE_FILE
     else
         echo "Unknown reboot cause" > $PREVIOUS_REBOOT_CAUSE_FILE
     fi
+
+    # Log the previous reboot cause to the syslog
+    logger "Previous reboot cause: $(cat $PREVIOUS_REBOOT_CAUSE_FILE)"
 
     # Set the default cause for the next reboot
     echo "Unexpected reboot" > $REBOOT_CAUSE_FILE
