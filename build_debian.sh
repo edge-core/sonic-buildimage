@@ -341,6 +341,7 @@ set /files/etc/sysctl.conf/net.ipv6.conf.all.keep_addr_on_down 1
 set /files/etc/sysctl.conf/net.ipv6.conf.eth0.keep_addr_on_down 1
 
 set /files/etc/sysctl.conf/net.ipv6.conf.eth0.accept_ra_defrtr 0
+set /files/etc/sysctl.conf/net.ipv6.conf.eth0.accept_ra 0
 
 set /files/etc/sysctl.conf/net.core.rmem_max 2097152
 set /files/etc/sysctl.conf/net.core.wmem_max 2097152
