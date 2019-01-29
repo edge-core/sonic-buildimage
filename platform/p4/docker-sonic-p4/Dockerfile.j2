@@ -71,7 +71,6 @@ RUN sed -ri 's/^(save .*$)/# \1/g;                                              
             ' /etc/redis/redis.conf
 
 ADD port_config.ini /port_config.ini
-ADD rsyslog.conf /etc/rsyslog.conf
 COPY ["start.sh", "orchagent.sh", "config_bm.sh", "/usr/bin/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 COPY ["files/configdb-load.sh", "/usr/bin/"]
