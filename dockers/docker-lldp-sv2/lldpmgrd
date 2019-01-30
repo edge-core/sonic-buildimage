@@ -119,9 +119,8 @@ class LldpManager(object):
 
     def generate_pending_lldp_config_cmd_for_port(self, port_name):
         """
-        For port `port_name`, look up the neighboring device's hostname and
-        corresponding port alias in the Config database, then form the
-        appropriate lldpcli configuration command and run it.
+        For port `port_name`, look up the description and alias in the Config database,
+        then form the appropriate lldpcli configuration command and run it.
         """
         # Retrieve all entires for this port from the Port table
         port_table = swsscommon.Table(self.config_db, swsscommon.CFG_PORT_TABLE_NAME)
@@ -135,34 +134,21 @@ class LldpManager(object):
             if not port_alias:
                 log_info("Unable to retrieve port alias for port '{}'. Using port name instead.".format(port_name))
                 port_alias = port_name
+            
+            # Get the port description. If None or empty string, we'll skip this configuration 
+            port_desc = port_table_dict.get("description")
+
         else:
             log_error("Port '{}' not found in {} table in Config DB. Using port name instead of port alias.".format(port_name, swsscommon.CFG_PORT_TABLE_NAME))
             port_alias = port_name
 
         lldpcli_cmd = "lldpcli configure ports {0} lldp portidsubtype local {1}".format(port_name, port_alias)
 
-        # Retrieve all entires for this port from the Device Neighbor table
-        device_neighbor_table = swsscommon.Table(self.config_db, swsscommon.CFG_DEVICE_NEIGHBOR_TABLE_NAME)
-        (status, fvp) = device_neighbor_table.get(port_name)
-        if status:
-            # Convert list of tuples to a dictionary
-            device_neighbor_table_dict = dict(fvp)
-
-            # Get neighbor host name and port name
-            neighbor_hostname = device_neighbor_table_dict.get("name")
-            neighbor_portname = device_neighbor_table_dict.get("port")
-
-            # If we sucessfully obtained the neighbor's host name and port name, append a port description to the command
-            if neighbor_hostname and neighbor_portname:
-                lldpcli_cmd += " description {0}:{1}".format(neighbor_hostname, neighbor_portname)
-            else:
-                if not neighbor_hostname:
-                    log_info("Failed to retrieve neighbor host name for port '{}'. Not adding port description.".format(port_name))
-
-                if not neighbor_portname:
-                    log_info("Failed to retrieve neighbor port name for port '{}'. Not adding port description.".format(port_name))
+        # if there is a description available, also configure that
+        if port_desc:
+            lldpcli_cmd += " description {}".format(port_desc)
         else:
-            log_info("Unable to retrieve neighbor information for port '{}'. Not adding port description.".format(port_name))
+            log_info("Unable to retrieve description for port '{}'. Not adding port description".format(port_name))
 
         # Add the command to our dictionary of pending commands, overwriting any
         # previous pending command for this port
@@ -200,9 +186,11 @@ class LldpManager(object):
 
     def run(self):
         """
-        Infinite loop. Subscribes to notifications of changes in the PORT table
-        of the Redis State database. When we are notified of the creation of an
-        interface, update LLDP configuration accordingly.
+        Subscribes to notifications of changes in the PORT table
+        of the Redis State database. 
+        Subscribe to STATE_DB - get notified of the creation of an interface
+        Subscribe to CONFIG_DB - get notified of port config changes
+        Update LLDP configuration accordingly.
         """
         # Set select timeout to 10 seconds
         SELECT_TIMEOUT_MS = 1000 * 10
@@ -211,8 +199,10 @@ class LldpManager(object):
         sel = swsscommon.Select()
         sst = swsscommon.SubscriberStateTable(self.state_db, swsscommon.STATE_PORT_TABLE_NAME)
         sel.addSelectable(sst)
+        sst = swsscommon.SubscriberStateTable(self.config_db, swsscommon.CFG_PORT_TABLE_NAME)
+        sel.addSelectable(sst)
 
-        # Listen indefinitely for changes to the PORT table in the State DB
+        # Listen for changes to the PORT table in the STATE_DB and CONFIG_DB
         while True:
             (state, c) = sel.select(SELECT_TIMEOUT_MS)
 
@@ -221,7 +211,12 @@ class LldpManager(object):
 
                 fvp_dict = dict(fvp)
 
+                # handle creation
                 if op == "SET" and fvp_dict.get("state") == "ok":
+                    self.generate_pending_lldp_config_cmd_for_port(key)
+
+                # handle config change
+                if op in ["SET", "DEL"] and (fvp_dict.get("alias") or fvp_dict.get("description")) :
                     self.generate_pending_lldp_config_cmd_for_port(key)
 
             # Process all pending commands
