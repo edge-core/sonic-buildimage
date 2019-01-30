@@ -86,7 +86,8 @@ COPY ["50-default.conf", "/etc/rsyslog.d/"]
 COPY ["start.sh", "orchagent.sh", "/usr/bin/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 COPY ["files/configdb-load.sh", "/usr/bin/"]
-COPY ["files/arp_update", "/usr/bin"]
+COPY ["files/arp_update", "/usr/bin/"]
+COPY ["files/buffers_config.j2", "/usr/share/sonic/templates/"]
 COPY ["files/sonic_version.yml", "/etc/sonic/"]
 
 # Workaround the tcpdump issue
