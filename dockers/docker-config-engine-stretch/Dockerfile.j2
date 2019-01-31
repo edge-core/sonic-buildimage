@@ -1,0 +1,47 @@
+FROM docker-base-stretch
+
+## Make apt-get non-interactive
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update
+
+# Dependencies for sonic-cfggen
+RUN apt-get install -y python-lxml python-yaml python-bitarray python-pip python-dev python-natsort python-setuptools
+
+RUN pip install --upgrade pip
+
+RUN pip install netaddr ipaddr jinja2 pyangbind==0.5.10
+
+{% if docker_config_engine_stretch_debs.strip() %}
+COPY \
+{% for deb in docker_config_engine_stretch_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor -%}
+debs/
+{%- endif -%}
+
+{% if docker_config_engine_stretch_debs.strip() %}
+RUN dpkg -i \
+{% for deb in docker_config_engine_stretch_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor %}
+{%- endif -%}
+
+{% if docker_config_engine_stretch_whls.strip() %}
+COPY \
+{% for whl in docker_config_engine_stretch_whls.split(' ') -%}
+python-wheels/{{ whl }}{{' '}}
+{%- endfor -%}
+python-wheels/
+{%- endif -%}
+
+{% if docker_config_engine_stretch_whls.strip() %}
+RUN pip install \
+{% for whl in docker_config_engine_stretch_whls.split(' ') -%}
+python-wheels/{{ whl }}{{' '}}
+{%- endfor %}
+{%- endif -%}
+
+## Clean up
+RUN apt-get remove -y python-pip python-dev; apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
+RUN rm -rf /debs /python-wheels
