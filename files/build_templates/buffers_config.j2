@@ -107,7 +107,7 @@ def
 {
     "CABLE_LENGTH": {
         "AZURE": {
-    {% for port in PORT %}
+    {% for port in PORT_ALL %}
         {%- set cable = cable_length(port) %}
         "{{ port }}": "{{ cable }}"{%- if not loop.last %},{% endif %}
 
