@@ -48,6 +48,8 @@ supervisorctl start fpmsyncd
 
 supervisorctl start teammgrd
 
+supervisorctl start vrfmgrd
+
 supervisorctl start portmgrd
 
 supervisorctl start intfmgrd
@@ -57,8 +59,6 @@ supervisorctl start vlanmgrd
 supervisorctl start zebra
 
 supervisorctl start buffermgrd
-
-supervisorctl start vrfmgrd
 
 supervisorctl start nbrmgrd
 

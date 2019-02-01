@@ -27,6 +27,8 @@ supervisorctl start neighsyncd
 
 supervisorctl start swssconfig
 
+supervisorctl start vrfmgrd
+
 supervisorctl start vlanmgrd
 
 supervisorctl start intfmgrd
@@ -36,8 +38,6 @@ supervisorctl start portmgrd
 supervisorctl start buffermgrd
 
 supervisorctl start enable_counters
-
-supervisorctl start vrfmgrd
 
 supervisorctl start nbrmgrd
 
