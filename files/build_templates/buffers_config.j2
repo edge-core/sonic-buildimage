@@ -119,10 +119,10 @@ def
 {{ defs.generate_pg_profils }},
 {% else %}
     "BUFFER_PG": {
-        "{{ port_names_all }}|0-1": {
+        "{{ port_names_all }}|0-2": {
             "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
         },
-        "{{ port_names_all }}|5": {
+        "{{ port_names_all }}|5-6": {
             "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
         }
     },
@@ -135,10 +135,10 @@ def
         "{{ port_names_all }}|3-4": {
             "profile" : "[BUFFER_PROFILE|egress_lossless_profile]"
         },
-        "{{ port_names_all }}|0-1": {
+        "{{ port_names_all }}|0-2": {
             "profile" : "[BUFFER_PROFILE|egress_lossy_profile]"
         },
-        "{{ port_names_all }}|5": {
+        "{{ port_names_all }}|5-6": {
             "profile" : "[BUFFER_PROFILE|egress_lossy_profile]"
         }
     }
