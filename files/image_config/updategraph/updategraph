@@ -18,14 +18,14 @@ reload_minigraph()
     pfcwd start_default
 }
 
-function copy_config_files()
+function copy_config_files_and_directories()
 {
-    for file in $@; do
-        if [ -f /etc/sonic/old_config/${file} ]; then
-            logger "Copying SONiC configuration ${file} ..."
-            cp /etc/sonic/old_config/${file} /etc/sonic/
+    for file_dir in $@; do
+        if [ -f /etc/sonic/old_config/${file_dir} ] || [ -d /etc/sonic/old_config/${file_dir} ]; then
+            logger "Copying SONiC configuration ${file_dir} ..."
+            cp -ar /etc/sonic/old_config/${file_dir} /etc/sonic/
         else
-            logger "Missing SONiC configuration ${file} ..."
+            logger "Missing SONiC configuration ${file_dir} ..."
         fi
     done
 }
@@ -50,9 +50,9 @@ fi
 . /etc/sonic/updategraph.conf
 
 check_system_warm_boot
-
+copy_list="minigraph.xml snmp.yml acl.json config_db.json frr" 
 if [ -f /tmp/pending_config_migration ]; then
-    copy_config_files minigraph.xml snmp.yml acl.json config_db.json
+    copy_config_files_and_directories $copy_list
     if [ x"${WARM_BOOT}" == x"true" ]; then
         echo "Warm reboot detected..."
     elif [ "$enabled" = "true" ]; then
