@@ -2,14 +2,14 @@
     {
         "PORT_TABLE:Ethernet0": {
             "speed": "10000",
-            "description": ""
+            "description": "fortyGigE0/0"
         },
         "OP": "SET"
     },
     {
         "PORT_TABLE:Ethernet4": {
             "speed": "25000",
-            "description": ""
+            "description": "fortyGigE0/4"
         },
         "OP": "SET"
     },
