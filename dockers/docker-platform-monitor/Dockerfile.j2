@@ -24,6 +24,18 @@ RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return
 {%- endfor %}
 {%- endif %}
 
+{% if docker_platform_monitor_pydebs.strip() -%}
+# Copy locally-built Debian package dependencies
+{%- for deb in docker_platform_monitor_pydebs.split(' ') %}
+COPY python-debs/{{ deb }} /debs/
+{%- endfor %}
+
+# Install locally-built Debian packages and implicitly install their dependencies
+{%- for deb in docker_platform_monitor_pydebs.split(' ') %}
+RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /debs/{{ deb }}
+{%- endfor %}
+{%- endif %}
+
 {% if docker_platform_monitor_whls.strip() -%}
 # Copy locally-built Python wheel dependencies
 {%- for whl in docker_platform_monitor_whls.split(' ') %}

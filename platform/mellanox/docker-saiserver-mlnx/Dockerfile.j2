@@ -14,10 +14,21 @@ debs/{{ deb }}{{' '}}
 {%- endfor -%}
 debs/
 
+COPY \
+{% for deb in docker_saiserver_mlnx_pydebs.split(' ') -%}
+python-debs/{{ deb }}{{' '}}
+{%- endfor -%}
+debs/
+
 RUN apt-get install -y --no-install-recommends libxml2 iptables libbsd0 protobuf-c-compiler protobuf-compiler python-protobuf libprotobuf-c1 python-future python-ipaddr libnet1 pkg-config asciidoc xmlto
 
 RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; } ; \
 {% for deb in docker_saiserver_mlnx_debs.split(' ') -%}
+dpkg_apt debs/{{ deb }}{{'; '}}
+{%- endfor %}
+
+RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; } ; \
+{% for deb in docker_saiserver_mlnx_pydebs.split(' ') -%}
 dpkg_apt debs/{{ deb }}{{'; '}}
 {%- endfor %}
 

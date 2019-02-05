@@ -55,4 +55,4 @@ $(eval $(foreach deb,$(MLNX_SDK_RDEBS),$(call make_url,$(deb))))
 $(eval $(foreach deb,$(PYTHON_SDK_API) $(SX_KERNEL) $(SX_KERNEL_DEV),$(call make_url,$(deb))))
 
 SONIC_ONLINE_DEBS += $(MLNX_SDK_RDEBS) $(PYTHON_SDK_API) $(SX_KERNEL)
-
+SONIC_STRETCH_DEBS += $(SX_KERNEL)

@@ -201,6 +201,16 @@ RUN apt-get update && apt-get install -y \
         cmake \
 # For pam_tacplus build
         autoconf-archive \
+# For python-click build
+        python-sphinx \
+        python-docutils \
+        python3-all \
+        python3-setuptools \
+        python3-sphinx \
+        python3-docutils \
+        python3-requests \
+        python3-pytest \
+        python3-colorama \
 # For initramfs
         bash-completion
 

@@ -24,10 +24,18 @@ SRC_PATH = src
 RULES_PATH = rules
 TARGET_PATH = target
 DOCKERS_PATH = dockers
+ifdef BLDENV
+DEBS_PATH = $(TARGET_PATH)/debs/$(BLDENV)
+FILES_PATH = $(TARGET_PATH)/files/$(BLDENV)
+else
 DEBS_PATH = $(TARGET_PATH)/debs
 FILES_PATH = $(TARGET_PATH)/files
+endif
+PYTHON_DEBS_PATH = $(TARGET_PATH)/python-debs
 PYTHON_WHEELS_PATH = $(TARGET_PATH)/python-wheels
 PROJECT_ROOT = $(shell pwd)
+STRETCH_DEBS_PATH = $(TARGET_PATH)/debs/stretch
+STRETCH_FILES_PATH = $(TARGET_PATH)/files/stretch
 
 CONFIGURED_PLATFORM := $(shell [ -f .platform ] && cat .platform || echo generic)
 PLATFORM_PATH = platform/$(CONFIGURED_PLATFORM)
@@ -48,7 +56,10 @@ endif
 
 configure :
 	@mkdir -p target/debs
+	@mkdir -p target/debs/stretch
 	@mkdir -p target/files
+	@mkdir -p target/files/stretch
+	@mkdir -p target/python-debs
 	@mkdir -p target/python-wheels
 	@echo $(PLATFORM) > .platform
 
@@ -155,6 +166,7 @@ $(info "SONIC_DEBUGGING_ON"              : "$(SONIC_DEBUGGING_ON)")
 $(info "SONIC_PROFILING_ON"              : "$(SONIC_PROFILING_ON)")
 $(info "KERNEL_PROCURE_METHOD"           : "$(KERNEL_PROCURE_METHOD)")
 $(info "BUILD_TIMESTAMP"                 : "$(BUILD_TIMESTAMP)")
+$(info "BLDENV"                          : "$(BLDENV)")
 $(info )
 
 ###############################################################################
@@ -304,30 +316,6 @@ $(addprefix $(DEBS_PATH)/, $(SONIC_DPKG_DEBS)) : $(DEBS_PATH)/% : .platform $$(a
 
 SONIC_TARGET_LIST += $(addprefix $(DEBS_PATH)/, $(SONIC_DPKG_DEBS))
 
-# Build project with python setup.py --command-packages=stdeb.command
-# Add new package for build:
-#     SOME_NEW_DEB = some_new_deb.deb
-#     $(SOME_NEW_DEB)_SRC_PATH = $(SRC_PATH)/project_name
-#     $(SOME_NEW_DEB)_DEPENDS = $(SOME_OTHER_DEB1) $(SOME_OTHER_DEB2) ...
-#     SONIC_PYTHON_STDEB_DEBS += $(SOME_NEW_DEB)
-$(addprefix $(DEBS_PATH)/, $(SONIC_PYTHON_STDEB_DEBS)) : $(DEBS_PATH)/% : .platform $$(addsuffix -install,$$(addprefix $(DEBS_PATH)/,$$($$*_DEPENDS))) \
-                                                                                    $$(addsuffix -install,$$(addprefix $(PYTHON_WHEELS_PATH)/,$$($$*_WHEEL_DEPENDS)))
-	$(HEADER)
-	# Apply series of patches if exist
-	if [ -f $($*_SRC_PATH).patch/series ]; then pushd $($*_SRC_PATH) && QUILT_PATCHES=../$(notdir $($*_SRC_PATH)).patch quilt push -a; popd; fi
-	# Build project
-	pushd $($*_SRC_PATH) $(LOG)
-	rm -rf deb_dist/* $(LOG)
-	python setup.py --command-packages=stdeb.command bdist_deb $(LOG)
-	popd $(LOG)
-	# Clean up
-	if [ -f $($*_SRC_PATH).patch/series ]; then pushd $($*_SRC_PATH) && quilt pop -a -f; popd; fi
-	# Take built package(s)
-	mv $(addprefix $($*_SRC_PATH)/deb_dist/, $* $($*_DERIVED_DEBS)) $(DEBS_PATH) $(LOG)
-	$(FOOTER)
-
-SONIC_TARGET_LIST += $(addprefix $(DEBS_PATH)/, $(SONIC_PYTHON_STDEB_DEBS))
-
 # Rules for derived debian packages (dev, dbg, etc.)
 # All noise takes place in main deb recipe, so we are just telling that
 # we depend on it and move our deb to other targets
@@ -381,6 +369,31 @@ $(SONIC_INSTALL_TARGETS) : $(DEBS_PATH)/%-install : .platform $$(addsuffix -inst
 ###############################################################################
 ## Python packages
 ###############################################################################
+
+# Build project with python setup.py --command-packages=stdeb.command
+# Add new package for build:
+#     SOME_NEW_DEB = some_new_deb.deb
+#     $(SOME_NEW_DEB)_SRC_PATH = $(SRC_PATH)/project_name
+#     $(SOME_NEW_DEB)_DEPENDS = $(SOME_OTHER_DEB1) $(SOME_OTHER_DEB2) ...
+#     SONIC_PYTHON_STDEB_DEBS += $(SOME_NEW_DEB)
+$(addprefix $(PYTHON_DEBS_PATH)/, $(SONIC_PYTHON_STDEB_DEBS)) : $(PYTHON_DEBS_PATH)/% : .platform \
+		$$(addsuffix -install,$$(addprefix $(PYTHON_DEBS_PATH)/,$$($$*_DEPENDS))) \
+		$$(addsuffix -install,$$(addprefix $(PYTHON_WHEELS_PATH)/,$$($$*_WHEEL_DEPENDS)))
+	$(HEADER)
+	# Apply series of patches if exist
+	if [ -f $($*_SRC_PATH).patch/series ]; then pushd $($*_SRC_PATH) && QUILT_PATCHES=../$(notdir $($*_SRC_PATH)).patch quilt push -a; popd; fi
+	# Build project
+	pushd $($*_SRC_PATH) $(LOG)
+	rm -rf deb_dist/* $(LOG)
+	python setup.py --command-packages=stdeb.command bdist_deb $(LOG)
+	popd $(LOG)
+	# Clean up
+	if [ -f $($*_SRC_PATH).patch/series ]; then pushd $($*_SRC_PATH) && quilt pop -a -f; popd; fi
+	# Take built package(s)
+	mv $(addprefix $($*_SRC_PATH)/deb_dist/, $* $($*_DERIVED_DEBS)) $(PYTHON_DEBS_PATH) $(LOG)
+	$(FOOTER)
+
+SONIC_TARGET_LIST += $(addprefix $(PYTHON_DEBS_PATH)/, $(SONIC_PYTHON_STDEB_DEBS))
 
 # Build project using python setup.py bdist_wheel
 # Projects that generate python wheels
@@ -452,18 +465,27 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_SIMPLE_DOCKER_IMAGES)) : $(TARGET_PATH)/%.g
 SONIC_TARGET_LIST += $(addprefix $(TARGET_PATH)/, $(SONIC_SIMPLE_DOCKER_IMAGES))
 
 # Targets for building docker images
-$(addprefix $(TARGET_PATH)/, $(SONIC_DOCKER_IMAGES)) : $(TARGET_PATH)/%.gz : .platform docker-start $$(addprefix $(DEBS_PATH)/,$$($$*.gz_DEPENDS)) $$(addprefix $(FILES_PATH)/,$$($$*.gz_FILES)) $$(addprefix $(PYTHON_WHEELS_PATH)/,$$($$*.gz_PYTHON_WHEELS)) $$(addsuffix -load,$$(addprefix $(TARGET_PATH)/,$$($$*.gz_LOAD_DOCKERS))) $$($$*.gz_PATH)/Dockerfile.j2
+$(addprefix $(TARGET_PATH)/, $(SONIC_DOCKER_IMAGES)) : $(TARGET_PATH)/%.gz : .platform docker-start \
+		$$(addprefix $(DEBS_PATH)/,$$($$*.gz_DEPENDS)) \
+		$$(addprefix $(FILES_PATH)/,$$($$*.gz_FILES)) \
+		$$(addprefix $(PYTHON_DEBS_PATH)/,$$($$*.gz_PYTHON_DEBS)) \
+		$$(addprefix $(PYTHON_WHEELS_PATH)/,$$($$*.gz_PYTHON_WHEELS)) \
+		$$(addsuffix -load,$$(addprefix $(TARGET_PATH)/,$$($$*.gz_LOAD_DOCKERS))) \
+		$$($$*.gz_PATH)/Dockerfile.j2
 	$(HEADER)
 	# Apply series of patches if exist
 	if [ -f $($*.gz_PATH).patch/series ]; then pushd $($*.gz_PATH) && QUILT_PATCHES=../$(notdir $($*.gz_PATH)).patch quilt push -a; popd; fi
 	mkdir -p $($*.gz_PATH)/debs $(LOG)
 	mkdir -p $($*.gz_PATH)/files $(LOG)
+	mkdir -p $($*.gz_PATH)/python-debs $(LOG)
 	mkdir -p $($*.gz_PATH)/python-wheels $(LOG)
 	sudo mount --bind $(DEBS_PATH) $($*.gz_PATH)/debs $(LOG)
 	sudo mount --bind $(FILES_PATH) $($*.gz_PATH)/files $(LOG)
+	sudo mount --bind $(PYTHON_DEBS_PATH) $($*.gz_PATH)/python-debs $(LOG)
 	sudo mount --bind $(PYTHON_WHEELS_PATH) $($*.gz_PATH)/python-wheels $(LOG)
 	# Export variables for j2. Use path for unique variable names, e.g. docker_orchagent_debs
 	$(eval export $(subst -,_,$(notdir $($*.gz_PATH)))_debs=$(shell printf "$(subst $(SPACE),\n,$(call expand,$($*.gz_DEPENDS),RDEPENDS))\n" | awk '!a[$$0]++'))
+	$(eval export $(subst -,_,$(notdir $($*.gz_PATH)))_pydebs=$(shell printf "$(subst $(SPACE),\n,$(call expand,$($*.gz_PYTHON_DEBS)))\n" | awk '!a[$$0]++'))
 	$(eval export $(subst -,_,$(notdir $($*.gz_PATH)))_whls=$(shell printf "$(subst $(SPACE),\n,$(call expand,$($*.gz_PYTHON_WHEELS)))\n" | awk '!a[$$0]++'))
 	$(eval export $(subst -,_,$(notdir $($*.gz_PATH)))_dbgs=$(shell printf "$(subst $(SPACE),\n,$(call expand,$($*.gz_DBG_PACKAGES)))\n" | awk '!a[$$0]++'))
 	j2 $($*.gz_PATH)/Dockerfile.j2 > $($*.gz_PATH)/Dockerfile
@@ -504,27 +526,28 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
         onie-image.conf \
         build_debian.sh \
         build_image.sh \
-        $$(addsuffix -install,$$(addprefix $(DEBS_PATH)/,$$($$*_DEPENDS))) \
-        $$(addprefix $(DEBS_PATH)/,$$($$*_INSTALLS)) \
-        $$(addprefix $(DEBS_PATH)/,$$($$*_LAZY_INSTALLS)) \
-        $$(addprefix $(FILES_PATH)/,$$($$*_FILES)) \
-        $(addprefix $(FILES_PATH)/,$(IXGBE_DRIVER)) \
-        $(addprefix $(DEBS_PATH)/,$(INITRAMFS_TOOLS) \
+        $$(addsuffix -install,$$(addprefix $(STRETCH_DEBS_PATH)/,$$($$*_DEPENDS))) \
+        $$(addprefix $(STRETCH_DEBS_PATH)/,$$($$*_INSTALLS)) \
+        $$(addprefix $(STRETCH_DEBS_PATH)/,$$($$*_LAZY_INSTALLS)) \
+        $(addprefix $(STRETCH_DEBS_PATH)/,$(INITRAMFS_TOOLS) \
                 $(LINUX_KERNEL) \
                 $(SONIC_DEVICE_DATA) \
                 $(PYTHON_CLICK) \
-                $(SONIC_UTILS) \
-                $(BASH) \
                 $(LIBPAM_TACPLUS) \
                 $(LIBNSS_TACPLUS)) \
         $$(addprefix $(TARGET_PATH)/,$$($$*_DOCKERS)) \
-        $$(addprefix $(PYTHON_WHEELS_PATH)/,$(SONIC_CONFIG_ENGINE)) \
-        $$(addprefix $(PYTHON_WHEELS_PATH)/,$(SONIC_PLATFORM_COMMON_PY2)) \
-        $$(addprefix $(PYTHON_WHEELS_PATH)/,$(REDIS_DUMP_LOAD_PY2))
+        $$(addprefix $(FILES_PATH)/,$$($$*_FILES)) \
+        $(addprefix $(STRETCH_FILES_PATH)/,$(IXGBE_DRIVER)) \
+        $(addprefix $(PYTHON_DEBS_PATH)/,$(SONIC_UTILS)) \
+        $(addprefix $(PYTHON_WHEELS_PATH)/,$(SONIC_CONFIG_ENGINE)) \
+        $(addprefix $(PYTHON_WHEELS_PATH)/,$(SONIC_PLATFORM_COMMON_PY2)) \
+        $(addprefix $(PYTHON_WHEELS_PATH)/,$(REDIS_DUMP_LOAD_PY2))
 	$(HEADER)
 	# Pass initramfs and linux kernel explicitly. They are used for all platforms
-	export initramfs_tools="$(DEBS_PATH)/$(INITRAMFS_TOOLS)"
-	export linux_kernel="$(DEBS_PATH)/$(LINUX_KERNEL)"
+	export debs_path="$(STRETCH_DEBS_PATH)"
+	export python_debs_path="$(PYTHON_DEBS_PATH)" 
+	export initramfs_tools="$(STRETCH_DEBS_PATH)/$(INITRAMFS_TOOLS)"
+	export linux_kernel="$(STRTCH_DEBS_PATH)/$(LINUX_KERNEL)"
 	export onie_recovery_image="$(FILES_PATH)/$(ONIE_RECOVERY_IMAGE)"
 	export kversion="$(KVERSION)"
 	export image_type="$($*_IMAGE_TYPE)"
@@ -534,8 +557,8 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
 	export enable_dhcp_graph_service="$(ENABLE_DHCP_GRAPH_SERVICE)"
 	export shutdown_bgp_on_start="$(SHUTDOWN_BGP_ON_START)"
 	export enable_pfcwd_on_start="$(ENABLE_PFCWD_ON_START)"
-	export installer_debs="$(addprefix $(DEBS_PATH)/,$($*_INSTALLS))"
-	export lazy_installer_debs="$(foreach deb, $($*_LAZY_INSTALLS),$(foreach device, $($(deb)_PLATFORM),$(addprefix $(device)@, $(DEBS_PATH)/$(deb))))"
+	export installer_debs="$(addprefix $(STRETCH_DEBS_PATH)/,$($*_INSTALLS))"
+	export lazy_installer_debs="$(foreach deb, $($*_LAZY_INSTALLS),$(foreach device, $($(deb)_PLATFORM),$(addprefix $(device)@, $(STRETCH_DEBS_PATH)/$(deb))))"
 	export installer_images="$(addprefix $(TARGET_PATH)/,$($*_DOCKERS))"
 	export config_engine_wheel_path="$(addprefix $(PYTHON_WHEELS_PATH)/,$(SONIC_CONFIG_ENGINE))"
 	export swsssdk_py2_wheel_path="$(addprefix $(PYTHON_WHEELS_PATH)/,$(SWSSSDK_PY2))"

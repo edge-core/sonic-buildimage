@@ -10,8 +10,9 @@ $(DOCKER_SONIC_VS)_DEPENDS += $(SWSS) \
                               $(LIBTEAMDCT) \
                               $(LIBTEAM_UTILS) \
                               $(SONIC_DEVICE_DATA) \
-                              $(SONIC_UTILS) \
                               $(IPROUTE2)
+
+$(DOCKER_SONIC_VS)_PYTHON_DEBS += $(SONIC_UTILS)
 
 ifeq ($(INSTALL_DEBUG_TOOLS), y)
 $(DOCKER_SONIC_VS)_DEPENDS += $(SWSS_DBG) \
