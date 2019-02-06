@@ -6,6 +6,10 @@ common/fstrim.timer etc/systemd/system
 common/fstrim.service etc/systemd/system
 common/platform_reboot usr/share/sonic/device/x86_64-dell_z9100_c2538-r0
 z9100/scripts/platform_sensors.py usr/local/bin
+z9100/scripts/z9100_qsfp_monitor.py usr/local/bin
+z9100/scripts/z9100_preemp_db.py usr/local/bin
+z9100/scripts/qsfp_monitor usr/local/bin
 z9100/scripts/sensors usr/bin
 z9100/cfg/z9100-modules.conf etc/modules-load.d
 z9100/systemd/platform-modules-z9100.service etc/systemd/system
+z9100/systemd/z9100-qsfp-monitor.service etc/systemd/system

@@ -9,5 +9,8 @@ depmod -a
 systemctl enable platform-modules-z9100.service
 systemctl start platform-modules-z9100.service
 
+# Enable Dell-Z9100-Qsfp-Monitor-service
+systemctl enable z9100-qsfp-monitor.service
+systemctl start  z9100-qsfp-monitor.service
 
 #DEBHELPER#
