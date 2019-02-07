@@ -666,7 +666,8 @@ clean : .platform clean-logs $$(SONIC_CLEAN_DEBS) $$(SONIC_CLEAN_FILES) $$(SONIC
 all : .platform $$(addprefix $(TARGET_PATH)/,$$(SONIC_ALL))
 
 stretch : $$(addprefix $(DEBS_PATH)/,$$(SONIC_STRETCH_DEBS)) \
-          $$(addprefix $(FILES_PATH)/,$$(SONIC_STRETCH_FILES))
+          $$(addprefix $(FILES_PATH)/,$$(SONIC_STRETCH_FILES)) \
+          $$(addprefix $(TARGET_PATH)/,$$(SONIC_STRETCH_DOCKERS))
 
 
 ###############################################################################
