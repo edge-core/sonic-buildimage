@@ -37,7 +37,7 @@ Mellanox: [![Mellanox](https://sonic-jenkins.westus2.cloudapp.azure.com/job/mell
 
 # Description 
 
-Following is the instruction on how to build an [(ONIE)](https://github.com/opencomputeproject/onie) compatiable network operating system (NOS) installer image for network switches, and also how to build docker images running inside the NOS. Note that SONiC image are build per ASIC platform. Switches using the same ASIC platform share a common image. For a list of supported switches and ASIC, please refer to this [list](https://github.com/Azure/SONiC/wiki/Supported-Devices-and-Platforms)
+Following is the instruction on how to build an [(ONIE)](https://github.com/opencomputeproject/onie) compatible network operating system (NOS) installer image for network switches, and also how to build docker images running inside the NOS. Note that SONiC image are build per ASIC platform. Switches using the same ASIC platform share a common image. For a list of supported switches and ASIC, please refer to this [list](https://github.com/Azure/SONiC/wiki/Supported-Devices-and-Platforms)
 
 # Hardware
 Any server can be a build image server. We are using a server with 1T hard disk. The OS is Ubuntu 16.04.
@@ -125,11 +125,11 @@ It is recommended to use clean targets to clean all packages that are built toge
 - If you are running make for the first time, a sonic-slave-${USER} docker image will be built automatically.
 This may take a while, but it is a one-time action, so please be patient.
 
-- The root user account is disabled. However, the created user can sudo.
+- The root user account is disabled. However, the created user can `sudo`.
 
-- The target directory is ./target, containing the NOS installer image and docker images.
-  - sonic-generic.bin: SONiC switch installer image (ONIE compatiable)
-  - sonic-aboot.bin: SONiC switch installer image (Aboot compatiable)
+- The target directory is `./target`, containing the NOS installer image and docker images.
+  - sonic-generic.bin: SONiC switch installer image (ONIE compatible)
+  - sonic-aboot.bin: SONiC switch installer image (Aboot compatible)
   - docker-base.gz: base docker image where other docker images are built from, only used in build process (gzip tar archive)
   - docker-database.gz: docker image for in-memory key-value store, used as inter-process communication (gzip tar archive)
   - docker-fpm.gz: docker image for quagga with fpm module enabled (gzip tar archive)
@@ -146,7 +146,7 @@ This may take a while, but it is a one-time action, so please be patient.
 
 ## Contribution Guide
 
-All contributors must sign a contribution license agreement before contributions can be accepted.  Contact sonic-cla-agreements@microsoft.com.
+All contributors must sign a contribution license agreement before contributions can be accepted.  Contact [sonic-cla-agreements@microsoft.com](mailto:sonic-cla-agreements@microsoft.com).
 
 ## GitHub Workflow
 
