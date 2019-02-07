@@ -1,0 +1,31 @@
+commit 1534de6d3ef2d188d1e2697f7180786ee5a8a9dc
+Author: Praveen Chaudhary <pchaudhary@linkedin.com>
+Date:   Sat Feb 2 20:12:53 2019 -0800
+
+    [ntp_io.c]: Do not disable reader for error ENOBUFS.
+    
+    Signed-off-by: Praveen Chaudhary<pchaudhary@linkedin.com>
+
+diff --git a/ntpd/ntp_io.c b/ntpd/ntp_io.c
+index f2a2404..fe5c94d 100644
+--- a/ntpd/ntp_io.c
++++ b/ntpd/ntp_io.c
+@@ -4430,10 +4430,14 @@ process_routing_msgs(struct asyncio_reader *reader)
+ 	cnt = read(reader->fd, buffer, sizeof(buffer));
+ 	
+ 	if (cnt < 0) {
+-		msyslog(LOG_ERR,
+-			"i/o error on routing socket %m - disabling");
+-		remove_asyncio_reader(reader);
+-		delete_asyncio_reader(reader);
++       if (errno == ENOBUFS) {
++       	msyslog(LOG_ERR, "routing socket reports: %m");
++       } else {
++       	msyslog(LOG_ERR,
++       		"i/o error on routing socket %m - disabling");
++       	remove_asyncio_reader(reader);
++       	delete_asyncio_reader(reader);
++       }
+ 		return;
+ 	}
+ 

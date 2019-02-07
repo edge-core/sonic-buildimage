@@ -215,7 +215,12 @@ RUN apt-get update && apt-get install -y \
         texlive-latex-extra \
         texlive-latex-recommended \
 # For bash
-        texi2html
+        texi2html \
+# For ntp
+        autogen \
+        libopts25-dev \
+        pps-tools \
+        dh-apparmor
 
 # For linux build
 RUN apt-get -y build-dep linux
