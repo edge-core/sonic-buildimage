@@ -13,3 +13,4 @@ REDIS_SENTINEL = redis-sentinel_$(REDIS_VERSION)_amd64.deb
 $(REDIS_SENTINEL)_DEPENDS += $(REDIS_SERVER)
 $(REDIS_SENTINEL)_RDEPENDS += $(REDIS_SERVER)
 $(eval $(call add_derived_package,$(REDIS_TOOLS),$(REDIS_SENTINEL)))
+

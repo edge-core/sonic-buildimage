@@ -10,6 +10,9 @@ DERIVED_TARGETS = redis-tools_$(REDIS_VERSION_FULL)_amd64.deb \
 		  redis-sentinel_$(REDIS_VERSION_FULL)_amd64.deb
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
+	rm -rf  redis_build
+	mkdir redis_build
+	pushd redis_build
 	wget -O redis_$(REDIS_VERSION).orig.tar.gz -N "https://sonicstorage.blob.core.windows.net/packages/redis_$(REDIS_VERSION).orig.tar.gz?sv=2015-04-05&sr=b&sig=B3qGEoSHe%2FBh5rVwvXHpKijgBtKF7dHeuJWp1p17UnU%3D&se=2026-11-26T22%3A31%3A31Z&sp=r"
 	wget -O redis_$(REDIS_VERSION_FULL).dsc -N "https://sonicstorage.blob.core.windows.net/packages/redis_$(REDIS_VERSION_FULL).dsc?sv=2015-04-05&sr=b&sig=LoUtjLXa%2BCcoM%2BsPewRLkY7YPRvSJTbsvQoW%2BL%2B3QWM%3D&se=2026-11-26T22%3A32%3A11Z&sp=r"
 	wget -O redis_$(REDIS_VERSION_FULL).debian.tar.xz -N "https://sonicstorage.blob.core.windows.net/packages/redis_$(REDIS_VERSION_FULL).debian.tar.xz?sv=2015-04-05&sr=b&sig=I33UsbDHiffEkQRndpFwY9y3I%2FrKTu0wmG%2FMXB98kys%3D&se=2026-11-26T22%3A32%3A34Z&sp=r"
@@ -20,5 +23,6 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	popd
 
 	mv $(DERIVED_TARGETS) $* $(DEST)/
+	popd
 
 $(addprefix $(DEST)/, $(DERIVED_TARGETS)): $(DEST)/% : $(DEST)/$(MAIN_TARGET)

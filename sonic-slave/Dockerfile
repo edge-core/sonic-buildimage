@@ -243,8 +243,8 @@ RUN apt-get -y install ca-certificates-java=20161107~bpo8+1 openjdk-8-jdk
 # For linux build
 RUN apt-get -y build-dep linux
 
-# For gobgp build
-RUN export VERSION=1.11.2 \
+# For gobgp and telemetry build
+RUN export VERSION=1.11.5 \
  && wget https://storage.googleapis.com/golang/go$VERSION.linux-amd64.tar.gz \
  && tar -C /usr/local -xzf go$VERSION.linux-amd64.tar.gz \
  && echo 'export GOROOT=/usr/local/go' >> /etc/bash.bashrc \
