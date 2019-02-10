@@ -7,6 +7,7 @@ LOCKFILE="/tmp/swss-syncd-lock"
 
 function debug()
 {
+    /usr/bin/logger $1
     /bin/echo `date` "- $1" >> ${DEBUGLOG}
 }
 
@@ -88,7 +89,8 @@ start() {
     else
         rm -f /host/warmboot/warm-starting
 
-        # Flush DB during non-warm start
+        # Flush ASIC DB during non-warm start
+        debug "Flushing ASIC database ..."
         /usr/bin/docker exec database redis-cli -n 1 FLUSHDB
     fi
 

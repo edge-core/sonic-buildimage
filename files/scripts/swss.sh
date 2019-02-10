@@ -7,6 +7,7 @@ LOCKFILE="/tmp/swss-syncd-lock"
 
 function debug()
 {
+    /usr/bin/logger $1
     /bin/echo `date` "- $1" >> ${DEBUGLOG}
 }
 
@@ -90,6 +91,7 @@ start() {
 
     # Don't flush DB during warm boot
     if [[ x"$WARM_BOOT" != x"true" ]]; then
+        debug "Flushing databases ..."
         /usr/bin/docker exec database redis-cli -n 0 FLUSHDB
         /usr/bin/docker exec database redis-cli -n 2 FLUSHDB
         /usr/bin/docker exec database redis-cli -n 5 FLUSHDB
