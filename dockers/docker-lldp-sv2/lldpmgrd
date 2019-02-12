@@ -73,17 +73,12 @@ def signal_handler(sig, frame):
 
 # ========================== Helpers ==================================
 
-def is_port_up(port_name):
-    filename = "/sys/class/net/%s/operstate" % port_name
+def is_port_exist(port_name):
+    filename = "/sys/class/net/%s/ifindex" % port_name
     if not os.path.exists(filename):
         return False
 
-    with open(filename) as fp:
-        state = fp.read()
-        if 'up' in state:
-            return True
-        else:
-            return False
+    return True
 
 # ============================== Classes ==============================
 
@@ -159,8 +154,8 @@ class LldpManager(object):
         to_delete = []
 
         for (port_name, cmd) in self.pending_cmds.iteritems():
-            if not is_port_up(port_name):
-                # it doesn't make any sense to configure lldpd if the target port is unavailable
+            if not is_port_exist(port_name):
+                # it doesn't make any sense to configure lldpd if the target port does not exist
                 # let's postpone the command for the next iteration
                 continue
 
