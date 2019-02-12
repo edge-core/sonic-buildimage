@@ -538,10 +538,14 @@ def parse_xml(filename, platform=None, port_config_file=None):
 
         ports.setdefault(port_name, {})['description'] = port_descriptions[port_name]
 
-    # for the ports w/o description set it to alias, or port name
     for port_name, port in ports.items():
         if not port.get('description'):
-            port['description'] = port.get('alias', port_name)
+            if neighbors.has_key(port_name):
+                # for the ports w/o description set it to neighbor name:port
+                port['description'] = "%s:%s" % (neighbors[port_name]['name'], neighbors[port_name]['port'])
+            else:
+                # for the ports w/o neighbor info, set it to port alias
+                port['description'] = port.get('alias', port_name)
 
     # set default port MTU as 9100
     for port in ports.itervalues():
