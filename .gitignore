@@ -30,6 +30,9 @@ src/mpdecimal/*
 !src/mpdecimal/Makefile
 src/python3/*
 !src/python3/Makefile
+src/radvd/*
+!src/radvd/Makefile
+!src/radvd/patch/
 src/redis/*
 !src/redis/Makefile
 src/snmpd/*
