@@ -10,8 +10,6 @@ rm -f /var/run/lldpd.socket
 
 supervisorctl start rsyslogd
 supervisorctl start lldpd
-supervisorctl start lldp-syncd
-supervisorctl start lldpmgrd
 
 # Current lldpd version has a bug.
 # When lldpd starts it is in the pause state by default
@@ -35,3 +33,6 @@ do
     lldpcli -u /var/run/lldpd.socket -c /etc/lldpd.conf -c /etc/lldpd.d resume > /dev/null && break
     sleep 1
 done
+
+supervisorctl start lldp-syncd
+supervisorctl start lldpmgrd
