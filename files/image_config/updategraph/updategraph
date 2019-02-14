@@ -32,7 +32,7 @@ function copy_config_files_and_directories()
 
 function check_system_warm_boot()
 {
-    SYSTEM_WARM_START=`/usr/bin/redis-cli -n 4 hget "WARM_RESTART|system" enable`
+    SYSTEM_WARM_START=`/usr/bin/redis-cli -n 6 hget "WARM_RESTART_ENABLE_TABLE|system" enable`
     # SYSTEM_WARM_START could be empty, always make WARM_BOOT meaningful.
     if [[ x"$SYSTEM_WARM_START" == x"true" ]]; then
         WARM_BOOT="true"
@@ -50,7 +50,7 @@ fi
 . /etc/sonic/updategraph.conf
 
 check_system_warm_boot
-copy_list="minigraph.xml snmp.yml acl.json config_db.json frr" 
+copy_list="minigraph.xml snmp.yml acl.json config_db.json frr"
 if [ -f /tmp/pending_config_migration ]; then
     copy_config_files_and_directories $copy_list
     if [ x"${WARM_BOOT}" == x"true" ]; then
@@ -71,7 +71,7 @@ fi
 
 if [ -f /tmp/pending_config_initialization ]; then
     rm -f /tmp/pending_config_initialization
-    if [ "$enabled" != "true" ]; then 
+    if [ "$enabled" != "true" ]; then
         PLATFORM=`sonic-cfggen -H -v DEVICE_METADATA.localhost.platform`
         PRESET=(`head -n 1 /usr/share/sonic/device/$PLATFORM/default_sku`)
         sonic-cfggen -H -k ${PRESET[0]} --preset ${PRESET[1]} > /etc/sonic/config_db.json
