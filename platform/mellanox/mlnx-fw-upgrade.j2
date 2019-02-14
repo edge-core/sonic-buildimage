@@ -4,39 +4,65 @@ declare -r SCRIPT_NAME="$(basename "$0")"
 declare -r SCRIPT_PATH="$(readlink -f "$0")"
 declare -r SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
 
+declare -r YES_PARAM="yes"
+declare -r NO_PARAM="no"
+
+declare -r VERBOSE_ERROR="1"
+declare -r VERBOSE_WARNING="2"
+declare -r VERBOSE_NOTICE="3"
+declare -r VERBOSE_INFO="4"
+
+declare -r VERBOSE_MAX="${VERBOSE_INFO}"
+declare -r VERBOSE_MIN="${VERBOSE_ERROR}"
+
 declare -r EXIT_SUCCESS="0"
-declare -r EXIT_ERROR="1"
+declare -r EXIT_FAILURE="1"
 
 declare -r QUERY_CMD="mlxfwmanager --query"
 declare -r BURN_CMD="mlxfwmanager -u -f -y"
 
-declare -r FW_FILE="/etc/mlnx/fw-SPC.mfa"
-declare -r QUERY_FILE="/tmp/mlnxfwmanager-query.txt"
+declare -r QUERY_FILE="/tmp/mlxfwmanager-query.log"
 
-declare -r FW_REQUIRED="{{ MLNX_FW_VERSION }}"
+declare -r SPC1_ASIC="spc1"
+declare -r SPC2_ASIC="spc2"
+declare -r UNKN_ASIC="unknown"
 
-IMAGE_UPGRADE="no"
+declare -rA FW_FILE_MAP=( \
+    [$SPC1_ASIC]="/etc/mlnx/fw-SPC.mfa" \
+    [$SPC2_ASIC]="/etc/mlnx/fw-SPC2.mfa" \
+)
+declare -rA FW_REQUIRED_MAP=( \
+    [$SPC1_ASIC]="{{ MLNX_SPC_FW_VERSION }}" \
+    [$SPC2_ASIC]="{{ MLNX_SPC2_FW_VERSION }}" \
+)
+
+IMAGE_UPGRADE="${NO_PARAM}"
+VERBOSE_LEVEL="${VERBOSE_MIN}"
 
 function PrintHelp() {
     echo
     echo "Usage: ./${SCRIPT_NAME} [OPTIONS]"
     echo
     echo "OPTIONS:"
-    echo "  -u, --upgrade  Upgrade MLNX ASIC firmware using next boot image (useful after SONiC-To-SONiC update)"
+    echo "  -u, --upgrade  Upgrade ASIC firmware using next boot image (useful after SONiC-To-SONiC update)"
+    echo "  -v, --verbose  Verbose mode"
     echo "  -h, --help     Print help"
     echo
     echo "Examples:"
-    echo "  ./${SCRIPT_NAME}"
+    echo "  ./${SCRIPT_NAME} --verbose"
     echo "  ./${SCRIPT_NAME} --upgrade"
     echo "  ./${SCRIPT_NAME} --help"
     echo
 }
 
 function ParseArguments() {
-    while [ $# -ge 1 ]; do
+    while [ "$#" -ge "1" ]; do
         case "$1" in
             -u|--upgrade)
-                IMAGE_UPGRADE="yes"
+                IMAGE_UPGRADE="${YES_PARAM}"
+            ;;
+            -v|--verbose)
+                VERBOSE_LEVEL="${VERBOSE_MAX}"
             ;;
             -h|--help)
                 PrintHelp
@@ -47,65 +73,138 @@ function ParseArguments() {
     done
 }
 
+function LogError() {
+    if [[ "${VERBOSE_LEVEL}" -ge "${VERBOSE_ERROR}" ]]; then
+        echo "ERROR: $*"
+    fi
+}
+
+function LogWarning() {
+    if [[ "${VERBOSE_LEVEL}" -ge "${VERBOSE_WARNING}" ]]; then
+        echo "WARNING: $*"
+    fi
+}
+
+function LogNotice() {
+    if [[ "${VERBOSE_LEVEL}" -ge "${VERBOSE_NOTICE}" ]]; then
+        echo "NOTICE: $*"
+    fi
+}
+
+function LogInfo() {
+    if [[ "${VERBOSE_LEVEL}" -ge "${VERBOSE_INFO}" ]]; then
+        echo "INFO: $*"
+    fi
+}
+
+function ExitFailure() {
+    if [[ "${VERBOSE_LEVEL}" -ge "${VERBOSE_ERROR}" ]]; then
+        echo
+        LogError "$@"
+        echo
+    fi
+
+    exit "${EXIT_FAILURE}"
+}
+
+function ExitSuccess() {
+    if [[ "${VERBOSE_LEVEL}" -ge "${VERBOSE_INFO}" ]]; then
+        echo
+        LogInfo "$@"
+        echo
+    fi
+
+    exit "${EXIT_SUCCESS}"
+}
+
 function WaitForDevice() {
     local -i QUERY_RETRY_COUNT_MAX="10"
     local -i QUERY_RETRY_COUNT="0"
 
     ${QUERY_CMD} > /dev/null
 
-    while [[ ("${QUERY_RETRY_COUNT}" -lt "${QUERY_RETRY_COUNT_MAX}") && ("$?" -ne "0") ]]; do
+    while [[ ("${QUERY_RETRY_COUNT}" -lt "${QUERY_RETRY_COUNT_MAX}") && ("$?" -ne "${EXIT_SUCCESS}") ]]; do
         sleep 1s
         ((QUERY_RETRY_COUNT++))
         ${QUERY_CMD} > /dev/null
     done
 }
 
+function GetAsicType() {
+    local -r VENDOR_ID="15b3"
+
+    local -r SPC1_PRODUCT_ID="cb84"
+    local -r SPC2_PRODUCT_ID="cf6c"
+
+    if lspci -n | grep "${VENDOR_ID}:${SPC1_PRODUCT_ID}" &>/dev/null; then
+        echo "${SPC1_ASIC}"
+        exit "${EXIT_SUCCESS}"
+    elif lspci -n | grep "${VENDOR_ID}:${SPC2_PRODUCT_ID}" &>/dev/null; then
+        echo "${SPC2_ASIC}"
+        exit "${EXIT_SUCCESS}"
+    fi
+
+    echo "${UNKN_ASIC}"
+    exit "${EXIT_FAILURE}"
+}
+
 function RunCmd() {
-    $1
-    if [[ $? != 0 ]]; then
-        echo "Command failed: cmd=$1, errno=$?"
-        exit "${EXIT_ERROR}"
+    local ERROR_CODE="${EXIT_SUCCESS}"
+
+    if [[ "${VERBOSE_LEVEL}" -eq "${VERBOSE_MAX}" ]]; then
+        eval "$@"
+    else
+        eval "$@" &>/dev/null
+    fi
+
+    ERROR_CODE="$?"
+    if [[ "${ERROR_CODE}" != "${EXIT_SUCCESS}" ]]; then
+        ExitFailure "command failed: $@"
     fi
 }
 
 function UpgradeFW() {
-    local _FW_FILE="$1"
+    local -r _FS_MOUNTPOINT="$1"
 
-    if [ ! -z "${_FW_FILE}" ]; then
+    local -r _ASIC_TYPE="$(GetAsicType)"
+    if [[ "${_ASIC_TYPE}" = "${UNKN_ASIC}" ]]; then
+        ExitFailure "failed to detect ASIC type"
+    fi
+
+    if [ ! -z "${_FS_MOUNTPOINT}" ]; then
+        local -r _FW_FILE="${_FS_MOUNTPOINT}/${FW_FILE_MAP[$_ASIC_TYPE]}"
+
         if [ ! -f "${_FW_FILE}" ]; then
-            echo "No such file: ${_FW_FILE}"
-            exit "${EXIT_ERROR}"
+            ExitFailure "no such file: ${_FW_FILE}"
         fi
 
-        RunCmd "${QUERY_CMD} -i ${_FW_FILE}" > "${QUERY_FILE}"
+        RunCmd "${QUERY_CMD} -i ${_FW_FILE} -L ${QUERY_FILE}" &>/dev/null
 
         local -r _FW_INFO="$(grep FW ${QUERY_FILE})"
         local -r _FW_CURRENT="$(echo ${_FW_INFO} | cut -f2 -d' ')"
         local -r _FW_AVAILABLE="$(echo ${_FW_INFO} | cut -f3 -d' ')"
     else
-        RunCmd "${QUERY_CMD}" > "${QUERY_FILE}"
+        local -r _FW_FILE="${FW_FILE_MAP[$_ASIC_TYPE]}"
+
+        RunCmd "${QUERY_CMD} -L ${QUERY_FILE}" &>/dev/null
 
         local -r _FW_INFO="$(grep FW ${QUERY_FILE})"
         local -r _FW_CURRENT="$(echo ${_FW_INFO} | cut -f2 -d' ')"
-        local -r _FW_AVAILABLE="${FW_REQUIRED}"
-
-        _FW_FILE="${FW_FILE}"
+        local -r _FW_AVAILABLE="${FW_REQUIRED_MAP[$_ASIC_TYPE]}"
     fi
 
     if [[ -z "${_FW_CURRENT}" ]]; then
-        echo "Could not retreive current FW version"
-        exit "${EXIT_ERROR}"
+        ExitFailure "could not retreive current FW version"
     fi
 
     if [[ -z "${_FW_AVAILABLE}" ]]; then
-        echo "Could not retreive available FW version"
-        exit "${EXIT_ERROR}"
+        ExitFailure "could not retreive available FW version"
     fi
 
     if [[ "${_FW_CURRENT}" == "${_FW_AVAILABLE}" ]]; then
-        echo "Mellanox firmware is up to date"
+        ExitSuccess "firmware is up to date"
     else
-        echo "Mellanox firmware upgrade is required. Installing compatible version..."
+        LogNotice "firmware upgrade is required. Installing compatible version..."
         RunCmd "${BURN_CMD} -i ${_FW_FILE}"
     fi
 }
@@ -118,12 +217,12 @@ function UpgradeFWFromImage() {
     local -r _FS_MOUNTPOINT="/tmp/image-${_NEXT_SONIC_IMAGE#SONiC-OS-}-fs"
 
     if [[ "${_CURRENT_SONIC_IMAGE}" == "${_NEXT_SONIC_IMAGE}" ]]; then
-        echo "Mellanox firmware is up to date"
+        ExitSuccess "firmware is up to date"
     else
         mkdir -p "${_FS_MOUNTPOINT}"
         mount -t squashfs "${_FS_PATH}" "${_FS_MOUNTPOINT}"
 
-        UpgradeFW "${_FS_MOUNTPOINT}/etc/mlnx/fw-SPC.mfa"
+        UpgradeFW "${_FS_MOUNTPOINT}"
 
         umount -rf "${_FS_MOUNTPOINT}"
         rm -rf "${_FS_MOUNTPOINT}"
@@ -134,10 +233,10 @@ ParseArguments "$@"
 
 WaitForDevice
 
-if [ "${IMAGE_UPGRADE}" != "yes" ]; then
+if [ "${IMAGE_UPGRADE}" != "${YES_PARAM}" ]; then
     UpgradeFW
 else
     UpgradeFWFromImage
 fi
 
-exit "${EXIT_SUCCESS}"
+ExitSuccess "firmware upgrade is completed"
