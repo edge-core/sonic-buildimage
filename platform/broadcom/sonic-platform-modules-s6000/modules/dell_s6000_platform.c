@@ -419,7 +419,14 @@ static ssize_t set_power_reset(struct device *dev, struct device_attribute *deva
 
 static ssize_t get_power_reset(struct device *dev, struct device_attribute *devattr, char *buf)
 {
-    return sprintf(buf, "0\n");
+    uint8_t ret = 0;
+    struct cpld_platform_data *pdata = dev->platform_data;
+
+    ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, 0x1);
+    if (ret < 0)
+        return sprintf(buf, "read error");
+
+    return sprintf(buf, "0x%x\n", ret);
 }
 
 static ssize_t get_fan_prs(struct device *dev, struct device_attribute *devattr, char *buf)
@@ -1006,6 +1013,55 @@ static ssize_t set_fan2_led(struct device *dev, struct device_attribute *devattr
     return count;
 }
 
+static ssize_t get_system_cpld_ver(struct device *dev,
+                                   struct device_attribute *devattr, char *buf)
+{
+    uint8_t ret;
+    u32 data = 0;
+    struct cpld_platform_data *pdata = dev->platform_data;
+
+    ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, 0x0);
+    if (ret < 0)
+        return sprintf(buf, "read error");
+
+    data = ret & (0x0f);
+
+    return sprintf(buf, "0x%x\n", data);
+}
+
+static ssize_t get_master_cpld_ver(struct device *dev,
+                                   struct device_attribute *devattr, char *buf)
+{
+    uint8_t ret;
+    u32 data = 0;
+    struct cpld_platform_data *pdata = dev->platform_data;
+
+    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x1);
+    if (ret < 0)
+        return sprintf(buf, "read error");
+
+    data = ret & (0x0f);
+
+    return sprintf(buf, "0x%x\n", data);
+}
+
+static ssize_t get_slave_cpld_ver(struct device *dev,
+                                   struct device_attribute *devattr, char *buf)
+{
+    uint8_t ret;
+    u32 data = 0;
+    struct cpld_platform_data *pdata = dev->platform_data;
+
+    ret = i2c_smbus_read_byte_data(pdata[slave_cpld].client, 0xa);
+    if (ret < 0)
+        return sprintf(buf, "read error");
+
+    data = ret & (0x0f);
+
+    return sprintf(buf, "0x%x\n", data);
+}
+
+
 static DEVICE_ATTR(qsfp_modsel, S_IRUGO, get_modsel, NULL);
 static DEVICE_ATTR(qsfp_modprs, S_IRUGO, get_modprs, NULL);
 static DEVICE_ATTR(qsfp_lpmode, S_IRUGO | S_IWUSR, get_lpmode, set_lpmode);
@@ -1024,6 +1080,9 @@ static DEVICE_ATTR(fan_led, S_IRUGO | S_IWUSR, get_fan_led, set_fan_led);
 static DEVICE_ATTR(fan0_led, S_IRUGO | S_IWUSR, get_fan0_led, set_fan0_led);
 static DEVICE_ATTR(fan1_led, S_IRUGO | S_IWUSR, get_fan1_led, set_fan1_led);
 static DEVICE_ATTR(fan2_led, S_IRUGO | S_IWUSR, get_fan2_led, set_fan2_led);
+static DEVICE_ATTR(system_cpld_ver, S_IRUGO, get_system_cpld_ver, NULL);
+static DEVICE_ATTR(master_cpld_ver, S_IRUGO, get_master_cpld_ver, NULL);
+static DEVICE_ATTR(slave_cpld_ver,  S_IRUGO, get_slave_cpld_ver,  NULL);
 
 static struct attribute *s6000_cpld_attrs[] = {
     &dev_attr_qsfp_modsel.attr,
@@ -1044,6 +1103,9 @@ static struct attribute *s6000_cpld_attrs[] = {
     &dev_attr_fan0_led.attr,
     &dev_attr_fan1_led.attr,
     &dev_attr_fan2_led.attr,
+    &dev_attr_system_cpld_ver.attr,
+    &dev_attr_master_cpld_ver.attr,
+    &dev_attr_slave_cpld_ver.attr,
     NULL,
 };
 
