@@ -155,16 +155,11 @@ stop() {
 
     # platform specific tasks
 
-    # stop mellanox driver regardless of
-    # shutdown type
-    if [ x$sonic_asic_platform == x'mellanox' ]; then
-        /etc/init.d/sxdkernel stop
-        /usr/bin/mst stop
-    fi
-
-
     if [[ x"$WARM_BOOT" != x"true" ]]; then
-        if [ x$sonic_asic_platform == x'cavium' ]; then
+        if [ x$sonic_asic_platform == x'mellanox' ]; then
+            /etc/init.d/sxdkernel stop
+            /usr/bin/mst stop
+        elif [ x$sonic_asic_platform == x'cavium' ]; then
             /etc/init.d/xpnet.sh stop
             /etc/init.d/xpnet.sh start
         fi
