@@ -4,7 +4,6 @@ include $(PLATFORM_PATH)/docker-syncd-mrvl.mk
 include $(PLATFORM_PATH)/docker-syncd-mrvl-rpc.mk
 include $(PLATFORM_PATH)/docker-orchagent-mrvl.mk
 include $(PLATFORM_PATH)/libsaithrift-dev.mk
-include $(PLATFORM_PATH)/python-saithrift.mk
 include $(PLATFORM_PATH)/one-image.mk
 
 SONIC_ALL += $(SONIC_ONE_IMAGE) \
