@@ -91,8 +91,9 @@ start() {
 
     # Don't flush DB during warm boot
     if [[ x"$WARM_BOOT" != x"true" ]]; then
-        debug "Flushing databases ..."
+        debug "Flushing APP, ASIC, COUNTER, CONFIG, and partial STATE databases ..."
         /usr/bin/docker exec database redis-cli -n 0 FLUSHDB
+        /usr/bin/docker exec database redis-cli -n 1 FLUSHDB
         /usr/bin/docker exec database redis-cli -n 2 FLUSHDB
         /usr/bin/docker exec database redis-cli -n 5 FLUSHDB
         clean_up_tables 6 "'PORT_TABLE*', 'MGMT_PORT_TABLE*', 'VLAN_TABLE*', 'VLAN_MEMBER_TABLE*', 'INTERFACE_TABLE*', 'MIRROR_SESSION*', 'VRF_TABLE*'"

@@ -88,10 +88,6 @@ start() {
         touch /host/warmboot/warm-starting
     else
         rm -f /host/warmboot/warm-starting
-
-        # Flush ASIC DB during non-warm start
-        debug "Flushing ASIC database ..."
-        /usr/bin/docker exec database redis-cli -n 1 FLUSHDB
     fi
 
     # platform specific tasks
