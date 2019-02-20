@@ -168,7 +168,7 @@ RUN apt-get update && apt-get install -y \
         python-parse \
 # For snmpd
         default-libmysqlclient-dev \
-        libssl-dev \
+        libssl1.0-dev \
         libperl-dev \
         libpci-dev \
         libpci3 \
