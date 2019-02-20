@@ -551,6 +551,10 @@ def parse_xml(filename, platform=None, port_config_file=None):
     for port in ports.itervalues():
         port['mtu'] = '9100'
 
+    # asymmetric PFC is disabled by default
+    for port in ports.itervalues():
+        port['pfc_asym'] = 'off'
+
     # set physical port default admin status up
     for port in phyport_intfs:
         if port[0] in ports:
