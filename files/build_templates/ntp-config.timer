@@ -1,9 +1,0 @@
-[Unit]
-Description=Delays NTP configuration service until SONiC has started
-
-[Timer]
-OnBootSec=5min
-Unit=ntp-config.service
-
-[Install]
-WantedBy=timers.target
