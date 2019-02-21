@@ -154,7 +154,7 @@ class TestCfgGen(TestCase):
     def test_minigraph_port_description(self):
         argument = '-m "' + self.sample_graph_t0 + '" -p "' + self.port_config + '" -v "PORT[\'Ethernet124\']"'
         output = self.run_script(argument)
-        self.assertEqual(output.strip(), "{'alias': 'fortyGigE0/124', 'admin_status': 'up', 'lanes': '101,102,103,104', 'description': 'ARISTA04T1:Ethernet1/1', 'mtu': '9100'}")
+        self.assertEqual(output.strip(), "{'lanes': '101,102,103,104', 'description': 'ARISTA04T1:Ethernet1/1', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/124', 'admin_status': 'up'}")
 
     def test_minigraph_bgp(self):
         argument = '-m "' + self.sample_graph_bgp_speaker + '" -p "' + self.port_config + '" -v "BGP_NEIGHBOR[\'10.0.0.59\']"'
