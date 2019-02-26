@@ -276,6 +276,9 @@ RUN pip install meld3 mock
 # For vs image build
 RUN pip install pexpect==4.6.0
 
+# For sonic-utilities build
+RUN pip install mockredispy==2.9.3
+
 # Install dependencies for isc-dhcp-relay build
 RUN apt-get -y build-dep isc-dhcp
 
