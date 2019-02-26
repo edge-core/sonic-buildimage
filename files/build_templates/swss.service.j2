@@ -14,6 +14,8 @@ After=opennsl-modules-3.16.0-6-amd64.service
 After=nps-modules-3.16.0-6-amd64.service
 {% endif %}
 Before=ntp-config.service
+StartLimitInterval=1200
+StartLimitBurst=3
 
 [Service]
 User=root
@@ -52,6 +54,8 @@ ExecStopPost=/usr/bin/mst stop
 ExecStopPost=/etc/init.d/xpnet.sh stop
 ExecStopPost=/etc/init.d/xpnet.sh start
 {% endif %}
+Restart=always
+RestartSec=30
 
 [Install]
 WantedBy=multi-user.target
