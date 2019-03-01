@@ -42,6 +42,12 @@ src/sonic-device-data/src/debian/
 src/supervisor/*
 !src/supervisor/Makefile
 !src/supervisor/patch/
+src/telemetry/debian/*
+!src/telemetry/debian/changelog
+!src/telemetry/debian/compat
+!src/telemetry/debian/control
+!src/telemetry/debian/rules
+!src/telemetry/debian/telemetry.init.d
 src/thrift/*
 !src/thrift/Makefile
 
