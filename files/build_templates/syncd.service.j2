@@ -13,12 +13,14 @@ After=opennsl-modules-4.9.0-8-amd64.service
 {% elif sonic_asic_platform == 'nephos' %}
 After=nps-modules-4.9.0-8-amd64.service
 {% endif %}
+After=swss.service
 Before=ntp-config.service
 
 [Service]
 User=root
 Environment=sonic_asic_platform={{ sonic_asic_platform }}
-ExecStart=/usr/local/bin/syncd.sh start
+ExecStartPre=/usr/local/bin/syncd.sh start
+ExecStart=/usr/local/bin/syncd.sh attach
 ExecStop=/usr/local/bin/syncd.sh stop
 
 [Install]

@@ -117,6 +117,9 @@ start() {
     debug "Started ${SERVICE} service..."
 
     unlock_service_state_change
+}
+
+attach() {
     /usr/bin/${SERVICE}.sh attach
 }
 
@@ -165,11 +168,11 @@ stop() {
 }
 
 case "$1" in
-    start|stop)
+    start|attach|stop)
         $1
         ;;
     *)
-        echo "Usage: $0 {start|stop}"
+        echo "Usage: $0 {start|attach|stop}"
         exit 1
         ;;
 esac
