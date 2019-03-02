@@ -19,7 +19,7 @@ auth	[success=done new_authtok_reqd=done default=ignore{{ ' auth_err=die' if not
 {% endfor %}
 {% if servers | count %}
 {% set last_server = servers | last %}
-auth	[success=1 default=ignore]	pam_tacplus.so server={{ last_server.ip }}:{{ last_server.tcp_port }} secret={{ last_server.passkey }} login={{ last_server.auth_type }} timeout={{ last_server.timeout }} {% if server.vrf %} vrf={{ last_server.vrf }} {% endif %} try_first_pass
+auth	[success=1 default=ignore]	pam_tacplus.so server={{ last_server.ip }}:{{ last_server.tcp_port }} secret={{ last_server.passkey }} login={{ last_server.auth_type }} timeout={{ last_server.timeout }} {% if last_server.vrf %} vrf={{ last_server.vrf }} {% endif %} try_first_pass
 
 {% endif %}
 {% elif auth['login'] == 'tacacs+' or auth['login'] == 'tacacs+,local' %}
