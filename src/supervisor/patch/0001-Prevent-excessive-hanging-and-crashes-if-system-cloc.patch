@@ -1,15 +1,91 @@
-From 43b6f3ee93593f666af2c6a7af897bf3b5ee762d Mon Sep 17 00:00:00 2001
+From 5b56519e68e866662d9fd9a6681b6b47d6b5fcdb Mon Sep 17 00:00:00 2001
 From: Joe LeVeque <jolevequ@microsoft.com>
-Date: Wed, 17 Jan 2018 22:27:56 +0000
-Subject: [PATCH 2/2] Add unit test cases to ensure state transitions work if
- system time has rolled backward
+Date: Thu, 28 Feb 2019 01:43:54 +0000
+Subject: [PATCH] Prevent excessive hanging and crashes if system clock rolls
+ backward
 
 ---
- supervisor/tests/test_process.py | 146 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 146 insertions(+)
+ supervisor/process.py            |  36 ++++++
+ supervisor/tests/test_process.py | 183 +++++++++++++++++++++++++++++++
+ 2 files changed, 219 insertions(+)
 
+diff --git a/supervisor/process.py b/supervisor/process.py
+index f9ddcd9..5f73e6b 100644
+--- a/supervisor/process.py
++++ b/supervisor/process.py
+@@ -347,6 +347,28 @@ class Subprocess:
+             options.write(2, "supervisor: child process was not spawned\n")
+             options._exit(127) # exit process with code for spawn failure
+ 
++    def _check_and_adjust_for_system_clock_rollback(self, test_time):
++        """
++        Check if system clock has rolled backward beyond test_time. If so, set
++        affected timestamps to test_time.
++        """
++        if self.state == ProcessStates.STARTING:
++            if test_time < self.laststart:
++                self.laststart = test_time;
++            if self.delay > 0 and test_time < (self.delay - self.config.startsecs):
++                self.delay = test_time + self.config.startsecs
++        elif self.state == ProcessStates.RUNNING:
++            if test_time > self.laststart and test_time < (self.laststart + self.config.startsecs):
++                self.laststart = test_time - self.config.startsecs
++        elif self.state == ProcessStates.STOPPING:
++            if test_time < self.laststopreport:
++                self.laststopreport = test_time;
++            if self.delay > 0 and test_time < (self.delay - self.config.stopwaitsecs):
++                self.delay = test_time + self.config.stopwaitsecs
++        elif self.state == ProcessStates.BACKOFF:
++            if self.delay > 0 and test_time < (self.delay - self.backoff):
++                self.delay = test_time + self.backoff
++
+     def stop(self):
+         """ Administrative stop """
+         self.administrative_stop = True
+@@ -357,6 +379,9 @@ class Subprocess:
+         """ Log a 'waiting for x to stop' message with throttling. """
+         if self.state == ProcessStates.STOPPING:
+             now = time.time()
++
++            self._check_and_adjust_for_system_clock_rollback(now)
++
+             if now > (self.laststopreport + 2): # every 2 seconds
+                 self.config.options.logger.info(
+                     'waiting for %s to stop' % self.config.name)
+@@ -487,6 +512,9 @@ class Subprocess:
+         es, msg = decode_wait_status(sts)
+ 
+         now = time.time()
++
++        self._check_and_adjust_for_system_clock_rollback(now)
++
+         self.laststop = now
+         processname = self.config.name
+ 
+@@ -586,6 +614,8 @@ class Subprocess:
+         now = time.time()
+         state = self.state
+ 
++        self._check_and_adjust_for_system_clock_rollback(now)
++
+         logger = self.config.options.logger
+ 
+         if self.config.options.mood > SupervisorStates.RESTARTING:
+@@ -805,6 +835,12 @@ class EventListenerPool(ProcessGroupBase):
+         if dispatch_capable:
+             if self.dispatch_throttle:
+                 now = time.time()
++
++                if now < self.last_dispatch:
++                    # The system clock appears to have moved backward
++                    # Reset self.last_dispatch accordingly
++                    self.last_dispatch = now;
++
+                 if now - self.last_dispatch < self.dispatch_throttle:
+                     return
+             self.dispatch()
 diff --git a/supervisor/tests/test_process.py b/supervisor/tests/test_process.py
-index 7f9bab2..ea16315 100644
+index 7f9bab2..6808f60 100644
 --- a/supervisor/tests/test_process.py
 +++ b/supervisor/tests/test_process.py
 @@ -736,6 +736,40 @@ class SubprocessTests(unittest.TestCase):
@@ -53,7 +129,51 @@ index 7f9bab2..ea16315 100644
      def test_give_up(self):
          options = DummyOptions()
          config = DummyPConfig(options, 'test', '/test')
-@@ -1402,6 +1436,92 @@ class SubprocessTests(unittest.TestCase):
+@@ -1105,6 +1139,43 @@ class SubprocessTests(unittest.TestCase):
+         self.assertEqual(event.__class__, events.ProcessStateBackoffEvent)
+         self.assertEqual(event.from_state, ProcessStates.STARTING)
+ 
++    # This tests the case where the process has stayed alive longer than
++    # startsecs (i.e., long enough to enter the RUNNING state), however the
++    # system clock has since rolled backward such that the current time is
++    # greater than laststart but less than startsecs.
++    def test_finish_running_state_exited_too_quickly_due_to_clock_rollback(self):
++        options = DummyOptions()
++        config = DummyPConfig(options, 'notthere', '/notthere',
++                              stdout_logfile='/tmp/foo', startsecs=10)
++        instance = self._makeOne(config)
++        instance.config.options.pidhistory[123] = instance
++        pipes = {'stdout':'','stderr':''}
++        instance.pipes = pipes
++        instance.config.exitcodes =[-1]
++        instance.laststart = time.time()
++        from supervisor.states import ProcessStates
++        from supervisor import events
++        instance.state = ProcessStates.RUNNING
++        L = []
++        events.subscribe(events.ProcessStateEvent, lambda x: L.append(x))
++        instance.pid = 123
++        instance.finish(123, 1)
++        self.assertFalse(instance.killing)
++        self.assertEqual(instance.pid, 0)
++        self.assertEqual(options.parent_pipes_closed, pipes)
++        self.assertEqual(instance.pipes, {})
++        self.assertEqual(instance.dispatchers, {})
++        self.assertEqual(options.logger.data[0],
++                         'exited: notthere (terminated by SIGHUP; expected)')
++        self.assertEqual(instance.exitstatus, -1)
++        self.assertEqual(len(L), 1)
++        event = L[0]
++        self.assertEqual(event.__class__,
++                         events.ProcessStateExitedEvent)
++        self.assertEqual(event.expected, True)
++        self.assertEqual(event.extra_values, [('expected', True), ('pid', 123)])
++        self.assertEqual(event.from_state, ProcessStates.RUNNING)
++
+     def test_finish_running_state_laststart_in_future(self):
+         options = DummyOptions()
+         config = DummyPConfig(options, 'notthere', '/notthere',
+@@ -1402,6 +1473,92 @@ class SubprocessTests(unittest.TestCase):
          event = L[0]
          self.assertEqual(event.__class__, events.ProcessStateRunningEvent)
  
@@ -146,7 +266,7 @@ index 7f9bab2..ea16315 100644
      def test_transition_backoff_to_fatal(self):
          from supervisor import events
          L = []
-@@ -2033,6 +2153,32 @@ class EventListenerPoolTests(ProcessGroupBaseTests):
+@@ -2033,6 +2190,32 @@ class EventListenerPoolTests(ProcessGroupBaseTests):
          self.assertEqual(process1.listener_state, EventListenerStates.BUSY)
          self.assertEqual(process1.event, event)
  
@@ -180,5 +300,5 @@ index 7f9bab2..ea16315 100644
          options = DummyOptions()
          from supervisor.states import ProcessStates
 -- 
-2.1.4
+2.17.1
 
