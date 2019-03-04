@@ -1,2 +1,2 @@
-0001-Prevent-excessive-hanging-delays-in-process-state-tr.patch
-0002-Add-unit-test-cases-to-ensure-state-transitions-work.patch
+# This series applies on GIT commit 34b690aea8cf7572d73765c95c54a83261d69aad
+0001-Prevent-excessive-hanging-and-crashes-if-system-cloc.patch
