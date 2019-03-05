@@ -78,6 +78,14 @@ function clean_up_tables()
     end" 0
 }
 
+startPeerService() {
+    check_warm_boot
+
+    if [[ x"$WARM_BOOT" != x"true" ]]; then
+        /bin/systemctl start ${PEER}
+    fi
+}
+
 start() {
     debug "Starting ${SERVICE} service..."
 
@@ -105,13 +113,10 @@ start() {
 
     # Unlock has to happen before reaching out to peer service
     unlock_service_state_change
-
-    if [[ x"$WARM_BOOT" != x"true" ]]; then
-        /bin/systemctl start ${PEER}
-    fi
 }
 
 attach() {
+    startPeerService
     /usr/bin/${SERVICE}.sh attach
 }
 
