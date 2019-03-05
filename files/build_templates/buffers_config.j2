@@ -29,12 +29,16 @@ def
 {# Port configuration to cable length look-up table #}
 {# Each record describes mapping of DUT (DUT port) role and neighbor role to cable length #}
 {# Roles described in the minigraph #}
-{%- set ports2cable = {
-        'torrouter_server'       : '5m',
-        'leafrouter_torrouter'   : '40m',
-        'spinerouter_leafrouter' : '300m'
-        }
--%}
+{%- if defs.ports2cable is defined %}
+    {%- set ports2cable = defs.ports2cable %}
+{%- else %}
+    {%- set ports2cable = {
+            'torrouter_server'       : '5m',
+            'leafrouter_torrouter'   : '40m',
+            'spinerouter_leafrouter' : '300m'
+            }
+    -%}
+{%- endif %}
 
 {%- macro cable_length(port_name) %}
     {%- set cable_len = [] %}
