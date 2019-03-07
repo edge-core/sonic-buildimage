@@ -30,6 +30,6 @@ RUN rm -rf /debs
 
 COPY ["start.sh", "/usr/bin/"]
 COPY ["docker-router-advertiser.supervisord.conf", "/etc/supervisor/conf.d/"]
-COPY ["radvd.conf.j2", "/usr/share/sonic/templates/"]
+COPY ["radvd.conf.j2", "wait_for_intf.sh.j2", "/usr/share/sonic/templates/"]
 
 ENTRYPOINT ["/usr/bin/supervisord"]
