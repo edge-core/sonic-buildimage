@@ -41,7 +41,7 @@ class SfpUtil(SfpUtilBase):
     db_sel_tbl = None
     state_db = None
     sfpd_status_tbl = None
-    qsfp_sysfs_path = "/sys/devices/platform/i2c_mlxcpld.1/i2c-1/i2c-2/2-0048/"
+    qsfp_sysfs_path = "/var/run/hw-management/qsfp/"
 
     @property
     def port_start(self):

@@ -1,0 +1,40 @@
+#!/bin/bash
+
+declare -r EXIT_SUCCESS="0"
+declare -r EXIT_TIMEOUT="1"
+
+declare -r QSFP_PATH="/var/run/hw-management/qsfp"
+
+function WaitForQsfpReady() {
+    local -r _QSFP_PATH="${1}"
+
+    local -i _WDOG_CNT="1"
+    local -ir _WDOG_MAX="300"
+
+    local -r _TIMEOUT="1s"
+
+    while [[ "${_WDOG_CNT}" -le "${_WDOG_MAX}" ]]; do
+        for _QSFP in ${_QSFP_PATH}/qsfp*; do
+            if [[ -e "${_QSFP}" ]]; then
+                return "${EXIT_SUCCESS}"
+            fi
+        done
+
+        let "_WDOG_CNT++"
+        sleep "${_TIMEOUT}"
+    done
+
+    return "${EXIT_TIMEOUT}"
+}
+
+echo "Wait for QSFP I2C interface is ready"
+
+WaitForQsfpReady "${QSFP_PATH}"
+EXIT_CODE="$?"
+if [[ "${EXIT_CODE}" != "${EXIT_SUCCESS}" ]]; then
+    echo "QSFP I2C interface is not ready: timeout"
+    exit "${EXIT_CODE}"
+fi
+
+echo "QSFP I2C interface is ready: mlxsw_minimal has finished initialization"
+exit "${EXIT_SUCCESS}"

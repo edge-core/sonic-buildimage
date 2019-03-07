@@ -94,15 +94,28 @@ start() {
 
     # start mellanox drivers regardless of
     # boot type
-    if [ x"$sonic_asic_platform" == x"mellanox" ]; then
+    if [[ x"$sonic_asic_platform" == x"mellanox" ]]; then
         BOOT_TYPE=`getBootType`
         if [[ x"$WARM_BOOT" == x"true" || x"$BOOT_TYPE" == x"fast" ]]; then
             export FAST_BOOT=1
         fi
+
+        if [[ x"$WARM_BOOT" != x"true" ]]; then
+            /bin/systemctl stop pmon
+            /usr/bin/hw-management.sh chipdown
+        fi
+
+        if [[ x"$BOOT_TYPE" == x"fast" ]]; then
+            /usr/bin/hw-management.sh chipupdis
+        fi
+
         /usr/bin/mst start
         /usr/bin/mlnx-fw-upgrade.sh
         /etc/init.d/sxdkernel start
-        /sbin/modprobe i2c-dev
+
+        if [[ x"$WARM_BOOT" != x"true" ]]; then
+            /bin/systemctl start pmon
+        fi
     fi
 
     if [[ x"$WARM_BOOT" != x"true" ]]; then
@@ -111,10 +124,13 @@ start() {
         fi
     fi
 
-
     # start service docker
     /usr/bin/${SERVICE}.sh start
     debug "Started ${SERVICE} service..."
+
+    if [[ x"$sonic_asic_platform" == x"mellanox" && x"$BOOT_TYPE" == x"fast" ]]; then
+        /usr/bin/hw-management.sh chipupen
+    fi
 
     unlock_service_state_change
 }

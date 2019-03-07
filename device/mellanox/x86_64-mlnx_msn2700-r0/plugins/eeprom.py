@@ -26,7 +26,7 @@ except ImportError, e:
     raise ImportError (str(e) + "- required module not found")
 
 SYSLOG_IDENTIFIER = "eeprom.py"
-EEPROM_SYMLINK = "/bsp/eeprom/vpd_info"
+EEPROM_SYMLINK = "/var/run/hw-management/eeprom/vpd_info"
 CACHE_FILE = "/var/cache/sonic/decode-syseeprom/syseeprom_cache"
 
 def log_error(msg):
