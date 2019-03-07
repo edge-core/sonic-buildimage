@@ -41,7 +41,7 @@ ExecStartPre=/etc/init.d/xpnet.sh start
 
 ExecStartPre=/usr/bin/{{docker_container_name}}.sh start 
 ExecStartPre=/usr/bin/syncd.sh start
-ExecStart=/usr/bin/{{docker_container_name}}.sh attach
+ExecStart=/bin/bash -c "sleep 5; /usr/bin/docker-wait-any {{docker_container_name}} syncd"
 
 ExecStop=/usr/bin/{{docker_container_name}}.sh stop
 ExecStopPost=/usr/bin/syncd.sh stop
