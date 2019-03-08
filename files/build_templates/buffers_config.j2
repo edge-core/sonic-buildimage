@@ -131,10 +131,7 @@ def
 {{ defs.generate_pg_profils(port_names_active) }}
 {% else %}
     "BUFFER_PG": {
-        "{{ port_names_active }}|0-2": {
-            "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
-        },
-        "{{ port_names_active }}|5-6": {
+        "{{ port_names_active }}|0": {
             "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
         }
     },
