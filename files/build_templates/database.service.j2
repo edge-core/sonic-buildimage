@@ -6,7 +6,7 @@ After=docker.service
 [Service]
 User=root
 ExecStartPre=/usr/bin/{{docker_container_name}}.sh start
-ExecStart=/usr/bin/{{docker_container_name}}.sh attach
+ExecStart=/usr/bin/{{docker_container_name}}.sh wait
 ExecStop=/usr/bin/{{docker_container_name}}.sh stop
 
 [Install]
