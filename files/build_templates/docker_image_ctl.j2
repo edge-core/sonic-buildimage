@@ -150,8 +150,8 @@ start() {
     postStartAction
 }
 
-attach() {
-    docker attach --no-stdin {{docker_container_name}}
+wait() {
+    docker wait {{docker_container_name}}
 }
 
 stop() {
@@ -159,11 +159,11 @@ stop() {
 }
 
 case "$1" in
-    start|stop|attach)
+    start|wait|stop)
         $1
         ;;
     *)
-        echo "Usage: $0 {start|stop|attach}"
+        echo "Usage: $0 {start|wait|stop}"
         exit 1
         ;;
 esac

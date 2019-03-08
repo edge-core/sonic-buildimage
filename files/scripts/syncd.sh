@@ -119,8 +119,8 @@ start() {
     unlock_service_state_change
 }
 
-attach() {
-    /usr/bin/${SERVICE}.sh attach
+wait() {
+    /usr/bin/${SERVICE}.sh wait
 }
 
 stop() {
@@ -168,11 +168,11 @@ stop() {
 }
 
 case "$1" in
-    start|attach|stop)
+    start|wait|stop)
         $1
         ;;
     *)
-        echo "Usage: $0 {start|attach|stop}"
+        echo "Usage: $0 {start|wait|stop}"
         exit 1
         ;;
 esac

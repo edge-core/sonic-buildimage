@@ -14,7 +14,7 @@ Before=ntp-config.service
 User=root
 Environment=sonic_asic_platform={{ sonic_asic_platform }}
 ExecStartPre=/usr/local/bin/swss.sh start
-ExecStart=/usr/local/bin/swss.sh attach
+ExecStart=/usr/local/bin/swss.sh wait
 ExecStop=/usr/local/bin/swss.sh stop
 
 [Install]
