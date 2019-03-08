@@ -105,10 +105,7 @@
         }
     },
     "BUFFER_PG": {
-        "Ethernet0,Ethernet1,Ethernet4,Ethernet5,Ethernet6,Ethernet7,Ethernet8,Ethernet9,Ethernet10,Ethernet11,Ethernet12,Ethernet13,Ethernet14,Ethernet15,Ethernet16,Ethernet17,Ethernet20,Ethernet21,Ethernet22,Ethernet23,Ethernet24,Ethernet25,Ethernet26,Ethernet27,Ethernet28,Ethernet29,Ethernet30,Ethernet31,Ethernet32,Ethernet36,Ethernet37,Ethernet38,Ethernet39,Ethernet40,Ethernet41,Ethernet42,Ethernet48,Ethernet52,Ethernet53,Ethernet54,Ethernet55,Ethernet56,Ethernet57,Ethernet58|0-2": {
-            "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
-        },
-        "Ethernet0,Ethernet1,Ethernet4,Ethernet5,Ethernet6,Ethernet7,Ethernet8,Ethernet9,Ethernet10,Ethernet11,Ethernet12,Ethernet13,Ethernet14,Ethernet15,Ethernet16,Ethernet17,Ethernet20,Ethernet21,Ethernet22,Ethernet23,Ethernet24,Ethernet25,Ethernet26,Ethernet27,Ethernet28,Ethernet29,Ethernet30,Ethernet31,Ethernet32,Ethernet36,Ethernet37,Ethernet38,Ethernet39,Ethernet40,Ethernet41,Ethernet42,Ethernet48,Ethernet52,Ethernet53,Ethernet54,Ethernet55,Ethernet56,Ethernet57,Ethernet58|5-6": {
+        "Ethernet0,Ethernet1,Ethernet4,Ethernet5,Ethernet6,Ethernet7,Ethernet8,Ethernet9,Ethernet10,Ethernet11,Ethernet12,Ethernet13,Ethernet14,Ethernet15,Ethernet16,Ethernet17,Ethernet20,Ethernet21,Ethernet22,Ethernet23,Ethernet24,Ethernet25,Ethernet26,Ethernet27,Ethernet28,Ethernet29,Ethernet30,Ethernet31,Ethernet32,Ethernet36,Ethernet37,Ethernet38,Ethernet39,Ethernet40,Ethernet41,Ethernet42,Ethernet48,Ethernet52,Ethernet53,Ethernet54,Ethernet55,Ethernet56,Ethernet57,Ethernet58|0": {
             "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
         }
     },
