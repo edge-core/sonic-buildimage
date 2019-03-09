@@ -47,4 +47,6 @@ iface eth0 {{ 'inet' if prefix | ipv4 else 'inet6' }} static
 iface eth0 inet dhcp
 {% endif %}
 #
+source /etc/network/interfaces.d/*
+#
 {% endblock mgmt_interface %}
