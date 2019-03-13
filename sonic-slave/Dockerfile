@@ -99,6 +99,7 @@ RUN apt-get update && apt-get install -y \
         libslf4j-java \
         libservlet3.1-java \
         qt5-default \
+        pkg-php-tools \
 # For mellanox sdk build
         libpcre3 \
         libpcre3-dev \

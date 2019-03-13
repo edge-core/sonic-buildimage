@@ -35,6 +35,7 @@ RUN sed --in-place 's/httpredir.debian.org/debian-archive.trafficmanager.net/' /
         cmake               \
         libqt5core5a        \
         libqt5network5      \
+        libboost-atomic1.55.0 \
         less                \
         git                 \
         iputils-ping        \
@@ -43,7 +44,8 @@ RUN sed --in-place 's/httpredir.debian.org/debian-archive.trafficmanager.net/' /
         tcpdump             \
         python              \
         python-dev          \
-        python-scapy
+        python-scapy        \
+        python-six
 
 RUN dpkg -i \
 {% for deb in docker_ptf_debs.split(' ') -%}
