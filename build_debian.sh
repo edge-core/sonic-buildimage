@@ -356,6 +356,7 @@ set /files/etc/sysctl.conf/net.core.wmem_max 2097152
 ## docker-py is needed by Ansible docker module
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT easy_install pip
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install 'docker-py==1.6.0'
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install 'ipaddress'
 ## Note: keep pip installed for maintainance purpose
 
 ## Get gcc and python dev pkgs
