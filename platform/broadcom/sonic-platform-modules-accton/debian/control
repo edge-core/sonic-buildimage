@@ -41,3 +41,7 @@ Package: sonic-platform-accton-as7726-32x
 Architecture: amd64
 Description: kernel modules for platform devices such as fan, led, sfp
 
+Package: sonic-platform-accton-minipack
+Architecture: amd64
+Description: kernel modules for platform devices such as fan, led, sfp
+
