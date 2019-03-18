@@ -42,8 +42,13 @@ check_sdk_upgrade()
 
         ISSU_VERSION_FILE_PATH="/etc/mlnx/issu-version"
 
-        [ -f "${SDK_VERSION_FILE_PATH}" ] || {
+        [ -f "${ISSU_VERSION_FILE_PATH}" ] || {
             >&2 echo "No ISSU version file found ${ISSU_VERSION_FILE_PATH}"
+            break
+        }
+
+        [ -f "${FS_MOUNTPOINT}/${ISSU_VERSION_FILE_PATH}" ] || {
+            >&2 echo "No ISSU version file found ${ISSU_VERSION_FILE_PATH} in ${NEXT_SONIC_IMAGE}"
             break
         }
 
