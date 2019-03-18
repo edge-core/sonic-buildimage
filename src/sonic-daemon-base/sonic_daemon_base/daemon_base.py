@@ -18,6 +18,9 @@ SONIC_CFGGEN_PATH = '/usr/local/bin/sonic-cfggen'
 HWSKU_KEY = 'DEVICE_METADATA.localhost.hwsku'
 PLATFORM_KEY = 'DEVICE_METADATA.localhost.platform'
 
+EEPROM_MODULE_NAME = 'eeprom'
+EEPROM_CLASS_NAME = 'board'
+
 class DaemonBase(object):
     # Redis DB information
     redis_hostname = "localhost"
@@ -127,7 +130,11 @@ class DaemonBase(object):
 
         try:
             platform_util_class = getattr(module, class_name)
-            platform_util = platform_util_class()
+            # board class of eeprom requires 4 paramerters, need special treatment here.
+            if module_name == EEPROM_MODULE_NAME and class_name == EEPROM_CLASS_NAME:
+                platform_util = platform_util_class('','','','')
+            else:
+                platform_util = platform_util_class()
         except AttributeError, e:
             self.log_error("Failed to instantiate '%s' class: %s" % (class_name, str(e)))
             return None
