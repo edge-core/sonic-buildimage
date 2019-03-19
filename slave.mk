@@ -464,8 +464,16 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_SIMPLE_DOCKER_IMAGES)) : $(TARGET_PATH)/%.g
 
 SONIC_TARGET_LIST += $(addprefix $(TARGET_PATH)/, $(SONIC_SIMPLE_DOCKER_IMAGES))
 
+# Build stretch docker images only in stretch slave docker,
+# jessie docker images only in jessie slave docker
+ifeq ($(BLDENV),stretch)
+	DOCKER_IMAGES := $(SONIC_STRETCH_DOCKERS)
+else
+	DOCKER_IMAGES := $(filter-out $(SONIC_STRETCH_DOCKERS), $(SONIC_DOCKER_IMAGES))
+endif
+
 # Targets for building docker images
-$(addprefix $(TARGET_PATH)/, $(SONIC_DOCKER_IMAGES)) : $(TARGET_PATH)/%.gz : .platform docker-start \
+$(addprefix $(TARGET_PATH)/, $(DOCKER_IMAGES)) : $(TARGET_PATH)/%.gz : .platform docker-start \
 		$$(addprefix $(DEBS_PATH)/,$$($$*.gz_DEPENDS)) \
 		$$(addprefix $(FILES_PATH)/,$$($$*.gz_FILES)) \
 		$$(addprefix $(PYTHON_DEBS_PATH)/,$$($$*.gz_PYTHON_DEBS)) \
@@ -506,11 +514,11 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_DOCKER_IMAGES)) : $(TARGET_PATH)/%.gz : .pl
 	if [ -f $($*.gz_PATH).patch/series ]; then pushd $($*.gz_PATH) && quilt pop -a -f; popd; fi
 	$(FOOTER)
 
-SONIC_TARGET_LIST += $(addprefix $(TARGET_PATH)/, $(SONIC_DOCKER_IMAGES))
+SONIC_TARGET_LIST += $(addprefix $(TARGET_PATH)/, $(DOCKER_IMAGES))
 
 DOCKER_LOAD_TARGETS = $(addsuffix -load,$(addprefix $(TARGET_PATH)/, \
 		      $(SONIC_SIMPLE_DOCKER_IMAGES) \
-		      $(SONIC_DOCKER_IMAGES)))
+		      $(DOCKER_IMAGES)))
 $(DOCKER_LOAD_TARGETS) : $(TARGET_PATH)/%.gz-load : .platform docker-start $$(TARGET_PATH)/$$*.gz
 	$(HEADER)
 	docker load -i $(TARGET_PATH)/$*.gz $(LOG)
