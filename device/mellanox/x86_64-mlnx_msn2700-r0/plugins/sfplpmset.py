@@ -18,7 +18,15 @@ PMAOS_RST = 0
 PMAOS_ENABLE = 1
 PMAOS_DISABLE = 2
 
-def get_port_admin_status_by_log_port(log_port):
+PORT_TYPE_NVE = 8
+PORT_TYPE_OFFSET = 28
+PORT_TYPE_MASK = 0xF0000000
+NVE_MASK = PORT_TYPE_MASK & (PORT_TYPE_NVE << PORT_TYPE_OFFSET)
+
+def is_nve(port):
+    return (port & NVE_MASK) != 0
+
+def is_port_admin_status_up(log_port):
     oper_state_p = new_sx_port_oper_state_t_p()
     admin_state_p = new_sx_port_admin_state_t_p()
     module_state_p = new_sx_port_module_state_t_p()
@@ -48,9 +56,10 @@ def get_log_ports(handle, sfp_module):
     log_port_list = []
     for i in range(0, port_cnt):
         port_attributes = sx_port_attributes_t_arr_getitem(port_attributes_list, i)
-        if port_attributes.port_mapping.module_port == sfp_module:
-            if get_port_admin_status_by_log_port(port_attributes.log_port):
-                log_port_list.append(port_attributes.log_port)
+        if is_nve(int(port_attributes.log_port)) == False \
+           and port_attributes.port_mapping.module_port == sfp_module \
+           and is_port_admin_status_up(port_attributes.log_port):
+            log_port_list.append(port_attributes.log_port)
 
     return log_port_list
 
