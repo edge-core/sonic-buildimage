@@ -21,6 +21,11 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 
 	dpkg-source -x thrift_$(THRIFT_VERSION_FULL).dsc
 	pushd thrift-$(THRIFT_VERSION)
+
+	# Revert breaking change in thrift 0.11.0
+	# saithrift implementation relies on the bug in union serialization
+	# (https://jira.apache.org/jira/browse/THRIFT-3650)
+	patch -p1 < ../patch/0001-Revert-THRIFT-3650-incorrect-union-serialization.patch
 	CXXFLAGS="-DFORCE_BOOST_SMART_PTR" DEB_BUILD_OPTIONS=nocheck dpkg-buildpackage -d -rfakeroot -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS)
 	popd
 
