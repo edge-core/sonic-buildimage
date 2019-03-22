@@ -213,7 +213,11 @@ RUN apt-get update && apt-get install -y \
         python3-pytest \
         python3-colorama \
 # For initramfs
-        bash-completion
+        bash-completion \
+# For lm-sensors
+        librrd8 \
+        librrd-dev \
+        rrdtool
 
 # For linux build
 RUN apt-get -y build-dep linux

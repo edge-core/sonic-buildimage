@@ -27,6 +27,8 @@ src/libteam/*
 src/lldpd/*
 !src/lldpd/Makefile
 !src/lldpd/patch/
+src/lm-sensors/*
+!src/lm-sensors/Makefile
 src/mpdecimal/*
 !src/mpdecimal/Makefile
 src/python-click/*
