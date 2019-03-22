@@ -1,0 +1,6 @@
+0001-libteam-Add-team_get_port_enabled-function.patch
+0002-libteam-Temporarily-remove-redundant-debug-mes.patch
+0003-teamd-lacp-runner-will-send-lacp-update-right-after-.patch
+0004-libteam-Add-lacp-fallback-support-for-single-member-.patch
+0005-libteam-Add-warm_reboot-mode.patch
+0006-Fix-ifinfo_link_with_port-race-condition-with-newlink.patch
