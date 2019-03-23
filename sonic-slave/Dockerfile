@@ -239,7 +239,7 @@ RUN apt-get update && apt-get install -y \
         libvirt-bin
 
 # For jenkins slave
-RUN apt-get -y install ca-certificates-java=20161107~bpo8+1 openjdk-8-jdk
+# RUN apt-get -y install ca-certificates-java=20161107~bpo8+1 openjdk-8-jdk
 
 # For linux build
 RUN apt-get -y build-dep linux
@@ -279,6 +279,8 @@ RUN pip install pexpect==4.6.0
 
 # For sonic-utilities build
 RUN pip install mockredispy==2.9.3
+RUN pip install pytest-runner==4.4
+RUN pip install setuptools==40.8.0
 
 # Install dependencies for isc-dhcp-relay build
 RUN apt-get -y build-dep isc-dhcp
