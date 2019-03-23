@@ -1,0 +1,36 @@
+From 43e512b114176feb1828ff0a75f0224f2b219a2d Mon Sep 17 00:00:00 2001
+From: Jipan Yang <jipan.yang@alibaba-inc.com>
+Date: Sun, 24 Feb 2019 00:04:15 -0800
+Subject: [PATCH] Skip setting the same hwaddr to lag port to avoid disrupting
+ neighbor entries
+
+Signed-off-by: Jipan Yang <jipan.yang@alibaba-inc.com>
+---
+ teamd/teamd.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/teamd/teamd.c b/teamd/teamd.c
+index 225b8c8..e28aa7d 100644
+--- a/teamd/teamd.c
++++ b/teamd/teamd.c
+@@ -866,7 +866,16 @@ static int teamd_set_hwaddr(struct teamd_context *ctx)
+ 		err = -EINVAL;
+ 		goto free_hwaddr;
+ 	}
+-	err = team_hwaddr_set(ctx->th, ctx->ifindex, hwaddr, hwaddr_len);
++
++	if(!memcmp(hwaddr, ctx->hwaddr, hwaddr_len))
++	{
++		err = 0;
++		teamd_log_dbg("Skip setting same hwaddr string: \"%s\".", hwaddr_str);
++	}
++	else
++	{
++		err = team_hwaddr_set(ctx->th, ctx->ifindex, hwaddr, hwaddr_len);
++	}
+ 	if (!err)
+ 		ctx->hwaddr_explicit = true;
+ free_hwaddr:
+-- 
+2.9.2
+
