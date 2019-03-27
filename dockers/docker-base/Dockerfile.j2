@@ -1,5 +1,8 @@
 FROM debian:jessie
 
+## Remove retired jessie-updates repo
+RUN sed -i '/deb http:\/\/deb.debian.org\/debian jessie-updates main/d' /etc/apt/sources.list
+
 # Clean documentation in FROM image
 RUN find /usr/share/doc -depth \( -type f -o -type l \) ! -name copyright | xargs rm || true
 
@@ -28,11 +31,8 @@ RUN apt-get -y install \
     vim-tiny           \
     perl               \
     python             \
+    rsyslog            \
     less
-
-# Install a newer version of rsyslog from jessie-backports in hopes of
-# eliminating memory leaks
-RUN apt-get -y -t jessie-backports install rsyslog
 
 COPY ["etc/rsyslog.conf", "/etc/rsyslog.conf"]
 COPY ["etc/rsyslog.d/*", "/etc/rsyslog.d/"]

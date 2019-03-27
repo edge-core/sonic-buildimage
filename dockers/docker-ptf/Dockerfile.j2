@@ -2,6 +2,9 @@ FROM debian:jessie
 
 MAINTAINER Pavel Shirshov
 
+## Remove retired jessie-updates repo
+RUN sed -i '/deb http:\/\/deb.debian.org\/debian jessie-updates main/d' /etc/apt/sources.list
+
 ## Copy dependencies
 COPY \
 {% for deb in docker_ptf_debs.split(' ') -%}
