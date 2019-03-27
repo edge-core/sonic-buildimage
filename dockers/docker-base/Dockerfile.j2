@@ -17,9 +17,13 @@ RUN rm -rf               \
 # Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Remove retired jessie-updates repo
+RUN sed -i '/deb http:\/\/deb.debian.org\/debian jessie-updates main/d' /etc/apt/sources.list
+
 # Configure data sources for apt/dpkg
 COPY ["sources.list", "/etc/apt/sources.list"]
 COPY ["dpkg_01_drop", "/etc/dpkg/dpkg.cfg.d/01_drop"]
+COPY ["no-check-valid-until", "/etc/apt/apt.conf.d"]
 RUN apt-get update
 
 # Pre-install fundamental packages

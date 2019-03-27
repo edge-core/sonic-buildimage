@@ -12,6 +12,9 @@ debs/
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Remove retired jessie-updates repo
+RUN sed -i '/deb http:\/\/deb.debian.org\/debian jessie-updates main/d' /etc/apt/sources.list
+
 ## Set the apt source, update package cache and install necessary packages
 RUN sed --in-place 's/httpredir.debian.org/debian-archive.trafficmanager.net/' /etc/apt/sources.list \
     && apt-get update          \
