@@ -5,3 +5,4 @@
 0005-libteam-Add-warm_reboot-mode.patch
 0006-Fix-ifinfo_link_with_port-race-condition-with-newlink.patch
 0007-Skip-setting-the-same-hwaddr-to-lag-port-to-avoid-di.patch
+0008-teamd-register-change-handler-for-TEAM_IFINFO_CHANGE.patch
