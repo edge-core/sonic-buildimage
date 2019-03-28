@@ -1,9 +1,10 @@
 # Mellanox SAI
 
+MLNX_SAI_REPO = https://github.com/Mellanox/SAI-Implementation.git
 MLNX_SAI_VERSION = SAIRel1.13.7-master
 MLNX_SAI_REVISION = 52dbd2f5e51cdb538b05f6c2f387b0fccbff9a8e
 
-export MLNX_SAI_VERSION MLNX_SAI_REVISION
+export MLNX_SAI_REPO MLNX_SAI_VERSION MLNX_SAI_REVISION
 
 MLNX_SAI = mlnx-sai_1.mlnx.$(MLNX_SAI_VERSION)_amd64.deb
 $(MLNX_SAI)_SRC_PATH = $(PLATFORM_PATH)/mlnx-sai
