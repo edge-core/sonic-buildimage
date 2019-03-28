@@ -365,11 +365,11 @@ class SfpUtil(SfpUtilBase):
 
             port = self.port_start
             while port <= self.port_end:
-                if interrupt_reg & (1 << port):
+                if interrupt_reg & (1 << (port-1)):
                     # update only if atleast one port has generated
                     # interrupt
                     is_port_dict_updated = True
-                    if status_reg & (1 << port):
+                    if status_reg & (1 << (port-1)):
                         # status reg 1 => optics is removed
                         port_dict[port] = '0'
                     else:
