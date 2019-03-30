@@ -1,4 +1,4 @@
-FROM docker-config-engine
+FROM docker-config-engine-stretch
 
 ARG docker_container_name
 RUN [ -f /etc/rsyslog.conf ] && sed -ri "s/%syslogtag%/$docker_container_name#%syslogtag%/;" /etc/rsyslog.conf
@@ -8,7 +8,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update
 
-RUN apt-get install -f -y ifupdown arping libdbus-1-3 libdaemon0 libjansson4 libpython2.7
+RUN apt-get install -f -y ifupdown arping libdbus-1-3 libdaemon0 libjansson4 libpython2.7 iproute2
 
 RUN apt-get install -f -y ndisc6 tcpdump python-scapy
 ## Install redis-tools dependencies
