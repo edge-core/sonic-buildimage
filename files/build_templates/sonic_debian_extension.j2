@@ -144,6 +144,11 @@ sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable ntp-config.service
 sudo cp $IMAGE_CONFIGS/ntp/ntp-config.sh $FILESYSTEM_ROOT/usr/bin/
 sudo cp $IMAGE_CONFIGS/ntp/ntp.conf.j2 $FILESYSTEM_ROOT_USR_SHARE_SONIC_TEMPLATES/
 
+# Copy warmboot-finalizer files
+sudo LANG=C cp $IMAGE_CONFIGS/warmboot-finalizer/finalize-warmboot.sh $FILESYSTEM_ROOT/usr/local/bin/finalize-warmboot.sh
+sudo LANG=C cp $IMAGE_CONFIGS/warmboot-finalizer/warmboot-finalizer.service $FILESYSTEM_ROOT/etc/systemd/system/
+sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable warmboot-finalizer.service
+
 # Copy rsyslog configuration files and templates
 sudo cp $IMAGE_CONFIGS/rsyslog/rsyslog-config.service  $FILESYSTEM_ROOT/etc/systemd/system/
 sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable rsyslog-config.service
