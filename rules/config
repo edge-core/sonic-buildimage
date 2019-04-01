@@ -69,7 +69,7 @@ ENABLE_ORGANIZATION_EXTENSIONS = y
 #SONIC_PROFILING_ON = y
 
 # ENABLE_SYSTEM_TELEMETRY - build docker-sonic-telemetry for system telemetry support
-# ENABLE_SYSTEM_TELEMETRY = y
+ENABLE_SYSTEM_TELEMETRY = y
 
 # DEFAULT_KERNEL_PROCURE_METHOD - default method for obtaining kernel
 #   build:    build kernel from source
@@ -84,3 +84,6 @@ DEFAULT_KERNEL_PROCURE_METHOD = build
 # group during installation.
 FRR_USER_UID = 300
 FRR_USER_GID = 300
+
+# Default VS build memory preparation
+DEFAULT_VS_PREPARE_MEM = yes

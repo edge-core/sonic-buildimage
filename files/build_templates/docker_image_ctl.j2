@@ -103,9 +103,17 @@ start() {
 
     DOCKERCHECK=`docker inspect --type container {{docker_container_name}} 2>/dev/null`
     if [ "$?" -eq "0" ]; then
+        {%- if docker_container_name == "database" %}
+        DOCKERMOUNT=""
+        {%- else %}
         DOCKERMOUNT=`getMountPoint "$DOCKERCHECK"`
-        if [ "$DOCKERMOUNT" == "$HWSKU" ]; then
+        {%- endif %}
+        if [ x"$DOCKERMOUNT" == x"$HWSKU" ]; then
+            {%- if docker_container_name == "database" %}
+            echo "Starting existing {{docker_container_name}} container"
+            {%- else %}
             echo "Starting existing {{docker_container_name}} container with HWSKU $HWSKU"
+            {%- endif %}
             preStartAction
             docker start {{docker_container_name}}
             postStartAction
@@ -126,12 +134,17 @@ start() {
 {%- if '--log-driver=json-file' in docker_image_run_opt or '--log-driver' not in docker_image_run_opt %}
         --log-opt max-size=2M --log-opt max-file=5 \
 {%- endif %}
-{%- if docker_container_name == "syncd" and sonic_asic_platform == "mellanox" %}
+{%- if sonic_asic_platform == "mellanox" %}
+{%- if docker_container_name == "syncd" %}
         -e SX_SNIFFER_ENABLE \
         -e SX_SNIFFER_TARGET \
         -e PRM_SNIFFER \
         -e PRM_SNIFFER_FILE_PATH \
         -v /var/log/mellanox/sniffer:/var/log/mellanox/sniffer:rw \
+{%- endif %}
+{%- if docker_container_name == "pmon" %}
+        -v /var/run/hw-management:/var/run/hw-management:rw \
+{%- endif %}
 {%- endif %}
         -v /var/run/redis:/var/run/redis:rw \
         -v /usr/share/sonic/device/$PLATFORM:/usr/share/sonic/platform:ro \
@@ -150,8 +163,8 @@ start() {
     postStartAction
 }
 
-attach() {
-    docker attach --no-stdin {{docker_container_name}}
+wait() {
+    docker wait {{docker_container_name}}
 }
 
 stop() {
@@ -159,11 +172,11 @@ stop() {
 }
 
 case "$1" in
-    start|stop|attach)
+    start|wait|stop)
         $1
         ;;
     *)
-        echo "Usage: $0 {start|stop|attach}"
+        echo "Usage: $0 {start|wait|stop}"
         exit 1
         ;;
 esac

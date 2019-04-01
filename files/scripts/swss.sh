@@ -30,8 +30,8 @@ function unlock_service_state_change()
 
 function check_warm_boot()
 {
-    SYSTEM_WARM_START=`/usr/bin/redis-cli -n 4 hget "WARM_RESTART|system" enable`
-    SERVICE_WARM_START=`/usr/bin/redis-cli -n 4 hget "WARM_RESTART|${SERVICE}" enable`
+    SYSTEM_WARM_START=`/usr/bin/redis-cli -n 6 hget "WARM_RESTART_ENABLE_TABLE|system" enable`
+    SERVICE_WARM_START=`/usr/bin/redis-cli -n 6 hget "WARM_RESTART_ENABLE_TABLE|${SERVICE}" enable`
     if [[ x"$SYSTEM_WARM_START" == x"true" ]] || [[ x"$SERVICE_WARM_START" == x"true" ]]; then
         WARM_BOOT="true"
     else
@@ -78,6 +78,14 @@ function clean_up_tables()
     end" 0
 }
 
+startPeerService() {
+    check_warm_boot
+
+    if [[ x"$WARM_BOOT" != x"true" ]]; then
+        /bin/systemctl start ${PEER}
+    fi
+}
+
 start() {
     debug "Starting ${SERVICE} service..."
 
@@ -91,8 +99,9 @@ start() {
 
     # Don't flush DB during warm boot
     if [[ x"$WARM_BOOT" != x"true" ]]; then
-        debug "Flushing databases ..."
+        debug "Flushing APP, ASIC, COUNTER, CONFIG, and partial STATE databases ..."
         /usr/bin/docker exec database redis-cli -n 0 FLUSHDB
+        /usr/bin/docker exec database redis-cli -n 1 FLUSHDB
         /usr/bin/docker exec database redis-cli -n 2 FLUSHDB
         /usr/bin/docker exec database redis-cli -n 5 FLUSHDB
         clean_up_tables 6 "'PORT_TABLE*', 'MGMT_PORT_TABLE*', 'VLAN_TABLE*', 'VLAN_MEMBER_TABLE*', 'INTERFACE_TABLE*', 'MIRROR_SESSION*', 'VRF_TABLE*'"
@@ -104,11 +113,11 @@ start() {
 
     # Unlock has to happen before reaching out to peer service
     unlock_service_state_change
+}
 
-    if [[ x"$WARM_BOOT" != x"true" ]]; then
-        /bin/systemctl start ${PEER}
-    fi
-    /usr/bin/${SERVICE}.sh attach
+wait() {
+    startPeerService
+    /usr/bin/${SERVICE}.sh wait
 }
 
 stop() {
@@ -133,11 +142,11 @@ stop() {
 }
 
 case "$1" in
-    start|stop)
+    start|wait|stop)
         $1
         ;;
     *)
-        echo "Usage: $0 {start|stop}"
+        echo "Usage: $0 {start|wait|stop}"
         exit 1
         ;;
 esac

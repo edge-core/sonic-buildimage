@@ -2,6 +2,7 @@
 
 PACKAGE_NAME := sonic-platform-modules-bfn-montara
 SCRIPT_SRC := $(shell pwd)/scripts
+CONFIGS_SRC := $(shell pwd)/configs
 
 %:
 	dh $@
@@ -9,6 +10,8 @@ SCRIPT_SRC := $(shell pwd)/scripts
 override_dh_auto_install:
 	dh_installdirs -p$(PACKAGE_NAME) usr/local/bin
 	cp -r $(SCRIPT_SRC)/* debian/$(PACKAGE_NAME)/usr/local/bin
+	dh_installdirs -p$(PACKAGE_NAME) etc/network/interfaces.d/
+	cp -r $(CONFIGS_SRC)/network/interfaces.d/* debian/$(PACKAGE_NAME)/etc/network/interfaces.d/
 
 override_dh_usrlocal:
 

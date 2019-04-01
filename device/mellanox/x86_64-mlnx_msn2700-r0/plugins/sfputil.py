@@ -22,7 +22,7 @@ GET_HWSKU_CMD = "sonic-cfggen -d -v DEVICE_METADATA.localhost.hwsku"
 
 # magic code defnition for port number, qsfp port position of each hwsku
 # port_position_tuple = (PORT_START, QSFP_PORT_START, PORT_END, PORT_IN_BLOCK, EEPROM_OFFSET)
-hwsku_dict = {'ACS-MSN2700': 0, "LS-SN2700":0, 'ACS-MSN2740': 0, 'ACS-MSN2100': 1, 'ACS-MSN2410': 2, 'ACS-MSN2010': 3, 'ACS-MSN3700': 0, 'ACS-MSN3700C': 0}
+hwsku_dict = {'ACS-MSN2700': 0, "LS-SN2700":0, 'ACS-MSN2740': 0, 'ACS-MSN2100': 1, 'ACS-MSN2410': 2, 'ACS-MSN2010': 3, 'ACS-MSN3700': 0, 'ACS-MSN3700C': 0, 'Mellanox-SN2700': 0, 'Mellanox-SN2700-D48C8': 0}
 port_position_tuple_list = [(0, 0, 31, 32, 1), (0, 0, 15, 16, 1), (0, 48, 55, 56, 1),(0, 18, 21, 22, 1)]
 
 class SfpUtil(SfpUtilBase):
@@ -41,7 +41,7 @@ class SfpUtil(SfpUtilBase):
     db_sel_tbl = None
     state_db = None
     sfpd_status_tbl = None
-    qsfp_sysfs_path = "/sys/devices/platform/i2c_mlxcpld.1/i2c-1/i2c-2/2-0048/"
+    qsfp_sysfs_path = "/var/run/hw-management/qsfp/"
 
     @property
     def port_start(self):

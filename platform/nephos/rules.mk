@@ -7,7 +7,6 @@ include $(PLATFORM_PATH)/docker-syncd-nephos.mk
 include $(PLATFORM_PATH)/docker-syncd-nephos-rpc.mk
 include $(PLATFORM_PATH)/one-image.mk
 include $(PLATFORM_PATH)/libsaithrift-dev.mk
-include $(PLATFORM_PATH)/python-saithrift.mk
 include $(PLATFORM_PATH)/docker-ptf-nephos.mk
 
 NPX_DIAG = npx_diag

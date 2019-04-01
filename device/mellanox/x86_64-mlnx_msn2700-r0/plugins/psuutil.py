@@ -21,14 +21,9 @@ class PsuUtil(PsuBase):
     def __init__(self):
         PsuBase.__init__(self)
 
-        self.psu_path = ""
-        for index in range(0, 100):
-            hwmon_path = "/sys/devices/platform/mlxplat/mlxreg-hotplug/hwmon/hwmon{}/".format(index)
-            if os.path.exists(hwmon_path):
-                self.psu_path = hwmon_path
-                break
-        self.psu_presence = "psu{}"
-        self.psu_oper_status = "pwr{}"
+        self.psu_path = "/var/run/hw-management/thermal/"
+        self.psu_presence = "psu{}_status"
+        self.psu_oper_status = "psu{}_pwr_status"
 
     def get_num_psus(self):
         """

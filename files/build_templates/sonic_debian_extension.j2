@@ -168,6 +168,7 @@ sudo cp $IMAGE_CONFIGS/interfaces/*.j2 $FILESYSTEM_ROOT_USR_SHARE_SONIC_TEMPLATE
 
 # Copy initial interfaces configuration file, will be overwritten on first boot
 sudo cp $IMAGE_CONFIGS/interfaces/init_interfaces $FILESYSTEM_ROOT/etc/network/interfaces
+sudo mkdir -p $FILESYSTEM_ROOT/etc/network/interfaces.d
 
 # Copy hostcfgd files
 sudo cp $IMAGE_CONFIGS/hostcfgd/hostcfgd.service $FILESYSTEM_ROOT/etc/systemd/system/
@@ -299,9 +300,7 @@ sudo LANG=C cp $SCRIPTS_DIR/syncd.sh $FILESYSTEM_ROOT/usr/local/bin/syncd.sh
 # Copy systemd timer configuration
 # It implements delayed start of services
 sudo cp $BUILD_TEMPLATES/snmp.timer $FILESYSTEM_ROOT/etc/systemd/system/
-sudo cp $BUILD_TEMPLATES/ntp-config.timer $FILESYSTEM_ROOT/etc/systemd/system/
 sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable snmp.timer
-sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable ntp-config.timer
 
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get remove -y python-dev
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get clean -y
@@ -332,6 +331,6 @@ sudo touch $FILESYSTEM_ROOT/etc/sonic/frr/vtysh.conf
 sudo cp dockers/docker-fpm-frr/daemons.conf $FILESYSTEM_ROOT/etc/sonic/frr/
 sudo cp dockers/docker-fpm-frr/daemons $FILESYSTEM_ROOT/etc/sonic/frr/
 sudo chown -R $FRR_USER_UID:$FRR_USER_GID $FILESYSTEM_ROOT/etc/sonic/frr
-sudo chmod 750 $FILESYSTEM_ROOT/etc/sonic/frr
 sudo chmod -R 640 $FILESYSTEM_ROOT/etc/sonic/frr/
+sudo chmod 750 $FILESYSTEM_ROOT/etc/sonic/frr
 {%- endif %}

@@ -47,4 +47,6 @@ iface eth0 inet6 static
     down ip -6 route delete 2603:10e2:0:2902::/64 dev eth0 table default
     down ip -6 rule delete from 2603:10e2:0:2902::8/128 table default
 #
+source /etc/network/interfaces.d/*
+#
 

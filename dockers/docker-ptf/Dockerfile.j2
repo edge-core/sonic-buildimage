@@ -2,6 +2,9 @@ FROM debian:jessie
 
 MAINTAINER Pavel Shirshov
 
+## Remove retired jessie-updates repo
+RUN sed -i '/deb http:\/\/deb.debian.org\/debian jessie-updates main/d' /etc/apt/sources.list
+
 ## Copy dependencies
 COPY \
 {% for deb in docker_ptf_debs.split(' ') -%}
@@ -35,6 +38,7 @@ RUN sed --in-place 's/httpredir.debian.org/debian-archive.trafficmanager.net/' /
         cmake               \
         libqt5core5a        \
         libqt5network5      \
+        libboost-atomic1.55.0 \
         less                \
         git                 \
         iputils-ping        \
@@ -43,7 +47,8 @@ RUN sed --in-place 's/httpredir.debian.org/debian-archive.trafficmanager.net/' /
         tcpdump             \
         python              \
         python-dev          \
-        python-scapy
+        python-scapy        \
+        python-six
 
 RUN dpkg -i \
 {% for deb in docker_ptf_debs.split(' ') -%}

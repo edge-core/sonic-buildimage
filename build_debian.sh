@@ -29,7 +29,7 @@
 set -x -e
 
 ## docker engine version (with platform)
-DOCKER_VERSION=5:18.09.0~3-0~debian-stretch
+DOCKER_VERSION=5:18.09.2~3-0~debian-stretch
 LINUX_KERNEL_VERSION=4.9.0-8-2
 
 ## Working directory to prepare the file system
@@ -130,6 +130,8 @@ cat files/initramfs-tools/modules | sudo tee -a $FILESYSTEM_ROOT/etc/initramfs-t
 sudo mkdir -p $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-premount/
 sudo cp files/initramfs-tools/arista-convertfs $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-premount/arista-convertfs
 sudo chmod +x $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-premount/arista-convertfs
+sudo cp files/initramfs-tools/arista-hook $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-premount/arista-hook
+sudo chmod +x $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-premount/arista-hook
 sudo cp files/initramfs-tools/mke2fs $FILESYSTEM_ROOT/etc/initramfs-tools/hooks/mke2fs
 sudo chmod +x $FILESYSTEM_ROOT/etc/initramfs-tools/hooks/mke2fs
 sudo cp files/initramfs-tools/setfacl $FILESYSTEM_ROOT/etc/initramfs-tools/hooks/setfacl
@@ -265,6 +267,10 @@ sudo mv $FILESYSTEM_ROOT/grub-pc-bin*.deb $FILESYSTEM_ROOT/$PLATFORM_DIR/x86_64-
 
 ## Disable kexec supported reboot which was installed by default
 sudo sed -i 's/LOAD_KEXEC=true/LOAD_KEXEC=false/' $FILESYSTEM_ROOT/etc/default/kexec
+
+## Modifty ntp default configuration: disable initial jump (add -x), and disable
+## jump when time difference is greater than 1000 seconds (remove -g).
+sudo sed -i "s/NTPD_OPTS='-g'/NTPD_OPTS='-x'/" $FILESYSTEM_ROOT/etc/default/ntp
 
 ## Fix ping tools permission so non root user can directly use them
 ## Note: this is a workaround since aufs doesn't support extended attributes

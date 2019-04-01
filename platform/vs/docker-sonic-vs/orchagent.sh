@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 
-export platform=vs
+if [[ -z "$fake_platform"  ]]; then
+    export platform=vs
+else
+    export platform=$fake_platform
+fi
 
 MAC_ADDRESS=`ip link show eth0 | grep ether | awk '{print $2}'`
 

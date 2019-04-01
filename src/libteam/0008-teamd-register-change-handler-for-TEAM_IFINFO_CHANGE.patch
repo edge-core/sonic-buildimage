@@ -1,0 +1,34 @@
+From 7dff9798c2c92eb75b0120737efb81febcdb80c1 Mon Sep 17 00:00:00 2001
+From: Ying Xie <ying.xie@microsoft.com>
+Date: Sun, 24 Mar 2019 21:49:59 +0000
+Subject: [PATCH] [teamd] register change handler for TEAM_IFINFO_CHANGE as
+ well
+
+There has been a race condition in the libnal/teamd interation, causing
+TEAM_PORT_CHANGE to report a port with empty device name. Which then
+causes the teamd unable to add the lag members into the lag.
+
+Registering to the TEAM_IFINFO_CHANGE would give teamd another chance to
+add member again.
+
+Signed-off-by: Ying Xie <ying.xie@microsoft.com>
+---
+ teamd/teamd_per_port.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/teamd/teamd_per_port.c b/teamd/teamd_per_port.c
+index 09d1dc7..137da57 100644
+--- a/teamd/teamd_per_port.c
++++ b/teamd/teamd_per_port.c
+@@ -274,7 +274,7 @@ static int port_priv_change_handler_func(struct team_handle *th, void *priv,
+ 
+ static const struct team_change_handler port_priv_change_handler = {
+ 	.func = port_priv_change_handler_func,
+-	.type_mask = TEAM_PORT_CHANGE,
++	.type_mask = TEAM_PORT_CHANGE | TEAM_IFINFO_CHANGE,
+ };
+ 
+ int teamd_per_port_init(struct teamd_context *ctx)
+-- 
+2.7.4
+

@@ -1,4 +1,4 @@
-FROM docker-config-engine
+FROM docker-config-engine-stretch
 
 ARG docker_container_name
 RUN [ -f /etc/rsyslog.conf ] && sed -ri "s/%syslogtag%/$docker_container_name#%syslogtag%/;" /etc/rsyslog.conf
@@ -6,11 +6,8 @@ RUN [ -f /etc/rsyslog.conf ] && sed -ri "s/%syslogtag%/$docker_container_name#%s
 # Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Update apt's cache of available packages
-RUN apt-get update
-
 # Install required packages
-RUN apt-get install -y python-pip libpython2.7 sensord fancontrol ipmitool
+RUN apt-get update && apt-get install -y python-pip libpython2.7 ipmitool librrd8 librrd-dev rrdtool
 
 {% if docker_platform_monitor_debs.strip() -%}
 # Copy locally-built Debian package dependencies
@@ -55,7 +52,7 @@ RUN apt-get autoclean -y
 RUN apt-get autoremove -y
 RUN rm -rf /debs /python-wheels ~/.cache
 
-COPY ["start.sh", "lm-sensors.sh", "/usr/bin/"]
-COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
+COPY ["docker_init.sh", "lm-sensors.sh", "/usr/bin/"]
+COPY ["docker-pmon.supervisord.conf.j2", "start.sh.j2", "/usr/share/sonic/templates/"]
 
-ENTRYPOINT ["/usr/bin/supervisord"]
+ENTRYPOINT ["/usr/bin/docker_init.sh"]

@@ -10,7 +10,6 @@ include $(PLATFORM_PATH)/docker-orchagent-bfn.mk
 include $(PLATFORM_PATH)/one-aboot.mk
 include $(PLATFORM_PATH)/one-image.mk
 include $(PLATFORM_PATH)/libsaithrift-dev.mk
-include $(PLATFORM_PATH)/python-saithrift.mk
 include $(PLATFORM_PATH)/docker-ptf-bfn.mk
 include $(PLATFORM_PATH)/bfn-platform.mk
 include $(PLATFORM_PATH)/bfn-platform-wnc.mk

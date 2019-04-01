@@ -43,8 +43,8 @@ HWSKU=`sonic-cfggen -d -v "DEVICE_METADATA['localhost']['hwsku']"`
 
 # Don't load json config if system warm start or
 # swss docker warm start is enabled, the data already exists in appDB.
-SYSTEM_WARM_START=`redis-cli -n 4 hget "WARM_RESTART|system" enable`
-SWSS_WARM_START=`redis-cli -n 4 hget "WARM_RESTART|swss" enable`
+SYSTEM_WARM_START=`redis-cli -n 6 hget "WARM_RESTART_ENABLE_TABLE|system" enable`
+SWSS_WARM_START=`redis-cli -n 6 hget "WARM_RESTART_ENABLE_TABLE|swss" enable`
 if [[ "$SYSTEM_WARM_START" == "true" ]] || [[ "$SWSS_WARM_START" == "true" ]]; then
   # We have to make sure db data has not been flushed.
   RESTORE_COUNT=`redis-cli -n 6 hget "WARM_RESTART_TABLE|orchagent" restore_count`
