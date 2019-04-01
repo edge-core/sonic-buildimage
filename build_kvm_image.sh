@@ -1,4 +1,4 @@
-#!/bin/sh -ex
+#!/bin/bash -ex
 
 #  Copyright (C) 2014 Curt Brune <curt@cumulusnetworks.com>
 #
@@ -46,6 +46,15 @@ prepare_installer_disk()
 
 create_disk
 prepare_installer_disk
+
+echo "Prepare memory for KVM build: $vs_build_prepare_mem"
+free -m
+if [[ "$vs_build_prepare_mem" == "yes" ]]; then
+    # Force o.s. to drop cache and compact memory so that KVM can get 2G memory
+    sudo bash -c 'echo 1 > /proc/sys/vm/drop_caches'
+    sudo bash -c 'echo 1 > /proc/sys/vm/compact_memory'
+    free -m
+fi
 
 /usr/bin/kvm -m $MEM \
     -name "onie" \

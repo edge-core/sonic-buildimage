@@ -84,3 +84,6 @@ DEFAULT_KERNEL_PROCURE_METHOD = build
 # group during installation.
 FRR_USER_UID = 1000
 FRR_USER_GID = 1000
+
+# Default VS build memory preparation
+DEFAULT_VS_PREPARE_MEM = yes

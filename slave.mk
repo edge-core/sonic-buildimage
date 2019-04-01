@@ -109,6 +109,10 @@ ifeq ($(SONIC_BUILD_JOBS),)
 override SONIC_BUILD_JOBS := $(SONIC_CONFIG_BUILD_JOBS)
 endif
 
+ifeq ($(VS_PREPARE_MEM),)
+override VS_PREPARE_MEM := $(DEFAULT_VS_PREPARE_MEM)
+endif
+
 ifeq ($(KERNEL_PROCURE_METHOD),)
 override KERNEL_PROCURE_METHOD := $(DEFAULT_KERNEL_PROCURE_METHOD)
 endif
@@ -155,6 +159,7 @@ $(info "SONIC_DEBUGGING_ON"              : "$(SONIC_DEBUGGING_ON)")
 $(info "SONIC_PROFILING_ON"              : "$(SONIC_PROFILING_ON)")
 $(info "KERNEL_PROCURE_METHOD"           : "$(KERNEL_PROCURE_METHOD)")
 $(info "BUILD_TIMESTAMP"                 : "$(BUILD_TIMESTAMP)")
+$(info "VS_PREPARE_MEM"                  : "$(VS_PREPARE_MEM)")
 $(info )
 
 ###############################################################################
@@ -163,6 +168,7 @@ $(info )
 ###############################################################################
 
 export kernel_procure_method=$(KERNEL_PROCURE_METHOD)
+export vs_build_prepare_mem=$(VS_PREPARE_MEM)
 
 ###############################################################################
 ## Local targets
