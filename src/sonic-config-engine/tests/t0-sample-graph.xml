@@ -270,6 +270,16 @@
       <DataAcls/>
       <AclInterfaces>
         <AclInterface>
+          <AttachTo>ERSPAN</AttachTo>
+          <InAcl>everflow</InAcl>
+          <Type>Everflow</Type>
+        </AclInterface>
+        <AclInterface>
+          <AttachTo>ERSPANv6</AttachTo>
+          <InAcl>everflowV6</InAcl>
+          <Type>Everflow</Type>
+        </AclInterface>
+        <AclInterface>
           <AttachTo>PortChannel01;PortChannel02;PortChannel03;PortChannel04</AttachTo>
           <InAcl>DataAcl</InAcl>
           <Type>DataPlane</Type>
