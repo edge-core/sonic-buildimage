@@ -246,7 +246,7 @@ def parse_dpg(dpg, hname):
                     # Give a warning if trying to attach ACL to a LAG member interface, correct way is to attach ACL to the LAG interface
                     if port_alias_map[member] in intfs_inpc:
                         print >> sys.stderr, "Warning: ACL " + aclname + " is attached to a LAG member interface " + port_alias_map[member] + ", instead of LAG interface"
-                elif member.lower() == 'erspan':
+                elif member.lower().startswith('erspan'):
                     is_mirror = True;
                     # Erspan session will be attached to all front panel ports,
                     # if panel ports is a member port of LAG, should add the LAG 

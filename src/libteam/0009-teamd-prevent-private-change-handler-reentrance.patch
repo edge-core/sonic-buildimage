@@ -1,0 +1,90 @@
+From fb00b070482dc587eec7b4e34acec094be1af00d Mon Sep 17 00:00:00 2001
+From: Ying Xie <ying.xie@microsoft.com>
+Date: Fri, 29 Mar 2019 20:54:49 +0000
+Subject: [PATCH 10/11] [teamd] prevent private change handler reentrance
+
+While handling PORT_CHANGE, teamd could casue an INTERFACE_CHANGE in the
+same context. Which will interfere with the PORT_CHANGE handling and
+causing it to fail.
+
+Lock is not needed because the re-entrance happened in the same thread
+context.
+
+This issue was noticed while dynamically adding a port into a lag.
+
+Signed-off-by: Ying Xie <ying.xie@microsoft.com>
+---
+ teamd/teamd.c          |  2 ++
+ teamd/teamd.h          |  2 ++
+ teamd/teamd_per_port.c | 13 +++++++++++--
+ 3 files changed, 15 insertions(+), 2 deletions(-)
+
+diff --git a/teamd/teamd.c b/teamd/teamd.c
+index e28aa7d..140b98b 100644
+--- a/teamd/teamd.c
++++ b/teamd/teamd.c
+@@ -1255,6 +1255,8 @@ static int teamd_init(struct teamd_context *ctx)
+ {
+ 	int err;
+ 
++	ctx->reentrant = false;
++
+ 	ctx->th = team_alloc();
+ 	if (!ctx->th) {
+ 		teamd_log_err("Team alloc failed.");
+diff --git a/teamd/teamd.h b/teamd/teamd.h
+index 622c365..7cd3266 100644
+--- a/teamd/teamd.h
++++ b/teamd/teamd.h
+@@ -160,6 +160,8 @@ struct teamd_context {
+ 		int			pipe_r;
+ 		int			pipe_w;
+ 	} workq;
++
++	bool reentrant;
+ };
+ 
+ struct teamd_port {
+diff --git a/teamd/teamd_per_port.c b/teamd/teamd_per_port.c
+index 137da57..8b4a457 100644
+--- a/teamd/teamd_per_port.c
++++ b/teamd/teamd_per_port.c
+@@ -250,6 +250,10 @@ static int port_priv_change_handler_func(struct team_handle *th, void *priv,
+ 	struct port_obj *port_obj;
+ 	int err;
+ 
++	if (ctx->reentrant) {
++		return 0;
++	}
++	ctx->reentrant = true;
+ 	team_for_each_port(port, th) {
+ 		uint32_t ifindex = team_get_port_ifindex(port);
+ 
+@@ -258,17 +262,22 @@ static int port_priv_change_handler_func(struct team_handle *th, void *priv,
+ 			if (team_is_port_removed(port))
+ 				continue;
+ 			err = port_obj_create(ctx, &port_obj, ifindex, port);
+-			if (err)
++			if (err) {
++				ctx->reentrant = false;
+ 				return err;
++			}
+ 		}
+ 		if (team_is_port_changed(port)) {
+ 			err = teamd_event_port_changed(ctx, _port(port_obj));
+-			if (err)
++			if (err) {
++				ctx->reentrant = false;
+ 				return err;
++			}
+ 		}
+ 		if (team_is_port_removed(port))
+ 			port_obj_remove(ctx, port_obj);
+ 	}
++	ctx->reentrant = false;
+ 	return 0;
+ }
+ 
+-- 
+2.7.4
+
