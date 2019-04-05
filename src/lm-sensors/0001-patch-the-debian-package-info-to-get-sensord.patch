@@ -14,8 +14,8 @@ Signed-off-by: Mykola Faryma <mykolaf@mellanox.com>
  .../lm-sensors-3.4.0/debian/sensord.maintscript    |  2 +
  .../lm-sensors-3.4.0/debian/sensord.postinst       | 23 ++++++++
  .../lm-sensors-3.4.0/debian/sensord.substvars      |  2 +
- src/lm-sensors/lm-sensors_3.4.0-4.dsc              |  3 +-
- 10 files changed, 153 insertions(+), 1 deletion(-)
+ .../lm-sensors-3.4.0/debian/control                | 14 ++++++++++++++
+ 11 files changed, 167 insertions(+), 1 deletion(-)
  create mode 100644 src/lm-sensors/lm-sensors-3.4.0/debian/sensord.NEWS
  create mode 100644 src/lm-sensors/lm-sensors-3.4.0/debian/sensord.README.Debian
  create mode 100644 src/lm-sensors/lm-sensors-3.4.0/debian/sensord.default
@@ -231,27 +231,26 @@ index 0000000..978fc8b
 @@ -0,0 +1,2 @@
 +misc:Depends=
 +misc:Pre-Depends=
-diff --git a/src/lm-sensors/lm-sensors_3.4.0-4.dsc b/src/lm-sensors/lm-sensors_3.4.0-4.dsc
-index 6674f1c..2aeab21 100644
---- a/src/lm-sensors/lm-sensors_3.4.0-4.dsc
-+++ b/src/lm-sensors/lm-sensors_3.4.0-4.dsc
-@@ -3,7 +3,7 @@ Hash: SHA512
- 
- Format: 3.0 (quilt)
- Source: lm-sensors
--Binary: lm-sensors, libsensors4, libsensors4-dev, fancontrol
-+Binary: lm-sensors, libsensors4, libsensors4-dev, fancontrol, sensord
- Architecture: any all
- Version: 1:3.4.0-4
- Maintainer: Aurelien Jarno <aurel32@debian.org>
-@@ -15,6 +15,7 @@ Package-List:
-  libsensors4 deb libs optional arch=any
-  libsensors4-dev deb libdevel extra arch=any
-  lm-sensors deb utils extra arch=linux-any
-+ sensord deb utils extra arch=any
- Checksums-Sha1:
-  3e245b61a69756ea94f9c8a7c7614ec543970b8c 175802 lm-sensors_3.4.0.orig.tar.bz2
-  bc5f40b504a908d825ca22da461e673dc8f7c026 26436 lm-sensors_3.4.0-4.debian.tar.xz
+diff --git a/src/lm-sensors/lm-sensors-3.4.0/debian/control b/src/lm-sensors/lm-sensors-3.4.0/debian/control
+--- a/src/lm-sensors/lm-sensors-3.4.0/debian/control
++++ b/src/lm-sensors/lm-sensors-3.4.0/debian/control
+@@ -68,3 +68,17 @@ Description: utility to control the fan speed
+  and sets the corresponding PWM outputs to the computed values. This is
+  useful when this feature is not provided by the BIOS or ACPI, which should
+  normally be the case on a laptop.
++
++Package: sensord
++Architecture: any
++Section: utils
++Depends: lm-sensors, lsb-base (>= 3.2-13), ${shlibs:Depends}, ${misc:Depends}
++Suggests: rrdtool
++Description: hardware sensor information logging daemon
++ Lm-sensors is a hardware health monitoring package for Linux. It allows you
++ to access information from temperature, voltage, and fan speed sensors. It
++ works with most newer systems.
++ .
++ This package contains a daemon that logs hardware health status to the
++ system log with optional warnings on potential system problems.
++
 -- 
 1.9.1
-
