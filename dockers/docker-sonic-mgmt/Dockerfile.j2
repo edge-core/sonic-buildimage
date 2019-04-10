@@ -51,6 +51,9 @@ RUN pip install ipaddr \
 RUN pip install azure-kusto-data==0.0.13 \
                 azure-kusto-ingest==0.0.13
 
+# Install pytest-ansible module
+RUN pip install pytest-ansible==2.0.2
+
 ## Copy and install sonic-mgmt docker dependencies
 COPY \
 {% for deb in docker_sonic_mgmt_debs.split(' ') -%}
