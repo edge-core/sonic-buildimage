@@ -229,7 +229,15 @@ function UpgradeFWFromImage() {
     fi
 }
 
+function ExitIfQEMU() {
+    if [[ $(cat /sys/devices/virtual/dmi/id/chassis_vendor) -eq "QEMU" ]]; then
+        ExitSuccess "No FW upgrade for SimX platform"
+    fi
+}
+
 ParseArguments "$@"
+
+ExitIfQEMU
 
 WaitForDevice
 
