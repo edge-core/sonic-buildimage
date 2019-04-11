@@ -5,7 +5,7 @@ mkdir -p /etc/frr
 CONFIG_TYPE=`sonic-cfggen -d -v 'DEVICE_METADATA["localhost"]["docker_routing_config_mode"]'`
 
 if [ -z "$CONFIG_TYPE" ] || [ "$CONFIG_TYPE" == "unified" ]; then
-    sonic-cfggen -d -t /usr/share/sonic/templates/frr.conf.j2 >/etc/frr/frr.conf
+    sonic-cfggen -d -y /etc/sonic/deployment_id_asn_map.yml -t /usr/share/sonic/templates/frr.conf.j2 >/etc/frr/frr.conf
 fi
 
 sonic-cfggen -d -t /usr/share/sonic/templates/isolate.j2 >/usr/sbin/bgp-isolate
