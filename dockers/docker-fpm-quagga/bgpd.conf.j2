@@ -27,7 +27,7 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
   bgp log-neighbor-changes
   bgp bestpath as-path multipath-relax
   no bgp default ipv4-unicast
-  bgp graceful-restart restart-time 180
+  bgp graceful-restart restart-time 240
   bgp graceful-restart
 {% for (name, prefix) in LOOPBACK_INTERFACE %}
 {% if prefix | ipv4 and name == 'Loopback0' %}
