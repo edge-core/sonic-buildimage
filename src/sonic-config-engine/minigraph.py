@@ -336,7 +336,7 @@ def parse_cpg(cpg, hname):
                     peers = router.find(str(QName(ns1, "Peers")))
                     for bgpPeer in peers.findall(str(QName(ns, "BGPPeer"))):
                         addr = bgpPeer.find(str(QName(ns, "Address"))).text
-                        if bgpPeer.find(str(QName(ns1, "PeersRange"))) is not None:
+                        if bgpPeer.find(str(QName(ns1, "PeersRange"))) is not None: # FIXME: is better to check for type BGPPeerPassive
                             name = bgpPeer.find(str(QName(ns1, "Name"))).text
                             ip_range = bgpPeer.find(str(QName(ns1, "PeersRange"))).text
                             ip_range_group = ip_range.split(';') if ip_range and ip_range != "" else []
@@ -344,6 +344,10 @@ def parse_cpg(cpg, hname):
                                 'name': name,
                                 'ip_range': ip_range_group
                             }
+                            if bgpPeer.find(str(QName(ns1, "Address"))) is not None:
+                                bgp_peers_with_range[name]['src_address'] = bgpPeer.find(str(QName(ns1, "Address"))).text
+                            if bgpPeer.find(str(QName(ns1, "PeerAsn"))) is not None:
+                                bgp_peers_with_range[name]['peer_asn'] = bgpPeer.find(str(QName(ns1, "PeerAsn"))).text
                 else:
                     for peer in bgp_sessions:
                         bgp_session = bgp_sessions[peer]
