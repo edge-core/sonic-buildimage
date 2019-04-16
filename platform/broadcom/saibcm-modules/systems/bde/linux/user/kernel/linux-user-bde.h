@@ -81,6 +81,7 @@ typedef struct  {
 #define LUBDE_IPROC_WRITE_REG     _IO(LUBDE_MAGIC, 28)
 #define LUBDE_ATTACH_INSTANCE     _IO(LUBDE_MAGIC, 29)
 #define LUBDE_GET_DEVICE_STATE    _IO(LUBDE_MAGIC, 30)
+#define LUBDE_REPROBE             _IO(LUBDE_MAGIC, 31)
 
 #define LUBDE_SEM_OP_CREATE       1
 #define LUBDE_SEM_OP_DESTROY      2
@@ -93,9 +94,10 @@ typedef struct  {
 
 /* 
  * Version history
- * 1:add LUBDE_GET_DEVICE_STATE to support PCI hot plug
+ * 1: add LUBDE_GET_DEVICE_STATE to support PCI hot plug 
+ * 2: add LUBDE_REPROBE to support reprobe available devices
  */
-#define KBDE_VERSION    1
+#define KBDE_VERSION    2
 
 
 /* This is the signal that will be used

@@ -30,6 +30,9 @@
 
 #include "linux-user-bde.h"
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,12,0)
+#include <linux/uaccess.h>
+#endif
 #ifdef KEYSTONE
 #include <shared/et/bcmdevs.h>
 #endif
@@ -75,20 +78,55 @@ MODULE_LICENSE("GPL");
 /* CMICX defines */
 #define INTC_INTR_REG_NUM               (8)
 
-#define INTC_INTR_ENABLE_REG0           (0x180130f0)
-#define INTC_INTR_STATUS_REG0           (0x18013190)
-#define INTC_INTR_RAW_STATUS_REG0       (0x18013140)
+/*
+TODO:HX5
+The INTR base address values are changed for HX5,
+hence making new #defines so runtime decisions can
+be made.
+*/
+
+#define INTC_INTR_ENABLE_REG0          (0x180130f0)
+#define INTC_INTR_STATUS_REG0          (0x18013190)
+#define INTC_INTR_RAW_STATUS_REG0      (0x18013140)
 
 #define INTC_INTR_ENABLE_BASE           (INTC_INTR_ENABLE_REG0)
 #define INTC_INTR_STATUS_BASE           (INTC_INTR_STATUS_REG0)
 #define INTC_INTR_RAW_STATUS_BASE       (INTC_INTR_RAW_STATUS_REG0)
 
-#define INTC_PDMA_INTR_REG_IND          4
+#define HX5_INTC_INTR_ENABLE_REG0          (0x102310f0)
+#define HX5_INTC_INTR_STATUS_REG0          (0x10231190)
+#define HX5_INTC_INTR_RAW_STATUS_REG0      (0x10231140)
+
+#define HX5_INTC_INTR_ENABLE_BASE          (HX5_INTC_INTR_ENABLE_REG0)
+#define HX5_INTC_INTR_STATUS_BASE          (HX5_INTC_INTR_STATUS_REG0)
+#define HX5_INTC_INTR_RAW_STATUS_BASE      (HX5_INTC_INTR_RAW_STATUS_REG0)
+
+#define IOREMAP(addr, size)                ioremap_nocache(addr, size)
+
+#define HX5_IHOST_GICD_ISENABLERN_0        (0x10781100)
+#define HX5_IHOST_GICD_ISENABLERN_1        (0x10781104)
+#define HX5_IHOST_GICD_ICENABLERN_1        (0x10781184)
+#define HX5_IHOST_GICD_ICENABLERN_8        (0x107811a0)
+/* Offset between ISENABLERN_1 and ICENABLERN_1 in 4-bytes */
+#define HX5_IHOST_IRQ_MASK_OFFSET          0x20
+#define HX5_IHOST_INTR_MAP_NUM             (HX5_IHOST_GICD_ICENABLERN_8 - HX5_IHOST_GICD_ISENABLERN_0)
+#define HX5_IHOST_INTR_STATUS_MAP_NUM      (INTC_INTR_REG_NUM * (sizeof(uint32)))
+#define IRQ_BIT(intr)                      (intr % (sizeof(uint32)*8))
+#define IRQ_MASK_INDEX(intr)               (intr / (sizeof(uint32)*8))
+#define HX5_CHIP_INTR_LOW_PRIORITY         119
+#define INTR_LOW_PRIORITY_BITPOS           (1 << IRQ_BIT(HX5_CHIP_INTR_LOW_PRIORITY))
+#define INTC_LOW_PRIORITY_INTR_REG_IND     IRQ_MASK_INDEX(HX5_CHIP_INTR_LOW_PRIORITY)
+#define INTC_PDMA_INTR_REG_IND             4
 
 #define READ_INTC_INTR(d, reg, v) \
-        (v =  user_bde->iproc_read(d, reg))
+        (v = user_bde->iproc_read(d, reg))
 #define WRITE_INTC_INTR(d, reg, v) \
         (user_bde->iproc_write(d, reg, v))
+
+#define IHOST_READ_INTR(d, reg, v) \
+        (v = readl((reg)))
+#define IHOST_WRITE_INTR(d, reg, v) \
+        (writel((v), (reg)))
 
 /* Allow override of default CMICm CMC */
 #ifndef BDE_CMICM_PCIE_CMC
@@ -102,6 +140,9 @@ MODULE_LICENSE("GPL");
 
 /* Defines used to distinguish CMICe from CMICm */
 #define CMICE_DEV_REV_ID                (0x178 / sizeof(uint32))
+
+static uint32 *ihost_intr_status_base = NULL;
+static uint32 *ihost_intr_enable_base = NULL;
 
 static ibde_t *user_bde = NULL;
 
@@ -225,27 +266,68 @@ _cmicx_interrupt(bde_ctrl_t *ctrl)
     int d, ind;
     uint32 stat, iena, mask, fmask;
     bde_inst_resource_t *res;
+    uint32 intc_intr_status_base = 0, intc_intr_enable_base = 0;
 
     d = (((uint8 *)ctrl - (uint8 *)_devices) / sizeof (bde_ctrl_t));
     res = &_bde_inst_resource[ctrl->inst];
 
     lkbde_irq_mask_get(d, &mask, &fmask);
 
+    if ((ctrl->dev_type & BDE_SWITCH_DEV_TYPE) &&
+            ((user_bde->get_dev(d)->device == BCM56370_DEVICE_ID) ||
+             (user_bde->get_dev(d)->device == BCM56371_DEVICE_ID) ||
+             (user_bde->get_dev(d)->device == BCM56372_DEVICE_ID) ||
+             (user_bde->get_dev(d)->device == BCM56374_DEVICE_ID) ||
+             (user_bde->get_dev(d)->device == BCM56375_DEVICE_ID) ||
+             (user_bde->get_dev(d)->device == BCM56376_DEVICE_ID) ||
+             (user_bde->get_dev(d)->device == BCM56377_DEVICE_ID) ||
+             (user_bde->get_dev(d)->device == BCM56577_DEVICE_ID) ||
+             (user_bde->get_dev(d)->device == BCM56578_DEVICE_ID) ||
+             (user_bde->get_dev(d)->device == BCM56579_DEVICE_ID))) {
+        intc_intr_status_base = HX5_INTC_INTR_STATUS_BASE;
+        intc_intr_enable_base = HX5_INTC_INTR_ENABLE_BASE;
+    } else {
+        intc_intr_status_base = INTC_INTR_STATUS_BASE;
+        intc_intr_enable_base = INTC_INTR_ENABLE_BASE;
+    }
     if (fmask) {
-        READ_INTC_INTR(d, INTC_INTR_STATUS_BASE + 4 * INTC_PDMA_INTR_REG_IND, stat);
-        READ_INTC_INTR(d, INTC_INTR_ENABLE_BASE + 4 * INTC_PDMA_INTR_REG_IND, iena);
+        if (ctrl->dev_type & BDE_AXI_DEV_TYPE) {
+            IHOST_READ_INTR(d, ihost_intr_status_base + INTC_PDMA_INTR_REG_IND, stat);
+            IHOST_READ_INTR(d, ihost_intr_enable_base + INTC_PDMA_INTR_REG_IND, iena);
+        } else {
+            READ_INTC_INTR(d, intc_intr_status_base + 4 * INTC_PDMA_INTR_REG_IND, stat);
+            READ_INTC_INTR(d, intc_intr_enable_base + 4 * INTC_PDMA_INTR_REG_IND, iena);
+        }
         if (stat & iena) {
-            WRITE_INTC_INTR(d, INTC_INTR_ENABLE_BASE + 4 * INTC_PDMA_INTR_REG_IND, 0);
+            if (ctrl->dev_type & BDE_AXI_DEV_TYPE) {
+                IHOST_WRITE_INTR(d, ihost_intr_enable_base + INTC_PDMA_INTR_REG_IND +
+                    HX5_IHOST_IRQ_MASK_OFFSET, ~0);
+            } else {
+                WRITE_INTC_INTR(d, intc_intr_enable_base + 4 * INTC_PDMA_INTR_REG_IND, 0);
+            }
+
             for (ind = 0; ind < INTC_INTR_REG_NUM; ind++) {
                 if (ind == INTC_PDMA_INTR_REG_IND) {
                     continue;
                 }
-                READ_INTC_INTR(d, INTC_INTR_STATUS_BASE + 4 * ind, stat);
-                READ_INTC_INTR(d, INTC_INTR_ENABLE_BASE + 4 * ind, iena);
+                if (ctrl->dev_type & BDE_AXI_DEV_TYPE) {
+                    if (ind < INTC_LOW_PRIORITY_INTR_REG_IND) {
+                        continue;
+                    }
+                    IHOST_READ_INTR(d, ihost_intr_status_base + ind, stat);
+                    IHOST_READ_INTR(d, ihost_intr_enable_base + ind, iena);
+                    if (ind == INTC_LOW_PRIORITY_INTR_REG_IND) {
+                        stat &= INTR_LOW_PRIORITY_BITPOS;
+                    }
+                } else {
+                    READ_INTC_INTR(d, intc_intr_status_base + 4 * ind, stat);
+                    READ_INTC_INTR(d, intc_intr_enable_base + 4 * ind, iena);
+                }
                 if (stat & iena) {
                     break;
                 }
             }
+
             if (ind >= INTC_INTR_REG_NUM) {
                 return;
             }
@@ -260,7 +342,20 @@ _cmicx_interrupt(bde_ctrl_t *ctrl)
         if (fmask && ind == INTC_PDMA_INTR_REG_IND) {
             continue;
         }
-        WRITE_INTC_INTR(d, INTC_INTR_ENABLE_BASE + 4 * ind, 0);
+        if (ctrl->dev_type & BDE_AXI_DEV_TYPE) {
+            if (ind < INTC_LOW_PRIORITY_INTR_REG_IND) {
+                continue;
+            }
+            if (ind == INTC_LOW_PRIORITY_INTR_REG_IND) {
+                IHOST_WRITE_INTR(d, ihost_intr_enable_base + INTC_LOW_PRIORITY_INTR_REG_IND +
+                    HX5_IHOST_IRQ_MASK_OFFSET, INTR_LOW_PRIORITY_BITPOS);
+            } else {
+                IHOST_WRITE_INTR(d, ihost_intr_enable_base + ind +
+                    HX5_IHOST_IRQ_MASK_OFFSET, ~0);
+            }
+        } else {
+            WRITE_INTC_INTR(d, intc_intr_enable_base + 4*ind, 0);
+        }
     }
 
     /* Notify */
@@ -750,6 +845,12 @@ _devices_init(int d)
     uint32 ver;
     uint16 device_id_mask = 0xFFF0;
     uint16 device_id;
+    int state = 0;
+
+    (void)lkbde_dev_state_get(d, &state);
+    if (state == BDE_DEV_STATE_REMOVED) {
+        return;
+    }
 
     ctrl = &_devices[d];
     /* Initialize our control info */
@@ -849,6 +950,31 @@ _devices_init(int d)
         case BCM88952_DEVICE_ID:
             ctrl->isr = (isr_f)_cmicd_cmc0_interrupt;
             break;
+        case BCM88790_DEVICE_ID:
+            ctrl->isr = (isr_f)_cmicx_interrupt;
+            break;
+        case BCM56370_DEVICE_ID:
+        case BCM56371_DEVICE_ID:
+        case BCM56372_DEVICE_ID:
+        case BCM56374_DEVICE_ID:
+        case BCM56375_DEVICE_ID:
+        case BCM56376_DEVICE_ID:
+        case BCM56377_DEVICE_ID:
+        case BCM56577_DEVICE_ID:
+        case BCM56578_DEVICE_ID:
+        case BCM56579_DEVICE_ID:
+            ctrl->isr = (isr_f)_cmicx_interrupt;
+            if (ctrl->dev_type & BDE_AXI_DEV_TYPE) {
+                if (!ihost_intr_enable_base) {
+                    ihost_intr_enable_base = (uint32_t *)IOREMAP(HX5_IHOST_GICD_ISENABLERN_1,
+                                                                 HX5_IHOST_INTR_MAP_NUM);
+                }
+                if (!ihost_intr_status_base) {
+                    ihost_intr_status_base = (uint32_t *)IOREMAP(HX5_INTC_INTR_RAW_STATUS_REG0,
+                                                                 HX5_IHOST_INTR_STATUS_MAP_NUM);
+                }
+            }
+            break;
         default:
             /* Get CMIC version */
             if (user_bde->get_cmic_ver(d, &ver) != 0) {
@@ -876,7 +1002,7 @@ _devices_init(int d)
             }
             break;
         }
-        /*All Ramon devices from 0x8790 to 0x879F*/
+        /* All Ramon devices from 0x8790 to 0x879F */
         if ((user_bde->get_dev(d)->device & BCM88790_DEVICE_ID) == BCM88790_DEVICE_ID) {
             ctrl->isr = (isr_f)_cmicx_interrupt;
         }
@@ -928,10 +1054,14 @@ _init(void)
     init_waitqueue_head(&res->intr_wq);
     atomic_set(&res->intr, 0);
 
+    ihost_intr_enable_base = NULL;
+    ihost_intr_status_base = NULL;
+
     for (i = 0; i < user_bde->num_devices(BDE_ALL_DEVICES); i++) {
         res->inst_id |= (1 << i);
         _devices_init(i);
     }
+
     return 0;
 }
 
@@ -961,6 +1091,16 @@ _cleanup(void)
         linux_bde_destroy(user_bde);
         user_bde = NULL;
     }
+
+    if (ihost_intr_enable_base) {
+        iounmap(ihost_intr_enable_base);
+        ihost_intr_enable_base = NULL;
+    }
+    if (ihost_intr_status_base) {
+        iounmap(ihost_intr_status_base);
+        ihost_intr_status_base = NULL;
+    }
+
     return 0;
 }
 
@@ -1088,6 +1228,7 @@ static int
 _device_reprobe(void)
 {
     int i;
+
     for (i = 0; i < user_bde->num_devices(BDE_ALL_DEVICES); i++) {
         if (_devices[i].devid == 0) {
             _devices_init(i);
@@ -1167,7 +1308,8 @@ _ioctl(unsigned int cmd, unsigned long arg)
     ssize_t size;
     const ibde_dev_t *bde_dev;
     int inst_id;
-     bde_inst_resource_t *res;
+    bde_inst_resource_t *res;
+    uint32_t *mapaddr;
 
     if (copy_from_user(&io, (void *)arg, sizeof(io))) {
         return -EFAULT;
@@ -1396,9 +1538,22 @@ _ioctl(unsigned int cmd, unsigned long arg)
         }
         break;
     case LUBDE_IPROC_READ_REG:
-        io.d1 = user_bde->iproc_read(io.dev, io.d0);
-        if (io.d1 == -1) {
-            io.rc = LUBDE_FAIL;
+        if (!VALID_DEVICE(io.dev)) {
+            return -EINVAL;
+        }
+        if (_devices[io.dev].dev_type & BDE_AXI_DEV_TYPE) {
+            mapaddr = IOREMAP(io.d0, sizeof(uint32_t));
+            if (mapaddr == NULL) {
+                io.rc = LUBDE_FAIL;
+                return -1;
+            }
+            io.d1 = readl(mapaddr);
+            iounmap(mapaddr);
+        } else {
+            io.d1 = user_bde->iproc_read(io.dev, io.d0);
+            if (io.d1 == -1) {
+                io.rc = LUBDE_FAIL;
+            }
         }
         break;
     case LUBDE_IPROC_WRITE_REG:
@@ -1411,6 +1566,9 @@ _ioctl(unsigned int cmd, unsigned long arg)
         break;
     case LUBDE_GET_DEVICE_STATE:
         io.rc = lkbde_dev_state_get(io.dev, &io.d0);
+        break;
+    case LUBDE_REPROBE:
+        io.rc = _device_reprobe();
         break;
     default:
         gprintk("Error: Invalid ioctl (%08x)\n", cmd);
