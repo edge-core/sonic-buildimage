@@ -31,7 +31,7 @@ index c8261a3..bb27493 100755
 +    esac
 +}
 +
-+if [[ $(cat /sys/devices/virtual/dmi/id/chassis_vendor) -eq "QEMU" ]]; then
++if [[ $(cat /sys/devices/virtual/dmi/id/chassis_vendor) = "QEMU" ]]; then
 +    handle_simx
 +    exit 0
 +fi
