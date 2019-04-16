@@ -124,6 +124,8 @@ RUN apt-get update && apt-get install -y \
         libcurl3-nss-dev \
         libunwind8-dev \
         telnet \
+        libc-ares2 \
+        libgoogle-perftools4 \
 # For build image
         cpio \
         squashfs-tools \
