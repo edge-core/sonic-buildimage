@@ -17,7 +17,7 @@ RUN apt-get update
 RUN apt-get install -y curl ca-certificates
 
 # Install gcc which is required for installing hiredis
-RUN apt-get install -y gcc
+RUN apt-get install -y gcc make
 
 {% if docker_snmp_sv2_debs.strip() -%}
 # Copy locally-built Debian package dependencies
@@ -38,6 +38,9 @@ RUN python3.6 -m pip install --no-cache-dir hiredis
 # Install pyyaml dependency for use by some plugins
 RUN python3.6 -m pip install --no-cache-dir pyyaml
 
+# Install smbus dependency for use by some plugins
+RUN python3.6 -m pip install --no-cache-dir smbus
+
 {% if docker_snmp_sv2_whls.strip() -%}
 # Copy locally-built Python wheel dependencies
 {%- for whl in docker_snmp_sv2_whls.split(' ') %}
@@ -53,7 +56,7 @@ RUN pip install /python-wheels/{{ whl }}
 RUN python3.6 -m sonic_ax_impl install
 
 # Clean up
-RUN apt-get -y purge libpython3.6-dev curl gcc
+RUN apt-get -y purge libpython3.6-dev curl gcc make
 RUN apt-get clean -y && apt-get autoclean -y && apt-get autoremove -y --purge
 RUN find / | grep -E "__pycache__" | xargs rm -rf
 RUN rm -rf /debs /python-wheels ~/.cache
