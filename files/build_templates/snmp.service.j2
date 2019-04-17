@@ -1,6 +1,7 @@
 [Unit]
 Description=SNMP container
-Requires=updategraph.service swss.service
+Requires=updategraph.service
+Requisite=swss.service
 After=updategraph.service swss.service
 Before=ntp-config.service
 
