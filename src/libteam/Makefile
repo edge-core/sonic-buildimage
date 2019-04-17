@@ -20,6 +20,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	git apply ../0003-teamd-lacp-runner-will-send-lacp-update-right-after-.patch
 	git apply ../0004-libteam-Add-lacp-fallback-support-for-single-member-.patch
 	git apply ../0005-update-hwaddr-orig-unconditionally.patch
+	git apply ../0006-teamd-lacp-update-port-state-according-to-partners-sy.patch
 	popd
 
 	# Obtain debian packaging

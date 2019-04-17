@@ -1,0 +1,71 @@
+commit f975ebc9cfbea49fe16a82bd3b5e0a23b845523d
+Author: Pavel Shirshov <pavelsh@microsoft.com>
+Date:   Tue Apr 16 12:33:14 2019 -0700
+
+    teamd: lacp: update port state according to partner's sync bit
+    
+    Backport of
+    https://github.com/jpirko/libteam/commit/54f137c10579bf97800c61ebb13e732aa1d843e6
+    
+    According to 6.4.15 of IEEE 802.1AX-2014, Figure 6-22, the state that the
+    port is selected moves MUX state from DETACHED to ATTACHED.
+    
+    But ATTACHED state does not mean that the port can send and receive user
+    frames. COLLECTING_DISTRIBUTION state is the state that the port can send
+    and receive user frames. To move MUX state from ATTACHED to
+    COLLECTING_DISTRIBUTION, the partner state should be sync as well as the
+    port selected.
+    
+    In function lacp_port_actor_update(), only INFO_STATE_SYNCHRONIZATION
+    should be set to the actor.state when the port is selected.
+    INFO_STATE_COLLECTING and INFO_STATE_DISTRIBUTING should be set to false
+    with ATTACHED mode and set to true when INFO_STATE_SYNCHRONIZATION of
+    partner.state is set.
+    
+    In function lacp_port_should_be_{enabled, disabled}(), we also need to
+    check the INFO_STATE_SYNCHRONIZATION bit of partner.state.
+    
+    Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+    Signed-off-by: Jiri Pirko <jiri@mellanox.com>
+
+diff --git a/teamd/teamd_runner_lacp.c b/teamd/teamd_runner_lacp.c
+index 81324de..813b604 100644
+--- a/teamd/teamd_runner_lacp.c
++++ b/teamd/teamd_runner_lacp.c
+@@ -356,7 +356,8 @@ static int lacp_port_should_be_enabled(struct lacp_port *lacp_port)
+ 	struct lacp *lacp = lacp_port->lacp;
+ 
+ 	if (lacp_port_selected(lacp_port) &&
+-	    lacp_port->agg_lead == lacp->selected_agg_lead)
++	    lacp_port->agg_lead == lacp->selected_agg_lead &&
++	    lacp_port->partner.state & INFO_STATE_SYNCHRONIZATION)
+ 		return true;
+ 	return false;
+ }
+@@ -366,7 +367,8 @@ static int lacp_port_should_be_disabled(struct lacp_port *lacp_port)
+ 	struct lacp *lacp = lacp_port->lacp;
+ 
+ 	if (!lacp_port_selected(lacp_port) ||
+-	    lacp_port->agg_lead != lacp->selected_agg_lead)
++	    lacp_port->agg_lead != lacp->selected_agg_lead ||
++	    !(lacp_port->partner.state & INFO_STATE_SYNCHRONIZATION))
+ 		return true;
+ 	return false;
+ }
+@@ -936,9 +938,14 @@ static void lacp_port_actor_update(struct lacp_port *lacp_port)
+ 		state |= INFO_STATE_LACP_ACTIVITY;
+ 	if (lacp_port->lacp->cfg.fast_rate)
+ 		state |= INFO_STATE_LACP_TIMEOUT;
+-	if (lacp_port_selected(lacp_port))
++	if (lacp_port_selected(lacp_port) &&
++	    lacp_port_agg_selected(lacp_port)) {
+ 		state |= INFO_STATE_SYNCHRONIZATION;
+-	state |= INFO_STATE_COLLECTING | INFO_STATE_DISTRIBUTING;
++		state &= ~(INFO_STATE_COLLECTING | INFO_STATE_DISTRIBUTING);
++		if (lacp_port->partner.state & INFO_STATE_SYNCHRONIZATION)
++			state |= INFO_STATE_COLLECTING |
++				 INFO_STATE_DISTRIBUTING;
++	}
+ 	if (lacp_port->state == PORT_STATE_EXPIRED)
+ 		state |= INFO_STATE_EXPIRED;
+ 	if (lacp_port->state == PORT_STATE_DEFAULTED)
