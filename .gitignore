@@ -54,6 +54,9 @@ src/python-click/*
 !src/python-click/Makefile
 src/python3/*
 !src/python3/Makefile
+src/radvd/*
+!src/radvd/Makefile
+!src/radvd/patch/
 src/redis/*
 !src/redis/Makefile
 src/snmpd/*

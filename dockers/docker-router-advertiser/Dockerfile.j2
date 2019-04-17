@@ -9,9 +9,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Update apt's cache of available packages
 RUN apt-get update
 
-# Install radvd Debian package
-RUN apt-get -y install radvd
-
 {% if docker_router_advertiser_debs.strip() -%}
 # Copy built Debian packages
 {%- for deb in docker_router_advertiser_debs.split(' ') %}
