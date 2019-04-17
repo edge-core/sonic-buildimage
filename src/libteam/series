@@ -7,3 +7,4 @@
 0007-Skip-setting-the-same-hwaddr-to-lag-port-to-avoid-di.patch
 0008-teamd-register-change-handler-for-TEAM_IFINFO_CHANGE.patch
 0009-teamd-prevent-private-change-handler-reentrance.patch
+0010-teamd-lacp-update-port-state-according-to-partners-sy.patch
