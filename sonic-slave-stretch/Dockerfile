@@ -184,6 +184,12 @@ RUN apt-get update && apt-get install -y \
         libsensors4 \
         libsensors4-dev \
         libwrap0-dev \
+# For lldpd
+	debhelper \
+        autotools-dev \
+        libbsd-dev \
+        pkg-config \
+        check \
 # For mpdecimal
         docutils-common \
         libjs-sphinxdoc \
@@ -261,6 +267,7 @@ RUN pip install click-default-group click natsort tabulate netifaces==0.10.7 fas
 
 # For sonic snmpagent mock testing
 RUN pip3 install mockredispy==2.9.3
+
 RUN pip3 install PyYAML>=5.1
 
 # For sonic-platform-common testing
