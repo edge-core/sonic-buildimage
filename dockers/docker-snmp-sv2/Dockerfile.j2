@@ -1,4 +1,4 @@
-FROM docker-config-engine
+FROM docker-config-engine-stretch
 
 ARG docker_container_name
 RUN [ -f /etc/rsyslog.conf ] && sed -ri "s/%syslogtag%/$docker_container_name#%syslogtag%/;" /etc/rsyslog.conf
@@ -18,6 +18,10 @@ RUN apt-get install -y curl ca-certificates
 
 # Install gcc which is required for installing hiredis
 RUN apt-get install -y gcc make
+
+# Install libdpkg-perl which is required for python3.6-3.6.0 as one of its specs i.e. no-pie-compile.specs
+# The file referenced (`/usr/share/dpkg/no-pie-compile.specs`) is in the `libdpkg-perl` package on Debian
+RUN apt-get install -y libdpkg-perl
 
 {% if docker_snmp_sv2_debs.strip() -%}
 # Copy locally-built Debian package dependencies
@@ -56,7 +60,7 @@ RUN pip install /python-wheels/{{ whl }}
 RUN python3.6 -m sonic_ax_impl install
 
 # Clean up
-RUN apt-get -y purge libpython3.6-dev curl gcc make
+RUN apt-get -y purge libpython3.6-dev curl gcc make libdpkg-perl
 RUN apt-get clean -y && apt-get autoclean -y && apt-get autoremove -y --purge
 RUN find / | grep -E "__pycache__" | xargs rm -rf
 RUN rm -rf /debs /python-wheels ~/.cache

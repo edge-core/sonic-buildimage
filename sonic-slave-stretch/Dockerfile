@@ -259,6 +259,13 @@ RUN pip install j2cli
 # For sonic utilities testing
 RUN pip install click-default-group click natsort tabulate netifaces==0.10.7 fastentrypoints
 
+# For sonic snmpagent mock testing
+RUN pip3 install mockredispy==2.9.3
+RUN pip3 install PyYAML>=5.1
+
+# For sonic-platform-common testing
+RUN pip3 install redis
+
 # For supervisor build
 RUN pip install meld3 mock
 
