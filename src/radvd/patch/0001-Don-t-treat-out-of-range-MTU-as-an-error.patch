@@ -1,0 +1,33 @@
+From e5af09b187bcce4e48ea3f1f71b81329e2d91ea4 Mon Sep 17 00:00:00 2001
+From: Joe LeVeque <jolevequ@microsoft.com>
+Date: Tue, 12 Feb 2019 19:13:45 +0000
+Subject: [PATCH] Don't treat out-of-range MTU as an error
+
+---
+ interface.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/interface.c b/interface.c
+index d17267e..b59c6e8 100644
+--- a/interface.c
++++ b/interface.c
+@@ -158,9 +158,14 @@ check_iface(struct Interface *iface)
+ 	   ((iface->AdvLinkMTU < MIN_AdvLinkMTU) ||
+ 	   (iface->if_maxmtu != -1 && (iface->AdvLinkMTU > iface->if_maxmtu))))
+ 	{
+-		flog(LOG_ERR,  "AdvLinkMTU for %s (%u) must be zero or between %u and %u",
++		// FIXME: Temporary workaround for SONiC. Currently, when interfaces are added
++		// or removed from VLANs, the kernel sets the MTU size for the VLAN to the
++		// default value of 1500. Here, we prevent radvd from treating a larger value
++		// in its configuration as an error. Instead of logging an error and setting
++		// res to -1, we simply log a warning and continue on. Once the aforementioned
++		// behavior is addressed, this patch should be removed.
++		flog(LOG_WARNING,  "AdvLinkMTU for %s (%u) must be zero or between %u and %u",
+ 		iface->Name, iface->AdvLinkMTU, MIN_AdvLinkMTU, iface->if_maxmtu);
+-		res = -1;
+ 	}
+ 
+ 	if (iface->AdvReachableTime >  MAX_AdvReachableTime)
+-- 
+2.17.1
+
