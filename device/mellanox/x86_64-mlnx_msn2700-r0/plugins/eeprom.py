@@ -17,16 +17,37 @@ try:
     import warnings
     import os
     import sys
+    import syslog
     from sonic_eeprom import eeprom_base
     from sonic_eeprom import eeprom_tlvinfo
     import subprocess
 except ImportError, e:
     raise ImportError (str(e) + "- required module not found")
 
+SYSLOG_IDENTIFIER = "eeprom.py"
+EEPROM_SYMLINK = "/bsp/eeprom/sys_eeprom"
+CACHE_FILE = "/var/cache/sonic/decode-syseeprom/syseeprom_cache"
+
+def log_error(msg):
+    syslog.openlog(SYSLOG_IDENTIFIER)
+    syslog.syslog(syslog.LOG_ERR, msg)
+    syslog.closelog()
+
 class board(eeprom_tlvinfo.TlvInfoDecoder):
 
     _TLV_INFO_MAX_LEN = 256
+    RETRIES = 5
 
     def __init__(self, name, path, cpld_root, ro):
-        self.eeprom_path = "/bsp/eeprom/sys_eeprom"
+        for attempt in range(self.RETRIES):
+            if not (os.path.exists(EEPROM_SYMLINK) or os.path.isfile(CACHE_FILE)):
+                time.sleep(1)
+            else:
+                break
+
+        if not (os.path.exists(EEPROM_SYMLINK) or os.path.isfile(CACHE_FILE)):
+            log_error("Nowhere to read syseeprom from! No symlink or cache file found")
+            raise RuntimeError("No syseeprom symlink or cache file found")
+
+        self.eeprom_path = EEPROM_SYMLINK
         super(board, self).__init__(self.eeprom_path, 0, '', True)
