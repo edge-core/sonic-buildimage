@@ -3,6 +3,12 @@
 DOCKER_SYNCD_BFN_RPC = docker-syncd-bfn-rpc.gz
 $(DOCKER_SYNCD_BFN_RPC)_PATH = $(PLATFORM_PATH)/docker-syncd-bfn-rpc
 $(DOCKER_SYNCD_BFN_RPC)_DEPENDS += $(SYNCD_RPC) $(LIBTHRIFT)
+ifeq ($(INSTALL_DEBUG_TOOLS), y)
+$(DOCKER_SYNCD_BFN_RPC)_DEPENDS += $(SYNCD_RPC_DBG) \
+                                   $(LIBSWSSCOMMON_DBG) \
+                                   $(LIBSAIMETADATA_DBG) \
+                                   $(LIBSAIREDIS_DBG)
+endif
 $(DOCKER_SYNCD_BFN_RPC)_LOAD_DOCKERS += $(DOCKER_SYNCD_BFN)
 SONIC_DOCKER_IMAGES += $(DOCKER_SYNCD_BFN_RPC)
 SONIC_STRETCH_DOCKERS += $(DOCKER_SYNCD_BFN_RPC)

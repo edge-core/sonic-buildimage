@@ -3,6 +3,12 @@
 DOCKER_SYNCD_VS = docker-syncd-vs.gz
 $(DOCKER_SYNCD_VS)_PATH = $(PLATFORM_PATH)/docker-syncd-vs
 $(DOCKER_SYNCD_VS)_DEPENDS += $(SYNCD_VS)
+ifeq ($(INSTALL_DEBUG_TOOLS), y)
+$(DOCKER_SYNCD_VS)_DEPENDS += $(SYNCD_VS_DBG) \
+                              $(LIBSWSSCOMMON_DBG) \
+                              $(LIBSAIREDIS_DBG) \
+                              $(LIBSAIVS_DBG)
+endif
 $(DOCKER_SYNCD_VS)_LOAD_DOCKERS += $(DOCKER_CONFIG_ENGINE)
 SONIC_DOCKER_IMAGES += $(DOCKER_SYNCD_VS)
 SONIC_INSTALL_DOCKER_IMAGES += $(DOCKER_SYNCD_VS)

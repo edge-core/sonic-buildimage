@@ -9,7 +9,7 @@ debs/{{ deb }}{{' '}}
 {%- endfor -%}
 debs/
 
-RUN dpkg -P syncd
+RUN apt-get purge -y syncd
 
 RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; } ; \
 {% for deb in docker_syncd_cavm_rpc_debs.split(' ') -%}

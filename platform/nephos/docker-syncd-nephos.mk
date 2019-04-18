@@ -3,6 +3,12 @@
 DOCKER_SYNCD_NEPHOS = docker-syncd-nephos.gz
 $(DOCKER_SYNCD_NEPHOS)_PATH = $(PLATFORM_PATH)/docker-syncd-nephos
 $(DOCKER_SYNCD_NEPHOS)_DEPENDS += $(SYNCD)
+ifeq ($(INSTALL_DEBUG_TOOLS), y)
+$(DOCKER_SYNCD_NEPHOS)_DEPENDS += $(SYNCD_DBG) \
+                                  $(LIBSWSSCOMMON_DBG) \
+                                  $(LIBSAIMETADATA_DBG) \
+                                  $(LIBSAIREDIS_DBG)
+endif
 $(DOCKER_SYNCD_NEPHOS)_FILES += $(DSSERVE) $(NPX_DIAG)
 $(DOCKER_SYNCD_NEPHOS)_LOAD_DOCKERS += $(DOCKER_CONFIG_ENGINE)
 SONIC_DOCKER_IMAGES += $(DOCKER_SYNCD_NEPHOS)

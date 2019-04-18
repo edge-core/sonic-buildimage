@@ -3,6 +3,12 @@
 DOCKER_SYNCD_BRCM = docker-syncd-brcm.gz
 $(DOCKER_SYNCD_BRCM)_PATH = $(PLATFORM_PATH)/docker-syncd-brcm
 $(DOCKER_SYNCD_BRCM)_DEPENDS += $(SYNCD)
+ifeq ($(INSTALL_DEBUG_TOOLS), y)
+$(DOCKER_SYNCD_BRCM)_DEPENDS += $(SYNCD_DBG) \
+                                $(LIBSWSSCOMMON_DBG) \
+                                $(LIBSAIMETADATA_DBG) \
+                                $(LIBSAIREDIS_DBG)
+endif
 $(DOCKER_SYNCD_BRCM)_FILES += $(DSSERVE) $(BCMCMD)
 $(DOCKER_SYNCD_BRCM)_LOAD_DOCKERS += $(DOCKER_CONFIG_ENGINE)
 SONIC_DOCKER_IMAGES += $(DOCKER_SYNCD_BRCM)

@@ -3,6 +3,12 @@
 DOCKER_SYNCD_CENTEC = docker-syncd-centec.gz
 $(DOCKER_SYNCD_CENTEC)_PATH = $(PLATFORM_PATH)/docker-syncd-centec
 $(DOCKER_SYNCD_CENTEC)_DEPENDS += $(SYNCD)
+ifeq ($(INSTALL_DEBUG_TOOLS), y)
+$(DOCKER_SYNCD_CENTEC)_DEPENDS += $(SYNCD_DBG) \
+                                  $(LIBSWSSCOMMON_DBG) \
+                                  $(LIBSAIMETADATA_DBG) \
+                                  $(LIBSAIREDIS_DBG)
+endif
 $(DOCKER_SYNCD_CENTEC)_LOAD_DOCKERS += $(DOCKER_CONFIG_ENGINE)
 SONIC_DOCKER_IMAGES += $(DOCKER_SYNCD_CENTEC)
 ifneq ($(ENABLE_SYNCD_RPC),y)

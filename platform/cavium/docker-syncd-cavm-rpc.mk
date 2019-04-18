@@ -3,6 +3,12 @@
 DOCKER_SYNCD_CAVM_RPC = docker-syncd-cavm-rpc.gz
 $(DOCKER_SYNCD_CAVM_RPC)_PATH = $(PLATFORM_PATH)/docker-syncd-cavm-rpc
 $(DOCKER_SYNCD_CAVM_RPC)_DEPENDS += $(SYNCD_RPC) $(LIBTHRIFT) $(CAVM_LIBSAI) $(XP_TOOLS) $(REDIS_TOOLS)
+ifeq ($(INSTALL_DEBUG_TOOLS), y)
+$(DOCKER_SYNCD_CAVM_RPC)_DEPENDS += $(SYNCD_RPC_DBG) \
+                                    $(LIBSWSSCOMMON_DBG) \
+                                    $(LIBSAIMETADATA_DBG) \
+                                    $(LIBSAIREDIS_DBG)
+endif
 $(DOCKER_SYNCD_CAVM_RPC)_LOAD_DOCKERS += $(DOCKER_SYNCD_CAVM)
 SONIC_DOCKER_IMAGES += $(DOCKER_SYNCD_CAVM_RPC)
 ifeq ($(ENABLE_SYNCD_RPC),y)
