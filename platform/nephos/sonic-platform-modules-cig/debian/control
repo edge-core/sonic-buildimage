@@ -1,0 +1,11 @@
+Source: sonic-cig-platform-modules
+Section: main
+Priority: extra
+Maintainer: yanglijie@cigtech.com
+Build-Depends: debhelper (>= 8.0.0), bzip2
+Standards-Version: 3.9.3
+
+Package: sonic-platform-cig-cs6436-56p
+Architecture: amd64
+Depends: linux-image-4.9.0-8-amd64
+Description: kernel modules for platform devices such as fan, led, sfp
