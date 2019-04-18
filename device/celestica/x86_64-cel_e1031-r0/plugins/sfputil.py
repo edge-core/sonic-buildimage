@@ -3,6 +3,7 @@
 try:
     import time
     import os
+    import select
     from sonic_sfp.sfputilbase import SfpUtilBase
 except ImportError as e:
     raise ImportError("%s - required module not found" % str(e))
@@ -121,15 +122,35 @@ class SfpUtil(SfpUtilBase):
         raise NotImplementedError
 
     def get_transceiver_change_event(self, timeout=0):
+        epoll = select.epoll()
+        port_dict = {}
+        timeout_sec = timeout/1000
         modabs_interrupt_path = '/sys/devices/platform/e1031.smc/SFP/modabs_int'
-        ports_evt = {}
         try:
-            with open(modabs_interrupt_path, 'r') as port_changes:
-                changes = int(port_changes.read(), 16)
-                for port_num in self._sfp_port:
-                    change = (changes >> ( port_num - 49)) & 1
-                    if change == 1:
-                        ports_evt[str(port_num)] = str(self.get_presence(port_num))
-        except IOError:
-            return False, {}
-        return True, ports_evt
+            # We get notified when there is an SCI interrupt from GPIO SUS7
+            fd = open("/sys/devices/platform/hlx-ich.0/sci_int_gpio_sus7", "r")
+            fd.read()       
+
+            epoll.register(fd.fileno(), select.EPOLLIN & select.EPOLLET)
+            events = epoll.poll(timeout=timeout_sec if timeout != 0 else -1)
+            if events:
+                found_flag = 0
+                # Read the QSFP ABS interrupt & status registers
+                with open(modabs_interrupt_path, 'r') as port_changes:
+                    changes = int(port_changes.read(), 16)
+                    for port_num in self._sfp_port:
+                        change = (changes >> ( port_num - 49)) & 1
+                        if change == 1:
+                            port_dict[str(port_num)] = str(int(self.get_presence(port_num)))
+                            found_flag = 1
+                    
+                    if not found_flag:
+                        return False, {}
+
+                return True, port_dict
+            
+        finally:
+            fd.close()
+            epoll.close()
+
+        return False, {}
