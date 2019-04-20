@@ -11,7 +11,6 @@ include $(PLATFORM_PATH)/platform-modules-cel.mk
 include $(PLATFORM_PATH)/platform-modules-delta.mk
 include $(PLATFORM_PATH)/platform-modules-quanta.mk
 #include $(PLATFORM_PATH)/platform-modules-mitac.mk
-include $(PLATFORM_PATH)/docker-orchagent-brcm.mk
 include $(PLATFORM_PATH)/docker-syncd-brcm.mk
 include $(PLATFORM_PATH)/docker-syncd-brcm-rpc.mk
 include $(PLATFORM_PATH)/docker-saiserver-brcm.mk

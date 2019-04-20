@@ -36,7 +36,7 @@ PYTHON_WHEELS_PATH = $(TARGET_PATH)/python-wheels
 PROJECT_ROOT = $(shell pwd)
 STRETCH_DEBS_PATH = $(TARGET_PATH)/debs/stretch
 STRETCH_FILES_PATH = $(TARGET_PATH)/files/stretch
-DBG_IMAGE_MARK = -dbg
+DBG_IMAGE_MARK = dbg
 
 CONFIGURED_PLATFORM := $(shell [ -f .platform ] && cat .platform || echo generic)
 PLATFORM_PATH = platform/$(CONFIGURED_PLATFORM)
@@ -478,7 +478,7 @@ ifeq ($(BLDENV),stretch)
 	DOCKER_IMAGES := $(SONIC_STRETCH_DOCKERS)
 	DOCKER_DBG_IMAGES := $(SONIC_STRETCH_DBG_DOCKERS)
 	SONIC_STRETCH_DOCKERS_FOR_INSTALLERS = $(filter $(SONIC_STRETCH_DOCKERS),$(DOCKER_IMAGES_FOR_INSTALLERS))
-	SONIC_STRETCH_DBG_DOCKERS_FOR_INSTALLERS = $(filter $(SONIC_STRETCH_DBG_DOCKERS), $(patsubst %.gz,%$(DBG_IMAGE_MARK).gz, $(SONIC_STRETCH_DOCKERS_FOR_INSTALLERS)))
+	SONIC_STRETCH_DBG_DOCKERS_FOR_INSTALLERS = $(filter $(SONIC_STRETCH_DBG_DOCKERS), $(patsubst %.gz,%-$(DBG_IMAGE_MARK).gz, $(SONIC_STRETCH_DOCKERS_FOR_INSTALLERS)))
 else
 	DOCKER_IMAGES := $(filter-out $(SONIC_STRETCH_DOCKERS), $(SONIC_DOCKER_IMAGES))
 	DOCKER_DBG_IMAGES := $(filter-out $(SONIC_STRETCH_DBG_DOCKERS), $(SONIC_DOCKER_DBG_IMAGES))
@@ -529,7 +529,7 @@ $(addprefix $(TARGET_PATH)/, $(DOCKER_IMAGES)) : $(TARGET_PATH)/%.gz : .platform
 SONIC_TARGET_LIST += $(addprefix $(TARGET_PATH)/, $(DOCKER_IMAGES))
 
 # Targets for building docker images
-$(addprefix $(TARGET_PATH)/, $(DOCKER_DBG_IMAGES)) : $(TARGET_PATH)/%$(DBG_IMAGE_MARK).gz : .platform docker-start \
+$(addprefix $(TARGET_PATH)/, $(DOCKER_DBG_IMAGES)) : $(TARGET_PATH)/%-$(DBG_IMAGE_MARK).gz : .platform docker-start \
 		$$(addprefix $(DEBS_PATH)/,$$($$*.gz_DBG_DEPENDS)) \
 		$$(addsuffix -load,$$(addprefix $(TARGET_PATH)/,$$*.gz))
 	$(HEADER)

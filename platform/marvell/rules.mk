@@ -2,7 +2,6 @@ include $(PLATFORM_PATH)/sdk.mk
 include $(PLATFORM_PATH)/sai.mk
 include $(PLATFORM_PATH)/docker-syncd-mrvl.mk
 include $(PLATFORM_PATH)/docker-syncd-mrvl-rpc.mk
-include $(PLATFORM_PATH)/docker-orchagent-mrvl.mk
 include $(PLATFORM_PATH)/libsaithrift-dev.mk
 include $(PLATFORM_PATH)/one-image.mk
 

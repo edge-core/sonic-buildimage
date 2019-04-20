@@ -1,7 +1,6 @@
 include $(PLATFORM_PATH)/cavm-sai.mk
 include $(PLATFORM_PATH)/docker-syncd-cavm.mk
 include $(PLATFORM_PATH)/docker-syncd-cavm-rpc.mk
-include $(PLATFORM_PATH)/docker-orchagent-cavm.mk
 include $(PLATFORM_PATH)/cavm-platform-modules.mk
 include $(PLATFORM_PATH)/cavm-xpnet.mk
 include $(PLATFORM_PATH)/one-image.mk
