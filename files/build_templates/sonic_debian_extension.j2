@@ -269,6 +269,10 @@ sudo dpkg --root=$FILESYSTEM_ROOT -P {{ debname }}
 
 sudo rm -f $FILESYSTEM_ROOT/usr/sbin/policy-rc.d
 
+# Copy fstrim service and timer file, enable fstrim timer
+sudo cp $IMAGE_CONFIGS/fstrim/* $FILESYSTEM_ROOT/etc/systemd/system/
+sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable fstrim.timer
+
 ## copy platform rc.local
 sudo cp $IMAGE_CONFIGS/platform/rc.local $FILESYSTEM_ROOT/etc/
 
