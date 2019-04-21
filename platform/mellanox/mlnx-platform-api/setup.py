@@ -11,7 +11,7 @@ setup(
     maintainer='Kevin Wang',
     maintainer_email='kevinw@mellanox.com',
     packages=[
-        'sonic_platform_api',
+        'sonic_platform',
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
@@ -25,6 +25,6 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Topic :: Utilities',
     ],
-    keywords='sonic SONiC platform-api PLATFORM-API',
+    keywords='sonic SONiC platform PLATFORM',
 )
 

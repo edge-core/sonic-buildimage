@@ -12,6 +12,7 @@ import os.path
 
 try:
     from sonic_platform_base.psu_base import PsuBase
+    from sonic_platform.fan import Fan
 except ImportError as e:
     raise ImportError (str(e) + "- required module not found")
 
@@ -24,7 +25,7 @@ class Psu(PsuBase):
         PsuBase.__init__(self)
         # PSU is 1-based on Mellanox platform
         self.index = psu_index + 1
-        psu_list.append(psu_index)
+        psu_list.append(self.index)
         self.psu_path = "/var/run/hw-management/thermal/"
         self.psu_oper_status = "psu{}_pwr_status".format(self.index)
         self.psu_presence = "psu{}_status".format(self.index)
@@ -32,6 +33,9 @@ class Psu(PsuBase):
             self.presence_file_exists = True
         else:
             self.presence_file_exists = False
+        fan = Fan(psu_index, psu_index, True)
+        if fan.get_presence():
+            self._fan = fan
 
     def get_status(self):
         """
