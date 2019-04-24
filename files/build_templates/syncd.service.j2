@@ -22,6 +22,9 @@ Environment=sonic_asic_platform={{ sonic_asic_platform }}
 ExecStartPre=/usr/local/bin/syncd.sh start
 ExecStart=/usr/local/bin/syncd.sh wait
 ExecStop=/usr/local/bin/syncd.sh stop
+{% if sonic_asic_platform == 'mellanox' %}
+TimeoutStartSec=150
+{% endif %}
 
 [Install]
 WantedBy=multi-user.target
