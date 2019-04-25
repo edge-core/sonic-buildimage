@@ -8,3 +8,4 @@
 0008-teamd-register-change-handler-for-TEAM_IFINFO_CHANGE.patch
 0009-teamd-prevent-private-change-handler-reentrance.patch
 0010-teamd-lacp-update-port-state-according-to-partners-sy.patch
+0011-libteam-resynchronize-ifinfo-after-lost-RTNLGRP_LINK-.patch
