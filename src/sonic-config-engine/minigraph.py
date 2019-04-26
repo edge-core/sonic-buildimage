@@ -251,7 +251,7 @@ def parse_dpg(dpg, hname):
                     # Erspan session will be attached to all front panel ports,
                     # if panel ports is a member port of LAG, should add the LAG 
                     # to acl table instead of the panel ports
-                    acl_intfs = pc_intfs
+                    acl_intfs = pc_intfs[:]
                     for panel_port in port_alias_map.values():
                         if panel_port not in intfs_inpc:
                             acl_intfs.append(panel_port)
