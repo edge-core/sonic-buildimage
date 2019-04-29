@@ -1,6 +1,6 @@
-From 2bb21fcf4a9ad7535867809c50d2cf0ba1088e17 Mon Sep 17 00:00:00 2001
+From 7c1cfd636be589317710a8556a7ec667debee53a Mon Sep 17 00:00:00 2001
 From: Joe LeVeque <jolevequ@microsoft.com>
-Date: Fri, 9 Mar 2018 01:43:35 +0000
+Date: Fri, 26 Apr 2019 01:37:54 +0000
 Subject: [PATCH] [Bugfix] Don't print log messages to stderr in release builds
 
 ---
@@ -24,5 +24,5 @@ index 7c91d9d..aa74fd8 100644
  void (*log_cleanup) (void);
  
 -- 
-2.1.4
+2.17.1
 
