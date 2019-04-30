@@ -26,8 +26,8 @@ $(PY3_MIN)_RDEPENDS += $(LIBPY3_MIN)
 
 PY3 = $(PYTHON_PNAME)_$(PYTHON_VER)_amd64.deb
 $(eval $(call add_derived_package,$(LIBPY3_MIN),$(PY3)))
-$(PY3)_DEPENDS += $(PY3_MIN) $(LIBPY3)
-$(PY3)_RDEPENDS += $(PY3_MIN) $(LIBPY3) $(LIBPY3_MIN)
+$(PY3)_DEPENDS += $(PY3_MIN) $(LIBPY3_STD)
+$(PY3)_RDEPENDS += $(PY3_MIN) $(LIBPY3_STD)
 
 LIBPY3_DEV = lib$(PYTHON_PNAME)-dev_$(PYTHON_VER)_amd64.deb
 $(eval $(call add_derived_package,$(LIBPY3_MIN),$(LIBPY3_DEV)))

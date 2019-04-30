@@ -73,6 +73,10 @@ RUN apt-get -y install {{ dbg_pkg }}
 RUN ln /usr/bin/vim.tiny /usr/bin/vim
 {%- endif %}
 
+# Remove python3.4
+# Note: if later python3 is required by more docker images, consider install homebrew python3 here instead of in SNMP image only
+RUN apt-get purge -y libpython3.4-minimal
+
 # Clean up apt
 # Remove /var/lib/apt/lists/*, could be obsoleted for derived images
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y

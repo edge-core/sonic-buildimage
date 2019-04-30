@@ -43,5 +43,5 @@ python-wheels/{{ whl }}{{' '}}
 {%- endif -%}
 
 ## Clean up
-RUN apt-get remove -y python-pip python-dev; apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
+RUN apt-get purge -y python-pip python-dev; apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /debs /python-wheels
