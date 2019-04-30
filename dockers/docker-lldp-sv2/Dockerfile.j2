@@ -37,7 +37,7 @@ RUN pip install /python-wheels/{{ whl }}
 {% endif %}
 
 # Clean up
-RUN apt-get remove -y python-pip
+RUN apt-get purge -y python-pip
 RUN apt-get clean -y
 RUN apt-get autoclean -y
 RUN apt-get autoremove -y

@@ -29,9 +29,9 @@ RUN apt-get install -y default-jre
 RUN apt-get install -y rsyslog psmisc
 
 # Remove cffi 1.5.2, will install 1.10.0 by pip later
-RUN apt-get remove -y python-cffi python-cffi-backend
+RUN apt-get purge -y python-cffi python-cffi-backend
 # Remove pycparser 2.14, will install >=2.17 by pip later
-RUN apt-get remove -y python-ply python-pycparser
+RUN apt-get purge -y python-ply python-pycparser
 
 RUN easy_install pip
 

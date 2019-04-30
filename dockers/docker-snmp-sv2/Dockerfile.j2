@@ -56,7 +56,9 @@ RUN pip install /python-wheels/{{ whl }}
 RUN python3.6 -m sonic_ax_impl install
 
 # Clean up
-RUN apt-get -y purge libpython3.6-dev curl gcc make
+RUN apt-get -y purge libpython3.6-dev libpython3.6 curl gcc make
+# Note: these packages should be removed with autoremove but actually not, so explicitly purged
+RUN apt-get -y purge libldap-2.4-2 libsasl2-2 libsasl2-modules libsasl2-modules-db
 RUN apt-get clean -y && apt-get autoclean -y && apt-get autoremove -y --purge
 RUN find / | grep -E "__pycache__" | xargs rm -rf
 RUN rm -rf /debs /python-wheels ~/.cache
