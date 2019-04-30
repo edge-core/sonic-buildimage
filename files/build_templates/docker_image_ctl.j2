@@ -59,6 +59,11 @@ function postStartAction()
 
         redis-cli -n 4 SET "CONFIG_DB_INITIALIZED" "1"
     fi
+
+    if [[ -x /usr/bin/db_migrator.py ]]; then
+        # Migrate the DB to the latest schema version if needed
+        /usr/bin/db_migrator.py -o migrate
+    fi
 {%- elif docker_container_name == "swss" %}
     docker exec swss rm -f /ready   # remove cruft
     if [[ "$BOOT_TYPE" == "fast" ]] && [[ -d /host/fast-reboot ]]; then
