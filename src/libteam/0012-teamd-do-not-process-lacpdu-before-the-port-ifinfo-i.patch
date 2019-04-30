@@ -1,0 +1,46 @@
+From 28ccb37eb388e7e3d214a9b05011f8421f0d65ac Mon Sep 17 00:00:00 2001
+From: Ying Xie <ying.xie@microsoft.com>
+Date: Fri, 26 Apr 2019 23:30:38 +0000
+Subject: [PATCH] teamd: do not process lacpdu before the port ifinfo is set
+
+Now the port ifinfo will be set in obj_input_newlink when a RTM_NEWLINK
+event is received.
+
+But when a port is being added, if a lacpdu gets received on this port
+before the RTM_NEWLINK event, lacpdu_recv will process the packet with
+incorrect port ifinfo.
+
+In Patrick's case, as ifinfo->master_ifindex was 0, it would skip this
+port in teamd_for_each_tdport, which caused lacp_port->agg_lead not to
+be updated in lacp_switch_agg_lead. Later the lacp_port actor would go
+to a unexpected state.
+
+This patch is to avoid it by checking teamd_port_present in lacpdu_recv
+so that it would not process lacpdu before the port ifinfo is set.
+
+Reported-by: Patrick Talbert <ptalbert@redhat.com>
+Tested-by: Patrick Talbert <ptalbert@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Reviewed-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: Jiri Pirko <jiri@mellanox.com>
+---
+ teamd/teamd_runner_lacp.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/teamd/teamd_runner_lacp.c b/teamd/teamd_runner_lacp.c
+index 78f05dd..c8ae541 100644
+--- a/teamd/teamd_runner_lacp.c
++++ b/teamd/teamd_runner_lacp.c
+@@ -1132,6 +1132,9 @@ static int lacpdu_process(struct lacp_port *lacp_port, struct lacpdu* lacpdu)
+ {
+ 	int err;
+ 
++	if (!teamd_port_present(lacp_port->ctx, lacp_port->tdport))
++		return 0;
++
+ 	if (!lacpdu_check(lacpdu)) {
+ 		teamd_log_warn("malformed LACP PDU came.");
+ 		return 0;
+-- 
+2.7.4
+
