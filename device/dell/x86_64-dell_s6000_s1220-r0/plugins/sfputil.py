@@ -5,6 +5,7 @@
 
 try:
     import time
+    import datetime
     from sonic_sfp.sfputilbase import SfpUtilBase
 except ImportError as e:
     raise ImportError("%s - required module not found" % str(e))
@@ -20,6 +21,7 @@ class SfpUtil(SfpUtilBase):
     EEPROM_OFFSET = 20
 
     _port_to_eeprom_mapping = {}
+    port_dict = {}
 
     @property
     def port_start(self):
@@ -37,11 +39,32 @@ class SfpUtil(SfpUtilBase):
     def port_to_eeprom_mapping(self):
         return self._port_to_eeprom_mapping
 
+    @property
+    def get_transceiver_status(self):
+
+        try:
+            reg_file = open("/sys/devices/platform/dell-s6000-cpld.0/qsfp_modprs")
+
+        except IOError as e:
+            print "Error: unable to open file: %s" % str(e)
+            return False
+
+        content = reg_file.readline().rstrip()
+
+        reg_file.close()
+
+        return int(content, 16)
+
+
     def __init__(self):
+
         eeprom_path = "/sys/class/i2c-adapter/i2c-{0}/{0}-0050/eeprom"
 
         for x in range(0, self.port_end + 1):
             self._port_to_eeprom_mapping[x] = eeprom_path.format(x + self.EEPROM_OFFSET)
+
+        # Get Transceiver status
+        self.modprs_register = self.get_transceiver_status
 
         SfpUtilBase.__init__(self)
 
@@ -174,10 +197,60 @@ class SfpUtil(SfpUtilBase):
 
         return True
 
-    def get_transceiver_change_event(self):
-        """
-        TODO: This function need to be implemented
-        when decide to support monitoring SFP(Xcvrd)
-        on this platform.
-        """
-        raise NotImplementedError
+    def get_transceiver_change_event(self, timeout=0):
+
+        start_time = time.time()
+        port_dict = {}
+        port = self.port_start
+        forever = False
+
+        if timeout == 0:
+            forever = True
+        elif timeout > 0:
+            timeout = timeout / float(1000) # Convert to secs
+        else:
+            print "get_transceiver_change_event:Invalid timeout value", timeout
+            return False, {}
+
+        end_time = start_time + timeout
+        if start_time > end_time:
+            print 'get_transceiver_change_event:' \
+                       'time wrap / invalid timeout value', timeout
+
+            return False, {} # Time wrap or possibly incorrect timeout
+
+        while timeout >= 0:
+            # Check for OIR events and return updated port_dict
+            reg_value = self.get_transceiver_status
+            if reg_value != self.modprs_register:
+                changed_ports = self.modprs_register ^ reg_value
+                while port >= self.port_start and port <= self.port_end:
+
+                    # Mask off the bit corresponding to our port
+                    mask = (1 << port)
+
+                    if changed_ports & mask:
+                        # ModPrsL is active low
+                        if reg_value & mask == 0:
+                            port_dict[port] = '1'
+                        else:
+                            port_dict[port] = '0'
+
+                    port += 1
+
+                # Update reg value
+                self.modprs_register = reg_value
+                return True, port_dict
+
+            if forever:
+                time.sleep(1)
+            else:
+                timeout = end_time - time.time()
+                if timeout >= 1:
+                    time.sleep(1) # We poll at 1 second granularity
+                else:
+                    if timeout > 0:
+                        time.sleep(timeout)
+                    return True, {}
+        print "get_transceiver_change_event: Should not reach here."
+        return False, {}
