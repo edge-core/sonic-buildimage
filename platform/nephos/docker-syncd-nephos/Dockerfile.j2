@@ -1,4 +1,4 @@
-FROM docker-config-engine
+FROM docker-config-engine-stretch
 
 ARG docker_container_name
 RUN [ -f /etc/rsyslog.conf ] && sed -ri "s/%syslogtag%/$docker_container_name#%syslogtag%/;" /etc/rsyslog.conf
@@ -14,17 +14,25 @@ debs/{{ deb }}{{' '}}
 {%- endfor -%}
 debs/
 
+COPY \
+{% for deb in docker_syncd_nephos_pydebs.split(' ') -%}
+python-debs/{{ deb }}{{' '}}
+{%- endfor -%}
+debs/
+
+RUN apt-get install -y libxml2
+
 RUN dpkg -i \
 {% for deb in docker_syncd_nephos_debs.split(' ') -%}
 debs/{{ deb }}{{' '}}
 {%- endfor %}
 
-## TODO: add kmod into Depends
-RUN apt-get install -f kmod
+##RUN dpkg -i \
+##{% for deb in docker_syncd_nephos_pydebs.split(' ') -%}
+##debs/{{ deb }}{{' '}}
+##{%- endfor %}
 
-COPY ["files/dsserve", "files/npx_diag", "start.sh", "/usr/bin/"]
-RUN chmod +x /usr/bin/dsserve /usr/bin/npx_diag
-
+COPY ["start.sh", "/usr/bin/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 
 ## Clean up

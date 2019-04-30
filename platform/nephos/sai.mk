@@ -1,6 +1,6 @@
-SDK_VERSION = 2.0.5
-SAI_VERSION = 1.3.5
-SAI_COMMIT_ID = 575f90
+SDK_VERSION = 2.0.8
+SAI_VERSION = 1.4.0
+SAI_COMMIT_ID = c818c7
 NEPHOS_SAI = libsainps_$(SDK_VERSION)_sai_$(SAI_VERSION)_$(SAI_COMMIT_ID)_amd64.deb
 $(NEPHOS_SAI)_URL = "https://github.com/NephosInc/SONiC/raw/master/sai/libsainps_$(SDK_VERSION)_sai_$(SAI_VERSION)_$(SAI_COMMIT_ID)_amd64.deb"
 
