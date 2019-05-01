@@ -87,7 +87,7 @@ class TestCfgGen(TestCase):
                                          "'ROUTER_PROTECT': {'services': ['SSH', 'SNMP'], 'type': 'CTRLPLANE', 'policy_desc': 'ROUTER_PROTECT'}, "
                                          "'SNMP_ACL': {'services': ['SNMP'], 'type': 'CTRLPLANE', 'policy_desc': 'SNMP_ACL'}, "
                                          "'SSH_ACL': {'services': ['SSH'], 'type': 'CTRLPLANE', 'policy_desc': 'SSH_ACL'}, "
-                                         "'EVERFLOWV6': {'type': 'MIRROR', 'policy_desc': 'EVERFLOWV6', 'ports': ['PortChannel01', 'PortChannel02', 'PortChannel03', 'PortChannel04', 'Ethernet24', 'Ethernet40', 'Ethernet20', 'Ethernet44', 'Ethernet48', 'Ethernet28', 'Ethernet96', 'Ethernet92', 'Ethernet76', 'Ethernet72', 'Ethernet52', 'Ethernet80', 'Ethernet56', 'Ethernet32', 'Ethernet16', 'Ethernet36', 'Ethernet12', 'Ethernet60', 'Ethernet8', 'Ethernet4', 'Ethernet0', 'Ethernet64', 'Ethernet68', 'Ethernet84', 'Ethernet88', 'Ethernet108', 'Ethernet104', 'Ethernet100']}}")
+                                         "'EVERFLOWV6': {'type': 'MIRRORV6', 'policy_desc': 'EVERFLOWV6', 'ports': ['PortChannel01', 'PortChannel02', 'PortChannel03', 'PortChannel04', 'Ethernet24', 'Ethernet40', 'Ethernet20', 'Ethernet44', 'Ethernet48', 'Ethernet28', 'Ethernet96', 'Ethernet92', 'Ethernet76', 'Ethernet72', 'Ethernet52', 'Ethernet80', 'Ethernet56', 'Ethernet32', 'Ethernet16', 'Ethernet36', 'Ethernet12', 'Ethernet60', 'Ethernet8', 'Ethernet4', 'Ethernet0', 'Ethernet64', 'Ethernet68', 'Ethernet84', 'Ethernet88', 'Ethernet108', 'Ethernet104', 'Ethernet100']}}")
 
     def test_minigraph_everflow(self):
         argument = '-m "' + self.sample_graph_t0 + '" -p "' + self.port_config + '" -v MIRROR_SESSION'

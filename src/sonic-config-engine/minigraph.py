@@ -228,6 +228,7 @@ def parse_dpg(dpg, hname):
             aclattach = aclintf.find(str(QName(ns, "AttachTo"))).text.split(';')
             acl_intfs = []
             is_mirror = False
+            is_mirror_v6 = False
 
             # TODO: Ensure that acl_intfs will only ever contain front-panel interfaces (e.g.,
             # maybe we should explicity ignore management and loopback interfaces?) because we
@@ -247,7 +248,10 @@ def parse_dpg(dpg, hname):
                     if port_alias_map[member] in intfs_inpc:
                         print >> sys.stderr, "Warning: ACL " + aclname + " is attached to a LAG member interface " + port_alias_map[member] + ", instead of LAG interface"
                 elif member.lower().startswith('erspan'):
-                    is_mirror = True;
+                    if member.lower().startswith('erspanv6'):
+                        is_mirror_v6 = True
+                    else:
+                        is_mirror = True;
                     # Erspan session will be attached to all front panel ports,
                     # if panel ports is a member port of LAG, should add the LAG 
                     # to acl table instead of the panel ports
@@ -258,10 +262,13 @@ def parse_dpg(dpg, hname):
                     break;
             if acl_intfs:
                 acls[aclname] = {'policy_desc': aclname,
-                                 'ports': acl_intfs,
-                                 'type': 'MIRROR' if is_mirror else 'L3'}
-            elif is_mirror:
-                acls[aclname] = {'policy_desc': aclname, 'type': 'MIRROR'}
+                                 'ports': acl_intfs}
+                if is_mirror:
+                    acls[aclname]['type'] = 'MIRROR'
+                elif is_mirror_v6:
+                    acls[aclname]['type'] = 'MIRRORV6'
+                else:
+                    acls[aclname]['type'] = 'L3'
             else:
                 # This ACL has no interfaces to attach to -- consider this a control plane ACL
                 try:
