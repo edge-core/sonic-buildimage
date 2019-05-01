@@ -35,7 +35,8 @@ RUN apt-get update && apt-get install -y libperl5.20 libpci3 libwrap0 \
     python3.6 -m pip install --no-cache-dir /python-wheels/*py3*.whl hiredis && \
     rm -rf /python-wheels && \
     python3.6 -m sonic_ax_impl install && \
-    apt-get -y purge libpython3.6-dev libexpat1-dev curl gcc && \
+    apt-get -y purge libpython3.6-dev libpython3.6 libexpat1-dev curl gcc && \
+    apt-get -y purge libldap-2.4-2 libsasl2-2 libsasl2-modules libsasl2-modules-db && \
     apt-get clean -y && apt-get autoclean -y && apt-get autoremove -y --purge && \
     find / | grep -E "__pycache__" | xargs rm -rf && \
     rm -rf ~/.cache
