@@ -11,4 +11,4 @@ ExecStart=/usr/bin/{{ docker_container_name }}.sh wait
 ExecStop=/usr/bin/{{ docker_container_name }}.sh stop
 
 [Install]
-WantedBy=multi-user.target teamd.service
+WantedBy=multi-user.target swss.service teamd.service

@@ -1,0 +1,45 @@
+#!/usr/bin/env python
+
+import os
+import signal
+import sys
+import syslog
+
+from supervisor import childutils
+
+# Contents of file should be the names of critical processes (as defined in
+# supervisor.conf file), one per line
+CRITICAL_PROCESSES_FILE = '/etc/supervisor/critical_processes'
+
+def main():
+    # Read the list of critical processes from a file
+    with open(CRITICAL_PROCESSES_FILE, 'r') as f:
+        critical_processes = [line.rstrip('\n') for line in f]
+
+    while True:
+        # Transition from ACKNOWLEDGED to READY
+        childutils.listener.ready()
+
+        line = sys.stdin.readline()
+        headers = childutils.get_headers(line)
+        payload = sys.stdin.read(int(headers['len']))
+
+        # Transition from READY to ACKNOWLEDGED
+        childutils.listener.ok()
+
+        # We only care about PROCESS_STATE_EXITED events
+        if headers['eventname'] == 'PROCESS_STATE_EXITED':
+            payload_headers, payload_data = childutils.eventdata(payload + '\n')
+
+            expected = int(payload_headers['expected'])
+            processname = payload_headers['processname']
+
+            # If a critical process exited unexpectedly, terminate supervisor
+            if expected == 0 and processname in critical_processes:
+                MSG_FORMAT_STR = "Process {} exited unxepectedly. Terminating supervisor..."
+                msg = MSG_FORMAT_STR.format(payload_headers['processname'])
+                syslog.syslog(syslog.LOG_INFO, msg)
+                os.kill(os.getppid(), signal.SIGTERM)
+
+if __name__ == "__main__":
+    main()
