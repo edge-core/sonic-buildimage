@@ -25,11 +25,16 @@ function create_devices()
     mknod /dev/linux-kernel-bde c 127 0
 }
 
+# linux-kernel-bde debug=4    ==> Verbose level debug
+#              dma_debug=1    ==> Enable DMA debug
+# linux-bcm-knet debug=0x5020 ==> Enable KNET Warning(0x1000),
+#                                 Events(0x20) and Instance(0x4000)
+#                                 level logs
 function load_kernel_modules()
 {
-    modprobe linux-kernel-bde dmasize=32M maxpayload=128
+    modprobe linux-kernel-bde dmasize=32M maxpayload=128 debug=4 dma_debug=1
     modprobe linux-user-bde
-    modprobe linux-bcm-knet use_rx_skb=1 rx_buffer_size=9238
+    modprobe linux-bcm-knet use_rx_skb=1 rx_buffer_size=9238 debug=0x5020
     modprobe linux-knet-cb
 }
 
