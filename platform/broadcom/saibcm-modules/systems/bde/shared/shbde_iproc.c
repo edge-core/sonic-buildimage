@@ -40,6 +40,8 @@
 #define BAR0_PAXB_OARR_2_UPPER                  0x2d64
 #define BAR0_DMU_PCU_PCIE_SLAVE_RESET_MODE      0x7024
 
+#define PAXB_0_FUNC0_IMAP1_3                    0x2d88
+
 /* Force byte pointer for offset adjustments */
 #define ROFFS(_ptr, _offset) ((unsigned char*)(_ptr) + (_offset))
 
@@ -47,6 +49,7 @@
 #define PAXB_CONFIG_IND_ADDRr_PROTOCOL_LAYERf_MASK      0x3
 #define PAXB_CONFIG_IND_ADDRr_ADDRESSf_SHFT             0
 #define PAXB_CONFIG_IND_ADDRr_ADDRESSf_MASK             0x7ff
+#define PAXB_0_FUNC0_IMAP1_3_ADDR_SHIFT                 20
 
 /* Register value set/get by field */
 #define REG_FIELD_SET(_r, _f, _r_val, _f_val) \
@@ -273,17 +276,25 @@ shbde_iproc_paxb_init(shbde_hal_t *shbde, void *iproc_regs,
     reg = ROFFS(iproc_regs, BAR0_PAXB_PCIE_EP_AXI_CONFIG);
     iproc32_write(shbde, reg, 0x0);
     if(icfg->cmic_ver < 4) { /* Non-CMICX */
-    reg = ROFFS(iproc_regs, BAR0_PAXB_OARR_2);
-    iproc32_write(shbde, reg, 0x1);
-    reg = ROFFS(iproc_regs, BAR0_PAXB_OARR_2_UPPER);
-    iproc32_write(shbde, reg, icfg->dma_hi_bits);
-
-    /* Configure MSI interrupt page */
-    if (icfg->use_msi) {
-        reg = ROFFS(iproc_regs, BAR0_PAXB_OARR_FUNC0_MSI_PAGE);
-        data = iproc32_read(shbde, reg);
-        iproc32_write(shbde, reg, data | 0x1);
+        reg = ROFFS(iproc_regs, BAR0_PAXB_OARR_2);
+        iproc32_write(shbde, reg, 0x1);
+        reg = ROFFS(iproc_regs, BAR0_PAXB_OARR_2_UPPER);
+        iproc32_write(shbde, reg, icfg->dma_hi_bits);
+        /* Configure MSI interrupt page */
+        if (icfg->use_msi) {
+            reg = ROFFS(iproc_regs, BAR0_PAXB_OARR_FUNC0_MSI_PAGE);
+            data = iproc32_read(shbde, reg);
+            iproc32_write(shbde, reg, data | 0x1);
+        }
     }
+    /*  Configure MSIX interrupt page, only need for iproc ver == 0x10 */
+    if ((icfg->use_msi == 2) && (icfg->iproc_ver == 0x10)) {
+        unsigned int mask = (0x1 << PAXB_0_FUNC0_IMAP1_3_ADDR_SHIFT) - 1;
+        reg = ROFFS(iproc_regs, PAXB_0_FUNC0_IMAP1_3);
+        data = iproc32_read(shbde, reg);
+        data &= mask;
+        data |= 0x410 << PAXB_0_FUNC0_IMAP1_3_ADDR_SHIFT;
+        iproc32_write(shbde, reg, data);
     }
     return pci_num;
 }
@@ -315,7 +326,8 @@ shbde_iproc_pci_read(shbde_hal_t *shbde, void *iproc_regs,
     /* Sub-window size is 0x1000 (4K) */
     subwin_base = (addr & ~0xfff);
 
-    if((icfg->cmic_ver >= 4) && (subwin_base == 0x18013000)) {
+    if((icfg->cmic_ver >= 4) &&
+       ((subwin_base == 0x10231000) || (subwin_base == 0x18013000))) {
         /* Route the INTC block access through IMAP0_6 */
         reg = ROFFS(iproc_regs, 0x6000 + (addr & 0xfff));
     } else {
@@ -361,7 +373,8 @@ shbde_iproc_pci_write(shbde_hal_t *shbde, void *iproc_regs,
     /* Sub-window size is 0x1000 (4K) */
     subwin_base = (addr & ~0xfff);
 
-    if((icfg->cmic_ver >= 4) && (subwin_base == 0x18013000)) {
+    if((icfg->cmic_ver >= 4) &&
+       ((subwin_base == 0x10231000) || (subwin_base == 0x18013000))) {
         /* Route the INTC block access through IMAP0_6 */
         reg = ROFFS(iproc_regs, 0x6000 + (addr & 0xfff));
     } else {
