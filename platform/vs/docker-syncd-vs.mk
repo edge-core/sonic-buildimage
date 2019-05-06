@@ -1,20 +1,14 @@
 # docker image for vs syncd
 
-DOCKER_SYNCD_VS = docker-syncd-vs.gz
-$(DOCKER_SYNCD_VS)_PATH = $(PLATFORM_PATH)/docker-syncd-vs
-$(DOCKER_SYNCD_VS)_DEPENDS += $(SYNCD_VS)
-ifeq ($(INSTALL_DEBUG_TOOLS), y)
-$(DOCKER_SYNCD_VS)_DEPENDS += $(SYNCD_VS_DBG) \
-                              $(LIBSWSSCOMMON_DBG) \
-                              $(LIBSAIREDIS_DBG) \
-                              $(LIBSAIVS_DBG)
-endif
-$(DOCKER_SYNCD_VS)_LOAD_DOCKERS += $(DOCKER_CONFIG_ENGINE)
-SONIC_DOCKER_IMAGES += $(DOCKER_SYNCD_VS)
-SONIC_INSTALL_DOCKER_IMAGES += $(DOCKER_SYNCD_VS)
+DOCKER_SYNCD_PLATFORM_CODE = vs
+include $(PLATFORM_PATH)/../template/docker-syncd-base.mk
 
-$(DOCKER_SYNCD_VS)_CONTAINER_NAME = syncd
-$(DOCKER_SYNCD_VS)_RUN_OPT += --net=host --privileged -t
-$(DOCKER_SYNCD_VS)_RUN_OPT += -v /host/machine.conf:/etc/machine.conf
-$(DOCKER_SYNCD_VS)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
-$(DOCKER_SYNCD_VS)_RUN_OPT += -v /host/warmboot:/var/warmboot
+$(DOCKER_SYNCD_BASE)_DEPENDS += $(SYNCD_VS)
+
+$(DOCKER_SYNCD_BASE)_DBG_DEPENDS += $(SYNCD_VS_DBG) \
+                                $(LIBSWSSCOMMON_DBG) \
+                                $(LIBSAIMETADATA_DBG) \
+                                $(LIBSAIREDIS_DBG) \
+                                $(LIBSAIVS_DBG)
+
+$(DOCKER_SYNCD_BASE)_RUN_OPT += -v /host/warmboot:/var/warmboot

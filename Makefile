@@ -5,7 +5,7 @@ NOSTRETCH ?= 0
 %::
 	@echo "+++ --- Making $@ --- +++"
 ifeq ($(NOSTRETCH), 0)
-	BLDENV=stretch make -f Makefile.work stretch
+	BLDENV=stretch EXTRA_STRETCH_TARGETS=$(notdir $@) make -f Makefile.work stretch
 endif
 	make -f Makefile.work $@
 

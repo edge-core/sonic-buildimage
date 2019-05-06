@@ -9,8 +9,7 @@ $(DOCKER_SONIC_VS)_DEPENDS += $(SWSS) \
                               $(PYTHON_SWSSCOMMON) \
                               $(LIBTEAMDCT) \
                               $(LIBTEAM_UTILS) \
-                              $(SONIC_DEVICE_DATA) \
-                              $(IPROUTE2)
+                              $(SONIC_DEVICE_DATA)
 
 $(DOCKER_SONIC_VS)_PYTHON_DEBS += $(SONIC_UTILS)
 
@@ -36,5 +35,6 @@ $(DOCKER_SONIC_VS)_FILES += $(CONFIGDB_LOAD_SCRIPT) \
                             $(QOS_CONFIG_TEMPLATE) \
                             $(SONIC_VERSION)
 
-$(DOCKER_SONIC_VS)_LOAD_DOCKERS += $(DOCKER_CONFIG_ENGINE)
+$(DOCKER_SONIC_VS)_LOAD_DOCKERS += $(DOCKER_CONFIG_ENGINE_STRETCH)
 SONIC_DOCKER_IMAGES += $(DOCKER_SONIC_VS)
+SONIC_STRETCH_DOCKERS += $(DOCKER_SONIC_VS)

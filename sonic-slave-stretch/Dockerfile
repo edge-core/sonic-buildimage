@@ -262,6 +262,8 @@ RUN pip install --force-reinstall --upgrade jinja2>=2.10
 # For templating
 RUN pip install j2cli
 
+# Remove python-click 6.6
+RUN apt-get purge -y python-click
 # For sonic utilities testing
 RUN pip install click-default-group click natsort tabulate netifaces==0.10.7 fastentrypoints
 
@@ -275,6 +277,11 @@ RUN pip3 install redis
 
 # For supervisor build
 RUN pip install meld3 mock
+
+# For sonic-utilities build
+RUN pip install mockredispy==2.9.3
+RUN pip install pytest-runner==4.4
+RUN pip install setuptools==40.8.0
 
 # Install dependencies for isc-dhcp-relay build
 RUN apt-get -y build-dep isc-dhcp

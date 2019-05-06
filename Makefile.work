@@ -123,6 +123,7 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            HTTP_PROXY=$(http_proxy) \
                            HTTPS_PROXY=$(https_proxy) \
                            SONIC_ENABLE_SYSTEM_TELEMETRY=$(ENABLE_SYSTEM_TELEMETRY) \
+                           EXTRA_STRETCH_TARGETS=$(EXTRA_STRETCH_TARGETS) \
                            $(SONIC_OVERRIDE_BUILD_VARS)
 
 .PHONY: sonic-slave-build sonic-slave-bash init reset
