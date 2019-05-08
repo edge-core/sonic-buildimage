@@ -20,7 +20,7 @@
 #    mm/dd/yyyy (A.D.)
 #    11/13/2017: Polly Hsu, Create
 #    1/10/2018: Jostar modify for as7716_32
-#    2/27/2018: Roy Lee modify for as7312_54x
+#    5/02/2019: Roy Lee modify for as7816_64x
 # ------------------------------------------------------------------
 
 try:
@@ -36,43 +36,23 @@ try:
     import traceback
     import signal
     from tabulate import tabulate
-    from as7312_54x.fanutil import FanUtil
-    from as7312_54x.thermalutil import ThermalUtil
+    from as7816_64x.fanutil import FanUtil
+    from as7816_64x.thermalutil import ThermalUtil
 except ImportError as e:
     raise ImportError('%s - required module not found' % str(e))
 
 # Deafults
 VERSION = '1.0'
-FUNCTION_NAME = 'accton_as7312_monitor'
+FUNCTION_NAME = 'accton_as7816_monitor'
 DUTY_MAX = 100
+DUTY_DEF = 40
 
 global log_file
 global log_level
 
-#   (LM75_1+ LM75_2+ LM75_3) is LM75 at i2c addresses 0x48, 0x49, and 0x4A.
-#   TMP = (LM75_1+ LM75_2+ LM75_3)/3
-#1. If TMP < 35, All fans run with duty 31.25%.
-#2. If TMP>=35 or the temperature of any one of fan is higher than 40,
-#   All fans run with duty 50%
-#3. If TMP >= 40 or the temperature of any one of fan is higher than 45,
-#   All fans run with duty 62.5%.
-#4. If TMP >= 45 or the temperature of any one of fan is higher than 50,
-#   All fans run with duty 100%.
-#5. Any one of 6 fans is fault, set duty = 100%.
-#6. Direction factor. If it is B2F direction, duty + 12%.
-
- # MISC:
- # 1.Check single LM75 before applied average.
- # 2.If no matched fan speed is found from the policy,
- #     use FAN_DUTY_CYCLE_MIN as default speed
- # Get current temperature
- # 4.Decision 3: Decide new fan speed depend on fan direction/current fan speed/temperature
-
-
-
      
 # Make a class we can use to capture stdout and sterr in the log
-class accton_as7312_monitor(object):
+class accton_as7816_monitor(object):
     # static temp var
     _ori_temp = 0
     _new_perc = 0
@@ -101,22 +81,12 @@ class accton_as7312_monitor(object):
 
     def manage_fans(self):
         max_duty = DUTY_MAX
-        fan_policy_f2b = {
-           0: [32, 0,      105000],
-           1: [50, 105000, 120000],
-           2: [63, 120000, 135000],
-           3: [max_duty, 135000, sys.maxsize],
-        }
-        fan_policy_b2f = {
-           0: [44, 0,      105000],
-           1: [63, 105000, 120000],
-           2: [75, 120000, 135000],
-           3: [max_duty, 135000, sys.maxsize],
-        }
-        fan_policy_single = {
-           0: 40000,
-           1: 45000,
-           2: 50000,
+        fan_policy = {
+           0: [52, 0,     43000],
+           1: [63, 43000, 46000],
+           2: [75, 46000, 52000],
+           3: [88, 52000, 57000],
+           4: [max_duty, 57000, sys.maxsize],
         }
   
         thermal = ThermalUtil()
@@ -132,28 +102,10 @@ class accton_as7312_monitor(object):
                 return True
             #logging.debug('INFO. fan_status is True (fan_num:%d)', x)
  
-        fan_dir=fan.get_fan_dir(1)
-        if fan_dir == 1:
-            fan_policy = fan_policy_f2b
-        else:
-            fan_policy = fan_policy_b2f
-       
-        #Decide fan duty by if any of sensors > fan_policy_single. 
-        new_duty_cycle = fan_policy[0][0]
-        for x in range(thermal.get_idx_thermal_start(), thermal.get_num_thermals()+1):
-            single_thm = thermal._get_thermal_node_val(x)
-            for y in range(0, len(fan_policy_single)):
-                if single_thm > fan_policy_single[y]:
-                    if fan_policy[y+1][0] > new_duty_cycle:
-                        new_duty_cycle = fan_policy[y+1][0]
-                        logging.debug('INFO. Single thermal sensor %d with temp %d > %d , new_duty_cycle=%d', 
-                                x, single_thm, fan_policy_single[y], new_duty_cycle)
-	single_result = new_duty_cycle	
-
-
         #Find if current duty matched any of define duty. 
 	#If not, set it to highest one.
         cur_duty_cycle = fan.get_fan_duty_cycle()       
+        new_duty_cycle = DUTY_DEF
         for x in range(0, len(fan_policy)):
             if cur_duty_cycle == fan_policy[x][0]:
                 break
@@ -163,18 +115,11 @@ class accton_as7312_monitor(object):
 
         #Decide fan duty by if sum of sensors falls into any of fan_policy{}
         get_temp = thermal.get_thermal_temp()            
-        new_duty_cycle = cur_duty_cycle
         for x in range(0, len(fan_policy)):
             y = len(fan_policy) - x -1 #checked from highest
             if get_temp > fan_policy[y][1] and get_temp < fan_policy[y][2] :
-                new_duty_cycle= fan_policy[y][0]
+                new_duty_cycle = fan_policy[y][0]
                 logging.debug('INFO. Sum of temp %d > %d , new_duty_cycle=%d', get_temp, fan_policy[y][1], new_duty_cycle)
-
-	sum_result = new_duty_cycle
-	if (sum_result>single_result): 
-		new_duty_cycle = sum_result;
-	else:
-		new_duty_cycle = single_result
 
         logging.debug('INFO. Final duty_cycle=%d', new_duty_cycle)
         if(new_duty_cycle != cur_duty_cycle):
@@ -207,7 +152,7 @@ def main(argv):
 
     signal.signal(signal.SIGINT, handler)
     signal.signal(signal.SIGTERM, handler)
-    monitor = accton_as7312_monitor(log_file, log_level)
+    monitor = accton_as7816_monitor(log_file, log_level)
 
     # Loop forever, doing something useful hopefully:
     while True:

@@ -33,6 +33,7 @@ try:
     import types
     import time  # this is only being used as part of the example
     import traceback
+    import signal
     from tabulate import tabulate
     from as5712_54x.fanutil import FanUtil
     from as5712_54x.thermalutil import ThermalUtil
@@ -42,6 +43,7 @@ except ImportError as e:
 # Deafults
 VERSION = '1.0'
 FUNCTION_NAME = 'accton_as5712_monitor'
+DUTY_MAX = 100
 
 global log_file
 global log_level
@@ -166,6 +168,12 @@ class accton_as5712_monitor(object):
 
         return True
 
+def handler(signum, frame):
+        fan = FanUtil()
+        logging.debug('INFO:Cause signal %d, set fan speed max.', signum)
+        fan.set_fan_duty_cycle(fan.get_idx_fan_start(), DUTY_MAX)
+        sys.exit(0)
+
 def main(argv):
     log_file = '%s.log' % FUNCTION_NAME
     log_level = logging.INFO
@@ -184,6 +192,8 @@ def main(argv):
             elif opt in ('-l', '--lfile'):
                 log_file = arg
 
+    signal.signal(signal.SIGINT, handler)
+    signal.signal(signal.SIGTERM, handler)
     monitor = accton_as5712_monitor(log_file, log_level)
 
     # Loop forever, doing something useful hopefully:
