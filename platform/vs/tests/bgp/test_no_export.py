@@ -6,7 +6,7 @@ import json
 
 def test_bounce(dvs, testlog):
     dvs.servers[0].runcmd("pkill -f exabgp")
-    dvs.copy_file("/etc/quagga/", "bgp/files/no_export/bgpd.conf")
+    dvs.copy_file("/etc/frr/", "bgp/files/no_export/bgpd.conf")
     dvs.runcmd("supervisorctl start bgpd")
     dvs.runcmd("ip addr add 10.0.0.0/31 dev Ethernet0") 
     dvs.runcmd("ifconfig Ethernet0 up")

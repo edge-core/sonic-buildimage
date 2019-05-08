@@ -80,7 +80,7 @@ def test_gr_livelock(dvs, testlog):
     # update exabgp to version 4.0.10
     dvs.servers[0].runcmd("pip install 'exabgp==4.0.10' --force-reinstall ")
     #
-    dvs.copy_file("/etc/quagga/", "bgp/files/gr_livelock/bgpd.conf")
+    dvs.copy_file("/etc/frr/", "bgp/files/gr_livelock/bgpd.conf")
     dvs.servers[0].runcmd("pkill exabgp") # In case previous test didn't stop exa
     dvs.runcmd("supervisorctl stop bgpd")
     time.sleep(5)
@@ -115,7 +115,7 @@ def test_gr_livelock(dvs, testlog):
     run_exacli(dvs, 0, 'shutdown')
     p1 = p1.wait()
 
-    # Wait until quagga thinks that 1st neighbor was shut down
+    # Wait until frr thinks that 1st neighbor was shut down
     time.sleep(300)
 
     # Start the 1st neighbor again with graceful restart enabled

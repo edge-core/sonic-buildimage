@@ -51,7 +51,7 @@ DEFAULT_PASSWORD = YourPaSsWoRd
 # SONIC_ROUTING_STACK - specify the routing-stack being elected to drive SONiC's control-plane.
 # Supported routing stacks on SONiC are:
 # routing-stacks: quagga, frr.
-SONIC_ROUTING_STACK = quagga
+SONIC_ROUTING_STACK = frr
 
 # ENABLE_SYNCD_RPC - build docker-syncd with rpc packages for testing purposes.
 # Uncomment to enable:
