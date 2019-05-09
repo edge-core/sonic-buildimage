@@ -337,8 +337,6 @@ sudo chmod 755 $FILESYSTEM_ROOT/usr/bin/mlnx-fw-upgrade.sh
 sudo mkdir $FILESYSTEM_ROOT/etc/sonic/frr
 sudo touch $FILESYSTEM_ROOT/etc/sonic/frr/frr.conf
 sudo touch $FILESYSTEM_ROOT/etc/sonic/frr/vtysh.conf
-sudo cp dockers/docker-fpm-frr/daemons.conf $FILESYSTEM_ROOT/etc/sonic/frr/
-sudo cp dockers/docker-fpm-frr/daemons $FILESYSTEM_ROOT/etc/sonic/frr/
 sudo chown -R $FRR_USER_UID:$FRR_USER_GID $FILESYSTEM_ROOT/etc/sonic/frr
 sudo chmod -R 640 $FILESYSTEM_ROOT/etc/sonic/frr/
 sudo chmod 750 $FILESYSTEM_ROOT/etc/sonic/frr

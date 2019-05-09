@@ -1,0 +1,65 @@
+#!/usr/bin/env python
+
+import sys
+import redis
+import subprocess
+import syslog
+from swsssdk import ConfigDBConnector
+
+class BGPConfigDaemon:
+
+    def __init__(self):
+        self.config_db = ConfigDBConnector()
+        self.config_db.connect()
+        self.bgp_asn = self.config_db.get_entry('DEVICE_METADATA', 'localhost')['bgp_asn']
+        self.bgp_neighbor = self.config_db.get_table('BGP_NEIGHBOR')
+
+    def __run_command(self, command):
+#        print command
+        p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+        stdout = p.communicate()[0]
+        p.wait()
+        if p.returncode != 0:
+            syslog.syslog(syslog.LOG_ERR, '[bgp cfgd] command execution returned {}. Command: "{}", stdout: "{}"'.format(p.returncode, command, stdout))
+
+    def metadata_handler(self, key, data):
+        if key == 'localhost' and data.has_key('bgp_asn'):
+            if data['bgp_asn'] != self.bgp_asn:
+                syslog.syslog(syslog.LOG_INFO, '[bgp cfgd] ASN changed to {} from {}, restart BGP...'.format(data['bgp_asn'], self.bgp_asn))
+                self.__run_command("supervisorctl restart start.sh")
+                self.__run_command("service quagga restart")
+                self.bgp_asn = data['bgp_asn']
+
+    def bgp_handler(self, key, data):
+        syslog.syslog(syslog.LOG_INFO, '[bgp cfgd] value for {} changed to {}'.format(key, data))
+        if not data:
+            # Neighbor is deleted
+            command = "vtysh -c 'configure terminal' -c 'router bgp {}' -c 'no neighbor {}'".format(self.bgp_asn, key)
+            self.__run_command(command)
+            self.bgp_neighbor.pop(key)
+        else:
+            command = "vtysh -c 'configure terminal' -c 'router bgp {}' -c 'neighbor {} remote-as {}'".format(self.bgp_asn, key, data['asn'])
+            self.__run_command(command)
+            if data.has_key('name'):
+                command = "vtysh -c 'configure terminal' -c 'router bgp {}' -c 'neighbor {} description {}'".format(self.bgp_asn, key, data['name'])
+                self.__run_command(command)
+            if data.has_key('admin_status'):
+                command_mod = 'no ' if data['admin_status'] == 'up' else ''
+                command = "vtysh -c 'configure terminal' -c 'router bgp {}' -c '{}neighbor {} shutdown'".format(self.bgp_asn, command_mod, key)
+                self.__run_command(command)
+            self.bgp_neighbor[key] = data
+
+    def start(self):
+        self.config_db.subscribe('BGP_NEIGHBOR', 
+                lambda table, key, data: self.bgp_handler(key, data))
+        self.config_db.subscribe('DEVICE_METADATA',
+                lambda table, key, data: self.metadata_handler(key, data))
+        self.config_db.listen()
+
+
+def main():
+    daemon = BGPConfigDaemon()
+    daemon.start()
+
+if __name__ == "__main__":
+    main()

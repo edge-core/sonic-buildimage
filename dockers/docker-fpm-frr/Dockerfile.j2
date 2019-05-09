@@ -36,12 +36,8 @@ RUN apt-get autoclean -y
 RUN apt-get autoremove -y
 RUN rm -rf /debs ~/.cache
 
+COPY ["bgpcfgd", "start.sh", "/usr/bin/"]
 COPY ["*.j2", "/usr/share/sonic/templates/"]
-COPY ["start.sh", "config.sh", "/usr/bin/"]
-COPY ["daemons", "/etc/frr/"]
-COPY ["daemons.conf", "/etc/frr/"]
-COPY ["vtysh.conf", "/etc/frr/"]
+COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 
-ENTRYPOINT /usr/bin/config.sh   \
-        && /usr/bin/start.sh    \
-        && /bin/bash
+ENTRYPOINT ["/usr/bin/supervisord"]
