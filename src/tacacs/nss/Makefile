@@ -14,6 +14,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# Apply patch
 	git am ../0001-Modify-user-map-profile.patch
 	git am ../0002-Enable-modifying-local-user-permission.patch
+	git am ../0004-Skip-accessing-tacacs-servers-for-local-non-tacacs-u.patch
 
 	dpkg-buildpackage -rfakeroot -b -us -uc
 	popd
