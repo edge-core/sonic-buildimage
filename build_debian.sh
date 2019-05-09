@@ -230,6 +230,7 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     usbutils                \
     pciutils                \
     iptables-persistent     \
+    ebtables                \
     logrotate               \
     curl                    \
     kexec-tools             \
@@ -411,6 +412,10 @@ if [ "${enable_organization_extensions}" = "y" ]; then
       ./files/build_templates/organization_extensions.sh -f $FILESYSTEM_ROOT -h $HOSTNAME
    fi
 fi
+
+## Setup ebtable rules (rule file is in binary format)
+sudo sed -i 's/EBTABLES_LOAD_ON_START="no"/EBTABLES_LOAD_ON_START="yes"/g' ${FILESYSTEM_ROOT}/etc/default/ebtables
+sudo cp files/image_config/ebtables/ebtables.filter ${FILESYSTEM_ROOT}/etc
 
 ## Remove gcc and python dev pkgs
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y remove gcc libpython2.7-dev
