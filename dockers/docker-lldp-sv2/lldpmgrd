@@ -74,11 +74,14 @@ def signal_handler(sig, frame):
 # ========================== Helpers ==================================
 
 def is_port_exist(port_name):
-    filename = "/sys/class/net/%s/ifindex" % port_name
-    if not os.path.exists(filename):
-        return False
-
-    return True
+    filename = "/sys/class/net/%s/operstate" % port_name
+    if os.path.exists(filename):
+        with open(filename) as fp:
+            state = fp.read()
+            return "up" in state
+    else:
+        filename = "/sys/class/net/%s/ifindex" % port_name
+        return os.path.exists(filename)
 
 # ============================== Classes ==============================
 
