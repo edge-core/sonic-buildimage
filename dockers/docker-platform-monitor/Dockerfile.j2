@@ -7,7 +7,7 @@ RUN [ -f /etc/rsyslog.conf ] && sed -ri "s/%syslogtag%/$docker_container_name#%s
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install required packages
-RUN apt-get update && apt-get install -y python-pip libpython2.7 ipmitool librrd8 librrd-dev rrdtool
+RUN apt-get update && apt-get install -y python-pip libpython2.7 ipmitool librrd8 librrd-dev rrdtool python-smbus
 
 {% if docker_platform_monitor_debs.strip() -%}
 # Copy locally-built Debian package dependencies
