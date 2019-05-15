@@ -162,7 +162,7 @@ def main():
     group.add_argument("-t", "--template", help="render the data with the template file")
     group.add_argument("-v", "--var", help="print the value of a variable, support jinja2 expression")
     group.add_argument("--var-json", help="print the value of a variable, in json format")
-    group.add_argument("--write-to-db", help="write config into configdb", action='store_true')
+    group.add_argument("-w", "--write-to-db", help="write config into configdb", action='store_true')
     group.add_argument("--print-data", help="print all data", action='store_true')
     group.add_argument("--preset", help="generate sample configuration from a preset template", choices=get_available_config())
     args = parser.parse_args()
