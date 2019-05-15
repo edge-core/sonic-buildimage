@@ -28,9 +28,9 @@ from minigraph import minigraph_encoder
 from minigraph import parse_xml
 from minigraph import parse_device_desc_xml
 from portconfig import get_port_config
-from sonic_platform import get_machine_info
-from sonic_platform import get_platform_info
-from sonic_platform import get_system_mac
+from sonic_device_util import get_machine_info
+from sonic_device_util import get_platform_info
+from sonic_device_util import get_system_mac
 from config_samples import generate_sample_config
 from config_samples import get_available_config
 from swsssdk import ConfigDBConnector

@@ -5,13 +5,17 @@ import subprocess
 
 DOCUMENTATION = '''
 ---
-module: sonic_platform
+module: sonic_device_util
 version_added: "1.9"
-short_description: Retrive platform related facts for a device.
+short_description: Retrieve device related facts for a device.
 description:
-    - Retrieve platform related facts from config files.
+    - Retrieve device related facts from config files.
 '''
 
+'''
+TODO: this file shall be renamed and moved to other places in future
+to have it shared with multiple applications. 
+'''
 def get_machine_info():
     if not os.path.isfile('/host/machine.conf'):
         return None
