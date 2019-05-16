@@ -32,6 +32,7 @@ supervisorctl start bgpcfgd
 
 # Start Quagga processes
 supervisorctl start zebra
+supervisorctl start staticd
 supervisorctl start bgpd
 
 if [ "$CONFIG_TYPE" == "unified" ]; then

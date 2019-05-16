@@ -62,6 +62,11 @@ RUN apt-get update && apt-get install -y \
         libjson-c-dev \
         libsystemd-dev \
         python-ipaddr \
+        libcmocka-dev \
+        python3-all-dev \
+        python3-all-dbg \
+        install-info \
+        logrotate \
 # For libnl3 (local) build
         cdbs \
 # For SAI meta build
@@ -109,7 +114,6 @@ RUN apt-get update && apt-get install -y \
         dpatch \
         libdb-dev \
         iptables-dev \
-        swig \
         ctags \
 # For mellanox sai build
         libtool-bin \
