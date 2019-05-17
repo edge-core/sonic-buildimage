@@ -1,0 +1,122 @@
+From c26520f36ebcd1f143312fc61440ed3d546c7504 Mon Sep 17 00:00:00 2001
+From: Joe LeVeque <jolevequ@microsoft.com>
+Date: Wed, 8 May 2019 18:08:13 +0000
+Subject: [PATCH 2/3] Bugfix: Ensure HAVE_SO_BINDTODEVICE has a chance to be
+ defined before it is referenced
+
+---
+ includes/osdep.h | 93 ++++++++++++++++++++++++------------------------
+ 1 file changed, 47 insertions(+), 46 deletions(-)
+
+diff --git a/includes/osdep.h b/includes/osdep.h
+index 5ae0c35..670b356 100644
+--- a/includes/osdep.h
++++ b/includes/osdep.h
+@@ -139,52 +139,6 @@
+ #  define USE_UPF_RECEIVE
+ #endif
+ 
+-/* Porting::
+-
+-   If you add support for sending packets directly out an interface,
+-   and your support does not do ARP or routing, you must use a fallback
+-   mechanism to deal with packets that need to be sent to routers.
+-   Currently, all low-level packet interfaces use BSD sockets as a
+-   fallback. */
+-
+-#if defined (USE_BPF_SEND) || defined (USE_NIT_SEND) || \
+-    defined (USE_DLPI_SEND) || defined (USE_UPF_SEND) || \
+-    defined (USE_LPF_SEND) || \
+-    (defined (USE_SOCKET_SEND) && defined (HAVE_SO_BINDTODEVICE))
+-#  define USE_SOCKET_FALLBACK
+-#  define USE_FALLBACK
+-#endif
+-
+-/* Porting::
+-
+-   If you add support for sending packets directly out an interface
+-   and need to be able to assemble packets, add the USE_XXX_SEND
+-   definition for your interface to the list tested below. */
+-
+-#if defined (USE_RAW_SEND) || defined (USE_BPF_SEND) || \
+-		defined (USE_NIT_SEND) || defined (USE_UPF_SEND) || \
+-		defined (USE_DLPI_SEND) || defined (USE_LPF_SEND)
+-#  define PACKET_ASSEMBLY
+-#endif
+-
+-/* Porting::
+-
+-   If you add support for receiving packets directly from an interface
+-   and need to be able to decode raw packets, add the USE_XXX_RECEIVE
+-   definition for your interface to the list tested below. */
+-
+-#if defined (USE_RAW_RECEIVE) || defined (USE_BPF_SEND) || \
+-		defined (USE_NIT_RECEIVE) || defined (USE_UPF_RECEIVE) || \
+-		defined (USE_DLPI_RECEIVE) || defined (USE_LPF_RECEIVE)
+-#  define PACKET_DECODING
+-#endif
+-
+-/* If we don't have a DLPI packet filter, we have to filter in userland.
+-   Probably not worth doing, actually. */
+-#if defined (USE_DLPI_RECEIVE) && !defined (USE_DLPI_PFMOD)
+-#  define USERLAND_FILTER
+-#endif
+-
+ /* jmp_buf is assumed to be a struct unless otherwise defined in the
+    system header. */
+ #ifndef jbp_decl
+@@ -288,4 +242,51 @@
+ # define STDERR_FILENO 2
+ #endif
+ 
++/* Porting::
++
++   If you add support for sending packets directly out an interface,
++   and your support does not do ARP or routing, you must use a fallback
++   mechanism to deal with packets that need to be sent to routers.
++   Currently, all low-level packet interfaces use BSD sockets as a
++   fallback. */
++
++#if defined (USE_BPF_SEND) || defined (USE_NIT_SEND) || \
++    defined (USE_DLPI_SEND) || defined (USE_UPF_SEND) || \
++    defined (USE_LPF_SEND) || \
++    (defined (USE_SOCKET_SEND) && defined (HAVE_SO_BINDTODEVICE))
++#  define USE_SOCKET_FALLBACK
++#  define USE_FALLBACK
++#endif
++
++/* Porting::
++
++   If you add support for sending packets directly out an interface
++   and need to be able to assemble packets, add the USE_XXX_SEND
++   definition for your interface to the list tested below. */
++
++#if defined (USE_RAW_SEND) || defined (USE_BPF_SEND) || \
++		defined (USE_NIT_SEND) || defined (USE_UPF_SEND) || \
++		defined (USE_DLPI_SEND) || defined (USE_LPF_SEND)
++#  define PACKET_ASSEMBLY
++#endif
++
++/* Porting::
++
++   If you add support for receiving packets directly from an interface
++   and need to be able to decode raw packets, add the USE_XXX_RECEIVE
++   definition for your interface to the list tested below. */
++
++#if defined (USE_RAW_RECEIVE) || defined (USE_BPF_SEND) || \
++		defined (USE_NIT_RECEIVE) || defined (USE_UPF_RECEIVE) || \
++		defined (USE_DLPI_RECEIVE) || defined (USE_LPF_RECEIVE)
++#  define PACKET_DECODING
++#endif
++
++/* If we don't have a DLPI packet filter, we have to filter in userland.
++   Probably not worth doing, actually. */
++#if defined (USE_DLPI_RECEIVE) && !defined (USE_DLPI_PFMOD)
++#  define USERLAND_FILTER
++#endif
++
++
+ #endif /* __ISC_DHCP_OSDEP_H__ */
+-- 
+2.17.1
+

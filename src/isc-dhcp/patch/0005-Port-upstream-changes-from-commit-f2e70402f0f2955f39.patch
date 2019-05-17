@@ -1,0 +1,102 @@
+From 0092eed7a80f38078a38fedf601952d0d25c6183 Mon Sep 17 00:00:00 2001
+From: Joe LeVeque <jolevequ@microsoft.com>
+Date: Thu, 2 May 2019 19:20:59 +0000
+Subject: [PATCH 1/2] Port upstream changes from commit
+ f2e70402f0f2955f392edc4eb2dd835b820e25bc to add '-iu' option
+
+---
+ common/discover.c |  8 +++++++-
+ relay/dhcrelay.c  | 36 +++++++++++++++++++++++++++++++++++-
+ 2 files changed, 42 insertions(+), 2 deletions(-)
+
+diff --git a/common/discover.c b/common/discover.c
+index 3cd64a7..e20d9d5 100644
+--- a/common/discover.c
++++ b/common/discover.c
+@@ -948,8 +948,14 @@ discover_interfaces(int state) {
+ 		ir = 0;
+ 	else if (state == DISCOVER_UNCONFIGURED)
+ 		ir = INTERFACE_REQUESTED | INTERFACE_AUTOMATIC;
+-	else
++	else {
+ 		ir = INTERFACE_REQUESTED;
++		if (state == DISCOVER_RELAY && local_family == AF_INET) {
++			/* We're a v4 relay without specifically requested
++			 * interfaces, so mark them all as bidirectional. */
++			ir |= INTERFACE_STREAMS;
++		}
++	}
+ 
+ 	/* Cycle through the list of interfaces looking for IP addresses. */
+ 	while (next_iface(&info, &err, &ifaces)) {
+diff --git a/relay/dhcrelay.c b/relay/dhcrelay.c
+index 15f0acf..8051e17 100644
+--- a/relay/dhcrelay.c
++++ b/relay/dhcrelay.c
+@@ -172,6 +172,7 @@ static const char url[] =
+ "                     [-m append|replace|forward|discard]\n" \
+ "                     [--name-alias-map-file <name-alias-map-file>]\n" \
+ "                     [-i interface0 [ ... -i interfaceN]\n" \
++"                     [-iu interface0 [ ... -iu interfaceN]\n" \
+ "                     server0 [ ... serverN]\n\n" \
+ "       dhcrelay -6   [-d] [-q] [-I] [-c <hops>] [-p <port>]\n" \
+ "                     [-pf <pid-file>] [--no-pid]\n" \
+@@ -188,6 +189,7 @@ static const char url[] =
+ "                [-pf <pid-file>] [--no-pid]\n"\
+ "                [-m append|replace|forward|discard]\n" \
+ "                [-i interface0 [ ... -i interfaceN]\n" \
++"                [-iu interface0 [ ... -iu interfaceN]\n" \
+ "                server0 [ ... serverN]\n\n" DHCRELAY_OPTION82_USAGE
+ #endif
+ 
+@@ -304,7 +306,34 @@ main(int argc, char **argv) {
+ 					  isc_result_totext(status));
+ 			}
+ 			strcpy(tmp->name, argv[i]);
+-			interface_snorf(tmp, INTERFACE_REQUESTED);
++			interface_snorf(tmp, (INTERFACE_REQUESTED |
++					      INTERFACE_STREAMS));
++			interface_dereference(&tmp, MDL);
++		} else if (!strcmp(argv[i], "-iu")) {
++#ifdef DHCPv6
++			if (local_family_set && (local_family == AF_INET6)) {
++				usage();
++			}
++			local_family_set = 1;
++			local_family = AF_INET;
++#endif
++			if (++i == argc) {
++				usage();
++			}
++			if (strlen(argv[i]) >= sizeof(tmp->name)) {
++				log_fatal("%s: interface name too long "
++					  "(is %ld)",
++					  argv[i], (long)strlen(argv[i]));
++			}
++			status = interface_allocate(&tmp, MDL);
++			if (status != ISC_R_SUCCESS) {
++				log_fatal("%s: interface_allocate: %s",
++					  argv[i],
++					  isc_result_totext(status));
++			}
++			strcpy(tmp->name, argv[i]);
++			interface_snorf(tmp, (INTERFACE_REQUESTED |
++					      INTERFACE_UPSTREAM));
+ 			interface_dereference(&tmp, MDL);
+ 		} else if (!strcmp(argv[i], "-a")) {
+ #ifdef DHCPv6
+@@ -691,6 +720,11 @@ do_relay4(struct interface_info *ip, struct dhcp_packet *packet,
+ 
+ 	/* If it's a bootreply, forward it to the client. */
+ 	if (packet->op == BOOTREPLY) {
++		if (!(ip->flags & INTERFACE_UPSTREAM)) {
++			log_debug("Dropping reply received on %s", ip->name);
++			return;
++		}
++
+ 		if (!(packet->flags & htons(BOOTP_BROADCAST)) &&
+ 			can_unicast_without_arp(out)) {
+ 			to.sin_addr = packet->yiaddr;
+-- 
+2.17.1
+

@@ -3,3 +3,8 @@
 0002-Support-for-obtaining-name-of-physical-interface-tha.patch
 0003-Support-for-loading-port-alias-map-file-to-replace-p.patch
 0004-Bugfix-Don-t-print-log-messages-to-stderr-in-release.patch
+0005-Port-upstream-changes-from-commit-f2e70402f0f2955f39.patch
+0006-Port-upstream-changes-from-commit-edd6d8881bc4d8ec4b.patch
+0007-Add-enable-use-sockets-to-configure-flags-in-debian-.patch
+0008-Bugfix-Ensure-HAVE_SO_BINDTODEVICE-has-a-chance-to-b.patch
+0009-If-destination-of-BOOTREQUEST-is-directed-broadcast-.patch
