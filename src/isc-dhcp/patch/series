@@ -6,4 +6,8 @@
 0005-CVE-2017-3144.patch
 0006-CVE-2018-5733.patch
 0007-CVE-2018-5732.patch 
-
+0008-Port-upstream-changes-from-commit-f2e70402f0f2955f39.patch
+0009-Port-upstream-changes-from-commit-edd6d8881bc4d8ec4b.patch
+0010-Add-enable-use-sockets-to-configure-flags-in-debian-.patch
+0011-Bugfix-Ensure-HAVE_SO_BINDTODEVICE-has-a-chance-to-b.patch
+0012-If-destination-of-BOOTREQUEST-is-directed-broadcast-.patch

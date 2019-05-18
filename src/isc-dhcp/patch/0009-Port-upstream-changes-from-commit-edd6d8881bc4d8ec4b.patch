@@ -1,0 +1,157 @@
+From 1d59a7bd4dc9cb3cd13aedf604a15a8589febe43 Mon Sep 17 00:00:00 2001
+From: Joe LeVeque <jolevequ@microsoft.com>
+Date: Thu, 2 May 2019 19:46:42 +0000
+Subject: [PATCH 2/2] Port upstream changes from commit
+ edd6d8881bc4d8ec4b04173c66c1c840756bbe76 to add '-id' option
+
+---
+ relay/dhcrelay.c | 89 +++++++++++++++++++++++++++++++++---------------
+ 1 file changed, 61 insertions(+), 28 deletions(-)
+
+diff --git a/relay/dhcrelay.c b/relay/dhcrelay.c
+index 8051e17..292ba4f 100644
+--- a/relay/dhcrelay.c
++++ b/relay/dhcrelay.c
+@@ -142,6 +142,8 @@ static int strip_relay_agent_options(struct interface_info *,
+ 				     struct interface_info **,
+ 				     struct dhcp_packet *, unsigned);
+ 
++static void request_v4_interface(const char* name, int flags);
++
+ static int load_interface_alias_map(const char *port_alias_map_file_path);
+ static int get_interface_alias_by_name(const char *if_name, char *if_alias_out);
+ static void free_interface_alias_map(void);
+@@ -173,6 +175,7 @@ static const char url[] =
+ "                     [--name-alias-map-file <name-alias-map-file>]\n" \
+ "                     [-i interface0 [ ... -i interfaceN]\n" \
+ "                     [-iu interface0 [ ... -iu interfaceN]\n" \
++"                     [-id interface0 [ ... -id interfaceN]\n" \
+ "                     server0 [ ... serverN]\n\n" \
+ "       dhcrelay -6   [-d] [-q] [-I] [-c <hops>] [-p <port>]\n" \
+ "                     [-pf <pid-file>] [--no-pid]\n" \
+@@ -190,6 +193,7 @@ static const char url[] =
+ "                [-m append|replace|forward|discard]\n" \
+ "                [-i interface0 [ ... -i interfaceN]\n" \
+ "                [-iu interface0 [ ... -iu interfaceN]\n" \
++"                [-id interface0 [ ... -id interfaceN]\n" \
+ "                server0 [ ... serverN]\n\n" DHCRELAY_OPTION82_USAGE
+ #endif
+ 
+@@ -294,21 +298,8 @@ main(int argc, char **argv) {
+ 			if (++i == argc) {
+ 				usage();
+ 			}
+-			if (strlen(argv[i]) >= sizeof(tmp->name)) {
+-				log_fatal("%s: interface name too long "
+-					  "(is %ld)",
+-					  argv[i], (long)strlen(argv[i]));
+-			}
+-			status = interface_allocate(&tmp, MDL);
+-			if (status != ISC_R_SUCCESS) {
+-				log_fatal("%s: interface_allocate: %s",
+-					  argv[i],
+-					  isc_result_totext(status));
+-			}
+-			strcpy(tmp->name, argv[i]);
+-			interface_snorf(tmp, (INTERFACE_REQUESTED |
+-					      INTERFACE_STREAMS));
+-			interface_dereference(&tmp, MDL);
++
++			request_v4_interface(argv[i], INTERFACE_STREAMS);
+ 		} else if (!strcmp(argv[i], "-iu")) {
+ #ifdef DHCPv6
+ 			if (local_family_set && (local_family == AF_INET6)) {
+@@ -320,21 +311,21 @@ main(int argc, char **argv) {
+ 			if (++i == argc) {
+ 				usage();
+ 			}
+-			if (strlen(argv[i]) >= sizeof(tmp->name)) {
+-				log_fatal("%s: interface name too long "
+-					  "(is %ld)",
+-					  argv[i], (long)strlen(argv[i]));
++
++			request_v4_interface(argv[i], INTERFACE_UPSTREAM);
++		} else if (!strcmp(argv[i], "-id")) {
++#ifdef DHCPv6
++			if (local_family_set && (local_family == AF_INET6)) {
++				usage();
+ 			}
+-			status = interface_allocate(&tmp, MDL);
+-			if (status != ISC_R_SUCCESS) {
+-				log_fatal("%s: interface_allocate: %s",
+-					  argv[i],
+-					  isc_result_totext(status));
++			local_family_set = 1;
++			local_family = AF_INET;
++#endif
++			if (++i == argc) {
++				usage();
+ 			}
+-			strcpy(tmp->name, argv[i]);
+-			interface_snorf(tmp, (INTERFACE_REQUESTED |
+-					      INTERFACE_UPSTREAM));
+-			interface_dereference(&tmp, MDL);
++
++			request_v4_interface(argv[i], INTERFACE_DOWNSTREAM);
+ 		} else if (!strcmp(argv[i], "-a")) {
+ #ifdef DHCPv6
+ 			if (local_family_set && (local_family == AF_INET6)) {
+@@ -782,6 +773,11 @@ do_relay4(struct interface_info *ip, struct dhcp_packet *packet,
+ 	if (out)
+ 		return;
+ 
++	if (!(ip->flags & INTERFACE_DOWNSTREAM)) {
++		log_debug("Dropping request received on %s", ip->name);
++		return;
++	}
++
+ 	/* Add relay agent options if indicated.   If something goes wrong,
+ 	   drop the packet. */
+ 	if (!(length = add_relay_agent_options(ip, packet, length,
+@@ -1991,6 +1987,43 @@ dhcp_set_control_state(control_object_state_t oldstate,
+ 	exit(0);
+ }
+ 
++/*!
++ *
++ * \brief Allocate an interface as requested with a given set of flags
++ *
++ * The requested interface is allocated, its flags field is set to
++ * INTERFACE_REQUESTED OR'd with the given flags,  and then added to
++ * the list of interfaces.
++ *
++ * \param name - name of the requested interface
++ * \param flags - additional flags for the interface
++ *
++ * \return Nothing
++ */
++void request_v4_interface(const char* name, int flags) {
++	struct interface_info *tmp = NULL;
++	int len = strlen(name);
++	isc_result_t status;
++
++	if (len >= sizeof(tmp->name)) {
++		log_fatal("%s: interface name too long (is %d)", name, len);
++	}
++
++	status = interface_allocate(&tmp, MDL);
++	if (status != ISC_R_SUCCESS) {
++		log_fatal("%s: interface_allocate: %s", name,
++			  isc_result_totext(status));
++	}
++
++       log_debug("Requesting: %s as upstream: %c downstream: %c", name,
++		 (flags & INTERFACE_UPSTREAM ? 'Y' : 'N'),
++		 (flags & INTERFACE_DOWNSTREAM ? 'Y' : 'N'));
++
++	strncpy(tmp->name, name, len);
++	interface_snorf(tmp, (INTERFACE_REQUESTED | flags));
++	interface_dereference(&tmp, MDL);
++}
++
+ #define MAX_PORT_CONFIG_LINE_LEN 1024
+ 
+ // Allocates and loads global map g_interface_name_alias_map
+-- 
+2.17.1
+
