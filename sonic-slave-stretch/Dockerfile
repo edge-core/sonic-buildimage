@@ -290,6 +290,12 @@ RUN pip install setuptools==40.8.0
 # Install dependencies for isc-dhcp-relay build
 RUN apt-get -y build-dep isc-dhcp
 
+# Install vim
+RUN apt-get install -y vim
+
+# Install rsyslog
+RUN apt-get install -y rsyslog
+
 RUN cd /usr/src/gtest && cmake . && make -C /usr/src/gtest
 
 RUN mkdir /var/run/sshd
