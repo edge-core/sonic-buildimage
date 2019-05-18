@@ -255,8 +255,13 @@ platform_specific() {
         aboot_machine=arista_7060dx4_32
         flash_size=28000
     fi
-    if [ "$platform" = "rook" ]; then
-        echo "iommu=on intel_iommu=on tsc=reliable pcie_ports=native" >>/tmp/append
+    if [ "$sid" = "Smartsville" ]; then
+        aboot_machine=arista_7280cr3_32p4
+        flash_size=7382
+    fi
+    if [ "$platform" = "rook" ] || [ "$platform" = "magpie" ] ||
+       [ "$platform" = "woodpecker" ]; then
+        echo "tsc=reliable pcie_ports=native" >>/tmp/append
         echo "rhash_entries=1 usb-storage.delay_use=0" >>/tmp/append
         if [ -x /bin/readprefdl ]; then
            readprefdl -f /tmp/.system-prefdl -d > /mnt/flash/.system-prefdl
@@ -265,6 +270,12 @@ platform_specific() {
            chmod a+r /mnt/flash/.system-prefdl
         fi
         echo "reassign_prefmem" >> /tmp/append
+    fi
+    if [ "$platform" = "rook" ] || [ "$platform" = "magpie" ]; then
+        echo "iommu=on intel_iommu=on" >>/tmp/append
+    fi
+    if [ "$platform" = "woodpecker" ]; then
+        echo "amd_iommu=off modprobe.blacklist=snd_hda_intel,hdaudio" >> /tmp/append
     fi
 
     if [ $flash_size -ge 28000 ]; then
