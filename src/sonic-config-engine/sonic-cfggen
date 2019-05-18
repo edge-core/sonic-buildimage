@@ -109,13 +109,13 @@ TODO(taoyl): Current version of config db only supports BGP admin states.
 
     @staticmethod
     def to_serialized(data):
-        for table in data:
-            if type(data[table]) is dict:
-                data[table] = OrderedDict(natsorted(data[table].items()))
-                for key in data[table].keys():
-                    new_key = ConfigDBConnector.serialize_key(key)
-                    if new_key != key:
-                        data[table][new_key] = data[table].pop(key)
+        if type(data) is dict:
+            data = OrderedDict(natsorted(data.items()))
+            for key in data.keys():
+                new_key = ConfigDBConnector.serialize_key(key)
+                if new_key != key:
+                    data[new_key] = data.pop(key)
+                data[new_key] = FormatConverter.to_serialized(data[new_key])
         return data
 
     @staticmethod
