@@ -120,7 +120,7 @@ class MlnxSfpd:
             raise RuntimeError("sx_api_host_ifc_open exited with error, rc {}".format(rc))
 
         self.user_channel_p.type = SX_USER_CHANNEL_TYPE_FD
-        self.user_channel_p.fd = self.rx_fd_p
+        self.user_channel_p.channel.fd = self.rx_fd_p
 
         rc = sx_api_host_ifc_trap_id_register_set(self.handle,
                                                   SX_ACCESS_CMD_REGISTER,
@@ -170,8 +170,8 @@ class MlnxSfpd:
 
             for fd in read:
                 if fd == self.rx_fd_p.fd:
-                    rc, port_list, module_state = self.on_pmpe(self.rx_fd_p)
-                    if rc != SX_STATUS_SUCCESS:
+                    success, port_list, module_state = self.on_pmpe(self.rx_fd_p)
+                    if not success:
                         raise RuntimeError("failed to read from {}".format(fd))
 
                     sfp_state = sfp_value_status_dict.get(module_state, STATUS_UNKNOWN)
@@ -187,7 +187,7 @@ class MlnxSfpd:
 
     def send_sfp_notification(self, port, state):
         sfp_notify = [port, state]
-        msg = json.dumps(sfp_notify, seperators=(',', ':'))
+        msg = json.dumps(sfp_notify, separators=(',', ':'))
         self.state_db.publish('STATE_DB', 'TRANSCEIVER_NOTIFY', msg)
 
     def update_sfpd_liveness_key(self, timeout_secs):
