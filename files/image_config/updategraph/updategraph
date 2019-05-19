@@ -16,6 +16,11 @@ reload_minigraph()
     fi
     config qos reload
     pfcwd start_default
+
+    if [[ -x /usr/bin/db_migrator.py ]]; then
+        # Set latest version number
+        /usr/bin/db_migrator.py -o set_version
+    fi
 }
 
 function copy_config_files_and_directories()
