@@ -22,6 +22,7 @@ $(SONIC_ONE_IMAGE)_LAZY_INSTALLS += $(DELL_S6000_PLATFORM_MODULE) \
                                $(ACCTON_AS7716_32XB_PLATFORM_MODULE) \
                                $(ACCTON_AS6712_32X_PLATFORM_MODULE) \
                                $(ACCTON_AS7726_32X_PLATFORM_MODULE) \
+                               $(ACCTON_AS4630_54PE_PLATFORM_MODULE) \
                                $(ACCTON_MINIPACK_PLATFORM_MODULE) \
                                $(INVENTEC_D7032Q28B_PLATFORM_MODULE) \
                                $(INVENTEC_D7054Q28B_PLATFORM_MODULE) \
