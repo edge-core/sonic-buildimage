@@ -29,12 +29,13 @@ new file mode 100644
 index 0000000..d18916d
 --- /dev/null
 +++ b/debian/hw-management.service
-@@ -0,0 +1,11 @@
+@@ -0,0 +1,12 @@
 +[Unit]
 +Description=Mellanox Hardware Management
 +
 +[Service]
 +Type=oneshot
++RemainAfterExit=true
 +EnvironmentFile=/host/machine.conf
 +ExecStart=/bin/bash -c "/usr/share/sonic/device/$onie_platform/hw-management start"
 +ExecStop=/bin/bash -c "/usr/share/sonic/device/$onie_platform/hw-management stop"
