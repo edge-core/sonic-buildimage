@@ -98,6 +98,7 @@ if [ "$1" == "init" ]; then
     switch_board_qsfp_mux "new_device"
     switch_board_qsfp "new_device"
     switch_board_modsel
+    python /usr/bin/qsfp_irq_enable.py
 
 elif [ "$1" == "deinit" ]; then
     sys_eeprom "delete_device"
