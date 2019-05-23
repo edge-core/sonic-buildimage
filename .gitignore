@@ -9,6 +9,11 @@ target/
 *.deb
 *.changes
 *.buildinfo
+*.tar
+*.xz
+*.gz
+*dbg*
+*.img
 
 # Subdirectories in src
 src/bash/*
@@ -43,6 +48,8 @@ src/libnl3/*
 !src/libnl3/Makefile
 src/libteam/*
 !src/libteam/Makefile
+src/libyang/*
+!src/libyang/Makefile
 src/lldpd/*
 !src/lldpd/Makefile
 !src/lldpd/patch/
@@ -59,6 +66,8 @@ src/radvd/*
 !src/radvd/patch/
 src/redis/*
 !src/redis/Makefile
+src/smartmontools/*
+!src/smartmontools/Makefile
 src/snmpd/*
 !src/snmpd/Makefile
 src/sonic-device-data/src/device/
@@ -66,6 +75,8 @@ src/sonic-device-data/src/debian/
 src/supervisor/*
 !src/supervisor/Makefile
 !src/supervisor/patch/
+src/swig/*
+!src/swig/Makefile
 src/telemetry/debian/*
 !src/telemetry/debian/changelog
 !src/telemetry/debian/compat
@@ -109,3 +120,7 @@ src/sonic-config-engine/sonic_config_engine.egg-info
 src/sonic-daemon-base/**/*.pyc
 src/sonic-daemon-base/build
 src/sonic-daemon-base/sonic_daemon_base.egg-info
+
+# Misc. files
+files/initramfs-tools/arista-convertfs
+files/initramfs-tools/union-mount
