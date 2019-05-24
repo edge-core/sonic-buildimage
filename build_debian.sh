@@ -301,7 +301,7 @@ check filesystem root-overlay with path /
 check filesystem var-log with path /var/log
   if space usage > 90% for 5 times within 10 cycles then alert
 check system $HOST
-  if memory usage > 90% for 5 times within 10 cycles then alert
+  if memory usage > 50% for 5 times within 10 cycles then alert
   if cpu usage (user) > 90% for 5 times within 10 cycles then alert
   if cpu usage (system) > 90% for 5 times within 10 cycles then alert
 EOF
