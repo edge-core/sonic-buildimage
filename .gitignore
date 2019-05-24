@@ -12,7 +12,8 @@ target/
 *.tar
 *.xz
 *.gz
-*dbg*
+*-dbg
+*dbg.j2
 *.img
 
 # Subdirectories in src
