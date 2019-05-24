@@ -265,7 +265,7 @@ sudo tee -a $FILESYSTEM_ROOT/etc/monit/monitrc > /dev/null <<'EOF'
 check filesystem root-aufs with path /
   if space usage > 90% for 5 times within 10 cycles then alert
 check system $HOST
-  if memory usage > 90% for 5 times within 10 cycles then alert
+  if memory usage > 50% for 5 times within 10 cycles then alert
   if cpu usage (user) > 90% for 5 times within 10 cycles then alert
   if cpu usage (system) > 90% for 5 times within 10 cycles then alert
 EOF
