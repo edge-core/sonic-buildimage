@@ -221,6 +221,10 @@ if [[ "$1" == "init" ]]; then
     #Copy led_proc_init.soc
     init_switch_port_led
 
+    value=0x0
+    echo $value > /sys/class/i2c-adapter/i2c-14/14-003e/qsfp_lpmode
+    echo $value > /sys/class/i2c-adapter/i2c-15/15-003e/qsfp_lpmode
+    echo $value > /sys/class/i2c-adapter/i2c-16/16-003e/qsfp_lpmode
 
 elif [[ "$1" == "deinit" ]]; then
     xcvr_presence_interrupts "disable"

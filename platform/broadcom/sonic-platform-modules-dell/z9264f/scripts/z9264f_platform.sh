@@ -82,7 +82,7 @@ switch_board_modsel() {
 	do
 		port_addr=$(( 16384 + ((i - 1) * 16)))
 		hex=$( printf "0x%x" $port_addr )
-		python /usr/bin/pcisysfs.py --set --offset $hex --val 0x41 --res $resource  > /dev/null 2>&1
+		python /usr/bin/pcisysfs.py --set --offset $hex --val 0x10 --res $resource  > /dev/null 2>&1
 	done
 }
 init_devnum
