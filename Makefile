@@ -1,20 +1,20 @@
 # SONiC make file
 
-NOSTRETCH ?= 0
+NOJESSIE ?= 0
 
 %::
 	@echo "+++ --- Making $@ --- +++"
-ifeq ($(NOSTRETCH), 0)
-	BLDENV=stretch EXTRA_STRETCH_TARGETS=$(notdir $@) make -f Makefile.work stretch
+ifeq ($(NOJESSIE), 0)
+	EXTRA_JESSIE_TARGETS=$(notdir $@) make -f Makefile.work jessie
 endif
-	make -f Makefile.work $@
+	BLDENV=stretch make -f Makefile.work $@
 
-stretch:
+jessie:
 	@echo "+++ Making $@ +++"
-ifeq ($(NOSTRETCH), 0)
-	BLDENV=stretch make -f Makefile.work stretch
+ifeq ($(NOJESSIE), 0)
+	make -f Makefile.work jessie
 endif
 
 clean reset init configure showtag sonic-slave-build sonic-slave-bash :
 	@echo "+++ Making $@ +++"
-	make -f Makefile.work $@
+	BLDENV=stretch make -f Makefile.work $@

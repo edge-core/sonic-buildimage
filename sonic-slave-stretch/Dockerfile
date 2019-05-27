@@ -232,6 +232,10 @@ RUN apt-get update && apt-get install -y \
         python3-colorama \
 # For initramfs
         bash-completion \
+# For sonic vs image build
+        dosfstools \
+        qemu-kvm \
+        libvirt-clients \
 # For lm-sensors
         librrd8 \
         librrd-dev \
@@ -281,6 +285,9 @@ RUN pip3 install redis
 
 # For supervisor build
 RUN pip install meld3 mock
+
+# For vs image build
+RUN pip install pexpect==4.6.0
 
 # For sonic-utilities build
 RUN pip install mockredispy==2.9.3
