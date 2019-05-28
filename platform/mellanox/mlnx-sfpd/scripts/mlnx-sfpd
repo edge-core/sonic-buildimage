@@ -181,7 +181,7 @@ class MlnxSfpd:
 
                     for port in port_list:
                         log_info("SFP on port {} state {}".format(port, sfp_state))
-                        self.send_sfp_notification(port, sfp_state)
+                        self.send_sfp_notification(str(port), sfp_state)
 
             self.update_sfpd_liveness_key(SFPD_LIVENESS_EXPIRE_SECS)
 
