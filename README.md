@@ -71,9 +71,6 @@ To build SONiC installer image and docker images, run the following commands:
     # Execute make configure once to configure ASIC
     make configure PLATFORM=[ASIC_VENDOR]
 
-    # Build Debian Stretch required targets (Manual execution optional; will also be executed as part of the build)
-    BLDENV=stretch make stretch
-
     # Build SONiC image
     make all
 

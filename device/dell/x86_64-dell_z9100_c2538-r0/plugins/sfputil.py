@@ -78,7 +78,7 @@ class SfpUtil(SfpUtilBase):
 
     @property
     def qsfp_ports(self):
-        return range(0, self.PORTS_IN_BLOCK + 1)
+        return range(self.PORT_START, self.PORTS_IN_BLOCK + 1)
 
     @property
     def iom1_port_start(self):

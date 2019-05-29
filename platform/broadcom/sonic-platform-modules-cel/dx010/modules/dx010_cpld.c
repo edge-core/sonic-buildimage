@@ -30,6 +30,13 @@
 
 #define DRIVER_NAME "dx010_cpld"
 
+#define CPLD1_VERSION_ADDR 0x100
+#define CPLD2_VERSION_ADDR 0x200
+#define CPLD3_VERSION_ADDR 0x280
+#define CPLD4_VERSION_ADDR 0x300
+#define CPLD5_VERSION_ADDR 0x380
+
+
 #define RESET0108   0x250
 #define RESET0910   0x251
 #define RESET1118   0x2d0
@@ -110,9 +117,35 @@ struct dx010_i2c_data {
 struct dx010_cpld_data {
         struct i2c_adapter *i2c_adapter[LENGTH_PORT_CPLD];
         struct mutex       cpld_lock;
+        uint16_t           read_addr;
 };
 
 struct dx010_cpld_data *cpld_data;
+
+static ssize_t getreg_store(struct device *dev, struct device_attribute *devattr,
+                const char *buf, size_t count)
+{
+
+    uint16_t addr;
+    char *last;
+
+    addr = (uint16_t)strtoul(buf,&last,16);
+    if(addr == 0 && buf == last){
+        return -EINVAL;
+    }
+    cpld_data->read_addr = addr;
+    return count;
+}
+
+static ssize_t getreg_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+
+    int len = 0;
+    mutex_lock(&cpld_data->cpld_lock);
+    len = sprintf(buf, "0x%2.2x\n",inb(cpld_data->read_addr));
+    mutex_unlock(&cpld_data->cpld_lock);
+    return len;
+}
 
 static ssize_t get_reset(struct device *dev, struct device_attribute *devattr,
                 char *buf)
@@ -132,6 +165,47 @@ static ssize_t get_reset(struct device *dev, struct device_attribute *devattr,
         mutex_unlock(&cpld_data->cpld_lock);
 
         return sprintf(buf,"0x%8.8lx\n", reset & 0xffffffff);
+}
+
+static ssize_t setreg_store(struct device *dev, struct device_attribute *devattr,
+                const char *buf, size_t count)
+{
+
+    uint16_t addr;
+    uint8_t value;
+    char *tok;
+    char clone[count];
+    char *pclone = clone;
+    char *last;
+
+    strcpy(clone, buf);
+
+    mutex_lock(&cpld_data->cpld_lock);
+    tok = strsep((char**)&pclone, " ");
+    if(tok == NULL){
+        mutex_unlock(&cpld_data->cpld_lock);
+        return -EINVAL;
+    }
+    addr = (uint16_t)strtoul(tok,&last,16);
+    if(addr == 0 && tok == last){
+        mutex_unlock(&cpld_data->cpld_lock);
+        return -EINVAL;
+    }
+
+    tok = strsep((char**)&pclone, " ");
+    if(tok == NULL){
+        mutex_unlock(&cpld_data->cpld_lock);
+        return -EINVAL;
+    }
+    value = (uint8_t)strtoul(tok,&last,16);
+    if(value == 0 && tok == last){
+        mutex_unlock(&cpld_data->cpld_lock);
+        return -EINVAL;
+    }
+
+    outb(value,addr);
+    mutex_unlock(&cpld_data->cpld_lock);
+    return count;
 }
 
 static ssize_t set_reset(struct device *dev, struct device_attribute *devattr,
@@ -248,12 +322,16 @@ static ssize_t get_modirq(struct device *dev, struct device_attribute *devattr,
         return sprintf(buf,"0x%8.8lx\n", irq  & 0xffffffff);
 }
 
+static DEVICE_ATTR_RW(getreg);
+static DEVICE_ATTR_WO(setreg);
 static DEVICE_ATTR(qsfp_reset, S_IRUGO | S_IWUSR, get_reset, set_reset);
 static DEVICE_ATTR(qsfp_lpmode, S_IRUGO | S_IWUSR, get_lpmode, set_lpmode);
 static DEVICE_ATTR(qsfp_modprs, S_IRUGO, get_modprs, NULL);
 static DEVICE_ATTR(qsfp_modirq, S_IRUGO, get_modirq, NULL);
 
 static struct attribute *dx010_lpc_attrs[] = {
+        &dev_attr_getreg.attr,
+        &dev_attr_setreg.attr,
         &dev_attr_qsfp_reset.attr,
         &dev_attr_qsfp_lpmode.attr,
         &dev_attr_qsfp_modprs.attr,
@@ -499,6 +577,7 @@ static int cel_dx010_lpc_drv_probe(struct platform_device *pdev)
                 return -ENOMEM;
 
         mutex_init(&cpld_data->cpld_lock);
+        cpld_data->read_addr = CPLD1_VERSION_ADDR;
 
         res = platform_get_resource(pdev, IORESOURCE_IO, 0);
         if (unlikely(!res)) {

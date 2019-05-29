@@ -171,6 +171,35 @@ reset_muxes() {
     io_rd_wr.py --set --val 0xff --offset 0x20b
 }
 
+# Copy led_proc_init.soc file according to the HWSKU
+init_switch_port_led() {
+    T0="Force10-Z9100-C8D48"
+    T1="Force10-Z9100-C32"
+    device="/usr/share/sonic/device"
+    platform=$(/usr/local/bin/sonic-cfggen -H -v DEVICE_METADATA.localhost.platform)
+    hwsku=$(cat /etc/sonic/config_db.json | grep -A2 "DEVICE_METADATA" | grep "hwsku" | cut -d ":" -f2 | sed 's/"//g' | sed 's/,//g'| xargs )
+
+    if [ -z "$hwsku" ]; then
+          #Check minigraph for hwsku
+          cat /etc/sonic/minigraph.xml | grep $T1  > /dev/null
+          if [ $? -eq 0 ]; then
+                  hwsku=$T1
+          else
+                  hwsku=$T0
+          fi
+    fi
+
+    led_proc_init="$device/$platform/$hwsku/led_proc_init.soc"
+
+    # Remove old HWSKU LED file..
+    rm -rf $device/$platform/led_proc_init.soc
+
+    if [ -e $led_proc_init ] && [ ! -e $device/$platform/led_proc_init.soc ]; then
+      cp $led_proc_init $device/$platform
+    fi
+
+}
+
 init_devnum
 
 if [[ "$1" == "init" ]]; then
@@ -188,6 +217,15 @@ if [[ "$1" == "init" ]]; then
     switch_board_sfp "new_device"
     switch_board_qsfp "new_device"
     xcvr_presence_interrupts "enable"
+
+    #Copy led_proc_init.soc
+    init_switch_port_led
+
+    value=0x0
+    echo $value > /sys/class/i2c-adapter/i2c-14/14-003e/qsfp_lpmode
+    echo $value > /sys/class/i2c-adapter/i2c-15/15-003e/qsfp_lpmode
+    echo $value > /sys/class/i2c-adapter/i2c-16/16-003e/qsfp_lpmode
+
 elif [[ "$1" == "deinit" ]]; then
     xcvr_presence_interrupts "disable"
     switch_board_sfp "delete_device"

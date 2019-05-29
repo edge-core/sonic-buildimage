@@ -62,7 +62,7 @@ $(eval $(call add_derived_package,$(SXD_LIBS),$(SXD_LIBS_DEV)))
 #packages that are required for runtime only
 PYTHON_SDK_API = python-sdk-api_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb
 $(PYTHON_SDK_API)_SRC_PATH = $(PLATFORM_PATH)/sdk-src/python-sdk-api
-$(PYTHON_SDK_API)_DEPENDS += $(APPLIBS_DEV) $(SXD_LIBS_DEV)
+$(PYTHON_SDK_API)_DEPENDS += $(APPLIBS_DEV) $(SXD_LIBS_DEV) $(SWIG)
 $(PYTHON_SDK_API)_RDEPENDS += $(APPLIBS) $(SXD_LIBS)
 
 SX_KERNEL = sx-kernel_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb

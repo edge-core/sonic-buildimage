@@ -1,15 +1,21 @@
 # FRRouting (frr) package
 
-FRR_VERSION = 6.0.2
-export FRR_VERSION
+FRR_VERSION = 7.0.1
+FRR_SUBVERSION = 0
+export FRR_VERSION FRR_SUBVERSION
 
-FRR = frr_$(FRR_VERSION)-1~sonic.debian9+1_amd64.deb
-$(FRR)_DEPENDS += $(LIBSNMP_DEV)
+
+FRR = frr_$(FRR_VERSION)-sonic-$(FRR_SUBVERSION)_amd64.deb
+$(FRR)_DEPENDS += $(LIBSNMP_DEV) $(LIBYANG_DEV)
+$(FRR)_RDEPENDS += $(LIBYANG)
 $(FRR)_SRC_PATH = $(SRC_PATH)/sonic-frr
 SONIC_MAKE_DEBS += $(FRR)
+SONIC_STRETCH_DEBS += $(FRR)
 
-# FRRouting pythontools
-FRR_PYTHONTOOLS = frr-pythontools_$(FRR_VERSION)-1~sonic.debian9+1_amd64.deb
-$(FRR_PYTHONTOOLS)_DEPENDS += $(LIBSNMP_DEV)
-$(FRR_PYTHONTOOLS)_SRC_PATH = $(SRC_PATH)/sonic-frr
-SONIC_MAKE_DEBS += $(FRR_PYTHONTOOLS)
+FRR_PYTHONTOOLS = frr-pythontools_$(FRR_VERSION)-sonic-$(FRR_SUBVERSION)_all.deb
+$(eval $(call add_derived_package,$(FRR),$(FRR_PYTHONTOOLS)))
+
+FRR_DBG = frr-dbgsym_$(FRR_VERSION)-sonic-$(FRR_SUBVERSION)_amd64.deb
+$(eval $(call add_derived_package,$(FRR),$(FRR_DBG)))
+
+export FRR FRR_PYTHONTOOLS FRR_DBG

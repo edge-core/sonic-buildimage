@@ -17,6 +17,7 @@ start)
 
         modprobe smc
         modprobe hlx_gpio_ich
+        modprobe dps200
 
         found=0
         for devnum in 0 1; do
@@ -51,6 +52,9 @@ start)
         echo max6697 0x1a > /sys/bus/i2c/devices/i2c-3/new_device
         echo max6697 0x1a > /sys/bus/i2c/devices/i2c-11/new_device
 
+        # Attach PSUs
+        echo dps200 0x5a > /sys/bus/i2c/devices/i2c-12/new_device
+        echo dps200 0x5b > /sys/bus/i2c/devices/i2c-13/new_device
 
         # Attach fans
         echo emc2305 0x4d > /sys/bus/i2c/devices/i2c-23/new_device

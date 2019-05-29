@@ -68,6 +68,8 @@ cmdline_base="$target_path/kernel-params-base"
 cmdline_image="$image_path/kernel-cmdline"
 boot_config="$target_path/boot-config"
 
+swi_tmpfs="/tmp/tmp-swi"
+
 bootconfigvars="KERNEL INITRD CONSOLESPEED PASSWORD NETDEV NETAUTO NETIP NETMASK NETGW NETDOMAIN NETDNS NETHW memtest"
 flash_re=" /mnt/flash| /host"
 
@@ -126,8 +128,33 @@ update_next_boot() {
     fi
 }
 
+move_swi_to_tmpfs() {
+    local oldswi="$1"
+    local newswi="$swi_tmpfs/$(basename $oldswi)"
+
+    mkdir -p "$swi_tmpfs"
+    if ! $in_aboot && ! mount | grep -q ' /tmp type tmpfs'; then
+        # mount a real tmpfs on /tmp/tmp-swi if /tmp is not one already.
+        mount -t tmpfs tmp-swi "$swi_tmpfs"
+    fi
+
+    mv "$oldswi" "$newswi"
+    echo "$newswi"
+}
+
+cleanup_swi_tmpfs() {
+   rm -f "$swipath"
+   if mount | grep -q "$swi_tmpfs"; then
+      umount "$swi_tmpfs" || :
+   fi
+}
+
 extract_image() {
     mkdir -p "$image_path"
+
+    info "Moving swi to a tmpfs"
+    ## Avoid problematic flash usage spike on older systems, also improves I/O
+    swipath="$(move_swi_to_tmpfs $swipath)"
 
     info "Extracting swi content"
     ## Unzip the image except boot0 and dockerfs archive
@@ -146,7 +173,6 @@ extract_image() {
         fi
 
         ## extract docker archive
-        info "Unpacking $dockerfs"
         unzip -oqp "$swipath" "$dockerfs" | tar xzf - -C "$image_path/{{ DOCKERFS_DIR }}" $TAR_EXTRA_OPTION
     else
         ## save dockerfs archive in the image directory
@@ -154,13 +180,14 @@ extract_image() {
         info "Unpacking $dockerfs delayed to initrd because $target_path is $rootfs_type"
     fi
 
+    ## remove installer since it's not needed anymore
+    info "Remove installer"
+    cleanup_swi_tmpfs
+
     ## use new reduced-size boot swi
     local swi_boot_path="flash:$image_name/{{ ABOOT_BOOT_IMAGE }}"
     update_boot_config SWI "$swi_boot_path"
     update_boot_config SWI_DEFAULT "$swi_boot_path"
-
-    ## Remove installer swi as it has lots of redundunt contents
-    rm -f "$swipath"
 
     ## sync disk operations
     sync
@@ -205,7 +232,8 @@ platform_specific() {
         flash_size=3700
         echo "modprobe.blacklist=radeon,sp5100_tco" >>/tmp/append
     fi
-    if [ "$sid" = "Upperlake" ] || [ "$sid" = "UpperlakeES" ]; then
+    if [ "$sid" = "Upperlake" ] || [ "$sid" = "UpperlakeES" ] ||
+       [ "$sid" = "UpperlakeSsd" ]; then
         aboot_machine=arista_7060_cx32s
         flash_size=3700
         echo "amd_iommu=off" >> /tmp/append
@@ -227,8 +255,13 @@ platform_specific() {
         aboot_machine=arista_7060dx4_32
         flash_size=28000
     fi
-    if [ "$platform" = "rook" ]; then
-        echo "iommu=on intel_iommu=on tsc=reliable pcie_ports=native" >>/tmp/append
+    if [ "$sid" = "Smartsville" ]; then
+        aboot_machine=arista_7280cr3_32p4
+        flash_size=7382
+    fi
+    if [ "$platform" = "rook" ] || [ "$platform" = "magpie" ] ||
+       [ "$platform" = "woodpecker" ]; then
+        echo "tsc=reliable pcie_ports=native" >>/tmp/append
         echo "rhash_entries=1 usb-storage.delay_use=0" >>/tmp/append
         if [ -x /bin/readprefdl ]; then
            readprefdl -f /tmp/.system-prefdl -d > /mnt/flash/.system-prefdl
@@ -237,6 +270,12 @@ platform_specific() {
            chmod a+r /mnt/flash/.system-prefdl
         fi
         echo "reassign_prefmem" >> /tmp/append
+    fi
+    if [ "$platform" = "rook" ] || [ "$platform" = "magpie" ]; then
+        echo "iommu=on intel_iommu=on" >>/tmp/append
+    fi
+    if [ "$platform" = "woodpecker" ]; then
+        echo "amd_iommu=off modprobe.blacklist=snd_hda_intel,hdaudio" >> /tmp/append
     fi
 
     if [ $flash_size -ge 28000 ]; then
@@ -304,7 +343,7 @@ write_boot_configs() {
         fi
     fi
 
-    mv /tmp/append $cmdline_image
+    cat /tmp/append > $cmdline_image
     [ -e ${target_path}/machine.conf ] || write_machine_config
 }
 
@@ -313,7 +352,10 @@ run_kexec() {
     local kernel="${KERNEL:-$(find $image_path/boot -name 'vmlinuz-*' -type f | head -n 1)}"
     local initrd="${INITRD:-$(find $image_path/boot -name 'initrd.img-*' -type f | head -n 1)}"
 
-    if ! $verbose; then
+    if $verbose; then
+       # show systemd showdown sequence when verbose is set
+       cmdline="$cmdline systemd.show_status=true"
+    else
        # Start showing systemd information from the first failing unit if any.
        # systemd.show_status=false or quiet can be used to silence systemd entierly
        cmdline="$cmdline systemd.show_status=auto"

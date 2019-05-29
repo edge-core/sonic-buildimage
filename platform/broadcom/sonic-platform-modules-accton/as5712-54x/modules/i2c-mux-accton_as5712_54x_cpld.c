@@ -37,6 +37,7 @@
 #include <linux/stat.h>
 #include <linux/hwmon-sysfs.h>
 #include <linux/delay.h>
+#include <linux/printk.h>
 
 #define I2C_RW_RETRY_COUNT                10
 #define I2C_RW_RETRY_INTERVAL            60 /* ms */
@@ -78,16 +79,16 @@ struct chip_desc {
 /* Provide specs for the PCA954x types we know about */
 static const struct chip_desc chips[] = {
     [as5712_54x_cpld1] = {
-    .nchans        = NUM_OF_CPLD1_CHANS,
-    .deselectChan  = CPLD_DESELECT_CHANNEL,
+        .nchans        = NUM_OF_CPLD1_CHANS,
+        .deselectChan  = CPLD_DESELECT_CHANNEL,
     },
     [as5712_54x_cpld2] = {
-    .nchans        = NUM_OF_CPLD2_CHANS,
-    .deselectChan  = CPLD_DESELECT_CHANNEL,
+        .nchans        = NUM_OF_CPLD2_CHANS,
+        .deselectChan  = CPLD_DESELECT_CHANNEL,
     },
     [as5712_54x_cpld3] = {
-    .nchans        = NUM_OF_CPLD3_CHANS,
-    .deselectChan  = CPLD_DESELECT_CHANNEL,
+        .nchans        = NUM_OF_CPLD3_CHANS,
+        .deselectChan  = CPLD_DESELECT_CHANNEL,
     }
 };
 
@@ -103,6 +104,8 @@ MODULE_DEVICE_TABLE(i2c, as5712_54x_cpld_mux_id);
 #define TRANSCEIVER_TXDISABLE_ATTR_ID(index)       MODULE_TXDISABLE_##index
 #define TRANSCEIVER_RXLOS_ATTR_ID(index)           MODULE_RXLOS_##index
 #define TRANSCEIVER_TXFAULT_ATTR_ID(index)       MODULE_TXFAULT_##index
+#define TRANSCEIVER_LPMODE_ATTR_ID(index)   	MODULE_LPMODE_##index
+#define TRANSCEIVER_RESET_ATTR_ID(index)   	    MODULE_RESET_##index
 
 enum as5712_54x_cpld1_sysfs_attributes {
     CPLD_VERSION,
@@ -308,22 +311,38 @@ enum as5712_54x_cpld1_sysfs_attributes {
     TRANSCEIVER_TXFAULT_ATTR_ID(46),
     TRANSCEIVER_TXFAULT_ATTR_ID(47),
     TRANSCEIVER_TXFAULT_ATTR_ID(48),
+    TRANSCEIVER_LPMODE_ATTR_ID(49),
+    TRANSCEIVER_LPMODE_ATTR_ID(50),
+    TRANSCEIVER_LPMODE_ATTR_ID(51),
+    TRANSCEIVER_LPMODE_ATTR_ID(52),
+    TRANSCEIVER_LPMODE_ATTR_ID(53),
+    TRANSCEIVER_LPMODE_ATTR_ID(54),
+    TRANSCEIVER_RESET_ATTR_ID(49),
+    TRANSCEIVER_RESET_ATTR_ID(50),
+    TRANSCEIVER_RESET_ATTR_ID(51),
+    TRANSCEIVER_RESET_ATTR_ID(52),
+    TRANSCEIVER_RESET_ATTR_ID(53),
+    TRANSCEIVER_RESET_ATTR_ID(54),
 };
 
-/* sysfs attributes for hwmon 
+/* sysfs attributes for hwmon
  */
 static ssize_t show_status(struct device *dev, struct device_attribute *da,
-             char *buf);
+                           char *buf);
 static ssize_t show_present_all(struct device *dev, struct device_attribute *da,
-             char *buf);
+                                char *buf);
 static ssize_t show_rxlos_all(struct device *dev, struct device_attribute *da,
-             char *buf);
+                              char *buf);
 static ssize_t set_tx_disable(struct device *dev, struct device_attribute *da,
-            const char *buf, size_t count);
+                              const char *buf, size_t count);
+static ssize_t set_lp_mode(struct device *dev, struct device_attribute *da,
+                           const char *buf, size_t count);
+static ssize_t set_mode_reset(struct device *dev, struct device_attribute *da,
+                              const char *buf, size_t count);
 static ssize_t access(struct device *dev, struct device_attribute *da,
-            const char *buf, size_t count);
+                      const char *buf, size_t count);
 static ssize_t show_version(struct device *dev, struct device_attribute *da,
-             char *buf);
+                            char *buf);
 static int as5712_54x_cpld_read_internal(struct i2c_client *client, u8 reg);
 static int as5712_54x_cpld_write_internal(struct i2c_client *client, u8 reg, u8 value);
 
@@ -336,10 +355,20 @@ static int as5712_54x_cpld_write_internal(struct i2c_client *client, u8 reg, u8 
     static SENSOR_DEVICE_ATTR(module_tx_disable_##index, S_IRUGO | S_IWUSR, show_status, set_tx_disable, MODULE_TXDISABLE_##index); \
     static SENSOR_DEVICE_ATTR(module_rx_los_##index, S_IRUGO, show_status, NULL, MODULE_RXLOS_##index); \
     static SENSOR_DEVICE_ATTR(module_tx_fault_##index, S_IRUGO, show_status, NULL, MODULE_TXFAULT_##index)
+
 #define DECLARE_SFP_TRANSCEIVER_ATTR(index)  \
     &sensor_dev_attr_module_tx_disable_##index.dev_attr.attr, \
     &sensor_dev_attr_module_rx_los_##index.dev_attr.attr, \
     &sensor_dev_attr_module_tx_fault_##index.dev_attr.attr
+
+#define DECLARE_QSFP_TRANSCEIVER_SENSOR_DEVICE_ATTR(index) \
+    static SENSOR_DEVICE_ATTR(module_lp_mode_##index, S_IRUGO | S_IWUSR, show_status, set_lp_mode, MODULE_LPMODE_##index); \
+    static SENSOR_DEVICE_ATTR(module_reset_##index,     S_IWUSR | S_IRUGO, show_status, set_mode_reset, MODULE_RESET_##index)
+
+#define DECLARE_QSFP_TRANSCEIVER_ATTR(index)  \
+	&sensor_dev_attr_module_lp_mode_##index.dev_attr.attr,	\
+	&sensor_dev_attr_module_reset_##index.dev_attr.attr
+
 
 static SENSOR_DEVICE_ATTR(version, S_IRUGO, show_version, NULL, CPLD_VERSION);
 static SENSOR_DEVICE_ATTR(access, S_IWUSR, NULL, access, ACCESS);
@@ -449,6 +478,12 @@ DECLARE_SFP_TRANSCEIVER_SENSOR_DEVICE_ATTR(45);
 DECLARE_SFP_TRANSCEIVER_SENSOR_DEVICE_ATTR(46);
 DECLARE_SFP_TRANSCEIVER_SENSOR_DEVICE_ATTR(47);
 DECLARE_SFP_TRANSCEIVER_SENSOR_DEVICE_ATTR(48);
+DECLARE_QSFP_TRANSCEIVER_SENSOR_DEVICE_ATTR(49);
+DECLARE_QSFP_TRANSCEIVER_SENSOR_DEVICE_ATTR(50);
+DECLARE_QSFP_TRANSCEIVER_SENSOR_DEVICE_ATTR(51);
+DECLARE_QSFP_TRANSCEIVER_SENSOR_DEVICE_ATTR(52);
+DECLARE_QSFP_TRANSCEIVER_SENSOR_DEVICE_ATTR(53);
+DECLARE_QSFP_TRANSCEIVER_SENSOR_DEVICE_ATTR(54);
 
 static struct attribute *as5712_54x_cpld1_attributes[] = {
     &sensor_dev_attr_version.dev_attr.attr,
@@ -581,6 +616,12 @@ static struct attribute *as5712_54x_cpld3_attributes[] = {
     DECLARE_SFP_TRANSCEIVER_ATTR(46),
     DECLARE_SFP_TRANSCEIVER_ATTR(47),
     DECLARE_SFP_TRANSCEIVER_ATTR(48),
+    DECLARE_QSFP_TRANSCEIVER_ATTR(49),
+    DECLARE_QSFP_TRANSCEIVER_ATTR(50),
+    DECLARE_QSFP_TRANSCEIVER_ATTR(51),
+    DECLARE_QSFP_TRANSCEIVER_ATTR(52),
+    DECLARE_QSFP_TRANSCEIVER_ATTR(53),
+    DECLARE_QSFP_TRANSCEIVER_ATTR(54),
     NULL
 };
 
@@ -589,7 +630,7 @@ static const struct attribute_group as5712_54x_cpld3_group = {
 };
 
 static ssize_t show_present_all(struct device *dev, struct device_attribute *da,
-             char *buf)
+                                char *buf)
 {
     int i, status, num_regs = 0;
     u8 values[4]  = {0};
@@ -604,7 +645,7 @@ static ssize_t show_present_all(struct device *dev, struct device_attribute *da,
 
     for (i = 0; i < num_regs; i++) {
         status = as5712_54x_cpld_read_internal(client, regs[i]);
-        
+
         if (status < 0) {
             goto exit;
         }
@@ -617,12 +658,12 @@ static ssize_t show_present_all(struct device *dev, struct device_attribute *da,
     /* Return values 1 -> 54 in order */
     if (data->type == as5712_54x_cpld2) {
         status = sprintf(buf, "%.2x %.2x %.2x\n",
-                              values[0], values[1], values[2]);
+                         values[0], values[1], values[2]);
     }
     else { /* as5712_54x_cpld3 */
         values[3] &= 0x3F;
         status = sprintf(buf, "%.2x %.2x %.2x %.2x\n",
-                              values[0], values[1], values[2], values[3]);
+                         values[0], values[1], values[2], values[3]);
     }
 
     return status;
@@ -633,7 +674,7 @@ exit:
 }
 
 static ssize_t show_rxlos_all(struct device *dev, struct device_attribute *da,
-             char *buf)
+                              char *buf)
 {
     int i, status;
     u8 values[3]  = {0};
@@ -646,7 +687,7 @@ static ssize_t show_rxlos_all(struct device *dev, struct device_attribute *da,
 
     for (i = 0; i < ARRAY_SIZE(regs); i++) {
         status = as5712_54x_cpld_read_internal(client, regs[i]);
-        
+
         if (status < 0) {
             goto exit;
         }
@@ -665,7 +706,7 @@ exit:
 }
 
 static ssize_t show_status(struct device *dev, struct device_attribute *da,
-             char *buf)
+                           char *buf)
 {
     struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
     struct i2c_client *client = to_i2c_client(dev);
@@ -795,6 +836,14 @@ static ssize_t show_status(struct device *dev, struct device_attribute *da,
         reg  = 0x11;
         mask = 0x1 << (attr->index - MODULE_RXLOS_41);
         break;
+    case MODULE_LPMODE_49 ... MODULE_LPMODE_54:
+        reg  = 0x16;
+        mask = 0x1 << (attr->index - MODULE_LPMODE_49);
+        break;
+    case MODULE_RESET_49 ... MODULE_RESET_54:
+        reg  = 0x15;
+        mask = 0x1 << (attr->index - MODULE_RESET_49);
+        break;
     default:
         return 0;
     }
@@ -818,7 +867,7 @@ exit:
 }
 
 static ssize_t set_tx_disable(struct device *dev, struct device_attribute *da,
-            const char *buf, size_t count)
+                              const char *buf, size_t count)
 {
     struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
     struct i2c_client *client = to_i2c_client(dev);
@@ -881,7 +930,7 @@ static ssize_t set_tx_disable(struct device *dev, struct device_attribute *da,
     if (unlikely(status < 0)) {
         goto exit;
     }
-    
+
     mutex_unlock(&data->update_lock);
     return count;
 
@@ -890,8 +939,110 @@ exit:
     return status;
 }
 
+static ssize_t set_lp_mode(struct device *dev, struct device_attribute *da,
+                           const char *buf, size_t count)
+{
+    struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
+    struct i2c_client *client = to_i2c_client(dev);
+    struct i2c_mux_core *muxc = i2c_get_clientdata(client);
+    struct as5712_54x_cpld_data *data = i2c_mux_priv(muxc);
+
+    long on;
+    int status= -ENOENT;
+    u8 reg = 0x16, mask = 0;
+
+    if(attr->index < MODULE_LPMODE_49 || attr->index > MODULE_LPMODE_54)
+        return status;
+
+    status = kstrtol(buf, 10, &on);
+    if (status) {
+        return status;
+    }
+
+    /* Read current status */
+    mutex_lock(&data->update_lock);
+    status = as5712_54x_cpld_read_internal(client, reg);
+    if (unlikely(status < 0)) {
+        goto exit;
+    }
+
+    mask = 0x1 << (attr->index - MODULE_LPMODE_49);
+
+    /* Update lp_mode status */
+    if (on) {
+        status |= mask;
+    }
+    else {
+        status &= ~mask;
+    }
+
+    status = as5712_54x_cpld_write_internal(client, reg, status);
+    if (unlikely(status < 0)) {
+        goto exit;
+    }
+
+    mutex_unlock(&data->update_lock);
+    return count;
+
+exit:
+    mutex_unlock(&data->update_lock);
+    return status;
+
+}
+
+static ssize_t set_mode_reset(struct device *dev, struct device_attribute *da,
+                              const char *buf, size_t count)
+{
+    struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
+    struct i2c_client *client = to_i2c_client(dev);
+    struct i2c_mux_core *muxc = i2c_get_clientdata(client);
+    struct as5712_54x_cpld_data *data = i2c_mux_priv(muxc);
+
+    long on;
+    int status= -ENOENT;
+    u8 reg = 0x15, mask = 0;
+
+    if(attr->index < MODULE_RESET_49 || attr->index > MODULE_RESET_54)
+        return status;
+
+    status = kstrtol(buf, 10, &on);
+    if (status) {
+        return status;
+    }
+
+    /* Read current status */
+    mutex_lock(&data->update_lock);
+    status = as5712_54x_cpld_read_internal(client, reg);
+    if (unlikely(status < 0)) {
+        goto exit;
+    }
+
+    mask = 0x1 << (attr->index - MODULE_RESET_49);
+
+    /* Update tx_disable status */
+    if (on) {
+        status |= mask;
+    }
+    else {
+        status &= ~mask;
+    }
+
+    status = as5712_54x_cpld_write_internal(client, reg, status);
+    if (unlikely(status < 0)) {
+        goto exit;
+    }
+
+    mutex_unlock(&data->update_lock);
+    return count;
+
+exit:
+    mutex_unlock(&data->update_lock);
+    return status;
+
+}
+
 static ssize_t access(struct device *dev, struct device_attribute *da,
-            const char *buf, size_t count)
+                      const char *buf, size_t count)
 {
     struct i2c_client *client = to_i2c_client(dev);
     struct i2c_mux_core *muxc = i2c_get_clientdata(client);
@@ -923,7 +1074,7 @@ exit:
 /* Write to mux register. Don't use i2c_transfer()/i2c_smbus_xfer()
    for this as they will try to lock adapter a second time */
 static int as5712_54x_cpld_mux_reg_write(struct i2c_adapter *adap,
-                 struct i2c_client *client, u8 val)
+        struct i2c_client *client, u8 val)
 {
     unsigned long orig_jiffies;
     unsigned short flags;
@@ -939,22 +1090,22 @@ static int as5712_54x_cpld_mux_reg_write(struct i2c_adapter *adap,
         /* Retry automatically on arbitration loss */
         orig_jiffies = jiffies;
         for (res = 0, try = 0; try <= adap->retries; try++) {
-            res = adap->algo->smbus_xfer(adap, client->addr, flags,
-                             I2C_SMBUS_WRITE, CPLD_CHANNEL_SELECT_REG,
-                             I2C_SMBUS_BYTE_DATA, &data);
-            if (res != -EAGAIN)
-                break;
-            if (time_after(jiffies,
-                orig_jiffies + adap->timeout))
-                break;
-        }
+                        res = adap->algo->smbus_xfer(adap, client->addr, flags,
+                                                     I2C_SMBUS_WRITE, CPLD_CHANNEL_SELECT_REG,
+                                                     I2C_SMBUS_BYTE_DATA, &data);
+                        if (res != -EAGAIN)
+                            break;
+                        if (time_after(jiffies,
+                                       orig_jiffies + adap->timeout))
+                            break;
+                    }
     }
 
     return res;
 }
 
-static int as5712_54x_cpld_mux_select_chan(struct i2c_mux_core *muxc, 
-    u32 chan)
+static int as5712_54x_cpld_mux_select_chan(struct i2c_mux_core *muxc,
+        u32 chan)
 {
     struct as5712_54x_cpld_data *data = i2c_mux_priv(muxc);
     struct i2c_client *client = data->client;
@@ -972,7 +1123,7 @@ static int as5712_54x_cpld_mux_select_chan(struct i2c_mux_core *muxc,
 }
 
 static int as5712_54x_cpld_mux_deselect_mux(struct i2c_mux_core *muxc,
-    u32 chan)
+        u32 chan)
 {
     struct as5712_54x_cpld_data *data = i2c_mux_priv(muxc);
     struct i2c_client *client = data->client;
@@ -1028,13 +1179,13 @@ static ssize_t show_version(struct device *dev, struct device_attribute *attr, c
 {
     int val = 0;
     struct i2c_client *client = to_i2c_client(dev);
-    
+
     val = i2c_smbus_read_byte_data(client, 0x1);
 
     if (val < 0) {
         dev_dbg(&client->dev, "cpld(0x%x) reg(0x1) err %d\n", client->addr, val);
     }
-    
+
     return sprintf(buf, "%d", val);
 }
 
@@ -1042,7 +1193,7 @@ static ssize_t show_version(struct device *dev, struct device_attribute *attr, c
  * I2C init/probing/exit functions
  */
 static int as5712_54x_cpld_mux_probe(struct i2c_client *client,
-             const struct i2c_device_id *id)
+                                     const struct i2c_device_id *id)
 {
     struct i2c_adapter *adap = to_i2c_adapter(client->dev.parent);
     int num, force, class;
@@ -1055,8 +1206,8 @@ static int as5712_54x_cpld_mux_probe(struct i2c_client *client,
         return -ENODEV;
 
     muxc = i2c_mux_alloc(adap, &client->dev,
-                 chips[id->driver_data].nchans, sizeof(*data), 0,
-                 as5712_54x_cpld_mux_select_chan, as5712_54x_cpld_mux_deselect_mux);
+                         chips[id->driver_data].nchans, sizeof(*data), 0,
+                         as5712_54x_cpld_mux_select_chan, as5712_54x_cpld_mux_deselect_mux);
     if (!muxc)
         return -ENOMEM;
 
@@ -1076,8 +1227,8 @@ static int as5712_54x_cpld_mux_probe(struct i2c_client *client,
 
         if (ret) {
             dev_err(&client->dev,
-                "failed to register multiplexed adapter"
-                " %d as bus %d\n", num, force);
+                    "failed to register multiplexed adapter"
+                    " %d as bus %d\n", num, force);
             goto add_mux_failed;
         }
     }
@@ -1099,7 +1250,7 @@ static int as5712_54x_cpld_mux_probe(struct i2c_client *client,
     default:
         break;
     }
-    
+
     if (group) {
         ret = sysfs_create_group(&client->dev.kobj, group);
         if (ret) {
@@ -1109,12 +1260,12 @@ static int as5712_54x_cpld_mux_probe(struct i2c_client *client,
 
     if (chips[data->type].nchans) {
         dev_info(&client->dev,
-             "registered %d multiplexed busses for I2C %s\n",
-             num, client->name);
+                 "registered %d multiplexed busses for I2C %s\n",
+                 num, client->name);
     }
     else {
         dev_info(&client->dev,
-             "device %s registered\n", client->name);
+                 "device %s registered\n", client->name);
     }
 
     as5712_54x_cpld_add_client(client);

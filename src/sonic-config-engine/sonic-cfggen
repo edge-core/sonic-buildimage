@@ -28,9 +28,9 @@ from minigraph import minigraph_encoder
 from minigraph import parse_xml
 from minigraph import parse_device_desc_xml
 from portconfig import get_port_config
-from sonic_platform import get_machine_info
-from sonic_platform import get_platform_info
-from sonic_platform import get_system_mac
+from sonic_device_util import get_machine_info
+from sonic_device_util import get_platform_info
+from sonic_device_util import get_system_mac
 from config_samples import generate_sample_config
 from config_samples import get_available_config
 from swsssdk import ConfigDBConnector
@@ -109,13 +109,13 @@ TODO(taoyl): Current version of config db only supports BGP admin states.
 
     @staticmethod
     def to_serialized(data):
-        for table in data:
-            if type(data[table]) is dict:
-                data[table] = OrderedDict(natsorted(data[table].items()))
-                for key in data[table].keys():
-                    new_key = ConfigDBConnector.serialize_key(key)
-                    if new_key != key:
-                        data[table][new_key] = data[table].pop(key)
+        if type(data) is dict:
+            data = OrderedDict(natsorted(data.items()))
+            for key in data.keys():
+                new_key = ConfigDBConnector.serialize_key(key)
+                if new_key != key:
+                    data[new_key] = data.pop(key)
+                data[new_key] = FormatConverter.to_serialized(data[new_key])
         return data
 
     @staticmethod
@@ -162,7 +162,7 @@ def main():
     group.add_argument("-t", "--template", help="render the data with the template file")
     group.add_argument("-v", "--var", help="print the value of a variable, support jinja2 expression")
     group.add_argument("--var-json", help="print the value of a variable, in json format")
-    group.add_argument("--write-to-db", help="write config into configdb", action='store_true')
+    group.add_argument("-w", "--write-to-db", help="write config into configdb", action='store_true')
     group.add_argument("--print-data", help="print all data", action='store_true')
     group.add_argument("--preset", help="generate sample configuration from a preset template", choices=get_available_config())
     args = parser.parse_args()

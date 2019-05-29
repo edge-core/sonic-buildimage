@@ -3,7 +3,7 @@
 # autonomous subsystem provides monitoring and management
 # facility independent of the host CPU. IPMI standard
 # protocol is used with ipmitool to fetch sensor details.
-# Current script support X00 board only. X01 support will 
+# Current script support X00 board only. X01 support will
 # be added soon. This provies support for the
 # following objects:
 #   * Onboard temperature sensors
@@ -26,7 +26,6 @@ FAN_PRESENCE = "FAN{0}_prsnt"
 PSU_PRESENCE = "PSU{0}_state"
 # Use this for older firmware
 # PSU_PRESENCE="PSU{0}_prsnt"
-
 ipmi_sdr_list = ""
 
 # Dump sensor registers
@@ -53,7 +52,7 @@ def get_pmc_register(reg_name):
             output = item.strip()
 
     if not output:
-        print('\nFailed to fetch: ' +  reg_name + ' sensor ')
+        print('\nFailed to fetch: ' + reg_name + ' sensor ')
         sys.exit(0)
 
     output = output.split('|')[1]
@@ -83,8 +82,10 @@ def print_temperature_sensors():
         (get_pmc_register('CPU_Near_temp'))
     print '  CPU Near Temp:                  ',\
         (get_pmc_register('CPU_temp'))
-    print '  DRAM Temp:                      ',\
-        (get_pmc_register('DRAM1_temp'))
+    print '  PSU FAN AirFlow Temperature 1:  ',\
+        (get_pmc_register('PSU1_AF_temp'))
+    print '  PSU FAN AirFlow Temperature 2:  ',\
+        (get_pmc_register('PSU2_AF_temp'))
 
 ipmi_sensor_dump()
 
@@ -95,15 +96,23 @@ print_temperature_sensors()
 
 def print_fan_tray(tray):
 
-    Fan_Status = [' Normal', ' Abnormal']
+    Fan_Status = [' Normal', ' Abnormal', ' no reading']
     Airflow_Direction = ['B2F', 'F2B']
 
     print '  Fan Tray ' + str(tray) + ':'
 
     if (tray == 1):
 
-        fan1_status = int(get_pmc_register('Fan1_Front_state'), 16)
-        fan2_status = int(get_pmc_register('Fan1_Rear_state'), 16)
+        if(int(get_pmc_register('FAN1_prsnt'), 16)):
+            fan1_status = int(get_pmc_register('Fan1_Front_state'), 16)
+            fan2_status = int(get_pmc_register('Fan1_Rear_state'), 16)
+            # BMC taking some time to update
+            if(fan1_status > 2 or fan2_status > 2):
+                fan1_status = 2
+                fan2_status = 2
+        else:
+            fan1_status = 2
+            fan2_status = 2
 
         print '    Fan1 Speed:                   ',\
             get_pmc_register('FAN1_Front_rpm')
@@ -116,8 +125,16 @@ def print_fan_tray(tray):
 
     elif (tray == 2):
 
-        fan1_status = int(get_pmc_register('Fan2_Front_state'), 16)
-        fan2_status = int(get_pmc_register('Fan2_Rear_state'), 16)
+        if(int(get_pmc_register('FAN2_prsnt'), 16)):
+            fan1_status = int(get_pmc_register('Fan2_Front_state'), 16)
+            fan2_status = int(get_pmc_register('Fan2_Rear_state'), 16)
+            # BMC taking some time to update
+            if(fan1_status > 2 or fan2_status > 2):
+                fan1_status = 2
+                fan2_status = 2
+        else:
+            fan1_status = 2
+            fan2_status = 2
 
         print '    Fan1 Speed:                   ',\
             get_pmc_register('FAN2_Front_rpm')
@@ -130,8 +147,16 @@ def print_fan_tray(tray):
 
     elif (tray == 3):
 
-        fan1_status = int(get_pmc_register('Fan3_Front_state'), 16)
-        fan2_status = int(get_pmc_register('Fan3_Rear_state'), 16)
+        if(int(get_pmc_register('FAN3_prsnt'), 16)):
+            fan1_status = int(get_pmc_register('Fan3_Front_state'), 16)
+            fan2_status = int(get_pmc_register('Fan3_Rear_state'), 16)
+            # BMC taking some time to update
+            if(fan1_status > 2 or fan2_status > 2):
+                fan1_status = 2
+                fan2_status = 2
+        else:
+            fan1_status = 2
+            fan2_status = 2
 
         print '    Fan1 Speed:                   ',\
             get_pmc_register('FAN3_Front_rpm')
@@ -144,8 +169,16 @@ def print_fan_tray(tray):
 
     elif (tray == 4):
 
-        fan1_status = int(get_pmc_register('Fan4_Front_state'), 16)
-        fan2_status = int(get_pmc_register('Fan4_Rear_state'), 16)
+        if(int(get_pmc_register('FAN4_prsnt'), 16)):
+            fan1_status = int(get_pmc_register('Fan4_Front_state'), 16)
+            fan2_status = int(get_pmc_register('Fan4_Rear_state'), 16)
+            # BMC taking some time to update
+            if(fan1_status > 2 or fan2_status > 2):
+                fan1_status = 2
+                fan2_status = 2
+        else:
+            fan1_status = 2
+            fan2_status = 2
 
         print '    Fan1 Speed:                   ',\
             get_pmc_register('FAN4_Front_rpm')
@@ -169,80 +202,54 @@ for tray in range(1, Z9264F_MAX_FAN_TRAYS + 1):
 
 # Print the information for PSU1, PSU2
 def print_psu(psu):
-    Psu_Type = ['Normal', 'Mismatch']
-    Psu_Input_Type = ['AC', 'DC']
-    PSU_STATUS_TYPE_BIT = 4
-    PSU_STATUS_INPUT_TYPE_BIT = 1
-    PSU_FAN_PRESENT_BIT = 2
-    PSU_FAN_STATUS_BIT = 1
-    PSU_FAN_AIR_FLOW_BIT = 0
-    Psu_Fan_Presence = ['Present', 'Absent']
-    Psu_Fan_Status = ['Normal', 'Abnormal']
-    Psu_Fan_Airflow = ['B2F', 'F2B']
-
-    # print '    Input:          ', Psu_Input_Type[psu_input_type]
-    # print '    Type:           ', Psu_Type[psu_type]
 
     # PSU FAN details
     if (psu == 1):
 
-        # psu1_fan_status = int(get_pmc_register('PSU1_status'),16)
-
         print '    PSU1:'
-        print '       FAN Normal Temperature:              ',\
+        print '       FAN Normal Temperature:       ',\
             get_pmc_register('PSU1_Normal_temp')
-        print '       FAN System Temperature:              ',\
-            get_pmc_register('PSU1_Sys_temp')
-        print '       FAN Chassis Temperature:              ',\
+        print '       Chassis Temperature:          ',\
             get_pmc_register('PSU1_Chass_temp')
-        print '       FAN AirFlow Temperature:      ',\
-            get_pmc_register('PSU1AF_temp')
+        print '       System  Temperature:          ',\
+            get_pmc_register('PSU1_Sys_temp')
         print '       FAN RPM:                      ',\
             get_pmc_register('PSU1_rpm')
-        # print '    FAN Status:      ', Psu_Fan_Status[psu1_fan_status]
-
-        # PSU input & output monitors
-        print '       Input Voltage:                 ',\
+        print '       Input Voltage:                ',\
             get_pmc_register('PSU1_In_volt')
-        print '       Output Voltage:                 ',\
+        print '       Output Voltage:               ',\
             get_pmc_register('PSU1_Out_volt')
-        print '       Input Power:                   ',\
+        print '       Input Power:                  ',\
             get_pmc_register('PSU1_In_watt')
-        print '       Output Power:                  ',\
+        print '       Output Power:                 ',\
             get_pmc_register('PSU1_Out_watt')
-        print '       Input Current:                   ',\
+        print '       Input Current:                ',\
             get_pmc_register('PSU1_In_amp')
-        print '       Output Current:                 ',\
+        print '       Output Current:               ',\
             get_pmc_register('PSU1_Out_amp')
 
     else:
 
-        # psu2_fan_status = int(get_pmc_register('PSU1_status'),16)
         print '    PSU2:'
-        print '       FAN Normal Temperature:              ',\
+        print '       FAN Normal Temperature:       ',\
             get_pmc_register('PSU2_Normal_temp')
-        print '       FAN System Temperature:              ',\
-            get_pmc_register('PSU2_Sys_temp')
-        print '       FAN Chassis Temperature:              ',\
+        print '       Chassis Temperature:          ',\
             get_pmc_register('PSU2_Chass_temp')
-        print '       FAN AirFlow Temperature:      ',\
-            get_pmc_register('PSU2AF_temp')
+        print '       System  Temperature:          ',\
+            get_pmc_register('PSU2_Sys_temp')
         print '       FAN RPM:                      ',\
             get_pmc_register('PSU2_rpm')
-        # print '    FAN Status:      ', Psu_Fan_Status[psu2_fan_status]
-
-        # PSU input & output monitors
-        print '       Input Voltage:                 ',\
+        print '       Input Voltage:                ',\
             get_pmc_register('PSU2_In_volt')
-        print '       Output Voltage:                 ',\
+        print '       Output Voltage:               ',\
             get_pmc_register('PSU2_Out_volt')
-        print '       Input Power:                   ',\
+        print '       Input Power:                  ',\
             get_pmc_register('PSU2_In_watt')
-        print '       Output Power:                  ',\
+        print '       Output Power:                 ',\
             get_pmc_register('PSU2_Out_watt')
-        print '       Input Current:                   ',\
+        print '       Input Current:                ',\
             get_pmc_register('PSU2_In_amp')
-        print '       Output Current:                 ',\
+        print '       Output Current:               ',\
             get_pmc_register('PSU2_Out_amp')
 
 
@@ -254,6 +261,5 @@ for psu in range(1, Z9264F_MAX_PSUS + 1):
     else:
         print '\n  PSU ', psu, 'Not present'
 
-print '\n    Total Power:                      ',\
+print '\n    Total Power:                     ',\
     get_pmc_register('PSU_Total_watt')
-

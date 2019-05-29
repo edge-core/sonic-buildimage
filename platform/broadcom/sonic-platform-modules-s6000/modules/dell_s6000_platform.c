@@ -9,6 +9,7 @@
 #include <linux/platform_device.h>
 #include <linux/i2c/sff-8436.h>
 #include <linux/delay.h>
+#include <linux/gpio.h>
 
 #define S6000_MUX_BASE_NR   10
 #define QSFP_MODULE_BASE_NR 20
@@ -20,6 +21,7 @@
 #define QSFP_MODULE_NUM     16
 #define QSFP_DEVICE_NUM     2
 
+#define GPIO_I2C_MUX_PIN    10
 
 static void device_release(struct device *dev)
 {
@@ -247,28 +249,59 @@ static struct platform_driver qsfp_mux_driver = {
 /* TODO */
 /* module_platform_driver */
 
+static int dell_i2c_smbus_read_byte_data(const struct i2c_client *client,
+                                         u8 command)
+{
+    int ret = 0;
+
+    ret = i2c_smbus_read_byte_data(client, command);
+    if(ret < 0) {
+        printk(KERN_WARNING "I2C smbus read failed. Resetting mux with gpio10");
+        gpio_set_value(GPIO_I2C_MUX_PIN, 1);
+        gpio_set_value(GPIO_I2C_MUX_PIN, 0);
+        ret = i2c_smbus_read_byte_data(client, command);
+    }
+    return ret;
+}
+
+static int dell_i2c_smbus_write_byte_data(const struct i2c_client *client,
+                                          u8 command, u8 value)
+{
+    int ret = 0;
+
+    ret = i2c_smbus_write_byte_data(client, command, value);
+    if(ret < 0)
+    {
+        printk(KERN_WARNING "I2C smbus write failed. Resetting mux with gpio10");
+        gpio_set_value(GPIO_I2C_MUX_PIN, 1);
+        gpio_set_value(GPIO_I2C_MUX_PIN, 0);
+        ret = i2c_smbus_write_byte_data(client, command, value);
+    }
+    return ret;
+}
+
 static ssize_t get_modsel(struct device *dev, struct device_attribute *devattr, char *buf)
 {
     int ret;
     u32 data = 0;
     struct cpld_platform_data *pdata = dev->platform_data;
 
-    ret = i2c_smbus_read_byte_data(pdata[slave_cpld].client, 0x0);
+    ret = dell_i2c_smbus_read_byte_data(pdata[slave_cpld].client, 0x0);
     if (ret < 0)
         return sprintf(buf, "na");
     data = (u32)ret & 0xff;
 
-    ret = i2c_smbus_read_byte_data(pdata[slave_cpld].client, 0x1);
+    ret = dell_i2c_smbus_read_byte_data(pdata[slave_cpld].client, 0x1);
     if (ret < 0)
         return sprintf(buf, "na");
     data |= (u32)(ret & 0xff) << 8;
 
-    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0xa);
+    ret = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0xa);
     if (ret < 0)
         return sprintf(buf, "na");
     data |= (u32)(ret & 0xff) << 16;
 
-    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0xb);
+    ret = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0xb);
     if (ret < 0)
         return sprintf(buf, "na");
     data |= (u32)(ret & 0xff) << 24;
@@ -282,22 +315,22 @@ static ssize_t get_lpmode(struct device *dev, struct device_attribute *devattr, 
     u32 data = 0;
     struct cpld_platform_data *pdata = dev->platform_data;
 
-    ret = i2c_smbus_read_byte_data(pdata[slave_cpld].client, 0x2);
+    ret = dell_i2c_smbus_read_byte_data(pdata[slave_cpld].client, 0x2);
     if (ret < 0)
         return sprintf(buf, "na");
     data = (u32)ret & 0xff;
 
-    ret = i2c_smbus_read_byte_data(pdata[slave_cpld].client, 0x3);
+    ret = dell_i2c_smbus_read_byte_data(pdata[slave_cpld].client, 0x3);
     if (ret < 0)
         return sprintf(buf, "na");
     data |= (u32)(ret & 0xff) << 8;
 
-    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0xc);
+    ret = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0xc);
     if (ret < 0)
         return sprintf(buf, "na");
     data |= (u32)(ret & 0xff) << 16;
 
-    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0xd);
+    ret = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0xd);
     if (ret < 0)
         return sprintf(buf, "na");
     data |= (u32)(ret & 0xff) << 24;
@@ -315,10 +348,10 @@ static ssize_t set_lpmode(struct device *dev, struct device_attribute *devattr, 
     if (err)
         return err;
 
-    i2c_smbus_write_byte_data(pdata[slave_cpld].client, 0x2, (u8)(data & 0xff));
-    i2c_smbus_write_byte_data(pdata[slave_cpld].client, 0x3, (u8)((data >> 8) & 0xff));
-    i2c_smbus_write_byte_data(pdata[master_cpld].client, 0xc, (u8)((data >> 16) & 0xff));
-    i2c_smbus_write_byte_data(pdata[master_cpld].client, 0xd, (u8)((data >> 24) & 0xff));
+    dell_i2c_smbus_write_byte_data(pdata[slave_cpld].client, 0x2, (u8)(data & 0xff));
+    dell_i2c_smbus_write_byte_data(pdata[slave_cpld].client, 0x3, (u8)((data >> 8) & 0xff));
+    dell_i2c_smbus_write_byte_data(pdata[master_cpld].client, 0xc, (u8)((data >> 16) & 0xff));
+    dell_i2c_smbus_write_byte_data(pdata[master_cpld].client, 0xd, (u8)((data >> 24) & 0xff));
 
     return count;
 }
@@ -329,22 +362,22 @@ static ssize_t get_reset(struct device *dev, struct device_attribute *devattr, c
     u32 data = 0;
     struct cpld_platform_data *pdata = dev->platform_data;
 
-    ret = i2c_smbus_read_byte_data(pdata[slave_cpld].client, 0x6);
+    ret = dell_i2c_smbus_read_byte_data(pdata[slave_cpld].client, 0x6);
     if (ret < 0)
         return sprintf(buf, "na");
     data = (u32)ret & 0xff;
 
-    ret = i2c_smbus_read_byte_data(pdata[slave_cpld].client, 0x7);
+    ret = dell_i2c_smbus_read_byte_data(pdata[slave_cpld].client, 0x7);
     if (ret < 0)
         return sprintf(buf, "na");
     data |= (u32)(ret & 0xff) << 8;
 
-    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x10);
+    ret = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x10);
     if (ret < 0)
         return sprintf(buf, "na");
     data |= (u32)(ret & 0xff) << 16;
 
-    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x11);
+    ret = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x11);
     if (ret < 0)
         return sprintf(buf, "na");
     data |= (u32)(ret & 0xff) << 24;
@@ -362,10 +395,10 @@ static ssize_t set_reset(struct device *dev, struct device_attribute *devattr, c
     if (err)
         return err;
 
-    i2c_smbus_write_byte_data(pdata[slave_cpld].client, 0x6, (u8)(data & 0xff));
-    i2c_smbus_write_byte_data(pdata[slave_cpld].client, 0x7, (u8)((data >> 8)& 0xff));
-    i2c_smbus_write_byte_data(pdata[master_cpld].client, 0x10, (u8)((data >> 16) & 0xff));
-    i2c_smbus_write_byte_data(pdata[master_cpld].client, 0x11, (u8)((data >> 24) & 0xff));
+    dell_i2c_smbus_write_byte_data(pdata[slave_cpld].client, 0x6, (u8)(data & 0xff));
+    dell_i2c_smbus_write_byte_data(pdata[slave_cpld].client, 0x7, (u8)((data >> 8)& 0xff));
+    dell_i2c_smbus_write_byte_data(pdata[master_cpld].client, 0x10, (u8)((data >> 16) & 0xff));
+    dell_i2c_smbus_write_byte_data(pdata[master_cpld].client, 0x11, (u8)((data >> 24) & 0xff));
 
     return count;
 }
@@ -376,22 +409,22 @@ static ssize_t get_modprs(struct device *dev, struct device_attribute *devattr, 
     u32 data = 0;
     struct cpld_platform_data *pdata = dev->platform_data;
 
-    ret = i2c_smbus_read_byte_data(pdata[slave_cpld].client, 0x4);
+    ret = dell_i2c_smbus_read_byte_data(pdata[slave_cpld].client, 0x4);
     if (ret < 0)
         return sprintf(buf, "read error");
     data = (u32)ret & 0xff;
 
-    ret = i2c_smbus_read_byte_data(pdata[slave_cpld].client, 0x5);
+    ret = dell_i2c_smbus_read_byte_data(pdata[slave_cpld].client, 0x5);
     if (ret < 0)
         return sprintf(buf, "read error");
     data |= (u32)(ret & 0xff) << 8;
 
-    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0xe);
+    ret = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0xe);
     if (ret < 0)
         return sprintf(buf, "na");
     data |= (u32)(ret & 0xff) << 16;
 
-    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0xf);
+    ret = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0xf);
     if (ret < 0)
         return sprintf(buf, "na");
     data |= (u32)(ret & 0xff) << 24;
@@ -411,7 +444,7 @@ static ssize_t set_power_reset(struct device *dev, struct device_attribute *deva
 
     if (data)
     {
-        i2c_smbus_write_byte_data(pdata[system_cpld].client, 0x1, (u8)(0xfd));
+        dell_i2c_smbus_write_byte_data(pdata[system_cpld].client, 0x1, (u8)(0xfd));
     }
 
     return count;
@@ -422,7 +455,7 @@ static ssize_t get_power_reset(struct device *dev, struct device_attribute *deva
     uint8_t ret = 0;
     struct cpld_platform_data *pdata = dev->platform_data;
 
-    ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, 0x1);
+    ret = dell_i2c_smbus_read_byte_data(pdata[system_cpld].client, 0x1);
     if (ret < 0)
         return sprintf(buf, "read error");
 
@@ -435,12 +468,12 @@ static ssize_t get_fan_prs(struct device *dev, struct device_attribute *devattr,
     u32 data = 0;
     struct cpld_platform_data *pdata = dev->platform_data;
 
-    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x8);
+    ret = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x8);
     if (ret < 0)
         return sprintf(buf, "read error");
     data = (u32)((ret & 0xc0) >> 6);
 
-    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x9);
+    ret = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x9);
     if (ret < 0)
         return sprintf(buf, "read error");
     data |= (u32)((ret & 0x01) << 2);
@@ -455,7 +488,7 @@ static ssize_t get_psu0_prs(struct device *dev, struct device_attribute *devattr
     u32 data = 0;
     struct cpld_platform_data *pdata = dev->platform_data;
 
-    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x3);
+    ret = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x3);
     if (ret < 0)
         return sprintf(buf, "read error");
 
@@ -471,7 +504,7 @@ static ssize_t get_psu1_prs(struct device *dev, struct device_attribute *devattr
     u32 data = 0;
     struct cpld_platform_data *pdata = dev->platform_data;
 
-    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x3);
+    ret = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x3);
     if (ret < 0)
         return sprintf(buf, "read error");
 
@@ -487,7 +520,7 @@ static ssize_t get_psu0_status(struct device *dev, struct device_attribute *deva
     u32 data = 0;
     struct cpld_platform_data *pdata = dev->platform_data;
 
-    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x3);
+    ret = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x3);
     if (ret < 0)
         return sprintf(buf, "read error");
 
@@ -503,7 +536,7 @@ static ssize_t get_psu1_status(struct device *dev, struct device_attribute *deva
     u32 data = 0;
     struct cpld_platform_data *pdata = dev->platform_data;
 
-    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x3);
+    ret = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x3);
     if (ret < 0)
         return sprintf(buf, "read error");
 
@@ -519,7 +552,7 @@ static ssize_t get_system_led(struct device *dev, struct device_attribute *devat
     u32 data = 0;
     struct cpld_platform_data *pdata = dev->platform_data;
 
-    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x7);
+    ret = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x7);
     if (ret < 0)
         return sprintf(buf, "read error");
 
@@ -570,11 +603,11 @@ static ssize_t set_system_led(struct device *dev, struct device_attribute *devat
         return -1;
     }
 
-    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x7);
+    ret = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x7);
     if (ret < 0)
         return ret;
 
-    i2c_smbus_write_byte_data(pdata[master_cpld].client, 0x7, (u8)((ret & 0x9F) | (data << 5)));
+    dell_i2c_smbus_write_byte_data(pdata[master_cpld].client, 0x7, (u8)((ret & 0x9F) | (data << 5)));
 
     return count;
 }
@@ -585,7 +618,7 @@ static ssize_t get_locator_led(struct device *dev, struct device_attribute *deva
     u32 data = 0;
     struct cpld_platform_data *pdata = dev->platform_data;
 
-    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x7);
+    ret = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x7);
     if (ret < 0)
         return sprintf(buf, "read error");
 
@@ -632,11 +665,11 @@ static ssize_t set_locator_led(struct device *dev, struct device_attribute *deva
         return -1;
     }
 
-    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x7);
+    ret = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x7);
     if (ret < 0)
         return ret;
 
-    i2c_smbus_write_byte_data(pdata[master_cpld].client, 0x7, (u8)((ret & 0xE7) | (data << 3)));
+    dell_i2c_smbus_write_byte_data(pdata[master_cpld].client, 0x7, (u8)((ret & 0xE7) | (data << 3)));
 
     return count;
 }
@@ -647,7 +680,7 @@ static ssize_t get_power_led(struct device *dev, struct device_attribute *devatt
     u32 data = 0;
     struct cpld_platform_data *pdata = dev->platform_data;
 
-    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x7);
+    ret = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x7);
     if (ret < 0)
         return sprintf(buf, "read error");
 
@@ -698,11 +731,11 @@ static ssize_t set_power_led(struct device *dev, struct device_attribute *devatt
         return -1;
     }
 
-    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x7);
+    ret = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x7);
     if (ret < 0)
         return ret;
 
-    i2c_smbus_write_byte_data(pdata[master_cpld].client, 0x7, (u8)((ret & 0xF9) | (data << 1)));
+    dell_i2c_smbus_write_byte_data(pdata[master_cpld].client, 0x7, (u8)((ret & 0xF9) | (data << 1)));
 
     return count;
 }
@@ -713,7 +746,7 @@ static ssize_t get_master_led(struct device *dev, struct device_attribute *devat
     u32 data = 0;
     struct cpld_platform_data *pdata = dev->platform_data;
 
-    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x7);
+    ret = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x7);
     if (ret < 0)
         return sprintf(buf, "read error");
 
@@ -751,11 +784,11 @@ static ssize_t set_master_led(struct device *dev, struct device_attribute *devat
         return -1;
     }
 
-    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x7);
+    ret = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x7);
     if (ret < 0)
         return ret;
 
-    i2c_smbus_write_byte_data(pdata[master_cpld].client, 0x7, (u8)((ret & 0xFE) | data));
+    dell_i2c_smbus_write_byte_data(pdata[master_cpld].client, 0x7, (u8)((ret & 0xFE) | data));
 
     return count;
 }
@@ -766,7 +799,7 @@ static ssize_t get_fan_led(struct device *dev, struct device_attribute *devattr,
     u32 data = 0;
     struct cpld_platform_data *pdata = dev->platform_data;
 
-    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x9);
+    ret = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x9);
     if (ret < 0)
         return sprintf(buf, "read error");
 
@@ -817,11 +850,11 @@ static ssize_t set_fan_led(struct device *dev, struct device_attribute *devattr,
         return -1;
     }
 
-    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x9);
+    ret = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x9);
     if (ret < 0)
         return ret;
 
-    i2c_smbus_write_byte_data(pdata[master_cpld].client, 0x9, (u8)((ret & 0xE7) | (data << 3)));
+    dell_i2c_smbus_write_byte_data(pdata[master_cpld].client, 0x9, (u8)((ret & 0xE7) | (data << 3)));
 
     return count;
 }
@@ -832,7 +865,7 @@ static ssize_t get_fan0_led(struct device *dev, struct device_attribute *devattr
     u32 data = 0;
     struct cpld_platform_data *pdata = dev->platform_data;
 
-    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x8);
+    ret = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x8);
     if (ret < 0)
         return sprintf(buf, "read error");
 
@@ -879,11 +912,11 @@ static ssize_t set_fan0_led(struct device *dev, struct device_attribute *devattr
         return -1;
     }
 
-    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x8);
+    ret = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x8);
     if (ret < 0)
         return ret;
 
-    i2c_smbus_write_byte_data(pdata[master_cpld].client, 0x8, (u8)((ret & 0xFC) | data));
+    dell_i2c_smbus_write_byte_data(pdata[master_cpld].client, 0x8, (u8)((ret & 0xFC) | data));
 
     return count;
 }
@@ -895,7 +928,7 @@ static ssize_t get_fan1_led(struct device *dev, struct device_attribute *devattr
     u32 data = 0;
     struct cpld_platform_data *pdata = dev->platform_data;
 
-    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x8);
+    ret = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x8);
     if (ret < 0)
         return sprintf(buf, "read error");
 
@@ -942,11 +975,11 @@ static ssize_t set_fan1_led(struct device *dev, struct device_attribute *devattr
         return -1;
     }
 
-    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x8);
+    ret = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x8);
     if (ret < 0)
         return ret;
 
-    i2c_smbus_write_byte_data(pdata[master_cpld].client, 0x8, (u8)((ret & 0xF3) | (data << 2)));
+    dell_i2c_smbus_write_byte_data(pdata[master_cpld].client, 0x8, (u8)((ret & 0xF3) | (data << 2)));
 
     return count;
 }
@@ -957,7 +990,7 @@ static ssize_t get_fan2_led(struct device *dev, struct device_attribute *devattr
     u32 data = 0;
     struct cpld_platform_data *pdata = dev->platform_data;
 
-    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x8);
+    ret = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x8);
     if (ret < 0)
         return sprintf(buf, "read error");
 
@@ -1004,11 +1037,11 @@ static ssize_t set_fan2_led(struct device *dev, struct device_attribute *devattr
         return -1;
     }
 
-    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x8);
+    ret = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x8);
     if (ret < 0)
         return ret;
 
-    i2c_smbus_write_byte_data(pdata[master_cpld].client, 0x8, (u8)((ret & 0xCF) | (data << 4)));
+    dell_i2c_smbus_write_byte_data(pdata[master_cpld].client, 0x8, (u8)((ret & 0xCF) | (data << 4)));
 
     return count;
 }
@@ -1020,7 +1053,7 @@ static ssize_t get_system_cpld_ver(struct device *dev,
     u32 data = 0;
     struct cpld_platform_data *pdata = dev->platform_data;
 
-    ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, 0x0);
+    ret = dell_i2c_smbus_read_byte_data(pdata[system_cpld].client, 0x0);
     if (ret < 0)
         return sprintf(buf, "read error");
 
@@ -1036,7 +1069,7 @@ static ssize_t get_master_cpld_ver(struct device *dev,
     u32 data = 0;
     struct cpld_platform_data *pdata = dev->platform_data;
 
-    ret = i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x1);
+    ret = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x1);
     if (ret < 0)
         return sprintf(buf, "read error");
 
@@ -1052,7 +1085,7 @@ static ssize_t get_slave_cpld_ver(struct device *dev,
     u32 data = 0;
     struct cpld_platform_data *pdata = dev->platform_data;
 
-    ret = i2c_smbus_read_byte_data(pdata[slave_cpld].client, 0xa);
+    ret = dell_i2c_smbus_read_byte_data(pdata[slave_cpld].client, 0xa);
     if (ret < 0)
         return sprintf(buf, "read error");
 
@@ -1201,8 +1234,28 @@ static int __init dell_s6000_platform_init(void)
     struct cpld_platform_data *cpld_pdata;
     struct qsfp_mux_platform_data *qsfp_pdata;
     int i;
+    bool gpio_allocated = false;
 
-    printk("delll_s6000_platform module initialization\n");
+    printk("dell_s6000_platform module initialization\n");
+
+    ret = gpio_request(GPIO_I2C_MUX_PIN, "gpio10");
+    if(ret < 0) {
+        printk(KERN_WARNING "Failed to request gpio 10");
+        goto error_gpio_init;
+    }
+    gpio_allocated = true;
+
+    ret = gpio_export(GPIO_I2C_MUX_PIN, false);
+    if(ret < 0) {
+        printk(KERN_WARNING "Failed to export gpio 10");
+        goto error_gpio_init;
+    }
+
+    ret = gpio_direction_output(GPIO_I2C_MUX_PIN, 0);
+    if(ret < 0) {
+        printk(KERN_WARNING "Failed to set direction out on gpio 10");
+        goto error_gpio_init;
+    }
 
     ret = platform_driver_register(&cpld_driver);
     if (ret) {
@@ -1261,6 +1314,11 @@ error_qsfp_mux_driver:
     platform_driver_unregister(&cpld_driver);
 error_cpld_driver:
     return ret;
+error_gpio_init:
+    if(gpio_allocated) {
+        gpio_free(GPIO_I2C_MUX_PIN);
+    }
+    return ret;
 }
 
 static void __exit dell_s6000_platform_exit(void)
@@ -1274,6 +1332,7 @@ static void __exit dell_s6000_platform_exit(void)
 
     platform_driver_unregister(&cpld_driver);
     platform_driver_unregister(&qsfp_mux_driver);
+    gpio_free(GPIO_I2C_MUX_PIN);
 }
 
 module_init(dell_s6000_platform_init);

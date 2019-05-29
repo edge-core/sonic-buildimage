@@ -7,3 +7,4 @@
 0010-teamd-lacp-update-port-state-according-to-partners-sy.patch
 0011-libteam-resynchronize-ifinfo-after-lost-RTNLGRP_LINK-.patch
 0012-teamd-do-not-process-lacpdu-before-the-port-ifinfo-i.patch
+0013-teamd-lacp-port-admin-down-recv-not-processing.patch
