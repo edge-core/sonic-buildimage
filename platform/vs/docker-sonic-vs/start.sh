@@ -59,6 +59,8 @@ supervisorctl start vlanmgrd
 
 supervisorctl start zebra
 
+supervisorctl start staticd
+
 supervisorctl start buffermgrd
 
 supervisorctl start nbrmgrd
