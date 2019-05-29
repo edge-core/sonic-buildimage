@@ -19,7 +19,7 @@
 # HISTORY:
 #    mm/dd/yyyy (A.D.)
 #    11/13/2017: Polly Hsu, Create
-#    05/08/2019: Roy Lee, changed for as5712-54x.
+#    05/08/2019: Roy Lee, changed for as5812-54x.
 # ------------------------------------------------------------------
 
 try:
@@ -35,21 +35,21 @@ try:
     import traceback
     import signal
     from tabulate import tabulate
-    from as5712_54x.fanutil import FanUtil
-    from as5712_54x.thermalutil import ThermalUtil
+    from as5812_54x.fanutil import FanUtil
+    from as5812_54x.thermalutil import ThermalUtil
 except ImportError as e:
     raise ImportError('%s - required module not found' % str(e))
 
 # Deafults
 VERSION = '1.0'
-FUNCTION_NAME = 'accton_as5712_monitor'
+FUNCTION_NAME = 'accton_as5812_monitor'
 DUTY_MAX = 100
 
 global log_file
 global log_level
 
 # Make a class we can use to capture stdout and sterr in the log
-class accton_as5712_monitor(object):
+class accton_as5812_monitor(object):
     # static temp var
     _ori_temp = 0
     _new_perc = 0
@@ -193,7 +193,7 @@ def main(argv):
 
     signal.signal(signal.SIGINT, handler)
     signal.signal(signal.SIGTERM, handler)
-    monitor = accton_as5712_monitor(log_file, log_level)
+    monitor = accton_as5812_monitor(log_file, log_level)
 
     # Loop forever, doing something useful hopefully:
     while True:
