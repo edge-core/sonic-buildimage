@@ -1,4 +1,4 @@
-FROM debian:jessie
+FROM debian:stretch
 
 MAINTAINER Pavel Shirshov
 
@@ -38,7 +38,7 @@ RUN sed --in-place 's/httpredir.debian.org/debian-archive.trafficmanager.net/' /
         cmake               \
         libqt5core5a        \
         libqt5network5      \
-        libboost-atomic1.55.0 \
+        libboost-atomic1.62.0 \
         less                \
         git                 \
         iputils-ping        \
