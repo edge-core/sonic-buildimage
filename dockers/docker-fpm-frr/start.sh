@@ -35,7 +35,7 @@ supervisorctl start zebra
 supervisorctl start staticd
 supervisorctl start bgpd
 
-if [ "$CONFIG_TYPE" == "unified" ]; then
+if [ -z "$CONFIG_TYPE" ] || [ "$CONFIG_TYPE" == "separated" ]; then
     supervisorctl start vtysh_b
 fi
 
