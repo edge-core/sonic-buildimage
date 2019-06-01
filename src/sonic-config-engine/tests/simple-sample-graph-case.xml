@@ -325,6 +325,19 @@
       <FlowControl>true</FlowControl>
       <Height>0</Height>
       <HwSku>Force10-S6000</HwSku>
+      <ManagementInterfaces xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
+	<a:ManagementInterface>
+	  <ElementType>DeviceInterface</ElementType>
+	  <AlternateSpeeds i:nil="true"/>
+	  <EnableAutoNegotiation>true</EnableAutoNegotiation>
+	  <EnableFlowControl>true</EnableFlowControl>
+	  <Index>1</Index>
+	  <InterfaceName>eth0</InterfaceName>
+	  <MultiPortsInterface>false</MultiPortsInterface>
+	  <PortName>eth0</PortName>
+	  <Speed>1000</Speed>
+	</a:ManagementInterface>
+      </ManagementInterfaces>
     </DeviceInfo>
   </DeviceInfos>
   <Hostname>switch-T0</Hostname>
