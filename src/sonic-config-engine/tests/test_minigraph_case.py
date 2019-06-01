@@ -114,8 +114,12 @@ class TestCfgGenCaseInsensitive(TestCase):
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "{'10.0.10.7': {'priority': '1', 'tcp_port': '49'}, '10.0.10.8': {'priority': '1', 'tcp_port': '49'}}")
 
+    def test_minigraph_mgmt_port(self):
+        argument = '-m "' + self.sample_graph + '" -p "' + self.port_config + '" -v "MGMT_PORT"'
+        output = self.run_script(argument)
+        self.assertEqual(output.strip(), "{'eth0': {'alias': 'eth0', 'admin_status': 'up', 'speed': '1000'}}")
+
     def test_metadata_ntp(self):
         argument = '-m "' + self.sample_graph + '" -p "' + self.port_config + '" -v "NTP_SERVER"'
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "{'10.0.10.1': {}, '10.0.10.2': {}}")
-

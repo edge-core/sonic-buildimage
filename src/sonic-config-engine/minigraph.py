@@ -395,8 +395,9 @@ def parse_deviceinfo(meta, hwsku):
     for device_info in meta.findall(str(QName(ns, "DeviceInfo"))):
         dev_sku = device_info.find(str(QName(ns, "HwSku"))).text
         if dev_sku == hwsku:
-            interfaces = device_info.find(str(QName(ns, "EthernetInterfaces")))
-            for interface in interfaces.findall(str(QName(ns1, "EthernetInterface"))):
+            interfaces = device_info.find(str(QName(ns, "EthernetInterfaces"))).findall(str(QName(ns1, "EthernetInterface")))
+            interfaces = interfaces + device_info.find(str(QName(ns, "ManagementInterfaces"))).findall(str(QName(ns1, "ManagementInterface")))
+            for interface in interfaces:
                 alias = interface.find(str(QName(ns, "InterfaceName"))).text
                 speed = interface.find(str(QName(ns, "Speed"))).text
                 desc  = interface.find(str(QName(ns, "Description")))
@@ -494,6 +495,8 @@ def parse_xml(filename, platform=None, port_config_file=None):
             mgmt_intf_count += 1
             mgmt_alias_reverse_mapping[alias] = name
         results['MGMT_PORT'][name] = {'alias': alias, 'admin_status': 'up'}
+        if alias in port_speeds_default:
+            results['MGMT_PORT'][name]['speed'] = port_speeds_default[alias]
         results['MGMT_INTERFACE'][(name, key[1])] = mgmt_intf[key]
     results['LOOPBACK_INTERFACE'] = lo_intfs
 
