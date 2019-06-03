@@ -32,28 +32,33 @@ stderr_logfile=syslog
 {% if num_relays.count > 0 %}
 [group:isc-dhcp-relay]
 programs=
-{%- set add_preceding_comma = { 'flag': False } -%}
-{%- for vlan_name in VLAN -%}
-{%- if VLAN[vlan_name]['dhcp_servers'] -%}
-{%- if add_preceding_comma.flag %},{% endif -%}
-{%- set _dummy = add_preceding_comma.update({'flag': True}) -%}
+{%- set add_preceding_comma = { 'flag': False } %}
+{% for vlan_name in VLAN %}
+{% if VLAN[vlan_name]['dhcp_servers'] %}
+{% if add_preceding_comma.flag %},{% endif %}
+{% set _dummy = add_preceding_comma.update({'flag': True}) %}
 isc-dhcp-relay-{{ vlan_name }}
 {%- endif %}
 {% endfor %}
 
 
 {# Create a program entry for each DHCP relay agent instance #}
-{% for vlan_name in VLAN -%}
-{%- if VLAN[vlan_name]['dhcp_servers'] -%}
+{% for vlan_name in VLAN %}
+{% if VLAN[vlan_name]['dhcp_servers'] %}
 [program:isc-dhcp-relay-{{ vlan_name }}]
-command=/usr/sbin/dhcrelay -d -m discard -a %%h:%%p %%P --name-alias-map-file /tmp/port-name-alias-map.txt -i {{ vlan_name }}
-{%- for (name, prefix) in INTERFACE -%}
-{%- if prefix | ipv4 %} -i {{ name }}{% endif -%}
-{%- endfor -%}
-{%- for (name, prefix) in PORTCHANNEL_INTERFACE -%}
-{%- if prefix | ipv4 %} -i {{ name }}{% endif -%}
-{%- endfor -%}
-{%- for dhcp_server in VLAN[vlan_name]['dhcp_servers'] %} {{ dhcp_server }}{% endfor %}
+{# We treat this VLAN as a downstream interface (-id), as we only want to listen for requests #}
+command=/usr/sbin/dhcrelay -d -m discard -a %%h:%%p %%P --name-alias-map-file /tmp/port-name-alias-map.txt -id {{ vlan_name }}
+{#- We treat all other interfaces as upstream interfaces (-iu), as we only want to listen for replies #}
+{% for (name, prefix) in VLAN_INTERFACE %}
+{% if prefix | ipv4 and name != vlan_name %} -iu {{ name }}{% endif -%}
+{% endfor %}
+{% for (name, prefix) in INTERFACE %}
+{% if prefix | ipv4 %} -iu {{ name }}{% endif -%}
+{% endfor %}
+{% for (name, prefix) in PORTCHANNEL_INTERFACE %}
+{% if prefix | ipv4 %} -iu {{ name }}{% endif -%}
+{% endfor %}
+{% for dhcp_server in VLAN[vlan_name]['dhcp_servers'] %} {{ dhcp_server }}{% endfor %}
 
 priority=3
 autostart=false

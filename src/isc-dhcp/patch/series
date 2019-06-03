@@ -3,4 +3,9 @@
 0002-Customizable-Option-82-circuit-ID-and-remote-ID-fiel.patch
 0003-Support-for-obtaining-name-of-physical-interface-tha.patch
 0004-Support-for-loading-port-alias-map-file-to-replace-p.patch
-
+0005-Add-enable-use-sockets-to-configure-flags-in-debian-.patch
+0006-Bugfix-Ensure-HAVE_SO_BINDTODEVICE-has-a-chance-to-b.patch
+0007-If-destination-of-BOOTREQUEST-is-directed-broadcast-.patch
+0008-CVE-2017-3144.patch
+0009-CVE-2018-5733.patch
+0010-CVE-2018-5732.patch
