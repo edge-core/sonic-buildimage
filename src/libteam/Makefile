@@ -21,6 +21,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	git apply ../0004-libteam-Add-lacp-fallback-support-for-single-member-.patch
 	git apply ../0005-update-hwaddr-orig-unconditionally.patch
 	git apply ../0006-teamd-lacp-update-port-state-according-to-partners-sy.patch
+	git apply ../0007-Send-LACP-PDU-immediately-if-the-actor-state-changed.patch
 	popd
 
 	# Obtain debian packaging

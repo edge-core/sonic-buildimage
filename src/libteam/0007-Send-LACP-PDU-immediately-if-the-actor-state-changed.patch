@@ -1,0 +1,39 @@
+From b05c1302de1245ab3ffda905fd222adc3d0e98d6 Mon Sep 17 00:00:00 2001
+From: Pavel Shirshov <pavelsh@microsoft.com>
+Date: Wed, 29 May 2019 20:44:25 +0000
+Subject: [PATCH] Send LACP PDU immediately if the actor state changed
+
+---
+ teamd/teamd_runner_lacp.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/teamd/teamd_runner_lacp.c b/teamd/teamd_runner_lacp.c
+index 813b604..395d105 100644
+--- a/teamd/teamd_runner_lacp.c
++++ b/teamd/teamd_runner_lacp.c
+@@ -1012,8 +1012,7 @@ static int lacp_port_set_state(struct lacp_port *lacp_port,
+ 		return err;
+ 
+ 	lacp_port_actor_update(lacp_port);
+-	if (lacp_port->periodic_on)
+-		return 0;
++
+ 	return lacpdu_send(lacp_port);
+ }
+ 
+@@ -1123,9 +1122,10 @@ static int lacpdu_recv(struct lacp_port *lacp_port)
+ 	if (err)
+ 		return err;
+ 
++	lacp_port_actor_update(lacp_port);
++
+ 	/* Check if the other side has correct info about us */
+-	if (!lacp_port->periodic_on &&
+-	    memcmp(&lacpdu.partner, &lacp_port->actor,
++	if (memcmp(&lacpdu.partner, &lacp_port->actor,
+ 		   sizeof(struct lacpdu_info))) {
+ 		err = lacpdu_send(lacp_port);
+ 		if (err)
+-- 
+2.7.4
+
