@@ -1,16 +1,17 @@
-From ec966f9a0229bd7226e3abe15b56659b36af9d66 Mon Sep 17 00:00:00 2001
-From: Haiyang Zheng <haiyang.z@alibaba-inc.com>
-Date: Fri, 15 Dec 2017 21:07:53 -0800
-Subject: [patch libteam] [libteam] Add fallback support for single-member-port
- LAG
+From 9b40af58575a89d06be51cfbb5a2265a59826110 Mon Sep 17 00:00:00 2001
+From: yorke <yorke.yuan@asterfusion.com>
+Date: Mon, 3 Jun 2019 12:02:36 +0800
+Subject: [PATCH 3/8] [libteam] Add fallback support for single-member-port LAG
+     From: Haiyang Zheng <haiyang.z@alibaba-inc.com>     Date: Fri, 15 Dec
+ 2017 21:07:53 -0800
 
-Signed-off-by: Haiyang Zheng <haiyang.z@alibaba-inc.com>
+Signed-off-by: yorke <yorke.yuan@asterfusion.com>
 ---
  teamd/teamd_runner_lacp.c | 42 ++++++++++++++++++++++++++++++++++++++++--
  1 file changed, 40 insertions(+), 2 deletions(-)
 
 diff --git a/teamd/teamd_runner_lacp.c b/teamd/teamd_runner_lacp.c
-index 9c77fae..a3646a6 100644
+index 4dbd015..9836824 100644
 --- a/teamd/teamd_runner_lacp.c
 +++ b/teamd/teamd_runner_lacp.c
 @@ -138,6 +138,8 @@ struct lacp {
@@ -70,7 +71,7 @@ index 9c77fae..a3646a6 100644
  		return false;
  	return true;
  }
-@@ -1452,6 +1475,16 @@ static int lacp_state_fast_rate_get(struct teamd_context *ctx,
+@@ -1502,6 +1525,16 @@ static int lacp_state_fast_rate_get(struct teamd_context *ctx,
  	return 0;
  }
  
@@ -87,7 +88,7 @@ index 9c77fae..a3646a6 100644
  static int lacp_state_select_policy_get(struct teamd_context *ctx,
  					struct team_state_gsc *gsc,
  					void *priv)
-@@ -1479,6 +1512,11 @@ static const struct teamd_state_val lacp_state_vals[] = {
+@@ -1529,6 +1562,11 @@ static const struct teamd_state_val lacp_state_vals[] = {
  		.getter = lacp_state_fast_rate_get,
  	},
  	{

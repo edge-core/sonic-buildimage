@@ -1,8 +1,24 @@
+From fe097ebcadd52e56a589c38a9c821cf1a84d6b67 Mon Sep 17 00:00:00 2001
+From: yorke <yorke.yuan@asterfusion.com>
+Date: Mon, 3 Jun 2019 14:48:14 +0800
+Subject: [PATCH 8/8] [libteam] Add warm_reboot mode     From: pavel-shirshov
+ <pavelsh@microsoft.com> and Ying Xie <ying.xie@microsoft.com>    
+ https://github.com/Azure/sonic-buildimage/pull/2173
+
+Signed-off-by: yorke <yorke.yuan@asterfusion.com>
+---
+ libteam/ifinfo.c          |   6 +-
+ teamd/teamd.c             |  46 +++++++++-
+ teamd/teamd.h             |   7 ++
+ teamd/teamd_events.c      |  13 +++
+ teamd/teamd_runner_lacp.c | 209 +++++++++++++++++++++++++++++++++++++++-------
+ 5 files changed, 245 insertions(+), 36 deletions(-)
+
 diff --git a/libteam/ifinfo.c b/libteam/ifinfo.c
-index 72155ae..44de4ca 100644
+index 46d56a2..b86d34c 100644
 --- a/libteam/ifinfo.c
 +++ b/libteam/ifinfo.c
-@@ -105,15 +105,13 @@ static void update_hwaddr(struct team_ifinfo *ifinfo, struct rtnl_link *link)
+@@ -109,15 +109,13 @@ static void update_hwaddr(struct team_ifinfo *ifinfo, struct rtnl_link *link)
  	hwaddr_len = nl_addr_get_len(nl_addr);
  	if (ifinfo->hwaddr_len != hwaddr_len) {
  		ifinfo->hwaddr_len = hwaddr_len;
@@ -21,10 +37,10 @@ index 72155ae..44de4ca 100644
  	}
  }
 diff --git a/teamd/teamd.c b/teamd/teamd.c
-index c987333..225b8c8 100644
+index 9dc85b5..1a974d1 100644
 --- a/teamd/teamd.c
 +++ b/teamd/teamd.c
-@@ -116,7 +116,9 @@ static void print_help(const struct teamd_context *ctx) {
+@@ -117,7 +117,9 @@ static void print_help(const struct teamd_context *ctx) {
              "    -D --dbus-enable         Enable D-Bus interface\n"
              "    -Z --zmq-enable=ADDRESS  Enable ZeroMQ interface\n"
              "    -U --usock-enable        Enable UNIX domain socket interface\n"
@@ -35,7 +51,7 @@ index c987333..225b8c8 100644
              ctx->argv0);
  	printf("Available runners: ");
  	for (i = 0; i < TEAMD_RUNNER_LIST_SIZE; i++) {
-@@ -129,7 +131,7 @@ static void print_help(const struct teamd_context *ctx) {
+@@ -130,7 +132,7 @@ static void print_help(const struct teamd_context *ctx) {
  
  static int parse_command_line(struct teamd_context *ctx,
  			      int argc, char *argv[]) {
@@ -44,7 +60,7 @@ index c987333..225b8c8 100644
  	static const struct option long_options[] = {
  		{ "help",		no_argument,		NULL, 'h' },
  		{ "daemonize",		no_argument,		NULL, 'd' },
-@@ -149,10 +151,12 @@ static int parse_command_line(struct teamd_context *ctx,
+@@ -151,10 +153,12 @@ static int parse_command_line(struct teamd_context *ctx,
  		{ "zmq-enable",		required_argument,	NULL, 'Z' },
  		{ "usock-enable",	no_argument,		NULL, 'U' },
  		{ "usock-disable",	no_argument,		NULL, 'u' },
@@ -53,12 +69,12 @@ index c987333..225b8c8 100644
  		{ NULL, 0, NULL, 0 }
  	};
  
--	while ((opt = getopt_long(argc, argv, "hdkevf:c:p:groNt:nDZ:Uu",
-+	while ((opt = getopt_long(argc, argv, "hdkevf:c:p:groNt:nDZ:UuwL:",
+-	while ((opt = getopt_long(argc, argv, "hdkevf:c:p:gl:roNt:nDZ:Uu",
++	while ((opt = getopt_long(argc, argv, "hdkevf:c:p:gl:roNt:nDZ:UuwL:",
  				  long_options, NULL)) >= 0) {
  
  		switch(opt) {
-@@ -230,11 +234,29 @@ static int parse_command_line(struct teamd_context *ctx,
+@@ -236,11 +240,29 @@ static int parse_command_line(struct teamd_context *ctx,
  		case 'u':
  			ctx->usock.enabled = false;
  			break;
@@ -88,7 +104,7 @@ index c987333..225b8c8 100644
  	if (optind < argc) {
  		fprintf(stderr, "Too many arguments\n");
  		return -1;
-@@ -384,8 +406,14 @@ static int teamd_run_loop_run(struct teamd_context *ctx)
+@@ -390,8 +412,14 @@ static int teamd_run_loop_run(struct teamd_context *ctx)
  			if (err != -1) {
  				switch(ctrl_byte) {
  				case 'q':
@@ -103,7 +119,7 @@ index c987333..225b8c8 100644
  					teamd_refresh_ports(ctx);
  					err = teamd_flush_ports(ctx);
  					if (err)
-@@ -428,6 +456,12 @@ void teamd_run_loop_quit(struct teamd_context *ctx, int err)
+@@ -434,6 +462,12 @@ void teamd_run_loop_quit(struct teamd_context *ctx, int err)
  	teamd_run_loop_sent_ctrl_byte(ctx, 'q');
  }
  
@@ -116,7 +132,7 @@ index c987333..225b8c8 100644
  void teamd_run_loop_restart(struct teamd_context *ctx)
  {
  	teamd_run_loop_sent_ctrl_byte(ctx, 'r');
-@@ -694,6 +728,10 @@ static int callback_daemon_signal(struct teamd_context *ctx, int events,
+@@ -700,6 +734,10 @@ static int callback_daemon_signal(struct teamd_context *ctx, int events,
  		teamd_log_warn("Got SIGINT, SIGQUIT or SIGTERM.");
  		teamd_run_loop_quit(ctx, 0);
  		break;
@@ -127,7 +143,7 @@ index c987333..225b8c8 100644
  	}
  	return 0;
  }
-@@ -1507,7 +1545,7 @@ static int teamd_start(struct teamd_context *ctx, enum teamd_exit_code *p_ret)
+@@ -1531,7 +1569,7 @@ static int teamd_start(struct teamd_context *ctx, enum teamd_exit_code *p_ret)
  		return -errno;
  	}
  
@@ -137,10 +153,10 @@ index c987333..225b8c8 100644
  		daemon_retval_send(errno);
  		err = -errno;
 diff --git a/teamd/teamd.h b/teamd/teamd.h
-index ef0fb1c..622c365 100644
+index e71a5dc..f83a2d9 100644
 --- a/teamd/teamd.h
 +++ b/teamd/teamd.h
-@@ -125,6 +125,10 @@ struct teamd_context {
+@@ -126,6 +126,10 @@ struct teamd_context {
  	char *				hwaddr;
  	uint32_t			hwaddr_len;
  	bool				hwaddr_explicit;
@@ -151,8 +167,8 @@ index ef0fb1c..622c365 100644
  	struct {
  		struct list_item		callback_list;
  		int				ctrl_pipe_r;
-@@ -191,12 +195,15 @@ struct teamd_event_watch_ops {
- 				   struct teamd_port *tdport, void *priv);
+@@ -195,12 +199,15 @@ struct teamd_event_watch_ops {
+ 					   void *priv);
  	void (*refresh)(struct teamd_context *ctx,
                     struct teamd_port *tdport, void *priv);
 +	void (*port_flush_data)(struct teamd_context *ctx,
@@ -168,7 +184,7 @@ index ef0fb1c..622c365 100644
  			   struct teamd_port *tdport);
  void teamd_event_port_removed(struct teamd_context *ctx,
 diff --git a/teamd/teamd_events.c b/teamd/teamd_events.c
-index 5c2ef56..50e5a08 100644
+index 221803e..bd4dcc1 100644
 --- a/teamd/teamd_events.c
 +++ b/teamd/teamd_events.c
 @@ -47,6 +47,19 @@ void teamd_refresh_ports(struct teamd_context *ctx)
@@ -192,7 +208,7 @@ index 5c2ef56..50e5a08 100644
  			   struct teamd_port *tdport)
  {
 diff --git a/teamd/teamd_runner_lacp.c b/teamd/teamd_runner_lacp.c
-index 81324de..9e88ce0 100644
+index 4016b15..087efa9 100644
 --- a/teamd/teamd_runner_lacp.c
 +++ b/teamd/teamd_runner_lacp.c
 @@ -31,6 +31,7 @@
@@ -221,7 +237,7 @@ index 81324de..9e88ce0 100644
  	struct {
  		uint32_t speed;
  		uint8_t	duplex;
-@@ -491,15 +496,28 @@ static int lacp_update_carrier(struct lacp *lacp)
+@@ -493,15 +498,28 @@ static int lacp_update_carrier(struct lacp *lacp)
  	bool state;
  	int err;
  
@@ -251,7 +267,7 @@ index 81324de..9e88ce0 100644
  	return lacp_set_carrier(lacp, false);
  }
  
-@@ -917,6 +935,18 @@ static void lacp_port_actor_system_update(struct lacp_port *lacp_port)
+@@ -919,6 +937,18 @@ static void lacp_port_actor_system_update(struct lacp_port *lacp_port)
  	memcpy(actor->system, lacp_port->ctx->hwaddr, ETH_ALEN);
  }
  
@@ -270,7 +286,7 @@ index 81324de..9e88ce0 100644
  static void lacp_port_actor_init(struct lacp_port *lacp_port)
  {
  	struct lacpdu_info *actor = &lacp_port->actor;
-@@ -924,7 +954,7 @@ static void lacp_port_actor_init(struct lacp_port *lacp_port)
+@@ -926,7 +956,7 @@ static void lacp_port_actor_init(struct lacp_port *lacp_port)
  	actor->system_priority = htons(lacp_port->lacp->cfg.sys_prio);
  	actor->key = htons(lacp_port->cfg.lacp_key);
  	actor->port_priority = htons(lacp_port->cfg.lacp_prio);
@@ -279,7 +295,7 @@ index 81324de..9e88ce0 100644
  	lacp_port_actor_system_update(lacp_port);
  }
  
-@@ -994,6 +1024,13 @@ static int lacp_port_set_state(struct lacp_port *lacp_port,
+@@ -1006,6 +1036,13 @@ static int lacp_port_set_state(struct lacp_port *lacp_port,
  		break;
  	}
  
@@ -293,7 +309,7 @@ index 81324de..9e88ce0 100644
  	teamd_log_info("%s: Changed port state: \"%s\" -> \"%s\"",
  		       lacp_port->tdport->ifname,
  		       lacp_port_state_name[lacp_port->state],
-@@ -1084,26 +1121,23 @@ static int lacpdu_send(struct lacp_port *lacp_port)
+@@ -1095,34 +1132,26 @@ static int lacpdu_send(struct lacp_port *lacp_port)
  	return err;
  }
  
@@ -303,12 +319,20 @@ index 81324de..9e88ce0 100644
 -	struct lacpdu lacpdu;
 -	struct sockaddr_ll ll_from;
  	int err;
- 
+-	bool admin_state;
+-
 -	err = teamd_recvfrom(lacp_port->sock, &lacpdu, sizeof(lacpdu), 0,
 -			     (struct sockaddr *) &ll_from, sizeof(ll_from));
 -	if (err <= 0)
 -		return err;
 -
+-	admin_state = team_get_ifinfo_admin_state(lacp_port->ctx->ifinfo);
+-	if (!admin_state)
+-		return 0;
+ 
+ 	if (!teamd_port_present(lacp_port->ctx, lacp_port->tdport))
+ 		return 0;
+ 
 -	if (!lacpdu_check(&lacpdu)) {
 +	if (!lacpdu_check(lacpdu)) {
  		teamd_log_warn("malformed LACP PDU came.");
@@ -328,16 +352,16 @@ index 81324de..9e88ce0 100644
  		err = lacp_port_partner_update(lacp_port);
  		if (err)
  			return err;
-@@ -1118,7 +1152,7 @@ static int lacpdu_recv(struct lacp_port *lacp_port)
+@@ -1138,7 +1167,7 @@ static int lacpdu_recv(struct lacp_port *lacp_port)
+ 	lacp_port_actor_update(lacp_port);
  
  	/* Check if the other side has correct info about us */
- 	if (!lacp_port->periodic_on &&
--	    memcmp(&lacpdu.partner, &lacp_port->actor,
-+	    memcmp(&lacpdu->partner, &lacp_port->actor,
+-	if (memcmp(&lacpdu.partner, &lacp_port->actor,
++	if (memcmp(&lacpdu->partner, &lacp_port->actor,
  		   sizeof(struct lacpdu_info))) {
  		err = lacpdu_send(lacp_port);
  		if (err)
-@@ -1133,6 +1167,65 @@ static int lacpdu_recv(struct lacp_port *lacp_port)
+@@ -1153,6 +1182,70 @@ static int lacpdu_recv(struct lacp_port *lacp_port)
  	return 0;
  }
  
@@ -346,11 +370,16 @@ index 81324de..9e88ce0 100644
 +	struct lacpdu lacpdu;
 +	struct sockaddr_ll ll_from;
 +	int err;
++        bool admin_state;
 +
 +	err = teamd_recvfrom(lacp_port->sock, &lacpdu, sizeof(lacpdu), 0,
 +			     (struct sockaddr *) &ll_from, sizeof(ll_from));
 +	if (err <= 0)
 +		return err;
++
++	admin_state = team_get_ifinfo_admin_state(lacp_port->ctx->ifinfo);
++	if (!admin_state)
++		return 0;
 +
 +	return lacpdu_process(lacp_port, &lacpdu);
 +}
@@ -403,7 +432,7 @@ index 81324de..9e88ce0 100644
  static int lacp_callback_timeout(struct teamd_context *ctx, int events,
  				 void *priv)
  {
-@@ -1284,6 +1377,13 @@ static int lacp_port_added(struct teamd_context *ctx,
+@@ -1304,6 +1397,13 @@ static int lacp_port_added(struct teamd_context *ctx,
  		goto periodic_callback_del;
  	}
  
@@ -417,7 +446,7 @@ index 81324de..9e88ce0 100644
  	/* Newly added ports are disabled */
  	err = team_set_port_enabled(ctx->th, tdport->ifindex, false);
  	if (err) {
-@@ -1299,6 +1399,13 @@ static int lacp_port_added(struct teamd_context *ctx,
+@@ -1319,6 +1419,13 @@ static int lacp_port_added(struct teamd_context *ctx,
  	lacp_port_actor_init(lacp_port);
  	lacp_port_link_update(lacp_port);
  
@@ -431,7 +460,7 @@ index 81324de..9e88ce0 100644
  	teamd_loop_callback_enable(ctx, LACP_SOCKET_CB_NAME, lacp_port);
  	return 0;
  
-@@ -1321,7 +1428,11 @@ static void lacp_port_removed(struct teamd_context *ctx,
+@@ -1341,7 +1448,11 @@ static void lacp_port_removed(struct teamd_context *ctx,
  {
  	struct lacp_port *lacp_port = priv;
  
@@ -444,7 +473,7 @@ index 81324de..9e88ce0 100644
  	teamd_loop_callback_del(ctx, LACP_TIMEOUT_CB_NAME, lacp_port);
  	teamd_loop_callback_del(ctx, LACP_PERIODIC_CB_NAME, lacp_port);
  	teamd_loop_callback_del(ctx, LACP_SOCKET_CB_NAME, lacp_port);
-@@ -1413,6 +1524,31 @@ static void lacp_event_watch_refresh(struct teamd_context *ctx, struct teamd_por
+@@ -1459,6 +1570,31 @@ static void lacp_event_watch_refresh(struct teamd_context *ctx,
  		(void) lacpdu_send(lacp_port);
  }
  
@@ -475,8 +504,8 @@ index 81324de..9e88ce0 100644
 +
  static const struct teamd_event_watch_ops lacp_event_watch_ops = {
  	.hwaddr_changed = lacp_event_watch_hwaddr_changed,
- 	.port_added = lacp_event_watch_port_added,
-@@ -1420,21 +1556,38 @@ static const struct teamd_event_watch_ops lacp_event_watch_ops = {
+ 	.port_hwaddr_changed = lacp_event_watch_port_hwaddr_changed,
+@@ -1467,21 +1603,38 @@ static const struct teamd_event_watch_ops lacp_event_watch_ops = {
  	.port_changed = lacp_event_watch_port_changed,
  	.admin_state_changed = lacp_event_watch_admin_state_changed,
  	.refresh = lacp_event_watch_refresh,
@@ -522,7 +551,7 @@ index 81324de..9e88ce0 100644
  	return 0;
  }
  
-@@ -1946,7 +2099,7 @@ static void lacp_fini(struct teamd_context *ctx, void *priv)
+@@ -1993,7 +2146,7 @@ static void lacp_fini(struct teamd_context *ctx, void *priv)
  	teamd_state_val_unregister(ctx, &lacp_state_vg, lacp);
  	teamd_balancer_fini(lacp->tb);
  	teamd_event_watch_unregister(ctx, &lacp_event_watch_ops, lacp);
@@ -531,3 +560,6 @@ index 81324de..9e88ce0 100644
  }
  
  const struct teamd_runner teamd_runner_lacp = {
+-- 
+2.7.4
+
