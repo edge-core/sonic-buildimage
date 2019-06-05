@@ -596,7 +596,7 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
 	export files_path="$(FILES_PATH)"
 	export python_debs_path="$(PYTHON_DEBS_PATH)" 
 	export initramfs_tools="$(STRETCH_DEBS_PATH)/$(INITRAMFS_TOOLS)"
-	export linux_kernel="$(STRTCH_DEBS_PATH)/$(LINUX_KERNEL)"
+	export linux_kernel="$(STRETCH_DEBS_PATH)/$(LINUX_KERNEL)"
 	export onie_recovery_image="$(FILES_PATH)/$(ONIE_RECOVERY_IMAGE)"
 	export kversion="$(KVERSION)"
 	export image_type="$($*_IMAGE_TYPE)"
