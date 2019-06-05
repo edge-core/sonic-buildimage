@@ -124,6 +124,29 @@ def  show_set_help():
     print  "    use \""+ cmd + " sfp 1-32 {0|1}\" to set sfp# tx_disable" 
     sys.exit(0)  
     
+def diss_i2c_ir3507a(addr):
+    cmd = "i2cset -y 0 0x%x 0xE5 0x01" % addr
+    status, output = commands.getstatusoutput(cmd)
+    cmd = "i2cset -y 0 0x%x 0x12 0x02" % addr
+    status, output = commands.getstatusoutput(cmd)
+    return status
+
+def ir3507_check():
+    cmd = "i2cdump -y 0 0x42 s 0x9a"
+    try:
+        status, output = commands.getstatusoutput(cmd)
+        lines = output.split('\n')
+        hn = re.findall(r'\w+', lines[-1])
+        version = int(hn[1], 16)
+        if version == 0x24:  #only for ir3507a
+            ret = diss_i2c_ir3507a(4)
+        else:
+            ret = 0
+    except Exception as e:
+        print "Error on ir3507_check() e:" + str(e)
+        return -1
+    return ret
+
 def  show_eeprom_help():
     cmd =  sys.argv[0].split("/")[-1]+ " "  + args[0]
     print  "    use \""+ cmd + " 1-32 \" to dump sfp# eeprom" 
@@ -156,7 +179,7 @@ def driver_check():
 
 kos = [
 'modprobe i2c_dev',
-'modprobe i2c_mux_pca954x',
+'modprobe i2c_mux_pca954x force_deselect_on_exit=1',
 'modprobe accton_i2c_cpld'  ,
 'modprobe ym2651y'                  ,
 'modprobe x86-64-accton-as7816-64x-fan'     ,
@@ -177,7 +200,15 @@ def driver_install():
 def driver_uninstall():
     global FORCE
     for i in range(0,len(kos)):
-        rm = kos[-(i+1)].replace("modprobe", "modprobe -rq")
+        #remove parameter if any
+        rm = kos[-(i+1)]
+        lst = rm.split(" ")
+        if len(lst) > 2:
+            del(lst[2:])
+        rm = " ".join(lst)
+
+        #Change to removing commands
+        rm = rm.replace("modprobe", "modprobe -rq")
         rm = rm.replace("insmod", "rmmod")        
         status, output = log_os_system(rm, 1)
         if status:
@@ -304,6 +335,9 @@ def do_install():
                 return  status
     else:
         print PROJECT_NAME.upper()+" drivers detected...."                      
+
+    ir3507_check()
+
     if not device_exist():
         print "No device, installing...."     
         status = device_install() 
