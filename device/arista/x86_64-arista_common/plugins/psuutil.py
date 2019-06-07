@@ -1,6 +1,7 @@
-# psuutil.py
+#!/usr/bin/env python
+
 #
-# Platform-specific PSU interface for SONiC
+# Arista PSU interface for SONiC
 #
 
 try:

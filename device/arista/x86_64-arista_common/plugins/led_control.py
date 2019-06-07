@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+
+#
+# Arista LED controls for SONiC
+#
+
 try:
     import arista.utils.sonic_leds as arista_leds
 except ImportError as e:

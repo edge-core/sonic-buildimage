@@ -1,6 +1,7 @@
-# sfputil.py
+#!/usr/bin/env python
+
 #
-# Platform-specific SFP transceiver interface for SONiC
+# Arista SFP transceiver interface for SONiC
 #
 
 try:
