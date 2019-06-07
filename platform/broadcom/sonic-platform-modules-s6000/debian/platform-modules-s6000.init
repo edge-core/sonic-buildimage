@@ -67,6 +67,7 @@ start)
         depmod -a
         modprobe i2c_mux_gpio
         modprobe dell_s6000_platform
+        modprobe nvram
 
         add_i2c_devices
 
@@ -81,6 +82,7 @@ stop)
 
         remove_i2c_devices
 
+        rmmod nvram
         rmmod dell_s6000_platform
         rmmod i2c_mux_gpio
 	;;
