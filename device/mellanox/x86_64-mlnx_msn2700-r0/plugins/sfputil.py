@@ -37,15 +37,12 @@ class SfpUtil(SfpUtilBase):
     PORTS_IN_BLOCK = 0
     EEPROM_OFFSET = 0
 
-    _port_to_eeprom_mapping = {}
-
     db_sel = None
     db_sel_timeout = None
     db_sel_object = None
     db_sel_tbl = None
     state_db = None
     sfpd_status_tbl = None
-    qsfp_sysfs_path = "/var/run/hw-management/qsfp/"
 
     @property
     def port_start(self):
@@ -61,7 +58,8 @@ class SfpUtil(SfpUtilBase):
 
     @property
     def port_to_eeprom_mapping(self):
-        return self._port_to_eeprom_mapping
+        print "dependency on sysfs has been removed"
+        raise Exception() 
 
     def get_port_position_tuple_by_sku_name(self):
         p = subprocess.Popen(GET_HWSKU_CMD, shell=True, stdout=subprocess.PIPE)
@@ -77,29 +75,31 @@ class SfpUtil(SfpUtilBase):
         self.PORTS_IN_BLOCK = port_position_tuple[3]
         self.EEPROM_OFFSET = port_position_tuple[4]
 
-        for x in range(0, self.port_end + 1):
-            self._port_to_eeprom_mapping[x] = self.qsfp_sysfs_path + "qsfp{}".format(x + self.EEPROM_OFFSET)
-
         SfpUtilBase.__init__(self)
 
     def get_presence(self, port_num):
+        presence = False
+
         # Check for invalid port_num
         if port_num < self.port_start or port_num > self.port_end:
-            return False
+            return presence
 
+        port_num += SFP_PORT_NAME_OFFSET
+        sfpname = SFP_PORT_NAME_CONVENTION.format(port_num)
+
+        ethtool_cmd = "ethtool -m {} 2>/dev/null".format(sfpname)
         try:
-            reg_file = open(self.qsfp_sysfs_path + "qsfp{}_status".format(port_num + 1))
-        except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
-            return False
+            proc = subprocess.Popen(ethtool_cmd, stdout=subprocess.PIPE, shell=True, stderr=subprocess.STDOUT)
+            stdout = proc.communicate()[0]
+            proc.wait()
+            result = stdout.rstrip('\n')
+            if result != '':
+                presence = True
 
-        content = reg_file.readline().rstrip()
+        except OSError, e:
+            return presence
 
-        # content is a string with the qsfp status
-        if content == SFP_STATUS_INSERTED:
-            return True
-
-        return False
+        return presence
 
     def get_low_power_mode(self, port_num):
         # Check for invalid port_num
@@ -405,7 +405,7 @@ class SfpUtil(SfpUtilBase):
     def get_transceiver_dom_info_dict(self, port_num):
         transceiver_dom_info_dict = {}
 
-        # Below part is added to avoid fail xcvrd
+        # Below part is added to avoid failing xcvrd
         # Currently, the way in which dom data is read has been changed from
         # using sysfs to using ethtool.
         # The ethtool returns None for ports without dom support, resulting in 
