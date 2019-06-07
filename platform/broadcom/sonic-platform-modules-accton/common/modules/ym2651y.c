@@ -52,6 +52,7 @@ struct ym2651y_data {
     struct mutex        update_lock;
     char                valid;           /* !=0 if registers are valid */
     unsigned long       last_updated;    /* In jiffies */
+    u8   chip;           /* chip id */
     u8   capability;     /* Register value */
     u16  status_word;    /* Register value */
     u8   fan_fault;      /* Register value */
@@ -59,6 +60,7 @@ struct ym2651y_data {
     u16  v_out;          /* Register value */
     u16  i_out;          /* Register value */
     u16  p_out;          /* Register value */
+    u8   vout_mode;      /* Register value */
     u16  temp;           /* Register value */
     u16  fan_speed;      /* Register value */
     u16  fan_duty_cycle[2];  /* Register value */
@@ -77,6 +79,8 @@ struct ym2651y_data {
     u16  mfr_vout_max;   /* Register value */
 };
 
+static ssize_t show_vout(struct device *dev, struct device_attribute *da,
+             char *buf);
 static ssize_t show_byte(struct device *dev, struct device_attribute *da,
                          char *buf);
 static ssize_t show_word(struct device *dev, struct device_attribute *da,
@@ -129,7 +133,7 @@ static SENSOR_DEVICE_ATTR(psu_temp_fault,  S_IRUGO, show_word,      NULL, PSU_TE
 static SENSOR_DEVICE_ATTR(psu_power_good,  S_IRUGO, show_word,      NULL, PSU_POWER_GOOD);
 static SENSOR_DEVICE_ATTR(psu_fan1_fault,  S_IRUGO, show_fan_fault, NULL, PSU_FAN1_FAULT);
 static SENSOR_DEVICE_ATTR(psu_over_temp,   S_IRUGO, show_over_temp, NULL, PSU_OVER_TEMP);
-static SENSOR_DEVICE_ATTR(psu_v_out,       S_IRUGO, show_linear,    NULL, PSU_V_OUT);
+static SENSOR_DEVICE_ATTR(psu_v_out,       S_IRUGO, show_vout,    NULL, PSU_V_OUT);
 static SENSOR_DEVICE_ATTR(psu_i_out,       S_IRUGO, show_linear,    NULL, PSU_I_OUT);
 static SENSOR_DEVICE_ATTR(psu_p_out,       S_IRUGO, show_linear,    NULL, PSU_P_OUT);
 static SENSOR_DEVICE_ATTR(psu_temp1_input, S_IRUGO, show_linear,    NULL, PSU_TEMP1_INPUT);
@@ -150,7 +154,7 @@ static SENSOR_DEVICE_ATTR(psu_mfr_pin_max,   S_IRUGO, show_linear, NULL, PSU_MFR
 static SENSOR_DEVICE_ATTR(psu_mfr_pout_max,   S_IRUGO, show_linear, NULL, PSU_MFR_POUT_MAX);
 
 /*Duplicate nodes for lm-sensors.*/
-static SENSOR_DEVICE_ATTR(in3_input, S_IRUGO, show_linear,    NULL, PSU_V_OUT);
+static SENSOR_DEVICE_ATTR(in3_input, S_IRUGO, show_vout,    NULL, PSU_V_OUT);
 static SENSOR_DEVICE_ATTR(curr2_input, S_IRUGO, show_linear,    NULL, PSU_I_OUT);
 static SENSOR_DEVICE_ATTR(power2_input, S_IRUGO, show_linear,    NULL, PSU_P_OUT_UV);
 static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, show_linear,    NULL, PSU_TEMP1_INPUT);
@@ -369,6 +373,51 @@ static ssize_t show_ascii(struct device *dev, struct device_attribute *da,
     return sprintf(buf, "%s\n", ptr);
 }
 
+static ssize_t show_vout_by_mode(struct device *dev, struct device_attribute *da,
+             char *buf)
+{
+    struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
+    struct ym2651y_data *data = ym2651y_update_device(dev);
+    int exponent, mantissa;
+    int multiplier = 1000;
+
+    if (!data->valid) {
+        return 0;
+    }
+
+    exponent = two_complement_to_int(data->vout_mode, 5, 0x1f);
+    switch (attr->index) {
+    case PSU_MFR_VOUT_MIN:
+        mantissa = data->mfr_vout_min;
+        break;
+    case PSU_MFR_VOUT_MAX:
+        mantissa = data->mfr_vout_max;
+        break;
+    case PSU_V_OUT:
+        mantissa = data->v_out;
+        break;
+    default:
+        return 0;
+    }
+
+    return (exponent > 0) ? sprintf(buf, "%d\n", (mantissa << exponent) * multiplier) :
+                            sprintf(buf, "%d\n", (mantissa * multiplier) / (1 << -exponent));
+}
+
+static ssize_t show_vout(struct device *dev, struct device_attribute *da,
+             char *buf)
+{
+    struct i2c_client *client = to_i2c_client(dev);
+    struct ym2651y_data *data = i2c_get_clientdata(client);
+
+    if (data->chip == YM2401) {
+        return show_vout_by_mode(dev, da, buf);
+    }
+    else {
+        return show_linear(dev, da, buf);
+    }
+}
+
 static const struct attribute_group ym2651y_group = {
     .attrs = ym2651y_attributes,
 };
@@ -395,7 +444,7 @@ static int ym2651y_probe(struct i2c_client *client,
 
     i2c_set_clientdata(client, data);
     mutex_init(&data->update_lock);
-
+    data->chip = dev_id->driver_data;
     dev_info(&client->dev, "chip found\n");
 
     /* Register sysfs hooks */
@@ -511,6 +560,7 @@ static struct ym2651y_data *ym2651y_update_device(struct device *dev)
         u8 command;
         u8 fan_dir[5] = {0};
         struct reg_data_byte regs_byte[] = { {0x19, &data->capability},
+            {0x20, &data->vout_mode},
             {0x7d, &data->over_temp},
             {0x81, &data->fan_fault},
             {0x98, &data->pmbus_revision}
