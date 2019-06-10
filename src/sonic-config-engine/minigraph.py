@@ -515,12 +515,16 @@ def parse_xml(filename, platform=None, port_config_file=None):
     for intf in intfs:
         if intf[0][0:4] == 'Vlan':
             vlan_intfs[intf] = {}
+            vlan_intfs[intf[0]] = {}
         elif vlan_invert_mapping.has_key(intf[0]):
             vlan_intfs[(vlan_invert_mapping[intf[0]], intf[1])] = {}
+            vlan_intfs[vlan_invert_mapping[intf[0]]] = {}
         elif intf[0][0:11] == 'PortChannel':
             pc_intfs[intf] = {}
+            pc_intfs[intf[0]] = {}
         else:
             phyport_intfs[intf] = {}
+            phyport_intfs[intf[0]] = {}
 
     results['INTERFACE'] = phyport_intfs
     results['VLAN_INTERFACE'] = vlan_intfs
@@ -601,9 +605,10 @@ def parse_xml(filename, platform=None, port_config_file=None):
 
     for pc_intf in pc_intfs.keys():
         # remove portchannels not in PORTCHANNEL dictionary
-        if pc_intf[0] not in pcs:
+        if isinstance(pc_intf, tuple) and pc_intf[0] not in pcs:
             print >> sys.stderr, "Warning: ignore '%s' interface '%s' as '%s' is not in the valid PortChannel list" % (pc_intf[0], pc_intf[1], pc_intf[0])
             del pc_intfs[pc_intf]
+            pc_intfs.pop(pc_intf[0], None)
 
     results['PORTCHANNEL_INTERFACE'] = pc_intfs
 

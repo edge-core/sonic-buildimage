@@ -16,7 +16,7 @@ log facility local4
 !
 {% block interfaces %}
 ! Enable link-detect (default disabled)
-{% for (name, prefix) in INTERFACE %}
+{% for (name, prefix) in INTERFACE|pfx_filter %}
 interface {{ name }}
 link-detect
 !
@@ -30,7 +30,7 @@ link-detect
 !
 {% block default_route %}
 ! set static default route to mgmt gateway as a backup to learned default
-{% for (name, prefix) in MGMT_INTERFACE %}
+{% for (name, prefix) in MGMT_INTERFACE|pfx_filter %}
 {% if prefix | ipv4 %}
 ip route 0.0.0.0/0 {{ MGMT_INTERFACE[(name, prefix)]['gwaddr'] }} 200
 {% endif %}
@@ -41,7 +41,7 @@ ip route 0.0.0.0/0 {{ MGMT_INTERFACE[(name, prefix)]['gwaddr'] }} 200
 {% set lo_ipv4_addrs = [] %}
 {% set lo_ipv6_addrs = [] %}
 {% if LOOPBACK_INTERFACE %}
-{%   for (name, prefix) in LOOPBACK_INTERFACE %}
+{%   for (name, prefix) in LOOPBACK_INTERFACE|pfx_filter %}
 {%     if name == 'Loopback0' %}
 {%       if prefix | ipv6 %}
 {%         if lo_ipv6_addrs.append(prefix) %}
@@ -87,13 +87,13 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
 {% if DEVICE_METADATA['localhost']['type'] == 'ToRRouter' %}
   bgp graceful-restart
 {% endif %}
-{% for (name, prefix) in LOOPBACK_INTERFACE %}
+{% for (name, prefix) in LOOPBACK_INTERFACE|pfx_filter %}
 {% if prefix | ipv4 and name == 'Loopback0' %}
   bgp router-id {{ prefix | ip }}
 {% endif %}
 {% endfor %}
 {# advertise loopback #}
-{% for (name, prefix) in LOOPBACK_INTERFACE %}
+{% for (name, prefix) in LOOPBACK_INTERFACE|pfx_filter %}
 {% if prefix | ipv4 and name == 'Loopback0' %}
   network {{ prefix | ip }}/32
 {% elif prefix | ipv6 and name == 'Loopback0' %}
@@ -105,7 +105,7 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
 {% endblock bgp_init %}
 {% endif %}
 {% block vlan_advertisement %}
-{% for (name, prefix) in VLAN_INTERFACE %}
+{% for (name, prefix) in VLAN_INTERFACE|pfx_filter %}
 {% if prefix | ipv4 %}
   network {{ prefix }}
 {% elif prefix | ipv6 %}
@@ -173,7 +173,7 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
   neighbor {{ bgp_peer['name'] }} passive
   neighbor {{ bgp_peer['name'] }} remote-as {{ deployment_id_asn_map[DEVICE_METADATA['localhost']['deployment_id']] }}
   neighbor {{ bgp_peer['name'] }} ebgp-multihop 255
-{% for (name, prefix) in LOOPBACK_INTERFACE %}
+{% for (name, prefix) in LOOPBACK_INTERFACE|pfx_filter %}
 {% if name == 'Loopback1' %}
   neighbor {{ bgp_peer['name'] }} update-source {{ prefix | ip }}
 {% endif %}

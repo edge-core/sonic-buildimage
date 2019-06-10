@@ -2,7 +2,7 @@
 {% set ipv6_addresses = [] %}
 {% set ipv4_loopback_addresses = [] %}
 {% set ipv6_loopback_addresses = [] %}
-{% for (name, prefix) in LOOPBACK_INTERFACE %}
+{% for (name, prefix) in LOOPBACK_INTERFACE|pfx_filter %}
     {%- if prefix | ipv4 and name == 'Loopback0' %}
         {%- set ipv4_addresses = ipv4_addresses.append(prefix) %}
         {%- set ipv4_loopback_addresses = ipv4_loopback_addresses.append(prefix) %}
@@ -12,7 +12,7 @@
         {%- set ipv6_loopback_addresses = ipv6_loopback_addresses.append(prefix) %}
     {%- endif %}
 {% endfor %}
-{% for (name, prefix) in INTERFACE %}
+{% for (name, prefix) in INTERFACE|pfx_filter %}
     {%- if prefix | ipv4 %}
         {%- set ipv4_addresses = ipv4_addresses.append(prefix) %}
     {%- endif %}
@@ -20,7 +20,7 @@
         {%- set ipv6_addresses = ipv6_addresses.append(prefix) %}
     {%- endif %}
 {% endfor %}
-{% for (name, prefix) in PORTCHANNEL_INTERFACE %}
+{% for (name, prefix) in PORTCHANNEL_INTERFACE|pfx_filter %}
     {%- if prefix | ipv4 %}
         {%- set ipv4_addresses = ipv4_addresses.append(prefix) %}
     {%- endif %}
@@ -28,7 +28,7 @@
         {%- set ipv6_addresses = ipv6_addresses.append(prefix) %}
     {%- endif %}
 {% endfor %}
-{% for (name, prefix) in VLAN_INTERFACE %}
+{% for (name, prefix) in VLAN_INTERFACE|pfx_filter %}
     {%- if prefix | ipv4 %}
         {%- set ipv4_addresses = ipv4_addresses.append(prefix) %}
     {%- endif %}

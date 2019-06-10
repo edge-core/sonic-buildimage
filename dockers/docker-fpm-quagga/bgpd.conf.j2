@@ -29,13 +29,13 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
   no bgp default ipv4-unicast
   bgp graceful-restart restart-time 240
   bgp graceful-restart
-{% for (name, prefix) in LOOPBACK_INTERFACE %}
+{% for (name, prefix) in LOOPBACK_INTERFACE|pfx_filter %}
 {% if prefix | ipv4 and name == 'Loopback0' %}
   bgp router-id {{ prefix | ip }}
 {% endif %}
 {% endfor %}
 {# advertise loopback #}
-{% for (name, prefix) in LOOPBACK_INTERFACE %}
+{% for (name, prefix) in LOOPBACK_INTERFACE|pfx_filter %}
 {% if prefix | ipv4 and name == 'Loopback0' %}
   network {{ prefix | ip }}/32
 {% elif prefix | ipv6 and name == 'Loopback0' %}
@@ -47,7 +47,7 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
 {% endblock bgp_init %}
 {% endif %}
 {% block vlan_advertisement %}
-{% for (name, prefix) in VLAN_INTERFACE %}
+{% for (name, prefix) in VLAN_INTERFACE|pfx_filter %}
 {% if prefix | ipv4 %}
   network {{ prefix }}
 {% elif prefix | ipv6 %}
@@ -108,7 +108,7 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
 {% if bgp_peer['src_address'] is defined %}
   neighbor {{ bgp_peer['name'] }} update-source {{ bgp_peer['src_address'] | ip }}
 {% else %}
-{% for (name, prefix) in LOOPBACK_INTERFACE %}
+{% for (name, prefix) in LOOPBACK_INTERFACE|pfx_filter %}
 {% if name == 'Loopback1' %}
   neighbor {{ bgp_peer['name'] }} update-source {{ prefix | ip }}
 {% endif %}

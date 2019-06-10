@@ -14,7 +14,7 @@ enable password zebra
 !
 {% block interfaces %}
 ! Enable link-detect (default disabled)
-{% for (name, prefix) in INTERFACE %}
+{% for (name, prefix) in INTERFACE|pfx_filter %}
 interface {{ name }}
 link-detect
 !
@@ -28,7 +28,7 @@ link-detect
 !
 {% block default_route %}
 ! set static default route to mgmt gateway as a backup to learned default
-{% for (name, prefix) in MGMT_INTERFACE %}
+{% for (name, prefix) in MGMT_INTERFACE|pfx_filter %}
 {% if prefix | ipv4 %}
 ip route 0.0.0.0/0 {{ MGMT_INTERFACE[(name, prefix)]['gwaddr'] }} 200
 {% endif %}
@@ -39,7 +39,7 @@ ip route 0.0.0.0/0 {{ MGMT_INTERFACE[(name, prefix)]['gwaddr'] }} 200
 {% set lo_ipv4_addrs = [] %}
 {% set lo_ipv6_addrs = [] %}
 {% if LOOPBACK_INTERFACE %}
-{%   for (name, prefix) in LOOPBACK_INTERFACE %}
+{%   for (name, prefix) in LOOPBACK_INTERFACE|pfx_filter %}
 {%     if prefix | ipv6 %}
 {%       if lo_ipv6_addrs.append(prefix) %}
 {%       endif %}

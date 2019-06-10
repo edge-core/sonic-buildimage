@@ -27,6 +27,6 @@ function wait_until_iface_ready
 
 
 # Wait for all interfaces to be up and ready
-{% for (name, prefix) in VLAN_INTERFACE %}
+{% for (name, prefix) in VLAN_INTERFACE|pfx_filter %}
 wait_until_iface_ready ${VLAN_TABLE_PREFIX} {{ name }}
 {% endfor %}
