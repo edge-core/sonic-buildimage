@@ -10,7 +10,7 @@
 
 {# If our configuration has VLAN interfaces... #}
 {% if VLAN_INTERFACE %}
-{% for (name, prefix) in VLAN_INTERFACE %}
+{% for (name, prefix) in VLAN_INTERFACE|pfx_filter %}
 {# If this VLAN has an IPv6 address... #}
 {% if prefix | ipv6 %}
 interface {{ name }}

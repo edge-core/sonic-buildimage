@@ -260,7 +260,7 @@ def driver_inserted():
 kos = [
 'depmod -ae',
 'modprobe i2c_dev',
-'modprobe i2c_mux_pca954x',
+'modprobe i2c_mux_pca954x force_deselect_on_exit=1',
 'modprobe optoe',
 'modprobe accton_as6712_32x_cpld',
 'modprobe cpr_4011_4mxx',
@@ -281,7 +281,15 @@ def driver_install():
 def driver_uninstall():
     global FORCE
     for i in range(0,len(kos)):
-        rm = kos[-(i+1)].replace("modprobe", "modprobe -rq")
+        #remove parameter if any
+        rm = kos[-(i+1)]
+        lst = rm.split(" ")
+        if len(lst) > 2:
+            del(lst[2:])
+        rm = " ".join(lst)
+
+        #Change to removing commands
+        rm = rm.replace("modprobe", "modprobe -rq")
         rm = rm.replace("insmod", "rmmod")
         status, output = log_os_system(rm, 1)
         if status:

@@ -9,9 +9,9 @@
 
 while /bin/true; do
   # find L3 interfaces which are UP, send ipv6 multicast pings
-  echo "{% for (name, prefix) in INTERFACE %} {{name}} {% endfor %}" > /tmp/intf_tmp.j2
+  echo "{% for (name, prefix) in INTERFACE|pfx_filter %} {{name}} {% endfor %}" > /tmp/intf_tmp.j2
   INTERFACE=`sonic-cfggen -d -t /tmp/intf_tmp.j2`
-  echo "{% for (name, prefix) in PORTCHANNEL_INTERFACE %} {{name}} {% endfor %}" > /tmp/pc_intf_tmp.j2
+  echo "{% for (name, prefix) in PORTCHANNEL_INTERFACE|pfx_filter %} {{name}} {% endfor %}" > /tmp/pc_intf_tmp.j2
   PC_INTERFACE=`sonic-cfggen -d -t /tmp/pc_intf_tmp.j2`
 
   ALL_INTERFACE="$INTERFACE $PC_INTERFACE"

@@ -1,0 +1,36 @@
+From e18cbe5a6c76366923a8ace830c89056a1542745 Mon Sep 17 00:00:00 2001
+From: yorke <yorke.yuan@asterfusion.com>
+Date: Mon, 3 Jun 2019 12:06:00 +0800
+Subject: [PATCH 4/8] Skip setting the same hwaddr to lag port to avoid
+ disrupting     From: Jipan Yang <jipan.yang@alibaba-inc.com>     Date: Sun,
+ 24 Feb 2019 00:04:15 -0800
+
+Signed-off-by: yorke <yorke.yuan@asterfusion.com>
+---
+ teamd/teamd.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/teamd/teamd.c b/teamd/teamd.c
+index 58d4fc8..9dc85b5 100644
+--- a/teamd/teamd.c
++++ b/teamd/teamd.c
+@@ -834,7 +834,15 @@ static int teamd_set_hwaddr(struct teamd_context *ctx)
+ 		err = -EINVAL;
+ 		goto free_hwaddr;
+ 	}
+-	err = team_hwaddr_set(ctx->th, ctx->ifindex, hwaddr, hwaddr_len);
++
++	if(!memcmp(hwaddr, ctx->hwaddr, hwaddr_len)) {
++		err = 0;
++		teamd_log_dbg("Skip setting same hwaddr string: \"%s\".", hwaddr_str);
++	}
++	else{
++		err = team_hwaddr_set(ctx->th, ctx->ifindex, hwaddr, hwaddr_len);
++	}
++
+ 	if (!err)
+ 		ctx->hwaddr_explicit = true;
+ free_hwaddr:
+-- 
+2.7.4
+

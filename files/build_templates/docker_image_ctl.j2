@@ -5,6 +5,32 @@ function getMountPoint()
     echo $1 | python -c "import sys, json, os; mnts = [x for x in json.load(sys.stdin)[0]['Mounts'] if x['Destination'] == '/usr/share/sonic/hwsku']; print '' if len(mnts) == 0 else os.path.basename(mnts[0]['Source'])" 2>/dev/null
 }
 
+function updateHostName()
+{
+    HOSTS=/etc/hosts
+    HOSTS_TMP=/etc/hosts.tmp
+
+    EXEC="docker exec -i {{docker_container_name}} bash -c"
+
+    NEW_HOSTNAME="$1"
+    HOSTNAME=`$EXEC "hostname"`
+    if ! [[ $HOSTNAME =~ ^[a-zA-Z0-9.\-]*$ ]]; then
+        HOSTNAME=`hostname`
+    fi
+
+    # copy HOSTS to HOSTS_TMP
+    $EXEC "cp $HOSTS $HOSTS_TMP"
+    # remove entry with hostname
+    $EXEC "sed -i \"/$HOSTNAME$/d\" $HOSTS_TMP"
+    # add entry with new hostname
+    $EXEC "echo -e \"127.0.0.1\t$NEW_HOSTNAME\" >> $HOSTS_TMP"
+
+    echo "Set hostname in {{docker_container_name}} container"
+    $EXEC "hostname '$NEW_HOSTNAME'"
+    $EXEC "cat $HOSTS_TMP > $HOSTS"
+    $EXEC "rm -f $HOSTS_TMP"
+}
+
 function getBootType()
 {
     local BOOT_TYPE
@@ -105,6 +131,10 @@ start() {
     # Obtain our HWSKU as we will mount directories with these names in each docker
     HWSKU=`sonic-cfggen -d -v 'DEVICE_METADATA["localhost"]["hwsku"]'`
     {%- endif %}
+    HOSTNAME=`sonic-cfggen -m -v 'DEVICE_METADATA["localhost"]["hostname"]'`
+    if [ -z "$HOSTNAME" ] || ! [[ $HOSTNAME =~ ^[a-zA-Z0-9.\-]*$ ]]; then
+        HOSTNAME=`hostname`
+    fi
 
     DOCKERCHECK=`docker inspect --type container {{docker_container_name}} 2>/dev/null`
     if [ "$?" -eq "0" ]; then
@@ -121,6 +151,7 @@ start() {
             {%- endif %}
             preStartAction
             docker start {{docker_container_name}}
+            updateHostName "$HOSTNAME"
             postStartAction
             exit $?
         fi
@@ -135,6 +166,9 @@ start() {
 {%- else %}
     echo "Creating new {{docker_container_name}} container with HWSKU $HWSKU"
 {%- endif %}
+{%- if sonic_asic_platform == "mellanox" %}
+    # TODO: Mellanox will remove the --tmpfs exception after SDK socket path changed in new SDK version 
+{%- endif %}
     docker create {{docker_image_run_opt}} \
 {%- if '--log-driver=json-file' in docker_image_run_opt or '--log-driver' not in docker_image_run_opt %}
         --log-opt max-size=2M --log-opt max-file=5 \
@@ -146,6 +180,10 @@ start() {
         -e PRM_SNIFFER \
         -e PRM_SNIFFER_FILE_PATH \
         -v /var/log/mellanox/sniffer:/var/log/mellanox/sniffer:rw \
+        -v mlnx_sdk_socket:/tmp \
+        -v /dev/shm:/dev/shm:rw \
+{%- else %}
+        --tmpfs /tmp \
 {%- endif %}
 {%- if docker_container_name == "pmon" %}
         -v /var/run/hw-management:/var/run/hw-management:rw \
@@ -156,8 +194,11 @@ start() {
 {%- if docker_container_name != "database" %}
         -v /usr/share/sonic/device/$PLATFORM/$HWSKU:/usr/share/sonic/hwsku:ro \
 {%- endif %}
+{%- if sonic_asic_platform != "mellanox" %}
         --tmpfs /tmp \
+{%- endif %}
         --tmpfs /var/tmp \
+        --hostname "$HOSTNAME" \
         --name={{docker_container_name}} {{docker_image_name}}:latest || {
             echo "Failed to docker run" >&1
             exit 4
@@ -177,11 +218,13 @@ stop() {
 }
 
 case "$1" in
-    start|wait|stop)
-        $1
+    start|wait|stop|updateHostName)
+        cmd=$1
+        shift
+        $cmd $@
         ;;
     *)
-        echo "Usage: $0 {start|wait|stop}"
+        echo "Usage: $0 {start|wait|stop|updateHostName new_hostname}"
         exit 1
         ;;
 esac

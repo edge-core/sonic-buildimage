@@ -52,3 +52,7 @@ Description: kernel modules for platform devices such as fan, led, sfp
 Package: sonic-platform-accton-as5812-54x
 Architecture: amd64
 Description: kernel modules for platform devices such as fan, led, sfp
+
+Package: sonic-platform-accton-as5835-54x
+Architecture: amd64
+Description: kernel modules for platform devices such as fan, led, sfp
