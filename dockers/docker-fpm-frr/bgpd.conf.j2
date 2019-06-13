@@ -29,6 +29,9 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
   no bgp default ipv4-unicast
   bgp graceful-restart restart-time 240
   bgp graceful-restart
+{% if DEVICE_METADATA['localhost']['type'] == 'ToRRouter' %}
+  bgp graceful-restart preserve-fw-state
+{% endif %}
 {% for (name, prefix) in LOOPBACK_INTERFACE|pfx_filter %}
 {% if prefix | ipv4 and name == 'Loopback0' %}
   bgp router-id {{ prefix | ip }}
