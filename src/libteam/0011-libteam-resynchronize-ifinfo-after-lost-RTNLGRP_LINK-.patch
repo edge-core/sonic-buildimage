@@ -185,7 +185,7 @@ index 72155ae..5c32a9c 100644
  	if (ret < 0)
  		err(th, "get_ifinfo_list: check_call_change_handers failed");
 diff --git a/libteam/libteam.c b/libteam/libteam.c
-index ac187aa..d5f22cd 100644
+index 106e5cf..afe05cb 100644
 --- a/libteam/libteam.c
 +++ b/libteam/libteam.c
 @@ -236,6 +236,10 @@ int check_call_change_handlers(struct team_handle *th,

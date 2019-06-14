@@ -29,10 +29,10 @@ Date:   Tue Apr 16 12:18:12 2019 -0700
     Signed-off-by: Jiri Pirko <jiri@mellanox.com>
 
 diff --git a/teamd/teamd_runner_lacp.c b/teamd/teamd_runner_lacp.c
-index dae9086..5fa026a 100644
+index 81324de..813b604 100644
 --- a/teamd/teamd_runner_lacp.c
 +++ b/teamd/teamd_runner_lacp.c
-@@ -361,7 +361,8 @@ static int lacp_port_should_be_enabled(struct lacp_port *lacp_port)
+@@ -356,7 +356,8 @@ static int lacp_port_should_be_enabled(struct lacp_port *lacp_port)
  	struct lacp *lacp = lacp_port->lacp;
  
  	if (lacp_port_selected(lacp_port) &&
@@ -42,7 +42,7 @@ index dae9086..5fa026a 100644
  		return true;
  	return false;
  }
-@@ -371,7 +372,8 @@ static int lacp_port_should_be_disabled(struct lacp_port *lacp_port)
+@@ -366,7 +367,8 @@ static int lacp_port_should_be_disabled(struct lacp_port *lacp_port)
  	struct lacp *lacp = lacp_port->lacp;
  
  	if (!lacp_port_selected(lacp_port) ||
@@ -52,7 +52,7 @@ index dae9086..5fa026a 100644
  		return true;
  	return false;
  }
-@@ -966,9 +968,14 @@ static void lacp_port_actor_update(struct lacp_port *lacp_port)
+@@ -936,9 +938,14 @@ static void lacp_port_actor_update(struct lacp_port *lacp_port)
  		state |= INFO_STATE_LACP_ACTIVITY;
  	if (lacp_port->lacp->cfg.fast_rate)
  		state |= INFO_STATE_LACP_TIMEOUT;

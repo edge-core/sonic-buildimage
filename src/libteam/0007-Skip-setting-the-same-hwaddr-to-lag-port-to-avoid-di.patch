@@ -10,10 +10,10 @@ Signed-off-by: Jipan Yang <jipan.yang@alibaba-inc.com>
  1 file changed, 10 insertions(+), 1 deletion(-)
 
 diff --git a/teamd/teamd.c b/teamd/teamd.c
-index 225b8c8..e28aa7d 100644
+index c987333..0f8993e 100644
 --- a/teamd/teamd.c
 +++ b/teamd/teamd.c
-@@ -866,7 +866,16 @@ static int teamd_set_hwaddr(struct teamd_context *ctx)
+@@ -828,7 +828,16 @@ static int teamd_set_hwaddr(struct teamd_context *ctx)
  		err = -EINVAL;
  		goto free_hwaddr;
  	}

@@ -28,19 +28,20 @@ Signed-off-by: Jiri Pirko <jiri@mellanox.com>
  1 file changed, 3 insertions(+)
 
 diff --git a/teamd/teamd_runner_lacp.c b/teamd/teamd_runner_lacp.c
-index 78f05dd..c8ae541 100644
+index 813b604..d6e5840 100644
 --- a/teamd/teamd_runner_lacp.c
 +++ b/teamd/teamd_runner_lacp.c
-@@ -1132,6 +1132,9 @@ static int lacpdu_process(struct lacp_port *lacp_port, struct lacpdu* lacpdu)
- {
- 	int err;
+@@ -1102,6 +1102,9 @@ static int lacpdu_recv(struct lacp_port *lacp_port)
+ 	if (err <= 0)
+ 		return err;
  
 +	if (!teamd_port_present(lacp_port->ctx, lacp_port->tdport))
 +		return 0;
 +
- 	if (!lacpdu_check(lacpdu)) {
+ 	if (!lacpdu_check(&lacpdu)) {
  		teamd_log_warn("malformed LACP PDU came.");
  		return 0;
+
 -- 
 2.7.4
 
