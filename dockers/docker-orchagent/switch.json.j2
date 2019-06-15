@@ -12,7 +12,8 @@
     {
         "SWITCH_TABLE:switch": {
             "ecmp_hash_seed": "{{ hash_seed }}",
-            "lag_hash_seed": "{{ hash_seed }}"
+            "lag_hash_seed": "{{ hash_seed }}",
+            "fdb_aging_time": "600"
         },
         "OP": "SET"
     }
