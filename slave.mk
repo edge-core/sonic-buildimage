@@ -541,7 +541,8 @@ $(addprefix $(TARGET_PATH)/, $(DOCKER_DBG_IMAGES)) : $(TARGET_PATH)/%-$(DBG_IMAG
 	./build_debug_docker_j2.sh $* $(subst -,_,$(notdir $($*.gz_PATH)))_dbg_debs $(subst -,_,$(notdir $($*.gz_PATH)))_image_dbgs > $($*.gz_PATH)/Dockerfile-dbg.j2
 	j2 $($*.gz_PATH)/Dockerfile-dbg.j2 > $($*.gz_PATH)/Dockerfile-dbg
 	docker info $(LOG)
-	docker build --squash --no-cache \
+	docker build \
+		$(if $($*.gz_DBG_DEPENDS), --squash --no-cache, --no-cache) \
 		--build-arg http_proxy=$(HTTP_PROXY) \
 		--build-arg https_proxy=$(HTTPS_PROXY) \
 		--build-arg docker_container_name=$($*.gz_CONTAINER_NAME) \
@@ -617,19 +618,19 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
 	$(foreach docker, $($*_DOCKERS),\
 		export docker_image="$(docker)"
 		export docker_image_name="$(basename $(docker))"
-		export docker_container_name="$($(docker)_CONTAINER_NAME)"
-		$(eval $(docker)_RUN_OPT += $($(docker)_$($*_IMAGE_TYPE)_RUN_OPT))
-		export docker_image_run_opt="$($(docker)_RUN_OPT)"
-		j2 files/build_templates/docker_image_ctl.j2 > $($(docker)_CONTAINER_NAME).sh
-		if [ -f files/build_templates/$($(docker)_CONTAINER_NAME).service.j2 ]; then
-			j2 files/build_templates/$($(docker)_CONTAINER_NAME).service.j2 > $($(docker)_CONTAINER_NAME).service
+		export docker_container_name="$($(docker:-dbg.gz=.gz)_CONTAINER_NAME)"
+		$(eval $(docker:-dbg.gz=.gz)_RUN_OPT += $($(docker:-dbg.gz=.gz)_$($*_IMAGE_TYPE)_RUN_OPT))
+		export docker_image_run_opt="$($(docker:-dbg.gz=.gz)_RUN_OPT)"
+		j2 files/build_templates/docker_image_ctl.j2 > $($(docker:-dbg.gz=.gz)_CONTAINER_NAME).sh
+		if [ -f files/build_templates/$($(docker:-dbg.gz=.gz)_CONTAINER_NAME).service.j2 ]; then
+			j2 files/build_templates/$($(docker:-dbg.gz=.gz)_CONTAINER_NAME).service.j2 > $($(docker:-dbg.gz=.gz)_CONTAINER_NAME).service
 		fi
-		chmod +x $($(docker)_CONTAINER_NAME).sh
+		chmod +x $($(docker:-dbg.gz=.gz)_CONTAINER_NAME).sh
 	)
 
-	export installer_start_scripts="$(foreach docker, $($*_DOCKERS),$(addsuffix .sh, $($(docker)_CONTAINER_NAME)))"
-	export installer_services="$(foreach docker, $($*_DOCKERS),$(addsuffix .service, $($(docker)_CONTAINER_NAME)))"
-	export installer_extra_files="$(foreach docker, $($*_DOCKERS), $(foreach file, $($(docker)_BASE_IMAGE_FILES), $($(docker)_PATH)/base_image_files/$(file)))"
+	export installer_start_scripts="$(foreach docker, $($*_DOCKERS),$(addsuffix .sh, $($(docker:-dbg.gz=.gz)_CONTAINER_NAME)))"
+	export installer_services="$(foreach docker, $($*_DOCKERS),$(addsuffix .service, $($(docker:-dbg.gz=.gz)_CONTAINER_NAME)))"
+	export installer_extra_files="$(foreach docker, $($*_DOCKERS), $(foreach file, $($(docker:-dbg.gz=.gz)_BASE_IMAGE_FILES), $($(docker:-dbg.gz=.gz)_PATH)/base_image_files/$(file)))"
 
 	j2 -f env files/initramfs-tools/union-mount.j2 onie-image.conf > files/initramfs-tools/union-mount
 	j2 -f env files/initramfs-tools/arista-convertfs.j2 onie-image.conf > files/initramfs-tools/arista-convertfs
@@ -652,8 +653,8 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
 		./build_image.sh $(LOG)
 
 	$(foreach docker, $($*_DOCKERS), \
-		rm -f $($(docker)_CONTAINER_NAME).sh
-		rm -f $($(docker)_CONTAINER_NAME).service
+		rm -f $($(docker:-dbg.gz=.gz)_CONTAINER_NAME).sh
+		rm -f $($(docker:-dbg.gz=.gz)_CONTAINER_NAME).service
 	)
 
 	$(if $($*_DOCKERS),

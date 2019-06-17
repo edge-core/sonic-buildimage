@@ -288,6 +288,11 @@ sudo chroot $FILESYSTEM_ROOT docker info
 {% set imagename = imagefilename.split('.')|first -%}
 sudo LANG=C chroot $FILESYSTEM_ROOT docker load < {{image}}
 sudo LANG=C chroot $FILESYSTEM_ROOT docker tag {{imagename}}:latest {{imagename}}:$(sonic_get_version)
+{% if imagename.endswith('-dbg') %}
+{% set imagebasename = imagename.replace('-dbg', '') -%}
+sudo LANG=C chroot $FILESYSTEM_ROOT docker tag {{imagename}}:latest {{imagebasename}}:$(sonic_get_version)
+sudo LANG=C chroot $FILESYSTEM_ROOT docker tag {{imagename}}:latest {{imagebasename}}:latest
+{% endif %}
 {% endfor %}
 sudo chroot $FILESYSTEM_ROOT service docker stop
 sudo rm $FILESYSTEM_ROOT/etc/init.d/docker

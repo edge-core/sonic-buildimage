@@ -130,8 +130,8 @@ start() {
     {%- else %}
     # Obtain our HWSKU as we will mount directories with these names in each docker
     HWSKU=`sonic-cfggen -d -v 'DEVICE_METADATA["localhost"]["hwsku"]'`
+    HOSTNAME=`sonic-cfggen -d -v 'DEVICE_METADATA["localhost"]["hostname"]'`
     {%- endif %}
-    HOSTNAME=`sonic-cfggen -m -v 'DEVICE_METADATA["localhost"]["hostname"]'`
     if [ -z "$HOSTNAME" ] || ! [[ $HOSTNAME =~ ^[a-zA-Z0-9.\-]*$ ]]; then
         HOSTNAME=`hostname`
     fi
@@ -175,18 +175,15 @@ start() {
 {%- endif %}
 {%- if sonic_asic_platform == "mellanox" %}
 {%- if docker_container_name == "syncd" %}
-        -e SX_SNIFFER_ENABLE \
-        -e SX_SNIFFER_TARGET \
-        -e PRM_SNIFFER \
-        -e PRM_SNIFFER_FILE_PATH \
         -v /var/log/mellanox/sniffer:/var/log/mellanox/sniffer:rw \
+        -v mlnx_sdk_socket:/tmp \
+        -v /dev/shm:/dev/shm:rw \
+{%- elif docker_container_name == "pmon" %}
+        -v /var/run/hw-management:/var/run/hw-management:rw \
         -v mlnx_sdk_socket:/tmp \
         -v /dev/shm:/dev/shm:rw \
 {%- else %}
         --tmpfs /tmp \
-{%- endif %}
-{%- if docker_container_name == "pmon" %}
-        -v /var/run/hw-management:/var/run/hw-management:rw \
 {%- endif %}
 {%- endif %}
         -v /var/run/redis:/var/run/redis:rw \

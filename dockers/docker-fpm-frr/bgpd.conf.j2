@@ -29,6 +29,9 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
   no bgp default ipv4-unicast
   bgp graceful-restart restart-time 240
   bgp graceful-restart
+{% if DEVICE_METADATA['localhost']['type'] == 'ToRRouter' %}
+  bgp graceful-restart preserve-fw-state
+{% endif %}
 {% for (name, prefix) in LOOPBACK_INTERFACE|pfx_filter %}
 {% if prefix | ipv4 and name == 'Loopback0' %}
   bgp router-id {{ prefix | ip }}
@@ -77,6 +80,12 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
 {% endif %}
     neighbor {{ neighbor_addr }} activate
     neighbor {{ neighbor_addr }} soft-reconfiguration inbound
+{% if bgp_session['rrclient'] | int != 0 %}
+    neighbor {{ neighbor_addr }} route-reflector-client
+{% endif %}
+{% if bgp_session['nhopself'] | int != 0 %}
+    neighbor {{ neighbor_addr }} next-hop-self
+{% endif %}
     maximum-paths 64
   exit-address-family
 {% endif %}
@@ -87,6 +96,15 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
 {% endif %}
     neighbor {{ neighbor_addr }} activate
     neighbor {{ neighbor_addr }} soft-reconfiguration inbound
+{% if bgp_session['rrclient'] | int != 0 %}
+    neighbor {{ neighbor_addr }} route-reflector-client
+{% endif %}
+{% if bgp_session['nhopself'] | int != 0 %}
+    neighbor {{ neighbor_addr }} next-hop-self
+{% endif %}
+{% if bgp_session['asn'] != DEVICE_METADATA['localhost']['bgp_asn'] %}
+    neighbor {{ neighbor_addr }} route-map set-next-hop-global-v6 in
+{% endif %}
     maximum-paths 64
   exit-address-family
 {% endif %}
@@ -137,4 +155,7 @@ maximum-paths 64
 route-map ISOLATE permit 10
 set as-path prepend {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
 {% endif %}
+!
+route-map set-next-hop-global-v6 permit 10
+set ipv6 next-hop prefer-global
 !
