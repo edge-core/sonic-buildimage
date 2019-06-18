@@ -48,3 +48,8 @@ supervisorctl start xcvrd
 {% if not skip_psud %}
 supervisorctl start psud
 {% endif %}
+
+{% if not skip_syseepromd %}
+supervisorctl start syseepromd
+{% endif %}
+
