@@ -1,6 +1,6 @@
 # Broadcom SAI modules
 
-KVERSION = 4.9.0-8-2-amd64
+KVERSION = 4.9.0-9-2-amd64
 BRCM_OPENNSL_KERNEL_VERSION = 3.4.1.11-1
 
 BRCM_OPENNSL_KERNEL = opennsl-modules_$(BRCM_OPENNSL_KERNEL_VERSION)_amd64.deb
