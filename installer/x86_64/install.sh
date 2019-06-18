@@ -162,7 +162,7 @@ if [ "$install_env" = "onie" ]; then
 fi
 
 # Creates a new partition for the DEMO OS.
-# 
+#
 # arg $1 -- base block device
 #
 # Returns the created partition number in $demo_part
@@ -177,7 +177,7 @@ create_demo_gpt_partition()
     tmpfifo=$(mktemp -u)
     trap_push "rm $tmpfifo || true"
     mkfifo -m 600 "$tmpfifo"
-    
+
     # See if demo partition already exists
     demo_part=$(sgdisk -p $blk_dev | grep -e "$demo_volume_label" -e "$legacy_volume_label" | awk '{print $1}')
     if [ -n "$demo_part" ] ; then
@@ -438,7 +438,7 @@ if [ "$install_env" = "onie" ]; then
         echo "Error: Unable to mount $demo_dev on $demo_mnt"
         exit 1
     }
-    
+
 elif [ "$install_env" = "sonic" ]; then
     demo_mnt="/host"
     eval running_sonic_revision=$(cat /etc/sonic/sonic_version.yml | grep build_version | cut -f2 -d" ")
@@ -595,12 +595,12 @@ menuentry '$demo_grub_entry' {
         if [ x$grub_platform = xxen ]; then insmod xzio; insmod lzopio; fi
         insmod part_msdos
         insmod ext2
-        linux   /$image_dir/boot/vmlinuz-4.9.0-8-2-amd64 root=$grub_cfg_root rw $GRUB_CMDLINE_LINUX  \
+        linux   /$image_dir/boot/vmlinuz-4.9.0-9-2-amd64 root=$grub_cfg_root rw $GRUB_CMDLINE_LINUX  \
                 net.ifnames=0 biosdevname=0 \
                 loop=$image_dir/$FILESYSTEM_SQUASHFS loopfstype=squashfs                       \
                 apparmor=1 security=apparmor varlog_size=$VAR_LOG_SIZE usbcore.autosuspend=-1 $ONIE_PLATFORM_EXTRA_CMDLINE_LINUX
         echo    'Loading $demo_volume_label $demo_type initial ramdisk ...'
-        initrd  /$image_dir/boot/initrd.img-4.9.0-8-2-amd64
+        initrd  /$image_dir/boot/initrd.img-4.9.0-9-2-amd64
 }
 EOF
 
