@@ -41,5 +41,6 @@ RUN rm -rf /debs ~/.cache
 COPY ["bgpcfgd", "start.sh", "/usr/bin/"]
 COPY ["*.j2", "/usr/share/sonic/templates/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
+COPY ["snmp.conf", "/etc/snmp/frr.conf"]
 
 ENTRYPOINT ["/usr/bin/supervisord"]

@@ -11,6 +11,7 @@ hostname {{ DEVICE_METADATA['localhost']['hostname'] }}
 password zebra
 log syslog informational
 log facility local4
+agentx
 ! enable password {# {{ en_passwd }} TODO: param needed #}
 {% endblock system_init %}
 !
