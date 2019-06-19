@@ -15,7 +15,20 @@ wait_syncd() {
     done
 
     # wait until bcm sdk is ready to get a request
-    sleep 3
+    counter=0
+    while true; do
+        /usr/bin/bcmcmd -t 1 "show unit" | grep BCM >/dev/null 2>&1
+        rv=$?
+        if [ $rv -eq 0 ]; then
+            break
+        fi
+        counter=$((counter+1))
+        if [ $counter -ge 60 ]; then
+            echo "syncd is not ready to take commands after $counter re-tries; Exiting!"
+            break
+        fi
+        sleep 1
+    done
 }
 
 
