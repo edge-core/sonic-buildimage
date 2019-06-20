@@ -326,5 +326,5 @@ RUN add-apt-repository \
            $(lsb_release -cs) \
            stable"
 RUN apt-get update
-RUN apt-get install -y docker-ce=17.03.2~ce-0~debian-stretch
+RUN apt-get install -y docker-ce=5:18.09.5~3-0~debian-stretch
 RUN echo "DOCKER_OPTS=\"--experimental --storage-driver=vfs\"" >> /etc/default/docker
