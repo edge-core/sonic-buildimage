@@ -61,7 +61,11 @@ SLAVE_IMAGE = sonic-slave-$(USER)
 SLAVE_DIR = sonic-slave
 endif
 
-OVERLAY_MODULE_CHECK := lsmod | grep "^overlay " > /dev/null 2>&1 || (echo "ERROR: Module 'overlay' not loaded. Try running 'sudo modprobe overlay'."; exit 1)
+OVERLAY_MODULE_CHECK := \
+    lsmod | grep -q "^overlay " &>/dev/null || \
+    zgrep -q 'CONFIG_OVERLAY_FS=y' /proc/config.gz &>/dev/null || \
+    grep -q 'CONFIG_OVERLAY_FS=y' /boot/config-$(shell uname -r) &>/dev/null || \
+    (echo "ERROR: Module 'overlay' not loaded. Try running 'sudo modprobe overlay'."; exit 1)
 
 BUILD_TIMESTAMP := $(shell date +%Y%m%d\.%H%M%S)
 
