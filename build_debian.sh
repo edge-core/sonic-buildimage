@@ -30,7 +30,7 @@ set -x -e
 
 ## docker engine version (with platform)
 DOCKER_VERSION=5:18.09.2~3-0~debian-stretch
-LINUX_KERNEL_VERSION=4.9.0-8
+LINUX_KERNEL_VERSION=4.9.0-9
 
 ## Working directory to prepare the file system
 FILESYSTEM_ROOT=./fsroot
@@ -403,7 +403,7 @@ fi
 ## Organization specific extensions such as Configuration & Scripts for features like AAA, ZTP...
 if [ "${enable_organization_extensions}" = "y" ]; then
    if [ -f files/build_templates/organization_extensions.sh ]; then
-      sudo chmod 755 files/build_templates/organization_extensions.sh 
+      sudo chmod 755 files/build_templates/organization_extensions.sh
       ./files/build_templates/organization_extensions.sh -f $FILESYSTEM_ROOT -h $HOSTNAME
    fi
 fi
