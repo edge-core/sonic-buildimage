@@ -1,4 +1,0 @@
-#!/bin/bash
-if [ -r /usr/local/bin/z9100_qsfp_monitor.py ]; then
-        python /usr/local/bin/z9100_qsfp_monitor.py &
-fi
