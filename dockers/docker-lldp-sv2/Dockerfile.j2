@@ -1,3 +1,4 @@
+{% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python_wheels, copy_files %}
 FROM docker-config-engine-stretch
 
 ARG docker_container_name
@@ -9,37 +10,30 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Update apt's cache of available packages
 RUN apt-get update
 
-
 {% if docker_lldp_sv2_debs.strip() -%}
 # Copy locally-built Debian package dependencies
-{%- for deb in docker_lldp_sv2_debs.split(' ') %}
-COPY debs/{{ deb }} /debs/
-{%- endfor %}
+{{ copy_files("debs/", docker_lldp_sv2_debs.split(' '), "/debs/") }}
 
 # Install locally-built Debian packages and implicitly install their dependencies
-{%- for deb in docker_lldp_sv2_debs.split(' ') %}
-RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /debs/{{ deb }}
-{%- endfor %}
+{{ install_debian_packages(docker_lldp_sv2_debs.split(' ')) }}
 {%- endif %}
 
 {% if docker_lldp_sv2_whls.strip() -%}
 # Copy locally-built Python wheel dependencies
-{%- for whl in docker_lldp_sv2_whls.split(' ') %}
-COPY python-wheels/{{ whl }} /python-wheels/
-{%- endfor %}
+{{ copy_files("python-wheels/", docker_lldp_sv2_whls.split(' '), "/python-wheels/") }}
 
 # Install locally-built Python wheel dependencies
-{%- for whl in docker_lldp_sv2_whls.split(' ') %}
-RUN pip install /python-wheels/{{ whl }}
-{%- endfor %}
+{{ install_python_wheels(docker_lldp_sv2_whls.split(' ')) }}
 {% endif %}
 
 # Clean up
-RUN apt-get purge -y python-pip
-RUN apt-get clean -y
-RUN apt-get autoclean -y
-RUN apt-get autoremove -y
-RUN rm -rf /debs /python-wheels ~/.cache
+RUN apt-get purge -y python-pip && \
+    apt-get clean -y            && \
+    apt-get autoclean -y        && \
+    apt-get autoremove -y       && \
+    rm -rf /debs                   \
+           /python-wheels          \
+           ~/.cache
 
 COPY ["start.sh", "/usr/bin/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]

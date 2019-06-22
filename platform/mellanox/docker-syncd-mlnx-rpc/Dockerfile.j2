@@ -1,31 +1,26 @@
+{% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python_wheels, copy_files %}
 FROM docker-syncd-mlnx
 
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
-COPY \
-{% for deb in docker_syncd_mlnx_rpc_debs.split(' ') -%}
-debs/{{ deb }}{{' '}}
-{%- endfor -%}
-debs/
+{% if docker_syncd_mlnx_rpc_debs.strip() -%}
+# Copy locally-built Debian package dependencies
+{{ copy_files("debs/", docker_syncd_mlnx_rpc_debs.split(' '), "/debs/") }}
 
-COPY \
-{% for deb in docker_syncd_mlnx_rpc_pydebs.split(' ') -%}
-python-debs/{{ deb }}{{' '}}
-{%- endfor -%}
-debs/
+# Install locally-built Debian packages and implicitly install their dependencies
+{{ install_debian_packages(docker_syncd_mlnx_rpc_debs.split(' ')) }}
+{% endif %}
+
+{% if docker_syncd_mlnx_rpc_pydebs.strip() -%}
+# Copy locally-built Debian package dependencies
+{{ copy_files("python-debs/", docker_syncd_mlnx_rpc_pydebs.split(' '), "/debs/") }}
+
+# Install locally-built Debian packages and implicitly install their dependencies
+{{ install_debian_packages(docker_syncd_mlnx_rpc_pydebs.split(' ')) }}
+{% endif %}
 
 RUN apt-get purge -y syncd
-
-RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; } ; \
-{% for deb in docker_syncd_mlnx_rpc_debs.split(' ') -%}
-dpkg_apt debs/{{ deb }}{{'; '}}
-{%- endfor %}
-
-RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; } ; \
-{% for deb in docker_syncd_mlnx_rpc_pydebs.split(' ') -%}
-dpkg_apt debs/{{ deb }}{{'; '}}
-{%- endfor %}
 
 ## Pre-install the fundamental packages
 RUN apt-get update \
@@ -58,5 +53,5 @@ RUN apt-get update \
  && rm -rf /root/deps
 
 COPY ["ptf_nn_agent.conf", "/etc/supervisor/conf.d/"]
- 
+
 ENTRYPOINT ["/usr/bin/supervisord"]

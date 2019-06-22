@@ -1,3 +1,4 @@
+{% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python_wheels, copy_files %}
 FROM docker-config-engine-stretch
 
 ARG docker_container_name
@@ -11,19 +12,17 @@ RUN apt-get update
 
 {% if docker_router_advertiser_debs.strip() -%}
 # Copy built Debian packages
-{%- for deb in docker_router_advertiser_debs.split(' ') %}
-COPY debs/{{ deb }} debs/
-{%- endfor %}
+{{ copy_files("debs/", docker_router_advertiser_debs.split(' '), "/debs/") }}
 
 # Install built Debian packages and implicitly install their dependencies
-{%- for deb in docker_router_advertiser_debs.split(' ') %}
-RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt debs/{{ deb }}
-{%- endfor %}
+{{ install_debian_packages(docker_router_advertiser_debs.split(' ')) }}
 {%- endif %}
 
 # Clean up
-RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
-RUN rm -rf /debs
+RUN apt-get clean -y        && \
+    apt-get autoclean -y    && \
+    apt-get autoremove -y   && \
+    rm -rf /debs
 
 COPY ["start.sh", "/usr/bin/"]
 COPY ["docker-router-advertiser.supervisord.conf", "/etc/supervisor/conf.d/"]

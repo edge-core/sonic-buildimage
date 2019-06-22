@@ -1,0 +1,18 @@
+{% macro install_debian_packages(packages) -%}
+RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; \
+    {%- for deb in packages %}
+        dpkg_apt /debs/{{ deb }} {%- if not loop.last %} && \ {%- endif %}
+    {%- endfor %}
+{%- endmacro %}
+
+{% macro install_python_wheels(packages) -%}
+RUN cd /python-wheels/ && pip install {{ packages | join(' ') }}
+{%- endmacro %}
+
+{% macro copy_files(prefix, files, dest) -%}
+COPY \
+    {%- for file in files %}
+        {{ prefix }}/{{ file }} \
+    {%- endfor %}
+    {{ dest }}
+{%- endmacro %}

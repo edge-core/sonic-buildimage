@@ -1,11 +1,12 @@
+{% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python_wheels, copy_files %}
 FROM debian:stretch
 
 # Clean documentation in FROM image
 RUN find /usr/share/doc -depth \( -type f -o -type l \) ! -name copyright | xargs rm || true
 
 # Clean doc directories that are empty or only contain empty directories
-RUN while [ -n "$(find /usr/share/doc -depth -type d -empty -print -exec rmdir {} +)" ]; do :; done
-RUN rm -rf               \
+RUN while [ -n "$(find /usr/share/doc -depth -type d -empty -print -exec rmdir {} +)" ]; do :; done && \
+    rm -rf               \
     /usr/share/man/*     \
     /usr/share/groff/*   \
     /usr/share/info/*    \
@@ -21,28 +22,22 @@ ENV DEBIAN_FRONTEND=noninteractive
 COPY ["dpkg_01_drop", "/etc/dpkg/dpkg.cfg.d/01_drop"]
 COPY ["sources.list", "/etc/apt/sources.list"]
 COPY ["no_install_recommend_suggest", "/etc/apt/apt.conf.d"]
-RUN apt-get update
 
-# Pre-install fundamental packages
-RUN apt-get -y install \
-    less               \
-    perl               \
-    procps             \
-    python             \
-    rsyslog            \
-    vim-tiny
-
-COPY ["etc/rsyslog.conf", "/etc/rsyslog.conf"]
-COPY ["etc/rsyslog.d/*", "/etc/rsyslog.d/"]
-COPY ["root/.vimrc", "/root/.vimrc"]
-
+# Update apt cache and
+# pre-install fundamental packages
+RUN apt-get update &&        \
+    apt-get -y install       \
+        less                 \
+        perl                 \
+        procps               \
+        python               \
+        rsyslog              \
+        vim-tiny             \
 # Install dependencies of supervisor
-RUN apt-get -y install python-pkg-resources python-meld3
+        python-pkg-resources \
+        python-meld3
 
-RUN mkdir -p /etc/supervisor
-RUN mkdir -p /var/log/supervisor
-
-COPY ["etc/supervisor/supervisord.conf", "/etc/supervisor/"]
+RUN mkdir -p /etc/supervisor /var/log/supervisor
 
 RUN apt-get -y purge   \
     exim4              \
@@ -51,29 +46,29 @@ RUN apt-get -y purge   \
     exim4-daemon-light
 
 {% if docker_base_stretch_debs.strip() -%}
-# Copy built Debian packages
-{%- for deb in docker_base_stretch_debs.split(' ') %}
-COPY debs/{{ deb }} debs/
-{%- endfor %}
+# Copy locally-built Debian package dependencies
+{{ copy_files("debs/", docker_base_stretch_debs.split(' '), "/debs/") }}
 
 # Install built Debian packages and implicitly install their dependencies
-{%- for deb in docker_base_stretch_debs.split(' ') %}
-RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt debs/{{ deb }}
-{%- endfor %}
+{{ install_debian_packages(docker_base_stretch_debs.split(' ')) }}
 {%- endif %}
 
 {% if docker_base_stretch_dbgs.strip() -%}
 # Install common debug-packages
-{%- for dbg_pkg in docker_base_stretch_dbgs.split(' ') %}
-RUN apt-get -y install {{ dbg_pkg }}
-{%- endfor %}
+RUN apt-get -y install docker_base_stretch_dbgs.split(' ') | join(' ')
 {% else %}
 RUN ln /usr/bin/vim.tiny /usr/bin/vim
 {%- endif %}
 
 # Clean up apt
 # Remove /var/lib/apt/lists/*, could be obsoleted for derived images
-RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
-RUN rm -rf /var/lib/apt/lists/*
+RUN apt-get clean -y                     && \
+    apt-get autoclean -y                 && \
+    apt-get autoremove -y                && \
+    rm -rf /var/lib/apt/lists/* /tmp/*
 
-RUN rm -rf /tmp/*
+COPY ["etc/rsyslog.conf", "/etc/rsyslog.conf"]
+COPY ["etc/rsyslog.d/*", "/etc/rsyslog.d/"]
+COPY ["root/.vimrc", "/root/.vimrc"]
+
+COPY ["etc/supervisor/supervisord.conf", "/etc/supervisor/"]

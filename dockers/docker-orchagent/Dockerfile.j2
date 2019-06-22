@@ -1,3 +1,4 @@
+{% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python_wheels, copy_files %}
 FROM docker-config-engine-stretch
 
 ARG docker_container_name
@@ -6,36 +7,44 @@ RUN [ -f /etc/rsyslog.conf ] && sed -ri "s/%syslogtag%/$docker_container_name#%s
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update
+RUN apt-get update &&       \
+    apt-get install -f -y   \
+        ifupdown            \
+        arping              \
+        libdbus-1-3         \
+        libdaemon0          \
+        libjansson4         \
+        libpython2.7        \
+        iproute2            \
+        ndisc6              \
+        tcpdump             \
+        # Install redis-tools dependencies
+        # TODO: implicitly install dependencies
+        libjemalloc1        \
+        libelf1             \
+        libmnl0             \
+        bridge-utils
 
-RUN apt-get install -f -y ifupdown arping libdbus-1-3 libdaemon0 libjansson4 libpython2.7 iproute2
+RUN pip install \
+        scapy==2.4.2 \
+        setuptools \
+        pyroute2==0.5.3 \
+        netifaces==0.10.7 \
+        monotonic==1.5
 
-RUN apt-get install -f -y ndisc6 tcpdump
-RUN pip install scapy==2.4.2
-## Install redis-tools dependencies
-## TODO: implicitly install dependencies
-RUN apt-get -y install libjemalloc1
+{% if docker_orchagent_debs.strip() -%}
+# Copy locally-built Debian package dependencies
+{{ copy_files("debs/", docker_orchagent_debs.split(' '), "/debs/") }}
 
-RUN apt-get install -y libelf1 libmnl0 bridge-utils
-
-RUN pip install setuptools
-RUN pip install pyroute2==0.5.3 netifaces==0.10.7
-RUN pip install monotonic==1.5
-
-COPY \
-{% for deb in docker_orchagent_debs.split(' ') -%}
-debs/{{ deb }}{{' '}}
-{%- endfor -%}
-debs/
-
-RUN dpkg -i \
-{% for deb in docker_orchagent_debs.split(' ') -%}
-debs/{{ deb }}{{' '}}
-{%- endfor %}
+# Install locally-built Debian packages and implicitly install their dependencies
+{{ install_debian_packages(docker_orchagent_debs.split(' ')) }}
+{%- endif %}
 
 ## Clean up
-RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
-RUN rm -rf /debs
+RUN apt-get clean -y        && \
+    apt-get autoclean -y    && \
+    apt-get autoremove -y   && \
+    rm -rf /debs
 
 COPY ["files/arp_update", "/usr/bin"]
 COPY ["enable_counters.py", "/usr/bin"]
