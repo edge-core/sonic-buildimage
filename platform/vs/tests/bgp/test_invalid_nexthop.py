@@ -5,7 +5,6 @@ import time
 import json
 import pytest
 
-@pytest.mark.skip(reason="not working for frr")
 def test_InvalidNexthop(dvs, testlog):
 
     dvs.copy_file("/etc/frr/", "bgp/files/invalid_nexthop/bgpd.conf")
