@@ -39,7 +39,7 @@ User is not necessary to handle docker environment creation.
   - Copy patches and series from patch/kernel of this release to 
     sonic-linux-kernel/patch.
   - Build kernel by "make".
-  - The built kernel package, linux-image-3.16.0-6-amd64_3.16.51-3+deb8u1_amd64.deb
+  - The built kernel package, linux-image-3.16.0-9-amd64_3.16.51-3+deb8u1_amd64.deb
     , is generated.
 3. Build installer 
   - Change directory back to sonic-buildimage/.
@@ -52,7 +52,7 @@ User is not necessary to handle docker environment creation.
     The default user and password are "admin" & "YourPaSsWoRd" respectively.
   - Run "make configure PLATFORM=broadcom"
   - Copy the built kernel debian package to target/debs/.
-    The file is linux-image-3.16.0-6-amd64_*_amd64.deb under directory
+    The file is linux-image-3.16.0-9-amd64_*_amd64.deb under directory
     src/sonic-linux-kernel/.
   - Run "make target/sonic-generic.bin"
   - Get the installer, target/sonic-generic.bin, to target machine and install.

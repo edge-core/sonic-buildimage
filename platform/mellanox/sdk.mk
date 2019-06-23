@@ -1,4 +1,4 @@
-MLNX_SDK_BASE_URL = https://github.com/Mellanox/SAI-Implementation/raw/a8ae004f7c24638424ad70196d7ea4e6aea7f05b/sdk
+MLNX_SDK_BASE_URL = https://github.com/Mellanox/SAI-Implementation/raw/c9d660b6c170a67e5416e39ce157e3e7d7f19811/sdk
 MLNX_SDK_VERSION = 4.2.7304
 MLNX_SDK_RDEBS += $(APPLIBS) $(IPROUTE2_MLNX) $(SX_ACL_RM) $(SX_COMPLIB) \
 		  $(SX_EXAMPLES) $(SX_GEN_UTILS) $(SX_SCEW) $(SX_SDN_HAL) \
