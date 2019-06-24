@@ -25,7 +25,7 @@ start)
             echo "25165824" > /proc/sys/net/core/wmem_max
         fi
 
-        modprobe nps_dev
+	modprobe nps_dev
         modprobe nps_netif
 
         echo "done."
