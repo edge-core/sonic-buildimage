@@ -8,4 +8,8 @@ systemctl start fstrim.timer
 depmod -a 
 systemctl enable platform-modules-s6100.service
 systemctl start platform-modules-s6100.service
+
+systemctl enable s6100-lpc-monitor.service
+systemctl start s6100-lpc-monitor.service
+
 #DEBHELPER#
