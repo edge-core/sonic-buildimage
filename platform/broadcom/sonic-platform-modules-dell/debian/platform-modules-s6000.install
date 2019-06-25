@@ -1,0 +1,2 @@
+s6000/systemd/platform-modules-s6000.service etc/systemd/system
+common/io_rd_wr.py usr/local/bin
