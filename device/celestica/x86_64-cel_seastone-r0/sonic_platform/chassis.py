@@ -17,6 +17,7 @@ import json
 try:
     from sonic_platform_base.chassis_base import ChassisBase
     from sonic_platform.fan import Fan
+    from sonic_platform.psu import Psu
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -24,6 +25,7 @@ BIOS_VERSION_PATH = "/sys/class/dmi/id/bios_version"
 GETREG_PATH = "/sys/devices/platform/dx010_cpld/getreg"
 CONFIG_DB_PATH = "/etc/sonic/config_db.json"
 NUM_FAN = 5
+NUM_PSU = 2
 CPLD_ADDR_MAPPING = {
     "CPLD1": "0x100",
     "CPLD2": "0x200",
@@ -41,6 +43,9 @@ class Chassis(ChassisBase):
         for index in range(0, NUM_FAN):
             fan = Fan(index)
             self._fan_list.append(fan)
+        for index in range(0, NUM_PSU):
+            psu = Psu(index)
+            self._psu_list.append(psu)
         ChassisBase.__init__(self)
 
     def __get_register_value(self, path, register):

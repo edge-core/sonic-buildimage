@@ -17,6 +17,7 @@ import json
 try:
     from sonic_platform_base.chassis_base import ChassisBase
     from sonic_platform.fan import Fan
+    from sonic_platform.psu import Psu
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -26,6 +27,7 @@ CONFIG_DB_PATH = "/etc/sonic/config_db.json"
 SMC_CPLD_PATH = "/sys/devices/platform/e1031.smc/version"
 MMC_CPLD_PATH = "/sys/devices/platform/e1031.smc/getreg"
 NUM_FAN = 3
+NUM_PSU = 2
 
 
 class Chassis(ChassisBase):
@@ -36,6 +38,9 @@ class Chassis(ChassisBase):
         for index in range(0, NUM_FAN):
             fan = Fan(index)
             self._fan_list.append(fan)
+        for index in range(0, NUM_PSU):
+            psu = Psu(index)
+            self._psu_list.append(psu)
         ChassisBase.__init__(self)
 
     def __get_register_value(self, path, register):
