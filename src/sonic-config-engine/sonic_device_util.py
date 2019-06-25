@@ -2,6 +2,7 @@
 import os
 import yaml
 import subprocess
+import re
 
 DOCUMENTATION = '''
 ---
@@ -44,10 +45,26 @@ def get_sonic_version_info():
         data = yaml.load(stream)
     return data
 
+def valid_mac_address(mac):
+    return bool(re.match("^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$", mac))
+
 def get_system_mac():
     version_info = get_sonic_version_info()
 
     if (version_info['asic_type'] == 'mellanox'):
+        # With Mellanox ONIE release(2019.05-5.2.0012) and above
+        # "onie_base_mac" was added to /host/machine.conf:
+        # onie_base_mac=e4:1d:2d:44:5e:80
+        # So we have another way to get the mac address besides decode syseeprom
+        # By this can mitigate the dependency on the hw-management service
+        base_mac_key = "onie_base_mac"
+        machine_vars = get_machine_info()
+        if machine_vars is not None and base_mac_key in machine_vars:
+            mac = machine_vars[base_mac_key]
+            mac = mac.strip()
+            if valid_mac_address(mac):
+                return mac
+
         get_mac_cmd = "sudo decode-syseeprom -m"
     else:
         get_mac_cmd = "ip link show eth0 | grep ether | awk '{print $2}'"
@@ -58,6 +75,9 @@ def get_system_mac():
         return None
 
     mac = mac.strip()
+
+    if not valid_mac_address(mac):
+        return None
 
     # Align last byte of MAC if necessary
     if version_info and version_info['asic_type'] == 'centec':
