@@ -33,15 +33,15 @@ function updateHostName()
 
 function getBootType()
 {
-    local BOOT_TYPE
-    case "$(cat /proc/cmdline | grep -o 'SONIC_BOOT_TYPE=\S*' | cut -d'=' -f2)" in
-    warm*)
+    # same code snippet in files/scripts/syncd.sh
+    case "$(cat /proc/cmdline)" in
+    *SONIC_BOOT_TYPE=warm*)
         TYPE='warm'
         ;;
-    fastfast)
+    *SONIC_BOOT_TYPE=fastfast*)
         TYPE='fastfast'
         ;;
-    fast*)
+    *SONIC_BOOT_TYPE=fast*|*fast-reboot*)
         TYPE='fast'
         ;;
     *)
@@ -167,7 +167,7 @@ start() {
     echo "Creating new {{docker_container_name}} container with HWSKU $HWSKU"
 {%- endif %}
 {%- if sonic_asic_platform == "mellanox" %}
-    # TODO: Mellanox will remove the --tmpfs exception after SDK socket path changed in new SDK version 
+    # TODO: Mellanox will remove the --tmpfs exception after SDK socket path changed in new SDK version
 {%- endif %}
     docker create {{docker_image_run_opt}} \
 {%- if '--log-driver=json-file' in docker_image_run_opt or '--log-driver' not in docker_image_run_opt %}
