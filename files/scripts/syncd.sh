@@ -55,14 +55,15 @@ function wait_for_database_service()
 
 function getBootType()
 {
-    case "$(cat /proc/cmdline | grep -o 'SONIC_BOOT_TYPE=\S*' | cut -d'=' -f2)" in
-    warm*)
+    # same code snippet in files/build_templates/docker_image_ctl.j2
+    case "$(cat /proc/cmdline)" in
+    *SONIC_BOOT_TYPE=warm*)
         TYPE='warm'
         ;;
-    fastfast)
+    *SONIC_BOOT_TYPE=fastfast*)
         TYPE='fastfast'
         ;;
-    fast*)
+    *SONIC_BOOT_TYPE=fast*|*fast-reboot*)
         TYPE='fast'
         ;;
     *)
