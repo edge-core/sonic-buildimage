@@ -7,10 +7,12 @@
 import os.path
 import logging
 import commands
+import sys
 
 
 Z9264F_MAX_PSUS = 2
-IPMI_SENSOR_DATA = "docker exec -it pmon ipmitool sdr list"
+IPMI_PSU_DATA = "docker exec -it pmon ipmitool sdr list"
+IPMI_PSU_DATA_DOCKER = "ipmitool sdr list"
 PSU_PRESENCE = "PSU{0}_state"
 # Use this for older firmware
 # PSU_PRESENCE="PSU{0}_prsnt"
@@ -29,14 +31,24 @@ class PsuUtil(PsuBase):
     def __init__(self):
         PsuBase.__init__(self)
 
+    def isDockerEnv(self):
+        num_docker = open('/proc/self/cgroup', 'r').read().count(":/docker")
+        if num_docker > 0:
+            return True
+        else:
+            return False
+
     # Fetch a BMC register
     def get_pmc_register(self, reg_name):
 
         status = 1
         global ipmi_sdr_list
         ipmi_dev_node = "/dev/pmi0"
+        ipmi_cmd = IPMI_PSU_DATA
+        dockerenv = self.isDockerEnv()
+        if dockerenv == True:
+            ipmi_cmd = IPMI_PSU_DATA_DOCKER
 
-        ipmi_cmd = IPMI_SENSOR_DATA
         status, ipmi_sdr_list = commands.getstatusoutput(ipmi_cmd)
 
         if status:
@@ -48,15 +60,13 @@ class PsuUtil(PsuBase):
                 output = item.strip()
 
         if not output:
-            print('\nFailed to fetch: ' +  reg_name + ' sensor ')
+            print('\nFailed to fetch: ' + reg_name + ' sensor ')
             sys.exit(0)
 
         output = output.split('|')[1]
 
         logging.basicConfig(level=logging.DEBUG)
         return output
-
-
 
     def get_num_psus(self):
         """
@@ -74,11 +84,10 @@ class PsuUtil(PsuBase):
         :return: Boolean, True if PSU is operating properly, False if PSU is\
         faulty
         """
-        #Until psu_status is implemented this is hardcoded temporarily
+        # Until psu_status is implemented this is hardcoded temporarily
 
         status = 1
         return status
-    
 
     def get_psu_presence(self, index):
         """
@@ -89,9 +98,10 @@ class PsuUtil(PsuBase):
         """
         status = 0
         psu_reg_name = PSU_PRESENCE.format(index)
-        psu_status = int(self.get_pmc_register(psu_reg_name),16)
+        psu_status = int(self.get_pmc_register(psu_reg_name), 16)
         if (psu_status != 'ERR'):
             # Check for PSU presence
             if (psu_status):
                     status = 1
         return status
+
