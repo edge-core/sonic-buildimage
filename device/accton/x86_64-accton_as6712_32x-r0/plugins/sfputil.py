@@ -6,6 +6,8 @@
 try:
     import time
     import os
+    import string
+    from ctypes import create_string_buffer
     from sonic_sfp.sfputilbase import SfpUtilBase
 except ImportError as e:
     raise ImportError("%s - required module not found" % str(e))
@@ -176,11 +178,85 @@ class SfpUtil(SfpUtilBase):
 
         return False
 
-    def get_low_power_mode(self, port_num):             
-        raise NotImplementedError
+    def get_low_power_mode_cpld(self, port_num):   
+        if port_num < self.qsfp_port_start or port_num > self.qsfp_port_end:
+            return False
+         
+        cpld_path = self.get_cpld_dev_path(port_num)
+        _path = cpld_path + "/module_lp_mode_" 
+        _path += str(self._port_to_i2c_mapping[port_num][0])
 
-    def set_low_power_mode(self, port_num, lpmode):                
-        raise NotImplementedError
+        try:
+            reg_file = open(_path)
+        except IOError as e:
+            print "Error: unable to open file: %s" % str(e)          
+            return False
+
+        content = reg_file.readline().rstrip()
+        reg_file.close()
+
+        # content is a string, either "0" or "1"
+        if content == "1":
+            return True
+
+        return False
+
+    def get_low_power_mode(self, port_num):             
+        if port_num < self.qsfp_port_start or port_num > self.qsfp_port_end:
+            return False
+        
+        if not self.get_presence(port_num):
+            return False
+
+        try:
+            eeprom = None
+
+            eeprom = open(self.port_to_eeprom_mapping[port_num], mode="rb", buffering=0)
+            eeprom.seek(93)
+            lpmode = ord(eeprom.read(1))
+
+            if not (lpmode & 0x1): # 'Power override' bit is 0
+                return self.get_low_power_mode_cpld(port_num)
+            else:
+                if ((lpmode & 0x2) == 0x2):
+                    return True # Low Power Mode if "Power set" bit is 1
+                else:
+                    return False # High Power Mode if "Power set" bit is 0
+        except IOError as e:
+            print "Error: unable to open file: %s" % str(e)
+            return False
+        finally:
+            if eeprom is not None:
+                eeprom.close()
+                time.sleep(0.01)
+
+    def set_low_power_mode(self, port_num, lpmode):
+        if port_num < self.qsfp_port_start or port_num > self.qsfp_port_end:
+            return False    
+
+        try:
+            eeprom = None
+
+            if not self.get_presence(port_num):
+                return False # Port is not present, unable to set the eeprom
+
+            # Fill in write buffer
+            regval = 0x3 if lpmode else 0x1 # 0x3:Low Power Mode, 0x1:High Power Mode
+            buffer = create_string_buffer(1)
+            buffer[0] = chr(regval)
+
+            # Write to eeprom
+            eeprom = open(self.port_to_eeprom_mapping[port_num], mode="r+b", buffering=0)
+            eeprom.seek(93)
+            eeprom.write(buffer[0])
+            return True
+        except IOError as e:
+            print "Error: unable to open file: %s" % str(e)
+            return False
+        finally:
+            if eeprom is not None:
+                eeprom.close()
+                time.sleep(0.01)
 
     def reset(self, port_num):
         if port_num < self.qsfp_port_start or port_num > self.qsfp_port_end:
