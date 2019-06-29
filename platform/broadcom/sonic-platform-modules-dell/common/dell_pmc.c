@@ -44,8 +44,9 @@
 #define SMF_ADDR_REG_OFFSET         0
 #define SMF_READ_DATA_REG_OFFSET    2
 #define SMF_REG_ADDR            0x200
-#define SMF_PROBE_ADDR          0x210
+#define SMF_POR_SRC_REG         0x209
 #define SMF_RST_SRC_REG         0x20A
+#define SMF_PROBE_ADDR          0x210
 
 #define SIO_REG_DEVID           0x1
 #define SIO_Z9100_ID            0x1
@@ -507,9 +508,7 @@ static ssize_t show_smf_version(struct device *dev,
 static ssize_t show_reset_reason(struct device *dev,
                 struct device_attribute *devattr, char *buf)
 {
-    int              index = to_sensor_dev_attr(devattr)->index;
-    unsigned int     ret = 0, val = 0;
-    struct smf_data *data = dev_get_drvdata(dev);
+    unsigned int ret = 0;
 
     ret = inb(SMF_RST_SRC_REG);
 
@@ -519,6 +518,19 @@ static ssize_t show_reset_reason(struct device *dev,
     return sprintf(buf, "%x\n", ret);
 }
 
+/* SMF Power ON Reason */
+static ssize_t show_power_on_reason(struct device *dev,
+                struct device_attribute *devattr, char *buf)
+{
+    unsigned int ret = 0;
+
+    ret = inb(SMF_POR_SRC_REG);
+
+    if(ret < 0)
+       return ret;
+
+    return sprintf(buf, "%x\n", ret);
+}
 
 /* FANIN ATTR */
 static ssize_t
@@ -1800,11 +1812,15 @@ static SENSOR_DEVICE_ATTR(smf_firmware_ver, S_IRUGO, show_smf_version, NULL, 1);
 /* SMF Reset Reason */
 static SENSOR_DEVICE_ATTR(smf_reset_reason, S_IRUGO, show_reset_reason, NULL, 1);
 
+/* SMF PowerOn Reason */
+static SENSOR_DEVICE_ATTR(smf_poweron_reason, S_IRUGO,
+                                            show_power_on_reason, NULL, 1);
 
 static struct attribute *smf_dell_attrs[] = {
         &sensor_dev_attr_smf_version.dev_attr.attr,
         &sensor_dev_attr_smf_firmware_ver.dev_attr.attr,
         &sensor_dev_attr_smf_reset_reason.dev_attr.attr,
+        &sensor_dev_attr_smf_poweron_reason.dev_attr.attr,
         &sensor_dev_attr_fan_tray_presence.dev_attr.attr,
         &sensor_dev_attr_fan1_airflow.dev_attr.attr,
         &sensor_dev_attr_fan3_airflow.dev_attr.attr,
@@ -1818,7 +1834,7 @@ static struct attribute *smf_dell_attrs[] = {
         &sensor_dev_attr_psu1_presence.dev_attr.attr,
         &sensor_dev_attr_psu2_presence.dev_attr.attr,
         &sensor_dev_attr_current_total_power.dev_attr.attr,
-	NULL
+        NULL
 };
 
 static const struct attribute_group smf_dell_group = {
