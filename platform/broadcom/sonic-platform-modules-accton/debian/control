@@ -1,7 +1,7 @@
 Source: sonic-accton-platform-modules
 Section: main
 Priority: extra
-Maintainer: Accton network <roy_lee@accton.com>, Accton Network <polly_hsu@accton.com>
+Maintainer: Accton network <roy_lee@accton.com>, Accton Network <polly_hsu@accton.com>, Accton Network <jostar_yang@accton.com>
 Build-Depends: debhelper (>= 9), bzip2
 Standards-Version: 3.9.3
 
@@ -56,3 +56,8 @@ Description: kernel modules for platform devices such as fan, led, sfp
 Package: sonic-platform-accton-as5835-54x
 Architecture: amd64
 Description: kernel modules for platform devices such as fan, led, sfp
+
+Package: sonic-platform-accton-as9716-32d
+Architecture: amd64
+Description: kernel modules for platform devices such as fan, led, sfp
+
