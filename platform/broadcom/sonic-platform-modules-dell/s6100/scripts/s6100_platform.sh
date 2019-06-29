@@ -259,6 +259,11 @@ if [[ "$1" == "init" ]]; then
     modprobe dell_s6100_lpc
     track_reboot_reason
 
+    # Disable Watchdog Timer
+    if [[ -e /usr/local/bin/platform_watchdog_disable.sh ]]; then
+        /usr/local/bin/platform_watchdog_disable.sh
+    fi
+
     cpu_board_mux "new_device"
     switch_board_mux "new_device"
     sys_eeprom "new_device"

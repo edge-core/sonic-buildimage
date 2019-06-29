@@ -5,6 +5,8 @@ common/io_rd_wr.py usr/local/bin
 common/fstrim.timer etc/systemd/system
 common/fstrim.service etc/systemd/system
 s6100/scripts/platform_sensors.py usr/local/bin
+s6100/scripts/platform_watchdog_enable.sh usr/local/bin
+s6100/scripts/platform_watchdog_disable.sh usr/local/bin
 s6100/scripts/sensors usr/bin
 s6100/systemd/platform-modules-s6100.service etc/systemd/system
 s6100/modules/sonic_platform-1.0-py2-none-any.whl usr/share/sonic/device/x86_64-dell_s6100_c2538-r0
