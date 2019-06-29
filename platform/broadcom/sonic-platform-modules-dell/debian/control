@@ -24,3 +24,8 @@ Package: platform-modules-z9264f
 Architecture: amd64
 Depends: linux-image-4.9.0-9-2-amd64
 Description: kernel modules for platform devices such as fan, led, sfp
+
+Package: platform-modules-s5232f
+Architecture: amd64
+Depends: linux-image-4.9.0-9-2-amd64
+Description: kernel modules for platform devices such as fan, led, sfp
