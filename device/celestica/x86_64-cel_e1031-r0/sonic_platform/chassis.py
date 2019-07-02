@@ -18,14 +18,12 @@ try:
     from sonic_platform_base.chassis_base import ChassisBase
     from sonic_platform.fan import Fan
     from sonic_platform.psu import Psu
+    from sonic_platform.device import Device
+    from sonic_platform.component import Component
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
-MMC_CPLD_ADDR = '0x100'
-BIOS_VERSION_PATH = "/sys/class/dmi/id/bios_version"
 CONFIG_DB_PATH = "/etc/sonic/config_db.json"
-SMC_CPLD_PATH = "/sys/devices/platform/e1031.smc/version"
-MMC_CPLD_PATH = "/sys/devices/platform/e1031.smc/getreg"
 NUM_FAN = 3
 NUM_PSU = 2
 
@@ -42,16 +40,8 @@ class Chassis(ChassisBase):
             psu = Psu(index)
             self._psu_list.append(psu)
         ChassisBase.__init__(self)
-
-    def __get_register_value(self, path, register):
-        cmd = "echo {1} > {0}; cat {0}".format(path, register)
-        p = subprocess.Popen(
-            cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        raw_data, err = p.communicate()
-        if err is not '':
-            return 'None'
-        else:
-            return raw_data.strip()
+        self._component_device = Device("component")
+        self._component_name_list = self._component_device.get_name_list()
 
     def __read_config_db(self):
         try:
@@ -75,39 +65,32 @@ class Chassis(ChassisBase):
         except KeyError:
             raise KeyError("Base MAC not found")
 
-    def get_component_versions(self):
+    def get_firmware_version(self, component_name):
         """
         Retrieves platform-specific hardware/firmware versions for chassis
         componenets such as BIOS, CPLD, FPGA, etc.
+        Args:
+            type: A string, component name
+
         Returns:
             A string containing platform-specific component versions
         """
+        self.component = Component(component_name)
+        if component_name not in self._component_name_list:
+            return None
+        return self.component.get_firmware_version()
 
-        component_versions = dict()
+    def install_component_firmware(self, component_name, image_path):
+        """
+        Install firmware to module
+        Args:
+            type: A string, component name.
+            image_path: A string, path to firmware image.
 
-        # Get BIOS version
-        try:
-            with open(BIOS_VERSION_PATH, 'r') as fd:
-                bios_version = fd.read()
-        except IOError:
-            raise IOError("Unable to open version file !")
-
-        # Get CPLD version
-        cpld_version = dict()
-
-        with open(SMC_CPLD_PATH, 'r') as fd:
-            smc_cpld_version = fd.read()
-        smc_cpld_version = 'None' if smc_cpld_version is 'None' else "{}.{}".format(
-            int(smc_cpld_version[2], 16), int(smc_cpld_version[3], 16))
-
-        mmc_cpld_version = self.__get_register_value(
-            MMC_CPLD_PATH, MMC_CPLD_ADDR)
-        mmc_cpld_version = 'None' if mmc_cpld_version is 'None' else "{}.{}".format(
-            int(mmc_cpld_version[2], 16), int(mmc_cpld_version[3], 16))
-
-        cpld_version["SMC"] = smc_cpld_version
-        cpld_version["MMC"] = mmc_cpld_version
-
-        component_versions["CPLD"] = cpld_version
-        component_versions["BIOS"] = bios_version.strip()
-        return str(component_versions)
+        Returns:
+            A boolean, True if install successfully, False if not
+        """
+        self.component = Component(component_name)
+        if component_name not in self._component_name_list:
+            return False
+        return self.component.upgrade_firmware(image_path)
