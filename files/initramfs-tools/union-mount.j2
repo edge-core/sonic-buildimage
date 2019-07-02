@@ -17,8 +17,10 @@ set_tmpfs_log_partition_size()
 
   # NOTE: certain platforms, when reaching initramfs stage, have a small
   #       limit of mounting tmpfs partition, potentially due to amount
-  #       of RAM available in this stage. e.g. Arista 7050 QX32
+  #       of RAM available in this stage. e.g. Arista 7050-qx32[s] and 7060-cx32s
   [ X"$aboot_platform" = X"x86_64-arista_7050_qx32"  ] && return
+  [ X"$aboot_platform" = X"x86_64-arista_7050_qx32s"  ] && return
+  [ X"$aboot_platform" = X"x86_64-arista_7060_cx32s"  ] && return
 
   # set varlogsize to existing var-log.ext4 size
   if [ -f ${rootmnt}/host/disk-img/var-log.ext4 ]; then
@@ -56,7 +58,8 @@ onie_platform=""
 aboot_platform=""
 . ${rootmnt}/host/machine.conf
 if [ X"$aboot_platform" = X"x86_64-arista_7050_qx32"  ] ||
-   [ X"$aboot_platform" = X"x86_64-arista_7050_qx32s" ]
+   [ X"$aboot_platform" = X"x86_64-arista_7050_qx32s" ] ||
+   [ X"$aboot_platform" = X"x86_64-arista_7060_cx32s" ]
 then
   set_tmpfs_log_partition_size
   mount -t tmpfs -o rw,nosuid,nodev,size=${varlogsize}M tmpfs ${rootmnt}/var/log
