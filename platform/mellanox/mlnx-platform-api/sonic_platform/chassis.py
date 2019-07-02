@@ -71,7 +71,7 @@ class Chassis(ChassisBase):
                 sfp_module = SFP(index, 'QSFP')
             else:
                 sfp_module = SFP(index, 'SFP')
-            self._psu_list.append(sfp_module)
+            self._sfp_list.append(sfp_module)
 
     def _extract_num_of_fans_and_fan_drawers(self):
         num_of_fan = 0
