@@ -46,6 +46,7 @@
 #define KCOM_M_HW_INIT          4  /* H/W initialized */
 #define KCOM_M_ETH_HW_CONFIG    5  /* ETH HW config*/
 #define KCOM_M_DETACH           6  /* Detach kernel module */
+#define KCOM_M_REPROBE          7  /* Reprobe device */
 #define KCOM_M_NETIF_CREATE     11 /* Create network interface */
 #define KCOM_M_NETIF_DESTROY    12 /* Destroy network interface */
 #define KCOM_M_NETIF_LIST       13 /* Get list of network interface IDs */
@@ -59,7 +60,7 @@
 #define KCOM_M_DBGPKT_GET       42 /* Get debug packet function info */
 #define KCOM_M_WB_CLEANUP       51 /* Clean up for warmbooting */
 
-#define KCOM_VERSION            9  /* Protocol version */
+#define KCOM_VERSION            10 /* Protocol version */
 
 /*
  * Message status codes
@@ -305,7 +306,7 @@ typedef struct kcom_eth_hw_config_s {
     uint8 chan;
     uint32 flags;
     uint32 value;
-  } kcom_eth_hw_config_t;
+} kcom_eth_hw_config_t;
 
 /*
  * Message types
@@ -378,6 +379,14 @@ typedef struct kcom_msg_detach_s {
     kcom_msg_hdr_t hdr;
     uint32 flags;
 } kcom_msg_detach_t;
+
+/*
+ * Reprobe switch device.
+ */
+typedef struct kcom_msg_reprobe_s {
+    kcom_msg_hdr_t hdr;
+    uint32 flags;
+} kcom_msg_reprobe_t;
 
 /*
  * Enable/Disable debugging packet function.
@@ -498,6 +507,7 @@ typedef union kcom_msg_s {
     kcom_msg_hw_init_t hw_init;
     kcom_msg_eth_hw_config_t eth_hw_config;
     kcom_msg_detach_t detach;
+    kcom_msg_reprobe_t reprobe;
     kcom_msg_netif_create_t netif_create;
     kcom_msg_netif_destroy_t netif_destroy;
     kcom_msg_netif_list_t netif_list;
