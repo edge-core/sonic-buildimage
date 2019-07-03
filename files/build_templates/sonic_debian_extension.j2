@@ -226,6 +226,11 @@ sudo cp $IMAGE_CONFIGS/caclmgrd/caclmgrd.service  $FILESYSTEM_ROOT/etc/systemd/s
 sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable caclmgrd.service
 sudo cp $IMAGE_CONFIGS/caclmgrd/caclmgrd $FILESYSTEM_ROOT/usr/bin/
 
+# Copy process-reboot-cause service files
+sudo cp $IMAGE_CONFIGS/process-reboot-cause/process-reboot-cause.service  $FILESYSTEM_ROOT/etc/systemd/system/
+sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable process-reboot-cause.service
+sudo cp $IMAGE_CONFIGS/process-reboot-cause/process-reboot-cause $FILESYSTEM_ROOT/usr/bin/
+
 ## Install package without starting service
 ## ref: https://wiki.debian.org/chroot
 sudo tee -a $FILESYSTEM_ROOT/usr/sbin/policy-rc.d > /dev/null <<EOF
