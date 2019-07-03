@@ -200,6 +200,14 @@ init_switch_port_led() {
 
 }
 
+install_python_api_package() {
+    device="/usr/share/sonic/device"
+    platform=$(/usr/local/bin/sonic-cfggen -H -v DEVICE_METADATA.localhost.platform)
+
+    rv=$(pip install $device/$platform/sonic_platform-1.0-py2-none-any.whl)
+    echo "pip install result = $rv"
+}
+
 init_devnum
 
 if [[ "$1" == "init" ]]; then
@@ -220,6 +228,7 @@ if [[ "$1" == "init" ]]; then
 
     #Copy led_proc_init.soc
     init_switch_port_led
+    install_python_api_package
 
     value=0x0
     echo $value > /sys/class/i2c-adapter/i2c-14/14-003e/qsfp_lpmode

@@ -6,6 +6,7 @@ common/io_rd_wr.py usr/local/bin
 common/platform_reboot usr/share/sonic/device/x86_64-dell_z9100_c2538-r0
 z9100/scripts/platform_sensors.py usr/local/bin
 z9100/scripts/sensors usr/bin
+z9100/modules/sonic_platform-1.0-py2-none-any.whl usr/share/sonic/device/x86_64-dell_z9100_c2538-r0
 z9100/cfg/z9100-modules.conf etc/modules-load.d
 z9100/systemd/platform-modules-z9100.service etc/systemd/system
 z9100/systemd/z9100-lpc-monitor.service etc/systemd/system
