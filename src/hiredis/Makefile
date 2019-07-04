@@ -2,8 +2,8 @@
 SHELL = /bin/bash
 .SHELLFLAGS += -e
 
-MAIN_TARGET = libhiredis0.13_$(HIREDIS_VERSION_FULL)_amd64.deb
-DERIVED_TARGETS = libhiredis-dbg_$(HIREDIS_VERSION_FULL)_amd64.deb libhiredis-dev_$(HIREDIS_VERSION_FULL)_amd64.deb
+MAIN_TARGET = libhiredis0.14_$(HIREDIS_VERSION_FULL)_amd64.deb
+DERIVED_TARGETS = libhiredis0.14-dbgsym_$(HIREDIS_VERSION_FULL)_amd64.deb libhiredis-dev_$(HIREDIS_VERSION_FULL)_amd64.deb
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	rm -rf hiredis-$(HIREDIS_VERSION)

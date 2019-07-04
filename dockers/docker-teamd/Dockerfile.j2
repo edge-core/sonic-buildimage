@@ -15,7 +15,11 @@ RUN apt-get update      && \
         libpython2.7       \
         # Install redis-tools dependencies
         # TODO: implicitly install dependencies
-        libjemalloc1
+        libatomic1          \
+        libjemalloc1        \
+        liblua5.1-0         \
+        lua-bitop           \
+        lua-cjson
 
 {% if docker_teamd_debs.strip() -%}
 # Copy locally-built Debian package dependencies

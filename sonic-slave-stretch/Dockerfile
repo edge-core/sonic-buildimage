@@ -151,6 +151,9 @@ RUN apt-get update && apt-get install -y \
         python-stdeb \
 # For redis build
         libjemalloc-dev \
+        liblua5.1-0-dev \
+        lua-bitop-dev  \
+        lua-cjson-dev \
 # For mft kernel module build
         dkms \
 # For python3.5 build
