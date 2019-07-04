@@ -17,4 +17,7 @@ SONIC_STRETCH_DEBS += $(LIBYANG)
 LIBYANG_DEV = libyang-dev_$(LIBYANG_VERSION)-$(LIBYANG_SUBVERSION)_amd64.deb
 $(eval $(call add_derived_package,$(LIBYANG),$(LIBYANG_DEV)))
 
-export LIBYANG LIBYANG_DEV
+LIBYANG_DBG = libyang$(LIBYANG_VERSION_BASE)-dbgsym_$(LIBYANG_VERSION)-$(LIBYANG_SUBVERSION)_amd64.deb
+$(eval $(call add_derived_package,$(LIBYANG),$(LIBYANG_DBG)))
+
+export LIBYANG LIBYANG_DEV LIBYANG_DBG

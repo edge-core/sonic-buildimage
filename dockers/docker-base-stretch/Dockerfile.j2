@@ -53,13 +53,6 @@ RUN apt-get -y purge   \
 {{ install_debian_packages(docker_base_stretch_debs.split(' ')) }}
 {%- endif %}
 
-{% if docker_base_stretch_dbgs.strip() -%}
-# Install common debug-packages
-RUN apt-get -y install docker_base_stretch_dbgs.split(' ') | join(' ')
-{% else %}
-RUN ln /usr/bin/vim.tiny /usr/bin/vim
-{%- endif %}
-
 # Clean up apt
 # Remove /var/lib/apt/lists/*, could be obsoleted for derived images
 RUN apt-get clean -y                     && \

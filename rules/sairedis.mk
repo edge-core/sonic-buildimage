@@ -59,3 +59,9 @@ LIBSAIMETADATA_DBG = libsaimetadata-dbg_1.0.0_amd64.deb
 $(LIBSAIMETADATA_DBG)_DEPENDS += $(LIBSAIMETADATA)
 $(LIBSAIMETADATA_DBG)_RDEPENDS += $(LIBSAIMETADATA)
 $(eval $(call add_derived_package,$(LIBSAIREDIS),$(LIBSAIMETADATA_DBG)))
+
+# The .c, .cpp, .h & .hpp files under src/{$DBG_SRC_ARCHIVE list}
+# are archived into debug one image to facilitate debugging.
+#
+DBG_SRC_ARCHIVE += sonic-sairedis
+

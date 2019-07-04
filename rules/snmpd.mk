@@ -26,6 +26,12 @@ $(SNMPD)_DEPENDS += $(LIBSNMP)
 $(SNMPD)_RDEPENDS += $(LIBSNMP)
 $(eval $(call add_derived_package,$(LIBSNMP_BASE),$(SNMPD)))
 
+SNMP_DBG = snmp-dbgsym_$(SNMPD_VERSION_FULL)_amd64.deb
+$(eval $(call add_derived_package,$(SNMP),$(SNMP_DBG)))
+
+SNMPD_DBG = snmpd-dbgsym_$(SNMPD_VERSION_FULL)_amd64.deb
+$(eval $(call add_derived_package,$(SNMPD),$(SNMPD_DBG)))
+
 LIBSNMP = libsnmp30_$(SNMPD_VERSION_FULL)_amd64.deb
 $(LIBSNMP)_RDEPENDS += $(LIBSNMP_BASE)
 $(eval $(call add_derived_package,$(LIBSNMP_BASE),$(LIBSNMP)))
@@ -53,3 +59,9 @@ TKMIB = tkmib_$(SNMPD_VERSION_FULL)_all.deb
 $(TKMIB)_DEPENDS += $(LIBSNMP_PERL)
 $(TKMIB)_RDEPENDS += $(LIBSNMP_PERL)
 $(eval $(call add_derived_package,$(LIBSNMP_BASE),$(TKMIB)))
+
+# The .c, .cpp, .h & .hpp files under src/{$DBG_SRC_ARCHIVE list}
+# are archived into debug one image to facilitate debugging.
+#
+DBG_SRC_ARCHIVE += snmpd
+

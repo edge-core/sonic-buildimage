@@ -3,7 +3,7 @@ SHELL = /bin/bash
 .SHELLFLAGS += -e
 
 MAIN_TARGET = $(LLDPD)
-DERIVED_TARGETS = $(LIBLLDPCTL)
+DERIVED_TARGETS = $(LIBLLDPCTL) $(LLDPD_DBG)
 
 LLDP_URL = http://ftp.debian.org/debian/pool/main/l/lldpd
 

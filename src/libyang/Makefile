@@ -3,7 +3,7 @@ SHELL = /bin/bash
 .SHELLFLAGS += -e
 
 MAIN_TARGET = $(LIBYANG)
-DERIVED_TARGETS = $(LIBYANG_DEV)
+DERIVED_TARGETS = $(LIBYANG_DEV) $(LIBYANG_DBG)
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	rm -fr ./libyang-$(LIBYANG_VERSION)

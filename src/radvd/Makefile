@@ -3,6 +3,7 @@ SHELL = /bin/bash
 .SHELLFLAGS += -e
 
 MAIN_TARGET = radvd_$(RADVD_VERSION)_amd64.deb
+DERIVED_TARGETS = radvd-dbgsym_$(RADVD_VERSION)_amd64.deb
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# Remove any stale files
@@ -28,4 +29,4 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	popd
 
 	# Move the newly-built .deb package to the destination directory
-	mv $* $(DEST)/
+	mv $(DERIVED_TARGETS) $* $(DEST)/

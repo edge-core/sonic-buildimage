@@ -13,8 +13,17 @@ SONIC_MAKE_DEBS += $(LLDPD)
 LIBLLDPCTL = liblldpctl-dev_$(LLDPD_VERSION_FULL)_amd64.deb
 $(eval $(call add_derived_package,$(LLDPD),$(LIBLLDPCTL)))
 
+LLDPD_DBG = lldpd-dbgsym_$(LLDPD_VERSION_FULL)_amd64.deb
+$(eval $(call add_derived_package,$(LLDPD),$(LLDPD_DBG)))
+
 # Export these variables so they can be used in a sub-make
 export LLDPD_VERSION
 export LLDPD_VERSION_FULL
 export LLDPD
 export LIBLLDPCTL
+export LLDPD_DBG
+
+# The .c, .cpp, .h & .hpp files under src/{$DBG_SRC_ARCHIVE list}
+# are archived into debug one image to facilitate debugging.
+#
+DBG_SRC_ARCHIVE += lldpd
