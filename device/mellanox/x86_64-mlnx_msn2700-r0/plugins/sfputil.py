@@ -464,7 +464,7 @@ class SfpUtil(SfpUtilBase):
             else:
                 return transceiver_dom_info_dict
 
-            dom_voltage_raw = self._read_eeprom_specific_bytes_via_ethtool(port_num, (offset + QSFP_VLOT_OFFSET), QSFP_VOLT_WIDTH)
+            dom_voltage_raw = self._read_eeprom_specific_bytes_via_ethtool(port_num, (offset + QSFP_VOLT_OFFSET), QSFP_VOLT_WIDTH)
             if dom_voltage_raw is not None:
                 dom_voltage_data = sfpd_obj.parse_voltage(dom_voltage_raw, 0)
             else:
@@ -533,7 +533,7 @@ class SfpUtil(SfpUtilBase):
             dom_temperature_raw = eeprom_domraw[SFP_TEMPE_OFFSET:SFP_TEMPE_OFFSET+SFP_TEMPE_WIDTH]
             dom_temperature_data = sfpd_obj.parse_temperature(dom_temperature_raw, 0)
 
-            dom_voltage_raw = eeprom_domraw[SFP_VLOT_OFFSET:SFP_VLOT_OFFSET+SFP_VOLT_WIDTH]
+            dom_voltage_raw = eeprom_domraw[SFP_VOLT_OFFSET:SFP_VOLT_OFFSET+SFP_VOLT_WIDTH]
             dom_voltage_data = sfpd_obj.parse_voltage(dom_voltage_raw, 0)
 
             dom_channel_monitor_raw = eeprom_domraw[SFP_CHANNL_MON_OFFSET:SFP_CHANNL_MON_OFFSET+SFP_CHANNL_MON_WIDTH]
