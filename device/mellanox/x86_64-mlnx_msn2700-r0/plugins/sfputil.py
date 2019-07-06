@@ -10,6 +10,11 @@ try:
 except ImportError as e:
     raise ImportError("%s - required module not found" % str(e))
 
+# sfp supports dom
+XCVR_DOM_CAPABILITY_DOM_SUPPORT_BIT = 0x40
+# I2C page size for sfp
+SFP_I2C_PAGE_SIZE = 256
+
 # parameters for DB connection 
 REDIS_HOSTNAME = "localhost"
 REDIS_PORT = 6379
@@ -514,14 +519,19 @@ class SfpUtil(SfpUtilBase):
             transceiver_dom_info_dict['tx4bias'] = dom_channel_monitor_data['data']['TX4Bias']['value']
 
         else:
-            offset = 256
+            offset = SFP_I2C_PAGE_SIZE
 
-            eeprom_raw = ['0'] * 256
-            eeprom_raw[92:92+16] = self._read_eeprom_specific_bytes_via_ethtool(port_num, 92, 16)
+            eeprom_raw = ['0'] * SFP_I2C_PAGE_SIZE
+            eeprom_raw[XCVR_DOM_CAPABILITY_OFFSET : XCVR_DOM_CAPABILITY_OFFSET + XCVR_DOM_CAPABILITY_WIDTH] = \
+                self._read_eeprom_specific_bytes_via_ethtool(port_num, XCVR_DOM_CAPABILITY_OFFSET, XCVR_DOM_CAPABILITY_WIDTH)
             sfp_obj = sff8472InterfaceId()
             calibration_type = sfp_obj._get_calibration_type(eeprom_raw)
 
-            eeprom_domraw = self._read_eeprom_specific_bytes_via_ethtool(port_num, offset, 256)
+            dom_supported = (int(eeprom_raw[XCVR_DOM_CAPABILITY_OFFSET], 16) & XCVR_DOM_CAPABILITY_DOM_SUPPORT_BIT != 0)
+            if not dom_supported:
+                return transceiver_dom_info_dict
+
+            eeprom_domraw = self._read_eeprom_specific_bytes_via_ethtool(port_num, offset, SFP_I2C_PAGE_SIZE)
             if eeprom_domraw is None:
                 return transceiver_dom_info_dict
 
