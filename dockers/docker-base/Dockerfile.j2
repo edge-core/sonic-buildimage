@@ -1,6 +1,6 @@
 FROM debian:jessie
 
-## Remove retired jessie-updates repo
+# Remove retired jessie-updates repo
 RUN sed -i '/deb http:\/\/deb.debian.org\/debian jessie-updates main/d' /etc/apt/sources.list
 
 # Clean documentation in FROM image
@@ -23,7 +23,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Configure data sources for apt/dpkg
 COPY ["dpkg_01_drop", "/etc/dpkg/dpkg.cfg.d/01_drop"]
 COPY ["sources.list", "/etc/apt/sources.list"]
-COPY ["no_install_recommend_suggest", "/etc/apt/apt.conf.d"]
+COPY ["no-check-valid-until", "no-install-recommend-suggest", "/etc/apt/apt.conf.d/"]
 RUN apt-get update
 
 # Pre-install fundamental packages
@@ -31,8 +31,11 @@ RUN apt-get -y install \
     vim-tiny           \
     perl               \
     python             \
-    rsyslog            \
     less
+
+# Install a newer version of rsyslog from jessie-backports in hopes of
+# eliminating memory leaks
+RUN apt-get -y -t jessie-backports install rsyslog
 
 COPY ["etc/rsyslog.conf", "/etc/rsyslog.conf"]
 COPY ["etc/rsyslog.d/*", "/etc/rsyslog.d/"]
