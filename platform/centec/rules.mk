@@ -11,7 +11,10 @@ SONIC_ALL += $(SONIC_ONE_IMAGE) \
              $(DOCKER_SYNCD_CENTEC_RPC)
 
 # Inject centec sai into sairedis
-$(LIBSAIREDIS)_DEPENDS += $(CENTEC_SAI) $(LIBSAITHRIFT_DEV_CENTEC)
+$(LIBSAIREDIS)_DEPENDS += $(CENTEC_SAI)
+ifeq ($(ENABLE_SYNCD_RPC),y)
+$(LIBSAIREDIS)_DEPENDS += $(LIBSAITHRIFT_DEV_CENTEC)
+endif
 
 # Runtime dependency on centec sai is set only for syncd
 $(SYNCD)_RDEPENDS += $(CENTEC_SAI)
