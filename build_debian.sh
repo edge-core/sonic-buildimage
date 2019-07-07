@@ -284,8 +284,28 @@ sudo chmod u+s $FILESYSTEM_ROOT/bin/ping{,6}
 sudo rm -f $FILESYSTEM_ROOT/etc/ssh/ssh_host_*_key*
 sudo cp files/sshd/host-ssh-keygen.sh $FILESYSTEM_ROOT/usr/local/bin/
 sudo cp -f files/sshd/sshd.service $FILESYSTEM_ROOT/lib/systemd/system/ssh.service
-## Config sshd
-sudo augtool --autosave "set /files/etc/ssh/sshd_config/UseDNS no" -r $FILESYSTEM_ROOT
+# Config sshd
+# 1. Set 'UseDNS' to 'no'
+# 2. Configure sshd to close all SSH connetions after 15 minutes of inactivity
+sudo augtool -r $FILESYSTEM_ROOT <<'EOF'
+touch /files/etc/ssh/sshd_config/EmptyLineHack
+rename /files/etc/ssh/sshd_config/EmptyLineHack ""
+set /files/etc/ssh/sshd_config/UseDNS no
+ins #comment before /files/etc/ssh/sshd_config/UseDNS
+set /files/etc/ssh/sshd_config/#comment[following-sibling::*[1][self::UseDNS]] "Disable hostname lookups"
+
+rm /files/etc/ssh/sshd_config/ClientAliveInterval
+rm /files/etc/ssh/sshd_config/ClientAliveCountMax
+touch /files/etc/ssh/sshd_config/EmptyLineHack
+rename /files/etc/ssh/sshd_config/EmptyLineHack ""
+set /files/etc/ssh/sshd_config/ClientAliveInterval 900
+set /files/etc/ssh/sshd_config/ClientAliveCountMax 0
+ins #comment before /files/etc/ssh/sshd_config/ClientAliveInterval
+set /files/etc/ssh/sshd_config/#comment[following-sibling::*[1][self::ClientAliveInterval]] "Close inactive client sessions after 15 minutes"
+save
+quit
+EOF
+# Configure sshd to listen for v4 connections; disable listening for v6 connections
 sudo sed -i 's/^ListenAddress ::/#ListenAddress ::/' $FILESYSTEM_ROOT/etc/ssh/sshd_config
 sudo sed -i 's/^#ListenAddress 0.0.0.0/ListenAddress 0.0.0.0/' $FILESYSTEM_ROOT/etc/ssh/sshd_config
 
