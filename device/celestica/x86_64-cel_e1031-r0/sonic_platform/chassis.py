@@ -20,12 +20,15 @@ try:
     from sonic_platform.psu import Psu
     from sonic_platform.device import Device
     from sonic_platform.component import Component
+    from sonic_platform.watchdog import Watchdog
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
 CONFIG_DB_PATH = "/etc/sonic/config_db.json"
 NUM_FAN = 3
 NUM_PSU = 2
+RESET_REGISTER = "0x112"
+REBOOT_CAUSE_PATH = "/host/reboot-cause/previous-reboot-cause.txt"
 
 
 class Chassis(ChassisBase):
@@ -42,6 +45,7 @@ class Chassis(ChassisBase):
         ChassisBase.__init__(self)
         self._component_device = Device("component")
         self._component_name_list = self._component_device.get_name_list()
+        self._watchdog = Watchdog()
 
     def __read_config_db(self):
         try:
@@ -50,6 +54,14 @@ class Chassis(ChassisBase):
                 return data
         except IOError:
             raise IOError("Unable to open config_db file !")
+
+    def __read_txt_file(self, file_path):
+        try:
+            with open(file_path, 'r') as fd:
+                data = fd.read()
+                return data.strip()
+        except IOError:
+            raise IOError("Unable to open %s file !" % file_path)
 
     def get_base_mac(self):
         """
@@ -63,7 +75,7 @@ class Chassis(ChassisBase):
             base_mac = self.config_data["DEVICE_METADATA"]["localhost"]["mac"]
             return str(base_mac)
         except KeyError:
-            raise KeyError("Base MAC not found")
+            return str(None)
 
     def get_firmware_version(self, component_name):
         """
@@ -94,3 +106,32 @@ class Chassis(ChassisBase):
         if component_name not in self._component_name_list:
             return False
         return self.component.upgrade_firmware(image_path)
+
+    def get_reboot_cause(self):
+        """
+        Retrieves the cause of the previous reboot
+
+        Returns:
+            A tuple (string, string) where the first element is a string
+            containing the cause of the previous reboot. This string must be
+            one of the predefined strings in this class. If the first string
+            is "REBOOT_CAUSE_HARDWARE_OTHER", the second string can be used
+            to pass a description of the reboot cause.
+        """
+        self.component = Component("SMC_CPLD")
+        description = 'None'
+        reboot_cause = self.REBOOT_CAUSE_HARDWARE_OTHER
+        hw_reboot_cause = self.component.get_register_value(RESET_REGISTER)
+        sw_reboot_cause = self.__read_txt_file(REBOOT_CAUSE_PATH)
+
+        if sw_reboot_cause != "Unexpected reboot":
+            reboot_cause = self.REBOOT_CAUSE_NON_HARDWARE
+        elif hw_reboot_cause == "0x11":
+            reboot_cause = self.REBOOT_CAUSE_POWER_LOSS
+        elif hw_reboot_cause == "0x33" or hw_reboot_cause == "0x55":
+            reboot_cause = self.REBOOT_CAUSE_WATCHDOG
+        else:
+            reboot_cause = self.REBOOT_CAUSE_HARDWARE_OTHER
+            description = 'Unknown reason'
+
+        return (reboot_cause, description)

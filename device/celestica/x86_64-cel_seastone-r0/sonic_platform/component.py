@@ -55,16 +55,6 @@ class Component(DeviceBase):
             return False
         return True
 
-    def __get_register_value(self, path, register):
-        # Retrieves the cpld register value
-        cmd = "echo {1} > {0}; cat {0}".format(path, register)
-        p = subprocess.Popen(
-            cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        raw_data, err = p.communicate()
-        if err is not '':
-            return None
-        return raw_data.strip()
-
     def __get_bios_version(self):
         # Retrieves the BIOS firmware version
         try:
@@ -74,14 +64,23 @@ class Component(DeviceBase):
         except Exception as e:
             return None
 
+    def get_register_value(self, register):
+        # Retrieves the cpld register value
+        cmd = "echo {1} > {0}; cat {0}".format(GETREG_PATH, register)
+        p = subprocess.Popen(
+            cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        raw_data, err = p.communicate()
+        if err is not '':
+            return None
+        return raw_data.strip()
+
     def __get_cpld_version(self):
         # Retrieves the CPLD firmware version
         cpld_version = dict()
         for cpld_name in CPLD_ADDR_MAPPING:
             try:
                 cpld_addr = CPLD_ADDR_MAPPING[cpld_name]
-                cpld_version_raw = self.__get_register_value(
-                    GETREG_PATH, cpld_addr)
+                cpld_version_raw = self.get_register_value(cpld_addr)
                 cpld_version_str = "{}.{}".format(int(cpld_version_raw[2], 16), int(
                     cpld_version_raw[3], 16)) if cpld_version_raw is not None else 'None'
                 cpld_version[cpld_name] = cpld_version_str

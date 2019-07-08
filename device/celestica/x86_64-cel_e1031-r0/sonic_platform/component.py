@@ -23,7 +23,7 @@ MMC_CPLD_ADDR = '0x100'
 BIOS_VERSION_PATH = "/sys/class/dmi/id/bios_version"
 CONFIG_DB_PATH = "/etc/sonic/config_db.json"
 SMC_CPLD_PATH = "/sys/devices/platform/e1031.smc/version"
-MMC_CPLD_PATH = "/sys/devices/platform/e1031.smc/getreg"
+GETREG_PATH = "/sys/devices/platform/e1031.smc/getreg"
 
 
 class Component(DeviceBase):
@@ -51,16 +51,6 @@ class Component(DeviceBase):
             return False
         return True
 
-    def __get_register_value(self, path, register):
-        # Retrieves the cpld register value
-        cmd = "echo {1} > {0}; cat {0}".format(path, register)
-        p = subprocess.Popen(
-            cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        raw_data, err = p.communicate()
-        if err is not '':
-            return None
-        return raw_data.strip()
-
     def __get_bios_version(self):
         # Retrieves the BIOS firmware version
         try:
@@ -70,6 +60,16 @@ class Component(DeviceBase):
         except Exception as e:
             return None
 
+    def get_register_value(self, register):
+        # Retrieves the cpld register value
+        cmd = "echo {1} > {0}; cat {0}".format(GETREG_PATH, register)
+        p = subprocess.Popen(
+            cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        raw_data, err = p.communicate()
+        if err is not '':
+            return None
+        return raw_data.strip()
+
     def __get_cpld_version(self):
         # Retrieves the CPLD firmware version
         cpld_version = dict()
@@ -78,8 +78,7 @@ class Component(DeviceBase):
         smc_cpld_version = 'None' if smc_cpld_version is 'None' else "{}.{}".format(
             int(smc_cpld_version[2], 16), int(smc_cpld_version[3], 16))
 
-        mmc_cpld_version = self.__get_register_value(
-            MMC_CPLD_PATH, MMC_CPLD_ADDR)
+        mmc_cpld_version = self.get_register_value(MMC_CPLD_ADDR)
         mmc_cpld_version = 'None' if mmc_cpld_version is 'None' else "{}.{}".format(
             int(mmc_cpld_version[2], 16), int(mmc_cpld_version[3], 16))
 
