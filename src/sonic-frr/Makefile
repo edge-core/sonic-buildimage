@@ -3,6 +3,7 @@ SHELL = /bin/bash
 .SHELLFLAGS += -e
 
 MAIN_TARGET = frr_$(FRR_VERSION)-1~sonic.debian8+1_amd64.deb
+DERIVED_TARGET = $(FRR_DBG)
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 
@@ -35,7 +36,8 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# build package
 	dpkg-buildpackage -rfakeroot -b -us -uc
 	cd ..
-	mv $* $(DEST)/
+	mv $(DERIVED_TARGET) $* $(DEST)/
 
 	popd
 
+$(addprefix $(DEST)/, $(DERIVED_TARGET)): $(DEST)/% : $(DEST)/$(MAIN_TARGET)
