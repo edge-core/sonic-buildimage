@@ -25,7 +25,7 @@ class TestCfgGenT2ChassisFe(TestCase):
         else:
             print '    Output: ({0} lines, {1} bytes)'.format(linecount + 1, len(output))
         return output
-    
+
     def test_minigraph_t2_chassis_fe_type(self):
         argument = '-m "' + self.sample_graph_t2_chassis_fe + '" -p "' + self.t2_chassis_fe_port_config + '" -v "DEVICE_METADATA[\'localhost\'][\'type\']"'
         output = self.run_script(argument)
@@ -34,7 +34,7 @@ class TestCfgGenT2ChassisFe(TestCase):
     def test_minigraph_t2_chassis_fe_interfaces(self):
         argument = '-m "' + self.sample_graph_t2_chassis_fe + '" -p "' + self.t2_chassis_fe_port_config + '" -v "INTERFACE"'
         output = self.run_script(argument)
-        self.assertEqual(output.strip(),  
+        self.assertEqual(output.strip(),
                          "{'Ethernet8': {}, "
                          "('Ethernet8', '172.16.0.9/30'): {}, "
                          "'Ethernet0': {'vnet_name': 'VnetFE'}, "
@@ -45,7 +45,7 @@ class TestCfgGenT2ChassisFe(TestCase):
     def test_minigraph_t2_chassis_fe_pc_interfaces(self):
         argument = '-m "' + self.sample_graph_t2_chassis_fe_pc + '" -p "' + self.t2_chassis_fe_port_config + '" -v "PORTCHANNEL_INTERFACE"'
         output = self.run_script(argument)
-        self.assertEqual(output.strip(),  
+        self.assertEqual(output.strip(),
                          "{'PortChannel8': {}, "
                          "('PortChannel0', '192.168.0.2/30'): {}, "
                          "('PortChannel4', '172.16.0.1/30'): {}, "
@@ -60,12 +60,12 @@ class TestCfgGenT2ChassisFe(TestCase):
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "{'VnetFE': {'vxlan_tunnel': 'TunnelInt', 'vni': 8000}}")
 
-    # Test a minigraph file where VNI is specified    
+    # Test a minigraph file where VNI is specified
     def test_minigraph_t2_chassis_fe_vnet(self):
         argument = '-m "' + self.sample_graph_t2_chassis_fe_vni + '" -p "' + self.t2_chassis_fe_port_config + '" -v "VNET"'
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "{'VnetFE': {'vxlan_tunnel': 'TunnelInt', 'vni': 9000}}")
-    
+
     def test_minigraph_t2_chassis_fe_vxlan(self):
         argument = '-m "' + self.sample_graph_t2_chassis_fe + '" -p "' + self.t2_chassis_fe_port_config + '" -v "VXLAN_TUNNEL"'
         output = self.run_script(argument)

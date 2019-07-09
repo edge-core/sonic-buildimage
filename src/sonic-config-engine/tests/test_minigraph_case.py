@@ -9,7 +9,7 @@ class TestCfgGenCaseInsensitive(TestCase):
         self.script_file = os.path.join(self.test_dir, '..', 'sonic-cfggen')
         self.sample_graph = os.path.join(self.test_dir, 'simple-sample-graph-case.xml')
         self.port_config = os.path.join(self.test_dir, 't0-sample-port-config.ini')
-    
+
     def run_script(self, argument, check_stderr=False):
         print '\n    Running sonic-cfggen ' + argument
         if check_stderr:
@@ -128,7 +128,7 @@ class TestCfgGenCaseInsensitive(TestCase):
         argument = '-m "' + self.sample_graph + '" -p "' + self.port_config + '" -v "VNET"'
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "")
-  
+
     def test_minigraph_vxlan(self):
         argument = '-m "' + self.sample_graph + '" -p "' + self.port_config + '" -v "VXLAN_TUNNEL"'
         output = self.run_script(argument)
