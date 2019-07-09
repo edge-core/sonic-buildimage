@@ -12,6 +12,16 @@ password zebra
 enable password zebra
 {% endblock sys_init %}
 !
+{% block vrf %}
+{%  if VNET is defined %}
+{%   for vnet_name, vnet_metadata in VNET.iteritems() %}
+vrf {{ vnet_name }}
+vni {{ vnet_metadata['vni'] }}
+!
+{%   endfor %}
+{%  endif %}
+{% endblock vrf %}
+!
 {% block interfaces %}
 ! Enable link-detect (default disabled)
 {% for (name, prefix) in INTERFACE|pfx_filter %}
