@@ -11,8 +11,13 @@
 try:
     import os
     from sonic_platform_base.chassis_base import ChassisBase
+    from sonic_platform.psu import Psu
+    from sonic_platform.fan import Fan
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
+
+MAX_S6100_FAN = 4
+MAX_S6100_PSU = 2
 
 
 class Chassis(ChassisBase):
@@ -39,19 +44,28 @@ class Chassis(ChassisBase):
     def __init__(self):
         ChassisBase.__init__(self)
 
+        for i in range(MAX_S6100_FAN):
+            fan = Fan(i)
+            self._fan_list.append(fan)
+
+        for i in range(MAX_S6100_PSU):
+            psu = Psu(i)
+            self._psu_list.append(psu)
+
     def get_pmc_register(self, reg_name):
+        # On successful read, returns the value read from given
+        # reg_name and on failure returns 'ERR'
         rv = 'ERR'
-        mb_reg_file = self.MAILBOX_DIR+'/'+reg_name
+        mb_reg_file = self.MAILBOX_DIR + '/' + reg_name
 
         if (not os.path.isfile(mb_reg_file)):
-            print mb_reg_file,  'not found !'
             return rv
 
         try:
             with open(mb_reg_file, 'r') as fd:
                 rv = fd.read()
         except Exception as error:
-            logging.error("Unable to open ", mb_reg_file, "file !")
+            rv = 'ERR'
 
         rv = rv.rstrip('\r\n')
         rv = rv.lstrip(" ")
