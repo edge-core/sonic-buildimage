@@ -207,3 +207,74 @@ $ make list
 ```
 
 All target groups are used by one or another recipe, so use those recipes as a reference when adding new ones.
+
+## Build debug dockers and debug SONiC installer image:
+Using 'INSTALL_DEBUG_TOOLS=y' builds the debug image.
+
+For example:
+`INSTALL_DEBUG_TOOLS=y make target/sonic-broadcom.bin` 
+
+* Builds debug docker images.
+* Debug images carry a suffix of "-dbg"
+    * e.g. target/docker-orchagent-dbg.gz
+* target/sonic-broadcom.bin is built using debug docker images
+    * Selective sources are archived and available under /src
+    * An empty /debug dir is created for use during debug session.
+    * All debug dockers are mounted with /src:ro and /debug:rw
+    * Login banner will briefly describe these features.
+  
+
+_Note: target/sonic-broadcom.bin name is the same irrespective of built using debug or non-debug dockers._
+
+_Recommend: Rename image built using INSTALL_DEBUG_TOOLS=y to mark it explicit. May be `mv target/sonic-broadcom.bin target/sonic-broadcom-dbg.bin`_
+
+### Debug dockers
+* Built with all available debug symbols.
+* Installed with many basic packages that would be required for debugging
+    * gdb
+    * gdbserver
+    * vim
+    * strace
+    * openssh-client
+    * sshpass
+* Loadable into any environment that supports docker
+* Outside SONiC image, you may run the docker with `--entrypoint=/bin/bash` 
+* Use -v to map any of your host directories
+* To debug a core file in non-SONiC environment that supports docker
+    * `docker load -i docker-<name>-dbg.gz`
+    * copy your unzipped core file into ~/debug
+    * `docker run -it -entrypoint=/bin/bash -v ~/debug:/debug <image id>`
+    * `gdb /usr/bin/<your binary> -c /debug/<your core>`
+    
+### Debug SONiC image
+
+* Install this image into the switch that supports this image.
+	* For platform independent binary, you may use a debug image for virtual switch
+* Open the archive in /src, if you would need source code for debugging
+* Every debug enabled docker is mounted with /src as read-only
+* The host has /debug dir and it is mapped into every debuggable docker as /debug with read-write permission.
+* To debug a core
+    * Copy core into /debug of host and unzip it
+        * Feel free to create & use sub-dirs as needed.
+        * Entire /debug is mounted inside docker
+    * Get into the docker (`docker -it exec <name> bash`)
+    * `gdb /usr/bin/<binary> -c /debug/<core file path>`
+    * Use set-directory in gdb to map appropriate source dir from under /src
+    * You may set gdb logs to go into /debug
+* For live debugging
+    * Use this as a regular switch
+    * Get into docker, and you may
+        * start process under dbg
+        * attach gdb to running process
+    * Set required source dir from under /src as needed
+    * May use /debug to record all geb logs or any spew from debug session.
+    
+  ### To enhance debug dockers
+  * Add to `<docker name>_DBG_IMAGE_PACKAGES`, additional debug tools that will be pre-installed during build.
+	* e.g. `$(DOCKER_ORCHAGENT)_DBG_IMAGE_PACKAGES += perl`
+	* Build will install these tools using "apt"
+  * Add to `<docker name>_DBG_DEPENDS`, additional debug .deb packages that will be pre-installed during build.
+	* e.g. `$(DOCKER_ORCHAGENT)_DBG_DEPENDS +=  $(SWSS_DBG) $(LIBSWSSCOMMON_DBG) $(LIBSAIREDIS_DBG)`
+  * Add to `DBG_SRC_ARCHIVE`, the source dirs to archive
+	* The source files (.c, .cpp, .h & .hpp) under this dir tree are archived.
+	* e.g. rules/swss.mk has `DBG_SRC_ARCHIVE += swss`

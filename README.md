@@ -123,6 +123,9 @@ Every target has a clean target, so in order to clean swss, execute:
 
 It is recommended to use clean targets to clean all packages that are built together, like dev packages for instance. In order to be more familiar with build process and make some changes to it, it is recommended to read this short [Documentation](README.buildsystem.md).
 
+## Build debug dockers and debug SONiC installer image:
+SONiC build system supports building dockers and ONE-image with debug tools and debug symbols, to help with live & core debugging. For details refer to [(SONiC Buildimage Guide)](https://github.com/Azure/sonic-buildimage/blob/master/README.buildsystem.md).
+
 ## Notes:
 - If you are running make for the first time, a sonic-slave-${USER} docker image will be built automatically.
 This may take a while, but it is a one-time action, so please be patient.
@@ -135,10 +138,7 @@ This may take a while, but it is a one-time action, so please be patient.
   - docker-base.gz: base docker image where other docker images are built from, only used in build process (gzip tar archive)
   - docker-database.gz: docker image for in-memory key-value store, used as inter-process communication (gzip tar archive)
   - docker-fpm.gz: docker image for quagga with fpm module enabled (gzip tar archive)
-  - docker-orchagent-brcm.gz: docker image for SWitch State Service (SWSS) on Broadcom platform (gzip tar archive)
-  - docker-orchagent-cavm.gz: docker image for SWitch State Service (SWSS) on Cavium platform (gzip tar archive)
-  - docker-orchagent-mlnx.gz: docker image for SWitch State Service (SWSS) on Mellanox platform (gzip tar archive)
-  - docker-orchagent-nephos.gz: docker image for SWitch State Service (SWSS) on Nephos platform (gzip tar archive)
+  - docker-orchagent.gz: docker image for SWitch State Service (SWSS) (gzip tar archive)
   - docker-syncd-brcm.gz: docker image for the daemon to sync database and Broadcom switch ASIC (gzip tar archive)
   - docker-syncd-cavm.gz: docker image for the daemon to sync database and Cavium switch ASIC (gzip tar archive)
   - docker-syncd-mlnx.gz: docker image for the daemon to sync database and Mellanox switch ASIC (gzip tar archive)
