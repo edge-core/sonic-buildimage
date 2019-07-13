@@ -42,6 +42,16 @@ ifeq ($(USER), root)
 $(error Add your user account to docker group and use your user account to make. root or sudo are not supported!)
 endif
 
+# Check for minimum Docker version on build host
+# Note: Using the greater of CE (17.05.0) and EE (17.06.1) versions that support ARG before FROM
+docker_min := 17.06.1
+docker_min_ver := $(shell echo "$(docker_min)" | awk -F. '{printf("%d%03d%03d\n",$$1,$$2,$$3);}' 2>/dev/null)
+docker_ver := $(shell docker info 2>/dev/null | grep -i "server version" | cut -d' ' -f3 | awk -F. '{printf("%d%03d%03d\n",$$1,$$2,$$3);}' 2>/dev/null)
+docker_is_valid := $(shell if [ $(docker_ver) -lt $(docker_min_ver) ] ; then echo "0"; else echo "1"; fi)
+ifeq (0,$(docker_is_valid))
+$(error SONiC requires Docker version $(docker_min) or later)
+endif
+
 # Remove lock file in case previous run was forcefully stopped
 $(shell rm -f .screen)
 
@@ -91,21 +101,20 @@ ifeq ($(SONIC_CONFIG_USE_NATIVE_DOCKERD_FOR_BUILD), y)
 endif
 
 DOCKER_BASE_BUILD = docker build --no-cache \
-		    -t $(SLAVE_BASE_IMAGE) \
+		    -t $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) \
 		    --build-arg http_proxy=$(http_proxy) \
 		    --build-arg https_proxy=$(https_proxy) \
-		    $(SLAVE_DIR) && \
-		    docker tag $(SLAVE_BASE_IMAGE):latest $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG)
+		    $(SLAVE_DIR)
 
 DOCKER_BUILD = docker build --no-cache \
 	       --build-arg user=$(USER) \
 	       --build-arg uid=$(shell id -u) \
 	       --build-arg guid=$(shell id -g) \
 	       --build-arg hostname=$(shell echo $$HOSTNAME) \
-	       -t $(SLAVE_IMAGE) \
+               --build-arg slave_base_tag_ref=$(SLAVE_BASE_TAG) \
+	       -t $(SLAVE_IMAGE):$(SLAVE_TAG) \
 	       -f $(SLAVE_DIR)/Dockerfile.user \
-	       $(SLAVE_DIR) && \
-	       docker tag $(SLAVE_IMAGE):latest $(SLAVE_IMAGE):$(SLAVE_TAG)
+	       $(SLAVE_DIR)
 
 SONIC_BUILD_INSTRUCTION :=  make \
                            -f slave.mk \

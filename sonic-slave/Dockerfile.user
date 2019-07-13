@@ -1,4 +1,5 @@
-FROM sonic-slave-base
+ARG slave_base_tag_ref=latest
+FROM sonic-slave-base:${slave_base_tag_ref}
 
 # Add user
 ARG user
