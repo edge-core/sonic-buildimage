@@ -63,6 +63,11 @@ function postStartAction()
     if [[ -x /usr/bin/db_migrator.py ]]; then
         # Migrate the DB to the latest schema version if needed
         /usr/bin/db_migrator.py -o migrate
+
+        # Save in memory config_db to config_db.json for 2 reasons:
+        # 1. Persist the DB migration result.
+        # 2. Save in memory DB after warm reboot.
+        /usr/bin/config save -y
     fi
 {%- elif docker_container_name == "swss" %}
     docker exec swss rm -f /ready   # remove cruft
