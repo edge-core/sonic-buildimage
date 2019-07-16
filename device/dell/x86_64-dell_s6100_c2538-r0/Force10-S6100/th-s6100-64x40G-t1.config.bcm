@@ -10,6 +10,7 @@ lpm_ipv6_128b_reserved=0
 ipv6_lpm_128b_enable=1
 l2xmsg_mode=1
 oversubscribe_mode=1
+miim_intr_enable=0
 
 phy_gearbox_enable=1
 phy_84752=1
