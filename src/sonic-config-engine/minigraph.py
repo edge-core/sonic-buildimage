@@ -457,44 +457,38 @@ def parse_spine_chassis_fe(results, vni, lo_intfs, phyport_intfs, pc_intfs, pc_m
         'vni': chassis_vni
     }}
 
-    # Find L3 physical interfaces that should be enslaved to Vnet
+    # For each IP interface
     for intf in phyport_intfs:
-        # We only care about L3 physical interfaces 
-        if is_ip_prefix_in_key(intf) == False:
+        # A IP interface may have multiple entries. 
+        # For example, "Ethernet0": {}", "Ethernet0|192.168.1.1": {}"
+        # We only care about the one without IP information
+        if is_ip_prefix_in_key(intf) == True:
             continue 
-
-        # intf = (intf name, IP prefix)
-        intf_name = intf[0]
-        neighbor_router = results['DEVICE_NEIGHBOR'][intf_name]['name']
+            
+        neighbor_router = results['DEVICE_NEIGHBOR'][intf]['name']
             
         # If the neighbor router is an external router 
         if devices[neighbor_router]['type'] != chassis_backend_role:
-
             # Enslave the interface to a Vnet
-            if intf_name in phyport_intfs:
-                phyport_intfs[intf_name] = {'vnet_name': chassis_vnet}
-            else:
-                print >> sys.stderr, 'Warning: cannot find the key %s' % (intf_name) 
-
-    # Find L3 port chennel interfaces that should be enslaved to Vnet
+            phyport_intfs[intf] = {'vnet_name': chassis_vnet}
+           
+    # For each port channel IP interface
     for pc_intf in pc_intfs:
-        # We only care about L3 port channel interfaces 
-        if is_ip_prefix_in_key(pc_intf) == False:
+        # A port channel IP interface may have multiple entries. 
+        # For example, "Portchannel0": {}", "Portchannel0|192.168.1.1": {}"
+        # We only care about the one without IP information
+        if is_ip_prefix_in_key(pc_intf) == True:
             continue 
-
-        # Get port channel interface name
-        # pc intf = (pc intf name, IP prefix)
-        pc_intf_name = pc_intf[0]
 
         intf_name = None 
         # Get a physical interface that belongs to this port channel         
         for pc_member in pc_members:
-            if pc_member[0] == pc_intf_name:
+            if pc_member[0] == pc_intf:
                 intf_name = pc_member[1]
                 break 
 
         if intf_name == None:
-            print >> sys.stderr, 'Warning: cannot find any interfaces that belong to %s' % (pc_intf_name)
+            print >> sys.stderr, 'Warning: cannot find any interfaces that belong to %s' % (pc_intf)
             continue
 
         # Get the neighbor router of this port channel interface
@@ -502,12 +496,8 @@ def parse_spine_chassis_fe(results, vni, lo_intfs, phyport_intfs, pc_intfs, pc_m
 
         # If the neighbor router is an external router 
         if devices[neighbor_router]['type'] != chassis_backend_role:
-
             # Enslave the port channel interface to a Vnet
-            if pc_intf_name in pc_intfs:
-                pc_intfs[pc_intf_name] = {'vnet_name': chassis_vnet}
-            else:
-                print >> sys.stderr, 'Warning: cannot find the key %s' % (pc_intf_name)           
+            pc_intfs[pc_intf] = {'vnet_name': chassis_vnet}        
 
 
 def parse_xml(filename, platform=None, port_config_file=None):
