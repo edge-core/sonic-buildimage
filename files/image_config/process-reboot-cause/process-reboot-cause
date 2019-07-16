@@ -109,7 +109,8 @@ def main():
     log_info("Previous reboot cause: {}".format(previous_reboot_cause))
 
     # Remove the old REBOOT_CAUSE_FILE
-    os.remove(REBOOT_CAUSE_FILE)
+    if os.path.exists(REBOOT_CAUSE_FILE):
+        os.remove(REBOOT_CAUSE_FILE)
 
     # Write a new default reboot cause file for the next reboot
     cause_file = open(REBOOT_CAUSE_FILE, "w")
