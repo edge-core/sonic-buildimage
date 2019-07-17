@@ -1,16 +1,6 @@
 # docker image for centec syncd with rpc
 
-DOCKER_SYNCD_CENTEC_RPC = docker-syncd-centec-rpc.gz
-$(DOCKER_SYNCD_CENTEC_RPC)_PATH = $(PLATFORM_PATH)/docker-syncd-centec-rpc
-$(DOCKER_SYNCD_CENTEC_RPC)_DEPENDS += $(SYNCD_RPC) $(LIBTHRIFT)
-$(DOCKER_SYNCD_CENTEC_RPC)_LOAD_DOCKERS += $(DOCKER_SYNCD_CENTEC)
-SONIC_DOCKER_IMAGES += $(DOCKER_SYNCD_CENTEC_RPC)
-ifeq ($(ENABLE_SYNCD_RPC),y)
-SONIC_INSTALL_DOCKER_IMAGES += $(DOCKER_SYNCD_CENTEC_RPC)
-endif
+DOCKER_SYNCD_PLATFORM_CODE = centec
+include $(PLATFORM_PATH)/../template/docker-syncd-base-rpc.mk
 
-$(DOCKER_SYNCD_CENTEC_RPC)_CONTAINER_NAME = syncd
-$(DOCKER_SYNCD_CENTEC_RPC)_RUN_OPT += --net=host --privileged -t
-$(DOCKER_SYNCD_CENTEC_RPC)_RUN_OPT += -v /host/machine.conf:/etc/machine.conf
-$(DOCKER_SYNCD_CENTEC_RPC)_RUN_OPT += -v /var/run/docker-syncd:/var/run/sswsyncd
-$(DOCKER_SYNCD_CENTEC_RPC)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
+$(DOCKER_SYNCD_BASE_RPC)_RUN_OPT += -v /var/run/docker-syncd:/var/run/sswsyncd
