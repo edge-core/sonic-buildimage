@@ -71,18 +71,6 @@ def signal_handler(sig, frame):
     else:
         log_warning("Caught unhandled signal '" + sig + "'")
 
-# ========================== Helpers ==================================
-
-def is_port_exist(port_name):
-    filename = "/sys/class/net/%s/operstate" % port_name
-    if os.path.exists(filename):
-        with open(filename) as fp:
-            state = fp.read()
-            return "up" in state
-    else:
-        filename = "/sys/class/net/%s/ifindex" % port_name
-        return os.path.exists(filename)
-
 # ============================== Classes ==============================
 
 class LldpManager(object):
@@ -101,19 +89,42 @@ class LldpManager(object):
     REDIS_TIMEOUT_MS = 0
 
     def __init__(self):
-        # Open a handle to the State database
-        self.state_db = swsscommon.DBConnector(swsscommon.STATE_DB,
-                                               self.REDIS_HOSTNAME,
-                                               self.REDIS_PORT,
-                                               self.REDIS_TIMEOUT_MS)
-
         # Open a handle to the Config database
         self.config_db = swsscommon.DBConnector(swsscommon.CONFIG_DB,
                                                 self.REDIS_HOSTNAME,
                                                 self.REDIS_PORT,
                                                 self.REDIS_TIMEOUT_MS)
 
+        # Open a handle to the Application database
+        self.appl_db = swsscommon.DBConnector(swsscommon.APPL_DB,
+                                                self.REDIS_HOSTNAME,
+                                                self.REDIS_PORT,
+                                                self.REDIS_TIMEOUT_MS)
+
         self.pending_cmds = {}
+
+    def is_port_up(self, port_name):
+        """
+        Determine if a port is up or down by looking into the oper-status for the port in 
+        PORT TABLE in the Application DB
+        """
+        # Retrieve all entires for this port from the Port table
+        port_table = swsscommon.Table(self.appl_db, swsscommon.APP_PORT_TABLE_NAME)
+        (status, fvp) = port_table.get(port_name)
+        if status:
+            # Convert list of tuples to a dictionary
+            port_table_dict = dict(fvp)
+
+            # Get the oper-status for the port
+            if port_table_dict.has_key("oper_status"):
+                port_oper_status = port_table_dict.get("oper_status")
+                log_info("Port name {} oper status: {}".format(port_name, port_oper_status))
+                return port_oper_status == "up"
+            else:
+                return False
+        else:
+            log_error("Port '{}' not found in {} table in App DB".format(port_name, swsscommon.APP_PORT_TABLE_NAME))
+            return False
 
     def generate_pending_lldp_config_cmd_for_port(self, port_name):
         """
@@ -157,11 +168,6 @@ class LldpManager(object):
         to_delete = []
 
         for (port_name, cmd) in self.pending_cmds.iteritems():
-            if not is_port_exist(port_name):
-                # it doesn't make any sense to configure lldpd if the target port does not exist
-                # let's postpone the command for the next iteration
-                continue
-
             log_debug("Running command: '{}'".format(cmd))
 
             proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -185,37 +191,51 @@ class LldpManager(object):
     def run(self):
         """
         Subscribes to notifications of changes in the PORT table
-        of the Redis State database. 
-        Subscribe to STATE_DB - get notified of the creation of an interface
+        of the Redis Config/Application database.
+        Subscribe to APP_DB - get port oper status
         Subscribe to CONFIG_DB - get notified of port config changes
         Update LLDP configuration accordingly.
         """
         # Set select timeout to 10 seconds
         SELECT_TIMEOUT_MS = 1000 * 10
 
-        # Subscribe to PORT table notifications in the State DB
         sel = swsscommon.Select()
-        sst = swsscommon.SubscriberStateTable(self.state_db, swsscommon.STATE_PORT_TABLE_NAME)
-        sel.addSelectable(sst)
-        sst = swsscommon.SubscriberStateTable(self.config_db, swsscommon.CFG_PORT_TABLE_NAME)
-        sel.addSelectable(sst)
 
-        # Listen for changes to the PORT table in the STATE_DB and CONFIG_DB
+        # Subscribe to PORT table notifications in the Config DB
+        sst_confdb = swsscommon.SubscriberStateTable(self.config_db, swsscommon.CFG_PORT_TABLE_NAME)
+        sel.addSelectable(sst_confdb)
+
+        # Subscribe to PORT table notifications in the App DB
+        sst_appdb = swsscommon.SubscriberStateTable(self.appl_db, swsscommon.APP_PORT_TABLE_NAME)
+        sel.addSelectable(sst_appdb)
+
+        # Listen for changes to the PORT table in the CONFIG_DB and APP_DB
         while True:
             (state, c) = sel.select(SELECT_TIMEOUT_MS)
 
             if state == swsscommon.Select.OBJECT:
-                (key, op, fvp) = sst.pop()
+                (key, op, fvp) = sst_confdb.pop()
+                if fvp:
+                    fvp_dict = dict(fvp)
 
-                fvp_dict = dict(fvp)
+                    # handle config change
+                    if (fvp_dict.has_key("alias") or fvp_dict.has_key("description")) and (op in ["SET", "DEL"]):
+                        if self.is_port_up(key):
+                            self.generate_pending_lldp_config_cmd_for_port(key)
+                        else:
+                            self.pending_cmds.pop(key, None)
 
-                # handle creation
-                if op == "SET" and fvp_dict.get("state") == "ok":
-                    self.generate_pending_lldp_config_cmd_for_port(key)
+                (key, op, fvp) = sst_appdb.pop()
+                if (key != "PortInitDone") and (key != "PortConfigDone"):
+                    if fvp:
+                        fvp_dict = dict(fvp)
 
-                # handle config change
-                if op in ["SET", "DEL"] and (fvp_dict.get("alias") or fvp_dict.get("description")) :
-                    self.generate_pending_lldp_config_cmd_for_port(key)
+                        # handle port status change
+                        if fvp_dict.has_key("oper_status"):
+                            if "up" in fvp_dict.get("oper_status"):
+                                self.generate_pending_lldp_config_cmd_for_port(key)
+                            else:
+                                self.pending_cmds.pop(key, None)
 
             # Process all pending commands
             self.process_pending_cmds()
