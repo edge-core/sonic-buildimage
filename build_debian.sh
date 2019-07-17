@@ -249,7 +249,8 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     mtr-tiny                \
     locales                 \
     flashrom                \
-    cgroup-tools
+    cgroup-tools            \
+    mcelog
 
 #Adds a locale to a debian system in non-interactive mode
 sudo sed -i '/^#.* en_US.* /s/^#//' $FILESYSTEM_ROOT/etc/locale.gen && \
@@ -379,6 +380,9 @@ set /files/etc/sysctl.conf/net.ipv4.udp_l3mdev_accept 1
 set /files/etc/sysctl.conf/net.core.rmem_max 2097152
 set /files/etc/sysctl.conf/net.core.wmem_max 2097152
 " -r $FILESYSTEM_ROOT
+
+# Configure mcelog to log machine checks to syslog
+sudo sed -i 's/^#syslog = yes/syslog = yes/' $FILESYSTEM_ROOT/etc/mcelog/mcelog.conf
 
 ## docker-py is needed by Ansible docker module
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT easy_install pip
