@@ -10,7 +10,13 @@ exit $?
 configure terminal
   router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
 {% for neighbor_ip in BGP_NEIGHBOR %}
+{% if neighbor_ip | ipv4 %}
     no neighbor {{ neighbor_ip }} route-map ISOLATE out
+{% else %}
+  address-family ipv6
+    no neighbor {{ neighbor_ip }} route-map ISOLATE out
+  exit-address-family
+{% endif %}
 {% endfor %}
   exit
 exit
