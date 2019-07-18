@@ -268,7 +268,7 @@ RUN pip install \
 # For sonic config engine testing
 RUN pip install pyangbind==0.6.0
 # Note: force upgrade debian packaged jinja2, if installed
-RUN pip install --force-reinstall --upgrade jinja2>=2.10
+RUN pip install --force-reinstall --upgrade "jinja2>=2.10"
 
 # For templating
 RUN pip install j2cli
@@ -281,7 +281,7 @@ RUN pip install click-default-group click natsort tabulate netifaces==0.10.7 fas
 # For sonic snmpagent mock testing
 RUN pip3 install mockredispy==2.9.3
 
-RUN pip3 install PyYAML>=5.1
+RUN pip3 install "PyYAML>=5.1"
 
 # For sonic-platform-common testing
 RUN pip3 install redis
