@@ -15,5 +15,5 @@ $(eval $(call add_derived_package,$(SWSS),$(SWSS_DBG)))
 # The .c, .cpp, .h & .hpp files under src/{$DBG_SRC_ARCHIVE list}
 # are archived into debug one image to facilitate debugging.
 #
-DBG_SRC_ARCHIVE += swss
+DBG_SRC_ARCHIVE += sonic-swss
 
