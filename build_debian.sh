@@ -205,7 +205,6 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install      \
 ## Note: don't install python-apt by pip, older than Debian repo one
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install      \
     file                    \
-    ifupdown2               \
     iproute2                \
     bridge-utils            \
     isc-dhcp-client         \
