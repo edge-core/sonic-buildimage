@@ -46,3 +46,8 @@ $(eval $(call add_derived_package,$(LIBNL3),$(LIBNL_CLI)))
 LIBNL_CLI_DEV = libnl-cli-3-dev_$(LIBNL3_VERSION)_amd64.deb
 $(LIBNL_CLI_DEV)_DEPENDS += $(LIBNL_CLI) $(LIBNL_GENL3_DEV) $(LIBNL_NF3_DEV) $(LIBNL_ROUTE3_DEV)
 $(eval $(call add_derived_package,$(LIBNL3),$(LIBNL_CLI_DEV)))
+
+# The .c, .cpp, .h & .hpp files under src/{$DBG_SRC_ARCHIVE list}
+# are archived into debug one image to facilitate debugging.
+#
+DBG_SRC_ARCHIVE += libnl3

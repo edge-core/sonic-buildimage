@@ -15,3 +15,9 @@ $(eval $(call add_derived_package,$(LLDPD),$(LIBLLDPCTL)))
 export LLDPD_VERSION
 export LLDPD
 export LIBLLDPCTL
+
+# The .c, .cpp, .h & .hpp files under src/{$DBG_SRC_ARCHIVE list}
+# are archived into debug one image to facilitate debugging.
+#
+DBG_SRC_ARCHIVE += lldpd
+

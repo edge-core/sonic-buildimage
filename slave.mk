@@ -607,6 +607,8 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
 		chmod +x sonic_debian_extension.sh,
 	)
 
+	export debug_src_archive="$(DBG_SRC_ARCHIVE)"
+
 	DEBUG_IMG="$(INSTALL_DEBUG_TOOLS)" \
 	USERNAME="$(USERNAME)" \
 	PASSWORD="$(PASSWORD)" \

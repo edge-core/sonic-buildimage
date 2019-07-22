@@ -11,3 +11,8 @@ SONIC_MAKE_DEBS += $(FRR)
 FRR_DBG = frr-dbgsym_$(FRR_VERSION)-sonic-$(FRR_SUBVERSION)_amd64.deb
 $(eval $(call add_derived_package,$(FRR),$(FRR_DBG)))
 
+# The .c, .cpp, .h & .hpp files under src/{$DBG_SRC_ARCHIVE list}
+# are archived into debug one image to facilitate debugging.
+#
+DBG_SRC_ARCHIVE += sonic-frr
+
