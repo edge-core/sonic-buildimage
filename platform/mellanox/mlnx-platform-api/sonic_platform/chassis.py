@@ -8,19 +8,19 @@
 #
 #############################################################################
 
-import sys
-
 try:
     from sonic_platform_base.chassis_base import ChassisBase
     from sonic_platform.psu import Psu
     from sonic_platform.fan import Fan
     from sonic_platform.fan import FAN_PATH
     from sonic_platform.sfp import SFP
+    from sonic_platform.thermal import Thermal, initialize_thermals
     from sonic_platform.watchdog import get_watchdog
     from sonic_daemon_base.daemon_base import Logger
     from eeprom import Eeprom
     from os import listdir
     from os.path import isfile, join
+    import sys
     import io
     import re
     import subprocess
@@ -64,12 +64,12 @@ COMPONENT_CPLD1 = "CPLD1"
 COMPONENT_CPLD2 = "CPLD2"
 
 # Global logger class instance
-SYSLOG_IDENTIFIER = "mlnx-chassis"
+SYSLOG_IDENTIFIER = "mlnx-chassis-api"
 logger = Logger(SYSLOG_IDENTIFIER)
 
 # magic code defnition for port number, qsfp port position of each hwsku
 # port_position_tuple = (PORT_START, QSFP_PORT_START, PORT_END, PORT_IN_BLOCK, EEPROM_OFFSET)
-hwsku_dict = {'ACS-MSN2700': 0, "LS-SN2700":0, 'ACS-MSN2740': 0, 'ACS-MSN2100': 1, 'ACS-MSN2410': 2, 'ACS-MSN2010': 3, 'ACS-MSN3700': 0, 'ACS-MSN3700C': 0, 'Mellanox-SN2700': 0, 'Mellanox-SN2700-D48C8': 0}
+hwsku_dict_port = {'ACS-MSN2700': 0, "LS-SN2700":0, 'ACS-MSN2740': 0, 'ACS-MSN2100': 1, 'ACS-MSN2410': 2, 'ACS-MSN2010': 3, 'ACS-MSN3700': 0, 'ACS-MSN3700C': 0, 'Mellanox-SN2700': 0, 'Mellanox-SN2700-D48C8': 0}
 port_position_tuple_list = [(0, 0, 31, 32, 1), (0, 0, 15, 16, 1), (0, 48, 55, 56, 1),(0, 18, 21, 22, 1)]
 
 class Chassis(ChassisBase):
@@ -78,9 +78,12 @@ class Chassis(ChassisBase):
     def __init__(self):
         super(Chassis, self).__init__()
 
+        # Initialize SKU name
+        self.sku_name = self._get_sku_name()
+
         # Initialize PSU list
         for index in range(MLNX_NUM_PSU):
-            psu = Psu(index)
+            psu = Psu(index, self.sku_name)
             self._psu_list.append(psu)
 
         # Initialize watchdog
@@ -112,6 +115,9 @@ class Chassis(ChassisBase):
                 sfp_module = SFP(index, 'SFP')
             self._sfp_list.append(sfp_module)
 
+        # Initialize thermals
+        initialize_thermals(self.sku_name, self._thermal_list, self._psu_list)
+
         # Initialize EEPROM
         self.eeprom = Eeprom()
 
@@ -137,10 +143,13 @@ class Chassis(ChassisBase):
 
         return num_of_fan, num_of_drawer
 
-    def _get_port_position_tuple_by_sku_name(self):
+    def _get_sku_name(self):
         p = subprocess.Popen(GET_HWSKU_CMD, shell=True, stdout=subprocess.PIPE)
         out, err = p.communicate()
-        position_tuple = port_position_tuple_list[hwsku_dict[out.rstrip('\n')]]
+        return out.rstrip('\n')
+
+    def _get_port_position_tuple_by_sku_name(self):
+        position_tuple = port_position_tuple_list[hwsku_dict_port[self.sku_name]]
         return position_tuple
 
     def get_base_mac(self):
@@ -183,8 +192,8 @@ class Chassis(ChassisBase):
             result = fileobj.read(len)
             fileobj.close()
             return result
-        except:
-            logger.log_warning("Fail to read file {}, maybe it doesn't exist".format(filename))
+        except Exception as e:
+            logger.log_info("Fail to read file {} due to {}".format(filename, repr(e)))
             return ''
 
     def _verify_reboot_cause(self, filename):
