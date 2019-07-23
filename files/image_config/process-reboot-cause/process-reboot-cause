@@ -70,7 +70,7 @@ def main():
     # if there is no sonic_platform package installed, we only provide
     # software-related reboot causes.
     try:
-        import sonic_platform
+        import sonic_platform.platform
 
         # Check if the previous reboot was caused by hardware
         platform = sonic_platform.platform.Platform()
