@@ -20,6 +20,8 @@ except ImportError as e:
 FAN_DX010_SPEED_PATH = "/sys/class/hwmon/hwmon{}/fan1_input"
 GREEN_LED_PATH = "/sys/devices/platform/leds_dx010/leds/dx010:green:p-{}/brightness"
 FAN_MAX_RPM = 11000
+SYS_GPIO_DIR = "/sys/class/gpio"
+PSU_NAME_LIST = ["PSU-1", "PSU-2"]
 
 
 class Psu(PsuBase):
@@ -29,6 +31,31 @@ class Psu(PsuBase):
         PsuBase.__init__(self)
         self.index = psu_index
         self.green_led_path = GREEN_LED_PATH.format(self.index+1)
+        self.dx010_psu_gpio = [
+            {'base': self.get_gpio_base()},
+            {'prs': 27, 'status': 22},
+            {'prs': 28, 'status': 25}
+        ]
+
+    def get_gpio_base(self):
+        for r in os.listdir(SYS_GPIO_DIR):
+            if "gpiochip" in r:
+                return int(r[8:], 10)
+        return 216  # Reserve
+
+    def get_gpio_value(self, pinnum):
+        gpio_base = self.dx010_psu_gpio[0]['base']
+        gpio_file = "{}/gpio{}/value".format(SYS_GPIO_DIR,
+                                             str(gpio_base+pinnum))
+
+        try:
+            with open(gpio_file, 'r') as fd:
+                retval = fd.read()
+        except IOError:
+            raise IOError("Unable to open " + gpio_file + "file !")
+
+        retval = retval.rstrip('\r\n')
+        return retval
 
     def get_fan(self):
         """
@@ -76,3 +103,29 @@ class Psu(PsuBase):
             return False
 
         return True
+
+    def get_name(self):
+        """
+        Retrieves the name of the device
+            Returns:
+            string: The name of the device
+        """
+        return PSU_NAME_LIST[self.index]
+
+    def get_presence(self):
+        """
+        Retrieves the presence of the PSU
+        Returns:
+            bool: True if PSU is present, False if not
+        """
+        raw = self.get_gpio_value(self.dx010_psu_gpio[self.index+1]['prs'])
+        return int(raw, 10) == 0
+
+    def get_status(self):
+        """
+        Retrieves the operational status of the device
+        Returns:
+            A boolean value, True if device is operating properly, False if not
+        """
+        raw = self.get_gpio_value(self.dx010_psu_gpio[self.index+1]['status'])
+        return int(raw, 10) == 1

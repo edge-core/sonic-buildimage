@@ -116,6 +116,16 @@ enum MASTER_LED {
 #define FAN_2           1
 #define FAN_1           0
 
+/* FAN STATUS
+ * [7:5] FAN STATUS
+ * [4]   FAN INTERRUPT
+ * [3:0] PSU ALERT
+ */
+#define FAN_STAT        0x0234
+#define FAN3_PRS        7
+#define FAN2_PRS        6
+#define FAN1_PRS        5
+
 /* SFP PORT INT TRIGGER MODE
  * [7:6] RESERVED
  * [5:4] RXLOS 
@@ -440,6 +450,19 @@ static ssize_t fan_dir_show(struct device *dev, struct device_attribute *devattr
     mutex_unlock(&cpld_data->cpld_lock);
     data = ( data >> index ) & 1U;
     return sprintf(buf, "%s\n", data ? "B2F" : "F2B" );
+}
+
+static ssize_t fan_prs_show(struct device *dev, struct device_attribute *devattr,
+                            char *buf)
+{
+    struct sensor_device_attribute *sa = to_sensor_dev_attr(devattr);
+    int index = sa->index;
+    unsigned char data = 0;
+    mutex_lock(&cpld_data->cpld_lock);
+    data = inb(FAN_STAT);
+    mutex_unlock(&cpld_data->cpld_lock);
+    data = ( data >> index ) & 1U;
+    return sprintf(buf, "%d\n", data);
 }
 
 static ssize_t sfp_txfault_show(struct device *dev, struct device_attribute *attr, char *buf)
@@ -870,6 +893,9 @@ static SENSOR_DEVICE_ATTR(fan3_dir, S_IRUGO, fan_dir_show, NULL, FAN_3);
 static SENSOR_DEVICE_ATTR(fan1_led, S_IWUSR | S_IRUGO, fan_led_show, fan_led_store, FAN_1);
 static SENSOR_DEVICE_ATTR(fan2_led, S_IWUSR | S_IRUGO, fan_led_show, fan_led_store, FAN_2);
 static SENSOR_DEVICE_ATTR(fan3_led, S_IWUSR | S_IRUGO, fan_led_show, fan_led_store, FAN_3);
+static SENSOR_DEVICE_ATTR(fan1_prs, S_IRUGO, fan_prs_show, NULL, FAN1_PRS);
+static SENSOR_DEVICE_ATTR(fan2_prs, S_IRUGO, fan_prs_show, NULL, FAN2_PRS);
+static SENSOR_DEVICE_ATTR(fan3_prs, S_IRUGO, fan_prs_show, NULL, FAN3_PRS);
 
 static struct attribute *cpld_attrs[] = {
     &dev_attr_version.attr,
@@ -891,6 +917,9 @@ static struct attribute *cpld_attrs[] = {
     &sensor_dev_attr_fan1_led.dev_attr.attr,
     &sensor_dev_attr_fan2_led.dev_attr.attr,
     &sensor_dev_attr_fan3_led.dev_attr.attr,
+    &sensor_dev_attr_fan1_prs.dev_attr.attr,
+    &sensor_dev_attr_fan2_prs.dev_attr.attr,
+    &sensor_dev_attr_fan3_prs.dev_attr.attr,
     NULL,
 };
 

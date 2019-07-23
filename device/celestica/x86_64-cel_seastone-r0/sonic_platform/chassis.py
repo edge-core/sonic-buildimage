@@ -18,7 +18,6 @@ try:
     from sonic_platform_base.chassis_base import ChassisBase
     from sonic_platform.fan import Fan
     from sonic_platform.psu import Psu
-    from sonic_platform.device import Device
     from sonic_platform.component import Component
     from sonic_platform.watchdog import Watchdog
 except ImportError as e:
@@ -29,6 +28,7 @@ NUM_FAN = 5
 NUM_PSU = 2
 RESET_REGISTER = "0x103"
 REBOOT_CAUSE_PATH = "/host/reboot-cause/previous-reboot-cause.txt"
+COMPONENT_NAME_LIST = ["CPLD1", "CPLD2", "CPLD3", "CPLD4", "BIOS"]
 
 
 class Chassis(ChassisBase):
@@ -43,8 +43,7 @@ class Chassis(ChassisBase):
             psu = Psu(index)
             self._psu_list.append(psu)
         ChassisBase.__init__(self)
-        self._component_device = Device("component")
-        self._component_name_list = self._component_device.get_name_list()
+        self._component_name_list = COMPONENT_NAME_LIST
         self._watchdog = Watchdog()
 
     def __read_config_db(self):

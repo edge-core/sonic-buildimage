@@ -24,6 +24,7 @@ EMC2305_MAX_PWM = 255
 EMC2305_FAN_PWM = "pwm{}"
 EMC2305_FAN_TARGET = "fan{}_target"
 EMC2305_FAN_INPUT = "pwm{}"
+FAN_NAME_LIST = ["FAN-1", "FAN-2", "FAN-3"]
 
 
 class Fan(FanBase):
@@ -43,8 +44,7 @@ class Fan(FanBase):
                 'index_map': [1, 2, 4]
             }
         ]
-        
-        # TODO: Add fan presence status in sysfs
+
         self.fan_e1031_presence = "fan{}_prs"
         self.fan_e1031_direction = "fan{}_dir"
         self.fan_e1031_led = "fan{}_led"
@@ -181,3 +181,28 @@ class Fan(FanBase):
             return False
 
         return True
+
+    def get_name(self):
+        """
+        Retrieves the name of the device
+            Returns:
+            string: The name of the device
+        """
+        return FAN_NAME_LIST[self.index]
+
+    def get_presence(self):
+        """
+        Retrieves the presence of the PSU
+        Returns:
+            bool: True if PSU is present, False if not
+        """
+
+        try:
+            fan_direction_file = (FAN_PATH +
+                                  self.fan_e1031_presence.format(self.index+1))
+            with open(fan_direction_file, 'r') as file:
+                present = int(file.read().strip('\r\n'))
+        except IOError:
+            return False
+
+        return present == 0

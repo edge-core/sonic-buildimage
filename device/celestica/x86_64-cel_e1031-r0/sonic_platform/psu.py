@@ -19,6 +19,7 @@ except ImportError as e:
 
 FAN_E1031_SPEED_PATH = "/sys/class/hwmon/hwmon{}/fan1_input"
 FAN_MAX_RPM = 11000
+PSU_NAME_LIST = ["PSU-R", "PSU-L"]
 
 
 class Psu(PsuBase):
@@ -27,6 +28,9 @@ class Psu(PsuBase):
     def __init__(self, psu_index):
         PsuBase.__init__(self)
         self.index = psu_index
+        self.psu_path = "/sys/devices/platform/e1031.smc/"
+        self.psu_presence = "psu{}_prs"
+        self.psu_oper_status = "psu{}_status"
 
     def get_fan(self):
         """
@@ -59,3 +63,43 @@ class Psu(PsuBase):
         """
         # Hardware not supported
         return False
+
+    def get_name(self):
+        """
+        Retrieves the name of the device
+            Returns:
+            string: The name of the device
+        """
+        return PSU_NAME_LIST[self.index]
+
+    def get_presence(self):
+        """
+        Retrieves the presence of the PSU
+        Returns:
+            bool: True if PSU is present, False if not
+        """
+        psu_location = ["R", "L"]
+        status = 0
+        try:
+            with open(self.psu_path + self.psu_presence.format(psu_location[self.index]), 'r') as psu_prs:
+                status = int(psu_prs.read())
+        except IOError:
+            return False
+
+        return status == 1
+
+    def get_status(self):
+        """
+        Retrieves the operational status of the device
+        Returns:
+            A boolean value, True if device is operating properly, False if not
+        """
+        psu_location = ["R", "L"]
+        status = 0
+        try:
+            with open(self.psu_path + self.psu_oper_status.format(psu_location[self.index]), 'r') as power_status:
+                status = int(power_status.read())
+        except IOError:
+            return False
+
+        return status == 1

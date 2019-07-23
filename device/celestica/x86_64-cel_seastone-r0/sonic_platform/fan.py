@@ -24,6 +24,7 @@ EMC2305_MAX_PWM = 255
 EMC2305_FAN_PWM = "pwm{}"
 EMC2305_FAN_TARGET = "fan{}_target"
 EMC2305_FAN_INPUT = "pwm{}"
+FAN_NAME_LIST = ["FAN-1", "FAN-2", "FAN-3", "FAN-4", "FAN-5"]
 
 
 class Fan(FanBase):
@@ -226,3 +227,21 @@ class Fan(FanBase):
             return False
 
         return True
+
+    def get_name(self):
+        """
+        Retrieves the name of the device
+            Returns:
+            string: The name of the device
+        """
+        return FAN_NAME_LIST[self.index]
+
+    def get_presence(self):
+        """
+        Retrieves the presence of the PSU
+        Returns:
+            bool: True if PSU is present, False if not
+        """
+        raw = self.get_gpio_value(self.dx010_fan_gpio[self.index+1]['prs'])
+
+        return int(raw, 10) == 0
