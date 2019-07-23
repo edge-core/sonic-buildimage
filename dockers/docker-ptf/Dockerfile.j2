@@ -97,10 +97,10 @@ RUN rm -rf /debs \
 
 ## Adjust sshd settings
 RUN mkdir /var/run/sshd \
- && echo 'root:root' | chpasswd \
- && sed -ri 's/^PermitRootLogin\s+.*/PermitRootLogin yes/' /etc/ssh/sshd_config \
- && sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config \
- && sed -i '$aUseDNS no' /etc/ssh/sshd_config
+    && echo 'root:root' | chpasswd \
+    && sed -ri '/^#?PermitRootLogin/c\PermitRootLogin yes' /etc/ssh/sshd_config \
+    && sed -ri '/^#?UsePAM/c\UsePAM no' /etc/ssh/sshd_config \
+    && sed -ri '/^#?UseDNS/c\UseDNS no' /etc/ssh/sshd_config
 
 COPY ["supervisord.conf", "/etc/supervisor/"]
 COPY ["conf.d/supervisord.conf", "conf.d/sshd.conf", "conf.d/ptf_nn_agent.conf", "/etc/supervisor/conf.d/"]
