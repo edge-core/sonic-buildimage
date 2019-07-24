@@ -78,6 +78,11 @@ if [[ x"${WARM_BOOT}" != x"true" ]]; then
     exit 0
 fi
 
+# No need to wait for the reconciliation process. Database has been loaded
+# and migrated. This is good enough to save a copy.
+debug "Save in-memory database after warm reboot ..."
+config save -y
+
 list=${COMP_LIST}
 
 # Wait up to 5 minutes
