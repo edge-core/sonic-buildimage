@@ -8,12 +8,15 @@ try:
 except ImportError, e:
     raise ImportError (str(e) + "- required module not found")
 
+#from xcvrd
+SFP_STATUS_INSERTED = '1'
+SFP_STATUS_REMOVED = '0'
 
 class SfpUtil(SfpUtilBase):
     """Platform specific SfpUtill class"""
 
-    _port_start = 0
-    _port_end = 63
+    _port_start = 1
+    _port_end = 64
     ports_in_block = 64
 
     _port_to_eeprom_mapping = {}
@@ -86,18 +89,18 @@ class SfpUtil(SfpUtilBase):
     _qsfp_ports = range(0, ports_in_block + 1)
 
     def __init__(self):
-        eeprom_path = '/sys/bus/i2c/devices/{0}-0050/sfp_eeprom'
-        for x in range(0, self._port_end + 1):
-            port_eeprom_path = eeprom_path.format(self.port_to_i2c_mapping[x+1])
+        eeprom_path = '/sys/bus/i2c/devices/{0}-0050/eeprom'
+        for x in range(self.port_start, self.port_end + 1):
+            port_eeprom_path = eeprom_path.format(self.port_to_i2c_mapping[x])
             self._port_to_eeprom_mapping[x] = port_eeprom_path
         SfpUtilBase.__init__(self)
 
     def reset(self, port_num):
         # Check for invalid port_num
-        if port_num < self._port_start or port_num > self._port_end:
+        if port_num < self.port_start or port_num > self.port_end:
             return False
 	path = "/sys/bus/i2c/devices/19-0060/module_reset_{0}"
-        port_ps = path.format(port_num+1)
+        port_ps = path.format(port_num)
           
         try:
             reg_file = open(port_ps, 'w')
@@ -113,12 +116,11 @@ class SfpUtil(SfpUtilBase):
         
     def get_presence(self, port_num):
         # Check for invalid port_num
-        if port_num < self._port_start or port_num > self._port_end:
+        if port_num < self.port_start or port_num > self.port_end:
             return False
 
-        path = "/sys/bus/i2c/devices/{0}-0050/sfp_is_present"
-        port_ps = path.format(self.port_to_i2c_mapping[port_num+1])
-
+        path = "/sys/bus/i2c/devices/19-0060/module_present_{0}"
+        port_ps = path.format(port_num)
           
         try:
             reg_file = open(port_ps)
@@ -147,14 +149,6 @@ class SfpUtil(SfpUtilBase):
     @property 
     def port_to_eeprom_mapping(self):
          return self._port_to_eeprom_mapping
-
-    def get_transceiver_change_event(self):
-        """
-        TODO: This function need to be implemented
-        when decide to support monitoring SFP(Xcvrd)
-        on this platform.
-        """
-        raise NotImplementedError
 
     def get_low_power_mode(self, port_num):
         # Check for invalid port_num
@@ -213,3 +207,62 @@ class SfpUtil(SfpUtilBase):
             if eeprom is not None:
                 eeprom.close()
                 time.sleep(0.01)
+
+    @property
+    def _get_present_bitmap(self):
+        nodes = []
+
+        cpld_path = "/sys/bus/i2c/devices/19-0060/"
+        nodes.append(cpld_path + "module_present_all")
+
+        bitmap = ""
+        for node in nodes:
+            try:
+                reg_file = open(node)
+
+            except IOError as e:
+                print "Error: unable to open file: %s" % str(e)
+                return False
+            bitmap += reg_file.readline().rstrip() + " "
+            reg_file.close()
+
+        rev = bitmap.split(" ")
+        rev = "".join(rev[::-1])
+        return int(rev,16)
+
+
+    data = {'valid':0, 'last':0, 'present':0}
+    def get_transceiver_change_event(self, timeout=2000):
+        now = time.time()
+        port_dict = {}
+        port = 0
+
+        if timeout < 1000:
+            timeout = 1000
+        timeout = (timeout) / float(1000) # Convert to secs
+
+        if now < (self.data['last'] + timeout) and self.data['valid']:
+            return True, {}
+
+        reg_value = self._get_present_bitmap
+        reg_value = ~reg_value
+        changed_ports = self.data['present'] ^ reg_value
+        if changed_ports:
+            for port in range (self.port_start, self.port_end+1):
+                # Mask off the bit corresponding to our port
+                mask = (1 << (port - 1))
+                if changed_ports & mask:
+                    if (reg_value & mask) == 0:
+                        port_dict[port] = SFP_STATUS_REMOVED
+                    else:
+                        port_dict[port] = SFP_STATUS_INSERTED
+
+            # Update cache
+            self.data['present'] = reg_value
+            self.data['last'] = now
+            self.data['valid'] = 1
+            return True, port_dict
+        else:
+            return True, {}
+        return False, {}
+

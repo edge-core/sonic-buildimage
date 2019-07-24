@@ -11,13 +11,17 @@ try:
 except ImportError as e:
     raise ImportError("%s - required module not found" % str(e))
 
+#from xcvrd
+SFP_STATUS_INSERTED = '1'
+SFP_STATUS_REMOVED = '0'
+
 
 class SfpUtil(SfpUtilBase):
     """Platform-specific SfpUtil class"""
     
-    PORT_START = 0
-    PORT_END = 33
-    PORTS_IN_BLOCK = 34
+    PORT_START = 1
+    PORT_END = 32  #34 cages actually, but last 2 are not at port_config.ini.
+    PORTS_IN_BLOCK = 32
     
     BASE_OOM_PATH = "/sys/bus/i2c/devices/{0}-0050/"
     BASE_CPLD_PATH = "/sys/bus/i2c/devices/11-0060/"
@@ -27,40 +31,40 @@ class SfpUtil(SfpUtilBase):
 
     _port_to_eeprom_mapping = {}
     _port_to_i2c_mapping = {
-           0: [1, 21],
-           1: [2, 22],
-           2: [3, 23],
-           3: [4, 24],
-           4: [5, 26],
-           5: [6, 25],
-           6: [7, 28],
-           7: [8, 27],
-           8: [9, 17],
-           9: [10, 18],
-           10: [11, 19],
-           11: [12, 20],
-           12: [13, 29],
-           13: [14, 30],
-           14: [15, 31],
-           15: [16, 32],
-           16: [17, 33],
-           17: [18, 34],
-           18: [19, 35],
-           19: [20, 36],
-           20: [21, 45],
-           21: [22, 46],
-           22: [23, 47],
-           23: [24, 48],
-           24: [25, 37],
-           25: [26, 38],
-           26: [27, 39],
-           27: [28, 40],
-           28: [29, 41],
-           29: [30, 42],
-           30: [31, 43],
-           31: [32, 44],              
-           32: [33, 15], 
-           33: [34, 16], 
+           1:  21,
+           2:  22,
+           3:  23,
+           4:  24,
+           5:  26,
+           6:  25,
+           7:  28,
+           8:  27,
+           9:  17,
+           10: 18,
+           11: 19,
+           12: 20,
+           13: 29,
+           14: 30,
+           15: 31,
+           16: 32,
+           17: 33,
+           18: 34,
+           19: 35,
+           20: 36,
+           21: 45,
+           22: 46,
+           23: 47,
+           24: 48,
+           25: 37,
+           26: 38,
+           27: 39,
+           28: 40,
+           29: 41,
+           30: 42,
+           31: 43,
+           32: 44,              
+           33: 15, 
+           34: 16, 
            }
 
     @property
@@ -82,19 +86,18 @@ class SfpUtil(SfpUtilBase):
     def __init__(self):
         eeprom_path = self.BASE_OOM_PATH + "eeprom"
         
-        for x in range(0, self.port_end+1):
+        for x in range(self.port_start, self.port_end+1):
             self.port_to_eeprom_mapping[x] = eeprom_path.format(
-                self._port_to_i2c_mapping[x][1]
+                self._port_to_i2c_mapping[x]
                 )
-
         SfpUtilBase.__init__(self)
 
     def get_presence(self, port_num):
         # Check for invalid port_num
-        if port_num < self.port_start or port_num > self.port_end:
+        if not port_num in range(self.port_start, self.port_end+1):
             return False
-       
-        present_path = self.BASE_CPLD_PATH + "module_present_" + str(port_num+1)
+
+        present_path = self.BASE_CPLD_PATH + "module_present_" + str(port_num)
         self.__port_to_is_present = present_path
 
         try:
@@ -174,26 +177,81 @@ class SfpUtil(SfpUtilBase):
         if port_num < self.port_start or port_num > self.port_end:
             return False
             
-        mod_rst_path = self.BASE_CPLD_PATH + "module_reset_" + str(port_num+1)
+        mod_rst_path = self.BASE_CPLD_PATH + "module_reset_" + str(port_num)
         
         self.__port_to_mod_rst = mod_rst_path
         try:
-            reg_file = open(self.__port_to_mod_rst, 'r+')
+            reg_file = open(self.__port_to_mod_rst, 'r+', buffering=0)
         except IOError as e:
             print "Error: unable to open file: %s" % str(e)          
             return False
 
-        reg_value = '1'
-
-        reg_file.write(reg_value)
+        #toggle reset
+        reg_file.seek(0)
+        reg_file.write('1')
+        time.sleep(1)
+        reg_file.seek(0)
+        reg_file.write('0')
         reg_file.close()
         
         return True
 
-    def get_transceiver_change_event(self):
-        """
-        TODO: This function need to be implemented
-        when decide to support monitoring SFP(Xcvrd)
-        on this platform.
-        """
-        raise NotImplementedError
+    @property
+    def get_transceiver_status(self):
+        nodes = []
+
+        cpld_path = self.BASE_CPLD_PATH
+        nodes.append(cpld_path + "module_present_all")
+
+        bitmap = ""
+        for node in nodes:
+            try:
+                reg_file = open(node)
+
+            except IOError as e:
+                print "Error: unable to open file: %s" % str(e)
+                return False
+            bitmap += reg_file.readline().rstrip() + " "
+            reg_file.close()
+
+        rev = bitmap.split(" ")
+        rev = "".join(rev[::-1])
+        return int(rev,16)
+
+    data = {'valid':0, 'last':0, 'present':0}
+    def get_transceiver_change_event(self, timeout=2000):
+        now = time.time()
+        port_dict = {}
+        port = 0
+
+        if timeout < 1000:
+            timeout = 1000
+        timeout = (timeout) / float(1000) # Convert to secs
+
+
+        if now < (self.data['last'] + timeout) and self.data['valid']:
+            return True, {}
+
+        reg_value = self.get_transceiver_status
+        changed_ports = self.data['present'] ^ reg_value
+        if changed_ports:
+            for port in range (self.port_start, self.port_end+1):
+                # Mask off the bit corresponding to our port
+                fp_port = port
+                mask = (1 << (fp_port - 1))
+                if changed_ports & mask:
+                    if (reg_value & mask) == 0:
+                        port_dict[port] = SFP_STATUS_REMOVED
+                    else:
+                        port_dict[port] = SFP_STATUS_INSERTED
+
+            # Update cache
+            self.data['present'] = reg_value
+            self.data['last'] = now
+            self.data['valid'] = 1
+
+            return True, port_dict
+        else:
+            return True, {}
+        return False, {}
+

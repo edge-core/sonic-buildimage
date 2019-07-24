@@ -11,15 +11,19 @@ try:
 except ImportError as e:
     raise ImportError("%s - required module not found" % str(e))
 
+#from xcvrd
+SFP_STATUS_INSERTED = '1'
+SFP_STATUS_REMOVED = '0'
+
 
 class SfpUtil(SfpUtilBase):
     """Platform-specific SfpUtil class"""
 
     PORT_START = 1
-    PORT_END = 72
-    PORTS_IN_BLOCK = 72
-    QSFP_PORT_START = 48
-    QSFP_PORT_END = 72
+    PORT_END = 54
+    PORTS_IN_BLOCK = 54
+    QSFP_PORT_START = 49
+    QSFP_PORT_END = 54
 
     BASE_VAL_PATH = "/sys/class/i2c-adapter/i2c-{0}/{1}-0050/"
     BASE_OOM_PATH = "/sys/bus/i2c/devices/{0}-0050/"
@@ -30,85 +34,67 @@ class SfpUtil(SfpUtilBase):
     #The sidebands of QSFP is different. 
     #present is in-order. 
     #But lp_mode and reset are not. 	
-    qsfp_sb_map = [1, 3, 5, 2, 4, 6]
+    qsfp_sb_map = [0, 2, 4, 1, 3, 5]
 
     _port_to_is_present = {}
     _port_to_lp_mode = {}
 
     _port_to_eeprom_mapping = {}
     _port_to_i2c_mapping = {
-            1: [1, 2],
-            2: [2, 3],
-            3: [3, 4],
-            4: [4, 5],
-            5: [5, 6],
-            6: [6, 7],
-            7: [7, 8],
-            8: [8, 9],
-            9: [9, 10],
-           10: [10, 11],
-           11: [11, 12],
-           12: [12, 13],
-           13: [13, 14],
-           14: [14, 15],
-           15: [15, 16],
-           16: [16, 17],
-           17: [17, 18],
-           18: [18, 19],
-           19: [19, 20],
-           20: [20, 21],
-           21: [21, 22],
-           22: [22, 23],
-           23: [23, 24],
-           24: [24, 25],
-           25: [25, 26],
-           26: [26, 27],
-           27: [27, 28],
-           28: [28, 29],
-           29: [29, 30],
-           30: [30, 31],
-           31: [31, 32],
-           32: [32, 33],
-           33: [33, 34],
-           34: [34, 35],
-           35: [35, 36],
-           36: [36, 37],
-           37: [37, 38],
-           38: [38, 39],
-           39: [39, 40],
-           40: [40, 41],
-           41: [41, 42],
-           42: [42, 43],
-           43: [43, 44],
-           44: [44, 45],
-           45: [45, 46],
-           46: [46, 47],
-           47: [47, 48],
-           48: [48, 49],
-           49: [49, 50],#QSFP49
-           50: [49, 50],
-           51: [49, 50],
-           52: [49, 50],
-           53: [50, 52],#QSFP50
-           54: [50, 52],
-           55: [50, 52],
-           56: [50, 52],
-           57: [51, 54],#QSFP51
-           58: [51, 54],
-           59: [51, 54],
-           60: [51, 54],
-           61: [52, 51],#QSFP52
-           62: [52, 51],
-           63: [52, 51],
-           64: [52, 51],
-           65: [53, 53],#QSFP53
-           66: [53, 53],
-           67: [53, 53],
-           68: [53, 53],
-           69: [54, 55],#QSFP54
-           70: [54, 55],
-           71: [54, 55],
-           72: [54, 55],
+            1:  [1, 2],
+            2:  [2, 3],
+            3:  [3, 4],
+            4:  [4, 5],
+            5:  [5, 6],
+            6:  [6, 7],
+            7:  [7, 8],
+            8:  [8, 9],
+            9:  [9, 10],
+           10:  [10,11],
+           11:  [11,12],
+           12:  [12,13],
+           13:  [13,14],
+           14:  [14,15],
+           15:  [15,16],
+           16:  [16,17],
+           17:  [17,18],
+           18:  [18,19],
+           19:  [19,20],
+           20:  [20,21],
+           21:  [21,22],
+           22:  [22,23],
+           23:  [23,24],
+           24:  [24,25],
+           25:  [25,26],
+           26:  [26,27],
+           27:  [27,28],
+           28:  [28,29],
+           29:  [29,30],
+           30:  [30,31],
+           31:  [31,32],
+           32:  [32,33],
+           33:  [33,34],
+           34:  [34,35],
+           35:  [35,36],
+           36:  [36,37],
+           37:  [37,38],
+           38:  [38,39],
+           39:  [39,40],
+           40:  [40,41],
+           41:  [41,42],
+           42:  [42,43],
+           43:  [43,44],
+           44:  [44,45],
+           45:  [45,46],
+           46:  [46,47],
+           47:  [47,48],
+           48:  [48,49],
+           49:  [49,50],#QSFP_start
+           50:  [51,52],
+           51:  [53,54],
+           52:  [50,51],
+           53:  [52,53],
+           54:  [54,55],
            }
 
     @property
@@ -142,7 +128,6 @@ class SfpUtil(SfpUtilBase):
             self.port_to_eeprom_mapping[x] = eeprom_path.format(
                 self._port_to_i2c_mapping[x][1]
                 )
-
         SfpUtilBase.__init__(self)
 
     #Two i2c buses might get flipped order, check them both.
@@ -170,7 +155,7 @@ class SfpUtil(SfpUtilBase):
         else:
             present_path = self.BASE_CPLD3_PATH.format(order)
         
-        present_path = present_path + "module_present_" + str(self._port_to_i2c_mapping[port_num][0])            
+        present_path = present_path + "module_present_" + str(port_num)            
         self.__port_to_is_present = present_path
 
         try:
@@ -190,8 +175,8 @@ class SfpUtil(SfpUtilBase):
 
     def qsfp_sb_remap(self, port_num):
         qsfp_start = self.qsfp_port_start
-        qsfp_index = self._port_to_i2c_mapping[port_num][0] - qsfp_start
-        qsfp_index = self.qsfp_sb_map[qsfp_index-1]
+        qsfp_index = port_num - qsfp_start
+        qsfp_index = self.qsfp_sb_map[qsfp_index]
         return qsfp_start+qsfp_index
 
     def get_low_power_mode_cpld(self, port_num):
@@ -287,7 +272,7 @@ class SfpUtil(SfpUtilBase):
         mod_rst_path = mod_rst_path + str(q)
         
         try:
-            reg_file = open(mod_rst_path, 'r+')
+            reg_file = open(mod_rst_path, 'r+', buffering=0)
         except IOError as e:
             print "Error: unable to open file: %s" % str(e)          
             return False
@@ -300,12 +285,68 @@ class SfpUtil(SfpUtilBase):
         reg_file.write('1')
         reg_file.close()
         return True
+
+    @property
+    def _get_presence_bitmap(self):
+	nodes = []
+        order = self.update_i2c_order()
         
-    def get_transceiver_change_event(self):
-        """
-        TODO: This function need to be implemented
-        when decide to support monitoring SFP(Xcvrd)
-        on this platform.
-        """
-        raise NotImplementedError
+        present_path = self.BASE_CPLD2_PATH.format(order)
+        nodes.append(present_path + "module_present_all")
+        present_path = self.BASE_CPLD3_PATH.format(order)
+        nodes.append(present_path + "module_present_all")
+
+	bitmap = ""
+	for node in nodes: 
+            try:
+                reg_file = open(node)
+    
+            except IOError as e:
+                print "Error: unable to open file: %s" % str(e)
+                return False
+            bitmap += reg_file.readline().rstrip() + " "
+            reg_file.close()
+
+        rev = bitmap.split(" ")
+        rev = "".join(rev[::-1])
+        return int(rev,16)
+   
+
+    data = {'valid':0, 'last':0, 'present':0} 
+    def get_transceiver_change_event(self, timeout=2000):
+        now = time.time()
+        port_dict = {}
+        port = 0
+
+        if timeout < 1000:
+            timeout = 1000
+        timeout = (timeout) / float(1000) # Convert to secs
+
+
+        if now < (self.data['last'] + timeout) and self.data['valid']:
+            return True, {}
+
+        reg_value = self._get_presence_bitmap
+        changed_ports = self.data['present'] ^ reg_value
+        if changed_ports:
+            for port in range (self.port_start, self.port_end+1):
+                # Mask off the bit corresponding to our port
+                fp_port = self._port_to_i2c_mapping[port][0]
+                mask = (1 << (fp_port - 1))
+                if changed_ports & mask:
+
+                    if (reg_value & mask) == 0:
+                        port_dict[port] = SFP_STATUS_REMOVED
+                    else:
+                        port_dict[port] = SFP_STATUS_INSERTED
+
+            # Update cache 
+            self.data['present'] = reg_value
+            self.data['last'] = now
+            self.data['valid'] = 1
+
+            return True, port_dict
+        else:
+            return True, {}
+        return False, {}
 

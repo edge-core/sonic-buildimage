@@ -11,15 +11,18 @@ try:
 except ImportError as e:
     raise ImportError("%s - required module not found" % str(e))
 
+#from xcvrd
+SFP_STATUS_REMOVED = '0'
+SFP_STATUS_INSERTED = '1'
 
 class SfpUtil(SfpUtilBase):
     """Platform-specific SfpUtil class"""
 
-    PORT_START = 0
-    PORT_END = 81
-    PORTS_IN_BLOCK = 82
-    QSFP_PORT_START = 48
-    QSFP_PORT_END = 82
+    PORT_START = 1
+    PORT_END = 56
+    PORTS_IN_BLOCK = 56
+    QSFP_PORT_START = 49
+    QSFP_PORT_END = 56
 
     BASE_VAL_PATH = "/sys/class/i2c-adapter/i2c-{0}/{1}-0050/"
 
@@ -34,88 +37,63 @@ class SfpUtil(SfpUtilBase):
            }
 
     _port_to_i2c_mapping = {
-           0:  42,
-           1:  41,
-           2:  44,
-           3:  43,
-           4:  47,
-           5:  45,
-           6:  46,
-           7:  50,
-           8:  48,
-           9:  49,
-           10:  51,
-           11:  52,
-           12:  53,
-           13:  56,
-           14:  55,
-           15:  54,
-           16:  58,
-           17:  57,
-           18:  59,
-           19:  60,
-           20:  61,
-           21:  63,
-           22:  62,
-           23:  64,
-           24:  66,
-           25:  68,
-           26:  65,
-           27:  67,
-           28:  69,
-           29:  71,
-           30:  72,
-           31:  70,
-           32:  74,
-           33:  73,
-           34:  76,
-           35:  75,
-           36:  77,
-           37:  79,
-           38:  78,
-           39:  80,
-           40:  81,
-           41:  82,
-           42:  84,
-           43:  85,
-           44:  83,
-           45:  87,
-           46:  88,
-           47:  86,
-           48:  25,  #QSFP49
-           49:  25,  
-           50:  25,  
-           51:  25,  
-           52:  26,  #QSFP50
-           53:  26,
-           54:  26,
-           55:  26,
-           56:  27,  #QSFP51
-           57:  26,
-           58:  26,
-           59:  26,
-           60:  28,  #QSFP52
-           61:  26,
-           62:  26,
-           63:  26,
-           64:  29,  #QSFP53
-           65:  26,
-           66:  26,
-           67:  26,
-           68:  30,  #QSFP54
-           69:  26,
-           70:  26,
-           71:  26,
-           72:  31,  #QSFP55
-           73:  26,
-           74:  26,
-           75:  26,
-           76:  32,  #QSFP56
-           77:  26,
-           78:  26,
-           79:  26,
-           80:  22,
-           81:  23}
+           1:  42,
+           2:  41,
+           3:  44,
+           4:  43,
+           5:  47,
+           6:  45,
+           7:  46,
+           8:  50,
+           9:  48,
+           10:  49,
+           11:  51,
+           12:  52,
+           13:  53,
+           14:  56,
+           15:  55,
+           16:  54,
+           17:  58,
+           18:  57,
+           19:  59,
+           20:  60,
+           21:  61,
+           22:  63,
+           23:  62,
+           24:  64,
+           25:  66,
+           26:  68,
+           27:  65,
+           28:  67,
+           29:  69,
+           30:  71,
+           31:  72,
+           32:  70,
+           33:  74,
+           34:  73,
+           35:  76,
+           36:  75,
+           37:  77,
+           38:  79,
+           39:  78,
+           40:  80,
+           41:  81,
+           42:  82,
+           43:  84,
+           44:  85,
+           45:  83,
+           46:  87,
+           47:  88,
+           48:  86,
+           49:  25,#QSFP49
+           50:  26,
+           51:  27,
+           52:  28,
+           53:  29,
+           54:  30,
+           55:  31,
+           56:  32,#QSFP56
+           }
 
     @property
     def port_start(self):
@@ -132,7 +110,7 @@ class SfpUtil(SfpUtilBase):
     @property
     def qsfp_port_end(self):
         return self.QSFP_PORT_END
-    
+
     @property
     def qsfp_ports(self):
         return range(self.QSFP_PORT_START, self.PORTS_IN_BLOCK + 1)
@@ -143,27 +121,16 @@ class SfpUtil(SfpUtilBase):
 
     def __init__(self):
         eeprom_path = '/sys/bus/i2c/devices/{0}-0050/eeprom'
-        for x in range(0, self.port_end+1):
+        for x in range(self.port_start, self.port_end+1):
             self.port_to_eeprom_mapping[x] = eeprom_path.format(
                 self._port_to_i2c_mapping[x])
 
         SfpUtilBase.__init__(self)
 
-
-    # For port 48~51 are QSFP, here presumed they're all split to 4 lanes.
-    def get_cage_num(self, port_num):             
-        cage_num = port_num
-        if (port_num >= self.QSFP_PORT_START):
-            cage_num = (port_num - self.QSFP_PORT_START)/4
-            cage_num = cage_num + self.QSFP_PORT_START
-
-        return cage_num
-
-    # For cage 0~23 and 48~51 are at cpld2, others are at cpld3.
-    def get_cpld_num(self, port_num):             
+    # For port 0~23 and 48~51 are at cpld2, others are at cpld3.
+    def get_cpld_num(self, port_num):
         cpld_i = 1
-        cage_num = self.get_cage_num(port_num)
-        if (port_num > 29):
+        if (port_num > 30):
             cpld_i = 2
         return cpld_i
 
@@ -172,18 +139,16 @@ class SfpUtil(SfpUtilBase):
         if port_num < self.port_start or port_num > self.port_end:
             return False
 
-        cage_num = self.get_cage_num(port_num)
         cpld_i = self.get_cpld_num(port_num)
-        #print "[ROY] cpld:%d" % cpld_i
 
         cpld_ps = self._cpld_mapping[cpld_i]
         path = "/sys/bus/i2c/devices/{0}/module_present_{1}"
-        port_ps = path.format(cpld_ps, cage_num+1)
+        port_ps = path.format(cpld_ps, port_num)
 
         try:
             val_file = open(port_ps)
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)          
+            print "Error: unable to open file: %s" % str(e)
             return False
 
         content = val_file.readline().rstrip()
@@ -224,7 +189,7 @@ class SfpUtil(SfpUtilBase):
                 eeprom.close()
                 time.sleep(0.01)
 
-    def set_low_power_mode(self, port_num, lpmode): 
+    def set_low_power_mode(self, port_num, lpmode):
         # Check for invalid port_num
         if port_num < self.qsfp_port_start or port_num > self.qsfp_port_end:
             return False
@@ -256,10 +221,66 @@ class SfpUtil(SfpUtilBase):
     def reset(self, port_num):
         raise NotImplementedError
 
-    def get_transceiver_change_event(self):
-        """
-        TODO: This function need to be implemented
-        when decide to support monitoring SFP(Xcvrd)
-        on this platform.
-        """
-        raise NotImplementedError
+    @property
+    def _get_present_bitmap(self):
+        nodes = []
+        rev = []
+        port_num = [30,26]
+
+        path = "/sys/bus/i2c/devices/{0}/module_present_all"
+        cpld_i = self.get_cpld_num(self.port_start)
+        cpld_ps = self._cpld_mapping[cpld_i]
+        nodes.append((path.format(cpld_ps), port_num[0]))
+        cpld_i = self.get_cpld_num(self.port_end)
+        cpld_ps = self._cpld_mapping[cpld_i]
+        nodes.append((path.format(cpld_ps), port_num[1]))
+
+        bitmaps = ""
+        for node in nodes:
+            try:
+                reg_file = open(node[0])
+            except IOError as e:
+                print "Error: unable to open file: %s" % str(e)
+                return False
+            bitmap = reg_file.readline().rstrip()
+            bitmap = bin(int(bitmap, 16))[2:].zfill(node[1])
+            rev.append(bitmap)
+            reg_file.close()
+
+        bitmaps = "".join(rev[::-1])
+        bitmaps = hex(int(bitmaps, 2))
+        return int(bitmaps, 0)
+
+    data = {'valid':0, 'last':0, 'present':0}
+    def get_transceiver_change_event(self, timeout=2000):
+        now = time.time()
+        port_dict = {}
+        port = 0
+
+        if timeout < 1000:
+            timeout = 1000
+        timeout = (timeout) / float(1000) # Convert to secs
+
+        if now < (self.data['last'] + timeout) and self.data['valid']:
+            return True, {}
+
+        reg_value = self._get_present_bitmap
+        changed_ports = self.data['present'] ^ reg_value
+        if changed_ports:
+            for port in range (self.port_start, self.port_end+1):
+                # Mask off the bit corresponding to our port
+                mask = (1 << (port - 1))
+                if changed_ports & mask:
+                    if (reg_value & mask) == 0:
+                        port_dict[port] = SFP_STATUS_REMOVED
+                    else:
+                        port_dict[port] = SFP_STATUS_INSERTED
+
+            # Update cache
+            self.data['present'] = reg_value
+            self.data['last'] = now
+            self.data['valid'] = 1
+            return True, port_dict
+        else:
+            return True, {}
+        return False, {}

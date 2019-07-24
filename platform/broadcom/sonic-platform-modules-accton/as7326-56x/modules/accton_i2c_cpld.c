@@ -585,35 +585,46 @@ static ssize_t show_present_all(struct device *dev, struct device_attribute *da,
              char *buf)
 {
 	int i, status;
-	u8 values[4]  = {0};
-	u8 regs[] = {0x9, 0xA, 0xB, 0x18};
+        u32 values;
+	u8 *value  = (u8*)&values;
+	u8 regs_h1[] = {0x0f, 0x10, 0x11, 0x12};
+	u8 regs_h2[] = {0x10, 0x11, 0x12, 0x13};
+        u8 *regs_p;
 	struct i2c_client *client = to_i2c_client(dev);
 	struct as7326_56x_cpld_data *data = i2c_get_clientdata(client);
 
+    if (data->type == as7326_56x_cpld2) {
+        regs_p = regs_h1;
+    } else {
+        regs_p = regs_h2;
+    }
 	mutex_lock(&data->update_lock);
-
-    for (i = 0; i < ARRAY_SIZE(regs); i++) {
-        status = as7326_56x_cpld_read_internal(client, regs[i]);
+    for (i = 0; i < sizeof(values); i++) {
+        status = as7326_56x_cpld_read_internal(client, regs_p[i]);
         
         if (status < 0) {
             goto exit;
         }
 
-        values[i] = ~(u8)status;
+        value[i] = ~(u8)status;
     }
 
 	mutex_unlock(&data->update_lock);
 
-    /* Return values 1 -> 56 in order */
+    values = cpu_to_le32(values);
+    /* For port 1 ~ 30 in order */
     if (data->type == as7326_56x_cpld2) {
-        values[3] &= 0xF;
-    }
-    else { /* as7326_56x_cpld3 */
-        values[3] &= 0x3;
+        values &= 0x3FFFFFFF;
+    } else { /* Port 31 ~ 56 */
+        u8 tmp1 = (values >> 18) & 0x3;
+        u8 tmp2 = (values >> 24) ;
+
+        values &= 0x3ffff;
+        values |= (tmp2 << 18); 
+        values |= (tmp1 << 26); 
     }
 
-    return sprintf(buf, "%.2x %.2x %.2x %.2x\n",
-                        values[0], values[1], values[2], values[3]);
+    return sprintf(buf, "%x\n", values);
 
 exit:
 	mutex_unlock(&data->update_lock);

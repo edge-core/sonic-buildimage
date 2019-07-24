@@ -34,6 +34,7 @@
 #include <linux/mutex.h>
 #include <linux/delay.h>
 #include <linux/list.h>
+#include <linux/printk.h>
 
 
 #define MAX_PORT_NUM				    64
@@ -180,7 +181,7 @@ struct attrs as7712_common[] = {
 struct attrs as7816_common[] = {
     [CMN_VERSION]   = {0x01, false, &common_attrs[CMN_VERSION]},
     [CMN_ACCESS]    = {0x00, false, &common_attrs[CMN_ACCESS]},
-    [CMN_PRESENT_ALL] = {0x30, false, &common_attrs[CMN_PRESENT_ALL]},
+    [CMN_PRESENT_ALL] = {0x70, false, &common_attrs[CMN_PRESENT_ALL]},
 };
 struct attrs as7312_common[] = {
     [CMN_VERSION]   = {0x01, false, &common_attrs[CMN_VERSION]},
@@ -282,7 +283,7 @@ static int get_sfp_spec(int model, u16 *num, u8 *types)
     return 0;
 }
 
-static int get_present_reg(int model, u8 port, u8 *cpld_addr, u8 *reg, u8 *num)
+static int get_present_reg_distinct(int model, u8 port, u8 *cpld_addr, u8 *reg, u8 *num)
 {
     u8 cpld_address[] = CPLD_ADDRS;
     
@@ -388,7 +389,7 @@ static ssize_t show_presnet_all_distinct(struct device *dev,
     mutex_lock(&data->update_lock);
     while(i < data->sfp_num)
     {
-        get_present_reg(data->model, i, &cpld_addr, &reg, &num);
+        get_present_reg_distinct(data->model, i, &cpld_addr, &reg, &num);
         if(cpld_addr == client->addr)
            value = cpld_read_internal(client, reg);    
         else           
@@ -416,14 +417,15 @@ static ssize_t show_presnet_all(struct device *dev,
     struct i2c_client *client = to_i2c_client(dev);
     struct cpld_data *data = i2c_get_clientdata(client);
     struct cpld_sensor *sensor = to_cpld_sensor(devattr);
-    u8 i, values[MAX_RESP_LENGTH/8];
+    u8 i, values[MAX_PORT_NUM/8];
 
+    /*In case, the registers out-of-order*/
     if (sensor->reg < 0) {
         return show_presnet_all_distinct(dev, devattr, buf);
     }
     
     mutex_lock(&data->update_lock);
-    for (i = 0; i < ((data->sfp_num+7)/8); i++) {
+    for (i = 0; i < ((data->sfp_num + 7)/8); i++) {
         values[i] = cpld_read_internal(client, sensor->reg + i);
         if (unlikely(values[i] < 0)) {
             goto exit;
@@ -683,12 +685,11 @@ static int add_attributes_portly(struct cpld_data *data, struct attrs **pa)
 
     for (i = 0; pa[i]; i++) {
         a = pa[i];
-
-        invert = a->invert;
         b = a->base;
         if (b == NULL)
             break;
 
+        invert = a->invert;
         for (j = 0; j < data->sfp_num; j++)
         {
             snprintf(name, NAME_SIZE, "%s_%d", b->name, j+1);

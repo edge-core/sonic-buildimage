@@ -15,11 +15,11 @@ except ImportError as e:
 class SfpUtil(SfpUtilBase):
     """Platform-specific SfpUtil class"""
 
-    PORT_START = 0
-    PORT_END = 71
-    PORTS_IN_BLOCK = 72
-    QSFP_PORT_START = 48
-    QSFP_PORT_END = 72
+    PORT_START = 1
+    PORT_END = 54
+    PORTS_IN_BLOCK = 54
+    QSFP_PORT_START = 49
+    QSFP_PORT_END = 54
 
     BASE_VAL_PATH = "/sys/class/i2c-adapter/i2c-{0}/{1}-0050/"
 
@@ -33,78 +33,60 @@ class SfpUtil(SfpUtilBase):
        2:  "6-0064",
            }
     _port_to_i2c_mapping = {
-           0:  18, 
-           1:  19, 
-           2:  20, 
-           3:  21, 
-           4:  22, 
-           5:  23, 
-           6:  24, 
-           7:  25, 
-           8:  26,
-           9:  27,
-           10: 28,
-           11: 29,
-           12: 30,
-           13: 31,
-           14: 32,
-           15: 33,
-           16: 34,
-           17: 35,
-           18: 36,
-           19: 37,
-           20: 38,
-           21: 39,
-           22: 40,
-           23: 41,
-           24: 42,
-           25: 43,
-           26: 44,
-           27: 45,
-           28: 46,
-           29: 47,
-           30: 48,
-           31: 49,
-           32: 50,
-           33: 51,
-           34: 52,
-           35: 53,
-           36: 54,
-           37: 55,
-           38: 56,
-           39: 57,
-           40: 58,
-           41: 59,
-           42: 60,
-           43: 61,
-           44: 62,
-           45: 63,
-           46: 64,
-           47: 65,
-           48: 66, #QSFP49
-           49: 66,
-           50: 66,
-           51: 66,
-           52: 67, #QSFP50
-           53: 67,
-           54: 67,
-           55: 67,
-           56: 68, #QSFP51
-           57: 68,
-           58: 68,
-           59: 68,
-           60: 69, #QSFP52
-           61: 69,
-           62: 69,
-           63: 69,
-           64: 70, #QSFP53
-           65: 70,
-           66: 70,
-           67: 70,
-           68: 71, #QSFP54
-           69: 71,
-           70: 71,
-           71: 71,
+           1:  18, 
+           2:  19, 
+           3:  20, 
+           4:  21, 
+           5:  22, 
+           6:  23, 
+           7:  24, 
+           8:  25, 
+           9:  26,
+           10: 27,
+           11: 28,
+           12: 29,
+           13: 30,
+           14: 31,
+           15: 32,
+           16: 33,
+           17: 34,
+           18: 35,
+           19: 36,
+           20: 37,
+           21: 38,
+           22: 39,
+           23: 40,
+           24: 41,
+           25: 42,
+           26: 43,
+           27: 44,
+           28: 45,
+           29: 46,
+           30: 47,
+           31: 48,
+           32: 49,
+           33: 50,
+           34: 51,
+           35: 52,
+           36: 53,
+           37: 54,
+           38: 55,
+           39: 56,
+           40: 57,
+           41: 58,
+           42: 59,
+           43: 60,
+           44: 61,
+           45: 62,
+           46: 63,
+           47: 64,
+           48: 65,
+           49: 66, #QSFP49
+           50: 67,
+           51: 68,
+           52: 69,
+           53: 70,
+           54: 71, #QSFP54
            }
 
     @property
@@ -133,30 +115,18 @@ class SfpUtil(SfpUtilBase):
 
     def __init__(self):
         eeprom_path = '/sys/bus/i2c/devices/{0}-0050/eeprom'
-        for x in range(0, self.port_end+1):
+        for x in range(self.port_start, self.port_end+1):
             self.port_to_eeprom_mapping[x] = eeprom_path.format(
                 self._port_to_i2c_mapping[x])
 
         SfpUtilBase.__init__(self)
 
-
-    # For port 48~51 are QSFP, here presumed they're all split to 4 lanes.
-    def get_cage_num(self, port_num):             
-        cage_num = port_num
-        if (port_num >= self.QSFP_PORT_START):
-            cage_num = (port_num - self.QSFP_PORT_START)/4
-            cage_num = cage_num + self.QSFP_PORT_START
-
-        return cage_num
-
-    # For cage 0~23 and 48~51 are at cpld2, others are at cpld3.
     def get_cpld_num(self, port_num):             
         cpld_i = 1
-        cage_num = self.get_cage_num(port_num)
-        if (port_num > 23 and port_num < self.QSFP_PORT_START):
+        if (port_num > 24 and port_num < self.qsfp_port_start):
             cpld_i = 2
 
-        if (cage_num >= 52): 
+        if (port_num > 52): 
             cpld_i = 2
 
         return cpld_i
@@ -166,12 +136,11 @@ class SfpUtil(SfpUtilBase):
         if port_num < self.port_start or port_num > self.port_end:
             return False
         
-        cage_num = self.get_cage_num(port_num)
         cpld_i = self.get_cpld_num(port_num)
 
         cpld_ps = self._cpld_mapping[cpld_i]
         path = "/sys/bus/i2c/devices/{0}/module_present_{1}"
-        port_ps = path.format(cpld_ps, cage_num+1)
+        port_ps = path.format(cpld_ps, port_num)
 
         try:
             val_file = open(port_ps)
@@ -250,11 +219,10 @@ class SfpUtil(SfpUtilBase):
         if port_num < self.qsfp_port_start or port_num > self.qsfp_port_end:
             return False
          
-        cage_num = self.get_cage_num(port_num)
         cpld_i = self.get_cpld_num(port_num)
         cpld_ps = self._cpld_mapping[cpld_i]
         path = "/sys/bus/i2c/devices/{0}/module_reset_{1}"
-        port_ps = path.format(cpld_ps, cage_num+1)
+        port_ps = path.format(cpld_ps, port_num)
         try:
             reg_file = open(port_ps, 'w')
         except IOError as e:

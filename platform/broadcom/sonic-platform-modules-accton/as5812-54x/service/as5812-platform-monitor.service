@@ -5,10 +5,10 @@ After=sysinit.target
 DefaultDependencies=no
 
 [Service]
-Type=oneshot
+Type=simple
 ExecStartPre=/usr/local/bin/accton_as5812_util.py install
 ExecStart=/usr/local/bin/accton_as5812_monitor.py
-RemainAfterExit=yes
+#RemainAfterExit=yes
 
 # Resource Limitations
 LimitCORE=infinity
