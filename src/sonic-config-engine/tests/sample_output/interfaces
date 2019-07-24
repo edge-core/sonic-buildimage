@@ -27,7 +27,7 @@ iface eth0 inet static
     netmask 255.255.255.0
     ########## management network policy routing rules
     # management port up rules
-    up ip -4 route add default via 10.0.0.1 dev eth0 table default
+    up ip -4 route add default via 10.0.0.1 dev eth0 table default metric 201
     up ip -4 route add 10.0.0.0/24 dev eth0 table default
     up ip -4 rule add from 10.0.0.100/32 table default
     # management port down rules
@@ -39,7 +39,7 @@ iface eth0 inet6 static
     netmask 64
     ########## management network policy routing rules
     # management port up rules
-    up ip -6 route add default via 2603:10e2:0:2902::1 dev eth0 table default
+    up ip -6 route add default via 2603:10e2:0:2902::1 dev eth0 table default metric 201
     up ip -6 route add 2603:10e2:0:2902::/64 dev eth0 table default
     up ip -6 rule add from 2603:10e2:0:2902::8/128 table default
     # management port down rules
