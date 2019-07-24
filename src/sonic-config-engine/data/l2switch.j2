@@ -1,6 +1,19 @@
 {
     "DEVICE_METADATA": {{ DEVICE_METADATA | tojson }},
-    "PORT": {{ PORT | tojson }},
+    {% set ns = {'firstPrinted': False} -%}
+    "PORT": {
+        {%- for key,value in PORT.iteritems() -%}
+        {%- if ns.firstPrinted %},{% endif %}
+
+        "{{ key }}": {
+            "alias": "{{ value.alias }}",
+            "lanes": "{{ value.lanes }}",
+            "admin_status": "up"
+        }
+        {%- if ns.update({'firstPrinted': True}) %}{% endif -%}
+        {%- endfor %}
+
+    },
     "VLAN": {
         "Vlan1000": {
             "vlanid": "1000"
