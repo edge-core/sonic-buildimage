@@ -25,6 +25,10 @@ override_dh_auto_build:
 			cd $(MOD_SRC_DIR)/$${mod}; \
 			python2.7 setup.py bdist_wheel -d $(MOD_SRC_DIR)/$${mod}/modules; \
 			cd $(MOD_SRC_DIR); \
+		elif [ $$mod = "s6000" ]; then \
+			cd $(MOD_SRC_DIR)/$${mod}; \
+			python2.7 setup.py bdist_wheel -d $(MOD_SRC_DIR)/$${mod}/modules; \
+			cd $(MOD_SRC_DIR); \
 		fi; \
 		echo "making man page alias $$mod -> $$mod APIs";\
 		make -C $(KERNEL_SRC)/build M=$(MOD_SRC_DIR)/$${mod}/modules; \
@@ -56,6 +60,10 @@ override_dh_clean:
 		elif [ $$mod = "z9100" ]; then \
 			rm -f $(MOD_SRC_DIR)/$${mod}/modules/dell_mailbox.c; \
 			rm -f $(MOD_SRC_DIR)/$${mod}/modules/dell_ich.c; \
+			rm -f $(MOD_SRC_DIR)/$${mod}/modules/*.whl; \
+			rm -rf $(MOD_SRC_DIR)/$${mod}/build; \
+			rm -rf $(MOD_SRC_DIR)/$${mod}/build/*.egg-info; \
+		elif [ $$mod = "s6000" ]; then \
 			rm -f $(MOD_SRC_DIR)/$${mod}/modules/*.whl; \
 			rm -rf $(MOD_SRC_DIR)/$${mod}/build; \
 			rm -rf $(MOD_SRC_DIR)/$${mod}/build/*.egg-info; \
