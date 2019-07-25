@@ -271,7 +271,7 @@ RUN pip install pyangbind==0.6.0
 RUN pip install --force-reinstall --upgrade "jinja2>=2.10"
 
 # For templating
-RUN pip install j2cli
+RUN pip install j2cli==0.3.10
 
 # Remove python-click 6.6
 RUN apt-get purge -y python-click
