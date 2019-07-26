@@ -7,6 +7,21 @@ route-map FROM_BGP_SPEAKER_V4 permit 10
 !
 route-map TO_BGP_SPEAKER_V4 deny 10
 !
+{# generate loopback prefix-lists #}
+{% for (name, prefix) in LOOPBACK_INTERFACE|pfx_filter %}
+{% if prefix | ipv4 and name == 'Loopback0' %}
+ip prefix-list PL_LoopbackV4 permit {{ prefix | ip }}/32
+{% elif prefix | ipv6 and name == 'Loopback0' %}
+ipv6 prefix-list PL_LoopbackV6 permit {{ prefix | ip }}/64
+{% endif %}
+{% endfor %}
+!
+{# generate default peer route-maps #}
+!
+route-map TO_BGP_PEER_V4 permit 100
+!
+route-map TO_BGP_PEER_V6 permit 100
+!
 router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
   bgp log-neighbor-changes
   bgp bestpath as-path multipath-relax
@@ -57,6 +72,10 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
 {% if bgp_session.has_key('admin_status') and bgp_session['admin_status'] == 'down' or not bgp_session.has_key('admin_status') and DEVICE_METADATA['localhost'].has_key('default_bgp_status') and DEVICE_METADATA['localhost']['default_bgp_status'] == 'down' %}
   neighbor {{ neighbor_addr }} shutdown
 {% endif %}
+{# Apply default route-map for v4 peers #}
+{% if neighbor_addr | ipv4 %}
+  neighbor {{ neighbor_addr }} route-map TO_BGP_PEER_V4 out
+{% endif %}
 {% if neighbor_addr | ipv4 %}
   address-family ipv4
 {% if DEVICE_METADATA['localhost']['type'] == 'ToRRouter' %}
@@ -89,6 +108,8 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
 {% if bgp_session['asn'] != DEVICE_METADATA['localhost']['bgp_asn'] %}
     neighbor {{ neighbor_addr }} route-map set-next-hop-global-v6 in
 {% endif %}
+{# Apply default route-map for v6 peers #}
+    neighbor {{ neighbor_addr }} route-map TO_BGP_PEER_V6 out
     maximum-paths 64
   exit-address-family
 {% endif %}

@@ -47,5 +47,11 @@ COPY ["bgpcfgd", "start.sh", "/usr/bin/"]
 COPY ["*.j2", "/usr/share/sonic/templates/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 COPY ["snmp.conf", "/etc/snmp/frr.conf"]
+COPY ["TSA", "/usr/bin/TSA"]
+COPY ["TSB", "/usr/bin/TSB"]
+COPY ["TSC", "/usr/bin/TSC"]
+RUN chmod a+x /usr/bin/TSA && \
+    chmod a+x /usr/bin/TSB && \
+    chmod a+x /usr/bin/TSC
 
 ENTRYPOINT ["/usr/bin/supervisord"]

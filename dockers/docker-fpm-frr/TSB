@@ -1,0 +1,24 @@
+#!/bin/bash
+
+c=0
+config=$(vtysh -c "show run")
+echo "$config" | grep -q "route-map TO_BGP_PEER_V4 permit 2"
+c=$(($c+$?))
+echo "$config" | grep -q "route-map TO_BGP_PEER_V4 deny 3"
+c=$(($c+$?))
+echo "$config" | grep -q "route-map TO_BGP_PEER_V6 permit 2"
+c=$(($c+$?))
+echo "$config" | grep -q "route-map TO_BGP_PEER_V6 deny 3"
+c=$(($c+$?))
+
+if [[ $c -eq 0 ]];
+then
+  vtysh -c "configure terminal" -c "no route-map TO_BGP_PEER_V4 deny 3"
+  vtysh -c "configure terminal" -c "no route-map TO_BGP_PEER_V4 permit 2"
+  vtysh -c "configure terminal" -c "no route-map TO_BGP_PEER_V6 deny 3"
+  vtysh -c "configure terminal" -c "no route-map TO_BGP_PEER_V6 permit 2"
+
+  echo "System Mode: Maintenance -> Normal"
+else
+  echo "System is already in Normal mode"
+fi
