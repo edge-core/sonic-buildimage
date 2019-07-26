@@ -1,10 +1,10 @@
-{% if CONFIGURED_ARCH == "armhf" %}
+{%- if CONFIGURED_ARCH == "armhf" %}
 FROM multiarch/debian-debootstrap:armhf-stretch
-{% elif CONFIGURED_ARCH == "arm64" %}
+{%- elif CONFIGURED_ARCH == "arm64" %}
 FROM multiarch/debian-debootstrap:arm64-stretch
-{% else %}
+{%- else -%}
 FROM debian:stretch
-{% endif %}
+{%- endif %}
 
 MAINTAINER gulv@microsoft.com
 
@@ -14,7 +14,7 @@ RUN echo "deb [arch=amd64] http://debian-archive.trafficmanager.net/debian/ stre
         echo "deb-src [arch=amd64] http://debian-archive.trafficmanager.net/debian-security/ stretch/updates main contrib non-free" >> /etc/apt/sources.list && \
         echo "deb [arch=amd64] http://debian-archive.trafficmanager.net/debian stretch-backports main" >> /etc/apt/sources.list
 
-{% if CONFIGURED_ARCH == "armhf" %}
+{%- if CONFIGURED_ARCH == "armhf" %}
 RUN echo "deb [arch=armhf] http://deb.debian.org/debian stretch main contrib non-free" > /etc/apt/sources.list && \
         echo "deb-src [arch=armhf] http://deb.debian.org/debian stretch main contrib non-free" >> /etc/apt/sources.list && \
         echo "deb [arch=armhf] http://deb.debian.org/debian stretch-updates main contrib non-free" >> /etc/apt/sources.list && \
@@ -22,7 +22,7 @@ RUN echo "deb [arch=armhf] http://deb.debian.org/debian stretch main contrib non
         echo "deb [arch=armhf] http://security.debian.org stretch/updates main contrib non-free" >> /etc/apt/sources.list && \
         echo "deb-src [arch=armhf] http://security.debian.org stretch/updates main contrib non-free" >> /etc/apt/sources.list && \
         echo 'deb [arch=armhf] http://ftp.debian.org/debian stretch-backports main' >> /etc/apt/sources.list
-{% elif CONFIGURED_ARCH == "arm64" %}
+{%- elif CONFIGURED_ARCH == "arm64" %}
 RUN echo "deb [arch=arm64] http://deb.debian.org/debian stretch main contrib non-free" > /etc/apt/sources.list && \
         echo "deb-src [arch=arm64] http://deb.debian.org/debian stretch main contrib non-free" >> /etc/apt/sources.list && \
         echo "deb [arch=arm64] http://deb.debian.org/debian stretch-updates main contrib non-free" >> /etc/apt/sources.list && \
@@ -30,7 +30,7 @@ RUN echo "deb [arch=arm64] http://deb.debian.org/debian stretch main contrib non
         echo "deb [arch=arm64] http://security.debian.org stretch/updates main contrib non-free" >> /etc/apt/sources.list && \
         echo "deb-src [arch=arm64] http://security.debian.org stretch/updates main contrib non-free" >> /etc/apt/sources.list && \
         echo 'deb [arch=arm64] http://ftp.debian.org/debian stretch-backports main' >> /etc/apt/sources.list
-{% endif %}
+{%- endif %}
 
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
@@ -154,9 +154,9 @@ RUN apt-get update && apt-get install -y \
         squashfs-tools \
         zip \
 # For broadcom sdk build
-{% if CONFIGURED_ARCH == "amd64" %}
+{%- if CONFIGURED_ARCH == "amd64" %}
         linux-compiler-gcc-6-x86 \
-{% endif %}
+{%- endif %}
         linux-kbuild-4.9 \
 # teamd build
         libdaemon-dev \
@@ -177,6 +177,9 @@ RUN apt-get update && apt-get install -y \
         python-stdeb \
 # For redis build
         libjemalloc-dev \
+        liblua5.1-0-dev \
+        lua-bitop-dev  \
+        lua-cjson-dev \
 # For mft kernel module build
         dkms \
 # For python3.5 build
@@ -258,12 +261,12 @@ RUN apt-get update && apt-get install -y \
         python3-colorama \
 # For initramfs
         bash-completion \
-{% if CONFIGURED_ARCH == "amd64" %}
+{%- if CONFIGURED_ARCH == "amd64" %}
 # For sonic vs image build
         dosfstools \
         qemu-kvm \
         libvirt-clients \
-{% endif %}
+{%- endif %}
 # For lm-sensors
         librrd8 \
         librrd-dev \
@@ -280,16 +283,16 @@ RUN apt-get -y build-dep linux
 
 # For gobgp and telemetry build
 RUN export VERSION=1.11.5 \
-{% if CONFIGURED_ARCH == "armhf" %}
+{%- if CONFIGURED_ARCH == "armhf" %}
  && wget https://storage.googleapis.com/golang/go$VERSION.linux-armv6l.tar.gz \
  && tar -C /usr/local -xzf go$VERSION.linux-armv6l.tar.gz \
-{% elif CONFIGURED_ARCH == "arm64" %}
+{%- elif CONFIGURED_ARCH == "arm64" %}
  && wget https://storage.googleapis.com/golang/go$VERSION.linux-arm64.tar.gz \
  && tar -C /usr/local -xzf go$VERSION.linux-arm64.tar.gz \
-{% else %}
+{%- else %}
  && wget https://storage.googleapis.com/golang/go$VERSION.linux-amd64.tar.gz \
  && tar -C /usr/local -xzf go$VERSION.linux-amd64.tar.gz \
-{% endif %}
+{%- endif %}
  && echo 'export GOROOT=/usr/local/go' >> /etc/bash.bashrc \
  && echo 'export PATH=$PATH:$GOROOT/bin' >> /etc/bash.bashrc
 
@@ -301,10 +304,10 @@ RUN pip install \
 # For sonic config engine testing
 RUN pip install pyangbind==0.6.0
 # Note: force upgrade debian packaged jinja2, if installed
-RUN pip install --force-reinstall --upgrade jinja2>=2.10
+RUN pip install --force-reinstall --upgrade "jinja2>=2.10"
 
 # For templating
-RUN pip install j2cli
+RUN pip install j2cli==0.3.10
 
 # Remove python-click 6.6
 RUN apt-get purge -y python-click
@@ -314,7 +317,7 @@ RUN pip install click-default-group click natsort tabulate netifaces==0.10.7 fas
 # For sonic snmpagent mock testing
 RUN pip3 install mockredispy==2.9.3
 
-RUN pip3 install PyYAML>=5.1
+RUN pip3 install "PyYAML>=5.1"
 
 # For sonic-platform-common testing
 RUN pip3 install redis
@@ -362,9 +365,9 @@ RUN add-apt-repository \
            $(lsb_release -cs) \
            stable"
 RUN apt-get update
-{% if CONFIGURED_ARCH == "amd64" %}
-RUN apt-get install -y docker-ce=17.03.2~ce-0~debian-stretch
-{% else %}
+{%- if CONFIGURED_ARCH == "amd64" %}
+RUN apt-get install -y docker-ce=5:18.09.5~3-0~debian-stretch
+{%- else %}
 RUN apt-get install -y docker-ce=18.06.3~ce~3-0~debian
-{% endif %}
+{%- endif %}
 RUN echo "DOCKER_OPTS=\"--experimental --storage-driver=vfs\"" >> /etc/default/docker

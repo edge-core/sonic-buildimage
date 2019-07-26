@@ -42,6 +42,12 @@ ifeq ($(USER), root)
 $(error Add your user account to docker group and use your user account to make. root or sudo are not supported!)
 endif
 
+# Check for j2cli availability
+J2_VER := $(shell j2 --version 2>&1 | grep j2cli | awk '{printf $$2}')
+ifeq ($(J2_VER),)
+$(error Install j2cli)
+endif
+
 # Check for minimum Docker version on build host
 # Note: Using the greater of CE (17.05.0) and EE (17.06.1) versions that support ARG before FROM
 docker_min := 17.06.1
@@ -58,23 +64,22 @@ $(shell rm -f .screen)
 MAKEFLAGS += -B
 
 CONFIGURED_ARCH := $(shell [ -f .arch ] && cat .arch || echo $(PLATFORM_ARCH))
+ifeq ($(CONFIGURED_ARCH),)
+    override CONFIGURED_ARCH = amd64
+endif
 ifeq ($(PLATFORM_ARCH),)
 	override PLATFORM_ARCH = $(CONFIGURED_ARCH)
 endif
 
 ifeq ($(BLDENV), stretch)
-SLAVE_BASE_TAG = $(shell sha1sum sonic-slave-stretch/Dockerfile | awk '{print substr($$1,0,11);}')
-SLAVE_TAG = $(shell cat sonic-slave-stretch/Dockerfile.user sonic-slave-stretch/Dockerfile | sha1sum | awk '{print substr($$1,0,11);}')
-SLAVE_BASE_IMAGE = sonic-slave-stretch-base
-SLAVE_IMAGE = sonic-slave-stretch-$(USER)
 SLAVE_DIR = sonic-slave-stretch
 else
-SLAVE_BASE_TAG = $(shell sha1sum sonic-slave/Dockerfile | awk '{print substr($$1,0,11);}')
-SLAVE_TAG = $(shell cat sonic-slave/Dockerfile.user sonic-slave/Dockerfile | sha1sum | awk '{print substr($$1,0,11);}')
-SLAVE_BASE_IMAGE = sonic-slave-base
-SLAVE_IMAGE = sonic-slave-$(USER)
 SLAVE_DIR = sonic-slave
 endif
+SLAVE_BASE_TAG = $(shell CONFIGURED_ARCH=$(CONFIGURED_ARCH) j2 $(SLAVE_DIR)/Dockerfile.j2 > $(SLAVE_DIR)/Dockerfile && sha1sum $(SLAVE_DIR)/Dockerfile | awk '{print substr($$1,0,11);}')
+SLAVE_TAG = $(shell cat $(SLAVE_DIR)/Dockerfile.user $(SLAVE_DIR)/Dockerfile | sha1sum | awk '{print substr($$1,0,11);}')
+SLAVE_BASE_IMAGE = $(SLAVE_DIR)-base
+SLAVE_IMAGE = $(SLAVE_BASE_IMAGE)-$(USER)
 
 OVERLAY_MODULE_CHECK := \
     lsmod | grep -q "^overlay " &>/dev/null || \
@@ -184,7 +189,6 @@ ifneq (,$(filter $(CONFIGURED_ARCH), armhf arm64))
 endif
 	@$(OVERLAY_MODULE_CHECK)
 	
-	@{ which j2 &> /dev/null && CONFIGURED_ARCH=$(CONFIGURED_ARCH) j2 $(SLAVE_DIR)/Dockerfile.j2 > $(SLAVE_DIR)/Dockerfile ; } || true
 	@docker inspect --type image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) &> /dev/null || \
 	    { echo Image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) not found. Building... ; \
 	    $(DOCKER_BASE_BUILD) ; }
