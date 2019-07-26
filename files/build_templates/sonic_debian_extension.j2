@@ -24,6 +24,8 @@ PLATFORM_DIR=$2
 ## Enable debug output for script
 set -x -e
 
+CONFIGURED_ARCH=$([ -f .arch ] && cat .arch || echo amd64)
+
 . functions.sh
 BUILD_TEMPLATES=files/build_templates
 IMAGE_CONFIGS=files/image_config
@@ -45,11 +47,17 @@ sudo LANG=C chroot $FILESYSTEM_ROOT mount sysfs /sys -t sysfs
 
 sudo bash -c "echo \"DOCKER_OPTS=\"--storage-driver=overlay2\"\" >> $FILESYSTEM_ROOT/etc/default/docker"
 sudo cp files/docker/docker $FILESYSTEM_ROOT/etc/init.d/
-sudo chroot $FILESYSTEM_ROOT service docker start
+if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
+    SONIC_NATIVE_DOCKERD_FOR_DOCKERFS=" -H unix:///dockerfs/var/run/docker.sock "
+    SONIC_NATIVE_DOCKERD_FOR_DOCKERFS_PID="cat `pwd`/dockerfs/var/run/docker.pid"
+else
+    sudo chroot $FILESYSTEM_ROOT service docker start
+fi
 
 # Apply apt configuration files
 sudo cp $IMAGE_CONFIGS/apt/sources.list $FILESYSTEM_ROOT/etc/apt/
-sudo cp -R $IMAGE_CONFIGS/apt/sources.list.d/ $FILESYSTEM_ROOT/etc/apt/
+sudo mkdir -p $FILESYSTEM_ROOT/etc/apt/sources.list.d/
+sudo cp -R $IMAGE_CONFIGS/apt/sources.list.d/${CONFIGURED_ARCH}/* $FILESYSTEM_ROOT/etc/apt/sources.list.d/
 cat $IMAGE_CONFIGS/apt/sonic-dev.gpg.key | sudo LANG=C chroot $FILESYSTEM_ROOT apt-key add -
 
 # Update apt's snapshot of its repos
@@ -290,20 +298,32 @@ sudo cp $IMAGE_CONFIGS/platform/rc.local $FILESYSTEM_ROOT/etc/
 ## copy blacklist file
 sudo cp $IMAGE_CONFIGS/platform/linux_kernel_bde.conf $FILESYSTEM_ROOT/etc/modprobe.d/
 
+## Bind docker path
+if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
+    sudo mkdir -p $FILESYSTEM_ROOT/dockerfs
+    sudo mount --bind dockerfs $FILESYSTEM_ROOT/dockerfs 
+fi
+
 {% if installer_images.strip() -%}
-sudo chroot $FILESYSTEM_ROOT docker info
+sudo chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS info
 {% for image in installer_images.strip().split(' ') -%}
 {% set imagefilename = image.split('/')|last -%}
 {% set imagename = imagefilename.split('.')|first -%}
-sudo LANG=C chroot $FILESYSTEM_ROOT docker load < {{image}}
-sudo LANG=C chroot $FILESYSTEM_ROOT docker tag {{imagename}}:latest {{imagename}}:$(sonic_get_version)
+sudo LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS load < {{image}}
+sudo LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS tag {{imagename}}:latest {{imagename}}:$(sonic_get_version)
 {% if imagename.endswith('-dbg') %}
 {% set imagebasename = imagename.replace('-dbg', '') -%}
-sudo LANG=C chroot $FILESYSTEM_ROOT docker tag {{imagename}}:latest {{imagebasename}}:$(sonic_get_version)
-sudo LANG=C chroot $FILESYSTEM_ROOT docker tag {{imagename}}:latest {{imagebasename}}:latest
+sudo LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS tag {{imagename}}:latest {{imagebasename}}:$(sonic_get_version)
+sudo LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS tag {{imagename}}:latest {{imagebasename}}:latest
 {% endif %}
 {% endfor %}
-sudo chroot $FILESYSTEM_ROOT service docker stop
+if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
+    sudo umount $FILESYSTEM_ROOT/dockerfs 
+    sudo rm -fr $FILESYSTEM_ROOT/dockerfs
+    sudo kill -9 `sudo $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS_PID` || true
+else
+    sudo chroot $FILESYSTEM_ROOT service docker stop
+fi
 sudo rm $FILESYSTEM_ROOT/etc/init.d/docker
 {% for script in installer_start_scripts.split(' ') -%}
 sudo cp {{script}} $FILESYSTEM_ROOT/usr/bin/

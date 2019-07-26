@@ -5,10 +5,10 @@ SHELL = /bin/bash
 THRIFT_VERSION = 0.11.0
 THRIFT_VERSION_FULL = $(THRIFT_VERSION)-4
 
-MAIN_TARGET = libthrift-$(THRIFT_VERSION)_$(THRIFT_VERSION_FULL)_amd64.deb
-DERIVED_TARGETS = libthrift-dev_$(THRIFT_VERSION_FULL)_amd64.deb \
-		  python-thrift_$(THRIFT_VERSION_FULL)_amd64.deb \
-		  thrift-compiler_$(THRIFT_VERSION_FULL)_amd64.deb
+MAIN_TARGET = libthrift-$(THRIFT_VERSION)_$(THRIFT_VERSION_FULL)_$(CONFIGURED_ARCH).deb
+DERIVED_TARGETS = libthrift-dev_$(THRIFT_VERSION_FULL)_$(CONFIGURED_ARCH).deb \
+		  python-thrift_$(THRIFT_VERSION_FULL)_$(CONFIGURED_ARCH).deb \
+		  thrift-compiler_$(THRIFT_VERSION_FULL)_$(CONFIGURED_ARCH).deb
 
 THRIFT_LINK_PRE = https://sonicstorage.blob.core.windows.net/packages/debian
 

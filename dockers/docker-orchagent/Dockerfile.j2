@@ -29,12 +29,25 @@ RUN apt-get update &&       \
         libmnl0             \
         bridge-utils
 
+{% if CONFIGURED_ARCH == "armhf" %}
+## Fix for gcc/python not found in arm docker
+RUN apt-get install -y gcc-6
+RUN ln -s -f /usr/bin/gcc-6 /usr/bin/arm-linux-gnueabihf-gcc
+RUN apt-get install -f -y python2.7 python2.7-dev
+{% endif %}
+
 RUN pip install \
         scapy==2.4.2 \
         setuptools \
-        pyroute2==0.5.3 \
+        pyroute2==0.5.3
+RUN pip install \
         netifaces==0.10.7 \
         monotonic==1.5
+
+{% if CONFIGURED_ARCH == "armhf" %}
+# Remove installed gcc
+RUN apt-get remove -y gcc-6
+{% endif %}
 
 {% if docker_orchagent_debs.strip() -%}
 # Copy locally-built Debian package dependencies

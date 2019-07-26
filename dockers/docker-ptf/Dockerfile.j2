@@ -1,4 +1,10 @@
+{% if CONFIGURED_ARCH == "armhf" %}
+FROM multiarch/debian-debootstrap:armhf-stretch
+{% elif CONFIGURED_ARCH == "arm64" %}
+FROM multiarch/debian-debootstrap:arm64-stretch
+{% else %}
 FROM debian:stretch
+{% endif %}
 
 MAINTAINER Pavel Shirshov
 

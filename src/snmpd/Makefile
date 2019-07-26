@@ -3,16 +3,16 @@ SHELL = /bin/bash
 .SHELLFLAGS += -e
 
 MAIN_TARGET = libsnmp-base_$(SNMPD_VERSION_FULL)_all.deb
-DERIVED_TARGETS = snmptrapd_$(SNMPD_VERSION_FULL)_amd64.deb \
-		  snmp_$(SNMPD_VERSION_FULL)_amd64.deb \
-		  snmpd_$(SNMPD_VERSION_FULL)_amd64.deb \
-		  snmp-dbgsym_$(SNMPD_VERSION_FULL)_amd64.deb \
-		  snmpd-dbgsym_$(SNMPD_VERSION_FULL)_amd64.deb \
-		  libsnmp30_$(SNMPD_VERSION_FULL)_amd64.deb \
-		  libsnmp30-dbg_$(SNMPD_VERSION_FULL)_amd64.deb \
-		  libsnmp-dev_$(SNMPD_VERSION_FULL)_amd64.deb \
-		  libsnmp-perl_$(SNMPD_VERSION_FULL)_amd64.deb \
-		  python-netsnmp_$(SNMPD_VERSION_FULL)_amd64.deb \
+DERIVED_TARGETS = snmptrapd_$(SNMPD_VERSION_FULL)_$(CONFIGURED_ARCH).deb \
+		  snmp_$(SNMPD_VERSION_FULL)_$(CONFIGURED_ARCH).deb \
+		  snmpd_$(SNMPD_VERSION_FULL)_$(CONFIGURED_ARCH).deb \
+		  snmp-dbgsym_$(SNMPD_VERSION_FULL)_$(CONFIGURED_ARCH).deb \
+		  snmpd-dbgsym_$(SNMPD_VERSION_FULL)_$(CONFIGURED_ARCH).deb \
+		  libsnmp30_$(SNMPD_VERSION_FULL)_$(CONFIGURED_ARCH).deb \
+		  libsnmp30-dbg_$(SNMPD_VERSION_FULL)_$(CONFIGURED_ARCH).deb \
+		  libsnmp-dev_$(SNMPD_VERSION_FULL)_$(CONFIGURED_ARCH).deb \
+		  libsnmp-perl_$(SNMPD_VERSION_FULL)_$(CONFIGURED_ARCH).deb \
+		  python-netsnmp_$(SNMPD_VERSION_FULL)_$(CONFIGURED_ARCH).deb \
 		  tkmib_$(SNMPD_VERSION_FULL)_all.deb
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :

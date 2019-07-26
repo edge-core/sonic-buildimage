@@ -1,0 +1,8 @@
+## Debian mirror for ARM
+## Not the repo mirror site can change in future, and needs to be updated to be in sync
+
+deb [arch=armhf] http://deb.debian.org/debian stretch main contrib non-free
+deb-src [arch=armhf] http://deb.debian.org/debian stretch main contrib non-free
+deb [arch=armhf] http://deb.debian.org/debian stretch-updates main contrib non-free
+deb-src [arch=armhf] http://deb.debian.org/debian stretch-updates main contrib non-free
+deb [arch=armhf] http://ftp.debian.org/debian stretch-backports main

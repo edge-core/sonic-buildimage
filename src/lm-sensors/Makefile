@@ -5,8 +5,8 @@ SHELL = /bin/bash
 
 MAIN_TARGET = $(LM_SENSORS)
 DERIVED_TARGETS = fancontrol_$(LM_SENSORS_VERSION_FULL)_all.deb \
-				  libsensors4_$(LM_SENSORS_VERSION_FULL)_amd64.deb \
-				  sensord_$(LM_SENSORS_VERSION_FULL)_amd64.deb \
+				  libsensors4_$(LM_SENSORS_VERSION_FULL)_$(CONFIGURED_ARCH).deb \
+				  sensord_$(LM_SENSORS_VERSION_FULL)_$(CONFIGURED_ARCH).deb \
 				  $(LM_SENSORS_DBG) \
 				  $(LIBSENSORS_DBG) \
 				  $(SENSORD_DBG)

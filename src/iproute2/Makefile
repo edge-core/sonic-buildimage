@@ -5,7 +5,7 @@ SHELL = /bin/bash
 IPROUTE2_VERSION = 4.9.0
 IPROUTE2_VERSION_FULL = $(IPROUTE2_VERSION)-1
 
-MAIN_TARGET = iproute2_$(IPROUTE2_VERSION_FULL)_amd64.deb
+MAIN_TARGET = iproute2_$(IPROUTE2_VERSION_FULL)_$(CONFIGURED_ARCH).deb
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# Remove any stale files

@@ -57,6 +57,11 @@ $(shell rm -f .screen)
 
 MAKEFLAGS += -B
 
+CONFIGURED_ARCH := $(shell [ -f .arch ] && cat .arch || echo $(PLATFORM_ARCH))
+ifeq ($(PLATFORM_ARCH),)
+	override PLATFORM_ARCH = $(CONFIGURED_ARCH)
+endif
+
 ifeq ($(BLDENV), stretch)
 SLAVE_BASE_TAG = $(shell sha1sum sonic-slave-stretch/Dockerfile | awk '{print substr($$1,0,11);}')
 SLAVE_TAG = $(shell cat sonic-slave-stretch/Dockerfile.user sonic-slave-stretch/Dockerfile | sha1sum | awk '{print substr($$1,0,11);}')
@@ -99,6 +104,33 @@ include rules/config
 ifeq ($(SONIC_CONFIG_USE_NATIVE_DOCKERD_FOR_BUILD), y)
     DOCKER_RUN += -v /var/run/docker.sock:/var/run/docker.sock
 endif
+ifneq (,$(filter $(CONFIGURED_ARCH), armhf arm64))
+    # Multiarch docker cannot start dockerd service due to iptables cannot run over different arch kernel
+    SONIC_SERVICE_DOCKERD_FOR_MULTIARCH=y
+    SONIC_NATIVE_DOCKERD_FOR_MUTLIARCH := dockerd  --experimental=true --storage-driver=vfs \
+	--data-root=/var/lib/march/docker/ --exec-root=/var/run/march/docker/ \
+	-H unix:///var/run/march/docker.sock -p /var/run/march/docker.pid
+    DOCKER_RUN += -v /var/run/march/docker.sock:/var/run/docker.sock
+    DOCKER_RUN += -v /var/run/march/docker.pid:/var/run/docker.pid
+    DOCKER_RUN += -v /var/run/march/docker:/var/run/docker
+    DOCKER_RUN += -v /var/lib/march/docker:/var/lib/docker
+    SONIC_USERFACL_DOCKERD_FOR_MUTLIARCH := setfacl -m user:$(USER):rw /var/run/march/docker.sock
+
+    #Override Native config to prevent docker service
+    SONIC_CONFIG_USE_NATIVE_DOCKERD_FOR_BUILD=y
+
+    DOCKER_MULTIARCH_CHECK := docker inspect --type image multiarch/qemu-user-static:register &> /dev/null || (echo "multiarch docker not found ..."; docker run --rm --privileged multiarch/qemu-user-static:register --reset --credential yes)
+
+    DOCKER_SERVICE_MULTIARCH_CHECK := docker -H unix:///var/run/march/docker.sock info &> /dev/null || (echo "Docker march service not running..."; sudo rm -fr /var/run/march/docker*; (sudo $(SONIC_NATIVE_DOCKERD_FOR_MUTLIARCH) &) &>/dev/null ; sleep 1; sudo $(SONIC_USERFACL_DOCKERD_FOR_MUTLIARCH);)
+
+   # Docker service to load the compiled dockers-*.gz 
+    SONIC_NATIVE_DOCKERD_FOR_DOCKERFS := rm -fr $(PWD)/dockerfs/; mkdir -p $(PWD)/dockerfs/; sudo dockerd --storage-driver=overlay2 --iptables=false \
+	--data-root $(PWD)/dockerfs/var/lib/docker/ --exec-root=$(PWD)/dockerfs/var/run/docker/ \
+	-H unix://$(PWD)/dockerfs/var/run/docker.sock -p $(PWD)/dockerfs/var/run/docker.pid &
+    SONIC_USERFACL_DOCKERD_FOR_DOCKERFS := setfacl -m user:$(USER):rw $(PWD)/dockerfs/var/run/docker.sock
+    DOCKER_SERVICE_DOCKERFS_CHECK := (sudo docker -H unix://$(PWD)/dockerfs/var/run/docker.sock info &> /dev/null && sudo kill -9 `sudo cat $(PWD)/dockerfs/var/run/docker.pid`  && false) || (echo "Starting docker build service..."; (sudo $(SONIC_NATIVE_DOCKERD_FOR_DOCKERFS) ) &>/dev/null ; sleep 1; sudo $(SONIC_USERFACL_DOCKERD_FOR_DOCKERFS);)
+
+endif
 
 DOCKER_BASE_BUILD = docker build --no-cache \
 		    -t $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) \
@@ -120,6 +152,7 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            -f slave.mk \
                            BLDENV=$(BLDENV) \
                            PLATFORM=$(PLATFORM) \
+                           PLATFORM_ARCH=$(PLATFORM_ARCH) \
                            BUILD_NUMBER=$(BUILD_NUMBER) \
                            BUILD_TIMESTAMP=$(BUILD_TIMESTAMP) \
                            ENABLE_DHCP_GRAPH_SERVICE=$(ENABLE_DHCP_GRAPH_SERVICE) \
@@ -144,7 +177,14 @@ SONIC_BUILD_INSTRUCTION :=  make \
 .DEFAULT_GOAL :=  all
 
 %::
+ifneq (,$(filter $(CONFIGURED_ARCH), armhf arm64))
+	@$(DOCKER_MULTIARCH_CHECK)
+	@$(DOCKER_SERVICE_MULTIARCH_CHECK)
+	@$(DOCKER_SERVICE_DOCKERFS_CHECK)
+endif
 	@$(OVERLAY_MODULE_CHECK)
+	
+	@{ which j2 &> /dev/null && CONFIGURED_ARCH=$(CONFIGURED_ARCH) j2 $(SLAVE_DIR)/Dockerfile.j2 > $(SLAVE_DIR)/Dockerfile ; } || true
 	@docker inspect --type image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) &> /dev/null || \
 	    { echo Image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) not found. Building... ; \
 	    $(DOCKER_BASE_BUILD) ; }

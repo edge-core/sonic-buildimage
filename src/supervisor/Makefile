@@ -21,6 +21,10 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	stg init
 	stg import -s ../patch/series
 
+ifeq ($(CONFIGURED_ARCH), armhf)
+	stg import -s ../patch/series-armhf
+endif
+
 	# Build Python and Debian package
 	python setup.py --command-packages=stdeb.command bdist_deb
 	popd

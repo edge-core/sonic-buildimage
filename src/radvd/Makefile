@@ -2,8 +2,8 @@
 SHELL = /bin/bash
 .SHELLFLAGS += -e
 
-MAIN_TARGET = radvd_$(RADVD_VERSION)_amd64.deb
-DERIVED_TARGETS = radvd-dbgsym_$(RADVD_VERSION)_amd64.deb
+MAIN_TARGET = radvd_$(RADVD_VERSION)_$(CONFIGURED_ARCH).deb
+DERIVED_TARGETS = radvd-dbgsym_$(RADVD_VERSION)_$(CONFIGURED_ARCH).deb
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# Remove any stale files

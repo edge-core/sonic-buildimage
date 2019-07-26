@@ -2,13 +2,13 @@
 SHELL = /bin/bash
 .SHELLFLAGS += -e
 
-MAIN_TARGET = libteam5_$(LIBTEAM_VERSION)_amd64.deb
-DERIVED_TARGETS = libteam-dev_$(LIBTEAM_VERSION)_amd64.deb \
-		  libteamdctl0_$(LIBTEAM_VERSION)_amd64.deb \
-		  libteam-utils_$(LIBTEAM_VERSION)_amd64.deb \
-		  libteam5-dbgsym_$(LIBTEAM_VERSION)_amd64.deb \
-		  libteamdctl0-dbgsym_$(LIBTEAM_VERSION)_amd64.deb \
-		  libteam-utils-dbgsym_$(LIBTEAM_VERSION)_amd64.deb
+MAIN_TARGET = libteam5_$(LIBTEAM_VERSION)_$(CONFIGURED_ARCH).deb
+DERIVED_TARGETS = libteam-dev_$(LIBTEAM_VERSION)_$(CONFIGURED_ARCH).deb \
+		  libteamdctl0_$(LIBTEAM_VERSION)_$(CONFIGURED_ARCH).deb \
+		  libteam-utils_$(LIBTEAM_VERSION)_$(CONFIGURED_ARCH).deb \
+		  libteam5-dbgsym_$(LIBTEAM_VERSION)_$(CONFIGURED_ARCH).deb \
+		  libteamdctl0-dbgsym_$(LIBTEAM_VERSION)_$(CONFIGURED_ARCH).deb \
+		  libteam-utils-dbgsym_$(LIBTEAM_VERSION)_$(CONFIGURED_ARCH).deb
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# Obtain libteam

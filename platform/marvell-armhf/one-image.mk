@@ -1,0 +1,7 @@
+# sonic marvell one image installer
+
+SONIC_ONE_IMAGE = sonic-marvell.bin
+$(SONIC_ONE_IMAGE)_MACHINE = marvell
+$(SONIC_ONE_IMAGE)_IMAGE_TYPE = onie
+$(SONIC_ONE_IMAGE)_DOCKERS += $(SONIC_INSTALL_DOCKER_IMAGES)
+SONIC_INSTALLERS += $(SONIC_ONE_IMAGE)

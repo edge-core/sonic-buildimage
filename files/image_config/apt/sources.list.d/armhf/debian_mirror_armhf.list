@@ -1,0 +1,9 @@
+deb [arch=armhf] http://deb.debian.org/debian stretch main contrib non-free
+deb-src [arch=armhf] http://deb.debian.org/debian stretch main contrib non-free
+deb [arch=armhf] http://deb.debian.org/debian stretch-updates main contrib non-free
+deb-src [arch=armhf] http://deb.debian.org/debian stretch-updates main contrib non-free
+deb [arch=armhf] http://security.debian.org stretch/updates main contrib non-free
+deb-src [arch=armhf] http://security.debian.org stretch/updates main contrib non-free
+deb [arch=armhf] https://download.docker.com/linux/debian stretch stable
+deb [arch=armhf] http://ftp.debian.org/debian stretch-backports main
+

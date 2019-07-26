@@ -2,8 +2,8 @@
 SHELL = /bin/bash
 .SHELLFLAGS += -e
 
-MAIN_TARGET = isc-dhcp-relay_$(ISC_DHCP_VERSION)_amd64.deb
-DERIVED_TARGETS = isc-dhcp-relay-dbgsym_$(ISC_DHCP_VERSION)_amd64.deb
+MAIN_TARGET = isc-dhcp-relay_$(ISC_DHCP_VERSION)_$(CONFIGURED_ARCH).deb
+DERIVED_TARGETS = isc-dhcp-relay-dbgsym_$(ISC_DHCP_VERSION)_$(CONFIGURED_ARCH).deb
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# Remove any stale files

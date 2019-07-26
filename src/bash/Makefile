@@ -2,7 +2,7 @@ SHELL = /bin/bash
 .ONESHELL:
 .SHELLFLAGS += -e
 
-MAIN_TARGET = bash_$(BASH_VERSION_FULL)_amd64.deb
+MAIN_TARGET = bash_$(BASH_VERSION_FULL)_$(CONFIGURED_ARCH).deb
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	rm -rf bash-$(BASH_VERSION_MAJOR)

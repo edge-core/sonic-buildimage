@@ -5,10 +5,10 @@ SHELL = /bin/bash
 REDIS_VERSION = 5.0.3
 REDIS_VERSION_FULL = $(REDIS_VERSION)-3~bpo9+2
 
-MAIN_TARGET = redis-server_$(REDIS_VERSION_FULL)_amd64.deb
-DERIVED_TARGETS = redis-tools_$(REDIS_VERSION_FULL)_amd64.deb \
-		  redis-sentinel_$(REDIS_VERSION_FULL)_amd64.deb \
-		  redis-tools-dbgsym_$(REDIS_VERSION_FULL)_amd64.deb
+MAIN_TARGET = redis-server_$(REDIS_VERSION_FULL)_$(CONFIGURED_ARCH).deb
+DERIVED_TARGETS = redis-tools_$(REDIS_VERSION_FULL)_$(CONFIGURED_ARCH).deb \
+		  redis-sentinel_$(REDIS_VERSION_FULL)_$(CONFIGURED_ARCH).deb \
+		  redis-tools-dbgsym_$(REDIS_VERSION_FULL)_$(CONFIGURED_ARCH).deb
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	rm -rf  redis_build
@@ -21,6 +21,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	dpkg-source -x redis_$(REDIS_VERSION_FULL).dsc
 
 	pushd redis-$(REDIS_VERSION)
+	export ARCH=""
 	DEB_BUILD_OPTIONS=nocheck dpkg-buildpackage -us -uc -b -j$(SONIC_CONFIG_MAKE_JOBS)
 	popd
 

@@ -2,16 +2,16 @@
 SHELL = /bin/bash
 .SHELLFLAGS += -e
 
-MAIN_TARGET = libnl-3-200_$(LIBNL3_VERSION)_amd64.deb
-DERIVED_TARGETS = libnl-3-dev_$(LIBNL3_VERSION)_amd64.deb \
-		  libnl-genl-3-200_$(LIBNL3_VERSION)_amd64.deb \
-		  libnl-genl-3-dev_$(LIBNL3_VERSION)_amd64.deb \
-		  libnl-route-3-200_$(LIBNL3_VERSION)_amd64.deb \
-		  libnl-route-3-dev_$(LIBNL3_VERSION)_amd64.deb  \
-		  libnl-nf-3-200_$(LIBNL3_VERSION)_amd64.deb \
-		  libnl-nf-3-dev_$(LIBNL3_VERSION)_amd64.deb \
-		  libnl-cli-3-200_$(LIBNL3_VERSION)_amd64.deb \
-		  libnl-cli-3-dev_$(LIBNL3_VERSION)_amd64.deb
+MAIN_TARGET = libnl-3-200_$(LIBNL3_VERSION)_$(CONFIGURED_ARCH).deb
+DERIVED_TARGETS = libnl-3-dev_$(LIBNL3_VERSION)_$(CONFIGURED_ARCH).deb \
+		  libnl-genl-3-200_$(LIBNL3_VERSION)_$(CONFIGURED_ARCH).deb \
+		  libnl-genl-3-dev_$(LIBNL3_VERSION)_$(CONFIGURED_ARCH).deb \
+		  libnl-route-3-200_$(LIBNL3_VERSION)_$(CONFIGURED_ARCH).deb \
+		  libnl-route-3-dev_$(LIBNL3_VERSION)_$(CONFIGURED_ARCH).deb  \
+		  libnl-nf-3-200_$(LIBNL3_VERSION)_$(CONFIGURED_ARCH).deb \
+		  libnl-nf-3-dev_$(LIBNL3_VERSION)_$(CONFIGURED_ARCH).deb \
+		  libnl-cli-3-200_$(LIBNL3_VERSION)_$(CONFIGURED_ARCH).deb \
+		  libnl-cli-3-dev_$(LIBNL3_VERSION)_$(CONFIGURED_ARCH).deb
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# Obtaining the libnl3

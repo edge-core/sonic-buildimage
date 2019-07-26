@@ -6,13 +6,13 @@ PYTHON_VER=3.6.0
 PYTHON_DEB_VER=1
 PYTHON_PNAME=python3.6
 
-MAIN_TARGET = lib$(PYTHON_PNAME)-minimal_$(PYTHON_VER)-$(PYTHON_DEB_VER)_amd64.deb
-DERIVED_TARGETS = lib$(PYTHON_PNAME)-stdlib_$(PYTHON_VER)-$(PYTHON_DEB_VER)_amd64.deb \
-				  lib$(PYTHON_PNAME)_$(PYTHON_VER)-$(PYTHON_DEB_VER)_amd64.deb \
-				  $(PYTHON_PNAME)-minimal_$(PYTHON_VER)-$(PYTHON_DEB_VER)_amd64.deb \
-				  $(PYTHON_PNAME)_$(PYTHON_VER)-$(PYTHON_DEB_VER)_amd64.deb \
-				  lib$(PYTHON_PNAME)-dev_$(PYTHON_VER)-$(PYTHON_DEB_VER)_amd64.deb
-				  #$(PYTHON_PNAME)-dev_$(PYTHON_VER)-$(PYTHON_DEB_VER)_amd64.deb
+MAIN_TARGET = lib$(PYTHON_PNAME)-minimal_$(PYTHON_VER)-$(PYTHON_DEB_VER)_$(CONFIGURED_ARCH).deb
+DERIVED_TARGETS = lib$(PYTHON_PNAME)-stdlib_$(PYTHON_VER)-$(PYTHON_DEB_VER)_$(CONFIGURED_ARCH).deb \
+				  lib$(PYTHON_PNAME)_$(PYTHON_VER)-$(PYTHON_DEB_VER)_$(CONFIGURED_ARCH).deb \
+				  $(PYTHON_PNAME)-minimal_$(PYTHON_VER)-$(PYTHON_DEB_VER)_$(CONFIGURED_ARCH).deb \
+				  $(PYTHON_PNAME)_$(PYTHON_VER)-$(PYTHON_DEB_VER)_$(CONFIGURED_ARCH).deb \
+				  lib$(PYTHON_PNAME)-dev_$(PYTHON_VER)-$(PYTHON_DEB_VER)_$(CONFIGURED_ARCH).deb
+				  #$(PYTHON_PNAME)-dev_$(PYTHON_VER)-$(PYTHON_DEB_VER)_$(CONFIGURED_ARCH).deb
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# Remove any stale files
@@ -31,7 +31,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# put a lock here because dpkg does not allow installing packages in parallel
 	while true; do
 	if mkdir $(DEST)/dpkg_lock &> /dev/null; then
-	{ echo here && (sudo dpkg -i $(PYTHON_PNAME)-build-deps_$(PYTHON_VER)-$(PYTHON_DEB_VER)_amd64.deb || sudo apt-get install -f) && rm -d $(DEST)/dpkg_lock && break; } || { rm -d $(DEST)/dpkg_lock && exit 1 ; }
+	{ echo here && (sudo dpkg -i $(PYTHON_PNAME)-build-deps_$(PYTHON_VER)-$(PYTHON_DEB_VER)_$(CONFIGURED_ARCH).deb || sudo apt-get install -f) && rm -d $(DEST)/dpkg_lock && break; } || { rm -d $(DEST)/dpkg_lock && exit 1 ; }
 	fi
 	done
 

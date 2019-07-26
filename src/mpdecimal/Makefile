@@ -2,8 +2,8 @@
 SHELL = /bin/bash
 .SHELLFLAGS += -e
 
-MAIN_TARGET = libmpdec2_$(MPDECIMAL_VERSION_FULL)_amd64.deb
-DERIVED_TARGETS = libmpdec-dev_$(MPDECIMAL_VERSION_FULL)_amd64.deb
+MAIN_TARGET = libmpdec2_$(MPDECIMAL_VERSION_FULL)_$(CONFIGURED_ARCH).deb
+DERIVED_TARGETS = libmpdec-dev_$(MPDECIMAL_VERSION_FULL)_$(CONFIGURED_ARCH).deb
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	rm -rf mpdecimal-$(MPDECIMAL_VERSION)

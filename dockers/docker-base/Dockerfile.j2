@@ -1,7 +1,13 @@
+{% if CONFIGURED_ARCH == "armhf" %}
+FROM multiarch/debian-debootstrap:armhf-jessie
+{% elif CONFIGURED_ARCH == "arm64" %}
+FROM multiarch/debian-debootstrap:arm64-jessie
+{% else %}
 FROM debian:jessie
+{% endif %}
 
 ## Remove retired jessie-updates repo
-RUN sed -i '/deb http:\/\/deb.debian.org\/debian jessie-updates main/d' /etc/apt/sources.list
+RUN sed -i '/http:\/\/deb.debian.org\/debian jessie-updates main/d' /etc/apt/sources.list
 
 # Clean documentation in FROM image
 RUN find /usr/share/doc -depth \( -type f -o -type l \) ! -name copyright | xargs rm || true
@@ -22,7 +28,13 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Configure data sources for apt/dpkg
 COPY ["dpkg_01_drop", "/etc/dpkg/dpkg.cfg.d/01_drop"]
+{% if CONFIGURED_ARCH == "armhf" %}
+COPY ["sources.list.armhf", "/etc/apt/sources.list"]
+{% elif CONFIGURED_ARCH == "arm64" %}
+COPY ["sources.list.arm64", "/etc/apt/sources.list"]
+{% else %}
 COPY ["sources.list", "/etc/apt/sources.list"]
+{% endif %}
 COPY ["no_install_recommend_suggest", "/etc/apt/apt.conf.d"]
 RUN apt-get update
 

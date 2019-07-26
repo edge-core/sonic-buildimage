@@ -2,7 +2,15 @@
 ## This script is to generate an ONIE installer image based on a file system overload
 
 ## Read ONIE image related config file
-. ./onie-image.conf
+
+CONFIGURED_ARCH=$([ -f .arch ] && cat .arch || echo amd64)
+
+if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
+    . ./onie-image-${CONFIGURED_ARCH}.conf
+else
+    . ./onie-image.conf
+fi
+
 [ -n "$ONIE_IMAGE_PART_SIZE" ] || {
     echo "Error: Invalid ONIE_IMAGE_PART_SIZE in onie image config file"
     exit 1

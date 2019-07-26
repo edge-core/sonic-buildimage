@@ -1,0 +1,7 @@
+## Debian mirror for ARM repo
+
+# ARM repo
+deb [arch=armhf] http://deb.debian.org/debian stretch main contrib non-free
+deb-src [arch=armhf] http://deb.debian.org/debian stretch main contrib non-free
+deb [arch=armhf] http://security.debian.org stretch/updates main contrib non-free
+deb-src [arch=armhf] http://security.debian.org stretch/updates main contrib non-free

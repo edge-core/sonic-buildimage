@@ -2,9 +2,9 @@
 SHELL = /bin/bash
 .SHELLFLAGS += -e
 
-MAIN_TARGET = libpam-tacplus_$(PAM_TACPLUS_VERSION)_amd64.deb
-DERIVED_TARGETS = libtac2_$(PAM_TACPLUS_VERSION)_amd64.deb \
-		  libtac-dev_$(PAM_TACPLUS_VERSION)_amd64.deb
+MAIN_TARGET = libpam-tacplus_$(PAM_TACPLUS_VERSION)_$(CONFIGURED_ARCH).deb
+DERIVED_TARGETS = libtac2_$(PAM_TACPLUS_VERSION)_$(CONFIGURED_ARCH).deb \
+		  libtac-dev_$(PAM_TACPLUS_VERSION)_$(CONFIGURED_ARCH).deb
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# Obtain pam_tacplus

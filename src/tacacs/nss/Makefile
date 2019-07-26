@@ -2,7 +2,13 @@
 SHELL = /bin/bash
 .SHELLFLAGS += -e
 
-MAIN_TARGET = libnss-tacplus_$(NSS_TACPLUS_VERSION)_amd64.deb
+MAIN_TARGET = libnss-tacplus_$(NSS_TACPLUS_VERSION)_$(CONFIGURED_ARCH).deb
+
+GIT_APPLY = am
+ifeq ($(CONFIGURED_ARCH), armhf)
+# Workaround git am issue "Out of memory getdelim failed" 
+GIT_APPLY = apply
+endif
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# Obtain libnss-tacplus
@@ -12,10 +18,10 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	git checkout -f 19008ab
 
 	# Apply patch
-	git am ../0001-Modify-user-map-profile.patch
-	git am ../0002-Enable-modifying-local-user-permission.patch
-	git am ../0003-management-vrf-support.patch
-	git am ../0004-Skip-accessing-tacacs-servers-for-local-non-tacacs-u.patch
+	git $(GIT_APPLY) ../0001-Modify-user-map-profile.patch
+	git $(GIT_APPLY) ../0002-Enable-modifying-local-user-permission.patch
+	git $(GIT_APPLY) ../0003-management-vrf-support.patch
+	git $(GIT_APPLY) ../0004-Skip-accessing-tacacs-servers-for-local-non-tacacs-u.patch
 
 	dpkg-buildpackage -rfakeroot -b -us -uc
 	popd

@@ -3,7 +3,7 @@ SHELL = /bin/bash
 .SHELLFLAGS += -e
 
 
-MAIN_TARGET = smartmontools_$(SMARTMONTOOLS_VERSION_FULL)_amd64.deb
+MAIN_TARGET = smartmontools_$(SMARTMONTOOLS_VERSION_FULL)_$(CONFIGURED_ARCH).deb
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	rm -rf smartmontools-$(SMARTMONTOOLS_VERSION_MAJOR)
