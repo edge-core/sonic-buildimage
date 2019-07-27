@@ -448,7 +448,7 @@ def parse_spine_chassis_fe(results, vni, lo_intfs, phyport_intfs, pc_intfs, pc_m
             break        
 
     results['VXLAN_TUNNEL'] = {chassis_vxlan_tunnel: {
-        'source_ip': lo_addr
+        'src_ip': lo_addr
     }}
 
     # Vnet information

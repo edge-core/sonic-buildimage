@@ -69,4 +69,4 @@ class TestCfgGenT2ChassisFe(TestCase):
     def test_minigraph_t2_chassis_fe_vxlan(self):
         argument = '-m "' + self.sample_graph_t2_chassis_fe + '" -p "' + self.t2_chassis_fe_port_config + '" -v "VXLAN_TUNNEL"'
         output = self.run_script(argument)
-        self.assertEqual(output.strip(), "{'TunnelInt': {'source_ip': '4.0.0.0'}}")
+        self.assertEqual(output.strip(), "{'TunnelInt': {'src_ip': '4.0.0.0'}}")
