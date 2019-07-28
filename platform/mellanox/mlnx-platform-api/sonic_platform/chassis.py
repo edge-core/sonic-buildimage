@@ -18,6 +18,7 @@ try:
     from sonic_platform.watchdog import get_watchdog
     from sonic_daemon_base.daemon_base import Logger
     from eeprom import Eeprom
+    from sfp_event import sfp_event
     from os import listdir
     from os.path import isfile, join
     import sys
@@ -27,6 +28,8 @@ try:
     import syslog
 except ImportError as e:
     raise ImportError (str(e) + "- required module not found")
+
+MAX_SELECT_DELAY = 3600
 
 MLNX_NUM_PSU = 2
 
@@ -126,6 +129,14 @@ class Chassis(ChassisBase):
         self._component_name_list.append(COMPONENT_FIRMWARE)
         self._component_name_list.append(COMPONENT_CPLD1)
         self._component_name_list.append(COMPONENT_CPLD2)
+
+        # Initialize sfp-change-listening stuff
+        self._init_sfp_change_event()
+
+    def _init_sfp_change_event(self):
+        self.sfp_event = sfp_event()
+        self.sfp_event.initialize()
+        self.MAX_SELECT_EVENT_RETURNED = self.PORT_END
 
     def _extract_num_of_fans_and_fan_drawers(self):
         num_of_fan = 0
@@ -327,3 +338,76 @@ class Chassis(ChassisBase):
                 return self._get_firmware_version()
 
         return None
+
+    def _show_capabilities(self):
+        """
+        This function is for debug purpose
+        Some features require a xSFP module to support some capabilities but it's unrealistic to
+        check those modules one by one.
+        So this function is introduce to show some capabilities of all xSFP modules mounted on the device.
+        """
+        for s in self._sfp_list:
+            try:
+                print "index {} tx disable {} dom {} calibration {} temp {} volt {} power (tx {} rx {})".format(s.index,
+                    s.dom_tx_disable_supported,
+                    s.dom_supported,
+                    s.calibration,
+                    s.dom_temp_supported,
+                    s.dom_volt_supported,
+                    s.dom_rx_power_supported,
+                    s.dom_tx_power_supported
+                    )
+            except:
+                print "fail to retrieve capabilities for module index {}".format(s.index)
+
+    def get_change_event(self, timeout=0):
+        """
+        Returns a nested dictionary containing all devices which have
+        experienced a change at chassis level
+
+        Args:
+            timeout: Timeout in milliseconds (optional). If timeout == 0,
+                this method will block until a change is detected.
+
+        Returns:
+            (bool, dict):
+                - True if call successful, False if not;
+                - A nested dictionary where key is a device type,
+                  value is a dictionary with key:value pairs in the format of
+                  {'device_id':'device_event'}, 
+                  where device_id is the device ID for this device and
+                        device_event,
+                             status='1' represents device inserted,
+                             status='0' represents device removed.
+                  Ex. {'fan':{'0':'0', '2':'1'}, 'sfp':{'11':'0'}}
+                      indicates that fan 0 has been removed, fan 2
+                      has been inserted and sfp 11 has been removed.
+        """
+        wait_for_ever = (timeout == 0)
+        port_dict = {}
+        if wait_for_ever:
+            timeout = MAX_SELECT_DELAY
+            while True:
+                status = self.sfp_event.check_sfp_status(port_dict, timeout)
+                if not port_dict == {}:
+                    break
+        else:
+            status = self.sfp_event.check_sfp_status(port_dict, timeout)
+
+        if status:
+            # get_change_event has the meaning of retrieving all the notifications through a single call.
+            # Typically this is implemented via a select framework which requires the underlay file-reading 
+            # interface able to retrieve all notifications without blocking once the fd has been selected. 
+            # However, sdk doesn't provide any interface satisfied the requirement. as a result,
+            # check_sfp_status returns only one notification may indicate more notifications in its queue.
+            # In this sense, we have to iterate in a loop to get all the notifications in case that
+            # the first call returns at least one.
+            i = 0
+            while i < self.MAX_SELECT_EVENT_RETURNED:
+                status = self.sfp_event.check_sfp_status(port_dict, 0)
+                if not status:
+                    break
+                i = i + 1
+            return True, {'sfp':port_dict}
+        else:
+            return True, {}
