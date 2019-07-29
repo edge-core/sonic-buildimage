@@ -81,6 +81,12 @@ src/supervisor/*
 !src/supervisor/patch/
 src/swig/*
 !src/swig/Makefile
+src/systemd-sonic-generator/systemd-sonic-generator
+src/systemd-sonic-generator/debian/*
+!src/systemd-sonic-generator/debian/changelog
+!src/systemd-sonic-generator/debian/compat
+!src/systemd-sonic-generator/debian/control
+!src/systemd-sonic-generator/debian/rules
 src/telemetry/debian/*
 !src/telemetry/debian/changelog
 !src/telemetry/debian/compat

@@ -1,0 +1,6 @@
+Source: systemd-sonic-generator
+Maintainer: Lawrence Lee <t-lale@microsoft.com>
+
+Package: systemd-sonic-generator
+Architecture: any
+Description: Systemd generator for SONiC services
