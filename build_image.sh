@@ -1,6 +1,9 @@
 #!/bin/bash
 ## This script is to generate an ONIE installer image based on a file system overload
 
+## Enable debug output for script
+set -x -e
+
 ## Read ONIE image related config file
 
 CONFIGURED_ARCH=$([ -f .arch ] && cat .arch || echo amd64)
