@@ -1,0 +1,9 @@
+orchagent
+portsyncd
+neighsyncd
+vlanmgrd
+intfmgrd
+portmgrd
+buffermgrd
+vrfmgrd
+nbrmgrd
