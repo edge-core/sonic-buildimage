@@ -20,7 +20,11 @@ RUN apt-get install -y \
                 libxslt1-dev \
                 python-setuptools \
                 build-essential \
-                curl
+                curl \
+                cmake \
+                tcpdump \
+                python-dev \
+                python-scapy
 
 # For JNLP launcher
 RUN apt-get install -y default-jre
@@ -46,7 +50,26 @@ RUN pip install ipaddr \
                 jinja2==2.7.2 \
                 cffi==1.10.0 \
                 paramiko==2.1.2 \
-                passlib
+                passlib \
+                ipython==5.4.1 \
+    && git clone https://github.com/p4lang/scapy-vxlan.git \
+    && cd scapy-vxlan \
+    && python setup.py install \
+    && cd .. \
+    && rm -fr scapy-vxlan \
+    && wget https://github.com/nanomsg/nanomsg/archive/1.0.0.tar.gz \
+    && tar xvfz 1.0.0.tar.gz \
+    && cd nanomsg-1.0.0    \
+    && mkdir -p build      \
+    && cd build            \
+    && cmake ..            \
+    && make install        \
+    && ldconfig            \
+    && cd ../..            \
+    && rm -fr nanomsg-1.0.0 \
+    && rm -f 1.0.0.tar.gz  \
+    && pip install nnpy    \
+    && pip install dpkt
 
 # Install Microsoft Azure Kusto Library for Python
 RUN pip install azure-kusto-data==0.0.13 \
