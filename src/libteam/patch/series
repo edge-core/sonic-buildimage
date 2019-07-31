@@ -6,3 +6,4 @@
 0006-teamd-Administratively-shutdown-port-channel-has-mem.patch
 0007-Send-LACP-PDU-immediately-if-our-state-changed.patch
 0008-libteam-Add-warm_reboot-mode.patch
+0009-Fix-ifinfo_link_with_port-race-condition-with-newlink.patch
