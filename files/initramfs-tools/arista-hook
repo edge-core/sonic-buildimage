@@ -41,6 +41,10 @@ for x in "$@"; do
             x1="${x#loop=}"
             image_dir="${x1%/*}"
             ;;
+        SONIC_BOOT_TYPE=warm*|SONIC_BOOT_TYPE=fast*)
+            # Skip this script for warm-reboot and fast-reboot
+            exit 0
+            ;;
     esac
 done
 
