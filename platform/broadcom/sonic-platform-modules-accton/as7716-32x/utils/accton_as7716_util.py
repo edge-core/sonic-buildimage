@@ -221,26 +221,26 @@ def  show_set_help():
     print  "    use \""+ cmd + " sfp 1-32 {0|1}\" to set sfp# tx_disable"
     sys.exit(0)
 
-def diss_i2c_ir3507a(addr):
+def dis_i2c_ir3570a(addr):
     cmd = "i2cset -y 0 0x%x 0xE5 0x01" % addr
     status, output = commands.getstatusoutput(cmd)
     cmd = "i2cset -y 0 0x%x 0x12 0x02" % addr
     status, output = commands.getstatusoutput(cmd)
     return status
 
-def ir3507_check():
+def ir3570_check():
     cmd = "i2cdump -y 0 0x42 s 0x9a"
     try:
         status, output = commands.getstatusoutput(cmd)
         lines = output.split('\n')
         hn = re.findall(r'\w+', lines[-1])
         version = int(hn[1], 16)
-        if version == 0x24:  #only for ir3507a
-            ret = diss_i2c_ir3507a(4)
+        if version == 0x24:  #only for ir3570a
+            ret = dis_i2c_ir3570a(4)
         else:
             ret = 0
     except Exception as e:
-        print "Error on ir3507_check() e:" + str(e)
+        print "Error on ir3570_check() e:" + str(e)
         return -1
     return ret
 
@@ -410,7 +410,7 @@ def do_install():
     else:
         print PROJECT_NAME.upper()+" drivers detected...."
 
-    ir3507_check()
+    ir3570_check()
 
     if not device_exist():
         status = device_install()
