@@ -9,3 +9,4 @@
 0013-teamd-lacp-port-admin-down-recv-not-processing.patch
 0014-Send-LACP-PDU-immediately-if-our-state-changed.patch
 0015-libteam-Add-warm_reboot-mode.patch
+0016-Fix-ifinfo_link_with_port-race-condition-with-newlink.patch
