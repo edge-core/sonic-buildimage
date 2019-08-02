@@ -5,7 +5,7 @@ Maintainer: Dell Team <support@dell.com>
 Build-Depends: debhelper (>= 8.0.0), bzip2
 Standards-Version: 3.9.3
 
-Package: platform-modules-z9264f
+Package: platform-modules-s6000
 Architecture: amd64
 Depends: linux-image-4.9.0-9-amd64
 Description: kernel modules for platform devices such as fan, led, sfp
@@ -20,3 +20,7 @@ Architecture: amd64
 Depends: linux-image-4.9.0-9-amd64
 Description: kernel modules for platform devices such as fan, led, sfp
 
+Package: platform-modules-z9264f
+Architecture: amd64
+Depends: linux-image-4.9.0-9-2-amd64
+Description: kernel modules for platform devices such as fan, led, sfp

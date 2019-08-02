@@ -5,7 +5,7 @@ export INSTALL_MOD_DIR:=extra
 KVERSION   ?= $(shell uname -r)
 KERNEL_SRC :=  /lib/modules/$(KVERSION)
 MOD_SRC_DIR:= $(shell pwd)
-MODULE_DIRS:= s6100 z9100 z9264f
+MODULE_DIRS:= s6000 z9100 s6100 z9264f 
 COMMON_DIR := common
 
 %:
@@ -36,6 +36,10 @@ override_dh_auto_install:
 			$(KERNEL_SRC)/$(INSTALL_MOD_DIR); \
 		cp $(MOD_SRC_DIR)/$${mod}/modules/*.ko \
 			debian/platform-modules-$${mod}/$(KERNEL_SRC)/$(INSTALL_MOD_DIR); \
+		if [ $$mod = "s6000" ]; then \
+			dh_installdirs -pplatform-modules-$${mod} usr/local/bin ; \
+			cp -r $(MOD_SRC_DIR)/$${mod}/scripts/* debian/platform-modules-$${mod}/usr/local/bin; \
+		fi; \
 	done)
 
 override_dh_usrlocal:
