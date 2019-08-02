@@ -8,6 +8,12 @@ try:
 except ImportError, e:
     raise ImportError (str(e) + "- required module not found")
 
+smbus_present = 1
+
+try:
+    import smbus
+except ImportError, e:
+    smbus_present = 0
 
 class SfpUtil(SfpUtilBase):
     """Platform specific sfputil class"""
@@ -37,14 +43,21 @@ class SfpUtil(SfpUtilBase):
 
         if not os.path.exists("/sys/bus/i2c/devices/0-0050") :
             os.system("echo optoe2 0x50 > /sys/bus/i2c/devices/i2c-0/new_device")
-        #os.system("echo optoe 0x50 > /sys/bus/i2c/devices/i2c-0/new_device")
 
-        #enable optic
-        os.system("i2cset -y -m 0x0f 0 0x41 0x5 0x00")
         eeprom_path = '/sys/bus/i2c/devices/0-0050/eeprom'
         for x in range(self.port_start, self.port_end + 1):
             port_eeprom_path = eeprom_path.format(self.port_to_i2c_mapping[x])
             self.port_to_eeprom_mapping[x] = port_eeprom_path
+        # Enable optical SFP Tx
+        if smbus_present == 0 :
+            os.system("i2cset -y -m 0x0f 0 0x41 0x5 0x00")
+        else :
+            bus = smbus.SMBus(0)
+            DEVICE_ADDRESS = 0x41
+            DEVICEREG = 0x5 
+            OPTIC_E =  bus.read_byte_data(DEVICE_ADDRESS, DEVICEREG)
+            OPTIC_E = OPTIC_E & 0xf0
+            bus.write_byte_data(DEVICE_ADDRESS, DEVICEREG, OPTIC_E) 
         SfpUtilBase.__init__(self)
 
     def reset(self, port_num):
