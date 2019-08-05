@@ -49,37 +49,38 @@ def db_connect(db):
 
 class Logger(object):
     def __init__(self, syslog_identifier):
-        syslog.openlog(ident=syslog_identifier, logoption=syslog.LOG_NDELAY, facility=syslog.LOG_DAEMON)
+        self.syslog = syslog
+        self.syslog.openlog(ident=syslog_identifier, logoption=self.syslog.LOG_NDELAY, facility=self.syslog.LOG_DAEMON)
 
     def __del__(self):
-        syslog.closelog()
+        self.syslog.closelog()
 
     def log_error(self, msg, also_print_to_console=False):
-        syslog.syslog(syslog.LOG_ERR, msg)
+        self.syslog.syslog(self.syslog.LOG_ERR, msg)
 
         if also_print_to_console:
             print msg
 
     def log_warning(self, msg, also_print_to_console=False):
-        syslog.syslog(syslog.LOG_WARNING, msg)
+        self.syslog.syslog(self.syslog.LOG_WARNING, msg)
 
         if also_print_to_console:
             print msg
 
     def log_notice(self, msg, also_print_to_console=False):
-        syslog.syslog(syslog.LOG_NOTICE, msg)
+        self.syslog.syslog(self.syslog.LOG_NOTICE, msg)
 
         if also_print_to_console:
             print msg
 
     def log_info(self, msg, also_print_to_console=False):
-        syslog.syslog(syslog.LOG_INFO, msg)
+        self.syslog.syslog(self.syslog.LOG_INFO, msg)
 
         if also_print_to_console:
             print msg
 
     def log_debug(self, msg, also_print_to_console=False):
-        syslog.syslog(syslog.LOG_DEBUG, msg)
+        self.syslog.syslog(self.syslog.LOG_DEBUG, msg)
 
         if also_print_to_console:
             print msg
@@ -98,15 +99,15 @@ class DaemonBase(object):
     # Signal handler
     def signal_handler(self, sig, frame):
         if sig == signal.SIGHUP:
-            syslog.syslog(syslog.LOG_INFO, "Caught SIGHUP - ignoring...")
+            self.syslog.syslog(self.syslog.LOG_INFO, "Caught SIGHUP - ignoring...")
         elif sig == signal.SIGINT:
-            syslog.syslog(syslog.LOG_INFO, "Caught SIGINT - exiting...")
+            self.syslog.syslog(self.syslog.LOG_INFO, "Caught SIGINT - exiting...")
             sys.exit(128 + sig)
         elif sig == signal.SIGTERM:
-            syslog.syslog(syslog.LOG_INFO, "Caught SIGTERM - exiting...")
+            self.syslog.syslog(self.syslog.LOG_INFO, "Caught SIGTERM - exiting...")
             sys.exit(128 + sig)
         else:
-            syslog.syslog(syslog.LOG_WARNING, "Caught unhandled signal '" + sig + "'")
+            self.syslog.syslog(self.syslog.LOG_WARNING, "Caught unhandled signal '" + sig + "'")
 
     # Returns platform and hwsku
     def get_platform_and_hwsku(self):
