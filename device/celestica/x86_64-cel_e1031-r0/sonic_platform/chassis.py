@@ -20,11 +20,13 @@ try:
     from sonic_platform.psu import Psu
     from sonic_platform.component import Component
     from sonic_platform.watchdog import Watchdog
+    from sonic_platform.thermal import Thermal
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
 NUM_FAN = 3
 NUM_PSU = 2
+NUM_THERMAL = 7
 CONFIG_DB_PATH = "/etc/sonic/config_db.json"
 RESET_REGISTER = "0x112"
 REBOOT_CAUSE_PATH = "/host/reboot-cause/previous-reboot-cause.txt"
@@ -42,6 +44,9 @@ class Chassis(ChassisBase):
         for index in range(0, NUM_PSU):
             psu = Psu(index)
             self._psu_list.append(psu)
+        for index in range(0, NUM_THERMAL):
+            thermal = Thermal(index)
+            self._thermal_list.append(thermal)
         ChassisBase.__init__(self)
         self._component_name_list = COMPONENT_NAME_LIST
         self._watchdog = Watchdog()
@@ -125,6 +130,7 @@ class Chassis(ChassisBase):
 
         if sw_reboot_cause != "Unexpected reboot":
             reboot_cause = self.REBOOT_CAUSE_NON_HARDWARE
+            description = sw_reboot_cause
         elif hw_reboot_cause == "0x11":
             reboot_cause = self.REBOOT_CAUSE_POWER_LOSS
         elif hw_reboot_cause == "0x33" or hw_reboot_cause == "0x55":

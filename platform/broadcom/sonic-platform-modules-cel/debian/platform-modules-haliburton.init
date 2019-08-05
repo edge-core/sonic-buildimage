@@ -49,8 +49,8 @@ start)
         # Attach syseeprom
         echo 24lc64t 0x50 > /sys/bus/i2c/devices/i2c-2/new_device
 
-        echo max6697 0x1a > /sys/bus/i2c/devices/i2c-3/new_device
-        echo max6697 0x1a > /sys/bus/i2c/devices/i2c-11/new_device
+        echo max6699 0x1a > /sys/bus/i2c/devices/i2c-3/new_device
+        echo max6699 0x1a > /sys/bus/i2c/devices/i2c-11/new_device
 
         # Attach PSUs
         echo dps200 0x5a > /sys/bus/i2c/devices/i2c-12/new_device
