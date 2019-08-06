@@ -124,9 +124,18 @@ TODO(taoyl): Current version of config db only supports BGP admin states.
         return db_data
 
     @staticmethod
-    def to_serialized(data):
+    def to_serialized(data, lookup_key = None):
         if type(data) is dict:
             data = OrderedDict(natsorted(data.items()))
+
+            if lookup_key != None:
+                newData = {}
+                for key in data.keys():
+                    if ((type(key) is unicode and lookup_key == key) or (type(key) is tuple and lookup_key in key)):
+                        newData[ConfigDBConnector.serialize_key(key)] = data.pop(key)
+                        break
+                return newData
+
             for key in data.keys():
                 new_key = ConfigDBConnector.serialize_key(key)
                 if new_key != key:
@@ -181,6 +190,8 @@ def main():
     group.add_argument("-w", "--write-to-db", help="write config into configdb", action='store_true')
     group.add_argument("--print-data", help="print all data", action='store_true')
     group.add_argument("--preset", help="generate sample configuration from a preset template", choices=get_available_config())
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("-K", "--key", help="Lookup for a specific key")
     args = parser.parse_args()
 
     platform = get_platform_info(get_machine_info())
@@ -261,7 +272,10 @@ def main():
         print(template.render(data))
 
     if args.var_json != None:
-        print(json.dumps(FormatConverter.to_serialized(data[args.var_json]), indent=4, cls=minigraph_encoder))
+        if args.key != None:
+            print(json.dumps(FormatConverter.to_serialized(data[args.var_json], args.key), indent=4, cls=minigraph_encoder))
+        else:
+            print(json.dumps(FormatConverter.to_serialized(data[args.var_json]), indent=4, cls=minigraph_encoder))
 
     if args.write_to_db:
         configdb = ConfigDBConnector(**db_kwargs)
