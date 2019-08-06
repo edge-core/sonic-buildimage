@@ -1,0 +1,30 @@
+From 81990d9aafdfd459c0caa6cf07501fa628ada454 Mon Sep 17 00:00:00 2001
+From: Tyler Li <tyler.li@nephosinc.com>
+Date: Mon, 3 Jun 2019 01:48:11 -0700
+Subject: [PATCH] Support VRF
+
+---
+ zebra/zebra_fpm_netlink.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/zebra/zebra_fpm_netlink.c b/zebra/zebra_fpm_netlink.c
+index 207cbc099..b98c6886b 100644
+--- a/zebra/zebra_fpm_netlink.c
++++ b/zebra/zebra_fpm_netlink.c
+@@ -327,7 +327,12 @@ static int netlink_route_info_encode(netlink_route_info_t *ri, char *in_buf,
+ 	req->n.nlmsg_flags = NLM_F_CREATE | NLM_F_REQUEST;
+ 	req->n.nlmsg_type = ri->nlmsg_type;
+ 	req->r.rtm_family = ri->af;
+-	req->r.rtm_table = ri->rtm_table;
++	if (ri->rtm_table < 256)
++		req->r.rtm_table = ri->rtm_table;
++	else {
++		req->r.rtm_table = RT_TABLE_COMPAT;
++		addattr32(&req->n, in_buf_len, RTA_TABLE, ri->rtm_table);
++	}
+ 	req->r.rtm_dst_len = ri->prefix->prefixlen;
+ 	req->r.rtm_protocol = ri->rtm_protocol;
+ 	req->r.rtm_scope = RT_SCOPE_UNIVERSE;
+-- 
+2.11.0
+
