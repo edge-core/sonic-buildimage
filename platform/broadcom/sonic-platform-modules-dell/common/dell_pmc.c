@@ -70,7 +70,7 @@
 #define FAN_TRAY_AIRFLOW        0x0116
 
 
-/* FAN Z9100 */
+/* FAN */
 #define SMF_FAN_SPEED_ADDR      0x00F3
 #define FAN_TRAY_1_SPEED        0x00F3
 #define FAN_TRAY_1_FAN_2_SPEED  0x00F5
@@ -83,6 +83,11 @@
 #define FAN_TRAY_5_FAN_1_SPEED  0x0103
 #define FAN_TRAY_5_FAN_2_SPEED  0x0105
 #define FAN_TRAY_5                   4
+#define FAN_1_SERIAL_CODE       0x0117
+#define FAN_2_SERIAL_CODE       0x013A
+#define FAN_3_SERIAL_CODE       0x015D
+#define FAN_4_SERIAL_CODE       0x0180
+#define FAN_5_SERIAL_CODE       0x01A3
 #define FAN_601_FAULT           (2 + 1)
 #define IN28_INPUT              (27 + 1)
 #define IN404_INPUT             (43 + 1)
@@ -1738,12 +1743,12 @@ static ssize_t show_psu(struct device *dev,
 
 /* FAN and PSU EEPROM PPID format is:
    COUNTRY_CODE-PART_NO-MFG_ID-MFG_DATE_CODE-SERIAL_NO-LABEL_REV */
-static ssize_t show_psu_ppid(struct device *dev,
+static ssize_t show_ppid(struct device *dev,
                 struct device_attribute *devattr, char *buf)
 {
 	int index = to_sensor_dev_attr(devattr)->index;
 	struct smf_data *data = dev_get_drvdata(dev);
-	char psu_ppid[EEPROM_PPID_SIZE + 1] = {0};
+	char ppid[EEPROM_PPID_SIZE + 1] = {0};
 	char psu_mfg_date[EEPROM_MFG_DATE_SIZE + 1] = {0};
 	char psu_mfg_date_code[EEPROM_DATE_CODE_SIZE + 1] = {0};
 	char temp;
@@ -1751,102 +1756,128 @@ static ssize_t show_psu_ppid(struct device *dev,
 
 	switch(index) {
 
-		case 1:
-			// PPID starts from Country Code
-			reg = PSU_1_COUNTRY_CODE;
-			break;
-		case 2:
-			reg = PSU_2_COUNTRY_CODE;
-			break;
-		default:
-			return ret;
-	}
+        /* PPID starts from Country Code*/
+        case 0:
+            reg = FAN_1_SERIAL_CODE;
+            break;
+        case 1:
+            reg = FAN_2_SERIAL_CODE;
+            break;
+        case 2:
+            reg = FAN_3_SERIAL_CODE;
+            break;
+        case 3:
+            reg = FAN_4_SERIAL_CODE;
+            break;
+        case 4:
+            reg = FAN_5_SERIAL_CODE;
+            break;
+        case 10:
+            reg = PSU_1_COUNTRY_CODE;
+            break;
+        case 11:
+            reg = PSU_2_COUNTRY_CODE;
+            break;
+        default:
+            return ret;
+}
 
 	// Get Country Code
 	for( i = 0; i < EEPROM_COUNTRY_CODE_SIZE; i++) {
-		psu_ppid[ppid_pos++] = (char)smf_read_reg(data,reg++);
+		ppid[ppid_pos++] = (char)smf_read_reg(data,reg++);
 	}
-	psu_ppid[ppid_pos++] = '-';
+	ppid[ppid_pos++] = '-';
 
 	// Get Part Number
 	for( i = 0; i < EEPROM_PART_NO_SIZE; i++) {
-		psu_ppid[ppid_pos++] = (char)smf_read_reg(data,reg++);
+		ppid[ppid_pos++] = (char)smf_read_reg(data,reg++);
 	}
-	psu_ppid[ppid_pos++] = '-';
+	ppid[ppid_pos++] = '-';
 
 	// Get Manufacture ID
 	for( i = 0; i < EEPROM_MFG_ID_SIZE; i++) {
-		psu_ppid[ppid_pos++] = (char)smf_read_reg(data,reg++);
+		ppid[ppid_pos++] = (char)smf_read_reg(data,reg++);
 	}
-	psu_ppid[ppid_pos++] = '-';
+	ppid[ppid_pos++] = '-';
+	if(index > 9){   //Applicable only for PSU 
+		// Get Manufacture date
+		for( i = 0; i < EEPROM_MFG_DATE_SIZE; i++) {
+			psu_mfg_date[i] = (char)smf_read_reg(data,reg++);
+		}
 
-	// Get Manufacture date
-	for( i = 0; i < EEPROM_MFG_DATE_SIZE; i++) {
-		psu_mfg_date[i] = (char)smf_read_reg(data,reg++);
+		/* Converting 6 digit date code [yymmdd] to 3 digit[ymd]  
+        	   Year  Starting from 2010 [0-9] , Day :  1-9 and A-V , Month : 1-9 and A-C */
+		// Year Validation and Conversion
+		if( ( psu_mfg_date[0] == '1' ) && ( psu_mfg_date[1] >= '0' ) && ( psu_mfg_date[1] <= '9') ) 
+		{
+			psu_mfg_date_code[0] = psu_mfg_date[1];      
+		}
+		else
+		{
+			psu_mfg_date_code[0] = ' ';
+		}
+	
+		// Month Validation and Conversion 
+		temp = ( ( psu_mfg_date[2] - 0x30 ) * 10 ) + ( psu_mfg_date[3] - 0x30 );
+		if( ( temp >= 1) && ( temp < 10) ) 
+		{
+			psu_mfg_date_code[1] = temp + 0x30; // 0- 9
+		}
+		else if ( ( temp >= 10) && ( temp <= 12) )
+		{
+			psu_mfg_date_code[1] = temp + 0x37; // A-C 
+		}
+		else
+		{
+			psu_mfg_date_code[1]= ' ';
+		}
+
+		// Date	Validation and Conversion
+		temp = ( ( psu_mfg_date[4] - 0x30 ) * 10 ) + ( psu_mfg_date[5] - 0x30 );
+		if( ( temp >= 1) && ( temp < 10) )
+		{   
+			psu_mfg_date_code[2] = temp + 0x30; // 0- 9	
+		}
+		else if( ( temp >= 10) && ( temp <= 31) )
+		{
+			psu_mfg_date_code[2] = temp + 0x37; // A-V 
+		}
+		else
+		{
+			psu_mfg_date_code[2] = ' ';
+		}
+		for( i = 0; i < EEPROM_DATE_CODE_SIZE; i++) {
+			ppid[ppid_pos++] = psu_mfg_date_code[i];
+		}
+	}else{
+		for( i = 0; i < EEPROM_DATE_CODE_SIZE; i++) {
+			ppid[ppid_pos++] = (char)smf_read_reg(data,reg++);
+		}
 	}
 
-	/* Converting 6 digit date code [yymmdd] to 3 digit[ymd]
-           Year  Starting from 2010 [0-9] , Day :  1-9 and A-V , Month : 1-9 and A-C */
-	// Year Validation and Conversion
-	if( ( psu_mfg_date[0] == '1' ) && ( psu_mfg_date[1] >= '0' ) && ( psu_mfg_date[1] <= '9') )
-	{
-		psu_mfg_date_code[0] = psu_mfg_date[1];
-	}
-	else
-	{
-		psu_mfg_date_code[0] = ' ';
-	}
-
-	// Month Validation and Conversion
-	temp = ( ( psu_mfg_date[2] - 0x30 ) * 10 ) + ( psu_mfg_date[3] - 0x30 );
-	if( ( temp >= 1) && ( temp < 10) )
-	{
-		psu_mfg_date_code[1] = temp + 0x30; // 0- 9
-	}
-	else if ( ( temp >= 10) && ( temp <= 12) )
-	{
-		psu_mfg_date_code[1] = temp + 0x37; // A-C
-	}
-	else
-	{
-		psu_mfg_date_code[1]= ' ';
-	}
-
-	// Date	Validation and Conversion
-	temp = ( ( psu_mfg_date[4] - 0x30 ) * 10 ) + ( psu_mfg_date[5] - 0x30 );
-	if( ( temp >= 1) && ( temp < 10) )
-	{
-		psu_mfg_date_code[2] = temp + 0x30; // 0- 9
-	}
-	else if( ( temp >= 10) && ( temp <= 31) )
-	{
-		psu_mfg_date_code[2] = temp + 0x37; // A-V
-	}
-	else
-	{
-		psu_mfg_date_code[2] = ' ';
-	}
-
-	for( i = 0; i < EEPROM_DATE_CODE_SIZE; i++) {
-		psu_ppid[ppid_pos++] = psu_mfg_date_code[i];
-	}
-	psu_ppid[ppid_pos++] = '-';
+	ppid[ppid_pos++] = '-';
 
 	// Get Serial Number
 	for( i = 0; i < EEPROM_SERIAL_NO_SIZE; i++) {
-		psu_ppid[ppid_pos++] = (char)smf_read_reg(data,reg++);
+		ppid[ppid_pos++] = (char)smf_read_reg(data,reg++);
 	}
-	psu_ppid[ppid_pos++] = '-';
+	ppid[ppid_pos++] = '-';
 
-	// Skipping service tag in PPID
-	reg += EEPROM_SERVICE_TAG_SIZE;
+	if(index > 9){
+	// Skipping PSU service tag in PPID 
+		reg += EEPROM_SERVICE_TAG_SIZE;
+    }
+	else{
+	// Skipping FAN partno tag in PPID 
+		reg += EEPROM_PART_NO_SIZE;
+    }
 
 	// Get Label Revision
 	for( i = 0; i < EEPROM_LABEL_REV_SIZE; i++) {
-		psu_ppid[ppid_pos++] = (char)smf_read_reg(data,reg++);
+		ppid[ppid_pos++] = (char)smf_read_reg(data,reg++);
 	}
 
-	return sprintf(buf, "%s\n",psu_ppid);
+	return sprintf(buf, "%s\n",ppid);
 }
 
 static umode_t smf_psu_is_visible(struct kobject *kobj,
@@ -1924,14 +1955,19 @@ static SENSOR_DEVICE_ATTR(fan7_airflow, S_IRUGO, show_fan_airflow, NULL, 3);
 static SENSOR_DEVICE_ATTR(fan9_airflow, S_IRUGO, show_fan_airflow, NULL, 4);
 static SENSOR_DEVICE_ATTR(fan11_airflow, S_IRUGO, show_psu_fan, NULL, 0);
 static SENSOR_DEVICE_ATTR(fan12_airflow, S_IRUGO, show_psu_fan, NULL, 3);
+static SENSOR_DEVICE_ATTR(fan1_serialno, S_IRUGO, show_ppid, NULL, 0);
+static SENSOR_DEVICE_ATTR(fan3_serialno, S_IRUGO, show_ppid, NULL, 1);
+static SENSOR_DEVICE_ATTR(fan5_serialno, S_IRUGO, show_ppid, NULL, 2);
+static SENSOR_DEVICE_ATTR(fan7_serialno, S_IRUGO, show_ppid, NULL, 3);
+static SENSOR_DEVICE_ATTR(fan9_serialno, S_IRUGO, show_ppid, NULL, 4);
 /* IOM status */
 static SENSOR_DEVICE_ATTR(iom_status, S_IRUGO, show_voltage, NULL, 44);
 static SENSOR_DEVICE_ATTR(iom_presence, S_IRUGO, show_voltage, NULL, 45);
 
 static SENSOR_DEVICE_ATTR(psu1_presence, S_IRUGO, show_psu, NULL, 1);
 static SENSOR_DEVICE_ATTR(psu2_presence, S_IRUGO, show_psu, NULL, 6);
-static SENSOR_DEVICE_ATTR(psu1_serialno, S_IRUGO, show_psu_ppid, NULL, 1);
-static SENSOR_DEVICE_ATTR(psu2_serialno, S_IRUGO, show_psu_ppid, NULL, 2);
+static SENSOR_DEVICE_ATTR(psu1_serialno, S_IRUGO, show_ppid, NULL, 10);
+static SENSOR_DEVICE_ATTR(psu2_serialno, S_IRUGO, show_ppid, NULL, 11);
 static SENSOR_DEVICE_ATTR(current_total_power, S_IRUGO, show_psu, NULL, 10);
 
 /* SMF Version */
@@ -1964,6 +2000,11 @@ static struct attribute *smf_dell_attrs[] = {
         &sensor_dev_attr_psu2_presence.dev_attr.attr,
         &sensor_dev_attr_psu1_serialno.dev_attr.attr,
         &sensor_dev_attr_psu2_serialno.dev_attr.attr,
+        &sensor_dev_attr_fan1_serialno.dev_attr.attr,
+        &sensor_dev_attr_fan3_serialno.dev_attr.attr,
+        &sensor_dev_attr_fan5_serialno.dev_attr.attr,
+        &sensor_dev_attr_fan7_serialno.dev_attr.attr,
+        &sensor_dev_attr_fan9_serialno.dev_attr.attr,
         &sensor_dev_attr_current_total_power.dev_attr.attr,
         NULL
 };
@@ -1980,7 +2021,7 @@ static const struct attribute_group *smf_groups[] = {
         &smf_vsen_group,
         &smf_curr_group,
         &smf_tcpu_group,
-	&smf_dell_group,
+        &smf_dell_group,
         NULL
 };
 

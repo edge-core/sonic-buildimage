@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #############################################################################
-# DELLEMC
+# DELLEMC Z9100
 #
 # Module contains an implementation of SONiC Platform Base API and
 # provides the platform information
@@ -11,8 +11,14 @@
 try:
     import os
     from sonic_platform_base.chassis_base import ChassisBase
+    from sonic_platform.fan import Fan
+    from eeprom import Eeprom
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
+
+MAX_Z9100_FANTRAY = 5
+MAX_Z9100_FAN = 2
+MAX_Z9100_PSU = 2
 
 
 class Chassis(ChassisBase):
@@ -37,9 +43,16 @@ class Chassis(ChassisBase):
     power_reason_dict[44] = ChassisBase.REBOOT_CAUSE_INSUFFICIENT_FAN_SPEED
 
     def __init__(self):
-        ChassisBase.__init__(self)
 
-    def get_pmc_register(self, reg_name):
+        ChassisBase.__init__(self)
+        # Initialize EEPROM
+        self.sys_eeprom = Eeprom()
+        for i in range(MAX_Z9100_FANTRAY):
+            for j in range(MAX_Z9100_FAN):
+                fan = Fan(i, j)
+                self._fan_list.append(fan)
+
+    def _get_pmc_register(self, reg_name):
         # On successful read, returns the value read from given
         # reg_name and on failure returns 'ERR'
         rv = 'ERR'
@@ -58,12 +71,70 @@ class Chassis(ChassisBase):
         rv = rv.lstrip(" ")
         return rv
 
+    def get_name(self):
+        """
+        Retrieves the name of the device
+        Returns:
+            string: The name of the device
+        """
+        return self.sys_eeprom.modelstr()
+
+    def get_presence(self):
+        """
+        Retrieves the presence of the device
+        Returns:
+            bool: True if device is present, False if not
+        """
+        return True
+
+    def get_model(self):
+        """
+        Retrieves the model number (or part number) of the device
+        Returns:
+            string: Model/part number of device
+        """
+        return self.sys_eeprom.part_number_str()
+
+    def get_serial(self):
+        """
+        Retrieves the serial number of the device (Service tag)
+        Returns:
+            string: Serial number of device
+        """
+        return self.sys_eeprom.serial_str()
+
+    def get_base_mac(self):
+        """
+        Retrieves the base MAC address for the chassis
+
+        Returns:
+            A string containing the MAC address in the format
+            'XX:XX:XX:XX:XX:XX'
+        """
+        return self.sys_eeprom.base_mac_addr()
+
+    def get_serial_number(self):
+        """
+        Retrieves the hardware serial number for the chassis
+
+        Returns:
+            A string containing the hardware serial number for this chassis.
+        """
+        return self.sys_eeprom.serial_number_str()
+
     def get_reboot_cause(self):
         """
         Retrieves the cause of the previous reboot
+        Returns:
+            A tuple (string, string) where the first element is a string
+            containing the cause of the previous reboot. This string must be
+            one of the predefined strings in this class. If the first string
+            is "REBOOT_CAUSE_HARDWARE_OTHER", the second string can be used
+            to pass a description of the reboot cause.
         """
-        reset_reason = int(self.get_pmc_register('smf_reset_reason'))
-        power_reason = int(self.get_pmc_register('smf_poweron_reason'))
+
+        reset_reason = int(self._get_pmc_register('smf_reset_reason'))
+        power_reason = int(self._get_pmc_register('smf_poweron_reason'))
 
         # Reset_Reason = 11 ==> PowerLoss
         # So return the reboot reason from Last Power_Reason Dictionary
@@ -80,4 +151,5 @@ class Chassis(ChassisBase):
                 return (self.reset_reason_dict[reset_reason], None)
 
         return (ChassisBase.REBOOT_CAUSE_HARDWARE_OTHER, "Invalid Reason")
+
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 ########################################################################
-# DellEMC S6100
+# DellEMC Z9100
 #
 # Module contains an implementation of SONiC Platform Base API and
 # provides the Fans' information which are available in the platform.
@@ -15,8 +15,8 @@ try:
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
-MAX_S6100_PSU_FAN_SPEED = 18000
-MAX_S6100_FAN_SPEED = 16000
+MAX_Z9100_PSU_FAN_SPEED = 18000
+MAX_Z9100_FAN_SPEED = 16000
 
 
 class Fan(FanBase):
@@ -34,17 +34,17 @@ class Fan(FanBase):
             self.fantrayindex = fantray_index + 1
             self.fanindex = fan_index + 1
             self.get_fan_speed_reg = "fan{}_input".format(
-                        2 * self.fantrayindex - 1)
+               2 * (self.fantrayindex - 1) + (self.fanindex - 1) + 1 )
             self.get_fan_dir_reg = "fan{}_airflow".format(
                         2 * self.fantrayindex - 1)
             self.fan_serialno_reg = "fan{}_serialno".format(
                         2 * self.fantrayindex - 1)
-            self.max_fan_speed = MAX_S6100_FAN_SPEED
+            self.max_fan_speed = MAX_Z9100_FAN_SPEED
         else:
             # PSU Fan index starts from 11
             self.fanindex = fan_index + 10
             self.get_fan_speed_reg = "fan{}_input".format(self.fanindex)
-            self.max_fan_speed = MAX_S6100_PSU_FAN_SPEED
+            self.max_fan_speed = MAX_Z9100_PSU_FAN_SPEED
 
     def _get_pmc_register(self, reg_name):
         # On successful read, returns the value read from given
@@ -71,8 +71,7 @@ class Fan(FanBase):
             string: The name of the device
         """
         if not self.is_psu_fan:
-            return "FanTray{}-Fan{}".format(
-                                self.fantrayindex, self.fanindex - 1)
+            return "FanTray{}-Fan{}".format(self.fantrayindex, self.fanindex)
         else:
             return "PSU{} Fan".format(self.index - 10)
 
@@ -209,7 +208,7 @@ class Fan(FanBase):
         status = False
         return status
 
-	def get_target_speed(self):
+    def get_target_speed(self):
         """
         Retrieves the target (expected) speed of the fan
         Returns:
@@ -217,5 +216,7 @@ class Fan(FanBase):
                  to 100 (full speed)
         """
         return  0
+
+
 
 
