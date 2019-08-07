@@ -7,6 +7,7 @@ try:
     import time
     import subprocess
     from sonic_sfp.sfputilbase import *
+    import syslog
 except ImportError as e:
     raise ImportError("%s - required module not found" % str(e))
 
@@ -28,6 +29,12 @@ REDIS_TIMEOUT_USECS = 0
 # parameters for SFP presence
 SFP_STATUS_INSERTED = '1'
 
+# system level event/error
+EVENT_ON_ALL_SFP = '-1'
+SYSTEM_NOT_READY = 'system_not_ready'
+SYSTEM_READY = 'system_become_ready'
+SYSTEM_FAIL = 'system_fail'
+
 GET_HWSKU_CMD = "sonic-cfggen -d -v DEVICE_METADATA.localhost.hwsku"
 
 # Ethernet<n> <=> sfp<n+SFP_PORT_NAME_OFFSET>
@@ -38,6 +45,16 @@ SFP_PORT_NAME_CONVENTION = "sfp{}"
 # port_position_tuple = (PORT_START, QSFP_PORT_START, PORT_END, PORT_IN_BLOCK, EEPROM_OFFSET)
 hwsku_dict = {'ACS-MSN2700': 0, 'Mellanox-SN2700': 0, 'Mellanox-SN2700-D48C8': 0, "LS-SN2700":0, 'ACS-MSN2740': 0, 'ACS-MSN2100': 1, 'ACS-MSN2410': 2, 'ACS-MSN2010': 3, 'ACS-MSN3700': 0, 'ACS-MSN3700C': 0, 'ACS-MSN3800': 4}
 port_position_tuple_list = [(0, 0, 31, 32, 1), (0, 0, 15, 16, 1), (0, 48, 55, 56, 1), (0, 18, 21, 22, 1), (0, 0, 63, 64, 1)]
+
+def log_info(msg, also_print_to_console=False):
+    syslog.openlog("sfputil")
+    syslog.syslog(syslog.LOG_INFO, msg)
+    syslog.closelog()
+
+def log_err(msg, also_print_to_console=False):
+    syslog.openlog("sfputil")
+    syslog.syslog(syslog.LOG_ERR, msg)
+    syslog.closelog()
 
 class SfpUtil(SfpUtilBase):
     """Platform-specific SfpUtil class"""
@@ -84,6 +101,7 @@ class SfpUtil(SfpUtilBase):
         self.PORT_END = port_position_tuple[2]
         self.PORTS_IN_BLOCK = port_position_tuple[3]
         self.EEPROM_OFFSET = port_position_tuple[4]
+        self.mlnx_sfpd_started = False
 
         SfpUtilBase.__init__(self)
 
@@ -185,10 +203,24 @@ class SfpUtil(SfpUtilBase):
             self.db_sel_object = swsscommon.Select.OBJECT
             self.sfpd_status_tbl = swsscommon.Table(self.state_db, 'MLNX_SFPD_TASK')
 
-        # Check the liveness of mlnx-sfpd, if it failed, return false
+        # Check the liveness of mlnx-sfpd, if it failed, return system_fail event
+        # If mlnx-sfpd not started, return system_not_ready event
         keys = self.sfpd_status_tbl.getKeys()
         if 'LIVENESS' not in keys:
-            return False, phy_port_dict
+            if self.mlnx_sfpd_started:
+                log_err("mlnx-sfpd exited, return false to notify xcvrd.")
+                phy_port_dict[EVENT_ON_ALL_SFP] = SYSTEM_FAIL
+                return False, phy_port_dict
+            else:
+                log_info("mlnx-sfpd not ready, return false to notify xcvrd.")
+                phy_port_dict[EVENT_ON_ALL_SFP] = SYSTEM_NOT_READY
+                return False, phy_port_dict
+        else:
+            if not self.mlnx_sfpd_started:
+                self.mlnx_sfpd_started = True
+                log_info("mlnx-sfpd is running")
+                phy_port_dict[EVENT_ON_ALL_SFP] = SYSTEM_READY
+                return False, phy_port_dict
 
         if timeout:
             (state, c) = self.db_sel.select(timeout)
