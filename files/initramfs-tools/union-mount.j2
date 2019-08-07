@@ -47,9 +47,17 @@ mount -n -o lowerdir=${rootmnt},upperdir=${rootmnt}/host/$image_dir/rw,workdir=$
 [ -b ${ROOT} ] || mdev -s
 ## Mount the raw partition again
 mount ${ROOT} ${rootmnt}/host
-## Mount the working directory of docker engine in the raw partition, bypass the overlay
+
 mkdir -p ${rootmnt}/var/lib/docker
-mount --bind ${rootmnt}/host/$image_dir/{{ DOCKERFS_DIR }} ${rootmnt}/var/lib/docker
+if [ -f ${rootmnt}/host/$image_dir/{{ FILESYSTEM_DOCKERFS }} ]; then
+    ## mount tmpfs and extract docker into it
+    mount -t tmpfs -o rw,nodev,size={{ DOCKER_RAMFS_SIZE }} tmpfs ${rootmnt}/var/lib/docker
+    tar xz --numeric-owner -f ${rootmnt}/host/$image_dir/{{ FILESYSTEM_DOCKERFS }} -C ${rootmnt}/var/lib/docker
+else
+    ## Mount the working directory of docker engine in the raw partition, bypass the overlay
+    mount --bind ${rootmnt}/host/$image_dir/{{ DOCKERFS_DIR }} ${rootmnt}/var/lib/docker
+fi
+
 ## Mount the boot directory in the raw partition, bypass the overlay
 mkdir -p ${rootmnt}/boot
 mount --bind ${rootmnt}/host/$image_dir/boot ${rootmnt}/boot

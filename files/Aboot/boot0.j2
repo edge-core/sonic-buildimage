@@ -164,8 +164,10 @@ extract_image() {
     rootfs_type=`grep " $target_path " /proc/mounts | cut -d' ' -f3`
 
     info "Extracting $dockerfs from swi"
-    ## vfat does not support symbol link
-    if [ "$rootfs_type" != "vfat" ]; then
+    ## Unpacking dockerfs delayed
+    ## 1. when disk is vfat as it does not support symbolic link
+    ## 2. when disk is small, expand it into ramfs during initrd
+    if [ "$rootfs_type" != "vfat" -a x"$docker_inram" != x"on" ]; then
         mkdir -p "$image_path/{{ DOCKERFS_DIR }}"
 
         if [ -n "$install" ]; then
@@ -177,7 +179,7 @@ extract_image() {
     else
         ## save dockerfs archive in the image directory
         unzip -oq "$swipath" "$dockerfs" -d "$image_path"
-        info "Unpacking $dockerfs delayed to initrd because $target_path is $rootfs_type"
+        info "Unpacking $dockerfs delayed to initrd because $target_path is $rootfs_type or docker_inram is on"
     fi
 
     ## remove installer since it's not needed anymore
@@ -225,7 +227,8 @@ platform_specific() {
     if [ "$platform" = "raven" ]; then
         aboot_machine=arista_7050_qx32
         flash_size=2000
-        echo "modprobe.blacklist=radeon,sp5100_tco acpi=off" >>/tmp/append
+        docker_inram=on
+        echo "modprobe.blacklist=radeon,sp5100_tco acpi=off docker_inram=on" >>/tmp/append
     fi
     if [ "$platform" = "crow" ]; then
         aboot_machine=arista_7050_qx32s
@@ -343,6 +346,7 @@ write_boot_configs() {
         fi
     fi
 
+    mkdir -p "$image_path"
     cat /tmp/append > $cmdline_image
     [ -e ${target_path}/machine.conf ] || write_machine_config
 }
@@ -441,11 +445,11 @@ if $do_install; then
             clean_flash
         fi
 
-        info "Installing image under $image_path"
-        extract_image
-
         info "Generating boot-config, machine.conf and cmdline"
         write_boot_configs
+
+        info "Installing image under $image_path"
+        extract_image
 
         run_hooks post-install
     else
