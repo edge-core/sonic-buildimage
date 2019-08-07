@@ -9,6 +9,8 @@
 #include <linux/platform_device.h>
 #include <linux/i2c/sff-8436.h>
 #include <linux/delay.h>
+#include <linux/gpio.h>
+#include <linux/nvram.h>
 
 #define S6000_MUX_BASE_NR   10
 #define QSFP_MODULE_BASE_NR 20
@@ -20,6 +22,7 @@
 #define QSFP_MODULE_NUM     16
 #define QSFP_DEVICE_NUM     2
 
+#define RTC_NVRAM_REBOOT_REASON_OFFSET 0x49
 
 static void device_release(struct device *dev)
 {
@@ -1061,6 +1064,24 @@ static ssize_t get_slave_cpld_ver(struct device *dev,
     return sprintf(buf, "0x%x\n", data);
 }
 
+static ssize_t get_reboot_reason(struct device *dev,
+                                 struct device_attribute *devattr, char *buf)
+{
+    uint8_t data = 0;
+
+    /* Last Reboot reason in saved in RTC NVRAM offset 0x49
+     * We write the reboot reason into nvram offset,
+     * as part of platform_reboot implementation from userspace.
+
+     * COLD_RESET = 0xE # Cold Reset (value)
+     * WARM_RESET = 0x6 # Warm Reset (value)
+     */
+
+    /* Read it from this offset, and export it as last_reboot_reason */
+    data = nvram_read_byte(RTC_NVRAM_REBOOT_REASON_OFFSET);
+
+    return sprintf(buf, "0x%x\n", data);
+}
 
 static DEVICE_ATTR(qsfp_modsel, S_IRUGO, get_modsel, NULL);
 static DEVICE_ATTR(qsfp_modprs, S_IRUGO, get_modprs, NULL);
@@ -1083,6 +1104,7 @@ static DEVICE_ATTR(fan2_led, S_IRUGO | S_IWUSR, get_fan2_led, set_fan2_led);
 static DEVICE_ATTR(system_cpld_ver, S_IRUGO, get_system_cpld_ver, NULL);
 static DEVICE_ATTR(master_cpld_ver, S_IRUGO, get_master_cpld_ver, NULL);
 static DEVICE_ATTR(slave_cpld_ver,  S_IRUGO, get_slave_cpld_ver,  NULL);
+static DEVICE_ATTR(last_reboot_reason,  S_IRUGO, get_reboot_reason,  NULL);
 
 static struct attribute *s6000_cpld_attrs[] = {
     &dev_attr_qsfp_modsel.attr,
@@ -1106,6 +1128,7 @@ static struct attribute *s6000_cpld_attrs[] = {
     &dev_attr_system_cpld_ver.attr,
     &dev_attr_master_cpld_ver.attr,
     &dev_attr_slave_cpld_ver.attr,
+    &dev_attr_last_reboot_reason.attr,
     NULL,
 };
 

@@ -5,8 +5,8 @@ Before=pmon.service
 
 [Service]
 Type=oneshot
-ExecStart=-/etc/init.d/platform-modules-s6000 start
-ExecStop=-/etc/init.d/platform-modules-s6000 stop
+ExecStart=/usr/local/bin/s6000_platform.sh init
+ExecStop=/usr/local/bin/s6000_platform.sh deinit
 RemainAfterExit=yes
 
 [Install]
