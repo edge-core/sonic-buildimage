@@ -6,6 +6,8 @@ try:
 except ImportError, e:
     raise ImportError (str(e) + "- required module not found")
 
+SFP_STATUS_INSERTED = '1'
+SFP_STATUS_REMOVED = '0'
 
 class SfpUtil(SfpUtilBase):
     """Platform specific SfpUtill class"""
@@ -75,17 +77,21 @@ class SfpUtil(SfpUtilBase):
 
     _qsfp_ports = range(_qsfp_port_start, _ports_in_block + 1)
 
+    _present_status = dict()
+
     def __init__(self):
         eeprom_path = '/sys/bus/i2c/devices/{0}-0050/sfp_eeprom'
         for x in range(self._port_start, self._port_end + 1):
             port_eeprom_path = eeprom_path.format(self._port_to_i2c_mapping[x])
-            self._port_to_eeprom_mapping[x] = port_eeprom_path
-                
-            SfpUtilBase.__init__(self)
-
+            self._port_to_eeprom_mapping[x] = port_eeprom_path 
+            self._present_status[x] = SFP_STATUS_REMOVED
+            
+        SfpUtilBase.__init__(self)
+	    	
     def reset(self, port_num):
         # Check for invalid port_num
-        if port_num < self._port_start or port_num > self._port_end:
+        if port_num < self._qsfp_port_start or port_num > self._port_end:
+            print "Error: port %d is not qsfp port" % port_num
             return False
 
         path = "/sys/bus/i2c/devices/{0}-0050/sfp_port_reset"
@@ -111,7 +117,7 @@ class SfpUtil(SfpUtilBase):
 
     def get_low_power_mode(self, port_num):
         raise NotImplementedError
-        
+
     def get_presence(self, port_num):
         # Check for invalid port_num
         if port_num < self._port_start or port_num > self._port_end:
@@ -151,3 +157,15 @@ class SfpUtil(SfpUtilBase):
     @property 
     def port_to_eeprom_mapping(self):
          return self._port_to_eeprom_mapping
+
+    def get_transceiver_change_event(self, timeout=0):
+        ret_present = dict()
+        for phy_port in range(self._port_start, self._port_end + 1):
+            last_present_status = SFP_STATUS_INSERTED if self.get_presence(phy_port) else SFP_STATUS_REMOVED
+            if self._present_status[phy_port] != last_present_status:
+            	ret_present[phy_port] = last_present_status
+            	self._present_status[phy_port] = last_present_status
+            	
+        time.sleep(2)
+        
+        return True, ret_present

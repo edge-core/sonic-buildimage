@@ -59,9 +59,9 @@ binary-indep:
 
 	# Custom package commands
 	(for mod in $(MODULE_DIRS); do \
-		dh_installdirs -p$(PACKAGE_PRE_NAME)-$${mod}/$(KERNEL_SRC)/$(INSTALL_MOD_DIR); \
-		dh_installdirs -p$(PACKAGE_PRE_NAME)-$${mod}/usr/local/bin; \
-		dh_installdirs -p$(PACKAGE_PRE_NAME)-$${mod}/lib/systemd/system; \
+		dh_installdirs -p$(PACKAGE_PRE_NAME)-$${mod} /$(KERNEL_SRC)/$(INSTALL_MOD_DIR); \
+		dh_installdirs -p$(PACKAGE_PRE_NAME)-$${mod} /usr/local/bin; \
+		dh_installdirs -p$(PACKAGE_PRE_NAME)-$${mod} /lib/systemd/system; \
 		cp $(MOD_SRC_DIR)/$${mod}/$(MODULE_DIR)/*.ko debian/$(PACKAGE_PRE_NAME)-$${mod}/$(KERNEL_SRC)/$(INSTALL_MOD_DIR); \
 		cp $(MOD_SRC_DIR)/$${mod}/$(UTILS_DIR)/* debian/$(PACKAGE_PRE_NAME)-$${mod}/usr/local/bin/; \
 		cp $(MOD_SRC_DIR)/$${mod}/$(SERVICE_DIR)/*.service debian/$(PACKAGE_PRE_NAME)-$${mod}/lib/systemd/system/; \
