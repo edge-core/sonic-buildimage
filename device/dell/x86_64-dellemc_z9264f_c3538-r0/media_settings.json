@@ -225,16 +225,16 @@
 				"preemphasis": {
 					"lane0": "0xE4511",
 					"lane1": "0xE4511",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
 					"lane0": "0xE4511",
 					"lane1": "0xE4511",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -517,18 +517,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -615,18 +615,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -713,18 +713,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -985,7 +985,7 @@
 				"preemphasis": {
 					"lane0": "0x13440d",
 					"lane1": "0x13460b",
-					"lane2": "0x16470a",
+					"lane2": "0x13470a",
 					"lane3": "0x12480a"
 				}
 			},
@@ -1008,7 +1008,7 @@
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
 					"lane0": "0xE4511",
-					"lane1": "0xA480F",
+					"lane1": "0xA4B0F",
 					"lane2": "0xE4511",
 					"lane3": "0xE4511"
 				}
@@ -1016,7 +1016,7 @@
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
 					"lane0": "0xE4511",
-					"lane1": "0xA480F",
+					"lane1": "0xA4B0F",
 					"lane2": "0xE4511",
 					"lane3": "0xE4511"
 				}
@@ -1105,18 +1105,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -1203,18 +1203,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
+					"lane0": "0xA4B0F",
 					"lane1": "0xE4610",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
+					"lane0": "0xA4B0F",
 					"lane1": "0xE4610",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -1301,18 +1301,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -1399,18 +1399,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -1497,18 +1497,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -1595,18 +1595,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -1693,18 +1693,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -1791,18 +1791,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -1889,18 +1889,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -1987,18 +1987,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -2085,18 +2085,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -2257,7 +2257,7 @@
 		"24": {
 			"Default": {
 				"preemphasis": {
-					"lane0": "0x13490a",
+					"lane0": "0x13470a",
 					"lane1": "0x13460b",
 					"lane2": "0x13460b",
 					"lane3": "0x14450b"
@@ -2477,18 +2477,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -2575,18 +2575,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
+					"lane0": "0xA4B0F",
 					"lane1": "0xE4610",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
+					"lane0": "0xA4B0F",
 					"lane1": "0xE4610",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -2673,18 +2673,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -2771,17 +2771,17 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
+					"lane0": "0xA4B0F",
 					"lane1": "0xE4610",
-					"lane2": "0xA480F",
+					"lane2": "0xA4B0F",
 					"lane3": "0xE4511"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
+					"lane0": "0xA4B0F",
 					"lane1": "0xE4610",
-					"lane2": "0xA480F",
+					"lane2": "0xA4B0F",
 					"lane3": "0xE4511"
 				}
 			},
@@ -2869,17 +2869,17 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
+					"lane0": "0xA4B0F",
 					"lane1": "0xE4511",
-					"lane2": "0xA480F",
+					"lane2": "0xA4B0F",
 					"lane3": "0xE4511"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
+					"lane0": "0xA4B0F",
 					"lane1": "0xE4511",
-					"lane2": "0xA480F",
+					"lane2": "0xA4B0F",
 					"lane3": "0xE4511"
 				}
 			},
@@ -3359,7 +3359,7 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
+					"lane0": "0xA4B0F",
 					"lane1": "0xE4511",
 					"lane2": "0xE4511",
 					"lane3": "0xE4511"
@@ -3367,7 +3367,7 @@
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
+					"lane0": "0xA4B0F",
 					"lane1": "0xE4511",
 					"lane2": "0xE4511",
 					"lane3": "0xE4511"
@@ -3457,17 +3457,17 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
+					"lane0": "0xA4B0F",
 					"lane1": "0xE4511",
-					"lane2": "0xA480F",
+					"lane2": "0xA4B0F",
 					"lane3": "0xE4511"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
+					"lane0": "0xA4B0F",
 					"lane1": "0xE4511",
-					"lane2": "0xA480F",
+					"lane2": "0xA4B0F",
 					"lane3": "0xE4511"
 				}
 			},
@@ -3555,18 +3555,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -3653,18 +3653,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -3751,18 +3751,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -3849,18 +3849,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -4143,18 +4143,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -4241,18 +4241,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -4339,18 +4339,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -4437,18 +4437,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -4535,18 +4535,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -4633,18 +4633,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -4731,18 +4731,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -4829,18 +4829,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -4927,18 +4927,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -5025,18 +5025,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -5123,18 +5123,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -5221,18 +5221,18 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
-					"lane1": "0xA480F",
-					"lane2": "0xA480F",
-					"lane3": "0xA480F"
+					"lane0": "0xA4B0F",
+					"lane1": "0xA4B0F",
+					"lane2": "0xA4B0F",
+					"lane3": "0xA4B0F"
 				}
 			},
 			"QSFP+-40GBASE-SR4": {
@@ -5515,17 +5515,17 @@
 			},
 			"QSFP28-40GBASE-CR4-3M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
+					"lane0": "0xA4B0F",
 					"lane1": "0xE4610",
-					"lane2": "0xA480F",
+					"lane2": "0xA4B0F",
 					"lane3": "0xC490F"
 				}
 			},
 			"QSFP28-40GBASE-CR4-5M": {
 				"preemphasis": {
-					"lane0": "0xA480F",
+					"lane0": "0xA4B0F",
 					"lane1": "0xE4610",
-					"lane2": "0xA480F",
+					"lane2": "0xA4B0F",
 					"lane3": "0xC490F"
 				}
 			},
