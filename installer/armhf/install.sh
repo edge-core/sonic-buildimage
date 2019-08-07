@@ -90,8 +90,7 @@ umount $demo_mount
 
 echo "Updating U-Boot environment variables"
 #global uboot enviroment settings
-#FW_ENV='/dev/mtd0 \t\t 0x00500000 \t 0x80000 \t 0x100000 \t 8'
-FW_ENV='/dev/mtd0 \t\t 0x00500000 \t 0x80000 \t 0x100000 \t 2'
+FW_ENV='/dev/mtd0 \t\t 0x00500000 \t 0x80000 \t 0x100000 \t 8'
 
 kernel_addr=0x1100000
 fdt_addr=0x1000000
