@@ -65,8 +65,9 @@ static ssize_t get_present(struct device *dev, struct device_attribute \
     uint8_t cmd_data[4]={0};
     uint8_t set_cmd;
     int cmd_data_len;
-
     set_cmd = CMD_GETDATA;
+
+    dni_klock();
 
     /*QSFP1~8*/
     cmd_data[0] = BMC_BUS_5;
@@ -119,6 +120,7 @@ static ssize_t get_present(struct device *dev, struct device_attribute \
     ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
     data |= (u64)(ret & 0xff) << 56;
 
+    dni_kunlock();
     return sprintf(buf, "0x%016llx\n", data);
 }
 
@@ -130,8 +132,9 @@ static ssize_t get_lpmode(struct device *dev, struct device_attribute \
     uint8_t cmd_data[4]={0};
     uint8_t set_cmd;
     int cmd_data_len;
-
     set_cmd = CMD_GETDATA;
+
+    dni_klock();
 
     /*QSFP1~8*/
     cmd_data[0] = BMC_BUS_5;
@@ -184,6 +187,8 @@ static ssize_t get_lpmode(struct device *dev, struct device_attribute \
     ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
     data |= (u64)(ret & 0xff) << 56;
 
+    dni_kunlock();
+ 
     return sprintf(buf, "0x%016llx\n", data);
 }
 
@@ -195,8 +200,9 @@ static ssize_t get_reset(struct device *dev, struct device_attribute \
     uint8_t cmd_data[4]={0};
     uint8_t set_cmd;
     int cmd_data_len;
-
     set_cmd = CMD_GETDATA;
+
+    dni_klock();
 
     /*QSFP1~8*/
     cmd_data[0] = BMC_BUS_5;
@@ -249,6 +255,8 @@ static ssize_t get_reset(struct device *dev, struct device_attribute \
     ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
     data |= (u64)(ret & 0xff) << 56;
 
+    dni_kunlock();
+
     return sprintf(buf, "0x%016llx\n", data);
 }
 
@@ -260,8 +268,9 @@ static ssize_t get_response(struct device *dev, struct device_attribute \
     uint8_t cmd_data[4]={0};
     uint8_t set_cmd;
     int cmd_data_len;
-
     set_cmd = CMD_GETDATA;
+
+    dni_klock();
 
     /*QSFP1~8*/
     cmd_data[0] = BMC_BUS_5;
@@ -314,6 +323,8 @@ static ssize_t get_response(struct device *dev, struct device_attribute \
     ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
     data |= (u64)(ret & 0xff) << 56;
 
+    dni_kunlock();
+
     return sprintf(buf, "0x%016llx\n", data);
 }
 
@@ -325,8 +336,9 @@ static ssize_t get_interrupt(struct device *dev, struct device_attribute \
     uint8_t cmd_data[4]={0};
     uint8_t set_cmd;
     int cmd_data_len;
-
     set_cmd = CMD_GETDATA;
+
+    dni_klock();
 
     /*QSFP1~8*/
     cmd_data[0] = BMC_BUS_5;
@@ -379,6 +391,8 @@ static ssize_t get_interrupt(struct device *dev, struct device_attribute \
     ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
     data |= (u64)(ret & 0xff) << 56;
 
+    dni_kunlock();
+
     return sprintf(buf, "0x%016llx\n", data);
 }
 
@@ -386,16 +400,19 @@ static ssize_t set_lpmode(struct device *dev, struct device_attribute *devattr, 
 {
     unsigned long long set_data;
     int err;
-    
-    err = kstrtoull(buf, 16, &set_data);
-    if (err){
-        return err;
-    } 
     uint8_t cmd_data[4]={0};
     uint8_t set_cmd;
     int cmd_data_len;
-
     set_cmd = CMD_SETDATA;
+
+    dni_klock();
+
+    err = kstrtoull(buf, 16, &set_data);
+    if (err){
+        dni_kunlock();
+        return err;
+    } 
+
     /*QSFP1~8*/
     cmd_data[0] = BMC_BUS_5;
     cmd_data[1] = SWPLD1_ADDR;
@@ -446,6 +463,8 @@ static ssize_t set_lpmode(struct device *dev, struct device_attribute *devattr, 
     cmd_data[3] = ((set_data >> 56 ) & 0xff);
     dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
 
+    dni_kunlock();
+   
     return count;
 }
 
@@ -453,16 +472,18 @@ static ssize_t set_reset(struct device *dev, struct device_attribute *devattr, c
 {
     unsigned long long set_data;
     int err;
-
-    err = kstrtoull(buf, 16, &set_data);
-    if (err){
-        return err;
-    }
     uint8_t cmd_data[4]={0};
     uint8_t set_cmd;
     int cmd_data_len;
-
     set_cmd = CMD_SETDATA;
+
+    dni_klock();
+
+    err = kstrtoull(buf, 16, &set_data);
+    if (err){
+        dni_kunlock();
+        return err;
+    }
 
     /*QSFP1~8*/
     cmd_data[0] = BMC_BUS_5;
@@ -514,6 +535,8 @@ static ssize_t set_reset(struct device *dev, struct device_attribute *devattr, c
     cmd_data[3] = ((set_data >> 56 ) & 0xff);
     dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
 
+    dni_kunlock();
+
     return count;
 }
 
@@ -521,16 +544,18 @@ static ssize_t set_response(struct device *dev, struct device_attribute *devattr
 {
     unsigned long long set_data;
     int err;
-
-    err = kstrtoull(buf, 16, &set_data);
-    if (err){
-        return err;
-    }
     uint8_t cmd_data[4]={0};
     uint8_t set_cmd;
     int cmd_data_len;
-
     set_cmd = CMD_SETDATA;
+
+    dni_klock();
+
+    err = kstrtoull(buf, 16, &set_data);
+    if (err){
+        dni_kunlock();
+        return err;
+    }
 
     /*QSFP1~8*/
     cmd_data[0] = BMC_BUS_5;
@@ -581,8 +606,36 @@ static ssize_t set_response(struct device *dev, struct device_attribute *devattr
     cmd_data[2] = QSFP_RESPONSE_8;
     cmd_data[3] = ((set_data >> 56 ) & 0xff);
     dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
+
+    dni_kunlock();  
  
     return count;
+}
+
+static ssize_t psu_scan(struct device *dev, struct device_attribute *dev_attr, char *buf)
+{
+    struct sensor_device_attribute *attr = to_sensor_dev_attr(dev_attr);
+    int ret;
+    uint8_t cmd_data[2]={0};
+    uint8_t set_cmd;
+    int cmd_data_len;
+    set_cmd = CMD_DEVICE_SCAN;
+
+    dni_klock();
+    cmd_data[0] = BMC_BUS_1;
+    switch (attr->index)
+    {
+        case PSU1_SCAN:
+            cmd_data[1] = PSU1_EEPROM_ADDR;
+            break;
+        case PSU2_SCAN:
+            cmd_data[1] = PSU2_EEPROM_ADDR;
+            break;
+    }
+    cmd_data_len = sizeof(cmd_data);
+    ret = dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
+    dni_kunlock();
+    return sprintf(buf, "0x%x\n", ret);
 }
 
 static ssize_t get_cpld_reg(struct device *dev, struct device_attribute *dev_attr, char *buf) 
@@ -594,12 +647,16 @@ static ssize_t get_cpld_reg(struct device *dev, struct device_attribute *dev_att
     unsigned char reg;
     struct sensor_device_attribute *attr = to_sensor_dev_attr(dev_attr);
     struct cpld_platform_data *pdata = dev->platform_data;
+
+    dni_klock();
     
     switch (attr->index) {
         case CPLD_REG_ADDR:
+            dni_kunlock();
             return sprintf(buf, "0x%02x\n", cpupld_reg_addr);
         case CPLD_REG_VALUE:
             ret = i2c_smbus_read_byte_data(pdata[system_cpld].client, cpupld_reg_addr);
+            dni_kunlock();
             return sprintf(buf, "0x%02x\n", ret);
         case CPLD_VER ... OP_MODULE_INT:
             reg   = attribute_data[attr->index].reg;
@@ -609,21 +666,28 @@ static ssize_t get_cpld_reg(struct device *dev, struct device_attribute *dev_att
             value = (value & mask);
             break;
         default:
+            dni_kunlock();
             return sprintf(buf, "%d not found", attr->index);
     } 
     
     switch (mask) {
         case 0xFF:
+            dni_kunlock();
             return sprintf(buf, "0x%02x%s", value, note);
         case 0x0F:
+            dni_kunlock();
             return sprintf(buf, "0x%01x%s", value, note);
         case 0xF0:
             value = value >> 4;
+            dni_kunlock();
             return sprintf(buf, "0x%01x%s", value, note);
         default :
             value = value >> dni_log2(mask);
+            dni_kunlock();
             return sprintf(buf, "%d%s", value, note);
     }
+    dni_kunlock();
+    return sprintf(buf, "%d not found", attr->index);
 }
 
 static ssize_t set_cpld_reg(struct device *dev, struct device_attribute *dev_attr,
@@ -636,27 +700,32 @@ static ssize_t set_cpld_reg(struct device *dev, struct device_attribute *dev_att
     unsigned char reg;
     unsigned char mask;  
     unsigned char mask_out;      
-
     struct sensor_device_attribute *attr = to_sensor_dev_attr(dev_attr);
     struct cpld_platform_data *pdata = dev->platform_data;
 
+    dni_klock();
+
     err = kstrtoul(buf, 0, &set_data_ul);
     if (err){
+        dni_kunlock();
         return err;
     }
     
     set_data = (int)set_data_ul;
     if (set_data > 0xff){
         printk(KERN_ALERT "address out of range (0x00-0xFF)\n");
+        dni_kunlock();
         return count;
     }
 
     switch (attr->index) {
         case CPLD_REG_ADDR:
             cpupld_reg_addr = set_data;
+            dni_kunlock();
             return count;
         case CPLD_REG_VALUE:
             i2c_smbus_write_byte_data(pdata[system_cpld].client, cpupld_reg_addr, set_data);
+            dni_kunlock();
             return count;
         case CPLD_VER ... OP_MODULE_INT:
             reg   = attribute_data[attr->index].reg;
@@ -665,6 +734,7 @@ static ssize_t set_cpld_reg(struct device *dev, struct device_attribute *dev_att
             mask_out = value & ~(mask);
             break;
         default:
+            dni_kunlock();
             return sprintf(buf, "%d not found", attr->index); 
     }
 
@@ -684,6 +754,7 @@ static ssize_t set_cpld_reg(struct device *dev, struct device_attribute *dev_att
     }   
 
     i2c_smbus_write_byte_data(pdata[system_cpld].client, reg, set_data);
+    dni_kunlock();
     return count;
 }
 
@@ -712,6 +783,8 @@ static SENSOR_DEVICE_ATTR(mb_pwr,            S_IRUGO,           get_cpld_reg, NU
 static SENSOR_DEVICE_ATTR(mb_rst,            S_IRUGO | S_IWUSR, get_cpld_reg, set_cpld_reg, MB_RST);
 static SENSOR_DEVICE_ATTR(psu_fan_int,       S_IRUGO,           get_cpld_reg, NULL,         PSU_FAN_INT);
 static SENSOR_DEVICE_ATTR(op_module_int,     S_IRUGO,           get_cpld_reg, NULL,         OP_MODULE_INT);
+static SENSOR_DEVICE_ATTR(psu1_scan,         S_IRUGO,           psu_scan,     NULL,         PSU1_SCAN);
+static SENSOR_DEVICE_ATTR(psu2_scan,         S_IRUGO,           psu_scan,     NULL,         PSU2_SCAN);
 
 static struct attribute *ag9064_cpld_attrs[] = {
     &dev_attr_qsfp_present.attr,
@@ -738,6 +811,8 @@ static struct attribute *ag9064_cpld_attrs[] = {
     &sensor_dev_attr_mb_rst.dev_attr.attr,
     &sensor_dev_attr_psu_fan_int.dev_attr.attr,
     &sensor_dev_attr_op_module_int.dev_attr.attr,
+    &sensor_dev_attr_psu1_scan.dev_attr.attr,
+    &sensor_dev_attr_psu2_scan.dev_attr.attr,
     NULL,
 };
 
@@ -822,11 +897,6 @@ static int __init delta_ag9064_cpupld_init(void)
 {
     int ret;
     printk(KERN_WARNING "ag9064_platform_cpupld module initialization\n");
-
-    ret = dni_create_user();
-    if (ret != 0){
-        printk(KERN_WARNING "Fail to create IPMI user\n");
-    }
 
     // set the CPUPLD prob and remove
     ret = platform_driver_register(&cpld_driver);

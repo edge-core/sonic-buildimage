@@ -17,7 +17,7 @@ class SfpUtil(SfpUtilBase):
     PORT_END = 63
     PORTS_IN_BLOCK = 64
 
-    EEPROM_OFFSET = 20
+    EEPROM_OFFSET = 1
 
     _port_to_eeprom_mapping = {}
 
@@ -38,7 +38,7 @@ class SfpUtil(SfpUtilBase):
         return self._port_to_eeprom_mapping
 
     def __init__(self):
-        eeprom_path = "/sys/class/i2c-adapter/i2c-{0}/{0}-0050/eeprom"
+        eeprom_path = "/sys/kernel/sfp/eeprom_sfp_{0}"
 
         for x in range(0, self.port_end + 1):
             self._port_to_eeprom_mapping[x] = eeprom_path.format(x + self.EEPROM_OFFSET)

@@ -52,6 +52,7 @@ static ssize_t get_swpld_reg(struct device *dev, struct device_attribute *dev_at
     uint8_t get_cmd;       
     struct sensor_device_attribute *attr = to_sensor_dev_attr(dev_attr);
 
+    dni_klock();
     cmd_data_len = sizeof(cmd_data);
     get_cmd = CMD_GETDATA;
     cmd_data[0] = BMC_BUS_5;
@@ -62,12 +63,16 @@ static ssize_t get_swpld_reg(struct device *dev, struct device_attribute *dev_at
     if (attr->index <= SWPLD4_REG_VALUE){
         switch (attr->index) {
             case SWPLD1_REG_ADDR:
+                dni_kunlock();
                 return sprintf(buf, "0x%02x\n", swpld1_reg_addr);
             case SWPLD2_REG_ADDR:
+                dni_kunlock();
                 return sprintf(buf, "0x%02x\n", swpld2_reg_addr);
             case SWPLD3_REG_ADDR:
+                dni_kunlock();
                 return sprintf(buf, "0x%02x\n", swpld3_reg_addr);
             case SWPLD4_REG_ADDR:
+                dni_kunlock();
                 return sprintf(buf, "0x%02x\n", swpld4_reg_addr);
             case SWPLD1_REG_VALUE:
                 cmd_data[1] = SWPLD1_ADDR;
@@ -86,10 +91,12 @@ static ssize_t get_swpld_reg(struct device *dev, struct device_attribute *dev_at
                 cmd_data[2] = swpld4_reg_addr;
                 break;
             default:
+                dni_kunlock();
                 return sprintf(buf, "%d not found", attr->index);
         }
         ret = dni_bmc_cmd(get_cmd, cmd_data, cmd_data_len);
         ret = ret & 0xff;
+        dni_kunlock();
         return sprintf(buf, "0x%02x\n", ret);
     }else{
 
@@ -107,6 +114,7 @@ static ssize_t get_swpld_reg(struct device *dev, struct device_attribute *dev_at
                 cmd_data[1] = SWPLD4_ADDR;
                 break;
             default:
+                dni_kunlock();
                 return sprintf(buf, "%d not found", attr->index);
         }
         cmd_data[2] = attribute_data[attr->index].reg;
@@ -114,23 +122,31 @@ static ssize_t get_swpld_reg(struct device *dev, struct device_attribute *dev_at
         value = value & mask;
         switch (mask) {
             case 0xFF:
+                dni_kunlock();
                 return sprintf(buf, "0x%02x%s", value, note);
             case 0x0F:
+                dni_kunlock();
                 return sprintf(buf, "0x%01x%s", value, note);
             case 0xF0:
                 value = value >> 4;
+                dni_kunlock();
                 return sprintf(buf, "0x%01x%s", value, note);
             case 0xC0:
                 value = value >> 6;
+                dni_kunlock();
                 return sprintf(buf, "0x%01x%s", value, note);
             case 0x30:
                 value = value >> 4;
+                dni_kunlock();
                 return sprintf(buf, "0x%01x%s", value, note);       
             default :
                 value = value >> dni_log2(mask);
+                dni_kunlock();
                 return sprintf(buf, "%d%s", value, note);
         }        
-    } 
+    }
+    dni_kunlock();
+    return sprintf(buf, "%d not found", attr->index); 
 }
 
 static ssize_t set_swpld_reg(struct device *dev, struct device_attribute *dev_attr,
@@ -152,13 +168,17 @@ static ssize_t set_swpld_reg(struct device *dev, struct device_attribute *dev_at
     set_cmd = CMD_SETDATA;
     get_cmd = CMD_GETDATA;
 
+    dni_klock();
+
     err = kstrtoul(buf, 0, &set_data_ul);
     if (err){
+        dni_kunlock();
         return err;
     }
 
     if (set_data > 0xff){
         printk(KERN_ALERT "address out of range (0x00-0xFF)\n");
+        dni_kunlock();
         return count;
     }
 
@@ -170,15 +190,19 @@ static ssize_t set_swpld_reg(struct device *dev, struct device_attribute *dev_at
         //reg_addr
             case SWPLD1_REG_ADDR:
                 swpld1_reg_addr = set_data;
+                dni_kunlock();
                 return count;
             case SWPLD2_REG_ADDR:
                 swpld2_reg_addr = set_data;
+                dni_kunlock();
                 return count;
             case SWPLD3_REG_ADDR:
                 swpld3_reg_addr = set_data;
+                dni_kunlock();
                 return count;         
             case SWPLD4_REG_ADDR:
                 swpld4_reg_addr = set_data;
+                dni_kunlock();
                 return count;
         //reg_value       
             case SWPLD1_REG_VALUE:
@@ -198,9 +222,11 @@ static ssize_t set_swpld_reg(struct device *dev, struct device_attribute *dev_at
                 cmd_data[2] = swpld4_reg_addr;
                 break;
             default :
+                dni_kunlock();
                 return sprintf(buf, "%d not found", attr->index); 
         }
         dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
+        dni_kunlock();
         return count;
     }
     else{
@@ -222,6 +248,7 @@ static ssize_t set_swpld_reg(struct device *dev, struct device_attribute *dev_at
                 cmd_data[1] = SWPLD4_ADDR;
                 break;
             default:
+                dni_kunlock();
                 return sprintf(buf, "%d not found", attr->index); 
         }
 
@@ -252,8 +279,11 @@ static ssize_t set_swpld_reg(struct device *dev, struct device_attribute *dev_at
                 set_data = mask_out | (set_data << dni_log2(mask) );        
         }   
         dni_bmc_cmd(set_cmd, cmd_data, cmd_data_len);
+        dni_kunlock();
         return count;
     }
+    dni_kunlock();
+    return count;
 }
 
 //SWPLD
@@ -523,11 +553,6 @@ static int __init delta_ag9064_swpld_init(void)
 {
     int ret;
     printk(KERN_WARNING "ag9064_platform_swpld module initialization\n");
-
-    ret = dni_create_user();
-    if (ret != 0){
-        printk(KERN_WARNING "Fail to create IPMI user\n");
-    }
 
     // set the SWPLD prob and remove
     ret = platform_driver_register(&swpld1_driver);
