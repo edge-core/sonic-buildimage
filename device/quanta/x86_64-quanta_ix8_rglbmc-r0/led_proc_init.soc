@@ -1,0 +1,6 @@
+sleep 10
+led stop
+sleep 3
+led start
+sleep 3
+led auto on
