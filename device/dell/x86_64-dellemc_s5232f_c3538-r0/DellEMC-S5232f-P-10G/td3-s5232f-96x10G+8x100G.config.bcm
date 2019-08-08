@@ -37,7 +37,6 @@ l3_max_ecmp_mode=1
 
 bcm_tunnel_term_compatible_mode=1
 ifp_inports_support_enable=1
-mmu_init_config="MSFT-TD3-Tier1"
 
 stable_size=0x5500000
 
@@ -615,4 +614,4 @@ dport_map_port_129=126
 dport_map_port_66=127
 dport_map_port_130=128
 
-
+mmu_init_config="TD3-DEFAULT"

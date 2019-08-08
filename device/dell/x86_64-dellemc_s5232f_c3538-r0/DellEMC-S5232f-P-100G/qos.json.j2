@@ -36,7 +36,7 @@
     {{- generate_tc_to_pg_map() }}
 {% else %}
     "TC_TO_PRIORITY_GROUP_MAP": {
-        "AZURE": {
+        "DEFAULT": {
             "0": "0",
             "1": "0",
             "2": "0",
@@ -44,12 +44,12 @@
             "4": "0",
             "5": "0",
             "6": "0",
-            "7": "0"
+            "7": "7"
         }
     },
 {% endif %}
     "MAP_PFC_PRIORITY_TO_QUEUE": {
-        "AZURE": {
+        "DEFAULT": {
             "0": "0",
             "1": "1",
             "2": "2",
@@ -61,7 +61,7 @@
         }
     },
     "TC_TO_QUEUE_MAP": {
-        "AZURE": {
+        "DEFAULT": {
             "0": "0",
             "1": "1",
             "2": "2",
@@ -73,7 +73,7 @@
         }
     },
     "DSCP_TO_TC_MAP": {
-        "AZURE": {
+        "DEFAULT": {
             "0" : "0",
             "1" : "0",
             "2" : "0",
@@ -174,19 +174,11 @@
             "weight": "50"
         }
     },
-{% if asic_type in pfc_to_pg_map_supported_asics  %}
-    "PFC_PRIORITY_TO_PRIORITY_GROUP_MAP": {
-        "AZURE": {
-            "3": "3",
-            "4": "4"
-        }
-    },
-{% endif %}
     "PORT_QOS_MAP": {
         "{{ port_names_active }}": {
-            "dscp_to_tc_map"  : "[DSCP_TO_TC_MAP|AZURE]",
-            "tc_to_queue_map" : "[TC_TO_QUEUE_MAP|AZURE]",
-            "tc_to_pg_map"    : "[TC_TO_PRIORITY_GROUP_MAP|AZURE]"
+            "dscp_to_tc_map"  : "[DSCP_TO_TC_MAP|DEFAULT]",
+            "tc_to_queue_map" : "[TC_TO_QUEUE_MAP|DEFAULT]",
+            "tc_to_pg_map"    : "[TC_TO_PRIORITY_GROUP_MAP|DEFAULT]"
         }
     },
     "QUEUE": {
