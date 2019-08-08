@@ -3,6 +3,7 @@ SHELL = /bin/bash
 .SHELLFLAGS += -e
 
 MAIN_TARGET = mlnx-sai_1.mlnx.$(MLNX_SAI_VERSION)_amd64.deb
+DERIVED_TARGETS = mlnx-sai-dbgsym_1.mlnx.$(MLNX_SAI_VERSION)_amd64.deb
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	pushd SAI-Implementation
@@ -12,5 +13,5 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	debuild -e 'make_extra_flags="DEFS=-DACS_OS"' -us -uc -d -b
 	popd
 
-	mv $* $(DEST)/
+	mv $(DERIVED_TARGETS) $* $(DEST)/
 	popd

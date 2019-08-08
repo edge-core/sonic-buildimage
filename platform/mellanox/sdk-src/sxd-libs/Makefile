@@ -3,7 +3,8 @@ SHELL = /bin/bash
 
 MAIN_TARGET = sxd-libs_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb
 DERIVED_TARGETS = sxd-libs-dev_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb \
-				  sxd-libs-dev-static_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb
+				  sxd-libs-dev-static_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb \
+				  sxd-libs-dbgsym_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb
 PACKAGE_NAME = sxd_libs
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :

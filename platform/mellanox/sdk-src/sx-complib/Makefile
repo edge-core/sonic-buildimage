@@ -3,7 +3,8 @@ SHELL = /bin/bash
 
 MAIN_TARGET = sx-complib_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb
 DERIVED_TARGETS = sx-complib-dev_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb \
-				  sx-complib-dev-static_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb
+				  sx-complib-dev-static_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb \
+				  sx-complib-dbgsym_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb
 PACKAGE_NAME = sx_complib
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :

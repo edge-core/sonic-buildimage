@@ -2,7 +2,7 @@
 SHELL = /bin/bash
 
 MAIN_TARGET = sx-examples_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb
-DERIVED_TARGETS = sx-examples-dev_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb
+DERIVED_TARGETS = sx-examples-dev_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb sx-examples-dbgsym_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb
 PACKAGE_NAME = sx_examples
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :

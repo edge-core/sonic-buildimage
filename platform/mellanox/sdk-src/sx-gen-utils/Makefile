@@ -2,7 +2,7 @@
 SHELL = /bin/bash
 
 MAIN_TARGET = sx-gen-utils_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb
-DERIVED_TARGETS = sx-gen-utils-dev_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb
+DERIVED_TARGETS = sx-gen-utils-dev_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb sx-gen-utils-dbgsym_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb
 PACKAGE_NAME = sx_gen_utils
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :

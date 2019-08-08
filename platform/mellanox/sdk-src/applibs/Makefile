@@ -2,7 +2,7 @@
 SHELL = /bin/bash
 
 MAIN_TARGET = applibs_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb
-DERIVED_TARGETS = applibs-dev_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb
+DERIVED_TARGETS = applibs-dev_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb applibs-dbgsym_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb
 PACKAGE_NAME = applibs
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
