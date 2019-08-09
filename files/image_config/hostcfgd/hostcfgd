@@ -114,7 +114,7 @@ class AaaCfg(object):
                 server['ip'] = addr
                 server.update(self.tacplus_servers[addr])
                 servers_conf.append(server)
-            sorted(servers_conf, key=lambda t: t['priority'], reverse=True)
+            servers_conf = sorted(servers_conf, key=lambda t: int(t['priority']), reverse=True)
 
         template_file = os.path.abspath(PAM_AUTH_CONF_TEMPLATE)
         env = jinja2.Environment(loader=jinja2.FileSystemLoader('/'), trim_blocks=True)
