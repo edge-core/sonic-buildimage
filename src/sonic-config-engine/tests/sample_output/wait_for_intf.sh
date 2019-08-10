@@ -31,11 +31,7 @@ function wait_until_iface_ready
 # Wait for all interfaces to be up and ready
 wait_until_iface_ready ${VLAN_TABLE_PREFIX} Vlan1000
 wait_until_iface_ready ${LAG_TABLE_PREFIX} PortChannel01
-wait_until_iface_ready ${LAG_TABLE_PREFIX} PortChannel01
-wait_until_iface_ready ${LAG_TABLE_PREFIX} PortChannel02
 wait_until_iface_ready ${LAG_TABLE_PREFIX} PortChannel02
 wait_until_iface_ready ${LAG_TABLE_PREFIX} PortChannel03
-wait_until_iface_ready ${LAG_TABLE_PREFIX} PortChannel03
-wait_until_iface_ready ${LAG_TABLE_PREFIX} PortChannel04
 wait_until_iface_ready ${LAG_TABLE_PREFIX} PortChannel04
 
