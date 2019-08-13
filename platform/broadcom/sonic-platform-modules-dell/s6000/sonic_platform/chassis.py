@@ -10,6 +10,7 @@
 try:
     import os
     from sonic_platform_base.chassis_base import ChassisBase
+    from sonic_platform.sfp import Sfp
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -26,7 +27,23 @@ class Chassis(ChassisBase):
     reset_reason_dict[0x6] = ChassisBase.REBOOT_CAUSE_NON_HARDWARE
 
     def __init__(self):
-        ChassisBase.__init__(self)
+        # Initialize SFP list
+        PORT_START = 0
+        PORT_END = 31
+        EEPROM_OFFSET = 20
+        PORTS_IN_BLOCK = (PORT_END + 1)
+
+        # sfp.py will read eeprom contents and retrive the eeprom data.
+        # It will also provide support sfp controls like reset and setting
+        # low power mode.
+        # We pass the eeprom path and sfp control path from chassis.py
+        # So that sfp.py implementation can be generic to all platforms
+        eeprom_base = "/sys/class/i2c-adapter/i2c-{0}/{0}-0050/eeprom"
+        sfp_control = "/sys/devices/platform/dell-s6000-cpld.0/"
+        for index in range(0, PORTS_IN_BLOCK):
+            eeprom_path = eeprom_base.format(index + EEPROM_OFFSET)
+            sfp_node = Sfp(index, 'QSFP', eeprom_path, sfp_control, index)
+            self._sfp_list.append(sfp_node)
 
     def get_register(self, reg_name):
         rv = 'ERR'

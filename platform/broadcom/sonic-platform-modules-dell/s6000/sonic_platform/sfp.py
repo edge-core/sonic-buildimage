@@ -1,0 +1,1 @@
+../../s6100/sonic_platform/sfp.py
