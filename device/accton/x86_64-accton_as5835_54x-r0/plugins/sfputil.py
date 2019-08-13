@@ -11,6 +11,8 @@ try:
 except ImportError as e:
     raise ImportError("%s - required module not found" % str(e))
 
+SFP_STATUS_INSERTED = '1'
+SFP_STATUS_REMOVED = '0'
 
 class SfpUtil(SfpUtilBase):
     """Platform-specific SfpUtil class"""
@@ -216,7 +218,7 @@ class SfpUtil(SfpUtilBase):
         try:
             eeprom = None
 
-            eeprom = open(self.port_to_eeprom_mapping[port_num], "rb")
+            eeprom = open(self.port_to_eeprom_mapping[port_num], mode="rb", buffering=0)
             eeprom.seek(93)
             lpmode = ord(eeprom.read(1))
 
@@ -251,7 +253,7 @@ class SfpUtil(SfpUtilBase):
             buffer[0] = chr(regval)
 
             # Write to eeprom
-            eeprom = open(self.port_to_eeprom_mapping[port_num], "r+b")
+            eeprom = open(self.port_to_eeprom_mapping[port_num], mode="r+b", buffering=0)
             eeprom.seek(93)
             eeprom.write(buffer[0])
             return True
@@ -273,7 +275,7 @@ class SfpUtil(SfpUtilBase):
         path = "/sys/bus/i2c/devices/{0}/module_reset_{1}"
         port_ps = path.format(cpld_ps, cage_num)
         try:
-            reg_file = open(port_ps, 'w')
+            reg_file = open(port_ps, mode='w', buffering=0)
         except IOError as e:
             print "Error: unable to open file: %s" % str(e)          
             return False
@@ -288,10 +290,97 @@ class SfpUtil(SfpUtilBase):
         
         return True
 
-    def get_transceiver_change_event(self):
-        """
-        TODO: This function need to be implemented
-        when decide to support monitoring SFP(Xcvrd)
-        on this platform.
-        """
-        raise NotImplementedError
+    @property
+    def _get_presence_bitmap(self):
+        nodes = []
+        nodes.append("/sys/bus/i2c/devices/3-0061/module_present_all")
+        nodes.append("/sys/bus/i2c/devices/3-0062/module_present_all")
+
+        bitmap = ""
+        for node in nodes: 
+            try:
+                reg_file = open(node)
+    
+            except IOError as e:
+                print "Error: unable to open file: %s" % str(e)
+                return False
+            bitmap += reg_file.readline().rstrip() + " "
+            reg_file.close()
+
+        rev = bitmap.split(" ")
+        rev.pop() # Remove the last useless character
+        
+        # Convert bitmap into continuously port order
+        rev[4] = hex((int(rev[4],16) | ((int(rev[5],16) & 0x3) << 6)))[2:]      # Port 33-40
+        rev[5] = hex((int(rev[5],16) >> 2) | ((int(rev[6],16) & 0x3) << 6))[2:] # Port 41-48
+
+        # Expand port 49-54
+        tmp = rev.pop()
+        for i in range (2, 8):
+            val = (int(tmp,16) >> i) & 0x1
+            rev.append(hex(val)[2:])
+            
+        for i in range (0,6):
+            rev[i] = rev[i].zfill(2)
+
+        rev = "".join(rev[::-1])
+        return int(rev,16)
+
+    data = {'valid':0, 'present':0} 
+    def get_transceiver_change_event(self, timeout=0):
+
+        start_time = time.time()
+        port_dict = {}
+        port = 0
+        blocking = False
+
+        if timeout == 0:
+            blocking = True
+        elif timeout > 0:
+            timeout = timeout / float(1000) # Convert to secs
+        else:
+            print "get_transceiver_change_event:Invalid timeout value", timeout
+            return False, {}
+
+        end_time = start_time + timeout
+        if start_time > end_time:
+            print 'get_transceiver_change_event:' \
+                       'time wrap / invalid timeout value', timeout
+
+            return False, {} # Time wrap or possibly incorrect timeout
+
+        while timeout >= 0:
+            # Check for OIR events and return updated port_dict
+
+            reg_value = self._get_presence_bitmap
+            changed_ports = self.data['present'] ^ reg_value
+            if changed_ports:
+                for port in range (self.port_start, self.port_end+1):
+                    # Mask off the bit corresponding to our port
+                    mask = (1 << (port - 1))
+                    if changed_ports & mask:
+
+                        if (reg_value & mask) == 0:
+                            port_dict[port] = SFP_STATUS_REMOVED
+                        else:
+                            port_dict[port] = SFP_STATUS_INSERTED
+
+                # Update cache 
+                self.data['present'] = reg_value
+                self.data['valid'] = 1
+                return True, port_dict
+
+            if blocking:
+                time.sleep(1)
+            else:
+                timeout = end_time - time.time()
+                if timeout >= 1:
+                    time.sleep(1) # We poll at 1 second granularity
+                else:
+                    if timeout > 0:
+                        time.sleep(timeout)
+                    return True, {}
+        print "get_transceiver_change_event: Should not reach here."
+        return False, {}
+
+
