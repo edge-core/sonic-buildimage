@@ -1,0 +1,14 @@
+# INVM SAI
+
+INVM_SAI_ONLINE = https://github.com/Innovium/SONiC/tree/master/debian/master
+
+INVM_LIBSAI = isai.deb
+INVM_HSAI   = saihdr.deb
+INVM_DRV    = ipd.deb
+
+$(INVM_LIBSAI)_URL = $(INVM_SAI_ONLINE)/$(INVM_LIBSAI)
+$(INVM_HSAI)_URL   =  $(INVM_SAI_ONLINE)/$(INVM_HSAI)
+$(INVM_DRV)_URL    =  $(INVM_SAI_ONLINE)/$(INVM_DRV)
+
+SONIC_ONLINE_DEBS  += $(INVM_LIBSAI) $(INVM_HSAI) $(INVM_DRV)
+SONIC_STRETCH_DEBS += $(INVM_DRV)

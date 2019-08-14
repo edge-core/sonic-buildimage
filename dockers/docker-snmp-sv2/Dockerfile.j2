@@ -22,7 +22,8 @@ RUN apt-get update   && \
         ca-certificates \
         gcc             \
         make            \
-        libdpkg-perl
+        libdpkg-perl    \
+        ipmitool
 
 {% if docker_snmp_sv2_debs.strip() -%}
 # Copy locally-built Debian package dependencies

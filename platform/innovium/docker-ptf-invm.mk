@@ -1,0 +1,7 @@
+# docker image for docker-ptf-invm
+
+DOCKER_PTF_INVM = docker-ptf-invm.gz
+$(DOCKER_PTF_INVM)_PATH = $(DOCKERS_PATH)/docker-ptf-saithrift
+$(DOCKER_PTF_INVM)_DEPENDS += $(PYTHON_SAITHRIFT_INVM)
+$(DOCKER_PTF_INVM)_LOAD_DOCKERS += $(DOCKER_PTF)
+SONIC_DOCKER_IMAGES += $(DOCKER_PTF_INVM)
