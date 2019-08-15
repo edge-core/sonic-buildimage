@@ -244,7 +244,8 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     tcptraceroute           \
     mtr-tiny                \
     locales                 \
-    mcelog
+    mcelog                  \
+    ndisc6
 
 #Adds a locale to a debian system in non-interactive mode
 sudo sed -i '/^#.* en_US.* /s/^#//' $FILESYSTEM_ROOT/etc/locale.gen && \
