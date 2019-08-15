@@ -1,78 +1,84 @@
-#!/usr/bin/env python
+# sfputil.py
+#
+# Platform-specific SFP transceiver interface for SONiC
+#
 
 try:
     import time
-    from sonic_sfp.sfputilbase import SfpUtilBase 
-except ImportError, e:
-    raise ImportError (str(e) + "- required module not found")
+    import string
+    from ctypes import create_string_buffer
+    from sonic_sfp.sfputilbase import SfpUtilBase
+except ImportError as e:
+    raise ImportError("%s - required module not found" % str(e))
 
 
 class SfpUtil(SfpUtilBase):
-    """Platform specific SfpUtill class"""
+    """Platform-specific SfpUtil class"""
 
-    PORT_START = 0
-    PORT_END = 55
-    QSFP_PORT_START = 48
+    PORT_START = 1
+    PORT_END = 56
     PORTS_IN_BLOCK = 56
+    QSFP_PORT_START = 49
+    QSFP_PORT_END = 56
 
     _port_to_eeprom_mapping = {}
     _port_to_i2c_mapping = {
-         0 : 32,
-         1 : 33,
-         2 : 34,
-         3 : 35,
-         4 : 36,
-         5 : 37,
-         6 : 38,
-         7 : 39,
-         8 : 40,
-         9 : 41,
-        10 : 42,
-        11 : 43,
-        12 : 44,
-        13 : 45,
-        14 : 46,
-        15 : 47,
-        16 : 48,
-        17 : 49,
-        18 : 50,
-        19 : 51,
-        20 : 52,
-        21 : 53,
-        22 : 54,
-        23 : 55,
-        24 : 56,
-        25 : 57,
-        26 : 58,
-        27 : 59,
-        28 : 60,
-        29 : 61,
-        30 : 62,
-        31 : 63,
-        32 : 64,
-        33 : 65,
-        34 : 66,
-        35 : 67,
-        36 : 68,
-        37 : 69,
-        38 : 70,
-        39 : 71,
-        40 : 72,
-        41 : 73,
-        42 : 74,
-        43 : 75,
-        44 : 76,
-        45 : 77,
-        46 : 78,
-        47 : 79,
-        48 : 80,#QSFP49
-        49 : 81,#QSFP50
-        50 : 82,#QSFP51
-        51 : 83,#QSFP52
-        52 : 84,#QSFP53
-        53 : 85,#QSFP54
-        54 : 86,#QSFP55
-        55 : 87,#QSFP56
+         1 : 32,
+         2 : 33,
+         3 : 34,
+         4 : 35,
+         5 : 36,
+         6 : 37,
+         7 : 38,
+         8 : 39,
+         9 : 40,
+        10 : 41,
+        11 : 42,
+        12 : 43,
+        13 : 44,
+        14 : 45,
+        15 : 46,
+        16 : 47,
+        17 : 48,
+        18 : 49,
+        19 : 50,
+        20 : 51,
+        21 : 52,
+        22 : 53,
+        23 : 54,
+        24 : 55,
+        25 : 56,
+        26 : 57,
+        27 : 58,
+        28 : 59,
+        29 : 60,
+        30 : 61,
+        31 : 62,
+        32 : 63,
+        33 : 64,
+        34 : 65,
+        35 : 66,
+        36 : 67,
+        37 : 68,
+        38 : 69,
+        39 : 70,
+        40 : 71,
+        41 : 72,
+        42 : 73,
+        43 : 74,
+        44 : 75,
+        45 : 76,
+        46 : 77,
+        47 : 78,
+        48 : 79,
+        49 : 80,#QSFP49
+        50 : 81,#QSFP50
+        51 : 82,#QSFP51
+        52 : 83,#QSFP52
+        53 : 84,#QSFP53
+        54 : 85,#QSFP54
+        55 : 86,#QSFP55
+        56 : 87,#QSFP56
     }
 
     @property
@@ -80,12 +86,16 @@ class SfpUtil(SfpUtilBase):
         return self.PORT_START
 
     @property
+    def port_end(self):
+        return self.PORT_END
+
+    @property
     def qsfp_port_start(self):
         return self.QSFP_PORT_START
 
     @property
-    def port_end(self):
-        return self.PORT_END
+    def qsfp_port_end(self):
+        return self.QSFP_PORT_END
 
     @property
     def qsfp_ports(self):
@@ -97,26 +107,26 @@ class SfpUtil(SfpUtilBase):
 
     def __init__(self):
         eeprom_path = '/sys/bus/i2c/devices/{0}-0050/eeprom'
-        for x in range(0, self.port_end+1):
+        for x in range(self.port_start, self.port_end+1):
             self.port_to_eeprom_mapping[x] = eeprom_path.format(self._port_to_i2c_mapping[x])
         SfpUtilBase.__init__(self)
 
     def get_presence(self, port_num):
         # Check for invalid port_num
-        if port_num < self.PORT_START or port_num > self.PORT_END:
+        if port_num < self.port_start or port_num > self.port_end:
             return False
 
         try:
-            if port_num < 48:
-                reg_file = open("/sys/class/cpld-sfp28/port-"+str(port_num+1)+"/pre_n")
+            if port_num < self.qsfp_port_start:
+                reg_file = open("/sys/class/cpld-sfp28/port-"+str(port_num)+"/pre_n")
             else:
-                reg_file = open("/sys/class/gpio/gpio"+str((port_num-48)*4+34)+"/value")
+                reg_file = open("/sys/class/gpio/gpio"+str((port_num-self.qsfp_port_start)*4+34)+"/value")
         except IOError as e:
             print "Error: unable to open file: %s" % str(e)
             return False
 
         reg_value = reg_file.readline().rstrip()
-        if port_num < 48:
+        if port_num < self.qsfp_port_start:
             if reg_value == '1':
                 return True
         else:
@@ -127,11 +137,11 @@ class SfpUtil(SfpUtilBase):
 
     def get_low_power_mode(self, port_num):
         # Check for invalid port_num
-        if port_num < self.qsfp_port_start or port_num > self.port_end:
+        if port_num < self.qsfp_port_start or port_num > self.qsfp_port_end:
             return False
 
         try:
-            reg_file = open("/sys/class/gpio/gpio"+str((port_num-48)*4+35)+"/value")
+            reg_file = open("/sys/class/gpio/gpio"+str((port_num-self.qsfp_port_start)*4+35)+"/value")
         except IOError as e:
             print "Error: unable to open file: %s" % str(e)
             return False
@@ -145,11 +155,11 @@ class SfpUtil(SfpUtilBase):
 
     def set_low_power_mode(self, port_num, lpmode):
         # Check for invalid port_num
-        if port_num < self.qsfp_port_start or port_num > self.port_end:
+        if port_num < self.qsfp_port_start or port_num > self.qsfp_port_end:
             return False
 
         try:
-            reg_file = open("/sys/class/gpio/gpio"+str((port_num-48)*4+35)+"/value", "r+")
+            reg_file = open("/sys/class/gpio/gpio"+str((port_num-self.qsfp_port_start)*4+35)+"/value", "r+")
         except IOError as e:
             print "Error: unable to open file: %s" % str(e)
             return False
@@ -173,7 +183,7 @@ class SfpUtil(SfpUtilBase):
             return False
 
         try:
-            reg_file = open("/sys/class/gpio/gpio"+str((port_num-48)*4+32)+"/value", "r+")
+            reg_file = open("/sys/class/gpio/gpio"+str((port_num-self.qsfp_port_start)*4+32)+"/value", "r+")
         except IOError as e:
             print "Error: unable to open file: %s" % str(e)
             return False
@@ -187,7 +197,7 @@ class SfpUtil(SfpUtilBase):
 
         # Flip the value back write back to the register to take port out of reset
         try:
-            reg_file = open("/sys/class/gpio/gpio"+str((port_num-48)*4+32)+"/value", "r+")
+            reg_file = open("/sys/class/gpio/gpio"+str((port_num-self.qsfp_port_start)*4+32)+"/value", "r+")
         except IOError as e:
             print "Error: unable to open file: %s" % str(e)
             return False

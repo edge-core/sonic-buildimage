@@ -1,53 +1,58 @@
-#!/usr/bin/env python
+# sfputil.py
+#
+# Platform-specific SFP transceiver interface for SONiC
+#
 
 try:
     import time
-    from sonic_sfp.sfputilbase import SfpUtilBase 
-except ImportError, e:
-    raise ImportError (str(e) + "- required module not found")
+    import string
+    from ctypes import create_string_buffer
+    from sonic_sfp.sfputilbase import SfpUtilBase
+except ImportError as e:
+    raise ImportError("%s - required module not found" % str(e))
 
 
 class SfpUtil(SfpUtilBase):
-    """Platform specific SfpUtill class"""
+    """Platform-specific SfpUtil class"""
 
-    PORT_START = 0
-    PORT_END = 31
+    PORT_START = 1
+    PORT_END = 32
     PORTS_IN_BLOCK = 32
 
     _port_to_eeprom_mapping = {}
     _port_to_i2c_mapping = {
-         0 : 32,
-         1 : 33,
-         2 : 34,
-         3 : 35,
-         4 : 36,
-         5 : 37,
-         6 : 38,
-         7 : 39,
-         8 : 40,
-         9 : 41,
-        10 : 42,
-        11 : 43,
-        12 : 44,
-        13 : 45,
-        14 : 46,
-        15 : 47,
-        16 : 48,
-        17 : 49,
-        18 : 50,
-        19 : 51,
-        20 : 52,
-        21 : 53,
-        22 : 54,
-        23 : 55,
-        24 : 56,
-        25 : 57,
-        26 : 58,
-        27 : 59,
-        28 : 60,
-        29 : 61,
-        30 : 62,
-        31 : 63,
+         1 : 32,
+         2 : 33,
+         3 : 34,
+         4 : 35,
+         5 : 36,
+         6 : 37,
+         7 : 38,
+         8 : 39,
+         9 : 40,
+        10 : 41,
+        11 : 42,
+        12 : 43,
+        13 : 44,
+        14 : 45,
+        15 : 46,
+        16 : 47,
+        17 : 48,
+        18 : 49,
+        19 : 50,
+        20 : 51,
+        21 : 52,
+        22 : 53,
+        23 : 54,
+        24 : 55,
+        25 : 56,
+        26 : 57,
+        27 : 58,
+        28 : 59,
+        29 : 60,
+        30 : 61,
+        31 : 62,
+        32 : 63,
     }
 
     @property
@@ -68,17 +73,17 @@ class SfpUtil(SfpUtilBase):
 
     def __init__(self):
         eeprom_path = '/sys/bus/i2c/devices/{0}-0050/eeprom'
-        for x in range(0, self.port_end+1):
+        for x in range(self.port_start, self.port_end+1):
             self.port_to_eeprom_mapping[x] = eeprom_path.format(self._port_to_i2c_mapping[x])
         SfpUtilBase.__init__(self)
 
     def get_presence(self, port_num):
         # Check for invalid port_num
-        if port_num < self.PORT_START or port_num > self.PORT_END:
+        if port_num < self.port_start or port_num > self.port_end:
             return False
 
         try:
-            reg_file = open("/sys/class/cpld-qsfp28/port-"+str(port_num+1)+"/module_present")
+            reg_file = open("/sys/class/cpld-qsfp28/port-"+str(port_num)+"/module_present")
         except IOError as e:
             print "Error: unable to open file: %s" % str(e)
             return False
@@ -95,7 +100,7 @@ class SfpUtil(SfpUtilBase):
             return False
 
         try:
-            reg_file = open("/sys/class/cpld-qsfp28/port-"+str(port_num+1)+"/lpmode")
+            reg_file = open("/sys/class/cpld-qsfp28/port-"+str(port_num)+"/lpmode")
         except IOError as e:
             print "Error: unable to open file: %s" % str(e)
             return False
@@ -113,7 +118,7 @@ class SfpUtil(SfpUtilBase):
             return False
 
         try:
-            reg_file = open("/sys/class/cpld-qsfp28/port-"+str(port_num+1)+"/lpmode", "r+")
+            reg_file = open("/sys/class/cpld-qsfp28/port-"+str(port_num)+"/lpmode", "r+")
         except IOError as e:
             print "Error: unable to open file: %s" % str(e)
             return False
@@ -137,7 +142,7 @@ class SfpUtil(SfpUtilBase):
             return False
 
         try:
-            reg_file = open("/sys/class/cpld-qsfp28/port-"+str(port_num+1)+"/reset", "r+")
+            reg_file = open("/sys/class/cpld-qsfp28/port-"+str(port_num)+"/reset", "r+")
         except IOError as e:
             print "Error: unable to open file: %s" % str(e)
             return False
@@ -151,7 +156,7 @@ class SfpUtil(SfpUtilBase):
 
         # Flip the value back write back to the register to take port out of reset
         try:
-            reg_file = open("/sys/class/cpld-qsfp28/port-"+str(port_num+1)+"/reset", "r+")
+            reg_file = open("/sys/class/cpld-qsfp28/port-"+str(port_num)+"/reset", "r+")
         except IOError as e:
             print "Error: unable to open file: %s" % str(e)
             return False
