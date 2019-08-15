@@ -14,7 +14,7 @@ export INSTALL_MOD_DIR:=extra
 KVERSION   ?= $(shell uname -r)
 KERNEL_SRC :=  /lib/modules/$(KVERSION)
 MOD_SRC_DIR:= $(shell pwd)
-MODULE_DIRS:= d7032q28b d7054q28b d6254qs d6556 d7264q28b
+MODULE_DIRS:= d7032q28b d7054q28b d6254qs d6556 d6356 d7264q28b
 
 %:
 	dh $@ --with=systemd
