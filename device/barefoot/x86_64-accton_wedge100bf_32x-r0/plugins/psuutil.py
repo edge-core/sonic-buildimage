@@ -63,9 +63,13 @@ class PsuUtil(PsuBase):
             return False
 
         global pltfm_mgr
-        self.thrift_setup()
-        psu_info = pltfm_mgr.pltfm_mgr_pwr_supply_info_get(index)
-        self.thrift_teardown()
+
+        try:
+           self.thrift_setup()
+           psu_info = pltfm_mgr.pltfm_mgr_pwr_supply_info_get(index)
+           self.thrift_teardown()
+        except:
+            return False
 
         return (psu_info.ffault == False)
 
@@ -80,9 +84,13 @@ class PsuUtil(PsuBase):
             return False
 
         global pltfm_mgr
-        self.thrift_setup()
-        status = pltfm_mgr.pltfm_mgr_pwr_supply_present_get(index)
-        self.thrift_teardown()
+
+        try:
+	    self.thrift_setup()
+	    status = pltfm_mgr.pltfm_mgr_pwr_supply_present_get(index)
+	    self.thrift_teardown()
+        except:
+            return False
 
         return status
 

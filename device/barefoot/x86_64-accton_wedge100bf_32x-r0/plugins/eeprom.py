@@ -74,6 +74,7 @@ EEPROM_SYMLINK = "/var/run/platform/eeprom/syseeprom"
 
 
 class board(eeprom_tlvinfo.TlvInfoDecoder):
+    RETRIES = 30
 
     def __init__(self, name, path, cpld_root, ro):
 
@@ -88,7 +89,16 @@ class board(eeprom_tlvinfo.TlvInfoDecoder):
 
         self.eeprom_path = EEPROM_SYMLINK
         super(board, self).__init__(self.eeprom_path, 0, '', True)
-        self.eeprom_init()
+
+        for attempt in range(self.RETRIES + 1):
+            if not self.eeprom_init():
+                time.sleep(1)
+            else:
+                break
+
+        if attempt == self.RETRIES:
+            raise RuntimeError("Could not initialize syseeprom")
+        
 
     def thrift_setup(self):
         global thrift_server, transport, pltfm_mgr
@@ -109,9 +119,12 @@ class board(eeprom_tlvinfo.TlvInfoDecoder):
 
     def eeprom_init(self):
         global pltfm_mgr
-        self.thrift_setup()
-        eeprom = pltfm_mgr.pltfm_mgr_sys_eeprom_get()
-        self.thrift_teardown()
+        try:
+           self.thrift_setup()
+           eeprom = pltfm_mgr.pltfm_mgr_sys_eeprom_get()
+           self.thrift_teardown()
+        except:
+            return False
 
         eeprom_params = ""
         for attr, val in eeprom.__dict__.iteritems():
@@ -142,4 +155,6 @@ class board(eeprom_tlvinfo.TlvInfoDecoder):
         new_e = eeprom_tlvinfo.TlvInfoDecoder.set_eeprom(self, "", [eeprom_params])
         sys.stdout = orig_stdout
         eeprom_base.EepromDecoder.write_eeprom(self, new_e)
+
+        return True
 
