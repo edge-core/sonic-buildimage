@@ -52,9 +52,9 @@ DEFAULT_PASSWORD = YourPaSsWoRd
 # by default for TOR switch
 # ENABLE_PFCWD_ON_START = y
 
-# SONIC_INSTALL_DEBUG_TOOLS - installs debugging tools in baseline docker
+# INSTALL_DEBUG_TOOLS - installs debugging tools in baseline docker
 # Uncomment next line to enable:
-# SONIC_INSTALL_DEBUG_TOOLS = y
+# INSTALL_DEBUG_TOOLS = y
 
 # SONIC_ROUTING_STACK - specify the routing-stack being elected to drive SONiC's control-plane.
 # Supported routing stacks on SONiC are:
