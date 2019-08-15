@@ -238,7 +238,7 @@ def device_install():
     for i in range(0,len(mknod)):
         #for pca932x need times to built new i2c buses
         if mknod[i].find('pca954') != -1:
-           time.sleep(1)
+           time.sleep(2)
 
         status, output = log_os_system(mknod[i], 1)
         if status:
@@ -246,49 +246,14 @@ def device_install():
             if FORCE == 0:
                 return status
 
-    # initialize multiplexer for 8 PIMs
-    cmdl = "echo pca9548 0x%x > /sys/bus/i2c/devices/i2c-%d/new_device"
-    for pim in range(2, 10):
-        cmdm = cmdl % (0x72, pim)
-        status, output =log_os_system(cmdm, 1)
-        cmdm = cmdl % (0x71, pim)
-        status, output =log_os_system(cmdm, 1)
-     
-    for i in range(0, NO_QSFP):
-        bus = sfp_map(i)
-        status, output =log_os_system(
-            "echo optoe1 0x50 > /sys/bus/i2c/devices/i2c-"+str(bus)+"/new_device", 1)
-        if status:
-            print output
-            if FORCE == 0:
-                return status
-        status, output =log_os_system(
-            "echo port"+str(i+1)+" > /sys/bus/i2c/devices/"+str(bus)+"-0050/port_name", 1)
-        if status:
-            print output
-            if FORCE == 0:
-                return status
+    rm_cmd="rm -rf /usr/local/bin/minipack_qsfp > /dev/null 2>&1"
+    log_os_system(rm_cmd, 1)
+    mk_cmd= "mkdir /usr/local/bin/minipack_qsfp"
+    log_os_system(mk_cmd, 1)
    
     return
 
 def device_uninstall():
-    for i in range(0,NO_QSFP):
-        bus = sfp_map(i)
-        target = "/sys/bus/i2c/devices/i2c-"+str(bus)+"/delete_device"
-        status, output =log_os_system("echo 0x50 > "+ target, 1)
-        if status:
-            print output
-            if FORCE == 0:
-                return status
-
-    # Multiplexer for 8 PIMs
-    cmdl = "echo 0x%x > /sys/bus/i2c/devices/i2c-%d/delete_device"
-    for pim in range(2, 10):
-        cmdm = cmdl % (0x72, pim)
-        status, output =log_os_system(cmdm, 1)
-        cmdm = cmdl % (0x71, pim)
-        status, output =log_os_system(cmdm, 1)
- 
     nodelist = mknod
     for i in range(len(nodelist)):
         target = nodelist[-(i+1)]

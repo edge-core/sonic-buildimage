@@ -2,8 +2,10 @@
 
 import os
 import sys
-from setuptools import setup
+from setuptools import setup, Extension
 os.listdir
+
+module1 = Extension("fbfpgaio", sources = ["minipack/lib/fbfpgaiomodule.c"])
 
 setup(
    name='minipack',
@@ -12,5 +14,7 @@ setup(
    
    packages=['minipack'],
    package_dir={'minipack': 'minipack/classes'},
+   ext_modules=[module1],
+   
 )
 
