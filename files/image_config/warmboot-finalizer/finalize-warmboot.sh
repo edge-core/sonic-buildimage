@@ -68,6 +68,14 @@ function finalize_warm_boot()
     sudo config warm_restart disable
 }
 
+function stop_control_plane_assistant()
+{
+    if [[ -x ${ASSISTANT_SCRIPT} ]]; then
+        debug "Tearing down control plane assistant ..."
+        ${ASSISTANT_SCRIPT} -m reset
+    fi
+}
+
 
 wait_for_database_service
 
@@ -77,11 +85,6 @@ if [[ x"${WARM_BOOT}" != x"true" ]]; then
     debug "warmboot is not enabled ..."
     exit 0
 fi
-
-# No need to wait for the reconciliation process. Database has been loaded
-# and migrated. This is good enough to save a copy.
-debug "Save in-memory database after warm reboot ..."
-config save -y
 
 list=${COMP_LIST}
 
@@ -93,6 +96,12 @@ for i in `seq 60`; do
     fi
     sleep 5
 done
+
+stop_control_plane_assistant
+
+# Save DB after stopped control plane assistant to avoid extra entries
+debug "Save in-memory database after warm reboot ..."
+config save -y
 
 if [[ -n "${list}" ]]; then
     debug "Some components didn't finish reconcile: ${list} ..."
