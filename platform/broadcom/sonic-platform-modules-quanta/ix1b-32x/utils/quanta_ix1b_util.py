@@ -40,75 +40,96 @@ args = []
 FORCE = 0
 i2c_prefix = '/sys/bus/i2c/devices/'
 
-
 if DEBUG == True:
     print sys.argv[0]
-    print 'ARGV      :', sys.argv[1:]   
-
+    print 'ARGV      :', sys.argv[1:]
 
 def main():
     global DEBUG
     global args
     global FORCE
-        
-    if len(sys.argv)<2:
+
+    if len(sys.argv) < 2:
         show_help()
-         
+
     options, args = getopt.getopt(sys.argv[1:], 'hdf', ['help',
                                                        'debug',
                                                        'force',
                                                           ])
-    if DEBUG == True:                                                           
+    if DEBUG == True:
         print options
         print args
         print len(sys.argv)
-            
+
     for opt, arg in options:
         if opt in ('-h', '--help'):
             show_help()
-        elif opt in ('-d', '--debug'):            
+        elif opt in ('-d', '--debug'):
             DEBUG = True
-            logging.basicConfig(level=logging.INFO)
-        elif opt in ('-f', '--force'): 
+            logging.basicConfig(level = logging.INFO)
+        elif opt in ('-f', '--force'):
             FORCE = 1
         else:
-            logging.info('no option')                          
-    for arg in args:            
+            logging.info('no option')
+
+    for arg in args:
         if arg == 'install':
-           install()
+            install()
         elif arg == 'clean':
-           uninstall()
+            uninstall()
         else:
             show_help()
-            
-            
-    return 0              
-        
+
+    return 0
+
 def show_help():
     print __doc__ % {'scriptName' : sys.argv[0].split("/")[-1]}
     sys.exit(0)
-           
+
 def show_log(txt):
     if DEBUG == True:
-        print "[IX1B-32X]"+txt
+        print "[IX1B-32X]" + txt
+
     return
-    
+
 def exec_cmd(cmd, show):
-    logging.info('Run :'+cmd)  
-    status, output = commands.getstatusoutput(cmd)    
-    show_log (cmd +"with result:" + str(status))
-    show_log ("      output:"+output)    
+    logging.info('Run :' + cmd)
+    status, output = commands.getstatusoutput(cmd)
+    show_log (cmd + "with result:" + str(status))
+    show_log ("      output:" + output)
     if status:
-        logging.info('Failed :'+cmd)
+        logging.info('Failed :' + cmd)
         if show:
-            print('Failed :'+cmd)
-    return  status, output
-        
-instantiate =[
+            print('Failed :' + cmd)
+
+    return status, output
+
+instantiate = [
 #turn on module power
 'echo 53 > /sys/class/gpio/export',
 'echo out > /sys/class/gpio/gpio53/direction',
-'echo 1 >/sys/class/gpio/gpio53/value',
+'echo 1 > /sys/class/gpio/gpio53/value',
+#PSU1 present
+'echo 16 > /sys/class/gpio/export',
+'echo in > /sys/class/gpio/gpio16/direction',
+#PSU1 power good signal
+'echo 17 > /sys/class/gpio/export',
+'echo in > /sys/class/gpio/gpio17/direction',
+#PSU2 present
+'echo 19 > /sys/class/gpio/export',
+'echo in > /sys/class/gpio/gpio19/direction',
+#PSU2 power good signal
+'echo 20 > /sys/class/gpio/export',
+'echo in > /sys/class/gpio/gpio20/direction',
+#FAN 1-4 present
+'echo 36 > /sys/class/gpio/export',
+'echo in > /sys/class/gpio/gpio36/direction',
+'echo 37 > /sys/class/gpio/export',
+'echo in > /sys/class/gpio/gpio37/direction',
+'echo 38 > /sys/class/gpio/export',
+'echo in > /sys/class/gpio/gpio38/direction',
+'echo 39 > /sys/class/gpio/export',
+'echo in > /sys/class/gpio/gpio39/direction',
 #turn on 100G led by default
 'i2cset -y 0x13 0x38 0x00 0xff',
 'i2cset -y 0x13 0x38 0x01 0xff',
@@ -124,77 +145,89 @@ drivers =[
 'gpio-pca953x',
 'qci_pmbus',
 'leds-gpio',
+'optoe',
 'qci_cpld_qsfp28',
 'qci_platform_ix1b'
 ]
- 
 
-                    
 def system_install():
     global FORCE
-	
+
+    time.sleep(3)
     #remove default drivers to avoid modprobe order conflicts
     status, output = exec_cmd("rmmod i2c_ismt ", 1)
     status, output = exec_cmd("rmmod i2c-i801 ", 1)
     #setup driver dependency
     status, output = exec_cmd("depmod -a ", 1)
+
     #install drivers
-    for i in range(0,len(drivers)):
-       status, output = exec_cmd("modprobe "+drivers[i], 1)
+    for i in range(0, len(drivers)):
+        status, output = exec_cmd("modprobe " + drivers[i], 1)
+
     if status:
-	   print output
-	   if FORCE == 0:                
-	      return status             
-    				 
+        print output
+        if FORCE == 0:
+            return status
+
     #instantiate devices
-    for i in range(0,len(instantiate)):
-       time.sleep(1)
-       status, output = exec_cmd(instantiate[i], 1)
+    for i in range(0, len(instantiate)):
+        status, output = exec_cmd(instantiate[i], 1)
+
     if status:
-	   print output
-	   if FORCE == 0:                
-	      return status   
-    
-    #for i in range(22,30):
-    #    status, output =exec_cmd("echo sff8436 0x50 > /sys/bus/i2c/devices/i2c-0/i2c-4/i2c-"+str(i)+"/new_device", 1)
-    #    if status:
-    #        print output
-    #        if FORCE == 0:            
-    #            return status   
-    
-    return 
-     
-        
+        print output
+        if FORCE == 0:
+            return status
+
+    #Mount Quanta hardware monitor driver
+    status, output = exec_cmd("modprobe qci_hwmon_ix1b", 1)
+
+    #QSFP for 1~32 port
+    for port_number in range(1, 33):
+        bus_number = port_number + 31
+        os.system("echo %d >/sys/bus/i2c/devices/%d-0050/port_name" % (port_number, bus_number))
+
+    #Set system LED to green
+    status, output = exec_cmd("echo 1 > /sys/class/leds/sysled_green/brightness", 1)
+
+    return
+
 def system_ready():
-    if not device_found(): 
-        return False
-    return True
-               
-def install():                      
     if not device_found():
-        print "No device, installing...."     
-        status = system_install() 
+        return False
+
+    return True
+
+def install():
+    if not device_found():
+        print "No device, installing...."
+        status = system_install()
+
         if status:
-            if FORCE == 0:        
-                return  status        
+            if FORCE == 0:
+                return status
     else:
-        print " ix1b driver already installed...."           
+        print " ix1b driver already installed...."
+
     return
 
 def uninstall():
     global FORCE
+
     #uninstall drivers
-    for i in range(len(drivers)-1,-1,-1):
-       status, output = exec_cmd("rmmod "+drivers[i], 1)
+    for i in range(len(drivers) - 1, -1, -1):
+       status, output = exec_cmd("rmmod " + drivers[i], 1)
+
     if status:
-	   print output
-	   if FORCE == 0:                
-	      return status
+        print output
+        if FORCE == 0:
+            return status
+
     return
 
 def device_found():
-    ret1, log = exec_cmd("ls "+i2c_prefix+"i2c-0", 0)
-    return ret1				
+    ret1, log = exec_cmd("ls " + i2c_prefix + "i2c-0", 0)
+
+    return ret1
 
 if __name__ == "__main__":
     main()

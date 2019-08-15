@@ -27,13 +27,267 @@
 #include <linux/err.h>
 #include <linux/slab.h>
 #include <linux/i2c.h>
-//#include <../drivers/hwmon/pmbus/pmbus.h>
-#include "pmbus.h"
 #include <linux/delay.h>
 
 enum projects { ly8, ix1, ix2, ix1b };
 
 #define DELAY_TIME		1000	/* uS	*/
+
+/* Pmbus reg defines are copied from drivers/hwmon/pmbus/pmbus.h*/
+/*
+ * Registers
+ */
+enum pmbus_regs {
+	PMBUS_PAGE			= 0x00,
+	PMBUS_OPERATION			= 0x01,
+	PMBUS_ON_OFF_CONFIG		= 0x02,
+	PMBUS_CLEAR_FAULTS		= 0x03,
+	PMBUS_PHASE			= 0x04,
+
+	PMBUS_CAPABILITY		= 0x19,
+	PMBUS_QUERY			= 0x1A,
+
+	PMBUS_VOUT_MODE			= 0x20,
+	PMBUS_VOUT_COMMAND		= 0x21,
+	PMBUS_VOUT_TRIM			= 0x22,
+	PMBUS_VOUT_CAL_OFFSET		= 0x23,
+	PMBUS_VOUT_MAX			= 0x24,
+	PMBUS_VOUT_MARGIN_HIGH		= 0x25,
+	PMBUS_VOUT_MARGIN_LOW		= 0x26,
+	PMBUS_VOUT_TRANSITION_RATE	= 0x27,
+	PMBUS_VOUT_DROOP		= 0x28,
+	PMBUS_VOUT_SCALE_LOOP		= 0x29,
+	PMBUS_VOUT_SCALE_MONITOR	= 0x2A,
+
+	PMBUS_COEFFICIENTS		= 0x30,
+	PMBUS_POUT_MAX			= 0x31,
+
+	PMBUS_FAN_CONFIG_12		= 0x3A,
+	PMBUS_FAN_COMMAND_1		= 0x3B,
+	PMBUS_FAN_COMMAND_2		= 0x3C,
+	PMBUS_FAN_CONFIG_34		= 0x3D,
+	PMBUS_FAN_COMMAND_3		= 0x3E,
+	PMBUS_FAN_COMMAND_4		= 0x3F,
+
+	PMBUS_VOUT_OV_FAULT_LIMIT	= 0x40,
+	PMBUS_VOUT_OV_FAULT_RESPONSE	= 0x41,
+	PMBUS_VOUT_OV_WARN_LIMIT	= 0x42,
+	PMBUS_VOUT_UV_WARN_LIMIT	= 0x43,
+	PMBUS_VOUT_UV_FAULT_LIMIT	= 0x44,
+	PMBUS_VOUT_UV_FAULT_RESPONSE	= 0x45,
+	PMBUS_IOUT_OC_FAULT_LIMIT	= 0x46,
+	PMBUS_IOUT_OC_FAULT_RESPONSE	= 0x47,
+	PMBUS_IOUT_OC_LV_FAULT_LIMIT	= 0x48,
+	PMBUS_IOUT_OC_LV_FAULT_RESPONSE	= 0x49,
+	PMBUS_IOUT_OC_WARN_LIMIT	= 0x4A,
+	PMBUS_IOUT_UC_FAULT_LIMIT	= 0x4B,
+	PMBUS_IOUT_UC_FAULT_RESPONSE	= 0x4C,
+
+	PMBUS_OT_FAULT_LIMIT		= 0x4F,
+	PMBUS_OT_FAULT_RESPONSE		= 0x50,
+	PMBUS_OT_WARN_LIMIT		= 0x51,
+	PMBUS_UT_WARN_LIMIT		= 0x52,
+	PMBUS_UT_FAULT_LIMIT		= 0x53,
+	PMBUS_UT_FAULT_RESPONSE		= 0x54,
+	PMBUS_VIN_OV_FAULT_LIMIT	= 0x55,
+	PMBUS_VIN_OV_FAULT_RESPONSE	= 0x56,
+	PMBUS_VIN_OV_WARN_LIMIT		= 0x57,
+	PMBUS_VIN_UV_WARN_LIMIT		= 0x58,
+	PMBUS_VIN_UV_FAULT_LIMIT	= 0x59,
+
+	PMBUS_IIN_OC_FAULT_LIMIT	= 0x5B,
+	PMBUS_IIN_OC_WARN_LIMIT		= 0x5D,
+
+	PMBUS_POUT_OP_FAULT_LIMIT	= 0x68,
+	PMBUS_POUT_OP_WARN_LIMIT	= 0x6A,
+	PMBUS_PIN_OP_WARN_LIMIT		= 0x6B,
+
+	PMBUS_STATUS_BYTE		= 0x78,
+	PMBUS_STATUS_WORD		= 0x79,
+	PMBUS_STATUS_VOUT		= 0x7A,
+	PMBUS_STATUS_IOUT		= 0x7B,
+	PMBUS_STATUS_INPUT		= 0x7C,
+	PMBUS_STATUS_TEMPERATURE	= 0x7D,
+	PMBUS_STATUS_CML		= 0x7E,
+	PMBUS_STATUS_OTHER		= 0x7F,
+	PMBUS_STATUS_MFR_SPECIFIC	= 0x80,
+	PMBUS_STATUS_FAN_12		= 0x81,
+	PMBUS_STATUS_FAN_34		= 0x82,
+
+	PMBUS_READ_VIN			= 0x88,
+	PMBUS_READ_IIN			= 0x89,
+	PMBUS_READ_VCAP			= 0x8A,
+	PMBUS_READ_VOUT			= 0x8B,
+	PMBUS_READ_IOUT			= 0x8C,
+	PMBUS_READ_TEMPERATURE_1	= 0x8D,
+	PMBUS_READ_TEMPERATURE_2	= 0x8E,
+	PMBUS_READ_TEMPERATURE_3	= 0x8F,
+	PMBUS_READ_FAN_SPEED_1		= 0x90,
+	PMBUS_READ_FAN_SPEED_2		= 0x91,
+	PMBUS_READ_FAN_SPEED_3		= 0x92,
+	PMBUS_READ_FAN_SPEED_4		= 0x93,
+	PMBUS_READ_DUTY_CYCLE		= 0x94,
+	PMBUS_READ_FREQUENCY		= 0x95,
+	PMBUS_READ_POUT			= 0x96,
+	PMBUS_READ_PIN			= 0x97,
+
+	PMBUS_REVISION			= 0x98,
+	PMBUS_MFR_ID			= 0x99,
+	PMBUS_MFR_MODEL			= 0x9A,
+	PMBUS_MFR_REVISION		= 0x9B,
+	PMBUS_MFR_LOCATION		= 0x9C,
+	PMBUS_MFR_DATE			= 0x9D,
+	PMBUS_MFR_SERIAL		= 0x9E,
+
+/*
+ * Virtual registers.
+ * Useful to support attributes which are not supported by standard PMBus
+ * registers but exist as manufacturer specific registers on individual chips.
+ * Must be mapped to real registers in device specific code.
+ *
+ * Semantics:
+ * Virtual registers are all word size.
+ * READ registers are read-only; writes are either ignored or return an error.
+ * RESET registers are read/write. Reading reset registers returns zero
+ * (used for detection), writing any value causes the associated history to be
+ * reset.
+ * Virtual registers have to be handled in device specific driver code. Chip
+ * driver code returns non-negative register values if a virtual register is
+ * supported, or a negative error code if not. The chip driver may return
+ * -ENODATA or any other error code in this case, though an error code other
+ * than -ENODATA is handled more efficiently and thus preferred. Either case,
+ * the calling PMBus core code will abort if the chip driver returns an error
+ * code when reading or writing virtual registers.
+ */
+	PMBUS_VIRT_BASE			= 0x100,
+	PMBUS_VIRT_READ_TEMP_AVG,
+	PMBUS_VIRT_READ_TEMP_MIN,
+	PMBUS_VIRT_READ_TEMP_MAX,
+	PMBUS_VIRT_RESET_TEMP_HISTORY,
+	PMBUS_VIRT_READ_VIN_AVG,
+	PMBUS_VIRT_READ_VIN_MIN,
+	PMBUS_VIRT_READ_VIN_MAX,
+	PMBUS_VIRT_RESET_VIN_HISTORY,
+	PMBUS_VIRT_READ_IIN_AVG,
+	PMBUS_VIRT_READ_IIN_MIN,
+	PMBUS_VIRT_READ_IIN_MAX,
+	PMBUS_VIRT_RESET_IIN_HISTORY,
+	PMBUS_VIRT_READ_PIN_AVG,
+	PMBUS_VIRT_READ_PIN_MIN,
+	PMBUS_VIRT_READ_PIN_MAX,
+	PMBUS_VIRT_RESET_PIN_HISTORY,
+	PMBUS_VIRT_READ_POUT_AVG,
+	PMBUS_VIRT_READ_POUT_MIN,
+	PMBUS_VIRT_READ_POUT_MAX,
+	PMBUS_VIRT_RESET_POUT_HISTORY,
+	PMBUS_VIRT_READ_VOUT_AVG,
+	PMBUS_VIRT_READ_VOUT_MIN,
+	PMBUS_VIRT_READ_VOUT_MAX,
+	PMBUS_VIRT_RESET_VOUT_HISTORY,
+	PMBUS_VIRT_READ_IOUT_AVG,
+	PMBUS_VIRT_READ_IOUT_MIN,
+	PMBUS_VIRT_READ_IOUT_MAX,
+	PMBUS_VIRT_RESET_IOUT_HISTORY,
+	PMBUS_VIRT_READ_TEMP2_AVG,
+	PMBUS_VIRT_READ_TEMP2_MIN,
+	PMBUS_VIRT_READ_TEMP2_MAX,
+	PMBUS_VIRT_RESET_TEMP2_HISTORY,
+
+	PMBUS_VIRT_READ_VMON,
+	PMBUS_VIRT_VMON_UV_WARN_LIMIT,
+	PMBUS_VIRT_VMON_OV_WARN_LIMIT,
+	PMBUS_VIRT_VMON_UV_FAULT_LIMIT,
+	PMBUS_VIRT_VMON_OV_FAULT_LIMIT,
+	PMBUS_VIRT_STATUS_VMON,
+};
+
+enum pmbus_sensor_classes {
+	PSC_VOLTAGE_IN = 0,
+	PSC_VOLTAGE_OUT,
+	PSC_CURRENT_IN,
+	PSC_CURRENT_OUT,
+	PSC_POWER,
+	PSC_TEMPERATURE,
+	PSC_FAN,
+	PSC_NUM_CLASSES		/* Number of power sensor classes */
+};
+
+#define PMBUS_PAGES	32	/* Per PMBus specification */
+
+/* Functionality bit mask */
+#define PMBUS_HAVE_VIN		BIT(0)
+#define PMBUS_HAVE_VCAP		BIT(1)
+#define PMBUS_HAVE_VOUT		BIT(2)
+#define PMBUS_HAVE_IIN		BIT(3)
+#define PMBUS_HAVE_IOUT		BIT(4)
+#define PMBUS_HAVE_PIN		BIT(5)
+#define PMBUS_HAVE_POUT		BIT(6)
+#define PMBUS_HAVE_FAN12	BIT(7)
+#define PMBUS_HAVE_FAN34	BIT(8)
+#define PMBUS_HAVE_TEMP		BIT(9)
+#define PMBUS_HAVE_TEMP2	BIT(10)
+#define PMBUS_HAVE_TEMP3	BIT(11)
+#define PMBUS_HAVE_STATUS_VOUT	BIT(12)
+#define PMBUS_HAVE_STATUS_IOUT	BIT(13)
+#define PMBUS_HAVE_STATUS_INPUT	BIT(14)
+#define PMBUS_HAVE_STATUS_TEMP	BIT(15)
+#define PMBUS_HAVE_STATUS_FAN12	BIT(16)
+#define PMBUS_HAVE_STATUS_FAN34	BIT(17)
+#define PMBUS_HAVE_VMON		BIT(18)
+#define PMBUS_HAVE_STATUS_VMON	BIT(19)
+
+enum pmbus_data_format { linear = 0, direct, vid };
+enum vrm_version { vr11 = 0, vr12, vr13 };
+
+struct pmbus_driver_info {
+	int pages;		/* Total number of pages */
+	enum pmbus_data_format format[PSC_NUM_CLASSES];
+	enum vrm_version vrm_version;
+	/*
+	 * Support one set of coefficients for each sensor type
+	 * Used for chips providing data in direct mode.
+	 */
+	int m[PSC_NUM_CLASSES];	/* mantissa for direct data format */
+	int b[PSC_NUM_CLASSES];	/* offset */
+	int R[PSC_NUM_CLASSES];	/* exponent */
+
+	u32 func[PMBUS_PAGES];	/* Functionality, per page */
+	/*
+	 * The following functions map manufacturing specific register values
+	 * to PMBus standard register values. Specify only if mapping is
+	 * necessary.
+	 * Functions return the register value (read) or zero (write) if
+	 * successful. A return value of -ENODATA indicates that there is no
+	 * manufacturer specific register, but that a standard PMBus register
+	 * may exist. Any other negative return value indicates that the
+	 * register does not exist, and that no attempt should be made to read
+	 * the standard register.
+	 */
+	int (*read_byte_data)(struct i2c_client *client, int page, int reg);
+	int (*read_word_data)(struct i2c_client *client, int page, int reg);
+	int (*write_word_data)(struct i2c_client *client, int page, int reg,
+			       u16 word);
+	int (*write_byte)(struct i2c_client *client, int page, u8 value);
+	/*
+	 * The identify function determines supported PMBus functionality.
+	 * This function is only necessary if a chip driver supports multiple
+	 * chips, and the chip functionality is not pre-determined.
+	 */
+	int (*identify)(struct i2c_client *client,
+			struct pmbus_driver_info *info);
+
+	/* Regulator functionality, if supported by this chip driver. */
+	int num_regulators;
+	const struct regulator_desc *reg_desc;
+};
+
+extern int pmbus_set_page(struct i2c_client *client, u8 page);
+extern int pmbus_read_byte_data(struct i2c_client *client, int page, u8 reg);
+extern bool pmbus_check_byte_register(struct i2c_client *client, int page, int reg);
+extern bool pmbus_check_word_register(struct i2c_client *client, int page, int reg);
+extern int pmbus_do_probe(struct i2c_client *client, const struct i2c_device_id *id,
+		   struct pmbus_driver_info *info);
+extern int pmbus_do_remove(struct i2c_client *client);
 
 /* Needed to access the mutex. Copied from pmbus_core.c */
 #define PB_STATUS_BASE		0
@@ -327,6 +581,7 @@ static int qci_pmbus_identify(struct i2c_client *client,
 				break;
 			case 1:
 				info->format[PSC_VOLTAGE_OUT] = vid;
+				info->vrm_version = vr11;
 				break;
 			case 2:
 				info->format[PSC_VOLTAGE_OUT] = direct;
@@ -411,7 +666,7 @@ static int qci_pmbus_probe(struct i2c_client *client,
 {
 	struct device *dev = &client->dev;
 	struct pmbus_driver_info *info;
-	int ret, i;
+	int ret;
 
 	dev_info(dev, "qci_pmbus_probe\n");
 
@@ -419,8 +674,7 @@ static int qci_pmbus_probe(struct i2c_client *client,
 				     I2C_FUNC_SMBUS_READ_WORD_DATA))
 		return -ENODEV;
 
-	info = devm_kzalloc(&client->dev, sizeof(struct pmbus_driver_info),
-			    GFP_KERNEL);
+	info = devm_kzalloc(dev, sizeof(struct pmbus_driver_info), GFP_KERNEL);
 
 	if (!info)
 		return -ENOMEM;

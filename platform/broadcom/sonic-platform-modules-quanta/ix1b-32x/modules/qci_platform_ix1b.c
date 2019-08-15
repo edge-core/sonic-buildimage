@@ -179,67 +179,67 @@ static struct pca953x_platform_data pca9555ID_data = {
 
 static struct i2c_board_info ix1b_i2c_devices[] = {
 	{
-		I2C_BOARD_INFO("pca9546", 0x77),
+		I2C_BOARD_INFO("pca9546", 0x77),          // 0
 		.platform_data = &pca9546_1_data,
 	},
 	{
-		I2C_BOARD_INFO("pca9546", 0x72),
+		I2C_BOARD_INFO("pca9546", 0x72),          // 1
 		.platform_data = &pca9546_2_data,
 	},
 	{
-		I2C_BOARD_INFO("pca9555", 0x26),
+		I2C_BOARD_INFO("pca9555", 0x26),          // 2
 		.platform_data = &pca9555psu1_data,
 	},
 	{
-		I2C_BOARD_INFO("24c02", 0x54),
+		I2C_BOARD_INFO("24c02", 0x54),            // 3
 	},
 	{
-		I2C_BOARD_INFO("pca9548", 0x73),
+		I2C_BOARD_INFO("pca9548", 0x73),          // 4
 		.platform_data = &pca9548sfp1_data,
 	},
 	{
-		I2C_BOARD_INFO("pca9548", 0x74),
+		I2C_BOARD_INFO("pca9548", 0x74),          // 5
 		.platform_data = &pca9548sfp2_data,
 	},
 	{
-		I2C_BOARD_INFO("pca9548", 0x75),
+		I2C_BOARD_INFO("pca9548", 0x75),          // 6
 		.platform_data = &pca9548sfp3_data,
 	},
 	{
-		I2C_BOARD_INFO("pca9548", 0x76),
+		I2C_BOARD_INFO("pca9548", 0x76),          // 7
 		.platform_data = &pca9548sfp4_data,
 	},
 	{
-		I2C_BOARD_INFO("CPLD-QSFP28", 0x38),
+		I2C_BOARD_INFO("CPLD-QSFP28", 0x38),      // 8
 	},
 	{
-		I2C_BOARD_INFO("CPLD-QSFP28", 0x39),
+		I2C_BOARD_INFO("CPLD-QSFP28", 0x39),      // 9
 	},
 	{
-		I2C_BOARD_INFO("pca9555", 0x23),
+		I2C_BOARD_INFO("pca9555", 0x23),          // 10
 		.platform_data = &pca9555ID_data,
 	},
 	{
-		I2C_BOARD_INFO("pca9555", 0x25),
+		I2C_BOARD_INFO("pca9555", 0x25),          // 11
 		.platform_data = &pca9555fan_data,
 	},
 	{
-		I2C_BOARD_INFO("qci_pmbus_ix1b", 0x5f),
+		I2C_BOARD_INFO("qci_pmbus_ix1b", 0x5f),   // 12
 	},
 	{
-		I2C_BOARD_INFO("qci_pmbus_ix1b", 0x59),
+		I2C_BOARD_INFO("qci_pmbus_ix1b", 0x59),   // 13
 	},
 #if defined(QUANTA_CPU_RGL)
 	{
-		I2C_BOARD_INFO("pca9546", 0x71),
+		I2C_BOARD_INFO("pca9546", 0x71),          // 14
 		.platform_data = &pca9546_cpu1_data,
 	},
 	{
-		I2C_BOARD_INFO("pca9555", 0x20),
+		I2C_BOARD_INFO("pca9555", 0x20),          // 15
 		.platform_data = &pca9555_cpuled_data,
 	},
 	{
-		I2C_BOARD_INFO("24c02", 0x50),
+		I2C_BOARD_INFO("optoe1", 0x50),           // 16
 	},
 #endif
 };
@@ -347,6 +347,13 @@ static struct platform_device system_led_dev = {
 	},
 };
 
+static struct platform_device qci_hwmon_device = {
+	.name           = "qci-hwmon",
+	.id             = 0,
+	.dev = {
+	},
+};
+
 static struct platform_device *ix1b_device;
 
 struct gpio_led_data {
@@ -390,68 +397,68 @@ static int __init ix1b_platform_init(void)
 		goto fail_platform_device;
 
 	adapter = i2c_get_adapter(0);
-	client = i2c_new_device(adapter, &ix1b_i2c_devices[0]);		// pca9546_1
+	client = i2c_new_device(adapter, &ix1b_i2c_devices[0]);		// pca9546_1 - Address: 0x77
 	printk("[CC] NEW device pca9546_1\n");
-	client = i2c_new_device(adapter, &ix1b_i2c_devices[1]);		// pca9546_2
+	client = i2c_new_device(adapter, &ix1b_i2c_devices[1]);		// pca9546_2 - Address: 0x72
 	printk("[CC] NEW device pca9546_2\n");
 #if defined(QUANTA_CPU_RGL)
-	client = i2c_new_device(adapter, &ix1b_i2c_devices[14]);		// cpu pca9546_1
+	client = i2c_new_device(adapter, &ix1b_i2c_devices[14]);		// cpu pca9546_1 - Address: 0x71
 	printk("[CC] NEW device cpu pca9546_1\n");
 #endif
 	i2c_put_adapter(adapter);
 
 	adapter = i2c_get_adapter(0x14);
-	client = i2c_new_device(adapter, &ix1b_i2c_devices[12]);		// pmbus_psu1
+	client = i2c_new_device(adapter, &ix1b_i2c_devices[12]);		// pmbus_psu1 - Address: 0x5f
 	printk("[CC] NEW device pmbus_psu1\n");
 	i2c_put_adapter(adapter);
 
 	adapter = i2c_get_adapter(0x15);
-	client = i2c_new_device(adapter, &ix1b_i2c_devices[13]);		// pmbus_psu2
+	client = i2c_new_device(adapter, &ix1b_i2c_devices[13]);		// pmbus_psu2 - Address: 0x59
 	printk("[CC] NEW device pmbus_psu2\n");
 	i2c_put_adapter(adapter);
 
 	adapter = i2c_get_adapter(0x16);
-	client = i2c_new_device(adapter, &ix1b_i2c_devices[2]);		// pca9555-PSU1
+	client = i2c_new_device(adapter, &ix1b_i2c_devices[2]);		// pca9555-PSU1 - Address: 0x26
 	printk("[CC] NEW device pca9555-PSU1\n");
-	client = i2c_new_device(adapter, &ix1b_i2c_devices[3]);		// MB_BOARDINFO_EEPROM
+	client = i2c_new_device(adapter, &ix1b_i2c_devices[3]);		// MB_BOARDINFO_EEPROM - Address: 0x54
 	printk("[CC] NEW device MB_BOARDINFO_EEPROM\n");
-	client = i2c_new_device(adapter, &ix1b_i2c_devices[10]);		// pca9555-ID
+	client = i2c_new_device(adapter, &ix1b_i2c_devices[10]);		// pca9555-ID - Address: 0x23
 	printk("[CC] NEW device pca9555-ID\n");
 	i2c_put_adapter(adapter);
 
 	adapter = i2c_get_adapter(0x17);
-	client = i2c_new_device(adapter, &ix1b_i2c_devices[11]);		// pca9555-fan
+	client = i2c_new_device(adapter, &ix1b_i2c_devices[11]);		// pca9555-fan - Address: 0x25
 	printk("[CC] NEW device pca9555-fan\n");
 	i2c_put_adapter(adapter);
 
 	adapter = i2c_get_adapter(0x10);
-	client = i2c_new_device(adapter, &ix1b_i2c_devices[4]);		// pca9548_2 SFP
+	client = i2c_new_device(adapter, &ix1b_i2c_devices[4]);		// pca9548_1 SFP - Address: 0x73
+	printk("[CC] NEW device pca9548_1 SFP\n");
+	client = i2c_new_device(adapter, &ix1b_i2c_devices[5]);		// pca9548_2 SFP - Address: 0x74
 	printk("[CC] NEW device pca9548_2 SFP\n");
-	client = i2c_new_device(adapter, &ix1b_i2c_devices[5]);		// pca9548_3 SFP
+	client = i2c_new_device(adapter, &ix1b_i2c_devices[6]);		// pca9548_3 SFP - Address: 0x75
 	printk("[CC] NEW device pca9548_3 SFP\n");
-	client = i2c_new_device(adapter, &ix1b_i2c_devices[6]);		// pca9548_4 SFP
-	printk("[CC] NEW device pca9548_4 SFP\n");
-	client = i2c_new_device(adapter, &ix1b_i2c_devices[8]);		// CPLD2
+	client = i2c_new_device(adapter, &ix1b_i2c_devices[8]);		// CPLD2 - Address: 0x38
 	printk("[CC] NEW device CPLD2\n");
-	client = i2c_new_device(adapter, &ix1b_i2c_devices[9]);		// CPLD3
+	client = i2c_new_device(adapter, &ix1b_i2c_devices[9]);		// CPLD3 - Address: 0x39
 	printk("[CC] NEW device CPLD3\n");
 	i2c_put_adapter(adapter);
 
 	adapter = i2c_get_adapter(0x11);
-	client = i2c_new_device(adapter, &ix1b_i2c_devices[7]);		// pca9548_5 SFP
-	printk("[CC] NEW device pca9548_5 SFP\n");
+	client = i2c_new_device(adapter, &ix1b_i2c_devices[7]);		// pca9548_4 SFP - Address: 0x76
+	printk("[CC] NEW device pca9548_4 SFP\n");
 	i2c_put_adapter(adapter);
 
 #if defined(QUANTA_CPU_RGL)
 	adapter = i2c_get_adapter(0x18);
-	client = i2c_new_device(adapter, &ix1b_i2c_devices[15]);		// cpu pca9555_1
+	client = i2c_new_device(adapter, &ix1b_i2c_devices[15]);		// cpu pca9555_1 - Address: 0x20
 	printk("[CC] NEW device cpu pca9555_1\n");
 	i2c_put_adapter(adapter);
 
 	for(i = 0x20; i < 0x40; i++)
 	{
 		adapter = i2c_get_adapter(i);
-		client = i2c_new_device(adapter, &ix1b_i2c_devices[16]);		// eeprom for loopback module
+		client = i2c_new_device(adapter, &ix1b_i2c_devices[16]);		// eeprom for loopback module - Address: 0x50
 		i2c_put_adapter(adapter);
 	}
 	printk("[CC] NEW device eeprom\n");
@@ -465,6 +472,9 @@ static int __init ix1b_platform_init(void)
 		ix1b_leds[i].cdev = &(priv->leds[i].cdev);
 	}
 	printk("[CC] NEW device led\n");
+
+	platform_device_register(&qci_hwmon_device);
+	printk("[CC] NEW device hwmon\n");
 
 	return 0;
 
