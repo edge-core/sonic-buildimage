@@ -20,3 +20,7 @@ Description: kernel modules for platform devices such as psu, led, sfp
 Package: sonic-platform-quanta-ix8c-56x
 Architecture: amd64
 Description: kernel modules for platform devices such as psu, led, sfp
+
+Package: sonic-platform-quanta-ix9-32x
+Architecture: amd64
+Description: kernel modules for platform devices such as psu, led, sfp

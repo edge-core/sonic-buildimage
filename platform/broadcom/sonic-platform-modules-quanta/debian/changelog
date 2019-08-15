@@ -25,3 +25,10 @@ sonic-quanta-platform-modules (1.0) unstable; urgency=low
   * Initial release
 
  -- Chih-Pei Chang <Chih-Pei.Chang@qct.io> Jonathan Tsai <jonathan.tsai@quantatw.com>  Thu, 4 Jan 2018 13:50:01 +0800
+
+sonic-quanta-platform-modules (1.0) unstable; urgency=low
+
+  * Add support for Quanta IX9-32X
+  * Initial release
+
+ -- Jonathan Tsai <jonathan.tsai@quantatw.com>  Thu, 31 Jan 2019 13:09:01 +0800

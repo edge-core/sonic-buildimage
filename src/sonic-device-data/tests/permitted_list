@@ -153,3 +153,8 @@ ifp_inports_support_enable
 port_flex_enable
 pdma_descriptor_prefetch_enable
 pktdma_poll_mode_channel_bitmap 
+ccm_dma_enable
+ccmdma_intr_enable
+phy_enable
+init_all_modules
+port_fec
