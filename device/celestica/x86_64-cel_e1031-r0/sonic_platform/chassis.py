@@ -21,13 +21,15 @@ try:
     from sonic_platform.component import Component
     from sonic_platform.watchdog import Watchdog
     from sonic_platform.thermal import Thermal
+    from sonic_platform.sfp import Sfp
+    from sonic_platform.eeprom import Tlv
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
 NUM_FAN = 3
 NUM_PSU = 2
 NUM_THERMAL = 7
-CONFIG_DB_PATH = "/etc/sonic/config_db.json"
+NUM_SFP = 52
 RESET_REGISTER = "0x112"
 REBOOT_CAUSE_PATH = "/host/reboot-cause/previous-reboot-cause.txt"
 COMPONENT_NAME_LIST = ["SMC_CPLD", "MMC_CPLD", "BIOS"]
@@ -47,17 +49,13 @@ class Chassis(ChassisBase):
         for index in range(0, NUM_THERMAL):
             thermal = Thermal(index)
             self._thermal_list.append(thermal)
+        for index in range(0, NUM_SFP):
+            sfp = Sfp(index)
+            self._sfp_list.append(sfp)
         ChassisBase.__init__(self)
         self._component_name_list = COMPONENT_NAME_LIST
         self._watchdog = Watchdog()
-
-    def __read_config_db(self):
-        try:
-            with open(CONFIG_DB_PATH, 'r') as fd:
-                data = json.load(fd)
-                return data
-        except IOError:
-            raise IOError("Unable to open config_db file !")
+        self._eeprom = Tlv()
 
     def __read_txt_file(self, file_path):
         try:
@@ -74,12 +72,25 @@ class Chassis(ChassisBase):
             A string containing the MAC address in the format
             'XX:XX:XX:XX:XX:XX'
         """
-        try:
-            self.config_data = self.__read_config_db()
-            base_mac = self.config_data["DEVICE_METADATA"]["localhost"]["mac"]
-            return str(base_mac)
-        except KeyError:
-            return str(None)
+        return self._eeprom.get_mac()
+
+    def get_serial_number(self):
+        """
+        Retrieves the hardware serial number for the chassis
+        Returns:
+            A string containing the hardware serial number for this chassis.
+        """
+        return self._eeprom.get_serial()
+
+    def get_system_eeprom_info(self):
+        """
+        Retrieves the full content of system EEPROM information for the chassis
+        Returns:
+            A dictionary where keys are the type code defined in
+            OCP ONIE TlvInfo EEPROM format and values are their corresponding
+            values.
+        """
+        return self._eeprom.get_eeprom()
 
     def get_firmware_version(self, component_name):
         """

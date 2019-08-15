@@ -137,7 +137,7 @@ start)
         # Attach 32 instances of EEPROM driver QSFP ports
         for ((n=26;n<=58;n++));
         do
-                echo sff8436 0x50 > /sys/bus/i2c/devices/i2c-$n/new_device
+                echo optoe1 0x50 > /sys/bus/i2c/devices/i2c-$n/new_device
         sleep 0.1
         done
 
