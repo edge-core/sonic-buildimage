@@ -93,6 +93,21 @@ static SENSOR_DEVICE_ATTR(psu_fan1_fault,  S_IRUGO, show_fan_fault,   NULL, PSU_
 static SENSOR_DEVICE_ATTR(psu_fan1_duty_cycle_percentage, S_IWUSR | S_IRUGO, show_linear, set_fan_duty_cycle, PSU_FAN1_DUTY_CYCLE);
 static SENSOR_DEVICE_ATTR(psu_fan1_speed_rpm, S_IRUGO, show_linear,   NULL, PSU_FAN1_SPEED);
 
+
+/*Duplicate nodes for lm-sensors.*/
+static SENSOR_DEVICE_ATTR(in1_input,    S_IRUGO, show_linear,      NULL, PSU_V_IN);
+static SENSOR_DEVICE_ATTR(in2_input,    S_IRUGO, show_vout,        NULL, PSU_V_OUT);
+static SENSOR_DEVICE_ATTR(curr1_input,  S_IRUGO, show_linear,      NULL, PSU_I_IN);
+static SENSOR_DEVICE_ATTR(curr2_input,  S_IRUGO, show_linear,      NULL, PSU_I_OUT);
+static SENSOR_DEVICE_ATTR(power1_input, S_IRUGO, show_linear,      NULL, PSU_P_IN);
+static SENSOR_DEVICE_ATTR(power2_input, S_IRUGO, show_linear,      NULL, PSU_P_OUT);
+static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, show_linear,      NULL, PSU_TEMP1_INPUT);
+static SENSOR_DEVICE_ATTR(fan1_fault,  S_IRUGO, show_fan_fault,   NULL, PSU_FAN1_FAULT);
+static SENSOR_DEVICE_ATTR(pwm1_input, S_IRUGO, show_linear, NULL, PSU_FAN1_DUTY_CYCLE);
+static SENSOR_DEVICE_ATTR(fan1_input, S_IRUGO, show_linear,   NULL, PSU_FAN1_SPEED);
+
+
+
 static struct attribute *cpr_4011_4mxx_attributes[] = {
     &sensor_dev_attr_psu_v_in.dev_attr.attr,
     &sensor_dev_attr_psu_v_out.dev_attr.attr,
@@ -104,6 +119,17 @@ static struct attribute *cpr_4011_4mxx_attributes[] = {
     &sensor_dev_attr_psu_fan1_fault.dev_attr.attr,
     &sensor_dev_attr_psu_fan1_duty_cycle_percentage.dev_attr.attr,
     &sensor_dev_attr_psu_fan1_speed_rpm.dev_attr.attr,
+    /*Duplicate nodes for lm-sensors.*/
+    &sensor_dev_attr_in1_input.dev_attr.attr,
+    &sensor_dev_attr_in2_input.dev_attr.attr,
+    &sensor_dev_attr_curr1_input.dev_attr.attr,
+    &sensor_dev_attr_curr2_input.dev_attr.attr,
+    &sensor_dev_attr_power1_input.dev_attr.attr,
+    &sensor_dev_attr_power2_input.dev_attr.attr,
+    &sensor_dev_attr_temp1_input.dev_attr.attr,
+    &sensor_dev_attr_fan1_fault.dev_attr.attr,
+    &sensor_dev_attr_pwm1_input.dev_attr.attr,
+    &sensor_dev_attr_fan1_input.dev_attr.attr,
     NULL
 };
 
