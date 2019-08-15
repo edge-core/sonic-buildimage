@@ -2,6 +2,7 @@
 .DS_Store
 
 # Build system related
+.arch
 .platform
 .screen
 
