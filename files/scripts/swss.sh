@@ -2,7 +2,7 @@
 
 SERVICE="swss"
 PEER="syncd"
-DEPENDENT="teamd"
+DEPENDENT="teamd radv"
 DEBUGLOG="/tmp/swss-syncd-debug.log"
 LOCKFILE="/tmp/swss-syncd-lock"
 
