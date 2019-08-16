@@ -89,11 +89,16 @@ class TestJ2Files(TestCase):
         self.assertTrue(r, "Diff:\n" + diff_output)
 
     def test_zebra_frr(self):
-        conf_template = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-fpm-quagga', 'zebra.conf.j2')
+        conf_template = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-fpm-frr', 'zebra.conf.j2')
         argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -t ' + conf_template + ' > ' + self.output_file
         self.run_script(argument)
         self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', 'zebra_frr.conf'), self.output_file))
 
+    def test_staticd_frr(self):
+        conf_template = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-fpm-frr', 'staticd.conf.j2')
+        argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -t ' + conf_template + ' > ' + self.output_file
+        self.run_script(argument)
+        self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', 'staticd_frr.conf'), self.output_file))
 
     def test_ipinip(self):
         ipinip_file = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-orchagent', 'ipinip.json.j2')
