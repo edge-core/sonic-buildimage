@@ -1,1 +1,21 @@
-../x86_64-mlnx_msn2700-r0/platform_reboot
+#!/bin/bash
+
+declare -r EXIT_SUCCESS="0"
+declare -r EXIT_ERROR="1"
+
+FORCE_REBOOT="no"
+
+function ParseArguments() {
+    while [ $# -ge 1 ]; do
+        case "$1" in
+            -f|--force)
+                FORCE_REBOOT="yes"
+            ;;
+        esac
+        shift
+    done
+}
+
+ParseArguments "$@"
+
+exec /sbin/reboot $@
