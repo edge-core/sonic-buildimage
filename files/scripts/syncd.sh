@@ -64,7 +64,7 @@ function getBootType()
         TYPE='fastfast'
         ;;
     *SONIC_BOOT_TYPE=fast*|*fast-reboot*)
-        TYPE='fast'
+        TYPE=$(awk '{ if ($1 <= 180) print "fast"; else print "cold" }' /proc/uptime)
         ;;
     *)
         TYPE='cold'
