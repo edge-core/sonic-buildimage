@@ -210,7 +210,7 @@ class Psu(PsuBase):
 
         return status
 
-    def set_status_led(self):
+    def set_status_led(self, color):
         """
         Sets the state of the PSU status LED
         Args:

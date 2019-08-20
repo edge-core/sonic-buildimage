@@ -87,6 +87,24 @@ class Thermal(ThermalBase):
         """
         return True
 
+    def get_model(self):
+        """
+        Retrieves the model number (or part number) of the Thermal
+
+        Returns:
+            string: Model/part number of Thermal
+        """
+        return 'NA'
+
+    def get_serial(self):
+        """
+        Retrieves the serial number of the Thermal
+
+        Returns:
+            string: Serial number of Thermal
+        """
+        return 'NA'
+
     def get_status(self):
         """
         Retrieves the operational status of the thermal
@@ -141,3 +159,31 @@ class Thermal(ThermalBase):
             thermal_high_threshold = 0
 
         return "{:.3f}".format(thermal_high_threshold)
+
+    def set_high_threshold(self, temperature):
+        """
+        Sets the high threshold temperature of thermal
+
+        Args :
+            temperature: A float number up to nearest thousandth of one
+            degree Celsius, e.g. 30.125
+        Returns:
+            A boolean, True if threshold is set successfully, False if
+            not
+        """
+        # Thermal threshold values are pre-defined based on HW.
+        return False
+
+    def set_low_threshold(self, temperature):
+        """
+        Sets the low threshold temperature of thermal
+
+        Args :
+            temperature: A float number up to nearest thousandth of one
+            degree Celsius, e.g. 30.125
+        Returns:
+            A boolean, True if threshold is set successfully, False if
+            not
+        """
+        # Thermal threshold values are pre-defined based on HW.
+        return False

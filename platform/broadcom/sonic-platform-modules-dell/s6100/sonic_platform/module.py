@@ -134,3 +134,14 @@ class Module(ModuleBase):
                 status = True
 
         return status
+
+    def get_base_mac(self):
+        """
+        Retrieves the base MAC address for the module
+
+        Returns:
+            A string containing the MAC address in the format
+            'XX:XX:XX:XX:XX:XX'
+        """
+        # In S6100, individual modules doesn't have MAC address
+        return '00:00:00:00:00:00'
