@@ -49,8 +49,8 @@ thermal_api_handler_cpu_pack = {
     THERMAL_API_GET_HIGH_THRESHOLD:"cpu_pack_max"
 }
 thermal_api_handler_module = {
-    THERMAL_API_GET_TEMPERATURE:"temp_input_module{}",
-    THERMAL_API_GET_HIGH_THRESHOLD:"temp_crit_module{}"
+    THERMAL_API_GET_TEMPERATURE:"module{}_temp_input",
+    THERMAL_API_GET_HIGH_THRESHOLD:"module{}_temp_crit"
 }
 thermal_api_handler_psu = {
     THERMAL_API_GET_TEMPERATURE:"psu{}_temp",
