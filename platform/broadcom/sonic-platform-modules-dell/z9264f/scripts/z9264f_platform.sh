@@ -85,6 +85,22 @@ switch_board_modsel() {
 		python /usr/bin/pcisysfs.py --set --offset $hex --val 0x10 --res $resource  > /dev/null 2>&1
 	done
 }
+
+# Copy led_proc_init.soc file according to the HWSKU
+init_switch_port_led() {
+    device="/usr/share/sonic/device"
+    platform=$(/usr/local/bin/sonic-cfggen -H -v DEVICE_METADATA.localhost.platform)
+    hwsku=$(cat /etc/sonic/config_db.json | grep "hwsku" | cut -d ":" -f2 | sed 's/"//g' | sed 's/,//g'| xargs )
+
+    led_proc_init="$device/$platform/$hwsku/led_proc_init.soc"
+    # Remove old HWSKU LED file..
+    rm -rf $device/$platform/led_proc_init.soc
+
+    if [ -e $led_proc_init ] && [ ! -e $device/$platform/led_proc_init.soc ]; then
+      cp $led_proc_init $device/$platform/
+    fi
+}
+
 init_devnum
 
 if [ "$1" == "init" ]; then
@@ -98,6 +114,7 @@ if [ "$1" == "init" ]; then
     switch_board_qsfp_mux "new_device"
     switch_board_qsfp "new_device"
     switch_board_modsel
+    init_switch_port_led
     python /usr/bin/qsfp_irq_enable.py
 
 elif [ "$1" == "deinit" ]; then
