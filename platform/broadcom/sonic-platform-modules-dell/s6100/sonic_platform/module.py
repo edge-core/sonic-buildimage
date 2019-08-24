@@ -54,6 +54,8 @@ class Module(ModuleBase):
         self.port_start = (self.index - 1) * 16
         self.port_end = (self.index * 16) - 1
         self.port_i2c_line = self.IOM_I2C_MAPPING[self.index]
+        self._component_name_list = ['CPLD']
+        self.eeprom_tlv_dict = dict()
 
         self.iom_status_reg = "iom_status"
         self.iom_presence_reg = "iom_presence"
@@ -119,6 +121,24 @@ class Module(ModuleBase):
 
         return status
 
+    def get_model(self):
+        """
+        Retrieves the part number of the module
+
+        Returns:
+            string: part number of module
+        """
+        return 'NA'
+
+    def get_serial(self):
+        """
+        Retrieves the serial number of the module
+
+        Returns:
+            string: Serial number of module
+        """
+        return 'NA'
+
     def get_status(self):
         """
         Retrieves the operational status of the Module
@@ -145,3 +165,62 @@ class Module(ModuleBase):
         """
         # In S6100, individual modules doesn't have MAC address
         return '00:00:00:00:00:00'
+
+    def get_serial_number(self):
+        """
+        Retrieves the hardware serial number for the module
+
+        Returns:
+            A string containing the hardware serial number for this module.
+        """
+        return 'NA'
+
+    def get_system_eeprom_info(self):
+        """
+        Retrieves the full content of system EEPROM information for the module
+
+        Returns:
+            A dictionary where keys are the type code defined in
+            OCP ONIE TlvInfo EEPROM format and values are their corresponding
+            values.
+            Ex. { ‘0x21’:’AG9064’, ‘0x22’:’V1.0’, ‘0x23’:’AG9064-0109867821’,
+                  ‘0x24’:’001c0f000fcd0a’, ‘0x25’:’02/03/2018 16:22:00’,
+                  ‘0x26’:’01’, ‘0x27’:’REV01’, ‘0x28’:’AG9064-C2358-16G’}
+        """
+        return self.eeprom_tlv_dict
+
+    def get_firmware_version(self, component_name):
+        """
+        Retrieves platform-specific hardware/firmware versions for module
+        componenets such as BIOS, CPLD, FPGA, etc.
+
+        Args:
+            component_name: A string, the component name.
+
+        Returns:
+            A string containing platform-specific component versions
+        """
+        if component_name == 'CPLD':
+            cpld_version_file = ("/sys/class/i2c-adapter/i2c-{0}/{0}-003e/"
+                                 "iom_cpld_vers").format(self.port_i2c_line)
+
+            if (not os.path.isfile(cpld_version_file)):
+                return 'NA'
+
+            try:
+                with open(cpld_version_file, 'r') as fd:
+                    ver_str = fd.read()
+            except Exception as error:
+                return 'NA'
+
+            if ver_str == 'read error':
+                return 'NA'
+
+            ver_str = ver_str.rstrip('\r\n')
+            cpld_version = int(ver_str.split(':')[1], 16)
+            major_version = (cpld_version & 0xF0) >> 4
+            minor_version = cpld_version & 0xF
+
+            return "%d.%d" % (major_version, minor_version)
+        else:
+            return 'NA'

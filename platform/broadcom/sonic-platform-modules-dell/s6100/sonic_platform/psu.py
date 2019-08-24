@@ -210,6 +210,18 @@ class Psu(PsuBase):
 
         return status
 
+    def get_status_led(self):
+        """
+        Gets the state of the PSU status LED
+
+        Returns:
+            A string, one of the predefined STATUS_LED_COLOR_* strings.
+        """
+        if self.get_powergood_status():
+            return self.STATUS_LED_COLOR_GREEN
+        else:
+            return self.STATUS_LED_COLOR_OFF
+
     def set_status_led(self, color):
         """
         Sets the state of the PSU status LED

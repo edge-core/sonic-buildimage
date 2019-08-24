@@ -50,6 +50,8 @@ class Thermal(ThermalBase):
             + "temp{}_input".format(hwmon_temp_index)
         self.thermal_high_threshold_file = self.HWMON_DIR \
             + "temp{}_crit".format(hwmon_temp_index)
+        self.thermal_low_threshold_file = self.HWMON_DIR \
+            + "temp{}_min".format(hwmon_temp_index)
 
     def _read_sysfs_file(self, sysfs_file):
         # On successful read, returns the value read from given
@@ -159,6 +161,24 @@ class Thermal(ThermalBase):
             thermal_high_threshold = 0
 
         return "{:.3f}".format(thermal_high_threshold)
+
+    def get_low_threshold(self):
+        """
+        Retrieves the low threshold temperature of thermal
+
+        Returns:
+            A float number, the low threshold temperature of thermal in
+            Celsius up to nearest thousandth of one degree Celsius,
+            e.g. 30.125
+        """
+        thermal_low_threshold = self._read_sysfs_file(
+            self.thermal_low_threshold_file)
+        if (thermal_low_threshold != 'ERR'):
+            thermal_low_threshold = float(thermal_low_threshold) / 1000
+        else:
+            thermal_low_threshold = 0
+
+        return "{:.3f}".format(thermal_low_threshold)
 
     def set_high_threshold(self, temperature):
         """
