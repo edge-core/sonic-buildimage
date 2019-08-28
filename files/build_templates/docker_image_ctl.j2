@@ -71,10 +71,7 @@ function postStartAction()
 {
 {%- if docker_container_name == "database" %}
     # Wait until redis starts
-    REDIS_SOCK="/var/run/redis/redis.sock"
-    until [[ $(/usr/bin/docker exec database redis-cli -s $REDIS_SOCK ping | grep -c PONG) -gt 0 ]]; do
-        sleep 1;
-    done
+    /usr/bin/docker exec database ping_pong_db_insts
     if [[ ("$BOOT_TYPE" == "warm" || "$BOOT_TYPE" == "fastfast") && -f $WARM_DIR/dump.rdb ]]; then
         rm -f $WARM_DIR/dump.rdb
     else
@@ -163,6 +160,11 @@ start() {
 
 {%- if docker_container_name == "database" %}
     echo "Creating new {{docker_container_name}} container"
+    # if database_config exists in old_config, use it; otherwise use the default one in new image
+    if [ -f /etc/sonic/old_config/database_config.json ]; then
+        echo "Use database_config.json from old system..."
+        mv /etc/sonic/old_config/database_config.json /etc/sonic/
+    fi
 {%- else %}
     echo "Creating new {{docker_container_name}} container with HWSKU $HWSKU"
 {%- endif %}
