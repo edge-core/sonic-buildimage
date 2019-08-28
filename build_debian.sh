@@ -488,10 +488,7 @@ then
     sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo '/debug is mounted in each docker' >> /etc/motd"
 
     sudo mkdir -p $FILESYSTEM_ROOT/src
-    pushd src
-        ../scripts/dbg_files.sh | sudo tar -cvzf ../$FILESYSTEM_ROOT/src/sonic_src.tar.gz -T -
-    popd
-
+    sudo cp $DEBUG_SRC_ARCHIVE_FILE $FILESYSTEM_ROOT/src/
     sudo mkdir -p $FILESYSTEM_ROOT/debug
 
 fi
