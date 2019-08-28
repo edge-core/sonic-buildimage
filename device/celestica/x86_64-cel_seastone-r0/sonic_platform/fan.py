@@ -17,7 +17,6 @@ try:
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
-CONFIG_DB_PATH = "/etc/sonic/config_db.json"
 EMC2305_PATH = "/sys/bus/i2c/drivers/emc2305/"
 SYS_GPIO_DIR = "/sys/class/gpio"
 EMC2305_MAX_PWM = 255

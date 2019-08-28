@@ -34,6 +34,7 @@ class Fan(FanBase):
         self.index = fan_index
         self.config_data = {}
         self.fan_speed = 0
+        FanBase.__init__(self)
 
         # e1031 fan attributes
         # Single emc2305 chip located at i2c-23-4d

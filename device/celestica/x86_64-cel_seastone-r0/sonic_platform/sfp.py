@@ -18,7 +18,7 @@ try:
     from swsssdk import ConfigDBConnector
     from sonic_platform_base.sfp_base import SfpBase
     from sonic_platform_base.sonic_sfp.sfputilbase import SfpUtilBase
-    from sonic_platform_base.sonic_sfp.sfputilbase import sff8436Dom
+    from sonic_platform_base.sonic_sfp.sff8436 import sff8436Dom
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -61,7 +61,11 @@ class Sfp(SfpBase, SfpUtilBase):
     RESET_PATH = "/sys/devices/platform/dx010_cpld/qsfp_reset"
     LP_PATH = "/sys/devices/platform/dx010_cpld/qsfp_lpmode"
     PRS_PATH = "/sys/devices/platform/dx010_cpld/qsfp_modprs"
-    PLATFORM_ROOT_PATH = '/usr/share/sonic/device'
+    PLATFORM_ROOT_PATH = "/usr/share/sonic/device"
+    PMON_HWSKU_PATH = "/usr/share/sonic/hwsku"
+    PLATFORM = "x86_64-cel_seastone-r0"
+    HWSKU = "Seastone-DX010"
+    HOST_CHK_CMD = "docker > /dev/null 2>&1"
 
     _port_to_eeprom_mapping = {}
 
@@ -170,37 +174,28 @@ class Sfp(SfpBase, SfpUtilBase):
                     (x - 1) + 26)
             else:
                 self._port_to_eeprom_mapping[x] = eeprom_path.format(x + 26)
-        self.read_porttab_mappings(self.__get_path_to_port_config_file())
+
+        self.__read_porttab()
         SfpUtilBase.__init__(self)
 
         # Init index
         self.index = sfp_index
         self.port_num = self.index + 1
 
-    def __get_path_to_port_config_file(self):
-        # Get platform and hwsku
-        machine_info = sonic_device_util.get_machine_info()
-        platform = sonic_device_util.get_platform_info(machine_info)
-        config_db = ConfigDBConnector()
-        config_db.connect()
-        data = config_db.get_table('DEVICE_METADATA')
-
+    def __read_porttab(self):
         try:
-            hwsku = data['localhost']['hwsku']
-        except KeyError:
-            hwsku = "Unknown"
+            self.read_porttab_mappings(self.__get_path_to_port_config_file())
+        except:
+            pass
 
-        # Load platform module from source
-        platform_path = "/".join([self.PLATFORM_ROOT_PATH, platform])
-        hwsku_path = "/".join([platform_path, hwsku])
+    def __is_host(self):
+        return os.system(self.HOST_CHK_CMD) == 0
 
-        # First check for the presence of the new 'port_config.ini' file
-        port_config_file_path = "/".join([hwsku_path, "port_config.ini"])
-        if not os.path.isfile(port_config_file_path):
-            # port_config.ini doesn't exist. Try loading the legacy 'portmap.ini' file
-            port_config_file_path = "/".join([hwsku_path, "portmap.ini"])
-
-        return port_config_file_path
+    def __get_path_to_port_config_file(self):
+        platform_path = "/".join([self.PLATFORM_ROOT_PATH, self.PLATFORM])
+        hwsku_path = "/".join([platform_path, self.HWSKU]
+                              ) if self.__is_host() else self.PMON_HWSKU_PATH
+        return "/".join([hwsku_path, "port_config.ini"])
 
     def __read_eeprom_specific_bytes(self, offset, num_bytes):
         sysfsfile_eeprom = None
@@ -382,7 +377,7 @@ class Sfp(SfpBase, SfpUtilBase):
         """
         rx_los_list = []
         dom_channel_monitor_raw = self.__read_eeprom_specific_bytes(
-            self.QSFP_CHANNL_RX_LOS_STATUS_OFFSET, self.QSFP_CHANNL_RX_LOS_STATUS_WIDTH)
+            self.QSFP_CHANNL_RX_LOS_STATUS_OFFSET, self.QSFP_CHANNL_RX_LOS_STATUS_WIDTH) if self.get_presence() else None
         if dom_channel_monitor_raw is not None:
             rx_los_data = int(dom_channel_monitor_raw[0], 16)
             rx_los_list.append(rx_los_data & 0x01 != 0)
@@ -400,7 +395,7 @@ class Sfp(SfpBase, SfpUtilBase):
         """
         tx_fault_list = []
         dom_channel_monitor_raw = self.__read_eeprom_specific_bytes(
-            self.QSFP_CHANNL_TX_FAULT_STATUS_OFFSET, self.QSFP_CHANNL_TX_FAULT_STATUS_WIDTH)
+            self.QSFP_CHANNL_TX_FAULT_STATUS_OFFSET, self.QSFP_CHANNL_TX_FAULT_STATUS_WIDTH) if self.get_presence() else None
         if dom_channel_monitor_raw is not None:
             tx_fault_data = int(dom_channel_monitor_raw[0], 16)
             tx_fault_list.append(tx_fault_data & 0x01 != 0)
@@ -422,7 +417,7 @@ class Sfp(SfpBase, SfpUtilBase):
             return False
 
         dom_control_raw = self.__read_eeprom_specific_bytes(
-            self.QSFP_CONTROL_OFFSET, self.QSFP_CONTROL_WIDTH)
+            self.QSFP_CONTROL_OFFSET, self.QSFP_CONTROL_WIDTH) if self.get_presence() else None
         if dom_control_raw is not None:
             dom_control_data = sfpd_obj.parse_control_bytes(dom_control_raw, 0)
             tx_disable_list.append(
@@ -476,7 +471,7 @@ class Sfp(SfpBase, SfpUtilBase):
             return False
 
         dom_control_raw = self.__read_eeprom_specific_bytes(
-            self.QSFP_CONTROL_OFFSET, self.QSFP_CONTROL_WIDTH)
+            self.QSFP_CONTROL_OFFSET, self.QSFP_CONTROL_WIDTH) if self.get_presence() else None
         if dom_control_raw is not None:
             dom_control_data = sfpd_obj.parse_control_bytes(dom_control_raw, 0)
             power_override = (
@@ -515,7 +510,7 @@ class Sfp(SfpBase, SfpUtilBase):
         tx2_bs = transceiver_dom_info_dict.get("tx2bias", "N/A")
         tx3_bs = transceiver_dom_info_dict.get("tx3bias", "N/A")
         tx4_bs = transceiver_dom_info_dict.get("tx4bias", "N/A")
-        return [tx1_bs, tx2_bs, tx3_bs, tx4_bs]
+        return [tx1_bs, tx2_bs, tx3_bs, tx4_bs] if transceiver_dom_info_dict else []
 
     def get_rx_power(self):
         """
@@ -530,7 +525,7 @@ class Sfp(SfpBase, SfpUtilBase):
         rx2_pw = transceiver_dom_info_dict.get("rx2power", "N/A")
         rx3_pw = transceiver_dom_info_dict.get("rx3power", "N/A")
         rx4_pw = transceiver_dom_info_dict.get("rx4power", "N/A")
-        return [rx1_pw, rx2_pw, rx3_pw, rx4_pw]
+        return [rx1_pw, rx2_pw, rx3_pw, rx4_pw] if transceiver_dom_info_dict else []
 
     def get_tx_power(self):
         """
@@ -545,7 +540,7 @@ class Sfp(SfpBase, SfpUtilBase):
         tx2_pw = transceiver_dom_info_dict.get("tx2power", "N/A")
         tx3_pw = transceiver_dom_info_dict.get("tx3power", "N/A")
         tx4_pw = transceiver_dom_info_dict.get("tx4power", "N/A")
-        return [tx1_pw, tx2_pw, tx3_pw, tx4_pw]
+        return [tx1_pw, tx2_pw, tx3_pw, tx4_pw] if transceiver_dom_info_dict else []
 
     def reset(self):
         """
@@ -754,7 +749,7 @@ class Sfp(SfpBase, SfpUtilBase):
         Returns:
             string: Model/part number of device
         """
-        transceiver_dom_info_dict = self.get_transceiver_bulk_status()
+        transceiver_dom_info_dict = self.get_transceiver_info()
         return transceiver_dom_info_dict.get("modelname", "N/A")
 
     def get_serial(self):
@@ -763,5 +758,5 @@ class Sfp(SfpBase, SfpUtilBase):
         Returns:
             string: Serial number of device
         """
-        transceiver_dom_info_dict = self.get_transceiver_bulk_status()
+        transceiver_dom_info_dict = self.get_transceiver_info()
         return transceiver_dom_info_dict.get("serialnum", "N/A")

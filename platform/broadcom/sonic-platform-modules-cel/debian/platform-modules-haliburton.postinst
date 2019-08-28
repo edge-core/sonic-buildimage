@@ -4,3 +4,5 @@ systemctl enable fancontrol.service
 
 systemctl start platform-modules-haliburton.service
 systemctl start fancontrol.service
+
+/usr/local/bin/platform_api_mgnt.sh install

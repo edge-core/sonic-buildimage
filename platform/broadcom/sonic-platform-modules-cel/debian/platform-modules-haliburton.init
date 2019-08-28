@@ -69,6 +69,8 @@ start)
         echo "both" > /sys/devices/platform/e1031.smc/SFP/modabs_trig
         echo 0 > /sys/devices/platform/e1031.smc/SFP/modabs_mask
 
+        /bin/sh /usr/local/bin/platform_api_mgnt.sh init
+
         echo "done."
         ;;
 

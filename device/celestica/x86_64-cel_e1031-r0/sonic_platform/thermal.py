@@ -22,8 +22,8 @@ class Thermal(ThermalBase):
     """Platform-specific Thermal class"""
 
     THERMAL_NAME_LIST = []
-    MAINBOARD_SS_PATH = "/sys/class/i2c-adapter/i2c-11/11-001a/hwmon/"
-    CPUBOARD_SS_PATH = "/sys/class/i2c-adapter/i2c-3/3-001a/hwmon/"
+    MAINBOARD_SS_PATH = "/sys/class/i2c-adapter/i2c-11/11-001a/hwmon/hwmon2"
+    CPUBOARD_SS_PATH = "/sys/class/i2c-adapter/i2c-3/3-001a/hwmon/hwmon1"
     SS_CONFIG_PATH = "/usr/share/sonic/device/x86_64-cel_e1031-r0/sensors.conf"
 
     def __init__(self, thermal_index):
@@ -41,10 +41,8 @@ class Thermal(ThermalBase):
         self.THERMAL_NAME_LIST.append("CPU board temperature sensor : 2")
 
         # Set hwmon path
-        self.ss_index, self.ss_path = self.__get_ss_info(self.index)
+        self.ss_index, self.hwmon_path = self.__get_ss_info(self.index)
         self.ss_key = self.THERMAL_NAME_LIST[self.index]
-        self.hwmon_name = os.listdir(self.ss_path)[0]
-        self.hwmon_path = os.path.join(self.ss_path, self.hwmon_name)
 
     def __get_ss_info(self, index):
         if self.index <= 4:

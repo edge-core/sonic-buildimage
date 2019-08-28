@@ -35,6 +35,7 @@ class Sfp(SfpBase, SfpUtilBase):
     }
     PRS_PATH = "/sys/devices/platform/e1031.smc/SFP/sfp_modabs"
     PLATFORM_ROOT_PATH = '/usr/share/sonic/device'
+    PMON_HWSKU_PATH = '/usr/share/sonic/hwsku'
     SFP_STATUS_CONTROL_OFFSET = 110
     SFP_STATUS_CONTROL_WIDTH = 1
 
@@ -61,6 +62,9 @@ class Sfp(SfpBase, SfpUtilBase):
     SFP_EEPROM_TX_PWR_KEY = "TXPower"
     SFP_EEPROM_TX_BS_KEY = "TXBias"
     SFP_EEPROM_STATUS_CON_KEY = "StatusControl"
+    PLATFORM = "x86_64-cel_e1031-r0"
+    HWSKU = "Celestica-E1031-T48S4"
+    HOST_CHK_CMD = "docker > /dev/null 2>&1"
 
     @property
     def port_start(self):
@@ -122,6 +126,9 @@ class Sfp(SfpBase, SfpUtilBase):
         self.index = sfp_index
         self.port_num = self.index + 1
 
+    def __is_host(self):
+        return os.system(self.HOST_CHK_CMD) == 0
+
     def __get_sysfsfile_eeprom(self):
         sysfsfile_eeprom = None
         sysfs_sfp_i2c_client_eeprom_path = self.port_to_eeprom_mapping[self.port_num]
@@ -129,33 +136,14 @@ class Sfp(SfpBase, SfpUtilBase):
             sysfsfile_eeprom = open(
                 sysfs_sfp_i2c_client_eeprom_path, mode="r+b", buffering=0)
         except IOError:
-            print("Error: reading sysfs file %s" %
-                  sysfs_sfp_i2c_client_eeprom_path)
+            pass
         return sysfsfile_eeprom
 
     def __get_path_to_port_config_file(self):
-        # Get platform and hwsku
-        machine_info = sonic_device_util.get_machine_info()
-        platform = sonic_device_util.get_platform_info(machine_info)
-        config_db = ConfigDBConnector()
-        config_db.connect()
-        data = config_db.get_table('DEVICE_METADATA')
-        try:
-            hwsku = data['localhost']['hwsku']
-        except KeyError:
-            hwsku = "Unknown"
-
-        # Load platform module from source
-        platform_path = "/".join([self.PLATFORM_ROOT_PATH, platform])
-        hwsku_path = "/".join([platform_path, hwsku])
-
-        # First check for the presence of the new 'port_config.ini' file
-        port_config_file_path = "/".join([hwsku_path, "port_config.ini"])
-        if not os.path.isfile(port_config_file_path):
-            # port_config.ini doesn't exist. Try loading the legacy 'portmap.ini' file
-            port_config_file_path = "/".join([hwsku_path, "portmap.ini"])
-
-        return port_config_file_path
+        platform_path = "/".join([self.PLATFORM_ROOT_PATH, self.PLATFORM])
+        hwsku_path = "/".join([platform_path, self.HWSKU]
+                              ) if self.__is_host() else self.PMON_HWSKU_PATH
+        return "/".join([hwsku_path, "port_config.ini"])
 
     def get_transceiver_info(self):
         """
@@ -405,7 +393,7 @@ class Sfp(SfpBase, SfpUtilBase):
         """
         transceiver_dom_info_dict = self.get_transceiver_bulk_status()
         tx1_bs = transceiver_dom_info_dict.get("tx1bias", "N/A")
-        return [tx1_bs, "N/A", "N/A", "N/A"]
+        return [tx1_bs, "N/A", "N/A", "N/A"] if transceiver_dom_info_dict else []
 
     def get_rx_power(self):
         """
@@ -417,7 +405,7 @@ class Sfp(SfpBase, SfpUtilBase):
         """
         transceiver_dom_info_dict = self.get_transceiver_bulk_status()
         rx1_pw = transceiver_dom_info_dict.get("rx1power", "N/A")
-        return [rx1_pw, "N/A", "N/A", "N/A"]
+        return [rx1_pw, "N/A", "N/A", "N/A"] if transceiver_dom_info_dict else []
 
     def get_tx_power(self):
         """
@@ -429,7 +417,7 @@ class Sfp(SfpBase, SfpUtilBase):
         """
         transceiver_dom_info_dict = self.get_transceiver_bulk_status()
         tx1_pw = transceiver_dom_info_dict.get("tx1power", "N/A")
-        return [tx1_pw, "N/A", "N/A", "N/A"]
+        return [tx1_pw, "N/A", "N/A", "N/A"] if transceiver_dom_info_dict else []
 
     def reset(self):
         """
@@ -452,7 +440,7 @@ class Sfp(SfpBase, SfpUtilBase):
 
         sysfsfile_eeprom = self.__get_sysfsfile_eeprom()
         status_control_raw = self._read_eeprom_specific_bytes(
-            sysfsfile_eeprom, self.SFP_STATUS_CONTROL_OFFSET, self.SFP_STATUS_CONTROL_WIDTH)
+            sysfsfile_eeprom, self.SFP_STATUS_CONTROL_OFFSET, self.SFP_STATUS_CONTROL_WIDTH) if sysfsfile_eeprom else None
         if status_control_raw is not None:
             tx_disable_bit = 0x80 if tx_disable else 0x7f
             status_control = int(status_control_raw[0], 16)
@@ -551,7 +539,7 @@ class Sfp(SfpBase, SfpUtilBase):
         Returns:
             string: Model/part number of device
         """
-        transceiver_dom_info_dict = self.get_transceiver_bulk_status()
+        transceiver_dom_info_dict = self.get_transceiver_info()
         return transceiver_dom_info_dict.get("modelname", "N/A")
 
     def get_serial(self):
@@ -560,5 +548,5 @@ class Sfp(SfpBase, SfpUtilBase):
         Returns:
             string: Serial number of device
         """
-        transceiver_dom_info_dict = self.get_transceiver_bulk_status()
+        transceiver_dom_info_dict = self.get_transceiver_info()
         return transceiver_dom_info_dict.get("serialnum", "N/A")
