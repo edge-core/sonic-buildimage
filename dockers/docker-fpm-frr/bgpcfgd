@@ -1,65 +1,124 @@
 #!/usr/bin/env python
 
 import sys
+import copy
+import Queue
 import redis
 import subprocess
 import syslog
-from swsssdk import ConfigDBConnector
+import os
+from swsscommon import swsscommon
 
-class BGPConfigDaemon:
+
+def run_command(command):
+    syslog.syslog(syslog.LOG_DEBUG, "execute command {}.".format(command))
+    p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+    stdout = p.communicate()[0]
+    p.wait()
+    if p.returncode != 0:
+        syslog.syslog(syslog.LOG_ERR, 'command execution returned {}. Command: "{}", stdout: "{}"'.format(p.returncode, command, stdout))
+
+
+class BGPConfigManager(object):
+    def __init__(self, daemon):
+        self.daemon = daemon
+        self.bgp_asn = None
+        self.bgp_message = Queue.Queue(0)
+        daemon.add_manager(swsscommon.CONFIG_DB, swsscommon.CFG_DEVICE_METADATA_TABLE_NAME, self.__metadata_handler)
+        daemon.add_manager(swsscommon.CONFIG_DB, swsscommon.CFG_BGP_NEIGHBOR_TABLE_NAME, self.__bgp_handler)
+
+    def __metadata_handler(self, key, op, data):
+        if key != "localhost" \
+            or "bgp_asn" not in data \
+                or self.bgp_asn == data["bgp_asn"]:
+            return
+
+        # TODO add ASN update commands 
+
+        self.bgp_asn = data["bgp_asn"]
+        self.__update_bgp()
+
+    def __update_bgp(self):
+        while not self.bgp_message.empty():
+            key, op, data = self.bgp_message.get()
+            syslog.syslog(syslog.LOG_INFO, 'value for {} changed to {}'.format(key, data))
+            if op == swsscommon.SET_COMMAND:
+                command = "vtysh -c 'configure terminal' -c 'router bgp {}' -c 'neighbor {} remote-as {}'".format(self.bgp_asn, key, data['asn'])
+                run_command(command)
+                if "name" in data:
+                    command = "vtysh -c 'configure terminal' -c 'router bgp {}' -c 'neighbor {} description {}'".format(self.bgp_asn, key, data['name'])
+                    run_command(command)
+                if "admin_status" in data:
+                    command_mod = "no " if data["admin_status"] == "up" else ""
+                    command = "vtysh -c 'configure terminal' -c 'router bgp {}' -c '{}neighbor {} shutdown'".format(self.bgp_asn, command_mod, key)
+                    run_command(command)                
+            elif op == swsscommon.DEL_COMMAND:
+                # Neighbor is deleted
+                command = "vtysh -c 'configure terminal' -c 'router bgp {}' -c 'no neighbor {}'".format(self.bgp_asn, key)
+                run_command(command)
+
+    def __bgp_handler(self, key, op, data):
+        self.bgp_message.put((key, op, data))
+        # If ASN is not set, we just cache this message until the ASN is set.
+        if self.bgp_asn == None:
+            return
+        self.__update_bgp()
+
+
+class Daemon(object):
+   
+    SELECT_TIMEOUT = 1000
+    SUPPORT_DATABASE_LIST = (swsscommon.APPL_DB, swsscommon.CONFIG_DB)
 
     def __init__(self):
-        self.config_db = ConfigDBConnector()
-        self.config_db.connect()
-        self.bgp_asn = self.config_db.get_entry('DEVICE_METADATA', 'localhost')['bgp_asn']
-        self.bgp_neighbor = self.config_db.get_table('BGP_NEIGHBOR')
+        self.appl_db = swsscommon.DBConnector(swsscommon.APPL_DB, swsscommon.DBConnector.DEFAULT_UNIXSOCKET, 0)
+        self.conf_db = swsscommon.DBConnector(swsscommon.CONFIG_DB, swsscommon.DBConnector.DEFAULT_UNIXSOCKET, 0)
+        self.selector = swsscommon.Select()
+        self.db_connectors = {}
+        self.callbacks = {}
+        self.subscribers = set()
 
-    def __run_command(self, command):
-#        print command
-        p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
-        stdout = p.communicate()[0]
-        p.wait()
-        if p.returncode != 0:
-            syslog.syslog(syslog.LOG_ERR, '[bgp cfgd] command execution returned {}. Command: "{}", stdout: "{}"'.format(p.returncode, command, stdout))
+    def get_db_connector(self, db):
+        if db not in Daemon.SUPPORT_DATABASE_LIST:
+            raise ValueError("database {} not Daemon support list {}.".format(db, SUPPORT_DATABASE_LIST))
+        # if this database connector has been initialized
+        if db not in self.db_connectors:
+            self.db_connectors[db] = swsscommon.DBConnector(db, swsscommon.DBConnector.DEFAULT_UNIXSOCKET, 0)
+        return self.db_connectors[db]
 
-    def metadata_handler(self, key, data):
-        if key == 'localhost' and data.has_key('bgp_asn'):
-            if data['bgp_asn'] != self.bgp_asn:
-                syslog.syslog(syslog.LOG_INFO, '[bgp cfgd] ASN changed to {} from {}, restart BGP...'.format(data['bgp_asn'], self.bgp_asn))
-                self.__run_command("supervisorctl restart start.sh")
-                self.__run_command("service quagga restart")
-                self.bgp_asn = data['bgp_asn']
-
-    def bgp_handler(self, key, data):
-        syslog.syslog(syslog.LOG_INFO, '[bgp cfgd] value for {} changed to {}'.format(key, data))
-        if not data:
-            # Neighbor is deleted
-            command = "vtysh -c 'configure terminal' -c 'router bgp {}' -c 'no neighbor {}'".format(self.bgp_asn, key)
-            self.__run_command(command)
-            self.bgp_neighbor.pop(key)
-        else:
-            command = "vtysh -c 'configure terminal' -c 'router bgp {}' -c 'neighbor {} remote-as {}'".format(self.bgp_asn, key, data['asn'])
-            self.__run_command(command)
-            if data.has_key('name'):
-                command = "vtysh -c 'configure terminal' -c 'router bgp {}' -c 'neighbor {} description {}'".format(self.bgp_asn, key, data['name'])
-                self.__run_command(command)
-            if data.has_key('admin_status'):
-                command_mod = 'no ' if data['admin_status'] == 'up' else ''
-                command = "vtysh -c 'configure terminal' -c 'router bgp {}' -c '{}neighbor {} shutdown'".format(self.bgp_asn, command_mod, key)
-                self.__run_command(command)
-            self.bgp_neighbor[key] = data
+    def add_manager(self, db, table_name, callback):
+        if db not in self.callbacks:
+            self.callbacks[db] = {}
+        if table_name not in self.callbacks[db]:
+            self.callbacks[db][table_name] = []
+            conn = self.get_db_connector(db)
+            subscriber = swsscommon.SubscriberStateTable(conn, table_name)
+            self.subscribers.add(subscriber)
+            self.selector.addSelectable(subscriber)
+        self.callbacks[db][table_name].append(callback)
 
     def start(self):
-        self.config_db.subscribe('BGP_NEIGHBOR', 
-                lambda table, key, data: self.bgp_handler(key, data))
-        self.config_db.subscribe('DEVICE_METADATA',
-                lambda table, key, data: self.metadata_handler(key, data))
-        self.config_db.listen()
+        while True:
+            state, selectable = self.selector.select(Daemon.SELECT_TIMEOUT)
+            if not selectable:
+                continue
+            for subscriber in self.subscribers:
+                key, op, fvs = subscriber.pop()
+                # if no new message
+                if not key:
+                    continue
+                data = dict(fvs)
+                syslog.syslog(syslog.LOG_DEBUG, "Receive message : {}".format((key, op, fvs)))
+                for callback in self.callbacks[subscriber.getDbConnector().getDbId()][subscriber.getTableName()]:
+                    callback(key, op, data)
 
 
 def main():
-    daemon = BGPConfigDaemon()
+    syslog.openlog("bgpcfgd")
+    daemon = Daemon()
+    bgp_manager = BGPConfigManager(daemon)
     daemon.start()
+    syslog.closelog()
 
 if __name__ == "__main__":
     main()
