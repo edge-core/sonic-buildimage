@@ -9,6 +9,9 @@ try:
     import sys
     import errno
     import datetime
+    import logging
+    import logging.config
+    import yaml
 
     sys.path.append(os.path.dirname(__file__))
     import pltfm_mgr_rpc
@@ -71,12 +74,16 @@ transport = None
 pltfm_mgr = None
 
 EEPROM_SYMLINK = "/var/run/platform/eeprom/syseeprom"
-
+EEPROM_STATUS = "/var/run/platform/eeprom/status"
 
 class board(eeprom_tlvinfo.TlvInfoDecoder):
-    RETRIES = 30
+    RETRIES = 3
 
     def __init__(self, name, path, cpld_root, ro):
+
+        with open(os.path.dirname(__file__) + "/logging.conf", 'r') as f:
+            config_dict = yaml.load(f)
+            logging.config.dictConfig(config_dict)
 
         if not os.path.exists(os.path.dirname(EEPROM_SYMLINK)):
             try:
@@ -86,19 +93,17 @@ class board(eeprom_tlvinfo.TlvInfoDecoder):
                     raise
 
         open(EEPROM_SYMLINK, 'a').close()
+        f = open(EEPROM_STATUS, 'w')
+        f.write("initializing..")
+        f.close()
 
         self.eeprom_path = EEPROM_SYMLINK
-        super(board, self).__init__(self.eeprom_path, 0, '', True)
+        super(board, self).__init__(self.eeprom_path, 0, EEPROM_STATUS, True)
 
-        for attempt in range(self.RETRIES + 1):
-            if not self.eeprom_init():
-                time.sleep(1)
-            else:
+        for attempt in range(self.RETRIES):
+            if self.eeprom_init() or (attempt + 1 >= self.RETRIES):
                 break
-
-        if attempt == self.RETRIES:
-            raise RuntimeError("Could not initialize syseeprom")
-        
+            time.sleep(1)
 
     def thrift_setup(self):
         global thrift_server, transport, pltfm_mgr
@@ -119,12 +124,17 @@ class board(eeprom_tlvinfo.TlvInfoDecoder):
 
     def eeprom_init(self):
         global pltfm_mgr
+
         try:
-           self.thrift_setup()
-           eeprom = pltfm_mgr.pltfm_mgr_sys_eeprom_get()
-           self.thrift_teardown()
+            self.thrift_setup()
+            eeprom = pltfm_mgr.pltfm_mgr_sys_eeprom_get()
+            self.thrift_teardown()
         except:
             return False
+
+        f = open(EEPROM_STATUS, 'w')
+        f.write("ok")
+        f.close()
 
         eeprom_params = ""
         for attr, val in eeprom.__dict__.iteritems():

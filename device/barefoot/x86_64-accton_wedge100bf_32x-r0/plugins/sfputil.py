@@ -34,6 +34,7 @@ class SfpUtil(SfpUtilBase):
     QSFP_PORT_START = 1
     QSFP_PORT_END = 0
     EEPROM_OFFSET = 0
+    QSFP_CHECK_INTERVAL = 4
 
     @property
     def port_start(self):
@@ -56,6 +57,11 @@ class SfpUtil(SfpUtilBase):
         raise Exception() 
 
     def __init__(self):
+        self.ready = False
+        self.phy_port_dict = {'-1': 'system_not_ready'}
+        self.phy_port_cur_state = {}
+        self.qsfp_interval = self.QSFP_CHECK_INTERVAL
+
         if not os.path.exists(os.path.dirname(SFP_EEPROM_CACHE)):
             try:
                 os.makedirs(os.path.dirname(SFP_EEPROM_CACHE))
@@ -142,12 +148,76 @@ class SfpUtil(SfpUtilBase):
         self.thrift_teardown()
         return status
 
+    def check_transceiver_change(self):
+        if not self.ready:
+            return
+
+        self.phy_port_dict = {}
+
+        try:
+            self.thrift_setup()
+        except:
+            return
+
+        # Get presence of each SFP
+        for port in range(self.port_start, self.port_end + 1):
+            try:
+                sfp_resent = pltfm_mgr.pltfm_mgr_qsfp_presence_get(port)
+            except:
+                sfp_resent = False
+            sfp_state = '1' if sfp_resent else '0'
+
+            if port in self.phy_port_cur_state:
+                if self.phy_port_cur_state[port] != sfp_state:
+                    self.phy_port_dict[port] = sfp_state
+            else:
+                self.phy_port_dict[port] = sfp_state
+
+            # Update port current state
+            self.phy_port_cur_state[port] = sfp_state
+
+        self.thrift_teardown()
+
     def get_transceiver_change_event(self, timeout=0):
-        phy_port_dict = {}
-        status = True
-        # TODO: Process transceiver plug-in/out event
-        time.sleep(1)
-        return status, phy_port_dict
+        forever = False
+        if timeout == 0:
+            forever = True
+        elif timeout > 0:
+            timeout = timeout / float(1000) # Convert to secs
+        else:
+            print "get_transceiver_change_event:Invalid timeout value", timeout
+            return False, {}
+
+        while forever or timeout > 0:
+            if not self.ready:
+                try:
+                    self.thrift_setup()
+                    self.thrift_teardown()
+                except:
+                    pass
+                else:
+                    self.ready = True
+                    self.phy_port_dict = {}
+                    break
+            elif self.qsfp_interval == 0:
+                self.qsfp_interval = self.QSFP_CHECK_INTERVAL
+
+                # Process transceiver plug-in/out event
+                self.check_transceiver_change()
+
+                # Break if tranceiver state has changed
+                if bool(self.phy_port_dict):
+                    break
+
+            if timeout:
+                timeout -= 1
+
+            if self.qsfp_interval:
+                self.qsfp_interval -= 1
+
+            time.sleep(1)
+
+        return self.ready, self.phy_port_dict
 
     def _get_port_eeprom_path(self, port_num, devid):
         eeprom_path = None
