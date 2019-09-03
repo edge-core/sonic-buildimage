@@ -16,6 +16,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	git am ../0002-Enable-modifying-local-user-permission.patch
 	git am ../0003-management-vrf-support.patch
 	git am ../0004-Skip-accessing-tacacs-servers-for-local-non-tacacs-u.patch
+	git am ../0005-libnss-Modify-parsing-of-IP-addr-and-port-number-str.patch
 
 	dpkg-buildpackage -rfakeroot -b -us -uc
 	popd
