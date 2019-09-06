@@ -422,6 +422,14 @@ build_number: ${BUILD_NUMBER:-0}
 built_by: $USER@$BUILD_HOSTNAME
 EOF
 
+## Copy ASIC config checksum
+python files/build_scripts/generate_asic_config_checksum.py
+if [[ ! -f './asic_config_checksum' ]]; then
+    echo 'asic_config_checksum not found'
+    exit 1
+fi
+sudo cp ./asic_config_checksum $FILESYSTEM_ROOT/etc/sonic/asic_config_checksum
+
 if [ -f sonic_debian_extension.sh ]; then
     ./sonic_debian_extension.sh $FILESYSTEM_ROOT $PLATFORM_DIR
 fi
