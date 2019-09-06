@@ -26,7 +26,8 @@ try:
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
-NUM_FAN = 3
+NUM_FAN_TRAY = 3
+NUM_FAN = 1
 NUM_PSU = 2
 NUM_THERMAL = 7
 NUM_SFP = 52
@@ -42,9 +43,10 @@ class Chassis(ChassisBase):
 
     def __init__(self):
         self.config_data = {}
-        for index in range(0, NUM_FAN):
-            fan = Fan(index)
-            self._fan_list.append(fan)
+        for fant_index in range(0, NUM_FAN_TRAY):
+            for fan_index in range(0, NUM_FAN):
+                fan = Fan(fant_index, fan_index)
+                self._fan_list.append(fan)
         for index in range(0, NUM_PSU):
             psu = Psu(index)
             self._psu_list.append(psu)
