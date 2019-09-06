@@ -1,24 +1,22 @@
 #!/usr/bin/env python
+# Copyright (c) 2019 Edgecore Networks Corporation
 #
-# Copyright (C) 2017 Accton Technology Corporation
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
 #
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# THIS CODE IS PROVIDED ON AN  *AS IS* BASIS, WITHOUT WARRANTIES OR
+# CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT
+# LIMITATION ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS
+# FOR A PARTICULAR PURPOSE, MERCHANTABLITY OR NON-INFRINGEMENT.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+# See the Apache Version 2.0 License for specific language governing
+# permissions and limitations under the License.
+# 
 # ------------------------------------------------------------------
 # HISTORY:
 #    mm/dd/yyyy (A.D.)
-#    12/18/2018:Jostar craete for as9716_32d
+#    8/27/2019:Jostar craete for as9716_32d
 # ------------------------------------------------------------------
 
 try:
@@ -34,38 +32,29 @@ except ImportError as e:
 class ThermalUtil(object):
     """Platform-specific ThermalUtil class"""
     THERMAL_NUM_MAX = 8
-    THERMAL_NUM_1_IDX = 1 # 1_ON_MAIN_BROAD. LM75
-    THERMAL_NUM_2_IDX = 2 # 2_ON_MAIN_BROAD. LM75
-    THERMAL_NUM_3_IDX = 3 # 3_ON_MAIN_BROAD. LM75
-    THERMAL_NUM_4_IDX = 4 # 4_ON_MAIN_BROAD. LM75
-    THERMAL_NUM_5_IDX = 5 # 5_ON_MAIN_BROAD. LM75
-    THERMAL_NUM_6_IDX = 6 # 6_ON_MAIN_BROAD. LM75
-    THERMAL_NUM_7_IDX = 7 # 7_ON_MAIN_BROAD. LM75
-    THERMAL_NUM_8_IDX = 8 # 8_ON_MAIN_BROAD. LM75
-    
+    THERMAL_NUM_1_IDX = 1 # 1~7 are mainboard thermal sensors
+    THERMAL_NUM_2_IDX = 2 
+    THERMAL_NUM_3_IDX = 3 
+    THERMAL_NUM_4_IDX = 4 
+    THERMAL_NUM_5_IDX = 5 
+    THERMAL_NUM_6_IDX = 6 
+    THERMAL_NUM_7_IDX = 7 # CPU core
+    THERMAL_NUM_8_IDX = 8 
+
     """ Dictionary where
         key1 = thermal id index (integer) starting from 1
         value = path to fan device file (string) """
     #_thermal_to_device_path_mapping = {}
-
-    _thermal_to_device_node_mapping = {
-            THERMAL_NUM_1_IDX: ['18', '48'],
-            THERMAL_NUM_2_IDX: ['18', '49'],
-            THERMAL_NUM_3_IDX: ['18', '4a'],
-            THERMAL_NUM_4_IDX: ['18', '4b'],
-            THERMAL_NUM_5_IDX: ['18', '4c'],
-            THERMAL_NUM_6_IDX: ['18', '4e'],
-            THERMAL_NUM_7_IDX: ['18', '4f'],
-           }
+        
     thermal_sysfspath ={
     THERMAL_NUM_1_IDX: ["/sys/bus/i2c/devices/18-0048/hwmon/hwmon*/temp1_input"],
     THERMAL_NUM_2_IDX: ["/sys/bus/i2c/devices/18-0049/hwmon/hwmon*/temp1_input"],  
-    THERMAL_NUM_3_IDX: ["/sys/bus/i2c/devices/18-004a/hwmon/hwmon*/temp1_input"],
-    THERMAL_NUM_4_IDX: ["/sys/bus/i2c/devices/18-004b/hwmon/hwmon*/temp1_input"],        
-    THERMAL_NUM_5_IDX: ["/sys/bus/i2c/devices/18-004c/hwmon/hwmon*/temp1_input"],     
-    THERMAL_NUM_6_IDX: ["/sys/bus/i2c/devices/18-004e/hwmon/hwmon*/temp1_input"],     
-    THERMAL_NUM_7_IDX: ["/sys/bus/i2c/devices/18-004f/hwmon/hwmon*/temp1_input"],     
-    THERMAL_NUM_8_IDX: ["/sys/class/hwmon/hwmon0/temp1_input"],     
+    THERMAL_NUM_3_IDX: ["/sys/bus/i2c/devices/18-004a/hwmon/hwmon*/temp1_input"],    
+    THERMAL_NUM_4_IDX: ["/sys/bus/i2c/devices/18-004c/hwmon/hwmon*/temp1_input"],     
+    THERMAL_NUM_5_IDX: ["/sys/bus/i2c/devices/18-004e/hwmon/hwmon*/temp1_input"],     
+    THERMAL_NUM_6_IDX: ["/sys/bus/i2c/devices/18-004f/hwmon/hwmon*/temp1_input"],     
+    THERMAL_NUM_7_IDX: ["/sys/class/hwmon/hwmon0/temp1_input"],     
+    THERMAL_NUM_8_IDX: ["/sys/bus/i2c/devices/18-004b/hwmon/hwmon*/temp1_input"],    
     }
 
     #def __init__(self):
@@ -75,7 +64,7 @@ class ThermalUtil(object):
             logging.debug('GET. Parameter error. thermal_num, %d', thermal_num)
             return None
         
-        device_path = self.get_thermal_to_device_path(thermal_num)
+        device_path = self.get_thermal_path(thermal_num)
         for filename in glob.glob(device_path):
             try:
                 val_file = open(filename, 'r')
@@ -97,39 +86,17 @@ class ThermalUtil(object):
         return 0
  
     def get_num_thermals(self):
-        return self.THERMAL_NUM_MAX
-
-    def get_idx_thermal_start(self):
-        return self.THERMAL_NUM_1_IDX
-
-    def get_size_node_map(self):
-        return len(self._thermal_to_device_node_mapping)
+        return self.THERMAL_NUM_MAX  
 
     def get_size_path_map(self):
         return len(self.thermal_sysfspath)
 
-    def get_thermal_to_device_path(self, thermal_num):
+    def get_thermal_path(self, thermal_num):
         return self.thermal_sysfspath[thermal_num][0]
-
-    def get_thermal_temp(self):
-        return (self._get_thermal_node_val(self.THERMAL_NUM_1_IDX) + self._get_thermal_node_val(self.THERMAL_NUM_2_IDX) +self._get_thermal_node_val(self.THERMAL_NUM_3_IDX))
+   
 
 def main():
-    thermal = ThermalUtil()
-    print "termal1=%d" %thermal._get_thermal_val(1)
-    print "termal2=%d" %thermal._get_thermal_val(2)
-    print "termal3=%d" %thermal._get_thermal_val(3)
-    print "termal4=%d" %thermal._get_thermal_val(4)
-    print "termal5=%d" %thermal._get_thermal_val(5)    
-    print "termal7=%d" %thermal._get_thermal_val(6)
-    print "termal8=%d" %thermal._get_thermal_val(7)
-    print "termal9=%d" %thermal._get_thermal_val(8)
-    
-#
-#    print 'get_size_node_map : %d' % thermal.get_size_node_map()
-#    print 'get_size_path_map : %d' % thermal.get_size_path_map()
-#    for x in range(thermal.get_idx_thermal_start(), thermal.get_num_thermals()+1):
-#        print thermal.get_thermal_to_device_path(x)
-#
+    thermal = ThermalUtil()   
+
 if __name__ == '__main__':
     main()
