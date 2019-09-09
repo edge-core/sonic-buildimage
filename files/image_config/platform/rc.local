@@ -121,6 +121,8 @@ program_console_speed()
 
 #### Begin Main Body ####
 
+logger "SONiC version ${SONIC_VERSION} starting up..."
+
 # If the machine.conf is absent, it indicates that the unit booted
 # into SONiC from another NOS. Extract the machine.conf from ONIE.
 if [ ! -e /host/machine.conf ]; then
