@@ -1,0 +1,2 @@
+systemctl enable qfx5210-platform-init.service
+systemctl start qfx5210-platform-init.service

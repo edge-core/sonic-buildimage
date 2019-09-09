@@ -26,13 +26,18 @@ try:
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
-NUM_FAN = 5
+NUM_FAN_TRAY = 5
+NUM_FAN = 2
 NUM_PSU = 2
 NUM_THERMAL = 5
 NUM_SFP = 32
 RESET_REGISTER = "0x103"
-REBOOT_CAUSE_PATH = "/host/reboot-cause/previous-reboot-cause.txt"
+HOST_REBOOT_CAUSE_PATH = "/host/reboot-cause/"
+PMON_REBOOT_CAUSE_PATH = "/usr/share/sonic/platform/api_files/reboot-cause/"
+REBOOT_CAUSE_FILE = "reboot-cause.txt"
+PREV_REBOOT_CAUSE_FILE = "previous-reboot-cause.txt"
 COMPONENT_NAME_LIST = ["CPLD1", "CPLD2", "CPLD3", "CPLD4", "BIOS"]
+HOST_CHK_CMD = "docker > /dev/null 2>&1"
 
 
 class Chassis(ChassisBase):
@@ -40,9 +45,10 @@ class Chassis(ChassisBase):
 
     def __init__(self):
         self.config_data = {}
-        for index in range(0, NUM_FAN):
-            fan = Fan(index)
-            self._fan_list.append(fan)
+        for fant_index in range(0, NUM_FAN_TRAY):
+            for fan_index in range(0, NUM_FAN):
+                fan = Fan(fant_index, fan_index)
+                self._fan_list.append(fan)
         for index in range(0, NUM_PSU):
             psu = Psu(index)
             self._psu_list.append(psu)
@@ -53,9 +59,13 @@ class Chassis(ChassisBase):
             sfp = Sfp(index)
             self._sfp_list.append(sfp)
         ChassisBase.__init__(self)
+
         self._component_name_list = COMPONENT_NAME_LIST
         self._watchdog = Watchdog()
         self._eeprom = Tlv()
+
+    def __is_host(self):
+        return os.system(HOST_CHK_CMD) == 0
 
     def __read_txt_file(self, file_path):
         try:
@@ -63,7 +73,8 @@ class Chassis(ChassisBase):
                 data = fd.read()
                 return data.strip()
         except IOError:
-            raise IOError("Unable to open %s file !" % file_path)
+            pass
+        return None
 
     def get_base_mac(self):
         """
@@ -136,14 +147,27 @@ class Chassis(ChassisBase):
         self.component = Component("CPLD1")
         description = 'None'
         reboot_cause = self.REBOOT_CAUSE_HARDWARE_OTHER
-        hw_reboot_cause = self.component.get_register_value(RESET_REGISTER)
-        sw_reboot_cause = self.__read_txt_file(REBOOT_CAUSE_PATH)
 
-        if sw_reboot_cause != "Unexpected reboot":
+        reboot_cause_path = (HOST_REBOOT_CAUSE_PATH + REBOOT_CAUSE_FILE) if self.__is_host(
+        ) else PMON_REBOOT_CAUSE_PATH + REBOOT_CAUSE_FILE
+        prev_reboot_cause_path = (HOST_REBOOT_CAUSE_PATH + PREV_REBOOT_CAUSE_FILE) if self.__is_host(
+        ) else PMON_REBOOT_CAUSE_PATH + PREV_REBOOT_CAUSE_FILE
+
+        hw_reboot_cause = self.component.get_register_value(RESET_REGISTER)
+
+        sw_reboot_cause = self.__read_txt_file(
+            reboot_cause_path) or "Unknown"
+        prev_sw_reboot_cause = self.__read_txt_file(
+            prev_reboot_cause_path) or "Unknown"
+
+        if sw_reboot_cause == "Unknown" and (prev_sw_reboot_cause == "Unknown" or prev_sw_reboot_cause == self.REBOOT_CAUSE_POWER_LOSS) and hw_reboot_cause == "0x11":
+            reboot_cause = self.REBOOT_CAUSE_POWER_LOSS
+        elif sw_reboot_cause != "Unknown" and hw_reboot_cause == "0x11":
             reboot_cause = self.REBOOT_CAUSE_NON_HARDWARE
             description = sw_reboot_cause
-        elif hw_reboot_cause == "0x11":
-            reboot_cause = self.REBOOT_CAUSE_POWER_LOSS
+        elif prev_reboot_cause_path != "Unknown" and hw_reboot_cause == "0x11":
+            reboot_cause = self.REBOOT_CAUSE_NON_HARDWARE
+            description = prev_sw_reboot_cause
         elif hw_reboot_cause == "0x22":
             reboot_cause = self.REBOOT_CAUSE_WATCHDOG,
         else:

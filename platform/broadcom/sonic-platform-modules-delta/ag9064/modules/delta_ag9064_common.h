@@ -148,14 +148,12 @@ enum cpld_attributes {
     MB_ID,
     MB_VER,
     CPU0_PWR_OK,
-    PSU_OVER_TEMP,
     PWR_RAIL_OVER_TEMP,
     CPU_DISOMIC_OVER_TEMP,
     DDR_OVER_TEMP,
     CPLD_PWR_ON_RST,
     CPLD_HARD_RST,
     CPLD_RST,
-    MB_PWR,
     MB_RST,
     PSU_FAN_INT,
     OP_MODULE_INT,
@@ -167,9 +165,6 @@ enum cpld_attributes {
     PSU1_INT,
     PSU2_PWR_OK,
     PSU2_INT,
-    SYNCE_INT,
-    SYNCE_RST,
-    SYNCE_EEPROM_WP,
     PSU1_GREEN_LED,
     PSU1_RED_LED,
     PSU2_GREEN_LED,
@@ -192,18 +187,10 @@ enum cpld_attributes {
     SB_VER,
     PLATFORM_TYPE,
 //SWPLD4
-    SWPLD4_MAJOR_VER,
-    SWPLD4_MINOR_VER,
-    SWPLD4_SCRTCH_REG,
-    BMC_RST,
-    CPLD_LPC_RST,
-    CPLD_SW_RST,
-    MB_CPLD_RST,
-    BCM56970_RST,
-    CPLD_UPGRADE_RST,
-    MB_RST_CPLD,
-    CPU_RST_MB_OOB,
-    GPIO_PHY_RST,
+    SW_BOARD_ID1,
+    SW_BOARD_ID2,
+    SWBD_VER,
+    SWPLD4_VER,
     PSU_FAN_EVENT,
     CPU_THERMAL_INT,
     FAN_INT,
@@ -334,11 +321,6 @@ static struct cpld_attribute_data attribute_data[] = {
         .reg  = 0x08,       .mask = 1 << 3,
         .note = "“1” =Power rail is good\n“0” = Power rail is failed"
     },
-    [PSU_OVER_TEMP] = {
-        .bus  = BUS0,       .addr = CPUPLD_ADDR,
-        .reg  = 0x0b,       .mask = 1 << 4,
-        .note = "“1” = Not over temperature\n“0” = Over temperature"
-    },
     [PWR_RAIL_OVER_TEMP] = {
         .bus  = BUS0,       .addr = CPUPLD_ADDR,
         .reg  = 0x0b,       .mask = 1 << 3,
@@ -368,11 +350,6 @@ static struct cpld_attribute_data attribute_data[] = {
         .bus  = BUS0,       .addr = CPUPLD_ADDR,
         .reg  = 0x11,       .mask = 1 << 0,
         .note = "“0” = Reset\n“1” = Normal operation"
-    },
-    [MB_PWR] = {
-        .bus  = BUS0,       .addr = CPUPLD_ADDR,
-        .reg  = 0x12,       .mask = 1 << 2,
-        .note = "“0” = Power rail is failed\n“1” =Power rail is good"
     },
     [MB_RST] = {
         .bus  = BUS0,       .addr = CPUPLD_ADDR,
@@ -424,21 +401,6 @@ static struct cpld_attribute_data attribute_data[] = {
         .bus  = BUS0,       .addr = SWPLD1_ADDR,
         .reg  = 0x02,       .mask = 1 << 1,
         .note = "‘0’ = Interrupt doesn’t occur\n‘1’ = Interrupt occurs"
-    },
-    [SYNCE_INT] = {
-        .bus  = BUS0,       .addr = SWPLD1_ADDR,
-        .reg  = 0x12,       .mask = 1 << 7,
-        .note = "‘0’ = Interrupt occurs\n‘1’ = Interrupt doesn’t occur"
-    },
-    [SYNCE_RST] = {
-        .bus  = BUS0,       .addr = SWPLD1_ADDR,
-        .reg  = 0x12,       .mask = 1 << 6,
-        .note = "“0” = Reset\n“1” = Normal operation"
-    },  
-    [SYNCE_EEPROM_WP] = {
-        .bus  = BUS0,       .addr = SWPLD1_ADDR,
-        .reg  = 0x12,       .mask = 1 << 5,
-        .note = "“1” = enables the lock-down mechanism.\n“0” = overrides the lock-down function enabling blocks to be erased or programmed using software commands."
     },
     [PSU1_GREEN_LED] = {
         .bus  = BUS0,       .addr = SWPLD1_ADDR,
@@ -538,65 +500,25 @@ static struct cpld_attribute_data attribute_data[] = {
         .note = "“0x0”: 64X100G_2U\n“0x1”~”0xF” Reserved"
     },
 //SWPLD4
-    [SWPLD4_MAJOR_VER] = {
+    [SW_BOARD_ID1] = {
         .bus  = BUS0,       .addr = SWPLD4_ADDR,
-        .reg  = 0x00,       .mask = 0xF0,
-        .note = "CPLD Major Version, controlled by CPLD editor."
+        .reg  = 0x00,       .mask = 0xFF,
+        .note = "0x00"
     },
-    [SWPLD4_MINOR_VER] = {
-        .bus  = BUS0,       .addr = SWPLD4_ADDR,
-        .reg  = 0x00,       .mask = 0x0F,
-        .note = "CPLD Minor Version, controlled by CPLD editor."
-    },
-    [SWPLD4_SCRTCH_REG] = {
+    [SW_BOARD_ID2] = {
         .bus  = BUS0,       .addr = SWPLD4_ADDR,
         .reg  = 0x01,       .mask = 0xFF,
-        .note = "CPLD read/write test register, to provide a way to test CPLD access."
+        .note = "Configured by PLD Editor\n0x03: AG9064"
     },
-    [BMC_RST] = {
+    [SWBD_VER] = {
         .bus  = BUS0,       .addr = SWPLD4_ADDR,
-        .reg  = 0x02,       .mask = 1 << 6,
-        .note = "“0” = Reset\n“1” = Normal operation"
+        .reg  = 0x02,       .mask = 0xFF,
+        .note = "Configured by external resistor\n0x01:EVT1\n0x02:EVT2\n0x03:EVT3\n0x04:EVT4\n0x10:DVT\n0x20:PVT"
     },
-    [CPLD_LPC_RST] = {
+    [SWPLD4_VER] = {
         .bus  = BUS0,       .addr = SWPLD4_ADDR,
-        .reg  = 0x02,       .mask = 1 << 5,
-        .note = "“0” = Reset\n“1” = Normal operation"
-    },
-    [CPLD_SW_RST] = {
-        .bus  = BUS0,       .addr = SWPLD4_ADDR,
-        .reg  = 0x02,       .mask = 1 << 3,
-        .note = "“0” = Reset\n“1” = Normal operation"
-    },
-    [MB_CPLD_RST] = {
-        .bus  = BUS0,       .addr = SWPLD4_ADDR,
-        .reg  = 0x02,       .mask = 1 << 2,
-        .note = "“0” = Reset\n“1” = Normal operation"
-    },
-    [BCM56970_RST] = {
-        .bus  = BUS0,       .addr = SWPLD4_ADDR,
-        .reg  = 0x02,       .mask = 1 << 1,
-        .note = "“0” = Reset\n“1” = Normal operation"
-    },
-    [CPLD_UPGRADE_RST] = {
-        .bus  = BUS0,       .addr = SWPLD4_ADDR,
-        .reg  = 0x03,       .mask = 1 << 7,
-        .note = "“0” = Reset\n“1” = Normal operation"
-    },
-    [MB_RST_CPLD] = {
-        .bus  = BUS0,       .addr = SWPLD4_ADDR,
-        .reg  = 0x03,       .mask = 1 << 6,
-        .note = "“0” = Reset\n“1” = Normal operation"
-    },
-    [CPU_RST_MB_OOB] = {
-        .bus  = BUS0,       .addr = SWPLD4_ADDR,
-        .reg  = 0x03,       .mask = 1 << 5,
-        .note = "“0” = Reset\n“1” = Normal operation"
-    },
-    [GPIO_PHY_RST] = {
-        .bus  = BUS0,       .addr = SWPLD4_ADDR,
-        .reg  = 0x03,       .mask = 1 << 4,
-        .note = "“0” = Reset\n“1” = Normal operation"
+        .reg  = 0x03,       .mask = 0xFF,
+        .note = "-"
     },
     [PSU_FAN_EVENT] = {
         .bus  = BUS0,       .addr = SWPLD4_ADDR,

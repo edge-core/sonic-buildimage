@@ -6,6 +6,8 @@
 {% set hash_seed = 0 %}
 {% elif DEVICE_METADATA.localhost.type == "LeafRouter" %}
 {% set hash_seed = 10 %}
+{% elif DEVICE_METADATA.localhost.type == "SpineRouter" %}
+{% set hash_seed = 15 %}
 {% endif %}
 {% endif %}
 [

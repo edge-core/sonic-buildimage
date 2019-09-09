@@ -132,6 +132,7 @@ serdes_pre_driver_current
 serdes_preemphasis
 serdes_rx_los
 serdes_sgmii_m
+serdes_tx_taps
 skip_L2_USER_ENTRY
 sram_scan_enable
 stable_size

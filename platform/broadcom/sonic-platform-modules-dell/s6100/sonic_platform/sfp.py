@@ -418,7 +418,13 @@ class Sfp(SfpBase):
         reg_value = int(reg_hex, 16)
 
         # Mask off the bit corresponding to our port
-        mask = (1 << self.sfp_ctrl_idx)
+        if (self.sfp_ctrl_idx > 15):
+            index = self.sfp_ctrl_idx % 16
+        else:
+            index = self.sfp_ctrl_idx
+
+        # Mask off the bit corresponding to our port
+        mask = (1 << index)
 
         # ModPrsL is active low
         if ((reg_value & mask) == 0):
@@ -849,3 +855,40 @@ class Sfp(SfpBase):
         reg_file.close()
 
         return True
+
+    def tx_disable(self, tx_disable):
+        """
+        Disable SFP TX for all channels
+        """
+        return False
+
+    def tx_disable_channel(self, channel, disable):
+        """
+        Sets the tx_disable for specified SFP channels
+        """
+        return False
+
+    def tx_disable_channel(self, channel, disable):
+        """
+        Sets the tx_disable for specified SFP channels
+        """
+        return False
+
+    def set_power_override(self, power_override, power_set):
+        """
+        Sets SFP power level using power_override and power_set
+        """
+        return False
+
+    def get_status(self):
+        """
+        Retrieves the operational status of the device
+        """
+        reset = self.get_reset_status()
+
+        if (reset == True):
+            status = False
+        else:
+            status = True
+
+        return status

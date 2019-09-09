@@ -22,7 +22,7 @@ start)
     ;;
 
 stop)
-    /usr/local/bin/z9100_platform.sh deinit
+    /usr/local/bin/z9264f_platform.sh deinit
     echo "done."
 
     ;;

@@ -1,26 +1,22 @@
 #!/usr/bin/env python
+# Copyright (c) 2019 Edgecore Networks Corporation
 #
-# Copyright (C) 2017 Accton Technology Corporation
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
 #
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# THIS CODE IS PROVIDED ON AN  *AS IS* BASIS, WITHOUT WARRANTIES OR
+# CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT
+# LIMITATION ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS
+# FOR A PARTICULAR PURPOSE, MERCHANTABLITY OR NON-INFRINGEMENT.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+# See the Apache Version 2.0 License for specific language governing
+# permissions and limitations under the License.
+# 
 # ------------------------------------------------------------------
 # HISTORY:
 #    mm/dd/yyyy (A.D.)
-#    11/13/2017: Polly Hsu, Create
-#    1/10/2018: Jostar modify for as7716_32
-#    12/03/2018: Jostar modify for as7726_32
+#    8/27/2019:Jostar craete for as9716_32d
 # ------------------------------------------------------------------
 
 try:
@@ -46,8 +42,8 @@ class FanUtil(object):
     FAN_NODE_FAULT_IDX_OF_MAP = 1    
     FAN_NODE_DIR_IDX_OF_MAP = 2
     
-    BASE_VAL_PATH = '/sys/bus/i2c/devices/54-0066/{0}'
-    FAN_DUTY_PATH = '/sys/bus/i2c/devices/54-0066/fan_duty_cycle_percentage'
+    BASE_VAL_PATH = '/sys/bus/i2c/devices/17-0066/{0}'
+    FAN_DUTY_PATH = '/sys/bus/i2c/devices/17-0066/fan_duty_cycle_percentage'
 
     #logfile = ''
     #loglevel = logging.INFO
@@ -56,14 +52,14 @@ class FanUtil(object):
         key1 = fan id index (integer) starting from 1
         key2 = fan node index (interger) starting from 1
         value = path to fan device file (string) """
-    _fan_to_device_path_mapping = {}
+    _fan_device_path_mapping = {}
     
 #fan1_direction
 #fan1_fault
 #fan1_present
 
  #(FAN_NUM_2_IDX, FAN_NODE_DUTY_IDX_OF_MAP): 'fan2_duty_cycle_percentage',
-    _fan_to_device_node_mapping = {
+    _fan_device_node_mapping = {
            (FAN_NUM_1_IDX, FAN_NODE_FAULT_IDX_OF_MAP): 'fan1_fault',           
            (FAN_NUM_1_IDX, FAN_NODE_DIR_IDX_OF_MAP): 'fan1_direction',           
 
@@ -83,8 +79,8 @@ class FanUtil(object):
            (FAN_NUM_6_IDX, FAN_NODE_DIR_IDX_OF_MAP): 'fan6_direction',
            }
 
-    def _get_fan_to_device_node(self, fan_num, node_num):
-        return self._fan_to_device_node_mapping[(fan_num, node_num)]
+    def _get_fan_device_node(self, fan_num, node_num):
+        return self._fan_device_node_mapping[(fan_num, node_num)]
 
     def _get_fan_node_val(self, fan_num, node_num):
         if fan_num < self.FAN_NUM_1_IDX or fan_num > self.FAN_NUM_ON_MAIN_BROAD:
@@ -95,7 +91,7 @@ class FanUtil(object):
             logging.debug('GET. Parameter error. node_num:%d', node_num)
             return None
 
-        device_path = self.get_fan_to_device_path(fan_num, node_num)
+        device_path = self.get_fan_device_path(fan_num, node_num)
        
         try:
             val_file = open(device_path, 'r')
@@ -131,7 +127,7 @@ class FanUtil(object):
             logging.debug('GET. content is NULL. device_path:%s', device_path)
             return None
 
-        device_path = self.get_fan_to_device_path(fan_num, node_num)
+        device_path = self.get_fan_device_path(fan_num, node_num)
         try:
             val_file = open(device_path, 'w')
         except IOError as e:
@@ -153,8 +149,8 @@ class FanUtil(object):
 
         for fan_num in range(self.FAN_NUM_1_IDX, self.FAN_NUM_ON_MAIN_BROAD+1):
             for node_num in range(self.FAN_NODE_FAULT_IDX_OF_MAP, self.FAN_NODE_NUM_OF_MAP+1):
-                self._fan_to_device_path_mapping[(fan_num, node_num)] = fan_path.format(
-                   self._fan_to_device_node_mapping[(fan_num, node_num)])
+                self._fan_device_path_mapping[(fan_num, node_num)] = fan_path.format(
+                   self._fan_device_node_mapping[(fan_num, node_num)])
                
     def get_num_fans(self):
         return self.FAN_NUM_ON_MAIN_BROAD
@@ -169,19 +165,16 @@ class FanUtil(object):
         return self.FAN_NODE_FAULT_IDX_OF_MAP
 
     def get_size_node_map(self):
-        return len(self._fan_to_device_node_mapping)
+        return len(self._fan_device_node_mapping)
 
     def get_size_path_map(self):
-        return len(self._fan_to_device_path_mapping)
+        return len(self._fan_device_path_mapping)
 
-    def get_fan_to_device_path(self, fan_num, node_num):
-        return self._fan_to_device_path_mapping[(fan_num, node_num)]
+    def get_fan_device_path(self, fan_num, node_num):
+        return self._fan_device_path_mapping[(fan_num, node_num)]
 
     def get_fan_fault(self, fan_num):
         return self._get_fan_node_val(fan_num, self.FAN_NODE_FAULT_IDX_OF_MAP)
-
-    #def get_fan_speed(self, fan_num):
-    #    return self._get_fan_node_val(fan_num, self.FAN_NODE_SPEED_IDX_OF_MAP)
 
     def get_fan_dir(self, fan_num):
         return self._get_fan_node_val(fan_num, self.FAN_NODE_DIR_IDX_OF_MAP)
@@ -198,28 +191,18 @@ class FanUtil(object):
         val_file.close()
         
         return int(content)
-        #self._get_fan_node_val(fan_num, self.FAN_NODE_DUTY_IDX_OF_MAP)
-#static u32 reg_val_to_duty_cycle(u8 reg_val) 
-#{
-#    reg_val &= FAN_DUTY_CYCLE_REG_MASK;
-#    return ((u32)(reg_val+1) * 625 + 75)/ 100;
-#}
-#
+       
     def set_fan_duty_cycle(self, val):
-        
         try:
             fan_file = open(self.FAN_DUTY_PATH, 'r+')
         except IOError as e:
             print "Error: unable to open file: %s" % str(e)          
             return False
-        #val = ((val + 1 ) * 625 +75 ) / 100
+        
         fan_file.write(str(val))
         fan_file.close()
         return True
-
-    #def get_fanr_fault(self, fan_num):
-    #    return self._get_fan_node_val(fan_num, self.FANR_NODE_FAULT_IDX_OF_MAP)
-
+  
     def get_fanr_speed(self, fan_num):
         return self._get_fan_node_val(fan_num, self.FANR_NODE_SPEED_IDX_OF_MAP)
 
@@ -232,20 +215,4 @@ class FanUtil(object):
             logging.debug('GET. FAN fault. fan_num, %d', fan_num)
             return False
 
-        #if self.get_fanr_fault(fan_num) is not None and self.get_fanr_fault(fan_num) > 0:
-        #    logging.debug('GET. FANR fault. fan_num, %d', fan_num)
-        #   return False
 
-        return True
-
-#def main():
-#    fan = FanUtil()
-#
-#    print 'get_size_node_map : %d' % fan.get_size_node_map()
-#    print 'get_size_path_map : %d' % fan.get_size_path_map()
-#    for x in range(fan.get_idx_fan_start(), fan.get_num_fans()+1):
-#        for y in range(fan.get_idx_node_start(), fan.get_num_nodes()+1):
-#            print fan.get_fan_to_device_path(x, y)
-#
-#if __name__ == '__main__':
-#    main()
