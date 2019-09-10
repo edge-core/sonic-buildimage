@@ -39,7 +39,14 @@ class Chassis(ChassisBase):
     def __init__(self):
         ChassisBase.__init__(self)
 
-    def get_pmc_register(self, reg_name):
+    def _get_reboot_reason_smf_register(self):
+        # Returns 0xAA on software reload
+        # Returns 0xFF on power-cycle
+        # Returns 0x01 on first-boot
+        smf_mb_reg_reason = self._get_pmc_register('mb_poweron_reason')
+        return int(smf_mb_reg_reason, 16)
+
+    def _get_pmc_register(self, reg_name):
         rv = 'ERR'
         mb_reg_file = self.MAILBOX_DIR+'/'+reg_name
 
@@ -61,8 +68,12 @@ class Chassis(ChassisBase):
         """
         Retrieves the cause of the previous reboot
         """
-        reset_reason = int(self.get_pmc_register('smf_reset_reason'))
-        power_reason = int(self.get_pmc_register('smf_poweron_reason'))
+        reset_reason = int(self._get_pmc_register('smf_reset_reason'))
+        power_reason = int(self._get_pmc_register('smf_poweron_reason'))
+        smf_mb_reg_reason = self._get_reboot_reason_smf_register()
+
+        if ((smf_mb_reg_reason == 0x01) and (power_reason == 0x11)):
+            return (ChassisBase.REBOOT_CAUSE_NON_HARDWARE, None)
 
         # Reset_Reason = 11 ==> PowerLoss
         # So return the reboot reason from Last Power_Reason Dictionary
@@ -71,10 +82,16 @@ class Chassis(ChassisBase):
         # checking key presence in dictionary else return
         # REBOOT_CAUSE_HARDWARE_OTHER as the Power_Reason and Reset_Reason
         # registers returned invalid data
+
+        # In S6100, if Reset_Reason is not 11 and smf_mb_reg_reason
+        # is ff or bb, then it is PowerLoss
         if (reset_reason == 11):
             if (power_reason in self.power_reason_dict):
                 return (self.power_reason_dict[power_reason], None)
         else:
+            if ((smf_mb_reg_reason == 0xbb) or (smf_mb_reg_reason == 0xff)):
+                return (ChassisBase.REBOOT_CAUSE_POWER_LOSS, None)
+
             if (reset_reason in self.reset_reason_dict):
                 return (self.reset_reason_dict[reset_reason], None)
 
