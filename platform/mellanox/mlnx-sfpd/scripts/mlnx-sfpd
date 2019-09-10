@@ -218,7 +218,7 @@ class MlnxSfpd:
 
                     sfp_state = sfp_value_status_dict.get(module_state, STATUS_UNKNOWN)
                     if sfp_state == STATUS_UNKNOWN:
-                        log_error("unknown module state {} on port {}".format(module_state, port))
+                        log_info("Got module state {} on port(s) {}, ignored".format(module_state, port_list))
                         continue
 
                     for port in port_list:
