@@ -88,14 +88,22 @@ To build SONiC installer image and docker images, run the following commands:
 
 ## Usage for ARM Architecture
 To build Arm32 bit for (ARMHF) plaform
+    ARM build has dependency in docker version 18,
+    if docker version is 19, downgrade to 18 as below
+    sudo apt-get install --allow-downgrades  -y docker-ce=5:18.09.0~3-0~ubuntu-xenial
+    sudo apt-get install --allow-downgrades  -y docker-ce-cli=5:18.09.0~3-0~ubuntu-xenial
 
     # Execute make configure once to configure ASIC and ARCH
 
     make configure PLATFORM=[ASIC_VENDOR] PLATFORM_ARCH=armhf
 
-    **example**:
+    make target/sonic-[ASIC_VENDER]-armhf.bin
+
+    # example:
 
     make configure PLATFORM=marvell-armhf PLATFORM_ARCH=armhf
+
+    make target/sonic-marvell-armhf.bin
 
 
 
@@ -105,7 +113,7 @@ To build Arm64 bit for plaform
 
     make configure PLATFORM=[ASIC_VENDOR] PLATFORM_ARCH=arm64
 
-    **example**:
+    # example:
 
     make configure PLATFORM=marvell-arm64 PLATFORM_ARCH=arm64
 
