@@ -283,4 +283,4 @@ class Fan(FanBase):
             An integer, the percentage of full fan speed, in the range 0
             (off) to 100 (full speed)
         """
-        return  0
+        return 79
