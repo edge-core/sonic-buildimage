@@ -36,3 +36,6 @@ $(DELL_S5232F_PLATFORM_MODULE)_PLATFORM = x86_64-dellemc_s5232f_c3538-r0
 $(eval $(call add_extra_package,$(DELL_Z9100_PLATFORM_MODULE),$(DELL_S5232F_PLATFORM_MODULE)))
 
 SONIC_STRETCH_DEBS += $(DELL_Z9100_PLATFORM_MODULE)
+
+#flashrom tool
+$(shell ./$(PLATFORM_PATH)/sonic-platform-modules-dell/tools/flashrom.sh  > /dev/null 2>&1)

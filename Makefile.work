@@ -227,18 +227,24 @@ init :
 	@git submodule update --init --recursive
 	@git submodule foreach --recursive '[ -f .git ] && echo "gitdir: $$(realpath --relative-to=. $$(cut -d" " -f2 .git))" > .git'
 
+.ONESHELL : reset
 reset :
 	@echo && echo -n "Warning! All local changes will be lost. Proceed? [y/N]: "
-	@read ans && \
-	    if [ $$ans == y ]; then \
-	        echo "Resetting local repository. Please wait..."; \
-	        $(DOCKER_RUN) $(SLAVE_IMAGE):$(SLAVE_TAG) sudo rm -rf fsroot; \
-	        git clean -xfdf; \
-	        git reset --hard; \
-	        git submodule foreach --recursive git clean -xfdf; \
-	        git submodule foreach --recursive git reset --hard; \
-	        git submodule update --init --recursive; \
-			echo "Reset complete!"; \
-	    else \
-	        echo "Reset aborted"; \
-	    fi
+	@read ans && (
+	    if [ $$ans == y ]; then
+	        echo "Resetting local repository. Please wait...";
+	        $(DOCKER_RUN) $(SLAVE_IMAGE):$(SLAVE_TAG) sudo rm -rf fsroot;
+	        if [[ "$(CONFIGURED_ARCH)" == "armhf" || "$(CONFIGURED_ARCH)" ==  "arm64" ]]; then
+	            echo "Stopping march $(CONFIGURED_ARCH) docker"
+	            sudo kill -9 `sudo cat /var/run/march/docker.pid` || true
+	            sudo rm -f /var/run/march/docker.pid || true
+	        fi
+	        git clean -xfdf;
+	        git reset --hard;
+	        git submodule foreach --recursive git clean -xfdf;
+	        git submodule foreach --recursive git reset --hard;
+	        git submodule update --init --recursive;
+	        echo "Reset complete!";
+	    else
+	        echo "Reset aborted";
+	    fi )

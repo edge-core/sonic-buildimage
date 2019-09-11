@@ -2,6 +2,7 @@
 Description=Database container
 Requires=docker.service
 After=docker.service
+After=rc-local.service
 
 [Service]
 User=root

@@ -141,6 +141,8 @@ start)
         sleep 0.1
         done
 
+        /bin/sh /usr/local/bin/platform_api_mgnt.sh init
+
         echo "done."
         ;;
 

@@ -110,7 +110,7 @@ static ssize_t get_swpld_reg(struct device *dev, struct device_attribute *dev_at
             case SWPLD3_MAJOR_VER ... PLATFORM_TYPE :
                 cmd_data[1] = SWPLD3_ADDR;
                 break;
-            case SWPLD4_MAJOR_VER ... FAN_EEPROM_WP :
+            case SW_BOARD_ID1 ... FAN_EEPROM_WP :
                 cmd_data[1] = SWPLD4_ADDR;
                 break;
             default:
@@ -244,7 +244,7 @@ static ssize_t set_swpld_reg(struct device *dev, struct device_attribute *dev_at
             case SWPLD3_MAJOR_VER ... PLATFORM_TYPE://SWPLD3
                 cmd_data[1] = SWPLD3_ADDR;
                 break;
-            case SWPLD4_MAJOR_VER ... FAN_EEPROM_WP://SWPLD4
+            case SW_BOARD_ID1 ... FAN_EEPROM_WP://SWPLD4
                 cmd_data[1] = SWPLD4_ADDR;
                 break;
             default:
@@ -303,9 +303,6 @@ static SENSOR_DEVICE_ATTR(psu1_pwr_ok,       S_IRUGO,           get_swpld_reg, N
 static SENSOR_DEVICE_ATTR(psu1_int,          S_IRUGO,           get_swpld_reg, NULL,          PSU1_INT);
 static SENSOR_DEVICE_ATTR(psu2_pwr_ok,       S_IRUGO,           get_swpld_reg, NULL,          PSU2_PWR_OK);
 static SENSOR_DEVICE_ATTR(psu2_int,          S_IRUGO,           get_swpld_reg, NULL,          PSU2_INT);
-static SENSOR_DEVICE_ATTR(synce_int,         S_IRUGO,           get_swpld_reg, NULL,          SYNCE_INT);
-static SENSOR_DEVICE_ATTR(synce_rst,         S_IRUGO | S_IWUSR, get_swpld_reg, set_swpld_reg, SYNCE_RST);
-static SENSOR_DEVICE_ATTR(synce_eeprom_wp,   S_IRUGO | S_IWUSR, get_swpld_reg, set_swpld_reg, SYNCE_EEPROM_WP);
 static SENSOR_DEVICE_ATTR(psu1_green_led,    S_IRUGO | S_IWUSR, get_swpld_reg, set_swpld_reg, PSU1_GREEN_LED);
 static SENSOR_DEVICE_ATTR(psu1_red_led,      S_IRUGO | S_IWUSR, get_swpld_reg, set_swpld_reg, PSU1_RED_LED);
 static SENSOR_DEVICE_ATTR(psu2_green_led,    S_IRUGO | S_IWUSR, get_swpld_reg, set_swpld_reg, PSU2_GREEN_LED);
@@ -329,29 +326,19 @@ static SENSOR_DEVICE_ATTR(sb_ver,            S_IRUGO,           get_swpld_reg, N
 static SENSOR_DEVICE_ATTR(platform_type,     S_IRUGO,           get_swpld_reg, NULL,          PLATFORM_TYPE);
 
 //SWPLD4
-static SENSOR_DEVICE_ATTR(swpld4_major_ver,  S_IRUGO,           get_swpld_reg, NULL,          SWPLD4_MAJOR_VER);
-static SENSOR_DEVICE_ATTR(swpld4_minor_ver,  S_IRUGO,           get_swpld_reg, NULL,          SWPLD4_MINOR_VER);
-static SENSOR_DEVICE_ATTR(swpld4_scrtch_reg, S_IRUGO | S_IWUSR, get_swpld_reg, set_swpld_reg, SWPLD4_SCRTCH_REG);
-static SENSOR_DEVICE_ATTR(bmc_rst,           S_IRUGO | S_IWUSR, get_swpld_reg, set_swpld_reg, BMC_RST);
-static SENSOR_DEVICE_ATTR(cpld_lpc_rst,      S_IRUGO | S_IWUSR, get_swpld_reg, set_swpld_reg, CPLD_LPC_RST);
-static SENSOR_DEVICE_ATTR(cpld_sw_rst,       S_IRUGO | S_IWUSR, get_swpld_reg, set_swpld_reg, CPLD_SW_RST);
-static SENSOR_DEVICE_ATTR(mb_cpld_rst,       S_IRUGO | S_IWUSR, get_swpld_reg, set_swpld_reg, MB_CPLD_RST);
-static SENSOR_DEVICE_ATTR(bcm56970_rst,      S_IRUGO | S_IWUSR, get_swpld_reg, set_swpld_reg, BCM56970_RST);
-
-static SENSOR_DEVICE_ATTR(cpld_upgrade_rst, S_IRUGO,           get_swpld_reg, NULL,          CPLD_UPGRADE_RST);
-static SENSOR_DEVICE_ATTR(mb_rst_cpld,      S_IRUGO,           get_swpld_reg, NULL,          MB_RST_CPLD);
-static SENSOR_DEVICE_ATTR(cpu_rst_mb_oob,   S_IRUGO,           get_swpld_reg, NULL,          CPU_RST_MB_OOB);
-static SENSOR_DEVICE_ATTR(gpio_phy_rst,     S_IRUGO,           get_swpld_reg, NULL,          GPIO_PHY_RST);
-static SENSOR_DEVICE_ATTR(psu_fan_event,    S_IRUGO,           get_swpld_reg, NULL,          PSU_FAN_EVENT);
-static SENSOR_DEVICE_ATTR(cpu_thermal_int,  S_IRUGO,           get_swpld_reg, NULL,          CPU_THERMAL_INT);
-static SENSOR_DEVICE_ATTR(fan_int,          S_IRUGO,           get_swpld_reg, NULL,          FAN_INT);
-
-static SENSOR_DEVICE_ATTR(cpld_spi_wp,      S_IRUGO | S_IWUSR, get_swpld_reg, set_swpld_reg, CPLD_SPI_WP);
-static SENSOR_DEVICE_ATTR(rj45_console_sel, S_IRUGO | S_IWUSR, get_swpld_reg, set_swpld_reg, RJ45_CONSOLE_SEL);
-static SENSOR_DEVICE_ATTR(system_int,       S_IRUGO | S_IWUSR, get_swpld_reg, set_swpld_reg, SYSTEM_INT);
-static SENSOR_DEVICE_ATTR(cpld_mb_rst_done, S_IRUGO | S_IWUSR, get_swpld_reg, set_swpld_reg, CPLD_MB_RST_DONE);
-static SENSOR_DEVICE_ATTR(mb_pwr_ok,        S_IRUGO | S_IWUSR, get_swpld_reg, set_swpld_reg, MB_PWR_OK);
-static SENSOR_DEVICE_ATTR(fan_eeprom_wp,    S_IRUGO | S_IWUSR, get_swpld_reg, set_swpld_reg, FAN_EEPROM_WP);
+static SENSOR_DEVICE_ATTR(sw_board_id1,      S_IRUGO,           get_swpld_reg, NULL,          SW_BOARD_ID1);
+static SENSOR_DEVICE_ATTR(sw_board_id2,      S_IRUGO,           get_swpld_reg, NULL,          SW_BOARD_ID2);
+static SENSOR_DEVICE_ATTR(swbd_ver,          S_IRUGO,           get_swpld_reg, NULL,          SWBD_VER);
+static SENSOR_DEVICE_ATTR(swpld4_ver,        S_IRUGO,           get_swpld_reg, NULL,          SWPLD4_VER);
+static SENSOR_DEVICE_ATTR(psu_fan_event,     S_IRUGO,           get_swpld_reg, NULL,          PSU_FAN_EVENT);
+static SENSOR_DEVICE_ATTR(cpu_thermal_int,   S_IRUGO,           get_swpld_reg, NULL,          CPU_THERMAL_INT);
+static SENSOR_DEVICE_ATTR(fan_int,           S_IRUGO,           get_swpld_reg, NULL,          FAN_INT);
+static SENSOR_DEVICE_ATTR(cpld_spi_wp,       S_IRUGO | S_IWUSR, get_swpld_reg, set_swpld_reg, CPLD_SPI_WP);
+static SENSOR_DEVICE_ATTR(rj45_console_sel,  S_IRUGO | S_IWUSR, get_swpld_reg, set_swpld_reg, RJ45_CONSOLE_SEL);
+static SENSOR_DEVICE_ATTR(system_int,        S_IRUGO | S_IWUSR, get_swpld_reg, set_swpld_reg, SYSTEM_INT);
+static SENSOR_DEVICE_ATTR(cpld_mb_rst_done,  S_IRUGO | S_IWUSR, get_swpld_reg, set_swpld_reg, CPLD_MB_RST_DONE);
+static SENSOR_DEVICE_ATTR(mb_pwr_ok,         S_IRUGO | S_IWUSR, get_swpld_reg, set_swpld_reg, MB_PWR_OK);
+static SENSOR_DEVICE_ATTR(fan_eeprom_wp,     S_IRUGO | S_IWUSR, get_swpld_reg, set_swpld_reg, FAN_EEPROM_WP);
 
 static struct attribute *swpld1_device_attrs[] = {
     &sensor_dev_attr_swpld1_reg_value.dev_attr.attr,
@@ -363,9 +350,6 @@ static struct attribute *swpld1_device_attrs[] = {
     &sensor_dev_attr_psu1_int.dev_attr.attr,
     &sensor_dev_attr_psu2_pwr_ok.dev_attr.attr,
     &sensor_dev_attr_psu2_int.dev_attr.attr,
-    &sensor_dev_attr_synce_int.dev_attr.attr,
-    &sensor_dev_attr_synce_rst.dev_attr.attr,
-    &sensor_dev_attr_synce_eeprom_wp.dev_attr.attr,
     &sensor_dev_attr_psu1_green_led.dev_attr.attr,
     &sensor_dev_attr_psu1_red_led.dev_attr.attr,
     &sensor_dev_attr_psu2_green_led.dev_attr.attr,
@@ -401,20 +385,10 @@ static struct attribute *swpld3_device_attrs[] = {
 };
 
 static struct attribute *swpld4_device_attrs[] = {
-    &sensor_dev_attr_swpld4_reg_value.dev_attr.attr,
-    &sensor_dev_attr_swpld4_reg_addr.dev_attr.attr,
-    &sensor_dev_attr_swpld4_major_ver.dev_attr.attr,
-    &sensor_dev_attr_swpld4_minor_ver.dev_attr.attr,
-    &sensor_dev_attr_swpld4_scrtch_reg.dev_attr.attr,
-    &sensor_dev_attr_bmc_rst.dev_attr.attr,
-    &sensor_dev_attr_cpld_lpc_rst.dev_attr.attr,
-    &sensor_dev_attr_cpld_sw_rst.dev_attr.attr,
-    &sensor_dev_attr_mb_cpld_rst.dev_attr.attr,
-    &sensor_dev_attr_bcm56970_rst.dev_attr.attr,
-    &sensor_dev_attr_cpld_upgrade_rst.dev_attr.attr,
-    &sensor_dev_attr_mb_rst_cpld.dev_attr.attr,
-    &sensor_dev_attr_cpu_rst_mb_oob.dev_attr.attr,
-    &sensor_dev_attr_gpio_phy_rst.dev_attr.attr,
+    &sensor_dev_attr_sw_board_id1.dev_attr.attr,
+    &sensor_dev_attr_sw_board_id2.dev_attr.attr,
+    &sensor_dev_attr_swbd_ver.dev_attr.attr,
+    &sensor_dev_attr_swpld4_ver.dev_attr.attr,
     &sensor_dev_attr_psu_fan_event.dev_attr.attr,
     &sensor_dev_attr_cpu_thermal_int.dev_attr.attr,
     &sensor_dev_attr_fan_int.dev_attr.attr,

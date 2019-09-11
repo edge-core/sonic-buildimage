@@ -51,6 +51,11 @@ Install pip and jinja in host build machine, execute below commands if j2/j2cli 
     sudo pip install --force-reinstall --upgrade jinja2>=2.10
     sudo pip install j2cli
 
+Configure your system to allow running the 'docker' command without 'sudo':
+    Add current user to the docker group
+	 `sudo gpasswd -a ${USER} docker`
+    Log out and log back in so that your group membership is re-evaluated
+
 ## SAI Version 
 Please refer to [SONiC roadmap](https://github.com/Azure/SONiC/wiki/Sonic-Roadmap-Planning) on the SAI version for each SONiC release. 
 

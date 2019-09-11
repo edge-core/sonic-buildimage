@@ -772,14 +772,12 @@ static SENSOR_DEVICE_ATTR(cpu_id,            S_IRUGO,           get_cpld_reg, NU
 static SENSOR_DEVICE_ATTR(mb_id,             S_IRUGO,           get_cpld_reg, NULL,         MB_ID);
 static SENSOR_DEVICE_ATTR(mb_ver,            S_IRUGO,           get_cpld_reg, NULL,         MB_VER);
 static SENSOR_DEVICE_ATTR(cpu0_pwr_ok,       S_IRUGO,           get_cpld_reg, NULL,         CPU0_PWR_OK);
-static SENSOR_DEVICE_ATTR(psu_over_temp,     S_IRUGO,           get_cpld_reg, NULL,         PSU_OVER_TEMP);
 static SENSOR_DEVICE_ATTR(pwr_rail_over_temp,    S_IRUGO,       get_cpld_reg, NULL,         PWR_RAIL_OVER_TEMP);
 static SENSOR_DEVICE_ATTR(cpu_disomic_over_temp, S_IRUGO,       get_cpld_reg, NULL,         CPU_DISOMIC_OVER_TEMP);
 static SENSOR_DEVICE_ATTR(ddr_over_temp,     S_IRUGO,           get_cpld_reg, NULL,         DDR_OVER_TEMP);
 static SENSOR_DEVICE_ATTR(cpld_pwr_on_rst,   S_IRUGO,           get_cpld_reg, NULL,         CPLD_PWR_ON_RST);
 static SENSOR_DEVICE_ATTR(cpld_hard_rst,     S_IRUGO,           get_cpld_reg, NULL,         CPLD_HARD_RST);
 static SENSOR_DEVICE_ATTR(cpld_rst,          S_IRUGO | S_IWUSR, get_cpld_reg, set_cpld_reg, CPLD_RST);
-static SENSOR_DEVICE_ATTR(mb_pwr,            S_IRUGO,           get_cpld_reg, NULL,         MB_PWR);
 static SENSOR_DEVICE_ATTR(mb_rst,            S_IRUGO | S_IWUSR, get_cpld_reg, set_cpld_reg, MB_RST);
 static SENSOR_DEVICE_ATTR(psu_fan_int,       S_IRUGO,           get_cpld_reg, NULL,         PSU_FAN_INT);
 static SENSOR_DEVICE_ATTR(op_module_int,     S_IRUGO,           get_cpld_reg, NULL,         OP_MODULE_INT);
@@ -800,14 +798,12 @@ static struct attribute *ag9064_cpld_attrs[] = {
     &sensor_dev_attr_mb_id.dev_attr.attr,
     &sensor_dev_attr_mb_ver.dev_attr.attr,
     &sensor_dev_attr_cpu0_pwr_ok.dev_attr.attr,
-    &sensor_dev_attr_psu_over_temp.dev_attr.attr,
     &sensor_dev_attr_pwr_rail_over_temp.dev_attr.attr,
     &sensor_dev_attr_cpu_disomic_over_temp.dev_attr.attr,
     &sensor_dev_attr_ddr_over_temp.dev_attr.attr,
     &sensor_dev_attr_cpld_pwr_on_rst.dev_attr.attr,
     &sensor_dev_attr_cpld_hard_rst.dev_attr.attr,
     &sensor_dev_attr_cpld_rst.dev_attr.attr,
-    &sensor_dev_attr_mb_pwr.dev_attr.attr,
     &sensor_dev_attr_mb_rst.dev_attr.attr,
     &sensor_dev_attr_psu_fan_int.dev_attr.attr,
     &sensor_dev_attr_op_module_int.dev_attr.attr,

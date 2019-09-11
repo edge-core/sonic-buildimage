@@ -1,6 +1,6 @@
 [Unit]
 Description=Router advertiser container
-Requires=updategraph.service swss.service
+Requires=updategraph.service
 After=updategraph.service swss.service
 Before=ntp-config.service
 
@@ -11,4 +11,4 @@ ExecStart=/usr/bin/{{ docker_container_name }}.sh wait
 ExecStop=/usr/bin/{{ docker_container_name }}.sh stop
 
 [Install]
-WantedBy=multi-user.target swss.service
+WantedBy=multi-user.target

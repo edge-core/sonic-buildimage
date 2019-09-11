@@ -10,8 +10,13 @@
 
 try:
     import os
+    import sys
+    import click
     import subprocess
-    import re
+    import glob
+    import sonic_device_util
+    from commands import getstatusoutput
+    from sonic_platform_base.platform_base import PlatformBase
     from sonic_platform_base.chassis_base import ChassisBase
     from sonic_platform.sfp import Sfp
     from sonic_platform.psu import Psu
@@ -57,15 +62,15 @@ class Chassis(ChassisBase):
            8: [6, 74],  9: [6, 75], 10: [6, 76], 11: [6, 77],
           12: [6, 78], 13: [6, 79], 14: [6, 80], 15: [6, 81],
           # IOM 2
-          16: [8, 50], 17: [8, 51], 18: [8, 52], 19: [8, 53],
-          20: [8, 54], 21: [8, 55], 22: [8, 56], 23: [8, 57],
-          24: [8, 58], 25: [8, 59], 26: [8, 60], 27: [8, 61],
-          28: [8, 62], 29: [8, 63], 30: [8, 64], 31: [8, 65],
+          16: [8, 34], 17: [8, 35], 18: [8, 36], 19: [8, 37],
+          20: [8, 38], 21: [8, 39], 22: [8, 40], 23: [8, 41],
+          24: [8, 42], 25: [8, 43], 26: [8, 44], 27: [8, 45],
+          28: [8, 46], 29: [8, 47], 30: [8, 48], 31: [8, 49],
           # IOM 3
-          32: [7, 34], 33: [7, 35], 34: [7, 36], 35: [7, 37],
-          36: [7, 38], 37: [7, 39], 38: [7, 40], 39: [7, 41],
-          40: [7, 42], 41: [7, 43], 42: [7, 44], 43: [7, 45],
-          44: [7, 46], 45: [7, 47], 46: [7, 48], 47: [7, 49],
+          32: [7, 50], 33: [7, 51], 34: [7, 52], 35: [7, 53],
+          36: [7, 54], 37: [7, 55], 38: [7, 56], 39: [7, 57],
+          40: [7, 58], 41: [7, 59], 42: [7, 60], 43: [7, 61],
+          44: [7, 62], 45: [7, 63], 46: [7, 64], 47: [7, 65],
           # IOM 4
           48: [9, 18], 49: [9, 19], 50: [9, 20], 51: [9, 21],
           52: [9, 22], 53: [9, 23], 54: [9, 24], 55: [9, 25],
@@ -154,6 +159,19 @@ class Chassis(ChassisBase):
         rv = rv.rstrip('\r\n')
         rv = rv.lstrip(" ")
         return rv
+
+    # Run bash command and print output to stdout
+    def run_command(self, command):
+        click.echo(click.style("Command: ", fg='cyan') +
+                   click.style(command, fg='green'))
+
+        proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+        (out, err) = proc.communicate()
+
+        click.echo(out)
+
+        if proc.returncode != 0:
+            sys.exit(proc.returncode)
 
     def get_name(self):
         """
@@ -306,3 +324,95 @@ class Chassis(ChassisBase):
                 return self._get_fpga_version()
 
         return None
+
+    def install_component_firmware(self, component_name, image_path):
+
+        bios_image = None
+        bios_version = "3.25.0."
+        bios_file_name = "S6100*BIOS*"
+        flashrom = "/usr/local/bin/flashrom"
+        PLATFORM_ROOT_PATH = '/usr/share/sonic/device'
+        machine_info = sonic_device_util.get_machine_info()
+        platform = sonic_device_util.get_platform_info(machine_info)
+        platform_path = "/".join([PLATFORM_ROOT_PATH, platform, "bin"])
+
+        warning = """
+        ********************************************************************
+        * Warning - Upgrading BIOS is inherently risky and should only be  *
+        * attempted when necessary.  A failure at this upgrade may cause   *
+        * a board RMA.  Proceed with caution !                             *
+        ********************************************************************
+        """
+
+        if component_name in self._component_name_list:
+            if component_name == self._component_name_list[0]:  # BIOS
+
+                # current BIOS version
+                current_bios_version = self.get_firmware_version("BIOS")
+
+                # Construct BIOS image path
+                if image_path is not None:
+                    image_path = image_path + platform_path
+                    for name in glob.glob(
+                                    os.path.join(image_path, bios_file_name)):
+                        bios_image = image_path = name
+
+                if not bios_image:
+                    print "BIOS image file not found:", image_path
+                    return False
+
+                # Extract BIOS image version
+                bios_image = os.path.basename(bios_image)
+                bios_image = bios_image.strip('S6100-BIOS-')
+                bios_image_version = bios_image.strip('.bin')
+
+                if bios_image_version.startswith(bios_version):
+                    bios_image_minor = bios_image_version.replace(
+                                                bios_image_version[:7], '')
+                    if bios_image_minor.startswith("2"):
+                        bios_image_minor = bios_image_minor.split("-")[1]
+
+                if current_bios_version.startswith(bios_version):
+                    current_bios_minor = current_bios_version.replace(
+                                                current_bios_version[:7], '')
+                    if current_bios_minor.startswith("2"):
+                        current_bios_minor = current_bios_minor.split("-")[1]
+
+                # BIOS version check
+                if bios_image_minor > current_bios_minor:
+
+                    print warning
+                    prompt_text = "New BIOS image " + bios_image_version + \
+                        " available to install, continue?"
+                    yes = click.confirm(prompt_text)
+
+                elif current_bios_minor > bios_image_minor:
+
+                    print warning
+                    prompt_text = "Do you want to downgrade BIOS image from " \
+                        + current_bios_version + " to " + \
+                        bios_image_version + " continue?"
+
+                    yes = click.confirm(prompt_text)
+
+                else:
+                    print("BIOS is already with {} latest version".format(
+                        current_bios_version))
+                    return True
+
+                if yes:
+                    command = flashrom + " -p" + " internal" + " -w " + \
+                                         image_path
+                    self.run_command(command)
+
+            elif component_name == self._component_name_list[1]:  # CPLD1
+                return False
+
+            elif component_name == self._component_name_list[2]:  # SMF
+                return False
+        else:
+            print "Invalid component Name:", component_name
+
+        return True
+
+

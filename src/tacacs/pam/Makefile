@@ -18,6 +18,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	git apply ../0002-Fix-libtac2-bin-install-directory-error.patch
 	git apply ../0003-Obfuscate-key-before-printing-to-syslog.patch
 	git apply ../0004-management-vrf-support.patch
+	git apply ../0005-pam-Modify-parsing-of-IP-address-and-port-number-to-.patch
 
 	dpkg-buildpackage -rfakeroot -b -us -uc
 	popd

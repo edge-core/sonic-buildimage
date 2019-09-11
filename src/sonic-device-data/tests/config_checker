@@ -33,7 +33,7 @@ def check_file(file_name):
                 # Remove trailing unit ".<number>$"
                 p = re.sub(r"\.[0-9]+$", '', p)
                 # Remove trailing port name
-                p = re.sub(r"_[cxg]e(\d+)?$", '', p)
+                p = re.sub(r"_[cxg][de](\d+)?$", '', p)
                 # Remove trailing port id "{id/number}"
                 p = re.sub(r"\{.*\}", '', p)
                 # Remove trailing port name example
