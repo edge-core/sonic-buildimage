@@ -151,18 +151,12 @@ def driver_check():
     if len(lsmod) ==0:
         return False   
     return True
-
-
-        self.insmod("accton_i2c_cpld")
-        self.insmod("cpr_4011_4mxx")
-        self.insmod("ym2651y")
-        for m in [ "sfp", "psu", "fan", "leds" ]:
-            self.insmod("x86-64-accton-as5812-54t-%s" % m)
 			
 kos = [
 'modprobe i2c_dev',
 'modprobe i2c_mux_pca954x force_deselect_on_exit=1',
-'modprobe accton_i2c_cpld'  ,
+'modprobe optoe',
+'modprobe x86-64-accton-as5812-54t-cpld'     ,
 'modprobe cpr_4011_4mxx'  ,
 'modprobe ym2651y'                  ,
 'modprobe x86-64-accton-as5812-54t-sfp'     ,
@@ -172,6 +166,7 @@ kos = [
 
 def driver_install():
     global FORCE
+    status, output = log_os_system("depmod", 1)
     for i in range(0,len(kos)):
         status, output = log_os_system(kos[i], 1)
         if status:
@@ -184,6 +179,10 @@ def driver_uninstall():
     for i in range(0,len(kos)):
         rm = kos[-(i+1)].replace("modprobe", "modprobe -rq")
         rm = rm.replace("insmod", "rmmod")        
+        lst = rm.split(" ")
+        if len(lst) > 3:
+            del(lst[3])
+        rm = " ".join(lst)
         status, output = log_os_system(rm, 1)
         if status:
             if FORCE == 0:        
@@ -212,7 +211,7 @@ sfp_1st_index = 48
 mknod =[                 
 'echo pca9548 0x71 > /sys/bus/i2c/devices/i2c-0/new_device',
 'echo pca9548 0x70 > /sys/bus/i2c/devices/i2c-1/new_device' ,
-'echo accton_i2c_cpld 0x60 > /sys/bus/i2c/devices/i2c-0/new_device',
+'echo as5812_54t_cpld 0x60 > /sys/bus/i2c/devices/i2c-0/new_device',
 'echo lm75 0x48 > /sys/bus/i2c/devices/i2c-15/new_device',
 'echo lm75 0x49 > /sys/bus/i2c/devices/i2c-16/new_device',
 'echo lm75 0x4a > /sys/bus/i2c/devices/i2c-17/new_device',
@@ -229,7 +228,7 @@ mknod =[
 mknod2 =[                 
 'echo pca9548 0x71 > /sys/bus/i2c/devices/i2c-1/new_device',
 'echo pca9548 0x70 > /sys/bus/i2c/devices/i2c-0/new_device' ,
-'echo accton_i2c_cpld 0x60 > /sys/bus/i2c/devices/i2c-1/new_device',
+'echo as5812_54t_cpld 0x60 > /sys/bus/i2c/devices/i2c-1/new_device',
 'echo lm75 0x48 > /sys/bus/i2c/devices/i2c-15/new_device',
 'echo lm75 0x49 > /sys/bus/i2c/devices/i2c-16/new_device',
 'echo lm75 0x4a > /sys/bus/i2c/devices/i2c-17/new_device',
@@ -286,8 +285,8 @@ def device_install():
                 print output
                 if FORCE == 0:                
                     return status  
-    for i in range(sfp_1st_index,len(sfp_map)):
-        status, output =log_os_system("echo sfp"+str(i+1)+" 0x50 > /sys/bus/i2c/devices/i2c-"+str(sfp_map[i])+"/new_device", 1)
+    for i in range(0,len(sfp_map)):
+        status, output =log_os_system("echo optoe1 0x50 > /sys/bus/i2c/devices/i2c-"+str(sfp_map[i])+"/new_device", 1)
         if status:
             print output
             if FORCE == 0:            

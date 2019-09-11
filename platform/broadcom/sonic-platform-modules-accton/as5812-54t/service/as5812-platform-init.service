@@ -1,13 +1,17 @@
 [Unit]
-Description=Accton AS5712-54T Platform initialization service
+Description=Accton AS5812-54X Platform Monitoring service
 Before=pmon.service
+After=sysinit.target
 DefaultDependencies=no
 
 [Service]
-Type=oneshot
-ExecStart=/usr/local/bin/accton_as5812_54t_util.py install
-ExecStop=/usr/local/bin/accton_as5812_54t_util.py clean
-RemainAfterExit=yes
+Type=simple
+ExecStartPre=/usr/local/bin/accton_as5812_util.py install
+ExecStart=/usr/local/bin/accton_as5812_monitor.py
+#RemainAfterExit=yes
+
+# Resource Limitations
+LimitCORE=infinity
 
 [Install]
 WantedBy=multi-user.target
