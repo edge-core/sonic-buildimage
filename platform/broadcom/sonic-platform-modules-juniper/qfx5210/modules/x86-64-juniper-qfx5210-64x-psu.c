@@ -1,7 +1,7 @@
 /*
  * An hwmon driver for juniper qfx5210_64x Power Module
  *
- * Tested and validated on Juniper QFX5210
+ * Modified and tested on Juniper QFX5210
  * Ciju Rajan K <crajank@juniper.net>
  *
  * Copyright (C) 2014 Accton Technology Corporation.
@@ -103,6 +103,30 @@ static const struct attribute_group qfx5210_64x_psu_group = {
     .attrs = qfx5210_64x_psu_attributes,
 };
 
+/*
+ * This function is defined in juniper_i2c_cpld.c
+ */
+extern int juniper_i2c_cpld_write(unsigned short, u8, u8);
+
+/*
+ * QFX5210 power off sequence
+ */
+static void qfx5210_cpld_power_off(void)
+{
+    printk(KERN_ALERT "pm_power_off: qfx5210_cpld_power_off\n");
+    (void) juniper_i2c_cpld_write(0x65, 0x14, 0x00);
+    msleep(100);
+    (void) juniper_i2c_cpld_write(0x77, 0x00, 0x01);
+    msleep(100);
+    (void) juniper_i2c_cpld_write(0x76, 0x00, 0x04);
+}
+
+/*
+ * Default platform pm_power_off handler 
+ */
+static void (*default_pm_power_off)(void);
+
+
 static int qfx5210_64x_psu_probe(struct i2c_client *client,
             const struct i2c_device_id *dev_id)
 {
@@ -141,7 +165,12 @@ static int qfx5210_64x_psu_probe(struct i2c_client *client,
 
     dev_info(&client->dev, "%s: psu '%s'\n",
          dev_name(data->hwmon_dev), client->name);
-    
+    /*
+     * Store the default poweroff handler for later usage 
+     */
+    default_pm_power_off = pm_power_off;
+    pm_power_off = qfx5210_cpld_power_off;
+
     return 0;
 
 exit_remove:
@@ -160,6 +189,11 @@ static int qfx5210_64x_psu_remove(struct i2c_client *client)
     hwmon_device_unregister(data->hwmon_dev);
     sysfs_remove_group(&client->dev.kobj, &qfx5210_64x_psu_group);
     kfree(data);
+    
+    /*
+     * Restore the poweroff handler
+     */
+    pm_power_off = default_pm_power_off;
     
     return 0;
 }

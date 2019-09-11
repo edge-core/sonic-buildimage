@@ -43,146 +43,79 @@ class SfpUtil(SfpUtilBase):
     cmd = '/var/run/sfppresence' 
     _port_to_eeprom_mapping = {}
     port_to_i2c_mapping = {
-        61 : 25,
-        62 : 26,
-        63 : 27,
-        64 : 28,
-        55 : 29,
-        56 : 30,
-        53 : 31,
-        54 : 32,
-        9  : 33,
-        10 : 34,
-        11 : 35,
-        12 : 36,
-        1  : 37,
-        2  : 38,
-        3  : 39,
-        4  : 40,
-        6  : 41,
-        5  : 42,
-        8  : 43,
-        7  : 44,
-        13 : 45,
-        14 : 46,
-        15 : 47,
-        16 : 48,
-        17 : 49,
-        18 : 50,
-        19 : 51,
-        20 : 52,
-        25 : 53,
-        26 : 54,
-        27 : 55,
-        28 : 56,
-        29 : 57,
-        30 : 58,
-        31 : 59,
-        32 : 60,
-        21 : 61,
-        22 : 62,
-        23 : 63,
-        24 : 64,
-        41 : 65,
-        42 : 66,
-        43 : 67,
-        44 : 68,
-        33 : 69,
-        34 : 70,
-        35 : 71,
-        36 : 72,
-        45 : 73,
-        46 : 74,
-        47 : 75,
-        48 : 76,
-        37 : 77,
-        38 : 78,
-        39 : 79,
-        40 : 80,
-        57 : 81,
-        58 : 82,
-        59 : 83,
-        60 : 84,
-        49 : 85,
-        50 : 86,
-        51 : 87,
-        52 : 88,}
+        60 : 25,
+        61 : 26,
+        62 : 27,
+        63 : 28,
+        54 : 29,
+        55 : 30,
+        52 : 31,
+        53 : 32,
+        8  : 33,
+        9 : 34,
+        10 : 35,
+        11 : 36,
+        0  : 37,
+        1  : 38,
+        2  : 39,
+        3  : 40,
+        5  : 41,
+        4  : 42,
+        7  : 43,
+        6  : 44,
+        12 : 45,
+        13 : 46,
+        14 : 47,
+        15 : 48,
+        16 : 49,
+        17 : 50,
+        18 : 51,
+        19 : 52,
+        24 : 53,
+        25 : 54,
+        26 : 55,
+        27 : 56,
+        28 : 57,
+        29 : 58,
+        30 : 59,
+        31 : 60,
+        20 : 61,
+        21 : 62,
+        22 : 63,
+        23 : 64,
+        40 : 65,
+        41 : 66,
+        42 : 67,
+        43 : 68,
+        32 : 69,
+        33 : 70,
+        34 : 71,
+        35 : 72,
+        44 : 73,
+        45 : 74,
+        46 : 75,
+        47 : 76,
+        36 : 77,
+        37 : 78,
+        38 : 79,
+        39 : 80,
+        56 : 81,
+        57 : 82,
+        58 : 83,
+        59 : 84,
+        48 : 85,
+        49 : 86,
+        50 : 87,
+        51 : 88,}
 
-    port_to_sysfs_map = [
-        '/sys/bus/i2c/devices/37-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/38-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/39-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/40-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/42-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/41-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/44-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/43-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/33-0050/sfp_is_present',
-        '/sys/bus/i2c/devices/34-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/35-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/36-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/45-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/46-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/47-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/48-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/49-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/50-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/51-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/52-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/61-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/62-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/63-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/64-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/53-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/54-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/55-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/56-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/57-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/58-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/59-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/60-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/69-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/70-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/71-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/72-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/77-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/78-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/79-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/80-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/65-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/66-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/67-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/68-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/73-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/74-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/75-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/76-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/85-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/86-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/87-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/88-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/31-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/32-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/29-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/30-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/81-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/82-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/83-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/84-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/25-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/26-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/27-0050/sfp_is_present', 
-        '/sys/bus/i2c/devices/28-0050/sfp_is_present'
-
-        ]
         # sys.path.append('/usr/local/bin')
     _qsfp_ports = range(0, ports_in_block + 1)
 
 
     def __init__(self):
-        eeprom_path = '/sys/bus/i2c/devices/{0}-0050/sfp_eeprom'
-        for x in range(0, self._port_end + 1):
-            port_eeprom_path = eeprom_path.format(self.port_to_i2c_mapping[x+1])
+        eeprom_path = '/sys/bus/i2c/devices/{0}-0050/eeprom'
+        for x in range(self._port_start, self._port_end + 1):
+            port_eeprom_path = eeprom_path.format(self.port_to_i2c_mapping[x])
             self._port_to_eeprom_mapping[x] = port_eeprom_path
         SfpUtilBase.__init__(self)
 
@@ -210,10 +143,9 @@ class SfpUtil(SfpUtilBase):
         if port_num < self._port_start or port_num > self._port_end:
             return False
 
-        path = "/sys/bus/i2c/devices/{0}-0050/sfp_is_present"
-        port_ps = path.format(self.port_to_i2c_mapping[port_num+1])
+        path = "/sys/bus/i2c/devices/19-0060/module_present_{0}"
+        port_ps = path.format(port_num + 1)
 
-          
         try:
             reg_file = open(port_ps)
         except IOError as e:
@@ -278,6 +210,8 @@ class SfpUtil(SfpUtilBase):
         current_sfp_values = [0] * 64
         previous_sfp_values = [0] * 64
 
+        path = "/sys/bus/i2c/devices/19-0060/module_present_{0}"
+
         if not os.path.isfile(self.cmd):
             pass
         else:
@@ -287,9 +221,10 @@ class SfpUtil(SfpUtilBase):
                 previous_sfp_values = self.read_from_file(self.cmd)
 
          # Read the current values from sysfs
-        for x in range(len(self.port_to_sysfs_map)):
+        for x in range(self._port_start , self._port_end + 1):
             try:
-                reg_file = open(self.port_to_sysfs_map[x], 'r')
+                new_path = path.format(x + 1)
+                reg_file = open(new_path, 'r')
             except IOError as e:
                 print "Error: unable to open file: %s" % str(e)
                 return False, defl_dict
@@ -305,7 +240,7 @@ class SfpUtil(SfpUtilBase):
         else:
             return False, defl_dict
 
-    def get_transceiver_change_event(self):
+    def get_transceiver_change_event(self, timeout=2000):
         time.sleep(3)
         return self.sfp_detect()
 
