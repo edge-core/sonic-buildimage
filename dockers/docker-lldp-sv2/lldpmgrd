@@ -131,6 +131,8 @@ class LldpManager(object):
         For port `port_name`, look up the description and alias in the Config database,
         then form the appropriate lldpcli configuration command and run it.
         """
+        port_desc = None
+
         # Retrieve all entires for this port from the Port table
         port_table = swsscommon.Table(self.config_db, swsscommon.CFG_PORT_TABLE_NAME)
         (status, fvp) = port_table.get(port_name)
