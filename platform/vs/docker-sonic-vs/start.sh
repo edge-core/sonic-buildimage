@@ -18,7 +18,7 @@ if [ -f /etc/sonic/config_db.json ]; then
 else
     # generate and merge buffers configuration into config file
     sonic-cfggen -t /usr/share/sonic/hwsku/buffers.json.j2 > /tmp/buffers.json
-    sonic-cfggen -t /usr/share/sonic/hwsku/qos.json.j2 > /tmp/qos.json
+    sonic-cfggen -j /etc/sonic/init_cfg.json -t /usr/share/sonic/hwsku/qos.json.j2 > /tmp/qos.json
     sonic-cfggen -p /usr/share/sonic/hwsku/port_config.ini -k $HWSKU --print-data > /tmp/ports.json
     sonic-cfggen -j /etc/sonic/init_cfg.json -j /tmp/buffers.json -j /tmp/qos.json -j /tmp/ports.json --print-data > /etc/sonic/config_db.json
 fi
