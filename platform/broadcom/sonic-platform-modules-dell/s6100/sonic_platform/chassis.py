@@ -15,7 +15,6 @@ try:
     import subprocess
     import glob
     import sonic_device_util
-    from commands import getstatusoutput
     from sonic_platform_base.platform_base import PlatformBase
     from sonic_platform_base.chassis_base import ChassisBase
     from sonic_platform.sfp import Sfp
@@ -345,7 +344,7 @@ class Chassis(ChassisBase):
         """
 
         if component_name in self._component_name_list:
-            if component_name == self._component_name_list[0]:  # BIOS
+            if component_name == COMPONENT_BIOS:  # BIOS
 
                 # current BIOS version
                 current_bios_version = self.get_firmware_version("BIOS")
@@ -405,10 +404,10 @@ class Chassis(ChassisBase):
                                          image_path
                     self.run_command(command)
 
-            elif component_name == self._component_name_list[1]:  # CPLD1
+            elif component_name == SWITCH_CPLD:  # CPLD
                 return False
 
-            elif component_name == self._component_name_list[2]:  # SMF
+            elif component_name == SMF_FPGA:  # SMF
                 return False
         else:
             print "Invalid component Name:", component_name
