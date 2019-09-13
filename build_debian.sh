@@ -307,31 +307,8 @@ sudo sed -i 's/^ListenAddress ::/#ListenAddress ::/' $FILESYSTEM_ROOT/etc/ssh/ss
 sudo sed -i 's/^#ListenAddress 0.0.0.0/ListenAddress 0.0.0.0/' $FILESYSTEM_ROOT/etc/ssh/sshd_config
 
 ## Config monit
-sudo sed -i '
-    s/^# set logfile syslog/set logfile syslog/;
-    s/^\s*set logfile \/var/# set logfile \/var/;
-    s/^# set httpd port/set httpd port/;
-    s/^#    use address localhost/   use address localhost/;
-    s/^#    allow localhost/   allow localhost/;
-    s/^#    allow admin:monit/   allow admin:monit/;
-    s/^#    allow @monit/   allow @monit/;
-    s/^#    allow @users readonly/   allow @users readonly/
-    ' $FILESYSTEM_ROOT/etc/monit/monitrc
-
-sudo tee -a $FILESYSTEM_ROOT/etc/monit/monitrc > /dev/null <<'EOF'
-check filesystem root-overlay with path /
-  if space usage > 90% for 5 times within 10 cycles then alert
-check filesystem var-log with path /var/log
-  if space usage > 90% for 5 times within 10 cycles then alert
-check system $HOST
-  if memory usage > 50% for 5 times within 10 cycles then alert
-  if cpu usage (user) > 90% for 5 times within 10 cycles then alert
-  if cpu usage (system) > 90% for 5 times within 10 cycles then alert
-check process rsyslog with pidfile /var/run/rsyslogd.pid
-  start program = "/bin/systemctl start rsyslog.service"
-  stop program = "/bin/systemctl stop rsyslog.service"
-  if totalmem > 800 MB for 5 times within 10 cycles then restart
-EOF
+sudo cp files/image_config/monit/monitrc $FILESYSTEM_ROOT/etc/monit/
+sudo chmod 600 $FILESYSTEM_ROOT/etc/monit/monitrc
 
 ## Config sysctl
 sudo mkdir -p $FILESYSTEM_ROOT/var/core
