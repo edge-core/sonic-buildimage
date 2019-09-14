@@ -3,4 +3,4 @@
 0003-CHANGES-BUG-2743-snmpd-crashes-when-receiving-a-GetN.patch
 0004-Disable-SNMPv1.patch
 0005-Port-OpenSSL-1.1.0-with-support-for-1.0.2.patch
-0006-Release-all-requests-that-use-this-session.patch
+0006-From-Jiri-Cervenka-snmpd-Fixed-agentx-crashing-and-or-freezing-on-timeout.patch
