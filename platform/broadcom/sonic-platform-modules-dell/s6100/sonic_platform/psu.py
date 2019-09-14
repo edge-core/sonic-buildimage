@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 ########################################################################
-# DellEMC
+# DellEMC S6100
 #
 # Module contains an implementation of SONiC Platform Base API and
 # provides the PSUs' information which are available in the platform
@@ -43,10 +43,10 @@ class Psu(PsuBase):
         self._fan_list = []
 
         # Passing True to specify it is a PSU fan
-        psu_fan = Fan(self.index, True)
+        psu_fan = Fan(fan_index=self.index, psu_fan=True)
         self._fan_list.append(psu_fan)
 
-    def get_pmc_register(self, reg_name):
+    def _get_pmc_register(self, reg_name):
         # On successful read, returns the value read from given
         # reg_name and on failure returns 'ERR'
         rv = 'ERR'
@@ -82,7 +82,7 @@ class Psu(PsuBase):
             bool: True if PSU is present, False if not
         """
         status = False
-        psu_presence = self.get_pmc_register(self.psu_presence_reg)
+        psu_presence = self._get_pmc_register(self.psu_presence_reg)
         if (psu_presence != 'ERR'):
             psu_presence = int(psu_presence, 16)
             # Checking whether bit 0 is not set
@@ -100,7 +100,7 @@ class Psu(PsuBase):
         """
         # For Serial number "US-01234D-54321-25A-0123-A00", the part
         # number is "01234D"
-        psu_serialno = self.get_pmc_register(self.psu_serialno_reg)
+        psu_serialno = self._get_pmc_register(self.psu_serialno_reg)
         if (psu_serialno != 'ERR') and self.get_presence():
             if (len(psu_serialno.split('-')) > 1):
                 psu_partno = psu_serialno.split('-')[1]
@@ -119,7 +119,7 @@ class Psu(PsuBase):
             string: Serial number of PSU
         """
         # Sample Serial number format "US-01234D-54321-25A-0123-A00"
-        psu_serialno = self.get_pmc_register(self.psu_serialno_reg)
+        psu_serialno = self._get_pmc_register(self.psu_serialno_reg)
         if (psu_serialno == 'ERR') or not self.get_presence():
             psu_serialno = 'NA'
 
@@ -133,7 +133,7 @@ class Psu(PsuBase):
             bool: True if PSU is operating properly, False if not
         """
         status = False
-        psu_status = self.get_pmc_register(self.psu_presence_reg)
+        psu_status = self._get_pmc_register(self.psu_presence_reg)
         if (psu_status != 'ERR'):
             psu_status = int(psu_status, 16)
             # Checking whether both bit 3 and bit 2 are not set
@@ -150,7 +150,7 @@ class Psu(PsuBase):
             A float number, the output voltage in volts,
             e.g. 12.1
         """
-        psu_voltage = self.get_pmc_register(self.psu_voltage_reg)
+        psu_voltage = self._get_pmc_register(self.psu_voltage_reg)
         if (psu_voltage != 'ERR') and self.get_presence():
             # Converting the value returned by driver which is in
             # millivolts to volts
@@ -168,7 +168,7 @@ class Psu(PsuBase):
             A float number, electric current in amperes,
             e.g. 15.4
         """
-        psu_current = self.get_pmc_register(self.psu_current_reg)
+        psu_current = self._get_pmc_register(self.psu_current_reg)
         if (psu_current != 'ERR') and self.get_presence():
             # Converting the value returned by driver which is in
             # milliamperes to amperes
@@ -186,7 +186,7 @@ class Psu(PsuBase):
             A float number, the power in watts,
             e.g. 302.6
         """
-        psu_power = self.get_pmc_register(self.psu_power_reg)
+        psu_power = self._get_pmc_register(self.psu_power_reg)
         if (psu_power != 'ERR') and self.get_presence():
             # Converting the value returned by driver which is in
             # microwatts to watts
@@ -196,7 +196,33 @@ class Psu(PsuBase):
 
         return psu_power
 
-    def set_status_led(self):
+    def get_powergood_status(self):
+        """
+        Retrieves the powergood status of PSU
+
+        Returns:
+            A boolean, True if PSU has stablized its output voltages and
+            passed all its internal self-tests, False if not.
+        """
+        status = False
+        if self.get_status() and self._fan_list[0].get_status():
+            status = True
+
+        return status
+
+    def get_status_led(self):
+        """
+        Gets the state of the PSU status LED
+
+        Returns:
+            A string, one of the predefined STATUS_LED_COLOR_* strings.
+        """
+        if self.get_powergood_status():
+            return self.STATUS_LED_COLOR_GREEN
+        else:
+            return self.STATUS_LED_COLOR_OFF
+
+    def set_status_led(self, color):
         """
         Sets the state of the PSU status LED
         Args:
