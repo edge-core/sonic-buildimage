@@ -8,6 +8,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update
 
+RUN apt-get install -f -y iproute2=4.20.0-2~bpo9+1 libcap2-bin=1:2.25-1
+
 COPY \
 {% for deb in docker_syncd_vs_debs.split(' ') -%}
 debs/{{ deb }}{{' '}}
