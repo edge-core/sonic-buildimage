@@ -90,9 +90,10 @@ switch_board_modsel() {
 init_switch_port_led() {
     device="/usr/share/sonic/device"
     platform=$(/usr/local/bin/sonic-cfggen -H -v DEVICE_METADATA.localhost.platform)
-    hwsku=$(cat /etc/sonic/config_db.json | grep "hwsku" | cut -d ":" -f2 | sed 's/"//g' | sed 's/,//g'| xargs )
+    hwsku=$(cat /etc/sonic/config_db.json | grep -A10 "DEVICE_METADATA" | grep "hwsku" | cut -d ":" -f2 | sed 's/"//g' | sed 's/,//g'| xargs )
 
     led_proc_init="$device/$platform/$hwsku/led_proc_init.soc"
+
     # Remove old HWSKU LED file..
     rm -rf $device/$platform/led_proc_init.soc
 
