@@ -29,6 +29,7 @@
 
 
 {%- set pfc_to_pg_map_supported_asics = ['mellanox', 'barefoot', 'marvell'] -%}
+{%- set backend_device_types = ['BackEndToRRouter', 'BackEndLeafRouter'] -%}
 
 
 {
@@ -72,6 +73,20 @@
             "7": "7"
         }
     },
+{% if 'type' in DEVICE_METADATA['localhost'] and DEVICE_METADATA['localhost']['type'] in backend_device_types %}
+    "DOT1P_TO_TC_MAP": {
+        "AZURE": {
+            "0": "0",
+            "1": "1",
+            "2": "2",
+            "3": "3",
+            "4": "4",
+            "5": "5",
+            "6": "6",
+            "7": "7"
+        }
+    },
+{% else %}
     "DSCP_TO_TC_MAP": {
         "AZURE": {
             "0" : "1",
@@ -140,6 +155,7 @@
             "63": "1"
         }
     },
+{% endif %}
     "SCHEDULER": {
         "scheduler.0": {
             "type"  : "DWRR",
@@ -160,7 +176,11 @@
 {% endif %}
     "PORT_QOS_MAP": {
         "{{ port_names_active }}": {
+{% if 'type' in DEVICE_METADATA['localhost'] and DEVICE_METADATA['localhost']['type'] in backend_device_types %}
+            "dot1p_to_tc_map" : "[DOT1P_TO_TC_MAP|AZURE]",
+{% else %}
             "dscp_to_tc_map"  : "[DSCP_TO_TC_MAP|AZURE]",
+{% endif %}
             "tc_to_queue_map" : "[TC_TO_QUEUE_MAP|AZURE]",
             "tc_to_pg_map"    : "[TC_TO_PRIORITY_GROUP_MAP|AZURE]",
             "pfc_to_queue_map": "[MAP_PFC_PRIORITY_TO_QUEUE|AZURE]",

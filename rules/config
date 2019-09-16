@@ -95,3 +95,6 @@ FRR_USER_GID = 300
 
 # Default VS build memory preparation
 DEFAULT_VS_PREPARE_MEM = yes
+
+# ENABLE_SYSTEM_SFLOW - build docker-sonic-sflow for sFlow support
+ENABLE_SFLOW = y

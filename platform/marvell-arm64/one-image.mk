@@ -1,7 +1,7 @@
 # sonic marvell one image installer
 
-SONIC_ONE_IMAGE = sonic-marvell.bin
-$(SONIC_ONE_IMAGE)_MACHINE = marvell
+SONIC_ONE_IMAGE = sonic-marvell-arm64.bin
+$(SONIC_ONE_IMAGE)_MACHINE = marvell-arm64
 $(SONIC_ONE_IMAGE)_IMAGE_TYPE = onie
 $(SONIC_ONE_IMAGE)_INSTALLS += $(SYSTEMD_SONIC_GENERATOR)
 ifeq ($(INSTALL_DEBUG_TOOLS),y)

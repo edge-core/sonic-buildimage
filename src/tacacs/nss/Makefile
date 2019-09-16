@@ -5,7 +5,7 @@ SHELL = /bin/bash
 MAIN_TARGET = libnss-tacplus_$(NSS_TACPLUS_VERSION)_$(CONFIGURED_ARCH).deb
 
 GIT_APPLY = am
-ifeq ($(CONFIGURED_ARCH), armhf)
+ifneq (,$(filter $(CONFIGURED_ARCH), armhf arm64))
 # Workaround git am issue "Out of memory getdelim failed" 
 GIT_APPLY = apply
 endif

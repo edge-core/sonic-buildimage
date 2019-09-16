@@ -21,7 +21,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	stg init
 	stg import -s ../patch/series
 
-ifeq ($(CONFIGURED_ARCH), armhf)
+ifneq (,$(filter $(CONFIGURED_ARCH), armhf arm64))
 	stg import -s ../patch/series-armhf
 endif
 
