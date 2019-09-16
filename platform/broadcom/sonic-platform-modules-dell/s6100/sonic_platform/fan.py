@@ -209,6 +209,18 @@ class Fan(FanBase):
         status = False
         return status
 
+    def get_status_led(self):
+        """
+        Gets the state of the Fan status LED
+
+        Returns:
+            A string, one of the predefined STATUS_LED_COLOR_* strings.
+        """
+        if self.get_status():
+            return self.STATUS_LED_COLOR_GREEN
+        else:
+            return self.STATUS_LED_COLOR_OFF
+
     def get_target_speed(self):
         """
         Retrieves the target (expected) speed of the fan

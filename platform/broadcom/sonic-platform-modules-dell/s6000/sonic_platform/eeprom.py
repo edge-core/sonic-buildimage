@@ -35,7 +35,8 @@ psu_eeprom_format = [
 fan_eeprom_format = [
     ('PPID', 's', 20), ('DPN Rev', 's', 3), ('Service Tag', 's', 7),
     ('Part Number', 's', 10), ('Part Num Revision', 's', 3),
-    ('Mfg Test', 's', 2), ('Number of Fans', 's', 2), ('Fan Type', 's', 1),
+    ('Mfg Test', 's', 2), ('Redundant copy', 's', 82),
+    ('Number of Fans', 's', 1), ('Fan Type', 's', 1),
     ('Fab Rev', 's', 2)
     ]
 
@@ -86,6 +87,8 @@ class Eeprom(TlvInfoDecoder):
             self.base_mac = 'NA'
             self.serial_number = 'NA'
             self.part_number = 'NA'
+            self.model_str = 'NA'
+            self.serial = 'NA'
             self.eeprom_tlv_dict = dict()
         else:
             eeprom = self.eeprom_data
@@ -95,6 +98,8 @@ class Eeprom(TlvInfoDecoder):
                 self.base_mac = 'NA'
                 self.serial_number = 'NA'
                 self.part_number = 'NA'
+                self.model_str = 'NA'
+                self.serial = 'NA'
                 return
 
             total_length = (ord(eeprom[9]) << 8) | ord(eeprom[10])
@@ -123,11 +128,15 @@ class Eeprom(TlvInfoDecoder):
                 tlv_index += ord(eeprom[tlv_index+1]) + 2
 
             self.base_mac = self.eeprom_tlv_dict.get(
-                                hex(self._TLV_CODE_MAC_BASE), 'NA')
+                                "0x%X" % (self._TLV_CODE_MAC_BASE), 'NA')
             self.serial_number = self.eeprom_tlv_dict.get(
-                                     hex(self._TLV_CODE_SERIAL_NUMBER), 'NA')
+                                "0x%X" % (self._TLV_CODE_SERIAL_NUMBER), 'NA')
             self.part_number = self.eeprom_tlv_dict.get(
-                                   hex(self._TLV_CODE_PART_NUMBER), 'NA')
+                                "0x%X" % (self._TLV_CODE_PART_NUMBER), 'NA')
+            self.model_str = self.eeprom_tlv_dict.get(
+                                "0x%X" % (self._TLV_CODE_PRODUCT_NAME), 'NA')
+            self.serial = self.eeprom_tlv_dict.get(
+                                "0x%X" % (self._TLV_CODE_SERVICE_TAG), 'NA')
 
     def _load_device_eeprom(self):
         """
@@ -151,13 +160,19 @@ class Eeprom(TlvInfoDecoder):
                 if valid:
                     self.serial_number += "-" + data
             else:
-                seld.serial_number = 'NA'
+                self.serial_number = 'NA'
 
             (valid, data) = self._get_eeprom_field("Part Number")
             if valid:
                 self.part_number = data
             else:
                 self.part_number = 'NA'
+
+            (valid, data) = self._get_eeprom_field("Fan Type")
+            if valid:
+                self.fan_type = data
+            else:
+                self.fan_type = 'NA'
 
     def _get_eeprom_field(self, field_name):
         """
@@ -185,12 +200,30 @@ class Eeprom(TlvInfoDecoder):
         """
         return self.part_number
 
+    def airflow_fan_type(self):
+        """
+        Returns the airflow fan type.
+        """
+        return int(self.fan_type.encode('hex'), 16)
+
     # System EEPROM specific methods
     def base_mac_addr(self):
         """
         Returns the base MAC address found in the system EEPROM.
         """
         return self.base_mac
+
+    def modelstr(self):
+        """
+        Returns the Model name.
+        """
+        return self.model_str
+
+    def serial_str(self):
+        """
+        Returns the servicetag number.
+        """
+        return self.serial
 
     def system_eeprom_info(self):
         """

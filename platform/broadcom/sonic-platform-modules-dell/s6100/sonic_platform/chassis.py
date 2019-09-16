@@ -15,7 +15,6 @@ try:
     import subprocess
     import glob
     import sonic_device_util
-    from commands import getstatusoutput
     from sonic_platform_base.platform_base import PlatformBase
     from sonic_platform_base.chassis_base import ChassisBase
     from sonic_platform.sfp import Sfp
@@ -31,6 +30,12 @@ MAX_S6100_MODULE = 4
 MAX_S6100_FAN = 4
 MAX_S6100_PSU = 2
 MAX_S6100_THERMAL = 10
+
+BIOS_QUERY_VERSION_COMMAND = "dmidecode -s system-version"
+#components definitions
+COMPONENT_BIOS = "BIOS"
+SWITCH_CPLD = "CPLD"
+SMF_FPGA = "FPGA1"
 
 
 class Chassis(ChassisBase):
@@ -54,8 +59,6 @@ class Chassis(ChassisBase):
     power_reason_dict[33] = ChassisBase.REBOOT_CAUSE_THERMAL_OVERLOAD_ASIC
     power_reason_dict[44] = ChassisBase.REBOOT_CAUSE_INSUFFICIENT_FAN_SPEED
 
-    _component_name_list = ["BIOS", "CPLD1", "CPLD2", "FPGA"]
-
     def __init__(self):
 
         ChassisBase.__init__(self)
@@ -76,6 +79,11 @@ class Chassis(ChassisBase):
         for i in range(MAX_S6100_THERMAL):
             thermal = Thermal(i)
             self._thermal_list.append(thermal)
+
+        # Initialize component list
+        self._component_name_list.append(COMPONENT_BIOS)
+        self._component_name_list.append(SWITCH_CPLD)
+        self._component_name_list.append(SMF_FPGA)
 
     def _get_pmc_register(self, reg_name):
         # On successful read, returns the value read from given
@@ -111,35 +119,44 @@ class Chassis(ChassisBase):
 
     def get_name(self):
         """
-        Retrieves the name of the device
+        Retrieves the name of the chassis
         Returns:
-            string: The name of the device
+            string: The name of the chassis
         """
         return self.sys_eeprom.modelstr()
 
     def get_presence(self):
         """
-        Retrieves the presence of the device
+        Retrieves the presence of the chassis
         Returns:
-            bool: True if device is present, False if not
+            bool: True if chassis is present, False if not
         """
         return True
 
     def get_model(self):
         """
-        Retrieves the model number (or part number) of the device
+        Retrieves the model number (or part number) of the chassis
         Returns:
-            string: Model/part number of device
+            string: Model/part number of chassis
         """
         return self.sys_eeprom.part_number_str()
 
     def get_serial(self):
         """
-        Retrieves the serial number of the device (Service tag)
+        Retrieves the serial number of the chassis (Service tag)
         Returns:
-            string: Serial number of device
+            string: Serial number of chassis
         """
         return self.sys_eeprom.serial_str()
+
+    def get_status(self):
+        """
+        Retrieves the operational status of the chassis
+        Returns:
+            bool: A boolean value, True if chassis is operating properly
+            False if not
+        """
+        return True
 
     def get_base_mac(self):
         """
@@ -156,7 +173,8 @@ class Chassis(ChassisBase):
         Retrieves the hardware serial number for the chassis
 
         Returns:
-            A string containing the hardware serial number for this chassis.
+            A string containing the hardware serial number for this
+            chassis.
         """
         return self.sys_eeprom.serial_number_str()
 
@@ -200,35 +218,57 @@ class Chassis(ChassisBase):
 
         return (ChassisBase.REBOOT_CAUSE_HARDWARE_OTHER, "Invalid Reason")
 
-    def get_component_name_list(self):
-        """
-        Retrieves chassis components list such as BIOS, CPLD, FPGA, etc.
+    def _get_command_result(self, cmdline):
+        try:
+            proc = subprocess.Popen(cmdline, stdout=subprocess.PIPE,
+                                    shell=True, stderr=subprocess.STDOUT)
+            stdout = proc.communicate()[0]
+            proc.wait()
+            result = stdout.rstrip('\n')
+        except OSError:
+            result = ''
 
-        Returns:
-            A list containing component name.
-        """
-        return self._component_name_list
+        return result
+
+    def _get_cpld_version(self):
+        io_resource = "/dev/port"
+        CPLD1_VERSION_ADDR = 0x100
+
+        fd = os.open(io_resource, os.O_RDONLY)
+        if (fd < 0):
+            return 'NA'
+        if (os.lseek(fd, CPLD1_VERSION_ADDR, os.SEEK_SET)
+            != CPLD1_VERSION_ADDR):
+            return 'NA'
+
+        buf = os.read(fd, 1)
+        cpld_version = ord(buf)
+        os.close(fd)
+
+        return "%d.%d" % (((cpld_version & 0xF0) >> 4), cpld_version & 0xF)
+
+    def _get_fpga_version(self):
+        fpga_ver = float(self._get_pmc_register('smf_firmware_ver'))
+        return fpga_ver
 
     def get_firmware_version(self, component_name):
+        """
+        Retrieves platform-specific hardware/firmware versions for
+        chassis componenets such as BIOS, CPLD, FPGA, etc.
+        Args:
+            component_name: A string, the component name.
+        Returns:
+            A string containing platform-specific component versions
+        """
+        if component_name in self._component_name_list :
+            if component_name == COMPONENT_BIOS:
+                return self._get_command_result(BIOS_QUERY_VERSION_COMMAND)
+            elif component_name == SWITCH_CPLD:
+                return self._get_cpld_version()
+            elif component_name == SMF_FPGA:
+                return self._get_fpga_version()
 
-        version = None
-
-        if component_name in self._component_name_list:
-
-            if component_name == self._component_name_list[0]:  # BIOS
-                status, version = getstatusoutput(
-                                        "dmidecode -s system-version")
-
-            elif component_name == self._component_name_list[1]:  # CPLD1
-                version = None
-
-            elif component_name == self._component_name_list[2]:  # CPLD2
-                version = None
-
-            elif component_name == self._component_name_list[3]:  # SMF
-                version = None
-
-        return version
+        return None
 
     def install_component_firmware(self, component_name, image_path):
 
@@ -250,7 +290,7 @@ class Chassis(ChassisBase):
         """
 
         if component_name in self._component_name_list:
-            if component_name == self._component_name_list[0]:  # BIOS
+            if component_name == COMPONENT_BIOS:  # BIOS
 
                 # current BIOS version
                 current_bios_version = self.get_firmware_version("BIOS")
@@ -310,16 +350,14 @@ class Chassis(ChassisBase):
                                          image_path
                     self.run_command(command)
 
-            elif component_name == self._component_name_list[1]:  # CPLD1
+            elif component_name == SWITCH_CPLD:  # CPLD
                 return False
 
-            elif component_name == self._component_name_list[2]:  # CPLD2
-                return False
-
-            elif component_name == self._component_name_list[3]:  # SMF
+            elif component_name == SMF_FPGA:  # SMF
                 return False
         else:
             print "Invalid component Name:", component_name
 
         return True
+
 
