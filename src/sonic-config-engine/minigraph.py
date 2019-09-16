@@ -179,6 +179,14 @@ def parse_dpg(dpg, hname):
             ipprefix = lointf.find(str(QName(ns1, "PrefixStr"))).text
             lo_intfs[(intfname, ipprefix)] = {}
 
+        mvrfConfigs = child.find(str(QName(ns, "MgmtVrfConfigs")))
+        mvrf = {}
+        if mvrfConfigs != None:
+            mv = mvrfConfigs.find(str(QName(ns1, "MgmtVrfGlobal")))
+            if mv != None:
+                mvrf_en_flag = mv.find(str(QName(ns, "mgmtVrfEnabled"))).text
+                mvrf["vrf_global"] = {"mgmtVrfEnabled": mvrf_en_flag}
+
         mgmtintfs = child.find(str(QName(ns, "ManagementIPInterfaces")))
         mgmt_intf = {}
         for mgmtintf in mgmtintfs.findall(str(QName(ns1, "ManagementIPInterface"))):
@@ -305,8 +313,8 @@ def parse_dpg(dpg, hname):
                 except:
                     print >> sys.stderr, "Warning: Ignoring Control Plane ACL %s without type" % aclname
 
-        return intfs, lo_intfs, mgmt_intf, vlans, vlan_members, pcs, pc_members, acls, vni
-    return None, None, None, None, None, None, None, None, None
+        return intfs, lo_intfs, mvrf, mgmt_intf, vlans, vlan_members, pcs, pc_members, acls, vni
+    return None, None, None, None, None, None, None, None, None, None
 
 
 def parse_cpg(cpg, hname):
@@ -549,7 +557,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
     port_alias_map.update(alias_map)
     for child in root:
         if child.tag == str(QName(ns, "DpgDec")):
-            (intfs, lo_intfs, mgmt_intf, vlans, vlan_members, pcs, pc_members, acls, vni) = parse_dpg(child, hostname)
+            (intfs, lo_intfs, mvrf, mgmt_intf, vlans, vlan_members, pcs, pc_members, acls, vni) = parse_dpg(child, hostname)
         elif child.tag == str(QName(ns, "CpgDec")):
             (bgp_sessions, bgp_asn, bgp_peers_with_range) = parse_cpg(child, hostname)
         elif child.tag == str(QName(ns, "PngDec")):
@@ -593,6 +601,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
             results['MGMT_PORT'][name]['speed'] = port_speeds_default[alias]
         results['MGMT_INTERFACE'][(name, key[1])] = mgmt_intf[key]
     results['LOOPBACK_INTERFACE'] = lo_intfs
+    results['MGMT_VRF_CONFIG'] = mvrf
 
     phyport_intfs = {}
     vlan_intfs = {}

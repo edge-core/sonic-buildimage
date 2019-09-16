@@ -426,6 +426,9 @@ sudo cp files/dhcp/graphserviceurl $FILESYSTEM_ROOT/etc/dhcp/dhclient-exit-hooks
 sudo cp files/dhcp/snmpcommunity $FILESYSTEM_ROOT/etc/dhcp/dhclient-exit-hooks.d/
 sudo cp files/dhcp/vrf $FILESYSTEM_ROOT/etc/dhcp/dhclient-exit-hooks.d/
 sudo cp files/dhcp/dhclient.conf $FILESYSTEM_ROOT/etc/dhcp/
+if [ -f files/image_config/ntp/ntp ]; then
+    sudo cp ./files/image_config/ntp/ntp $FILESYSTEM_ROOT/etc/init.d/
+fi
 
 ## Version file
 sudo mkdir -p $FILESYSTEM_ROOT/etc/sonic
