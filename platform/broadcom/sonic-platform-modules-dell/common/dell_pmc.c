@@ -43,6 +43,7 @@
 #define IOREGION_LENGTH           0x4
 #define SMF_ADDR_REG_OFFSET         0
 #define SMF_READ_DATA_REG_OFFSET    2
+#define SMF_WRITE_DATA_REG_OFFSET   3
 #define SMF_REG_ADDR            0x200
 #define SMF_POR_SRC_REG         0x209
 #define SMF_RST_SRC_REG         0x20A
@@ -170,6 +171,8 @@
 #define EEPROM_LABEL_REV_SIZE      3
 #define EEPROM_PPID_SIZE           28
 
+/* Mailbox PowerOn Reason */
+#define TRACK_POWERON_REASON    0x05FF
 
 
 unsigned long  *mmio;
@@ -461,6 +464,18 @@ struct smf_sio_data {
         enum kinds kind;
 };
 
+static int smf_write_reg(struct smf_data *data, u16 reg, u16 dev_data)
+{
+        int res = 0;
+
+        mutex_lock(&data->lock);
+        outb_p(reg>> 8, data->addr + SMF_ADDR_REG_OFFSET);
+        outb_p(reg & 0xff, data->addr + SMF_ADDR_REG_OFFSET + 1);
+        outb_p(dev_data & 0xff, data->addr + SMF_WRITE_DATA_REG_OFFSET);
+        mutex_unlock(&data->lock);
+
+        return res;
+}
 
 static int smf_read_reg(struct smf_data *data, u16 reg) 
 { 
@@ -550,6 +565,40 @@ static ssize_t show_power_on_reason(struct device *dev,
        return ret;
 
     return sprintf(buf, "%x\n", ret);
+}
+
+/* SMF Mailbox Power ON Reason */
+static ssize_t set_mb_poweron_reason(struct device *dev,
+              struct device_attribute *devattr, const char *buf, size_t count)
+{
+    int              err = 0;
+    unsigned int     dev_data = 0;
+    struct smf_data *data = dev_get_drvdata(dev);
+
+    err = kstrtouint(buf, 16, &dev_data);
+    if (err)
+        return err;
+
+    err = smf_write_reg(data, TRACK_POWERON_REASON, dev_data);
+
+    if(err < 0)
+       return err;
+
+    return count;
+}
+
+static ssize_t show_mb_poweron_reason(struct device *dev,
+                struct device_attribute *devattr, char *buf)
+{
+    unsigned int     ret = 0;
+    struct smf_data *data = dev_get_drvdata(dev);
+
+    ret = smf_read_reg(data, TRACK_POWERON_REASON);
+
+    if(ret < 0)
+       return ret;
+
+    return sprintf(buf, "0x%x\n", ret);
 }
 
 /* FANIN ATTR */
@@ -1981,11 +2030,16 @@ static SENSOR_DEVICE_ATTR(smf_reset_reason, S_IRUGO, show_reset_reason, NULL, 1)
 static SENSOR_DEVICE_ATTR(smf_poweron_reason, S_IRUGO,
                                             show_power_on_reason, NULL, 1);
 
+/* Mailbox Power tracking Reason */
+static SENSOR_DEVICE_ATTR(mb_poweron_reason, S_IRUGO|S_IWUSR,
+                            show_mb_poweron_reason, set_mb_poweron_reason, 0);
+
 static struct attribute *smf_dell_attrs[] = {
         &sensor_dev_attr_smf_version.dev_attr.attr,
         &sensor_dev_attr_smf_firmware_ver.dev_attr.attr,
         &sensor_dev_attr_smf_reset_reason.dev_attr.attr,
         &sensor_dev_attr_smf_poweron_reason.dev_attr.attr,
+        &sensor_dev_attr_mb_poweron_reason.dev_attr.attr,
         &sensor_dev_attr_fan_tray_presence.dev_attr.attr,
         &sensor_dev_attr_fan1_airflow.dev_attr.attr,
         &sensor_dev_attr_fan3_airflow.dev_attr.attr,

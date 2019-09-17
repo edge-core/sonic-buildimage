@@ -21,6 +21,7 @@ SYSLOG_IDENTIFIER = "process-reboot-cause"
 REBOOT_CAUSE_DIR = "/host/reboot-cause/"
 REBOOT_CAUSE_FILE = REBOOT_CAUSE_DIR + "reboot-cause.txt"
 PREVIOUS_REBOOT_CAUSE_FILE = REBOOT_CAUSE_DIR + "previous-reboot-cause.txt"
+FIRST_BOOT_PLATFORM_FILE = "/tmp/notify_firstboot_to_platform"
 
 UNKNOWN_REBOOT_CAUSE = "Unknown"
 
@@ -86,6 +87,13 @@ def main():
                 cause_file = open(REBOOT_CAUSE_FILE, "r")
                 previous_reboot_cause = cause_file.readline().rstrip('\n')
                 cause_file.close()
+            # If it is FirstTime Boot and previous_reboot_cause is unknown
+            # and hardware_reboot cause is non_hardware then
+            # Update the reboot cause as required
+            if os.path.isfile(FIRST_BOOT_PLATFORM_FILE):
+                if (previous_reboot_cause == UNKNOWN_REBOOT_CAUSE):
+                     previous_reboot_cause = UNKNOWN_REBOOT_CAUSE
+                os.remove(FIRST_BOOT_PLATFORM_FILE)
         elif hardware_reboot_cause == chassis.REBOOT_CAUSE_HARDWARE_OTHER:
             previous_reboot_cause = "{} ({})".format(hardware_reboot_cause, optional_details)
         else:
@@ -100,6 +108,12 @@ def main():
             previous_reboot_cause = cause_file.readline().rstrip('\n')
             cause_file.close()
 
+        # If it is FirstTime Boot and previous_reboot_cause is unknown
+        # Update the reboot cause as required
+        if os.path.isfile(FIRST_BOOT_PLATFORM_FILE):
+            if (previous_reboot_cause == UNKNOWN_REBOOT_CAUSE):
+                 previous_reboot_cause = UNKNOWN_REBOOT_CAUSE
+            os.remove(FIRST_BOOT_PLATFORM_FILE)
     # Write the previous reboot cause to PREVIOUS_REBOOT_CAUSE_FILE
     prev_cause_file = open(PREVIOUS_REBOOT_CAUSE_FILE, "w")
     prev_cause_file.write(previous_reboot_cause)

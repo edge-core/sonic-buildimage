@@ -217,6 +217,24 @@ reset_muxes() {
     io_rd_wr.py --set --val 0xff --offset 0x20b
 }
 
+track_reboot_reason() {
+    if [[ -d /sys/devices/platform/SMF.512/hwmon/ ]]; then
+        rv=$(cd /sys/devices/platform/SMF.512/hwmon/*; cat mb_poweron_reason)
+        reason=$(echo $rv | cut -d 'x' -f2)
+        if [ $reason == "ff" ]; then
+            cd /sys/devices/platform/SMF.512/hwmon/*
+            if [[ -e /tmp/notify_firstboot_to_platform ]]; then
+                echo 0x01 > mb_poweron_reason
+            else
+                echo 0xbb > mb_poweron_reason
+            fi
+        elif [ $reason == "bb" ] || [ $reason == "1" ]; then
+            cd /sys/devices/platform/SMF.512/hwmon/*
+            echo 0xaa > mb_poweron_reason
+        fi
+    fi
+}
+
 install_python_api_package() {
     device="/usr/share/sonic/device"
     platform=$(/usr/local/bin/sonic-cfggen -H -v DEVICE_METADATA.localhost.platform)
@@ -239,6 +257,7 @@ if [[ "$1" == "init" ]]; then
     modprobe dell_ich
     modprobe dell_s6100_iom_cpld
     modprobe dell_s6100_lpc
+    track_reboot_reason
 
     # Disable Watchdog Timer
     if [[ -e /usr/local/bin/platform_watchdog_disable.sh ]]; then

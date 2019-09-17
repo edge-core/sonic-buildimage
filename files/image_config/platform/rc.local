@@ -235,6 +235,9 @@ if [ -f $FIRST_BOOT_FILE ]; then
         touch /tmp/pending_config_initialization
     fi
 
+    # Notify firstboot to Platform, to use it for reboot-cause
+    touch /tmp/notify_firstboot_to_platform
+
     if [ -d /host/image-$SONIC_VERSION/platform/$platform ]; then
         dpkg -i /host/image-$SONIC_VERSION/platform/$platform/*.deb
     fi
