@@ -19,6 +19,14 @@ function ParseArguments() {
     done
 }
 
+function SafePwrCycle() {
+    sync ; sync
+    umount -fa > /dev/null 2&>1
+    echo 1 > $SYSFS_PWR_CYCLE
+    sleep 3
+    echo 0 > $SYSFS_PWR_CYCLE
+}
+
 ParseArguments "$@"
 
 ${FW_UPGRADE_SCRIPT} --upgrade --verbose
@@ -32,7 +40,4 @@ if [[ "${EXIT_CODE}" != "${EXIT_SUCCESS}" ]]; then
     fi
 fi
 
-# perform "hardware" reboot
-echo 1 > $SYSFS_PWR_CYCLE
-sleep 3
-echo 0 > $SYSFS_PWR_CYCLE
+SafePwrCycle
