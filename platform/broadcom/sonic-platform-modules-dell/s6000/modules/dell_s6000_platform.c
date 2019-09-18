@@ -549,6 +549,18 @@ static ssize_t get_psu1_status(struct device *dev, struct device_attribute *deva
     return sprintf(buf, "%d\n", data);
 }
 
+static ssize_t get_powersupply_status(struct device *dev, struct device_attribute *devattr, char *buf)
+{
+    int data;
+    struct cpld_platform_data *pdata = dev->platform_data;
+
+    data = dell_i2c_smbus_read_byte_data(pdata[master_cpld].client, 0x3);
+    if (data < 0)
+        return sprintf(buf, "read error");
+
+    return sprintf(buf, "%x\n", data);
+}
+
 static ssize_t get_system_led(struct device *dev, struct device_attribute *devattr, char *buf)
 {
     int ret;
@@ -1126,6 +1138,7 @@ static DEVICE_ATTR(psu0_prs, S_IRUGO, get_psu0_prs, NULL);
 static DEVICE_ATTR(psu1_prs, S_IRUGO, get_psu1_prs, NULL);
 static DEVICE_ATTR(psu0_status, S_IRUGO, get_psu0_status, NULL);
 static DEVICE_ATTR(psu1_status, S_IRUGO, get_psu1_status, NULL);
+static DEVICE_ATTR(powersupply_status, S_IRUGO, get_powersupply_status, NULL);
 static DEVICE_ATTR(system_led, S_IRUGO | S_IWUSR, get_system_led, set_system_led);
 static DEVICE_ATTR(locator_led, S_IRUGO | S_IWUSR, get_locator_led, set_locator_led);
 static DEVICE_ATTR(power_led, S_IRUGO | S_IWUSR, get_power_led, set_power_led);
@@ -1150,6 +1163,7 @@ static struct attribute *s6000_cpld_attrs[] = {
     &dev_attr_psu1_prs.attr,
     &dev_attr_psu0_status.attr,
     &dev_attr_psu1_status.attr,
+    &dev_attr_powersupply_status.attr,
     &dev_attr_system_led.attr,
     &dev_attr_locator_led.attr,
     &dev_attr_power_led.attr,
