@@ -29,3 +29,4 @@ $(DOCKER_LLDP_SV2)_RUN_OPT += --net=host --privileged -t
 $(DOCKER_LLDP_SV2)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
 
 $(DOCKER_LLDP_SV2)_BASE_IMAGE_FILES += lldpctl:/usr/bin/lldpctl
+$(DOCKER_LLDP_SV2)_BASE_IMAGE_FILES += lldpcli:/usr/bin/lldpcli
