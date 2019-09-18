@@ -15,6 +15,8 @@ try:
     from sonic_platform_base.chassis_base import ChassisBase
     from sonic_platform.sfp import Sfp
     from sonic_platform.fan import Fan
+    from sonic_platform.psu import Psu
+    from sonic_platform.thermal import Thermal
     from eeprom import Eeprom
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
@@ -23,6 +25,7 @@ except ImportError as e:
 MAX_Z9100_FANTRAY = 5
 MAX_Z9100_FAN = 2
 MAX_Z9100_PSU = 2
+MAX_Z9100_THERMAL = 8
 
 BIOS_QUERY_VERSION_COMMAND = "dmidecode -s system-version"
 #components definitions
@@ -103,6 +106,14 @@ class Chassis(ChassisBase):
             for j in range(MAX_Z9100_FAN):
                 fan = Fan(i, j)
                 self._fan_list.append(fan)
+
+        for i in range(MAX_Z9100_PSU):
+            psu = Psu(i)
+            self._psu_list.append(psu)
+
+        for i in range(MAX_Z9100_THERMAL):
+            thermal = Thermal(i)
+            self._thermal_list.append(thermal)
 
         # Initialize component list
         self._component_name_list.append(COMPONENT_BIOS)
@@ -190,6 +201,17 @@ class Chassis(ChassisBase):
             A string containing the hardware serial number for this chassis.
         """
         return self.sys_eeprom.serial_number_str()
+
+    def get_system_eeprom_info(self):
+        """
+        Retrieves the full content of system EEPROM information for the chassis
+
+        Returns:
+            A dictionary where keys are the type code defined in
+            OCP ONIE TlvInfo EEPROM format and values are their corresponding
+            values.
+        """
+        return self.sys_eeprom.system_eeprom_info()
 
     def get_reboot_cause(self):
         """

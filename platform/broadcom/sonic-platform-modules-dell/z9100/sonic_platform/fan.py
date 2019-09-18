@@ -26,7 +26,7 @@ class Fan(FanBase):
     HWMON_NODE = os.listdir(HWMON_DIR)[0]
     MAILBOX_DIR = HWMON_DIR + HWMON_NODE
 
-    def __init__(self, fantray_index, fan_index=1, psu_fan=False):
+    def __init__(self, fantray_index=1, fan_index=1, psu_fan=False):
         self.is_psu_fan = psu_fan
         if not self.is_psu_fan:
             # API index is starting from 0, DellEMC platform index is starting
@@ -73,7 +73,7 @@ class Fan(FanBase):
         if not self.is_psu_fan:
             return "FanTray{}-Fan{}".format(self.fantrayindex, self.fanindex)
         else:
-            return "PSU{} Fan".format(self.index - 10)
+            return "PSU{} Fan".format(self.fanindex - 10)
 
     def get_model(self):
         """
