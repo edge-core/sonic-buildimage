@@ -14,7 +14,21 @@
 #
 
 #  Listen for connections on all ip addresses, including eth0, ipv4 lo
+#
+{% if snmp_agent_address_1 or snmp_agent_address_2 or snmp_agent_address_3 %}
+{% if snmp_agent_address_1 %}
+agentAddress {{ snmp_agent_address_1 }}
+{% endif %}
+{% if snmp_agent_address_2 %}
+agentAddress {{ snmp_agent_address_2 }}
+{% endif %}
+{% if snmp_agent_address_3 %}
+agentAddress {{ snmp_agent_address_3 }}
+{% endif %}
+{% else %}
 agentAddress udp:161
+{% endif %}
+
 # TODO: only support ipv4 lo addresses, add ipv6 support later
 
 ###############################################################################
@@ -90,11 +104,23 @@ load   12 10 5
 # Note: disabled snmp traps due to side effect of causing snmpd to listen on all ports (0.0.0.0)
 #
 #   send SNMPv1  traps
+{%if v1_trap_dest and v1_trap_dest != 'NotConfigured' %}
+trapsink {{ v1_trap_dest }} public
+{% else %}
 #trapsink     localhost public
+{% endif %}
 #   send SNMPv2c traps
+{%if v2_trap_dest and v2_trap_dest != 'NotConfigured' %}
+trap2sink {{ v2_trap_dest }} public
+{% else %}
 #trap2sink    localhost public
+{% endif %}
 #   send SNMPv2c INFORMs
+{%if v3_trap_dest and v3_trap_dest != 'NotConfigured' %}
+informsink {{ v3_trap_dest }} public
+{% else %}
 #informsink   localhost public
+{% endif %}
 
 #  Note that you typically only want *one* of these three lines
 #  Uncommenting two (or all three) will result in multiple copies of each notification.

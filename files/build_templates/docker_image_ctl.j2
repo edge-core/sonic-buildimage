@@ -109,6 +109,43 @@ function postStartAction()
     fi
 {%- elif docker_container_name == "snmp" %}
     docker exec -i database redis-cli -n 6 HSET 'DEVICE_METADATA|localhost' chassis_serial_number $(decode-syseeprom -s)
+    vrfenabled=`/usr/bin/redis-cli -n 4 hget "MGMT_VRF_CONFIG|vrf_global" mgmtVrfEnabled`
+    v1SnmpTrapIp=`/usr/bin/redis-cli -n 4 hget "SNMP_TRAP_CONFIG|v1TrapDest" DestIp`
+    v1SnmpTrapPort=`/usr/bin/redis-cli -n 4 hget "SNMP_TRAP_CONFIG|v1TrapDest" DestPort`
+    v1MgmtVrf=`/usr/bin/redis-cli -n 4 hget "SNMP_TRAP_CONFIG|v1TrapDest" vrf`
+    v2SnmpTrapIp=`/usr/bin/redis-cli -n 4 hget "SNMP_TRAP_CONFIG|v2TrapDest" DestIp`
+    v2SnmpTrapPort=`/usr/bin/redis-cli -n 4 hget "SNMP_TRAP_CONFIG|v2TrapDest" DestPort`
+    v2MgmtVrf=`/usr/bin/redis-cli -n 4 hget "SNMP_TRAP_CONFIG|v2TrapDest" vrf`
+    v3SnmpTrapIp=`/usr/bin/redis-cli -n 4 hget "SNMP_TRAP_CONFIG|v3TrapDest" DestIp`
+    v3SnmpTrapPort=`/usr/bin/redis-cli -n 4 hget "SNMP_TRAP_CONFIG|v3TrapDest" DestPort`
+    v3MgmtVrf=`/usr/bin/redis-cli -n 4 hget "SNMP_TRAP_CONFIG|v3TrapDest" vrf`
+    
+    if [ "${v1SnmpTrapIp}" != "" ]
+    then
+	sed -i "s/v1_trap_dest:.*/v1_trap_dest: ${v1SnmpTrapIp}:${v1SnmpTrapPort}%${v1MgmtVrf}/" "/etc/sonic/snmp.yml"
+    fi
+    if [ "${v2SnmpTrapIp}" != "" ]
+    then
+	sed -i "s/v2_trap_dest:.*/v2_trap_dest: ${v2SnmpTrapIp}:${v2SnmpTrapPort}%${v2MgmtVrf}/" "/etc/sonic/snmp.yml"
+    fi
+    if [ "${v3SnmpTrapIp}" != "" ]
+    then
+	sed -i "s/v3_trap_dest:.*/v3_trap_dest: ${v3SnmpTrapIp}:${v3SnmpTrapPort}%${v3MgmtVrf}/" "/etc/sonic/snmp.yml"
+    fi
+
+    if [ "${vrfenabled}" == "true" ]
+    then
+        keys=`/usr/bin/redis-cli -n 4 keys "SNMP_AGENT_ADDRESS_CONFIG|*"`
+	    count=1
+	    for key in $keys;do
+	        ip=`echo $key|cut -d "|" -f2`
+	        vrf=`echo $key|cut -d "|" -f3`
+	        echo "snmp_agent_address_$count: $ip%$vrf" >> /tmp/snmpagentaddr.yml
+	        count=$((count+1))
+        done
+        sed -i '/snmp_agent_address_*/d' /etc/sonic/snmp.yml
+        cat /tmp/snmpagentaddr.yml >> /etc/sonic/snmp.yml
+    fi
 {%- else %}
     : # nothing
 {%- endif %}
