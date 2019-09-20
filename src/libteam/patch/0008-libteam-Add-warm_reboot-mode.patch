@@ -1,18 +1,18 @@
-From a21a3dec9f9b9d825a0229e2963e07862395bbba Mon Sep 17 00:00:00 2001
+From 5d418847bf6fa86f049e18c1b57028c71e40a9c4 Mon Sep 17 00:00:00 2001
 From: Pavel Shirshov <pavelsh@microsoft.com>
-Date: Fri, 14 Jun 2019 14:20:05 -0700
-Subject: [PATCH] [libteam]: Reimplement Warm-Reboot procedure
+Date: Thu, 19 Sep 2019 14:49:17 -0700
+Subject: [PATCH 1/1] [libteam]: Reimplement Warm-Reboot procedure
 
 ---
  libteam/ifinfo.c          |   6 +-
- teamd/teamd.c             |  42 +++-
+ teamd/teamd.c             |  57 ++++-
  teamd/teamd.h             |   6 +
  teamd/teamd_events.c      |  13 ++
  teamd/teamd_runner_lacp.c | 474 +++++++++++++++++++++++++++++++++++---
- 5 files changed, 498 insertions(+), 43 deletions(-)
+ 5 files changed, 509 insertions(+), 47 deletions(-)
 
 diff --git a/libteam/ifinfo.c b/libteam/ifinfo.c
-index 46d56a2..b86d34c 100644
+index a15788b..e48193e 100644
 --- a/libteam/ifinfo.c
 +++ b/libteam/ifinfo.c
 @@ -109,15 +109,13 @@ static void update_hwaddr(struct team_ifinfo *ifinfo, struct rtnl_link *link)
@@ -34,7 +34,7 @@ index 46d56a2..b86d34c 100644
  	}
  }
 diff --git a/teamd/teamd.c b/teamd/teamd.c
-index 9dc85b5..96794e8 100644
+index 9dc85b5..679da49 100644
 --- a/teamd/teamd.c
 +++ b/teamd/teamd.c
 @@ -117,7 +117,9 @@ static void print_help(const struct teamd_context *ctx) {
@@ -90,51 +90,66 @@ index 9dc85b5..96794e8 100644
  	if (optind < argc) {
  		fprintf(stderr, "Too many arguments\n");
  		return -1;
-@@ -390,8 +410,14 @@ static int teamd_run_loop_run(struct teamd_context *ctx)
+@@ -390,12 +410,21 @@ static int teamd_run_loop_run(struct teamd_context *ctx)
  			if (err != -1) {
  				switch(ctrl_byte) {
  				case 'q':
++				case 'f':
 +				case 'w':
  					if (quit_in_progress)
  						return -EBUSY;
-+					if (ctrl_byte == 'w') {
+-					teamd_refresh_ports(ctx);
+-					err = teamd_flush_ports(ctx);
+-					if (err)
+-						return err;
++					if (ctrl_byte == 'w' || ctrl_byte == 'f') {
 +						ctx->keep_ports = true;
 +						ctx->no_quit_destroy = true;
-+						teamd_ports_flush_data(ctx);
++						teamd_refresh_ports(ctx);
++						if (ctrl_byte == 'w')
++							teamd_ports_flush_data(ctx);
++					} else {
++						err = teamd_flush_ports(ctx);
++						if (err)
++							return err;
 +					}
- 					teamd_refresh_ports(ctx);
- 					err = teamd_flush_ports(ctx);
- 					if (err)
-@@ -434,6 +460,12 @@ void teamd_run_loop_quit(struct teamd_context *ctx, int err)
+ 					quit_in_progress = true;
+ 					continue;
+ 				case 'r':
+@@ -434,6 +463,12 @@ void teamd_run_loop_quit(struct teamd_context *ctx, int err)
  	teamd_run_loop_sent_ctrl_byte(ctx, 'q');
  }
  
-+static void teamd_run_loop_quit_w_boot(struct teamd_context *ctx, int err)
++static void teamd_run_loop_quit_a_boot(struct teamd_context *ctx, char type, int err)
 +{
 +	ctx->run_loop.err = err;
-+	teamd_run_loop_sent_ctrl_byte(ctx, 'w');
++	teamd_run_loop_sent_ctrl_byte(ctx, type);
 +}
 +
  void teamd_run_loop_restart(struct teamd_context *ctx)
  {
  	teamd_run_loop_sent_ctrl_byte(ctx, 'r');
-@@ -700,6 +732,10 @@ static int callback_daemon_signal(struct teamd_context *ctx, int events,
+@@ -700,6 +735,14 @@ static int callback_daemon_signal(struct teamd_context *ctx, int events,
  		teamd_log_warn("Got SIGINT, SIGQUIT or SIGTERM.");
  		teamd_run_loop_quit(ctx, 0);
  		break;
 +	case SIGUSR1:
 +		teamd_log_warn("Got SIGUSR1.");
-+		teamd_run_loop_quit_w_boot(ctx, 0);
++		teamd_run_loop_quit_a_boot(ctx, 'w', 0);
++		break;
++	case SIGUSR2:
++		teamd_log_warn("Got SIGUSR2.");
++		teamd_run_loop_quit_a_boot(ctx, 'f', 0);
 +		break;
  	}
  	return 0;
  }
-@@ -1531,7 +1567,7 @@ static int teamd_start(struct teamd_context *ctx, enum teamd_exit_code *p_ret)
+@@ -1531,7 +1574,7 @@ static int teamd_start(struct teamd_context *ctx, enum teamd_exit_code *p_ret)
  		return -errno;
  	}
  
 -	if (daemon_signal_init(SIGINT, SIGTERM, SIGQUIT, SIGHUP, 0) < 0) {
-+	if (daemon_signal_init(SIGINT, SIGTERM, SIGQUIT, SIGHUP, SIGUSR1, 0) < 0) {
++	if (daemon_signal_init(SIGINT, SIGTERM, SIGQUIT, SIGHUP, SIGUSR1, SIGUSR2, 0) < 0) {
  		teamd_log_err("Could not register signal handlers.");
  		daemon_retval_send(errno);
  		err = -errno;
