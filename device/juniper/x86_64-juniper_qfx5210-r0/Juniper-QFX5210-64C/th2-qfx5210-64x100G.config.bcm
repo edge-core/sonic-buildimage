@@ -29,17 +29,17 @@ oversubscribe_mode=1
 
 #add loopback port
 # port 33 is the first loopback port
-portmap_33=260:10
+# portmap_33=260:10
 # port 66 is the first management port
-portmap_66=257:10
+# portmap_66=257:10
 # port 67 is the second loopback port
-portmap_67=261:10
+# portmap_67=261:10
 # port 100 is the second management port
-portmap_100=259:10
+# portmap_100=259:10
 # port 101 is the third loopback port
-portmap_101=262:10
+# portmap_101=262:10
 # port 135 is the fourth loopback port
-portmap_135=263:10
+# portmap_135=263:10
 
 #Port0
 #FC18
