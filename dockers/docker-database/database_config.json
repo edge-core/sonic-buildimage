@@ -1,8 +1,9 @@
 {
     "INSTANCES": {
         "redis":{
-            "port": 6379,
-            "socket": "/var/run/redis/redis.sock"
+            "hostname" : "127.0.0.1",
+            "port" : 6379,
+            "unix_socket_path" : "/var/run/redis/redis.sock"
         }
     },
     "DATABASES" : {
@@ -36,6 +37,10 @@
         },
         "STATE_DB" : {
             "id" : 6,
+            "instance" : "redis"
+        },
+        "SNMP_OVERLAY_DB" : {
+            "id" : 7,
             "instance" : "redis"
         }
     },
