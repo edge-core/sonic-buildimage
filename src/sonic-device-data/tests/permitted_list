@@ -159,3 +159,4 @@ ccmdma_intr_enable
 phy_enable
 init_all_modules
 port_fec
+led_fw_path
