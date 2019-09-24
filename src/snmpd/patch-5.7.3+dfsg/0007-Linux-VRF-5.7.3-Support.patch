@@ -49,9 +49,9 @@ Testing done included VRFs as well as non-VRF functionality with traps
  snmplib/transports/snmpUDPBaseDomain.c           | 39 ++++++++++++++++++------
  snmplib/transports/snmpUDPDomain.c               | 15 ++++-----
  snmplib/transports/snmpUDPIPv4BaseDomain.c       |  4 +--
- snmplib/transports/snmpUDPIPv6Domain.c           | 13 ++++----
+ snmplib/transports/snmpUDPIPv6Domain.c           | 19 ++++-----
  snmplib/transports/snmpUnixDomain.c              |  5 +--
- 23 files changed, 141 insertions(+), 70 deletions(-)
+ 23 files changed, 141 insertions(+), 76 deletions(-)
 
 diff --git a/agent/agent_trap.c b/agent/agent_trap.c
 index 080b8bf..c488ac9 100644
@@ -706,6 +706,19 @@ diff --git a/snmplib/transports/snmpUDPIPv6Domain.c b/snmplib/transports/snmpUDP
 index 18de876..6b44b22 100644
 --- a/snmplib/transports/snmpUDPIPv6Domain.c
 +++ b/snmplib/transports/snmpUDPIPv6Domain.c
+@@ -74,12 +74,6 @@ oid netsnmp_UDPIPv6Domain[] = { TRANSPORT_DOMAIN_UDP_IPV6 };
+ static netsnmp_tdomain udp6Domain;
+ 
+ /*
+- * from snmpUDPDomain. not static, but not public, either.
+- * (ie don't put it in a public header.)
+- */
+-extern void _netsnmp_udp_sockopt_set(int fd, int server);
+-
+-/*
+  * Return a string representing the address in data, or else the "far end"
+  * address if data is NULL.  
+  */
 @@ -186,7 +186,7 @@ netsnmp_udp6_send(netsnmp_transport *t, void *buf, int size,
   */
  
