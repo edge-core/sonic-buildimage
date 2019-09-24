@@ -27,9 +27,8 @@ agentAddress {{ snmp_agent_address_3 }}
 {% endif %}
 {% else %}
 agentAddress udp:161
+agentAddress udp6:161
 {% endif %}
-
-# TODO: only support ipv4 lo addresses, add ipv6 support later
 
 ###############################################################################
 #
@@ -47,6 +46,7 @@ rocommunity {{ community }}
 {% endfor %}
 {% else %}
 rocommunity {{ snmp_rocommunity }}
+rocommunity6 {{ snmp_rocommunity }}
 {% endif %}
 
 ###############################################################################
