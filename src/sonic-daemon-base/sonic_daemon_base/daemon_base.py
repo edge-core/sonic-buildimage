@@ -7,7 +7,6 @@ try:
     import os
     import sys
     import syslog
-    from swsscommon import swsscommon
 except ImportError, e:
     raise ImportError (str(e) + " - required module not found")
 
@@ -38,6 +37,7 @@ EEPROM_CLASS_NAME = 'board'
 #
 
 def db_connect(db):
+    from swsscommon import swsscommon
     return swsscommon.DBConnector(db,
                                   REDIS_HOSTNAME,
                                   REDIS_PORT,
