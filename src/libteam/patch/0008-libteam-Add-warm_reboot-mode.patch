@@ -108,7 +108,7 @@ index 9dc85b5..679da49 100644
 +						teamd_refresh_ports(ctx);
 +						if (ctrl_byte == 'w')
 +							teamd_ports_flush_data(ctx);
-+					} else {
++						/* Flush ports to destroy port object */
 +						err = teamd_flush_ports(ctx);
 +						if (err)
 +							return err;
