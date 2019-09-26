@@ -15,7 +15,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	rm -rf ./libteam
 	git clone https://github.com/jpirko/libteam.git
 	pushd ./libteam
-	git checkout -b teamd -f 5c5e498bff9
+	git checkout -b teamd -f 8c7614abf5993d92e332a800f244bdebd7c9a2c8
 
 	# Apply patch series
 	stg init
