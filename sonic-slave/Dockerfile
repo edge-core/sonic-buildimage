@@ -127,7 +127,7 @@ RUN apt-get update && apt-get install -y \
         squashfs-tools \
         zip \
 # For broadcom sdk build
-        linux-compiler-gcc-4.8-x86 \
+        linux-compiler-gcc-4.9-x86 \
         linux-kbuild-3.16 \
 # teamd build
         libdaemon-dev \
