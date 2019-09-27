@@ -350,7 +350,6 @@ phy_chain_tx_polarity_flip_physical{97.0}=0x1
 phy_chain_tx_polarity_flip_physical{98.0}=0x1
 phy_chain_tx_polarity_flip_physical{99.0}=0x0
 portmap_66.0=129:10:m 
-portmap_130.0=128:10:m
 portmap_103=101:100
 portmap_107=105:100
 portmap_111=109:100
