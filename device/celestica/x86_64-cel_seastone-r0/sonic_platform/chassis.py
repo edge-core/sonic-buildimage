@@ -31,12 +31,12 @@ NUM_FAN = 2
 NUM_PSU = 2
 NUM_THERMAL = 5
 NUM_SFP = 32
+NUM_COMPONENT = 5
 RESET_REGISTER = "0x103"
 HOST_REBOOT_CAUSE_PATH = "/host/reboot-cause/"
 PMON_REBOOT_CAUSE_PATH = "/usr/share/sonic/platform/api_files/reboot-cause/"
 REBOOT_CAUSE_FILE = "reboot-cause.txt"
 PREV_REBOOT_CAUSE_FILE = "previous-reboot-cause.txt"
-COMPONENT_NAME_LIST = ["CPLD1", "CPLD2", "CPLD3", "CPLD4", "BIOS"]
 HOST_CHK_CMD = "docker > /dev/null 2>&1"
 
 
@@ -58,9 +58,11 @@ class Chassis(ChassisBase):
         for index in range(0, NUM_SFP):
             sfp = Sfp(index)
             self._sfp_list.append(sfp)
+        for index in range(0, NUM_COMPONENT):
+            component = Component(index)
+            self._component_list.append(component)
         ChassisBase.__init__(self)
 
-        self._component_name_list = COMPONENT_NAME_LIST
         self._watchdog = Watchdog()
         self._eeprom = Tlv()
 
@@ -103,36 +105,6 @@ class Chassis(ChassisBase):
         """
         return self._eeprom.get_eeprom()
 
-    def get_firmware_version(self, component_name):
-        """
-        Retrieves platform-specific hardware/firmware versions for chassis
-        componenets such as BIOS, CPLD, FPGA, etc.
-        Args:
-            type: A string, component name
-
-        Returns:
-            A string containing platform-specific component versions
-        """
-        self.component = Component(component_name)
-        if component_name not in self._component_name_list:
-            return None
-        return self.component.get_firmware_version()
-
-    def install_component_firmware(self, component_name, image_path):
-        """
-        Install firmware to module
-        Args:
-            type: A string, component name.
-            image_path: A string, path to firmware image.
-
-        Returns:
-            A boolean, True if install successfully, False if not
-        """
-        self.component = Component(component_name)
-        if component_name not in self._component_name_list:
-            return False
-        return self.component.upgrade_firmware(image_path)
-
     def get_reboot_cause(self):
         """
         Retrieves the cause of the previous reboot
@@ -144,7 +116,6 @@ class Chassis(ChassisBase):
             is "REBOOT_CAUSE_HARDWARE_OTHER", the second string can be used
             to pass a description of the reboot cause.
         """
-        self.component = Component("CPLD1")
         description = 'None'
         reboot_cause = self.REBOOT_CAUSE_HARDWARE_OTHER
 
@@ -153,7 +124,7 @@ class Chassis(ChassisBase):
         prev_reboot_cause_path = (HOST_REBOOT_CAUSE_PATH + PREV_REBOOT_CAUSE_FILE) if self.__is_host(
         ) else PMON_REBOOT_CAUSE_PATH + PREV_REBOOT_CAUSE_FILE
 
-        hw_reboot_cause = self.component.get_register_value(RESET_REGISTER)
+        hw_reboot_cause = self._component_list[0].get_register_value(RESET_REGISTER)
 
         sw_reboot_cause = self.__read_txt_file(
             reboot_cause_path) or "Unknown"

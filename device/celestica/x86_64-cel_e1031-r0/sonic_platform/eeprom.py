@@ -57,17 +57,15 @@ class Tlv(eeprom_tlvinfo.TlvInfoDecoder):
     def _load_eeprom(self):
         original_stdout = sys.stdout
         sys.stdout = StringIO()
-        err = self.read_eeprom_db()
-        if err:
-            # Failed to read EEPROM information from database. Read from cache file
-            pass
-        else:
+        try:
+            self.read_eeprom_db()
+        except:
             decode_output = sys.stdout.getvalue()
             sys.stdout = original_stdout
             return self.__parse_output(decode_output)
 
         status = self.check_status()
-        if status <> 'ok':
+        if 'ok' not in status:
             return False
 
         if not os.path.exists(CACHE_ROOT):

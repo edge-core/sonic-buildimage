@@ -15,7 +15,7 @@ import shlex
 import subprocess
 
 try:
-    from sonic_platform_base.device_base import DeviceBase
+    from sonic_platform_base.component_base import ComponentBase
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -24,16 +24,20 @@ BIOS_VERSION_PATH = "/sys/class/dmi/id/bios_version"
 CONFIG_DB_PATH = "/etc/sonic/config_db.json"
 SMC_CPLD_PATH = "/sys/devices/platform/e1031.smc/version"
 GETREG_PATH = "/sys/devices/platform/e1031.smc/getreg"
+COMPONENT_NAME_LIST = ["SMC_CPLD", "MMC_CPLD", "BIOS"]
+COMPONENT_DES_LIST = ["System Management Controller",
+                      "Module Management CPLD", "Basic Input/Output System"]
 
 
-class Component(DeviceBase):
+class Component(ComponentBase):
     """Platform-specific Component class"""
 
     DEVICE_TYPE = "component"
 
-    def __init__(self, component_name):
-        DeviceBase.__init__(self)
-        self.name = component_name.upper()
+    def __init__(self, component_index):
+        ComponentBase.__init__(self)
+        self.index = component_index
+        self.name = self.get_name()
 
     def __run_command(self, command):
         # Run bash command and print output to stdout
@@ -86,6 +90,22 @@ class Component(DeviceBase):
         cpld_version["MMC_CPLD"] = mmc_cpld_version
         return cpld_version
 
+    def get_name(self):
+        """
+        Retrieves the name of the component
+         Returns:
+            A string containing the name of the component
+        """
+        return COMPONENT_NAME_LIST[self.index]
+
+    def get_description(self):
+        """
+        Retrieves the description of the component
+            Returns:
+            A string containing the description of the component
+        """
+        return COMPONENT_DES_LIST[self.index]
+
     def get_firmware_version(self):
         """
         Retrieves the firmware version of module
@@ -102,7 +122,7 @@ class Component(DeviceBase):
 
         return fw_version
 
-    def upgrade_firmware(self, image_path):
+    def install_firmware(self, image_path):
         """
         Install firmware to module
         Args:
@@ -121,7 +141,6 @@ class Component(DeviceBase):
             shutil.copy(image_path, new_image_path)
             install_command = "ispvm %s" % new_image_path
         elif self.name == "BIOS":
-            print("Not supported")
-            return False
+            install_command = "afulnx_64 %s /p /b /n /x /r" % image_path
 
         return self.__run_command(install_command)
