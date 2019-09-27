@@ -2,6 +2,9 @@
 Description=Platform monitor container
 Requires=updategraph.service
 After=updategraph.service
+{% if sonic_asic_platform == 'mellanox' %}
+After=syncd.service
+{% endif %}
 Before=ntp-config.service
 
 [Service]

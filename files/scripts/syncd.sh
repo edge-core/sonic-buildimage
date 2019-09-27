@@ -104,11 +104,9 @@ start() {
         if [[ x"$WARM_BOOT" != x"true" ]]; then
             if [[ x"$(/bin/systemctl is-active pmon)" == x"active" ]]; then
                 /bin/systemctl stop pmon
-                /usr/bin/hw-management.sh chipdown
-                /bin/systemctl restart pmon
-            else
-                /usr/bin/hw-management.sh chipdown
+                debug "pmon is active while syncd starting, stop it first"
             fi
+            /usr/bin/hw-management.sh chipdown
         fi
 
         if [[ x"$BOOT_TYPE" == x"fast" ]]; then
@@ -134,6 +132,11 @@ start() {
 }
 
 wait() {
+    if [[ x"$sonic_asic_platform" == x"mellanox" ]]; then
+        debug "Starting pmon service..."
+        /bin/systemctl start pmon
+        debug "Started pmon service"
+    fi
     /usr/bin/${SERVICE}.sh wait
 }
 
@@ -148,6 +151,12 @@ stop() {
         TYPE=warm
     else
         TYPE=cold
+    fi
+
+    if [[ x$sonic_asic_platform == x"mellanox" ]] && [[ x$TYPE == x"cold" ]]; then
+        debug "Stopping pmon service ahead of syncd..."
+        /bin/systemctl stop pmon
+        debug "Stopped pmon service"
     fi
 
     if [[ x$sonic_asic_platform != x"mellanox" ]] || [[ x$TYPE != x"cold" ]]; then
