@@ -43,6 +43,7 @@ view   systemonly  included   .1.3.6.1.2.1.25.1
 {% if snmp_rocommunities %}
 {% for community in snmp_rocommunities %}
 rocommunity {{ community }}
+rocommunity6 {{ community }}
 {% endfor %}
 {% else %}
 rocommunity {{ snmp_rocommunity }}
