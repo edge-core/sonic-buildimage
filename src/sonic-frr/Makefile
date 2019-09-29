@@ -4,17 +4,20 @@ SHELL = /bin/bash
 
 MAIN_TARGET = $(FRR)
 DERIVED_TARGET = $(FRR_PYTHONTOOLS) $(FRR_DBG) $(FRR_SNMP) $(FRR_SNMP_DBG)
+BRANCH = $(shell date +%Y%m%d\.%H%M%S)
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# Build the package
-	pushd ./frr
-	patch -p1 < ../patch/0001-Add-support-of-bgp-tcp-DSCP-value.patch
-	patch -p1 < ../patch/0002-Reduce-severity-of-Vty-connected-from-message.patch
-	patch -p1 < ../patch/0003-ignore-nexthop-attribute-when-NLRI-is-present.patch
-	patch -p1 < ../patch/0004-Allow-BGP-attr-NEXT_HOP-to-be-0.0.0.0-due-to-allevia.patch
-	patch -p1 < ../patch/0005-Support-VRF.patch
+	pushd ./frr	
+	git checkout -b $(BRANCH) origin/frr/7.0
+	stg init
+	stg import -s ../patch/series
 	tools/tarsource.sh -V -e '-sonic'
 	dpkg-buildpackage -rfakeroot -b -us -uc -Ppkg.frr.nortrlib -j$(SONIC_CONFIG_MAKE_JOBS)
+	stg undo
+	git clean -xfdf
+	git checkout frr/7.0
+	git branch -D $(BRANCH)
 	popd
 	mv $(DERIVED_TARGET) $* $(DEST)/
 
