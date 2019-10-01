@@ -1,5 +1,5 @@
-MLNX_SDK_BASE_URL = https://github.com/Mellanox/SAI-Implementation/raw/acf8ed31fd43e8280b553357c4ac4248f2c2e3aa/sdk
-MLNX_SDK_VERSION = 4.3.1886
+MLNX_SDK_BASE_URL = https://github.com/Mellanox/SAI-Implementation/raw/350187a41e408daaf03380401a0a2351b6cb0f9e/sdk
+MLNX_SDK_VERSION = 4.3.2104
 MLNX_SDK_ISSU_VERSION = 101
 
 MLNX_SDK_DEB_VERSION = $(subst _,.,$(MLNX_SDK_VERSION))
