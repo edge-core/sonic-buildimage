@@ -33,6 +33,8 @@ function copy_config_files_and_directories()
             logger "Missing SONiC configuration ${file_dir} ..."
         fi
     done
+
+    sync
 }
 
 function check_system_warm_boot()

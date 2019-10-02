@@ -242,6 +242,8 @@ if [ -f $FIRST_BOOT_FILE ]; then
         dpkg -i /host/image-$SONIC_VERSION/platform/$platform/*.deb
     fi
 
+    sync
+
     # If the unit booted into SONiC from another NOS's grub,
     # we now install a grub for SONiC.
     if [ -n "$onie_platform" ] && [ -n "$migration" ]; then
