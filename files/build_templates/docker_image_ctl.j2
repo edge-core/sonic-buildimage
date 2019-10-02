@@ -119,7 +119,7 @@ function postStartAction()
     v3SnmpTrapIp=`/usr/bin/redis-cli -n 4 hget "SNMP_TRAP_CONFIG|v3TrapDest" DestIp`
     v3SnmpTrapPort=`/usr/bin/redis-cli -n 4 hget "SNMP_TRAP_CONFIG|v3TrapDest" DestPort`
     v3MgmtVrf=`/usr/bin/redis-cli -n 4 hget "SNMP_TRAP_CONFIG|v3TrapDest" vrf`
-    
+
     if [ "${v1SnmpTrapIp}" != "" ]
     then
 	sed -i "s/v1_trap_dest:.*/v1_trap_dest: ${v1SnmpTrapIp}:${v1SnmpTrapPort}%${v1MgmtVrf}/" "/etc/sonic/snmp.yml"
@@ -185,7 +185,10 @@ start() {
             {%- endif %}
             preStartAction
             docker start {{docker_container_name}}
-            updateHostName "$HOSTNAME"
+            CURRENT_HOSTNAME="$(docker exec {{docker_container_name}} hostname)"
+            if [ x"$HOSTNAME" != x"$CURRENT_HOSTNAME" ]; then
+                updateHostName "$HOSTNAME"
+            fi
             postStartAction
             exit $?
         fi
