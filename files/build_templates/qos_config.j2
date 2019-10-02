@@ -159,7 +159,11 @@
     },
 {% endif %}
     "PORT_QOS_MAP": {
-        "{{ port_names_active }}": {
+{% for port in PORT_ACTIVE %}
+        "{{ port }}": {
+{% if 'type' in DEVICE_METADATA['localhost'] and DEVICE_METADATA['localhost']['type'] in backend_device_types %}
+            "dot1p_to_tc_map" : "[DOT1P_TO_TC_MAP|AZURE]",
+{% else %}
             "dscp_to_tc_map"  : "[DSCP_TO_TC_MAP|AZURE]",
             "tc_to_queue_map" : "[TC_TO_QUEUE_MAP|AZURE]",
             "tc_to_pg_map"    : "[TC_TO_PRIORITY_GROUP_MAP|AZURE]",
@@ -168,7 +172,9 @@
             "pfc_to_pg_map"   : "[PFC_PRIORITY_TO_PRIORITY_GROUP_MAP|AZURE]",
 {% endif %}
             "pfc_enable"      : "3,4"
-        }
+        }{% if not loop.last %},{% endif %}
+
+{% endfor %}
     },
     "WRED_PROFILE": {
         "AZURE_LOSSLESS" : {
