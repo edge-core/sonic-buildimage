@@ -7,4 +7,4 @@ if [ -t 1 ] ; then
     DOCKER_EXEC_FLAGS+="t"
 fi
 
-docker exec -$DOCKER_EXEC_FLAGS pmon sensors "$@"
+docker exec -$DOCKER_EXEC_FLAGS pmon $(basename $0) "$@"
