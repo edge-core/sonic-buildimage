@@ -939,7 +939,6 @@ portmap_9=17:40
 robust_hash_disable_egress_vlan=1
 robust_hash_disable_mpls=1
 robust_hash_disable_vlan=1
-sram_scan_enable=0
 stable_size=0x5500000
 stable_size=0x5500000
 tdma_timeout_usec=15000000
