@@ -27,11 +27,18 @@ filegen clockstats file clockstats type day enable
 server {{ ntp_server }} iburst
 {% endfor %}
 
-#only listen on localhost and eth0 ips (default is to listen on all ip addresses)
+#only listen on MGMT_INTERFACE, LOOPBACK_INTERFACE ip when MGMT_INTERFACE is not defined, or eth0 
+# if we don't have both of them (default is to listen on all ip addresses)
 interface ignore wildcard
 {% if MGMT_INTERFACE %}
 {% for (mgmt_intf, mgmt_prefix) in MGMT_INTERFACE|pfx_filter %}
 interface listen {{ mgmt_prefix | ip }}
+{% endfor %}
+{% elif LOOPBACK_INTERFACE %}
+{% for (name, prefix) in LOOPBACK_INTERFACE|pfx_filter %}
+{% if prefix | ipv4 and name == 'Loopback0' %}
+interface listen {{ prefix | ip }}
+{% endif %}
 {% endfor %}
 {% else %}
 interface listen eth0
