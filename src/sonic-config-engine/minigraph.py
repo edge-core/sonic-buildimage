@@ -383,8 +383,11 @@ def parse_cpg(cpg, hname):
                         bgp_session = bgp_sessions[peer]
                         if hostname.lower() == bgp_session['name'].lower():
                             bgp_session['asn'] = asn
+
+    bgp_monitors = { key: bgp_sessions[key] for key in bgp_sessions if bgp_sessions[key].has_key('asn') and bgp_sessions[key]['name'] == 'BGPMonitor' }
     bgp_sessions = { key: bgp_sessions[key] for key in bgp_sessions if bgp_sessions[key].has_key('asn') and int(bgp_sessions[key]['asn']) != 0 }
-    return bgp_sessions, myasn, bgp_peers_with_range
+
+    return bgp_sessions, myasn, bgp_peers_with_range, bgp_monitors
 
 
 def parse_meta(meta, hname):
@@ -516,6 +519,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
     u_devices = None
     hwsku = None
     bgp_sessions = None
+    bgp_monitors = []
     bgp_asn = None
     intfs = None
     vlan_intfs = None
@@ -559,7 +563,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
         if child.tag == str(QName(ns, "DpgDec")):
             (intfs, lo_intfs, mvrf, mgmt_intf, vlans, vlan_members, pcs, pc_members, acls, vni) = parse_dpg(child, hostname)
         elif child.tag == str(QName(ns, "CpgDec")):
-            (bgp_sessions, bgp_asn, bgp_peers_with_range) = parse_cpg(child, hostname)
+            (bgp_sessions, bgp_asn, bgp_peers_with_range, bgp_monitors) = parse_cpg(child, hostname)
         elif child.tag == str(QName(ns, "PngDec")):
             (neighbors, devices, console_dev, console_port, mgmt_dev, mgmt_port, port_speed_png, console_ports) = parse_png(child, hostname)
         elif child.tag == str(QName(ns, "UngDec")):
@@ -580,6 +584,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
         'type': current_device['type']
         }}
     results['BGP_NEIGHBOR'] = bgp_sessions
+    results['BGP_MONITORS'] = bgp_monitors
     results['BGP_PEER_RANGE'] = bgp_peers_with_range
     if mgmt_routes:
         # TODO: differentiate v4 and v6
