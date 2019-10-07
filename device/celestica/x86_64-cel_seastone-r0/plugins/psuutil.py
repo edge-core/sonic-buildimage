@@ -12,49 +12,51 @@ except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
 
+GPIO_DIR = "/sys/class/gpio"
+GPIO_LABEL = "pca9505"
+DX010_MAX_PSUS = 2
+
+
 class PsuUtil(PsuBase):
     """Platform-specific PSUutil class"""
 
     def __init__(self):
         PsuBase.__init__(self)
         # DX010 PSU pin mapping
-        self.psu = [
-            {'base': self.get_gpio_base()},
-            {'abs':27, 'power':22},
-            {'abs':28, 'power':25}
+        self.dx010_psu_gpio = [
+            {'base': self.__get_gpio_base()},
+            {'prs': 27, 'status': 22},
+            {'prs': 28, 'status': 25}
         ]
 
-    def get_gpio_base(self):
-        sys_gpio_dir = "/sys/class/gpio"
-        for r in os.listdir(sys_gpio_dir):
-            if "gpiochip" in r:
-                return int(r[8:],10)
-        return 216 #Reserve
-
-
-    # Get a psu status and presence
-    def read_psu_statuses(self, pinnum):
-        sys_gpio_dir = "/sys/class/gpio"
-        gpio_base = self.psu[0]['base']
-
-        gpio_dir = sys_gpio_dir + '/gpio' + str(gpio_base+pinnum)
-        gpio_file = gpio_dir + "/value"
-
+    def __read_txt_file(self, file_path):
         try:
-            with open(gpio_file, 'r') as fd:
-                retval = fd.read()
+            with open(file_path, 'r') as fd:
+                data = fd.read()
+                return data.strip()
         except IOError:
-            raise IOError("Unable to open " + gpio_file + "file !")
+            pass
+        return ""
 
-        retval = retval.rstrip('\r\n')
-        return retval
+    def __get_gpio_base(self):
+        for r in os.listdir(GPIO_DIR):
+            label_path = os.path.join(GPIO_DIR, r, "label")
+            if "gpiochip" in r and GPIO_LABEL in self.__read_txt_file(label_path):
+                return int(r[8:], 10)
+        return 216  # Reserve
+
+    def __get_gpio_value(self, pinnum):
+        gpio_base = self.dx010_psu_gpio[0]['base']
+        gpio_dir = GPIO_DIR + '/gpio' + str(gpio_base+pinnum)
+        gpio_file = gpio_dir + "/value"
+        retval = self.__read_txt_file(gpio_file)
+        return retval.rstrip('\r\n')
 
     def get_num_psus(self):
         """
         Retrieves the number of PSUs available on the device
         :return: An integer, the number of PSUs available on the device
          """
-        DX010_MAX_PSUS = 2
         return DX010_MAX_PSUS
 
     def get_psu_status(self, index):
@@ -65,14 +67,9 @@ class PsuUtil(PsuBase):
         :return: Boolean, True if PSU is operating properly, False if PSU is\
         faulty
         """
-        status = 0
-        psu_status = self.read_psu_statuses(self.psu[index]['power'])
-        psu_status = int(psu_status, 10)
-        # Check for PSU status
-        if (psu_status == 1):
-             status = 1
-
-        return status
+        raw = self.__get_gpio_value(
+            self.dx010_psu_gpio[index]['status'])
+        return int(raw, 10) == 1
 
     def get_psu_presence(self, index):
         """
@@ -81,11 +78,5 @@ class PsuUtil(PsuBase):
         :param index: An integer, index of the PSU of which to query status
         :return: Boolean, True if PSU is plugged, False if not
         """
-        status = 0
-        psu_absence = self.read_psu_statuses(self.psu[index]['abs'])
-        psu_absence = (int(psu_absence, 10))
-        # Check for PSU presence
-        if (psu_absence == 0):
-            status = 1
-
-        return status
+        raw = self.__get_gpio_value(self.dx010_psu_gpio[index]['prs'])
+        return int(raw, 10) == 0
