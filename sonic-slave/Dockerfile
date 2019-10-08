@@ -240,7 +240,7 @@ RUN python2 -m pip install -U pip==9.0.3
 
 # For p4 build
 RUN pip install \
-        ctypesgen \
+        ctypesgen==0.r125 \
         crc16
 
 # For sonic config engine testing
