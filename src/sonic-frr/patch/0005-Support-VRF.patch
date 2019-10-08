@@ -1,14 +1,14 @@
-From 81990d9aafdfd459c0caa6cf07501fa628ada454 Mon Sep 17 00:00:00 2001
-From: Tyler Li <tyler.li@nephosinc.com>
-Date: Mon, 3 Jun 2019 01:48:11 -0700
-Subject: [PATCH] Support VRF
+From b7ae4e11c2dc14f9208b62ea060bb5ecbf4cddb2 Mon Sep 17 00:00:00 2001
+From: Pavel Shirshov <pavelsh@microsoft.com>
+Date: Mon, 7 Oct 2019 17:17:54 -0700
+Subject: [PATCH 1/1] Support VRF
 
 ---
  zebra/zebra_fpm_netlink.c | 7 ++++++-
  1 file changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/zebra/zebra_fpm_netlink.c b/zebra/zebra_fpm_netlink.c
-index 207cbc099..b98c6886b 100644
+index 88f0c3250..29f07f801 100644
 --- a/zebra/zebra_fpm_netlink.c
 +++ b/zebra/zebra_fpm_netlink.c
 @@ -327,7 +327,12 @@ static int netlink_route_info_encode(netlink_route_info_t *ri, char *in_buf,
@@ -26,5 +26,5 @@ index 207cbc099..b98c6886b 100644
  	req->r.rtm_protocol = ri->rtm_protocol;
  	req->r.rtm_scope = RT_SCOPE_UNIVERSE;
 -- 
-2.11.0
+2.17.1.windows.2
 

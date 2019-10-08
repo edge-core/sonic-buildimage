@@ -1,7 +1,7 @@
-From ef017a613691a40f32cdaa5396bbd4889b1cb647 Mon Sep 17 00:00:00 2001
+From ab8ae984def8ee5cea22f802b2a60a05214c11d2 Mon Sep 17 00:00:00 2001
 From: Pavel Shirshov <pavelsh@microsoft.com>
-Date: Fri, 14 Jun 2019 17:45:31 -0700
-Subject: [PATCH] Add support of bgp tcp DSCP value
+Date: Mon, 7 Oct 2019 17:00:15 -0700
+Subject: [PATCH 1/1] Add support of bgp tcp DSCP value
 
 ---
  bgpd/bgp_network.c | 11 ++++-------
@@ -11,10 +11,10 @@ Subject: [PATCH] Add support of bgp tcp DSCP value
  4 files changed, 51 insertions(+), 8 deletions(-)
 
 diff --git a/bgpd/bgp_network.c b/bgpd/bgp_network.c
-index 4153da5a6..fed133eb7 100644
+index 6a5c2c4b3..9ec162aa4 100644
 --- a/bgpd/bgp_network.c
 +++ b/bgpd/bgp_network.c
-@@ -569,11 +569,9 @@ int bgp_connect(struct peer *peer)
+@@ -627,11 +627,9 @@ int bgp_connect(struct peer *peer)
  #ifdef IPTOS_PREC_INTERNETCONTROL
  	frr_elevate_privs(&bgpd_privs) {
  		if (sockunion_family(&peer->su) == AF_INET)
@@ -28,7 +28,7 @@ index 4153da5a6..fed133eb7 100644
  	}
  #endif
  
-@@ -643,10 +641,9 @@ static int bgp_listener(int sock, struct sockaddr *sa, socklen_t salen,
+@@ -707,10 +705,9 @@ static int bgp_listener(int sock, struct sockaddr *sa, socklen_t salen,
  
  #ifdef IPTOS_PREC_INTERNETCONTROL
  		if (sa->sa_family == AF_INET)
@@ -42,10 +42,10 @@ index 4153da5a6..fed133eb7 100644
  
  		sockopt_v6only(sa->sa_family, sock);
 diff --git a/bgpd/bgp_vty.c b/bgpd/bgp_vty.c
-index 7445df883..f91b908a4 100644
+index d05432327..a15a0f526 100644
 --- a/bgpd/bgp_vty.c
 +++ b/bgpd/bgp_vty.c
-@@ -1113,6 +1113,42 @@ DEFUN (no_router_bgp,
+@@ -1139,6 +1139,42 @@ DEFUN (no_router_bgp,
  	return CMD_SUCCESS;
  }
  
@@ -88,7 +88,7 @@ index 7445df883..f91b908a4 100644
  
  /* BGP router-id.  */
  
-@@ -12798,6 +12834,10 @@ void bgp_vty_init(void)
+@@ -12929,6 +12965,10 @@ void bgp_vty_init(void)
  	/* "no router bgp" commands. */
  	install_element(CONFIG_NODE, &no_router_bgp_cmd);
  
@@ -100,10 +100,10 @@ index 7445df883..f91b908a4 100644
  	install_element(BGP_NODE, &bgp_router_id_cmd);
  	install_element(BGP_NODE, &no_bgp_router_id_cmd);
 diff --git a/bgpd/bgpd.c b/bgpd/bgpd.c
-index 6fb3a70c7..503e6b4ed 100644
+index 8c0b5336e..55aeb2dd8 100644
 --- a/bgpd/bgpd.c
 +++ b/bgpd/bgpd.c
-@@ -2995,7 +2995,7 @@ static struct bgp *bgp_create(as_t *as, const char *name,
+@@ -3040,7 +3040,7 @@ static struct bgp *bgp_create(as_t *as, const char *name,
  
  	bgp->evpn_info = XCALLOC(MTYPE_BGP_EVPN_INFO,
  				 sizeof(struct bgp_evpn_info));
@@ -112,7 +112,7 @@ index 6fb3a70c7..503e6b4ed 100644
  	bgp_evpn_init(bgp);
  	bgp_pbr_init(bgp);
  	return bgp;
-@@ -7516,6 +7516,9 @@ int bgp_config_write(struct vty *vty)
+@@ -7629,6 +7629,9 @@ int bgp_config_write(struct vty *vty)
  		if (CHECK_FLAG(bgp->flags, BGP_FLAG_NO_FAST_EXT_FAILOVER))
  			vty_out(vty, " no bgp fast-external-failover\n");
  
@@ -123,10 +123,10 @@ index 6fb3a70c7..503e6b4ed 100644
  		if (bgp->router_id_static.s_addr != 0)
  			vty_out(vty, " bgp router-id %s\n",
 diff --git a/bgpd/bgpd.h b/bgpd/bgpd.h
-index df3fde840..a6546457c 100644
+index b0f656753..32983a0a9 100644
 --- a/bgpd/bgpd.h
 +++ b/bgpd/bgpd.h
-@@ -553,6 +553,9 @@ struct bgp {
+@@ -569,6 +569,9 @@ struct bgp {
  	/* Count of peers in established state */
  	uint32_t established_peers;
  

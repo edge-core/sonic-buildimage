@@ -1,5 +1,4 @@
 0001-Add-support-of-bgp-tcp-DSCP-value.patch
 0002-Reduce-severity-of-Vty-connected-from-message.patch
-0003-ignore-nexthop-attribute-when-NLRI-is-present.patch
 0004-Allow-BGP-attr-NEXT_HOP-to-be-0.0.0.0-due-to-allevia.patch
 0005-Support-VRF.patch

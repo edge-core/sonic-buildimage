@@ -1,17 +1,17 @@
-From 87760a6a04d6ffbcc7a1093549bfb76656002b61 Mon Sep 17 00:00:00 2001
+From 5a30a4e91a91f8e19c69ef219cd6d8b19e9b6fae Mon Sep 17 00:00:00 2001
 From: Pavel Shirshov <pavelsh@microsoft.com>
-Date: Fri, 14 Jun 2019 17:48:50 -0700
-Subject: [PATCH] Reduce severity of 'Vty connected from' message
+Date: Mon, 7 Oct 2019 17:06:27 -0700
+Subject: [PATCH 1/1] Reduce severity of 'Vty connected from' message
 
 ---
  lib/vty.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/lib/vty.c b/lib/vty.c
-index 8450922c2..f159d1b4b 100644
+index b1ed3d63c..5aa4b56cb 100644
 --- a/lib/vty.c
 +++ b/lib/vty.c
-@@ -1875,7 +1875,7 @@ static int vty_accept(struct thread *thread)
+@@ -1870,7 +1870,7 @@ static int vty_accept(struct thread *thread)
  		zlog_info("can't set sockopt to vty_sock : %s",
  			  safe_strerror(errno));
  
