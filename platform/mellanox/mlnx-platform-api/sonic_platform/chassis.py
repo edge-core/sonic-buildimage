@@ -523,4 +523,4 @@ class Chassis(ChassisBase):
                 i = i + 1
             return True, {'sfp':port_dict}
         else:
-            return True, {}
+            return True, {'sfp':{}}
