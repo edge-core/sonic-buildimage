@@ -1,4 +1,4 @@
-MLNX_SDK_BASE_URL = https://github.com/Mellanox/SAI-Implementation/raw/350187a41e408daaf03380401a0a2351b6cb0f9e/sdk
+MLNX_SDK_BASE_PATH = $(PLATFORM_PATH)/sdk-src/sx-kernel/Switch-SDK-drivers/bin/
 MLNX_SDK_VERSION = 4.3.2104
 MLNX_SDK_ISSU_VERSION = 101
 
@@ -135,19 +135,21 @@ $(SX_KERNEL)_SRC_PATH = $(PLATFORM_PATH)/sdk-src/sx-kernel
 SX_KERNEL_DEV = sx-kernel-dev_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb
 $(eval $(call add_derived_package,$(SX_KERNEL),$(SX_KERNEL_DEV)))
 
-define make_url
-	$(1)_URL = $(MLNX_SDK_BASE_URL)/$(1)
+define make_path
+	$(1)_PATH = $(MLNX_SDK_BASE_PATH)
 
 endef
 
-$(eval $(foreach deb,$(MLNX_SDK_DEBS),$(call make_url,$(deb))))
-$(eval $(foreach deb,$(MLNX_SDK_RDEBS),$(call make_url,$(deb))))
-$(eval $(foreach deb,$(PYTHON_SDK_API) $(SX_KERNEL) $(SX_KERNEL_DEV),$(call make_url,$(deb))))
+$(eval $(foreach deb,$(MLNX_SDK_DEBS),$(call make_path,$(deb))))
+$(eval $(foreach deb,$(MLNX_SDK_RDEBS),$(call make_path,$(deb))))
+$(eval $(foreach deb,$(PYTHON_SDK_API) $(SX_KERNEL) $(SX_KERNEL_DEV),$(call make_path,$(deb))))
+
+SONIC_MAKE_DEBS += $(SX_KERNEL)
 
 ifeq ($(SDK_FROM_SRC), y)
-SONIC_MAKE_DEBS += $(MLNX_SDK_RDEBS) $(PYTHON_SDK_API) $(SX_KERNEL)
+SONIC_MAKE_DEBS += $(MLNX_SDK_RDEBS) $(PYTHON_SDK_API)
 else
-SONIC_ONLINE_DEBS += $(MLNX_SDK_RDEBS) $(PYTHON_SDK_API) $(SX_KERNEL)
+SONIC_COPY_DEBS += $(MLNX_SDK_RDEBS) $(PYTHON_SDK_API)
 endif
 
 SONIC_STRETCH_DEBS += $(SX_KERNEL)

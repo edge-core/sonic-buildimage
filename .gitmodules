@@ -66,3 +66,6 @@
 [submodule "platform/mellanox/mlnx-sai/SAI-Implementation"]
 	path = platform/mellanox/mlnx-sai/SAI-Implementation
 	url = https://github.com/Mellanox/SAI-Implementation
+[submodule "Switch-SDK-drivers"]
+	path = platform/mellanox/sdk-src/sx-kernel/Switch-SDK-drivers
+	url = https://github.com/Mellanox/Switch-SDK-drivers

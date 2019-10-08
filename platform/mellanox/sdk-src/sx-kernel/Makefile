@@ -7,12 +7,18 @@ PACKAGE_NAME = sx_kernel
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# get sources
-	rm -rf sx_kernel-$(MLNX_SDK_VERSION)-$(MLNX_SDK_ISSU_VERSION)
 
-	wget -c $(MLNX_SDK_SOURCE_BASE_URL)/$(PACKAGE_NAME)-$(MLNX_SDK_VERSION)-$(MLNX_SDK_ISSU_VERSION).tar.gz -O - | tar -xz
+	if [ ! -z "$(MLNX_SDK_SOURCE_BASE_URL)" ]; then
+		rm -rf sx_kernel-$(MLNX_SDK_VERSION)-$(MLNX_SDK_ISSU_VERSION)
+		wget -c $(MLNX_SDK_SOURCE_BASE_URL)/$(PACKAGE_NAME)-$(MLNX_SDK_VERSION)-$(MLNX_SDK_ISSU_VERSION).tar.gz -O - | tar -xz
+		pushd sx_kernel-$(MLNX_SDK_VERSION)-$(MLNX_SDK_ISSU_VERSION)
+	else
+		pushd Switch-SDK-drivers
+		git reset --hard
+		git clean -xfd
+	fi
 
 	# build
-	pushd sx_kernel-$(MLNX_SDK_VERSION)-$(MLNX_SDK_ISSU_VERSION)
 	patch -p1 < ../sx_kernel_makefile_sonic_build.patch
 
 	debuild -e KVERSION=$(KVERSION) -e KSRC_EXT=/lib/modules/$(KVERSION)/source/ -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS)
