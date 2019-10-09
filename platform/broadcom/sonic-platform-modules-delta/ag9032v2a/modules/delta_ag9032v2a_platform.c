@@ -566,53 +566,53 @@ static ssize_t for_status(struct device *dev, struct device_attribute *dev_attr,
     mutex_lock(&dni_lock);
     switch (attr->index) {
         case SFP_IS_PRESENT:
-            /*QSFP1~8*/
-            ret = i2c_smbus_read_byte_data(pdata1[swpld1].client, QSFP_PRESENCE_1);
-            data = (u32)(reverse_8bits(ret) & 0xff);
-            /*QSFP9~16*/
-            ret = i2c_smbus_read_byte_data(pdata1[swpld1].client, QSFP_PRESENCE_2);
-            data |= (u32)(reverse_8bits(ret) & 0xff) << 8;
-            /*QSFP17~24*/
-            ret = i2c_smbus_read_byte_data(pdata1[swpld1].client, QSFP_PRESENCE_3);
-            data |= (u32)(reverse_8bits(ret) & 0xff) << 16;
             /*QSFP25~32*/
             ret = i2c_smbus_read_byte_data(pdata1[swpld1].client, QSFP_PRESENCE_4);
-            data |= (u32)(reverse_8bits(ret) & 0xff) << 24;
+            data = (u32)ret & 0xff;
+            /*QSFP17~24*/
+            ret = i2c_smbus_read_byte_data(pdata1[swpld1].client, QSFP_PRESENCE_3);
+            data |= ((u32)ret & 0xff) << 8;
+            /*QSFP9~16*/
+            ret = i2c_smbus_read_byte_data(pdata1[swpld1].client, QSFP_PRESENCE_2);
+            data |= (u32)(ret & 0xff) << 16;
+            /*QSFP1~8*/
+            ret = i2c_smbus_read_byte_data(pdata1[swpld1].client, QSFP_PRESENCE_1);
+            data |= (u32)(ret & 0xff) << 24;
 
             ret = i2c_smbus_read_byte_data(pdata2[swpld2].client, SFP_PRESENCE_5);
-            ret_sfp = (ret & (0x80)) >> 7;
+            ret_sfp = (ret & (0x80));
             mutex_unlock(&dni_lock);
-            return sprintf(buf, "0x%x%x\n", ret_sfp, data);
+            return sprintf(buf, "0x%x%02x\n", data, ret_sfp);
 
         case QSFP_LPMODE:
-            /*QSFP1~8*/
-            ret = i2c_smbus_read_byte_data(pdata1[swpld1].client, QSFP_LPMODE_1);
-            data = (u32)(reverse_8bits(ret) & 0xff);
-            /*QSFP9~16*/
-            ret = i2c_smbus_read_byte_data(pdata1[swpld1].client, QSFP_LPMODE_2);
-            data |= (u32)(reverse_8bits(ret) & 0xff) << 8;
-            /*QSFP17~24*/
-            ret = i2c_smbus_read_byte_data(pdata1[swpld1].client, QSFP_LPMODE_3);
-            data |= (u32)(reverse_8bits(ret) & 0xff) << 16;
             /*QSFP25~32*/
             ret = i2c_smbus_read_byte_data(pdata1[swpld1].client, QSFP_LPMODE_4);
-            data |= (u32)(reverse_8bits(ret) & 0xff) << 24;
+            data = (u32)(ret & 0xff);
+            /*QSFP17~24*/
+            ret = i2c_smbus_read_byte_data(pdata1[swpld1].client, QSFP_LPMODE_3);
+            data |= (u32)(ret & 0xff) << 8;
+            /*QSFP9~16*/
+            ret = i2c_smbus_read_byte_data(pdata1[swpld1].client, QSFP_LPMODE_2);
+            data |= (u32)(ret & 0xff) << 16;
+            /*QSFP1~8*/
+            ret = i2c_smbus_read_byte_data(pdata1[swpld1].client, QSFP_LPMODE_1);
+            data |= (u32)(ret & 0xff) << 24;
             mutex_unlock(&dni_lock);
             return sprintf(buf, "0x%x\n", data);
 
          case QSFP_RESET:
-            /*QSFP1~8*/
-            ret = i2c_smbus_read_byte_data(pdata1[swpld1].client, QSFP_RESET_1);
-            data = (u32)(reverse_8bits(ret) & 0xff);
-            /*QSFP9~16*/
-            ret = i2c_smbus_read_byte_data(pdata1[swpld1].client, QSFP_RESET_2);
-            data |= (u32)(reverse_8bits(ret) & 0xff) << 8;
-            /*QSFP17~24*/
-            ret = i2c_smbus_read_byte_data(pdata1[swpld1].client, QSFP_RESET_3);
-            data |= (u32)(reverse_8bits(ret) & 0xff) << 16;
             /*QSFP25~32*/
             ret = i2c_smbus_read_byte_data(pdata1[swpld1].client, QSFP_RESET_4);
-            data |= (u32)(reverse_8bits(ret) & 0xff) << 24;
+            data = (u32)(ret & 0xff);
+            /*QSFP17~24*/
+            ret = i2c_smbus_read_byte_data(pdata1[swpld1].client, QSFP_RESET_3);
+            data |= (u32)(ret & 0xff) << 8;
+            /*QSFP9~16*/
+            ret = i2c_smbus_read_byte_data(pdata1[swpld1].client, QSFP_RESET_2);
+            data |= (u32)(ret & 0xff) << 16;
+            /*QSFP1~8*/
+            ret = i2c_smbus_read_byte_data(pdata1[swpld1].client, QSFP_RESET_1);
+            data |= (u32)(ret & 0xff) << 24;
             mutex_unlock(&dni_lock);
             return sprintf(buf, "0x%x\n", data);
 
@@ -628,6 +628,7 @@ static ssize_t set_lpmode_data(struct device *dev, struct device_attribute *dev_
     struct cpld_platform_data *pdata = i2cdev->platform_data;
     unsigned long long set_data;
     int err;
+    int status = 0;
     unsigned char set_bytes;
 
 
@@ -636,23 +637,44 @@ static ssize_t set_lpmode_data(struct device *dev, struct device_attribute *dev_
         return err;
     }
     mutex_lock(&dni_lock);
-    /*QSFP1~8*/
-    set_bytes = reverse_8bits(set_data & 0xff);
-    i2c_smbus_write_byte_data(pdata[swpld1].client, QSFP_LPMODE_1, set_bytes);
-
-    /*QSFP9~16*/
-    set_bytes = reverse_8bits((set_data >> 8 ) & 0xff);
-    i2c_smbus_write_byte_data(pdata[swpld1].client, QSFP_LPMODE_2, set_bytes);
+    /*QSFP25~32*/
+    set_bytes = set_data & 0xff;
+    status = i2c_smbus_write_byte_data(pdata[swpld1].client, QSFP_LPMODE_4, set_bytes);
+    if(status < 0)
+    {
+        goto ERROR;
+    }
 
     /*QSFP17~24*/
-    set_bytes = reverse_8bits((set_data >> 16 ) & 0xff);
-    i2c_smbus_write_byte_data(pdata[swpld1].client, QSFP_LPMODE_3, set_bytes);
+    set_bytes = (set_data >> 8 ) & 0xff;
+    status = i2c_smbus_write_byte_data(pdata[swpld1].client, QSFP_LPMODE_3, set_bytes);
+    if(status < 0)
+    {
+        goto ERROR;
+    }
 
-    /*QSFP25~32*/
-    set_bytes = reverse_8bits((set_data >> 24 ) & 0xff);
-    i2c_smbus_write_byte_data(pdata[swpld1].client, QSFP_LPMODE_4, set_bytes);
+    /*QSFP9~16*/
+    set_bytes = (set_data >> 16 ) & 0xff;
+    status = i2c_smbus_write_byte_data(pdata[swpld1].client, QSFP_LPMODE_2, set_bytes);
+    if(status < 0)
+    {
+        goto ERROR;
+    }
+
+    /*QSFP1~8*/
+    set_bytes = (set_data >> 24 ) & 0xff;
+    status = i2c_smbus_write_byte_data(pdata[swpld1].client, QSFP_LPMODE_1, set_bytes);
+    if(status < 0)
+    {
+        goto ERROR;
+    }
+
     mutex_unlock(&dni_lock);
     return count;
+
+ERROR:
+    mutex_unlock(&dni_lock);
+    return status;
 
 }
 
@@ -662,6 +684,7 @@ static ssize_t set_reset_data(struct device *dev, struct device_attribute *dev_a
     struct cpld_platform_data *pdata = i2cdev->platform_data;
     unsigned long long set_data;
     int err;
+    int status = 0;
     unsigned char set_bytes;
 
     err = kstrtoull(buf, 16, &set_data);
@@ -670,23 +693,43 @@ static ssize_t set_reset_data(struct device *dev, struct device_attribute *dev_a
     }
 
     mutex_lock(&dni_lock);
-    /*QSFP1~8*/
-    set_bytes = reverse_8bits(set_data & 0xff);
-    i2c_smbus_write_byte_data(pdata[swpld1].client, QSFP_RESET_1, set_bytes);
-
-    /*QSFP9~16*/
-    set_bytes = reverse_8bits((set_data >> 8 ) & 0xff);
-    i2c_smbus_write_byte_data(pdata[swpld1].client, QSFP_RESET_2, set_bytes);
+    /*QSFP25~32*/
+    set_bytes = set_data & 0xff;
+    status = i2c_smbus_write_byte_data(pdata[swpld1].client, QSFP_RESET_4, set_bytes);
+    if(status < 0)
+    {
+        goto ERROR;
+    }
 
     /*QSFP17~24*/
-    set_bytes = reverse_8bits((set_data >> 16 ) & 0xff);
-    i2c_smbus_write_byte_data(pdata[swpld1].client, QSFP_RESET_3, set_bytes);
+    set_bytes = (set_data >> 8 ) & 0xff;
+    status = i2c_smbus_write_byte_data(pdata[swpld1].client, QSFP_RESET_3, set_bytes);
+    if(status < 0)
+    {
+        goto ERROR;
+    }
 
-    /*QSFP25~32*/
-    set_bytes = reverse_8bits((set_data >> 24 ) & 0xff);
-    i2c_smbus_write_byte_data(pdata[swpld1].client, QSFP_RESET_4, set_bytes);
+    /*QSFP9~16*/
+    set_bytes = (set_data >> 16 ) & 0xff;
+    status = i2c_smbus_write_byte_data(pdata[swpld1].client, QSFP_RESET_2, set_bytes);
+    if(status < 0)
+    {
+        goto ERROR;
+    }
+
+    /*QSFP1~8*/
+    set_bytes = (set_data >> 24 ) & 0xff;
+    status = i2c_smbus_write_byte_data(pdata[swpld1].client, QSFP_RESET_1, set_bytes);
+    if(status < 0)
+    {
+        goto ERROR;
+    }
+
     mutex_unlock(&dni_lock);
     return count;
+ERROR:
+    mutex_unlock(&dni_lock);
+    return status;
 }
 
 

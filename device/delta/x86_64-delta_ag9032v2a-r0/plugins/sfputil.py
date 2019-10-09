@@ -62,7 +62,7 @@ class SfpUtil(SfpUtilBase):
         reg_value = int(content, 16)
 
         # Mask off the bit corresponding to our port
-        mask = (1 << port_num)
+        mask = (1 << (self.port_end - port_num + 7))
 
         # ModPrsL is active low
         if reg_value & mask == 0:
@@ -86,7 +86,7 @@ class SfpUtil(SfpUtilBase):
         reg_value = int(content, 16)
 
         # Mask off the bit corresponding to our port
-        mask = (1 << port_num)
+        mask = (1 << (self.port_end - port_num) - 1)
 
         # LPMode is active high
         if reg_value & mask == 0:
@@ -111,7 +111,7 @@ class SfpUtil(SfpUtilBase):
         reg_value = int(content, 16)
 
         # Mask off the bit corresponding to our port
-        mask = (1 << port_num)
+        mask = (1 << (self.port_end - port_num) - 1)
 
         # LPMode is active high; set or clear the bit accordingly
         if lpmode is True:
@@ -147,7 +147,7 @@ class SfpUtil(SfpUtilBase):
         reg_value = int(content, 16)
 
         # Mask off the bit corresponding to our port
-        mask = (1 << port_num)
+        mask = (1 << (self.port_end - port_num) - 1)
 
         # ResetL is active low
         reg_value = reg_value & ~mask
