@@ -10,6 +10,7 @@
 
 try:
     from sonic_platform_base.chassis_base import ChassisBase
+    from sonic_platform_base.component_base import ComponentBase
     from sonic_daemon_base.daemon_base import Logger
     from os import listdir
     from os.path import isfile, join
@@ -37,22 +38,6 @@ REBOOT_CAUSE_ROOT = HWMGMT_SYSTEM_ROOT
 
 REBOOT_CAUSE_FILE_LENGTH = 1
 
-#version retrieving related definitions
-CPLD_VERSION_ROOT = HWMGMT_SYSTEM_ROOT
-
-CPLD1_VERSION_FILE = 'cpld1_version'
-CPLD2_VERSION_FILE = 'cpld2_version'
-CPLD_VERSION_MAX_LENGTH = 4
-
-FW_QUERY_VERSION_COMMAND = 'mlxfwmanager --query'
-BIOS_QUERY_VERSION_COMMAND = 'dmidecode -t 11'
-
-#components definitions
-COMPONENT_BIOS = "BIOS"
-COMPONENT_FIRMWARE = "ASIC-FIRMWARE"
-COMPONENT_CPLD1 = "CPLD1"
-COMPONENT_CPLD2 = "CPLD2"
-
 # Global logger class instance
 SYSLOG_IDENTIFIER = "mlnx-chassis-api"
 logger = Logger(SYSLOG_IDENTIFIER)
@@ -78,9 +63,11 @@ class Chassis(ChassisBase):
         self.reboot_cause_initialized = False
         logger.log_info("Chassis loaded successfully")
 
+
     def __del__(self):
         if self.sfp_event_initialized:
             self.sfp_event.deinitialize()
+
 
     def initialize_psu(self):
         from sonic_platform.psu import Psu
@@ -89,6 +76,7 @@ class Chassis(ChassisBase):
         for index in range(MLNX_NUM_PSU):
             psu = Psu(index, self.sku_name)
             self._psu_list.append(psu)
+
 
     def initialize_fan(self):
         from sonic_platform.fan import Fan
@@ -106,6 +94,7 @@ class Chassis(ChassisBase):
             else:
                 fan = Fan(index, index)
             self._fan_list.append(fan)
+
 
     def initialize_sfp(self):
         from sonic_platform.sfp import SFP
@@ -128,22 +117,25 @@ class Chassis(ChassisBase):
 
         self.sfp_module_initialized = True
 
+
     def initialize_thermals(self):
         from sonic_platform.thermal import initialize_thermals
         # Initialize thermals
         initialize_thermals(self.sku_name, self._thermal_list, self._psu_list)
+
 
     def initialize_eeprom(self):
         from eeprom import Eeprom
         # Initialize EEPROM
         self._eeprom = Eeprom()
 
-    def initialize_components_list(self):
+
+    def initialize_components(self):
         # Initialize component list
-        self._component_name_list.append(COMPONENT_BIOS)
-        self._component_name_list.append(COMPONENT_FIRMWARE)
-        self._component_name_list.append(COMPONENT_CPLD1)
-        self._component_name_list.append(COMPONENT_CPLD2)
+        from sonic_platform.component import ComponentBIOS, ComponentCPLD
+        self._component_list.append(ComponentBIOS())
+        self._component_list.append(ComponentCPLD())
+
 
     ##############################################
     # SFP methods
@@ -159,6 +151,7 @@ class Chassis(ChassisBase):
             self.initialize_sfp()
         return len(self._sfp_list)
 
+
     def get_all_sfps(self):
         """
         Retrieves all sfps available on this chassis
@@ -170,6 +163,7 @@ class Chassis(ChassisBase):
         if not self.sfp_module_initialized:
             self.initialize_sfp()
         return self._sfp_list
+
 
     def get_sfp(self, index):
         """
@@ -197,6 +191,7 @@ class Chassis(ChassisBase):
 
         return sfp
 
+
     def _extract_num_of_fans_and_fan_drawers(self):
         num_of_fan = 0
         num_of_drawer = 0
@@ -213,14 +208,17 @@ class Chassis(ChassisBase):
 
         return num_of_fan, num_of_drawer
 
+
     def _get_sku_name(self):
         p = subprocess.Popen(GET_HWSKU_CMD, shell=True, stdout=subprocess.PIPE)
         out, err = p.communicate()
         return out.rstrip('\n')
 
+
     def _get_port_position_tuple_by_sku_name(self):
         position_tuple = port_position_tuple_list[hwsku_dict_port[self.sku_name]]
         return position_tuple
+
 
     def get_watchdog(self):
         """
@@ -246,6 +244,7 @@ class Chassis(ChassisBase):
 
         return self._watchdog
 
+
     def get_base_mac(self):
         """
         Retrieves the base MAC address for the chassis
@@ -256,6 +255,7 @@ class Chassis(ChassisBase):
         """
         return self._eeprom.get_base_mac()
 
+
     def get_serial_number(self):
         """
         Retrieves the hardware serial number for the chassis
@@ -264,6 +264,7 @@ class Chassis(ChassisBase):
             A string containing the hardware serial number for this chassis.
         """
         return self._eeprom.get_serial_number()
+
 
     def get_system_eeprom_info(self):
         """
@@ -275,6 +276,7 @@ class Chassis(ChassisBase):
             values.
         """
         return self._eeprom.get_system_eeprom_info()
+
 
     def _read_generic_file(self, filename, len):
         """
@@ -290,6 +292,7 @@ class Chassis(ChassisBase):
             logger.log_info("Fail to read file {} due to {}".format(filename, repr(e)))
             return '0'
 
+
     def _verify_reboot_cause(self, filename):
         '''
         Open and read the reboot cause file in 
@@ -297,6 +300,7 @@ class Chassis(ChassisBase):
         If a reboot cause file doesn't exists, returns '0'.
         '''
         return bool(int(self._read_generic_file(join(REBOOT_CAUSE_ROOT, filename), REBOOT_CAUSE_FILE_LENGTH).rstrip('\n')))
+
 
     def initialize_reboot_cause(self):
         self.reboot_major_cause_dict = {
@@ -323,6 +327,7 @@ class Chassis(ChassisBase):
         }
         self.reboot_cause_initialized = True
 
+
     def get_reboot_cause(self):
         """
         Retrieves the cause of the previous reboot
@@ -348,101 +353,6 @@ class Chassis(ChassisBase):
 
         return self.REBOOT_CAUSE_NON_HARDWARE, ''
 
-    def _get_cpld_version(self, version_file):
-        cpld_version = self._read_generic_file(join(CPLD_VERSION_ROOT, version_file), CPLD_VERSION_MAX_LENGTH)
-        return cpld_version.rstrip('\n')
-
-    def _get_command_result(self, cmdline):
-        try:
-            proc = subprocess.Popen(cmdline, stdout=subprocess.PIPE, shell=True, stderr=subprocess.STDOUT)
-            stdout = proc.communicate()[0]
-            proc.wait()
-            result = stdout.rstrip('\n')
-
-        except OSError, e:
-            result = ''
-
-        return result
-
-    def _get_firmware_version(self):
-        """
-        firmware version is retrieved via command 'mlxfwmanager --query'
-        which should return result in the following convention
-            admin@mtbc-sonic-01-2410:~$ sudo mlxfwmanager --query
-            Querying Mellanox devices firmware ...
-
-            Device #1:
-            ----------
-
-            Device Type:      Spectrum
-            Part Number:      MSN2410-CxxxO_Ax_Bx
-            Description:      Spectrum based 25GbE/100GbE 1U Open Ethernet switch with ONIE; 48 SFP28 ports; 8 QSFP28 ports; x86 dual core; RoHS6
-            PSID:             MT_2860111033
-            PCI Device Name:  /dev/mst/mt52100_pci_cr0
-            Base MAC:         98039bf3f500
-            Versions:         Current        Available     
-                FW         ***13.2000.1140***N/A           
-
-            Status:           No matching image found
-
-        By using regular expression '(Versions:.*\n[\s]+FW[\s]+)([\S]+)',
-        we can extrace the version which is marked with *** in the above context
-        """
-        fw_ver_str = self._get_command_result(FW_QUERY_VERSION_COMMAND)
-        try: 
-            m = re.search('(Versions:.*\n[\s]+FW[\s]+)([\S]+)', fw_ver_str)
-            result = m.group(2)
-        except :
-            result = ''
-
-        return result
-
-    def _get_bios_version(self):
-        """
-        BIOS version is retrieved via command 'dmidecode -t 11'
-        which should return result in the following convention
-            # dmidecode 3.0
-            Getting SMBIOS data from sysfs.
-            SMBIOS 2.7 present.
-
-            Handle 0x0022, DMI type 11, 5 bytes
-            OEM Strings
-                    String 1:*0ABZS017_02.02.002*
-                    String 2: To Be Filled By O.E.M.
-
-        By using regular expression 'OEM[\s]*Strings\n[\s]*String[\s]*1:[\s]*([0-9a-zA-Z_\.]*)'
-        we can extrace the version string which is marked with * in the above context
-        """
-        bios_ver_str = self._get_command_result(BIOS_QUERY_VERSION_COMMAND)
-        try:
-            m = re.search('OEM[\s]*Strings\n[\s]*String[\s]*1:[\s]*([0-9a-zA-Z_\.]*)', bios_ver_str)
-            result = m.group(1)
-        except:
-            result = ''
-
-        return result
-
-    def get_firmware_version(self, component_name):
-        """
-        Retrieves platform-specific hardware/firmware versions for chassis
-        componenets such as BIOS, CPLD, FPGA, etc.
-        Args:
-            component_name: A string, the component name.
-
-        Returns:
-            A string containing platform-specific component versions
-        """
-        if component_name in self._component_name_list :
-            if component_name == COMPONENT_BIOS:
-                return self._get_bios_version()
-            elif component_name == COMPONENT_CPLD1:
-                return self._get_cpld_version(CPLD1_VERSION_FILE)
-            elif component_name == COMPONENT_CPLD2:
-                return self._get_cpld_version(CPLD2_VERSION_FILE)
-            elif component_name == COMPONENT_FIRMWARE:
-                return self._get_firmware_version()
-
-        return None
 
     def _show_capabilities(self):
         """
@@ -464,6 +374,7 @@ class Chassis(ChassisBase):
                     )
             except:
                 print "fail to retrieve capabilities for module index {}".format(s.index)
+
 
     def get_change_event(self, timeout=0):
         """
