@@ -2,8 +2,10 @@
 ptp_ts_pll_fref=50000000
 ptp_bs_fref_0=50000000
 ptp_bs_fref_1=50000000
+ifp_inports_support_enable=1
 ### end fix
 
+stable_size=0x5500000
 
 core_clock_frequency=1525
 dpp_clock_ratio=2:3
@@ -12,7 +14,7 @@ oversubscribe_mode=1
 pbmp_xport_xe=0x488787878808787fdfe1e1e1fe1e1e1fe
 
 
-portmap_65=130:10
+#portmap_65=130:10
 
 ### Pipeline0, halfpipe 0 (12x25G + 2x100G)
 portmap_1=1:25
@@ -60,11 +62,11 @@ portmap_64=64:25
 
 ### Pipeline 1
 ### First management port
-portmap_66=129:10:m
+#portmap_66=129:10:m
 ### Second management port
-portmap_130=128:10:m
+#portmap_130=128:10:m
 ### Loopback port
-portmap_131=131:10
+#portmap_131=131:10
 
 ### Pipeline 1, halfpipe 0 (12x25G + 2x100G)
 portmap_67=65:25
@@ -91,6 +93,11 @@ l3_mem_entries=16384
 fpem_mem_entries=16384
 l2xmsg_mode=1
 
+
+
+pdma_descriptor_prefetch_enable=1
+
+port_flex_enable=1
 
 #dport part
 dport_map_port_79=87
@@ -281,118 +288,125 @@ phy_chain_tx_polarity_flip_physical{132.0}=0x0
 phy_chain_rx_polarity_flip_physical{132.0}=0x0
 
 # EQ/IDriver
-serdes_preemphasis_1=0x13460B
-serdes_preemphasis_2=0x13460B
-serdes_preemphasis_3=0x14450B
-serdes_preemphasis_4=0x13460B
-serdes_preemphasis_5=0x11480B
-serdes_preemphasis_6=0x13470A
-serdes_preemphasis_7=0x14460A
-serdes_preemphasis_8=0x11490A
-serdes_preemphasis_13=0x10490B
-serdes_preemphasis_14=0x104A0A
-serdes_preemphasis_15=0x0F4B0A
-serdes_preemphasis_16=0x0F4B0A
-serdes_preemphasis_21=0x0D4D0A
-serdes_preemphasis_22=0x0D4D0A
-serdes_preemphasis_23=0x0D4D0A
-serdes_preemphasis_24=0x0D4D0A
-serdes_preemphasis_29=0x0B4F0A
-serdes_preemphasis_30=0x0D4E09
-serdes_preemphasis_31=0x0B4F0A
-serdes_preemphasis_32=0x0C4F09
-serdes_preemphasis_33=0x0B4F0A
-serdes_preemphasis_34=0x0A5109
-serdes_preemphasis_35=0x09510A
-serdes_preemphasis_36=0x0B5009
-serdes_preemphasis_41=0x09510A
-serdes_preemphasis_42=0x0B5009
-serdes_preemphasis_43=0x09510A
-serdes_preemphasis_44=0x0A5109
-serdes_preemphasis_49=0x0A500A
-serdes_preemphasis_50=0x0B4F0A
-serdes_preemphasis_51=0x09510A
-serdes_preemphasis_52=0x0E4C0A
-serdes_preemphasis_57=0x0D4D0A
-serdes_preemphasis_58=0x0E4D09
-serdes_preemphasis_59=0x0C4E0A
-serdes_preemphasis_60=0x0E4D09
-serdes_preemphasis_61=0x0B4F0A
-serdes_preemphasis_62=0x0D4E09
-serdes_preemphasis_63=0x0D4D0A
-serdes_preemphasis_64=0x0D4D0A
-serdes_preemphasis_67=0x0B4F0A
-serdes_preemphasis_68=0x0C4E0A
-serdes_preemphasis_69=0x0B4F0A
-serdes_preemphasis_70=0x0B4F0A
-serdes_preemphasis_71=0x0B4F0A
-serdes_preemphasis_72=0x0F4B0A
-serdes_preemphasis_73=0x0E4C0A
-serdes_preemphasis_74=0x0F4B0A
-serdes_preemphasis_87=0x0E4C0A
-serdes_preemphasis_79=0x0F4B0A
-serdes_preemphasis_95=0x0F4B0A
-serdes_preemphasis_99=0x0F4B0A
-serdes_preemphasis_115=0x13470A
-serdes_preemphasis_107=0x12480A
-serdes_preemphasis_123=0x154609
-serdes_preemphasis_127=0x13470A
+# 25G
+serdes_preemphasis_1=0x0F4B0A
+serdes_preemphasis_2=0x104A0A
+serdes_preemphasis_3=0x0E4C0A
+serdes_preemphasis_4=0x0E4C0A
+serdes_preemphasis_5=0x0D4D0A
+serdes_preemphasis_6=0x0D4D0A
+serdes_preemphasis_7=0x0D4D0A
+serdes_preemphasis_8=0x0D4D0A
+serdes_preemphasis_13=0x0C4E0A
+serdes_preemphasis_14=0x0D4D0A
+serdes_preemphasis_15=0x0B4F0A
+serdes_preemphasis_16=0x0C4E0A
+serdes_preemphasis_21=0x0A500A
+serdes_preemphasis_22=0x0A500A
+serdes_preemphasis_23=0x09510A
+serdes_preemphasis_24=0x09510A
+serdes_preemphasis_29=0x08520A
+serdes_preemphasis_30=0x08520A
+serdes_preemphasis_31=0x07530A
+serdes_preemphasis_32=0x07530A
+serdes_preemphasis_33=0x06540A
+serdes_preemphasis_34=0x07530A
+serdes_preemphasis_35=0x05550A
+serdes_preemphasis_36=0x06540A
+serdes_preemphasis_41=0x05550A
+serdes_preemphasis_42=0x06540A
+serdes_preemphasis_43=0x05550A
+serdes_preemphasis_44=0x05550A
+serdes_preemphasis_49=0x04560A
+serdes_preemphasis_50=0x05550A
+serdes_preemphasis_51=0x05550A
+serdes_preemphasis_52=0x06540A
+serdes_preemphasis_57=0x06540A
+serdes_preemphasis_58=0x07530A
+serdes_preemphasis_59=0x06540A
+serdes_preemphasis_60=0x07530A
+serdes_preemphasis_61=0x06540A
+serdes_preemphasis_62=0x08520A
+serdes_preemphasis_63=0x08520A
+serdes_preemphasis_64=0x09510A
+serdes_preemphasis_67=0x06540A
+serdes_preemphasis_68=0x06540A
+serdes_preemphasis_69=0x06540A
+serdes_preemphasis_70=0x08520A
+serdes_preemphasis_71=0x09510A
+serdes_preemphasis_72=0x09510A
+serdes_preemphasis_73=0x09510A
+serdes_preemphasis_74=0x0A500A
+serdes_preemphasis_lane0_87=0x07530A
+serdes_preemphasis_lane1_87=0x05550A
+serdes_preemphasis_lane2_87=0x07530A
+serdes_preemphasis_lane3_87=0x05550A
+serdes_preemphasis_79=0x05550A
+serdes_preemphasis_95=0x07530A
+serdes_preemphasis_lane0_99=0x085309
+serdes_preemphasis_lane1_99=0x0B4F0A
+serdes_preemphasis_lane2_99=0x085309
+serdes_preemphasis_lane3_99=0x0B4F0A
+serdes_preemphasis_115=0x0B4F0A
+serdes_preemphasis_107=0x0B4F0A
+serdes_preemphasis_123=0x0B4F0A
+serdes_preemphasis_127=0x0D4E09
+# 10G
 
 # interface type
-serdes_if_type_1=13
-serdes_if_type_2=13
-serdes_if_type_3=13
-serdes_if_type_4=13
-serdes_if_type_5=13
-serdes_if_type_6=13
-serdes_if_type_7=13
-serdes_if_type_8=13
-serdes_if_type_13=13
-serdes_if_type_14=13
-serdes_if_type_15=13
-serdes_if_type_16=13
-serdes_if_type_21=13
-serdes_if_type_22=13
-serdes_if_type_23=13
-serdes_if_type_24=13
-serdes_if_type_29=13
-serdes_if_type_30=13
-serdes_if_type_31=13
-serdes_if_type_32=13
-serdes_if_type_33=13
-serdes_if_type_34=13
-serdes_if_type_35=13
-serdes_if_type_36=13
-serdes_if_type_41=13
-serdes_if_type_42=13
-serdes_if_type_43=13
-serdes_if_type_44=13
-serdes_if_type_49=13
-serdes_if_type_50=13
-serdes_if_type_51=13
-serdes_if_type_52=13
-serdes_if_type_57=13
-serdes_if_type_58=13
-serdes_if_type_59=13
-serdes_if_type_60=13
-serdes_if_type_61=13
-serdes_if_type_62=13
-serdes_if_type_63=13
-serdes_if_type_64=13
-serdes_if_type_67=13
-serdes_if_type_68=13
-serdes_if_type_69=13
-serdes_if_type_70=13
-serdes_if_type_71=13
-serdes_if_type_72=13
-serdes_if_type_73=13
-serdes_if_type_74=13
-serdes_if_type_87=14
-serdes_if_type_79=14
-serdes_if_type_95=14
-serdes_if_type_99=14
-serdes_if_type_115=14
-serdes_if_type_107=14
-serdes_if_type_123=14
-serdes_if_type_127=14
-
+serdes_if_type_1=16
+serdes_if_type_2=16
+serdes_if_type_3=16
+serdes_if_type_4=16
+serdes_if_type_5=16
+serdes_if_type_6=16
+serdes_if_type_7=16
+serdes_if_type_8=16
+serdes_if_type_13=16
+serdes_if_type_14=16
+serdes_if_type_15=16
+serdes_if_type_16=16
+serdes_if_type_21=16
+serdes_if_type_22=16
+serdes_if_type_23=16
+serdes_if_type_24=16
+serdes_if_type_29=16
+serdes_if_type_30=16
+serdes_if_type_31=16
+serdes_if_type_32=16
+serdes_if_type_33=16
+serdes_if_type_34=16
+serdes_if_type_35=16
+serdes_if_type_36=16
+serdes_if_type_41=16
+serdes_if_type_42=16
+serdes_if_type_43=16
+serdes_if_type_44=16
+serdes_if_type_49=16
+serdes_if_type_50=16
+serdes_if_type_51=16
+serdes_if_type_52=16
+serdes_if_type_57=16
+serdes_if_type_58=16
+serdes_if_type_59=16
+serdes_if_type_60=16
+serdes_if_type_61=16
+serdes_if_type_62=16
+serdes_if_type_63=16
+serdes_if_type_64=16
+serdes_if_type_67=16
+serdes_if_type_68=16
+serdes_if_type_69=16
+serdes_if_type_70=16
+serdes_if_type_71=16
+serdes_if_type_72=16
+serdes_if_type_73=16
+serdes_if_type_74=16
+serdes_if_type_87=28
+serdes_if_type_79=28
+serdes_if_type_95=28
+serdes_if_type_99=28
+serdes_if_type_115=28
+serdes_if_type_107=28
+serdes_if_type_123=28
+serdes_if_type_127=28

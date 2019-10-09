@@ -1,10 +1,3 @@
-/*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- */
-
 #ifndef TRANSCEIVER_H
 #define TRANSCEIVER_H
 
@@ -807,6 +800,7 @@ int resync_channel_tier_2(struct transvr_obj_s *self);
 void alarm_msg_2_user(struct transvr_obj_s *self, char *emsg);
 
 #endif /* TRANSCEIVER_H */
+
 
 
 

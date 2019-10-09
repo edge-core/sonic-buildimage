@@ -3,12 +3,78 @@
 # Platform-specific SFP transceiver interface for SONiC
 #
 
+#
+# INV_FIX-4037
+# (1) Support get_transceiver_change_event.
+#     Create the SWPSEventMonitor class to handle any kobject event from the SWPS driver.
+# (2) Integrated with the optoe driver
+#     Due to installing the optoe driver to create the i2c topology,
+#     it needs to overwrite the followings functions which are declared in the sfputilbase.py.
+#     First, it needs to impore some SFP-related class object
+#
 try:
     import time
+    import socket, re,os
+    from collections import OrderedDict
     from sonic_sfp.sfputilbase import SfpUtilBase
+    from sonic_sfp.sff8472 import sff8472Dom
 except ImportError as e:
     raise ImportError("%s - required module not found" % str(e))
 
+SFP_TEMPE_OFFSET = 96
+SFP_TEMPE_WIDTH = 2
+SFP_VLOT_OFFSET = 98
+SFP_VOLT_WIDTH = 2
+SFP_CHANNL_MON_OFFSET = 100
+SFP_CHANNL_MON_WIDTH = 6
+
+NETLINK_KOBJECT_UEVENT = 15
+monitor = None
+
+class SWPSEventMonitor(object):
+
+    def __init__(self):
+        self.recieved_events = OrderedDict()
+        self.socket = socket.socket(
+            socket.AF_NETLINK, socket.SOCK_DGRAM, NETLINK_KOBJECT_UEVENT)
+
+    def start(self):
+        self.socket.bind((os.getpid(), -1))
+
+    def stop(self):
+        self.socket.close()
+
+    def __enter__(self):
+        self.start()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.stop()
+
+    def __iter__(self):
+        global monitor
+        while True:
+            for item in monitor.next_events():
+                yield item
+
+    def next_events(self):
+        data = self.socket.recv(16384)
+        event = {}
+        for item in data.split(b'\x00'):
+            if not item:
+                # check if we have an event and if we already received it
+                if event and event['SEQNUM'] not in self.recieved_events:
+                    self.recieved_events[event['SEQNUM']] = None
+                    if (len(self.recieved_events) > 100):
+                        self.recieved_events.popitem(last=False)
+                    yield event
+                event = {}
+            else:
+                try:
+                    k, v = item.split(b'=', 1)
+                    event[k.decode('ascii')] = v.decode('ascii')
+                except ValueError:
+                    pass
 
 class SfpUtil(SfpUtilBase):
     """Platform-specific SfpUtil class"""
@@ -210,8 +276,104 @@ class SfpUtil(SfpUtilBase):
 
         return True
 
+#
+# INV_FIX-4037
+# (1) Support get_transceiver_change_event.
+#     Modify get_transceiver_change_event() to listen the SWPS kobject event.
+# (2) Integrated with the optoe driver
+#     Due to installing the optoe driver to create the i2c topology,
+#     it needs to overwrite the followings functions which are declared in the sfputilbase.py.
+#     It modified the get_eeprom_dom_raw() and get_transceiver_dom_info_dict().
+#
     def get_transceiver_change_event(self):
-        """
-        TODO: This function need to be implemented
-        """
-        raise NotImplementedError
+        global monitor
+        port_dict = {}
+        with SWPSEventMonitor() as monitor:
+            for event in monitor:
+                if event['SUBSYSTEM'] == 'swps':
+                    #print('SWPS event. From %s, ACTION %s, IF_TYPE %s, IF_LANE %s' % (event['DEVPATH'], event['ACTION'], event['IF_TYPE'], event['IF_LANE']))
+                    portname = event['DEVPATH'].split("/")[-1]
+                    rc = re.match(r"port(?P<num>\d+)",portname)
+                    if rc is not None:
+                        if event['ACTION'] == "remove":
+                            remove_num = int(rc.group("num"))
+                            port_dict[remove_num] = "0"
+                            #port_dict[rc.group("num")] = "0"
+                        if event['ACTION'] == "add":
+                            add_num = int(rc.group("num"))
+                            port_dict[add_num] = "1"
+                            #port_dict[rc.group("num")] = "1"
+                        return True, port_dict
+                    return False, {}
+
+    def get_eeprom_dom_raw(self, port_num):
+        if port_num in self.qsfp_ports:
+            # QSFP DOM EEPROM is also at addr 0x50 and thus also stored in eeprom_ifraw
+            return None
+        else:
+            # Read dom eeprom at addr 0x51
+            return self._read_eeprom_devid(port_num, self.DOM_EEPROM_ADDR, 256)
+
+    def get_transceiver_dom_info_dict(self, port_num):
+        if port_num in self.qsfp_ports:
+            return SfpUtilBase.get_transceiver_dom_info_dict(self, port_num)
+        else:
+            transceiver_dom_info_dict = {}
+
+            offset = 256
+            file_path = self._get_port_eeprom_path(port_num, self.DOM_EEPROM_ADDR)
+            if not self._sfp_eeprom_present(file_path, 0):
+                return None
+
+            try:
+                sysfsfile_eeprom = open(file_path, "rb")
+            except IOError:
+                print("Error: reading sysfs file %s" % file_path)
+                return None
+
+            sfpd_obj = sff8472Dom(None, 1)
+            if sfpd_obj is None:
+                return None
+
+            dom_temperature_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + SFP_TEMPE_OFFSET), SFP_TEMPE_WIDTH)
+            if dom_temperature_raw is not None:
+                dom_temperature_data = sfpd_obj.parse_temperature(dom_temperature_raw, 0)
+            else:
+                return None
+
+            dom_voltage_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + SFP_VLOT_OFFSET), SFP_VOLT_WIDTH)
+            if dom_voltage_raw is not None:
+                dom_voltage_data = sfpd_obj.parse_voltage(dom_voltage_raw, 0)
+            else:
+                return None
+
+            dom_channel_monitor_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + SFP_CHANNL_MON_OFFSET), SFP_CHANNL_MON_WIDTH)
+            if dom_channel_monitor_raw is not None:
+                dom_channel_monitor_data = sfpd_obj.parse_channel_monitor_params(dom_channel_monitor_raw, 0)
+            else:
+                return None
+
+            try:
+                sysfsfile_eeprom.close()
+            except IOError:
+                print("Error: closing sysfs file %s" % file_path)
+                return None
+
+            transceiver_dom_info_dict['temperature'] = dom_temperature_data['data']['Temperature']['value']
+            transceiver_dom_info_dict['voltage'] = dom_voltage_data['data']['Vcc']['value']
+            transceiver_dom_info_dict['rx1power'] = dom_channel_monitor_data['data']['RXPower']['value']
+            transceiver_dom_info_dict['rx2power'] = 'N/A'
+            transceiver_dom_info_dict['rx3power'] = 'N/A'
+            transceiver_dom_info_dict['rx4power'] = 'N/A'
+            transceiver_dom_info_dict['tx1bias'] = dom_channel_monitor_data['data']['TXBias']['value']
+            transceiver_dom_info_dict['tx2bias'] = 'N/A'
+            transceiver_dom_info_dict['tx3bias'] = 'N/A'
+            transceiver_dom_info_dict['tx4bias'] = 'N/A'
+            transceiver_dom_info_dict['tx1power'] = dom_channel_monitor_data['data']['TXPower']['value']
+            transceiver_dom_info_dict['tx2power'] = 'N/A'
+            transceiver_dom_info_dict['tx3power'] = 'N/A'
+            transceiver_dom_info_dict['tx4power'] = 'N/A'
+
+            return transceiver_dom_info_dict
+
+

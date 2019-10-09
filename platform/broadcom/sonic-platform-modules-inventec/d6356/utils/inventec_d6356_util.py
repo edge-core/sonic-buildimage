@@ -126,7 +126,7 @@ drivers =[
 'inv_eeprom',
 'inv_cpld',
 'inv_platform',
-'monitor',
+#'monitor',
 'swps']
 
 
@@ -141,7 +141,7 @@ def system_install():
     status, output = exec_cmd("rmmod lpc_ich ", 1)
 
     #insert extra module
-    status, output = exec_cmd("insmod /lib/modules/3.16.0-5-amd64/extra/gpio-ich.ko gpiobase=0",1)
+    status, output = exec_cmd("insmod /lib/modules/4.9.0-9-2-amd64/kernel/drivers/gpio/gpio-ich.ko gpiobase=0",1)
 
     #install drivers
     for i in range(0,len(drivers)):
@@ -159,52 +159,49 @@ def system_install():
 	   print output
 	   if FORCE == 0:                
 	      return status
-
-    #swps map to i2c-bus
+#
+# INV_FIX-4037
+# It replaces the original sff8436 driver with the optoe driver
+#
+    #optoe map to i2c-bus
     for i in range(14,22):
-        status, output =exec_cmd("echo sff8436 0x50 > /sys/bus/i2c/devices/i2c-1/i2c-5/i2c-6/i2c-"+str(i)+"/new_device", 1)
+        status, output =exec_cmd("echo optoe2 0x50 > /sys/bus/i2c/devices/i2c-1/i2c-5/i2c-6/i2c-"+str(i)+"/new_device", 1)
         if status:
             print output
             if FORCE == 0:
                 return status
     for i in range(22,30):
-        status, output =exec_cmd("echo sff8436 0x50 > /sys/bus/i2c/devices/i2c-1/i2c-5/i2c-7/i2c-"+str(i)+"/new_device", 1)
-        status, output =exec_cmd("echo sff8436 0x51 > /sys/bus/i2c/devices/i2c-1/i2c-5/i2c-7/i2c-"+str(i)+"/new_device", 1)
+        status, output =exec_cmd("echo optoe2 0x50 > /sys/bus/i2c/devices/i2c-1/i2c-5/i2c-7/i2c-"+str(i)+"/new_device", 1)
         if status:
             print output
             if FORCE == 0:
                 return status
     for i in range(30,38):
-        status, output =exec_cmd("echo sff8436 0x50 > /sys/bus/i2c/devices/i2c-1/i2c-5/i2c-8/i2c-"+str(i)+"/new_device", 1)
-        status, output =exec_cmd("echo sff8436 0x51 > /sys/bus/i2c/devices/i2c-1/i2c-5/i2c-8/i2c-"+str(i)+"/new_device", 1)
+        status, output =exec_cmd("echo optoe2 0x50 > /sys/bus/i2c/devices/i2c-1/i2c-5/i2c-8/i2c-"+str(i)+"/new_device", 1)
         if status:
             print output
             if FORCE == 0:
                 return status
     for i in range(38,46):
-        status, output =exec_cmd("echo sff8436 0x50 > /sys/bus/i2c/devices/i2c-1/i2c-5/i2c-9/i2c-"+str(i)+"/new_device", 1)
-        status, output =exec_cmd("echo sff8436 0x51 > /sys/bus/i2c/devices/i2c-1/i2c-5/i2c-9/i2c-"+str(i)+"/new_device", 1)
+        status, output =exec_cmd("echo optoe2 0x50 > /sys/bus/i2c/devices/i2c-1/i2c-5/i2c-9/i2c-"+str(i)+"/new_device", 1)
         if status:
             print output
             if FORCE == 0:
                 return status
     for i in range(46,54):
-        status, output =exec_cmd("echo sff8436 0x50 > /sys/bus/i2c/devices/i2c-1/i2c-5/i2c-10/i2c-"+str(i)+"/new_device", 1)
-        status, output =exec_cmd("echo sff8436 0x51 > /sys/bus/i2c/devices/i2c-1/i2c-5/i2c-10/i2c-"+str(i)+"/new_device", 1)
+        status, output =exec_cmd("echo optoe2 0x50 > /sys/bus/i2c/devices/i2c-1/i2c-5/i2c-10/i2c-"+str(i)+"/new_device", 1)
         if status:
             print output
             if FORCE == 0:
                 return status
     for i in range(54,62):
-        status, output =exec_cmd("echo sff8436 0x50 > /sys/bus/i2c/devices/i2c-1/i2c-5/i2c-11/i2c-"+str(i)+"/new_device", 1)
-        status, output =exec_cmd("echo sff8436 0x51 > /sys/bus/i2c/devices/i2c-1/i2c-5/i2c-11/i2c-"+str(i)+"/new_device", 1)
+        status, output =exec_cmd("echo optoe2 0x50 > /sys/bus/i2c/devices/i2c-1/i2c-5/i2c-11/i2c-"+str(i)+"/new_device", 1)
         if status:
             print output
             if FORCE == 0:
                 return status
     for i in range(62,70):
-        status, output =exec_cmd("echo sff8436 0x50 > /sys/bus/i2c/devices/i2c-1/i2c-5/i2c-12/i2c-"+str(i)+"/new_device", 1)
-        status, output =exec_cmd("echo sff8436 0x51 > /sys/bus/i2c/devices/i2c-1/i2c-5/i2c-12/i2c-"+str(i)+"/new_device", 1)
+        status, output =exec_cmd("echo optoe2 0x50 > /sys/bus/i2c/devices/i2c-1/i2c-5/i2c-12/i2c-"+str(i)+"/new_device", 1)
         if status:
             print output
             if FORCE == 0:
@@ -243,7 +240,7 @@ def uninstall():
 def device_found():
     ret1, log = exec_cmd("ls "+i2c_prefix+"*0072", 0)
     ret2, log = exec_cmd("ls "+i2c_prefix+"i2c-5", 0)
-    return not(ret1 or ret2)				
+    return not(ret1 or ret2)
 
 if __name__ == "__main__":
     main()

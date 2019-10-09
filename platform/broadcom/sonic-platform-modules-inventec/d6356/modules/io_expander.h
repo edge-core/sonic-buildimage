@@ -1,10 +1,3 @@
-/*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- */
-
 #ifndef IO_EXPANDER_H
 #define IO_EXPANDER_H
 
@@ -12,24 +5,31 @@
 
 
 /* IOEXP type define (SFP series) */
-#define IOEXP_TYPE_MAGINOLIA_NAB      (10101)
-#define IOEXP_TYPE_MAGINOLIA_4AB      (10102)
-#define IOEXP_TYPE_CYPRESS_NABC       (10103)
-#define IOEXP_TYPE_MAPLE_NABC         (10104)
+#define IOEXP_TYPE_MAGINOLIA_NAB         (10101)
+#define IOEXP_TYPE_MAGINOLIA_4AB         (10102)
+#define IOEXP_TYPE_MAPLE_NABC            (10104)
+#define IOEXP_TYPE_GULMOHAR_NABC         (10105)
+#define IOEXP_TYPE_GULMOHAR_2T_EVT1_NABC (10106)
+#define IOEXP_TYPE_SFP_8P_LAYOUT_1       (10107)
+#define IOEXP_TYPE_GULMOHAR_2T_EVT1_1ABC (10108)
+#define IOEXP_TYPE_GULMOHAR_2T_EVT1_3ABC (10109)
 
 /* IOEXP type define (QSFP series) */
-#define IOEXP_TYPE_MAGINOLIA_7AB      (10201)
-#define IOEXP_TYPE_REDWOOD_P01P08     (10202)
-#define IOEXP_TYPE_REDWOOD_P09P16     (10203)
-#define IOEXP_TYPE_HUDSON32IGA_P01P08 (10204)
-#define IOEXP_TYPE_HUDSON32IGA_P09P16 (10205)
-#define IOEXP_TYPE_SPRUCE_7AB         (10206)
-#define IOEXP_TYPE_CYPRESS_7ABC       (10207)
-#define IOEXP_TYPE_TAHOE_5A           (10208)
-#define IOEXP_TYPE_TAHOE_6ABC         (10209)
-#define IOEXP_TYPE_SEQUOIA_NABC       (10210)
-#define IOEXP_TYPE_LAVENDER_P65       (10211)
-#define IOEXP_TYPE_MAPLE_0ABC         (10212)
+#define IOEXP_TYPE_MAGINOLIA_7AB         (10201)
+#define IOEXP_TYPE_REDWOOD_P01P08        (10202)
+#define IOEXP_TYPE_REDWOOD_P09P16        (10203)
+#define IOEXP_TYPE_HUDSON32IGA_P01P08    (10204)
+#define IOEXP_TYPE_HUDSON32IGA_P09P16    (10205)
+#define IOEXP_TYPE_SPRUCE_7AB            (10206)
+#define IOEXP_TYPE_CYPRESS_7ABC          (10207)
+#define IOEXP_TYPE_TAHOE_5A              (10208)
+#define IOEXP_TYPE_TAHOE_6ABC            (10209)
+#define IOEXP_TYPE_SEQUOIA_NABC          (10210)
+#define IOEXP_TYPE_LAVENDER_P65          (10211)
+#define IOEXP_TYPE_MAPLE_0ABC            (10212)
+#define IOEXP_TYPE_GULMOHAR_7ABC         (10213)
+#define IOEXP_TYPE_GULMOHAR_2T_EVT1_7ABC (10214)
+#define IOEXP_TYPE_QSFP_6P_LAYOUT_1      (10215)
 
 /* CPLD type define */
 #define CPLD_TYPE_COTTONWOOD          (10301)
@@ -87,8 +87,8 @@ struct ioexp_bitmap_s {
 };
 
 struct ioexp_map_s {
-    int chip_amount;    /* Number of chips that IOEXP object content    */
-    int data_width;     /* Number of (Read/Write/Config) bytes          */
+    int chip_amount;     /* Number of chips that IOEXP object content    */
+    int data_width;      /* Number of (Read/Write/Config) bytes          */
     struct ioexp_addr_s   *map_addr;           /* Chip address info      */
     struct ioexp_bitmap_s  map_present[10];    /* IOEXP for SFP / QSFP   */
     struct ioexp_bitmap_s  map_tx_disable[10]; /* IOEXP for SFP          */
@@ -179,6 +179,8 @@ int  resync_channel_tier_1(void);
 
 
 #endif /* IO_EXPANDER_H */
+
+
 
 
 

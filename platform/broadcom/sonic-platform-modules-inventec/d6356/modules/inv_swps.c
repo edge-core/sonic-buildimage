@@ -1,9 +1,3 @@
-/*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- */
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -15,12 +9,14 @@
 #include <linux/workqueue.h>
 #include <linux/jiffies.h>
 #include <linux/dmi.h>
+#include <linux/i2c.h>
 #include "inv_swps.h"
 
 static int ctl_major;
 static int port_major;
 static int ioexp_total;
 static int port_total;
+static int block_polling;
 static int auto_config;
 static int flag_i2c_reset;
 static int flag_mod_state;
@@ -29,7 +25,8 @@ static struct class *swp_class_p = NULL;
 static struct inv_platform_s *platform_p = NULL;
 static struct inv_ioexp_layout_s *ioexp_layout = NULL;
 static struct inv_port_layout_s *port_layout = NULL;
-
+int io_no_init = 0;
+module_param(io_no_init, int, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
 static void swp_polling_worker(struct work_struct *work);
 static DECLARE_DELAYED_WORK(swp_polling, swp_polling_worker);
 
@@ -137,6 +134,47 @@ _get_transvr_obj(char *dev_name) {
         return NULL;
     }
     return transvr_obj_p;
+}
+
+
+static int
+_is_i2c_target_exist(int chan, int addr) {
+    /* retval: Exist = 1 / Not exist = 0 / Error < 0
+     */
+    struct i2c_adapter *adap   = NULL;
+    struct i2c_client  *client = NULL;
+    int retval = -1;
+    int err    = -1;
+    int d_offs = 0;
+
+    adap = i2c_get_adapter(chan);
+    if (!adap) {
+        SWPS_DEBUG("%s: can't get adapter\n", __func__);
+        retval = 0;
+        goto out_is_i2c_target_exist_1;
+    }
+    client = kzalloc(sizeof(*client), GFP_KERNEL);
+    if (!client) {
+        SWPS_ERR("%s: kzalloc fail\n", __func__);
+        retval = -1;
+        goto out_is_i2c_target_exist_2;
+    }
+    client->adapter = adap;
+    client->addr    = addr;
+    err = i2c_smbus_read_byte_data(client, d_offs);
+    if (err < 0) {
+        retval = 0;
+    } else {
+        retval = 1;
+    }
+    i2c_put_adapter(adap);
+    kfree(client);
+    return retval;
+
+out_is_i2c_target_exist_2:
+    i2c_put_adapter(adap);
+out_is_i2c_target_exist_1:
+    return retval;
 }
 
 
@@ -254,6 +292,22 @@ show_attr_auto_config(struct device *dev_p,
 }
 
 
+static ssize_t
+show_attr_block_poll(struct device *dev_p,
+                     struct device_attribute *attr_p,
+                     char *buf_p){
+
+    return snprintf(buf_p, 8, "%d\n", block_polling);
+}
+static ssize_t
+show_attr_io_no_init(struct device *dev_p,
+                             struct device_attribute *attr_p,
+                                                  char *buf_p){
+
+    return snprintf(buf_p, 8, "%d\n", io_no_init);
+}
+
+
 static int
 _check_reset_pwd(const char *buf_p,
                  size_t count) {
@@ -359,6 +413,53 @@ store_attr_auto_config(struct device *dev_p,
     return count;
 }
 
+
+static ssize_t
+store_attr_block_poll( struct device *dev_p,
+                       struct device_attribute *attr_p,
+                       const char *buf_p,
+                       size_t count){
+    
+    int input_val = sscanf_2_int(buf_p);
+    
+    if (input_val < 0){
+        return -EBFONT;
+    }
+    if ((input_val != 0) && (input_val != 1)) {
+        return -EBFONT;
+    }
+    
+    if(input_val != block_polling){
+        block_polling = input_val;
+        if(block_polling){
+            cancel_delayed_work_sync(&swp_polling);
+        }
+        else{
+            schedule_delayed_work(&swp_polling, _get_polling_period());
+        }
+    }
+    
+    return count;
+}
+
+static ssize_t
+store_attr_io_no_init( struct device *dev_p,
+                       struct device_attribute *attr_p,
+                       const char *buf_p,
+                       size_t count){
+
+    int input_val = sscanf_2_int(buf_p);
+    
+    if ((input_val != 0) && (input_val != 1)) {
+        return -EBFONT;
+    }
+
+    if(input_val != io_no_init){
+        io_no_init = input_val;
+    }
+
+    return count;
+}
 
 /* ========== Show functions: For transceiver attribute ==========
  */
@@ -1604,6 +1705,9 @@ static DEVICE_ATTR(status,          S_IRUGO,         show_attr_status,          
 static DEVICE_ATTR(reset_i2c,       S_IWUSR,         NULL,                      store_attr_reset_i2c);
 static DEVICE_ATTR(reset_swps,      S_IWUSR,         NULL,                      store_attr_reset_swps);
 static DEVICE_ATTR(auto_config,     S_IRUGO|S_IWUSR, show_attr_auto_config,     store_attr_auto_config);
+static DEVICE_ATTR(block_poll,      S_IRUGO|S_IWUSR, show_attr_block_poll,      store_attr_block_poll);
+static DEVICE_ATTR(io_no_init,      S_IRUGO|S_IWUSR, show_attr_io_no_init,      store_attr_io_no_init);
+
 
 /* ========== Transceiver attribute: from eeprom ==========
  */
@@ -1666,12 +1770,12 @@ static DEVICE_ATTR(hard_rs1,        S_IRUGO|S_IWUSR, show_attr_hard_rs1,        
 /* ========== Functions for module handling ==========
  */
 static void
-clean_port_obj(void){
+clean_port_objs(void){
 
     dev_t dev_num;
     char dev_name[32];
     struct device *device_p;
-    struct transvr_obj_s *transvr_obj_p;
+    struct transvr_obj_s *tobj_p;
     int minor_curr, port_id;
 
     for (minor_curr=0; minor_curr<port_total; minor_curr++){
@@ -1682,15 +1786,18 @@ clean_port_obj(void){
         if (!device_p){
             continue;
         }
-        transvr_obj_p = dev_get_drvdata(device_p);
-        if (transvr_obj_p){
-            kfree(transvr_obj_p->i2c_client_p);
-            kfree(transvr_obj_p->vendor_name);
-            kfree(transvr_obj_p->vendor_pn);
-            kfree(transvr_obj_p->vendor_rev);
-            kfree(transvr_obj_p->vendor_sn);
-            kfree(transvr_obj_p->worker_p);
-            kfree(transvr_obj_p);
+        tobj_p = dev_get_drvdata(device_p);
+        if (tobj_p){
+            if (tobj_p->i2c_client_p) {
+                i2c_put_adapter(tobj_p->i2c_client_p->adapter);
+                kfree(tobj_p->i2c_client_p);
+            }
+            kfree(tobj_p->vendor_name);
+            kfree(tobj_p->vendor_pn);
+            kfree(tobj_p->vendor_rev);
+            kfree(tobj_p->vendor_sn);
+            kfree(tobj_p->worker_p);
+            kfree(tobj_p);
         }
         dev_num = MKDEV(port_major, minor_curr);
         device_unregister(device_p);
@@ -1713,6 +1820,9 @@ clean_swps_common(void){
         device_destroy(swp_class_p, dev_num);
     }
     cancel_delayed_work_sync(&swp_polling);
+    if (platform_p) {
+        kfree(platform_p);
+    }
     SWPS_DEBUG("%s: done.\n", __func__);
 }
 
@@ -1720,8 +1830,10 @@ clean_swps_common(void){
 static int
 get_platform_type(void){
 
-    int i;
-    int pf_total = ARRAY_SIZE(platform_map);
+    int i, tmp;
+    int auto_chan = -1;
+    int auto_addr = -1;
+    int pf_total  = ARRAY_SIZE(platform_map);
     char log_msg[64] = "ERROR";
 
     platform_p = kzalloc(sizeof(struct inv_platform_s), GFP_KERNEL);
@@ -1749,6 +1861,30 @@ get_platform_type(void){
                     platform_p->name);
             goto err_get_platform_type_2;
 
+        case PLATFORM_TYPE_PEONY_AUTO:
+#ifdef SWPS_PEONY_SFP
+            auto_chan = peony_sfp_ioexp_layout[0].addr[0].chan_id;
+            auto_addr = peony_sfp_ioexp_layout[0].addr[0].chip_addr;
+#endif
+            tmp = _is_i2c_target_exist(auto_chan, auto_addr);
+            switch (tmp) {
+                case 0: /* Copper SKU */
+                    SWPS_INFO("Auto-detected <platform>:Peony <SKU>:Copper\n");
+                    platform_p->id = PLATFORM_TYPE_PEONY_COPPER_GA;
+                    goto map_platform_name;
+
+                case 1: /* SFP SKU */
+                    SWPS_INFO("Auto-detected <platform>:Peony <SKU>:SFP\n");
+                    platform_p->id = PLATFORM_TYPE_PEONY_SFP_GA;
+                    goto map_platform_name;
+
+                default:
+                    break;
+            }
+            snprintf(log_msg, sizeof(log_msg),
+                    "Auto detect Peony SKU fail! <err>:%d", tmp);
+            goto err_get_platform_type_2;
+
         case PLATFORM_TYPE_MAGNOLIA:
         case PLATFORM_TYPE_MAGNOLIA_FNC:
         case PLATFORM_TYPE_REDWOOD:
@@ -1763,28 +1899,36 @@ get_platform_type(void){
         case PLATFORM_TYPE_LAVENDER_GA:
         case PLATFORM_TYPE_LAVENDER_ONL:
         case PLATFORM_TYPE_COTTONWOOD_RANGELEY:
-        case PLATFORM_TYPE_MAPLE:
+        case PLATFORM_TYPE_MAPLE_GA:
+        case PLATFORM_TYPE_MAPLE_B:
+        case PLATFORM_TYPE_GULMOHAR_GA:
+        case PLATFORM_TYPE_GULMOHAR_2T_EVT1_GA:
+        case PLATFORM_TYPE_PEONY_SFP_GA:
+        case PLATFORM_TYPE_PEONY_COPPER_GA:
             platform_p->id = PLATFORM_SETTINGS;
-            for (i=0; i<pf_total; i++) {
-                if (PLATFORM_SETTINGS == platform_map[i].id) {
-                    snprintf(platform_p->name, (sizeof(platform_p->name) - 1),
-                            "%s", platform_map[i].name);
-                    snprintf(log_msg, sizeof(log_msg),
-                            "User setup platform: %d (%s)",
-                            platform_p->id, platform_p->name);
-                    goto ok_get_platform_type_1;
-                }
-            }
-            snprintf(log_msg, sizeof(log_msg),
-                    "Internal error, can not map id:%d",
-                    PLATFORM_SETTINGS);
-            goto err_get_platform_type_2;
+            goto map_platform_name;
 
         default:
             break;
     }
     snprintf(log_msg, sizeof(log_msg),
             "PLATFORM_SETTINGS:%d undefined", PLATFORM_SETTINGS);
+    goto err_get_platform_type_2;
+
+map_platform_name:
+    for (i=0; i<pf_total; i++) {
+        if (platform_p->id == platform_map[i].id) {
+            snprintf(platform_p->name, (sizeof(platform_p->name) - 1),
+                    "%s", platform_map[i].name);
+            snprintf(log_msg, sizeof(log_msg),
+                    "User setup platform: %d (%s)",
+                    platform_p->id, platform_p->name);
+            goto ok_get_platform_type_1;
+        }
+    }
+    snprintf(log_msg, sizeof(log_msg),
+            "Internal error, can not map id:%d",
+            platform_p->id );
     goto err_get_platform_type_2;
 
 ok_get_platform_type_1:
@@ -1913,15 +2057,61 @@ get_layout_info(void){
             port_total    = ARRAY_SIZE(cottonwood_rangeley_port_layout);
             break;
 #endif
-#ifdef SWPS_MAPLE
-        case PLATFORM_TYPE_MAPLE:
-            gpio_rest_mux = maple_gpio_rest_mux;
-            ioexp_layout  = maple_ioexp_layout;
-            port_layout   = maple_port_layout;
-            ioexp_total   = ARRAY_SIZE(maple_ioexp_layout);
-            port_total    = ARRAY_SIZE(maple_port_layout);
+#ifdef SWPS_MAPLE_GA
+        case PLATFORM_TYPE_MAPLE_GA:
+            gpio_rest_mux = maple_ga_gpio_rest_mux;
+            ioexp_layout  = maple_ga_ioexp_layout;
+            port_layout   = maple_ga_port_layout;
+            ioexp_total   = ARRAY_SIZE(maple_ga_ioexp_layout);
+            port_total    = ARRAY_SIZE(maple_ga_port_layout);
             break;
 #endif
+#ifdef SWPS_MAPLE_B
+        case PLATFORM_TYPE_MAPLE_B:
+            gpio_rest_mux = maple_b_gpio_rest_mux;
+            ioexp_layout  = maple_b_ioexp_layout;
+            port_layout   = maple_b_port_layout;
+            ioexp_total   = ARRAY_SIZE(maple_b_ioexp_layout);
+            port_total    = ARRAY_SIZE(maple_b_port_layout);
+            break;
+#endif
+#ifdef SWPS_GULMOHAR
+        case PLATFORM_TYPE_GULMOHAR_GA:
+            gpio_rest_mux = gulmohar_gpio_rest_mux;
+            ioexp_layout  = gulmohar_ioexp_layout;
+            port_layout   = gulmohar_port_layout;
+            ioexp_total   = ARRAY_SIZE(gulmohar_ioexp_layout);
+            port_total    = ARRAY_SIZE(gulmohar_port_layout);
+            break;
+#endif
+#ifdef SWPS_GULMOHAR_2T_EVT1
+        case PLATFORM_TYPE_GULMOHAR_2T_EVT1_GA:
+            gpio_rest_mux = gulmohar_2t_evt1_gpio_rest_mux;
+            ioexp_layout  = gulmohar_2t_evt1_ioexp_layout;
+            port_layout   = gulmohar_2t_evt1_port_layout;
+            ioexp_total   = ARRAY_SIZE(gulmohar_2t_evt1_ioexp_layout);
+            port_total    = ARRAY_SIZE(gulmohar_2t_evt1_port_layout);
+            break;
+#endif
+#ifdef SWPS_PEONY_SFP
+        case PLATFORM_TYPE_PEONY_SFP_GA:
+            gpio_rest_mux = peony_sfp_gpio_rest_mux;
+            ioexp_layout  = peony_sfp_ioexp_layout;
+            port_layout   = peony_sfp_port_layout;
+            ioexp_total   = ARRAY_SIZE(peony_sfp_ioexp_layout);
+            port_total    = ARRAY_SIZE(peony_sfp_port_layout);
+            break;
+#endif
+#ifdef SWPS_PEONY_COPPER
+        case PLATFORM_TYPE_PEONY_COPPER_GA:
+            gpio_rest_mux = peony_copper_gpio_rest_mux;
+            ioexp_layout  = peony_copper_ioexp_layout;
+            port_layout   = peony_copper_port_layout;
+            ioexp_total   = ARRAY_SIZE(peony_copper_ioexp_layout);
+            port_total    = ARRAY_SIZE(peony_copper_port_layout);
+            break;
+#endif
+
         default:
             SWPS_ERR(" Invalid platform: %d (%s)\n",
                     platform_p->id, platform_p->name);
@@ -1952,11 +2142,18 @@ __detect_issues_port(int minor_num) {
     }
     if (resync_channel_tier_2(tobj_p) < 0) {
         if (check_channel_tier_1() < 0) {
-            alarm_msg_2_user(tobj_p, i2c_emsg);
-            return -2;;
+            goto get_target_issues_port;
         }
     }
+    /* Re-check again for i2c-gpio special case */
+    if (check_channel_tier_1() < 0) {
+        goto get_target_issues_port;
+    }
     return 0;
+    
+get_target_issues_port:
+    alarm_msg_2_user(tobj_p, i2c_emsg);
+    return -2;
 }
 
 
@@ -2015,11 +2212,11 @@ _isolate_issues_port(int minor_num) {
 static int
 _reset_i2c_topology_tier_1(void) {
 
-    if (reset_mux_gpio() < 0) {
+    if (reset_mux_objs() < 0) {
         SWPS_ERR("%s: reset MUX GPIO fail!\n", __func__);
         return -1;
     }
-    SWPS_DEBUG("%s: reset_mux_gpio OK.\n", __func__);
+    SWPS_DEBUG("%s: reset_mux_objs OK.\n", __func__);
     if (resync_channel_tier_1() < 0) {
         SWPS_ERR("%s: resync tier-1 channel fail!\n", __func__);
         return -1;
@@ -2596,6 +2793,15 @@ register_modctl_attr(struct device *device_p){
         err_msg = "dev_attr_auto_config";
         goto err_reg_modctl_attr;
     }
+    if (device_create_file(device_p, &dev_attr_block_poll) < 0) {
+        err_msg = "dev_attr_block_poll";
+        goto err_reg_modctl_attr;
+    }
+    if (device_create_file(device_p, &dev_attr_io_no_init) < 0) {
+        err_msg = "dev_attr_io_no_init";
+        goto err_reg_modctl_attr;
+    }
+
     return 0;
 
 err_reg_modctl_attr:
@@ -2619,13 +2825,19 @@ register_ioexp_attr(struct device *device_p,
                 goto err_reg_ioexp_attr;
             }
             break;
-        case IOEXP_TYPE_CYPRESS_NABC:
+
         case IOEXP_TYPE_MAPLE_NABC:
+        case IOEXP_TYPE_GULMOHAR_NABC:
+        case IOEXP_TYPE_GULMOHAR_2T_EVT1_NABC:
+        case IOEXP_TYPE_GULMOHAR_2T_EVT1_1ABC:
+        case IOEXP_TYPE_GULMOHAR_2T_EVT1_3ABC:
+        case IOEXP_TYPE_SFP_8P_LAYOUT_1:
             if (register_ioexp_attr_sfp_2(device_p) < 0){
                 err_msg = "register_ioexp_attr_sfp_2 fail";
                 goto err_reg_ioexp_attr;
             }
             break;
+
         case IOEXP_TYPE_MAGINOLIA_7AB:
         case IOEXP_TYPE_SPRUCE_7AB:
         case IOEXP_TYPE_CYPRESS_7ABC:
@@ -2638,6 +2850,9 @@ register_ioexp_attr(struct device *device_p,
         case IOEXP_TYPE_SEQUOIA_NABC:
         case IOEXP_TYPE_LAVENDER_P65:
         case IOEXP_TYPE_MAPLE_0ABC:
+        case IOEXP_TYPE_GULMOHAR_7ABC:
+        case IOEXP_TYPE_GULMOHAR_2T_EVT1_7ABC:
+        case IOEXP_TYPE_QSFP_6P_LAYOUT_1:
             if (register_ioexp_attr_qsfp_1(device_p) < 0){
                 err_msg = "register_ioexp_attr_qsfp_1 fail";
                 goto err_reg_ioexp_attr;
@@ -2732,7 +2947,7 @@ register_swp_module(void){
         SWPS_WARN("Allocate CTL MAJOR failure! \n");
         goto err_register_swp_module_1;
     }
-    if (alloc_chrdev_region(&port_devt, 0, dev_total, SWP_CLS_NAME) < 0){
+    if (alloc_chrdev_region(&port_devt, 0, port_total, SWP_CLS_NAME) < 0){
         SWPS_WARN("Allocate PORT MAJOR failure! \n");
         goto err_register_swp_module_2;
     }
@@ -2863,13 +3078,13 @@ create_port_objs(void) {
         /* Success */
         ok_count++;
     }
-    SWPS_INFO("%s: initialed %d port-dev",__func__, ok_count);
+    SWPS_INFO("%s: initialed %d port-dev\n",__func__, ok_count);
     return 0;
 
 err_initport_reg_device:
     kfree(transvr_obj_p);
 err_initport_create_tranobj:
-    clean_port_obj();
+    clean_port_objs();
     SWPS_ERR("%s: %s", __func__, err_msg);
     SWPS_ERR("Dump: <port_id>:%d <chan_id>:%d <ioexp_id>:%d <voffset>:%d <tvr_type>:%d <run_mod>:%d\n",
             port_id, chan_id, ioexp_id, ioexp_virt_offset, transvr_type, run_mod);
@@ -2942,6 +3157,7 @@ init_swps_common(void){
 
     char *err_msg = "ERR";
     
+    block_polling = 0;
     auto_config = 0;
     if ((SWP_AUTOCONFIG_ENABLE) && (SWP_POLLING_ENABLE)){
         auto_config = 1;
@@ -2985,7 +3201,7 @@ swp_module_init(void){
     if (create_port_objs() < 0){
         goto err_init_portobj;
     }
-    if (init_mux_gpio(gpio_rest_mux) < 0){
+    if (init_mux_objs(gpio_rest_mux) < 0){
         goto err_init_mux;
     }
     if (init_dev_topology() < 0){
@@ -2999,13 +3215,12 @@ swp_module_init(void){
 
 
 err_init_topology:
-    clean_mux_gpio();
+    clean_mux_objs();
 err_init_mux:
-    clean_port_obj();
+    clean_port_objs();
 err_init_portobj:
     clean_ioexp_objs();
 err_init_ioexp:
-    class_unregister(swp_class_p);
     class_destroy(swp_class_p);
     unregister_chrdev_region(MKDEV(ctl_major, 0), 1);
     unregister_chrdev_region(MKDEV(port_major, 0), port_total);
@@ -3019,10 +3234,9 @@ static void __exit
 swp_module_exit(void){
 
     clean_swps_common();
-    clean_port_obj();
+    clean_port_objs();
     clean_ioexp_objs();
-    clean_mux_gpio();
-    class_unregister(swp_class_p);
+    clean_mux_objs();
     class_destroy(swp_class_p);
     unregister_chrdev_region(MKDEV(ctl_major, 0), 1);
     unregister_chrdev_region(MKDEV(port_major, 0), port_total);
@@ -3035,9 +3249,12 @@ MODULE_AUTHOR(SWP_AUTHOR);
 MODULE_DESCRIPTION(SWP_DESC);
 MODULE_VERSION(SWP_VERSION);
 MODULE_LICENSE(SWP_LICENSE);
+MODULE_SOFTDEP("pre: inv_platform");
 
 module_init(swp_module_init);
 module_exit(swp_module_exit);
+
+
 
 
 

@@ -1,10 +1,3 @@
-/*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- */
-
 #include <linux/slab.h>
 #include <linux/i2c.h>
 #include <linux/kobject.h>
@@ -12,7 +5,12 @@
 #include "io_expander.h"
 #include "transceiver.h"
 
+/* For build single module using (Ex: ONL platform) */
+#include <linux/module.h>
+//#include <linux/inventec/d5254/io_expander.h>
+//#include <linux/inventec/d5254/transceiver.h>
 
+extern int io_no_init;
 /* ========== Register EEPROM address mapping ==========
  */
 struct eeprom_map_s eeprom_map_sfp = {
@@ -152,7 +150,7 @@ alarm_msg_2_user(struct transvr_obj_s *self,
 
     SWPS_ERR("%s on %s.\n", emsg, self->swp_name);
 }
-
+EXPORT_SYMBOL(alarm_msg_2_user);
 
 /* ========== Private functions ==========
  */
@@ -181,6 +179,7 @@ lock_transvr_obj(struct transvr_obj_s *self) {
     mutex_lock(&self->lock);
     self->curr_page = VAL_TRANSVR_PAGE_FREE;
 }
+EXPORT_SYMBOL(lock_transvr_obj);
 
 
 void
@@ -189,6 +188,7 @@ unlock_transvr_obj(struct transvr_obj_s *self) {
     self->curr_page = VAL_TRANSVR_PAGE_FREE;
     mutex_unlock(&self->lock);
 }
+EXPORT_SYMBOL(unlock_transvr_obj);
 
 
 static int
@@ -4833,6 +4833,11 @@ _taskfunc_qsfp_setup_power_mod(struct transvr_obj_s *self,
     int curr_val   = DEBUG_TRANSVR_INT_VAL;
     int err_val    = DEBUG_TRANSVR_INT_VAL;
     char *err_msg  = DEBUG_TRANSVR_STR_VAL;
+    if (io_no_init) {
+
+        SWPS_INFO("%s no_io_init\n",__func__);
+        return EVENT_TRANSVR_TASK_DONE;
+    }
 
     curr_val = self->ioexp_obj_p->get_lpmod(self->ioexp_obj_p,
                                             self->ioexp_virt_offset);
@@ -8259,6 +8264,7 @@ err_create_transvr_fail:
             __func__, err_msg, chan_id, ioexp_virt_offset, transvr_type);
     return NULL;
 }
+EXPORT_SYMBOL(create_transvr_obj);
 
 
 static int
@@ -8290,11 +8296,17 @@ _reload_transvr_obj(struct transvr_obj_s *self,
     if (setup_transvr_private_cb(self, new_type) < 0){
         goto err_private_reload_func_3;
     }
+    if(old_i2c_p){
+        i2c_put_adapter(old_i2c_p->adapter);
+    }
     kfree(old_i2c_p);
     return 0;
 
 err_private_reload_func_3:
     SWPS_INFO("%s: init() fail!\n", __func__);
+    if(old_i2c_p){
+        i2c_put_adapter(old_i2c_p->adapter);
+    }
     kfree(old_i2c_p);
     self->state = STATE_TRANSVR_UNEXCEPTED;
     self->type  = TRANSVR_TYPE_ERROR;
@@ -8341,6 +8353,7 @@ isolate_transvr_obj(struct transvr_obj_s *self) {
     SWPS_INFO("%s: %s be isolated\n", __func__, self->swp_name);
     return 0;
 }
+EXPORT_SYMBOL(isolate_transvr_obj);
 
 
 int
@@ -8359,6 +8372,10 @@ resync_channel_tier_2(struct transvr_obj_s *self) {
     }
     return 0;
 }
+EXPORT_SYMBOL(resync_channel_tier_2);
+
+/* For build single module using (Ex: ONL platform) */
+MODULE_LICENSE("GPL");
 
 
 /* -----------------------------------------
@@ -8381,6 +8398,8 @@ resync_channel_tier_2(struct transvr_obj_s *self) {
  *    => Verify 25GBASE-LR
  *    => Verify 40G Active Cable (XLPPI)
  */
+
+
 
 
 
