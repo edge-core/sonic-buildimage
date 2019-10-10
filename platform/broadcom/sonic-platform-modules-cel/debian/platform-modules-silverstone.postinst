@@ -1,0 +1,3 @@
+depmod -a
+systemctl enable platform-modules-silverstone.service
+systemctl start platform-modules-silverstone.service
