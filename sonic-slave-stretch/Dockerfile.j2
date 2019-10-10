@@ -157,6 +157,9 @@ RUN apt-get update && apt-get install -y \
 {%- if CONFIGURED_ARCH == "amd64" %}
         linux-compiler-gcc-6-x86 \
 {%- endif %}
+{%- if CONFIGURED_ARCH == "armhf" %}
+        linux-compiler-gcc-6-arm \
+{%- endif %}
         linux-kbuild-4.9 \
 # teamd build
         libdaemon-dev \

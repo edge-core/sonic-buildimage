@@ -4,6 +4,10 @@ KVERSION_SHORT = 4.9.0-9-2
 KVERSION = $(KVERSION_SHORT)-$(CONFIGURED_ARCH)
 KERNEL_VERSION = 4.9.168
 KERNEL_SUBVERSION = 1+deb9u5
+ifeq ($(CONFIGURED_ARCH), armhf)
+# Override kernel version for ARMHF as it uses arm MP (multi-platform) for short version
+KVERSION = $(KVERSION_SHORT)-armmp
+endif
 
 export KVERSION_SHORT KVERSION KERNEL_VERSION KERNEL_SUBVERSION
 
