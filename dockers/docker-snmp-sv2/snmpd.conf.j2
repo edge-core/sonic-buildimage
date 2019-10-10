@@ -106,19 +106,19 @@ load   12 10 5
 #
 #   send SNMPv1  traps
 {%if v1_trap_dest and v1_trap_dest != 'NotConfigured' %}
-trapsink {{ v1_trap_dest }} public
+trapsink {{ v1_trap_dest }}
 {% else %}
 #trapsink     localhost public
 {% endif %}
 #   send SNMPv2c traps
 {%if v2_trap_dest and v2_trap_dest != 'NotConfigured' %}
-trap2sink {{ v2_trap_dest }} public
+trap2sink {{ v2_trap_dest }}
 {% else %}
 #trap2sink    localhost public
 {% endif %}
 #   send SNMPv2c INFORMs
 {%if v3_trap_dest and v3_trap_dest != 'NotConfigured' %}
-informsink {{ v3_trap_dest }} public
+informsink {{ v3_trap_dest }}
 {% else %}
 #informsink   localhost public
 {% endif %}
