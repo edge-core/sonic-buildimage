@@ -229,7 +229,10 @@ def main():
 
     for yaml_file in args.yaml:
         with open(yaml_file, 'r') as stream:
-            additional_data = yaml.load(stream)
+            if yaml.__version__ >= "5.1":
+                additional_data = yaml.full_load(stream)
+            else:
+                additional_data = yaml.load(stream)
             deep_update(data, FormatConverter.to_deserialized(additional_data))
 
     for json_file in args.json:

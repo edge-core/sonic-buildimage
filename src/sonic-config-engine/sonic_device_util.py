@@ -42,7 +42,10 @@ def get_sonic_version_info():
         return None
     data = {}
     with open('/etc/sonic/sonic_version.yml') as stream:
-        data = yaml.load(stream)
+        if yaml.__version__ >= "5.1":
+            data = yaml.full_load(stream)
+        else:
+            data = yaml.load(stream)
     return data
 
 def valid_mac_address(mac):
