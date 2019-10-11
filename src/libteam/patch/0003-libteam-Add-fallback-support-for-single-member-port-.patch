@@ -1,17 +1,16 @@
-From 9b40af58575a89d06be51cfbb5a2265a59826110 Mon Sep 17 00:00:00 2001
-From: yorke <yorke.yuan@asterfusion.com>
-Date: Mon, 3 Jun 2019 12:02:36 +0800
-Subject: [PATCH 3/8] [libteam] Add fallback support for single-member-port LAG
-     From: Haiyang Zheng <haiyang.z@alibaba-inc.com>     Date: Fri, 15 Dec
- 2017 21:07:53 -0800
+commit f475746f56602a40861b8d94eac5f0979c4703f3
+Author: yorke <yorke.yuan@asterfusion.com>
+Date:   Mon Jun 3 12:02:36 2019 +0800
 
-Signed-off-by: yorke <yorke.yuan@asterfusion.com>
----
- teamd/teamd_runner_lacp.c | 42 ++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 40 insertions(+), 2 deletions(-)
+    From 9b40af58575a89d06be51cfbb5a2265a59826110 Mon Sep 17 00:00:00 2001
+    Subject: [PATCH 3/8] [libteam] Add fallback support for single-member-port LAG
+         From: Haiyang Zheng <haiyang.z@alibaba-inc.com>     Date: Fri, 15 Dec
+     2017 21:07:53 -0800
+    
+    Signed-off-by: yorke <yorke.yuan@asterfusion.com>
 
 diff --git a/teamd/teamd_runner_lacp.c b/teamd/teamd_runner_lacp.c
-index 4dbd015..9836824 100644
+index 4dbd015..f8a9e16 100644
 --- a/teamd/teamd_runner_lacp.c
 +++ b/teamd/teamd_runner_lacp.c
 @@ -138,6 +138,8 @@ struct lacp {
@@ -71,7 +70,27 @@ index 4dbd015..9836824 100644
  		return false;
  	return true;
  }
-@@ -1502,6 +1525,16 @@ static int lacp_state_fast_rate_get(struct teamd_context *ctx,
+@@ -334,7 +357,8 @@ static int lacp_port_should_be_enabled(struct lacp_port *lacp_port)
+ 
+ 	if (lacp_port_selected(lacp_port) &&
+ 	    lacp_port->agg_lead == lacp->selected_agg_lead &&
+-	    lacp_port->partner.state & INFO_STATE_SYNCHRONIZATION)
++	    (lacp_port->partner.state & INFO_STATE_SYNCHRONIZATION ||
++	    is_lacp_fallback_eligible(lacp_port)))
+ 		return true;
+ 	return false;
+ }
+@@ -345,7 +369,8 @@ static int lacp_port_should_be_disabled(struct lacp_port *lacp_port)
+ 
+ 	if (!lacp_port_selected(lacp_port) ||
+ 	    lacp_port->agg_lead != lacp->selected_agg_lead ||
+-	    !(lacp_port->partner.state & INFO_STATE_SYNCHRONIZATION))
++	    (!(lacp_port->partner.state & INFO_STATE_SYNCHRONIZATION) &&
++	    !is_lacp_fallback_eligible(lacp_port)))
+ 		return true;
+ 	return false;
+ }
+@@ -1502,6 +1527,16 @@ static int lacp_state_fast_rate_get(struct teamd_context *ctx,
  	return 0;
  }
  
@@ -88,7 +107,7 @@ index 4dbd015..9836824 100644
  static int lacp_state_select_policy_get(struct teamd_context *ctx,
  					struct team_state_gsc *gsc,
  					void *priv)
-@@ -1529,6 +1562,11 @@ static const struct teamd_state_val lacp_state_vals[] = {
+@@ -1529,6 +1564,11 @@ static const struct teamd_state_val lacp_state_vals[] = {
  		.getter = lacp_state_fast_rate_get,
  	},
  	{
@@ -100,6 +119,3 @@ index 4dbd015..9836824 100644
  		.subpath = "select_policy",
  		.type = TEAMD_STATE_ITEM_TYPE_STRING,
  		.getter = lacp_state_select_policy_get,
--- 
-2.7.4
-
