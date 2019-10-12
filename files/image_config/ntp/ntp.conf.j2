@@ -35,7 +35,7 @@ interface ignore wildcard
 interface listen {{ mgmt_prefix | ip }}
 {% endfor %}
 {% elif LOOPBACK_INTERFACE %}
-{% for (name, prefix) in LOOPBACK_INTERFACE|pfx_filter %}
+{% for (name, prefix) in LOOPBACK_INTERFACE %}
 {% if prefix | ipv4 and name == 'Loopback0' %}
 interface listen {{ prefix | ip }}
 {% endif %}
