@@ -19,8 +19,7 @@ except ImportError as e:
     raise ImportError (str(e) + "- required module not found")
 
 # Global logger class instance
-SYSLOG_IDENTIFIER = "mlnx-thermal-api"
-logger = Logger(SYSLOG_IDENTIFIER)
+logger = Logger()
 
 THERMAL_DEV_CATEGORY_CPU_CORE = "cpu_core"
 THERMAL_DEV_CATEGORY_CPU_PACK = "cpu_pack"

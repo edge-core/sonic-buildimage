@@ -17,8 +17,7 @@ except ImportError as e:
     raise ImportError (str(e) + "- required module not found")
 
 # Global logger class instance
-SYSLOG_IDENTIFIER = "mlnx-psu-api"
-logger = Logger(SYSLOG_IDENTIFIER)
+logger = Logger()
 
 psu_list = []
 

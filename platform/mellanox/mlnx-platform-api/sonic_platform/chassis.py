@@ -39,8 +39,7 @@ REBOOT_CAUSE_ROOT = HWMGMT_SYSTEM_ROOT
 REBOOT_CAUSE_FILE_LENGTH = 1
 
 # Global logger class instance
-SYSLOG_IDENTIFIER = "mlnx-chassis-api"
-logger = Logger(SYSLOG_IDENTIFIER)
+logger = Logger()
 
 # magic code defnition for port number, qsfp port position of each hwsku
 # port_position_tuple = (PORT_START, QSFP_PORT_START, PORT_END, PORT_IN_BLOCK, EEPROM_OFFSET)

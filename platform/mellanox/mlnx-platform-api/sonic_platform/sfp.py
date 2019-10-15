@@ -188,8 +188,7 @@ PORT_TYPE_MASK = 0xF0000000
 NVE_MASK = PORT_TYPE_MASK & (PORT_TYPE_NVE << PORT_TYPE_OFFSET)
 
 # Global logger class instance
-SYSLOG_IDENTIFIER = "mlnx-sfp"
-logger = Logger(SYSLOG_IDENTIFIER)
+logger = Logger()
 
 class SFP(SfpBase):
     """Platform-specific SFP class"""

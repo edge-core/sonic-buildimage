@@ -11,8 +11,6 @@ import select
 from python_sdk_api.sx_api import *
 from sonic_daemon_base.daemon_base import Logger
 
-SYSLOG_IDENTIFIER = "sfp-event"
-
 SDK_SFP_STATE_IN = 0x1
 SDK_SFP_STATE_OUT = 0x2
 STATUS_PLUGIN = '1'
@@ -34,7 +32,7 @@ SDK_DAEMON_READY_FILE = '/tmp/sdk_ready'
 
 PMPE_PACKET_SIZE = 2000
 
-logger = Logger(SYSLOG_IDENTIFIER)
+logger = Logger()
 
 class sfp_event:
     ''' Listen to plugin/plugout cable events '''
