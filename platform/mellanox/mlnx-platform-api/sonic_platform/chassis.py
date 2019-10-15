@@ -319,11 +319,11 @@ class Chassis(ChassisBase):
             'reset_comex_wd'            :   "Reset requested from ComEx",
             'reset_from_asic'           :   "Reset requested from ASIC",
             'reset_reload_bios'         :   "Reset caused by BIOS reload",
-            'reset_sw_reset'            :   "Software reset",
             'reset_hotswap_or_halt'     :   "Reset caused by hotswap or halt",
             'reset_from_comex'          :   "Reset from ComEx",
             'reset_voltmon_upgrade_fail':   "Reset due to voltage monitor devices upgrade failure"
         }
+        self.reboot_by_software = 'reset_sw_reset'
         self.reboot_cause_initialized = True
 
 
@@ -349,6 +349,11 @@ class Chassis(ChassisBase):
         for reset_file, reset_cause in self.reboot_minor_cause_dict.iteritems():
             if self._verify_reboot_cause(reset_file):
                 return self.REBOOT_CAUSE_HARDWARE_OTHER, reset_cause
+
+        if self._verify_reboot_cause(self.reboot_by_software):
+            logger.log_info("Hardware reboot cause: the system was rebooted due to software requesting")
+        else:
+            logger.log_info("Hardware reboot cause: no hardware reboot cause found")
 
         return self.REBOOT_CAUSE_NON_HARDWARE, ''
 
