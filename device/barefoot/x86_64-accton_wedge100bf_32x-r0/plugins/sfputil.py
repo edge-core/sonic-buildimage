@@ -135,7 +135,7 @@ class SfpUtil(SfpUtilBase):
         self.thrift_setup()
         status = pltfm_mgr.pltfm_mgr_qsfp_lpmode_set(port_num, lpmode)
         self.thrift_teardown()
-        return status
+        return (status == 0)
 
     def reset(self, port_num):
         # Check for invalid port_num
