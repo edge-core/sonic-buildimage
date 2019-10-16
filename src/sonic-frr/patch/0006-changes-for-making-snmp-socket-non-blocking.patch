@@ -1,0 +1,85 @@
+From 6d43b90540c6aeda0fff001de93c88e01aacadab Mon Sep 17 00:00:00 2001
+From: sudhanshukumar22 <sudhanshu.kumar@broadcom.com>
+Date: Tue, 15 Oct 2019 02:11:01 -0700
+Subject: [PATCH] lib: changes for making snmp socket non-blocking
+
+Description: The changes have been done to make the snmp socket
+non-blocking before calling snmp_read()
+FRR Pull request: https://github.com/FRRouting/frr/pull/5134
+
+Problem Description/Summary :
+vtysh hangs on first try to enter after a reboot with BGP dynamic peers
+
+Expected Behavior :
+VTYSH should not hang.
+When we debug more into bgpd docker by doing gdb on its threads, we find the below thread of bgpd, which is causing the issue.
+Thread 1 (Thread 0x7f1e1ec46d40 (LWP 47)):
+
+0x00007f1e1d762593 in recvfrom () from /lib/x86_64-linux-gnu/libpthread.so.0
+0x00007f1e1aadd09b in netsnmp_tcpbase_recv () from /usr/lib/x86_64-linux-gnu/libnetsnmp.so.30
+0x00007f1e1aad9617 in netsnmp_transport_recv () from /usr/lib/x86_64-linux-gnu/libnetsnmp.so.30
+0x00007f1e1aab2c07 in _sess_read () from /usr/lib/x86_64-linux-gnu/libnetsnmp.so.30
+0x00007f1e1aab3a29 in snmp_sess_read2 () from /usr/lib/x86_64-linux-gnu/libnetsnmp.so.30
+0x00007f1e1aab3a7b in snmp_read2 () from /usr/lib/x86_64-linux-gnu/libnetsnmp.so.30
+0x00007f1e1aab3acf in snmp_read () from /usr/lib/x86_64-linux-gnu/libnetsnmp.so.30
+0x00007f1e1b44d7ec in agentx_read (t=0x7fffa75f0080) at lib/agentx.c:63
+0x00007f1e1e7d6451 in thread_call (thread=0x7fffa75f0080) at lib/thread.c:1620
+0x00007f1e1e770699 in frr_run (master=0x559396ea60f0) at lib/libfrr.c:1011
+0x0000559395b4d953 in main (argc=5, argv=0x7fffa75f02b8) at bgpd/bgp_main.c:492
+
+(gdb) bt
+
+0x00007f830c89d210 in __read_nocancel () from /lib/x86_64-linux-gnu/libpthread.so.0
+0x000056450e1e8238 in vtysh_client_run (vclient=0x56450e4a8b40 <vtysh_client+24768>, line=0x56450e21add0 enable, callback=0x0, cbarg=0x0) at vtysh/vtysh.c:216
+0x000056450e1e8c6b in vtysh_client_run_all (head_client=0x56450e4a8b40 <vtysh_client+24768>, line=0x56450e21add0 enable, continue_on_err=0, callback=0x0, cbarg=0x0) at vtysh/vtysh.c:356
+0x000056450e1e8ddb in vtysh_client_execute (head_client=0x56450e4a8b40 <vtysh_client+24768>, line=0x56450e21add0 enable) at vtysh/vtysh.c:393
+0x000056450e1e9c82 in vtysh_execute_func (line=0x56450e21add0 enable, pager=0) at vtysh/vtysh.c:598
+0x000056450e1e9dee in vtysh_execute_no_pager (line=0x56450e21add0 enable) at vtysh/vtysh.c:619
+0x000056450e1f7d48 in vtysh_read_file (confp=0x56451000a9d0, top_cfg=1) at vtysh/vtysh_config.c:494
+0x000056450e1f7ef2 in vtysh_read_config (config_default_dir=0x56450e4edc20 <frr_config> /etc/frr/frr.conf, top_cfg=1) at vtysh/vtysh_config.c:522
+0x000056450e1e5de4 in vtysh_apply_top_level_config () at vtysh/vtysh_main.c:301
+0x000056450e1e7842 in main (argc=2, argv=0x7ffc81e6f598, env=0x7ffc81e6f5b0) at vtysh/vtysh_main.c:692
+
+The fix has been taken from the following link.
+https://sourceforge.net/p/net-snmp/patches/1348/
+---
+ lib/agentx.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/lib/agentx.c b/lib/agentx.c
+index 40cac722a..2c6a43d1a 100644
+--- a/lib/agentx.c
++++ b/lib/agentx.c
+@@ -55,13 +55,29 @@ static int agentx_timeout(struct thread *t)
+ static int agentx_read(struct thread *t)
+ {
+ 	fd_set fds;
++	int flags;
++	int nonblock = false;
+ 	struct listnode *ln = THREAD_ARG(t);
+ 	list_delete_node(events, ln);
+ 
++	/* fix for non blocking socket */
++	flags = fcntl(THREAD_FD(t), F_GETFL, 0);
++	if (-1 == flags)
++		return -1;
++
++	if (flags & O_NONBLOCK)
++		nonblock = true;
++	else
++		fcntl(THREAD_FD(t), F_SETFL, flags | O_NONBLOCK);
++
+ 	FD_ZERO(&fds);
+ 	FD_SET(THREAD_FD(t), &fds);
+ 	snmp_read(&fds);
+ 
++	/* Reset the flag */
++	if (!nonblock)
++		fcntl(THREAD_FD(t), F_SETFL, flags);
++
+ 	netsnmp_check_outstanding_agent_requests();
+ 	agentx_events_update();
+ 	return 0;
+-- 
+2.18.0
+
