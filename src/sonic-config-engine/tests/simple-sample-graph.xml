@@ -2,6 +2,15 @@
   <CpgDec>
     <IsisRouters xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
     <PeeringSessions>
+       <BGPSession>
+         <StartRouter>switch-t0</StartRouter>
+         <StartPeer>10.1.0.32</StartPeer>
+         <EndRouter>BGPMonitor</EndRouter>
+         <EndPeer>10.20.30.40</EndPeer>
+         <Multihop>30</Multihop>
+         <HoldTime>10</HoldTime>
+         <KeepAliveTime>3</KeepAliveTime>
+      </BGPSession>
       <BGPSession>
         <MacSec>false</MacSec>
         <StartRouter>switch-t0</StartRouter>
@@ -42,6 +51,21 @@
       </BGPSession>
     </PeeringSessions>
     <Routers xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
+      <a:BGPRouterDeclaration>
+          <a:ASN>0</a:ASN>
+          <a:BgpGroups/>
+          <a:Hostname>BGPMonitor</a:Hostname>
+          <a:Peers>
+              <BGPPeer>
+                  <ElementType>BGPPeer</ElementType>
+                  <Address>10.1.0.32</Address>
+                  <RouteMapIn i:nil="true"/>
+                  <RouteMapOut i:nil="true"/>
+                  <Vrf i:nil="true"/>
+              </BGPPeer>
+          </a:Peers>
+          <a:RouteMaps/>
+      </a:BGPRouterDeclaration>
       <a:BGPRouterDeclaration>
         <a:ASN>65100</a:ASN>
         <a:Hostname>switch-t0</a:Hostname>
