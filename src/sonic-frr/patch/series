@@ -4,3 +4,4 @@
 0005-Support-VRF.patch
 0006-changes-for-making-snmp-socket-non-blocking.patch
 0007-prevent-dead-fd-poll-data-port-fix-from-frr.patch
+0008-zebra-kernel-level-graceful-restart.patch
