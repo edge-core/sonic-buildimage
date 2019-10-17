@@ -30,6 +30,10 @@ ns3 = "http://www.w3.org/2001/XMLSchema-instance"
 spine_chassis_frontend_role = 'SpineChassisFrontendRouter'
 chassis_backend_role = 'ChassisBackendRouter'
 
+backend_device_types = ['BackEndToRRouter', 'BackEndLeafRouter']
+VLAN_SUB_INTERFACE_SEPARATOR = '.'
+VLAN_SUB_INTERFACE_VLAN_ID = '10'
+
 # Default Virtual Network Index (VNI) 
 vni_default = 8000
 
@@ -612,6 +616,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
     vlan_intfs = {}
     pc_intfs = {}
     vlan_invert_mapping = { v['alias']:k for k,v in vlans.items() if v.has_key('alias') }
+    vlan_sub_intfs = {}
 
     for intf in intfs:
         if intf[0][0:4] == 'Vlan':
@@ -712,6 +717,32 @@ def parse_xml(filename, platform=None, port_config_file=None):
             pc_intfs.pop(pc_intf[0], None)
 
     results['PORTCHANNEL_INTERFACE'] = pc_intfs
+
+    if current_device['type'] in backend_device_types:
+        del results['INTERFACE']
+        del results['PORTCHANNEL_INTERFACE']
+
+        for intf in phyport_intfs.keys():
+            if isinstance(intf, tuple):
+                intf_info = list(intf)
+                intf_info[0] = intf_info[0] + VLAN_SUB_INTERFACE_SEPARATOR + VLAN_SUB_INTERFACE_VLAN_ID
+                sub_intf = tuple(intf_info)
+                vlan_sub_intfs[sub_intf] = {}
+            else:
+                sub_intf = intf + VLAN_SUB_INTERFACE_SEPARATOR + VLAN_SUB_INTERFACE_VLAN_ID
+                vlan_sub_intfs[sub_intf] = {"admin_status" : "up"}
+
+        for pc_intf in pc_intfs.keys():
+            if isinstance(pc_intf, tuple):
+                pc_intf_info = list(pc_intf)
+                pc_intf_info[0] = pc_intf_info[0] + VLAN_SUB_INTERFACE_SEPARATOR + VLAN_SUB_INTERFACE_VLAN_ID
+                sub_intf = tuple(pc_intf_info)
+                vlan_sub_intfs[sub_intf] = {}
+            else:
+                sub_intf = pc_intf + VLAN_SUB_INTERFACE_SEPARATOR + VLAN_SUB_INTERFACE_VLAN_ID
+                vlan_sub_intfs[sub_intf] = {"admin_status" : "up"}
+
+        results['VLAN_SUB_INTERFACE'] = vlan_sub_intfs
 
     results['VLAN'] = vlans
     results['VLAN_MEMBER'] = vlan_members

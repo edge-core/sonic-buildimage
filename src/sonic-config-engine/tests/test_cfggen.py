@@ -2,6 +2,9 @@ from unittest import TestCase
 import subprocess
 import os
 
+TOR_ROUTER = 'ToRRouter'
+BACKEND_TOR_ROUTER = 'BackEndToRRouter'
+
 class TestCfgGen(TestCase):
 
     def setUp(self):
@@ -55,10 +58,12 @@ class TestCfgGen(TestCase):
         output = self.run_script(argument)
         self.assertTrue(len(output.strip()) > 0)
 
-    def test_jinja_expression(self):
-        argument = '-m "' + self.sample_graph + '" -v "DEVICE_METADATA[\'localhost\'][\'type\']"'
+    def test_jinja_expression(self, graph=None, expected_router_type='LeafRouter'):
+        if graph is None:
+            graph = self.sample_graph
+        argument = '-m "' + graph + '" -v "DEVICE_METADATA[\'localhost\'][\'type\']"'
         output = self.run_script(argument)
-        self.assertEqual(output.strip(), 'LeafRouter')
+        self.assertEqual(output.strip(), expected_router_type)
 
     def test_additional_json_data(self):
         argument = '-a \'{"key1":"value1"}\' -v key1'
@@ -266,3 +271,55 @@ class TestCfgGen(TestCase):
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "{'10.20.30.40': {'rrclient': 0, 'name': 'BGPMonitor', 'local_addr': '10.1.0.32', 'nhopself': 0, 'holdtime': '10', 'asn': '0', 'keepalive': '3'}}")
 
+    def test_minigraph_sub_port_interfaces(self, check_stderr=True):
+        try:
+            print '\n    Change device type to %s' % (BACKEND_TOR_ROUTER)
+            if check_stderr:
+                output = subprocess.check_output("sed -i \'s/%s/%s/g\' %s" % (TOR_ROUTER, BACKEND_TOR_ROUTER, self.sample_graph_simple), stderr=subprocess.STDOUT, shell=True)
+            else:
+                output = subprocess.check_output("sed -i \'s/%s/%s/g\' %s" % (TOR_ROUTER, BACKEND_TOR_ROUTER, self.sample_graph_simple), shell=True)
+
+            self.test_jinja_expression(self.sample_graph_simple, BACKEND_TOR_ROUTER)
+
+
+            # INTERFACE table does not exist
+            argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v "INTERFACE"'
+            output = self.run_script(argument)
+            self.assertEqual(output.strip(), "")
+
+            # PORTCHANNEL_INTERFACE table does not exist
+            argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v "PORTCHANNEL_INTERFACE"'
+            output = self.run_script(argument)
+            self.assertEqual(output.strip(), "")
+
+            # All the other tables stay unchanged
+            self.test_var_json_data()
+            self.test_minigraph_vlans()
+            self.test_minigraph_vlan_members()
+            self.test_minigraph_vlan_interfaces()
+            self.test_minigraph_portchannels()
+            self.test_minigraph_ethernet_interfaces()
+            self.test_minigraph_extra_ethernet_interfaces()
+            self.test_minigraph_vnet()
+            self.test_minigraph_vxlan()
+
+            # VLAN_SUB_INTERFACE
+            argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v VLAN_SUB_INTERFACE'
+            output = self.run_script(argument)
+            print output.strip()
+            self.assertEqual(output.strip(), \
+                    "{('PortChannel01.10', '10.0.0.56/31'): {}, "
+                    "'Ethernet0.10': {'admin_status': 'up'}, "
+                    "('Ethernet0.10', '10.0.0.58/31'): {}, "
+                    "('PortChannel01.10', 'FC00::71/126'): {}, "
+                    "'PortChannel01.10': {'admin_status': 'up'}, "
+                    "('Ethernet0.10', 'FC00::75/126'): {}}")
+
+        finally:
+            print '\n    Change device type back to %s' % (TOR_ROUTER)
+            if check_stderr:
+                output = subprocess.check_output("sed -i \'s/%s/%s/g\' %s" % (BACKEND_TOR_ROUTER, TOR_ROUTER, self.sample_graph_simple), stderr=subprocess.STDOUT, shell=True)
+            else:
+                output = subprocess.check_output("sed -i \'s/%s/%s/g\' %s" % (BACKEND_TOR_ROUTER, TOR_ROUTER, self.sample_graph_simple), shell=True)
+
+            self.test_jinja_expression(self.sample_graph_simple, TOR_ROUTER)
