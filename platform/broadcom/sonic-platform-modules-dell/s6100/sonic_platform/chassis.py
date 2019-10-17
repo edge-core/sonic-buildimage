@@ -10,11 +10,6 @@
 
 try:
     import os
-    import sys
-    import click
-    import subprocess
-    import glob
-    import sonic_device_util
     from sonic_platform_base.platform_base import PlatformBase
     from sonic_platform_base.chassis_base import ChassisBase
     from sonic_platform.sfp import Sfp
@@ -22,6 +17,7 @@ try:
     from sonic_platform.fan import Fan
     from sonic_platform.module import Module
     from sonic_platform.thermal import Thermal
+    from sonic_platform.component import Component
     from eeprom import Eeprom
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
@@ -30,12 +26,7 @@ MAX_S6100_MODULE = 4
 MAX_S6100_FAN = 4
 MAX_S6100_PSU = 2
 MAX_S6100_THERMAL = 10
-
-BIOS_QUERY_VERSION_COMMAND = "dmidecode -s system-version"
-#components definitions
-COMPONENT_BIOS = "BIOS"
-SWITCH_CPLD = "CPLD"
-SMF_FPGA = "FPGA1"
+MAX_S6100_COMPONENT = 3
 
 
 class Chassis(ChassisBase):
@@ -80,10 +71,9 @@ class Chassis(ChassisBase):
             thermal = Thermal(i)
             self._thermal_list.append(thermal)
 
-        # Initialize component list
-        self._component_name_list.append(COMPONENT_BIOS)
-        self._component_name_list.append(SWITCH_CPLD)
-        self._component_name_list.append(SMF_FPGA)
+        for i in range(MAX_S6100_COMPONENT):
+            component = Component(i)
+            self._component_list.append(component)
 
     def _get_reboot_reason_smf_register(self):
         # Returns 0xAA on software reload
@@ -110,19 +100,6 @@ class Chassis(ChassisBase):
         rv = rv.rstrip('\r\n')
         rv = rv.lstrip(" ")
         return rv
-
-    # Run bash command and print output to stdout
-    def run_command(self, command):
-        click.echo(click.style("Command: ", fg='cyan') +
-                   click.style(command, fg='green'))
-
-        proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
-        (out, err) = proc.communicate()
-
-        click.echo(out)
-
-        if proc.returncode != 0:
-            sys.exit(proc.returncode)
 
     def get_name(self):
         """
@@ -234,147 +211,3 @@ class Chassis(ChassisBase):
                 return (self.reset_reason_dict[reset_reason], None)
 
         return (ChassisBase.REBOOT_CAUSE_HARDWARE_OTHER, "Invalid Reason")
-
-    def _get_command_result(self, cmdline):
-        try:
-            proc = subprocess.Popen(cmdline, stdout=subprocess.PIPE,
-                                    shell=True, stderr=subprocess.STDOUT)
-            stdout = proc.communicate()[0]
-            proc.wait()
-            result = stdout.rstrip('\n')
-        except OSError:
-            result = ''
-
-        return result
-
-    def _get_cpld_version(self):
-        io_resource = "/dev/port"
-        CPLD1_VERSION_ADDR = 0x100
-
-        fd = os.open(io_resource, os.O_RDONLY)
-        if (fd < 0):
-            return 'NA'
-        if (os.lseek(fd, CPLD1_VERSION_ADDR, os.SEEK_SET)
-            != CPLD1_VERSION_ADDR):
-            return 'NA'
-
-        buf = os.read(fd, 1)
-        cpld_version = ord(buf)
-        os.close(fd)
-
-        return "%d.%d" % (((cpld_version & 0xF0) >> 4), cpld_version & 0xF)
-
-    def _get_fpga_version(self):
-        fpga_ver = float(self._get_pmc_register('smf_firmware_ver'))
-        return fpga_ver
-
-    def get_firmware_version(self, component_name):
-        """
-        Retrieves platform-specific hardware/firmware versions for
-        chassis componenets such as BIOS, CPLD, FPGA, etc.
-        Args:
-            component_name: A string, the component name.
-        Returns:
-            A string containing platform-specific component versions
-        """
-        if component_name in self._component_name_list :
-            if component_name == COMPONENT_BIOS:
-                return self._get_command_result(BIOS_QUERY_VERSION_COMMAND)
-            elif component_name == SWITCH_CPLD:
-                return self._get_cpld_version()
-            elif component_name == SMF_FPGA:
-                return self._get_fpga_version()
-
-        return None
-
-    def install_component_firmware(self, component_name, image_path):
-
-        bios_image = None
-        bios_version = "3.25.0."
-        bios_file_name = "S6100*BIOS*"
-        flashrom = "/usr/local/bin/flashrom"
-        PLATFORM_ROOT_PATH = '/usr/share/sonic/device'
-        machine_info = sonic_device_util.get_machine_info()
-        platform = sonic_device_util.get_platform_info(machine_info)
-        platform_path = "/".join([PLATFORM_ROOT_PATH, platform, "bin"])
-
-        warning = """
-        ********************************************************************
-        * Warning - Upgrading BIOS is inherently risky and should only be  *
-        * attempted when necessary.  A failure at this upgrade may cause   *
-        * a board RMA.  Proceed with caution !                             *
-        ********************************************************************
-        """
-
-        if component_name in self._component_name_list:
-            if component_name == COMPONENT_BIOS:  # BIOS
-
-                # current BIOS version
-                current_bios_version = self.get_firmware_version("BIOS")
-
-                # Construct BIOS image path
-                if image_path is not None:
-                    image_path = image_path + platform_path
-                    for name in glob.glob(
-                                    os.path.join(image_path, bios_file_name)):
-                        bios_image = image_path = name
-
-                if not bios_image:
-                    print "BIOS image file not found:", image_path
-                    return False
-
-                # Extract BIOS image version
-                bios_image = os.path.basename(bios_image)
-                bios_image = bios_image.strip('S6100-BIOS-')
-                bios_image_version = bios_image.strip('.bin')
-
-                if bios_image_version.startswith(bios_version):
-                    bios_image_minor = bios_image_version.replace(
-                                                bios_image_version[:7], '')
-                    if bios_image_minor.startswith("2"):
-                        bios_image_minor = bios_image_minor.split("-")[1]
-
-                if current_bios_version.startswith(bios_version):
-                    current_bios_minor = current_bios_version.replace(
-                                                current_bios_version[:7], '')
-                    if current_bios_minor.startswith("2"):
-                        current_bios_minor = current_bios_minor.split("-")[1]
-
-                # BIOS version check
-                if bios_image_minor > current_bios_minor:
-
-                    print warning
-                    prompt_text = "New BIOS image " + bios_image_version + \
-                        " available to install, continue?"
-                    yes = click.confirm(prompt_text)
-
-                elif current_bios_minor > bios_image_minor:
-
-                    print warning
-                    prompt_text = "Do you want to downgrade BIOS image from " \
-                        + current_bios_version + " to " + \
-                        bios_image_version + " continue?"
-
-                    yes = click.confirm(prompt_text)
-
-                else:
-                    print("BIOS is already with {} latest version".format(
-                        current_bios_version))
-                    return True
-
-                if yes:
-                    command = flashrom + " -p" + " internal" + " -w " + \
-                                         image_path
-                    self.run_command(command)
-
-            elif component_name == SWITCH_CPLD:  # CPLD
-                return False
-
-            elif component_name == SMF_FPGA:  # SMF
-                return False
-        else:
-            print "Invalid component Name:", component_name
-
-        return True
-
-

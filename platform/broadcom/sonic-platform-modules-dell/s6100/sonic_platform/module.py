@@ -13,6 +13,7 @@ try:
     import os
     from sonic_platform_base.module_base import ModuleBase
     from sonic_platform.sfp import Sfp
+    from sonic_platform.component import Component
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -54,15 +55,19 @@ class Module(ModuleBase):
         self.port_start = (self.index - 1) * 16
         self.port_end = (self.index * 16) - 1
         self.port_i2c_line = self.IOM_I2C_MAPPING[self.index]
-        self._component_name_list = ['CPLD']
         self.eeprom_tlv_dict = dict()
 
         self.iom_status_reg = "iom_status"
         self.iom_presence_reg = "iom_presence"
 
-        # Overriding _sfp_list class variable defined in ModuleBase, to
-        # make it unique per Module object
+        # Overriding _component_list and _sfp_list class variables defined in
+        # ModuleBase, to make them unique per Module object
+        self._component_list = []
         self._sfp_list = []
+
+        component = Component(is_module=True, iom_index=self.index,
+                              i2c_line=self.port_i2c_line)
+        self._component_list.append(component)
 
         eeprom_base = "/sys/class/i2c-adapter/i2c-{0}/i2c-{1}/{1}-0050/eeprom"
         sfp_ctrl_base = "/sys/class/i2c-adapter/i2c-{0}/{0}-003e/"
@@ -188,39 +193,3 @@ class Module(ModuleBase):
                   ‘0x26’:’01’, ‘0x27’:’REV01’, ‘0x28’:’AG9064-C2358-16G’}
         """
         return self.eeprom_tlv_dict
-
-    def get_firmware_version(self, component_name):
-        """
-        Retrieves platform-specific hardware/firmware versions for module
-        componenets such as BIOS, CPLD, FPGA, etc.
-
-        Args:
-            component_name: A string, the component name.
-
-        Returns:
-            A string containing platform-specific component versions
-        """
-        if component_name == 'CPLD':
-            cpld_version_file = ("/sys/class/i2c-adapter/i2c-{0}/{0}-003e/"
-                                 "iom_cpld_vers").format(self.port_i2c_line)
-
-            if (not os.path.isfile(cpld_version_file)):
-                return 'NA'
-
-            try:
-                with open(cpld_version_file, 'r') as fd:
-                    ver_str = fd.read()
-            except Exception as error:
-                return 'NA'
-
-            if ver_str == 'read error':
-                return 'NA'
-
-            ver_str = ver_str.rstrip('\r\n')
-            cpld_version = int(ver_str.split(':')[1], 16)
-            major_version = (cpld_version & 0xF0) >> 4
-            minor_version = cpld_version & 0xF
-
-            return "%d.%d" % (major_version, minor_version)
-        else:
-            return 'NA'

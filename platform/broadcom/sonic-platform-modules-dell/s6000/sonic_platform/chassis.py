@@ -18,6 +18,7 @@ try:
     from sonic_platform.fan import Fan
     from sonic_platform.psu import Psu
     from sonic_platform.thermal import Thermal
+    from sonic_platform.component import Component
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -25,17 +26,7 @@ except ImportError as e:
 MAX_S6000_FAN = 3
 MAX_S6000_PSU = 2
 MAX_S6000_THERMAL = 10
-
-BIOS_QUERY_VERSION_COMMAND = "dmidecode -s system-version"
-#components definitions
-COMPONENT_BIOS = "BIOS"
-COMPONENT_CPLD1 = "CPLD1"
-COMPONENT_CPLD2 = "CPLD2"
-COMPONENT_CPLD3 = "CPLD3"
-
-CPLD1_VERSION = 'system_cpld_ver'
-CPLD2_VERSION = 'master_cpld_ver'
-CPLD3_VERSION = 'slave_cpld_ver'
+MAX_S6000_COMPONENT = 4
 
 
 class Chassis(ChassisBase):
@@ -87,11 +78,9 @@ class Chassis(ChassisBase):
             thermal = Thermal(i)
             self._thermal_list.append(thermal)
 
-        # Initialize component list
-        self._component_name_list.append(COMPONENT_BIOS)
-        self._component_name_list.append(COMPONENT_CPLD1)
-        self._component_name_list.append(COMPONENT_CPLD2)
-        self._component_name_list.append(COMPONENT_CPLD3)
+        for i in range(MAX_S6000_COMPONENT):
+            component = Component(i)
+            self._component_list.append(component)
 
     def _get_cpld_register(self, reg_name):
         rv = 'ERR'
@@ -178,7 +167,7 @@ class Chassis(ChassisBase):
 
         Returns:
             A dictionary where keys are the type code defined in
-            OCP ONIE TlvInfo EEPROM format and values are their 
+            OCP ONIE TlvInfo EEPROM format and values are their
             corresponding values.
         """
         return self.sys_eeprom.system_eeprom_info()
@@ -199,46 +188,6 @@ class Chassis(ChassisBase):
                 return (self.reset_reason_dict[reset_reason], None)
 
         return (ChassisBase.REBOOT_CAUSE_NON_HARDWARE, None)
-
-    def _get_command_result(self, cmdline):
-        try:
-            proc = subprocess.Popen(cmdline, stdout=subprocess.PIPE,
-                                    shell=True, stderr=subprocess.STDOUT)
-            stdout = proc.communicate()[0]
-            proc.wait()
-            result = stdout.rstrip('\n')
-        except OSError:
-            result = ''
-
-        return result
-
-    def _get_cpld_version(self,cpld_name):
-        """
-        Cpld Version
-        """
-        cpld_ver = int(self._get_cpld_register(cpld_name),16)
-        return cpld_ver
-
-    def get_firmware_version(self, component_name):
-        """
-        Retrieves platform-specific hardware/firmware versions for
-        chassis componenets such as BIOS, CPLD, FPGA, etc.
-        Args:
-            component_name: A string, the component name.
-        Returns:
-            A string containing platform-specific component versions
-        """
-        if component_name in self._component_name_list :
-            if component_name == COMPONENT_BIOS:
-                return self._get_command_result(BIOS_QUERY_VERSION_COMMAND)
-            elif component_name == COMPONENT_CPLD1:
-                return self._get_cpld_version(CPLD1_VERSION)
-            elif component_name == COMPONENT_CPLD2:
-                return self._get_cpld_version(CPLD2_VERSION)
-            elif component_name == COMPONENT_CPLD3:
-                return self._get_cpld_version(CPLD3_VERSION)
-
-        return None
 
     def _get_transceiver_status(self):
         presence_ctrl = self.sfp_control + 'qsfp_modprs'
