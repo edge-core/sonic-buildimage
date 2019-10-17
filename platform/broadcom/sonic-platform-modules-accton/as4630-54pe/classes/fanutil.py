@@ -180,8 +180,6 @@ class FanUtil(object):
     def get_fan_fault(self, fan_num):
         return self._get_fan_node_val(fan_num, self.FAN_NODE_FAULT_IDX_OF_MAP)
 
-    #def get_fan_speed(self, fan_num):
-    #    return self._get_fan_node_val(fan_num, self.FAN_NODE_SPEED_IDX_OF_MAP)
 
     def get_fan_dir(self, fan_num):
         return self._get_fan_node_val(fan_num, self.FAN_NODE_DIR_IDX_OF_MAP)
@@ -196,17 +194,9 @@ class FanUtil(object):
 
         content = val_file.readline().rstrip()
         val_file.close()
-        
         return int(content)
-        #self._get_fan_node_val(fan_num, self.FAN_NODE_DUTY_IDX_OF_MAP)
-#static u32 reg_val_to_duty_cycle(u8 reg_val) 
-#{
-#    reg_val &= FAN_DUTY_CYCLE_REG_MASK;
-#    return ((u32)(reg_val+1) * 625 + 75)/ 100;
-#}
-#
+
     def set_fan_duty_cycle(self, val):
-        
         try:
             fan_file = open(self.FAN_DUTY_PATH, 'r+')
         except IOError as e:
@@ -216,9 +206,6 @@ class FanUtil(object):
         fan_file.write(str(val))
         fan_file.close()
         return True
-
-    #def get_fanr_fault(self, fan_num):
-    #    return self._get_fan_node_val(fan_num, self.FANR_NODE_FAULT_IDX_OF_MAP)
 
     def get_fanr_speed(self, fan_num):
         return self._get_fan_node_val(fan_num, self.FANR_NODE_SPEED_IDX_OF_MAP)
@@ -232,20 +219,5 @@ class FanUtil(object):
             logging.debug('GET. FAN fault. fan_num, %d', fan_num)
             return False
 
-        #if self.get_fanr_fault(fan_num) is not None and self.get_fanr_fault(fan_num) > 0:
-        #    logging.debug('GET. FANR fault. fan_num, %d', fan_num)
-        #   return False
-
         return True
 
-#def main():
-#    fan = FanUtil()
-#
-#    print 'get_size_node_map : %d' % fan.get_size_node_map()
-#    print 'get_size_path_map : %d' % fan.get_size_path_map()
-#    for x in range(fan.get_idx_fan_start(), fan.get_num_fans()+1):
-#        for y in range(fan.get_idx_node_start(), fan.get_num_nodes()+1):
-#            print fan.get_fan_to_device_path(x, y)
-#
-#if __name__ == '__main__':
-#    main()

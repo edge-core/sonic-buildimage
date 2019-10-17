@@ -45,7 +45,6 @@ class ThermalUtil(object):
     """ Dictionary where
         key1 = thermal id index (integer) starting from 1
         value = path to fan device file (string) """
-    #_thermal_to_device_path_mapping = {}
 
     _thermal_to_device_node_mapping = {
             THERMAL_NUM_1_IDX: ['55', '48'],
@@ -121,11 +120,6 @@ def main():
     print "termal3=%d" %thermal._get_thermal_val(3)
     print "termal4=%d" %thermal._get_thermal_val(4)
     print "termal5=%d" %thermal._get_thermal_val(5)    
-#
-#    print 'get_size_node_map : %d' % thermal.get_size_node_map()
-#    print 'get_size_path_map : %d' % thermal.get_size_path_map()
-#    for x in range(thermal.get_idx_thermal_start(), thermal.get_num_thermals()+1):
-#        print thermal.get_thermal_to_device_path(x)
-#
+
 if __name__ == '__main__':
     main()
