@@ -383,6 +383,13 @@
         <StartPort>Ethernet1/33</StartPort>
         <Validate>true</Validate>
       </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>Servers0</EndDevice>
+        <EndPort>eth0</EndPort>
+        <StartDevice>switch-t0</StartDevice>
+        <StartPort>fortyGigE0/4</StartPort>
+      </DeviceLinkBase>
     </DeviceInterfaceLinks>
     <Devices>
       <Device i:type="ToRRouter">
