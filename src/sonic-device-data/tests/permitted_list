@@ -202,3 +202,10 @@ tm_port_header_type_out
 trunk_group_max_members
 ucode_port
 led_fw_path
+l2xlrn_thread_interval
+l2xlrn_intr_en
+serdes_lane_config_media_type
+sai_preinit_cmd_file
+sai_preinit_warmboot_cmd_file
+sai_postinit_cmd_file
+sai_postinit_warmboot_cmd_file
