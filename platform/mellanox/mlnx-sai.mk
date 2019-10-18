@@ -1,6 +1,6 @@
 # Mellanox SAI
 
-MLNX_SAI_VERSION = SAIRel1.15.0-master
+MLNX_SAI_VERSION = SAIRel1.15.1-ptf-rif-vlan-fix
 
 export MLNX_SAI_VERSION
 
