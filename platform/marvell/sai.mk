@@ -1,9 +1,6 @@
 # Marvell SAI
 
-export MRVL_SAI_VERSION = 1.2.1
-export MRVL_SAI_TAG = SONiC.201803
-export MRVL_SAI = mrvllibsai_$(MRVL_SAI_VERSION).deb
+export MRVL_SAI = mrvllibsai_amd64_1.4.1.deb
 
 $(MRVL_SAI)_SRC_PATH = $(PLATFORM_PATH)/sai
-$(MRVL_SAI)_DEPENDS += $(MRVL_FPA)
 SONIC_MAKE_DEBS += $(MRVL_SAI)

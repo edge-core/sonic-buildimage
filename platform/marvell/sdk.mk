@@ -1,8 +1,0 @@
-# Marvell FPA
-
-export MRVL_FPA_VERSION = 1.2.1
-export MRVL_FPA_TAG = SONiC.201803
-export MRVL_FPA = mrvllibfpa_$(MRVL_FPA_VERSION).deb
-
-$(MRVL_FPA)_SRC_PATH = $(PLATFORM_PATH)/sdk
-SONIC_MAKE_DEBS += $(MRVL_FPA)
