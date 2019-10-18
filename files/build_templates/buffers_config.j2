@@ -131,7 +131,7 @@ def
 {{ defs.generate_pg_profils(port_names_active) }}
 {% else %}
     "BUFFER_PG": {
-{% for port in PORT_ALL %}
+{% for port in PORT_ACTIVE %}
         "{{ port }}|0": {
             "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
         }{% if not loop.last %},{% endif %}
@@ -144,17 +144,17 @@ def
 {{ defs.generate_queue_buffers(port_names_active) }}
 {% else %}
     "BUFFER_QUEUE": {
-{% for port in PORT_ALL %}
+{% for port in PORT_ACTIVE %}
         "{{ port }}|3-4": {
             "profile" : "[BUFFER_PROFILE|egress_lossless_profile]"
         },
 {% endfor %}
-{% for port in PORT_ALL %}
+{% for port in PORT_ACTIVE %}
         "{{ port }}|0-2": {
             "profile" : "[BUFFER_PROFILE|egress_lossy_profile]"
         },
 {% endfor %}
-{% for port in PORT_ALL %}
+{% for port in PORT_ACTIVE %}
         "{{ port }}|5-6": {
             "profile" : "[BUFFER_PROFILE|egress_lossy_profile]"
         }{% if not loop.last %},{% endif %}
