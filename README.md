@@ -189,6 +189,7 @@ This may take a while, but it is a one-time action, so please be patient.
   - docker-syncd-nephos.gz: docker image for the daemon to sync database and Nephos switch ASIC (gzip tar archive)
   - docker-sonic-p4.gz: docker image for all-in-one for p4 software switch (gzip tar archive)
   - docker-sonic-vs.gz: docker image for all-in-one for software virtual switch (gzip tar archive)
+  - docker-sonic-mgmt.gz: docker image for [managing, configuring and monitoring SONiC](https://github.com/Azure/sonic-mgmt) (gzip tar archive)
 
 ## Contribution Guide
 
