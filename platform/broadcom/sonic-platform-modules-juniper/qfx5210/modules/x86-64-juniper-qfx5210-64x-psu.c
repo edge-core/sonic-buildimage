@@ -36,6 +36,8 @@
 #include <linux/slab.h>
 #include <linux/delay.h>
 #include <linux/dmi.h>
+#include <linux/notifier.h>
+#include <linux/reboot.h>
 
 #define PSU_STATUS_I2C_ADDR			0x60
 #define PSU_STATUS_I2C_REG_OFFSET	0x03
@@ -46,6 +48,10 @@
 static ssize_t show_status(struct device *dev, struct device_attribute *da, char *buf);
 static struct qfx5210_64x_psu_data *qfx5210_64x_psu_update_device(struct device *dev);
 extern int juniper_i2c_cpld_read (u8 cpld_addr, u8 reg);
+/*
+ * This function is defined in juniper_i2c_cpld.c
+ */
+extern int juniper_i2c_cpld_write(unsigned short, u8, u8);
 
 /* Addresses scanned 
  */
@@ -78,6 +84,36 @@ static struct attribute *qfx5210_64x_psu_attributes[] = {
     NULL
 };
 
+static int qfx5210_cpld_soft_reset(struct notifier_block *nb,
+                                   unsigned long action, 
+                                   void *data)
+{
+    int ret = 0;
+
+    switch (action) {
+	    case SYS_POWER_OFF:
+	    case SYS_HALT:
+		    printk(KERN_CRIT "System halt/power_off\n");
+		    break;
+	    case SYS_RESTART:
+		    printk(KERN_CRIT "System restart: qfx5210_cpld_soft_reset\n");
+		    ret = juniper_i2c_cpld_write(0x65, 0x04, 0x01);
+		    if (ret) {
+			    printk(KERN_CRIT "qfx5210_cpld_soft_reset failed\n");
+		    }
+		    msleep(100);
+		    break;
+	    default:
+		    /* Do Nothing */
+		    break;
+    }
+    return NOTIFY_DONE;
+}
+
+static struct notifier_block qfx5210_nb = {
+    .notifier_call = qfx5210_cpld_soft_reset,
+};
+
 static ssize_t show_status(struct device *dev, struct device_attribute *da,
              char *buf)
 {
@@ -104,11 +140,6 @@ static const struct attribute_group qfx5210_64x_psu_group = {
 };
 
 /*
- * This function is defined in juniper_i2c_cpld.c
- */
-extern int juniper_i2c_cpld_write(unsigned short, u8, u8);
-
-/*
  * QFX5210 power off sequence
  */
 static void qfx5210_cpld_power_off(void)
@@ -125,7 +156,6 @@ static void qfx5210_cpld_power_off(void)
  * Default platform pm_power_off handler 
  */
 static void (*default_pm_power_off)(void);
-
 
 static int qfx5210_64x_psu_probe(struct i2c_client *client,
             const struct i2c_device_id *dev_id)
@@ -165,12 +195,7 @@ static int qfx5210_64x_psu_probe(struct i2c_client *client,
 
     dev_info(&client->dev, "%s: psu '%s'\n",
          dev_name(data->hwmon_dev), client->name);
-    /*
-     * Store the default poweroff handler for later usage 
-     */
-    default_pm_power_off = pm_power_off;
-    pm_power_off = qfx5210_cpld_power_off;
-
+    
     return 0;
 
 exit_remove:
@@ -189,19 +214,14 @@ static int qfx5210_64x_psu_remove(struct i2c_client *client)
     hwmon_device_unregister(data->hwmon_dev);
     sysfs_remove_group(&client->dev.kobj, &qfx5210_64x_psu_group);
     kfree(data);
-    
-    /*
-     * Restore the poweroff handler
-     */
-    pm_power_off = default_pm_power_off;
-    
+
     return 0;
 }
 
 enum psu_index 
 { 
     qfx5210_64x_psu1,
-	qfx5210_64x_psu2
+    qfx5210_64x_psu2
 };
 
 static const struct i2c_device_id qfx5210_64x_psu_id[] = {
@@ -259,11 +279,37 @@ exit:
 
 static int __init qfx5210_64x_psu_init(void)
 {
+    /*
+     * Store the default poweroff handler for later usage 
+     */
+    default_pm_power_off = pm_power_off;
+    /*
+     * Register the cpld poweroff handler
+     */
+    pm_power_off = qfx5210_cpld_power_off;
+    /*
+     * Register the cpld soft reset handler
+     */
+    if(register_reboot_notifier(&qfx5210_nb)) {
+    	printk(KERN_ALERT "Restart handler registration failed\n");
+    }
+
     return i2c_add_driver(&qfx5210_64x_psu_driver);
 }
 
 static void __exit qfx5210_64x_psu_exit(void)
 {
+    /*
+     * Restore the poweroff handler
+     */
+    pm_power_off = default_pm_power_off;
+    /*
+     * Unregister the cpld soft reset handler
+     */
+    if (!unregister_restart_handler(&qfx5210_nb)) {
+    	printk(KERN_CRIT "Failed to uregister restart handler\n");
+    }
+
     i2c_del_driver(&qfx5210_64x_psu_driver);
 }
 

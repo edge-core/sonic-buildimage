@@ -53,10 +53,16 @@ except ImportError as e:
 
 # Deafults
 VERSION = '1.0'
-FUNCTION_NAME = '/usr/local/bin/juniper_qfx5210_monitor'
+FUNCTION_NAME = '/var/log/juniper_qfx5210_monitor'
+
+
+global log_file
+global log_level
 
 
 global isPlatformAFI
+global isFireThresholdReached 
+FireThresholdSecsRemaining = 120
             
 temp_policy_AFI = {
     0: [[70, 0, 48000], [70, 48000, 53000], [80, 53000, 0], [80, 53000, 58000], [100, 58000, 0], ['Yellow Alarm', 64000, 70000], ['Red Alarm', 70000, 75000], ['Fire Shut Alarm', 75000, 0]],
@@ -268,6 +274,8 @@ class QFX5210_ThermalUtil(object):
     def getSensorTemp(self):
         sum = 0
         global isPlatformAFI
+        global isFireThresholdReached
+        global FireThresholdSecsRemaining 
         #AFI
         if (isPlatformAFI == True):
             temp_policy = temp_policy_AFI
@@ -287,6 +295,17 @@ class QFX5210_ThermalUtil(object):
             5: [0,0,0,0,0,0,0,0],
             6: [0,0,0,0,0,0,0,0],
         }    
+        # if the Firethreshold Flag is set and 120 seconds have elapsed, invoking the "poweroff" to shutdown the box
+        if (isFireThresholdReached == True):
+            firethr = FireThresholdSecsRemaining - 20
+            logging.critical('CRITICAL: Fire Threshold reached: System is going to shutdown in %s seconds', firethr)
+            print "Fire Threshold reached: System is going to shutdown in %s seconds\n" % firethr
+            FireThresholdSecsRemaining = FireThresholdSecsRemaining - 20
+            if (FireThresholdSecsRemaining == 20):
+                isFireThresholdReached == False
+                time.sleep(20)
+                cmd = "poweroff"
+                returned_value = os.system(cmd)
 
         for x in range(self.SENSOR_CORETEMP_NUM_ON_MAIN_BOARD):
             if x < self.SENSOR_NUM_ON_MAIN_BOARD:
@@ -332,6 +351,9 @@ class QFX5210_ThermalUtil(object):
         fan = QFX5210_FanUtil()
         # CHECK IF ANY TEMPERATURE SENSORS HAS SET FIRE SHUTDOWN FLAG
         if SensorFlag[0][7] or SensorFlag[1][7] or SensorFlag[2][7] or SensorFlag[3][7] or SensorFlag[4][7] or SensorFlag[5][7] or SensorFlag[6][7]:
+            isFireThresholdReached = True
+            logging.critical('CRITICAL: Fire Threshold reached: System is going to shutdown in 120 seconds') 
+            print "CRITICAL: Fire Threshold reached: System is going to shutdown in 120 seconds\n"
             value = self.get_alarm_led_brightness()
             if ( value > 0):
                 self.set_alarm_led_brightness(0)
@@ -399,11 +421,31 @@ class QFX5210_ThermalUtil(object):
 
 class device_monitor(object):
     
-    def __init__(self):
+    def __init__(self, log_file, log_level):
+        
         global isPlatformAFI
+        global isFireThresholdReached
         MASTER_LED_PATH = '/sys/class/leds/master/brightness'
         SYSTEM_LED_PATH = '/sys/class/leds/system/brightness'
         FANTYPE_PATH = '/sys/bus/i2c/devices/17-0068/fan1_direction'
+
+        """Needs a logger and a logger level."""
+        # set up logging to file
+        logging.basicConfig(
+            filename=log_file,
+            filemode='w',
+            level=log_level,
+            format= '[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s',
+            datefmt='%H:%M:%S'
+        )
+
+        # set up logging to console
+        if log_level == logging.DEBUG:
+            console = logging.StreamHandler()
+            console.setLevel(log_level)
+            formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
+            console.setFormatter(formatter)
+            logging.getLogger('').addHandler(console)
 
         import sonic_platform
         platform = sonic_platform.platform.Platform()
@@ -418,7 +460,8 @@ class device_monitor(object):
             isPlatformAFI = False
         else:
             isPlatformAFI = True
-            
+
+        isFireThresholdReached = False
 
         master_led_value = 1
         try:
@@ -444,7 +487,10 @@ class device_monitor(object):
         thermal.getSensorTemp()
 
 def main():
-    monitor = device_monitor()
+    log_file = '%s.log' % FUNCTION_NAME
+    log_level = logging.DEBUG
+
+    monitor = device_monitor(log_file, log_level)
     while True:
         monitor.manage_device()
         time.sleep(20)
