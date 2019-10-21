@@ -20,6 +20,7 @@ class PsuUtil(PsuBase):
 
     def __init__(self):
         PsuBase.__init__(self)
+
         self.psu_path = ""
         for index in range(0, 100):
             hwmon_path = "/sys/devices/platform/mlxplat/mlxreg-hotplug/hwmon/hwmon{}/".format(index)
@@ -65,14 +66,7 @@ class PsuUtil(PsuBase):
         :param index: An integer, 1-based index of the PSU of which to query status
         :return: Boolean, True if PSU is plugged, False if not
         """
-        if index is None:
+        if not isinstance(index, int):
             return False
 
-        status = 0
-        try:
-            with open(self.psu_path + self.psu_presence.format(index), 'r') as presence_status:
-                status = int(presence_status.read())
-        except IOError:
-            return False
-
-        return status == 1
+        return index > 0 and index <= self.get_num_psus()

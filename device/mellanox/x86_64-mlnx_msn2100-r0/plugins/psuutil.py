@@ -66,4 +66,7 @@ class PsuUtil(PsuBase):
         :param index: An integer, 1-based index of the PSU of which to query status
         :return: Boolean, True if PSU is plugged, False if not
         """
-        return isinstance(index, int) and index > 0 and index <= self.get_num_psus()
+        if not isinstance(index, int):
+            return False
+
+        return index > 0 and index <= self.get_num_psus()
