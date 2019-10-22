@@ -65,28 +65,41 @@
 
 {%- macro generate_profile_lists(port_names) %}
     "BUFFER_PORT_INGRESS_PROFILE_LIST": {
-        "{{ port_names }}": {
+{% for port in port_names.split(',') %}
+        "{{ port }}": {
             "profile_list" : "[BUFFER_PROFILE|ingress_lossless_profile],[BUFFER_PROFILE|ingress_lossy_profile]"
-        }
+        }{% if not loop.last %},{% endif %}
+
+{% endfor %}
     },
     "BUFFER_PORT_EGRESS_PROFILE_LIST": {
-        "{{ port_names }}": {
+{% for port in port_names.split(',') %}
+        "{{ port }}": {
             "profile_list" : "[BUFFER_PROFILE|egress_lossless_profile],[BUFFER_PROFILE|egress_lossy_profile]"
-        }
+        }{% if not loop.last %},{% endif %}
+
+{% endfor %}
     }
 {%- endmacro %}
 
 {%- macro generate_queue_buffers(port_names) %}
     "BUFFER_QUEUE": {
-        "{{ port_names }}|3-4": {
+{% for port in port_names.split(',') %}
+        "{{ port }}|3-4": {
             "profile" : "[BUFFER_PROFILE|egress_lossless_profile]"
         },
-        "{{ port_names }}|0-1": {
+{% endfor %}
+{% for port in port_names.split(',') %}
+        "{{ port }}|0-2": {
             "profile" : "[BUFFER_PROFILE|q_lossy_profile]"
         },
-        "{{ port_names }}|5": {
+{% endfor %}
+{% for port in port_names.split(',') %}
+        "{{ port }}|5-6": {
             "profile" : "[BUFFER_PROFILE|q_lossy_profile]"
-        }
+        }{% if not loop.last %},{% endif %}
+
+{% endfor %}
     }
 {%- endmacro %}
 
