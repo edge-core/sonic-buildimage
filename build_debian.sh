@@ -282,6 +282,13 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     mcelog
 fi
 
+## Set /etc/shadow permissions to -rw-------.
+sudo LANG=c chroot $FILESYSTEM_ROOT chmod 600 /etc/shadow
+
+## Set /etc/passwd, /etc/group permissions to -rw-r--r--.
+sudo LANG=c chroot $FILESYSTEM_ROOT chmod 644 /etc/passwd
+sudo LANG=c chroot $FILESYSTEM_ROOT chmod 644 /etc/group
+
 #Adds a locale to a debian system in non-interactive mode
 sudo sed -i '/^#.* en_US.* /s/^#//' $FILESYSTEM_ROOT/etc/locale.gen && \
     sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT locale-gen "en_US.UTF-8"
