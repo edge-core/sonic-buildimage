@@ -75,6 +75,9 @@ class TestCfgGen(TestCase):
         output = self.run_script(argument)
         self.assertEqual(output.strip(), 'value1\nvalue2')
 
+    # FIXME: This test depends heavily on the ordering of the interfaces and
+    # it is not at all intuitive what that ordering should be. Could make it
+    # more robust by adding better parsing logic.
     def test_minigraph_acl(self):
         argument = '-m "' + self.sample_graph_t0 + '" -p "' + self.port_config + '" -v ACL_TABLE'
         output = self.run_script(argument, True)
@@ -83,11 +86,11 @@ class TestCfgGen(TestCase):
                                          "Warning: ignore interface 'fortyGigE0/2' in DEVICE_NEIGHBOR as it is not in the port_config.ini\n"
                                          "{'DATAACL': {'type': 'L3', 'policy_desc': 'DATAACL', 'ports': ['PortChannel01', 'PortChannel02', 'PortChannel03', 'PortChannel04']}, "
                                          "'NTP_ACL': {'services': ['NTP'], 'type': 'CTRLPLANE', 'policy_desc': 'NTP_ACL'}, "
-                                         "'EVERFLOW': {'type': 'MIRROR', 'policy_desc': 'EVERFLOW', 'ports': ['PortChannel01', 'PortChannel02', 'PortChannel03', 'PortChannel04', 'Ethernet24', 'Ethernet40', 'Ethernet20', 'Ethernet44', 'Ethernet48', 'Ethernet28', 'Ethernet96', 'Ethernet92', 'Ethernet76', 'Ethernet72', 'Ethernet52', 'Ethernet80', 'Ethernet56', 'Ethernet32', 'Ethernet16', 'Ethernet36', 'Ethernet12', 'Ethernet60', 'Ethernet8', 'Ethernet4', 'Ethernet0', 'Ethernet64', 'Ethernet68', 'Ethernet84', 'Ethernet88', 'Ethernet108', 'Ethernet104', 'Ethernet100']}, "
+                                         "'EVERFLOW': {'type': 'MIRROR', 'policy_desc': 'EVERFLOW', 'ports': ['PortChannel01', 'PortChannel02', 'PortChannel03', 'PortChannel04', 'Ethernet4']}, "
                                          "'ROUTER_PROTECT': {'services': ['SSH', 'SNMP'], 'type': 'CTRLPLANE', 'policy_desc': 'ROUTER_PROTECT'}, "
                                          "'SNMP_ACL': {'services': ['SNMP'], 'type': 'CTRLPLANE', 'policy_desc': 'SNMP_ACL'}, "
                                          "'SSH_ACL': {'services': ['SSH'], 'type': 'CTRLPLANE', 'policy_desc': 'SSH_ACL'}, "
-                                         "'EVERFLOWV6': {'type': 'MIRRORV6', 'policy_desc': 'EVERFLOWV6', 'ports': ['PortChannel01', 'PortChannel02', 'PortChannel03', 'PortChannel04', 'Ethernet24', 'Ethernet40', 'Ethernet20', 'Ethernet44', 'Ethernet48', 'Ethernet28', 'Ethernet96', 'Ethernet92', 'Ethernet76', 'Ethernet72', 'Ethernet52', 'Ethernet80', 'Ethernet56', 'Ethernet32', 'Ethernet16', 'Ethernet36', 'Ethernet12', 'Ethernet60', 'Ethernet8', 'Ethernet4', 'Ethernet0', 'Ethernet64', 'Ethernet68', 'Ethernet84', 'Ethernet88', 'Ethernet108', 'Ethernet104', 'Ethernet100']}}")
+                                         "'EVERFLOWV6': {'type': 'MIRRORV6', 'policy_desc': 'EVERFLOWV6', 'ports': ['PortChannel01', 'PortChannel02', 'PortChannel03', 'PortChannel04', 'Ethernet4']}}")
 
 #     everflow portion is not used
 #     def test_minigraph_everflow(self):
@@ -145,6 +148,9 @@ class TestCfgGen(TestCase):
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "{'name': 'ARISTA04T1', 'port': 'Ethernet1/1'}")
 
+    # FIXME: This test depends heavily on the ordering of the interfaces and
+    # it is not at all intuitive what that ordering should be. Could make it
+    # more robust by adding better parsing logic.
     def test_minigraph_extra_neighbors(self):
         argument = '-m "' + self.sample_graph_t0 + '" -p "' + self.port_config + '" -v DEVICE_NEIGHBOR'
         output = self.run_script(argument)
@@ -152,6 +158,7 @@ class TestCfgGen(TestCase):
                 "{'Ethernet116': {'name': 'ARISTA02T1', 'port': 'Ethernet1/1'}, "
                 "'Ethernet124': {'name': 'ARISTA04T1', 'port': 'Ethernet1/1'}, "
                 "'Ethernet112': {'name': 'ARISTA01T1', 'port': 'Ethernet1/1'}, "
+                "'Ethernet4': {'name': 'Servers0', 'port': 'eth0'}, "
                 "'Ethernet120': {'name': 'ARISTA03T1', 'port': 'Ethernet1/1'}}")
 
     def test_minigraph_port_description(self):
