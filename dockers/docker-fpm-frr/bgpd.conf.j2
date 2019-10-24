@@ -6,28 +6,13 @@
 !
 {% endblock banner %}
 !
-{% block system_init %}
-hostname {{ DEVICE_METADATA['localhost']['hostname'] }}
-password zebra
-log syslog informational
-log facility local4
+{% include "daemons.common.conf.j2" %}
+!
 agentx
-! enable password {# {{ en_passwd }} TODO: param needed #}
-{% endblock system_init %}
 !
 {% if DEVICE_METADATA['localhost']['type'] == "SpineChassisFrontendRouter" %}
 {%  include "bgpd.conf.spine_chassis_frontend_router.j2" %}
-{% else%}
-{%  include "bgpd.conf.default.j2" %}
 {% endif %}
 !
-{% if DEVICE_METADATA['localhost'].has_key('bgp_asn') %}
-maximum-paths 64
-!
-route-map ISOLATE permit 10
-set as-path prepend {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
-{% endif %}
-!
-route-map set-next-hop-global-v6 permit 10
-set ipv6 next-hop prefer-global
+{% include "bgpd.conf.default.j2" %}
 !

@@ -103,6 +103,14 @@ def pfx_filter(value):
         table[key] = val
     return table
 
+def ip_network(value):
+    """ Extract network for network prefix """
+    try:
+        r_v = netaddr.IPNetwork(value)
+    except:
+        return "Invalid ip address %s" % value
+    return r_v.network
+
 class FormatConverter:
     """Convert config DB based schema to legacy minigraph based schema for backward capability.
 We will move to DB schema and remove this class when the config templates are modified.
@@ -265,6 +273,7 @@ def main():
         env.filters['ipv6'] = is_ipv6
         env.filters['unique_name'] = unique_name
         env.filters['pfx_filter'] = pfx_filter
+        env.filters['ip_network'] = ip_network
         for attr in ['ip', 'network', 'prefixlen', 'netmask']:
             env.filters[attr] = partial(prefix_attr, attr)
         template = env.get_template(template_file)

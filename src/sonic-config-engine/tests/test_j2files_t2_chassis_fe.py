@@ -16,42 +16,39 @@ class TestJ2FilesT2ChassisFe(TestCase):
         self.t2_chassis_fe_port_config = os.path.join(self.test_dir, 't2-chassis-fe-port-config.ini')
         self.output_file = os.path.join(self.test_dir, 'output')
 
-    def run_script(self, argument):
-        print 'CMD: sonic-cfggen ' + argument
-        return subprocess.check_output(self.script_file + ' ' + argument, shell=True)
-
-    # Test zebra.conf in FRR docker for a T2 chassis frontend (fe)
-    def test_t2_chassis_fe_zebra_frr(self):
-        conf_template = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-fpm-frr', 'zebra.conf.j2')
-        argument = '-m ' + self.t2_chassis_fe_minigraph + ' -p ' + self.t2_chassis_fe_port_config + ' -t ' + conf_template + ' > ' + self.output_file
-        self.run_script(argument)
-        self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', 't2-chassis-fe-zebra.conf'), self.output_file))
-
-    # Test zebra.conf in FRR docker for a T2 chassis frontend (fe) switch with port channel interfaces
-    def test_t2_chassis_fe_pc_zebra_frr(self):
-        conf_template = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-fpm-frr', 'zebra.conf.j2')
-        argument = '-m ' + self.t2_chassis_fe_pc_minigraph + ' -p ' + self.t2_chassis_fe_port_config + ' -t ' + conf_template + ' > ' + self.output_file
-        self.run_script(argument)
-        self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', 't2-chassis-fe-pc-zebra.conf'), self.output_file))
-
-    # Test zebra.conf in FRR docker for a T2 chassis frontend (fe) switch with specified VNI
-    def test_t2_chassis_fe_vni_zebra_frr(self):
-        conf_template = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-fpm-frr', 'zebra.conf.j2')
-        argument = '-m ' + self.t2_chassis_fe_vni_minigraph + ' -p ' + self.t2_chassis_fe_port_config + ' -t ' + conf_template + ' > ' + self.output_file
-        self.run_script(argument)
-        self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', 't2-chassis-fe-vni-zebra.conf'), self.output_file))
-
-    # Test bgpd.conf in FRR docker for a T2 chassis frontend (fe)
-    def test_t2_chassis_frontend_bgpd_frr(self):
-        conf_template = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-fpm-frr', 'bgpd.conf.j2')
-        argument = '-m ' + self.t2_chassis_fe_minigraph + ' -p ' + self.t2_chassis_fe_port_config + ' -t ' + conf_template + ' > ' + self.output_file
-        self.run_script(argument)
-        self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', 't2-chassis-fe-bgpd.conf'), self.output_file))
-
     def tearDown(self):
         try:
             os.remove(self.output_file)
         except OSError:
             pass
 
+    def run_script(self, argument):
+        print 'CMD: sonic-cfggen ' + argument
+        return subprocess.check_output(self.script_file + ' ' + argument, shell=True)
+
+    def run_diff(self, file1, file2):
+        return subprocess.check_output('diff -u {} {} || true'.format(file1, file2), shell=True)
+
+    def run_case(self, minigraph, template, target):
+        conf_template = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-fpm-frr', template)
+        cmd = '-m ' + minigraph + ' -p ' + self.t2_chassis_fe_port_config + ' -t ' + conf_template + ' > ' + self.output_file
+        self.run_script(cmd)
+
+        original_filename = os.path.join(self.test_dir, 'sample_output', target)
+        r = filecmp.cmp(original_filename, self.output_file)
+        diff_output = self.run_diff(original_filename, self.output_file) if not r else ""
+
+        return r, "Diff:\n" + diff_output
+
+    # Test zebra.conf in FRR docker for a T2 chassis frontend (fe)
+    def test_t2_chassis_fe_zebra_frr(self):
+        self.assertTrue(*self.run_case(self.t2_chassis_fe_minigraph, 'zebra.conf.j2', 't2-chassis-fe-zebra.conf'))
+
+    # Test zebra.conf in FRR docker for a T2 chassis frontend (fe) switch with specified VNI
+    def test_t2_chassis_fe_vni_zebra_frr(self):
+        self.assertTrue(*self.run_case(self.t2_chassis_fe_vni_minigraph, 'zebra.conf.j2', 't2-chassis-fe-vni-zebra.conf'))
+
+    # Test bgpd.conf in FRR docker for a T2 chassis frontend (fe)
+    def test_t2_chassis_frontend_bgpd_frr(self):
+        self.assertTrue(*self.run_case(self.t2_chassis_fe_minigraph, 'bgpd.conf.j2', 't2-chassis-fe-bgpd.conf'))
 

@@ -33,8 +33,6 @@ rm -f /var/run/rsyslogd.pid
 
 supervisorctl start rsyslogd
 
-supervisorctl start bgpcfgd
-
 # Start Quagga processes
 supervisorctl start zebra
 supervisorctl start staticd
@@ -45,3 +43,5 @@ if [ "$CONFIG_TYPE" == "unified" ]; then
 fi
 
 supervisorctl start fpmsyncd
+
+supervisorctl start bgpcfgd
