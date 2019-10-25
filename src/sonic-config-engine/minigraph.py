@@ -800,8 +800,12 @@ def parse_xml(filename, platform=None, port_config_file=None):
     results['DHCP_SERVER'] = dict((item, {}) for item in dhcp_servers)
     results['NTP_SERVER'] = dict((item, {}) for item in ntp_servers)
     results['TACPLUS_SERVER'] = dict((item, {'priority': '1', 'tcp_port': '49'}) for item in tacacs_servers)
-
     results['ACL_TABLE'] = filter_acl_mirror_table_bindings(acls, neighbors, pcs)
+    results['FEATURE'] = {
+        'telemetry': {
+            'status': 'enabled'
+        }
+    }
 
     # Do not configure the minigraph's mirror session, which is currently unused
     # mirror_sessions = {}
