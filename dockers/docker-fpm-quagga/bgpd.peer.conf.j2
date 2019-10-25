@@ -1,0 +1,34 @@
+{% block bgp_session %}
+{% if bgp_session['asn'] | int != 0 %}
+  neighbor {{ neighbor_addr }} remote-as {{ bgp_session['asn'] }}
+  neighbor {{ neighbor_addr }} description {{ bgp_session['name'] }}
+{# set the bgp neighbor timers if they have not default values #}
+{% if     (bgp_session['keepalive'] is defined and bgp_session['keepalive'] | int != 60)
+      or  (bgp_session['holdtime'] is defined  and bgp_session['holdtime']  | int != 180) %}
+  neighbor {{ neighbor_addr }} timers {{ bgp_session['keepalive'] }} {{ bgp_session['holdtime'] }}
+{% endif %}
+{% if bgp_session.has_key('admin_status') and bgp_session['admin_status'] == 'down' or not bgp_session.has_key('admin_status') and DEVICE_METADATA['localhost'].has_key('default_bgp_status') and DEVICE_METADATA['localhost']['default_bgp_status'] == 'down' %}
+  neighbor {{ neighbor_addr }} shutdown
+{% endif %}
+{% if neighbor_addr | ipv4 %}
+  address-family ipv4 unicast
+{% if DEVICE_METADATA['localhost']['type'] == 'ToRRouter' %}
+    neighbor {{ neighbor_addr }} allowas-in 1
+{% endif %}
+    neighbor {{ neighbor_addr }} activate
+    neighbor {{ neighbor_addr }} soft-reconfiguration inbound
+    maximum-paths 64
+  exit-address-family
+{% endif %}
+{% if neighbor_addr | ipv6 %}
+  address-family ipv6
+{% if DEVICE_METADATA['localhost']['type'] == 'ToRRouter' %}
+    neighbor {{ neighbor_addr }} allowas-in 1
+{% endif %}
+    neighbor {{ neighbor_addr }} activate
+    neighbor {{ neighbor_addr }} soft-reconfiguration inbound
+    maximum-paths 64
+  exit-address-family
+{% endif %}
+{% endif %}
+{% endblock bgp_session %}
