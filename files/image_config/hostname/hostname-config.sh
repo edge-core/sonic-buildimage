@@ -8,9 +8,15 @@ hostname -F /etc/hostname
 
 # Remove the old hostname entry from hosts file.
 # But, 'localhost' entry is used by multiple applications. Don't remove it altogether.
+# Edit contents of /etc/hosts and put in /etc/hosts.new
 if [ $CURRENT_HOSTNAME  != "localhost" ] || [ $CURRENT_HOSTNAME == $HOSTNAME ] ;  then
- sed -i "/\s$CURRENT_HOSTNAME$/d" /etc/hosts
+    sed "/\s$CURRENT_HOSTNAME$/d" /etc/hosts > /etc/hosts.new
+else
+    cp -f /etc/hosts /etc/hosts.new
 fi
 
-echo "127.0.0.1 $HOSTNAME" >> /etc/hosts
+echo "127.0.0.1 $HOSTNAME" >> /etc/hosts.new
 
+# Swap file: hosts.new and hosts
+mv -f /etc/hosts     /etc/hosts.old
+mv -f /etc/hosts.new /etc/hosts
