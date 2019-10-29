@@ -116,9 +116,14 @@ class BGPConfigManager(object):
         for key, op, data in self.bgp_messages:
             if op == swsscommon.SET_COMMAND:
                 if key not in self.peers:
-                    cmds.append(self.bgp_peer_add_template.render(DEVICE_METADATA=self.meta, neighbor_addr=key, bgp_session=data))
-                    syslog.syslog(syslog.LOG_INFO, 'Peer {} added with attributes {}'.format(key, data))
-                    self.peers.add(key)
+                    try:
+                        txt = self.bgp_peer_add_template.render(DEVICE_METADATA=self.meta, neighbor_addr=key, bgp_session=data)
+                        cmds.append(txt)
+                    except:
+                        syslog.syslog(syslog.LOG_ERR, 'Peer {}. Error in rendering the template for "SET" command {}'.format(key, data))
+                    else:
+                        syslog.syslog(syslog.LOG_INFO, 'Peer {} added with attributes {}'.format(key, data))
+                        self.peers.add(key)
                 else:
                     # when the peer is already configured we support "shutdown/no shutdown"
                     # commands for the peers only
