@@ -32,7 +32,9 @@ debs/{{ deb }}{{' '}}
 ##debs/{{ deb }}{{' '}}
 ##{%- endfor %}
 
-COPY ["start.sh", "/usr/bin/"]
+COPY ["files/dsserve", "files/npx_diag", "start.sh", "/usr/bin/"]
+RUN chmod +x /usr/bin/npx_diag /usr/bin/dsserve
+
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 
 ## Clean up
