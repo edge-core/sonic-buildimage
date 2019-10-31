@@ -10,7 +10,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	git clone https://github.com/sflow/host-sflow
 
 	pushd ./host-sflow
-	git checkout -b sflow -f 996f5ec
+	git checkout -b sflow tags/v2.0.25-4
 
         # Apply patch series
 	stg init
