@@ -16,6 +16,16 @@ See usage string for detail description for arguments.
 """
 
 from __future__ import print_function
+
+# monkey patch re.compile to do lazy regular expression compilation.
+# This is done to improve import time of jinja2, yaml, natsort modules, because they
+# do many regexp compilation at import time, so it will speed up sonic-cfggen invocations
+# that do not require template generation or yaml loading. sonic-cfggen is used in so many places
+# during system boot up that importing jinja2, yaml, natsort every time
+# without lazy regular expression compilation affect boot up time.
+# FIXME: remove this once sonic-cfggen and templates dependencies are replaced with a faster approach
+import lazy_re
+
 import sys
 import os.path
 import argparse
@@ -33,7 +43,8 @@ from sonic_device_util import get_platform_info
 from sonic_device_util import get_system_mac
 from config_samples import generate_sample_config
 from config_samples import get_available_config
-from swsssdk import ConfigDBConnector
+from swsssdk import SonicV2Connector, ConfigDBConnector
+from redis_bcc import RedisBytecodeCache
 from collections import OrderedDict
 from natsort import natsorted
 
@@ -267,7 +278,8 @@ def main():
         paths  = ['/', '/usr/share/sonic/templates', os.path.dirname(template_file)]
         loader = jinja2.FileSystemLoader(paths)
 
-        env = jinja2.Environment(loader=loader, trim_blocks=True)
+        redis_bcc = RedisBytecodeCache(SonicV2Connector(host='127.0.0.1'))
+        env = jinja2.Environment(loader=loader, trim_blocks=True, bytecode_cache=redis_bcc)
         env.filters['sort_by_port_index'] = sort_by_port_index
         env.filters['ipv4'] = is_ipv4
         env.filters['ipv6'] = is_ipv6
