@@ -2,7 +2,7 @@
 Description=SNMP container
 Requires=updategraph.service
 Requisite=swss.service
-After=updategraph.service swss.service
+After=updategraph.service swss.service syncd.service
 Before=ntp-config.service
 StartLimitIntervalSec=1200
 StartLimitBurst=3

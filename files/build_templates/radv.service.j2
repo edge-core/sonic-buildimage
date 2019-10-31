@@ -1,7 +1,7 @@
 [Unit]
 Description=Router advertiser container
 Requires=updategraph.service
-After=updategraph.service swss.service
+After=updategraph.service swss.service syncd.service
 Before=ntp-config.service
 StartLimitIntervalSec=1200
 StartLimitBurst=3

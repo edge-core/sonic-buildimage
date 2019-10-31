@@ -1,7 +1,7 @@
 [Unit]
 Description=DHCP relay container
 Requires=updategraph.service swss.service teamd.service
-After=updategraph.service swss.service teamd.service
+After=updategraph.service swss.service syncd.service teamd.service
 Before=ntp-config.service
 
 [Service]

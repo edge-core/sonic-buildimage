@@ -1,7 +1,7 @@
 [Unit]
 Description=Telemetry container
 Requires=database.service
-After=database.service
+After=database.service swss.service syncd.service
 Before=ntp-config.service
 
 [Service]

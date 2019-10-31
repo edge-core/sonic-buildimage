@@ -1,7 +1,7 @@
 [Unit]
 Description=LLDP container
 Requires=updategraph.service
-After=updategraph.service
+After=updategraph.service swss.service syncd.service
 Before=ntp-config.service
 
 [Service]
