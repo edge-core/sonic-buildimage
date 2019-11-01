@@ -25,6 +25,14 @@
 {% if bgp_session['nhopself'] | int != 0 %}
     neighbor {{ neighbor_addr }} next-hop-self
 {% endif %}
+{% if  bgp_session["asn"] == DEVICE_METADATA['localhost']['bgp_asn']
+   and DEVICE_METADATA['localhost']['type'] == "SpineChassisFrontendRouter"
+   and (not bgp_session.has_key("local_addr") or bgp_session["local_addr"] not in interfaces_in_vnets) %}
+  address-family l2vpn evpn
+    neighbor {{ neighbor_addr }} activate
+    advertise-all-vni
+  exit-address-family
+{% endif %}
     neighbor {{ neighbor_addr }} activate
   exit-address-family
 {% endblock bgp_peer %}
