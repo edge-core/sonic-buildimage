@@ -386,8 +386,8 @@ def parse_cpg(cpg, hname):
                                 'name': name,
                                 'ip_range': ip_range_group
                             }
-                            if bgpPeer.find(str(QName(ns1, "Address"))) is not None:
-                                bgp_peers_with_range[name]['src_address'] = bgpPeer.find(str(QName(ns1, "Address"))).text
+                            if bgpPeer.find(str(QName(ns, "Address"))) is not None:
+                                bgp_peers_with_range[name]['src_address'] = bgpPeer.find(str(QName(ns, "Address"))).text
                             if bgpPeer.find(str(QName(ns1, "PeerAsn"))) is not None:
                                 bgp_peers_with_range[name]['peer_asn'] = bgpPeer.find(str(QName(ns1, "PeerAsn"))).text
                 else:
