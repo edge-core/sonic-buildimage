@@ -80,6 +80,7 @@ class BGPConfigManager(object):
     def __init__(self, daemon):
         self.bgp_asn = None
         self.meta = None
+        self.neig_meta = {}
         self.bgp_messages = []
         self.peers = self.load_peers() # we can have bgp monitors peers here. it could be fixed by adding support for it here
         fabric = TemplateFabric()
@@ -88,6 +89,7 @@ class BGPConfigManager(object):
         self.bgp_peer_shutdown = fabric.from_string('neighbor {{ neighbor_addr }} shutdown')
         self.bgp_peer_no_shutdown = fabric.from_string('no neighbor {{ neighbor_addr }} shutdown')
         daemon.add_manager(swsscommon.CONFIG_DB, swsscommon.CFG_DEVICE_METADATA_TABLE_NAME, self.__metadata_handler)
+        daemon.add_manager(swsscommon.CONFIG_DB, swsscommon.CFG_DEVICE_NEIGHBOR_METADATA_TABLE_NAME, self.__neighbor_metadata_handler)
         daemon.add_manager(swsscommon.CONFIG_DB, swsscommon.CFG_BGP_NEIGHBOR_TABLE_NAME, self.__bgp_handler)
 
     def load_peers(self):
@@ -111,13 +113,30 @@ class BGPConfigManager(object):
         self.bgp_asn = data["bgp_asn"]
         self.__update_bgp()
 
+    def __neighbor_metadata_handler(self, key, op, data):
+        if op == swsscommon.SET_COMMAND:
+            self.neig_meta[key] = data
+        elif op == swsscommon.DEL_COMMAND:
+            if key in self.neig_meta:
+                del self.neig_meta[key]
+            else:
+                syslog.syslog(syslog.LOG_ERR,"Can't remove key '%s' from neighbor metadata handler. The key doesn't exist" % key)
+        else:
+            syslog.syslog(syslog.LOG_ERR,"Wrong operation '%s' for neighbor metadata handler" % op)
+        self.__update_bgp()
+
     def __update_bgp(self):
         cmds = []
+        new_bgp_messages = []
         for key, op, data in self.bgp_messages:
             if op == swsscommon.SET_COMMAND:
                 if key not in self.peers:
+                    if 'name' in data and data['name'] not in self.neig_meta:
+                        # DEVICE_NEIGHBOR_METADATA should be populated before the rendering
+                        new_bgp_messages.append((key, op, data))
+                        continue
                     try:
-                        txt = self.bgp_peer_add_template.render(DEVICE_METADATA=self.meta, neighbor_addr=key, bgp_session=data)
+                        txt = self.bgp_peer_add_template.render(DEVICE_METADATA=self.meta, DEVICE_NEIGHBOR_METADATA=self.neig_meta, neighbor_addr=key, bgp_session=data)
                         cmds.append(txt)
                     except:
                         syslog.syslog(syslog.LOG_ERR, 'Peer {}. Error in rendering the template for "SET" command {}'.format(key, data))
@@ -145,7 +164,7 @@ class BGPConfigManager(object):
                     self.peers.remove(key)
                 else:
                     syslog.syslog(syslog.LOG_WARNING, 'Peer {} is not found'.format(key))
-        self.bgp_messages = []
+        self.bgp_messages = new_bgp_messages
 
         if len(cmds) == 0:
             return
