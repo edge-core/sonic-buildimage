@@ -205,6 +205,7 @@ enum {
     STATE_START,
     STATE_WRITE,
     STATE_READ,
+    STATE_STOP,
     STATE_ERROR,
 };
 
@@ -591,10 +592,13 @@ static void fpgai2c_process(struct fpgalogic_i2c *i2c)
 
     PRINT("fpgai2c_process in. status reg :0x%x\n", stat);
 
-    if ((i2c->state == STATE_DONE) || (i2c->state == STATE_ERROR)) {
+    if ((i2c->state == STATE_STOP) || (i2c->state == STATE_ERROR)) {
         /* stop has been sent */
         PRINT("fpgai2c_process FPGAI2C_REG_CMD_IACK stat = 0x%x Set FPGAI2C_REG_CMD(0%x) FPGAI2C_REG_CMD_IACK = 0x%x\n",stat, FPGAI2C_REG_CMD, FPGAI2C_REG_CMD_IACK);
         fpgai2c_reg_set(i2c, FPGAI2C_REG_CMD, FPGAI2C_REG_CMD_IACK);
+        if(i2c->state == STATE_STOP) {
+            i2c->state = STATE_DONE;
+        }
         wake_up(&i2c->wait);
         return;
     }
@@ -648,7 +652,7 @@ static void fpgai2c_process(struct fpgalogic_i2c *i2c)
                     ? STATE_READ : STATE_WRITE;
             }
         } else {
-            i2c->state = STATE_DONE;
+            i2c->state = STATE_STOP;
             fpgai2c_stop(i2c);
             return;
         }
@@ -722,6 +726,7 @@ static int fpgai2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
 
 
     } else {
+        ret = -ETIMEDOUT;
         PRINT("Set FPGAI2C_REG_DATA(0%x) val = 0x%x\n",FPGAI2C_REG_DATA,
                 (i2c->msg->addr << 1) |    ((i2c->msg->flags & I2C_M_RD) ? 1:0));
 
@@ -733,9 +738,8 @@ static int fpgai2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
         /* Interrupt mode */
         if (wait_event_timeout(i2c->wait, (i2c->state == STATE_ERROR) ||
                     (i2c->state == STATE_DONE), HZ))
-            return (i2c->state == STATE_DONE) ? num : -EIO;
-        else
-            return -ETIMEDOUT;
+            ret = (i2c->state == STATE_DONE) ? num : -EIO;
+        return ret;
     }
 }
 
