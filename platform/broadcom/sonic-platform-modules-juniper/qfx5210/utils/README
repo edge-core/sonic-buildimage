@@ -62,7 +62,23 @@ The status registers are mapped under /sys/bus/i2c/devices/9-0050 and
 SFPs
 ====
 There are 64 QSFP+ modules supported in qfx5210 platform. EEPORMs will be 
-mapped under /sys/bus/i2c/devices/[25-88]-0050/ sysfs directory
+mapped under /sys/bus/i2c/devices/[25-88]-0050/ sysfs directory.
+
+FEC should be turned on for SR4 optics and should be turned off for LR4
+optics.
+
+As an example, see this configuration for FEC for 100G SR4 optics in
+/etc/sonic/config_db.json
+                           
+"Ethernet4": {
+            "admin_status": "up",
+            "alias": "Ethernet4",
+            "fec": "rs",
+            "index": "1",
+            "lanes": "65,66,67,68",
+            "mtu": "9100",
+            "speed": "100000"
+        }
 
 Sensor details
 ==============
@@ -74,8 +90,20 @@ Platform poweroff
 =================
 Linux poweroff commands such as 'poweroff', 'shutdown', 'halt', etc. will not
 power off qfx5210 platform as there are custom CPLDs control the power off 
-sequences. Use the command 'sudo platform_poweroff' to power off qfx5210 
-platform
+sequences. So acpi poweroff hooks are added for powering off the qfx5210. The 
+following messages are displayed in the console towards end of poweroff
+sequence:
+
+    [   52.500807] System halt/power_off
+    [   52.866331] reboot: Power down
+    [   52.903257] pm_power_off: qfx5210_cpld_power_off
+
+Once the above messages are seen, you can safely remove the power to the system.
+
+Similarly platform reboot sequences are in place for system reboot. The following
+messages are displayed in the console when the system is rebooted:
+
+    [ 6053.163363] System restart: qfx5210_cpld_soft_reset
 
 Platform monitoring daemon
 ==========================
