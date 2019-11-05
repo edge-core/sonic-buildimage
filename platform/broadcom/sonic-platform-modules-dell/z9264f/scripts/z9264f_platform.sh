@@ -58,7 +58,7 @@ switch_board_qsfp() {
         "new_device")
                         for ((i=2;i<=65;i++));
                         do
-                            echo sff8436 0x50 > /sys/bus/i2c/devices/i2c-$i/$1
+                            echo optoe1 0x50 > /sys/bus/i2c/devices/i2c-$i/$1
                         done
                         ;;
  
@@ -70,6 +70,29 @@ switch_board_qsfp() {
                         ;;
 
         *)              echo "z9264f_platform: switch_board_qsfp: invalid command !"
+                        ;;
+    esac
+}
+
+#Attach/Detach 2 instances of EEPROM driver SFP+ ports
+#eeprom can dump data using below command
+switch_board_sfp() {
+        case $1 in
+        "new_device")
+                        for ((i=66;i<=67;i++));
+                        do
+                            echo optoe2 0x50 > /sys/bus/i2c/devices/i2c-$i/$1
+                        done
+                        ;;
+ 
+        "delete_device")
+                        for ((i=66;i<=67;i++));
+                        do
+                            echo 0x50 > /sys/bus/i2c/devices/i2c-$i/$1
+                        done
+                        ;;
+
+        *)              echo "z9264f_platform: switch_board_sfp: invalid command !"
                         ;;
     esac
 }
@@ -114,6 +137,7 @@ if [ "$1" == "init" ]; then
     sys_eeprom "new_device"
     switch_board_qsfp_mux "new_device"
     switch_board_qsfp "new_device"
+    switch_board_sfp "new_device"
     switch_board_modsel
     init_switch_port_led
     python /usr/bin/qsfp_irq_enable.py
@@ -122,7 +146,7 @@ elif [ "$1" == "deinit" ]; then
     sys_eeprom "delete_device"
     switch_board_qsfp "delete_device"
     switch_board_qsfp_mux "delete_device"
-
+    switch_board_sfp "delete_device"
     modprobe -r i2c-mux-pca954x
     modprobe -r i2c-dev
 else
