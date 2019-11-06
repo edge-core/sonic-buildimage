@@ -258,8 +258,16 @@ platform_specific() {
         aboot_machine=arista_7060dx4_32
         flash_size=28000
     fi
-    if [ "$sid" = "Smartsville" ]; then
+    if [ "$sid" = "Smartsville" ] || [ "$sid" = "SmartsvilleSsd" ]; then
         aboot_machine=arista_7280cr3_32p4
+        flash_size=7382
+    fi
+    if [ "$sid" = "SmartsvilleBK" ] || [ "$sid" = "SmartsvilleBKSsd" ]; then
+        aboot_machine=arista_7280cr3k_32p4
+        flash_size=7382
+    fi
+    if [ "$sid" = "SmartsvilleDD" ] || [ "$sid" = "SmartsvilleDDSsd" ]; then
+        aboot_machine=arista_7280cr3_32d4
         flash_size=7382
     fi
     if [ "$platform" = "rook" ] || [ "$platform" = "magpie" ] ||
