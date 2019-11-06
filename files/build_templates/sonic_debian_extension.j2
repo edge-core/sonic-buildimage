@@ -317,7 +317,7 @@ EOF
 ## Bind docker path
 if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
     sudo mkdir -p $FILESYSTEM_ROOT/dockerfs
-    sudo mount --bind dockerfs $FILESYSTEM_ROOT/dockerfs 
+    sudo mount --bind dockerfs $FILESYSTEM_ROOT/dockerfs
 fi
 
 {% if installer_images.strip() -%}
@@ -334,7 +334,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS ta
 {% endif %}
 {% endfor %}
 if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
-    sudo umount $FILESYSTEM_ROOT/dockerfs 
+    sudo umount $FILESYSTEM_ROOT/dockerfs
     sudo rm -fr $FILESYSTEM_ROOT/dockerfs
     sudo kill -9 `sudo $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS_PID` || true
 else
@@ -362,6 +362,8 @@ sudo LANG=C cp $SCRIPTS_DIR/syncd.sh $FILESYSTEM_ROOT/usr/local/bin/syncd.sh
 # It implements delayed start of services
 sudo cp $BUILD_TEMPLATES/snmp.timer $FILESYSTEM_ROOT/etc/systemd/system/
 sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable snmp.timer
+sudo cp $BUILD_TEMPLATES/telemetry.timer $FILESYSTEM_ROOT/etc/systemd/system/
+sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable telemetry.timer
 
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get purge -y python-dev
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get clean -y
