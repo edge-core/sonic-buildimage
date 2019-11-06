@@ -33,9 +33,10 @@ def main():
 
             expected = int(payload_headers['expected'])
             processname = payload_headers['processname']
+            groupname = payload_headers['groupname']
 
             # If a critical process exited unexpectedly, terminate supervisor
-            if expected == 0 and processname in critical_processes:
+            if expected == 0 and processname in critical_processes or groupname in critical_processes:
                 MSG_FORMAT_STR = "Process {} exited unxepectedly. Terminating supervisor..."
                 msg = MSG_FORMAT_STR.format(payload_headers['processname'])
                 syslog.syslog(syslog.LOG_INFO, msg)
