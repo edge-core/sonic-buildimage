@@ -1,6 +1,6 @@
 # FRRouting (frr) package
 
-FRR_VERSION = 7.1
+FRR_VERSION = 7.2
 FRR_SUBVERSION = 0
 export FRR_VERSION FRR_SUBVERSION
 

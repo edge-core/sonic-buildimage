@@ -1,7 +1,5 @@
 0001-Add-support-of-bgp-tcp-DSCP-value.patch
 0002-Reduce-severity-of-Vty-connected-from-message.patch
+0003-Use-vrf_id-for-vrf-not-tabled_id.patch
 0004-Allow-BGP-attr-NEXT_HOP-to-be-0.0.0.0-due-to-allevia.patch
-0005-Support-VRF.patch
 0006-changes-for-making-snmp-socket-non-blocking.patch
-0007-prevent-dead-fd-poll-data-port-fix-from-frr.patch
-0008-zebra-kernel-level-graceful-restart.patch
