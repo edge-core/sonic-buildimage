@@ -40,5 +40,7 @@ COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 COPY ["lldpd.conf.j2", "/usr/share/sonic/templates/"]
 COPY ["lldpd", "/etc/default/"]
 COPY ["lldpmgrd", "/usr/bin/"]
+COPY ["files/supervisor-proc-exit-listener", "/usr/bin"]
+COPY ["critical_processes", "/etc/supervisor"]
 
 ENTRYPOINT ["/usr/bin/supervisord"]
