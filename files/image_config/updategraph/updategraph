@@ -15,7 +15,10 @@ reload_minigraph()
         acl-loader update full /etc/sonic/acl.json
     fi
     config qos reload
-    pfcwd start_default
+    DEVICE_TYPE=`sonic-cfggen -m -v DEVICE_METADATA.localhost.type`
+    if [ "${DEVICE_TYPE}" != "MgmtToRRouter" ]; then
+        pfcwd start_default
+    fi
 
     if [[ -x /usr/bin/db_migrator.py ]]; then
         # Set latest version number
