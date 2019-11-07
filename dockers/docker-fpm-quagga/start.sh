@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 mkdir -p /etc/quagga
-sonic-cfggen -d -y /etc/sonic/deployment_id_asn_map.yml -t /usr/share/sonic/templates/bgpd.conf.j2 > /etc/quagga/bgpd.conf
+sonic-cfggen -d -y /etc/sonic/constants.yml -t /usr/share/sonic/templates/bgpd.conf.j2 > /etc/quagga/bgpd.conf
 
 sonic-cfggen -d -t /usr/share/sonic/templates/zebra.conf.j2 > /etc/quagga/zebra.conf
 

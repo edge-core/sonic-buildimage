@@ -3,21 +3,20 @@
 c=0
 config=$(vtysh -c "show run")
 echo "$config" | grep -q "route-map TO_BGP_PEER_V4 permit 2"
-c=$(($c+$?))
+c=$((c+$?))
 echo "$config" | grep -q "route-map TO_BGP_PEER_V4 deny 3"
-c=$(($c+$?))
+c=$((c+$?))
 echo "$config" | grep -q "route-map TO_BGP_PEER_V6 permit 2"
-c=$(($c+$?))
+c=$((c+$?))
 echo "$config" | grep -q "route-map TO_BGP_PEER_V6 deny 3"
-c=$(($c+$?))
+c=$((c+$?))
 
 if [[ $c -eq 0 ]];
 then
-  vtysh -c "configure terminal" -c "no route-map TO_BGP_PEER_V4 deny 3"
-  vtysh -c "configure terminal" -c "no route-map TO_BGP_PEER_V4 permit 2"
-  vtysh -c "configure terminal" -c "no route-map TO_BGP_PEER_V6 deny 3"
-  vtysh -c "configure terminal" -c "no route-map TO_BGP_PEER_V6 permit 2"
-
+  TSB_FILE=$(mktemp)
+  sonic-cfggen -d -y /etc/sonic/constants.yml -t /usr/share/sonic/templates/bgpd.tsa.unisolate.conf.j2 > "$TSB_FILE"
+  vtysh -f "$TSB_FILE"
+  rm -f "$TSB_FILE"
   echo "System Mode: Maintenance -> Normal"
 else
   echo "System is already in Normal mode"

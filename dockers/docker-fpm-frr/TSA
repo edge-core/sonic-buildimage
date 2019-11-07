@@ -3,20 +3,20 @@
 c=0
 config=$(vtysh -c "show run")
 echo "$config" | grep -q "route-map TO_BGP_PEER_V4 permit 2"
-c=$(($c+$?))
+c=$((c+$?))
 echo "$config" | grep -q "route-map TO_BGP_PEER_V4 deny 3"
-c=$(($c+$?))
+c=$((c+$?))
 echo "$config" | grep -q "route-map TO_BGP_PEER_V6 permit 2"
-c=$(($c+$?))
+c=$((c+$?))
 echo "$config" | grep -q "route-map TO_BGP_PEER_V6 deny 3"
-c=$(($c+$?))
+c=$((c+$?))
 
 if [[ $c -eq 4 ]];
 then
-  vtysh -c "configure terminal" -c "route-map TO_BGP_PEER_V4 permit 2" -c "match ip address prefix-list PL_LoopbackV4"
-  vtysh -c "configure terminal" -c "route-map TO_BGP_PEER_V4 deny 3"
-  vtysh -c "configure terminal" -c "route-map TO_BGP_PEER_V6 permit 2" -c "match ipv6 address prefix-list PL_LoopbackV6"
-  vtysh -c "configure terminal" -c "route-map TO_BGP_PEER_V6 deny 3"
+  TSA_FILE=$(mktemp)
+  sonic-cfggen -d -y /etc/sonic/constants.yml -t /usr/share/sonic/templates/bgpd.tsa.isolate.conf.j2 > "$TSA_FILE"
+  vtysh -f "$TSA_FILE"
+  rm -f "$TSA_FILE"
   echo "System Mode: Normal -> Maintenance"
 else
   echo "System is already in Maintenance mode"

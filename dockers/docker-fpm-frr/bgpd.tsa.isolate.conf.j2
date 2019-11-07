@@ -1,0 +1,10 @@
+route-map TO_BGP_PEER_V4 permit 2
+  match ip address prefix-list PL_LoopbackV4
+  set community {{ constants.traffic_shift_community }}
+route-map TO_BGP_PEER_V4 deny 3
+!
+route-map TO_BGP_PEER_V6 permit 2
+  match ipv6 address prefix-list PL_LoopbackV6
+  set community {{ constants.traffic_shift_community }}
+route-map TO_BGP_PEER_V6 deny 3
+!
