@@ -29,6 +29,8 @@ start)
         fi
         decode-syseeprom --init 2> /dev/null &
 
+        /bin/sh /usr/local/bin/platform_api_mgnt.sh init
+
         echo "done."
         ;;
 
