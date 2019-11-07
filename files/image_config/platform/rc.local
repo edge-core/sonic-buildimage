@@ -223,6 +223,8 @@ if [ -f $FIRST_BOOT_FILE ]; then
     elif [ -f /host/minigraph.xml ]; then
         mkdir -p /etc/sonic/old_config
         mv /host/minigraph.xml /etc/sonic/old_config/
+        [ -f /host/acl.json ] && mv /host/acl.json /etc/sonic/old_config/
+        [ -f /host/snmp.yml ] && mv /host/snmp.yml /etc/sonic/old_config/
         touch /tmp/pending_config_migration
     elif [ -n "$migration" ] && [ -f /host/migration/minigraph.xml ];  then
         mkdir -p /etc/sonic/old_config

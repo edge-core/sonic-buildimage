@@ -94,7 +94,9 @@ clean_flash() {
            [ $f != "$cmdline_base" ] &&
            [ $f != "aquota.user" ] &&
            [ $f != "old_config" ] &&
-           [ $f != "minigraph.xml" ]
+           [ $f != "minigraph.xml" ] &&
+           [ $f != "snmp.yml" ] &&
+           [ $f != "acl.json" ]
         then
             rm -rf "$target_path/$f"
         fi
