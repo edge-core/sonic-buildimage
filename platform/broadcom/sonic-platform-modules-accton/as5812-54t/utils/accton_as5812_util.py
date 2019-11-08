@@ -159,7 +159,6 @@ kos = [
 'modprobe x86-64-accton-as5812-54t-cpld'     ,
 'modprobe cpr_4011_4mxx'  ,
 'modprobe ym2651y'                  ,
-'modprobe x86-64-accton-as5812-54t-sfp'     ,
 'modprobe x86-64-accton-as5812-54t-psu'      ,
 'modprobe x86-64-accton-as5812-54t-fan'      ,
 'modprobe x86-64-accton-as5812-54t-leds' ]
