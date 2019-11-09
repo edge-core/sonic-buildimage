@@ -272,7 +272,8 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     locales                 \
     cgroup-tools            \
     ipmitool                \
-    ndisc6
+    ndisc6                  \
+    makedumpfile
 
 
 if [[ $CONFIGURED_ARCH == amd64 ]]; then
@@ -288,6 +289,10 @@ sudo LANG=c chroot $FILESYSTEM_ROOT chmod 600 /etc/shadow
 ## Set /etc/passwd, /etc/group permissions to -rw-r--r--.
 sudo LANG=c chroot $FILESYSTEM_ROOT chmod 644 /etc/passwd
 sudo LANG=c chroot $FILESYSTEM_ROOT chmod 644 /etc/group
+
+# Needed to install kdump-tools
+sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "mkdir -p /etc/initramfs-tools/conf.d"
+sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo 'MODULES=most' >> /etc/initramfs-tools/conf.d/driver-policy"
 
 #Adds a locale to a debian system in non-interactive mode
 sudo sed -i '/^#.* en_US.* /s/^#//' $FILESYSTEM_ROOT/etc/locale.gen && \

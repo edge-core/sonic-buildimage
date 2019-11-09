@@ -1,0 +1,24 @@
+--- a/debian/kdump-config.orig	2019-10-24 09:38:19.006679000 -0700
++++ b/debian/kdump-config	2019-10-24 12:16:23.791899000 -0700
+@@ -639,8 +639,8 @@
+ {
+ 	KDUMP_STAMP=`date +"%Y%m%d%H%M"`
+ 	KDUMP_STAMPDIR=$(define_stampdir $KDUMP_STAMP)
+-	KDUMP_CORETEMP="$KDUMP_STAMPDIR/dump-incomplete"
+-	KDUMP_COREFILE="$KDUMP_STAMPDIR/dump.$KDUMP_STAMP"
++	KDUMP_CORETEMP="$KDUMP_STAMPDIR/kdump-incomplete"
++	KDUMP_COREFILE="$KDUMP_STAMPDIR/kdump.$KDUMP_STAMP"
+ 	KDUMP_DMESGFILE="$KDUMP_STAMPDIR/dmesg.$KDUMP_STAMP"
+ 
+ 	# If we use NFS, verify that we can mount the FS
+@@ -755,8 +755,8 @@
+ 	KDUMP_STAMP=`date +"%Y%m%d%H%M"`
+ 	KDUMP_STAMPDIR=$(define_stampdir $KDUMP_STAMP)
+ 
+-	KDUMP_CORETEMP="$KDUMP_STAMPDIR/dump-incomplete"
+-	KDUMP_COREFILE="$KDUMP_STAMPDIR/dump.$KDUMP_STAMP"
++	KDUMP_CORETEMP="$KDUMP_STAMPDIR/kdump-incomplete"
++	KDUMP_COREFILE="$KDUMP_STAMPDIR/kdump.$KDUMP_STAMP"
+ 	KDUMP_TMPDMESG="/tmp/dmesg.$KDUMP_STAMP"
+ 	KDUMP_DMESGFILE="$KDUMP_STAMPDIR/dmesg.$KDUMP_STAMP"
+ 	ERROR=0
