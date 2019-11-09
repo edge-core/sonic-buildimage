@@ -23,6 +23,8 @@ debs/{{ deb }}{{' '}}
 
 COPY ["start.sh", "/usr/bin/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
+COPY ["files/supervisor-proc-exit-listener", "/usr/bin"]
+COPY ["critical_processes", "/etc/supervisor/"]
 
 COPY ["profile.ini", "/etc/ssw/AS7512/"]
 

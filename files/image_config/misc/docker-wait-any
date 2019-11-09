@@ -1,0 +1,62 @@
+#!/usr/bin/env python
+
+"""
+    docker-wait-any
+    This script takes one or more Docker container names as arguments,
+    and it will block indefinitely while all of the specified containers
+    are running. If any of the specified containers stop, the script will
+    exit.
+    This script was created because the 'docker wait' command is lacking
+    this functionality. It will block until ALL specified containers have
+    stopped running. Here, we spawn multiple threads and wait on one
+    container per thread. If any of the threads exit, the entire
+    application will exit.
+    NOTE: This script is written against docker-py version 1.6.0. Newer
+    versions of docker-py have a different API.
+"""
+
+import sys
+import threading
+from docker import Client
+
+# Instantiate a global event to share among our threads
+g_thread_exit_event = threading.Event()
+
+
+def usage():
+    print("Usage: {} <container_name> [<container_name> ...]".format(sys.argv[0]))
+    sys.exit(1)
+
+
+def wait_for_container(docker_client, container_name):
+    docker_client.wait(container_name)
+
+    print("No longer waiting on container '{}'".format(container_name))
+
+    # Signal the main thread to exit
+    g_thread_exit_event.set()
+
+
+def main():
+    thread_list = []
+
+    docker_client = Client(base_url='unix://var/run/docker.sock')
+
+    # Ensure we were passed at least one argument
+    if len(sys.argv) < 2:
+        usage()
+
+    container_names = sys.argv[1:]
+
+    for container_name in container_names:
+        t = threading.Thread(target=wait_for_container, args=[docker_client, container_name])
+        t.daemon = True
+        t.start()
+        thread_list.append(t)
+
+    # Wait until we receive an event signifying one of the containers has stopped
+    g_thread_exit_event.wait()
+    sys.exit(0)
+
+if __name__ == '__main__':
+    main()
