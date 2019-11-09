@@ -6,19 +6,6 @@
 # The loopback network interface
 auto lo
 iface lo inet loopback
-# Use command 'ip addr list dev lo' to check all addresses
-iface lo inet static
-    address 10.1.0.32
-    netmask 255.255.255.255
-#
-iface lo inet6 static
-    address fc00:1::32
-    netmask 128
-#
-iface lo inet static
-    address 10.10.0.99
-    netmask 255.255.255.255
-#
 
 # The management network interface
 auto eth0

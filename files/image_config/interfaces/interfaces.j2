@@ -14,13 +14,6 @@ iface mgmt
 # The loopback network interface
 auto lo
 iface lo inet loopback
-# Use command 'ip addr list dev lo' to check all addresses
-{% for (name, prefix) in LOOPBACK_INTERFACE|pfx_filter %}
-iface lo {{ 'inet' if prefix | ipv4 else 'inet6' }} static
-    address {{ prefix | ip }}
-    netmask {{ prefix | netmask if prefix | ipv4 else prefix | prefixlen }}
-#
-{% endfor %}
 {% if (MGMT_VRF_CONFIG) and (MGMT_VRF_CONFIG['vrf_global']['mgmtVrfEnabled'] == "true") %}
 # The loopback network interface for mgmt VRF that is required for applications like NTP
     up ip link add lo-m type dummy
