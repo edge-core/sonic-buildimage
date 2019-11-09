@@ -168,4 +168,5 @@ class SfpUtil(SfpUtilBase):
             	
         time.sleep(2)
         
-        return True, ret_present
+        return True, ret_present	
+

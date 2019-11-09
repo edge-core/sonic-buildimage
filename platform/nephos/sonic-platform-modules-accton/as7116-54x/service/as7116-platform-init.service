@@ -1,6 +1,7 @@
 [Unit]
 Description=Accton AS7116-54X Platform initialization service
 Before=pmon.service
+After=sysinit.target
 DefaultDependencies=no
 
 [Service]
