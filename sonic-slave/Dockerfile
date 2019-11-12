@@ -309,3 +309,6 @@ RUN add-apt-repository \
 RUN apt-get update
 RUN apt-get install -y docker-ce=17.03.2~ce-0~debian-jessie
 RUN echo "DOCKER_OPTS=\"--experimental --storage-driver=vfs\"" >> /etc/default/docker
+
+# Cleanup build environment. Please leave this line at the end and add new changes above
+RUN dpkg --clear-avail; apt-get update
