@@ -39,6 +39,7 @@ class Psu(PsuBase):
     """Platform-specific Psu class"""
 
     def __init__(self, psu_index):
+        PsuBase.__init__(self)
         self.index = psu_index
         self.green_led_path = GREEN_LED_PATH.format(self.index+1)
         self.dx010_psu_gpio = [
@@ -52,7 +53,6 @@ class Psu(PsuBase):
         for fan_index in range(0, PSU_NUM_FAN[self.index]):
             fan = Fan(fan_index, 0, is_psu_fan=True, psu_index=self.index)
             self._fan_list.append(fan)
-        PsuBase.__init__(self)
 
     def __read_txt_file(self, file_path):
         try:

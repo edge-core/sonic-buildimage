@@ -44,6 +44,7 @@ class Chassis(ChassisBase):
     """Platform-specific Chassis class"""
 
     def __init__(self):
+        ChassisBase.__init__(self)
         self.config_data = {}
         for fant_index in range(0, NUM_FAN_TRAY):
             for fan_index in range(0, NUM_FAN):
@@ -61,7 +62,6 @@ class Chassis(ChassisBase):
         for index in range(0, NUM_COMPONENT):
             component = Component(index)
             self._component_list.append(component)
-        ChassisBase.__init__(self)
 
         self._watchdog = Watchdog()
         self._eeprom = Tlv()
