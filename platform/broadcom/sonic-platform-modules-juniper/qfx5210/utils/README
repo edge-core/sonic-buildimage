@@ -64,8 +64,10 @@ SFPs
 There are 64 QSFP+ modules supported in qfx5210 platform. EEPORMs will be 
 mapped under /sys/bus/i2c/devices/[25-88]-0050/ sysfs directory.
 
-FEC should be turned on for SR4 optics and should be turned off for LR4
-optics.
+FEC should be turned on for 100G SR optics and should be turned off for
+100G LR optics. If the optic is changed, please update the entry and
+reload the configuration. If the FEC mode is not set as per the optic
+type the port may not link up or work properly.
 
 As an example, see this configuration for FEC for 100G SR4 optics in
 /etc/sonic/config_db.json
