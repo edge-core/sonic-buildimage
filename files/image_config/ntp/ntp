@@ -50,7 +50,7 @@ case $1 in
 		fi
 		(
 			flock -w 180 9
-			vrfEnabled=$(/usr/local/bin/sonic-cfggen -d -v 'MGMT_VRF_CONFIG["vrf_global"]["mgmtVrfEnabled"]')
+			vrfEnabled=$(/usr/local/bin/sonic-cfggen -d -v 'MGMT_VRF_CONFIG["vrf_global"]["mgmtVrfEnabled"]' 2> /dev/null)
 			if [ "$vrfEnabled" = "true" ]
 			then
 				log_daemon_msg "Starting NTP server in mgmt-vrf" "ntpd"
