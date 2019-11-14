@@ -35,10 +35,8 @@ supervisorctl start rsyslogd
 
 # start eoiu pulling, only if configured so
 if [[ $(sonic-cfggen -d -v 'WARM_RESTART.bgp.bgp_eoiu') == 'true' ]]; then
-		supervisorctl start bgp_eoiu_marker
+    supervisorctl start bgp_eoiu_marker
 fi
-
-supervisorctl start bgpcfgd
 
 # Start Quagga processes
 supervisorctl start zebra
