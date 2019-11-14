@@ -32,7 +32,7 @@ add_i2c_devices() {
     echo 24c02 0x52 > /sys/class/i2c-adapter/i2c-11/new_device
     echo 24c02 0x53 > /sys/class/i2c-adapter/i2c-11/new_device
     for i in `seq 0 31`; do
-        echo sff8436 0x50 > /sys/class/i2c-adapter/i2c-$((20+i))/new_device
+        echo optoe1 0x50 > /sys/class/i2c-adapter/i2c-$((20+i))/new_device
     done
 }
 

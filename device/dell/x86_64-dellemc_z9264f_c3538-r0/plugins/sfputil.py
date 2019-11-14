@@ -362,11 +362,11 @@ class SfpUtil(SfpUtilBase):
 
             sfpd_obj = sff8436Dom()
             if sfpd_obj is None:
-                return None
+                return transceiver_dom_info_dict
 
             sfpi_obj = sff8436InterfaceId()
             if sfpi_obj is None:
-                return None
+                return transceiver_dom_info_dict
 
             # QSFP capability byte parse, through this byte can know whether it support tx_power or not.
             # TODO: in the future when decided to migrate to support SFF-8636 instead of SFF-8436,
@@ -376,25 +376,25 @@ class SfpUtil(SfpUtilBase):
             if qsfp_dom_capability_raw is not None:
                 qspf_dom_capability_data = sfpi_obj.parse_qsfp_dom_capability(qsfp_dom_capability_raw, 0)
             else:
-                return None
+                return transceiver_dom_info_dict
 
             dom_temperature_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + QSFP_TEMPE_OFFSET), QSFP_TEMPE_WIDTH)
 	    if dom_temperature_raw is not None:
                 dom_temperature_data = sfpd_obj.parse_temperature(dom_temperature_raw, 0)
             else:
-                return None
+                return transceiver_dom_info_dict
 
             dom_voltage_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + QSFP_VOLT_OFFSET), QSFP_VOLT_WIDTH)
             if dom_voltage_raw is not None:
                 dom_voltage_data = sfpd_obj.parse_voltage(dom_voltage_raw, 0)
             else:
-                return None
+                return transceiver_dom_info_dict
 
             qsfp_dom_rev_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + QSFP_DOM_REV_OFFSET), QSFP_DOM_REV_WIDTH)
             if qsfp_dom_rev_raw is not None:
                 qsfp_dom_rev_data = sfpd_obj.parse_sfp_dom_rev(qsfp_dom_rev_raw, 0)
             else:
-                return None
+                return transceiver_dom_info_dict
 
             transceiver_dom_info_dict['temperature'] = dom_temperature_data['data']['Temperature']['value']
             transceiver_dom_info_dict['voltage'] = dom_voltage_data['data']['Vcc']['value']
@@ -409,7 +409,7 @@ class SfpUtil(SfpUtilBase):
                 if dom_channel_monitor_raw is not None:
                     dom_channel_monitor_data = sfpd_obj.parse_channel_monitor_params(dom_channel_monitor_raw, 0)
                 else:
-                    return None
+                    return transceiver_dom_info_dict
 
 	        transceiver_dom_info_dict['tx1power'] = 'N/A'
                 transceiver_dom_info_dict['tx2power'] = 'N/A'
@@ -433,7 +433,7 @@ class SfpUtil(SfpUtilBase):
             transceiver_dom_info_dict['tx4bias'] = dom_channel_monitor_data['data']['TX4Bias']['value']
 
         else:
-	   offset = 0
+	   offset = 256
            file_path = self._get_port_eeprom_path(port_num, self.DOM_EEPROM_ADDR)
            if not self._sfp_eeprom_present(file_path, 0):
                return None
@@ -452,21 +452,21 @@ class SfpUtil(SfpUtilBase):
         if dom_temperature_raw is not None:
             dom_temperature_data = sfpd_obj.parse_temperature(dom_temperature_raw, 0)
         else:
-           return None
+           return transceiver_dom_info_dict
 
         dom_voltage_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + SFP_VOLT_OFFSET), 
 										SFP_VOLT_WIDTH)
         if dom_voltage_raw is not None:
              dom_voltage_data = sfpd_obj.parse_voltage(dom_voltage_raw, 0)
         else: 
-             return None
+             return transceiver_dom_info_dict
 
         dom_channel_monitor_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + SFP_MODULE_THRESHOLD_OFFSET), 
 									SFP_MODULE_THRESHOLD_WIDTH)
         if dom_channel_monitor_raw is not None:
            dom_channel_monitor_data = sfpd_obj.parse_channel_monitor_params(dom_channel_monitor_raw, 0)
         else:
-           return None
+           return transceiver_dom_info_dict
 
         try:
            sysfsfile_eeprom.close()
@@ -519,11 +519,11 @@ class SfpUtil(SfpUtilBase):
 
             sfpd_obj = sff8436Dom()
             if sfpd_obj is None:
-                return None
+                return transceiver_dom_threshold_info_dict
 
             # Dom Threshold data starts from offset 384
             # Revert offset back to 0 once data is retrieved
-            offset = 0
+            offset = 384
             dom_module_threshold_raw = self._read_eeprom_specific_bytes(
                                      sysfsfile_eeprom,
                                      (offset + QSFP_MODULE_THRESHOLD_OFFSET),
@@ -531,7 +531,7 @@ class SfpUtil(SfpUtilBase):
             if dom_module_threshold_raw is not None:
                 dom_module_threshold_data = sfpd_obj.parse_module_threshold_values(dom_module_threshold_raw, 0)
             else:
-                return None
+                return transceiver_dom_threshold_info_dict
 
             dom_channel_threshold_raw = self._read_eeprom_specific_bytes(
                                       sysfsfile_eeprom,
@@ -540,7 +540,7 @@ class SfpUtil(SfpUtilBase):
             if dom_channel_threshold_raw is not None:
                 dom_channel_threshold_data = sfpd_obj.parse_channel_threshold_values(dom_channel_threshold_raw, 0)
             else:
-                return None
+                return transceiver_dom_threshold_info_dict
 
             try:
                 sysfsfile_eeprom.close()
@@ -567,7 +567,7 @@ class SfpUtil(SfpUtilBase):
             transceiver_dom_threshold_info_dict['txbiaslowwarning'] = dom_channel_threshold_data['data']['TxBiasLowWarning']['value']
 
         else:
-            offset = 0
+            offset = 256
             file_path = self._get_port_eeprom_path(port_num, self.DOM_EEPROM_ADDR)
             if not self._sfp_eeprom_present(file_path, 0):
                 return None
@@ -580,7 +580,7 @@ class SfpUtil(SfpUtilBase):
             
 	    sfpd_obj = sff8472Dom(None,1)
             if sfpd_obj is None:
-                return None
+                return transceiver_dom_threshold_info_dict
             
             dom_module_threshold_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, 
                                              (offset + SFP_MODULE_THRESHOLD_OFFSET), SFP_MODULE_THRESHOLD_WIDTH)
@@ -588,7 +588,7 @@ class SfpUtil(SfpUtilBase):
             if dom_module_threshold_raw is not None:
                 dom_module_threshold_data = sfpd_obj.parse_alarm_warning_threshold(dom_module_threshold_raw, 0)
             else:
-                return None
+                return transceiver_dom_threshold_info_dict
 
             try:
                 sysfsfile_eeprom.close()

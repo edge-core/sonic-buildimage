@@ -44,7 +44,7 @@ info_dict_keys = ['type', 'hardwarerev', 'serialnum',
                   'manufacturename', 'modelname', 'Connector',
                   'encoding', 'ext_identifier', 'ext_rateselect_compliance',
                   'cable_type', 'cable_length', 'nominal_bit_rate',
-                  'specification_compliance', 'vendor_date', 'vendor_oui']
+                  'specification_compliance', 'type_abbrv_name','vendor_date', 'vendor_oui']
 
 dom_dict_keys = ['rx_los',       'tx_fault',   'reset_status',
                  'power_lpmode', 'tx_disable', 'tx_disable_channel',
@@ -87,6 +87,7 @@ sff8436_parser = {
  'nominal_bit_rate': [INFO_OFFSET,  0, 20, 'parse_sfp_info_bulk'],
  'specification_compliance':
                      [INFO_OFFSET,  0, 20, 'parse_sfp_info_bulk'],
+ 'type_abbrv_name' : [INFO_OFFSET,  0, 20, 'parse_sfp_info_bulk'],
   'manufacturename': [INFO_OFFSET, 20, 16, 'parse_vendor_name'],
        'vendor_oui': [INFO_OFFSET,  37, 3, 'parse_vendor_oui'],
         'modelname': [INFO_OFFSET, 40, 16, 'parse_vendor_pn'],
@@ -168,6 +169,7 @@ class Sfp(SfpBase):
 
         return eeprom_data
 
+
     def get_transceiver_info(self):
         """
         Retrieves transceiver info of this SFP
@@ -184,6 +186,7 @@ class Sfp(SfpBase):
             ext_id = iface_data['data']['Extended Identifier']['value']
             rate_identifier = iface_data['data']['RateIdentifier']['value']
             identifier = iface_data['data']['type']['value']
+            type_abbrv_name=iface_data['data']['type_abbrv_name']['value']
             bit_rate = str(
                 iface_data['data']['Nominal Bit Rate(100Mbs)']['value'])
 
@@ -195,7 +198,7 @@ class Sfp(SfpBase):
                     cable_type = key
                     cable_length = str(iface_data['data'][key]['value'])
         else:
-            return None
+            return transceiver_info_dict
 
         # Vendor Date
         vendor_date_data = self._get_eeprom_data('vendor_date')
@@ -209,36 +212,36 @@ class Sfp(SfpBase):
         if (vendor_name_data is not None):
             vendor_name = vendor_name_data['data']['Vendor Name']['value']
         else:
-            return None
+            return transceiver_info_dict
 
         # Vendor OUI
         vendor_oui_data = self._get_eeprom_data('vendor_oui')
         if (vendor_oui_data is not None):
             vendor_oui = vendor_oui_data['data']['Vendor OUI']['value']
         else:
-            return None
+            return transceiver_info_dict
 
         # Vendor PN
         vendor_pn_data = self._get_eeprom_data('modelname')
         if (vendor_pn_data is not None):
             vendor_pn = vendor_pn_data['data']['Vendor PN']['value']
         else:
-            return None
+            return transceiver_info_dict
 
         # Vendor Revision
         vendor_rev_data = self._get_eeprom_data('hardwarerev')
         if (vendor_rev_data is not None):
             vendor_rev = vendor_rev_data['data']['Vendor Rev']['value']
         else:
-            return None
+            return transceiver_info_dict
 
         # Vendor Serial Number
         vendor_sn_data = self._get_eeprom_data('serialnum')
         if (vendor_sn_data is not None):
             vendor_sn = vendor_sn_data['data']['Vendor SN']['value']
         else:
-            return None
-
+            return transceiver_info_dict
+	
         # Fill The Dictionary and return
         transceiver_info_dict['type'] = identifier
         transceiver_info_dict['hardwarerev'] = vendor_rev
@@ -256,6 +259,7 @@ class Sfp(SfpBase):
             compliance_code_dict)
         transceiver_info_dict['vendor_date'] = vendor_date
         transceiver_info_dict['vendor_oui'] = vendor_oui
+	transceiver_info_dict['type_abbrv_name']=type_abbrv_name	
 
         return transceiver_info_dict
 
@@ -279,7 +283,7 @@ class Sfp(SfpBase):
             vccHighWarn = module_threshold_data['data']['VccHighWarning']['value']
             vccLowWarn = module_threshold_data['data']['VccLowWarning']['value']
         else:
-            return None
+            return transceiver_dom_threshold_dict
 
         # Channel Threshold
         channel_threshold_data = self._get_eeprom_data('ChannelThreshold')
@@ -293,7 +297,7 @@ class Sfp(SfpBase):
             txBiasHighWarn = channel_threshold_data['data']['TxBiasHighWarning']['value']
             txBiasLowWarn = channel_threshold_data['data']['TxBiasLowWarning']['value']
         else:
-            return None
+            return transceiver_dom_threshold_dict
 
         transceiver_dom_threshold_dict['temphighalarm'] = tempHighAlarm
         transceiver_dom_threshold_dict['templowalarm'] = tempLowAlarm
@@ -367,7 +371,7 @@ class Sfp(SfpBase):
             rx_power = channel_monitor_data['data']['RX4Power']['value']
             rx_power_list.append(rx_power)
         else:
-            return None
+            return transceiver_dom_dict
 
         transceiver_dom_dict['rx_los'] = rx_los
         transceiver_dom_dict['tx_fault'] = tx_fault

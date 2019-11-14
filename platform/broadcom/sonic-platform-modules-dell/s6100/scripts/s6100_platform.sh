@@ -109,8 +109,8 @@ switch_board_qsfp_mux() {
 #Attach/Detach the SFP modules on PCA9548_2
 switch_board_sfp() {
     case $1 in
-        "new_device")    i2c_config "echo sff8436 0x50 > /sys/bus/i2c/devices/i2c-11/$1"
-                         i2c_config "echo sff8436 0x50 > /sys/bus/i2c/devices/i2c-12/$1"
+        "new_device")    i2c_config "echo optoe2 0x50 > /sys/bus/i2c/devices/i2c-11/$1"
+                         i2c_config "echo optoe2 0x50 > /sys/bus/i2c/devices/i2c-12/$1"
                          ;;
         "delete_device") i2c_config "echo 0x50 > /sys/bus/i2c/devices/i2c-11/$1"
                          i2c_config "echo 0x50 > /sys/bus/i2c/devices/i2c-12/$1"
@@ -125,7 +125,7 @@ qsfp_device_mod() {
     case $1 in
         "new_device")    for ((i=$2;i<=$3;i++));
                          do
-                             i2c_config "echo sff8436 0x50 > /sys/bus/i2c/devices/i2c-$i/$1"
+                             i2c_config "echo optoe1 0x50 > /sys/bus/i2c/devices/i2c-$i/$1"
                          done
                          ;;
         "delete_device") for ((i=$2;i<=$3;i++));
