@@ -42,7 +42,7 @@ $ActionFileDefaultTemplate SONiCFileFormat
 
 #Set remote syslog server
 {% for server in SYSLOG_SERVER %}
-*.* @{{ server }}:514;SONiCFileFormat
+*.* @[{{ server }}]:514;SONiCFileFormat
 {% endfor %}
 
 #
