@@ -76,7 +76,7 @@ RUN pip install azure-kusto-data==0.0.13 \
                 azure-kusto-ingest==0.0.13
 
 # Install pytest-ansible module
-RUN pip install pytest-ansible==2.0.2
+RUN pip install pytest-ansible==2.2.2
 
 ## Copy and install sonic-mgmt docker dependencies
 COPY \
@@ -90,8 +90,7 @@ RUN dpkg -i \
 debs/{{ deb }}{{' '}}
 {%- endfor %}
 
-RUN git clone https://github.com/ansible/ansible
-RUN cd ansible && git checkout v2.0.0.2-1 -b v2.0.0.2-1 && git submodule update --init --recursive && make && make install
+RUN pip install ansible==2.8.7
 
 RUN mkdir /var/run/sshd
 EXPOSE 22
