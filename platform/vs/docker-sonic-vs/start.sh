@@ -29,7 +29,8 @@ rm -f /var/run/rsyslogd.pid
 
 supervisorctl start rsyslogd
 
-mkdir -p /var/run/redis
+mkdir -p /var/run/redis/sonic-db
+cp /etc/default/sonic-db/database_config.json /var/run/redis/sonic-db/
 
 supervisorctl start redis-server
 
