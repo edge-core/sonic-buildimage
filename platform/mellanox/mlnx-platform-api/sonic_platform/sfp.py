@@ -76,6 +76,9 @@ XCVR_DOM_CAPABILITY_WIDTH = 2
 # get_transceiver_bulk_status
 XCVR_INTERFACE_DATA_START = 0
 XCVR_INTERFACE_DATA_SIZE = 92
+SFP_MODULE_ADDRA2_OFFSET = 256
+SFP_MODULE_THRESHOLD_OFFSET = 0
+SFP_MODULE_THRESHOLD_WIDTH = 56
 
 QSFP_DOM_BULK_DATA_START = 22
 QSFP_DOM_BULK_DATA_SIZE = 36
@@ -97,7 +100,7 @@ QSFP_TEMPE_WIDTH = 2
 QSFP_VOLT_OFFSET = 26
 QSFP_VOLT_WIDTH = 2
 QSFP_VERSION_COMPLIANCE_OFFSET = 1
-QSFP_VERSION_COMPLIANCE_WIDTH = 1
+QSFP_VERSION_COMPLIANCE_WIDTH = 2
 QSFP_CHANNL_MON_OFFSET = 34
 QSFP_CHANNL_MON_WIDTH = 16
 QSFP_CHANNL_MON_WITH_TX_POWER_WIDTH = 24
@@ -117,6 +120,12 @@ QSFP_POWEROVERRIDE_BIT = 0
 QSFP_POWERSET_BIT = 1
 QSFP_OPTION_VALUE_OFFSET = 192
 QSFP_OPTION_VALUE_WIDTH = 4
+
+QSFP_MODULE_UPPER_PAGE3_START = 384
+QSFP_MODULE_THRESHOLD_OFFSET = 128
+QSFP_MODULE_THRESHOLD_WIDTH = 24
+QSFP_CHANNL_THRESHOLD_OFFSET = 176
+QSFP_CHANNL_THRESHOLD_WIDTH = 24
 
 SFP_TEMPE_OFFSET = 96
 SFP_TEMPE_WIDTH = 2
@@ -203,6 +212,7 @@ class SFP(SfpBase):
         self.sdk_handle = None
         self.sdk_index = sfp_index
 
+
     #SDK initializing stuff
     def _initialize_sdk_handle(self):
         """
@@ -215,6 +225,7 @@ class SFP(SfpBase):
 
         self.mypid = os.getpid()
 
+
     def _open_sdk(self):
         if self.sdk_handle is None:
             self._initialize_sdk_handle()
@@ -226,17 +237,20 @@ class SFP(SfpBase):
 
         return True
 
+
     def _close_sdk(self):
         rc = sxd_access_reg_deinit()
         if rc != 0:
             logger.log_warning("Failed to deinitializing register access.")
             #no further actions here
 
+
     def _init_sx_meta_data(self):
         meta = sxd_reg_meta_t()
         meta.dev_id = DEVICE_ID
         meta.swid = SWITCH_ID
         return meta
+
 
     def get_presence(self):
         """
@@ -246,7 +260,7 @@ class SFP(SfpBase):
             bool: True if device is present, False if not
         """
         presence = False
-        ethtool_cmd = "ethtool -m sfp{} hex on offset 0 length 4 2>/dev/null".format(self.index)
+        ethtool_cmd = "ethtool -m sfp{} hex on offset 0 length 1 2>/dev/null".format(self.index)
         try:
             proc = subprocess.Popen(ethtool_cmd, stdout=subprocess.PIPE, shell=True, stderr=subprocess.STDOUT)
             stdout = proc.communicate()[0]
@@ -259,6 +273,7 @@ class SFP(SfpBase):
             raise OSError("Cannot detect sfp")
 
         return presence
+
 
     # Read out any bytes from any offset
     def _read_eeprom_specific_bytes(self, offset, num_bytes):
@@ -276,6 +291,7 @@ class SFP(SfpBase):
             return None
 
         return eeprom_raw
+
 
     def _dom_capability_detect(self):
         if not self.get_presence():
@@ -300,28 +316,30 @@ class SFP(SfpBase):
             # in SFF-8636 dom capability definitions evolving with the versions.
             qsfp_dom_capability_raw = self._read_eeprom_specific_bytes((offset + XCVR_DOM_CAPABILITY_OFFSET), XCVR_DOM_CAPABILITY_WIDTH)
             if qsfp_dom_capability_raw is not None:
-                qsfp_version_compliance_raw = self._read_eeprom_specific_bytes(QSFP_VERSION_COMPLIANCE_OFFSET, QSFP_VERSION_COMPLIANCE_OFFSET)
+                qsfp_version_compliance_raw = self._read_eeprom_specific_bytes(QSFP_VERSION_COMPLIANCE_OFFSET, QSFP_VERSION_COMPLIANCE_WIDTH)
                 qsfp_version_compliance = int(qsfp_version_compliance_raw[0], 16)
-                qspf_dom_capability = int(qsfp_dom_capability_raw[0], 16)
+                dom_capability = sfpi_obj.parse_qsfp_dom_capability(qsfp_dom_capability_raw, 0)
                 if qsfp_version_compliance >= 0x08:
-                    self.dom_temp_supported = (qspf_dom_capability & 0x20 != 0)
-                    self.dom_volt_supported = (qspf_dom_capability & 0x10 != 0)
-                    self.dom_rx_power_supported = (qspf_dom_capability & 0x08 != 0)
-                    self.dom_tx_power_supported = (qspf_dom_capability & 0x04 != 0)
+                    self.dom_temp_supported = dom_capability['data']['Temp_support']['value'] == 'On'
+                    self.dom_volt_supported = dom_capability['data']['Voltage_support']['value'] == 'On'
+                    self.dom_rx_power_supported = dom_capability['data']['Rx_power_support']['value'] == 'On'
+                    self.dom_tx_power_supported = dom_capability['data']['Tx_power_support']['value'] == 'On'
                 else:
                     self.dom_temp_supported = True
                     self.dom_volt_supported = True
-                    self.dom_rx_power_supported = (qspf_dom_capability & 0x08 != 0)
+                    self.dom_rx_power_supported = dom_capability['data']['Rx_power_support']['value'] == 'On'
                     self.dom_tx_power_supported = True
                 self.dom_supported = True
                 self.calibration = 1
+                sfpd_obj = sff8436Dom()
+                if sfpd_obj is None:
+                    return None
                 qsfp_option_value_raw = self._read_eeprom_specific_bytes(QSFP_OPTION_VALUE_OFFSET, QSFP_OPTION_VALUE_WIDTH)
                 if qsfp_option_value_raw is not None:
-                    sfpd_obj = sff8436Dom()
-                    if sfpd_obj is None:
-                        return None
-                    self.optional_capability = sfpd_obj.parse_option_params(qsfp_option_value_raw, 0)
-                    self.dom_tx_disable_supported = self.optional_capability['data']['TxDisable']['value'] == 'On'
+                    optional_capability = sfpd_obj.parse_option_params(qsfp_option_value_raw, 0)
+                    self.dom_tx_disable_supported = optional_capability['data']['TxDisable']['value'] == 'On'
+                dom_status_indicator = sfpd_obj.parse_dom_status_indicator(qsfp_version_compliance_raw, 1)
+                self.qsfp_page3_available = dom_status_indicator['data']['FlatMem']['value'] == 'Off'
             else:
                 self.dom_supported = False
                 self.dom_temp_supported = False
@@ -329,6 +347,7 @@ class SFP(SfpBase):
                 self.dom_rx_power_supported = False
                 self.dom_tx_power_supported = False
                 self.calibration = 0
+                self.qsfp_page3_available = False
         elif self.sfp_type == "SFP":
             sfpi_obj = sff8472InterfaceId()
             if sfpi_obj is None:
@@ -362,6 +381,7 @@ class SFP(SfpBase):
             self.dom_rx_power_supported = False
             self.dom_tx_power_supported = False
 
+
     def _convert_string_to_num(self, value_str):
         if "-inf" in value_str:
             return 'N/A'
@@ -381,6 +401,7 @@ class SFP(SfpBase):
             return float(t_str)
         else:
             return 'N/A'
+
 
     def get_transceiver_info(self):
         """
@@ -563,6 +584,7 @@ class SFP(SfpBase):
     
         return transceiver_info_dict
 
+
     def get_transceiver_bulk_status(self):
         """
         Retrieves transceiver bulk status of this SFP
@@ -689,6 +711,143 @@ class SFP(SfpBase):
 
         return transceiver_dom_info_dict
 
+
+    def get_transceiver_threshold_info(self):
+        """
+        Retrieves transceiver threshold info of this SFP
+
+        Returns:
+            A dict which contains following keys/values :
+        ========================================================================
+        keys                       |Value Format   |Information
+        ---------------------------|---------------|----------------------------
+        temphighalarm              |FLOAT          |High Alarm Threshold value of temperature in Celsius.
+        templowalarm               |FLOAT          |Low Alarm Threshold value of temperature in Celsius.
+        temphighwarning            |FLOAT          |High Warning Threshold value of temperature in Celsius.
+        templowwarning             |FLOAT          |Low Warning Threshold value of temperature in Celsius.
+        vcchighalarm               |FLOAT          |High Alarm Threshold value of supply voltage in mV.
+        vcclowalarm                |FLOAT          |Low Alarm Threshold value of supply voltage in mV.
+        vcchighwarning             |FLOAT          |High Warning Threshold value of supply voltage in mV.
+        vcclowwarning              |FLOAT          |Low Warning Threshold value of supply voltage in mV.
+        rxpowerhighalarm           |FLOAT          |High Alarm Threshold value of received power in dBm.
+        rxpowerlowalarm            |FLOAT          |Low Alarm Threshold value of received power in dBm.
+        rxpowerhighwarning         |FLOAT          |High Warning Threshold value of received power in dBm.
+        rxpowerlowwarning          |FLOAT          |Low Warning Threshold value of received power in dBm.
+        txpowerhighalarm           |FLOAT          |High Alarm Threshold value of transmit power in dBm.
+        txpowerlowalarm            |FLOAT          |Low Alarm Threshold value of transmit power in dBm.
+        txpowerhighwarning         |FLOAT          |High Warning Threshold value of transmit power in dBm.
+        txpowerlowwarning          |FLOAT          |Low Warning Threshold value of transmit power in dBm.
+        txbiashighalarm            |FLOAT          |High Alarm Threshold value of tx Bias Current in mA.
+        txbiaslowalarm             |FLOAT          |Low Alarm Threshold value of tx Bias Current in mA.
+        txbiashighwarning          |FLOAT          |High Warning Threshold value of tx Bias Current in mA.
+        txbiaslowwarning           |FLOAT          |Low Warning Threshold value of tx Bias Current in mA.
+        ========================================================================
+        """
+        transceiver_dom_threshold_info_dict = {}
+
+        dom_info_dict_keys = ['temphighalarm',    'temphighwarning',
+                              'templowalarm',     'templowwarning',
+                              'vcchighalarm',     'vcchighwarning',
+                              'vcclowalarm',      'vcclowwarning',
+                              'rxpowerhighalarm', 'rxpowerhighwarning',
+                              'rxpowerlowalarm',  'rxpowerlowwarning',
+                              'txpowerhighalarm', 'txpowerhighwarning',
+                              'txpowerlowalarm',  'txpowerlowwarning',
+                              'txbiashighalarm',  'txbiashighwarning',
+                              'txbiaslowalarm',   'txbiaslowwarning'
+                             ]
+        transceiver_dom_threshold_info_dict = dict.fromkeys(dom_info_dict_keys, 'N/A')
+
+        if self.sfp_type == OSFP_TYPE:
+            pass
+
+        elif self.sfp_type == QSFP_TYPE:
+            if not self.dom_supported or not self.qsfp_page3_available:
+                return transceiver_dom_threshold_info_dict
+
+            # Dom Threshold data starts from offset 384
+            # Revert offset back to 0 once data is retrieved
+            offset = QSFP_MODULE_UPPER_PAGE3_START
+            sfpd_obj = sff8436Dom()
+            if sfpd_obj is None:
+                return transceiver_dom_threshold_info_dict
+
+            dom_module_threshold_raw = self._read_eeprom_specific_bytes((offset + QSFP_MODULE_THRESHOLD_OFFSET), QSFP_MODULE_THRESHOLD_WIDTH)
+            if dom_module_threshold_raw is None:
+                return transceiver_dom_threshold_info_dict
+
+            dom_module_threshold_data = sfpd_obj.parse_module_threshold_values(dom_module_threshold_raw, 0)
+
+            dom_channel_threshold_raw = self._read_eeprom_specific_bytes((offset + QSFP_CHANNL_THRESHOLD_OFFSET),
+                                      QSFP_CHANNL_THRESHOLD_WIDTH)
+            if dom_channel_threshold_raw is None:
+                return transceiver_dom_threshold_info_dict
+            dom_channel_threshold_data = sfpd_obj.parse_channel_threshold_values(dom_channel_threshold_raw, 0)
+
+            # Threshold Data
+            transceiver_dom_threshold_info_dict['temphighalarm'] = dom_module_threshold_data['data']['TempHighAlarm']['value']
+            transceiver_dom_threshold_info_dict['temphighwarning'] = dom_module_threshold_data['data']['TempHighWarning']['value']
+            transceiver_dom_threshold_info_dict['templowalarm'] = dom_module_threshold_data['data']['TempLowAlarm']['value']
+            transceiver_dom_threshold_info_dict['templowwarning'] = dom_module_threshold_data['data']['TempLowWarning']['value']
+            transceiver_dom_threshold_info_dict['vcchighalarm'] = dom_module_threshold_data['data']['VccHighAlarm']['value']
+            transceiver_dom_threshold_info_dict['vcchighwarning'] = dom_module_threshold_data['data']['VccHighWarning']['value']
+            transceiver_dom_threshold_info_dict['vcclowalarm'] = dom_module_threshold_data['data']['VccLowAlarm']['value']
+            transceiver_dom_threshold_info_dict['vcclowwarning'] = dom_module_threshold_data['data']['VccLowWarning']['value']
+            transceiver_dom_threshold_info_dict['rxpowerhighalarm'] = dom_channel_threshold_data['data']['RxPowerHighAlarm']['value']
+            transceiver_dom_threshold_info_dict['rxpowerhighwarning'] = dom_channel_threshold_data['data']['RxPowerHighWarning']['value']
+            transceiver_dom_threshold_info_dict['rxpowerlowalarm'] = dom_channel_threshold_data['data']['RxPowerLowAlarm']['value']
+            transceiver_dom_threshold_info_dict['rxpowerlowwarning'] = dom_channel_threshold_data['data']['RxPowerLowWarning']['value']
+            transceiver_dom_threshold_info_dict['txbiashighalarm'] = dom_channel_threshold_data['data']['TxBiasHighAlarm']['value']
+            transceiver_dom_threshold_info_dict['txbiashighwarning'] = dom_channel_threshold_data['data']['TxBiasHighWarning']['value']
+            transceiver_dom_threshold_info_dict['txbiaslowalarm'] = dom_channel_threshold_data['data']['TxBiasLowAlarm']['value']
+            transceiver_dom_threshold_info_dict['txbiaslowwarning'] = dom_channel_threshold_data['data']['TxBiasLowWarning']['value']
+            transceiver_dom_threshold_info_dict['txpowerhighalarm'] = dom_channel_threshold_data['data']['TxPowerHighAlarm']['value']
+            transceiver_dom_threshold_info_dict['txpowerhighwarning'] = dom_channel_threshold_data['data']['TxPowerHighWarning']['value']
+            transceiver_dom_threshold_info_dict['txpowerlowalarm'] = dom_channel_threshold_data['data']['TxPowerLowAlarm']['value']
+            transceiver_dom_threshold_info_dict['txpowerlowwarning'] = dom_channel_threshold_data['data']['TxPowerLowWarning']['value']
+
+        else:
+            offset = SFP_MODULE_ADDRA2_OFFSET
+
+            if not self.dom_supported:
+                return transceiver_dom_threshold_info_dict
+
+            sfpd_obj = sff8472Dom(None, self.calibration)
+            if sfpd_obj is None:
+                return transceiver_dom_threshold_info_dict
+
+            dom_module_threshold_raw = self._read_eeprom_specific_bytes((offset + SFP_MODULE_THRESHOLD_OFFSET),
+                                         SFP_MODULE_THRESHOLD_WIDTH)
+            if dom_module_threshold_raw is not None:
+                dom_module_threshold_data = sfpd_obj.parse_alarm_warning_threshold(dom_module_threshold_raw, 0)
+            else:
+                return transceiver_dom_threshold_info_dict
+
+            # Threshold Data
+            transceiver_dom_threshold_info_dict['temphighalarm'] = dom_module_threshold_data['data']['TempHighAlarm']['value']
+            transceiver_dom_threshold_info_dict['templowalarm'] = dom_module_threshold_data['data']['TempLowAlarm']['value']
+            transceiver_dom_threshold_info_dict['temphighwarning'] = dom_module_threshold_data['data']['TempHighWarning']['value']
+            transceiver_dom_threshold_info_dict['templowwarning'] = dom_module_threshold_data['data']['TempLowWarning']['value']
+            transceiver_dom_threshold_info_dict['vcchighalarm'] = dom_module_threshold_data['data']['VoltageHighAlarm']['value']
+            transceiver_dom_threshold_info_dict['vcclowalarm'] = dom_module_threshold_data['data']['VoltageLowAlarm']['value']
+            transceiver_dom_threshold_info_dict['vcchighwarning'] = dom_module_threshold_data['data']['VoltageHighWarning']['value']
+            transceiver_dom_threshold_info_dict['vcclowwarning'] = dom_module_threshold_data['data']['VoltageLowWarning']['value']
+            transceiver_dom_threshold_info_dict['txbiashighalarm'] = dom_module_threshold_data['data']['BiasHighAlarm']['value']
+            transceiver_dom_threshold_info_dict['txbiaslowalarm'] = dom_module_threshold_data['data']['BiasLowAlarm']['value']
+            transceiver_dom_threshold_info_dict['txbiashighwarning'] = dom_module_threshold_data['data']['BiasHighWarning']['value']
+            transceiver_dom_threshold_info_dict['txbiaslowwarning'] = dom_module_threshold_data['data']['BiasLowWarning']['value']
+            transceiver_dom_threshold_info_dict['txpowerhighalarm'] = dom_module_threshold_data['data']['TXPowerHighAlarm']['value']
+            transceiver_dom_threshold_info_dict['txpowerlowalarm'] = dom_module_threshold_data['data']['TXPowerLowAlarm']['value']
+            transceiver_dom_threshold_info_dict['txpowerhighwarning'] = dom_module_threshold_data['data']['TXPowerHighWarning']['value']
+            transceiver_dom_threshold_info_dict['txpowerlowwarning'] = dom_module_threshold_data['data']['TXPowerLowWarning']['value']
+            transceiver_dom_threshold_info_dict['rxpowerhighalarm'] = dom_module_threshold_data['data']['RXPowerHighAlarm']['value']
+            transceiver_dom_threshold_info_dict['rxpowerlowalarm'] = dom_module_threshold_data['data']['RXPowerLowAlarm']['value']
+            transceiver_dom_threshold_info_dict['rxpowerhighwarning'] = dom_module_threshold_data['data']['RXPowerHighWarning']['value']
+            transceiver_dom_threshold_info_dict['rxpowerlowwarning'] = dom_module_threshold_data['data']['RXPowerLowWarning']['value']
+
+        return transceiver_dom_threshold_info_dict
+
+
     def get_reset_status(self):
         """
         Retrieves the reset status of SFP
@@ -731,6 +890,7 @@ class SFP(SfpBase):
             else:
                 return False
 
+
     def get_rx_los(self):
         """
         Retrieves the RX LOS (lost-of-signal) status of SFP
@@ -764,6 +924,7 @@ class SFP(SfpBase):
                 return None
         return rx_los_list
 
+
     def get_tx_fault(self):
         """
         Retrieves the TX fault status of SFP
@@ -796,6 +957,7 @@ class SFP(SfpBase):
             else:
                 return None
         return tx_fault_list
+
 
     def get_tx_disable(self):
         """
@@ -833,6 +995,7 @@ class SFP(SfpBase):
                 return None
         return tx_disable_list
 
+
     def get_tx_disable_channel(self):
         """
         Retrieves the TX disabled channels in this SFP
@@ -851,6 +1014,7 @@ class SFP(SfpBase):
             if tx_disable_list[i]:
                 tx_disabled |= 1 << i
         return tx_disabled
+
 
     def get_lpmode(self):
         """
@@ -882,6 +1046,7 @@ class SFP(SfpBase):
         else:
             return NotImplementedError
 
+
     def get_power_override(self):
         """
         Retrieves the power-override status of this SFP
@@ -901,6 +1066,7 @@ class SFP(SfpBase):
                 return ('On' == dom_control_data['data']['PowerOverride'])
         else:
             return NotImplementedError
+
 
     def get_temperature(self):
         """
@@ -944,6 +1110,7 @@ class SFP(SfpBase):
             else:
                 return None
 
+
     def get_voltage(self):
         """
         Retrieves the supply voltage of this SFP
@@ -986,7 +1153,8 @@ class SFP(SfpBase):
                 return voltage
             else:
                 return None
-    
+
+
     def get_tx_bias(self):
         """
         Retrieves the TX bias current of this SFP
@@ -1031,7 +1199,8 @@ class SFP(SfpBase):
                 return None
 
         return tx_bias_list
-    
+
+
     def get_rx_power(self):
         """
         Retrieves the received optical power for this SFP
@@ -1085,7 +1254,8 @@ class SFP(SfpBase):
             else:
                 return None
         return rx_power_list
-    
+
+
     def get_tx_power(self):
         """
         Retrieves the TX power of this SFP
@@ -1138,7 +1308,8 @@ class SFP(SfpBase):
             else:
                 return None
         return tx_power_list
-    
+
+
     def reset(self):
         """
         Reset SFP and return all user module settings to their default state.
@@ -1174,6 +1345,7 @@ class SFP(SfpBase):
         self._close_sdk()
         return rc == SXD_STATUS_SUCCESS
 
+
     def _write_i2c_via_mcia(self, page, i2caddr, address, data, mask):
         handle = self._open_sdk()
         if handle is None:
@@ -1207,6 +1379,7 @@ class SFP(SfpBase):
 
         self._close_sdk()
         return rc == SXD_STATUS_SUCCESS
+
 
     def tx_disable(self, tx_disable):
         """
@@ -1251,6 +1424,7 @@ class SFP(SfpBase):
         else:
             return NotImplementedError
 
+
     def tx_disable_channel(self, channel, disable):
         """
         Sets the tx_disable for specified SFP channels
@@ -1280,8 +1454,10 @@ class SFP(SfpBase):
         else:
             return NotImplementedError
 
+
     def is_nve(self, port):
         return (port & NVE_MASK) != 0
+
 
     def is_port_admin_status_up(self, log_port):
         oper_state_p = new_sx_port_oper_state_t_p()
@@ -1296,9 +1472,11 @@ class SFP(SfpBase):
         else:
             return False
 
+
     def set_port_admin_status_by_log_port(self, log_port, admin_status):
         rc = sx_api_port_state_set(self.sdk_handle, log_port, admin_status)
         assert rc == SX_STATUS_SUCCESS, "sx_api_port_state_set failed, rc = %d" % rc
+
 
     # Get all the ports related to the sfp, if port admin status is up, put it to list
     def get_log_ports(self):
@@ -1319,6 +1497,7 @@ class SFP(SfpBase):
                 log_port_list.append(port_attributes.log_port)
 
         return log_port_list
+
 
     def _set_sfp_admin_status_raw(self, admin_status):
         # Get PMAOS
@@ -1343,6 +1522,7 @@ class SFP(SfpBase):
         rc = sxd_access_reg_pmaos(pmaos, meta, REGISTER_NUM, None, None)
         assert rc == SXD_STATUS_SUCCESS, "sxd_access_reg_pmaos failed, rc = %d" % rc
 
+
     def _set_lpmode_raw(self, lpmode):
         # Get PMMP
         pmmp = ku_pmmp_reg()
@@ -1363,6 +1543,7 @@ class SFP(SfpBase):
         rc = sxd_access_reg_pmmp(pmmp, meta, REGISTER_NUM, None, None)
 
         return rc
+
 
     def set_lpmode(self, lpmode):
         """
@@ -1395,6 +1576,7 @@ class SFP(SfpBase):
             logger.log_warning("set_lpmode failed due to some SDK failure")
             self._close_sdk()
             return False
+
 
     def set_power_override(self, power_override, power_set):
         """
