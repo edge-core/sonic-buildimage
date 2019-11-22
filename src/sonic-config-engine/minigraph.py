@@ -573,7 +573,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
     vlan_members = None
     pcs = None
     mgmt_intf = None
-    lo_intf = None
+    lo_intfs = None
     neighbors = None
     devices = None
     hostname = None
@@ -656,7 +656,10 @@ def parse_xml(filename, platform=None, port_config_file=None):
         if alias in port_speeds_default:
             results['MGMT_PORT'][name]['speed'] = port_speeds_default[alias]
         results['MGMT_INTERFACE'][(name, key[1])] = mgmt_intf[key]
-    results['LOOPBACK_INTERFACE'] = lo_intfs
+    results['LOOPBACK_INTERFACE'] = {}
+    for lo_intf in lo_intfs:
+        results['LOOPBACK_INTERFACE'][lo_intf] = lo_intfs[lo_intf]
+        results['LOOPBACK_INTERFACE'][lo_intf[0]] = {}
     results['MGMT_VRF_CONFIG'] = mvrf
 
     phyport_intfs = {}
