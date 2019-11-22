@@ -281,11 +281,15 @@ bcm_stat_interval.BCM8869X=1000
 mem_cache_enable_ecc.BCM8869X=1
 mem_cache_enable_parity.BCM8869X=1
 
-serdes_nif_clk_freq_in.BCM8869X=2
-serdes_nif_clk_freq_out.BCM8869X=1
+serdes_nif_clk_freq_in.BCM8869X_A0=2
+serdes_nif_clk_freq_out.BCM8869X_A0=1
+serdes_fabric_clk_freq_in.BCM8869X_A0=2
+serdes_fabric_clk_freq_out.BCM8869X_A0=1
 
-serdes_fabric_clk_freq_in.BCM8869X=2
-serdes_fabric_clk_freq_out.BCM8869X=1
+serdes_nif_clk_freq_in.BCM8869X=1
+serdes_nif_clk_freq_out.BCM8869X=bypass
+serdes_fabric_clk_freq_in.BCM8869X=1
+serdes_fabric_clk_freq_out.BCM8869X=bypass
 
 dram_phy_tune_mode_on_init.BCM8869X=RUN_TUNE
 
