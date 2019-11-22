@@ -28,3 +28,4 @@ $(DOCKER_TELEMETRY)_CONTAINER_NAME = telemetry
 $(DOCKER_TELEMETRY)_RUN_OPT += --net=host --privileged -t
 $(DOCKER_TELEMETRY)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
 
+$(DOCKER_TELEMETRY)_FILES += $(SUPERVISOR_PROC_EXIT_LISTENER_SCRIPT)
