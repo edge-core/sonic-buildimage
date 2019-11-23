@@ -630,7 +630,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
         },
         'x509': {
             'server_crt': '/etc/sonic/telemetry/streamingtelemetryserver.cer',
-            'server_key': '/etc/sonic/telemetry/streamingtelemetryclient.key',
+            'server_key': '/etc/sonic/telemetry/streamingtelemetryserver.key',
             'ca_crt': '/etc/sonic/telemetry/dsmsroot.cer'
         }
     }
