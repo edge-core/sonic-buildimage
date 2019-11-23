@@ -85,7 +85,9 @@ start_peer_and_dependent_services() {
     if [[ x"$WARM_BOOT" != x"true" ]]; then
         /bin/systemctl start ${PEER}
         for dep in ${DEPENDENT}; do
-            /bin/systemctl start ${dep}
+            # Here we call `systemctl restart` on each dependent service instead of `systemctl start` to
+            # ensure the services actually get stopped and started in case they were not previously stopped.
+            /bin/systemctl restart ${dep}
         done
     fi
 }
