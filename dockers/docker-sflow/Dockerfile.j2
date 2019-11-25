@@ -29,5 +29,7 @@ RUN sed -ri '/^DAEMON_ARGS=""/c DAEMON_ARGS="-c /var/log/hsflowd.crash"' /etc/in
 
 COPY ["start.sh", "/usr/bin/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
+COPY ["files/supervisor-proc-exit-listener", "/usr/bin"]
+COPY ["critical_processes", "/etc/supervisor"]
 
 ENTRYPOINT ["/usr/bin/supervisord"]
