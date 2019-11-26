@@ -304,6 +304,45 @@ class HostConfigDaemon:
             add = False
 
         self.iptables.iptables_handler(key, data, add)
+        
+    def feature_status_handler(self, key, data):
+        status_data = self.config_db.get_table('FEATURE')
+        for key in status_data.keys():
+            if not key:
+                syslog.syslog(syslog.LOG_WARNING, "FEATURE key is missing")
+                return
+        status = status_data[key]['status']
+        if not status:
+            syslog.syslog(syslog.LOG_WARNING, "status is missing for {}".format(key))
+            return
+        if status == "enabled":
+            start_cmds=[]
+            start_cmds.append("sudo systemctl enable {}".format(key))
+            start_cmds.append("sudo systemctl start {}".format(key))
+            for cmd in start_cmds:
+                syslog.syslog(syslog.LOG_INFO, "Running cmd - {}".format(cmd))
+                try:
+                    subprocess.check_call(cmd, shell=True)
+                except subprocess.CalledProcessError as err:
+                    syslog.syslog(syslog.LOG_ERR, "{} - failed: return code - {}, output:\n{}"
+                              .format(err.cmd, err.returncode, err.output))
+                    return
+            syslog.syslog(syslog.LOG_INFO, "Feature '{}' is enabled and started".format(key))
+        elif status == "disabled":
+            stop_cmds=[]
+            stop_cmds.append("sudo systemctl stop {}".format(key))
+            stop_cmds.append("sudo systemctl disable {}".format(key))
+            for cmd in stop_cmds:
+                syslog.syslog(syslog.LOG_INFO, "Running cmd - {}".format(cmd))
+                try:
+                    subprocess.check_call(cmd, shell=True)
+                except subprocess.CalledProcessError as err:
+                    syslog.syslog(syslog.LOG_ERR, "{} - failed: return code - {}, output:\n{}"
+                              .format(err.cmd, err.returncode, err.output))
+                    return
+            syslog.syslog(syslog.LOG_INFO, "Feature '{}' is stopped and disabled".format(key))
+        else:
+            syslog.syslog(syslog.LOG_ERR, "Unexpected status value '{}' for '{}'".format(status, key))
 
     def start(self):
         self.config_db.subscribe('AAA', lambda table, key, data: self.aaa_handler(key, data))
@@ -311,6 +350,7 @@ class HostConfigDaemon:
         self.config_db.subscribe('TACPLUS', lambda table, key, data: self.tacacs_global_handler(key, data))
         self.config_db.subscribe('DEVICE_METADATA', lambda table, key, data: self.hostname_handler(key, data))
         self.config_db.subscribe('LOOPBACK_INTERFACE', lambda table, key, data: self.lpbk_handler(key, data))
+        self.config_db.subscribe('FEATURE', lambda table, key, data: self.feature_status_handler(key, data))
         self.config_db.listen()
 
 
@@ -321,4 +361,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
