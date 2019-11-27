@@ -1,0 +1,13 @@
+[Unit]
+Description=Process and docker CPU/memory utilization data export daemon
+Requires=database.service updategraph.service
+After=database.service updategraph.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/procdockerstatsd
+Restart=Always
+
+[Install]
+WantedBy=multi-user.target
+
