@@ -1,7 +1,7 @@
 [Unit]
 Description=DHCP relay container
-Requires=updategraph.service swss.service teamd.service
-After=updategraph.service swss.service teamd.service
+Requires=updategraph.service
+After=updategraph.service swss.service syncd.service teamd.service
 Before=ntp-config.service
 
 [Service]
@@ -11,4 +11,4 @@ ExecStart=/usr/bin/{{ docker_container_name }}.sh wait
 ExecStop=/usr/bin/{{ docker_container_name }}.sh stop
 
 [Install]
-WantedBy=multi-user.target swss.service teamd.service
+WantedBy=multi-user.target

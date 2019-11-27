@@ -2,7 +2,7 @@
 
 SERVICE="swss"
 PEER="syncd"
-DEPENDENT="teamd radv"
+DEPENDENT="teamd radv dhcp_relay"
 DEBUGLOG="/tmp/swss-syncd-debug.log"
 LOCKFILE="/tmp/swss-syncd-lock"
 
