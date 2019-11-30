@@ -1,8 +1,8 @@
 {% set default_cable = '5m' %}
-{% set ingress_lossless_pool_size =  '4194304' %}
-{% set ingress_lossy_pool_size =  '7340032' %}
-{% set egress_lossless_pool_size =  '16777152' %}
-{% set egress_lossy_pool_size =  '7340032' %}
+{% set ingress_lossless_pool_size =  '23850816' %}
+{% set ingress_lossy_pool_size =  '36222208' %}
+{% set egress_lossless_pool_size =  '29482816' %}
+{% set egress_lossy_pool_size =  '26400000' %}
 
 {%- macro generate_port_lists(PORT_ALL) %}
     {# Generate list of ports #}
@@ -17,7 +17,7 @@
             "size": "{{ ingress_lossless_pool_size }}",
             "type": "ingress",
             "mode": "dynamic",
-            "xoff": "2867200"
+            "xoff": "36222208"
         },
         "ingress_lossy_pool": {
             "size": "{{ ingress_lossy_pool_size }}",

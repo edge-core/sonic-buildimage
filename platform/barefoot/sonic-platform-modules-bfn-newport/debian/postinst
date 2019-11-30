@@ -1,0 +1,6 @@
+#!/bin/sh
+set -e
+depmod -a 
+systemctl enable bfn-newport.service
+systemctl start bfn-newport.service
+#DEBHELPER#
