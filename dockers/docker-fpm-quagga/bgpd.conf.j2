@@ -24,9 +24,9 @@ route-map FROM_BGP_SPEAKER_V4 permit 10
 route-map TO_BGP_SPEAKER_V4 deny 10
 !
 {% if BGP_MONITORS is defined and BGP_MONITORS|length > 0 %}
-route-map FROM_BGPMON_V4 deny 10
+route-map FROM_BGPMON deny 10
 !
-route-map TO_BGPMON_V4 permit 10
+route-map TO_BGPMON permit 10
 !
 {% endif %}
 router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
@@ -102,22 +102,25 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
 {% endblock bgp_peers_with_range %}
 {% block bgp_monitors %}
 {% if BGP_MONITORS is defined and BGP_MONITORS|length > 0 %}
-  neighbor BGPMON_V4 peer-group
-  neighbor BGPMON_V4 activate
+  neighbor BGPMON peer-group
+  neighbor BGPMON activate
 {% for (name, prefix) in LOOPBACK_INTERFACE %}
 {% if prefix | ipv4 and name == 'Loopback0' %}
-  neighbor BGPMON_V4 update-source {{ prefix | ip }}
+  neighbor BGPMON update-source {{ prefix | ip }}
 {% endif %}
 {% endfor %}
-  neighbor BGPMON_V4 route-map FROM_BGPMON_V4 in
-  neighbor BGPMON_V4 route-map TO_BGPMON_V4 out
-  neighbor BGPMON_V4 send-community
-  neighbor BGPMON_V4 maximum-prefix 1
+  neighbor BGPMON route-map FROM_BGPMON in
+  neighbor BGPMON route-map TO_BGPMON out
+  neighbor BGPMON send-community
+  neighbor BGPMON maximum-prefix 1
 {% for neighbor_addr, bgp_session in BGP_MONITORS.items() %}
   neighbor {{ neighbor_addr }} remote-as {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
-  neighbor {{ neighbor_addr }} peer-group BGPMON_V4
+  neighbor {{ neighbor_addr }} peer-group BGPMON
   neighbor {{ neighbor_addr }} description {{ bgp_session['name'] }}
   neighbor {{ neighbor_addr }} activate
+  address-family ipv6
+    neighbor {{ neighbor_addr }} activate
+  exit-address-family
 {% endfor %}
 {% endif %}
 {% endblock bgp_monitors %}
