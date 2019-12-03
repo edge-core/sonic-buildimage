@@ -28,14 +28,15 @@ except ImportError as e:
 psu_eeprom_format = [
     ('PPID', 's', 20), ('DPN Rev', 's', 3), ('Service Tag', 's', 7),
     ('Part Number', 's', 10), ('Part Num Revision', 's', 3),
-    ('Mfg Test', 's', 2), ('PSU Type', 's', 1), ('Fab Rev', 's', 2)
+    ('Mfg Test', 's', 2), ('Redundant copy', 's', 83), ('PSU Type', 's', 1),
+    ('Fab Rev', 's', 2)
     ]
 
 # Fan eeprom fields in format required by EepromDecoder
 fan_eeprom_format = [
     ('PPID', 's', 20), ('DPN Rev', 's', 3), ('Service Tag', 's', 7),
     ('Part Number', 's', 10), ('Part Num Revision', 's', 3),
-    ('Mfg Test', 's', 2), ('Redundant copy', 's', 82),
+    ('Mfg Test', 's', 2), ('Redundant copy', 's', 83),
     ('Number of Fans', 's', 1), ('Fan Type', 's', 1),
     ('Fab Rev', 's', 2)
     ]
@@ -168,11 +169,18 @@ class Eeprom(TlvInfoDecoder):
             else:
                 self.part_number = 'NA'
 
-            (valid, data) = self._get_eeprom_field("Fan Type")
-            if valid:
-                self.fan_type = data
+            if self.is_psu_eeprom:
+                (valid, data) = self._get_eeprom_field("PSU Type")
+                if valid:
+                    self.psu_type = data
+                else:
+                    self.psu_type = 'NA'
             else:
-                self.fan_type = 'NA'
+                (valid, data) = self._get_eeprom_field("Fan Type")
+                if valid:
+                    self.fan_type = data
+                else:
+                    self.fan_type = 'NA'
 
     def _get_eeprom_field(self, field_name):
         """
@@ -204,7 +212,10 @@ class Eeprom(TlvInfoDecoder):
         """
         Returns the airflow fan type.
         """
-        return int(self.fan_type.encode('hex'), 16)
+        if self.is_psu_eeprom:
+            return int(self.psu_type.encode('hex'), 16)
+        else:
+            return int(self.fan_type.encode('hex'), 16)
 
     # System EEPROM specific methods
     def base_mac_addr(self):

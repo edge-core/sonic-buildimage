@@ -17,6 +17,7 @@ except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
 
+MAX_S6000_PSU_FAN_SPEED = 18000
 MAX_S6000_FAN_SPEED = 19000
 
 
@@ -26,12 +27,12 @@ class Fan(FanBase):
     CPLD_DIR = "/sys/devices/platform/dell-s6000-cpld.0/"
     I2C_DIR = "/sys/class/i2c-adapter/"
 
-    def __init__(self, fan_index, psu_fan=False):
-        # Fan is 1-based in DellEMC platforms
-        self.index = fan_index + 1
+    def __init__(self, fan_index, psu_fan=False, dependency=None):
         self.is_psu_fan = psu_fan
 
         if not self.is_psu_fan:
+            # Fan is 1-based in DellEMC platforms
+            self.index = fan_index + 1
             self.fan_presence_reg = "fan_prs"
             self.fan_led_reg = "fan{}_led".format(fan_index)
             self.get_fan_speed_reg = self.I2C_DIR + "i2c-11/11-0029/" +\
@@ -42,8 +43,13 @@ class Fan(FanBase):
             self.max_fan_speed = MAX_S6000_FAN_SPEED
             self.supported_led_color = ['off', 'green', 'amber']
         else:
-            self.get_fan_speed_reg = self.I2C_DIR + "i2c-1/1-005{}/" +\
-                    "fan1_input".format(10 - self.index)
+            self.index = fan_index
+            self.dependency = dependency
+            self.get_fan_speed_reg = self.I2C_DIR +\
+                    "i2c-1/1-005{}/fan1_target".format(10 - self.index)
+            self.set_fan_speed_reg = self.I2C_DIR +\
+                    "i2c-1/1-005{}/fan1_target".format(10 - self.index)
+            self.max_fan_speed = MAX_S6000_PSU_FAN_SPEED
 
     def _get_cpld_register(self, reg_name):
         # On successful read, returns the value read from given
@@ -136,6 +142,9 @@ class Fan(FanBase):
             bool: True if Fan is present, False if not
         """
         status = False
+        if self.is_psu_fan:
+            return self.dependency.get_presence()
+
         fan_presence = self._get_cpld_register(self.fan_presence_reg)
         if (fan_presence != 'ERR'):
             fan_presence = int(fan_presence,16) & self.index
@@ -151,7 +160,10 @@ class Fan(FanBase):
         Returns:
             string: Part number of Fan
         """
-        return self.eeprom.part_number_str()
+        if not self.is_psu_fan:
+            return self.eeprom.part_number_str()
+        else:
+            return 'NA'
 
     def get_serial(self):
         """
@@ -161,7 +173,10 @@ class Fan(FanBase):
             string: Serial number of Fan
         """
         # Sample Serial number format "US-01234D-54321-25A-0123-A00"
-        return self.eeprom.serial_number_str()
+        if not self.is_psu_fan:
+            return self.eeprom.serial_number_str()
+        else:
+            return 'NA'
 
     def get_status(self):
         """
@@ -186,8 +201,13 @@ class Fan(FanBase):
             A string, either FAN_DIRECTION_INTAKE or
             FAN_DIRECTION_EXHAUST depending on fan direction
         """
-        direction = {1: 'FAN_DIRECTION_INTAKE', 2: 'FAN_DIRECTION_EXHAUST'}
-        fan_direction = self.eeprom.airflow_fan_type()
+        if self.is_psu_fan:
+            direction = {1: 'FAN_DIRECTION_EXHAUST', 2: 'FAN_DIRECTION_INTAKE',
+                         3: 'FAN_DIRECTION_EXHAUST', 4: 'FAN_DIRECTION_INTAKE'}
+            fan_direction = self.dependency.eeprom.airflow_fan_type()
+        else:
+            direction = {1: 'FAN_DIRECTION_EXHAUST', 2: 'FAN_DIRECTION_INTAKE'}
+            fan_direction = self.eeprom.airflow_fan_type()
 
         return direction.get(fan_direction,'NA')
 
@@ -248,7 +268,7 @@ class Fan(FanBase):
         Returns:
             bool: True if set success, False if fail.
         """
-        if color not in self.supported_led_color:
+        if self.is_psu_fan or (color not in self.supported_led_color):
             return False
         if(color == self.STATUS_LED_COLOR_AMBER):
             color = 'yellow'
@@ -266,6 +286,10 @@ class Fan(FanBase):
         Returns:
             A string, one of the predefined STATUS_LED_COLOR_* strings.
         """
+        if self.is_psu_fan:
+            # No LED available for PSU Fan
+            return None
+
         fan_led = self._get_cpld_register(self.fan_led_reg)
         if (fan_led != 'ERR'):
             if (fan_led == 'yellow'):

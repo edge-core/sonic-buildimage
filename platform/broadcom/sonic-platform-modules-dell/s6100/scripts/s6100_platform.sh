@@ -54,6 +54,26 @@ sys_eeprom() {
     esac
 }
 
+#Attach/Detach eeprom on each IOM
+switch_board_eeprom() {
+    case $1 in
+        "new_device")
+                      for ((i=14;i<=17;i++));
+                      do
+                          i2c_config "echo 24c02 0x50 > /sys/bus/i2c/devices/i2c-$i/$1"
+                      done
+                      ;;
+        "delete_device")
+                      for ((i=14;i<=17;i++));
+                      do
+                          i2c_config "echo 0x50 > /sys/bus/i2c/devices/i2c-$i/$1"
+                      done
+                      ;;
+        *)            echo "s6100_platform: switch_board_eeprom : invalid command !"
+                      ;;
+    esac
+}
+
 #Attach/Detach CPLD devices to drivers for each IOM
 switch_board_cpld() {
     case $1 in
@@ -245,7 +265,7 @@ install_python_api_package() {
 remove_python_api_package() {
     rv=$(pip show sonic-platform > /dev/null 2>/dev/null)
     if [ $? -eq 0 ]; then
-        rv = $(pip uninstall -y sonic-platform > /dev/null 2>/dev/null)
+        rv=$(pip uninstall -y sonic-platform > /dev/null 2>/dev/null)
     fi
 }
 
@@ -267,6 +287,7 @@ if [[ "$1" == "init" ]]; then
     cpu_board_mux "new_device"
     switch_board_mux "new_device"
     sys_eeprom "new_device"
+    switch_board_eeprom "new_device"
     switch_board_cpld "new_device"
     switch_board_qsfp_mux "new_device"
     switch_board_sfp "new_device"
@@ -280,6 +301,7 @@ elif [[ "$1" == "deinit" ]]; then
     xcvr_presence_interrupts "disable"
     switch_board_sfp "delete_device"
     switch_board_cpld "delete_device"
+    switch_board_eeprom "delete_device"
     switch_board_mux "delete_device"
     sys_eeprom "delete_device"
     switch_board_qsfp "delete_device"

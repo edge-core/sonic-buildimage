@@ -13,6 +13,7 @@ try:
     import os
     from sonic_platform_base.psu_base import PsuBase
     from sonic_platform.eeprom import Eeprom
+    from sonic_platform.fan import Fan
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -45,6 +46,8 @@ class Psu(PsuBase):
         # Overriding _fan_list class variable defined in PsuBase, to
         # make it unique per Psu object
         self._fan_list = []
+
+        self._fan_list.append(Fan(self.index, psu_fan=True, dependency=self))
 
     def _get_cpld_register(self, reg_name):
         # On successful read, returns the value read from given
