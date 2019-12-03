@@ -631,7 +631,7 @@ static ssize_t show_fan(struct device *dev,
                         ret = smf_read_reg16(data, PSU_2_FAN_SPEED);
                         break;
                 case 12:
-                        ret = ~smf_read_reg(data, FAN_TRAY_PRESENCE);
+                        ret = (~smf_read_reg(data, FAN_TRAY_PRESENCE) & 0xff);
                         export_hex = 1;
                         break; 
 		       
@@ -682,14 +682,26 @@ static ssize_t show_fan_alarm(struct device *dev,
         struct smf_data *data = dev_get_drvdata(dev);
         int ret, psu_fan_status=0;
 
-        if(index < 2)
-                psu_fan_status = smf_read_reg(data, FAN_STATUS_GROUP_B);
+        if (data->kind == z9100smf) {
+                if ((index % 2) == 0)
+                        index = index / 2;
+                else
+                        index = (index / 2) + 5;
+        }
+
+        if (data->kind == s6100smf)
+                index = index / 2;
+
+        if (index > 7) {
+                psu_fan_status = ~smf_read_reg(data, FAN_STATUS_GROUP_A);
+                index = index % 8;
+        } else
+                psu_fan_status = ~smf_read_reg(data, FAN_STATUS_GROUP_B);
 
         if (psu_fan_status & (1 << (index)))
                 ret=0;
-
-        if (ret < 0)
-                return ret;
+        else
+                ret=1;
 
         return sprintf(buf, "%d\n", ret);  
 }
@@ -726,12 +738,12 @@ static ssize_t show_psu_fan(struct device *dev,
 
         if (index < FAN_601_FAULT){                               
                 fan_status = smf_read_reg(data, PSU_1_FAN_STATUS);
-                ret = fan_status & (1 << index);
+                ret = (fan_status >> index) & 1;
 
         }
         else{ 
                 fan_status = smf_read_reg(data, PSU_2_FAN_STATUS);
-                ret = fan_status & (1 << (index - 3));
+                ret = (fan_status >> (index - 3)) & 1;
         }
 
         if (ret < 0)
@@ -1319,17 +1331,15 @@ static ssize_t show_current(struct device *dev,
                 else
                         ret = smf_read_reg16(data, SWITCH_CURRENT_Z9100 + index * 2);
         else if (index < CURR602_INPUT)
-                curr = smf_read_reg16(data, PSU_1_INPUT_CURRENT + (index % 4) * 2);
+                ret = smf_read_reg16(data, PSU_1_INPUT_CURRENT + (index % 2) * 2);
         else
-                curr = smf_read_reg16(data, PSU_2_INPUT_CURRENT + (index % 4) * 2);
+                ret = smf_read_reg16(data, PSU_2_INPUT_CURRENT + (index % 4) * 2);
 
 
         if (ret < 0)
                 return ret;
 
-        /* TODO: docs say 10mA, value look like A? */
-        if(index < 2)
-                curr = ret*1000;
+        curr = ret*10;
 
         return sprintf(buf, "%d\n", curr);
 }

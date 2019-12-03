@@ -18,15 +18,26 @@ except ImportError, e:
 
 class Eeprom(eeprom_tlvinfo.TlvInfoDecoder):
 
-    def __init__(self):
-        self.eeprom_path = "/sys/class/i2c-adapter/i2c-2/2-0050/eeprom"
+    def __init__(self, i2c_line=0, iom_eeprom=False):
+        self.is_module = iom_eeprom
+        if self.is_module:
+            self.eeprom_path = ("/sys/class/i2c-adapter"
+                                "/i2c-{0}/{0}-0050/eeprom").format(i2c_line)
+        else:
+            self.eeprom_path = "/sys/class/i2c-adapter/i2c-2/2-0050/eeprom"
         super(Eeprom, self).__init__(self.eeprom_path, 0, '', True)
         self.eeprom_tlv_dict = dict()
+
         try:
-            self.eeprom_data = self.read_eeprom()
+            if self.is_module:
+                self.write_eeprom("\x00\x00")
+                self.eeprom_data = self.read_eeprom_bytes(256)
+            else:
+                self.eeprom_data = self.read_eeprom()
         except:
             self.eeprom_data = "N/A"
-            raise RuntimeError("Eeprom is not Programmed")
+            if not self.is_module:
+                raise RuntimeError("Eeprom is not Programmed")
         else:
             eeprom = self.eeprom_data
 
@@ -76,8 +87,12 @@ class Eeprom(eeprom_tlvinfo.TlvInfoDecoder):
         return ":".join([binascii.b2a_hex(T) for T in results[2]])
 
     def modelstr(self):
-        (is_valid, results) = self.get_tlv_field(
-                    self.eeprom_data, self._TLV_CODE_PRODUCT_NAME)
+        if self.is_module:
+            (is_valid, results) = self.get_tlv_field(
+                        self.eeprom_data, self._TLV_CODE_PLATFORM_NAME)
+        else:
+            (is_valid, results) = self.get_tlv_field(
+                        self.eeprom_data, self._TLV_CODE_PRODUCT_NAME)
         if not is_valid:
             return "N/A"
 

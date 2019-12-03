@@ -14,6 +14,7 @@ try:
     from sonic_platform_base.module_base import ModuleBase
     from sonic_platform.sfp import Sfp
     from sonic_platform.component import Component
+    from sonic_platform.eeprom import Eeprom
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -55,7 +56,7 @@ class Module(ModuleBase):
         self.port_start = (self.index - 1) * 16
         self.port_end = (self.index * 16) - 1
         self.port_i2c_line = self.IOM_I2C_MAPPING[self.index]
-        self.eeprom_tlv_dict = dict()
+        self._eeprom = Eeprom(iom_eeprom=True, i2c_line=self.port_i2c_line)
 
         self.iom_status_reg = "iom_status"
         self.iom_presence_reg = "iom_presence"
@@ -108,7 +109,7 @@ class Module(ModuleBase):
         Returns:
             string: The name of the device
         """
-        return "IOM{}: 16xQSFP+".format(self.index)
+        return "IOM{}: {}".format(self.index, self._eeprom.modelstr())
 
     def get_presence(self):
         """
@@ -133,7 +134,7 @@ class Module(ModuleBase):
         Returns:
             string: part number of module
         """
-        return 'NA'
+        return self._eeprom.part_number_str()
 
     def get_serial(self):
         """
@@ -142,7 +143,7 @@ class Module(ModuleBase):
         Returns:
             string: Serial number of module
         """
-        return 'NA'
+        return self._eeprom.serial_str()
 
     def get_status(self):
         """
@@ -178,7 +179,7 @@ class Module(ModuleBase):
         Returns:
             A string containing the hardware serial number for this module.
         """
-        return 'NA'
+        return self._eeprom.serial_number_str()
 
     def get_system_eeprom_info(self):
         """
@@ -192,4 +193,4 @@ class Module(ModuleBase):
                   ‘0x24’:’001c0f000fcd0a’, ‘0x25’:’02/03/2018 16:22:00’,
                   ‘0x26’:’01’, ‘0x27’:’REV01’, ‘0x28’:’AG9064-C2358-16G’}
         """
-        return self.eeprom_tlv_dict
+        return self._eeprom.system_eeprom_info()
