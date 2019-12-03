@@ -1,6 +1,6 @@
 [Unit]
 Description=sFlow container
-Requires=swss.service
+Requisite=swss.service
 After=swss.service syncd.service
 Before=ntp-config.service
 StartLimitIntervalSec=1200
