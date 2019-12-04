@@ -11,14 +11,7 @@ RUN apt-get update      && \
     apt-get install -f -y  \
         libdbus-1-3        \
         libdaemon0         \
-        libjansson4        \
-        # Install redis-tools dependencies
-        # TODO: implicitly install dependencies
-        libatomic1          \
-        libjemalloc1        \
-        liblua5.1-0         \
-        lua-bitop           \
-        lua-cjson
+        libjansson4
 
 {% if docker_sonic_telemetry_debs.strip() -%}
 # Copy locally-built Debian package dependencies
