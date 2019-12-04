@@ -1,12 +1,7 @@
 [Unit]
 Description=Update minigraph and set configuration based on minigraph
-After=rc-local.service
-After=database.service
-Requires=database.service
-{% if sonic_asic_platform == 'mellanox' -%}
-Requires=hw-management.service
-{% endif -%}
-
+After=config-setup.service
+Requires=config-setup.service
 
 [Service]
 Type=oneshot
