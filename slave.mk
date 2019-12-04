@@ -190,6 +190,7 @@ $(info "ENABLE_ORGANIZATION_EXTENSIONS"  : "$(ENABLE_ORGANIZATION_EXTENSIONS)")
 $(info "HTTP_PROXY"                      : "$(HTTP_PROXY)")
 $(info "HTTPS_PROXY"                     : "$(HTTPS_PROXY)")
 $(info "ENABLE_SYSTEM_TELEMETRY"         : "$(ENABLE_SYSTEM_TELEMETRY)")
+$(info "ENABLE_ZTP"                      : "$(ENABLE_ZTP)")
 $(info "SONIC_DEBUGGING_ON"              : "$(SONIC_DEBUGGING_ON)")
 $(info "SONIC_PROFILING_ON"              : "$(SONIC_PROFILING_ON)")
 $(info "KERNEL_PROCURE_METHOD"           : "$(KERNEL_PROCURE_METHOD)")
@@ -619,6 +620,7 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
                 $(LIBNSS_TACPLUS)) \
         $$(addprefix $(TARGET_PATH)/,$$($$*_DOCKERS)) \
         $$(addprefix $(FILES_PATH)/,$$($$*_FILES)) \
+	$(if $(findstring y,$(ENABLE_ZTP)),$(addprefix $(DEBS_PATH)/,$(SONIC_ZTP))) \
 	$(addprefix $(STRETCH_FILES_PATH)/, $(if $(filter $(CONFIGURED_ARCH),amd64), $(IXGBE_DRIVER))) \
         $(addprefix $(PYTHON_DEBS_PATH)/,$(SONIC_UTILS)) \
         $(addprefix $(PYTHON_WHEELS_PATH)/,$(SONIC_CONFIG_ENGINE)) \
@@ -639,6 +641,7 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
 	export sonic_asic_platform="$(patsubst %-$(CONFIGURED_ARCH),%,$(CONFIGURED_PLATFORM))"
 	export enable_organization_extensions="$(ENABLE_ORGANIZATION_EXTENSIONS)"
 	export enable_dhcp_graph_service="$(ENABLE_DHCP_GRAPH_SERVICE)"
+	export enable_ztp="$(ENABLE_ZTP)"
 	export shutdown_bgp_on_start="$(SHUTDOWN_BGP_ON_START)"
 	export enable_pfcwd_on_start="$(ENABLE_PFCWD_ON_START)"
 	export installer_debs="$(addprefix $(STRETCH_DEBS_PATH)/,$($*_INSTALLS))"

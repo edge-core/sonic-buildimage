@@ -44,6 +44,9 @@ DEFAULT_PASSWORD = YourPaSsWoRd
 # If not set (default behavior) the default minigraph built into the image will be used.
 # ENABLE_DHCP_GRAPH_SERVICE = y
 
+# ENABLE_ZTP - installs Zero Touch Provisioning support.
+# ENABLE_ZTP = y
+
 # SHUTDOWN_BGP_ON_START - if set to y all bgp sessions will be in admin down state when
 # bgp service starts.
 # SHUTDOWN_BGP_ON_START = y
