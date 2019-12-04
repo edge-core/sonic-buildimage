@@ -258,6 +258,11 @@ sudo bash -c "echo '{ \"DEVICE_METADATA\": { \"localhost\": { \"default_bgp_stat
 \"{{crm_res}}_threshold_type\": \"percentage\", \"{{crm_res}}_low_threshold\": \"70\", \"{{crm_res}}_high_threshold\": \"85\"{% if not loop.last %}, {% endif %}
 {%- endfor %} } } }' >> $FILESYSTEM_ROOT/etc/sonic/init_cfg.json"
 
+# Copy config-setup script and service file
+j2 files/build_templates/config-setup.service.j2 | sudo tee $FILESYSTEM_ROOT/etc/systemd/system/config-setup.service
+sudo cp $IMAGE_CONFIGS/config-setup/config-setup $FILESYSTEM_ROOT/usr/bin/config-setup
+sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable config-setup.service
+
 # Copy SNMP configuration files
 sudo cp $IMAGE_CONFIGS/snmp/snmp.yml $FILESYSTEM_ROOT/etc/sonic/
 
