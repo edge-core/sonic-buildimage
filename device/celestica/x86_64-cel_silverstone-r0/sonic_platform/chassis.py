@@ -18,6 +18,7 @@ try:
     from sonic_platform_base.chassis_base import ChassisBase
     from sonic_platform.eeprom import Tlv
     from sonic_platform.fan import Fan
+    from sonic_platform.psu import Psu
     from helper import APIHelper
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
@@ -46,6 +47,9 @@ class Chassis(ChassisBase):
             for fan_index in range(0, NUM_FAN):
                 fan = Fan(fant_index, fan_index)
                 self._fan_list.append(fan)
+        for index in range(0, NUM_PSU):
+            psu = Psu(index)
+            self._psu_list.append(psu)
 
     def get_base_mac(self):
         """

@@ -30,7 +30,7 @@ IPMI_FAN_PRESENT_CMD = "0x06 0x03 {}"
 IPMI_SET_FAN_LED_CMD = "0x07 {} {}"
 IPMI_GET_FAN_LED_CMD = "0x08 {}"
 IPMI_SET_PWM = "0x03 0x01 0x02 {} {}"
-IPMI_FRU_PRINT_ID = "ipmitool fru print {}"
+
 IPMI_FRU_MODEL_KEY = "Board Part Number"
 IPMI_FRU_SERIAL_KEY = "Board Serial"
 
@@ -47,6 +47,9 @@ FAN1_LED_CMD = "0x04"
 FAN_PWM_REGISTER_START = 0x22
 FAN_PWM_REGISTER_STEP = 0x10
 FAN1_FRU_ID = 6
+
+NUM_OF_FAN_TRAY = 7
+PSU_FAN1_FRONT_SS_ID = "0x33"
 
 
 class Fan(FanBase):
@@ -69,8 +72,10 @@ class Fan(FanBase):
             depending on fan direction
         """
         direction = self.FAN_DIRECTION_EXHAUST
+        fan_direction_key = hex(self.fan_tray_index) if not self.is_psu_fan else hex(
+            self.psu_index + NUM_OF_FAN_TRAY)
         status, raw_flow = self._api_helper.ipmi_raw(
-            IPMI_OEM_NETFN, IPMI_AIR_FLOW_CMD.format(hex(self.fan_tray_index)))
+            IPMI_OEM_NETFN, IPMI_AIR_FLOW_CMD.format(fan_direction_key))
         if status and raw_flow == "01":
             direction = self.FAN_DIRECTION_INTAKE
 
@@ -88,13 +93,12 @@ class Fan(FanBase):
             Max F2B = 24700 RPM 
             Max B2F = 29700 RPM
         """
-        # ipmitool raw 0x3a 0x03 0x01 0x01 {register}
-        # register = 22 32 42 52 62 72 82
 
         max_rpm = MAX_OUTLET if self.fan_index % 2 == 0 else MAX_INLET
         fan1_ss_start = FAN1_FRONT_SS_ID if self.fan_index % 2 == 0 else FAN1_REAR_SS_ID
 
-        ss_id = hex(int(fan1_ss_start, 16) + self.fan_tray_index)
+        ss_id = hex(int(fan1_ss_start, 16) + self.fan_tray_index) if not self.psu_index else hex(
+            int(PSU_FAN1_FRONT_SS_ID, 16) + self.fan_tray_index)
         status, raw_ss_read = self._api_helper.ipmi_raw(
             IPMI_SENSOR_NETFN, IPMI_FAN_SPEED_CMD.format(ss_id))
 
@@ -145,6 +149,10 @@ class Fan(FanBase):
         # ipmitool raw 0x3a 0x03 0x01 0x02 {register} {pwm_speed}
         # register = 22 32 42 52 62 72 82
 
+        if self.is_psu_fan:
+            ## TODO
+            return False
+
         speed_hex = hex(int(float(speed)/100 * 255))
         fan_register_hex = hex(FAN_PWM_REGISTER_START +
                                (self.fan_tray_index*FAN_PWM_REGISTER_STEP))
@@ -171,6 +179,11 @@ class Fan(FanBase):
            manual: ipmitool raw 0x3A 0x09 0x02 0x00
            auto: ipmitool raw 0x3A 0x09 0x02 0x01
         """
+
+        if self.is_psu_fan:
+            # Not support
+            return False
+
         led_cmd = {
             self.STATUS_LED_COLOR_GREEN: FAN_LED_GREEN_CMD,
             self.STATUS_LED_COLOR_RED: FAN_LED_RED_CMD,
@@ -196,6 +209,10 @@ class Fan(FanBase):
             STATUS_LED_COLOR_RED = "red"
             STATUS_LED_COLOR_OFF = "off"
         """
+        if self.is_psu_fan:
+            # Not support
+            return self.STATUS_LED_COLOR_OFF
+
         fan_selector = hex(int(FAN1_LED_CMD, 16) + self.fan_tray_index)
         status, hx_color = self._api_helper.ipmi_raw(
             IPMI_OEM_NETFN, IPMI_GET_FAN_LED_CMD.format(fan_selector))
@@ -225,6 +242,9 @@ class Fan(FanBase):
         Returns:
             bool: True if FAN is present, False if not
         """
+        if self.is_psu_fan:
+            return True
+
         presence = False
         status, raw_present = self._api_helper.ipmi_raw(
             IPMI_OEM_NETFN, IPMI_FAN_PRESENT_CMD.format(hex(self.index)))
@@ -239,6 +259,9 @@ class Fan(FanBase):
         Returns:
             string: Model/part number of device
         """
+        if self.is_psu_fan:
+            return "Unknown"
+
         model = "Unknown"
         ipmi_fru_idx = self.fan_tray_index + FAN1_FRU_ID
         status, raw_model = self._api_helper.ipmi_fru_id(
@@ -256,6 +279,9 @@ class Fan(FanBase):
         Returns:
             string: Serial number of device
         """
+        if self.is_psu_fan:
+            return "Unknown"
+
         serial = "Unknown"
         ipmi_fru_idx = self.fan_tray_index + FAN1_FRU_ID
         status, raw_model = self._api_helper.ipmi_fru_id(
