@@ -4,7 +4,6 @@ common/dell_i2c_utils.sh usr/local/bin
 common/io_rd_wr.py usr/local/bin
 common/fstrim.timer etc/systemd/system
 common/fstrim.service etc/systemd/system
-common/platform_reboot usr/share/sonic/device/x86_64-dell_s6100_c2538-r0
 s6100/scripts/platform_sensors.py usr/local/bin
 s6100/scripts/sensors usr/bin
 s6100/systemd/platform-modules-s6100.service etc/systemd/system
