@@ -10,3 +10,4 @@
 0009-CVE-2018-5733.patch
 0010-CVE-2018-5732.patch
 0008-interface-name-maxlen-crash.patch
+0012-Don-t-skip-down-interfaces-when-discovering-interfac.patch
