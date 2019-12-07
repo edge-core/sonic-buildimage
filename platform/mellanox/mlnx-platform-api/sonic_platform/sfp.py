@@ -136,6 +136,26 @@ SFP_CHANNL_MON_WIDTH = 6
 SFP_CHANNL_STATUS_OFFSET = 110
 SFP_CHANNL_STATUS_WIDTH = 1
 
+# identifier value of xSFP module which is in the first byte of the EEPROM
+# if the identifier value falls into SFP_TYPE_CODE_LIST the module is treated as a SFP module and parsed according to 8472
+# for QSFP_TYPE_CODE_LIST the module is treated as a QSFP module and parsed according to 8436/8636
+# Originally the type (SFP/QSFP) of each module is determined according to the SKU dictionary 
+# where the type of each FP port is defined. The content of EEPROM is parsed according to its type.
+# However, sometimes the SFP module can be fit in an adapter and then pluged into a QSFP port.
+# In this case the EEPROM content is in format of SFP but parsed as QSFP, causing failure.
+# To resolve that issue the type field of the xSFP module is also fetched so that we can know exectly what type the 
+# module is. Currently only the following types are recognized as SFP/QSFP module. 
+# Meanwhile, if the a module's identifier value can't be recognized, it will be parsed according to the SKU dictionary.
+# This is because in the future it's possible that some new identifier value which is not regonized but backward compatible
+# with the current format and by doing so it can be parsed as much as possible.
+SFP_TYPE_CODE_LIST = [
+    '03' # SFP/SFP+/SFP28
+]
+QSFP_TYPE_CODE_LIST = [
+    '0d', # QSFP+ or later
+    '11' # QSFP28 or later
+]
+
 qsfp_cable_length_tup = ('Length(km)', 'Length OM3(2m)', 
                          'Length OM2(m)', 'Length OM1(m)',
                          'Length Cable Assembly(m)')
@@ -206,7 +226,7 @@ class SFP(SfpBase):
         self.index = sfp_index + 1
         self.sfp_eeprom_path = "qsfp{}".format(self.index)
         self.sfp_status_path = "qsfp{}_status".format(self.index)
-        self.sfp_type = sfp_type
+        self._detect_sfp_type(sfp_type)
         self.dom_tx_disable_supported = False
         self._dom_capability_detect()
         self.sdk_handle = None
@@ -293,6 +313,26 @@ class SFP(SfpBase):
         return eeprom_raw
 
 
+    def _detect_sfp_type(self, sfp_type):
+        eeprom_raw = []
+        eeprom_raw = self._read_eeprom_specific_bytes(XCVR_TYPE_OFFSET, XCVR_TYPE_WIDTH)
+        if eeprom_raw:
+            if eeprom_raw[0] in SFP_TYPE_CODE_LIST:
+                self.sfp_type = SFP_TYPE
+            elif eeprom_raw[0] in QSFP_TYPE_CODE_LIST:
+                self.sfp_type = QSFP_TYPE
+            else:
+                # we don't regonize this identifier value, treat the xSFP module as the default type
+                self.sfp_type = sfp_type
+                logger.log_info("Identifier value of {} module {} is {} which isn't regonized and will be treated as default type ({})".format(
+                    sfp_type, self.index, eeprom_raw[0], sfp_type
+                ))
+        else:
+            # eeprom_raw being None indicates the module is not present.
+            # in this case we treat it as the default type according to the SKU
+            self.sfp_type = sfp_type
+
+
     def _dom_capability_detect(self):
         if not self.get_presence():
             self.dom_supported = False
@@ -303,7 +343,7 @@ class SFP(SfpBase):
             self.calibration = 0
             return
 
-        if self.sfp_type == "QSFP":
+        if self.sfp_type == QSFP_TYPE:
             self.calibration = 1
             sfpi_obj = sff8436InterfaceId()
             if sfpi_obj is None:
@@ -348,7 +388,7 @@ class SFP(SfpBase):
                 self.dom_tx_power_supported = False
                 self.calibration = 0
                 self.qsfp_page3_available = False
-        elif self.sfp_type == "SFP":
+        elif self.sfp_type == SFP_TYPE:
             sfpi_obj = sff8472InterfaceId()
             if sfpi_obj is None:
                 return None
