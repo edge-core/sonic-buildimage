@@ -11,3 +11,4 @@
 0010-Add-enable-use-sockets-to-configure-flags-in-debian-.patch
 0011-Bugfix-Ensure-HAVE_SO_BINDTODEVICE-has-a-chance-to-b.patch
 0012-If-destination-of-BOOTREQUEST-is-directed-broadcast-.patch
+0013-Don-t-skip-down-interfaces-when-discovering-interfac.patch
