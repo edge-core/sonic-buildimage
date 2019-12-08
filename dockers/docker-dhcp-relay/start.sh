@@ -16,12 +16,6 @@ if [ $(supervisorctl status | grep -c "^isc-dhcp-relay:") -gt 0 ]; then
     # lifetime of the process.
     /usr/bin/wait_for_intf.sh
 
-    # Allow a bit more time for interfaces to settle before starting the
-    # relay agent processes.
-    # FIXME: Remove/decrease this once we determine how to prevent future race
-    # conditions here.
-    sleep 180
-
     # Start all DHCP relay agent(s)
     supervisorctl start isc-dhcp-relay:*
 fi
