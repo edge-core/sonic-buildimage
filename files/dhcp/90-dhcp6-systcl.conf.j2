@@ -1,0 +1,7 @@
+{% if MGMT_INTERFACE %}
+net.ipv6.conf.eth0.accept_ra_defrtr = 0
+net.ipv6.conf.eth0.accept_ra = 0
+{% else %}
+net.ipv6.conf.eth0.accept_ra_defrtr = 1
+net.ipv6.conf.eth0.accept_ra = 1
+{% endif %}
