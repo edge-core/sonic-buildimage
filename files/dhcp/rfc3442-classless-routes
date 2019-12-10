@@ -55,8 +55,13 @@ if [ "$RUN" = "yes" ]; then
 				fi
 
 				# set route (ip detects host routes automatically)
-				ip -4 route add "${net_address}/${net_length}" \
+                                if echo $interface | grep -v Ethernet ; then
+   				     ip -4 route add "${net_address}/${net_length}" \
 					${via_arg} dev "${interface}" table default >/dev/null 2>&1
+                                else
+   				     ip -4 route add "${net_address}/${net_length}" \
+					${via_arg} dev "${interface}" >/dev/null 2>&1
+                                fi
 			done
 		fi
 	fi

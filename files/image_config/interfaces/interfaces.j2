@@ -27,6 +27,38 @@ iface lo inet loopback
 
 # The management network interface
 auto eth0
+{% if (ZTP_DHCP_DISABLED is not defined) and (ZTP is defined) and (ZTP['mode'] is defined and ZTP['mode']['profile'] == 'active') %}
+
+
+# ZTP out-of-band interface
+allow-hotplug eth0
+{% if ZTP['mode']['ipv4'] == 'true' %}
+iface eth0 inet dhcp
+{% endif %}
+{% if ZTP['mode']['ipv6'] == 'true' %}
+iface eth0 inet6 dhcp
+    up sysctl net.ipv6.conf.eth0.accept_ra=1
+    down sysctl net.ipv6.conf.eth0.accept_ra=0
+{% endif %}
+
+{% if ZTP['mode']['inband'] == 'true' %}
+{% for port in PORT %}
+
+# ZTP in-band interface {{ port }}
+auto {{ port }}
+allow-hotplug {{ port }}
+{% if PORT_DATA['PORT_TABLE:'+port] is defined and PORT_DATA['PORT_TABLE:'+port]['value']['oper_status'] == 'up' %}
+{% if ZTP['mode']['ipv4'] == 'true' %}
+iface {{ port }} inet dhcp
+{% endif %}
+{% if ZTP['mode']['ipv6'] == 'true' %}
+iface {{ port }} inet6 dhcp
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{% else %}
 {% if MGMT_INTERFACE %}
 {% for (name, prefix) in MGMT_INTERFACE|pfx_filter %}
 iface eth0 {{ 'inet' if prefix | ipv4 else 'inet6' }} static
@@ -69,6 +101,10 @@ iface eth0 inet dhcp
     up cgcreate -g l3mdev:mgmt
     up cgset -r l3mdev.master-device=mgmt mgmt
     down cgdelete -g l3mdev:mgmt
+{% endif %}
+iface eth0 inet6 dhcp
+    up sysctl net.ipv6.conf.eth0.accept_ra=1
+    down sysctl net.ipv6.conf.eth0.accept_ra=0
 {% endif %}
 {% endif %}
 #
