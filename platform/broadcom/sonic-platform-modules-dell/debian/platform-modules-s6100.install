@@ -14,3 +14,4 @@ s6100/systemd/platform-modules-s6100.service etc/systemd/system
 s6100/systemd/s6100-lpc-monitor.service etc/systemd/system
 tools/flashrom/flashrom usr/local/bin/
 common/fw-updater usr/local/bin
+common/onie_mode_set usr/local/bin

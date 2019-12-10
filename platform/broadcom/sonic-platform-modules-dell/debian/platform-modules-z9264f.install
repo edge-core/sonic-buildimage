@@ -8,3 +8,4 @@ z9264f/cfg/z9264f-modules.conf etc/modules-load.d
 z9264f/systemd/platform-modules-z9264f.service etc/systemd/system
 common/platform_reboot usr/share/sonic/device/x86_64-dellemc_z9264f_c3538-r0
 common/fw-updater usr/local/bin
+common/onie_mode_set usr/local/bin

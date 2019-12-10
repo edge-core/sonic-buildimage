@@ -12,3 +12,4 @@ z9100/cfg/z9100-modules.conf etc/modules-load.d
 z9100/systemd/platform-modules-z9100.service etc/systemd/system
 z9100/systemd/z9100-lpc-monitor.service etc/systemd/system
 common/fw-updater usr/local/bin
+common/onie_mode_set usr/local/bin
