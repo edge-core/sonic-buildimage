@@ -71,7 +71,7 @@ To build SONiC installer image and docker images, run the following commands:
     # Enter the source directory
     cd sonic-buildimage
 
-    # (Optional) Checkout a specific branch. By default, it uses master branch
+    # (Optional) Checkout a specific branch. By default, it uses master branch. For example, to checkout the branch 201911, use "git checkout 201911"
     git checkout [branch_name]
 
     # Execute make init once after cloning the repo, or after fetching remote repo with submodule updates
