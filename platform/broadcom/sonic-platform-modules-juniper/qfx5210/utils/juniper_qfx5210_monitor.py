@@ -47,6 +47,7 @@ try:
     import traceback
     import glob
     import collections
+    import StringIO
     from tabulate import tabulate
 except ImportError as e:
     raise ImportError('%s - required module not found' % str(e))
@@ -54,15 +55,20 @@ except ImportError as e:
 # Deafults
 VERSION = '1.0'
 FUNCTION_NAME = '/var/log/juniper_qfx5210_monitor'
-
+verbose = False
+DEBUG = False
 
 global log_file
 global log_level
 
 
 global isPlatformAFI
+global is80PerFlag
+global is60PerFlag
 global isFireThresholdReached 
-FireThresholdSecsRemaining = 120
+global isFireThresholdPrint 
+global PrevASICValue 
+global FireThresholdSecsRemaining
             
 temp_policy_AFI = {
     0: [[70, 0, 48000], [70, 48000, 53000], [80, 53000, 0], [80, 53000, 58000], [100, 58000, 0], ['Yellow Alarm', 64000, 70000], ['Red Alarm', 70000, 75000], ['Fire Shut Alarm', 75000, 0]],
@@ -72,6 +78,7 @@ temp_policy_AFI = {
     4: [[70, 0, 31000], [70, 31000, 36000], [80, 36000, 0], [80, 36000, 42000], [100, 42000, 0], ['Yellow Alarm', 48000, 55000], ['Red Alarm', 55000, 60000], ['Fire Shut Alarm', 60000, 0]],
     5: [[70, 0, 31000], [70, 31000, 36000], [80, 36000, 0], [80, 36000, 43000], [100, 43000, 0], ['Yellow Alarm', 49000, 56000], ['Red Alarm', 56000, 61000], ['Fire Shut Alarm', 61000, 0]],
     6: [[70, 0, 70000], [70, 70000, 78000], [80, 78000, 0], [80, 78000, 86000], [100, 86000, 0], ['Yellow Alarm', 91000, 96000], ['Red Alarm', 96000, 102000], ['Fire Shut Alarm', 102000, 0]],
+    7: [[70, 0, 84000], [70, 84000, 91000], [80, 91000, 0], [80, 91000, 98000], [100, 98000, 0], ['Yellow Alarm', 103000, 108000], ['Red Alarm', 108000, 120000], ['Fire Shut Alarm', 120000, 0]],
     }
 
 temp_policy_AFO = {
@@ -82,6 +89,7 @@ temp_policy_AFO = {
     4: [[60, 0, 39000], [60, 39000, 45000], [80, 45000, 0], [80, 45000, 52000], [100, 52000, 0], ['Yellow Alarm', 59000, 65000], ['Red Alarm', 65000, 69000], ['Fire Shut Alarm', 69000, 0]],
     5: [[60, 0, 37000], [60, 37000, 43000], [80, 43000, 0], [80, 43000, 50000], [100, 50000, 0], ['Yellow Alarm', 57000, 63000], ['Red Alarm', 63000, 67000], ['Fire Shut Alarm', 67000, 0]],
     6: [[60, 0, 70000], [60, 70000, 78000], [80, 78000, 0], [80, 78000, 86000], [100, 86000, 0], ['Yellow Alarm', 91000, 96000], ['Red Alarm', 96000, 102000], ['Fire Shut Alarm', 102000, 0]],
+    7: [[60, 0, 84000], [60, 84000, 91000], [80, 91000, 0], [80, 91000, 98000], [100, 98000, 0], ['Yellow Alarm', 103000, 108000], ['Red Alarm', 108000, 120000], ['Fire Shut Alarm', 120000, 0]],
     }
 
 class QFX5210_FanUtil(object):
@@ -97,7 +105,7 @@ class QFX5210_FanUtil(object):
         try:
             val_file = open(self.FAN_DUTY_PATH)
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)          
+            logging.error('get_fan_duty_cycle: unable to open file: %s', str(e))
             return False
 
         content = val_file.readline().rstrip()
@@ -110,7 +118,7 @@ class QFX5210_FanUtil(object):
         try:
             fan_file = open(self.FAN_DUTY_PATH, 'r+')
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)          
+            logging.error('set_fan_duty_cycle: unable to open file: %s', str(e))
             return False
         fan_file.write(str(val))
         fan_file.close()
@@ -120,7 +128,8 @@ class QFX5210_ThermalUtil(object):
     """QFX5210 Platform ThermalUtil class"""
 
     SENSOR_NUM_ON_MAIN_BOARD = 6
-    SENSOR_CORETEMP_NUM_ON_MAIN_BOARD = 7
+    CORETEMP_INDEX_ON_MAIN_BOARD = 6
+    SENSOR_CORETEMP_NUM_ON_MAIN_BOARD = 8
     CORETEMP_NUM_ON_MAIN_BOARD = 5
     THERMAL_NUM_RANGE = 8
     SENSOR_NUM_1_IDX = 1
@@ -181,19 +190,19 @@ class QFX5210_ThermalUtil(object):
             try:
                 val_file = open(filename, 'r')
             except IOError as e:
-                logging.error('GET. unable to open file: %s', str(e))
+                logging.error('get_sensor_node_val: unable to open file: %s', str(e))
                 return None
 
         content = val_file.readline().rstrip()
 
         if content == '':
-            logging.debug('GET. content is NULL. device_path:%s', device_path)
+            logging.debug('get_sensor_node_val: content is NULL. device_path:%s', device_path)
             return None
 
         try:
-		    val_file.close()
+	    val_file.close()
         except:
-            logging.debug('GET. unable to close file. device_path:%s', device_path)
+            logging.debug('get_sensor_node_val: unable to close file. device_path:%s', device_path)
             return None
       
         return int(content)
@@ -208,19 +217,19 @@ class QFX5210_ThermalUtil(object):
             try:
                 val_file = open(filename, 'r')
             except IOError as e:
-                logging.error('GET. unable to open file: %s', str(e))
+                logging.error('get_coretemp_node_val: unable to open file: %s', str(e))
                 return None
 
         content = val_file.readline().rstrip()
 
         if content == '':
-            logging.debug('GET. content is NULL. device_path:%s', device_path)
+            logging.debug('get_coretemp_node_val: content is NULL. device_path:%s', device_path)
             return None
 
         try:
 		    val_file.close()
         except:
-            logging.debug('GET. unable to close file. device_path:%s', device_path)
+            logging.debug('get_coretemp_node_val: unable to close file. device_path:%s', device_path)
             return None
      
         return int(content)
@@ -243,7 +252,7 @@ class QFX5210_ThermalUtil(object):
         try:
             val_file = open(self.ALARM_LED_PATH)
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)          
+            logging.error('get_alarm_led_brightness: unable to open file:  %s', str(e))
             return False
 
         content = val_file.readline().rstrip()
@@ -260,7 +269,7 @@ class QFX5210_ThermalUtil(object):
         try:
             val_file = open(self.ALARM_LED_PATH, 'r+')
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)          
+            logging.error('set_alarm_led_brightness: unable to open file:  %s', str(e))
             return False
         val_file.write(str(val))
         val_file.close()
@@ -274,8 +283,12 @@ class QFX5210_ThermalUtil(object):
     def getSensorTemp(self):
         sum = 0
         global isPlatformAFI
+        global is80PerFlag
+        global is60PerFlag
         global isFireThresholdReached
-        global FireThresholdSecsRemaining 
+        global FireThresholdSecsRemaining
+        global isFireThresholdPrint 
+        global PrevASICValue 
         #AFI
         if (isPlatformAFI == True):
             temp_policy = temp_policy_AFI
@@ -294,14 +307,22 @@ class QFX5210_ThermalUtil(object):
             4: [0,0,0,0,0,0,0,0],
             5: [0,0,0,0,0,0,0,0],
             6: [0,0,0,0,0,0,0,0],
+            7: [0,0,0,0,0,0,0,0],
         }    
         # if the Firethreshold Flag is set and 120 seconds have elapsed, invoking the "poweroff" to shutdown the box
         if (isFireThresholdReached == True):
             firethr = FireThresholdSecsRemaining - 20
-            logging.critical('CRITICAL: Fire Threshold reached: System is going to shutdown in %s seconds', firethr)
-            print "Fire Threshold reached: System is going to shutdown in %s seconds\n" % firethr
+            if firethr == 0:
+                logging.critical('CRITICAL: Fire Threshold reached: System is going to shutdown now')
+                os.system("echo 'CRITICAL: Fire Threshold reached: System is going to shutdown now' > /dev/console")
+            else:
+                logging.critical('CRITICAL: Fire Threshold reached: System is going to shutdown in %s seconds', firethr)
+                os.system("echo 'CRITICAL: Fire Threshold reached: System is going to shutdown in %s seconds' > /dev/console" % firethr)
+
             FireThresholdSecsRemaining = FireThresholdSecsRemaining - 20
-            if (FireThresholdSecsRemaining == 20):
+            logging.critical('CRITICAL: Value of FireThresholdSecsRemaining %s seconds', FireThresholdSecsRemaining)
+
+            if (FireThresholdSecsRemaining == 0):
                 isFireThresholdReached == False
                 time.sleep(20)
                 cmd = "poweroff"
@@ -310,9 +331,32 @@ class QFX5210_ThermalUtil(object):
         for x in range(self.SENSOR_CORETEMP_NUM_ON_MAIN_BOARD):
             if x < self.SENSOR_NUM_ON_MAIN_BOARD:
                 value = self._get_sensor_node_val(x+1)
+                logging.debug('Sensor value %d : %s', x, value)
+            elif x == self.CORETEMP_INDEX_ON_MAIN_BOARD:
+                value = self.get_coretempValue()
+                logging.debug('Main Board CORE temp: %s', value)
             else:
-                value = self.get_coretempValue() 
-             
+                logging.debug('Reading ASIC Temp value using bcmcmd')
+                proc = subprocess.Popen("bcmcmd \"show temp\" | grep \"maximum peak temperature\" | awk '{ print $5 }' > /var/log/asic_value 2>&1 & ",shell=True)
+                time.sleep(2)
+                cmd = "kill -9 %s"%(proc.pid)
+                status, cmd_out = commands.getstatusoutput(cmd)
+                
+                if os.stat("/var/log/asic_value").st_size == 0:
+                    value = PrevASICValue
+                    logging.debug('No ASIC Temp file, Prev ASIC Temp Value: %s', PrevASICValue)
+                else:
+                    with open('/var/log/asic_value', 'r') as f:
+                        value1 = f.readline()
+                    value2 = float(value1)
+                    value1 = value2 * 1000
+                    value = int(value1)
+                    PrevASICValue = value
+                    logging.debug('Reading from ASIC Temp file: %s', value)
+                    logging.debug('Reading from Prev ASIC Temp Value: %s', PrevASICValue)
+                
+                os.system('rm /var/log/asic_value')
+
             # 60% Duty Cycle for AFO and 70% Duty Cycle for AFI
             if value > temp_policy[x][0][1] and value <= temp_policy[x][0][2]:
                 SensorFlag[x][0] = True
@@ -350,57 +394,113 @@ class QFX5210_ThermalUtil(object):
          
         fan = QFX5210_FanUtil()
         # CHECK IF ANY TEMPERATURE SENSORS HAS SET FIRE SHUTDOWN FLAG
-        if SensorFlag[0][7] or SensorFlag[1][7] or SensorFlag[2][7] or SensorFlag[3][7] or SensorFlag[4][7] or SensorFlag[5][7] or SensorFlag[6][7]:
+        if SensorFlag[0][7] or SensorFlag[1][7] or SensorFlag[2][7] or SensorFlag[3][7] or SensorFlag[4][7] or SensorFlag[5][7] or SensorFlag[6][7] or SensorFlag[7][7]:
             isFireThresholdReached = True
-            logging.critical('CRITICAL: Fire Threshold reached: System is going to shutdown in 120 seconds') 
-            print "CRITICAL: Fire Threshold reached: System is going to shutdown in 120 seconds\n"
-            value = self.get_alarm_led_brightness()
-            if ( value > 0):
-                self.set_alarm_led_brightness(0)
+            if (isFireThresholdPrint == True):
+                logging.critical('CRITICAL: Fire Threshold reached: System is going to shutdown in 120 seconds')
+                os.system("echo 'CRITICAL: Fire Threshold reached: System is going to shutdown in 120 seconds' > /dev/console") 
+                isFireThresholdPrint = False
 
-        # CHECK IF ANY TEMPERATURE SENSORS HAS SET 'RED' ALARM FLAG, IF YES, SET THE ALARM LED TO 'RED'
-        elif SensorFlag[0][6] or SensorFlag[1][6] or SensorFlag[2][6] or SensorFlag[3][6] or SensorFlag[4][6] or SensorFlag[5][6] or SensorFlag[6][6]:
+            logging.debug('Temp Sensor is set to FIRE SHUTDOWN Flag')
+            fan.set_fan_duty_cycle(100)
             self.set_alarm_led_brightness(2)
 
+        # CHECK IF ANY TEMPERATURE SENSORS HAS SET 'RED' ALARM FLAG, IF YES, SET THE ALARM LED TO 'RED'
+        elif SensorFlag[0][6] or SensorFlag[1][6] or SensorFlag[2][6] or SensorFlag[3][6] or SensorFlag[4][6] or SensorFlag[5][6] or SensorFlag[6][6] or SensorFlag[7][6]:
+            fan.set_fan_duty_cycle(100)
+            self.set_alarm_led_brightness(2)
+            logging.debug('Temp Sensor is set to Red Alarm Flag')
+            if (isFireThresholdReached == True):
+                logging.critical('CRITICAL: System Stabilized, not shutting down')
+                os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
+                FireThresholdSecsRemaining = 120
+                isFireThresholdReached = False
+
         # CHECK IF ANY TEMPERATURE SENSORS HAS SET 'YELLOW' ALARM FLAG, IF YES, SET THE ALARM LED TO 'YELLOW'
-        elif SensorFlag[0][5] or SensorFlag[1][5] or SensorFlag[2][5] or SensorFlag[3][5] or SensorFlag[4][5] or SensorFlag[5][5] or SensorFlag[6][5]:
+        elif SensorFlag[0][5] or SensorFlag[1][5] or SensorFlag[2][5] or SensorFlag[3][5] or SensorFlag[4][5] or SensorFlag[5][5] or SensorFlag[6][5] or SensorFlag[7][5]:
+            fan.set_fan_duty_cycle(100)
             self.set_alarm_led_brightness(1)
+            logging.debug('Temp Sensor is set to Yellow Alarm Flag')
+            if (isFireThresholdReached == True):
+                logging.critical('CRITICAL: System Stabilized, not shutting down')
+                os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
+                FireThresholdSecsRemaining = 120
+                isFireThresholdReached = False
    
         # CHECK IF ANY TEMPERATURE SENSORS HAS SET 100% DUTY CYCLE FLAG, IF YES, SET THE FAN DUTY CYCLE TO 100%
-        elif SensorFlag[0][4] or SensorFlag[1][4] or SensorFlag[2][4] or SensorFlag[3][4] or SensorFlag[4][4] or SensorFlag[5][4] or SensorFlag[6][4]:
+        elif SensorFlag[0][4] or SensorFlag[1][4] or SensorFlag[2][4] or SensorFlag[3][4] or SensorFlag[4][4] or SensorFlag[5][4] or SensorFlag[6][4] or SensorFlag[7][4]:
             fan.set_fan_duty_cycle(100)
             value = self.get_alarm_led_brightness()
             if ( value > 0):
                 self.set_alarm_led_brightness(0)
+            is80PerFlag = False
+            is60PerFlag = False
+            logging.debug('Temp Sensor is set to 100% Duty Cycle Flag')
 
         # CHECK IF ANY TEMPERATURE SENSORS HAS SET 80% DUTY CYCLE PREV FLAG, IF YES, SET THE FAN DUTY CYCLE TO 80%
-        elif SensorFlag[0][3] or SensorFlag[1][3] or SensorFlag[2][3] or SensorFlag[3][3] or SensorFlag[4][3] or SensorFlag[5][3] or SensorFlag[6][3]:
-            fan.set_fan_duty_cycle(80)
+        elif SensorFlag[0][3] or SensorFlag[1][3] or SensorFlag[2][3] or SensorFlag[3][3] or SensorFlag[4][3] or SensorFlag[5][3] or SensorFlag[6][3] or SensorFlag[7][3]:
+            if (is80PerFlag == True):
+                fan.set_fan_duty_cycle(80)
+                is80PerFlag = False
+            else:
+                pass
+
             value = self.get_alarm_led_brightness()
             if ( value > 0):
                 self.set_alarm_led_brightness(0)
 
+            if (isFireThresholdReached == True):
+                logging.critical('CRITICAL: System Stabilized, not shutting down')
+                os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
+                FireThresholdSecsRemaining = 120
+                isFireThresholdReached = False
+            logging.debug('Temp Sensor is set to 80% Prev Duty Cycle Flag')
+
         # CHECK IF ANY TEMPERATURE SENSORS HAS SET 80% DUTY CYCLE FLAG, IF YES, SET THE FAN DUTY CYCLE TO 80%
-        elif SensorFlag[0][2] or SensorFlag[1][2] or SensorFlag[2][2] or SensorFlag[3][2] or SensorFlag[4][2] or SensorFlag[5][2] or SensorFlag[6][2]:
+        elif SensorFlag[0][2] or SensorFlag[1][2] or SensorFlag[2][2] or SensorFlag[3][2] or SensorFlag[4][2] or SensorFlag[5][2] or SensorFlag[6][2] or SensorFlag[7][2]:
             fan.set_fan_duty_cycle(80)
             value = self.get_alarm_led_brightness()
             if ( value > 0):
                 self.set_alarm_led_brightness(0)
+            is80PerFlag = True
+
+            if (isFireThresholdReached == True):
+                logging.critical('CRITICAL: System Stabilized, not shutting down')
+                os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
+                FireThresholdSecsRemaining = 120
+                isFireThresholdReached = False
+
+            logging.debug('Temp Sensor is set to 80% Duty Cycle Flag')
 
         # FOR "AFO" Platform CHECK IF ANY TEMPERATURE SENSORS HAS SET 60% DUTY CYCLE PREV FLAG, IF YES, SET THE FAN DUTY CYCLE TO 60%
         # FOR "AFI" Platform CHECK IF ANY TEMPERATURE SENSORS HAS SET 70% DUTY CYCLE PREV FLAG, IF YES, SET THE FAN DUTY CYCLE TO 70%
-        elif SensorFlag[0][1] or SensorFlag[1][1] or SensorFlag[2][1] or SensorFlag[3][1] or SensorFlag[4][1] or SensorFlag[5][1] or SensorFlag[6][1]:
-            if (isPlatformAFI == True):
-                fan.set_fan_duty_cycle(70)
+        elif SensorFlag[0][1] or SensorFlag[1][1] or SensorFlag[2][1] or SensorFlag[3][1] or SensorFlag[4][1] or SensorFlag[5][1] or SensorFlag[6][1] or SensorFlag[7][1]:
+            if (is60PerFlag == True):
+                if (isPlatformAFI == True):
+                    fan.set_fan_duty_cycle(70)
+                else:
+                    fan.set_fan_duty_cycle(60)
+
+                is60PerFlag = False
+                is80PerFlag = True
             else:
-                fan.set_fan_duty_cycle(60)
+                pass
+ 
             value = self.get_alarm_led_brightness()
             if ( value > 0):
                 self.set_alarm_led_brightness(0)
 
+            if (isFireThresholdReached == True):
+                logging.critical('CRITICAL: System Stabilized, not shutting down')
+                os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
+                FireThresholdSecsRemaining = 120
+                isFireThresholdReached = False
+
+            logging.debug('Temp Sensor is set to 60% Prev Duty Cycle Flag')
+
         # FOR "AFO" Platform CHECK IF ANY TEMPERATURE SENSORS HAS SET 60% DUTY CYCLE FLAG, IF YES, SET THE FAN DUTY CYCLE TO 60%
         # FOR "AFI" Platform CHECK IF ANY TEMPERATURE SENSORS HAS SET 70% DUTY CYCLE FLAG, IF YES, SET THE FAN DUTY CYCLE TO 70%
-        elif SensorFlag[0][0] or SensorFlag[1][0] or SensorFlag[2][0] or SensorFlag[3][0] or SensorFlag[4][0] or SensorFlag[5][0] or SensorFlag[6][0]:
+        elif SensorFlag[0][0] or SensorFlag[1][0] or SensorFlag[2][0] or SensorFlag[3][0] or SensorFlag[4][0] or SensorFlag[5][0] or SensorFlag[6][0] or SensorFlag[7][0]:
             if (isPlatformAFI == True):
                 fan.set_fan_duty_cycle(70)
             else:
@@ -408,6 +508,15 @@ class QFX5210_ThermalUtil(object):
             value = self.get_alarm_led_brightness()
             if ( value > 0):
                 self.set_alarm_led_brightness(0)
+            is60PerFlag = True
+            is80PerFlag = True
+
+            if (isFireThresholdReached == True):
+                logging.critical('CRITICAL: System Stabilized, not shutting down')
+                os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
+                FireThresholdSecsRemaining = 120
+                isFireThresholdReached = False
+            logging.debug('Temp Sensor is set to 60% Duty Cycle Flag')
 
         else:
             pass
@@ -417,14 +526,18 @@ class QFX5210_ThermalUtil(object):
         for x in range(self.SENSOR_CORETEMP_NUM_ON_MAIN_BOARD):
             for y in range(self.THERMAL_NUM_RANGE):
                 SensorFlag[x][y] = 0
-        
 
 class device_monitor(object):
     
     def __init__(self, log_file, log_level):
-        
+        global DEBUG  
         global isPlatformAFI
         global isFireThresholdReached
+        global is80PerFlag
+        global is60PerFlag
+        global isFireThresholdPrint 
+        global PrevASICValue
+        global FireThresholdSecsRemaining 
         MASTER_LED_PATH = '/sys/class/leds/master/brightness'
         SYSTEM_LED_PATH = '/sys/class/leds/system/brightness'
         FANTYPE_PATH = '/sys/bus/i2c/devices/17-0068/fan1_direction'
@@ -439,13 +552,14 @@ class device_monitor(object):
             datefmt='%H:%M:%S'
         )
 
+        if DEBUG == True:
         # set up logging to console
-        if log_level == logging.DEBUG:
-            console = logging.StreamHandler()
-            console.setLevel(log_level)
-            formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
-            console.setFormatter(formatter)
-            logging.getLogger('').addHandler(console)
+            if log_level == logging.DEBUG:
+                console = logging.StreamHandler()
+                console.setLevel(log_level)
+                formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
+                console.setFormatter(formatter)
+                logging.getLogger('').addHandler(console)
 
         import sonic_platform
         platform = sonic_platform.platform.Platform()
@@ -454,20 +568,25 @@ class device_monitor(object):
 
         # the return value of get_fan_type is AFO = 0, AFI = 1 and for error condition it is -1
         # In the error condition also, we are making default platform as AFO, to continue with Energy Monitoring
-        if (fan_type == -1 or fan_type == 0):
-            if (fan_type == -1):
-                print "Error: unable to open sys file for fan handling, defaulting it to AFO"
+        if (int(fan_type) == -1 or int(fan_type) == 0):
+            if (int(fan_type) == -1):
+                logging.error('device_monitor: unable to open sys file for fan handling, defaulting it to AFO')
             isPlatformAFI = False
         else:
             isPlatformAFI = True
 
         isFireThresholdReached = False
+        is80PerFlag = True
+        is60PerFlag = True
+        isFireThresholdPrint = True
+        FireThresholdSecsRemaining = 120
+        PrevASICValue = 0
 
         master_led_value = 1
         try:
             masterLED_file = open(MASTER_LED_PATH, 'r+')
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            logging.error('device_monitor: unable to open Master LED file: %s', str(e))
             return False
         masterLED_file.write(str(master_led_value))
         masterLED_file.close() 
@@ -476,7 +595,7 @@ class device_monitor(object):
         try:
             systemLED_file = open(SYSTEM_LED_PATH, 'r+')
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            logging.error('device_monitor: unable to open System LED file: %s', str(e))
             return False
         systemLED_file.write(str(system_led_value))
         systemLED_file.close() 
@@ -490,6 +609,8 @@ def main():
     log_file = '%s.log' % FUNCTION_NAME
     log_level = logging.DEBUG
 
+    #Introducing sleep of 150 seconds to wait for all the docker containers to start before starting the EM policy.
+    time.sleep(150)
     monitor = device_monitor(log_file, log_level)
     while True:
         monitor.manage_device()
