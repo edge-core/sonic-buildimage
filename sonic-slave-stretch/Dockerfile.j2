@@ -303,6 +303,14 @@ RUN apt-get update && apt-get install -y \
         libexplain-dev \
         libevent-dev
 
+## Config dpkg
+## install the configuration file if it’s currently missing
+RUN sudo augtool --autosave "set /files/etc/dpkg/dpkg.cfg/force-confmiss"
+## combined with confold: overwrite configuration files that you have not modified
+RUN sudo augtool --autosave "set /files/etc/dpkg/dpkg.cfg/force-confdef"
+## do not modify the current configuration file, the new version is installed with a .dpkg-dist suffix
+RUN sudo augtool --autosave "set /files/etc/dpkg/dpkg.cfg/force-confold"
+
 # For smartmontools 6.6-1
 RUN apt-get -t stretch-backports install -y debhelper
 
