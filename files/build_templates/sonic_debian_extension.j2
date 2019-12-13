@@ -138,6 +138,11 @@ sudo sed -i -e '/^passwd/s/ tacplus//' $FILESYSTEM_ROOT/etc/nsswitch.conf
 # Copy crontabs
 sudo cp -f $IMAGE_CONFIGS/cron.d/* $FILESYSTEM_ROOT/etc/cron.d/
 
+# Copy watchdog-control files
+sudo LANG=C cp $IMAGE_CONFIGS/watchdog-control/watchdog-control.sh $FILESYSTEM_ROOT/usr/local/bin/watchdog-control.sh
+sudo LANG=C cp $IMAGE_CONFIGS/watchdog-control/watchdog-control.service $FILESYSTEM_ROOT/etc/systemd/system/
+sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable watchdog-control.service
+
 # Copy NTP configuration files and templates
 sudo cp $IMAGE_CONFIGS/ntp/ntp-config.service $FILESYSTEM_ROOT/etc/systemd/system/
 sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable ntp-config.service
