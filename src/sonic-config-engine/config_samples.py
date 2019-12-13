@@ -51,6 +51,7 @@ def generate_l2_config(data):
     data['VLAN']['Vlan1000'].setdefault('members', vp)
     data['VLAN_MEMBER'] = {}
     for port in natsorted(data['PORT'].keys()):
+        data['PORT'][port].setdefault('admin_status', 'up')
         data['VLAN_MEMBER']['Vlan1000|{}'.format(port)] = {'tagging_mode': 'untagged'}
     return data
 
