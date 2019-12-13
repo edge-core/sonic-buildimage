@@ -57,6 +57,11 @@ function postStartAction()
             sonic-cfggen -j /etc/sonic/config_db.json --write-to-db
         fi
 
+        if [[ "$BOOT_TYPE" == "fast" ]]; then
+            # set the key to expire in 3 minutes
+            redis-cli -n 6 SET "FAST_REBOOT|system" "1" "EX" "180"
+        fi
+
         redis-cli -n 4 SET "CONFIG_DB_INITIALIZED" "1"
     fi
 

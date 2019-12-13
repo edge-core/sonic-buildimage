@@ -10,10 +10,6 @@ RUN apt-get update
 
 RUN apt-get install -f -y libdbus-1-3 libdaemon0 libjansson4 libpython2.7
 
-## Install redis-tools dependencies
-## TODO: implicitly install dependencies
-RUN apt-get -y install libjemalloc1
-
 COPY \
 {% for deb in docker_teamd_debs.split(' ') -%}
 debs/{{ deb }}{{' '}}

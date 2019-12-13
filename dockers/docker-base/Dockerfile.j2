@@ -67,6 +67,9 @@ RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return
 {%- endfor %}
 {%- endif %}
 
+## Install redis-tools dependencies
+RUN apt-get -y install libjemalloc1
+
 {% if docker_base_dbgs.strip() -%}
 # Install common debug-packages
 {%- for dbg_pkg in docker_base_dbgs.split(' ') %}
