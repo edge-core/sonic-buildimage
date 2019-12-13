@@ -20,3 +20,11 @@ path-exclude /usr/share/pyshared/twisted/test*
 path-exclude /usr/lib/python*/dist-packages/twisted/test*
 path-exclude /usr/share/pyshared/twisted/*/test*
 path-exclude /usr/lib/python*/dist-packages/twisted/*/test*
+
+## install the configuration file if it’s currently missing
+force-confmiss
+## combined with confold: overwrite configuration files that you have not modified
+force-confdef
+## do not modify the current configuration file, the new version is installed with a .dpkg-dist suffix
+force-confold
+
