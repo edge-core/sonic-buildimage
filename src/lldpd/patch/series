@@ -2,3 +2,7 @@
 0001-return-error-when-port-does-not-exist.patch
 0002-Let-linux-kernel-to-find-appropriate-nl_pid-automa.patch
 0003-update-tx-interval-immediately.patch
+0004-lldpctl-put-a-lock-around-some-commands-to-avoid-rac.patch
+0005-Read-all-notifications-in-lldpctl_recv.patch
+0006-lib-fix-memory-leak.patch
+0007-lib-fix-memory-leak-when-handling-I-O.patch
