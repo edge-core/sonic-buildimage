@@ -4,7 +4,7 @@ After=swss.service
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/watchdog-control.sh
+ExecStart=/usr/local/bin/watchdog-control.sh
 
 [Install]
 WantedBy=multi-user.target
