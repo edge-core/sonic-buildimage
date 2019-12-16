@@ -348,7 +348,7 @@ class SfpUtil(SfpUtilBase):
         transceiver_dom_info_dict = dict.fromkeys(dom_info_dict_keys, 'N/A')
 
 	if port_num in self.qsfp_ports:
-	    offset = 0
+            offset = 0
             offset_xcvr = 128
             file_path = self._get_port_eeprom_path(port_num, self.IDENTITY_EEPROM_ADDR)
             if not self._sfp_eeprom_present(file_path, 0):
@@ -415,7 +415,7 @@ class SfpUtil(SfpUtilBase):
                 transceiver_dom_info_dict['tx2power'] = 'N/A'
                 transceiver_dom_info_dict['tx3power'] = 'N/A'
                 transceiver_dom_info_dict['tx4power'] = 'N/A'
-	    try:
+            try:
                 sysfsfile_eeprom.close()
             except IOError:
                 print("Error: closing sysfs file %s" % file_path)
@@ -433,7 +433,7 @@ class SfpUtil(SfpUtilBase):
             transceiver_dom_info_dict['tx4bias'] = dom_channel_monitor_data['data']['TX4Bias']['value']
 
         else:
-	   offset = 256
+           offset = 256
            file_path = self._get_port_eeprom_path(port_num, self.DOM_EEPROM_ADDR)
            if not self._sfp_eeprom_present(file_path, 0):
                return None
@@ -507,7 +507,7 @@ class SfpUtil(SfpUtilBase):
         transceiver_dom_threshold_info_dict = dict.fromkeys(dom_info_dict_keys, 'N/A')
 
         if port_num in self.qsfp_ports:
-	    file_path = self._get_port_eeprom_path(port_num, self.IDENTITY_EEPROM_ADDR)
+            file_path = self._get_port_eeprom_path(port_num, self.IDENTITY_EEPROM_ADDR)
             if not self._sfp_eeprom_present(file_path, 0):
                 return None
 
@@ -578,7 +578,7 @@ class SfpUtil(SfpUtilBase):
                 print("Error: reading sysfs file %s" % file_path)
                 return None
             
-	    sfpd_obj = sff8472Dom(None,1)
+            sfpd_obj = sff8472Dom(None,1)
             if sfpd_obj is None:
                 return transceiver_dom_threshold_info_dict
             
@@ -608,7 +608,7 @@ class SfpUtil(SfpUtilBase):
             transceiver_dom_threshold_info_dict['txbiashighalarm'] = dom_module_threshold_data['data']['BiasHighAlarm']['value']
             transceiver_dom_threshold_info_dict['txbiaslowalarm'] = dom_module_threshold_data['data']['BiasLowAlarm']['value']
             transceiver_dom_threshold_info_dict['txbiashighwarning'] = dom_module_threshold_data['data']['BiasHighWarning']['value']
- 	    transceiver_dom_threshold_info_dict['txbiaslowwarning'] = dom_module_threshold_data['data']['BiasLowWarning']['value']
+            transceiver_dom_threshold_info_dict['txbiaslowwarning'] = dom_module_threshold_data['data']['BiasLowWarning']['value']
             transceiver_dom_threshold_info_dict['txpowerhighalarm'] = dom_module_threshold_data['data']['TXPowerHighAlarm']['value']
             transceiver_dom_threshold_info_dict['txpowerlowalarm'] = dom_module_threshold_data['data']['TXPowerLowAlarm']['value']
             transceiver_dom_threshold_info_dict['txpowerhighwarning'] = dom_module_threshold_data['data']['TXPowerHighWarning']['value']

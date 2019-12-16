@@ -44,7 +44,7 @@ info_dict_keys = ['type', 'hardwarerev', 'serialnum',
                   'manufacturename', 'modelname', 'Connector',
                   'encoding', 'ext_identifier', 'ext_rateselect_compliance',
                   'cable_type', 'cable_length', 'nominal_bit_rate',
-                  'specification_compliance', ,'type_abbrv_name','vendor_date', 'vendor_oui']
+                  'specification_compliance','type_abbrv_name','vendor_date', 'vendor_oui']
 
 dom_dict_keys = ['rx_los',       'tx_fault',   'reset_status',
                  'power_lpmode', 'tx_disable', 'tx_disable_channel',

@@ -51,19 +51,41 @@ switch_board_qsfp_mux() {
     sleep 2
 }
 
-#Attach/Detach 64 instances of EEPROM driver QSFP ports
+#Attach/Detach 32 instances of EEPROM driver QSFP ports
 #eeprom can dump data using below command
 switch_board_qsfp() {
         case $1 in
         "new_device")
-                        for ((i=2;i<=41;i++));
+                        for ((i=2;i<=33;i++));
                         do
-                            echo sff8436 0x50 > /sys/bus/i2c/devices/i2c-$i/$1
+                            echo optoe1 0x50 > /sys/bus/i2c/devices/i2c-$i/$1
                         done
                         ;;
  
         "delete_device")
-                        for ((i=2;i<=41;i++));
+                        for ((i=2;i<=33;i++));
+                        do
+                            echo 0x50 > /sys/bus/i2c/devices/i2c-$i/$1
+                        done
+                        ;;
+
+        *)              echo "s5232f_platform: switch_board_qsfp: invalid command !"
+                        ;;
+    esac
+}
+
+#Attach 2 instances of EEPROM driver SFP ports
+switch_board_sfp() {
+        case $1 in
+        "new_device")
+                        for ((i=34;i<=35;i++));
+                        do
+                            echo optoe2 0x50 > /sys/bus/i2c/devices/i2c-$i/$1
+                        done
+                        ;;
+
+        "delete_device")
+                        for ((i=34;i<=35;i++));
                         do
                             echo 0x50 > /sys/bus/i2c/devices/i2c-$i/$1
                         done
@@ -103,6 +125,7 @@ if [ "$1" == "init" ]; then
     sys_eeprom "new_device"
     switch_board_qsfp_mux "new_device"
     switch_board_qsfp "new_device"
+    switch_board_sfp "new_device"
     switch_board_modsel
     switch_board_led_default
     python /usr/bin/qsfp_irq_enable.py
@@ -111,7 +134,7 @@ elif [ "$1" == "deinit" ]; then
     sys_eeprom "delete_device"
     switch_board_qsfp "delete_device"
     switch_board_qsfp_mux "delete_device"
-
+    switch_board_sfp "delete_device"
     modprobe -r i2c-mux-pca954x
     modprobe -r i2c-dev
 else
