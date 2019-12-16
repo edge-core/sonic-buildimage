@@ -1,0 +1,11 @@
+[Unit]
+Description=Host core file uploader daemon
+Requires=updategraph.service
+After=updategraph.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/core_uploader.py
+
+[Install]
+WantedBy=multi-user.target
