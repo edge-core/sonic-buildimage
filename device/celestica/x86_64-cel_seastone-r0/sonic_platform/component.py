@@ -141,7 +141,7 @@ class Component(ComponentBase):
             new_image_path = os.path.join("/tmp", (root.lower() + ext))
             shutil.copy(image_path, new_image_path)
             install_command = "ispvm %s" % new_image_path
-        elif self.name == "BIOS":
-            install_command = "afulnx_64 %s /p /b /n /x /r" % image_path
+        # elif self.name == "BIOS":
+        #     install_command = "afulnx_64 %s /p /b /n /x /r" % image_path
 
         return self.__run_command(install_command)
