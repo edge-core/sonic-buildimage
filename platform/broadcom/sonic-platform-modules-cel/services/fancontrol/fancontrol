@@ -322,11 +322,12 @@ fi
 cd $DIR
 
 # Check for configuration change
-if [ "$DIR" != "/" ] && [ -z "$DEVPATH" -o -z "$DEVNAME" ]
-then
-	echo "Configuration is too old, please run pwmconfig again" >&2
-	exit 1
-fi
+# if [ "$DIR" != "/" ] && [ -z "$DEVPATH" -o -z "$DEVNAME" ]
+# then
+#    echo "Configuration is too old, please run pwmconfig again" >&2
+# 	 exit 1
+# fi
+
 if [ "$DIR" = "/" -a -n "$DEVPATH" ]
 then
 	echo "Unneeded DEVPATH with absolute device paths" >&2
