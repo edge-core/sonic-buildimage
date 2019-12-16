@@ -161,6 +161,13 @@ stop() {
     /usr/bin/${SERVICE}.sh stop
     debug "Stopped ${SERVICE} service..."
 
+    # Flush FAST_REBOOT table when swss needs to stop. The only
+    # time when this would take effect is when fast-reboot
+    # encountered error, e.g. syncd crashed. And swss needs to
+    # be restarted.
+    debug "Clearing FAST_REBOOT flag..."
+    clean_up_tables 6 "'FAST_REBOOT*'"
+
     # Unlock has to happen before reaching out to peer service
     unlock_service_state_change
 
