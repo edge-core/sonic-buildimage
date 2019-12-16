@@ -36,6 +36,8 @@ FILESYSTEM_ROOT_USR="$FILESYSTEM_ROOT/usr"
 FILESYSTEM_ROOT_USR_SHARE="$FILESYSTEM_ROOT_USR/share"
 FILESYSTEM_ROOT_USR_SHARE_SONIC="$FILESYSTEM_ROOT_USR_SHARE/sonic"
 FILESYSTEM_ROOT_USR_SHARE_SONIC_TEMPLATES="$FILESYSTEM_ROOT_USR_SHARE_SONIC/templates"
+FILESYSTEM_ROOT_ETC="$FILESYSTEM_ROOT/etc"
+FILESYSTEM_ROOT_ETC_SONIC="$FILESYSTEM_ROOT_ETC/sonic"
 
 GENERATED_SERVICE_FILE="$FILESYSTEM_ROOT/etc/sonic/generated_services.conf"
 
@@ -218,6 +220,17 @@ sudo cp $IMAGE_CONFIGS/hostcfgd/hostcfgd.service $FILESYSTEM_ROOT/etc/systemd/sy
 echo "hostcfgd.service" | sudo tee -a $GENERATED_SERVICE_FILE
 sudo cp $IMAGE_CONFIGS/hostcfgd/hostcfgd $FILESYSTEM_ROOT/usr/bin/
 sudo cp $IMAGE_CONFIGS/hostcfgd/*.j2 $FILESYSTEM_ROOT_USR_SHARE_SONIC_TEMPLATES/
+
+# copy core file uploader files
+sudo cp $IMAGE_CONFIGS/corefile_uploader/core_uploader.service $FILESYSTEM_ROOT/etc/systemd/system/
+sudo LANG=C chroot $FILESYSTEM_ROOT systemctl disable core_uploader.service
+sudo cp $IMAGE_CONFIGS/corefile_uploader/core_uploader.py $FILESYSTEM_ROOT/usr/bin/
+sudo cp $IMAGE_CONFIGS/corefile_uploader/update_json.py $FILESYSTEM_ROOT/usr/bin/
+sudo cp $IMAGE_CONFIGS/corefile_uploader/core_analyzer.rc.json $FILESYSTEM_ROOT_ETC_SONIC/
+sudo chmod og-rw $FILESYSTEM_ROOT_ETC_SONIC/core_analyzer.rc.json
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install azure-storage
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install watchdog
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install futures
 
 # Copy the buffer configuration template
 sudo cp $BUILD_TEMPLATES/buffers_config.j2 $FILESYSTEM_ROOT_USR_SHARE_SONIC_TEMPLATES/
