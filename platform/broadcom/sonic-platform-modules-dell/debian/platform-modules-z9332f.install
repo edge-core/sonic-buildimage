@@ -1,0 +1,7 @@
+z9332f/scripts/z9332f_platform.sh usr/local/bin
+z9332f/scripts/platform_sensors.py usr/local/bin
+z9332f/scripts/sensors usr/bin
+z9332f/scripts/pcisysfs.py usr/bin
+z9332f/cfg/z9332f-modules.conf etc/modules-load.d
+z9332f/systemd/platform-modules-z9332f.service etc/systemd/system
+common/platform_reboot usr/share/sonic/device/x86_64-dellemc_z9332f_d1508-r0

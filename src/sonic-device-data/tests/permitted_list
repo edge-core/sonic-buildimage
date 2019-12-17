@@ -2,6 +2,7 @@ arl_clean_timeout_usec
 asf_mem_profile
 bcm_linkscan_interval
 bcm_num_cos
+default_cpu_tx_queue
 bcm_stat_flags
 bcm_stat_interval
 bcm_stat_jumbo

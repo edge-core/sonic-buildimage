@@ -5,7 +5,7 @@ export INSTALL_MOD_DIR:=extra
 KVERSION   ?= $(shell uname -r)
 KERNEL_SRC :=  /lib/modules/$(KVERSION)
 MOD_SRC_DIR:= $(shell pwd)
-MODULE_DIRS:= s6000 z9100 s6100 z9264f s5232f s5248f 
+MODULE_DIRS:= s6000 z9100 s6100 z9264f s5232f s5248f z9332f 
 COMMON_DIR := common
 
 %:
