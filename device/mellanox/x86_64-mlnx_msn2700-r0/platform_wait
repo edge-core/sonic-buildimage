@@ -1,12 +1,37 @@
 #!/bin/bash
 
+declare -r SYSLOG_LOGGER="/usr/bin/logger"
+declare -r SYSLOG_IDENTIFIER="platform_wait"
+declare -r SYSLOG_ERROR="error"
+declare -r SYSLOG_NOTICE="notice"
+declare -r SYSLOG_INFO="info"
+
+declare -r HW_MGMT_CONFIG="/var/run/hw-management/config"
+
+declare -r MODULE_COUNTER="${HW_MGMT_CONFIG}/module_counter"
+declare -r SFP_COUNTER="${HW_MGMT_CONFIG}/sfp_counter"
+
 declare -r EXIT_SUCCESS="0"
 declare -r EXIT_TIMEOUT="1"
 
-declare -r QSFP_PATH="/var/run/hw-management/qsfp"
+function log_error() {
+    eval "${SYSLOG_LOGGER} -t ${SYSLOG_IDENTIFIER} -p ${SYSLOG_ERROR} $@"
+}
 
-function WaitForQsfpReady() {
-    local -r _QSFP_PATH="${1}"
+function log_notice() {
+    eval "${SYSLOG_LOGGER} -t ${SYSLOG_IDENTIFIER} -p ${SYSLOG_NOTICE} $@"
+}
+
+function log_info() {
+    eval "${SYSLOG_LOGGER} -t ${SYSLOG_IDENTIFIER} -p ${SYSLOG_INFO} $@"
+}
+
+function wait_for_sfp() {
+    local -r _NUM_MATCH="^[0-9]+$"
+    local -r _NUM_ZERO="0"
+
+    local _MODULE_CNT="0"
+    local _SFP_CNT="0"
 
     local -i _WDOG_CNT="1"
     local -ir _WDOG_MAX="300"
@@ -14,11 +39,14 @@ function WaitForQsfpReady() {
     local -r _TIMEOUT="1s"
 
     while [[ "${_WDOG_CNT}" -le "${_WDOG_MAX}" ]]; do
-        for _QSFP in ${_QSFP_PATH}/qsfp*; do
-            if [[ -e "${_QSFP}" ]]; then
+        _MODULE_CNT="$(cat ${MODULE_COUNTER} 2>&1)"
+        _SFP_CNT="$(cat ${SFP_COUNTER} 2>&1)"
+
+        if [[ "${_MODULE_CNT}" =~ ${_NUM_MATCH} && "${_SFP_CNT}" =~ ${_NUM_MATCH} ]]; then
+            if [[ "${_SFP_CNT}" -gt "${_NUM_ZERO}" && "${_MODULE_CNT}" -eq "${_SFP_CNT}" ]]; then
                 return "${EXIT_SUCCESS}"
             fi
-        done
+        fi
 
         let "_WDOG_CNT++"
         sleep "${_TIMEOUT}"
@@ -27,14 +55,15 @@ function WaitForQsfpReady() {
     return "${EXIT_TIMEOUT}"
 }
 
-echo "Wait for QSFP I2C interface is ready"
+log_info "Wait for SFP interfaces to be ready"
 
-WaitForQsfpReady "${QSFP_PATH}"
+wait_for_sfp
 EXIT_CODE="$?"
 if [[ "${EXIT_CODE}" != "${EXIT_SUCCESS}" ]]; then
-    echo "QSFP I2C interface is not ready: timeout"
+    log_error "SFP interfaces are not ready: timeout"
     exit "${EXIT_CODE}"
 fi
 
-echo "QSFP I2C interface is ready: mlxsw_minimal has finished initialization"
+log_info "SFP interfaces are ready"
+
 exit "${EXIT_SUCCESS}"
