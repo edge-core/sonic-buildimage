@@ -149,14 +149,6 @@ typedef struct ibde_s {
     int   (*get_cmic_ver)(int d,  uint32 *ver);
 
     /*
-     * Probe available devices.
-     * Return value :
-     *   0: success to probe available devices
-     *  -1: error happens during probe
-     */
-    int     (*probe)(void);
-
-    /*
      * I2C operations on the Device, assuming it is connected by I2C to the CPU.
      */
     /* Read from the internal device Address space using I2C */

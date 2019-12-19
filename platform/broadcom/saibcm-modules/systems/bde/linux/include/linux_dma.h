@@ -58,7 +58,7 @@
 #define DMA_BIT_MASK(n) (((n) == 64) ? ~0ULL : ((1ULL<<(n))-1))
 #endif
 
-extern void _dma_init(int robo_switch, int dev_index);
+extern void _dma_init(int dev_index);
 extern int _dma_cleanup(void);
 extern void _dma_pprint(void);
 extern uint32_t *_salloc(int d, int size, const char *name);
@@ -68,7 +68,7 @@ extern int _sflush(int d, void *ptr, int length);
 extern sal_paddr_t _l2p(int d, void *vaddr);
 extern void *_p2l(int d, sal_paddr_t paddr);
 extern int _dma_pool_allocated(void);
-extern int _dma_range_valid(unsigned long phys_addr, unsigned long size);
+extern int _dma_mmap(struct file *filp, struct vm_area_struct *vma);
 
 #endif /* __KERNEL__ */
 

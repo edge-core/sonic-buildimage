@@ -27,11 +27,11 @@ endif
 # TARGET_ARCHITECTURE   Compiler for target architecture
 # KERNDIR               Kernel directory for iPROC-CMICd devices
 ifeq (BE,$(ENDIAN_MODE))
-TOOLCHAIN_BASE_DIR ?= /projects/ntsw-tools/linux/iproc_ldks/iproc-be/XLDK
+TOOLCHAIN_BASE_DIR ?= /projects/ntsw-tools/linux/iproc_ldks/xldk50-be/XLDK32
 TARGET_ARCHITECTURE:=armeb-broadcom-linux-uclibcgnueabi
 KERNDIR ?= $(TOOLCHAIN_BASE_DIR)/kernel/linux
 else
-TOOLCHAIN_BASE_DIR ?= /projects/ntsw-tools/linux/iproc_ldks/iproc/XLDK
+TOOLCHAIN_BASE_DIR ?= /projects/ntsw-tools/linux/iproc_ldks/xldk50/XLDK32
 TARGET_ARCHITECTURE:= arm-broadcom-linux-uclibcgnueabi
 KERNDIR ?= $(TOOLCHAIN_BASE_DIR)/kernel/linux
 endif
@@ -60,6 +60,8 @@ CFGFLAGS += -DSYS_BE_PIO=0 -DSYS_BE_PACKET=0 -DSYS_BE_OTHER=0
 ENDIAN = LE_HOST=1
 endif
 
+CFLAGS += -fno-aggressive-loop-optimizations
+
 CFGFLAGS += -D$(ENDIAN) -DIPROC_CMICD
 CFGFLAGS += -DBCM_PLATFORM_STRING=\"IPROC_CMICD\"
 
@@ -80,7 +82,7 @@ basename_flags = -D"KBUILD_BASENAME=KBUILD_STR($(call name-fix,$(basetarget)))"
 modname_flags  = $(if $(filter 1,$(words $(modname))),\
                  -D"KBUILD_MODNAME=KBUILD_STR($(call name-fix,$(modname)))")
 
-KFLAG_INCLD ?= $(TOOLCHAIN_BASE_DIR)/buildroot/host/usr/lib/gcc/$(TARGET_ARCHITECTURE)/4.9.3/include
+KFLAG_INCLD ?= $(TOOLCHAIN_BASE_DIR)/buildroot/host/usr/lib/gcc/$(TARGET_ARCHITECTURE)/4.9.4/include
 
 ifeq (,$(KFLAGS))
 KFLAGS := -D__LINUX_ARM_ARCH__=7 -D__KERNEL__ -nostdinc  -isystem $(KFLAG_INCLD) -I$(LINUX_INCLUDE) -include $(LINUX_INCLUDE)/generated/autoconf.h -I$(KERNDIR)/arch/arm/include -I$(KERNDIR)/arch/arm/include/generated -I$(KERNDIR)/arch/arm/mach-iproc/include -Wall -Wstrict-prototypes -Wno-trigraphs -Os -fno-strict-aliasing -fno-common -marm -mabi=aapcs-linux -fno-pic -pipe -msoft-float -ffreestanding -march=armv7-a -mfpu=vfp -mfloat-abi=softfp -fomit-frame-pointer -g -fno-stack-protector -Wdeclaration-after-statement -Wno-pointer-sign -mlong-calls

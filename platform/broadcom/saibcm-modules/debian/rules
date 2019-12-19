@@ -60,7 +60,7 @@ kdist_config: prep-deb-files
 kdist_clean: clean
 	dh_testdir
 	dh_clean
-	SDK=$(realpath .) LINUX_UAPI_SPLIT=1 DEBIAN_LINUX_HEADER=1 BUILD_KNET_CB=1 KERNDIR=/usr/src/linux-headers-4.9.0-9-2-amd64 KERNEL_SRC=/usr/src/linux-headers-4.9.0-9-2-amd64 $(MAKE) -C systems/linux/user/x86-smp_generic_64-2_6 clean
+	SDK=$(realpath .) LINUX_UAPI_SPLIT=1 DEBIAN_LINUX_HEADER=1 BUILD_KNET_CB=1 BUILD_PSAMPLE=1 KERNDIR=/usr/src/linux-headers-4.9.0-9-2-amd64 KERNEL_SRC=/usr/src/linux-headers-4.9.0-9-2-amd64 $(MAKE) -C systems/linux/user/x86-smp_generic_64-2_6 clean
 #	rm -f driver/*.o driver/*.ko
 #
 ### end  KERNEL SETUP
@@ -78,7 +78,7 @@ build-arch-stamp:
 	dh_testdir
 
 	# Add here command to compile/build the package.
-	SDK=$(realpath .) LINUX_UAPI_SPLIT=1 DEBIAN_LINUX_HEADER=1 BUILD_KNET_CB=1 KERNDIR=/usr/src/linux-headers-4.9.0-9-2-amd64 KERNEL_SRC=/usr/src/linux-headers-4.9.0-9-2-amd64 $(MAKE) -C systems/linux/user/x86-smp_generic_64-2_6
+	SDK=$(realpath .) LINUX_UAPI_SPLIT=1 DEBIAN_LINUX_HEADER=1 BUILD_KNET_CB=1 BUILD_PSAMPLE=1 KERNDIR=/usr/src/linux-headers-4.9.0-9-2-amd64 KERNEL_SRC=/usr/src/linux-headers-4.9.0-9-2-amd64 $(MAKE) -C systems/linux/user/x86-smp_generic_64-2_6
 
 	touch $@
 
@@ -103,7 +103,7 @@ clean:
 	rm -f build-arch-stamp build-indep-stamp configure-stamp
 
 	# Add here commands to clean up after the build process.
-	SDK=$(realpath .) LINUX_UAPI_SPLIT=1 DEBIAN_LINUX_HEADER=1 BUILD_KNET_CB=1 KERNDIR=/usr/src/linux-headers-4.9.0-9-2-amd64 KERNEL_SRC=/usr/src/linux-headers-4.9.0-9-2-amd64 $(MAKE) -C systems/linux/user/x86-smp_generic_64-2_6 clean
+	SDK=$(realpath .) LINUX_UAPI_SPLIT=1 DEBIAN_LINUX_HEADER=1 BUILD_KNET_CB=1 BUILD_PSAMPLE=1 KERNDIR=/usr/src/linux-headers-4.9.0-9-2-amd64 KERNEL_SRC=/usr/src/linux-headers-4.9.0-9-2-amd64 $(MAKE) -C systems/linux/user/x86-smp_generic_64-2_6 clean
 
 	dh_clean
 

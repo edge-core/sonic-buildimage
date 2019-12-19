@@ -74,12 +74,6 @@ modname_flags  = $(if $(filter 1,$(words $(modname))),\
 KFLAG_INCLD = $(TOOLCHAIN_BIN_DIR)/../lib/gcc/$(TARGET_ARCHITECTURE)/4.6.4/include
 
 ifdef BROADCOM_SVK
-ifdef BCM_BME3200_B0
-PLX_PCI2LBUS=1
-endif
-ifdef BCM_BM9600_B0
-PLX_PCI2LBUS=1
-endif
 ifeq ($PLX_PCI2LBUS, 1)
 CFLAGS += -DBCM_PLX9656_LOCAL_BUS -DBDE_LINUX_NON_INTERRUPTIBLE 
 endif

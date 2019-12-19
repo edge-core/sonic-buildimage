@@ -18,27 +18,25 @@
 # $Copyright: (c) 2005 Broadcom Corp.
 # All Rights Reserved.$
 #
-LOCALDIR = systems/linux/kernel/modules/knet-cb
+LOCALDIR = systems/linux/kernel/modules/psample
 
 include ${SDK}/make/Make.config
 
 LIBS = $(LIBDIR)/libkern.a
 
 ifeq ($(kernel_version),2_4)
-MODULE = $(LIBDIR)/linux-knet-cb.o
+MODULE = $(LIBDIR)/psample.o
 else
 KERNEL_MODULE_DIR = kernel_module
 
-THIS_MOD_NAME := linux-knet-cb
+THIS_MOD_NAME := psample
 MODULE = $(LIBDIR)/$(THIS_MOD_NAME).o
 KMODULE = $(LIBDIR)/$(THIS_MOD_NAME).ko
 
 build: $(MODULE) $(KMODULE)
 endif
 
-ifeq ($(BUILD_PSAMPLE),1)
-KBUILD_EXTRA_SYMBOLS += ${BLDDIR}/../psample/kernel_module/Module.symvers
-endif
+KBUILD_EXTRA_SYMBOLS := ${BLDDIR}/../bcm-knet/kernel_module/Module.symvers
 
 # BCM Network Device
 

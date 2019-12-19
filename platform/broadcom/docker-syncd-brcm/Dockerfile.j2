@@ -1,3 +1,4 @@
+{% from "dockers/dockerfile-macros.j2" import install_debian_packages %}
 FROM docker-config-engine-stretch
 
 ARG docker_container_name
@@ -14,10 +15,8 @@ debs/{{ deb }}{{' '}}
 {%- endfor -%}
 debs/
 
-RUN dpkg -i \
-{% for deb in docker_syncd_brcm_debs.split(' ') -%}
-debs/{{ deb }}{{' '}}
-{%- endfor %}
+# Install locally-built Debian packages and implicitly install their dependencies
+{{ install_debian_packages(docker_syncd_brcm_debs.split(' ')) }}
 
 ## TODO: add kmod into Depends
 RUN apt-get install -yf kmod
