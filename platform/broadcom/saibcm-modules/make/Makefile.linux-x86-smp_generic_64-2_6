@@ -43,4 +43,3 @@ KFLAGS += -I$(KERNDIR_COMMON)/include -I$(KERNDIR_COMMON)/include/uapi -I$(KERND
 endif
 
 include ${SDK}/make/Makefile.linux-x86-common-2_6
-

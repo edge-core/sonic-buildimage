@@ -121,6 +121,13 @@ typedef struct kcom_msg_hdr_s {
 
 #define KCOM_NETIF_NAME_MAX     16
 
+/*
+ * Max size of Sand System Headers
+ * For DNX, Module Header(20B) + PTCH(2B) + ITMH(5B)
+ * For DPP, PTCH(2B) + ITMH(4B)
+ */
+#define KCOM_NETIF_SYSTEM_HEADERS_SIZE_MAX     27
+
 typedef struct kcom_netif_s {
     uint16 id;
     uint8 type;
@@ -133,6 +140,8 @@ typedef struct kcom_netif_s {
     uint8 macaddr[6];
     uint8 ptch[2];
     uint8 itmh[4];
+    uint8 system_headers[KCOM_NETIF_SYSTEM_HEADERS_SIZE_MAX];
+    uint8 system_headers_size;
     char name[KCOM_NETIF_NAME_MAX];
 } kcom_netif_t;
 
@@ -216,6 +225,13 @@ typedef struct kcom_filter_s {
         uint8 b[KCOM_FILTER_BYTES_MAX];
         uint32 w[KCOM_FILTER_WORDS_MAX];
     } mask;
+    /** Information to parse Dune system headers */
+    uint32 ftmh_lb_key_ext_size;
+    uint32 ftmh_stacking_ext_size;
+    uint32 pph_base_size;
+    uint32 pph_lif_ext_size[8];
+    uint8  udh_enable;
+    uint32 udh_length_type[4];
 } kcom_filter_t;
 
 /*
@@ -470,8 +486,7 @@ typedef struct kcom_msg_filter_destroy_s {
  * Get list of currently defined packet filters.
  */
 #ifndef KCOM_FILTER_MAX
-/* SAI_FIXUP - Increased the filters to 1024 from 128 */
-#define KCOM_FILTER_MAX          1024
+#define KCOM_FILTER_MAX          128
 #endif
 
 typedef struct kcom_msg_filter_list_s {

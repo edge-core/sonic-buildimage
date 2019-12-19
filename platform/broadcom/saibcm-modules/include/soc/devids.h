@@ -14,7 +14,7 @@
  * version 2 (GPLv2) along with this source code.
  */
 /*
- * Copyright: (c) 2018 Broadcom.
+ * Copyright: (c) 2019 Broadcom.
  * All Rights Reserved.
  */
 
@@ -835,31 +835,6 @@
 #define BCM56746_A0_REV_ID      1
 #define BCM56746_A1_REV_ID      2
 
-#define BCM88230_DEVICE_ID      0x0230
-#define BCM88230_A0_REV_ID      1
-#define BCM88230_B0_REV_ID      0x11
-#define BCM88230_C0_REV_ID      0x21
-#define BCM88231_DEVICE_ID      0x0231
-#define BCM88231_A0_REV_ID      1
-#define BCM88231_B0_REV_ID      0x11
-#define BCM88231_C0_REV_ID      0x21
-#define BCM88235_DEVICE_ID      0x0235
-#define BCM88235_A0_REV_ID      1
-#define BCM88235_B0_REV_ID      0x11
-#define BCM88235_C0_REV_ID      0x21
-#define BCM88236_DEVICE_ID      0x0236
-#define BCM88236_A0_REV_ID      1
-#define BCM88236_B0_REV_ID      0x11
-#define BCM88236_C0_REV_ID      0x21
-#define BCM88239_DEVICE_ID      0x0239
-#define BCM88239_A0_REV_ID      1
-#define BCM88239_B0_REV_ID      0x11
-#define BCM88239_C0_REV_ID      0x21
-#define BCM56613_DEVICE_ID      0xb613
-#define BCM56613_A0_REV_ID      1
-#define BCM56613_B0_REV_ID      0x11
-#define BCM56613_C0_REV_ID      0x21
-
 #define BCM88732_DEVICE_ID      0x0732
 #define BCM88732_A0_REV_ID      1
 #define BCM88732_A1_REV_ID      2
@@ -1243,10 +1218,13 @@
 #define BCM56981_A0_REV_ID      1
 #define BCM56982_DEVICE_ID      0xb982
 #define BCM56982_A0_REV_ID      1
+#define BCM56982_B0_REV_ID      0x11
 #define BCM56983_DEVICE_ID      0xb983
 #define BCM56983_A0_REV_ID      1
+#define BCM56983_B0_REV_ID      0x11
 #define BCM56984_DEVICE_ID      0xb984
 #define BCM56984_A0_REV_ID      1
+#define BCM56984_B0_REV_ID      0x11
 
 #define BCM56968_DEVICE_ID      0xb968
 #define BCM56968_A0_REV_ID      1
@@ -1428,33 +1406,43 @@
 
 #define BCM56370_DEVICE_ID      0xb370
 #define BCM56370_A0_REV_ID      1
+#define BCM56370_A1_REV_ID      0x02
 
 #define BCM56371_DEVICE_ID      0xb371
 #define BCM56371_A0_REV_ID      1
+#define BCM56371_A1_REV_ID      0x02
 
 #define BCM56372_DEVICE_ID      0xb372
 #define BCM56372_A0_REV_ID      1
+#define BCM56372_A1_REV_ID      0x02
 
 #define BCM56374_DEVICE_ID      0xb374
 #define BCM56374_A0_REV_ID      1
+#define BCM56374_A1_REV_ID      0x02
 
 #define BCM56375_DEVICE_ID      0xb375
 #define BCM56375_A0_REV_ID      1
+#define BCM56375_A1_REV_ID      0x02
 
 #define BCM56376_DEVICE_ID      0xb376
 #define BCM56376_A0_REV_ID      1
+#define BCM56376_A1_REV_ID      0x02
 
 #define BCM56377_DEVICE_ID      0xb377
 #define BCM56377_A0_REV_ID      1
+#define BCM56377_A1_REV_ID      0x02
 
 #define BCM56577_DEVICE_ID      0xb577
 #define BCM56577_A0_REV_ID      1
+#define BCM56577_A1_REV_ID      0x02
 
 #define BCM56578_DEVICE_ID      0xb578
 #define BCM56578_A0_REV_ID      1
+#define BCM56578_A1_REV_ID      0x02
 
 #define BCM56579_DEVICE_ID      0xb579
 #define BCM56579_A0_REV_ID      1
+#define BCM56579_A1_REV_ID      0x02
 
 #define BCM56770_DEVICE_ID      0xb770
 #define BCM56770_A0_REV_ID      1
@@ -1487,247 +1475,6 @@
 #define BCM5650_C0_REV_ID       0x21
 
 #define BROADCOM_PHYID_HIGH 0x0040
-
-#define BCM5338_PHYID_LOW       0x62b0
-#define BCM5338_A0_REV_ID       0
-#define BCM5338_A1_REV_ID       1
-#define BCM5338_B0_REV_ID       3 
-
-#define BCM5324_PHYID_LOW       0xbc20
-#define BCM5324_PHYID_HIGH      0x143
-#define BCM5324_A1_PHYID_HIGH   0x153
-#define BCM5324_DEVICE_ID       0xbc20
-#define BCM5324_A0_REV_ID       0
-#define BCM5324_A1_REV_ID       1
-#define BCM5324_A2_REV_ID       2
-
-#define BCM5380_PHYID_LOW       0x6250
-#define BCM5380_A0_REV_ID       0
-
-#define BCM5388_PHYID_LOW       0x6288
-#define BCM5388_A0_REV_ID       0
-
-#define BCM5396_PHYID_LOW       0xbd70
-#define BCM5396_PHYID_HIGH      0x143
-#define BCM5396_DEVICE_ID       0x96
-#define BCM5396_A0_REV_ID       0
-
-#define BCM5389_PHYID_LOW       0xbd70
-#define BCM5389_PHYID_HIGH      0x143
-#define BCM5389_DEVICE_ID       0x89
-#define BCM5389_A0_REV_ID       0
-#define BCM5389_A1_DEVICE_ID    0x86
-#define BCM5389_A1_REV_ID       1
-
-#define BCM5398_PHYID_LOW       0xbcd0
-#define BCM5398_PHYID_HIGH      0x0143
-#define BCM5398_DEVICE_ID       0x98
-#define BCM5398_A0_REV_ID       0
-
-#define BCM5325_PHYID_LOW       0xbc30
-#define BCM5325_PHYID_HIGH      0x143
-#define BCM5325_DEVICE_ID       0xbc30
-#define BCM5325_A0_REV_ID       0
-#define BCM5325_A1_REV_ID       1
-
-#define BCM5348_PHYID_LOW   0xbe40
-#define BCM5348_PHYID_HIGH      0x0143
-#define BCM5348_DEVICE_ID       0x48
-#define BCM5348_A0_REV_ID       0
-#define BCM5348_A1_REV_ID       1
-
-#define BCM5397_PHYID_LOW       0xbcd0
-#define BCM5397_PHYID_HIGH      0x0143
-#define BCM5397_DEVICE_ID       0x97
-#define BCM5397_A0_REV_ID       0
-
-#define BCM5347_PHYID_LOW       0xbe40
-#define BCM5347_PHYID_HIGH      0x0143
-#define BCM5347_DEVICE_ID       0x47
-#define BCM5347_A0_REV_ID       0
-
-#define BCM5395_PHYID_LOW       0xbcf0
-#define BCM5395_PHYID_HIGH      0x0143
-#define BCM5395_DEVICE_ID       0xbcf0
-#define BCM5395_A0_REV_ID       0
-
-#define BCM53242_PHYID_LOW      0xbf10
-#define BCM53242_PHYID_HIGH     0x0143 
-#define BCM53242_DEVICE_ID      0xbf10 
-#define BCM53242_A0_REV_ID  0
-#define BCM53242_B0_REV_ID  4
-#define BCM53242_B1_REV_ID  5
-
-#define BCM53262_PHYID_LOW      0xbf20
-#define BCM53262_PHYID_HIGH     0x0143 
-#define BCM53262_DEVICE_ID      0xbf20 
-#define BCM53262_A0_REV_ID  0
-#define BCM53262_B0_REV_ID  4
-#define BCM53262_B1_REV_ID  5
-
-#define BCM53115_PHYID_LOW       0xbf80
-#define BCM53115_PHYID_HIGH      0x0143
-#define BCM53115_DEVICE_ID       0xbf80  
-#define BCM53115_A0_REV_ID       0
-#define BCM53115_A1_REV_ID       1
-#define BCM53115_B0_REV_ID       2
-#define BCM53115_B1_REV_ID       3
-#define BCM53115_C0_REV_ID       8
-
-#define BCM53118_PHYID_LOW       0xbfe0
-#define BCM53118_PHYID_HIGH      0x0143
-#define BCM53118_DEVICE_ID       0xbfe0  
-#define BCM53118_A0_REV_ID       0
-
-#define BCM53118_B0_REV_ID       4
-#define BCM53118_B1_REV_ID       5
-
-#define BCM53280_PHYID_LOW       0x5e90
-#define BCM53280_PHYID_HIGH      0x0362
-#define BCM53280_DEVICE_ID       (0x4 | BCM53280_PHYID_LOW)
-#define BCM53280_A0_REV_ID       0
-#define BCM53280_B0_REV_ID   0x4
-#define BCM53280_B1_REV_ID   0x5
-#define BCM53280_B2_REV_ID   0x6
-#define BCM53286_DEVICE_ID       (0x4 | BCM53280_PHYID_LOW)
-#define BCM53288_DEVICE_ID       (0xc | BCM53280_PHYID_LOW)
-#define BCM53284_DEVICE_ID       (0x7 | BCM53280_PHYID_LOW)
-#define BCM53283_DEVICE_ID       (0x6 | BCM53280_PHYID_LOW)
-#define BCM53282_DEVICE_ID       (0x5 | BCM53280_PHYID_LOW)
-#define BCM53101_PHYID_LOW       0x5ed0
-#define BCM53101_PHYID_HIGH      0x0362
-#define BCM53101_DEVICE_ID       0x5ed0
-#define BCM53101_A0_REV_ID       0
-#define BCM53101_B0_REV_ID       4
-
-#define BCM53125_PHYID_LOW       0x5f20
-#define BCM53125_PHYID_HIGH      0x0362
-#define BCM53125_DEVICE_ID       0x5f20  
-#define BCM53125_A0_REV_ID       0
-#define BCM53125_B0_REV_ID       0x4
-#define BCM53125_MODEL_ID       0x53125
-
-#define BCM53134_PHYID_LOW       0x5350
-#define BCM53134_PHYID_HIGH      0xAE02
-#define BCM53134_DEVICE_ID       0x5350
-#define BCM53134_A0_REV_ID       0x0
-#define BCM53134_B0_REV_ID       0x1
-#define BCM53134_B1_REV_ID       0x2
-#define BCM53134_A0_MODEL_ID     0x5035
-#define BCM53134_B0_MODEL_ID     0x5075
-
-#define BCM53128_PHYID_LOW       0x5e10
-#define BCM53128_PHYID_HIGH      0x0362
-#define BCM53128_DEVICE_ID       0x5e10  
-#define BCM53128_A0_REV_ID       0
-#define BCM53128_B0_REV_ID       0x4
-#define BCM53128_MODEL_ID       0x53128
-
-#define BCM53600_PHYID_LOW  0x5f40
-#define BCM53600_PHYID_HIGH 0x0362
-#define BCM53600_DEVICE_ID  (0x3 | BCM53600_PHYID_LOW)
-#define BCM53600_A0_REV_ID  0
-#define BCM53602_DEVICE_ID  (0x1 | BCM53600_PHYID_LOW)
-#define BCM53603_DEVICE_ID  (0x2 | BCM53600_PHYID_LOW)
-#define BCM53604_DEVICE_ID  (0x3 | BCM53600_PHYID_LOW)
-#define BCM53606_DEVICE_ID  (0x7 | BCM53600_PHYID_LOW)
-
-#define BCM89500_PHYID_LOW       0x5d30
-#define BCM89500_PHYID_HIGH      0x0362
-#define BCM89500_DEVICE_ID       0x9500
-#define BCM89501_DEVICE_ID       0x9501 
-#define BCM89200_DEVICE_ID       0x9200 
-#define BCM89500_A0_REV_ID       0
-#define BCM89500_B0_REV_ID       0x4
-#define BCM89500_MODEL_ID       0x89500
-
-#define BCM53010_PHYID_LOW       0x8760
-#define BCM53010_PHYID_HIGH      0x600d
-#define BCM53010_DEVICE_ID       0x3010
-#define BCM53011_DEVICE_ID       0x3011
-#define BCM53012_DEVICE_ID       0x3012
-#define BCM53010_A0_REV_ID       0
-#define BCM53010_A2_REV_ID       0x2
-#define BCM53010_MODEL_ID        0x53010
-
-#define BCM53018_PHYID_LOW       0x87c0
-#define BCM53018_PHYID_HIGH      0x600d
-#define BCM53017_DEVICE_ID       0x3016
-#define BCM53018_DEVICE_ID       0x3018
-#define BCM53019_DEVICE_ID       0x3019
-#define BCM53018_A0_REV_ID       0
-#define BCM53018_MODEL_ID        0x53016
-
-#define BCM53020_PHYID_LOW       0x87f0
-#define BCM53020_PHYID_HIGH      0x600d
-#define BCM53020_DEVICE_ID       0x8022
-#define BCM53022_DEVICE_ID       0x8022
-#define BCM53023_DEVICE_ID       0x8023
-#define BCM53025_DEVICE_ID       0x8025
-#define BCM58625_DEVICE_ID       0x8625
-#define BCM58622_DEVICE_ID       0x8622
-#define BCM58623_DEVICE_ID       0x8623
-#define BCM58525_DEVICE_ID       0x8525
-#define BCM58522_DEVICE_ID       0x8522
-#define BCM53020_A0_REV_ID       0
-#define BCM53020_MODEL_ID        0x3025
-
-#define BCM4713_DEVICE_ID       0x4713
-#define BCM4713_A0_REV_ID       0
-#define BCM4713_A9_REV_ID       9
-
-#define BCM53000_GMAC_DEVICE_ID       0x4715
-#define BCM53000_A0_REV_ID       0
-
-#define BCM53010_GMAC_DEVICE_ID       0x4715
-
-#define BCM53000PCIE_DEVICE_ID  0x5300
-
-#define SANDBURST_VENDOR_ID     0x17ba
-#define BME3200_DEVICE_ID       0x0280
-#define BME3200_A0_REV_ID       0x0000
-#define BME3200_B0_REV_ID       0x0001
-#define BM9600_DEVICE_ID        0x0480
-#define BM9600_A0_REV_ID        0x0000
-#define BM9600_B0_REV_ID        0x0010
-#define QE2000_DEVICE_ID        0x0300
-#define QE2000_A1_REV_ID        0x0001
-#define QE2000_A2_REV_ID        0x0002
-#define QE2000_A3_REV_ID        0x0003
-#define QE2000_A4_REV_ID        0x0004
-#define BCM88020_DEVICE_ID      0x0380
-#define BCM88020_A0_REV_ID      0x0000
-#define BCM88020_A1_REV_ID      0x0001
-#define BCM88020_A2_REV_ID      0x0002
-#define BCM88025_DEVICE_ID      0x0580
-#define BCM88025_A0_REV_ID      0x0000
-#define BCM88030_DEVICE_ID      0x0038
-#define BCM88030_A0_REV_ID      0x0001
-#define BCM88030_A1_REV_ID      0x0002
-#define BCM88030_B0_REV_ID      0x0011
-#define BCM88030_B1_REV_ID      0x0012
-#define BCM88034_DEVICE_ID      0x0034
-#define BCM88034_A0_REV_ID      (BCM88030_A0_REV_ID)
-#define BCM88034_A1_REV_ID      (BCM88030_A1_REV_ID)
-#define BCM88034_B0_REV_ID      (BCM88030_B0_REV_ID)
-#define BCM88034_B1_REV_ID      (BCM88030_B1_REV_ID)
-#define BCM88039_DEVICE_ID      0x0039
-#define BCM88039_A0_REV_ID      (BCM88030_A0_REV_ID)
-#define BCM88039_A1_REV_ID      (BCM88030_A1_REV_ID)
-#define BCM88039_B0_REV_ID      (BCM88030_B0_REV_ID)
-#define BCM88039_B1_REV_ID      (BCM88030_B1_REV_ID)
-#define BCM88130_DEVICE_ID      0x0480
-#define BCM88130_A0_REV_ID      0x0000
-#define BCM88130_A1_REV_ID      0x0001
-#define BCM88130_B0_REV_ID      0x0010
-#define PLX_VENDOR_ID           0x10b5
-#define PLX9656_DEVICE_ID       0x9656
-#define PLX9656_REV_ID          0x0000
-#define PLX9056_DEVICE_ID       0x9056
-#define PLX9056_REV_ID          0x0000
-
-#define TK371X_DEVICE_ID 0x8600
-#define TK371X_A0_REV_ID 0x0
 
 #define GEDI_DEVICE_ID          0xa100 
 #define GEDI_REV_ID             0x0001 
@@ -1778,6 +1525,7 @@
 #define DNXC_A0_REV_ID          0x0001
 #define DNXC_A1_REV_ID          0x0002
 #define DNXC_B0_REV_ID          0x0011
+#define DNXC_B1_REV_ID          0x0012
 #define BCM88790_DEVICE_ID      0x8790
 #define BCM88790_A0_REV_ID      DNXC_A0_REV_ID
 #define BCM88790_B0_REV_ID      DNXC_B0_REV_ID
@@ -1933,9 +1681,34 @@
 #define BCM88381_A0_REV_ID      JERICHO_PLUS_A0_REV_ID
 
 #define JERICHO_2_DEVICE_ID           0x8690 
-#define JERICHO_2_A0_REV_ID           0x0001
+#define JERICHO_2_A0_REV_ID     DNXC_A0_REV_ID
+#define JERICHO_2_B0_REV_ID     DNXC_B0_REV_ID
+#define JERICHO_2_B1_REV_ID     DNXC_B1_REV_ID
 #define BCM88690_DEVICE_ID      JERICHO_2_DEVICE_ID
 #define BCM88690_A0_REV_ID      JERICHO_2_A0_REV_ID
+#define BCM88690_B0_REV_ID      JERICHO_2_B0_REV_ID
+#define BCM88690_B1_REV_ID      JERICHO_2_B1_REV_ID
+#define BCM88691_DEVICE_ID      0x8691
+#define BCM88692_DEVICE_ID      0x8692
+#define BCM88693_DEVICE_ID      0x8693
+#define BCM88694_DEVICE_ID      0x8694
+#define BCM88695_DEVICE_ID      0x8695
+#define BCM88696_DEVICE_ID      0x8696
+#define BCM88697_DEVICE_ID      0x8697
+#define BCM88698_DEVICE_ID      0x8698
+#define BCM88699_DEVICE_ID      0x8699
+#define BCM8869A_DEVICE_ID      0x869A
+#define BCM8869B_DEVICE_ID      0x869B
+#define BCM8869C_DEVICE_ID      0x869C
+#define BCM8869D_DEVICE_ID      0x869D
+#define BCM8869E_DEVICE_ID      0x869E
+#define BCM8869F_DEVICE_ID      0x869F
+#define BCM_JR2_DEVID_MASK      0xFFF0
+
+#define J2C_DEVICE_ID                 0x8800 
+#define J2C_A0_REV_ID           DNXC_A0_REV_ID
+#define BCM88800_DEVICE_ID      J2C_DEVICE_ID
+#define BCM88800_A0_REV_ID      J2C_A0_REV_ID
 
 #define QAX_DEVICE_ID           0x8470 
 #define QAX_A0_REV_ID           0x0001
@@ -1964,6 +1737,7 @@
 #define BCM88270_A1_REV_ID      QUX_A1_REV_ID
 #define BCM88272_DEVICE_ID      0x8272
 #define BCM88273_DEVICE_ID      0x8273
+#define BCM88274_DEVICE_ID      0x8274
 #define BCM88278_DEVICE_ID      0x8278
 #define BCM88279_DEVICE_ID      0x8279
 
@@ -2045,5 +1819,8 @@
 #define ACP_PCI_VENDOR_ID 0x10ee
 #define ACP_PCI_DEVICE_ID 0x7011
 #define ACP_PCI_REV_ID    0x0001
+
+#define PLX9056_DEVICE_ID       0x9056 
+
 #endif  
 

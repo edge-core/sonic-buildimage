@@ -71,7 +71,7 @@ $(KMODULE):
 	rm -f *.o *.ko .*.cmd
 	rm -fr .tmp_versions
 	ln -s $(LIBDIR)/$(MODULE) $(PRE_COMPILED_OBJ)_shipped
-	echo "suppress warning" > .$(PRE_COMPILED_OBJ).cmd
+	if [ ! -f $(KERNBLDDIR)/NO_SUPRESS ]; then echo "# suppress warning" > .$(PRE_COMPILED_OBJ).cmd; fi
 	$(MAKE) -C $(KERNBLDDIR) CROSS_COMPILE=$(CROSS_COMPILE) M=$(PWD) modules
 	if [ ! -f Module.symvers ]; then echo "old kernel (pre-2.6.17)" > Module.symvers; fi
 	cp -f $(KMODULE) $(LIBDIR)
