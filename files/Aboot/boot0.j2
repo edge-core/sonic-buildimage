@@ -215,7 +215,7 @@ platform_specific() {
         flash_size=3700
         echo "amd_iommu=off" >> /tmp/append
     fi
-    if [ "$sid" = "Gardena" ] || [ "$sid" = "GardenaSsd" ]; then
+    if [ "$sid" = "Gardena" ] || [ "$sid" = "GardenaSsd" ] || [ "$sid" = "GardenaE" ]; then
         aboot_machine=arista_7260cx3_64
         flash_size=28000
     fi
