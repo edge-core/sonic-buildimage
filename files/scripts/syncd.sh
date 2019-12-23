@@ -111,7 +111,6 @@ start() {
                 /bin/systemctl stop pmon
                 debug "pmon is active while syncd starting, stop it first"
             fi
-            /usr/bin/hw-management.sh chipdown
         fi
 
         if [[ x"$BOOT_TYPE" == x"fast" ]]; then
