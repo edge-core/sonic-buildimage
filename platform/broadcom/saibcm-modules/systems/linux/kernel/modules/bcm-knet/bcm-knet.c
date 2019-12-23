@@ -6165,6 +6165,10 @@ bkn_init_ndev(u8 *mac, char *name)
         strncpy(dev->name, name, IFNAMSIZ-1);
     }
 
+#ifdef CONFIG_NET_NS
+    dev_net_set(dev, current->nsproxy->net_ns);
+#endif
+
     /* Register the kernel Ethernet device */
     if (register_netdev(dev)) {
         DBG_WARN(("Error registering Ethernet device.\n"));
