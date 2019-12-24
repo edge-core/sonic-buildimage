@@ -6,6 +6,7 @@ X509=`sonic-cfggen -d -v "DEVICE_METADATA['x509']"`
 TELEMETRY=`sonic-cfggen -d -v 'TELEMETRY.keys() | join(" ") if TELEMETRY'`
 
 TELEMETRY_ARGS=" -logtostderr"
+export CVL_SCHEMA_PATH=/usr/sbin/schema
 
 if [ -n "$X509" ]; then
 	SERVER_CRT=`sonic-cfggen -d -v "DEVICE_METADATA['x509']['server_crt']"`

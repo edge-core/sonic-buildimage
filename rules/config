@@ -101,3 +101,6 @@ DEFAULT_VS_PREPARE_MEM = yes
 
 # ENABLE_SYSTEM_SFLOW - build docker-sonic-sflow for sFlow support
 ENABLE_SFLOW = y
+
+# ENABLE_MGMT_FRAMEWORK - build docker-sonic-mgt-framework for CLI and REST server support
+ENABLE_MGMT_FRAMEWORK = y
