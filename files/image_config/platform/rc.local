@@ -331,4 +331,7 @@ if [ -f $FIRST_BOOT_FILE ]; then
     firsttime_exit
 fi
 
+# Create dir where following scripts put their output files
+mkdir -p /var/platform
+
 exit 0

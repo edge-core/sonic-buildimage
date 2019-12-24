@@ -1,0 +1,4 @@
+#!/bin/bash
+
+docker exec -it mgmt-framework /usr/sbin/cli/clish_start "$@"
+
