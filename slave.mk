@@ -256,7 +256,7 @@ SONIC_TARGET_LIST += $(addprefix $(FILES_PATH)/, $(SONIC_COPY_FILES))
 $(addprefix $(DEBS_PATH)/, $(SONIC_ONLINE_DEBS)) : $(DEBS_PATH)/% : .platform
 	$(HEADER)
 	$(foreach deb,$* $($*_DERIVED_DEBS), \
-	    { curl -f -o $(DEBS_PATH)/$(deb) $($(deb)_URL) $(LOG) || { exit 1 ; } } ; )
+	    { curl -L -f -o $(DEBS_PATH)/$(deb) $($(deb)_URL) $(LOG) || { exit 1 ; } } ; )
 	$(FOOTER)
 
 SONIC_TARGET_LIST += $(addprefix $(DEBS_PATH)/, $(SONIC_ONLINE_DEBS))
@@ -269,7 +269,7 @@ SONIC_TARGET_LIST += $(addprefix $(DEBS_PATH)/, $(SONIC_ONLINE_DEBS))
 #     SONIC_ONLINE_FILES += $(SOME_NEW_FILE)
 $(addprefix $(FILES_PATH)/, $(SONIC_ONLINE_FILES)) : $(FILES_PATH)/% : .platform
 	$(HEADER)
-	curl -f -o $@ $($*_URL) $(LOG)
+	curl -L -f -o $@ $($*_URL) $(LOG)
 	$(FOOTER)
 
 SONIC_TARGET_LIST += $(addprefix $(FILES_PATH)/, $(SONIC_ONLINE_FILES))
