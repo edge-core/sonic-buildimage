@@ -31,7 +31,7 @@ create_disk()
 
 prepare_installer_disk()
 {
-    fallocate -l 1024M $INSTALLER_DISK
+    fallocate -l 2048M $INSTALLER_DISK
 
     mkfs.vfat $INSTALLER_DISK
 
