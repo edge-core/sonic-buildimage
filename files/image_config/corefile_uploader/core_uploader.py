@@ -36,7 +36,11 @@ cwd = []
 
 HOURS_4 = (4 * 60 * 60)
 PAUSE_ON_FAIL = (60 * 60)
+WAIT_FILE_WRITE1 = (10 * 60)
+WAIT_FILE_WRITE2= (5 * 60)
+POLL_SLEEP = (60 * 60)
 MAX_RETRIES = 5
+UPLOAD_PREFIX = "UPLOADED_"
 
 log_level = syslog.LOG_DEBUG
 
@@ -116,7 +120,7 @@ class Watcher:
         self.observer.start()
         try:
             while True:
-                time.sleep(5)
+                time.sleep(POLL_SLEEP)
         except:
             self.observer.stop()
             log_err("Error in watcher")
@@ -179,29 +183,33 @@ class Handler(FileSystemEventHandler):
         elif event.event_type == 'created':
             # Take any action here when a file is first created.
             log_debug("Received create event - " +  event.src_path)
+            Handler.wait_for_file_write_complete(event.src_path)
             Handler.handle_file(event.src_path)
 
 
     @staticmethod
     def wait_for_file_write_complete(path):
-        ct_size = -1
+        mtime = 0
 
-        while ct_size != os.path.getsize(path):
-            ct_size = os.path.getsize(path)
-            time.sleep(2)
+        # Sleep for ample time enough for file dump to complete.
+        time.sleep(WAIT_FILE_WRITE1)
 
-        time.sleep(2)
-        if ct_size != os.path.getsize(path):
+        # Give another chance & poll until mtime stabilizes
+        while mtime != os.stat(path).st_mtime:
+            mtime = os.stat(path).st_mtime
+            time.sleep(10)
+
+        # A safety pause for double confirmation
+        time.sleep(WAIT_FILE_WRITE2)
+        if mtime != os.stat(path).st_mtime:
             raise Exception("Dump file creation is too slow: " + path)
+            # Give up as something is terribly wrong with this file.
 
         log_debug("File write complete - " +  path)
 
 
     @staticmethod
     def handle_file(path):
-
-        Handler.wait_for_file_write_complete(path)
-
         lpath = "/".join(cwd)
         make_new_dir(lpath)
         os.chdir(lpath)
@@ -221,18 +229,18 @@ class Handler(FileSystemEventHandler):
         tar.close()
         log_debug("Tar file for upload created: " + tarf_name)
 
-        Handler.upload_file(tarf_name, tarf_name)
+        Handler.upload_file(tarf_name, tarf_name, path)
 
         log_debug("File uploaded - " +  path)
         os.chdir(INIT_CWD)
 
     @staticmethod
-    def upload_file(fname, fpath):
+    def upload_file(fname, fpath, coref):
         daemonname = fname.split(".")[0]
         i = 0
         fail_msg = ""
         
-        while i <= MAX_RETRIES:
+        while True:
             try:
                 svc = FileService(account_name=acctname, account_key=acctkey)
 
@@ -246,14 +254,15 @@ class Handler(FileSystemEventHandler):
 
                 svc.create_file_from_path(sharename, "/".join(l), fname, fpath)
                 log_debug("Remote file created: name{} path{}".format(fname, fpath))
+                newcoref = os.path.dirname(coref) + "/" + UPLOAD_PREFIX + os.path.basename(coref)
+                os.rename(coref, newcoref)
                 break
 
-            except Exception as e:
-                log_err("core uploader failed: Failed during upload (" + str(e) +")")
-                fail_msg = str(e)
+            except Exception as ex:
+                log_err("core uploader failed: Failed during upload (" + coref + ") err: ("+ str(ex) +") retry:" + str(i))
+                if not os.path.exists(fpath):
+                    break
                 i += 1
-                if i >= MAX_RETRIES:
-                    raise Exception("Failed while uploading. msg(" + fail_msg + ") after " + str(i) + " retries")
                 time.sleep(PAUSE_ON_FAIL)
 
 
@@ -261,7 +270,7 @@ class Handler(FileSystemEventHandler):
     def scan():
         for e in os.listdir(CORE_FILE_PATH):
             fl = CORE_FILE_PATH + e
-            if os.path.isfile(fl):
+            if os.path.isfile(fl) and not e.startswith(UPLOAD_PREFIX):
                 Handler.handle_file(fl)
 
 
