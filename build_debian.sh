@@ -240,7 +240,6 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     openssh-server          \
     python                  \
     python-setuptools       \
-    monit                   \
     python-apt              \
     traceroute              \
     iputils-ping            \
@@ -347,10 +346,6 @@ EOF
 # Configure sshd to listen for v4 connections; disable listening for v6 connections
 sudo sed -i 's/^ListenAddress ::/#ListenAddress ::/' $FILESYSTEM_ROOT/etc/ssh/sshd_config
 sudo sed -i 's/^#ListenAddress 0.0.0.0/ListenAddress 0.0.0.0/' $FILESYSTEM_ROOT/etc/ssh/sshd_config
-
-## Config monit
-sudo cp files/image_config/monit/monitrc $FILESYSTEM_ROOT/etc/monit/
-sudo chmod 600 $FILESYSTEM_ROOT/etc/monit/monitrc
 
 ## Config sysctl
 sudo mkdir -p $FILESYSTEM_ROOT/var/core
