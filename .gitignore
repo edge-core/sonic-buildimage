@@ -27,6 +27,9 @@ src/libteam/*
 src/lldpd/*
 !src/lldpd/Makefile
 !src/lldpd/patch/
+src/monit/*
+!src/monit/Makefile
+!src/monit/patch/
 src/mpdecimal/*
 !src/mpdecimal/Makefile
 src/python-click/*

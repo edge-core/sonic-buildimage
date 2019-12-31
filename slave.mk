@@ -555,7 +555,8 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
                 $(SONIC_UTILS) \
                 $(BASH) \
                 $(LIBPAM_TACPLUS) \
-                $(LIBNSS_TACPLUS)) \
+                $(LIBNSS_TACPLUS) \
+                $(MONIT)) \
         $$(addprefix $(TARGET_PATH)/,$$($$*_DOCKERS)) \
         $$(addprefix $(PYTHON_WHEELS_PATH)/,$(SONIC_CONFIG_ENGINE)) \
         $$(addprefix $(PYTHON_WHEELS_PATH)/,$(SONIC_PLATFORM_COMMON_PY2)) \
