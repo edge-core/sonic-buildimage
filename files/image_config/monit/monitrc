@@ -24,8 +24,7 @@
 ## Set syslog logging. If you want to log to a standalone log file instead,
 ## specify the full path to the log file
 #
-# set logfile /var/log/monit.log
-set logfile syslog
+  set logfile syslog
 #
 #
 ## Set the location of the Monit lock file which stores the process id of the
@@ -153,8 +152,8 @@ set logfile syslog
 ## commands to a running Monit daemon. See the Monit Wiki if you want to
 ## enable SSL for the HTTP interface.
 #
-set httpd unixsocket /var/run/monit.sock and
-     allow localhost        # allow localhost to connect to the server and
+  set httpd unixsocket /var/run/monit.sock and
+      allow localhost        # allow localhost to connect to the server
 #
 ###############################################################################
 ## Services
@@ -294,15 +293,3 @@ set httpd unixsocket /var/run/monit.sock and
    include /etc/monit/conf.d/*
    include /etc/monit/conf-enabled/*
 #
-check filesystem root-overlay with path /
-  if space usage > 90% for 5 times within 10 cycles then alert
-check filesystem var-log with path /var/log
-  if space usage > 90% for 5 times within 10 cycles then alert
-check system $HOST
-  if memory usage > 90% for 5 times within 10 cycles then alert
-  if cpu usage (user) > 90% for 5 times within 10 cycles then alert
-  if cpu usage (system) > 90% for 5 times within 10 cycles then alert
-check process rsyslog with pidfile /var/run/rsyslogd.pid
-  start program = "/bin/systemctl start rsyslog.service"
-  stop program = "/bin/systemctl stop rsyslog.service"
-  if totalmem > 800 MB for 5 times within 10 cycles then restart

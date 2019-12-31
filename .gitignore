@@ -60,6 +60,9 @@ src/lldpd/*
 !src/lldpd/patch/
 src/lm-sensors/*
 !src/lm-sensors/Makefile
+src/monit/*
+!src/monit/Makefile
+!src/monit/patch/
 src/mpdecimal/*
 !src/mpdecimal/Makefile
 src/python-click/*
