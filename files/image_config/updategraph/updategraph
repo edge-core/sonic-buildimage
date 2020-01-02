@@ -1,16 +1,14 @@
 #!/bin/bash
 
-CONFIG_DB_INDEX=4
-
 reload_minigraph()
 {
     echo "Reloading minigraph..."
     if [ ! -f /etc/sonic/init_cfg.json ]; then
         echo "{}" > /etc/sonic/init_cfg.json
     fi
-    redis-cli -n $CONFIG_DB_INDEX FLUSHDB
+    sonic-db-cli CONFIG_DB FLUSHDB
     sonic-cfggen -H -m -j /etc/sonic/init_cfg.json --write-to-db
-    redis-cli -n $CONFIG_DB_INDEX SET "CONFIG_DB_INITIALIZED" "1"
+    sonic-db-cli CONFIG_DB SET "CONFIG_DB_INITIALIZED" "1"
     if [ -f /etc/sonic/acl.json ]; then
         acl-loader update full /etc/sonic/acl.json
     fi
@@ -77,9 +75,9 @@ if [ "$src" = "dhcp" ]; then
         else
             cp -f /tmp/device_meta.json /etc/sonic/config_db.json
         fi
-        redis-cli -n $CONFIG_DB_INDEX FLUSHDB
+        sonic-db-cli CONFIG_DB FLUSHDB
         sonic-cfggen -j /etc/sonic/config_db.json --write-to-db
-        redis-cli -n $CONFIG_DB_INDEX SET "CONFIG_DB_INITIALIZED" "1"
+        sonic-db-cli CONFIG_DB SET "CONFIG_DB_INITIALIZED" "1"
         if [ "$dhcp_as_static" = "true" ]; then
             sed -i "/enabled=/d" /etc/sonic/updategraph.conf
             echo "enabled=false" >> /etc/sonic/updategraph.conf
