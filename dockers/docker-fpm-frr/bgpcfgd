@@ -120,29 +120,23 @@ class Directory(object):
         self.data = defaultdict(dict)
         self.notify = defaultdict(lambda: defaultdict(list))
 
-    def path_exist(self, slot, path):
+    def path_traverse(self, slot, path):
         if slot not in self.data:
-            return False
+            return False, None
         elif path == '':
-            return True
+            return True, self.data[slot]
         d = self.data[slot]
         for p in path.split("/"):
             if p not in d:
-                return False
+                return False, None
             d = d[p]
-        return True
+        return True, d
+
+    def path_exist(self, slot, path):
+        return self.path_traverse(slot, path)[0]
 
     def get_path(self, slot, path):
-        if slot not in self.data:
-            return None
-        elif path == '':
-            return self.data[slot]
-        d = self.data[slot]
-        for p in path.split("/"):
-            if p not in d:
-                return None
-            d = d[p]
-        return d
+        return self.path_traverse(slot, path)[1]
 
     def put(self, slot, key, value):
         self.data[slot][key] = value
@@ -289,6 +283,8 @@ class BGPPeerMgr(Manager):
         }
 
     def set_handler(self, key, data):
+        key = self.normalize_key(key)
+        vrf, nbr = key.split('|', 1)
         if key not in self.peers:
             cmd = None
             neigmeta = self.directory.get_slot("neigmeta")
@@ -298,14 +294,14 @@ class BGPPeerMgr(Manager):
                 cmd = self.templates["add"].render(
                     DEVICE_METADATA=self.directory.get_slot("meta"),
                     DEVICE_NEIGHBOR_METADATA=neigmeta,
-                    neighbor_addr=key,
+                    neighbor_addr=nbr,
                     bgp_session=data
                 )
             except:
                 syslog.syslog(syslog.LOG_ERR, 'Peer {}. Error in rendering the template for "SET" command {}'.format(key, data))
                 return True
             if cmd is not None:
-                rc = self.apply_op(cmd)
+                rc = self.apply_op(cmd, vrf)
                 if rc:
                     self.peers.add(key)
                     syslog.syslog(syslog.LOG_INFO, 'Peer {} added with attributes {}'.format(key, data))
@@ -316,13 +312,13 @@ class BGPPeerMgr(Manager):
             # commands for the peers only
             if "admin_status" in data:
                 if data['admin_status'] == 'up':
-                    rc = self.apply_op(self.templates["no shutdown"].render(neighbor_addr=key))
+                    rc = self.apply_op(self.templates["no shutdown"].render(neighbor_addr=nbr), vrf)
                     if rc:
                         syslog.syslog(syslog.LOG_INFO, 'Peer {} admin state is set to "up"'.format(key))
                     else:
                         syslog.syslog(syslog.LOG_ERR, "Peer {} admin state wasn't set to 'up'.".format(key))
                 elif data['admin_status'] == 'down':
-                    rc = self.apply_op(self.templates["shutdown"].render(neighbor_addr=key))
+                    rc = self.apply_op(self.templates["shutdown"].render(neighbor_addr=nbr), vrf)
                     if rc:
                         syslog.syslog(syslog.LOG_INFO, 'Peer {} admin state is set to "down"'.format(key))
                     else:
@@ -334,23 +330,28 @@ class BGPPeerMgr(Manager):
         return True
 
     def del_handler(self, key):
+        key = self.normalize_key(key)
+        vrf, nbr = key.split('|', 1)
         if key not in self.peers:
             syslog.syslog(syslog.LOG_WARNING, 'Peer {} has not been found'.format(key))
             return
-        cmd = self.templates["delete"].render(neighbor_addr=key)
-        rc = self.apply_op(cmd)
+        cmd = self.templates["delete"].render(neighbor_addr=nbr)
+        rc = self.apply_op(cmd, vrf)
         if rc:
             syslog.syslog(syslog.LOG_INFO, 'Peer {} has been removed'.format(key))
             self.peers.remove(key)
         else:
             syslog.syslog(syslog.LOG_ERR, "Peer {} hasn't been removed".format(key))
 
-    def apply_op(self, cmd):
+    def apply_op(self, cmd, vrf):
         bgp_asn = self.directory.get_slot("meta")["localhost"]["bgp_asn"]
         fd, tmp_filename = tempfile.mkstemp(dir='/tmp')
         os.close(fd)
         with open(tmp_filename, 'w') as fp:
-            fp.write('router bgp %s\n' % bgp_asn)
+            if vrf == 'default':
+                fp.write('router bgp %s\n' % bgp_asn)
+            else:
+                fp.write('router bgp %s vrf %s\n' % (bgp_asn, vrf))
             fp.write("%s\n" % cmd)
 
         command = ["vtysh", "-f",  tmp_filename]
@@ -359,13 +360,30 @@ class BGPPeerMgr(Manager):
         return rc == 0
 
     @staticmethod
+    def normalize_key(key):
+        if '|' not in key:
+            return 'default|' + key
+        else:
+            return key
+
+    @staticmethod
     def load_peers():
-        peers = set()
-        command = ["vtysh", "-c", "show bgp neighbors json"]
+        vrfs = []
+        command = ["vtysh", "-c",  "show bgp vrfs json"]
         rc, out, err = run_command(command)
         if rc == 0:
-            js_bgp = json.loads(out)
-            peers = set(js_bgp.keys())
+            js_vrf = json.loads(out)
+            vrfs = js_vrf['vrfs'].keys()
+
+        peers = set()
+        for vrf in vrfs:
+            command = ["vtysh", "-c",  'show bgp vrf {} neighbors json'.format(vrf)]
+            rc, out, err = run_command(command)
+            if rc == 0:
+                js_bgp = json.loads(out)
+                for nbr in js_bgp.keys():
+                    peers.add((vrf, nbr))
+
         return peers
 
 
