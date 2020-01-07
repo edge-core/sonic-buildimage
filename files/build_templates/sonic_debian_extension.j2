@@ -138,7 +138,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT pam-auth-update --remove tacplus
 sudo sed -i -e '/^passwd/s/ tacplus//' $FILESYSTEM_ROOT/etc/nsswitch.conf
 
 # Install custom-built monit package and SONiC configuration files
-sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/monit_*.deb || \
+sudo dpkg --root=$FILESYSTEM_ROOT -i target/debs/monit_*.deb || \
     sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
 sudo cp $IMAGE_CONFIGS/monit/monitrc $FILESYSTEM_ROOT/etc/monit/
 sudo chmod 600 $FILESYSTEM_ROOT/etc/monit/monitrc

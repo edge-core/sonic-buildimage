@@ -2,8 +2,8 @@
 SHELL = /bin/bash
 .SHELLFLAGS += -e
 
-MAIN_TARGET = monit_$(MONIT_VERSION)_$(CONFIGURED_ARCH).deb
-DERIVED_TARGETS = monit-dbgsym_$(MONIT_VERSION)_$(CONFIGURED_ARCH).deb
+MAIN_TARGET = monit_$(MONIT_VERSION)_amd64.deb
+DERIVED_TARGETS = monit-dbgsym_$(MONIT_VERSION)_amd64.deb
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# Remove any stale files
