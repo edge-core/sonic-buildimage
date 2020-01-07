@@ -34,7 +34,7 @@ COPY ["sources.list.arm64", "/etc/apt/sources.list"]
 COPY ["sources.list", "/etc/apt/sources.list"]
 {% endif %}
 COPY ["no_install_recommend_suggest", "/etc/apt/apt.conf.d"]
-COPY ["aptconf_archive_expired_release", "/etc/apt/apt.conf.d"]
+COPY ["no-check-valid-until", "/etc/apt/apt.conf.d"]
 
 # Update apt cache and
 # pre-install fundamental packages
