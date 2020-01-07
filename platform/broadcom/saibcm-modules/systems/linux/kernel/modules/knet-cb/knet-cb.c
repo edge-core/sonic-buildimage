@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Broadcom
+ * Copyright 2017-2019 Broadcom
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -45,16 +45,19 @@
 #include <bcm-knet.h>
 #include <linux/if_vlan.h>
 
+/* Enable sflow sampling using psample */
+#ifdef PSAMPLE_SUPPORT
+#include "psample-cb.h"
+#endif
+
 MODULE_AUTHOR("Broadcom Corporation");
 MODULE_DESCRIPTION("Broadcom Linux KNET Call-Back Driver");
 MODULE_LICENSE("GPL");
 
-
-static int debug;
+int debug;
 LKM_MOD_PARAM(debug, "i", int, 0);
 MODULE_PARM_DESC(debug,
 "Debug level (default 0)");
-
 
 /* Module Information */
 #define MODULE_MAJOR 121
@@ -63,8 +66,10 @@ MODULE_PARM_DESC(debug,
 /* set KNET_CB_DEBUG for debug info */
 #define KNET_CB_DEBUG
 
-#define FILTER_TAG_STRIP 0
-#define FILTER_TAG_KEEP  1
+/* These below need to match incoming enum values */
+#define FILTER_TAG_STRIP    0
+#define FILTER_TAG_KEEP     1
+#define FILTER_TAG_ORIGINAL 2
 
 /* Maintain tag strip statistics */
 struct strip_stats_s {
@@ -105,7 +110,7 @@ strip_vlan_tag(struct sk_buff *skb)
  *
  * DCB type 14: word 12, bits 10.11
  * DCB type 19, 20, 21, 22, 30: word 12, bits 10..11
- * DCB type 23, 29: word 13, bits 0..1 
+ * DCB type 23, 29: word 13, bits 0..1
  * DCB type 31, 34, 37: word 13, bits 0..1
  * DCB type 26, 32, 33, 35: word 13, bits 0..1
  *
@@ -150,7 +155,7 @@ get_tag_status(int dcb_type, void *meta)
         {
             /* untested */
             /* TH3 only parses outer tag. */
-            const int   tag_map[4] = { 0, 2, -1, -1 };            
+            const int   tag_map[4] = { 0, 2, -1, -1 };
             tag_status = tag_map[(dcb[9] >> 13) & 0x3];
         }
         break;
@@ -162,7 +167,7 @@ get_tag_status(int dcb_type, void *meta)
     if (debug & 0x1) {
         gprintk("%s; DCB Type: %d; tag status: %d\n", __func__, dcb_type, tag_status);
     }
-#endif    
+#endif
     return tag_status;
 }
 
@@ -183,12 +188,12 @@ strip_tag_rx_cb(struct sk_buff *skb, int dev_no, void *meta)
     if (debug & 0x1) {
         gprintk("%s Enter; netif Flags: %08X filter_flags %08X \n",
                 __func__, netif_flags, filter_flags);
-    }
+     }
 #endif
 
     /* KNET implements this already */
     if (filter_flags == FILTER_TAG_KEEP)
-    {
+{
         strip_stats.skipped++;
         return skb;
     }
@@ -217,8 +222,17 @@ strip_tag_rx_cb(struct sk_buff *skb, int dev_no, void *meta)
         return skb;
     }
 
+    if (filter_flags == FILTER_TAG_ORIGINAL)
+    {
+        /* If untagged or single inner, strip the extra tag that knet
+           keep tag will add. */
+        if (tag_status  <  2)
+        {
+            strip_tag = 1;
+        }
+    }
     strip_stats.checked++;
-   
+
     if (strip_tag) {
 #ifdef KNET_CB_DEBUG
         if (debug & 0x1) {
@@ -235,7 +249,6 @@ strip_tag_rx_cb(struct sk_buff *skb, int dev_no, void *meta)
         }
     }
 #endif
-
     return skb;
 }
 
@@ -250,16 +263,50 @@ strip_tag_tx_cb(struct sk_buff *skb, int dev_no, void *meta)
 /* Filter callback not used */
 static int
 strip_tag_filter_cb(uint8_t * pkt, int size, int dev_no, void *meta,
-                    int chan, kcom_filter_t *kf)
+               int chan, kcom_filter_t *kf)
 {
     /* Pass through for now */
     return 0;
+}
+
+static int
+knet_filter_cb(uint8_t * pkt, int size, int dev_no, void *meta,
+                     int chan, kcom_filter_t *kf)
+{
+    /* check for filter callback handler */
+#ifdef PSAMPLE_SUPPORT
+    if (strncmp(kf->desc, PSAMPLE_CB_NAME, KCOM_FILTER_DESC_MAX) == 0) {
+        return psample_filter_cb (pkt, size, dev_no, meta, chan, kf);
+    }
+#endif
+    return strip_tag_filter_cb (pkt, size, dev_no, meta, chan, kf);
+}
+
+static int
+knet_netif_create_cb(int unit, kcom_netif_t *netif, struct net_device *dev)
+{
+    int retv = 0;
+#ifdef PSAMPLE_SUPPORT
+    retv = psample_netif_create_cb(unit, netif, dev); 
+#endif
+    return retv;
+}
+
+static int
+knet_netif_destroy_cb(int unit, kcom_netif_t *netif, struct net_device *dev)
+{
+    int retv = 0;
+#ifdef PSAMPLE_SUPPORT
+    retv = psample_netif_destroy_cb(unit, netif, dev); 
+#endif
+    return retv;
 }
 
 /*
  * Get statistics.
  * % cat /proc/linux-knet-cb
  */
+
 static int
 _pprint(void)
 {   
@@ -275,19 +322,40 @@ static int
 _cleanup(void)
 {
     bkn_rx_skb_cb_unregister(strip_tag_rx_cb);
-    bkn_tx_skb_cb_unregister(strip_tag_tx_cb);
-    bkn_filter_cb_unregister(strip_tag_filter_cb);
+    /* strip_tag_tx_cb is currently a no-op, so no need to unregister */
+    if (0)
+    {
+        bkn_tx_skb_cb_unregister(strip_tag_tx_cb);
+    }
 
+    bkn_filter_cb_unregister(knet_filter_cb);
+    bkn_netif_create_cb_unregister(knet_netif_create_cb);
+    bkn_netif_destroy_cb_unregister(knet_netif_destroy_cb);
+
+#ifdef PSAMPLE_SUPPORT
+    psample_cleanup();
+#endif
     return 0;
 }   
 
 static int
 _init(void)
 {
-    bkn_rx_skb_cb_register(strip_tag_rx_cb);
-    bkn_tx_skb_cb_register(strip_tag_tx_cb);
-    bkn_filter_cb_register(strip_tag_filter_cb);
 
+    bkn_rx_skb_cb_register(strip_tag_rx_cb);
+    /* strip_tag_tx_cb is currently a no-op, so no need to register */
+    if (0)
+    {
+        bkn_tx_skb_cb_register(strip_tag_tx_cb);
+    }
+
+#ifdef PSAMPLE_SUPPORT
+    psample_init();
+#endif
+    
+    bkn_filter_cb_register(knet_filter_cb);
+    bkn_netif_create_cb_register(knet_netif_create_cb);
+    bkn_netif_destroy_cb_register(knet_netif_destroy_cb);
     return 0;
 }
 

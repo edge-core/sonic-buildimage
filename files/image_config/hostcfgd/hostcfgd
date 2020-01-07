@@ -176,6 +176,11 @@ class AaaCfg(object):
         if modify_conf:
             self.modify_conf_file()
 
+    def modify_single_file(self, filename, operations=None):
+        if operations:
+            cmd = "sed -e {0} {1} > {1}.new; mv -f {1} {1}.old; mv -f {1}.new {1}".format(' -e '.join(operations), filename)
+            os.system(cmd)
+
     def modify_conf_file(self):
         auth = self.auth_default.copy()
         auth.update(self.auth)
@@ -201,19 +206,19 @@ class AaaCfg(object):
 
         # Modify common-auth include file in /etc/pam.d/login and sshd
         if os.path.isfile(PAM_AUTH_CONF):
-            os.system("sed -i -e '/^@include/s/common-auth$/common-auth-sonic/' /etc/pam.d/sshd")
-            os.system("sed -i -e '/^@include/s/common-auth$/common-auth-sonic/' /etc/pam.d/login")
+            self.modify_single_file('/etc/pam.d/sshd',  [ "'/^@include/s/common-auth$/common-auth-sonic/'" ])
+            self.modify_single_file('/etc/pam.d/login', [ "'/^@include/s/common-auth$/common-auth-sonic/'" ])
         else:
-            os.system("sed -i -e '/^@include/s/common-auth-sonic$/common-auth/' /etc/pam.d/sshd")
-            os.system("sed -i -e '/^@include/s/common-auth-sonic$/common-auth/' /etc/pam.d/login")
+            self.modify_single_file('/etc/pam.d/sshd',  [ "'/^@include/s/common-auth-sonic$/common-auth/'" ])
+            self.modify_single_file('/etc/pam.d/login', [ "'/^@include/s/common-auth-sonic$/common-auth/'" ])
 
         # Add tacplus in nsswitch.conf if TACACS+ enable
         if 'tacacs+' in auth['login']:
             if os.path.isfile(NSS_CONF):
-                os.system("sed -i -e '/tacplus/b' -e '/^passwd/s/compat/tacplus &/' /etc/nsswitch.conf")
+                self.modify_single_file(NSS_CONF, [ "'/tacplus/b'", "'/^passwd/s/compat/tacplus &/'"])
         else:
             if os.path.isfile(NSS_CONF):
-                os.system("sed -i -e '/^passwd/s/tacplus //' /etc/nsswitch.conf")
+                self.modify_single_file(NSS_CONF, [ "'/^passwd/s/tacplus //'" ])
 
         # Set tacacs+ server in nss-tacplus conf
         template_file = os.path.abspath(NSS_TACPLUS_CONF_TEMPLATE)

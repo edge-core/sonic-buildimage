@@ -616,7 +616,8 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
                 $(IFUPDOWN2) \
                 $(KDUMP_TOOLS) \
                 $(LIBPAM_TACPLUS) \
-                $(LIBNSS_TACPLUS)) \
+                $(LIBNSS_TACPLUS) \
+                $(MONIT)) \
         $$(addprefix $(TARGET_PATH)/,$$($$*_DOCKERS)) \
         $$(addprefix $(FILES_PATH)/,$$($$*_FILES)) \
 	$(addprefix $(STRETCH_FILES_PATH)/, $(if $(filter $(CONFIGURED_ARCH),amd64), $(IXGBE_DRIVER))) \
@@ -639,6 +640,7 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
 	export sonic_asic_platform="$(patsubst %-$(CONFIGURED_ARCH),%,$(CONFIGURED_PLATFORM))"
 	export enable_organization_extensions="$(ENABLE_ORGANIZATION_EXTENSIONS)"
 	export enable_dhcp_graph_service="$(ENABLE_DHCP_GRAPH_SERVICE)"
+	export enable_system_telemetry="$(ENABLE_SYSTEM_TELEMETRY)"
 	export shutdown_bgp_on_start="$(SHUTDOWN_BGP_ON_START)"
 	export enable_pfcwd_on_start="$(ENABLE_PFCWD_ON_START)"
 	export installer_debs="$(addprefix $(STRETCH_DEBS_PATH)/,$($*_INSTALLS))"

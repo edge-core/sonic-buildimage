@@ -32,14 +32,38 @@ function create_devices()
 #                                 level logs
 function load_kernel_modules()
 {
-    modprobe linux-kernel-bde dmasize=32M maxpayload=128 debug=4 dma_debug=1
+    . /host/machine.conf
+
+    if [ -n "$aboot_platform" ]; then
+        platform=$aboot_platform
+    elif [ -n "$onie_platform" ]; then
+        platform=$onie_platform
+    else
+        platform="unknown"
+    fi
+
+    # Set the default configuration for dmasize and usemsi parameters
+    dmasize=32M
+    usemsi=0
+
+    # Source the platform env file
+    env_file="/usr/share/sonic/device/$platform/platform_env.conf"
+    source $env_file
+
+    modprobe linux-kernel-bde dmasize=$dmasize maxpayload=128 debug=4 dma_debug=1 usemsi=$usemsi
     modprobe linux-user-bde
+
+    # Using insmod with absolute path for psample to make sure bcm psample is loaded.
+    # There is a different psample.ko module getting created at net/psample/psample.ko 
+    insmod /lib/modules/$(uname -r)/extra/psample.ko
+
     modprobe linux-bcm-knet use_rx_skb=1 rx_buffer_size=9238 debug=0x5020
     modprobe linux-knet-cb
 }
 
 function remove_kernel_modules()
 {
+    rmmod psample.ko
     rmmod linux-knet-cb
     rmmod linux-bcm-knet
     rmmod linux-user-bde

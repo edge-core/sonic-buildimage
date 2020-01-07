@@ -48,4 +48,4 @@ AUTOCONF = $(KERNDIR)/include/linux/autoconf.h
 endif
 
 # gcc system include path
-SYSINC = $(shell gcc -print-search-dirs | grep install | cut -c 10-)include
+SYSINC = $(shell $(CC) -print-search-dirs | grep install | cut -c 10-)include

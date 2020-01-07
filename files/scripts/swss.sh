@@ -85,9 +85,7 @@ start_peer_and_dependent_services() {
     if [[ x"$WARM_BOOT" != x"true" ]]; then
         /bin/systemctl start ${PEER}
         for dep in ${DEPENDENT}; do
-            # Here we call `systemctl restart` on each dependent service instead of `systemctl start` to
-            # ensure the services actually get stopped and started in case they were not previously stopped.
-            /bin/systemctl restart ${dep}
+            /bin/systemctl start ${dep}
         done
     fi
 }
@@ -162,6 +160,13 @@ stop() {
 
     /usr/bin/${SERVICE}.sh stop
     debug "Stopped ${SERVICE} service..."
+
+    # Flush FAST_REBOOT table when swss needs to stop. The only
+    # time when this would take effect is when fast-reboot
+    # encountered error, e.g. syncd crashed. And swss needs to
+    # be restarted.
+    debug "Clearing FAST_REBOOT flag..."
+    clean_up_tables 6 "'FAST_REBOOT*'"
 
     # Unlock has to happen before reaching out to peer service
     unlock_service_state_change

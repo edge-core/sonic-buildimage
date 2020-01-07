@@ -36,6 +36,8 @@ FILESYSTEM_ROOT_USR="$FILESYSTEM_ROOT/usr"
 FILESYSTEM_ROOT_USR_SHARE="$FILESYSTEM_ROOT_USR/share"
 FILESYSTEM_ROOT_USR_SHARE_SONIC="$FILESYSTEM_ROOT_USR_SHARE/sonic"
 FILESYSTEM_ROOT_USR_SHARE_SONIC_TEMPLATES="$FILESYSTEM_ROOT_USR_SHARE_SONIC/templates"
+FILESYSTEM_ROOT_ETC="$FILESYSTEM_ROOT/etc"
+FILESYSTEM_ROOT_ETC_SONIC="$FILESYSTEM_ROOT_ETC/sonic"
 
 GENERATED_SERVICE_FILE="$FILESYSTEM_ROOT/etc/sonic/generated_services.conf"
 
@@ -164,6 +166,14 @@ sudo sed -i -e '/^passwd/s/ tacplus//' $FILESYSTEM_ROOT/etc/nsswitch.conf
 sudo DEBIAN_FRONTEND=noninteractive dpkg --root=$FILESYSTEM_ROOT -i $debs_path/kdump-tools_*.deb || \
     sudo LANG=C DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=truechroot $FILESYSTEM_ROOT apt-get -q --no-install-suggests --no-install-recommends --force-no install
 
+# Install custom-built monit package and SONiC configuration files
+sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/monit_*.deb || \
+    sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
+sudo cp $IMAGE_CONFIGS/monit/monitrc $FILESYSTEM_ROOT/etc/monit/
+sudo chmod 600 $FILESYSTEM_ROOT/etc/monit/monitrc
+sudo cp $IMAGE_CONFIGS/monit/conf.d/* $FILESYSTEM_ROOT/etc/monit/conf.d/
+sudo chmod 600 $FILESYSTEM_ROOT/etc/monit/conf.d/*
+
 # Copy crontabs
 sudo cp -f $IMAGE_CONFIGS/cron.d/* $FILESYSTEM_ROOT/etc/cron.d/
 
@@ -206,6 +216,16 @@ sudo cp $IMAGE_CONFIGS/hostcfgd/hostcfgd.service $FILESYSTEM_ROOT/etc/systemd/sy
 echo "hostcfgd.service" | sudo tee -a $GENERATED_SERVICE_FILE
 sudo cp $IMAGE_CONFIGS/hostcfgd/hostcfgd $FILESYSTEM_ROOT/usr/bin/
 sudo cp $IMAGE_CONFIGS/hostcfgd/*.j2 $FILESYSTEM_ROOT_USR_SHARE_SONIC_TEMPLATES/
+
+# copy core file uploader files
+sudo cp $IMAGE_CONFIGS/corefile_uploader/core_uploader.service $FILESYSTEM_ROOT/etc/systemd/system/
+sudo LANG=C chroot $FILESYSTEM_ROOT systemctl disable core_uploader.service
+sudo cp $IMAGE_CONFIGS/corefile_uploader/core_uploader.py $FILESYSTEM_ROOT/usr/bin/
+sudo cp $IMAGE_CONFIGS/corefile_uploader/core_analyzer.rc.json $FILESYSTEM_ROOT_ETC_SONIC/
+sudo chmod og-rw $FILESYSTEM_ROOT_ETC_SONIC/core_analyzer.rc.json
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install azure-storage
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install watchdog
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install futures
 
 # Copy the buffer configuration template
 sudo cp $BUILD_TEMPLATES/buffers_config.j2 $FILESYSTEM_ROOT_USR_SHARE_SONIC_TEMPLATES/
@@ -329,7 +349,7 @@ EOF
 ## Bind docker path
 if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
     sudo mkdir -p $FILESYSTEM_ROOT/dockerfs
-    sudo mount --bind dockerfs $FILESYSTEM_ROOT/dockerfs 
+    sudo mount --bind dockerfs $FILESYSTEM_ROOT/dockerfs
 fi
 
 {% if installer_images.strip() -%}
@@ -346,7 +366,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS ta
 {% endif %}
 {% endfor %}
 if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
-    sudo umount $FILESYSTEM_ROOT/dockerfs 
+    sudo umount $FILESYSTEM_ROOT/dockerfs
     sudo rm -fr $FILESYSTEM_ROOT/dockerfs
     sudo kill -9 `sudo $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS_PID` || true
 else
@@ -374,6 +394,10 @@ sudo LANG=C cp $SCRIPTS_DIR/syncd.sh $FILESYSTEM_ROOT/usr/local/bin/syncd.sh
 # It implements delayed start of services
 sudo cp $BUILD_TEMPLATES/snmp.timer $FILESYSTEM_ROOT/etc/systemd/system/
 sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable snmp.timer
+{% if enable_system_telemetry == 'y' %}
+sudo cp $BUILD_TEMPLATES/telemetry.timer $FILESYSTEM_ROOT/etc/systemd/system/
+sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable telemetry.timer
+{% endif %}
 
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get purge -y python-dev
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get clean -y

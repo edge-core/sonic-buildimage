@@ -4,6 +4,7 @@ Requires=updategraph.service
 Requisite=swss.service
 After=updategraph.service swss.service syncd.service
 Before=ntp-config.service
+Conflicts=snmp.timer
 StartLimitIntervalSec=1200
 StartLimitBurst=3
 
@@ -14,5 +15,3 @@ ExecStop=/usr/bin/{{docker_container_name}}.sh stop
 Restart=always
 RestartSec=30
 
-[Install]
-WantedBy=multi-user.target swss.service

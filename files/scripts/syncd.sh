@@ -64,7 +64,12 @@ function getBootType()
         TYPE='fastfast'
         ;;
     *SONIC_BOOT_TYPE=fast*|*fast-reboot*)
-        TYPE=$(awk '{ if ($1 <= 180) print "fast"; else print "cold" }' /proc/uptime)
+        # check that the key exists
+        if [[ $(redis-cli -n 6 GET "FAST_REBOOT|system") == "1" ]]; then
+            TYPE='fast'
+        else
+            TYPE='cold'
+        fi
         ;;
     *)
         TYPE='cold'
@@ -106,7 +111,6 @@ start() {
                 /bin/systemctl stop pmon
                 debug "pmon is active while syncd starting, stop it first"
             fi
-            /usr/bin/hw-management.sh chipdown
         fi
 
         if [[ x"$BOOT_TYPE" == x"fast" ]]; then

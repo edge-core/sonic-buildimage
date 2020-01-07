@@ -33,9 +33,6 @@
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4,12,0)
 #include <linux/uaccess.h>
 #endif
-#ifdef KEYSTONE
-#include <shared/et/bcmdevs.h>
-#endif
 
 
 MODULE_AUTHOR("Broadcom Corporation");
@@ -676,124 +673,10 @@ _bcm88750_interrupt(bde_ctrl_t *ctrl)
 #endif
 }
 
-static void
-_qe2k_interrupt(bde_ctrl_t *ctrl)
-{
-    bde_inst_resource_t *res;
-
-    res = &_bde_inst_resource[ctrl->inst];
-    SSOC_WRITEL(0xffffffff, ctrl->ba + 0x20/sizeof(uint32));
-
-    atomic_set(&res->intr, 1);
-#ifdef BDE_LINUX_NON_INTERRUPTIBLE
-    wake_up(&res->intr_wq);
-#else
-    wake_up_interruptible(&res->intr_wq);
-#endif
-}
-
-static void
-_fe2k_interrupt(bde_ctrl_t *ctrl)
-{
-    bde_inst_resource_t *res;
-
-    res = &_bde_inst_resource[ctrl->inst];
-    SSOC_WRITEL(0xffffffff, ctrl->ba + 0x18/sizeof(uint32)); /* PC_INTERRUPT_MASK */
-    SSOC_WRITEL(0xffffffff, ctrl->ba + 0x24/sizeof(uint32)); /* PC_ERROR0_MASK    */
-    SSOC_WRITEL(0xffffffff, ctrl->ba + 0x2c/sizeof(uint32)); /* PC_ERROR1_MASK    */
-    SSOC_WRITEL(0xffffffff, ctrl->ba + 0x34/sizeof(uint32)); /* PC_UNIT_MASK      */
-
-    atomic_set(&res->intr, 1);
-#ifdef BDE_LINUX_NON_INTERRUPTIBLE
-    wake_up(&res->intr_wq);
-#else
-    wake_up_interruptible(&res->intr_wq);
-#endif
-}
-
-static void
-_fe2kxt_interrupt(bde_ctrl_t *ctrl)
-{
-    bde_inst_resource_t *res;
-
-    res = &_bde_inst_resource[ctrl->inst];
-    SSOC_WRITEL(0xffffffff, ctrl->ba + 0x2c/sizeof(uint32)); /* PC_INTERRUPT_MASK */
-    SSOC_WRITEL(0xffffffff, ctrl->ba + 0x38/sizeof(uint32)); /* PC_ERROR0_MASK    */
-    SSOC_WRITEL(0xffffffff, ctrl->ba + 0x40/sizeof(uint32)); /* PC_ERROR1_MASK    */
-    SSOC_WRITEL(0xffffffff, ctrl->ba + 0x50/sizeof(uint32)); /* PC_UNIT_MASK      */
-
-    atomic_set(&res->intr, 1);
-#ifdef BDE_LINUX_NON_INTERRUPTIBLE
-    wake_up(&res->intr_wq);
-#else
-    wake_up_interruptible(&res->intr_wq);
-#endif
-}
-
-static void
-_bme3200_interrupt(bde_ctrl_t *ctrl)
-{
-    bde_inst_resource_t *res;
-
-    res = &_bde_inst_resource[ctrl->inst];
-    SSOC_WRITEL(0xffffffff, ctrl->ba + 0x54/sizeof(uint32)); /* PI_PT_ERROR0 */
-    SSOC_WRITEL(0xffffffff, ctrl->ba + 0x5c/sizeof(uint32)); /* PI_PT_ERROR1 */
-    SSOC_WRITEL(0xffffffff, ctrl->ba + 0x64/sizeof(uint32)); /* PI_PT_ERROR2 */
-    SSOC_WRITEL(0xffffffff, ctrl->ba + 0x6c/sizeof(uint32)); /* PI_PT_ERROR3 */
-
-    atomic_set(&res->intr, 1);
-#ifdef BDE_LINUX_NON_INTERRUPTIBLE
-    wake_up(&res->intr_wq);
-#else
-    wake_up_interruptible(&res->intr_wq);
-#endif
-}
-
-
-static void
-_bm9600_interrupt(bde_ctrl_t *ctrl)
-{
-    bde_inst_resource_t *res;
-
-    res = &_bde_inst_resource[ctrl->inst];
-
-    SSOC_WRITEL(0xffffffff, ctrl->ba + 0x5c/sizeof(uint32));  /* PI_INTERRUPT_MASK */
-    SSOC_WRITEL(0xffffffff, ctrl->ba + 0xc/sizeof(uint32));   /* PI_UNIT_INTERRUPT0_MASK */
-    SSOC_WRITEL(0xffffffff, ctrl->ba + 0x14/sizeof(uint32));  /* PI_UNIT_INTERRUPT1_MASK */
-    SSOC_WRITEL(0xffffffff, ctrl->ba + 0x1c/sizeof(uint32));  /* PI_UNIT_INTERRUPT2_MASK */
-    SSOC_WRITEL(0xffffffff, ctrl->ba + 0x24/sizeof(uint32));  /* PI_UNIT_INTERRUPT3_MASK */
-    SSOC_WRITEL(0xffffffff, ctrl->ba + 0x2c/sizeof(uint32));  /* PI_UNIT_INTERRUPT4_MASK */
-    SSOC_WRITEL(0xffffffff, ctrl->ba + 0x34/sizeof(uint32));  /* PI_UNIT_INTERRUPT5_MASK */
-    SSOC_WRITEL(0xffffffff, ctrl->ba + 0x3c/sizeof(uint32));  /* PI_UNIT_INTERRUPT6_MASK */
-    SSOC_WRITEL(0xffffffff, ctrl->ba + 0x44/sizeof(uint32));  /* PI_UNIT_INTERRUPT7_MASK */
-    SSOC_WRITEL(0xffffffff, ctrl->ba + 0x4c/sizeof(uint32));  /* PI_UNIT_INTERRUPT8_MASK */
-    SSOC_WRITEL(0xffffffff, ctrl->ba + 0x54/sizeof(uint32));  /* PI_UNIT_INTERRUPT9_MASK */
-
-    atomic_set(&res->intr, 1);
-#ifdef BDE_LINUX_NON_INTERRUPTIBLE
-    wake_up(&res->intr_wq);
-#else
-    wake_up_interruptible(&res->intr_wq);
-#endif
-}
-
-
-
 /* The actual interrupt handler of ethernet devices */
 static void 
 _ether_interrupt(bde_ctrl_t *ctrl)
 {
-#ifdef KEYSTONE
-    /* 
-        * Since the two GMAC cores are sharing the same IRQ.
-        * Add the checking to handle the interrupt events.
-        */
-    if ((ctrl->devid == BCM53000_GMAC_ID)) {
-        if ((readl(ctrl->ba + 0x020/4) & readl(ctrl->ba + 0x024/4)) == 0) {
-            return;
-        }
-    }
-#endif    
     SSOC_WRITEL(0, ctrl->ba + 0x024/4);
 
     atomic_set(&_ether_interrupt_has_taken_place, 1);
@@ -813,11 +696,6 @@ static struct _intr_mode_s {
     { (isr_f)_cmicm_interrupt,      "CMICm" },
     { (isr_f)_cmicd_interrupt,      "CMICd" },
     { (isr_f)_cmicd_cmc0_interrupt, "CMICd CMC0" },
-    { (isr_f)_qe2k_interrupt,       "QE2K" },
-    { (isr_f)_fe2k_interrupt,       "FE2K" },
-    { (isr_f)_fe2kxt_interrupt,     "FE2KXT" },
-    { (isr_f)_bme3200_interrupt,    "BME3200" },
-    { (isr_f)_bm9600_interrupt,     "BM9600" },
     { (isr_f)_bcm88750_interrupt,   "BCM88750" },
     { (isr_f)_cmicx_interrupt,      "CMICx" },
     { NULL, NULL }
@@ -845,7 +723,7 @@ _devices_init(int d)
     uint32 ver;
     uint16 device_id_mask = 0xFFF0;
     uint16 device_id;
-    int state = 0;
+    uint32 state = 0;
 
     (void)lkbde_dev_state_get(d, &state);
     if (state == BDE_DEV_STATE_REMOVED) {
@@ -864,21 +742,6 @@ _devices_init(int d)
     }
     if (ctrl->dev_type & BDE_SWITCH_DEV_TYPE) {
         switch (user_bde->get_dev(d)->device) {
-        case QE2000_DEVICE_ID:
-            ctrl->isr = (isr_f)_qe2k_interrupt;
-            break;
-        case BCM88020_DEVICE_ID:
-            ctrl->isr = (isr_f)_fe2k_interrupt;
-            break;
-        case BCM88025_DEVICE_ID:
-            ctrl->isr = (isr_f)_fe2kxt_interrupt;
-            break;
-        case BME3200_DEVICE_ID:
-            ctrl->isr = (isr_f)_bme3200_interrupt;
-            break;
-        case BM9600_DEVICE_ID:
-            ctrl->isr = (isr_f)_bm9600_interrupt;
-            break;
         case BCM88750_DEVICE_ID:
         case BCM88753_DEVICE_ID:
         case BCM88754_DEVICE_ID:
@@ -920,7 +783,7 @@ _devices_init(int d)
         case BCM88380_DEVICE_ID:
         case BCM88381_DEVICE_ID:
         case BCM88680_DEVICE_ID:
-        case BCM88690_DEVICE_ID:
+        case BCM88800_DEVICE_ID:
         case BCM88770_DEVICE_ID:
         case BCM88773_DEVICE_ID:
         case BCM88774_DEVICE_ID:
@@ -938,6 +801,7 @@ _devices_init(int d)
         case BCM88270_DEVICE_ID:
         case BCM88272_DEVICE_ID:
         case BCM88273_DEVICE_ID:
+        case BCM88274_DEVICE_ID:
         case BCM88278_DEVICE_ID:
         case BCM88279_DEVICE_ID:
         case BCM8206_DEVICE_ID:
@@ -1002,7 +866,15 @@ _devices_init(int d)
             }
             break;
         }
-        /* All Ramon devices from 0x8790 to 0x879F */
+
+#ifdef BCM_DNX_SUPPORT
+        /*All Jericho 2 devices from 0x8690 to 0x869F*/
+        if (SOC_IS_JERICHO_2_TYPE(user_bde->get_dev(d)->device)) {
+          ctrl->isr = (isr_f)_cmicx_interrupt;
+        }
+#endif
+
+        /*All Ramon devices from 0x8790 to 0x879F*/
         if ((user_bde->get_dev(d)->device & BCM88790_DEVICE_ID) == BCM88790_DEVICE_ID) {
             ctrl->isr = (isr_f)_cmicx_interrupt;
         }
@@ -1456,30 +1328,9 @@ _ioctl(unsigned int cmd, unsigned long arg)
         }
         break;
     case LUBDE_USLEEP:
-        sal_usleep(io.d0);
-        break;
     case LUBDE_UDELAY:
-        sal_udelay(io.d0);
-        break;
     case LUBDE_SEM_OP:
-        switch (io.d0) {
-        case LUBDE_SEM_OP_CREATE:
-            io.p0 = (bde_kernel_addr_t)sal_sem_create("", io.d1, io.d2);
-            break;
-        case LUBDE_SEM_OP_DESTROY:
-            sal_sem_destroy((sal_sem_t)io.p0);
-            break;
-        case LUBDE_SEM_OP_TAKE:
-            io.rc = sal_sem_take((sal_sem_t)io.p0, io.d2);
-            break;
-        case LUBDE_SEM_OP_GIVE:
-            io.rc = sal_sem_give((sal_sem_t)io.p0);
-            break;
-        default:
-            io.rc = LUBDE_FAIL;
-            break;
-        }
-        break;
+        return -EINVAL;
     case LUBDE_WRITE_IRQ_MASK:
         io.rc = lkbde_irq_mask_set(io.dev, io.d0, io.d1, 0);
         break;
@@ -1499,7 +1350,7 @@ _ioctl(unsigned int cmd, unsigned long arg)
     case LUBDE_WRITE_REG_16BIT_BUS:
         io.rc = user_bde->write(io.dev, io.d0, io.d1);
         break;
-#if (defined(BCM_PETRA_SUPPORT) || defined(BCM_DFE_SUPPORT))
+#ifdef BCM_SAND_SUPPORT
     case LUBDE_CPU_WRITE_REG:
     {
         if (lkbde_cpu_write(io.dev, io.d0, (uint32*)io.dx.buf) == -1) {

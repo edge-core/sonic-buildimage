@@ -222,7 +222,7 @@ extern int lkbde_dev_instid_set(int d, uint32 instid);
 extern int lkbde_irq_mask_set(int d, uint32 addr, uint32 mask, uint32 fmask);
 extern int lkbde_irq_mask_get(int d, uint32 *mask, uint32 *fmask);
 
-#if (defined(BCM_PETRA_SUPPORT) || defined(BCM_DFE_SUPPORT))
+#ifdef BCM_SAND_SUPPORT
 extern int lkbde_cpu_write(int d, uint32 addr, uint32 *buf);
 extern int lkbde_cpu_read(int d, uint32 addr, uint32 *buf);
 extern int lkbde_cpu_pci_register(int d);
@@ -241,14 +241,11 @@ extern int lkbde_cpu_pci_register(int d);
  */
 #define LKBDE_IPROC_REG 0x4000
 
-#if defined(BCM_PETRA_SUPPORT) || defined(BCM_DFE_SUPPORT)
+#ifdef BCM_SAND_SUPPORT
 #include <linux/version.h>
 #if defined(__DUNE_LINUX_BCM_CPU_PCIE__) && LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26)
 #ifndef _SIMPLE_MEMORY_ALLOCATION_
 #define _SIMPLE_MEMORY_ALLOCATION_ 1
-#endif
-#ifndef USE_LINUX_BDE_MMAP
-#define USE_LINUX_BDE_MMAP 1
 #endif
 #endif
 #endif
@@ -271,13 +268,9 @@ extern int lkbde_cpu_pci_register(int d);
 #define _SIMPLE_MEMORY_ALLOCATION_ 9 /* compile in the allocation method, but do not use it by default */
 #endif
 
-/* By default we use our private mmap only if /dev/mem mmap has restrictions */
+/* By default we use our private mmap for DMA pool */
 #ifndef USE_LINUX_BDE_MMAP
-#ifdef CONFIG_STRICT_DEVMEM
 #define USE_LINUX_BDE_MMAP 1
-#else
-#define USE_LINUX_BDE_MMAP 0
-#endif
 #endif
 
 #endif /* __KERNEL__ */

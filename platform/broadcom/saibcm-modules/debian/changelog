@@ -1,3 +1,24 @@
+opennsl (3.7.3.3-1) unstable; urgency=medium
+  
+  * Port Broadcom SAI 3.7.3.3
+  * Cherry-pick change from master branch, 3.7.3.3-1
+
+ -- Judy Joseph <jujoseph@microsoft.com>  Fri, 2 Dec 2019 15:32:47 +0000
+
+opennsl (3.7.3.2-1) unstable; urgency=medium
+  
+  * Port Broadcom SAI 3.7.3.2
+  * Cherry-pick change from master branch, 3.7.3.2-1
+
+ -- Judy Joseph <jujoseph@microsoft.com>  Fri, 12 Nov 2019 15:22:47 +0000
+
+opennsl (3.7.3.1-1) unstable; urgency=medium
+  
+  * Port Broadcom SAI 3.7.3.1
+  * Cherry-pick change from master branch, 3.7.3.1-1
+
+ -- Judy Joseph <jujoseph@microsoft.com>  Fri, 19 Sep 2019 13:11:47 +0000
+
 opennsl (3.4.1.11-1) unstable; urgency=medium
 
   * Port Broadcom SAI 3.4.1.11
