@@ -55,6 +55,8 @@ src/isc-dhcp/*
 !src/isc-dhcp/Makefile
 !src/isc-dhcp/patch/
 src/libnl3/*
+!src/libnl3/debian
+src/libnl3/debian/libnl-*/
 !src/libnl3/Makefile
 src/libteam/*
 !src/libteam/Makefile
@@ -146,3 +148,17 @@ src/sonic-daemon-base/sonic_daemon_base.egg-info
 # Misc. files
 files/initramfs-tools/arista-convertfs
 files/initramfs-tools/union-mount
+
+# Debian byproduct files
+src/**/debian/stamp-*/
+src/**/debian/*.log
+src/**/debian/*.substvars
+src/**/debian/.debhelper/
+src/**/debian/tmp/
+src/**/debian/autoreconf.*
+src/**/debian/build/
+src/**/debian/files
+src/**/debian/stamp-autotools-files
+
+# .o files
+src/**/*.o
