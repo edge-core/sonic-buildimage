@@ -1,3 +1,0 @@
-# Instruct apt-get to override expired releases repo list for jessie archives
-
-Acquire::Check-Valid-Until "0";

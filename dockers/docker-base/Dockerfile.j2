@@ -32,7 +32,7 @@ COPY ["dpkg_01_drop", "/etc/dpkg/dpkg.cfg.d/01_drop"]
 COPY ["sources.list.armhf", "/etc/apt/sources.list"]
 {% elif CONFIGURED_ARCH == "arm64" %}
 COPY ["sources.list.arm64", "/etc/apt/sources.list"]
-COPY ["aptconf_archive_expired_release", "/etc/apt/apt.conf.d"]
+COPY ["no-check-valid-until", "/etc/apt/apt.conf.d"]
 {% else %}
 COPY ["sources.list", "/etc/apt/sources.list"]
 {% endif %}
