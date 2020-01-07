@@ -1,53 +1,53 @@
-From 051938b7c49cc18aaddd699939353f591554d635 Mon Sep 17 00:00:00 2001
-From: Mykola Faryma <mykolaf@mellanox.com>
-Date: Wed, 3 Apr 2019 14:09:26 +0000
+From c6ee8c86c35f8b1e60bf4df0d7198f349f8552c1 Mon Sep 17 00:00:00 2001
+From: Stephen Sun <stephens@mellanox.com>
+Date: Wed, 25 Dec 2019 19:33:17 +0800
 Subject: [PATCH] Make hw-mgmt SimX compatiable.
 
-Signed-off-by: Mykola Faryma <mykolaf@mellanox.com>
+Signed-off-by: Stephen Sun <stephens@mellanox.com>
 ---
  usr/usr/bin/hw-management.sh | 29 +++++++++++++++++++++++++++++
  1 file changed, 29 insertions(+)
 
 diff --git a/usr/usr/bin/hw-management.sh b/usr/usr/bin/hw-management.sh
-index fdb3013..68da9bc 100755
+index cff10fe..0511c7c 100755
 --- a/usr/usr/bin/hw-management.sh
 +++ b/usr/usr/bin/hw-management.sh
-@@ -646,6 +646,35 @@ do_chip_down()
+@@ -737,6 +737,35 @@ do_chip_down()
  	/usr/bin/hw-management-thermal-events.sh change hotplug_asic down %S %p
  }
  
 +handle_simx()
 +{
-+	local -r onie_platform="$(cat /host/machine.conf | grep onie_platform | cut -d= -f2)"
++        local -r onie_platform="$(cat /host/machine.conf | grep onie_platform | cut -d= -f2)"
 +
-+	local -r syseeprom_cache_path="/var/cache/sonic/decode-syseeprom/syseeprom_cache"
-+	local -r syseeprom_hex_path="/usr/share/sonic/device/${onie_platform}/syseeprom.hex"
-+	local -r syseeprom_vpd_path="/var/run/hw-management/eeprom/vpd_info"
++        local -r syseeprom_cache_path="/var/cache/sonic/decode-syseeprom/syseeprom_cache"
++        local -r syseeprom_hex_path="/usr/share/sonic/device/${onie_platform}/syseeprom.hex"
++        local -r syseeprom_vpd_path="/var/run/hw-management/eeprom/vpd_info"
 +
-+	case $ACTION in
-+		start)
-+			/bin/bash -c "/bin/rm -f ${syseeprom_cache_path}"
-+			/bin/bash -c "/bin/mkdir -p ${eeprom_path}"
-+			/bin/bash -c "/usr/bin/xxd -r -p ${syseeprom_hex_path} ${syseeprom_vpd_path}"
-+		;;
-+		stop)
-+			/bin/bash -c "/bin/rm -fr ${hw_management_path}"
-+		;;
-+		*)
-+			echo "Usage: `basename $0` {start|stop}"
-+			exit 1
-+		;;
-+	esac
++        case $ACTION in
++                start)
++                        /bin/bash -c "/bin/rm -f ${syseeprom_cache_path}"
++                        /bin/bash -c "/bin/mkdir -p ${eeprom_path}"
++                        /bin/bash -c "/usr/bin/xxd -r -p ${syseeprom_hex_path} ${syseeprom_vpd_path}"
++                ;;
++                stop)
++                        /bin/bash -c "/bin/rm -fr ${hw_management_path}"
++                ;;
++                *)
++                        echo "Usage: `basename $0` {start|stop}"
++                        exit 1
++                ;;
++        esac
 +}
 +
 +if [[ "$(cat /sys/devices/virtual/dmi/id/chassis_vendor)" = "QEMU" ]]; then
-+	handle_simx
-+	exit 0
++       handle_simx
++       exit 0
 +fi
 +
  case $ACTION in
  	start)
- 		do_start
+ 		if [ -d /var/run/hw-management ]; then
 -- 
 1.9.1
 
