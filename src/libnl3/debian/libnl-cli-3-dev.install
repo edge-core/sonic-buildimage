@@ -1,0 +1,3 @@
+debian/tmp/usr/lib/*/pkgconfig/libnl-cli-3*
+debian/tmp/usr/lib/*/libnl-cli-3*.so
+debian/tmp/usr/lib/*/libnl-cli-3*.a
