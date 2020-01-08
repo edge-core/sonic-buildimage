@@ -1,0 +1,16 @@
+Source: sonic-dhcpmon
+Section: devel
+Priority: optional
+Maintainer: Tamer Ahmed <tamer.ahmed@microsoft.com>
+Build-Depends: debhelper (>= 8.0.0),
+               dh-systemd
+Standards-Version: 3.9.3
+Homepage: https://github.com/Azure/sonic-buildimage
+XS-Go-Import-Path: github.com/Azure/sonic-buildimage
+
+Package: sonic-dhcpmon
+Architecture: any
+Built-Using: ${misc:Built-Using}
+Depends: libexplain51,
+         libevent-2.0-5
+Description: SONiC DHCP Monitor

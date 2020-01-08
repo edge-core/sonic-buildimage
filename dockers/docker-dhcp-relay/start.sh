@@ -19,3 +19,9 @@ if [ $(supervisorctl status | grep -c "^isc-dhcp-relay:") -gt 0 ]; then
     # Start all DHCP relay agent(s)
     supervisorctl start isc-dhcp-relay:*
 fi
+
+# If our supervisor config has entries in the "dhcpmon" group...
+if [ $(supervisorctl status | grep -c "^dhcpmon:") -gt 0 ]; then
+    # Start all DHCP Monitor daemon(s)
+    supervisorctl start dhcpmon:*
+fi

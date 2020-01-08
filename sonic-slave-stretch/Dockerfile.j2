@@ -295,7 +295,10 @@ RUN apt-get update && apt-get install -y \
 # For kdump-tools
         liblzo2-dev \
 # For SAI3.7
-        libprotobuf-dev
+        libprotobuf-dev \
+# For DHCP Monitor tool
+        libexplain-dev \
+        libevent-dev
 
 ## Config dpkg
 ## install the configuration file if it’s currently missing
