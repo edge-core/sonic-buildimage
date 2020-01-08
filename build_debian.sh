@@ -93,7 +93,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT mount proc /proc -t proc
 
 ## Pointing apt to public apt mirrors and getting latest packages, needed for latest security updates
 sudo cp files/apt/sources.list $FILESYSTEM_ROOT/etc/apt/
-sudo cp files/apt/apt.conf.d/{81norecommends,apt-{clean,gzip-indexes,no-languages}} $FILESYSTEM_ROOT/etc/apt/apt.conf.d/
+sudo cp files/apt/apt.conf.d/{81norecommends,apt-{clean,gzip-indexes,no-languages},no-check-valid-until} $FILESYSTEM_ROOT/etc/apt/apt.conf.d/
 sudo LANG=C chroot $FILESYSTEM_ROOT bash -c 'apt-mark auto `apt-mark showmanual`'
 
 ## Note: set lang to prevent locale warnings in your chroot
