@@ -293,7 +293,10 @@ RUN apt-get update && apt-get install -y \
 # For kdump-tools
         liblzo2-dev \
 # For SAI3.7
-        libprotobuf-dev
+        libprotobuf-dev \
+# For DHCP Monitor tool
+        libexplain-dev \
+        libevent-dev
 
 # For smartmontools 6.6-1
 RUN apt-get -t stretch-backports install -y debhelper
