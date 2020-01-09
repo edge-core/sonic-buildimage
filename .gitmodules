@@ -67,3 +67,6 @@
 [submodule "src/redis-dump-load"]
 	path = src/redis-dump-load
 	url = https://github.com/p/redis-dump-load.git
+[submodule "src/telemetry/sonic-telemetry"]
+	path = src/telemetry/sonic-telemetry
+	url = https://github.com/Azure/sonic-telemetry.git
