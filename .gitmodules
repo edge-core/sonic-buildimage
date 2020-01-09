@@ -66,3 +66,6 @@
 [submodule "platform/mellanox/mlnx-sai/SAI-Implementation"]
 	path = platform/mellanox/mlnx-sai/SAI-Implementation
 	url = https://github.com/Mellanox/SAI-Implementation
+[submodule "src/telemetry/sonic-telemetry"]
+	path = src/telemetry/sonic-telemetry
+	url = https://github.com/Azure/sonic-telemetry.git

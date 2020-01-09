@@ -2,9 +2,11 @@ export GOPATH=/tmp/go
 
 INSTALL := /usr/bin/install
 
-all: sonic-telemetry
+all: telemetry
 
-sonic-telemetry:
+telemetry:
+	mkdir -p ${GOPATH}/src/github.com/Azure/
+	cp -a sonic-telemetry ${GOPATH}/src/github.com/Azure/
 	/usr/local/go/bin/go get -v github.com/Azure/sonic-telemetry/telemetry
 	/usr/local/go/bin/go get -v github.com/Azure/sonic-telemetry/dialout/dialout_client_cli
 
