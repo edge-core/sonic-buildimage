@@ -72,3 +72,7 @@
 [submodule "src/telemetry/sonic-telemetry"]
 	path = src/telemetry/sonic-telemetry
 	url = https://github.com/Azure/sonic-telemetry.git
+[submodule "src/sonic-restapi"]
+	path = src/sonic-restapi
+	url = https://github.com/Azure/sonic-restapi.git
+	branch = master
