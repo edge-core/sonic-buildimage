@@ -20,7 +20,7 @@ function debug()
 
 function check_warm_boot()
 {
-    WARM_BOOT=`sonic-db-cli STATE_DB hget "WARM_RESTART_ENABLE_TABLE|system" enable`
+    WARM_BOOT=`/usr/bin/redis-cli -n 6 hget "WARM_RESTART_ENABLE_TABLE|system" enable`
 }
 
 
@@ -29,10 +29,12 @@ function wait_for_database_service()
     debug "Wait for database to become ready..."
 
     # Wait for redis server start before database clean
-    /usr/bin/docker exec database ping_pong_db_insts
+    until [[ $(/usr/bin/docker exec database redis-cli ping | grep -c PONG) -gt 0 ]];
+        do sleep 1;
+    done
 
     # Wait for configDB initialization
-    until [[ $(sonic-db-cli CONFIG_DB GET "CONFIG_DB_INITIALIZED") ]];
+    until [[ $(/usr/bin/docker exec database redis-cli -n 4 GET "CONFIG_DB_INITIALIZED") ]];
         do sleep 1;
     done
 
@@ -42,7 +44,7 @@ function wait_for_database_service()
 
 function get_component_state()
 {
-    sonic-db-cli STATE_DB hget "WARM_RESTART_TABLE|$1" state
+    /usr/bin/redis-cli -n 6 hget "WARM_RESTART_TABLE|$1" state
 }
 
 

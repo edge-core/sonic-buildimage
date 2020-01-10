@@ -67,7 +67,7 @@ function _docker_swss_check {
     while true
     do
         # Check if syncd starts
-        result=`sonic-db-cli ASIC_DB HLEN HIDDEN`
+        result=`docker exec -i swss bash -c "echo -en \"SELECT 1\\nHLEN HIDDEN\" | redis-cli | sed -n 2p"` #TBD FIX ME
         if [ "$result" == "3" ]; then
             return
         fi
