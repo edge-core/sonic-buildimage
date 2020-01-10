@@ -78,3 +78,7 @@
 [submodule "src/sonic-ztp"]
 	path = src/sonic-ztp
 	url = https://github.com/Azure/sonic-ztp
+[submodule "src/sonic-restapi"]
+	path = src/sonic-restapi
+	url = https://github.com/Azure/sonic-restapi.git
+	branch = master
