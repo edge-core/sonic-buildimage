@@ -5,6 +5,3 @@ After=rc-local.service
 [Service]
 Type=simple
 ExecStart=/usr/bin/process-reboot-cause
-
-[Install]
-WantedBy=multi-user.target
