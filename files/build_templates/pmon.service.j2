@@ -1,7 +1,7 @@
 [Unit]
 Description=Platform monitor container
-Requires=updategraph.service
-After=updategraph.service
+Requires=database.service updategraph.service
+After=database.service updategraph.service
 {% if sonic_asic_platform == 'mellanox' %}
 After=syncd.service
 {% endif %}

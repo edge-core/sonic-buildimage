@@ -392,6 +392,9 @@ set /files/etc/sysctl.conf/net.ipv4.udp_l3mdev_accept 1
 
 set /files/etc/sysctl.conf/net.core.rmem_max 2097152
 set /files/etc/sysctl.conf/net.core.wmem_max 2097152
+
+set /files/etc/sysctl.conf/net.core.somaxconn 512
+
 " -r $FILESYSTEM_ROOT
 
 if [[ $CONFIGURED_ARCH == amd64 ]]; then
