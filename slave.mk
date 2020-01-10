@@ -399,7 +399,7 @@ $(SONIC_INSTALL_TARGETS) : $(DEBS_PATH)/%-install : .platform $$(addsuffix -inst
 	# put a lock here because dpkg does not allow installing packages in parallel
 	while true; do
 	if mkdir $(DEBS_PATH)/dpkg_lock &> /dev/null; then
-	{ sudo dpkg -i $(DEBS_PATH)/$* $(LOG) && rm -d $(DEBS_PATH)/dpkg_lock && break; } || { rm -d $(DEBS_PATH)/dpkg_lock && exit 1 ; }
+	{ sudo DEBIAN_FRONTEND=noninteractive dpkg -i $(DEBS_PATH)/$* $(LOG) && rm -d $(DEBS_PATH)/dpkg_lock && break; } || { rm -d $(DEBS_PATH)/dpkg_lock && exit 1 ; }
 	fi
 	done
 	$(FOOTER)
