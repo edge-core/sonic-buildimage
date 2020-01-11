@@ -31,3 +31,4 @@ $(DOCKER_SNMP_SV2)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
 # mount Arista platform python libraries to support corresponding platforms SNMP power status query
 $(DOCKER_SNMP_SV2)_RUN_OPT += -v /usr/lib/python3/dist-packages/arista:/usr/lib/python3/dist-packages/arista:ro
 $(DOCKER_SNMP_SV2)_FILES += $(SUPERVISOR_PROC_EXIT_LISTENER_SCRIPT)
+$(DOCKER_SNMP_SV2)_BASE_IMAGE_FILES += monit_snmp:/etc/monit/conf.d

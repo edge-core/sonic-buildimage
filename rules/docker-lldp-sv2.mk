@@ -30,4 +30,5 @@ $(DOCKER_LLDP_SV2)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
 
 $(DOCKER_LLDP_SV2)_BASE_IMAGE_FILES += lldpctl:/usr/bin/lldpctl
 $(DOCKER_LLDP_SV2)_BASE_IMAGE_FILES += lldpcli:/usr/bin/lldpcli
+$(DOCKER_LLDP_SV2)_BASE_IMAGE_FILES += monit_lldp:/etc/monit/conf.d
 $(DOCKER_LLDP_SV2)_FILES += $(SUPERVISOR_PROC_EXIT_LISTENER_SCRIPT)

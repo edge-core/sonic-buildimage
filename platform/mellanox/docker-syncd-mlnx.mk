@@ -15,4 +15,4 @@ $(DOCKER_SYNCD_BASE)_DBG_DEPENDS += $(MLNX_SDK_DBG_DEBS) $(MLNX_SAI_DBGSYM)
 endif
 
 $(DOCKER_SYNCD_BASE)_RUN_OPT += -v /host/warmboot:/var/warmboot
-
+$(DOCKER_SYNCD_BASE)_BASE_IMAGE_FILES += monit_syncd:/etc/monit/conf.d

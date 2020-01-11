@@ -1,0 +1,7 @@
+###############################################################################
+## Monit configuration for syncd container
+## process list:
+##  syncd
+###############################################################################
+check process syncd matching "/usr/bin/syncd --diag"
+    if does not exist for 5 times within 5 cycles then alert
