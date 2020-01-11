@@ -32,4 +32,5 @@ $(DOCKER_SFLOW)_RUN_OPT += -v /host/warmboot:/var/warmboot
 
 $(DOCKER_SFLOW)_BASE_IMAGE_FILES += psample:/usr/bin/psample
 $(DOCKER_SFLOW)_BASE_IMAGE_FILES += sflowtool:/usr/bin/sflowtool
+$(DOCKER_SFLOW)_BASE_IMAGE_FILES += monit_sflow:/etc/monit/conf.d
 $(DOCKER_SFLOW)_FILES += $(SUPERVISOR_PROC_EXIT_LISTENER_SCRIPT)

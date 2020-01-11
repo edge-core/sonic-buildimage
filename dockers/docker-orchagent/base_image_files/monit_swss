@@ -1,0 +1,43 @@
+###############################################################################
+## Monit configuration for swss container
+## process list:
+##  orchagent
+##  portsyncd
+##  neighsyncd
+##  vrfmgrd
+##  vlanmgrd
+##  intfmgrd
+##  portmgrd
+##  buffermgrd
+##  nbrmgrd
+##  vxlanmgrd
+###############################################################################
+check process orchagent matching "/usr/bin/orchagent -d /var/log/swss"
+    if does not exist for 5 times within 5 cycles then alert
+
+check process portsyncd matching "/usr/bin/portsyncd"
+    if does not exist for 5 times within 5 cycles then alert
+
+check process neighsyncd matching "/usr/bin/neighsyncd"
+    if does not exist for 5 times within 5 cycles then alert
+
+check process vrfmgrd matching "/usr/bin/vrfmgrd"
+    if does not exist for 5 times within 5 cycles then alert
+
+check process vlanmgrd matching "/usr/bin/vlanmgrd"
+    if does not exist for 5 times within 5 cycles then alert
+
+check process intfmgrd matching "/usr/bin/intfmgrd"
+    if does not exist for 5 times within 5 cycles then alert
+
+check process portmgrd matching "/usr/bin/portmgrd"
+    if does not exist for 5 times within 5 cycles then alert
+
+check process buffermgrd matching "/usr/bin/buffermgrd -l"
+    if does not exist for 5 times within 5 cycles then alert
+
+check process nbrmgrd matching "/usr/bin/nbrmgrd"
+    if does not exist for 5 times within 5 cycles then alert
+
+check process vxlanmgrd matching "/usr/bin/vxlanmgrd"
+    if does not exist for 5 times within 5 cycles then alert

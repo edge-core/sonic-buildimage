@@ -34,4 +34,5 @@ $(DOCKER_ORCHAGENT)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
 $(DOCKER_ORCHAGENT)_RUN_OPT += -v /var/log/swss:/var/log/swss:rw
 
 $(DOCKER_ORCHAGENT)_BASE_IMAGE_FILES += swssloglevel:/usr/bin/swssloglevel
+$(DOCKER_ORCHAGENT)_BASE_IMAGE_FILES += monit_swss:/etc/monit/conf.d
 $(DOCKER_ORCHAGENT)_FILES += $(ARP_UPDATE_SCRIPT) $(SUPERVISOR_PROC_EXIT_LISTENER_SCRIPT)
