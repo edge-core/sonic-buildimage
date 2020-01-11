@@ -1,0 +1,7 @@
+###############################################################################
+## Monit configuration for sflow container
+## process list:
+##  sflowmgrd
+###############################################################################
+check process sflowmgrd matching "/usr/bin/sflowmgrd"
+    if does not exist for 5 times within 5 cycles then alert

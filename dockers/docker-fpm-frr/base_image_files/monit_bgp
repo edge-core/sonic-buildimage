@@ -1,0 +1,23 @@
+###############################################################################
+## Monit configuration for BGP container
+## process list:
+##  zebra
+##  fpmsyncd
+##  bgpd
+##  staticd
+##  bgpcfgd
+###############################################################################
+check process zebra matching "/usr/lib/frr/zebra"
+    if does not exist for 5 times within 5 cycles then alert
+
+check process fpmsyncd matching "fpmsyncd"
+    if does not exist for 5 times within 5 cycles then alert
+
+check process bgpd matching "/usr/lib/frr/bgpd"
+    if does not exist for 5 times within 5 cycles then alert
+
+check process staticd matching "/usr/lib/frr/staticd"
+    if does not exist for 5 times within 5 cycles then alert
+
+check process bgpcfgd matching "python /usr/bin/bgpcfgd"
+    if does not exist for 5 times within 5 cycles then alert

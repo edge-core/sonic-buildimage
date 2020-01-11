@@ -26,3 +26,4 @@ $(DOCKER_TELEMETRY)_CONTAINER_NAME = telemetry
 $(DOCKER_TELEMETRY)_RUN_OPT += --net=host --privileged -t
 $(DOCKER_TELEMETRY)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
 
+$(DOCKER_TELEMETRY)_BASE_IMAGE_FILES += monit_telemetry:/etc/monit/conf.d
