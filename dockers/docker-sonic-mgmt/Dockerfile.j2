@@ -105,6 +105,8 @@ debs/{{ deb }}{{' '}}
 
 RUN pip install ansible==2.8.7
 
+RUN pip install pysubnettree
+
 RUN mkdir /var/run/sshd
 EXPOSE 22
 
@@ -142,7 +144,5 @@ RUN azure-cli_bundle_*/installer
 # Temporary fix: upgrade the azure-keyvault package within az cli
 # TODO: if azure-cli contains newer version azure-keyvault, remove this
 RUN ~/lib/azure-cli/bin/python -m pip install azure-keyvault==0.3.7 -U
-
-RUN pip install pysubnettree
 
 RUN git clone https://github.com/Azure/sonic-mgmt
