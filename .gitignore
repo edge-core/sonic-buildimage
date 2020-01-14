@@ -11,6 +11,11 @@ target/
 *.buildinfo
 
 # Subdirectories in src
+src/dhcpmon/debian/*
+!src/dhcpmon/debian/changelog 
+!src/dhcpmon/debian/compat 
+!src/dhcpmon/debian/control
+!src/dhcpmon/debian/rules 
 src/hiredis/*
 !src/hiredis/Makefile
 src/igb/*
