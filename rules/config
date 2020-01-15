@@ -104,3 +104,6 @@ ENABLE_SFLOW = y
 
 # ENABLE_MGMT_FRAMEWORK - build docker-sonic-mgt-framework for CLI and REST server support
 ENABLE_MGMT_FRAMEWORK = y
+
+# ENABLE_RESTAPI - build docker-sonic-restapi for configuring the switch using REST APIs
+ENABLE_RESTAPI = n
