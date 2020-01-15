@@ -175,6 +175,7 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            HTTP_PROXY=$(http_proxy) \
                            HTTPS_PROXY=$(https_proxy) \
                            SONIC_ENABLE_SYSTEM_TELEMETRY=$(ENABLE_SYSTEM_TELEMETRY) \
+                           SONIC_ENABLE_RESTAPI=$(ENABLE_RESTAPI) \
                            EXTRA_JESSIE_TARGETS=$(EXTRA_JESSIE_TARGETS) \
                            $(SONIC_OVERRIDE_BUILD_VARS)
 

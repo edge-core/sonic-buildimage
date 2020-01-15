@@ -98,3 +98,6 @@ DEFAULT_VS_PREPARE_MEM = yes
 
 # ENABLE_SYSTEM_SFLOW - build docker-sonic-sflow for sFlow support
 ENABLE_SFLOW = y
+
+# ENABLE_RESTAPI - build docker-sonic-restapi for configuring the switch using REST APIs
+ENABLE_RESTAPI = n
