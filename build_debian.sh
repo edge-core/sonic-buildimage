@@ -176,6 +176,11 @@ sudo chmod +x $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-bottom/varlog
 sudo cp files/initramfs-tools/union-fsck $FILESYSTEM_ROOT/etc/initramfs-tools/hooks/union-fsck
 sudo chmod +x $FILESYSTEM_ROOT/etc/initramfs-tools/hooks/union-fsck
 pushd $FILESYSTEM_ROOT/usr/share/initramfs-tools/scripts/init-bottom && sudo patch -p1 < $OLDPWD/files/initramfs-tools/udev.patch; popd
+if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
+    sudo cp files/initramfs-tools/uboot-utils $FILESYSTEM_ROOT/etc/initramfs-tools/hooks/uboot-utils
+    sudo chmod +x $FILESYSTEM_ROOT/etc/initramfs-tools/hooks/uboot-utils
+    cat files/initramfs-tools/modules.arm | sudo tee -a $FILESYSTEM_ROOT/etc/initramfs-tools/modules > /dev/null
+fi
 
 if [[ $CONFIGURED_ARCH == amd64 ]]; then
     ## Install latest intel ixgbe driver
@@ -494,8 +499,22 @@ fi
 ## Remove gcc and python dev pkgs
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y remove gcc libpython2.7-dev
 
+## Add mtd and uboot firmware tools package
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install u-boot-tools mtd-utils
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-mark manual u-boot-tools mtd-utils
+
 ## Update initramfs
 sudo chroot $FILESYSTEM_ROOT update-initramfs -u
+## Convert initrd image to u-boot format
+if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
+    INITRD_FILE=initrd.img-${LINUX_KERNEL_VERSION}-${CONFIGURED_ARCH}
+    if [[ $CONFIGURED_ARCH == armhf ]]; then
+        INITRD_FILE=initrd.img-${LINUX_KERNEL_VERSION}-armmp
+    fi
+    sudo LANG=C chroot $FILESYSTEM_ROOT mkimage -A arm -O linux -T ramdisk -C gzip -d /boot/$INITRD_FILE /boot/u${INITRD_FILE}
+    ## Overwriting the initrd image with uInitrd
+    sudo LANG=C chroot $FILESYSTEM_ROOT mv /boot/u${INITRD_FILE} /boot/$INITRD_FILE
+fi
 
 ## Clean up apt
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y autoremove

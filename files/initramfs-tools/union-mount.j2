@@ -45,8 +45,19 @@ mkdir -p ${rootmnt}/host/$image_dir/work
 mount -n -o lowerdir=${rootmnt},upperdir=${rootmnt}/host/$image_dir/rw,workdir=${rootmnt}/host/$image_dir/work -t overlay root-overlay ${rootmnt}
 ## Check if the root block device is still there
 [ -b ${ROOT} ] || mdev -s
-## Mount the raw partition again
-mount ${ROOT} ${rootmnt}/host
+case "${ROOT}" in
+    ubi*)
+        mtd=$(cat /proc/cmdline | sed -e 's/.*ubi.mtd=\([0-9]\) .*/\1/')
+        if [ ! -f /dev/${ROOT}_0 ]; then
+            ubiattach /dev/ubi_ctrl -m $mtd || true
+        fi
+        mount -t ubifs /dev/${ROOT}_0 ${rootmnt}/host
+        ;;
+    *)
+        ## Mount the raw partition again
+        mount ${ROOT} ${rootmnt}/host
+        ;;
+esac
 
 mkdir -p ${rootmnt}/var/lib/docker
 if [ -f ${rootmnt}/host/$image_dir/{{ FILESYSTEM_DOCKERFS }} ]; then

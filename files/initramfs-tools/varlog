@@ -33,4 +33,12 @@ if [ -e "${rootmnt}/host/disk-img/var-log.ext4" ]; then
 fi
 
 # create varlog disk
-mkdir -p ${rootmnt}/host/disk-img && ${rootmnt}/usr/bin/fallocate -l "$varlog_size"M ${rootmnt}/host/disk-img/var-log.ext4 && mkfs.ext4 -q -F ${rootmnt}/host/disk-img/var-log.ext4
+case "${ROOT}" in 
+    ubi*)
+        # sys_fallocate is NOT supported over UBIFS
+        mkdir -p ${rootmnt}/host/disk-img && ${rootmnt}/usr/bin/truncate -s "$varlog_size"M ${rootmnt}/host/disk-img/var-log.ext4 && mkfs.ext4 -q -F ${rootmnt}/host/disk-img/var-log.ext4
+        ;;
+    *)
+        mkdir -p ${rootmnt}/host/disk-img && ${rootmnt}/usr/bin/fallocate -l "$varlog_size"M ${rootmnt}/host/disk-img/var-log.ext4 && mkfs.ext4 -q -F ${rootmnt}/host/disk-img/var-log.ext4
+        ;;
+esac

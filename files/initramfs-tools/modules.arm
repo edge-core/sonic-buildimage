@@ -1,0 +1,7 @@
+crc16
+deflate
+zlib_deflate
+m25p80
+ubi
+ubifs
+squashfs
