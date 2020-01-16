@@ -19,6 +19,7 @@ try:
     from sonic_platform.component import Component
     from sonic_platform.eeprom import Tlv
     from sonic_platform.fan import Fan
+    from sonic_platform.sfp import Sfp
     from sonic_platform.psu import Psu
     from sonic_platform.thermal import Thermal
     from helper import APIHelper
@@ -49,6 +50,11 @@ class Chassis(ChassisBase):
             for fan_index in range(0, NUM_FAN):
                 fan = Fan(fant_index, fan_index)
                 self._fan_list.append(fan)
+
+        for index in range(0, NUM_SFP):
+            sfp = Sfp(index)
+            self._sfp_list.append(sfp)
+
         for index in range(0, NUM_PSU):
             psu = Psu(index)
             self._psu_list.append(psu)
@@ -58,6 +64,7 @@ class Chassis(ChassisBase):
         for index in range(0, NUM_THERMAL):
             thermal = Thermal(index)
             self._thermal_list.append(thermal)
+
 
     def get_base_mac(self):
         """
