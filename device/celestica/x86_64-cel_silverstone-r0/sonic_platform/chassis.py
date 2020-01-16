@@ -16,9 +16,11 @@ import json
 
 try:
     from sonic_platform_base.chassis_base import ChassisBase
+    from sonic_platform.component import Component
     from sonic_platform.eeprom import Tlv
     from sonic_platform.fan import Fan
     from sonic_platform.psu import Psu
+    from sonic_platform.thermal import Thermal
     from helper import APIHelper
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
@@ -26,7 +28,7 @@ except ImportError as e:
 NUM_FAN_TRAY = 7
 NUM_FAN = 2
 NUM_PSU = 2
-NUM_THERMAL = 5
+NUM_THERMAL = 10
 NUM_SFP = 32
 NUM_COMPONENT = 5
 
@@ -50,6 +52,12 @@ class Chassis(ChassisBase):
         for index in range(0, NUM_PSU):
             psu = Psu(index)
             self._psu_list.append(psu)
+        for index in range(0, NUM_COMPONENT):
+            component = Component(index)
+            self._component_list.append(component)
+        for index in range(0, NUM_THERMAL):
+            thermal = Thermal(index)
+            self._thermal_list.append(thermal)
 
     def get_base_mac(self):
         """
@@ -92,7 +100,8 @@ class Chassis(ChassisBase):
 
         status, raw_cause = self._api_helper.ipmi_raw(
             IPMI_OEM_NETFN, IPMI_GET_REBOOT_CAUSE)
-        hx_cause = raw_cause.split()[0] if status else 00
+        hx_cause = raw_cause.split()[0] if status and len(
+            raw_cause.split()) > 0 else 00
         reboot_cause = {
             "00": self.REBOOT_CAUSE_HARDWARE_OTHER,
             "11": self.REBOOT_CAUSE_POWER_LOSS,
