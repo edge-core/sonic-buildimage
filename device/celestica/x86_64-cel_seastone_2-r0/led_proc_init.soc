@@ -1,0 +1,9 @@
+#Enable all ports
+port all en=1
+sleep 6
+#linkscan 250000; port xe,ce linkscan=on
+
+#Load LED
+led auto on; led start
+
+

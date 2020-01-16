@@ -210,3 +210,10 @@ sai_preinit_cmd_file
 sai_preinit_warmboot_cmd_file
 sai_postinit_cmd_file
 sai_postinit_warmboot_cmd_file
+help_cli_enable
+memlist_enable
+serdes_lane_config_dfe
+serdes_fec_enable
+pbmp_gport_stack
+reglist_enable
+scache_filename
