@@ -6,15 +6,15 @@
 auto mgmt
 iface mgmt
     vrf-table 5000
+# The loopback network interface for mgmt VRF that is required for applications like NTP
+    up ip link add lo-m type dummy
+    up ip link set dev lo-m master mgmt
+    up ip addr add 127.0.0.1/8 dev lo-m
+    up ip link set lo-m up
+    down ip link delete dev lo-m
 # The loopback network interface
 auto lo
 iface lo inet loopback
-# The loopback network interface for mgmt VRF that is required for applications like NTP
-    up ip link add lo-m type dummy
-    up ip addr add 127.0.0.1/8 dev lo-m
-    up ip link set lo-m up
-    up ip link set dev lo-m master mgmt
-	down ip link delete dev lo-m
 
 # The management network interface
 auto eth0
@@ -30,9 +30,9 @@ iface eth0 inet static
     up cgcreate -g l3mdev:mgmt
     up cgset -r l3mdev.master-device=mgmt mgmt
     # management port down rules
-    down ip -4 route delete default via 10.0.0.1 dev eth0 table 5000
-    down ip -4 route delete 10.0.0.0/24 dev eth0 table 5000
-    down ip -4 rule delete from 10.0.0.100/32 table 5000
+    pre-down ip -4 route delete default via 10.0.0.1 dev eth0 table 5000
+    pre-down ip -4 route delete 10.0.0.0/24 dev eth0 table 5000
+    pre-down ip -4 rule delete from 10.0.0.100/32 table 5000
     down cgdelete -g l3mdev:mgmt
 iface eth0 inet6 static
     address 2603:10e2:0:2902::8
@@ -46,9 +46,9 @@ iface eth0 inet6 static
     up cgcreate -g l3mdev:mgmt
     up cgset -r l3mdev.master-device=mgmt mgmt
     # management port down rules
-    down ip -6 route delete default via 2603:10e2:0:2902::1 dev eth0 table 5000
-    down ip -6 route delete 2603:10e2:0:2902::/64 dev eth0 table 5000
-    down ip -6 rule delete from 2603:10e2:0:2902::8/128 table 5000
+    pre-down ip -6 route delete default via 2603:10e2:0:2902::1 dev eth0 table 5000
+    pre-down ip -6 route delete 2603:10e2:0:2902::/64 dev eth0 table 5000
+    pre-down ip -6 rule delete from 2603:10e2:0:2902::8/128 table 5000
     down cgdelete -g l3mdev:mgmt
 #
 source /etc/network/interfaces.d/*
