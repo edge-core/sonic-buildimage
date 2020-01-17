@@ -56,7 +56,7 @@ thermal_api_handler_psu = {
     THERMAL_API_GET_HIGH_THRESHOLD:"psu{}_temp_max"
 }
 thermal_api_handler_gearbox = {
-    THERMAL_API_GET_TEMPERATURE:"temp_input_gearbox{}",
+    THERMAL_API_GET_TEMPERATURE:"gearbox{}_temp_input",
     THERMAL_API_GET_HIGH_THRESHOLD:None
 }
 thermal_ambient_apis = {
