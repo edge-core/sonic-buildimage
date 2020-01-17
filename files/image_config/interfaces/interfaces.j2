@@ -5,23 +5,23 @@
 # file: /etc/network/interfaces
 #
 {% endblock banner %}
+{% block mgmt_vrf %}
 {% if (MGMT_VRF_CONFIG) and (MGMT_VRF_CONFIG['vrf_global']['mgmtVrfEnabled'] == "true") %}
 auto mgmt
 iface mgmt
     vrf-table 5000
+# The loopback network interface for mgmt VRF that is required for applications like NTP
+    up ip link add lo-m type dummy
+    up ip link set dev lo-m master mgmt
+    up ip addr add 127.0.0.1/8 dev lo-m
+    up ip link set lo-m up
+    down ip link delete dev lo-m
 {% endif %}
+{% endblock mgmt_vrf %}
 {% block loopback %}
 # The loopback network interface
 auto lo
 iface lo inet loopback
-{% if (MGMT_VRF_CONFIG) and (MGMT_VRF_CONFIG['vrf_global']['mgmtVrfEnabled'] == "true") %}
-# The loopback network interface for mgmt VRF that is required for applications like NTP
-    up ip link add lo-m type dummy
-    up ip addr add 127.0.0.1/8 dev lo-m
-    up ip link set lo-m up
-    up ip link set dev lo-m master mgmt
-	down ip link delete dev lo-m
-{% endif %}
 {% endblock loopback %}
 {% block mgmt_interface %}
 
@@ -82,14 +82,14 @@ iface eth0 {{ 'inet' if prefix | ipv4 else 'inet6' }} static
     up ip rule add to {{ route }} table {{ vrf_table }}
 {% endfor %}
     # management port down rules
-    down ip {{ '-4' if prefix | ipv4 else '-6' }} route delete default via {{ MGMT_INTERFACE[(name, prefix)]['gwaddr'] }} dev eth0 table {{ vrf_table }}
-    down ip {{ '-4' if prefix | ipv4 else '-6' }} route delete {{ prefix | network }}/{{ prefix | prefixlen }} dev eth0 table {{ vrf_table }}
-    down ip {{ '-4' if prefix | ipv4 else '-6' }} rule delete from {{ prefix | ip }}/{{ '32' if prefix | ipv4 else '128' }} table {{ vrf_table }}
+    pre-down ip {{ '-4' if prefix | ipv4 else '-6' }} route delete default via {{ MGMT_INTERFACE[(name, prefix)]['gwaddr'] }} dev eth0 table {{ vrf_table }}
+    pre-down ip {{ '-4' if prefix | ipv4 else '-6' }} route delete {{ prefix | network }}/{{ prefix | prefixlen }} dev eth0 table {{ vrf_table }}
+    pre-down ip {{ '-4' if prefix | ipv4 else '-6' }} rule delete from {{ prefix | ip }}/{{ '32' if prefix | ipv4 else '128' }} table {{ vrf_table }}
 {% if (MGMT_VRF_CONFIG) and (MGMT_VRF_CONFIG['vrf_global']['mgmtVrfEnabled'] == "true") %}
     down cgdelete -g l3mdev:mgmt
 {% endif %}
 {% for route in MGMT_INTERFACE[(name, prefix)]['forced_mgmt_routes'] %}
-    down ip rule delete to {{ route }} table {{ vrf_table }}
+    pre-down ip rule delete to {{ route }} table {{ vrf_table }}
 {% endfor %}
 {# TODO: COPP policy type rules #}
 {% endfor %}

@@ -18,9 +18,9 @@ iface eth0 inet static
     up ip -4 route add 10.0.0.0/24 dev eth0 table default
     up ip -4 rule add from 10.0.0.100/32 table default
     # management port down rules
-    down ip -4 route delete default via 10.0.0.1 dev eth0 table default
-    down ip -4 route delete 10.0.0.0/24 dev eth0 table default
-    down ip -4 rule delete from 10.0.0.100/32 table default
+    pre-down ip -4 route delete default via 10.0.0.1 dev eth0 table default
+    pre-down ip -4 route delete 10.0.0.0/24 dev eth0 table default
+    pre-down ip -4 rule delete from 10.0.0.100/32 table default
 iface eth0 inet6 static
     address 2603:10e2:0:2902::8
     netmask 64
@@ -30,9 +30,9 @@ iface eth0 inet6 static
     up ip -6 route add 2603:10e2:0:2902::/64 dev eth0 table default
     up ip -6 rule add from 2603:10e2:0:2902::8/128 table default
     # management port down rules
-    down ip -6 route delete default via 2603:10e2:0:2902::1 dev eth0 table default
-    down ip -6 route delete 2603:10e2:0:2902::/64 dev eth0 table default
-    down ip -6 rule delete from 2603:10e2:0:2902::8/128 table default
+    pre-down ip -6 route delete default via 2603:10e2:0:2902::1 dev eth0 table default
+    pre-down ip -6 route delete 2603:10e2:0:2902::/64 dev eth0 table default
+    pre-down ip -6 rule delete from 2603:10e2:0:2902::8/128 table default
 #
 source /etc/network/interfaces.d/*
 #
