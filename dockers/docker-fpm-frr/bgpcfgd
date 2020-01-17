@@ -203,6 +203,8 @@ class Manager(object):
             syslog.syslog(syslog.LOG_ERR, 'Invalid operation "%s" for key "%s"' % (op, key))
 
     def on_deps_change(self):
+        if not self.directory.available_deps(self.deps):
+            return
         new_queue = []
         for key, data in self.set_queue:
             res = self.set_handler(key, data)
