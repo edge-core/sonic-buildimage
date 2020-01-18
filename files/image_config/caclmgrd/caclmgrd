@@ -225,7 +225,9 @@ class ControlPlaneAclManager(object):
                             rule_cmd = "ip6tables" if table_ip_version == 6 else "iptables"
                             rule_cmd += " -A INPUT -p {}".format(ip_protocol)
 
-                            if "SRC_IP" in rule_props and rule_props["SRC_IP"]:
+                            if "SRC_IPV6" in rule_props and rule_props["SRC_IPV6"]:
+                                rule_cmd += " -s {}".format(rule_props["SRC_IPV6"])
+                            elif "SRC_IP" in rule_props and rule_props["SRC_IP"]:
                                 rule_cmd += " -s {}".format(rule_props["SRC_IP"])
 
                             rule_cmd += " --dport {}".format(dst_port)
