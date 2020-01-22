@@ -328,10 +328,10 @@ if [ -f $FIRST_BOOT_FILE ]; then
         mv /host/grub.cfg /host/grub/grub.cfg
     fi
 
+    # Create dir where following scripts put their output files
+    mkdir -p /var/platform
+
     firsttime_exit
 fi
-
-# Create dir where following scripts put their output files
-mkdir -p /var/platform
 
 exit 0
