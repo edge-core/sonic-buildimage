@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-STATE_DB_IDX="6"
-
 function wait_until_iface_ready
 {
     IFACE_NAME=$1
@@ -12,7 +10,7 @@ function wait_until_iface_ready
     # Wait for the interface to come up
     # (i.e., interface is present in STATE_DB and state is "ok")
     while true; do
-        RESULT=$(redis-cli -n ${STATE_DB_IDX} HGET "INTERFACE_TABLE|${IFACE_NAME}|${IFACE_CIDR}" "state" 2> /dev/null)
+        RESULT=$(sonic-db-cli STATE_DB HGET "INTERFACE_TABLE|${IFACE_NAME}|${IFACE_CIDR}" "state" 2> /dev/null)
         if [ x"$RESULT" == x"ok" ]; then
             break
         fi
