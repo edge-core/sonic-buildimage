@@ -29,7 +29,7 @@ fi
 
 # If no configuration entry exists for TELEMETRY, create one default port
 if [ -z $TELEMETRY ]; then
-    redis-cli -n 4 hset "TELEMETRY|gnmi" port 8080
+    sonic-db-cli CONFIG_DB hset "TELEMETRY|gnmi" port 8080
 fi
 
 PORT=`sonic-cfggen -d -v "TELEMETRY['gnmi']['port']"`

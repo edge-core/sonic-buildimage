@@ -84,22 +84,18 @@ class LldpManager(object):
         pending_cmds: Dictionary where key is port name, value is pending
                       LLDP configuration command to run
     """
-    REDIS_HOSTNAME = "localhost"
-    REDIS_PORT = 6379
     REDIS_TIMEOUT_MS = 0
 
     def __init__(self):
         # Open a handle to the Config database
-        self.config_db = swsscommon.DBConnector(swsscommon.CONFIG_DB,
-                                                self.REDIS_HOSTNAME,
-                                                self.REDIS_PORT,
-                                                self.REDIS_TIMEOUT_MS)
+        self.config_db = swsscommon.DBConnector("CONFIG_DB",
+                                                self.REDIS_TIMEOUT_MS,
+                                                True)
 
         # Open a handle to the Application database
-        self.appl_db = swsscommon.DBConnector(swsscommon.APPL_DB,
-                                                self.REDIS_HOSTNAME,
-                                                self.REDIS_PORT,
-                                                self.REDIS_TIMEOUT_MS)
+        self.appl_db = swsscommon.DBConnector("APPL_DB",
+                                              self.REDIS_TIMEOUT_MS,
+                                              True)
 
         self.pending_cmds = {}
 
