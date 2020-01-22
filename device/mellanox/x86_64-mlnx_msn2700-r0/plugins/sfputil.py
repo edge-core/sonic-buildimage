@@ -22,8 +22,6 @@ SFP_MODULE_THRESHOLD_WIDTH = 56
 SFP_I2C_PAGE_SIZE = 256
 
 # parameters for DB connection 
-REDIS_HOSTNAME = "localhost"
-REDIS_PORT = 6379
 REDIS_TIMEOUT_USECS = 0
 
 # parameters for SFP presence
@@ -190,10 +188,9 @@ class SfpUtil(SfpUtilBase):
 
         if self.db_sel == None:
             from swsscommon import swsscommon
-            self.state_db = swsscommon.DBConnector(swsscommon.STATE_DB,
-                                             REDIS_HOSTNAME,
-                                             REDIS_PORT,
-                                             REDIS_TIMEOUT_USECS)
+            self.state_db = swsscommon.DBConnector("STATE_DB",
+                                                   REDIS_TIMEOUT_USECS,
+                                                   True))
 
             # Subscribe to state table for SFP change notifications
             self.db_sel = swsscommon.Select()

@@ -25,7 +25,6 @@
 ###########################################################################
 
 # Initialize constants
-CONFIG_DB_INDEX=4
 UPDATEGRAPH_CONF=/etc/sonic/updategraph.conf
 CONFIG_DB_JSON=/etc/sonic/config_db.json
 MINGRAPH_FILE=/etc/sonic/minigraph.xml
@@ -107,9 +106,9 @@ reload_minigraph()
     if [ ! -f /etc/sonic/init_cfg.json ]; then
         echo "{}" > /etc/sonic/init_cfg.json
     fi
-    redis-cli -n $CONFIG_DB_INDEX FLUSHDB
+    sonic-db-cli CONFIG_DB FLUSHDB
     sonic-cfggen -H -m -j /etc/sonic/init_cfg.json --write-to-db
-    redis-cli -n $CONFIG_DB_INDEX SET "CONFIG_DB_INITIALIZED" "1"
+    sonic-db-cli CONFIG_DB SET "CONFIG_DB_INITIALIZED" "1"
     if [ -f /etc/sonic/acl.json ]; then
         acl-loader update full /etc/sonic/acl.json
     fi
@@ -138,7 +137,7 @@ function copy_config_files_and_directories()
 # Check if SONiC swich has booted after a warm reboot request
 check_system_warm_boot()
 {
-    SYSTEM_WARM_START=`/usr/bin/redis-cli -n 6 hget "WARM_RESTART_ENABLE_TABLE|system" enable`
+    SYSTEM_WARM_START=`sonic-db-cli STATE_DB hget "WARM_RESTART_ENABLE_TABLE|system" enable`
     # SYSTEM_WARM_START could be empty, always make WARM_BOOT meaningful.
     if [[ x"$SYSTEM_WARM_START" == x"true" ]]; then
         WARM_BOOT="true"
@@ -187,7 +186,7 @@ load_config()
         return 1
     fi
 
-    redis-cli -n $CONFIG_DB_INDEX FLUSHDB
+    sonic-db-cli CONFIG_DB FLUSHDB
     sonic-cfggen -j ${CONFIG_FILE} --write-to-db
     if [ $? -ne 0 ]; then
         return $?
@@ -198,7 +197,7 @@ load_config()
         /usr/bin/db_migrator.py -o migrate
     fi
 
-    redis-cli -n $CONFIG_DB_INDEX SET "CONFIG_DB_INITIALIZED" "1"
+    sonic-db-cli CONFIG_DB SET "CONFIG_DB_INITIALIZED" "1"
     return 0
 }
 

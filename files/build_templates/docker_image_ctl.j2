@@ -89,20 +89,20 @@ function preStartAction()
         docker cp /tmp/dump.rdb database:/var/lib/redis/
     fi
 {%- elif docker_container_name == "snmp" %}
-    docker exec -i database redis-cli -n 6 HSET 'DEVICE_METADATA|localhost' chassis_serial_number $(decode-syseeprom -s)
-    vrfenabled=`/usr/bin/redis-cli -n 4 hget "MGMT_VRF_CONFIG|vrf_global" mgmtVrfEnabled`
-    v1SnmpTrapIp=`/usr/bin/redis-cli -n 4 hget "SNMP_TRAP_CONFIG|v1TrapDest" DestIp`
-    v1SnmpTrapPort=`/usr/bin/redis-cli -n 4 hget "SNMP_TRAP_CONFIG|v1TrapDest" DestPort`
-    v1Vrf=`/usr/bin/redis-cli -n 4 hget "SNMP_TRAP_CONFIG|v1TrapDest" vrf`
-    v1Comm=`/usr/bin/redis-cli -n 4 hget "SNMP_TRAP_CONFIG|v1TrapDest" Community`
-    v2SnmpTrapIp=`/usr/bin/redis-cli -n 4 hget "SNMP_TRAP_CONFIG|v2TrapDest" DestIp`
-    v2SnmpTrapPort=`/usr/bin/redis-cli -n 4 hget "SNMP_TRAP_CONFIG|v2TrapDest" DestPort`
-    v2Vrf=`/usr/bin/redis-cli -n 4 hget "SNMP_TRAP_CONFIG|v2TrapDest" vrf`
-    v2Comm=`/usr/bin/redis-cli -n 4 hget "SNMP_TRAP_CONFIG|v2TrapDest" Community`
-    v3SnmpTrapIp=`/usr/bin/redis-cli -n 4 hget "SNMP_TRAP_CONFIG|v3TrapDest" DestIp`
-    v3SnmpTrapPort=`/usr/bin/redis-cli -n 4 hget "SNMP_TRAP_CONFIG|v3TrapDest" DestPort`
-    v3Vrf=`/usr/bin/redis-cli -n 4 hget "SNMP_TRAP_CONFIG|v3TrapDest" vrf`
-    v3Comm=`/usr/bin/redis-cli -n 4 hget "SNMP_TRAP_CONFIG|v3TrapDest" Community`
+    sonic-db-cli STATE_DB HSET 'DEVICE_METADATA|localhost' chassis_serial_number $(decode-syseeprom -s)
+    vrfenabled=`sonic-db-cli CONFIG_DB hget "MGMT_VRF_CONFIG|vrf_global" mgmtVrfEnabled`
+    v1SnmpTrapIp=`sonic-db-cli CONFIG_DB hget "SNMP_TRAP_CONFIG|v1TrapDest" DestIp`
+    v1SnmpTrapPort=`sonic-db-cli CONFIG_DB hget "SNMP_TRAP_CONFIG|v1TrapDest" DestPort`
+    v1Vrf=`sonic-db-cli CONFIG_DB hget "SNMP_TRAP_CONFIG|v1TrapDest" vrf`
+    v1Comm=`sonic-db-cli CONFIG_DB hget "SNMP_TRAP_CONFIG|v1TrapDest" Community`
+    v2SnmpTrapIp=`sonic-db-cli CONFIG_DB hget "SNMP_TRAP_CONFIG|v2TrapDest" DestIp`
+    v2SnmpTrapPort=`sonic-db-cli CONFIG_DB hget "SNMP_TRAP_CONFIG|v2TrapDest" DestPort`
+    v2Vrf=`sonic-db-cli CONFIG_DB hget "SNMP_TRAP_CONFIG|v2TrapDest" vrf`
+    v2Comm=`sonic-db-cli CONFIG_DB hget "SNMP_TRAP_CONFIG|v2TrapDest" Community`
+    v3SnmpTrapIp=`sonic-db-cli CONFIG_DB hget "SNMP_TRAP_CONFIG|v3TrapDest" DestIp`
+    v3SnmpTrapPort=`sonic-db-cli CONFIG_DB hget "SNMP_TRAP_CONFIG|v3TrapDest" DestPort`
+    v3Vrf=`sonic-db-cli CONFIG_DB hget "SNMP_TRAP_CONFIG|v3TrapDest" vrf`
+    v3Comm=`sonic-db-cli CONFIG_DB hget "SNMP_TRAP_CONFIG|v3TrapDest" Community`
 
     if [ "${v1SnmpTrapIp}" != "" ]
     then
@@ -139,7 +139,11 @@ function preStartAction()
     fi
 
     echo -n "" > /tmp/snmpagentaddr.yml
-    keys=`/usr/bin/redis-cli -n 4 keys "SNMP_AGENT_ADDRESS_CONFIG|*"`
+    # TODO
+    # we should avoid using 'keys' operation via redis-cli or sonic-db-cli
+    # there would be an issue when KEY in database contains space or '\n'
+    # for loop on the non-tty 'keys' output will take the space or `\n` as seperator when parsing the element
+    keys=`sonic-db-cli CONFIG_DB keys "SNMP_AGENT_ADDRESS_CONFIG|*"`
     count=1
     for key in $keys;do
         ip=`echo $key|cut -d "|" -f2`
@@ -180,10 +184,10 @@ function postStartAction()
 
         if [[ "$BOOT_TYPE" == "fast" ]]; then
             # set the key to expire in 3 minutes
-            redis-cli -n 6 SET "FAST_REBOOT|system" "1" "EX" "180"
+            sonic-db-cli STATE_DB SET "FAST_REBOOT|system" "1" "EX" "180"
         fi
 
-        redis-cli -n 4 SET "CONFIG_DB_INITIALIZED" "1"
+        sonic-db-cli CONFIG_DB SET "CONFIG_DB_INITIALIZED" "1"
     fi
 
     if [[ -x /usr/bin/db_migrator.py ]]; then
