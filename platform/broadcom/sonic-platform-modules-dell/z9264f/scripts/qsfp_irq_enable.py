@@ -27,6 +27,7 @@ def pci_set_value(resource, val, offset):
         close(fd)
         return val
 
+#Enabled interrupt for qsfp and sfp
 for port_num in range(PORT_START, PORT_END+1):
         port_offset = 0x400c + ((port_num) * 16)
-        pci_set_value(BASE_RES_PATH, 0x30, port_offset)
+        pci_set_value(BASE_RES_PATH, 0x31, port_offset)

@@ -17,9 +17,9 @@ init_devnum() {
 # Attach/Detach syseeprom on CPU board
 sys_eeprom() {
     case $1 in
-        "new_device")    echo 24c16 0x50 > /sys/bus/i2c/devices/i2c-0/$1
+        "new_device")    echo 24c16 0x50 > /sys/bus/i2c/devices/i2c-${devnum}/$1
                          ;;
-        "delete_device") echo 0x50 > /sys/bus/i2c/devices/i2c-0/$1
+        "delete_device") echo 0x50 > /sys/bus/i2c/devices/i2c-${devnum}/$1
                          ;;
         *)               echo "z9264f_platform: sys_eeprom : invalid command !"
                          ;;
@@ -125,6 +125,20 @@ init_switch_port_led() {
     fi
 }
 
+install_python_api_package() {
+    device="/usr/share/sonic/device"
+    platform=$(/usr/local/bin/sonic-cfggen -H -v DEVICE_METADATA.localhost.platform)
+
+    rv=$(pip install $device/$platform/sonic_platform-1.0-py2-none-any.whl)
+}
+
+remove_python_api_package() {
+    rv=$(pip show sonic-platform > /dev/null 2>/dev/null)
+    if [ $? -eq 0 ]; then
+        rv=$(pip uninstall -y sonic-platform > /dev/null 2>/dev/null)
+    fi
+}
+
 init_devnum
 
 if [ "$1" == "init" ]; then
@@ -140,6 +154,7 @@ if [ "$1" == "init" ]; then
     switch_board_sfp "new_device"
     switch_board_modsel
     init_switch_port_led
+    install_python_api_package
     python /usr/bin/qsfp_irq_enable.py
 
 elif [ "$1" == "deinit" ]; then
@@ -149,6 +164,7 @@ elif [ "$1" == "deinit" ]; then
     switch_board_sfp "delete_device"
     modprobe -r i2c-mux-pca954x
     modprobe -r i2c-dev
+    remove_python_api_package
 else
      echo "z9264f_platform : Invalid option !"
 fi

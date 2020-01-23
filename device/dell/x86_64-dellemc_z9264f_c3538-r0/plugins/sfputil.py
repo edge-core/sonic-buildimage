@@ -44,6 +44,8 @@ SFP_VOLT_OFFSET = 98
 SFP_VOLT_WIDTH = 2
 SFP_MODULE_THRESHOLD_OFFSET = 0
 SFP_MODULE_THRESHOLD_WIDTH = 56
+SFP_CHANNL_MON_OFFSET = 100
+SFP_CHANNL_MON_WIDTH = 6
 
 XCVR_DOM_CAPABILITY_OFFSET = 92
 XCVR_DOM_CAPABILITY_WIDTH = 1
@@ -226,8 +228,8 @@ class SfpUtil(SfpUtilBase):
         if (reg_value == ""):
             return False
 
-        # Mask off 4th bit for presence
-        mask = (1 << 6)
+        # Mask off 4th bit for reset
+        mask = (1 << 4)
 
         # ResetL is active low
         reg_value = reg_value & ~mask
@@ -347,7 +349,7 @@ class SfpUtil(SfpUtilBase):
                              ]
         transceiver_dom_info_dict = dict.fromkeys(dom_info_dict_keys, 'N/A')
 
-	if port_num in self.qsfp_ports:
+        if port_num in self.qsfp_ports:
             offset = 0
             offset_xcvr = 128
             file_path = self._get_port_eeprom_path(port_num, self.IDENTITY_EEPROM_ADDR)
@@ -379,7 +381,7 @@ class SfpUtil(SfpUtilBase):
                 return transceiver_dom_info_dict
 
             dom_temperature_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + QSFP_TEMPE_OFFSET), QSFP_TEMPE_WIDTH)
-	    if dom_temperature_raw is not None:
+            if dom_temperature_raw is not None:
                 dom_temperature_data = sfpd_obj.parse_temperature(dom_temperature_raw, 0)
             else:
                 return transceiver_dom_info_dict
@@ -411,10 +413,22 @@ class SfpUtil(SfpUtilBase):
                 else:
                     return transceiver_dom_info_dict
 
-	        transceiver_dom_info_dict['tx1power'] = 'N/A'
+                transceiver_dom_info_dict['tx1power'] = 'N/A'
                 transceiver_dom_info_dict['tx2power'] = 'N/A'
                 transceiver_dom_info_dict['tx3power'] = 'N/A'
                 transceiver_dom_info_dict['tx4power'] = 'N/A'
+            else:
+                dom_channel_monitor_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + QSFP_CHANNL_MON_OFFSET), QSFP_CHANNL_MON_WITH_TX_POWER_WIDTH)
+                if dom_channel_monitor_raw is not None:
+                    dom_channel_monitor_data = sfpd_obj.parse_channel_monitor_params_with_tx_power(dom_channel_monitor_raw, 0)
+                else:
+                    return None
+
+                transceiver_dom_info_dict['tx1power'] = dom_channel_monitor_data['data']['TX1Power']['value']
+                transceiver_dom_info_dict['tx2power'] = dom_channel_monitor_data['data']['TX2Power']['value']
+                transceiver_dom_info_dict['tx3power'] = dom_channel_monitor_data['data']['TX3Power']['value']
+                transceiver_dom_info_dict['tx4power'] = dom_channel_monitor_data['data']['TX4Power']['value']
+
             try:
                 sysfsfile_eeprom.close()
             except IOError:
@@ -433,64 +447,66 @@ class SfpUtil(SfpUtilBase):
             transceiver_dom_info_dict['tx4bias'] = dom_channel_monitor_data['data']['TX4Bias']['value']
 
         else:
-           offset = 256
-           file_path = self._get_port_eeprom_path(port_num, self.DOM_EEPROM_ADDR)
-           if not self._sfp_eeprom_present(file_path, 0):
-               return None
+            offset = 256
+            file_path = self._get_port_eeprom_path(port_num, self.DOM_EEPROM_ADDR)
+            if not self._sfp_eeprom_present(file_path, 0):
+                return None
 
-        try:
-           sysfsfile_eeprom = io.open(file_path,"rb",0)
-        except IOError:
-           print("Error: reading sysfs file %s" % file_path)
-           return None
-           
-        sfpd_obj = sff8472Dom(None,1)
-        if sfpd_obj is None:
-            return None
-        dom_temperature_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + SFP_TEMPE_OFFSET), 
-										SFP_TEMPE_WIDTH)
-        if dom_temperature_raw is not None:
-            dom_temperature_data = sfpd_obj.parse_temperature(dom_temperature_raw, 0)
-        else:
-           return transceiver_dom_info_dict
+            try:
+                sysfsfile_eeprom = io.open(file_path,"rb",0)
+            except IOError:
+                print("Error: reading sysfs file %s" % file_path)
+                return None
 
-        dom_voltage_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + SFP_VOLT_OFFSET), 
-										SFP_VOLT_WIDTH)
-        if dom_voltage_raw is not None:
-             dom_voltage_data = sfpd_obj.parse_voltage(dom_voltage_raw, 0)
-        else: 
-             return transceiver_dom_info_dict
+            sfpd_obj = sff8472Dom(None,1)
+            if sfpd_obj is None:
+                return None
+            dom_temperature_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + SFP_TEMPE_OFFSET),
+                                                                  SFP_TEMPE_WIDTH)
 
-        dom_channel_monitor_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + SFP_MODULE_THRESHOLD_OFFSET), 
-									SFP_MODULE_THRESHOLD_WIDTH)
-        if dom_channel_monitor_raw is not None:
-           dom_channel_monitor_data = sfpd_obj.parse_channel_monitor_params(dom_channel_monitor_raw, 0)
-        else:
-           return transceiver_dom_info_dict
+            if dom_temperature_raw is not None:
+                dom_temperature_data = sfpd_obj.parse_temperature(dom_temperature_raw, 0)
+            else:
+                return transceiver_dom_info_dict
 
-        try:
-           sysfsfile_eeprom.close()
-        except IOError:
-           print("Error: closing sysfs file %s" % file_path)
-           return None
+            dom_voltage_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + SFP_VOLT_OFFSET),
+                                                                  SFP_VOLT_WIDTH)
 
-        transceiver_dom_info_dict['temperature'] = dom_temperature_data['data']['Temperature']['value']
-        transceiver_dom_info_dict['voltage'] = dom_voltage_data['data']['Vcc']['value']
-        transceiver_dom_info_dict['rx1power'] = dom_channel_monitor_data['data']['RXPower']['value']
-        transceiver_dom_info_dict['rx2power'] = 'N/A'
-        transceiver_dom_info_dict['rx3power'] = 'N/A'
-        transceiver_dom_info_dict['rx4power'] = 'N/A'
-        transceiver_dom_info_dict['tx1bias'] = dom_channel_monitor_data['data']['TXBias']['value']
-        transceiver_dom_info_dict['tx2bias'] = 'N/A'
-        transceiver_dom_info_dict['tx3bias'] = 'N/A'
-        transceiver_dom_info_dict['tx4bias'] = 'N/A'
-        transceiver_dom_info_dict['tx1power'] = dom_channel_monitor_data['data']['TXPower']['value']
-        transceiver_dom_info_dict['tx2power'] = 'N/A'
-        transceiver_dom_info_dict['tx3power'] = 'N/A'
-        transceiver_dom_info_dict['tx4power'] = 'N/A'
+            if dom_voltage_raw is not None:
+                dom_voltage_data = sfpd_obj.parse_voltage(dom_voltage_raw, 0)
+            else:
+                return transceiver_dom_info_dict
 
-	return transceiver_dom_info_dict
- 
+            dom_channel_monitor_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + SFP_CHANNL_MON_OFFSET),
+                                                                       SFP_CHANNL_MON_WIDTH)
+            if dom_channel_monitor_raw is not None:
+                dom_channel_monitor_data = sfpd_obj.parse_channel_monitor_params(dom_channel_monitor_raw, 0)
+            else:
+                return transceiver_dom_info_dict
+
+            try:
+                sysfsfile_eeprom.close()
+            except IOError:
+                print("Error: closing sysfs file %s" % file_path)
+                return None
+
+            transceiver_dom_info_dict['temperature'] = dom_temperature_data['data']['Temperature']['value']
+            transceiver_dom_info_dict['voltage'] = dom_voltage_data['data']['Vcc']['value']
+            transceiver_dom_info_dict['rx1power'] = dom_channel_monitor_data['data']['RXPower']['value']
+            transceiver_dom_info_dict['rx2power'] = 'N/A'
+            transceiver_dom_info_dict['rx3power'] = 'N/A'
+            transceiver_dom_info_dict['rx4power'] = 'N/A'
+            transceiver_dom_info_dict['tx1bias'] = dom_channel_monitor_data['data']['TXBias']['value']
+            transceiver_dom_info_dict['tx2bias'] = 'N/A'
+            transceiver_dom_info_dict['tx3bias'] = 'N/A'
+            transceiver_dom_info_dict['tx4bias'] = 'N/A'
+            transceiver_dom_info_dict['tx1power'] = dom_channel_monitor_data['data']['TXPower']['value']
+            transceiver_dom_info_dict['tx2power'] = 'N/A'
+            transceiver_dom_info_dict['tx3power'] = 'N/A'
+            transceiver_dom_info_dict['tx4power'] = 'N/A'
+
+        return transceiver_dom_info_dict
+
     def get_transceiver_dom_threshold_info_dict(self, port_num):
         transceiver_dom_threshold_info_dict = {}
         dom_info_dict_keys = ['temphighalarm',    'temphighwarning',
