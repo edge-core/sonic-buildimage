@@ -1,0 +1,13 @@
+[Unit]
+Description=Dell S6000 fan speed regulator
+After=platform-modules-s6000.service
+Before=pmon.service
+
+[Service]
+ExecStart=-/usr/local/bin/fancontrol.sh
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
+
