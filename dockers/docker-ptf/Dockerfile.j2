@@ -27,6 +27,7 @@ RUN sed --in-place 's/httpredir.debian.org/debian-archive.trafficmanager.net/' /
     && apt-get upgrade -y   \
     && apt-get dist-upgrade -y  \
     && apt-get install -y   \
+        autoconf            \
         openssh-server      \
         vim                 \
         telnet              \
@@ -81,6 +82,14 @@ RUN rm -rf /debs \
     && python setup.py install \
     && cd .. \
     && rm -fr scapy-vxlan \
+    && git clone https://github.com/sflow/sflowtool \
+    && cd sflowtool \
+    && ./boot.sh \
+    && ./configure \
+    && make \
+    && make install \
+    && cd  .. \
+    && rm -fr sflowtool \
     && wget https://github.com/nanomsg/nanomsg/archive/1.0.0.tar.gz \
     && tar xvfz 1.0.0.tar.gz \
     && cd nanomsg-1.0.0    \
