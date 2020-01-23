@@ -175,12 +175,13 @@ class SfpUtil(SfpUtilBase):
             eeprom.seek(93)
             lpmode = ord(eeprom.read(1))
 
-            if ((lpmode & 0x3) == 0x1):
-                return False # High Power Mode if "Power override" bit is 1 and "Power set" bit is 0
+            if ((lpmode & 0x3) == 0x3):
+                return True # Low Power Mode if "Power override" bit is 1 and "Power set" bit is 1
             else:
-                return True # Low Power Mode if one of the following conditions is matched:
-                            # 1. Power override" bit is 0
-                            # 2. Power override" bit is 1 and "Power set" bit is 1
+                return False # High Power Mode if one of the following conditions is matched:
+                             # 1. "Power override" bit is 0
+                             # 2. "Power override" bit is 1 and "Power set" bit is 0 
+
         except IOError as e:
             print "Error: unable to open file: %s" % str(e)
             return False
