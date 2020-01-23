@@ -3,5 +3,5 @@
 ## process list:
 ##  syncd
 ###############################################################################
-check process syncd matching "/usr/bin/syncd --diag"
+check process syncd matching "/usr/bin/syncd"
     if does not exist for 5 times within 5 cycles then alert
