@@ -146,7 +146,7 @@ class Fan(FanBase):
             fantray_status = self._get_pmc_register(self.get_fan_speed_reg)
             if (fantray_status != 'ERR'):
                 fantray_status = int(fantray_status, 10)
-                if (fantray_status > 5000):
+                if (fantray_status > 1000):
                     status = True
         else:
             fantray_status = self._get_pmc_register(self.fan_status_reg)
@@ -163,13 +163,18 @@ class Fan(FanBase):
         Returns:
             A string, either FAN_DIRECTION_INTAKE or FAN_DIRECTION_EXHAUST
             depending on fan direction
+
+        Notes:
+            In DellEMC platforms,
+            - Forward/Exhaust : Air flows from Port side to Fan side.
+            - Reverse/Intake  : Air flows from Fan side to Port side.
         """
-        direction = ['FAN_DIRECTION_INTAKE', 'FAN_DIRECTION_EXHAUST']
+        direction = [self.FAN_DIRECTION_INTAKE, self.FAN_DIRECTION_EXHAUST]
         fan_direction = self._get_pmc_register(self.get_fan_dir_reg)
         if (fan_direction != 'ERR') and self.get_presence():
             fan_direction = int(fan_direction, 10)
         else:
-            return 'N/A'
+            return self.FAN_DIRECTION_NOT_APPLICABLE
         return direction[fan_direction]
 
     def get_speed(self):

@@ -43,6 +43,7 @@ class Chassis(ChassisBase):
     reset_reason_dict[0x6] = ChassisBase.REBOOT_CAUSE_NON_HARDWARE
 
     def __init__(self):
+        ChassisBase.__init__(self)
         # Initialize SFP list
         self.PORT_START = 0
         self.PORT_END = 31

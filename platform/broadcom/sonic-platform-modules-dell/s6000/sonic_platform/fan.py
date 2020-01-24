@@ -11,6 +11,7 @@
 
 try:
     import os
+    import glob
     from sonic_platform_base.fan_base import FanBase
     from sonic_platform.eeprom import Eeprom
 except ImportError as e:
@@ -29,6 +30,7 @@ class Fan(FanBase):
 
     def __init__(self, fan_index, psu_fan=False, dependency=None):
         self.is_psu_fan = psu_fan
+        self.is_driver_initialized = True
 
         if not self.is_psu_fan:
             # Fan is 1-based in DellEMC platforms
@@ -45,10 +47,18 @@ class Fan(FanBase):
         else:
             self.index = fan_index
             self.dependency = dependency
-            self.get_fan_speed_reg = self.I2C_DIR +\
-                    "i2c-1/1-005{}/fan1_target".format(10 - self.index)
             self.set_fan_speed_reg = self.I2C_DIR +\
                     "i2c-1/1-005{}/fan1_target".format(10 - self.index)
+
+            hwmon_dir = self.I2C_DIR +\
+                    "i2c-1/1-005{}/hwmon/".format(10 - self.index)
+            try:
+                hwmon_node = os.listdir(hwmon_dir)[0]
+            except OSError:
+                hwmon_node = "hwmon*"
+                self.is_driver_initialized = False
+
+            self.get_fan_speed_reg = hwmon_dir + hwmon_node + '/fan1_input'
             self.max_fan_speed = MAX_S6000_PSU_FAN_SPEED
 
     def _get_cpld_register(self, reg_name):
@@ -93,6 +103,14 @@ class Fan(FanBase):
         # reg_name and on failure returns 'ERR'
         rv = 'ERR'
 
+        if not self.is_driver_initialized:
+            reg_file_path = glob.glob(reg_file)
+            if len(reg_file_path):
+                reg_file = reg_file_path[0]
+                self._get_sysfs_path()
+            else:
+                return rv
+
         if (not os.path.isfile(reg_file)):
             return rv
 
@@ -121,6 +139,13 @@ class Fan(FanBase):
             rv = 'ERR'
 
         return rv
+
+    def _get_sysfs_path(self):
+        fan_speed_reg = glob.glob(self.get_fan_speed_reg)
+
+        if len(fan_speed_reg):
+            self.get_fan_speed_reg = fan_speed_reg[0]
+            self.is_driver_initialized = True
 
     def get_name(self):
         """
@@ -200,16 +225,21 @@ class Fan(FanBase):
         Returns:
             A string, either FAN_DIRECTION_INTAKE or
             FAN_DIRECTION_EXHAUST depending on fan direction
+
+        Notes:
+            In DellEMC platforms,
+            - Forward/Exhaust : Air flows from Port side to Fan side.
+            - Reverse/Intake  : Air flows from Fan side to Port side.
         """
         if self.is_psu_fan:
-            direction = {1: 'FAN_DIRECTION_EXHAUST', 2: 'FAN_DIRECTION_INTAKE',
-                         3: 'FAN_DIRECTION_EXHAUST', 4: 'FAN_DIRECTION_INTAKE'}
+            direction = {1: self.FAN_DIRECTION_EXHAUST, 2: self.FAN_DIRECTION_INTAKE,
+                         3: self.FAN_DIRECTION_EXHAUST, 4: self.FAN_DIRECTION_INTAKE}
             fan_direction = self.dependency.eeprom.airflow_fan_type()
         else:
-            direction = {1: 'FAN_DIRECTION_EXHAUST', 2: 'FAN_DIRECTION_INTAKE'}
+            direction = {1: self.FAN_DIRECTION_EXHAUST, 2: self.FAN_DIRECTION_INTAKE}
             fan_direction = self.eeprom.airflow_fan_type()
 
-        return direction.get(fan_direction,'NA')
+        return direction.get(fan_direction, self.FAN_DIRECTION_NOT_APPLICABLE)
 
     def get_speed(self):
         """
