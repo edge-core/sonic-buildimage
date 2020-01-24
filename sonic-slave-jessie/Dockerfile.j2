@@ -273,7 +273,9 @@ RUN apt-get update && apt-get install -y \
 # RUN apt-get -y install ca-certificates-java=20161107~bpo8+1 openjdk-8-jdk
 
 # For linux build
+{% if CONFIGURED_ARCH != "arm64" %}
 RUN apt-get -y build-dep linux
+{%- endif %}
 
 # For gobgp and telemetry build
 RUN export VERSION=1.11.5 \
@@ -356,7 +358,9 @@ RUN add-apt-repository \
 RUN apt-get update
 {%- if CONFIGURED_ARCH == "amd64" %}
 RUN apt-get install -y docker-ce=17.03.2~ce-0~debian-jessie
-{%- else %}
+{%- elif CONFIGURED_ARCH == "arm64" %}
+RUN apt-get install -y docker-ce=18.03.1~ce-0~debian
+{%- elif CONFIGURED_ARCH == "armhf" %}
 RUN apt-get install -y docker-ce=18.06.3~ce~3-0~debian
 {%- endif %}
 RUN echo "DOCKER_OPTS=\"--experimental --storage-driver=vfs\"" >> /etc/default/docker

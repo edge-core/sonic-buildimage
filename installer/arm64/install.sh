@@ -1,9 +1,18 @@
 #!/bin/sh
 
-#  Copyright (C) 2014,2015 Curt Brune <curt@cumulusnetworks.com>
-#  Copyright (C) 2015 david_yang <david_yang@accton.com>
+#  Copyright (C) Marvell Inc
 #
-#  SPDX-License-Identifier:     GPL-2.0
+
+_trap_push() {
+    local next="$1"
+    eval "trap_push() {
+        local oldcmd='$(echo "$next" | sed -e s/\'/\'\\\\\'\'/g)'
+        local newcmd=\"\$1; \$oldcmd\"
+        trap -- \"\$newcmd\" EXIT INT TERM HUP
+        _trap_push \"\$newcmd\"
+    }"
+}
+_trap_push true
 
 set -e
 
@@ -28,35 +37,124 @@ if [ -r ./onie-image-arm64.conf ]; then
     . ./onie-image-arm64.conf
 fi
 
+echo "ONIE Installer: platform: $platform"
 
-echo "Installer: platform: $platform"
+# Make sure run as root or under 'sudo'
+if [ $(id -u) -ne 0 ]
+    then echo "Please run as root"
+    exit 1
+fi
 
-install_uimage() {
-    echo "Copying uImage to NOR flash:"
-    flashcp -v demo-${platform}.itb $mtd_dev
-}
+if [ -r /etc/machine.conf ]; then
+    . /etc/machine.conf
+elif [ -r /host/machine.conf ]; then
+    . /host/machine.conf
+elif [ "$install_env" != "build" ]; then
+    echo "cannot find machine.conf"
+    exit 1
+fi
 
-hw_load() {
-    echo "cp.b $img_start \$loadaddr $img_sz"
-}
+echo "onie_platform: $onie_platform"
+
+# Get platform specific linux kernel command line arguments
+ONIE_PLATFORM_EXTRA_CMDLINE_LINUX=""
+
+# Default var/log device size in MB
+VAR_LOG_SIZE=4096
+
+[ -r platforms/$onie_platform ] && . platforms/$onie_platform
+
+
+# If running in ONIE
+if [ "$install_env" = "onie" ]; then
+    # The onie bin tool prefix
+    onie_bin=
+    # The persistent ONIE directory location
+    onie_root_dir=/mnt/onie-boot/onie
+    # The onie file system root
+    onie_initrd_tmp=/
+fi
+
+# The build system prepares this script by replacing %%DEMO-TYPE%%
+# with "OS" or "DIAG".
+demo_type="%%DEMO_TYPE%%"
+
+# The build system prepares this script by replacing %%IMAGE_VERSION%%
+# with git revision hash as a version identifier
+image_version="%%IMAGE_VERSION%%"
+timestamp="$(date -u +%Y%m%d)"
+
+demo_volume_label="SONiC-${demo_type}"
+demo_volume_revision_label="SONiC-${demo_type}-${image_version}"
+
 
 . ./platform.conf
 
-install_uimage
+image_dir="image-$image_version"
 
-hw_load_str="$(hw_load)"
+if [ "$install_env" = "onie" ]; then
+    # Create/format the flash
+    create_partition
+    mount_partition
+elif [ "$install_env" = "sonic" ]; then
+    demo_mnt="/host"
+    eval running_sonic_revision=$(cat /etc/sonic/sonic_version.yml | grep build_version | cut -f2 -d" ")
+    # Prevent installing existing SONiC if it is running
+    if [ "$image_dir" = "image-$running_sonic_revision" ]; then
+        echo "Not installing SONiC version $running_sonic_revision, as current running SONiC has the same version"
+        exit 0
+    fi
+    # Remove extra SONiC images if any
+    for f in $demo_mnt/image-* ; do
+        if [ -d $f ] && [ "$f" != "$demo_mnt/image-$running_sonic_revision" ] && [ "$f" != "$demo_mnt/$image_dir" ]; then
+            echo "Removing old SONiC installation $f"
+            rm -rf $f
+        fi
+    done
+fi
 
-echo "Updating U-Boot environment variables"
-(cat <<EOF
-hw_load $hw_load_str
-copy_img echo "Loading Demo $platform image..." && run hw_load
-nos_bootcmd run copy_img && setenv bootargs quiet console=\$consoledev,\$baudrate && bootm \$loadaddr
-EOF
-) > /tmp/env.txt
+# Create target directory or clean it up if exists
+if [ -d $demo_mnt/$image_dir ]; then
+    echo "Directory $demo_mnt/$image_dir/ already exists. Cleaning up..."
+    rm -rf $demo_mnt/$image_dir/*
+else
+    mkdir $demo_mnt/$image_dir || {
+        echo "Error: Unable to create SONiC directory"
+        exit 1
+    }
+fi
 
-fw_setenv -f -s /tmp/env.txt
+# Decompress the file for the file system directly to the partition
+if [ x"$docker_inram" = x"on" ]; then
+    # when disk is small, keep dockerfs.tar.gz in disk, expand it into ramfs during initrd
+    unzip -o $ONIE_INSTALLER_PAYLOAD -d $demo_mnt/$image_dir
+else
+    unzip -o $ONIE_INSTALLER_PAYLOAD -x "$FILESYSTEM_DOCKERFS" -d $demo_mnt/$image_dir
 
-cd /
+    if [ "$install_env" = "onie" ]; then
+        TAR_EXTRA_OPTION="--numeric-owner"
+    else
+        TAR_EXTRA_OPTION="--numeric-owner --warning=no-timestamp"
+    fi
+    mkdir -p $demo_mnt/$image_dir/$DOCKERFS_DIR
+    unzip -op $ONIE_INSTALLER_PAYLOAD "$FILESYSTEM_DOCKERFS" | tar xz $TAR_EXTRA_OPTION -f - -C $demo_mnt/$image_dir/$DOCKERFS_DIR
+fi
+
+
+if [ "$install_env" = "onie" ]; then
+    # Store machine description in target file system
+    if [ -f /etc/machine-build.conf ]; then
+        # onie_ variable are generate at runtime.
+        # they are no longer hardcoded in /etc/machine.conf
+        # also remove single quotes around the value
+        set | grep ^onie | sed -e "s/='/=/" -e "s/'$//" > $demo_mnt/machine.conf
+    else
+        cp /etc/machine.conf $demo_mnt
+    fi
+fi
+
+# Update Bootloader Menu with installed image
+bootloader_menu_config
 
 # Set NOS mode if available.  For manufacturing diag installers, you
 # probably want to skip this step so that the system remains in ONIE

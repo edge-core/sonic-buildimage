@@ -1,10 +1,7 @@
 # linux kernel package for marvell arm64
 
-KVERSION = 4.9.168
-
-
-LINUX_KERNEL = linux-image-4.9.168-arm64.deb
-export LINUX_KERNEL
-
-$(LINUX_KERNEL)_SRC_PATH = $(PLATFORM_PATH)/linux
-SONIC_MAKE_DEBS += $(LINUX_KERNEL)
+# Add platform specific DTB
+LINUX_KERNEL_DTB = linux-image-4.9.168-arm64.deb
+$(LINUX_KERNEL_DTB)_URL = https://github.com/Marvell-switching/sonic-marvell-binaries/raw/master/arm64/kernel/$(LINUX_KERNEL_DTB)
+SONIC_ONLINE_DEBS += $(LINUX_KERNEL_DTB)
+SONIC_STRETCH_DEBS += $(LINUX_KERNEL_DTB)

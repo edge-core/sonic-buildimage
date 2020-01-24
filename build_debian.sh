@@ -500,8 +500,8 @@ fi
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y remove gcc libpython2.7-dev
 
 ## Add mtd and uboot firmware tools package
-sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install u-boot-tools mtd-utils
-sudo LANG=C chroot $FILESYSTEM_ROOT apt-mark manual u-boot-tools mtd-utils
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install u-boot-tools mtd-utils device-tree-compiler
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-mark manual u-boot-tools mtd-utils device-tree-compiler
 
 ## Update initramfs
 sudo chroot $FILESYSTEM_ROOT update-initramfs -u
@@ -510,10 +510,13 @@ if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
     INITRD_FILE=initrd.img-${LINUX_KERNEL_VERSION}-${CONFIGURED_ARCH}
     if [[ $CONFIGURED_ARCH == armhf ]]; then
         INITRD_FILE=initrd.img-${LINUX_KERNEL_VERSION}-armmp
+        sudo LANG=C chroot $FILESYSTEM_ROOT mkimage -A arm -O linux -T ramdisk -C gzip -d /boot/$INITRD_FILE /boot/u${INITRD_FILE}
+        ## Overwriting the initrd image with uInitrd
+        sudo LANG=C chroot $FILESYSTEM_ROOT mv /boot/u${INITRD_FILE} /boot/$INITRD_FILE
+    elif [[ $CONFIGURED_ARCH == arm64 ]]; then
+        sudo cp -v $PLATFORM_DIR/${sonic_asic_platform}-${CONFIGURED_ARCH}/sonic_fit.its $FILESYSTEM_ROOT/boot/
+        sudo LANG=C chroot $FILESYSTEM_ROOT mkimage -f /boot/sonic_fit.its /boot/sonic_${CONFIGURED_ARCH}.fit
     fi
-    sudo LANG=C chroot $FILESYSTEM_ROOT mkimage -A arm -O linux -T ramdisk -C gzip -d /boot/$INITRD_FILE /boot/u${INITRD_FILE}
-    ## Overwriting the initrd image with uInitrd
-    sudo LANG=C chroot $FILESYSTEM_ROOT mv /boot/u${INITRD_FILE} /boot/$INITRD_FILE
 fi
 
 ## Clean up apt

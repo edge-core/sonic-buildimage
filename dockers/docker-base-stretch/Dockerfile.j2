@@ -56,12 +56,10 @@ RUN apt-get update &&        \
         lua-bitop            \
         lua-cjson
 
-{% if CONFIGURED_ARCH == "armhf" %}
-# ip and ifconfig utility missing in docker for armhf
+# ip and ifconfig utility missing in docker for arm arch
 RUN apt-get -y install       \
         iproute2             \
         net-tools
-{% endif %}
 
 RUN mkdir -p /etc/supervisor /var/log/supervisor
 

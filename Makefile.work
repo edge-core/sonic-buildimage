@@ -130,12 +130,16 @@ ifneq (,$(filter $(CONFIGURED_ARCH), armhf arm64))
     DOCKER_SERVICE_SAFE_KILLER :=  (MARCH_PID=`ps -eo pid,cmd | grep "[0-9] dockerd.*march" | awk '{print $$1}'`; echo "Killing march docker $$MARCH_PID"; [ -z "$$MARCH_PID" ] || sudo kill -9 "$$MARCH_PID";)
     DOCKER_SERVICE_MULTIARCH_CHECK := ($(DOCKER_SERVICE_SAFE_KILLER); sudo rm -fr /var/run/march/; (echo "Starting docker march service..."; sudo $(SONIC_NATIVE_DOCKERD_FOR_MUTLIARCH) &) &>/dev/null ; sleep 2; sudo $(SONIC_USERFACL_DOCKERD_FOR_MUTLIARCH);)
 
-   # Docker service to load the compiled dockers-*.gz 
-    SONIC_NATIVE_DOCKERD_FOR_DOCKERFS := rm -fr $(PWD)/dockerfs/; mkdir -p $(PWD)/dockerfs/; sudo dockerd --storage-driver=overlay2 --iptables=false \
-	--data-root $(PWD)/dockerfs/var/lib/docker/ --exec-root=$(PWD)/dockerfs/var/run/docker/ \
-	-H unix://$(PWD)/dockerfs/var/run/docker.sock -p $(PWD)/dockerfs/var/run/docker.pid &
-    SONIC_USERFACL_DOCKERD_FOR_DOCKERFS := setfacl -m user:$(USER):rw $(PWD)/dockerfs/var/run/docker.sock
-    DOCKER_SERVICE_DOCKERFS_CHECK := (sudo docker -H unix://$(PWD)/dockerfs/var/run/docker.sock info &> /dev/null && sudo kill -9 `sudo cat $(PWD)/dockerfs/var/run/docker.pid`  && false) || (echo "Starting docker build service..."; (sudo $(SONIC_NATIVE_DOCKERD_FOR_DOCKERFS) ) &>/dev/null ; sleep 1; sudo $(SONIC_USERFACL_DOCKERD_FOR_DOCKERFS);)
+    # Docker service to load the compiled dockers-*.gz
+    # docker 19.0 version above has path/length restriction, so replaced it with soft link in /tmp/
+    # Also dockerd does mkdir on the provided softlink, so used two level path "d/d"
+    D_ROOT=/tmp/d/d
+    SONIC_NATIVE_DOCKERD_FOR_DOCKERFS := rm -fr $(PWD)/dockerfs; mkdir -p $(PWD)/dockerfs; sudo rm -fr /tmp/d; mkdir -p /tmp/d; ln -s -f $(PWD)/dockerfs $(D_ROOT); \
+					sudo dockerd --storage-driver=overlay2 --iptables=false \
+					--data-root $(D_ROOT)/var/lib/docker/ --exec-root=$(D_ROOT)/var/run/docker/ \
+					-H unix://$(D_ROOT)/var/run/docker.sock -p $(D_ROOT)/var/run/docker.pid &
+    SONIC_USERFACL_DOCKERD_FOR_DOCKERFS := setfacl -m user:$(USER):rw $(D_ROOT)/var/run/docker.sock
+    DOCKER_SERVICE_DOCKERFS_CHECK := (sudo docker -H unix://$(D_ROOT)/var/run/docker.sock info &> /dev/null && sudo kill -9 `sudo cat $(D_ROOT)/var/run/docker.pid`  && false) || (echo "Starting docker build service..."; (sudo $(SONIC_NATIVE_DOCKERD_FOR_DOCKERFS) ) &> /tmp/dockerfs.log ; sleep 1; sudo $(SONIC_USERFACL_DOCKERD_FOR_DOCKERFS);)
 
 endif
 
