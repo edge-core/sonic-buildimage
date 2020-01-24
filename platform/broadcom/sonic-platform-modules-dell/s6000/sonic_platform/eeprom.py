@@ -150,6 +150,10 @@ class Eeprom(TlvInfoDecoder):
         except:
             self.serial_number = 'NA'
             self.part_number = 'NA'
+            if self.is_psu_eeprom:
+                self.psu_type = 'NA'
+            else:
+                self.fan_type = 'NA'
         else:
             (valid, data) = self._get_eeprom_field("PPID")
             if valid:

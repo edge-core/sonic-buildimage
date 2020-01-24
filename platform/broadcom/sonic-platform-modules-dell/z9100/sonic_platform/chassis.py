@@ -73,6 +73,7 @@ class Chassis(ChassisBase):
     power_reason_dict[44] = ChassisBase.REBOOT_CAUSE_INSUFFICIENT_FAN_SPEED
 
     def __init__(self):
+        ChassisBase.__init__(self)
         PORT_START = 0
         PORT_END = 31
         PORTS_IN_BLOCK = (PORT_END + 1)
@@ -92,7 +93,6 @@ class Chassis(ChassisBase):
                            self.PORT_I2C_MAPPING[index][1])
             self._sfp_list.append(sfp_node)
 
-        ChassisBase.__init__(self)
         # Initialize EEPROM
         self._eeprom = Eeprom()
         for i in range(MAX_Z9100_FANTRAY):

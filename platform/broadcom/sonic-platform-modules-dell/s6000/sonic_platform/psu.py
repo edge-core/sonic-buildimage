@@ -11,6 +11,7 @@
 
 try:
     import os
+    import glob
     from sonic_platform_base.psu_base import PsuBase
     from sonic_platform.eeprom import Eeprom
     from sonic_platform.fan import Fan
@@ -29,12 +30,20 @@ class Psu(PsuBase):
         self.index = psu_index + 1
         self.psu_presence_reg = "psu{}_prs".format(psu_index)
         self.psu_status_reg = "powersupply_status"
+        self.is_driver_initialized = False
 
         if self.index == 1:
             ltc_dir = self.I2C_DIR + "i2c-11/11-0042/hwmon/"
         else:
             ltc_dir = self.I2C_DIR + "i2c-11/11-0040/hwmon/"
-        hwmon_node = os.listdir(ltc_dir)[0]
+
+        try:
+            hwmon_node = os.listdir(ltc_dir)[0]
+        except OSError:
+            hwmon_node = "hwmon*"
+        else:
+            self.is_driver_initialized = True
+
         self.HWMON_DIR = ltc_dir + hwmon_node + '/'
 
         self.psu_voltage_reg = self.HWMON_DIR + "in1_input"
@@ -73,6 +82,14 @@ class Psu(PsuBase):
         # reg_name and on failure returns 'ERR'
         rv = 'ERR'
 
+        if not self.is_driver_initialized:
+            reg_file_path = glob.glob(reg_file)
+            if len(reg_file_path):
+                reg_file = reg_file_path[0]
+                self._get_sysfs_path()
+            else:
+                return rv
+
         if (not os.path.isfile(reg_file)):
             return rv
 
@@ -85,6 +102,17 @@ class Psu(PsuBase):
         rv = rv.rstrip('\r\n')
         rv = rv.lstrip(" ")
         return rv
+
+    def _get_sysfs_path(self):
+        voltage_reg = glob.glob(self.psu_voltage_reg)
+        current_reg = glob.glob(self.psu_current_reg)
+        power_reg = glob.glob(self.psu_power_reg)
+
+        if len(voltage_reg) and len(current_reg) and len(power_reg):
+            self.psu_voltage_reg = voltage_reg_path[0]
+            self.psu_current_reg = current_reg_path[0]
+            self.psu_power_reg = power_reg_path[0]
+            self.is_driver_initialized = True
 
     def get_name(self):
         """
