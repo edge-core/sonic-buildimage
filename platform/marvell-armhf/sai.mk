@@ -1,6 +1,6 @@
 # Marvell SAI
 
-export MRVL_SAI_VERSION = 1.4.1
+export MRVL_SAI_VERSION = 1.5.1
 export MRVL_SAI_TAG = SONiC.201904
 export MRVL_SAI = mrvllibsai_$(PLATFORM_ARCH)_$(MRVL_SAI_VERSION).deb
 
