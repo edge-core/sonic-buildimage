@@ -1,0 +1,10 @@
+{
+    "chassis": {
+        "x86_64-mlnx_msn2410-r0": {
+            "component": {
+                "BIOS": { },
+                "CPLD": { }
+            }
+        }
+    }
+}
