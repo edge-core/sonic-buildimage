@@ -1,0 +1,10 @@
+{
+    "chassis": {
+        "x86_64-mlnx_msn3800-r0": {
+            "component": {
+                "BIOS": { },
+                "CPLD": { }
+            }
+        }
+    }
+}
