@@ -5,7 +5,6 @@ SHELL = /bin/bash
 MAIN_TARGET = $(FRR)
 DERIVED_TARGET = $(FRR_PYTHONTOOLS) $(FRR_DBG) $(FRR_SNMP) $(FRR_SNMP_DBG)
 SUFFIX = $(shell date +%Y%m%d\.%H%M%S)
-FRR_BRANCH = frr/$(FRR_VERSION)
 STG_BRANCH = stg_temp.$(SUFFIX)
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
