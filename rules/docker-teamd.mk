@@ -24,7 +24,7 @@ SONIC_INSTALL_DOCKER_DBG_IMAGES += $(DOCKER_TEAMD_DBG)
 SONIC_STRETCH_DBG_DOCKERS += $(DOCKER_TEAMD_DBG)
 
 $(DOCKER_TEAMD)_CONTAINER_NAME = teamd
-$(DOCKER_TEAMD)_RUN_OPT += --net=host --privileged -t
+$(DOCKER_TEAMD)_RUN_OPT += --privileged -t
 $(DOCKER_TEAMD)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
 $(DOCKER_TEAMD)_RUN_OPT += -v /host/warmboot:/var/warmboot
 

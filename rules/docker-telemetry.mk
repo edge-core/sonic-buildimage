@@ -25,7 +25,7 @@ SONIC_STRETCH_DBG_DOCKERS += $(DOCKER_TELEMETRY_DBG)
 endif
 
 $(DOCKER_TELEMETRY)_CONTAINER_NAME = telemetry
-$(DOCKER_TELEMETRY)_RUN_OPT += --net=host --privileged -t
+$(DOCKER_TELEMETRY)_RUN_OPT += --privileged -t
 $(DOCKER_TELEMETRY)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
 $(DOCKER_TELEMETRY)_RUN_OPT += --mount type=bind,source="/var/platform/",target="/mnt/platform/"
 

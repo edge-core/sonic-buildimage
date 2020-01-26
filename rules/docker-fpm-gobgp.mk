@@ -7,5 +7,5 @@ $(DOCKER_FPM_GOBGP)_LOAD_DOCKERS += $(DOCKER_FPM_QUAGGA)
 SONIC_DOCKER_IMAGES += $(DOCKER_FPM_GOBGP)
 
 $(DOCKER_FPM_GOBGP)_CONTAINER_NAME = bgp
-$(DOCKER_FPM_GOBGP)_RUN_OPT += --net=host --privileged -t
+$(DOCKER_FPM_GOBGP)_RUN_OPT += --privileged -t
 $(DOCKER_FPM_GOBGP)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro

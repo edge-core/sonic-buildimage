@@ -23,7 +23,7 @@ SONIC_INSTALL_DOCKER_DBG_IMAGES += $(DOCKER_DATABASE_DBG)
 SONIC_STRETCH_DBG_DOCKERS += $(DOCKER_DATABASE_DBG)
 
 $(DOCKER_DATABASE)_CONTAINER_NAME = database
-$(DOCKER_DATABASE)_RUN_OPT += --net=host --privileged -t
+$(DOCKER_DATABASE)_RUN_OPT += --privileged -t
 $(DOCKER_DATABASE)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
 
 $(DOCKER_DATABASE)_BASE_IMAGE_FILES += redis-cli:/usr/bin/redis-cli
