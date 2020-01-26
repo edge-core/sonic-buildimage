@@ -1,5 +1,31 @@
 #!/bin/bash
 
+# single instance containers are still supported (even though it might not look like it)
+# if no instance number is passed to this script, $DEV will simply be unset, resulting in docker 
+# commands being sent to the base container name. E.g. `docker start database$DEV` simply starts
+# the container `database` if no instance number is passed since `$DEV` is not defined
+
+
+{%- if docker_container_name == "database" %}
+link_namespace() {
+    # Makes namespace of a docker container available in
+    # /var/run/netns so it can be managed with iproute2
+
+    mkdir -p /var/run/netns
+    PID="$(docker inspect -f {{"'{{.State.Pid}}'"}} "{{docker_container_name}}$DEV")"
+
+    if `ip netns | grep --quiet -w "{{docker_container_name}}$DEV"`; then # namespace exists
+        if [ $(readlink -f /var/run/netns/$NET_NS$DEV) = $(readlink -f /proc/$PID/ns/net) ]; then # namespace is correctly linked
+            return 0
+        else # if it's incorrectly linked remove it
+            ip netns delete "{{docker_container_name}}$DEV"
+        fi
+    fi
+
+    ln -s /proc/$PID/ns/net /var/run/netns/$NET_NS$DEV
+}
+{%- endif %}
+
 function getMountPoint()
 {
     echo $1 | python -c "import sys, json, os; mnts = [x for x in json.load(sys.stdin)[0]['Mounts'] if x['Destination'] == '/usr/share/sonic/hwsku']; print '' if len(mnts) == 0 else os.path.basename(mnts[0]['Source'])" 2>/dev/null
@@ -10,7 +36,7 @@ function updateHostName()
     HOSTS=/etc/hosts
     HOSTS_TMP=/etc/hosts.tmp
 
-    EXEC="docker exec -i {{docker_container_name}} bash -c"
+    EXEC="docker exec -i {{docker_container_name}}$DEV bash -c"
 
     NEW_HOSTNAME="$1"
     HOSTNAME=`$EXEC "hostname"`
@@ -25,7 +51,7 @@ function updateHostName()
     # add entry with new hostname
     $EXEC "echo -e \"127.0.0.1\t$NEW_HOSTNAME\" >> $HOSTS_TMP"
 
-    echo "Set hostname in {{docker_container_name}} container"
+    echo "Set hostname in {{docker_container_name}}$DEV container"
     $EXEC "hostname '$NEW_HOSTNAME'"
     $EXEC "cat $HOSTS_TMP > $HOSTS"
     $EXEC "rm -f $HOSTS_TMP"
@@ -139,6 +165,9 @@ function preStartAction()
 function postStartAction()
 {
 {%- if docker_container_name == "database" %}
+    if [ "$DEV" ]; then
+        link_namespace $DEV
+    fi
     # Wait until redis starts
     /usr/bin/docker exec database ping_pong_db_insts
     if [[ ("$BOOT_TYPE" == "warm" || "$BOOT_TYPE" == "fastfast") && -f $WARM_DIR/dump.rdb ]]; then
@@ -205,7 +234,7 @@ start() {
         HOSTNAME=`hostname`
     fi
 
-    DOCKERCHECK=`docker inspect --type container {{docker_container_name}} 2>/dev/null`
+    DOCKERCHECK=`docker inspect --type container {{docker_container_name}}$DEV 2>/dev/null`
     if [ "$?" -eq "0" ]; then
         {%- if docker_container_name == "database" %}
         DOCKERMOUNT=""
@@ -214,39 +243,52 @@ start() {
         {%- endif %}
         if [ x"$DOCKERMOUNT" == x"$HWSKU" ]; then
             {%- if docker_container_name == "database" %}
-            echo "Starting existing {{docker_container_name}} container"
+            echo "Starting existing {{docker_container_name}}$DEV container"
             {%- else %}
-            echo "Starting existing {{docker_container_name}} container with HWSKU $HWSKU"
+            echo "Starting existing {{docker_container_name}}$DEV container with HWSKU $HWSKU"
             {%- endif %}
             preStartAction
-            docker start {{docker_container_name}}
-            CURRENT_HOSTNAME="$(docker exec {{docker_container_name}} hostname)"
+            docker start {{docker_container_name}}$DEV
+            postStartAction
+            CURRENT_HOSTNAME="$(docker exec {{docker_container_name}}$DEV hostname)"
             if [ x"$HOSTNAME" != x"$CURRENT_HOSTNAME" ]; then
                 updateHostName "$HOSTNAME"
             fi
-            postStartAction
+            updateHostName "$HOSTNAME"
             exit $?
         fi
 
         # docker created with a different HWSKU, remove and recreate
-        echo "Removing obsolete {{docker_container_name}} container with HWSKU $DOCKERMOUNT"
-        docker rm -f {{docker_container_name}}
+        echo "Removing obsolete {{docker_container_name}}$DEV container with HWSKU $DOCKERMOUNT"
+        docker rm -f {{docker_container_name}}$DEV
     fi
 
-{%- if docker_container_name == "database" %}
-    echo "Creating new {{docker_container_name}} container"
+    {%- if docker_container_name == "database" %}
+    echo "Creating new {{docker_container_name}}$DEV container"
     # if database_config exists in old_config, use it; otherwise use the default one in new image
     if [ -f /etc/sonic/old_config/database_config.json ]; then
         echo "Use database_config.json from old system..."
         mv /etc/sonic/old_config/database_config.json /etc/sonic/
     fi
-{%- else %}
-    echo "Creating new {{docker_container_name}} container with HWSKU $HWSKU"
-{%- endif %}
+    {%- else %}
+    echo "Creating new {{docker_container_name}}$DEV container with HWSKU $HWSKU"
+    {%- endif %}
+
+    if [ -z "$DEV" ]; then
+        NET="host"
+    else
+        {%- if docker_container_name == "database" %} 
+        NET="bridge"
+        {%- else %}
+        NET="container:database$DEV"
+        {%- endif %}
+    fi
+
 {%- if sonic_asic_platform == "mellanox" %}
     # TODO: Mellanox will remove the --tmpfs exception after SDK socket path changed in new SDK version
 {%- endif %}
     docker create {{docker_image_run_opt}} \
+        --net=$NET \
 {%- if install_debug_image == "y" %}
         -v /src:/src:ro -v /debug:/debug:rw \
 {%- endif %}
@@ -275,8 +317,7 @@ start() {
         --tmpfs /tmp \
 {%- endif %}
         --tmpfs /var/tmp \
-        --hostname "$HOSTNAME" \
-        --name={{docker_container_name}} {{docker_image_name}}:latest || {
+        --name={{docker_container_name}}$DEV {{docker_image_name}}:latest || {
             echo "Failed to docker run" >&1
             exit 4
     }
@@ -284,24 +325,35 @@ start() {
     preStartAction
     docker start {{docker_container_name}}
     postStartAction
+    updateHostName "$HOSTNAME"
 }
 
 wait() {
-    docker wait {{docker_container_name}}
+    docker wait {{docker_container_name}}$DEV
 }
 
 stop() {
-    docker stop {{docker_container_name}}
+    docker stop {{docker_container_name}}$DEV
+{%- if docker_container_name == "database" %}
+    ip netns delete "$NET_NS$DEV"
+{%- endif %}
 }
 
+OP=$1
+DEV=$2 # namespace/device number to operate on
+NET_NS="asic" #name of the network namespace
+
 case "$1" in
-    start|wait|stop|updateHostName)
+    start|wait|stop)
+        $1
+        ;;
+    updateHostName)
         cmd=$1
-        shift
+        shift 2
         $cmd $@
         ;;
     *)
-        echo "Usage: $0 {start|wait|stop|updateHostName new_hostname}"
+        echo "Usage: $0 {start namespace(optional)|wait namespace(optional)|stop namespace(optional)|updateHostName namespace(optional) new_hostname}"
         exit 1
         ;;
 esac

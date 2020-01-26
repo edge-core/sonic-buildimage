@@ -9,13 +9,17 @@
 #include <sys/stat.h>
 #include <linux/limits.h>
 
-#define MAX_NUM_TARGETS 5
-#define MAX_NUM_INSTALL_LINES 5
+#define MAX_NUM_TARGETS 15
+#define MAX_NUM_INSTALL_LINES 15
 #define MAX_NUM_UNITS 128
+#define MAX_BUF_SIZE 512
 
 static const char* UNIT_FILE_PREFIX = "/etc/systemd/system/";
 static const char* CONFIG_FILE = "/etc/sonic/generated_services.conf";
-
+static const char* MACHINE_CONF_FILE = "/host/machine.conf";
+static int num_asics;
+static char** multi_instance_services;
+static int num_multi_inst;
 
 void strip_trailing_newline(char* str) {
     /***
@@ -61,7 +65,7 @@ static int get_target_lines(char* unit_file, char* target_lines[]) {
             if (num_target_lines >= MAX_NUM_INSTALL_LINES) {
                 fprintf(stderr, "Number of lines in [Install] section of %s exceeds MAX_NUM_INSTALL_LINES\n", unit_file);
                 fputs("Extra [Install] lines will be ignored\n", stderr);
-                return num_target_lines;
+                break;
             }
             target_lines[num_target_lines] = strdup(line);
             num_target_lines++;
@@ -75,7 +79,18 @@ static int get_target_lines(char* unit_file, char* target_lines[]) {
     return num_target_lines;
 }
 
-static int get_install_targets_from_line(char* target_string, char* suffix, char* targets[], int existing_targets) {
+static bool is_multi_instance_service(char *service_name){
+    int i;
+    for(i=0; i < num_multi_inst; i++){
+        if (strstr(service_name, multi_instance_services[i]) != NULL) {
+            return true;
+        }
+    }
+    return false;
+
+}
+
+static int get_install_targets_from_line(char* target_string, char* install_type, char* targets[], int existing_targets) {
     /***
     Helper fuction for get_install_targets
 
@@ -88,24 +103,111 @@ static int get_install_targets_from_line(char* target_string, char* suffix, char
     int num_targets = 0;
 
     while ((token = strtok_r(target_string, " ", &target_string))) {
-        target = strdup(token);
-        strip_trailing_newline(target);
-
-        strcpy(final_target, target);
-        strcat(final_target, suffix);
-
-        free(target);
-
         if (num_targets + existing_targets >= MAX_NUM_TARGETS) {
             fputs("Number of targets found exceeds MAX_NUM_TARGETS\n", stderr);
             fputs("Additional targets will be ignored \n", stderr);
             return num_targets;
         }
 
+        target = strdup(token);
+        strip_trailing_newline(target);
+
+        if (strstr(target, "%") != NULL) {
+            char* prefix = strtok(target, ".");
+            char* suffix = strtok(NULL, ".");
+            int prefix_len = strlen(prefix);
+
+            strncpy(final_target, prefix, prefix_len - 2);
+            final_target[prefix_len - 2] = '\0';
+            strcat(final_target, ".");
+            strcat(final_target, suffix);
+        }
+        else {
+            strcpy(final_target, target);
+        }
+        strcat(final_target, install_type);
+
+        free(target);
+        
         targets[num_targets + existing_targets] = strdup(final_target);
         num_targets++;
     }
     return num_targets;
+}
+
+static void replace_multi_inst_dep(char *src) {
+    FILE *fp_src;
+    FILE *fp_tmp;
+    char buf[MAX_BUF_SIZE];
+    char* line = NULL;
+    int i;
+    ssize_t len;
+    char *token;
+    char *word;
+    char *line_copy;
+    char *service_name;
+    char *type;
+    ssize_t nread;
+    bool section_done = false;
+    char tmp_file_path[PATH_MAX];
+    
+    /* assumes that the service files has 3 sections,
+     * in the order: Unit, Service and Install.
+     * Read service dependency from Unit and Install 
+     * sections, replace if dependent on multi instance
+     * service.
+     */
+    fp_src = fopen(src, "r");
+    snprintf(tmp_file_path, PATH_MAX, "%s.tmp", src);
+    fp_tmp = fopen(tmp_file_path, "w");
+
+    while ((nread = getline(&line, &len, fp_src)) != -1 ) {
+        if (strstr(line, "[Service]") != NULL) {
+            section_done = true;
+            fputs(line,fp_tmp);
+        } else if (strstr(line, "[Install]") != NULL)  {
+            section_done = false;
+            fputs(line,fp_tmp);
+        } else if ((strstr(line, "[Unit]") != NULL) ||
+           (strstr(line, "Description") != NULL) ||
+           (section_done == true)){
+            fputs(line,fp_tmp);
+        } else {
+            line_copy = strdup(line);
+            token = strtok(line_copy, "=");
+            while ((word = strtok(NULL, " "))){
+                if((strchr(word, '.') == NULL) ||
+                   (strchr(word, '@') != NULL)) {
+                    snprintf(buf, MAX_BUF_SIZE,"%s=%s\n",token, word);
+                    fputs(buf,fp_tmp);
+                } else {
+                    service_name = strdup(word);
+                    service_name = strtok(service_name, ".");
+		    type = strtok(NULL, " ");
+                    if (is_multi_instance_service(word)) {
+                        for(i = 0; i < num_asics; i++){
+                            snprintf(buf, MAX_BUF_SIZE, "%s=%s@%d.%s\n",
+                                    token, service_name, i, type);
+                            fputs(buf,fp_tmp);
+                        }
+                    } else {
+                        snprintf(buf, MAX_BUF_SIZE,"%s=%s.%s\n",token, service_name, type);
+                        fputs(buf, fp_tmp);
+                    }
+                    free(service_name);
+                }
+            }
+            free(line_copy);
+        }
+    }
+    fclose(fp_src);
+    fclose(fp_tmp);
+    free(line);
+    /* remove the .service file, rename the .service.tmp file
+     * as .service.
+     */
+    remove(src);
+    rename(tmp_file_path, src);
 }
 
 static int get_install_targets(char* unit_file, char* targets[]) {
@@ -124,9 +226,20 @@ static int get_install_targets(char* unit_file, char* targets[]) {
     char* line = NULL;
     bool first;
     char* target_suffix;
+    char *instance_name;
+    char *dot_ptr;
 
     strcpy(file_path, UNIT_FILE_PREFIX);
     strcat(file_path, unit_file);
+
+    instance_name = strdup(unit_file);
+    dot_ptr = strchr(instance_name, '.');
+    *dot_ptr = '\0';
+
+    if((num_asics > 1) && (!is_multi_instance_service(instance_name))) {
+        replace_multi_inst_dep(file_path);
+    }
+    free(instance_name);
 
     num_target_lines = get_target_lines(file_path, target_lines);
     if (num_target_lines < 0) {
@@ -170,6 +283,7 @@ static int get_unit_files(char* unit_files[]) {
     char *line = NULL;
     size_t len = 0;
     ssize_t read;
+    char *pos;
 
     fp = fopen(CONFIG_FILE, "r");
 
@@ -179,13 +293,30 @@ static int get_unit_files(char* unit_files[]) {
     }
 
     int num_unit_files = 0;
+    num_multi_inst = 0;
+
+    multi_instance_services = malloc(MAX_NUM_UNITS * sizeof(char *));
 
     while ((read = getline(&line, &len, fp)) != -1) {
         if (num_unit_files >= MAX_NUM_UNITS) {
             fprintf(stderr, "Maximum number of units exceeded, ignoring extras\n");
-            return num_unit_files;
+            break;
         }
         strip_trailing_newline(line);
+
+        /* Get the multi-instance services */
+        pos = strchr(line, '@');
+        if (pos != NULL) {
+            multi_instance_services[num_multi_inst] = malloc(strlen(line)*sizeof(char));
+            strncpy(multi_instance_services[num_multi_inst], line, pos-line);
+            num_multi_inst++;
+        }
+
+        /* topology service to be started only for multiasic VS platform */
+        if ((strcmp(line, "topology.service") == 0) &&
+                        (num_asics == 1)) {
+            continue;
+        }
         unit_files[num_unit_files] = strdup(line);
         num_unit_files++;
     }
@@ -198,28 +329,70 @@ static int get_unit_files(char* unit_files[]) {
 }
 
 
-static int install_unit_file(char* unit_file, char* target, char* install_dir) {
+static char* insert_instance_number(char* unit_file, int instance) {
     /***
-    Creates a symlink for a unit file installation
+    Adds an instance number to a systemd template name
 
-    For a given unit file and target directory,
-    create the appropriate symlink in the target directory
-    to enable the unit and have it started by Systemd
+    E.g. given unit_file='example@.service', instance=3,
+    returns a pointer to 'example@1.service'
     ***/
-    char final_install_dir[PATH_MAX];
+    char* prefix;
+    char* suffix;
+    char* instance_string;
+    char* instance_name;
+    char* temp_unit_file;
+
+    instance_string = malloc(2 * sizeof(char));
+    snprintf(instance_string, 2, "%d", instance);
+
+    instance_name = malloc(strlen(unit_file) + 2);
+
+    if (instance_name == NULL) {
+        fprintf(stderr, "Error creating instance %d of %s\n", instance, unit_file);
+        return NULL;
+    }
+
+    temp_unit_file = strdup(unit_file);
+    prefix = strtok(temp_unit_file, "@");
+    suffix = strtok(NULL, "@");
+
+    strcpy(instance_name, prefix);
+    strcat(instance_name, "@");
+    strcat(instance_name, instance_string);
+    strcat(instance_name, suffix);
+
+    free(instance_string);
+    free(temp_unit_file);
+
+    return instance_name;
+}
+
+
+static int create_symlink(char* unit, char* target, char* install_dir, int instance) {
+    struct stat st;
     char src_path[PATH_MAX];
     char dest_path[PATH_MAX];
-    struct stat st;
+    char final_install_dir[PATH_MAX];
+    char* unit_instance;
     int r;
 
-    assert(unit_file);
-    assert(target);
+    strcpy(src_path, UNIT_FILE_PREFIX);
+    strcat(src_path, unit);
+
+    if (instance < 0) {
+        unit_instance = strdup(unit);
+    }
+    else {
+        unit_instance = insert_instance_number(unit, instance);
+    }
 
     strcpy(final_install_dir, install_dir);
     strcat(final_install_dir, target);
+    strcpy(dest_path, final_install_dir);
+    strcat(dest_path, "/");
+    strcat(dest_path, unit_instance);
 
-    strcpy(src_path, UNIT_FILE_PREFIX);
-    strcat(src_path, unit_file);
+    free(unit_instance);
 
     if (stat(final_install_dir, &st) == -1) {
         // If doesn't exist, create
@@ -242,7 +415,7 @@ static int install_unit_file(char* unit_file, char* target, char* install_dir) {
             fprintf(stderr, "Unable to create target directory %s\n", final_install_dir);
             return -1;
         }
-    }  
+    }
     else if (S_ISDIR(st.st_mode)) {
         // If directory, verify correct permissions
         r = chmod(final_install_dir, 0755);
@@ -251,11 +424,6 @@ static int install_unit_file(char* unit_file, char* target, char* install_dir) {
             return -1;
         }
     }
-        
-
-    strcpy(dest_path, final_install_dir);
-    strcat(dest_path, "/");
-    strcat(dest_path, unit_file);
 
     r = symlink(src_path, dest_path);
 
@@ -267,6 +435,123 @@ static int install_unit_file(char* unit_file, char* target, char* install_dir) {
     }
 
     return 0;
+
+}
+
+
+static int install_unit_file(char* unit_file, char* target, char* install_dir) {
+    /***
+    Creates a symlink for a unit file installation
+
+    For a given unit file and target directory,
+    create the appropriate symlink in the target directory
+    to enable the unit and have it started by Systemd
+
+    If a multi ASIC platform is detected, enables multi-instance
+    services as well
+    ***/
+    char* target_instance;
+    char* prefix;
+    char* suffix;
+    int r;
+
+    assert(unit_file);
+    assert(target);
+            
+
+    if ((num_asics > 1) && strstr(unit_file, "@") != NULL) {
+
+        for (int i = 0; i < num_asics; i++) {
+
+            if (strstr(target, "@") != NULL) {
+                target_instance = insert_instance_number(target, i);
+            }
+            else {
+                target_instance = strdup(target);
+            }
+
+            r = create_symlink(unit_file, target_instance, install_dir, i);
+            if (r < 0) 
+                fprintf(stderr, "Error installing %s for target %s\n", unit_file, target_instance);
+            
+            free(target_instance);
+
+        } 
+    }
+    else {
+        r = create_symlink(unit_file, target, install_dir, -1);
+        if (r < 0) 
+            fprintf(stderr, "Error installing %s for target %s\n", unit_file, target);
+    }
+
+    return 0;
+}
+
+
+static int get_num_of_asic() {
+    /***
+    Determines if the current platform is single or multi-ASIC
+    ***/
+    FILE *fp;
+    FILE *env_fp;
+    char *line = NULL;
+    char* token;
+    char* platform;
+    size_t len = 0;
+    ssize_t nread;
+    bool ans;
+    char asic_file[512];
+    char* str_num_asic;
+    int num_asic = 1;
+
+    fp = fopen(MACHINE_CONF_FILE, "r");
+
+    if (fp == NULL) {
+        fprintf(stderr, "Failed to open %s\n", MACHINE_CONF_FILE);
+        exit(EXIT_FAILURE);
+    }
+
+    while ((nread = getline(&line, &len, fp)) != -1) {
+        if ((strstr(line, "onie_platform") != NULL) ||
+	    (strstr(line, "aboot_platform") != NULL)) {
+            token = strtok(line, "=");
+            platform = strtok(NULL, "=");
+            strip_trailing_newline(platform);
+            break;
+        }
+    }
+
+    fclose(fp);
+    if(platform != NULL) {
+        snprintf(asic_file, 512, "/usr/share/sonic/device/%s/asic.conf", platform);
+        fp = fopen(asic_file, "r");
+        if (fp != NULL) {
+            while ((nread = getline(&line, &len, fp)) != -1) {
+                if (strstr(line, "NUM_ASIC") != NULL) {
+                    token = strtok(line, "=");
+                    str_num_asic = strtok(NULL, "=");
+                    strip_trailing_newline(str_num_asic);
+                    if (str_num_asic != NULL){
+                        sscanf(str_num_asic, "%d",&num_asic);
+                    }
+                    break;
+                }
+            }
+            fclose(fp);
+            free(line);
+        }
+    }
+
+    /*set environment variable NUM_ASIC */
+    env_fp = fopen("/etc/environment", "a");
+    if (env_fp == NULL) {
+        fprintf(stderr, "Failed to open environment file\n");
+        exit(EXIT_FAILURE);
+    }
+    fprintf(env_fp, "NUM_ASIC=%d\n", num_asic);
+    fclose(env_fp);
+    return num_asic;
+
 }
 
 
@@ -274,13 +559,19 @@ int main(int argc, char **argv) {
     char* unit_files[MAX_NUM_UNITS];
     char install_dir[PATH_MAX];
     char* targets[MAX_NUM_TARGETS];
+    char* unit_instance;
+    char* prefix;
+    char* suffix;
     int num_unit_files;
     int num_targets;
+    int r;
 
     if (argc <= 1) {
         fputs("Installation directory required as argument\n", stderr);
         return 1;
     }
+
+    num_asics = get_num_of_asic();
 
     strcpy(install_dir, argv[1]);
     strcat(install_dir, "/");
@@ -289,21 +580,38 @@ int main(int argc, char **argv) {
 
     // For each unit file, get the installation targets and install the unit
     for (int i = 0; i < num_unit_files; i++) {
-        num_targets = get_install_targets(unit_files[i], targets);
+	unit_instance = strdup(unit_files[i]);
+        if ((num_asics == 1) && strstr(unit_instance, "@") != NULL) {
+            prefix = strtok(unit_instance, "@");
+            suffix = strtok(NULL, "@");
+
+            strcpy(unit_instance, prefix);
+            strcat(unit_instance, suffix);
+        }
+
+        num_targets = get_install_targets(unit_instance, targets);
         if (num_targets < 0) {
-            fprintf(stderr, "Error parsing %s\n", unit_files[i]);
+            fprintf(stderr, "Error parsing %s\n", unit_instance);
+            free(unit_instance);
             free(unit_files[i]);
             continue;
         }
 
         for (int j = 0; j < num_targets; j++) {
-            if (install_unit_file(unit_files[i], targets[j], install_dir) != 0)
-                fprintf(stderr, "Error installing %s to target directory %s\n", unit_files[i], targets[j]);
+            if (install_unit_file(unit_instance, targets[j], install_dir) != 0)
+                fprintf(stderr, "Error installing %s to target directory %s\n", unit_instance, targets[j]);
 
             free(targets[j]);
         }
 
+        free(unit_instance);
         free(unit_files[i]);
     }
+
+    for (int i = 0; i < num_multi_inst; i++) {
+        free(multi_instance_services[i]);
+    }
+    free(multi_instance_services);
+
     return 0;
 }

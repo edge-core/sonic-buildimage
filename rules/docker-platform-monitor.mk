@@ -33,7 +33,7 @@ SONIC_DOCKER_DBG_IMAGES += $(DOCKER_PLATFORM_MONITOR_DBG)
 SONIC_INSTALL_DOCKER_DBG_IMAGES += $(DOCKER_PLATFORM_MONITOR_DBG)
 
 $(DOCKER_PLATFORM_MONITOR)_CONTAINER_NAME = pmon
-$(DOCKER_PLATFORM_MONITOR)_RUN_OPT += --net=host --privileged -t
+$(DOCKER_PLATFORM_MONITOR)_RUN_OPT += --privileged -t
 $(DOCKER_PLATFORM_MONITOR)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
 
 # Mount Arista python library on Aboot images to be used by plugins

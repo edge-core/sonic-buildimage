@@ -26,7 +26,7 @@ SONIC_INSTALL_DOCKER_DBG_IMAGES += $(DOCKER_SNMP_SV2_DBG)
 SONIC_STRETCH_DBG_DOCKERS += $(DOCKER_SNMP_SV2_DBG)
 
 $(DOCKER_SNMP_SV2)_CONTAINER_NAME = snmp
-$(DOCKER_SNMP_SV2)_RUN_OPT += --net=host --privileged -t
+$(DOCKER_SNMP_SV2)_RUN_OPT += --privileged -t
 $(DOCKER_SNMP_SV2)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
 # mount Arista platform python libraries to support corresponding platforms SNMP power status query
 $(DOCKER_SNMP_SV2)_RUN_OPT += -v /usr/lib/python3/dist-packages/arista:/usr/lib/python3/dist-packages/arista:ro

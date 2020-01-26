@@ -247,6 +247,13 @@ sudo cp $IMAGE_CONFIGS/hostname/hostname-config.sh $FILESYSTEM_ROOT/usr/bin/
 # Copy miscellaneous scripts
 sudo cp $IMAGE_CONFIGS/misc/docker-wait-any $FILESYSTEM_ROOT/usr/bin/
 
+# Copy internal topology configuration scripts
+{%- if sonic_asic_platform == "vs" %}
+sudo cp $IMAGE_CONFIGS/topology/topology.service $FILESYSTEM_ROOT/etc/systemd/system/
+echo "topology.service" | sudo tee -a $GENERATED_SERVICE_FILE
+sudo cp $IMAGE_CONFIGS/topology/topology.sh $FILESYSTEM_ROOT/usr/bin
+{%- endif %}
+
 # Copy updategraph script and service file
 j2 files/build_templates/updategraph.service.j2 | sudo tee $FILESYSTEM_ROOT/etc/systemd/system/updategraph.service
 sudo cp $IMAGE_CONFIGS/updategraph/updategraph $FILESYSTEM_ROOT/usr/bin/
@@ -395,6 +402,13 @@ sudo cp {{script}} $FILESYSTEM_ROOT/usr/bin/
 {% for service in installer_services.split(' ') -%}
 if [ -f {{service}} ]; then
     sudo cp {{service}} $FILESYSTEM_ROOT/etc/systemd/system/
+
+    {% if "@" in service %}
+    MULTI_INSTANCE="{{service}}"
+    SINGLE_INSTANCE=${MULTI_INSTANCE/"@"}
+    sudo cp $SINGLE_INSTANCE $FILESYSTEM_ROOT/etc/systemd/system/
+    {% endif %}
+
     echo "{{service}}" | sudo tee -a $GENERATED_SERVICE_FILE
 fi
 {% endfor %}
