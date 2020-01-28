@@ -319,7 +319,7 @@ class SfpUtil(SfpUtilBase):
 
             time.sleep(0.5)
     
-     def get_transceiver_dom_info_dict(self, port_num):
+    def get_transceiver_dom_info_dict(self, port_num):
         transceiver_dom_info_dict = {}
 
         dom_info_dict_keys = ['temperature', 'voltage',  'rx1power',
