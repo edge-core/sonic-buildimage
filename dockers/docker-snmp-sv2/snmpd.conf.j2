@@ -15,16 +15,10 @@
 
 #  Listen for connections on all ip addresses, including eth0, ipv4 lo
 #
-{% if snmp_agent_address_1 or snmp_agent_address_2 or snmp_agent_address_3 %}
-{% if snmp_agent_address_1 %}
-agentAddress {{ snmp_agent_address_1 }}
-{% endif %}
-{% if snmp_agent_address_2 %}
-agentAddress {{ snmp_agent_address_2 }}
-{% endif %}
-{% if snmp_agent_address_3 %}
-agentAddress {{ snmp_agent_address_3 }}
-{% endif %}
+{% if SNMP_AGENT_ADDRESS_CONFIG %}
+{% for (agentip, port, vrf) in SNMP_AGENT_ADDRESS_CONFIG %}
+agentAddress {{ agentip }}{% if port %}:{{ port }}{% endif %}{% if vrf %}%{{ vrf }}{% endif %}{{ "" }}
+{% endfor %}
 {% else %}
 agentAddress udp:161
 agentAddress udp6:161
@@ -105,20 +99,32 @@ load   12 10 5
 # Note: disabled snmp traps due to side effect of causing snmpd to listen on all ports (0.0.0.0)
 #
 #   send SNMPv1  traps
-{%if v1_trap_dest and v1_trap_dest != 'NotConfigured' %}
-trapsink {{ v1_trap_dest }}
+{% if SNMP_TRAP_CONFIG and SNMP_TRAP_CONFIG['v1TrapDest'] %}
+{% set v1SnmpTrapIp = SNMP_TRAP_CONFIG['v1TrapDest']['DestIp'] %}
+{% set v1SnmpTrapPort = SNMP_TRAP_CONFIG['v1TrapDest']['DestPort'] %}
+{% set v1SnmpTrapVrf = SNMP_TRAP_CONFIG['v1TrapDest']['vrf'] %}
+{% set v1SnmpTrapComm = SNMP_TRAP_CONFIG['v1TrapDest']['Community'] %}
+trapsink {{ v1SnmpTrapIp }}:{{ v1SnmpTrapPort }}{% if v1SnmpTrapVrf != 'None' %}%{{ v1SnmpTrapVrf }}{% endif %} {{ v1SnmpTrapComm }}{{ "" }}
 {% else %}
 #trapsink     localhost public
 {% endif %}
 #   send SNMPv2c traps
-{%if v2_trap_dest and v2_trap_dest != 'NotConfigured' %}
-trap2sink {{ v2_trap_dest }}
+{% if SNMP_TRAP_CONFIG and SNMP_TRAP_CONFIG['v2TrapDest'] %}
+{% set v2SnmpTrapIp = SNMP_TRAP_CONFIG['v2TrapDest']['DestIp'] %}
+{% set v2SnmpTrapPort = SNMP_TRAP_CONFIG['v2TrapDest']['DestPort'] %}
+{% set v2SnmpTrapVrf = SNMP_TRAP_CONFIG['v2TrapDest']['vrf'] %}
+{% set v2SnmpTrapComm = SNMP_TRAP_CONFIG['v2TrapDest']['Community'] %}
+trap2sink {{ v2SnmpTrapIp }}:{{ v2SnmpTrapPort }}{% if v2SnmpTrapVrf != 'None' %}%{{ v2SnmpTrapVrf }}{% endif %} {{ v2SnmpTrapComm }}{{ "" }}
 {% else %}
 #trap2sink    localhost public
 {% endif %}
 #   send SNMPv2c INFORMs
-{%if v3_trap_dest and v3_trap_dest != 'NotConfigured' %}
-informsink {{ v3_trap_dest }}
+{% if SNMP_TRAP_CONFIG and SNMP_TRAP_CONFIG['v3TrapDest'] %}
+{% set v3SnmpTrapIp = SNMP_TRAP_CONFIG['v3TrapDest']['DestIp'] %}
+{% set v3SnmpTrapPort = SNMP_TRAP_CONFIG['v3TrapDest']['DestPort'] %}
+{% set v3SnmpTrapVrf = SNMP_TRAP_CONFIG['v3TrapDest']['vrf'] %}
+{% set v3SnmpTrapComm = SNMP_TRAP_CONFIG['v3TrapDest']['Community'] %}
+trapsink {{ v3SnmpTrapIp }}:{{ v3SnmpTrapPort }}{% if v3SnmpTrapVrf != 'None' %}%{{ v3SnmpTrapVrf }}{% endif %} {{ v3SnmpTrapComm }}{{ "" }}
 {% else %}
 #informsink   localhost public
 {% endif %}
