@@ -11,6 +11,7 @@
 try:
     from sonic_platform_base.chassis_base import ChassisBase
     from sonic_platform_base.component_base import ComponentBase
+    from sonic_device_util import get_machine_info
     from sonic_daemon_base.daemon_base import Logger
     from os import listdir
     from os.path import isfile, join
@@ -54,6 +55,11 @@ class Chassis(ChassisBase):
 
         # Initialize SKU name
         self.sku_name = self._get_sku_name()
+        mi = get_machine_info()
+        if mi is not None:
+            self.name = mi['onie_platform']
+        else:
+            self.name = self.sku_name
 
         # move the initialization of each components to their dedicated initializer
         # which will be called from platform
@@ -134,6 +140,16 @@ class Chassis(ChassisBase):
         from sonic_platform.component import ComponentBIOS, ComponentCPLD
         self._component_list.append(ComponentBIOS())
         self._component_list.append(ComponentCPLD())
+
+
+    def get_name(self):
+        """
+        Retrieves the name of the device
+
+        Returns:
+            string: The name of the device
+        """
+        return self.name
 
 
     ##############################################

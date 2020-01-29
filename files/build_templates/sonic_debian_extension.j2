@@ -445,6 +445,7 @@ sudo cp $files_path/$MLNX_SPC_FW_FILE $FILESYSTEM_ROOT/etc/mlnx/fw-SPC.mfa
 sudo cp $files_path/$MLNX_SPC2_FW_FILE $FILESYSTEM_ROOT/etc/mlnx/fw-SPC2.mfa
 sudo cp $files_path/$ISSU_VERSION_FILE $FILESYSTEM_ROOT/etc/mlnx/issu-version
 sudo cp $files_path/$MLNX_FFB_SCRIPT $FILESYSTEM_ROOT/usr/bin/mlnx-ffb.sh
+sudo cp $files_path/$ONIE_FW_UPDATE $FILESYSTEM_ROOT/usr/bin/onie-fw-update.sh
 j2 platform/mellanox/mlnx-fw-upgrade.j2 | sudo tee $FILESYSTEM_ROOT/usr/bin/mlnx-fw-upgrade.sh
 sudo chmod 755 $FILESYSTEM_ROOT/usr/bin/mlnx-fw-upgrade.sh
 
