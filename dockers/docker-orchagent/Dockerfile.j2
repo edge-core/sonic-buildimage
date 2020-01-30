@@ -20,7 +20,8 @@ RUN apt-get update &&       \
         tcpdump             \
         libelf1             \
         libmnl0             \
-        bridge-utils
+        bridge-utils        \
+        conntrack
 
 {% if ( CONFIGURED_ARCH == "armhf" or CONFIGURED_ARCH == "arm64" ) %}
 ## Fix for gcc/python not found in arm docker

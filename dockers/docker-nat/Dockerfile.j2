@@ -1,0 +1,46 @@
+{% from "dockers/dockerfile-macros.j2" import install_debian_packages, copy_files %}
+FROM docker-config-engine-stretch
+
+ARG docker_container_name
+RUN [ -f /etc/rsyslog.conf ] && sed -ri "s/%syslogtag%/$docker_container_name#%syslogtag%/;" /etc/rsyslog.conf
+
+RUN echo
+
+## Make apt-get non-interactive
+ENV DEBIAN_FRONTEND=noninteractive
+
+## Install redis-tools dependencies
+## TODO: implicitly install dependencies
+RUN apt-get update        \
+&& apt-get install -f -y \
+       libdbus-1-3       \
+       libdaemon0        \
+       libjansson4       \
+       libpython2.7      \
+       libatomic1        \
+       libjemalloc1      \
+       liblua5.1-0       \
+       lua-bitop         \
+       lua-cjson         \
+       libelf1           \
+       libmnl0           \
+       bridge-utils      \
+       conntrack
+
+{% if docker_nat_debs.strip() -%}
+# Copy locally-built Debian package dependencies
+{{copy_files ("debs/", docker_nat_debs.split(' '), "/debs/") }}
+
+# Install locally-built Debian packages and implicitly install their dependencies
+{{ install_debian_packages(docker_nat_debs.split(' ')) }}
+{%- endif %}
+
+COPY ["start.sh", "/usr/bin/"]
+COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
+COPY ["restore_nat_entries.py", "/usr/bin/"]
+
+RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
+RUN rm -rf /debs
+
+ENTRYPOINT ["/usr/bin/supervisord"]
+

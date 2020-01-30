@@ -3,7 +3,7 @@
 VERBOSE=no
 
 # Check components
-COMP_LIST="orchagent neighsyncd bgp"
+COMP_LIST="orchagent neighsyncd bgp natsyncd"
 EXP_STATE="reconciled"
 
 ASSISTANT_SCRIPT="/usr/bin/neighbor_advertiser"
