@@ -272,7 +272,8 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     cgroup-tools            \
     ipmitool                \
     ndisc6                  \
-    makedumpfile
+    makedumpfile            \
+    conntrack
 
 
 if [[ $CONFIGURED_ARCH == amd64 ]]; then
