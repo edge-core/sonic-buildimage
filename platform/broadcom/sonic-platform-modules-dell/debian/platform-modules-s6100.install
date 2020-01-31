@@ -12,3 +12,4 @@ s6100/scripts/sensors usr/bin
 s6100/systemd/platform-modules-s6100.service etc/systemd/system
 s6100/modules/sonic_platform-1.0-py2-none-any.whl usr/share/sonic/device/x86_64-dell_s6100_c2538-r0
 s6100/systemd/s6100-lpc-monitor.service etc/systemd/system
+tools/flashrom/flashrom usr/local/bin/

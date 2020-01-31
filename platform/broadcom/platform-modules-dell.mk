@@ -34,3 +34,6 @@ $(DELL_S6000_PLATFORM_MODULE)_PLATFORM = x86_64-dell_s6000_s1220-r0
 $(eval $(call add_extra_package,$(DELL_Z9100_PLATFORM_MODULE),$(DELL_S6000_PLATFORM_MODULE)))
 
 SONIC_STRETCH_DEBS += $(DELL_Z9100_PLATFORM_MODULE)
+
+#flashrom tool
+$(shell ./$(PLATFORM_PATH)/sonic-platform-modules-dell/tools/flashrom.sh  > /dev/null 2>&1)
