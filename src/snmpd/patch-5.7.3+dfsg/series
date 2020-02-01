@@ -1,7 +1,6 @@
 0001-SNMP-Stop-spamming-logs-with-statfs-permission-denie.patch
 0002-at.c-properly-check-return-status-from-realloc.-Than.patch
 0003-CHANGES-BUG-2743-snmpd-crashes-when-receiving-a-GetN.patch
-0004-Disable-SNMPv1.patch
 0005-Port-OpenSSL-1.1.0-with-support-for-1.0.2.patch
 0006-From-Jiri-Cervenka-snmpd-Fixed-agentx-crashing-and-or-freezing-on-timeout.patch
 0007-Linux-VRF-5.7.3-Support.patch
