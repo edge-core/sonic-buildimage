@@ -7,7 +7,6 @@ export RADVD_VERSION
 RADVD = radvd_$(RADVD_VERSION)_$(CONFIGURED_ARCH).deb
 $(RADVD)_SRC_PATH = $(SRC_PATH)/radvd
 SONIC_MAKE_DEBS += $(RADVD)
-SONIC_STRETCH_DEBS += $(RADVD)
 
 RADVD_DBG = radvd-dbgsym_$(RADVD_VERSION)_$(CONFIGURED_ARCH).deb
 $(eval $(call add_derived_package,$(RADVD),$(RADVD_DBG)))

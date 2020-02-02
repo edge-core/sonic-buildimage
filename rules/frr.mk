@@ -12,7 +12,6 @@ $(FRR)_DEPENDS += $(LIBSNMP_DEV) $(LIBYANG_DEV)
 $(FRR)_RDEPENDS += $(LIBYANG)
 $(FRR)_SRC_PATH = $(SRC_PATH)/sonic-frr
 SONIC_MAKE_DEBS += $(FRR)
-SONIC_STRETCH_DEBS += $(FRR)
 
 FRR_PYTHONTOOLS = frr-pythontools_$(FRR_VERSION)-sonic-$(FRR_SUBVERSION)_all.deb
 $(eval $(call add_derived_package,$(FRR),$(FRR_PYTHONTOOLS)))

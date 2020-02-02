@@ -35,9 +35,9 @@ if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
     # Version name differs between ARCH, copying same version as in sonic-slave docker
     DOCKER_VERSION=18.06.3~ce~3-0~debian
 else
-    DOCKER_VERSION=5:18.09.8~3-0~debian-stretch
+    DOCKER_VERSION=5:18.09.8~3-0~debian-$IMAGE_DISTRO
 fi
-LINUX_KERNEL_VERSION=4.9.0-11-2
+LINUX_KERNEL_VERSION=4.19.0-6
 
 ## Working directory to prepare the file system
 FILESYSTEM_ROOT=./fsroot
@@ -81,9 +81,9 @@ if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
     # qemu arm bin executable for cross-building
     sudo mkdir -p $FILESYSTEM_ROOT/usr/bin
     sudo cp /usr/bin/qemu*static $FILESYSTEM_ROOT/usr/bin || true
-    sudo http_proxy=$http_proxy debootstrap --variant=minbase --arch $CONFIGURED_ARCH stretch $FILESYSTEM_ROOT http://deb.debian.org/debian
+    sudo http_proxy=$http_proxy debootstrap --variant=minbase --arch $CONFIGURED_ARCH $IMAGE_DISTRO $FILESYSTEM_ROOT http://deb.debian.org/debian
 else
-    sudo http_proxy=$http_proxy debootstrap --variant=minbase --arch $CONFIGURED_ARCH stretch $FILESYSTEM_ROOT http://debian-archive.trafficmanager.net/debian
+    sudo http_proxy=$http_proxy debootstrap --variant=minbase --arch $CONFIGURED_ARCH $IMAGE_DISTRO $FILESYSTEM_ROOT http://debian-archive.trafficmanager.net/debian
 fi
 
 ## Config hostname and hosts, otherwise 'sudo ...' will complain 'sudo: unable to resolve host ...'
@@ -203,9 +203,9 @@ sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT curl -o /tmp/docker
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-key add /tmp/docker.gpg
 sudo LANG=C chroot $FILESYSTEM_ROOT rm /tmp/docker.gpg
 sudo LANG=C chroot $FILESYSTEM_ROOT add-apt-repository \
-                                    "deb [arch=$CONFIGURED_ARCH] https://download.docker.com/linux/debian stretch stable"
+                                    "$deb [arch=$CONFIGURED_ARCH] https://download.docker.com/linux/debian $IMAGE_DISTRO stable"
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get update
-sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install docker-ce=${DOCKER_VERSION}
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install docker-ce=${DOCKER_VERSION} docker-ce-cli=${DOCKER_VERSION}
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y remove software-properties-common gnupg2
 
 if [ "$INSTALL_KUBERNETES" == "y" ]
@@ -325,9 +325,9 @@ sudo sed -i '/^#.* en_US.* /s/^#//' $FILESYSTEM_ROOT/etc/locale.gen && \
 sudo LANG=en_US.UTF-8 DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT update-locale "LANG=en_US.UTF-8"
 sudo LANG=C chroot $FILESYSTEM_ROOT bash -c "find /usr/share/i18n/locales/ ! -name 'en_US' -type f -exec rm -f {} +"
 
-# Install certain fundamental packages from stretch-backports in order to get
+# Install certain fundamental packages from $IMAGE_DISTRO-backports in order to get
 # more up-to-date (but potentially less stable) versions
-sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y -t stretch-backports install \
+sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y -t $IMAGE_DISTRO-backports install \
     picocom
 
 if [[ $CONFIGURED_ARCH == amd64 ]]; then
