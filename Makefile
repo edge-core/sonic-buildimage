@@ -15,6 +15,9 @@ ifeq ($(NOJESSIE), 0)
 	make -f Makefile.work jessie
 endif
 
+buster:
+	BLDENV=buster make -f Makefile.work
+
 clean reset init configure showtag sonic-slave-build sonic-slave-bash :
 	@echo "+++ Making $@ +++"
 ifeq ($(NOJESSIE), 0)
