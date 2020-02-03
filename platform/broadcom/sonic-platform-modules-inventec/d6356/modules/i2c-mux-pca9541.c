@@ -24,7 +24,7 @@
 #include <linux/i2c.h>
 #include <linux/i2c-mux.h>
 
-#include <linux/i2c/pca954x.h>
+#include <linux/platform_data/pca954x.h>
 
 /*
  * The PCA9541 is a bus master selector. It supports two I2C masters connected

@@ -1,6 +1,6 @@
 #include <linux/init.h>
 #include <linux/slab.h>
-#include <linux/i2c/pca954x.h>
+#include <linux/platform_data/pca954x.h>
 #include <linux/i2c-mux.h>
 #include <linux/device.h>
 #include <linux/module.h>
