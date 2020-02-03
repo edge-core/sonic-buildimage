@@ -184,11 +184,6 @@ if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
     cat files/initramfs-tools/modules.arm | sudo tee -a $FILESYSTEM_ROOT/etc/initramfs-tools/modules > /dev/null
 fi
 
-if [[ $CONFIGURED_ARCH == amd64 ]]; then
-    ## Install latest intel ixgbe driver
-    sudo cp $files_path/ixgbe.ko $FILESYSTEM_ROOT/lib/modules/${LINUX_KERNEL_VERSION}-amd64/kernel/drivers/net/ethernet/intel/ixgbe/ixgbe.ko
-fi
-
 ## Install docker
 echo '[INFO] Install docker'
 ## Install apparmor utils since they're missing and apparmor is enabled in the kernel
