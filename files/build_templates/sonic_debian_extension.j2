@@ -42,9 +42,9 @@ FILESYSTEM_ROOT_ETC_SONIC="$FILESYSTEM_ROOT_ETC/sonic"
 GENERATED_SERVICE_FILE="$FILESYSTEM_ROOT/etc/sonic/generated_services.conf"
 
 clean_sys() {
-    sudo umount $FILESYSTEM_ROOT/sys/fs/cgroup/*            \
-                $FILESYSTEM_ROOT/sys/fs/cgroup              \
-                $FILESYSTEM_ROOT/sys || true
+    sudo chroot $FILESYSTEM_ROOT umount /sys/fs/cgroup/*            \
+                                        /sys/fs/cgroup              \
+                                        /sys || true
 }
 trap_push clean_sys
 sudo LANG=C chroot $FILESYSTEM_ROOT mount sysfs /sys -t sysfs

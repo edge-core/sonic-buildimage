@@ -98,12 +98,12 @@ sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'echo "sysfs /sys sysfs default
 ## Setup proxy
 [ -n "$http_proxy" ] && sudo /bin/bash -c "echo 'Acquire::http::Proxy \"$http_proxy\";' > $FILESYSTEM_ROOT/etc/apt/apt.conf.d/01proxy"
 
+trap_push 'sudo LANG=C chroot $FILESYSTEM_ROOT umount /proc || true'
+sudo LANG=C chroot $FILESYSTEM_ROOT mount proc /proc -t proc
 ## Note: mounting is necessary to makedev and install linux image
 echo '[INFO] Mount all'
 ## Output all the mounted device for troubleshooting
-mount
-trap_push 'sudo umount $FILESYSTEM_ROOT/proc || true'
-sudo LANG=C chroot $FILESYSTEM_ROOT mount proc /proc -t proc
+sudo LANG=C chroot $FILESYSTEM_ROOT mount
 
 ## Pointing apt to public apt mirrors and getting latest packages, needed for latest security updates
 sudo cp files/apt/sources.list.$CONFIGURED_ARCH $FILESYSTEM_ROOT/etc/apt/sources.list
@@ -198,7 +198,7 @@ sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT curl -o /tmp/docker
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-key add /tmp/docker.gpg
 sudo LANG=C chroot $FILESYSTEM_ROOT rm /tmp/docker.gpg
 sudo LANG=C chroot $FILESYSTEM_ROOT add-apt-repository \
-                                    "$deb [arch=$CONFIGURED_ARCH] https://download.docker.com/linux/debian $IMAGE_DISTRO stable"
+                                    "deb [arch=$CONFIGURED_ARCH] https://download.docker.com/linux/debian $IMAGE_DISTRO stable"
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get update
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install docker-ce=${DOCKER_VERSION} docker-ce-cli=${DOCKER_VERSION}
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y remove software-properties-common gnupg2
@@ -293,14 +293,15 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     makedumpfile            \
     conntrack               \
     python-pip              \
-    python3-pip
+    python3-pip             \
+    cron
 
 
 if [[ $CONFIGURED_ARCH == amd64 ]]; then
 ## Pre-install the fundamental packages for amd64 (x86)
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install      \
     flashrom                \
-    mcelog
+    rasdaemon
 fi
 
 ## Set /etc/shadow permissions to -rw-------.
@@ -420,14 +421,8 @@ set /files/etc/sysctl.conf/net.core.somaxconn 512
 
 " -r $FILESYSTEM_ROOT
 
-if [[ $CONFIGURED_ARCH == amd64 ]]; then
-    # Configure mcelog to log machine checks to syslog
-    sudo sed -i 's/^#syslog = yes/syslog = yes/' $FILESYSTEM_ROOT/etc/mcelog/mcelog.conf
-fi
-
-## docker-py is needed by Ansible docker module
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT easy_install pip
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install 'docker-py==1.6.0'
+## docker Python API package is needed by Ansible docker module
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install 'docker==4.1.0'
 ## Note: keep pip installed for maintainance purpose
 
 ## Get gcc and python dev pkgs
@@ -554,7 +549,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT fuser -vm /proc
 sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /proc || true
 ## Wait fuser fully kill the processes
 sleep 15
-sudo umount $FILESYSTEM_ROOT/proc || true
+sudo LANG=C chroot $FILESYSTEM_ROOT umount /proc || true
 
 if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
     # Remove qemu arm bin executable used for cross-building
