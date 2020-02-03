@@ -643,10 +643,15 @@ else
 endif
 endif
 
+$(foreach IMAGE,$(SONIC_STRETCH_DOCKERS), $(eval $(IMAGE)_DEBS_PATH := $(STRETCH_DEBS_PATH)))
+$(foreach IMAGE,$(SONIC_STRETCH_DOCKERS), $(eval $(IMAGE)_FILES_PATH := $(STRETCH_FILES_PATH)))
+$(foreach IMAGE,$(SONIC_STRETCH_DBG_DOCKERS), $(eval $(IMAGE)_DEBS_PATH := $(STRETCH_DEBS_PATH)))
+$(foreach IMAGE,$(SONIC_STRETCH_DBG_DOCKERS), $(eval $(IMAGE)_FILES_PATH := $(STRETCH_FILES_PATH)))
+
 # Targets for building docker images
 $(addprefix $(TARGET_PATH)/, $(DOCKER_IMAGES)) : $(TARGET_PATH)/%.gz : .platform docker-start \
-		$$(addprefix $(DEBS_PATH)/,$$($$*.gz_DEPENDS)) \
-		$$(addprefix $(FILES_PATH)/,$$($$*.gz_FILES)) \
+		$$(addprefix $$($$*.gz_DEBS_PATH)/,$$($$*.gz_DEPENDS)) \
+		$$(addprefix $$($$*.gz_FILES_PATH)/,$$($$*.gz_FILES)) \
 		$$(addprefix $(PYTHON_DEBS_PATH)/,$$($$*.gz_PYTHON_DEBS)) \
 		$$(addprefix $(PYTHON_WHEELS_PATH)/,$$($$*.gz_PYTHON_WHEELS)) \
 		$$(addsuffix -load,$$(addprefix $(TARGET_PATH)/,$$($$*.gz_LOAD_DOCKERS))) \
@@ -702,7 +707,7 @@ SONIC_TARGET_LIST += $(addprefix $(TARGET_PATH)/, $(DOCKER_IMAGES))
 
 # Targets for building docker images
 $(addprefix $(TARGET_PATH)/, $(DOCKER_DBG_IMAGES)) : $(TARGET_PATH)/%-$(DBG_IMAGE_MARK).gz : .platform docker-start \
-		$$(addprefix $(DEBS_PATH)/,$$($$*.gz_DBG_DEPENDS)) \
+		$$(addprefix $$($$*.gz_DEBS_PATH)/,$$($$*.gz_DBG_DEPENDS)) \
 		$$(addsuffix -load,$$(addprefix $(TARGET_PATH)/,$$*.gz)) \
 		$(call dpkg_depend,$(TARGET_PATH)/%-$(DBG_IMAGE_MARK).gz.dep)
 	$(HEADER)
@@ -775,7 +780,7 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
                 $(MONIT)) \
         $$(addprefix $(TARGET_PATH)/,$$($$*_DOCKERS)) \
         $$(addprefix $(FILES_PATH)/,$$($$*_FILES)) \
-	$(if $(findstring y,$(ENABLE_ZTP)),$(addprefix $(DEBS_PATH)/,$(SONIC_ZTP))) \
+	$(if $(findstring y,$(ENABLE_ZTP)),$(addprefix $(IMAGE_DISTRO_DEBS_PATH)/,$(SONIC_ZTP))) \
 	$(addprefix $(IMAGE_DISTRO_FILES_PATH)/, $(if $(filter $(CONFIGURED_ARCH),amd64), $(IXGBE_DRIVER))) \
         $(addprefix $(PYTHON_DEBS_PATH)/,$(SONIC_UTILS)) \
         $(addprefix $(PYTHON_WHEELS_PATH)/,$(SONIC_CONFIG_ENGINE)) \
