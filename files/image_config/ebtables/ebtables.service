@@ -1,0 +1,19 @@
+[Unit]
+Description=ebtables ruleset management
+DefaultDependencies=no
+Before=network-pre.target
+Wants=network-pre.target
+After=local-fs.target
+# n.b. use below if we want to tear down rules before shutting down.
+#Before=shutdown.target
+#Conflicts=shutdown.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/etc/init.d/ebtables start
+ExecStop=/etc/init.d/ebtables stop
+ExecReload=/etc/init.d/ebtables reload
+
+[Install]
+WantedBy=multi-user.target
