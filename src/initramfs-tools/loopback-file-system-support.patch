@@ -13,11 +13,29 @@ And added NFS support! Full patch below...
 live well,
   vagrant
 
+---
+ init              | 12 ++++++++++++
+ initramfs-tools.7 | 13 +++++++++++++
+ scripts/functions | 40 ++++++++++++++++++++++++++++++++++++++++
+ scripts/local     |  7 ++++++-
+ scripts/nfs       |  4 ++++
+ 5 files changed, 75 insertions(+), 1 deletion(-)
+
 diff --git a/init b/init
-index abf7f25..2760bcb 100755
+index 3dc9f6b..fe1005a 100755
 --- a/init
 +++ b/init
-@@ -98,6 +98,15 @@ for x in $(cat /proc/cmdline); do
+@@ -49,6 +49,9 @@ export ROOT=
+ export ROOTDELAY=
+ export ROOTFLAGS=
+ export ROOTFSTYPE=
++export LOOP=
++export LOOPFLAGS=
++export LOOPFSTYPE=
+ export IP=
+ export DEVICE=
+ export BOOT=
+@@ -104,6 +107,15 @@ for x in $(cat /proc/cmdline); do
  			;;
  		esac
  		;;
@@ -31,16 +49,17 @@ index abf7f25..2760bcb 100755
 +		LOOPFSTYPE="${x#loopfstype=}"
 +		;;
  	nfsroot=*)
+ 		# shellcheck disable=SC2034
  		NFSROOT="${x#nfsroot=}"
- 		;;
-diff --git a/initramfs-tools.8 b/initramfs-tools.8
-index ea8c098..ce8e830 100644
---- a/initramfs-tools.8
-+++ b/initramfs-tools.8
-@@ -42,6 +42,19 @@ The default is 180 seconds.
+diff --git a/initramfs-tools.7 b/initramfs-tools.7
+index 45b7de7..745e7a0 100644
+--- a/initramfs-tools.7
++++ b/initramfs-tools.7
+@@ -53,6 +53,19 @@ The default is 180 seconds.
+ \fB\fI rootflags
  set the file system mount option string.
  
- .TP
++.TP
 +\fB\fI loop
 +path within the original root file system to loop-mount and use as the
 +real root file system.
@@ -53,15 +72,14 @@ index ea8c098..ce8e830 100644
 +\fB\fI loopfstype
 +set the loop file system type, if applicable.
 +
-+.TP
+ .TP
  \fB\fI nfsroot
  can be either "auto" to try to get the relevant information from DHCP or a
- string of the form NFSSERVER:NFSPATH or NFSSERVER:NFSPATH:NFSOPTS.
 diff --git a/scripts/functions b/scripts/functions
-index 8c1bb1f..2ed3ce3 100644
+index 077697f..a17e740 100644
 --- a/scripts/functions
 +++ b/scripts/functions
-@@ -426,6 +426,42 @@ mountfs()
+@@ -445,6 +445,46 @@ mountfs()
  	${type}_mount_fs "$1"
  }
  
@@ -69,14 +87,14 @@ index 8c1bb1f..2ed3ce3 100644
 +mount_loop_root()
 +{
 +	mkdir -p /host
-+	mount -o move ${rootmnt} /host
++	mount -o move "${rootmnt}" /host
 +	loopfile="/host/${LOOP#/}"
 +
 +	while [ ! -e "$loopfile" ]; do
 +		panic "ALERT! $loopfile does not exist.  Dropping to a shell!"
 +	done
 +
-+	if [ ${readonly} = y ]; then
++	if [ "${readonly?}" = "y" ]; then
 +		roflag=-r
 +	else
 +		roflag=-w
@@ -91,13 +109,17 @@ index 8c1bb1f..2ed3ce3 100644
 +
 +	# FIXME This has no error checking
 +	modprobe loop
-+	modprobe ${FSTYPE}
++	modprobe "${FSTYPE}"
 +
 +	# FIXME This has no error checking
-+	mount ${roflag} -o loop -t ${FSTYPE} ${LOOPFLAGS} "$loopfile" ${rootmnt}
++	if [ -z "${LOOPFLAGS}" ]; then
++		mount ${roflag} -o loop -t "${FSTYPE}" "$loopfile" "${rootmnt}"
++	else
++		mount ${roflag} -o loop -t "${FSTYPE}" "${LOOPFLAGS}" "$loopfile" "${rootmnt}"
++	fi
 +
-+	if [ -d ${rootmnt}/host ]; then
-+		mount -o move /host ${rootmnt}/host
++	if [ -d "${rootmnt}/host" ]; then
++		mount -o move /host "${rootmnt}/host"
 +	fi
 +}
 +
@@ -105,22 +127,22 @@ index 8c1bb1f..2ed3ce3 100644
  # boot scripts.
  mountroot()
 diff --git a/scripts/local b/scripts/local
-index f6424f0..072013e 100644
+index a103e68..2ef6413 100644
 --- a/scripts/local
 +++ b/scripts/local
-@@ -135,7 +135,8 @@ local_mount_root()
+@@ -170,7 +170,8 @@ local_mount_root()
  
- 	ROOT=$(resolve_device "$ROOT")
+ 	local_premount
  
--	if [ "${readonly}" = "y" ]; then
-+	if [ "${readonly}" = "y" ] && \
-+	   ([ -z "$LOOP" ] || [ "${FSTYPE#ntfs}" = "$FSTYPE" ]); then
+-	if [ "${readonly?}" = "y" ]; then
++	if [ "${readonly?}" = "y" ] && \
++	   { [ -z "$LOOP" ] || [ "${FSTYPE#ntfs}" = "$FSTYPE" ]; }; then
  		roflag=-r
  	else
  		roflag=-w
-@@ -153,6 +154,10 @@ local_mount_root()
- 	else
- 		mount ${roflag} ${ROOTFLAGS} ${ROOT} ${rootmnt}
+@@ -183,6 +184,10 @@ local_mount_root()
+ 	if ! mount ${roflag} ${FSTYPE:+-t "${FSTYPE}"} ${ROOTFLAGS} "${ROOT}" "${rootmnt?}"; then
+ 		panic "Failed to mount ${ROOT} as root file system."
  	fi
 +
 +	if [ "${LOOP}" ]; then
@@ -130,13 +152,13 @@ index f6424f0..072013e 100644
  
  local_mount_fs()
 diff --git a/scripts/nfs b/scripts/nfs
-index 1c29850..d382413 100644
+index 40c92c7..dfa8e88 100644
 --- a/scripts/nfs
 +++ b/scripts/nfs
-@@ -72,6 +72,10 @@ nfs_mount_root_impl()
- 	fi
+@@ -73,6 +73,10 @@ nfs_mount_root_impl()
  
- 	nfsmount -o nolock ${roflag} ${NFSOPTS} ${NFSROOT} ${rootmnt}
+ 	# shellcheck disable=SC2086
+ 	nfsmount -o nolock ${roflag} ${NFSOPTS} "${NFSROOT}" "${rootmnt?}"
 +
 +	if [ "${LOOP}" ]; then
 +		mount_loop_root
@@ -144,3 +166,6 @@ index 1c29850..d382413 100644
  }
  
  # NFS root mounting
+-- 
+2.17.1
+
