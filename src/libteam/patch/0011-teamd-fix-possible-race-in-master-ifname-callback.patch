@@ -1,0 +1,101 @@
+From c0eb9e4bfe1c6a0e77f02b1459d91498c1a3dcff Mon Sep 17 00:00:00 2001
+From: Pavel Shirshov <pavelsh@microsoft.com>
+Date: Tue, 4 Feb 2020 09:39:08 -0800
+Subject: [PATCH 1/1] teamd: fix possible race in master ifname callback
+
+---
+ teamd/teamd.h            |  2 ++
+ teamd/teamd_link_watch.c | 13 ++++++++++---
+ teamd/teamd_per_port.c   | 24 +++++++++++++++++++-----
+ 3 files changed, 31 insertions(+), 8 deletions(-)
+
+diff --git a/teamd/teamd.h b/teamd/teamd.h
+index 418214d..1ce120e 100644
+--- a/teamd/teamd.h
++++ b/teamd/teamd.h
+@@ -334,6 +334,8 @@ int teamd_port_remove_all(struct teamd_context *ctx);
+ void teamd_port_obj_remove_all(struct teamd_context *ctx);
+ int teamd_port_enabled(struct teamd_context *ctx, struct teamd_port *tdport,
+ 		       bool *enabled);
++int teamd_port_enabled_check(struct teamd_context *ctx,
++			     struct teamd_port *tdport, bool *enabled);
+ int teamd_port_prio(struct teamd_context *ctx, struct teamd_port *tdport);
+ int teamd_port_check_enable(struct teamd_context *ctx,
+ 			    struct teamd_port *tdport,
+diff --git a/teamd/teamd_link_watch.c b/teamd/teamd_link_watch.c
+index 62f8267..e4b3d3f 100644
+--- a/teamd/teamd_link_watch.c
++++ b/teamd/teamd_link_watch.c
+@@ -423,9 +423,16 @@ static int link_watch_refresh_forced_send(struct teamd_context *ctx)
+ 	int err;
+ 
+ 	teamd_for_each_tdport(tdport, ctx) {
+-		err = teamd_port_enabled(ctx, tdport, &port_enabled);
+-		if (err)
+-			return err;
++		err = teamd_port_enabled_check(ctx, tdport, &port_enabled);
++		if (err) {
++			/* Looks like the options are not ready for this port.
++			 * This can happen when called from
++			 * link_watch_port_master_ifindex_changed(). Skip this
++			 * for now, let it be handled by future call of
++			 * link_watch_enabled_option_changed().
++			 */
++			continue;
++		}
+ 		__set_forced_send_for_port(tdport, port_enabled);
+ 		if (port_enabled)
+ 			enabled_port_count++;
+diff --git a/teamd/teamd_per_port.c b/teamd/teamd_per_port.c
+index a87e809..d10cfb2 100644
+--- a/teamd/teamd_per_port.c
++++ b/teamd/teamd_per_port.c
+@@ -395,19 +395,21 @@ int teamd_port_remove_ifname(struct teamd_context *ctx, const char *port_name)
+ 	return teamd_port_remove(ctx, tdport);
+ }
+ 
+-int teamd_port_enabled(struct teamd_context *ctx, struct teamd_port *tdport,
+-		       bool *enabled)
++int __teamd_port_enabled(struct teamd_context *ctx, struct teamd_port *tdport,
++			 bool *enabled, bool may_fail)
+ {
+ 	struct team_option *option;
+ 
+ 	option = team_get_option(ctx->th, "np", "enabled", tdport->ifindex);
+ 	if (!option) {
+-		teamd_log_err("%s: Failed to find \"enabled\" option.",
+-			      tdport->ifname);
++		if (!may_fail)
++			teamd_log_err("%s: Failed to find \"enabled\" option.",
++				      tdport->ifname);
+ 		return -ENOENT;
+ 	}
+ 	if (team_get_option_type(option) != TEAM_OPTION_TYPE_BOOL) {
+-		teamd_log_err("Unexpected type of \"enabled\" option.");
++		if (!may_fail)
++			teamd_log_err("Unexpected type of \"enabled\" option.");
+ 		return -EINVAL;
+ 	}
+ 
+@@ -415,6 +417,18 @@ int teamd_port_enabled(struct teamd_context *ctx, struct teamd_port *tdport,
+ 	return 0;
+ }
+ 
++int teamd_port_enabled(struct teamd_context *ctx, struct teamd_port *tdport,
++		       bool *enabled)
++{
++	return __teamd_port_enabled(ctx, tdport, enabled, false);
++}
++
++int teamd_port_enabled_check(struct teamd_context *ctx,
++			     struct teamd_port *tdport, bool *enabled)
++{
++	return __teamd_port_enabled(ctx, tdport, enabled, true);
++}
++
+ int teamd_port_prio(struct teamd_context *ctx, struct teamd_port *tdport)
+ {
+ 	int prio;
+-- 
+2.17.1.windows.2
+
