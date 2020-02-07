@@ -11,7 +11,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# Build the package
 	pushd ./frr
 	git checkout -b $(FRR_BRANCH) origin/$(FRR_BRANCH)
-	stg branch --create $(STG_BRANCH) $(FRR_BRANCH)
+	stg branch --create $(STG_BRANCH) $(FRR_TAG)
 	stg import -s ../patch/series
 	tools/tarsource.sh -V -e '-sonic'
 	dpkg-buildpackage -rfakeroot -b -us -uc -Ppkg.frr.nortrlib -j$(SONIC_CONFIG_MAKE_JOBS)
