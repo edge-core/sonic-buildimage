@@ -17,7 +17,7 @@ esac
 
 . /usr/share/initramfs-tools/hook-functions
 
-copy_exec /sbin/mke2fs
+copy_exec /usr/sbin/mke2fs /usr/local/sbin/
 copy_exec /sbin/sfdisk
 copy_exec /sbin/fdisk
 copy_exec /sbin/resize2fs
@@ -30,7 +30,7 @@ for type in $fstypes; do
     if [ -h "$prog" ]; then
         link=$(readlink -f "$prog")
         copy_exec "$link"
-        ln -s "$link" "${DESTDIR}/$prog"
+        ln -s "/usr/local/sbin/$(basename $link)" "${DESTDIR}/$prog"
     elif [ -x "$prog" ] ; then
         copy_exec "$prog"
     else
