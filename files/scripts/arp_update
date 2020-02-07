@@ -56,11 +56,11 @@ while /bin/true; do
       ip="$( cut -d ':' -f 3- <<< "$neigh" )"
       if [[ $intf == *"Vlan"* ]]; then
           if [[ $ip == *"."* ]] && [[ ! $KERNEIGH4 =~ "${ip},${intf}" ]]; then
-              pingcmd="ping -I $intf -n -q -i 0 -c 1 -W 0 $ip >/dev/null"
+              pingcmd="timeout 0.2 ping -I $intf -n -q -i 0 -c 1 -W 0 $ip >/dev/null"
               eval $pingcmd
               logger "arp_update: mismatch arp entry, pinging ${ip} on ${intf}"
           elif [[ $ip == *":"* ]] && [[ ! $KERNEIGH6 =~ "${ip},${intf}" ]]; then
-              ping6cmd="ping6 -I $intf -n -q -i 0 -c 1 -W 0 $ip >/dev/null"
+              ping6cmd="timeout 0.2 ping6 -I $intf -n -q -i 0 -c 1 -W 0 $ip >/dev/null"
               eval $ping6cmd
               logger "arp_update: mismatch v6 nbr entry, pinging ${ip} on ${intf}"
           fi
