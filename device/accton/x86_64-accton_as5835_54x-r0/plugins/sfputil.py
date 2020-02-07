@@ -167,16 +167,15 @@ class SfpUtil(SfpUtilBase):
         path = "/sys/bus/i2c/devices/{0}/module_present_{1}"
         port_ps = path.format(cpld_ps, cage_num)
 
+        content = "0"
         try:
             val_file = open(port_ps)
+            content = val_file.readline().rstrip()
+            val_file.close()
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)          
+            print "Error: unable to access file: %s" % str(e)          
             return False
-
-        content = val_file.readline().rstrip()
-        val_file.close()
-
-        # content is a string, either "0" or "1"
+        
         if content == "1":
             return True
 
@@ -201,8 +200,7 @@ class SfpUtil(SfpUtilBase):
 
         content = val_file.readline().rstrip()
         val_file.close()
-
-        # content is a string, either "0" or "1"
+        
         if content == "1":
             return True
 

@@ -127,16 +127,15 @@ class SfpUtil(SfpUtilBase):
 
         self.__port_to_is_present = present_path
 
+        content="0"
         try:
             val_file = open(self.__port_to_is_present)
+            content = val_file.readline().rstrip()
+            val_file.close()
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)          
+            print "Error: unable to access file: %s" % str(e)          
             return False
-
-        content = val_file.readline().rstrip()
-        val_file.close()
-
-        # content is a string, either "0" or "1"
+       
         if content == "1":
             return True
 
@@ -150,16 +149,15 @@ class SfpUtil(SfpUtilBase):
         _path = cpld_path + "/module_lp_mode_" 
         _path += str(self._port_to_i2c_mapping[port_num][0])
 
+        content="0"
         try:
             reg_file = open(_path)
+            content = reg_file.readline().rstrip()
+            reg_file.close()
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)          
+            print "Error: unable to access file: %s" % str(e)          
             return False
-
-        content = reg_file.readline().rstrip()
-        reg_file.close()
-
-        # content is a string, either "0" or "1"
+    
         if content == "1":
             return True
 

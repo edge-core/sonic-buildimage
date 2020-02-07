@@ -70,16 +70,15 @@ class SfpUtil(SfpUtilBase):
         present_path = self.BASE_CPLD_PATH + "module_present_" + str(port_num)
         self.__port_to_is_present = present_path
 
+        content="0"
         try:
             val_file = open(self.__port_to_is_present)
+            content = val_file.readline().rstrip()
+            val_file.close()
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print "Error: unable to access file: %s" % str(e)
             return False
-
-        content = val_file.readline().rstrip()
-        val_file.close()
-
-        # content is a string, either "0" or "1"
+        
         if content == "1":
             return True
 

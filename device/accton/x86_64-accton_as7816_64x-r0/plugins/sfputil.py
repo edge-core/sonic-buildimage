@@ -122,13 +122,15 @@ class SfpUtil(SfpUtilBase):
         path = "/sys/bus/i2c/devices/19-0060/module_present_{0}"
         port_ps = path.format(port_num)
           
+        reg_value = '0'
         try:
             reg_file = open(port_ps)
+            reg_value = reg_file.readline().rstrip()
+            reg_file.close()
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print "Error: unable to access file: %s" % str(e)
             return False
-
-        reg_value = reg_file.readline().rstrip()
+        
         if reg_value == '1':
             return True
 
