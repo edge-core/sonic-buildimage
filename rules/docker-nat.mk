@@ -22,7 +22,7 @@ SONIC_INSTALL_DOCKER_DBG_IMAGES += $(DOCKER_NAT_DBG)
 SONIC_STRETCH_DBG_DOCKERS += $(DOCKER_NAT_DBG)
 
 $(DOCKER_NAT)_CONTAINER_NAME = nat
-$(DOCKER_NAT)_RUN_OPT += --net=host --privileged -t
+$(DOCKER_NAT)_RUN_OPT += --privileged -t
 $(DOCKER_NAT)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
 $(DOCKER_NAT)_RUN_OPT += -v /host/warmboot:/var/warmboot
 
