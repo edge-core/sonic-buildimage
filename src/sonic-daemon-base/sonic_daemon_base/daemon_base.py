@@ -102,15 +102,15 @@ class DaemonBase(object):
     # Signal handler
     def signal_handler(self, sig, frame):
         if sig == signal.SIGHUP:
-            self.syslog.syslog(self.syslog.LOG_INFO, "Caught SIGHUP - ignoring...")
+            syslog.syslog(syslog.LOG_INFO, "Caught SIGHUP - ignoring...")
         elif sig == signal.SIGINT:
-            self.syslog.syslog(self.syslog.LOG_INFO, "Caught SIGINT - exiting...")
+            syslog.syslog(syslog.LOG_INFO, "Caught SIGINT - exiting...")
             sys.exit(128 + sig)
         elif sig == signal.SIGTERM:
-            self.syslog.syslog(self.syslog.LOG_INFO, "Caught SIGTERM - exiting...")
+            syslog.syslog(syslog.LOG_INFO, "Caught SIGTERM - exiting...")
             sys.exit(128 + sig)
         else:
-            self.syslog.syslog(self.syslog.LOG_WARNING, "Caught unhandled signal '" + sig + "'")
+            syslog.syslog(syslog.LOG_WARNING, "Caught unhandled signal '" + sig + "'")
 
     # Returns platform and hwsku
     def get_platform_and_hwsku(self):
