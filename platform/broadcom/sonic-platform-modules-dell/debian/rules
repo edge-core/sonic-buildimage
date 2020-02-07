@@ -12,6 +12,7 @@ COMMON_DIR := common
 	dh $@
 
 override_dh_auto_build:
+	set -e; \
 	(for mod in $(MODULE_DIRS); do \
 		if [ $$mod = "s6100" ]; then \
 			cp $(COMMON_DIR)/dell_pmc.c $(MOD_SRC_DIR)/$${mod}/modules/dell_s6100_lpc.c; \
@@ -37,9 +38,11 @@ override_dh_auto_build:
 		fi; \
 		echo "making man page alias $$mod -> $$mod APIs";\
 		make -C $(KERNEL_SRC)/build M=$(MOD_SRC_DIR)/$${mod}/modules; \
-	done)
+	done); \
+	set +e
 
 override_dh_auto_install:
+	set -e; \
 	(for mod in $(MODULE_DIRS); do \
 		dh_installdirs -pplatform-modules-$${mod} \
 			$(KERNEL_SRC)/$(INSTALL_MOD_DIR); \
@@ -49,12 +52,14 @@ override_dh_auto_install:
 			dh_installdirs -pplatform-modules-$${mod} usr/local/bin ; \
 			cp -r $(MOD_SRC_DIR)/$${mod}/scripts/* debian/platform-modules-$${mod}/usr/local/bin; \
 		fi; \
-	done)
+	done); \
+	set +e
 
 override_dh_usrlocal:
 
 override_dh_clean:
 	dh_clean
+	set -e; \
 	(for mod in $(MODULE_DIRS); do \
 		if [ $$mod = "s6100" ]; then \
 			rm -f $(MOD_SRC_DIR)/$${mod}/modules/dell_s6100_lpc.c; \
@@ -79,5 +84,6 @@ override_dh_clean:
 			rm -rf $(MOD_SRC_DIR)/$${mod}/build/*.egg-info; \
 		fi; \
 		make -C $(KERNEL_SRC)/build M=$(MOD_SRC_DIR)/$${mod}/modules clean; \
-	done)
+	done); \
+	set +e
 
