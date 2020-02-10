@@ -29,30 +29,26 @@ do_monitor_stop() {
 
 case "$1" in
 start)
-	echo -n "Setting up board... "
-	
-#	depmod -a
-	/usr/local/bin/inventec_d6356_util.py -f install
-        do_monitor_${1}
-	echo "done."
-	;;
+    echo -n "Setting up board... "
+    /usr/local/bin/inventec_d6356_util.py -f install
+    do_monitor_${1}
+    echo "done."
+    ;;
 
 stop)
-    
-        /usr/local/bin/inventec_d6356_util.py -f clean
-        do_monitor_${1}
-	echo "done."
-
-	;;
+    /usr/local/bin/inventec_d6356_util.py -f clean
+    do_monitor_${1}
+    echo "done."
+    ;;
 
 force-reload|restart)
-	echo "Not supported"
-	;;
+    echo "Not supported"
+    ;;
 
 *)
-	echo "Usage: /etc/init.d/platform-modules-d6356.init {start|stop}"
-	exit 1
-	;;
+    echo "Usage: /etc/init.d/platform-modules-d6356.init {start|stop}"
+    exit 1
+    ;;
 esac
 
 exit 0
