@@ -153,7 +153,7 @@ class LldpManager(object):
 
         # if there is a description available, also configure that
         if port_desc:
-            lldpcli_cmd += " description {}".format(port_desc)
+            lldpcli_cmd += " description '{}'".format(port_desc)
         else:
             log_info("Unable to retrieve description for port '{}'. Not adding port description".format(port_name))
 
