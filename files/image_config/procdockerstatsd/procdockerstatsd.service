@@ -6,7 +6,7 @@ After=database.service updategraph.service
 [Service]
 Type=simple
 ExecStart=/usr/bin/procdockerstatsd
-Restart=Always
+Restart=always
 
 [Install]
 WantedBy=multi-user.target
