@@ -3,6 +3,13 @@ logfile_maxbytes=1MB
 logfile_backups=2
 nodaemon=true
 
+[eventlistener:supervisor-proc-exit-listener]
+command=/usr/bin/supervisor-proc-exit-listener --container-name database
+events=PROCESS_STATE_EXITED
+autostart=true
+autorestart=unexpected
+
+
 [program:rsyslogd]
 command=/bin/bash -c "rm -f /var/run/rsyslogd.pid && /usr/sbin/rsyslogd -n"
 priority=1

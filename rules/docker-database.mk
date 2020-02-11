@@ -28,3 +28,4 @@ $(DOCKER_DATABASE)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
 
 $(DOCKER_DATABASE)_BASE_IMAGE_FILES += redis-cli:/usr/bin/redis-cli
 $(DOCKER_DATABASE)_BASE_IMAGE_FILES += monit_database:/etc/monit/conf.d
+$(DOCKER_DATABASE)_FILES += $(SUPERVISOR_PROC_EXIT_LISTENER_SCRIPT)

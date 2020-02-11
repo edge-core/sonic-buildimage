@@ -36,5 +36,7 @@ COPY ["supervisord.conf.j2", "/usr/share/sonic/templates/"]
 COPY ["docker-database-init.sh", "/usr/local/bin/"]
 COPY ["ping_pong_db_insts", "/usr/local/bin/"]
 COPY ["database_config.json", "/etc/default/sonic-db/"]
+COPY ["files/supervisor-proc-exit-listener", "/usr/bin"]
+COPY ["critical_processes", "/etc/supervisor"]
 
 ENTRYPOINT ["/usr/local/bin/docker-database-init.sh"]
