@@ -52,24 +52,28 @@ def main(argv):
             processname = payload_headers['processname']
             groupname = payload_headers['groupname']
 
-            config_db = swsssdk.ConfigDBConnector()
-            config_db.connect()
-            container_features_table = config_db.get_table(CONTAINER_FEATURE_TABLE_NAME)
-            if not container_features_table:
-                syslog.syslog(syslog.LOG_ERR, "Unable to retrieve container features table from Config DB. Exiting...")
-                sys.exit(2)
+            # Read the status of auto-restart feature from Config_DB.
+            if container_name != 'database':
+                config_db = swsssdk.ConfigDBConnector()
+                config_db.connect()
+                container_features_table = config_db.get_table(CONTAINER_FEATURE_TABLE_NAME)
+                if not container_features_table:
+                    syslog.syslog(syslog.LOG_ERR, "Unable to retrieve container features table from Config DB. Exiting...")
+                    sys.exit(2)
 
-            if not container_features_table.has_key(container_name):
-                syslog.syslog(syslog.LOG_ERR, "Unable to retrieve features for container '{}'. Exiting...".format(container_name))
-                sys.exit(3)
+                if not container_features_table.has_key(container_name):
+                    syslog.syslog(syslog.LOG_ERR, "Unable to retrieve features for container '{}'. Exiting...".format(container_name))
+                    sys.exit(3)
 
-            restart_feature = container_features_table[container_name].get('auto_restart')
-            if not restart_feature:
-                syslog.syslog(syslog.LOG_ERR, "Unable to determine auto-restart feature status for container '{}'. Exiting...".format(container_name))
-                sys.exit(4)
+                restart_feature = container_features_table[container_name].get('auto_restart')
+                if not restart_feature:
+                    syslog.syslog(syslog.LOG_ERR, "Unable to determine auto-restart feature status for container '{}'. Exiting...".format(container_name))
+                    sys.exit(4)
 
-            # If auto-restart feature is enabled and a critical process exited unexpectedly, terminate supervisor
-            if restart_feature == 'enabled' and expected == 0 and (processname in critical_processes or groupname in critical_processes):
+            # If container is database or auto-restart feature is enabled and at the same time 
+            # a critical process exited unexpectedly, terminate supervisor
+            if ((container_name == 'database' or restart_feature == 'enabled') and expected == 0 and 
+                    (processname in critical_processes or groupname in critical_processes)):
                 MSG_FORMAT_STR = "Process {} exited unxepectedly. Terminating supervisor..."
                 msg = MSG_FORMAT_STR.format(payload_headers['processname'])
                 syslog.syslog(syslog.LOG_INFO, msg)
