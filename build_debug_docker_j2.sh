@@ -28,7 +28,7 @@ debs/{{ deb }}{{' '}}
 {% if $3 is defined %}
 {% if $3|length %}
 
-RUN apt-get install -f -y \
+RUN apt-get update && apt-get install -f -y \
 {% for dbg in $3.split(' ') -%}
 {{ dbg }}{{' '}}
 {%- endfor %}
