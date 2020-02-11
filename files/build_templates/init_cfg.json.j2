@@ -16,5 +16,21 @@
             "{{crm_res}}_high_threshold": "85"{% if not loop.last %},{% endif -%}
 {% endfor %}
         }
+    },
+    "FEATURE": {
+{%- for feature in ["sflow", "telemetry"] %}
+        "{{feature}}": {
+            "status": "disabled"
+        }{% if not loop.last %},{% endif -%}
+{% endfor %}
+    },
+    "CONTAINER_FEATURE": {
+{%- for container in ["bgp", "database", "dhcp_relay", "lldp", "pmon", "radv", "rest-api", "sflow",
+                      "snmp", "swss", "syncd", "teamd", "telemetry"] %}
+        "{{container}}": {
+            "auto_restart": "disabled",
+            "high_mem_alert": "disabled"
+        }{% if not loop.last %},{% endif -%}
+{% endfor %}
     }
 }
