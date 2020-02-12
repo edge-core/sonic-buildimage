@@ -362,7 +362,7 @@ write_boot_configs() {
 }
 
 run_kexec() {
-    local cmdline="$(cat $cmdline_image | tr '\n' ' ')"
+    local cmdline="$(cat $cmdline_image | tr '\n' ' ') $ENV_EXTRA_CMDLINE"
     local kernel="${KERNEL:-$(find $image_path/boot -name 'vmlinuz-*' -type f | head -n 1)}"
     local initrd="${INITRD:-$(find $image_path/boot -name 'initrd.img-*' -type f | head -n 1)}"
 

@@ -18,6 +18,8 @@ flash_dev=''
 block_flash=''
 aboot_flag=''
 backup_file=''
+prev_os=''
+sonic_fast_reboot=''
 
 # Wait until get the fullpath of flash device, e.g., /dev/sda
 wait_get_flash_dev() {
@@ -133,15 +135,20 @@ for x in "$@"; do
         docker_inram=*)
             docker_inram="${x#docker_inram=}"
             ;;
+        prev_os=*)
+            prev_os="${x#prev_os=}"
+            ;;
         SONIC_BOOT_TYPE=warm*|SONIC_BOOT_TYPE=fast*)
-            # Skip this script for warm-reboot and fast-reboot
-            exit 0
+            sonic_fast_reboot=true
             ;;
     esac
 done
 
 # Check aboot
 [ -z "$aboot_flag" ] && exit 0
+
+# Skip this script for warm-reboot/fast-reboot from sonic
+[ "$sonic_fast_reboot" == true ] && [ "$prev_os" != eos ] && exit 0
 
 # Get flash dev name
 if [ -z "$block_flash" ]; then
