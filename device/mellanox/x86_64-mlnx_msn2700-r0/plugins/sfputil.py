@@ -190,7 +190,7 @@ class SfpUtil(SfpUtilBase):
             from swsscommon import swsscommon
             self.state_db = swsscommon.DBConnector("STATE_DB",
                                                    REDIS_TIMEOUT_USECS,
-                                                   True))
+                                                   True)
 
             # Subscribe to state table for SFP change notifications
             self.db_sel = swsscommon.Select()
