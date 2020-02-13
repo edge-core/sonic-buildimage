@@ -7,25 +7,25 @@ Standards-Version: 3.9.3
 
 Package: platform-modules-ag9032v1
 Architecture: amd64
-Depends: linux-image-4.9.0-9-2-amd64
+Depends: linux-image-4.9.0-11-2-amd64
 Description: kernel modules for platform devices such as fan, led, sfp
 
 Package: platform-modules-ag9064
 Architecture: amd64
-Depends: linux-image-4.9.0-9-2-amd64
+Depends: linux-image-4.9.0-11-2-amd64
 Description: kernel modules for platform devices such as fan, led, sfp
 
 Package: platform-modules-ag5648
 Architecture: amd64
-Depends: linux-image-4.9.0-9-2-amd64
+Depends: linux-image-4.9.0-11-2-amd64
 Description: kernel modules for platform devices such as fan, led, sfp
 
 Package: platform-modules-et-6248brb
 Architecture: amd64
-Depends: linux-image-4.9.0-9-2-amd64
+Depends: linux-image-4.9.0-11-2-amd64
 Description: kernel modules for platform devices such as fan, led, sfp
 
 Package: platform-modules-ag9032v2a
 Architecture: amd64
-Depends: linux-image-4.9.0-9-2-amd64
+Depends: linux-image-4.9.0-11-2-amd64
 Description: kernel modules for platform devices such as syseeprom, sfp

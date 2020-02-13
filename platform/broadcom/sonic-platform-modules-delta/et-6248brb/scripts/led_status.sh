@@ -7,7 +7,7 @@ FAN2_RPM="/sys/bus/i2c/devices/0-002e/fan2_input"
 FAN_TRAY1_LED="/sys/devices/platform/delta-et6248brb-gpio.0/FAN/fan1_led_ag"
 FAN_TRAY2_LED="/sys/devices/platform/delta-et6248brb-gpio.0/FAN/fan2_led_ag"
 
-if [ `uname -a | awk '{print $3}'` = "4.9.0-9-2-amd64" ]; then
+if [ `uname -a | awk '{print $3}'` = "4.9.0-11-2-amd64" ]; then
     SYS_LED_G="/sys/class/gpio/gpio453/value"
     SYS_LED_R="/sys/class/gpio/gpio454/value"
     PWR_LED_G="/sys/class/gpio/gpio455/value"
