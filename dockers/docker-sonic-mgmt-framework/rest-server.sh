@@ -46,7 +46,5 @@ echo "REST_SERVER_ARGS = $REST_SERVER_ARGS"
 
 
 export CVL_SCHEMA_PATH=/usr/sbin/schema
-export LIBYANG_EXTENSIONS_PLUGINS_DIR=/usr/lib/x86_64-linux-gnu/libyang/extensions
-export LIBYANG_USER_TYPES_PLUGINS_DIR=/usr/lib/x86_64-linux-gnu/libyang/user_types
 
 exec /usr/sbin/rest_server ${REST_SERVER_ARGS}
