@@ -141,7 +141,7 @@ def system_install():
     status, output = exec_cmd("rmmod lpc_ich ", 1)
 
     #insert extra module
-    status, output = exec_cmd("insmod /lib/modules/4.9.0-9-2-amd64/kernel/drivers/gpio/gpio-ich.ko gpiobase=0",1)
+    status, output = exec_cmd("insmod /lib/modules/4.9.0-11-2-amd64/kernel/drivers/gpio/gpio-ich.ko gpiobase=0",1)
 
     #install drivers
     for i in range(0,len(drivers)):
