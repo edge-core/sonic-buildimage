@@ -55,41 +55,38 @@ class ThermalUtil(object):
             THERMAL_NUM_5_IDX: ['54', '4c'],
            }
     thermal_sysfspath ={
-    THERMAL_NUM_1_IDX: ["/sys/bus/i2c/devices/55-0048/hwmon/hwmon4/temp1_input"],
-    THERMAL_NUM_2_IDX: ["/sys/bus/i2c/devices/55-0049/hwmon/hwmon5/temp1_input"],  
-    THERMAL_NUM_3_IDX: ["/sys/bus/i2c/devices/55-004a/hwmon/hwmon6/temp1_input"],
-    THERMAL_NUM_4_IDX: ["/sys/bus/i2c/devices/55-004b/hwmon/hwmon7/temp1_input"],        
-    THERMAL_NUM_5_IDX: ["/sys/bus/i2c/devices/54-004c/hwmon/hwmon3/temp1_input"],     
+    THERMAL_NUM_1_IDX: ["/sys/bus/i2c/devices/55-0048/hwmon/hwmon*/temp1_input"],  
+    THERMAL_NUM_2_IDX: ["/sys/bus/i2c/devices/55-0049/hwmon/hwmon*/temp1_input"],  
+    THERMAL_NUM_3_IDX: ["/sys/bus/i2c/devices/55-004a/hwmon/hwmon*/temp1_input"],
+    THERMAL_NUM_4_IDX: ["/sys/bus/i2c/devices/55-004b/hwmon/hwmon*/temp1_input"],        
+    THERMAL_NUM_5_IDX: ["/sys/bus/i2c/devices/54-004c/hwmon/hwmon*/temp1_input"],     
     }
-
-    #def __init__(self):
+  
     def _get_thermal_val(self, thermal_num):
         if thermal_num < self.THERMAL_NUM_1_IDX or thermal_num > self.THERMAL_NUM_MAX:
             logging.debug('GET. Parameter error. thermal_num, %d', thermal_num)
             return None
        
         device_path = self.get_thermal_to_device_path(thermal_num)
-        if(os.path.isfile(device_path)):                
-            for filename in glob.glob(device_path):
-                try:
-                    val_file = open(filename, 'r')
-                except IOError as e:
-                    logging.error('GET. unable to open file: %s', str(e))
-                    return None
+        
+        for filename in glob.glob(device_path):
+            try:
+                val_file = open(filename, 'r')
+            except IOError as e:
+                logging.error('GET. unable to open file: %s', str(e))
+                return None
             content = val_file.readline().rstrip()
             if content == '':
                 logging.debug('GET. content is NULL. device_path:%s', device_path)
                 return None
             try:
-		        val_file.close()
+	            val_file.close()
             except:
                 logging.debug('GET. unable to close file. device_path:%s', device_path)
                 return None      
             return int(content)
-            
-        else:
-            print "No such device_path=%s"%device_path
-            return 0
+        
+        return 0
 
     def get_num_thermals(self):
         return self.THERMAL_NUM_MAX
@@ -116,16 +113,10 @@ class ThermalUtil(object):
 
 def main():
     thermal = ThermalUtil()
-    print "termal1=%d" %thermal._get_thermal_val(1)
-    print "termal2=%d" %thermal._get_thermal_val(2)
-    print "termal3=%d" %thermal._get_thermal_val(3)
-    print "termal4=%d" %thermal._get_thermal_val(4)
-    print "termal5=%d" %thermal._get_thermal_val(5)    
-#
-#    print 'get_size_node_map : %d' % thermal.get_size_node_map()
-#    print 'get_size_path_map : %d' % thermal.get_size_path_map()
-#    for x in range(thermal.get_idx_thermal_start(), thermal.get_num_thermals()+1):
-#        print thermal.get_thermal_to_device_path(x)
-#
+    logging.debug('thermal1=%d', thermal._get_thermal_val(1))
+    logging.debug('thermal2=%d', thermal._get_thermal_val(2))
+    logging.debug('thermal3=%d', thermal._get_thermal_val(3))
+    logging.debug('thermal4=%d', thermal._get_thermal_val(4))
+    logging.debug('thermal5=%d', thermal._get_thermal_val(5))
 if __name__ == '__main__':
     main()
