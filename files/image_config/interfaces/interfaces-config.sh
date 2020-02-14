@@ -7,5 +7,3 @@ sonic-cfggen -d -t /usr/share/sonic/templates/interfaces.j2 > /etc/network/inter
 [ -f /var/run/dhclient.eth0.pid ] && kill `cat /var/run/dhclient.eth0.pid` && rm -f /var/run/dhclient.eth0.pid
 
 systemctl restart networking
-
-ifdown lo && ifup lo
