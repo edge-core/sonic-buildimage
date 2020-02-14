@@ -14,9 +14,11 @@ try:
     from sonic_platform_base.chassis_base import ChassisBase
     from sonic_platform.sfp import Sfp
     from sonic_platform.eeprom import Eeprom
-
+    from sonic_platform.psu import Psu
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
+
+MAX_Z9264F_PSU = 2
 
 
 class Chassis(ChassisBase):
@@ -51,6 +53,10 @@ class Chassis(ChassisBase):
             self._sfp_list.append(sfp_node)
 
         self._eeprom = Eeprom()
+
+        for i in range(MAX_Z9264F_PSU):
+            psu = Psu(i)
+            self._psu_list.append(psu)
 
         for port_num in range(self.PORT_START, (self.PORT_END + 1)):
             presence = self.get_sfp(port_num).get_presence()
