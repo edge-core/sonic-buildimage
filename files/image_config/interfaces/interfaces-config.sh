@@ -20,4 +20,4 @@ fi
 
 systemctl restart networking
 
-ifdown lo && ifup lo
+ifdown --force lo && ifup lo
