@@ -2,5 +2,4 @@
 0002-Reduce-severity-of-Vty-connected-from-message.patch
 0003-Use-vrf_id-for-vrf-not-tabled_id.patch
 0004-Allow-BGP-attr-NEXT_HOP-to-be-0.0.0.0-due-to-allevia.patch
-0005-nexthops-compare-vrf-only-if-ip-type.patch
 0006-changes-for-making-snmp-socket-non-blocking.patch
