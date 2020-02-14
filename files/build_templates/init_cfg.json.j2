@@ -25,7 +25,7 @@
 {% endfor %}
     },
     "CONTAINER_FEATURE": {
-{%- for container in ["bgp", "database", "dhcp_relay", "lldp", "pmon", "radv", "rest-api", "sflow",
+{%- for container in ["bgp", "database", "dhcp_relay", "lldp", "pmon", "radv", "restapi", "sflow",
                       "snmp", "swss", "syncd", "teamd", "telemetry"] %}
         "{{container}}": {
             "auto_restart": "disabled",
