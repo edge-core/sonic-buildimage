@@ -17,8 +17,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
-
-
 #include <linux/kernel.h>
 #include <linux/ioport.h>
 #include <linux/module.h>
@@ -32,7 +30,6 @@
 #include <linux/io.h>
 #include <asm/irq.h>
 #include "i2c-algo-lpc.h"
-#include "i2c-algo-lpc2iic.h"
 #include <linux/moduleparam.h>
 #include <linux/slab.h>
 #include <linux/fs.h>
@@ -41,11 +38,9 @@
 #include <linux/fcntl.h>
 #include <linux/device.h>
 #include <linux/cdev.h>
-#include <linux/pci.h>
 #include <asm/uaccess.h>
 #include <asm/atomic.h>
 #include <linux/i2c-mux.h>
-#include <linux/slab.h>
 #include <linux/list.h>
 #include <linux/dmi.h>
 #include <linux/dma-mapping.h>
@@ -56,6 +51,20 @@
 # include <sys/ioctl.h>
 #endif
 
+#include <linux/input.h>
+#include <linux/of_device.h>
+#include <linux/of.h>
+#include <linux/of_gpio.h>
+#include <net/sock.h>
+#include <linux/netlink.h>
+#include <linux/rtc.h>
+
+
+
+
+
+/**********************************************   Start  ********************************************************/
+
 /*
  * ISA bus.
  */
@@ -65,7 +74,7 @@ static void platform_isa_bus_release(struct device * dev)
     return ;
 }
 
-	
+
 static struct device isa_bus = {
 	.init_name	= "lpc-isa",
     .release = platform_isa_bus_release,
@@ -76,9 +85,9 @@ struct isa_dev {
 	struct device *next;
 	unsigned int id;
 };
-	
+
 #define to_isa_dev(x) container_of((x), struct isa_dev, dev)
-	
+
 static int isa_bus_match(struct device *dev, struct device_driver *driver)
 {
 	struct isa_driver *isa_driver = to_isa_driver(driver);
@@ -223,7 +232,7 @@ int lpc_register_driver(struct isa_driver *isa_driver, unsigned int ndev)
 	return error;
 }
 
-	
+
 int lpc_bus_init(void)
 {
 	int error;
@@ -246,6 +255,14 @@ void lpc_bus_exit(void)
 }
 
 
+/**********************************************   End  ********************************************************/
+
+
+
+
+
+
+/**********************************************   Start  ********************************************************/
 /*
  * module parameters:
  */
@@ -253,10 +270,10 @@ static int i2c_debug = 0;
 static struct mutex	lpc_lock;
 
 
-#define DEB2(x) if (i2c_debug >= 2) x
-#define DEB3(x) if (i2c_debug >= 3) x 
+#define DEB2(x) if (i2c_debug == 2) x
+#define DEB3(x) if (i2c_debug == 3) x
     /* print several statistical values */
-#define DEBPROTO(x) if (i2c_debug >= 9) x;
+#define DEBPROTO(x) if (i2c_debug == 9) x;
 	/* debug the protocol by showing transferred bits */
 #define DEF_TIMEOUT 160
 
@@ -284,48 +301,46 @@ static struct mutex	lpc_lock;
 #define LPC_FPRINTF_LOG_PATH "/tmp/file.log"
 struct file *lpc_fprintf_file = NULL;
 
-
 static int lpc_fprintf_debug(const char *fmt, ...)
 {
 	char lpc_fprintf_buf[256]={0};
-
 	struct va_format vaf;
 	va_list args;
 	int r;
-	unsigned int file_size = 0;
 	mm_segment_t old_fs;
 	struct timeval tv;
+	struct rtc_time tm;
+
     do_gettimeofday(&tv);
+
+	rtc_time_to_tm(tv.tv_sec,&tm);
 
 	va_start(args, fmt);
 	vaf.fmt = fmt;
 	vaf.va = &args;
-	r=snprintf(lpc_fprintf_buf,"[%012d.%012d] %pV\n",sizeof(lpc_fprintf_buf),tv.tv_sec, tv.tv_usec, &vaf);
+	r=snprintf(lpc_fprintf_buf,sizeof(lpc_fprintf_buf),"[%04d.%08d] %pV\n",tm.tm_sec, (int)tv.tv_usec, &vaf);
 	va_end(args);
-
 	old_fs = get_fs();
 	set_fs(KERNEL_DS);
-	lpc_fprintf_file->f_op->write(lpc_fprintf_file, (char *)lpc_fprintf_buf, strlen(lpc_fprintf_buf), &lpc_fprintf_file->f_pos);
+	vfs_write(lpc_fprintf_file, (char *)&lpc_fprintf_buf, strlen(lpc_fprintf_buf), &lpc_fprintf_file->f_pos);
 	set_fs(old_fs);
-	
 	memset(lpc_fprintf_buf,0x0,sizeof(lpc_fprintf_buf));
 	return r;
 
 }
 
 
+
 static int lpc_fprintf_init(void)
 {
-	mm_segment_t old_fs;
-	
-	DEB2(printk("lpc_fprintf_init.\n");)
-
+	printk("lpc_fprintf_init.\n");
 
 	if(lpc_fprintf_file == NULL)
 		lpc_fprintf_file = filp_open(LPC_FPRINTF_LOG_PATH, O_RDWR | O_APPEND | O_CREAT, 0644);
+
 	if (IS_ERR(lpc_fprintf_file)) {
-		DEB2(printk("error occured while opening file %s, exiting...\n", LPC_FPRINTF_LOG_PATH);)
-		return 0;
+		printk("Error occured while opening file %s, exiting...\n", LPC_FPRINTF_LOG_PATH);
+		return -1;
 	}
 
 	return 0;
@@ -333,10 +348,11 @@ static int lpc_fprintf_init(void)
 
 static int lpc_fprintf_exit(void)
 {
-	DEB2(printk("lpc_fprintf_exit.\n");)
+	printk("lpc_fprintf_exit.\n");
 
 	if(lpc_fprintf_file != NULL)
 		filp_close(lpc_fprintf_file, NULL);
+
 	return 0;
 }
 
@@ -366,14 +382,13 @@ void print_reg(struct i2c_algo_lpc_data *adap)
 
 static void i2c_repstart(struct i2c_algo_lpc_data *adap)
 {
-	DEBPROTO(lpc_fprintf_debug(" Sr\n"));
+	DEBPROTO(lpc_fprintf_debug("%s :\n",__func__);)
 	set_lpc(adap, I2C_LPC_REG_COMMAND, I2C_LPC_REPSTART);
 }
 
 static void i2c_stop(struct i2c_algo_lpc_data *adap)
 {
 	DEBPROTO(lpc_fprintf_debug("%s :\n",__func__);)
-
 	set_lpc(adap, I2C_LPC_REG_COMMAND, I2C_LPC_STOP);
 	udelay(60);
 	set_lpc(adap, I2C_LPC_REG_COMMAND, 0x00);
@@ -384,15 +399,11 @@ static void i2c_stop(struct i2c_algo_lpc_data *adap)
 
 static void i2c_start(struct i2c_algo_lpc_data *adap)
 {
-	unsigned char status;
-	int timeout = DEF_TIMEOUT;
-
 	print_reg(adap);
 
 	set_lpc(adap, I2C_LPC_REG_COMMAND, I2C_LPC_START);
 
 	print_reg(adap);
-
 }
 
 
@@ -406,7 +417,7 @@ static int wait_for_bb(struct i2c_algo_lpc_data *adap)
 
 	while (--timeout) {
 		status = get_lpc(adap, I2C_LPC_REG_STATUS);
-		
+
 		DEBPROTO(lpc_fprintf_debug("%s : Waiting for bus free status : %x\n",__func__,status);)
 
 		if(status == I2C_LPC_TD)
@@ -421,7 +432,7 @@ static int wait_for_bb(struct i2c_algo_lpc_data *adap)
 		return -ETIMEDOUT;
 	}
 
-	
+
 
 	return 0;
 }
@@ -437,7 +448,7 @@ static int wait_for_be(int mode,struct i2c_algo_lpc_data *adap)
 	while (--timeout) {
 
 		status = get_lpc(adap, I2C_LPC_REG_STATUS);
-	
+
 		DEBPROTO(lpc_fprintf_debug("%s : Waiting for bus empty status : %x\n",__func__,status);)
 
 		if(mode == 1)
@@ -456,9 +467,9 @@ static int wait_for_be(int mode,struct i2c_algo_lpc_data *adap)
 				break;
 			}
 		}
-		
+
 		status = get_lpc(adap, I2C_LPC_REG_TEST);
-		
+
 		DEBPROTO(lpc_fprintf_debug("%s : The test register data : %x\n",__func__,status);)
 		udelay(1); /* wait for 100 us */
 	}
@@ -481,7 +492,7 @@ static int wait_for_bf(struct i2c_algo_lpc_data *adap)
 
 	while (--timeout) {
 		status = get_lpc(adap, I2C_LPC_REG_STATUS);
-		
+
 		DEBPROTO(lpc_fprintf_debug("%s : Waiting for bus full status : %x\n",__func__,status);)
 
 		if(status & I2C_LPC_RBF)
@@ -491,7 +502,7 @@ static int wait_for_bf(struct i2c_algo_lpc_data *adap)
 		}
 
 		status = get_lpc(adap, I2C_LPC_REG_TEST);
-		
+
 		DEBPROTO(lpc_fprintf_debug("%s : The test register data : %x\n",__func__,status);)
 		udelay(1); /* wait for 100 us */
 	}
@@ -513,7 +524,7 @@ static int wait_for_td(struct i2c_algo_lpc_data *adap)
 	while (--timeout) {
 		udelay(4);
 		status = get_lpc(adap, I2C_LPC_REG_STATUS);
-		
+
 		DEBPROTO(lpc_fprintf_debug("%s : Waiting for bus done status : %x\n",__func__,status);)
 
 		if(status == I2C_LPC_TD)
@@ -545,7 +556,7 @@ static int wait_for_pin(struct i2c_algo_lpc_data *adap, int *status)
 	if (timeout == 0)
 		return -ETIMEDOUT;
 
-	
+
 	return 0;
 }
 
@@ -565,7 +576,7 @@ static int lpc_doAddress(struct i2c_algo_lpc_data *adap,struct i2c_msg *msg)
 	{
 		DEBPROTO(lpc_fprintf_debug("step 2 : write mode then write device address 0x%x\n",addr);)
 	}
-	
+
 	if (flags & I2C_M_REV_DIR_ADDR)
 	{
 		addr ^= 1;
@@ -629,33 +640,33 @@ static int lpc_sendbytes(struct i2c_adapter *i2c_adap, struct i2c_msg *msg)
 			DEBPROTO(lpc_fprintf_debug("step 4 : Send data[%d] = %x\n",i+0,buf[i+0]);)
 			i += 1;
 		}
-		
+
 		/* Send START */
 		DEBPROTO(lpc_fprintf_debug("step 5-1 : Delay 6mS \n");)
-		udelay(6000);		
+		udelay(6000);
 		DEBPROTO(lpc_fprintf_debug("step 5-2 : Start to transfrom \n");)
 		i2c_stop(adap);
 		i2c_start(adap);
 		DEBPROTO(lpc_fprintf_debug("step 5-3 : Start done\n");)
 
-		udelay(400);	
+		udelay(400);
 		DEBPROTO(lpc_fprintf_debug("step 6 : Waiting for BE\n");)
 		timeout = wait_for_td(adap);
 		if (timeout) {
 			DEBPROTO(lpc_fprintf_debug("step 6 : Timeout waiting for BE \n");)
-			return -1;
+			return -EREMOTEIO;
 		}
 	}while (i < count);
-		
+
 	if(i == count)
 	{
 		DEBPROTO(lpc_fprintf_debug("Writen %d bytes successd !\n",count);)
 		return i;
 	}
 	else
-	{	
+	{
 		DEBPROTO(lpc_fprintf_debug("Writen %d bytes failed \n",count);)
-		return -1;
+		return -EIO;
 	}
 }
 
@@ -663,7 +674,6 @@ static int lpc_readbytes(struct i2c_adapter *i2c_adap, struct i2c_msg *msg)
 {
 	int i=0,timeout=0;
 	struct i2c_algo_lpc_data *adap = i2c_adap->algo_data;
-	int wfp;
 
 	unsigned int count = msg->len;
 	unsigned char *buf = msg->buf;
@@ -675,27 +685,27 @@ static int lpc_readbytes(struct i2c_adapter *i2c_adap, struct i2c_msg *msg)
 
 		/* Send START */
 		DEBPROTO(lpc_fprintf_debug("step 9-1 : Delay 6mS\n");)
-		udelay(6000);			
+		udelay(6000);
 		DEBPROTO(lpc_fprintf_debug("step 9-2 : Start to receive data\n");)
 		i2c_stop(adap);
 		i2c_start(adap);
 		DEBPROTO(lpc_fprintf_debug("step 9-3 : Start done\n");)
 
-		udelay(400);	
+		udelay(400);
 		DEBPROTO(lpc_fprintf_debug("step 10 : Waiting for TD\n");)
 		timeout = wait_for_td(adap);
 		if (timeout) {
 			DEBPROTO(lpc_fprintf_debug("step 10 : Timeout waiting for TD \n");)
-			return -1;
+			return -EREMOTEIO;
 		}
-		
+
 		if((count -i) >= 4)
 		{
 			buf[i+0] = 0xff & i2c_inbyte1(adap);
 			buf[i+1] = 0xff & i2c_inbyte2(adap);
 			buf[i+2] = 0xff & i2c_inbyte3(adap);
 			buf[i+3] = 0xff & i2c_inbyte4(adap);
-			
+
 			DEBPROTO(lpc_fprintf_debug("step 11 : Receive data[%d] = %x\n",i+0,buf[i+0]);)
 			DEBPROTO(lpc_fprintf_debug("step 11 : Receive data[%d] = %x\n",i+1,buf[i+1]);)
 			DEBPROTO(lpc_fprintf_debug("step 11 : Receive data[%d] = %x\n",i+2,buf[i+2]);)
@@ -732,19 +742,17 @@ static int lpc_readbytes(struct i2c_adapter *i2c_adap, struct i2c_msg *msg)
 
 
 	}while(i < count);
-	
+
 	if(i == count)
 	{
 		DEBPROTO(lpc_fprintf_debug("Read %d bytes successd !\n",count);)
 		return i;
 	}
 	else
-	{	
+	{
 		DEBPROTO(lpc_fprintf_debug("Read %d bytes failed \n",count);)
-		return -1;
+		return -EIO;
 	}
-
-	return i;
 }
 
 
@@ -768,7 +776,7 @@ static int lpc_master_xfer(struct i2c_adapter *i2c_adap,
 	struct i2c_algo_lpc_data *adap = i2c_adap->algo_data;
 	struct i2c_msg *pmsg;
 	int i;
-	int ret=0, timeout, status;
+	int ret=0;
 
 	mutex_lock(&lpc_lock);
 
@@ -810,11 +818,12 @@ static int lpc_master_xfer(struct i2c_adapter *i2c_adap,
 
 	if (adap->xfer_end)
 		adap->xfer_end(&i2c_adap->nr);
-	
+
 	mutex_unlock(&lpc_lock);
 
-	return i;
+	DEBPROTO(lpc_fprintf_debug("ret = 0x%x num = 0x%x i = 0x%x.\n",ret,num,i));
 
+	return ret = (ret < 0) ? ret : num;
 }
 
 
@@ -831,38 +840,14 @@ static const struct i2c_algorithm lpc_algo = {
 };
 
 
-/*
- * registering functions to load algorithms at runtime
- */
-int lpc_add_iic_bus(struct i2c_adapter *adap,unsigned int id)
-{
-	//struct i2c_algo_lpc_data *lpc_adap = adap->3;
-	int rval,num;
-
-	DEB2(dev_dbg(&adap->dev, "hw routines registered.\n"));
-
-	/* register new adapter to i2c module... */
-	adap->algo = &lpc_algo;
-	
-	for(num = 0; num < LPC_I2C_MAX_NCHANS;num++)
-	{
-		adap->nr = num;
-		snprintf(adap->name, sizeof(adap->name),
-		 "i2c-%d-lpc (chan_id %d)", i2c_adapter_id(adap), num);
-		if(num)
-		{
-			rval = i2c_add_numbered_adapter(adap);
-		}
-		else
-		{
-			rval = i2c_add_adapter(adap);
-		}
-	}
-	return rval;
-}
-EXPORT_SYMBOL(lpc_add_iic_bus);
+/**********************************************   End  ********************************************************/
 
 
+
+
+
+
+/**********************************************   Start  ********************************************************/
 #define DEFAULT_BASE 0x0a00
 
 static int lpc_base= 0x0a00;
@@ -905,7 +890,6 @@ struct cpld_dev_type *cpld_device;
 
 static void lpc_cpld_setbyte(void *data, int ctl, int val)
 {
-	//udelay(2);
     outb(ctl, LPC_INDEX_REG);
     mb();
 
@@ -916,7 +900,7 @@ static void lpc_cpld_setbyte(void *data, int ctl, int val)
 static int lpc_cpld_getbyte(void *data, int ctl)
 {
 	u8 val = 0;
-	//udelay(2);
+
     outb(ctl, LPC_INDEX_REG);
     mb();
 
@@ -929,16 +913,22 @@ static int lpc_cpld_getbyte(void *data, int ctl)
 static void lpc_iic_setbyte(void *data, int ctl, int val)
 {
     if (!cpld_device)
-        return -ENOTTY;
+    {
+        return  ;
+    }
 
     if (down_interruptible(&cpld_device->sem))
-        return -ERESTARTSYS;
-	
+	{
+		return	;
+	}
+
+
 	lpc_cpld_setbyte(data,ctl,val);
-	
+
 	up(&cpld_device->sem);
-	DEB2(printk("%s REG[%x] = %x\n",__func__,ctl,val);)
+	DEBPROTO(lpc_fprintf_debug("%s REG[%x] = %x\n",__func__,ctl,val);)
 }
+
 
 static int lpc_iic_getbyte(void *data, int ctl)
 {
@@ -950,9 +940,9 @@ static int lpc_iic_getbyte(void *data, int ctl)
         return -ERESTARTSYS;
 
 	val = lpc_cpld_getbyte(data,ctl);
-	
+
 	up(&cpld_device->sem);
-	DEB2(printk("%s REG[%x] = %x\n",__func__,ctl,val);)
+	DEBPROTO(lpc_fprintf_debug("%s REG[%x] = %x\n",__func__,ctl,val);)
     return val;
 }
 
@@ -964,7 +954,7 @@ int cig_cpld_read_register(u8 reg_off, u8 *val)
     if (down_interruptible(&cpld_device->sem))
         return -ERESTARTSYS;
 
-    *val = lpc_cpld_getbyte(cpld_device, reg_off);   
+    *val = lpc_cpld_getbyte(cpld_device, reg_off);
 
 	up(&cpld_device->sem);
 
@@ -1039,24 +1029,24 @@ static irqreturn_t lpc_iic_handler(int this_irq, void *dev_id) {
 static int board_id = 0;
 
 
-static int lpc_select_chan(void *data)
+static int lpc_iic_select(void *data)
 {
 	unsigned int chan_id=0;
 	chan_id = *(unsigned int *)data;
-	chan_id -= 1;
-	DEB2(printk("step 1 : selest channel id = %d\n",chan_id);)
+	chan_id -= 2;
+	DEBPROTO(lpc_fprintf_debug("step 1 : selest channel id = %d\n",chan_id);)
 	lpc_iic_setbyte(data,I2C_LPC_REG_BUS_SEL,chan_id);
 
 	return 0;
 }
 
-static int lpc_deselect_chan(void *data)
+static int lpc_iic_deselect(void *data)
 {
 
 	unsigned int chan_id=0;
 	chan_id = *(unsigned int *)data;
-	chan_id -= 1;
-	DEB2(printk("step last :deselect channel id = %d\n",chan_id);)
+	chan_id -= 2;
+	DEBPROTO(lpc_fprintf_debug("step last :deselect channel id = %d\n",chan_id);)
 
 	return 0;
 }
@@ -1072,8 +1062,8 @@ static struct i2c_algo_lpc_data lpc_iic_data = {
 	.getown	    = lpc_iic_getown,
 	.getclock   = lpc_iic_getclock,
 	.waitforpin = lpc_iic_waitforpin,
-	.xfer_begin = lpc_select_chan,
-	.xfer_end	= lpc_deselect_chan,
+	.xfer_begin = lpc_iic_select,
+	.xfer_end	= lpc_iic_deselect,
 };
 
 #include <linux/i2c-algo-bit.h>
@@ -1082,12 +1072,12 @@ static struct i2c_adapter lpc_iic_arr_ops[LPC_I2C_MAX_NCHANS] = {0};
 
 static void dummy_setscl(void *data, int state)
 {
-	return 1;
+	return;
 }
 
 static void dummy_setsda(void *data, int state)
 {
-	return 1;
+	return;
 
 }
 
@@ -1170,9 +1160,7 @@ static int lpc_iic_probe(struct device *dev, unsigned int id)
 	DEB2(printk("lpc_iic_probe\n");)
 
 	mutex_init(&lpc_lock);
-	if(board_id == 1)
-		i2c_add_adapter(&i2c_dummy);
-	
+
 	for(num = 0; num < LPC_I2C_MAX_NCHANS;num++)
 	{
 		lpc_iic_arr_ops[num].dev.parent = dev;
@@ -1181,11 +1169,11 @@ static int lpc_iic_probe(struct device *dev, unsigned int id)
 		lpc_iic_arr_ops[num].algo = &lpc_algo;
 		lpc_iic_arr_ops[num].algo_data = &lpc_iic_data,
 		lpc_iic_arr_ops[num].nr=num;
-		snprintf(lpc_iic_arr_ops[num].name, sizeof(lpc_iic_arr_ops[num].name), "i2c-%d-lpc", i2c_adapter_id(&lpc_iic_arr_ops[num]), num);
+		snprintf(lpc_iic_arr_ops[num].name, sizeof(lpc_iic_arr_ops[num].name), "i2c-%d-lpc", i2c_adapter_id(&lpc_iic_arr_ops[num]));
 		rval |= i2c_add_adapter(&lpc_iic_arr_ops[num]);
 		DEB2(printk("%s\n",lpc_iic_arr_ops[num].name);)
 	}
-	
+
 	return 0;
 }
 
@@ -1198,8 +1186,6 @@ static int lpc_iic_remove(struct device *dev, unsigned int id)
 	for(num = LPC_I2C_MAX_NCHANS - 1; num >= 0 ;num--)
 		i2c_del_adapter(&lpc_iic_arr_ops[num]);
 
-	if(board_id == 1)
-		i2c_del_adapter(&i2c_dummy);
 
 	return 0;
 }
@@ -1214,8 +1200,15 @@ static struct isa_driver i2c_lpc_driver = {
 	},
 };
 
+/**********************************************   End  ********************************************************/
 
-struct kset cpld_kset;
+
+
+
+
+
+/**********************************************   Start  ********************************************************/
+
 static int cpld_major = 0;
 static int cpld_minor = 0;
 
@@ -1227,6 +1220,8 @@ struct cpld_rw_msg {
 
 static struct cpld_rw_msg param_read = {-1};
 static struct cpld_rw_msg param_write = {-1};
+static struct cpld_rw_msg param_reads = {-1};
+static struct cpld_rw_msg param_writes = {-1};
 
 void cpld_sysfs_kobj_release(struct kobject *kobj)
 {
@@ -1245,28 +1240,57 @@ int cpld_sysfs_add_attr(struct kobject* kobj, char* attr_name)
     return sysfs_create_file(kobj, attr);
 }
 
+static int cig_cpld_write_slave_cpld_register(u8 reg_addr, u8 reg_data);
+static int cig_cpld_read_slave_cpld_register(u8 reg_addr, u8 *reg_data);
+
 
 static ssize_t cpld_sysfs_show(struct kobject *kobj, struct attribute *attr, char *buffer)
 {
-	u8 val,ret;
+	u8 val=0,ret=0,year=0,month=0,day=0,cpld_m=0,cpld_1=0,cpld_2=0;
 
     if (0 == strcmp(attr->name, "read"))
     {
-		val = lpc_iic_getbyte(NULL,param_read.addr);	
-		ret = sprintf(buffer,"read : addr = %x val = %x\n",param_read.addr, val);
+		val = lpc_iic_getbyte(NULL,param_read.addr);
+		ret = sprintf(buffer,"read : addr = 0x%x val = 0x%x\n",param_read.addr, val);
 
     }
     else if (0 == strcmp(attr->name, "write"))
     {
 		lpc_iic_setbyte(NULL, param_write.addr,param_write.data);
-		ret = sprintf(buffer,"write : addr = %x val = %x\n",param_write.addr, param_write.data);
+		ret = sprintf(buffer,"write : addr = 0x%x val = 0x%x\n",param_write.addr, param_write.data);
     }
 	else if (0 == strcmp(attr->name, "version"))
     {
-		val = lpc_iic_getbyte(NULL, 0x02);
-		ret = sprintf(buffer,"CPLD version : V%02x\n",val);
+		cpld_m = lpc_iic_getbyte(NULL, 0x02);
+		year = lpc_iic_getbyte(NULL, 0x03);
+		month = lpc_iic_getbyte(NULL, 0x04);
+		day = lpc_iic_getbyte(NULL, 0x05);
+
+		cig_cpld_read_slave_cpld_register(0x1d,&cpld_1);
+		cig_cpld_read_slave_cpld_register(0x1e,&cpld_2);
+
+		ret = sprintf(buffer,"Main CPLD version : V%02x\n"\
+							  "Main CPLD date : 20%02x-%02x-%02x\n"\
+							  "Slave 1 CPLD version : V%02x\n"\
+							  "Slave 2 CPLD version : V%02x\n",cpld_m,year,month,day,cpld_1,cpld_2);
     }
-	
+    if (0 == strcmp(attr->name, "reads"))
+    {
+		ret = cig_cpld_read_slave_cpld_register(param_reads.addr,&val);
+		if (ret < 0)
+		    printk("ERROR:Failed to read slave cpld.\n");
+		ret = sprintf(buffer,"reads : addr = 0x%x val = 0x%x\n",param_reads.addr, val);
+
+    }
+    else if (0 == strcmp(attr->name, "writes"))
+    {
+		ret = cig_cpld_write_slave_cpld_register(param_writes.addr,param_writes.data);
+		if (ret < 0)
+		    printk("ERROR:Failed to read slave cpld.\n");
+		ret = sprintf(buffer,"writes : addr = 0x%x val = 0x%x\n",param_writes.addr, param_writes.data);
+    }
+
+
     return ret;
 
 }
@@ -1274,7 +1298,7 @@ static ssize_t cpld_sysfs_show(struct kobject *kobj, struct attribute *attr, cha
 static ssize_t cpld_sysfs_store(struct kobject *kobj, struct attribute *attr, const char *buffer, size_t count)
 {
     int param[3];
-    
+
     if (0 == strcmp(attr->name, "read"))
     {
         sscanf(buffer, "0x%02x", &param[0]);
@@ -1286,18 +1310,29 @@ static ssize_t cpld_sysfs_store(struct kobject *kobj, struct attribute *attr, co
         param_write.addr = param[0];
         param_write.data = param[1];
     }
+    if (0 == strcmp(attr->name, "reads"))
+    {
+        sscanf(buffer, "0x%02x", &param[0]);
+        param_reads.addr = param[0];
+    }
+    else if (0 == strcmp(attr->name, "writes"))
+    {
+        sscanf(buffer, "0x%2x 0x%02x", &param[0], &param[1]);
+        param_writes.addr = param[0];
+        param_writes.data = param[1];
+    }
 	return count;
 }
 
 
 
-static struct sysfs_ops cpld_sysfs_ops = 
-{   
+static struct sysfs_ops cpld_sysfs_ops =
+{
     .show   = cpld_sysfs_show,
     .store  = cpld_sysfs_store,
 };
 
-static struct kobj_type cpld_kobj_type = 
+static struct kobj_type cpld_kobj_type =
 {
     .release        = cpld_sysfs_kobj_release,
     .sysfs_ops      = &cpld_sysfs_ops,
@@ -1308,6 +1343,10 @@ static struct kobj_type cpld_kobj_type =
 static const char driver_name[] = "cpld_drv";
 static atomic_t cpld_available = ATOMIC_INIT(1);
 static struct class *cpld_class;
+static struct device *cpld_dev;
+
+
+
 #define CPLD_IOC_MAGIC  '['
 
 #define CPLD_IOC_RDREG  _IOR(CPLD_IOC_MAGIC, 0, struct cpld_rw_msg)
@@ -1340,7 +1379,7 @@ int cpld_release(struct inode *inode, struct file *flip)
 
 long cpld_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 {
-    int rc = 0; 
+    int rc = 0;
 	int err = 0;
     struct cpld_dev_type *dev = (struct cpld_dev_type *)filp->private_data;
     struct cpld_rw_msg msg;
@@ -1390,7 +1429,7 @@ struct file_operations cpld_fops = {
     .unlocked_ioctl = cpld_ioctl,
     .release        = cpld_release,
 };
-	
+
 
 static void cpld_setup_cdev(struct cpld_dev_type *dev)
 {
@@ -1404,166 +1443,710 @@ static void cpld_setup_cdev(struct cpld_dev_type *dev)
     if (err)
         DEB2(printk(KERN_NOTICE "Error %d adding cpld", err);)
 }
-//#define CPLD_KTHREAD_TEST
-#ifdef CPLD_KTHREAD_TEST
-#include <linux/kthread.h>
-#include <linux/sched.h>
-#include <linux/kernel.h>
-#include <linux/module.h>
-#include <linux/err.h>
-#include <linux/delay.h>
-static struct task_struct *test_TaskStruct;
-void get_random_bytes(void *buf, int nbytes);
-
-#define LM75_REAR_LEFT_PATH "/sys/class/hwmon/hwmon5/temp1_input"
-#define LM75_REAR_RIGHT_PATH "/sys/class/hwmon/hwmon6/temp1_input"
+/**********************************************    End   ********************************************************/
 
 
-static int threadTask(void* arg)
+
+
+/**********************************************   Start  ********************************************************/
+#include <linux/interrupt.h>
+#include <linux/gpio.h>
+#include <linux/irq.h>
+
+static spinlock_t		irq_inter_lock;
+static struct delayed_work irq_inter_work;
+static unsigned long irq_inter_delay;
+
+
+static int cig_cpld_write_slave_cpld_register(u8 reg_addr, u8 reg_data)
 {
-	static int count =0;
-	unsigned char lpc_read_data=0;
-	unsigned char lpc_write_data=0;
-	unsigned char lpc_random_data=0;
-	
-	struct file *temp1_file = NULL,*temp2_file = NULL;
-	unsigned char temp1_buffer[8]={0},temp2_buffer[8]={0};
-	
-	mm_segment_t old_fs;
-	while(1)
-	{
-		if(kthread_should_stop())
-		{
-			DEB2(printk("threadTask: kthread_should_stop\n"));
+	u8 read_status = 0;
+	u8 wait_time_out = WAIT_TIME_OUT_COUNT;
+	DEB2(printk("<=======write=========>"));
+	cig_cpld_write_register(ADDR_REG_SFP_STATUS_ADDR, reg_addr << 1);
+	DEB2(printk("[62]=%x\n",reg_addr << 1));
+	cig_cpld_write_register(ADDR_REG_SFP_STATUS_TX, reg_data);
+	DEB2(printk("[63]=%x\n",reg_data));
+	cig_cpld_write_register(ADDR_REG_SFP_STATUS_COMMAND, 0x80);
+	DEB2(printk("[65]=%x\n",0x80));
+	do{
+		cig_cpld_read_register(ADDR_REG_SFP_STATUS_STATUS, &read_status);
+		DEB2(printk("[66]=%x\n",read_status));
+		udelay(60);
+		wait_time_out--;
+		if(wait_time_out == 0)
 			break;
-		}	
-
-#if 1
-		get_random_bytes(&lpc_random_data,1);
-		
-		lpc_write_data = lpc_random_data;
-		
-		lpc_iic_setbyte(NULL,I2C_LPC_REG_TEST,lpc_write_data);		
-		//DEB2(printk("threadTask: lpc write reg[01] data : %02x\n",lpc_write_data));
-
-		lpc_read_data = lpc_iic_getbyte(NULL,I2C_LPC_REG_TEST);
-		//DEB2(printk("threadTask: lpc read reg[01] data : %02x\n",lpc_read_data));
-		udelay(10000);
-		if(lpc_write_data != lpc_read_data)
-		{
-			printk("Error : WRITE %02x != READ %02x\n",lpc_write_data,lpc_read_data);
-		}
-		msleep(10);
-#else
-
-		if(temp1_file != NULL)
-			temp1_file = filp_open(LM75_REAR_LEFT_PATH, O_RDONLY , 0);
-		if (IS_ERR(temp1_file)) {
-			printk("error occured while opening file %s, exiting...\n", LM75_REAR_LEFT_PATH);
-		}
-
-		if(temp2_file != NULL)
-			temp2_file = filp_open(LM75_REAR_RIGHT_PATH, O_RDONLY ,0);
-		if (IS_ERR(temp2_file)) {
-			printk("error occured while opening file %s, exiting...\n", LM75_REAR_RIGHT_PATH);
-		}
+	}while(read_status != 0x02);
+	DEB2(printk("<=======write=========>"));
 
 
-		old_fs = get_fs();
-		set_fs(KERNEL_DS);
+	if(wait_time_out == 0)
+		return -1;
 
-		temp1_file->f_op->read(temp1_file, (char *)temp1_buffer, strlen(temp1_buffer), &temp1_file->f_pos);
-
-		temp2_file->f_op->read(temp2_file, (char *)temp2_buffer, strlen(temp2_buffer), &temp2_file->f_pos);
-		
-		set_fs(old_fs);
-
-		if((simple_strtoul(temp1_buffer,NULL,10) >=30000) || (simple_strtoul(temp2_buffer,NULL,10) >=30000))
-		{
-			lpc_iic_setbyte(NULL,0x40,0xff);			
-			printk("Full speed\n");
-		}
-
-		msleep(1000);
-#endif
-	}
+	return 1;
 }
- 
-static int init_kernel_Thread(void)
+
+
+static int cig_cpld_read_slave_cpld_register(u8 reg_addr, u8 *reg_data)
 {
-	test_TaskStruct=kthread_create(threadTask,NULL,"KernelThead",0);
-	if(IS_ERR(test_TaskStruct))
-	{
-		printk("kthread_create error\n");
-	}
-	else
-	{
-		wake_up_process(test_TaskStruct);
-	}
-	 return 0;
+	u8 read_status = 0;
+	u8 wait_time_out = WAIT_TIME_OUT_COUNT;
+	DEB2(printk("<========read=========>"));
+	cig_cpld_write_register(ADDR_REG_SFP_STATUS_ADDR, reg_addr << 1 | 1);
+	DEB2(printk("[62]=%x\n",reg_addr << 1 | 1));
+	cig_cpld_write_register(ADDR_REG_SFP_STATUS_COMMAND, 0x80);
+	DEB2(printk("[65]=%x\n",0x80));
+	do{
+		udelay(60);
+		cig_cpld_read_register(ADDR_REG_SFP_STATUS_STATUS, &read_status);
+		DEB2(printk("[66]=%x\n",read_status));
+		wait_time_out--;
+		if(wait_time_out == 0)
+			break;
+	}while(read_status != 0x01);
+
+	cig_cpld_read_register(ADDR_REG_SFP_STATUS_RX,reg_data);
+	DEB2(printk("[64]=%x\n",*reg_data));
+	DEB2(printk("<========read=========>"));
+
+	if(wait_time_out == 0)
+		return -1;
+
+	return 1;
 }
 
-static void exit_kernel_Thread(void)
+
+
+struct sock *nlsk = NULL;
+extern struct net init_net;
+#define NETLINK_TEST     26
+#define MSG_LEN            125
+#define USER_PORT        100
+static u32 irq_present_status_low_current,irq_present_status_low_next;
+static u32 irq_present_status_high_current,irq_present_status_high_next;
+static u32 irq_tx_fault_status_low_current,irq_tx_fault_status_low_next;
+static u32 irq_tx_fault_status_high_current,irq_tx_fault_status_high_next;
+static u32 irq_rx_lost_status_low_current,irq_rx_lost_status_low_next;
+static u32 irq_rx_lost_status_high_current,irq_rx_lost_status_high_next;
+
+static u8 irq_present_qsfp_current,irq_present_qsfp_next;
+static u8 irq_interrupt_qsfp_current,irq_interrupt_qsfp_next;
+
+struct input_dev *cpld_input_dev;
+
+
+
+int send_usrmsg(char *pbuf, uint16_t len)
 {
-	kthread_stop(test_TaskStruct);
-	test_TaskStruct = NULL;
+    struct sk_buff *nl_skb;
+    struct nlmsghdr *nlh;
+
+    int ret;
+
+
+    nl_skb = nlmsg_new(len, GFP_ATOMIC);
+    if(!nl_skb)
+    {
+        printk("netlink alloc failure\n");
+        return -1;
+    }
+
+
+    nlh = nlmsg_put(nl_skb, 0, 0, NETLINK_TEST, len, 0);
+    if(nlh == NULL)
+    {
+        printk("nlmsg_put failaure \n");
+        nlmsg_free(nl_skb);
+        return -1;
+    }
+
+    memcpy(nlmsg_data(nlh), pbuf, len);
+    ret = netlink_unicast(nlsk, nl_skb, USER_PORT, MSG_DONTWAIT);
+
+    return ret;
 }
 
-#endif
+static void netlink_rcv_msg(struct sk_buff *skb)
+{
+
+    struct nlmsghdr *nlh = NULL;
+    char *umsg = NULL;
+    char kmsg[1024] = {0};
+	char kmsg_tmp[16] = {0};
+	u8 i = 0;
+	u8 tmp[3]={0};
+
+    if(skb->len >= nlmsg_total_size(0))
+    {
+        nlh = nlmsg_hdr(skb);
+        umsg = NLMSG_DATA(nlh);
+        if(umsg)
+		{
+			for(i = 0;i < 24;i++)
+			{
+				if(!(irq_present_status_low_current & (0x1 << i)))
+				{
+					tmp[0] = 1;
+				}
+				else
+				{
+					tmp[0] = 0;
+				}
+
+				if(!(irq_rx_lost_status_low_current & (0x1 << i)))
+				{
+					tmp[1] = 1;
+				}
+				else
+				{
+					tmp[1] = 0;
+				}
+
+				if(!(irq_tx_fault_status_low_current & (0x1 << i)))
+				{
+					tmp[2] = 1;
+				}
+				else
+				{
+					tmp[2] = 0;
+				}
+				memset(kmsg_tmp,0xff,sizeof(kmsg_tmp));
+				sprintf(kmsg_tmp,"sfp%02d:%1d:%1d:%1d ",i+1,tmp[0],tmp[1],tmp[2]);
+				strcat(kmsg,kmsg_tmp);
+			}
+
+			for(i = 0;i < 24;i++)
+			{
+				if(!(irq_present_status_high_current & (0x1 << i)))
+				{
+					tmp[0] = 1;
+				}
+				else
+				{
+					tmp[0] = 0;
+				}
+
+				if(!(irq_rx_lost_status_high_current & (0x1 << i)))
+				{
+					tmp[1] = 1;
+				}
+				else
+				{
+					tmp[1] = 0;
+				}
+
+				if(!(irq_tx_fault_status_high_current & (0x1 << i)))
+				{
+					tmp[2] = 1;
+				}
+				else
+				{
+					tmp[2] = 0;
+				}
+				memset(kmsg_tmp,0xff,sizeof(kmsg_tmp));
+				sprintf(kmsg_tmp,"sfp%02d:%1d:%1d:%1d ",i+25,tmp[0],tmp[1],tmp[2]);
+				strcat(kmsg,kmsg_tmp);
+			}
+
+
+			for(i = 0;i < 8;i++)
+			{
+				if(!(irq_present_qsfp_current & (0x1 << i)))
+				{
+					tmp[0] = 1;
+				}
+				else
+				{
+					tmp[0] = 0;
+				}
+
+				if(!(irq_interrupt_qsfp_current & (0x1 << i)))
+				{
+					tmp[1] = 1;
+				}
+				else
+				{
+					tmp[1] = 0;
+				}
+
+				memset(kmsg_tmp,0xff,sizeof(kmsg_tmp));
+				sprintf(kmsg_tmp,"qsfp%02d:%1d:%1d:%1d ",i+49,tmp[0],tmp[1],0);
+				strcat(kmsg,kmsg_tmp);
+			}
+
+            printk("kernel recv from user: %s\n", umsg);
+            send_usrmsg(kmsg, strlen(kmsg));
+        }
+    }
+
+	return ;
+}
+
+
+
+struct netlink_kernel_cfg cfg = {
+        .input  = netlink_rcv_msg, /* set recv callback */
+};
+
+
+
+#define RANGE_OF_BYTE_SHIFT(to_arg,shift,from_arg)  {to_arg &= ~(0xff << shift); to_arg |= from_arg << shift;}
+
+
+static void irq_inter_wapper(struct work_struct * work)
+{
+
+	u8 m_data = 0;
+	u8 data_high8 = 0,data_low8 = 0;
+	u16 data_16 = 0;
+	u8 status = 0;
+	u8 i = 0;
+	char kmsg[64]={0};
+	u8 tmp[3] = {0};
+
+	DEB2(printk("CPLD_MASTER_INTERRUPT\r\n"));
+
+	m_data = lpc_iic_getbyte(NULL,CPLD_MASTER_INTERRUPT_STATUS_REG);
+	lpc_iic_setbyte(NULL,CPLD_MASTER_INTERRUPT_STATUS_REG,0xff);
+
+	cig_cpld_write_slave_cpld_register(CPLD_SLAVE1_INTERRUPT_MASK_REG,0xff);
+	cig_cpld_write_slave_cpld_register(CPLD_SLAVE2_INTERRUPT_MASK_REG,0xff);
+	if(!(m_data & CPLD_MASTER_INTERRUPT_CPLD1))
+	{
+		cig_cpld_read_slave_cpld_register(CPLD_SLAVE1_INTERRUPT_STATUS_H_REG,&data_high8);
+		cig_cpld_read_slave_cpld_register(CPLD_SLAVE1_INTERRUPT_STATUS_L_REG,&data_low8);
+		data_16 = data_low8 | data_high8 << 8;
+		if(
+			!(data_16 & CPLD_SLAVE1_INTERRUPT_PRESENT08) ||
+			!(data_16 & CPLD_SLAVE1_INTERRUPT_PRESENT16) ||
+			!(data_16 & CPLD_SLAVE1_INTERRUPT_PRESENT24)
+		)
+		{
+			if(!(data_16 & CPLD_SLAVE1_INTERRUPT_PRESENT08))
+			{
+				DEB2(printk("CPLD_SLAVE1_INTERRUPT_PRESENT08\r\n"));
+				cig_cpld_read_slave_cpld_register(CPLD_SLAVE1_PRESENT08_REG,&status);
+				RANGE_OF_BYTE_SHIFT(irq_present_status_low_current,0,status);
+
+			}
+			else if(!(data_16 & CPLD_SLAVE1_INTERRUPT_PRESENT16))
+			{
+				DEB2(printk("CPLD_SLAVE1_INTERRUPT_PRESENT16\r\n"));
+				cig_cpld_read_slave_cpld_register(CPLD_SLAVE1_PRESENT16_REG,&status);
+				RANGE_OF_BYTE_SHIFT(irq_present_status_low_current,8,status);
+			}
+			else if(!(data_16 & CPLD_SLAVE1_INTERRUPT_PRESENT24))
+			{
+				DEB2(printk("CPLD_SLAVE1_INTERRUPT_PRESENT24\r\n"));
+				cig_cpld_read_slave_cpld_register(CPLD_SLAVE1_PRESENT24_REG,&status);
+				RANGE_OF_BYTE_SHIFT(irq_present_status_low_current,16,status);
+			}
+			DEB2(printk("irq_present_status_low_next = %08x irq_present_status_low_current = %08x \n",irq_present_status_low_next,irq_present_status_low_current));
+		}
+
+		if(
+			!(data_16 & CPLD_SLAVE1_INTERRUPT_RX_LOST08) ||
+			!(data_16 & CPLD_SLAVE1_INTERRUPT_RX_LOST16) ||
+			!(data_16 & CPLD_SLAVE1_INTERRUPT_RX_LOST24)
+		)
+		{
+			if(!(data_16 & CPLD_SLAVE1_INTERRUPT_RX_LOST08))
+			{
+				DEB2(printk("CPLD_SLAVE1_INTERRUPT_RX_LOST08\r\n"));
+				cig_cpld_read_slave_cpld_register(CPLD_SLAVE1_RX_LOST08_REG,&status);
+				RANGE_OF_BYTE_SHIFT(irq_rx_lost_status_low_current,0,status);
+
+			}
+			else if(!(data_16 & CPLD_SLAVE1_INTERRUPT_RX_LOST16))
+			{
+				DEB2(printk("CPLD_SLAVE1_INTERRUPT_PRESENT16\r\n"));
+				cig_cpld_read_slave_cpld_register(CPLD_SLAVE1_RX_LOST16_REG,&status);
+				RANGE_OF_BYTE_SHIFT(irq_rx_lost_status_low_current,8,status);
+			}
+			else if(!(data_16 & CPLD_SLAVE1_INTERRUPT_RX_LOST24))
+			{
+				DEB2(printk("CPLD_SLAVE1_INTERRUPT_PRESENT24\r\n"));
+				cig_cpld_read_slave_cpld_register(CPLD_SLAVE1_RX_LOST24_REG,&status);
+				RANGE_OF_BYTE_SHIFT(irq_rx_lost_status_low_current,16,status);
+			}
+			DEB2(printk("irq_rx_lost_status_low_next = %08x irq_rx_lost_status_low_current = %08x \n",irq_rx_lost_status_low_next,irq_rx_lost_status_low_current));
+		}
+
+		if(
+			!(data_16 & CPLD_SLAVE1_INTERRUPT_RX_LOST08) ||
+			!(data_16 & CPLD_SLAVE1_INTERRUPT_RX_LOST16) ||
+			!(data_16 & CPLD_SLAVE1_INTERRUPT_RX_LOST24)
+		)
+		{
+			if(!(data_16 & CPLD_SLAVE1_INTERRUPT_TX_FAULT08))
+			{
+				DEB2(printk("CPLD_SLAVE1_INTERRUPT_TX_FAULT08\r\n"));
+				cig_cpld_read_slave_cpld_register(CPLD_SLAVE1_TX_FAULT08_REG,&status);
+				RANGE_OF_BYTE_SHIFT(irq_tx_fault_status_low_current,0,status);
+
+			}
+			else if(!(data_16 & CPLD_SLAVE1_INTERRUPT_TX_FAULT16))
+			{
+				DEB2(printk("CPLD_SLAVE1_INTERRUPT_TX_FAULT16\r\n"));
+				cig_cpld_read_slave_cpld_register(CPLD_SLAVE1_TX_FAULT16_REG,&status);
+				RANGE_OF_BYTE_SHIFT(irq_tx_fault_status_low_current,8,status);
+			}
+			else if(!(data_16 & CPLD_SLAVE1_INTERRUPT_TX_FAULT24))
+			{
+				DEB2(printk("CPLD_SLAVE1_INTERRUPT_TX_FAULT24\r\n"));
+				cig_cpld_read_slave_cpld_register(CPLD_SLAVE1_TX_FAULT24_REG,&status);
+				RANGE_OF_BYTE_SHIFT(irq_tx_fault_status_low_current,16,status);
+			}
+			DEB2(printk("irq_tx_fault_status_low_next = %08x irq_tx_fault_status_low_current = %08x \n",irq_tx_fault_status_low_next,irq_tx_fault_status_low_current));
+
+		}
+	}
+	else if(!(m_data & CPLD_MASTER_INTERRUPT_CPLD2))
+	{
+		cig_cpld_read_slave_cpld_register(CPLD_SLAVE2_INTERRUPT_STATUS_H_REG,&data_high8);
+		cig_cpld_read_slave_cpld_register(CPLD_SLAVE2_INTERRUPT_STATUS_L_REG,&data_low8);
+		data_16 = data_low8 | data_high8 << 8;
+		if(
+			!(data_16 & CPLD_SLAVE2_INTERRUPT_PRESENT32) ||
+			!(data_16 & CPLD_SLAVE2_INTERRUPT_PRESENT40) ||
+			!(data_16 & CPLD_SLAVE2_INTERRUPT_PRESENT48)
+		)
+		{
+			if(!(data_16 & CPLD_SLAVE2_INTERRUPT_PRESENT32))
+			{
+				DEB2(printk("CPLD_SLAVE2_PRESENT32_REG\r\n"));
+				cig_cpld_read_slave_cpld_register(CPLD_SLAVE2_PRESENT32_REG,&status);
+				RANGE_OF_BYTE_SHIFT(irq_present_status_high_current,0,status);
+			}
+			else if(!(data_16 & CPLD_SLAVE2_INTERRUPT_PRESENT40))
+			{
+				DEB2(printk("CPLD_SLAVE2_PRESENT40_REG\r\n"));
+				cig_cpld_read_slave_cpld_register(CPLD_SLAVE2_PRESENT40_REG,&status);
+				RANGE_OF_BYTE_SHIFT(irq_present_status_high_current,8,status);
+			}
+			else if(!(data_16 & CPLD_SLAVE2_INTERRUPT_PRESENT48))
+			{
+				DEB2(printk("CPLD_SLAVE2_INTERRUPT_PRESENT48\r\n"));
+				cig_cpld_read_slave_cpld_register(CPLD_SLAVE2_PRESENT48_REG,&status);
+				RANGE_OF_BYTE_SHIFT(irq_present_status_high_current,16,status);
+			}
+		}
+
+		if(
+			!(data_16 & CPLD_SLAVE2_INTERRUPT_RX_LOST32) ||
+			!(data_16 & CPLD_SLAVE2_INTERRUPT_RX_LOST40) ||
+			!(data_16 & CPLD_SLAVE2_INTERRUPT_RX_LOST48)
+		)
+		{
+			if(!(data_16 & CPLD_SLAVE2_INTERRUPT_RX_LOST32))
+			{
+				DEB2(printk("CPLD_SLAVE2_INTERRUPT_RX_LOST32\r\n"));
+				cig_cpld_read_slave_cpld_register(CPLD_SLAVE2_RX_LOST32_REG,&status);
+				RANGE_OF_BYTE_SHIFT(irq_rx_lost_status_high_current,0,status);
+			}
+			else if(!(data_16 & CPLD_SLAVE2_INTERRUPT_RX_LOST40))
+			{
+				DEB2(printk("CPLD_SLAVE2_INTERRUPT_PRESENT40\r\n"));
+				cig_cpld_read_slave_cpld_register(CPLD_SLAVE2_RX_LOST40_REG,&status);
+				RANGE_OF_BYTE_SHIFT(irq_rx_lost_status_high_current,8,status);
+			}
+			else if(!(data_16 & CPLD_SLAVE2_INTERRUPT_RX_LOST48))
+			{
+				DEB2(printk("CPLD_SLAVE2_INTERRUPT_PRESENT48\r\n"));
+				cig_cpld_read_slave_cpld_register(CPLD_SLAVE2_RX_LOST48_REG,&status);
+				RANGE_OF_BYTE_SHIFT(irq_rx_lost_status_high_current,16,status);
+			}
+
+		}
+
+		if(
+			!(data_16 & CPLD_SLAVE2_INTERRUPT_TX_FAULT32) ||
+			!(data_16 & CPLD_SLAVE2_INTERRUPT_TX_FAULT40) ||
+			!(data_16 & CPLD_SLAVE2_INTERRUPT_TX_FAULT48)
+		)
+		{
+			if(!(data_16 & CPLD_SLAVE2_INTERRUPT_TX_FAULT32))
+			{
+				DEB2(printk("CPLD_SLAVE2_INTERRUPT_RX_LOST32\r\n"));
+				cig_cpld_read_slave_cpld_register(CPLD_SLAVE2_TX_FAULT32_REG,&status);
+				RANGE_OF_BYTE_SHIFT(irq_tx_fault_status_high_current,0,status);
+			}
+			else if(!(data_16 & CPLD_SLAVE2_INTERRUPT_TX_FAULT40))
+			{
+				DEB2(printk("CPLD_SLAVE2_INTERRUPT_PRESENT40\r\n"));
+				cig_cpld_read_slave_cpld_register(CPLD_SLAVE2_TX_FAULT40_REG,&status);
+				RANGE_OF_BYTE_SHIFT(irq_tx_fault_status_high_current,8,status);
+			}
+			else if(!(data_16 & CPLD_SLAVE2_INTERRUPT_TX_FAULT48))
+			{
+				DEB2(printk("CPLD_SLAVE2_INTERRUPT_PRESENT48\r\n"));
+				cig_cpld_read_slave_cpld_register(CPLD_SLAVE2_TX_FAULT48_REG,&status);
+				RANGE_OF_BYTE_SHIFT(irq_tx_fault_status_high_current,16,status);
+			}
+		}
+
+		if(!(data_16 & CPLD_SLAVE2_INTERRUPT_PRESENT56))
+		{
+			DEB2(printk("CPLD_SLAVE2_PRESENT56_REG\r\n"));
+			cig_cpld_read_slave_cpld_register(CPLD_SLAVE2_PRESENT56_REG,&status);
+			irq_present_qsfp_current = status;
+		}
+
+		if(!(data_16 & CPLD_SLAVE2_INTERRUPT_QSFP_CR56))
+		{
+			DEB2(printk("CPLD_SLAVE2_QSFP_CR56_REG\r\n"));
+			cig_cpld_read_slave_cpld_register(CPLD_SLAVE2_QSFP_CR56_REG,&status);
+			irq_interrupt_qsfp_current = status;
+		}
+	}
+	else if(!(m_data & CPLD_MASTER_INTERRUPT_LSW))
+	{
+		DEB2(printk("CPLD_MASTER_INTERRUPT_LSW\r\n"));
+	}
+	else if(!(m_data & CPLD_MASTER_INTERRUPT_PSU1))
+	{
+		DEB2(printk("CPLD_MASTER_INTERRUPT_PSU1\r\n"));
+	}
+	else if(!(m_data & CPLD_MASTER_INTERRUPT_PSU2))
+	{
+		DEB2(printk("CPLD_MASTER_INTERRUPT_PSU2\r\n"));
+	}
+	else if(!(m_data & CPLD_MASTER_INTERRUPT_6320))
+	{
+		DEB2(printk("CPLD_MASTER_INTERRUPT_6320\r\n"));
+	}
+	cig_cpld_write_slave_cpld_register(CPLD_SLAVE1_INTERRUPT_MASK_REG,0x0);
+	cig_cpld_write_slave_cpld_register(CPLD_SLAVE2_INTERRUPT_MASK_REG,0x0);
+
+	memset(tmp,0xff,sizeof(tmp));
+
+	for(i = 0;i < 24;i++)
+	{
+		if(!(irq_present_status_low_current & (0x1 << i)) && (irq_present_status_low_next & (0x1 << i)))
+		{
+			DEB2(printk("SFP%d is present\r\n",i+1));
+			tmp[0] = 1;
+		}
+		else if((irq_present_status_low_current & (0x1 << i)) && !(irq_present_status_low_next & (0x1 << i)))
+		{
+			DEB2(printk("SFP%d is absent\r\n",i+1));
+			tmp[0] = 0;
+		}
+
+		if(!(irq_tx_fault_status_low_current & (0x1 << i)) && (irq_tx_fault_status_low_next & (0x1 << i)))
+		{
+			DEB2(printk("SFP%d transmission is right\r\n",i+1));
+			tmp[1] = 1;
+		}
+		else if((irq_tx_fault_status_low_current & (0x1 << i)) && !(irq_tx_fault_status_low_next & (0x1 << i)))
+		{
+			DEB2(printk("SFP%d transmission is fault\r\n",i+1));
+			tmp[1] = 0;
+		}
+
+		if(!(irq_rx_lost_status_low_current & (0x1 << i)) && (irq_rx_lost_status_low_next & (0x1 << i)))
+		{
+			DEB2(printk("SFP%d optical is meet\r\n",i+1));
+			tmp[2] = 1;
+		}
+		else if((irq_rx_lost_status_low_current & (0x1 << i)) && !(irq_rx_lost_status_low_next & (0x1 << i)))
+		{
+			DEB2(printk("SFP%d optical is lost\r\n",i+1));
+			tmp[2] = 0;
+		}
+
+		if((tmp[0] != 0xff) || (tmp[1] != 0xff) || (tmp[2] != 0xff))
+		{
+			memset(kmsg,0xff,sizeof(kmsg));
+			snprintf(kmsg,sizeof(kmsg),"sfp%02d:%1d:%1d:%1d ",i+1,(tmp[0] == 0xff) ? 0:tmp[0],(tmp[1] == 0xff) ? 0:tmp[1],(tmp[2] == 0xff) ? 0:tmp[2]);
+			break;
+		}
+	}
+
+	memset(tmp,0xff,sizeof(tmp));
+	for(i = 0;i < 24;i++)
+	{
+		if(!(irq_present_status_high_current & (0x1 << i)) && (irq_present_status_high_next & (0x1 << i)))
+		{
+			DEB2(printk("SFP%d is present\r\n",i+25));
+			tmp[0] = 1;
+		}
+		else if((irq_present_status_high_current & (0x1 << i)) && !(irq_present_status_high_next & (0x1 << i)))
+		{
+			DEB2(printk("SFP%d is absent\r\n",i+25));
+			tmp[0] = 0;
+
+		}
+
+		if(!(irq_rx_lost_status_high_current & (0x1 << i)) && (irq_rx_lost_status_high_next & (0x1 << i)))
+		{
+			DEB2(printk("SFP%d optical is meet\r\n",i+25));
+			tmp[1] = 1;
+		}
+		else if((irq_rx_lost_status_high_current & (0x1 << i)) && !(irq_rx_lost_status_high_next & (0x1 << i)))
+		{
+			DEB2(printk("SFP%d optical is lost\r\n",i+25));
+			tmp[1] = 0;
+		}
+
+		if(!(irq_tx_fault_status_high_current & (0x1 << i)) && (irq_tx_fault_status_high_next & (0x1 << i)))
+		{
+			DEB2(printk("SFP%d transmission is right\r\n",i+25));
+			tmp[2] = 1;
+		}
+		else if((irq_tx_fault_status_high_current & (0x1 << i)) && !(irq_tx_fault_status_high_next & (0x1 << i)))
+		{
+			DEB2(printk("SFP%d transmission is fault\r\n",i+25));
+			tmp[2] = 0;
+		}
+
+		if((tmp[0] != 0xff) || (tmp[1] != 0xff) || (tmp[2] != 0xff))
+		{
+			memset(kmsg,0xff,sizeof(kmsg));
+			snprintf(kmsg,sizeof(kmsg),"sfp%02d:%1d:%1d:%1d ",i+25,(tmp[0] == 0xff) ? 0:tmp[0],(tmp[1] == 0xff) ? 0:tmp[1],(tmp[2] == 0xff) ? 0:tmp[2]);
+			break;
+		}
+	}
+
+	memset(tmp,0xff,sizeof(tmp));
+	for(i = 0 ; i < 8; i++)
+	{
+		if(!(irq_present_qsfp_current & (0x1 << i)) && (irq_present_qsfp_next & (0x1 << i)))
+		{
+			DEB2(printk("SFP%d is present\r\n",i+49));
+			tmp[0] = 1;
+		}
+		else if((irq_present_qsfp_current & (0x1 << i)) && !(irq_present_qsfp_next & (0x1 << i)))
+		{
+			DEB2(printk("SFP%d is absent\r\n",i+49));
+			tmp[0] = 0;
+		}
+
+		if(!(irq_interrupt_qsfp_current & (0x1 << i)) && (irq_interrupt_qsfp_next & (0x1 << i)))
+		{
+			DEB2(printk("SFP%d interrupt is occured \r\n",i+49));
+			tmp[1] = 1;
+		}
+		else if((irq_interrupt_qsfp_current & (0x1 << i)) && !(irq_interrupt_qsfp_next & (0x1 << i)))
+		{
+			DEB2(printk("SFP%d interrupt is cleaned\r\n",i+49));
+			tmp[1] = 0;
+		}
+
+		if((tmp[0] != 0xff) || (tmp[1] != 0xff))
+		{
+			memset(kmsg,0xff,sizeof(kmsg));
+			snprintf(kmsg,sizeof(kmsg),"qsfp%02d:%1d:%1d:%1d ",i+49,(tmp[0] == 0xff) ? 0:tmp[0],(tmp[1] == 0xff) ? 0:tmp[1],0);
+			break;
+		}
+	}
+
+
+	irq_present_status_low_next = irq_present_status_low_current;
+	irq_rx_lost_status_low_next = irq_rx_lost_status_low_current;
+	irq_tx_fault_status_low_next = irq_tx_fault_status_low_current;
+	irq_present_status_high_next = irq_present_status_high_current;
+	irq_rx_lost_status_high_next = irq_rx_lost_status_high_current;
+	irq_tx_fault_status_high_next = irq_tx_fault_status_high_current;
+	irq_present_qsfp_next =  irq_present_qsfp_current;
+	irq_interrupt_qsfp_next = irq_interrupt_qsfp_current;
+
+    send_usrmsg(kmsg, strlen(kmsg));
+}
+
+static void disableIrq(unsigned short maskReg, unsigned short mask)
+{
+    u8 data = 0;
+
+    data = lpc_iic_getbyte(NULL,maskReg);
+    data |= mask;
+    lpc_iic_setbyte(NULL,maskReg, data);
+}
+
+static void enableIrq(unsigned short maskReg, unsigned short mask)
+{
+    unsigned short data;
+
+    data = lpc_iic_getbyte(NULL,maskReg);
+    data &= ~mask;
+    lpc_iic_setbyte(NULL,maskReg, data);
+}
+
+
+static irqreturn_t irq_inter_isr(int irq, void *handle)
+{
+
+	/*
+	 * use keventd context to read the event fifo registers
+	 * Schedule readout at least 25ms after notification for
+	 * REVID < 4
+	 */
+
+	schedule_delayed_work(&irq_inter_work, irq_inter_delay);
+
+	return IRQ_HANDLED;
+}
+
+
+#define CIG_CPLD_CHR_NAME "cpld"
 
 
 static int __init cpld_init(void)
 {
-	int rval,rc;
+	int rval,rc=0;
 	dev_t dev;
-	
+	u8 s_data;
+	int isr_GPIO_num = 289;
+
 	DEB2(printk("cpld_init\n");)
+
+/**************************************************************************************/
+
+	LPC_INDEX_REG = lpc_base_addr;
+    LPC_DATA_REG  = lpc_base_addr + 1;
 
     cpld_device = kzalloc(sizeof(struct cpld_dev_type), GFP_KERNEL);
     if (!cpld_device)
         goto error3;
-    cpld_device->io_resource = request_region(lpc_base_addr, 
+    cpld_device->io_resource = request_region(lpc_base_addr,
                                             lpc_io_space_size, "lpc-i2c");
     if (!cpld_device->io_resource) {
-        DEB2(printk("lpc: claim I/O resource fail\n");)
+        printk("lpc: claim I/O resource fail\n");
         goto error2;
     }
     sema_init(&cpld_device->sem, 1);
 
-    LPC_INDEX_REG = lpc_base_addr;
-    LPC_DATA_REG  = lpc_base_addr + 1;
-
-	rval = lpc_bus_init();
-	rval = lpc_register_driver(&i2c_lpc_driver, 1);
-
-	kobject_set_name(&cpld_kset.kobj, "cpld");
-	cpld_kset.kobj.ktype= &cpld_kobj_type;
-	kset_register(&cpld_kset);
-	cpld_sysfs_add_attr(&cpld_kset.kobj, "read");
-	cpld_sysfs_add_attr(&cpld_kset.kobj, "write");
-	cpld_sysfs_add_attr(&cpld_kset.kobj, "version");
-
     if (cpld_major) {
         dev = MKDEV(cpld_major, cpld_minor);
-        rc = register_chrdev_region(dev, 1, "cpld");
+        rc = register_chrdev_region(dev, 1, CIG_CPLD_CHR_NAME);
     } else {
-        rc = alloc_chrdev_region(&dev, cpld_major, 1, "cpld");
+        rc = alloc_chrdev_region(&dev, cpld_major, 1, CIG_CPLD_CHR_NAME);
         cpld_major = MAJOR(dev);
     }
 
     cpld_setup_cdev(cpld_device);
 
-    cpld_class = class_create(THIS_MODULE, KBUILD_MODNAME);
+    cpld_class = class_create(THIS_MODULE,CIG_CPLD_CHR_NAME);
     if (!cpld_class) {
         DEB2(printk("failed to create class\n");)
         goto error1;
     }
 
-    device_create(cpld_class, NULL, dev, NULL, "cpld");
-#ifdef CPLD_KTHREAD_TEST
-	init_kernel_Thread();
-#endif
-	
+	cpld_class->p->subsys.kobj.ktype= &cpld_kobj_type;
+	cpld_sysfs_add_attr(&cpld_class->p->subsys.kobj, "read");
+	cpld_sysfs_add_attr(&cpld_class->p->subsys.kobj, "write");
+	cpld_sysfs_add_attr(&cpld_class->p->subsys.kobj, "reads");
+	cpld_sysfs_add_attr(&cpld_class->p->subsys.kobj, "writes");
+	cpld_sysfs_add_attr(&cpld_class->p->subsys.kobj, "version");
+
+    cpld_dev = device_create(cpld_class, NULL, dev, NULL, CIG_CPLD_CHR_NAME);
+
+/**************************************************************************************/
+
+	rval = lpc_bus_init();
+	rval = lpc_register_driver(&i2c_lpc_driver, 1);
+
+/**************************************************************************************/
 	return 0;
 error1:
     cdev_del(&cpld_device->cdev);
@@ -1572,31 +2155,24 @@ error2:
     release_resource(cpld_device->io_resource);
 error3:
     kfree(cpld_device);
-	
+
 	return rc;
 }
 
 static void __exit cpld_exit(void)
 {
-	DEB2(printk("cpld_exit\n"));
-	
-	lpc_unregister_driver(&i2c_lpc_driver);
-	lpc_bus_exit();
-#ifdef CPLD_KTHREAD_TEST
-	exit_kernel_Thread();
-#endif
-	dev_t devno = MKDEV(cpld_major, cpld_minor);
+
+    DEB2(printk("cpld_exit\n"));
+
+    lpc_unregister_driver(&i2c_lpc_driver);
+    lpc_bus_exit();
+    dev_t devno = MKDEV(cpld_major, cpld_minor);
 
     cdev_del(&cpld_device->cdev);
     if (cpld_class) {
         device_destroy(cpld_class, devno);
         class_destroy(cpld_class);
     }
-
-    kobject_put(&cpld_kset.kobj);
-
-	if(cpld_kset.kobj.ktype)
-		kset_unregister(&cpld_kset);
 
     if (cpld_device) {
         if (cpld_device->io_resource)
@@ -1622,11 +2198,7 @@ MODULE_DESCRIPTION("cs6436-56p-cpld driver");
 MODULE_LICENSE("GPL");
 
 
- 
-
-
-
-
+/**********************************************   End  ********************************************************/
 
 
 

@@ -2,7 +2,7 @@
 
 try:
     import time
-    from sonic_sfp.sfputilbase import SfpUtilBase 
+    from sonic_sfp.sfputilbase import SfpUtilBase
 except ImportError, e:
     raise ImportError (str(e) + "- required module not found")
 
@@ -16,6 +16,8 @@ class SfpUtil(SfpUtilBase):
     _ports_in_block = 55
 
     _port_to_eeprom_mapping = {}
+    _global_port_pres_dict = {}
+    
     _port_to_i2c_mapping = {
         0 : 8,
         1 : 9,
@@ -76,14 +78,57 @@ class SfpUtil(SfpUtilBase):
     }
 
     _qsfp_ports = range(_qsfp_port_start, _ports_in_block + 1)
+	
+    def get_presence(self, port_num):
+        # Check for invalid port_num
+        if port_num < self._port_start or port_num > self._port_end:
+            return False
 
+        path = "/sys/bus/i2c/devices/{0}-0050/sfp_is_present"
+        port_ps = path.format(self._port_to_i2c_mapping[port_num])
+
+          
+        try:
+            reg_file = open(port_ps)
+        except IOError as e:
+            print "Error: unable to open file: %s" % str(e)
+            return False
+
+        try:
+            reg_value = reg_file.readline().rstrip()
+        except IOError as e:
+            time.sleep(1)
+            
+            try:
+                reg_value = reg_file.readline().rstrip()
+            except IOError as e:
+                print "Error:try again to read file failed: %s %s" % (str(e), port_ps)
+                reg_file.close()
+                return False
+
+            reg_file.close()
+            if reg_value == '1':
+                return True
+			
+        reg_file.close()
+        if reg_value == '1':
+            return True
+
+        return False
+
+    def init_global_port_presence(self):
+        for port_num in range(self.port_start, (self.port_end + 1)):
+            self._global_port_pres_dict[port_num] = '0'
+
+ 
     def __init__(self):
         eeprom_path = '/sys/bus/i2c/devices/{0}-0050/sfp_eeprom'
         for x in range(self._port_start, self._port_end + 1):
             port_eeprom_path = eeprom_path.format(self._port_to_i2c_mapping[x])
             self._port_to_eeprom_mapping[x] = port_eeprom_path
-                
-            SfpUtilBase.__init__(self)
+			
+        self.init_global_port_presence()
+        SfpUtilBase.__init__(self)
 
     def reset(self, port_num):
         # Check for invalid port_num
@@ -107,41 +152,88 @@ class SfpUtil(SfpUtilBase):
         reg_file.write('0')
         reg_file.close()
         return True
-
-    def set_low_power_mode(self, port_nuM, lpmode):
-        raise NotImplementedError
-
-    def get_low_power_mode(self, port_num):
-        raise NotImplementedError
-        
-    def get_presence(self, port_num):
+       
+    def set_low_power_mode(self, port_num, lpmode):
         # Check for invalid port_num
-        if port_num < self._port_start or port_num > self._port_end:
+        if port_num < self._qsfp_port_start or port_num > self._port_end:
             return False
 
-        path = "/sys/bus/i2c/devices/{0}-0050/sfp_is_present"
+        pre_value = self.get_presence(port_num)					
+        if pre_value == False:
+           return False
+					
+        path = "/sys/bus/i2c/devices/{0}-0050/sfp_lpmode"
         port_ps = path.format(self._port_to_i2c_mapping[port_num])
-
           
         try:
-            reg_file = open(port_ps)
+            reg_file = open(port_ps,'w')
         except IOError as e:
             print "Error: unable to open file: %s" % str(e)
             return False
 
-        reg_value = reg_file.readline().rstrip()
+        reg_file.seek(0)
+
+        if lpmode == 1:
+            reg_file.write('1')
+        elif lpmode == 0:
+            reg_file.write('0')
+        reg_file.close()
+
+        return True
+
+
+    def get_low_power_mode(self, port_num):
+        # Check for invalid port_num
+
+        if port_num < self._qsfp_port_start or port_num > self._port_end:
+            return False
+            
+        pre_value = self.get_presence(port_num)		
+        if pre_value == False:
+            return False
+					
+        path = "/sys/bus/i2c/devices/{0}-0050/sfp_lpmode"
+        port_ps = path.format(self._port_to_i2c_mapping[port_num])
+          
+        try:
+            reg_file = open(port_ps)
+        except IOError as e:
+            print "Error: unable to open file:%s %s" % (str(e), port_ps)
+            return False
+
+        try:
+            reg_value = reg_file.readline().rstrip()
+        except IOError as e:
+            print "Error: unable to open file:%s %s" % (str(e), port_ps)
+            reg_file.close()				
+            return False
+			
+        reg_file.close()
+
         if reg_value == '1':
             return True
 
         return False
-
+                
     def get_transceiver_change_event(self):
-        """
-        TODO: This function need to be implemented
-        when decide to support monitoring SFP(Xcvrd)
-        on this platform.
-        """
-        raise NotImplementedError
+        port_dict = {}
+        while True:
+            for port_num in range(self.port_start, (self.port_end + 1)):
+                presence = self.get_presence(port_num)
+
+                if(presence and self._global_port_pres_dict[port_num] == '0'):
+                    self._global_port_pres_dict[port_num] = '1'
+                    port_dict[port_num] = '1'
+                elif(not presence and
+                     self._global_port_pres_dict[port_num] == '1'):
+                    self._global_port_pres_dict[port_num] = '0'
+                    port_dict[port_num] = '0'
+
+                if(len(port_dict) > 0):
+                    return True, port_dict
+
+            time.sleep(0.5)
+
 
     @property
     def port_start(self):
