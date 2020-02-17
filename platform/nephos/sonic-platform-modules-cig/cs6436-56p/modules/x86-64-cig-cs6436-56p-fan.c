@@ -44,6 +44,9 @@ static struct cs6436_56p_fan_data *cs6436_56p_fan_update_device(struct device *d
 static ssize_t fan_show_value(struct device *dev, struct device_attribute *da, char *buf);
 static ssize_t set_duty_cycle(struct device *dev, struct device_attribute *da,
                               const char *buf, size_t count);
+static ssize_t set_fan_direction(struct device *dev, struct device_attribute *da,
+                              const char *buf, size_t count);
+
 
 extern  int cig_cpld_write_register(u8 reg_off, u8 val);
 extern int cig_cpld_read_register(u8 reg_off, u8 *val);
@@ -63,6 +66,7 @@ static const u8 fan_reg[] = {
     0x47,       /* rear fan 3 speed(rpm) */
     0x49,       /* rear fan 4 speed(rpm) */
     0x4b,       /* rear fan 5 speed(rpm) */
+    0x4c,       /* fan direction rear to front or front to rear */
 };
 
 
@@ -99,6 +103,7 @@ enum sysfs_fan_attributes {
     FAN3_REAR_SPEED_RPM,
     FAN4_REAR_SPEED_RPM,
     FAN5_REAR_SPEED_RPM,
+    FAN_DIRECTION,
     FAN1_STATE,
     FAN2_STATE,
     FAN3_STATE,
@@ -109,6 +114,11 @@ enum sysfs_fan_attributes {
     FAN3_FAULT,
     FAN4_FAULT,
     FAN5_FAULT,
+	FAN1_DIRECTION,
+	FAN2_DIRECTION,
+	FAN3_DIRECTION,
+	FAN4_DIRECTION,
+	FAN5_DIRECTION,
 };
 
 /* Define attributes
@@ -130,6 +140,11 @@ enum sysfs_fan_attributes {
     static SENSOR_DEVICE_ATTR(fan##index##_rear_speed_rpm, S_IRUGO, fan_show_value, NULL, FAN##index##_REAR_SPEED_RPM)
 #define DECLARE_FAN_SPEED_RPM_ATTR(index)  &sensor_dev_attr_fan##index##_front_speed_rpm.dev_attr.attr, \
                                            &sensor_dev_attr_fan##index##_rear_speed_rpm.dev_attr.attr
+
+#define DECLARE_FAN_DIRECTION_SENSOR_DEV_ATTR(index) \
+	static SENSOR_DEVICE_ATTR(fan##index##_direction, S_IWUSR | S_IRUGO, fan_show_value, set_fan_direction, FAN##index##_DIRECTION)
+#define DECLARE_FAN_DIRECTION_ATTR(index)	  &sensor_dev_attr_fan##index##_direction.dev_attr.attr
+
 
 /* 5 fan state attributes in this platform */
 DECLARE_FAN_STATE_SENSOR_DEV_ATTR(1);
@@ -156,6 +171,13 @@ DECLARE_FAN_SPEED_RPM_SENSOR_DEV_ATTR(5);
 /* 1 fan duty cycle attribute in this platform */
 DECLARE_FAN_DUTY_CYCLE_SENSOR_DEV_ATTR();
 
+DECLARE_FAN_DIRECTION_SENSOR_DEV_ATTR(1);
+DECLARE_FAN_DIRECTION_SENSOR_DEV_ATTR(2);
+DECLARE_FAN_DIRECTION_SENSOR_DEV_ATTR(3);
+DECLARE_FAN_DIRECTION_SENSOR_DEV_ATTR(4);
+DECLARE_FAN_DIRECTION_SENSOR_DEV_ATTR(5);
+
+
 static struct attribute *cs6436_56p_fan_attributes[] = {
     /* fan related attributes */
     DECLARE_FAN_STATE_ATTR(1),
@@ -174,6 +196,11 @@ static struct attribute *cs6436_56p_fan_attributes[] = {
     DECLARE_FAN_SPEED_RPM_ATTR(4),
     DECLARE_FAN_SPEED_RPM_ATTR(5),
     DECLARE_FAN_DUTY_CYCLE_ATTR(),
+	DECLARE_FAN_DIRECTION_ATTR(1),
+	DECLARE_FAN_DIRECTION_ATTR(2),
+	DECLARE_FAN_DIRECTION_ATTR(3),
+	DECLARE_FAN_DIRECTION_ATTR(4),
+	DECLARE_FAN_DIRECTION_ATTR(5),
     NULL
 };
 
@@ -230,6 +257,7 @@ static u8 is_fan_fault(struct cs6436_56p_fan_data *data, enum fan_id id)
     return ret;
 }
 
+
 static ssize_t set_duty_cycle(struct device *dev, struct device_attribute *da,
                               const char *buf, size_t count)
 {
@@ -246,6 +274,41 @@ static ssize_t set_duty_cycle(struct device *dev, struct device_attribute *da,
     
     return count;
 }
+
+static ssize_t set_fan_direction(struct device *dev, struct device_attribute *da,
+                              const char *buf, size_t count)
+{
+    int error, value,fan_index;
+	u8 mask,reg_val;
+	struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
+	fan_index = attr->index - FAN1_DIRECTION;
+    error = kstrtoint(buf, 10, &value);
+    if (error)
+        return error;
+	
+    if (!(value == 0 || value == 1))
+        return -EINVAL;
+		
+
+	cig_cpld_read_register(fan_reg[FAN_DIRECTION],&reg_val);
+
+	if(value == 1)
+	{
+		reg_val |= (1 << fan_index);
+	}
+	else
+	{
+		reg_val &= ~(1 << fan_index);
+	}
+
+    cig_cpld_write_register(fan_reg[FAN_DIRECTION], reg_val);
+    
+    return count;
+}
+
+							  
+
+						  
 
 static ssize_t fan_show_value(struct device *dev, struct device_attribute *da,
                               char *buf)
@@ -299,6 +362,13 @@ static ssize_t fan_show_value(struct device *dev, struct device_attribute *da,
 	    case FAN4_FAULT:
 	    case FAN5_FAULT:
 	        ret = sprintf(buf, "%d\n", is_fan_fault(data, attr->index - FAN1_FAULT));
+	        break;
+		case FAN1_DIRECTION:
+	    case FAN2_DIRECTION:
+	    case FAN3_DIRECTION:
+	    case FAN4_DIRECTION:
+	    case FAN5_DIRECTION:
+	       	ret = sprintf(buf, "%d\n",reg_val_to_is_state(data->reg_val[FAN_DIRECTION],attr->index - FAN1_DIRECTION));
 	        break;
 	    default:
 	        break;
