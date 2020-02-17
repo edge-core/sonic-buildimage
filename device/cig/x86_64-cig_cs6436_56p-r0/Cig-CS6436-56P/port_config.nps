@@ -698,5 +698,5 @@ port set property unit=0 portlist=52 admin=enable
 port set property unit=0 portlist=53 admin=enable
 port set property unit=0 portlist=54 admin=enable
 port set property unit=0 portlist=55 admin=enable
-port set property unit=0 portlist=129 admin=enable
-port set property unit=0 portlist=130 admin=enable
+port set property unit=0 portlist=129 admin=disable
+port set property unit=0 portlist=130 admin=disable

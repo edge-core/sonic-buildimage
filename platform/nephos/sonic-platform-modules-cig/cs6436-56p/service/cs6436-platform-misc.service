@@ -4,7 +4,7 @@ After=cs6436-platform-init.service
 DefaultDependencies=no
 
 [Service]
-ExecStart=/usr/local/bin/cig_cs6436_misc.py 
+ExecStart=/usr/local/bin/cig_cs6436_misc.py
 KillSignal=SIGKILL
 SuccessExitStatus=SIGKILL
 
