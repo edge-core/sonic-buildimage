@@ -1,0 +1,6 @@
+#!/bin/bash
+
+if [[ -d /sys/devices/platform/SMF.512/hwmon/ ]]; then
+    cd /sys/devices/platform/SMF.512/hwmon/*
+    echo 0xcc > mb_poweron_reason
+fi

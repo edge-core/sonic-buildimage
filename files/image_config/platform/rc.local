@@ -240,6 +240,12 @@ if [ -f $FIRST_BOOT_FILE ]; then
     # Notify firstboot to Platform, to use it for reboot-cause
     touch /tmp/notify_firstboot_to_platform
 
+    # Create /host/reboot-cause/platform/ directory
+    # can be used to track last reboot reason by some platforms
+    if [ ! -d /host/reboot-cause/platform ]; then
+        mkdir -p /host/reboot-cause/platform
+    fi
+
     if [ -d /host/image-$SONIC_VERSION/platform/$platform ]; then
         dpkg -i /host/image-$SONIC_VERSION/platform/$platform/*.deb
     fi
