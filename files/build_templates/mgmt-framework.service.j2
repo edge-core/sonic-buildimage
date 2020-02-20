@@ -1,7 +1,7 @@
 [Unit]
 Description=Management Framework container
 Requires=swss.service
-After=swss.service
+After=swss.service syncd.service
 Before=ntp-config.service
 
 [Service]
