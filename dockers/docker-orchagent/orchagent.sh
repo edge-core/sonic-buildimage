@@ -4,7 +4,11 @@
 # vendor specific code.
 export platform=`sonic-cfggen -y /etc/sonic/sonic_version.yml -v asic_type`
 
-MAC_ADDRESS=`ip link show eth0 | grep ether | awk '{print $2}'`
+MAC_ADDRESS=$(sonic-cfggen -d -v 'DEVICE_METADATA.localhost.mac')
+if [ "$MAC_ADDRESS" == "None" ] || [ -z "$MAC_ADDRESS" ]; then
+    MAC_ADDRESS=$(ip link show eth0 | grep ether | awk '{print $2}')
+    logger "Mac address not found in Device Metadata, Falling back to eth0"
+fi
 
 # Create a folder for SwSS record files
 mkdir -p /var/log/swss
