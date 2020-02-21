@@ -104,3 +104,6 @@ ENABLE_MGMT_FRAMEWORK = y
 
 # ENABLE_RESTAPI - build docker-sonic-restapi for configuring the switch using REST APIs
 ENABLE_RESTAPI = n
+
+# ENABLE_NAT - build docker-sonic-nat for nat support
+ENABLE_NAT = y
