@@ -20,7 +20,7 @@ SONIC_INSTALL_DOCKER_IMAGES += $(DOCKER_SYNCD_MLNX_RPC)
 endif
 
 $(DOCKER_SYNCD_MLNX_RPC)_CONTAINER_NAME = syncd
-$(DOCKER_SYNCD_MLNX_RPC)_RUN_OPT += --net=host --privileged -t
+$(DOCKER_SYNCD_MLNX_RPC)_RUN_OPT += --privileged -t
 $(DOCKER_SYNCD_MLNX_RPC)_RUN_OPT += -v /host/machine.conf:/etc/machine.conf
 $(DOCKER_SYNCD_MLNX_RPC)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
 $(DOCKER_SYNCD_MLNX_RPC)_RUN_OPT += -v /host/warmboot:/var/warmboot
