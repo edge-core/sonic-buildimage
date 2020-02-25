@@ -1,7 +1,7 @@
-From 051938b7c49cc18aaddd699939353f591554d635 Mon Sep 17 00:00:00 2001
+From 6aecc8fed8cc78c1fb5c6b52bdfa3d07ca66e652 Mon Sep 17 00:00:00 2001
 From: Mykola Faryma <mykolaf@mellanox.com>
-Date: Wed, 3 Apr 2019 14:09:26 +0000
-Subject: [PATCH] Make hw-mgmt SimX compatiable.
+Date: Fri, 21 Feb 2020 12:28:54 +0200
+Subject: [PATCH 1/1] Make hw-mgmt SimX compatiable
 
 Signed-off-by: Mykola Faryma <mykolaf@mellanox.com>
 ---
@@ -9,7 +9,7 @@ Signed-off-by: Mykola Faryma <mykolaf@mellanox.com>
  1 file changed, 29 insertions(+)
 
 diff --git a/usr/usr/bin/hw-management.sh b/usr/usr/bin/hw-management.sh
-index fdb3013..68da9bc 100755
+index cff10fe..7f3c295 100755
 --- a/usr/usr/bin/hw-management.sh
 +++ b/usr/usr/bin/hw-management.sh
 @@ -646,6 +646,35 @@ do_chip_down()
@@ -40,9 +40,9 @@ index fdb3013..68da9bc 100755
 +	esac
 +}
 +
-+if [[ "$(cat /sys/devices/virtual/dmi/id/chassis_vendor)" = "QEMU" ]]; then
-+	handle_simx
-+	exit 0
++if [[ "$(cat /sys/devices/virtual/dmi/id/sys_vendor)" = "QEMU" ]]; then
++       handle_simx
++       exit 0
 +fi
 +
  case $ACTION in
