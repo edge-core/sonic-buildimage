@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import re
 import sys
 import subprocess
 import syslog
@@ -22,13 +21,6 @@ NSS_CONF = "/etc/nsswitch.conf"
 TACPLUS_SERVER_PASSKEY_DEFAULT = ""
 TACPLUS_SERVER_TIMEOUT_DEFAULT = "5"
 TACPLUS_SERVER_AUTH_TYPE_DEFAULT = "pap"
-
-
-def is_valid_hostname(hostname):
-    if hostname[-1] == "." or len(hostname) > 253:
-        return False
-    allowed = re.compile("(?!-)[A-Z\d-]{1,63}(?<!-)$", re.IGNORECASE)
-    return all(allowed.match(x) for x in hostname.split("."))
 
 
 def is_true(val):
@@ -238,7 +230,6 @@ class HostConfigDaemon:
         tacacs_server = self.config_db.get_table('TACPLUS_SERVER')
         self.aaacfg = AaaCfg()
         self.aaacfg.load(aaa, tacacs_global, tacacs_server)
-        self.hostname_cache=""
         lpbk_table = self.config_db.get_table('LOOPBACK_INTERFACE')
         self.iptables = Iptables()
         self.iptables.load(lpbk_table)
@@ -260,45 +251,6 @@ class HostConfigDaemon:
             log_data['passkey'] = obfuscate(log_data['passkey'])
         syslog.syslog(syslog.LOG_INFO, 'value of {} changed to {}'.format(key, log_data))
 
-    def hostname_handler(self, key, data):
-        if key != "localhost":
-            return
-
-        hostname = data.get("hostname")
-
-        if not hostname:
-            syslog.syslog(syslog.LOG_WARNING, "hostname key is missing")
-            return
-        if not is_valid_hostname(hostname):
-            syslog.syslog(syslog.LOG_WARNING, "hostname {} is invalid".format(hostname))
-            return
-        if hostname == self.hostname_cache:
-            return
-
-        syslog.syslog(syslog.LOG_INFO, "Get all running containers")
-        cmd = 'docker ps --format "{{.Names}}"'
-        try:
-            containers = subprocess.check_output(cmd, shell=True).split("\n")[:-1]
-        except subprocess.CalledProcessError as err:
-            syslog.syslog(syslog.LOG_ERR, "{} - failed: return code - {}, output:\n{}"
-                          .format(err.cmd, err.returncode, err.output))
-
-        for name in containers:
-            script = '/usr/bin/{}.sh'.format(name)
-            exists = os.path.isfile(script)
-            if not exists:
-                syslog.syslog(syslog.LOG_ERR, "Can't find control script for {}".format(name))
-                continue
-
-            cmd = "{} updateHostName {}".format(script, hostname)
-            try:
-                subprocess.check_call(cmd, shell=True)
-            except subprocess.CalledProcessError as err:
-                syslog.syslog(syslog.LOG_ERR, "{} - failed: return code - {}, output:\n{}"
-                              .format(err.cmd, err.returncode, err.output))
-
-        self.hostname_cache = hostname
-
     def lpbk_handler(self, key, data):
         key = ConfigDBConnector.deserialize_key(key)
         #Check if delete operation by fetch existing keys
@@ -309,7 +261,7 @@ class HostConfigDaemon:
             add = False
 
         self.iptables.iptables_handler(key, data, add)
-        
+
     def feature_status_handler(self, key, data):
         status_data = self.config_db.get_table('FEATURE')
         for key in status_data.keys():
@@ -353,7 +305,6 @@ class HostConfigDaemon:
         self.config_db.subscribe('AAA', lambda table, key, data: self.aaa_handler(key, data))
         self.config_db.subscribe('TACPLUS_SERVER', lambda table, key, data: self.tacacs_server_handler(key, data))
         self.config_db.subscribe('TACPLUS', lambda table, key, data: self.tacacs_global_handler(key, data))
-        self.config_db.subscribe('DEVICE_METADATA', lambda table, key, data: self.hostname_handler(key, data))
         self.config_db.subscribe('LOOPBACK_INTERFACE', lambda table, key, data: self.lpbk_handler(key, data))
         self.config_db.subscribe('FEATURE', lambda table, key, data: self.feature_status_handler(key, data))
         self.config_db.listen()
