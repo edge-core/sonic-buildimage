@@ -233,6 +233,10 @@ def main():
             sys.exit(1)
         deep_update(data, {'PORT': ports})
 
+    for json_file in args.json:
+        with open(json_file, 'r') as stream:
+            deep_update(data, FormatConverter.to_deserialized(json.load(stream)))
+
     if args.minigraph != None:
         minigraph = args.minigraph
         if platform:
@@ -253,10 +257,6 @@ def main():
             else:
                 additional_data = yaml.load(stream)
             deep_update(data, FormatConverter.to_deserialized(additional_data))
-
-    for json_file in args.json:
-        with open(json_file, 'r') as stream:
-            deep_update(data, FormatConverter.to_deserialized(json.load(stream)))
 
     if args.additional_data != None:
         deep_update(data, json.loads(args.additional_data))
