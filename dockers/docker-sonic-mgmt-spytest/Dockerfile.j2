@@ -1,0 +1,29 @@
+FROM docker-sonic-mgmt:latest
+
+ENV CC=gcc CPP=cpp CXX=c++ LDSHARED="gcc -pthread -shared" PYMSSQL_BUILD_WITH_BUNDLED_FREETDS=1
+
+RUN sudo -H pip install \
+    "cryptography>=2.5" \
+    "future>=0.16.0" \
+    gitpython \
+    jinja2 \
+    jsonpatch \
+    "netmiko==2.4.2" \
+    prettytable \
+    psutil \
+    pycryptodome \
+    pyfiglet \
+    "pylint==1.8.1" \
+    pyro4 \
+    pytest-repeat \
+    "pytest-xdist==1.28.0" \
+    "pytest==4.6.5" \
+    redis \
+    requests \
+    rpyc \
+    tabulate \
+    textfsm
+
+RUN sudo apt-get update && sudo apt-get install -y \
+    inetutils-ping \
+    telnet
