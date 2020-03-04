@@ -9,7 +9,6 @@ events=PROCESS_STATE_EXITED
 autostart=true
 autorestart=unexpected
 
-
 [program:rsyslogd]
 command=/bin/bash -c "rm -f /var/run/rsyslogd.pid && /usr/sbin/rsyslogd -n"
 priority=1
