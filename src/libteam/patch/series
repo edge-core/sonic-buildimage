@@ -9,3 +9,4 @@
 0009-Fix-ifinfo_link_with_port-race-condition-with-newlink.patch
 0010-When-read-of-timerfd-returned-0-don-t-consider-this-.patch
 0011-teamd-fix-possible-race-in-master-ifname-callback.patch
+0012-teamd-Disregard-current-state-when-considering-port-.patch

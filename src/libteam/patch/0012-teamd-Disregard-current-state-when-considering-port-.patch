@@ -1,0 +1,67 @@
+From b9bde92fcc0586b327c577c41304e2ef938cff10 Mon Sep 17 00:00:00 2001
+From: Petr Machata <petrm@mellanox.com>
+Date: Wed, 13 Nov 2019 13:26:47 +0000
+Subject: [PATCH] teamd: Disregard current state when considering port
+ enablement
+
+On systems where carrier is gained very quickly, there is a race between
+teamd and the kernel that sometimes leads to all team slaves being stuck in
+enabled=false state.
+
+When a port is enslaved to a team device, the kernel sends a netlink
+message marking the port as enabled. teamd's lb_event_watch_port_added()
+calls team_set_port_enabled(false), because link is down at that point. The
+kernel responds with a message marking the port as disabled. At this point,
+there are two outstanding messages: the initial one marking port as
+enabled, and the second one marking it as disabled. teamd has not processed
+either of these.
+
+Next teamd gets the netlink message that sets enabled=true, and updates its
+internal cache accordingly. If at this point ethtool link-watch wakes up,
+teamd considers (in teamd_port_check_enable()) enabling the port. After
+consulting the cache, it concludes the port is already up, and neglects to
+do so. Only then does teamd get the netlink message informing it of setting
+enabled=false.
+
+The problem is that the teamd cache is not synchronous with respect to the
+kernel state. If the carrier takes a while to come up (as is normally the
+case), this is not a problem, because teamd caches up quickly enough. But
+this may not always be the case, and particularly on a simulated system,
+the carrier is gained almost immediately.
+
+Fix this by not suppressing the enablement message.
+
+Signed-off-by: Petr Machata <petrm@mellanox.com>
+Signed-off-by: Jiri Pirko <jiri@mellanox.com>
+---
+ teamd/teamd_per_port.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
+
+diff --git a/teamd/teamd_per_port.c b/teamd/teamd_per_port.c
+index d10cfb2..8c63fec 100644
+--- a/teamd/teamd_per_port.c
++++ b/teamd/teamd_per_port.c
+@@ -448,18 +448,14 @@ int teamd_port_check_enable(struct teamd_context *ctx,
+ 			    bool should_enable, bool should_disable)
+ {
+ 	bool new_enabled_state;
+-	bool curr_enabled_state;
+ 	int err;
+ 
+ 	if (!teamd_port_present(ctx, tdport))
+ 		return 0;
+-	err = teamd_port_enabled(ctx, tdport, &curr_enabled_state);
+-	if (err)
+-		return err;
+ 
+-	if (!curr_enabled_state && should_enable)
++	if (should_enable)
+ 		new_enabled_state = true;
+-	else if (curr_enabled_state && should_disable)
++	else if (should_disable)
+ 		new_enabled_state = false;
+ 	else
+ 		return 0;
+-- 
+2.17.1.windows.2
+
