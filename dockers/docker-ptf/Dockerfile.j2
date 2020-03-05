@@ -59,7 +59,9 @@ RUN sed --in-place 's/httpredir.debian.org/debian-archive.trafficmanager.net/' /
         python-dev          \
         python-libpcap      \
         python-scapy        \
-        python-six
+        python-six          \
+        tacacs+             \
+        rsyslog
 
 RUN dpkg -i \
 {% for deb in docker_ptf_debs.split(' ') -%}
