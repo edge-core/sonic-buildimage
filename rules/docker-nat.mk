@@ -30,5 +30,6 @@ $(DOCKER_NAT)_RUN_OPT += --privileged -t
 $(DOCKER_NAT)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
 $(DOCKER_NAT)_RUN_OPT += -v /host/warmboot:/var/warmboot
 
-$(DOCKER_NAT)_BASE_IMAGE_FILES += natctl:/usr/bin/natctl
+$(DOCKER_NAT)_FILES += $(SUPERVISOR_PROC_EXIT_LISTENER_SCRIPT)
 
+$(DOCKER_NAT)_BASE_IMAGE_FILES += natctl:/usr/bin/natctl
