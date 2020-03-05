@@ -11,7 +11,7 @@ SYSTEM_MAC_ADDRESS=$(ip link show eth0 | grep ether | awk '{print $2}')
 sonic-cfggen -a '{"DEVICE_METADATA":{"localhost": {"mac": "'$SYSTEM_MAC_ADDRESS'"}}}' --print-data > /etc/sonic/init_cfg.json
 
 if [ -f /etc/sonic/config_db.json ]; then
-    sonic-cfggen -j /etc/sonic/config_db.json -j /etc/sonic/init_cfg.json --print-data > /tmp/config_db.json
+    sonic-cfggen -j /etc/sonic/init_cfg.json -j /etc/sonic/config_db.json --print-data > /tmp/config_db.json
     mv /tmp/config_db.json /etc/sonic/config_db.json
 else
     sonic-cfggen -j /etc/sonic/init_cfg.json --print-data > /etc/sonic/config_db.json
