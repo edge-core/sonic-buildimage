@@ -4,6 +4,8 @@ FROM docker-syncd-mlnx
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
+RUN mkdir -p /var/run/sx_sdk
+
 RUN apt-get purge -y syncd
 
 {% if docker_syncd_mlnx_rpc_debs.strip() -%}
