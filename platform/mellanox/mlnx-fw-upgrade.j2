@@ -25,15 +25,18 @@ declare -r QUERY_FILE="/tmp/mlxfwmanager-query.log"
 
 declare -r SPC1_ASIC="spc1"
 declare -r SPC2_ASIC="spc2"
+declare -r SPC3_ASIC="spc3"
 declare -r UNKN_ASIC="unknown"
 
 declare -rA FW_FILE_MAP=( \
     [$SPC1_ASIC]="/etc/mlnx/fw-SPC.mfa" \
     [$SPC2_ASIC]="/etc/mlnx/fw-SPC2.mfa" \
+    [$SPC3_ASIC]="/etc/mlnx/fw-SPC3.mfa" \
 )
 declare -rA FW_REQUIRED_MAP=( \
     [$SPC1_ASIC]="{{ MLNX_SPC_FW_VERSION }}" \
     [$SPC2_ASIC]="{{ MLNX_SPC2_FW_VERSION }}" \
+    [$SPC3_ASIC]="{{ MLNX_SPC3_FW_VERSION }}" \
 )
 
 IMAGE_UPGRADE="${NO_PARAM}"
@@ -135,12 +138,16 @@ function GetAsicType() {
 
     local -r SPC1_PRODUCT_ID="cb84"
     local -r SPC2_PRODUCT_ID="cf6c"
+    local -r SPC3_PRODUCT_ID="cf70"
 
     if lspci -n | grep "${VENDOR_ID}:${SPC1_PRODUCT_ID}" &>/dev/null; then
         echo "${SPC1_ASIC}"
         exit "${EXIT_SUCCESS}"
     elif lspci -n | grep "${VENDOR_ID}:${SPC2_PRODUCT_ID}" &>/dev/null; then
         echo "${SPC2_ASIC}"
+        exit "${EXIT_SUCCESS}"
+    elif lspci -n | grep "${VENDOR_ID}:${SPC3_PRODUCT_ID}" &>/dev/null; then
+        echo "${SPC3_ASIC}"
         exit "${EXIT_SUCCESS}"
     fi
 
