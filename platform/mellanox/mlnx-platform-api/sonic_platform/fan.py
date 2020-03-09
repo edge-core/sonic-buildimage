@@ -38,16 +38,21 @@ class Fan(FanBase):
             self.fan_speed_set_path = "fan{}_speed_set".format(self.index)
             self.fan_presence_path = "fan{}_status".format(self.drawer_index)
             self.fan_max_speed_path = "fan{}_max".format(self.index)
+            self._name = "fan{}".format(fan_index + 1)
         else:
             self.fan_speed_get_path = "psu{}_fan1_speed_get".format(self.index)
             self.fan_presence_path = "psu{}_fan1_speed_get".format(self.index)
-            self.fan_max_speed_path = "psu{}_max".format(self.index)
+            self._name = 'psu_{}_fan_{}'.format(self.index, fan_index)
+            self.fan_max_speed_path = None
         self.fan_status_path = "fan{}_fault".format(self.index)
         self.fan_green_led_path = "led_fan{}_green".format(self.drawer_index)
         self.fan_red_led_path = "led_fan{}_red".format(self.drawer_index)
         self.fan_orange_led_path = "led_fan{}_orange".format(self.drawer_index)
         self.fan_pwm_path = "pwm1"
         self.fan_led_cap_path = "led_fan{}_capability".format(self.drawer_index)
+
+    def get_name(self):
+        return self._name
 
     def get_status(self):
         """
@@ -123,7 +128,11 @@ class Fan(FanBase):
                 speed_in_rpm = int(fan_curr_speed.read())
         except (ValueError, IOError):
             speed_in_rpm = 0
-        
+
+        if self.fan_max_speed_path is None:
+            # in case of max speed unsupported, we just return speed in unit of RPM.
+            return speed_in_rpm
+
         max_speed_in_rpm = self._get_max_speed_in_rpm()
         speed = 100*speed_in_rpm/max_speed_in_rpm
 
@@ -136,11 +145,10 @@ class Fan(FanBase):
         Returns:
             int: percentage of the max fan speed
         """
-        speed = 0
-
         if self.is_psu_fan:
             # Not like system fan, psu fan speed can not be modified, so target speed is N/A 
-            return speed
+            return self.get_speed()
+
         try:
             with open(os.path.join(FAN_PATH, self.fan_speed_set_path), 'r') as fan_pwm:
                 pwm = int(fan_pwm.read())
