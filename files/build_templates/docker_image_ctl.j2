@@ -231,11 +231,15 @@ start() {
 {%- if sonic_asic_platform == "mellanox" %}
 {%- if docker_container_name == "syncd" %}
         -v /var/log/mellanox/sniffer:/var/log/mellanox/sniffer:rw \
-        -v mlnx_sdk_socket:/tmp \
+        -v mlnx_sdk_socket:/var/run/sx_sdk \
+        -v mlnx_sdk_ready:/tmp \
         -v /dev/shm:/dev/shm:rw \
+        -e SX_API_SOCKET_FILE=/var/run/sx_sdk/sx_api.sock \
 {%- elif docker_container_name == "pmon" %}
         -v /var/run/hw-management:/var/run/hw-management:rw \
-        -v mlnx_sdk_socket:/tmp \
+        -v mlnx_sdk_socket:/var/run/sx_sdk \
+        -v mlnx_sdk_ready:/tmp \
+        -e SX_API_SOCKET_FILE=/var/run/sx_sdk/sx_api.sock \
         -v /dev/shm:/dev/shm:rw \
 {%- else %}
         --tmpfs /tmp \
