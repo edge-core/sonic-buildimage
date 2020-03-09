@@ -1,16 +1,14 @@
-commit f475746f56602a40861b8d94eac5f0979c4703f3
-Author: yorke <yorke.yuan@asterfusion.com>
-Date:   Mon Jun 3 12:02:36 2019 +0800
+From 4696acb51172dbe486d175073bdce8c94817f422 Mon Sep 17 00:00:00 2001
+From: Pavel Shirshov <pavelsh@microsoft.com>
+Date: Tue, 3 Mar 2020 12:52:28 -0800
+Subject: [PATCH] [libteam] Add fallback support for single-member-port LAG
 
-    From 9b40af58575a89d06be51cfbb5a2265a59826110 Mon Sep 17 00:00:00 2001
-    Subject: [PATCH 3/8] [libteam] Add fallback support for single-member-port LAG
-         From: Haiyang Zheng <haiyang.z@alibaba-inc.com>     Date: Fri, 15 Dec
-     2017 21:07:53 -0800
-    
-    Signed-off-by: yorke <yorke.yuan@asterfusion.com>
+---
+ teamd/teamd_runner_lacp.c | 48 +++++++++++++++++++++++++++++++++++----
+ 1 file changed, 44 insertions(+), 4 deletions(-)
 
 diff --git a/teamd/teamd_runner_lacp.c b/teamd/teamd_runner_lacp.c
-index 4dbd015..f8a9e16 100644
+index 7592b01..2062bf2 100644
 --- a/teamd/teamd_runner_lacp.c
 +++ b/teamd/teamd_runner_lacp.c
 @@ -138,6 +138,8 @@ struct lacp {
@@ -24,12 +22,12 @@ index 4dbd015..f8a9e16 100644
  		enum lacp_agg_select_policy agg_select_policy;
 @@ -272,6 +274,11 @@ static int lacp_load_config(struct teamd_context *ctx, struct lacp *lacp)
  		lacp->cfg.fast_rate = LACP_CFG_DFLT_FAST_RATE;
- 	teamd_log_dbg("Using fast_rate \"%d\".", lacp->cfg.fast_rate);
+ 	teamd_log_dbg(ctx, "Using fast_rate \"%d\".", lacp->cfg.fast_rate);
  
 +	err = teamd_config_bool_get(ctx, &lacp->cfg.fallback, "$.runner.fallback");
 +	if (err)
 +		lacp->cfg.fallback = LACP_CFG_DFLT_FALLBACK;
-+	teamd_log_dbg("Using fallback \"%d\".", lacp->cfg.fallback);
++	teamd_log_dbg(ctx, "Using fallback \"%d\".", lacp->cfg.fallback);
 +
  	err = teamd_config_int_get(ctx, &tmp, "$.runner.min_ports");
  	if (err) {
@@ -45,7 +43,7 @@ index 4dbd015..f8a9e16 100644
 + */
 +static bool is_lacp_fallback_eligible(struct lacp_port *lacp_port)
 +{
-+	teamd_log_dbg("%s fallback eligible state \"%d \" cfg \"%d\".",
++	teamd_log_dbg(lacp_port->ctx, "%s fallback eligible state \"%d \" cfg \"%d\".",
 +				lacp_port->tdport->ifname, lacp_port->state,
 +				lacp_port->lacp->cfg.fallback);
 +	return lacp_port->state == PORT_STATE_DEFAULTED &&
@@ -107,15 +105,18 @@ index 4dbd015..f8a9e16 100644
  static int lacp_state_select_policy_get(struct teamd_context *ctx,
  					struct team_state_gsc *gsc,
  					void *priv)
-@@ -1529,6 +1564,11 @@ static const struct teamd_state_val lacp_state_vals[] = {
+@@ -1528,6 +1563,11 @@ static const struct teamd_state_val lacp_state_vals[] = {
+ 		.type = TEAMD_STATE_ITEM_TYPE_BOOL,
  		.getter = lacp_state_fast_rate_get,
  	},
- 	{
++	{
 +		.subpath = "fallback",
 +		.type = TEAMD_STATE_ITEM_TYPE_BOOL,
 +		.getter = lacp_state_fallback_get,
 +	},
-+	{
+ 	{
  		.subpath = "select_policy",
  		.type = TEAMD_STATE_ITEM_TYPE_STRING,
- 		.getter = lacp_state_select_policy_get,
+-- 
+2.17.1.windows.2
+

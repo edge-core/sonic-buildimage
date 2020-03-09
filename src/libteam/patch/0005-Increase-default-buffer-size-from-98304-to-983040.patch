@@ -1,11 +1,8 @@
-From 39e5b0a15bf276dffa6b8c61594ee945248a4e27 Mon Sep 17 00:00:00 2001
-From: yorke <yorke.yuan@asterfusion.com>
-Date: Mon, 3 Jun 2019 12:32:33 +0800
-Subject: [PATCH 5/8] Increase default buffer size from 98304 to 983040    
- From: Pavel Shirshov <pavelsh@microsoft.com>    
- https://github.com/Azure/sonic-buildimage/pull/2822
+From fcb9932bdb9212e9b18302de4ffb4d64003e93ab Mon Sep 17 00:00:00 2001
+From: Pavel Shirshov <pavelsh@microsoft.com>
+Date: Tue, 3 Mar 2020 12:55:50 -0800
+Subject: [PATCH] Increase default buffer size from 98304 to 983040
 
-Signed-off-by: yorke <yorke.yuan@asterfusion.com>
 ---
  libteam/libteam.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
@@ -27,5 +24,5 @@ index 9c9c93a..2cc80ca 100644
  /**
   * @param th		libteam library context
 -- 
-2.7.4
+2.17.1.windows.2
 

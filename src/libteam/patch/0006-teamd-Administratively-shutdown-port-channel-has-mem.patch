@@ -1,20 +1,18 @@
-From f1eec95dd0475591897a781eba15d8d8ce370a6a Mon Sep 17 00:00:00 2001
-From: yorke <yorke.yuan@asterfusion.com>
-Date: Mon, 3 Jun 2019 13:21:07 +0800
-Subject: [PATCH 6/8] [teamd]: Administratively shutdown port channel has
- member ports in deselected state and traffic is not forwarded     From:
- phanindra-tv     https://github.com/Azure/sonic-buildimage/pull/2882
+From b188ed48f9ea6873a2c9263d5e036a3634c0f4ba Mon Sep 17 00:00:00 2001
+From: Pavel Shirshov <pavelsh@microsoft.com>
+Date: Tue, 3 Mar 2020 12:59:09 -0800
+Subject: [PATCH] [teamd]: Administratively shutdown port channel has member
+ ports in deselected state and traffic is not forwarded
 
-Signed-off-by: yorke <yorke.yuan@asterfusion.com>
 ---
  teamd/teamd_runner_lacp.c | 5 +++++
  1 file changed, 5 insertions(+)
 
 diff --git a/teamd/teamd_runner_lacp.c b/teamd/teamd_runner_lacp.c
-index 9836824..7bf3700 100644
+index 2062bf2..fa732ba 100644
 --- a/teamd/teamd_runner_lacp.c
 +++ b/teamd/teamd_runner_lacp.c
-@@ -1101,12 +1101,17 @@ static int lacpdu_recv(struct lacp_port *lacp_port)
+@@ -1103,12 +1103,17 @@ static int lacpdu_recv(struct lacp_port *lacp_port)
  	struct lacpdu lacpdu;
  	struct sockaddr_ll ll_from;
  	int err;
@@ -33,5 +31,5 @@ index 9836824..7bf3700 100644
  		return 0;
  
 -- 
-2.7.4
+2.17.1.windows.2
 

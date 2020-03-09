@@ -1,6 +1,6 @@
 # libteam packages
 
-LIBTEAM_VERSION = 1.28-1
+LIBTEAM_VERSION = 1.30-1
 
 export LIBTEAM_VERSION
 

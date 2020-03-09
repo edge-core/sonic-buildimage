@@ -1,6 +1,6 @@
-From 9a27e9b85afbbf6235e61c2426481e49a2139219 Mon Sep 17 00:00:00 2001
-From: Shu0T1an ChenG <shuche@microsoft.com>
-Date: Tue, 15 Jan 2019 12:23:02 -0800
+From a678d9087b05aaf6947e15f0cc9a93ace299466f Mon Sep 17 00:00:00 2001
+From: Pavel Shirshov <pavelsh@microsoft.com>
+Date: Tue, 3 Mar 2020 13:14:13 -0800
 Subject: [PATCH] Fix ifinfo_link_with_port race condition with newlink
 
 The race condition could happen like this:
@@ -18,17 +18,15 @@ to be added into the team handler's port list.
 This fix adds a condition to check if ifinfo_link_with_port is linking ifinfo
 to a port or to the team interface itself. If it is a port, ifinfo_find_create
 function is used to fix the race condition.
-
-Signed-off-by: Shu0T1an ChenG <shuche@microsoft.com>
 ---
  libteam/ifinfo.c | 5 ++++-
  1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/libteam/ifinfo.c b/libteam/ifinfo.c
-index 44de4ca..444e0cd 100644
+index b86d34c..e48193e 100644
 --- a/libteam/ifinfo.c
 +++ b/libteam/ifinfo.c
-@@ -429,7 +429,10 @@ int ifinfo_link_with_port(struct team_handle *th, uint32_t ifindex,
+@@ -451,7 +451,10 @@ int ifinfo_link_with_port(struct team_handle *th, uint32_t ifindex,
  {
  	struct team_ifinfo *ifinfo;
  
@@ -41,5 +39,5 @@ index 44de4ca..444e0cd 100644
  		return -ENOENT;
  	if (ifinfo->linked)
 -- 
-2.1.4
+2.17.1.windows.2
 

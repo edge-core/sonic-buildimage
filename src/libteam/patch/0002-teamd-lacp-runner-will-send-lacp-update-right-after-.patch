@@ -1,11 +1,9 @@
-From 0ce56490a44191c4b17a75cc21aa6a5bdc535f1d Mon Sep 17 00:00:00 2001
-From: yorke <yorke.yuan@asterfusion.com>
-Date: Mon, 3 Jun 2019 11:58:19 +0800
-Subject: [PATCH 2/8] [teamd] lacp runner will send lacp update right after it
- received SIGINT signal     From: Pavel Shirshov <pavelsh@microsoft.com>    
- Date: Wed, 20 Sep 2017 00:34:07 +0000
+From 9e697b0c9fbd01f024acfea8aa25334816425c2b Mon Sep 17 00:00:00 2001
+From: Pavel Shirshov <pavelsh@microsoft.com>
+Date: Tue, 3 Mar 2020 12:50:23 -0800
+Subject: [PATCH] [teamd] lacp runner will send lacp update right after it
+ received SIGINT signal
 
-Signed-off-by: yorke <yorke.yuan@asterfusion.com>
 ---
  teamd/teamd.c             |  1 +
  teamd/teamd.h             |  3 +++
@@ -14,7 +12,7 @@ Signed-off-by: yorke <yorke.yuan@asterfusion.com>
  4 files changed, 28 insertions(+)
 
 diff --git a/teamd/teamd.c b/teamd/teamd.c
-index 6c47312..58d4fc8 100644
+index e035ac5..dc46a62 100644
 --- a/teamd/teamd.c
 +++ b/teamd/teamd.c
 @@ -392,6 +392,7 @@ static int teamd_run_loop_run(struct teamd_context *ctx)
@@ -26,7 +24,7 @@ index 6c47312..58d4fc8 100644
  					if (err)
  						return err;
 diff --git a/teamd/teamd.h b/teamd/teamd.h
-index 01bd022..e71a5dc 100644
+index f94c918..01ebc84 100644
 --- a/teamd/teamd.h
 +++ b/teamd/teamd.h
 @@ -193,11 +193,14 @@ struct teamd_event_watch_ops {
@@ -69,7 +67,7 @@ index 65aa46a..221803e 100644
  			   struct teamd_port *tdport)
  {
 diff --git a/teamd/teamd_runner_lacp.c b/teamd/teamd_runner_lacp.c
-index 7c91aed..4dbd015 100644
+index 2d5a823..7592b01 100644
 --- a/teamd/teamd_runner_lacp.c
 +++ b/teamd/teamd_runner_lacp.c
 @@ -1421,6 +1421,16 @@ static int lacp_event_watch_port_changed(struct teamd_context *ctx,
@@ -98,5 +96,5 @@ index 7c91aed..4dbd015 100644
  
  static int lacp_carrier_init(struct teamd_context *ctx, struct lacp *lacp)
 -- 
-2.7.4
+2.17.1.windows.2
 

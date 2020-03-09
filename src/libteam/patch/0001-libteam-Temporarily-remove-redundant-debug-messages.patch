@@ -1,25 +1,25 @@
-From 10602c2b1184aa0c6907b5a7f06fcba8a7141148 Mon Sep 17 00:00:00 2001
-From: Shuotian Cheng <shuche@microsoft.com>
-Date: Mon, 27 Feb 2017 14:21:09 -0800
-Subject: [PATCH 1/8] libteam: Temporarily remove redundant debug messages
+From fa8c4604e739abde29278b403a1a1d502337c21b Mon Sep 17 00:00:00 2001
+From: Pavel Shirshov <pavelsh@microsoft.com>
+Date: Tue, 3 Mar 2020 12:47:32 -0800
+Subject: [PATCH] libteam: Temporarily remove redundant debug messages
 
 ---
  teamd/teamd_runner_lacp.c | 2 --
  1 file changed, 2 deletions(-)
 
 diff --git a/teamd/teamd_runner_lacp.c b/teamd/teamd_runner_lacp.c
-index d292d69..7c91aed 100644
+index ec01237..2d5a823 100644
 --- a/teamd/teamd_runner_lacp.c
 +++ b/teamd/teamd_runner_lacp.c
 @@ -929,8 +929,6 @@ static void lacp_port_actor_update(struct lacp_port *lacp_port)
  		state |= INFO_STATE_DEFAULTED;
  	if (teamd_port_count(lacp_port->ctx) > 0)
  		state |= INFO_STATE_AGGREGATION;
--	teamd_log_dbg("%s: lacp info state: 0x%02X.", lacp_port->tdport->ifname,
--						      state);
+-	teamd_log_dbg(lacp_port->ctx, "%s: lacp info state: 0x%02X.",
+-		      lacp_port->tdport->ifname, state);
  	lacp_port->actor.state = state;
  }
  
 -- 
-2.7.4
+2.17.1.windows.2
 

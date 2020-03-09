@@ -15,7 +15,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	rm -rf ./libteam
 	git clone https://github.com/jpirko/libteam.git
 	pushd ./libteam
-	git checkout -b teamd -f 8c7614abf5993d92e332a800f244bdebd7c9a2c8
+	git checkout -b teamd -f c7237377dead39ae4a711297203bacf7edb9fa41
 
 	# Apply patch series
 	stg init
@@ -25,7 +25,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# Obtain debian packaging
 	git clone https://salsa.debian.org/debian/libteam.git tmp
 	pushd ./tmp
-	git checkout -f 7188c361  # v1.28-1
+	git checkout -f debian/1.30-1
 	popd
 
 	mv tmp/debian libteam/

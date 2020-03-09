@@ -1,6 +1,6 @@
-From 038bed6fe3970dc829dbf9a282f7bea7198e7826 Mon Sep 17 00:00:00 2001
-From: Pavel Shirshov <pavelsh@microsoft.com.com>
-Date: Wed, 28 Aug 2019 16:39:35 -0700
+From e6cd756eac31e3818afb32662469ddf7797c71df Mon Sep 17 00:00:00 2001
+From: Pavel Shirshov <pavelsh@microsoft.com>
+Date: Tue, 3 Mar 2020 13:19:28 -0800
 Subject: [PATCH] When read of timerfd returned 0, don't consider this an error
 
 Just skip this event.
@@ -9,7 +9,7 @@ Just skip this event.
  1 file changed, 7 insertions(+), 1 deletion(-)
 
 diff --git a/teamd/teamd.c b/teamd/teamd.c
-index 96794e8..a5ce745 100644
+index 221d71d..530302b 100644
 --- a/teamd/teamd.c
 +++ b/teamd/teamd.c
 @@ -285,6 +285,10 @@ static int handle_period_fd(int fd)
@@ -35,5 +35,5 @@ index 96794e8..a5ce745 100644
  			}
  			err = lcb->func(ctx, events, lcb->priv);
 -- 
-2.7.4
+2.17.1.windows.2
 
