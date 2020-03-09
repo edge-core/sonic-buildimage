@@ -20,4 +20,6 @@ fi
 
 systemctl restart networking
 
-ifdown --force lo && ifup lo
+ifdown --force lo
+ip addr flush dev lo
+ifup lo
