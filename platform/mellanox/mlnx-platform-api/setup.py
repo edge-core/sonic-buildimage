@@ -12,6 +12,14 @@ setup(
     maintainer_email='kevinw@mellanox.com',
     packages=[
         'sonic_platform',
+        'tests'
+    ],
+    setup_requires= [
+        'pytest-runner'
+    ],
+    tests_require = [
+        'pytest',
+        'mock>=2.0.0'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
@@ -26,5 +34,6 @@ setup(
         'Topic :: Utilities',
     ],
     keywords='sonic SONiC platform PLATFORM',
+    test_suite='setup.get_test_suite'
 )
 
