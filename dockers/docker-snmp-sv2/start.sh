@@ -9,17 +9,6 @@ sonic-cfggen -d -y /etc/sonic/snmp.yml -t /usr/share/sonic/templates/snmpd.conf.
 mkdir -p /var/sonic
 echo "# Config files managed by sonic-config-engine" > /var/sonic/config_status
 
-CURRENT_HOSTNAME=`hostname`
-HOSTNAME=`sonic-cfggen -d -v DEVICE_METADATA[\'localhost\'][\'hostname\']`
-
-if [ "$?" == "0" ] && [ "$HOSTNAME" != "" ]; then
-    echo $HOSTNAME > /etc/hostname
-    hostname -F /etc/hostname
-
-    sed -i "/\s$CURRENT_HOSTNAME$/d" /etc/hosts
-    echo "127.0.0.1 $HOSTNAME" >> /etc/hosts
-fi
-
 rm -f /var/run/rsyslogd.pid
 
 supervisorctl start rsyslogd
