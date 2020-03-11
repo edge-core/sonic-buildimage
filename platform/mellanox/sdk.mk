@@ -152,8 +152,6 @@ else
 SONIC_COPY_DEBS += $(MLNX_SDK_RDEBS) $(PYTHON_SDK_API)
 endif
 
-SONIC_STRETCH_DEBS += $(SX_KERNEL)
-
 mlnx-sdk-packages: $(addprefix $(DEBS_PATH)/, $(MLNX_SDK_RDEBS) $(PYTHON_SDK_API) $(SX_KERNEL))
 
 SONIC_PHONY_TARGETS += mlnx-sdk-packages
