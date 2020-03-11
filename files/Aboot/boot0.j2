@@ -272,6 +272,11 @@ platform_specific() {
         aboot_machine=arista_7280cr3_32d4
         flash_size=7382
     fi
+    if [ "$sid" = "Lodoga" ] || [ "$sid" = "LodogaSsd" ]; then
+        aboot_machine=arista_7050cx3_32s
+        flash_size=3700
+        echo "amd_iommu=off" >> /tmp/append
+    fi
     if [ "$platform" = "rook" ] || [ "$platform" = "magpie" ] ||
        [ "$platform" = "woodpecker" ]; then
         echo "tsc=reliable pcie_ports=native" >>/tmp/append
