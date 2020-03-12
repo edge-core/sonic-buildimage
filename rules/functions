@@ -91,8 +91,33 @@ $(1)_EXTRA_DEBS += $(2)
 SONIC_EXTRA_DEBS += $(2)
 endef
 
+
+# call:
+#     add_dbg_docker some_docker.gz, some-docker-dbg.gz
+define add_dbg_docker
+$(2)_PATH = $($(1)_PATH)
+$(2)_DBG_DEPENDS += $($(1)_DBG_DEPENDS)
+$(2)_DBG_IMAGE_PACKAGES += $($(1)_DBG_IMAGE_PACKAGES)
+$(2)_PYTHON_WHEELS += $($(1)_PYTHON_WHEELS)
+$(2)_LOAD_DOCKERS += $($(1)_LOAD_DOCKERS)
+$(2)_CACHE_MODE += $($(1)_CACHE_MODE)
+$(2)_DEP_FLAGS += $($(1)_DEP_FLAGS)
+$(2)_DEP_FILES += $($(1)_DEP_FILES)
+$(2)_SMDEP_FILES += $($(1)_SMDEP_FILES)
+$(2)_SMDEP_PATHS += $($(1)_SMDEP_PATHS)
+$(2)_DEPENDS += $($(1)_DEPENDS)
+$(2)_RDEPENDS += $($(1)_RDEPENDS)
+$(2)_MAIN_DOCKER = $(1)
+$(1)_DBG_DOCKER += $(2)
+SONIC_DBG_DOCKERS += $(2)
+endef
+
+
+
 ###############################################################################
 ## Utility functions
 ###############################################################################
+# Recursive wildcard function
+rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
 
 expand = $(foreach d,$(1),$(call expand,$($(d)_$(2)),$(2))) $(1)

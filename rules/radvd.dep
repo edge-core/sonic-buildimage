@@ -1,0 +1,10 @@
+
+SPATH       := $($(RADVD)_SRC_PATH)
+DEP_FILES   := $(SONIC_COMMON_FILES_LIST) rules/radvd.mk rules/radvd.dep   
+DEP_FILES   += $(SONIC_COMMON_BASE_FILES_LIST)
+DEP_FILES   += $(shell git ls-files $(SPATH))
+
+$(RADVD)_CACHE_MODE  := GIT_CONTENT_SHA 
+$(RADVD)_DEP_FLAGS   := $(SONIC_COMMON_FLAGS_LIST)
+$(RADVD)_DEP_FILES   := $(DEP_FILES)
+

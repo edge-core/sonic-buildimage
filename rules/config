@@ -96,6 +96,18 @@ DEFAULT_KERNEL_PROCURE_METHOD = build
 FRR_USER_UID = 300
 FRR_USER_GID = 300
 
+# DPKG cache allows the .deb files to be stored in the cache path. This allows the submodules
+# package to be cached and restored back if its commit hash is not modified and its dependencies are not modified.
+# SONIC_DPKG_CACHE_METHOD - Default method of deb package caching
+#	none    :  no caching
+#	rwcache :  Use cache if exists else build the source and update the cache
+#	wcache  :  Dont use the cache and just build the source and update the cache
+#	rcache  :  Use cache if exists, but dont update the cache
+#	cache   :  Same as rwcache
+# SONIC_DPKG_CACHE_SOURCE - Stores the cache location details
+SONIC_DPKG_CACHE_METHOD ?= none
+SONIC_DPKG_CACHE_SOURCE ?= /var/cache/sonic/artifacts
+
 # Default VS build memory preparation
 DEFAULT_VS_PREPARE_MEM = yes
 

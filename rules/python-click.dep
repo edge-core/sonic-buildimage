@@ -1,0 +1,10 @@
+
+SPATH       := $($(PYTHON_CLICK)_SRC_PATH)
+DEP_FILES   := $(SONIC_COMMON_FILES_LIST) rules/python-click.mk rules/python-click.dep   
+DEP_FILES   += $(SONIC_COMMON_BASE_FILES_LIST)
+DEP_FILES   += $(shell git ls-files $(SPATH))
+
+$(PYTHON_CLICK)_CACHE_MODE  := GIT_CONTENT_SHA 
+$(PYTHON_CLICK)_DEP_FLAGS   := $(SONIC_COMMON_FLAGS_LIST)
+$(PYTHON_CLICK)_DEP_FILES   := $(DEP_FILES)
+
