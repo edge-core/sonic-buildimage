@@ -78,6 +78,8 @@ class BGPConfigManager(object):
     def __init__(self, daemon):
         self.bgp_asn = None
         self.meta = None
+        self.lo_ipv4 = None
+        self.lo_ipv6 = None
         self.neig_meta = {}
         self.bgp_messages = []
         self.peers = self.load_peers() # we can have bgp monitors peers here. it could be fixed by adding support for it here
@@ -86,9 +88,11 @@ class BGPConfigManager(object):
         self.bgp_peer_del_template = fabric.from_string('no neighbor {{ neighbor_addr }}')
         self.bgp_peer_shutdown = fabric.from_string('neighbor {{ neighbor_addr }} shutdown')
         self.bgp_peer_no_shutdown = fabric.from_string('no neighbor {{ neighbor_addr }} shutdown')
+        self.zebra_set_src_template = fabric.from_file('zebra.set_src.conf.j2')
         daemon.add_manager(swsscommon.CONFIG_DB, swsscommon.CFG_DEVICE_METADATA_TABLE_NAME, self.__metadata_handler)
         daemon.add_manager(swsscommon.CONFIG_DB, swsscommon.CFG_DEVICE_NEIGHBOR_METADATA_TABLE_NAME, self.__neighbor_metadata_handler)
         daemon.add_manager(swsscommon.CONFIG_DB, swsscommon.CFG_BGP_NEIGHBOR_TABLE_NAME, self.__bgp_handler)
+        daemon.add_manager(swsscommon.STATE_DB, swsscommon.STATE_INTERFACE_TABLE_NAME, self.__if_handler)
 
     def load_peers(self):
         peers = set()
@@ -136,6 +140,35 @@ class BGPConfigManager(object):
             syslog.syslog(syslog.LOG_ERR,"Wrong operation '%s' for neighbor metadata handler" % op)
         self.__update_bgp()
 
+    def __if_handler(self, key, op, data):
+        cmds = []
+        if op == swsscommon.SET_COMMAND and key.startswith("Loopback0|") and "state" in data and data["state"] == "ok":
+            ip_addr_w_mask = key.replace("Loopback0|", "")
+            slash_pos = ip_addr_w_mask.rfind("/")
+            if slash_pos == -1:
+                syslog.syslog(syslog.LOG_ERR, "Wrong Loopback0 ip address'%s'" % ip_addr_w_mask)
+                return
+            ip_addr = ip_addr_w_mask[:slash_pos]
+            try:
+                if TemplateFabric.is_ipv4(ip_addr) and self.lo_ipv4 is None:
+                    self.lo_ipv4 = ip_addr
+                    txt = self.zebra_set_src_template.render(rm_name="RM_SET_SRC", lo_ip=ip_addr, ip_proto="")
+                elif TemplateFabric.is_ipv6(ip_addr) and self.lo_ipv6 is None:
+                    self.lo_ipv6 = ip_addr
+                    txt = self.zebra_set_src_template.render(rm_name="RM_SET_SRC6", lo_ip=ip_addr, ip_proto="v6")
+                else:
+                    syslog.syslog(syslog.LOG_ERR, "Got ambigous ip addres '%s'" % ip_addr)
+            except:
+                syslog.syslog(syslog.LOG_ERR, "Error while rendering set src template" % ip_addr)
+            else:
+                cmds.append(txt)
+                syslog.syslog(syslog.LOG_INFO, "Generate set src configuration with Loopback0 ipv4 '%s'" % ip_addr)
+        elif op == swsscommon.DEL_COMMAND:
+            syslog.syslog(syslog.LOG_INFO, "Delete command is not supported for set src templates" % ip_addr)
+
+        for cmd in cmds:
+            self.__apply_cmd(cmd, zebra=True)
+
     def __update_bgp(self):
         cmds = []
         new_bgp_messages = []
@@ -180,7 +213,7 @@ class BGPConfigManager(object):
         for cmd in cmds:
             self.__apply_cmd(cmd)
 
-    def __apply_cmd(self, cmd):
+    def __apply_cmd(self, cmd, zebra=False):
         lines = [line for line in cmd.split("\n") if not line.startswith('!') and line.strip() != ""]
         if len(lines) == 0:
             return
@@ -198,7 +231,11 @@ class BGPConfigManager(object):
                 chunks.pop()
                 chunks.append(line.strip())
 
-            command = ["vtysh", "-c", "conf t", "-c", "router bgp %s" % self.bgp_asn]
+            command = ["vtysh", "-c", "conf t"]
+            if not zebra:
+                command.append("-c")
+                command.append("router bgp %s" % self.bgp_asn)
+
             for chunk in chunks:
                 command.append("-c")
                 command.append(chunk)
@@ -213,7 +250,7 @@ class BGPConfigManager(object):
 
 class Daemon(object):
     SELECT_TIMEOUT = 1000
-    DATABASE_LIST = [ swsscommon.CONFIG_DB ]
+    DATABASE_LIST = [ swsscommon.CONFIG_DB, swsscommon.STATE_DB ]
 
     def __init__(self):
         self.db_connectors = { db : swsscommon.DBConnector(db, swsscommon.DBConnector.DEFAULT_UNIXSOCKET, 0) for db in Daemon.DATABASE_LIST }
