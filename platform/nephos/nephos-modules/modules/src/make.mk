@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (C) 2019  Nephos, Inc.
+# Copyright (C) 2020  MediaTek, Inc.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of version 2 of the GNU General Public
@@ -17,7 +17,7 @@ DEV_MODULE_NAME            := nps_dev
 NETIF_MODULE_NAME          := nps_netif
 ################################################################################
 DEV_OBJS_TOTAL             := ./src/osal_mdc.o ./src/osal_isymbol.o
-NETIF_OBJS_TOTAL           := ./src/hal_tau_pkt_knl.o ./src/netif_perf.o ./src/netif_osal.o
+NETIF_OBJS_TOTAL           := ./src/hal_tau_pkt_knl.o ./src/netif_perf.o ./src/netif_osal.o ./src/netif_nl.o
 
 obj-m                      := $(DEV_MODULE_NAME).o $(NETIF_MODULE_NAME).o
 $(DEV_MODULE_NAME)-objs    := $(DEV_OBJS_TOTAL)

@@ -1,4 +1,4 @@
-/* Copyright (C) 2019  Nephos, Inc.
+/* Copyright (C) 2020  MediaTek, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of version 2 of the GNU General Public
@@ -134,6 +134,8 @@ typedef enum
     OSAL_MDC_IOCTL_TYPE_MDC_FREE_SYS_DMA_MEM,
     OSAL_MDC_IOCTL_TYPE_MDC_CONNECT_ISR,
     OSAL_MDC_IOCTL_TYPE_MDC_DISCONNECT_ISR,
+    OSAL_MDC_IOCTL_TYPE_MDC_SAVE_PCI_CONFIG,
+    OSAL_MDC_IOCTL_TYPE_MDC_RESTORE_PCI_CONFIG,
     OSAL_MDC_IOCTL_TYPE_LAST
 
 } OSAL_MDC_IOCTL_TYPE_T;
@@ -237,5 +239,13 @@ NPS_ERROR_NO_T
 osal_mdc_invalidateCache(
     void                *ptr_virt_addr,
     const UI32_T        size);
+
+NPS_ERROR_NO_T
+osal_mdc_savePciConfig(
+    const UI32_T        unit);
+
+NPS_ERROR_NO_T
+osal_mdc_restorePciConfig(
+    const UI32_T        unit);
 
 #endif  /* OSAL_MDC_H */
