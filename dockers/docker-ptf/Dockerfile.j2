@@ -61,7 +61,10 @@ RUN sed --in-place 's/httpredir.debian.org/debian-archive.trafficmanager.net/' /
         python-scapy        \
         python-six          \
         tacacs+             \
-        rsyslog
+        rsyslog             \
+        ntp                 \
+        ntpstat             \
+        ntpdate
 
 RUN dpkg -i \
 {% for deb in docker_ptf_debs.split(' ') -%}
