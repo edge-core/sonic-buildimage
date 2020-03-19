@@ -20,14 +20,14 @@ LIBTEAMDCT = libteamdctl0_$(LIBTEAM_VERSION)_$(CONFIGURED_ARCH).deb
 $(eval $(call add_derived_package,$(LIBTEAM),$(LIBTEAMDCT)))
 
 LIBTEAMDCT_DBG = libteamdctl0-dbgsym_$(LIBTEAM_VERSION)_$(CONFIGURED_ARCH).deb
-$(eval $(call add_derived_package,$(LIBTEAMDCT),$(LIBTEAMDCT_DBG)))
+$(eval $(call add_derived_package,$(LIBTEAM),$(LIBTEAMDCT_DBG)))
 
 LIBTEAM_UTILS = libteam-utils_$(LIBTEAM_VERSION)_$(CONFIGURED_ARCH).deb
 $(LIBTEAM_UTILS)_DEPENDS += $(LIBTEAMDCT)
 $(eval $(call add_derived_package,$(LIBTEAM),$(LIBTEAM_UTILS)))
 
 LIBTEAM_UTILS_DBG = libteam-utils-dbgsym_$(LIBTEAM_VERSION)_$(CONFIGURED_ARCH).deb
-$(eval $(call add_derived_package,$(LIBTEAM_UTILS),$(LIBTEAM_UTILS_DBG)))
+$(eval $(call add_derived_package,$(LIBTEAM),$(LIBTEAM_UTILS_DBG)))
 
 # The .c, .cpp, .h & .hpp files under src/{$DBG_SRC_ARCHIVE list}
 # are archived into debug one image to facilitate debugging.
