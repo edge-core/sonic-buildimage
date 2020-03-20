@@ -48,7 +48,7 @@ endif
 # Check for j2cli availability
 J2_VER := $(shell j2 --version 2>&1 | grep j2cli | awk '{printf $$2}')
 ifeq ($(J2_VER),)
-$(error Install j2cli)
+$(error Please install j2cli (sudo pip install j2cli))
 endif
 
 # Check for minimum Docker version on build host
