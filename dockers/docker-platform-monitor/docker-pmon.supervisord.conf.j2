@@ -39,9 +39,10 @@ startsecs=0
 command=/usr/sbin/fancontrol
 priority=4
 autostart=false
-autorestart=false
+autorestart=unexpected
 stdout_logfile=syslog
 stderr_logfile=syslog
+startsecs=10
 
 {% if not skip_ledd %}
 [program:ledd]
