@@ -104,13 +104,14 @@ class TestCfgGen(TestCase):
         self.assertEqual(output.strip(), "Warning: Ignoring Control Plane ACL NTP_ACL without type\n"
                                          "Warning: ignore interface 'fortyGigE0/2' as it is not in the port_config.ini\n"
                                          "Warning: ignore interface 'fortyGigE0/2' in DEVICE_NEIGHBOR as it is not in the port_config.ini\n"
-                                         "{'DATAACL': {'type': 'L3', 'policy_desc': 'DATAACL', 'ports': ['PortChannel01', 'PortChannel02', 'PortChannel03', 'PortChannel04']}, "
-                                         "'NTP_ACL': {'services': ['NTP'], 'type': 'CTRLPLANE', 'policy_desc': 'NTP_ACL'}, "
-                                         "'EVERFLOW': {'type': 'MIRROR', 'policy_desc': 'EVERFLOW', 'ports': ['PortChannel01', 'PortChannel02', 'PortChannel03', 'PortChannel04', 'Ethernet4']}, "
-                                         "'ROUTER_PROTECT': {'services': ['SSH', 'SNMP'], 'type': 'CTRLPLANE', 'policy_desc': 'ROUTER_PROTECT'}, "
-                                         "'SNMP_ACL': {'services': ['SNMP'], 'type': 'CTRLPLANE', 'policy_desc': 'SNMP_ACL'}, "
-                                         "'SSH_ACL': {'services': ['SSH'], 'type': 'CTRLPLANE', 'policy_desc': 'SSH_ACL'}, "
-                                         "'EVERFLOWV6': {'type': 'MIRRORV6', 'policy_desc': 'EVERFLOWV6', 'ports': ['PortChannel01', 'PortChannel02', 'PortChannel03', 'PortChannel04', 'Ethernet4']}}")
+                                         "{'NTP_ACL': {'services': ['NTP'], 'type': 'CTRLPLANE', 'policy_desc': 'NTP_ACL', 'stage': 'ingress'}, "
+                                         "'EVERFLOW': {'stage': 'ingress', 'type': 'MIRROR', 'ports': ['PortChannel01', 'PortChannel02', 'PortChannel03', 'PortChannel04', 'Ethernet4'], 'policy_desc': 'EVERFLOW'}, "
+                                         "'ROUTER_PROTECT': {'services': ['SSH', 'SNMP'], 'type': 'CTRLPLANE', 'policy_desc': 'ROUTER_PROTECT', 'stage': 'ingress'}, "
+                                         "'DATAACLINGRESS': {'stage': 'ingress', 'type': 'L3', 'ports': ['PortChannel01', 'PortChannel02', 'PortChannel03', 'PortChannel04'], 'policy_desc': 'DATAACLINGRESS'}, "
+                                         "'SNMP_ACL': {'services': ['SNMP'], 'type': 'CTRLPLANE', 'policy_desc': 'SNMP_ACL', 'stage': 'ingress'}, "
+                                         "'SSH_ACL': {'services': ['SSH'], 'type': 'CTRLPLANE', 'policy_desc': 'SSH_ACL', 'stage': 'ingress'}, "
+                                         "'DATAACLEGRESS': {'stage': 'egress', 'type': 'L3', 'ports': ['PortChannel01', 'PortChannel02'], 'policy_desc': 'DATAACLEGRESS'}, "
+                                         "'EVERFLOWV6': {'stage': 'ingress', 'type': 'MIRRORV6', 'ports': ['PortChannel01', 'PortChannel02', 'PortChannel03', 'PortChannel04', 'Ethernet4'], 'policy_desc': 'EVERFLOWV6'}}")
 
 #     everflow portion is not used
 #     def test_minigraph_everflow(self):
