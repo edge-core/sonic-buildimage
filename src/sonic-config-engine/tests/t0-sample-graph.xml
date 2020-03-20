@@ -305,7 +305,12 @@
         </AclInterface>
         <AclInterface>
           <AttachTo>PortChannel01;PortChannel02;PortChannel03;PortChannel04</AttachTo>
-          <InAcl>DataAcl</InAcl>
+          <InAcl>DataAclIngress</InAcl>
+          <Type>DataPlane</Type>
+        </AclInterface>
+        <AclInterface>
+          <AttachTo>PortChannel01;PortChannel02</AttachTo>
+          <OutAcl>DataAclEgress</OutAcl>
           <Type>DataPlane</Type>
         </AclInterface>
         <AclInterface>
