@@ -12,6 +12,8 @@ auto eth0
 iface eth0 inet static
     address 10.0.0.100
     netmask 255.255.255.0
+    network 10.0.0.0
+    broadcast 10.0.0.255
     ########## management network policy routing rules
     # management port up rules
     up ip -4 route add default via 10.0.0.1 dev eth0 table default metric 201
@@ -24,6 +26,8 @@ iface eth0 inet static
 iface eth0 inet6 static
     address 2603:10e2:0:2902::8
     netmask 64
+    network 2603:10e2:0:2902::
+    broadcast 2603:10e2:0:2902:ffff:ffff:ffff:ffff
     ########## management network policy routing rules
     # management port up rules
     up ip -6 route add default via 2603:10e2:0:2902::1 dev eth0 table default metric 201

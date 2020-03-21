@@ -286,7 +286,7 @@ def main():
         env.filters['unique_name'] = unique_name
         env.filters['pfx_filter'] = pfx_filter
         env.filters['ip_network'] = ip_network
-        for attr in ['ip', 'network', 'prefixlen', 'netmask']:
+        for attr in ['ip', 'network', 'prefixlen', 'netmask', 'broadcast']:
             env.filters[attr] = partial(prefix_attr, attr)
         template = env.get_template(template_file)
         print(template.render(sort_data(data)))
