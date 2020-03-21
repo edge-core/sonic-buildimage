@@ -1,4 +1,4 @@
-From 6aecc8fed8cc78c1fb5c6b52bdfa3d07ca66e652 Mon Sep 17 00:00:00 2001
+From ebb17bd1f6996f73cb67313846a63c789e74c4f4 Mon Sep 17 00:00:00 2001
 From: Mykola Faryma <mykolaf@mellanox.com>
 Date: Fri, 21 Feb 2020 12:28:54 +0200
 Subject: [PATCH 1/1] Make hw-mgmt SimX compatiable
@@ -9,35 +9,35 @@ Signed-off-by: Mykola Faryma <mykolaf@mellanox.com>
  1 file changed, 29 insertions(+)
 
 diff --git a/usr/usr/bin/hw-management.sh b/usr/usr/bin/hw-management.sh
-index cff10fe..7f3c295 100755
+index 1b5b18a..3dfd4b1 100755
 --- a/usr/usr/bin/hw-management.sh
 +++ b/usr/usr/bin/hw-management.sh
-@@ -646,6 +646,35 @@ do_chip_down()
+@@ -943,6 +943,35 @@ do_chip_down()
  	/usr/bin/hw-management-thermal-events.sh change hotplug_asic down %S %p
  }
  
 +handle_simx()
 +{
-+	local -r onie_platform="$(cat /host/machine.conf | grep onie_platform | cut -d= -f2)"
++        local -r onie_platform="$(cat /host/machine.conf | grep onie_platform | cut -d= -f2)"
 +
-+	local -r syseeprom_cache_path="/var/cache/sonic/decode-syseeprom/syseeprom_cache"
-+	local -r syseeprom_hex_path="/usr/share/sonic/device/${onie_platform}/syseeprom.hex"
-+	local -r syseeprom_vpd_path="/var/run/hw-management/eeprom/vpd_info"
++        local -r syseeprom_cache_path="/var/cache/sonic/decode-syseeprom/syseeprom_cache"
++        local -r syseeprom_hex_path="/usr/share/sonic/device/${onie_platform}/syseeprom.hex"
++        local -r syseeprom_vpd_path="/var/run/hw-management/eeprom/vpd_info"
 +
-+	case $ACTION in
-+		start)
-+			/bin/bash -c "/bin/rm -f ${syseeprom_cache_path}"
-+			/bin/bash -c "/bin/mkdir -p ${eeprom_path}"
-+			/bin/bash -c "/usr/bin/xxd -r -p ${syseeprom_hex_path} ${syseeprom_vpd_path}"
-+		;;
-+		stop)
-+			/bin/bash -c "/bin/rm -fr ${hw_management_path}"
-+		;;
-+		*)
-+			echo "Usage: `basename $0` {start|stop}"
-+			exit 1
-+		;;
-+	esac
++        case $ACTION in
++                start)
++                        /bin/bash -c "/bin/rm -f ${syseeprom_cache_path}"
++                        /bin/bash -c "/bin/mkdir -p ${eeprom_path}"
++                        /bin/bash -c "/usr/bin/xxd -r -p ${syseeprom_hex_path} ${syseeprom_vpd_path}"
++                ;;
++                stop)
++                        /bin/bash -c "/bin/rm -fr ${hw_management_path}"
++                ;;
++                *)
++                        echo "Usage: `basename $0` {start|stop}"
++                        exit 1
++                ;;
++        esac
 +}
 +
 +if [[ "$(cat /sys/devices/virtual/dmi/id/sys_vendor)" = "QEMU" ]]; then
@@ -47,7 +47,7 @@ index cff10fe..7f3c295 100755
 +
  case $ACTION in
  	start)
- 		do_start
+ 		if [ -d /var/run/hw-management ]; then
 -- 
 1.9.1
 
