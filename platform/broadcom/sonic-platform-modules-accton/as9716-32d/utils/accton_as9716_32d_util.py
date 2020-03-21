@@ -123,12 +123,13 @@ mknod =[
 # PSU-2
 'echo as9716_32d_psu2 0x51 > /sys/bus/i2c/devices/i2c-10/new_device',
 'echo acbel_fsh082    0x59 > /sys/bus/i2c/devices/i2c-10/new_device',
-
-#EERPOM
-'echo 24c02 0x56 > /sys/bus/i2c/devices/i2c-0/new_device',
 ]
 
-
+#EERPOM
+eeprom_mknod =[
+'echo 24c02 0x57 > /sys/bus/i2c/devices/i2c-0/new_device',
+'echo 24c02 0x56 > /sys/bus/i2c/devices/i2c-0/new_device',
+]
 
 FORCE = 0
 logging.basicConfig(filename= PROJECT_NAME+'.log', filemode='w',level=logging.DEBUG)
@@ -301,8 +302,14 @@ def driver_uninstall():
                 return status
     return 0
 
+def eeprom_check():
+    cmd = "i2cget -y -f 0 0x57"
+    status, output = commands.getstatusoutput(cmd)
+    return status
+
 def device_install():
     global FORCE
+    global use_57_eeprom
 
     for i in range(0,len(mknod)):
         #for pca954x need times to built new i2c buses
@@ -315,6 +322,12 @@ def device_install():
             if FORCE == 0:
                 return status
     
+    ret=eeprom_check()
+    if ret==0:
+        log_os_system(eeprom_mknod[0], 1) #new board, 0x57 eeprom
+    else:
+        log_os_system(eeprom_mknod[1], 1) #old board, 0x56 eeprom
+        
     for i in range(0,len(sfp_map)):
         status, output =log_os_system("echo optoe1 0x50 > /sys/bus/i2c/devices/i2c-"+str(sfp_map[i])+"/new_device", 1)
         if status:
@@ -358,6 +371,17 @@ def device_uninstall():
             if FORCE == 0:
                 return status
 
+    ret=eeprom_check()
+    if ret==0:
+        target = eeprom_mknod[0] #0x57
+    else:
+        target = eeprom_mknod[1] #0x56
+    
+    temp = target.split()
+    del temp[1]
+    temp[-1] = temp[-1].replace('new_device', 'delete_device')
+    status, output = log_os_system(" ".join(temp), 1)
+   
     return
 
 def system_ready():
