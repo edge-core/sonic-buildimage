@@ -386,11 +386,13 @@ if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
 fi
 
 {% if installer_images.strip() -%}
+sudo mkdir $FILESYSTEM_ROOT/target
+sudo mount --bind target $FILESYSTEM_ROOT/target
 sudo chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS info
 {% for image in installer_images.strip().split(' ') -%}
 {% set imagefilename = image.split('/')|last -%}
 {% set imagename = imagefilename.split('.')|first -%}
-sudo LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS load < {{image}}
+sudo LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS load -i {{image}}
 sudo LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS tag {{imagename}}:latest {{imagename}}:$(sonic_get_version)
 {% if imagename.endswith('-dbg') %}
 {% set imagebasename = imagename.replace('-dbg', '') -%}
@@ -398,6 +400,8 @@ sudo LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS ta
 sudo LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS tag {{imagename}}:latest {{imagebasename}}:latest
 {% endif %}
 {% endfor %}
+sudo umount $FILESYSTEM_ROOT/target
+sudo rm -r $FILESYSTEM_ROOT/target
 if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
     sudo umount $FILESYSTEM_ROOT/dockerfs
     sudo rm -fr $FILESYSTEM_ROOT/dockerfs

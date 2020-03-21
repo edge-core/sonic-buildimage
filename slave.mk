@@ -397,13 +397,13 @@ $(addprefix $(DEBS_PATH)/, $(SONIC_DPKG_DEBS)) : $(DEBS_PATH)/% : .platform $$(a
 		# Apply series of patches if exist
 		if [ -f $($*_SRC_PATH).patch/series ]; then pushd $($*_SRC_PATH) && QUILT_PATCHES=../$(notdir $($*_SRC_PATH)).patch quilt push -a; popd; fi
 		# Build project
-		pushd $($*_SRC_PATH) $(LOG)
-		[ ! -f ./autogen.sh ] || ./autogen.sh $(LOG)
+		pushd $($*_SRC_PATH) $(LOG_SIMPLE)
+		if [ -f ./autogen.sh ]; then ./autogen.sh $(LOG); fi
 		$(if $($*_DPKG_TARGET),
 			DEB_BUILD_OPTIONS="${DEB_BUILD_OPTIONS_GENERIC} ${$*_DEB_BUILD_OPTIONS}" dpkg-buildpackage -rfakeroot -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS) --as-root -T$($*_DPKG_TARGET) $(LOG),
 			DEB_BUILD_OPTIONS="${DEB_BUILD_OPTIONS_GENERIC} ${$*_DEB_BUILD_OPTIONS}" dpkg-buildpackage -rfakeroot -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS) $(LOG)
 		)
-		popd $(LOG)
+		popd $(LOG_SIMPLE)
 		# Clean up
 		if [ -f $($*_SRC_PATH).patch/series ]; then pushd $($*_SRC_PATH) && quilt pop -a -f; popd; fi
 		# Take built package(s)
@@ -493,10 +493,10 @@ $(addprefix $(PYTHON_DEBS_PATH)/, $(SONIC_PYTHON_STDEB_DEBS)) : $(PYTHON_DEBS_PA
 		# Apply series of patches if exist
 		if [ -f $($*_SRC_PATH).patch/series ]; then pushd $($*_SRC_PATH) && QUILT_PATCHES=../$(notdir $($*_SRC_PATH)).patch quilt push -a; popd; fi
 		# Build project
-		pushd $($*_SRC_PATH) $(LOG)
+		pushd $($*_SRC_PATH) $(LOG_SIMPLE)
 		rm -rf deb_dist/* $(LOG)
 		python setup.py --command-packages=stdeb.command bdist_deb $(LOG)
-		popd $(LOG)
+		popd $(LOG_SIMPLE)
 		# Clean up
 		if [ -f $($*_SRC_PATH).patch/series ]; then pushd $($*_SRC_PATH) && quilt pop -a -f; popd; fi
 		# Take built package(s)
@@ -529,14 +529,14 @@ $(addprefix $(PYTHON_WHEELS_PATH)/, $(SONIC_PYTHON_WHEELS)) : $(PYTHON_WHEELS_PA
 	# Skip building the target if it is already loaded from cache
 	if [ -z '$($*_CACHE_LOADED)' ] ; then
 
-		pushd $($*_SRC_PATH) $(LOG)
+		pushd $($*_SRC_PATH) $(LOG_SIMPLE)
 		# apply series of patches if exist
 		if [ -f ../$(notdir $($*_SRC_PATH)).patch/series ]; then QUILT_PATCHES=../$(notdir $($*_SRC_PATH)).patch quilt push -a; fi
-		[ "$($*_TEST)" = "n" ] || python$($*_PYTHON_VERSION) setup.py test $(LOG)
+		if [ ! "$($*_TEST)" = "n" ]; then python$($*_PYTHON_VERSION) setup.py test $(LOG); fi
 		python$($*_PYTHON_VERSION) setup.py bdist_wheel $(LOG)
 		# clean up
 		if [ -f ../$(notdir $($*_SRC_PATH)).patch/series ]; then quilt pop -a -f; fi
-		popd $(LOG)
+		popd $(LOG_SIMPLE)
 		mv $($*_SRC_PATH)/dist/$* $(PYTHON_WHEELS_PATH) $(LOG)
 		
 		# Save the target deb into DPKG cache
