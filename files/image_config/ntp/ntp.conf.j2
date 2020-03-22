@@ -5,6 +5,10 @@
 
 # /etc/ntp.conf, configuration for ntpd; see ntp.conf(5) for help
 
+# To avoid ntpd from panic and exit if the drift between new time and
+# current system time is large.
+tinker panic 0
+
 driftfile /var/lib/ntp/ntp.drift
 
 
