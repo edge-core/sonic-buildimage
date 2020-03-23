@@ -139,7 +139,7 @@ class Chassis(ChassisBase):
         # Initialize component list
         from sonic_platform.component import ComponentBIOS, ComponentCPLD
         self._component_list.append(ComponentBIOS())
-        self._component_list.append(ComponentCPLD())
+        self._component_list.extend(ComponentCPLD.get_component_list())
 
 
     def get_name(self):
