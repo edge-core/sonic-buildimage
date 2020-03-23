@@ -183,6 +183,18 @@ platform_firmware_versions()
     echo "Slave CPLD 4: $((r_maj)).$((r_min))" >> $FIRMWARE_VERSION_FILE
 }
 
+get_reboot_cause() {
+    REBOOT_REASON_FILE="/host/reboot-cause/platform/reboot_reason"
+    resource="/sys/bus/pci/devices/0000:04:00.0/resource0"
+
+    # Handle First Boot into software version with reboot cause determination support
+    if [[ ! -e $REBOOT_REASON_FILE ]]; then
+        echo "0" > $REBOOT_REASON_FILE
+    else
+        /usr/bin/pcisysfs.py --get --offset 0x18 --res $resource | sed '1d; s/.*:\(.*\)$/\1/;' > $REBOOT_REASON_FILE
+    fi
+    /usr/bin/pcisysfs.py --set --val 0x0 --offset 0x18 --res $resource
+}
 
 init_devnum
 
@@ -194,6 +206,7 @@ if [ "$1" == "init" ]; then
     modprobe i2c_ocores
     modprobe dell_z9264f_fpga_ocores
     sys_eeprom "new_device"
+    get_reboot_cause
     switch_board_qsfp_mux "new_device"
     switch_board_qsfp "new_device"
     switch_board_sfp "new_device"
