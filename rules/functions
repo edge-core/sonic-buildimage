@@ -17,7 +17,7 @@ GRAY=\033[0m
 endif
 endif
 
-ifeq ($(SONIC_CONFIG_BUILD_LOG_TIMESTAMP),y)
+ifeq ($(BUILD_LOG_TIMESTAMP),simple)
 PROCESS_LOG_OPTION = -t
 endif
 

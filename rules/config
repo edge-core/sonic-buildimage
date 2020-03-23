@@ -16,8 +16,9 @@ SONIC_CONFIG_BUILD_JOBS = 1
 # Corresponding -j argument will be passed to make/dpkg commands that build separate packages
 SONIC_CONFIG_MAKE_JOBS = $(shell nproc)
 
-# SONIC_CONFIG_BUILD_LOG_TIMESTAMP - add timestamp in build log
-# SONIC_CONFIG_BUILD_LOG_TIMESTAMP = y
+# DEFAULT_BUILD_LOG_TIMESTAMP - add timestamp in build log
+# Supported format: simple, none
+DEFAULT_BUILD_LOG_TIMESTAMP = none
 
 # SONIC_USE_DOCKER_BUILDKIT - use docker buildkit for build.
 # If set to y SONiC build system will set environment variable DOCKER_BUILDKIT=1
