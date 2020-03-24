@@ -636,11 +636,6 @@ def parse_xml(filename, platform=None, port_config_file=None):
         'hostname': hostname,
         'hwsku': hwsku,
         'type': current_device['type']
-        },
-        'x509': {
-            'server_crt': '/etc/sonic/telemetry/streamingtelemetryserver.cer',
-            'server_key': '/etc/sonic/telemetry/streamingtelemetryserver.key',
-            'ca_crt': '/etc/sonic/telemetry/dsmsroot.cer'
         }
     }
     results['BGP_NEIGHBOR'] = bgp_sessions
@@ -829,6 +824,11 @@ def parse_xml(filename, platform=None, port_config_file=None):
             'client_auth': 'true',
             'port': '50051',
             'log_level': '2'
+        },
+        'certs': {
+            'server_crt': '/etc/sonic/telemetry/streamingtelemetryserver.cer',
+            'server_key': '/etc/sonic/telemetry/streamingtelemetryserver.key',
+            'ca_crt': '/etc/sonic/telemetry/dsmsroot.cer'
         }
     }
 
