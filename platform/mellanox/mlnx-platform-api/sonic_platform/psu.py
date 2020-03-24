@@ -32,7 +32,7 @@ hwsku_dict_with_unplugable_psu = ['ACS-MSN2010', 'ACS-MSN2100']
 
 # in most SKUs the file psuX_curr, psuX_volt and psuX_power contain current, voltage and power data respectively. 
 # but there are exceptions which will be handled by the following dictionary
-hwsku_dict_psu = {'ACS-MSN3700': 1, 'ACS-MSN3700C': 1, 'ACS-MSN3800': 1, 'Mellanox-SN3800-D112C8': 1}
+hwsku_dict_psu = {'ACS-MSN3700': 1, 'ACS-MSN3700C': 1, 'ACS-MSN3800': 1, 'Mellanox-SN3800-D112C8': 1, 'ACS-MSN4700': 1}
 psu_profile_list = [
     # default filename convention
     {
@@ -40,7 +40,7 @@ psu_profile_list = [
         PSU_VOLTAGE : "power/psu{}_volt",
         PSU_POWER : "power/psu{}_power"
     },
-    # for 3700, 3700c, 3800
+    # for 3700, 3700c, 3800, 4700
     {
         PSU_CURRENT : "power/psu{}_curr",
         PSU_VOLTAGE : "power/psu{}_volt_out2",

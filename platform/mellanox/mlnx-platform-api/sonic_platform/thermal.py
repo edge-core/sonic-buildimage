@@ -106,7 +106,7 @@ thermal_api_names = [
     THERMAL_API_GET_HIGH_THRESHOLD
 ]
 
-hwsku_dict_thermal = {'ACS-MSN2700': 0, 'LS-SN2700':0, 'ACS-MSN2740': 3, 'ACS-MSN2100': 1, 'ACS-MSN2410': 2, 'ACS-MSN2010': 4, 'ACS-MSN3700': 5, 'ACS-MSN3700C': 6, 'Mellanox-SN2700': 0, 'Mellanox-SN2700-D48C8': 0, 'ACS-MSN3800': 7, 'Mellanox-SN3800-D112C8': 7}
+hwsku_dict_thermal = {'ACS-MSN2700': 0, 'LS-SN2700':0, 'ACS-MSN2740': 3, 'ACS-MSN2100': 1, 'ACS-MSN2410': 2, 'ACS-MSN2010': 4, 'ACS-MSN3700': 5, 'ACS-MSN3700C': 6, 'Mellanox-SN2700': 0, 'Mellanox-SN2700-D48C8': 0, 'ACS-MSN3800': 7, 'Mellanox-SN3800-D112C8': 7, 'ACS-MSN4700': 8}
 thermal_profile_list = [
     # 2700
     {
@@ -231,6 +231,22 @@ thermal_profile_list = [
             ]
         )
     },
+    # 4700
+    {
+        THERMAL_DEV_CATEGORY_CPU_CORE:(0, 4),
+        THERMAL_DEV_CATEGORY_MODULE:(1, 32),
+        THERMAL_DEV_CATEGORY_PSU:(1, 2),
+        THERMAL_DEV_CATEGORY_CPU_PACK:(0,1),
+        THERMAL_DEV_CATEGORY_GEARBOX:(0,0),
+        THERMAL_DEV_CATEGORY_AMBIENT:(0,
+            [
+                THERMAL_DEV_ASIC_AMBIENT,
+                THERMAL_DEV_COMEX_AMBIENT,
+                THERMAL_DEV_PORT_AMBIENT,
+                THERMAL_DEV_FAN_AMBIENT
+            ]
+        )
+    }
 ]
 
 def initialize_thermals(sku, thermal_list, psu_list):
