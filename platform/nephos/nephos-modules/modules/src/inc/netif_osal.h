@@ -1,4 +1,4 @@
-/* Copyright (C) 2019  Nephos, Inc.
+/* Copyright (C) 2020  MediaTek, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of version 2 of the GNU General Public

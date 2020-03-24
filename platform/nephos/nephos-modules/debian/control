@@ -1,7 +1,7 @@
 Source: nephos-modules
 Section: main
 Priority: extra
-Maintainer: support <simon.ji@nephosinc.com>
+Maintainer: support <simon.ji@mediatek.com>
 Build-Depends: debhelper (>= 8.0.0), bzip2
 Standards-Version: 3.9.3
 

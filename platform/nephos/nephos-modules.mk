@@ -1,6 +1,6 @@
 # Nephos Platform modules
 
-VERSION = 1.0.0
+VERSION = 1.0.1
 
 ifneq ($(NEPHOS_SAI_DEB_LOCAL_URL), )
 SDK_FROM_LOCAL = y

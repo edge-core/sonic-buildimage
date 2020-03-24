@@ -1,4 +1,4 @@
-/* Copyright (C) 2019  Nephos, Inc.
+/* Copyright (C) 2020  MediaTek, Inc.
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of version 2 of the GNU General Public
@@ -45,6 +45,9 @@
 /* netif */
 #include <netif_osal.h>
 #include <netif_perf.h>
+#if defined(NETIF_EN_NETLINK)
+#include <netif_nl.h>
+#endif
 #include <hal_tau_pkt_knl.h>
 
 /* nps_sdk */
@@ -69,19 +72,20 @@
 
 
 /* This flag value will be specified when user inserts kernel module. */
-#define HAL_TAU_PKT_DBG_ERR             (0x1 << 0)
-#define HAL_TAU_PKT_DBG_TX              (0x1 << 1)
-#define HAL_TAU_PKT_DBG_RX              (0x1 << 2)
-#define HAL_TAU_PKT_DBG_INTF            (0x1 << 3)
-#define HAL_TAU_PKT_DBG_PROFILE         (0x1 << 4)
-#define HAL_TAU_PKT_DBG_COMMON          (0x1 << 5)
+#define HAL_TAU_PKT_DBG_ERR             (0x1UL << 0)
+#define HAL_TAU_PKT_DBG_TX              (0x1UL << 1)
+#define HAL_TAU_PKT_DBG_RX              (0x1UL << 2)
+#define HAL_TAU_PKT_DBG_INTF            (0x1UL << 3)
+#define HAL_TAU_PKT_DBG_PROFILE         (0x1UL << 4)
+#define HAL_TAU_PKT_DBG_COMMON          (0x1UL << 5)
+#define HAL_TAU_PKT_DBG_NETLINK         (0x1UL << 6)
 
 /* Will be set when inserting kernel module */
-static UI32_T       dbg_flag = 0;
+UI32_T          ext_dbg_flag = 0;
 
 #define HAL_TAU_PKT_DBG(__flag__, ...)      do                  \
 {                                                               \
-    if (0 != ((__flag__) & (dbg_flag)))                         \
+    if (0 != ((__flag__) & (ext_dbg_flag)))                     \
     {                                                           \
         osal_printf(__VA_ARGS__);                               \
     }                                                           \
@@ -113,15 +117,15 @@ typedef struct
 
 static HAL_TAU_PKT_INTR_VEC_T           _hal_tau_pkt_intr_vec[] =
 {
-    { /* 0: PDMA_ERR */ 1 << 0,  0x0, 0 },
-    { /* 1: TX_CH0   */ 1 << 28, 0x0, 0 },
-    { /* 2: TX_CH1   */ 1 << 29, 0x0, 0 },
-    { /* 3: TX_CH2   */ 1 << 30, 0x0, 0 },
-    { /* 4: TX_CH3   */ 1 << 31, 0x0, 0 },
-    { /* 5: RX_CH0   */ 1 << 12, 0x0, 0 },
-    { /* 6: RX_CH1   */ 1 << 13, 0x0, 0 },
-    { /* 7: RX_CH2   */ 1 << 14, 0x0, 0 },
-    { /* 8: RX_CH3   */ 1 << 15, 0x0, 0 },
+    { /* 0: PDMA_ERR */ 1UL << 0,  0x0, 0 },
+    { /* 1: TX_CH0   */ 1UL << 28, 0x0, 0 },
+    { /* 2: TX_CH1   */ 1UL << 29, 0x0, 0 },
+    { /* 3: TX_CH2   */ 1UL << 30, 0x0, 0 },
+    { /* 4: TX_CH3   */ 1UL << 31, 0x0, 0 },
+    { /* 5: RX_CH0   */ 1UL << 12, 0x0, 0 },
+    { /* 6: RX_CH1   */ 1UL << 13, 0x0, 0 },
+    { /* 7: RX_CH2   */ 1UL << 14, 0x0, 0 },
+    { /* 8: RX_CH3   */ 1UL << 15, 0x0, 0 },
 };
 
 /*****************************************************************************
@@ -136,9 +140,10 @@ static HAL_TAU_PKT_INTR_VEC_T           _hal_tau_pkt_intr_vec[] =
 #define HAL_TAU_PKT_ALLOC_MEM_RETRY_SLEEP()     osal_sleepThread(1000) /* us */
 
 /* Network Device Definitions */
-#define HAL_TAU_PKT_TX_TIMEOUT                  (6*HZ)
+/* In case that the watchdog alarm during warm-boot if intf isn't killed */
+#define HAL_TAU_PKT_TX_TIMEOUT                  (30*HZ)
 #define HAL_TAU_PKT_MAX_ETH_FRAME_SIZE          (HAL_TAU_PKT_RX_MAX_LEN)
-#define HAL_TAU_PKT_MAX_PORT_NUM                (HAL_TAU_PORT_NUM + 1) /* CPU port */
+#define HAL_TAU_PKT_MAX_PORT_NUM                (HAL_PORT_NUM + 1) /* CPU port */
 
 #define HAL_TAU_PKT_NET_PROFILE_NUM_MAX         (256)
 
@@ -199,10 +204,10 @@ typedef struct
     NPS_ISRLOCK_ID_T                intr_lock;
     UI32_T                          intr_bitmap;
 
-#define HAL_TAU_PKT_INIT_DRV           (1 << 0)
-#define HAL_TAU_PKT_INIT_TASK          (1 << 1)
-#define HAL_TAU_PKT_INIT_INTR          (1 << 2)
-#define HAL_TAU_PKT_INIT_RX_START      (1 << 3)
+#define HAL_TAU_PKT_INIT_DRV           (1UL << 0)
+#define HAL_TAU_PKT_INIT_TASK          (1UL << 1)
+#define HAL_TAU_PKT_INIT_INTR          (1UL << 2)
+#define HAL_TAU_PKT_INIT_RX_START      (1UL << 3)
     /* a bitmap to record the init status */
     UI32_T                          init_flag;
 
@@ -255,6 +260,10 @@ typedef struct
     BOOL_T                          running;     /* TRUE when Init txTask
                                                   * FALSE when Destroy txTask
                                                   */
+    /* to block net intf Tx in driver level since netif_tx_disable()
+     * cannot always prevent intf from Tx in time
+     */
+    BOOL_T                          net_tx_allowed;
 
 } HAL_TAU_PKT_TX_CB_T;
 
@@ -312,6 +321,9 @@ typedef enum
 {
     HAL_TAU_PKT_DEST_NETDEV = 0,
     HAL_TAU_PKT_DEST_SDK,
+#if defined(NETIF_EN_NETLINK)
+    HAL_TAU_PKT_DEST_NETLINK,
+#endif
     HAL_TAU_PKT_DEST_DROP,
     HAL_TAU_PKT_DEST_LAST
 } HAL_TAU_PKT_DEST_T;
@@ -1215,7 +1227,158 @@ hal_tau_pkt_setPortAttr(
     return (NPS_E_OK);
 }
 
+static void
+_hal_tau_pkt_lockRxChannelAll(
+    const UI32_T                        unit)
+{
+    UI32_T                              rch;
+    HAL_TAU_PKT_RX_PDMA_T               *ptr_rx_pdma;
 
+    for (rch = 0; rch < HAL_TAU_PKT_RX_CHANNEL_LAST; rch++)
+    {
+        ptr_rx_pdma = HAL_TAU_PKT_GET_RX_PDMA_PTR(unit, rch);
+        osal_takeSemaphore(&ptr_rx_pdma->sema, NPS_SEMAPHORE_WAIT_FOREVER);
+    }
+}
+
+static void
+_hal_tau_pkt_unlockRxChannelAll(
+    const UI32_T                        unit)
+{
+    UI32_T                              rch;
+    HAL_TAU_PKT_RX_PDMA_T               *ptr_rx_pdma;
+
+    for (rch = 0; rch < HAL_TAU_PKT_RX_CHANNEL_LAST; rch++)
+    {
+        ptr_rx_pdma = HAL_TAU_PKT_GET_RX_PDMA_PTR(unit, rch);
+        osal_giveSemaphore(&ptr_rx_pdma->sema);
+    }
+}
+
+#if defined(NETIF_EN_NETLINK)
+
+static NPS_ERROR_NO_T
+_hal_tau_pkt_setIntfProperty(
+    const UI32_T                        unit,
+    HAL_TAU_PKT_NL_IOCTL_COOKIE_T       *ptr_cookie)
+{
+    UI32_T                              intf_id;
+    NETIF_NL_INTF_PROPERTY_T            property;
+    UI32_T                              param0;
+    UI32_T                              param1;
+    NPS_ERROR_NO_T                      rc;
+
+    osal_io_copyFromUser(&intf_id,  &ptr_cookie->intf_id,  sizeof(UI32_T));
+    osal_io_copyFromUser(&property, &ptr_cookie->property, sizeof(NETIF_NL_INTF_PROPERTY_T));
+    osal_io_copyFromUser(&param0,   &ptr_cookie->param0,   sizeof(UI32_T));
+    osal_io_copyFromUser(&param1,   &ptr_cookie->param1,   sizeof(UI32_T));
+
+    _hal_tau_pkt_lockRxChannelAll(unit);
+
+    rc = netif_nl_setIntfProperty(unit, intf_id, property, param0, param1);
+
+    _hal_tau_pkt_unlockRxChannelAll(unit);
+
+    osal_io_copyToUser(&ptr_cookie->rc, &rc, sizeof(NPS_ERROR_NO_T));
+
+    return (rc);
+}
+
+static NPS_ERROR_NO_T
+_hal_tau_pkt_getIntfProperty(
+    const UI32_T                        unit,
+    HAL_TAU_PKT_NL_IOCTL_COOKIE_T       *ptr_cookie)
+{
+    UI32_T                              intf_id;
+    NETIF_NL_INTF_PROPERTY_T            property;
+    UI32_T                              param0;
+    UI32_T                              param1;
+    NPS_ERROR_NO_T                      rc;
+
+    osal_io_copyFromUser(&intf_id,  &ptr_cookie->intf_id,  sizeof(UI32_T));
+    osal_io_copyFromUser(&property, &ptr_cookie->property, sizeof(NETIF_NL_INTF_PROPERTY_T));
+    osal_io_copyFromUser(&param0,   &ptr_cookie->param0,   sizeof(UI32_T));
+
+    rc = netif_nl_getIntfProperty(unit, intf_id, property, &param0, &param1);
+
+    osal_io_copyToUser(&ptr_cookie->param0, &param0, sizeof(UI32_T));
+    osal_io_copyToUser(&ptr_cookie->param1, &param1, sizeof(UI32_T));
+    osal_io_copyToUser(&ptr_cookie->rc, &rc, sizeof(NPS_ERROR_NO_T));
+
+    return (rc);
+}
+
+static NPS_ERROR_NO_T
+_hal_tau_pkt_createNetlink(
+    const UI32_T                        unit,
+    HAL_TAU_PKT_NL_IOCTL_COOKIE_T       *ptr_cookie)
+{
+    NETIF_NL_NETLINK_T                  netlink;
+    UI32_T                              netlink_id;
+    NPS_ERROR_NO_T                      rc;
+
+    osal_io_copyFromUser(&netlink, &ptr_cookie->netlink, sizeof(NETIF_NL_NETLINK_T));
+
+    _hal_tau_pkt_lockRxChannelAll(unit);
+
+    rc = netif_nl_createNetlink(unit, &netlink, &netlink_id);
+
+    _hal_tau_pkt_unlockRxChannelAll(unit);
+
+    osal_io_copyToUser(&ptr_cookie->netlink.id, &netlink_id, sizeof(UI32_T));
+    osal_io_copyToUser(&ptr_cookie->rc, &rc, sizeof(NPS_ERROR_NO_T));
+
+    return (rc);
+}
+
+static NPS_ERROR_NO_T
+_hal_tau_pkt_destroyNetlink(
+    const UI32_T                        unit,
+    HAL_TAU_PKT_NL_IOCTL_COOKIE_T       *ptr_cookie)
+{
+    UI32_T                              netlink_id;
+    NPS_ERROR_NO_T                      rc;
+
+    osal_io_copyFromUser(&netlink_id, &ptr_cookie->netlink.id, sizeof(UI32_T));
+
+    _hal_tau_pkt_lockRxChannelAll(unit);
+
+    rc = netif_nl_destroyNetlink(unit, netlink_id);
+
+    _hal_tau_pkt_unlockRxChannelAll(unit);
+
+    osal_io_copyToUser(&ptr_cookie->rc, &rc, sizeof(NPS_ERROR_NO_T));
+
+    return (rc);
+}
+
+static NPS_ERROR_NO_T
+_hal_tau_pkt_getNetlink(
+    const UI32_T                        unit,
+    HAL_TAU_PKT_NL_IOCTL_COOKIE_T       *ptr_cookie)
+{
+    UI32_T                              id;
+    NETIF_NL_NETLINK_T                  netlink;
+    NPS_ERROR_NO_T                      rc;
+
+    osal_io_copyFromUser(&id, &ptr_cookie->netlink.id, sizeof(UI32_T));
+
+    rc = netif_nl_getNetlink(unit, id, &netlink);
+    if (NPS_E_OK == rc)
+    {
+        osal_io_copyToUser(&ptr_cookie->netlink, &netlink, sizeof(NETIF_NL_NETLINK_T));
+    }
+    else
+    {
+        rc = NPS_E_ENTRY_NOT_FOUND;
+    }
+
+    osal_io_copyToUser(&ptr_cookie->rc, &rc, sizeof(NPS_ERROR_NO_T));
+
+    return (NPS_E_OK);
+}
+
+#endif
 /* ----------------------------------------------------------------------------------- independent func */
 /* FUNCTION NAME: _hal_tau_pkt_enQueue
  * PURPOSE:
@@ -1877,7 +2040,7 @@ _hal_tau_pkt_rxCheckReason(
     HAL_TAU_PKT_NETIF_PROFILE_T     *ptr_profile,
     BOOL_T                          *ptr_hit_prof)
 {
-    HAL_TAU_PKT_RX_REASON_BITMAP_T  *ptr_reason_bitmap = &ptr_profile->reason_bitmap;
+    HAL_PKT_RX_REASON_BITMAP_T      *ptr_reason_bitmap = &ptr_profile->reason_bitmap;
     UI32_T                          bitval = 0;
     UI32_T                          bitmap = 0x0;
 
@@ -1888,10 +2051,10 @@ _hal_tau_pkt_rxCheckReason(
         return;
     }
 
-#define HAL_TAU_PKT_DI_NON_L3_CPU_MIN   (HAL_TAU_EXCPT_CPU_BASE_ID + HAL_TAU_EXCPT_CPU_NON_L3_MIN)
-#define HAL_TAU_PKT_DI_NON_L3_CPU_MAX   (HAL_TAU_EXCPT_CPU_BASE_ID + HAL_TAU_EXCPT_CPU_NON_L3_MAX)
-#define HAL_TAU_PKT_DI_L3_CPU_MIN       (HAL_TAU_EXCPT_CPU_BASE_ID + HAL_TAU_EXCPT_CPU_L3_MIN)
-#define HAL_TAU_PKT_DI_L3_CPU_MAX       (HAL_TAU_EXCPT_CPU_BASE_ID + HAL_TAU_EXCPT_CPU_L3_MAX)
+#define HAL_TAU_PKT_DI_NON_L3_CPU_MIN   (HAL_EXCPT_CPU_BASE_ID + HAL_EXCPT_CPU_NON_L3_MIN)
+#define HAL_TAU_PKT_DI_NON_L3_CPU_MAX   (HAL_EXCPT_CPU_BASE_ID + HAL_EXCPT_CPU_NON_L3_MAX)
+#define HAL_TAU_PKT_DI_L3_CPU_MIN       (HAL_EXCPT_CPU_BASE_ID + HAL_EXCPT_CPU_L3_MIN)
+#define HAL_TAU_PKT_DI_L3_CPU_MAX       (HAL_EXCPT_CPU_BASE_ID + HAL_EXCPT_CPU_L3_MAX)
 
     switch (ptr_rx_gpd->itmh_eth.typ)
     {
@@ -1902,7 +2065,7 @@ _hal_tau_pkt_rxCheckReason(
                 ptr_rx_gpd->itmh_eth.dst_idx <= HAL_TAU_PKT_DI_NON_L3_CPU_MAX)
             {
                 bitval = ptr_rx_gpd->itmh_eth.dst_idx - HAL_TAU_PKT_DI_NON_L3_CPU_MIN;
-                bitmap = 1 << (bitval % 32);
+                bitmap = 1UL << (bitval % 32);
                 if (0 != (ptr_reason_bitmap->ipp_excpt_bitmap[bitval / 32] & bitmap))
                 {
                     *ptr_hit_prof = TRUE;
@@ -1932,7 +2095,7 @@ _hal_tau_pkt_rxCheckReason(
 
             /* IPP cp_to_cpu_rsn */
             bitval = ptr_rx_gpd->itmh_eth.cp_to_cpu_code;
-            bitmap = 1 << (bitval % 32);
+            bitmap = 1UL << (bitval % 32);
             if (0 != (ptr_reason_bitmap->ipp_rsn_bitmap[bitval / 32] & bitmap))
             {
                 *ptr_hit_prof = TRUE;
@@ -1950,7 +2113,7 @@ _hal_tau_pkt_rxCheckReason(
             if (1 == ptr_rx_gpd->etmh_eth.redir)
             {
                 bitval = ptr_rx_gpd->etmh_eth.excpt_code_mir_bmap;
-                bitmap = 1 << (bitval % 32);
+                bitmap = 1UL << (bitval % 32);
                 if (0 != (ptr_reason_bitmap->epp_excpt_bitmap[bitval / 32] & bitmap))
                 {
                     *ptr_hit_prof = TRUE;
@@ -2059,25 +2222,30 @@ static void
 _hal_tau_pkt_matchUserProfile(
     volatile HAL_TAU_PKT_RX_GPD_T   *ptr_rx_gpd,
     HAL_TAU_PKT_PROFILE_NODE_T      *ptr_profile_list,
-    BOOL_T                          *ptr_hit_prof)
+    HAL_TAU_PKT_NETIF_PROFILE_T     **pptr_profile_hit)
 {
     HAL_TAU_PKT_PROFILE_NODE_T      *ptr_curr_node = ptr_profile_list;
+    BOOL_T                          hit;
+
+    *pptr_profile_hit = NULL;
 
     while (NULL != ptr_curr_node)
     {
         /* 1st match reason */
-        _hal_tau_pkt_rxCheckReason(ptr_rx_gpd, ptr_curr_node->ptr_profile, ptr_hit_prof);
-        if (TRUE == *ptr_hit_prof)
+        _hal_tau_pkt_rxCheckReason(ptr_rx_gpd, ptr_curr_node->ptr_profile, &hit);
+        if (TRUE == hit)
         {
             HAL_TAU_PKT_DBG(HAL_TAU_PKT_DBG_PROFILE,
                             "rx prof matched by reason\n");
 
             /* Then, check pattern */
-            _hal_tau_pkt_rxCheckPattern(ptr_rx_gpd, ptr_curr_node->ptr_profile, ptr_hit_prof);
-            if (TRUE == *ptr_hit_prof)
+            _hal_tau_pkt_rxCheckPattern(ptr_rx_gpd, ptr_curr_node->ptr_profile, &hit);
+            if (TRUE == hit)
             {
                 HAL_TAU_PKT_DBG(HAL_TAU_PKT_DBG_PROFILE,
                                 "rx prof matched by pattern\n");
+
+                *pptr_profile_hit = ptr_curr_node->ptr_profile;
                 break;
             }
         }
@@ -2090,19 +2258,34 @@ _hal_tau_pkt_matchUserProfile(
 static void
 _hal_tau_pkt_getPacketDest(
     volatile HAL_TAU_PKT_RX_GPD_T   *ptr_rx_gpd,
-    HAL_TAU_PKT_DEST_T              *ptr_dest)
+    HAL_TAU_PKT_DEST_T              *ptr_dest,
+    void                            **pptr_cookie)
 {
-    BOOL_T                          hit_prof = FALSE;
     UI32_T                          port;
     HAL_TAU_PKT_PROFILE_NODE_T      *ptr_profile_list;
+    HAL_TAU_PKT_NETIF_PROFILE_T     *ptr_profile_hit;
 
     port = ptr_rx_gpd->itmh_eth.igr_phy_port;
     ptr_profile_list = HAL_TAU_PKT_GET_PORT_PROFILE_LIST(port);
 
-    _hal_tau_pkt_matchUserProfile(ptr_rx_gpd, ptr_profile_list, &hit_prof);
-    if (TRUE == hit_prof)
+    _hal_tau_pkt_matchUserProfile(ptr_rx_gpd,
+                                  ptr_profile_list,
+                                  &ptr_profile_hit);
+    if (NULL != ptr_profile_hit)
     {
+#if defined(NETIF_EN_NETLINK)
+        if (HAL_TAU_PKT_NETIF_RX_DST_NETLINK == ptr_profile_hit->dst_type)
+        {
+            *ptr_dest = HAL_TAU_PKT_DEST_NETLINK;
+            *pptr_cookie = (void *)&ptr_profile_hit->netlink;
+        }
+        else
+        {
+            *ptr_dest = HAL_TAU_PKT_DEST_SDK;
+        }
+#else
         *ptr_dest = HAL_TAU_PKT_DEST_SDK;
+#endif
     }
     else
     {
@@ -2134,7 +2317,7 @@ _hal_tau_pkt_rxEnQueue(
     HAL_TAU_PKT_RX_SW_GPD_T         *ptr_sw_first_gpd = ptr_sw_gpd;
     void                            *ptr_virt_addr = NULL;
     NPS_ADDR_T                      phy_addr = 0;
-    HAL_TAU_PKT_DEST_T              pkt_dest;
+    HAL_TAU_PKT_DEST_T              dest_type;
 
     /* skb meta */
     UI32_T                          port = 0, len = 0, total_len = 0;
@@ -2142,6 +2325,7 @@ _hal_tau_pkt_rxEnQueue(
     struct net_device_priv          *ptr_priv = NULL;
     struct sk_buff                  *ptr_skb = NULL, *ptr_merge_skb = NULL;
     UI32_T                          copy_offset;
+    void                            *ptr_dest;
 
 #if defined(PERF_EN_TEST)
     /* To verify kernel Rx performance */
@@ -2166,9 +2350,16 @@ _hal_tau_pkt_rxEnQueue(
     }
 #endif
 
-    _hal_tau_pkt_getPacketDest(&ptr_sw_gpd->rx_gpd, &pkt_dest);
-    if (HAL_TAU_PKT_DEST_NETDEV == pkt_dest)
+    _hal_tau_pkt_getPacketDest(&ptr_sw_gpd->rx_gpd, &dest_type, &ptr_dest);
+
+#if defined(NETIF_EN_NETLINK)
+    if ((HAL_TAU_PKT_DEST_NETDEV  == dest_type) ||
+        (HAL_TAU_PKT_DEST_NETLINK == dest_type))
+#else
+    if (HAL_TAU_PKT_DEST_NETDEV == dest_type)
+#endif
     {
+        /* need to encap the packet as skb */
         ptr_sw_gpd = ptr_sw_first_gpd;
         while (NULL != ptr_sw_gpd)
         {
@@ -2204,6 +2395,9 @@ _hal_tau_pkt_rxEnQueue(
             /* next */
             ptr_sw_gpd = ptr_sw_gpd->ptr_next;
         }
+
+        port = ptr_sw_first_gpd->rx_gpd.itmh_eth.igr_phy_port;
+        ptr_net_dev = HAL_TAU_PKT_GET_PORT_NETDEV(port);
 
         /* if the packet is composed of multiple gpd (skb), need to merge it into a single skb */
         if (NULL != ptr_sw_first_gpd->ptr_next)
@@ -2247,10 +2441,6 @@ _hal_tau_pkt_rxEnQueue(
             _hal_tau_pkt_freeRxGpdList(unit, ptr_sw_first_gpd, FALSE);
         }
 
-        /* get port and net_device */
-        port = ptr_sw_first_gpd->rx_gpd.itmh_eth.igr_phy_port;
-        ptr_net_dev = HAL_TAU_PKT_GET_PORT_NETDEV(port);
-
         /* if NULL netdev, drop the skb */
         if (NULL == ptr_net_dev)
         {
@@ -2265,19 +2455,33 @@ _hal_tau_pkt_rxEnQueue(
         /* skb handling */
         ptr_skb->dev = ptr_net_dev;
         ptr_skb->pkt_type = PACKET_HOST; /* this packet is for me */
-        ptr_skb->protocol = eth_type_trans(ptr_skb, ptr_net_dev); /* skip ethernet header */
         ptr_skb->ip_summed = CHECKSUM_UNNECESSARY; /* skip checksum */
 
         /* send to linux */
-        osal_skb_recv(ptr_skb);
+        if (dest_type == HAL_TAU_PKT_DEST_NETDEV)
+        {
+            /* skip ethernet header only for Linux net interface*/
+            ptr_skb->protocol = eth_type_trans(ptr_skb, ptr_net_dev);
+            osal_skb_recv(ptr_skb);
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 11, 0)
-        ptr_net_dev->last_rx = jiffies;
+            ptr_net_dev->last_rx = jiffies;
 #endif
-        ptr_priv = netdev_priv(ptr_net_dev);
-        ptr_priv->stats.rx_packets++;
-        ptr_priv->stats.rx_bytes += total_len;
+            ptr_priv = netdev_priv(ptr_net_dev);
+            ptr_priv->stats.rx_packets++;
+            ptr_priv->stats.rx_bytes += total_len;
+        }
+#if defined(NETIF_EN_NETLINK)
+        else
+        {
+            HAL_TAU_PKT_DBG(HAL_TAU_PKT_DBG_PROFILE,
+                            "hit profile dest=netlink, name=%s, mcgrp=%s\n",
+                            ((NETIF_NL_RX_DST_NETLINK_T *)ptr_dest)->name,
+                            ((NETIF_NL_RX_DST_NETLINK_T *)ptr_dest)->mc_group_name);
+            netif_nl_rxSkb(unit, ptr_skb, ptr_dest);
+        }
+#endif
     }
-    else if (HAL_TAU_PKT_DEST_SDK == pkt_dest)
+    else if (HAL_TAU_PKT_DEST_SDK == dest_type)
     {
         while (0 != _hal_tau_pkt_enQueue(&ptr_rx_cb->sw_queue[channel], ptr_sw_gpd))
         {
@@ -2289,7 +2493,7 @@ _hal_tau_pkt_rxEnQueue(
         osal_triggerEvent(&ptr_rx_cb->sync_sema);
         ptr_rx_cb->cnt.channel[channel].trig_event++;
     }
-    else if (HAL_TAU_PKT_DEST_DROP == pkt_dest)
+    else if (HAL_TAU_PKT_DEST_DROP == dest_type)
     {
         _hal_tau_pkt_freeRxGpdList(unit, ptr_sw_first_gpd, TRUE);
     }
@@ -2297,8 +2501,32 @@ _hal_tau_pkt_rxEnQueue(
     {
         HAL_TAU_PKT_DBG((HAL_TAU_PKT_DBG_ERR | HAL_TAU_PKT_DBG_RX),
                         "u=%u, rxch=%u, invalid pkt dest=%d\n",
-                        unit, channel, pkt_dest);
+                        unit, channel, dest_type);
     }
+}
+
+static NPS_ERROR_NO_T
+_hal_tau_pkt_flushRxQueue(
+    const UI32_T                unit,
+    HAL_TAU_PKT_SW_QUEUE_T      *ptr_que)
+{
+    HAL_TAU_PKT_RX_SW_GPD_T     *ptr_sw_gpd_knl = NULL;
+    NPS_ERROR_NO_T              rc;
+
+    while (1)
+    {
+        rc = _hal_tau_pkt_deQueue(ptr_que, (void **)&ptr_sw_gpd_knl);
+        if (NPS_E_OK == rc)
+        {
+            _hal_tau_pkt_freeRxGpdList(unit, ptr_sw_gpd_knl, TRUE);
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    return (NPS_E_OK);
 }
 
 /* FUNCTION NAME: _hal_tau_pkt_schedRxDeQueue
@@ -2335,33 +2563,14 @@ _hal_tau_pkt_schedRxDeQueue(
     UI32_T                          buf_len = 0;
     NPS_ERROR_NO_T                  rc = NPS_E_OK;
 
-    /* get queue and count */
-    for (idx = 0; idx < HAL_TAU_PKT_RX_QUEUE_NUM; idx++)
+    /* normal process */
+    if (TRUE == ptr_rx_cb->running)
     {
-        /* to gurantee the opportunity where each queue can be handler */
-        queue = ((ptr_rx_cb->deque_idx + idx) % HAL_TAU_PKT_RX_QUEUE_NUM);
-        _hal_tau_pkt_getQueueCount(&ptr_rx_cb->sw_queue[queue], &que_cnt);
-        if (que_cnt > 0)
+        /* get queue and count */
+        for (idx = 0; idx < HAL_TAU_PKT_RX_QUEUE_NUM; idx++)
         {
-            ptr_rx_cb->deque_idx = ((queue + 1) % HAL_TAU_PKT_RX_QUEUE_NUM);
-            break;
-        }
-    }
-
-    /* If all of the queues are empty, wait rxTask event */
-    if (0 == que_cnt)
-    {
-        osal_waitEvent(&ptr_rx_cb->sync_sema);
-        if (FALSE == ptr_rx_cb->running)
-        {
-            return (NPS_E_OTHERS); /* deinit */
-        }
-
-        ptr_rx_cb->cnt.wait_event++;
-
-        /* re-get queue and count */
-        for (queue = 0; queue < HAL_TAU_PKT_RX_QUEUE_NUM; queue++)
-        {
+            /* to gurantee the opportunity where each queue can be handler */
+            queue = ((ptr_rx_cb->deque_idx + idx) % HAL_TAU_PKT_RX_QUEUE_NUM);
             _hal_tau_pkt_getQueueCount(&ptr_rx_cb->sw_queue[queue], &que_cnt);
             if (que_cnt > 0)
             {
@@ -2369,67 +2578,86 @@ _hal_tau_pkt_schedRxDeQueue(
                 break;
             }
         }
-    }
 
-    /* deque */
-    if ((que_cnt > 0) && (queue < HAL_TAU_PKT_RX_QUEUE_NUM))
-    {
-        rc = _hal_tau_pkt_deQueue(&ptr_rx_cb->sw_queue[queue], (void **)&ptr_sw_gpd_knl);
-        if (NPS_E_OK == rc)
+        /* If all of the queues are empty, wait rxTask event */
+        if (0 == que_cnt)
         {
-            ptr_rx_cb->cnt.channel[queue].deque_ok++;
-            ptr_sw_first_gpd_knl = ptr_sw_gpd_knl;
+            osal_waitEvent(&ptr_rx_cb->sync_sema);
 
-            osal_io_copyFromUser(&ioctl_data, ptr_cookie, sizeof(HAL_TAU_PKT_IOCTL_RX_COOKIE_T));
+            ptr_rx_cb->cnt.wait_event++;
 
-            while (NULL != ptr_sw_gpd_knl)
+            /* re-get queue and count */
+            for (queue = 0; queue < HAL_TAU_PKT_RX_QUEUE_NUM; queue++)
             {
-                /* get the IOCTL GPD from user */
-                osal_io_copyFromUser(&ioctl_gpd,
-                                     ((void *)((NPS_HUGE_T)ioctl_data.ioctl_gpd_addr))
-                                         + gpd_idx*sizeof(HAL_TAU_PKT_IOCTL_RX_GPD_T),
-                                     sizeof(HAL_TAU_PKT_IOCTL_RX_GPD_T));
-
-                /* get knl buf addr */
-                ptr_rx_gpd = &ptr_sw_gpd_knl->rx_gpd;
-                phy_addr = NPS_ADDR_32_TO_64(ptr_rx_gpd->data_buf_addr_hi, ptr_rx_gpd->data_buf_addr_lo);
-
-                ptr_virt_addr = ptr_sw_gpd_knl->ptr_cookie;
-                osal_skb_unmapDma(phy_addr, ((struct sk_buff *)ptr_virt_addr)->len, DMA_FROM_DEVICE);
-
-                buf_len = (HAL_TAU_PKT_CH_LAST_GPD == ptr_rx_gpd->ch)?
-                    ptr_rx_gpd->cnsm_buf_len : ptr_rx_gpd->avbl_buf_len;
-
-                /* overwrite whole rx_gpd to user
-                 * the user should re-assign the correct value to data_buf_addr_hi, data_buf_addr_low
-                 * after this IOCTL returns
-                 */
-                osal_io_copyToUser((void *)((NPS_HUGE_T)ioctl_gpd.hw_gpd_addr),
-                                   &ptr_sw_gpd_knl->rx_gpd,
-                                   sizeof(HAL_TAU_PKT_RX_GPD_T));
-                /* copy buf */
-                /* DMA buf address allocated by the user is store in ptr_ioctl_data->gpd[idx].cookie */
-                osal_io_copyToUser((void *)((NPS_HUGE_T)ioctl_gpd.dma_buf_addr),
-                                   ((struct sk_buff *)ptr_virt_addr)->data, buf_len);
-                ptr_sw_gpd_knl->ptr_cookie = ptr_virt_addr;
-
-                /* next */
-                ptr_sw_gpd_knl = ptr_sw_gpd_knl->ptr_next;
-                gpd_idx++;
+                _hal_tau_pkt_getQueueCount(&ptr_rx_cb->sw_queue[queue], &que_cnt);
+                if (que_cnt > 0)
+                {
+                    ptr_rx_cb->deque_idx = ((queue + 1) % HAL_TAU_PKT_RX_QUEUE_NUM);
+                    break;
+                }
             }
+        }
 
-            /* Must free kernel sw_gpd */
-            _hal_tau_pkt_freeRxGpdList(unit, ptr_sw_first_gpd_knl, TRUE);
+        /* deque */
+        if ((que_cnt > 0) && (queue < HAL_TAU_PKT_RX_QUEUE_NUM))
+        {
+            rc = _hal_tau_pkt_deQueue(&ptr_rx_cb->sw_queue[queue], (void **)&ptr_sw_gpd_knl);
+            if (NPS_E_OK == rc)
+            {
+                ptr_rx_cb->cnt.channel[queue].deque_ok++;
+                ptr_sw_first_gpd_knl = ptr_sw_gpd_knl;
+
+                osal_io_copyFromUser(&ioctl_data, ptr_cookie, sizeof(HAL_TAU_PKT_IOCTL_RX_COOKIE_T));
+
+                while (NULL != ptr_sw_gpd_knl)
+                {
+                    /* get the IOCTL GPD from user */
+                    osal_io_copyFromUser(&ioctl_gpd,
+                                         ((void *)((NPS_HUGE_T)ioctl_data.ioctl_gpd_addr))
+                                             + gpd_idx*sizeof(HAL_TAU_PKT_IOCTL_RX_GPD_T),
+                                         sizeof(HAL_TAU_PKT_IOCTL_RX_GPD_T));
+
+                    /* get knl buf addr */
+                    ptr_rx_gpd = &ptr_sw_gpd_knl->rx_gpd;
+                    phy_addr = NPS_ADDR_32_TO_64(ptr_rx_gpd->data_buf_addr_hi, ptr_rx_gpd->data_buf_addr_lo);
+
+                    ptr_virt_addr = ptr_sw_gpd_knl->ptr_cookie;
+                    osal_skb_unmapDma(phy_addr, ((struct sk_buff *)ptr_virt_addr)->len, DMA_FROM_DEVICE);
+
+                    buf_len = (HAL_TAU_PKT_CH_LAST_GPD == ptr_rx_gpd->ch)?
+                        ptr_rx_gpd->cnsm_buf_len : ptr_rx_gpd->avbl_buf_len;
+
+                    /* overwrite whole rx_gpd to user
+                     * the user should re-assign the correct value to data_buf_addr_hi, data_buf_addr_low
+                     * after this IOCTL returns
+                     */
+                    osal_io_copyToUser((void *)((NPS_HUGE_T)ioctl_gpd.hw_gpd_addr),
+                                       &ptr_sw_gpd_knl->rx_gpd,
+                                       sizeof(HAL_TAU_PKT_RX_GPD_T));
+                    /* copy buf */
+                    /* DMA buf address allocated by the user is store in ptr_ioctl_data->gpd[idx].cookie */
+                    osal_io_copyToUser((void *)((NPS_HUGE_T)ioctl_gpd.dma_buf_addr),
+                                       ((struct sk_buff *)ptr_virt_addr)->data, buf_len);
+                    ptr_sw_gpd_knl->ptr_cookie = ptr_virt_addr;
+
+                    /* next */
+                    ptr_sw_gpd_knl = ptr_sw_gpd_knl->ptr_next;
+                    gpd_idx++;
+                }
+
+                /* Must free kernel sw_gpd */
+                _hal_tau_pkt_freeRxGpdList(unit, ptr_sw_first_gpd_knl, TRUE);
+            }
+            else
+            {
+                ptr_rx_cb->cnt.channel[queue].deque_fail++;
+            }
         }
         else
         {
-            ptr_rx_cb->cnt.channel[queue].deque_fail++;
+            /* it means that all queue's are flush -> rx stop flow */
+            rc = NPS_E_OTHERS;
         }
-    }
-    else
-    {
-        /* It may happen at last gpd, return error and do not invoke callback. */
-        rc = NPS_E_OTHERS;
     }
 
     return (rc);
@@ -2547,6 +2775,26 @@ _hal_tau_pkt_suspendAllIntf(
     return (NPS_E_OK);
 }
 
+static NPS_ERROR_NO_T
+_hal_tau_pkt_stopAllIntf(
+    const UI32_T                        unit)
+{
+    struct net_device                   *ptr_net_dev = NULL;
+    UI32_T                              port;
+
+    /* Unregister net devices by id */
+    for (port = 0; port < HAL_TAU_PKT_MAX_PORT_NUM; port++)
+    {
+        ptr_net_dev = HAL_TAU_PKT_GET_PORT_NETDEV(port);
+        if (NULL != ptr_net_dev)
+        {
+            netif_tx_disable(ptr_net_dev);
+        }
+    }
+
+    return (NPS_E_OK);
+}
+
 /* FUNCTION NAME: hal_tau_pkt_sendGpd
  * PURPOSE:
  *      To perform the packet transmission form CPU to the switch.
@@ -2572,84 +2820,93 @@ hal_tau_pkt_sendGpd(
     HAL_TAU_PKT_TX_PDMA_T           *ptr_tx_pdma = HAL_TAU_PKT_GET_TX_PDMA_PTR(unit, channel);
     volatile HAL_TAU_PKT_TX_GPD_T   *ptr_tx_gpd = NULL;
     HAL_TAU_PKT_TX_SW_GPD_T         *ptr_sw_first_gpd = ptr_sw_gpd;
-
     UI32_T                          used_idx = 0;
     UI32_T                          used_gpd_num = ptr_sw_gpd->gpd_num;
     NPS_IRQ_FLAGS_T                 irq_flags;
+    HAL_TAU_PKT_DRV_CB_T            *ptr_cb = HAL_TAU_PKT_GET_DRV_CB_PTR(unit);
 
-    osal_takeIsrLock(&ptr_tx_pdma->ring_lock, &irq_flags);
-
-    /* If not PDMA error */
-    if (FALSE == ptr_tx_pdma->err_flag)
+    if (0 != (ptr_cb->init_flag & HAL_TAU_PKT_INIT_TASK))
     {
-        /* Make Sure GPD is enough */
-        if (ptr_tx_pdma->free_gpd_num >= used_gpd_num)
-        {
-            used_idx = ptr_tx_pdma->used_idx;
-            while (NULL != ptr_sw_gpd)
-            {
-                ptr_tx_gpd = HAL_TAU_PKT_GET_TX_GPD_PTR(unit, channel, used_idx);
-                osal_dma_invalidateCache((void *)ptr_tx_gpd, sizeof(HAL_TAU_PKT_TX_GPD_T));
+        osal_takeIsrLock(&ptr_tx_pdma->ring_lock, &irq_flags);
 
-                if (HAL_TAU_PKT_HWO_HW_OWN == ptr_tx_gpd->hwo)
+        /* If not PDMA error */
+        if (FALSE == ptr_tx_pdma->err_flag)
+        {
+            /* Make Sure GPD is enough */
+            if (ptr_tx_pdma->free_gpd_num >= used_gpd_num)
+            {
+                used_idx = ptr_tx_pdma->used_idx;
+                while (NULL != ptr_sw_gpd)
                 {
-                    HAL_TAU_PKT_DBG((HAL_TAU_PKT_DBG_ERR | HAL_TAU_PKT_DBG_TX),
-                                    "u=%u, txch=%u, free gpd idx out-of-sync\n",
-                                    unit, channel);
-                    rc = NPS_E_TABLE_FULL;
-                    break;
+                    ptr_tx_gpd = HAL_TAU_PKT_GET_TX_GPD_PTR(unit, channel, used_idx);
+                    osal_dma_invalidateCache((void *)ptr_tx_gpd, sizeof(HAL_TAU_PKT_TX_GPD_T));
+
+                    if (HAL_TAU_PKT_HWO_HW_OWN == ptr_tx_gpd->hwo)
+                    {
+                        HAL_TAU_PKT_DBG((HAL_TAU_PKT_DBG_ERR | HAL_TAU_PKT_DBG_TX),
+                                        "u=%u, txch=%u, free gpd idx out-of-sync\n",
+                                        unit, channel);
+                        rc = NPS_E_TABLE_FULL;
+                        break;
+                    }
+
+                    /* Fill in HW-GPD Ring */
+                    osal_memcpy((void *)ptr_tx_gpd, &ptr_sw_gpd->tx_gpd, sizeof(HAL_TAU_PKT_TX_GPD_T));
+                    osal_dma_flushCache((void *)ptr_tx_gpd, sizeof(HAL_TAU_PKT_TX_GPD_T));
+
+                    /* next */
+                    used_idx++;
+                    used_idx %= ptr_tx_pdma->gpd_num;
+                    ptr_sw_gpd = ptr_sw_gpd->ptr_next;
                 }
 
-                /* Fill in HW-GPD Ring */
-                osal_memcpy((void *)ptr_tx_gpd, &ptr_sw_gpd->tx_gpd, sizeof(HAL_TAU_PKT_TX_GPD_T));
-                osal_dma_flushCache((void *)ptr_tx_gpd, sizeof(HAL_TAU_PKT_TX_GPD_T));
+                if (HAL_TAU_PKT_TX_WAIT_ASYNC == ptr_tx_cb->wait_mode)
+                {
+                    /* Fill 1st GPD in SW-GPD Ring */
+                    ptr_tx_pdma->pptr_sw_gpd_ring[ptr_tx_pdma->used_idx] = ptr_sw_first_gpd;
+                }
 
-                /* next */
-                used_idx++;
-                used_idx %= ptr_tx_pdma->gpd_num;
-                ptr_sw_gpd = ptr_sw_gpd->ptr_next;
+                /* update Tx PDMA */
+                ptr_tx_pdma->used_idx      = used_idx;
+                ptr_tx_pdma->used_gpd_num += used_gpd_num;
+                ptr_tx_pdma->free_gpd_num -= used_gpd_num;
+
+                _hal_tau_pkt_resumeTxChannelReg(unit, channel, used_gpd_num);
+                ptr_tx_cb->cnt.channel[channel].send_ok++;
+
+                _hal_tau_pkt_waitTxDone(unit, channel, ptr_sw_first_gpd);
+
+                /* reserve 1 packet buffer for each port in case that the suspension is too late */
+#define HAL_TAU_PKT_KNL_TX_RING_AVBL_GPD_LOW      (HAL_PORT_NUM)
+                if (ptr_tx_pdma->free_gpd_num < HAL_TAU_PKT_KNL_TX_RING_AVBL_GPD_LOW)
+                {
+                    HAL_TAU_PKT_DBG(HAL_TAU_PKT_DBG_TX,
+                                    "u=%u, txch=%u, tx avbl gpd < %d, suspend all netdev\n",
+                                    unit, channel, HAL_TAU_PKT_KNL_TX_RING_AVBL_GPD_LOW);
+                    _hal_tau_pkt_suspendAllIntf(unit);
+                }
             }
-
-            if (HAL_TAU_PKT_TX_WAIT_ASYNC == ptr_tx_cb->wait_mode)
+            else
             {
-                /* Fill 1st GPD in SW-GPD Ring */
-                ptr_tx_pdma->pptr_sw_gpd_ring[ptr_tx_pdma->used_idx] = ptr_sw_first_gpd;
-            }
-
-            /* update Tx PDMA */
-            ptr_tx_pdma->used_idx      = used_idx;
-            ptr_tx_pdma->used_gpd_num += used_gpd_num;
-            ptr_tx_pdma->free_gpd_num -= used_gpd_num;
-
-            _hal_tau_pkt_resumeTxChannelReg(unit, channel, used_gpd_num);
-            ptr_tx_cb->cnt.channel[channel].send_ok++;
-
-            _hal_tau_pkt_waitTxDone(unit, channel, ptr_sw_first_gpd);
-
-            /* reserve 1 packet buffer for each port in case that the suspension is too late */
-#define HAL_TAU_PKT_KNL_TX_RING_AVBL_GPD_LOW      (HAL_TAU_PORT_NUM)
-            if (ptr_tx_pdma->free_gpd_num < HAL_TAU_PKT_KNL_TX_RING_AVBL_GPD_LOW)
-            {
-                HAL_TAU_PKT_DBG(HAL_TAU_PKT_DBG_TX,
-                                "u=%u, txch=%u, tx avbl gpd < %d, suspend all netdev\n",
-                                unit, channel, HAL_TAU_PKT_KNL_TX_RING_AVBL_GPD_LOW);
-                _hal_tau_pkt_suspendAllIntf(unit);
+                rc = NPS_E_TABLE_FULL;
             }
         }
         else
         {
-            rc = NPS_E_TABLE_FULL;
+            HAL_TAU_PKT_DBG((HAL_TAU_PKT_DBG_ERR | HAL_TAU_PKT_DBG_TX),
+                            "u=%u, txch=%u, pdma hw err\n",
+                            unit, channel);
+            rc = NPS_E_OTHERS;
         }
+
+        osal_giveIsrLock(&ptr_tx_pdma->ring_lock, &irq_flags);
     }
     else
     {
-        HAL_TAU_PKT_DBG((HAL_TAU_PKT_DBG_ERR | HAL_TAU_PKT_DBG_TX),
-                        "u=%u, txch=%u, pdma hw err\n",
-                        unit, channel);
+        HAL_TAU_PKT_DBG(HAL_TAU_PKT_DBG_ERR,
+                        "Tx failed, task already deinit\n");
         rc = NPS_E_OTHERS;
     }
-
-    osal_giveIsrLock(&ptr_tx_pdma->ring_lock, &irq_flags);
 
     return (rc);
 }
@@ -2662,6 +2919,7 @@ _hal_tau_pkt_rxStop(
 {
     NPS_ERROR_NO_T              rc = NPS_E_OK;
     HAL_TAU_PKT_RX_CHANNEL_T    channel = 0;
+    UI32_T                      idx;
     HAL_TAU_PKT_RX_CB_T         *ptr_rx_cb = HAL_TAU_PKT_GET_RX_CB_PTR(unit);
     HAL_TAU_PKT_DRV_CB_T        *ptr_cb = HAL_TAU_PKT_GET_DRV_CB_PTR(unit);
     HAL_TAU_PKT_RX_PDMA_T       *ptr_rx_pdma = NULL;
@@ -2693,6 +2951,14 @@ _hal_tau_pkt_rxStop(
         _hal_tau_pkt_stopRxChannelReg(unit, channel);
         rc = _hal_tau_pkt_deinitRxPdmaRingBuf(unit, channel);
         osal_giveSemaphore(&ptr_rx_pdma->sema);
+    }
+
+    /* flush packets in all queues since Rx task may be blocked in user space
+     * in this case it won't do ioctl to kernel to handle remaining packets
+     */
+    for (idx = 0; idx < HAL_TAU_PKT_RX_QUEUE_NUM; idx++)
+    {
+        _hal_tau_pkt_flushRxQueue(unit, &ptr_rx_cb->sw_queue[idx]);
     }
 
     /* Return user thread */
@@ -2848,6 +3114,12 @@ hal_tau_pkt_deinitTask(
     HAL_TAU_PKT_RX_CB_T     *ptr_rx_cb = HAL_TAU_PKT_GET_RX_CB_PTR(unit);
     UI32_T                  channel = 0;
 
+    /* to prevent net intf from Tx packet */
+    ptr_tx_cb->net_tx_allowed = FALSE;
+
+    /* In case that some undestroyed net intf keep Tx after task deinit */
+    _hal_tau_pkt_stopAllIntf(unit);
+
     if (0 == (ptr_cb->init_flag & HAL_TAU_PKT_INIT_TASK))
     {
         HAL_TAU_PKT_DBG((HAL_TAU_PKT_DBG_RX | HAL_TAU_PKT_DBG_ERR),
@@ -2926,13 +3198,10 @@ _hal_tau_pkt_deinitTxPdma(
 {
     HAL_TAU_PKT_TX_CB_T             *ptr_tx_cb   = HAL_TAU_PKT_GET_TX_CB_PTR(unit);
     HAL_TAU_PKT_TX_PDMA_T           *ptr_tx_pdma = HAL_TAU_PKT_GET_TX_PDMA_PTR(unit, channel);
-    NPS_IRQ_FLAGS_T                 irg_flags;
 
     _hal_tau_pkt_stopTxChannelReg(unit, channel);
 
     /* Free DMA and flush queue */
-    osal_takeIsrLock(&ptr_tx_pdma->ring_lock, &irg_flags);
-
     osal_dma_free(ptr_tx_pdma->ptr_gpd_start_addr);
 
     if (HAL_TAU_PKT_TX_WAIT_ASYNC == ptr_tx_cb->wait_mode)
@@ -2944,8 +3213,6 @@ _hal_tau_pkt_deinitTxPdma(
     {
         osal_destroySemaphore(&ptr_tx_pdma->sync_intr_sema);
     }
-
-    osal_giveIsrLock(&ptr_tx_pdma->ring_lock, &irg_flags);
 
     osal_destroyIsrLock(&ptr_tx_pdma->ring_lock);
 
@@ -3919,6 +4186,7 @@ _hal_tau_pkt_handleRxDoneTask(
                         ptr_sw_gpd->ptr_next = NULL;
                         ptr_sw_first_gpd->rx_complete = FALSE;
                         _hal_tau_pkt_rxEnQueue(unit, channel, ptr_sw_first_gpd);
+                        ptr_sw_first_gpd = NULL;
                     }
 
                     /* do error recover */
@@ -3956,7 +4224,7 @@ _hal_tau_pkt_handleRxDoneTask(
                 {
                     ptr_rx_cb->cnt.no_memory++;
                     HAL_TAU_PKT_DBG((HAL_TAU_PKT_DBG_RX | HAL_TAU_PKT_DBG_ERR),
-                                    "u=%u, rxch=%u, alloc 1st sw gpd failed, size=%d\n",
+                                    "u=%u, rxch=%u, alloc 1st sw gpd failed, size=%zu\n",
                                     unit, channel, sizeof(HAL_TAU_PKT_RX_SW_GPD_T));
                     break;
                 }
@@ -3973,7 +4241,7 @@ _hal_tau_pkt_handleRxDoneTask(
                 {
                     ptr_rx_cb->cnt.no_memory++;
                     HAL_TAU_PKT_DBG((HAL_TAU_PKT_DBG_RX | HAL_TAU_PKT_DBG_ERR),
-                                    "u=%u, rxch=%u, alloc mid sw gpd failed, size=%d\n",
+                                    "u=%u, rxch=%u, alloc mid sw gpd failed, size=%zu\n",
                                     unit, channel, sizeof(HAL_TAU_PKT_RX_SW_GPD_T));
                     break;
                 }
@@ -4003,6 +4271,7 @@ _hal_tau_pkt_handleRxDoneTask(
                 ptr_sw_gpd->ptr_next = NULL;
                 ptr_sw_first_gpd->rx_complete = TRUE;
                 _hal_tau_pkt_rxEnQueue(unit, channel, ptr_sw_first_gpd);
+                ptr_sw_first_gpd = NULL;
 
                 /* To rebuild the SW GPD link list */
                 first = TRUE;
@@ -4085,8 +4354,8 @@ hal_tau_pkt_initTask(
     }
 
     /* Init handleErrorTask */
-    rc = osal_createThread("ERROR", HAL_TAU_PKT_ERROR_ISR_STACK_SIZE,
-                           HAL_TAU_PKT_ERROR_ISR_THREAD_PRI, _hal_tau_pkt_handleErrorTask,
+    rc = osal_createThread("ERROR", HAL_DFLT_CFG_PKT_ERROR_ISR_THREAD_STACK,
+                           HAL_DFLT_CFG_PKT_ERROR_ISR_THREAD_PRI, _hal_tau_pkt_handleErrorTask,
                            (void *)((NPS_HUGE_T)unit), &ptr_cb->err_task_id);
 
     /* Init handleTxDoneTask */
@@ -4095,8 +4364,8 @@ hal_tau_pkt_initTask(
         ptr_tx_cb->isr_task_cookie[channel].unit    = unit;
         ptr_tx_cb->isr_task_cookie[channel].channel = channel;
 
-        rc = osal_createThread("TX_ISR", HAL_TAU_PKT_TX_ISR_STACK_SIZE,
-                               HAL_TAU_PKT_TX_ISR_THREAD_PRI, _hal_tau_pkt_handleTxDoneTask,
+        rc = osal_createThread("TX_ISR", HAL_DFLT_CFG_PKT_TX_ISR_THREAD_STACK,
+                               HAL_DFLT_CFG_PKT_TX_ISR_THREAD_PRI, _hal_tau_pkt_handleTxDoneTask,
                                (void *)&ptr_tx_cb->isr_task_cookie[channel],
                                &ptr_tx_cb->isr_task_id[channel]);
     }
@@ -4107,8 +4376,8 @@ hal_tau_pkt_initTask(
         ptr_rx_cb->isr_task_cookie[channel].unit    = unit;
         ptr_rx_cb->isr_task_cookie[channel].channel = channel;
 
-        rc = osal_createThread("RX_ISR", HAL_TAU_PKT_RX_ISR_STACK_SIZE,
-                               HAL_TAU_PKT_RX_ISR_THREAD_PRI, _hal_tau_pkt_handleRxDoneTask,
+        rc = osal_createThread("RX_ISR", HAL_DFLT_CFG_PKT_RX_ISR_THREAD_STACK,
+                               HAL_DFLT_CFG_PKT_RX_ISR_THREAD_PRI, _hal_tau_pkt_handleRxDoneTask,
                                (void *)&ptr_rx_cb->isr_task_cookie[channel],
                                &ptr_rx_cb->isr_task_id[channel]);
     }
@@ -4123,6 +4392,13 @@ hal_tau_pkt_initTask(
 
     HAL_TAU_PKT_DBG(HAL_TAU_PKT_DBG_COMMON,
                     "u=%u, pkt task init done, init flag=0x%x\n", unit, ptr_cb->init_flag);
+
+    /* For some specail case in warmboot, the netifs are not destroyed during sdk deinit
+     * but stopped, here we need to resume them with the original carrier status
+     */
+    _hal_tau_pkt_resumeAllIntf(unit);
+
+    ptr_tx_cb->net_tx_allowed = TRUE;
 
     return (rc);
 }
@@ -4165,8 +4441,8 @@ _hal_tau_pkt_initTxPdma(
     ptr_tx_pdma->used_idx     = 0;
     ptr_tx_pdma->free_idx     = 0;
     ptr_tx_pdma->used_gpd_num = 0;
-    ptr_tx_pdma->free_gpd_num = HAL_TAU_PKT_PDMA_TX_GPD_NUM;
-    ptr_tx_pdma->gpd_num      = HAL_TAU_PKT_PDMA_TX_GPD_NUM;
+    ptr_tx_pdma->free_gpd_num = HAL_DFLT_CFG_PKT_TX_GPD_NUM;
+    ptr_tx_pdma->gpd_num      = HAL_DFLT_CFG_PKT_TX_GPD_NUM;
 
     /* Prepare the HW-GPD ring */
     ptr_tx_pdma->ptr_gpd_start_addr = (HAL_TAU_PKT_TX_GPD_T *)osal_dma_alloc(
@@ -4263,7 +4539,7 @@ _hal_tau_pkt_initRxPdma(
     /* Reset Rx PDMA */
     osal_takeSemaphore(&ptr_rx_pdma->sema, NPS_SEMAPHORE_WAIT_FOREVER);
     ptr_rx_pdma->cur_idx = 0;
-    ptr_rx_pdma->gpd_num = HAL_TAU_PKT_PDMA_RX_GPD_NUM;
+    ptr_rx_pdma->gpd_num = HAL_DFLT_CFG_PKT_RX_GPD_NUM;
 
     /* Prepare the HW-GPD ring */
     ptr_rx_pdma->ptr_gpd_start_addr = (HAL_TAU_PKT_RX_GPD_T *)osal_dma_alloc(
@@ -4374,7 +4650,7 @@ _hal_tau_pkt_initPktTxCb(
         osal_createEvent("TX_SYNC", &ptr_tx_cb->sync_sema);
 
         /* Initialize Tx GPD-queue (of first SW-GPD) from handleTxDoneTask to txTask */
-        ptr_tx_cb->sw_queue.len    = HAL_TAU_PKT_TX_QUEUE_LEN;
+        ptr_tx_cb->sw_queue.len    = HAL_DFLT_CFG_PKT_TX_QUEUE_LEN;
         ptr_tx_cb->sw_queue.weight = 0;
 
         osal_createSemaphore("TX_QUE", NPS_SEMAPHORE_BINARY, &ptr_tx_cb->sw_queue.sema);
@@ -4422,7 +4698,7 @@ _hal_tau_pkt_initPktRxCb(
 
     osal_memset(ptr_rx_cb, 0x0, sizeof(HAL_TAU_PKT_RX_CB_T));
 
-    ptr_rx_cb->sched_mode = HAL_TAU_PKT_RX_SCHED_MODE;
+    ptr_rx_cb->sched_mode = HAL_DFLT_CFG_PKT_RX_SCHED_MODE;
 
     /* Sync semaphore to signal rxTask */
     osal_createEvent("RX_SYNC", &ptr_rx_cb->sync_sema);
@@ -4430,8 +4706,8 @@ _hal_tau_pkt_initPktRxCb(
     /* Initialize Rx GPD-queue (of first SW-GPD) from handleRxDoneTask to rxTask */
     for (queue = 0; ((queue < HAL_TAU_PKT_RX_QUEUE_NUM) && (NPS_E_OK == rc)); queue++)
     {
-        ptr_rx_cb->sw_queue[queue].len    = HAL_TAU_PKT_RX_QUEUE_LEN;
-        ptr_rx_cb->sw_queue[queue].weight = HAL_TAU_PKT_RX_QUEUE_WEIGHT;
+        ptr_rx_cb->sw_queue[queue].len    = HAL_DFLT_CFG_PKT_RX_QUEUE_LEN;
+        ptr_rx_cb->sw_queue[queue].weight = HAL_DFLT_CFG_PKT_RX_QUEUE_WEIGHT;
 
         osal_createSemaphore("RX_QUE", NPS_SEMAPHORE_BINARY, &ptr_rx_cb->sw_queue[queue].sema);
         osal_que_create(&ptr_rx_cb->sw_queue[queue].que_id, ptr_rx_cb->sw_queue[queue].len);
@@ -4530,36 +4806,15 @@ _hal_tau_pkt_resetIosCreditCfg(
         osal_mdc_readPciReg(unit, HAL_TAU_PKT_GET_MMIO(HAL_TAU_PKT_PDMA_CREDIT_CFG),
                             &credit_cfg, sizeof(credit_cfg));
 
-        credit_cfg |= (0x1 << HAL_TAU_PKT_PDMA_CREDIT_CFG_RESET_OFFSET);
+        credit_cfg |= (0x1UL << HAL_TAU_PKT_PDMA_CREDIT_CFG_RESET_OFFSET);
 
         osal_mdc_writePciReg(unit, HAL_TAU_PKT_GET_MMIO(HAL_TAU_PKT_PDMA_CREDIT_CFG),
                              &credit_cfg, sizeof(UI32_T));
 
-        credit_cfg &= ~(0x1 << HAL_TAU_PKT_PDMA_CREDIT_CFG_RESET_OFFSET);
+        credit_cfg &= ~(0x1UL << HAL_TAU_PKT_PDMA_CREDIT_CFG_RESET_OFFSET);
 
         osal_mdc_writePciReg(unit, HAL_TAU_PKT_GET_MMIO(HAL_TAU_PKT_PDMA_CREDIT_CFG),
                              &credit_cfg, sizeof(UI32_T));
-    }
-
-    return (NPS_E_OK);
-}
-
-static NPS_ERROR_NO_T
-_hal_tau_pkt_stopAllIntf(
-    const UI32_T                        unit)
-{
-    struct net_device                   *ptr_net_dev = NULL;
-    UI32_T                              port;
-
-    /* Unregister net devices by id */
-    for (port = 0; port < HAL_TAU_PKT_MAX_PORT_NUM; port++)
-    {
-        ptr_net_dev = HAL_TAU_PKT_GET_PORT_NETDEV(port);
-        if (NULL != ptr_net_dev)
-        {
-            netif_carrier_off(ptr_net_dev);
-            netif_stop_queue(ptr_net_dev);
-        }
     }
 
     return (NPS_E_OK);
@@ -4668,8 +4923,8 @@ _hal_tau_pkt_addProfToAllIntf(
     for (port = 0; port < HAL_TAU_PKT_MAX_PORT_NUM; port++)
     {
         ptr_port_db = HAL_TAU_PKT_GET_PORT_DB(port);
-        /* Shall we check if the interface is ever created in the port?? */
-        //if (NULL != ptr_port_db->ptr_net_dev)
+        /* Shall we check if the interface is ever created on the port?? */
+        /* if (NULL != ptr_port_db->ptr_net_dev) */
         if (1)
         {
             _hal_tau_pkt_addProfToList(ptr_new_profile, &ptr_port_db->ptr_profile_list);
@@ -4759,8 +5014,8 @@ _hal_tau_pkt_delProfFromAllIntfById(
     for (port = 0; port < HAL_TAU_PKT_MAX_PORT_NUM; port++)
     {
         ptr_port_db = HAL_TAU_PKT_GET_PORT_DB(port);
-        /* Shall we check if the interface is ever created in the port?? */
-        //if (NULL != ptr_port_db->ptr_net_dev)
+        /* Shall we check if the interface is ever created on the port?? */
+        /* if (NULL != ptr_port_db->ptr_net_dev) */
         if (1)
         {
             _hal_tau_pkt_delProfFromListById(id, &ptr_port_db->ptr_profile_list);
@@ -4824,7 +5079,7 @@ _hal_tau_pkt_destroyAllIntf(
                             ptr_port_db->meta.port,
                             ptr_port_db->meta.port);
 
-            netif_stop_queue(ptr_port_db->ptr_net_dev);
+            netif_tx_disable(ptr_port_db->ptr_net_dev);
             unregister_netdev(ptr_port_db->ptr_net_dev);
             free_netdev(ptr_port_db->ptr_net_dev);
 
@@ -5072,7 +5327,7 @@ hal_tau_pkt_prepareGpd(
      */
     ptr_sw_gpd->tx_gpd.itmh_eth.dst_idx              = port;
 
-    /* [Taurus] we should set all-1 for the following fields to skip some tm-logic */
+    /* [NP8360] we should set all-1 for the following fields to skip some tm-logic */
 
     /* TM header */
     ptr_sw_gpd->tx_gpd.itmh_eth.src_idx              = 0x7fff;
@@ -5083,8 +5338,8 @@ hal_tau_pkt_prepareGpd(
     ptr_sw_gpd->tx_gpd.itmh_eth.nvo3_src_supp_tag_w1 = 0xf;
 
     /* PP header */
-    ptr_sw_gpd->tx_gpd.pph_l2.nvo3_encap_idx         = HAL_TAU_INVALID_NVO3_ENCAP_IDX;
-    ptr_sw_gpd->tx_gpd.pph_l2.nvo3_adj_idx           = HAL_TAU_INVALID_NVO3_ADJ_IDX;
+    ptr_sw_gpd->tx_gpd.pph_l2.nvo3_encap_idx         = HAL_INVALID_NVO3_ENCAP_IDX;
+    ptr_sw_gpd->tx_gpd.pph_l2.nvo3_adj_idx           = HAL_INVALID_NVO3_ADJ_IDX;
 
     return (NPS_E_OK);
 }
@@ -5157,6 +5412,7 @@ _hal_tau_pkt_net_dev_tx(
     struct net_device           *ptr_net_dev)
 {
     struct net_device_priv      *ptr_priv = netdev_priv(ptr_net_dev);
+    HAL_TAU_PKT_TX_CB_T         *ptr_tx_cb;
     /* chip meta */
     unsigned int                unit;
     unsigned int                channel        = 0;
@@ -5179,6 +5435,17 @@ _hal_tau_pkt_net_dev_tx(
     }
 
     unit = ptr_priv->unit;
+
+    ptr_tx_cb = HAL_TAU_PKT_GET_TX_CB_PTR(unit);
+    /* for warm de-init procedure, if any net intf not destroyed, it is possible
+     * that kernel still has packets to send causing segmentation fault
+     */
+    if (FALSE == ptr_tx_cb->net_tx_allowed) {
+        HAL_TAU_PKT_DBG(HAL_TAU_PKT_DBG_ERR, "net tx during sdk de-init\n");
+        ptr_priv->stats.tx_dropped++;
+        osal_skb_free(ptr_skb);
+        return NETDEV_TX_OK;
+    }
 
     /* pad to 60-bytes if skb_len < 60, see: eth_skb_pad(skb) */
     if (ptr_skb->len < ETH_ZLEN)
@@ -5245,8 +5512,6 @@ _hal_tau_pkt_net_dev_tx(
                 osal_skb_unmapDma(phy_addr, ptr_skb->len, DMA_TO_DEVICE);
                 osal_skb_free(ptr_skb);
                 osal_free(ptr_sw_gpd);
-
-                return NETDEV_TX_OK;
             }
         }
     }
@@ -5374,34 +5639,6 @@ _hal_tau_pkt_setup(
     memset(&ptr_priv->stats, 0, sizeof(struct net_device_stats));
 }
 
-static void
-_hal_tau_pkt_lockRxChannelAll(
-    const UI32_T                        unit)
-{
-    UI32_T                              rch;
-    HAL_TAU_PKT_RX_PDMA_T               *ptr_rx_pdma;
-
-    for (rch = 0; rch < HAL_TAU_PKT_RX_CHANNEL_LAST; rch++)
-    {
-        ptr_rx_pdma = HAL_TAU_PKT_GET_RX_PDMA_PTR(unit, rch);
-        osal_takeSemaphore(&ptr_rx_pdma->sema, NPS_SEMAPHORE_WAIT_FOREVER);
-    }
-}
-
-static void
-_hal_tau_pkt_unlockRxChannelAll(
-    const UI32_T                        unit)
-{
-    UI32_T                              rch;
-    HAL_TAU_PKT_RX_PDMA_T               *ptr_rx_pdma;
-
-    for (rch = 0; rch < HAL_TAU_PKT_RX_CHANNEL_LAST; rch++)
-    {
-        ptr_rx_pdma = HAL_TAU_PKT_GET_RX_PDMA_PTR(unit, rch);
-        osal_giveSemaphore(&ptr_rx_pdma->sema);
-    }
-}
-
 static NPS_ERROR_NO_T
 _hal_tau_pkt_createIntf(
     const UI32_T                        unit,
@@ -5435,7 +5672,7 @@ _hal_tau_pkt_createIntf(
 #if defined(HAL_TAU_PKT_FORCR_REMOVE_DUPLICATE_NETDEV)
         ptr_net_dev->operstate = IF_OPER_DOWN;
         netif_carrier_off(ptr_net_dev);
-        netif_stop_queue(ptr_net_dev);
+        netif_tx_disable(ptr_net_dev);
         unregister_netdev(ptr_net_dev);
         free_netdev(ptr_net_dev);
 #endif
@@ -5465,6 +5702,8 @@ _hal_tau_pkt_createIntf(
         ptr_priv->unit = unit;
 
         register_netdev(ptr_net_dev);
+
+        netif_carrier_off(ptr_net_dev);
 
         net_intf.id = net_intf.port;    /* Currently, id is 1-to-1 mapped to port */
         osal_memcpy(&ptr_port_db->meta, &net_intf, sizeof(HAL_TAU_PKT_NETIF_INTF_T));
@@ -5518,10 +5757,11 @@ _hal_tau_pkt_destroyIntf(
                                 "u=%u, find intf %s (id=%d) on phy port=%d, destroy done\n",
                                 unit,
                                 ptr_port_db->meta.name,
+                                ptr_port_db->meta.id,
                                 ptr_port_db->meta.port);
 
                 netif_carrier_off(ptr_port_db->ptr_net_dev);
-                netif_stop_queue(ptr_port_db->ptr_net_dev);
+                netif_tx_disable(ptr_port_db->ptr_net_dev);
                 unregister_netdev(ptr_port_db->ptr_net_dev);
                 free_netdev(ptr_port_db->ptr_net_dev);
 
@@ -5553,7 +5793,7 @@ _hal_tau_pkt_traverseProfList(
 
     ptr_curr_node = ptr_prof_list;
 
-    HAL_TAU_PKT_DBG(HAL_TAU_PKT_DBG_INTF, "intf id=%d, prof list=\n", intf_id);
+    HAL_TAU_PKT_DBG(HAL_TAU_PKT_DBG_INTF, "intf id=%d, prof list=", intf_id);
     while(NULL != ptr_curr_node)
     {
         HAL_TAU_PKT_DBG(HAL_TAU_PKT_DBG_INTF, "%s (%d) => ",
@@ -6043,6 +6283,24 @@ _hal_tau_pkt_dev_ioctl(
             ret = hal_tau_pkt_setPortAttr(unit, (HAL_TAU_PKT_IOCTL_PORT_COOKIE_T *)arg);
             break;
 
+#if defined(NETIF_EN_NETLINK)
+        case HAL_TAU_PKT_IOCTL_TYPE_NL_SET_INTF_PROPERTY:
+            ret = _hal_tau_pkt_setIntfProperty(unit, (HAL_TAU_PKT_NL_IOCTL_COOKIE_T *)arg);
+            break;
+        case HAL_TAU_PKT_IOCTL_TYPE_NL_GET_INTF_PROPERTY:
+            ret = _hal_tau_pkt_getIntfProperty(unit, (HAL_TAU_PKT_NL_IOCTL_COOKIE_T *)arg);
+            break;
+        case HAL_TAU_PKT_IOCTL_TYPE_NL_CREATE_NETLINK:
+            ret = _hal_tau_pkt_createNetlink(unit, (HAL_TAU_PKT_NL_IOCTL_COOKIE_T *)arg);
+            break;
+        case HAL_TAU_PKT_IOCTL_TYPE_NL_DESTROY_NETLINK:
+            ret = _hal_tau_pkt_destroyNetlink(unit, (HAL_TAU_PKT_NL_IOCTL_COOKIE_T *)arg);
+            break;
+        case HAL_TAU_PKT_IOCTL_TYPE_NL_GET_NETLINK:
+            ret = _hal_tau_pkt_getNetlink(unit, (HAL_TAU_PKT_NL_IOCTL_COOKIE_T *)arg);
+            break;
+#endif
+
         default:
             ret = -1;
             break;
@@ -6102,6 +6360,10 @@ _hal_tau_pkt_init(void)
     osal_memset(_hal_tau_pkt_drv_cb, 0x0,
                 NPS_CFG_MAXIMUM_CHIPS_PER_SYSTEM*sizeof(HAL_TAU_PKT_DRV_CB_T));
 
+#if defined(NETIF_EN_NETLINK)
+    netif_nl_init();
+#endif
+
     return (0);
 }
 
@@ -6110,15 +6372,15 @@ _hal_tau_pkt_exit(void)
 {
     UI32_T                  unit = 0;
 
-    /* 1st. Stop Rx HW DMA and free all the DMA buffer hooked on the ring */
+    /* 1st. Stop all netdev (if any) to prevent kernel from Tx new packets */
+    _hal_tau_pkt_stopAllIntf(unit);
+
+    /* 2nd. Stop Rx HW DMA and free all the DMA buffer hooked on the ring */
     _hal_tau_pkt_rxStop(unit);
 
-    /* 2nd. Need to wait Rx done task process all the availavle packets on GPD ring */
+    /* 3rd. Need to wait Rx done task process all the availavle packets on GPD ring */
 #define HAL_TAU_PKT_MODULE_EXIT_HOLD_TIME_US           (1000000)
     osal_sleepThread(HAL_TAU_PKT_MODULE_EXIT_HOLD_TIME_US);
-
-    /* 3rd. Stop all netdev (if any) to prevent kernel from Tx new packets */
-    _hal_tau_pkt_stopAllIntf(unit);
 
     /* 4th. Stop all the internal tasks (if any) */
     hal_tau_pkt_deinitTask(unit);
@@ -6139,9 +6401,9 @@ _hal_tau_pkt_exit(void)
 module_init(_hal_tau_pkt_init);
 module_exit(_hal_tau_pkt_exit);
 
-module_param(dbg_flag, uint, S_IRUGO);
-MODULE_PARM_DESC(dbg_flag, "bit0:Error, bit1:Tx, bit2:Rx, bit3:Intf, bit4:Profile");
+module_param(ext_dbg_flag, uint, S_IRUGO);
+MODULE_PARM_DESC(ext_dbg_flag, "bit0:Error, bit1:Tx, bit2:Rx, bit3:Intf, bit4:Profile");
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Nephos");
+MODULE_AUTHOR("MediaTek");
 MODULE_DESCRIPTION("NETIF Kernel Module");

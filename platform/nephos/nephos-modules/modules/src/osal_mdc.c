@@ -1,4 +1,4 @@
-/* Copyright (C) 2019  Nephos, Inc.
+/* Copyright (C) 2020  MediaTek, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of version 2 of the GNU General Public
@@ -37,7 +37,7 @@
 #include <linux/module.h>
 #include <linux/dma-mapping.h>
 #include <linux/slab.h>
-
+#include <linux/delay.h>
 
 #include <nps_error.h>
 #include <nps_types.h>
@@ -685,6 +685,7 @@ _osal_mdc_removePciCallback(
     iounmap(ptr_dev->ptr_mmio_virt_addr);
     pci_release_region(pdev, OSAL_MDC_PCI_BAR0_OFFSET);
     pci_disable_device(pdev);
+    _osal_mdc_cb.dev_num--;
 }
 
 static struct pci_device_id _osal_mdc_id_table[] =
@@ -708,6 +709,7 @@ _osal_mdc_probePciDevice(void)
 
     if (pci_register_driver(&_osal_mdc_pci_driver) < 0)
     {
+        OSAL_MDC_ERR("Cannot find PCI device\n");
         rc = NPS_E_OTHERS;
     }
     return (rc);
@@ -718,6 +720,119 @@ _osal_mdc_removePciDevice(void)
 {
     pci_unregister_driver(&_osal_mdc_pci_driver);
     return (NPS_E_OK);
+}
+
+static NPS_ERROR_NO_T
+_osal_mdc_maskStatus(
+    const UI32_T        unit)
+{
+    struct pci_dev      *ptr_ep_dev = _osal_mdc_cb.dev[unit].ptr_pci_dev;
+    struct pci_dev      *ptr_rc_dev = ptr_ep_dev->bus->self;
+    int                 ext_cap = 0;
+    UI32_T              data_32 = 0;
+
+    ext_cap = pci_find_ext_capability(ptr_rc_dev, 0x1);
+    if (0 != ext_cap)
+    {
+        /* Mask */
+        pci_read_config_dword(ptr_rc_dev, ext_cap + 0x8, &data_32);
+        data_32 |= 0x20;
+        pci_write_config_dword(ptr_rc_dev, ext_cap + 0x8, data_32);
+    }
+
+    return NPS_E_OK;
+}
+
+static NPS_ERROR_NO_T
+_osal_mdc_clearStatus(
+    const UI32_T        unit)
+{
+    struct pci_dev      *ptr_ep_dev = _osal_mdc_cb.dev[unit].ptr_pci_dev;
+    struct pci_dev      *ptr_rc_dev = ptr_ep_dev->bus->self;
+    int                 ext_cap = 0;
+    UI32_T              data_32 = 0;
+
+    ext_cap = pci_find_ext_capability(ptr_rc_dev, 0x1);
+    if (0 != ext_cap)
+    {
+        /* Clear */
+        pci_write_config_word(ptr_rc_dev, ptr_rc_dev->pcie_cap + 0xa, 0x04);
+        pci_write_config_word(ptr_rc_dev, ptr_rc_dev->pcie_cap + 0x12, 0x8000);
+        pci_write_config_dword(ptr_rc_dev, ext_cap + 0x4, 0x20);
+
+        /* UnMask */
+        pci_read_config_dword(ptr_rc_dev, ext_cap + 0x8, &data_32);
+        data_32 &= ~0x20;
+        pci_write_config_dword(ptr_rc_dev, ext_cap + 0x8, data_32);
+    }
+
+    return NPS_E_OK;
+}
+
+static NPS_ERROR_NO_T
+_osal_mdc_savePciConfig(
+    const UI32_T        unit)
+{
+    struct pci_dev      *ptr_dev = _osal_mdc_cb.dev[unit].ptr_pci_dev;
+    NPS_ERROR_NO_T      rc = NPS_E_OK;
+
+    rc = _osal_mdc_maskStatus(unit);
+
+    if (NPS_E_OK == rc)
+    {
+        pci_save_state(ptr_dev);
+    }
+
+    return rc;
+}
+
+static NPS_ERROR_NO_T
+_osal_mdc_restorePciConfig(
+    const UI32_T        unit)
+{
+#define OSAL_MDC_PCI_PRESENT_POLL_CNT           (100)
+#define OSAL_MDC_PCI_PRESENT_POLL_INTERVAL      (10)   /* ms */
+
+    struct pci_dev      *ptr_dev = _osal_mdc_cb.dev[unit].ptr_pci_dev;
+    UI32_T              poll_cnt = 0;
+    NPS_ERROR_NO_T      rc = NPS_E_OK;
+
+    /* standard: at least 100ms for link recovery */
+    msleep(100);
+
+    /* make sure pci device is there before restoring the config space */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 13, 0)
+    while ((0 == pci_device_is_present(ptr_dev)) &&
+#else
+    while ((0 == pci_dev_present(_osal_mdc_id_table)) &&
+#endif
+           (poll_cnt < OSAL_MDC_PCI_PRESENT_POLL_CNT))
+    {
+        msleep(OSAL_MDC_PCI_PRESENT_POLL_INTERVAL);
+        poll_cnt++;
+    }
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 13, 0)
+    if (1 == pci_device_is_present(ptr_dev))
+#else
+    if (1 == pci_dev_present(_osal_mdc_id_table))
+#endif
+    {
+        pci_restore_state(ptr_dev);
+        rc = NPS_E_OK;
+    }
+    else
+    {
+        OSAL_MDC_ERR("detect pci device failed\n");
+        rc = NPS_E_OTHERS;
+    }
+
+    if (NPS_E_OK == rc)
+    {
+        rc = _osal_mdc_clearStatus(unit);
+    }
+
+    return (rc);
 }
 
 #endif /* End of AML_EN_I2C */
@@ -1415,6 +1530,20 @@ osal_mdc_invalidateCache(
     return (NPS_E_OK);
 }
 
+NPS_ERROR_NO_T
+osal_mdc_savePciConfig(
+    const UI32_T            unit)
+{
+    return _osal_mdc_savePciConfig(unit);
+}
+
+NPS_ERROR_NO_T
+osal_mdc_restorePciConfig(
+    const UI32_T            unit)
+{
+    return _osal_mdc_restorePciConfig(unit);
+}
+
 #endif /* End of NPS_LINUX_KERNEL_MODE */
 
 /* --------------------------------------------------------------------------- Interrupt */
@@ -1458,7 +1587,7 @@ _osal_mdc_notifyUserProcess(
 
     /* set the device bitmap. */
     spin_lock_irqsave(&_osal_mdc_isr_dev_bitmap_lock, flags);
-    _osal_mdc_isr_dev_bitmap |= (1 << unit);
+    _osal_mdc_isr_dev_bitmap |= (1U << unit);
     spin_unlock_irqrestore(&_osal_mdc_isr_dev_bitmap_lock, flags);
 
     /* notify user process. */
@@ -2045,12 +2174,12 @@ _osal_mdc_ioctl_connectIsrCallback(
 {
     NPS_ERROR_NO_T  rc = NPS_E_OK;
 
-    if (0 == (_osal_mdc_isr_init_bitmap & (1 << unit)))
+    if (0 == (_osal_mdc_isr_init_bitmap & (1U << unit)))
     {
         rc = osal_mdc_connectIsr(unit, NULL, ptr_data);
         if (NPS_E_OK == rc)
         {
-            _osal_mdc_isr_init_bitmap |= (1 << unit);
+            _osal_mdc_isr_init_bitmap |= (1U << unit);
         }
     }
     return (rc);
@@ -2065,9 +2194,25 @@ _osal_mdc_ioctl_disconnectIsrCallback(
     _osal_mdc_notifyUserProcess(unit);
 
     osal_mdc_disconnectIsr(unit);
-    _osal_mdc_isr_init_bitmap &= ~(1 << unit);
+    _osal_mdc_isr_init_bitmap &= ~(1U << unit);
 
     return (NPS_E_OK);
+}
+
+static NPS_ERROR_NO_T
+_osal_mdc_ioctl_savePciConfigCallback(
+    const UI32_T    unit,
+    void            *ptr_data)
+{
+    return _osal_mdc_savePciConfig(unit);
+}
+
+static NPS_ERROR_NO_T
+_osal_mdc_ioctl_restorePciConfigCallback(
+    const UI32_T    unit,
+    void            *ptr_data)
+{
+    return _osal_mdc_restorePciConfig(unit);
 }
 
 static NPS_ERROR_NO_T
@@ -2126,6 +2271,12 @@ _osal_mdc_initIoctl(void)
 
     _osal_mdc_registerIoctlCallback(OSAL_MDC_IOCTL_TYPE_MDC_DISCONNECT_ISR,
                                     _osal_mdc_ioctl_disconnectIsrCallback);
+
+    _osal_mdc_registerIoctlCallback(OSAL_MDC_IOCTL_TYPE_MDC_SAVE_PCI_CONFIG,
+                                    _osal_mdc_ioctl_savePciConfigCallback);
+
+    _osal_mdc_registerIoctlCallback(OSAL_MDC_IOCTL_TYPE_MDC_RESTORE_PCI_CONFIG,
+                                    _osal_mdc_ioctl_restorePciConfigCallback);
     return (NPS_E_OK);
 }
 
@@ -2221,6 +2372,8 @@ _osal_mdc_ioctl(
             /* type: DEINIT_DEV
              *       DEINIT_RSRV_DMA_MEM
              *       DISCONNECT_ISR
+             *       SAVE_PCI_CONFIG
+             *       RESTORE_PCI_CONFIG
              */
             if (NPS_E_OK != ptr_cb->callback[type](unit, (void *)ptr_temp_buf))
             {
@@ -2308,10 +2461,10 @@ osal_mdc_module_exit(void)
     /* ref: _osal_mdc_ioctl_disconnectIsrCallback */
     for (unit = 0; unit < NPS_CFG_MAXIMUM_CHIPS_PER_SYSTEM; unit++)
     {
-        if (0 != (_osal_mdc_isr_init_bitmap & (1 << unit)))
+        if (0 != (_osal_mdc_isr_init_bitmap & (1U << unit)))
         {
             osal_mdc_disconnectIsr(unit);
-            _osal_mdc_isr_init_bitmap &= ~(1 << unit);
+            _osal_mdc_isr_init_bitmap &= ~(1U << unit);
         }
     }
 
@@ -2355,5 +2508,5 @@ osal_mdc_module_exit(void)
 module_init(osal_mdc_module_init);
 module_exit(osal_mdc_module_exit);
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Nephos");
+MODULE_AUTHOR("MediaTek");
 MODULE_DESCRIPTION("SDK Kernel Module");

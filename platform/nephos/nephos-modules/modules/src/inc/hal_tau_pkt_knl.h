@@ -1,4 +1,4 @@
-/* Copyright (C) 2019  Nephos, Inc.
+/* Copyright (C) 2020  MediaTek, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of version 2 of the GNU General Public
@@ -104,15 +104,15 @@ typedef enum
 
 
 /* hal_tau_const.h */
-#define HAL_TAU_PORT_NUM                      (128)
-#define HAL_TAU_EXCPT_CPU_NUM                 (256)
-#define HAL_TAU_INVALID_NVO3_ENCAP_IDX        (0x3FFF)
-#define HAL_TAU_INVALID_NVO3_ADJ_IDX          (0xFF)
-#define HAL_TAU_EXCPT_CPU_BASE_ID             (28 * 1024)
-#define HAL_TAU_EXCPT_CPU_NON_L3_MIN          (0)
-#define HAL_TAU_EXCPT_CPU_NON_L3_MAX          (HAL_TAU_EXCPT_CPU_NON_L3_MIN + HAL_TAU_EXCPT_CPU_NUM - 1)
-#define HAL_TAU_EXCPT_CPU_L3_MIN              (HAL_TAU_EXCPT_CPU_NON_L3_MIN + HAL_TAU_EXCPT_CPU_NUM)
-#define HAL_TAU_EXCPT_CPU_L3_MAX              (HAL_TAU_EXCPT_CPU_L3_MIN     + HAL_TAU_EXCPT_CPU_NUM - 1)
+#define HAL_PORT_NUM                        (128)
+#define HAL_EXCPT_CPU_NUM                   (256)
+#define HAL_INVALID_NVO3_ENCAP_IDX          (0x3FFF)
+#define HAL_INVALID_NVO3_ADJ_IDX            (0xFF)
+#define HAL_EXCPT_CPU_BASE_ID               (28 * 1024)
+#define HAL_EXCPT_CPU_NON_L3_MIN            (0)
+#define HAL_EXCPT_CPU_NON_L3_MAX            (HAL_EXCPT_CPU_NON_L3_MIN + HAL_EXCPT_CPU_NUM - 1)
+#define HAL_EXCPT_CPU_L3_MIN                (HAL_EXCPT_CPU_NON_L3_MIN + HAL_EXCPT_CPU_NUM)
+#define HAL_EXCPT_CPU_L3_MAX                (HAL_EXCPT_CPU_L3_MIN     + HAL_EXCPT_CPU_NUM - 1)
 
 /* hal_tau_pkt_rsrc.h */
 #define HAL_TAU_PKT_IPP_EXCPT_LAST      (256)
@@ -238,7 +238,7 @@ typedef struct
     HAL_TAU_PKT_IPP_COPY2CPU_BITMAP_T     ipp_copy2cpu_bitmap;
     HAL_TAU_PKT_EPP_COPY2CPU_BITMAP_T     epp_copy2cpu_bitmap;
 
-} HAL_TAU_PKT_RX_REASON_BITMAP_T;
+} HAL_PKT_RX_REASON_BITMAP_T;
 
 
 /* hal_tau_pkt.h */
@@ -246,23 +246,23 @@ typedef struct
 /* NAMING DECLARATIONS
  */
 /* PKT related configurable parameters */
-#define HAL_TAU_PKT_RX_FREE_STACK_SIZE      (64 * 1024)
-#define HAL_TAU_PKT_RX_FREE_THREAD_PRI      (80)
+#define HAL_DFLT_CFG_PKT_RX_FREE_STACK_SIZE         (64 * 1024)
+#define HAL_DFLT_CFG_PKT_RX_FREE_THREAD_PRI         (80)
 
-#define HAL_TAU_PKT_RX_ISR_STACK_SIZE       (64 * 1024)
-#define HAL_TAU_PKT_RX_ISR_THREAD_PRI       (80)
+#define HAL_DFLT_CFG_PKT_RX_ISR_THREAD_STACK        (64 * 1024)
+#define HAL_DFLT_CFG_PKT_RX_ISR_THREAD_PRI          (80)
 
-#define HAL_TAU_PKT_TX_FREE_STACK_SIZE      (64 * 1024)
-#define HAL_TAU_PKT_TX_FREE_THREAD_PRI      (80)
+#define HAL_DFLT_CFG_PKT_TX_FREE_STACK_SIZE         (64 * 1024)
+#define HAL_DFLT_CFG_PKT_TX_FREE_THREAD_PRI         (80)
 
-#define HAL_TAU_PKT_TX_ISR_STACK_SIZE       (64 * 1024)
-#define HAL_TAU_PKT_TX_ISR_THREAD_PRI       (80)
+#define HAL_DFLT_CFG_PKT_TX_ISR_THREAD_STACK        (64 * 1024)
+#define HAL_DFLT_CFG_PKT_TX_ISR_THREAD_PRI          (80)
 
-#define HAL_TAU_PKT_TX_NET_STACK_SIZE       (64 * 1024)
-#define HAL_TAU_PKT_TX_NET_THREAD_PRI       (80)
+#define HAL_DFLT_CFG_PKT_TX_NET_STACK_SIZE          (64 * 1024)
+#define HAL_DFLT_CFG_PKT_TX_NET_THREAD_PRI          (80)
 
-#define HAL_TAU_PKT_ERROR_ISR_STACK_SIZE    (64 * 1024)
-#define HAL_TAU_PKT_ERROR_ISR_THREAD_PRI    (80)
+#define HAL_DFLT_CFG_PKT_ERROR_ISR_THREAD_STACK     (64 * 1024)
+#define HAL_DFLT_CFG_PKT_ERROR_ISR_THREAD_PRI       (80)
 
 /* PKT definitions */
 #define HAL_TAU_PKT_TX_MAX_LEN              (9216)
@@ -300,29 +300,29 @@ typedef struct
 
 /* PDMA Definitions */
 #define HAL_TAU_PKT_PDMA_MAX_GPD_PER_PKT    (10)   /* <= 256   */
-#define HAL_TAU_PKT_PDMA_TX_GPD_NUM         (1024) /* <= 65535 */
-#define HAL_TAU_PKT_PDMA_RX_GPD_NUM         (1024) /* <= 65535 */
+#define HAL_DFLT_CFG_PKT_TX_GPD_NUM         (1024) /* <= 65535 */
+#define HAL_DFLT_CFG_PKT_RX_GPD_NUM         (1024) /* <= 65535 */
 #define HAL_TAU_PKT_PDMA_TX_INTR_TIMEOUT    (10 * 1000) /* us */
 #define HAL_TAU_PKT_PDMA_TX_POLL_MAX_LOOP   (10 * 1000) /* int */
 
 /* Mode */
 #define HAL_TAU_PKT_TX_WAIT_MODE            (HAL_TAU_PKT_TX_WAIT_ASYNC)
-#define HAL_TAU_PKT_RX_SCHED_MODE           (HAL_TAU_PKT_RX_SCHED_RR)
+#define HAL_DFLT_CFG_PKT_RX_SCHED_MODE      (HAL_TAU_PKT_RX_SCHED_RR)
 
 /* TX Queue */
-#define HAL_TAU_PKT_TX_QUEUE_LEN            (HAL_TAU_PKT_PDMA_TX_GPD_NUM * 10)
-#define HAL_TAU_PKT_TX_TASK_MAX_LOOP        (HAL_TAU_PKT_TX_QUEUE_LEN)
+#define HAL_DFLT_CFG_PKT_TX_QUEUE_LEN       (HAL_DFLT_CFG_PKT_TX_GPD_NUM * 10)
+#define HAL_TAU_PKT_TX_TASK_MAX_LOOP        (HAL_DFLT_CFG_PKT_TX_QUEUE_LEN)
 
 /* RX Queue */
 #define HAL_TAU_PKT_RX_QUEUE_NUM            (HAL_TAU_PKT_RX_CHANNEL_LAST)
-#define HAL_TAU_PKT_RX_QUEUE_WEIGHT         (10)
-#define HAL_TAU_PKT_RX_QUEUE_LEN            (HAL_TAU_PKT_PDMA_RX_GPD_NUM * 10)
-#define HAL_TAU_PKT_RX_TASK_MAX_LOOP        (HAL_TAU_PKT_RX_QUEUE_LEN)
+#define HAL_DFLT_CFG_PKT_RX_QUEUE_WEIGHT    (10)
+#define HAL_DFLT_CFG_PKT_RX_QUEUE_LEN       (HAL_DFLT_CFG_PKT_RX_GPD_NUM * 10)
+#define HAL_TAU_PKT_RX_TASK_MAX_LOOP        (HAL_DFLT_CFG_PKT_RX_QUEUE_LEN)
 
 /* MACRO FUNCTION DECLARATIONS
  */
 /*---------------------------------------------------------------------------*/
-/* [Taurus] Alignment to 64-bytes */
+/* [NP8360] Alignment to 64-bytes */
 #if defined(NPS_EN_HOST_64_BIT_BIG_ENDIAN) || defined(NPS_EN_HOST_64_BIT_LITTLE_ENDIAN)
 #define HAL_TAU_PKT_PDMA_ALIGN_ADDR(pdma_addr, align_sz) (((pdma_addr) + (align_sz)) & 0xFFFFFFFFFFFFFFC0)
 #else
@@ -1120,77 +1120,77 @@ typedef struct
 /* ----------------------------------------------------------------------------------- Reg Type */
 typedef enum
 {
-    HAL_TAU_PKT_L2_ISR_RCH0            = (0x1 << 0),
-    HAL_TAU_PKT_L2_ISR_RCH1            = (0x1 << 1),
-    HAL_TAU_PKT_L2_ISR_RCH2            = (0x1 << 2),
-    HAL_TAU_PKT_L2_ISR_RCH3            = (0x1 << 3),
-    HAL_TAU_PKT_L2_ISR_TCH0            = (0x1 << 4),
-    HAL_TAU_PKT_L2_ISR_TCH1            = (0x1 << 5),
-    HAL_TAU_PKT_L2_ISR_TCH2            = (0x1 << 6),
-    HAL_TAU_PKT_L2_ISR_TCH3            = (0x1 << 7),
-    HAL_TAU_PKT_L2_ISR_RX_QID_MAP_ERR  = (0x1 << 8),
-    HAL_TAU_PKT_L2_ISR_RX_FRAME_ERR    = (0x1 << 9)
+    HAL_TAU_PKT_L2_ISR_RCH0            = (0x1UL << 0),
+    HAL_TAU_PKT_L2_ISR_RCH1            = (0x1UL << 1),
+    HAL_TAU_PKT_L2_ISR_RCH2            = (0x1UL << 2),
+    HAL_TAU_PKT_L2_ISR_RCH3            = (0x1UL << 3),
+    HAL_TAU_PKT_L2_ISR_TCH0            = (0x1UL << 4),
+    HAL_TAU_PKT_L2_ISR_TCH1            = (0x1UL << 5),
+    HAL_TAU_PKT_L2_ISR_TCH2            = (0x1UL << 6),
+    HAL_TAU_PKT_L2_ISR_TCH3            = (0x1UL << 7),
+    HAL_TAU_PKT_L2_ISR_RX_QID_MAP_ERR  = (0x1UL << 8),
+    HAL_TAU_PKT_L2_ISR_RX_FRAME_ERR    = (0x1UL << 9)
 
 } HAL_TAU_PKT_L2_ISR_T;
 
 typedef enum
 {
-    HAL_TAU_PKT_TX_CHANNEL_L2_ISR_GPD_HWO_ERROR         = (0x1 << 0),   /* Tx GPD.hwo = 0                         */
-    HAL_TAU_PKT_TX_CHANNEL_L2_ISR_GPD_CHKSM_ERROR       = (0x1 << 1),   /* Tx GPD.chksm is error                  */
-    HAL_TAU_PKT_TX_CHANNEL_L2_ISR_GPD_NO_OVFL_ERROR     = (0x1 << 2),   /* S/W push too much GPD                  */
-    HAL_TAU_PKT_TX_CHANNEL_L2_ISR_GPD_DMA_READ_ERROR    = (0x1 << 3),   /* AXI Rd Error when do GPD read          */
-    HAL_TAU_PKT_TX_CHANNEL_L2_ISR_BUF_SIZE_ERROR        = (0x1 << 4),   /* Tx GPD.data_buf_size = 0               */
-    HAL_TAU_PKT_TX_CHANNEL_L2_ISR_RUNT_ERROR            = (0x1 << 5),   /* Tx GPD.pkt_len < 64                    */
-    HAL_TAU_PKT_TX_CHANNEL_L2_ISR_OVSZ_ERROR            = (0x1 << 6),   /* Tx GPD.pkt_len = 9217                  */
-    HAL_TAU_PKT_TX_CHANNEL_L2_ISR_LEN_MISMATCH_ERROR    = (0x1 << 7),   /* Tx GPD.pkt_len != sum of data_buf_size */
-    HAL_TAU_PKT_TX_CHANNEL_L2_ISR_PKTPL_DMA_READ_ERROR  = (0x1 << 8),   /* AXI Rd Error when do Payload read      */
-    HAL_TAU_PKT_TX_CHANNEL_L2_ISR_COS_ERROR             = (0x1 << 9),   /* Tx GPD.cos is not match cos_to_tch_map */
-    HAL_TAU_PKT_TX_CHANNEL_L2_ISR_GPD_GT255_ERROR       = (0x1 << 10),  /* Multi-GPD packet's GPD# > 255          */
-    HAL_TAU_PKT_TX_CHANNEL_L2_ISR_PFC                   = (0x1 << 11),  /* */
-    HAL_TAU_PKT_TX_CHANNEL_L2_ISR_CREDIT_UDFL_ERROR     = (0x1 << 12),  /* Credit Underflow (count down to 0)     */
-    HAL_TAU_PKT_TX_CHANNEL_L2_ISR_DMA_WRITE_ERROR       = (0x1 << 13),  /* AXI Wr Error (GPD Write-Back)          */
-    HAL_TAU_PKT_TX_CHANNEL_L2_ISR_STOP_CMD_CPLT         = (0x1 << 14)
+    HAL_TAU_PKT_TX_CHANNEL_L2_ISR_GPD_HWO_ERROR         = (0x1UL << 0),   /* Tx GPD.hwo = 0                         */
+    HAL_TAU_PKT_TX_CHANNEL_L2_ISR_GPD_CHKSM_ERROR       = (0x1UL << 1),   /* Tx GPD.chksm is error                  */
+    HAL_TAU_PKT_TX_CHANNEL_L2_ISR_GPD_NO_OVFL_ERROR     = (0x1UL << 2),   /* S/W push too much GPD                  */
+    HAL_TAU_PKT_TX_CHANNEL_L2_ISR_GPD_DMA_READ_ERROR    = (0x1UL << 3),   /* AXI Rd Error when do GPD read          */
+    HAL_TAU_PKT_TX_CHANNEL_L2_ISR_BUF_SIZE_ERROR        = (0x1UL << 4),   /* Tx GPD.data_buf_size = 0               */
+    HAL_TAU_PKT_TX_CHANNEL_L2_ISR_RUNT_ERROR            = (0x1UL << 5),   /* Tx GPD.pkt_len < 64                    */
+    HAL_TAU_PKT_TX_CHANNEL_L2_ISR_OVSZ_ERROR            = (0x1UL << 6),   /* Tx GPD.pkt_len = 9217                  */
+    HAL_TAU_PKT_TX_CHANNEL_L2_ISR_LEN_MISMATCH_ERROR    = (0x1UL << 7),   /* Tx GPD.pkt_len != sum of data_buf_size */
+    HAL_TAU_PKT_TX_CHANNEL_L2_ISR_PKTPL_DMA_READ_ERROR  = (0x1UL << 8),   /* AXI Rd Error when do Payload read      */
+    HAL_TAU_PKT_TX_CHANNEL_L2_ISR_COS_ERROR             = (0x1UL << 9),   /* Tx GPD.cos is not match cos_to_tch_map */
+    HAL_TAU_PKT_TX_CHANNEL_L2_ISR_GPD_GT255_ERROR       = (0x1UL << 10),  /* Multi-GPD packet's GPD# > 255          */
+    HAL_TAU_PKT_TX_CHANNEL_L2_ISR_PFC                   = (0x1UL << 11),  /* */
+    HAL_TAU_PKT_TX_CHANNEL_L2_ISR_CREDIT_UDFL_ERROR     = (0x1UL << 12),  /* Credit Underflow (count down to 0)     */
+    HAL_TAU_PKT_TX_CHANNEL_L2_ISR_DMA_WRITE_ERROR       = (0x1UL << 13),  /* AXI Wr Error (GPD Write-Back)          */
+    HAL_TAU_PKT_TX_CHANNEL_L2_ISR_STOP_CMD_CPLT         = (0x1UL << 14)
 
 } HAL_TAU_PKT_TX_CHANNEL_L2_ISR_T;
 
 typedef enum
 {
-    HAL_TAU_PKT_RX_CHANNEL_L2_ISR_AVAIL_GPD_LOW         = (0x1 << 0),   /* Rx GPD.avbl_gpd_num < threshold        */
-    HAL_TAU_PKT_RX_CHANNEL_L2_ISR_AVAIL_GPD_EMPTY       = (0x1 << 1),   /* Rx GPD.avbl_gpd_num = 0                */
-    HAL_TAU_PKT_RX_CHANNEL_L2_ISR_AVAIL_GPD_ERROR       = (0x1 << 2),   /* Rx GPD.hwo = 0                         */
-    HAL_TAU_PKT_RX_CHANNEL_L2_ISR_GPD_CHKSM_ERROR       = (0x1 << 3),   /* Rx GPD.chksm is error                  */
-    HAL_TAU_PKT_RX_CHANNEL_L2_ISR_DMA_READ_ERROR        = (0x1 << 4),   /* DMAR error occurs in PCIE              */
-    HAL_TAU_PKT_RX_CHANNEL_L2_ISR_DMA_WRITE_ERROR       = (0x1 << 5),   /* DMAW error occurs in PCIE              */
-    HAL_TAU_PKT_RX_CHANNEL_L2_ISR_STOP_CMD_CPLT         = (0x1 << 6),   /* Stop Completion Acknowledge            */
-    HAL_TAU_PKT_RX_CHANNEL_L2_ISR_GPD_GT255_ERROR       = (0x1 << 7),   /* Multi-GPD packet's GPD# > 255          */
-    HAL_TAU_PKT_RX_CHANNEL_L2_ISR_TOD_UNINIT            = (0x1 << 8),   /* */
-    HAL_TAU_PKT_RX_CHANNEL_L2_ISR_PKT_ERROR_DROP        = (0x1 << 9),   /* */
-    HAL_TAU_PKT_RX_CHANNEL_L2_ISR_UDSZ_DROP             = (0x1 << 10),  /* */
-    HAL_TAU_PKT_RX_CHANNEL_L2_ISR_OVSZ_DROP             = (0x1 << 11),  /* */
-    HAL_TAU_PKT_RX_CHANNEL_L2_ISR_CMDQ_OVF_DROP         = (0x1 << 12),  /* */
-    HAL_TAU_PKT_RX_CHANNEL_L2_ISR_FIFO_OVF_DROP         = (0x1 << 13)
+    HAL_TAU_PKT_RX_CHANNEL_L2_ISR_AVAIL_GPD_LOW         = (0x1UL << 0),   /* Rx GPD.avbl_gpd_num < threshold        */
+    HAL_TAU_PKT_RX_CHANNEL_L2_ISR_AVAIL_GPD_EMPTY       = (0x1UL << 1),   /* Rx GPD.avbl_gpd_num = 0                */
+    HAL_TAU_PKT_RX_CHANNEL_L2_ISR_AVAIL_GPD_ERROR       = (0x1UL << 2),   /* Rx GPD.hwo = 0                         */
+    HAL_TAU_PKT_RX_CHANNEL_L2_ISR_GPD_CHKSM_ERROR       = (0x1UL << 3),   /* Rx GPD.chksm is error                  */
+    HAL_TAU_PKT_RX_CHANNEL_L2_ISR_DMA_READ_ERROR        = (0x1UL << 4),   /* DMAR error occurs in PCIE              */
+    HAL_TAU_PKT_RX_CHANNEL_L2_ISR_DMA_WRITE_ERROR       = (0x1UL << 5),   /* DMAW error occurs in PCIE              */
+    HAL_TAU_PKT_RX_CHANNEL_L2_ISR_STOP_CMD_CPLT         = (0x1UL << 6),   /* Stop Completion Acknowledge            */
+    HAL_TAU_PKT_RX_CHANNEL_L2_ISR_GPD_GT255_ERROR       = (0x1UL << 7),   /* Multi-GPD packet's GPD# > 255          */
+    HAL_TAU_PKT_RX_CHANNEL_L2_ISR_TOD_UNINIT            = (0x1UL << 8),   /* */
+    HAL_TAU_PKT_RX_CHANNEL_L2_ISR_PKT_ERROR_DROP        = (0x1UL << 9),   /* */
+    HAL_TAU_PKT_RX_CHANNEL_L2_ISR_UDSZ_DROP             = (0x1UL << 10),  /* */
+    HAL_TAU_PKT_RX_CHANNEL_L2_ISR_OVSZ_DROP             = (0x1UL << 11),  /* */
+    HAL_TAU_PKT_RX_CHANNEL_L2_ISR_CMDQ_OVF_DROP         = (0x1UL << 12),  /* */
+    HAL_TAU_PKT_RX_CHANNEL_L2_ISR_FIFO_OVF_DROP         = (0x1UL << 13)
 
 } HAL_TAU_PKT_RX_CHANNEL_L2_ISR_T;
 
 typedef enum
 {
-    HAL_TAU_PKT_TX_CHANNEL_CFG_IOC                      = (0x1 << 0),
-    HAL_TAU_PKT_TX_CHANNEL_CFG_CHKSUM                   = (0x1 << 1),
-    HAL_TAU_PKT_TX_CHANNEL_CFG_PFC                      = (0x1 << 2),
-    HAL_TAU_PKT_TX_CHANNEL_CFG_PKT_LEN_CHK              = (0x1 << 3),
-    HAL_TAU_PKT_TX_CHANNEL_CFG_EARLY_DONE_IRQ           = (0x1 << 4),
-    HAL_TAU_PKT_TX_CHANNEL_CFG_CHK_COS                  = (0x1 << 5),
-    HAL_TAU_PKT_TX_CHANNEL_CFG_ADV_GPD_WRBK             = (0x1 << 6),
-    HAL_TAU_PKT_TX_CHANNEL_CFG_GPD_WRBK_FULL_PKT_LEN    = (0x1 << 7),
-    HAL_TAU_PKT_TX_CHANNEL_CFG_LAST                     = (0x1 << 8)
+    HAL_TAU_PKT_TX_CHANNEL_CFG_IOC                      = (0x1UL << 0),
+    HAL_TAU_PKT_TX_CHANNEL_CFG_CHKSUM                   = (0x1UL << 1),
+    HAL_TAU_PKT_TX_CHANNEL_CFG_PFC                      = (0x1UL << 2),
+    HAL_TAU_PKT_TX_CHANNEL_CFG_PKT_LEN_CHK              = (0x1UL << 3),
+    HAL_TAU_PKT_TX_CHANNEL_CFG_EARLY_DONE_IRQ           = (0x1UL << 4),
+    HAL_TAU_PKT_TX_CHANNEL_CFG_CHK_COS                  = (0x1UL << 5),
+    HAL_TAU_PKT_TX_CHANNEL_CFG_ADV_GPD_WRBK             = (0x1UL << 6),
+    HAL_TAU_PKT_TX_CHANNEL_CFG_GPD_WRBK_FULL_PKT_LEN    = (0x1UL << 7),
+    HAL_TAU_PKT_TX_CHANNEL_CFG_LAST                     = (0x1UL << 8)
 
 } HAL_TAU_PKT_TX_CHANNEL_CFG_T;
 
 typedef enum
 {
-    HAL_TAU_PKT_RX_CHANNEL_CFG_IOC      = (0x1 << 0),
-    HAL_TAU_PKT_RX_CHANNEL_CFG_CHKSUM   = (0x1 << 1),
-    HAL_TAU_PKT_RX_CHANNEL_CFG_LAST     = (0x1 << 2)
+    HAL_TAU_PKT_RX_CHANNEL_CFG_IOC      = (0x1UL << 0),
+    HAL_TAU_PKT_RX_CHANNEL_CFG_CHKSUM   = (0x1UL << 1),
+    HAL_TAU_PKT_RX_CHANNEL_CFG_LAST     = (0x1UL << 2)
 
 } HAL_TAU_PKT_RX_CHANNEL_CFG_T;
 
@@ -2079,34 +2079,56 @@ typedef struct
     /* metadata */
     UI8_T                       mac[6];
 
-#define HAL_TAU_PKT_NETIF_INTF_FLAGS_MAC        (1 << 0)
+#define HAL_TAU_PKT_NETIF_INTF_FLAGS_MAC        (1UL << 0)
     UI32_T                      flags;
 
 
 } HAL_TAU_PKT_NETIF_INTF_T;
 
+#if defined(NETIF_EN_NETLINK)
+typedef struct
+{
+    C8_T                        name[NPS_NETIF_NAME_LEN];
+    C8_T                        mc_group_name[NPS_NETIF_NAME_LEN];
+} HAL_TAU_PKT_NETIF_RX_DST_NETLINK_T;
+#endif
+
+typedef enum
+{
+    HAL_TAU_PKT_NETIF_RX_DST_SDK = 0,
+#if defined(NETIF_EN_NETLINK)
+    HAL_TAU_PKT_NETIF_RX_DST_NETLINK,
+#endif
+    HAL_TAU_PKT_NETIF_RX_DST_LAST
+} HAL_TAU_PKT_NETIF_RX_DST_TYPE_T;
+
 typedef struct
 {
     /* unique key */
-    UI32_T                          id;
-    C8_T                            name[NPS_NETIF_NAME_LEN];
-    UI32_T                          priority;
+    UI32_T                              id;
+    C8_T                                name[NPS_NETIF_NAME_LEN];
+    UI32_T                              priority;
 
     /* match fields */
-    UI32_T                          port;     /* only support unit port and local port */
-    HAL_TAU_PKT_RX_REASON_BITMAP_T  reason_bitmap;
-    UI8_T                           pattern[NPS_NETIF_PROFILE_PATTERN_NUM][NPS_NETIF_PROFILE_PATTERN_LEN];
-    UI8_T                           mask[NPS_NETIF_PROFILE_PATTERN_NUM][NPS_NETIF_PROFILE_PATTERN_LEN];
-    UI32_T                          offset[NPS_NETIF_PROFILE_PATTERN_NUM];
+    UI32_T                              port;     /* only support unit port and local port */
+    HAL_PKT_RX_REASON_BITMAP_T          reason_bitmap;
+    UI8_T                               pattern[NPS_NETIF_PROFILE_PATTERN_NUM][NPS_NETIF_PROFILE_PATTERN_LEN];
+    UI8_T                               mask[NPS_NETIF_PROFILE_PATTERN_NUM][NPS_NETIF_PROFILE_PATTERN_LEN];
+    UI32_T                              offset[NPS_NETIF_PROFILE_PATTERN_NUM];
 
     /* for each flag 1:must hit, 0:don't care */
-#define HAL_TAU_PKT_NETIF_PROFILE_FLAGS_PORT      (1 << 0)
-#define HAL_TAU_PKT_NETIF_PROFILE_FLAGS_REASON    (1 << 1)
-#define HAL_TAU_PKT_NETIF_PROFILE_FLAGS_PATTERN_0 (1 << 2)
-#define HAL_TAU_PKT_NETIF_PROFILE_FLAGS_PATTERN_1 (1 << 3)
-#define HAL_TAU_PKT_NETIF_PROFILE_FLAGS_PATTERN_2 (1 << 4)
-#define HAL_TAU_PKT_NETIF_PROFILE_FLAGS_PATTERN_3 (1 << 5)
-    UI32_T                          flags;
+#define HAL_TAU_PKT_NETIF_PROFILE_FLAGS_PORT      (1UL << 0)
+#define HAL_TAU_PKT_NETIF_PROFILE_FLAGS_REASON    (1UL << 1)
+#define HAL_TAU_PKT_NETIF_PROFILE_FLAGS_PATTERN_0 (1UL << 2)
+#define HAL_TAU_PKT_NETIF_PROFILE_FLAGS_PATTERN_1 (1UL << 3)
+#define HAL_TAU_PKT_NETIF_PROFILE_FLAGS_PATTERN_2 (1UL << 4)
+#define HAL_TAU_PKT_NETIF_PROFILE_FLAGS_PATTERN_3 (1UL << 5)
+    UI32_T                              flags;
+
+    HAL_TAU_PKT_NETIF_RX_DST_TYPE_T     dst_type;
+#if defined(NETIF_EN_NETLINK)
+    HAL_TAU_PKT_NETIF_RX_DST_NETLINK_T  netlink;
+#endif
 
 } HAL_TAU_PKT_NETIF_PROFILE_T;
 
@@ -2141,6 +2163,13 @@ typedef enum
     HAL_TAU_PKT_IOCTL_TYPE_CLEAR_RX_CNT,
     /* port attribute */
     HAL_TAU_PKT_IOCTL_TYPE_SET_PORT_ATTR,
+#if defined(NETIF_EN_NETLINK)
+    HAL_TAU_PKT_IOCTL_TYPE_NL_SET_INTF_PROPERTY,
+    HAL_TAU_PKT_IOCTL_TYPE_NL_GET_INTF_PROPERTY,
+    HAL_TAU_PKT_IOCTL_TYPE_NL_CREATE_NETLINK,
+    HAL_TAU_PKT_IOCTL_TYPE_NL_DESTROY_NETLINK,
+    HAL_TAU_PKT_IOCTL_TYPE_NL_GET_NETLINK,
+#endif
     HAL_TAU_PKT_IOCTL_TYPE_LAST
 
 } HAL_TAU_PKT_IOCTL_TYPE_T;
@@ -2219,6 +2248,51 @@ typedef struct
 
 } HAL_TAU_PKT_IOCTL_PORT_COOKIE_T;
 
+#if defined(NETIF_EN_NETLINK)
+
+#define NPS_NETIF_NETLINK_NUM_MAX                   (256)
+#define NPS_NETIF_NETLINK_MC_GROUP_NUM_MAX          (32)
+
+typedef enum
+{
+    NPS_NETIF_INTF_PROPERTY_IGR_SAMPLING_RATE,
+    NPS_NETIF_INTF_PROPERTY_EGR_SAMPLING_RATE,
+    NPS_NETIF_INTF_PROPERTY_LAST
+} NPS_NETIF_INTF_PROPERTY_T;
+
+typedef struct
+{
+    C8_T                                name[NPS_NETIF_NAME_LEN];
+
+} NPS_NETIF_NETLINK_MC_GROUP_T;
+
+typedef struct
+{
+    UI32_T                              id;
+    C8_T                                name[NPS_NETIF_NAME_LEN];
+    NPS_NETIF_NETLINK_MC_GROUP_T        mc_group[NPS_NETIF_NETLINK_MC_GROUP_NUM_MAX];
+    UI32_T                              mc_group_num;
+
+} NPS_NETIF_NETLINK_T;
+
+typedef struct
+{
+    /* intf property */
+    UI32_T                          intf_id;
+    NPS_NETIF_INTF_PROPERTY_T       property;
+    UI32_T                          param0;
+    UI32_T                          param1;
+
+    /* netlink */
+    NPS_NETIF_NETLINK_T             netlink;
+
+    NPS_ERROR_NO_T                  rc;
+
+} HAL_TAU_PKT_NL_IOCTL_COOKIE_T;
+
+
+#endif  /* End of NETIF_EN_NETLINK */
+
 typedef union
 {
     UI32_T                          value;
@@ -2230,6 +2304,7 @@ typedef union
     } field;
 
 } HAL_TAU_PKT_IOCTL_CMD_T;
+
 
 #endif /* End of NPS_EN_NETIF */
 
