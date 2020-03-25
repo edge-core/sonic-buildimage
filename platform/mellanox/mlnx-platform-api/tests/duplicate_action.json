@@ -1,0 +1,18 @@
+{
+    "name": "any fan absence",
+    "conditions": [
+        { 
+            "type": "fan.any.absence"
+        }
+    ],
+    "actions": [
+        {
+            "type": "fan.all.set_speed",
+            "speed": "100"
+        },
+        {
+            "type": "fan.all.set_speed",
+            "speed": "100"
+        }
+    ]
+}

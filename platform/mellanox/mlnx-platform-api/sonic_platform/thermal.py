@@ -64,7 +64,8 @@ thermal_api_handler_psu = {
 }
 thermal_api_handler_gearbox = {
     THERMAL_API_GET_TEMPERATURE:"gearbox{}_temp_input",
-    THERMAL_API_GET_HIGH_THRESHOLD:None
+    THERMAL_API_GET_HIGH_THRESHOLD:None,
+    THERMAL_API_GET_HIGH_CRITICAL_THRESHOLD:None
 }
 thermal_ambient_apis = {
     THERMAL_DEV_ASIC_AMBIENT : "asic",
@@ -279,7 +280,7 @@ def initialize_thermals(sku, thermal_list, psu_list):
             else:
                 if category == THERMAL_DEV_CATEGORY_PSU:
                     for index in range(count):
-                        thermal = Thermal(category, start + index, True, psu_list[index].get_powergood_status, "power off")
+                        thermal = Thermal(category, start + index, True, psu_list[index].get_power_available_status)
                         thermal_list.append(thermal)
                 else:
                     for index in range(count):
@@ -289,7 +290,7 @@ def initialize_thermals(sku, thermal_list, psu_list):
 
 
 class Thermal(ThermalBase):
-    def __init__(self, category, index, has_index, dependency = None, hint = None):
+    def __init__(self, category, index, has_index, dependency = None):
         """
         index should be a string for category ambient and int for other categories
         """
@@ -308,7 +309,6 @@ class Thermal(ThermalBase):
         self.high_threshold = self._get_file_from_api(THERMAL_API_GET_HIGH_THRESHOLD)
         self.high_critical_threshold = self._get_file_from_api(THERMAL_API_GET_HIGH_CRITICAL_THRESHOLD)
         self.dependency = dependency
-        self.dependent_hint = hint
 
 
     def get_name(self):
@@ -360,13 +360,11 @@ class Thermal(ThermalBase):
             A float number of current temperature in Celsius up to nearest thousandth
             of one degree Celsius, e.g. 30.125 
         """
-        if self.dependency and not self.dependency():
-            if self.dependent_hint:
-                hint = self.dependent_hint
-            else:
-                hint = "unknown reason"
-            logger.log_info("get_temperature for {} failed due to {}".format(self.name, hint))
-            return None
+        if self.dependency:
+            status, hint = self.dependency()
+            if not status:
+                logger.log_debug("get_temperature for {} failed due to {}".format(self.name, hint))
+                return None
         value_str = self._read_generic_file(self.temperature, 0)
         if value_str is None:
             return None
@@ -386,6 +384,11 @@ class Thermal(ThermalBase):
         """
         if self.high_threshold is None:
             return None
+        if self.dependency:
+            status, hint = self.dependency()
+            if not status:
+                logger.log_debug("get_high_threshold for {} failed due to {}".format(self.name, hint))
+                return None
         value_str = self._read_generic_file(self.high_threshold, 0)
         if value_str is None:
             return None
@@ -405,6 +408,11 @@ class Thermal(ThermalBase):
         """
         if self.high_critical_threshold is None:
             return None
+        if self.dependency:
+            status, hint = self.dependency()
+            if not status:
+                logger.log_debug("get_high_critical_threshold for {} failed due to {}".format(self.name, hint))
+                return None
         value_str = self._read_generic_file(self.high_critical_threshold, 0)
         if value_str is None:
             return None

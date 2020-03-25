@@ -66,6 +66,12 @@ def test_psu_info():
     assert len(psu_info.get_presence_psus()) == 1
     assert psu_info.is_status_changed()
 
+    psu_list[0].powergood = False
+    psu_info.collect(chassis)
+    assert len(psu_info.get_absence_psus()) == 1
+    assert len(psu_info.get_presence_psus()) == 0
+    assert psu_info.is_status_changed()
+
 
 def test_fan_policy(thermal_manager):
     chassis = MockChassis()
@@ -269,4 +275,44 @@ def test_load_control_thermal_algo_action():
     with pytest.raises(ValueError):
         action.load_from_json(json_obj)
 
+def test_load_duplicate_condition():
+    from sonic_platform_base.sonic_thermal_control.thermal_policy import ThermalPolicy
+    with open(os.path.join(test_path, 'duplicate_condition.json')) as f:
+        json_obj = json.load(f)
+        policy = ThermalPolicy()
+        with pytest.raises(Exception):
+            policy.load_from_json(json_obj)
+
+def test_load_duplicate_action():
+    from sonic_platform_base.sonic_thermal_control.thermal_policy import ThermalPolicy
+    with open(os.path.join(test_path, 'duplicate_action.json')) as f:
+        json_obj = json.load(f)
+        policy = ThermalPolicy()
+        with pytest.raises(Exception):
+            policy.load_from_json(json_obj)
+
+def test_load_empty_condition():
+    from sonic_platform_base.sonic_thermal_control.thermal_policy import ThermalPolicy
+    with open(os.path.join(test_path, 'empty_condition.json')) as f:
+        json_obj = json.load(f)
+        policy = ThermalPolicy()
+        with pytest.raises(Exception):
+            policy.load_from_json(json_obj)
+
+def test_load_empty_action():
+    from sonic_platform_base.sonic_thermal_control.thermal_policy import ThermalPolicy
+    with open(os.path.join(test_path, 'empty_action.json')) as f:
+        json_obj = json.load(f)
+        policy = ThermalPolicy()
+        with pytest.raises(Exception):
+            policy.load_from_json(json_obj)
+
+def test_load_policy_with_same_conditions():
+    from sonic_platform_base.sonic_thermal_control.thermal_manager_base import ThermalManagerBase
+    class MockThermalManager(ThermalManagerBase):
+        pass
+
+    with pytest.raises(Exception):
+        MockThermalManager.load(os.path.join(test_path, 'policy_with_same_conditions.json'))
+    
 

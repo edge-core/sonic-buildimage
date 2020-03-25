@@ -13,9 +13,13 @@ class MockFan:
 class MockPsu:
     def __init__(self):
         self.presence = True
+        self.powergood = True
 
     def get_presence(self):
         return self.presence
+
+    def get_powergood_status(self):
+        return self.powergood
 
 
 class MockChassis:
