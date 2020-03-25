@@ -451,6 +451,10 @@ if [ -f files/image_config/ntp/ntp ]; then
     sudo cp ./files/image_config/ntp/ntp $FILESYSTEM_ROOT/etc/init.d/
 fi
 
+if [ -f files/image_config/ntp/ntp-systemd-wrapper ]; then
+    sudo cp ./files/image_config/ntp/ntp-systemd-wrapper $FILESYSTEM_ROOT/usr/lib/ntp/
+fi
+
 ## Version file
 sudo mkdir -p $FILESYSTEM_ROOT/etc/sonic
 sudo tee $FILESYSTEM_ROOT/etc/sonic/sonic_version.yml > /dev/null <<EOF
