@@ -213,8 +213,9 @@ if [ "$1" == "init" ]; then
     switch_board_modsel
     init_switch_port_led
     install_python_api_package
-    python /usr/bin/qsfp_irq_enable.py
+    python /usr/bin/port_irq_enable.py
     platform_firmware_versions
+
 
 elif [ "$1" == "deinit" ]; then
     sys_eeprom "delete_device"

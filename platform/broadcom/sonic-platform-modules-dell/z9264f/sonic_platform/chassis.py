@@ -16,10 +16,13 @@ try:
     from sonic_platform.eeprom import Eeprom
     from sonic_platform.component import Component
     from sonic_platform.psu import Psu
+    from sonic_platform.fan import Fan
     from sonic_platform.thermal import Thermal
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
+MAX_Z9264F_FANTRAY =4
+MAX_Z9264F_FAN = 2
 MAX_Z9264F_COMPONENT = 8 # BIOS,BMC,FPGA,SYSTEM CPLD,4 SLAVE CPLDs
 MAX_Z9264F_PSU = 2
 MAX_Z9264F_THERMAL = 8
@@ -66,7 +69,12 @@ class Chassis(ChassisBase):
         for i in range(MAX_Z9264F_PSU):
             psu = Psu(i)
             self._psu_list.append(psu)
-            
+
+        for i in range(MAX_Z9264F_FANTRAY):
+            for j in range(MAX_Z9264F_FAN):
+                fan = Fan(i,j)
+                self._fan_list.append(fan)
+
         for i in range(MAX_Z9264F_THERMAL):
             thermal = Thermal(i)
             self._thermal_list.append(thermal)
