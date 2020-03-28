@@ -265,12 +265,26 @@ platform_specific() {
         aboot_machine=arista_7060_cx32s
         flash_size=3700
     fi
+    if [ "$sid" = "UpperlakePlus" ]; then
+        aboot_machine=arista_7060cx2_32s
+        flash_size=3700
+    fi
     if [ "$sid" = "Gardena" ] || [ "$sid" = "GardenaE" ]; then
         aboot_machine=arista_7260cx3_64
         flash_size=28000
     fi
     if [ "$sid" = "Alhambra" ]; then
         aboot_machine=arista_7170_64c
+        flash_size=28000
+        echo "hugepages=128" >> /tmp/append
+    fi
+    if [ "$sid" = "Mineral" ]; then
+        aboot_machine=arista_7170_32c
+        flash_size=28000
+        echo "hugepages=128" >> /tmp/append
+    fi
+    if [ "$sid" = "MineralD" ]; then
+        aboot_machine=arista_7170_32cd
         flash_size=28000
         echo "hugepages=128" >> /tmp/append
     fi
@@ -379,7 +393,8 @@ write_boot_configs() {
 
     mkdir -p "$image_path"
     cat /tmp/append > $cmdline_image
-    [ -e ${target_path}/machine.conf ] || write_machine_config
+    [ -s ${target_path}/machine.conf ] || write_machine_config
+    sync
 }
 
 run_kexec() {
