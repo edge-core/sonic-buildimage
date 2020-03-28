@@ -41,8 +41,8 @@ class ProcDockerStats:
 
     def __init__(self):
         self.state_db = swsssdk.SonicV2Connector(host=REDIS_HOSTIP)
-        self.state_db.connect("STATE_DB") 
-    
+        self.state_db.connect("STATE_DB")
+
     def run_command(self, cmd):
         proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
         (stdout, stderr) = proc.communicate()
@@ -75,7 +75,7 @@ class ProcDockerStats:
             # To remove extra space before UID
             val = list(filter(None, values1))
             # Merging extra columns created due to space in cmd ouput
-            val[8:] = [''.join(val[8:])] 
+            val[8:] = [' '.join(val[8:])]
             process_data = dict(zip(keylist, val))
             process_data_list.append(process_data)
         return process_data_list
@@ -109,10 +109,10 @@ class ProcDockerStats:
         for row in dict_list[0:]:
             cid = row.get('CONTAINER ID')
             if cid:
-                key = 'DOCKER_STATS|' + str(cid) 
+                key = 'DOCKER_STATS|' + str(cid)
                 dockerdict[key] = {}
                 dockerdict[key]['NAME'] = row.get('NAME')
-                
+
                 splitcol = row.get('CPU %')
                 cpu = re.split("%", str(splitcol))
                 dockerdict[key]['CPU%'] = str(cpu[0])
@@ -131,7 +131,7 @@ class ProcDockerStats:
                 netio = re.split(" / ", str(splitcol))
                 dockerdict[key]['NET_IN_BYTES'] = str(self.convert_to_bytes(netio[0]))
                 dockerdict[key]['NET_OUT_BYTES'] = str(self.convert_to_bytes(netio[1]))
-                
+
                 splitcol = row.get('BLOCK I/O')
                 blockio = re.split(" / ", str(splitcol))
                 dockerdict[key]['BLOCK_IN_BYTES'] = str(self.convert_to_bytes(blockio[0]))
