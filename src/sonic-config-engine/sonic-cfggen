@@ -295,7 +295,7 @@ def main():
         template = jinja2.Template('{{' + args.var + '}}')
         print(template.render(data))
 
-    if args.var_json != None:
+    if args.var_json != None and args.var_json in data:
         if args.key != None:
             print(json.dumps(FormatConverter.to_serialized(data[args.var_json], args.key), indent=4, cls=minigraph_encoder))
         else:
