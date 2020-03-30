@@ -331,3 +331,13 @@ class TestCfgGen(TestCase):
                 output = subprocess.check_output("sed -i \'s/%s/%s/g\' %s" % (BACKEND_TOR_ROUTER, TOR_ROUTER, self.sample_graph_simple), shell=True)
 
             self.test_jinja_expression(self.sample_graph_simple, TOR_ROUTER)
+
+    def test_show_run_acl(self):
+        argument = '-a \'{"key1":"value"}\' --var-json ACL_RULE'
+        output = self.run_script(argument)
+        self.assertEqual(output, '')
+
+    def test_show_run_interfaces(self):
+        argument = '-a \'{"key1":"value"}\' --var-json INTERFACE'
+        output = self.run_script(argument)
+        self.assertEqual(output, '')
