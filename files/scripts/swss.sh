@@ -1,10 +1,7 @@
 #!/bin/bash
 
-SERVICE="swss"
-PEER="syncd"
-DEPENDENT="teamd radv dhcp_relay"
-DEBUGLOG="/tmp/swss-syncd-debug.log"
-LOCKFILE="/tmp/swss-syncd-lock"
+DEPENDENT="radv dhcp_relay"
+MULTI_INST_DEPENDENT="teamd"
 
 function debug()
 {
@@ -14,25 +11,25 @@ function debug()
 
 function lock_service_state_change()
 {
-    debug "Locking ${LOCKFILE} from ${SERVICE} service"
+    debug "Locking ${LOCKFILE} from ${SERVICE}$DEV service"
 
     exec {LOCKFD}>${LOCKFILE}
     /usr/bin/flock -x ${LOCKFD}
     trap "/usr/bin/flock -u ${LOCKFD}" 0 2 3 15
 
-    debug "Locked ${LOCKFILE} (${LOCKFD}) from ${SERVICE} service"
+    debug "Locked ${LOCKFILE} (${LOCKFD}) from ${SERVICE}$DEV service"
 }
 
 function unlock_service_state_change()
 {
-    debug "Unlocking ${LOCKFILE} (${LOCKFD}) from ${SERVICE} service"
+    debug "Unlocking ${LOCKFILE} (${LOCKFD}) from ${SERVICE}$DEV service"
     /usr/bin/flock -u ${LOCKFD}
 }
 
 function check_warm_boot()
 {
-    SYSTEM_WARM_START=`sonic-db-cli STATE_DB hget "WARM_RESTART_ENABLE_TABLE|system" enable`
-    SERVICE_WARM_START=`sonic-db-cli STATE_DB hget "WARM_RESTART_ENABLE_TABLE|${SERVICE}" enable`
+    SYSTEM_WARM_START=`sonic-netns-exec "$NET_NS" sonic-db-cli STATE_DB hget "WARM_RESTART_ENABLE_TABLE|system" enable`
+    SERVICE_WARM_START=`sonic-netns-exec "$NET_NS" sonic-db-cli STATE_DB hget "WARM_RESTART_ENABLE_TABLE|${SERVICE}" enable`
     if [[ x"$SYSTEM_WARM_START" == x"true" ]] || [[ x"$SERVICE_WARM_START" == x"true" ]]; then
         WARM_BOOT="true"
     else
@@ -43,7 +40,7 @@ function check_warm_boot()
 function validate_restore_count()
 {
     if [[ x"$WARM_BOOT" == x"true" ]]; then
-        RESTORE_COUNT=`sonic-db-cli STATE_DB hget "WARM_RESTART_TABLE|orchagent" restore_count`
+        RESTORE_COUNT=`sonic-netns-exec "$NET_NS" sonic-db-cli STATE_DB hget "WARM_RESTART_TABLE|orchagent" restore_count`
         # We have to make sure db data has not been flushed.
         if [[ -z "$RESTORE_COUNT" ]]; then
             WARM_BOOT="false"
@@ -54,10 +51,10 @@ function validate_restore_count()
 function wait_for_database_service()
 {
     # Wait for redis server start before database clean
-    /usr/bin/docker exec database ping_pong_db_insts
+    /usr/bin/docker exec database$DEV ping_pong_db_insts
 
     # Wait for configDB initialization
-    until [[ $(sonic-db-cli CONFIG_DB GET "CONFIG_DB_INITIALIZED") ]];
+    until [[ $(sonic-netns-exec "$NET_NS" sonic-db-cli CONFIG_DB GET "CONFIG_DB_INITIALIZED") ]];
         do sleep 1;
     done
 }
@@ -67,7 +64,7 @@ function wait_for_database_service()
 # $2 the string of a list of table prefixes
 function clean_up_tables()
 {
-    sonic-db-cli $1 EVAL "
+    sonic-netns-exec "$NET_NS" sonic-db-cli $1 EVAL "
     local tables = {$2}
     for i = 1, table.getn(tables) do
         local matches = redis.call('KEYS', tables[i])
@@ -81,9 +78,20 @@ start_peer_and_dependent_services() {
     check_warm_boot
 
     if [[ x"$WARM_BOOT" != x"true" ]]; then
-        /bin/systemctl start ${PEER}
+        if [[ ! -z $DEV ]]; then
+            /bin/systemctl start ${PEER}@$DEV
+        else
+           /bin/systemctl start ${PEER}
+        fi
         for dep in ${DEPENDENT}; do
             /bin/systemctl start ${dep}
+        done
+        for dep in ${MULTI_INST_DEPENDENT}; do
+            if [[ ! -z $DEV ]]; then
+                /bin/systemctl start ${dep}@$DEV
+            else
+                /bin/systemctl start ${dep}
+            fi
         done
     fi
 }
@@ -91,15 +99,27 @@ start_peer_and_dependent_services() {
 stop_peer_and_dependent_services() {
     # if warm start enabled or peer lock exists, don't stop peer service docker
     if [[ x"$WARM_BOOT" != x"true" ]]; then
-        /bin/systemctl stop ${PEER}
+        if [[ ! -z $DEV ]]; then
+            /bin/systemctl stop ${PEER}@$DEV
+        else
+            /bin/systemctl stop ${PEER}
+        fi
         for dep in ${DEPENDENT}; do
             /bin/systemctl stop ${dep}
         done
+        for dep in ${MULTI_INST_DEPENDENT}; do
+            if [[ ! -z $DEV ]]; then
+                /bin/systemctl stop ${dep}@$DEV
+            else
+                /bin/systemctl stop ${dep}
+            fi
+        done
+
     fi
 }
 
 start() {
-    debug "Starting ${SERVICE} service..."
+    debug "Starting ${SERVICE}$DEV service..."
 
     lock_service_state_change
 
@@ -107,21 +127,21 @@ start() {
     check_warm_boot
     validate_restore_count
 
-    debug "Warm boot flag: ${SERVICE} ${WARM_BOOT}."
+    debug "Warm boot flag: ${SERVICE}$DEV ${WARM_BOOT}."
 
     # Don't flush DB during warm boot
     if [[ x"$WARM_BOOT" != x"true" ]]; then
         debug "Flushing APP, ASIC, COUNTER, CONFIG, and partial STATE databases ..."
-        sonic-db-cli APPL_DB FLUSHDB
-        sonic-db-cli ASIC_DB FLUSHDB
-        sonic-db-cli COUNTERS_DB FLUSHDB
-        sonic-db-cli FLEX_COUNTER_DB FLUSHDB
+        sonic-netns-exec "$NET_NS" sonic-db-cli APPL_DB FLUSHDB
+        sonic-netns-exec "$NET_NS" sonic-db-cli ASIC_DB FLUSHDB
+        sonic-netns-exec "$NET_NS" sonic-db-cli COUNTERS_DB FLUSHDB
+        sonic-netns-exec "$NET_NS" sonic-db-cli FLEX_COUNTER_DB FLUSHDB
         clean_up_tables STATE_DB "'PORT_TABLE*', 'MGMT_PORT_TABLE*', 'VLAN_TABLE*', 'VLAN_MEMBER_TABLE*', 'LAG_TABLE*', 'LAG_MEMBER_TABLE*', 'INTERFACE_TABLE*', 'MIRROR_SESSION*', 'VRF_TABLE*', 'FDB_TABLE*'"
     fi
 
     # start service docker
-    /usr/bin/${SERVICE}.sh start
-    debug "Started ${SERVICE} service..."
+    /usr/bin/${SERVICE}.sh start $DEV
+    debug "Started ${SERVICE}$DEV service..."
 
     # Unlock has to happen before reaching out to peer service
     unlock_service_state_change
@@ -134,7 +154,11 @@ wait() {
     # NOTE: This assumes Docker containers share the same names as their
     # corresponding services
     for SECS in {1..60}; do
-        RUNNING=$(docker inspect -f '{{.State.Running}}' ${PEER})
+        if [[ ! -z $DEV ]]; then
+            RUNNING=$(docker inspect -f '{{.State.Running}}' ${PEER}$DEV)
+        else
+            RUNNING=$(docker inspect -f '{{.State.Running}}' ${PEER})
+        fi
         if [[ x"$RUNNING" == x"true" ]]; then
             break
         else
@@ -144,20 +168,24 @@ wait() {
 
     # NOTE: This assumes Docker containers share the same names as their
     # corresponding services
-    /usr/bin/docker-wait-any ${SERVICE} ${PEER}
+    if [[ ! -z $DEV ]]; then
+        /usr/bin/docker-wait-any ${SERVICE}$DEV ${PEER}$DEV
+    else
+        /usr/bin/docker-wait-any ${SERVICE} ${PEER}
+    fi
 }
 
 stop() {
-    debug "Stopping ${SERVICE} service..."
+    debug "Stopping ${SERVICE}$DEV service..."
 
     [[ -f ${LOCKFILE} ]] || /usr/bin/touch ${LOCKFILE}
 
     lock_service_state_change
     check_warm_boot
-    debug "Warm boot flag: ${SERVICE} ${WARM_BOOT}."
+    debug "Warm boot flag: ${SERVICE}$DEV ${WARM_BOOT}."
 
-    /usr/bin/${SERVICE}.sh stop
-    debug "Stopped ${SERVICE} service..."
+    /usr/bin/${SERVICE}.sh stop $DEV
+    debug "Stopped ${SERVICE}$DEV service..."
 
     # Flush FAST_REBOOT table when swss needs to stop. The only
     # time when this would take effect is when fast-reboot
@@ -171,6 +199,18 @@ stop() {
 
     stop_peer_and_dependent_services
 }
+
+DEV=$2
+
+SERVICE="swss"
+PEER="syncd"
+DEBUGLOG="/tmp/swss-syncd-debug$DEV.log"
+LOCKFILE="/tmp/swss-syncd-lock$DEV"
+if [ "$DEV" ]; then
+    NET_NS="asic$DEV" #name of the network namespace
+else
+    NET_NS=""   
+fi
 
 case "$1" in
     start|wait|stop)

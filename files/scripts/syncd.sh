@@ -1,9 +1,5 @@
 #!/bin/bash
 
-SERVICE="syncd"
-PEER="swss"
-DEBUGLOG="/tmp/swss-syncd-debug.log"
-LOCKFILE="/tmp/swss-syncd-lock"
 
 function debug()
 {
@@ -13,25 +9,25 @@ function debug()
 
 function lock_service_state_change()
 {
-    debug "Locking ${LOCKFILE} from ${SERVICE} service"
+    debug "Locking ${LOCKFILE} from ${SERVICE}$DEV service"
 
     exec {LOCKFD}>${LOCKFILE}
     /usr/bin/flock -x ${LOCKFD}
     trap "/usr/bin/flock -u ${LOCKFD}" 0 2 3 15
 
-    debug "Locked ${LOCKFILE} (${LOCKFD}) from ${SERVICE} service"
+    debug "Locked ${LOCKFILE} (${LOCKFD}) from ${SERVICE}$DEV service"
 }
 
 function unlock_service_state_change()
 {
-    debug "Unlocking ${LOCKFILE} (${LOCKFD}) from ${SERVICE} service"
+    debug "Unlocking ${LOCKFILE} (${LOCKFD}) from ${SERVICE}$DEV service"
     /usr/bin/flock -u ${LOCKFD}
 }
 
 function check_warm_boot()
 {
-    SYSTEM_WARM_START=`sonic-db-cli STATE_DB hget "WARM_RESTART_ENABLE_TABLE|system" enable`
-    SERVICE_WARM_START=`sonic-db-cli STATE_DB hget "WARM_RESTART_ENABLE_TABLE|${SERVICE}" enable`
+    SYSTEM_WARM_START=`sonic-netns-exec "$NET_NS" sonic-db-cli STATE_DB hget "WARM_RESTART_ENABLE_TABLE|system" enable`
+    SERVICE_WARM_START=`sonic-netns-exec "$NET_NS" sonic-db-cli STATE_DB hget "WARM_RESTART_ENABLE_TABLE|${SERVICE}" enable`
     # SYSTEM_WARM_START could be empty, always make WARM_BOOT meaningful.
     if [[ x"$SYSTEM_WARM_START" == x"true" ]] || [[ x"$SERVICE_WARM_START" == x"true" ]]; then
         WARM_BOOT="true"
@@ -43,10 +39,10 @@ function check_warm_boot()
 function wait_for_database_service()
 {
     # Wait for redis server start before database clean
-    /usr/bin/docker exec database ping_pong_db_insts
+    /usr/bin/docker exec database$DEV ping_pong_db_insts
 
     # Wait for configDB initialization
-    until [[ $(sonic-db-cli CONFIG_DB GET "CONFIG_DB_INITIALIZED") ]];
+    until [[ $(sonic-netns-exec "$NET_NS" sonic-db-cli CONFIG_DB GET "CONFIG_DB_INITIALIZED") ]];
         do sleep 1;
     done
 }
@@ -63,7 +59,7 @@ function getBootType()
         ;;
     *SONIC_BOOT_TYPE=fast*|*fast-reboot*)
         # check that the key exists
-        if [[ $(sonic-db-cli STATE_DB GET "FAST_REBOOT|system") == "1" ]]; then
+        if [[ $(sonic-netns-exec "$NET_NS" sonic-db-cli STATE_DB GET "FAST_REBOOT|system") == "1" ]]; then
             TYPE='fast'
         else
             TYPE='cold'
@@ -76,7 +72,7 @@ function getBootType()
 }
 
 start() {
-    debug "Starting ${SERVICE} service..."
+    debug "Starting ${SERVICE}$DEV service..."
 
     lock_service_state_change
 
@@ -85,7 +81,7 @@ start() {
     wait_for_database_service
     check_warm_boot
 
-    debug "Warm boot flag: ${SERVICE} ${WARM_BOOT}."
+    debug "Warm boot flag: ${SERVICE}$DEV ${WARM_BOOT}."
 
     if [[ x"$WARM_BOOT" == x"true" ]]; then
         # Leave a mark for syncd scripts running inside docker.
@@ -127,7 +123,7 @@ start() {
     fi
 
     # start service docker
-    /usr/bin/${SERVICE}.sh start
+    /usr/bin/${SERVICE}.sh start $DEV
     debug "Started ${SERVICE} service..."
 
     unlock_service_state_change
@@ -139,15 +135,15 @@ wait() {
         /bin/systemctl start pmon
         debug "Started pmon service"
     fi
-    /usr/bin/${SERVICE}.sh wait
+    /usr/bin/${SERVICE}.sh wait $DEV
 }
 
 stop() {
-    debug "Stopping ${SERVICE} service..."
+    debug "Stopping ${SERVICE}$DEV service..."
 
     lock_service_state_change
     check_warm_boot
-    debug "Warm boot flag: ${SERVICE} ${WARM_BOOT}."
+    debug "Warm boot flag: ${SERVICE}$DEV ${WARM_BOOT}."
 
     if [[ x"$WARM_BOOT" == x"true" ]]; then
         TYPE=warm
@@ -163,19 +159,19 @@ stop() {
 
     if [[ x$sonic_asic_platform != x"mellanox" ]] || [[ x$TYPE != x"cold" ]]; then
         debug "${TYPE} shutdown syncd process ..."
-        /usr/bin/docker exec -i syncd /usr/bin/syncd_request_shutdown --${TYPE}
+        /usr/bin/docker exec -i syncd$DEV /usr/bin/syncd_request_shutdown --${TYPE}
 
         # wait until syncd quits gracefully
-        while docker top syncd | grep -q /usr/bin/syncd; do
+        while docker top syncd$DEV | grep -q /usr/bin/syncd; do
             sleep 0.1
         done
 
-        /usr/bin/docker exec -i syncd /bin/sync
+        /usr/bin/docker exec -i syncd$DEV /bin/sync
         debug "Finished ${TYPE} shutdown syncd process ..."
     fi
 
-    /usr/bin/${SERVICE}.sh stop
-    debug "Stopped ${SERVICE} service..."
+    /usr/bin/${SERVICE}.sh stop $DEV
+    debug "Stopped ${SERVICE}$DEV service..."
 
     # platform specific tasks
 
@@ -191,6 +187,19 @@ stop() {
 
     unlock_service_state_change
 }
+
+OP=$1
+DEV=$2
+
+SERVICE="syncd"
+PEER="swss"
+DEBUGLOG="/tmp/swss-syncd-debug$DEV.log"
+LOCKFILE="/tmp/swss-syncd-lock$DEV"
+if [ "$DEV" ]; then
+    NET_NS="asic$DEV" #name of the network namespace
+else
+    NET_NS=""
+fi
 
 case "$1" in
     start|wait|stop)
