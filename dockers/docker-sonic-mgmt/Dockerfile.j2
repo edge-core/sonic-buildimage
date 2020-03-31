@@ -53,6 +53,7 @@ RUN pip install ipaddr \
                 paramiko==2.1.2 \
                 passlib \
                 ipython==5.4.1 \
+                virtualenv \
     && git clone https://github.com/p4lang/scapy-vxlan.git \
     && cd scapy-vxlan \
     && python setup.py install \
@@ -146,5 +147,9 @@ RUN azure-cli_bundle_*/installer
 # Temporary fix: upgrade the azure-keyvault package within az cli
 # TODO: if azure-cli contains newer version azure-keyvault, remove this
 RUN ~/lib/azure-cli/bin/python -m pip install azure-keyvault==0.3.7 -U
+
+# Install Virtual Environment
+RUN python -m virtualenv --system-site-packages env-201803
+RUN env-201811/bin/pip install ansible==2.0.0.2
 
 RUN git clone https://github.com/Azure/sonic-mgmt
