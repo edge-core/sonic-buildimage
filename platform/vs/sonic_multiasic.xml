@@ -1,7 +1,7 @@
 <domain type='kvm' xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>
   <name>sonic</name>
   <memory unit='GB'>8</memory>
-  <vcpu placement='static'>2</vcpu>
+  <vcpu placement='static'>8</vcpu>
   <resource>
     <partition>/machine</partition>
   </resource>
