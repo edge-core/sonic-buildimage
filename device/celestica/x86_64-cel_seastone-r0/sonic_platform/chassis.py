@@ -19,7 +19,6 @@ try:
     from sonic_platform.fan import Fan
     from sonic_platform.psu import Psu
     from sonic_platform.component import Component
-    from sonic_platform.watchdog import Watchdog
     from sonic_platform.thermal import Thermal
     from sonic_platform.sfp import Sfp
     from sonic_platform.eeprom import Tlv
@@ -56,14 +55,15 @@ class Chassis(ChassisBase):
         for index in range(0, NUM_THERMAL):
             thermal = Thermal(index)
             self._thermal_list.append(thermal)
-        for index in range(0, NUM_SFP):
+        # sfp index start from 1
+        self._sfp_list.append(None)
+        for index in range(1, NUM_SFP+1):
             sfp = Sfp(index)
             self._sfp_list.append(sfp)
         for index in range(0, NUM_COMPONENT):
             component = Component(index)
             self._component_list.append(component)
 
-        self._watchdog = Watchdog()
         self._eeprom = Tlv()
 
     def __is_host(self):
@@ -146,3 +146,16 @@ class Chassis(ChassisBase):
             description = 'Unknown reason'
 
         return (reboot_cause, description)
+
+    def get_watchdog(self):
+        """
+        Retreives hardware watchdog device on this chassis
+        Returns:
+            An object derived from WatchdogBase representing the hardware
+            watchdog device
+        """
+        if self._watchdog is None:
+            from sonic_platform.watchdog import Watchdog
+            self._watchdog = Watchdog()
+
+        return self._watchdog

@@ -100,7 +100,7 @@ class Sfp(SfpBase):
     def __init__(self, sfp_index):
         # Init index
         self.index = sfp_index
-        self.port_num = self.index + 1 if self.PORT_START == 1 else index
+        self.port_num = self.index
 
         # Init eeprom path
         eeprom_path = '/sys/bus/i2c/devices/i2c-{0}/{0}-0050/eeprom'
