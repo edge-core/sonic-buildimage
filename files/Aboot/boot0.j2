@@ -216,9 +216,31 @@ EOF
     chmod a+r "${target_path}/machine.conf"
 }
 
+in_array() {
+    local value="$1"
+    shift
+
+    for other in $@; do
+        if [ "$value" = "$other" ]; then
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+read_system_eeprom() {
+    if [ -x /bin/readprefdl ]; then
+        readprefdl -f /tmp/.system-prefdl -d > $target_path/.system-prefdl
+    elif [ -f /etc/prefdl ]; then
+        cp /etc/prefdl $target_path/.system-prefdl
+        chmod a+r $target_path/.system-prefdl
+    fi
+}
+
 platform_specific() {
-    local platform="$(grep -Eo 'platform=[^ ]+' "$cmdline_base" | cut -f2 -d=)"
-    local sid="$(grep -Eo 'sid=[^ ]+' "$cmdline_base" | cut -f2 -d=)"
+    local platform="$(sed -nr 's/.*platform=([^ ]+).*/\1/p' "$cmdline_base")"
+    local sid="$(sed -nr 's/.*sid=([^ ]+).*/\1/p' "$cmdline_base" | sed 's/Ssd$//')"
 
     # set varlog size to 100MB
     local varlog_size=100
@@ -227,30 +249,48 @@ platform_specific() {
     local flash_size=$(($(df | grep -E "$flash_re" | tr -s ' ' | cut -f2 -d' ') / 1000))
 
     if [ "$platform" = "raven" ]; then
+        # Assuming sid=Cloverdale
         aboot_machine=arista_7050_qx32
         flash_size=2000
         docker_inram=on
         echo "modprobe.blacklist=radeon,sp5100_tco acpi=off docker_inram=on" >>/tmp/append
     fi
     if [ "$platform" = "crow" ]; then
+        # Assuming sid=Clearlake
         aboot_machine=arista_7050_qx32s
         flash_size=3700
         echo "modprobe.blacklist=radeon,sp5100_tco" >>/tmp/append
     fi
-    if [ "$sid" = "Upperlake" ] || [ "$sid" = "UpperlakeES" ] ||
-       [ "$sid" = "UpperlakeSsd" ]; then
+    if [ "$sid" = "Upperlake" ] || [ "$sid" = "UpperlakeES" ]; then
         aboot_machine=arista_7060_cx32s
         flash_size=3700
-        echo "amd_iommu=off" >> /tmp/append
     fi
-    if [ "$sid" = "Gardena" ] || [ "$sid" = "GardenaSsd" ]; then
+    if [ "$sid" = "UpperlakePlus" ]; then
+        aboot_machine=arista_7060cx2_32s
+        flash_size=3700
+    fi
+    if [ "$sid" = "Gardena" ] || [ "$sid" = "GardenaE" ]; then
         aboot_machine=arista_7260cx3_64
         flash_size=28000
     fi
-    if [ "$sid" = "Alhambra" ] || [ "$sid" = "AlhambraSsd" ]; then
+    if [ "$sid" = "Alhambra" ]; then
         aboot_machine=arista_7170_64c
         flash_size=28000
         echo "hugepages=128" >> /tmp/append
+    fi
+    if [ "$sid" = "Mineral" ]; then
+        aboot_machine=arista_7170_32c
+        flash_size=28000
+        echo "hugepages=128" >> /tmp/append
+    fi
+    if [ "$sid" = "MineralD" ]; then
+        aboot_machine=arista_7170_32cd
+        flash_size=28000
+        echo "hugepages=128" >> /tmp/append
+    fi
+    if [ "$sid" = "Lodoga" ]; then
+        aboot_machine=arista_7050cx3_32s
+        flash_size=3700
     fi
     if [ "$sid" = "BlackhawkO" ]; then
         aboot_machine=arista_7060px4_32
@@ -260,40 +300,30 @@ platform_specific() {
         aboot_machine=arista_7060dx4_32
         flash_size=28000
     fi
-    if [ "$sid" = "Smartsville" ] || [ "$sid" = "SmartsvilleSsd" ]; then
+    if [ "$sid" = "Smartsville" ]; then
         aboot_machine=arista_7280cr3_32p4
         flash_size=7382
     fi
-    if [ "$sid" = "SmartsvilleBK" ] || [ "$sid" = "SmartsvilleBKSsd" ]; then
+    if [ "$sid" = "SmartsvilleBK" ]; then
         aboot_machine=arista_7280cr3k_32p4
         flash_size=7382
     fi
-    if [ "$sid" = "SmartsvilleDD" ] || [ "$sid" = "SmartsvilleDDSsd" ]; then
+    if [ "$sid" = "SmartsvilleDD" ]; then
         aboot_machine=arista_7280cr3_32d4
         flash_size=7382
     fi
-    if [ "$sid" = "Lodoga" ] || [ "$sid" = "LodogaSsd" ]; then
-        aboot_machine=arista_7050cx3_32s
-        flash_size=3700
-        echo "amd_iommu=off" >> /tmp/append
-    fi
-    if [ "$platform" = "rook" ] || [ "$platform" = "magpie" ] ||
-       [ "$platform" = "woodpecker" ]; then
+    if in_array "$platform" "rook" "magpie" "woodpecker"; then
         echo "tsc=reliable pcie_ports=native" >>/tmp/append
         echo "rhash_entries=1 usb-storage.delay_use=0" >>/tmp/append
-        if [ -x /bin/readprefdl ]; then
-           readprefdl -f /tmp/.system-prefdl -d > /mnt/flash/.system-prefdl
-        elif [ -f /etc/prefdl ]; then
-           cp /etc/prefdl /mnt/flash/.system-prefdl
-           chmod a+r /mnt/flash/.system-prefdl
-        fi
         echo "reassign_prefmem" >> /tmp/append
     fi
-    if [ "$platform" = "rook" ] || [ "$platform" = "magpie" ]; then
+    if in_array "$platform" "rook"; then
         echo "iommu=on intel_iommu=on" >>/tmp/append
+        read_system_eeprom
     fi
-    if [ "$platform" = "woodpecker" ]; then
+    if in_array "$platform" "crow" "woodpecker" "magpie"; then
         echo "amd_iommu=off modprobe.blacklist=snd_hda_intel,hdaudio" >> /tmp/append
+        read_system_eeprom
     fi
 
     if [ $flash_size -ge 28000 ]; then
@@ -363,7 +393,8 @@ write_boot_configs() {
 
     mkdir -p "$image_path"
     cat /tmp/append > $cmdline_image
-    [ -e ${target_path}/machine.conf ] || write_machine_config
+    [ -s ${target_path}/machine.conf ] || write_machine_config
+    sync
 }
 
 run_kexec() {
