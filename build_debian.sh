@@ -366,6 +366,12 @@ EOF
 sudo sed -i 's/^ListenAddress ::/#ListenAddress ::/' $FILESYSTEM_ROOT/etc/ssh/sshd_config
 sudo sed -i 's/^#ListenAddress 0.0.0.0/ListenAddress 0.0.0.0/' $FILESYSTEM_ROOT/etc/ssh/sshd_config
 
+## Config rsyslog
+sudo augtool -r $FILESYSTEM_ROOT --autosave "
+rm /files/lib/systemd/system/rsyslog.service/Service/ExecStart/arguments
+set /files/lib/systemd/system/rsyslog.service/Service/ExecStart/arguments/1 -n
+"
+
 ## Config sysctl
 sudo mkdir -p $FILESYSTEM_ROOT/var/core
 sudo augtool --autosave "
