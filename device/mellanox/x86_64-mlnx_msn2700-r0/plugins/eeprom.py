@@ -21,6 +21,7 @@ try:
     from cStringIO import StringIO
     from sonic_eeprom import eeprom_base
     from sonic_eeprom import eeprom_tlvinfo
+    from sonic_device_util import get_machine_info
     import subprocess
 except ImportError, e:
     raise ImportError (str(e) + "- required module not found")
@@ -34,6 +35,14 @@ def log_error(msg):
     syslog.syslog(syslog.LOG_ERR, msg)
     syslog.closelog()
 
+
+machine_info = get_machine_info()
+onie_platform = machine_info['onie_platform']
+if 'simx' in onie_platform:
+    platform_path = os.path.join('/usr/share/sonic/device', onie_platform)
+    subprocess.check_call(['/usr/bin/xxd', '-r', '-p', 'syseeprom.hex', 'syseeprom.bin'], cwd=platform_path)
+    CACHE_FILE = os.path.join(platform_path, 'syseeprom.bin')
+
 class board(eeprom_tlvinfo.TlvInfoDecoder):
 
     _TLV_INFO_MAX_LEN = 256
@@ -45,12 +54,12 @@ class board(eeprom_tlvinfo.TlvInfoDecoder):
                 time.sleep(1)
             else:
                 break  
-                      
+
         if not (os.path.exists(EEPROM_SYMLINK) or os.path.isfile(CACHE_FILE)):
             log_error("Nowhere to read syseeprom from! No symlink or cache file found")
             raise RuntimeError("No syseeprom symlink or cache file found")
 
-        self.eeprom_path = EEPROM_SYMLINK
+        self.eeprom_path = EEPROM_SYMLINK if 'simx' not in onie_platform else CACHE_FILE
         super(board, self).__init__(self.eeprom_path, 0, '', True)
 
     def decode_eeprom(self, e):
@@ -60,3 +69,4 @@ class board(eeprom_tlvinfo.TlvInfoDecoder):
         decode_output = sys.stdout.getvalue()
         sys.stdout = original_stdout
         print(decode_output.replace('\0', ''))
+
