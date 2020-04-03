@@ -272,6 +272,8 @@ class BGPPeerMgr(Manager):
             [
                 ("meta", "localhost/bgp_asn"),
                 ("neigmeta", ""),
+                ("local_addresses", ""),
+                ("interfaces", ""),
             ],
             "CONFIG_DB",
             swsscommon.CFG_BGP_NEIGHBOR_TABLE_NAME
@@ -290,8 +292,42 @@ class BGPPeerMgr(Manager):
         vrf, nbr = key.split('|', 1)
         if key not in self.peers:
             cmd = None
+
+            if "local_addr" not in data:
+                syslog.syslog(syslog.LOG_WARNING, 'Peer {}. Error in missing required attribute "local_addr"'.format(key))
+            else:
+                # The bgp session that belongs to a vnet cannot be advertised as the default BGP session.
+                # So we need to check whether this bgp session belongs to a vnet.
+                interface = InterfaceMgr.get_local_interface(self.directory, data["local_addr"])
+                if not interface:
+                    syslog.syslog(syslog.LOG_INFO,
+                            'Peer {} with local address {} wait for the corresponding interface to be set'.format(
+                                key,
+                                data["local_addr"]
+                            )
+                        )
+                    return False
+                vnet = InterfaceMgr.get_vnet(interface)
+                if vnet:
+                    # Ignore the bgp session that is in a vnet
+                    syslog.syslog(
+                            syslog.LOG_INFO,
+                            'Ignore the BGP peer {} as the interface {} is in vnet {}'.format(
+                                key,
+                                interface,
+                                vnet
+                            )
+                        )
+                    return True
+
             neigmeta = self.directory.get_slot("neigmeta")
             if 'name' in data and data["name"] not in neigmeta:
+                syslog.syslog(syslog.LOG_INFO,
+                        'Peer {} with neighbor name {} wait for the corresponding neighbor metadata to be set'.format(
+                            key,
+                            data["name"]
+                        )
+                    )
                 return False
             try:
                 cmd = self.templates["add"].render(
@@ -390,6 +426,121 @@ class BGPPeerMgr(Manager):
         return peers
 
 
+class InterfaceMgr(Manager):
+    def __init__(self, daemon, directory, interface_table = swsscommon.CFG_INTF_TABLE_NAME):
+        super(InterfaceMgr, self).__init__(
+            daemon,
+            directory,
+            [],
+            "CONFIG_DB",
+            interface_table
+        )
+
+    def set_handler(self, key, data):
+        # Interface table can have two keys, 
+        # one with ip prefix and one without ip prefix
+        if '|' in key:
+            data = {}
+            data["interface"], network = key.split('|', 1)
+            try:
+                network = netaddr.IPNetwork(str(network))
+            except:
+                syslog.syslog(
+                        syslog.LOG_WARNING,
+                        'Subnet {} format is wrong for interface {}'.format(
+                            network,
+                            data["interface"]
+                        )
+                    )
+                return False
+            data["prefixlen"] = str(network.prefixlen)
+            ip = str(network.ip)
+            self.directory.put("local_addresses", ip, data)
+        else:
+            self.directory.put("interfaces", key, data)
+        return True
+
+    def del_handler(self, key):
+        if '|' in key:
+            interface, network = key.split('|', 1)
+            try:
+                network = netaddr.IPNetwork(str(network))
+            except:
+                syslog.syslog(
+                        syslog.LOG_WARNING,
+                        'Subnet {} format is wrong for interface {}'.format(
+                            network,
+                            interface
+                        )
+                    )
+                return False
+            ip = str(network.ip)
+            self.directory.remove("local_addresses", ip)
+        else:
+            self.directory.remove("interfaces", key)
+
+    @staticmethod
+    def get_local_interface(directory, local_addr):
+        """
+        @summary: Get interface according to the local address from the directory
+        @param directory: Directory object that stored metadata of interfaces
+        @param local_addr: Local address of the interface
+        @return: Return the metadata of the interface with the local address
+                 If the interface has not been set, return None
+        """
+        local_addresses = directory.get_slot("local_addresses")
+        # Check if the local address of this bgp session has been set
+        if local_addr not in local_addresses:
+            return None
+        local_address = local_addresses[local_addr]
+        interfaces = directory.get_slot("interfaces")
+        # Check if the information for the interface of this local address has been set
+        if local_address.has_key("interface") and local_address["interface"] in interfaces:
+            return interfaces[local_address["interface"]]
+        else:
+            return None
+
+    @staticmethod
+    def get_vnet(interface):
+        """
+        @summary: Get the VNet name of the interface
+        @param interface: The metadata of the interface
+        @return: Return the vnet name of the interface if this interface belongs to a vnet,
+                 Otherwise return None
+        """
+        if interface.has_key("vnet_name") and interface["vnet_name"]:
+            return interface["vnet_name"]
+        else:
+            return None
+
+
+class LoopbackInterfaceMgr(InterfaceMgr):
+    def __init__(self, daemon, directory):
+        super(LoopbackInterfaceMgr, self).__init__(
+            daemon,
+            directory,
+            swsscommon.CFG_LOOPBACK_INTERFACE_TABLE_NAME
+        )
+
+
+class VlanInterfaceMgr(InterfaceMgr):
+    def __init__(self, daemon, directory):
+        super(VlanInterfaceMgr, self).__init__(
+            daemon,
+            directory,
+            swsscommon.CFG_VLAN_INTF_TABLE_NAME
+        )
+
+
+class PortChannelInterfaceMgr(InterfaceMgr):
+    def __init__(self, daemon, directory):
+        super(PortChannelInterfaceMgr, self).__init__(
+            daemon,
+            directory,
+            swsscommon.CFG_LAG_INTF_TABLE_NAME
+        )
+
+
 def wait_for_bgpd():
     # wait for 20 seconds
     stop_time = datetime.datetime.now() + datetime.timedelta(seconds=20)
@@ -408,6 +559,10 @@ def main():
         BGPDeviceMetaMgr,
         BGPNeighborMetaMgr,
         BGPPeerMgr,
+        InterfaceMgr,
+        LoopbackInterfaceMgr,
+        VlanInterfaceMgr,
+        PortChannelInterfaceMgr,
     ]
     wait_for_bgpd()
     daemon = Daemon()
