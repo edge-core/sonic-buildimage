@@ -1,5 +1,2 @@
-SAI_WARM_BOOT_READ_FILE=/var/cache/sai_warmboot.bin
-SAI_WARM_BOOT_WRITE_FILE=/var/cache/sai_warmboot.bin
-SAI_VS_SWITCH_TYPE=SAI_VS_SWITCH_TYPE_BCM56850
-SAI_VS_HOSTIF_USE_TAP_DEVICE=true
-SAI_VS_INTERFACE_LANE_MAP_FILE=/usr/share/sonic/hwsku/lanemap.ini
+SAI_INIT_CONFIG_FILE=/usr/share/sonic/hwsku/td2-s6000-32x40G.config.bcm
+SAI_NUM_ECMP_MEMBERS=32

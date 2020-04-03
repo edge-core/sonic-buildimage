@@ -23,20 +23,6 @@ route-map TO_BGP_PEER_V4 permit 100
 !
 route-map TO_BGP_PEER_V6 permit 100
 !
-{% if DEVICE_METADATA['localhost']['type'] == 'InternalFrontend' %}
-route-map HIDE_INTERNAL permit 10
-  set community local-AS
-!
-{% endif %}
-{% if DEVICE_METADATA['localhost']['type'] == 'InternalBackend' %}
-route-map OVERRIDE_ORIGINATOR_ID permit 10
-{% for (name, prefix) in LOOPBACK_INTERFACE|pfx_filter %}
-{% if prefix | ipv4 and name == 'Loopback0' %}
-  set originator-id {{ prefix | ip }}
-{% endif %}
-{% endfor %}
-!
-{% endif %}
 {% if BGP_MONITORS is defined and BGP_MONITORS|length > 0 %}
 route-map FROM_BGPMON deny 10
 !
@@ -51,9 +37,6 @@ route-map set-next-hop-global-v6 permit 10
   set ipv6 next-hop prefer-global
 !
 router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
-{% if DEVICE_METADATA['localhost']['type'] == 'InternalFrontend' %}
-  redistribute connected route-map HIDE_INTERNAL
-{% endif %}
   bgp log-neighbor-changes
   bgp bestpath as-path multipath-relax
   no bgp default ipv4-unicast
@@ -168,9 +151,6 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
   neighbor {{ neighbor_addr }} peer-group BGPMON
   neighbor {{ neighbor_addr }} description {{ bgp_session['name'] }}
   neighbor {{ neighbor_addr }} activate
-{% if DEVICE_METADATA['localhost']['type'] == 'InternalBackend' %}
-  neighbor {{ neighbor_addr }} route-map OVERRIDE_ORIGINATOR_ID in
-{% endif %}
   address-family ipv6
     neighbor {{ neighbor_addr }} activate
   exit-address-family
