@@ -115,6 +115,10 @@ SONIC_DPKG_CACHE_SOURCE ?= /var/cache/sonic/artifacts
 # Default VS build memory preparation
 DEFAULT_VS_PREPARE_MEM = yes
 
+
+# ENABLE_ICCPD - build docker-iccpd for mclag support
+ENABLE_ICCPD = y
+
 # ENABLE_SYSTEM_SFLOW - build docker-sonic-sflow for sFlow support
 ENABLE_SFLOW = y
 
@@ -126,3 +130,4 @@ ENABLE_RESTAPI = n
 
 # ENABLE_NAT - build docker-sonic-nat for nat support
 ENABLE_NAT = y
+

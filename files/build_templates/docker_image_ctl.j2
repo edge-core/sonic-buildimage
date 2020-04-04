@@ -231,6 +231,9 @@ start() {
 {%- if docker_container_name != "database" %}
         -v /usr/share/sonic/device/$PLATFORM/$HWSKU/$DEV:/usr/share/sonic/hwsku:ro \
 {%- endif %}
+{%- if docker_container_name == "iccpd" %}
+        -v /lib/modules:/lib/modules:ro \
+{%- endif %}
 {%- if sonic_asic_platform != "mellanox" %}
         --tmpfs /tmp \
 {%- endif %}

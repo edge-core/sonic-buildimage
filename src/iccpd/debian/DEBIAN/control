@@ -1,0 +1,12 @@
+Package: iccpd-0.0.5-amd64
+Source: nps
+Version: 0.0.5
+Architecture: amd64
+Maintainer: Simon Ji <Simon.Ji@nephosinc.com>
+Installed-Size: 1508
+Depends:
+Section: main
+Priority: extra
+Homepage: https://github.com/NephosInc/SONiC
+Description:
+
