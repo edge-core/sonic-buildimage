@@ -54,7 +54,12 @@ RUN apt-get update &&        \
         libjemalloc1         \
         liblua5.1-0          \
         lua-bitop            \
-        lua-cjson
+        lua-cjson            \
+# common dependencies
+        libpython2.7         \
+        libdaemon0           \
+        libdbus-1-3          \
+        libjansson4
 
 # ip and ifconfig utility missing in docker for arm arch
 RUN apt-get -y install       \
