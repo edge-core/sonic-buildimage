@@ -16,6 +16,7 @@ try:
     from sonic_platform.eeprom import Eeprom
     from sonic_platform.component import Component
     from sonic_platform.psu import Psu
+    from sonic_platform.watchdog import Watchdog
     from sonic_platform.fan import Fan
     from sonic_platform.thermal import Thermal
 except ImportError as e:
@@ -61,6 +62,8 @@ class Chassis(ChassisBase):
             self._sfp_list.append(sfp_node)
 
         self._eeprom = Eeprom()
+
+        self._watchdog = Watchdog()
         
         for i in range(MAX_Z9264F_COMPONENT):
             component = Component(i)
