@@ -231,9 +231,6 @@ start() {
 {%- if docker_container_name != "database" %}
         -v /usr/share/sonic/device/$PLATFORM/$HWSKU/$DEV:/usr/share/sonic/hwsku:ro \
 {%- endif %}
-{%- if docker_container_name == "iccpd" %}
-        -v /lib/modules:/lib/modules:ro \
-{%- endif %}
 {%- if sonic_asic_platform != "mellanox" %}
         --tmpfs /tmp \
 {%- endif %}
@@ -255,7 +252,7 @@ wait() {
 stop() {
     docker stop {{docker_container_name}}$DEV
 {%- if docker_container_name == "database" %}
-    if [ "$DEV" ]; then 
+    if [ "$DEV" ]; then
         ip netns delete "$NET_NS"
     fi
 {%- endif %}
@@ -266,7 +263,7 @@ DEV=$2 # namespace/device number to operate on
 if [ "$DEV" ]; then
     NET_NS="asic$DEV" #name of the network namespace
 else
-    NET_NS=""    
+    NET_NS=""
 fi
 
 case "$1" in
