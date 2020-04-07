@@ -20,8 +20,11 @@ on_exit()
     rm -f $kvm_log
 }
 
-kvm_log=$(mktemp)
-trap on_exit EXIT
+on_error()
+{
+    echo "============= kvm_log =============="
+    cat $kvm_log
+}
 
 create_disk()
 {
@@ -55,6 +58,10 @@ if [[ "$vs_build_prepare_mem" == "yes" ]]; then
     sudo bash -c 'echo 1 > /proc/sys/vm/compact_memory'
     free -m
 fi
+
+kvm_log=$(mktemp)
+trap on_exit EXIT
+trap on_error ERR
 
 /usr/bin/kvm -m $MEM \
     -name "onie" \
