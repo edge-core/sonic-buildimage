@@ -5,8 +5,8 @@
 # sonic-netns-exec <namespace name> <command to be executed>
 NS="$1"
 shift
-if [ "$NS" != "" ]; then
-    ip netns exec $NS $@
+if [ ! -z "$NS" ]; then
+    ip netns exec $NS "$@"
 else
-    $@
+    "$@"
 fi
