@@ -12,12 +12,14 @@ Innovium: [![Innovium](https://sonic-jenkins.westus2.cloudapp.azure.com/job/inno
 Barefoot: [![Barefoot](https://sonic-jenkins.westus2.cloudapp.azure.com/job/barefoot/job/buildimage-bf-201911/badge/icon)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/barefoot/job/buildimage-bf-201911/)
 Broadcom: [![Broadcom](https://sonic-jenkins.westus2.cloudapp.azure.com/job/broadcom/job/buildimage-brcm-201911/badge/icon)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/broadcom/job/buildimage-brcm-201911/)
 Mellanox: [![Mellanox](https://sonic-jenkins.westus2.cloudapp.azure.com/job/mellanox/job/buildimage-mlnx-201911/badge/icon)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/mellanox/job/buildimage-mlnx-201911/)
+Nephos: [![Nephos](https://sonic-jenkins.westus2.cloudapp.azure.com/job/nephos/job/buildimage-nephos-201911/badge/icon)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/nephos/job/buildimage-nephos-201911)
 VS: [![VS](https://sonic-jenkins.westus2.cloudapp.azure.com/job/vs/job/buildimage-vs-201911/badge/icon)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/vs/job/buildimage-vs-201911)
 
 *201811*:
 Innovium: [![Innovium](https://sonic-jenkins.westus2.cloudapp.azure.com/job/innovium/job/buildimage-invm-201811/badge/icon)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/innovium/job/buildimage-invm-201811/)
 Broadcom: [![Broadcom](https://sonic-jenkins.westus2.cloudapp.azure.com/job/broadcom/job/buildimage-brcm-201811/badge/icon)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/broadcom/job/buildimage-brcm-201811/)
 Mellanox: [![Mellanox](https://sonic-jenkins.westus2.cloudapp.azure.com/job/mellanox/job/buildimage-mlnx-201811/badge/icon)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/mellanox/job/buildimage-mlnx-201811/)
+Nephos: [![Nephos](https://sonic-jenkins.westus2.cloudapp.azure.com/job/nephos/job/buildimage-nephos-201811/badge/icon)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/nephos/job/buildimage-nephos-201811)
 VS: [![VS](https://sonic-jenkins.westus2.cloudapp.azure.com/job/vs/job/buildimage-vs-201811/badge/icon)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/vs/job/buildimage-vs-201811)
 
 *201807*:
