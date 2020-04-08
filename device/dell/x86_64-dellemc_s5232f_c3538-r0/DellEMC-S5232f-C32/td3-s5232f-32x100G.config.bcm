@@ -542,3 +542,5 @@ dport_map_port_66=127
 dport_map_port_130=128
 
 mmu_init_config="TD3-DEFAULT-LOSSLESS-P3P4"
+sai_preinit_cmd_file=/usr/share/sonic/hwsku/sai_preinit_cmd.soc
+

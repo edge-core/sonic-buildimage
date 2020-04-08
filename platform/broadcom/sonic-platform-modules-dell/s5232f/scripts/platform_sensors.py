@@ -22,11 +22,15 @@ S5232F_MAX_PSUS = 2
 IPMI_SENSOR_DATA = "ipmitool sdr list"
 IPMI_SENSOR_DUMP = "/tmp/sdr"
 
-FAN_PRESENCE = "FAN{0}_prsnt"
 PSU_PRESENCE = "PSU{0}_stat"
 # Use this for older firmware
 # PSU_PRESENCE="PSU{0}_prsnt"
 
+IPMI_FAN_PRESENCE = "ipmitool sensor get FAN{0}_prsnt"
+IPMI_PSU1_DATA_DOCKER = "ipmitool raw 0x04 0x2d 0x31 |  awk '{print substr($0,9,1)}'"
+IPMI_PSU2_DATA_DOCKER = "ipmitool raw 0x04 0x2d 0x32 |  awk '{print substr($0,9,1)}'"
+IPMI_RAW_STORAGE_READ = "ipmitool raw 0x0a 0x11 {0} 0 0 0xa0"
+IPMI_FRU = "ipmitool fru"
 ipmi_sdr_list = ""
 
 # Dump sensor registers
@@ -40,8 +44,17 @@ def ipmi_sensor_dump():
     status, ipmi_sdr_list = commands.getstatusoutput(ipmi_cmd)
 
     if status:
-        logging.error('Failed to execute:' + ipmi_sdr_list)
+        logging.error('Failed to execute: ' + ipmi_sdr_list)
         sys.exit(0)
+
+# Fetch a Fan Status
+
+def get_fan_status(fan_id):
+    ret_status, ipmi_cmd_ret = commands.getstatusoutput(IPMI_FAN_PRESENCE.format(fan_id))
+    if ret_status:
+        logging.error('Failed to execute : %s'%IPMI_FAN_PRESENCE.format(fan_id))
+        sys.exit(0)
+    return(' ' + ipmi_cmd_ret.splitlines()[5].strip(' ').strip('[]'))
 
 # Fetch a BMC register
 
@@ -62,6 +75,35 @@ def get_pmc_register(reg_name):
     logging.basicConfig(level=logging.DEBUG)
     return output
 
+#Fetch FRU Data for given fruid
+def get_psu_airflow(psu_id):
+    fru_id = 'PSU' + str(psu_id) + '_fru'
+    ret_status, ipmi_cmd_ret = commands.getstatusoutput(IPMI_FRU)
+    if ret_status:
+        logging.error('Failed to execute ipmitool: '+ IPMI_FRU)
+        sys.exit(0)
+    found_fru = False
+    for line in ipmi_cmd_ret.splitlines():
+        if line.startswith('FRU Device Description') and fru_id in line.split(':')[1] :
+            found_fru = True
+        if found_fru and line.startswith(' Board Product '):
+            return ' B2F' if 'PS/IO' in line else ' F2B'
+    return ''
+
+# Fetch FRU on given offset
+def fetch_raw_fru(dev_id, offset):
+    ret_status, ipmi_cmd_ret = commands.getstatusoutput(IPMI_RAW_STORAGE_READ.format(dev_id))
+    if ret_status:
+        logging.error('Failed to execute ipmitool :' + IPMI_RAW_STORAGE_READ.format(dev_id))
+        sys.exit(0)
+    return int((ipmi_cmd_ret.splitlines()[offset/16]).split(' ')[(offset%16+1)])
+
+
+
+
+def get_fan_airflow(fan_id):
+    Airflow_Direction = [' F2B', ' B2F']
+    return Airflow_Direction[fetch_raw_fru(fan_id+2, 0x46)]
 
 # Print the information for temperature sensors
 
@@ -93,7 +135,6 @@ print_temperature_sensors()
 def print_fan_tray(tray):
 
     Fan_Status = [' Normal', ' Abnormal']
-    Airflow_Direction = ['B2F', 'F2B']
 
     print '  Fan Tray ' + str(tray) + ':'
 
@@ -152,16 +193,62 @@ def print_fan_tray(tray):
             Fan_Status[fan1_status]
         print '    Fan2 State:                   ',\
             Fan_Status[fan2_status]
+    print '    Airflow:                      ',\
+        get_fan_airflow(tray)
 
 
 print('\nFan Trays:')
 
 for tray in range(1, S5232F_MAX_FAN_TRAYS + 1):
-    fan_presence = FAN_PRESENCE.format(tray)
-    if (get_pmc_register(fan_presence)):
+    if (get_fan_status(tray) == ' Present'):
         print_fan_tray(tray)
     else:
-        print '\n  Fan Tray ' + str(tray + 1) + ':     Not present'
+        print '    Fan Tray {}:                      NOT PRESENT'.format(str(tray))
+
+    def get_psu_presence(index):
+        """
+        Retrieves the presence status of power supply unit (PSU) defined
+                by index <index>
+        :param index: An integer, index of the PSU of which to query status
+        :return: Boolean, True if PSU is plugged, False if not
+        """
+        ret_status = 1
+
+        if index == 1:
+           ret_status, ipmi_cmd_ret = commands.getstatusoutput(IPMI_PSU1_DATA_DOCKER)
+        elif index == 2:
+           ret_status, ipmi_cmd_ret = commands.getstatusoutput(IPMI_PSU2_DATA_DOCKER)
+
+        if ret_status:
+            logging.error('Failed to execute ipmitool :' + IPMI_PSU1_DATA_DOCKER)
+            sys.exit(0)
+
+        psu_status = ipmi_cmd_ret
+        return (int(psu_status, 16) & 1)
+
+    def get_psu_status(index):
+        """
+        Retrieves the presence status of power supply unit (PSU) defined
+                by index <index>
+        :param index: An integer, index of the PSU of which to query status
+        :return: Boolean, True if PSU is plugged, False if not
+        """
+        status = 0
+        ret_status = 1
+        ipmi_cmd_ret = 'f'
+
+        if index == 1:
+           ret_status, ipmi_cmd_ret = commands.getstatusoutput(IPMI_PSU1_DATA_DOCKER)
+        elif index == 2:
+           ret_status, ipmi_cmd_ret = commands.getstatusoutput(IPMI_PSU2_DATA_DOCKER)
+
+        if ret_status:
+            logging.error('Failed to execute ipmitool : ' + IPMI_PSU2_DATA_DOCKER)
+            sys.exit(0)
+
+        psu_status = ipmi_cmd_ret
+
+        return (not int(psu_status, 16) > 1)
 
 
 # Print the information for PSU1, PSU2
@@ -175,7 +262,6 @@ def print_psu(psu):
     PSU_FAN_AIR_FLOW_BIT = 0
     Psu_Fan_Presence = ['Present', 'Absent']
     Psu_Fan_Status = ['Normal', 'Abnormal']
-    Psu_Fan_Airflow = ['B2F', 'F2B']
 
     # print '    Input:          ', Psu_Input_Type[psu_input_type]
     # print '    Type:           ', Psu_Type[psu_type]
@@ -233,15 +319,19 @@ def print_psu(psu):
             get_pmc_register('PSU2_In_amp')
         print '       Output Current:               ',\
             get_pmc_register('PSU2_Out_amp')
+    print '       Airflow:                      ',\
+        get_psu_airflow(psu)
 
 
 print('\nPSUs:')
 for psu in range(1, S5232F_MAX_PSUS + 1):
-    psu_presence = PSU_PRESENCE.format(psu)
-    if (get_pmc_register(psu_presence)):
-        print_psu(psu)
+    #psu_presence = PSU_PRESENCE.format(psu)
+    if not get_psu_presence(psu):
+        print '    PSU{}:                      NOT PRESENT'.format(psu)
+    elif not get_psu_status(psu) :
+        print '    PSU{}:                      NOT OK'.format(psu)
     else:
-        print '\n  PSU ', psu, 'Not present'
+        print_psu(psu)
 
 print '\n    Total Power:                     ',\
     get_pmc_register('PSU_Total_watt')
