@@ -280,7 +280,9 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     ipmitool                \
     ndisc6                  \
     makedumpfile            \
-    conntrack
+    conntrack               \
+    python-pip              \
+    python3-pip
 
 
 if [[ $CONFIGURED_ARCH == amd64 ]]; then
