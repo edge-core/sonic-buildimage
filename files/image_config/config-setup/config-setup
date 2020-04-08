@@ -247,7 +247,7 @@ generate_config()
 #    is created
 #  - If updategraph is enabled and ZTP is disabled, updategraph initializes
 #    configuration
-do_config_intialization()
+do_config_initialization()
 {
     if  ! updategraph_is_enabled ; then
         if ! ztp_is_enabled ; then
@@ -350,12 +350,12 @@ boot_config()
     fi
 
     if [ -e /tmp/pending_config_initialization ] || [ -e  ${CONFIG_SETUP_INITIALIZATION_FLAG} ]; then
-        do_config_intialization
+        do_config_initialization
     fi
 
     # If no startup configuration is found, create a configuration to be used
     if [ ! -e ${CONFIG_DB_JSON} ]; then
-        do_config_intialization
+        do_config_initialization
         # force ZTP to restart
         if  ztp_is_enabled ; then
             ztp_status=$(ztp status -c)
