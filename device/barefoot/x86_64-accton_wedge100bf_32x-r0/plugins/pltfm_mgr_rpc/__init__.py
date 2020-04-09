@@ -1,1 +1,1 @@
-__all__ = ['ttypes', 'constants', 'pltfm_mgr_rpc']
+__all__ = ['ttypes', 'pltfm_mgr_rpc']
