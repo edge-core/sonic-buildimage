@@ -1111,7 +1111,7 @@ class Sfp(SfpBase):
                 presence = int(sfp_presence.read(), 16)
         except IOError:
             return False
-        logger.log_info("debug:port_ %s sfp presence is %s" % (str(self.index)), % (str(presence))
+        logger.log_info("debug:port_ %s sfp presence is %s" % (str(self.index), str(presence)))
         return presence
 
     def get_model(self):
