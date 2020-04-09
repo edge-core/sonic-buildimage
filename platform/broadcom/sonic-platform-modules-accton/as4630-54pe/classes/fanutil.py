@@ -83,7 +83,7 @@ class FanUtil(object):
         device_path = self.get_fan_device_path(fan_num, node_num)
        
             try:
-            val_file = open(device_path, 'r')
+                val_file = open(device_path, 'r')
             except IOError as e:
                 logging.error('GET. unable to open file: %s', str(e))
                 return None
