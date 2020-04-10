@@ -93,13 +93,13 @@ def main():
     tlvinfo_header.totallen = len(tlvinfo_data.dump())+4;
 
     try:
-        f = open('/etc/sys_eeprom.bin', 'w+')
+        f = open('/usr/share/sonic/device/x86_64-bcm_xlr-r0/sys_eeprom.bin', 'w+')
         f.write(tlvinfo_header.dump())
         f.write(tlvinfo_data.dump())
         f.write(crc(tlvinfo_header.dump(), tlvinfo_data.dump()))
         f.close()
     except:
-        print('Unable to write file /etc/sys_eeprom.bin')
+        print('Unable to write file /usr/share/sonic/device/x86_64-bcm_xlr-r0/sys_eeprom.bin')
 
 if __name__== "__main__":
     main()
