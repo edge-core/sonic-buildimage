@@ -468,7 +468,7 @@ class device_monitor(object):
             masterLED_file = open(MASTER_LED_PATH, 'r+')
         except IOError as e:
             print "Error: unable to open file: %s" % str(e)
-            return False
+            return
         masterLED_file.write(str(master_led_value))
         masterLED_file.close() 
 
@@ -477,10 +477,9 @@ class device_monitor(object):
             systemLED_file = open(SYSTEM_LED_PATH, 'r+')
         except IOError as e:
             print "Error: unable to open file: %s" % str(e)
-            return False
+            return
         systemLED_file.write(str(system_led_value))
         systemLED_file.close() 
-        pass
 
     def manage_device(self):
         thermal = QFX5210_ThermalUtil()
