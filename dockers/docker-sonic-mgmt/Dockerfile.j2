@@ -24,8 +24,9 @@ RUN apt-get install -y \
                 cmake \
                 tcpdump \
                 snmp \
-                python-dev \
-                python-scapy
+                python-scapy \
+                inetutils-ping \
+                telnet
 
 # For JNLP launcher
 RUN apt-get install -y default-jre
@@ -54,6 +55,25 @@ RUN pip install ipaddr \
                 passlib \
                 ipython==5.4.1 \
                 virtualenv \
+                "cryptography>=2.5" \
+                "future>=0.16.0" \
+                gitpython \
+                jsonpatch \
+                netmiko==2.4.2 \
+                prettytable \
+                psutil \
+                pycryptodome \
+                pyfiglet \
+                pylint==1.8.1 \
+                pyro4 \
+                pytest-repeat \
+                pytest-xdist==1.28.0 \
+                pytest==4.6.5 \
+                redis \
+                requests \
+                rpyc \
+                tabulate \
+                textfsm \
     && git clone https://github.com/p4lang/scapy-vxlan.git \
     && cd scapy-vxlan \
     && python setup.py install \
@@ -121,6 +141,7 @@ ARG hostname
 
 ENV BUILD_HOSTNAME $hostname
 ENV USER $user
+ENV CC=gcc CPP=cpp CXX=c++ LDSHARED="gcc -pthread -shared" PYMSSQL_BUILD_WITH_BUNDLED_FREETDS=1
 
 RUN groupadd -f -r -g $guid g$user
 

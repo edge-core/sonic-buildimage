@@ -1,6 +1,0 @@
-# SPYTest Management Docker
-
-DOCKER_MGMT_SPYTEST = docker-sonic-mgmt-spytest.gz
-$(DOCKER_MGMT_SPYTEST)_PATH = $(DOCKERS_PATH)/docker-sonic-mgmt-spytest
-$(DOCKER_MGMT_SPYTEST)_LOAD_DOCKERS += $(DOCKER_SONIC_MGMT)
-SONIC_DOCKER_IMAGES += $(DOCKER_MGMT_SPYTEST)
