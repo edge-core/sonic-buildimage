@@ -116,6 +116,7 @@ RUN apt-get update && apt-get install -y \
         libdb-dev \
         iptables-dev \
         swig \
+        ctags \
 # For mellanox sai build
         libtool-bin \
         libxml2-dev \
