@@ -114,10 +114,10 @@ class ComponentBIOS(Component):
     BIOS_VERSION_PARSE_PATTERN = 'OEM[\s]*Strings\n[\s]*String[\s]*1:[\s]*([0-9a-zA-Z_\.]*)'
     BIOS_PENDING_UPDATE_PATTERN = '([0-9A-Za-z_]*.rom)[\s]*\|[\s]*bios_update'
 
-    ONIE_FW_UPDATE_CMD_ADD = '/usr/bin/onie-fw-update.sh add {}'
-    ONIE_FW_UPDATE_CMD_REMOVE = '/usr/bin/onie-fw-update.sh remove {}'
-    ONIE_FW_UPDATE_CMD_UPDATE = '/usr/bin/onie-fw-update.sh update'
-    ONIE_FW_UPDATE_CMD_SHOW = '/usr/bin/onie-fw-update.sh show-pending'
+    ONIE_FW_UPDATE_CMD_ADD = '/usr/bin/mlnx-onie-fw-update.sh add {}'
+    ONIE_FW_UPDATE_CMD_REMOVE = '/usr/bin/mlnx-onie-fw-update.sh remove {}'
+    ONIE_FW_UPDATE_CMD_UPDATE = '/usr/bin/mlnx-onie-fw-update.sh update'
+    ONIE_FW_UPDATE_CMD_SHOW = '/usr/bin/mlnx-onie-fw-update.sh show-pending'
 
     BIOS_QUERY_VERSION_COMMAND = 'dmidecode -t 11'
 

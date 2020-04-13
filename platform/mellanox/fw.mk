@@ -1,4 +1,4 @@
-# mellanox firmware
+# mellanox asic firmware
 
 MLNX_FW_BASE_PATH = $(MLNX_SDK_BASE_PATH)
 
@@ -34,6 +34,8 @@ else
 SONIC_ONLINE_FILES += $(MLNX_FW_FILES)
 endif
 
+MLNX_FILES += $(MLNX_FW_FILES)
+
 export MLNX_SPC_FW_VERSION
 export MLNX_SPC_FW_FILE
 
@@ -42,5 +44,3 @@ export MLNX_SPC2_FW_FILE
 
 export MLNX_SPC3_FW_VERSION
 export MLNX_SPC3_FW_FILE
-
-export MLNX_FW_FILES
