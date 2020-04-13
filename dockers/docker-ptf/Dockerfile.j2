@@ -22,6 +22,7 @@ debs/
 ENV DEBIAN_FRONTEND=noninteractive
 
 ## Set the apt source, update package cache and install necessary packages
+## TODO: Clean up this step
 RUN sed --in-place 's/httpredir.debian.org/debian-archive.trafficmanager.net/' /etc/apt/sources.list \
     && apt-get update          \
     && apt-get upgrade -y   \
@@ -39,7 +40,6 @@ RUN sed --in-place 's/httpredir.debian.org/debian-archive.trafficmanager.net/' /
         unzip               \
         pkg-config          \
         binutils            \
-        net-tools           \
         build-essential     \
         libssl-dev          \
         libffi-dev          \
@@ -53,7 +53,6 @@ RUN sed --in-place 's/httpredir.debian.org/debian-archive.trafficmanager.net/' /
         iputils-ping        \
         hping3              \
         curl                \
-        tcpdump             \
         tmux                \
         python              \
         python-dev          \
@@ -64,7 +63,9 @@ RUN sed --in-place 's/httpredir.debian.org/debian-archive.trafficmanager.net/' /
         rsyslog             \
         ntp                 \
         ntpstat             \
-        ntpdate
+        ntpdate             \
+        arping              \
+        bridge-utils
 
 RUN dpkg -i \
 {% for deb in docker_ptf_debs.split(' ') -%}
@@ -72,6 +73,7 @@ debs/{{ deb }}{{' '}}
 {%- endfor %}
 
 # Install all python modules from pypi. python-scapy is exception, ptf debian package requires python-scapy
+# TODO: Clean up this step
 RUN rm -rf /debs \
     && apt-get -y autoclean \
     && apt-get -y autoremove \
@@ -115,6 +117,7 @@ RUN rm -rf /debs \
     && pip install flask   \
     && pip install exabgp==3.4.17\
     && pip install pyaml   \
+    && pip install pybrctl pyro4 rpyc yabgp \
     && mkdir -p /opt       \
     && cd /opt             \
     && wget https://raw.githubusercontent.com/p4lang/ptf/master/ptf_nn/ptf_nn_agent.py
@@ -126,8 +129,9 @@ RUN mkdir /var/run/sshd \
     && sed -ri '/^#?UsePAM/c\UsePAM no' /etc/ssh/sshd_config \
     && sed -ri '/^#?UseDNS/c\UseDNS no' /etc/ssh/sshd_config
 
-COPY ["supervisord.conf", "/etc/supervisor/"]
-COPY ["conf.d/supervisord.conf", "conf.d/sshd.conf", "conf.d/ptf_nn_agent.conf", "/etc/supervisor/conf.d/"]
+COPY supervisord.conf /etc/supervisor/
+COPY conf.d/ /etc/supervisor/conf.d/
+COPY ptf_tgen.sh /ptf_tgen/
 
 # Move tcpdump into /usr/bin Otherwise it's impossible to run tcpdump due to a docker bug
 RUN mv /usr/sbin/tcpdump /usr/bin/tcpdump
@@ -135,6 +139,6 @@ RUN ln -s /usr/bin/tcpdump /usr/sbin/tcpdump
 
 RUN mkdir -p /var/log/supervisor
 
-EXPOSE 22
+EXPOSE 22 8009
 
 ENTRYPOINT ["/usr/local/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
