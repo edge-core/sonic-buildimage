@@ -1,49 +1,31 @@
 /*******************************************************************************
- * BAREFOOT NETWORKS CONFIDENTIAL & PROPRIETARY
- *
- * Copyright (c) 2015-2016 Barefoot Networks, Inc.
+ Barefoot Networks Switch ASIC Linux driver
+ Copyright(c) 2015 - 2019 Barefoot Networks, Inc.
 
- * All Rights Reserved.
- *
- * NOTICE: All information contained herein is, and remains the property of
- * Barefoot Networks, Inc. and its suppliers, if any. The intellectual and
- * technical concepts contained herein are proprietary to Barefoot Networks,
- * Inc.
- * and its suppliers and may be covered by U.S. and Foreign Patents, patents in
- * process, and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material is
- * strictly forbidden unless prior written permission is obtained from
- * Barefoot Networks, Inc.
- *
- * No warranty, explicit or implicit is provided, unless granted under a
- * written agreement with Barefoot Networks, Inc.
- *
- * $Id: $
- *
- ******************************************************************************/
-/**
- *
- * GPL LICENSE SUMMARY
- *
- *   Copyright(c) 2015 Barefoot Networks. All rights reserved.
- *
- *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of version 2 of the GNU General Public License as
- *   published by the Free Software Foundation.
- *
- *   This program is distributed in the hope that it will be useful, but
- *   WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *   General Public License for more details.
- *
- *   You should have received a copy of the GNU General Public License
- *   along with this program; if not, write to the...
- *
- **/
+ This program is free software; you can redistribute it and/or modify it
+ under the terms and conditions of the GNU General Public License,
+ version 2, as published by the Free Software Foundation.
 
+ This program is distributed in the hope it will be useful, but WITHOUT
+ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ more details.
+
+ You should have received a copy of the GNU General Public License along with
+ this program; if not, write to the Free Software Foundation, Inc.,
+ 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+
+ The full GNU General Public License is included in this distribution in
+ the file called "COPYING".
+
+ Contact Information:
+ info@barefootnetworks.com
+ Barefoot Networks, 4750 Patrick Henry Drive, Santa Clara CA 95054
+
+*******************************************************************************/
 /* bf_drv kernel module
  *
- * This is kernel mode driver for Tofino chip. 
+ * This is kernel mode driver for Tofino chip.
  * Provides user space mmap service and user space "wait for interrupt"
  * and "enable interrupt" services.
  */
@@ -52,21 +34,18 @@
 #include <linux/interrupt.h>
 #include <linux/module.h>
 #include <linux/fs.h>
-#include <linux/pci.h>
 #include <linux/io.h>
-#include <linux/msi.h>
-#include <linux/version.h>
 #include <linux/wait.h>
 #include <linux/poll.h>
 #include <linux/dma-mapping.h>
 #include "bf_ioctl.h"
+#include "bf_kdrv.h"
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
   #include <linux/sched/signal.h>
 #else
- #include <linux/sched.h>
+  #include <linux/sched.h>
 #endif
-
 #include <linux/cdev.h>
 #include <linux/aer.h>
 #include <linux/string.h>
@@ -75,104 +54,26 @@
 //#error unsupported linux kernel version
 #endif
 
-/* TBD: Need to build with CONFIG_PCI_MSI */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 0)
-extern int pci_enable_msi_block(struct pci_dev *dev, unsigned int nvec);
-extern int pci_enable_msix(struct pci_dev *dev, struct msix_entry *entries, int nvec);
-#else
-extern int pci_enable_msi_range(struct pci_dev *dev, int minvec, int maxvec);
-extern int pci_enable_msix_range(struct pci_dev *dev, struct msix_entry *entries, int minvec, int maxvec);
+#ifdef BF_INCLUDE_KPKT
+/* kernel pkt driver entry/exit APIs */
+extern int bf_kpkt_init(struct pci_dev *pdev,
+                        u8 *bar0_vaddr,
+                        void **adapter_ptr,
+                        int dev_id,
+                        int pci_use_highmem,
+                        unsigned long head_room,
+                        int kpkt_dr_int_en,
+                        unsigned long rx_desc_countp);
+extern void bf_kpkt_remove(void *adapter_ptr);
+extern void bf_kpkt_irqhandler(int irq, void *adapter_ptr);
+extern void bf_kpkt_set_pci_error(void *adapter_ptr, u8 pci_error);
 #endif
-
-#define PCI_VENDOR_ID_BF                0x1d1c
-#define TOFINO_DEV_ID_A0                0x01
-#define TOFINO_DEV_ID_B0                0x10
-#define TOFINO2_DEV_ID_A0               0x0100
-
-#ifndef PCI_MSIX_ENTRY_SIZE
-#define PCI_MSIX_ENTRY_SIZE             16
-#define PCI_MSIX_ENTRY_LOWER_ADDR       0
-#define PCI_MSIX_ENTRY_UPPER_ADDR       4
-#define PCI_MSIX_ENTRY_DATA             8
-#define PCI_MSIX_ENTRY_VECTOR_CTRL      12
-#define PCI_MSIX_ENTRY_CTRL_MASKBIT     1
-#endif
-
-#define BF_CLASS_NAME   "bf"
-#define BF_MAX_DEVICE_CNT 256
-#define BF_INTR_MODE_NONE_NAME "none"
-#define BF_INTR_MODE_LEGACY_NAME "legacy"
-#define BF_INTR_MODE_MSI_NAME "msi"
-#define BF_INTR_MODE_MSIX_NAME "msix"
-#define BF_MAX_BAR_MAPS   6
-#define BF_MSIX_ENTRY_CNT 128 /* TBD  make it 512 */
-#define BF_MSI_ENTRY_CNT  2
-
-/* interrupt mode */
-enum bf_intr_mode {
-  BF_INTR_MODE_NONE = 0,
-  BF_INTR_MODE_LEGACY,
-  BF_INTR_MODE_MSI,
-  BF_INTR_MODE_MSIX
-};
-
-/* device memory */
-struct bf_dev_mem {
-  const char              *name;
-  phys_addr_t             addr;
-  resource_size_t         size;
-  void __iomem            *internal_addr;
-};
-
-struct bf_listener {
-  struct bf_pci_dev *bfdev;
-  s32 event_count[BF_MSIX_ENTRY_CNT];
-  int minor;
-  struct bf_listener *next;
-};
-
-/* device information */
-struct bf_dev_info {
-  struct module           *owner;
-  struct device           *dev;
-  int                     minor;
-  atomic_t                event[BF_MSIX_ENTRY_CNT];
-  wait_queue_head_t       wait;
-  const char              *version;
-  struct bf_dev_mem       mem[BF_MAX_BAR_MAPS];
-  struct msix_entry       *msix_entries;
-  long                    irq;      /* first irq vector */
-  int                     num_irq;  /* number of irq vectors */
-  unsigned long           irq_flags;/* sharable ?? */
-  int                     pci_error_state; /* was there a pci bus error */
-};
-
-/* cookie to be passed to IRQ handler, useful especially with MSIX */
-struct bf_int_vector {
-  struct bf_pci_dev *bf_dev;
-  int int_vec_offset;
-};
-
-
-/**
- * A structure describing the private information for a BF pcie device.
- */
-struct bf_pci_dev {
-	struct bf_dev_info info;
-	struct pci_dev *pdev;
-	enum   bf_intr_mode mode;
-	u8     instance;
-	char   name[16];
-  struct bf_int_vector bf_int_vec[BF_MSIX_ENTRY_CNT];
-  struct bf_listener *listener_head; /* head of a singly linked list of
-                                        listeners */
-};
 
 /* Keep any global information here that must survive even after the
  * bf_pci_dev is free-ed up.
  */
 struct bf_global {
-  struct bf_pci_dev *bfdev ;
+  struct bf_pci_dev *bfdev;
   struct cdev *bf_cdev;
   struct fasync_struct *async_queue;
 };
@@ -181,14 +82,19 @@ static int bf_major;
 static int bf_minor[BF_MAX_DEVICE_CNT] = {0};
 static struct class *bf_class = NULL;
 static char *intr_mode = NULL;
+static int kpkt_mode = 0;
+static int kpkt_hd_room = 32;
+static int kpkt_rx_count = 256;
+static int kpkt_dr_int_en = 1;
+
 static enum bf_intr_mode bf_intr_mode_default = BF_INTR_MODE_MSI;
 static spinlock_t bf_nonisr_lock;
+
 /* dev->minor should index into this array */
 static struct bf_global bf_global[BF_MAX_DEVICE_CNT];
 
 static void bf_add_listener(struct bf_pci_dev *bfdev,
-                            struct bf_listener *listener)
-{
+                            struct bf_listener *listener) {
   struct bf_listener **cur_listener = &bfdev->listener_head;
 
   if (!listener) {
@@ -197,7 +103,7 @@ static void bf_add_listener(struct bf_pci_dev *bfdev,
   spin_lock(&bf_nonisr_lock);
 
   while (*cur_listener) {
-      cur_listener = &((*cur_listener)->next);
+    cur_listener = &((*cur_listener)->next);
   }
   *cur_listener = listener;
   listener->next = NULL;
@@ -206,12 +112,12 @@ static void bf_add_listener(struct bf_pci_dev *bfdev,
 }
 
 static void bf_remove_listener(struct bf_pci_dev *bfdev,
-                               struct bf_listener *listener)
-{
+                               struct bf_listener *listener) {
   struct bf_listener **cur_listener = &bfdev->listener_head;
 
-  /* in case of certain error conditions, this function might be called after      bf_pci_remove()
-   */
+  /* in case of certain error conditions, this function might be called after
+   * bf_pci_remove()
+  */
   if (!bfdev || !listener) {
     return;
   }
@@ -235,12 +141,11 @@ static void bf_remove_listener(struct bf_pci_dev *bfdev,
 
 /* a pool of minor numbers is maintained */
 /* return the first available minor number */
-static int bf_get_next_minor_no(int *minor)
-{
+static int bf_get_next_minor_no(int *minor) {
   int i;
 
   spin_lock(&bf_nonisr_lock);
-  for(i = 0; i < BF_MAX_DEVICE_CNT; i++) {
+  for (i = 0; i < BF_MAX_DEVICE_CNT; i++) {
     if (bf_minor[i] == 0) {
       *minor = i;
       bf_minor[i] = 1; /* mark it as taken */
@@ -254,13 +159,12 @@ static int bf_get_next_minor_no(int *minor)
 }
 
 /* return a minor number back to the pool  for recycling */
-static int bf_return_minor_no(int minor)
-{
+static int bf_return_minor_no(int minor) {
   int err;
 
   spin_lock(&bf_nonisr_lock);
   if (bf_minor[minor] == 0) { /* was already returned */
-    err = -1; /* don't change anything, but return error */
+    err = -1;                 /* don't change anything, but return error */
   } else {
     bf_minor[minor] = 0; /* mark it as available */
     err = 0;
@@ -269,31 +173,29 @@ static int bf_return_minor_no(int minor)
   return err;
 }
 
-static inline struct bf_pci_dev *bf_get_pci_dev(struct bf_dev_info *info)
-{
-	return container_of(info, struct bf_pci_dev, info);
+static inline struct bf_pci_dev *bf_get_pci_dev(struct bf_dev_info *info) {
+  return container_of(info, struct bf_pci_dev, info);
 }
 
 /*
  * It masks the msix on/off of generating MSI-X messages.
  */
-static void
-bf_msix_mask_irq(struct msi_desc *desc, int32_t state)
-{
-	u32 mask_bits = desc->masked;
-	unsigned offset = desc->msi_attrib.entry_nr * PCI_MSIX_ENTRY_SIZE +
-                      PCI_MSIX_ENTRY_VECTOR_CTRL;
+static void bf_msix_mask_irq(struct msi_desc *desc, int32_t state) {
+  u32 mask_bits = desc->masked;
+  unsigned offset = desc->msi_attrib.entry_nr * PCI_MSIX_ENTRY_SIZE +
+                    PCI_MSIX_ENTRY_VECTOR_CTRL;
 
-	if (state != 0)
-		mask_bits &= ~PCI_MSIX_ENTRY_CTRL_MASKBIT;
-	else
-		mask_bits |= PCI_MSIX_ENTRY_CTRL_MASKBIT;
+  if (state != 0) {
+    mask_bits &= ~PCI_MSIX_ENTRY_CTRL_MASKBIT;
+  } else {
+    mask_bits |= PCI_MSIX_ENTRY_CTRL_MASKBIT;
+  }
 
-	if (mask_bits != desc->masked) {
-		writel(mask_bits, desc->mask_base + offset);
-		readl(desc->mask_base);
-		desc->masked = mask_bits;
-	}
+  if (mask_bits != desc->masked) {
+    writel(mask_bits, desc->mask_base + offset);
+    readl(desc->mask_base);
+    desc->masked = mask_bits;
+  }
 }
 
 /**
@@ -308,179 +210,217 @@ bf_msix_mask_irq(struct msi_desc *desc, int32_t state)
  *  - On success, 0.
  *  - On failure, a negative value.
  */
-static int
-bf_pci_irqcontrol(struct bf_pci_dev *bfdev, s32 irq_state)
-{
-	struct pci_dev *pdev = bfdev->pdev;
+static int bf_pci_irqcontrol(struct bf_pci_dev *bfdev, s32 irq_state) {
+  struct pci_dev *pdev = bfdev->pdev;
 
-	pci_cfg_access_lock(pdev);
-	if (bfdev->mode == BF_INTR_MODE_LEGACY)
-		pci_intx(pdev, !!irq_state);
-
-	else if (bfdev->mode == BF_INTR_MODE_MSIX) {
-		struct msi_desc *desc;
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4,2,0)
-		list_for_each_entry(desc, &pdev->msi_list, list)
-			bf_msix_mask_irq(desc, irq_state);
+  pci_cfg_access_lock(pdev);
+  if (bfdev->mode == BF_INTR_MODE_LEGACY) {
+    pci_intx(pdev, !!irq_state);
+  } else if (bfdev->mode == BF_INTR_MODE_MSIX) {
+    struct msi_desc *desc;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 2, 0)
+    list_for_each_entry(desc, &pdev->msi_list, list)
+        bf_msix_mask_irq(desc, irq_state);
 #else
-		for_each_pci_msi_entry(desc, pdev)
-			bf_msix_mask_irq(desc, irq_state);
+    for_each_pci_msi_entry(desc, pdev) bf_msix_mask_irq(desc, irq_state);
 #endif
-	}
-	pci_cfg_access_unlock(pdev);
+  }
+  pci_cfg_access_unlock(pdev);
 
-	return 0;
+  return 0;
 }
+
+#ifdef BF_INCLUDE_KPKT
+/* there are three TBUS MSIX vectors */
+static int bf_irq_is_tbus_msix(struct bf_pci_dev *bfdev, int irq) {
+  struct bf_dev_info *info = &bfdev->info;
+
+  if (!info->tbus_msix_map_enable) {
+    return 0;
+  }
+  if (irq == info->msix_entries[info->tbus_msix_ind[0]].vector ||
+      irq == info->msix_entries[info->tbus_msix_ind[1]].vector) {
+    return 1;
+  } else if (irq == info->msix_entries[info->tbus_msix_ind[2]].vector) {
+    /* log error */
+    printk(KERN_ALERT "bf_tbus error msix\n");
+    return 1;
+  }
+  return 0;
+}
+#endif
 
 /**
  * interrupt handler which will check if the interrupt is from the right
  * device. If so, disable it here and will be enabled later.
  */
-static irqreturn_t bf_pci_irqhandler(int irq, struct bf_pci_dev *bfdev)
-{
-	/* Legacy mode need to mask in hardware */
-	if (bfdev->mode == BF_INTR_MODE_LEGACY &&
-	    !pci_check_and_mask_intx(bfdev->pdev))
-		return IRQ_NONE;
+static irqreturn_t bf_pci_irqhandler(int irq, struct bf_pci_dev *bfdev) {
+  /* Legacy mode need to mask in hardware */
+  if (bfdev->mode == BF_INTR_MODE_LEGACY &&
+      !pci_check_and_mask_intx(bfdev->pdev)) {
+    return IRQ_NONE;
+  }
 
-	/* NOTE : if bfdev->info.pci_error_state == 1, then do not access the
-	 * device and return IRQ_NOTHANDLED.
-	 */
-	/* Message signal mode, no share IRQ and automasked */
-	return IRQ_HANDLED;
+  /* NOTE : if bfdev->info.pci_error_state == 1, then do not access the
+   * device and return IRQ_NOTHANDLED.
+   */
+#ifdef BF_INCLUDE_KPKT
+  /* handle pkt DR interrpt (MSI vect-1) if it has to be in kernel */
+  if (kpkt_dr_int_en && bfdev->info.irq != 0) {
+    if (bfdev->mode == BF_INTR_MODE_LEGACY) {
+      bf_kpkt_irqhandler(irq, bfdev->adapter_ptr);
+    } else if (bfdev->mode == BF_INTR_MODE_MSI) {
+      /* do not process packet unless the MSI interrupt is from tbus */
+      /* all BF interrupts arrive on one single MSI if "1" MSI is configured */
+      if (bfdev->info.num_irq == 1 || (irq == (bfdev->info.irq + BF_MSI_INT_TBUS))) {
+        bf_kpkt_irqhandler(irq, bfdev->adapter_ptr);
+      }
+    } else if (bfdev->mode == BF_INTR_MODE_MSIX) {
+      if (bfdev->info.tof_type == BF_TOFINO_2 && bf_irq_is_tbus_msix(bfdev,irq)) {
+        bf_kpkt_irqhandler(irq, bfdev->adapter_ptr);
+      }
+    }
+  }
+#endif
+  /* Message signal mode, no share IRQ and automasked */
+  return IRQ_HANDLED;
 }
 
 /* Remap pci resources described by bar #pci_bar */
-static int
-bf_pci_setup_iomem(struct pci_dev *dev, struct bf_dev_info *info,
-		               int n, int pci_bar, const char *name)
-{
-	unsigned long addr, len;
-	void *internal_addr;
+static int bf_pci_setup_iomem(struct pci_dev *dev,
+                              struct bf_dev_info *info,
+                              int n,
+                              int pci_bar,
+                              const char *name) {
+  unsigned long addr, len;
+  void *internal_addr;
 
-	if (sizeof(info->mem) / sizeof(info->mem[0]) <= n)
-		return -EINVAL;
+  if (sizeof(info->mem) / sizeof(info->mem[0]) <= n) {
+    return -EINVAL;
+  }
 
-	addr = pci_resource_start(dev, pci_bar);
-	len = pci_resource_len(dev, pci_bar);
-	if (addr == 0 || len == 0)
-		return -1;
-	internal_addr = pci_ioremap_bar(dev, pci_bar);
-	if (internal_addr == NULL)
-		return -1;
-	info->mem[n].name = name;
-	info->mem[n].addr = addr;
-	info->mem[n].internal_addr = internal_addr;
-	info->mem[n].size = len;
-	return 0;
+  addr = pci_resource_start(dev, pci_bar);
+  len = pci_resource_len(dev, pci_bar);
+  if (addr == 0 || len == 0) {
+    return -1;
+  }
+  internal_addr = pci_ioremap_bar(dev, pci_bar);
+  if (internal_addr == NULL) {
+    return -1;
+  }
+  info->mem[n].name = name;
+  info->mem[n].addr = addr;
+  info->mem[n].internal_addr = internal_addr;
+  info->mem[n].size = len;
+  return 0;
 }
 
 /* Unmap previously ioremap'd resources */
-static void
-bf_pci_release_iomem(struct bf_dev_info *info)
-{
-	int i;
+static void bf_pci_release_iomem(struct bf_dev_info *info) {
+  int i;
 
-	for (i = 0; i < BF_MAX_BAR_MAPS; i++) {
-		if (info->mem[i].internal_addr)
-			iounmap(info->mem[i].internal_addr);
-	}
+  for (i = 0; i < BF_MAX_BAR_MAPS; i++) {
+    if (info->mem[i].internal_addr) {
+      iounmap(info->mem[i].internal_addr);
+    }
+  }
 }
 
-static int
-bf_setup_bars(struct pci_dev *dev, struct bf_dev_info *info)
-{
-	int i, iom, ret;
-	unsigned long flags;
-	static const char *bar_names[BF_MAX_BAR_MAPS]  = {
-		"BAR0", "BAR1", "BAR2", "BAR3", "BAR4", "BAR5",
-	};
+static int bf_setup_bars(struct pci_dev *dev, struct bf_dev_info *info) {
+  int i, iom, ret;
+  unsigned long flags;
+  static const char *bar_names[BF_MAX_BAR_MAPS] = {
+      "BAR0", "BAR1", "BAR2", "BAR3", "BAR4", "BAR5",
+  };
 
-	iom = 0;
+  iom = 0;
 
-	for (i = 0; i < BF_MAX_BAR_MAPS; i++) {
-		if (pci_resource_len(dev, i) != 0 &&
-		    pci_resource_start(dev, i) != 0) {
-			flags = pci_resource_flags(dev, i);
-			if (flags & IORESOURCE_MEM) {
-				ret = bf_pci_setup_iomem(dev, info, iom, i, bar_names[i]);
-				if (ret != 0)
-					return ret;
-				iom++;
-			}
-		}
-	}
-	return (iom != 0) ? ret : -ENOENT;
+  for (i = 0; i < BF_MAX_BAR_MAPS; i++) {
+    if (pci_resource_len(dev, i) != 0 && pci_resource_start(dev, i) != 0) {
+      flags = pci_resource_flags(dev, i);
+      if (flags & IORESOURCE_MEM) {
+        ret = bf_pci_setup_iomem(dev, info, iom, i, bar_names[i]);
+        if (ret != 0) {
+          return ret;
+        }
+        iom++;
+      }
+    }
+  }
+  return (iom != 0) ? ret : -ENOENT;
 }
 
-static irqreturn_t bf_interrupt(int irq, void *bfdev_id)
-{
+static irqreturn_t bf_interrupt(int irq, void *bfdev_id) {
   struct bf_pci_dev *bfdev = ((struct bf_int_vector *)bfdev_id)->bf_dev;
   int vect_off = ((struct bf_int_vector *)bfdev_id)->int_vec_offset;
 
   irqreturn_t ret = bf_pci_irqhandler(irq, bfdev);
 
-  if (ret == IRQ_HANDLED)
+  if (ret == IRQ_HANDLED) {
     atomic_inc(&(bfdev->info.event[vect_off]));
-
+  }
   return ret;
 }
 
-static unsigned int bf_poll(struct file *filep, poll_table *wait)
-{
+static unsigned int bf_poll(struct file *filep, poll_table *wait) {
   struct bf_listener *listener = (struct bf_listener *)filep->private_data;
   struct bf_pci_dev *bfdev = listener->bfdev;
   int i;
-    
+
   if (!bfdev) {
     return -ENODEV;
   }
-  if (!bfdev->info.irq)
+  if (!bfdev->info.irq) {
     return -EIO;
-    
+  }
+
   poll_wait(filep, &bfdev->info.wait, wait);
 
-  for (i = 0; i < BF_MSIX_ENTRY_CNT; i++)
-    if (listener->event_count[i] != atomic_read(&bfdev->info.event[i]))
+  for (i = 0; i < BF_MSIX_ENTRY_CNT; i++) {
+    if (listener->event_count[i] != atomic_read(&bfdev->info.event[i])) {
       return POLLIN | POLLRDNORM;
+    }
+  }
   return 0;
 }
 
-static int bf_find_mem_index(struct vm_area_struct *vma)
-{
+static int bf_find_mem_index(struct vm_area_struct *vma) {
   struct bf_pci_dev *bfdev = vma->vm_private_data;
   if (vma->vm_pgoff < BF_MAX_BAR_MAPS) {
-    if (bfdev->info.mem[vma->vm_pgoff].size == 0)
+    if (bfdev->info.mem[vma->vm_pgoff].size == 0) {
       return -1;
+    }
     return (int)vma->vm_pgoff;
   }
   return -1;
 }
-    
+
 static const struct vm_operations_struct bf_physical_vm_ops = {
 #ifdef CONFIG_HAVE_IOREMAP_PROT
-  .access = generic_access_phys,
+    .access = generic_access_phys,
 #endif
 };
 
-static int bf_mmap_physical(struct vm_area_struct *vma)
-{
+static int bf_mmap_physical(struct vm_area_struct *vma) {
   struct bf_pci_dev *bfdev = vma->vm_private_data;
   int bar = bf_find_mem_index(vma);
   struct bf_dev_mem *mem;
-  if (bar < 0)
+  if (bar < 0) {
     return -EINVAL;
+  }
 
   mem = bfdev->info.mem + bar;
-   
-  if (mem->addr & ~PAGE_MASK)
+
+  if (mem->addr & ~PAGE_MASK) {
     return -ENODEV;
-  if (vma->vm_end - vma->vm_start > mem->size)
+  }
+  if (vma->vm_end - vma->vm_start > mem->size) {
     return -EINVAL;
-    
+  }
+
   vma->vm_ops = &bf_physical_vm_ops;
-    vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
-    
+  vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+
   /*
    * We cannot use the vm_iomap_memory() helper here,
    * because vma->vm_pgoff is the map index we looked
@@ -490,40 +430,45 @@ static int bf_mmap_physical(struct vm_area_struct *vma)
    * So we just do the physical mmap without a page
    * offset.
    */
- return remap_pfn_range(vma, vma->vm_start, mem->addr >> PAGE_SHIFT,
-                        vma->vm_end - vma->vm_start, vma->vm_page_prot);
+  return remap_pfn_range(vma,
+                         vma->vm_start,
+                         mem->addr >> PAGE_SHIFT,
+                         vma->vm_end - vma->vm_start,
+                         vma->vm_page_prot);
 }
 
-static int bf_mmap(struct file *filep, struct vm_area_struct *vma)
-{
+static int bf_mmap(struct file *filep, struct vm_area_struct *vma) {
   struct bf_listener *listener = filep->private_data;
   struct bf_pci_dev *bfdev = listener->bfdev;
   int bar;
   unsigned long requested_pages, actual_pages;
-   
+
   if (!bfdev) {
     return -ENODEV;
   }
-  if (vma->vm_end < vma->vm_start)
+  if (vma->vm_end < vma->vm_start) {
     return -EINVAL;
-    
+  }
+
   vma->vm_private_data = bfdev;
-    
+
   bar = bf_find_mem_index(vma);
-  if (bar < 0)
+  if (bar < 0) {
     return -EINVAL;
-    
+  }
+
   requested_pages = vma_pages(vma);
-  actual_pages = ((bfdev->info.mem[bar].addr & ~PAGE_MASK)
-                   + bfdev->info.mem[bar].size + PAGE_SIZE -1) >> PAGE_SHIFT;
-  if (requested_pages > actual_pages)
+  actual_pages = ((bfdev->info.mem[bar].addr & ~PAGE_MASK) +
+                  bfdev->info.mem[bar].size + PAGE_SIZE - 1) >>
+                 PAGE_SHIFT;
+  if (requested_pages > actual_pages) {
     return -EINVAL;
-    
+  }
+
   return bf_mmap_physical(vma);
 }
 
-static int bf_fasync(int fd, struct file *filep, int mode)
-{
+static int bf_fasync(int fd, struct file *filep, int mode) {
   int minor;
 
   if (!filep->private_data) {
@@ -539,8 +484,7 @@ static int bf_fasync(int fd, struct file *filep, int mode)
   return (fasync_helper(fd, filep, mode, &bf_global[minor].async_queue));
 }
 
-static int bf_open(struct inode *inode, struct file *filep)
-{
+static int bf_open(struct inode *inode, struct file *filep) {
   struct bf_pci_dev *bfdev;
   struct bf_listener *listener;
   int i;
@@ -550,19 +494,19 @@ static int bf_open(struct inode *inode, struct file *filep)
   if (listener) {
     listener->bfdev = bfdev;
     listener->minor = bfdev->info.minor;
-    listener->next =  NULL;
+    listener->next = NULL;
     bf_add_listener(bfdev, listener);
-    for (i = 0; i < BF_MSIX_ENTRY_CNT; i++)
+    for (i = 0; i < BF_MSIX_ENTRY_CNT; i++) {
       listener->event_count[i] = atomic_read(&bfdev->info.event[i]);
+    }
     filep->private_data = listener;
     return 0;
   } else {
-    return(-ENOMEM);
+    return (-ENOMEM);
   }
 }
 
-static int bf_release(struct inode *inode, struct file *filep)
-{
+static int bf_release(struct inode *inode, struct file *filep) {
   struct bf_listener *listener = filep->private_data;
 
   bf_fasync(-1, filep, 0); /* empty any process id in the notification list */
@@ -574,42 +518,47 @@ static int bf_release(struct inode *inode, struct file *filep)
 }
 
 /* user space support: make read() system call after poll() of select() */
-static ssize_t bf_read(struct file *filep, char __user *buf,
-                       size_t count, loff_t *ppos)
-{
+static ssize_t bf_read(struct file *filep,
+                       char __user *buf,
+                       size_t count,
+                       loff_t *ppos) {
   struct bf_listener *listener = filep->private_data;
   struct bf_pci_dev *bfdev = listener->bfdev;
   int retval, event_count[BF_MSIX_ENTRY_CNT];
-  int i, mismatch_found = 0;  /* OR of per vector mismatch */
+  int i, mismatch_found = 0;                  /* OR of per vector mismatch */
   unsigned char cnt_match[BF_MSIX_ENTRY_CNT]; /* per vector mismatch */
 
   if (!bfdev) {
     return -ENODEV;
   }
   /* irq must be setup for read() to work */
-  if (!bfdev->info.irq)
+  if (!bfdev->info.irq) {
     return -EIO;
+  }
 
   /* ensure that there is enough space on user buffer for the given interrupt
    * mode */
   if (bfdev->mode == BF_INTR_MODE_MSIX) {
-    if (count < sizeof(s32)*BF_MSIX_ENTRY_CNT)
+    if (count < sizeof(s32) * BF_MSIX_ENTRY_CNT) {
       return -EINVAL;
-    count = sizeof(s32)*BF_MSIX_ENTRY_CNT;
+    }
+    count = sizeof(s32) * BF_MSIX_ENTRY_CNT;
   } else if (bfdev->mode == BF_INTR_MODE_MSI) {
-    if (count < sizeof(s32)*BF_MSI_ENTRY_CNT)
+    if (count < sizeof(s32) * BF_MSI_ENTRY_CNT) {
       return -EINVAL;
-    count = sizeof(s32)*BF_MSI_ENTRY_CNT;
+    }
+    count = sizeof(s32) * BF_MSI_ENTRY_CNT;
   } else {
-    if (count < sizeof(s32))
+    if (count < sizeof(s32)) {
       return -EINVAL;
+    }
     count = sizeof(s32);
   }
 
   do {
     set_current_state(TASK_INTERRUPTIBLE);
 
-    for (i = 0; i < (count/sizeof(s32)); i++) {
+    for (i = 0; i < (count / sizeof(s32)); i++) {
       event_count[i] = atomic_read(&(bfdev->info.event[i]));
       if (event_count[i] != listener->event_count[i]) {
         mismatch_found |= 1;
@@ -621,10 +570,10 @@ static ssize_t bf_read(struct file *filep, char __user *buf,
     }
     if (mismatch_found) {
       __set_current_state(TASK_RUNNING);
-      if (copy_to_user(buf, &event_count, count))
+      if (copy_to_user(buf, &event_count, count)) {
         retval = -EFAULT;
-      else { /* adjust the listener->event_count; */
-        for (i = 0 ; i < (count/sizeof(s32)); i++) {
+      } else { /* adjust the listener->event_count; */
+        for (i = 0; i < (count / sizeof(s32)); i++) {
           if (cnt_match[i]) {
             listener->event_count[i] = event_count[i];
           }
@@ -651,25 +600,29 @@ static ssize_t bf_read(struct file *filep, char __user *buf,
   return retval;
 }
 
-/* user space is supposed to call this after it is done with interrupt 
+/* user space is supposed to call this after it is done with interrupt
  * processing
  */
-static ssize_t bf_write(struct file *filep, const char __user *buf,
-                        size_t count, loff_t *ppos)
-{
+static ssize_t bf_write(struct file *filep,
+                        const char __user *buf,
+                        size_t count,
+                        loff_t *ppos) {
   struct bf_listener *listener = filep->private_data;
   struct bf_pci_dev *bfdev = listener->bfdev;
   ssize_t ret;
   s32 int_en;
 
-  if (!bfdev || !bfdev->info.irq)
+  if (!bfdev || !bfdev->info.irq) {
     return -EIO;
-  
-  if (count != sizeof(s32))
-    return -EINVAL;
+  }
 
-  if (copy_from_user(&int_en, buf, count)) 
+  if (count != sizeof(s32)) {
+    return -EINVAL;
+  }
+
+  if (copy_from_user(&int_en, buf, count)) {
     return -EFAULT;
+  }
 
   /* clear pci_error_state */
   bfdev->info.pci_error_state = 0;
@@ -692,7 +645,11 @@ static long bf_ioctl(struct file *filep, unsigned int cmd, unsigned long arg)
   }
   switch(cmd) {
   case BF_IOCMAPDMAADDR:
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0)
+    if (access_ok(addr, sizeof(bf_dma_bus_map_t))) {
+#else
     if (access_ok(VERIFY_WRITE, addr, sizeof(bf_dma_bus_map_t))) {
+#endif
       if (copy_from_user(&dma_map, addr, sizeof(bf_dma_bus_map_t))) {
         return EFAULT;
       }
@@ -703,7 +660,7 @@ static long bf_ioctl(struct file *filep, unsigned int cmd, unsigned long arg)
       if (dma_mapping_error(&bfdev->pdev->dev, dma_hndl)) {
         return EFAULT;
       }
-      dma_map.dma_addr = (void *)dma_hndl;
+      dma_map.dma_addr = (void *)(uintptr_t)dma_hndl;
       if (copy_to_user(addr, &dma_map, sizeof(bf_dma_bus_map_t))) {
         return EFAULT;
       }
@@ -712,16 +669,53 @@ static long bf_ioctl(struct file *filep, unsigned int cmd, unsigned long arg)
     }
     break;
   case BF_IOCUNMAPDMAADDR:
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0)
+    if (access_ok(addr, sizeof(bf_dma_bus_map_t))) {
+#else
     if (access_ok(VERIFY_READ, addr, sizeof(bf_dma_bus_map_t))) {
+#endif
       if (copy_from_user(&dma_map, addr, sizeof(bf_dma_bus_map_t))) {
         return EFAULT;
       }
       if (!dma_map.dma_addr || !dma_map.size) {
         return EFAULT;
       }
-      dma_unmap_single(&bfdev->pdev->dev, (dma_addr_t)dma_map.dma_addr, dma_map.size, DMA_BIDIRECTIONAL);
+      dma_unmap_single(&bfdev->pdev->dev, (dma_addr_t)(uintptr_t)(dma_map.dma_addr), dma_map.size, DMA_BIDIRECTIONAL);
     } else {
       return EFAULT;
+    }
+    break;
+  case BF_TBUS_MSIX_INDEX:
+    /* not supported for Tofino-1 */
+    if (bfdev->info.tof_type == BF_TOFINO_1) {
+      return EINVAL;
+    } else {
+      int i;
+      bf_tbus_msix_indices_t msix_ind;
+      if (copy_from_user(&msix_ind, addr, sizeof(bf_tbus_msix_indices_t))) {
+        return EFAULT;
+      }
+      if (msix_ind.cnt > BF_TBUS_MSIX_INDICES_MAX) {
+        return EINVAL;
+      }
+      for (i = 0; i < msix_ind.cnt; i++) {
+        if (msix_ind.indices[i] >= BF_MSIX_ENTRY_CNT) {
+          return EINVAL;
+        }
+      }
+      for (i = 0; i < msix_ind.cnt; i++) {
+        bfdev->info.tbus_msix_ind[i] = msix_ind.indices[i];
+      }
+      bfdev->info.tbus_msix_map_enable = 1;
+    }
+    break;
+  case BF_GET_INTR_MODE:
+    {
+      bf_intr_mode_t i_mode;
+      i_mode.intr_mode = bfdev->mode;
+      if (copy_to_user(addr, &i_mode, sizeof(bf_intr_mode_t))) {
+        return EFAULT;
+      }
     }
     break;
   default:
@@ -731,27 +725,27 @@ static long bf_ioctl(struct file *filep, unsigned int cmd, unsigned long arg)
 }
 
 static const struct file_operations bf_fops = {
-  .owner          = THIS_MODULE,
-  .open           = bf_open,
-  .release        = bf_release,
-  .unlocked_ioctl = bf_ioctl,
-  .read           = bf_read,
-  .write          = bf_write,
-  .mmap           = bf_mmap,
-  .poll           = bf_poll,
-  .fasync         = bf_fasync,
+    .owner = THIS_MODULE,
+    .open = bf_open,
+    .release = bf_release,
+    .unlocked_ioctl = bf_ioctl,
+    .read = bf_read,
+    .write = bf_write,
+    .mmap = bf_mmap,
+    .poll = bf_poll,
+    .fasync = bf_fasync,
 };
 
-static int bf_major_init(struct bf_pci_dev *bfdev, int minor)
-{
+static int bf_major_init(struct bf_pci_dev *bfdev, int minor) {
   struct cdev *cdev;
   static const char name[] = "bf";
   dev_t bf_dev = 0;
   int result;
 
   result = alloc_chrdev_region(&bf_dev, 0, BF_MAX_DEVICE_CNT, name);
-  if (result)
+  if (result) {
     return result;
+  }
 
   result = -ENOMEM;
   cdev = cdev_alloc();
@@ -763,8 +757,9 @@ static int bf_major_init(struct bf_pci_dev *bfdev, int minor)
   kobject_set_name(&cdev->kobj, "%s", name);
   result = cdev_add(cdev, bf_dev, BF_MAX_DEVICE_CNT);
 
-  if (result)
+  if (result) {
     goto fail_dev_add;
+  }
 
   bf_major = MAJOR(bf_dev);
   bf_global[minor].bf_cdev = cdev;
@@ -775,19 +770,16 @@ fail_dev_add:
   return result;
 }
 
-static void bf_major_cleanup(struct bf_pci_dev *bfdev, int minor)
-{
+static void bf_major_cleanup(struct bf_pci_dev *bfdev, int minor) {
   unregister_chrdev_region(MKDEV(bf_major, 0), BF_MAX_DEVICE_CNT);
   cdev_del(bf_global[minor].bf_cdev);
 }
 
-static int bf_init_cdev(struct bf_pci_dev *bfdev, int minor)
-{
+static int bf_init_cdev(struct bf_pci_dev *bfdev, int minor) {
   int ret;
   ret = bf_major_init(bfdev, minor);
-  if (ret)
-   return ret;
-  
+  if (ret) return ret;
+
   bf_class = class_create(THIS_MODULE, BF_CLASS_NAME);
   if (!bf_class) {
     printk(KERN_ERR "create_class failed for bf_dev\n");
@@ -801,28 +793,26 @@ err_class_register:
   return ret;
 }
 
-static void bf_remove_cdev(struct bf_pci_dev *bfdev)
-{
+static void bf_remove_cdev(struct bf_pci_dev *bfdev) {
   class_destroy(bf_class);
   bf_major_cleanup(bfdev, bfdev->info.minor);
 }
 
-
 /**
  * bf_register_device - register a new userspace mem device
  * @parent:     parent device
- * @bfdev:      bf pci device 
+ * @bfdev:      bf pci device
  *
  * returns zero on success or a negative error code.
  */
-int bf_register_device(struct device *parent, struct bf_pci_dev *bfdev)
-{
+int bf_register_device(struct device *parent, struct bf_pci_dev *bfdev) {
   struct bf_dev_info *info = &bfdev->info;
   int i, j, ret = 0;
   int minor;
 
-  if (!parent || !info || !info->version)
+  if (!parent || !info || !info->version) {
     return -EINVAL;
+  }
 
   init_waitqueue_head(&info->wait);
 
@@ -840,9 +830,8 @@ int bf_register_device(struct device *parent, struct bf_pci_dev *bfdev)
     return ret;
   }
 
-  info->dev = device_create(bf_class, parent,
-                            MKDEV(bf_major, minor), bfdev,
-                            "bf%d", minor);
+  info->dev = device_create(
+      bf_class, parent, MKDEV(bf_major, minor), bfdev, "bf%d", minor);
   if (!info->dev) {
     printk(KERN_ERR "BF: device creation failed\n");
     return -ENODEV;
@@ -861,19 +850,24 @@ int bf_register_device(struct device *parent, struct bf_pci_dev *bfdev)
      * freed until they are released.
      */
     if (bfdev->mode == BF_INTR_MODE_LEGACY) {
-      ret = request_irq(info->irq, bf_interrupt,
-                        info->irq_flags, bfdev->name,
+      ret = request_irq(info->irq,
+                        bf_interrupt,
+                        info->irq_flags,
+                        bfdev->name,
                         (void *)&(bfdev->bf_int_vec[0]));
       if (ret) {
         printk(KERN_ERR "bf failed to request legacy irq %ld error %d\n",
-               info->irq, ret);
+               info->irq,
+               ret);
         return ret;
       }
       printk(KERN_NOTICE "BF allocating legacy int vector %ld\n", info->irq);
     } else if (bfdev->mode == BF_INTR_MODE_MSIX) {
       for (i = 0; i < info->num_irq; i++) {
-        ret = request_irq(info->msix_entries[i].vector, bf_interrupt,
-                          info->irq_flags, bfdev->name,
+        ret = request_irq(info->msix_entries[i].vector,
+                          bf_interrupt,
+                          info->irq_flags,
+                          bfdev->name,
                           (void *)&(bfdev->bf_int_vec[i]));
         if (ret) {
           /* undo all other previous bindings */
@@ -883,14 +877,17 @@ int bf_register_device(struct device *parent, struct bf_pci_dev *bfdev)
                      (void *)&(bfdev->bf_int_vec[j]));
           }
           return ret;
-        } 
+        }
       }
       printk(KERN_NOTICE "BF allocating %d MSIx vectors from  %ld\n",
-             info->num_irq, info->irq);
+             info->num_irq,
+             info->irq);
     } else if (bfdev->mode == BF_INTR_MODE_MSI) {
       for (i = 0; i < info->num_irq; i++) {
-        ret = request_irq(info->irq + i, bf_interrupt,
-                          info->irq_flags, bfdev->name,
+        ret = request_irq(info->irq + i,
+                          bf_interrupt,
+                          info->irq_flags,
+                          bfdev->name,
                           (void *)&(bfdev->bf_int_vec[i]));
         if (ret) {
           /* undo all other previous bindings */
@@ -899,10 +896,11 @@ int bf_register_device(struct device *parent, struct bf_pci_dev *bfdev)
             free_irq(info->irq + j, (void *)&(bfdev->bf_int_vec[j]));
           }
           return ret;
-        } 
+        }
       }
       printk(KERN_NOTICE "BF allocating %d MSI vectors from  %ld\n",
-             info->num_irq, info->irq);
+             info->num_irq,
+             info->irq);
     }
   }
   return 0;
@@ -910,12 +908,11 @@ int bf_register_device(struct device *parent, struct bf_pci_dev *bfdev)
 
 /**
  * bf_unregister_device - register a new userspace mem device
- * @bfdev:      bf pci device 
+ * @bfdev:      bf pci device
  *
  * returns none
  */
-void bf_unregister_device(struct bf_pci_dev *bfdev)
-{
+void bf_unregister_device(struct bf_pci_dev *bfdev) {
   struct bf_dev_info *info = &bfdev->info;
   int i;
 
@@ -938,8 +935,7 @@ void bf_unregister_device(struct bf_pci_dev *bfdev)
   return;
 }
 
-static inline struct device *pci_dev_to_dev(struct pci_dev *pdev)
-{
+static inline struct device *pci_dev_to_dev(struct pci_dev *pdev) {
   return &pdev->dev;
 }
 
@@ -957,7 +953,7 @@ static void bf_disable_int_dma(struct bf_pci_dev *bfdev) {
   /* mask interrupt  at shadow level */
   bf_addr = (u32 *)((u8 *)bf_base_addr + 0xc0);
   for (i = 0; i < 16; i++) {
-    *bf_addr = 0xffffffff;
+    *bf_addr = 0xffffffffUL;
     bf_addr++;
   }
   /* mask DMA */
@@ -967,18 +963,17 @@ static void bf_disable_int_dma(struct bf_pci_dev *bfdev) {
   *bf_addr = val;
 }
 
-static int
-bf_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
-{
+static int bf_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id) {
   struct bf_pci_dev *bfdev;
-  int err;
+  int err, pci_use_highmem;
   int i, num_irq;
 
   memset(bf_global, 0, sizeof(bf_global));
 
   bfdev = kzalloc(sizeof(struct bf_pci_dev), GFP_KERNEL);
-  if (!bfdev)
+  if (!bfdev) {
     return -ENOMEM;
+  }
 
   /* init the cookies to be passed to ISRs */
   for (i = 0; i < BF_MSIX_ENTRY_CNT; i++) {
@@ -992,12 +987,32 @@ bf_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
   /* clear pci_error_state */
   bfdev->info.pci_error_state = 0;
 
+  /* mark pci device_id type */
+  bfdev->info.pci_dev_id = pdev->device;
+  switch (pdev->device) {
+  case TOFINO2_DEV_ID_A0:
+  case TOFINO2_DEV_ID_A00:
+  case TOFINO2_DEV_ID_B0:
+    bfdev->info.tof_type = BF_TOFINO_2;
+    break;
+  default:
+    bfdev->info.tof_type = BF_TOFINO_1;
+    break;
+  }
+  /* intialize TBUS MSIX indices */
+  for (i = 0; i < BF_TBUS_MSIX_INDICES_MAX; i++) {
+    if (bfdev->info.tof_type == BF_TOFINO_1) {
+      bfdev->info.tbus_msix_ind[i] = BF_TBUS_MSIX_BASE_INDEX_TOF1 + i;
+    } else if (bfdev->info.tof_type == BF_TOFINO_2) {
+      bfdev->info.tbus_msix_ind[i] = BF_TBUS_MSIX_INDEX_INVALID;
+    }
+  }
   /*
    * enable device
    */
   err = pci_enable_device(pdev);
   if (err != 0) {
-    dev_err(&pdev->dev, "Cannot enable PCI device\n");
+    printk(KERN_ERR "bf cannot enable PCI device\n");
     goto fail_free;
   }
 
@@ -1007,27 +1022,29 @@ bf_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
    */
   err = pci_request_regions(pdev, "bf_umem");
   if (err != 0) {
-    dev_err(&pdev->dev, "Cannot request regions\n");
+    printk(KERN_ERR "bf Cannot request regions\n");
     goto fail_pci_disable;
   }
   /* remap IO memory */
   err = bf_setup_bars(pdev, &bfdev->info);
-  if (err != 0)
+  if (err != 0) {
+    printk(KERN_ERR "bf Cannot setup BARs\n");
     goto fail_release_iomem;
+  }
 
   if (!dma_set_mask(pci_dev_to_dev(pdev), DMA_BIT_MASK(64)) &&
       !dma_set_coherent_mask(pci_dev_to_dev(pdev), DMA_BIT_MASK(64))) {
+    pci_use_highmem = 1;
   } else {
     err = dma_set_mask(pci_dev_to_dev(pdev), DMA_BIT_MASK(32));
     if (err) {
-      err = dma_set_coherent_mask(pci_dev_to_dev(pdev),
-                                  DMA_BIT_MASK(32));
+      err = dma_set_coherent_mask(pci_dev_to_dev(pdev), DMA_BIT_MASK(32));
       if (err) {
-        dev_err(pci_dev_to_dev(pdev), "No usable DMA "
-                                      "configuration, aborting\n");
-		    goto fail_release_iomem;
+        printk(KERN_ERR "bf no usable DMA configuration, aborting\n");
+        goto fail_release_iomem;
       }
     }
+    pci_use_highmem = 0;
   }
 
   /* enable pci error reporting */
@@ -1054,126 +1071,142 @@ bf_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 
   switch (bf_intr_mode_default) {
 #ifdef CONFIG_PCI_MSI
-  case BF_INTR_MODE_MSIX:
-    /* Only 1 msi-x vector needed */
-    bfdev->info.msix_entries = kcalloc(BF_MSIX_ENTRY_CNT,
-                                       sizeof(struct msix_entry), GFP_KERNEL);
-    if (!bfdev->info.msix_entries) {
-      err = -ENOMEM;
-      goto fail_clear_pci_master;
-    }
-    for (i = 0; i < BF_MSIX_ENTRY_CNT; i++) {
-      bfdev->info.msix_entries[i].entry= i;
-    }
+    case BF_INTR_MODE_MSIX:
+      /* Only 1 msi-x vector needed */
+      bfdev->info.msix_entries =
+          kcalloc(BF_MSIX_ENTRY_CNT, sizeof(struct msix_entry), GFP_KERNEL);
+      if (!bfdev->info.msix_entries) {
+        err = -ENOMEM;
+        goto fail_clear_pci_master;
+      }
+      for (i = 0; i < BF_MSIX_ENTRY_CNT; i++) {
+        bfdev->info.msix_entries[i].entry = i;
+      }
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 0)
-    num_irq = pci_enable_msix(pdev, bfdev->info.msix_entries,
-                              BF_MSIX_ENTRY_CNT);
-    if (num_irq == 0) {
-	    dev_dbg(&pdev->dev, "using MSI-X");
-      bfdev->info.num_irq = BF_MSIX_ENTRY_CNT;
-		  bfdev->info.irq = bfdev->info.msix_entries[0].vector;
-		  bfdev->mode = BF_INTR_MODE_MSIX;
-      printk(KERN_DEBUG "bf using %d MSIX irq from %ld\n", num_irq,
-             bfdev->info.irq);
-		  break;
-    }
+      num_irq = pci_enable_msix(pdev, bfdev->info.msix_entries,
+                                BF_MSIX_ENTRY_CNT);
+      if (num_irq == 0) {
+        bfdev->info.num_irq = BF_MSIX_ENTRY_CNT;
+        bfdev->info.irq = bfdev->info.msix_entries[0].vector;
+        bfdev->mode = BF_INTR_MODE_MSIX;
+        printk(KERN_DEBUG "bf using %d MSIX irq from %ld\n", num_irq,
+               bfdev->info.irq);
+        break;
+      }
 #else
-    num_irq = pci_enable_msix_range(pdev, bfdev->info.msix_entries,
-                                    BF_MSIX_ENTRY_CNT, BF_MSIX_ENTRY_CNT);
-    if (num_irq == BF_MSIX_ENTRY_CNT) {
-	    dev_dbg(&pdev->dev, "using MSI-X");
-      bfdev->info.num_irq = num_irq;
-		  bfdev->info.irq = bfdev->info.msix_entries[0].vector;
-		  bfdev->mode = BF_INTR_MODE_MSIX;
-      printk(KERN_DEBUG "bf using %d MSIX irq from %ld\n", num_irq,
-             bfdev->info.irq);
-		  break;
-    } else {
-      if (num_irq)
-        pci_disable_msix(pdev);
-      kfree(bfdev->info.msix_entries);
-      bfdev->info.msix_entries = NULL;
-      printk(KERN_ERR "bf error allocating MSIX vectors. Trying MSI...\n");
-      /* and, fall back to MSI */
-    }
+      num_irq = pci_enable_msix_range(
+          pdev, bfdev->info.msix_entries, BF_MSIX_ENTRY_CNT, BF_MSIX_ENTRY_CNT);
+      if (num_irq == BF_MSIX_ENTRY_CNT) {
+        bfdev->info.num_irq = num_irq;
+        bfdev->info.irq = bfdev->info.msix_entries[0].vector;
+        bfdev->mode = BF_INTR_MODE_MSIX;
+        printk(KERN_DEBUG "bf using %d MSIX irq from %ld\n",
+               num_irq,
+               bfdev->info.irq);
+        break;
+      } else {
+        if (num_irq) pci_disable_msix(pdev);
+        kfree(bfdev->info.msix_entries);
+        bfdev->info.msix_entries = NULL;
+        printk(KERN_ERR "bf error allocating MSIX vectors. Trying MSI...\n");
+        /* and, fall back to MSI */
+      }
 #endif /* LINUX_VERSION_CODE */
     /* ** intentional no-break */
-  case BF_INTR_MODE_MSI:
+    case BF_INTR_MODE_MSI:
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 0)
-    num_irq = pci_enable_msi_block(pdev, BF_MSI_ENTRY_CNT);
-    /* we must get requested number of MSI vectors enabled */
-    if (num_irq == 0) {
-      dev_dbg(&pdev->dev, "using MSI");
-      bfdev->info.num_irq = BF_MSI_ENTRY_CNT;
-		  bfdev->info.irq = pdev->irq;
-		  bfdev->mode = BF_INTR_MODE_MSI;
-      printk(KERN_DEBUG "bf using %d MSI irq from %ld\n", bfdev->info.num_irq,
+      num_irq = pci_enable_msi_block(pdev, BF_MSI_ENTRY_CNT);
+      /* we must get requested number of MSI vectors enabled */
+      if (num_irq == 0) {
+        bfdev->info.num_irq = BF_MSI_ENTRY_CNT;
+        bfdev->info.irq = pdev->irq;
+        bfdev->mode = BF_INTR_MODE_MSI;
+        printk(KERN_DEBUG "bf using %d MSI irq from %ld\n", bfdev->info.num_irq,
              bfdev->info.irq);
-      break;
-    }
+        break;
+      }
 #elif LINUX_VERSION_CODE < KERNEL_VERSION(4, 10, 0)
-    num_irq = pci_enable_msi_range(pdev, BF_MSI_ENTRY_CNT, BF_MSI_ENTRY_CNT);
-    if (num_irq > 0) {
-      dev_dbg(&pdev->dev, "using MSI");
-      bfdev->info.num_irq = num_irq;
-		  bfdev->info.irq = pdev->irq;
-		  bfdev->mode = BF_INTR_MODE_MSI;
-      printk(KERN_DEBUG "bf using %d MSI irq from %ld\n", bfdev->info.num_irq,
-             bfdev->info.irq);
-      break;
-    }
+      num_irq = pci_enable_msi_range(pdev, BF_MSI_ENTRY_CNT, BF_MSI_ENTRY_CNT);
+      if (num_irq > 0) {
+        bfdev->info.num_irq = num_irq;
+        bfdev->info.irq = pdev->irq;
+        bfdev->mode = BF_INTR_MODE_MSI;
+        printk(KERN_DEBUG "bf using %d MSI irq from %ld\n",
+               bfdev->info.num_irq,
+               bfdev->info.irq);
+        break;
+      }
 #else
-    num_irq = pci_alloc_irq_vectors_affinity(pdev, BF_MSI_ENTRY_CNT,
-                  BF_MSI_ENTRY_CNT, PCI_IRQ_MSI | PCI_IRQ_AFFINITY, NULL);
-    if (num_irq > 0) {
-      dev_dbg(&pdev->dev, "using MSI");
-      bfdev->info.num_irq = num_irq;
-		  bfdev->info.irq = pci_irq_vector(pdev, 0);
-		  bfdev->mode = BF_INTR_MODE_MSI;
-      printk(KERN_DEBUG "bf using %d MSI irq from %ld\n", bfdev->info.num_irq,
+      num_irq = pci_alloc_irq_vectors_affinity(pdev, BF_MSI_ENTRY_CNT,
+                    BF_MSI_ENTRY_CNT, PCI_IRQ_MSI | PCI_IRQ_AFFINITY, NULL);
+      if (num_irq > 0) {
+        bfdev->info.num_irq = num_irq;
+        bfdev->info.irq = pci_irq_vector(pdev, 0);
+        bfdev->mode = BF_INTR_MODE_MSI;
+        printk(KERN_DEBUG "bf using %d MSI irq from %ld\n", bfdev->info.num_irq,
              bfdev->info.irq);
-      break;
-    }
+        break;
+      }
 #endif /* LINUX_VERSION_CODE */
 #endif /* CONFIG_PCI_MSI */
     /* fall back to Legacy Interrupt, intentional no-break */
 
-  case BF_INTR_MODE_LEGACY:
-    if (pci_intx_mask_supported(pdev)) {
-      dev_dbg(&pdev->dev, "using INTX");
-      bfdev->info.irq_flags = IRQF_SHARED;
-      bfdev->info.irq = pdev->irq;
-      bfdev->mode = BF_INTR_MODE_LEGACY;
-      printk(KERN_DEBUG "bf using LEGACY irq %ld\n", bfdev->info.irq);
-      break;
-    }
-    dev_notice(&pdev->dev, "PCI INTx mask not supported\n");
+    case BF_INTR_MODE_LEGACY:
+      if (pci_intx_mask_supported(pdev)) {
+        bfdev->info.irq_flags = IRQF_SHARED;
+        bfdev->info.irq = pdev->irq;
+        bfdev->mode = BF_INTR_MODE_LEGACY;
+        printk(KERN_DEBUG "bf using LEGACY irq %ld\n", bfdev->info.irq);
+        break;
+      }
+      printk(KERN_NOTICE " bf PCI INTx mask not supported\n");
     /* fall back to no Interrupt, intentional no-break */
-  case BF_INTR_MODE_NONE:
-    bfdev->info.irq = 0;
-    bfdev->info.num_irq = 0;
-    bfdev->mode = BF_INTR_MODE_NONE;
-    break;
+    case BF_INTR_MODE_NONE:
+      bfdev->info.irq = 0;
+      bfdev->info.num_irq = 0;
+      bfdev->mode = BF_INTR_MODE_NONE;
+      break;
 
-  default:
-    dev_err(&pdev->dev, "invalid IRQ mode %u", bf_intr_mode_default);
-    err = -EINVAL;
-    goto fail_clear_pci_master;
+    default:
+      printk(KERN_DEBUG "bf invalid IRQ mode %u", bf_intr_mode_default);
+      err = -EINVAL;
+      goto fail_clear_pci_master;
   }
 
   pci_set_drvdata(pdev, bfdev);
   sprintf(bfdev->name, "bf_%d", bfdev->info.minor);
   /* register bf driver */
   err = bf_register_device(&pdev->dev, bfdev);
-  if (err != 0)
+  if (err != 0) {
     goto fail_release_irq;
+  }
 
   bf_global[bfdev->info.minor].async_queue = NULL;
   bf_global[bfdev->info.minor].bfdev = bfdev;
 
-  dev_info(&pdev->dev, "bf device %d registered with irq %ld\n",
-  bfdev->instance, bfdev->info.irq);
+  dev_info(&pdev->dev,
+           "bf device %d registered with irq %ld\n",
+           bfdev->instance,
+           bfdev->info.irq);
   printk(KERN_ALERT "bf probe ok\n");
+#ifdef BF_INCLUDE_KPKT
+  if (kpkt_mode) {
+    err = bf_kpkt_init(pdev,
+                       bfdev->info.mem[0].internal_addr,
+                       &bfdev->adapter_ptr,
+                       bfdev->info.minor,
+                       pci_use_highmem,
+                       kpkt_hd_room,
+                       kpkt_dr_int_en,
+                       kpkt_rx_count);
+    if (err == 0) {
+      printk(KERN_ALERT "bf_kpkt kernel processing enabled\n");
+    } else {
+      printk(KERN_ALERT "error starting bf_kpkt kernel processing\n");
+      bfdev->adapter_ptr = NULL;
+    }
+  }
+#endif
   return 0;
 
 fail_release_irq:
@@ -1182,11 +1215,11 @@ fail_release_irq:
     pci_disable_msix(bfdev->pdev);
     kfree(bfdev->info.msix_entries);
     bfdev->info.msix_entries = NULL;
-  }
-  else if (bfdev->mode == BF_INTR_MODE_MSI)
+  } else if (bfdev->mode == BF_INTR_MODE_MSI) {
     pci_disable_msi(bfdev->pdev);
+  }
 fail_clear_pci_master:
-  pci_clear_master(pdev);  
+  pci_clear_master(pdev);
 fail_release_iomem:
   bf_pci_release_iomem(&bfdev->info);
   pci_release_regions(pdev);
@@ -1199,22 +1232,24 @@ fail_free:
   return err;
 }
 
-
-static void
-bf_pci_remove(struct pci_dev *pdev)
-{
+static void bf_pci_remove(struct pci_dev *pdev) {
   struct bf_pci_dev *bfdev = pci_get_drvdata(pdev);
   struct bf_listener *cur_listener;
 
+#ifdef BF_INCLUDE_KPKT
+  if (kpkt_mode) {
+    bf_kpkt_remove(bfdev->adapter_ptr);
+  }
+#endif
   bf_disable_int_dma(bfdev);
   bf_unregister_device(bfdev);
   if (bfdev->mode == BF_INTR_MODE_MSIX) {
     pci_disable_msix(pdev);
     kfree(bfdev->info.msix_entries);
     bfdev->info.msix_entries = NULL;
-  }
-  else if (bfdev->mode == BF_INTR_MODE_MSI)
+  } else if (bfdev->mode == BF_INTR_MODE_MSI) {
     pci_disable_msi(pdev);
+  }
   pci_clear_master(pdev);
   bf_pci_release_iomem(&bfdev->info);
   pci_release_regions(pdev);
@@ -1234,6 +1269,17 @@ bf_pci_remove(struct pci_dev *pdev)
   kfree(bfdev);
 }
 
+/* AER support callbacks. Refer to:
+ * https://www.kernel.org/doc/Documentation/PCI/pcieaer-howto.txt
+ * and
+ * https://www.kernel.org/doc/Documentation/PCI/pci-error-recovery.txt
+ *
+ * from bf_kdrv point of view, AER uncorrected errors (fatal and non-fatal)
+ * should not cause pci link reset (upstream port AER callbacks must also
+ * support this requirements of bf_kdrv)
+ * Device, however, is not expected to function after uncorrected errors
+ * but, application has chance to perform diags without resetting pci link
+ */
 /**
  * bf_pci_error_detected - called when PCI error is detected
  * @pdev: Pointer to PCI device
@@ -1242,10 +1288,8 @@ bf_pci_remove(struct pci_dev *pdev)
  * called when root complex detects pci error associated with the device
  */
 static pci_ers_result_t bf_pci_error_detected(struct pci_dev *pdev,
-                                              pci_channel_state_t state)
-{
+                                              pci_channel_state_t state) {
   struct bf_pci_dev *bfdev = pci_get_drvdata(pdev);
-  int minor;
 
   if (!bfdev) {
     return PCI_ERS_RESULT_NONE;
@@ -1253,15 +1297,35 @@ static pci_ers_result_t bf_pci_error_detected(struct pci_dev *pdev,
   printk(KERN_ERR "pci_err_detected state %d\n", state);
   if (state == pci_channel_io_perm_failure || state == pci_channel_io_frozen) {
     bfdev->info.pci_error_state = 1;
+#ifdef BF_INCLUDE_KPKT
+    if (kpkt_mode) {
+      bf_kpkt_set_pci_error(bfdev->adapter_ptr, 1);
+    }
+#endif
+    /* we do not want pci link to go down. The user space application
+     * should collect the diag info, terminate the application and unload the
+     * kernel module
+     */
+    return PCI_ERS_RESULT_CAN_RECOVER; /* to prevent pci link down */
+  } else {
+    return PCI_ERS_RESULT_CAN_RECOVER;
+  }
+}
+
+static pci_ers_result_t bf_pci_mmio_enabled(struct pci_dev *dev) {
+  struct bf_pci_dev *bfdev = pci_get_drvdata(dev);
+
+  printk(KERN_ERR "BF pci_mmio_enabled invoked after pci error\n");
+  pci_cleanup_aer_uncorrect_error_status(dev);
+
+  if (bfdev) {
     /* send a signal to the user space program of the error */
-    minor = bfdev->info.minor;
+    int minor = bfdev->info.minor;
     if (minor < BF_MAX_DEVICE_CNT && bf_global[minor].async_queue) {
       kill_fasync(&bf_global[minor].async_queue, SIGIO, POLL_ERR);
     }
-    return PCI_ERS_RESULT_DISCONNECT;
-  } else {
-    return PCI_ERS_RESULT_NONE;
   }
+  return PCI_ERS_RESULT_RECOVERED;
 }
 
 /**
@@ -1270,13 +1334,13 @@ static pci_ers_result_t bf_pci_error_detected(struct pci_dev *pdev,
  *
  * Restart the card from scratch, as if from a cold-boot.
  */
-static pci_ers_result_t bf_pci_slot_reset(struct pci_dev *pdev)
-{
+static pci_ers_result_t bf_pci_slot_reset(struct pci_dev *pdev) {
   /* nothing to do for now as we do not expect to get backto normal after
-   * a pcie link reset
+   * a pcie link reset. Not expected to be invoked.
    * TBD: fill in this function if tofino can recover after an error
    */
-  return PCI_ERS_RESULT_DISCONNECT;
+  printk(KERN_ERR "BF pci_slot_reset invoked after pci error\n");
+  return PCI_ERS_RESULT_RECOVERED;
 }
 
 /**
@@ -1286,22 +1350,13 @@ static pci_ers_result_t bf_pci_slot_reset(struct pci_dev *pdev)
  * This callback is called when the error recovery driver tells us that
  * its OK to resume normal operation.
  */
-static void bf_pci_resume(struct pci_dev *pdev)
-{
-  /* this function should never be called  for Tofinoi */
-  struct bf_pci_dev *bfdev = pci_get_drvdata(pdev);
-
+static void bf_pci_resume(struct pci_dev *pdev) {
   printk(KERN_ERR "BF io_resume invoked after pci error\n");
-  if (bfdev) {
-    bfdev->info.pci_error_state = 0;
-  }
 }
 
-static int
-bf_config_intr_mode(char *intr_str)
-{
+static int bf_config_intr_mode(char *intr_str) {
   if (!intr_str) {
-    pr_info("Use MSIX interrupt by default\n");
+    pr_info("Use MSI interrupt by default\n");
     return 0;
   }
 
@@ -1314,67 +1369,108 @@ bf_config_intr_mode(char *intr_str)
   } else if (!strcmp(intr_str, BF_INTR_MODE_LEGACY_NAME)) {
     bf_intr_mode_default = BF_INTR_MODE_LEGACY;
     pr_info("Use legacy interrupt\n");
-  } else {
+  } else if (!strcmp(intr_str, BF_INTR_MODE_NONE_NAME)) {
     bf_intr_mode_default = BF_INTR_MODE_NONE;
-    pr_info(" No Interrupt \n");
+    pr_info("BF interrupt disabled\n");
+  } else {
+    pr_info("Error: bad intr_mode parameter - %s\n", intr_str);
+    return -EINVAL;
   }
-  
 
   return 0;
 }
 
 static const struct pci_device_id bf_pci_tbl[] = {
-  {PCI_VDEVICE(BF, TOFINO_DEV_ID_A0), 0},
-  {PCI_VDEVICE(BF, TOFINO_DEV_ID_B0), 0},
-  {PCI_VDEVICE(BF, TOFINO2_DEV_ID_A0), 0},
-  /* required last entry */
-  { .device = 0 }
-};
+    {PCI_VDEVICE(BF, TOFINO_DEV_ID_A0), 0},
+    {PCI_VDEVICE(BF, TOFINO_DEV_ID_B0), 0},
+    {PCI_VDEVICE(BF, TOFINO2_DEV_ID_A0), 0},
+    {PCI_VDEVICE(BF, TOFINO2_DEV_ID_A00), 0},
+    {PCI_VDEVICE(BF, TOFINO2_DEV_ID_B0), 0},
+    /* required last entry */
+    {.device = 0}};
 
 /* PCI bus error handlers */
 static struct pci_error_handlers bf_pci_err_handler = {
-  .error_detected = bf_pci_error_detected,
-  .slot_reset = bf_pci_slot_reset,
-  .resume = bf_pci_resume,
+    .error_detected = bf_pci_error_detected,
+    .mmio_enabled = bf_pci_mmio_enabled,
+    .slot_reset = bf_pci_slot_reset,
+    .resume = bf_pci_resume,
 };
 
-static struct pci_driver bf_pci_driver = {
-  .name = "bf",
-  .id_table = bf_pci_tbl,
-  .probe = bf_pci_probe,
-  .remove = bf_pci_remove,
-  .err_handler = &bf_pci_err_handler
-};
+static struct pci_driver bf_pci_driver = {.name = "bf",
+                                          .id_table = bf_pci_tbl,
+                                          .probe = bf_pci_probe,
+                                          .remove = bf_pci_remove,
+                                          .err_handler = &bf_pci_err_handler};
 
-static int __init
-bfdrv_init(void)
-{
+static int __init bfdrv_init(void) {
   int ret;
 
   ret = bf_config_intr_mode(intr_mode);
-  if (ret < 0)
+  /* do not enable DR interrupt if not using MSI or not in kpkt mode */
+  if ((bf_intr_mode_default != BF_INTR_MODE_MSI &&
+       bf_intr_mode_default != BF_INTR_MODE_LEGACY) || kpkt_mode == 0) {
+    kpkt_dr_int_en = 0;
+  }
+  if (kpkt_mode) {
+    printk(KERN_NOTICE "kpkt_mode %d hd_room %d dr_int_en %d rx_count %d\n",
+           kpkt_mode,
+           kpkt_hd_room,
+           kpkt_dr_int_en,
+           kpkt_rx_count);
+  }
+  if (ret < 0) {
     return ret;
-
+  }
   spin_lock_init(&bf_nonisr_lock);
   return pci_register_driver(&bf_pci_driver);
 }
 
-static void __exit
-bfdrv_exit(void)
-{
+static void __exit bfdrv_exit(void) {
   pci_unregister_driver(&bf_pci_driver);
+  intr_mode = NULL;
+  kpkt_mode = 0;
 }
 
 module_init(bfdrv_init);
 module_exit(bfdrv_exit);
 
+module_param(kpkt_mode, int, S_IRUGO);
+MODULE_PARM_DESC(kpkt_mode,
+                 "bf kernel mode pkt processing (default=off):\n"
+                 " 1 Use kernel mode bf_pkt processing\n"
+                 " 0 Do not use kernel mode bf_pkt processing\n"
+                 "\n");
+
+module_param(kpkt_hd_room, int, S_IRUGO);
+MODULE_PARM_DESC(kpkt_hd_room,
+                 "head room to reserve when receiving packets (default=32):\n"
+                 "\n");
+
+module_param(kpkt_rx_count, int, S_IRUGO);
+MODULE_PARM_DESC(kpkt_rx_count,
+                 "number of buffers per rx pkt ring (default=256):\n"
+                 "\n");
+/* dr_int_en is applicable only if MSI interrupt mode is selected */
+module_param(kpkt_dr_int_en, int, S_IRUGO);
+MODULE_PARM_DESC(kpkt_dr_int_en,
+                 "bf pkt Interrupt enable (default=1):\n"
+                 " 1 use interrupt\n"
+                 " 0 Do not use interrupt\n"
+                 "\n");
+
 module_param(intr_mode, charp, S_IRUGO);
 MODULE_PARM_DESC(intr_mode,
-"bf interrupt mode (default=msix):\n"
-"    " BF_INTR_MODE_MSIX_NAME "       Use MSIX interrupt\n"
-"    " BF_INTR_MODE_MSI_NAME "        Use MSI interrupt\n"
-"    " BF_INTR_MODE_LEGACY_NAME "     Use Legacy interrupt\n"
-"\n");
+                 "bf interrupt mode (default=msix):\n"
+                 "    " BF_INTR_MODE_MSIX_NAME
+                 "       Use MSIX interrupt\n"
+                 "    " BF_INTR_MODE_MSI_NAME
+                 "        Use MSI interrupt\n"
+                 "    " BF_INTR_MODE_LEGACY_NAME
+                 "     Use Legacy interrupt\n"
+                 "    " BF_INTR_MODE_NONE_NAME
+                 "       Use no interrupt\n"
+                 "\n");
 
 MODULE_DEVICE_TABLE(pci, bf_pci_tbl);
 MODULE_DESCRIPTION("Barefoot Tofino PCI device");
