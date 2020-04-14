@@ -11,15 +11,69 @@ import select
 from python_sdk_api.sx_api import *
 from sonic_daemon_base.daemon_base import Logger
 
-SDK_SFP_STATE_IN = 0x1
+# SFP status from PMAOS register
+# 0x1 plug in
+# 0x2 plug out
+# 0x3 plug in with error
+# 0x4 disabled, at this status SFP eeprom is not accessible, 
+#     and presence status also will be not present, 
+#     so treate it as plug out.
+SDK_SFP_STATE_IN  = 0x1
 SDK_SFP_STATE_OUT = 0x2
+SDK_SFP_STATE_ERR = 0x3
+SDK_SFP_STATE_DIS = 0x4
+
+# SFP status that will be handled by XCVRD 
 STATUS_PLUGIN = '1'
 STATUS_PLUGOUT = '0'
-STATUS_UNKNOWN = '2'
+STATUS_ERR_I2C_STUCK = '2'
+STATUS_ERR_BAD_EEPROM = '3'
+STATUS_ERR_UNSUPPORTED_CABLE = '4'
+STATUS_ERR_HIGH_TEMP = '5'
+STATUS_ERR_BAD_CABLE = '6'
+
+# SFP status used in this file only, will not expose to XCVRD
+# STATUS_ERROR will be mapped to different status according to the error code
+STATUS_UNKNOWN = '-1'
+STATUS_ERROR   = '-2'
+
+# SFP error code, only valid when SFP at SDK_SFP_STATE_ERR status
+# Only 0x2, 0x3, 0x5, 0x6 and 0x7 will block the eeprom access,
+# so will only report above errors to XCVRD and other errors will be 
+# printed to syslog. 
+
+'''
+0x0: "Power_Budget_Exceeded",
+0x1: "Long_Range_for_non_MLNX_cable_or_module",
+0x2: "Bus_stuck",
+0x3: "bad_or_unsupported_EEPROM",
+0x4: "Enforce_part_number_list",
+0x5: "unsupported_cable",
+0x6: "High_Temperature",
+0x7: "bad_cable",
+0x8: "PMD_type_is_not_enabled",
+0x9: "[internal]Laster_TEC_failure",
+0xa: "[internal]High_current",
+0xb: "[internal]High_voltage",
+0xd: "[internal]High_power",
+0xe: "[internal]Module_state_machine_fault",
+0xc: "pcie_system_power_slot_Exceeded"
+'''
+
+# SFP errors that will block eeprom accessing
+sdk_sfp_err_type_dict = {
+    0x2: STATUS_ERR_I2C_STUCK,
+    0x3: STATUS_ERR_BAD_EEPROM,
+    0x5: STATUS_ERR_UNSUPPORTED_CABLE,
+    0x6: STATUS_ERR_HIGH_TEMP,
+    0x7: STATUS_ERR_BAD_CABLE
+}
 
 sfp_value_status_dict = {
-        SDK_SFP_STATE_IN:  STATUS_PLUGIN,
-        SDK_SFP_STATE_OUT: STATUS_PLUGOUT,
+    SDK_SFP_STATE_IN:  STATUS_PLUGIN,
+    SDK_SFP_STATE_OUT: STATUS_PLUGOUT,
+    SDK_SFP_STATE_ERR: STATUS_ERROR,
+    SDK_SFP_STATE_DIS: STATUS_PLUGOUT,
 }
 
 # system level event/error
@@ -174,7 +228,7 @@ class sfp_event:
 
         for fd in read:
             if fd == self.rx_fd_p.fd:
-                success, port_list, module_state = self.on_pmpe(self.rx_fd_p)
+                success, port_list, module_state, error_type = self.on_pmpe(self.rx_fd_p)
                 if not success:
                     logger.log_error("failed to read from {}".format(fd))
                     break
@@ -192,15 +246,23 @@ class sfp_event:
                     found += 1
                     continue
 
+                # If get SFP status error(0x3) from SDK, then need to read the error_type to get the detailed error
+                if sfp_state == STATUS_ERROR:
+                    if error_type in sdk_sfp_err_type_dict.keys():
+                        # In SFP at error status case, need to overwrite the sfp_state with the exact error code
+                        sfp_state = sdk_sfp_err_type_dict[error_type]
+                    else:
+                        # For errors don't block the eeprom accessing, we don't report it to XCVRD
+                        logger.log_info("SFP error on port but not blocking eeprom read, error_type {}".format(error_type))
+                        found +=1
+                        continue
+
                 for port in port_list:
                     logger.log_info("SFP on port {} state {}".format(port, sfp_state))
                     port_change[port] = sfp_state
                     found += 1
 
-        if found == 0:
-            return False
-        else:
-            return True
+        return found != 0
 
     def on_pmpe(self, fd_p):
         ''' on port module plug event handler '''
@@ -228,7 +290,17 @@ class sfp_event:
             port_list_size = pmpe_t.list_size
             logical_port_list = pmpe_t.log_port_list
             module_state = pmpe_t.module_state
+            error_type = pmpe_t.error_type
+            module_id = pmpe_t.module_id
 
+            if module_state == SDK_SFP_STATE_ERR:
+                logger.log_error("Receive PMPE error event on module {}: status {} error type {}".format(module_id, module_state, error_type))
+            elif module_state == SDK_SFP_STATE_DIS:
+                logger.log_info("Receive PMPE disable event on module {}: status {}".format(module_id, module_state))
+            elif module_state == SDK_SFP_STATE_IN or module_state == SDK_SFP_STATE_OUT:
+                logger.log_info("Receive PMPE plug in/out event on module {}: status {}".format(module_id, module_state))
+            else:
+                logger.log_error("Receive PMPE unknown event on module {}: status {}".format(module_id, module_state))
             for i in xrange(port_list_size):
                 logical_port = sx_port_log_id_t_arr_getitem(logical_port_list, i)
                 rc = sx_api_port_device_get(self.handle, 1 , 0, port_attributes_list,  port_cnt_p)
@@ -247,4 +319,4 @@ class sfp_event:
         delete_sx_port_attributes_t_arr(port_attributes_list)
         delete_uint32_t_p(port_cnt_p)
 
-        return status, label_port_list, module_state,
+        return status, label_port_list, module_state, error_type
