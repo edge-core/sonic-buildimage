@@ -14,7 +14,6 @@ try:
     import io
     import os
     import re
-    import sys
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -243,8 +242,7 @@ class ComponentCPLD(Component):
     CPLD_PART_NUMBER_DEFAULT = ZERO
     CPLD_VERSION_MINOR_DEFAULT = ZERO
 
-    CPLD_UPDATE_COMMAND = 'cpldupdate --dev {} {}'
-    CPLD_INSTALL_SUCCESS_FLAG = 'PASS!'
+    CPLD_UPDATE_COMMAND = 'cpldupdate --dev {} --print-progress {}'
 
     MST_DEVICE_PATTERN = '/dev/mst/mt[0-9]*_pci_cr0'
 
@@ -303,7 +301,7 @@ class ComponentCPLD(Component):
 
         Details:
             The command "cpldupdate" is provided to install CPLD. There are two ways to do it:
-                1. To burn CPLD via gpio, which is faster but only supported on new systems, like Anaconda, ...
+                1. To burn CPLD via gpio, which is faster but only supported on new systems, like SN3700, ...
                 2. To install CPLD via firmware, which is slower but supported on older systems.
                    This also requires the mst device designated.
             "cpldupdate --dev <devname> <vme_file>" has the logic of testing whether to update via gpio is supported,
@@ -326,37 +324,16 @@ class ComponentCPLD(Component):
             return False
 
         cmdline = self.CPLD_UPDATE_COMMAND.format(mst_dev_list[0], image_path)
-        outputline = ""
         success_flag = False
+
         try:
-            proc = subprocess.Popen(cmdline, stdout=subprocess.PIPE, shell=True, stderr=subprocess.STDOUT)
-            while True:
-                out = proc.stdout.read(1)
-
-                if out == '' and proc.poll() != None:
-                    break
-
-                if out != '':
-                    sys.stdout.write(out)
-                    sys.stdout.flush()
-                    outputline += out
-
-                if (out == '\n' or out == '\r') and len(outputline):
-                    m = re.search(self.CPLD_INSTALL_SUCCESS_FLAG, outputline)
-                    if m and m.group(0) == self.CPLD_INSTALL_SUCCESS_FLAG:
-                        success_flag = True
-
-            if proc.returncode:
-                print("ERROR: Upgrade CPLD failed, return code {}".format(proc.returncode))
-                success_flag = False
-
-        except OSError as e:
-            raise RuntimeError("Failed to execute command {} due to {}".format(cmdline, repr(e)))
+            subprocess.check_call(cmdline, stderr=subprocess.STDOUT, shell=True)
+            success_flag = True
+        except subprocess.CalledProcessError as e:
+            print("ERROR: Failed to upgrade CPLD: rc={}".format(e.returncode))
 
         if success_flag:
             print("INFO: Refresh or power cycle is required to finish CPLD installation")
-        else:
-            print("ERROR: Failed to install CPLD")
 
         return success_flag
 
