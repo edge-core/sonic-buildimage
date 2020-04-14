@@ -1,0 +1,23 @@
+module sonic-extension {
+
+    yang-version 1.1;
+
+    namespace "http://github.com/Azure/sonic-extension";
+    prefix sonic-extension;
+
+    description "Extension yang Module for SONiC OS";
+
+    revision 2019-07-01 {
+        description "First Revision";
+    }
+
+    extension key-regex-configdb-to-yang {
+        description "Key regex used to convert config DB keys to YANG Config";
+        argument "value";
+    }
+
+    extension key-regex-yang-to-configdb {
+        description "Key regex used to convert config DB keys to YANG Config";
+        argument "value";
+    }
+}

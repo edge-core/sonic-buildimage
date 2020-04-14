@@ -367,6 +367,13 @@ RUN pip install mockredispy==2.9.3
 RUN pip install pytest-runner==4.4
 RUN pip install setuptools==40.8.0
 
+# For sonic_yang_mgmt build
+RUN pip install ijson==2.6.1
+RUN pip3 install ijson==2.6.1
+RUN pip install jsondiff==1.2.0
+RUN pip install xmltodict==0.12.0
+RUN pip install pyang==2.1.1
+
 # For mgmt-framework build
 RUN pip install mmh3
 

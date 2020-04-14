@@ -1,0 +1,92 @@
+module sonic-types {
+
+    yang-version 1.1;
+
+    namespace "http://github.com/Azure/sonic-head";
+    prefix sonic-types;
+
+    description "SONiC type for yang Models of SONiC OS";
+
+    revision 2019-07-01 {
+        description "First Revision";
+    }
+
+    typedef ip-family {
+        type enumeration {
+            enum IPv4;
+            enum IPv6;
+        }
+    }
+
+    typedef sonic-ip4-prefix {
+        type string {
+            pattern
+             '(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}'
+            +  '([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])'
+            + '/(([0-9])|([1-2][0-9])|(3[0-2]))';
+        }
+    }
+
+    typedef sonic-ip6-prefix {
+        type string {
+            pattern '((:|[0-9a-fA-F]{0,4}):)([0-9a-fA-F]{0,4}:){0,5}'
+                 + '((([0-9a-fA-F]{0,4}:)?(:|[0-9a-fA-F]{0,4}))|'
+                 + '(((25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.){3}'
+                 + '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])))'
+                 + '(/(([0-9])|([0-9]{2})|(1[0-1][0-9])|(12[0-8])))';
+            pattern '(([^:]+:){6}(([^:]+:[^:]+)|(.*\..*)))|'
+                 + '((([^:]+:)*[^:]+)?::(([^:]+:)*[^:]+)?)'
+                 + '(/.+)';
+        }
+    }
+
+    typedef admin_status {
+        type enumeration {
+            enum up;
+            enum down;
+        }
+    }
+
+    typedef packet_action{
+        type enumeration {
+            enum DROP;
+            enum FORWARD;
+            enum REDIRECT;
+        }
+    }
+
+    typedef ip_type {
+        type enumeration {
+            enum ANY;
+            enum IP;
+            enum NON_IP;
+            enum IPV4;
+            enum IPV6;
+            enum IPv4ANY;
+            enum NON_IP4;
+            enum IPv6ANY;
+            enum NON_IPv6;
+            enum ARP;
+        }
+    }
+
+    typedef acl_table_type {
+        type enumeration {
+            enum L2;
+            enum L3;
+            enum L3V6;
+            enum MIRROR;
+            enum MIRRORV6;
+            enum MIRROR_DSCP;
+            enum CTRLPLANE;
+        }
+    }
+
+    typedef vlan_tagging_mode {
+        type enumeration {
+            enum tagged;
+            enum untagged;
+            enum priority_tagged;
+        }
+    }
+}

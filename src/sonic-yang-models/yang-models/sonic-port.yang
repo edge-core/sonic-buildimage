@@ -1,0 +1,105 @@
+module sonic-port{
+
+	yang-version 1.1;
+
+	namespace "http://github.com/Azure/sonic-port";
+	prefix port;
+
+	import ietf-yang-types {
+		prefix yang;
+	}
+
+	import ietf-inet-types {
+		prefix inet;
+	}
+
+	import sonic-types {
+		prefix stypes;
+		revision-date 2019-07-01;
+	}
+
+	import sonic-extension {
+		prefix ext;
+		revision-date 2019-07-01;
+	}
+
+	description "PORT yang Module for SONiC OS";
+
+	revision 2019-07-01 {
+		description "First Revision";
+	}
+
+	container sonic-port{
+
+		container PORT {
+
+			description "PORT part of config_db.json";
+
+			list PORT_LIST {
+
+				key "port_name";
+
+				ext:key-regex-configdb-to-yang "^(Ethernet[0-9]+)$";
+
+				ext:key-regex-yang-to-configdb "<port_name>";
+
+				leaf port_name {
+					type string {
+						length 1..128;
+					}
+				}
+
+				leaf alias {
+					type string {
+						length 1..128;
+					}
+				}
+
+				leaf lanes {
+					mandatory true;
+					type string {
+						length 1..128;
+					}
+				}
+
+				leaf description {
+					type string {
+						length 0..255;
+					}
+				}
+
+				leaf speed {
+					mandatory true;
+					type uint32 {
+						range 1..100000;
+					}
+				}
+
+				leaf mtu {
+					type uint16 {
+						range 1..9216;
+					}
+				}
+
+				leaf index {
+					type uint16 {
+						range 0..256;
+					}
+				}
+
+				leaf admin_status {
+					type stypes:admin_status;
+				}
+
+				leaf fec {
+					type string {
+						pattern "rc|fc|None";
+					}
+				}
+			} /* end of list PORT_LIST */
+
+		} /* end of container PORT */
+
+	} /* end of container sonic-port */
+
+} /* end of module sonic-port */
