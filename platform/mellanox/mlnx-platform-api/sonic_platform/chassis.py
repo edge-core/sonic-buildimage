@@ -433,25 +433,12 @@ class Chassis(ChassisBase):
             timeout = MAX_SELECT_DELAY
             while True:
                 status = self.sfp_event.check_sfp_status(port_dict, timeout)
-                if not port_dict == {}:
+                if bool(port_dict):
                     break
         else:
             status = self.sfp_event.check_sfp_status(port_dict, timeout)
 
         if status:
-            # get_change_event has the meaning of retrieving all the notifications through a single call.
-            # Typically this is implemented via a select framework which requires the underlay file-reading 
-            # interface able to retrieve all notifications without blocking once the fd has been selected. 
-            # However, sdk doesn't provide any interface satisfied the requirement. as a result,
-            # check_sfp_status returns only one notification may indicate more notifications in its queue.
-            # In this sense, we have to iterate in a loop to get all the notifications in case that
-            # the first call returns at least one.
-            i = 0
-            while i < self.MAX_SELECT_EVENT_RETURNED:
-                status = self.sfp_event.check_sfp_status(port_dict, 0)
-                if not status:
-                    break
-                i = i + 1
             return True, {'sfp':port_dict}
         else:
             return True, {'sfp':{}}
