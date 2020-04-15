@@ -8,12 +8,12 @@
 #
 #   Email : kalimuthu.velappan@broadcom.com
 #           greg.paussa@broadcom.com
-#  
+#
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
 #   the Free Software Foundation; either version 2 of the License, or
 #   (at your option) any later version.
-#  
+#
 #   This program is distributed in the hope that it will be useful,
 #   but WITHOUT ANY WARRANTY; without even the implied warranty of
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -73,7 +73,8 @@ SONIC_COMMON_FLAGS_LIST :=  $(CONFIGURED_PLATFORM) \
 SONIC_COMMON_DPKG_LIST  :=  debian/control debian/changelog debian/rules \
                             debian/compat debian/install debian/copyright
 SONIC_COMMON_BASE_FILES_LIST  := sonic-slave-jessie/Dockerfile.j2 sonic-slave-jessie/Dockerfile.user \
-                                 sonic-slave-stretch/Dockerfile.j2 sonic-slave-stretch/Dockerfile.user
+                                 sonic-slave-stretch/Dockerfile.j2 sonic-slave-stretch/Dockerfile.user \
+                                 sonic-slave-buster/Dockerfile.j2 sonic-slave-buster/Dockerfile.user
 
 
 
@@ -105,7 +106,7 @@ MOD_CACHE_LOCK_TIMEOUT  := 3600
 SONIC_DPKG_LOCAL_CACHE_DIR=${TARGET_PATH}/cache
 $(shell test -d $(SONIC_DPKG_LOCAL_CACHE_DIR) || \
     mkdir -p $(SONIC_DPKG_LOCAL_CACHE_DIR) && chmod 777 $(SONIC_DPKG_LOCAL_CACHE_DIR) )
-$(shell test -w $(SONIC_DPKG_CACHE_DIR) || sudo chmod 777 $(SONIC_DPKG_CACHE_DIR) ) 
+$(shell test -w $(SONIC_DPKG_CACHE_DIR) || sudo chmod 777 $(SONIC_DPKG_CACHE_DIR) )
 
 DOCKER_LOCKFILE_SUFFIX  := access
 DOCKER_LOCKFILE_TIMEOUT := 1200
@@ -461,7 +462,7 @@ $(foreach pkg, $(SONIC_MAKE_DEBS) $(SONIC_DPKG_DEBS) $(SONIC_ONLINE_DEBS) $(SONI
 define FLAGS_DEP_RULES
 ALL_DEP_FILES_LIST += $(foreach pkg,$(2), $(if $(filter none,$($(1)_CACHE_MODE)),$(addsuffix .$(3),$(addprefix $(pkg)/, $(1)))))
 $(addsuffix .$(3),$(addprefix $(2)/, $(1))) :: $(2)/%.$(3) :
-	@$$(eval $$*_FILE_FLAGS := $$(shell test -f $$@ && cat $$@)) 
+	@$$(eval $$*_FILE_FLAGS := $$(shell test -f $$@ && cat $$@))
 	@echo '$$($$*_DEP_FLAGS)' | cmp -s - $$@ || echo '$$($$*_DEP_FLAGS)' > $$@
 	$$(eval $$*_FLAGS_DIFF := $$(filter-out $$($$*_FILE_FLAGS),$$($$*_DEP_FLAGS)) $$(filter-out $$($$*_DEP_FLAGS),$$($$*_FILE_FLAGS)))
 	@$$(if $$(MDEBUG), $$(info FLAGS: $$@, DEP:$$?))
@@ -571,7 +572,7 @@ SONIC_CACHE_CLEAN_DEBS = $(addsuffix -clean,$(addprefix $(DEBS_PATH)/, \
            $(SONIC_DPKG_DEBS) \
            $(SONIC_DERIVED_DEBS) \
            $(SONIC_EXTRA_DEBS)))
-$(SONIC_CACHE_CLEAN_DEBS) :: $(DEBS_PATH)/%-clean : .platform $$(addsuffix -clean,$$(addprefix $(DEBS_PATH)/,$$($$*_MAIN_DEB))) 
+$(SONIC_CACHE_CLEAN_DEBS) :: $(DEBS_PATH)/%-clean : .platform $$(addsuffix -clean,$$(addprefix $(DEBS_PATH)/,$$($$*_MAIN_DEB)))
 	@rm -f $($*_DEP_FLAGS_FILE) $($*_MOD_HASH_FILE) $($*_SMOD_HASH_FILE) \
         $($*_MOD_DEP_FILE) $($*_SMOD_DEP_FILE)
 
@@ -581,7 +582,7 @@ SONIC_CACHE_CLEAN_FILES = $(addsuffix -clean,$(addprefix $(FILES_PATH)/, \
            $(SONIC_ONLINE_FILES) \
            $(SONIC_COPY_FILES) \
            $(SONIC_MAKE_FILES)))
-$(SONIC_CACHE_CLEAN_FILES) :: $(FILES_PATH)/%-clean : .platform 
+$(SONIC_CACHE_CLEAN_FILES) :: $(FILES_PATH)/%-clean : .platform
 	@rm -f $($*_DEP_FLAGS_FILE) $($*_MOD_HASH_FILE) $($*_SMOD_HASH_FILE) \
         $($*_MOD_DEP_FILE) $($*_SMOD_DEP_FILE)
 
@@ -592,7 +593,7 @@ SONIC_CACHE_CLEAN_TARGETS = $(addsuffix -clean,$(addprefix $(TARGET_PATH)/, \
                $(SONIC_DOCKER_DBG_IMAGES) \
                $(SONIC_SIMPLE_DOCKER_IMAGES) \
                $(SONIC_INSTALLERS)))
-$(SONIC_CACHE_CLEAN_TARGETS) :: $(TARGET_PATH)/%-clean : .platform 
+$(SONIC_CACHE_CLEAN_TARGETS) :: $(TARGET_PATH)/%-clean : .platform
 	@rm -f $($*_DEP_FLAGS_FILE) $($*_MOD_HASH_FILE) $($*_SMOD_HASH_FILE) \
         $($*_MOD_DEP_FILE) $($*_SMOD_DEP_FILE)
 
@@ -600,7 +601,7 @@ $(SONIC_CACHE_CLEAN_TARGETS) :: $(TARGET_PATH)/%-clean : .platform
 # Clean all the DEP and SHA files for all the PYTHON DEBS target
 SONIC_CACHE_CLEAN_STDEB_DEBS = $(addsuffix -clean,$(addprefix $(PYTHON_DEBS_PATH)/, \
              $(SONIC_PYTHON_STDEB_DEBS)))
-$(SONIC_CACHE_CLEAN_STDEB_DEBS) :: $(PYTHON_DEBS_PATH)/%-clean : .platform 
+$(SONIC_CACHE_CLEAN_STDEB_DEBS) :: $(PYTHON_DEBS_PATH)/%-clean : .platform
 	@rm -f $($*_DEP_FLAGS_FILE) $($*_MOD_HASH_FILE) $($*_SMOD_HASH_FILE) \
         $($*_MOD_DEP_FILE) $($*_SMOD_DEP_FILE)
 
@@ -608,7 +609,7 @@ $(SONIC_CACHE_CLEAN_STDEB_DEBS) :: $(PYTHON_DEBS_PATH)/%-clean : .platform
 # Clean all the DEP and SHA files for all the PYTHON WHEELS target
 SONIC_CACHE_CLEAN_WHEELS = $(addsuffix -clean,$(addprefix $(PYTHON_WHEELS_PATH)/, \
              $(SONIC_PYTHON_WHEELS)))
-$(SONIC_CACHE_CLEAN_WHEELS) :: $(PYTHON_WHEELS_PATH)/%-clean : .platform 
+$(SONIC_CACHE_CLEAN_WHEELS) :: $(PYTHON_WHEELS_PATH)/%-clean : .platform
 	@rm -f $($*_DEP_FLAGS_FILE) $($*_MOD_HASH_FILE) $($*_SMOD_HASH_FILE) \
         $($*_MOD_DEP_FILE) $($*_SMOD_DEP_FILE)
 
@@ -616,7 +617,7 @@ $(SONIC_CACHE_CLEAN_WHEELS) :: $(PYTHON_WHEELS_PATH)/%-clean : .platform
 cclean:: $(SONIC_CACHE_CLEAN_DEBS) $(SONIC_CACHE_CLEAN_FILES) $(SONIC_CACHE_CLEAN_TARGETS) \
         $(SONIC_CACHE_CLEAN_STDEB_DEBS) $(SONIC_CACHE_CLEAN_WHEELS)
 
-.PHONY: clean 
+.PHONY: clean
 clean:: cclean
 
 # Clear all the local cache contents
@@ -653,7 +654,7 @@ show-%:
              )\
          )\
       )
-	$(info ) 
+	$(info )
 
 
 
