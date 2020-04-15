@@ -1,0 +1,7 @@
+###############################################################################
+## Monit configuration for restapi container
+## process list:
+##  restapi
+###############################################################################
+check process restapi matching "/usr/sbin/go-server-server"
+    if does not exist for 5 times within 5 cycles then alert
