@@ -1,0 +1,5 @@
+qfx5200/utils/juniper_qfx5200_util.py usr/local/bin
+qfx5200/utils/juniper_qfx5200_monitor.py usr/local/bin
+qfx5200/sonic_platform/chassis.py usr/lib/python2.7/dist-packages/sonic_platform
+qfx5200/sonic_platform/platform.py usr/lib/python2.7/dist-packages/sonic_platform
+qfx5200/service/qfx5200-platform-init.service etc/systemd/system
