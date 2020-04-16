@@ -9,7 +9,7 @@ from os import system, environ
 from sys import exit
 
 # find path of pkgs from environment vars
-prefix = '/sonic'; debs = environ["STRETCH_DEBS_PATH"]
+prefix = '../../'; debs = environ["STRETCH_DEBS_PATH"]
 deps_path = '{}/{}'.format(prefix, debs)
 # dependencies
 libyang = '{}/{}'.format(deps_path, environ["LIBYANG"])
