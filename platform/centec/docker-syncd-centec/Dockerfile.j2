@@ -1,4 +1,4 @@
-FROM docker-config-engine
+FROM docker-config-engine-stretch
 
 ARG docker_container_name
 RUN [ -f /etc/rsyslog.conf ] && sed -ri "s/%syslogtag%/$docker_container_name#%syslogtag%/;" /etc/rsyslog.conf
@@ -20,7 +20,7 @@ debs/{{ deb }}{{' '}}
 {%- endfor %}
 
 ## TODO: add kmod into Depends
-RUN apt-get install -f kmod
+RUN apt-get install -yf kmod
 
 COPY ["start.sh", "/usr/bin/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]

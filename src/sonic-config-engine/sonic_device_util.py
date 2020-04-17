@@ -93,7 +93,7 @@ def get_system_mac():
     # Align last byte of MAC if necessary
     if version_info and version_info['asic_type'] == 'centec':
         last_byte = mac[-2:]
-        aligned_last_byte = format(int(int(last_byte, 16) & 0b11000000), '02x')
+        aligned_last_byte = format(int(int(last_byte, 16) + 1), '02x')
         mac = mac[:-2] + aligned_last_byte
     return mac
 

@@ -1249,7 +1249,7 @@ static ssize_t e582_48x2q4z_sfp_write_enable(struct device *dev, struct device_a
     }
     else if ((portNum >= 41) && (portNum <= 48))
     {
-        reg_no = portNum - 17;/*8-13*/
+        reg_no = portNum - 33;/*8-13*/
         i2c_sfp_client = i2c_client_gpio3;
     }
     else if ((portNum >= 49) && (portNum <= 54))

@@ -1,4 +1,5 @@
 include $(PLATFORM_PATH)/platform-modules-centec-e582.mk
+include $(PLATFORM_PATH)/platform-modules-embedway.mk
 include $(PLATFORM_PATH)/sdk.mk
 include $(PLATFORM_PATH)/docker-syncd-centec.mk
 include $(PLATFORM_PATH)/docker-syncd-centec-rpc.mk
@@ -7,7 +8,6 @@ include $(PLATFORM_PATH)/libsaithrift-dev.mk
 include $(PLATFORM_PATH)/docker-ptf-centec.mk
 
 SONIC_ALL += $(SONIC_ONE_IMAGE) \
-             $(DOCKER_PTF_CENTEC) \
              $(DOCKER_SYNCD_CENTEC_RPC)
 
 # Inject centec sai into sairedis
