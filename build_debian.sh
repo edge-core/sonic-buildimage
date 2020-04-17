@@ -203,6 +203,22 @@ sudo LANG=C chroot $FILESYSTEM_ROOT apt-get update
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install docker-ce=${DOCKER_VERSION}
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y remove software-properties-common gnupg2
 
+if [ "$INSTALL_KUBERNETES" == "y" ]
+then
+    ## Install Kubernetes
+    echo '[INFO] Install kubernetes'
+    sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT curl -fsSL \
+        https://packages.cloud.google.com/apt/doc/apt-key.gpg | \
+        sudo LANG=C chroot $FILESYSTEM_ROOT apt-key add -
+    ## Check out the sources list update matches current Debian version
+    sudo cp files/image_config/kubernetes/kubernetes.list $FILESYSTEM_ROOT/etc/apt/sources.list.d/
+    sudo LANG=C chroot $FILESYSTEM_ROOT apt-get update
+    sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install kubeadm=${KUBERNETES_VERSION}-00
+    # kubeadm package auto install kubelet & kubectl
+else
+    echo '[INFO] Skipping Install kubernetes'
+fi
+
 ## Add docker config drop-in to specify dockerd command line
 sudo mkdir -p $FILESYSTEM_ROOT/etc/systemd/system/docker.service.d/
 ## Note: $_ means last argument of last command

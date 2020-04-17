@@ -110,3 +110,18 @@ ENABLE_RESTAPI = n
 
 # ENABLE_NAT - build docker-sonic-nat for nat support
 ENABLE_NAT = y
+
+# INSTALL_KUBERNETES - if set to y kubernetes packages are installed to be able to
+# run as worker node in kubernetes cluster.
+INSTALL_KUBERNETES = n
+
+# KUBERNETES_VERSION - Set to the required version.
+# K8s_GCR_IO_PAUSE_VERSION - Version of k8s universal pause container image
+# K8s_CNI_CALICO_VERSION - Calico used as CNI; Appropriate version for this Kubernetes version
+# These are Used *only* when INSTALL_KUBERNETES=y
+# NOTE: As a worker node it has to run version compatible to kubernetes master.
+#
+KUBERNETES_VERSION = 1.18.0
+K8s_GCR_IO_PAUSE_VERSION = 3.2
+K8s_CNI_CALICO_VERSION = 3.12.0
+

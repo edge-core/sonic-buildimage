@@ -9,6 +9,7 @@
 #    through http.
 #  * ENABLE_ZTP: Enables zero touch provisioning.
 #  * SHUTDOWN_BGP_ON_START: Sets admin-down state for all bgp peerings after restart.
+#  * INSTALL_KUBERNETES: Allows including Kubernetes
 #  * ENABLE_PFCWD_ON_START: Enable PFC Watchdog (PFCWD) on server-facing ports
 #  * by default for TOR switch.
 #  * ENABLE_SYNCD_RPC: Enables rpc-based syncd builds.
@@ -165,6 +166,10 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            ENABLE_DHCP_GRAPH_SERVICE=$(ENABLE_DHCP_GRAPH_SERVICE) \
                            ENABLE_ZTP=$(ENABLE_ZTP) \
                            SHUTDOWN_BGP_ON_START=$(SHUTDOWN_BGP_ON_START) \
+                           INSTALL_KUBERNETES=$(INSTALL_KUBERNETES) \
+                           KUBERNETES_VERSION=$(KUBERNETES_VERSION) \
+                           K8s_GCR_IO_PAUSE_VERSION=$(K8s_GCR_IO_PAUSE_VERSION) \
+                           K8s_CNI_CALICO_VERSION=$(K8s_CNI_CALICO_VERSION) \
                            SONIC_ENABLE_PFCWD_ON_START=$(ENABLE_PFCWD_ON_START) \
                            SONIC_ENABLE_SYNCD_RPC=$(ENABLE_SYNCD_RPC) \
                            SONIC_INSTALL_DEBUG_TOOLS=$(INSTALL_DEBUG_TOOLS) \

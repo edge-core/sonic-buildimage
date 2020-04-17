@@ -245,6 +245,13 @@ sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install azure-s
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install watchdog
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install futures
 
+{% if install_kubernetes == "y" %}
+# Copy kubelet service files
+# Keep it disabled until join, else it continuously restart and as well spew too many
+# non-required log lines wasting syslog resources.
+sudo LANG=C chroot $FILESYSTEM_ROOT systemctl disable kubelet.service
+{% endif %}
+
 # Copy the buffer configuration template
 sudo cp $BUILD_TEMPLATES/buffers_config.j2 $FILESYSTEM_ROOT_USR_SHARE_SONIC_TEMPLATES/
 
@@ -399,6 +406,18 @@ sudo LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS ta
 sudo LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS tag {{imagename}}:latest {{imagebasename}}:latest
 {% endif %}
 {% endfor %}
+
+{% if install_kubernetes == "y" %}
+## Pull in kubernetes docker images
+echo "pulling universal k8s images ..."
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT docker pull k8s.gcr.io/pause:${K8s_GCR_IO_PAUSE_VERSION}
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT docker pull k8s.gcr.io/kube-proxy:v${KUBERNETES_VERSION}
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT docker pull calico/node:v${K8s_CNI_CALICO_VERSION}
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT docker pull calico/pod2daemon-flexvol:v${K8s_CNI_CALICO_VERSION}
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT docker pull calico/cni:v${K8s_CNI_CALICO_VERSION}
+echo "docker images pull complete"
+{% endif %}
+
 if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
     sudo umount $FILESYSTEM_ROOT/dockerfs
     sudo rm -fr $FILESYSTEM_ROOT/dockerfs
