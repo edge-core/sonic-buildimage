@@ -241,7 +241,7 @@ define LOAD_FROM_CACHE
 	# Update the cache_loaded variable
 	$(if $(and $(CACHE_FILE_SELECT),$(filter $(RCACHE_OPTIONS),$(SONIC_DPKG_CACHE_METHOD))),
 		$(if $(LOAD_DRV_DEB), $($(1)_CACHE_USER) tar -C $($(1)_BASE_PATH) -mxzvf $(CACHE_FILE_SELECT) 1>> $($(1)_DST_PATH)/$(1).log ,echo );
-		echo "File $(CACHE_FILE_SELECT) is loaded from cache" >> $($(1)_DST_PATH)/$(1).log
+		echo "File $(CACHE_FILE_SELECT) is loaded from cache into $($(1)_BASE_PATH)" >> $($(1)_DST_PATH)/$(1).log
 		$(eval $(1)_CACHE_LOADED := Yes)
 		$(shell touch $(CACHE_FILE_SELECT))
 		echo "[ CACHE::LOADED ] $($(1)_CACHE_DIR)/$($(1)_MOD_CACHE_FILE)" >> $($(1)_DST_PATH)/$(1).log
@@ -316,7 +316,7 @@ define SHOW_WHY
 		$(if $($(1)_PREREQ_PHONY),  PHONY PREREQUISITES: $($(1)_PREREQ_PHONY)))"  >> $($(1)_DST_PATH)/$(1).log
 
 	@echo "[ FLAGS  FILE    ] : [$($(1)_FILE_FLAGS)] " >> $($(1)_DST_PATH)/$(1).log
-	@echo "[ FLAGS  DEPENDS ] : [$($(1)_DEP_FLAGS)] " >> $($(1)_DST_PATH)/$(1).log
+	@echo "[ FLAGS  DEPENDS ] : [$($(1)_DEP_FLAGS_ALL)] " >> $($(1)_DST_PATH)/$(1).log
 	@echo "[ FLAGS  DIFF    ] : [$($(1)_FLAGS_DIFF)] " >> $($(1)_DST_PATH)/$(1).log
 	@echo "[ DEP    DEPENDS ] : [$($(1)_DEP_FILES_MODIFIED)] " >> $($(1)_DST_PATH)/$(1).log
 	@echo "[ SMDEP  DEPENDS ] : [$($(1)_SMDEP_FILES_MODIFIED)] " >> $($(1)_DST_PATH)/$(1).log
@@ -456,6 +456,7 @@ $(foreach pkg, $(SONIC_MAKE_DEBS) $(SONIC_DPKG_DEBS) $(SONIC_ONLINE_DEBS) $(SONI
 #  $(1)  => target name
 #  $(2)  => target destination folder path
 #  $(3)  => target file extension
+#  $(4)  => additional flags
 #
 #  It updates the _DEP_FLAGS variable if there is any change in the module flags.
 
@@ -463,12 +464,13 @@ define FLAGS_DEP_RULES
 ALL_DEP_FILES_LIST += $(foreach pkg,$(2), $(if $(filter none,$($(1)_CACHE_MODE)),$(addsuffix .$(3),$(addprefix $(pkg)/, $(1)))))
 $(addsuffix .$(3),$(addprefix $(2)/, $(1))) :: $(2)/%.$(3) :
 	@$$(eval $$*_FILE_FLAGS := $$(shell test -f $$@ && cat $$@))
-	@echo '$$($$*_DEP_FLAGS)' | cmp -s - $$@ || echo '$$($$*_DEP_FLAGS)' > $$@
-	$$(eval $$*_FLAGS_DIFF := $$(filter-out $$($$*_FILE_FLAGS),$$($$*_DEP_FLAGS)) $$(filter-out $$($$*_DEP_FLAGS),$$($$*_FILE_FLAGS)))
+	@$$(eval $$*_DEP_FLAGS_ALL := $$(shell echo '$$($$*_DEP_FLAGS) $(4)' | sed -E 's/[ ]+/ /g' | sed -E 's/[ ]+$$$$//g'))
+	@echo '$$($$*_DEP_FLAGS_ALL)' | cmp -s - $$@ || echo '$$($$*_DEP_FLAGS_ALL)' > $$@
+	$$(eval $$*_FLAGS_DIFF := $$(filter-out $$($$*_FILE_FLAGS),$$($$*_DEP_FLAGS_ALL)) $$(filter-out $$($$*_DEP_FLAGS_ALL),$$($$*_FILE_FLAGS)))
 	@$$(if $$(MDEBUG), $$(info FLAGS: $$@, DEP:$$?))
 endef
-$(eval $(call FLAGS_DEP_RULES, $(SONIC_MAKE_DEBS) $(SONIC_DPKG_DEBS) $(SONIC_ONLINE_DEBS) $(SONIC_COPY_DEBS), $(DEBS_PATH),flags) )
-$(eval $(call FLAGS_DEP_RULES, $(SONIC_MAKE_FILES), $(FILES_PATH),flags))
+$(eval $(call FLAGS_DEP_RULES, $(SONIC_MAKE_DEBS) $(SONIC_DPKG_DEBS) $(SONIC_ONLINE_DEBS) $(SONIC_COPY_DEBS), $(DEBS_PATH),flags,$(BLDENV)) )
+$(eval $(call FLAGS_DEP_RULES, $(SONIC_MAKE_FILES), $(FILES_PATH),flags,$(BLDENV)))
 $(eval $(call FLAGS_DEP_RULES, $(SONIC_PYTHON_STDEB_DEBS), $(PYTHON_DEBS_PATH),flags))
 $(eval $(call FLAGS_DEP_RULES, $(SONIC_PYTHON_WHEELS), $(PYTHON_WHEELS_PATH),flags))
 $(eval $(call FLAGS_DEP_RULES, $(SONIC_DOCKER_IMAGES) $(SONIC_DOCKER_DBG_IMAGES), $(TARGET_PATH),flags))
