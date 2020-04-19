@@ -583,19 +583,22 @@ EOF
     $onie_root_dir/tools/bin/onie-boot-mode -q -o install
 fi
 
-# Add a menu entry for the DEMO OS
+# Add a menu entry for the SONiC OS
 # Note: assume that apparmor is supported in the kernel
 demo_grub_entry="$demo_volume_revision_label"
 if [ "$install_env" = "sonic" ]; then
     old_sonic_menuentry=$(cat /host/grub/grub.cfg | sed "/$running_sonic_revision/,/}/!d")
-    demo_dev=$(echo $old_sonic_menuentry | sed -e "s/.*root\=\(.*\)rw.*/\1/")
+    grub_cfg_root=$(echo $old_sonic_menuentry | sed -e "s/.*root\=\(.*\)rw.*/\1/")
     onie_menuentry=$(cat /host/grub/grub.cfg | sed "/menuentry ONIE/,/}/!d")
-fi
-
-if [ "$install_env" = "build" ]; then
+elif [ "$install_env" = "build" ]; then
     grub_cfg_root=%%SONIC_ROOT%%
-else
-    grub_cfg_root=$demo_dev
+else # install_env = "onie"
+    uuid=$(blkid "$demo_dev" | sed -ne 's/.* UUID=\"\([^"]*\)\".*/\1/p')
+    if [ -z "$uuid" ]; then
+        grub_cfg_root=$demo_dev
+    else
+        grub_cfg_root=UUID=$uuid
+    fi
 fi
 
 cat <<EOF >> $grub_cfg
