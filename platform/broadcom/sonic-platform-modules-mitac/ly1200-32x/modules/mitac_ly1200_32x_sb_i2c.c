@@ -1,7 +1,7 @@
 #include <linux/i2c.h>
 #include <linux/module.h>
 #include <linux/platform_data/pca953x.h>
-#include <linux/i2c/pca954x.h>
+#include <linux/platform_data/pca954x.h>
 #include <linux/platform_data/at24.h>
 #include <linux/delay.h>
 #include "bms_i2c.h"

@@ -3,9 +3,9 @@
 #include <linux/dmi.h>
 #include <linux/version.h>
 #include <linux/ctype.h>
-#include <linux/i2c/pca954x.h>
+#include <linux/platform_data/pca954x.h>
 #include <linux/i2c-mux.h>
-#include <linux/i2c-mux-gpio.h>
+#include <linux/platform_data/i2c-mux-gpio.h>
 #include <linux/i2c/sff-8436.h>
 #include <linux/fs.h>
 #include <asm/segment.h>

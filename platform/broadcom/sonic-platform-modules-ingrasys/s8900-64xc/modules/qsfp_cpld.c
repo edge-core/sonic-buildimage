@@ -28,7 +28,7 @@
 #include <linux/mutex.h>
 #include <linux/interrupt.h>
 #include <linux/i2c-mux.h>
-#include <linux/i2c-mux-gpio.h>
+#include <linux/platform_data/i2c-mux-gpio.h>
 #include <linux/platform_device.h>
 #include <linux/delay.h>
 

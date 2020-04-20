@@ -1,9 +1,9 @@
 # linux kernel package
 
-KVERSION_SHORT = 4.9.0-11-2
+KVERSION_SHORT = 4.19.0-6
 KVERSION = $(KVERSION_SHORT)-$(CONFIGURED_ARCH)
-KERNEL_VERSION = 4.9.189
-KERNEL_SUBVERSION = 3+deb9u2
+KERNEL_VERSION = 4.19.67
+KERNEL_SUBVERSION = 2+deb10u2
 ifeq ($(CONFIGURED_ARCH), armhf)
 # Override kernel version for ARMHF as it uses arm MP (multi-platform) for short version
 KVERSION = $(KVERSION_SHORT)-armmp
@@ -18,5 +18,5 @@ SONIC_MAKE_DEBS += $(LINUX_HEADERS_COMMON)
 LINUX_HEADERS = linux-headers-$(KVERSION)_$(KERNEL_VERSION)-$(KERNEL_SUBVERSION)_$(CONFIGURED_ARCH).deb
 $(eval $(call add_derived_package,$(LINUX_HEADERS_COMMON),$(LINUX_HEADERS)))
 
-LINUX_KERNEL = linux-image-$(KVERSION)_$(KERNEL_VERSION)-$(KERNEL_SUBVERSION)_$(CONFIGURED_ARCH).deb
+LINUX_KERNEL = linux-image-$(KVERSION)-unsigned_$(KERNEL_VERSION)-$(KERNEL_SUBVERSION)_$(CONFIGURED_ARCH).deb
 $(eval $(call add_derived_package,$(LINUX_HEADERS_COMMON),$(LINUX_KERNEL)))

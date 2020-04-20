@@ -11,13 +11,13 @@
     stopped running. Here, we spawn multiple threads and wait on one
     container per thread. If any of the threads exit, the entire
     application will exit.
-    NOTE: This script is written against docker-py version 1.6.0. Newer
-    versions of docker-py have a different API.
+    NOTE: This script is written against docker Python package 4.1.0. Newer
+    versions of docker may have a different API.
 """
 
 import sys
 import threading
-from docker import Client
+from docker import APIClient
 
 # Instantiate a global event to share among our threads
 g_thread_exit_event = threading.Event()
@@ -40,7 +40,7 @@ def wait_for_container(docker_client, container_name):
 def main():
     thread_list = []
 
-    docker_client = Client(base_url='unix://var/run/docker.sock')
+    docker_client = APIClient(base_url='unix://var/run/docker.sock')
 
     # Ensure we were passed at least one argument
     if len(sys.argv) < 2:

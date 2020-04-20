@@ -22,6 +22,7 @@
 #include <linux/delay.h>
 #include <asm/io.h>
 #include <linux/errno.h>
+#include <linux/ioport.h>
 
 #define REFPGA_LPC_BASE_ADDRESS		0xFED50000
 #define REFPGA_LPC_WINDOW_SIZE		0x00000400
@@ -68,10 +69,10 @@ static int __init refpga_lpcm_init(void)
 	u8 minor_version = 0x00;
 
 	if (!request_mem_region(REFPGA_LPC_BASE_ADDRESS, REFPGA_LPC_WINDOW_SIZE, "refpga-lpc")) {
-		printk(KERN_ERR "Cannot allocate Re-fpga memory region\n"); 
+		printk(KERN_ERR "Cannot allocate Re-fpga memory region\n");
 		return -ENODEV;
 	}
-	
+
 	if ((fpga = ioremap(REFPGA_LPC_BASE_ADDRESS, REFPGA_LPC_WINDOW_SIZE)) == NULL) {
 		release_mem_region(REFPGA_LPC_BASE_ADDRESS, REFPGA_LPC_WINDOW_SIZE);
 		printk(KERN_ERR "Re-Fpga address mapping failed\n");
@@ -81,14 +82,14 @@ static int __init refpga_lpcm_init(void)
 	major_version = ioread8((u8 *)fpga + REFPGA_MAJOR_VERSION);
 	minor_version = ioread8((u8 *)fpga + REFPGA_MINOR_VERSION);
 	printk(KERN_INFO "Re-Fpga major version: %x minor version: %x\n", major_version, minor_version);
-	
+
 	/*
 	 * Register the cpld soft reset handler
 	 */
 	if(register_reboot_notifier(&qfx5200_nb)) {
 		printk(KERN_ALERT "Restart handler registration failed\n");
 	}
-	
+
 	iowrite8(REFPGA_MGMT1_PHY_RESET, (u8 *)fpga + REFPGA_MRE_LPCM_RST_CTL_REG);
 
 	return 0;

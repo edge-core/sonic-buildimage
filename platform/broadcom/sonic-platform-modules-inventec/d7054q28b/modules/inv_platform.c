@@ -1,12 +1,12 @@
 #include <linux/i2c.h>
 //#include <linux/i2c-algo-bit.h>
-#include <linux/i2c-gpio.h>
+#include <linux/platform_data/i2c-gpio.h>
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/slab.h>
 #include <linux/platform_device.h>
 
-#include <linux/i2c/pca954x.h>
+#include <linux/platform_data/pca954x.h>
 //#include <linux/i2c/pca953x.h>
 //#include <linux/i2c/at24.h>
 

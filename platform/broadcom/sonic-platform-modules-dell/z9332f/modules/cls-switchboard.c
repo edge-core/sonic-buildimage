@@ -21,7 +21,7 @@
 #include <linux/interrupt.h>
 #include <linux/i2c.h>
 #include <linux/platform_device.h>
-#include <linux/i2c/pca954x.h>
+#include <linux/platform_data/pca954x.h>
 #include "cls-i2c-ocore.h"
 
 #define MOD_VERSION "2.1.0-1"

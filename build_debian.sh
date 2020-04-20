@@ -35,9 +35,9 @@ if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
     # Version name differs between ARCH, copying same version as in sonic-slave docker
     DOCKER_VERSION=18.06.3~ce~3-0~debian
 else
-    DOCKER_VERSION=5:18.09.8~3-0~debian-stretch
+    DOCKER_VERSION=5:18.09.8~3-0~debian-$IMAGE_DISTRO
 fi
-LINUX_KERNEL_VERSION=4.9.0-11-2
+LINUX_KERNEL_VERSION=4.19.0-6
 
 ## Working directory to prepare the file system
 FILESYSTEM_ROOT=./fsroot
@@ -81,9 +81,9 @@ if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
     # qemu arm bin executable for cross-building
     sudo mkdir -p $FILESYSTEM_ROOT/usr/bin
     sudo cp /usr/bin/qemu*static $FILESYSTEM_ROOT/usr/bin || true
-    sudo http_proxy=$http_proxy debootstrap --variant=minbase --arch $CONFIGURED_ARCH stretch $FILESYSTEM_ROOT http://deb.debian.org/debian
+    sudo http_proxy=$http_proxy debootstrap --variant=minbase --arch $CONFIGURED_ARCH $IMAGE_DISTRO $FILESYSTEM_ROOT http://deb.debian.org/debian
 else
-    sudo http_proxy=$http_proxy debootstrap --variant=minbase --arch $CONFIGURED_ARCH stretch $FILESYSTEM_ROOT http://debian-archive.trafficmanager.net/debian
+    sudo http_proxy=$http_proxy debootstrap --variant=minbase --arch $CONFIGURED_ARCH $IMAGE_DISTRO $FILESYSTEM_ROOT http://debian-archive.trafficmanager.net/debian
 fi
 
 ## Config hostname and hosts, otherwise 'sudo ...' will complain 'sudo: unable to resolve host ...'
@@ -98,12 +98,12 @@ sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c 'echo "sysfs /sys sysfs default
 ## Setup proxy
 [ -n "$http_proxy" ] && sudo /bin/bash -c "echo 'Acquire::http::Proxy \"$http_proxy\";' > $FILESYSTEM_ROOT/etc/apt/apt.conf.d/01proxy"
 
+trap_push 'sudo LANG=C chroot $FILESYSTEM_ROOT umount /proc || true'
+sudo LANG=C chroot $FILESYSTEM_ROOT mount proc /proc -t proc
 ## Note: mounting is necessary to makedev and install linux image
 echo '[INFO] Mount all'
 ## Output all the mounted device for troubleshooting
-mount
-trap_push 'sudo umount $FILESYSTEM_ROOT/proc || true'
-sudo LANG=C chroot $FILESYSTEM_ROOT mount proc /proc -t proc
+sudo LANG=C chroot $FILESYSTEM_ROOT mount
 
 ## Pointing apt to public apt mirrors and getting latest packages, needed for latest security updates
 sudo cp files/apt/sources.list.$CONFIGURED_ARCH $FILESYSTEM_ROOT/etc/apt/sources.list
@@ -129,7 +129,7 @@ fi
 ## 2. mount supports squashfs
 ## However, 'dpkg -i' plus 'apt-get install -f' will ignore the recommended dependency. So
 ## we install busybox explicitly
-sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install busybox
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install busybox linux-base
 echo '[INFO] Install SONiC linux kernel image'
 ## Note: duplicate apt-get command to ensure every line return zero
 sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/initramfs-tools-core_*.deb || \
@@ -184,11 +184,6 @@ if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
     cat files/initramfs-tools/modules.arm | sudo tee -a $FILESYSTEM_ROOT/etc/initramfs-tools/modules > /dev/null
 fi
 
-if [[ $CONFIGURED_ARCH == amd64 ]]; then
-    ## Install latest intel ixgbe driver
-    sudo cp $files_path/ixgbe.ko $FILESYSTEM_ROOT/lib/modules/${LINUX_KERNEL_VERSION}-amd64/kernel/drivers/net/ethernet/intel/ixgbe/ixgbe.ko
-fi
-
 ## Install docker
 echo '[INFO] Install docker'
 ## Install apparmor utils since they're missing and apparmor is enabled in the kernel
@@ -203,9 +198,9 @@ sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT curl -o /tmp/docker
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-key add /tmp/docker.gpg
 sudo LANG=C chroot $FILESYSTEM_ROOT rm /tmp/docker.gpg
 sudo LANG=C chroot $FILESYSTEM_ROOT add-apt-repository \
-                                    "deb [arch=$CONFIGURED_ARCH] https://download.docker.com/linux/debian stretch stable"
+                                    "deb [arch=$CONFIGURED_ARCH] https://download.docker.com/linux/debian $IMAGE_DISTRO stable"
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get update
-sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install docker-ce=${DOCKER_VERSION}
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install docker-ce=${DOCKER_VERSION} docker-ce-cli=${DOCKER_VERSION}
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y remove software-properties-common gnupg2
 
 if [ "$INSTALL_KUBERNETES" == "y" ]
@@ -298,14 +293,16 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     makedumpfile            \
     conntrack               \
     python-pip              \
-    python3-pip
+    python3-pip             \
+    cron                    \
+    haveged
 
 
 if [[ $CONFIGURED_ARCH == amd64 ]]; then
 ## Pre-install the fundamental packages for amd64 (x86)
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install      \
     flashrom                \
-    mcelog
+    rasdaemon
 fi
 
 ## Set /etc/shadow permissions to -rw-------.
@@ -325,9 +322,9 @@ sudo sed -i '/^#.* en_US.* /s/^#//' $FILESYSTEM_ROOT/etc/locale.gen && \
 sudo LANG=en_US.UTF-8 DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT update-locale "LANG=en_US.UTF-8"
 sudo LANG=C chroot $FILESYSTEM_ROOT bash -c "find /usr/share/i18n/locales/ ! -name 'en_US' -type f -exec rm -f {} +"
 
-# Install certain fundamental packages from stretch-backports in order to get
+# Install certain fundamental packages from $IMAGE_DISTRO-backports in order to get
 # more up-to-date (but potentially less stable) versions
-sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y -t stretch-backports install \
+sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y -t $IMAGE_DISTRO-backports install \
     picocom
 
 if [[ $CONFIGURED_ARCH == amd64 ]]; then
@@ -368,6 +365,12 @@ EOF
 # Configure sshd to listen for v4 connections; disable listening for v6 connections
 sudo sed -i 's/^ListenAddress ::/#ListenAddress ::/' $FILESYSTEM_ROOT/etc/ssh/sshd_config
 sudo sed -i 's/^#ListenAddress 0.0.0.0/ListenAddress 0.0.0.0/' $FILESYSTEM_ROOT/etc/ssh/sshd_config
+
+## Config rsyslog
+sudo augtool -r $FILESYSTEM_ROOT --autosave "
+rm /files/lib/systemd/system/rsyslog.service/Service/ExecStart/arguments
+set /files/lib/systemd/system/rsyslog.service/Service/ExecStart/arguments/1 -n
+"
 
 ## Config sysctl
 sudo mkdir -p $FILESYSTEM_ROOT/var/core
@@ -425,14 +428,8 @@ set /files/etc/sysctl.conf/net.core.somaxconn 512
 
 " -r $FILESYSTEM_ROOT
 
-if [[ $CONFIGURED_ARCH == amd64 ]]; then
-    # Configure mcelog to log machine checks to syslog
-    sudo sed -i 's/^#syslog = yes/syslog = yes/' $FILESYSTEM_ROOT/etc/mcelog/mcelog.conf
-fi
-
-## docker-py is needed by Ansible docker module
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT easy_install pip
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install 'docker-py==1.6.0'
+## docker Python API package is needed by Ansible docker module
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install 'docker==4.1.0'
 ## Note: keep pip installed for maintainance purpose
 
 ## Get gcc and python dev pkgs
@@ -458,6 +455,10 @@ sudo cp files/dhcp/snmpcommunity $FILESYSTEM_ROOT/etc/dhcp/dhclient-exit-hooks.d
 sudo cp files/dhcp/vrf $FILESYSTEM_ROOT/etc/dhcp/dhclient-exit-hooks.d/
 if [ -f files/image_config/ntp/ntp ]; then
     sudo cp ./files/image_config/ntp/ntp $FILESYSTEM_ROOT/etc/init.d/
+fi
+
+if [ -f files/image_config/ntp/ntp-systemd-wrapper ]; then
+    sudo cp ./files/image_config/ntp/ntp-systemd-wrapper $FILESYSTEM_ROOT/usr/lib/ntp/
 fi
 
 ## Version file
@@ -497,8 +498,12 @@ if [ "${enable_organization_extensions}" = "y" ]; then
 fi
 
 ## Setup ebtable rules (rule file is in binary format)
-sudo sed -i 's/EBTABLES_LOAD_ON_START="no"/EBTABLES_LOAD_ON_START="yes"/g' ${FILESYSTEM_ROOT}/etc/default/ebtables
+sudo cp -f files/image_config/ebtables/ebtables.default $FILESYSTEM_ROOT/etc/default/ebtables
+sudo cp -f files/image_config/ebtables/ebtables.init $FILESYSTEM_ROOT/etc/init.d/ebtables
+sudo cp -f files/image_config/ebtables/ebtables.service $FILESYSTEM_ROOT/lib/systemd/system/ebtables.service
 sudo cp files/image_config/ebtables/ebtables.filter ${FILESYSTEM_ROOT}/etc
+sudo LANG=C chroot $FILESYSTEM_ROOT update-alternatives --set ebtables /usr/sbin/ebtables-legacy
+sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable ebtables.service
 
 ## Debug Image specific changes
 ## Update motd for debug image
@@ -559,7 +564,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT fuser -vm /proc
 sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /proc || true
 ## Wait fuser fully kill the processes
 sleep 15
-sudo umount $FILESYSTEM_ROOT/proc || true
+sudo LANG=C chroot $FILESYSTEM_ROOT umount /proc || true
 
 if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
     # Remove qemu arm bin executable used for cross-building

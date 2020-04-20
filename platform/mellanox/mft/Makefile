@@ -27,6 +27,6 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 
 	# fix timestamp because we do not actually build tools, only kernel
 	touch $(MFT_NAME)/DEBS/*
-	mv $(MFT_NAME)/SDEBS/ubuntu-drivers/4.9.0/kernel-mft-dkms_$(MFT_VERSION)-$(KVERSION)_all.deb $(MFT_NAME)/DEBS/* $(DEST)
+	mv $(MFT_NAME)/SDEBS/ubuntu-drivers/4.19.0/kernel-mft-dkms_$(MFT_VERSION)-$(KVERSION)_all.deb $(MFT_NAME)/DEBS/* $(DEST)
 
 $(addprefix $(DEST)/, $(DERIVED_TARGETS)): $(DEST)/% : $(DEST)/$(MAIN_TARGET)

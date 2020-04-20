@@ -7,11 +7,10 @@
 # TODO: If we upgrade to a distro which provides a version >= 6.7 we will no
 # longer need to build this.
 
-PYTHON_CLICK_VERSION = 6.7-4
+PYTHON_CLICK_VERSION = 7.0-1
 
 export PYTHON_CLICK_VERSION
 
 PYTHON_CLICK = python-click_$(PYTHON_CLICK_VERSION)_all.deb
 $(PYTHON_CLICK)_SRC_PATH = $(SRC_PATH)/python-click
 SONIC_MAKE_DEBS += $(PYTHON_CLICK)
-SONIC_STRETCH_DEBS += $(PYTHON_CLICK)

@@ -51,6 +51,7 @@ create_disk
 prepare_installer_disk
 
 echo "Prepare memory for KVM build: $vs_build_prepare_mem"
+sudo mount proc /proc -t proc || true
 free -m
 if [[ "$vs_build_prepare_mem" == "yes" ]]; then
     # Force o.s. to drop cache and compact memory so that KVM can get 2G memory

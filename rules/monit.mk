@@ -8,7 +8,5 @@ MONIT = monit_$(MONIT_VERSION)_$(CONFIGURED_ARCH).deb
 $(MONIT)_SRC_PATH = $(SRC_PATH)/monit
 SONIC_MAKE_DEBS += $(MONIT)
 
-SONIC_STRETCH_DEBS += $(MONIT)
-
 MONIT_DBG = monit-dbgsym_$(MONIT_VERSION)_$(CONFIGURED_ARCH).deb
 $(eval $(call add_derived_package,$(MONIT),$(MONIT_DBG)))

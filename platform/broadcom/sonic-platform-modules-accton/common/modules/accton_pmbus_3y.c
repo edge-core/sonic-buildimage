@@ -31,7 +31,7 @@
 #include <linux/hwmon.h>
 #include <linux/hwmon-sysfs.h>
 #include <linux/jiffies.h>
-#include <linux/i2c/pmbus.h>
+#include <linux/pmbus.h>
 #include "pmbus.h"
 
 

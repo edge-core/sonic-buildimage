@@ -36,6 +36,7 @@
 #include <linux/delay.h>
 #include <linux/jiffies.h>
 #include <linux/kernel.h>
+#include <linux/fs.h>
 #include <asm/uaccess.h>
 
 

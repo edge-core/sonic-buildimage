@@ -76,10 +76,6 @@ iface eth0 {{ 'inet' if prefix | ipv4 else 'inet6' }} static
     up ip {{ '-4' if prefix | ipv4 else '-6' }} route add default via {{ MGMT_INTERFACE[(name, prefix)]['gwaddr'] }} dev eth0 table {{ vrf_table }} metric 201
     up ip {{ '-4' if prefix | ipv4 else '-6' }} route add {{ prefix | network }}/{{ prefix | prefixlen }} dev eth0 table {{ vrf_table }}
     up ip {{ '-4' if prefix | ipv4 else '-6' }} rule add from {{ prefix | ip }}/{{ '32' if prefix | ipv4 else '128' }} table {{ vrf_table }}
-{% if (MGMT_VRF_CONFIG) and (MGMT_VRF_CONFIG['vrf_global']['mgmtVrfEnabled'] == "true") %}
-    up cgcreate -g l3mdev:mgmt
-    up cgset -r l3mdev.master-device=mgmt mgmt
-{% endif %}
 {% for route in MGMT_INTERFACE[(name, prefix)]['forced_mgmt_routes'] %}
     up ip rule add to {{ route }} table {{ vrf_table }}
 {% endfor %}
@@ -87,9 +83,6 @@ iface eth0 {{ 'inet' if prefix | ipv4 else 'inet6' }} static
     pre-down ip {{ '-4' if prefix | ipv4 else '-6' }} route delete default via {{ MGMT_INTERFACE[(name, prefix)]['gwaddr'] }} dev eth0 table {{ vrf_table }}
     pre-down ip {{ '-4' if prefix | ipv4 else '-6' }} route delete {{ prefix | network }}/{{ prefix | prefixlen }} dev eth0 table {{ vrf_table }}
     pre-down ip {{ '-4' if prefix | ipv4 else '-6' }} rule delete from {{ prefix | ip }}/{{ '32' if prefix | ipv4 else '128' }} table {{ vrf_table }}
-{% if (MGMT_VRF_CONFIG) and (MGMT_VRF_CONFIG['vrf_global']['mgmtVrfEnabled'] == "true") %}
-    down cgdelete -g l3mdev:mgmt
-{% endif %}
 {% for route in MGMT_INTERFACE[(name, prefix)]['forced_mgmt_routes'] %}
     pre-down ip rule delete to {{ route }} table {{ vrf_table }}
 {% endfor %}
@@ -100,9 +93,6 @@ iface eth0 inet dhcp
     metric 202
 {% if (MGMT_VRF_CONFIG) and (MGMT_VRF_CONFIG['vrf_global']['mgmtVrfEnabled'] == "true") %}
     vrf mgmt
-    up cgcreate -g l3mdev:mgmt
-    up cgset -r l3mdev.master-device=mgmt mgmt
-    down cgdelete -g l3mdev:mgmt
 {% endif %}
 iface eth0 inet6 dhcp
     up sysctl net.ipv6.conf.eth0.accept_ra=1

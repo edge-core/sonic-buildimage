@@ -29,6 +29,3 @@ $(SYNCD)_RDEPENDS += $(MLNX_SAI)
 
 # Inject mlnx sdk libs to platform monitor
 $(DOCKER_PLATFORM_MONITOR)_DEPENDS += $(APPLIBS) $(SX_COMPLIB) $(SXD_LIBS) $(SX_GEN_UTILS) $(PYTHON_SDK_API) $(APPLIBS_DEV) $(SX_COMPLIB_DEV) $(SXD_LIBS_DEV) $(SX_GEN_UTILS_DEV)
-
-# Inject mlnx mlx libs to platform monitor
-$(DOCKER_PLATFORM_MONITOR)_DEPENDS += $(MFT)

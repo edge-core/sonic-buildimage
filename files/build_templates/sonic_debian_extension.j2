@@ -42,9 +42,9 @@ FILESYSTEM_ROOT_ETC_SONIC="$FILESYSTEM_ROOT_ETC/sonic"
 GENERATED_SERVICE_FILE="$FILESYSTEM_ROOT/etc/sonic/generated_services.conf"
 
 clean_sys() {
-    sudo umount $FILESYSTEM_ROOT/sys/fs/cgroup/*            \
-                $FILESYSTEM_ROOT/sys/fs/cgroup              \
-                $FILESYSTEM_ROOT/sys || true
+    sudo chroot $FILESYSTEM_ROOT umount /sys/fs/cgroup/*            \
+                                        /sys/fs/cgroup              \
+                                        /sys || true
 }
 trap_push clean_sys
 sudo LANG=C chroot $FILESYSTEM_ROOT mount sysfs /sys -t sysfs
@@ -344,7 +344,14 @@ sudo chmod a+x $FILESYSTEM_ROOT/usr/sbin/policy-rc.d
 {% if installer_debs.strip() -%}
 {% for deb in installer_debs.strip().split(' ') -%}
 {% if sonic_asic_platform == "mellanox" %}
-sudo dpkg --extract {{deb}} $FILESYSTEM_ROOT
+if [ -e tmpdir ] ;
+then
+    rm -rf tmpdir;
+fi
+sudo mkdir tmpdir
+sudo dpkg --extract {{deb}} tmpdir
+for subdir in $(ls tmpdir) ; do sudo cp -R tmpdir/$subdir/* $FILESYSTEM_ROOT/$subdir; done
+sudo rm -rf tmpdir
 {% else %}
 sudo dpkg --root=$FILESYSTEM_ROOT -i {{deb}} || sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
 {% endif %}
@@ -403,6 +410,11 @@ if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
 fi
 
 {% if installer_images.strip() -%}
+clean_proc() {
+    sudo umount /proc || true
+}
+trap_push clean_proc
+sudo mount proc /proc -t proc
 sudo mkdir $FILESYSTEM_ROOT/target
 sudo mount --bind target $FILESYSTEM_ROOT/target
 sudo chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS info
@@ -431,6 +443,7 @@ echo "docker images pull complete"
 
 sudo umount $FILESYSTEM_ROOT/target
 sudo rm -r $FILESYSTEM_ROOT/target
+sudo umount /proc || true
 if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
     sudo umount $FILESYSTEM_ROOT/dockerfs
     sudo rm -fr $FILESYSTEM_ROOT/dockerfs

@@ -29,8 +29,6 @@ $(LIBNSS_TACPLUS)_RDEPENDS += $(LIBTAC2)
 $(LIBNSS_TACPLUS)_SRC_PATH = $(SRC_PATH)/tacacs/nss
 SONIC_MAKE_DEBS += $(LIBNSS_TACPLUS)
 
-SONIC_STRETCH_DEBS += $(LIBPAM_TACPLUS) $(LIBNSS_TACPLUS)
-
 # The .c, .cpp, .h & .hpp files under src/{$DBG_SRC_ARCHIVE list}
 # are archived into debug one image to facilitate debugging.
 #
