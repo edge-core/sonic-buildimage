@@ -172,8 +172,14 @@ define GET_MOD_DEP_SHA
                             $(if $($(dfile)_MAIN_DEB),$($(dfile)_MAIN_DEB),$(dfile))) )
 
 	$(if $(MDEBUG), $(info $(1)_MOD_DEP_PKGS: $($(1)_MOD_DEP_PKGS)))
-	$(eval $(1)_DEP_MOD_SHA := $(shell git hash-object  \
-                            $(foreach dfile,$($(1)_MOD_DEP_PKGS), $($(dfile)_DEP_FLAGS_FILE) $($(dfile)_MOD_HASH_FILE) $($(dfile)_SMOD_HASH_FILE) ) \
+
+	# Warn if there is any missing dependency files
+	$(eval $(1)_DEP_MOD_SHA_FILES := $(foreach dfile,$($(1)_MOD_DEP_PKGS), \
+	                        $($(dfile)_DEP_FLAGS_FILE) $($(dfile)_MOD_HASH_FILE) $($(dfile)_SMOD_HASH_FILE)) )
+	$(eval $(1)_DEP_FILES_MISSING := $(filter-out $(wildcard $($(1)_DEP_MOD_SHA_FILES)),$($(1)_DEP_MOD_SHA_FILES)) )
+	$(if $($(1)_DEP_FILES_MISSING), $(warning "[ DPKG ] Dependecy file(s) are not found for $(1) : $($(1)_DEP_FILES_MISSING)))
+	
+	$(eval $(1)_DEP_MOD_SHA := $(shell git hash-object  $($(1)_DEP_MOD_SHA_FILES) \
                             | sha1sum | awk '{print substr($$1,0,23);}'))
 endef
 
