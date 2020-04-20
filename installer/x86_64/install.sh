@@ -545,8 +545,8 @@ export GRUB_CMDLINE_LINUX
 # Add common configuration, like the timeout and serial console.
 cat <<EOF > $grub_cfg
 $GRUB_SERIAL_COMMAND
-terminal_input serial
-terminal_output serial
+terminal_input console serial
+terminal_output console serial
 
 set timeout=5
 
