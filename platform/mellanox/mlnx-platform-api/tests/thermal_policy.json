@@ -52,6 +52,24 @@
             ]
         },
         {
+            "name": "any fan broken",
+            "conditions": [
+                {
+                    "type": "fan.any.fault"
+                }
+            ],
+            "actions": [
+                {
+                    "type": "thermal_control.control",
+                    "status": "false"
+                },
+                {
+                    "type": "fan.all.set_speed",
+                    "speed": "100"
+                }
+            ]
+        },
+        {
             "name": "all fan and psu presence",
             "conditions": [
                 {
@@ -59,12 +77,19 @@
                 },
                 {
                     "type": "psu.all.presence"
+                },
+                {
+                    "type": "fan.all.good"
                 }
             ],
             "actions": [
                 {
                     "type": "thermal_control.control",
                     "status": "true"
+                },
+                {
+                    "type": "fan.all.check_and_set_speed",
+                    "speed": "60"
                 }
             ]
         }

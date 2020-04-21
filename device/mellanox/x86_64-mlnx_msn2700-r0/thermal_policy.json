@@ -1,6 +1,6 @@
 {   
     "thermal_control_algorithm": {
-        "run_at_boot_up": "false",
+        "run_at_boot_up": "true",
         "fan_speed_when_suspend": "60"
     },
     "info_types": [
@@ -52,6 +52,24 @@
             ]
         },
         {
+            "name": "any fan broken",
+            "conditions": [
+                {
+                    "type": "fan.any.fault"
+                }
+            ],
+            "actions": [
+                {
+                    "type": "thermal_control.control",
+                    "status": "false"
+                },
+                {
+                    "type": "fan.all.set_speed",
+                    "speed": "100"
+                }
+            ]
+        },
+        {
             "name": "all fan and psu presence",
             "conditions": [
                 {
@@ -59,12 +77,15 @@
                 },
                 {
                     "type": "psu.all.presence"
+                },
+                {
+                    "type": "fan.all.good"
                 }
             ],
             "actions": [
                 {
-                    "type": "fan.all.set_speed",
-                    "speed": "60"
+                    "type": "thermal_control.control",
+                    "status": "true"
                 }
             ]
         }

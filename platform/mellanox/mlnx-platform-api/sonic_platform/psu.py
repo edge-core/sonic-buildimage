@@ -101,7 +101,7 @@ class Psu(PsuBase):
 
         # unplugable PSU has no FAN
         if sku not in hwsku_dict_with_unplugable_psu:
-            fan = Fan(sku, psu_index, psu_index, True)
+            fan = Fan(False, psu_index, psu_index, True)
             self._fan_list.append(fan)
 
         self.psu_green_led_path = "led_psu_green"
@@ -121,7 +121,7 @@ class Psu(PsuBase):
         result = 0
         try:
             with open(filename, 'r') as fileobj:
-                result = int(fileobj.read())
+                result = int(fileobj.read().strip())
         except Exception as e:
             logger.log_info("Fail to read file {} due to {}".format(filename, repr(e)))
         return result

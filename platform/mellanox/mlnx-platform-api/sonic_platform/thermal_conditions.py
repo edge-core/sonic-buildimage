@@ -32,6 +32,20 @@ class AllFanPresenceCondition(FanCondition):
         return len(fan_info_obj.get_absence_fans()) == 0 if fan_info_obj else False
 
 
+@thermal_json_object('fan.any.fault')
+class AnyFanFaultCondition(FanCondition):
+    def is_match(self, thermal_info_dict):
+        fan_info_obj = self.get_fan_info(thermal_info_dict)
+        return len(fan_info_obj.get_fault_fans()) > 0 if fan_info_obj else False
+
+
+@thermal_json_object('fan.all.good')
+class AllFanGoodCondition(FanCondition):
+    def is_match(self, thermal_info_dict):
+        fan_info_obj = self.get_fan_info(thermal_info_dict)
+        return len(fan_info_obj.get_fault_fans()) == 0 if fan_info_obj else False
+
+
 class PsuCondition(ThermalPolicyConditionBase):
     def get_psu_info(self, thermal_info_dict):
         from .thermal_infos import PsuInfo
@@ -61,3 +75,57 @@ class AllPsuPresenceCondition(PsuCondition):
         psu_info_obj = self.get_psu_info(thermal_info_dict)
         return len(psu_info_obj.get_absence_psus()) == 0 if psu_info_obj else False
 
+
+class MinCoolingLevelChangeCondition(ThermalPolicyConditionBase):
+    trust_state = None
+    air_flow_dir = None
+    temperature = None
+    
+    def is_match(self, thermal_info_dict):
+        from .thermal import Thermal
+
+        trust_state = Thermal.check_module_temperature_trustable()
+        air_flow_dir, temperature = Thermal.get_air_flow_direction()
+        temperature = temperature / 1000
+
+        change_cooling_level = False
+        if trust_state != MinCoolingLevelChangeCondition.trust_state:
+            MinCoolingLevelChangeCondition.trust_state = trust_state
+            change_cooling_level = True
+        
+        if air_flow_dir != MinCoolingLevelChangeCondition.air_flow_dir:
+            MinCoolingLevelChangeCondition.air_flow_dir = air_flow_dir
+            change_cooling_level = True
+
+        if temperature != MinCoolingLevelChangeCondition.temperature:
+            MinCoolingLevelChangeCondition.temperature = temperature
+            change_cooling_level = True
+
+        return change_cooling_level
+
+
+class CoolingLevelChangeCondition(ThermalPolicyConditionBase):
+    cooling_level = None
+
+    def is_match(self, thermal_info_dict):
+        from .fan import Fan
+        current_cooling_level = Fan.get_cooling_level()
+        if current_cooling_level != CoolingLevelChangeCondition.cooling_level:
+            CoolingLevelChangeCondition.cooling_level = current_cooling_level
+            return True
+        else:
+            return False
+
+
+class UpdateCoolingLevelToMinCondition(ThermalPolicyConditionBase):
+    enable = False
+    def is_match(self, thermal_info_dict):
+        if not UpdateCoolingLevelToMinCondition.enable:
+            return False
+
+        from .fan import Fan
+        current_cooling_level = Fan.get_cooling_level()
+        if current_cooling_level == Fan.min_cooling_level:
+            UpdateCoolingLevelToMinCondition.enable = False
+            return False
+        return True

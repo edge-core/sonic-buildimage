@@ -14,6 +14,7 @@ class FanInfo(ThermalPolicyInfoBase):
     def __init__(self):
         self._absence_fans = set()
         self._presence_fans = set()
+        self._fault_fans = set()
         self._status_changed = False
 
     def collect(self, chassis):
@@ -24,16 +25,26 @@ class FanInfo(ThermalPolicyInfoBase):
         """
         self._status_changed = False
         for fan in chassis.get_all_fans():
-            if fan.get_presence() and fan not in self._presence_fans:
+            presence = fan.get_presence()
+            status = fan.get_status()
+            if presence and fan not in self._presence_fans:
                 self._presence_fans.add(fan)
                 self._status_changed = True
                 if fan in self._absence_fans:
                     self._absence_fans.remove(fan)
-            elif not fan.get_presence() and fan not in self._absence_fans:
+            elif not presence and fan not in self._absence_fans:
                 self._absence_fans.add(fan)
                 self._status_changed = True
                 if fan in self._presence_fans:
                     self._presence_fans.remove(fan)
+
+            if not status and fan not in self._fault_fans:
+                self._fault_fans.add(fan)
+                self._status_changed = True
+            elif status and fan in self._fault_fans:
+                self._fault_fans.remove(fan)
+                self._status_changed = True
+                    
 
     def get_absence_fans(self):
         """
@@ -48,6 +59,13 @@ class FanInfo(ThermalPolicyInfoBase):
         :return: A set of presence fans
         """
         return self._presence_fans
+
+    def get_fault_fans(self):
+        """
+        Retrieves fault fans
+        :return: A set of fault fans
+        """
+        return self._fault_fans
 
     def is_status_changed(self):
         """

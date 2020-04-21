@@ -29,6 +29,7 @@ MAX_SELECT_DELAY = 3600
 MLNX_NUM_PSU = 2
 
 GET_HWSKU_CMD = "sonic-cfggen -d -v DEVICE_METADATA.localhost.hwsku"
+GET_PLATFORM_CMD = "sonic-cfggen -d -v DEVICE_METADATA.localhost.platform"
 
 EEPROM_CACHE_ROOT = '/var/cache/sonic/decode-syseeprom'
 EEPROM_CACHE_FILE = 'syseeprom_cache'
@@ -60,6 +61,7 @@ class Chassis(ChassisBase):
 
         # Initialize SKU name
         self.sku_name = self._get_sku_name()
+        self.platform_name = self._get_platform_name()
         mi = get_machine_info()
         if mi is not None:
             self.name = mi['onie_platform']
@@ -110,9 +112,9 @@ class Chassis(ChassisBase):
 
         for index in range(num_of_fan):
             if multi_rotor_in_drawer:
-                fan = Fan(has_fan_dir, index, index/2, False, self.sku_name)
+                fan = Fan(has_fan_dir, index, index/2, False, self.platform_name)
             else:
-                fan = Fan(has_fan_dir, index, index, False, self.sku_name)
+                fan = Fan(has_fan_dir, index, index, False, self.platform_name)
             self._fan_list.append(fan)
 
 
@@ -241,6 +243,12 @@ class Chassis(ChassisBase):
 
     def _get_sku_name(self):
         p = subprocess.Popen(GET_HWSKU_CMD, shell=True, stdout=subprocess.PIPE)
+        out, err = p.communicate()
+        return out.rstrip('\n')
+
+
+    def _get_platform_name(self):
+        p = subprocess.Popen(GET_PLATFORM_CMD, shell=True, stdout=subprocess.PIPE)
         out, err = p.communicate()
         return out.rstrip('\n')
 
