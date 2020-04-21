@@ -35,22 +35,28 @@
 #
 
 try:
+    import os
     import commands
+    import sys
     import time
+    import syslog
     from sonic_platform_base.chassis_base import ChassisBase
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
+SYSLOG_IDENTIFIER = "Juniper-Chassis"
+
+def log_info(msg):
+    syslog.openlog(SYSLOG_IDENTIFIER)
+    syslog.syslog(syslog.LOG_INFO, msg)
+    syslog.closelog()	
 
 class Chassis(ChassisBase):
-    """
-    JUNIPER QFX5200 Platform-specific Chassis class
-    """
 
     def __init__(self):
         ChassisBase.__init__(self)
 
-    def get_qfx5200_parameter_value(self,parameter_name):
+    def get_parameter_value(self,parameter_name):
         try:
             with open("/var/run/eeprom", "r") as file:
                 for item in file:
@@ -63,7 +69,7 @@ class Chassis(ChassisBase):
             return "False"
 
     def get_product_name(self):
-        product_name_list = self.get_qfx5200_parameter_value('Product Name')
+        product_name_list = self.get_parameter_value('Product Name')
         if product_name_list:
             product_name = ''.join(product_name_list)
             return product_name
@@ -72,7 +78,7 @@ class Chassis(ChassisBase):
 
 
     def get_part_number(self):
-        part_number_list = self.get_qfx5200_parameter_value('Part Number')
+        part_number_list = self.get_parameter_value('Part Number')
         if part_number_list:
             part_number = ''.join(part_number_list)
             return part_number
@@ -81,7 +87,7 @@ class Chassis(ChassisBase):
 
 
     def get_serial_number(self):
-        serial_number_list = self.get_qfx5200_parameter_value('Serial Number')
+        serial_number_list = self.get_parameter_value('Serial Number')
         if serial_number_list:
             serial_number = ''.join(serial_number_list)
             return serial_number
@@ -90,7 +96,7 @@ class Chassis(ChassisBase):
 
 
     def get_base_mac(self):
-        mac_list = self.get_qfx5200_parameter_value('MAC Address')
+        mac_list = self.get_parameter_value('MAC')
         if mac_list:
             mac = ''.join(mac_list)
             return mac
@@ -99,34 +105,39 @@ class Chassis(ChassisBase):
 
 
     def get_mfg_date(self):
-        mfgdate_list = self.get_qfx5200_parameter_value('Manufacture Date')
+        mfgdate_list = self.get_parameter_value('Manufacture Date')
         if mfgdate_list:
             mfgdate = ''.join(mfgdate_list)
             return mfgdate
         else:
             return False
 
+    def get_deviceversion_name(self):
+        device_version_list = self.get_parameter_value('Device Version')
+        if device_version_list:
+            deviceversion_name = ''.join(device_version_list)
+            return deviceversion_name
+        else:
+            return False
 
     def get_platform_name(self):
-        platform_name_list = self.get_qfx5200_parameter_value('Platform Name')
+        platform_name_list = self.get_parameter_value('Platform Name')
         if platform_name_list:
             platform_name = ''.join(platform_name_list)
             return platform_name
         else:
             return False
     
-
     def get_MACnumber_name(self):
-        MACnumber_name_list = self.get_qfx5200_parameter_value('Number of MAC Addresses')
+        MACnumber_name_list = self.get_parameter_value('Number of MAC Addresses')
         if MACnumber_name_list:
             MACnumber_name = ''.join(MACnumber_name_list)
             return MACnumber_name
         else:
             return False
 
-
     def get_vendor_name(self):
-        vendor_name_list = self.get_qfx5200_parameter_value('Vendor Name')
+        vendor_name_list = self.get_parameter_value('Vendor Name')
         if vendor_name_list:
             vendor_name = ''.join(vendor_name_list)
             return vendor_name
@@ -134,7 +145,7 @@ class Chassis(ChassisBase):
             return False
 
     def get_mfg_name(self):
-        mfg_name_list = self.get_qfx5200_parameter_value('Manufacture Name')
+        mfg_name_list = self.get_parameter_value('Manufacture Name')
         if mfg_name_list:
             mfg_name = ''.join(mfg_name_list)
             return mfg_name
@@ -142,7 +153,7 @@ class Chassis(ChassisBase):
             return False
 
     def get_vendorext_name(self):
-        vendorext_list = self.get_qfx5200_parameter_value('Vendor Extension')
+        vendorext_list = self.get_parameter_value('Vendor Extension')
         if vendorext_list:
             vendorext = ''.join(vendorext_list)
             return vendorext
@@ -150,7 +161,7 @@ class Chassis(ChassisBase):
             return False
 
     def get_vendorextIANA_name(self):
-        vendorext_list = self.get_qfx5200_parameter_value('IANA')
+        vendorext_list = self.get_parameter_value('IANA')
         if vendorext_list:
             vendorext = ''.join(vendorext_list)
             return vendorext
@@ -158,7 +169,7 @@ class Chassis(ChassisBase):
             return False
 
     def get_vendorextASMREV_name(self):
-        vendorext_list = self.get_qfx5200_parameter_value('Assembly Part Number Revision')
+        vendorext_list = self.get_parameter_value('Assembly Part Number Rev')
         if vendorext_list:
             vendorext = ''.join(vendorext_list)
             return vendorext
@@ -166,7 +177,7 @@ class Chassis(ChassisBase):
             return False
 
     def get_vendorextASMPartNum_name(self):
-        vendorext_list = self.get_qfx5200_parameter_value('Assembly Part Number')
+        vendorext_list = self.get_parameter_value('Assembly Part Number')
         if vendorext_list:
             vendorext = ''.join(vendorext_list)
             return vendorext
@@ -174,7 +185,7 @@ class Chassis(ChassisBase):
             return False
 
     def get_vendorextASMID_name(self):
-        vendorext_list = self.get_qfx5200_parameter_value('Assembly ID')
+        vendorext_list = self.get_parameter_value('Assembly ID')
         if vendorext_list:
             vendorext = ''.join(vendorext_list)
             return vendorext
@@ -182,7 +193,7 @@ class Chassis(ChassisBase):
             return False
 
     def get_vendorextASMMajNum_name(self):
-        vendorext_list = self.get_qfx5200_parameter_value('Assembly Major Revision')
+        vendorext_list = self.get_parameter_value('Assembly Major Revision')
         if vendorext_list:
             vendorext = ''.join(vendorext_list)
             return vendorext
@@ -190,7 +201,7 @@ class Chassis(ChassisBase):
             return False
 
     def get_vendorextASMMinNum_name(self):
-        vendorext_list = self.get_qfx5200_parameter_value('Assembly Minor Revision')
+        vendorext_list = self.get_parameter_value('Assembly Minor Revision')
         if vendorext_list:
             vendorext = ''.join(vendorext_list)
             return vendorext
@@ -198,7 +209,7 @@ class Chassis(ChassisBase):
             return False
 
     def get_vendorextCLEI_name(self):
-        vendorext_list = self.get_qfx5200_parameter_value('CLEI code')
+        vendorext_list = self.get_parameter_value('CLEI code')
         if vendorext_list:
             vendorext = ''.join(vendorext_list)
             return vendorext
@@ -206,7 +217,7 @@ class Chassis(ChassisBase):
             return False
 
     def get_onieversion_name(self):
-        onieversion_name_list = self.get_qfx5200_parameter_value('ONIE Version')
+        onieversion_name_list = self.get_parameter_value('ONIE Version')
         if onieversion_name_list:
             onieversion_name = ''.join(onieversion_name_list)
             return onieversion_name
@@ -214,47 +225,75 @@ class Chassis(ChassisBase):
             return False
 
     def get_crc_name(self):
-        crc_list = self.get_qfx5200_parameter_value('CRC')
+        crc_list = self.get_parameter_value('CRC')
         if crc_list:
             crc_name = ''.join(crc_list)
             return crc_name
         else:
             return False
 
-    def get_fan_type(self):
-        fantype_list = self.get_qfx5200_parameter_value('Fan Type')
-        if fantype_list:
-            fantype_name = ''.join(fantype_list)
-            return fantype_name
-        else:
-            return False
-
     def get_reboot_cause(self):
         """
-	Retrieves the cause of the previous reboot
-	"""
-	status, last_reboot_reason = commands.getstatusoutput("busybox devmem 0xFED50004 8")
-	if (status == 0):
-	    if last_reboot_reason == "0x80":
-	        return (ChassisBase.REBOOT_CAUSE_NON_HARDWARE, None)
-	    elif last_reboot_reason == "0x40" or last_reboot_reason == "0x08":
-	        return (ChassisBase.REBOOT_CAUSE_WATCHDOG, None)
-	    elif last_reboot_reason == "0x20":
-	        return (ChassisBase.REBOOT_CAUSE_POWER_LOSS, None)
-	    elif last_reboot_reason == "0x10":
-	        return (ChassisBase.REBOOT_CAUSE_HARDWARE_OTHER, "Swizzle Reset")
-	    else:
-	        return (ChassisBase.REBOOT_CAUSE_HARDWARE_OTHER, "Unknown reason")
-	else:
-	    time.sleep(3)
-	    status, last_reboot_reason = commands.getstatusoutput("busybox devmem 0xFED50004 8")
-	    if last_reboot_reason == "0x80":
-	        return (ChassisBase.REBOOT_CAUSE_NON_HARDWARE, None)
-            elif last_reboot_reason == "0x40" or last_reboot_reason == "0x08":
-                return (ChassisBase.REBOOT_CAUSE_WATCHDOG, None)
-            elif last_reboot_reason == "0x20":
-                return (ChassisBase.REBOOT_CAUSE_POWER_LOSS, None)
-            elif last_reboot_reason == "0x10":
-                return (ChassisBase.REBOOT_CAUSE_HARDWARE_OTHER, "Swizzle Reset")
+        Retrieves the cause of the previous reboot
+        """
+        platform_name = self.get_platform_name()
+        platform_name = platform_name.replace("\r","")
+        platform_name = platform_name.replace("\n","")
+	log_info("Juniper Platform name: {} and {}".format(self.get_platform_name(), platform_name))
+        if str(platform_name) == "x86_64-juniper_networks_qfx5210-r0":	
+	    log_info("Juniper Platform QFX5210 ")
+            status, last_reboot_reason = commands.getstatusoutput("i2cget -f -y 0 0x65 0x24")
+            if (status == 0):
+                if last_reboot_reason == "0x80":
+                    return (ChassisBase.REBOOT_CAUSE_NON_HARDWARE, None)
+                elif last_reboot_reason == "0x40" or last_reboot_reason == "0x08":
+                    return (ChassisBase.REBOOT_CAUSE_WATCHDOG, None)
+                elif last_reboot_reason == "0x20":
+                    return (ChassisBase.REBOOT_CAUSE_POWER_LOSS, None)
+                elif last_reboot_reason == "0x10":
+                    return (ChassisBase.REBOOT_CAUSE_HARDWARE_OTHER, "Swizzle Reset")
+                else:
+                    return (ChassisBase.REBOOT_CAUSE_HARDWARE_OTHER, "Unknown reason")
             else:
-                return (ChassisBase.REBOOT_CAUSE_HARDWARE_OTHER, "Unknown reason")	
+                time.sleep(3)
+                status, last_reboot_reason = commands.getstatusoutput("i2cget -f -y 0 0x65 0x24")
+                if last_reboot_reason == "0x80":
+                    return (ChassisBase.REBOOT_CAUSE_NON_HARDWARE, None)
+                elif last_reboot_reason == "0x40" or last_reboot_reason == "0x08":
+                    return (ChassisBase.REBOOT_CAUSE_WATCHDOG, None)
+                elif last_reboot_reason == "0x20":
+                    return (ChassisBase.REBOOT_CAUSE_POWER_LOSS, None)
+                elif last_reboot_reason == "0x10":
+                    return (ChassisBase.REBOOT_CAUSE_HARDWARE_OTHER, "Swizzle Reset")
+                else:
+                    return (ChassisBase.REBOOT_CAUSE_HARDWARE_OTHER, "Unknown reason")
+
+        elif str(platform_name) == "x86_64-juniper_networks_qfx5200-r0" : 		
+	    log_info("Juniper Platform QFX5200 ")
+	    status, last_reboot_reason = commands.getstatusoutput("busybox devmem 0xFED50004 8")
+	    if (status == 0):
+	        if last_reboot_reason == "0x80":
+	            return (ChassisBase.REBOOT_CAUSE_NON_HARDWARE, None)
+	        elif last_reboot_reason == "0x40" or last_reboot_reason == "0x08":
+	            return (ChassisBase.REBOOT_CAUSE_WATCHDOG, None)
+	        elif last_reboot_reason == "0x20":
+	            return (ChassisBase.REBOOT_CAUSE_POWER_LOSS, None)
+	        elif last_reboot_reason == "0x10":
+	            return (ChassisBase.REBOOT_CAUSE_HARDWARE_OTHER, "Swizzle Reset")
+	        else:
+	            return (ChassisBase.REBOOT_CAUSE_HARDWARE_OTHER, "Unknown reason")
+	    else:
+	        time.sleep(3)
+	        status, last_reboot_reason = commands.getstatusoutput("busybox devmem 0xFED50004 8")
+	        if last_reboot_reason == "0x80":
+	            return (ChassisBase.REBOOT_CAUSE_NON_HARDWARE, None)
+                elif last_reboot_reason == "0x40" or last_reboot_reason == "0x08":
+                    return (ChassisBase.REBOOT_CAUSE_WATCHDOG, None)
+                elif last_reboot_reason == "0x20":
+                    return (ChassisBase.REBOOT_CAUSE_POWER_LOSS, None)
+                elif last_reboot_reason == "0x10":
+                    return (ChassisBase.REBOOT_CAUSE_HARDWARE_OTHER, "Swizzle Reset")
+                else:
+                    return (ChassisBase.REBOOT_CAUSE_HARDWARE_OTHER, "Unknown reason")
+        else:
+	    log_info("Juniper QFX5200 and QFX5210 platforms are supported")

@@ -23,7 +23,6 @@ MODULE_DIRS:= qfx5210 qfx5200
 MODULE_DIR := modules
 UTILS_DIR := utils
 SERVICE_DIR := service
-PLATFORM_DIR := sonic_platform
 CONF_DIR := conf
 
 %:
@@ -38,7 +37,7 @@ build:
 	#make modules -C $(KERNEL_SRC)/build M=$(MODULE_SRC)
 	(for mod in $(MODULE_DIRS); do \
 		make modules -C $(KERNEL_SRC)/build M=$(MOD_SRC_DIR)/$${mod}/modules || exit 1; \
-		$(PYTHON) $${mod}/setup.py build; \
+		$(PYTHON) setup.py build; \
 	done)
 
 binary: binary-arch binary-indep
@@ -65,7 +64,7 @@ binary-indep:
 		cp $(MOD_SRC_DIR)/$${mod}/$(MODULE_DIR)/*.ko debian/$(PACKAGE_PRE_NAME)-$${mod}/$(KERNEL_SRC)/$(INSTALL_MOD_DIR); \
 		cp $(MOD_SRC_DIR)/$${mod}/$(UTILS_DIR)/* debian/$(PACKAGE_PRE_NAME)-$${mod}/usr/local/bin/; \
 		cp $(MOD_SRC_DIR)/$${mod}/$(SERVICE_DIR)/*.service debian/$(PACKAGE_PRE_NAME)-$${mod}/lib/systemd/system/; \
-		$(PYTHON) $${mod}/setup.py install --root=$(MOD_SRC_DIR)/debian/$(PACKAGE_PRE_NAME)-$${mod} --install-layout=deb; \
+		$(PYTHON) setup.py install --root=$(MOD_SRC_DIR)/debian/$(PACKAGE_PRE_NAME)-$${mod} --install-layout=deb; \
 	done)
 	# Resuming debhelper scripts
 	dh_testroot

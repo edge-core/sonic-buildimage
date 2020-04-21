@@ -35,20 +35,12 @@
 try:
     import os
     import commands
-    import sys, getopt
     import subprocess
-    import click
-    import imp
     import logging
     import logging.config
     import logging.handlers
-    import types
     import time
-    import traceback
     import glob
-    import collections
-    import StringIO
-    from tabulate import tabulate
 except ImportError as e:
     raise ImportError('%s - required module not found' % str(e))
 
@@ -58,17 +50,16 @@ FUNCTION_NAME = '/var/log/juniper_qfx5210_monitor'
 verbose = False
 DEBUG = False
 
-global log_file
-global log_level
+log_file = '%s.log' % FUNCTION_NAME
+log_level = logging.DEBUG
 
-
-global isPlatformAFI
-global is80PerFlag
-global is60PerFlag
-global isFireThresholdReached 
-global isFireThresholdPrint 
-global PrevASICValue 
-global FireThresholdSecsRemaining
+isPlatformAFI = False
+is80PerFlag = True
+is60PerFlag = True
+isFireThresholdReached = False 
+isFireThresholdPrint = True
+PrevASICValue = 0 
+FireThresholdSecsRemaining = 120
             
 temp_policy_AFI = {
     0: [[70, 0, 48000], [70, 48000, 53000], [80, 53000, 0], [80, 53000, 58000], [100, 58000, 0], ['Yellow Alarm', 64000, 70000], ['Red Alarm', 70000, 75000], ['Fire Shut Alarm', 75000, 0]],
@@ -201,7 +192,7 @@ class QFX5210_ThermalUtil(object):
 
         try:
 	    val_file.close()
-        except:
+        except IOError as e:
             logging.debug('get_sensor_node_val: unable to close file. device_path:%s', device_path)
             return None
       
@@ -227,8 +218,8 @@ class QFX5210_ThermalUtil(object):
             return None
 
         try:
-		    val_file.close()
-        except:
+	    val_file.close()
+        except IOError as e:
             logging.debug('get_coretemp_node_val: unable to close file. device_path:%s', device_path)
             return None
      
@@ -326,7 +317,7 @@ class QFX5210_ThermalUtil(object):
                 isFireThresholdReached == False
                 time.sleep(20)
                 cmd = "poweroff"
-                returned_value = os.system(cmd)
+                os.system(cmd)
 
         for x in range(self.SENSOR_CORETEMP_NUM_ON_MAIN_BOARD):
             if x < self.SENSOR_NUM_ON_MAIN_BOARD:
@@ -340,7 +331,7 @@ class QFX5210_ThermalUtil(object):
                 proc = subprocess.Popen("bcmcmd \"show temp\" | grep \"maximum peak temperature\" | awk '{ print $5 }' > /var/log/asic_value 2>&1 & ",shell=True)
                 time.sleep(2)
                 cmd = "kill -9 %s"%(proc.pid)
-                status, cmd_out = commands.getstatusoutput(cmd)
+                commands.getstatusoutput(cmd)
                 
                 if os.stat("/var/log/asic_value").st_size == 0:
                     value = PrevASICValue
@@ -531,13 +522,6 @@ class device_monitor(object):
     
     def __init__(self, log_file, log_level):
         global DEBUG  
-        global isPlatformAFI
-        global isFireThresholdReached
-        global is80PerFlag
-        global is60PerFlag
-        global isFireThresholdPrint 
-        global PrevASICValue
-        global FireThresholdSecsRemaining 
         MASTER_LED_PATH = '/sys/class/leds/master/brightness'
         SYSTEM_LED_PATH = '/sys/class/leds/system/brightness'
         FANTYPE_PATH = '/sys/bus/i2c/devices/17-0068/fan1_direction'
@@ -561,26 +545,25 @@ class device_monitor(object):
                 console.setFormatter(formatter)
                 logging.getLogger('').addHandler(console)
 
-        import sonic_platform
-        platform = sonic_platform.platform.Platform()
-        chassis = platform.get_chassis()
-        fan_type = chassis.get_fan_type(FANTYPE_PATH)
+        try:
+            fan_type_file = open(FANTYPE_PATH)
+        except IOError as e:
+            print "Error: unable to open file: %s" % str(e)
+            fan_type = -1
+        else:
+            fan_type = fan_type_file.read()
+            fan_type_file.close()
+            
 
         # the return value of get_fan_type is AFO = 0, AFI = 1 and for error condition it is -1
         # In the error condition also, we are making default platform as AFO, to continue with Energy Monitoring
         if (int(fan_type) == -1 or int(fan_type) == 0):
+            logging.debug('FANTYPE_PATH. fan_type %d', int(fan_type))
             if (int(fan_type) == -1):
                 logging.error('device_monitor: unable to open sys file for fan handling, defaulting it to AFO')
             isPlatformAFI = False
         else:
             isPlatformAFI = True
-
-        isFireThresholdReached = False
-        is80PerFlag = True
-        is60PerFlag = True
-        isFireThresholdPrint = True
-        FireThresholdSecsRemaining = 120
-        PrevASICValue = 0
 
         master_led_value = 1
         try:
@@ -605,9 +588,7 @@ class device_monitor(object):
         thermal.getSensorTemp()
 
 def main():
-    log_file = '%s.log' % FUNCTION_NAME
-    log_level = logging.DEBUG
-
+    
     #Introducing sleep of 150 seconds to wait for all the docker containers to start before starting the EM policy.
     time.sleep(150)
     monitor = device_monitor(log_file, log_level)

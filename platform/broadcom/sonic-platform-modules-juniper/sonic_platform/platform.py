@@ -2,10 +2,10 @@
 #
 # Name: platform.py, version: 1.0
 #
-# Description: Module contains the definitions of SONiC platform APIs 
+# Description: Module contains the definition of SONiC platform API 
 # which provide the platform specific details
 #
-# Copyright (c) 2019, Juniper Networks, Inc.
+# Copyright (c) 2020, Juniper Networks, Inc.
 # All rights reserved.
 #
 # Notice and Disclaimer: This code is licensed to you under the GNU General 
@@ -39,29 +39,14 @@ import sys
 
 try:
    from sonic_platform_base.platform_base import PlatformBase
+   from sonic_platform.chassis import Chassis
 except ImportError as e:
    raise ImportError("%s - required module not found" % e)
 
-platformDict = {'platform':'QFX5210-64C'}
-
 class Platform(PlatformBase):
+    """
+    Juniper Platform-specific class
+    """	
     def __init__(self):
-        self.platform = self.getPlatform()
-
-    def getPlatformDict(self):
-        global platformDict
-        if platformDict:
-            return platformDict
-
-    def readPlatformName(self):
-        return self.getPlatformDict().get('platform')
-
-    def getPlatform(self):
-        platformCls = self.readPlatformName()
-        return platformCls
-
-    def get_chassis(self):
-        from chassis import Chassis
-        chassis = Chassis()
-        return chassis
-
+	PlatformBase.__init__(self)
+        self._chassis = Chassis()	
