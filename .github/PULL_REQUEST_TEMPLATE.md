@@ -10,7 +10,7 @@ If this is a bug fix, make sure your description includes "fixes #xxxx", or
 Please provide the following information:
 -->
 
-**- What I did**
+**- Why I did it**
 
 **- How I did it**
 
