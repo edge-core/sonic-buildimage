@@ -74,6 +74,7 @@ function postStartAction()
 {
 {%- if docker_container_name == "database" %}
     if [ "$DEV" ]; then
+        docker exec -i database$DEV sysctl -w net.ipv6.conf.all.disable_ipv6=0
         link_namespace $DEV
     fi
     # Wait until redis starts
