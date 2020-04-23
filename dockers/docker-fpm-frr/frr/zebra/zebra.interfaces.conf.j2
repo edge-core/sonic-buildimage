@@ -1,0 +1,25 @@
+!
+{% block vrf %}
+{%  if VNET is defined %}
+{%   for vnet_name, vnet_metadata in VNET.iteritems() %}
+vrf {{ vnet_name }}
+vni {{ vnet_metadata['vni'] }}
+!
+{%   endfor %}
+{%  endif %}
+{% endblock vrf %}
+!
+{% block interfaces %}
+! Enable link-detect (default disabled)
+{% for (name, prefix) in INTERFACE|pfx_filter %}
+interface {{ name }}
+link-detect
+!
+{% endfor %}
+{% for pc in PORTCHANNEL %}
+interface {{ pc }}
+link-detect
+!
+{% endfor %}
+{% endblock interfaces %}
+!

@@ -1,21 +1,48 @@
 #!/bin/bash
 
-echo "Traffic Shift Check:"
-c=0
-config=$(vtysh -c "show run")
-echo "$config" | grep -q "route-map TO_BGP_PEER_V4 permit 2"
-c=$((c+$?))
-echo "$config" | grep -q "route-map TO_BGP_PEER_V4 deny 3"
-c=$((c+$?))
-echo "$config" | grep -q "route-map TO_BGP_PEER_V6 permit 2"
-c=$((c+$?))
-echo "$config" | grep -q "route-map TO_BGP_PEER_V6 deny 3"
-c=$((c+$?))
+function check_not_installed()
+{
+  c=0
+  config=$(vtysh -c "show run")
+  for route_map_name in $(echo "$config" | sed -ne 's/  neighbor \S* route-map \(\S*\) out/\1/p');
+  do
+    echo "$config" | grep -q "route-map $route_map_name permit 2"
+    c=$((c+$?))
+    echo "$config" | grep -q "route-map $route_map_name deny 3"
+    c=$((c+$?))
+  done
+  return $c
+}
 
-if [[ $c -eq 4 ]];
+function check_installed()
+{
+  c=0
+  e=0
+  config=$(vtysh -c "show run")
+  for route_map_name in $(echo "$config" | sed -ne 's/  neighbor \S* route-map \(\S*\) out/\1/p');
+  do
+    echo "$config" | grep -q "route-map $route_map_name permit 2"
+    c=$((c+$?))
+    e=$((e+1))
+    echo "$config" | grep -q "route-map $route_map_name deny 3"
+    c=$((c+$?))
+    e=$((e+1))
+  done
+  return $((e-c))
+}
+
+echo "Traffic Shift Check:"
+
+check_not_installed
+not_installed=$?
+
+check_installed
+installed=$?
+
+if [[ $installed -eq 0 ]];
 then
   echo "System Mode: Normal"
-elif [[ $c -eq 0 ]];
+elif [[ $not_installed -eq 0 ]];
 then
   echo "System Mode: Maintenance"
 else

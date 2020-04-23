@@ -1,0 +1,81 @@
+!
+! template: bgpd/bgpd.main.conf.j2
+!
+! bgp multiple-instance
+!
+! BGP configuration
+!
+! TSA configuration
+!
+ip prefix-list PL_LoopbackV4 permit {{ get_ipv4_loopback_address(LOOPBACK_INTERFACE, "Loopback0") | ip }}/32
+!
+{% if get_ipv6_loopback_address(LOOPBACK_INTERFACE, "Loopback0") != 'None' %}
+ipv6 prefix-list PL_LoopbackV6 permit {{ get_ipv6_loopback_address(LOOPBACK_INTERFACE, "Loopback0") | replace('/128', '/64') | ip_network }}/64
+{% endif %}
+!
+!
+{% if DEVICE_METADATA['localhost']['type'] == 'InternalFrontend' %}
+route-map HIDE_INTERNAL permit 10
+  set community local-AS
+!
+{% endif %}
+!
+router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
+!
+{% block bgp_init %}
+  bgp log-neighbor-changes
+  no bgp default ipv4-unicast
+!
+{% if constants.bgp.multipath_relax.enabled is defined and constants.bgp.multipath_relax.enabled %}
+  bgp bestpath as-path multipath-relax
+{% endif %}
+!
+{% if constants.bgp.graceful_restart.enabled is defined and constants.bgp.graceful_restart.enabled %}
+  bgp graceful-restart restart-time {{ constants.bgp.graceful_restart.restart_time | default(240) }}
+  bgp graceful-restart
+  bgp graceful-restart preserve-fw-state
+{% endif %}
+!
+{# set router-id #}
+  bgp router-id {{ get_ipv4_loopback_address(LOOPBACK_INTERFACE, "Loopback0") | ip }}
+!
+{# advertise loopback #}
+  network {{ get_ipv4_loopback_address(LOOPBACK_INTERFACE, "Loopback0") | ip }}/32
+!
+{% if get_ipv6_loopback_address(LOOPBACK_INTERFACE, "Loopback0") != 'None' %}
+  address-family ipv6
+    network {{ get_ipv6_loopback_address(LOOPBACK_INTERFACE, "Loopback0") | ip }}/64
+  exit-address-family
+{% endif %}
+{% endblock bgp_init %}
+!
+{% block vlan_advertisement %}
+{% for (name, prefix) in VLAN_INTERFACE|pfx_filter %}
+{% if prefix | ipv4 %}
+  network {{ prefix }}
+{% elif prefix | ipv6 %}
+  address-family ipv6
+   network {{ prefix }}
+  exit-address-family
+{% endif %}
+{% endfor %}
+{% endblock vlan_advertisement %}
+!
+!
+{% if DEVICE_METADATA['localhost']['type'] == 'InternalFrontend' %}
+  redistribute connected route-map HIDE_INTERNAL
+{% endif %}
+!
+{% if constants.bgp.maximum_paths.enabled is defined and constants.bgp.maximum_paths.enabled %}
+{% block maximum_paths %}
+  address-family ipv4
+    maximum-paths {{ constants.bgp.maximum_paths.ipv4 | default(64) }}
+  exit-address-family
+  address-family ipv6
+    maximum-paths {{ constants.bgp.maximum_paths.ipv6 | default(64) }}
+  exit-address-family
+{% endblock maximum_paths %}
+{% endif %}
+!
+! end of template: bgpd/bgpd.main.conf.j2
+!
