@@ -1,0 +1,23 @@
+{% macro get_ipv4_loopback_address(interfaces, loopbackname) -%}
+{% set L = namespace(ip=None) %}
+{% for name, prefix in interfaces|pfx_filter %}
+{%   if name == loopbackname %}
+{%     if prefix | ipv4 %}
+{%       set L.ip = prefix %}
+{%     endif %}
+{%   endif %}
+{% endfor %}
+{{ L.ip }}
+{%- endmacro %}
+
+{% macro get_ipv6_loopback_address(interfaces, loopbackname) -%}
+{% set L = namespace(ip=None) %}
+{% for name, prefix in interfaces|pfx_filter %}
+{%   if name == loopbackname %}
+{%     if prefix | ipv6 %}
+{%       set L.ip = prefix %}
+{%     endif %}
+{%   endif %}
+{% endfor %}
+{{ L.ip }}
+{%- endmacro %}

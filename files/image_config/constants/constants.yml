@@ -1,4 +1,34 @@
 constants:
   deployment_id_asn_map:
     "1" : 65432
-  traffic_shift_community: 12345:12345
+    "2" : 65433
+  bgp:
+    traffic_shift_community: 12345:12345
+    families:
+      - ipv4
+      - ipv6
+    use_deployment_id: false
+    use_neighbors_meta: false
+    graceful_restart:
+      enabled: true
+      restart_time: 240
+    multipath_relax:
+      enabled: true
+    maximum_paths:
+      enabled: true
+      ipv4: 64
+      ipv6: 64
+    peers:
+      general: # peer_type
+        db_table: "BGP_NEIGHBOR"
+        template_dir: "general"
+      monitors: # peer_type
+        enabled: true
+        db_table: "BGP_MONITORS"
+        peer_group: "BGPMON"
+        template_dir: "monitors"
+      dynamic: # peer_type
+        enabled: true
+        db_table: "BGP_PEER_RANGE"
+        peer_group: "BGP_SPEAKER"
+        template_dir: "dynamic"
