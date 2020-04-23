@@ -5,6 +5,8 @@
 
 try:
     import time
+    import os
+    import sys, getopt
     from sonic_sfp.sfputilbase import SfpUtilBase
 except ImportError as e:
     raise ImportError("%s - required module not found" % str(e))
@@ -141,10 +143,91 @@ class SfpUtil(SfpUtilBase):
         
         return True
         
-    def get_transceiver_change_event(self):
-        """
-        TODO: This function need to be implemented
-        when decide to support monitoring SFP(Xcvrd)
-        on this platform.
-        """
-        raise NotImplementedError        
+    def get_cpld_interrupt(self):
+        port_dict={}
+        for i in range(0,4):
+            if i==0 or i==1:
+                cpld_i2c_path = self.BASE_CPLD1_PATH + "cpld_intr_" + str(i+1)
+            else:
+                cpld_i2c_path = self.BASE_CPLD2_PATH + "cpld_intr_" +str(i+1)
+            
+            start_i=(i*8)
+            end_i=(i*8+8)
+            try:
+                val_file = open(cpld_i2c_path)
+            except IOError as e:
+                print "Error: unable to open file: %s" % str(e)
+               
+                for k in range (start_i, end_i):
+                    port_dict[k]=0         
+                return port_dict
+
+            status = val_file.readline().rstrip()
+            val_file.close()
+            status=status.strip()
+            status= int(status, 16)
+            
+            interrupt_status = ~(status & 0xff)                
+            if interrupt_status:
+                port_shift=0
+                for k in range (start_i, end_i):
+                    if interrupt_status & (0x1<<port_shift):
+                        port_dict[k]=1
+                    else:
+                        port_dict[k]=0
+                    port_shift=port_shift+1
+
+        return port_dict
+        
+    def get_transceiver_change_event(self, timeout=0):
+        start_time = time.time()
+        port_dict = {}
+        ori_present ={}
+        forever = False
+
+        if timeout == 0:
+            forever = True
+        elif timeout > 0:
+            timeout = timeout / float(1000) # Convert to secs
+        else:
+            print "get_transceiver_change_event:Invalid timeout value", timeout
+            return False, {}
+
+        end_time = start_time + timeout
+        if start_time > end_time:
+            print 'get_transceiver_change_event:' \
+                       'time wrap / invalid timeout value', timeout
+
+            return False, {} # Time wrap or possibly incorrect timeout
+       
+        #for i in range(self.port_start, self.port_end+1):
+        #        ori_present[i]=self.get_presence(i)
+                
+        while timeout >= 0: 
+            change_status=0
+            
+            port_dict = self.get_cpld_interrupt()
+            present=0
+            for key, value in port_dict.iteritems():
+                if value==1:
+                    present=self.get_presence(key)
+                    change_status=1
+                    if present:
+                        port_dict[key]='1'
+                    else:
+                        port_dict[key]='0'
+               
+            if change_status:               
+                return True, port_dict
+            if forever:
+                time.sleep(1)
+            else:
+                timeout = end_time - time.time()
+                if timeout >= 1:
+                    time.sleep(1) # We poll at 1 second granularity
+                else:
+                    if timeout > 0:
+                        time.sleep(timeout)
+                    return True, {}
+        print "get_evt_change_event: Should not reach here."
+        return False, {}

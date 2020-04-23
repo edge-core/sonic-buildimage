@@ -72,6 +72,7 @@ MODULE_DEVICE_TABLE(i2c, as9716_32d_cpld_id);
 #define TRANSCEIVER_RXLOS_ATTR_ID(index)   		MODULE_RXLOS_##index
 #define TRANSCEIVER_TXFAULT_ATTR_ID(index)   	MODULE_TXFAULT_##index
 #define TRANSCEIVER_RESET_ATTR_ID(index)   	    MODULE_RESET_##index
+#define CPLD_INTR_ATTR_ID(index)   	            CPLD_INTR_##index
 
 enum as9716_32d_cpld_sysfs_attributes {
 	CPLD_VERSION,
@@ -149,10 +150,17 @@ enum as9716_32d_cpld_sysfs_attributes {
 	TRANSCEIVER_RESET_ATTR_ID(30),
 	TRANSCEIVER_RESET_ATTR_ID(31),
 	TRANSCEIVER_RESET_ATTR_ID(32),
+	CPLD_INTR_ATTR_ID(1),
+	CPLD_INTR_ATTR_ID(2),
+	CPLD_INTR_ATTR_ID(3),
+	CPLD_INTR_ATTR_ID(4),
+	
 };
 
 /* sysfs attributes for hwmon 
  */
+static ssize_t show_interrupt(struct device *dev, struct device_attribute *da,
+             char *buf);
 static ssize_t show_status(struct device *dev, struct device_attribute *da,
              char *buf);
 static ssize_t set_tx_disable(struct device *dev, struct device_attribute *da,
@@ -187,6 +195,11 @@ static int as9716_32d_cpld_write_internal(struct i2c_client *client, u8 reg, u8 
 #define DECLARE_TRANSCEIVER_SENSOR_DEVICE_RESET_ATTR(index) \
 	static SENSOR_DEVICE_ATTR(module_reset_##index, S_IWUSR | S_IRUGO, get_mode_reset, set_mode_reset, MODULE_RESET_##index)
 #define DECLARE_TRANSCEIVER_RESET_ATTR(index)  &sensor_dev_attr_module_reset_##index.dev_attr.attr
+
+/*cpld interrupt*/
+#define DECLARE_CPLD_DEVICE_INTR_ATTR(index) \
+	static SENSOR_DEVICE_ATTR(cpld_intr_##index, S_IRUGO, show_interrupt, NULL, CPLD_INTR_##index)
+#define DECLARE_CPLD_INTR_ATTR(index)  &sensor_dev_attr_cpld_intr_##index.dev_attr.attr
 
 
 
@@ -261,6 +274,10 @@ DECLARE_TRANSCEIVER_SENSOR_DEVICE_RESET_ATTR(29);
 DECLARE_TRANSCEIVER_SENSOR_DEVICE_RESET_ATTR(30);
 DECLARE_TRANSCEIVER_SENSOR_DEVICE_RESET_ATTR(31);
 DECLARE_TRANSCEIVER_SENSOR_DEVICE_RESET_ATTR(32);
+DECLARE_CPLD_DEVICE_INTR_ATTR(1);
+DECLARE_CPLD_DEVICE_INTR_ATTR(2);
+DECLARE_CPLD_DEVICE_INTR_ATTR(3);
+DECLARE_CPLD_DEVICE_INTR_ATTR(4);
 
 
 
@@ -309,6 +326,8 @@ static struct attribute *as9716_32d_cpld1_attributes[] = {
 	DECLARE_TRANSCEIVER_RESET_ATTR(14),
 	DECLARE_TRANSCEIVER_RESET_ATTR(15),
 	DECLARE_TRANSCEIVER_RESET_ATTR(16),
+	DECLARE_CPLD_INTR_ATTR(1),
+	DECLARE_CPLD_INTR_ATTR(2),
 	NULL
 };
 
@@ -355,12 +374,55 @@ static struct attribute *as9716_32d_cpld2_attributes[] = {
 	DECLARE_TRANSCEIVER_RESET_ATTR(30),
 	DECLARE_TRANSCEIVER_RESET_ATTR(31),
 	DECLARE_TRANSCEIVER_RESET_ATTR(32),
+	DECLARE_CPLD_INTR_ATTR(3),
+	DECLARE_CPLD_INTR_ATTR(4),
 	NULL
 };
 
 static const struct attribute_group as9716_32d_cpld2_group = {
 	.attrs = as9716_32d_cpld2_attributes,
 };
+
+
+static  ssize_t show_interrupt(struct device *dev, struct device_attribute *da,
+             char *buf)
+{
+    struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
+    struct i2c_client *client = to_i2c_client(dev);
+    struct as9716_32d_cpld_data *data = i2c_get_clientdata(client);
+    int status = 0;
+    u8 reg = 0; 
+    
+    switch (attr->index)
+	{   
+        case CPLD_INTR_1:
+            reg  = 0x10;
+            break;
+        case CPLD_INTR_3:
+            reg  = 0x10;
+            break;
+        case CPLD_INTR_2:
+            reg  = 0x11;
+            break;
+        case CPLD_INTR_4:
+            reg  = 0x11;
+            break; 
+        default:
+            return -ENODEV;
+    }
+    mutex_lock(&data->update_lock);
+    status = as9716_32d_cpld_read_internal(client, reg);
+    if (unlikely(status < 0)) {
+        goto exit;
+    }
+    mutex_unlock(&data->update_lock);
+
+    return sprintf(buf, "0x%x\n", status);
+
+exit:
+    mutex_unlock(&data->update_lock);
+    return status;
+}
 
 
 static ssize_t show_status(struct device *dev, struct device_attribute *da,
@@ -723,9 +785,21 @@ static int as9716_32d_cpld_probe(struct i2c_client *client,
         break;
     case as9716_32d_cpld1:
         group = &as9716_32d_cpld1_group;
+        /*Set interrupt mask to 0, and then can get intr from 0x8*/
+        status=as9716_32d_cpld_write_internal(client, 0x9, 0x0); 
+        if (status < 0)
+        {
+           dev_dbg(&client->dev, "cpld1 reg 0x9 err %d\n", status);            
+        } 
         break;
     case as9716_32d_cpld2:
         group = &as9716_32d_cpld2_group;
+        /*Set interrupt mask to 0, and then can get intr from 0x8*/
+        status=as9716_32d_cpld_write_internal(client, 0x9, 0x0); 
+        if (status < 0)
+        {
+           dev_dbg(&client->dev, "cpld2 reg 0x65 err %d\n", status);            
+        } 
          break; 
      case as9716_32d_cpld_cpu:
          /* Disable CPLD reset to avoid DUT will be reset.
