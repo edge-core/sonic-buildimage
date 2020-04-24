@@ -3,7 +3,10 @@
 RESTAPI_ARGS=""
 while true
 do
-    client_auth=`sonic-cfggen -d -v "RESTAPI['config']['client_auth']"`
+    has_client_auth=$(sonic-cfggen -d -v "1 if RESTAPI and RESTAPI['config']")
+    if [ "$has_client_auth" == "1" ]; then
+        client_auth=$(sonic-cfggen -d -v "RESTAPI['config']['client_auth']")
+    fi
     if [[ $client_auth == 'true' ]]; then
         certs=`sonic-cfggen -d -v "RESTAPI['certs']"`
         allow_insecure=`sonic-cfggen -d -v "RESTAPI['config']['allow_insecure']"`
