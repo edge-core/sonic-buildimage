@@ -56,8 +56,7 @@ class Chassis(ChassisBase):
             thermal = Thermal(index)
             self._thermal_list.append(thermal)
         # sfp index start from 1
-        self._sfp_list.append(None)
-        for index in range(1, NUM_SFP+1):
+        for index in range(0, NUM_SFP):
             sfp = Sfp(index)
             self._sfp_list.append(sfp)
         for index in range(0, NUM_COMPONENT):
@@ -159,3 +158,24 @@ class Chassis(ChassisBase):
             self._watchdog = Watchdog()
 
         return self._watchdog
+
+    def get_sfp(self, index):
+        """
+        Retrieves sfp represented by (1-based) index <index>
+        Args:
+            index: An integer, the index (1-based) of the sfp to retrieve.
+            The index should be the sequence of a physical port in a chassis,
+            starting from 1.
+            For example, 1 for Ethernet0, 2 for Ethernet4 and so on.
+        Returns:
+            An object dervied from SfpBase representing the specified sfp
+        """
+        sfp = None
+
+        try:
+            # The index will start from 1
+            sfp = self._sfp_list[index-1]
+        except IndexError:
+            sys.stderr.write("SFP index {} out of range (1-{})\n".format(
+                             index, len(self._sfp_list)))
+        return sfp
