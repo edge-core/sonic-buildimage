@@ -251,6 +251,16 @@ sonic-slave-bash :
 	    $(DOCKER_BUILD) ; }
 	@$(DOCKER_RUN) -t $(SLAVE_IMAGE):$(SLAVE_TAG) bash
 
+sonic-slave-run :
+	@$(OVERLAY_MODULE_CHECK)
+	@docker inspect --type image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) &> /dev/null || \
+	    { echo Image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) not found. Building... ; \
+	    $(DOCKER_BASE_BUILD) ; }
+	@docker inspect --type image $(SLAVE_IMAGE):$(SLAVE_TAG) &> /dev/null || \
+	    { echo Image $(SLAVE_IMAGE):$(SLAVE_TAG) not found. Building... ; \
+	    $(DOCKER_BUILD) ; }
+	@$(DOCKER_RUN) -t $(SLAVE_IMAGE):$(SLAVE_TAG) bash -c "$(SONIC_RUN_CMDS)"
+
 showtag:
 	@echo $(SLAVE_IMAGE):$(SLAVE_TAG)
 	@echo $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG)
