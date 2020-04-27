@@ -45,5 +45,6 @@ RUN rm -rf /debs /python-wheels ~/.cache
 
 COPY ["start.sh", "lm-sensors.sh", "/usr/bin/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
+COPY ["ssd_tools/*", "/usr/bin/"]
 
 ENTRYPOINT ["/usr/bin/supervisord"]
