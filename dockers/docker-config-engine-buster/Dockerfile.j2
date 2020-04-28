@@ -1,0 +1,50 @@
+{% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python_wheels, copy_files %}
+FROM docker-base-buster
+
+## Make apt-get non-interactive
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update         && \
+    apt-get install -y        \
+        # Dependencies for sonic-cfggen
+        python-lxml           \
+        python-yaml           \
+        python-bitarray       \
+        python-pip            \
+        python-dev            \
+        python-natsort        \
+        apt-utils             \
+        python-setuptools
+
+RUN pip install --upgrade pip
+
+RUN pip install             \
+        netaddr             \
+        ipaddr              \
+        jinja2              \
+        pyangbind==0.6.0
+
+{% if docker_config_engine_buster_debs.strip() %}
+# Copy locally-built Debian package dependencies
+{{ copy_files("debs/", docker_config_engine_buster_debs.split(' '), "/debs/") }}
+
+# Install locally-built Debian packages and implicitly install their dependencies
+{{ install_debian_packages(docker_config_engine_buster_debs.split(' ')) }}
+{% endif %}
+
+{% if docker_config_engine_buster_whls.strip() %}
+# Copy locally-built Python wheel dependencies
+{{ copy_files("python-wheels/", docker_config_engine_buster_whls.split(' '), "/python-wheels/") }}
+
+# Install locally-built Python wheel dependencies
+{{ install_python_wheels(docker_config_engine_buster_whls.split(' ')) }}
+{% endif %}
+
+## Clean up
+RUN apt-get purge -y               \
+        python-pip                 \
+        python-dev              && \
+    apt-get clean -y            && \
+    apt-get autoclean -y        && \
+    apt-get autoremove -y       && \
+    rm -rf /debs /python-wheels
