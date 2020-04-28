@@ -245,6 +245,7 @@ if [[ "$1" == "init" ]]; then
     sys_eeprom "new_device"
     switch_board_eeprom "new_device"
     switch_board_cpld "new_device"
+    /usr/local/bin/s6100_bitbang_reset.sh
     switch_board_qsfp_mux "new_device"
     switch_board_sfp "new_device"
     switch_board_qsfp "new_device"
