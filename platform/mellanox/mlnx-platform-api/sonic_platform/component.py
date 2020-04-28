@@ -232,7 +232,7 @@ class ComponentCPLD(Component):
     CPLD_NUMBER_FILE = '/var/run/hw-management/config/cpld_num'
     CPLD_PART_NUMBER_FILE = '/var/run/hw-management/system/cpld{}_pn'
     CPLD_VERSION_FILE = '/var/run/hw-management/system/cpld{}_version'
-    CPLD_VERSION_MINOR_FILE = '/var/run/hw-management/system/cpld{}_version_minor'
+    CPLD_VERSION_MINOR_FILE = '/var/run/hw-management/system/cpld{}_version_min'
 
     CPLD_NUMBER_MAX_LENGTH = 1
     CPLD_PART_NUMBER_MAX_LENGTH = 6
