@@ -567,16 +567,11 @@ class Thermal(ThermalBase):
         return 'trust'
 
     @classmethod
-    def get_air_flow_direction(cls):
+    def get_min_amb_temperature(cls):
         fan_ambient_path = join(HW_MGMT_THERMAL_ROOT, THERMAL_DEV_FAN_AMBIENT)
         port_ambient_path = join(HW_MGMT_THERMAL_ROOT, THERMAL_DEV_PORT_AMBIENT)
 
         # if there is any exception, let it raise
         fan_ambient_temp = int(cls._read_generic_file(fan_ambient_path, 0))
         port_ambient_temp = int(cls._read_generic_file(port_ambient_path, 0))
-        if fan_ambient_temp > port_ambient_temp:
-            return 'p2c', fan_ambient_temp
-        elif fan_ambient_temp < port_ambient_temp:
-            return 'c2p', port_ambient_temp
-        else:
-            return 'unk', fan_ambient_temp
+        return fan_ambient_temp if fan_ambient_temp < port_ambient_temp else port_ambient_temp

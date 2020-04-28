@@ -78,14 +78,13 @@ class AllPsuPresenceCondition(PsuCondition):
 
 class MinCoolingLevelChangeCondition(ThermalPolicyConditionBase):
     trust_state = None
-    air_flow_dir = None
     temperature = None
     
     def is_match(self, thermal_info_dict):
         from .thermal import Thermal
 
         trust_state = Thermal.check_module_temperature_trustable()
-        air_flow_dir, temperature = Thermal.get_air_flow_direction()
+        temperature = Thermal.get_min_amb_temperature()
         temperature = temperature / 1000
 
         change_cooling_level = False
@@ -93,10 +92,6 @@ class MinCoolingLevelChangeCondition(ThermalPolicyConditionBase):
             MinCoolingLevelChangeCondition.trust_state = trust_state
             change_cooling_level = True
         
-        if air_flow_dir != MinCoolingLevelChangeCondition.air_flow_dir:
-            MinCoolingLevelChangeCondition.air_flow_dir = air_flow_dir
-            change_cooling_level = True
-
         if temperature != MinCoolingLevelChangeCondition.temperature:
             MinCoolingLevelChangeCondition.temperature = temperature
             change_cooling_level = True

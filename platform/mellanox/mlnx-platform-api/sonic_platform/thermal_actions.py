@@ -154,10 +154,9 @@ class ChangeMinCoolingLevelAction(ThermalPolicyActionBase):
         if chassis.platform_name not in DEVICE_DATA or 'thermal' not in DEVICE_DATA[chassis.platform_name] or 'minimum_table' not in DEVICE_DATA[chassis.platform_name]['thermal']:
             Fan.min_cooling_level = ChangeMinCoolingLevelAction.UNKNOWN_SKU_COOLING_LEVEL
         else:
-            air_flow_dir = MinCoolingLevelChangeCondition.air_flow_dir
             trust_state = MinCoolingLevelChangeCondition.trust_state
             temperature = MinCoolingLevelChangeCondition.temperature
-            minimum_table = DEVICE_DATA[chassis.platform_name]['thermal']['minimum_table']['{}_{}'.format(air_flow_dir, trust_state)]
+            minimum_table = DEVICE_DATA[chassis.platform_name]['thermal']['minimum_table']['unk_{}'.format(trust_state)]
 
             for key, cooling_level in minimum_table.items():
                 temp_range = key.split(':')
