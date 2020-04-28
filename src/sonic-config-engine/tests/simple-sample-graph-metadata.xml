@@ -216,6 +216,11 @@
      <a:Value>1</a:Value>
     </a:DeviceProperty>
     <a:DeviceProperty>
+     <a:Name>Region</a:Name>
+     <a:Reference i:nil="true"/>
+     <a:Value>usfoo</a:Value>
+    </a:DeviceProperty>
+    <a:DeviceProperty>
      <a:Name>ErspanDestinationIpv4</a:Name>
      <a:Reference i:nil="true"/>
      <a:Value>10.0.100.1</a:Value>
