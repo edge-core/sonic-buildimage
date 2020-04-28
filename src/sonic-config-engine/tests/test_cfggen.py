@@ -53,6 +53,11 @@ class TestCfgGen(TestCase):
         output = self.run_script(argument)
         self.assertEqual(output.strip(), 'Force10-Z9100')
 
+    def test_minigraph_region(self):
+        argument = '-v "DEVICE_METADATA[\'localhost\'][\'region\']" -m "' + self.sample_graph_metadata + '"'
+        output = self.run_script(argument)
+        self.assertEqual(output.strip(), 'usfoo')
+
     def test_print_data(self):
         argument = '-m "' + self.sample_graph + '" --print-data'
         output = self.run_script(argument)
