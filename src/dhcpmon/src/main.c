@@ -21,7 +21,7 @@
 #include "dhcp_devman.h"
 
 /** dhcpmon_default_snaplen: default snap length of packet being captured */
-static const uint32_t dhcpmon_default_snaplen = 65535;
+static const size_t dhcpmon_default_snaplen = 65535;
 /** dhcpmon_default_health_check_window: default value for a time window, during which DHCP DORA packet counts are being
  *  collected */
 static const uint32_t dhcpmon_default_health_check_window = 12;
@@ -109,7 +109,7 @@ int main(int argc, char **argv)
     int i;
     int window_interval = dhcpmon_default_health_check_window;
     int max_unhealthy_count = dhcpmon_default_unhealthy_max_count;
-    uint32_t snaplen = dhcpmon_default_snaplen;
+    size_t snaplen = dhcpmon_default_snaplen;
     int make_daemon = 0;
 
     setlogmask(LOG_UPTO(LOG_INFO));
