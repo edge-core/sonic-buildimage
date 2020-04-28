@@ -33,6 +33,23 @@
 #define DHCP_START_OFFSET (UDP_START_OFFSET + sizeof(struct udphdr))
 /** Start of DHCP Options segment of a captured frame */
 #define DHCP_OPTIONS_HEADER_SIZE 240
+/** Offset of DHCP GIADDR */
+#define DHCP_GIADDR_OFFSET 24
+
+/**
+ * DHCP message types
+ **/
+typedef enum
+{
+    DHCP_MESSAGE_TYPE_DISCOVER = 1,
+    DHCP_MESSAGE_TYPE_OFFER    = 2,
+    DHCP_MESSAGE_TYPE_REQUEST  = 3,
+    DHCP_MESSAGE_TYPE_DECLINE  = 4,
+    DHCP_MESSAGE_TYPE_ACK      = 5,
+    DHCP_MESSAGE_TYPE_NAK      = 6,
+    DHCP_MESSAGE_TYPE_RELEASE  = 7,
+    DHCP_MESSAGE_TYPE_INFORM   = 8
+} dhcp_message_type;
 
 #define OP_LDHA     (BPF_LD  | BPF_H   | BPF_ABS)   /** bpf ldh Abs */
 #define OP_LDHI     (BPF_LD  | BPF_H   | BPF_IND)   /** bpf ldh Ind */
@@ -43,8 +60,9 @@
 #define OP_JSET     (BPF_JMP | BPF_JSET | BPF_K)    /** bpf jset */
 #define OP_LDXB     (BPF_LDX | BPF_B    | BPF_MSH)  /** bpf ldxb */
 
-/** Berkley Packet Fitler program for "udp and (port 67 or port 68)". This program is obtained suing the following
- * tcpdump command: 'tcpdump -dd "udp and (port 67 or port 68)"'
+/** Berkeley Packet Filter program for "udp and (port 67 or port 68)".
+ * This program is obtained using the following command tcpdump:
+ * `tcpdump -dd "udp and (port 67 or port 68)"`
  */
 static struct sock_filter dhcp_bpf_code[] = {
     {.code = OP_LDHA, .jt = 0,  .jf = 0,  .k = 0x0000000c}, // (000) ldh      [12]
@@ -90,47 +108,63 @@ static dhcp_device_counters_t glob_counters_snapshot[DHCP_DIR_COUNT] = {
 };
 
 /**
- * @code handle_dhcp_option_53(context, dhcp_option, dir);
+ * @code handle_dhcp_option_53(context, dhcp_option, dir, iphdr, dhcphdr);
  *
  * @brief handle the logic related to DHCP option 53
  *
  * @param context       Device (interface) context
  * @param dhcp_option   pointer to DHCP option buffer space
  * @param dir           packet direction
+ * @param iphdr         pointer to packet IP header
+ * @param dhcphdr       pointer to DHCP header
  *
  * @return none
  */
-static void handle_dhcp_option_53(dhcp_device_context_t *context, const u_char *dhcp_option, dhcp_packet_direction_t dir)
+static void handle_dhcp_option_53(dhcp_device_context_t *context,
+                                  const u_char *dhcp_option,
+                                  dhcp_packet_direction_t dir,
+                                  struct ip *iphdr,
+                                  uint8_t *dhcphdr)
 {
+    in_addr_t giaddr;
     switch (dhcp_option[2])
     {
-    case 1:
+    case DHCP_MESSAGE_TYPE_DISCOVER:
+        giaddr = ntohl(dhcphdr[DHCP_GIADDR_OFFSET] << 24 | dhcphdr[DHCP_GIADDR_OFFSET + 1] << 16 |
+                       dhcphdr[DHCP_GIADDR_OFFSET + 2] << 8 | dhcphdr[DHCP_GIADDR_OFFSET + 3]);
         context->counters[dir].discover++;
-        if ((context->is_uplink && dir == DHCP_TX) || (!context->is_uplink && dir == DHCP_RX)) {
+        if ((context->vlan_ip == giaddr && context->is_uplink && dir == DHCP_TX) ||
+            (!context->is_uplink && dir == DHCP_RX && iphdr->ip_dst.s_addr == INADDR_BROADCAST)) {
             glob_counters[dir].discover++;
         }
         break;
-    case 2:
+    case DHCP_MESSAGE_TYPE_OFFER:
         context->counters[dir].offer++;
-        if ((!context->is_uplink && dir == DHCP_TX) || (context->is_uplink && dir == DHCP_RX)) {
+        if ((context->vlan_ip == iphdr->ip_dst.s_addr && context->is_uplink && dir == DHCP_RX) ||
+            (!context->is_uplink && dir == DHCP_TX)) {
             glob_counters[dir].offer++;
         }
         break;
-    case 3:
+    case DHCP_MESSAGE_TYPE_REQUEST:
+        giaddr = ntohl(dhcphdr[DHCP_GIADDR_OFFSET] << 24 | dhcphdr[DHCP_GIADDR_OFFSET + 1] << 16 |
+                       dhcphdr[DHCP_GIADDR_OFFSET + 2] << 8 | dhcphdr[DHCP_GIADDR_OFFSET + 3]);
         context->counters[dir].request++;
-        if ((context->is_uplink && dir == DHCP_TX) || (!context->is_uplink && dir == DHCP_RX)) {
+        if ((context->vlan_ip == giaddr && context->is_uplink && dir == DHCP_TX) ||
+            (!context->is_uplink && dir == DHCP_RX && iphdr->ip_dst.s_addr == INADDR_BROADCAST)) {
             glob_counters[dir].request++;
         }
         break;
-    case 5:
+    case DHCP_MESSAGE_TYPE_ACK:
         context->counters[dir].ack++;
-        if ((!context->is_uplink && dir == DHCP_TX) || (context->is_uplink && dir == DHCP_RX)) {
+        if ((context->vlan_ip == iphdr->ip_dst.s_addr && context->is_uplink && dir == DHCP_RX) ||
+            (!context->is_uplink && dir == DHCP_TX)) {
             glob_counters[dir].ack++;
         }
         break;
-    case 4: // type: Decline
-    case 6 ... 8:
-        // type: NAK, Release, Inform
+    case DHCP_MESSAGE_TYPE_DECLINE:
+    case DHCP_MESSAGE_TYPE_NAK:
+    case DHCP_MESSAGE_TYPE_RELEASE:
+    case DHCP_MESSAGE_TYPE_INFORM:
         break;
     default:
         syslog(LOG_WARNING, "handle_dhcp_option_53(%s): Unknown DHCP option 53 type %d", context->intf, dhcp_option[2]);
@@ -146,7 +180,6 @@ static void handle_dhcp_option_53(dhcp_device_context_t *context, const u_char *
  * @param fd            socket to read from
  * @param event         libevent triggered event
  * @param arg           user provided argument for callback (interface context)
- * @param packet        pointer to packet data
  *
  * @return none
  */
@@ -158,7 +191,9 @@ static void read_callback(int fd, short event, void *arg)
     while ((event == EV_READ) &&
            ((buffer_sz = recv(fd, context->buffer, context->snaplen, MSG_DONTWAIT)) > 0)) {
         struct ether_header *ethhdr = (struct ether_header*) context->buffer;
+        struct ip *iphdr = (struct ip*) (context->buffer + IP_START_OFFSET);
         struct udphdr *udp = (struct udphdr*) (context->buffer + UDP_START_OFFSET);
+        uint8_t *dhcphdr = context->buffer + DHCP_START_OFFSET;
         int dhcp_option_offset = DHCP_START_OFFSET + DHCP_OPTIONS_HEADER_SIZE;
 
         if ((buffer_sz > UDP_START_OFFSET + sizeof(struct udphdr) + DHCP_OPTIONS_HEADER_SIZE) &&
@@ -181,7 +216,7 @@ static void read_callback(int fd, short event, void *arg)
                 {
                 case 53:
                     if (offset < (dhcp_option_sz + 2)) {
-                        handle_dhcp_option_53(context, &dhcp_option[offset], dir);
+                        handle_dhcp_option_53(context, &dhcp_option[offset], dir, iphdr, dhcphdr);
                     }
                     stop_dhcp_processing = 1; // break while loop since we are only interested in Option 53
                     break;
@@ -260,31 +295,21 @@ static void dhcp_print_counters(dhcp_device_counters_t *counters)
 }
 
 /**
- * @code init_socket(context, intf, snaplen, base);
+ * @code init_socket(context, intf);
  *
  * @brief initializes socket, bind it to interface and bpf prgram, and
  *        associate with libevent base
  *
  * @param context           pointer to device (interface) context
  * @param intf              interface name
- * @param snaplen           length of packet capture
- * @param base              libevent base
  *
  * @return 0 on success, otherwise for failure
  */
-static int init_socket(dhcp_device_context_t *context,
-                       const char *intf,
-                       size_t snaplen,
-                       struct event_base *base)
+static int init_socket(dhcp_device_context_t *context, const char *intf)
 {
     int rv = -1;
 
     do {
-        if (snaplen < UDP_START_OFFSET + sizeof(struct udphdr) + DHCP_OPTIONS_HEADER_SIZE) {
-            syslog(LOG_ALERT, "init_socket(%s): snap length is too low to capture DHCP options", intf);
-            break;
-        }
-
         context->sock = socket(AF_PACKET, SOCK_RAW | SOCK_NONBLOCK, htons(ETH_P_ALL));
         if (context->sock < 0) {
             syslog(LOG_ALERT, "socket: failed to open socket with '%s'\n", strerror(errno));
@@ -300,25 +325,6 @@ static int init_socket(dhcp_device_context_t *context,
             syslog(LOG_ALERT, "bind: failed to bind to interface '%s' with '%s'\n", intf, strerror(errno));
             break;
         }
-
-        if (setsockopt(context->sock, SOL_SOCKET, SO_ATTACH_FILTER, &dhcp_sock_bfp, sizeof(dhcp_sock_bfp)) != 0) {
-            syslog(LOG_ALERT, "setsockopt: failed to attach filter with '%s'\n", strerror(errno));
-            break;
-        }
-
-        context->buffer = (uint8_t *) malloc(snaplen);
-        if (context->buffer == NULL) {
-            syslog(LOG_ALERT, "malloc: failed to allocate memory for socket buffer '%s'\n", strerror(errno));
-            break;
-        }
-        context->snaplen = snaplen;
-
-        struct event *ev = event_new(base, context->sock, EV_READ | EV_PERSIST, read_callback, context);
-        if (ev == NULL) {
-            syslog(LOG_ALERT, "event_new: failed to allocate memory for libevent event '%s'\n", strerror(errno));
-            break;
-        }
-        event_add(ev, NULL);
 
         strncpy(context->intf, intf, sizeof(context->intf) - 1);
         context->intf[sizeof(context->intf) - 1] = '\0';
@@ -377,15 +383,32 @@ static int initialize_intf_mac_and_ip_addr(dhcp_device_context_t *context)
 }
 
 /**
- * @code dhcp_device_init(context, intf, snaplen, is_uplink, base);
+ * @code dhcp_device_get_ip(context);
+ *
+ * @brief Accessor method
+ *
+ * @param context       pointer to device (interface) context
+ *
+ * @return interface IP
+ */
+int dhcp_device_get_ip(dhcp_device_context_t *context, in_addr_t *ip)
+{
+    int rv = -1;
+
+    if (context != NULL && ip != NULL) {
+        *ip = context->ip;
+        rv = 0;
+    }
+
+    return rv;
+}
+
+/**
+ * @code dhcp_device_init(context, intf, is_uplink);
  *
  * @brief initializes device (interface) that handles packet capture per interface.
  */
-int dhcp_device_init(dhcp_device_context_t **context,
-                     const char *intf,
-                     int snaplen,
-                     uint8_t is_uplink,
-                     struct event_base *base)
+int dhcp_device_init(dhcp_device_context_t **context, const char *intf, uint8_t is_uplink)
 {
     int rv = -1;
     dhcp_device_context_t *dev_context = NULL;
@@ -394,8 +417,8 @@ int dhcp_device_init(dhcp_device_context_t **context,
 
         dev_context = (dhcp_device_context_t *) malloc(sizeof(dhcp_device_context_t));
         if (dev_context != NULL) {
-            if ((init_socket(dev_context, intf, snaplen, base) == 0) &&
-                (initialize_intf_mac_and_ip_addr(dev_context) == 0 )    ) {
+            if ((init_socket(dev_context, intf) == 0) &&
+                (initialize_intf_mac_and_ip_addr(dev_context) == 0)) {
 
                 dev_context->is_uplink = is_uplink;
 
@@ -410,6 +433,56 @@ int dhcp_device_init(dhcp_device_context_t **context,
             syslog(LOG_ALERT, "malloc: failed to allocated device context memory for '%s'", dev_context->intf);
         }
     }
+
+    return rv;
+}
+
+/**
+ * @code dhcp_device_start_capture(context, snaplen, base, vlan_ip);
+ *
+ * @brief starts packet capture on this interface
+ */
+int dhcp_device_start_capture(dhcp_device_context_t *context,
+                              size_t snaplen,
+                              struct event_base *base,
+                              in_addr_t vlan_ip)
+{
+    int rv = -1;
+
+    do {
+        if (context == NULL) {
+            syslog(LOG_ALERT, "NULL interface context pointer'\n");
+            break;
+        }
+
+        if (snaplen < UDP_START_OFFSET + sizeof(struct udphdr) + DHCP_OPTIONS_HEADER_SIZE) {
+            syslog(LOG_ALERT, "dhcp_device_start_capture(%s): snap length is too low to capture DHCP options", context->intf);
+            break;
+        }
+
+        context->vlan_ip = vlan_ip;
+
+        context->buffer = (uint8_t *) malloc(snaplen);
+        if (context->buffer == NULL) {
+            syslog(LOG_ALERT, "malloc: failed to allocate memory for socket buffer '%s'\n", strerror(errno));
+            break;
+        }
+        context->snaplen = snaplen;
+
+        if (setsockopt(context->sock, SOL_SOCKET, SO_ATTACH_FILTER, &dhcp_sock_bfp, sizeof(dhcp_sock_bfp)) != 0) {
+            syslog(LOG_ALERT, "setsockopt: failed to attach filter with '%s'\n", strerror(errno));
+            break;
+        }
+
+        struct event *ev = event_new(base, context->sock, EV_READ | EV_PERSIST, read_callback, context);
+        if (ev == NULL) {
+            syslog(LOG_ALERT, "event_new: failed to allocate memory for libevent event '%s'\n", strerror(errno));
+            break;
+        }
+        event_add(ev, NULL);
+
+        rv = 0;
+    } while (0);
 
     return rv;
 }
