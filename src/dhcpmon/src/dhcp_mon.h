@@ -40,7 +40,7 @@ void dhcp_mon_shutdown();
  *
  * @return 0 upon success, otherwise upon failure
  */
-int dhcp_mon_start(int snaplen);
+int dhcp_mon_start(size_t snaplen);
 
 /**
  * @code dhcp_mon_stop();

@@ -28,6 +28,23 @@ static uint32_t dhcp_num_south_intf = 0;
 /** dhcp_num_north_intf number of north interfaces */
 static uint32_t dhcp_num_north_intf = 0;
 
+/** On Device  vlan interface IP address corresponding vlan downlink IP
+ *  This IP is used to filter Offer/Ack packet coming from DHCP server */
+static in_addr_t vlan_ip = 0;
+
+/** vlan interface name */
+static char vlan_intf[IF_NAMESIZE] = "Undefined";
+
+/**
+ * @code dhcp_devman_get_vlan_intf();
+ *
+ * Accessor method
+ */
+const char* dhcp_devman_get_vlan_intf()
+{
+    return vlan_intf;
+}
+
 /**
  * @code dhcp_devman_init();
  *
@@ -65,7 +82,7 @@ void dhcp_devman_shutdown()
 }
 
 /**
- * @code dhcp_devman_add_intf(name, uplink);
+ * @code dhcp_devman_add_intf(name, is_uplink);
  *
  * @brief adds interface to the device manager.
  */
@@ -84,9 +101,15 @@ int dhcp_devman_add_intf(const char *name, uint8_t is_uplink)
             assert(dhcp_num_south_intf <= 1);
         }
 
-        LIST_INSERT_HEAD(&intfs, dev, entry);
+        rv = dhcp_device_init(&dev->dev_context, dev->name, dev->is_uplink);
+        if (rv == 0 && !is_uplink) {
+            rv = dhcp_device_get_ip(dev->dev_context, &vlan_ip);
 
-        rv = 0;
+            strncpy(vlan_intf, name, sizeof(vlan_intf) - 1);
+            vlan_intf[sizeof(vlan_intf) - 1] = '\0';
+        }
+
+        LIST_INSERT_HEAD(&intfs, dev, entry);
     }
     else {
         syslog(LOG_ALERT, "malloc: failed to allocate memory for intf '%s'\n", name);
@@ -100,14 +123,14 @@ int dhcp_devman_add_intf(const char *name, uint8_t is_uplink)
  *
  * @brief start packet capture on the devman interface list
  */
-int dhcp_devman_start_capture(int snaplen, struct event_base *base)
+int dhcp_devman_start_capture(size_t snaplen, struct event_base *base)
 {
     int rv = -1;
     struct intf *int_ptr;
 
     if ((dhcp_num_south_intf == 1) && (dhcp_num_north_intf >= 1)) {
         LIST_FOREACH(int_ptr, &intfs, entry) {
-            rv = dhcp_device_init(&int_ptr->dev_context, int_ptr->name, snaplen, int_ptr->is_uplink, base);
+            rv = dhcp_device_start_capture(int_ptr->dev_context, snaplen, base, vlan_ip);
             if (rv == 0) {
                 syslog(LOG_INFO,
                        "Capturing DHCP packets on interface %s, ip: 0x%08x, mac [%02x:%02x:%02x:%02x:%02x:%02x] \n",
