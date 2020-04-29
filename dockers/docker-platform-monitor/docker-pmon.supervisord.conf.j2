@@ -26,6 +26,7 @@ autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
 
+{% if not skip_sensors %}
 [program:lm-sensors]
 command=/usr/bin/lm-sensors.sh
 priority=3
@@ -34,7 +35,9 @@ autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
 startsecs=0
+{% endif %}
 
+{% if not skip_fancontrol %}
 [program:fancontrol]
 command=/usr/sbin/fancontrol
 priority=4
@@ -43,6 +46,7 @@ autorestart=unexpected
 stdout_logfile=syslog
 stderr_logfile=syslog
 startsecs=10
+{% endif %}
 
 {% if not skip_ledd %}
 [program:ledd]

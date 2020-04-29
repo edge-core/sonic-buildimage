@@ -19,6 +19,7 @@ if [ -e /usr/share/sonic/platform/platform_wait ]; then
     fi
 fi
 
+{% if not skip_sensors %}
 # If this platform has an lm-sensors config file, copy it to it's proper place
 # and start lm-sensors
 if [ -e /usr/share/sonic/platform/sensors.conf ]; then
@@ -26,7 +27,9 @@ if [ -e /usr/share/sonic/platform/sensors.conf ]; then
     /bin/cp -f /usr/share/sonic/platform/sensors.conf /etc/sensors.d/
     supervisorctl start lm-sensors
 fi
+{% endif %}
 
+{% if not skip_fancontrol %}
 # If this platform has a fancontrol config file, copy it to it's proper place
 # and start fancontrol
 if [ -e /usr/share/sonic/platform/fancontrol ]; then
@@ -36,6 +39,7 @@ if [ -e /usr/share/sonic/platform/fancontrol ]; then
     /bin/cp -f /usr/share/sonic/platform/fancontrol /etc/
     supervisorctl start fancontrol
 fi
+{% endif %}
 
 
 # If the sonic-platform package is not installed, try to install it
