@@ -329,11 +329,12 @@ void local_if_destroy(char *ifname)
 int local_if_is_l3_mode(struct LocalInterface* local_if)
 {
     int ret = 0;
+    char addr_null[16] = { 0 };
 
     if (local_if == NULL)
         return 0;
 
-    if (local_if->ipv4_addr != 0)
+    if (local_if->ipv4_addr != 0 || memcmp(local_if->ipv6_addr, addr_null, 16) != 0)
         ret = 1;
 
     return ret;

@@ -101,12 +101,14 @@
 * ***************************************/
 static char *mlacp_state(struct CSM* csm);
 static void mlacp_resync_arp(struct CSM* csm);
+static void mlacp_resync_ndisc(struct CSM* csm);
 static void mlacp_resync_mac(struct CSM* csm);
 /* Sync Sender APIs*/
 static void mlacp_sync_send_sysConf(struct CSM* csm);
 static void mlacp_sync_send_aggConf(struct CSM* csm);
 static void mlacp_sync_send_aggState(struct CSM* csm);
 static void mlacp_sync_send_syncArpInfo(struct CSM* csm);
+static void mlacp_sync_send_syncNdiscInfo(struct CSM* csm);
 static void mlacp_sync_send_heartbeat(struct CSM* csm);
 static void mlacp_sync_send_syncDoneData(struct CSM* csm);
 /* Sync Reciever APIs*/
@@ -204,7 +206,7 @@ static void mlacp_sync_send_aggState(struct CSM* csm)
     return;
 }
 #define MAX_MAC_ENTRY_NUM 30
-#define MAX_ARP_ENTRY_NUM 40
+#define MAX_NEIGH_ENTRY_NUM 40
 static void mlacp_sync_send_syncMacInfo(struct CSM* csm)
 {
     int msg_len = 0;
@@ -253,7 +255,7 @@ static void mlacp_sync_send_syncArpInfo(struct CSM* csm)
         count++;
         free(msg->buf);
         free(msg);
-        if (count >= MAX_ARP_ENTRY_NUM)
+        if (count >= MAX_NEIGH_ENTRY_NUM)
         {
             iccp_csm_send(csm, g_csm_buf, msg_len);
             count = 0;
@@ -268,6 +270,37 @@ static void mlacp_sync_send_syncArpInfo(struct CSM* csm)
     return;
 }
 
+static void mlacp_sync_send_syncNdiscInfo(struct CSM *csm)
+{
+    int msg_len = 0;
+    struct Msg *msg = NULL;
+    int count = 0;
+
+    memset(g_csm_buf, 0, CSM_BUFFER_SIZE);
+
+    while (!TAILQ_EMPTY(&(MLACP(csm).ndisc_msg_list)))
+    {
+        msg = TAILQ_FIRST(&(MLACP(csm).ndisc_msg_list));
+        TAILQ_REMOVE(&(MLACP(csm).ndisc_msg_list), msg, tail);
+
+        msg_len = mlacp_prepare_for_ndisc_info(csm, g_csm_buf, CSM_BUFFER_SIZE, (struct NDISCMsg *)msg->buf, count);
+        count++;
+        free(msg->buf);
+        free(msg);
+        if (count >= MAX_NEIGH_ENTRY_NUM)
+        {
+            iccp_csm_send(csm, g_csm_buf, msg_len);
+            count = 0;
+            memset(g_csm_buf, 0, CSM_BUFFER_SIZE);
+        }
+        /* ICCPD_LOG_DEBUG("mlacp_fsm", " [SYNC_Send] NDInfo,len=[%d]", msg_len); */
+    }
+
+    if (count)
+        iccp_csm_send(csm, g_csm_buf, msg_len);
+
+    return;
+}
 static void mlacp_sync_send_syncPortChannelInfo(struct CSM* csm)
 {
     struct System* sys = NULL;
@@ -353,7 +386,7 @@ static void mlacp_sync_recv_sysConf(struct CSM* csm, struct Msg* msg)
     if (mlacp_fsm_update_system_conf(csm, sysconf) == MCLAG_ERROR)
     {
         /*NOTE: we just change the node ID local side without sending NAK msg*/
-        ICCPD_LOG_DEBUG(__FUNCTION__, "Same Node ID = %d, send NAK", MLACP(csm).remote_system.node_id);
+        ICCPD_LOG_WARN(__FUNCTION__, "Same Node ID = %d, send NAK", MLACP(csm).remote_system.node_id);
         mlacp_sync_send_nak_handler(csm, msg);
     }
 
@@ -476,6 +509,15 @@ static void mlacp_sync_recv_arpInfo(struct CSM* csm, struct Msg* msg)
     return;
 }
 
+static void mlacp_sync_recv_ndiscInfo(struct CSM *csm, struct Msg *msg)
+{
+    struct mLACPNDISCInfoTLV *ndisc_info = NULL;
+
+    ndisc_info = (struct mLACPNDISCInfoTLV *)&(msg->buf[sizeof(ICCHdr)]);
+    mlacp_fsm_update_ndisc_info(csm, ndisc_info);
+
+    return;
+}
 static void mlacp_sync_recv_stpInfo(struct CSM* csm, struct Msg* msg)
 {
     /*Don't support currently*/
@@ -520,6 +562,7 @@ void mlacp_init(struct CSM* csm, int all)
 
     MLACP_MSG_QUEUE_REINIT(MLACP(csm).mlacp_msg_list);
     MLACP_MSG_QUEUE_REINIT(MLACP(csm).arp_msg_list);
+    MLACP_MSG_QUEUE_REINIT(MLACP(csm).ndisc_msg_list);
     MLACP_MSG_QUEUE_REINIT(MLACP(csm).mac_msg_list);
     PIF_QUEUE_REINIT(MLACP(csm).pif_list);
     LIF_PURGE_QUEUE_REINIT(MLACP(csm).lif_purge_list);
@@ -528,6 +571,7 @@ void mlacp_init(struct CSM* csm, int all)
     {
         /* if no clean all, keep the arp info & local interface info for next connection*/
         MLACP_MSG_QUEUE_REINIT(MLACP(csm).arp_list);
+        MLACP_MSG_QUEUE_REINIT(MLACP(csm).ndisc_list);
         MLACP_MSG_QUEUE_REINIT(MLACP(csm).mac_list);
         LIF_QUEUE_REINIT(MLACP(csm).lif_list);
 
@@ -551,8 +595,10 @@ void mlacp_finalize(struct CSM* csm)
     /* msg destroy*/
     MLACP_MSG_QUEUE_REINIT(MLACP(csm).mlacp_msg_list);
     MLACP_MSG_QUEUE_REINIT(MLACP(csm).arp_msg_list);
+    MLACP_MSG_QUEUE_REINIT(MLACP(csm).ndisc_msg_list);
     MLACP_MSG_QUEUE_REINIT(MLACP(csm).mac_msg_list);
     MLACP_MSG_QUEUE_REINIT(MLACP(csm).arp_list);
+    MLACP_MSG_QUEUE_REINIT(MLACP(csm).ndisc_list);
     MLACP_MSG_QUEUE_REINIT(MLACP(csm).mac_list);
 
     /* remove lif & lif-purge queue */
@@ -590,6 +636,7 @@ void mlacp_fsm_transit(struct CSM* csm)
         {
             MLACP_MSG_QUEUE_REINIT(MLACP(csm).mlacp_msg_list);
             MLACP_MSG_QUEUE_REINIT(MLACP(csm).arp_msg_list);
+            MLACP_MSG_QUEUE_REINIT(MLACP(csm).ndisc_msg_list);
             MLACP_MSG_QUEUE_REINIT(MLACP(csm).mac_msg_list);
             MLACP(csm).current_state = MLACP_STATE_INIT;
         }
@@ -651,6 +698,7 @@ void mlacp_fsm_transit(struct CSM* csm)
             MLACP(csm).wait_for_sync_data = 0;
             MLACP(csm).current_state = MLACP_STATE_STAGE1;
             mlacp_resync_arp(csm);
+            mlacp_resync_ndisc(csm);
         }
 
         switch (MLACP(csm).current_state)
@@ -788,10 +836,35 @@ static void mlacp_resync_arp(struct CSM* csm)
         TAILQ_FOREACH(msg, &MLACP(csm).arp_list, tail)
         {
             arp_msg = (struct ARPMsg*)msg->buf;
-            arp_msg->op_type = ARP_SYNC_ADD;
+            arp_msg->op_type = NEIGH_SYNC_ADD;
             if (iccp_csm_init_msg(&msg_send, (char*)arp_msg, sizeof(struct ARPMsg)) == 0)
             {
                 TAILQ_INSERT_TAIL(&(MLACP(csm).arp_msg_list), msg_send, tail);
+            }
+        }
+    }
+}
+
+/******************************************
+* When peerlink ready, prepare the NDISCMsg
+*
+******************************************/
+static void mlacp_resync_ndisc(struct CSM *csm)
+{
+    struct Msg *msg = NULL;
+    struct NDISCMsg *ndisc_msg = NULL;
+    struct Msg *msg_send = NULL;
+
+    /* recover ndisc info sync from peer */
+    if (!TAILQ_EMPTY(&(MLACP(csm).ndisc_list)))
+    {
+        TAILQ_FOREACH(msg, &MLACP(csm).ndisc_list, tail)
+        {
+            ndisc_msg = (struct NDISCMsg *)msg->buf;
+            ndisc_msg->op_type = NEIGH_SYNC_ADD;
+            if (iccp_csm_init_msg(&msg_send, (char *)ndisc_msg, sizeof(struct NDISCMsg)) == 0)
+            {
+                TAILQ_INSERT_TAIL(&(MLACP(csm).ndisc_msg_list), msg_send, tail);
             }
         }
     }
@@ -928,6 +1001,10 @@ static void mlacp_sync_receiver_handler(struct CSM* csm, struct Msg* msg)
             mlacp_sync_recv_arpInfo(csm, msg);
             break;
 
+        case TLV_T_MLACP_NDISC_INFO:
+            mlacp_sync_recv_ndiscInfo(csm, msg);
+            break;
+
         case TLV_T_MLACP_STP_INFO:
             mlacp_sync_recv_stpInfo(csm, msg);
             break;
@@ -978,6 +1055,10 @@ static void mlacp_sync_sender_handler(struct CSM* csm)
 
         case MLACP_SYNC_ARP_INFO:
             mlacp_sync_send_syncArpInfo(csm);
+            break;
+
+        case MLACP_SYNC_NDISC_INFO:
+            mlacp_sync_send_syncNdiscInfo(csm);
             break;
 
         case MLACP_SYNC_DONE:
@@ -1193,6 +1274,9 @@ static void mlacp_exchange_handler(struct CSM* csm, struct Msg* msg)
 
     /* Send ARP info if any*/
     mlacp_sync_send_syncArpInfo(csm);
+
+    /* Send Ndisc info if any */
+    mlacp_sync_send_syncNdiscInfo(csm);
 
     /*If peer is warm reboot*/
     if (csm->peer_warm_reboot_time != 0)

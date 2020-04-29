@@ -326,7 +326,7 @@ int mlacp_prepare_for_mac_info_to_peer(struct CSM* csm, char* buf, size_t max_bu
     sprintf(MacData->ifname, "%s", mac_msg->origin_ifname);
     MacData->vid = htons(mac_msg->vid);
 
-    ICCPD_LOG_DEBUG(__FUNCTION__, "Send MAC messge to peer, port %s  mac = %s, vid = %d, type = %s count %d ", mac_msg->origin_ifname,
+    ICCPD_LOG_NOTICE(__FUNCTION__, "Send MAC messge to peer, port %s  mac = %s, vid = %d, type = %s count %d ", mac_msg->origin_ifname,
                                   mac_msg->mac_str, mac_msg->vid, mac_msg->op_type == MAC_SYNC_ADD ? "add" : "del", count);
 
     return msg_len;
@@ -374,11 +374,64 @@ int mlacp_prepare_for_arp_info(struct CSM* csm, char* buf, size_t max_buf_size, 
 
     ArpData->op_type = arp_msg->op_type;
     sprintf(ArpData->ifname, "%s", arp_msg->ifname);
-    ArpData->ipv4_addr = htonl(arp_msg->ipv4_addr);
+    ArpData->ipv4_addr = arp_msg->ipv4_addr;
     memcpy(ArpData->mac_addr, arp_msg->mac_addr, ETHER_ADDR_LEN);
 
-    ICCPD_LOG_DEBUG(__FUNCTION__, "Send ARP messge to peer, if name %s mac %02x:%02x:%02x:%02x:%02x:%02x IP %s", ArpData->ifname, ArpData->mac_addr[0], ArpData->mac_addr[1], ArpData->mac_addr[2],
-                    ArpData->mac_addr[3], ArpData->mac_addr[4], ArpData->mac_addr[5], show_ip_str( ArpData->ipv4_addr));
+    ICCPD_LOG_NOTICE(__FUNCTION__, "Send ARP messge to peer, if name %s mac %02x:%02x:%02x:%02x:%02x:%02x IP %s", ArpData->ifname, ArpData->mac_addr[0], ArpData->mac_addr[1], ArpData->mac_addr[2],
+                    ArpData->mac_addr[3], ArpData->mac_addr[4], ArpData->mac_addr[5], show_ip_str(ArpData->ipv4_addr));
+
+    return msg_len;
+}
+
+/*****************************************
+* Preprare Sync NDISC-Info TLV
+*
+* ***************************************/
+int mlacp_prepare_for_ndisc_info(struct CSM *csm, char *buf, size_t max_buf_size, struct NDISCMsg *ndisc_msg, int count)
+{
+
+    struct mLACPNDISCInfoTLV *tlv = NULL;
+    size_t msg_len = 0;
+    size_t tlv_len = 0;
+    ICCHdr *icc_hdr = NULL;
+    struct NDISCMsg *NdiscData;
+
+    if (!csm)
+        return -1;
+    if (!buf)
+        return -1;
+
+    tlv_len = sizeof(struct mLACPNDISCInfoTLV) + sizeof(struct NDISCMsg) * (count + 1);
+
+    if ((msg_len = sizeof(ICCHdr) + tlv_len) > max_buf_size)
+        return -1;
+
+    /* ICC header */
+    icc_hdr = (ICCHdr *)buf;
+    mlacp_fill_icc_header(csm, icc_hdr, msg_len);
+
+    /* Prepare for ND information TLV */
+    tlv = (struct mLACPNDISCInfoTLV *)&buf[sizeof(ICCHdr)];
+    tlv->icc_parameter.len = htons(tlv_len - sizeof(ICCParameter));
+    tlv->num_of_entry = htons(count + 1);
+
+    if (count == 0)
+    {
+        tlv->icc_parameter.u_bit = 0;
+        tlv->icc_parameter.f_bit = 0;
+        tlv->icc_parameter.type = htons(TLV_T_MLACP_NDISC_INFO);
+    }
+
+    NdiscData = (struct mLACPMACData *)&buf[sizeof(ICCHdr) + sizeof(struct mLACPNDISCInfoTLV) + sizeof(struct NDISCMsg) * count];
+
+    NdiscData->op_type = ndisc_msg->op_type;
+    sprintf(NdiscData->ifname, "%s", ndisc_msg->ifname);
+    memcpy(NdiscData->ipv6_addr, ndisc_msg->ipv6_addr, 32);
+    memcpy(NdiscData->mac_addr, ndisc_msg->mac_addr, ETHER_ADDR_LEN);
+
+    ICCPD_LOG_NOTICE(__FUNCTION__, "Send ND messge to peer, if name %s  mac  =%02x:%02x:%02x:%02x:%02x:%02x IPv6 %s", NdiscData->ifname,
+                    NdiscData->mac_addr[0], NdiscData->mac_addr[1], NdiscData->mac_addr[2], NdiscData->mac_addr[3], NdiscData->mac_addr[4],
+                    NdiscData->mac_addr[5], show_ipv6_str((char *)NdiscData->ipv6_addr));
 
     return msg_len;
 }
@@ -597,7 +650,7 @@ int mlacp_prepare_for_warm_reboot(struct CSM* csm, char* buf, size_t max_buf_siz
     tlv->icc_parameter.len = htons(sizeof(struct mLACPWarmbootTLV) - sizeof(ICCParameter));
     tlv->warmboot = 0x1;
 
-    ICCPD_LOG_DEBUG(__FUNCTION__, "Send warm reboot notification to peer!");
+    ICCPD_LOG_NOTICE(__FUNCTION__, "Send warm reboot notification to peer!");
     return msg_len;
 }
 

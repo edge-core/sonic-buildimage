@@ -46,6 +46,7 @@ int mlacp_prepare_for_sync_data_tlv(struct CSM* csm, char* buf, size_t max_buf_s
 int mlacp_prepare_for_sys_config(struct CSM* csm, char* buf, size_t max_buf_size);
 int mlacp_prepare_for_mac_info_to_peer(struct CSM* csm, char* buf, size_t max_buf_size, struct MACMsg* mac_msg, int count);
 int mlacp_prepare_for_arp_info(struct CSM* csm, char* buf, size_t max_buf_size, struct ARPMsg* arp_msg, int count);
+int mlacp_prepare_for_ndisc_info(struct CSM *csm, char *buf, size_t max_buf_size, struct NDISCMsg *ndisc_msg, int count);
 int mlacp_prepare_for_heartbeat(struct CSM* csm, char* buf, size_t max_buf_size);
 int mlacp_prepare_for_Aggport_state(struct CSM* csm, char* buf, size_t max_buf_size, struct LocalInterface* local_if);
 int mlacp_prepare_for_Aggport_config(struct CSM* csm, char* buf, size_t max_buf_size, struct LocalInterface* lif, int purge_flag);

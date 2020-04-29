@@ -58,6 +58,7 @@ struct System
     int sync_fd;
     int sync_ctrl_fd;
     int arp_receive_fd;
+    int ndisc_receive_fd;
     int epoll_fd;
 
     struct nl_sock * genric_sock;

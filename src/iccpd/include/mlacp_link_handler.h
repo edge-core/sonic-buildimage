@@ -43,17 +43,17 @@ void set_peerlink_mlag_port_learn(struct LocalInterface *lif, int enable);
 void peerlink_port_isolate_cleanup(struct CSM* csm);
 void update_peerlink_isolate_from_all_csm_lif(struct CSM* csm);
 
-int mlacp_fsm_arp_set(char *ifname, uint32_t ip, char *mac);
-int mlacp_fsm_arp_del(char *ifname, uint32_t ip);
-void del_mac_from_chip(struct MACMsg* mac_msg);
-void add_mac_to_chip(struct MACMsg* mac_msg, uint8_t mac_type);
-uint8_t set_mac_local_age_flag(struct CSM *csm, struct MACMsg* mac_msg, uint8_t set );
-void iccp_get_fdb_change_from_syncd( void);
+void del_mac_from_chip(struct MACMsg *mac_msg);
+void add_mac_to_chip(struct MACMsg *mac_msg, uint8_t mac_type);
+uint8_t set_mac_local_age_flag(struct CSM *csm, struct MACMsg *mac_msg, uint8_t set);
+void iccp_get_fdb_change_from_syncd(void);
 
 extern int mclagd_ctl_sock_create();
 extern int mclagd_ctl_sock_accept(int fd);
 extern int mclagd_ctl_interactive_process(int client_fd);
+extern int parseMacString(const char *str_mac, uint8_t *bin_mac);
 char *show_ip_str(uint32_t ipv4_addr);
+char *show_ipv6_str(char *ipv6_addr);
 
 void syncd_info_close();
 int iccp_connect_syncd();

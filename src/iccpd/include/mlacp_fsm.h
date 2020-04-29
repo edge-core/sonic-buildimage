@@ -53,6 +53,7 @@ enum MLACP_SYNC_STATE
     MLACP_SYNC_AGGINFO,
     MLACP_SYNC_PEERLINKINFO,
     MLACP_SYNC_ARP_INFO,
+    MLACP_SYNC_NDISC_INFO,
     MLACP_SYNC_DONE,
 };
 
@@ -85,6 +86,8 @@ struct mLACP
     TAILQ_HEAD(mlacp_msg_list, Msg) mlacp_msg_list;
     TAILQ_HEAD(arp_msg_list, Msg) arp_msg_list;
     TAILQ_HEAD(arp_info_list, Msg) arp_list;
+    TAILQ_HEAD(ndisc_msg_list, Msg) ndisc_msg_list;
+    TAILQ_HEAD(ndisc_info_list, Msg) ndisc_list;
     TAILQ_HEAD(mac_msg_list, Msg) mac_msg_list;
     TAILQ_HEAD(mac_info_list, Msg) mac_list;
 

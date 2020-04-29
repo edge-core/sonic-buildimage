@@ -177,7 +177,7 @@ int iccp_arp_dump(char * *buf, int *num, int mclag_id)
 
             mclagd_arp.op_type = iccpd_arp->op_type;
             memcpy(mclagd_arp.ifname, iccpd_arp->ifname, strlen(iccpd_arp->ifname));
-            memcpy(mclagd_arp.ipv4_addr, show_ip_str(htonl(iccpd_arp->ipv4_addr)), 16);
+            memcpy(mclagd_arp.ipv4_addr, show_ip_str(iccpd_arp->ipv4_addr), 16);
             memcpy(mclagd_arp.mac_addr, iccpd_arp->mac_addr, 6);
 
             memcpy(arp_buf + MCLAGD_REPLY_INFO_HDR + arp_num * sizeof(struct mclagd_arp_msg),
@@ -197,6 +197,72 @@ int iccp_arp_dump(char * *buf, int *num, int mclag_id)
 
     *buf = arp_buf;
     *num = arp_num;
+
+    if (mclag_id > 0 && !id_exist)
+        return EXEC_TYPE_NO_EXIST_MCLAGID;
+
+    return EXEC_TYPE_SUCCESS;
+}
+
+int iccp_ndisc_dump(char * *buf, int *num, int mclag_id)
+{
+    struct System *sys = NULL;
+    struct CSM *csm = NULL;
+    struct Msg *msg = NULL;
+    struct NDISCMsg *iccpd_ndisc = NULL;
+    struct mclagd_ndisc_msg mclagd_ndisc;
+    int ndisc_num = 0;
+    int id_exist = 0;
+    char *ndisc_buf = NULL;
+    int ndisc_buf_size = MCLAGDCTL_CMD_SIZE;
+
+    if (!(sys = system_get_instance()))
+    {
+        ICCPD_LOG_INFO(__FUNCTION__, "cannot find sys!\n");
+        return EXEC_TYPE_NO_EXIST_SYS;
+    }
+
+    ndisc_buf = (char *)malloc(ndisc_buf_size);
+    if (!ndisc_buf)
+        return EXEC_TYPE_FAILED;
+
+    LIST_FOREACH(csm, &(sys->csm_list), next)
+    {
+        if (mclag_id > 0)
+        {
+            if (csm->mlag_id == mclag_id)
+                id_exist = 1;
+            else
+                continue;
+        }
+
+        TAILQ_FOREACH(msg, &MLACP(csm).ndisc_list, tail)
+        {
+            memset(&mclagd_ndisc, 0, sizeof(struct mclagd_ndisc_msg));
+            iccpd_ndisc = (struct NDISCMsg *)msg->buf;
+
+            mclagd_ndisc.op_type = iccpd_ndisc->op_type;
+            memcpy(mclagd_ndisc.ifname, iccpd_ndisc->ifname, strlen(iccpd_ndisc->ifname));
+            memcpy(mclagd_ndisc.ipv6_addr, show_ipv6_str((char *)iccpd_ndisc->ipv6_addr), 46);
+            memcpy(mclagd_ndisc.mac_addr, iccpd_ndisc->mac_addr, 6);
+
+            memcpy(ndisc_buf + MCLAGD_REPLY_INFO_HDR + ndisc_num * sizeof(struct mclagd_ndisc_msg),
+                   &mclagd_ndisc, sizeof(struct mclagd_ndisc_msg));
+
+            ndisc_num++;
+
+            if ((ndisc_num + 1) * sizeof(struct mclagd_ndisc_msg) > (ndisc_buf_size - MCLAGD_REPLY_INFO_HDR))
+            {
+                ndisc_buf_size += MCLAGDCTL_CMD_SIZE;
+                ndisc_buf = (char *)realloc(ndisc_buf, ndisc_buf_size);
+                if (!ndisc_buf)
+                    return EXEC_TYPE_FAILED;
+            }
+        }
+    }
+
+    *buf = ndisc_buf;
+    *num = ndisc_num;
 
     if (mclag_id > 0 && !id_exist)
         return EXEC_TYPE_NO_EXIST_MCLAGID;

@@ -102,6 +102,8 @@ struct LocalInterface
     uint8_t state;
     uint32_t ipv4_addr;
     uint8_t prefixlen;
+    uint32_t ipv6_addr[4];
+    uint8_t prefixlen_v6;
 
     uint8_t l3_mode;
     uint8_t l3_mac_addr[ETHER_ADDR_LEN];
@@ -139,6 +141,7 @@ int local_if_is_l3_mode(struct LocalInterface* local_if);
 void local_if_init(struct LocalInterface*);
 void local_if_finalize(struct LocalInterface*);
 
+void ether_mac_set_addr_with_if_name(char *name, uint8_t* mac);
 struct PeerInterface* peer_if_create(struct CSM* csm, int peer_if_number, int type);
 struct PeerInterface* peer_if_find_by_name(struct CSM* csm, char* name);
 

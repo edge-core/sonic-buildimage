@@ -31,6 +31,25 @@
 
 #include "../include/system.h"
 #include "../include/port.h"
+#include <netinet/icmp6.h>
+#include <linux/ipv6.h>
+
+#define NDISC_NEIGHBOUR_ADVERTISEMENT	136
+#define ND_OPT_TARGET_LL_ADDR 2
+#define NEXTHDR_ICMP 58
+
+struct nd_msg
+{
+    struct icmp6_hdr icmph;
+    struct in6_addr target;
+    __u8 opt[0];
+};
+
+struct in6_pktinfo
+{
+    struct in6_addr ipi6_addr;  /* src/dst IPv6 address */
+    unsigned int ipi6_ifindex;  /* send/recv interface index */
+};
 
 int iccp_get_port_member_list(struct LocalInterface* lif);
 void iccp_event_handler_obj_input_newlink(struct nl_object *obj, void *arg);
@@ -41,6 +60,7 @@ int iccp_init_netlink_event_fd(struct System *sys);
 int iccp_handle_events(struct System * sys);
 void update_if_ipmac_on_standby(struct LocalInterface* lif_po);
 int iccp_sys_local_if_list_get_addr();
+int iccp_netlink_neighbor_request(int family, uint8_t *addr, int add, uint8_t *mac, char *portname);
 int iccp_check_if_addr_from_netlink(int family, uint8_t *addr, struct LocalInterface *lif);
 
 #endif

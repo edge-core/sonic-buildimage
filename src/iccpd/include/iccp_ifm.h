@@ -28,9 +28,10 @@
 
 int iccp_sys_local_if_list_get_init();
 
-int iccp_arp_get_init();
+int iccp_neigh_get_init();
 
 void do_arp_update_from_reply_packet(unsigned int ifindex, unsigned int addr, uint8_t mac_addr[ETHER_ADDR_LEN]);
+void do_ndisc_update_from_reply_packet(unsigned int ifindex, char *ipv6_addr, uint8_t mac_addr[ETHER_ADDR_LEN]);
 
 int do_one_neigh_request(struct nlmsghdr *n);
 

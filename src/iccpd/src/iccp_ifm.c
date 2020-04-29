@@ -137,34 +137,21 @@ static void do_arp_learn_from_kernel(struct ndmsg *ndm, struct rtattr *tb[], int
     memset(buf, 0, MAX_BUFSIZE);
     msg_len = sizeof(struct ARPMsg);
     arp_msg = (struct ARPMsg*)&buf;
-    arp_msg->op_type = ARP_SYNC_LIF;
+    arp_msg->op_type = NEIGH_SYNC_LIF;
     sprintf(arp_msg->ifname, "%s", arp_lif->name);
     if (tb[NDA_DST])
         memcpy(&arp_msg->ipv4_addr, RTA_DATA(tb[NDA_DST]), RTA_PAYLOAD(tb[NDA_DST]));
     if (tb[NDA_LLADDR])
         memcpy(arp_msg->mac_addr, RTA_DATA(tb[NDA_LLADDR]), RTA_PAYLOAD(tb[NDA_LLADDR]));
 
-    arp_msg->ipv4_addr = ntohl(arp_msg->ipv4_addr);
+    arp_msg->ipv4_addr = arp_msg->ipv4_addr;
 
-    ICCPD_LOG_DEBUG(__FUNCTION__, "ARP type %s, state (%04X)(%d) ifindex [%d] (%s) ip %s, mac [%02X:%02X:%02X:%02X:%02X:%02X]",
+    ICCPD_LOG_NOTICE(__FUNCTION__, "ARP type %s, state (%04X)(%d) ifindex [%d] (%s) ip %s, mac [%02X:%02X:%02X:%02X:%02X:%02X]",
                     msgtype == RTM_NEWNEIGH ? "New":"Del", ndm->ndm_state, fwd_neigh_state_valid(ndm->ndm_state),
                     ndm->ndm_ifindex, arp_lif->name,
-                    show_ip_str(htonl(arp_msg->ipv4_addr)),
-                    arp_msg->mac_addr[0], arp_msg->mac_addr[1], arp_msg->mac_addr[2], arp_msg->mac_addr[3], arp_msg->mac_addr[4], arp_msg->mac_addr[5]);
-
-    /*Debug*/
-    #if 0
-    /* dump receive kernel ARP req*/
-    fprintf(stderr, "\n======== Kernel ARP ==========\n");
-    fprintf(stderr, "  Type    = [%d] (New=%d, Del=%d)\n", msgtype, RTM_NEWNEIGH, RTM_DELNEIGH);
-    fprintf(stderr, "  State   = (%04X)(%d)\n", ndm->ndm_state, fwd_neigh_state_valid(ndm->ndm_state));
-    fprintf(stderr, "  ifindex = [%d] (%s)\n", ndm->ndm_ifindex, arp_msg->ifname);
-    fprintf(stderr, "  IP      = [%s]\n", show_ip_str(htonl(arp_msg->ipv4_addr)));
-    fprintf(stderr, "  MAC     = [%02X:%02X:%02X:%02X:%02X:%02X]\n",
-            arp_msg->mac_addr[0], arp_msg->mac_addr[1], arp_msg->mac_addr[2], arp_msg->mac_addr[3],
-            arp_msg->mac_addr[4], arp_msg->mac_addr[5]);
-    fprintf(stderr, "==============================\n");
-    #endif
+                    show_ip_str(arp_msg->ipv4_addr),
+                    arp_msg->mac_addr[0], arp_msg->mac_addr[1], arp_msg->mac_addr[2], arp_msg->mac_addr[3], arp_msg->mac_addr[4],
+                    arp_msg->mac_addr[5]);
 
     /* Find MLACP itf, member of port-channel*/
     LIST_FOREACH(csm, &(sys->csm_list), next)
@@ -228,7 +215,7 @@ static void do_arp_learn_from_kernel(struct ndmsg *ndm, struct rtattr *tb[], int
             free(msg->buf);
             free(msg);
             msg = NULL;
-            ICCPD_LOG_DEBUG(__FUNCTION__, "Delete ARP %s", show_ip_str(htonl(arp_msg->ipv4_addr)));
+            ICCPD_LOG_DEBUG(__FUNCTION__, "Delete ARP %s", show_ip_str(arp_msg->ipv4_addr));
         }
         else
         {
@@ -242,7 +229,7 @@ static void do_arp_learn_from_kernel(struct ndmsg *ndm, struct rtattr *tb[], int
                 arp_info->op_type = arp_msg->op_type;
                 sprintf(arp_info->ifname, "%s", arp_msg->ifname);
                 memcpy(arp_info->mac_addr, arp_msg->mac_addr, ETHER_ADDR_LEN);
-                ICCPD_LOG_DEBUG(__FUNCTION__, "Update ARP for %s", show_ip_str(htonl(arp_msg->ipv4_addr)));
+                ICCPD_LOG_DEBUG(__FUNCTION__, "Update ARP for %s", show_ip_str(arp_msg->ipv4_addr));
             }
         }
         break;
@@ -256,31 +243,31 @@ static void do_arp_learn_from_kernel(struct ndmsg *ndm, struct rtattr *tb[], int
         /* enquene lif_msg (add)*/
         if (!msg)
         {
-            arp_msg->op_type = ARP_SYNC_LIF;
+            arp_msg->op_type = NEIGH_SYNC_LIF;
             if (iccp_csm_init_msg(&msg, (char*)arp_msg, msg_len) == 0)
             {
                 mlacp_enqueue_arp(csm, msg);
                 /*ICCPD_LOG_DEBUG(__FUNCTION__, "ARP-list enqueue: %s, add %s",
-                                arp_msg->ifname, show_ip_str(htonl(arp_msg->ipv4_addr)));*/
+                                arp_msg->ifname, show_ip_str(arp_msg->ipv4_addr));*/
             }
             else
                 ICCPD_LOG_WARN(__FUNCTION__, "Failed to enqueue ARP-list: %s, add %s",
-                                arp_msg->ifname, show_ip_str(htonl(arp_msg->ipv4_addr)));
+                                arp_msg->ifname, show_ip_str(arp_msg->ipv4_addr));
         }
 
         /* enqueue iccp_msg (add)*/
         if (MLACP(csm).current_state == MLACP_STATE_EXCHANGE)
         {
-            arp_msg->op_type = ARP_SYNC_ADD;
+            arp_msg->op_type = NEIGH_SYNC_ADD;
             if (iccp_csm_init_msg(&msg_send, (char*)arp_msg, msg_len) == 0)
             {
                 TAILQ_INSERT_TAIL(&(MLACP(csm).arp_msg_list), msg_send, tail);
                 /*ICCPD_LOG_DEBUG(__FUNCTION__, "Enqueue ARP[ADD] message for %s",
-                                show_ip_str(htonl(arp_msg->ipv4_addr)));*/
+                                show_ip_str(arp_msg->ipv4_addr));*/
             }
             else
                 ICCPD_LOG_WARN(__FUNCTION__, "Failed to enqueue ARP[ADD] message for %s",
-                                show_ip_str(htonl(arp_msg->ipv4_addr)));
+                                show_ip_str(arp_msg->ipv4_addr));
 
         }
     }
@@ -289,56 +276,216 @@ static void do_arp_learn_from_kernel(struct ndmsg *ndm, struct rtattr *tb[], int
         /* enqueue iccp_msg (delete)*/
         if (MLACP(csm).current_state == MLACP_STATE_EXCHANGE)
         {
-            arp_msg->op_type = ARP_SYNC_DEL;
+            arp_msg->op_type = NEIGH_SYNC_DEL;
             if (iccp_csm_init_msg(&msg_send, (char*)arp_msg, msg_len) == 0)
             {
                 TAILQ_INSERT_TAIL(&(MLACP(csm).arp_msg_list), msg_send, tail);
                 /*ICCPD_LOG_DEBUG(__FUNCTION__, "Enqueue ARP[DEL] message for %s",
-                                show_ip_str(htonl(arp_msg->ipv4_addr)));*/
+                                show_ip_str(arp_msg->ipv4_addr));*/
             }
             else
                 ICCPD_LOG_WARN(__FUNCTION__, "Failed to enqueue ARP[DEL] message for %s",
-                                show_ip_str(htonl(arp_msg->ipv4_addr)));
+                                show_ip_str(arp_msg->ipv4_addr));
 
         }
     }
 
-    /*Debug: dump for dequeue ARP Info*/
-    #if 0
-    fprintf(stderr, "\n======== ARP Info List ========\n");
-    TAILQ_FOREACH(msg, &MLACP(csm).arp_list, tail)
+    return;
+}
+
+static void do_ndisc_learn_from_kernel(struct ndmsg *ndm, struct rtattr *tb[], int msgtype)
+{
+    struct System *sys = NULL;
+    struct CSM *csm = NULL;
+    struct Msg *msg = NULL;
+    struct NDISCMsg *ndisc_msg = NULL, *ndisc_info = NULL;
+    struct VLAN_ID *vlan_id_list = NULL;
+    struct Msg *msg_send = NULL;
+
+    char buf[MAX_BUFSIZE];
+    size_t msg_len = 0;
+
+    struct LocalInterface *lif_po = NULL, *ndisc_lif = NULL;
+
+    int verify_neigh = 0;
+    int neigh_update = 0;
+
+    if (!(sys = system_get_instance()))
+        return;
+
+    /* Find local itf */
+    if (!(ndisc_lif = local_if_find_by_ifindex(ndm->ndm_ifindex)))
+        return;
+
+    /* create NDISC msg */
+    memset(buf, 0, MAX_BUFSIZE);
+    msg_len = sizeof(struct NDISCMsg);
+    ndisc_msg = (struct NDISCMsg *)&buf;
+    ndisc_msg->op_type = NEIGH_SYNC_LIF;
+    sprintf(ndisc_msg->ifname, "%s", ndisc_lif->name);
+    if (tb[NDA_DST])
+        memcpy(&ndisc_msg->ipv6_addr, RTA_DATA(tb[NDA_DST]), RTA_PAYLOAD(tb[NDA_DST]));
+    if (tb[NDA_LLADDR])
+        memcpy(ndisc_msg->mac_addr, RTA_DATA(tb[NDA_LLADDR]), RTA_PAYLOAD(tb[NDA_LLADDR]));
+
+    ICCPD_LOG_NOTICE(__FUNCTION__, "ndisc type %s, state (%04X)(%d), ifindex [%d] (%s), ip %s, mac [%02X:%02X:%02X:%02X:%02X:%02X]",
+                    msgtype == RTM_NEWNEIGH ? "New" : "Del", ndm->ndm_state, fwd_neigh_state_valid(ndm->ndm_state),
+                    ndm->ndm_ifindex, ndisc_lif->name,
+                    show_ipv6_str((char *)ndisc_msg->ipv6_addr),
+                    ndisc_msg->mac_addr[0], ndisc_msg->mac_addr[1], ndisc_msg->mac_addr[2], ndisc_msg->mac_addr[3], ndisc_msg->mac_addr[4],
+                    ndisc_msg->mac_addr[5]);
+
+    /* Find MLACP itf, member of port-channel */
+    LIST_FOREACH(csm, &(sys->csm_list), next)
     {
-        arp_msg = (struct ARPMsg*)msg->buf;
-        fprintf(stderr, "type %d,ifname %s , ip %s\n", arp_msg->op_type, arp_msg->ifname, show_ip_str(htonl(arp_msg->ipv4_addr)));
+        LIST_FOREACH(lif_po, &(MLACP(csm).lif_list), mlacp_next)
+        {
+            if (lif_po->type != IF_T_PORT_CHANNEL)
+                continue;
+
+            if (!local_if_is_l3_mode(lif_po))
+            {
+                /* Is the L2 MLAG itf belong to a vlan? */
+                LIST_FOREACH(vlan_id_list, &(lif_po->vlan_list), port_next)
+                {
+                    if (!(vlan_id_list->vlan_itf && vlan_id_list->vlan_itf->ifindex == ndm->ndm_ifindex))
+                        continue;
+                    break;
+                }
+
+                if (!vlan_id_list)
+                    continue;
+
+                ICCPD_LOG_DEBUG(__FUNCTION__, "ND is from mclag enabled member port of vlan %s", vlan_id_list->vlan_itf->name);
+            }
+            else
+            {
+                /* Is the ND belong to a L3 mode MLAG itf? */
+                if (ndm->ndm_ifindex != lif_po->ifindex)
+                    continue;
+
+                ICCPD_LOG_DEBUG(__FUNCTION__, "ND is from mclag enabled intf %s", lif_po->name);
+            }
+
+            verify_neigh = 1;
+
+            break;
+        }
+
+        if (lif_po)
+            break;
     }
-    fprintf(stderr, "==============================\n");
-    #endif
 
-    /*TEST dump for dequeue ARP message*/
-    #if 0
+    if (!(csm && lif_po))
+        return;
+    if (!verify_neigh)
+        return;
 
-    while (MLACP(csm).arp_updated && !TAILQ_EMPTY(&(MLACP(csm).arp_msg_list)))
+    /* update lif ND */
+    TAILQ_FOREACH(msg, &MLACP(csm).ndisc_list, tail)
     {
-        msg = TAILQ_FIRST(&(MLACP(csm).arp_msg_list));
-        TAILQ_REMOVE(&(MLACP(csm).arp_msg_list), msg, tail);
-        arp_msg = (struct ARPMsg *)msg->buf;
-        fprintf(stderr, "\n======== Dequeue ARP ========\n");
-        fprintf(stderr, "  Type    = [%d]\n", arp_msg->op_type);
-        fprintf(stderr, "  State   = (%04X)(%d)\n", ndm->ndm_state, fwd_neigh_state_valid(ndm->ndm_state));
-        fprintf(stderr, "  ifname  = [%s]\n", arp_msg->ifname);
-        fprintf(stderr, "  IP      = [%s]\n", show_ip_str(arp_msg->ipv4_addr));
-        fprintf(stderr, "  MAC     = [%02X:%02X:%02X:%02X:%02X:%02X]\n",
-                arp_msg->mac_addr[0], arp_msg->mac_addr[1], arp_msg->mac_addr[2], arp_msg->mac_addr[3],
-                arp_msg->mac_addr[4], arp_msg->mac_addr[5]);
-        fprintf(stderr, "==============================\n");
-        free(msg->buf);
-        free(msg);
+        ndisc_info = (struct NDISCMsg *)msg->buf;
+
+        if (memcmp(&ndisc_info->ipv6_addr, &ndisc_msg->ipv6_addr, 16) != 0)
+            continue;
+
+        if (msgtype == RTM_DELNEIGH)
+        {
+            /* delete ND */
+            TAILQ_REMOVE(&MLACP(csm).ndisc_list, msg, tail);
+            free(msg->buf);
+            free(msg);
+            msg = NULL;
+            ICCPD_LOG_DEBUG(__FUNCTION__, "Delete neighbor %s", show_ipv6_str((char *)ndisc_msg->ipv6_addr));
+        }
+        else
+        {
+            /* update ND */
+            if (ndisc_info->op_type != ndisc_info->op_type
+                || strcmp(ndisc_info->ifname, ndisc_info->ifname) != 0
+                || memcmp(ndisc_info->mac_addr, ndisc_info->mac_addr, ETHER_ADDR_LEN) != 0)
+            {
+                neigh_update = 1;
+                ndisc_info->op_type = ndisc_msg->op_type;
+                sprintf(ndisc_info->ifname, "%s", ndisc_msg->ifname);
+                memcpy(ndisc_info->mac_addr, ndisc_msg->mac_addr, ETHER_ADDR_LEN);
+                ICCPD_LOG_DEBUG(__FUNCTION__, "Update neighbor for %s", show_ipv6_str((char *)ndisc_msg->ipv6_addr));
+            }
+        }
+        break;
     }
 
-    MLACP(csm).arp_updated = 0;
-    #endif
+    if (msg && !neigh_update)
+        return;
+
+    if (msgtype != RTM_DELNEIGH)
+    {
+        /* enquene lif_msg (add) */
+        if (!msg)
+        {
+            ndisc_msg->op_type = NEIGH_SYNC_LIF;
+            if (iccp_csm_init_msg(&msg, (char *)ndisc_msg, msg_len) == 0)
+            {
+                mlacp_enqueue_ndisc(csm, msg);
+                /* ICCPD_LOG_DEBUG(__FUNCTION__, "Ndisc-list enqueue: %s, add %s", ndisc_msg->ifname, show_ipv6_str((char *)ndisc_msg->ipv6_addr)); */
+            }
+            else
+                ICCPD_LOG_DEBUG(__FUNCTION__, "Failed to enqueue Ndisc-list: %s, add %s",
+                                ndisc_msg->ifname, show_ipv6_str((char *)ndisc_msg->ipv6_addr));
+        }
+
+        /* enqueue iccp_msg (add) */
+        if (MLACP(csm).current_state == MLACP_STATE_EXCHANGE)
+        {
+            ndisc_msg->op_type = NEIGH_SYNC_ADD;
+            if (iccp_csm_init_msg(&msg_send, (char *)ndisc_msg, msg_len) == 0)
+            {
+                TAILQ_INSERT_TAIL(&(MLACP(csm).ndisc_msg_list), msg_send, tail);
+                /* ICCPD_LOG_DEBUG(__FUNCTION__, "Enqueue Ndisc[ADD] for %s", show_ipv6_str((char *)ndisc_msg->ipv6_addr)); */
+            }
+            else
+                ICCPD_LOG_DEBUG(__FUNCTION__, "Failed to enqueue Ndisc[ADD] message for %s", show_ipv6_str((char *)ndisc_msg->ipv6_addr));
+
+        }
+    }
+    else
+    {
+        /* enqueue iccp_msg (delete) */
+        if (MLACP(csm).current_state == MLACP_STATE_EXCHANGE)
+        {
+            ndisc_msg->op_type = NEIGH_SYNC_DEL;
+            if (iccp_csm_init_msg(&msg_send, (char *)ndisc_msg, msg_len) == 0)
+            {
+                TAILQ_INSERT_TAIL(&(MLACP(csm).ndisc_msg_list), msg_send, tail);
+                /* ICCPD_LOG_DEBUG(__FUNCTION__, "Enqueue Ndisc[DEL] for %s", show_ipv6_str((char *)ndisc_msg->ipv6_addr)); */
+            }
+            else
+                ICCPD_LOG_DEBUG(__FUNCTION__, "Failed to enqueue Ndisc[DEL] message for [%x:%x:%x:%x]", show_ipv6_str((char *)ndisc_msg->ipv6_addr));
+
+        }
+    }
 
     return;
+}
+
+int parse_rtattr_flags(struct rtattr *tb[], int max, struct rtattr *rta, int len, unsigned short flags)
+{
+    unsigned short type;
+
+    memset(tb, 0, sizeof(struct rtattr *) * (max + 1));
+    while (RTA_OK(rta, len))
+    {
+        type = rta->rta_type & ~flags;
+        if ((type <= max) && (!tb[type]))
+            tb[type] = rta;
+        rta = RTA_NEXT(rta, len);
+    }
+    return 0;
+}
+
+int parse_rtattr(struct rtattr *tb[], int max, struct rtattr *rta, int len)
+{
+    return parse_rtattr_flags(tb, max, rta, len, 0);
 }
 
 void ifm_parse_rtattr(struct rtattr **tb, int max, struct rtattr *rta, int len)
@@ -392,11 +539,14 @@ int do_one_neigh_request(struct nlmsghdr *n)
         do_arp_learn_from_kernel(ndm, tb, n->nlmsg_type);
     }
 
+    if (ndm->ndm_family == AF_INET6)
+    {
+        do_ndisc_learn_from_kernel(ndm, tb, n->nlmsg_type);
+    }
     return(0);
 }
 
-/*Handle arp received from kernel*/
-static int iccp_arp_valid_handler(struct nl_msg *msg, void *arg)
+static int iccp_neigh_valid_handler(struct nl_msg *msg, void *arg)
 {
     struct nlmsghdr *nlh = nlmsg_hdr(msg);
 
@@ -405,8 +555,7 @@ static int iccp_arp_valid_handler(struct nl_msg *msg, void *arg)
     return 0;
 }
 
-/*Get kernel arp information during initialization*/
-int iccp_arp_get_init()
+int iccp_neigh_get_init()
 {
     struct System *sys = NULL;
     struct nl_cb *cb;
@@ -440,7 +589,7 @@ int iccp_arp_get_init()
             return -ENOMEM;
         }
 
-        nl_cb_set(cb, NL_CB_VALID, NL_CB_CUSTOM, iccp_arp_valid_handler, sys);
+        nl_cb_set(cb, NL_CB_VALID, NL_CB_CUSTOM, iccp_neigh_valid_handler, sys);
 
         ret = nl_recvmsgs(sys->route_sock, cb);
         nl_cb_put(cb);
@@ -485,27 +634,16 @@ void do_arp_update_from_reply_packet(unsigned int ifindex, unsigned int addr, ui
     memset(buf, 0, MAX_BUFSIZE);
     msg_len = sizeof(struct ARPMsg);
     arp_msg = (struct ARPMsg*)&buf;
-    arp_msg->op_type = ARP_SYNC_LIF;
+    arp_msg->op_type = NEIGH_SYNC_LIF;
     sprintf(arp_msg->ifname, "%s", arp_lif->name);
     memcpy(&arp_msg->ipv4_addr, &addr, 4);
     memcpy(arp_msg->mac_addr, mac_addr, 6);
 
     ICCPD_LOG_DEBUG(__FUNCTION__, "ARP ifindex [%d] (%s) ip %s mac [%02X:%02X:%02X:%02X:%02X:%02X]",
                     ifindex, arp_lif->name,
-                    show_ip_str(htonl(arp_msg->ipv4_addr)),
-                    arp_msg->mac_addr[0], arp_msg->mac_addr[1], arp_msg->mac_addr[2], arp_msg->mac_addr[3], arp_msg->mac_addr[4], arp_msg->mac_addr[5]);
-    /*Debug*/
-    #if 0
-    /* dump receive kernel ARP req*/
-    fprintf(stderr, "\n======== Kernel ARP Update==========\n");
-    fprintf(stderr, "  Type    = (New=%d)\n", RTM_NEWNEIGH);
-    fprintf(stderr, "  ifindex = [%d] (%s)\n", ifindex, arp_lif->name);
-    fprintf(stderr, "  IP      = [%s]\n", show_ip_str(htonl(arp_msg->ipv4_addr)));
-    fprintf(stderr, "  MAC     = [%02X:%02X:%02X:%02X:%02X:%02X]\n",
-            arp_msg->mac_addr[0], arp_msg->mac_addr[1], arp_msg->mac_addr[2], arp_msg->mac_addr[3],
-            arp_msg->mac_addr[4], arp_msg->mac_addr[5]);
-    fprintf(stderr, "==============================\n");
-    #endif
+                    show_ip_str(arp_msg->ipv4_addr),
+                    arp_msg->mac_addr[0], arp_msg->mac_addr[1], arp_msg->mac_addr[2], arp_msg->mac_addr[3], arp_msg->mac_addr[4],
+                    arp_msg->mac_addr[5]);
 
     /* Find MLACP itf, member of port-channel*/
     LIST_FOREACH(csm, &(sys->csm_list), next)
@@ -556,7 +694,7 @@ void do_arp_update_from_reply_packet(unsigned int ifindex, unsigned int addr, ui
     if (iccp_check_if_addr_from_netlink(AF_INET, &addr, arp_lif))
     {
         ICCPD_LOG_DEBUG(__FUNCTION__, "ARP %s is identical with the ip address of interface %s",
-                                      show_ip_str(htonl(arp_msg->ipv4_addr)), arp_lif->name);
+                                      show_ip_str(arp_msg->ipv4_addr), arp_lif->name);
         return;
     }
 
@@ -576,8 +714,9 @@ void do_arp_update_from_reply_packet(unsigned int ifindex, unsigned int addr, ui
             arp_info->op_type = arp_msg->op_type;
             sprintf(arp_info->ifname, "%s", arp_msg->ifname);
             memcpy(arp_info->mac_addr, arp_msg->mac_addr, ETHER_ADDR_LEN);
-            ICCPD_LOG_DEBUG(__FUNCTION__, "Update ARP for %s",
-                            show_ip_str(htonl(arp_msg->ipv4_addr)));
+            ICCPD_LOG_NOTICE(__FUNCTION__, "Update ARP for %s by ARP reply, intf %s mac [%02X:%02X:%02X:%02X:%02X:%02X]",
+                            show_ip_str(arp_msg->ipv4_addr), arp_msg->ifname,
+                            arp_msg->mac_addr[0], arp_msg->mac_addr[1], arp_msg->mac_addr[2], arp_msg->mac_addr[3], arp_msg->mac_addr[4], arp_msg->mac_addr[5]);
         }
         break;
     }
@@ -585,36 +724,196 @@ void do_arp_update_from_reply_packet(unsigned int ifindex, unsigned int addr, ui
     /* enquene lif_msg (add)*/
     if (!msg)
     {
-        arp_msg->op_type = ARP_SYNC_LIF;
+        arp_msg->op_type = NEIGH_SYNC_LIF;
         if (iccp_csm_init_msg(&msg, (char*)arp_msg, msg_len) == 0)
         {
             mlacp_enqueue_arp(csm, msg);
             /*ICCPD_LOG_DEBUG(__FUNCTION__, "ARP-list enqueue: %s, add %s",
-                            arp_msg->ifname, show_ip_str(htonl(arp_msg->ipv4_addr)));*/
+                            arp_msg->ifname, show_ip_str(arp_msg->ipv4_addr));*/
         }
         else
             ICCPD_LOG_WARN(__FUNCTION__, "Failed to enqueue ARP-list: %s, add %s",
-                            arp_msg->ifname, show_ip_str(htonl(arp_msg->ipv4_addr)));
+                            arp_msg->ifname, show_ip_str(arp_msg->ipv4_addr));
     }
 
     /* enqueue iccp_msg (add)*/
     if (MLACP(csm).current_state == MLACP_STATE_EXCHANGE)
     {
-        arp_msg->op_type = ARP_SYNC_ADD;
+        arp_msg->op_type = NEIGH_SYNC_ADD;
         if (iccp_csm_init_msg(&msg_send, (char*)arp_msg, msg_len) == 0)
         {
             TAILQ_INSERT_TAIL(&(MLACP(csm).arp_msg_list), msg_send, tail);
             /*ICCPD_LOG_DEBUG(__FUNCTION__, "Enqueue ARP[ADD] for %s",
-                            show_ip_str(htonl(arp_msg->ipv4_addr)));*/
+                            show_ip_str(arp_msg->ipv4_addr));*/
         }
         else
             ICCPD_LOG_WARN(__FUNCTION__, "Failed to enqueue ARP[ADD] message for %s",
-                            show_ip_str(htonl(arp_msg->ipv4_addr)));
+                            show_ip_str(arp_msg->ipv4_addr));
     }
 
     return;
 }
 
+void do_ndisc_update_from_reply_packet(unsigned int ifindex, char *ipv6_addr, uint8_t mac_addr[ETHER_ADDR_LEN])
+{
+    struct System *sys = NULL;
+    struct CSM *csm = NULL;
+    struct Msg *msg = NULL;
+    struct NDISCMsg *ndisc_msg = NULL, *ndisc_info = NULL;
+    struct VLAN_ID *vlan_id_list = NULL;
+    struct Msg *msg_send = NULL;
+    char mac_str[18] = "";
+    uint8_t null_mac[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+    char buf[MAX_BUFSIZE];
+    size_t msg_len = 0;
+
+    struct LocalInterface *lif_po = NULL, *ndisc_lif = NULL;
+
+    int verify_ndisc = 0;
+
+    if (!(sys = system_get_instance()))
+        return;
+
+    /* Find local itf */
+    if (!(ndisc_lif = local_if_find_by_ifindex(ifindex)))
+        return;
+
+    sprintf(mac_str, "%02x:%02x:%02x:%02x:%02x:%02x", mac_addr[0], mac_addr[1], mac_addr[2], mac_addr[3], mac_addr[4], mac_addr[5]);
+
+    /* create Ndisc msg */
+    memset(buf, 0, MAX_BUFSIZE);
+    msg_len = sizeof(struct NDISCMsg);
+    ndisc_msg = (struct NDISCMsg *)&buf;
+    ndisc_msg->op_type = NEIGH_SYNC_LIF;
+    sprintf(ndisc_msg->ifname, "%s", ndisc_lif->name);
+    memcpy((char *)ndisc_msg->ipv6_addr, ipv6_addr, 16);
+    memcpy(ndisc_msg->mac_addr, mac_addr, ETHER_ADDR_LEN);
+
+    ICCPD_LOG_DEBUG(__FUNCTION__, "nd ifindex [%d] (%s) ip %s mac %s",
+                    ifindex, ndisc_lif->name, show_ipv6_str(ipv6_addr), mac_str);
+
+    /* Find MLACP itf, member of port-channel */
+    LIST_FOREACH(csm, &(sys->csm_list), next)
+    {
+        LIST_FOREACH(lif_po, &(MLACP(csm).lif_list), mlacp_next)
+        {
+            if (lif_po->type != IF_T_PORT_CHANNEL)
+                continue;
+
+            if (!local_if_is_l3_mode(lif_po))
+            {
+                /* Is the L2 MLAG itf belong to a vlan? */
+                LIST_FOREACH(vlan_id_list, &(lif_po->vlan_list), port_next)
+                {
+                    if (!(vlan_id_list->vlan_itf && vlan_id_list->vlan_itf->ifindex == ifindex))
+                        continue;
+                    break;
+                }
+
+                if (!vlan_id_list)
+                    continue;
+                ICCPD_LOG_DEBUG(__FUNCTION__, "ND is from mclag enabled port %s of vlan %s", lif_po->name, vlan_id_list->vlan_itf->name);
+            }
+            else
+            {
+                /* Is the ND belong to a L3 mode MLAG itf? */
+                if (ifindex != lif_po->ifindex)
+                    continue;
+                ICCPD_LOG_DEBUG(__FUNCTION__, "ND is from mclag enabled port %s", lif_po->name);
+            }
+
+            verify_ndisc = 1;
+
+            break;
+        }
+
+        if (lif_po)
+            break;
+    }
+
+    if (!(csm && lif_po))
+        return;
+    if (!verify_ndisc)
+        return;
+
+    if (iccp_check_if_addr_from_netlink(AF_INET6, (uint8_t *)ndisc_msg->ipv6_addr, ndisc_lif))
+    {
+        ICCPD_LOG_DEBUG(__FUNCTION__, "NA %s is identical with the ipv6 address of interface %s",
+                                      show_ipv6_str((char *)ndisc_msg->ipv6_addr), ndisc_lif->name);
+        return;
+    }
+
+    /* update lif ND */
+    TAILQ_FOREACH(msg, &MLACP(csm).ndisc_list, tail)
+    {
+        ndisc_info = (struct NDISCMsg *)msg->buf;
+
+        if (memcmp((char *)ndisc_info->ipv6_addr, (char *)ndisc_msg->ipv6_addr, 16) != 0)
+            continue;
+
+        /* If MAC addr is NULL, use the old one */
+        if (memcmp(mac_addr, null_mac, ETHER_ADDR_LEN) == 0)
+        {
+            memcpy(ndisc_msg->mac_addr, ndisc_info->mac_addr, ETHER_ADDR_LEN);
+            sprintf(mac_str, "%02x:%02x:%02x:%02x:%02x:%02x", ndisc_info->mac_addr[0], ndisc_info->mac_addr[1],
+                    ndisc_info->mac_addr[2], ndisc_info->mac_addr[3], ndisc_info->mac_addr[4], ndisc_info->mac_addr[5]);
+        }
+
+        /* update ND */
+        if (ndisc_info->op_type != ndisc_msg->op_type
+            || strcmp(ndisc_info->ifname, ndisc_msg->ifname) != 0
+            || memcmp(ndisc_info->mac_addr, ndisc_msg->mac_addr, ETHER_ADDR_LEN) != 0)
+        {
+            ndisc_info->op_type = ndisc_msg->op_type;
+            sprintf(ndisc_info->ifname, "%s", ndisc_msg->ifname);
+            memcpy(ndisc_info->mac_addr, ndisc_msg->mac_addr, ETHER_ADDR_LEN);
+            ICCPD_LOG_DEBUG(__FUNCTION__, "Update ND for %s", show_ipv6_str((char *)ndisc_msg->ipv6_addr));
+        }
+        break;
+    }
+
+    /* enquene lif_msg (add) */
+    if (!msg)
+    {
+        /* If MAC addr is NULL, and same ipv6 item is not exist in ndisc_list */
+        if (memcmp(mac_addr, null_mac, ETHER_ADDR_LEN) == 0)
+        {
+            return;
+        }
+
+        ndisc_msg->op_type = NEIGH_SYNC_LIF;
+        if (iccp_csm_init_msg(&msg, (char *)ndisc_msg, msg_len) == 0)
+        {
+            mlacp_enqueue_ndisc(csm, msg);
+            /* ICCPD_LOG_DEBUG(__FUNCTION__, "NDISC-list enqueue: %s, add %s", ndisc_msg->ifname, show_ipv6_str((char *)ndisc_msg->ipv6_addr)); */
+        }
+        else
+            ICCPD_LOG_WARN(__FUNCTION__, "Failed to enqueue NDISC-list: %s, add %s", ndisc_msg->ifname, show_ipv6_str((char *)ndisc_msg->ipv6_addr));
+    }
+
+    if (iccp_netlink_neighbor_request(AF_INET6, (uint8_t *)ndisc_msg->ipv6_addr, 1, ndisc_msg->mac_addr, ndisc_msg->ifname) < 0)
+    {
+        ICCPD_LOG_WARN(__FUNCTION__, "Failed to add ND entry(%s, %s, %s) to kernel",
+                        ndisc_msg->ifname, show_ipv6_str((char *)ndisc_msg->ipv6_addr), mac_str);
+        return;
+    }
+
+    /* enqueue iccp_msg (add) */
+    if (MLACP(csm).current_state == MLACP_STATE_EXCHANGE)
+    {
+        ndisc_msg->op_type = NEIGH_SYNC_ADD;
+        if (iccp_csm_init_msg(&msg_send, (char *)ndisc_msg, msg_len) == 0)
+        {
+            TAILQ_INSERT_TAIL(&(MLACP(csm).ndisc_msg_list), msg_send, tail);
+            /* ICCPD_LOG_DEBUG(__FUNCTION__, "Enqueue ND[ADD] for %s", show_ipv6_str((char *)ndisc_msg->ipv6_addr)); */
+        }
+        else
+            ICCPD_LOG_WARN(__FUNCTION__, "Failed to enqueue ND[ADD] message for %s", show_ipv6_str((char *)ndisc_msg->ipv6_addr));
+    }
+
+    return;
+}
 void iccp_from_netlink_port_state_handler( char * ifname, int state)
 {
     struct CSM *csm = NULL;
@@ -654,29 +953,6 @@ void iccp_from_netlink_port_state_handler( char * ifname, int state)
     }
 
     return;
-}
-
-int parse_rtattr_flags(struct rtattr *tb[], int max, struct rtattr *rta,
-                       int len, unsigned short flags)
-{
-    unsigned short type;
-
-    memset(tb, 0, sizeof(struct rtattr *) * (max + 1));
-
-    while (RTA_OK(rta, len))
-    {
-        type = rta->rta_type & ~flags;
-        if ((type <= max) && (!tb[type]))
-            tb[type] = rta;
-        rta = RTA_NEXT(rta, len);
-    }
-
-    return 0;
-}
-
-int parse_rtattr(struct rtattr *tb[], int max, struct rtattr *rta, int len)
-{
-    return parse_rtattr_flags(tb, max, rta, len, 0);
 }
 
 void iccp_parse_if_vlan_info_from_netlink(struct nlmsghdr *n)

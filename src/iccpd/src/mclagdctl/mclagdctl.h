@@ -25,6 +25,7 @@
 
 #define MCLAGDCTL_MAX_L_PORT_NANE 32
 #define MCLAGDCTL_INET_ADDR_LEN 32
+#define MCLAGDCTL_INET6_ADDR_LEN 64
 #define MCLAGDCTL_ETHER_ADDR_LEN 6
 #define MCLAGDCTL_PORT_MEMBER_BUF_LEN 512
 #define ETHER_ADDR_STR_LEN 18
@@ -62,6 +63,7 @@ enum mclagdctl_notify_peer_type
     INFO_TYPE_NONE = 0,
     INFO_TYPE_DUMP_STATE,
     INFO_TYPE_DUMP_ARP,
+    INFO_TYPE_DUMP_NDISC,
     INFO_TYPE_DUMP_MAC,
     INFO_TYPE_DUMP_LOCAL_PORTLIST,
     INFO_TYPE_DUMP_PEER_PORTLIST,
@@ -137,6 +139,14 @@ struct mclagd_arp_msg
     unsigned char mac_addr[MCLAGDCTL_ETHER_ADDR_LEN];
 };
 
+struct mclagd_ndisc_msg
+{
+    char op_type;
+    char ifname[MCLAGDCTL_MAX_L_PORT_NANE];
+    char ipv6_addr[MCLAGDCTL_INET6_ADDR_LEN];
+    unsigned char mac_addr[MCLAGDCTL_ETHER_ADDR_LEN];
+};
+
 struct mclagd_mac_msg
 {
     unsigned char     op_type;/*add or del*/
@@ -186,7 +196,9 @@ struct mclagd_peer_if
 extern int mclagdctl_enca_dump_state(char *msg, int mclag_id,  int argc, char **argv);
 extern int mclagdctl_parse_dump_state(char *msg, int data_len);
 extern int mclagdctl_enca_dump_arp(char *msg, int mclag_id, int argc, char **argv);
+extern int mclagdctl_enca_dump_ndisc(char *msg, int mclag_id, int argc, char **argv);
 extern int mclagdctl_parse_dump_arp(char *msg, int data_len);
+extern int mclagdctl_parse_dump_ndisc(char *msg, int data_len);
 extern int mclagdctl_enca_dump_mac(char *msg, int mclag_id, int argc, char **argv);
 extern int mclagdctl_parse_dump_mac(char *msg, int data_len);
 extern int mclagdctl_enca_dump_local_portlist(char *msg, int mclag_id,  int argc, char **argv);

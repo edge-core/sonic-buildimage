@@ -374,6 +374,14 @@ struct ARPMsg
     uint8_t     mac_addr[ETHER_ADDR_LEN];
 };
 
+struct NDISCMsg
+{
+    uint8_t op_type;
+    char ifname[MAX_L_PORT_NAME];
+    uint32_t ipv6_addr[4];
+    uint8_t mac_addr[ETHER_ADDR_LEN];
+};
+
 /*
  * ARP Information TLV
  */
@@ -383,6 +391,17 @@ struct mLACPARPInfoTLV
     /* Local Interface ID */
     uint16_t num_of_entry;
     struct ARPMsg ArpEntry[0];
+} __attribute__ ((packed));
+
+/*
+ * NDISC Information TLV
+ */
+struct mLACPNDISCInfoTLV
+{
+    ICCParameter icc_parameter;
+    /* Local Interface ID */
+    uint16_t num_of_entry;
+    struct NDISCMsg NdiscEntry[0];
 } __attribute__ ((packed));
 
 /*
@@ -413,11 +432,11 @@ struct mLACPWarmbootTLV
     uint8_t         warmboot;
 } __attribute__ ((packed));
 
-enum ARP_OP_TYPE
+enum NEIGH_OP_TYPE
 {
-    ARP_SYNC_LIF,
-    ARP_SYNC_ADD,
-    ARP_SYNC_DEL,
+    NEIGH_SYNC_LIF,
+    NEIGH_SYNC_ADD,
+    NEIGH_SYNC_DEL,
 };
 
 enum MAC_AGE_TYPE
