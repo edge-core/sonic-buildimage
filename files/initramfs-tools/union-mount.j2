@@ -85,5 +85,12 @@ then
   mount -t tmpfs -o rw,nosuid,nodev,size=${varlogsize}M tmpfs ${rootmnt}/var/log
   [ -f ${rootmnt}/host/disk-img/var-log.ext4 ] && rm -rf ${rootmnt}/host/disk-img/var-log.ext4
 else
+  [ -f ${rootmnt}/host/disk-img/var-log.ext4 ] && fsck.ext4 -v -p ${rootmnt}/host/disk-img/var-log.ext4 2>&1 \
+                                                  | gzip -c >> /tmp/fsck.log.gz
   [ -f ${rootmnt}/host/disk-img/var-log.ext4 ] && mount -t ext4 -o loop,rw ${rootmnt}/host/disk-img/var-log.ext4 ${rootmnt}/var/log
+fi
+
+## fscklog file: /tmp will be lost when overlayfs is mounted
+if [ -f /tmp/fsck.log.gz ]; then
+    mv /tmp/fsck.log.gz ${rootmnt}/var/log
 fi

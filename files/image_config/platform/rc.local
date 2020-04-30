@@ -340,4 +340,10 @@ if [ -f $FIRST_BOOT_FILE ]; then
     firsttime_exit
 fi
 
+# Copy the fsck log into syslog
+if [ -f /var/log/fsck.log.gz ]; then
+    gunzip -d -c /var/log/fsck.log.gz | logger -t "FSCK"
+    rm -f /var/log/fsck.log.gz
+fi
+
 exit 0

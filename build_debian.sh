@@ -165,6 +165,10 @@ sudo chmod +x $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-premount/arista-
 sudo cp files/initramfs-tools/resize-rootfs $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-premount/resize-rootfs
 sudo chmod +x $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-premount/resize-rootfs
 
+# Hook into initramfs: run fsck to repair a non-clean filesystem prior to be mounted
+sudo cp files/initramfs-tools/fsck-rootfs $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-premount/fsck-rootfs
+sudo chmod +x $FILESYSTEM_ROOT/etc/initramfs-tools/scripts/init-premount/fsck-rootfs
+
 ## Hook into initramfs: after partition mount and loop file mount
 ## 1. Prepare layered file system
 ## 2. Bind-mount docker working directory (docker overlay storage cannot work over overlay rootfs)
