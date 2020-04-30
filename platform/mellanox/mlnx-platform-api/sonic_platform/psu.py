@@ -81,6 +81,8 @@ class Psu(PsuBase):
             self.psu_current = None
             self.psu_power = None
             self.psu_presence = None
+            self.psu_temp = None
+            self.psu_temp_threshold = None
         else:
             self.always_presence = False
             psu_voltage = filemap[PSU_VOLTAGE].format(self.index)
@@ -98,6 +100,9 @@ class Psu(PsuBase):
             psu_presence = "thermal/psu{}_status".format(self.index)
             psu_presence = os.path.join(self.psu_path, psu_presence)
             self.psu_presence = psu_presence
+
+            self.psu_temp = os.path.join(self.psu_path, 'thermal/psu{}_temp'.format(self.index))
+            self.psu_temp_threshold = os.path.join(self.psu_path, 'thermal/psu{}_temp_max'.format(self.index))
 
         # unplugable PSU has no FAN
         if sku not in hwsku_dict_with_unplugable_psu:
@@ -306,4 +311,60 @@ class Psu(PsuBase):
             return False, "absence of power"
         else:
             return True, ""
+
+    def get_temperature(self):
+        """
+        Retrieves current temperature reading from PSU
+
+        Returns:
+            A float number of current temperature in Celsius up to nearest thousandth
+            of one degree Celsius, e.g. 30.125 
+        """
+        if self.psu_temp is not None and self.get_powergood_status():
+            try:
+                temp = self._read_generic_file(self.psu_temp, 0)
+                return float(temp) / 1000
+            except Exception as e:
+                logger.log_info("Fail to get temperature for PSU {} due to - {}".format(self._name, repr(e)))
+        
+        return None
+
+    def get_temperature_high_threshold(self):
+        """
+        Retrieves the high threshold temperature of PSU
+
+        Returns:
+            A float number, the high threshold temperature of PSU in Celsius
+            up to nearest thousandth of one degree Celsius, e.g. 30.125
+        """
+        if self.psu_temp_threshold is not None and self.get_powergood_status():
+            try:
+                temp_threshold = self._read_generic_file(self.psu_temp_threshold, 0)
+                return float(temp_threshold) / 1000
+            except Exception as e:
+                logger.log_info("Fail to get temperature threshold for PSU {} due to - {}".format(self._name, repr(e)))
+        
+        return None
+
+    def get_voltage_high_threshold(self):
+        """
+        Retrieves the high threshold PSU voltage output
+
+        Returns:
+            A float number, the high threshold output voltage in volts, 
+            e.g. 12.1 
+        """
+        # hw-management doesn't expose those sysfs for now
+        raise NotImplementedError
+
+    def get_voltage_low_threshold(self):
+        """
+        Retrieves the low threshold PSU voltage output
+
+        Returns:
+            A float number, the low threshold output voltage in volts, 
+            e.g. 12.1 
+        """
+        # hw-management doesn't expose those sysfs for now
+        raise NotImplementedError
 
