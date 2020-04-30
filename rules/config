@@ -117,7 +117,7 @@ DEFAULT_VS_PREPARE_MEM = yes
 
 
 # ENABLE_ICCPD - build docker-iccpd for mclag support
-ENABLE_ICCPD = y
+ENABLE_ICCPD = n
 
 # ENABLE_SYSTEM_SFLOW - build docker-sonic-sflow for sFlow support
 ENABLE_SFLOW = y
