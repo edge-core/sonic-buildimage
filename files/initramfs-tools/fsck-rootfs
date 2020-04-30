@@ -1,0 +1,34 @@
+#!/bin/sh
+
+case $1 in
+    prereqs)
+        exit 0
+        ;;
+esac
+
+# Extract kernel parameters
+root_val=""
+set -- $(cat /proc/cmdline)
+for x in "$@"; do
+    case "$x" in
+        root=*)
+            root_val="${x#root=}"
+            ;;
+    esac
+done
+
+# Check the filesystem we are using
+if [ ! -z $root_val ]; then
+    fstype=$(blkid -o value -s TYPE $root_val)
+    case "$fstype" in
+        ext4)
+            cmd="fsck.ext4 -v -p"
+            ;;
+        ext3)
+            cmd="fsck.ext3 -v -p"
+            ;;
+    esac
+    if [ ! -z "$cmd" ]; then
+        $cmd $root_val 2>&1 | gzip -c > /tmp/fsck.log.gz
+    fi
+fi
