@@ -2,7 +2,7 @@
 SHELL = /bin/bash
 .SHELLFLAGS += -e
 
-MAIN_TARGET = iccpd_$(ICCPD_VERSION)_amd64.deb
+MAIN_TARGET = iccpd_$(ICCPD_VERSION)_$(CONFIGURED_ARCH).deb
 DEB_PATH = debian
 
 all: iccpd-build mclagdctl-build
@@ -24,6 +24,8 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	chmod +x $(DEB_PATH)/usr/bin/mclagdctl
 	md5sum $(DEB_PATH)/usr/bin/iccpd > $(DEB_PATH)/DEBIAN/md5sums
 	md5sum $(DEB_PATH)/usr/bin/mclagdctl >> $(DEB_PATH)/DEBIAN/md5sums
+	sed -i "s/Package: .*/Package: iccpd-$(ICCPD_VERSION)-$(CONFIGURED_ARCH)/g" $(DEB_PATH)/DEBIAN/control
+	sed -i "s/Architecture: .*/Architecture: $(CONFIGURED_ARCH)/g" $(DEB_PATH)/DEBIAN/control
 	dpkg-deb -b $(DEB_PATH) $(DEST)/$(MAIN_TARGET)
 
 clean: iccpd-clean mclagdctl-clean
