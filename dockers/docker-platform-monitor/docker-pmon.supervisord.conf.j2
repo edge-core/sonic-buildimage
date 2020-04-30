@@ -86,10 +86,10 @@ startsecs=0
 command=/usr/bin/syseepromd
 priority=8
 autostart=false
-autorestart=true
+autorestart=unexpected
 stdout_logfile=syslog
 stderr_logfile=syslog
-startsecs=0
+startsecs=10
 {% endif %}
 
 {% if not skip_thermalctld %}
@@ -97,8 +97,8 @@ startsecs=0
 command=/usr/bin/thermalctld
 priority=9
 autostart=false
-autorestart=true
+autorestart=unexpected
 stdout_logfile=syslog
 stderr_logfile=syslog
-startsecs=0
+startsecs=10
 {% endif %}
