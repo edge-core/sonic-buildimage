@@ -1,4 +1,24 @@
-#!/bin/bash
+#!/bin/bash -e
+
+usage() {
+	echo "Usage: $0 [-n <int>] swname" 1>&2
+    exit 1
+}
+
+SERVERS=2
+
+while getopts ":n:" opt; do
+    case $opt in
+        n)
+            SERVERS=$((OPTARG))
+            ;;
+        *)
+            usage
+			;;
+    esac
+done
+
+shift $((OPTIND-1))
 
 SWNAME=$1
 
@@ -6,9 +26,8 @@ pid=$(docker inspect --format '{{.State.Pid}}' $SWNAME)
 
 echo Seting up servers
 
-SERVERS=31
 
-for srv in `seq 0 $SERVERS`; do
+for srv in `seq 0 $((SERVERS-1))`; do
 
     SRV="$SWNAME-srv$srv"
 
@@ -24,9 +43,10 @@ for srv in `seq 0 $SERVERS`; do
 
     IF="eth$((srv+1))"
 
-    ip link add ${SRV}eth0 type veth peer name $IF
+    ip link add ${SRV}eth0 type veth peer name $SWNAME-$IF
     ip link set ${SRV}eth0 netns $SRV
-    ip link set $IF netns ${pid}
+    ip link set $SWNAME-$IF netns ${pid}
+    nsenter -t $pid -n ip link set dev $SWNAME-$IF name $IF
 
     echo "Bring ${SRV}eth0 up"
     $NSS ip link set dev ${SRV}eth0 name eth0

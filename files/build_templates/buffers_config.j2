@@ -7,7 +7,7 @@ def
 {%- endmacro -%}
 
 {# Determine device topology and filename postfix #}
-{%- if DEVICE_METADATA is defined %}
+{%- if DEVICE_METADATA is defined and DEVICE_METADATA['localhost']['type'] is defined %}
 {%-     set switch_role = DEVICE_METADATA['localhost']['type'] %}
 {%-     if switch_role.lower() == 'torrouter' %}
 {%-         set filename_postfix = 't0' %}
