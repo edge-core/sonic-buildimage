@@ -15,6 +15,10 @@ dpr_clock_frequency=1000
 device_clock_frequency=1325
 port_flex_enable=1
 
+l3_alpm_enable=2
+l3_mem_entries=983040
+ipv6_lpm_128b_enable=1
+
 #firmware load method, use fast load
 load_firmware=0x2
 

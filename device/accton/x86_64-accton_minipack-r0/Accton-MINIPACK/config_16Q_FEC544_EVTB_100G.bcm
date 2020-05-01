@@ -15,6 +15,10 @@ dpr_clock_frequency=1000
 device_clock_frequency=1325
 port_flex_enable=1
 
+l3_alpm_enable=2
+l3_mem_entries=983040
+ipv6_lpm_128b_enable=1
+
 #firmware load method, use fast load
 load_firmware=0x2
 
@@ -1462,26 +1466,4 @@ serdes_core_tx_polarity_flip_physical{253}=0x7E
 serdes_core_tx_polarity_flip_physical{254}=0x7E
 serdes_core_tx_polarity_flip_physical{255}=0x7E
 serdes_core_tx_polarity_flip_physical{256}=0x7E
-
-dport_map_port_38=299
-portmap_38=257:10
-
-dport_map_port_118=300
-portmap_118=258:10
-
-portmap_19=259:10
-
-portmap_39=260:10
-
-portmap_59=261:10
-
-portmap_79=262:10
-
-portmap_99=263:10
-
-portmap_119=264:10
-
-portmap_139=265:10
-
-portmap_159=266:10
 
