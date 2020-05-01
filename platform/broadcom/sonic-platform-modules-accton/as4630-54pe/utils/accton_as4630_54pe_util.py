@@ -17,7 +17,6 @@
 
 """
 Usage: %(scriptName)s [options] command object
-
 options:
     -h | --help     : this help message
     -d | --debug    : run with debug mode
@@ -108,7 +107,12 @@ mknod =[
 'echo 24c02 0x57 > /sys/bus/i2c/devices/i2c-1/new_device',
 ]
 
-
+# Disable CPLD debug mode
+cpld_set =[
+'i2cset -y -f 3 0x60 0x2a 0xff',
+'i2cset -y -f 3 0x60 0x2b 0xff',
+'i2cset -y -f 3 0x60 0x86 0x89'
+]
 
 FORCE = 0
 logging.basicConfig(filename= PROJECT_NAME+'.log', filemode='w',level=logging.DEBUG)
@@ -353,6 +357,12 @@ def do_install():
                 return  status
     else:
         print PROJECT_NAME.upper()+" devices detected...."
+
+    for i in range(len(cpld_set)):
+        status, output = log_os_system(cpld_set[i], 1)
+        if status:
+            if FORCE == 0:
+                return status
     return
 
 def do_uninstall():
