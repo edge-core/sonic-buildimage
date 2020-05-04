@@ -60,7 +60,6 @@ class Psu(PsuBase):
         psu_oper_status = "thermal/psu{}_pwr_status".format(self.index)
         #psu_oper_status should always be present for all SKUs
         self.psu_oper_status = os.path.join(self.psu_path, psu_oper_status)
-        self._name = "PSU{}".format(psu_index + 1)
 
         if sku in hwsku_dict_psu:
             filemap = psu_profile_list[hwsku_dict_psu[sku]]
@@ -93,10 +92,7 @@ class Psu(PsuBase):
 
         fan = Fan(psu_index, psu_index, True)
         if fan.get_presence():
-            self._fan_list.append(fan)
-
-    def get_name(self):
-        return self._name
+            self._fan = fan
 
     def _read_generic_file(self, filename, len):
         """

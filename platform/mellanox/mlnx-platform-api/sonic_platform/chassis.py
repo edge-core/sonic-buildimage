@@ -442,8 +442,3 @@ class Chassis(ChassisBase):
             return True, {'sfp':port_dict}
         else:
             return True, {'sfp':{}}
-
-    def get_thermal_manager(self):
-        from .thermal_manager import ThermalManager
-        return ThermalManager
-

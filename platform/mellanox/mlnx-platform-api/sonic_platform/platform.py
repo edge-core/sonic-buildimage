@@ -24,7 +24,6 @@ class Platform(PlatformBase):
             self._chassis.initialize_psu()
             self._chassis.initialize_fan()
             self._chassis.initialize_eeprom()
-            self._chassis.initialize_thermals()
 
     def _is_host(self):
         """
