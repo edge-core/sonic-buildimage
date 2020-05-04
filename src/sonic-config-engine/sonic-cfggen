@@ -37,10 +37,12 @@ from functools import partial
 from minigraph import minigraph_encoder
 from minigraph import parse_xml
 from minigraph import parse_device_desc_xml
+from minigraph import parse_asic_sub_role
 from portconfig import get_port_config
 from sonic_device_util import get_machine_info
 from sonic_device_util import get_platform_info
 from sonic_device_util import get_system_mac
+from sonic_device_util import get_npu_id_from_name
 from config_samples import generate_sample_config
 from config_samples import get_available_config
 from swsssdk import SonicV2Connector, ConfigDBConnector
@@ -195,6 +197,7 @@ def main():
     group.add_argument("-m", "--minigraph", help="minigraph xml file", nargs='?', const='/etc/sonic/minigraph.xml')
     group.add_argument("-M", "--device-description", help="device description xml file")
     group.add_argument("-k", "--hwsku", help="HwSKU")
+    parser.add_argument("-n", "--namespace", help="namespace name, used with -m or -k", nargs='?', const=None)
     parser.add_argument("-p", "--port-config", help="port config file, used with -m or -k", nargs='?', const=None)
     parser.add_argument("-y", "--yaml", help="yaml file that contains additional variables", action='append', default=[])
     parser.add_argument("-j", "--json", help="json file that contains additional variables", action='append', default=[])
@@ -222,13 +225,18 @@ def main():
 
     data = {}
     hwsku = args.hwsku
+    asic_name = args.namespace
+    asic_id = None
+    if asic_name is not None:
+        asic_id = get_npu_id_from_name(asic_name)
+
 
     if hwsku is not None:
         hardware_data = {'DEVICE_METADATA': {'localhost': {
             'hwsku': hwsku
             }}}
         deep_update(data, hardware_data)
-        (ports, _) = get_port_config(hwsku, platform, args.port_config)
+        (ports, _, _) = get_port_config(hwsku, platform, args.port_config, asic_id)
         if not ports:
             print('Failed to get port config', file=sys.stderr)
             sys.exit(1)
@@ -242,11 +250,11 @@ def main():
         minigraph = args.minigraph
         if platform:
             if args.port_config != None:
-                deep_update(data, parse_xml(minigraph, platform, args.port_config))
+                deep_update(data, parse_xml(minigraph, platform, args.port_config, asic_name=asic_name))
             else:
-                deep_update(data, parse_xml(minigraph, platform))
+                deep_update(data, parse_xml(minigraph, platform, asic_name=asic_name))
         else:
-            deep_update(data, parse_xml(minigraph, port_config_file=args.port_config))
+            deep_update(data, parse_xml(minigraph, port_config_file=args.port_config, asic_name=asic_name))
 
     if args.device_description != None:
         deep_update(data, parse_device_desc_xml(args.device_description))
@@ -267,11 +275,28 @@ def main():
         configdb.connect()
         deep_update(data, FormatConverter.db_to_output(configdb.get_config()))
 
+
+    # the minigraph file must be provided to get the mac address for backend asics
     if args.platform_info:
+        asic_role = None
+        if asic_name is not None:
+            if args.minigraph is not None:
+                asic_role = parse_asic_sub_role(args.minigraph, asic_name)
+
+            if asic_role is not None and asic_role.lower() == "backend":
+                mac = get_system_mac(namespace=asic_name)
+            else:
+                mac = get_system_mac()
+        else:
+            mac = get_system_mac()
+
         hardware_data = {'DEVICE_METADATA': {'localhost': {
             'platform': platform,
-            'mac': get_system_mac()
+            'mac': mac,
             }}}
+        # The ID needs to be passed to the SAI to identify the asic.
+        if asic_name is not None:
+            hardware_data['DEVICE_METADATA']['localhost'].update(asic_id=asic_id)
         deep_update(data, hardware_data)
 
     if args.template is not None:
