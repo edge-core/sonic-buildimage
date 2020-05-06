@@ -7,6 +7,9 @@
 {% if CONFIG_DB__DEVICE_METADATA['localhost']['type'] == 'ToRRouter' %}
     neighbor PEER_V4 allowas-in 1
 {% endif %}
+{% if CONFIG_DB__DEVICE_METADATA['localhost']['sub_role'] == 'BackEnd' %}
+    neighbor PEER_V4 route-reflector-client
+{% endif %}
     neighbor PEER_V4 soft-reconfiguration inbound
     neighbor PEER_V4 route-map FROM_BGP_PEER_V4 in
     neighbor PEER_V4 route-map TO_BGP_PEER_V4 out
@@ -14,6 +17,9 @@
   address-family ipv6
 {% if CONFIG_DB__DEVICE_METADATA['localhost']['type'] == 'ToRRouter' %}
     neighbor PEER_V6 allowas-in 1
+  {% endif %}
+{% if CONFIG_DB__DEVICE_METADATA['localhost']['sub_role'] == 'BackEnd' %}
+    neighbor PEER_V6 route-reflector-client
 {% endif %}
     neighbor PEER_V6 soft-reconfiguration inbound
     neighbor PEER_V6 route-map FROM_BGP_PEER_V6 in
