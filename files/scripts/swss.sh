@@ -51,7 +51,10 @@ function validate_restore_count()
 function wait_for_database_service()
 {
     # Wait for redis server start before database clean
-    /usr/bin/docker exec database$DEV ping_pong_db_insts
+    # TODO: should use $SONIC_DB_CLI if Judy's PR 4477 is in first, otherwise PR 4477 should change this part
+    until [[ $(/usr/bin/sonic-netns-exec "$NET_NS" sonic-db-cli PING | grep -c PONG) -gt 0 ]]; do
+      sleep 1;
+    done
 
     # Wait for configDB initialization
     until [[ $(sonic-netns-exec "$NET_NS" sonic-db-cli CONFIG_DB GET "CONFIG_DB_INITIALIZED") ]];

@@ -78,7 +78,11 @@ function postStartAction()
         link_namespace $DEV
     fi
     # Wait until redis starts
-    /usr/bin/docker exec database$DEV ping_pong_db_insts
+    # TODO: should use $SONIC_DB_CLI if Judy's PR 4477 is in first, otherwise PR 4477 should change this part
+    until [[ $(/usr/bin/sonic-netns-exec "$NET_NS" sonic-db-cli PING | grep -c PONG) -gt 0 ]]; do
+      sleep 1;
+    done
+
     if [[ ("$BOOT_TYPE" == "warm" || "$BOOT_TYPE" == "fastfast") && -f $WARM_DIR/dump.rdb ]]; then
         rm -f $WARM_DIR/dump.rdb
     else

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Wait until redis starts
-until [[ $(redis-cli ping | grep -c PONG) -gt 0 ]]; do
+until [[ $(sonic-db-cli PING | grep -c PONG) -gt 0 ]]; do
   sleep 1;
 done
 
