@@ -380,8 +380,8 @@ def parse_dpg(dpg, hname):
                     # Give a warning if trying to attach ACL to a LAG member interface, correct way is to attach ACL to the LAG interface
                     if port_alias_map[member] in intfs_inpc:
                         print >> sys.stderr, "Warning: ACL " + aclname + " is attached to a LAG member interface " + port_alias_map[member] + ", instead of LAG interface"
-                elif member.lower().startswith('erspan'):
-                    if member.lower().startswith('erspanv6'):
+                elif member.lower().startswith('erspan') or member.lower().startswith('egress_erspan'):
+                    if member.lower().startswith('erspanv6') or member.lower().startswith('egress_erspanv6'):
                         is_mirror_v6 = True
                     else:
                         is_mirror = True
