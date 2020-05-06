@@ -303,6 +303,11 @@
           <InAcl>everflowV6</InAcl>
           <Type>Everflow</Type>
         </AclInterface>
+	<AclInterface>
+          <AttachTo>EGRESS_ERSPAN</AttachTo>
+	  <OutAcl>everflow_egress</OutAcl>
+	  <Type>Everflow</Type>
+        </AclInterface>
         <AclInterface>
           <AttachTo>PortChannel01;PortChannel02;PortChannel03;PortChannel04</AttachTo>
           <InAcl>DataAclIngress</InAcl>
