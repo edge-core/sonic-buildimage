@@ -16,13 +16,13 @@
 {% if neighbor_addr | ipv4 %}
   address-family ipv4
     neighbor {{ neighbor_addr }} peer-group PEER_V4
-{%   if CONFIG_DB__DEVICE_METADATA['localhost']['type'] == 'InternalBackend' %}
+{%   if CONFIG_DB__DEVICE_METADATA['localhost']['sub_role'] == 'BackEnd' %}
     neighbor {{ neighbor_addr }} route-map FROM_BGP_PEER_V4_INT in
 {%   endif %}
 {% elif neighbor_addr | ipv6 %}
   address-family ipv6
     neighbor {{ neighbor_addr }} peer-group PEER_V6
-{%   if CONFIG_DB__DEVICE_METADATA['localhost']['type'] == 'InternalBackend' %}
+{%   if CONFIG_DB__DEVICE_METADATA['localhost']['sub_role'] == 'BackEnd' %}
     neighbor {{ neighbor_addr }} route-map FROM_BGP_PEER_V6_INT in
 {%   endif %}
 {% endif %}
@@ -33,6 +33,9 @@
 !
 {% if bgp_session['nhopself'] | int != 0 %}
     neighbor {{ neighbor_addr }} next-hop-self
+{% endif %}
+{% if 'ASIC' in bgp_session['name'] %}
+    neighbor {{ neighbor_addr }} next-hop-self force
 {% endif %}
 !
 {% if bgp_session["asn"] == bgp_asn and CONFIG_DB__DEVICE_METADATA['localhost']['type'] == "SpineChassisFrontendRouter" %}

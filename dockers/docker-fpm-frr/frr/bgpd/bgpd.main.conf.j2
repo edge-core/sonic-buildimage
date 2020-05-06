@@ -14,7 +14,7 @@ ipv6 prefix-list PL_LoopbackV6 permit {{ get_ipv6_loopback_address(LOOPBACK_INTE
 {% endif %}
 !
 !
-{% if DEVICE_METADATA['localhost']['type'] == 'InternalFrontend' %}
+{% if DEVICE_METADATA['localhost']['sub_role'] == 'FrontEnd' %}
 route-map HIDE_INTERNAL permit 10
   set community local-AS
 !
@@ -62,7 +62,7 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
 {% endblock vlan_advertisement %}
 !
 !
-{% if DEVICE_METADATA['localhost']['type'] == 'InternalFrontend' %}
+{% if DEVICE_METADATA['localhost']['sub_role'] == 'BackEnd' %}
   redistribute connected route-map HIDE_INTERNAL
 {% endif %}
 !
