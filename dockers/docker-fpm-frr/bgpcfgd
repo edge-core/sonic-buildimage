@@ -744,7 +744,8 @@ class BGPPeerMgrBase(Manager):
         :param data: the data associated with the change
         """
         vrf, nbr = self.split_key(key)
-        if key not in self.peers:
+        peer_key = (vrf, nbr)
+        if peer_key not in self.peers:
             return self.add_peer(vrf, nbr, data)
         else:
             return self.update_peer(vrf, nbr, data)
@@ -871,7 +872,8 @@ class BGPPeerMgrBase(Manager):
         :param key: key of the neighbor
         """
         vrf, nbr = self.split_key(key)
-        if key not in self.peers:
+        peer_key = (vrf, nbr)
+        if peer_key not in self.peers:
             log_warn("Peer '(%s|%s)' has not been found" % (vrf, nbr))
             return
         cmd = self.templates["delete"].render(neighbor_addr=nbr)
