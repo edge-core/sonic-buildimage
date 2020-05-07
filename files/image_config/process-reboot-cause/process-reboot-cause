@@ -12,6 +12,8 @@ try:
     import sys
     import syslog
     import re
+
+    import sonic_device_util
 except ImportError as err:
     raise ImportError("%s - required module not found" % str(err))
 
@@ -34,7 +36,7 @@ REBOOT_TYPE_KEXEC_FILE = "/proc/cmdline"
 REBOOT_TYPE_KEXEC_PATTERN_WARM = ".*SONIC_BOOT_TYPE=(warm|fastfast).*"
 REBOOT_TYPE_KEXEC_PATTERN_FAST = ".*SONIC_BOOT_TYPE=(fast|fast-reboot).*"
 
-UNKNOWN_REBOOT_CAUSE = "Unknown"
+REBOOT_CAUSE_UNKNOWN = "Unknown"
 
 
 # ========================== Syslog wrappers ==========================
@@ -72,7 +74,7 @@ def parse_warmfast_reboot_from_proc_cmdline():
 
 
 def find_software_reboot_cause():
-    software_reboot_cause = UNKNOWN_REBOOT_CAUSE
+    software_reboot_cause = REBOOT_CAUSE_UNKNOWN
 
     if os.path.isfile(REBOOT_CAUSE_FILE):
         with open(REBOOT_CAUSE_FILE, "r") as cause_file:
@@ -82,6 +84,10 @@ def find_software_reboot_cause():
         log_info("Reboot cause file {} not found".format(REBOOT_CAUSE_FILE))
 
     if os.path.isfile(FIRST_BOOT_PLATFORM_FILE):
+        if software_reboot_cause == REBOOT_CAUSE_UNKNOWN:
+            version_info = sonic_device_util.get_sonic_version_info()
+            build_version = version_info['build_version'] if version_info else "unknown"
+            software_reboot_cause += " (First boot of SONiC version {})".format(build_version)
         os.remove(FIRST_BOOT_PLATFORM_FILE)
 
     return software_reboot_cause
@@ -148,7 +154,7 @@ def main():
         os.remove(PREVIOUS_REBOOT_CAUSE_FILE)
 
     # Set a default previous reboot cause
-    previous_reboot_cause = UNKNOWN_REBOOT_CAUSE
+    previous_reboot_cause = REBOOT_CAUSE_UNKNOWN
 
     # 1. Check if the previous reboot was warm/fast reboot by testing whether there is "fast|fastfast|warm" in /proc/cmdline
     proc_cmdline_reboot_cause = find_proc_cmdline_reboot_cause()
@@ -188,7 +194,7 @@ def main():
 
     # Write a new default reboot cause file for the next reboot
     with open(REBOOT_CAUSE_FILE, "w") as cause_file:
-        cause_file.write(UNKNOWN_REBOOT_CAUSE)
+        cause_file.write(REBOOT_CAUSE_UNKNOWN)
 
 
 if __name__ == "__main__":
