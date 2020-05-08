@@ -164,7 +164,7 @@ class BGPConfigManager(object):
                 cmds.append(txt)
                 syslog.syslog(syslog.LOG_INFO, "Generate set src configuration with Loopback0 ipv4 '%s'" % ip_addr)
         elif op == swsscommon.DEL_COMMAND:
-            syslog.syslog(syslog.LOG_INFO, "Delete command is not supported for set src templates '%s'" % ip_addr)
+            syslog.syslog(syslog.LOG_INFO, "Delete command is not supported for set src templates")
 
         for cmd in cmds:
             self.__apply_cmd(cmd, zebra=True)
