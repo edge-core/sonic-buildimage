@@ -26,8 +26,8 @@ function unlock_service_state_change()
 
 function check_warm_boot()
 {
-    SYSTEM_WARM_START=`sonic-netns-exec "$NET_NS" sonic-db-cli STATE_DB hget "WARM_RESTART_ENABLE_TABLE|system" enable`
-    SERVICE_WARM_START=`sonic-netns-exec "$NET_NS" sonic-db-cli STATE_DB hget "WARM_RESTART_ENABLE_TABLE|${SERVICE}" enable`
+    SYSTEM_WARM_START=`$SONIC_DB_CLI STATE_DB hget "WARM_RESTART_ENABLE_TABLE|system" enable`
+    SERVICE_WARM_START=`$SONIC_DB_CLI STATE_DB hget "WARM_RESTART_ENABLE_TABLE|${SERVICE}" enable`
     # SYSTEM_WARM_START could be empty, always make WARM_BOOT meaningful.
     if [[ x"$SYSTEM_WARM_START" == x"true" ]] || [[ x"$SERVICE_WARM_START" == x"true" ]]; then
         WARM_BOOT="true"
@@ -39,13 +39,12 @@ function check_warm_boot()
 function wait_for_database_service()
 {
     # Wait for redis server start before database clean
-    # TODO: should use $SONIC_DB_CLI if Judy's PR 4477 is in first, otherwise PR 4477 should change this part
-    until [[ $(/usr/bin/sonic-netns-exec "$NET_NS" sonic-db-cli PING | grep -c PONG) -gt 0 ]]; do
+    until [[ $($SONIC_DB_CLI PING | grep -c PONG) -gt 0 ]]; do
       sleep 1;
     done
 
     # Wait for configDB initialization
-    until [[ $(sonic-netns-exec "$NET_NS" sonic-db-cli CONFIG_DB GET "CONFIG_DB_INITIALIZED") ]];
+    until [[ $($SONIC_DB_CLI CONFIG_DB GET "CONFIG_DB_INITIALIZED") ]];
         do sleep 1;
     done
 }
@@ -62,7 +61,7 @@ function getBootType()
         ;;
     *SONIC_BOOT_TYPE=fast*|*fast-reboot*)
         # check that the key exists
-        if [[ $(sonic-netns-exec "$NET_NS" sonic-db-cli STATE_DB GET "FAST_REBOOT|system") == "1" ]]; then
+        if [[ $($SONIC_DB_CLI STATE_DB GET "FAST_REBOOT|system") == "1" ]]; then
             TYPE='fast'
         else
             TYPE='cold'
@@ -198,10 +197,13 @@ SERVICE="syncd"
 PEER="swss"
 DEBUGLOG="/tmp/swss-syncd-debug$DEV.log"
 LOCKFILE="/tmp/swss-syncd-lock$DEV"
+NAMESPACE_PREFIX="asic"
 if [ "$DEV" ]; then
-    NET_NS="asic$DEV" #name of the network namespace
+    NET_NS="$NAMESPACE_PREFIX$DEV" #name of the network namespace
+    SONIC_DB_CLI="sonic-db-cli -n $NET_NS"
 else
     NET_NS=""
+    SONIC_DB_CLI="sonic-db-cli"
 fi
 
 case "$1" in

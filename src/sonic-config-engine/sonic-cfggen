@@ -45,7 +45,7 @@ from sonic_device_util import get_system_mac
 from sonic_device_util import get_npu_id_from_name
 from config_samples import generate_sample_config
 from config_samples import get_available_config
-from swsssdk import SonicV2Connector, ConfigDBConnector
+from swsssdk import SonicV2Connector, ConfigDBConnector, SonicDBConfig 
 from redis_bcc import RedisBytecodeCache
 from collections import OrderedDict
 from natsort import natsorted
@@ -197,7 +197,7 @@ def main():
     group.add_argument("-m", "--minigraph", help="minigraph xml file", nargs='?', const='/etc/sonic/minigraph.xml')
     group.add_argument("-M", "--device-description", help="device description xml file")
     group.add_argument("-k", "--hwsku", help="HwSKU")
-    parser.add_argument("-n", "--namespace", help="namespace name, used with -m or -k", nargs='?', const=None)
+    parser.add_argument("-n", "--namespace", help="namespace name", nargs='?', const=None, default=None)
     parser.add_argument("-p", "--port-config", help="port config file, used with -m or -k", nargs='?', const=None)
     parser.add_argument("-y", "--yaml", help="yaml file that contains additional variables", action='append', default=[])
     parser.add_argument("-j", "--json", help="json file that contains additional variables", action='append', default=[])
@@ -230,6 +230,10 @@ def main():
     if asic_name is not None:
         asic_id = get_npu_id_from_name(asic_name)
 
+
+    # Load the database config for the namespace from global database json
+    if args.namespace is not None:
+        SonicDBConfig.load_sonic_global_db_config(namespace=args.namespace)
 
     if hwsku is not None:
         hardware_data = {'DEVICE_METADATA': {'localhost': {
@@ -271,7 +275,11 @@ def main():
         deep_update(data, json.loads(args.additional_data))
 
     if args.from_db:
-        configdb = ConfigDBConnector(**db_kwargs)
+        if args.namespace is None:
+            configdb = ConfigDBConnector(**db_kwargs)
+        else:
+            configdb = ConfigDBConnector(use_unix_socket_path=True, namespace=args.namespace, **db_kwargs)
+
         configdb.connect()
         deep_update(data, FormatConverter.db_to_output(configdb.get_config()))
 
@@ -331,7 +339,11 @@ def main():
             print(json.dumps(FormatConverter.to_serialized(data[args.var_json]), indent=4, cls=minigraph_encoder))
 
     if args.write_to_db:
-        configdb = ConfigDBConnector(**db_kwargs)
+        if args.namespace is None:
+            configdb = ConfigDBConnector(**db_kwargs)
+        else:
+            configdb = ConfigDBConnector(use_unix_socket_path=True, namespace=args.namespace, **db_kwargs)
+
         configdb.connect(False)
         configdb.mod_config(FormatConverter.output_to_db(data))
 
