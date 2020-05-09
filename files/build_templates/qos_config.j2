@@ -193,6 +193,9 @@
 
 {% endfor %}
     },
+{% if generate_wred_profiles is defined %}
+    {{- generate_wred_profiles() }}
+{% else %}
     "WRED_PROFILE": {
         "AZURE_LOSSLESS" : {
             "wred_green_enable"      : "true",
@@ -210,6 +213,7 @@
             "red_drop_probability"   : "5"
         }
     },
+{% endif %}
     "QUEUE": {
 {% for port in PORT_ACTIVE %}
         "{{ port }}|3": {

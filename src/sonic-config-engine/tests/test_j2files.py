@@ -18,6 +18,7 @@ class TestJ2Files(TestCase):
         self.t1_mlnx_minigraph = os.path.join(self.test_dir, 't1-sample-graph-mlnx.xml')
         self.mlnx_port_config = os.path.join(self.test_dir, 'sample-port-config-mlnx.ini')
         self.dell6100_t0_minigraph = os.path.join(self.test_dir, 'sample-dell-6100-t0-minigraph.xml')
+        self.arista7050_t0_minigraph = os.path.join(self.test_dir, 'sample-arista-7050-t0-minigraph.xml')
         self.output_file = os.path.join(self.test_dir, 'output')
 
     def run_script(self, argument):
@@ -92,6 +93,25 @@ class TestJ2Files(TestCase):
         sample_output_file = os.path.join(self.test_dir, 'sample_output', 'l2switch.json')
 
         self.assertTrue(filecmp.cmp(sample_output_file, self.output_file))
+
+    def test_qos_arista7050_render_template(self):
+        arista_dir_path = os.path.join(self.test_dir, '..', '..', '..', 'device', 'arista', 'x86_64-arista_7050_qx32s', 'Arista-7050-QX-32S')
+        qos_file = os.path.join(arista_dir_path, 'qos.json.j2')
+        port_config_ini_file = os.path.join(arista_dir_path, 'port_config.ini')
+
+        # copy qos_config.j2 to the Arista 7050 directory to have all templates in one directory
+        qos_config_file = os.path.join(self.test_dir, '..', '..', '..', 'files', 'build_templates', 'qos_config.j2')
+        shutil.copy2(qos_config_file, arista_dir_path)
+
+        argument = '-m ' + self.arista7050_t0_minigraph + ' -p ' + port_config_ini_file + ' -t ' + qos_file + ' > ' + self.output_file
+        self.run_script(argument)
+
+        # cleanup
+        qos_config_file_new = os.path.join(arista_dir_path, 'qos_config.j2')
+        os.remove(qos_config_file_new)
+
+        sample_output_file = os.path.join(self.test_dir, 'sample_output', 'qos-arista7050.json')
+        assert filecmp.cmp(sample_output_file, self.output_file)
 
     def test_qos_dell6100_render_template(self):
         dell_dir_path = os.path.join(self.test_dir, '..', '..', '..', 'device', 'dell', 'x86_64-dell_s6100_c2538-r0', 'Force10-S6100')
