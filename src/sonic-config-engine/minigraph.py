@@ -415,6 +415,39 @@ def parse_meta(meta, hname):
                     deployment_id = value
     return syslog_servers, dhcp_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id
 
+
+def parse_linkmeta(meta, hname):
+    link = meta.find(str(QName(ns, "Link")))
+    linkmetas = {}
+    for linkmeta in link.findall(str(QName(ns1, "LinkMetadata"))):
+        port = None
+        fec_disabled = None
+
+        # Sample: ARISTA05T1:Ethernet1/33;switch-t0:fortyGigE0/4
+        key = linkmeta.find(str(QName(ns1, "Key"))).text
+        endpoints = key.split(';')
+        for endpoint in endpoints:
+            t = endpoint.split(':')
+            if len(t) == 2 and t[0].lower() == hname.lower():
+                port = t[1]
+                break
+        else:
+            # Cannot find a matching hname, something went wrong
+            continue
+
+        properties = linkmeta.find(str(QName(ns1, "Properties")))
+        for device_property in properties.findall(str(QName(ns1, "DeviceProperty"))):
+            name = device_property.find(str(QName(ns1, "Name"))).text
+            value = device_property.find(str(QName(ns1, "Value"))).text
+            if name == "FECDisabled":
+                fec_disabled = value
+
+        linkmetas[port] = {}
+        if fec_disabled:
+            linkmetas[port]["FECDisabled"] = fec_disabled
+    return linkmetas
+
+
 def parse_deviceinfo(meta, hwsku):
     port_speeds = {}
     port_descriptions = {}
@@ -468,7 +501,6 @@ def filter_acl_mirror_table_bindings(acls, neighbors, port_channels):
 
 def parse_xml(filename, platform=None, port_config_file=None):
     root = ET.parse(filename).getroot()
-    mini_graph_path = filename
 
     u_neighbors = None
     u_devices = None
@@ -500,6 +532,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
     erspan_dst = []
     bgp_peers_with_range = None
     deployment_id = None
+    linkmetas = {}
 
     hwsku_qn = QName(ns, "HwSku")
     hostname_qn = QName(ns, "Hostname")
@@ -525,6 +558,8 @@ def parse_xml(filename, platform=None, port_config_file=None):
             (u_neighbors, u_devices, _, _, _, _, _, _) = parse_png(child, hostname)
         elif child.tag == str(QName(ns, "MetadataDeclaration")):
             (syslog_servers, dhcp_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id) = parse_meta(child, hostname)
+        elif child.tag == str(QName(ns, "LinkMetadataDeclaration")):
+            linkmetas = parse_linkmeta(child, hostname)
         elif child.tag == str(QName(ns, "DeviceInfos")):
             (port_speeds_default, port_descriptions) = parse_deviceinfo(child, hwsku)
 
@@ -596,7 +631,14 @@ def parse_xml(filename, platform=None, port_config_file=None):
         ports.setdefault(port_name, {})['speed'] = port_speed_png[port_name]
 
     for port_name, port in ports.items():
-        if port.get('speed') == '100000':
+        # get port alias from port_config.ini
+        if port_config_file:
+            alias = port.get('alias')
+        else:
+            alias = port_name
+        # generate default 100G FEC
+        # Note: FECDisabled only be effective on 100G port right now
+        if port.get('speed') == '100000' and linkmetas.get(alias, {}).get('FECDisabled', '').lower() != 'true':
             port['fec'] = 'rs'
 
     # set port description if parsed from deviceinfo
