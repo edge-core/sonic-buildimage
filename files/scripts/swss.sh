@@ -28,8 +28,8 @@ function unlock_service_state_change()
 
 function check_warm_boot()
 {
-    SYSTEM_WARM_START=`sonic-netns-exec "$NET_NS" sonic-db-cli STATE_DB hget "WARM_RESTART_ENABLE_TABLE|system" enable`
-    SERVICE_WARM_START=`sonic-netns-exec "$NET_NS" sonic-db-cli STATE_DB hget "WARM_RESTART_ENABLE_TABLE|${SERVICE}" enable`
+    SYSTEM_WARM_START=`$SONIC_DB_CLI STATE_DB hget "WARM_RESTART_ENABLE_TABLE|system" enable`
+    SERVICE_WARM_START=`$SONIC_DB_CLI STATE_DB hget "WARM_RESTART_ENABLE_TABLE|${SERVICE}" enable`
     if [[ x"$SYSTEM_WARM_START" == x"true" ]] || [[ x"$SERVICE_WARM_START" == x"true" ]]; then
         WARM_BOOT="true"
     else
@@ -40,7 +40,7 @@ function check_warm_boot()
 function validate_restore_count()
 {
     if [[ x"$WARM_BOOT" == x"true" ]]; then
-        RESTORE_COUNT=`sonic-netns-exec "$NET_NS" sonic-db-cli STATE_DB hget "WARM_RESTART_TABLE|orchagent" restore_count`
+        RESTORE_COUNT=`$SONIC_DB_CLI STATE_DB hget "WARM_RESTART_TABLE|orchagent" restore_count`
         # We have to make sure db data has not been flushed.
         if [[ -z "$RESTORE_COUNT" ]]; then
             WARM_BOOT="false"
@@ -51,13 +51,12 @@ function validate_restore_count()
 function wait_for_database_service()
 {
     # Wait for redis server start before database clean
-    # TODO: should use $SONIC_DB_CLI if Judy's PR 4477 is in first, otherwise PR 4477 should change this part
-    until [[ $(/usr/bin/sonic-netns-exec "$NET_NS" sonic-db-cli PING | grep -c PONG) -gt 0 ]]; do
+    until [[ $($SONIC_DB_CLI PING | grep -c PONG) -gt 0 ]]; do
       sleep 1;
     done
 
     # Wait for configDB initialization
-    until [[ $(sonic-netns-exec "$NET_NS" sonic-db-cli CONFIG_DB GET "CONFIG_DB_INITIALIZED") ]];
+    until [[ $($SONIC_DB_CLI CONFIG_DB GET "CONFIG_DB_INITIALIZED") ]];
         do sleep 1;
     done
 }
@@ -67,7 +66,7 @@ function wait_for_database_service()
 # $2 the string of a list of table prefixes
 function clean_up_tables()
 {
-    sonic-netns-exec "$NET_NS" sonic-db-cli $1 EVAL "
+    $SONIC_DB_CLI $1 EVAL "
     local tables = {$2}
     for i = 1, table.getn(tables) do
         local matches = redis.call('KEYS', tables[i])
@@ -135,10 +134,10 @@ start() {
     # Don't flush DB during warm boot
     if [[ x"$WARM_BOOT" != x"true" ]]; then
         debug "Flushing APP, ASIC, COUNTER, CONFIG, and partial STATE databases ..."
-        sonic-netns-exec "$NET_NS" sonic-db-cli APPL_DB FLUSHDB
-        sonic-netns-exec "$NET_NS" sonic-db-cli ASIC_DB FLUSHDB
-        sonic-netns-exec "$NET_NS" sonic-db-cli COUNTERS_DB FLUSHDB
-        sonic-netns-exec "$NET_NS" sonic-db-cli FLEX_COUNTER_DB FLUSHDB
+        $SONIC_DB_CLI APPL_DB FLUSHDB
+        $SONIC_DB_CLI ASIC_DB FLUSHDB
+        $SONIC_DB_CLI COUNTERS_DB FLUSHDB
+        $SONIC_DB_CLI FLEX_COUNTER_DB FLUSHDB
         clean_up_tables STATE_DB "'PORT_TABLE*', 'MGMT_PORT_TABLE*', 'VLAN_TABLE*', 'VLAN_MEMBER_TABLE*', 'LAG_TABLE*', 'LAG_MEMBER_TABLE*', 'INTERFACE_TABLE*', 'MIRROR_SESSION*', 'VRF_TABLE*', 'FDB_TABLE*'"
     fi
 
@@ -209,10 +208,13 @@ SERVICE="swss"
 PEER="syncd"
 DEBUGLOG="/tmp/swss-syncd-debug$DEV.log"
 LOCKFILE="/tmp/swss-syncd-lock$DEV"
+NAMESPACE_PREFIX="asic"
 if [ "$DEV" ]; then
-    NET_NS="asic$DEV" #name of the network namespace
+    NET_NS="$NAMESPACE_PREFIX$DEV" #name of the network namespace
+    SONIC_DB_CLI="sonic-db-cli -n $NET_NS"
 else
-    NET_NS=""   
+    NET_NS=""
+    SONIC_DB_CLI="sonic-db-cli"
 fi
 
 case "$1" in
