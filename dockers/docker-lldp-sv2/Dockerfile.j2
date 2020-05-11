@@ -35,12 +35,13 @@ RUN apt-get purge -y python-pip && \
            /python-wheels          \
            ~/.cache
 
+COPY ["docker-lldp-init.sh", "/usr/bin/"]
 COPY ["start.sh", "/usr/bin/"]
-COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
+COPY ["supervisord.conf.j2", "/usr/share/sonic/templates/"]
 COPY ["lldpd.conf.j2", "/usr/share/sonic/templates/"]
 COPY ["lldpd", "/etc/default/"]
 COPY ["lldpmgrd", "/usr/bin/"]
 COPY ["files/supervisor-proc-exit-listener", "/usr/bin"]
 COPY ["critical_processes", "/etc/supervisor"]
 
-ENTRYPOINT ["/usr/bin/supervisord"]
+ENTRYPOINT ["/usr/bin/docker-lldp-init.sh"]

@@ -252,14 +252,24 @@ def parse_asic_png(png, asic_name, hostname):
     return (neighbors, devices, port_speeds)
 
 def parse_dpg(dpg, hname):
+    aclintfs = None
+    mgmtintfs = None
     for child in dpg:
-        """In Multi-NPU platforms the acl intfs are defined only for the host not for individual asic.
+        """ 
+            In Multi-NPU platforms the acl intfs are defined only for the host not for individual asic.
             There is just one aclintf node in the minigraph
-             Get the aclintfs node first.
+            Get the aclintfs node first.
         """
-        if child.find(str(QName(ns, "AclInterfaces"))) is not None:
+        if aclintfs is None and child.find(str(QName(ns, "AclInterfaces"))) is not None:
             aclintfs = child.find(str(QName(ns, "AclInterfaces")))
-
+        """
+            In Multi-NPU platforms the mgmt intfs are defined only for the host not for individual asic
+            There is just one mgmtintf node in the minigraph
+            Get the mgmtintfs node first. We need mgmt intf to get mgmt ip in per asic dockers.
+        """
+        if mgmtintfs is None and child.find(str(QName(ns, "ManagementIPInterfaces"))) is not None:
+            mgmtintfs = child.find(str(QName(ns, "ManagementIPInterfaces")))
+        
         hostname = child.find(str(QName(ns, "Hostname")))
         if hostname.text.lower() != hname.lower():
             continue
@@ -295,7 +305,6 @@ def parse_dpg(dpg, hname):
                 mvrf_en_flag = mv.find(str(QName(ns, "mgmtVrfEnabled"))).text
                 mvrf["vrf_global"] = {"mgmtVrfEnabled": mvrf_en_flag}
 
-        mgmtintfs = child.find(str(QName(ns, "ManagementIPInterfaces")))
         mgmt_intf = {}
         for mgmtintf in mgmtintfs.findall(str(QName(ns1, "ManagementIPInterface"))):
             intfname = mgmtintf.find(str(QName(ns, "AttachTo"))).text
@@ -807,10 +816,8 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None):
 
     if asic_name is None:
         current_device = [devices[key] for key in devices if key.lower() == hostname.lower()][0]
-        name = hostname
     else:
         current_device = [devices[key] for key in devices if key.lower() == asic_name.lower()][0]
-        name = asic_name
 
     results = {}
     results['DEVICE_METADATA'] = {'localhost': {
@@ -818,7 +825,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None):
         'deployment_id': deployment_id,
         'region': region,
         'docker_routing_config_mode': docker_routing_config_mode,
-        'hostname': name,
+        'hostname': hostname,
         'hwsku': hwsku,
         'type': current_device['type']
         }
@@ -828,6 +835,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None):
     if sub_role is not None:
         current_device['sub_role'] = sub_role
         results['DEVICE_METADATA']['localhost']['sub_role'] =  sub_role
+        results['DEVICE_METADATA']['localhost']['asic_name'] =  asic_name
     results['BGP_NEIGHBOR'] = bgp_sessions
     results['BGP_MONITORS'] = bgp_monitors
     results['BGP_PEER_RANGE'] = bgp_peers_with_range

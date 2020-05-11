@@ -31,7 +31,11 @@ stderr_logfile=syslog
 # - `-dd` means to stay in foreground, log warnings to console
 # - `-ddd` means to stay in foreground, log warnings and info to console
 # - `-dddd` means to stay in foreground, log all to console
+{% if DEVICE_METADATA['localhost']['sub_role'] is defined and DEVICE_METADATA['localhost']['sub_role']|length %}
+command=/usr/sbin/lldpd -d -I Ethernet* -C Ethernet*
+{% else %}
 command=/usr/sbin/lldpd -d -I Ethernet*,eth0 -C eth0
+{% endif %}
 priority=3
 autostart=false
 autorestart=false
