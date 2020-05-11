@@ -116,7 +116,7 @@ class TestMultiNpuCfgGen(TestCase):
         self.assertDictEqual(output, {'eth0': {'alias': 'eth0', 'admin_status': 'up'}})
         for asic in range(NUM_ASIC):
             output = json.loads(self.run_script_for_asic(argument, asic, self.port_config[asic]))
-            self.assertDictEqual(output, {})
+            self.assertDictEqual(output, {'eth0': {'alias': 'eth0', 'admin_status': 'up'}})
 
     def test_frontend_asic_portchannels(self):
         argument = "-m {} -p {} -n asic0 --var-json \"PORTCHANNEL\"".format(self.sample_graph, self.port_config[0])
@@ -213,7 +213,8 @@ class TestMultiNpuCfgGen(TestCase):
         for asic in range(NUM_ASIC):
             output = json.loads(self.run_script_for_asic(argument, asic,self.port_config[asic]))
             asic_name  = "asic{}".format(asic)
-            self.assertEqual(output['localhost']['hostname'], asic_name)
+            self.assertEqual(output['localhost']['hostname'], 'multi_npu_platform_01')
+            self.assertEqual(output['localhost']['asic_name'], asic_name)
             self.assertEqual(output['localhost']['type'], 'Asic')
             if asic == 0 or asic == 1:
                 self.assertEqual(output['localhost']['sub_role'], 'FrontEnd')
