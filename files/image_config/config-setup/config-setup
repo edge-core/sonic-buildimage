@@ -310,6 +310,8 @@ do_config_migration()
             # Migrate the DB to the latest schema version if needed
             /usr/bin/db_migrator.py -o migrate
         fi
+        # Disable updategraph
+        disable_updategraph
     elif [ -r ${MINGRAPH_FILE} ]; then
         echo "Use minigraph.xml from old system..."
         reload_minigraph
