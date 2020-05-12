@@ -220,3 +220,28 @@ class TestMultiNpuCfgGen(TestCase):
                 self.assertEqual(output['localhost']['sub_role'], 'FrontEnd')
             else:
                 self.assertEqual(output['localhost']['sub_role'], 'BackEnd')
+
+    def test_global_asic_acl(self):
+        argument = "-m {} --var-json \"ACL_TABLE\"".format(self.sample_graph)
+        output = json.loads(self.run_script(argument))
+        self.assertDictEqual(output, {\
+                             'DATAACL':   {'policy_desc': 'DATAACL',    'ports': ['PortChannel0002','PortChannel0008'], 'stage': 'ingress', 'type': 'L3'},
+                             'EVERFLOW':  {'policy_desc': 'EVERFLOW',   'ports': ['PortChannel0002','PortChannel0008'], 'stage': 'ingress', 'type': 'MIRROR'},
+                             'EVERFLOWV6':{'policy_desc': 'EVERFLOWV6', 'ports': ['PortChannel0002','PortChannel0008'], 'stage': 'ingress', 'type': 'MIRRORV6'},
+                             'SNMP_ACL':  {'policy_desc': 'SNMP_ACL',    'services': ['SNMP'],        'stage': 'ingress', 'type': 'CTRLPLANE'},
+                             'SSH_ONLY':  {'policy_desc': 'SSH_ONLY',    'services': ['SSH'],         'stage': 'ingress', 'type': 'CTRLPLANE'}})
+
+    def test_front_end_asic_acl(self):
+        argument = "-m {} -p {} -n asic0 --var-json \"ACL_TABLE\"".format(self.sample_graph, self.port_config[0])
+        output = json.loads(self.run_script(argument))
+        self.assertDictEqual(output, {\
+                             'DATAACL':   {'policy_desc': 'DATAACL',    'ports': ['PortChannel0002'], 'stage': 'ingress', 'type': 'L3'},
+                             'EVERFLOW':  {'policy_desc': 'EVERFLOW',   'ports': ['PortChannel0002'], 'stage': 'ingress', 'type': 'MIRROR'},
+                             'EVERFLOWV6':{'policy_desc': 'EVERFLOWV6', 'ports': ['PortChannel0002'], 'stage': 'ingress', 'type': 'MIRRORV6'},
+                             'SNMP_ACL':  {'policy_desc': 'SNMP_ACL',    'services': ['SNMP'],        'stage': 'ingress', 'type': 'CTRLPLANE'},
+                             'SSH_ONLY':  {'policy_desc': 'SSH_ONLY',    'services': ['SSH'],         'stage': 'ingress', 'type': 'CTRLPLANE'}})
+
+    def test_back_end_asic_acl(self):
+        argument = "-m {} -p {} -n asic3 --var-json \"ACL_TABLE\"".format(self.sample_graph, self.port_config[3])
+        output = json.loads(self.run_script(argument))
+        self.assertDictEqual(output, {})

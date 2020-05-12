@@ -650,14 +650,14 @@
         <EndDevice>05T2</EndDevice>
         <EndPort>Ethernet1</EndPort>
         <StartDevice>multi_npu_platform_01</StartDevice>
-        <StartPort>Ethernet1/8</StartPort>
+        <StartPort>Ethernet1/5</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase>
         <ElementType>DeviceInterfaceLink</ElementType>
         <EndDevice>05T2</EndDevice>
         <EndPort>Ethernet2</EndPort>
         <StartDevice>multi_npu_platform_01</StartDevice>
-        <StartPort>Ethernet1/9</StartPort>
+        <StartPort>Ethernet1/6</StartPort>
       </DeviceLinkBase>
       <DeviceLinkBase i:type="DeviceInterfaceLink">
         <ElementType>DeviceInterfaceLink</ElementType>
