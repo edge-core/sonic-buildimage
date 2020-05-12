@@ -250,9 +250,9 @@ sudo LANG=C chroot $FILESYSTEM_ROOT systemctl disable core_uploader.service
 sudo cp $IMAGE_CONFIGS/corefile_uploader/core_uploader.py $FILESYSTEM_ROOT/usr/bin/
 sudo cp $IMAGE_CONFIGS/corefile_uploader/core_analyzer.rc.json $FILESYSTEM_ROOT_ETC_SONIC/
 sudo chmod og-rw $FILESYSTEM_ROOT_ETC_SONIC/core_analyzer.rc.json
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install azure-storage
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install watchdog
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install futures
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install azure-storage==0.36.0
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install watchdog==0.10.2
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install futures==3.3.0
 
 {% if install_kubernetes == "y" %}
 # Copy kubelet service files
