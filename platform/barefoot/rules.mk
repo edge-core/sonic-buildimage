@@ -2,7 +2,7 @@ include $(PLATFORM_PATH)/platform-modules-arista.mk
 include $(PLATFORM_PATH)/platform-modules-bfn.mk
 include $(PLATFORM_PATH)/platform-modules-bfn-montara.mk
 include $(PLATFORM_PATH)/platform-modules-bfn-newport.mk
-include $(PLATFORM_PATH)/platform-modules-wnc-osw1800.mk
+#include $(PLATFORM_PATH)/platform-modules-wnc-osw1800.mk
 include $(PLATFORM_PATH)/platform-modules-ingrasys.mk
 include $(PLATFORM_PATH)/bfn-sai.mk
 include $(PLATFORM_PATH)/docker-syncd-bfn.mk
@@ -20,11 +20,13 @@ SONIC_ALL += $(SONIC_ONE_IMAGE) $(SONIC_ONE_ABOOT) \
              $(DOCKER_FPM)
 
 # Inject sai into sairedis
-$(LIBSAIREDIS)_DEPENDS += $(BFN_SAI) $(WNC_OSW1800_PLATFORM) $(BFN_INGRASYS_PLATFORM) $(BFN_PLATFORM)
+#$(LIBSAIREDIS)_DEPENDS += $(BFN_SAI) $(WNC_OSW1800_PLATFORM) $(BFN_INGRASYS_PLATFORM) $(BFN_PLATFORM)
+$(LIBSAIREDIS)_DEPENDS += $(BFN_SAI) $(BFN_INGRASYS_PLATFORM) $(BFN_PLATFORM)
 
 ifeq ($(ENABLE_SYNCD_RPC),y)
 $(LIBSAIREDIS)_DEPENDS += $(LIBSAITHRIFT_DEV)
 endif
 
 # Runtime dependency on sai is set only for syncd
-$(SYNCD)_RDEPENDS += $(BFN_SAI) $(WNC_OSW1800_PLATFORM) $(BFN_INGRASYS_PLATFORM) $(BFN_PLATFORM)
+#$(SYNCD)_RDEPENDS += $(BFN_SAI) $(WNC_OSW1800_PLATFORM) $(BFN_INGRASYS_PLATFORM) $(BFN_PLATFORM)
+$(SYNCD)_RDEPENDS += $(BFN_SAI) $(BFN_INGRASYS_PLATFORM) $(BFN_PLATFORM)
