@@ -39,16 +39,15 @@ kos = [
 'modprobe i2c-mux',
 'modprobe mfd-core',
 'modprobe tmp401',
-'modprobe ads7828',
 'modprobe jnx-tmc-core',
 'modprobe leds-jnx-tmc',
-'modprobe jnx-refpga-tmc',	
-'modprobe adt7470',
+'modprobe jnx-refpga-tmc',
 'modprobe i2c-tmc',
 'modprobe gpio-tmc',
 'modprobe jnx-tmc-psu',
 'modprobe jnx-psu-monitor',
-'modprobe jnx-refpga-lpcm'
+'modprobe jnx-refpga-lpcm',
+'modprobe adt7470'
 ]
 
 mknod =[   
@@ -65,7 +64,6 @@ mknod =[
 'echo adt7470 0x2C > /sys/bus/i2c/devices/i2c-7/new_device',
 'echo adt7470 0x2E > /sys/bus/i2c/devices/i2c-7/new_device',
 'echo adt7470 0x2F > /sys/bus/i2c/devices/i2c-7/new_device',
-'echo ads7830 0x4A > /sys/bus/i2c/devices/i2c-2/new_device',
 'echo jpsu    0x58 > /sys/bus/i2c/devices/i2c-3/new_device',
 'echo jpsu    0x58 > /sys/bus/i2c/devices/i2c-4/new_device',
 ] 
@@ -129,6 +127,16 @@ def do_install():
     return
     
 def main():
+
+    hwmon_input_node_mapping = ['2c','2e','2f']
+    PWM1FREQ_PATH = '/sys/bus/i2c/devices/7-00{0}/hwmon/{1}/pwm1_freq'
+    NUMSENSORS_PATH = '/sys/bus/i2c/devices/7-00{0}/hwmon/{1}/num_temp_sensors'
+    HWMONINPUT_PATH = '/sys/bus/i2c/devices/7-00{0}/hwmon/'
+    PWMINPUT_NUM = 3
+    hwmon_input_path_mapping = {}
+    pwm_input_path_mapping = {}
+    numsensors_input_path_mapping = {}
+    
 
     # Enabling REFPGA	
     EnableREFFGACmd = 'busybox devmem 0xFED50011 8 0x53' 
@@ -196,6 +204,30 @@ def main():
     except OSError:
         print 'Error: Execution of "%s" failed', EEPROMDataCmd
         return False
+
+    for x in range(PWMINPUT_NUM):
+         hwmon_input_path_mapping[x] = HWMONINPUT_PATH.format(hwmon_input_node_mapping[x])
+
+	 hwmon_path = os.listdir(hwmon_input_path_mapping[x])
+	 hwmon_dir = ''
+	 for hwmon_name in hwmon_path:
+	     hwmon_dir = hwmon_name
+	    
+	 pwm_input_path_mapping[x] = PWM1FREQ_PATH.format(
+		                                 hwmon_input_node_mapping[x],
+				                 hwmon_dir)
+         device_path = pwm_input_path_mapping[x]
+         time.sleep(1)
+         cmd = ("sudo echo 22500 > %s" %device_path)
+         os.system(cmd)
+
+	 numsensors_input_path_mapping[x] = NUMSENSORS_PATH.format(
+		                                 hwmon_input_node_mapping[x],
+				                 hwmon_dir)
+         numsensors_path = numsensors_input_path_mapping[x]
+         time.sleep(1)
+         cmd = ("sudo echo 0 > %s" %numsensors_path)
+         os.system(cmd)
 
     return True              
         

@@ -57,88 +57,84 @@ log_level = logging.DEBUG
 
 isPlatformAFI = False
 isFireThresholdReached = False
-is35PerFlag = True
-is55PerFlag = True
-is75PerFlag = True
-is90PerFlag = True
 isFireThresholdPrint = True
 FireThresholdSecsRemaining = 120
 PrevASICValue = 0
 
 temp_policy_AFI = {
-    0: [[35, 0, 30000], [35, 30000, 39000], [55, 39000, 0], [55, 39000, 48000], [75, 48000, 0], [75, 48000, 56000], [90, 56000, 0], [90, 56000, 65000],[100, 66000, 0],
+    0: [[35, 0, 30000], [35, 30000, 39000], [55, 39000, 0], [55, 39000, 48000], [75, 48000, 0], [75, 48000, 56000], [90, 56000, 0], [90, 56000, 66000],[100, 66000, 0],
          ['Yellow Alarm', 64000, 70000], ['Red Alarm', 70000, 73000], ['Fire Shut Alarm', 73000, 0]], 
 
-    1: [[35, 0, 30000], [35, 30000, 39000], [55, 39000, 0], [55, 39000, 48000], [75, 48000, 0], [75, 48000, 56000], [90, 56000, 0], [90, 56000, 65000],[100, 66000, 0],
+    1: [[35, 0, 30000], [35, 30000, 39000], [55, 39000, 0], [55, 39000, 48000], [75, 48000, 0], [75, 48000, 56000], [90, 56000, 0], [90, 56000, 66000],[100, 66000, 0],
          ['Yellow Alarm', 64000, 70000], ['Red Alarm', 70000, 73000], ['Fire Shut Alarm', 73000, 0]], 
 
-    2: [[35, 0, 40000], [35, 40000, 47000], [55, 47000, 0], [55, 47000, 55000], [75, 55000, 0], [75, 55000, 63000], [90, 62000, 0], [90, 62000, 69000],[100, 70000, 0],
+    2: [[35, 0, 40000], [35, 40000, 47000], [55, 47000, 0], [55, 47000, 55000], [75, 55000, 0], [75, 55000, 62000], [90, 62000, 0], [90, 62000, 70000],[100, 70000, 0],
          ['Yellow Alarm', 68000, 74000], ['Red Alarm', 74000, 77000], ['Fire Shut Alarm', 77000, 0]],
 
-    3: [[35, 0, 36000], [35, 36000, 44000], [55, 44000, 0], [55, 44000, 52000], [75, 52000, 0], [75, 52000, 60000], [90, 60000, 0], [90, 60000, 68000],[100, 69000, 0],
+    3: [[35, 0, 36000], [35, 36000, 44000], [55, 44000, 0], [55, 44000, 52000], [75, 52000, 0], [75, 52000, 60000], [90, 60000, 0], [90, 60000, 69000],[100, 69000, 0],
          ['Yellow Alarm', 67000, 73000], ['Red Alarm', 73000, 76000], ['Fire Shut Alarm', 76000, 0]],
 
-    4: [[35, 0, 52000], [35, 52000, 57000], [55, 57000, 0], [55, 57000, 63000], [75, 63000, 0], [75, 63000, 68000], [90, 68000, 0], [90, 68000, 73000],[100, 74000, 0],
+    4: [[35, 0, 52000], [35, 52000, 57000], [55, 57000, 0], [55, 57000, 63000], [75, 63000, 0], [75, 63000, 68000], [90, 68000, 0], [90, 68000, 74000],[100, 74000, 0],
          ['Yellow Alarm', 72000, 78000], ['Red Alarm', 78000, 81000], ['Fire Shut Alarm', 81000, 0]],
 
-    5: [[35, 0, 37000], [35, 37000, 45000], [55, 45000, 0], [55, 45000, 53000], [75, 53000, 0], [75, 53000, 61000], [90, 61000, 0], [90, 61000, 69000],[100, 70000, 0],
+    5: [[35, 0, 37000], [35, 37000, 45000], [55, 45000, 0], [55, 45000, 53000], [75, 53000, 0], [75, 53000, 61000], [90, 61000, 0], [90, 61000, 70000],[100, 70000, 0],
          ['Yellow Alarm', 68000, 74000], ['Red Alarm', 74000, 77000], ['Fire Shut Alarm', 77000, 0]],
 
-    6: [[35, 0, 37000], [35, 37000, 45000], [55, 45000, 0], [55, 45000, 53000], [75, 53000, 0], [75, 53000, 61000], [90, 61000, 0], [90, 61000, 69000],[100, 69000, 0],
+    6: [[35, 0, 37000], [35, 37000, 45000], [55, 45000, 0], [55, 45000, 53000], [75, 53000, 0], [75, 53000, 60000], [90, 60000, 0], [90, 60000, 69000],[100, 69000, 0],
          ['Yellow Alarm', 67000, 73000], ['Red Alarm', 73000, 76000], ['Fire Shut Alarm', 76000, 0]],
 
-    7: [[35, 0, 52000], [35, 52000, 57000], [55, 57000, 0], [55, 57000, 63000], [75, 63000, 0], [75, 63000, 68000], [90, 68000, 0], [90, 68000, 73000],[100, 74000, 0],
+    7: [[35, 0, 52000], [35, 52000, 57000], [55, 57000, 0], [55, 57000, 63000], [75, 63000, 0], [75, 63000, 68000], [90, 68000, 0], [90, 68000, 74000],[100, 74000, 0],
          ['Yellow Alarm', 72000, 78000], ['Red Alarm', 78000, 81000], ['Fire Shut Alarm', 81000, 0]], 
 
-    8: [[35, 0, 41000], [35, 41000, 48000], [55, 48000, 0], [55, 48000, 55000], [75, 55000, 0], [75, 55000, 62000], [90, 62000, 0], [90, 62000, 69000],[100, 70000, 0],
+    8: [[35, 0, 41000], [35, 41000, 48000], [55, 48000, 0], [55, 48000, 55000], [75, 55000, 0], [75, 55000, 62000], [90, 62000, 0], [90, 62000, 70000],[100, 70000, 0],
          ['Yellow Alarm', 68000, 74000], ['Red Alarm', 74000, 77000], ['Fire Shut Alarm', 77000, 0]], 
 
-    9: [[35, 0, 42000], [35, 42000, 49000], [55, 49000, 0], [55, 49000, 57000], [75, 57000, 0], [75, 57000, 64000], [90, 64000, 0], [90, 64000, 71000],[100, 72000, 0],
+    9: [[35, 0, 42000], [35, 42000, 49000], [55, 49000, 0], [55, 49000, 57000], [75, 57000, 0], [75, 57000, 64000], [90, 64000, 0], [90, 64000, 72000],[100, 72000, 0],
          ['Yellow Alarm', 70000, 76000], ['Red Alarm', 76000, 79000], ['Fire Shut Alarm', 79000, 0]], 
 
-    10: [[35, 0, 68000], [35, 68000, 74000], [55, 74000, 0], [55, 74000, 80000], [75, 80000, 0], [75, 80000, 85000], [90, 85000, 0], [90, 85000, 91000],[100, 92000, 0],
-         ['Yellow Alarm', 99000, 102000], ['Red Alarm', 102000, 105000], ['Fire Shut Alarm', 105000, 0]], 
+    10: [[35, 0, 42000], [35, 42000, 50000], [55, 50000, 0], [55, 50000, 58000], [75, 58000, 0], [75, 58000, 66000], [90, 66000, 0], [90, 66000, 75000],[100, 75000, 0],
+         ['Yellow Alarm', 86000, 92000], ['Red Alarm', 92000, 95000], ['Fire Shut Alarm', 95000, 0]],
 
-    11: [[35, 0, 42000], [35, 42000, 50000], [55, 50000, 0], [55, 50000, 58000], [75, 58000, 0], [75, 58000, 66000], [90, 66000, 0], [90, 66000, 74000],[100, 75000, 0],
-         ['Yellow Alarm', 86000, 92000], ['Red Alarm', 92000, 95000], ['Fire Shut Alarm', 95000, 0]], 
+    11: [[35, 0, 68000], [35, 68000, 74000], [55, 74000, 0], [55, 74000, 80000], [75, 80000, 0], [75, 80000, 85000], [90, 85000, 0], [90, 85000, 92000],[100, 92000, 0],
+         ['Yellow Alarm', 99000, 102000], ['Red Alarm', 102000, 105000], ['Fire Shut Alarm', 105000, 0]], 
     }
 
 temp_policy_AFO = {
-    0: [[35, 0, 42000], [35, 42000, 49000], [55, 49000, 0], [55, 49000, 55000], [75, 55000, 0], [75, 55000, 62000], [90, 62000, 0], [90, 62000, 68000],[100, 69000, 0],
+    0: [[35, 0, 42000], [35, 42000, 49000], [55, 49000, 0], [55, 49000, 55000], [75, 55000, 0], [75, 55000, 62000], [90, 62000, 0], [90, 62000, 69000],[100, 69000, 0],
          ['Yellow Alarm', 67000, 73000], ['Red Alarm', 73000, 76000], ['Fire Shut Alarm', 76000, 0]], 
 
-    1: [[35, 0, 41000], [35, 41000, 48000], [55, 48000, 0], [55, 48000, 55000], [75, 55000, 0], [75, 55000, 61000], [90, 61000, 0], [90, 61000, 68000],[100, 69000, 0],
+    1: [[35, 0, 41000], [35, 41000, 48000], [55, 48000, 0], [55, 48000, 55000], [75, 55000, 0], [75, 55000, 61000], [90, 61000, 0], [90, 61000, 69000],[100, 69000, 0],
          ['Yellow Alarm', 67000, 73000], ['Red Alarm', 73000, 76000], ['Fire Shut Alarm', 76000, 0]], 
 
-    2: [[35, 0, 44000], [35, 44000, 50000], [55, 50000, 0], [55, 50000, 56000], [75, 56000, 0], [75, 56000, 63000], [90, 63000, 0], [90, 63000, 69000],[100, 70000, 0],
-         ['Yellow Alarm', 64000, 70000], ['Red Alarm', 70000, 75000], ['Fire Shut Alarm', 75000, 0]],
+    2: [[35, 0, 44000], [35, 44000, 50000], [55, 50000, 0], [55, 50000, 56000], [75, 56000, 0], [75, 56000, 63000], [90, 63000, 0], [90, 63000, 70000],[100, 70000, 0],
+         ['Yellow Alarm', 68000, 74000], ['Red Alarm', 74000, 77000], ['Fire Shut Alarm', 77000, 0]],
 
-    3: [[35, 0, 36000], [35, 36000, 43000], [55, 43000, 0], [55, 43000, 50000], [75, 50000, 0], [75, 50000, 57000], [90, 57000, 0], [90, 57000, 64000],[100, 65000, 0],
+    3: [[35, 0, 36000], [35, 36000, 43000], [55, 43000, 0], [55, 43000, 50000], [75, 50000, 0], [75, 50000, 57000], [90, 57000, 0], [90, 57000, 65000],[100, 65000, 0],
          ['Yellow Alarm', 63000, 69000], ['Red Alarm', 69000, 72000], ['Fire Shut Alarm', 72000, 0]],
 
-    4: [[35, 0, 49000], [35, 49000, 54000], [55, 54000, 0], [55, 54000, 60000], [75, 60000, 0], [75, 60000, 65000], [90, 65000, 0], [90, 65000, 70000],[100, 71000, 0],
+    4: [[35, 0, 49000], [35, 49000, 54000], [55, 54000, 0], [55, 54000, 60000], [75, 60000, 0], [75, 60000, 65000], [90, 65000, 0], [90, 65000, 71000],[100, 71000, 0],
          ['Yellow Alarm', 68000, 74000], ['Red Alarm', 74000, 77000], ['Fire Shut Alarm', 77000, 0]],
 
-    5: [[35, 0, 46000], [35, 46000, 52000], [55, 52000, 0], [55, 52000, 58000], [75, 58000, 0], [75, 58000, 63000], [90, 63000, 0], [90, 63000, 69000],[100, 70000, 0],
+    5: [[35, 0, 46000], [35, 46000, 52000], [55, 52000, 0], [55, 52000, 58000], [75, 58000, 0], [75, 58000, 63000], [90, 63000, 0], [90, 63000, 70000],[100, 70000, 0],
          ['Yellow Alarm', 68000, 74000], ['Red Alarm', 74000, 77000], ['Fire Shut Alarm', 77000, 0]],
 
-    6: [[35, 0, 50000], [35, 50000, 55000], [55, 55000, 0], [55, 55000, 60000], [75, 60000, 0], [75, 60000, 65000], [90, 65000, 0], [90, 65000, 70000],[100, 71000, 0],
+    6: [[35, 0, 50000], [35, 50000, 55000], [55, 55000, 0], [55, 55000, 60000], [75, 60000, 0], [75, 60000, 65000], [90, 65000, 0], [90, 65000, 71000],[100, 71000, 0],
          ['Yellow Alarm', 65000, 71000], ['Red Alarm', 71000, 78000], ['Fire Shut Alarm', 78000, 0]],
 
-    7: [[35, 0, 49000], [35, 49000, 55000], [55, 55000, 0], [55, 55000, 60000], [75, 60000, 0], [75, 60000, 66000], [90, 66000, 0], [90, 66000, 71000],[100, 72000, 0],
+    7: [[35, 0, 49000], [35, 49000, 55000], [55, 55000, 0], [55, 55000, 60000], [75, 60000, 0], [75, 60000, 66000], [90, 66000, 0], [90, 66000, 72000],[100, 72000, 0],
          ['Yellow Alarm', 70000, 76000], ['Red Alarm', 76000, 79000], ['Fire Shut Alarm', 79000, 0]], 
 
-    8: [[35, 0, 41000], [35, 41000, 47000], [55, 47000, 0], [55, 47000, 54000], [75, 54000, 0], [75, 54000, 60000], [90, 60000, 0], [90, 60000, 66000],[100, 67000, 0],
+    8: [[35, 0, 41000], [35, 41000, 47000], [55, 47000, 0], [55, 47000, 54000], [75, 54000, 0], [75, 54000, 60000], [90, 60000, 0], [90, 60000, 67000],[100, 67000, 0],
          ['Yellow Alarm', 65000, 71000], ['Red Alarm', 71000, 74000], ['Fire Shut Alarm', 74000, 0]], 
 
-    9: [[35, 0, 57000], [35, 57000, 61000], [55, 61000, 0], [55, 61000, 66000], [75, 66000, 0], [75, 66000, 70000], [90, 70000, 0], [90, 70000, 74000],[100, 75000, 0],
+    9: [[35, 0, 57000], [35, 57000, 61000], [55, 61000, 0], [55, 61000, 66000], [75, 66000, 0], [75, 66000, 70000], [90, 70000, 0], [90, 70000, 75000],[100, 75000, 0],
          ['Yellow Alarm', 73000, 79000], ['Red Alarm', 79000, 82000], ['Fire Shut Alarm', 82000, 0]], 
 
-    10: [[35, 0, 76000], [35, 76000, 79000], [55, 79000, 0], [55, 79000, 83000], [75, 83000, 0], [75, 83000, 86000], [90, 86000, 0], [90, 86000, 89000],[100, 90000, 0],
-         ['Yellow Alarm', 99000, 102000], ['Red Alarm', 102000, 105000], ['Fire Shut Alarm', 105000, 0]], 
-
-    11: [[35, 0, 51000], [35, 51000, 58000], [55, 58000, 0], [55, 58000, 64000], [75, 64000, 0], [75, 64000, 70000], [90, 70000, 0], [90, 70000, 77000],[100, 78000, 0],
+    10: [[35, 0, 51000], [35, 51000, 58000], [55, 58000, 0], [55, 58000, 64000], [75, 64000, 0], [75, 64000, 70000], [90, 70000, 0], [90, 70000, 78000],[100, 78000, 0],
          ['Yellow Alarm', 86000, 92000], ['Red Alarm', 92000, 95000], ['Fire Shut Alarm', 95000, 0]], 
+
+    11: [[35, 0, 76000], [35, 76000, 79000], [55, 79000, 0], [55, 79000, 83000], [75, 83000, 0], [75, 83000, 86000], [90, 86000, 0], [90, 86000, 90000],[100, 90000, 0],
+         ['Yellow Alarm', 99000, 102000], ['Red Alarm', 102000, 105000], ['Fire Shut Alarm', 105000, 0]], 
     }
 
 class QFX5200_FanUtil(object):
@@ -172,30 +168,47 @@ class QFX5200_FanUtil(object):
                                                    self._hwmon_input_node_mapping[x],
                                                    hwmon_dir,
                                                    self._pwm_input_node_mapping[x])
-    def get_fan_duty_cycle(self):
+    def get_fan_dutycycle(self):
         fan_speed = {86: 35, 139: 55, 192: 75, 230: 90,255: 100}
         ret_value = 0
         for x in range(self.PWMINPUT_NUM):
 	    pwm_value = 0
+	    pwm_value1 = 0
             device_path = self._pwm_input_path_mapping[x]
             cmd = ("sudo cat %s" %(device_path))
             status, pwm_value = commands.getstatusoutput(cmd)
-	    if int(pwm_value) > 0:
+	    pwm_value1 = int(pwm_value)
+	    time.sleep(0.25)
+	    if int(pwm_value1) > 0:
 	        ret_value = fan_speed.get(int(pwm_value))
 	        break
 
         return int(ret_value)	
             
-    def set_fan_duty_cycle(self, val):
+    def set_fan_dutycycle(self, val):
         fan_speed = {35: 86, 55: 139, 75: 192, 90: 230,100: 255}
         for x in range(self.PWMINPUT_NUM):
             device_path = self._pwm_input_path_mapping[x]
             pwm_value = fan_speed.get(val)
             pwm_value1 = str(pwm_value)
-            time.sleep(1)
             cmd = ("sudo echo %s > %s" %(pwm_value1,device_path))
             os.system(cmd)
+            time.sleep(0.25)
+	logging.debug('Setting PWM value: %s to all fans', pwm_value1)
         return True
+
+    def get_check_fan_dutycycle(self):
+	pwm_str = ''    
+	for x in range(self.PWMINPUT_NUM):
+            device_path = self._pwm_input_path_mapping[x]
+            cmd = ("sudo cat %s" %(device_path))
+            status, pwm_value = commands.getstatusoutput(cmd)
+	    pwm_str += pwm_value
+            if (x != self.PWMINPUT_NUM -1):		   
+	        pwm_str += ', '
+            time.sleep(0.25)
+        logging.debug('Current PWM values set in all fans: %s', pwm_str)
+
 
 class QFX5200_ThermalUtil(object):
     """QFX5200 Platform ThermalUtil class"""
@@ -418,17 +431,31 @@ class QFX5200_ThermalUtil(object):
 
     """ Function is called periodically every 20 secs. It reads the 10 Temp sensors, 1 core Temp sensor and ASIC temp sets 
         Sensor flags accordingly. Also reads the Fan duty cycle and depending on the FAN duty cycle reading and temp sensor reading,
-        set the different parameters """
+        set the different parameters 
+
+        Below is the Sensor Mapping(Refer AFI/AFO EM Policy Specification) to the I2C devices
+
+    	/sys/bus/i2c/devices/7-0048/hwmon/hwmon*          --> Sensor# 2 
+    	/sys/bus/i2c/devices/7-0049/hwmon/hwmon*          --> Sensor# 3 
+    	/sys/bus/i2c/devices/5-0048/hwmon/hwmon*          --> Sensor# 5 
+    	/sys/bus/i2c/devices/5-0049/hwmon/hwmon*          --> Sensor# 6 
+    	/sys/bus/i2c/devices/5-004a/hwmon/hwmon*          --> Sensor# 7 
+    	/sys/bus/i2c/devices/5-004b/hwmon/hwmon*          --> Sensor# 8 
+    	/sys/bus/i2c/devices/6-0048/hwmon/hwmon*          --> Sensor# 9 
+    	/sys/bus/i2c/devices/6-0049/hwmon/hwmon*          --> Sensor# 10
+    	/sys/bus/i2c/devices/6-004a/hwmon/hwmon*          --> Sensor# 11
+    	/sys/bus/i2c/devices/6-004b/hwmon/hwmon*          --> Sensor# 12
+    """
+
     def getSensorTemp(self):
         global isPlatformAFI
-        global is35PerFlag
-        global is55PerFlag
-        global is75PerFlag
-        global is90PerFlag
         global isFireThresholdReached
         global FireThresholdSecsRemaining
         global isFireThresholdPrint 
-        global PrevASICValue 
+        global PrevASICValue
+
+        sensor_str = ''
+
         #AFI
         if (isPlatformAFI == True):
             temp_policy = temp_policy_AFI
@@ -469,18 +496,27 @@ class QFX5200_ThermalUtil(object):
             if (FireThresholdSecsRemaining == 0):
                 isFireThresholdReached == False
                 time.sleep(20)
+                logging.debug('Executing poweroff command')
                 cmd = "poweroff"
-                os.system(cmd)
+		os.system(cmd)
 
         for x in range(self.SENSOR_CORETEMP_NUM_ON_MAIN_BOARD):
+            SEN_str = 'SEN'
+
             if x < self.SENSOR_NUM_ON_MAIN_BOARD:
                 value = self._get_sensor_node_val(x)
-                logging.debug('Sensor value %d : %s', x, value)
+	        if ( x < 2):
+		   SEN_str += `x + 2`
+	        else:
+		   SEN_str += `x + 3`
+
+                sensor_str += SEN_str + ':' + str(value) + ', '
+
             elif x == self.CORETEMP_INDEX_ON_MAIN_BOARD:
                 value = self.get_coretempValue()
-                logging.debug('Main Board CORE temp: %s', value)
+	        sensor_str += 'CPU:' + str(value) + ', '
+
             else:
-                logging.debug('Reading ASIC Temp value using bcmcmd')
                 proc = subprocess.Popen("bcmcmd \"show temp\" | grep \"maximum peak temperature\" | awk '{ print $5 }' > /var/log/asic_value 2>&1 & ",shell=True)
                 time.sleep(2)
                 cmd = "kill -9 %s"%(proc.pid)
@@ -488,7 +524,6 @@ class QFX5200_ThermalUtil(object):
                 
                 if os.stat("/var/log/asic_value").st_size == 0:
                     value = PrevASICValue
-                    logging.debug('No ASIC Temp file, Prev ASIC Temp Value: %s', PrevASICValue)
                 else:
                     with open('/var/log/asic_value', 'r') as f:
                         value1 = f.readline()
@@ -496,11 +531,9 @@ class QFX5200_ThermalUtil(object):
                     value1 = value2 * 1000
                     value = int(value1)
                     PrevASICValue = value
-                    logging.debug('Reading from ASIC Temp file: %s', value)
-                    logging.debug('Reading from Prev ASIC Temp Value: %s', PrevASICValue)
-                
-                os.system('rm /var/log/asic_value')
 
+		sensor_str += 'BRCM TH:' + str(value)    
+	    	
             # 35% Duty Cycle
             if value > temp_policy[x][0][1] and value <= temp_policy[x][0][2]:
                 SensorFlag[x][0] = True
@@ -552,8 +585,9 @@ class QFX5200_ThermalUtil(object):
             elif value >= temp_policy[x][11][1]:
                 SensorFlag[x][11] = True
          
+        logging.debug('Sensor values : %s', sensor_str)
         fan = QFX5200_FanUtil()
-        # CHECK IF ANY TEMPERATURE SENSORS HAS SET FIRE SHUTDOWN FLAG
+        # CHECK IF ANY TEMPERATURE SENSORS is running at Soft shutdown temperature
         if (SensorFlag[0][11] or SensorFlag[1][11] or SensorFlag[2][11] or SensorFlag[3][11] or SensorFlag[4][11] or SensorFlag[5][11] or SensorFlag[6][11] or SensorFlag[7][11]
             or SensorFlag[8][11] or SensorFlag[9][11] or SensorFlag[10][11] or SensorFlag[11][11]):
 
@@ -564,241 +598,295 @@ class QFX5200_ThermalUtil(object):
                 os.system("echo 'CRITICAL: Fire Threshold reached: System is going to shutdown in 120 seconds' > /dev/console") 
                 isFireThresholdPrint = False
 
-            logging.debug('Temp Sensor is set to FIRE SHUTDOWN Flag')
-            fan.set_fan_duty_cycle(100)
             self.set_alarm_led_brightness(2)
+            logging.debug('Setting Red Alarm as one temp sensor is running at soft shutdown temp value')
 
-        # CHECK IF ANY TEMPERATURE SENSORS HAS SET 'RED' ALARM FLAG, IF YES, SET THE ALARM LED TO 'RED'
+        # CHECK IF ANY TEMPERATURE SENSORS is running at RED warning , IF YES, SET THE ALARM LED TO 'RED'
         elif (SensorFlag[0][10] or SensorFlag[1][10] or SensorFlag[2][10] or SensorFlag[3][10] or SensorFlag[4][10] or SensorFlag[5][10] or SensorFlag[6][10] or SensorFlag[7][10]
             or SensorFlag[8][10] or SensorFlag[9][10] or SensorFlag[10][10] or SensorFlag[11][10]):
 
-            fan.set_fan_duty_cycle(100)
-            self.set_alarm_led_brightness(2)
-            logging.debug('Temp Sensor is set to Red Alarm Flag')
             if (isFireThresholdReached == True):
-                logging.critical('CRITICAL: System Stabilized, not shutting down')
-                os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
-                FireThresholdSecsRemaining = 120
-                isFireThresholdReached = False
+                 logging.critical('CRITICAL: System Stabilized, not shutting down')
+                 os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
+                 FireThresholdSecsRemaining = 120
+                 isFireThresholdReached = False
 
-        # CHECK IF ANY TEMPERATURE SENSORS HAS SET 'YELLOW' ALARM FLAG, IF YES, SET THE ALARM LED TO 'YELLOW'
+            self.set_alarm_led_brightness(2)
+
+            logging.debug('Setting Red Alarm')
+
+        # CHECK IF ANY TEMPERATURE SENSORS is running at Yellow warning, IF YES, SET THE ALARM LED TO 'YELLOW'
         elif (SensorFlag[0][9] or SensorFlag[1][9] or SensorFlag[2][9] or SensorFlag[3][9] or SensorFlag[4][9] or SensorFlag[5][9] or SensorFlag[6][9] or SensorFlag[7][9]
             or SensorFlag[8][9] or SensorFlag[9][9] or SensorFlag[10][9] or SensorFlag[11][9]):
 
-            fan.set_fan_duty_cycle(100)
-            self.set_alarm_led_brightness(1)
-            logging.debug('Temp Sensor is set to Yellow Alarm Flag')
             if (isFireThresholdReached == True):
-                logging.critical('CRITICAL: System Stabilized, not shutting down')
-                os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
-                FireThresholdSecsRemaining = 120
-                isFireThresholdReached = False
+                 logging.critical('CRITICAL: System Stabilized, not shutting down')
+                 os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
+                 FireThresholdSecsRemaining = 120
+                 isFireThresholdReached = False
 
-        #CHECK IF ANY TEMPERATURE SENSORS HAS SET 100% DUTY CYCLE FLAG, IF YES, SET THE FAN DUTY CYCLE TO 100%
-        elif (SensorFlag[0][8] or SensorFlag[1][8] or SensorFlag[2][8] or SensorFlag[3][8] or SensorFlag[4][8] or SensorFlag[5][8] or SensorFlag[6][8] or SensorFlag[7][8]
-            or SensorFlag[8][8] or SensorFlag[9][8] or SensorFlag[10][8] or SensorFlag[11][8]):
-            
-	    if (fan.get_fan_duty_cycle < 100):
-                fan.set_fan_duty_cycle(100)
-            elif (fan.get_fan_duty_cycle == 100):
-		pass    
-	    else:
-                pass
+            self.set_alarm_led_brightness(1)
+            logging.debug('Setting Yellow Alarm')
 
+	else:
             value = self.get_alarm_led_brightness()
-            if ( value > 0):
-                self.set_alarm_led_brightness(0)
+	    if ( value == 2):
+                logging.debug('Clearing Red Alarm')
+	    elif ( value == 1):
+                logging.debug('Clearing Yellow Alarm')
+            
+            self.set_alarm_led_brightness(0)
 
-            logging.debug('Temp Sensor is set to 100% Duty Cycle Flag')
+        #CHECK IF ANY TEMPERATURE SENSORS HAS SET 100% DUTY CYCLE FLAG
+        if (SensorFlag[0][8] or SensorFlag[1][8] or SensorFlag[2][8] or SensorFlag[3][8] or SensorFlag[4][8] or SensorFlag[5][8] or SensorFlag[6][8] or SensorFlag[7][8]
+            or SensorFlag[8][8] or SensorFlag[9][8] or SensorFlag[10][8] or SensorFlag[11][8]):
 
-        # CHECK IF ANY TEMPERATURE SENSORS HAS SET 90% PREV DUTY CYCLE FLAG, IF YES, SET THE FAN DUTY CYCLE TO 90%
+            if (isFireThresholdReached == True):
+                if (SensorFlag[0][11] or SensorFlag[1][11] or SensorFlag[2][11] or SensorFlag[3][11] or SensorFlag[4][11] or SensorFlag[5][11] or SensorFlag[6][11] or SensorFlag[7][11]
+                    or SensorFlag[8][11] or SensorFlag[9][11] or SensorFlag[10][11] or SensorFlag[11][11]):
+			pass
+		else:	
+                    logging.critical('CRITICAL: System Stabilized, not shutting down')
+                    os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
+                    FireThresholdSecsRemaining = 120
+                    isFireThresholdReached = False
+
+            fan.get_check_fan_dutycycle()
+	    if (fan.get_fan_dutycycle() < 100):
+		time.sleep(0.50)
+                fan.set_fan_dutycycle(100)
+
+            logging.debug('Fan set to 100% dutycycle')
+        # CHECK IF ANY TEMPERATURE SENSORS HAS SET 90% PREV DUTY CYCLE FLAG
         elif (SensorFlag[0][7] or SensorFlag[1][7] or SensorFlag[2][7] or SensorFlag[3][7] or SensorFlag[4][7] or SensorFlag[5][7] or SensorFlag[6][7] or SensorFlag[7][7]
             or SensorFlag[8][7] or SensorFlag[9][7] or SensorFlag[10][7] or SensorFlag[11][7]):
 
-            if (is90PerFlag == True):
-                fan.set_fan_duty_cycle(90)
-                is90PerFlag = False
-            else:
-                pass
-
-            value = self.get_alarm_led_brightness()
-            if ( value > 0):
-                self.set_alarm_led_brightness(0)
-
             if (isFireThresholdReached == True):
-                logging.critical('CRITICAL: System Stabilized, not shutting down')
-                os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
-                FireThresholdSecsRemaining = 120
+                if (SensorFlag[0][11] or SensorFlag[1][11] or SensorFlag[2][11] or SensorFlag[3][11] or SensorFlag[4][11] or SensorFlag[5][11] or SensorFlag[6][11] or SensorFlag[7][11]
+                    or SensorFlag[8][11] or SensorFlag[9][11] or SensorFlag[10][11] or SensorFlag[11][11]):
+			pass
+		else:	
+                    logging.critical('CRITICAL: System Stabilized, not shutting down')
+                    os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
+                    FireThresholdSecsRemaining = 120
+                    isFireThresholdReached = False
 
-            logging.debug('Temp Sensor is set to 90% Prev Duty Cycle Flag')
+	    fan.get_check_fan_dutycycle()
 
-        # CHECK IF ANY TEMPERATURE SENSORS HAS SET 90% DUTY CYCLE FLAG, IF YES, SET THE FAN DUTY CYCLE TO 90%
+	    if (fan.get_fan_dutycycle() == 100):
+                logging.debug('Fan set to 100% dutycycle')
+	    elif (fan.get_fan_dutycycle() != 90):
+		time.sleep(0.25)
+                fan.set_fan_dutycycle(90)
+                logging.debug('Fan set to 90% dutycycle')
+	    else:
+                logging.debug('Fan set to 90% dutycycle')
+
+        # CHECK IF ANY TEMPERATURE SENSORS HAS SET 90% DUTY CYCLE FLAG
         elif (SensorFlag[0][6] or SensorFlag[1][6] or SensorFlag[2][6] or SensorFlag[3][6] or SensorFlag[4][6] or SensorFlag[5][6] or SensorFlag[6][6] or SensorFlag[7][6]
             or SensorFlag[8][6] or SensorFlag[9][6] or SensorFlag[10][6] or SensorFlag[11][6]):
 
-	    if (fan.get_fan_duty_cycle < 90):
-                fan.set_fan_duty_cycle(90)
-            elif (fan.get_fan_duty_cycle > 90):
-                if (SensorFlag[0][6] and SensorFlag[1][6] and SensorFlag[2][6] and SensorFlag[3][6] and SensorFlag[4][6] and SensorFlag[5][6] and SensorFlag[6][6] and SensorFlag[7][6]
-            	    and SensorFlag[8][6] and SensorFlag[9][6] and SensorFlag[10][6] and SensorFlag[11][6]):
-
-                    fan.set_fan_duty_cycle(90)
-	    else:
-                pass
-
-            value = self.get_alarm_led_brightness()
-            if ( value > 0):
-                self.set_alarm_led_brightness(0)
-
-            is90PerFlag = True
-
             if (isFireThresholdReached == True):
-                logging.critical('CRITICAL: System Stabilized, not shutting down')
-                os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
-                FireThresholdSecsRemaining = 120
-                isFireThresholdReached = False
+                if (SensorFlag[0][11] or SensorFlag[1][11] or SensorFlag[2][11] or SensorFlag[3][11] or SensorFlag[4][11] or SensorFlag[5][11] or SensorFlag[6][11] or SensorFlag[7][11]
+                    or SensorFlag[8][11] or SensorFlag[9][11] or SensorFlag[10][11] or SensorFlag[11][11]):
+			pass
+		else:	
+                    logging.critical('CRITICAL: System Stabilized, not shutting down')
+		    os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
+                    FireThresholdSecsRemaining = 120
+                    isFireThresholdReached = False
 
-            logging.debug('Temp Sensor is set to 90% Duty Cycle Flag')
+	    fan.get_check_fan_dutycycle()
 
-        # CHECK IF ANY TEMPERATURE SENSORS HAS SET 75% PREV DUTY CYCLE FLAG, IF YES, SET THE FAN DUTY CYCLE TO 75%
+	    if (fan.get_fan_dutycycle() < 90):
+		time.sleep(0.25)
+                fan.set_fan_dutycycle(90)
+                logging.debug('Fan set to 90% dutycycle')
+	    elif (fan.get_fan_dutycycle() == 90):
+                logging.debug('Fan set to 90% dutycycle')
+	    else:
+		time.sleep(0.25)
+                fan.set_fan_dutycycle(90)
+                logging.debug('Fan set to 90% dutycycle')
+
+        # CHECK IF ANY TEMPERATURE SENSORS HAS SET 75% PREV DUTY CYCLE FLAG
         elif (SensorFlag[0][5] or SensorFlag[1][5] or SensorFlag[2][5] or SensorFlag[3][5] or SensorFlag[4][5] or SensorFlag[5][5] or SensorFlag[6][5] or SensorFlag[7][5]
             or SensorFlag[8][5] or SensorFlag[9][5] or SensorFlag[10][5] or SensorFlag[11][5]):
 
-            if (is75PerFlag == True):
-                fan.set_fan_duty_cycle(75)
-                is75PerFlag = False
-            else:
-                pass
-
-            value = self.get_alarm_led_brightness()
-            if ( value > 0):
-                self.set_alarm_led_brightness(0)
-
             if (isFireThresholdReached == True):
-                logging.critical('CRITICAL: System Stabilized, not shutting down')
-                os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
-                FireThresholdSecsRemaining = 120
-                isFireThresholdReached = False
+                if (SensorFlag[0][11] or SensorFlag[1][11] or SensorFlag[2][11] or SensorFlag[3][11] or SensorFlag[4][11] or SensorFlag[5][11] or SensorFlag[6][11] or SensorFlag[7][11]
+                    or SensorFlag[8][11] or SensorFlag[9][11] or SensorFlag[10][11] or SensorFlag[11][11]):
+			pass
+		else:	
+                    logging.critical('CRITICAL: System Stabilized, not shutting down')
+                    os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
+                    FireThresholdSecsRemaining = 120
+                    isFireThresholdReached = False
 
-            logging.debug('Temp Sensor is set to 75% Prev Duty Cycle Flag')
-   
-        # CHECK IF ANY TEMPERATURE SENSORS HAS SET 75% DUTY CYCLE FLAG, IF YES, SET THE FAN DUTY CYCLE TO 75%
+            fan.get_check_fan_dutycycle()
+
+	    if (fan.get_fan_dutycycle() > 75):
+	        if (fan.get_fan_dutycycle() == 100):
+		    time.sleep(0.25)
+                    fan.set_fan_dutycycle(90)
+                    logging.debug('Fan set to 90% dutycycle')
+		else:
+                    logging.debug('Fan set to 90% dutycycle')
+	    elif (fan.get_fan_dutycycle() != 75):
+		time.sleep(0.25)
+                fan.set_fan_dutycycle(75)
+                logging.debug('Fan set to 75% dutycycle')
+	    else:
+                logging.debug('Fan set to 75% dutycycle')
+
+        # CHECK IF ANY TEMPERATURE SENSORS HAS SET 75% DUTY CYCLE FLAG
         elif (SensorFlag[0][4] or SensorFlag[1][4] or SensorFlag[2][4] or SensorFlag[3][4] or SensorFlag[4][4] or SensorFlag[5][4] or SensorFlag[6][4] or SensorFlag[7][4]
             or SensorFlag[8][4] or SensorFlag[9][4] or SensorFlag[10][4] or SensorFlag[11][4]):
             
-	    if (fan.get_fan_duty_cycle < 75):
-                fan.set_fan_duty_cycle(75)
-            elif (fan.get_fan_duty_cycle > 75):
-                if (SensorFlag[0][4] and SensorFlag[1][4] and SensorFlag[2][4] and SensorFlag[3][4] and SensorFlag[4][4] and SensorFlag[5][4] and SensorFlag[6][4] and SensorFlag[7][4]
-            	    and SensorFlag[8][4] and SensorFlag[9][4] and SensorFlag[10][4] and SensorFlag[11][4]):
+            if (isFireThresholdReached == True):
+                if (SensorFlag[0][11] or SensorFlag[1][11] or SensorFlag[2][11] or SensorFlag[3][11] or SensorFlag[4][11] or SensorFlag[5][11] or SensorFlag[6][11] or SensorFlag[7][11]
+                    or SensorFlag[8][11] or SensorFlag[9][11] or SensorFlag[10][11] or SensorFlag[11][11]):
+			pass
+		else:	
+                    logging.critical('CRITICAL: System Stabilized, not shutting down')
+                    os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
+                    FireThresholdSecsRemaining = 120
+                    isFireThresholdReached = False
 
-                    fan.set_fan_duty_cycle(75)
+	    fan.get_check_fan_dutycycle()    
+	    if (fan.get_fan_dutycycle() < 75):
+		time.sleep(0.25)
+                fan.set_fan_dutycycle(75)
+                logging.debug('Fan set to 75% dutycycle')
+
+	    elif (fan.get_fan_dutycycle() == 75):
+                logging.debug('Fan set to 75% dutycycle')
+
 	    else:
-                pass
+		time.sleep(0.25)
+                fan.set_fan_dutycycle(75)
+                logging.debug('Fan set to 75% dutycycle')
 
-            value = self.get_alarm_led_brightness()
-            if ( value > 0):
-                self.set_alarm_led_brightness(0)
 
-            is75PerFlag = True
-
-            logging.debug('Temp Sensor is set to 75% Duty Cycle Flag')
-
-        # CHECK IF ANY TEMPERATURE SENSORS HAS SET 55% DUTY CYCLE PREV FLAG, IF YES, SET THE FAN DUTY CYCLE TO 55%
+        # CHECK IF ANY TEMPERATURE SENSORS HAS SET 55% DUTY CYCLE PREV FLAG
         elif (SensorFlag[0][3] or SensorFlag[1][3] or SensorFlag[2][3] or SensorFlag[3][3] or SensorFlag[4][3] or SensorFlag[5][3] or SensorFlag[6][3] or SensorFlag[7][3]
             or SensorFlag[8][3] or SensorFlag[9][3] or SensorFlag[10][3] or SensorFlag[11][3]):
 
-            if (is55PerFlag == True):
-                fan.set_fan_duty_cycle(55)
-                is55PerFlag = False
-            else:
-                pass
-
-            value = self.get_alarm_led_brightness()
-            if ( value > 0):
-                self.set_alarm_led_brightness(0)
-
             if (isFireThresholdReached == True):
-                logging.critical('CRITICAL: System Stabilized, not shutting down')
-                os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
-                FireThresholdSecsRemaining = 120
-                isFireThresholdReached = False
-            logging.debug('Temp Sensor is set to 55% Prev Duty Cycle Flag')
+                if (SensorFlag[0][11] or SensorFlag[1][11] or SensorFlag[2][11] or SensorFlag[3][11] or SensorFlag[4][11] or SensorFlag[5][11] or SensorFlag[6][11] or SensorFlag[7][11]
+                    or SensorFlag[8][11] or SensorFlag[9][11] or SensorFlag[10][11] or SensorFlag[11][11]):
+			pass
+		else:	
+                    logging.critical('CRITICAL: System Stabilized, not shutting down')
+                    os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
+                    FireThresholdSecsRemaining = 120
+                    isFireThresholdReached = False
 
-        # CHECK IF ANY TEMPERATURE SENSORS HAS SET 55% DUTY CYCLE FLAG, IF YES, SET THE FAN DUTY CYCLE TO 55%
+            fan.get_check_fan_dutycycle()
+
+	    if (fan.get_fan_dutycycle() > 55):
+	        if (fan.get_fan_dutycycle() == 100):
+		    time.sleep(0.25)
+                    fan.set_fan_dutycycle(90)
+                    logging.debug('Fan set to 90% dutycycle')
+	        elif (fan.get_fan_dutycycle() == 90):
+		    time.sleep(0.25)
+                    fan.set_fan_dutycycle(75)
+                    logging.debug('Fan set to 75% dutycycle')
+		else:
+                    logging.debug('Fan set to 75% dutycycle')
+	    elif (fan.get_fan_dutycycle() != 55):
+		time.sleep(0.25)
+                fan.set_fan_dutycycle(55)
+                logging.debug('Fan set to 55% dutycycle')
+	    else:
+                logging.debug('Fan set to 55% dutycycle')
+
+
+        # CHECK IF ANY TEMPERATURE SENSORS HAS SET 55% DUTY CYCLE FLAG
         elif (SensorFlag[0][2] or SensorFlag[1][2] or SensorFlag[2][2] or SensorFlag[3][2] or SensorFlag[4][2] or SensorFlag[5][2] or SensorFlag[6][2] or SensorFlag[7][2]
             or SensorFlag[8][2] or SensorFlag[9][2] or SensorFlag[10][2] or SensorFlag[11][2]):
-	    if (fan.get_fan_duty_cycle < 55):
-                fan.set_fan_duty_cycle(55)
-            elif (fan.get_fan_duty_cycle > 55):
-                if (SensorFlag[0][2] and SensorFlag[1][2] and SensorFlag[2][2] and SensorFlag[3][2] and SensorFlag[4][2] and SensorFlag[5][2] and SensorFlag[6][2] and SensorFlag[7][2]
-            	    and SensorFlag[8][6] and SensorFlag[9][6] and SensorFlag[10][6] and SensorFlag[11][6]):
-
-                    fan.set_fan_duty_cycle(55)
-	    else:
-                pass
-
-            value = self.get_alarm_led_brightness()
-            if ( value > 0):
-                self.set_alarm_led_brightness(0)
-
-            is55PerFlag = True
 
             if (isFireThresholdReached == True):
-                logging.critical('CRITICAL: System Stabilized, not shutting down')
-                os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
-                FireThresholdSecsRemaining = 120
-                isFireThresholdReached = False
+                if (SensorFlag[0][11] or SensorFlag[1][11] or SensorFlag[2][11] or SensorFlag[3][11] or SensorFlag[4][11] or SensorFlag[5][11] or SensorFlag[6][11] or SensorFlag[7][11]
+                    or SensorFlag[8][11] or SensorFlag[9][11] or SensorFlag[10][11] or SensorFlag[11][11]):
+			pass
+		else:	
+                    logging.critical('CRITICAL: System Stabilized, not shutting down')
+                    os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
+                    FireThresholdSecsRemaining = 120
+                    isFireThresholdReached = False
 
-            logging.debug('Temp Sensor is set to 55% Duty Cycle Flag')
+	    fan.get_check_fan_dutycycle()
 
-        # CHECK IF ANY TEMPERATURE SENSORS HAS SET 35% PREV DUTY CYCLE FLAG, IF YES, SET THE FAN DUTY CYCLE TO 35%
+	    if (fan.get_fan_dutycycle() < 55):
+		time.sleep(0.25)
+                fan.set_fan_dutycycle(55)
+                logging.debug('Fan set to 55% dutycycle')
+	    elif (fan.get_fan_dutycycle() == 55):
+                logging.debug('Fan set to 55% dutycycle')
+	    else:
+		time.sleep(0.25)
+                fan.set_fan_dutycycle(55)
+                logging.debug('Fan set to 55% dutycycle')
+
+        # CHECK IF ANY TEMPERATURE SENSORS HAS SET 35% PREV DUTY CYCLE FLAG
         elif (SensorFlag[0][1] or SensorFlag[1][1] or SensorFlag[2][1] or SensorFlag[3][1] or SensorFlag[4][1] or SensorFlag[5][1] or SensorFlag[6][1] or SensorFlag[7][1] 
             or SensorFlag[8][1] or SensorFlag[9][1] or SensorFlag[10][1] or SensorFlag[11][1]):
 	        
-            if (is35PerFlag == True):
-                fan.set_fan_duty_cycle(35)
-                is35PerFlag = False
-            else:
-                pass
- 
-            value = self.get_alarm_led_brightness()
-            if ( value > 0):
-                self.set_alarm_led_brightness(0)
-
             if (isFireThresholdReached == True):
-                logging.critical('CRITICAL: System Stabilized, not shutting down')
-                os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
-                FireThresholdSecsRemaining = 120
-                isFireThresholdReached = False
 
-            logging.debug('Temp Sensor is set to 35% Prev Duty Cycle Flag')
+                if (SensorFlag[0][11] or SensorFlag[1][11] or SensorFlag[2][11] or SensorFlag[3][11] or SensorFlag[4][11] or SensorFlag[5][11] or SensorFlag[6][11] or SensorFlag[7][11]
+                    or SensorFlag[8][11] or SensorFlag[9][11] or SensorFlag[10][11] or SensorFlag[11][11]):
+			pass
+		else:	
+                    logging.critical('CRITICAL: System Stabilized, not shutting down')
+                    os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
+                    FireThresholdSecsRemaining = 120
+                    isFireThresholdReached = False
 
-        # CHECK IF ANY TEMPERATURE SENSORS HAS SET 35% DUTY CYCLE FLAG, IF YES, SET THE FAN DUTY CYCLE TO 35%
+	    fan.get_check_fan_dutycycle()
+
+	    if (fan.get_fan_dutycycle() > 35):
+	        if (fan.get_fan_dutycycle() == 100):
+		    time.sleep(0.25)
+                    fan.set_fan_dutycycle(90)
+                    logging.debug('Fan set to 90% dutycycle')
+	        elif (fan.get_fan_dutycycle() == 90):
+		    time.sleep(0.25)
+                    fan.set_fan_dutycycle(75)
+                    logging.debug('Fan set to 75% dutycycle')
+	        elif (fan.get_fan_dutycycle() == 75):
+		    time.sleep(0.25)
+                    fan.set_fan_dutycycle(55)
+                    logging.debug('Fan set to 55% dutycycle')
+		else:
+                    logging.debug('Fan set to 55% dutycycle')
+	    elif (fan.get_fan_dutycycle() == 35):
+                    logging.debug('Fan set to 35% dutycycle')
+
+        # CHECK IF ANY TEMPERATURE SENSORS HAS SET 35% DUTY CYCLE FLAG
         elif (SensorFlag[0][0] or SensorFlag[1][0] or SensorFlag[2][0] or SensorFlag[3][0] or SensorFlag[4][0] or SensorFlag[5][0] or SensorFlag[6][0] or SensorFlag[7][0] 
 	    or SensorFlag[8][0] or SensorFlag[9][0] or SensorFlag[10][0] or SensorFlag[11][0]):
 
-	    if (fan.get_fan_duty_cycle == 35):
-                fan.set_fan_duty_cycle(35)
-            elif (fan.get_fan_duty_cycle > 35):
-                if (SensorFlag[0][0] and SensorFlag[1][0] and SensorFlag[2][0] and SensorFlag[3][0] and SensorFlag[4][0] and SensorFlag[5][0] and SensorFlag[6][0] and SensorFlag[7][0]
-            		and SensorFlag[8][0] and SensorFlag[9][0] and SensorFlag[10][0] and SensorFlag[11][0]):
-                    fan.set_fan_duty_cycle(35)
-	    else:
-                pass
-
-            value = self.get_alarm_led_brightness()
-            if ( value > 0):
-                self.set_alarm_led_brightness(0)
-
-            is35PerFlag = True
-
             if (isFireThresholdReached == True):
-                logging.critical('CRITICAL: System Stabilized, not shutting down')
-                os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
-                FireThresholdSecsRemaining = 120
-                isFireThresholdReached = False
-            logging.debug('Temp Sensor is set to 35% Duty Cycle Flag')
+                
+		if (SensorFlag[0][11] or SensorFlag[1][11] or SensorFlag[2][11] or SensorFlag[3][11] or SensorFlag[4][11] or SensorFlag[5][11] or SensorFlag[6][11] or SensorFlag[7][11]
+                    or SensorFlag[8][11] or SensorFlag[9][11] or SensorFlag[10][11] or SensorFlag[11][11]):
+			pass
+		else:	
+                    logging.critical('CRITICAL: System Stabilized, not shutting down')
+                    os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
+                    FireThresholdSecsRemaining = 120
+                    isFireThresholdReached = False
+
+            fan.get_check_fan_dutycycle()
+
+            if (fan.get_fan_dutycycle() > 35):
+		time.sleep(0.25)
+                fan.set_fan_dutycycle(35)
+
+            logging.debug('Fan set to 35% dutycycle')
 
         else:
             pass
@@ -813,9 +901,10 @@ class device_monitor(object):
     
     MASTER_LED_PATH = '/sys/class/leds/master/brightness'
     SYSTEM_LED_PATH = '/sys/class/leds/system/brightness'
-
+    
     PWMINPUT_PATH = '/sys/bus/i2c/devices/7-00{0}/hwmon/{1}/pwm{2}'
     HWMONINPUT_PATH = '/sys/bus/i2c/devices/7-00{0}/hwmon/'
+
     PWMINPUT_NUM = 10
     _pwm_input_path_mapping = {}
     _hwmon_input_path_mapping = {}
@@ -897,21 +986,36 @@ class device_monitor(object):
             logging.error('device_monitor: unable to open System LED file: %s', str(e))
 
         systemLED_file.write(str(system_led_value))
-        systemLED_file.close() 
-	self.set_DefaultFAN_duty_cycle(35)
+        systemLED_file.close()
+        self.get_Initial_fan_dutycycle()	
+	self.set_Default_fan_dutycycle(35)
 
 
-    def set_DefaultFAN_duty_cycle(self, val):
+    def set_Default_fan_dutycycle(self, val):
         fan_speed = {35: 86, 55: 139, 75: 192, 90: 230,100: 255}
         for x in range(self.PWMINPUT_NUM):
             device_path = self._pwm_input_path_mapping[x]
             pwm_value = fan_speed.get(val)
             pwm_value1 = str(pwm_value)
-            time.sleep(1)
+            time.sleep(0.25)
             cmd = ("sudo echo %s > %s" %(pwm_value1,device_path))
             os.system(cmd)
 
+	logging.debug('Setting Default PWM value: 86 to all fans')
 	return True
+
+    def get_Initial_fan_dutycycle(self):
+	pwm_str = ''    
+	for x in range(self.PWMINPUT_NUM):
+            device_path = self._pwm_input_path_mapping[x]
+            cmd = ("sudo cat %s" %(device_path))
+            status, pwm_value = commands.getstatusoutput(cmd)
+	    pwm_str += pwm_value
+            if (x != self.PWMINPUT_NUM -1):		   
+	        pwm_str += ', '
+            time.sleep(0.25)
+	logging.debug('Initial PWM values read: %s', pwm_str) 
+        return True
 
     def manage_device(self):
         thermal = QFX5200_ThermalUtil()
