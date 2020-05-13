@@ -13,24 +13,17 @@ import subprocess
 
 try:
     from sonic_platform_base.fan_base import FanBase
+    from .led import FanLed, ComponentFaultyIndicator
 except ImportError as e:
     raise ImportError (str(e) + "- required module not found")
-
-LED_ON = '1'
-LED_OFF = '0'
 
 PWM_MAX = 255
 
 FAN_PATH = "/var/run/hw-management/thermal/"
-LED_PATH = "/var/run/hw-management/led/"
 CONFIG_PATH = "/var/run/hw-management/config"
 # fan_dir isn't supported on Spectrum 1. It is supported on Spectrum 2 and later switches
 FAN_DIR = "/var/run/hw-management/system/fan_dir"
 COOLING_STATE_PATH = "/var/run/hw-management/thermal/cooling_cur_state"
-
-# Platforms with unplugable FANs:
-# 1. don't have fanX_status and should be treated as always present
-platform_with_unplugable_fan = ['x86_64-mlnx_msn2010-r0', 'x86_64-mlnx_msn2100-r0']
 
 
 class Fan(FanBase):
@@ -44,21 +37,28 @@ class Fan(FanBase):
     PSU_FAN_SPEED = ['0x3c', '0x3c', '0x3c', '0x3c', '0x3c',
                      '0x3c', '0x3c', '0x46', '0x50', '0x5a', '0x64']
 
-    def __init__(self, has_fan_dir, fan_index, drawer_index = 1, psu_fan = False, platform = None):
+    def __init__(self, fan_index, fan_drawer, psu_fan = False):
+        super(Fan, self).__init__()
+    
         # API index is starting from 0, Mellanox platform index is starting from 1
         self.index = fan_index + 1
-        self.drawer_index = drawer_index + 1
+        self.fan_drawer = fan_drawer
 
         self.is_psu_fan = psu_fan
-        self.always_presence = False if platform not in platform_with_unplugable_fan else True
+        if self.fan_drawer:
+            self.led = ComponentFaultyIndicator(self.fan_drawer.get_led())
+        elif self.is_psu_fan:
+            from .psu import Psu
+            self.led = ComponentFaultyIndicator(Psu.get_shared_led())
+        else:
+            self.led = FanLed(self.index)
 
         self.fan_min_speed_path = "fan{}_min".format(self.index)
         if not self.is_psu_fan:
             self.fan_speed_get_path = "fan{}_speed_get".format(self.index)
             self.fan_speed_set_path = "fan{}_speed_set".format(self.index)
-            self.fan_presence_path = "fan{}_status".format(self.drawer_index)
             self.fan_max_speed_path = "fan{}_max".format(self.index)
-            self._name = "fan{}".format(fan_index + 1)
+            self._name = "fan{}".format(self.index)
         else:
             self.fan_speed_get_path = "psu{}_fan1_speed_get".format(self.index)
             self.fan_presence_path = "psu{}_fan1_speed_get".format(self.index)
@@ -69,15 +69,7 @@ class Fan(FanBase):
             self.psu_i2c_command_path = os.path.join(CONFIG_PATH, 'fan_command')
 
         self.fan_status_path = "fan{}_fault".format(self.index)
-        self.fan_green_led_path = "led_fan{}_green".format(self.drawer_index)
-        self.fan_red_led_path = "led_fan{}_red".format(self.drawer_index)
-        self.fan_orange_led_path = "led_fan{}_orange".format(self.drawer_index)
         self.fan_pwm_path = "pwm1"
-        self.fan_led_cap_path = "led_fan{}_capability".format(self.drawer_index)
-        if has_fan_dir:
-            self.fan_dir = FAN_DIR
-        else:
-            self.fan_dir = None
 
 
     def get_direction(self):
@@ -99,20 +91,10 @@ class Fan(FanBase):
                 1 stands for forward, in other words intake
                 0 stands for reverse, in other words exhaust
         """
-        if not self.fan_dir or self.is_psu_fan or not self.get_presence():
+        if self.is_psu_fan:
             return self.FAN_DIRECTION_NOT_APPLICABLE
-
-        try:
-            with open(os.path.join(self.fan_dir), 'r') as fan_dir:
-                fan_dir_bits = int(fan_dir.read().strip())
-                fan_mask = 1 << self.drawer_index - 1
-                if fan_dir_bits & fan_mask:
-                    return self.FAN_DIRECTION_INTAKE
-                else:
-                    return self.FAN_DIRECTION_EXHAUST
-        except (ValueError, IOError) as e:
-            raise RuntimeError("Failed to read fan direction status to {}".format(repr(e)))
-
+        else:
+            return self.fan_drawer.get_direction()
 
     def get_name(self):
         return self._name
@@ -150,17 +132,9 @@ class Fan(FanBase):
                 status = 1
             else:
                 status = 0
+            return status == 1
         else:
-            if self.always_presence:
-                status = 1
-            else:
-                try:
-                    with open(os.path.join(FAN_PATH, self.fan_presence_path), 'r') as presence_status:
-                        status = int(presence_status.read().strip())
-                except (ValueError, IOError):
-                    status = 0
-
-        return status == 1
+            return self.fan_drawer.get_presence()
 
 
     def _get_min_speed_in_rpm(self):
@@ -281,18 +255,6 @@ class Fan(FanBase):
         return status
 
 
-    def _get_led_capability(self):
-        cap_list = None
-        try:
-            with open(os.path.join(LED_PATH, self.fan_led_cap_path), 'r') as fan_led_cap:
-                    caps = fan_led_cap.read()
-                    cap_list = caps.split()
-        except (ValueError, IOError):
-            status = 0
-        
-        return cap_list
-
-
     def set_status_led(self, color):
         """
         Set led to expected color
@@ -304,48 +266,7 @@ class Fan(FanBase):
         Returns:
             bool: True if set success, False if fail. 
         """
-        led_cap_list = self._get_led_capability()
-        if led_cap_list is None:
-            return False
-
-        if self.is_psu_fan:
-            # PSU fan led status is not able to set
-            return False
-        status = False
-        try:
-            if color == self.STATUS_LED_COLOR_GREEN:
-                with open(os.path.join(LED_PATH, self.fan_green_led_path), 'w') as fan_led:
-                    fan_led.write(LED_ON)
-                    status = True
-            elif color == self.STATUS_LED_COLOR_RED:
-                # Some fan don't support red led but support orange led, in this case we set led to orange
-                if self.STATUS_LED_COLOR_RED in led_cap_list:
-                    led_path = os.path.join(LED_PATH, self.fan_red_led_path)
-                elif self.STATUS_LED_COLOR_ORANGE in led_cap_list:
-                    led_path = os.path.join(LED_PATH, self.fan_orange_led_path)
-                else:
-                    return False
-                with open(led_path, 'w') as fan_led:
-                    fan_led.write(LED_ON)
-                    status = True
-            elif color == self.STATUS_LED_COLOR_OFF:
-                if self.STATUS_LED_COLOR_GREEN in led_cap_list:
-                    with open(os.path.join(LED_PATH, self.fan_green_led_path), 'w') as fan_led:
-                        fan_led.write(str(LED_OFF))
-                if self.STATUS_LED_COLOR_RED in led_cap_list:
-                    with open(os.path.join(LED_PATH, self.fan_red_led_path), 'w') as fan_led:
-                        fan_led.write(str(LED_OFF))
-                if self.STATUS_LED_COLOR_ORANGE in led_cap_list:
-                    with open(os.path.join(LED_PATH, self.fan_orange_led_path), 'w') as fan_led:
-                        fan_led.write(str(LED_OFF))
-
-                status = True
-            else:
-                status = False
-        except (ValueError, IOError):
-            status = False
-
-        return status
+        return self.led.set_status(color)
 
 
     def get_status_led(self):
@@ -355,26 +276,7 @@ class Fan(FanBase):
         Returns:
             A string, one of the predefined STATUS_LED_COLOR_* strings above
         """
-        led_cap_list = self._get_led_capability()
-        if led_cap_list is None:
-            return self.STATUS_LED_COLOR_OFF
-
-        try:
-            with open(os.path.join(LED_PATH, self.fan_green_led_path), 'r') as fan_led:
-                if LED_OFF != fan_led.read().rstrip('\n'):
-                    return self.STATUS_LED_COLOR_GREEN
-            if self.STATUS_LED_COLOR_RED in led_cap_list:
-                with open(os.path.join(LED_PATH, self.fan_red_led_path), 'r') as fan_led:
-                    if LED_OFF != fan_led.read().rstrip('\n'):
-                        return self.STATUS_LED_COLOR_RED
-            if self.STATUS_LED_COLOR_ORANGE in led_cap_list:
-                with open(os.path.join(LED_PATH, self.fan_orange_led_path), 'r') as fan_led:
-                    if LED_OFF != fan_led.read().rstrip('\n'):
-                        return self.STATUS_LED_COLOR_RED
-        except (ValueError, IOError) as e:
-            raise RuntimeError("Failed to read led status for fan {} due to {}".format(self.index, repr(e)))
-
-        return self.STATUS_LED_COLOR_OFF
+        return self.led.get_status()
 
 
     def get_speed_tolerance(self):
