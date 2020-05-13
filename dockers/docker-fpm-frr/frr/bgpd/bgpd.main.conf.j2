@@ -62,7 +62,7 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
 {% endblock vlan_advertisement %}
 !
 !
-{% if DEVICE_METADATA['localhost']['sub_role'] == 'BackEnd' %}
+{% if DEVICE_METADATA['localhost']['sub_role'] == 'FrontEnd' %}
   redistribute connected route-map HIDE_INTERNAL
 {% endif %}
 !
