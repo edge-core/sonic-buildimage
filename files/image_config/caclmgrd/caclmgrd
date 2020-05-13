@@ -44,6 +44,15 @@ def log_error(msg):
     syslog.syslog(syslog.LOG_ERR, msg)
     syslog.closelog()
 
+# ========================== Helper Functions =========================
+
+def _ip_prefix_in_key(key):
+    """
+    Function to check if IP prefix is present in a Redis database key.
+    If it is present, then the key will be a tuple. Otherwise, the
+    key will be a string.
+    """
+    return (isinstance(key, tuple))
 
 # ============================== Classes ==============================
 
@@ -136,7 +145,10 @@ class ControlPlaneAclManager(object):
         # Add iptables rules to drop all packets destined for loopback interface IP addresses
         loopback_iface_table = self.config_db.get_table(LOOPBACK_INTERFACE_TABLE_NAME)
         if loopback_iface_table:
-            for ((iface_name, iface_cidr), _) in loopback_iface_table.iteritems():
+            for key, _ in loopback_iface_table.iteritems():
+                if not _ip_prefix_in_key(key):
+                    continue
+                iface_name, iface_cidr = key
                 ip_ntwrk = ipaddress.ip_network(iface_cidr, strict=False)
                 if isinstance(ip_ntwrk, ipaddress.IPv4Network):
                     block_ip2me_cmds.append("iptables -A INPUT -d {}/{} -j DROP".format(ip_ntwrk.network_address, ip_ntwrk.max_prefixlen))
@@ -148,7 +160,10 @@ class ControlPlaneAclManager(object):
         # Add iptables rules to drop all packets destined for management interface IP addresses
         mgmt_iface_table = self.config_db.get_table(MGMT_INTERFACE_TABLE_NAME)
         if mgmt_iface_table:
-            for ((iface_name, iface_cidr), _) in mgmt_iface_table.iteritems():
+            for key, _ in mgmt_iface_table.iteritems():
+                if not _ip_prefix_in_key(key):
+                    continue
+                iface_name, iface_cidr = key
                 ip_ntwrk = ipaddress.ip_network(iface_cidr, strict=False)
                 if isinstance(ip_ntwrk, ipaddress.IPv4Network):
                     block_ip2me_cmds.append("iptables -A INPUT -d {}/{} -j DROP".format(ip_ntwrk.network_address, ip_ntwrk.max_prefixlen))
@@ -160,7 +175,10 @@ class ControlPlaneAclManager(object):
         # Add iptables rules to drop all packets destined for our VLAN interface gateway IP addresses
         vlan_iface_table = self.config_db.get_table(VLAN_INTERFACE_TABLE_NAME)
         if vlan_iface_table:
-            for ((iface_name, iface_cidr), _) in vlan_iface_table.iteritems():
+            for key, _ in vlan_iface_table.iteritems():
+                if not _ip_prefix_in_key(key):
+                    continue
+                iface_name, iface_cidr = key
                 ip_ntwrk = ipaddress.ip_network(iface_cidr, strict=False)
                 if isinstance(ip_ntwrk, ipaddress.IPv4Network):
                     block_ip2me_cmds.append("iptables -A INPUT -d {}/{} -j DROP".format(list(ip_ntwrk.hosts())[0], ip_ntwrk.max_prefixlen))
@@ -173,7 +191,10 @@ class ControlPlaneAclManager(object):
         # (All portchannel interfaces and configured front-panel interfaces)
         portchannel_iface_table = self.config_db.get_table(PORTCHANNEL_INTERFACE_TABLE_NAME)
         if portchannel_iface_table:
-            for ((iface_name, iface_cidr), _) in portchannel_iface_table.iteritems():
+            for key, _ in portchannel_iface_table.iteritems():
+                if not _ip_prefix_in_key(key):
+                    continue
+                iface_name, iface_cidr = key
                 ip_ntwrk = ipaddress.ip_network(iface_cidr, strict=False)
                 if isinstance(ip_ntwrk, ipaddress.IPv4Network):
                     block_ip2me_cmds.append("iptables -A INPUT -d {}/{} -j DROP".format(ip_ntwrk.network_address, ip_ntwrk.max_prefixlen))
@@ -184,7 +205,10 @@ class ControlPlaneAclManager(object):
 
         iface_table = self.config_db.get_table(INTERFACE_TABLE_NAME)
         if iface_table:
-            for ((iface_name, iface_cidr), _) in iface_table.iteritems():
+            for key, _ in iface_table.iteritems():
+                if not _ip_prefix_in_key(key):
+                    continue
+                iface_name, iface_cidr = key
                 ip_ntwrk = ipaddress.ip_network(iface_cidr, strict=False)
                 if isinstance(ip_ntwrk, ipaddress.IPv4Network):
                     block_ip2me_cmds.append("iptables -A INPUT -d {}/{} -j DROP".format(ip_ntwrk.network_address, ip_ntwrk.max_prefixlen))
