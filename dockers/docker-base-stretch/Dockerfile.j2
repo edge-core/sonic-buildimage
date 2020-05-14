@@ -85,6 +85,9 @@ RUN apt-get -y purge   \
 {{ install_debian_packages(docker_base_stretch_debs.split(' ')) }}
 {%- endif %}
 
+# Add support for supervisord to handle startup dependencies
+RUN pip install supervisord-dependent-startup==1.4.0
+
 # Clean up apt
 # Remove /var/lib/apt/lists/*, could be obsoleted for derived images
 RUN apt-get clean -y                     && \
