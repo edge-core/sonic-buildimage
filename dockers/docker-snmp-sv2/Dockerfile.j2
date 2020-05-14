@@ -1,5 +1,5 @@
-{% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python_wheels, copy_files %}
-FROM docker-config-engine-stretch
+{% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python3_wheels, copy_files %}
+FROM docker-config-engine-buster
 
 ARG docker_container_name
 RUN [ -f /etc/rsyslog.conf ] && sed -ri "s/%syslogtag%/$docker_container_name#%syslogtag%/;" /etc/rsyslog.conf
@@ -18,7 +18,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 # The file referenced (`/usr/share/dpkg/no-pie-compile.specs`) is in the `libdpkg-perl` package on Debian
 RUN apt-get update   && \
     apt-get install -y  \
-        curl            \
+        python3         \
+        python3-pip     \
+        python3-dev     \
         ca-certificates \
         gcc             \
         make            \
@@ -43,11 +45,11 @@ RUN sed -i '/^#.* en_US.* /s/^#//' /etc/locale.gen
 RUN locale-gen
 
 # Install up-to-date version of pip
-RUN curl https://bootstrap.pypa.io/get-pip.py | python3.6
+RUN pip3 install --no-cache-dir setuptools wheel
 
 # Install pyyaml dependency for use by some plugins
 # Install smbus dependency for use by some plugins
-RUN python3.6 -m pip install --no-cache-dir \
+RUN python3 -m pip install --no-cache-dir \
         hiredis                             \
         pyyaml                              \
         smbus
@@ -57,15 +59,14 @@ RUN python3.6 -m pip install --no-cache-dir \
 {{ copy_files("python-wheels/", docker_snmp_sv2_whls.split(' '), "/python-wheels/") }}
 
 # Install locally-built Python wheel dependencies
-{{ install_python_wheels(docker_snmp_sv2_whls.split(' ')) }}
+{{ install_python3_wheels(docker_snmp_sv2_whls.split(' ')) }}
 {% endif %}
 
-RUN python3.6 -m sonic_ax_impl install
+RUN python3 -m sonic_ax_impl install
 
 # Clean up
 RUN apt-get -y purge     \
-        libpython3.6-dev \
-        libpython3.6     \
+        python3-dev   \
         curl             \
         gcc              \
         make             \

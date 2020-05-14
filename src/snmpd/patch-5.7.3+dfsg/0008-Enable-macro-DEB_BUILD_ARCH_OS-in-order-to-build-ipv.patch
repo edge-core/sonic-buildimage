@@ -11,14 +11,12 @@ diff --git a/debian/rules b/debian/rules
 index 4c3b5b6..1fab6a4 100755
 --- a/debian/rules
 +++ b/debian/rules
-@@ -5,6 +5,7 @@
- # without -pie build fails during perl module build somehow...
- export DEB_BUILD_MAINT_OPTIONS := hardening=+all,-pie
+@@ -4,4 +4,5 @@
+ export DEB_BUILD_MAINT_OPTIONS := hardening=+all
  DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 +DEB_BUILD_ARCH_OS  ?= $(shell dpkg-architecture -qDEB_BUILD_ARCH_OS)
  
  LIB_VERSION = 30
- UPSTREAM_VERSION = $(shell dpkg-parsechangelog | egrep '^Version:' | cut -f 2 -d ':' | sed 's/ //' | sed 's/~dfsg.*$$//')
 -- 
 2.18.0
 
