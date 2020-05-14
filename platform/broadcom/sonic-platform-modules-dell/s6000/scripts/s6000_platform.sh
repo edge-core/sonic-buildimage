@@ -60,6 +60,20 @@ remove_i2c_devices() {
     done
 }
 
+# Enable/Disable low power mode on all QSFP ports
+switch_board_qsfp_lpmode() {
+    case $1 in
+        "enable")   value=0xffff
+                    ;;
+        "disable")  value=0x0
+                    ;;
+        *)          echo "s6000_platform: switch_board_qsfp_lpmode: invalid command $1!"
+                    return
+                    ;;
+    esac
+    echo $value > /sys/bus/platform/devices/dell-s6000-cpld.0/qsfp_lpmode
+}
+
 install_python_api_package() {
     device="/usr/share/sonic/device"
     platform=$(/usr/local/bin/sonic-cfggen -H -v DEVICE_METADATA.localhost.platform)
@@ -86,6 +100,7 @@ if [[ "$1" == "init" ]]; then
         add_i2c_devices
 
         /usr/local/bin/set-fan-speed 15000
+        switch_board_qsfp_lpmode "disable"
         /usr/local/bin/reset-qsfp
 elif [[ "$1" == "deinit" ]]; then
         remove_i2c_devices
