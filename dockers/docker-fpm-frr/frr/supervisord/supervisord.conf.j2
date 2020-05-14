@@ -3,38 +3,29 @@ logfile_maxbytes=1MB
 logfile_backups=2
 nodaemon=true
 
+[eventlistener:dependent-startup]
+command=python -m supervisord_dependent_startup
+autostart=true
+autorestart=unexpected
+startretries=0
+exitcodes=0,3
+events=PROCESS_STATE
+
 [eventlistener:supervisor-proc-exit-listener]
 command=/usr/bin/supervisor-proc-exit-listener --container-name bgp
 events=PROCESS_STATE_EXITED
 autostart=true
 autorestart=unexpected
 
-[program:start.sh]
-command=/usr/bin/start.sh
-priority=1
-autostart=true
-autorestart=false
-startsecs=0
-stdout_logfile=syslog
-stderr_logfile=syslog
-
-[program:bgpcfgd]
-command=/usr/bin/bgpcfgd
-priority=2
-autostart=false
-autorestart=false
-startsecs=0
-stdout_logfile=syslog
-stderr_logfile=syslog
-
 [program:rsyslogd]
-command=/usr/sbin/rsyslogd -n
-priority=3
+command=/usr/sbin/rsyslogd -n -iNONE
+priority=1
 autostart=false
 autorestart=unexpected
 startsecs=0
 stdout_logfile=syslog
 stderr_logfile=syslog
+dependent_startup=true
 
 [program:zebra]
 command=/usr/lib/frr/zebra -A 127.0.0.1 -s 90000000 -M fpm -M snmp
@@ -44,6 +35,8 @@ autorestart=false
 startsecs=0
 stdout_logfile=syslog
 stderr_logfile=syslog
+dependent_startup=true
+dependent_startup_wait_for=rsyslogd:running
 
 [program:staticd]
 command=/usr/lib/frr/staticd -A 127.0.0.1
@@ -53,6 +46,8 @@ autorestart=false
 startsecs=0
 stdout_logfile=syslog
 stderr_logfile=syslog
+dependent_startup=true
+dependent_startup_wait_for=rsyslogd:running
 
 [program:bgpd]
 command=/usr/lib/frr/bgpd -A 127.0.0.1 -M snmp
@@ -63,15 +58,8 @@ autorestart=false
 startsecs=0
 stdout_logfile=syslog
 stderr_logfile=syslog
-
-[program:vtysh_b]
-command=/usr/bin/vtysh -b
-priority=6
-autostart=false
-autorestart=false
-startsecs=0
-stdout_logfile=syslog
-stderr_logfile=syslog
+dependent_startup=true
+dependent_startup_wait_for=rsyslogd:running
 
 [program:fpmsyncd]
 command=fpmsyncd
@@ -81,7 +69,34 @@ autorestart=false
 startsecs=0
 stdout_logfile=syslog
 stderr_logfile=syslog
+dependent_startup=true
+dependent_startup_wait_for=bgpd:running
 
+[program:bgpcfgd]
+command=/usr/bin/bgpcfgd
+priority=6
+autostart=false
+autorestart=false
+startsecs=0
+stdout_logfile=syslog
+stderr_logfile=syslog
+dependent_startup=true
+dependent_startup_wait_for=bgpd:running
+
+{% if DEVICE_METADATA.localhost.docker_routing_config_mode is defined and DEVICE_METADATA.localhost.docker_routing_config_mode == "unified" %}
+[program:vtysh_b]
+command=/usr/bin/vtysh -b
+priority=6
+autostart=false
+autorestart=false
+startsecs=0
+stdout_logfile=syslog
+stderr_logfile=syslog
+dependent_startup=true
+dependent_startup_wait_for=rsyslogd:running
+{% endif %}
+
+{% if WARM_RESTART is defined and WARM_RESTART.bgp is defined and WARM_RESTART.bgp.bgp_eoiu is defined and WARM_RESTART.bgp.bgp_eoiu == "true" %}
 [program:bgp_eoiu_marker]
 command=/usr/bin/bgp_eoiu_marker.py
 priority=7
@@ -91,3 +106,6 @@ startsecs=0
 startretries=0
 stdout_logfile=syslog
 stderr_logfile=syslog
+dependent_startup=true
+dependent_startup_wait_for=rsyslogd:running
+{% endif %}

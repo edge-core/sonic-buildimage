@@ -40,8 +40,7 @@ RUN apt-get clean -y      && \
     rm -rf /debs ~/.cache
 
 COPY ["frr", "/usr/share/sonic/templates"]
-COPY ["bgpcfgd", "start.sh", "/usr/bin/"]
-COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
+COPY ["bgpcfgd", "docker_init.sh", "/usr/bin/"]
 COPY ["snmp.conf", "/etc/snmp/frr.conf"]
 COPY ["TSA", "/usr/bin/TSA"]
 COPY ["TSB", "/usr/bin/TSB"]
@@ -52,4 +51,4 @@ RUN chmod a+x /usr/bin/TSA && \
     chmod a+x /usr/bin/TSB && \
     chmod a+x /usr/bin/TSC
 
-ENTRYPOINT ["/usr/bin/supervisord"]
+ENTRYPOINT ["/usr/bin/docker_init.sh"]

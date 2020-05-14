@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
 mkdir -p /etc/frr
+mkdir -p /etc/supervisor/conf.d
+
+sonic-cfggen -d -t /usr/share/sonic/templates/supervisord/supervisord.conf.j2 > /etc/supervisor/conf.d/supervisord.conf
 
 CONFIG_TYPE=`sonic-cfggen -d -v 'DEVICE_METADATA["localhost"]["docker_routing_config_mode"]'`
-
 if [ -z "$CONFIG_TYPE" ] || [ "$CONFIG_TYPE" == "separated" ]; then
     sonic-cfggen -d -t /usr/share/sonic/templates/bgpd/bgpd.conf.j2 -y /etc/sonic/constants.yml > /etc/frr/bgpd.conf
     sonic-cfggen -d -t /usr/share/sonic/templates/zebra/zebra.conf.j2 > /etc/frr/zebra.conf
@@ -29,24 +31,4 @@ chmod 0755 /usr/sbin/bgp-unisolate
 mkdir -p /var/sonic
 echo "# Config files managed by sonic-config-engine" > /var/sonic/config_status
 
-rm -f /var/run/rsyslogd.pid
-
-supervisorctl start rsyslogd
-
-# start eoiu pulling, only if configured so
-if [[ $(sonic-cfggen -d -v 'WARM_RESTART.bgp.bgp_eoiu') == 'true' ]]; then
-    supervisorctl start bgp_eoiu_marker
-fi
-
-# Start Quagga processes
-supervisorctl start zebra
-supervisorctl start staticd
-supervisorctl start bgpd
-
-if [ "$CONFIG_TYPE" == "unified" ]; then
-    supervisorctl start vtysh_b
-fi
-
-supervisorctl start fpmsyncd
-
-supervisorctl start bgpcfgd
+exec /usr/bin/supervisord
