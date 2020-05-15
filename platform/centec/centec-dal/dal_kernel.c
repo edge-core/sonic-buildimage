@@ -580,25 +580,6 @@ _dal_set_msi_enabe(unsigned int lchip, unsigned int irq_num)
         msi_irq_base[lchip] = dal_dev[lchip].pci_dev->irq;
         msi_irq_num[lchip] = 1;
     }
-    else
-    {
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 14, 79))
-        ret = pci_enable_msi_exact(dal_dev[lchip].pci_dev, irq_num);
-#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 26, 32))
-        ret = pci_enable_msi_block(dal_dev[lchip].pci_dev, irq_num);
-#else
-        ret = -1;
-#endif
-        if (ret)
-        {
-            printk ("msi enable failed!!! lchip = %d, irq_num = %d\n", lchip, irq_num);
-            pci_disable_msi(dal_dev[lchip].pci_dev);
-            msi_used = 0;
-        }
-
-        msi_irq_base[lchip] = dal_dev[lchip].pci_dev->irq;
-        msi_irq_num[lchip] = irq_num;
-    }
 
     return ret;
 }

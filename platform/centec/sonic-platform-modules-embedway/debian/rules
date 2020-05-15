@@ -5,7 +5,7 @@ export INSTALL_MOD_DIR:=extra
 KVERSION   ?= $(shell uname -r)
 KERNEL_SRC :=  /lib/modules/$(KVERSION)
 MOD_SRC_DIR:= $(shell pwd)
-MODULE_DIRS:= es6220
+MODULE_DIRS:= ../centec-dal
 
 %:
 	dh $@
