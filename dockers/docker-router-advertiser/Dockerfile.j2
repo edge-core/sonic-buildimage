@@ -24,10 +24,9 @@ RUN apt-get clean -y        && \
     apt-get autoremove -y   && \
     rm -rf /debs
 
-COPY ["start.sh", "/usr/bin/"]
-COPY ["docker-router-advertiser.supervisord.conf", "/etc/supervisor/conf.d/"]
-COPY ["radvd.conf.j2", "wait_for_intf.sh.j2", "/usr/share/sonic/templates/"]
+COPY ["docker-init.sh", "/usr/bin/"]
+COPY ["radvd.conf.j2", "wait_for_intf.sh.j2", "docker-router-advertiser.supervisord.conf.j2", "/usr/share/sonic/templates/"]
 COPY ["files/supervisor-proc-exit-listener", "/usr/bin"]
 COPY ["critical_processes", "/etc/supervisor"]
 
-ENTRYPOINT ["/usr/bin/supervisord"]
+ENTRYPOINT ["/usr/bin/docker-init.sh"]
