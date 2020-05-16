@@ -12,40 +12,10 @@ if [ -x /usr/share/sonic/hwsku/hwsku-init ]; then
     /usr/share/sonic/hwsku/hwsku-init
 fi
 
-export platform=`sonic-cfggen -H -v DEVICE_METADATA.localhost.platform`
-
-rm -f /var/run/rsyslogd.pid
-
-supervisorctl start rsyslogd
-
-supervisorctl start orchagent
-
-supervisorctl start restore_neighbors
-
-supervisorctl start portsyncd
-
-supervisorctl start neighsyncd
-
-supervisorctl start swssconfig
-
-supervisorctl start vrfmgrd
-
-supervisorctl start vlanmgrd
-
-supervisorctl start intfmgrd
-
-supervisorctl start portmgrd
-
-supervisorctl start buffermgrd
-
-supervisorctl start enable_counters
-
-supervisorctl start nbrmgrd
-
-supervisorctl start vxlanmgrd
-
 # Start arp_update when VLAN exists
 VLAN=`sonic-cfggen -d -v 'VLAN.keys() | join(" ") if VLAN'`
 if [ "$VLAN" != "" ]; then
-    supervisorctl start arp_update
+    cp /usr/share/sonic/templates/arp_update.conf /etc/supervisord/conf.d/
 fi
+
+exec /usr/bin/supervisord

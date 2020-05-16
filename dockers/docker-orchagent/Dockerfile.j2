@@ -63,8 +63,9 @@ RUN apt-get clean -y        && \
     rm -rf /debs
 
 COPY ["files/arp_update", "/usr/bin"]
+COPY ["arp_update.conf", "/usr/share/sonic/templates/"]
 COPY ["enable_counters.py", "/usr/bin"]
-COPY ["start.sh", "orchagent.sh", "swssconfig.sh", "/usr/bin/"]
+COPY ["docker-init.sh", "orchagent.sh", "swssconfig.sh", "/usr/bin/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 COPY ["files/supervisor-proc-exit-listener", "/usr/bin"]
 COPY ["critical_processes", "/etc/supervisor/"]
@@ -72,4 +73,4 @@ COPY ["critical_processes", "/etc/supervisor/"]
 ## Copy all Jinja2 template files into the templates folder
 COPY ["*.j2", "/usr/share/sonic/templates/"]
 
-ENTRYPOINT ["/usr/bin/supervisord"]
+ENTRYPOINT ["/usr/bin/docker-init.sh"]
