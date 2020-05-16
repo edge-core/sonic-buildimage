@@ -56,8 +56,8 @@ RUN apt-get purge -y           \
            /python-wheels      \
            ~/.cache
 
-COPY ["docker_init.sh", "lm-sensors.sh", "/usr/bin/"]
-COPY ["docker-pmon.supervisord.conf.j2", "start.sh.j2", "/usr/share/sonic/templates/"]
+COPY ["docker_init.sh", "lm-sensors.sh", "start.sh", "/usr/bin/"]
+COPY ["docker-pmon.supervisord.conf.j2", "/usr/share/sonic/templates/"]
 COPY ["ssd_tools/*", "/usr/bin/"]
 COPY ["files/supervisor-proc-exit-listener", "/usr/bin"]
 COPY ["critical_processes", "/etc/supervisor"]

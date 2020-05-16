@@ -3,30 +3,41 @@ logfile_maxbytes=1MB
 logfile_backups=2
 nodaemon=true
 
+[eventlistener:dependent-startup]
+command=python -m supervisord_dependent_startup
+autostart=true
+autorestart=unexpected
+startretries=0
+exitcodes=0,3
+events=PROCESS_STATE
+
 [eventlistener:supervisor-proc-exit-listener]
 command=/usr/bin/supervisor-proc-exit-listener --container-name pmon
 events=PROCESS_STATE_EXITED
 autostart=true
 autorestart=unexpected
 
-[program:start.sh]
-command=/usr/bin/start.sh
+[program:rsyslogd]
+command=/usr/sbin/rsyslogd -n -iNONE
 priority=1
-autostart=true
+autostart=false
 autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
-startsecs=0
+dependent_startup=true
 
-[program:rsyslogd]
-command=/usr/sbin/rsyslogd -n
+[program:start]
+command=/usr/bin/start.sh
 priority=2
 autostart=false
 autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
+startsecs=0
+dependent_startup=true
+dependent_startup_wait_for=rsyslogd:running
 
-{% if not skip_sensors %}
+{% if not skip_sensors and HAVE_SENSORS_CONF == 1 %}
 [program:lm-sensors]
 command=/usr/bin/lm-sensors.sh
 priority=3
@@ -35,9 +46,11 @@ autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
 startsecs=0
+dependent_startup=true
+dependent_startup_wait_for=start:exited
 {% endif %}
 
-{% if not skip_fancontrol %}
+{% if not skip_fancontrol and HAVE_FANCONTROL_CONF == 1 %}
 [program:fancontrol]
 command=/usr/sbin/fancontrol
 priority=4
@@ -46,6 +59,8 @@ autorestart=unexpected
 stdout_logfile=syslog
 stderr_logfile=syslog
 startsecs=10
+dependent_startup=true
+dependent_startup_wait_for=start:exited
 {% endif %}
 
 {% if not skip_ledd %}
@@ -57,6 +72,8 @@ autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
 startsecs=0
+dependent_startup=true
+dependent_startup_wait_for=start:exited
 {% endif %}
 
 {% if not skip_xcvrd %}
@@ -68,6 +85,8 @@ autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
 startsecs=0
+dependent_startup=true
+dependent_startup_wait_for=start:exited
 {% endif %}
 
 {% if not skip_psud %}
@@ -79,6 +98,8 @@ autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
 startsecs=0
+dependent_startup=true
+dependent_startup_wait_for=start:exited
 {% endif %}
 
 {% if not skip_syseepromd %}
@@ -90,6 +111,8 @@ autorestart=unexpected
 stdout_logfile=syslog
 stderr_logfile=syslog
 startsecs=10
+dependent_startup=true
+dependent_startup_wait_for=start:exited
 {% endif %}
 
 {% if not skip_thermalctld %}
@@ -100,5 +123,7 @@ autostart=false
 autorestart=true
 stdout_logfile=syslog
 stderr_logfile=syslog
-startsecs=0
+startsecs=10
+dependent_startup=true
+dependent_startup_wait_for=start:exited
 {% endif %}
