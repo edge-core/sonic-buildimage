@@ -10,7 +10,7 @@ autostart=true
 autorestart=unexpected
 
 [program:rsyslogd]
-command=/bin/bash -c "rm -f /var/run/rsyslogd.pid && /usr/sbin/rsyslogd -n"
+command=/usr/sbin/rsyslogd -n -iNONE
 priority=1
 autostart=true
 autorestart=false
