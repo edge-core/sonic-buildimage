@@ -11,20 +11,12 @@ ENV PYTHONOPTIMIZE 1
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Update apt's cache of available packages
-# Install curl so we can download and install pip later
-# Also install major root CA certificates for curl to reference
-# Install gcc which is required for installing hiredis
-# Install libdpkg-perl which is required for python3.6-3.6.0 as one of its specs i.e. no-pie-compile.specs
-# The file referenced (`/usr/share/dpkg/no-pie-compile.specs`) is in the `libdpkg-perl` package on Debian
+# Install make/gcc which is required for installing hiredis
 RUN apt-get update   && \
     apt-get install -y  \
-        python3         \
-        python3-pip     \
         python3-dev     \
-        ca-certificates \
         gcc             \
         make            \
-        libdpkg-perl    \
         ipmitool
 
 {% if docker_snmp_sv2_debs.strip() -%}
@@ -36,7 +28,7 @@ RUN apt-get update   && \
 {%- endif %}
 
 # Fix for hiredis compilation issues for ARM
-# python will throw for missing locale 
+# python will throw for missing locale
 RUN apt-get install -y locales
 RUN locale-gen "en_US.UTF-8"
 RUN dpkg-reconfigure --frontend noninteractive locales
@@ -66,16 +58,9 @@ RUN python3 -m sonic_ax_impl install
 
 # Clean up
 RUN apt-get -y purge     \
-        python3-dev   \
-        curl             \
+        python3-dev      \
         gcc              \
-        make             \
-        libdpkg-perl     \
-        # Note: these packages should be removed with autoremove but actually not, so explicitly purged
-        libldap-2.4-2    \
-        libsasl2-2       \
-        libsasl2-modules \
-        libsasl2-modules-db && \
+        make                && \
     apt-get clean -y        && \
     apt-get autoclean -y    && \
     apt-get autoremove -y --purge && \
