@@ -119,7 +119,11 @@ class LldpManager(object):
             else:
                 return False
         else:
-            log_error("Port '{}' not found in {} table in App DB".format(port_name, swsscommon.APP_PORT_TABLE_NAME))
+            # Retrieve PortInitDone entry from the Port table
+            (init_status, init_fvp) = port_table.get("PortInitDone")
+            #The initialization procedure is done, but don't have this port entry
+            if init_status:
+                log_error("Port '{}' not found in {} table in App DB".format(port_name, swsscommon.APP_PORT_TABLE_NAME))
             return False
 
     def generate_pending_lldp_config_cmd_for_port(self, port_name):
