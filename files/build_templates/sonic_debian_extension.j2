@@ -116,6 +116,14 @@ sudo cp {{swsssdk_py2_wheel_path}} $FILESYSTEM_ROOT/$SWSSSDK_PY2_WHEEL_NAME
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install $SWSSSDK_PY2_WHEEL_NAME
 sudo rm -rf $FILESYSTEM_ROOT/$SWSSSDK_PY2_WHEEL_NAME
 
+# Install SwSS SDK Python 3 package
+if [ -e {{swsssdk_py3_wheel_path}} ]; then
+    SWSSSDK_PY3_WHEEL_NAME=$(basename {{swsssdk_py3_wheel_path}})
+    sudo cp {{swsssdk_py3_wheel_path}} $FILESYSTEM_ROOT/$SWSSSDK_PY3_WHEEL_NAME
+    sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install $SWSSSDK_PY3_WHEEL_NAME
+    sudo rm -rf $FILESYSTEM_ROOT/$SWSSSDK_PY3_WHEEL_NAME
+fi
+
 # Install sonic-yang-models py3 package, install dependencies
 sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/libyang_*.deb
 sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/libyang-cpp_*.deb
