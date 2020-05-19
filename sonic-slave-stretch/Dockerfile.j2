@@ -427,8 +427,8 @@ RUN add-apt-repository \
            stable"
 RUN apt-get update
 {%- if CONFIGURED_ARCH == "amd64" %}
-RUN apt-get install -y docker-ce=5:18.09.5~3-0~debian-stretch
+RUN apt-get install -y docker-ce=5:18.09.5~3-0~debian-stretch docker-ce-cli=5:18.09.5~3-0~debian-stretch
 {%- else %}
-RUN apt-get install -y docker-ce=18.06.3~ce~3-0~debian
+RUN apt-get install -y docker-ce=18.06.3~ce~3-0~debian docker-ce-cli=18.06.3~ce~3-0~debian
 {%- endif %}
 RUN echo "DOCKER_OPTS=\"--experimental --storage-driver=vfs\"" >> /etc/default/docker
