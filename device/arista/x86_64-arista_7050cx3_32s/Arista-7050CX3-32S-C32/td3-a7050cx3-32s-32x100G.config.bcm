@@ -35,7 +35,6 @@ port_phy_addr=0xff
 robust_hash_disable_egress_vlan=1
 robust_hash_disable_mpls=1
 robust_hash_disable_vlan=1
-sram_scan_enable=0
 stable_size=0x5500000
 tdma_timeout_usec=15000000
 tslam_timeout_usec=15000000

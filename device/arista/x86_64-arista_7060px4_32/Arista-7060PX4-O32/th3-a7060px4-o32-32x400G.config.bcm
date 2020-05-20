@@ -744,7 +744,6 @@ port_phy_addr_143.0=0xff
 robust_hash_disable_egress_vlan.0=1
 robust_hash_disable_mpls.0=1
 robust_hash_disable_vlan.0=1
-sram_scan_enable.0=0
 tdma_timeout_usec.0=15000000
 tslam_timeout_usec.0=15000000
 
