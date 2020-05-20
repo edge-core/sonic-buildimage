@@ -39,7 +39,7 @@ FRONTEND_ASIC_SUB_ROLE = 'FrontEnd'
 BACKEND_ASIC_SUB_ROLE = 'BackEnd'
 BACKEND_ASIC_INTERFACE_NAME_PREFIX = 'Ethernet-BP'
 
-# Default Virtual Network Index (VNI) 
+# Default Virtual Network Index (VNI)
 vni_default = 8000
 
 ###############################################################################
@@ -554,6 +554,39 @@ def parse_meta(meta, hname):
                     region = value
     return syslog_servers, dhcp_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id, region
 
+
+def parse_linkmeta(meta, hname):
+    link = meta.find(str(QName(ns, "Link")))
+    linkmetas = {}
+    for linkmeta in link.findall(str(QName(ns1, "LinkMetadata"))):
+        port = None
+        fec_disabled = None
+
+        # Sample: ARISTA05T1:Ethernet1/33;switch-t0:fortyGigE0/4
+        key = linkmeta.find(str(QName(ns1, "Key"))).text
+        endpoints = key.split(';')
+        for endpoint in endpoints:
+            t = endpoint.split(':')
+            if len(t) == 2 and t[0].lower() == hname.lower():
+                port = t[1]
+                break
+        else:
+            # Cannot find a matching hname, something went wrong
+            continue
+
+        properties = linkmeta.find(str(QName(ns1, "Properties")))
+        for device_property in properties.findall(str(QName(ns1, "DeviceProperty"))):
+            name = device_property.find(str(QName(ns1, "Name"))).text
+            value = device_property.find(str(QName(ns1, "Value"))).text
+            if name == "FECDisabled":
+                fec_disabled = value
+
+        linkmetas[port] = {}
+        if fec_disabled:
+            linkmetas[port]["FECDisabled"] = fec_disabled
+    return linkmetas
+
+
 def parse_asic_meta(meta, hname):
     sub_role = None
     device_metas = meta.find(str(QName(ns, "Devices")))
@@ -732,7 +765,6 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None):
     generate asic specific configuration.
      """
     root = ET.parse(filename).getroot()
-    mini_graph_path = filename
 
     u_neighbors = None
     u_devices = None
@@ -766,8 +798,9 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None):
     deployment_id = None
     region = None
     hostname = None
+    linkmetas = {}
 
-    #hostname is the asic_name, get the asic_id from the asic_name
+    # hostname is the asic_name, get the asic_id from the asic_name
     if asic_name is not None:
         asic_id = get_npu_id_from_name(asic_name)
     else:
@@ -800,6 +833,8 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None):
                 (u_neighbors, u_devices, _, _, _, _, _, _) = parse_png(child, hostname)
             elif child.tag == str(QName(ns, "MetadataDeclaration")):
                 (syslog_servers, dhcp_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id, region) = parse_meta(child, hostname)
+            elif child.tag == str(QName(ns, "LinkMetadataDeclaration")):
+                linkmetas = parse_linkmeta(child, hostname)
             elif child.tag == str(QName(ns, "DeviceInfos")):
                 (port_speeds_default, port_descriptions) = parse_deviceinfo(child, hwsku)
         else:
@@ -811,6 +846,8 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None):
                 (neighbors, devices, port_speed_png) = parse_asic_png(child, asic_name, hostname)
             elif child.tag == str(QName(ns, "MetadataDeclaration")):
                 (sub_role) = parse_asic_meta(child, asic_name)
+            elif child.tag == str(QName(ns, "LinkMetadataDeclaration")):
+                linkmetas = parse_linkmeta(child, hostname)
             elif child.tag == str(QName(ns, "DeviceInfos")):
                 (port_speeds_default, port_descriptions) = parse_deviceinfo(child, hwsku)
 
@@ -896,7 +933,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None):
 
     for port_name in port_speed_png:
         # not consider port not in port_config.ini
-        #If no port_config_file is found ports is empty so ignore this error
+        # If no port_config_file is found ports is empty so ignore this error
         if port_config_file is not None:
             if port_name not in ports:
                 print >> sys.stderr, "Warning: ignore interface '%s' as it is not in the port_config.ini" % port_name
@@ -905,7 +942,14 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None):
         ports.setdefault(port_name, {})['speed'] = port_speed_png[port_name]
 
     for port_name, port in ports.items():
-        if port.get('speed') == '100000':
+        # get port alias from port_config.ini
+        if port_config_file:
+            alias = port.get('alias')
+        else:
+            alias = port_name
+        # generate default 100G FEC
+        # Note: FECDisabled only be effective on 100G port right now
+        if port.get('speed') == '100000' and linkmetas.get(alias, {}).get('FECDisabled', '').lower() != 'true':
             port['fec'] = 'rs'
 
     # set port description if parsed from deviceinfo
