@@ -3,25 +3,8 @@
 reload_minigraph()
 {
     echo "Reloading minigraph..."
-    if [ ! -f /etc/sonic/init_cfg.json ]; then
-        echo "{}" > /etc/sonic/init_cfg.json
-    fi
-    sonic-db-cli CONFIG_DB FLUSHDB
-    sonic-cfggen -H -m -j /etc/sonic/init_cfg.json --write-to-db
-    sonic-db-cli CONFIG_DB SET "CONFIG_DB_INITIALIZED" "1"
-    if [ -f /etc/sonic/acl.json ]; then
-        acl-loader update full /etc/sonic/acl.json
-    fi
-    config qos reload
-    DEVICE_TYPE=`sonic-cfggen -m -v DEVICE_METADATA.localhost.type`
-    if [ "${DEVICE_TYPE}" != "MgmtToRRouter" ]; then
-        pfcwd start_default
-    fi
-
-    if [[ -x /usr/bin/db_migrator.py ]]; then
-        # Set latest version number
-        /usr/bin/db_migrator.py -o set_version
-    fi
+    config load_minigraph -y -n 
+    config save -y
 }
 
 if [ ! -f /etc/sonic/updategraph.conf ]; then
@@ -141,7 +124,6 @@ else
 fi
 
 reload_minigraph
-sonic-cfggen -d --print-data > /etc/sonic/config_db.json
 
 # Mark as disabled after graph is successfully downloaded
 sed -i "/enabled=/d" /etc/sonic/updategraph.conf
