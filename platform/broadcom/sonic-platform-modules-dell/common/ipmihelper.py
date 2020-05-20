@@ -185,33 +185,44 @@ class IpmiFru(object):
 
         return result
 
-    def get_board_serial(self):
+    def _get_from_fru(self, info):
         """
-        Returns a string containing the Serial Number of the device.
+        Returns a string containing the info from FRU
         """
         fru_output = self._get_ipmitool_fru_print()
         if not fru_output:
             return "NA"
 
-        board_serial = re.search(r'Board Serial\s*:(.*)', fru_output)
-        if not board_serial:
+        info_req = re.search(r"%s\s*:(.*)"%info, fru_output)
+        if not info_req:
             return "NA"
 
-        return board_serial.group(1).strip()
+        return info_req.group(1).strip()
+
+    def get_board_serial(self):
+        """
+        Returns a string containing the Serial Number of the device.
+        """
+        return self._get_from_fru('Board Serial')
 
     def get_board_part_number(self):
         """
         Returns a string containing the Part Number of the device.
         """
-        fru_output = self._get_ipmitool_fru_print()
-        if not fru_output:
-            return "NA"
+        return self._get_from_fru('Board Part Number')
 
-        board_pn = re.search(r'Board Part Number\s*:(.*)', fru_output)
-        if not board_pn:
-            return "NA"
+    def get_board_mfr_id(self):
+        """
+        Returns a string containing the manufacturer id of the FRU.
+        """
+        return self._get_from_fru('Board Mfg')
 
-        return board_pn.group(1).strip()
+    def get_board_product(self):
+        """
+        Returns a string containing the manufacturer id of the FRU.
+        """
+        return self._get_from_fru('Board Product')
+
 
     def get_fru_data(self, offset, count=1):
         """
