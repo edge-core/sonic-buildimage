@@ -10,8 +10,8 @@
 
 try:
     import os
-    import subprocess
-    import re
+    import select
+    import sys
     from sonic_platform_base.chassis_base import ChassisBase
     from sonic_platform.sfp import Sfp
     from sonic_platform.fan import Fan
@@ -60,6 +60,8 @@ class Chassis(ChassisBase):
         28: [16, 6], 29: [16, 7], 30: [16, 8], 31: [16, 9]
     }
 
+    OIR_FD_PATH = "/sys/devices/platform/dell_ich.0/sci_int_gpio_sus6"
+
     reset_reason_dict = {}
     reset_reason_dict[11] = ChassisBase.REBOOT_CAUSE_POWER_LOSS
     reset_reason_dict[33] = ChassisBase.REBOOT_CAUSE_WATCHDOG
@@ -74,6 +76,8 @@ class Chassis(ChassisBase):
 
     def __init__(self):
         ChassisBase.__init__(self)
+        self.oir_fd = -1
+        self.epoll = -1
         PORT_START = 0
         PORT_END = 31
         PORTS_IN_BLOCK = (PORT_END + 1)
@@ -112,6 +116,12 @@ class Chassis(ChassisBase):
             component = Component(i)
             self._component_list.append(component)
 
+    def __del__(self):
+        if self.oir_fd != -1:
+            self.epoll.unregister(self.oir_fd.fileno())
+            self.epoll.close()
+            self.oir_fd.close()
+
     def _get_pmc_register(self, reg_name):
         # On successful read, returns the value read from given
         # reg_name and on failure returns 'ERR'
@@ -123,6 +133,24 @@ class Chassis(ChassisBase):
 
         try:
             with open(mb_reg_file, 'r') as fd:
+                rv = fd.read()
+        except Exception as error:
+            rv = 'ERR'
+
+        rv = rv.rstrip('\r\n')
+        rv = rv.lstrip(" ")
+        return rv
+
+    def _get_register(self, reg_file):
+        # On successful read, returns the value read from given
+        # reg_name and on failure returns 'ERR'
+        rv = 'ERR'
+
+        if (not os.path.isfile(reg_file)):
+            return rv
+
+        try:
+            with open(reg_file, 'r') as fd:
                 rv = fd.read()
         except Exception as error:
             rv = 'ERR'
@@ -162,7 +190,7 @@ class Chassis(ChassisBase):
             string: Serial number of chassis
         """
         return self._eeprom.serial_str()
-    
+
     def get_sfp(self, index):
         """
         Retrieves sfp represented by (1-based) index <index>
@@ -252,3 +280,132 @@ class Chassis(ChassisBase):
                 return (self.reset_reason_dict[reset_reason], None)
 
         return (ChassisBase.REBOOT_CAUSE_HARDWARE_OTHER, "Invalid Reason")
+
+    def _check_interrupts(self, port_dict):
+        is_port_dict_updated = False
+
+        cpld2_abs_int = self._get_register(
+                    "/sys/class/i2c-adapter/i2c-14/14-003e/qsfp_abs_int")
+        cpld2_abs_sta = self._get_register(
+                    "/sys/class/i2c-adapter/i2c-14/14-003e/qsfp_abs_sta")
+        cpld3_abs_int = self._get_register(
+                    "/sys/class/i2c-adapter/i2c-15/15-003e/qsfp_abs_int")
+        cpld3_abs_sta = self._get_register(
+                    "/sys/class/i2c-adapter/i2c-15/15-003e/qsfp_abs_sta")
+        cpld4_abs_int = self._get_register(
+                    "/sys/class/i2c-adapter/i2c-16/16-003e/qsfp_abs_int")
+        cpld4_abs_sta = self._get_register(
+                    "/sys/class/i2c-adapter/i2c-16/16-003e/qsfp_abs_sta")
+
+        if (cpld2_abs_int == 'ERR' or cpld2_abs_sta == 'ERR' or
+                cpld3_abs_int == 'ERR' or cpld3_abs_sta == 'ERR' or
+                cpld4_abs_int == 'ERR' or cpld4_abs_sta == 'ERR'):
+            return False, is_port_dict_updated
+
+        cpld2_abs_int = int(cpld2_abs_int, 16)
+        cpld2_abs_sta = int(cpld2_abs_sta, 16)
+        cpld3_abs_int = int(cpld3_abs_int, 16)
+        cpld3_abs_sta = int(cpld3_abs_sta, 16)
+        cpld4_abs_int = int(cpld4_abs_int, 16)
+        cpld4_abs_sta = int(cpld4_abs_sta, 16)
+
+        # Make it contiguous (discard reserved bits)
+        interrupt_reg = (cpld2_abs_int & 0xfff) |\
+                        ((cpld3_abs_int & 0x3ff) << 12) |\
+                        ((cpld4_abs_int & 0x3ff) << 22)
+        status_reg = (cpld2_abs_sta & 0xfff) |\
+                     ((cpld3_abs_sta & 0x3ff) << 12) |\
+                     ((cpld4_abs_sta & 0x3ff) << 22)
+
+        for port in range(self.get_num_sfps()):
+            if interrupt_reg & (1 << port):
+                # update only if atleast one port has generated
+                # interrupt
+                is_port_dict_updated = True
+                if status_reg & (1 << port):
+                    # status reg 1 => optics is removed
+                    port_dict[port+1] = '0'
+                else:
+                    # status reg 0 => optics is inserted
+                    port_dict[port+1] = '1'
+
+        return True, is_port_dict_updated
+
+    def get_change_event(self, timeout=0):
+        """
+        Returns a nested dictionary containing all devices which have
+        experienced a change at chassis level
+
+        Args:
+            timeout: Timeout in milliseconds (optional). If timeout == 0,
+                this method will block until a change is detected.
+
+        Returns:
+            (bool, dict):
+                - True if call successful, False if not;
+                - A nested dictionary where key is a device type,
+                  value is a dictionary with key:value pairs in the
+                  format of {'device_id':'device_event'},
+                  where device_id is the device ID for this device and
+                        device_event,
+                             status='1' represents device inserted,
+                             status='0' represents device removed.
+                  Ex. {'fan':{'0':'0', '2':'1'}, 'sfp':{'11':'0'}}
+                      indicates that fan 0 has been removed, fan 2
+                      has been inserted and sfp 11 has been removed.
+        """
+        port_dict = {}
+        ret_dict = {'sfp': port_dict}
+        if timeout != 0:
+            timeout = timeout / 1000
+        try:
+            # We get notified when there is an SCI interrupt from GPIO SUS6
+            # Open the sysfs file and register the epoll object
+            self.oir_fd = open(self.OIR_FD_PATH, "r")
+            if self.oir_fd != -1:
+                # Do a dummy read before epoll register
+                self.oir_fd.read()
+                self.epoll = select.epoll()
+                self.epoll.register(self.oir_fd.fileno(),
+                                    select.EPOLLIN & select.EPOLLET)
+            else:
+                return False, ret_dict
+
+            # Check for missed interrupts by invoking self.check_interrupts
+            # which will update the port_dict.
+            while True:
+                interrupt_count_start = self._get_register(self.OIR_FD_PATH)
+
+                retval, is_port_dict_updated = \
+                                          self._check_interrupts(port_dict)
+                if (retval is True) and (is_port_dict_updated is True):
+                    return True, ret_dict
+
+                interrupt_count_end = self._get_register(self.OIR_FD_PATH)
+
+                if (interrupt_count_start == 'ERR' or
+                        interrupt_count_end == 'ERR'):
+                    break
+
+                # check_interrupts() itself may take upto 100s of msecs.
+                # We detect a missed interrupt based on the count
+                if interrupt_count_start == interrupt_count_end:
+                    break
+
+            # Block until an xcvr is inserted or removed with timeout = -1
+            events = self.epoll.poll(timeout=timeout if timeout != 0 else -1)
+            if events:
+                # check interrupts and return the port_dict
+                retval, is_port_dict_updated = \
+                                          self._check_interrupts(port_dict)
+
+            return retval, ret_dict
+        except Exception:
+            return False, ret_dict
+        finally:
+            if self.oir_fd != -1:
+                self.epoll.unregister(self.oir_fd.fileno())
+                self.epoll.close()
+                self.oir_fd.close()
+                self.oir_fd = -1
+                self.epoll = -1

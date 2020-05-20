@@ -237,13 +237,32 @@ class Chassis(ChassisBase):
 
         return int(content, 16)
 
-    def get_transceiver_change_event(self, timeout=0):
+    def get_change_event(self, timeout=0):
         """
-        Returns a dictionary containing sfp changes which have
+        Returns a nested dictionary containing all devices which have
         experienced a change at chassis level
+
+        Args:
+            timeout: Timeout in milliseconds (optional). If timeout == 0,
+                this method will block until a change is detected.
+
+        Returns:
+            (bool, dict):
+                - True if call successful, False if not;
+                - A nested dictionary where key is a device type,
+                  value is a dictionary with key:value pairs in the
+                  format of {'device_id':'device_event'},
+                  where device_id is the device ID for this device and
+                        device_event,
+                             status='1' represents device inserted,
+                             status='0' represents device removed.
+                  Ex. {'fan':{'0':'0', '2':'1'}, 'sfp':{'11':'0'}}
+                      indicates that fan 0 has been removed, fan 2
+                      has been inserted and sfp 11 has been removed.
         """
         start_time = time.time()
         port_dict = {}
+        ret_dict = {"sfp": port_dict}
         port = self.PORT_START
         forever = False
 
@@ -256,7 +275,7 @@ class Chassis(ChassisBase):
         end_time = start_time + timeout
 
         if (start_time > end_time):
-            return False, {} # Time wrap or possibly incorrect timeout
+            return False, ret_dict # Time wrap or possibly incorrect timeout
 
         while (timeout >= 0):
             # Check for OIR events and return updated port_dict
@@ -276,7 +295,7 @@ class Chassis(ChassisBase):
 
                 # Update reg value
                 self.modprs_register = reg_value
-                return True, port_dict
+                return True, ret_dict
 
             if forever:
                 time.sleep(1)
@@ -287,7 +306,7 @@ class Chassis(ChassisBase):
                 else:
                     if timeout > 0:
                         time.sleep(timeout)
-                    return True, {}
-        return False, {}
+                    return True, ret_dict
+        return False, ret_dict
 
 
