@@ -691,7 +691,7 @@ void do_arp_update_from_reply_packet(unsigned int ifindex, unsigned int addr, ui
     if (!verify_arp)
         return;
 
-    if (iccp_check_if_addr_from_netlink(AF_INET, &addr, arp_lif))
+    if (iccp_check_if_addr_from_netlink(AF_INET, (uint8_t *)&addr, arp_lif))
     {
         ICCPD_LOG_DEBUG(__FUNCTION__, "ARP %s is identical with the ip address of interface %s",
                                       show_ip_str(arp_msg->ipv4_addr), arp_lif->name);

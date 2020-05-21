@@ -31,6 +31,7 @@
 #include <sys/queue.h>
 #include <unistd.h>
 #include <time.h>
+#include <pthread.h>
 
 #include "../include/app_csm.h"
 #include "../include/msg_format.h"

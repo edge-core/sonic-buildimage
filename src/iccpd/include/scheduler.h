@@ -35,6 +35,7 @@
 #include <unistd.h>
 
 struct CSM;
+struct System;
 
 #define CONNECT_INTERVAL_SEC        1
 #define CONNECT_TIMEOUT_MSEC         100

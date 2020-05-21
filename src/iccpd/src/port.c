@@ -28,6 +28,8 @@
 #include "../include/port.h"
 #include "../include/system.h"
 #include "../include/iccp_csm.h"
+#include "../include/iccp_netlink.h"
+#include "../include/scheduler.h"
 
 void local_if_init(struct LocalInterface* local_if)
 {

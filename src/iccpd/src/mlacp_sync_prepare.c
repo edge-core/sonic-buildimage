@@ -370,7 +370,7 @@ int mlacp_prepare_for_arp_info(struct CSM* csm, char* buf, size_t max_buf_size, 
         tlv->icc_parameter.type = htons(TLV_T_MLACP_ARP_INFO);
     }
 
-    ArpData = (struct mLACPMACData *)&buf[sizeof(ICCHdr) + sizeof(struct mLACPARPInfoTLV) + sizeof(struct ARPMsg) * count];
+    ArpData = (struct ARPMsg *)&buf[sizeof(ICCHdr) + sizeof(struct mLACPARPInfoTLV) + sizeof(struct ARPMsg) * count];
 
     ArpData->op_type = arp_msg->op_type;
     sprintf(ArpData->ifname, "%s", arp_msg->ifname);

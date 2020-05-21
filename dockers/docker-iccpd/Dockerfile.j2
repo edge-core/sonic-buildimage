@@ -9,7 +9,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
     apt-get install -y ebtables
-RUN apt-get -y install -f kmod
 
 COPY \
 {% for deb in docker_iccpd_debs.split(' ') -%}

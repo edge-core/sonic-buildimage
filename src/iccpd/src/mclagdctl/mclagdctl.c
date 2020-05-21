@@ -1,5 +1,5 @@
 /*
-   /* Copyright(c) 2016-2019 Nephos.
+ * Copyright(c) 2016-2019 Nephos.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -21,6 +21,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <ctype.h>
 #include <string.h>
 #include <stdbool.h>
 #include <getopt.h>
