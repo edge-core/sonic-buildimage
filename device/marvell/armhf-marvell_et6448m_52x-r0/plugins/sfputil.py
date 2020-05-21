@@ -4,9 +4,16 @@ try:
     import os
     import time
     import re
+    import sys
+    import glob
     from sonic_sfp.sfputilbase import SfpUtilBase
 except ImportError, e:
     raise ImportError (str(e) + "- required module not found")
+
+if sys.version_info[0] < 3:
+    import commands as cmd
+else:
+    import subprocess as cmd
 
 smbus_present = 1
 
@@ -24,40 +31,45 @@ class SfpUtil(SfpUtilBase):
 
     _port_to_eeprom_mapping = {}
     port_to_i2c_mapping = {
-         49 : 0,
-         50 : 0,
-         51 : 0,
-         52 : 0
+         49 : 2,
+         50 : 3,
+         51 : 4,
+         52 : 5
     }
 
     _qsfp_ports = range(_port_start, ports_in_block + 1)
-
+    _changed_ports = [0,0,0,0]
     def __init__(self):
-        # Override port_to_eeprom_mapping for class initialization
-    	if not os.path.exists("/sys/class/gpio/gpio50/") :
-            os.system("echo 50 >  /sys/class/gpio/gpiochip32/subsystem/export")
-    	if not os.path.exists("/sys/class/gpio/gpio52/") :
-            os.system("echo 52 >  /sys/class/gpio/gpiochip32/subsystem/export")
-    	os.system("echo out > /sys/class/gpio/gpio50/direction")
-    	os.system("echo out > /sys/class/gpio/gpio52/direction ")
 
-        if not os.path.exists("/sys/bus/i2c/devices/0-0050") :
-            os.system("echo optoe2 0x50 > /sys/bus/i2c/devices/i2c-0/new_device")
-
-        eeprom_path = '/sys/bus/i2c/devices/0-0050/eeprom'
-        for x in range(self.port_start, self.port_end + 1):
-            port_eeprom_path = eeprom_path.format(self.port_to_i2c_mapping[x])
-            self.port_to_eeprom_mapping[x] = port_eeprom_path
         # Enable optical SFP Tx
         if smbus_present == 0 :
             os.system("i2cset -y -m 0x0f 0 0x41 0x5 0x00")
         else :
             bus = smbus.SMBus(0)
             DEVICE_ADDRESS = 0x41
-            DEVICEREG = 0x5 
+            DEVICEREG = 0x5
             OPTIC_E =  bus.read_byte_data(DEVICE_ADDRESS, DEVICEREG)
             OPTIC_E = OPTIC_E & 0xf0
-            bus.write_byte_data(DEVICE_ADDRESS, DEVICEREG, OPTIC_E) 
+            bus.write_byte_data(DEVICE_ADDRESS, DEVICEREG, OPTIC_E)
+
+        # Mux Ordering
+        mux_dev = sorted(glob.glob("/sys/class/i2c-adapter/i2c-0/i2c-[0-9]"))
+
+        # Enable optoe2 Driver
+        eeprom_path = "/sys/class/i2c-adapter/i2c-{0}/{0}-0050/eeprom"
+        bus_path = "/sys/class/i2c-adapter/i2c-{0}/"
+        y = 0
+        for x in range(self.port_start, self.port_end + 1):
+            mux_dev_num = mux_dev[y]
+            self.port_to_i2c_mapping[x] = mux_dev_num[-1]
+            y = y + 1
+            port_eeprom_path = eeprom_path.format(self.port_to_i2c_mapping[x])
+            #print port_eeprom_path
+            if not os.path.exists(port_eeprom_path):
+                bus_dev_path = bus_path.format(self.port_to_i2c_mapping[x])
+                os.system("echo optoe2 0x50 > " + bus_dev_path + "/new_device")
+            self.port_to_eeprom_mapping[x] = port_eeprom_path
+            self._port_to_eeprom_mapping[x] = port_eeprom_path
         SfpUtilBase.__init__(self)
 
     def reset(self, port_num):
@@ -65,9 +77,9 @@ class SfpUtil(SfpUtilBase):
         if port_num < self._port_start or port_num > self._port_end:
             return False
 
-        path = "/sys/bus/i2c/devices/{0}-0050/sfp_port_reset"
-        port_ps = path.format(self.port_to_i2c_mapping[port_num+1])
-          
+        path = "/sys/class/i2c-adapter/i2c-{0}/{0}-0050/sfp_port_reset"
+        port_ps = path.format(self.port_to_i2c_mapping[port_num])
+
         try:
             reg_file = open(port_ps, 'w')
         except IOError as e:
@@ -88,53 +100,35 @@ class SfpUtil(SfpUtilBase):
 
     def get_low_power_mode(self, port_num):
         raise NotImplementedError
-      
+
     def get_presence(self, port_num):
         # Check for invalid port_num
         if port_num < self._port_start or port_num > self._port_end:
             return False
-    	prt = port_num % 49
-    	prt = "{0:02b}".format(prt)
-    	p = prt[0]
-    	q = prt[1]
-    	cmd1 = "echo " + q + " > /sys/class/gpio/gpio50/value"
-    	cmd2 = "echo " + p + " > /sys/class/gpio/gpio52/value"
-    	os.system(cmd1)
-    	os.system(cmd2)
+        prt = port_num % 49
+        sel = "{0:02b}".format(prt)
+        p = sel[0]
+        q = sel[1]
 
-        '''if port_num == 49 :
-       	os.system("echo 0 > /sys/class/gpio/gpio50/value")
-       	os.system("echo 0 > /sys/class/gpio/gpio52/value")
-       if port_num == 50 :                         
-                   os.system("echo 0 > /sys/class/gpio/gpio50/value")
-                   os.system("echo 0 > /sys/class/gpio/gpio52/value")
-       if port_num == 51 :                         
-                   os.system("echo 0 > /sys/class/gpio/gpio50/value")
-                   os.system("echo 0 > /sys/class/gpio/gpio52/value")
-       if port_num == 52:                         
-                   os.system("echo 0 > /sys/class/gpio/gpio50/value")
-                   os.system("echo 0 > /sys/class/gpio/gpio52/value")'''
-        path = "/sys/bus/i2c/devices/0-0050/eeprom"
-        #port_ps = path.format(self.port_to_i2c_mapping[port_num+1])
+        pos = [1,2,4,8]
+        bit_pos = pos[prt]
+        if smbus_present == 0:
+             cmdstatus, sfpstatus = cmd.getstatusoutput('i2cget -y 0 0x41 0x3') #need to verify the cpld register logic
+             sfpstatus = int(sfpstatus, 16)
+        else :
+             bus = smbus.SMBus(0)
+             DEVICE_ADDRESS = 0x41
+             DEVICE_REG = 0x3
+             sfpstatus = bus.read_byte_data(DEVICE_ADDRESS, DEVICE_REG)
+        sfpstatus = sfpstatus&(bit_pos)
+        if sfpstatus == 0:
+            #print("Port " + str(port_num)  + "present")
+            return True
 
-        try:
-            reg_file = open(path)
-            reg_file.seek(01)
-            reg_file.read(02)
-        except IOError as e:
-            #print "Error: unable to open file: %s" % str(e)
-	    
-            return False
-
-        #reg_value = reg_file.readline().rstrip()
-        #if reg_value == '1':
-        #    return True
-
-        return True
-
+        return False
+        
     def read_porttab_mappings(self, porttabfile):
         logical = []
-        logical_to_bcm = {}
         logical_to_physical = {}
         physical_to_logical = {}
         last_fp_port_index = 0
@@ -166,13 +160,7 @@ class SfpUtil(SfpUtilBase):
 
             # Parsing logic for 'port_config.ini' file
             if (parse_fmt_port_config_ini):
-                # bcm_port is not explicitly listed in port_config.ini format
-                # Currently we assume ports are listed in numerical order according to bcm_port
-                # so we use the port's position in the file (zero-based) as bcm_port
                 portname = line.split()[0]
-
-                bcm_port = str(port_pos_in_file)
-		#print("portname " + portname)
 
                 if "index" in title:
                     fp_port_index = int(line.split()[title.index("index")])
@@ -182,10 +170,8 @@ class SfpUtil(SfpUtilBase):
                 else:
                     fp_port_index = portname.split("Ethernet").pop()
                     fp_port_index = int(fp_port_index.split("s").pop(0))+1
-		    #print(fp_port_index)
+                    #print(fp_port_index)
             else:  # Parsing logic for older 'portmap.ini' file
-                (portname, bcm_port) = line.split("=")[1].split(",")[:2]
-
                 fp_port_index = portname.split("Ethernet").pop()
                 fp_port_index = int(fp_port_index.split("s").pop(0))+1
 
@@ -201,7 +187,6 @@ class SfpUtil(SfpUtilBase):
 
             logical.append(portname)
 
-            logical_to_bcm[portname] = "xe" + bcm_port
             logical_to_physical[portname] = [fp_port_index]
             if physical_to_logical.get(fp_port_index) is None:
                 physical_to_logical[fp_port_index] = [portname]
@@ -224,17 +209,9 @@ class SfpUtil(SfpUtilBase):
             port_pos_in_file += 1
 
         self.logical = logical
-        self.logical_to_bcm = logical_to_bcm
         self.logical_to_physical = logical_to_physical
         self.physical_to_logical = physical_to_logical
-
-       
         #print(self.logical_to_physical)
-	'''print("logical: " + self.logical)
-        print("logical to bcm: " + self.logical_to_bcm)
-        print("logical to physical: " + self.logical_to_physical)
-        print("physical to logical: " + self.physical_to_logical)'''
-       
 
 
     @property
@@ -244,15 +221,50 @@ class SfpUtil(SfpUtilBase):
     @property
     def port_end(self):
         return self._port_end
-	
+
     @property
     def qsfp_ports(self):
         return self._qsfp_ports
 
-    @property 
+    @property
     def port_to_eeprom_mapping(self):
          return self._port_to_eeprom_mapping
-    
-    @property
-    def get_transceiver_change_event(self):
-        raise NotImplementedError 
+
+    def get_transceiver_change_event(self, timeout):
+        port_dict = {}
+        port = 0
+
+        if timeout == 0:
+            cd_ms = sys.maxint
+        else:
+            cd_ms = timeout
+        changed_port = 0
+        #poll per second
+        while cd_ms > 0:
+           for port_num in range(49,53):
+              prt = port_num % 49
+              sfpstatus = self.get_presence(port_num)
+              if sfpstatus :
+                 port_dict[str(port_num)]= '1'
+                 if self._changed_ports[prt] == 0:
+                     changed_port = 1
+                     self._changed_ports[prt] = 1
+              else :
+                 port_dict[str(port_num)] = '0'
+                 if self._changed_ports[prt] == 1:
+                     changed_port = 1
+                     self._changed_ports[prt] = 0
+
+           if changed_port != 0:
+               break
+           time.sleep(1)
+           cd_ms = cd_ms - 1000
+
+        if changed_port:
+            return True, port_dict
+        else:
+            return True, {}
+        return False, {}
+
+
+
