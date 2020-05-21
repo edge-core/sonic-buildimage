@@ -265,11 +265,15 @@ class ControlPlaneAclManager(object):
         # TODO: Support processing ICMPv4 service ACL rules, and remove this blanket acceptance
         iptables_cmds.append("iptables -A INPUT -p icmp --icmp-type echo-request -j ACCEPT")
         iptables_cmds.append("iptables -A INPUT -p icmp --icmp-type echo-reply -j ACCEPT")
+        iptables_cmds.append("iptables -A INPUT -p icmp --icmp-type destination-unreachable -j ACCEPT")
+        iptables_cmds.append("iptables -A INPUT -p icmp --icmp-type time-exceeded -j ACCEPT")
 
         # Add iptables/ip6tables commands to allow bidirectional ICMPv6 ping and traceroute
         # TODO: Support processing ICMPv6 service ACL rules, and remove this blanket acceptance
         iptables_cmds.append("ip6tables -A INPUT -p icmpv6 --icmpv6-type echo-request -j ACCEPT")
         iptables_cmds.append("ip6tables -A INPUT -p icmpv6 --icmpv6-type echo-reply -j ACCEPT")
+        iptables_cmds.append("ip6tables -A INPUT -p icmpv6 --icmpv6-type destination-unreachable -j ACCEPT")
+        iptables_cmds.append("ip6tables -A INPUT -p icmpv6 --icmpv6-type time-exceeded -j ACCEPT")
 
         # Add iptables/ip6tables commands to allow all incoming Neighbor Discovery Protocol (NDP) NS/NA/RS/RA messages
         # TODO: Support processing NDP service ACL rules, and remove this blanket acceptance
