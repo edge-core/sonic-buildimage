@@ -678,4 +678,5 @@ port set property portlist=0-63 fec=disable
 port set adver portlist=129-130 speed-10g-kr
 port set property portlist=129-130 an=enable
 
-port set property portlist=0-63,129-130 admin=enable
+port set property portlist=129-130 admin=enable
+port set property portlist=0-63 admin=disable

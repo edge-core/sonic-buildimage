@@ -349,4 +349,5 @@ port set property unit=0 portlist=129-130 medium-type=kr
 port set property unit=0 portlist=0-31 fec=disable
 port set adver unit=0 portlist=129-130 speed-10g-kr
 port set property unit=0 portlist=129-130 an=enable
-port set property unit=0 portlist=0-31,129-130 admin=enable
+port set property unit=0 portlist=129-130 admin=enable
+port set property unit=0 portlist=0-31  admin=disable
