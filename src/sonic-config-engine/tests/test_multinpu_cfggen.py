@@ -9,7 +9,7 @@ SKU = 'multi-npu-01'
 ASIC_SKU = 'multi-npu-asic'
 NUM_ASIC = 4
 HOSTNAME = 'multi_npu_platform_01'
-
+DEVICE_TYPE = 'LeafRouter'
 
 class TestMultiNpuCfgGen(TestCase):
 
@@ -197,16 +197,16 @@ class TestMultiNpuCfgGen(TestCase):
         output = json.loads(self.run_script(argument))
         self.assertDictEqual(output, \
             {'10.0.0.1': {'rrclient': 0, 'name': '01T2', 'local_addr': '10.0.0.0', 'nhopself': 0, 'holdtime': '10', 'asn': '65200', 'keepalive': '3'},
-            '10.1.0.0': {'rrclient': 0, 'name': 'ASIC2', 'local_addr': '10.1.0.1', 'nhopself': 0, 'holdtime': '0', 'asn': '65100', 'keepalive': '0'},
+            '10.1.0.0': {'rrclient': 0, 'name': 'ASIC2', 'local_addr': '10.1.0.1', 'nhopself': 0, 'holdtime': '0', 'asn': '65100', 'keepalive': '0', 'admin_status': 'up'},
             'fc00::2': {'rrclient': 0, 'name': '01T2', 'local_addr': 'fc00::1', 'nhopself': 0, 'holdtime': '10', 'asn': '65200', 'keepalive': '3'},
-            '10.1.0.2': {'rrclient': 0, 'name': 'ASIC3', 'local_addr': '10.1.0.3', 'nhopself': 0, 'holdtime': '0', 'asn': '65100', 'keepalive': '0'}})
+            '10.1.0.2': {'rrclient': 0, 'name': 'ASIC3', 'local_addr': '10.1.0.3', 'nhopself': 0, 'holdtime': '0', 'asn': '65100', 'keepalive': '0', 'admin_status': 'up'}})
 
     def test_backend_asic_bgp_neighbor(self):
         argument = "-m {} -p {} -n asic3 --var-json \"BGP_NEIGHBOR\"".format(self.sample_graph, self.port_config[3])
         output = json.loads(self.run_script(argument))
         self.assertDictEqual(output, \
-             {'10.1.0.7': {'rrclient': 0, 'name': 'ASIC1', 'local_addr': '10.1.0.6', 'nhopself': 0, 'holdtime': '0', 'asn': '65100', 'keepalive': '0'},
-             '10.1.0.3': {'rrclient': 0, 'name': 'ASIC0', 'local_addr': '10.1.0.2', 'nhopself': 0, 'holdtime': '0', 'asn': '65100', 'keepalive': '0'}})
+             {'10.1.0.7': {'rrclient': 0, 'name': 'ASIC1', 'local_addr': '10.1.0.6', 'nhopself': 0, 'holdtime': '0', 'asn': '65100', 'keepalive': '0', 'admin_status': 'up'},
+             '10.1.0.3': {'rrclient': 0, 'name': 'ASIC0', 'local_addr': '10.1.0.2', 'nhopself': 0, 'holdtime': '0', 'asn': '65100', 'keepalive': '0', 'admin_status': 'up'}})
 
     def test_device_asic_metadata(self):
         argument = "-m {} --var-json DEVICE_METADATA".format(self.sample_graph)
@@ -215,7 +215,7 @@ class TestMultiNpuCfgGen(TestCase):
             asic_name  = "asic{}".format(asic)
             self.assertEqual(output['localhost']['hostname'], 'multi_npu_platform_01')
             self.assertEqual(output['localhost']['asic_name'], asic_name)
-            self.assertEqual(output['localhost']['type'], 'Asic')
+            self.assertEqual(output['localhost']['type'], DEVICE_TYPE)
             if asic == 0 or asic == 1:
                 self.assertEqual(output['localhost']['sub_role'], 'FrontEnd')
             else:
