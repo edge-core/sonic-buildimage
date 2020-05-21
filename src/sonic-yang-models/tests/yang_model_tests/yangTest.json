@@ -1275,10 +1275,76 @@
 				"family": "IPv4"
 			}
 		},
-		"CRM": {
-			"Config": {
-				"polling_interval": "0"
-			}
-		}
-	}
+        "BREAKOUT_CFG": {
+            "Ethernet0": {
+                "brkout_mode": "1x100G[40G]"
+            },
+            "Ethernet4": {
+                "brkout_mode": "4x25G"
+            },
+            "Ethernet8": {
+                "brkout_mode": "1x100G[40G]"
+            }
+        },
+        "VERSIONS": {
+            "DATABASE": {
+                "VERSION": "version_1_0_3"
+            }
+        },
+        "FLEX_COUNTER_TABLE": {
+            "PFCWD": {
+                "FLEX_COUNTER_STATUS": "enable"
+            },
+            "PG_WATERMARK": {
+                "FLEX_COUNTER_STATUS": "enable"
+            },
+            "PORT": {
+                "FLEX_COUNTER_STATUS": "enable"
+            },
+            "QUEUE": {
+                "FLEX_COUNTER_STATUS": "enable"
+            },
+            "QUEUE_WATERMARK": {
+                "FLEX_COUNTER_STATUS": "enable"
+            }
+        },
+        "CRM": {
+            "Config": {
+                "acl_counter_high_threshold": "85",
+                "acl_counter_low_threshold": "70",
+                "acl_counter_threshold_type": "percentage",
+                "polling_interval": "0"
+            }
+        }
+    },
+    "SAMPLE_CONFIG_DB_JSON_1": {
+        "FLEX_COUNTER_TABLE": {
+            "PFCWD": {
+                "FLEX_COUNTER_STATUS": "enable"
+            },
+            "PG_WATERMARK": {
+                "FLEX_COUNTER_STATUS": "enable"
+            },
+            "PORT": {
+                "FLEX_COUNTER_STATUS": "enable"
+            },
+            "QUEUE": {
+                "FLEX_COUNTER_STATUS": "enable"
+            },
+            "QUEUE_WATERMARK": {
+                "FLEX_COUNTER_STATUS": "enable"
+            }
+        },
+        "CRM": {
+            "Config": {
+                "acl_counter_high_threshold": "85",
+                "acl_counter_low_threshold": "70",
+                "acl_counter_threshold_type": "percentage",
+                "polling_interval": "0"
+            }
+        },
+        "UNKNOWN_TABLE": {
+            "Error": "This Table is for testing, This Table does not have YANG models."
+        }
+    }
 }
