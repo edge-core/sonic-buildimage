@@ -14,6 +14,7 @@ import os.path
 
 try:
     from sonic_platform_base.fan_base import FanBase
+    from helper import APIHelper
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -38,13 +39,16 @@ PSU_I2C_MAPPING = {
         "addr": "5b"
     },
 }
+NULL_VAL = "N/A"
 
 
 class Fan(FanBase):
     """Platform-specific Fan class"""
 
     def __init__(self, fan_tray_index, fan_index=0, is_psu_fan=False, psu_index=0):
+        FanBase.__init__(self)
         self.fan_index = fan_index
+        self._api_helper = APIHelper()
         self.fan_tray_index = fan_tray_index
         self.is_psu_fan = is_psu_fan
         if self.is_psu_fan:
@@ -75,16 +79,6 @@ class Fan(FanBase):
             {'prs': 14, 'dir': 19, 'color': {'red': 37, 'green': 38}},  # 4
             {'prs': 12, 'dir': 17, 'color': {'red': 33, 'green': 34}},  # 5
         ]
-        FanBase.__init__(self)
-
-    def __read_txt_file(self, file_path):
-        try:
-            with open(file_path, 'r') as fd:
-                data = fd.read()
-                return data.strip()
-        except IOError:
-            pass
-        return ""
 
     def __write_txt_file(self, file_path, value):
         try:
@@ -105,7 +99,7 @@ class Fan(FanBase):
     def __get_gpio_base(self):
         for r in os.listdir(GPIO_DIR):
             label_path = os.path.join(GPIO_DIR, r, "label")
-            if "gpiochip" in r and GPIO_LABEL in self.__read_txt_file(label_path):
+            if "gpiochip" in r and GPIO_LABEL in self._api_helper.read_txt_file(label_path):
                 return int(r[8:], 10)
         return 216  # Reserve
 
@@ -113,7 +107,7 @@ class Fan(FanBase):
         gpio_base = self.dx010_fan_gpio[0]['base']
         gpio_dir = GPIO_DIR + '/gpio' + str(gpio_base+pinnum)
         gpio_file = gpio_dir + "/value"
-        retval = self.__read_txt_file(gpio_file)
+        retval = self._api_helper.read_txt_file(gpio_file)
         return retval.rstrip('\r\n')
 
     def __set_gpio_value(self, pinnum, value=0):
@@ -154,7 +148,8 @@ class Fan(FanBase):
             fan_speed_sysfs_name = "fan{}_input".format(self.fan_index+1)
             fan_speed_sysfs_path = self.__search_file_by_name(
                 self.psu_hwmon_path, fan_speed_sysfs_name)
-            fan_speed_rpm = self.__read_txt_file(fan_speed_sysfs_path) or 0
+            fan_speed_rpm = self._api_helper.read_txt_file(
+                fan_speed_sysfs_path) or 0
             fan_speed_raw = float(fan_speed_rpm)/PSU_FAN_MAX_RPM * 100
             speed = math.ceil(float(fan_speed_rpm) * 100 / PSU_FAN_MAX_RPM)
         elif self.get_presence():
@@ -164,7 +159,7 @@ class Fan(FanBase):
             sysfs_path = "%s%s/%s" % (
                 EMC2305_PATH, device, EMC2305_FAN_INPUT)
             sysfs_path = sysfs_path.format(fan_index[self.fan_tray_index])
-            raw = self.__read_txt_file(sysfs_path).strip('\r\n')
+            raw = self._api_helper.read_txt_file(sysfs_path).strip('\r\n')
             pwm = int(raw, 10) if raw else 0
             speed = math.ceil(float(pwm * 100 / EMC2305_MAX_PWM))
 
@@ -183,19 +178,7 @@ class Fan(FanBase):
             0   : when PWM mode is use
             pwm : when pwm mode is not use
         """
-        target = 0
-        if not self.is_psu_fan:
-            chip = self.emc2305_chip_mapping[self.fan_index]
-            device = chip['device']
-            fan_index = chip['index_map']
-            sysfs_path = "%s%s/%s" % (
-                EMC2305_PATH, device, EMC2305_FAN_TARGET)
-            sysfs_path = sysfs_path.format(fan_index[self.fan_tray_index])
-            raw = self.__read_txt_file(sysfs_path).strip('\r\n')
-            pwm = int(raw, 10) if raw else 0
-            target = math.ceil(float(pwm) * 100 / EMC2305_MAX_PWM)
-
-        return target
+        return 'N/A'
 
     def get_speed_tolerance(self):
         """
@@ -284,11 +267,43 @@ class Fan(FanBase):
 
     def get_presence(self):
         """
-        Retrieves the presence of the PSU
+        Retrieves the presence of the FAN
         Returns:
-            bool: True if PSU is present, False if not
+            bool: True if FAN is present, False if not
         """
         present_str = self.__get_gpio_value(
             self.dx010_fan_gpio[self.fan_tray_index+1]['prs'])
 
         return int(present_str, 10) == 0 if not self.is_psu_fan else True
+
+    def get_model(self):
+        """
+        Retrieves the model number (or part number) of the device
+        Returns:
+            string: Model/part number of device
+        """
+        if self.is_psu_fan:
+            return NULL_VAL
+
+        model = NULL_VAL
+        return model
+
+    def get_serial(self):
+        """
+        Retrieves the serial number of the device
+        Returns:
+            string: Serial number of device
+        """
+        if self.is_psu_fan:
+            return NULL_VAL
+
+        serial = NULL_VAL
+        return serial
+
+    def get_status(self):
+        """
+        Retrieves the operational status of the device
+        Returns:
+            A boolean value, True if device is operating properly, False if not
+        """
+        return self.get_presence() and self.get_speed() > 0

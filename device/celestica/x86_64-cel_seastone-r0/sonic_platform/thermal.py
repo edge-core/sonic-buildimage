@@ -14,6 +14,7 @@ import os.path
 
 try:
     from sonic_platform_base.thermal_base import ThermalBase
+    from helper import APIHelper
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -27,6 +28,7 @@ class Thermal(ThermalBase):
 
     def __init__(self, thermal_index):
         self.index = thermal_index
+        self._api_helper = APIHelper()
 
         # Add thermal name
         self.THERMAL_NAME_LIST.append("Front-panel temp sensor 1")
@@ -48,19 +50,11 @@ class Thermal(ThermalBase):
         self.ss_key = self.THERMAL_NAME_LIST[self.index]
         self.ss_index = 1
 
-    def __read_txt_file(self, file_path):
-        try:
-            with open(file_path, 'r') as fd:
-                data = fd.read()
-                return data.strip()
-        except IOError:
-            pass
-
     def __get_temp(self, temp_file):
         temp_file_path = os.path.join(self.hwmon_path, temp_file)
-        raw_temp = self.__read_txt_file(temp_file_path)
+        raw_temp = self._api_helper.read_txt_file(temp_file_path)
         temp = float(raw_temp)/1000
-        return "{:.3f}".format(temp)
+        return float("{:.3f}".format(temp))
 
     def __set_threshold(self, file_name, temperature):
         temp_file_path = os.path.join(self.hwmon_path, file_name)
