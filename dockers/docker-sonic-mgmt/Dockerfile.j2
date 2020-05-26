@@ -39,7 +39,7 @@ RUN apt-get purge -y python-cffi python-cffi-backend
 # Remove pycparser 2.14, will install >=2.17 by pip later
 RUN apt-get purge -y python-ply python-pycparser
 
-RUN easy_install pip
+RUN easy_install pip==20.1.1
 
 RUN pip install ipaddr \
                 lxml \
