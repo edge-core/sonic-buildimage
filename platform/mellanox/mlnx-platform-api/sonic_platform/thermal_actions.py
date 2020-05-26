@@ -141,6 +141,12 @@ class ControlThermalAlgoAction(ThermalPolicyActionBase):
             logger.log_info('Changed thermal algorithm status to {}'.format(self.status))
 
 
+@thermal_json_object('thermal.recover')
+class ThermalRecoverAction(ThermalPolicyActionBase):
+    def execute(self, thermal_info_dict):
+         UpdateCoolingLevelToMinAction.update_cooling_level_to_minimum(thermal_info_dict)
+
+
 class ChangeMinCoolingLevelAction(ThermalPolicyActionBase):
     UNKNOWN_SKU_COOLING_LEVEL = 6
     def execute(self, thermal_info_dict):
