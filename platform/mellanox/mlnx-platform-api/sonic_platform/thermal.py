@@ -495,12 +495,15 @@ class Thermal(ThermalBase):
         We usually disable the algorithm when we want to set a fix speed. E.g, when 
         a fan unit is removed from system, we will set fan speed to 100% and disable 
         the algorithm to avoid it adjust the speed.
+
+        Returns:
+            True if thermal algorithm status changed.
         """
         if not cls.thermal_profile:
             raise Exception("Fail to get thermal profile for this switch")
 
         if not force and cls.thermal_algorithm_status == status:
-            return
+            return False
 
         cls.thermal_algorithm_status = status
         content = "enabled" if status else "disabled"
@@ -521,6 +524,7 @@ class Thermal(ThermalBase):
                 for index in range(count):
                     cls._write_generic_file(join(THERMAL_ZONE_GEARBOX_PATH.format(start + index), THERMAL_ZONE_MODE), content)
                     cls._write_generic_file(join(THERMAL_ZONE_GEARBOX_PATH.format(start + index), THERMAL_ZONE_POLICY), policy)
+        return True
 
     @classmethod
     def check_thermal_zone_temperature(cls):

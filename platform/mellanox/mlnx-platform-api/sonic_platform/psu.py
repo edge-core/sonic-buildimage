@@ -122,6 +122,8 @@ class Psu(PsuBase):
         """
         result = 0
         try:
+            if not os.path.exists(filename):
+                return result
             with open(filename, 'r') as fileobj:
                 result = int(fileobj.read().strip())
         except Exception as e:
