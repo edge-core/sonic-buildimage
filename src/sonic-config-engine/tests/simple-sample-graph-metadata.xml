@@ -221,6 +221,11 @@
      <a:Value>usfoo</a:Value>
     </a:DeviceProperty>
     <a:DeviceProperty>
+     <a:Name>CloudType</a:Name>
+     <a:Reference i:nil="true"/>
+     <a:Value>Public</a:Value>
+    </a:DeviceProperty>
+    <a:DeviceProperty>
      <a:Name>ErspanDestinationIpv4</a:Name>
      <a:Reference i:nil="true"/>
      <a:Value>10.0.100.1</a:Value>

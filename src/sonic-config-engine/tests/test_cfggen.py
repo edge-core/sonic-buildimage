@@ -58,6 +58,11 @@ class TestCfgGen(TestCase):
         output = self.run_script(argument)
         self.assertEqual(output.strip(), 'usfoo')
 
+    def test_minigraph_cloudtype(self):
+        argument = '-v "DEVICE_METADATA[\'localhost\'][\'cloudtype\']" -m "' + self.sample_graph_metadata + '"'
+        output = self.run_script(argument)
+        self.assertEqual(output.strip(), 'Public')
+
     def test_print_data(self):
         argument = '-m "' + self.sample_graph + '" --print-data'
         output = self.run_script(argument)
