@@ -355,6 +355,11 @@ static ssize_t show_ascii(struct device *dev, struct device_attribute *da,
 
     switch (attr->index) {
     case PSU_FAN_DIRECTION: /* psu_fan_dir */
+        if (data->chip==YPEB1200AM)
+        {
+            memcpy(data->fan_dir, "F2B", 3);
+            data->fan_dir[3]='\0';
+        }
         ptr = data->fan_dir;
         break;
     case PSU_MFR_ID: /* psu_mfr_id */
