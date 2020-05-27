@@ -35,6 +35,8 @@ class SfpUtil(SfpUtilBase):
     QSFP_PORT_END = 0
     EEPROM_OFFSET = 0
     QSFP_CHECK_INTERVAL = 4
+    THRIFT_RETRIES = 5
+    THRIFT_TIMEOUT = 5
 
     @property
     def port_start(self):
@@ -94,7 +96,20 @@ class SfpUtil(SfpUtilBase):
         pltfm_mgr_protocol = TMultiplexedProtocol.TMultiplexedProtocol(bprotocol, "pltfm_mgr_rpc")
         pltfm_mgr = pltfm_mgr_client_module.Client(pltfm_mgr_protocol)
 
-        transport.open()
+        for i in range(self.THRIFT_RETRIES):
+            try:
+                transport.open()
+                if i:
+                    # The main thrift server is starded without platform api
+                    # Platform api is added later during syncd initialization
+                    # So we need to wait a little bit before do any platform api call
+                    # Just in case when can't connect from the first try (warm-reboot case)
+                    time.sleep(self.THRIFT_TIMEOUT)
+                break
+            except TTransport.TTransportException as e:
+                if e.type != TTransport.TTransportException.NOT_OPEN or i >= self.THRIFT_RETRIES - 1:
+                    raise e
+                time.sleep(self.THRIFT_TIMEOUT)
 
     def thrift_teardown(self):
         global transport
