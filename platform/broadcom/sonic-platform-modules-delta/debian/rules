@@ -5,7 +5,7 @@ export INSTALL_MOD_DIR:=extra
 KVERSION   ?= $(shell uname -r)
 KERNEL_SRC :=  /lib/modules/$(KVERSION)
 MOD_SRC_DIR:= $(shell pwd)
-MODULE_DIRS:= ag9032v1 ag9064 ag5648 et-6248brb ag9032v2a
+MODULE_DIRS:= ag9032v1 ag9064 ag5648 et-6248brb ag9032v2a agc032
 
 %:
 	dh $@ --with=systemd
