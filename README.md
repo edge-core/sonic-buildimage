@@ -1,7 +1,8 @@
-*master builds*:
-
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/Azure/sonic-buildimage.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Azure/sonic-buildimage/alerts/)
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/Azure/sonic-buildimage.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Azure/sonic-buildimage/context:python)
+
+
+*master builds*:
 
 [![Innovium](https://sonic-jenkins.westus2.cloudapp.azure.com/job/innovium/job/buildimage-invm-all/badge/icon?subject=Innovium)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/innovium/job/buildimage-invm-all)
 [![Barefoot](https://sonic-jenkins.westus2.cloudapp.azure.com/job/barefoot/job/buildimage-bf-all/badge/icon?subject=Barefoot)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/barefoot/job/buildimage-bf-all)
