@@ -5,20 +5,8 @@
 
 from setuptools import setup, find_packages
 from setuptools.command.build_py import build_py
-from os import system, environ
+from os import system
 from sys import exit
-
-# find path of pkgs from environment vars
-prefix = '../../'; debs = environ["IMAGE_DISTRO_DEBS_PATH"]
-deps_path = '{}/{}'.format(prefix, debs)
-# dependencies
-libyang = '{}/{}'.format(deps_path, environ["LIBYANG"])
-libyangCpp = '{}/{}'.format(deps_path, environ["LIBYANG_CPP"])
-libyangPy2 = '{}/{}'.format(deps_path, environ["LIBYANG_PY2"])
-libyangPy3 = '{}/{}'.format(deps_path, environ["LIBYANG_PY3"])
-
-# important reuirements parameters
-build_requirements = [libyang, libyangCpp, libyangPy2, libyangPy3,]
 
 setup_requirements = ['pytest-runner']
 
@@ -33,16 +21,6 @@ class pkgBuild(build_py):
     """Custom Build PLY"""
 
     def run (self):
-        #  install libyang
-        for req in build_requirements:
-            if '.deb'in req:
-                pkg_install_cmd = "sudo dpkg -i {}".format(req)
-                if (system(pkg_install_cmd)):
-                    print("{} installation failed".format(req))
-                    exit(1)
-                else:
-                    print("{} installed".format(req))
-
         # json file for YANG model test cases.
         test_yangJson_file = './tests/yang_model_tests/yangTest.json'
         # YANG models are in below dir
@@ -53,7 +31,6 @@ class pkgBuild(build_py):
         test_yang_cmd = "python {} -f {} -y {}".format(yang_test_py, test_yangJson_file, yang_model_dir)
         if (system(test_yang_cmd)):
             print("YANG Tests failed\n")
-            # below line will be uncommented after libyang python support PR #
             exit(1)
         else:
             print("YANG Tests passed\n")

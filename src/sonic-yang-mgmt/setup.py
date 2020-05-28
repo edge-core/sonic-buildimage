@@ -5,24 +5,9 @@
 
 from setuptools import setup, find_packages
 from setuptools.command.build_py import build_py
-from os import system, environ
+from os import system
 from sys import exit
 import pytest
-
-# find path of pkgs from os environment vars
-prefix = '../../'; debs = environ["IMAGE_DISTRO_DEBS_PATH"]
-wheels = environ["PYTHON_WHEELS_PATH"]
-wheels_path = '{}/{}'.format(prefix, wheels)
-deps_path = '{}/{}'.format(prefix, debs)
-# dependencies
-libyang = '{}/{}'.format(deps_path, environ["LIBYANG"])
-libyangCpp = '{}/{}'.format(deps_path, environ["LIBYANG_CPP"])
-libyangPy2 = '{}/{}'.format(deps_path, environ["LIBYANG_PY2"])
-libyangPy3 = '{}/{}'.format(deps_path, environ["LIBYANG_PY3"])
-sonicYangModels = '{}/{}'.format(wheels_path, environ["SONIC_YANG_MODELS_PY3"])
-
-# important reuirements parameters
-build_requirements = [libyang, libyangCpp, libyangPy2, libyangPy3, sonicYangModels,]
 
 setup_requirements = ['pytest-runner']
 
@@ -37,23 +22,6 @@ class pkgBuild(build_py):
     """Custom Build PLY"""
 
     def run (self):
-        #  install libyang and sonic_yang_models
-        for req in build_requirements:
-            if '.deb' in req:
-                pkg_install_cmd = "sudo dpkg -i {}".format(req)
-                if (system(pkg_install_cmd)):
-                    print("{} installation failed".format(req))
-                    exit(1)
-                else:
-                    print("{} installed".format(req))
-            elif '.whl' in req:
-                pkg_install_cmd = "pip3 install {}".format(req)
-                if (system(pkg_install_cmd)):
-                    print("{} installation failed".format(req))
-                    exit(1)
-                else:
-                    print("{} installed".format(req))
-
         # run pytest for libyang python APIs
         self.pytest_args = []
         errno = pytest.main(self.pytest_args)
