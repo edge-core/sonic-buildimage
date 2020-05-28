@@ -312,6 +312,10 @@ platform_specific() {
         aboot_machine=arista_7280cr3_32d4
         flash_size=7382
     fi
+    if [ "$sid" = "SmartsvilleDDBK" ]; then
+        aboot_machine=arista_7280cr3k_32d4
+        flash_size=7382
+    fi
     if in_array "$platform" "rook" "magpie" "woodpecker"; then
         echo "tsc=reliable pcie_ports=native" >>/tmp/append
         echo "rhash_entries=1 usb-storage.delay_use=0" >>/tmp/append
