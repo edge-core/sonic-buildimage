@@ -9,10 +9,10 @@ def test_bounce(dvs, testlog):
     dvs.copy_file("/etc/frr/", "bgp/files/no_export/bgpd.conf")
     dvs.runcmd("supervisorctl start bgpd")
     dvs.runcmd("ip addr add 10.0.0.0/31 dev Ethernet0") 
-    dvs.runcmd("ifconfig Ethernet0 up")
+    dvs.runcmd("config interface startup Ethernet0")
 
     dvs.runcmd("ip addr add 10.0.0.2/31 dev Ethernet4")
-    dvs.runcmd("ifconfig Ethernet4 up")
+    dvs.runcmd("config interface startup Ethernet4")
 
     dvs.servers[0].runcmd("ip addr add 10.0.0.1/31 dev eth0")
     dvs.servers[0].runcmd("ifconfig eth0 up")
