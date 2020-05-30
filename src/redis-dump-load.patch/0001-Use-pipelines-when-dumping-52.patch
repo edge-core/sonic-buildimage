@@ -33,7 +33,7 @@ index df2870b..1b6063b 100755
      if pretty:
          # hack to avoid implementing pretty printing
          fp.write(dumps(host=host, port=port, password=password, db=db,
-@@ -276,28 +276,76 @@ def _read_key(key, r, pretty, encoding):
+@@ -276,28 +276,77 @@ def _read_key(key, r, pretty, encoding):
      return (type, ttl, value)
  
  def _reader(r, pretty, encoding, keys='*'):
@@ -68,7 +68,7 @@ index df2870b..1b6063b 100755
 +        i += 10000
 +
 +def _read_keys(r, encoded_keys, pretty, encoding):
-+    decoded_keys = [encoded_key.decode() for encoded_key in encoded_keys]
++    decoded_keys = [encoded_key.decode(encoding) for encoded_key in encoded_keys]
 +    do_keys = decoded_keys
 +    retries = 5
 +    type_results = None
@@ -84,12 +84,13 @@ index df2870b..1b6063b 100755
 +            p = r.pipeline()
 +            for key in do_keys:
 +                p.type(key)
-+            type_results = p.execute()
++            encoded_type_results = p.execute()
++            type_results = [encoded_type_result.decode('ascii') for encoded_type_result in encoded_type_results]
 +
 +        p = r.pipeline()
 +        for i in range(len(do_keys)):
 +            key = decoded_keys[i]
-+            type = type_results[i].decode('ascii')
++            type = type_results[i]
 +            if type == 'none':
 +                # key was deleted by a concurrent operation on the data store.
 +                # issue noops so that the number of results does not change

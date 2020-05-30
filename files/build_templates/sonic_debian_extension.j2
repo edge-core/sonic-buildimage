@@ -101,6 +101,13 @@ sudo rm -rf $FILESYSTEM_ROOT/$CONFIG_ENGINE_WHEEL_NAME
 # Install Python client for Redis
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install "redis==2.10.6"
 
+# Install redis-dump-load Python 3 package
+# Note: the scripts will be overwritten by corresponding Python 2 package
+REDIS_DUMP_LOAD_PY3_WHEEL_NAME=$(basename {{redis_dump_load_py3_wheel_path}})
+sudo cp {{redis_dump_load_py3_wheel_path}} $FILESYSTEM_ROOT/$REDIS_DUMP_LOAD_PY3_WHEEL_NAME
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install $REDIS_DUMP_LOAD_PY3_WHEEL_NAME
+sudo rm -rf $FILESYSTEM_ROOT/$REDIS_DUMP_LOAD_PY3_WHEEL_NAME
+
 # Install redis-dump-load Python 2 package
 REDIS_DUMP_LOAD_PY2_WHEEL_NAME=$(basename {{redis_dump_load_py2_wheel_path}})
 sudo cp {{redis_dump_load_py2_wheel_path}} $FILESYSTEM_ROOT/$REDIS_DUMP_LOAD_PY2_WHEEL_NAME
@@ -110,19 +117,20 @@ sudo rm -rf $FILESYSTEM_ROOT/$REDIS_DUMP_LOAD_PY2_WHEEL_NAME
 # Install Python module for ipaddress
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install ipaddress
 
-# Install SwSS SDK Python 2 package
-SWSSSDK_PY2_WHEEL_NAME=$(basename {{swsssdk_py2_wheel_path}})
-sudo cp {{swsssdk_py2_wheel_path}} $FILESYSTEM_ROOT/$SWSSSDK_PY2_WHEEL_NAME
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install $SWSSSDK_PY2_WHEEL_NAME
-sudo rm -rf $FILESYSTEM_ROOT/$SWSSSDK_PY2_WHEEL_NAME
-
 # Install SwSS SDK Python 3 package
+# Note: the scripts will be overwritten by corresponding Python 2 package
 if [ -e {{swsssdk_py3_wheel_path}} ]; then
     SWSSSDK_PY3_WHEEL_NAME=$(basename {{swsssdk_py3_wheel_path}})
     sudo cp {{swsssdk_py3_wheel_path}} $FILESYSTEM_ROOT/$SWSSSDK_PY3_WHEEL_NAME
     sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install $SWSSSDK_PY3_WHEEL_NAME
     sudo rm -rf $FILESYSTEM_ROOT/$SWSSSDK_PY3_WHEEL_NAME
 fi
+
+# Install SwSS SDK Python 2 package
+SWSSSDK_PY2_WHEEL_NAME=$(basename {{swsssdk_py2_wheel_path}})
+sudo cp {{swsssdk_py2_wheel_path}} $FILESYSTEM_ROOT/$SWSSSDK_PY2_WHEEL_NAME
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install $SWSSSDK_PY2_WHEEL_NAME
+sudo rm -rf $FILESYSTEM_ROOT/$SWSSSDK_PY2_WHEEL_NAME
 
 # Install sonic-yang-models py3 package, install dependencies
 sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/libyang_*.deb
