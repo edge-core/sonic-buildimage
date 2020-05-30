@@ -14,7 +14,7 @@
 #define MAX_NUM_UNITS 128
 #define MAX_BUF_SIZE 512
 
-static const char* UNIT_FILE_PREFIX = "/etc/systemd/system/";
+static const char* UNIT_FILE_PREFIX = "/usr/lib/systemd/system/";
 static const char* CONFIG_FILE = "/etc/sonic/generated_services.conf";
 static const char* MACHINE_CONF_FILE = "/host/machine.conf";
 static int num_asics;
