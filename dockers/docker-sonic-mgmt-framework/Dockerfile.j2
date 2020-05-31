@@ -6,7 +6,9 @@ RUN [ -f /etc/rsyslog.conf ] && sed -ri "s/%syslogtag%/$docker_container_name#%s
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update
+RUN apt-get update && \
+    apt-get install -y g++ python-dev
+
 RUN pip install connexion==1.1.15 \
 		setuptools==21.0.0 \
 		grpcio-tools==1.20.0 \
@@ -14,7 +16,6 @@ RUN pip install connexion==1.1.15 \
 		python-dateutil==2.6.0 \
 		six==1.11.0 \
 		urllib3==1.21.1
-
 
 COPY \
 {% for deb in docker_sonic_mgmt_framework_debs.split(' ') -%}
@@ -30,6 +31,7 @@ debs/{{ deb }}{{' '}}
 COPY ["start.sh", "rest-server.sh", "/usr/bin/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 
+RUN apt-get remove -y g++ python-dev
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /debs
 
