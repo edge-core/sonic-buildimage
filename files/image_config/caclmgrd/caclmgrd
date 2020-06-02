@@ -180,10 +180,11 @@ class ControlPlaneAclManager(object):
                     continue
                 iface_name, iface_cidr = key
                 ip_ntwrk = ipaddress.ip_network(iface_cidr, strict=False)
+                first_host = next(ip_ntwrk.hosts())
                 if isinstance(ip_ntwrk, ipaddress.IPv4Network):
-                    block_ip2me_cmds.append("iptables -A INPUT -d {}/{} -j DROP".format(list(ip_ntwrk.hosts())[0], ip_ntwrk.max_prefixlen))
+                    block_ip2me_cmds.append("iptables -A INPUT -d {}/{} -j DROP".format(first_host, ip_ntwrk.max_prefixlen))
                 elif isinstance(ip_ntwrk, ipaddress.IPv6Network):
-                    block_ip2me_cmds.append("ip6tables -A INPUT -d {}/{} -j DROP".format(list(ip_ntwrk.hosts())[0], ip_ntwrk.max_prefixlen))
+                    block_ip2me_cmds.append("ip6tables -A INPUT -d {}/{} -j DROP".format(first_host, ip_ntwrk.max_prefixlen))
                 else:
                     log_warning("Unrecognized IP address type on interface '{}': {}".format(iface_name, ip_ntwrk))
 
