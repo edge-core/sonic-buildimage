@@ -12,6 +12,7 @@ def enable_counters():
     db = swsssdk.ConfigDBConnector()
     db.connect()
     enable_counter_group(db, 'PORT')
+    enable_counter_group(db, 'RIF')
     enable_counter_group(db, 'QUEUE')
     enable_counter_group(db, 'PFCWD')
     enable_counter_group(db, 'PG_WATERMARK')
