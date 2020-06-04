@@ -39,7 +39,7 @@ echo "
 {
     \"name\": \"SONiC\",
     \"category\": \"router\",
-    \"description\": \"SONiC Virtual Switch/Router\n\",
+    \"description\": \"SONiC Virtual Switch/Router\",
     \"vendor_name\": \"SONiC\",
     \"vendor_url\": \"https://azure.github.io/SONiC/\",
     \"product_name\": \"SONiC\",
@@ -49,6 +49,7 @@ echo "
     \"maintainer\": \"SONiC\",
     \"maintainer_email\": \"sonicproject@googlegroups.com\",
     \"usage\": \"Supports SONiC release: ${RELEASE}\",
+    \"first_port_name\": \"eth0\",
     \"qemu\": {
         \"adapter_type\": \"e1000\",
         \"adapters\": 10,
