@@ -163,10 +163,20 @@ stop() {
         debug "${TYPE} shutdown syncd process ..."
         /usr/bin/docker exec -i syncd$DEV /usr/bin/syncd_request_shutdown --${TYPE}
 
-        # wait until syncd quits gracefully
-        while docker top syncd$DEV | grep -q /usr/bin/syncd; do
+        # wait until syncd quits gracefully or force syncd to exit after 
+        # waiting for 20 seconds
+        start_in_secs=${SECONDS}
+        end_in_secs=${SECONDS}
+        timer_threshold=20
+        while docker top syncd$DEV | grep -q /usr/bin/syncd \
+                && [[ $((end_in_secs - start_in_secs)) -le $timer_threshold ]]; do
             sleep 0.1
+            end_in_secs=${SECONDS}
         done
+
+        if [[ $((end_in_secs - start_in_secs)) -gt $timer_threshold ]]; then
+            debug "syncd process in container syncd$DEV did not exit gracefully" 
+        fi
 
         /usr/bin/docker exec -i syncd$DEV /bin/sync
         debug "Finished ${TYPE} shutdown syncd process ..."
