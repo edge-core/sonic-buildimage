@@ -138,7 +138,7 @@ def main(argv):
 
     # Load target file
     if len(argv) == 0:
-        files = glob.glob('*.json')
+        files = glob.glob('*media_settings.json')
     else:
         files = argv
 
