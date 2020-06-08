@@ -75,3 +75,7 @@ supervisorctl start psud
 supervisorctl start syseepromd
 {% endif %}
 
+{% if not skip_thermalctld %}
+supervisorctl start thermalctld
+{% endif %}
+

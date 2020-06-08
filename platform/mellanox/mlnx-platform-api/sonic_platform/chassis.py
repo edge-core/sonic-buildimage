@@ -15,6 +15,7 @@ try:
     from sonic_daemon_base.daemon_base import Logger
     from os import listdir
     from os.path import isfile, join
+    from glob import glob
     import sys
     import io
     import re
@@ -28,11 +29,16 @@ MAX_SELECT_DELAY = 3600
 MLNX_NUM_PSU = 2
 
 GET_HWSKU_CMD = "sonic-cfggen -d -v DEVICE_METADATA.localhost.hwsku"
+GET_PLATFORM_CMD = "sonic-cfggen -d -v DEVICE_METADATA.localhost.platform"
 
 EEPROM_CACHE_ROOT = '/var/cache/sonic/decode-syseeprom'
 EEPROM_CACHE_FILE = 'syseeprom_cache'
 
 HWMGMT_SYSTEM_ROOT = '/var/run/hw-management/system/'
+
+MST_DEVICE_NAME_PATTERN = '/dev/mst/mt[0-9]*_pciconf0'
+MST_DEVICE_RE_PATTERN = '/dev/mst/mt([0-9]*)_pciconf0'
+SPECTRUM1_CHIP_ID = '52100'
 
 #reboot cause related definitions
 REBOOT_CAUSE_ROOT = HWMGMT_SYSTEM_ROOT
@@ -55,6 +61,7 @@ class Chassis(ChassisBase):
 
         # Initialize SKU name
         self.sku_name = self._get_sku_name()
+        self.platform_name = self._get_platform_name()
         mi = get_machine_info()
         if mi is not None:
             self.name = mi['onie_platform']
@@ -93,11 +100,21 @@ class Chassis(ChassisBase):
         num_of_fan, num_of_drawer = self._extract_num_of_fans_and_fan_drawers()
         multi_rotor_in_drawer = num_of_fan > num_of_drawer
 
+        # Fan's direction isn't supported on spectrum 1 devices for now
+        mst_dev_list = glob(MST_DEVICE_NAME_PATTERN)
+        if not mst_dev_list:
+            raise RuntimeError("Can't get chip type due to {} not found".format(MST_DEVICE_NAME_PATTERN))
+        m = re.search(MST_DEVICE_RE_PATTERN, mst_dev_list[0])
+        if m.group(1) == SPECTRUM1_CHIP_ID:
+            has_fan_dir = False
+        else:
+            has_fan_dir = True
+
         for index in range(num_of_fan):
             if multi_rotor_in_drawer:
-                fan = Fan(index, index/2)
+                fan = Fan(has_fan_dir, index, index/2, False, self.platform_name)
             else:
-                fan = Fan(index, index)
+                fan = Fan(has_fan_dir, index, index, False, self.platform_name)
             self._fan_list.append(fan)
 
 
@@ -226,6 +243,12 @@ class Chassis(ChassisBase):
 
     def _get_sku_name(self):
         p = subprocess.Popen(GET_HWSKU_CMD, shell=True, stdout=subprocess.PIPE)
+        out, err = p.communicate()
+        return out.rstrip('\n')
+
+
+    def _get_platform_name(self):
+        p = subprocess.Popen(GET_PLATFORM_CMD, shell=True, stdout=subprocess.PIPE)
         out, err = p.communicate()
         return out.rstrip('\n')
 
@@ -442,3 +465,8 @@ class Chassis(ChassisBase):
             return True, {'sfp':port_dict}
         else:
             return True, {'sfp':{}}
+
+    def get_thermal_manager(self):
+        from .thermal_manager import ThermalManager
+        return ThermalManager
+

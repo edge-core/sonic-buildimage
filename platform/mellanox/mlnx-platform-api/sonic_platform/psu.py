@@ -60,6 +60,7 @@ class Psu(PsuBase):
         psu_oper_status = "thermal/psu{}_pwr_status".format(self.index)
         #psu_oper_status should always be present for all SKUs
         self.psu_oper_status = os.path.join(self.psu_path, psu_oper_status)
+        self._name = "PSU{}".format(psu_index + 1)
 
         if sku in hwsku_dict_psu:
             filemap = psu_profile_list[hwsku_dict_psu[sku]]
@@ -90,9 +91,20 @@ class Psu(PsuBase):
             psu_presence = os.path.join(self.psu_path, psu_presence)
             self.psu_presence = psu_presence
 
-        fan = Fan(psu_index, psu_index, True)
-        if fan.get_presence():
-            self._fan = fan
+        # unplugable PSU has no FAN
+        if sku not in hwsku_dict_with_unplugable_psu:
+            fan = Fan(False, psu_index, psu_index, True)
+            self._fan_list.append(fan)
+
+        self.psu_green_led_path = "led_psu_green"
+        self.psu_red_led_path = "led_psu_red"
+        self.psu_orange_led_path = "led_psu_orange"
+        self.psu_led_cap_path = "led_psu_capability"
+
+
+    def get_name(self):
+        return self._name
+
 
     def _read_generic_file(self, filename, len):
         """
@@ -100,8 +112,10 @@ class Psu(PsuBase):
         """
         result = 0
         try:
+            if not os.path.exists(filename):
+                return result
             with open(filename, 'r') as fileobj:
-                result = int(fileobj.read())
+                result = int(fileobj.read().strip())
         except Exception as e:
             logger.log_info("Fail to read file {} due to {}".format(filename, repr(e)))
         return result
@@ -169,3 +183,117 @@ class Psu(PsuBase):
             return float(power) / 1000000
         else:
             return None
+
+
+    def _get_led_capability(self):
+        cap_list = None
+        try:
+            with open(os.path.join(LED_PATH, self.psu_led_cap_path), 'r') as psu_led_cap:
+                    caps = psu_led_cap.read()
+                    cap_list = caps.split()
+        except (ValueError, IOError):
+            pass
+        
+        return cap_list
+
+
+    def set_status_led(self, color):
+        """
+        Sets the state of the PSU status LED
+
+        Args:
+            color: A string representing the color with which to set the
+                   PSU status LED
+
+        Returns:
+            bool: True if status LED state is set successfully, False if not
+
+        Notes:
+            Only one led for all PSUs.
+        """
+        led_cap_list = self._get_led_capability()
+        if led_cap_list is None:
+            return False
+
+        status = False
+        try:
+            if color == self.STATUS_LED_COLOR_GREEN:
+                with open(os.path.join(LED_PATH, self.psu_green_led_path), 'w') as psu_led:
+                    psu_led.write(LED_ON)
+                    status = True
+            elif color == self.STATUS_LED_COLOR_RED:
+                # Some fan don't support red led but support orange led, in this case we set led to orange
+                if self.STATUS_LED_COLOR_RED in led_cap_list:
+                    led_path = os.path.join(LED_PATH, self.psu_red_led_path)
+                elif self.STATUS_LED_COLOR_ORANGE in led_cap_list:
+                    led_path = os.path.join(LED_PATH, self.psu_orange_led_path)
+                else:
+                    return False
+                with open(led_path, 'w') as psu_led:
+                    psu_led.write(LED_ON)
+                    status = True
+            elif color == self.STATUS_LED_COLOR_OFF:
+                if self.STATUS_LED_COLOR_GREEN in led_cap_list:
+                    with open(os.path.join(LED_PATH, self.psu_green_led_path), 'w') as psu_led:
+                        psu_led.write(str(LED_OFF))
+                if self.STATUS_LED_COLOR_RED in led_cap_list:
+                    with open(os.path.join(LED_PATH, self.psu_red_led_path), 'w') as psu_led:
+                        psu_led.write(str(LED_OFF))
+                if self.STATUS_LED_COLOR_ORANGE in led_cap_list:
+                    with open(os.path.join(LED_PATH, self.psu_orange_led_path), 'w') as psu_led:
+                        psu_led.write(str(LED_OFF))
+
+                status = True
+            else:
+                status = False
+        except (ValueError, IOError):
+            status = False
+
+        return status
+
+
+    def get_status_led(self):
+        """
+        Gets the state of the PSU status LED
+
+        Returns:
+            A string, one of the predefined STATUS_LED_COLOR_* strings above
+        """
+        led_cap_list = self._get_led_capability()
+        if led_cap_list is None:
+            return self.STATUS_LED_COLOR_OFF
+
+        try:
+            with open(os.path.join(LED_PATH, self.psu_green_led_path), 'r') as psu_led:
+                if LED_OFF != psu_led.read().rstrip('\n'):
+                    return self.STATUS_LED_COLOR_GREEN
+            if self.STATUS_LED_COLOR_RED in led_cap_list:
+                with open(os.path.join(LED_PATH, self.psu_red_led_path), 'r') as psu_led:
+                    if LED_OFF != psu_led.read().rstrip('\n'):
+                        return self.STATUS_LED_COLOR_RED
+            if self.STATUS_LED_COLOR_ORANGE in led_cap_list:
+                with open(os.path.join(LED_PATH, self.psu_orange_led_path), 'r') as psu_led:
+                    if LED_OFF != psu_led.read().rstrip('\n'):
+                        return self.STATUS_LED_COLOR_RED
+        except (ValueError, IOError) as e:
+            raise RuntimeError("Failed to read led status for psu due to {}".format(repr(e)))
+
+        return self.STATUS_LED_COLOR_OFF
+
+
+    def get_power_available_status(self):
+        """
+        Gets the power available status
+
+        Returns:
+            True if power is present and power on. 
+            False and "absence of PSU" if power is not present.
+            False and "absence of power" if power is present but not power on.
+        """
+        if not self.get_presence():
+            return False, "absence of PSU"
+        elif not self.get_powergood_status():
+            return False, "absence of power"
+        else:
+            return True, ""
+
