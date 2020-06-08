@@ -35,7 +35,7 @@ static const struct genl_multicast_group psample_nl_mcgrps[] = {
 	[PSAMPLE_NL_MCGRP_SAMPLE] = { .name = PSAMPLE_NL_MCGRP_SAMPLE_NAME },
 };
 
-static struct genl_family psample_nl_family __ro_after_init;
+static struct genl_family psample_nl_family;
 
 static int psample_group_nl_fill(struct sk_buff *msg,
 				 struct psample_group *group,
@@ -106,7 +106,7 @@ static const struct genl_ops psample_nl_ops[] = {
 	}
 };
 
-static struct genl_family psample_nl_family __ro_after_init = {
+static struct genl_family psample_nl_family = {
 	.name		= PSAMPLE_GENL_NAME,
 	.version	= PSAMPLE_GENL_VERSION,
 	.maxattr	= PSAMPLE_ATTR_MAX,
@@ -224,7 +224,7 @@ void psample_sample_packet(struct psample_group *group, struct sk_buff *skb,
 		data_len = PSAMPLE_MAX_PACKET_SIZE - meta_len - NLA_HDRLEN
 			    - NLA_ALIGNTO;
 
-	nl_skb = genlmsg_new(meta_len + data_len, GFP_ATOMIC);
+	nl_skb = genlmsg_new(meta_len + nla_total_size(data_len), GFP_ATOMIC);
 	if (unlikely(!nl_skb))
 		return;
 

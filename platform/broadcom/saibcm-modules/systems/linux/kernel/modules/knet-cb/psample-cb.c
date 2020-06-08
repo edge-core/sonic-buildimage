@@ -64,6 +64,7 @@ extern int debug;
 #define SOC_HIGIG_SRCPORT(x)  ((x[1] >> 16) & 0x1f)
 #define SOC_HIGIG2_SOP        (0xfb) //0xfc - TODO: how can we differentiate between Higig and higig2?
 #define SOC_HIGIG2_START(x)   ((x[0] >> 24) & 0xff)
+#define SOC_HIGIG2_IS_MC(x)   ((x[0] >> 20) &  0x1)
 #define SOC_HIGIG2_DSTPORT(x) ((x[0] >>  0) & 0xff)
 #define SOC_HIGIG2_SRCPORT(x) ((x[1] >> 16) & 0xff)
 #define SOC_DCB32_HG_OFFSET   (6)
@@ -213,7 +214,14 @@ psample_meta_dstport_get(uint8_t *pkt, void *pkt_meta)
     
     if (SOC_HIGIG2_START(metadata) == SOC_HIGIG2_SOP) 
     {
-        dstport = SOC_HIGIG2_DSTPORT(metadata);
+        if (SOC_HIGIG2_IS_MC(metadata))
+        {
+           dstport = 0;
+        }
+        else
+        {
+           dstport = SOC_HIGIG2_DSTPORT(metadata);
+        }
     } 
     else if (SOC_HIGIG_START(metadata) == SOC_HIGIG_SOP) 
     {
@@ -427,7 +435,7 @@ psample_netif_create_cb(int unit, kcom_netif_t *netif, struct net_device *dev)
     psample_netif_t *psample_netif, *lpsample_netif;
     unsigned long flags;
 
-    if ((psample_netif = kmalloc(sizeof(psample_netif_t), GFP_KERNEL)) == NULL) {
+    if ((psample_netif = kmalloc(sizeof(psample_netif_t), GFP_ATOMIC)) == NULL) {
         gprintk("%s: failed to alloc psample mem for netif '%s'\n", 
                 __func__, dev->name);
         return (-1);
