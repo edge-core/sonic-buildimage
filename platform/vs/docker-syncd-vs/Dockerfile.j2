@@ -1,4 +1,4 @@
-FROM docker-config-engine-stretch
+FROM docker-config-engine-buster
 
 ARG docker_container_name
 RUN [ -f /etc/rsyslog.conf ] && sed -ri "s/%syslogtag%/$docker_container_name#%syslogtag%/;" /etc/rsyslog.conf
@@ -8,7 +8,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update
 
-RUN apt-get install -f -y iproute2=4.20.0-2~bpo9+1 libcap2-bin=1:2.25-1
+RUN apt-get install -f -y iproute2=4.20.0-2 libcap2-bin=1:2.25-2
 
 COPY \
 {% for deb in docker_syncd_vs_debs.split(' ') -%}
