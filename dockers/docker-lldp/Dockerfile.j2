@@ -10,20 +10,20 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Update apt's cache of available packages
 RUN apt-get update
 
-{% if docker_lldp_sv2_debs.strip() -%}
+{% if docker_lldp_debs.strip() -%}
 # Copy locally-built Debian package dependencies
-{{ copy_files("debs/", docker_lldp_sv2_debs.split(' '), "/debs/") }}
+{{ copy_files("debs/", docker_lldp_debs.split(' '), "/debs/") }}
 
 # Install locally-built Debian packages and implicitly install their dependencies
-{{ install_debian_packages(docker_lldp_sv2_debs.split(' ')) }}
+{{ install_debian_packages(docker_lldp_debs.split(' ')) }}
 {%- endif %}
 
-{% if docker_lldp_sv2_whls.strip() -%}
+{% if docker_lldp_whls.strip() -%}
 # Copy locally-built Python wheel dependencies
-{{ copy_files("python-wheels/", docker_lldp_sv2_whls.split(' '), "/python-wheels/") }}
+{{ copy_files("python-wheels/", docker_lldp_whls.split(' '), "/python-wheels/") }}
 
 # Install locally-built Python wheel dependencies
-{{ install_python_wheels(docker_lldp_sv2_whls.split(' ')) }}
+{{ install_python_wheels(docker_lldp_whls.split(' ')) }}
 {% endif %}
 
 # Clean up

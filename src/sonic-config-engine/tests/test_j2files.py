@@ -58,7 +58,7 @@ class TestJ2Files(TestCase):
         self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', 'docker-dhcp-relay.supervisord.conf'), self.output_file))
 
     def test_lldp(self):
-        lldpd_conf_template = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-lldp-sv2', 'lldpd.conf.j2')
+        lldpd_conf_template = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-lldp', 'lldpd.conf.j2')
         argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -t ' + lldpd_conf_template + ' > ' + self.output_file
         self.run_script(argument)
         self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', 'lldpd.conf'), self.output_file))
