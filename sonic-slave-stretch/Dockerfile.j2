@@ -300,7 +300,9 @@ RUN apt-get update && apt-get install -y \
         xxd \
 # For DHCP Monitor tool
         libexplain-dev \
-        libevent-dev
+        libevent-dev \
+# For SWI Tools
+        python-m2crypto
 
 ## Config dpkg
 ## install the configuration file if it’s currently missing
@@ -437,3 +439,6 @@ RUN apt-get install -y docker-ce=5:18.09.5~3-0~debian-stretch docker-ce-cli=5:18
 RUN apt-get install -y docker-ce=18.06.3~ce~3-0~debian
 {%- endif %}
 RUN echo "DOCKER_OPTS=\"--experimental --storage-driver=vfs\"" >> /etc/default/docker
+
+# Install swi tools
+RUN python -m pip install git+https://github.com/aristanetworks/swi-tools.git@d51761ec0bb93c73039233f3c01ed48235ffad00

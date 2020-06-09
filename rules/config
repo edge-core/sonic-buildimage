@@ -145,3 +145,10 @@ KUBERNETES_VERSION = 1.18.0
 K8s_GCR_IO_PAUSE_VERSION = 3.2
 K8s_CNI_CALICO_VERSION = 3.12.1
 
+# SONIC_ENABLE_IMAGE_SIGNATURE - enable image signature
+# To not use the auto-generated self-signed certificate, the required files to sign the image as below:
+#     SIGNING_KEY =
+#     SIGNING_CERT =
+#     CA_CERT =
+# The relative path is build root folder.
+SONIC_ENABLE_IMAGE_SIGNATURE ?= n
