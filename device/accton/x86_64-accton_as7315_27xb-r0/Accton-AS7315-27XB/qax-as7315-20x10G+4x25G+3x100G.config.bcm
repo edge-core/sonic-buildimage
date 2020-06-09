@@ -107,7 +107,7 @@ dport_map_port_122=54
 #dport_map_port_66=55
 #dport_map_port_100=56
 
-/* Port Map */
+#/* Port Map */
 ## FC10 ##
 portmap_42=41:25
 portmap_43=42:25
