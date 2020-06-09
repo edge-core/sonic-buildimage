@@ -18,7 +18,8 @@
 
 #include <linux/kernel.h>
 #include <linux/module.h>
-#include <linux/slab.h>
+#include <linux/device.h>
+#include <linux/capability.h>
 #include <linux/jiffies.h>
 #include <linux/i2c.h>
 #include <linux/mutex.h>
@@ -59,7 +60,6 @@ static void eeprom_update_client(struct i2c_client *client, u8 slice)
 		dev_dbg(&client->dev, "Starting eeprom update, slice %u\n", slice);
 
 		if (i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_READ_I2C_BLOCK)) {
-			//for (i = slice << 5; i < (slice + 1) << 5; i += 32)
 			for (i = slice << 5; i < (slice + 1) << 5; i += 24)
 				if (i2c_smbus_read_i2c_block_data(client, i,
 							24, data->data + i)
@@ -85,16 +85,9 @@ static ssize_t eeprom_read(struct file *filp, struct kobject *kobj,
 			   struct bin_attribute *bin_attr,
 			   char *buf, loff_t off, size_t count)
 {
-	struct i2c_client *client = to_i2c_client(container_of(kobj, struct device, kobj));
+	struct i2c_client *client = to_i2c_client(kobj_to_dev(kobj));
 	struct eeprom_data *data = i2c_get_clientdata(client);
 	u8 slice;
-
-	data->valid = 0;
-
-	if (off > EEPROM_SIZE)
-		return 0;
-	if (off + count > EEPROM_SIZE)
-		count = EEPROM_SIZE - off;
 
 	/* Only refresh slices which contain requested bytes */
 	for (slice = off >> 5; slice <= (off + count - 1) >> 5; slice++)
@@ -125,7 +118,7 @@ static ssize_t eeprom_write(struct file *filp, struct kobject *kobj,
 			    struct bin_attribute *bin_attr,
 			    char *buf, loff_t off, size_t count)
 {
-	struct i2c_client *client = to_i2c_client(container_of(kobj, struct device, kobj));
+	struct i2c_client *client = to_i2c_client(kobj_to_dev(kobj));
         struct eeprom_data *data = i2c_get_clientdata(client);
 	u8 temp;
 	int error, reg;
@@ -208,12 +201,11 @@ static int eeprom_probe(struct i2c_client *client,
 {
 	struct i2c_adapter *adapter = client->adapter;
 	struct eeprom_data *data;
-	int err;
 
-	if (!(data = kzalloc(sizeof(struct eeprom_data), GFP_KERNEL))) {
-		err = -ENOMEM;
-		goto exit;
-	}
+	data = devm_kzalloc(&client->dev, sizeof(struct eeprom_data),
+			    GFP_KERNEL);
+	if (!data)
+		return -ENOMEM;
 
 	memset(data->data, 0xff, EEPROM_SIZE);
 	i2c_set_clientdata(client, data);
@@ -239,22 +231,12 @@ static int eeprom_probe(struct i2c_client *client,
 	}
 
 	/* create the sysfs eeprom file */
-	err = sysfs_create_bin_file(&client->dev.kobj, &eeprom_attr);
-	if (err)
-		goto exit_kfree;
-
-	return 0;
-
-exit_kfree:
-	kfree(data);
-exit:
-	return err;
+	return sysfs_create_bin_file(&client->dev.kobj, &eeprom_attr);
 }
 
 static int eeprom_remove(struct i2c_client *client)
 {
 	sysfs_remove_bin_file(&client->dev.kobj, &eeprom_attr);
-	kfree(i2c_get_clientdata(client));
 
 	return 0;
 }
