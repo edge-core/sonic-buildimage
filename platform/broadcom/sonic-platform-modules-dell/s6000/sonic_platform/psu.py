@@ -146,7 +146,7 @@ class Psu(PsuBase):
         Returns:
             string: Part number of PSU
         """
-        return self.eeprom.part_number_str()
+        return self.eeprom.get_part_number()
 
     def get_serial(self):
         """
@@ -156,7 +156,7 @@ class Psu(PsuBase):
             string: Serial number of PSU
         """
         # Sample Serial number format "US-01234D-54321-25A-0123-A00"
-        return self.eeprom.serial_number_str()
+        return self.eeprom.get_serial_number()
 
     def get_status(self):
         """

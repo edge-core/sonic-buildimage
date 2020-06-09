@@ -186,7 +186,7 @@ class Fan(FanBase):
             string: Part number of Fan
         """
         if not self.is_psu_fan:
-            return self.eeprom.part_number_str()
+            return self.eeprom.get_part_number()
         else:
             return 'NA'
 
@@ -199,7 +199,7 @@ class Fan(FanBase):
         """
         # Sample Serial number format "US-01234D-54321-25A-0123-A00"
         if not self.is_psu_fan:
-            return self.eeprom.serial_number_str()
+            return self.eeprom.get_serial_number()
         else:
             return 'NA'
 
