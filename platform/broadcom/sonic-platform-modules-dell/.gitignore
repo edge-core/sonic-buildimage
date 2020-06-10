@@ -48,3 +48,6 @@ dkms.conf
 *.postrm.debhelper
 *.prerm.debhelper
 *.substvars
+
+# Cloned source repositories
+tools/flashrom/

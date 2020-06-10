@@ -2,3 +2,9 @@
 *.debhelper
 *.substvars
 *.ko
+
+build-arch-stamp
+build/
+configure-stamp
+debian/files
+debian/opennsl-modules/

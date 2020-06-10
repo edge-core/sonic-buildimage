@@ -1,0 +1,8 @@
+*
+!.gitignore
+nsm/*
+!nsm/Makefile
+!nsm/*.patch
+pam/*
+!pam/Makefile
+!pam/*.patch

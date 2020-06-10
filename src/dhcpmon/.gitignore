@@ -1,0 +1,5 @@
+debian/*
+!debian/changelog
+!debian/compat
+!debian/control
+!debian/rules
