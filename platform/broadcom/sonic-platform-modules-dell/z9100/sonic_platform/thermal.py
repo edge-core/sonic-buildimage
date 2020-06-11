@@ -134,11 +134,11 @@ class Thermal(ThermalBase):
         thermal_temperature = self._read_sysfs_file(
             self.thermal_temperature_file)
         if (thermal_temperature != 'ERR'):
-            thermal_temperature = float(thermal_temperature) / 1000
+            thermal_temperature = float(thermal_temperature)
         else:
             thermal_temperature = 0
 
-        return "{:.3f}".format(thermal_temperature)
+        return thermal_temperature / 1000.0
 
     def get_high_threshold(self):
         """
@@ -152,11 +152,11 @@ class Thermal(ThermalBase):
         thermal_high_threshold = self._read_sysfs_file(
             self.thermal_high_threshold_file)
         if (thermal_high_threshold != 'ERR'):
-            thermal_high_threshold = float(thermal_high_threshold) / 1000
+            thermal_high_threshold = float(thermal_high_threshold)
         else:
             thermal_high_threshold = 0
 
-        return "{:.3f}".format(thermal_high_threshold)
+        return thermal_high_threshold / 1000.0
 
     def get_low_threshold(self):
         """
@@ -170,11 +170,11 @@ class Thermal(ThermalBase):
         thermal_low_threshold = self._read_sysfs_file(
             self.thermal_low_threshold_file)
         if (thermal_low_threshold != 'ERR'):
-            thermal_low_threshold = float(thermal_low_threshold) / 1000
+            thermal_low_threshold = float(thermal_low_threshold)
         else:
             thermal_low_threshold = 0
 
-        return "{:.3f}".format(thermal_low_threshold)
+        return thermal_low_threshold / 1000.0
 
     def set_high_threshold(self, temperature):
         """
