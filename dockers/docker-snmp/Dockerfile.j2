@@ -19,12 +19,12 @@ RUN apt-get update   && \
         make            \
         ipmitool
 
-{% if docker_snmp_sv2_debs.strip() -%}
+{% if docker_snmp_debs.strip() -%}
 # Copy locally-built Debian package dependencies
-{{ copy_files("debs/", docker_snmp_sv2_debs.split(' '), "/debs/") }}
+{{ copy_files("debs/", docker_snmp_debs.split(' '), "/debs/") }}
 
 # Install locally-built Debian packages and implicitly install their dependencies
-{{ install_debian_packages(docker_snmp_sv2_debs.split(' ')) }}
+{{ install_debian_packages(docker_snmp_debs.split(' ')) }}
 {%- endif %}
 
 # Fix for hiredis compilation issues for ARM
@@ -46,12 +46,12 @@ RUN python3 -m pip install --no-cache-dir \
         pyyaml                              \
         smbus
 
-{% if docker_snmp_sv2_whls.strip() -%}
+{% if docker_snmp_whls.strip() -%}
 # Copy locally-built Python wheel dependencies
-{{ copy_files("python-wheels/", docker_snmp_sv2_whls.split(' '), "/python-wheels/") }}
+{{ copy_files("python-wheels/", docker_snmp_whls.split(' '), "/python-wheels/") }}
 
 # Install locally-built Python wheel dependencies
-{{ install_python3_wheels(docker_snmp_sv2_whls.split(' ')) }}
+{{ install_python3_wheels(docker_snmp_whls.split(' ')) }}
 {% endif %}
 
 RUN python3 -m sonic_ax_impl install
