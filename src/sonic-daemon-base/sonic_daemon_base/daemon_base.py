@@ -13,6 +13,7 @@ except ImportError, e:
 #
 # Constants ====================================================================
 #
+REDIS_TIMEOUT_MSECS = 0
 
 # Platform root directory inside docker
 PLATFORM_ROOT_DOCKER = '/usr/share/sonic/platform'
