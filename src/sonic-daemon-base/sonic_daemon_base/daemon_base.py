@@ -13,6 +13,7 @@ except ImportError, e:
 #
 # Constants ====================================================================
 #
+REDIS_TIMEOUT_MSECS = 0
 
 # Redis DB information
 REDIS_HOSTNAME = 'localhost'
