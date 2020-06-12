@@ -1,6 +1,6 @@
 # radvd package
 
-RADVD_VERSION = 2.17-2~bpo9+1
+RADVD_VERSION = 2.17-2
 
 export RADVD_VERSION
 
