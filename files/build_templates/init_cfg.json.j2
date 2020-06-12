@@ -18,9 +18,9 @@
         }
     },
     "FEATURE": {
-{%- for feature in ["sflow", "telemetry"] %}
+{%- for feature, status in [("sflow", "disabled"), ("telemetry", "enabled")] %}
         "{{feature}}": {
-            "status": "disabled"
+            "status": "{{status}}"
         }{% if not loop.last %},{% endif -%}
 {% endfor %}
     },
