@@ -117,11 +117,11 @@ INSTALL_KUBERNETES = n
 
 # KUBERNETES_VERSION - Set to the required version.
 # K8s_GCR_IO_PAUSE_VERSION - Version of k8s universal pause container image
-# K8s_CNI_CALICO_VERSION - Calico used as CNI; Appropriate version for this Kubernetes version
+# K8s_CNI_FLANNEL_VERSION - Flannel used as CNI; Appropriate version for this Kubernetes version
 # These are Used *only* when INSTALL_KUBERNETES=y
 # NOTE: As a worker node it has to run version compatible to kubernetes master.
 #
 KUBERNETES_VERSION = 1.18.0
 K8s_GCR_IO_PAUSE_VERSION = 3.2
-K8s_CNI_CALICO_VERSION = 3.12.1
+K8s_CNI_FLANNEL_VERSION = v0.12.0
 
