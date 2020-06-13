@@ -39,10 +39,43 @@ set_tmpfs_log_partition_size()
   [ $maxsize -le $varlogsize ] && varlogsize=$maxsize
 }
 
+remove_not_in_allowlist_files()
+{
+    image_dir=$1
+    allowlist_file=${rootmnt}/host/$image_dir/allowlist_paths.conf
+  
+    # Return if the secure_boot_enable option is not set
+    if ! (cat /proc/cmdline | grep -i -q "secure_boot_enable=[y1]"); then
+        return
+    fi
+
+    # Return if the allowlist file does not exist
+    if ! test -f "${allowlist_file}"; then
+        echo "The file ${allowlist_file} is missing, failed to mount rw folder." 1>&2
+        exit 1
+    fi
+
+    rw_dir=${rootmnt}/host/$image_dir/rw
+
+    # Set the grep pattern file, remove the blank line in config file
+    allowlist_pattern_file=${rootmnt}/host/$image_dir/allowlist_paths.pattern
+    awk -v rw_dir="$rw_dir" 'NF {print rw_dir"/"$0"$"}' ${allowlist_file} > $allowlist_pattern_file
+
+    # Find the files in the rw folder, and remove the files not in the allowlist
+    find ${rw_dir} -type f | grep -v -f $allowlist_pattern_file | xargs /bin/rm -f
+    rm -f $allowlist_pattern_file
+}
+
 ## Mount the overlay file system: rw layer over squashfs
 image_dir=$(cat /proc/cmdline | sed -e 's/.*loop=\(\S*\)\/.*/\1/')
 mkdir -p ${rootmnt}/host/$image_dir/rw
 mkdir -p ${rootmnt}/host/$image_dir/work
+## Remove the files not in allowlist in the rw folder
+remove_not_in_allowlist_files "$image_dir"
+## Remove the executable permission for all the files in rw folder except home folder
+rw_dir=${rootmnt}/host/$image_dir/rw
+find ${rw_dir} -type f -not -path ${rw_dir}/home -exec chmod a-x {} +
+
 mount -n -o lowerdir=${rootmnt},upperdir=${rootmnt}/host/$image_dir/rw,workdir=${rootmnt}/host/$image_dir/work -t overlay root-overlay ${rootmnt}
 ## Check if the root block device is still there
 [ -b ${ROOT} ] || mdev -s

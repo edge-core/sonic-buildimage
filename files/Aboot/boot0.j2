@@ -399,6 +399,9 @@ write_boot_configs() {
         fi
     fi
 
+    # setting secure_boot_enable=y when secure boot enabled
+    [ -f /bin/securebootctl ] && securebootctl secureboot -display | grep -i "Secure Boot enable" -q && echo "secure_boot_enable=y" >> /tmp/append
+
     mkdir -p "$image_path"
     cat /tmp/append > $cmdline_image
     [ -s ${target_path}/machine.conf ] || write_machine_config

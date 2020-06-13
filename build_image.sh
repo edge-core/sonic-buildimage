@@ -133,6 +133,7 @@ elif [ "$IMAGE_TYPE" = "aboot" ]; then
     sed -i -e "s/%%IMAGE_VERSION%%/$IMAGE_VERSION/g" files/Aboot/boot0
     pushd files/Aboot && zip -g $OLDPWD/$OUTPUT_ABOOT_IMAGE boot0; popd
     pushd files/Aboot && zip -g $OLDPWD/$ABOOT_BOOT_IMAGE boot0; popd
+    pushd files/image_config/secureboot && zip -g $OLDPWD/$OUTPUT_ABOOT_IMAGE allowlist_paths.conf; popd
     echo "$IMAGE_VERSION" >> .imagehash
     zip -g $OUTPUT_ABOOT_IMAGE .imagehash
     zip -g $ABOOT_BOOT_IMAGE .imagehash
