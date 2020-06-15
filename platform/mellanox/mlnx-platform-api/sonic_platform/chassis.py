@@ -149,7 +149,9 @@ class Chassis(ChassisBase):
 
     def initialize_components(self):
         # Initialize component list
-        from sonic_platform.component import ComponentBIOS, ComponentCPLD
+        from sonic_platform.component import ComponentONIE, ComponentSSD, ComponentBIOS, ComponentCPLD
+        self._component_list.append(ComponentONIE())
+        self._component_list.append(ComponentSSD())
         self._component_list.append(ComponentBIOS())
         self._component_list.extend(ComponentCPLD.get_component_list())
 

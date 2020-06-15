@@ -35,7 +35,7 @@
 #=  Global variable                                                            #
 #=
 #=====
-VERSION="1.3"
+VERSION="1.5"
 #=====
 SWITCH_SSD_DEV="/dev/sda"
 UTIL_TITLE="This is MLNX SSD firmware update utility to read and write SSD FW. Version ${VERSION}"
@@ -79,6 +79,8 @@ function init_script() {
     else
         LOGGER_UTIL=$FALSE
     fi
+    export LC_ALL=
+    export LANG="en_US.UTF-8"
 }
 
 #==============================================================================#
@@ -415,7 +417,7 @@ function check_package_signing() {
     LOG_MSG "checksum_signed_file: ${checksum_signed_file}" ${DEBUG_MSG}
     LOG_MSG "checksum_unsigned_file: ${checksum_unsigned_file}" ${DEBUG_MSG}
 
-    gpg --keyring  "$public_cert_file" --verify "$checksum_signed_file" "$checksum_unsigned_file" > /dev/null 2>&1
+    gpg --ignore-time-conflict --keyring  "$public_cert_file" --verify "$checksum_signed_file" "$checksum_unsigned_file" > /dev/null 2>&1
     [ $? -ne 0 ] && LOG_MSG_AND_EXIT "Error: fault package signing."
 
     LOG_MSG "cd into: ${package_path}" ${DEBUG_MSG}
@@ -559,7 +561,7 @@ function print_ssd_info() {
         LOG_MSG "Device Model\t : $SSD_DEVICE_MODEL"
         LOG_MSG "Serial Number\t : $SSD_SERIAL"
         LOG_MSG "User Capacity\t : $SSD_SIZE GB"
-        LOG_MSG "Firmware Version : $SSD_FW_VER"      
+        LOG_MSG "Firmware Version : $SSD_FW_VER"
     fi
 }
 
@@ -695,7 +697,7 @@ elif [ $ARG_UPDATE_FLAG == $TRUE ]; then
                 else
                     LOG_MSG "SSD FW update completed successfully."
 
-                    if [ $ARG_POWER_CYCLE_FLAG == $TRUE ]; then
+                    if [[ "yes" == "$power_policy" || $ARG_POWER_CYCLE_FLAG == $TRUE ]]; then
                         LOG_MSG "Execute power cycle..."
                         sleep 1
                         sync
@@ -715,7 +717,7 @@ elif [ $ARG_UPDATE_FLAG == $TRUE ]; then
         fi
     done  
     if [ $UPDATE_DONE == $FALSE ]; then
-        LOG_MSG "SSD FW upgrade not require, based on given package latest version is in used."
+        LOG_MSG "SSD FW upgrade is not required, latest version based on given package is in use."
         print_ssd_info "no"
     fi
 
