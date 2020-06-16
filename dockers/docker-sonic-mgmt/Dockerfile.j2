@@ -2,79 +2,68 @@ FROM ubuntu:16.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update
-RUN apt-get install -y \
-                openssh-server \
-                gcc \
-                vim \
-                make \
-                git \
-                sudo \
-                python \
-                python-dev \
-                python-cffi \
-                libffi-dev \
-                libssl-dev \
-                sshpass \
-                libxml2 \
-                libxslt1-dev \
-                python-setuptools \
-                build-essential \
-                curl \
-                cmake \
-                tcpdump \
-                snmp \
-                python-scapy \
-                inetutils-ping \
-                telnet
-
-# For JNLP launcher
-RUN apt-get install -y default-jre
-
-# For syslog test
-RUN apt-get install -y rsyslog psmisc
-
-# Remove cffi 1.5.2, will install 1.10.0 by pip later
-RUN apt-get purge -y python-cffi python-cffi-backend
-# Remove pycparser 2.14, will install >=2.17 by pip later
-RUN apt-get purge -y python-ply python-pycparser
+RUN apt-get update && apt-get install -y build-essential \
+                                         cmake \
+                                         curl \
+                                         default-jre \
+                                         gcc \
+                                         git \
+                                         inetutils-ping \
+                                         libffi-dev \
+                                         libssl-dev \
+                                         libxml2 \
+                                         libxslt1-dev \
+                                         make \
+                                         openssh-server \
+                                         psmisc \
+                                         python \
+                                         python-dev \
+                                         python-scapy \
+                                         python-setuptools \
+                                         rsyslog \
+                                         snmp \
+                                         sshpass \
+                                         sudo \
+                                         tcpdump \
+                                         telnet \
+                                         vim
 
 RUN easy_install pip==20.1.1
 
-RUN pip install ipaddr \
-                lxml \
-                netaddr \
-                natsort \
-                six \
-                pexpect \
-                pyasn1==0.1.9 \
-                pysnmp==4.2.5 \
-                jinja2==2.7.2 \
-                cffi==1.10.0 \
-                paramiko==2.7.1 \
-                passlib \
-                ipython==5.4.1 \
-                virtualenv \
+RUN pip install cffi==1.10.0 \
                 "cryptography>=2.5" \
                 "future>=0.16.0" \
                 gitpython \
+                ipaddr \
+                ipython==5.4.1 \
+                ixnetwork-restpy==1.0.52 \
+                jinja2==2.7.2 \
                 jsonpatch \
+                lxml \
+                natsort \
+                netaddr \
                 netmiko==2.4.2 \
+                paramiko==2.7.1 \
+                passlib \
+                pexpect \
                 prettytable \
                 psutil \
+                pyasn1==0.1.9 \
                 pycryptodome \
                 pyfiglet \
                 pylint==1.8.1 \
                 pyro4 \
+                pysnmp==4.2.5 \
                 pytest-repeat \
                 pytest-xdist==1.28.0 \
                 pytest==4.6.5 \
                 redis \
                 requests \
                 rpyc \
+                six \
                 tabulate \
                 textfsm \
-                ixnetwork-restpy==1.0.52 \
+                virtualenv \
     && git clone https://github.com/p4lang/scapy-vxlan.git \
     && cd scapy-vxlan \
     && python setup.py install \
@@ -179,5 +168,3 @@ RUN ~/lib/azure-cli/bin/python -m pip install azure-keyvault==0.3.7 -U
 # Install Virtual Environment
 RUN python -m virtualenv --system-site-packages env-201811
 RUN env-201811/bin/pip install ansible==2.0.0.2
-
-RUN git clone https://github.com/Azure/sonic-mgmt
