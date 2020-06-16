@@ -48,6 +48,10 @@ REBOOT_CAUSE_FILE_LENGTH = 1
 # Global logger class instance
 logger = Logger()
 
+# System LED system fs definitions for 201911 branch only
+SYSTEM_STATUS_LED_GREEN_FILE = '/run/hw-management/led/led_status_green'
+LED_ON = '1'
+
 # magic code defnition for port number, qsfp port position of each hwsku
 # port_position_tuple = (PORT_START, QSFP_PORT_START, PORT_END, PORT_IN_BLOCK, EEPROM_OFFSET)
 hwsku_dict_port = {'ACS-MSN2010': 3, 'ACS-MSN2100': 1, 'ACS-MSN2410': 2, 'ACS-MSN2700': 0, 'Mellanox-SN2700': 0, 'Mellanox-SN2700-D48C8': 0, 'LS-SN2700':0, 'ACS-MSN2740': 0, 'ACS-MSN3700': 0, 'ACS-MSN3700C': 0, 'ACS-MSN3800': 4, 'Mellanox-SN3800-D112C8': 4, 'ACS-MSN4700': 0, 'ACS-MSN3420': 5, 'ACS-MSN4600C': 4}
@@ -73,6 +77,7 @@ class Chassis(ChassisBase):
         self.sfp_module_initialized = False
         self.sfp_event_initialized = False
         self.reboot_cause_initialized = False
+        self.initialize_system_led()
         logger.log_info("Chassis loaded successfully")
 
 
@@ -471,4 +476,15 @@ class Chassis(ChassisBase):
     def get_thermal_manager(self):
         from .thermal_manager import ThermalManager
         return ThermalManager
+
+    def initialize_system_led(self):
+        """
+        Init system LED color to green.
+        This is for 201911 branch only
+        """
+        try:
+            with open(SYSTEM_STATUS_LED_GREEN_FILE, 'w') as f:
+                f.write(LED_ON)
+        except:
+            pass
 
