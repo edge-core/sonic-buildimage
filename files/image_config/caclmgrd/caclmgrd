@@ -258,9 +258,9 @@ class ControlPlaneAclManager(object):
         iptables_cmds.append("ip6tables -A INPUT -s ::1 -i lo -j ACCEPT")
 
         # Add iptables/ip6tables commands to allow all incoming packets from established
-        # TCP sessions or new TCP sessions which are related to established TCP sessions
-        iptables_cmds.append("iptables -A INPUT -p tcp -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT")
-        iptables_cmds.append("ip6tables -A INPUT -p tcp -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT")
+        # connections or new connections which are related to established connections
+        iptables_cmds.append("iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT")
+        iptables_cmds.append("ip6tables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT")
 
         # Add iptables/ip6tables commands to allow bidirectional ICMPv4 ping and traceroute
         # TODO: Support processing ICMPv4 service ACL rules, and remove this blanket acceptance
