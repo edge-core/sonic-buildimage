@@ -213,6 +213,10 @@ sfp_map =  [42,43,44,45,46,47,48,49,50,51,
 
 qsfp_start = 48
 
+#For sideband signals of SFP/QSFP modules.
+cpld_of_module = {'3-0061': list(range(0,38)),
+                  '3-0062': list(range(38,54)) }
+
 mknod =[                 
 'echo pca9548 0x77 > /sys/bus/i2c/devices/i2c-1/new_device',
 'echo pca9548 0x70 > /sys/bus/i2c/devices/i2c-2/new_device' ,
@@ -427,10 +431,12 @@ def devices_info():
                         ALL_DEVICE[key][node].append(path) 
                 elif  'sfp' == key:
                     for k in range(0,DEVICE_NO[key]):
-                        node = key+str(k+1)
-                        path = i2c_prefix+ str(sfp_map[k])+ buses[i]+"/"+ nodes[j]                
-                        my_log(node+": "+ path)
-                        ALL_DEVICE[key][node].append(path)                                        
+                        for lk in cpld_of_module:
+                            if k in cpld_of_module[lk]:
+                                node = key+str(k+1)
+                                path = i2c_prefix + lk + "/"+ nodes[j] + str(k+1)
+                                my_log(node+": "+ path)
+                                ALL_DEVICE[key][node].append(path)
                 else:
                     node = key+str(i+1)
                     path = i2c_prefix+ buses[i]+"/"+ nodes[j]                
