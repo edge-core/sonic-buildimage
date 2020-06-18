@@ -772,7 +772,7 @@ def enable_internal_bgp_session(bgp_sessions, filename, asic_name):
 # Main functions
 #
 ###############################################################################
-def parse_xml(filename, platform=None, port_config_file=None, asic_name=None):
+def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hwsku_config_file=None):
     """ Parse minigraph xml file.
 
     Keyword arguments:
@@ -782,6 +782,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None):
     asic_name -- asic name; to parse multi-asic device minigraph to 
     generate asic specific configuration.
      """
+
     root = ET.parse(filename).getroot()
 
     u_neighbors = None
@@ -836,7 +837,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None):
         if child.tag == str(docker_routing_config_mode_qn):
             docker_routing_config_mode = child.text
 
-    (ports, alias_map, alias_asic_map) = get_port_config(hwsku=hwsku, platform=platform, port_config_file=port_config_file, asic=asic_id)
+    (ports, alias_map, alias_asic_map) = get_port_config(hwsku=hwsku, platform=platform, port_config_file=port_config_file, asic=asic_id, hwsku_config_file=hwsku_config_file)
     port_alias_map.update(alias_map)
     port_alias_asic_map.update(alias_asic_map)
 

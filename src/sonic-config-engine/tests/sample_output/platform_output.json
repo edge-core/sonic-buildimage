@@ -1,0 +1,819 @@
+{
+  "Ethernet8": {
+    "index": "3",
+    "lanes": "8",
+    "description": "Eth3/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth3/1",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet9": {
+    "index": "3",
+    "lanes": "9",
+    "description": " Eth3/2",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth3/2",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet36": {
+    "index": "10",
+    "lanes": "36,37",
+    "description": "Eth10/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth10/1",
+    "pfc_asym": "off",
+    "speed": "50000"
+  },
+  "Ethernet98": {
+    "index": "25",
+    "lanes": "98",
+    "description": " Eth25/3",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth25/3",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet0": {
+    "index": "1",
+    "lanes": "0,1,2,3",
+    "fec": "rs",
+    "description": "Eth1/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth1/1",
+    "pfc_asym": "off",
+    "speed": "100000"
+  },
+  "Ethernet6": {
+    "index": "2",
+    "lanes": "6,7",
+    "description": " Eth2/3",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth2/3",
+    "pfc_asym": "off",
+    "speed": "50000"
+  },
+  "Ethernet4": {
+    "index": "2",
+    "lanes": "4,5",
+    "description": "Eth2/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth2/1",
+    "pfc_asym": "off",
+    "speed": "50000"
+  },
+  "Ethernet109": {
+    "index": "28",
+    "lanes": "109",
+    "description": " Eth28/2",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth28/2",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet108": {
+    "index": "28",
+    "lanes": "108",
+    "description": "Eth28/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth28/1",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet18": {
+    "index": "5",
+    "lanes": "18",
+    "description": " Eth5/3",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth5/3",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet100": {
+    "index": "26",
+    "lanes": "100,101,102,103",
+    "fec": "rs",
+    "description": "Eth26/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth26/1",
+    "pfc_asym": "off",
+    "speed": "100000"
+  },
+  "Ethernet34": {
+    "index": "9",
+    "lanes": "34,35",
+    "description": " Eth9/3",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth9/3",
+    "pfc_asym": "off",
+    "speed": "50000"
+  },
+  "Ethernet104": {
+    "index": "27",
+    "lanes": "104,105",
+    "description": "Eth27/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth27/1",
+    "pfc_asym": "off",
+    "speed": "50000"
+  },
+  "Ethernet106": {
+    "index": "27",
+    "lanes": "106,107",
+    "description": " Eth27/3",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth27/3",
+    "pfc_asym": "off",
+    "speed": "50000"
+  },
+  "Ethernet94": {
+    "index": "24",
+    "lanes": "94,95",
+    "description": " Eth24/3",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth24/3",
+    "pfc_asym": "off",
+    "speed": "50000"
+  },
+  "Ethernet126": {
+    "index": "32",
+    "lanes": "126,127",
+    "description": " Eth32/3",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth32/3",
+    "pfc_asym": "off",
+    "speed": "50000"
+  },
+  "Ethernet96": {
+    "index": "25",
+    "lanes": "96,97",
+    "description": "Eth25/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth25/1",
+    "pfc_asym": "off",
+    "speed": "50000"
+  },
+  "Ethernet124": {
+    "index": "32",
+    "lanes": "124,125",
+    "description": "Eth32/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth32/1",
+    "pfc_asym": "off",
+    "speed": "50000"
+  },
+  "Ethernet90": {
+    "index": "23",
+    "lanes": "90",
+    "description": " Eth23/3",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth23/3",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet91": {
+    "index": "23",
+    "lanes": "91",
+    "description": " Eth23/4",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth23/4",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet92": {
+    "index": "24",
+    "lanes": "92",
+    "description": "Eth24/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth24/1",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet93": {
+    "index": "24",
+    "lanes": "93",
+    "description": " Eth24/2",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth24/2",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet50": {
+    "index": "13",
+    "lanes": "50",
+    "description": " Eth13/3",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth13/3",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet51": {
+    "index": "13",
+    "lanes": "51",
+    "description": " Eth13/4",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth13/4",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet52": {
+    "index": "14",
+    "lanes": "52",
+    "description": "Eth14/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth14/1",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet53": {
+    "index": "14",
+    "lanes": "53",
+    "description": " Eth14/2",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth14/2",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet54": {
+    "index": "14",
+    "lanes": "54,55",
+    "description": " Eth14/3",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth14/3",
+    "pfc_asym": "off",
+    "speed": "50000"
+  },
+  "Ethernet99": {
+    "index": "25",
+    "lanes": "99",
+    "description": " Eth25/4",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth25/4",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet56": {
+    "index": "15",
+    "lanes": "56,57",
+    "description": "Eth15/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth15/1",
+    "pfc_asym": "off",
+    "speed": "50000"
+  },
+  "Ethernet113": {
+    "index": "29",
+    "lanes": "113",
+    "description": " Eth29/2",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth29/2",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet76": {
+    "index": "20",
+    "lanes": "76,77",
+    "description": "Eth20/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth20/1",
+    "pfc_asym": "off",
+    "speed": "50000"
+  },
+  "Ethernet74": {
+    "index": "19",
+    "lanes": "74,75",
+    "description": " Eth19/3",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth19/3",
+    "pfc_asym": "off",
+    "speed": "50000"
+  },
+  "Ethernet39": {
+    "index": "10",
+    "lanes": "39",
+    "description": " Eth10/4",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth10/4",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet72": {
+    "index": "19",
+    "lanes": "72",
+    "description": "Eth19/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth19/1",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet73": {
+    "index": "19",
+    "lanes": "73",
+    "description": " Eth19/2",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth19/2",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet70": {
+    "index": "18",
+    "lanes": "70",
+    "description": " Eth18/3",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth18/3",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet71": {
+    "index": "18",
+    "lanes": "71",
+    "description": " Eth18/4",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth18/4",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet32": {
+    "index": "9",
+    "lanes": "32",
+    "description": "Eth9/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth9/1",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet33": {
+    "index": "9",
+    "lanes": "33",
+    "description": " Eth9/2",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth9/2",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet16": {
+    "index": "5",
+    "lanes": "16,17",
+    "description": "Eth5/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth5/1",
+    "pfc_asym": "off",
+    "speed": "50000"
+  },
+  "Ethernet111": {
+    "index": "28",
+    "lanes": "111",
+    "description": " Eth28/4",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth28/4",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet10": {
+    "index": "3",
+    "lanes": "10",
+    "description": " Eth3/3",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth3/3",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet11": {
+    "index": "3",
+    "lanes": "11",
+    "description": " Eth3/4",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth3/4",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet12": {
+    "index": "4",
+    "lanes": "12",
+    "description": "Eth4/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth4/1",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet13": {
+    "index": "4",
+    "lanes": "13",
+    "description": " Eth4/2",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth4/2",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet58": {
+    "index": "15",
+    "lanes": "58",
+    "description": " Eth15/3",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth15/3",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet19": {
+    "index": "5",
+    "lanes": "19",
+    "description": " Eth5/4",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth5/4",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet59": {
+    "index": "15",
+    "lanes": "59",
+    "description": " Eth15/4",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth15/4",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet38": {
+    "index": "10",
+    "lanes": "38",
+    "description": " Eth10/3",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth10/3",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet78": {
+    "index": "20",
+    "lanes": "78",
+    "description": " Eth20/3",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth20/3",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet68": {
+    "index": "18",
+    "lanes": "68",
+    "description": "Eth18/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth18/1",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet14": {
+    "index": "4",
+    "lanes": "14,15",
+    "description": " Eth4/3",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth4/3",
+    "pfc_asym": "off",
+    "speed": "50000"
+  },
+  "Ethernet89": {
+    "index": "23",
+    "lanes": "89",
+    "description": " Eth23/2",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth23/2",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet88": {
+    "index": "23",
+    "lanes": "88",
+    "description": "Eth23/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth23/1",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet118": {
+    "index": "30",
+    "lanes": "118",
+    "description": " Eth30/3",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth30/3",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet119": {
+    "index": "30",
+    "lanes": "119",
+    "description": " Eth30/4",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth30/4",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet116": {
+    "index": "30",
+    "lanes": "116,117",
+    "description": "Eth30/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth30/1",
+    "pfc_asym": "off",
+    "speed": "50000"
+  },
+  "Ethernet114": {
+    "index": "29",
+    "lanes": "114,115",
+    "description": " Eth29/3",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth29/3",
+    "pfc_asym": "off",
+    "speed": "50000"
+  },
+  "Ethernet80": {
+    "index": "21",
+    "lanes": "80,81,82,83",
+    "fec": "rs",
+    "description": "Eth21/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth21/1",
+    "pfc_asym": "off",
+    "speed": "100000"
+  },
+  "Ethernet112": {
+    "index": "29",
+    "lanes": "112",
+    "description": "Eth29/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth29/1",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet86": {
+    "index": "22",
+    "lanes": "86,87",
+    "description": " Eth22/3",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth22/3",
+    "pfc_asym": "off",
+    "speed": "50000"
+  },
+  "Ethernet110": {
+    "index": "28",
+    "lanes": "110",
+    "description": " Eth28/3",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth28/3",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet84": {
+    "index": "22",
+    "lanes": "84,85",
+    "description": "Eth22/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth22/1",
+    "pfc_asym": "off",
+    "speed": "50000"
+  },
+  "Ethernet31": {
+    "index": "8",
+    "lanes": "31",
+    "description": " Eth8/4",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth8/4",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet49": {
+    "index": "13",
+    "lanes": "49",
+    "description": " Eth13/2",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth13/2",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet48": {
+    "index": "13",
+    "lanes": "48",
+    "description": "Eth13/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth13/1",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet46": {
+    "index": "12",
+    "lanes": "46,47",
+    "description": " Eth12/3",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth12/3",
+    "pfc_asym": "off",
+    "speed": "50000"
+  },
+  "Ethernet30": {
+    "index": "8",
+    "lanes": "30",
+    "description": " Eth8/3",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth8/3",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet29": {
+    "index": "8",
+    "lanes": "29",
+    "description": " Eth8/2",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth8/2",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet40": {
+    "index": "11",
+    "lanes": "40,41,42,43",
+    "fec": "rs",
+    "description": "Eth11/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth11/1",
+    "pfc_asym": "off",
+    "speed": "100000"
+  },
+  "Ethernet120": {
+    "index": "31",
+    "lanes": "120,121,122,123",
+    "fec": "rs",
+    "description": "Eth31/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth31/1",
+    "pfc_asym": "off",
+    "speed": "100000"
+  },
+  "Ethernet28": {
+    "index": "8",
+    "lanes": "28",
+    "description": "Eth8/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth8/1",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet66": {
+    "index": "17",
+    "lanes": "66,67",
+    "description": " Eth17/3",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth17/3",
+    "pfc_asym": "off",
+    "speed": "50000"
+  },
+  "Ethernet60": {
+    "index": "16",
+    "lanes": "60,61,62,63",
+    "fec": "rs",
+    "description": "Eth16/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth16/1",
+    "pfc_asym": "off",
+    "speed": "100000"
+  },
+  "Ethernet64": {
+    "index": "17",
+    "lanes": "64,65",
+    "description": "Eth17/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth17/1",
+    "pfc_asym": "off",
+    "speed": "50000"
+  },
+  "Ethernet44": {
+    "index": "12",
+    "lanes": "44,45",
+    "description": "Eth12/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth12/1",
+    "pfc_asym": "off",
+    "speed": "50000"
+  },
+  "Ethernet20": {
+    "index": "6",
+    "lanes": "20,21,22,23",
+    "fec": "rs",
+    "description": "Eth6/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth6/1",
+    "pfc_asym": "off",
+    "speed": "100000"
+  },
+  "Ethernet79": {
+    "index": "20",
+    "lanes": "79",
+    "description": " Eth20/4",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth20/4",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet69": {
+    "index": "18",
+    "lanes": "69",
+    "description": " Eth18/2",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth18/2",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet24": {
+    "index": "7",
+    "lanes": "24,25",
+    "description": "Eth7/1",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": "Eth7/1",
+    "pfc_asym": "off",
+    "speed": "50000"
+  },
+  "Ethernet26": {
+    "index": "7",
+    "lanes": "26,27",
+    "description": " Eth7/3",
+    "admin_status": "up",
+    "mtu": "9100",
+    "alias": " Eth7/3",
+    "pfc_asym": "off",
+    "speed": "50000"
+  }
+}

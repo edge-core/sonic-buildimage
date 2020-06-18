@@ -38,7 +38,7 @@ from minigraph import minigraph_encoder
 from minigraph import parse_xml
 from minigraph import parse_device_desc_xml
 from minigraph import parse_asic_sub_role
-from portconfig import get_port_config
+from portconfig import get_port_config, get_port_config_file_name, get_breakout_mode
 from sonic_device_util import get_machine_info
 from sonic_device_util import get_platform_info
 from sonic_device_util import get_system_mac
@@ -199,6 +199,7 @@ def main():
     group.add_argument("-k", "--hwsku", help="HwSKU")
     parser.add_argument("-n", "--namespace", help="namespace name", nargs='?', const=None, default=None)
     parser.add_argument("-p", "--port-config", help="port config file, used with -m or -k", nargs='?', const=None)
+    parser.add_argument("-S", "--hwsku-config", help="hwsku config file, used with -p and -m or -k", nargs='?', const=None)
     parser.add_argument("-y", "--yaml", help="yaml file that contains additional variables", action='append', default=[])
     parser.add_argument("-j", "--json", help="json file that contains additional variables", action='append', default=[])
     parser.add_argument("-a", "--additional-data", help="addition data, in json string")
@@ -240,11 +241,17 @@ def main():
             'hwsku': hwsku
             }}}
         deep_update(data, hardware_data)
+        if args.port_config is None:
+            args.port_config = get_port_config_file_name(hwsku, platform)
         (ports, _, _) = get_port_config(hwsku, platform, args.port_config, asic_id)
         if not ports:
             print('Failed to get port config', file=sys.stderr)
             sys.exit(1)
         deep_update(data, {'PORT': ports})
+
+        brkout_table = get_breakout_mode(hwsku, platform, args.port_config)
+        if  brkout_table is not None:
+            deep_update(data, {'BREAKOUT_CFG': brkout_table})
 
     for json_file in args.json:
         with open(json_file, 'r') as stream:
@@ -254,11 +261,11 @@ def main():
         minigraph = args.minigraph
         if platform:
             if args.port_config != None:
-                deep_update(data, parse_xml(minigraph, platform, args.port_config, asic_name=asic_name))
+                deep_update(data, parse_xml(minigraph, platform, args.port_config, asic_name=asic_name, hwsku_config_file=args.hwsku_config))
             else:
                 deep_update(data, parse_xml(minigraph, platform, asic_name=asic_name))
         else:
-            deep_update(data, parse_xml(minigraph, port_config_file=args.port_config, asic_name=asic_name))
+            deep_update(data, parse_xml(minigraph, port_config_file=args.port_config, asic_name=asic_name, hwsku_config_file=args.hwsku_config))
 
     if args.device_description != None:
         deep_update(data, parse_device_desc_xml(args.device_description))
