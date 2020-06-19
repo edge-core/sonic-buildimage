@@ -2,23 +2,23 @@
 
 # Startup script for SONiC Management REST Server
 
-SERVER_PORT=
-LOG_LEVEL=
-CLIENT_AUTH=
-SERVER_CRT=
-SERVER_KEY=
-CA_CERT=
-
 # Read basic server settings from REST_SERVER|default entry
 HAS_REST_CONFIG=$(sonic-cfggen -d -v "1 if REST_SERVER and REST_SERVER['default']")
 if [ "$HAS_REST_CONFIG" == "1" ]; then
     SERVER_PORT=$(sonic-cfggen -d -v "REST_SERVER['default']['port']")
     CLIENT_AUTH=$(sonic-cfggen -d -v "REST_SERVER['default']['client_auth']")
     LOG_LEVEL=$(sonic-cfggen -d -v "REST_SERVER['default']['log_level']")
+
+    SERVER_CRT=$(sonic-cfggen -d -v "REST_SERVER['default']['server_crt']")
+    SERVER_KEY=$(sonic-cfggen -d -v "REST_SERVER['default']['server_key']")
+    CA_CRT=$(sonic-cfggen -d -v "REST_SERVER['default']['ca_crt']")
+fi
+
+if [[ -z $SERVER_CRT ]] && [[ -z $SERVER_KEY ]] && [[ -z $CA_CRT ]]; then
+    HAS_X509_CONFIG=$(sonic-cfggen -d -v "1 if DEVICE_METADATA and DEVICE_METADATA['x509']")
 fi
 
 # Read certificate file paths from DEVICE_METADATA|x509 entry.
-HAS_X509_CONFIG=$(sonic-cfggen -d -v "1 if DEVICE_METADATA and DEVICE_METADATA['x509']")
 if [ "$HAS_X509_CONFIG" == "1" ]; then
     SERVER_CRT=$(sonic-cfggen -d -v "DEVICE_METADATA['x509']['server_crt']")
     SERVER_KEY=$(sonic-cfggen -d -v "DEVICE_METADATA['x509']['server_key']")
