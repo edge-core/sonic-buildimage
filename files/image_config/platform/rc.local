@@ -82,10 +82,6 @@ update_mgmt_interface_macaddr() {
 
     log_migration "eth0 mac in EEPROM after update:"
     ethtool -e eth0 offset $ethtool_offset length 6 >> /host/migration/migration.log
-
-    # Update the 70-persistent-net.rules with the new mac for eth0
-    log_migration "/etc/udev/rules.d/70-persistent-net.rules : replacing $old_mac with $new_mac for eth0"
-    sed -i "/eth0/ s/ATTR{address}==\"$old_mac\"/ATTR{address}==\"$new_mac\"/g" /etc/udev/rules.d/70-persistent-net.rules
 }
 
 firsttime_exit() {
