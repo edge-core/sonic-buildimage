@@ -171,8 +171,6 @@ sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/python-click*_all.deb || \
 # Install python pexpect used by sonic-utilities consutil
 # using pip install instead to get a more recent version than is available through debian
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install pexpect
-# Install python click-default-group by sonic-utilities
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install click-default-group==1.2
 
 # Install tabulate >= 0.8.1 via pip in order to support multi-line row output for sonic-utilities
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install tabulate==0.8.2
