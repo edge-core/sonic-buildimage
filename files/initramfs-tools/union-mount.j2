@@ -109,7 +109,10 @@ mount --bind ${rootmnt}/host/$image_dir/boot ${rootmnt}/boot
 ## Mount loop device or tmpfs for /var/log
 onie_platform=""
 aboot_platform=""
-. ${rootmnt}/host/machine.conf
+if [ -f ${rootmnt}/host/machine.conf ]; then
+  . ${rootmnt}/host/machine.conf
+fi
+
 if [ X"$aboot_platform" = X"x86_64-arista_7050_qx32"  ] ||
    [ X"$aboot_platform" = X"x86_64-arista_7050_qx32s" ] ||
    [ X"$aboot_platform" = X"x86_64-arista_7060_cx32s" ]
