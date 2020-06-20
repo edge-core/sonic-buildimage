@@ -8,19 +8,19 @@ function fast_reboot {
       if [[ -f /fdb.json ]];
       then
         swssconfig /fdb.json
-        rm -f /fdb.json
+        mv -f /fdb.json /fdb.json.1
       fi
 
       if [[ -f /arp.json ]];
       then
         swssconfig /arp.json
-        rm -f /arp.json
+        mv -f /arp.json /arp.json.1
       fi
 
       if [[ -f /default_routes.json ]];
       then
         swssconfig /default_routes.json
-        rm -f /default_routes.json
+        mv -f /default_routes.json /default_routes.json.1
       fi
 
       ;;
