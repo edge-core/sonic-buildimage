@@ -33,15 +33,15 @@ SYSTEM_NOT_READY = 'system_not_ready'
 SYSTEM_READY = 'system_become_ready'
 SYSTEM_FAIL = 'system_fail'
 
-GET_HWSKU_CMD = "sonic-cfggen -d -v DEVICE_METADATA.localhost.hwsku"
+GET_PLATFORM_CMD = "sonic-cfggen -d -v DEVICE_METADATA.localhost.platform"
 
 # Ethernet<n> <=> sfp<n+SFP_PORT_NAME_OFFSET>
 SFP_PORT_NAME_OFFSET = 1
 SFP_PORT_NAME_CONVENTION = "sfp{}"
 
-# magic code defnition for port number, qsfp port position of each hwsku
+# magic code defnition for port number, qsfp port position of each platform
 # port_position_tuple = (PORT_START, QSFP_PORT_START, PORT_END, PORT_IN_BLOCK, EEPROM_OFFSET)
-hwsku_dict = {'ACS-MSN2700': 0, 'Mellanox-SN2700': 0, 'Mellanox-SN2700-D48C8': 0, 'LS-SN2700':0, 'ACS-MSN2740': 0, 'ACS-MSN2100': 1, 'ACS-MSN2410': 2, 'ACS-MSN2010': 3, 'ACS-MSN3700': 0, 'ACS-MSN3700C': 0, 'ACS-MSN3800': 4, 'Mellanox-SN3800-D112C8': 4, 'ACS-MSN4700': 0, 'ACS-MSN3420': 5, 'ACS-MSN4600C': 4}
+platform_dict = {'x86_64-mlnx_msn2700-r0': 0, 'x86_64-mlnx_msn2740-r0': 0, 'x86_64-mlnx_msn2100-r0': 1, 'x86_64-mlnx_msn2410-r0': 2, 'x86_64-mlnx_msn2010-r0': 3, 'x86_64-mlnx_msn3420-r0':5, 'x86_64-mlnx_msn3700-r0': 0, 'x86_64-mlnx_msn3700c-r0': 0, 'x86_64-mlnx_msn3800-r0': 4, 'x86_64-mlnx_msn4600c':4, 'x86_64-mlnx_msn4700-r0': 0}
 port_position_tuple_list = [(0, 0, 31, 32, 1), (0, 0, 15, 16, 1), (0, 48, 55, 56, 1), (0, 18, 21, 22, 1), (0, 0, 63, 64, 1), (0, 48, 59, 60, 1)]
 
 def log_info(msg, also_print_to_console=False):
@@ -86,14 +86,14 @@ class SfpUtil(SfpUtilBase):
         print "dependency on sysfs has been removed"
         raise Exception() 
 
-    def get_port_position_tuple_by_sku_name(self):
-        p = subprocess.Popen(GET_HWSKU_CMD, shell=True, stdout=subprocess.PIPE)
+    def get_port_position_tuple_by_platform_name(self):
+        p = subprocess.Popen(GET_PLATFORM_CMD, shell=True, stdout=subprocess.PIPE)
         out, err = p.communicate()
-        position_tuple = port_position_tuple_list[hwsku_dict[out.rstrip('\n')]]
+        position_tuple = port_position_tuple_list[platform_dict[out.rstrip('\n')]]
         return position_tuple
 
     def __init__(self):
-        port_position_tuple = self.get_port_position_tuple_by_sku_name()
+        port_position_tuple = self.get_port_position_tuple_by_platform_name()
         self.PORT_START = port_position_tuple[0]
         self.QSFP_PORT_START = port_position_tuple[1]
         self.PORT_END = port_position_tuple[2]

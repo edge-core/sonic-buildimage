@@ -25,7 +25,6 @@ CONFIG_PATH = "/var/run/hw-management/config"
 FAN_DIR = "/var/run/hw-management/system/fan_dir"
 COOLING_STATE_PATH = "/var/run/hw-management/thermal/cooling_cur_state"
 
-
 class Fan(FanBase):
     """Platform-specific Fan class"""
 
