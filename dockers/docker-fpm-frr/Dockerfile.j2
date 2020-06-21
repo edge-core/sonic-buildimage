@@ -35,16 +35,24 @@ RUN useradd -u ${frr_user_uid} -g ${frr_user_gid} -M -s /bin/false frr
 {{ install_debian_packages(docker_fpm_frr_debs.split(' ')) }}
 {%- endif %}
 
+{% if docker_fpm_frr_whls.strip() %}
+# Copy locally-built Python wheel dependencies
+{{ copy_files("python-wheels/", docker_fpm_frr_whls.split(' '), "/python-wheels/") }}
+
+# Install locally-built Python wheel dependencies
+{{ install_python_wheels(docker_fpm_frr_whls.split(' ')) }}
+{% endif %}
+
 RUN chown -R ${frr_user_uid}:${frr_user_gid} /etc/frr/
 
 # Clean up
 RUN apt-get clean -y      && \
     apt-get autoclean -y  && \
     apt-get autoremove -y && \
-    rm -rf /debs ~/.cache
+    rm -rf /debs ~/.cache /python-wheels
 
 COPY ["frr", "/usr/share/sonic/templates"]
-COPY ["bgpcfgd", "start.sh", "/usr/bin/"]
+COPY ["start.sh", "/usr/bin/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 COPY ["snmp.conf", "/etc/snmp/frr.conf"]
 COPY ["TSA", "/usr/bin/TSA"]
