@@ -113,7 +113,7 @@ start() {
             /usr/bin/hw-management.sh chipupdis
         fi
 
-        /usr/bin/mst start
+        /usr/bin/mst start --with_i2cdev
         /usr/bin/mlnx-fw-upgrade.sh
         /etc/init.d/sxdkernel start
     fi
