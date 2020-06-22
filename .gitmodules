@@ -82,3 +82,6 @@
 	path = src/sonic-restapi
 	url = https://github.com/Azure/sonic-restapi.git
 	branch = master
+[submodule "src/sonic-mgmt-common"]
+	path = src/sonic-mgmt-common
+	url = https://github.com/Azure/sonic-mgmt-common.git
