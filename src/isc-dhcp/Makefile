@@ -2,8 +2,8 @@
 SHELL = /bin/bash
 .SHELLFLAGS += -e
 
-MAIN_TARGET = isc-dhcp-relay_$(ISC_DHCP_VERSION)_$(CONFIGURED_ARCH).deb
-DERIVED_TARGETS = isc-dhcp-relay-dbgsym_$(ISC_DHCP_VERSION)_$(CONFIGURED_ARCH).deb
+MAIN_TARGET = $(ISC_DHCP_RELAY)
+DERIVED_TARGETS = $(ISC_DHCP_RELAY_DBG)
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# Remove any stale files
@@ -16,7 +16,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# Reset HEAD to the commit of the proper tag
 	# NOTE: Using "git checkout <tag_name>" here detaches our HEAD,
 	# which stg doesn't like, so we use this method instead
-	git reset --hard debian/$(ISC_DHCP_VERSION)
+	git reset --hard debian/$(ISC_DHCP_VERSION_FULL)
 
 	# Apply patches
 	stg init

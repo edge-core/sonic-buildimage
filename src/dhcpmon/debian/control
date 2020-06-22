@@ -12,5 +12,5 @@ Package: sonic-dhcpmon
 Architecture: any
 Built-Using: ${misc:Built-Using}
 Depends: libexplain51,
-         libevent-2.0-5
+         libevent-2.1-6
 Description: SONiC DHCP Monitor

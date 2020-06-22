@@ -9,10 +9,10 @@ Subject: [PATCH] Support for obtaining name of physical interface that is a
  1 file changed, 65 insertions(+), 2 deletions(-)
 
 diff --git a/relay/dhcrelay.c b/relay/dhcrelay.c
-index 4659660..0f7d658 100644
+index db1af9c..f2418e8 100644
 --- a/relay/dhcrelay.c
 +++ b/relay/dhcrelay.c
-@@ -1072,6 +1072,47 @@ find_interface_by_agent_option(struct dhcp_packet *packet,
+@@ -1192,6 +1192,47 @@ find_interface_by_agent_option(struct dhcp_packet *packet,
  	return (-1);
  }
  
@@ -60,7 +60,7 @@ index 4659660..0f7d658 100644
  /*
   * Format the message that will be used by circuit_id and remote_id
   */
-@@ -1104,8 +1145,30 @@ format_relay_agent_rfc3046_msg(const struct interface_info *ip, struct dhcp_pack
+@@ -1224,8 +1265,30 @@ format_relay_agent_rfc3046_msg(const struct interface_info *ip, struct dhcp_pack
  				break;
  
  				case 'p':  /* Name of interface that we received the request from */
@@ -89,7 +89,7 @@ index 4659660..0f7d658 100644
 +						}
 +
 +						str = ifname;
-+                    }
++					}
  				break;
  
  				case 'P': /* Physical address of interface that we received the request from */

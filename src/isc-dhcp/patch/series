@@ -6,8 +6,4 @@
 0005-Add-enable-use-sockets-to-configure-flags-in-debian-.patch
 0006-Bugfix-Ensure-HAVE_SO_BINDTODEVICE-has-a-chance-to-b.patch
 0007-If-destination-of-BOOTREQUEST-is-directed-broadcast-.patch
-0008-CVE-2017-3144.patch
-0009-CVE-2018-5733.patch
-0010-CVE-2018-5732.patch
-0008-interface-name-maxlen-crash.patch
-0012-Don-t-skip-down-interfaces-when-discovering-interfac.patch
+0008-Don-t-skip-down-interfaces-when-discovering-interfac.patch

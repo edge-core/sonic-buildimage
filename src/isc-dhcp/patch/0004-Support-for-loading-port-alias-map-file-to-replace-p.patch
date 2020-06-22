@@ -9,10 +9,10 @@ Subject: [PATCH] Support for loading port alias map file to replace port name
  1 file changed, 104 insertions(+), 1 deletion(-)
 
 diff --git a/relay/dhcrelay.c b/relay/dhcrelay.c
-index 0f7d658..797dac6 100644
+index 00c81d3..54f132a 100644
 --- a/relay/dhcrelay.c
 +++ b/relay/dhcrelay.c
-@@ -126,6 +126,14 @@ static void setup_streams(void);
+@@ -129,6 +129,14 @@ static void setup_streams(void);
  char *dhcrelay_sub_id = NULL;
  #endif
  
@@ -27,7 +27,7 @@ index 0f7d658..797dac6 100644
  static void do_relay4(struct interface_info *, struct dhcp_packet *,
  	              unsigned int, unsigned int, struct iaddr,
  		      struct hardware *);
-@@ -140,6 +148,10 @@ static int strip_relay_agent_options(struct interface_info *,
+@@ -143,6 +151,10 @@ static int strip_relay_agent_options(struct interface_info *,
  
  static void request_v4_interface(const char* name, int flags);
  
@@ -36,9 +36,9 @@ index 0f7d658..797dac6 100644
 +static void free_interface_alias_map(void);
 +
  static const char copyright[] =
- "Copyright 2004-2016 Internet Systems Consortium.";
+ "Copyright 2004-2018 Internet Systems Consortium.";
  static const char arr[] = "All rights reserved.";
-@@ -155,7 +167,7 @@ char *progname;
+@@ -158,7 +170,7 @@ char *progname;
  "\n" \
  "  %%%%  A single %%\n" \
  "  %%h  Hostname of device\n" \
@@ -47,23 +47,23 @@ index 0f7d658..797dac6 100644
  "  %%P  Hardware address of interface that generated the request\n" \
  "  %%C  Client hardware address\n" \
  "  %%I  DHCP relay agent IP Address\n" \
-@@ -166,6 +178,7 @@ char *progname;
- "                     [-A <length>] [-c <hops>] [-p <port>]\n" \
+@@ -171,6 +183,7 @@ char *progname;
+ "                     [-p <port> | -rp <relay-port>]\n" \
  "                     [-pf <pid-file>] [--no-pid]\n"\
  "                     [-m append|replace|forward|discard]\n" \
 +"                     [--name-alias-map-file <name-alias-map-file>]\n" \
  "                     [-i interface0 [ ... -i interfaceN]\n" \
  "                     [-iu interface0 [ ... -iu interfaceN]\n" \
  "                     [-id interface0 [ ... -id interfaceN]\n" \
-@@ -173,6 +186,7 @@ char *progname;
- "                     server0 [ ... serverN]\n\n" \
- "       %s -6   [-d] [-q] [-I] [-c <hops>] [-p <port>]\n" \
+@@ -179,6 +192,7 @@ char *progname;
+ "       %s -6   [-d] [-q] [-I] [-c <hops>]\n" \
+ "                     [-p <port> | -rp <relay-port>]\n" \
  "                     [-pf <pid-file>] [--no-pid]\n" \
 +"                     [--name-alias-map-file <name-alias-map-file>]\n" \
  "                     [-s <subscriber-id>]\n" \
  "                     -l lower0 [ ... -l lowerN]\n" \
  "                     -u upper0 [ ... -u upperN]\n" \
-@@ -503,6 +517,11 @@ main(int argc, char **argv) {
+@@ -619,6 +633,11 @@ main(int argc, char **argv) {
  			no_dhcrelay_pid = ISC_TRUE;
  		} else if (!strcmp(argv[i], "--no-pid")) {
  			no_pid_file = ISC_TRUE;
@@ -72,10 +72,10 @@ index 0f7d658..797dac6 100644
 +				usage(use_noarg, argv[i-1]);
 +			if (load_interface_alias_map(argv[i]) != 0)
 +				log_fatal("Failed to load interface name-alias map.");
- 		} else if (!strcmp(argv[i], "--version")) {
- 			log_info("isc-dhcrelay-%s", PACKAGE_VERSION);
- 			exit(0);
-@@ -726,6 +745,7 @@ main(int argc, char **argv) {
+  		} else if (argv[i][0] == '-') {
+ 			usage("Unknown command: %s", argv[i]);
+  		} else {
+@@ -841,6 +860,7 @@ main(int argc, char **argv) {
  	dispatch();
  
  	/* In fact dispatch() never returns. */
@@ -83,7 +83,7 @@ index 0f7d658..797dac6 100644
  	return (0);
  }
  
-@@ -1151,6 +1171,7 @@ format_relay_agent_rfc3046_msg(const struct interface_info *ip, struct dhcp_pack
+@@ -1271,6 +1291,7 @@ format_relay_agent_rfc3046_msg(const struct interface_info *ip, struct dhcp_pack
  					*/
  					if (packet->htype && !packet->giaddr.s_addr) {
  						int ret = 0, vlanid = 0;
@@ -91,7 +91,7 @@ index 0f7d658..797dac6 100644
  
  						ret = _bridgefdbquery(print_hw_addr(packet->htype, packet->hlen, packet->chaddr),
  											  ifname,
-@@ -1167,6 +1188,18 @@ format_relay_agent_rfc3046_msg(const struct interface_info *ip, struct dhcp_pack
+@@ -1287,6 +1308,18 @@ format_relay_agent_rfc3046_msg(const struct interface_info *ip, struct dhcp_pack
  							strncpy(ifname, ip->name, IFNAMSIZ);
  						}
  
@@ -105,12 +105,12 @@ index 0f7d658..797dac6 100644
 +							//		  ifname, ifalias, print_hw_addr (packet->htype, packet->hlen, packet->chaddr));
 +
 +							strncpy(ifname, ifalias, IFNAMSIZ);
-+                        }
++						}
 +
  						str = ifname;
-                     }
+ 					}
  				break;
-@@ -2096,3 +2129,73 @@ void request_v4_interface(const char* name, int flags) {
+@@ -2313,3 +2346,73 @@ void request_v4_interface(const char* name, int flags) {
          interface_snorf(tmp, (INTERFACE_REQUESTED | flags));
          interface_dereference(&tmp, MDL);
  }
