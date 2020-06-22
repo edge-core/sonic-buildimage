@@ -44,7 +44,8 @@ RUN apt-get install -y net-tools \
                        tcpdump \
                        python-scapy \
                        conntrack \
-                       iptables
+                       iptables \
+                       python3-pip
 
 RUN pip install setuptools
 RUN pip install py2_ipaddress
@@ -75,6 +76,23 @@ COPY python-debs/{{ deb }} /debs/
 RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /debs/{{ deb }}
 {%- endfor %}
 {%- endif %}
+
+{% if docker_sonic_vs_whls.strip() %}
+# copy all whl PKGs first,
+{% for whl in docker_sonic_vs_whls.split(' ') -%}
+COPY python-wheels/{{ whl }}  python-wheels/
+{% endfor %}
+
+# install PKGs after copying all PKGs to avoid dependency failure
+# use py3 to find python3 package, which is forced by wheel as of now
+{%- for whl in docker_sonic_vs_whls.split(' ') %}
+{%- if 'py3' in whl %}
+RUN pip3 install python-wheels/{{ whl }}
+{% else -%}
+RUN pip install python-wheels/{{ whl }}
+{%- endif %}
+{%- endfor %}
+{% endif %}
 
 # Clean up
 RUN apt-get clean -y
