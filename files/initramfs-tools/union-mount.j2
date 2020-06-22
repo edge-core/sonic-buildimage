@@ -11,17 +11,36 @@ case $1 in
     ;;
 esac
 
+docker_inram=false
+logs_inram=false
+secureboot=false
+bootloader=generic
+
+# Extract kernel parameters
+for x in $(cat /proc/cmdline); do
+    case "$x" in
+        Aboot=*)
+            bootloader=aboot
+            ;;
+        docker_inram=on)
+            docker_inram=true
+            ;;
+        logs_inram=on)
+            logs_inram=true
+            ;;
+        secure_boot_enable=[y1])
+            secureboot=true
+            docker_inram=true
+            ;;
+        platform=*)
+            platform_flag="${x#platform=}"
+            ;;
+    esac
+done
+
 set_tmpfs_log_partition_size()
 {
   varlogsize=128
-
-  # NOTE: certain platforms, when reaching initramfs stage, have a small
-  #       limit of mounting tmpfs partition, potentially due to amount
-  #       of RAM available in this stage. e.g. Arista 7050-qx32[s] and 7060-cx32s
-  [ X"$aboot_platform" = X"x86_64-arista_7050_qx32"  ] && return
-  [ X"$aboot_platform" = X"x86_64-arista_7050_qx32s"  ] && return
-  [ X"$aboot_platform" = X"x86_64-arista_7060_cx32s"  ] && return
-  [ X"$aboot_platform" = X"x86_64-arista_7060cx2_32s"  ] && return
 
   # set varlogsize to existing var-log.ext4 size
   if [ -f ${rootmnt}/host/disk-img/var-log.ext4 ]; then
@@ -41,13 +60,9 @@ set_tmpfs_log_partition_size()
 
 remove_not_in_allowlist_files()
 {
-    image_dir=$1
-    allowlist_file=${rootmnt}/host/$image_dir/allowlist_paths.conf
-  
-    # Return if the secure_boot_enable option is not set
-    if ! (cat /proc/cmdline | grep -i -q "secure_boot_enable=[y1]"); then
-        return
-    fi
+    local allowlist_file="$1"
+    local targeted_dir="$2"
+    local allowlist_pattern_file=/tmp/allowlist_paths.pattern
 
     # Return if the allowlist file does not exist
     if ! test -f "${allowlist_file}"; then
@@ -55,28 +70,38 @@ remove_not_in_allowlist_files()
         exit 1
     fi
 
-    rw_dir=${rootmnt}/host/$image_dir/rw
-
     # Set the grep pattern file, remove the blank line in config file
-    allowlist_pattern_file=${rootmnt}/host/$image_dir/allowlist_paths.pattern
-    awk -v rw_dir="$rw_dir" 'NF {print rw_dir"/"$0"$"}' ${allowlist_file} > $allowlist_pattern_file
+    awk -v rw_dir="$targeted_dir" 'NF {print rw_dir"/"$0"$"}' ${allowlist_file} > $allowlist_pattern_file
 
     # Find the files in the rw folder, and remove the files not in the allowlist
-    find ${rw_dir} -type f | grep -v -f $allowlist_pattern_file | xargs /bin/rm -f
+    find ${targeted_dir} -type f | grep -v -f $allowlist_pattern_file | xargs /bin/rm -f
     rm -f $allowlist_pattern_file
 }
 
 ## Mount the overlay file system: rw layer over squashfs
 image_dir=$(cat /proc/cmdline | sed -e 's/.*loop=\(\S*\)\/.*/\1/')
-mkdir -p ${rootmnt}/host/$image_dir/rw
-mkdir -p ${rootmnt}/host/$image_dir/work
-## Remove the files not in allowlist in the rw folder
-remove_not_in_allowlist_files "$image_dir"
-## Remove the executable permission for all the files in rw folder except home folder
 rw_dir=${rootmnt}/host/$image_dir/rw
+work_dir=${rootmnt}/host/$image_dir/work
+mkdir -p "$rw_dir"
+mkdir -p "$work_dir"
+
+## Remove the files not in allowlist in the rw folder
+if $secureboot; then
+    if [ "$bootloader" = "aboot" ]; then
+        swi_path="${rootmnt}/host/$(sed -E 's/.*loop=([^ ]+).*/\1/' /proc/cmdline)"
+        unzip -q "$swi_path" allowlist_paths.conf -d /tmp
+        allowlist_file=/tmp/allowlist_paths.conf
+    else
+        allowlist_file=${rootmnt}/host/$image_dir/allowlist_paths.conf
+    fi
+    remove_not_in_allowlist_files "$allowlist_file" "$rw_dir"
+fi
+
+## Remove the executable permission for all the files in rw folder except home folder
 find ${rw_dir} -type f -not -path ${rw_dir}/home -exec chmod a-x {} +
 
-mount -n -o lowerdir=${rootmnt},upperdir=${rootmnt}/host/$image_dir/rw,workdir=${rootmnt}/host/$image_dir/work -t overlay root-overlay ${rootmnt}
+mount -n -o lowerdir=${rootmnt},upperdir=${rw_dir},workdir=${work_dir} -t overlay root-overlay ${rootmnt}
+
 ## Check if the root block device is still there
 [ -b ${ROOT} ] || mdev -s
 case "${ROOT}" in
@@ -94,7 +119,17 @@ case "${ROOT}" in
 esac
 
 mkdir -p ${rootmnt}/var/lib/docker
-if [ -f ${rootmnt}/host/$image_dir/{{ FILESYSTEM_DOCKERFS }} ]; then
+if $secureboot; then
+    mount -t tmpfs -o rw,nodev,size={{ DOCKER_RAMFS_SIZE }} tmpfs ${rootmnt}/var/lib/docker
+    if [ "$bootloader" = "aboot" ]; then
+        unzip -qp "$swi_path" dockerfs.tar.gz | tar xz --numeric-owner -C ${rootmnt}/var/lib/docker
+        ## Boot folder is not extracted during secureboot since content would inherently become unsafe
+        mkdir -p ${rootmnt}/host/$image_dir/boot
+    else
+        echo "secureboot unsupported for bootloader $bootloader" 1>&2
+        exit 1
+    fi
+elif [ -f ${rootmnt}/host/$image_dir/{{ FILESYSTEM_DOCKERFS }} ]; then
     ## mount tmpfs and extract docker into it
     mount -t tmpfs -o rw,nodev,size={{ DOCKER_RAMFS_SIZE }} tmpfs ${rootmnt}/var/lib/docker
     tar xz --numeric-owner -f ${rootmnt}/host/$image_dir/{{ FILESYSTEM_DOCKERFS }} -C ${rootmnt}/var/lib/docker
@@ -106,17 +141,12 @@ fi
 ## Mount the boot directory in the raw partition, bypass the overlay
 mkdir -p ${rootmnt}/boot
 mount --bind ${rootmnt}/host/$image_dir/boot ${rootmnt}/boot
-## Mount loop device or tmpfs for /var/log
-onie_platform=""
-aboot_platform=""
-if [ -f ${rootmnt}/host/machine.conf ]; then
-  . ${rootmnt}/host/machine.conf
-fi
 
-if [ X"$aboot_platform" = X"x86_64-arista_7050_qx32"  ] ||
-   [ X"$aboot_platform" = X"x86_64-arista_7050_qx32s" ] ||
-   [ X"$aboot_platform" = X"x86_64-arista_7060_cx32s" ]
-then
+## Mount loop device or tmpfs for /var/log
+if $logs_inram; then
+  # NOTE: some platforms, when reaching initramfs stage, have a small
+  #       limit of mounting tmpfs partition, potentially due to amount
+  #       of RAM available in this stage. e.g. Arista 7050-qx32[s] and 7060-cx32s
   set_tmpfs_log_partition_size
   mount -t tmpfs -o rw,nosuid,nodev,size=${varlogsize}M tmpfs ${rootmnt}/var/log
   [ -f ${rootmnt}/host/disk-img/var-log.ext4 ] && rm -rf ${rootmnt}/host/disk-img/var-log.ext4

@@ -38,10 +38,18 @@
 # Options can be provided to only run some features of this script.
 #
 # Extra kernel parameters can be provided at runtime by the user by adding them
-# into a kernel-params file.
+# into the kernel-params file.
+#
+# Secureboot of SONiC SWI images is also supported.
+# In such cases, there will only be a partial install on the flash.
+# SONiC will be mostly booting in RAM as a live operating system.
 
+# All templated variables should be declared here
 image_name="image-%%IMAGE_VERSION%%"
 dockerfs="{{ FILESYSTEM_DOCKERFS }}"
+boot_image="{{ ABOOT_BOOT_IMAGE }}"
+installer_image="sonic.swi"
+docker_dir="{{ DOCKERFS_DIR }}"
 
 do_not_clean="do-not-clean"
 kernel_params="kernel-params"
@@ -51,6 +59,11 @@ aboot_machine="arista_unknown"
 info() { printf "%04.2f: $@\n" "$(cut -f1 -d' ' /proc/uptime)"; }
 err() { info "Error: $@"; }
 warn() { info "Warning: $@"; }
+
+if [ $# -ne 0 ]; then
+    echo "usage: $0 (see code)"
+    exit 1
+fi
 
 # extract mount point from the swi path, e.g., /mnt/flash/sonic.swi --> /mnt/flash
 if [ -z "$target_path" ]; then
@@ -63,26 +76,29 @@ fi
 image_path="$target_path/$image_name"
 hook_path="$image_path/platform/hooks"
 data_path="$image_path/platform/data"
+installer_image_path="$image_path/$installer_image"
 
-cmdline_base="$target_path/kernel-params-base"
-cmdline_image="$image_path/kernel-cmdline"
 boot_config="$target_path/boot-config"
 
-swi_tmpfs="/tmp/tmp-swi"
-
-bootconfigvars="KERNEL INITRD CONSOLESPEED PASSWORD NETDEV NETAUTO NETIP NETMASK NETGW NETDOMAIN NETDNS NETHW memtest"
 flash_re=" /mnt/flash| /host"
+cmdline_allowlist='crashkernel'
 
 # for backward compatibility with the sonic_upgrade= behavior
 install="${install:-${sonic_upgrade:-}}"
 
-parse_environment_config() {
-    for n in ${bootconfigvars}; do
-        eval v="\$$n"
-        if [ "$v" ]; then
-            echo "$n=$v"
+is_secureboot_enabled() {
+    if $in_aboot; then
+        if [ -x /bin/securebootctl ] && securebootctl sb -display | grep -q "Secure Boot enabled"; then
+            return 0
         fi
-    done
+        return 1
+    else
+        if grep -q aboot.secureboot /proc/cmdline; then
+            return 0
+        fi
+        # FIXME: EOS is not handled here
+        return 1
+    fi
 }
 
 clean_flash() {
@@ -91,7 +107,6 @@ clean_flash() {
         if [ $f != "${swipath##*/}" ] &&
            [ $f != "boot-config" ] &&
            [ $f != "$kernel_params" ] &&
-           [ $f != "$cmdline_base" ] &&
            [ $f != "aquota.user" ] &&
            [ $f != "old_config" ] &&
            [ $f != "minigraph.xml" ] &&
@@ -101,6 +116,19 @@ clean_flash() {
             rm -rf "$target_path/$f"
         fi
     done
+}
+
+in_array() {
+    local value="$1"
+    shift
+
+    for other in $@; do
+        if [ "$value" = "$other" ]; then
+            return 0
+        fi
+    done
+
+    return 1
 }
 
 update_boot_config() {
@@ -126,19 +154,96 @@ update_next_boot() {
     if [ -z "$default" ]; then
         warn "boot-config has no variable SWI_DEFAULT"
     else
+        info "Next reboot will use $default"
         update_boot_config SWI "$default"
+    fi
+}
+
+get_sorted_hooks() {
+    echo $(find "$1" -name '[0-9][0-9]-*' -type f)
+}
+
+run_hooks() {
+    if [ -d "$hook_path/$1" ]; then
+        for hook in $(get_sorted_hooks "$hook_path/$1"); do
+            if [ ! -z "$hook" ]; then
+                info "Running hook $(basename $hook)"
+                . "$hook"
+            fi
+        done
+    fi
+}
+
+get_uuid_for() {
+    local dev="$1"
+
+    if type lsblk 2>&1 > /dev/null; then
+       lsblk "$dev" -n --output UUID
+    elif type blkid 2>&1 > /dev/null; then
+       blkid | grep "^$dev" | sed -n 's/^.* UUID="//p' | sed 's/".*$//'
+    fi
+}
+
+cmdline_append() {
+    cat >> /tmp/append
+}
+
+cmdline_clear() {
+    echo -n > /tmp/append
+}
+
+cmdline_add() {
+    echo "$@" >> /tmp/append
+}
+
+cmdline_has() {
+    grep -q "$1" /tmp/append
+}
+
+cmdline_echo() {
+    # echo trims and remove whitespace duplicates
+    echo $(cat /tmp/append | tr '\n' ' ')
+}
+
+cmdline_get() {
+    # extract last matching value for key
+    sed -nr "s/.*$1=([^ ]+).*/\1/p" /tmp/append | tail -n 1
+}
+
+find_first_kernel_under() {
+    local path="$1"
+    find "$path" -name 'vmlinuz-*' -type f | head -n 1
+}
+
+find_first_initrd_under() {
+    local path="$1"
+    find "$path" -name 'initrd.img-*' -type f | head -n 1
+}
+
+get_tmpfs() {
+    local tmpfs="${1:-$(mktemp -d)}"
+
+    mkdir -p "$tmpfs"
+    if ! $in_aboot && ! mount | grep -q ' /tmp type tmpfs'; then
+        # mount a real tmpfs on /tmp/xxx if /tmp is not one already.
+        mount -t tmpfs "$(dirname $tmpfs)" "$tmpfs"
+    fi
+    echo "$tmpfs"
+}
+
+clean_tmpfs() {
+    local tmpfs="$1"
+    if mount | grep -q "$tmpfs"; then
+        umount "$tmpfs" || :
+    else
+        rm -rf "$tmpfs"
     fi
 }
 
 move_swi_to_tmpfs() {
     local oldswi="$1"
-    local newswi="$swi_tmpfs/$(basename $oldswi)"
-
-    mkdir -p "$swi_tmpfs"
-    if ! $in_aboot && ! mount | grep -q ' /tmp type tmpfs'; then
-        # mount a real tmpfs on /tmp/tmp-swi if /tmp is not one already.
-        mount -t tmpfs tmp-swi "$swi_tmpfs"
-    fi
+    local tmpfs="$(get_tmpfs "$swi_tmpfs")"
+    local newswi="$tmpfs/$(basename "$oldswi")"
 
     mv "$oldswi" "$newswi"
     echo "$newswi"
@@ -146,9 +251,7 @@ move_swi_to_tmpfs() {
 
 cleanup_swi_tmpfs() {
    rm -f "$swipath"
-   if mount | grep -q "$swi_tmpfs"; then
-      umount "$swi_tmpfs" || :
-   fi
+   clean_tmpfs "$(dirname "$swipath")"
 }
 
 extract_image() {
@@ -156,7 +259,7 @@ extract_image() {
 
     info "Moving swi to a tmpfs"
     ## Avoid problematic flash usage spike on older systems, also improves I/O
-    swipath="$(move_swi_to_tmpfs $swipath)"
+    swipath="$(move_swi_to_tmpfs "$swipath")"
 
     info "Extracting swi content"
     ## Unzip the image except boot0 and dockerfs archive
@@ -169,15 +272,15 @@ extract_image() {
     ## Unpacking dockerfs delayed
     ## 1. when disk is vfat as it does not support symbolic link
     ## 2. when disk is small, expand it into ramfs during initrd
-    if [ "$rootfs_type" != "vfat" -a x"$docker_inram" != x"on" ]; then
-        mkdir -p "$image_path/{{ DOCKERFS_DIR }}"
+    if [ "$rootfs_type" != "vfat" ] && ! cmdline_has docker_inram=on; then
+        mkdir -p "$image_path/$docker_dir"
 
         if [ -n "$install" ]; then
             TAR_EXTRA_OPTION="--numeric-owner --warning=no-timestamp"
         fi
 
         ## extract docker archive
-        unzip -oqp "$swipath" "$dockerfs" | tar xzf - -C "$image_path/{{ DOCKERFS_DIR }}" $TAR_EXTRA_OPTION
+        unzip -oqp "$swipath" "$dockerfs" | tar xzf - -C "$image_path/$docker_dir" $TAR_EXTRA_OPTION
     else
         ## save dockerfs archive in the image directory
         unzip -oq "$swipath" "$dockerfs" -d "$image_path"
@@ -185,11 +288,17 @@ extract_image() {
     fi
 
     ## remove installer since it's not needed anymore
-    info "Remove installer"
-    cleanup_swi_tmpfs
+    if $preserve_installer; then
+        info "Preserving installer under $installer_image_path"
+        mv "$swipath" "$installer_image_path"
+        chmod a+r "$installer_image_path"
+    else
+        info "Remove installer"
+        cleanup_swi_tmpfs "$(basename "$swipath")"
+    fi
 
     ## use new reduced-size boot swi
-    local swi_boot_path="flash:$image_name/{{ ABOOT_BOOT_IMAGE }}"
+    local swi_boot_path="flash:$image_name/$boot_image"
     update_boot_config SWI "$swi_boot_path"
     update_boot_config SWI_DEFAULT "$swi_boot_path"
 
@@ -197,9 +306,43 @@ extract_image() {
     sync
 }
 
+extract_image_secureboot() {
+    info "Extracting necessary swi content"
+    mkdir "$image_path"
+    unzip -oq "$swipath" platform/firsttime .imagehash -d "$image_path"
+
+    info "Installing image as $installer_image_path"
+    mv "$swipath" "$installer_image_path"
+    chmod a+r "$installer_image_path"
+    swipath="$installer_image_path"
+
+    local swi_boot_path="flash:$image_name/$installer_image"
+    update_boot_config SWI "$swi_boot_path"
+    update_boot_config SWI_DEFAULT "$swi_boot_path"
+
+    sync
+}
+
+prepare_image_secureboot() {
+    local boot_tmpfs="$(get_tmpfs)"
+
+    info "Extracting boot content in tmpfs"
+    unzip -oq "$swipath" 'boot/*' -d "$boot_tmpfs"
+
+    info "Generating machine.conf and cmdline"
+    write_secureboot_configs
+
+    sync
+
+    # override environment variables preventing external tamper on kernel execution
+    CMDLINE="$(cmdline_echo)"
+    KERNEL="$(find_first_kernel_under "$boot_tmpfs")"
+    INITRD="$(find_first_initrd_under "$boot_tmpfs")"
+}
+
 write_machine_config() {
     ## Detect SKU and create a hardware description file
-    aboot_version=$(grep ^Aboot "$cmdline_base" | sed 's/^.*norcal.-//' | tail -n 1)
+    aboot_version=$(cmdline_get Aboot | sed 's/^.*norcal.-//')
     if [ -x /bin/sysinit ]; then
        aboot_build_date=$(stat -c %y /bin/sysinit | sed 's/ /T/')
     else
@@ -216,21 +359,8 @@ EOF
     chmod a+r "${target_path}/machine.conf"
 }
 
-in_array() {
-    local value="$1"
-    shift
-
-    for other in $@; do
-        if [ "$value" = "$other" ]; then
-            return 0
-        fi
-    done
-
-    return 1
-}
-
 read_system_eeprom() {
-    if [ -x /bin/readprefdl ]; then
+    if [ -x /bin/readprefdl ] && [ -f /tmp/.system-prefdl ]; then
         readprefdl -f /tmp/.system-prefdl -d > $target_path/.system-prefdl
     elif [ -f /etc/prefdl ]; then
         cp /etc/prefdl $target_path/.system-prefdl
@@ -238,9 +368,9 @@ read_system_eeprom() {
     fi
 }
 
-platform_specific() {
-    local platform="$(sed -nr 's/.*platform=([^ ]+).*/\1/p' "$cmdline_base")"
-    local sid="$(sed -nr 's/.*sid=([^ ]+).*/\1/p' "$cmdline_base" | sed 's/Ssd$//')"
+write_platform_specific_cmdline() {
+    local platform="$(cmdline_get platform)"
+    local sid="$(cmdline_get sid | sed 's/Ssd$//')"
 
     # set varlog size to 100MB
     local varlog_size=100
@@ -252,14 +382,14 @@ platform_specific() {
         # Assuming sid=Cloverdale
         aboot_machine=arista_7050_qx32
         flash_size=2000
-        docker_inram=on
-        echo "modprobe.blacklist=radeon,sp5100_tco acpi=off docker_inram=on" >>/tmp/append
+        cmdline_add modprobe.blacklist=radeon,sp5100_tco
+        cmdline_add acpi=off
     fi
     if [ "$platform" = "crow" ]; then
         # Assuming sid=Clearlake
         aboot_machine=arista_7050_qx32s
         flash_size=3700
-        echo "modprobe.blacklist=radeon,sp5100_tco" >>/tmp/append
+        cmdline_add modprobe.blacklist=radeon,sp5100_tco
     fi
     if [ "$sid" = "Upperlake" ] || [ "$sid" = "UpperlakeES" ]; then
         aboot_machine=arista_7060_cx32s
@@ -276,17 +406,17 @@ platform_specific() {
     if [ "$sid" = "Alhambra" ]; then
         aboot_machine=arista_7170_64c
         flash_size=28000
-        echo "hugepages=128" >> /tmp/append
+        cmdline_add hugepages=128
     fi
     if [ "$sid" = "Mineral" ]; then
         aboot_machine=arista_7170_32c
         flash_size=28000
-        echo "hugepages=128" >> /tmp/append
+        cmdline_add hugepages=128
     fi
     if [ "$sid" = "MineralD" ]; then
         aboot_machine=arista_7170_32cd
         flash_size=28000
-        echo "hugepages=128" >> /tmp/append
+        cmdline_add hugepages=128
     fi
     if [ "$sid" = "Lodoga" ]; then
         aboot_machine=arista_7050cx3_32s
@@ -317,20 +447,24 @@ platform_specific() {
         flash_size=7382
     fi
     if in_array "$platform" "rook" "magpie" "woodpecker"; then
-        echo "tsc=reliable pcie_ports=native" >>/tmp/append
-        echo "rhash_entries=1 usb-storage.delay_use=0" >>/tmp/append
-        echo "reassign_prefmem" >> /tmp/append
+        cmdline_add tsc=reliable
+        cmdline_add pcie_ports=native
+        cmdline_add rhash_entries=1
+        cmdline_add usb-storage.delay_use=0
+        cmdline_add reassign_prefmem
     fi
     if in_array "$platform" "rook"; then
-        echo "iommu=on intel_iommu=on" >>/tmp/append
+        cmdline_add iommu=on
+        cmdline_add intel_iommu=on
         read_system_eeprom
     fi
     if in_array "$platform" "crow" "magpie"; then
-        echo "amd_iommu=off modprobe.blacklist=snd_hda_intel,hdaudio" >> /tmp/append
+        cmdline_add amd_iommu=off
+        cmdline_add modprobe.blacklist=snd_hda_intel,hdaudio
         read_system_eeprom
     fi
     if in_array "$platform" "woodpecker"; then
-        echo "modprobe.blacklist=snd_hda_intel,hdaudio" >> /tmp/append
+        cmdline_add modprobe.blacklist=snd_hda_intel,hdaudio
         read_system_eeprom
     fi
 
@@ -338,90 +472,133 @@ platform_specific() {
         varlog_size=4096
     elif [ $flash_size -ge 3700 ]; then
         varlog_size=400
+    elif [ $flash_size -le 2000 ]; then
+        # enable docker_inram for switches with less than 2G of flash
+        cmdline_add docker_inram=on
+        cmdline_add logs_inram=on
     fi
 
-    echo "varlog_size=$varlog_size" >>/tmp/append
+    cmdline_add "varlog_size=$varlog_size"
+}
+
+write_image_specific_cmdline() {
+    # security
+    cmdline_add security=apparmor
+    cmdline_add apparmor=1
+
+    # fs configuration
+    cmdline_add rw
+
     # disable deterministic interface naming
-    echo "net.ifnames=0" >>/tmp/append
-}
+    cmdline_add net.ifnames=0
 
-get_uuid_for() {
-    local dev="$1"
-
-    if type lsblk 2>&1 > /dev/null; then
-       lsblk "$dev" -n --output UUID
-    elif type blkid 2>&1 > /dev/null; then
-       blkid | grep "^$dev" | sed -n "s/^.* UUID=\"//p" | grep -Eo '[^"]+'
-    fi
-}
-
-write_boot_configs() {
-    if $in_aboot; then
-        # generate the default kernel parameters for the platform
-        echo "$append" > $cmdline_base
-        cat /etc/cmdline | sed "/^\(${bootconfigvars// /\|}\|crashkernel\|loglevel\|ignore_loglevel\)\(\$\|=\)/d;/^\$/d" >> $cmdline_base
-        parse_environment_config >> $cmdline_base
-    elif [ ! -f "$cmdline_base" ]; then
-        # some systems were started with other versions of this script and therefore
-        # do not have the $cmdline_base file. we assume that we are on Sonic or EOS.
-        cat /proc/cmdline | sed -E 's/^(.*) rw .*$/\1/' | tr ' ' '\n' > $cmdline_base
-    fi
-
-    cp $cmdline_base /tmp/append
-
-    platform_specific
-    echo "rw loop=$image_name/fs.squashfs loopfstype=squashfs apparmor=1 security=apparmor quiet" >> /tmp/append
+    # verbosity
+    cmdline_add quiet
+    # Start showing systemd information from the first failing unit if any.
+    # systemd.show_status=false or quiet can be used to silence systemd entierly
+    cmdline_add systemd.show_status=auto
 
     # Pass the MAC address to the new kernel as a command line parameter. This makes it
     # possible to restore the MAC address in the new kernel without requiring driver modifications.
     if [ -f /sys/class/net/ma1/address ]; then
-        echo "hwaddr_ma1=$(cat /sys/class/net/ma1/address)" >> /tmp/append
+        cmdline_add "hwaddr_ma1=$(cat /sys/class/net/ma1/address)"
     elif [ -f /sys/class/net/eth0/address ]; then
-        echo "hwaddr_ma1=$(cat /sys/class/net/eth0/address)" >> /tmp/append
+        cmdline_add "hwaddr_ma1=$(cat /sys/class/net/eth0/address)"
     else
         err "Management port not found."
     fi
 
+    # Obtain root partition uuid
+    local rootdev="$(mount | grep -E "$flash_re" | cut -f1 -d' ')"
+    local rootfstype="$(mount | grep -E "$flash_re" | cut -f5 -d' ')"
+    local rootuuid="$(get_uuid_for $rootdev)"
+    if [ -z "$rootuuid" ] || [ "$rootfstype" = "vfat" ] ; then
+        cmdline_add "root=$rootdev"
+    else
+        cmdline_add "root=UUID=$rootuuid"
+    fi
+}
+
+write_default_cmdline() {
+    local delimiter="cmdline-aboot-end"
+
+    cmdline_clear
+
+    if $in_aboot; then
+        # generate the default kernel parameters for the platform
+        cat /etc/cmdline | sed "/^\(${bootconfigvars// /\|}\|crashkernel\|loglevel\|ignore_loglevel\)\(\$\|=\)/d;/^\$/d" | cmdline_append
+    elif grep -q "$delimiter" /proc/cmdline; then
+        # we are on a recent sonic image using delimiter. extracting the part of the
+        # cmdline coming from aboot is trivial.
+        cat /proc/cmdline | sed -E "s/^(.*) $delimiter .*$/\1/" | tr ' ' '\n' | cmdline_append
+    else
+        # we are either on SONiC or EOS and the commandline doesn't have a delimiter
+        # for the Aboot part. Take an educated guess at a right delimiter.
+        # Subject to breakage if EOS or SONiC cmdline change.
+        cat /proc/cmdline | sed -E 's/^(.*) rw .*$/\1/' | tr ' ' '\n' | cmdline_append
+    fi
+
+    cmdline_add "$delimiter"
+}
+
+write_common_configs() {
+    write_default_cmdline
+    write_platform_specific_cmdline
+    write_image_specific_cmdline
+    write_machine_config
+}
+
+write_secureboot_configs() {
+    write_common_configs
+    cmdline_add "loop=$(echo "$installer_image_path" | sed 's/mnt\/flash\///')"
+    cmdline_add loopfstype=squashfs
+    cmdline_add "loopoffset=$(unzip -qqf "$installer_image_path" fs.squashfs)"
+    cmdline_add docker_inram=on
+    cmdline_add secure_boot_enable=y
+    cmdline_add aboot.secureboot=enabled
+    # setting panic= has the side effect of disabling the initrd shell on error
+    cmdline_add panic=0
+}
+
+write_regular_configs() {
+    write_common_configs
+    cmdline_add "loop=$image_name/fs.squashfs"
+    cmdline_add loopfstype=squashfs
+
     # use extra parameters from kernel-params hook if the file exists
     if [ -f "$target_path/$kernel_params" ]; then
-        cat "$target_path/$kernel_params" >> /tmp/append
+        cat "$target_path/$kernel_params" | cmdline_append
     fi
 
-    # setting root partition if not overridden by kernel-params
-    if ! grep -q "root=" /tmp/append; then
-        rootdev="$(mount | grep -E "$flash_re" | cut -f1 -d' ')"
-        rootfstype="$(mount | grep -E "$flash_re" | cut -f5 -d' ')"
-        rootuuid="$(get_uuid_for $rootdev)"
-        if [ -z "$rootuuid" ] || [ "$rootfstype" = "vfat" ] ; then
-            echo "root=$rootdev" >> /tmp/append
-        else
-            echo "root=UUID=$rootuuid" >> /tmp/append
-        fi
+    # FIXME: sonic sometimes adds extra kernel parameters from user space
+    #        this is unsafe but some will be kept as part of the regular boot
+    if [ -f "$image_path/kernel-cmdline" ]; then
+        cat "$image_path/kernel-cmdline" | tr ' ' '\n' | grep -E "$cmdline_allowlist" | cmdline_append
     fi
 
-    # setting secure_boot_enable=y when secure boot enabled
-    [ -f /bin/securebootctl ] && securebootctl secureboot -display | grep -i "Secure Boot enable" -q && echo "secure_boot_enable=y" >> /tmp/append
-
-    mkdir -p "$image_path"
-    cat /tmp/append > $cmdline_image
-    [ -s ${target_path}/machine.conf ] || write_machine_config
-    sync
+    # FIXME: legacy configuration files used by fast-reboot and eos2sonic
+    #        these should be deprecated over time.
+    cmdline_echo > "$image_path/kernel-cmdline"
+    cmdline_echo | sed 's/ cmdline-aboot-end.*$//' > "$target_path/kernel-params-base"
 }
 
 run_kexec() {
-    local cmdline="$(cat $cmdline_image | tr '\n' ' ') $ENV_EXTRA_CMDLINE"
-    local kernel="${KERNEL:-$(find $image_path/boot -name 'vmlinuz-*' -type f | head -n 1)}"
-    local initrd="${INITRD:-$(find $image_path/boot -name 'initrd.img-*' -type f | head -n 1)}"
+    local cmdline="${CMDLINE:-$(cmdline_echo) $ENV_EXTRA_CMDLINE}"
+    local kernel="${KERNEL:-$(find_first_kernel_under "$image_path/boot")}"
+    local initrd="${INITRD:-$(find_first_initrd_under "$image_path/boot")}"
 
     if $verbose; then
-       # show systemd showdown sequence when verbose is set
-       cmdline="$cmdline systemd.show_status=true"
-    else
-       # Start showing systemd information from the first failing unit if any.
-       # systemd.show_status=false or quiet can be used to silence systemd entierly
-       cmdline="$cmdline systemd.show_status=auto"
+        # show systemd showdown sequence when verbose is set
+        cmdline="$(echo "$cmdline" | sed 's/systemd.show_status=auto/systemd.show_status=true/')"
     fi
 
+    if $debug; then
+        # enable initrd debug as well as kernel verbose output
+        cmdline="$(echo "$cmdline" | sed 's/ quiet//')"
+        cmdline="$cmdline debug loglevel=7 log_buf_len=8M printk.devmsg=on"
+    fi
+
+    sync
     kexec --load --initrd="$initrd" --append="$cmdline" "$kernel"
 
     [ -z "$testonly" ] || exit 0
@@ -429,20 +606,45 @@ run_kexec() {
     kexec --exec
 }
 
-get_sorted_hooks() {
-    echo $(find "$1" -name '[0-9][0-9]-*' -type f)
+secureboot_install() {
+    if [ -e "$image_path" ]; then
+        warn "Image folder $image_path already exist, wiping..."
+        rm -rf "$image_path"
+    fi
+
+    info "Installing image as $installer_image_path"
+    extract_image_secureboot
 }
 
-run_hooks() {
-    if [ -d "$hook_path/$1" ]; then
-        for hook in $(get_sorted_hooks "$hook_path/$1"); do
-            if [ ! -z "$hook" ]; then
-                info "Running hook $(basename $hook)"
-                . "$hook"
-            fi
-        done
-    fi
+regular_install() {
+    mkdir -p $image_path
+
+    info "Generating boot-config, machine.conf and cmdline"
+    write_regular_configs "$image_path"
+
+    info "Installing image under $image_path"
+    extract_image
+
+    run_hooks post-install
 }
+
+secureboot_boot() {
+    # boot material is extracted and generated in RAM.
+    # SONiC starts as a live OS.
+    info "Preparing image for secureboot"
+    prepare_image_secureboot
+    update_next_boot
+    run_kexec
+}
+
+regular_boot() {
+    # boot uses the image installed on the flash
+    run_hooks pre-kexec
+    write_regular_configs "$image_path"
+    update_next_boot
+    run_kexec
+}
+
 
 # In Aboot no option will be provided therefore these are the default values to use
 in_aboot=true
@@ -466,35 +668,48 @@ elif [ ! -z "$kexec" ]; then
     in_aboot=false
     do_install=false
     do_clean=false
-elif [ $# -ne 0 ]; then
-    echo "usage: $0 (see code)"
-    exit 1
 fi
 
 # Verbosity can be defined by the caller, default to false otherwise
 verbose=${verbose:-false}
+debug=${debug:-false}
 if [ -f "$target_path/verbose-boot" ] ||
    [ "$(get_boot_config VERBOSE)" = "1" ] ||
    ! $in_aboot; then
-   verbose=true
+    verbose=true
 fi
+if [ -f "$target_path/debug-boot" ] || [ "$(get_boot_config DEBUG)" = "1" ]; then
+    verbose=true
+    debug=true
+fi
+
+# behavioral configuration for secureboot
+# can be overidden by passing secureboot=true via env
+if [ -z "$secureboot" ]; then
+    if is_secureboot_enabled; then
+        secureboot=true
+    else
+        secureboot=false
+    fi
+fi
+
+preserve_installer=false
 
 # enable shell debug mode to get the most verbosity
 if $verbose; then
-   set -x
+    set -x
 fi
 
 # install the image if newer
 if $do_install; then
-    # we expect the swi to install to be a non empty file
-    if [ ! -s "$swipath" ]; then
+    if ! unzip -l "$swipath" 2>&1 > /dev/null; then
         err "The swipath= environment variable does not point to a valid SWI"
         exit 1
     fi
 
     # check the hash file in the image, and determine to install or just skip
-    GIT_REVISION=$(unzip -p "$swipath" .imagehash)
-    LOCAL_IMAGEHASH=$(cat $image_path/.imagehash 2>/dev/null || true)
+    GIT_REVISION="$(unzip -p "$swipath" .imagehash)"
+    LOCAL_IMAGEHASH="$(cat $image_path/.imagehash 2>/dev/null || true)"
 
     if [ "$GIT_REVISION" != "$LOCAL_IMAGEHASH" ] || [ ! -z "$force" ]; then
         if $do_clean; then
@@ -502,13 +717,11 @@ if $do_install; then
             clean_flash
         fi
 
-        info "Generating boot-config, machine.conf and cmdline"
-        write_boot_configs
-
-        info "Installing image under $image_path"
-        extract_image
-
-        run_hooks post-install
+        if $secureboot; then
+            secureboot_install
+        else
+            regular_install
+        fi
     else
         info "Using previously installed image"
     fi
@@ -516,7 +729,9 @@ fi
 
 # chainloading using kexec
 if $do_kexec; then
-    run_hooks pre-kexec
-    update_next_boot
-    run_kexec
+    if $secureboot; then
+       secureboot_boot
+    else
+       regular_boot
+    fi
 fi
