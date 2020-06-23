@@ -336,15 +336,22 @@ def parse_dpg(dpg, hname):
         vlan_intfs = []
         vlans = {}
         vlan_members = {}
+        vlantype_name = ""
         for vintf in vlanintfs.findall(str(QName(ns, "VlanInterface"))):
             vintfname = vintf.find(str(QName(ns, "Name"))).text
             vlanid = vintf.find(str(QName(ns, "VlanID"))).text
             vintfmbr = vintf.find(str(QName(ns, "AttachTo"))).text
+            vlantype = vintf.find(str(QName(ns, "Type")))
+            if vlantype != None:
+                vlantype_name = vintf.find(str(QName(ns, "Type"))).text
             vmbr_list = vintfmbr.split(';')
             for i, member in enumerate(vmbr_list):
                 vmbr_list[i] = port_alias_map.get(member, member)
                 sonic_vlan_member_name = "Vlan%s" % (vlanid)
-                vlan_members[(sonic_vlan_member_name, vmbr_list[i])] = {'tagging_mode': 'untagged'}
+                if vlantype_name == "Tagged":
+                    vlan_members[(sonic_vlan_member_name, vmbr_list[i])] = {'tagging_mode': 'tagged'}
+                else:
+                    vlan_members[(sonic_vlan_member_name, vmbr_list[i])] = {'tagging_mode': 'untagged'}
 
             vlan_attributes = {'vlanid': vlanid}
 
