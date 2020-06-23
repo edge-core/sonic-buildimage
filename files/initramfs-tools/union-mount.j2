@@ -94,11 +94,12 @@ if $secureboot; then
     else
         allowlist_file=${rootmnt}/host/$image_dir/allowlist_paths.conf
     fi
-    remove_not_in_allowlist_files "$allowlist_file" "$rw_dir"
-fi
 
-## Remove the executable permission for all the files in rw folder except home folder
-find ${rw_dir} -type f -not -path ${rw_dir}/home -exec chmod a-x {} +
+    remove_not_in_allowlist_files "$allowlist_file" "$rw_dir"
+
+    ## Remove the executable permission for all the files in rw folder except home folder
+    find ${rw_dir} -type f -not -path ${rw_dir}/home -exec chmod a-x {} +
+fi
 
 mount -n -o lowerdir=${rootmnt},upperdir=${rw_dir},workdir=${work_dir} -t overlay root-overlay ${rootmnt}
 
