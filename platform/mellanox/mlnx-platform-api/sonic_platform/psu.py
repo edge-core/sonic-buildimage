@@ -28,11 +28,11 @@ PSU_POWER = "power"
 # SKUs with unplugable PSUs:
 # 1. don't have psuX_status and should be treated as always present
 # 2. don't have voltage, current and power values
-hwsku_dict_with_unplugable_psu = ['ACS-MSN2010', 'ACS-MSN2100']
+platform_dict_with_unplugable_psu = ['x86_64-mlnx_msn2010-r0', 'x86_64-mlnx_msn2100-r0']
 
 # in most SKUs the file psuX_curr, psuX_volt and psuX_power contain current, voltage and power data respectively. 
 # but there are exceptions which will be handled by the following dictionary
-hwsku_dict_psu = {'ACS-MSN3700': 1, 'ACS-MSN3700C': 1, 'ACS-MSN3800': 1, 'Mellanox-SN3800-D112C8': 1, 'ACS-MSN4700': 1, 'ACS-MSN3420': 1, 'ACS-MSN4600C': 1}
+platform_dict_psu = {'x86_64-mlnx_msn3420-r0':1, 'x86_64-mlnx_msn3700-r0': 1, 'x86_64-mlnx_msn3700c-r0': 1, 'x86_64-mlnx_msn3800-r0': 1, 'x86_64-mlnx_msn4600c-r0':1, 'x86_64-mlnx_msn4700-r0': 1}
 psu_profile_list = [
     # default filename convention
     {
@@ -40,7 +40,7 @@ psu_profile_list = [
         PSU_VOLTAGE : "power/psu{}_volt",
         PSU_POWER : "power/psu{}_power"
     },
-    # for 3420, 3700, 3700c, 3800, 4700
+    # for 3420, 3700, 3700c, 3800, 4600c, 4700
     {
         PSU_CURRENT : "power/psu{}_curr",
         PSU_VOLTAGE : "power/psu{}_volt_out2",
@@ -50,7 +50,7 @@ psu_profile_list = [
 
 class Psu(PsuBase):
     """Platform-specific Psu class"""
-    def __init__(self, psu_index, sku):
+    def __init__(self, psu_index, platform):
         global psu_list
         PsuBase.__init__(self)
         # PSU is 1-based on Mellanox platform
@@ -62,12 +62,12 @@ class Psu(PsuBase):
         self.psu_oper_status = os.path.join(self.psu_path, psu_oper_status)
         self._name = "PSU{}".format(psu_index + 1)
 
-        if sku in hwsku_dict_psu:
-            filemap = psu_profile_list[hwsku_dict_psu[sku]]
+        if platform in platform_dict_psu:
+            filemap = psu_profile_list[platform_dict_psu[platform]]
         else:
             filemap = psu_profile_list[0]
 
-        if sku in hwsku_dict_with_unplugable_psu:
+        if platform in platform_dict_with_unplugable_psu:
             self.always_presence = True
             self.psu_voltage = None
             self.psu_current = None
@@ -92,7 +92,7 @@ class Psu(PsuBase):
             self.psu_presence = psu_presence
 
         # unplugable PSU has no FAN
-        if sku not in hwsku_dict_with_unplugable_psu:
+        if platform not in platform_dict_with_unplugable_psu:
             fan = Fan(False, psu_index, psu_index, True)
             self._fan_list.append(fan)
 

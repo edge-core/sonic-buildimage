@@ -124,7 +124,7 @@ thermal_api_names = [
     THERMAL_API_GET_HIGH_THRESHOLD
 ]
 
-hwsku_dict_thermal = {'ACS-MSN2700': 0, 'LS-SN2700':0, 'ACS-MSN2740': 3, 'ACS-MSN2100': 1, 'ACS-MSN2410': 2, 'ACS-MSN2010': 4, 'ACS-MSN3700': 5, 'ACS-MSN3700C': 6, 'Mellanox-SN2700': 0, 'Mellanox-SN2700-D48C8': 0, 'ACS-MSN3800': 7, 'Mellanox-SN3800-D112C8': 7, 'ACS-MSN4700': 8, 'ACS-MSN3420': 9, 'ACS-MSN4600C': 9}
+platform_dict_thermal = {'x86_64-mlnx_msn2700-r0': 0, 'x86_64-mlnx_lssn2700-r0':0, 'x86_64-mlnx_msn2740-r0': 3, 'x86_64-mlnx_msn2100-r0': 1, 'x86_64-mlnx_msn2410-r0': 2, 'x86_64-mlnx_msn2010-r0': 4, 'x86_64-mlnx_msn3420-r0':9, 'x86_64-mlnx_msn3700-r0': 5, 'x86_64-mlnx_msn3700c-r0': 6, 'x86_64-mlnx_msn3800-r0': 7, 'x86_64-mlnx_msn4600c-r0':9, 'x86_64-mlnx_msn4700-r0': 8}
 thermal_profile_list = [
     # 2700
     {
@@ -300,9 +300,9 @@ thermal_profile_list = [
 ]
 
 
-def initialize_thermals(sku, thermal_list, psu_list):
+def initialize_thermals(platform, thermal_list, psu_list):
     # create thermal objects for all categories of sensors
-    tp_index = hwsku_dict_thermal[sku]
+    tp_index = platform_dict_thermal[platform]
     thermal_profile = thermal_profile_list[tp_index]
     Thermal.thermal_profile = thermal_profile
     for category in thermal_device_categories_all:
