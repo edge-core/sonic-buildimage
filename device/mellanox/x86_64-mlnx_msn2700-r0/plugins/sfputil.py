@@ -36,7 +36,7 @@ SYSTEM_FAIL = 'system_fail'
 GET_PLATFORM_CMD = "sonic-cfggen -d -v DEVICE_METADATA.localhost.platform"
 
 # Ethernet<n> <=> sfp<n+SFP_PORT_NAME_OFFSET>
-SFP_PORT_NAME_OFFSET = 1
+SFP_PORT_NAME_OFFSET = 0
 SFP_PORT_NAME_CONVENTION = "sfp{}"
 
 # magic code defnition for port number, qsfp port position of each platform
@@ -94,9 +94,9 @@ class SfpUtil(SfpUtilBase):
 
     def __init__(self):
         port_position_tuple = self.get_port_position_tuple_by_platform_name()
-        self.PORT_START = port_position_tuple[0]
-        self.QSFP_PORT_START = port_position_tuple[1]
-        self.PORT_END = port_position_tuple[2]
+        self.PORT_START = port_position_tuple[0] + 1
+        self.QSFP_PORT_START = port_position_tuple[1] + 1
+        self.PORT_END = port_position_tuple[2] + 1
         self.PORTS_IN_BLOCK = port_position_tuple[3]
         self.EEPROM_OFFSET = port_position_tuple[4]
         self.mlnx_sfpd_started = False

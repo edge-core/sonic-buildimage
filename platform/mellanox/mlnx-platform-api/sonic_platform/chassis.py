@@ -197,13 +197,13 @@ class Chassis(ChassisBase):
 
     def get_sfp(self, index):
         """
-        Retrieves sfp represented by (0-based) index <index>
+        Retrieves sfp represented by (1-based) index <index>
 
         Args:
-            index: An integer, the index (0-based) of the sfp to retrieve.
+            index: An integer, the index (1-based) of the sfp to retrieve.
                    The index should be the sequence of a physical port in a chassis,
-                   starting from 0.
-                   For example, 0 for Ethernet0, 1 for Ethernet4 and so on.
+                   starting from 1.
+                   For example, 1 for Ethernet0, 2 for Ethernet4 and so on.
 
         Returns:
             An object dervied from SfpBase representing the specified sfp
@@ -212,7 +212,7 @@ class Chassis(ChassisBase):
             self.initialize_sfp()
 
         sfp = None
-
+        index -= 1
         try:
             sfp = self._sfp_list[index]
         except IndexError:

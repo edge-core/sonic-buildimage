@@ -146,7 +146,7 @@ if (rc != SXD_STATUS_SUCCESS):
     sys.exit(errno.EACCES);
 
 # Get SFP module
-sfp_module = int(sys.argv[1])
+sfp_module = int(sys.argv[1]) - 1
 
 # Get all ports at admin up status that related to the SFP module
 log_port_list = get_log_ports(handle, sfp_module)

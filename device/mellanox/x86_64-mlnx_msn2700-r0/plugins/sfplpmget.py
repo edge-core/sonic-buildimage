@@ -24,7 +24,7 @@ if (rc != 0):
     sys.exit(errno.EACCES)
 
 # Get SFP module number
-sfp_module = int(sys.argv[1])
+sfp_module = int(sys.argv[1]) - 1
 
 # Get MCION
 mcion = ku_mcion_reg()
