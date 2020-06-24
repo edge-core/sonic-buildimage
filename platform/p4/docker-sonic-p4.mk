@@ -8,7 +8,7 @@ $(DOCKER_SONIC_P4)_DEPENDS += $(SWSS) \
                               $(REDIS_TOOLS) \
                               $(REDIS_SERVER) \
                               $(PYTHON_SWSSCOMMON) \
-                              $(LIBTEAMDCT) \
+                              $(LIBTEAMDCTL) \
                               $(LIBTEAM_UTILS) \
                               $(SONIC_DEVICE_DATA) \
                               $(SONIC_UTILS) \

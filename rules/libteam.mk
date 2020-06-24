@@ -13,17 +13,17 @@ LIBTEAM_DBG = libteam5-dbgsym_$(LIBTEAM_VERSION)_$(CONFIGURED_ARCH).deb
 $(eval $(call add_derived_package,$(LIBTEAM),$(LIBTEAM_DBG)))
 
 LIBTEAM_DEV = libteam-dev_$(LIBTEAM_VERSION)_$(CONFIGURED_ARCH).deb
-$(LIBTEAM_DEV)_DEPENDS += $(LIBTEAMDCT)
+$(LIBTEAM_DEV)_DEPENDS += $(LIBTEAMDCTL)
 $(eval $(call add_derived_package,$(LIBTEAM),$(LIBTEAM_DEV)))
 
-LIBTEAMDCT = libteamdctl0_$(LIBTEAM_VERSION)_$(CONFIGURED_ARCH).deb
-$(eval $(call add_derived_package,$(LIBTEAM),$(LIBTEAMDCT)))
+LIBTEAMDCTL = libteamdctl0_$(LIBTEAM_VERSION)_$(CONFIGURED_ARCH).deb
+$(eval $(call add_derived_package,$(LIBTEAM),$(LIBTEAMDCTL)))
 
-LIBTEAMDCT_DBG = libteamdctl0-dbgsym_$(LIBTEAM_VERSION)_$(CONFIGURED_ARCH).deb
-$(eval $(call add_derived_package,$(LIBTEAM),$(LIBTEAMDCT_DBG)))
+LIBTEAMDCTL_DBG = libteamdctl0-dbgsym_$(LIBTEAM_VERSION)_$(CONFIGURED_ARCH).deb
+$(eval $(call add_derived_package,$(LIBTEAM),$(LIBTEAMDCTL_DBG)))
 
 LIBTEAM_UTILS = libteam-utils_$(LIBTEAM_VERSION)_$(CONFIGURED_ARCH).deb
-$(LIBTEAM_UTILS)_DEPENDS += $(LIBTEAMDCT)
+$(LIBTEAM_UTILS)_DEPENDS += $(LIBTEAMDCTL)
 $(eval $(call add_derived_package,$(LIBTEAM),$(LIBTEAM_UTILS)))
 
 LIBTEAM_UTILS_DBG = libteam-utils-dbgsym_$(LIBTEAM_VERSION)_$(CONFIGURED_ARCH).deb
