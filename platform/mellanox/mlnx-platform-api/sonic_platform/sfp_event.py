@@ -259,7 +259,7 @@ class sfp_event:
 
                 for port in port_list:
                     logger.log_info("SFP on port {} state {}".format(port, sfp_state))
-                    port_change[port] = sfp_state
+                    port_change[port+1] = sfp_state
                     found += 1
 
         return found != 0
