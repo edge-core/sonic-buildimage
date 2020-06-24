@@ -27,6 +27,7 @@ set -x -e
 CONFIGURED_ARCH=$([ -f .arch ] && cat .arch || echo amd64)
 
 . functions.sh
+BUILD_SCRIPTS_DIR=files/build_scripts
 BUILD_TEMPLATES=files/build_templates
 IMAGE_CONFIGS=files/image_config
 SCRIPTS_DIR=files/scripts
@@ -559,3 +560,9 @@ sudo chown -R $FRR_USER_UID:$FRR_USER_GID $FILESYSTEM_ROOT/etc/sonic/frr
 sudo chmod -R 640 $FILESYSTEM_ROOT/etc/sonic/frr/
 sudo chmod 750 $FILESYSTEM_ROOT/etc/sonic/frr
 {%- endif %}
+
+# Mask services which are disabled by default
+sudo cp $BUILD_SCRIPTS_DIR/mask_disabled_services.py $FILESYSTEM_ROOT/tmp/
+sudo chmod a+x $FILESYSTEM_ROOT/tmp/mask_disabled_services.py
+sudo LANG=C chroot $FILESYSTEM_ROOT /tmp/mask_disabled_services.py
+sudo rm -rf $FILESYSTEM_ROOT/tmp/mask_disabled_services.py
