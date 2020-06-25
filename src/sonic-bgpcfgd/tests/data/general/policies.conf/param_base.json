@@ -1,0 +1,8 @@
+{
+    "CONFIG_DB__DEVICE_METADATA": {
+        "localhost": {
+            "sub_role": "NotBackEnd"
+        }
+    },
+    "loopback0_ipv4": "10.10.10.10/32"
+}

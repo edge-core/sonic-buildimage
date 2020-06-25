@@ -1,260 +1,27 @@
 #!/usr/bin/env python
 
 import sys
-import subprocess
 import datetime
 import time
 import syslog
 import signal
 import traceback
 import os
-import tempfile
 import json
-from collections import defaultdict, OrderedDict
-from pprint import pprint
-from functools import partial
+from collections import defaultdict
 
 import yaml
 import jinja2
 import netaddr
 from swsscommon import swsscommon
 
+from app.vars import g_debug
+from app.log import log_debug, log_notice, log_info, log_warn, log_err, log_crit
+from app.template import TemplateFabric
+from app.config import ConfigMgr
+from app.util import run_command
 
 g_run = True
-g_debug = False
-
-
-def log_debug(msg):
-    """ Send a message msg to the syslog as DEBUG """
-    if g_debug:
-        syslog.syslog(syslog.LOG_DEBUG, msg)
-
-def log_notice(msg):
-    """ Send a message msg to the syslog as NOTICE """
-    syslog.syslog(syslog.LOG_NOTICE, msg)
-
-def log_info(msg):
-    """ Send a message msg to the syslog as INFO """
-    syslog.syslog(syslog.LOG_INFO, msg)
-
-def log_warn(msg):
-    """ Send a message msg to the syslog as WARNING """
-    syslog.syslog(syslog.LOG_WARNING, msg)
-
-def log_err(msg):
-    """ Send a message msg to the syslog as ERR """
-    syslog.syslog(syslog.LOG_ERR, msg)
-
-def log_crit(msg):
-    """ Send a message msg to the syslog as CRIT """
-    syslog.syslog(syslog.LOG_CRIT, msg)
-
-
-def run_command(command, shell=False, hide_errors=False):
-    """
-    Run a linux command. The command is defined as a list. See subprocess.Popen documentation on format
-    :param command: command to execute. Type: List of strings
-    :param shell: execute the command through shell when True. Type: Boolean
-    :param hide_errors: don't report errors to syslog when True. Type: Boolean
-    :return: Tuple: integer exit code from the command, stdout as a string, stderr as a string
-    """
-    log_debug("execute command '%s'." % str(command))
-    p = subprocess.Popen(command, shell=shell, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdout, stderr = p.communicate()
-    if p.returncode != 0:
-        if not hide_errors:
-            print_tuple = p.returncode, str(command), stdout, stderr
-            log_err("command execution returned %d. Command: '%s', stdout: '%s', stderr: '%s'" % print_tuple)
-
-    return p.returncode, stdout, stderr
-
-
-class ConfigMgr(object):
-    """ The class represents frr configuration """
-    def __init__(self):
-        self.current_config = None
-
-    def reset(self):
-        """ Reset stored config """
-        self.current_config = None
-
-    def update(self):
-        """ Read current config from FRR """
-        self.current_config = None
-        ret_code, out, err = run_command(["vtysh", "-c", "show running-config"])
-        if ret_code != 0:
-            log_crit("can't update running config: rc=%d out='%s' err='%s'" % (ret_code, out, err))
-            return
-        self.current_config = self.to_canonical(out)
-
-    def push(self, cmd):
-        """
-        Push new changes to FRR
-        :param cmd: configuration change for FRR. Type: String
-        :return: True if change was applied successfully, False otherwise
-        """
-        return self.write(cmd)
-
-    def write(self, cmd):
-        """
-        Write configuration change to FRR.
-        :param cmd: new configuration to write into FRR. Type: String
-        :return: True if change was applied successfully, False otherwise
-        """
-        fd, tmp_filename = tempfile.mkstemp(dir='/tmp')
-        os.close(fd)
-        with open(tmp_filename, 'w') as fp:
-            fp.write("%s\n" % cmd)
-        command = ["vtysh", "-f", tmp_filename]
-        ret_code, out, err = run_command(command)
-        if not g_debug:
-            os.remove(tmp_filename)
-        if ret_code != 0:
-            err_tuple = str(cmd), ret_code, out, err
-            log_err("ConfigMgr::push(): can't push configuration '%s', rc='%d', stdout='%s', stderr='%s'" % err_tuple)
-        if ret_code == 0:
-            self.current_config = None  # invalidate config
-        return ret_code == 0
-
-    @staticmethod
-    def to_canonical(raw_config):
-        """
-        Convert FRR config into canonical format
-        :param raw_config: config in frr format
-        :return: frr config in canonical format
-        """
-        parsed_config = []
-        cur_offset = 0
-        lines = raw_config.split("\n")
-        cur_path = [lines[0]]
-        for line in lines:
-            if line.strip().startswith('!') or line.strip() == '':
-                continue
-            n_spaces = ConfigMgr.count_spaces(line)
-            s_line = line.strip()
-            assert(n_spaces == cur_offset or (n_spaces + 1) == cur_offset or (n_spaces - 1) == cur_offset)
-            if n_spaces == cur_offset:
-                cur_path[-1] = s_line
-            elif n_spaces > cur_offset:
-                cur_path.append(s_line)
-            elif n_spaces < cur_offset:
-                cur_path = cur_path[:-2]
-                cur_path.append(s_line)
-            parsed_config.append(cur_path[:])
-            cur_offset = n_spaces
-        return parsed_config
-
-    @staticmethod
-    def count_spaces(line):
-        """ Count leading spaces in the line """
-        return len(line) - len(line.lstrip())
-
-    @staticmethod
-    def from_canonical(canonical_config):
-        """
-        Convert config from canonical format into FRR raw format
-        :param canonical_config: config in a canonical format
-        :return: config in the FRR raw format
-        """
-        out = ""
-        for lines in canonical_config:
-            spaces = len(lines) - 1
-            out += " " * spaces + lines[-1] + "\n"
-
-        return out
-
-
-class TemplateFabric(object):
-    """ Fabric for rendering jinja2 templates """
-    def __init__(self):
-        j2_template_paths = ['/usr/share/sonic/templates']
-        j2_loader = jinja2.FileSystemLoader(j2_template_paths)
-        j2_env = jinja2.Environment(loader=j2_loader, trim_blocks=False)
-        j2_env.filters['ipv4'] = self.is_ipv4
-        j2_env.filters['ipv6'] = self.is_ipv6
-        j2_env.filters['pfx_filter'] = self.pfx_filter
-        for attr in ['ip', 'network', 'prefixlen', 'netmask']:
-            j2_env.filters[attr] = partial(self.prefix_attr, attr)
-        self.env = j2_env
-
-    def from_file(self, filename):
-        """
-        Read a template from a file
-        :param filename: filename of the file. Type String
-        :return: Jinja2 template object
-        """
-        return self.env.get_template(filename)
-
-    def from_string(self, tmpl):
-        """
-        Read a template from a string
-        :param tmpl: Text representation of Jinja2 template
-        :return: Jinja2 template object
-        """
-        return self.env.from_string(tmpl)
-
-    @staticmethod
-    def is_ipv4(value):
-        """ Return True if the value is an ipv4 address """
-        if not value:
-            return False
-        if isinstance(value, netaddr.IPNetwork):
-            addr = value
-        else:
-            try:
-                addr = netaddr.IPNetwork(str(value))
-            except (netaddr.NotRegisteredError, netaddr.AddrFormatError, netaddr.AddrConversionError):
-                return False
-        return addr.version == 4
-
-    @staticmethod
-    def is_ipv6(value):
-        """ Return True if the value is an ipv6 address """
-        if not value:
-            return False
-        if isinstance(value, netaddr.IPNetwork):
-            addr = value
-        else:
-            try:
-                addr = netaddr.IPNetwork(str(value))
-            except (netaddr.NotRegisteredError, netaddr.AddrFormatError, netaddr.AddrConversionError):
-                return False
-        return addr.version == 6
-
-    @staticmethod
-    def prefix_attr(attr, value):
-        """
-        Extract attribute from IPNetwork object
-        :param attr: attribute to extract
-        :param value: the string representation of ip prefix which will be converted to IPNetwork.
-        :return: the value of the extracted attribute
-        """
-        if not value:
-            return None
-        else:
-            try:
-                prefix = netaddr.IPNetwork(str(value))
-            except (netaddr.NotRegisteredError, netaddr.AddrFormatError, netaddr.AddrConversionError):
-                return None
-        return str(getattr(prefix, attr))
-
-    @staticmethod
-    def pfx_filter(value):
-        """INTERFACE Table can have keys in one of the two formats:
-           string or tuple - This filter skips the string keys and only
-           take into account the tuple.
-           For eg - VLAN_INTERFACE|Vlan1000 vs VLAN_INTERFACE|Vlan1000|192.168.0.1/21
-        """
-        table = OrderedDict()
-
-        if not value:
-            return table
-
-        for key, val in value.items():
-            if not isinstance(key, tuple):
-                continue
-            table[key] = val
-        return table
 
 
 class Directory(object):

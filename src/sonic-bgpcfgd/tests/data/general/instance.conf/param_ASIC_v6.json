@@ -1,0 +1,15 @@
+{
+    "CONFIG_DB__DEVICE_METADATA": {
+        "localhost": {}
+    },
+    "neighbor_addr": "FC00::",
+    "bgp_session": {
+        "asn": "555",
+        "name": "_ASIC_"
+    },
+    "constants": {
+        "deployment_id_asn_map": {
+            "5": "51111"
+        }
+    }
+}

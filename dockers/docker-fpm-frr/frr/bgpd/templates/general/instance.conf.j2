@@ -6,7 +6,7 @@
 {# set the bgp neighbor timers if they have not default values #}
 {% if     (bgp_session['keepalive'] is defined and bgp_session['keepalive'] | int != 60)
       or  (bgp_session['holdtime'] is defined  and bgp_session['holdtime']  | int != 180) %}
-  neighbor {{ neighbor_addr }} timers {{ bgp_session['keepalive'] }} {{ bgp_session['holdtime'] }}
+  neighbor {{ neighbor_addr }} timers {{ bgp_session['keepalive'] | default("60") }} {{ bgp_session['holdtime'] | default("180") }}
 {% endif %}
 !
 {% if bgp_session.has_key('admin_status') and bgp_session['admin_status'] == 'down' or not bgp_session.has_key('admin_status') and CONFIG_DB__DEVICE_METADATA['localhost'].has_key('default_bgp_status') and CONFIG_DB__DEVICE_METADATA['localhost']['default_bgp_status'] == 'down' %}
@@ -15,36 +15,43 @@
 !
 {% if neighbor_addr | ipv4 %}
   address-family ipv4
-{% if 'ASIC' in bgp_session['name'] %}
+{%   if 'ASIC' in bgp_session['name'] %}
     neighbor {{ neighbor_addr }} peer-group PEER_V4_INT
-{% else %}
+{%   else %}
     neighbor {{ neighbor_addr }} peer-group PEER_V4
 {%   endif %}
+!
 {%   if CONFIG_DB__DEVICE_METADATA['localhost']['sub_role'] == 'BackEnd' %}
     neighbor {{ neighbor_addr }} route-map FROM_BGP_PEER_V4_INT in
 {%   endif %}
+!
 {% elif neighbor_addr | ipv6 %}
   address-family ipv6
-{% if 'ASIC' in bgp_session['name'] %}
+{%   if 'ASIC' in bgp_session['name'] %}
     neighbor {{ neighbor_addr }} peer-group PEER_V6_INT
-{% else %}
+{%   else %}
     neighbor {{ neighbor_addr }} peer-group PEER_V6
 {%   endif %}
+!
 {%   if CONFIG_DB__DEVICE_METADATA['localhost']['sub_role'] == 'BackEnd' %}
     neighbor {{ neighbor_addr }} route-map FROM_BGP_PEER_V6_INT in
 {%   endif %}
 {% endif %}
 !
-{% if bgp_session['rrclient'] | int != 0 %}
+{%   if bgp_session.has_key('rrclient') and bgp_session['rrclient'] | int != 0 %}
     neighbor {{ neighbor_addr }} route-reflector-client
-{% endif %}
+{%   endif %}
 !
-{% if bgp_session['nhopself'] | int != 0 %}
+{%   if bgp_session.has_key('nhopself') and bgp_session['nhopself'] | int != 0 %}
     neighbor {{ neighbor_addr }} next-hop-self
-{% endif %}
-{% if 'ASIC' in bgp_session['name'] %}
+{%   endif %}
+!
+{%   if 'ASIC' in bgp_session['name'] %}
     neighbor {{ neighbor_addr }} next-hop-self force
-{% endif %}
+{%   endif %}
+!
+    neighbor {{ neighbor_addr }} activate
+  exit-address-family
 !
 {% if bgp_session["asn"] == bgp_asn and CONFIG_DB__DEVICE_METADATA['localhost']['type'] == "SpineChassisFrontendRouter" %}
   address-family l2vpn evpn
@@ -52,8 +59,6 @@
     advertise-all-vni
   exit-address-family
 {% endif %}
-    neighbor {{ neighbor_addr }} activate
-  exit-address-family
 !
 ! end of template: bgpd/templates/general/instance.conf.j2
 !
