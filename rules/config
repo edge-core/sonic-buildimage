@@ -131,6 +131,9 @@ ENABLE_RESTAPI = n
 # ENABLE_NAT - build docker-sonic-nat for nat support
 ENABLE_NAT = y
 
+# TELEMETRY_WRITABLE - Enable write/config operations via the gNMI interface.
+# Uncomment to enable:
+# TELEMETRY_WRITABLE = y
 # INSTALL_KUBERNETES - if set to y kubernetes packages are installed to be able to
 # run as worker node in kubernetes cluster.
 INSTALL_KUBERNETES = n
