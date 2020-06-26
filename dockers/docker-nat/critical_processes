@@ -1,2 +1,2 @@
-natmgrd
-natsyncd
+program:natmgrd
+program:natsyncd

@@ -1,2 +1,2 @@
-snmpd
-snmp-subagent
+program:snmpd
+program:snmp-subagent

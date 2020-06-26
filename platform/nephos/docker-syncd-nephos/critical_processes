@@ -1,2 +1,2 @@
-dsserve
-syncd
+program:dsserve
+program:syncd

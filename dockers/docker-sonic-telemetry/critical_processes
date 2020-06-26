@@ -1,2 +1,2 @@
-telemetry
-dialout
+program:telemetry
+program:dialout
