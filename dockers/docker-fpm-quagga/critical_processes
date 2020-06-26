@@ -1,4 +1,4 @@
-zebra
-bgpd
-fpmsyncd
-bgpcfgd
+program:zebra
+program:bgpd
+program:fpmsyncd
+program:bgpcfgd

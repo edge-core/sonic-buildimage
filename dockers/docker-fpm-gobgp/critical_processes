@@ -1,2 +1,2 @@
-gobgpd
-fpmsyncd
+program:gobgpd
+program:fpmsyncd
