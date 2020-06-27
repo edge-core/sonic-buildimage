@@ -193,7 +193,7 @@ class SfpUtil(SfpUtilBase):
         if (reg_value == "" ):
             return False
 
-        # Mask off 4th bit for presence
+        # Mask off 6th bit for lpmode
         mask = (1 << 6)
 		
 	# LPMode is active high; set or clear the bit accordingly
@@ -224,7 +224,7 @@ class SfpUtil(SfpUtilBase):
             return False
 
         # Mask off 4th bit for presence
-        mask = (1 << 6)
+        mask = (1 << 4)
 
         # ResetL is active low
         reg_value = reg_value & ~mask
