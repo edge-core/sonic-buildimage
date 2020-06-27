@@ -50,12 +50,8 @@ RUN apt-get update &&        \
 # Install dependencies of supervisor
         python-pkg-resources \
         python-meld3         \
-# dependencies of redis-tools
-        libatomic1           \
-        libjemalloc1         \
-        liblua5.1-0          \
-        lua-bitop            \
-        lua-cjson            \
+# Install redis-tools
+        redis-tools=5:5.0.3-3~bpo9+2     \
 # common dependencies
         libpython2.7         \
         libdaemon0           \
