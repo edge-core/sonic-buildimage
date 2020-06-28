@@ -1,3 +1,3 @@
 program:lldpd
-program:lldp_syncd
+program:lldp-syncd
 program:lldpmgrd
