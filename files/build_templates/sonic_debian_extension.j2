@@ -176,6 +176,10 @@ sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install pexpect
 # Install tabulate >= 0.8.1 via pip in order to support multi-line row output for sonic-utilities
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install tabulate==0.8.2
 
+# Install packages to support Dynamic Port Breakout config command for sonic-utilities
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install xmltodict==0.12.0
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install jsondiff==1.2.0
+
 # Install SONiC Utilities (and its dependencies via 'apt-get -y install -f')
 sudo dpkg --root=$FILESYSTEM_ROOT -i $python_debs_path/python-sonic-utilities_*.deb || \
     sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
