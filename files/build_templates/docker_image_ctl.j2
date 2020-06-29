@@ -295,11 +295,9 @@ start() {
         --tmpfs /tmp \
 {%- endif %}
         --tmpfs /var/tmp \
-{%- if docker_container_name == "database" %}
         --env "NAMESPACE_ID"="$DEV" \
         --env "NAMESPACE_PREFIX"="$NAMESPACE_PREFIX" \
         --env "NAMESPACE_COUNT"=$NUM_ASIC \
-{%- endif %}
         --name={{docker_container_name}}$DEV {{docker_image_name}}:latest || {
             echo "Failed to docker run" >&1
             exit 4
