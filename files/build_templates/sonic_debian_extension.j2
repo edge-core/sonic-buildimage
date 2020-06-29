@@ -461,10 +461,10 @@ sudo LANG=C cp $SCRIPTS_DIR/sonic-netns-exec $FILESYSTEM_ROOT/usr/bin/sonic-netn
 # Copy systemd timer configuration
 # It implements delayed start of services
 sudo cp $BUILD_TEMPLATES/snmp.timer $FILESYSTEM_ROOT_USR_LIB_SYSTEMD_SYSTEM
-sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable snmp.timer
+echo "snmp.timer" | sudo tee -a $GENERATED_SERVICE_FILE
 {% if enable_system_telemetry == 'y' %}
 sudo cp $BUILD_TEMPLATES/telemetry.timer $FILESYSTEM_ROOT_USR_LIB_SYSTEMD_SYSTEM
-sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable telemetry.timer
+echo "telemetry.timer" | sudo tee -a $GENERATED_SERVICE_FILE
 {% endif %}
 
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get purge -y python-dev
