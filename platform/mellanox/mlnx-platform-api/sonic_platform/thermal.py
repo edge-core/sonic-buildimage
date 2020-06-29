@@ -52,6 +52,12 @@ THERMAL_ZONE_NORMAL_TEMPERATURE = "temp_trip_norm"
 
 MODULE_TEMPERATURE_FAULT_PATH = "/var/run/hw-management/thermal/module{}_temp_fault"
 
+thermal_api_handler_asic = {
+    THERMAL_API_GET_TEMPERATURE: 'asic',
+    THERMAL_API_GET_HIGH_THRESHOLD: 'mlxsw/temp_trip_hot',
+    THERMAL_API_GET_HIGH_CRITICAL_THRESHOLD: 'mlxsw/temp_trip_crit'
+}
+
 thermal_api_handler_cpu_core = {
     THERMAL_API_GET_TEMPERATURE:"cpu_core{}",
     THERMAL_API_GET_HIGH_THRESHOLD:"cpu_core{}_max",
@@ -78,14 +84,14 @@ thermal_api_handler_gearbox = {
     THERMAL_API_GET_HIGH_CRITICAL_THRESHOLD:None
 }
 thermal_ambient_apis = {
-    THERMAL_DEV_ASIC_AMBIENT : "asic",
+    THERMAL_DEV_ASIC_AMBIENT : thermal_api_handler_asic,
     THERMAL_DEV_PORT_AMBIENT : "port_amb",
     THERMAL_DEV_FAN_AMBIENT : "fan_amb",
     THERMAL_DEV_COMEX_AMBIENT : "comex_amb",
     THERMAL_DEV_BOARD_AMBIENT : "board_amb"
 }
 thermal_ambient_name = {
-    THERMAL_DEV_ASIC_AMBIENT : "Ambient ASIC Temp",
+    THERMAL_DEV_ASIC_AMBIENT : 'ASIC',
     THERMAL_DEV_PORT_AMBIENT : "Ambient Port Side Temp",
     THERMAL_DEV_FAN_AMBIENT : "Ambient Fan Side Temp",
     THERMAL_DEV_COMEX_AMBIENT : "Ambient COMEX Temp",
@@ -383,8 +389,14 @@ class Thermal(ThermalBase):
 
     def _get_file_from_api(self, api_name):
         if self.category == THERMAL_DEV_CATEGORY_AMBIENT:
-            if api_name == THERMAL_API_GET_TEMPERATURE:
-                filename = thermal_ambient_apis[self.index]
+            handler = thermal_ambient_apis[self.index]
+            if isinstance(handler, str):
+                if api_name == THERMAL_API_GET_TEMPERATURE:
+                    filename = thermal_ambient_apis[self.index]
+                else:
+                    return None
+            elif isinstance(handler, dict):
+                filename = handler[api_name]
             else:
                 return None
         else:
