@@ -150,7 +150,15 @@ elif [ "$IMAGE_TYPE" = "aboot" ]; then
     if [ "$SONIC_ENABLE_IMAGE_SIGNATURE" = "y" ]; then
         TARGET_CA_CERT="$TARGET_PATH/ca.cert"
         rm -f "$TARGET_CA_CERT"
-        [ -f "$CA_CERT" ] && cp "$CA_CERT" "$TARGET_CA_CERT"
+
+        # If the ca certificate does not exist, the test certificate will be used to sign the image
+        if [ ! -f "$CA_CERT" ]; then
+            TEST_CERT_PATH=files/image_config/secureboot/test-certs
+            CA_CERT="${TEST_CERT_PATH}/ca.cert"
+            SIGNING_KEY="${TEST_CERT_PATH}/signing.key"
+            SIGNING_CERT="${TEST_CERT_PATH}/signing.cert"
+        fi
+        cp "$CA_CERT" "$TARGET_CA_CERT"
         ./scripts/sign_image.sh -i "$OUTPUT_ABOOT_IMAGE" -k "$SIGNING_KEY" -c "$SIGNING_CERT" -a "$TARGET_CA_CERT"
     fi
 else
