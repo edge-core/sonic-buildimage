@@ -27,6 +27,22 @@ link_namespace() {
 }
 {%- endif %}
 
+function updateSyslogConf()
+{
+    # On multiNPU platforms, change the syslog target ip to docker0 ip to allow logs from containers
+    # running on the namespace to reach the rsyslog service running on the host
+    # Also update the container name  
+    if [[ ($NUM_ASIC -gt 1) ]]; then
+        TARGET_IP=$(docker network inspect bridge --format={{ "'{{(index .IPAM.Config 0).Gateway}}'" }})
+        CONTAINER_NAME="{{docker_container_name}}$DEV"
+        TMP_FILE="/tmp/rsyslog.$CONTAINER_NAME.conf"
+
+        sonic-cfggen -t /usr/share/sonic/templates/rsyslog-container.conf.j2 -a "{\"target_ip\": \"$TARGET_IP\", \"container_name\": \"$CONTAINER_NAME\" }"  > $TMP_FILE
+        docker cp $TMP_FILE {{docker_container_name}}$DEV:/etc/rsyslog.conf
+        rm -rf $TMP_FILE
+    fi
+}
+
 function getMountPoint()
 {
     echo $1 | python -c "import sys, json, os; mnts = [x for x in json.load(sys.stdin)[0]['Mounts'] if x['Destination'] == '/usr/share/sonic/hwsku']; print '' if len(mnts) == 0 else os.path.basename(mnts[0]['Source'])" 2>/dev/null
@@ -68,6 +84,7 @@ function preStartAction()
 {%- else %}
     : # nothing
 {%- endif %}
+    updateSyslogConf
 }
 
 function postStartAction()

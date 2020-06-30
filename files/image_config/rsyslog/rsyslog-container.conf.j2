@@ -1,7 +1,3 @@
-###############################################################################
-# Managed by Ansible
-# file: ansible/roles/acs/templates/rsyslog.conf.j2
-###############################################################################
 #
 #  /etc/rsyslog.conf    Configuration file for rsyslog.
 #
@@ -14,13 +10,19 @@
 #################
 
 $ModLoad imuxsock # provides support for local system logging
-$ModLoad imklog   # provides kernel logging support
+
+#
+# Set a rate limit on messages from the container
+#
+$SystemLogRateLimitInterval 300
+$SystemLogRateLimitBurst 20000
+
+#$ModLoad imklog  # provides kernel logging support
 #$ModLoad immark  # provides --MARK-- message capability
 
 # provides UDP syslog reception
-$ModLoad imudp
-$UDPServerAddress {{udp_server_ip}}  #bind to localhost before udp server run
-$UDPServerRun 514
+#$ModLoad imudp
+#$UDPServerRun 514
 
 # provides TCP syslog reception
 #$ModLoad imtcp
@@ -30,6 +32,11 @@ $UDPServerRun 514
 ###########################
 #### GLOBAL DIRECTIVES ####
 ###########################
+
+# Set remote syslog server
+template (name="ForwardFormatInContainer" type="string" string="<%PRI%>%TIMESTAMP:::date-rfc3339% %HOSTNAME% {{container_name}}#%syslogtag%%msg:::sp-if-no-1st-sp%%msg%")
+*.* action(type="omfwd" target="{{target_ip}}" port="514" protocol="udp" Template="ForwardFormatInContainer")
+
 #
 # Use traditional timestamp format.
 # To enable high precision timestamps, comment out the following line.
@@ -37,13 +44,8 @@ $UDPServerRun 514
 #$ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat
 
 # Define a custom template
-$template SONiCFileFormat,"%timegenerated%.%timegenerated:::date-subseconds% %HOSTNAME% %syslogseverity-text:::uppercase% %syslogtag%%msg:::sp-if-no-1st-sp%%msg:::drop-last-lf%\n"
+$template SONiCFileFormat,"%TIMESTAMP%.%timestamp:::date-subseconds% %HOSTNAME% %syslogseverity-text:::uppercase% {{container_name}}#%syslogtag%%msg:::sp-if-no-1st-sp%%msg:::drop-last-lf%\n"
 $ActionFileDefaultTemplate SONiCFileFormat
-
-#Set remote syslog server
-{% for server in SYSLOG_SERVER %}
-*.* @[{{ server }}]:514;SONiCFileFormat
-{% endfor %}
 
 #
 # Set the default permissions for all log files.
