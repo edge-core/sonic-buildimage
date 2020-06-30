@@ -1,7 +1,7 @@
 {
     "INSTANCES": {
         "redis":{
-            "hostname" : "127.0.0.1",
+            "hostname" : "{{HOST_IP}}",
             "port" : 6379,
             "unix_socket_path" : "/var/run/redis{{NAMESPACE_ID}}/redis.sock",
             "persistence_for_warm_boot" : "yes"
