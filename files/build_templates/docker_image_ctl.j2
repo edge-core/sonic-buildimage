@@ -91,7 +91,7 @@ function postStartAction()
 {
 {%- if docker_container_name == "database" %}
     if [ "$DEV" ]; then
-        docker exec -i database$DEV sysctl -w net.ipv6.conf.all.disable_ipv6=0
+        docker exec -i database$DEV sysctl --system -e
         link_namespace $DEV
     fi
 

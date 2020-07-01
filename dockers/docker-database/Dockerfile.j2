@@ -37,6 +37,7 @@ COPY ["docker-database-init.sh", "/usr/local/bin/"]
 COPY ["database_config.json.j2", "/usr/share/sonic/templates/"]
 COPY ["database_global.json.j2", "/usr/share/sonic/templates/"]
 COPY ["files/supervisor-proc-exit-listener", "/usr/bin"]
+COPY ["files/sysctl-net.conf", "/etc/sysctl.d/"]
 COPY ["critical_processes", "/etc/supervisor"]
 
 ENTRYPOINT ["/usr/local/bin/docker-database-init.sh"]
