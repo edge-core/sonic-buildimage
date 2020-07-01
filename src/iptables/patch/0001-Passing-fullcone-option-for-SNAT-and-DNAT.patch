@@ -19,7 +19,7 @@ index a14d16f..4bfab98 100644
  
 +/* Temporarily defining here, need to be picked up from the
 + * new kernel header linux/netfilter/nf_nat.h */
-+#define NF_NAT_RANGE_FULLCONE  (1 << 5)
++#define NF_NAT_RANGE_FULLCONE  (1 << 6)
 +
  enum {
  	O_TO_DEST = 0,
@@ -106,7 +106,7 @@ index b7b5fc7..88ff650 100644
  
 +/* Temporarily defining here, need to be picked up from the
 + * new kernel header linux/netfilter/nf_nat.h */
-+#define NF_NAT_RANGE_FULLCONE  (1 << 5)
++#define NF_NAT_RANGE_FULLCONE  (1 << 6)
 +
  enum {
  	O_TO_PORTS = 0,
@@ -181,7 +181,7 @@ index e92d811..9634ba9 100644
  
 +/* Temporarily defining here, need to be picked up from the
 + * new kernel header linux/netfilter/nf_nat.h */
-+#define NF_NAT_RANGE_FULLCONE  (1 << 5)
++#define NF_NAT_RANGE_FULLCONE  (1 << 6)
 +
  enum {
  	O_TO_SRC = 0,
