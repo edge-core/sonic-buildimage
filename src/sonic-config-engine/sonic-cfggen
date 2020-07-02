@@ -16,6 +16,8 @@ See usage string for detail description for arguments.
 """
 
 from __future__ import print_function
+import sys
+sys.path.insert(0, "/usr/local/lib/python2.7/dist-packages")
 
 # monkey patch re.compile to do lazy regular expression compilation.
 # This is done to improve import time of jinja2, yaml, natsort modules, because they

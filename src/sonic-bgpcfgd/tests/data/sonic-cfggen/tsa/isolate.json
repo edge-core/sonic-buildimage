@@ -1,0 +1,9 @@
+{
+    "constants": {
+        "bgp": {
+            "traffic_shift_community": "12345:555"
+        }
+    },
+    "route_map_name": "test_rm_name",
+    "ip_version": "V4"
+}
