@@ -15,7 +15,7 @@ ipv6 prefix-list PL_LoopbackV6 permit {{ get_ipv6_loopback_address(LOOPBACK_INTE
 {% endif %}
 !
 !
-{% if DEVICE_METADATA['localhost']['sub_role'] == 'FrontEnd' %}
+{% if multi_asic() %}
 route-map HIDE_INTERNAL permit 10
   set community local-AS
 !
@@ -38,15 +38,29 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
 {% endif %}
 !
 {# set router-id #}
+{% if multi_asic() %}
+  bgp router-id {{ get_ipv4_loopback_address(LOOPBACK_INTERFACE, "Loopback4096") | ip }}
+{% else %}
   bgp router-id {{ get_ipv4_loopback_address(LOOPBACK_INTERFACE, "Loopback0") | ip }}
+{% endif %}
 !
 {# advertise loopback #}
   network {{ get_ipv4_loopback_address(LOOPBACK_INTERFACE, "Loopback0") | ip }}/32
+{% if multi_asic()  %}
+  network {{ get_ipv4_loopback_address(LOOPBACK_INTERFACE, "Loopback4096") | ip }}/32 route-map HIDE_INTERNAL
+{% endif %}
 !
 {% if get_ipv6_loopback_address(LOOPBACK_INTERFACE, "Loopback0") != 'None' %}
   address-family ipv6
     network {{ get_ipv6_loopback_address(LOOPBACK_INTERFACE, "Loopback0") | ip }}/64
   exit-address-family
+{% endif %}
+{% if multi_asic() %}
+{% if get_ipv6_loopback_address(LOOPBACK_INTERFACE, "Loopback4096") != 'None' %}
+  address-family ipv6
+    network {{ get_ipv6_loopback_address(LOOPBACK_INTERFACE, "Loopback4096") | ip }}/64 route-map HIDE_INTERNAL
+  exit-address-family
+{% endif %}
 {% endif %}
 {% endblock bgp_init %}
 !
