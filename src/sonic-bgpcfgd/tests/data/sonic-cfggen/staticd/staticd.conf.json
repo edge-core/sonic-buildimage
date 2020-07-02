@@ -1,0 +1,12 @@
+{
+    "DEVICE_METADATA": {
+        "localhost": {
+            "hostname": "new_hostname"
+        }
+    },
+    "MGMT_INTERFACE": {
+        "eth0|10.10.10.10/24": {
+            "gwaddr": "10.10.10.1"
+        }
+    }
+}
