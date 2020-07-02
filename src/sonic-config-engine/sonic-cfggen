@@ -113,7 +113,17 @@ def pfx_filter(value):
     for key,val in value.items():
         if not isinstance(key, tuple):
             continue
-        table[key] = val
+        intf, ip_address = key
+        if '/' not in ip_address:
+            if is_ipv4(ip_address):
+                new_ip_address = "%s/32" % ip_address
+            elif is_ipv6(ip_address):
+                new_ip_address = "%s/128" % ip_address
+            else:
+                raise ValueError("'%s' is invalid ip address" % ip_address)
+            table[(intf, new_ip_address)] = val
+        else:
+            table[key] = val
     return table
 
 def ip_network(value):
