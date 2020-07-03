@@ -18,10 +18,10 @@ include $(PLATFORM_PATH)/mlnx-ssd-fw-update.mk
 SONIC_ALL += $(SONIC_ONE_IMAGE) \
              $(DOCKER_FPM)
 
-# Inject mlnx sai into sairedis
-$(LIBSAIREDIS)_DEPENDS += $(MLNX_SAI)
+# Inject mlnx sai into syncd
+$(SYNCD)_DEPENDS += $(MLNX_SAI)
 ifeq ($(ENABLE_SYNCD_RPC),y)
-$(LIBSAIREDIS)_DEPENDS += $(LIBSAITHRIFT_DEV)
+$(SYNCD)_DEPENDS += $(LIBSAITHRIFT_DEV)
 endif
 
 # Runtime dependency on mlnx sai is set only for syncd
