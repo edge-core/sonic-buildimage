@@ -2,4 +2,7 @@ depmod -a
 systemctl enable platform-modules-dx010.service
 systemctl start platform-modules-dx010.service
 
+systemctl start platform-modules-dx010.service
+systemctl start fancontrol.service
+
 /usr/local/bin/platform_api_mgnt.sh install
