@@ -251,6 +251,15 @@ def parse_asic_png(png, asic_name, hostname):
                 devices[name] = device_data
     return (neighbors, devices, port_speeds)
 
+def parse_loopback_intf(child):
+    lointfs = child.find(str(QName(ns, "LoopbackIPInterfaces")))
+    lo_intfs = {}
+    for lointf in lointfs.findall(str(QName(ns1, "LoopbackIPInterface"))):
+        intfname = lointf.find(str(QName(ns, "AttachTo"))).text
+        ipprefix = lointf.find(str(QName(ns1, "PrefixStr"))).text
+        lo_intfs[(intfname, ipprefix)] = {}
+    return lo_intfs
+
 def parse_dpg(dpg, hname):
     aclintfs = None
     mgmtintfs = None
@@ -269,7 +278,6 @@ def parse_dpg(dpg, hname):
         """
         if mgmtintfs is None and child.find(str(QName(ns, "ManagementIPInterfaces"))) is not None:
             mgmtintfs = child.find(str(QName(ns, "ManagementIPInterfaces")))
-        
         hostname = child.find(str(QName(ns, "Hostname")))
         if hostname.text.lower() != hname.lower():
             continue
@@ -290,12 +298,7 @@ def parse_dpg(dpg, hname):
             ipprefix = ipintf.find(str(QName(ns, "Prefix"))).text
             intfs[(intfname, ipprefix)] = {}
 
-        lointfs = child.find(str(QName(ns, "LoopbackIPInterfaces")))
-        lo_intfs = {}
-        for lointf in lointfs.findall(str(QName(ns1, "LoopbackIPInterface"))):
-            intfname = lointf.find(str(QName(ns, "AttachTo"))).text
-            ipprefix = lointf.find(str(QName(ns1, "PrefixStr"))).text
-            lo_intfs[(intfname, ipprefix)] = {}
+        lo_intfs =  parse_loopback_intf(child)
 
         mvrfConfigs = child.find(str(QName(ns, "MgmtVrfConfigs")))
         mvrf = {}
@@ -452,6 +455,13 @@ def parse_dpg(dpg, hname):
         return intfs, lo_intfs, mvrf, mgmt_intf, vlans, vlan_members, pcs, pc_members, acls, vni
     return None, None, None, None, None, None, None, None, None, None
 
+def parse_host_loopback(dpg, hname):
+    for child in dpg:
+        hostname = child.find(str(QName(ns, "Hostname")))
+        if hostname.text.lower() != hname.lower():
+            continue
+        lo_intfs = parse_loopback_intf(child)
+        return lo_intfs
 
 def parse_cpg(cpg, hname):
     bgp_sessions = {}
@@ -826,6 +836,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
     cloudtype = None
     hostname = None
     linkmetas = {}
+    host_lo_intfs = None
 
     # hostname is the asic_name, get the asic_id from the asic_name
     if asic_name is not None:
@@ -867,6 +878,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
         else:
             if child.tag == str(QName(ns, "DpgDec")):
                 (intfs, lo_intfs, mvrf, mgmt_intf, vlans, vlan_members, pcs, pc_members, acls, vni) = parse_dpg(child, asic_name)
+                host_lo_intfs = parse_host_loopback(child, hostname)
             elif child.tag == str(QName(ns, "CpgDec")):
                 (bgp_sessions, bgp_asn, bgp_peers_with_range, bgp_monitors) = parse_cpg(child, asic_name)
                 enable_internal_bgp_session(bgp_sessions, filename, asic_name)
@@ -930,6 +942,12 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
     for lo_intf in lo_intfs:
         results['LOOPBACK_INTERFACE'][lo_intf] = lo_intfs[lo_intf]
         results['LOOPBACK_INTERFACE'][lo_intf[0]] = {}
+
+    if host_lo_intfs is not None:
+        for host_lo_intf in host_lo_intfs:
+            results['LOOPBACK_INTERFACE'][host_lo_intf] = host_lo_intfs[host_lo_intf]
+            results['LOOPBACK_INTERFACE'][host_lo_intf[0]] = {}
+
     results['MGMT_VRF_CONFIG'] = mvrf
 
     phyport_intfs = {}

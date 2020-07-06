@@ -45,6 +45,7 @@ from sonic_device_util import get_machine_info
 from sonic_device_util import get_platform_info
 from sonic_device_util import get_system_mac
 from sonic_device_util import get_npu_id_from_name
+from sonic_device_util import is_multi_npu
 from config_samples import generate_sample_config
 from config_samples import get_available_config
 from swsssdk import SonicV2Connector, ConfigDBConnector, SonicDBConfig 
@@ -344,6 +345,8 @@ def main():
         env.filters['ip_network'] = ip_network
         for attr in ['ip', 'network', 'prefixlen', 'netmask', 'broadcast']:
             env.filters[attr] = partial(prefix_attr, attr)
+        # Pass the is_multi_npu function as global
+        env.globals['multi_asic'] = is_multi_npu
         template = env.get_template(template_file)
         print(template.render(sort_data(data)))
 
