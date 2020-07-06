@@ -245,3 +245,32 @@ class TestMultiNpuCfgGen(TestCase):
         argument = "-m {} -p {} -n asic3 --var-json \"ACL_TABLE\"".format(self.sample_graph, self.port_config[3])
         output = json.loads(self.run_script(argument))
         self.assertDictEqual(output, {})
+
+    def test_loopback_intfs(self):
+        argument = "-m {} --var-json \"LOOPBACK_INTERFACE\"".format(self.sample_graph)
+        output = json.loads(self.run_script(argument))
+        self.assertDictEqual(output, {\
+                "Loopback0": {},
+                "Loopback0|10.1.0.32/32": {},
+                "Loopback0|FC00:1::32/128": {}})
+
+        # The asic configuration should have 2 loopback interfaces
+        argument = "-m {} -n asic0 --var-json \"LOOPBACK_INTERFACE\"".format(self.sample_graph)
+        output = json.loads(self.run_script(argument))
+        self.assertDictEqual(output, { \
+                             "Loopback0": {},
+                             "Loopback4096": {},
+                             "Loopback0|10.1.0.32/32": {},
+                             "Loopback0|FC00:1::32/128": {},
+                             "Loopback4096|8.0.0.0/32": {},
+                             "Loopback4096|FD00:1::32/128": {}})
+
+        argument = "-m {} -n asic3 --var-json \"LOOPBACK_INTERFACE\"".format(self.sample_graph)
+        output = json.loads(self.run_script(argument))
+        self.assertDictEqual(output, {\
+                                      "Loopback0": {},
+                                      "Loopback4096": {},
+                                      "Loopback0|10.1.0.32/32": {},
+                                      "Loopback0|FC00:1::32/128": {},
+                                      "Loopback4096|8.0.0.5/32": {},
+                                      "Loopback4096|FD00:4::32/128": {}})
