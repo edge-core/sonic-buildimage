@@ -44,12 +44,20 @@ def get_npu_id_from_name(npu_name):
     else:
         return None
 
+def get_asic_conf_file_path(platform):
+    asic_conf_path_candidates = []
+    asic_conf_path_candidates.append(os.path.join('/usr/share/sonic/platform', ASIC_CONF_FILENAME))
+    if platform is not None:
+        asic_conf_path_candidates.append(os.path.join(SONIC_DEVICE_PATH, platform, ASIC_CONF_FILENAME))
+    for asic_conf_file_path in asic_conf_path_candidates:
+        if os.path.isfile(asic_conf_file_path):
+            return asic_conf_file_path
+    return None
+
 def get_num_npus():
     platform = get_platform_info(get_machine_info())
-    if not platform:
-        return 1
-    asic_conf_file_path = os.path.join(SONIC_DEVICE_PATH, platform, ASIC_CONF_FILENAME)
-    if not os.path.isfile(asic_conf_file_path):
+    asic_conf_file_path = get_asic_conf_file_path(platform)
+    if asic_conf_file_path is None:
         return 1
     with open(asic_conf_file_path) as asic_conf_file:
         for line in asic_conf_file:
