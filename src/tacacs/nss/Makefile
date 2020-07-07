@@ -24,6 +24,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	git $(GIT_APPLY) ../0004-Skip-accessing-tacacs-servers-for-local-non-tacacs-u.patch
 	git $(GIT_APPLY) ../0005-libnss-Modify-parsing-of-IP-addr-and-port-number-str.patch
 	git $(GIT_APPLY) ../0006-fix-compiling-warning-about-token-dereference.patch
+	git $(GIT_APPLY) ../0007-Add-support-for-TACACS-source-address.patch
 
 	dpkg-buildpackage -rfakeroot -b -us -uc
 	popd

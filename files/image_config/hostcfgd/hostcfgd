@@ -212,6 +212,10 @@ class AaaCfg(object):
         auth.update(self.auth)
         tacplus_global = self.tacplus_global_default.copy()
         tacplus_global.update(self.tacplus_global)
+        if 'src_ip' in tacplus_global:
+            src_ip = tacplus_global['src_ip']
+        else:
+            src_ip = None
 
         servers_conf = []
         if self.tacplus_servers:
@@ -226,7 +230,7 @@ class AaaCfg(object):
         env = jinja2.Environment(loader=jinja2.FileSystemLoader('/'), trim_blocks=True)
         env.filters['sub'] = sub
         template = env.get_template(template_file)
-        pam_conf = template.render(auth=auth, servers=servers_conf)
+        pam_conf = template.render(auth=auth, src_ip=src_ip, servers=servers_conf)
         with open(PAM_AUTH_CONF, 'w') as f:
             f.write(pam_conf)
 
@@ -249,7 +253,7 @@ class AaaCfg(object):
         # Set tacacs+ server in nss-tacplus conf
         template_file = os.path.abspath(NSS_TACPLUS_CONF_TEMPLATE)
         template = env.get_template(template_file)
-        nss_tacplus_conf = template.render(debug=self.debug, servers=servers_conf)
+        nss_tacplus_conf = template.render(debug=self.debug, src_ip=src_ip, servers=servers_conf)
         with open(NSS_TACPLUS_CONF, 'w') as f:
             f.write(nss_tacplus_conf)
 
