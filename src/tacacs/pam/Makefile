@@ -19,6 +19,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	git apply ../0003-Obfuscate-key-before-printing-to-syslog.patch
 	git apply ../0004-management-vrf-support.patch
 	git apply ../0005-pam-Modify-parsing-of-IP-address-and-port-number-to-.patch
+	git apply ../0006-Add-support-for-source-ip-address.patch
 
 	dpkg-buildpackage -rfakeroot -b -us -uc
 	popd

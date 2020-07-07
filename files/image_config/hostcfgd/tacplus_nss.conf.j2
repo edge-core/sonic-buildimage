@@ -7,6 +7,13 @@
 debug=on
 {% endif %}
 
+# src_ip - set source address of TACACS+ protocol packets
+# Default: None (auto source ip address)
+# src_ip=2.2.2.2
+{% if src_ip %}
+src_ip={{ src_ip }}
+{% endif %}
+
 # server - set ip address, tcp port, secret string and timeout for TACACS+ servers
 # Default: None (no TACACS+ server)
 # server=1.1.1.1:49,secret=test,timeout=3
