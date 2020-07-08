@@ -36,7 +36,7 @@ def add_nat_conntrack_entry_in_kernel(ipproto, srcip, dstip, srcport, dstport, n
     if (ipproto == IP_PROTO_TCP):
         state = ' --state ESTABLISHED '
     ctcmd = 'conntrack -I -n ' + natdstip + ':' + natdstport + ' -g ' + natsrcip + ':' + natsrcport + \
-                       ' --protonum ' + ipproto + state + ' --timeout 600 --src ' + srcip + ' --sport ' + srcport + \
+                       ' --protonum ' + ipproto + state + ' --timeout 432000 --src ' + srcip + ' --sport ' + srcport + \
                        ' --dst ' + dstip + ' --dport ' + dstport + ' -u ASSURED'
     subprocess.call(ctcmd, shell=True)
     logger.info("Restored NAT entry: {}".format(ctcmd))
