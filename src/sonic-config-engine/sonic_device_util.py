@@ -44,7 +44,6 @@ def get_npu_id_from_name(npu_name):
     else:
         return None
 
-<<<<<<< HEAD
 def get_npu_device_id(npu_id):
     platform = get_platform_info(get_machine_info())
     if not platform:
