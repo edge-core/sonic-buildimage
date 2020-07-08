@@ -55,7 +55,9 @@ RUN apt-get update &&        \
         libjemalloc1         \
         liblua5.1-0          \
         lua-bitop            \
-        lua-cjson
+        lua-cjson            \
+# for processing json files in bash environment
+        jq
 
 {% if CONFIGURED_ARCH == "armhf" %}
 # ip and ifconfig utility missing in docker for armhf

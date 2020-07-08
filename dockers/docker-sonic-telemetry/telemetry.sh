@@ -2,36 +2,38 @@
 
 # Try to read telemetry and certs config from ConfigDB.
 # Use default value if no valid config exists
-X509=`sonic-cfggen -d -v "DEVICE_METADATA['x509']"`
-gnmi=`sonic-cfggen -d -v "TELEMETRY['gnmi']"`
-certs=`sonic-cfggen -d -v "TELEMETRY['certs']"`
+TELEMETRY_VARS=$(sonic-cfggen -d -t telemetry_vars.j2)
+TELEMETRY_VARS=${TELEMETRY_VARS//[\']/\"}
+X509=$(echo $TELEMETRY_VARS | jq -r '.x509')
+GNMI=$(echo $TELEMETRY_VARS | jq -r '.gnmi')
+CERTS=$(echo $TELEMETRY_VARS | jq -r '.certs')
 
 TELEMETRY_ARGS=" -logtostderr"
 export CVL_SCHEMA_PATH=/usr/sbin/schema
 
-if [ -n "$certs" ]; then
-    SERVER_CRT=`sonic-cfggen -d -v "TELEMETRY['certs']['server_crt']"`
-    SERVER_KEY=`sonic-cfggen -d -v "TELEMETRY['certs']['server_key']"`
+if [ -n "$CERTS" ]; then
+    SERVER_CRT=$(echo $CERTS | jq -r '.server_crt')
+    SERVER_KEY=$(echo $CERTS | jq -r '.server_key')
     if [ -z $SERVER_CRT  ] || [ -z $SERVER_KEY  ]; then
         TELEMETRY_ARGS+=" --insecure"
     else
         TELEMETRY_ARGS+=" --server_crt $SERVER_CRT --server_key $SERVER_KEY "
     fi
 
-    CA_CRT=`sonic-cfggen -d -v "TELEMETRY['certs']['ca_crt']"`
+    CA_CRT=$(echo $CERTS | jq -r '.ca_crt')
     if [ ! -z $CA_CRT ]; then
         TELEMETRY_ARGS+=" --ca_crt $CA_CRT"
     fi
 elif [ -n "$X509" ]; then
-    SERVER_CRT=`sonic-cfggen -d -v "DEVICE_METADATA['x509']['server_crt']"`
-    SERVER_KEY=`sonic-cfggen -d -v "DEVICE_METADATA['x509']['server_key']"`
+    SERVER_CRT=$(echo $X509 | jq -r '.server_crt')
+    SERVER_KEY=$(echo $X509 | jq -r '.server_key')
     if [ -z $SERVER_CRT  ] || [ -z $SERVER_KEY  ]; then
         TELEMETRY_ARGS+=" --insecure"
     else
         TELEMETRY_ARGS+=" --server_crt $SERVER_CRT --server_key $SERVER_KEY "
     fi
 
-    CA_CRT=`sonic-cfggen -d -v "DEVICE_METADATA['x509']['ca_crt']"`
+    CA_CRT=$(echo $X509 | jq -r '.ca_crt')
     if [ ! -z $CA_CRT ]; then
         TELEMETRY_ARGS+=" --ca_crt $CA_CRT"
     fi
@@ -40,19 +42,20 @@ else
 fi
 
 # If no configuration entry exists for TELEMETRY, create one default port
-if [ -z "$gnmi" ]; then
-    sonic-db-cli CONFIG_DB hset "TELEMETRY|gnmi" port 8080
+if [ -z "$GNMI" ]; then
+    PORT=8080
+    sonic-db-cli CONFIG_DB hset "TELEMETRY|gnmi" port $PORT
+else
+    PORT=$(echo $GNMI | jq -r '.port')
 fi
-
-PORT=`sonic-cfggen -d -v "TELEMETRY['gnmi']['port']"`
 TELEMETRY_ARGS+=" --port $PORT"
 
-CLIENT_AUTH=`sonic-cfggen -d -v "TELEMETRY['gnmi']['client_auth']"`
+CLIENT_AUTH=$(echo $GNMI | jq -r '.client_auth')
 if [ -z $CLIENT_AUTH ] || [ $CLIENT_AUTH == "false" ]; then
     TELEMETRY_ARGS+=" --allow_no_client_auth"
 fi
 
-LOG_LEVEL=`sonic-cfggen -d -v "TELEMETRY['gnmi']['log_level']"`
+LOG_LEVEL=$(echo $GNMI | jq -r '.log_level')
 if [ ! -z $LOG_LEVEL ]; then
     TELEMETRY_ARGS+=" -v=$LOG_LEVEL"
 else
