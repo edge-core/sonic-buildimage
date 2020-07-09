@@ -237,6 +237,11 @@ sudo LANG=C cp $IMAGE_CONFIGS/warmboot-finalizer/finalize-warmboot.sh $FILESYSTE
 sudo LANG=C cp $IMAGE_CONFIGS/warmboot-finalizer/warmboot-finalizer.service $FILESYSTEM_ROOT_USR_LIB_SYSTEMD_SYSTEM
 echo "warmboot-finalizer.service" | sudo tee -a $GENERATED_SERVICE_FILE
 
+# Copy watchdog-control files
+sudo LANG=C cp $IMAGE_CONFIGS/watchdog-control/watchdog-control.sh $FILESYSTEM_ROOT/usr/local/bin/watchdog-control.sh
+sudo LANG=C cp $IMAGE_CONFIGS/watchdog-control/watchdog-control.service $FILESYSTEM_ROOT_USR_LIB_SYSTEMD_SYSTEM
+echo "watchdog-control.service" | sudo tee -a $GENERATED_SERVICE_FILE
+
 # Copy rsyslog configuration files and templates
 sudo cp $IMAGE_CONFIGS/rsyslog/rsyslog-config.service $FILESYSTEM_ROOT_USR_LIB_SYSTEMD_SYSTEM
 sudo cp $IMAGE_CONFIGS/rsyslog/rsyslog-config.sh $FILESYSTEM_ROOT/usr/bin/
