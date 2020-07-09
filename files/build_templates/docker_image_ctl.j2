@@ -299,6 +299,11 @@ start() {
         --tmpfs /tmp \
 {%- endif %}
 {%- endif %}
+{%- if sonic_asic_platform == "broadcom" %}
+{%- if docker_container_name == "syncd" %}
+        -v /var/run/docker-syncd$DEV:/var/run/sswsyncd \
+{%- endif %}
+{%- endif %}
 {%- if docker_container_name == "bgp" %}
         -v /etc/sonic/frr/$DEV:/etc/frr:rw \
 {%- endif %}
