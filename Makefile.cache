@@ -249,9 +249,8 @@ define LOAD_FROM_CACHE
 		$(if $(LOAD_DRV_DEB), $($(1)_CACHE_USER) tar -C $($(1)_BASE_PATH) -mxzvf $(CACHE_FILE_SELECT) 1>> $($(1)_DST_PATH)/$(1).log ,echo );
 		echo "File $(CACHE_FILE_SELECT) is loaded from cache into $($(1)_BASE_PATH)" >> $($(1)_DST_PATH)/$(1).log
 		$(eval $(1)_CACHE_LOADED := Yes)
-		$(shell touch $(CACHE_FILE_SELECT))
+		$(if $(call CHECK_WCACHE_ENABLED,$(1)), $(shell touch $(CACHE_FILE_SELECT)))
 		echo "[ CACHE::LOADED ] $($(1)_CACHE_DIR)/$($(1)_MOD_CACHE_FILE)" >> $($(1)_DST_PATH)/$(1).log
-		,
 		echo "File $($(1)_CACHE_DIR)/$($(1)_MOD_CACHE_FILE)  is not present in cache or cache mode set as $(SONIC_DPKG_CACHE_METHOD) !" >> $($(1)_DST_PATH)/$(1).log
 		echo "[ CACHE::SKIPPED ] $($(1)_CACHE_DIR)/$($(1)_MOD_CACHE_FILE)" >> $($(1)_DST_PATH)/$(1).log
 		echo "[ CACHE::SKIPPED ] DEP_FILES - Modified Files: [$($(1)_FILES_MODIFIED)] " >> $($(1)_DST_PATH)/$(1).log
