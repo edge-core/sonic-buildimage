@@ -1,8 +1,16 @@
 #!/usr/bin/env bash
 
+EXIT_TELEMETRY_VARS_FILE_NOT_FOUND=1
+TELEMETRY_VARS_FILE=/usr/share/sonic/templates/telemetry_vars.j2
+
+if [ ! -f "$TELEMETRY_VARS_FILE" ]; then
+    echo "Telemetry vars template file not found"
+    exit $EXIT_TELEMETRY_VARS_FILE_NOT_FOUND
+fi
+
 # Try to read telemetry and certs config from ConfigDB.
 # Use default value if no valid config exists
-TELEMETRY_VARS=$(sonic-cfggen -d -t telemetry_vars.j2)
+TELEMETRY_VARS=$(sonic-cfggen -d -t $TELEMETRY_VARS_FILE)
 TELEMETRY_VARS=${TELEMETRY_VARS//[\']/\"}
 X509=$(echo $TELEMETRY_VARS | jq -r '.x509')
 GNMI=$(echo $TELEMETRY_VARS | jq -r '.gnmi')
