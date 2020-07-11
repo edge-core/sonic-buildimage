@@ -647,7 +647,7 @@ class BGPPeerMgrBase(Manager):
         ret_code = self.apply_op(cmd, vrf)
         if ret_code:
             log_info("Peer '(%s|%s)' has been removed" % (vrf, nbr))
-            self.peers.remove(key)
+            self.peers.remove(peer_key)
         else:
             log_err("Peer '(%s|%s)' hasn't been removed" % (vrf, nbr))
 
