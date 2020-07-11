@@ -1,4 +1,4 @@
-BFN_PLATFORM = bfnplatform_20200701_deb9.deb
+BFN_PLATFORM = bfnplatform_20200710_deb9.deb
 $(BFN_PLATFORM)_URL = "https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/$(BFN_PLATFORM)"
 
 SONIC_ONLINE_DEBS += $(BFN_PLATFORM)
