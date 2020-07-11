@@ -130,6 +130,13 @@ RUN ln -s /usr/bin/tcpdump /usr/sbin/tcpdump
 
 RUN mkdir -p /var/log/supervisor
 
+# Install Python-based GNMI client
+RUN git clone https://github.com/lguohan/gnxi.git \
+    && cd gnxi \
+    && git checkout d01b36e \
+    && cd gnmi_cli_py \
+    && pip install -r requirements.txt
+
 EXPOSE 22 8009
 
 ENTRYPOINT ["/usr/local/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
