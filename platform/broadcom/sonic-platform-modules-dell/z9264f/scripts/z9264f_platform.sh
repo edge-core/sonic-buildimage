@@ -100,13 +100,25 @@ switch_board_sfp() {
 #Modsel 64 ports to applicable QSFP type modules
 #This enables the adapter to respond for i2c commands
 switch_board_modsel() {
-	resource="/sys/bus/pci/devices/0000:04:00.0/resource0"
-	for ((i=1;i<=64;i++));
-	do
-		port_addr=$(( 16384 + ((i - 1) * 16)))
-		hex=$( printf "0x%x" $port_addr )
-		python /usr/bin/pcisysfs.py --set --offset $hex --val 0x10 --res $resource  > /dev/null 2>&1
-	done
+    resource="/sys/bus/pci/devices/0000:04:00.0/resource0"
+    for ((i=1;i<=64;i++));
+    do
+        port_addr=$(( 16384 + ((i - 1) * 16)))
+        hex=$( printf "0x%x" $port_addr )
+        python /usr/bin/pcisysfs.py --set --offset $hex --val 0x10 --res $resource  > /dev/null 2>&1
+    done
+
+    # Disabling low power mode for last two 10G ports
+    # From last 6th bit: Disable - 0; Enable - 1
+    reg_offset=$(python /usr/bin/pcisysfs.py --get --offset 0x4400 --res $resource | cut -d':' -f 2)
+    reg_offset=$( printf '0x%s' $reg_offset)
+    reg_offset=$( printf '0x%x' $(( $reg_offset & 0xbf )) )
+    python /usr/bin/pcisysfs.py --set --offset 0x4400 --val $reg_offset --res $resource  > /dev/null 2>&1
+
+    reg_offset=$(python /usr/bin/pcisysfs.py --get --offset 0x4410 --res $resource | cut -d':' -f 2)
+    reg_offset=$( printf '0x%s' $reg_offset)
+    reg_offset=$( printf '0x%x' $(( $reg_offset & 0xbf )) )
+    python /usr/bin/pcisysfs.py --set --offset 0x4410 --val $reg_offset --res $resource  > /dev/null 2>&1
 }
 
 # Copy led_proc_init.soc file according to the HWSKU
