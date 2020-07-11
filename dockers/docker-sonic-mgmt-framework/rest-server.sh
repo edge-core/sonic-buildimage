@@ -1,28 +1,39 @@
 #!/usr/bin/env bash
 
 # Startup script for SONiC Management REST Server
+EXIT_MGMT_VARS_FILE_NOT_FOUND=1
+MGMT_VARS_FILE=/usr/share/sonic/templates/mgmt_vars.j2
 
-SERVER_PORT=
-LOG_LEVEL=
-CLIENT_AUTH=
-SERVER_CRT=
-SERVER_KEY=
-CA_CERT=
+if [ ! -f "$MGMT_VARS_FILE" ]; then
+    echo "Mgmt vars template file not found"
+    exit $EXIT_MGMT_VARS_FILE_NOT_FOUND
+fi
 
-# Read basic server settings from REST_SERVER|default entry
-HAS_REST_CONFIG=$(sonic-cfggen -d -v "1 if REST_SERVER and REST_SERVER['default']")
-if [ "$HAS_REST_CONFIG" == "1" ]; then
-    SERVER_PORT=$(sonic-cfggen -d -v "REST_SERVER['default']['port']")
-    CLIENT_AUTH=$(sonic-cfggen -d -v "REST_SERVER['default']['client_auth']")
-    LOG_LEVEL=$(sonic-cfggen -d -v "REST_SERVER['default']['log_level']")
+# Read basic server settings from mgmt vars entries
+MGMT_VARS=$(sonic-cfggen -d -t $MGMT_VARS_FILE)
+MGMT_VARS=${MGMT_VARS//[\']/\"}
+
+REST_SERVER=$(echo $MGMT_VARS | jq -r '.rest_server')
+
+if [ -n "$REST_SERVER" ]; then
+    SERVER_PORT=$(echo $REST_SERVER | jq -r '.port')
+    CLIENT_AUTH=$(echo $REST_SERVER | jq -r '.client_auth')
+    LOG_LEVEL=$(echo $REST_SERVER | jq -r '.log_level')
+
+    SERVER_CRT=$(echo $REST_SERVER | jq -r '.server_crt')
+    SERVER_KEY=$(echo $REST_SERVER | jq -r '.server_key')
+    CA_CRT=$(echo $REST_SERVER | jq -r '.ca_crt')
+fi
+
+if [[ -z $SERVER_CRT ]] && [[ -z $SERVER_KEY ]] && [[ -z $CA_CRT ]]; then
+    X509=$(echo $MGMT_VARS | jq -r '.x509')
 fi
 
 # Read certificate file paths from DEVICE_METADATA|x509 entry.
-HAS_X509_CONFIG=$(sonic-cfggen -d -v "1 if DEVICE_METADATA and DEVICE_METADATA['x509']")
-if [ "$HAS_X509_CONFIG" == "1" ]; then
-    SERVER_CRT=$(sonic-cfggen -d -v "DEVICE_METADATA['x509']['server_crt']")
-    SERVER_KEY=$(sonic-cfggen -d -v "DEVICE_METADATA['x509']['server_key']")
-    CA_CRT=$(sonic-cfggen -d -v "DEVICE_METADATA['x509']['ca_crt']")
+if [ -n "$X509" ]; then
+    SERVER_CRT=$(echo $X509 | jq -r '.server_crt')
+    SERVER_KEY=$(echo $X509 | jq -r '.server_key')
+    CA_CRT=$(echo $X509 | jq -r '.ca_crt')
 fi
 
 # Create temporary server certificate if they not configured in ConfigDB
