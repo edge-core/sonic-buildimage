@@ -56,6 +56,9 @@ port_position_tuple_list = [(0, 0, 31, 32, 1), (0, 0, 15, 16, 1), (0, 48, 55, 56
 class Chassis(ChassisBase):
     """Platform-specific Chassis class"""
 
+    # System status LED
+    _led = None
+
     def __init__(self):
         super(Chassis, self).__init__()
 
@@ -155,6 +158,10 @@ class Chassis(ChassisBase):
         self._component_list.append(ComponentSSD())
         self._component_list.append(ComponentBIOS())
         self._component_list.extend(ComponentCPLD.get_component_list())
+
+    def initizalize_system_led(self):
+        from .led import SystemLed
+        Chassis._led = SystemLed()
 
 
     def get_name(self):
@@ -467,3 +474,25 @@ class Chassis(ChassisBase):
         from .thermal_manager import ThermalManager
         return ThermalManager
 
+    def set_status_led(self, color):
+        """
+        Sets the state of the system LED
+
+        Args:
+            color: A string representing the color with which to set the
+                   system LED
+
+        Returns:
+            bool: True if system LED state is set successfully, False if not
+        """
+        return False if not Chassis._led else Chassis._led.set_status(color)
+
+    def get_status_led(self):
+        """
+        Gets the state of the system LED
+
+        Returns:
+            A string, one of the valid LED color strings which could be vendor
+            specified.
+        """
+        return None if not Chassis._led else Chassis._led.get_status()
