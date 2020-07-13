@@ -1,0 +1,9 @@
+[Unit]
+Description=Start the pcie-check.service 10 seconds after boot
+
+[Timer]
+OnBootSec=10sec
+Unit=pcie-check.service
+
+[Install]
+WantedBy=timers.target
