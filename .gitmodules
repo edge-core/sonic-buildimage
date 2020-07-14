@@ -22,7 +22,7 @@
 [submodule "quagga"]
 	path = src/sonic-quagga
 	url = https://github.com/Azure/sonic-quagga
-	branch = debian/0.99.24.1
+	branch = 201811
 [submodule "sonic-dbsyncd"]
 	path = src/sonic-dbsyncd
 	url = https://github.com/Azure/sonic-dbsyncd
