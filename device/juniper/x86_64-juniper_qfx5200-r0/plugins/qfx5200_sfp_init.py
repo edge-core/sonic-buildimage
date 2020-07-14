@@ -35,7 +35,13 @@
 import time
 import os.path
 import sfputil as jnpr_sfp
+from sonic_daemon_base.daemon_base import Logger
 from pprint import pprint
+
+SYSLOG_IDENTIFIER = "sfputil"
+
+# Global logger class instance
+logger = Logger(SYSLOG_IDENTIFIER)
 
 DEBUG = False
 
@@ -69,23 +75,16 @@ def gpio_sfp_init():
 
     #Reset all ports
     for port in range(jnpr_sfp.GPIO_PORT_START, jnpr_sfp.GPIO_PORT_END + 1):
-        port_inited = False
-        if jnpr_sfp.gpio_sfp_presence_get(port):
-            port_inited = jnpr_sfp.gpio_sfp_reset_set(port, 0)
+        logger.log_debug("GPIO SFP port {}".format(port))
         
-        if port_inited:
-            i2c_eeprom_dev_update(port, True)
-        else:
-            i2c_eeprom_dev_update(port, False)
+        jnpr_sfp.gpio_sfp_reset_set(port, 0)
+        i2c_eeprom_dev_update(port, True)
 
-    time.sleep(2)
+    time.sleep(1)
 
     #Enable optics for all ports which have XCVRs present
     for port in range(jnpr_sfp.GPIO_PORT_START, jnpr_sfp.GPIO_PORT_END + 1):
-        if jnpr_sfp.gpio_sfp_presence_get(port):
-            jnpr_sfp.gpio_sfp_lpmode_set(port, 1)
-
-    time.sleep(2)
+        jnpr_sfp.gpio_sfp_lpmode_set(port, 1)
 
 
 if __name__ == '__main__':
