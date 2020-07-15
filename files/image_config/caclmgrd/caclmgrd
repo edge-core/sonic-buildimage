@@ -168,6 +168,19 @@ class ControlPlaneAclManager(object):
 
         return block_ip2me_cmds
 
+    def is_rule_ipv4(self, rule_props):
+        if (("SRC_IP" in rule_props and rule_props["SRC_IP"]) or
+            ("DST_IP" in rule_props and rule_props["DST_IP"])):
+            return True
+        else:
+            return False
+
+    def is_rule_ipv6(self, rule_props):
+        if (("SRC_IPV6" in rule_props and rule_props["SRC_IPV6"]) or
+            ("DST_IPV6" in rule_props and rule_props["DST_IPV6"])):
+            return True
+        else:
+            return False
 
     def get_acl_rules_and_translate_to_iptables_commands(self):
         """
@@ -295,12 +308,19 @@ class ControlPlaneAclManager(object):
                         # try to do it now. We attempt to determine heuristically based on
                         # whether the src or dst IP of this rule is an IPv4 or IPv6 address.
                         if not table_ip_version:
-                            if (("SRC_IPV6" in rule_props and rule_props["SRC_IPV6"]) or
-                                ("DST_IPV6" in rule_props and rule_props["DST_IPV6"])):
+                            if self.is_rule_ipv6(rule_props):
                                 table_ip_version = 6
-                            elif (("SRC_IP" in rule_props and rule_props["SRC_IP"]) or
-                                  ("DST_IP" in rule_props and rule_props["DST_IP"])):
+                            elif self.is_rule_ipv4(rule_props):
                                 table_ip_version = 4
+
+                        if (self.is_rule_ipv6(rule_props) and (table_ip_version == 4)):
+                            log_error("CtrlPlane ACL table {} is a IPv4 based table and rule {} is a IPV6 rule! Ignoring rule."
+                                                          .format(table_name, rule_id))
+                            acl_rules.pop(rule_props["PRIORITY"])
+                        elif (self.is_rule_ipv4(rule_props) and (table_ip_version == 6)):
+                            log_error("CtrlPlane ACL table {} is a IPv6 based table and rule {} is a IPV4 rule! Ignroing rule."
+                                                          .format(table_name, rule_id))
+                            acl_rules.pop(rule_props["PRIORITY"])
 
                 # If we were unable to determine whether this ACL table contains
                 # IPv4 or IPv6 rules, log a message and skip processing this table.
