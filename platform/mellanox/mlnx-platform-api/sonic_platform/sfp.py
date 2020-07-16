@@ -453,11 +453,11 @@ class SFP(SfpBase):
         keys                       |Value Format   |Information	
         ---------------------------|---------------|----------------------------
         type                       |1*255VCHAR     |type of SFP
-        hardwarerev                |1*255VCHAR     |hardware version of SFP
-        serialnum                  |1*255VCHAR     |serial number of the SFP
-        manufacturename            |1*255VCHAR     |SFP vendor name
-        modelname                  |1*255VCHAR     |SFP model name
-        Connector                  |1*255VCHAR     |connector information
+        hardware_rev               |1*255VCHAR     |hardware version of SFP
+        serial                     |1*255VCHAR     |serial number of the SFP
+        manufacturer               |1*255VCHAR     |SFP vendor name
+        model                      |1*255VCHAR     |SFP model name
+        connector                  |1*255VCHAR     |connector information
         encoding                   |1*255VCHAR     |encoding information
         ext_identifier             |1*255VCHAR     |extend identifier
         ext_rateselect_compliance  |1*255VCHAR     |extended rateSelect compliance
@@ -513,13 +513,13 @@ class SFP(SfpBase):
                 return None
 
             transceiver_info_dict['type'] = sfp_type_data['data']['type']['value']
-            transceiver_info_dict['manufacturename'] = sfp_vendor_name_data['data']['Vendor Name']['value']
-            transceiver_info_dict['modelname'] = sfp_vendor_pn_data['data']['Vendor PN']['value']
-            transceiver_info_dict['hardwarerev'] = sfp_vendor_rev_data['data']['Vendor Rev']['value']
-            transceiver_info_dict['serialnum'] = sfp_vendor_sn_data['data']['Vendor SN']['value']
+            transceiver_info_dict['manufacturer'] = sfp_vendor_name_data['data']['Vendor Name']['value']
+            transceiver_info_dict['model'] = sfp_vendor_pn_data['data']['Vendor PN']['value']
+            transceiver_info_dict['hardware_rev'] = sfp_vendor_rev_data['data']['Vendor Rev']['value']
+            transceiver_info_dict['serial'] = sfp_vendor_sn_data['data']['Vendor SN']['value']
             transceiver_info_dict['vendor_oui'] = 'N/A'
             transceiver_info_dict['vendor_date'] = 'N/A'
-            transceiver_info_dict['Connector'] = 'N/A'
+            transceiver_info_dict['connector'] = 'N/A'
             transceiver_info_dict['encoding'] = 'N/A'
             transceiver_info_dict['ext_identifier'] = 'N/A'
             transceiver_info_dict['ext_rateselect_compliance'] = 'N/A'
@@ -586,13 +586,13 @@ class SFP(SfpBase):
             sfp_vendor_date_data = sfpi_obj.parse_vendor_date(sfp_interface_bulk_raw[start : end], 0)
 
             transceiver_info_dict['type'] = sfp_interface_bulk_data['data']['type']['value']
-            transceiver_info_dict['manufacturename'] = sfp_vendor_name_data['data']['Vendor Name']['value']
-            transceiver_info_dict['modelname'] = sfp_vendor_pn_data['data']['Vendor PN']['value']
-            transceiver_info_dict['hardwarerev'] = sfp_vendor_rev_data['data']['Vendor Rev']['value']
-            transceiver_info_dict['serialnum'] = sfp_vendor_sn_data['data']['Vendor SN']['value']
+            transceiver_info_dict['manufacturer'] = sfp_vendor_name_data['data']['Vendor Name']['value']
+            transceiver_info_dict['model'] = sfp_vendor_pn_data['data']['Vendor PN']['value']
+            transceiver_info_dict['hardware_rev'] = sfp_vendor_rev_data['data']['Vendor Rev']['value']
+            transceiver_info_dict['serial'] = sfp_vendor_sn_data['data']['Vendor SN']['value']
             transceiver_info_dict['vendor_oui'] = sfp_vendor_oui_data['data']['Vendor OUI']['value']
             transceiver_info_dict['vendor_date'] = sfp_vendor_date_data['data']['VendorDataCode(YYYY-MM-DD Lot)']['value']
-            transceiver_info_dict['Connector'] = sfp_interface_bulk_data['data']['Connector']['value']
+            transceiver_info_dict['connector'] = sfp_interface_bulk_data['data']['Connector']['value']
             transceiver_info_dict['encoding'] = sfp_interface_bulk_data['data']['EncodingCodes']['value']
             transceiver_info_dict['ext_identifier'] = sfp_interface_bulk_data['data']['Extended Identifier']['value']
             transceiver_info_dict['ext_rateselect_compliance'] = sfp_interface_bulk_data['data']['RateIdentifier']['value']
