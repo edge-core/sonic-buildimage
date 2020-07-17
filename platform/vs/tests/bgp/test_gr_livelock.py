@@ -81,7 +81,6 @@ def test_gr_livelock(dvs, testlog):
     dvs.servers[0].runcmd("pip install 'exabgp==4.0.10' --force-reinstall ")
     #
     dvs.copy_file("/etc/frr/", "bgp/files/gr_livelock/bgpd.conf")
-    dvs.servers[0].runcmd("pkill exabgp") # In case previous test didn't stop exa
     dvs.runcmd("supervisorctl stop bgpd")
     time.sleep(5)
     dvs.runcmd("supervisorctl start bgpd")
