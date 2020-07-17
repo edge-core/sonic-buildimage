@@ -76,6 +76,7 @@ fi
 image_path="$target_path/$image_name"
 hook_path="$image_path/platform/hooks"
 data_path="$image_path/platform/data"
+boot_image_path="$image_path/$boot_image"
 installer_image_path="$image_path/$installer_image"
 
 boot_config="$target_path/boot-config"
@@ -106,6 +107,7 @@ clean_flash() {
     for f in $(ls -A $target_path); do
         if [ $f != "${swipath##*/}" ] &&
            [ $f != "boot-config" ] &&
+           [ $f != "preserve-installer" ] &&
            [ $f != "$kernel_params" ] &&
            [ $f != "aquota.user" ] &&
            [ $f != "old_config" ] &&
@@ -254,9 +256,47 @@ cleanup_swi_tmpfs() {
    clean_tmpfs "$(dirname "$swipath")"
 }
 
-extract_image() {
-    mkdir -p "$image_path"
 
+SWI_ALREADY_INSTALLED=0
+SWI_NOT_INSTALLED=1
+SWI_VERSION_MISMATCH=2
+SWI_OTHER_VARIANT_INSTALLED=3
+
+is_swi_installed() {
+    local swi_path="$1"
+    local swi_version="$(unzip -qp "$swi_path" .imagehash)"
+    local local_version="$(cat $image_path/.imagehash 2>/dev/null || :)"
+
+    if [ -z "$local_version" ]; then
+        # no image installed for this version
+        return $SWI_NOT_INSTALLED
+    fi
+
+    if [ "$swi_version" != "$local_version" ]; then
+        warn "Installed image has a different version than $swipath"
+        return $SWI_VERSION_MISMATCH
+    fi
+
+    if $secureboot; then
+        if [ -s "$installer_image_path" ]; then
+            # secureboot image already installed
+            return $SWI_ALREADY_INSTALLED
+        else
+            # regular image of the same version already installed
+            return $SWI_OTHER_VARIANT_INSTALLED
+        fi
+    else
+        if [ -s "$boot_image_path" ]; then
+            # regular image already installed
+            return $SWI_ALREADY_INSTALLED
+        else
+            # secureboot image of the same version already installed
+            return $SWI_OTHER_VARIANT_INSTALLED
+        fi
+    fi
+}
+
+extract_image() {
     info "Moving swi to a tmpfs"
     ## Avoid problematic flash usage spike on older systems, also improves I/O
     swipath="$(move_swi_to_tmpfs "$swipath")"
@@ -308,7 +348,6 @@ extract_image() {
 
 extract_image_secureboot() {
     info "Extracting necessary swi content"
-    mkdir "$image_path"
     unzip -oq "$swipath" platform/firsttime .imagehash -d "$image_path"
 
     info "Installing image as $installer_image_path"
@@ -608,15 +647,20 @@ run_kexec() {
 
 secureboot_install() {
     if [ -e "$image_path" ]; then
-        warn "Image folder $image_path already exist, wiping..."
-        rm -rf "$image_path"
+        warn "Image folder $image_path already exist (likely regular install)"
     fi
+
+    mkdir -p "$image_path"
 
     info "Installing image as $installer_image_path"
     extract_image_secureboot
 }
 
 regular_install() {
+    if [ -e "$image_path" ]; then
+        warn "Image folder $image_path already exist (likely secureboot install)"
+    fi
+
     mkdir -p $image_path
 
     info "Generating boot-config, machine.conf and cmdline"
@@ -670,6 +714,9 @@ elif [ ! -z "$kexec" ]; then
     do_clean=false
 fi
 
+# Make sure boot-config exists to avoid noise
+touch "$boot_config"
+
 # Verbosity can be defined by the caller, default to false otherwise
 verbose=${verbose:-false}
 debug=${debug:-false}
@@ -693,7 +740,12 @@ if [ -z "$secureboot" ]; then
     fi
 fi
 
+# preserve original installer during regular install when set
 preserve_installer=false
+if [ -f "$target_path/preserve-installer" ] ||
+   [ "$(get_boot_config PRESERVE_INSTALLER)" = "1" ]; then
+    preserve_installer=true
+fi
 
 # enable shell debug mode to get the most verbosity
 if $verbose; then
@@ -702,21 +754,23 @@ fi
 
 # install the image if newer
 if $do_install; then
-    if ! unzip -l "$swipath" 2>&1 > /dev/null; then
+    if ! unzip -ql "$swipath" 2>&1 > /dev/null; then
         err "The swipath= environment variable does not point to a valid SWI"
         exit 1
     fi
 
-    # check the hash file in the image, and determine to install or just skip
-    GIT_REVISION="$(unzip -p "$swipath" .imagehash)"
-    LOCAL_IMAGEHASH="$(cat $image_path/.imagehash 2>/dev/null || true)"
+    swi_installed=0
+    is_swi_installed "$swipath" || swi_installed=$?
 
-    if [ "$GIT_REVISION" != "$LOCAL_IMAGEHASH" ] || [ ! -z "$force" ]; then
-        if $do_clean; then
+    if [ "$swi_installed" -ne $SWI_ALREADY_INSTALLED ] || [ -n "$force" ]; then
+        if [ "$swi_installed" -eq $SWI_VERSION_MISMATCH ] || [ -n "$force" ]; then
+            warn "Removing existing installation folder $image_path"
+            rm -rf $image_path
+        fi
+        if [ "$swi_installed" -ne $SWI_OTHER_VARIANT_INSTALLED ] && $do_clean; then
             info "Cleaning flash content $target_path"
             clean_flash
         fi
-
         if $secureboot; then
             secureboot_install
         else
