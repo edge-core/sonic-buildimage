@@ -245,12 +245,12 @@ class ControlPlaneAclManager(object):
         iptables_cmds.append("ip6tables -A INPUT -p icmpv6 --icmpv6-type router-advertisement -j ACCEPT")
 
         # Add iptables/ip6tables commands to allow all incoming IPv4 DHCP packets
-        iptables_cmds.append("iptables -A INPUT -p udp --dport 67:68 --sport 67:68 -j ACCEPT")
-        iptables_cmds.append("ip6tables -A INPUT -p udp --dport 67:68 --sport 67:68 -j ACCEPT")
+        iptables_cmds.append("iptables -A INPUT -p udp --dport 67:68 -j ACCEPT")
+        iptables_cmds.append("ip6tables -A INPUT -p udp --dport 67:68 -j ACCEPT")
 
         # Add iptables/ip6tables commands to allow all incoming IPv6 DHCP packets
-        iptables_cmds.append("iptables -A INPUT -p udp --dport 546:547 --sport 546:547 -j ACCEPT")
-        iptables_cmds.append("ip6tables -A INPUT -p udp --dport 546:547 --sport 546:547 -j ACCEPT")
+        iptables_cmds.append("iptables -A INPUT -p udp --dport 546:547 -j ACCEPT")
+        iptables_cmds.append("ip6tables -A INPUT -p udp --dport 546:547 -j ACCEPT")
 
         # Add iptables/ip6tables commands to allow all incoming BGP traffic
         # TODO: Determine BGP ACLs based on configured device sessions, and remove this blanket acceptance
