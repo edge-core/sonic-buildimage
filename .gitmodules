@@ -72,6 +72,7 @@
 [submodule "src/sonic-telemetry"]
 	path = src/sonic-telemetry
 	url = https://github.com/Azure/sonic-telemetry
+	branch = 201911
 [submodule "Switch-SDK-drivers"]
 	path = platform/mellanox/sdk-src/sx-kernel/Switch-SDK-drivers
 	url = https://github.com/Mellanox/Switch-SDK-drivers
