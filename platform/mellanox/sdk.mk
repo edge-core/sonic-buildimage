@@ -1,4 +1,5 @@
 MLNX_SDK_BASE_PATH = $(PLATFORM_PATH)/sdk-src/sx-kernel/Switch-SDK-drivers/bin/
+MLNX_SDK_PKG_BASE_PATH = $(MLNX_SDK_BASE_PATH)/$(BLDENV)/
 MLNX_SDK_VERSION = 4.4.0952
 MLNX_SDK_ISSU_VERSION = 101
 
@@ -136,7 +137,7 @@ SX_KERNEL_DEV = sx-kernel-dev_1.mlnx.$(MLNX_SDK_DEB_VERSION)_amd64.deb
 $(eval $(call add_derived_package,$(SX_KERNEL),$(SX_KERNEL_DEV)))
 
 define make_path
-	$(1)_PATH = $(MLNX_SDK_BASE_PATH)
+	$(1)_PATH = $(MLNX_SDK_PKG_BASE_PATH)
 
 endef
 
