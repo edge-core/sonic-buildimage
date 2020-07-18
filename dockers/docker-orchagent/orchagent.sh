@@ -10,7 +10,7 @@ fi
 
 # Retrieve SWSS vars from sonic-cfggen
 SWSS_VARS=$(sonic-cfggen -d -y /etc/sonic/sonic_version.yml -t $SWSS_VARS_FILE)
-platform=$(echo $SWSS_VARS | jq -r '.asic_type')
+export platform=$(echo $SWSS_VARS | jq -r '.asic_type')
 
 MAC_ADDRESS=$(echo $SWSS_VARS | jq -r '.mac')
 if [ "$MAC_ADDRESS" == "None" ] || [ -z "$MAC_ADDRESS" ]; then
