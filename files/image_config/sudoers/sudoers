@@ -32,6 +32,7 @@ Cmnd_Alias      READ_ONLY_CMDS = /sbin/brctl show, \
                                  /usr/bin/psuutil *, \
                                  /usr/bin/sensors, \
                                  /usr/bin/sfputil show *, \
+                                 /usr/bin/sonic_installer list, \
                                  /usr/bin/teamshow, \
                                  /usr/bin/vtysh -c show *, \
                                  /bin/cat /var/log/syslog*, \
