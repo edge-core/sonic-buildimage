@@ -36,8 +36,8 @@ def test_bounce(dvs, testlog):
     p2.terminate()
     p2 = p2.wait()
 
-    print sum_res
-    print announce_route
+    print(sum_res)
+    print(announce_route)
     assert "1.1.1.1/32" in all_route
     assert "1.1.1.1/32" not in announce_route
     assert "2.2.2.2/32" in all_route

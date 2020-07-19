@@ -17,7 +17,7 @@ def test_InvalidNexthop(dvs, testlog):
 
     time.sleep(5)
 
-    print dvs.runcmd("supervisorctl status")
+    print(dvs.runcmd("supervisorctl status"))
 
     p = dvs.servers[0].runcmd_async("exabgp -d bgp/files/invalid_nexthop/invalid_nexthop.conf")
 
@@ -28,6 +28,6 @@ def test_InvalidNexthop(dvs, testlog):
     p.terminate()
     p = p.wait()
 
-    print exit_code, output
+    print(exit_code, output)
 
     assert "3333::/64" in output
