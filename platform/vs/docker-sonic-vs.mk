@@ -7,7 +7,10 @@ $(DOCKER_SONIC_VS)_DEPENDS += $(SWSS) \
                               $(PYTHON_SWSSCOMMON) \
                               $(LIBTEAMDCTL) \
                               $(LIBTEAM_UTILS) \
-                              $(SONIC_DEVICE_DATA)
+                              $(SONIC_DEVICE_DATA) \
+                              $(LIBYANG) \
+                              $(LIBYANG_CPP) \
+                              $(LIBYANG_PY2)
 
 $(DOCKER_SONIC_VS)_PYTHON_DEBS += $(SONIC_UTILS)
 
