@@ -16,6 +16,19 @@ Please provide the following information:
 
 **- How to verify it**
 
+**- Which release branch to backport (provide reason below if seleted)**
+
+<!--
+- Note we only backport fixes to a release branch, not a feature!
+- Please also provide a reason for the backporting below.
+- e.g.
+- [x] 202006
+-->
+
+- [ ] 201811
+- [ ] 201911
+- [ ] 202006
+
 **- Description for the changelog**
 <!--
 Write a short (one line) summary that describes the changes in this
