@@ -453,7 +453,7 @@ class BGPPeerGroupMgr(object):
 
 class BGPPeerMgrBase(Manager):
     """ Manager of BGP peers """
-    def __init__(self, common_objs, db_name, table_name, peer_type):
+    def __init__(self, common_objs, db_name, table_name, peer_type, check_neig_meta):
         """
         Initialize the object
         :param common_objs: common objects
@@ -480,9 +480,13 @@ class BGPPeerMgrBase(Manager):
             ("LOCAL", "interfaces", ""),
         ]
 
-        self.check_neig_meta = 'bgp' in self.constants \
+        if check_neig_meta:
+            self.check_neig_meta = 'bgp' in self.constants \
                                and 'use_neighbors_meta' in self.constants['bgp'] \
                                and self.constants['bgp']['use_neighbors_meta']
+        else:
+            self.check_neig_meta = False
+
         self.check_deployment_id = 'bgp' in self.constants \
                                and 'use_deployment_id' in self.constants['bgp'] \
                                and self.constants['bgp']['use_deployment_id']
@@ -862,9 +866,9 @@ def main():
         # State DB managers
         ZebraSetSrc(common_objs, "STATE_DB", swsscommon.STATE_INTERFACE_TABLE_NAME),
         # Peer Managers
-        BGPPeerMgrBase(common_objs, "CONFIG_DB", swsscommon.CFG_BGP_NEIGHBOR_TABLE_NAME, "general"),
-        BGPPeerMgrBase(common_objs, "CONFIG_DB", "BGP_MONITORS", "monitors"),
-        BGPPeerMgrBase(common_objs, "CONFIG_DB", "BGP_PEER_RANGE", "dynamic"),
+        BGPPeerMgrBase(common_objs, "CONFIG_DB", swsscommon.CFG_BGP_NEIGHBOR_TABLE_NAME, "general", True),
+        BGPPeerMgrBase(common_objs, "CONFIG_DB", "BGP_MONITORS", "monitors", True),
+        BGPPeerMgrBase(common_objs, "CONFIG_DB", "BGP_PEER_RANGE", "dynamic", False),
     ]
     runner = Runner()
     for mgr in managers:
