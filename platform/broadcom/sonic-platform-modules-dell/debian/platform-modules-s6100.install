@@ -1,6 +1,8 @@
 s6100/scripts/iom_power_*.sh usr/local/bin
 s6100/scripts/s6100_platform.sh usr/local/bin
 s6100/scripts/s6100_i2c_enumeration.sh usr/local/bin
+s6100/scripts/s6100_bitbang_reset.sh usr/local/bin
+s6100/scripts/pcisysfs.py usr/bin
 common/dell_i2c_utils.sh usr/local/bin
 common/io_rd_wr.py usr/local/bin
 common/nvram_rd_wr.py usr/local/bin
