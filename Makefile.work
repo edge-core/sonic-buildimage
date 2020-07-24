@@ -185,6 +185,7 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            SHUTDOWN_BGP_ON_START=$(SHUTDOWN_BGP_ON_START) \
                            INSTALL_KUBERNETES=$(INSTALL_KUBERNETES) \
                            KUBERNETES_VERSION=$(KUBERNETES_VERSION) \
+                           KUBERNETES_CNI_VERSION=$(KUBERNETES_CNI_VERSION) \
                            K8s_GCR_IO_PAUSE_VERSION=$(K8s_GCR_IO_PAUSE_VERSION) \
                            K8s_CNI_FLANNEL_VERSION=$(K8s_CNI_FLANNEL_VERSION) \
                            SONIC_ENABLE_PFCWD_ON_START=$(ENABLE_PFCWD_ON_START) \

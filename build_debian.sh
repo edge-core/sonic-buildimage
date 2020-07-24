@@ -222,14 +222,9 @@ then
     ## Check out the sources list update matches current Debian version
     sudo cp files/image_config/kubernetes/kubernetes.list $FILESYSTEM_ROOT/etc/apt/sources.list.d/
     sudo LANG=C chroot $FILESYSTEM_ROOT apt-get update
-    if [[ $KUBERNETES_VERSION == 1.18.0 ]]; then 
-        # kubeadm 1.18.0 package auto install has some dependency error so install
-        # those package explicitly.
-        sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install kubernetes-cni=0.7.5-00
-        sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install kubelet=1.18.3-00
-        sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install kubectl=1.18.3-00
-    fi
-    # else kubeadm package auto install kubelet & kubectl
+    sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install kubernetes-cni=${KUBERNETES_CNI_VERSION}-00
+    sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install kubelet=${KUBERNETES_VERSION}-00
+    sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install kubectl=${KUBERNETES_VERSION}-00
     sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install kubeadm=${KUBERNETES_VERSION}-00
     # kubeadm package auto install kubelet & kubectl
 else
