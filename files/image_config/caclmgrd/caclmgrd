@@ -378,9 +378,7 @@ class ControlPlaneAclManager(object):
         # add iptables/ip6tables commands to drop all other incoming packets
         if num_ctrl_plane_acl_rules > 0:
             iptables_cmds.append("iptables -A INPUT -j DROP")
-            iptables_cmds.append("iptables -A FORWARD -j DROP")
             iptables_cmds.append("ip6tables -A INPUT -j DROP")
-            iptables_cmds.append("ip6tables -A FORWARD -j DROP")
 
         return iptables_cmds
 
