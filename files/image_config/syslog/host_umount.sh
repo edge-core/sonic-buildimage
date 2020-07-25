@@ -5,9 +5,6 @@
 
 journal_stop() {
     systemctl stop systemd-journald.service
-    systemctl stop systemd-journald.socket
-    systemctl stop systemd-journald-audit.socket
-    systemctl stop systemd-journald-dev-log.socket
 }
 
 delete_loop_device() {
@@ -16,7 +13,10 @@ delete_loop_device() {
     then
         exit 0
     fi
-    losetup -d /dev/loop1
+    loop_exist=$(losetup -a | grep loop1 | wc -l)
+    if [ $loop_exist -ne 0 ]; then
+        losetup -d /dev/loop1
+    fi
 }
 
 case "$1" in
