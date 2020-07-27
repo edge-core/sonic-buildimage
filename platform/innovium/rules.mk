@@ -14,6 +14,7 @@ SONIC_ALL += $(SONIC_INVM_ONE_IMAGE) \
 
 # Inject invm sai into syncd
 $(SYNCD)_DEPENDS += $(INVM_HSAI) $(INVM_LIBSAI) $(LIBSAITHRIFT_DEV_INVM)
+$(SYNCD)_UNINSTALLS += $(INVM_HSAI)
 
 # Runtime dependency on invm sai is set only for syncd
 $(SYNCD)_RDEPENDS += $(INVM_HSAI)

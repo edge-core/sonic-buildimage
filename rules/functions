@@ -92,6 +92,17 @@ SONIC_EXTRA_DEBS += $(2)
 endef
 
 ###############################################################################
+## Definition of conflict packages
+###############################################################################
+
+# call:
+#     add_conflict_package some_deb.deb, conflict_deb
+define add_conflict_package
+$(1)_CONFLICT_DEBS += $(2)
+$(2)_CONFLICT_DEBS += $(1)
+endef
+
+###############################################################################
 ## Utility functions
 ###############################################################################
 
@@ -107,4 +118,17 @@ mergedir=$(shell mktemp -d -p $(DPKG_ADMINDIR_PATH))
 sudo mount -t overlay overlay -olowerdir=/var/lib/dpkg,upperdir=$$upperdir,workdir=$$workdir $$mergedir
 export SONIC_DPKG_ADMINDIR=$$mergedir
 trap "sudo umount $$mergedir && rm -rf $$mergedir $$upperdir $$workdir" EXIT
+endef
+
+###############################################################################
+## Uninstall debs
+###############################################################################
+define UNINSTALL_DEBS
+$(info $(1))
+$(foreach deb,$(1), \
+	{ while true; do \
+		if mkdir $(DEBS_PATH)/dpkg_lock &> /dev/null; then \
+			{ sudo DEBIAN_FRONTEND=noninteractive dpkg -P $(firstword $(subst _, ,$(basename $(deb)))) $(LOG) && rm -d $(DEBS_PATH)/dpkg_lock && break; } || { rm -d $(DEBS_PATH)/dpkg_lock && exit 1 ; } \
+	    fi; \
+	done; } )
 endef
