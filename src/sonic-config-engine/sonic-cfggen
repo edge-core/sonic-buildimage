@@ -54,7 +54,11 @@ def sort_by_port_index(value):
     if not value:
         return
     if isinstance(value, list):
-        value.sort(key = lambda k: int(k[8:]))
+        # In multi-ASIC platforms backend ethernet ports are identified as 
+        # 'Ethernet-BPxy'. Add 1024 to sort backend ports to the end.
+        value.sort(
+            key = lambda k: int(k[8:]) if "BP" not in k else int(k[11:]) + 1024
+        )
 
 def is_ipv4(value):
     if not value:

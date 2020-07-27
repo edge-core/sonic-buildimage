@@ -4,6 +4,7 @@ import subprocess
 import os
 import json
 import yaml
+import shutil
 
 SKU = 'multi-npu-01'
 ASIC_SKU = 'multi-npu-asic'
@@ -287,3 +288,47 @@ class TestMultiNpuCfgGen(TestCase):
                                       "Loopback0|FC00:1::32/128": {},
                                       "Loopback4096|8.0.0.5/32": {},
                                       "Loopback4096|FD00:4::32/128": {}})
+
+    def test_buffers_multi_asic_template(self):
+        build_root_dir = os.path.join(
+            self.test_dir, "..", "..", ".."
+        )
+        # using Trident2 buffer configuration
+        device_config_dir = os.path.join(
+            build_root_dir,
+            "device",
+            "arista",
+            "x86_64-arista_7050_qx32",
+            "Arista-7050-QX32"
+        )
+        device_buffer_template = os.path.join(
+            device_config_dir, "buffers.json.j2"
+        )
+        buffer_template = os.path.join(
+            build_root_dir, "files", "build_templates", "buffers_config.j2"
+        )
+        port_config_ini_asic0 = os.path.join(
+            self.test_data_dir, "sample_port_config-0.ini"
+        )
+        # asic0 - mix of front end and back end ports
+        shutil.copy2(buffer_template, device_config_dir)
+        argument = "-m {} -p {} -n asic0 -t {}".format(
+            self.sample_graph, port_config_ini_asic0, device_buffer_template
+        )
+        output = json.loads(self.run_script(argument))
+        os.remove(os.path.join(device_config_dir, "buffers_config.j2"))
+        self.assertDictEqual(
+            output['CABLE_LENGTH'],
+            {
+                'AZURE': {
+                    'Ethernet8': '300m',
+                    'Ethernet0': '300m',
+                    'Ethernet4': '300m',
+                    'Ethernet-BP4': '5m',
+                    'Ethernet-BP0': '5m',
+                    'Ethernet-BP12': '5m',
+                    'Ethernet-BP8': '5m',
+                    'Ethernet12': '300m'
+                }
+            }
+        )
