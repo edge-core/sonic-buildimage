@@ -34,6 +34,7 @@ def
 {%- else %}
     {%- set ports2cable = {
             'torrouter_server'       : '5m',
+            'internal'               : '5m',
             'leafrouter_torrouter'   : '40m',
             'spinerouter_leafrouter' : '300m'
             }
@@ -47,10 +48,14 @@ def
             {%- if DEVICE_NEIGHBOR_METADATA is defined and DEVICE_NEIGHBOR_METADATA[DEVICE_NEIGHBOR[local_port].name] %}
                 {%- set neighbor = DEVICE_NEIGHBOR_METADATA[DEVICE_NEIGHBOR[local_port].name] %}
                 {%- set neighbor_role = neighbor.type %}
-                {%- set roles1 = switch_role + '_' + neighbor_role %}
-                {%- set roles2 = neighbor_role + '_' + switch_role %}
-                {%- set roles1 = roles1 | lower %}
-                {%- set roles2 = roles2 | lower %}
+                {%- if 'asic' == neighbor_role | lower %}
+                         {%- set roles1 = 'internal' %}
+                {%- else %}
+                         {%- set roles1 = switch_role + '_' + neighbor_role %}
+                         {%- set roles2 = neighbor_role + '_' + switch_role %}
+                         {%- set roles1 = roles1 | lower %}
+                         {%- set roles2 = roles2 | lower %}
+                {%- endif %}
                 {%- if roles1 in ports2cable %}
                     {%- if cable_len.append(ports2cable[roles1]) %}{% endif %}
                 {%- elif roles2 in ports2cable %}
