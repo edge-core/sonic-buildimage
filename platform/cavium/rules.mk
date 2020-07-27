@@ -14,6 +14,8 @@ SONIC_ALL += $(SONIC_ONE_IMAGE) \
 
 # Inject cavium sai into syncd
 $(SYNCD)_DEPENDS += $(CAVM_SAI) $(CAVM_LIBSAI)
+$(SYNCD)_UNINSTALLS += $(CAVM_LIBSAI)
+
 ifeq ($(ENABLE_SYNCD_RPC),y)
 $(SYNCD)_DEPENDS += $(LIBSAITHRIFT_DEV_CAVM)
 endif

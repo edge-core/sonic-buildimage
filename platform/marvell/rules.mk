@@ -10,6 +10,8 @@ SONIC_ALL += $(SONIC_ONE_IMAGE) \
 
 # Inject mrvl sai into syncd
 $(SYNCD)_DEPENDS += $(MRVL_FPA) $(MRVL_SAI)
+$(SYNCD)_UNINSTALLS += $(MRVL_SAI)
+
 ifeq ($(ENABLE_SYNCD_RPC),y)
 $(SYNCD)_DEPENDS += $(LIBSAITHRIFT_DEV)
 endif
