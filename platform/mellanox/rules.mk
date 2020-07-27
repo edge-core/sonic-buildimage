@@ -23,6 +23,8 @@ SONIC_ALL += $(SONIC_ONE_IMAGE) \
 
 # Inject mlnx sai into syncd
 $(SYNCD)_DEPENDS += $(MLNX_SAI)
+$(SYNCD)_UNINSTALLS += $(MLNX_SAI)
+
 ifeq ($(ENABLE_SYNCD_RPC),y)
 $(SYNCD)_DEPENDS += $(LIBSAITHRIFT_DEV)
 endif

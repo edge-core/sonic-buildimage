@@ -14,6 +14,8 @@ SONIC_ALL += $(SONIC_ONE_IMAGE) \
 
 # Inject centec sai into syncd
 $(SYNCD)_DEPENDS += $(CENTEC_SAI)
+$(SYNCD)_UNINSTALLS += $(CENTEC_SAI)
+
 ifeq ($(ENABLE_SYNCD_RPC),y)
 $(SYNCD)_DEPENDS += $(LIBSAITHRIFT_DEV)
 endif

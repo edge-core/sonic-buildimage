@@ -6,6 +6,6 @@ export MRVL_SAI = mrvllibsai_$(MRVL_SAI_VERSION).deb
 
 $(MRVL_SAI)_SRC_PATH = $(PLATFORM_PATH)/sai
 $(MRVL_SAI)_DEPENDS += $(MRVL_FPA)
-$(MRVL_SAI)_CONFLICTS = $(LIBSAIVS_DEV)
+$(eval $(call add_conflict_package,$(MRVL_SAI),$(LIBSAIVS_DEV)))
 
 SONIC_MAKE_DEBS += $(MRVL_SAI)

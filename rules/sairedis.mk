@@ -16,6 +16,7 @@ $(eval $(call add_derived_package,$(LIBSAIREDIS),$(LIBSAIVS)))
 
 LIBSAIVS_DEV = libsaivs-dev_1.0.0_amd64.deb
 $(eval $(call add_derived_package,$(LIBSAIREDIS),$(LIBSAIVS_DEV)))
+$(LIBSAIVS_DEV)_DEPENDS += $(LIBSAIVS)
 
 LIBSAIMETADATA = libsaimetadata_1.0.0_amd64.deb
 $(eval $(call add_derived_package,$(LIBSAIREDIS),$(LIBSAIMETADATA)))
