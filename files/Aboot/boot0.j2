@@ -81,7 +81,6 @@ installer_image_path="$image_path/$installer_image"
 
 boot_config="$target_path/boot-config"
 
-flash_re=" /mnt/flash| /host"
 cmdline_allowlist='crashkernel'
 
 # for backward compatibility with the sonic_upgrade= behavior
@@ -256,6 +255,24 @@ cleanup_swi_tmpfs() {
    clean_tmpfs "$(dirname "$swipath")"
 }
 
+mount_relpath() {
+    local abspath="$1"
+    local mountpath="$(df "$abspath" | sed -nr '/\//s/^.* ([^ ]+)$/\1/p')"
+
+    echo "$abspath" | sed "s#^$mountpath/##"
+}
+
+zip_file_offset() {
+    local zipfile="$1"
+    local filename="$2"
+
+    if $in_aboot; then
+        unzip -qqf "$zipfile" "$filename"
+    else
+        local hexoffset="$(zipdetails "$zipfile" | sed -En "/Filename +'$filename'/,/^$/p" | sed -En 's/^([^ ]+) PAYLOAD$/\1/p')"
+        echo "$((0x$hexoffset))"
+    fi
+}
 
 SWI_ALREADY_INSTALLED=0
 SWI_NOT_INSTALLED=1
@@ -374,7 +391,7 @@ prepare_image_secureboot() {
     sync
 
     # override environment variables preventing external tamper on kernel execution
-    CMDLINE="$(cmdline_echo)"
+    CMDLINE="$(cmdline_echo) $ENV_EXTRA_CMDLINE"
     KERNEL="$(find_first_kernel_under "$boot_tmpfs")"
     INITRD="$(find_first_initrd_under "$boot_tmpfs")"
 }
@@ -415,7 +432,7 @@ write_platform_specific_cmdline() {
     local varlog_size=100
 
     # detect the size of the flash partition from name in Aboot/EOS/SONiC
-    local flash_size=$(($(df | grep -E "$flash_re" | tr -s ' ' | cut -f2 -d' ') / 1000))
+    local flash_size=$(($(df "$target_path" | tail -1 | tr -s ' ' | cut -f2 -d' ') / 1000))
 
     if [ "$platform" = "raven" ]; then
         # Assuming sid=Cloverdale
@@ -548,8 +565,9 @@ write_image_specific_cmdline() {
     fi
 
     # Obtain root partition uuid
-    local rootdev="$(mount | grep -E "$flash_re" | cut -f1 -d' ')"
-    local rootfstype="$(mount | grep -E "$flash_re" | cut -f5 -d' ')"
+    local mountstr="$(mount | grep " $target_path ")"
+    local rootdev="$(echo $mountstr | cut -f1 -d' ')"
+    local rootfstype="$(echo $mountstr | cut -f5 -d' ')"
     local rootuuid="$(get_uuid_for $rootdev)"
     if [ -z "$rootuuid" ] || [ "$rootfstype" = "vfat" ] ; then
         cmdline_add "root=$rootdev"
@@ -589,9 +607,9 @@ write_common_configs() {
 
 write_secureboot_configs() {
     write_common_configs
-    cmdline_add "loop=$(echo "$installer_image_path" | sed 's/mnt\/flash\///')"
+    cmdline_add "loop=$(mount_relpath "$installer_image_path")"
     cmdline_add loopfstype=squashfs
-    cmdline_add "loopoffset=$(unzip -qqf "$installer_image_path" fs.squashfs)"
+    cmdline_add "loopoffset=$(zip_file_offset "$installer_image_path" fs.squashfs)"
     cmdline_add docker_inram=on
     cmdline_add secure_boot_enable=y
     cmdline_add aboot.secureboot=enabled
@@ -640,7 +658,7 @@ run_kexec() {
     sync
     kexec --load --initrd="$initrd" --append="$cmdline" "$kernel"
 
-    [ -z "$testonly" ] || exit 0
+    ( [ -z "$testonly" ] && [ -z "$loadonly" ] ) || exit 0
     info "Kexecing..."
     kexec --exec
 }
