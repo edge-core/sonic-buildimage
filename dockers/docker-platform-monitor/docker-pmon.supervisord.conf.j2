@@ -127,3 +127,16 @@ startsecs=10
 dependent_startup=true
 dependent_startup_wait_for=start:exited
 {% endif %}
+
+{% if not skip_pcied %}
+[program:pcied]
+command=/usr/bin/pcied
+priority=10
+autostart=false
+autorestart=unexpected
+stdout_logfile=syslog
+stderr_logfile=syslog
+startsecs=10
+dependent_startup=true
+dependent_startup_wait_for=start:exited
+{% endif %}
