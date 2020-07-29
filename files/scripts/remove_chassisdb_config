@@ -1,0 +1,40 @@
+#!/usr/bin/python
+import json
+import os
+import syslog
+import argparse
+
+database_config_file = "/var/run/redis/sonic-db/database_config.json"
+redis_chassis = 'redis_chassis'
+chassis_db = 'CHASSIS_DB'
+
+def main():
+    parser=argparse.ArgumentParser(description=
+          "Remove chassis_db config from database-config.json")
+    parser.add_argument("-j", "--json", help="databse-config json file", nargs='?',
+          const=database_config_file)
+    args = parser.parse_args()
+    jsonfile = ""
+    if args.json != None:
+        jsonfile = args.json
+    else:
+       return
+    data = {}
+    if os.path.isfile(jsonfile):
+        with open(jsonfile, "r") as read_file:
+            data = json.load(read_file)
+    else:
+       syslog.syslog(syslog.LOG_ERR,
+            'config file {} does notexist'.format(jsonfile))
+       return
+    if 'INSTANCES' in data and redis_chassis in data['INSTANCES']:
+       del data['INSTANCES'][redis_chassis]
+    if 'DATABASES' in data and chassis_db in data['DATABASES']:
+       del data['DATABASES'][chassis_db]
+    with open(jsonfile, "w") as write_file:
+       json.dump(data, write_file, indent=4, separators=(',', ': '))
+    syslog.syslog(syslog.LOG_INFO,
+       'remove chassis_db from config file {}'.format(jsonfile))
+
+if __name__ == "__main__":
+    main()

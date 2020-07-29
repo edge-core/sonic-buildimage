@@ -120,13 +120,16 @@ RUN sed -ri 's/^(save .*$)/# \1/g;                                              
             ' /etc/redis/redis.conf
 
 COPY ["50-default.conf", "/etc/rsyslog.d/"]
-COPY ["start.sh", "orchagent.sh", "/usr/bin/"]
+COPY ["start.sh", "orchagent.sh", "files/remove_chassisdb_config", "/usr/bin/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 COPY ["files/configdb-load.sh", "/usr/bin/"]
 COPY ["files/arp_update", "/usr/bin/"]
 COPY ["files/buffers_config.j2", "files/qos_config.j2", "/usr/share/sonic/templates/"]
 COPY ["files/sonic_version.yml", "/etc/sonic/"]
 COPY ["database_config.json", "/etc/default/sonic-db/"]
+COPY ["hostname.j2", "/usr/share/sonic/templates/"]
+COPY ["default_chassis_cfg.json", "/etc/default/sonic-db/"]
+COPY ["chassis_db.py", "/usr/bin/"]
 
 # Workaround the tcpdump issue
 RUN mv /usr/sbin/tcpdump /usr/bin/tcpdump

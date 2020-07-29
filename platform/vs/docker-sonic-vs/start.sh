@@ -26,8 +26,12 @@ popd
 
 [ -d /etc/sonic ] || mkdir -p /etc/sonic
 
+if [[ -f /usr/share/sonic/virtual_chassis/default_config.json ]]; then
+    CHASS_CFG="-j /usr/share/sonic/virtual_chassis/default_config.json"
+fi
+
 SYSTEM_MAC_ADDRESS=$(ip link show eth0 | grep ether | awk '{print $2}')
-sonic-cfggen -a '{"DEVICE_METADATA":{"localhost": {"mac": "'$SYSTEM_MAC_ADDRESS'"}}}' --print-data > /etc/sonic/init_cfg.json
+sonic-cfggen -a '{"DEVICE_METADATA":{"localhost": {"mac": "'$SYSTEM_MAC_ADDRESS'"}}}' $CHASS_CFG --print-data > /etc/sonic/init_cfg.json
 
 if [ -f /etc/sonic/config_db.json ]; then
     sonic-cfggen -j /etc/sonic/init_cfg.json -j /etc/sonic/config_db.json --print-data > /tmp/config_db.json
@@ -46,10 +50,38 @@ rm -f /var/run/rsyslogd.pid
 
 supervisorctl start rsyslogd
 
+supervisord_cfg="/etc/supervisor/conf.d/supervisord.conf"
+chassis_cfg_file="/usr/share/sonic/virtual_chassis/default_config.json"
+chassis_cfg_file_default="/etc/default/sonic-db/default_chassis_cfg.json"
+host_template="/usr/share/sonic/templates/hostname.j2"
+db_cfg_file="/var/run/redis/sonic-db/database_config.json"
+db_cfg_file_tmp="/var/run/redis/sonic-db/database_config.json.tmp"
+
+if [ -r "$chassis_cfg_file" ]; then
+   echo $(sonic-cfggen -j $chassis_cfg_file -t $host_template) >> /etc/hosts
+else
+   chassis_cfg_file="$chassis_cfg_file_default"
+   echo "10.8.1.200 redis_chassis.server" >> /etc/hosts
+fi
+
 mkdir -p /var/run/redis/sonic-db
 cp /etc/default/sonic-db/database_config.json /var/run/redis/sonic-db/
 
 supervisorctl start redis-server
+
+start_chassis_db=`sonic-cfggen -v DEVICE_METADATA.localhost.start_chassis_db -y $chassis_cfg_file`
+if [[ "$HOSTNAME" == *"supervisor"* ]] || [ "$start_chassis_db" == "1" ]; then
+   supervisorctl start redis-chassis
+   python /usr/bin/chassis_db.py
+fi
+
+conn_chassis_db=`sonic-cfggen -v DEVICE_METADATA.localhost.connect_to_chassis_db -y $chassis_cfg_file`
+if [ "$start_chassis_db" != "1" ] && [ "$conn_chassis_db" != "1" ]; then
+   cp $db_cfg_file $db_cfg_file_tmp
+   remove_chassisdb_config -j $db_cfg_file_tmp
+   cp $db_cfg_file_tmp $db_cfg_file
+fi
+
 
 /usr/bin/configdb-load.sh
 
