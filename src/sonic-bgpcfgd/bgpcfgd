@@ -787,16 +787,24 @@ class ZebraSetSrc(Manager):
             ip_addr_w_mask = key.replace("Loopback0|", "")
             slash_pos = ip_addr_w_mask.rfind("/")
             if slash_pos == -1:
-                log_err("Wrong Loopback0 ip address: '%s'" % ip_addr_w_mask)
+                log_err("Wrong Loopback0 ip prefix: '%s'" % ip_addr_w_mask)
                 return True
             ip_addr = ip_addr_w_mask[:slash_pos]
             try:
-                if TemplateFabric.is_ipv4(ip_addr) and self.lo_ipv4 is None:
-                    self.lo_ipv4 = ip_addr
-                    txt = self.zebra_set_src_template.render(rm_name="RM_SET_SRC", lo_ip=ip_addr, ip_proto="")
-                elif TemplateFabric.is_ipv6(ip_addr) and self.lo_ipv6 is None:
-                    self.lo_ipv6 = ip_addr
-                    txt = self.zebra_set_src_template.render(rm_name="RM_SET_SRC6", lo_ip=ip_addr, ip_proto="v6")
+                if TemplateFabric.is_ipv4(ip_addr):
+                    if self.lo_ipv4 is None:
+                        self.lo_ipv4 = ip_addr
+                        txt = self.zebra_set_src_template.render(rm_name="RM_SET_SRC", lo_ip=ip_addr, ip_proto="")
+                    else:
+                        log_warn("Update command is not supported for set src templates. current ip='%s'. new ip='%s'" % (self.lo_ipv4, ip_addr))
+                        return True
+                elif TemplateFabric.is_ipv6(ip_addr):
+                    if self.lo_ipv6 is None:
+                        self.lo_ipv6 = ip_addr
+                        txt = self.zebra_set_src_template.render(rm_name="RM_SET_SRC6", lo_ip=ip_addr, ip_proto="v6")
+                    else:
+                        log_warn("Update command is not supported for set src templates. current ip='%s'. new ip='%s'" % (self.lo_ipv6, ip_addr))
+                        return True
                 else:
                     log_err("Got ambiguous ip address '%s'" % ip_addr)
                     return True
