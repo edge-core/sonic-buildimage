@@ -542,6 +542,7 @@ class BGPPeerMgrBase(Manager):
         else:
             # The bgp session that belongs to a vnet cannot be advertised as the default BGP session.
             # So we need to check whether this bgp session belongs to a vnet.
+            data["local_addr"] = str(netaddr.IPNetwork(str(data["local_addr"])).ip)
             interface = self.get_local_interface(data["local_addr"])
             if not interface:
                 print_data = nbr, data["local_addr"]
