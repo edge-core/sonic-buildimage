@@ -146,7 +146,7 @@ class BGPConfigManager(object):
             ip_addr_w_mask = key.replace("Loopback0|", "")
             slash_pos = ip_addr_w_mask.rfind("/")
             if slash_pos == -1:
-                syslog.syslog(syslog.LOG_ERR, "Wrong Loopback0 ip address'%s'" % ip_addr_w_mask)
+                syslog.syslog(syslog.LOG_ERR, "Wrong Loopback0 ip prefix '%s'" % ip_addr_w_mask)
                 return
             ip_addr = ip_addr_w_mask[:slash_pos]
             try:
@@ -155,14 +155,14 @@ class BGPConfigManager(object):
                         self.lo_ipv4 = ip_addr
                         txt = self.zebra_set_src_template.render(rm_name="RM_SET_SRC", lo_ip=ip_addr, ip_proto="")
                     else:
-                        syslog.syslog(syslog.LOG_INFO, "Update command is not supported for set src templates. lo_ip='%s'" % ip_addr)
+                        syslog.syslog(syslog.LOG_INFO, "Update command is not supported for set src templates. current ip='%s'. new ip='%s'" % (self.lo_ipv4, ip_addr))
                         return
                 elif TemplateFabric.is_ipv6(ip_addr):
                     if self.lo_ipv6 is None:
                         self.lo_ipv6 = ip_addr
                         txt = self.zebra_set_src_template.render(rm_name="RM_SET_SRC6", lo_ip=ip_addr, ip_proto="v6")
                     else:
-                        syslog.syslog(syslog.LOG_INFO, "Update command is not supported for set src templates. lo_ip='%s'" % ip_addr)
+                        syslog.syslog(syslog.LOG_INFO, "Update command is not supported for set src templates. current ip='%s'. new ip='%s'" % (self.lo_ipv6, ip_addr))
                         return
                 else:
                     syslog.syslog(syslog.LOG_ERR, "Got ambiguous ip address '%s'" % ip_addr)
