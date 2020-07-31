@@ -5,6 +5,7 @@ mkdir -p /etc/swss/config.d/
 sonic-cfggen -d -y /etc/sonic/sonic_version.yml -t /usr/share/sonic/templates/switch.json.j2 > /etc/swss/config.d/switch.json
 sonic-cfggen -d -t /usr/share/sonic/templates/ipinip.json.j2 > /etc/swss/config.d/ipinip.json
 sonic-cfggen -d -t /usr/share/sonic/templates/ports.json.j2 > /etc/swss/config.d/ports.json
+sonic-cfggen -d -t /usr/share/sonic/templates/copp.json.j2 > /etc/swss/config.d/00-copp.config.json
 
 # Executed HWSKU specific initialization tasks.
 if [ -x /usr/share/sonic/hwsku/hwsku-init ]; then
