@@ -9,7 +9,7 @@ SYSLOG_IDENTIFIER = 'asic_config_checksum'
 CHUNK_SIZE = 8192
 
 CONFIG_FILES = {
-    os.path.abspath('./src/sonic-swss/swssconfig/sample/'): ['netbouncer.json', '00-copp.config.json']
+    os.path.abspath('./src/sonic-swss/swssconfig/sample/'): ['netbouncer.json']
 }
 
 OUTPUT_FILE = os.path.abspath('./asic_config_checksum')
