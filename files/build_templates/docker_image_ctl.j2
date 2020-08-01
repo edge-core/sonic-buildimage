@@ -168,7 +168,7 @@ start() {
     BOOT_TYPE=`getBootType`
 
     # Obtain our platform as we will mount directories with these names in each docker
-    PLATFORM=`$SONIC_CFGGEN -H -v DEVICE_METADATA.localhost.platform`
+    PLATFORM=${PLATFORM:-`$SONIC_CFGGEN -H -v DEVICE_METADATA.localhost.platform`}
 
     # Parse the device specific asic conf file, if it exists
     ASIC_CONF=/usr/share/sonic/device/$PLATFORM/asic.conf
@@ -181,7 +181,7 @@ start() {
     HWSKU=""
     {%- else %}
     # Obtain our HWSKU as we will mount directories with these names in each docker
-    HWSKU=`$SONIC_CFGGEN -d -v 'DEVICE_METADATA["localhost"]["hwsku"]'`
+    HWSKU=${HWSKU:-`$SONIC_CFGGEN -d -v 'DEVICE_METADATA["localhost"]["hwsku"]'`}
     {%- endif %}
 
     DOCKERCHECK=`docker inspect --type container {{docker_container_name}}$DEV 2>/dev/null`
@@ -368,6 +368,9 @@ if [ "$DEV" ]; then
     SONIC_CFGGEN="sonic-cfggen"
     SONIC_DB_CLI="sonic-db-cli"
 fi
+
+# read SONiC immutable variables
+[ -f /etc/sonic/sonic-environment ] && . /etc/sonic/sonic-environment
 
 case "$1" in
     start|wait|stop)
