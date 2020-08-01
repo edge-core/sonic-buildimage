@@ -7,16 +7,19 @@
 
 start() {
     TOPOLOGY_SCRIPT="topology.sh"
-    PLATFORM=`sonic-cfggen -H -v DEVICE_METADATA.localhost.platform`
-    HWSKU=`sonic-cfggen -d -v 'DEVICE_METADATA["localhost"]["hwsku"]'`
+    PLATFORM=${PLATFORM:-`sonic-cfggen -H -v DEVICE_METADATA.localhost.platform`}
+    HWSKU=${HWSKU:-`sonic-cfggen -d -v 'DEVICE_METADATA["localhost"]["hwsku"]'`}
     /usr/share/sonic/device/$PLATFORM/$HWSKU/$TOPOLOGY_SCRIPT start
 }
 stop() {
     TOPOLOGY_SCRIPT="topology.sh"
-    PLATFORM=`sonic-cfggen -H -v DEVICE_METADATA.localhost.platform`
-    HWSKU=`sonic-cfggen -d -v 'DEVICE_METADATA["localhost"]["hwsku"]'`
+    PLATFORM=${PLATFORM:-`sonic-cfggen -H -v DEVICE_METADATA.localhost.platform`}
+    HWSKU=${HWSKU:-`sonic-cfggen -d -v 'DEVICE_METADATA["localhost"]["hwsku"]'`}
     usr/share/sonic/device/$PLATFORM/$HWSKU/$TOPOLOGY_SCRIPT stop 
 }
+
+# read SONiC immutable variables
+[ -f /etc/sonic/sonic-environment ] && . /etc/sonic/sonic-environment
 
 case "$1" in
     start|stop)

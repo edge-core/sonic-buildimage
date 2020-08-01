@@ -7,6 +7,9 @@ reload_minigraph()
     config save -y
 }
 
+# read SONiC immutable variables
+[ -f /etc/sonic/sonic-environment ] && . /etc/sonic/sonic-environment
+
 if [ ! -f /etc/sonic/updategraph.conf ]; then
     echo "No updategraph.conf found, generating a default one."
     echo "enabled=false" >/etc/sonic/updategraph.conf
@@ -46,7 +49,7 @@ if [ "$src" = "dhcp" ]; then
 
     if [ "`cat /tmp/dhcp_graph_url`" = "N/A" ]; then
         echo "No graph_url option in DHCP response. Skipping graph update and generating an empty configuration."
-        PLATFORM=`sonic-cfggen -H -v DEVICE_METADATA.localhost.platform`
+        PLATFORM=${PLATFORM:-`sonic-cfggen -H -v DEVICE_METADATA.localhost.platform`}
         if [ -f /etc/sonic/minigraph.xml ]; then
             sonic-cfggen -H -m /etc/sonic/minigraph.xml --preset empty > /tmp/device_meta.json
         else

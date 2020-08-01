@@ -39,7 +39,10 @@ rm -f /ready
 # Restore FDB and ARP table ASAP
 fast_reboot
 
-HWSKU=`sonic-cfggen -d -v "DEVICE_METADATA['localhost']['hwsku']"`
+# read SONiC immutable variables
+[ -f /etc/sonic/sonic-environment ] && . /etc/sonic/sonic-environment
+
+HWSKU=${HWSKU:-`sonic-cfggen -d -v "DEVICE_METADATA['localhost']['hwsku']"`}
 
 # Don't load json config if system warm start or
 # swss docker warm start is enabled, the data already exists in appDB.

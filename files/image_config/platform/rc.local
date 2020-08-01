@@ -11,8 +11,16 @@
 #
 # By default this script does nothing.
 
-SONIC_VERSION=$(sonic-cfggen -y /etc/sonic/sonic_version.yml -v build_version)
+SONIC_VERSION=$(cat /etc/sonic/sonic_version.yml | grep "build_version" | sed -e "s/build_version: //g;s/'//g")
 FIRST_BOOT_FILE="/host/image-${SONIC_VERSION}/platform/firsttime"
+
+# Move sonic-environment to /etc/sonic
+SONIC_CONFIG_DIR="/host/image-${SONIC_VERSION}/sonic-config"
+SONIC_ENV_FILE=${SONIC_CONFIG_DIR}/sonic-environment
+if [ -d ${SONIC_CONFIG_DIR} -a -f ${SONIC_ENV_FILE} ]; then
+    echo "moving file ${SONIC_ENV_FILE} to /etc/sonic" 1>&2
+    mv ${SONIC_ENV_FILE} /etc/sonic
+fi
 
 # In case the unit is migrating from another NOS, save the logs
 log_migration() {
