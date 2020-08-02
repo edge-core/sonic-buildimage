@@ -46,6 +46,8 @@ SHELL = /bin/bash
 USER := $(shell id -un)
 PWD := $(shell pwd)
 
+comma := ,
+
 ifeq ($(USER), root)
 $(error Add your user account to docker group and use your user account to make. root or sudo are not supported!)
 endif
@@ -116,6 +118,10 @@ DOCKER_RUN := docker run --rm=true --privileged --init \
     -i$(if $(TERM),t,)
 
 include rules/config
+
+ifneq ($(DOCKER_BUILDER_USER_MOUNT),)
+	DOCKER_RUN += $(foreach mount,$(subst $(comma), ,$(DOCKER_BUILDER_USER_MOUNT)), $(addprefix -v , $(mount)))
+endif
 
 ifneq ($(SONIC_DPKG_CACHE_SOURCE),)
 	DOCKER_RUN += -v "$(SONIC_DPKG_CACHE_SOURCE):/dpkg_cache:rw"
