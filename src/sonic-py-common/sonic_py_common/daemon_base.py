@@ -56,7 +56,7 @@ class DaemonBase(Logger):
         platform_util = None
 
         # Get path to platform and hwsku
-        (platform_path, hwsku_path) = device_info.get_path_to_platform_and_hwsku()
+        (platform_path, hwsku_path) = device_info.get_paths_to_platform_and_hwsku()
 
         try:
             module_file = "/".join([platform_path, "plugins", module_name + ".py"])

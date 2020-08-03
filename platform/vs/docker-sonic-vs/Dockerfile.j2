@@ -49,6 +49,7 @@ RUN apt-get install -y net-tools \
                        python3-pip
 
 RUN pip install setuptools
+RUN pip3 install setuptools
 RUN pip install py2_ipaddress
 RUN pip install six
 RUN pip install pyroute2==0.5.3 netifaces==0.10.7

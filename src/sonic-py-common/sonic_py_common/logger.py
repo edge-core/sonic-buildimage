@@ -1,4 +1,5 @@
 import os
+import sys
 import syslog
 
 """
@@ -24,7 +25,7 @@ class Logger(object):
 
         if not log_identifier:
             log_identifier = os.path.basename(sys.argv[0])
-            
+
         self.syslog.openlog(ident=log_identifier,
                             logoption=(syslog.LOG_PID | syslog.LOG_NDELAY),
                             facility=log_facility)

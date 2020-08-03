@@ -11,7 +11,7 @@
 try:
     import os.path
     from sonic_platform_base.psu_base import PsuBase
-    from sonic_daemon_base.daemon_base import Logger
+    from sonic_py_common.logger import Logger
     from sonic_platform.fan import Fan
     from .led import PsuLed, SharedLed, ComponentFaultyIndicator
     from .device_data import DEVICE_DATA

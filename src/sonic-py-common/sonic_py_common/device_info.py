@@ -1,5 +1,6 @@
 import glob
 import os
+import re
 import subprocess
 
 import yaml
@@ -57,22 +58,11 @@ def get_platform():
     Returns:
         A string containing the device's platform identifier
     """
-    # First, attempt to retrieve the platform string from Config DB
-    config_db = ConfigDBConnector()
-    config_db.connect()
-
-    metadata = config_db.get_table('DEVICE_METADATA')
-
-    if 'localhost' in metadata and 'platform' in metadata['localhost']:
-        return metadata['localhost']['platform']
-
-    # If we were unable to retrieve the platform string from Config DB, attempt
-    # to retrieve it from the machine configuration file
     machine_info = get_machine_info()
     if machine_info:
-        if machine_info.has_key('onie_platform'):
-            return  machine_info['onie_platform']
-        elif machine_info.has_key('aboot_platform'):
+        if 'onie_platform' in machine_info:
+            return machine_info['onie_platform']
+        elif 'aboot_platform' in machine_info:
             return machine_info['aboot_platform']
 
     return None

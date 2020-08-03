@@ -35,7 +35,7 @@
 import time
 import os.path
 import sfputil as jnpr_sfp
-from sonic_daemon_base.daemon_base import Logger
+from sonic_py_common.logger import Logger
 from pprint import pprint
 
 SYSLOG_IDENTIFIER = "sfputil"

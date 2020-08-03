@@ -42,7 +42,7 @@ try:
     from sonic_platform_base.sonic_sfp.sff8472 import sff8472InterfaceId
     from sonic_platform_base.sonic_sfp.sff8436 import sff8436Dom
     from sonic_platform_base.sonic_sfp.sff8436 import sff8436InterfaceId
-    from sonic_daemon_base.daemon_base import Logger
+    from sonic_py_common.logger import Logger
     from ctypes import create_string_buffer
 
 except ImportError as e:

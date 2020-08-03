@@ -41,11 +41,8 @@ from minigraph import parse_xml
 from minigraph import parse_device_desc_xml
 from minigraph import parse_asic_sub_role
 from portconfig import get_port_config, get_port_config_file_name, get_breakout_mode
-from sonic_device_util import get_machine_info
-from sonic_device_util import get_platform_info
-from sonic_device_util import get_system_mac
-from sonic_device_util import get_npu_id_from_name
-from sonic_device_util import is_multi_npu
+from sonic_py_common.device_info import get_platform, get_system_mac
+from sonic_py_common.device_info import get_npu_id_from_name, is_multi_npu
 from config_samples import generate_sample_config
 from config_samples import get_available_config
 from swsssdk import SonicV2Connector, ConfigDBConnector, SonicDBConfig 
@@ -235,7 +232,7 @@ def main():
     group.add_argument("-K", "--key", help="Lookup for a specific key")
     args = parser.parse_args()
 
-    platform = get_platform_info(get_machine_info())
+    platform = get_platform()
 
     db_kwargs = {}
     if args.redis_unix_sock_file != None:

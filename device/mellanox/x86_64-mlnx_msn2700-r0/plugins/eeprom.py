@@ -21,7 +21,7 @@ try:
     from cStringIO import StringIO
     from sonic_eeprom import eeprom_base
     from sonic_eeprom import eeprom_tlvinfo
-    from sonic_device_util import get_machine_info
+    from sonic_py_common.device_info import get_machine_info
     import subprocess
 except ImportError, e:
     raise ImportError (str(e) + "- required module not found")

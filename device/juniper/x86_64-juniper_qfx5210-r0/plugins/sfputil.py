@@ -8,7 +8,7 @@ try:
     import io
     import string
     from ctypes import create_string_buffer
-    from sonic_daemon_base.daemon_base import Logger
+    from sonic_py_common.logger import Logger
 except ImportError, e:
     raise ImportError (str(e) + "- required module not found")
 
