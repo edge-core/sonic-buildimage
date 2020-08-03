@@ -97,12 +97,6 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     python-yaml    \
     python-bitarray
 
-# Install SONiC config engine Python package
-CONFIG_ENGINE_WHEEL_NAME=$(basename {{config_engine_wheel_path}})
-sudo cp {{config_engine_wheel_path}} $FILESYSTEM_ROOT/$CONFIG_ENGINE_WHEEL_NAME
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install $CONFIG_ENGINE_WHEEL_NAME
-sudo rm -rf $FILESYSTEM_ROOT/$CONFIG_ENGINE_WHEEL_NAME
-
 # Install Python client for Redis
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install "redis==2.10.6"
 
@@ -120,6 +114,18 @@ SWSSSDK_PY2_WHEEL_NAME=$(basename {{swsssdk_py2_wheel_path}})
 sudo cp {{swsssdk_py2_wheel_path}} $FILESYSTEM_ROOT/$SWSSSDK_PY2_WHEEL_NAME
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install $SWSSSDK_PY2_WHEEL_NAME
 sudo rm -rf $FILESYSTEM_ROOT/$SWSSSDK_PY2_WHEEL_NAME
+
+# Install sonic-py-common Python 2 package
+SONIC_PY_COMMON_PY2_WHEEL_NAME=$(basename {{sonic_py_common_py2_wheel_path}})
+sudo cp {{sonic_py_common_py2_wheel_path}} $FILESYSTEM_ROOT/$SONIC_PY_COMMON_PY2_WHEEL_NAME
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install $SONIC_PY_COMMON_PY2_WHEEL_NAME
+sudo rm -rf $FILESYSTEM_ROOT/$SONIC_PY_COMMON_PY2_WHEEL_NAME
+
+# Install SONiC config engine Python package
+CONFIG_ENGINE_WHEEL_NAME=$(basename {{config_engine_wheel_path}})
+sudo cp {{config_engine_wheel_path}} $FILESYSTEM_ROOT/$CONFIG_ENGINE_WHEEL_NAME
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install $CONFIG_ENGINE_WHEEL_NAME
+sudo rm -rf $FILESYSTEM_ROOT/$CONFIG_ENGINE_WHEEL_NAME
 
 # Install sonic-platform-common Python 2 package
 PLATFORM_COMMON_PY2_WHEEL_NAME=$(basename {{platform_common_py2_wheel_path}})
