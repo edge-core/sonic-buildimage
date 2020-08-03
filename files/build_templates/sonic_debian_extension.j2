@@ -340,11 +340,7 @@ sudo chmod a+x $FILESYSTEM_ROOT/usr/sbin/policy-rc.d
 
 {% if installer_debs.strip() -%}
 {% for deb in installer_debs.strip().split(' ') -%}
-{% if sonic_asic_platform == "mellanox" %}
-sudo dpkg --extract {{deb}} $FILESYSTEM_ROOT
-{% else %}
 sudo dpkg --root=$FILESYSTEM_ROOT -i {{deb}} || sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
-{% endif %}
 {% endfor %}
 {% endif %}
 
