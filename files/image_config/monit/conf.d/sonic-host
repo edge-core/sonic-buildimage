@@ -20,3 +20,13 @@ check process rsyslog with pidfile /var/run/rsyslogd.pid
     start program = "/bin/systemctl start rsyslog.service"
     stop program = "/bin/systemctl stop rsyslog.service"
     if totalmem > 800 MB for 10 times within 20 cycles then restart
+
+# route_check.py Verify routes between APPL-DB & ASIC-DB are in sync.
+# For any discrepancy, details are logged and a non-zero code is returned
+# which would trigger a monit alert.
+# Hence for any discrepancy, there will be log messages for "ERR" level
+# from both route_check.py & monit.
+#
+check program routeCheck with path "/usr/bin/route_check.py"
+    every 5 cycles
+    if status != 0 then alert
