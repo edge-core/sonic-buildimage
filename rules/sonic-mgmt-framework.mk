@@ -1,6 +1,6 @@
 # SONiC mgmt-framework package
 
-ifeq ($(ENABLE_MGMT_FRAMEWORK), y)
+ifeq ($(INCLUDE_MGMT_FRAMEWORK), y)
 
 SONIC_MGMT_FRAMEWORK = sonic-mgmt-framework_1.0-01_amd64.deb
 $(SONIC_MGMT_FRAMEWORK)_SRC_PATH = $(SRC_PATH)/sonic-mgmt-framework
