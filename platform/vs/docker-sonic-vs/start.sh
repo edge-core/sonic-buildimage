@@ -2,8 +2,8 @@
 
 # generate configuration
 
-PLATFORM=x86_64-kvm_x86_64-r0
-HWSKU=Force10-S6000
+export PLATFORM=x86_64-kvm_x86_64-r0
+export HWSKU=Force10-S6000
 
 ln -sf /usr/share/sonic/device/$PLATFORM/$HWSKU /usr/share/sonic/hwsku
 

@@ -58,12 +58,38 @@ def get_platform():
     Returns:
         A string containing the device's platform identifier
     """
+
+    # If we are running in a virtual switch Docker container, the environment
+    # variable 'PLATFORM' will be defined and will contain the platform
+    # identifier.
+    platform_env = os.getenv("PLATFORM")
+    if platform_env:
+        return platform_env
+
+    # If 'PLATFORM' env variable is not defined, we try to read the platform
+    # identifier from machine.conf. This is critical for sonic-config-engine,
+    # because it is responsible for populating this value in Config DB.
     machine_info = get_machine_info()
     if machine_info:
         if 'onie_platform' in machine_info:
             return machine_info['onie_platform']
         elif 'aboot_platform' in machine_info:
             return machine_info['aboot_platform']
+
+    # If we fail to read from machine.conf, we may be running inside a Docker
+    # container in SONiC, where the /host directory is not mounted. In this
+    # case the value should already be populated in Config DB so we finally
+    # try reading it from there.
+    try:
+        config_db = ConfigDBConnector()
+        config_db.connect()
+
+        metadata = config_db.get_table('DEVICE_METADATA')
+
+        if 'localhost' in metadata and 'platform' in metadata['localhost']:
+            return metadata['localhost']['platform']
+    except Exception:
+        pass
 
     return None
 
@@ -75,15 +101,18 @@ def get_hwsku():
     Returns:
         A string containing the device's hardware SKU identifier
     """
-    config_db = ConfigDBConnector()
-    config_db.connect()
+    try:
+        config_db = ConfigDBConnector()
+        config_db.connect()
 
-    metadata = config_db.get_table('DEVICE_METADATA')
+        metadata = config_db.get_table('DEVICE_METADATA')
 
-    if 'localhost' in metadata and 'hwsku' in metadata['localhost']:
-        return metadata['localhost']['hwsku']
+        if 'localhost' in metadata and 'hwsku' in metadata['localhost']:
+            return metadata['localhost']['hwsku']
+    except Exception:
+        pass
 
-    return ""
+    return None
 
 
 def get_platform_and_hwsku():
