@@ -83,9 +83,6 @@ ENABLE_ORGANIZATION_EXTENSIONS = y
 #SONIC_DEBUGGING_ON = y
 #SONIC_PROFILING_ON = y
 
-# ENABLE_SYSTEM_TELEMETRY - build docker-sonic-telemetry for system telemetry support
-ENABLE_SYSTEM_TELEMETRY = y
-
 # DEFAULT_KERNEL_PROCURE_METHOD - default method for obtaining kernel
 #   build:    build kernel from source
 #   download: download pre-built kernel from Azure storage.
@@ -116,32 +113,35 @@ SONIC_DPKG_CACHE_SOURCE ?= /var/cache/sonic/artifacts
 DEFAULT_VS_PREPARE_MEM = yes
 
 
-# ENABLE_ICCPD - build docker-iccpd for mclag support
-ENABLE_ICCPD = n
+# INCLUDE_SYSTEM_TELEMETRY - build docker-sonic-telemetry for system telemetry support
+INCLUDE_SYSTEM_TELEMETRY = y
 
-# ENABLE_SYSTEM_SFLOW - build docker-sonic-sflow for sFlow support
-ENABLE_SFLOW = y
+# INCLUDE_ICCPD - build docker-iccpd for mclag support
+INCLUDE_ICCPD = n
 
-# ENABLE_MGMT_FRAMEWORK - build docker-sonic-mgt-framework for CLI and REST server support
-ENABLE_MGMT_FRAMEWORK = y
+# INCLUDE_SFLOW - build docker-sflow for sFlow support
+INCLUDE_SFLOW = y
 
-# ENABLE_RESTAPI - build docker-sonic-restapi for configuring the switch using REST APIs
-ENABLE_RESTAPI = n
+# INCLUDE_MGMT_FRAMEWORK - build docker-sonic-mgmt-framework for CLI and REST server support
+INCLUDE_MGMT_FRAMEWORK = y
 
-# ENABLE_NAT - build docker-sonic-nat for nat support
-ENABLE_NAT = y
+# INCLUDE_RESTAPI - build docker-sonic-restapi for configuring the switch using REST APIs
+INCLUDE_RESTAPI = n
+
+# INCLUDE_NAT - build docker-nat for nat support
+INCLUDE_NAT = y
 
 # TELEMETRY_WRITABLE - Enable write/config operations via the gNMI interface.
 # Uncomment to enable:
 # TELEMETRY_WRITABLE = y
-# INSTALL_KUBERNETES - if set to y kubernetes packages are installed to be able to
+# INCLUDE_KUBERNETES - if set to y kubernetes packages are installed to be able to
 # run as worker node in kubernetes cluster.
-INSTALL_KUBERNETES = n
+INCLUDE_KUBERNETES = n
 
 # KUBERNETES_VERSION - Set to the required version.
 # K8s_GCR_IO_PAUSE_VERSION - Version of k8s universal pause container image
 # K8s_CNI_FLANNEL_VERSION - Flannel used as CNI; Appropriate version for this Kubernetes version
-# These are Used *only* when INSTALL_KUBERNETES=y
+# These are Used *only* when INCLUDE_KUBERNETES=y
 # NOTE: As a worker node it has to run version compatible to kubernetes master.
 #
 KUBERNETES_VERSION = 1.18.6

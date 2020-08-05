@@ -99,8 +99,8 @@ ifeq ($(SONIC_ENABLE_PFCWD_ON_START),y)
 ENABLE_PFCWD_ON_START = y
 endif
 
-ifeq ($(SONIC_ENABLE_SYSTEM_TELEMETRY),y)
-ENABLE_SYSTEM_TELEMETRY = y
+ifeq ($(SONIC_INCLUDE_SYSTEM_TELEMETRY),y)
+INCLUDE_SYSTEM_TELEMETRY = y
 endif
 
 ifneq (,$(filter $(CONFIGURED_ARCH), armhf arm64))
@@ -108,11 +108,11 @@ ifneq (,$(filter $(CONFIGURED_ARCH), armhf arm64))
     # Issue: qemu crashes when it uses "go get url"
     # Qemu Support: https://bugs.launchpad.net/qemu/+bug/1838946
     # Golang Support: https://groups.google.com/forum/?utm_medium=email&utm_source=footer#!topic/golang-nuts/1txPOGa4aGc
-ENABLE_SYSTEM_TELEMETRY = N
+INCLUDE_SYSTEM_TELEMETRY = n
 endif
 
-ifeq ($(SONIC_ENABLE_RESTAPI),y)
-ENABLE_RESTAPI = y
+ifeq ($(SONIC_INCLUDE_RESTAPI),y)
+INCLUDE_RESTAPI = y
 endif
 
 ifeq ($(SONIC_ENABLE_SYNCD_RPC),y)
@@ -123,12 +123,12 @@ ifeq ($(SONIC_INSTALL_DEBUG_TOOLS),y)
 INSTALL_DEBUG_TOOLS = y
 endif
 
-ifeq ($(SONIC_ENABLE_SFLOW),y)
-ENABLE_SFLOW = y
+ifeq ($(SONIC_INCLUDE_SFLOW),y)
+INCLUDE_SFLOW = y
 endif
 
-ifeq ($(SONIC_ENABLE_NAT),y)
-ENABLE_NAT = y
+ifeq ($(SONIC_INCLUDE_NAT),y)
+INCLUDE_NAT = y
 endif
 
 
@@ -202,7 +202,6 @@ $(info "USERNAME"                        : "$(USERNAME)")
 $(info "PASSWORD"                        : "$(PASSWORD)")
 $(info "ENABLE_DHCP_GRAPH_SERVICE"       : "$(ENABLE_DHCP_GRAPH_SERVICE)")
 $(info "SHUTDOWN_BGP_ON_START"           : "$(SHUTDOWN_BGP_ON_START)")
-$(info "INSTALL_KUBERNETES"              : "$(INSTALL_KUBERNETES)")
 $(info "ENABLE_PFCWD_ON_START"           : "$(ENABLE_PFCWD_ON_START)")
 $(info "INSTALL_DEBUG_TOOLS"             : "$(INSTALL_DEBUG_TOOLS)")
 $(info "ROUTING_STACK"                   : "$(SONIC_ROUTING_STACK)")
@@ -214,8 +213,6 @@ $(info "ENABLE_SYNCD_RPC"                : "$(ENABLE_SYNCD_RPC)")
 $(info "ENABLE_ORGANIZATION_EXTENSIONS"  : "$(ENABLE_ORGANIZATION_EXTENSIONS)")
 $(info "HTTP_PROXY"                      : "$(HTTP_PROXY)")
 $(info "HTTPS_PROXY"                     : "$(HTTPS_PROXY)")
-$(info "ENABLE_SYSTEM_TELEMETRY"         : "$(ENABLE_SYSTEM_TELEMETRY)")
-$(info "ENABLE_RESTAPI"                  : "$(ENABLE_RESTAPI)")
 $(info "ENABLE_ZTP"                      : "$(ENABLE_ZTP)")
 $(info "SONIC_DEBUGGING_ON"              : "$(SONIC_DEBUGGING_ON)")
 $(info "SONIC_PROFILING_ON"              : "$(SONIC_PROFILING_ON)")
@@ -224,8 +221,13 @@ $(info "BUILD_TIMESTAMP"                 : "$(BUILD_TIMESTAMP)")
 $(info "BUILD_LOG_TIMESTAMP"             : "$(BUILD_LOG_TIMESTAMP)")
 $(info "BLDENV"                          : "$(BLDENV)")
 $(info "VS_PREPARE_MEM"                  : "$(VS_PREPARE_MEM)")
-$(info "ENABLE_SFLOW"                    : "$(ENABLE_SFLOW)")
-$(info "ENABLE_NAT"                      : "$(ENABLE_NAT)")
+$(info "INCLUDE_MGMT_FRAMEWORK"          : "$(INCLUDE_MGMT_FRAMEWORK)")
+$(info "INCLUDE_ICCPD"                   : "$(INCLUDE_ICCPD)")
+$(info "INCLUDE_SYSTEM_TELEMETRY"        : "$(INCLUDE_SYSTEM_TELEMETRY)")
+$(info "INCLUDE_RESTAPI"                 : "$(INCLUDE_RESTAPI)")
+$(info "INCLUDE_SFLOW"                   : "$(INCLUDE_SFLOW)")
+$(info "INCLUDE_NAT"                     : "$(INCLUDE_NAT)")
+$(info "INCLUDE_KUBERNETES"              : "$(INCLUDE_KUBERNETES)")
 $(info "TELEMETRY_WRITABLE"              : "$(TELEMETRY_WRITABLE)")
 $(info )
 
@@ -815,12 +817,15 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
 	export sonic_asic_platform="$(patsubst %-$(CONFIGURED_ARCH),%,$(CONFIGURED_PLATFORM))"
 	export enable_organization_extensions="$(ENABLE_ORGANIZATION_EXTENSIONS)"
 	export enable_dhcp_graph_service="$(ENABLE_DHCP_GRAPH_SERVICE)"
-	export enable_system_telemetry="$(ENABLE_SYSTEM_TELEMETRY)"
-	export enable_restapi="$(ENABLE_RESTAPI)"
 	export enable_ztp="$(ENABLE_ZTP)"
-	export enable_nat="$(ENABLE_NAT)"
+	export include_system_telemetry="$(INCLUDE_SYSTEM_TELEMETRY)"
+	export include_restapi="$(INCLUDE_RESTAPI)"
+	export include_nat="$(INCLUDE_NAT)"
+	export include_sflow="$(INCLUDE_SFLOW)"
+	export include_mgmt_framework="$(INCLUDE_MGMT_FRAMEWORK)"
+	export include_iccpd="$(INCLUDE_ICCPD)"
 	export shutdown_bgp_on_start="$(SHUTDOWN_BGP_ON_START)"
-	export install_kubernetes="$(INSTALL_KUBERNETES)"
+	export include_kubernetes="$(INCLUDE_KUBERNETES)"
 	export enable_pfcwd_on_start="$(ENABLE_PFCWD_ON_START)"
 	export installer_debs="$(addprefix $(IMAGE_DISTRO_DEBS_PATH)/,$($*_INSTALLS))"
 	export lazy_installer_debs="$(foreach deb, $($*_LAZY_INSTALLS),$(foreach device, $($(deb)_PLATFORM),$(addprefix $(device)@, $(IMAGE_DISTRO_DEBS_PATH)/$(deb))))"

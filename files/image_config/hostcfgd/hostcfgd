@@ -41,8 +41,8 @@ def obfuscate(data):
         return data
 
 
-def update_feature_status(feature_name, status):
-    if status == "enabled":
+def update_feature_state(feature_name, state):
+    if state == "enabled":
         start_cmds = []
         start_cmds.append("sudo systemctl unmask {}.service".format(feature_name))
         start_cmds.append("sudo systemctl enable {}.service".format(feature_name))
@@ -56,7 +56,7 @@ def update_feature_status(feature_name, status):
                               .format(err.cmd, err.returncode, err.output))
                 continue
         syslog.syslog(syslog.LOG_INFO, "Feature '{}' is enabled and started".format(feature_name))
-    elif status == "disabled":
+    elif state == "disabled":
         stop_cmds = []
         stop_cmds.append("sudo systemctl stop {}.service".format(feature_name))
         stop_cmds.append("sudo systemctl disable {}.service".format(feature_name))
@@ -71,7 +71,7 @@ def update_feature_status(feature_name, status):
                 continue
         syslog.syslog(syslog.LOG_INFO, "Feature '{}' is stopped and disabled".format(feature_name))
     else:
-        syslog.syslog(syslog.LOG_ERR, "Unexpected status value '{}' for feature '{}'".format(status, feature_name))
+        syslog.syslog(syslog.LOG_ERR, "Unexpected state value '{}' for feature '{}'".format(state, feature_name))
 
 
 class Iptables(object):
@@ -272,19 +272,19 @@ class HostConfigDaemon:
         self.iptables = Iptables()
         self.iptables.load(lpbk_table)
 
-    def update_all_feature_statuses(self):
+    def update_all_feature_states(self):
         feature_table = self.config_db.get_table('FEATURE')
         for feature_name in feature_table.keys():
             if not feature_name:
                 syslog.syslog(syslog.LOG_WARNING, "Feature is None")
                 continue
 
-            status = feature_table[feature_name]['status']
-            if not status:
-                syslog.syslog(syslog.LOG_WARNING, "Status of feature '{}' is None".format(feature_name))
+            state = feature_table[feature_name]['state']
+            if not state:
+                syslog.syslog(syslog.LOG_WARNING, "Eanble state of feature '{}' is None".format(feature_name))
                 continue
 
-            update_feature_status(feature_name, status)
+            update_feature_state(feature_name, state)
 
     def aaa_handler(self, key, data):
         self.aaacfg.aaa_update(key, data)
@@ -314,29 +314,29 @@ class HostConfigDaemon:
 
         self.iptables.iptables_handler(key, data, add)
 
-    def feature_status_handler(self, key, data):
+    def feature_state_handler(self, key, data):
         feature_name = key
         feature_table = self.config_db.get_table('FEATURE')
         if feature_name not in feature_table.keys():
             syslog.syslog(syslog.LOG_WARNING, "Feature '{}' not in FEATURE table".format(feature_name))
             return
 
-        status = feature_table[feature_name]['status']
-        if not status:
-            syslog.syslog(syslog.LOG_WARNING, "Status of feature '{}' is None".format(feature_name))
+        state = feature_table[feature_name]['state']
+        if not state:
+            syslog.syslog(syslog.LOG_WARNING, "Enable state of feature '{}' is None".format(feature_name))
             return
 
-        update_feature_status(feature_name, status)
+        update_feature_state(feature_name, state)
 
     def start(self):
-        # Update all feature statuses once upon starting
-        self.update_all_feature_statuses()
+        # Update all feature states once upon starting
+        self.update_all_feature_states()
 
         self.config_db.subscribe('AAA', lambda table, key, data: self.aaa_handler(key, data))
         self.config_db.subscribe('TACPLUS_SERVER', lambda table, key, data: self.tacacs_server_handler(key, data))
         self.config_db.subscribe('TACPLUS', lambda table, key, data: self.tacacs_global_handler(key, data))
         self.config_db.subscribe('LOOPBACK_INTERFACE', lambda table, key, data: self.lpbk_handler(key, data))
-        self.config_db.subscribe('FEATURE', lambda table, key, data: self.feature_status_handler(key, data))
+        self.config_db.subscribe('FEATURE', lambda table, key, data: self.feature_state_handler(key, data))
         self.config_db.listen()
 
 

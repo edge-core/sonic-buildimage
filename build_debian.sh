@@ -212,7 +212,7 @@ fi
 
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y remove software-properties-common gnupg2
 
-if [ "$INSTALL_KUBERNETES" == "y" ]
+if [ "$INCLUDE_KUBERNETES" == "y" ]
 then
     ## Install Kubernetes
     echo '[INFO] Install kubernetes'

@@ -17,18 +17,27 @@
 {% endfor %}
         }
     },
+{%- set features = [("bgp", "enabled", "enabled"),
+                   ("database", "enabled", "disabled"),
+                   ("dhcp_relay", "enabled", "enabled"),
+                   ("lldp", "enabled", "enabled"),
+                   ("pmon", "enabled", "enabled"),
+                   ("radv", "enabled", "enabled"),
+                   ("snmp", "enabled", "enabled"),
+                   ("swss", "enabled", "enabled"),
+                   ("syncd", "enabled", "enabled"),
+                   ("teamd", "enabled", "enabled")] %}
+{%- if include_iccpd == "y" %}{% do features.append(("iccpd", "disabled", "enabled")) %}{% endif %}
+{%- if include_mgmt_framework == "y" %}{% do features.append(("mgmt-framework", "enabled", "enabled")) %}{% endif %}
+{%- if include_nat == "y" %}{% do features.append(("nat", "disabled", "enabled")) %}{% endif %}
+{%- if include_restapi == "y" %}{% do features.append(("restapi", "disabled", "enabled")) %}{% endif %}
+{%- if include_sflow == "y" %}{% do features.append(("sflow", "disabled", "enabled")) %}{% endif %}
+{%- if include_system_telemetry == "y" %}{% do features.append(("telemetry", "enabled", "enabled")) %}{% endif %}
     "FEATURE": {
-{%- for feature, status in [("sflow", "disabled"), ("telemetry", "enabled")] %}
+{%- for feature, state, autorestart in features %}
         "{{feature}}": {
-            "status": "{{status}}"
-        }{% if not loop.last %},{% endif -%}
-{% endfor %}
-    },
-    "CONTAINER_FEATURE": {
-{%- for container in ["bgp", "database", "dhcp_relay", "lldp", "nat", "pmon", "radv", "restapi", "sflow",
-                      "snmp", "swss", "syncd", "teamd", "telemetry"] %}
-        "{{container}}": {
-            "auto_restart": "{% if container == "database" %}disabled{% else %}enabled{% endif %}",
+            "state": "{{state}}",
+            "auto_restart": "{{autorestart}}",
             "high_mem_alert": "disabled"
         }{% if not loop.last %},{% endif -%}
 {% endfor %}

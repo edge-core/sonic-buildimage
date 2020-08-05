@@ -9,7 +9,7 @@ include $(PLATFORM_PATH)/one-image.mk
 include $(PLATFORM_PATH)/linux-kernel-armhf.mk
 include $(PLATFORM_PATH)/platform-et6448m.mk
 
-ENABLE_SYSTEM_TELEMETRY = ""
+INCLUDE_SYSTEM_TELEMETRY = ""
 ENABLE_SYNCD_RPC = ""
 
 SONIC_ALL += $(SONIC_ONE_IMAGE) \

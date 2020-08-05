@@ -11,21 +11,20 @@ import swsssdk
 from supervisor import childutils
 
 # Each line of this file should specify either one critical process or one
-# critical process group, (as defined in supervisord.conf file), in the 
+# critical process group, (as defined in supervisord.conf file), in the
 # following format:
 #
 # program:<process_name>
 # group:<group_name>
 CRITICAL_PROCESSES_FILE = '/etc/supervisor/critical_processes'
 
-# This table in databse contains the features for container and each
-# feature for a row will be configured a state or number.
-CONTAINER_FEATURE_TABLE_NAME = 'CONTAINER_FEATURE'
+# The FEATURE table in config db contains auto-restart field
+FEATURE_TABLE_NAME = 'FEATURE'
 
 # Read the critical processes/group names from CRITICAL_PROCESSES_FILE
 def get_critical_group_and_process_list():
     critical_group_list = []
-    critical_process_list = [] 
+    critical_process_list = []
 
     with open(CRITICAL_PROCESSES_FILE, 'r') as file:
 	for line in file:
@@ -43,7 +42,7 @@ def get_critical_group_and_process_list():
             else:
               syslog.syslog(syslog.LOG_ERR, "Syntax of the line {} in critical_processes file is incorrect. Exiting...".format(line))
               sys.exit(6)
-     
+
     return critical_group_list, critical_process_list
 
 def main(argv):
@@ -82,23 +81,23 @@ def main(argv):
             if container_name != 'database':
                 config_db = swsssdk.ConfigDBConnector()
                 config_db.connect()
-                container_features_table = config_db.get_table(CONTAINER_FEATURE_TABLE_NAME)
-                if not container_features_table:
-                    syslog.syslog(syslog.LOG_ERR, "Unable to retrieve container features table from Config DB. Exiting...")
+                features_table = config_db.get_table(FEATURE_TABLE_NAME)
+                if not features_table:
+                    syslog.syslog(syslog.LOG_ERR, "Unable to retrieve features table from Config DB. Exiting...")
                     sys.exit(2)
 
-                if not container_features_table.has_key(container_name):
-                    syslog.syslog(syslog.LOG_ERR, "Unable to retrieve features for container '{}'. Exiting...".format(container_name))
+                if not features_table.has_key(container_name):
+                    syslog.syslog(syslog.LOG_ERR, "Unable to retrieve feature '{}'. Exiting...".format(container_name))
                     sys.exit(3)
 
-                restart_feature = container_features_table[container_name].get('auto_restart')
+                restart_feature = features_table[container_name].get('auto_restart')
                 if not restart_feature:
-                    syslog.syslog(syslog.LOG_ERR, "Unable to determine auto-restart feature status for container '{}'. Exiting...".format(container_name))
+                    syslog.syslog(syslog.LOG_ERR, "Unable to determine auto-restart feature status for '{}'. Exiting...".format(container_name))
                     sys.exit(4)
 
-            # If container is database or auto-restart feature is enabled and at the same time 
+            # If container is database or auto-restart feature is enabled and at the same time
             # a critical process exited unexpectedly, terminate supervisor
-            if ((container_name == 'database' or restart_feature == 'enabled') and expected == 0 and 
+            if ((container_name == 'database' or restart_feature == 'enabled') and expected == 0 and
                     (processname in critical_process_list or groupname in critical_group_list)):
                 MSG_FORMAT_STR = "Process {} exited unxepectedly. Terminating supervisor..."
                 msg = MSG_FORMAT_STR.format(payload_headers['processname'])
