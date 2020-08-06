@@ -30,7 +30,7 @@ except ImportError as e:
 
 # definitions of the offset and width for values in XCVR info eeprom
 XCVR_INTFACE_BULK_OFFSET = 0
-XCVR_INTFACE_BULK_WIDTH_QSFP = 20
+XCVR_INTFACE_BULK_WIDTH_QSFP = 65
 XCVR_INTFACE_BULK_WIDTH_SFP = 21
 XCVR_TYPE_OFFSET = 0
 XCVR_TYPE_WIDTH = 1
@@ -827,6 +827,8 @@ class SFP(SfpBase):
                 for key in qsfp_compliance_code_tup:
                     if key in sfp_interface_bulk_data['data']['Specification compliance']['value']:
                         compliance_code_dict[key] = sfp_interface_bulk_data['data']['Specification compliance']['value'][key]['value']
+                if sfp_interface_bulk_data['data']['Extended Specification compliance']['value'] != "Unspecified":
+                    compliance_code_dict['Extended Specification compliance'] = sfp_interface_bulk_data['data']['Extended Specification compliance']['value']
                 transceiver_info_dict['specification_compliance'] = str(compliance_code_dict)
                 
                 transceiver_info_dict['nominal_bit_rate'] = str(sfp_interface_bulk_data['data']['Nominal Bit Rate(100Mbs)']['value'])
