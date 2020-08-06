@@ -484,10 +484,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS ta
 {% if include_kubernetes == "y" %}
 ## Pull in kubernetes docker images
 echo "pulling universal k8s images ..."
-FLANNEL_ARCH=$([ "${CONFIGURED_ARCH}" == "armhf" ] && echo "arm64" || echo "${CONFIGURED_ARCH}")
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT docker pull k8s.gcr.io/pause:${K8s_GCR_IO_PAUSE_VERSION}
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT docker pull k8s.gcr.io/kube-proxy:v${KUBERNETES_VERSION}
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT docker pull quay.io/coreos/flannel:${K8s_CNI_FLANNEL_VERSION}-${FLANNEL_ARCH}
 echo "docker images pull complete"
 {% endif %}
 
