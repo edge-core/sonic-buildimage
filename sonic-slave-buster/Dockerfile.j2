@@ -308,7 +308,9 @@ RUN apt-get update && apt-get install -y \
 # For libyang
         swig \
 # For SWI Tools
-        python-m2crypto
+        python-m2crypto \
+# For build dtb
+	device-tree-compiler
 
 ## Config dpkg
 ## install the configuration file if it’s currently missing

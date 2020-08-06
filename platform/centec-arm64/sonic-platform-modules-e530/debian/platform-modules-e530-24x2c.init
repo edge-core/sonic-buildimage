@@ -1,0 +1,61 @@
+#!/bin/bash
+# This script load/unload centec kernel modules
+
+### BEGIN INIT INFO
+# Provides:          platform-modules-e530-24x2c
+# Required-Start:
+# Required-Stop:
+# Should-Start:
+# Should-Stop:
+# Default-Start:     S
+# Default-Stop:      0 6
+# Short-Description: Load Centec kernel modules
+### END INIT INFO
+
+
+function load_kernel_modules()
+{
+    depmod -a
+    modprobe centec_e530_24x2c_platform
+    modprobe dal
+    modprobe tun
+    modprobe tap
+}
+
+function remove_kernel_modules()
+{
+    modprobe -r tap
+    modprobe -r tun
+    modprobe -r dal
+    modprobe -r centec_e530_24x2c_platform
+}
+
+case "$1" in
+start)
+    echo -n "Load Centec kernel modules... "
+
+    load_kernel_modules
+
+    echo "done."
+    ;;
+
+stop)
+    echo -n "Unload Centec kernel modules... "
+
+    remove_kernel_modules
+
+    echo "done."
+    ;;
+
+force-reload|restart)
+    echo "Not supported"
+    ;;
+
+*)
+    echo "Usage: /etc/init.d/platform-modules-e530-24x2c {start|stop}"
+    exit 1
+    ;;
+esac
+
+exit 0
+

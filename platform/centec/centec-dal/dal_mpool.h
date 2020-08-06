@@ -44,7 +44,10 @@ typedef struct dal_mpool_mem_s dal_mpool_mem_t;
 
 */
 extern int
-dal_mpool_init(void);
+dal_mpool_init(unsigned char lchip);
+
+extern int
+dal_mpool_deinit(unsigned char lchip);
 
 extern dal_mpool_mem_t*
 dal_mpool_create(unsigned char lchip, void* base_ptr, int size);
@@ -68,5 +71,4 @@ dal_mpool_debug(dal_mpool_mem_t* pool);
 #endif
 
 #endif /* !_DMA_MPOOL_H */
-
 

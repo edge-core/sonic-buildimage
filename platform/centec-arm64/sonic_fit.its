@@ -1,0 +1,62 @@
+/*
+ *Copyright 2018 CENTEC
+ *
+ */
+
+/dts-v1/;
+
+/ {
+	description = "arm64 kernel, initramfs and FDT blob";	
+	#address-cells = <1>;
+    
+	images {
+		kernel_ctc {
+			description = "ARM64 Kernel";			
+			data = /incbin/("./vmlinuz-4.19.0-9-2-arm64");
+			type = "kernel";			
+			arch = "arm64";			
+			os = "linux";			
+			compression = "none";			
+			load = <0x80080000>;			
+			entry = <0x80080000>;			
+			hash {				
+				algo = "crc32";			
+			};
+		};
+		initramfs {
+			description = "initramfs";
+			data = /incbin/("./initrd.img-4.19.0-9-2-arm64");
+			type = "ramdisk";
+			arch = "arm64";
+			os = "linux";
+			compression = "gzip";
+			load = <0x85000000>;
+			entry = <0x85000000>;
+			hash {				
+				algo = "crc32";			
+			};
+		};
+		ctc_fdt {
+			description = "dtb for tm_ctc5236";			
+			data = /incbin/("./e530-ctc5236.dtb");			
+			type = "flat_dt";
+			arch = "arm64";			
+			os = "linux";			
+			compression = "none";			
+			load = <0x88000000>;			
+			hash {				
+				algo = "crc32";			
+			};
+		};
+	};
+	configurations {
+		default = "e530-ctc5236";
+					
+		e530-ctc5236 {			
+			description = "config for tm_ctc5236";			
+			kernel = "kernel_ctc";			
+			ramdisk = "initramfs";			
+			fdt = "ctc_fdt";		
+			};
+	};
+};

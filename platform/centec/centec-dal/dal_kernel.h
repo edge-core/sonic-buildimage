@@ -28,6 +28,9 @@ typedef  unsigned int uintptr;
 #endif
 #endif
 
+#ifndef STATIC
+#define STATIC static
+#endif
 #define DAL_PCI_READ_ADDR  0x0
 #define DAL_PCI_READ_DATA  0xc
 #define DAL_PCI_WRITE_ADDR 0x8
@@ -84,19 +87,10 @@ struct dal_user_dev_s
     unsigned int bus_no;
     unsigned int dev_no;
     unsigned int fun_no;
-    void* virt_base[2];        /* Virtual base address; this must be last member */
+    unsigned int soc_active;
+    void* virt_base[2];        /* !!!!warning!!!!Virtual base address; pointer void* must be last member */
 };
 typedef  struct dal_user_dev_s dal_user_dev_t;
-
-struct dma_info_s
-{
-    unsigned int lchip;
-    unsigned int phy_base;
-    unsigned int phy_base_hi;
-    unsigned int size;
-    unsigned int* virt_base;
-};
-typedef struct dma_info_s dma_info_t;
 
 struct dal_pci_cfg_ioctl_s
 {
@@ -147,6 +141,12 @@ typedef struct dal_dma_cache_info_s dal_dma_cache_info_t;
 #define CMD_GET_INTR_INFO           _IO(CMD_MAGIC, 15)
 #define CMD_CACHE_INVAL             _IO(CMD_MAGIC, 16)
 #define CMD_CACHE_FLUSH             _IO(CMD_MAGIC, 17)
+#define CMD_GET_KNET_VERSION      _IO(CMD_MAGIC, 18)
+#define CMD_CONNECT_INTERRUPTS        _IO(CMD_MAGIC, 19)
+#define CMD_DISCONNECT_INTERRUPTS   _IO(CMD_MAGIC, 20)
+#define CMD_SET_DMA_INFO             _IO(CMD_MAGIC, 21)
+#define CMD_REG_DMA_CHAN             _IO(CMD_MAGIC, 22)
+#define CMD_HANDLE_NETIF             _IO(CMD_MAGIC, 23)
 
 enum dal_version_e
 {
@@ -159,13 +159,22 @@ enum dal_version_e
 };
 typedef enum dal_version_e dal_version_t;
 
+struct dal_ops_s {
+    int     (*interrupt_connect)(unsigned int irq, int prio, void (*)(void*), void *data);
+    int     (*interrupt_disconnect)(unsigned int irq);
+};
+typedef struct dal_ops_s dal_ops_t;
+
 /* We try to assemble a contiguous segment from chunks of this size */
 #define DMA_BLOCK_SIZE (512 * DAL_ONE_KB)
+
+extern int dal_get_dal_ops(dal_ops_t **dal_ops);
+extern int dal_cache_inval(unsigned long ptr, unsigned int length);
+extern int dal_cache_flush(unsigned long ptr, unsigned int length);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
-
 
