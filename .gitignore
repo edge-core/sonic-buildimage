@@ -147,6 +147,7 @@ src/sonic-daemon-base/build
 src/sonic-daemon-base/sonic_daemon_base.egg-info
 
 src/sonic-py-common/**/*.pyc
+src/sonic-py-common/.eggs/
 src/sonic-py-common/build
 src/sonic-py-common/dist
 src/sonic-py-common/sonic_py_common.egg-info
