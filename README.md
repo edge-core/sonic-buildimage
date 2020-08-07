@@ -4,9 +4,11 @@
 
 *master builds*:
 
-[![Innovium](https://sonic-jenkins.westus2.cloudapp.azure.com/job/innovium/job/buildimage-invm-all/badge/icon?subject=Innovium)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/innovium/job/buildimage-invm-all)
+
 [![Barefoot](https://sonic-jenkins.westus2.cloudapp.azure.com/job/barefoot/job/buildimage-bf-all/badge/icon?subject=Barefoot)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/barefoot/job/buildimage-bf-all)
 [![Broadcom](https://sonic-jenkins.westus2.cloudapp.azure.com/job/broadcom/job/buildimage-brcm-all/badge/icon?subject=Broadcom)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/broadcom/job/buildimage-brcm-all)
+[![Centec](https://sonic-jenkins.westus2.cloudapp.azure.com/job/centec/job/buildimage-centec-all/badge/icon?subject=Centec)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/centec/job/buildimage-centec-all)
+[![Innovium](https://sonic-jenkins.westus2.cloudapp.azure.com/job/innovium/job/buildimage-invm-all/badge/icon?subject=Innovium)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/innovium/job/buildimage-invm-all)
 [![Mellanox](https://sonic-jenkins.westus2.cloudapp.azure.com/job/mellanox/job/buildimage-mlnx-all/badge/icon?subject=Mellanox)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/mellanox/job/buildimage-mlnx-all)
 [![Nephos](https://sonic-jenkins.westus2.cloudapp.azure.com/job/nephos/job/buildimage-nephos-all/badge/icon?subject=Nephos)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/nephos/job/buildimage-nephos-all)
 [![P4](https://sonic-jenkins.westus2.cloudapp.azure.com/job/p4/job/buildimage-p4-all/badge/icon?subject=P4)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/p4/job/buildimage-p4-all)
@@ -14,18 +16,19 @@
 
 *201911 builds*:
 
-[![Innovium](https://sonic-jenkins.westus2.cloudapp.azure.com/job/innovium/job/buildimage-invm-201911/badge/icon?subject=Innovium)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/innovium/job/buildimage-invm-201911/)
 [![Barefoot](https://sonic-jenkins.westus2.cloudapp.azure.com/job/barefoot/job/buildimage-bf-201911/badge/icon?subject=Barefoot)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/barefoot/job/buildimage-bf-201911/)
 [![Broadcom](https://sonic-jenkins.westus2.cloudapp.azure.com/job/broadcom/job/buildimage-brcm-201911/badge/icon?subject=Broadcom)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/broadcom/job/buildimage-brcm-201911/)
+[![Innovium](https://sonic-jenkins.westus2.cloudapp.azure.com/job/innovium/job/buildimage-invm-201911/badge/icon?subject=Innovium)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/innovium/job/buildimage-invm-201911/)
 [![Mellanox](https://sonic-jenkins.westus2.cloudapp.azure.com/job/mellanox/job/buildimage-mlnx-201911/badge/icon?subject=Mellanox)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/mellanox/job/buildimage-mlnx-201911/)
 [![Nephos](https://sonic-jenkins.westus2.cloudapp.azure.com/job/nephos/job/buildimage-nephos-201911/badge/icon?subject=Nephos)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/nephos/job/buildimage-nephos-201911)
 [![VS](https://sonic-jenkins.westus2.cloudapp.azure.com/job/vs/job/buildimage-vs-201911/badge/icon?subject=VS)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/vs/job/buildimage-vs-201911)
 
 *201811 builds*:
 
-[![Innovium](https://sonic-jenkins.westus2.cloudapp.azure.com/job/innovium/job/buildimage-invm-201811/badge/icon?subject=Innovium)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/innovium/job/buildimage-invm-201811/)
+
 [![Broadcom](https://sonic-jenkins.westus2.cloudapp.azure.com/job/broadcom/job/buildimage-brcm-201811/badge/icon?subject=Broadcom)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/broadcom/job/buildimage-brcm-201811/)
 [![Mellanox](https://sonic-jenkins.westus2.cloudapp.azure.com/job/mellanox/job/buildimage-mlnx-201811/badge/icon?subject=Mellanox)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/mellanox/job/buildimage-mlnx-201811/)
+[![Innovium](https://sonic-jenkins.westus2.cloudapp.azure.com/job/innovium/job/buildimage-invm-201811/badge/icon?subject=Innovium)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/innovium/job/buildimage-invm-201811/)
 [![Nephos](https://sonic-jenkins.westus2.cloudapp.azure.com/job/nephos/job/buildimage-nephos-201811/badge/icon?subject=Nephos)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/nephos/job/buildimage-nephos-201811)
 [![VS](https://sonic-jenkins.westus2.cloudapp.azure.com/job/vs/job/buildimage-vs-201811/badge/icon?subject=VS)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/vs/job/buildimage-vs-201811)
 
