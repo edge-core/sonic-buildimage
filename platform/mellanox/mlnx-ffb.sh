@@ -23,8 +23,8 @@ check_sdk_upgrade()
 {
     CHECK_RESULT="${FFB_FAILURE}"
 
-    NEXT_SONIC_IMAGE="$(sonic_installer list | grep "Next: " | cut -f2 -d' ')"
-    CURRENT_SONIC_IMAGE="$(sonic_installer list | grep "Current: " | cut -f2 -d' ')"
+    NEXT_SONIC_IMAGE="$(sonic-installer list | grep "Next: " | cut -f2 -d' ')"
+    CURRENT_SONIC_IMAGE="$(sonic-installer list | grep "Current: " | cut -f2 -d' ')"
 
     FS_PATH="/host/image-${NEXT_SONIC_IMAGE#SONiC-OS-}/fs.squashfs"
     FS_MOUNTPOINT="/tmp/image-${NEXT_SONIC_IMAGE#SONiC-OS-}-fs"
