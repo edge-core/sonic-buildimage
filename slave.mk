@@ -663,7 +663,6 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
 	export include_nat="$(INCLUDE_NAT)"
 	export include_sflow="$(INCLUDE_SFLOW)"
 	export include_mgmt_framework="$(INCLUDE_MGMT_FRAMEWORK)"
-	export include_iccpd="$(INCLUDE_ICCPD)"
 	export shutdown_bgp_on_start="$(SHUTDOWN_BGP_ON_START)"
 	export include_kubernetes="$(INCLUDE_KUBERNETES)"
 	export enable_pfcwd_on_start="$(ENABLE_PFCWD_ON_START)"
