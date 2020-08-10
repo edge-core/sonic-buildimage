@@ -37,6 +37,15 @@ function check_warm_boot()
     fi
 }
 
+function check_fast_boot()
+{
+    if [[ $($SONIC_DB_CLI STATE_DB GET "FAST_REBOOT|system") == "1" ]]; then
+        FAST_BOOT="true"
+    else
+        FAST_BOOT="false"
+    fi
+}
+
 function validate_restore_count()
 {
     if [[ x"$WARM_BOOT" == x"true" ]]; then
@@ -99,8 +108,8 @@ start_peer_and_dependent_services() {
 }
 
 stop_peer_and_dependent_services() {
-    # if warm start enabled or peer lock exists, don't stop peer service docker
-    if [[ x"$WARM_BOOT" != x"true" ]]; then
+    # if warm/fast start enabled or peer lock exists, don't stop peer service docker
+    if [[ x"$WARM_BOOT" != x"true" ]] && [[ x"$FAST_BOOT" != x"true" ]]; then
         if [[ ! -z $DEV ]]; then
             /bin/systemctl stop ${PEER}@$DEV
         else
@@ -185,17 +194,26 @@ stop() {
     lock_service_state_change
     check_warm_boot
     debug "Warm boot flag: ${SERVICE}$DEV ${WARM_BOOT}."
+    check_fast_boot
+    debug "Fast boot flag: ${SERVICE}$DEV ${FAST_BOOT}."
 
-    /usr/bin/${SERVICE}.sh stop $DEV
-    debug "Stopped ${SERVICE}$DEV service..."
+    # For WARM/FAST boot do not perform service stop
+    if [[ x"$WARM_BOOT" != x"true" ]] && [[ x"$FAST_BOOT" != x"true" ]]; then
+        /usr/bin/${SERVICE}.sh stop $DEV
+        debug "Stopped ${SERVICE}$DEV service..."
+    else
+        debug "Killing Docker swss..."
+        /usr/bin/docker kill swss &> /dev/null || debug "Docker swss is not running ($?) ..."
+    fi
 
     # Flush FAST_REBOOT table when swss needs to stop. The only
     # time when this would take effect is when fast-reboot
     # encountered error, e.g. syncd crashed. And swss needs to
     # be restarted.
-    debug "Clearing FAST_REBOOT flag..."
-    clean_up_tables STATE_DB "'FAST_REBOOT*'"
-
+    if [[ x"$FAST_BOOT" != x"true" ]]; then
+        debug "Clearing FAST_REBOOT flag..."
+        clean_up_tables STATE_DB "'FAST_REBOOT*'"
+    fi
     # Unlock has to happen before reaching out to peer service
     unlock_service_state_change
 
