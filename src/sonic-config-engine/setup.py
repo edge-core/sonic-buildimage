@@ -16,7 +16,7 @@ setup(name='sonic-config-engine',
       author='Taoyu Li',
       author_email='taoyl@microsoft.com',
       url='https://github.com/Azure/sonic-buildimage',
-      py_modules=['portconfig', 'minigraph', 'openconfig_acl', 'sonic_device_util', 'config_samples', 'redis_bcc', 'lazy_re'],
+      py_modules=['portconfig', 'minigraph', 'openconfig_acl', 'config_samples', 'redis_bcc', 'lazy_re'],
       scripts=['sonic-cfggen'],
       install_requires=[
           'ipaddr',
