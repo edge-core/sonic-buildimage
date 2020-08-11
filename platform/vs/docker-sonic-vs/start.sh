@@ -87,9 +87,9 @@ fi
 
 supervisorctl start syncd
 
-supervisorctl start orchagent
-
 supervisorctl start portsyncd
+
+supervisorctl start orchagent
 
 supervisorctl start neighsyncd
 
