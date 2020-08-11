@@ -498,7 +498,6 @@ static int get_num_of_asic() {
     Determines if the current platform is single or multi-ASIC
     ***/
     FILE *fp;
-    FILE *env_fp;
     char *line = NULL;
     char* token;
     char* platform;
@@ -546,15 +545,6 @@ static int get_num_of_asic() {
             free(line);
         }
     }
-
-    /*set environment variable NUM_ASIC */
-    env_fp = fopen("/etc/environment", "a");
-    if (env_fp == NULL) {
-        fprintf(stderr, "Failed to open environment file\n");
-        exit(EXIT_FAILURE);
-    }
-    fprintf(env_fp, "NUM_ASIC=%d\n", num_asic);
-    fclose(env_fp);
     return num_asic;
 
 }
