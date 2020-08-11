@@ -401,6 +401,13 @@
         <StartDevice>switch-t0</StartDevice>
         <StartPort>fortyGigE0/4</StartPort>
       </DeviceLinkBase>
+      <DeviceLinkBase>
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <EndDevice>Servers100</EndDevice>
+        <EndPort>eth0</EndPort>
+        <StartDevice>switch-t0</StartDevice>
+        <StartPort>fortyGigE0/100</StartPort>
+      </DeviceLinkBase>
     </DeviceInterfaceLinks>
     <Devices>
       <Device i:type="ToRRouter">

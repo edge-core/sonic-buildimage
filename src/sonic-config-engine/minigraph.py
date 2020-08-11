@@ -1033,6 +1033,11 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
         if port:
             port['admin_status'] = 'up'
 
+    for port in neighbors.keys():
+        if port in ports.keys():
+            # make all neighbors connected ports to 'admin_up'
+            ports[port]['admin_status'] = 'up'
+
     results['PORT'] = ports
     results['CONSOLE_PORT'] = console_ports
 
