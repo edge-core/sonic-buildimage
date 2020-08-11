@@ -15,6 +15,9 @@ $(eval $(call add_derived_package,$(LIBSWSSCOMMON),$(LIBSWSSCOMMON_DEV)))
 PYTHON_SWSSCOMMON = python-swsscommon_1.0.0_$(CONFIGURED_ARCH).deb
 $(eval $(call add_derived_package,$(LIBSWSSCOMMON),$(PYTHON_SWSSCOMMON)))
 
+PYTHON3_SWSSCOMMON = python3-swsscommon_1.0.0_$(CONFIGURED_ARCH).deb
+$(eval $(call add_derived_package,$(LIBSWSSCOMMON),$(PYTHON3_SWSSCOMMON)))
+
 LIBSWSSCOMMON_DBG = libswsscommon-dbg_1.0.0_$(CONFIGURED_ARCH).deb
 $(LIBSWSSCOMMON_DBG)_DEPENDS += $(LIBSWSSCOMMON)
 $(LIBSWSSCOMMON_DBG)_RDEPENDS += $(LIBSWSSCOMMON)
