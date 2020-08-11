@@ -200,6 +200,15 @@
         <StartDevice>switch-01t1</StartDevice>
         <StartPort>port1</StartPort>
       </DeviceLinkBase>
+      <DeviceLinkBase i:type="DeviceInterfaceLink">
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <AutoNegotiation>true</AutoNegotiation>
+        <Bandwidth>10000</Bandwidth>
+        <EndDevice>switch-t0</EndDevice>
+        <EndPort>fortyGigE0/12</EndPort>
+        <StartDevice>switch-02t1</StartDevice>
+        <StartPort>port1</StartPort>
+      </DeviceLinkBase>
     </DeviceInterfaceLinks>
     <Devices>
       <Device i:type="ToRRouter">
