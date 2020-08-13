@@ -21,7 +21,7 @@ try:
     from sonic_platform_base.sonic_sfp.inf8628 import inf8628InterfaceId
     from sonic_platform_base.sonic_sfp.qsfp_dd import qsfp_dd_InterfaceId
     from sonic_platform_base.sonic_sfp.qsfp_dd import qsfp_dd_Dom
-    from sonic_daemon_base.daemon_base import Logger
+    from sonic_py_common.logger import Logger
     from python_sdk_api.sxd_api import *
     from python_sdk_api.sx_api import *
 

@@ -11,7 +11,6 @@
 import os
 import time
 import subprocess
-import sonic_device_util
 from ctypes import create_string_buffer
 
 try:

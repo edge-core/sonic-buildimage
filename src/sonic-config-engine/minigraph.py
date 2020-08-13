@@ -14,7 +14,7 @@ from lxml import etree as ET
 from lxml.etree import QName
 
 from portconfig import get_port_config
-from sonic_device_util import get_npu_id_from_name
+from sonic_py_common.device_info import get_npu_id_from_name
 
 """minigraph.py
 version_added: "1.9"

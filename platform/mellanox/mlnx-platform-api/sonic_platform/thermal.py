@@ -10,7 +10,7 @@
 
 try:
     from sonic_platform_base.thermal_base import ThermalBase
-    from sonic_daemon_base.daemon_base import Logger
+    from sonic_py_common.logger import Logger
     from os import listdir
     from os.path import isfile, join
     import io

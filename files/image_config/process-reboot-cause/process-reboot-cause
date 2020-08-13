@@ -13,7 +13,7 @@ try:
     import syslog
     import re
 
-    import sonic_device_util
+    from sonic_py_common import device_info
 except ImportError as err:
     raise ImportError("%s - required module not found" % str(err))
 
@@ -85,7 +85,7 @@ def find_software_reboot_cause():
 
     if os.path.isfile(FIRST_BOOT_PLATFORM_FILE):
         if software_reboot_cause == REBOOT_CAUSE_UNKNOWN:
-            version_info = sonic_device_util.get_sonic_version_info()
+            version_info = device_info.get_sonic_version_info()
             build_version = version_info['build_version'] if version_info else "unknown"
             software_reboot_cause += " (First boot of SONiC version {})".format(build_version)
         os.remove(FIRST_BOOT_PLATFORM_FILE)
