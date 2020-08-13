@@ -176,7 +176,6 @@ static struct attribute *as7816_64x_fan_attributes[] = {
 
 #define FAN_DUTY_CYCLE_REG_MASK         0xF
 #define FAN_MAX_DUTY_CYCLE              100
-#define FAN_REG_VAL_TO_SPEED_RPM_STEP   100
 
 static int as7816_64x_fan_read_value(struct i2c_client *client, u8 reg)
 {
@@ -220,7 +219,14 @@ static u8 duty_cycle_to_reg_val(u8 duty_cycle)
 
 static u32 reg_val_to_speed_rpm(u8 reg_val)
 {
-    return (u32)reg_val * FAN_REG_VAL_TO_SPEED_RPM_STEP;
+    if (reg_val == 0 || reg_val == 255) {
+        return 0;
+    } else {
+        u64 f, dv;
+        dv = 2 * 2 * 40960 * (u64)(255 - reg_val);
+        f = 60000000000 / dv;
+        return (u32)f;
+    }
 }
 
 static u8 reg_val_to_direction(u8 reg_val, enum fan_id id)
