@@ -30,7 +30,7 @@
 {%- if include_iccpd == "y" %}{% do features.append(("iccpd", "disabled", "enabled")) %}{% endif %}
 {%- if include_mgmt_framework == "y" %}{% do features.append(("mgmt-framework", "enabled", "enabled")) %}{% endif %}
 {%- if include_nat == "y" %}{% do features.append(("nat", "disabled", "enabled")) %}{% endif %}
-{%- if include_restapi == "y" %}{% do features.append(("restapi", "disabled", "enabled")) %}{% endif %}
+{%- if include_restapi == "y" %}{% do features.append(("restapi", "enabled", "enabled")) %}{% endif %}
 {%- if include_sflow == "y" %}{% do features.append(("sflow", "disabled", "enabled")) %}{% endif %}
 {%- if include_system_telemetry == "y" %}{% do features.append(("telemetry", "enabled", "enabled")) %}{% endif %}
     "FEATURE": {
