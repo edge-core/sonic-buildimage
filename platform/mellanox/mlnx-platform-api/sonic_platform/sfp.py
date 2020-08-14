@@ -30,7 +30,7 @@ except ImportError as e:
 
 # definitions of the offset and width for values in XCVR info eeprom
 XCVR_INTFACE_BULK_OFFSET = 0
-XCVR_INTFACE_BULK_WIDTH_QSFP = 65
+XCVR_INTFACE_BULK_WIDTH_QSFP = 20
 XCVR_INTFACE_BULK_WIDTH_SFP = 21
 XCVR_TYPE_OFFSET = 0
 XCVR_TYPE_WIDTH = 1
@@ -59,6 +59,8 @@ XCVR_HW_REV_OFFSET = 56
 XCVR_HW_REV_WIDTH_OSFP = 2
 XCVR_HW_REV_WIDTH_QSFP = 2
 XCVR_HW_REV_WIDTH_SFP = 4
+XCVR_EXT_SPECIFICATION_COMPLIANCE_OFFSET = 64
+XCVR_EXT_SPECIFICATION_COMPLIANCE_WIDTH = 1
 XCVR_VENDOR_SN_OFFSET = 68
 XCVR_VENDOR_SN_WIDTH = 16
 XCVR_VENDOR_DATE_OFFSET = 84
@@ -826,9 +828,12 @@ class SFP(SfpBase):
 
                 for key in qsfp_compliance_code_tup:
                     if key in sfp_interface_bulk_data['data']['Specification compliance']['value']:
-                        compliance_code_dict[key] = sfp_interface_bulk_data['data']['Specification compliance']['value'][key]['value']
-                if sfp_interface_bulk_data['data']['Extended Specification compliance']['value'] != "Unspecified":
-                    compliance_code_dict['Extended Specification compliance'] = sfp_interface_bulk_data['data']['Extended Specification compliance']['value']
+                        compliance_code_dict[key] = sfp_interface_bulk_data['data']['Specification compliance']['value'][key]['value']                
+                sfp_ext_specification_compliance_raw = self._read_eeprom_specific_bytes(offset + XCVR_EXT_SPECIFICATION_COMPLIANCE_OFFSET, XCVR_EXT_SPECIFICATION_COMPLIANCE_WIDTH)
+                if sfp_ext_specification_compliance_raw is not None:
+                    sfp_ext_specification_compliance_data = sfpi_obj.parse_ext_specification_compliance(sfp_ext_specification_compliance_raw[0 : 1], 0)
+                    if sfp_ext_specification_compliance_data['data']['Extended Specification compliance']['value'] != "Unspecified":
+                        compliance_code_dict['Extended Specification compliance'] = sfp_ext_specification_compliance_data['data']['Extended Specification compliance']['value']
                 transceiver_info_dict['specification_compliance'] = str(compliance_code_dict)
                 
                 transceiver_info_dict['nominal_bit_rate'] = str(sfp_interface_bulk_data['data']['Nominal Bit Rate(100Mbs)']['value'])
