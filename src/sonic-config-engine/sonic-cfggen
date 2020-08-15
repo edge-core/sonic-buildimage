@@ -42,7 +42,8 @@ from minigraph import parse_device_desc_xml
 from minigraph import parse_asic_sub_role
 from portconfig import get_port_config
 from sonic_py_common.device_info import get_platform, get_system_mac
-from sonic_py_common.device_info import get_npu_id_from_name, get_npu_device_id, is_multi_npu
+from sonic_py_common.device_info import get_npu_device_id
+from sonic_py_common.multi_asic import get_asic_id_from_name, is_multi_asic
 from config_samples import generate_sample_config
 from config_samples import get_available_config
 from swsssdk import SonicV2Connector, ConfigDBConnector, SonicDBConfig 
@@ -238,7 +239,7 @@ def main():
     asic_name = args.namespace
     asic_id = None
     if asic_name is not None:
-        asic_id = get_npu_id_from_name(asic_name)
+        asic_id = get_asic_id_from_name(asic_name)
 
 
     # Load the database config for the namespace from global database json
@@ -340,8 +341,8 @@ def main():
         env.filters['ip_network'] = ip_network
         for attr in ['ip', 'network', 'prefixlen', 'netmask']:
             env.filters[attr] = partial(prefix_attr, attr)
-        # Pass the is_multi_npu function as global
-        env.globals['multi_asic'] = is_multi_npu
+        # Pass the is_multi_asic function as global
+        env.globals['multi_asic'] = is_multi_asic
         template = env.get_template(template_file)
         print(template.render(sort_data(data)))
 
