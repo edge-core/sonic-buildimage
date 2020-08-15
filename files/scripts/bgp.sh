@@ -31,9 +31,9 @@ function validate_restore_count()
 function check_fast_boot ()
 {
     if [[ $($SONIC_DB_CLI STATE_DB GET "FAST_REBOOT|system") == "1" ]]; then
-        FAST_BOOT = "true"
+        FAST_BOOT="true"
     else
-        FAST_BOOT = "false"
+        FAST_BOOT="false"
     fi
 }
 
