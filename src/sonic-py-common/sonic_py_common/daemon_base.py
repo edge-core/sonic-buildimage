@@ -8,7 +8,11 @@ from .logger import Logger
 #
 # Constants ====================================================================
 #
+# Redis DB information
+REDIS_HOSTNAME = 'localhost'
+REDIS_PORT = 6379
 REDIS_TIMEOUT_MSECS = 0
+
 
 EEPROM_MODULE_NAME = 'eeprom'
 EEPROM_CLASS_NAME = 'board'
@@ -17,9 +21,12 @@ EEPROM_CLASS_NAME = 'board'
 # Helper functions =============================================================
 #
 
-def db_connect(db_name):
+def db_connect(db):
     from swsscommon import swsscommon
-    return swsscommon.DBConnector(db_name, REDIS_TIMEOUT_MSECS, True)
+    return swsscommon.DBConnector(db,
+                                  REDIS_HOSTNAME,
+                                  REDIS_PORT,
+                                  REDIS_TIMEOUT_MSECS)
 
 #
 # DaemonBase ===================================================================
