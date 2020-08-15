@@ -78,7 +78,7 @@ dependent_startup_wait_for=start:exited
 
 {% if not skip_xcvrd %}
 [program:xcvrd]
-command=/usr/bin/xcvrd
+command=/usr/local/bin/xcvrd
 priority=6
 autostart=false
 autorestart=false
@@ -104,7 +104,7 @@ dependent_startup_wait_for=start:exited
 
 {% if not skip_syseepromd %}
 [program:syseepromd]
-command=/usr/bin/syseepromd
+command=/usr/local/bin/syseepromd
 priority=8
 autostart=false
 autorestart=unexpected
@@ -117,7 +117,7 @@ dependent_startup_wait_for=start:exited
 
 {% if not skip_thermalctld %}
 [program:thermalctld]
-command=/usr/bin/thermalctld
+command=/usr/local/bin/thermalctld
 priority=9
 autostart=false
 autorestart=unexpected
@@ -130,7 +130,7 @@ dependent_startup_wait_for=start:exited
 
 {% if not skip_pcied %}
 [program:pcied]
-command=/usr/bin/pcied
+command=/usr/local/bin/pcied
 priority=10
 autostart=false
 autorestart=unexpected
