@@ -37,6 +37,38 @@
 		}
 	},
 
+	"ALL_VLAN_TEST": {
+		"sonic-vlan:sonic-vlan": {
+			"sonic-vlan:VLAN": {
+				"VLAN_LIST": [{
+					"vlan_name": "Vlan1-4094",
+					"description": "server_vlan",
+					"dhcp_servers": [
+						"10.186.72.56"
+					],
+					"mtu": "9100",
+					"admin_status": "up"
+				}]
+			}
+		}
+	},
+
+	"INCORRECT_VLAN_NAME": {
+		"sonic-vlan:sonic-vlan": {
+			"sonic-vlan:VLAN": {
+				"VLAN_LIST": [{
+					"vlan_name": "Vlan8090",
+					"description": "server_vlan",
+					"dhcp_servers": [
+						"10.186.72.56"
+					],
+					"mtu": "9100",
+					"admin_status": "up"
+				}]
+			}
+		}
+	},
+
 	"VLAN_WITH_NON_EXIST_PORT": {
 		"sonic-vlan:sonic-vlan": {
 			"sonic-vlan:VLAN_MEMBER": {
@@ -484,6 +516,7 @@
 				"PORT_LIST": [{
 					"port_name": "Ethernet8",
 					"alias": "eth8",
+					"lanes": "65",
 					"description": "Ethernet8",
 					"speed": 25000,
 					"mtu": 9000,
@@ -492,6 +525,7 @@
 				{
 					"port_name": "Ethernet9",
 					"alias": "eth9",
+					"lanes": "71",
 					"description": "Ethernet9",
 					"speed": 25000,
 					"mtu": 9000,
@@ -520,6 +554,7 @@
 				"PORT_LIST": [{
 					"port_name": "Ethernet8",
 					"alias": "eth8",
+					"lanes": "65",
 					"description": "Ethernet8",
 					"speed": 25000,
 					"mtu": 9000,
