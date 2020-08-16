@@ -20,6 +20,15 @@ class TestCfgGen(TestCase):
         self.sample_graph_bgp_speaker = os.path.join(self.test_dir, 't0-sample-bgp-speaker.xml')
         self.sample_device_desc = os.path.join(self.test_dir, 'device.xml')
         self.port_config = os.path.join(self.test_dir, 't0-sample-port-config.ini')
+        self.output_file = os.path.join(self.test_dir, 'output')
+        self.output2_file = os.path.join(self.test_dir, 'output2')
+
+    def tearDown(self):
+        try:
+            os.remove(self.output_file)
+            os.remove(self.output2_file)
+        except OSError:
+            pass
 
     def run_script(self, argument, check_stderr=False):
         print '\n    Running sonic-cfggen ' + argument
@@ -111,14 +120,14 @@ class TestCfgGen(TestCase):
     def test_template_batch_mode(self):
         argument = '-y ' + os.path.join(self.test_dir, 'test.yml')
         argument += ' -a \'{"key1":"value"}\''
-        argument += ' -t ' + os.path.join(self.test_dir, 'test.j2') + ',' + os.path.join(self.test_dir, 'test.txt')
-        argument += ' -t ' + os.path.join(self.test_dir, 'test2.j2') + ',' + os.path.join(self.test_dir, 'test2.txt')
+        argument += ' -t ' + os.path.join(self.test_dir, 'test.j2') + ',' + self.output_file
+        argument += ' -t ' + os.path.join(self.test_dir, 'test2.j2') + ',' + self.output2_file
         output = self.run_script(argument)
-        assert(os.path.exists(os.path.join(self.test_dir, 'test.txt')))
-        assert(os.path.exists(os.path.join(self.test_dir, 'test2.txt')))
-        with open(os.path.join(self.test_dir, 'test.txt')) as tf:
+        assert(os.path.exists(self.output_file))
+        assert(os.path.exists(self.output2_file))
+        with open(self.output_file) as tf:
             self.assertEqual(tf.read().strip(), 'value1\nvalue2')
-        with open(os.path.join(self.test_dir, 'test2.txt')) as tf:
+        with open(self.output2_file) as tf:
             self.assertEqual(tf.read().strip(), 'value')
 
     def test_template_json_batch_mode(self):
