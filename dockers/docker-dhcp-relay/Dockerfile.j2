@@ -25,7 +25,7 @@ RUN apt-get clean -y         && \
     rm -rf /debs
 
 COPY ["docker_init.sh", "start.sh", "/usr/bin/"]
-COPY ["docker-dhcp-relay.supervisord.conf.j2", "wait_for_intf.sh.j2", "/usr/share/sonic/templates/"]
+COPY ["docker-dhcp-relay.supervisord.conf.j2", "port-name-alias-map.txt.j2", "wait_for_intf.sh.j2", "/usr/share/sonic/templates/"]
 COPY ["files/supervisor-proc-exit-listener", "/usr/bin"]
 COPY ["critical_processes", "/etc/supervisor"]
 
