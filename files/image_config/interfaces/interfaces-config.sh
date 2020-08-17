@@ -18,8 +18,14 @@ else
     echo "{ \"ZTP_DHCP_DISABLED\" : \"true\" }" > /tmp/ztp_input.json
 fi
 
-# Create /e/n/i file for existing and active interfaces
-sonic-cfggen -d -j /tmp/ztp_input.json -t /usr/share/sonic/templates/interfaces.j2 > /etc/network/interfaces
+# Create /e/n/i file for existing and active interfaces, dhcp6 sytcl.conf and dhclient.conf
+CFGGEN_PARAMS=" \
+    -d -j /tmp/ztp_input.json \
+    -t /usr/share/sonic/templates/interfaces.j2,/etc/network/interfaces \
+    -t /usr/share/sonic/templates/90-dhcp6-systcl.conf.j2,/etc/sysctl.d/90-dhcp6-systcl.conf \
+    -t /usr/share/sonic/templates/dhclient.conf.j2,/etc/dhcp/dhclient.conf \
+"
+sonic-cfggen $CFGGEN_PARAMS
 
 [ -f /var/run/dhclient.eth0.pid ] && kill `cat /var/run/dhclient.eth0.pid` && rm -f /var/run/dhclient.eth0.pid
 [ -f /var/run/dhclient6.eth0.pid ] && kill `cat /var/run/dhclient6.eth0.pid` && rm -f /var/run/dhclient6.eth0.pid
@@ -28,11 +34,9 @@ for intf_pid in $(ls -1 /var/run/dhclient*.Ethernet*.pid 2> /dev/null); do
     [ -f ${intf_pid} ] && kill `cat ${intf_pid}` && rm -f ${intf_pid}
 done
 
-sonic-cfggen -d -j /tmp/ztp_input.json -t /usr/share/sonic/templates/90-dhcp6-systcl.conf.j2 > /etc/sysctl.d/90-dhcp6-systcl.conf
 # Read sysctl conf files again
 sysctl -p /etc/sysctl.d/90-dhcp6-systcl.conf
 
-sonic-cfggen -d -j /tmp/ztp_input.json -t /usr/share/sonic/templates/dhclient.conf.j2 > /etc/dhcp/dhclient.conf
 systemctl restart networking
 
 # Clean-up created files
