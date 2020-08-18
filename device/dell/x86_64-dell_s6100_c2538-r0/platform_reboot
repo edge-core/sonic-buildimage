@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import sys
 import os
+import subprocess
 import struct
 
 PORT_RES = '/dev/port'
@@ -28,5 +29,6 @@ if __name__ == "__main__":
         print "CPLD upgrade detected. Power-cycling the unit.."
         os.system('io_rd_wr.py  --set --val 05 --offset 210; io_rd_wr.py  --set --val 00 --offset 211; io_rd_wr.py  --set --val 03 --offset 213')
 
+    subprocess.check_output(['/usr/share/sonic/device/x86_64-dell_s6100_c2538-r0/fast-reboot_plugin'])
     portio_reg_write(PORT_RES, 0xcf9, 0xe)
 
