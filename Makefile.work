@@ -181,8 +181,8 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            KERNEL_PROCURE_METHOD=$(KERNEL_PROCURE_METHOD) \
                            HTTP_PROXY=$(http_proxy) \
                            HTTPS_PROXY=$(https_proxy) \
-                           SONIC_ENABLE_SYSTEM_TELEMETRY=$(INCLUDE_SYSTEM_TELEMETRY) \
-                           SONIC_ENABLE_RESTAPI=$(INCLUDE_RESTAPI) \
+                           SONIC_INCLUDE_SYSTEM_TELEMETRY=$(INCLUDE_SYSTEM_TELEMETRY) \
+                           SONIC_INCLUDE_RESTAPI=$(INCLUDE_RESTAPI) \
                            EXTRA_JESSIE_TARGETS=$(EXTRA_JESSIE_TARGETS) \
                            $(SONIC_OVERRIDE_BUILD_VARS)
 
