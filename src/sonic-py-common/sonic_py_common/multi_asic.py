@@ -265,7 +265,7 @@ def is_port_channel_internal(port_channel, namespace=None):
         port_channels = config_db.get_table(PORT_CHANNEL_CFG_DB_TABLE)
 
         if port_channel in port_channels:
-            if 'members' in port_channel:
+            if 'members' in port_channels[port_channel]:
                 members = port_channels[port_channel]['members']
                 if is_port_internal(members[0], namespace):
                     return True
