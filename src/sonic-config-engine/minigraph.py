@@ -15,6 +15,7 @@ from lxml.etree import QName
 
 from portconfig import get_port_config
 from sonic_py_common.multi_asic import get_asic_id_from_name
+from sonic_py_common.interface import backplane_prefix
 
 """minigraph.py
 version_added: "1.9"
@@ -37,7 +38,6 @@ VLAN_SUB_INTERFACE_VLAN_ID = '10'
 
 FRONTEND_ASIC_SUB_ROLE = 'FrontEnd'
 BACKEND_ASIC_SUB_ROLE = 'BackEnd'
-BACKEND_ASIC_INTERFACE_NAME_PREFIX = 'Ethernet-BP'
 
 # Default Virtual Network Index (VNI)
 vni_default = 8000
@@ -722,7 +722,7 @@ def filter_acl_table_bindings(acls, neighbors, port_channels, sub_role):
     # architecture
     for port_channel_intf in port_channels:
         backend_port_channel = any(lag_member in port_alias_asic_map \
-                                   and lag_member.startswith(BACKEND_ASIC_INTERFACE_NAME_PREFIX) \
+                                   and lag_member.startswith(backplane_prefix()) \
                                    for lag_member in port_channels[port_channel_intf]['members'])
         if not backend_port_channel:
             front_port_channel_intf.append(port_channel_intf)
@@ -744,7 +744,7 @@ def filter_acl_table_bindings(acls, neighbors, port_channels, sub_role):
         # This will be applicable in Multi-NPU Platforms.
         front_panel_ports = []
         for port in group_params.get('ports', []):
-            if port in port_alias_asic_map and port.startswith(BACKEND_ASIC_INTERFACE_NAME_PREFIX):
+            if port in port_alias_asic_map and port.startswith(backplane_prefix()):
                 continue
             if port in port_channels and port not in front_port_channel_intf:
                 continue
