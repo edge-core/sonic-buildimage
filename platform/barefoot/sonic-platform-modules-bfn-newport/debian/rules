@@ -8,6 +8,7 @@ KERNEL_SRC :=  /lib/modules/$(KVERSION)
 MODULE_SRC := $(shell pwd)/modules
 SCRIPT_SRC := $(shell pwd)/scripts
 CONFIGS_SRC := $(shell pwd)/configs
+PLUGINS_DIR := $(shell pwd)/plugins
 
 %:
 	dh $@
@@ -22,6 +23,8 @@ override_dh_auto_install:
 	cp -r $(SCRIPT_SRC)/* debian/$(PACKAGE_NAME)/usr/local/bin
 	dh_installdirs -p$(PACKAGE_NAME) etc/network/interfaces.d/
 	cp -r $(CONFIGS_SRC)/network/interfaces.d/* debian/$(PACKAGE_NAME)/etc/network/interfaces.d/
+	dh_installdirs -p$(PACKAGE_NAME) usr/share/sonic/device/x86_64-accton_as9516bf_32d-r0/plugins
+	cp -r $(PLUGINS_DIR)/*  debian/$(PACKAGE_NAME)/usr/share/sonic/device/x86_64-accton_as9516bf_32d-r0/plugins/
 
 override_dh_usrlocal:
 
