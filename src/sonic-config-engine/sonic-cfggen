@@ -266,10 +266,10 @@ def main():
     parser.add_argument("-T", "--template_dir", help="search base for the template files", action='store')
     group.add_argument("-v", "--var", help="print the value of a variable, support jinja2 expression")
     group.add_argument("--var-json", help="print the value of a variable, in json format")
-    group.add_argument("-w", "--write-to-db", help="write config into configdb", action='store_true')
     group.add_argument("--preset", help="generate sample configuration from a preset template", choices=get_available_config())
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--print-data", help="print all data", action='store_true')
+    group.add_argument("-w", "--write-to-db", help="write config into configdb", action='store_true')
     group.add_argument("-K", "--key", help="Lookup for a specific key")
     args = parser.parse_args()
 
