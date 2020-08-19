@@ -28,9 +28,9 @@ class TestCfgGen(TestCase):
 
         linecount = output.strip().count('\n')
         if linecount <= 0:
-            print '    Output: ' + output.strip()
+            print('    Output: ' + output.strip())
         else:
-            print '    Output: ({0} lines, {1} bytes)'.format(linecount + 1, len(output))
+            print('    Output: ({0} lines, {1} bytes)'.format(linecount + 1, len(output)))
         return output
 
     def run_diff(self, file1, file2):

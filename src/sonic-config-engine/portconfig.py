@@ -42,7 +42,7 @@ def readJson(filename):
         data_dict = ast.literal_eval(json.dumps(data))
         return data_dict
     except Exception as e:
-        print("error occurred while parsing json:", sys.exc_info()[1])
+        print("error occurred while parsing json: {}".format(sys.exc_info()[1]))
         return None
 
 def db_connect_configdb():

@@ -23,7 +23,7 @@ class TestJ2FilesT2ChassisFe(TestCase):
             pass
 
     def run_script(self, argument):
-        print 'CMD: sonic-cfggen ' + argument
+        print('CMD: sonic-cfggen ' + argument)
         return subprocess.check_output(self.script_file + ' ' + argument, shell=True)
 
     def run_diff(self, file1, file2):

@@ -13,7 +13,7 @@ class TestCfgGenT2ChassisFe(TestCase):
         self.t2_chassis_fe_port_config = os.path.join(self.test_dir, 't2-chassis-fe-port-config.ini')
 
     def run_script(self, argument, check_stderr=False):
-        print '\n    Running sonic-cfggen ' + argument
+        print('\n    Running sonic-cfggen ' + argument)
         if check_stderr:
             output = subprocess.check_output(self.script_file + ' ' + argument, stderr=subprocess.STDOUT, shell=True)
         else:
@@ -21,9 +21,9 @@ class TestCfgGenT2ChassisFe(TestCase):
 
         linecount = output.strip().count('\n')
         if linecount <= 0:
-            print '    Output: ' + output.strip()
+            print('    Output: ' + output.strip())
         else:
-            print '    Output: ({0} lines, {1} bytes)'.format(linecount + 1, len(output))
+            print('    Output: ({0} lines, {1} bytes)'.format(linecount + 1, len(output)))
         return output
 
     def test_minigraph_t2_chassis_fe_type(self):

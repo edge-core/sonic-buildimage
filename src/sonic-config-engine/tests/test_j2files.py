@@ -22,7 +22,7 @@ class TestJ2Files(TestCase):
         self.output_file = os.path.join(self.test_dir, 'output')
 
     def run_script(self, argument):
-        print 'CMD: sonic-cfggen ' + argument
+        print('CMD: sonic-cfggen ' + argument)
         return subprocess.check_output(self.script_file + ' ' + argument, shell=True)
 
     def run_diff(self, file1, file2):

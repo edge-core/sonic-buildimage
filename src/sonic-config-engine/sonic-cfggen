@@ -51,6 +51,10 @@ from redis_bcc import RedisBytecodeCache
 from collections import OrderedDict
 from natsort import natsorted
 
+#TODO: Remove STR_TYPE once SONiC moves to Python 3.x
+PY3x = sys.version_info >= (3, 0)
+STR_TYPE = str if PY3x else unicode
+
 def sort_by_port_index(value):
     if not value:
         return
@@ -167,7 +171,7 @@ TODO(taoyl): Current version of config db only supports BGP admin states.
             if lookup_key != None:
                 newData = {}
                 for key in data.keys():
-                    if ((type(key) is unicode and lookup_key == key) or (type(key) is tuple and lookup_key in key)):
+                    if ((type(key) is STR_TYPE and lookup_key == key) or (type(key) is tuple and lookup_key in key)):
                         newData[ConfigDBConnector.serialize_key(key)] = data.pop(key)
                         break
                 return newData
@@ -191,7 +195,7 @@ TODO(taoyl): Current version of config db only supports BGP admin states.
 
 
 def deep_update(dst, src):
-    for key, value in src.iteritems():
+    for key, value in src.items():
         if isinstance(value, dict):
              node = dst.setdefault(key, {})
              deep_update(node, value)

@@ -31,7 +31,7 @@ class TestCfgGen(TestCase):
             pass
 
     def run_script(self, argument, check_stderr=False):
-        print '\n    Running sonic-cfggen ' + argument
+        print('\n    Running sonic-cfggen ' + argument)
         if check_stderr:
             output = subprocess.check_output(self.script_file + ' ' + argument, stderr=subprocess.STDOUT, shell=True)
         else:
@@ -39,9 +39,9 @@ class TestCfgGen(TestCase):
 
         linecount = output.strip().count('\n')
         if linecount <= 0:
-            print '    Output: ' + output.strip()
+            print('    Output: ' + output.strip())
         else:
-            print '    Output: ({0} lines, {1} bytes)'.format(linecount + 1, len(output))
+            print('    Output: ({0} lines, {1} bytes)'.format(linecount + 1, len(output)))
         return output
 
     def test_dummy_run(self):
@@ -380,7 +380,7 @@ class TestCfgGen(TestCase):
 
     def test_minigraph_sub_port_interfaces(self, check_stderr=True):
         try:
-            print '\n    Change device type to %s' % (BACKEND_TOR_ROUTER)
+            print('\n    Change device type to %s' % (BACKEND_TOR_ROUTER))
             if check_stderr:
                 output = subprocess.check_output("sed -i \'s/%s/%s/g\' %s" % (TOR_ROUTER, BACKEND_TOR_ROUTER, self.sample_graph_simple), stderr=subprocess.STDOUT, shell=True)
             else:
@@ -413,7 +413,7 @@ class TestCfgGen(TestCase):
             # VLAN_SUB_INTERFACE
             argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v VLAN_SUB_INTERFACE'
             output = self.run_script(argument)
-            print output.strip()
+            print(output.strip())
             self.assertEqual(output.strip(), \
                     "{('PortChannel01.10', '10.0.0.56/31'): {}, "
                     "'Ethernet0.10': {'admin_status': 'up'}, "
@@ -423,7 +423,7 @@ class TestCfgGen(TestCase):
                     "('Ethernet0.10', 'FC00::75/126'): {}}")
 
         finally:
-            print '\n    Change device type back to %s' % (TOR_ROUTER)
+            print('\n    Change device type back to %s' % (TOR_ROUTER))
             if check_stderr:
                 output = subprocess.check_output("sed -i \'s/%s/%s/g\' %s" % (BACKEND_TOR_ROUTER, TOR_ROUTER, self.sample_graph_simple), stderr=subprocess.STDOUT, shell=True)
             else:

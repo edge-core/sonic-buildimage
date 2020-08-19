@@ -24,7 +24,7 @@ class TestMultiNpuCfgGen(TestCase):
             self.port_config.append(os.path.join(self.test_data_dir, "sample_port_config-{}.ini".format(asic)))
 
     def run_script(self, argument, check_stderr=False):
-        print '\n    Running sonic-cfggen ' + argument
+        print('\n    Running sonic-cfggen ' + argument)
         if check_stderr:
             output = subprocess.check_output(self.script_file + ' ' + argument, stderr=subprocess.STDOUT, shell=True)
         else:
@@ -32,9 +32,9 @@ class TestMultiNpuCfgGen(TestCase):
 
         linecount = output.strip().count('\n')
         if linecount <= 0:
-            print '    Output: ' + output.strip()
+            print('    Output: ' + output.strip())
         else:
-            print '    Output: ({0} lines, {1} bytes)'.format(linecount + 1, len(output))
+            print('    Output: ({0} lines, {1} bytes)'.format(linecount + 1, len(output)))
         return output
 
     def run_diff(self, file1, file2):
@@ -108,7 +108,7 @@ class TestMultiNpuCfgGen(TestCase):
         #NTP data is present only in the host config
         for asic in range(NUM_ASIC):
             output = json.loads(self.run_script_for_asic(argument, asic, self.port_config[asic]))
-            print "Log:asic{} sku {}".format(asic,output)
+            print("Log:asic{} sku {}".format(asic,output))
             self.assertDictEqual(output, {})
 
     def test_mgmt_port(self):
@@ -137,25 +137,25 @@ class TestMultiNpuCfgGen(TestCase):
     def test_frontend_asic_portchannel_mem(self):
         argument = "-m {} -p {} -n asic0 --var-json \"PORTCHANNEL_MEMBER\"".format(self.sample_graph, self.port_config[0])
         output = json.loads(self.run_script(argument))
-        self.assertListEqual(output.keys(), \
+        self.assertListEqual(list(output.keys()), \
             ['PortChannel4002|Ethernet-BP8', 'PortChannel0002|Ethernet0', 'PortChannel0002|Ethernet4', 'PortChannel4002|Ethernet-BP12', 'PortChannel4001|Ethernet-BP0', 'PortChannel4001|Ethernet-BP4'])
 
     def test_backend_asic_portchannels_mem(self):
         argument = "-m {} -p {} -n asic3 --var-json \"PORTCHANNEL_MEMBER\"".format(self.sample_graph, self.port_config[3])
         output = json.loads(self.run_script(argument))
-        self.assertListEqual(output.keys(), \
+        self.assertListEqual(list(output.keys()), \
            ['PortChannel4013|Ethernet-BP384', 'PortChannel4014|Ethernet-BP392', 'PortChannel4014|Ethernet-BP396', 'PortChannel4013|Ethernet-BP388'])
 
     def test_frontend_asic_portchannel_intf(self):
         argument = "-m {} -p {} -n asic0 --var-json \"PORTCHANNEL_INTERFACE\"".format(self.sample_graph, self.port_config[0])
         output = json.loads(self.run_script(argument))
-        self.assertListEqual(output.keys(), \
+        self.assertListEqual(list(output.keys()), \
             ['PortChannel4001|10.1.0.1/31', 'PortChannel0002|FC00::1/126', 'PortChannel4002|10.1.0.3/31', 'PortChannel0002', 'PortChannel0002|10.0.0.0/31', 'PortChannel4001', 'PortChannel4002'])
 
     def test_backend_asic_portchannel_intf(self):
         argument = "-m {} -p {} -n asic3 --var-json \"PORTCHANNEL_INTERFACE\"".format(self.sample_graph, self.port_config[3])
         output = json.loads(self.run_script(argument))
-        self.assertListEqual(output.keys(), \
+        self.assertListEqual(list(output.keys()), \
             ['PortChannel4013', 'PortChannel4013|10.1.0.2/31', 'PortChannel4014', 'PortChannel4014|10.1.0.6/31'])
 
     def test_frontend_asic_ports(self):

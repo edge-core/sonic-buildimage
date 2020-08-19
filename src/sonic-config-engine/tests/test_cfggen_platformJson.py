@@ -17,7 +17,7 @@ class TestCfgGenPlatformJson(TestCase):
         self.hwsku_json = os.path.join(self.test_dir, 'sample_hwsku.json')
 
     def run_script(self, argument, check_stderr=False):
-        print '\n    Running sonic-cfggen ' + argument
+        print('\n    Running sonic-cfggen ' + argument)
         if check_stderr:
             output = subprocess.check_output(self.script_file + ' ' + argument, stderr=subprocess.STDOUT, shell=True)
         else:
@@ -25,9 +25,9 @@ class TestCfgGenPlatformJson(TestCase):
 
         linecount = output.strip().count('\n')
         if linecount <= 0:
-            print '    Output: ' + output.strip()
+            print('    Output: ' + output.strip())
         else:
-            print '    Output: ({0} lines, {1} bytes)'.format(linecount + 1, len(output))
+            print('    Output: ({0} lines, {1} bytes)'.format(linecount + 1, len(output)))
         return output
 
     def test_dummy_run(self):
