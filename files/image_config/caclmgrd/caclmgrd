@@ -16,7 +16,10 @@ try:
     import subprocess
     import sys
     import syslog
-    from swsssdk import ConfigDBConnector
+
+    from sonic_py_common import device_info
+    from swsscommon import swsscommon
+    from swsssdk import SonicDBConfig, ConfigDBConnector
 except ImportError as err:
     raise ImportError("%s - required module not found" % str(err))
 
@@ -46,6 +49,7 @@ def log_error(msg):
 
 # ========================== Helper Functions =========================
 
+
 def _ip_prefix_in_key(key):
     """
     Function to check if IP prefix is present in a Redis database key.
@@ -56,12 +60,12 @@ def _ip_prefix_in_key(key):
 
 # ============================== Classes ==============================
 
+
 class ControlPlaneAclManager(object):
     """
     Class which reads control plane ACL tables and rules from Config DB,
     translates them into equivalent iptables commands and runs those
     commands in order to apply the control plane ACLs.
-
     Attributes:
         config_db: Handle to Config Redis database via SwSS SDK
     """
@@ -88,24 +92,48 @@ class ControlPlaneAclManager(object):
     }
 
     def __init__(self):
-        # Open a handle to the Config database
-        self.config_db = ConfigDBConnector()
-        self.config_db.connect()
+        SonicDBConfig.load_sonic_global_db_config()
+        self.config_db_map = {}
+        self.iptables_cmd_ns_prefix = {}
+        self.config_db_map[''] = ConfigDBConnector(use_unix_socket_path=True, namespace='')
+        self.config_db_map[''].connect()
+        self.iptables_cmd_ns_prefix[''] = ""
+        self.namespace_mgmt_ip = self.get_namespace_mgmt_ip(self.iptables_cmd_ns_prefix[''], '')
+        self.namespace_docker_mgmt_ip = {}
+        namespaces = device_info.get_all_namespaces()
+        for front_asic_namespace in namespaces['front_ns']:
+            self.config_db_map[front_asic_namespace] = ConfigDBConnector(use_unix_socket_path=True, namespace=front_asic_namespace)
+            self.config_db_map[front_asic_namespace].connect()
+            self.iptables_cmd_ns_prefix[front_asic_namespace] = "ip netns exec " + front_asic_namespace + " "
+            self.namespace_docker_mgmt_ip[front_asic_namespace] = self.get_namespace_mgmt_ip(self.iptables_cmd_ns_prefix[front_asic_namespace],
+                                                                                              front_asic_namespace)
+
+        for back_asic_namespace in namespaces['back_ns']:
+            self.iptables_cmd_ns_prefix[back_asic_namespace] = "ip netns exec " + back_asic_namespace + " "
+            self.namespace_docker_mgmt_ip[back_asic_namespace] = self.get_namespace_mgmt_ip(self.iptables_cmd_ns_prefix[back_asic_namespace],
+                                                                                             back_asic_namespace)
+
+    def get_namespace_mgmt_ip(self, iptable_ns_cmd_prefix, namespace):
+        ip_address_get_command = iptable_ns_cmd_prefix + "ip -4 -o addr show " + ("eth0" if namespace else "docker0") +\
+                                 " | awk '{print $4}' | cut -d'/' -f1 | head -1"
+
+        return self.run_commands([ip_address_get_command])
 
     def run_commands(self, commands):
         """
         Given a list of shell commands, run them in order
-
         Args:
             commands: List of strings, each string is a shell command
         """
         for cmd in commands:
-            proc = subprocess.Popen(cmd, shell=True)
+            proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
 
             (stdout, stderr) = proc.communicate()
 
             if proc.returncode != 0:
                 log_error("Error running command '{}'".format(cmd))
+            elif stdout:
+                return stdout.rstrip('\n')
 
     def parse_int_to_tcp_flags(self, hex_value):
         tcp_flags_str = ""
@@ -133,7 +161,7 @@ class ControlPlaneAclManager(object):
         tcp_flags_str = tcp_flags_str[:-1]
         return tcp_flags_str
 
-    def generate_block_ip2me_traffic_iptables_commands(self):
+    def generate_block_ip2me_traffic_iptables_commands(self, namespace):
         INTERFACE_TABLE_NAME_LIST = [
             "LOOPBACK_INTERFACE",
             "MGMT_INTERFACE",
@@ -146,7 +174,7 @@ class ControlPlaneAclManager(object):
 
         # Add iptables rules to drop all packets destined for peer-to-peer interface IP addresses
         for iface_table_name in INTERFACE_TABLE_NAME_LIST:
-            iface_table = self.config_db.get_table(iface_table_name)
+            iface_table = self.config_db_map[namespace].get_table(iface_table_name)
             if iface_table:
                 for key, _ in iface_table.iteritems():
                     if not _ip_prefix_in_key(key):
@@ -160,109 +188,129 @@ class ControlPlaneAclManager(object):
                     ip_addr = next(ip_ntwrk.hosts()) if iface_table_name == "VLAN_INTERFACE" else ip_ntwrk.network_address
 
                     if isinstance(ip_ntwrk, ipaddress.IPv4Network):
-                        block_ip2me_cmds.append("iptables -A INPUT -d {}/{} -j DROP".format(ip_addr, ip_ntwrk.max_prefixlen))
+                        block_ip2me_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -A INPUT -d {}/{} -j DROP".format(ip_addr, ip_ntwrk.max_prefixlen))
                     elif isinstance(ip_ntwrk, ipaddress.IPv6Network):
-                        block_ip2me_cmds.append("ip6tables -A INPUT -d {}/{} -j DROP".format(ip_addr, ip_ntwrk.max_prefixlen))
+                        block_ip2me_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -A INPUT -d {}/{} -j DROP".format(ip_addr, ip_ntwrk.max_prefixlen))
                     else:
                         log_warning("Unrecognized IP address type on interface '{}': {}".format(iface_name, ip_ntwrk))
 
         return block_ip2me_cmds
 
+    def generate_allow_internal_docker_ip_traffic_commands(self, namespace):
+        allow_internal_docker_ip_cmds = []
+
+        if namespace:
+            # For namespace docker allow all tcp/udp traffic from host docker bridge to its eth0 management ip
+            allow_internal_docker_ip_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -A INPUT -p tcp -s {} -d {} -j ACCEPT".format
+                                                 (self.namespace_mgmt_ip, self.namespace_docker_mgmt_ip[namespace]))
+
+            allow_internal_docker_ip_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -A INPUT -p udp -s {} -d {} -j ACCEPT".format
+                                                 (self.namespace_mgmt_ip, self.namespace_docker_mgmt_ip[namespace]))
+        else:
+            # In host allow all tcp/udp traffic from namespace docker eth0 management ip to host docker bridge
+            for docker_mgmt_ip in self.namespace_docker_mgmt_ip.values():
+                allow_internal_docker_ip_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -A INPUT -p tcp -s {} -d {} -j ACCEPT".format
+                                                     (docker_mgmt_ip, self.namespace_mgmt_ip))
+
+                allow_internal_docker_ip_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -A INPUT -p udp -s {} -d {} -j ACCEPT".format
+                                                     (docker_mgmt_ip, self.namespace_mgmt_ip))
+        return allow_internal_docker_ip_cmds
+
     def is_rule_ipv4(self, rule_props):
         if (("SRC_IP" in rule_props and rule_props["SRC_IP"]) or
-            ("DST_IP" in rule_props and rule_props["DST_IP"])):
+           ("DST_IP" in rule_props and rule_props["DST_IP"])):
             return True
         else:
             return False
 
     def is_rule_ipv6(self, rule_props):
         if (("SRC_IPV6" in rule_props and rule_props["SRC_IPV6"]) or
-            ("DST_IPV6" in rule_props and rule_props["DST_IPV6"])):
+           ("DST_IPV6" in rule_props and rule_props["DST_IPV6"])):
             return True
         else:
             return False
 
-    def get_acl_rules_and_translate_to_iptables_commands(self):
+    def get_acl_rules_and_translate_to_iptables_commands(self, namespace):
         """
         Retrieves current ACL tables and rules from Config DB, translates
         control plane ACLs into a list of iptables commands that can be run
         in order to install ACL rules.
-
         Returns:
             A list of strings, each string is an iptables shell command
-
         """
         iptables_cmds = []
 
         # First, add iptables commands to set default policies to accept all
         # traffic. In case we are connected remotely, the connection will not
         # drop when we flush the current rules
-        iptables_cmds.append("iptables -P INPUT ACCEPT")
-        iptables_cmds.append("iptables -P FORWARD ACCEPT")
-        iptables_cmds.append("iptables -P OUTPUT ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -P INPUT ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -P FORWARD ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -P OUTPUT ACCEPT")
 
         # Add iptables command to flush the current rules
-        iptables_cmds.append("iptables -F")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -F")
 
         # Add iptables command to delete all non-default chains
-        iptables_cmds.append("iptables -X")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -X")
 
         # Add same set of commands for ip6tables
-        iptables_cmds.append("ip6tables -P INPUT ACCEPT")
-        iptables_cmds.append("ip6tables -P FORWARD ACCEPT")
-        iptables_cmds.append("ip6tables -P OUTPUT ACCEPT")
-        iptables_cmds.append("ip6tables -F")
-        iptables_cmds.append("ip6tables -X")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -P INPUT ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -P FORWARD ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -P OUTPUT ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -F")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -X")
 
         # Add iptables/ip6tables commands to allow all traffic from localhost
-        iptables_cmds.append("iptables -A INPUT -s 127.0.0.1 -i lo -j ACCEPT")
-        iptables_cmds.append("ip6tables -A INPUT -s ::1 -i lo -j ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -A INPUT -s 127.0.0.1 -i lo -j ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -A INPUT -s ::1 -i lo -j ACCEPT")
+
+        # Add iptables commands to allow internal docker traffic
+        iptables_cmds += self.generate_allow_internal_docker_ip_traffic_commands(namespace)
 
         # Add iptables/ip6tables commands to allow all incoming packets from established
         # connections or new connections which are related to established connections
-        iptables_cmds.append("iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT")
-        iptables_cmds.append("ip6tables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT")
 
         # Add iptables/ip6tables commands to allow bidirectional ICMPv4 ping and traceroute
         # TODO: Support processing ICMPv4 service ACL rules, and remove this blanket acceptance
-        iptables_cmds.append("iptables -A INPUT -p icmp --icmp-type echo-request -j ACCEPT")
-        iptables_cmds.append("iptables -A INPUT -p icmp --icmp-type echo-reply -j ACCEPT")
-        iptables_cmds.append("iptables -A INPUT -p icmp --icmp-type destination-unreachable -j ACCEPT")
-        iptables_cmds.append("iptables -A INPUT -p icmp --icmp-type time-exceeded -j ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -A INPUT -p icmp --icmp-type echo-request -j ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -A INPUT -p icmp --icmp-type echo-reply -j ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -A INPUT -p icmp --icmp-type destination-unreachable -j ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -A INPUT -p icmp --icmp-type time-exceeded -j ACCEPT")
 
         # Add iptables/ip6tables commands to allow bidirectional ICMPv6 ping and traceroute
         # TODO: Support processing ICMPv6 service ACL rules, and remove this blanket acceptance
-        iptables_cmds.append("ip6tables -A INPUT -p icmpv6 --icmpv6-type echo-request -j ACCEPT")
-        iptables_cmds.append("ip6tables -A INPUT -p icmpv6 --icmpv6-type echo-reply -j ACCEPT")
-        iptables_cmds.append("ip6tables -A INPUT -p icmpv6 --icmpv6-type destination-unreachable -j ACCEPT")
-        iptables_cmds.append("ip6tables -A INPUT -p icmpv6 --icmpv6-type time-exceeded -j ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -A INPUT -p icmpv6 --icmpv6-type echo-request -j ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -A INPUT -p icmpv6 --icmpv6-type echo-reply -j ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -A INPUT -p icmpv6 --icmpv6-type destination-unreachable -j ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -A INPUT -p icmpv6 --icmpv6-type time-exceeded -j ACCEPT")
 
         # Add iptables/ip6tables commands to allow all incoming Neighbor Discovery Protocol (NDP) NS/NA/RS/RA messages
         # TODO: Support processing NDP service ACL rules, and remove this blanket acceptance
-        iptables_cmds.append("ip6tables -A INPUT -p icmpv6 --icmpv6-type neighbor-solicitation -j ACCEPT")
-        iptables_cmds.append("ip6tables -A INPUT -p icmpv6 --icmpv6-type neighbor-advertisement -j ACCEPT")
-        iptables_cmds.append("ip6tables -A INPUT -p icmpv6 --icmpv6-type router-solicitation -j ACCEPT")
-        iptables_cmds.append("ip6tables -A INPUT -p icmpv6 --icmpv6-type router-advertisement -j ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -A INPUT -p icmpv6 --icmpv6-type neighbor-solicitation -j ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -A INPUT -p icmpv6 --icmpv6-type neighbor-advertisement -j ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -A INPUT -p icmpv6 --icmpv6-type router-solicitation -j ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -A INPUT -p icmpv6 --icmpv6-type router-advertisement -j ACCEPT")
 
         # Add iptables/ip6tables commands to allow all incoming IPv4 DHCP packets
-        iptables_cmds.append("iptables -A INPUT -p udp --dport 67:68 -j ACCEPT")
-        iptables_cmds.append("ip6tables -A INPUT -p udp --dport 67:68 -j ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -A INPUT -p udp --dport 67:68 -j ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -A INPUT -p udp --dport 67:68 -j ACCEPT")
 
         # Add iptables/ip6tables commands to allow all incoming IPv6 DHCP packets
-        iptables_cmds.append("iptables -A INPUT -p udp --dport 546:547 -j ACCEPT")
-        iptables_cmds.append("ip6tables -A INPUT -p udp --dport 546:547 -j ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -A INPUT -p udp --dport 546:547 -j ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -A INPUT -p udp --dport 546:547 -j ACCEPT")
 
         # Add iptables/ip6tables commands to allow all incoming BGP traffic
         # TODO: Determine BGP ACLs based on configured device sessions, and remove this blanket acceptance
-        iptables_cmds.append("iptables -A INPUT -p tcp --dport 179 -j ACCEPT")
-        iptables_cmds.append("iptables -A INPUT -p tcp --sport 179 -j ACCEPT")
-        iptables_cmds.append("ip6tables -A INPUT -p tcp --dport 179 -j ACCEPT")
-        iptables_cmds.append("ip6tables -A INPUT -p tcp --sport 179 -j ACCEPT")
-
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -A INPUT -p tcp --dport 179 -j ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -A INPUT -p tcp --sport 179 -j ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -A INPUT -p tcp --dport 179 -j ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -A INPUT -p tcp --sport 179 -j ACCEPT")
 
         # Get current ACL tables and rules from Config DB
-        self._tables_db_info = self.config_db.get_table(self.ACL_TABLE)
-        self._rules_db_info = self.config_db.get_table(self.ACL_RULE)
+        self._tables_db_info = self.config_db_map[namespace].get_table(self.ACL_TABLE)
+        self._rules_db_info = self.config_db_map[namespace].get_table(self.ACL_RULE)
 
         num_ctrl_plane_acl_rules = 0
 
@@ -280,11 +328,11 @@ class ControlPlaneAclManager(object):
             for acl_service in acl_services:
                 if acl_service not in self.ACL_SERVICES:
                     log_warning("Ignoring control plane ACL '{}' with unrecognized service '{}'"
-                            .format(table_name, acl_service))
+                                .format(table_name, acl_service))
                     continue
 
                 log_info("Translating ACL rules for control plane ACL '{}' (service: '{}')"
-                        .format(table_name, acl_service))
+                         .format(table_name, acl_service))
 
                 # Obtain default IP protocol(s) and destination port(s) for this service
                 ip_protocols = self.ACL_SERVICES[acl_service]["ip_protocols"]
@@ -315,18 +363,18 @@ class ControlPlaneAclManager(object):
 
                         if (self.is_rule_ipv6(rule_props) and (table_ip_version == 4)):
                             log_error("CtrlPlane ACL table {} is a IPv4 based table and rule {} is a IPV6 rule! Ignoring rule."
-                                                          .format(table_name, rule_id))
+                                      .format(table_name, rule_id))
                             acl_rules.pop(rule_props["PRIORITY"])
                         elif (self.is_rule_ipv4(rule_props) and (table_ip_version == 6)):
                             log_error("CtrlPlane ACL table {} is a IPv6 based table and rule {} is a IPV4 rule! Ignroing rule."
-                                                          .format(table_name, rule_id))
+                                      .format(table_name, rule_id))
                             acl_rules.pop(rule_props["PRIORITY"])
 
                 # If we were unable to determine whether this ACL table contains
                 # IPv4 or IPv6 rules, log a message and skip processing this table.
                 if not table_ip_version:
                     log_warning("Unable to determine if ACL table '{}' contains IPv4 or IPv6 rules. Skipping table..."
-                            .format(table_name))
+                                .format(table_name))
                     continue
 
                 # For each ACL rule in this table (in descending order of priority)
@@ -358,63 +406,90 @@ class ControlPlaneAclManager(object):
                                 tcp_flags_mask = int(tcp_flags_mask, 16)
 
                                 if tcp_flags_mask > 0:
-                                    rule_cmd += " --tcp-flags {mask} {flags}".format(mask = self.parse_int_to_tcp_flags(tcp_flags_mask), flags =  self.parse_int_to_tcp_flags(tcp_flags))
+                                    rule_cmd += " --tcp-flags {mask} {flags}".format(mask=self.parse_int_to_tcp_flags(tcp_flags_mask), flags=self.parse_int_to_tcp_flags(tcp_flags))
 
                             # Append the packet action as the jump target
                             rule_cmd += " -j {}".format(rule_props["PACKET_ACTION"])
 
-                            iptables_cmds.append(rule_cmd)
+                            iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + rule_cmd)
                             num_ctrl_plane_acl_rules += 1
 
         # Add iptables commands to block ip2me traffic
-        iptables_cmds += self.generate_block_ip2me_traffic_iptables_commands()
+        iptables_cmds += self.generate_block_ip2me_traffic_iptables_commands(namespace)
 
         # Add iptables/ip6tables commands to allow all incoming packets with TTL of 0 or 1
         # This allows the device to respond to tools like tcptraceroute
-        iptables_cmds.append("iptables -A INPUT -m ttl --ttl-lt 2 -j ACCEPT")
-        iptables_cmds.append("ip6tables -A INPUT -p tcp -m hl --hl-lt 2 -j ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -A INPUT -m ttl --ttl-lt 2 -j ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -A INPUT -p tcp -m hl --hl-lt 2 -j ACCEPT")
 
         # Finally, if the device has control plane ACLs configured,
         # add iptables/ip6tables commands to drop all other incoming packets
         if num_ctrl_plane_acl_rules > 0:
-            iptables_cmds.append("iptables -A INPUT -j DROP")
-            iptables_cmds.append("ip6tables -A INPUT -j DROP")
+            iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -A INPUT -j DROP")
+            iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -A INPUT -j DROP")
 
         return iptables_cmds
 
-    def update_control_plane_acls(self):
+    def update_control_plane_acls(self, namespace):
         """
         Convenience wrapper which retrieves current ACL tables and rules from
         Config DB, translates control plane ACLs into a list of iptables
         commands and runs them.
         """
-        iptables_cmds = self.get_acl_rules_and_translate_to_iptables_commands()
-
+        iptables_cmds = self.get_acl_rules_and_translate_to_iptables_commands(namespace)
         log_info("Issuing the following iptables commands:")
         for cmd in iptables_cmds:
             log_info("  " + cmd)
 
         self.run_commands(iptables_cmds)
 
-    def notification_handler(self, key, data):
-        log_info("ACL configuration changed. Updating iptables rules for control plane ACLs...")
-        self.update_control_plane_acls()
-
     def run(self):
-        # Unconditionally update control plane ACLs once at start
-        self.update_control_plane_acls()
+        # Select Time-out for 10 Seconds
+        SELECT_TIMEOUT_MS = 1000 * 10
 
-        # Subscribe to notifications when ACL tables or rules change
-        self.config_db.subscribe(self.ACL_TABLE,
-                lambda table, key, data: self.notification_handler(key, data))
-        self.config_db.subscribe(self.ACL_RULE,
-                lambda table, key, data: self.notification_handler(key, data))
-
-        # Indefinitely listen for Config DB notifications
-        self.config_db.listen()
-
+        # Initlaize Global config that loads all database*.json
+        if device_info.is_multi_npu():
+            swsscommon.SonicDBConfig.initializeGlobalConfig()
+        
+        # Create the Select object
+        sel = swsscommon.Select()
+        # Map of Namespace <--> susbcriber table's object
+        config_db_subscriber_table_map = {}
+        
+        # Loop through all asic namespaces (if present) and host (namespace='')
+        for namespace in self.config_db_map.keys():
+            # Unconditionally update control plane ACLs once at start on given namespace
+            self.update_control_plane_acls(namespace)
+            # Connect to Config DB of given namespace
+            acl_db_connector = swsscommon.DBConnector("CONFIG_DB", 0, False, namespace)
+            # Subscribe to notifications when ACL tables changes
+            subscribe_acl_table = swsscommon.SubscriberStateTable(acl_db_connector, swsscommon.CFG_ACL_TABLE_TABLE_NAME)
+            # Subscribe to notifications when ACL rule tables changes
+            subscribe_acl_rule_table = swsscommon.SubscriberStateTable(acl_db_connector, swsscommon.CFG_ACL_RULE_TABLE_NAME)
+            # Add both tables to the selectable object
+            sel.addSelectable(subscribe_acl_table)
+            sel.addSelectable(subscribe_acl_rule_table)
+            # Update the map
+            config_db_subscriber_table_map[namespace] = []
+            config_db_subscriber_table_map[namespace].append(subscribe_acl_table)
+            config_db_subscriber_table_map[namespace].append(subscribe_acl_rule_table)
+        
+        # Loop on select to see if any event happen on config db of any namespace
+        while True:
+            (state, c) = sel.select(SELECT_TIMEOUT_MS)
+            # Continue if select is timeout or selectable object is not return
+            if state != swsscommon.Select.OBJECT:
+                continue
+            # Get the corresponding namespace from selectable object
+            namespace = c.getDbNamespace()
+            # Pop data of both Subscriber Table object of namespace that got config db acl table event
+            for table in config_db_subscriber_table_map[namespace]:
+                table.pop()
+            # Update the Control Plane ACL of the namespace that got config db acl table event
+            self.update_control_plane_acls(namespace)
 
 # ============================= Functions =============================
+
 
 def main():
     log_info("Starting up...")
