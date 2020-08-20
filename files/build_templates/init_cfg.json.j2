@@ -17,26 +17,28 @@
 {% endfor %}
         }
     },
-{%- set features = [("bgp", "enabled", "enabled"),
-                   ("database", "enabled", "disabled"),
-                   ("dhcp_relay", "enabled", "enabled"),
-                   ("lldp", "enabled", "enabled"),
-                   ("pmon", "enabled", "enabled"),
-                   ("radv", "enabled", "enabled"),
-                   ("snmp", "enabled", "enabled"),
-                   ("swss", "enabled", "enabled"),
-                   ("syncd", "enabled", "enabled"),
-                   ("teamd", "enabled", "enabled")] %}
-{%- if include_iccpd == "y" %}{% do features.append(("iccpd", "disabled", "enabled")) %}{% endif %}
-{%- if include_mgmt_framework == "y" %}{% do features.append(("mgmt-framework", "enabled", "enabled")) %}{% endif %}
-{%- if include_nat == "y" %}{% do features.append(("nat", "disabled", "enabled")) %}{% endif %}
-{%- if include_restapi == "y" %}{% do features.append(("restapi", "enabled", "enabled")) %}{% endif %}
-{%- if include_sflow == "y" %}{% do features.append(("sflow", "disabled", "enabled")) %}{% endif %}
-{%- if include_system_telemetry == "y" %}{% do features.append(("telemetry", "enabled", "enabled")) %}{% endif %}
+{%- set features = [("bgp", "enabled", false, "enabled"),
+                   ("database", "enabled", false, "disabled"),
+                   ("dhcp_relay", "enabled", false, "enabled"),
+                   ("lldp", "enabled", false, "enabled"),
+                   ("pmon", "enabled", false, "enabled"),
+                   ("radv", "enabled", false, "enabled"),
+                   ("snmp", "enabled", true, "enabled"),
+                   ("swss", "enabled", false, "enabled"),
+                   ("syncd", "enabled", false, "enabled"),
+                   ("teamd", "enabled", false, "enabled")] %}
+{%- if include_iccpd == "y" %}{% do features.append(("iccpd", "disabled", false, "enabled")) %}{% endif %}
+{%- if include_mgmt_framework == "y" %}{% do features.append(("mgmt-framework", "enabled", false, "enabled")) %}{% endif %}
+{%- if include_nat == "y" %}{% do features.append(("nat", "disabled", false, "enabled")) %}{% endif %}
+{%- if include_restapi == "y" %}{% do features.append(("restapi", "enabled", false, "enabled")) %}{% endif %}
+{%- if include_sflow == "y" %}{% do features.append(("sflow", "disabled", false, "enabled")) %}{% endif %}
+{%- if include_system_telemetry == "y" %}{% do features.append(("telemetry", "enabled", true, "enabled")) %}{% endif %}
     "FEATURE": {
-{%- for feature, state, autorestart in features %}
+{# has_timer field if set, will start the feature systemd .timer unit instead of .service unit #}
+{%- for feature, state, has_timer, autorestart in features %}
         "{{feature}}": {
             "state": "{{state}}",
+            "has_timer" : {{has_timer | lower()}},
             "auto_restart": "{{autorestart}}",
             "high_mem_alert": "disabled"
         }{% if not loop.last %},{% endif -%}
