@@ -502,7 +502,7 @@ int do_one_neigh_request(struct nlmsghdr *n)
 {
     struct ndmsg *ndm = NLMSG_DATA(n);
     int len = n->nlmsg_len;
-    struct rtattr * tb[NDA_MAX + 1];
+    struct rtattr *tb[NDA_MAX + 1] = {0};
 
     if (n->nlmsg_type == NLMSG_DONE)
     {
@@ -966,7 +966,7 @@ void iccp_parse_if_vlan_info_from_netlink(struct nlmsghdr *n)
     {
         struct ifinfomsg *ifm = NLMSG_DATA(n);
         int len = n->nlmsg_len;
-        struct rtattr * tb[IFLA_MAX + 1];
+        struct rtattr *tb[IFLA_MAX + 1] = {0};
 
         if (n->nlmsg_type != RTM_NEWLINK)
         {
