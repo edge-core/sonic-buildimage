@@ -95,8 +95,13 @@ function postStartAction()
         link_namespace $DEV
     fi
 
-    # Wait until redis starts
-    until [[ $($SONIC_DB_CLI PING | grep -c PONG) -gt 0 ]]; do
+    # Wait until supervisord and redis starts. This change is needed
+    # because now database_config.json is jinja2 templated based
+    # and by the time file gets generated if we do redis ping
+    # then we catch python exception of file not valid
+    # that comes to syslog which is unwanted so wait till database
+    # config is ready and then ping
+    until [[ ($(docker exec -i database$DEV pgrep -x -c supervisord) -gt 0) && ($($SONIC_DB_CLI PING | grep -c PONG) -gt 0) ]]; do
       sleep 1;
     done
 
