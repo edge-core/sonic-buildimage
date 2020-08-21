@@ -247,31 +247,6 @@ def get_npu_id_from_name(npu_name):
         return None
 
 
-def get_npu_device_id(npu_id):
-    platform = get_platform()
-    if not platform:
-        return None
-
-    asic_conf_file_path = os.path.join(SONIC_DEVICE_PATH, platform, ASIC_CONF_FILENAME)
-    if not os.path.isfile(asic_conf_file_path):
-        return None
-
-    # In a multi-npu device we need to have the file "asic.conf" updated with the asic instance
-    # and the corresponding device id which could be pci_id. Below is an eg: for a 2 ASIC platform/sku.
-    # DEV_ID_ASIC_0=03:00.0
-    # DEV_ID_ASIC_1=04:00.0
-    device_str = "DEV_ID_ASIC_{}".format(npu_id)
-
-    with open(asic_conf_file_path) as asic_conf_file:
-        for line in asic_conf_file:
-            tokens = line.split('=')
-            if len(tokens) < 2:
-               continue
-            if tokens[0] == device_str:
-                device_id = tokens[1].strip()
-                return device_id
-
-
 def get_namespaces():
     """
     In a multi NPU platform, each NPU is in a Linux Namespace.
