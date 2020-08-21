@@ -46,7 +46,8 @@ RUN apt-get install -y net-tools \
                        python-scapy \
                        conntrack \
                        iptables \
-                       python3-pip
+                       python3-pip \
+                       jq
 
 RUN pip install setuptools
 RUN pip3 install setuptools
@@ -131,6 +132,10 @@ COPY ["database_config.json", "/etc/default/sonic-db/"]
 COPY ["hostname.j2", "/usr/share/sonic/templates/"]
 COPY ["default_chassis_cfg.json", "/etc/default/sonic-db/"]
 COPY ["chassis_db.py", "/usr/bin/"]
+
+COPY ["platform.json", "/usr/share/sonic/device/x86_64-kvm_x86_64-r0/"]
+COPY ["hwsku.json", "/usr/share/sonic/device/x86_64-kvm_x86_64-r0/Force10-S6000/"]
+COPY ["platform.json", "/usr/share/sonic/platform/"]
 
 # Workaround the tcpdump issue
 RUN mv /usr/sbin/tcpdump /usr/bin/tcpdump
