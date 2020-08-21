@@ -42,12 +42,15 @@ def obfuscate(data):
 
 
 def update_feature_state(feature_name, state, has_timer=False):
-    feature_suffix = "timer" if has_timer else "service"
+    feature_suffixes = ["service"] + (["timer"] if has_timer else [])
     if state == "enabled":
         start_cmds = []
-        start_cmds.append("sudo systemctl unmask {}.{}".format(feature_name, feature_suffix))
-        start_cmds.append("sudo systemctl enable {}.{}".format(feature_name, feature_suffix))
-        start_cmds.append("sudo systemctl start {}.{}".format(feature_name, feature_suffix))
+        for suffix in feature_suffixes:
+            start_cmds.append("sudo systemctl unmask {}.{}".format(feature_name, suffix))
+            start_cmds.append("sudo systemctl enable {}.{}".format(feature_name, suffix))
+        # If feature has timer associated with it, start corresponding systemd .timer unit
+        # otherwise, start corresponding systemd .service unit
+        start_cmds.append("sudo systemctl start {}.{}".format(feature_name, feature_suffixes[-1]))
         for cmd in start_cmds:
             syslog.syslog(syslog.LOG_INFO, "Running cmd: '{}'".format(cmd))
             try:
@@ -56,12 +59,14 @@ def update_feature_state(feature_name, state, has_timer=False):
                 syslog.syslog(syslog.LOG_ERR, "'{}' failed. RC: {}, output: {}"
                               .format(err.cmd, err.returncode, err.output))
                 continue
-        syslog.syslog(syslog.LOG_INFO, "Feature '{}.{}' is enabled and started".format(feature_name, feature_suffix))
+        syslog.syslog(syslog.LOG_INFO, "Feature '{}.{}' is enabled and started"
+                      .format(feature_name, feature_suffixes[-1]))
     elif state == "disabled":
         stop_cmds = []
-        stop_cmds.append("sudo systemctl stop {}.{}".format(feature_name, feature_suffix))
-        stop_cmds.append("sudo systemctl disable {}.{}".format(feature_name, feature_suffix))
-        stop_cmds.append("sudo systemctl mask {}.{}".format(feature_name, feature_suffix))
+        for suffix in reversed(feature_suffixes):
+            stop_cmds.append("sudo systemctl stop {}.{}".format(feature_name, suffix))
+            stop_cmds.append("sudo systemctl disable {}.{}".format(feature_name, suffix))
+            stop_cmds.append("sudo systemctl mask {}.{}".format(feature_name, suffix))
         for cmd in stop_cmds:
             syslog.syslog(syslog.LOG_INFO, "Running cmd: '{}'".format(cmd))
             try:
@@ -72,8 +77,8 @@ def update_feature_state(feature_name, state, has_timer=False):
                 continue
         syslog.syslog(syslog.LOG_INFO, "Feature '{}' is stopped and disabled".format(feature_name))
     else:
-        syslog.syslog(syslog.LOG_ERR, "Unexpected state value '{}' for feature '{}.{}'"
-                      .format(state, feature_name, feature_suffix))
+        syslog.syslog(syslog.LOG_ERR, "Unexpected state value '{}' for feature '{}'"
+                      .format(state, feature_name))
 
 
 class Iptables(object):
