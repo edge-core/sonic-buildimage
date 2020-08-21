@@ -26,7 +26,5 @@ SONIC_INSTALL_DOCKER_DBG_IMAGES += $(DOCKER_SNMP_DBG)
 $(DOCKER_SNMP)_CONTAINER_NAME = snmp
 $(DOCKER_SNMP)_RUN_OPT += --privileged -t
 $(DOCKER_SNMP)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
-# mount Arista platform python libraries to support corresponding platforms SNMP power status query
-$(DOCKER_SNMP)_RUN_OPT += -v /usr/lib/python3/dist-packages/arista:/usr/lib/python3/dist-packages/arista:ro
 $(DOCKER_SNMP)_FILES += $(SUPERVISOR_PROC_EXIT_LISTENER_SCRIPT)
 $(DOCKER_SNMP)_BASE_IMAGE_FILES += monit_snmp:/etc/monit/conf.d
