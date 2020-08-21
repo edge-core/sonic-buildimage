@@ -1,0 +1,15 @@
+Source: sonic-host-service
+Maintainer: Nirenjan Krishnan <Nirenjan.Krishnan@dell.com>
+Build-Depends: debhelper (>= 8.0.0),
+               dh-systemd
+Vcs-Git: https://github.com/Azure/sonic-buildimage
+Homepage: https://github.com/Azure/SONiC/
+Standards-Version: 3.9.3
+Section: net
+
+Package: sonic-host-service
+Priority: extra
+Architecture: all
+Depends: python3-systemd, python3-dbus, python3-gi, ${misc:Depends}
+Description: SONiC Host Service
+
