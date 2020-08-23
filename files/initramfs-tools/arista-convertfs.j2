@@ -213,6 +213,9 @@ umount "$root_mnt"
 
 if [ $(echo -n "$root_dev" | tail -c 1) == "1" ]; then
     # Create a new partition table (content in flash_dev will be deleted)
+    err_msg="Error: Failed to zero out first MB"
+    cmd="dd if=/dev/zero of=$flash_dev bs=512 count=2048"
+    run_cmd "$cmd" "$err_msg"
     err_msg="Error: repartitioning $flash_dev failed"
     cmd="echo '2048' | sfdisk $flash_dev || (sleep 3; blockdev --rereadpt $flash_dev && fdisk -l $flash_dev | grep -q ${root_dev}.*Linux)"
     run_cmd "$cmd" "$err_msg"
