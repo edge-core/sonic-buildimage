@@ -142,10 +142,6 @@ src/sonic-config-engine/**/*.pyc
 src/sonic-config-engine/build
 src/sonic-config-engine/sonic_config_engine.egg-info
 
-src/sonic-daemon-base/**/*.pyc
-src/sonic-daemon-base/build
-src/sonic-daemon-base/sonic_daemon_base.egg-info
-
 src/sonic-py-common/**/*.pyc
 src/sonic-py-common/.eggs/
 src/sonic-py-common/build

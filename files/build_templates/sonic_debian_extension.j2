@@ -133,12 +133,6 @@ sudo cp {{platform_common_py2_wheel_path}} $FILESYSTEM_ROOT/$PLATFORM_COMMON_PY2
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install $PLATFORM_COMMON_PY2_WHEEL_NAME
 sudo rm -rf $FILESYSTEM_ROOT/$PLATFORM_COMMON_PY2_WHEEL_NAME
 
-# Install sonic-daemon-base Python 2 package
-DAEMON_BASE_PY2_WHEEL_NAME=$(basename {{daemon_base_py2_wheel_path}})
-sudo cp {{daemon_base_py2_wheel_path}} $FILESYSTEM_ROOT/$DAEMON_BASE_PY2_WHEEL_NAME
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install $DAEMON_BASE_PY2_WHEEL_NAME
-sudo rm -rf $FILESYSTEM_ROOT/$DAEMON_BASE_PY2_WHEEL_NAME
-
 # Install built Python Click package (and its dependencies via 'apt-get -y install -f')
 # Do this before installing sonic-utilities so that it doesn't attempt to install
 # an older version as part of its dependencies
