@@ -2,7 +2,8 @@
     "DEVICE_METADATA": {
         "localhost": {
             "default_bgp_status": {% if shutdown_bgp_on_start == "y" %}"down"{% else %}"up"{% endif %},
-            "default_pfcwd_status": {% if enable_pfcwd_on_start == "y" %}"enable"{% else %}"disable"{% endif %}
+            "default_pfcwd_status": {% if enable_pfcwd_on_start == "y" %}"enable"{% else %}"disable"{% endif %},
+            "synchronous_mode": {% if enable_synchronous_mode == "y" %}"enable"{% else %}"disable"{% endif %}
         }
     },
     "CRM": {

@@ -13,6 +13,12 @@ ORCHAGENT_ARGS="-d /var/log/swss "
 # Set orchagent pop batch size to 8192
 ORCHAGENT_ARGS+="-b 8192 "
 
+# Set synchronous mode if it is enabled in CONFIG_DB
+SYNC_MODE=$(sonic-cfggen -d -v DEVICE_METADATA.localhost.synchronous_mode)
+if [ "$SYNC_MODE" == "enable" ]; then
+    ORCHAGENT_ARGS+="-s "
+fi
+
 # Set mac address
 ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
 

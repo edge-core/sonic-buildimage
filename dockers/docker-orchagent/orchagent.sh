@@ -25,6 +25,12 @@ ORCHAGENT_ARGS="-d /var/log/swss "
 # Set orchagent pop batch size to 8192
 ORCHAGENT_ARGS+="-b 8192 "
 
+# Set synchronous mode if it is enabled in CONFIG_DB
+SYNC_MODE=$(echo $SWSS_VARS | jq -r '.synchronous_mode')
+if [ "$SYNC_MODE" == "enable" ]; then
+    ORCHAGENT_ARGS+="-s "
+fi
+
 # Check if there is an "asic_id field" in the DEVICE_METADATA in configDB.
 #"DEVICE_METADATA": {
 #    "localhost": {
