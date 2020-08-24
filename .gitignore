@@ -28,12 +28,6 @@ platform/*/docker-*/Dockerfile
 # Installer-related files and directories
 installer/x86_64/platforms/
 
-src/sonic-py-common/**/*.pyc
-src/sonic-py-common/.eggs/
-src/sonic-py-common/build
-src/sonic-py-common/dist
-src/sonic-py-common/sonic_py_common.egg-info
-
 # Misc. files
 asic_config_checksum
 files/Aboot/boot0

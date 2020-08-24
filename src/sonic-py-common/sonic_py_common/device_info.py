@@ -6,7 +6,7 @@ import subprocess
 import yaml
 from natsort import natsorted
 
-# TODD: Replace with swsscommon
+# TODO: Replace with swsscommon
 from swsssdk import ConfigDBConnector, SonicDBConfig
 
 USR_SHARE_SONIC_PATH = "/usr/share/sonic"

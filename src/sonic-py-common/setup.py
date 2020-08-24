@@ -27,6 +27,13 @@ setup(
     packages=[
         'sonic_py_common',
     ],
+    setup_requires= [
+        'pytest-runner'
+    ],
+    tests_require=[
+        'pytest',
+        'mock==3.0.5' # For python 2. Version >=4.0.0 drops support for py2
+    ],
     classifiers=[
         'Intended Audience :: Developers',
         'Operating System :: Linux',
@@ -35,5 +42,6 @@ setup(
         'Programming Language :: Python',
     ],
     keywords='SONiC sonic PYTHON python COMMON common',
+    test_suite = 'setup.get_test_suite'
 )
 
