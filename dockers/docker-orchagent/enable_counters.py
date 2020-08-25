@@ -18,6 +18,7 @@ def enable_counters():
     enable_counter_group(db, 'PG_WATERMARK')
     enable_counter_group(db, 'QUEUE_WATERMARK')
     enable_counter_group(db, 'BUFFER_POOL_WATERMARK')
+    enable_counter_group(db, 'PORT_BUFFER_DROP')
 
 def get_uptime():
     with open('/proc/uptime') as fp:
