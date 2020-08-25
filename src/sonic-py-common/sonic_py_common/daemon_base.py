@@ -13,13 +13,16 @@ REDIS_TIMEOUT_MSECS = 0
 EEPROM_MODULE_NAME = 'eeprom'
 EEPROM_CLASS_NAME = 'board'
 
+# The empty namespace refers to linux host namespace.
+EMPTY_NAMESPACE = ''
+
 #
 # Helper functions =============================================================
 #
 
-def db_connect(db_name):
+def db_connect(db_name, namespace=EMPTY_NAMESPACE):
     from swsscommon import swsscommon
-    return swsscommon.DBConnector(db_name, REDIS_TIMEOUT_MSECS, True)
+    return swsscommon.DBConnector(db_name, REDIS_TIMEOUT_MSECS, True, namespace)
 
 #
 # DaemonBase ===================================================================
