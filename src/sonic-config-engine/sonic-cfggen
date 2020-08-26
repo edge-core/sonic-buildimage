@@ -45,7 +45,7 @@ from sonic_py_common.device_info import get_platform, get_system_mac
 from sonic_py_common.multi_asic import get_asic_id_from_name, is_multi_asic, get_asic_device_id
 from config_samples import generate_sample_config
 from config_samples import get_available_config
-from swsssdk import SonicV2Connector, ConfigDBConnector, SonicDBConfig 
+from swsssdk import SonicV2Connector, ConfigDBConnector, SonicDBConfig, ConfigDBPipeConnector
 from redis_bcc import RedisBytecodeCache
 from collections import OrderedDict
 from natsort import natsorted
@@ -296,9 +296,9 @@ def main():
 
     if args.from_db:
         if args.namespace is None:
-            configdb = ConfigDBConnector(**db_kwargs)
+            configdb = ConfigDBPipeConnector(use_unix_socket_path=True, **db_kwargs)
         else:
-            configdb = ConfigDBConnector(use_unix_socket_path=True, namespace=args.namespace, **db_kwargs)
+            configdb = ConfigDBPipeConnector(use_unix_socket_path=True, namespace=args.namespace, **db_kwargs)
 
         configdb.connect()
         deep_update(data, FormatConverter.db_to_output(configdb.get_config()))
@@ -367,9 +367,9 @@ def main():
 
     if args.write_to_db:
         if args.namespace is None:
-            configdb = ConfigDBConnector(**db_kwargs)
+            configdb = ConfigDBPipeConnector(use_unix_socket_path=True, **db_kwargs)
         else:
-            configdb = ConfigDBConnector(use_unix_socket_path=True, namespace=args.namespace, **db_kwargs)
+            configdb = ConfigDBPipeConnector(use_unix_socket_path=True, namespace=args.namespace, **db_kwargs)
 
         configdb.connect(False)
         configdb.mod_config(FormatConverter.output_to_db(data))
