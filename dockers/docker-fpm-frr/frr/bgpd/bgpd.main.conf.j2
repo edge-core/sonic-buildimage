@@ -1,4 +1,4 @@
-{% from "common/functions.conf.j2" import get_ipv4_loopback_address, get_ipv6_loopback_address %}
+{% from "common/functions.conf.j2" import get_ipv4_loopback_address, get_ipv6_loopback_address, get_vnet_interfaces %}
 !
 ! template: bgpd/bgpd.main.conf.j2
 !
@@ -14,14 +14,17 @@ ip prefix-list PL_LoopbackV4 permit {{ get_ipv4_loopback_address(LOOPBACK_INTERF
 ipv6 prefix-list PL_LoopbackV6 permit {{ get_ipv6_loopback_address(LOOPBACK_INTERFACE, "Loopback0") | replace('/128', '/64') | ip_network }}/64
 {% endif %}
 !
+{% if VLAN_INTERFACE is defined %}
+{% set vnet_intfs = get_vnet_interfaces(VLAN_INTERFACE) %}
+{% endif %}
 {% for (name, prefix) in VLAN_INTERFACE|pfx_filter %}
-{% if prefix | ipv4 %}
+{% if prefix | ipv4 and name not in vnet_intfs %}
 ip prefix-list LOCAL_VLAN_IPV4_PREFIX seq {{ loop.index * 5 }} permit {{ prefix }}
 !
 {% endif %}
 {% endfor %}
 {% for (name, prefix) in VLAN_INTERFACE|pfx_filter %}
-{% if prefix | ipv6 %}
+{% if prefix | ipv6 and name not in vnet_intfs %}
 ipv6 prefix-list LOCAL_VLAN_IPV6_PREFIX seq {{ loop.index * 5 }} permit {{ prefix }}
 !
 {% endif %}
@@ -78,9 +81,9 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
 !
 {% block vlan_advertisement %}
 {% for (name, prefix) in VLAN_INTERFACE|pfx_filter %}
-{% if prefix | ipv4 %}
+{% if prefix | ipv4 and name not in vnet_intfs %}
   network {{ prefix }}
-{% elif prefix | ipv6 %}
+{% elif prefix | ipv6 and name not in vnet_intfs %}
   address-family ipv6
    network {{ prefix }}
   exit-address-family
