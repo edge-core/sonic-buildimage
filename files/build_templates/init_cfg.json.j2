@@ -27,7 +27,7 @@
                    ("swss", "enabled", false, "enabled"),
                    ("syncd", "enabled", false, "enabled"),
                    ("teamd", "enabled", false, "enabled")] %}
-{%- if include_mgmt_framework == "y" %}{% do features.append(("mgmt-framework", "enabled", false, "enabled")) %}{% endif %}
+{%- if include_mgmt_framework == "y" %}{% do features.append(("mgmt-framework", "enabled", true, "enabled")) %}{% endif %}
 {%- if include_nat == "y" %}{% do features.append(("nat", "disabled", false, "enabled")) %}{% endif %}
 {%- if include_restapi == "y" %}{% do features.append(("restapi", "enabled", false, "enabled")) %}{% endif %}
 {%- if include_sflow == "y" %}{% do features.append(("sflow", "disabled", false, "enabled")) %}{% endif %}
