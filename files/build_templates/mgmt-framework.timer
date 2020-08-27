@@ -1,0 +1,9 @@
+[Unit]
+Description=Delays management framework container until SONiC has started
+
+[Timer]
+OnBootSec=3min 30 sec
+Unit=mgmt-framework.service
+
+[Install]
+WantedBy=timers.target
