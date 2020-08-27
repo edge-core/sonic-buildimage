@@ -1,6 +1,7 @@
 #!/usr/bin/python -u
 # -*- coding: utf-8 -*-
 
+import ast
 import os
 import sys
 import subprocess
@@ -41,15 +42,15 @@ def obfuscate(data):
         return data
 
 
-def update_feature_state(feature_name, state, has_timer=False):
-    feature_suffixes = ["service"] + (["timer"] if has_timer else [])
+def update_feature_state(feature_name, state, has_timer):
+    feature_suffixes = ["service"] + (["timer"] if ast.literal_eval(has_timer) else [])
     if state == "enabled":
         start_cmds = []
         for suffix in feature_suffixes:
             start_cmds.append("sudo systemctl unmask {}.{}".format(feature_name, suffix))
-            start_cmds.append("sudo systemctl enable {}.{}".format(feature_name, suffix))
-        # If feature has timer associated with it, start corresponding systemd .timer unit
-        # otherwise, start corresponding systemd .service unit
+        # If feature has timer associated with it, start/enable corresponding systemd .timer unit
+        # otherwise, start/enable corresponding systemd .service unit
+        start_cmds.append("sudo systemctl enable {}.{}".format(feature_name, feature_suffixes[-1]))
         start_cmds.append("sudo systemctl start {}.{}".format(feature_name, feature_suffixes[-1]))
         for cmd in start_cmds:
             syslog.syslog(syslog.LOG_INFO, "Running cmd: '{}'".format(cmd))
