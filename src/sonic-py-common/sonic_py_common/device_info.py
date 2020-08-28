@@ -29,6 +29,25 @@ FRONTEND_ASIC_SUB_ROLE = "FrontEnd"
 BACKEND_ASIC_SUB_ROLE = "BackEnd"
 
 
+def get_localhost_info(field):
+    try:
+        config_db = ConfigDBConnector()
+        config_db.connect()
+
+        metadata = config_db.get_table('DEVICE_METADATA')
+
+        if 'localhost' in metadata and field in metadata['localhost']:
+            return metadata['localhost'][field]
+    except Exception:
+        pass
+
+    return None
+
+
+def get_hostname():
+    return get_localhost_info('hostname')
+
+
 def get_machine_info():
     """
     Retreives data from the machine configuration file
@@ -80,18 +99,8 @@ def get_platform():
     # container in SONiC, where the /host directory is not mounted. In this
     # case the value should already be populated in Config DB so we finally
     # try reading it from there.
-    try:
-        config_db = ConfigDBConnector()
-        config_db.connect()
-
-        metadata = config_db.get_table('DEVICE_METADATA')
-
-        if 'localhost' in metadata and 'platform' in metadata['localhost']:
-            return metadata['localhost']['platform']
-    except Exception:
-        pass
-
-    return None
+    
+    return get_localhost_info('platform')
 
 
 def get_hwsku():
@@ -101,18 +110,8 @@ def get_hwsku():
     Returns:
         A string containing the device's hardware SKU identifier
     """
-    try:
-        config_db = ConfigDBConnector()
-        config_db.connect()
 
-        metadata = config_db.get_table('DEVICE_METADATA')
-
-        if 'localhost' in metadata and 'hwsku' in metadata['localhost']:
-            return metadata['localhost']['hwsku']
-    except Exception:
-        pass
-
-    return None
+    return get_localhost_info('hwsku')
 
 
 def get_platform_and_hwsku():
