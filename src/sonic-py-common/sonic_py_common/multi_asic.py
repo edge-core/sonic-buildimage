@@ -344,3 +344,15 @@ def get_asic_index_from_namespace(namespace):
         return int(get_asic_id_from_name(namespace))
 
     return 0
+
+# Validate whether a given namespace name is valid in the device.
+# This API is significant in multi-asic platforms.
+def validate_namespace(namespace):
+    if not is_multi_asic():
+        return True
+
+    namespaces = get_all_namespaces()
+    if namespace in namespaces['front_ns'] + namespaces['back_ns']:
+        return True
+    else:
+        return False
