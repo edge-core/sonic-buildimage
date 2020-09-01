@@ -33,6 +33,11 @@ RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return
 
 # Install up-to-date version of pip
 RUN curl https://bootstrap.pypa.io/get-pip.py | python3.6
+
+# pin down setuptools version for issues to install sonic_ax_impl
+# see https://github.com/Azure/sonic-buildimage/issues/5279
+RUN python3.6 -m pip install setuptools==49.6.0
+
 RUN python3.6 -m pip install --no-cache-dir hiredis
 
 # Install pyyaml dependency for use by some plugins
