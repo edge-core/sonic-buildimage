@@ -45,6 +45,10 @@ RUN locale-gen
 # Install up-to-date version of pip
 RUN curl https://bootstrap.pypa.io/get-pip.py | python3.6
 
+# pin down setuptools version for issues to install sonic_ax_impl
+# see https://github.com/Azure/sonic-buildimage/issues/5279
+RUN python3.6 -m pip install setuptools==49.6.0
+
 # Install pyyaml dependency for use by some plugins
 # Install smbus dependency for use by some plugins
 RUN python3.6 -m pip install --no-cache-dir \
