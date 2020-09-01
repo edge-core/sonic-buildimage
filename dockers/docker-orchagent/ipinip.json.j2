@@ -2,12 +2,17 @@
 {% set ipv6_addresses = [] %}
 {% set ipv4_loopback_addresses = [] %}
 {% set ipv6_loopback_addresses = [] %}
+{% if DEVICE_METADATA['localhost']['sub_role'] == 'FrontEnd' or  DEVICE_METADATA['localhost']['sub_role'] == 'BackEnd'%}
+{% set loopback_intf_names = ['Loopback0', 'Loopback4096'] %}
+{% else %}
+{% set loopback_intf_names = ['Loopback0'] %}
+{% endif %}
 {% for (name, prefix) in LOOPBACK_INTERFACE|pfx_filter %}
-    {%- if prefix | ipv4 and name == 'Loopback0' %}
+    {%- if prefix | ipv4 and name in loopback_intf_names %}
         {%- set ipv4_addresses = ipv4_addresses.append(prefix) %}
         {%- set ipv4_loopback_addresses = ipv4_loopback_addresses.append(prefix) %}
     {%- endif %}
-    {%- if prefix | ipv6 and name == 'Loopback0' %}
+    {%- if prefix | ipv6 and name in loopback_intf_names   %}
         {%- set ipv6_addresses = ipv6_addresses.append(prefix) %}
         {%- set ipv6_loopback_addresses = ipv6_loopback_addresses.append(prefix) %}
     {%- endif %}
