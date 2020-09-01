@@ -19,6 +19,8 @@ class TestJ2Files(TestCase):
         self.mlnx_port_config = os.path.join(self.test_dir, 'sample-port-config-mlnx.ini')
         self.dell6100_t0_minigraph = os.path.join(self.test_dir, 'sample-dell-6100-t0-minigraph.xml')
         self.arista7050_t0_minigraph = os.path.join(self.test_dir, 'sample-arista-7050-t0-minigraph.xml')
+        self.multi_asic_minigraph = os.path.join(self.test_dir, 'multi_npu_data', 'sample-minigraph.xml')
+        self.multi_asic_port_config = os.path.join(self.test_dir, 'multi_npu_data', 'sample_port_config-0.ini')
         self.output_file = os.path.join(self.test_dir, 'output')
 
     def run_script(self, argument):
@@ -149,6 +151,14 @@ class TestJ2Files(TestCase):
         os.remove(buffers_config_file_new)
 
         sample_output_file = os.path.join(self.test_dir, 'sample_output', 'buffers-dell6100.json')
+        assert filecmp.cmp(sample_output_file, self.output_file)
+
+    def test_ipinip_multi_asic(self):
+        ipinip_file = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-orchagent', 'ipinip.json.j2')
+        argument = '-m ' + self.multi_asic_minigraph + ' -p ' + self.multi_asic_port_config + ' -t ' + ipinip_file  +  ' -n asic0 '  + ' > ' + self.output_file
+        print(argument)
+        self.run_script(argument) 
+        sample_output_file = os.path.join(self.test_dir, 'multi_npu_data',  'ipinip.json')
         assert filecmp.cmp(sample_output_file, self.output_file)
 
     def tearDown(self):
