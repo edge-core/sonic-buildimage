@@ -99,6 +99,7 @@ int iccp_mclag_config_dump(char * *buf,  int *num, int mclag_id)
         state_info.role = csm->role_type;
 
         str_size = MCLAGDCTL_PORT_MEMBER_BUF_LEN;
+        len = 0;
 
         LIST_FOREACH(lif_po, &(MLACP(csm).lif_list), mlacp_next)
         {
