@@ -136,7 +136,6 @@ COPY ["chassis_db.py", "/usr/bin/"]
 
 COPY ["platform.json", "/usr/share/sonic/device/x86_64-kvm_x86_64-r0/"]
 COPY ["hwsku.json", "/usr/share/sonic/device/x86_64-kvm_x86_64-r0/Force10-S6000/"]
-COPY ["platform.json", "/usr/share/sonic/platform/"]
 
 # Workaround the tcpdump issue
 RUN mv /usr/sbin/tcpdump /usr/bin/tcpdump
