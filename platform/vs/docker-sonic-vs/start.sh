@@ -1,9 +1,9 @@
 #!/bin/bash -e
 
-# generate configuration
+# Generate configuration
 
-export PLATFORM=x86_64-kvm_x86_64-r0
-export HWSKU=Force10-S6000
+# NOTE: 'PLATFORM' and 'HWSKU' environment variables are set
+# in the Dockerfile so that they persist for the life of the container
 
 ln -sf /usr/share/sonic/device/$PLATFORM/$HWSKU /usr/share/sonic/hwsku
 
