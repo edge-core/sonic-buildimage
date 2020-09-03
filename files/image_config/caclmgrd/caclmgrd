@@ -476,12 +476,14 @@ class ControlPlaneAclManager(object):
         
         # Loop on select to see if any event happen on config db of any namespace
         while True:
-            (state, c) = sel.select(SELECT_TIMEOUT_MS)
+            (state, selectableObj) = sel.select(SELECT_TIMEOUT_MS)
             # Continue if select is timeout or selectable object is not return
             if state != swsscommon.Select.OBJECT:
                 continue
-            # Get the corresponding namespace from selectable object
-            namespace = c.getDbNamespace()
+            # Get the redisselect object  from selectable object
+            redisSelectObj = swsscommon.CastSelectableToRedisSelectObj(selectableObj)
+            # Get the corresponding namespace from redisselect db connector object
+            namespace = redisSelectObj.getDbConnector().getNamespace()
             # Pop data of both Subscriber Table object of namespace that got config db acl table event
             for table in config_db_subscriber_table_map[namespace]:
                 table.pop()
