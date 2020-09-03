@@ -131,6 +131,9 @@ function postStartAction()
             /usr/bin/db_migrator.py -o migrate
         fi
     fi
+    # Add redis UDS to the redis group and give read/write access to the group
+    REDIS_SOCK="/var/run/redis${DEV}/redis.sock"
+    chgrp -f redis $REDIS_SOCK && chmod -f 0760 $REDIS_SOCK
 {%- elif docker_container_name == "swss" %}
     docker exec swss$DEV rm -f /ready   # remove cruft
     if [[ "$BOOT_TYPE" == "fast" ]] && [[ -d /host/fast-reboot ]]; then
@@ -354,13 +357,8 @@ NAMESPACE_PREFIX="asic"
 if [ "$DEV" ]; then
     NET_NS="$NAMESPACE_PREFIX$DEV" #name of the network namespace
 
-    # While using -n (namespace) argument, sonic-cfggen/sonic-db-cli uses redis UNIX socket 
-    # for accessing redis DB in a namespace. This unix socket has permission restrictions since 
-    # it is created by systemd database.servce started with [User] as [root].
-    # sudo is needed here for services which are started by systemd with [User] as [admin]
-    # and needs to override this unix socket permission restrictions.
-    SONIC_CFGGEN="sudo sonic-cfggen -n $NET_NS"
-    SONIC_DB_CLI="sudo sonic-db-cli -n $NET_NS"
+    SONIC_CFGGEN="sonic-cfggen -n $NET_NS"
+    SONIC_DB_CLI="sonic-db-cli -n $NET_NS"
  else
     NET_NS=""
     SONIC_CFGGEN="sonic-cfggen"
