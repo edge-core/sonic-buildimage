@@ -49,11 +49,7 @@ HWSKU=${HWSKU:-`sonic-cfggen -d -v "DEVICE_METADATA['localhost']['hwsku']"`}
 SYSTEM_WARM_START=`sonic-db-cli STATE_DB hget "WARM_RESTART_ENABLE_TABLE|system" enable`
 SWSS_WARM_START=`sonic-db-cli STATE_DB hget "WARM_RESTART_ENABLE_TABLE|swss" enable`
 if [[ "$SYSTEM_WARM_START" == "true" ]] || [[ "$SWSS_WARM_START" == "true" ]]; then
-  # We have to make sure db data has not been flushed.
-  RESTORE_COUNT=`sonic-db-cli STATE_DB hget "WARM_RESTART_TABLE|orchagent" restore_count`
-  if [[ -n "$RESTORE_COUNT" ]] && [[ "$RESTORE_COUNT" != "0" ]]; then
-    exit 0
-  fi
+  exit 0
 fi
 
 SWSSCONFIG_ARGS="00-copp.config.json ipinip.json ports.json switch.json "
