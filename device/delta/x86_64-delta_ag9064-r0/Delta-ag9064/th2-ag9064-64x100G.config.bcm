@@ -781,7 +781,7 @@ portmap_8=29:100
 portmap_9=33:100
 
 lpm_scaling_enable=0
-bcm_num_cos=8
+bcm_num_cos=10
 bcm_stat_jumbo=9236
 ipv6_lpm_128b_enable=1
 max_vp_lags=0

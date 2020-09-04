@@ -37,7 +37,7 @@ stat_if_parity_enable=0
 l2xmsg_hostbuf_size=8192
 l2xmsg_mode=1
 
-bcm_num_cos=8
+bcm_num_cos=10
 bcm_stat_interval=2000000
 lls_num_l2uc=12
 max_vp_lags=0
