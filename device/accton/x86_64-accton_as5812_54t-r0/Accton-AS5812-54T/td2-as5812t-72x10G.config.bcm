@@ -1,4 +1,4 @@
-bcm_num_cos=8
+bcm_num_cos=10
 bcm_stat_flags=0
 bcm_stat_interval=2000000
 bcm_tunnel_term_compatible_mode=1

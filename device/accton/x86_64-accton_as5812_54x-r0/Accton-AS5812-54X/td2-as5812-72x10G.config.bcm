@@ -3,7 +3,7 @@ bcm_stat_flags=0
 parity_enable=0
 parity_correction=0
 
-bcm_num_cos=8
+bcm_num_cos=10
 l2_mem_entries=32768
 l3_mem_entries=16384
 l3_alpm_enable=2

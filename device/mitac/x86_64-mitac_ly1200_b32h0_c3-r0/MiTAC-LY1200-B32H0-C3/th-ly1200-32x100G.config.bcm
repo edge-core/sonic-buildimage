@@ -1,6 +1,6 @@
 ### BMS (start)
 ## Global settings
-bcm_num_cos=8
+bcm_num_cos=10
 dport_map_indexed=0
 
 ## Switch settings

@@ -8,7 +8,7 @@ fpem_mem_entries=65536
 l2xmsg_mode=1
 
 l3_alpm_enable=2
-bcm_num_cos=8
+bcm_num_cos=10
 switch_bypass_mode=0
 mmu_lossless=0
 lpm_scaling_enable=0
