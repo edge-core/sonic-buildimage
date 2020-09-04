@@ -7,6 +7,7 @@ try:
     import re
     from collections import OrderedDict
     from swsssdk import ConfigDBConnector
+    from sonic_py_common import device_info
 except ImportError as e:
     raise ImportError("%s - required module not found" % str(e))
 
@@ -64,33 +65,6 @@ def db_connect_configdb():
         config_db = None
     return config_db
 
-def get_port_config_file_name(hwsku=None, platform=None, asic=None):
-
-    # check 'platform.json' file presence
-    port_config_candidates_Json = []
-    port_config_candidates_Json.append(os.path.join(PLATFORM_ROOT_PATH_DOCKER, PLATFORM_JSON))
-    if platform:
-        port_config_candidates_Json.append(os.path.join(PLATFORM_ROOT_PATH, platform, PLATFORM_JSON))
-
-    # check 'portconfig.ini' file presence
-    port_config_candidates = []
-    port_config_candidates.append(os.path.join(HWSKU_ROOT_PATH, PORT_CONFIG_INI))
-    if hwsku:
-        if platform:
-            if asic:
-                port_config_candidates.append(os.path.join(PLATFORM_ROOT_PATH, platform, hwsku, asic, PORT_CONFIG_INI))
-            port_config_candidates.append(os.path.join(PLATFORM_ROOT_PATH, platform, hwsku, PORT_CONFIG_INI))
-        port_config_candidates.append(os.path.join(PLATFORM_ROOT_PATH_DOCKER, hwsku, PORT_CONFIG_INI))
-        port_config_candidates.append(os.path.join(SONIC_ROOT_PATH, hwsku, PORT_CONFIG_INI))
-
-    elif platform and not hwsku:
-        port_config_candidates.append(os.path.join(PLATFORM_ROOT_PATH, platform, PORT_CONFIG_INI))
-
-    for candidate in port_config_candidates_Json + port_config_candidates:
-        if os.path.isfile(candidate):
-            return candidate
-    return None
-
 def get_hwsku_file_name(hwsku=None, platform=None):
     hwsku_candidates_Json = []
     hwsku_candidates_Json.append(os.path.join(HWSKU_ROOT_PATH, HWSKU_JSON))
@@ -119,7 +93,7 @@ def get_port_config(hwsku=None, platform=None, port_config_file=None, hwsku_conf
             return (ports, port_alias_map, port_alias_asic_map)
 
     if not port_config_file:
-        port_config_file = get_port_config_file_name(hwsku, platform, asic)
+        port_config_file = device_info.get_path_to_port_config_file(hwsku, asic)
         if not port_config_file:
             return ({}, {}, {})
 
@@ -289,7 +263,7 @@ def parse_platform_json_file(hwsku_json_file, platform_json_file):
 
 def get_breakout_mode(hwsku=None, platform=None, port_config_file=None):
     if not port_config_file:
-        port_config_file = get_port_config_file_name(hwsku, platform)
+        port_config_file = device_info.get_path_to_port_config_file(hwsku)
         if not port_config_file:
             return None
     if port_config_file.endswith('.json'):

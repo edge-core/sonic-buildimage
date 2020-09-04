@@ -153,18 +153,15 @@ def get_asic_conf_file_path():
     return None
 
 
-def get_paths_to_platform_and_hwsku_dirs():
+def get_path_to_platform_dir():
     """
-    Retreives the paths to the device's platform and hardware SKU data
-    directories
+    Retreives the paths to the device's platform directory
 
     Returns:
-        A tuple of two strings, the first containing the path to the platform
-        directory of the device, the second containing the path to the hardware
-        SKU directory of the device
+        A string containing the path to the platform directory of the device
     """
-    # Get platform and hwsku
-    (platform, hwsku) = get_platform_and_hwsku()
+    # Get platform
+    platform = get_platform()
 
     # Determine whether we're running in a container or on the host
     platform_path_host = os.path.join(HOST_DEVICE_PATH, platform)
@@ -176,31 +173,94 @@ def get_paths_to_platform_and_hwsku_dirs():
     else:
         raise OSError("Failed to locate platform directory")
 
+    return platform_path
+
+def get_path_to_hwsku_dir():
+    """
+    Retreives the path to the device's hardware SKU data directory
+
+    Returns:
+        A string, containing the path to the hardware SKU directory of the device
+    """
+
+    # Get Platform path first
+    platform_path = get_path_to_platform_dir()
+
+    # Get hwsku
+    hwsku = get_hwsku()
+
+    hwsku_path = os.path.join(platform_path, hwsku)
+
+    return hwsku_path
+
+def get_paths_to_platform_and_hwsku_dirs():
+    """
+    Retreives the paths to the device's platform and hardware SKU data
+    directories
+
+    Returns:
+        A tuple of two strings, the first containing the path to the platform
+        directory of the device, the second containing the path to the hardware
+        SKU directory of the device
+    """
+
+    # Get Platform path first
+    platform_path = get_path_to_platform_dir()
+
+    # Get hwsku
+    hwsku = get_hwsku()
+
     hwsku_path = os.path.join(platform_path, hwsku)
 
     return (platform_path, hwsku_path)
 
-
-def get_path_to_port_config_file():
+def get_path_to_port_config_file(hwsku=None, asic=None):
     """
     Retrieves the path to the device's port configuration file
+
+    Args:
+        hwsku: a string, it is allowed to be passed in args because when loading the
+              initial configuration on the device, the HwSKU is not yet present in ConfigDB.
+        asic: a string , asic argument should be passed on multi-ASIC devices only,
+              it should be omitted on single-ASIC platforms.
 
     Returns:
         A string containing the path the the device's port configuration file
     """
-    # Get platform and hwsku path
-    (platform_path, hwsku_path) = get_paths_to_platform_and_hwsku_dirs()
 
-    # First check for the presence of the new 'platform.json' file
-    port_config_file_path = os.path.join(platform_path, PLATFORM_JSON_FILE)
-    if not os.path.isfile(port_config_file_path):
-        # platform.json doesn't exist. Try loading the legacy 'port_config.ini' file
-        port_config_file_path = os.path.join(hwsku_path, PORT_CONFIG_FILE)
-        if not os.path.isfile(port_config_file_path):
-            raise OSError("Failed to detect port config file: {}".format(port_config_file_path))
+    """
+    This platform check is performed to make sure we return a None
+    in case of unit-tests within sonic-cfggen where platform is not expected to be
+    present because tests are not run on actual Hardware/Container.
+    TODO: refactor sonic-cfggen such that we can remove this check
+    """
 
-    return port_config_file_path
+    platform = get_platform()
+    if not platform:
+        return None
 
+    if hwsku:
+        platform_path = get_path_to_platform_dir()
+        hwsku_path = os.path.join(platform_path, hwsku)
+    else:
+        (platform_path, hwsku_path) = get_paths_to_platform_and_hwsku_dirs()
+
+    port_config_candidates = []
+
+    # Check for 'platform.json' file presence first
+    port_config_candidates.append(os.path.join(platform_path, PLATFORM_JSON_FILE))
+
+    # Check for 'port_config.ini' file presence in a few locations
+    if asic:
+        port_config_candidates.append(os.path.join(hwsku_path, asic, PORT_CONFIG_FILE))
+    else:
+        port_config_candidates.append(os.path.join(hwsku_path, PORT_CONFIG_FILE))
+
+    for candidate in port_config_candidates:
+        if os.path.isfile(candidate):
+            return candidate
+
+    return None
 
 def get_sonic_version_info():
     if not os.path.isfile(SONIC_VERSION_YAML_PATH):

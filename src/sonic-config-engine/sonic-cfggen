@@ -41,9 +41,9 @@ from minigraph import minigraph_encoder
 from minigraph import parse_xml
 from minigraph import parse_device_desc_xml
 from minigraph import parse_asic_sub_role
-from portconfig import get_port_config, get_port_config_file_name, get_breakout_mode
-from sonic_py_common.device_info import get_platform, get_system_mac
+from portconfig import get_port_config, get_breakout_mode
 from sonic_py_common.multi_asic import get_asic_id_from_name, is_multi_asic
+from sonic_py_common import device_info
 from config_samples import generate_sample_config
 from config_samples import get_available_config
 from swsssdk import SonicV2Connector, ConfigDBConnector, SonicDBConfig, ConfigDBPipeConnector
@@ -277,7 +277,7 @@ def main():
     group.add_argument("-K", "--key", help="Lookup for a specific key")
     args = parser.parse_args()
 
-    platform = get_platform()
+    platform = device_info.get_platform()
 
     db_kwargs = {}
     if args.redis_unix_sock_file != None:
@@ -301,7 +301,7 @@ def main():
             }}}
         deep_update(data, hardware_data)
         if args.port_config is None:
-            args.port_config = get_port_config_file_name(hwsku, platform)
+            args.port_config = device_info.get_path_to_port_config_file(hwsku)
         (ports, _, _) = get_port_config(hwsku, platform, args.port_config, asic_id)
         if not ports:
             print('Failed to get port config', file=sys.stderr)
@@ -356,11 +356,11 @@ def main():
                 asic_role = parse_asic_sub_role(args.minigraph, asic_name)
 
             if asic_role is not None and asic_role.lower() == "backend":
-                mac = get_system_mac(namespace=asic_name)
+                mac = device_info.get_system_mac(namespace=asic_name)
             else:
-                mac = get_system_mac()
+                mac = device_info.get_system_mac()
         else:
-            mac = get_system_mac()
+            mac = device_info.get_system_mac()
 
         hardware_data = {'DEVICE_METADATA': {'localhost': {
             'platform': platform,
