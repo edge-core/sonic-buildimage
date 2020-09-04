@@ -466,8 +466,12 @@ if [ "${enable_organization_extensions}" = "y" ]; then
 fi
 
 ## Setup ebtable rules (rule file is in binary format)
-sudo sed -i 's/EBTABLES_LOAD_ON_START="no"/EBTABLES_LOAD_ON_START="yes"/g' ${FILESYSTEM_ROOT}/etc/default/ebtables
-sudo cp files/image_config/ebtables/ebtables.filter ${FILESYSTEM_ROOT}/etc
+sudo cp -f files/image_config/ebtables/ebtables.default $FILESYSTEM_ROOT/etc/default/ebtables
+sudo cp -f files/image_config/ebtables/ebtables.init $FILESYSTEM_ROOT/etc/init.d/ebtables
+sudo cp -f files/image_config/ebtables/ebtables.service $FILESYSTEM_ROOT/lib/systemd/system/ebtables.service
+sudo cp files/image_config/ebtables/ebtables.filter.cfg ${FILESYSTEM_ROOT}/etc
+sudo LANG=C chroot $FILESYSTEM_ROOT update-alternatives --set ebtables /usr/sbin/ebtables-legacy
+sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable ebtables.service
 
 ## Debug Image specific changes
 ## Update motd for debug image

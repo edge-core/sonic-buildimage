@@ -186,6 +186,13 @@ program_console_speed()
     systemctl daemon-reload
 }
 
+ebtables_config()
+{
+    # Generate atomic config file and save it persistent
+    /usr/sbin/ebtables-restore < /etc/ebtables.filter.cfg
+    /usr/sbin/ebtables -t filter --atomic-file /etc/ebtables.filter --atomic-save
+}
+
 #### Begin Main Body ####
 
 logger "SONiC version ${SONIC_VERSION} starting up..."
@@ -354,6 +361,9 @@ if [ -f $FIRST_BOOT_FILE ]; then
 
     # Create dir where following scripts put their output files
     mkdir -p /var/platform
+
+    # Firsttime ebtables configuration
+    ebtables_config
 
     firsttime_exit
 fi
