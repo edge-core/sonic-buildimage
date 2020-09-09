@@ -82,7 +82,7 @@ class board(eeprom_tlvinfo.TlvInfoDecoder):
     def __init__(self, name, path, cpld_root, ro):
 
         with open(os.path.dirname(__file__) + "/logging.conf", 'r') as f:
-            config_dict = yaml.load(f)
+            config_dict = yaml.load(f, yaml.SafeLoader)
             logging.config.dictConfig(config_dict)
 
         if not os.path.exists(os.path.dirname(EEPROM_SYMLINK)):
