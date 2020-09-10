@@ -158,6 +158,3 @@ K8s_GCR_IO_PAUSE_VERSION = 3.2
 #     CA_CERT =
 # The relative path is build root folder.
 SONIC_ENABLE_IMAGE_SIGNATURE ?= n
-
-# ENABLE_SYNCHRONOUS_MODE - enable synchronous mode between orchagent and syncd
-ENABLE_SYNCHRONOUS_MODE = n

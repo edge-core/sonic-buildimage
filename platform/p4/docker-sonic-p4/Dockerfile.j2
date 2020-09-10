@@ -78,7 +78,6 @@ COPY ["start.sh", "orchagent.sh", "config_bm.sh", "/usr/bin/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 COPY ["files/configdb-load.sh", "/usr/bin/"]
 COPY ["files/arp_update", "/usr/bin"]
-COPY ["init_cfg.json", "/etc/sonic/"]
 RUN echo "docker-sonic-p4" > /etc/hostname
 RUN touch /etc/quagga/zebra.conf
 
