@@ -189,6 +189,7 @@ export FRR_USER_GID
 ## Dumping key config attributes associated to current building exercise
 ###############################################################################
 
+ifndef SONIC_BUILD_QUIETER
 $(info SONiC Build System)
 $(info )
 $(info Build Configuration)
@@ -232,6 +233,9 @@ $(info "INCLUDE_KUBERNETES"              : "$(INCLUDE_KUBERNETES)")
 $(info "TELEMETRY_WRITABLE"              : "$(TELEMETRY_WRITABLE)")
 $(info "ENABLE_SYNCHRONOUS_MODE"         : "$(ENABLE_SYNCHRONOUS_MODE)")
 $(info )
+else
+$(info SONiC Build System for $(CONFIGURED_PLATFORM):$(CONFIGURED_ARCH))
+endif
 
 include Makefile.cache
 

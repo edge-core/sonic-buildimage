@@ -89,11 +89,13 @@ endif
 -include $(PLATFORM_PATH)/rules.dep
 endif
 
+ifndef SONIC_BUILD_QUIETER
 $(info "SONIC_DPKG_CACHE_METHOD"         : "$(SONIC_DPKG_CACHE_METHOD)")
 ifneq ($(SONIC_DPKG_CACHE_METHOD),none)
 $(info "DPKG_CACHE_PATH"                 : "$(SONIC_DPKG_CACHE_SOURCE)")
 endif
 $(info )
+endif
 
 
 ###############################################################################

@@ -116,12 +116,17 @@ DOCKER_RUN := docker run --rm=true --privileged --init \
     -w $(DOCKER_BUILDER_WORKDIR) \
     -e "http_proxy=$(http_proxy)" \
     -e "https_proxy=$(https_proxy)" \
-    -i$(if $(TERM),t,)
+    -i$(if $(TERM),t,) \
+    $(SONIC_BUILDER_EXTRA_CMDLINE)
 
 include rules/config
 
 ifneq ($(DOCKER_BUILDER_USER_MOUNT),)
 	DOCKER_RUN += $(foreach mount,$(subst $(comma), ,$(DOCKER_BUILDER_USER_MOUNT)), $(addprefix -v , $(mount)))
+endif
+
+ifdef SONIC_BUILD_QUIETER
+	DOCKER_RUN += -e "SONIC_BUILD_QUIETER=$(SONIC_BUILD_QUIETER)"
 endif
 
 ifneq ($(SONIC_DPKG_CACHE_SOURCE),)
