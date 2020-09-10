@@ -16,8 +16,17 @@
 #include "dhcp_mon.h"
 #include "dhcp_devman.h"
 
+/** DHCP device/interface state */
+typedef struct
+{
+    dhcp_mon_check_t check_type;                /** check type */
+    dhcp_device_context_t* (*get_context)();    /** functor to a device context accessor function */
+    int count;                                  /** count in the number of unhealthy checks */
+    const char *msg;                            /** message to be printed if unhealthy state is determined */
+} dhcp_mon_state_t;
+
 /** window_interval_sec monitoring window for dhcp relay health checks */
-static int window_interval_sec = 12;
+static int window_interval_sec = 18;
 /** dhcp_unhealthy_max_count max count of consecutive unhealthy statuses before reporting to syslog */
 static int dhcp_unhealthy_max_count = 10;
 /** libevent base struct */
@@ -28,6 +37,25 @@ static struct event *ev_timeout = NULL;
 static struct event *ev_sigint;
 /** libevent SIGTERM signal event struct */
 static struct event *ev_sigterm;
+/** libevent SIGUSR1 signal event struct */
+static struct event *ev_sigusr1;
+
+/** DHCP monitor state data for aggregate device for mgmt device */
+static dhcp_mon_state_t state_data[] = {
+    [0] = {
+        .check_type = DHCP_MON_CHECK_POSITIVE,
+        .get_context = dhcp_devman_get_agg_dev,
+        .count = 0,
+        .msg = "dhcpmon detected disparity in DHCP Relay behavior. Duration: %d (sec) for vlan: '%s'\n"
+    },
+    [1] = {
+        .check_type = DHCP_MON_CHECK_NEGATIVE,
+        .get_context = dhcp_devman_get_mgmt_dev,
+        .count = 0,
+        .msg = "dhcpmon detected DHCP packets traveling through mgmt interface (please check BGP routes.)"
+               " Duration: %d (sec) for intf: '%s'\n"
+    }
+};
 
 /**
  * @code signal_callback(fd, event, arg);
@@ -42,9 +70,47 @@ static struct event *ev_sigterm;
  */
 static void signal_callback(evutil_socket_t fd, short event, void *arg)
 {
-    syslog(LOG_ALERT, "Received signal %s\n", strsignal(fd));
-    dhcp_devman_print_status();
-    dhcp_mon_stop();
+    syslog(LOG_ALERT, "Received signal: '%s'\n", strsignal(fd));
+    dhcp_devman_print_status(NULL);
+    if ((fd == SIGTERM) || (fd == SIGINT)) {
+        dhcp_mon_stop();
+    }
+}
+
+/**
+ * @code check_dhcp_relay_health(state_data);
+ *
+ * @brief check DHCP relay overall health
+ *
+ * @param state_data        pointer to dhcpmon state data
+ *
+ * @return none
+ */
+static void check_dhcp_relay_health(dhcp_mon_state_t *state_data)
+{
+    dhcp_device_context_t *context = state_data->get_context();
+    dhcp_mon_status_t dhcp_mon_status = dhcp_devman_get_status(state_data->check_type, context);
+
+    switch (dhcp_mon_status)
+    {
+    case DHCP_MON_STATUS_UNHEALTHY:
+        if (++state_data->count > dhcp_unhealthy_max_count) {
+            syslog(LOG_ALERT, state_data->msg, state_data->count * window_interval_sec, context->intf);
+            dhcp_devman_print_status(context);
+        }
+        break;
+    case DHCP_MON_STATUS_HEALTHY:
+        state_data->count = 0;
+        break;
+    case DHCP_MON_STATUS_INDETERMINATE:
+        if (state_data->count) {
+            state_data->count++;
+        }
+        break;
+    default:
+        syslog(LOG_ERR, "DHCP Relay returned unknown status %d\n", dhcp_mon_status);
+        break;
+    }
 }
 
 /**
@@ -60,28 +126,12 @@ static void signal_callback(evutil_socket_t fd, short event, void *arg)
  */
 static void timeout_callback(evutil_socket_t fd, short event, void *arg)
 {
-    static int count = 0;
-    dhcp_mon_status_t dhcp_mon_status = dhcp_devman_get_status();
+    for (uint8_t i = 0; i < sizeof(state_data) / sizeof(*state_data); i++) {
+        check_dhcp_relay_health(&state_data[i]);
+    }
 
-    switch (dhcp_mon_status)
-    {
-    case DHCP_MON_STATUS_UNHEALTHY:
-        if (++count > dhcp_unhealthy_max_count) {
-            syslog(LOG_ALERT, "dhcpmon detected disparity in DHCP Relay behavior. Failure count: %d for vlan: '%s'\n",
-                   count, dhcp_devman_get_vlan_intf());
-            dhcp_devman_print_status();
-        }
-        break;
-    case DHCP_MON_STATUS_HEALTHY:
-        if (count > 0) {
-            count = 0;
-        }
-        break;
-    case DHCP_MON_STATUS_INDETERMINATE:
-        break;
-    default:
-        syslog(LOG_ERR, "DHCP Relay returned unknown status %d\n", dhcp_mon_status);
-        break;
+    for (uint8_t i = 0; i < sizeof(state_data) / sizeof(*state_data); i++) {
+        dhcp_devman_update_snapshot(state_data[i].get_context());
     }
 }
 
@@ -118,6 +168,12 @@ int dhcp_mon_init(int window_sec, int max_count)
             break;
         }
 
+        ev_sigusr1 = evsignal_new(base, SIGUSR1, signal_callback, base);
+        if (ev_sigusr1 == NULL) {
+            syslog(LOG_ERR, "Could not create SIGUSER1 libevent signal!\n");
+            break;
+        }
+
         ev_timeout = event_new(base, -1, EV_PERSIST, timeout_callback, base);
         if (ev_timeout == NULL) {
             syslog(LOG_ERR, "Could not create libevent timer!\n");
@@ -140,10 +196,12 @@ void dhcp_mon_shutdown()
     event_del(ev_timeout);
     event_del(ev_sigint);
     event_del(ev_sigterm);
+    event_del(ev_sigusr1);
 
     event_free(ev_timeout);
     event_free(ev_sigint);
     event_free(ev_sigterm);
+    event_free(ev_sigusr1);
 
     event_base_free(base);
 }
@@ -170,6 +228,11 @@ int dhcp_mon_start(size_t snaplen)
 
         if (evsignal_add(ev_sigterm, NULL) != 0) {
             syslog(LOG_ERR, "Could not add SIGTERM libevent signal!\n");
+            break;
+        }
+
+        if (evsignal_add(ev_sigusr1, NULL) != 0) {
+            syslog(LOG_ERR, "Could not add SIGUSR1 libevent signal!\n");
             break;
         }
 
