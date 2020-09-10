@@ -5,6 +5,7 @@
 .arch
 .platform
 .screen
+rules/config.user
 
 # Build artifacts
 fsroot/
