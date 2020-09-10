@@ -431,6 +431,11 @@ write_platform_specific_cmdline() {
     # set varlog size to 100MB
     local varlog_size=100
 
+    # sonic_mode is set to fixed by default.
+    sonic_mode="fixed"
+    supervisor_mode="supervisor"
+    linecard_mode="linecard"
+
     # detect the size of the flash partition from name in Aboot/EOS/SONiC
     local flash_size=$(($(df "$target_path" | tail -1 | tr -s ' ' | cut -f2 -d' ') / 1000))
 
@@ -502,14 +507,27 @@ write_platform_specific_cmdline() {
         aboot_machine=arista_7280cr3k_32d4
         flash_size=7382
     fi
-    if in_array "$platform" "rook" "magpie" "woodpecker"; then
+    if [ "$sid" = "Clearwater2" ]; then
+        aboot_machine=arista_7800r3_48cq2_lc
+        sonic_mode="$linecard_mode"
+    fi
+    if [ "$sid" = "Clearwater2Ms" ]; then
+        aboot_machine=arista_7800r3_48cqm2_lc
+        sonic_mode="$linecard_mode"
+    fi
+    if [ "$sid" = "OtterLake" ]; then
+        aboot_machine=arista_7800_sup
+        flash_size=30000
+        sonic_mode=$supervisor_mode
+    fi
+    if in_array "$platform" "rook" "magpie" "woodpecker" "sprucefish"; then
         cmdline_add tsc=reliable
         cmdline_add pcie_ports=native
         cmdline_add rhash_entries=1
         cmdline_add usb-storage.delay_use=0
         cmdline_add reassign_prefmem
     fi
-    if in_array "$platform" "rook"; then
+    if in_array "$platform" "rook" "sprucefish"; then
         cmdline_add iommu=on
         cmdline_add intel_iommu=on
         read_system_eeprom
@@ -521,6 +539,9 @@ write_platform_specific_cmdline() {
     fi
     if in_array "$platform" "woodpecker"; then
         cmdline_add modprobe.blacklist=snd_hda_intel,hdaudio
+        read_system_eeprom
+    fi
+    if in_array "$platform" "lorikeet" "hedgehog"; then
         read_system_eeprom
     fi
 
@@ -535,6 +556,8 @@ write_platform_specific_cmdline() {
     fi
 
     cmdline_add "varlog_size=$varlog_size"
+
+    cmdline_add "sonic.mode=$sonic_mode"
 }
 
 write_image_specific_cmdline() {
