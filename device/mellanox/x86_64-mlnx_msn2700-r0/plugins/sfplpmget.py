@@ -1,43 +1,51 @@
 #!/usr/bin/env python
+"""
+This utility get the power mode of a given module.
+"""
 
-import sys, errno
-import os
-from python_sdk_api.sxd_api import *
+import sys
+import errno
 from python_sdk_api.sx_api import *
+
+def mgmt_phy_mod_pwr_attr_get(handle, module_id, power_attr_type):
+    sx_mgmt_phy_mod_pwr_attr_p = new_sx_mgmt_phy_mod_pwr_attr_t_p()
+    sx_mgmt_phy_mod_pwr_attr = sx_mgmt_phy_mod_pwr_attr_t()
+    sx_mgmt_phy_mod_pwr_attr.power_attr_type = power_attr_type
+    sx_mgmt_phy_mod_pwr_attr_t_p_assign(sx_mgmt_phy_mod_pwr_attr_p, sx_mgmt_phy_mod_pwr_attr)
+    try:
+        rc = sx_mgmt_phy_mod_pwr_attr_get(handle, module_id, sx_mgmt_phy_mod_pwr_attr_p)
+        assert SX_STATUS_SUCCESS == rc, "sx_mgmt_phy_mod_pwr_attr_get failed"
+        sx_mgmt_phy_mod_pwr_attr = sx_mgmt_phy_mod_pwr_attr_t_p_value(sx_mgmt_phy_mod_pwr_attr_p)
+        pwr_mode_attr = sx_mgmt_phy_mod_pwr_attr.pwr_mode_attr
+        return pwr_mode_attr.admin_pwr_mode_e, pwr_mode_attr.oper_pwr_mode_e
+    finally:
+        delete_sx_mgmt_phy_mod_pwr_attr_t_p(sx_mgmt_phy_mod_pwr_attr_p)
 
 # Check if SFP port number is provided
 if len(sys.argv) < 2:
-    print "SFP module number is missed."
-    print "Usage: sfplpmget.py <SFP module>"
+    print("SFP module number is missed.")
+    print("Usage: sfplpmget.py <SFP module>")
     sys.exit(errno.EINVAL)
 
 # Init SDK API
 rc, handle = sx_api_open(None)
 if (rc != SX_STATUS_SUCCESS):
-    print "Failed to open api handle.\nPlease check that SDK is running."
-    sys.exit(errno.EACCES)
-
-pid = os.getpid()
-rc = sxd_access_reg_init(pid, None, 0)
-if (rc != 0):
-    print "Failed to initializing register access.\nPlease check that SDK is running."
+    print("Failed to open api handle.\nPlease check that SDK is running.")
     sys.exit(errno.EACCES)
 
 # Get SFP module number
 sfp_module = int(sys.argv[1]) - 1
 
-# Get MCION
-mcion = ku_mcion_reg()
-mcion.module = sfp_module
-meta = sxd_reg_meta_t()
-meta.dev_id = 1
-meta.swid = 0
-meta.access_cmd = SXD_ACCESS_CMD_GET
+admin_pwr_mode, oper_pwr_mode = mgmt_phy_mod_pwr_attr_get(handle, sfp_module, SX_MGMT_PHY_MOD_PWR_ATTR_PWR_MODE_E)
 
-rc = sxd_access_reg_mcion(mcion, meta, 1, None, None)
-assert rc == SXD_STATUS_SUCCESS, "sxd_access_reg_mcion failed, rc = %d" % rc
+lpm_status = None
+if oper_pwr_mode == SX_MGMT_PHY_MOD_PWR_MODE_HIGH_E:
+    lpm_status = False
+elif oper_pwr_mode == SX_MGMT_PHY_MOD_PWR_MODE_LOW_E:
+    lpm_status = True
+else:
+    print("LPM UNKNOWN")
 
-# Get low power mode status
-lpm_mask = 1 << 8
-lpm_status = (lpm_mask & mcion.module_status_bits) != 0
 print "LPM ON" if lpm_status else "LPM OFF"
+
+sx_api_close(handle)
