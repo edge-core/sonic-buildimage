@@ -2,6 +2,8 @@
     "chassis": {
         "x86_64-mlnx_msn4600c-r0": {
             "component": {
+                "ONIE": { },
+                "SSD": { },
                 "BIOS": { },
                 "CPLD1": { },
                 "CPLD2": { },
