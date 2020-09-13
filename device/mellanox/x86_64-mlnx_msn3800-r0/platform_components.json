@@ -2,8 +2,13 @@
     "chassis": {
         "x86_64-mlnx_msn3800-r0": {
             "component": {
+                "ONIE": { },
+                "SSD": { },
                 "BIOS": { },
-                "CPLD": { }
+                "CPLD1": { },
+                "CPLD2": { },
+                "CPLD3": { },
+                "CPLD4": { }
             }
         }
     }
