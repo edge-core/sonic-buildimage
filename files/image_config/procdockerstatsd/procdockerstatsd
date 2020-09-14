@@ -8,10 +8,10 @@ import os
 import re
 import subprocess
 import sys
-import syslog
 import time
 from datetime import datetime
 
+from sonic_py_common import daemon_base
 import swsssdk
 
 VERSION = '1.0'
@@ -20,26 +20,11 @@ SYSLOG_IDENTIFIER = "procdockerstatsd"
 
 REDIS_HOSTIP = "127.0.0.1"
 
-# ========================== Syslog wrappers ==========================
-def log_info(msg, also_print_to_console=False):
-    syslog.openlog(SYSLOG_IDENTIFIER)
-    syslog.syslog(syslog.LOG_INFO, msg)
-    syslog.closelog()
 
-def log_warning(msg, also_print_to_console=False):
-    syslog.openlog(SYSLOG_IDENTIFIER)
-    syslog.syslog(syslog.LOG_WARNING, msg)
-    syslog.closelog()
+class ProcDockerStats(daemon_base.DaemonBase):
 
-def log_error(msg, also_print_to_console=False):
-    syslog.openlog(SYSLOG_IDENTIFIER)
-    syslog.syslog(syslog.LOG_ERR, msg)
-    syslog.closelog()
-
-# ========================== ProcessDocker class ==========================
-class ProcDockerStats:
-
-    def __init__(self):
+    def __init__(self, log_identifier):
+        super(ProcDockerStats, self).__init__(log_identifier)
         self.state_db = swsssdk.SonicV2Connector(host=REDIS_HOSTIP)
         self.state_db.connect("STATE_DB")
 
@@ -47,7 +32,7 @@ class ProcDockerStats:
         proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
         (stdout, stderr) = proc.communicate()
         if proc.returncode != 0:
-            log_error("Error running command '{}'".format(cmd))
+            self.log_error("Error running command '{}'".format(cmd))
             return None
         else:
             return stdout
@@ -144,11 +129,11 @@ class ProcDockerStats:
         cmd = "docker stats --no-stream -a"
         data = self.run_command(cmd)
         if not data:
-            log_error("'{}' returned null output".format(cmd))
+            self.log_error("'{}' returned null output".format(cmd))
             return False
         dockerdata = self.format_docker_cmd_output(data)
         if not dockerdata:
-            log_error("formatting for docker output failed")
+            self.log_error("formatting for docker output failed")
             return False
         # wipe out all data from state_db before updating
         self.state_db.delete_all_by_pattern('STATE_DB', 'DOCKER_STATS|*')
@@ -188,26 +173,36 @@ class ProcDockerStats:
         self.state_db.set('STATE_DB', key1, key2, value2)
 
     def run(self):
-        self.update_dockerstats_command()
-        datetimeobj = datetime.now()
-        # Adding key to store latest update time.
-        self.update_state_db('DOCKER_STATS|LastUpdateTime', 'lastupdate', datetimeobj)
-        self.update_processstats_command()
-        self.update_state_db('PROCESS_STATS|LastUpdateTime', 'lastupdate', datetimeobj)
+        self.log_info("Starting up ...")
 
-# main start
+        if not os.getuid() == 0:
+            self.log_error("Must be root to run this daemon")
+            print("Must be root to run this daemon")
+            sys.exit(1)
+
+        while True:
+            self.update_dockerstats_command()
+            datetimeobj = datetime.now()
+            # Adding key to store latest update time.
+            self.update_state_db('DOCKER_STATS|LastUpdateTime', 'lastupdate', datetimeobj)
+            self.update_processstats_command()
+            self.update_state_db('PROCESS_STATS|LastUpdateTime', 'lastupdate', datetimeobj)
+
+            # Data need to be updated every 2 mins. hence adding delay of 120 seconds
+            time.sleep(120)
+
+        self.log_info("Exiting ...")
+
+
 def main():
-    log_info("process-docker stats daemon starting up..")
-    if not os.getuid() == 0:
-        log_error("Must be root to run process-docker daemon")
-        print "Error: Must be root to run process-docker daemon"
-        sys.exit(1)
-    pd = ProcDockerStats()
-    # Data need to be updated every 2 mins. hence adding delay of 120 seconds
-    while True:
-        pd.run()
-        time.sleep(120)
-    log_info("process-docker stats daemon exited")
+    # Instantiate a ProcDockerStats object
+    pd = ProcDockerStats(SYSLOG_IDENTIFIER)
+
+    # Log all messages from INFO level and higher
+    pd.set_min_log_priority_info()
+
+    pd.run()
+
 
 if __name__ == '__main__':
     main()
