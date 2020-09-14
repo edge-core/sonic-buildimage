@@ -288,7 +288,7 @@ class HostConfigDaemon:
                 syslog.syslog(syslog.LOG_WARNING, "Eanble state of feature '{}' is None".format(feature_name))
                 continue
 
-            update_feature_state(feature_name, state, feature_table[feature_name]['has_timer'])
+            update_feature_state(feature_name, state, feature_table[feature_name].get('has_timer', 'False'))
 
     def aaa_handler(self, key, data):
         self.aaacfg.aaa_update(key, data)
@@ -330,7 +330,7 @@ class HostConfigDaemon:
             syslog.syslog(syslog.LOG_WARNING, "Enable state of feature '{}' is None".format(feature_name))
             return
 
-        update_feature_state(feature_name, state, feature_table[feature_name]['has_timer'])
+        update_feature_state(feature_name, state, feature_table[feature_name].get('has_timer', 'False'))
 
     def start(self):
         # Update all feature states once upon starting
