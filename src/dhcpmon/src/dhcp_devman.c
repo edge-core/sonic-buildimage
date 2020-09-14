@@ -12,9 +12,6 @@
 
 #include "dhcp_devman.h"
 
-/** Prefix appended to Aggregation device */
-#define AGG_DEV_PREFIX  "Agg-"
-
 /** struct for interface information */
 struct intf
 {
@@ -30,34 +27,22 @@ static LIST_HEAD(intf_list, intf) intfs;
 static uint32_t dhcp_num_south_intf = 0;
 /** dhcp_num_north_intf number of north interfaces */
 static uint32_t dhcp_num_north_intf = 0;
-/** dhcp_num_mgmt_intf number of mgmt interfaces */
-static uint32_t dhcp_num_mgmt_intf = 0;
 
 /** On Device  vlan interface IP address corresponding vlan downlink IP
  *  This IP is used to filter Offer/Ack packet coming from DHCP server */
 static in_addr_t vlan_ip = 0;
 
-/** mgmt interface */
-static struct intf *mgmt_intf = NULL;
+/** vlan interface name */
+static char vlan_intf[IF_NAMESIZE] = "Undefined";
 
 /**
  * @code dhcp_devman_get_vlan_intf();
  *
  * Accessor method
  */
-dhcp_device_context_t* dhcp_devman_get_agg_dev()
+const char* dhcp_devman_get_vlan_intf()
 {
-    return dhcp_device_get_aggregate_context();
-}
-
-/**
- * @code dhcp_devman_get_mgmt_dev();
- *
- * Accessor method
- */
-dhcp_device_context_t* dhcp_devman_get_mgmt_dev()
-{
-    return mgmt_intf ? mgmt_intf->dev_context : NULL;
+    return vlan_intf;
 }
 
 /**
@@ -101,42 +86,27 @@ void dhcp_devman_shutdown()
  *
  * @brief adds interface to the device manager.
  */
-int dhcp_devman_add_intf(const char *name, char intf_type)
+int dhcp_devman_add_intf(const char *name, uint8_t is_uplink)
 {
     int rv = -1;
     struct intf *dev = malloc(sizeof(struct intf));
 
     if (dev != NULL) {
         dev->name = name;
-        dev->is_uplink = intf_type != 'd';
-
-        switch (intf_type)
-        {
-        case 'u':
+        dev->is_uplink = is_uplink;
+        if (is_uplink) {
             dhcp_num_north_intf++;
-            break;
-        case 'd':
+        } else {
             dhcp_num_south_intf++;
             assert(dhcp_num_south_intf <= 1);
-            break;
-        case 'm':
-            dhcp_num_mgmt_intf++;
-            assert(dhcp_num_mgmt_intf <= 1);
-            mgmt_intf = dev;
-            break;
-        default:
-            break;
         }
 
         rv = dhcp_device_init(&dev->dev_context, dev->name, dev->is_uplink);
-        if (rv == 0 && intf_type == 'd') {
+        if (rv == 0 && !is_uplink) {
             rv = dhcp_device_get_ip(dev->dev_context, &vlan_ip);
 
-            dhcp_device_context_t *agg_dev = dhcp_device_get_aggregate_context();
-
-            strncpy(agg_dev->intf, AGG_DEV_PREFIX, sizeof(AGG_DEV_PREFIX));
-            strncpy(agg_dev->intf + sizeof(AGG_DEV_PREFIX) - 1, name, sizeof(agg_dev->intf) - sizeof(AGG_DEV_PREFIX));
-            agg_dev->intf[sizeof(agg_dev->intf) - 1] = '\0';
+            strncpy(vlan_intf, name, sizeof(vlan_intf) - 1);
+            vlan_intf[sizeof(vlan_intf) - 1] = '\0';
         }
 
         LIST_INSERT_HEAD(&intfs, dev, entry);
@@ -182,41 +152,21 @@ int dhcp_devman_start_capture(size_t snaplen, struct event_base *base)
 }
 
 /**
- * @code dhcp_devman_get_status(check_type, context);
+ * @code dhcp_devman_get_status();
  *
  * @brief collects DHCP relay status info.
  */
-dhcp_mon_status_t dhcp_devman_get_status(dhcp_mon_check_t check_type, dhcp_device_context_t *context)
+dhcp_mon_status_t dhcp_devman_get_status()
 {
-    return dhcp_device_get_status(check_type, context);
+    return dhcp_device_get_status(NULL);
 }
 
 /**
- * @code dhcp_devman_update_snapshot(context);
+ * @code dhcp_devman_print_status();
  *
- * @brief Update device/interface counters snapshot
+ * @brief prints status counters to syslog
  */
-void dhcp_devman_update_snapshot(dhcp_device_context_t *context)
+void dhcp_devman_print_status()
 {
-    dhcp_device_update_snapshot(context);
-}
-
-/**
- * @code dhcp_devman_print_status(context);
- *
- * @brief prints status counters to syslog, if context is null, it prints status counters for all interfaces
- */
-void dhcp_devman_print_status(dhcp_device_context_t *context)
-{
-    if (context == NULL) {
-        struct intf *int_ptr;
-
-        LIST_FOREACH(int_ptr, &intfs, entry) {
-            dhcp_device_print_status(int_ptr->dev_context);
-        }
-
-        dhcp_device_print_status(dhcp_devman_get_agg_dev());
-    } else {
-        dhcp_device_print_status(context);
-    }
+    dhcp_device_print_status(NULL);
 }

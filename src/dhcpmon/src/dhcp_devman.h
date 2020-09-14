@@ -36,18 +36,9 @@ void dhcp_devman_shutdown();
  *
  * @brief Accessor method
  *
- * @return pointer to aggregate device (interface) context
+ * @return pointer to vlan ip interface name
  */
-dhcp_device_context_t* dhcp_devman_get_agg_dev();
-
-/**
- * @code dhcp_devman_get_mgmt_intf_context();
- *
- * @brief Accessor method
- *
- * @return pointer to mgmt interface context
- */
-dhcp_device_context_t* dhcp_devman_get_mgmt_dev();
+const char* dhcp_devman_get_vlan_intf();
 
 /**
  * @code dhcp_devman_add_intf(name, uplink);
@@ -55,13 +46,11 @@ dhcp_device_context_t* dhcp_devman_get_mgmt_dev();
  * @brief adds interface to the device manager.
  *
  * @param name              interface name
- * @param intf_type         'u' for uplink (north) interface
- *                          'd' for downlink (south) interface
- *                          'm' for mgmt interface
+ * @param is_uplink         true for uplink (north) interface
  *
  * @return 0 on success, nonzero otherwise
  */
-int dhcp_devman_add_intf(const char *name, char intf_type);
+int dhcp_devman_add_intf(const char *name, uint8_t is_uplink);
 
 /**
  * @code dhcp_devman_start_capture(snaplen, base);
@@ -76,35 +65,21 @@ int dhcp_devman_add_intf(const char *name, char intf_type);
 int dhcp_devman_start_capture(size_t snaplen, struct event_base *base);
 
 /**
- * @code dhcp_devman_get_status(check_type, context);
+ * @code dhcp_devman_get_status();
  *
  * @brief collects DHCP relay status info.
  *
- * @param check_type        Type of validation
- * @param context           pointer to device (interface) context
- *
  * @return DHCP_MON_STATUS_HEALTHY, DHCP_MON_STATUS_UNHEALTHY, or DHCP_MON_STATUS_INDETERMINATE
  */
-dhcp_mon_status_t dhcp_devman_get_status(dhcp_mon_check_t check_type, dhcp_device_context_t *context);
+dhcp_mon_status_t dhcp_devman_get_status();
 
 /**
- * @code dhcp_devman_update_snapshot(context);
- *
- * @param context           Device (interface) context
- *
- * @brief Update device/interface counters snapshot
- */
-void dhcp_devman_update_snapshot(dhcp_device_context_t *context);
-
-/**
- * @code dhcp_devman_print_status(context);
+ * @code dhcp_devman_print_status();
  *
  * @brief prints status counters to syslog
  *
- * @param context       pointer to device (interface) context
- *
  * @return none
  */
-void dhcp_devman_print_status(dhcp_device_context_t *context);
+void dhcp_devman_print_status();
 
 #endif /* DHCP_DEVMAN_H_ */
