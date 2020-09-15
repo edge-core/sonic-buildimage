@@ -15,9 +15,8 @@ try:
     import os
     import subprocess
     import sys
-    import syslog
 
-    from sonic_py_common import device_info
+    from sonic_py_common import daemon_base, device_info
     from swsscommon import swsscommon
     from swsssdk import SonicDBConfig, ConfigDBConnector
 except ImportError as err:
@@ -27,25 +26,6 @@ VERSION = "1.0"
 
 SYSLOG_IDENTIFIER = "caclmgrd"
 
-
-# ========================== Syslog wrappers ==========================
-
-def log_info(msg):
-    syslog.openlog(SYSLOG_IDENTIFIER)
-    syslog.syslog(syslog.LOG_INFO, msg)
-    syslog.closelog()
-
-
-def log_warning(msg):
-    syslog.openlog(SYSLOG_IDENTIFIER)
-    syslog.syslog(syslog.LOG_WARNING, msg)
-    syslog.closelog()
-
-
-def log_error(msg):
-    syslog.openlog(SYSLOG_IDENTIFIER)
-    syslog.syslog(syslog.LOG_ERR, msg)
-    syslog.closelog()
 
 # ========================== Helper Functions =========================
 
@@ -61,7 +41,7 @@ def _ip_prefix_in_key(key):
 # ============================== Classes ==============================
 
 
-class ControlPlaneAclManager(object):
+class ControlPlaneAclManager(daemon_base.DaemonBase):
     """
     Class which reads control plane ACL tables and rules from Config DB,
     translates them into equivalent iptables commands and runs those
@@ -91,7 +71,9 @@ class ControlPlaneAclManager(object):
         }
     }
 
-    def __init__(self):
+    def __init__(self, log_identifier):
+        super(ControlPlaneAclManager, self).__init__(log_identifier)
+
         SonicDBConfig.load_sonic_global_db_config()
         self.config_db_map = {}
         self.iptables_cmd_ns_prefix = {}
@@ -131,7 +113,7 @@ class ControlPlaneAclManager(object):
             (stdout, stderr) = proc.communicate()
 
             if proc.returncode != 0:
-                log_error("Error running command '{}'".format(cmd))
+                self.log_error("Error running command '{}'".format(cmd))
             elif stdout:
                 return stdout.rstrip('\n')
 
@@ -192,7 +174,7 @@ class ControlPlaneAclManager(object):
                     elif isinstance(ip_ntwrk, ipaddress.IPv6Network):
                         block_ip2me_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -A INPUT -d {}/{} -j DROP".format(ip_addr, ip_ntwrk.max_prefixlen))
                     else:
-                        log_warning("Unrecognized IP address type on interface '{}': {}".format(iface_name, ip_ntwrk))
+                        self.log_warning("Unrecognized IP address type on interface '{}': {}".format(iface_name, ip_ntwrk))
 
         return block_ip2me_cmds
 
@@ -327,12 +309,12 @@ class ControlPlaneAclManager(object):
 
             for acl_service in acl_services:
                 if acl_service not in self.ACL_SERVICES:
-                    log_warning("Ignoring control plane ACL '{}' with unrecognized service '{}'"
-                                .format(table_name, acl_service))
+                    self.log_warning("Ignoring control plane ACL '{}' with unrecognized service '{}'"
+                                     .format(table_name, acl_service))
                     continue
 
-                log_info("Translating ACL rules for control plane ACL '{}' (service: '{}')"
-                         .format(table_name, acl_service))
+                self.log_info("Translating ACL rules for control plane ACL '{}' (service: '{}')"
+                              .format(table_name, acl_service))
 
                 # Obtain default IP protocol(s) and destination port(s) for this service
                 ip_protocols = self.ACL_SERVICES[acl_service]["ip_protocols"]
@@ -343,13 +325,13 @@ class ControlPlaneAclManager(object):
                 for ((rule_table_name, rule_id), rule_props) in self._rules_db_info.iteritems():
                     if rule_table_name == table_name:
                         if not rule_props:
-                            log_warning("rule_props for rule_id {} empty or null!".format(rule_id))
+                            self.log_warning("rule_props for rule_id {} empty or null!".format(rule_id))
                             continue
 
                         try:
                             acl_rules[rule_props["PRIORITY"]] = rule_props
                         except KeyError:
-                            log_error("rule_props for rule_id {} does not have key 'PRIORITY'!".format(rule_id))
+                            self.log_error("rule_props for rule_id {} does not have key 'PRIORITY'!".format(rule_id))
                             continue
 
                         # If we haven't determined the IP version for this ACL table yet,
@@ -362,19 +344,19 @@ class ControlPlaneAclManager(object):
                                 table_ip_version = 4
 
                         if (self.is_rule_ipv6(rule_props) and (table_ip_version == 4)):
-                            log_error("CtrlPlane ACL table {} is a IPv4 based table and rule {} is a IPV6 rule! Ignoring rule."
-                                      .format(table_name, rule_id))
+                            self.log_error("CtrlPlane ACL table {} is a IPv4 based table and rule {} is a IPV6 rule! Ignoring rule."
+                                           .format(table_name, rule_id))
                             acl_rules.pop(rule_props["PRIORITY"])
                         elif (self.is_rule_ipv4(rule_props) and (table_ip_version == 6)):
-                            log_error("CtrlPlane ACL table {} is a IPv6 based table and rule {} is a IPV4 rule! Ignroing rule."
-                                      .format(table_name, rule_id))
+                            self.log_error("CtrlPlane ACL table {} is a IPv6 based table and rule {} is a IPV4 rule! Ignroing rule."
+                                           .format(table_name, rule_id))
                             acl_rules.pop(rule_props["PRIORITY"])
 
                 # If we were unable to determine whether this ACL table contains
                 # IPv4 or IPv6 rules, log a message and skip processing this table.
                 if not table_ip_version:
-                    log_warning("Unable to determine if ACL table '{}' contains IPv4 or IPv6 rules. Skipping table..."
-                                .format(table_name))
+                    self.log_warning("Unable to determine if ACL table '{}' contains IPv4 or IPv6 rules. Skipping table..."
+                                     .format(table_name))
                     continue
 
                 # For each ACL rule in this table (in descending order of priority)
@@ -382,7 +364,7 @@ class ControlPlaneAclManager(object):
                     rule_props = acl_rules[priority]
 
                     if "PACKET_ACTION" not in rule_props:
-                        log_error("ACL rule does not contain PACKET_ACTION property")
+                        self.log_error("ACL rule does not contain PACKET_ACTION property")
                         continue
 
                     # Apply the rule to the default protocol(s) for this ACL service
@@ -437,15 +419,22 @@ class ControlPlaneAclManager(object):
         commands and runs them.
         """
         iptables_cmds = self.get_acl_rules_and_translate_to_iptables_commands(namespace)
-        log_info("Issuing the following iptables commands:")
+        self.log_info("Issuing the following iptables commands:")
         for cmd in iptables_cmds:
-            log_info("  " + cmd)
+            self.log_info("  " + cmd)
 
         self.run_commands(iptables_cmds)
 
     def run(self):
         # Select Time-out for 10 Seconds
         SELECT_TIMEOUT_MS = 1000 * 10
+
+        self.log_info("Starting up ...")
+
+        if not os.geteuid() == 0:
+            self.log_error("Must be root to run this daemon")
+            print("Error: Must be root to run this daemon")
+            sys.exit(1)
 
         # Initlaize Global config that loads all database*.json
         if device_info.is_multi_npu():
@@ -494,15 +483,12 @@ class ControlPlaneAclManager(object):
 
 
 def main():
-    log_info("Starting up...")
-
-    if not os.geteuid() == 0:
-        log_error("Must be root to run this daemon")
-        print "Error: Must be root to run this daemon"
-        sys.exit(1)
-
     # Instantiate a ControlPlaneAclManager object
-    caclmgr = ControlPlaneAclManager()
+    caclmgr = ControlPlaneAclManager(SYSLOG_IDENTIFIER)
+
+    # Log all messages from INFO level and higher
+    caclmgr.set_min_log_priority_info()
+
     caclmgr.run()
 
 
