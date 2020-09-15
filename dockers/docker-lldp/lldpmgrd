@@ -16,11 +16,10 @@
 
 try:
     import os
-    import signal
     import subprocess
     import sys
-    import syslog
-    import os.path
+
+    from sonic_py_common import daemon_base
     from swsscommon import swsscommon
 except ImportError as err:
     raise ImportError("%s - required module not found" % str(err))
@@ -30,50 +29,7 @@ VERSION = "1.0"
 SYSLOG_IDENTIFIER = "lldpmgrd"
 
 
-# ========================== Syslog wrappers ==========================
-
-def log_debug(msg):
-    syslog.openlog(SYSLOG_IDENTIFIER)
-    syslog.syslog(syslog.LOG_DEBUG, msg)
-    syslog.closelog()
-
-
-def log_info(msg):
-    syslog.openlog(SYSLOG_IDENTIFIER)
-    syslog.syslog(syslog.LOG_INFO, msg)
-    syslog.closelog()
-
-
-def log_warning(msg):
-    syslog.openlog(SYSLOG_IDENTIFIER)
-    syslog.syslog(syslog.LOG_WARNING, msg)
-    syslog.closelog()
-
-
-def log_error(msg):
-    syslog.openlog(SYSLOG_IDENTIFIER)
-    syslog.syslog(syslog.LOG_ERR, msg)
-    syslog.closelog()
-
-
-# ========================== Signal Handling ==========================
-
-def signal_handler(sig, frame):
-    if sig == signal.SIGHUP:
-        log_info("Caught SIGHUP - ignoring...")
-        return
-    elif sig == signal.SIGINT:
-        log_info("Caught SIGINT - exiting...")
-        sys.exit(128 + sig)
-    elif sig == signal.SIGTERM:
-        log_info("Caught SIGTERM - exiting...")
-        sys.exit(128 + sig)
-    else:
-        log_warning("Caught unhandled signal '" + sig + "'")
-
-# ============================== Classes ==============================
-
-class LldpManager(object):
+class LldpManager(daemon_base.DaemonBase):
     """
     Class which subscribes to notifications of changes in the PORT table of
     the Redis State database and updates LLDP configuration accordingly for
@@ -86,7 +42,9 @@ class LldpManager(object):
     """
     REDIS_TIMEOUT_MS = 0
 
-    def __init__(self):
+    def __init__(self, log_identifier):
+        super(LldpManager, self).__init__(log_identifier)
+
         # Open a handle to the Config database
         self.config_db = swsscommon.DBConnector("CONFIG_DB",
                                                 self.REDIS_TIMEOUT_MS,
@@ -114,7 +72,7 @@ class LldpManager(object):
             # Get the oper-status for the port
             if port_table_dict.has_key("oper_status"):
                 port_oper_status = port_table_dict.get("oper_status")
-                log_info("Port name {} oper status: {}".format(port_name, port_oper_status))
+                self.log_info("Port name {} oper status: {}".format(port_name, port_oper_status))
                 return port_oper_status == "up"
             else:
                 return False
@@ -123,7 +81,7 @@ class LldpManager(object):
             (init_status, init_fvp) = port_table.get("PortInitDone")
             #The initialization procedure is done, but don't have this port entry
             if init_status:
-                log_error("Port '{}' not found in {} table in App DB".format(port_name, swsscommon.APP_PORT_TABLE_NAME))
+                self.log_error("Port '{}' not found in {} table in App DB".format(port_name, swsscommon.APP_PORT_TABLE_NAME))
             return False
 
     def generate_pending_lldp_config_cmd_for_port(self, port_name):
@@ -143,14 +101,14 @@ class LldpManager(object):
             # Get the port alias. If None or empty string, use port name instead
             port_alias = port_table_dict.get("alias")
             if not port_alias:
-                log_info("Unable to retrieve port alias for port '{}'. Using port name instead.".format(port_name))
+                self.log_info("Unable to retrieve port alias for port '{}'. Using port name instead.".format(port_name))
                 port_alias = port_name
             
             # Get the port description. If None or empty string, we'll skip this configuration 
             port_desc = port_table_dict.get("description")
 
         else:
-            log_error("Port '{}' not found in {} table in Config DB. Using port name instead of port alias.".format(port_name, swsscommon.CFG_PORT_TABLE_NAME))
+            self.log_error("Port '{}' not found in {} table in Config DB. Using port name instead of port alias.".format(port_name, swsscommon.CFG_PORT_TABLE_NAME))
             port_alias = port_name
 
         lldpcli_cmd = "lldpcli configure ports {0} lldp portidsubtype local {1}".format(port_name, port_alias)
@@ -159,7 +117,7 @@ class LldpManager(object):
         if port_desc:
             lldpcli_cmd += " description '{}'".format(port_desc)
         else:
-            log_info("Unable to retrieve description for port '{}'. Not adding port description".format(port_name))
+            self.log_info("Unable to retrieve description for port '{}'. Not adding port description".format(port_name))
 
         # Add the command to our dictionary of pending commands, overwriting any
         # previous pending command for this port
@@ -170,7 +128,7 @@ class LldpManager(object):
         to_delete = []
 
         for (port_name, cmd) in self.pending_cmds.iteritems():
-            log_debug("Running command: '{}'".format(cmd))
+            self.log_debug("Running command: '{}'".format(cmd))
 
             proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
@@ -184,7 +142,7 @@ class LldpManager(object):
             if proc.returncode == 0:
                 to_delete.append(port_name)
             else:
-                log_warning("Command failed '{}': {}".format(cmd, stderr))
+                self.log_warning("Command failed '{}': {}".format(cmd, stderr))
 
         # Delete all successful commands from self.pending_cmds
         for port_name in to_delete:
@@ -198,6 +156,13 @@ class LldpManager(object):
         Subscribe to CONFIG_DB - get notified of port config changes
         Update LLDP configuration accordingly.
         """
+        self.log_info("Starting up...")
+
+        if not os.geteuid() == 0:
+            self.log_error("Must be root to run this daemon")
+            print("Error: Must be root to run this daemon")
+            sys.exit(1)
+
         # Set select timeout to 10 seconds
         SELECT_TIMEOUT_MS = 1000 * 10
 
@@ -246,21 +211,14 @@ class LldpManager(object):
 # ============================= Functions =============================
 
 def main():
-    log_info("Starting up...")
-
-    if not os.geteuid() == 0:
-        log_error("Must be root to run this daemon")
-        print "Error: Must be root to run this daemon"
-        sys.exit(1)
-
-    # Register our signal handlers
-    signal.signal(signal.SIGHUP, signal_handler)
-    signal.signal(signal.SIGINT, signal_handler)
-    signal.signal(signal.SIGTERM, signal_handler)
-
     # Instantiate a LldpManager object
-    lldpmgr = LldpManager()
+    lldpmgr = LldpManager(SYSLOG_IDENTIFIER)
+
+    # Log all messages from INFO level and higher
+    lldpmgr.set_min_log_priority_info()
+
     lldpmgr.run()
+
 
 if __name__ == "__main__":
     main()
