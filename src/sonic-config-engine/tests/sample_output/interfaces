@@ -6,6 +6,9 @@
 # The loopback network interface
 auto lo
 iface lo inet loopback
+   address 127.0.0.1
+   netmask 255.255.0.0
+   post-up ip addr del 127.0.0.1/8 dev lo
 
 # The management network interface
 auto eth0

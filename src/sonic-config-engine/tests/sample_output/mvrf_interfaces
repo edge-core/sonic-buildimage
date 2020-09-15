@@ -9,12 +9,15 @@ iface mgmt
 # The loopback network interface for mgmt VRF that is required for applications like NTP
     up ip link add lo-m type dummy
     up ip link set dev lo-m master mgmt
-    up ip addr add 127.0.0.1/8 dev lo-m
+    up ip addr add 127.0.0.1/16 dev lo-m
     up ip link set lo-m up
     down ip link delete dev lo-m
 # The loopback network interface
 auto lo
 iface lo inet loopback
+   address 127.0.0.1
+   netmask 255.255.0.0
+   post-up ip addr del 127.0.0.1/8 dev lo
 
 # The management network interface
 auto eth0
