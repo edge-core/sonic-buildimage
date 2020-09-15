@@ -169,14 +169,15 @@ dhcp_mon_status_t dhcp_device_get_status(dhcp_mon_check_t check_type, dhcp_devic
 void dhcp_device_update_snapshot(dhcp_device_context_t *context);
 
 /**
- * @code dhcp_device_print_status(context);
+ * @code dhcp_device_print_status(context, type);
  *
  * @brief prints status counters to syslog. If context is null, it will print aggregate status
  *
- * @param context   Device (interface) context
+ * @param context       Device (interface) context
+ * @param counters_type Counter type to be printed
  *
  * @return none
  */
-void dhcp_device_print_status(dhcp_device_context_t *context);
+void dhcp_device_print_status(dhcp_device_context_t *context, dhcp_counters_type_t type);
 
 #endif /* DHCP_DEVICE_H_ */

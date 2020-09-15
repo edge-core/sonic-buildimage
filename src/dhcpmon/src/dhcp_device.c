@@ -25,7 +25,7 @@
 #include "dhcp_device.h"
 
 /** Counter print width */
-#define DHCP_COUNTER_WIDTH  10
+#define DHCP_COUNTER_WIDTH  9
 
 /** Start of Ether header of a captured frame */
 #define ETHER_START_OFFSET  0
@@ -353,29 +353,39 @@ static dhcp_mon_status_t dhcp_device_check_health(dhcp_mon_check_t check_type,
 }
 
 /**
- * @code dhcp_print_counters(vlan_intf, counters);
+ * @code dhcp_print_counters(vlan_intf, type, counters);
  *
  * @brief prints DHCP counters to sylsog.
  *
+ * @param vlan_intf vlan interface name
+ * @param type      counter type
  * @param counters  interface counter
+ *
+ * @return none
  */
-static void dhcp_print_counters(const char *vlan_intf, uint64_t counters[][DHCP_DIR_COUNT][DHCP_MESSAGE_TYPE_COUNT])
+static void dhcp_print_counters(const char *vlan_intf,
+                                dhcp_counters_type_t type,
+                                uint64_t counters[][DHCP_MESSAGE_TYPE_COUNT])
 {
-    uint64_t *rx_counters = counters[DHCP_COUNTERS_CURRENT][DHCP_RX];
-    uint64_t *tx_counters = counters[DHCP_COUNTERS_CURRENT][DHCP_TX];
+    static const char *counter_desc[DHCP_COUNTERS_COUNT] = {
+        [DHCP_COUNTERS_CURRENT] = " Current",
+        [DHCP_COUNTERS_SNAPSHOT] = "Snapshot"
+    };
 
-    syslog(LOG_NOTICE,
-           "[%*s] DHCP Discover rx/tx: %*lu/%*lu, Offer rx/tx: %*lu/%*lu, "
-           "Request rx/tx: %*lu/%*lu, ACK rx/tx: %*lu/%*lu\n",
-           IF_NAMESIZE, vlan_intf,
-           DHCP_COUNTER_WIDTH, rx_counters[DHCP_MESSAGE_TYPE_DISCOVER],
-           DHCP_COUNTER_WIDTH, tx_counters[DHCP_MESSAGE_TYPE_DISCOVER],
-           DHCP_COUNTER_WIDTH, rx_counters[DHCP_MESSAGE_TYPE_OFFER],
-           DHCP_COUNTER_WIDTH, tx_counters[DHCP_MESSAGE_TYPE_OFFER],
-           DHCP_COUNTER_WIDTH, rx_counters[DHCP_MESSAGE_TYPE_REQUEST],
-           DHCP_COUNTER_WIDTH, tx_counters[DHCP_MESSAGE_TYPE_REQUEST],
-           DHCP_COUNTER_WIDTH, rx_counters[DHCP_MESSAGE_TYPE_ACK],
-           DHCP_COUNTER_WIDTH, tx_counters[DHCP_MESSAGE_TYPE_ACK]);
+    syslog(
+        LOG_NOTICE,
+        "[%*s-%*s rx/tx] Discover: %*lu/%*lu, Offer: %*lu/%*lu, Request: %*lu/%*lu, ACK: %*lu/%*lu\n",
+        IF_NAMESIZE, vlan_intf,
+        (int) strlen(counter_desc[type]), counter_desc[type],
+        DHCP_COUNTER_WIDTH, counters[DHCP_RX][DHCP_MESSAGE_TYPE_DISCOVER],
+        DHCP_COUNTER_WIDTH, counters[DHCP_TX][DHCP_MESSAGE_TYPE_DISCOVER],
+        DHCP_COUNTER_WIDTH, counters[DHCP_RX][DHCP_MESSAGE_TYPE_OFFER],
+        DHCP_COUNTER_WIDTH, counters[DHCP_TX][DHCP_MESSAGE_TYPE_OFFER],
+        DHCP_COUNTER_WIDTH, counters[DHCP_RX][DHCP_MESSAGE_TYPE_REQUEST],
+        DHCP_COUNTER_WIDTH, counters[DHCP_TX][DHCP_MESSAGE_TYPE_REQUEST],
+        DHCP_COUNTER_WIDTH, counters[DHCP_RX][DHCP_MESSAGE_TYPE_ACK],
+        DHCP_COUNTER_WIDTH, counters[DHCP_TX][DHCP_MESSAGE_TYPE_ACK]
+    );
 }
 
 /**
@@ -624,13 +634,13 @@ void dhcp_device_update_snapshot(dhcp_device_context_t *context)
 }
 
 /**
- * @code dhcp_device_print_status(context);
+ * @code dhcp_device_print_status(context, type);
  *
  * @brief prints status counters to syslog.
  */
-void dhcp_device_print_status(dhcp_device_context_t *context)
+void dhcp_device_print_status(dhcp_device_context_t *context, dhcp_counters_type_t type)
 {
     if (context != NULL) {
-        dhcp_print_counters(context->intf, context->counters);
+        dhcp_print_counters(context->intf, type, context->counters[type]);
     }
 }
