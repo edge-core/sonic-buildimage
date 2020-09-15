@@ -77,7 +77,7 @@ _get_smf_reset_register(){
             echo "Third reset - $third_reset" >> $RESET_REASON_FILE
             echo "Fourth reset - $fourth_reset" >> $RESET_REASON_FILE
         fi
-
+        logger -p user.info -t DELL_S6100_REBOOT_CAUSE "RST value in NVRAM: $first_reset, $second_reset, $third_reset, $fourth_reset"
         # Clearing NVRAM values to holding next reset values
         nvram_rd_wr.py --set --val 0xee --offset 0x58
         nvram_rd_wr.py --set --val 0xee --offset 0x5c
@@ -147,8 +147,11 @@ update_mailbox_register(){
 
         is_wd_reboot=$(_is_watchdog_reset)
 
+        por=$(cat $SMF_POWERON_REASON)
+        rst=$(cat $SMF_RESET_REASON)
         mbr=$(cat $MAILBOX_POWERON_REASON)
         reason=$(echo $mbr | cut -d 'x' -f2)
+        logger -p user.info -t DELL_S6100_REBOOT_CAUSE "POR: $por, RST: $rst, MBR: $mbr"
         if [[ $reason = "ff" ]]; then
             echo "None" > $REBOOT_REASON_FILE
             echo 0xbb > $MAILBOX_POWERON_REASON
