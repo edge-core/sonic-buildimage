@@ -139,7 +139,7 @@ command=/usr/sbin/dhcpmon -id {{ vlan_name }}
 {% endfor %}
 {% if MGMT_INTERFACE %}
 {% for (name, prefix) in MGMT_INTERFACE|pfx_filter %}
-{% if prefix | ipv4 %} -im {{ name }}{% endif %}
+{% if prefix | ipv4 %} -im {{ name }}{% endif -%}
 {% endfor %}
 {% endif %}
 

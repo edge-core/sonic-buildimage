@@ -198,25 +198,35 @@ dhcp_mon_status_t dhcp_devman_get_status(dhcp_mon_check_t check_type, dhcp_devic
  */
 void dhcp_devman_update_snapshot(dhcp_device_context_t *context)
 {
-    dhcp_device_update_snapshot(context);
+    if (context == NULL) {
+        struct intf *int_ptr;
+
+        LIST_FOREACH(int_ptr, &intfs, entry) {
+            dhcp_device_update_snapshot(int_ptr->dev_context);
+        }
+
+        dhcp_device_update_snapshot(dhcp_devman_get_agg_dev());
+    } else {
+        dhcp_device_update_snapshot(context);
+    }
 }
 
 /**
- * @code dhcp_devman_print_status(context);
+ * @code dhcp_devman_print_status(context, type);
  *
  * @brief prints status counters to syslog, if context is null, it prints status counters for all interfaces
  */
-void dhcp_devman_print_status(dhcp_device_context_t *context)
+void dhcp_devman_print_status(dhcp_device_context_t *context, dhcp_counters_type_t type)
 {
     if (context == NULL) {
         struct intf *int_ptr;
 
         LIST_FOREACH(int_ptr, &intfs, entry) {
-            dhcp_device_print_status(int_ptr->dev_context);
+            dhcp_device_print_status(int_ptr->dev_context, type);
         }
 
-        dhcp_device_print_status(dhcp_devman_get_agg_dev());
+        dhcp_device_print_status(dhcp_devman_get_agg_dev(), type);
     } else {
-        dhcp_device_print_status(context);
+        dhcp_device_print_status(context, type);
     }
 }
