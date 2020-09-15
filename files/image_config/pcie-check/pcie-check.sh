@@ -16,7 +16,7 @@ function debug()
 
 function check_and_rescan_pcie_devices()
 {
-    PCIE_CHK_CMD=$(sudo pcieutil pcie-check |grep "$RESULTS")
+    PCIE_CHK_CMD='sudo pcieutil pcie-check |grep "$RESULTS"'
     PLATFORM=$(sonic-cfggen -H -v DEVICE_METADATA.localhost.platform)
 
     if [ ! -f /usr/share/sonic/device/$PLATFORM/plugins/pcie.yaml ]; then
@@ -36,8 +36,8 @@ function check_and_rescan_pcie_devices()
             break
         fi
 
-        if [ "$PCIE_CHK_CMD" = "$EXPECTED" ]; then
-            redis-cli -n 6 SET "PCIE_STATUS|PCIE_DEVICES" "PASSED"
+        if [ "$(eval $PCIE_CHK_CMD)" = "$EXPECTED" ]; then
+            redis-cli -n 6 HSET "PCIE_DEVICES" "status" "PASSED"
             debug "PCIe check passed"
             exit
         else
@@ -53,7 +53,7 @@ function check_and_rescan_pcie_devices()
 
      done
      debug "PCIe check failed"
-     redis-cli -n 6 SET "PCIE_STATUS|PCIE_DEVICES" "FAILED"
+     redis-cli -n 6 HSET "PCIE_DEVICES" "status" "FAILED"
 }
 
 check_and_rescan_pcie_devices
