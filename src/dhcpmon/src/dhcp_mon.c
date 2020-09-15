@@ -71,7 +71,7 @@ static dhcp_mon_state_t state_data[] = {
 static void signal_callback(evutil_socket_t fd, short event, void *arg)
 {
     syslog(LOG_ALERT, "Received signal: '%s'\n", strsignal(fd));
-    dhcp_devman_print_status(NULL);
+    dhcp_devman_print_status(NULL, DHCP_COUNTERS_CURRENT);
     if ((fd == SIGTERM) || (fd == SIGINT)) {
         dhcp_mon_stop();
     }
@@ -96,7 +96,8 @@ static void check_dhcp_relay_health(dhcp_mon_state_t *state_data)
     case DHCP_MON_STATUS_UNHEALTHY:
         if (++state_data->count > dhcp_unhealthy_max_count) {
             syslog(LOG_ALERT, state_data->msg, state_data->count * window_interval_sec, context->intf);
-            dhcp_devman_print_status(context);
+            dhcp_devman_print_status(context, DHCP_COUNTERS_SNAPSHOT);
+            dhcp_devman_print_status(context, DHCP_COUNTERS_CURRENT);
         }
         break;
     case DHCP_MON_STATUS_HEALTHY:
@@ -130,9 +131,7 @@ static void timeout_callback(evutil_socket_t fd, short event, void *arg)
         check_dhcp_relay_health(&state_data[i]);
     }
 
-    for (uint8_t i = 0; i < sizeof(state_data) / sizeof(*state_data); i++) {
-        dhcp_devman_update_snapshot(state_data[i].get_context());
-    }
+    dhcp_devman_update_snapshot(NULL);
 }
 
 /**

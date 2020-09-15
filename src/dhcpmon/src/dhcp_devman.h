@@ -97,14 +97,15 @@ dhcp_mon_status_t dhcp_devman_get_status(dhcp_mon_check_t check_type, dhcp_devic
 void dhcp_devman_update_snapshot(dhcp_device_context_t *context);
 
 /**
- * @code dhcp_devman_print_status(context);
+ * @code dhcp_devman_print_status(context, type);
  *
  * @brief prints status counters to syslog
  *
  * @param context       pointer to device (interface) context
+ * @param type          Counter type to be printed
  *
  * @return none
  */
-void dhcp_devman_print_status(dhcp_device_context_t *context);
+void dhcp_devman_print_status(dhcp_device_context_t *context, dhcp_counters_type_t type);
 
 #endif /* DHCP_DEVMAN_H_ */
