@@ -23,7 +23,7 @@ fi
     exit 1
 }
 
-IMAGE_VERSION=$(. functions.sh && sonic_get_version)
+IMAGE_VERSION="${SONIC_IMAGE_VERSION}"
 
 generate_onie_installer_image()
 {
