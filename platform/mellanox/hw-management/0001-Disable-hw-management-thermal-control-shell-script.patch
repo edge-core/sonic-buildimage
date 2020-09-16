@@ -1,0 +1,28 @@
+From 3bce9e33132a86c0a53a7b0a49ee1932d65bfb7f Mon Sep 17 00:00:00 2001
+From: junchao <junchao@mellanox.com>
+Date: Wed, 6 May 2020 11:37:56 +0800
+Subject: [PATCH] Disable hw-management thermal control shell script
+
+---
+ usr/usr/bin/hw-management.sh | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/usr/usr/bin/hw-management.sh b/usr/usr/bin/hw-management.sh
+index 65e5d39..cffff7a 100755
+--- a/usr/usr/bin/hw-management.sh
++++ b/usr/usr/bin/hw-management.sh
+@@ -832,7 +832,10 @@ do_start()
+ 	if [ -f $config_path/max_tachos ]; then
+ 		max_tachos=$(<$config_path/max_tachos)
+ 	fi
+-	$THERMAL_CONTROL $thermal_type $max_tachos $max_psus&
++
++    # Disable thermal control shell script in hw-management
++    # because there has already been that in SONiC
++	# $THERMAL_CONTROL $thermal_type $max_tachos $max_psus&
+ }
+ 
+ do_stop()
+-- 
+1.9.1
+
