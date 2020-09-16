@@ -182,6 +182,10 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
         allow_internal_docker_ip_cmds = []
 
         if namespace:
+            # For namespace docker allow local communication on docker management ip for all proto
+            allow_internal_docker_ip_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -A INPUT -s {} -d {} -j ACCEPT".format
+                                                (self.namespace_docker_mgmt_ip[namespace], self.namespace_docker_mgmt_ip[namespace]))
+
             # For namespace docker allow all tcp/udp traffic from host docker bridge to its eth0 management ip
             allow_internal_docker_ip_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -A INPUT -p tcp -s {} -d {} -j ACCEPT".format
                                                  (self.namespace_mgmt_ip, self.namespace_docker_mgmt_ip[namespace]))
