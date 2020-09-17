@@ -12,7 +12,8 @@
 ### END INIT INFO
 
 function export_gpio {
-label=$2
+label=$3
+gpio_dir=$2
 gpio_num=$1
 gpio_base=`( cat /sys/class/gpio/gpiochip*/base | head -1 ) 2>/dev/null`
 gpio_label=`( cat /sys/class/gpio/gpiochip*/label | head -1 ) 2>/dev/null`
@@ -26,6 +27,13 @@ echo $ionum > /sys/class/gpio/export
 if [ $? -ne 0 ]; then
         echo "Platform driver error: Cannot export gpio$ionum!"
         exit 1;
+fi
+if [[ "X$gpio_dir" != "X" ]]; then
+        echo $gpio_dir > /sys/class/gpio/gpio${ionum}/direction
+        if [ $? -ne 0 ]; then
+                echo "Platform driver error: Cannot set direction of gpio$ionum!"
+                exit 1;
+        fi
 fi
 }
 
@@ -95,27 +103,33 @@ start)
         sleep 2
 
         # Export platform gpio sysfs
-        export_gpio 10  # Fan 1 present
-        export_gpio 11  # Fan 2 present
-        export_gpio 12  # Fan 3 present
-        export_gpio 13  # Fan 4 present
-        export_gpio 14  # Fan 5 present
+        export_gpio 10 "in" # Fan 1 present
+        export_gpio 11 "in" # Fan 2 present
+        export_gpio 12 "in" # Fan 3 present
+        export_gpio 13 "in" # Fan 4 present
+        export_gpio 14 "in" # Fan 5 present
 
-        export_gpio 22  # PSU L PWOK
-        export_gpio 25  # PSU R PWOK
-        export_gpio 27  # PSU L ABS
-        export_gpio 28  # PSU R ABS
+        export_gpio 15 "in" # Fan 1 direction
+        export_gpio 16 "in" # Fan 2 direction
+        export_gpio 17 "in" # Fan 3 direction
+        export_gpio 18 "in" # Fan 4 direction
+        export_gpio 19 "in" # Fan 5 direction
 
-        export_gpio 29  # Fan 1 LED: Red
-        export_gpio 30  # Fan 1 LED: Yellow
-        export_gpio 31  # Fan 2 LED: Red
-        export_gpio 32  # Fan 2 LED: Yellow
-        export_gpio 33  # Fan 3 LED: Red
-        export_gpio 34  # Fan 3 LED: Yellow
-        export_gpio 35  # Fan 4 LED: Red
-        export_gpio 36  # Fan 4 LED: Yellow
-        export_gpio 37  # Fan 5 LED: Red
-        export_gpio 38  # Fan 5 LED: Yellow
+        export_gpio 22 "in" # PSU L PWOK
+        export_gpio 25 "in" # PSU R PWOK
+        export_gpio 27 "in" # PSU L ABS
+        export_gpio 28 "in" # PSU R ABS
+
+        export_gpio 29 "out" # Fan 1 LED: Red
+        export_gpio 30 "out" # Fan 1 LED: Yellow
+        export_gpio 31 "out" # Fan 2 LED: Red
+        export_gpio 32 "out" # Fan 2 LED: Yellow
+        export_gpio 33 "out" # Fan 3 LED: Red
+        export_gpio 34 "out" # Fan 3 LED: Yellow
+        export_gpio 35 "out" # Fan 4 LED: Red
+        export_gpio 36 "out" # Fan 4 LED: Yellow
+        export_gpio 37 "out" # Fan 5 LED: Red
+        export_gpio 38 "out" # Fan 5 LED: Yellow
 
         # Turn off/down lpmod by defult (0 - Normal, 1 - Low Pow)
         echo 0x00000000 > /sys/devices/platform/dx010_cpld/qsfp_lpmode
@@ -123,7 +137,7 @@ start)
         # Attach 32 instances of EEPROM driver QSFP ports
         for ((n=26;n<=58;n++));
         do
-                echo sff8436 0x50 > /sys/bus/i2c/devices/i2c-$n/new_device
+                echo optoe1 0x50 > /sys/bus/i2c/devices/i2c-$n/new_device
         sleep 0.1
         done
 
