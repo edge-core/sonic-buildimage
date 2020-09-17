@@ -70,6 +70,19 @@ class APIHelper():
             pass
         return None
 
+    def write_txt_file(self, file_path, value):
+        try:
+            with open(file_path, 'w') as fd:
+                fd.write(str(value))
+        except Exception:
+            return False
+        return True
+
+    def get_cpld_reg_value(self, getreg_path, register):
+        cmd = "echo {1} > {0}; cat {0}".format(getreg_path, register)
+        status, result = self.run_command(cmd)
+        return result if status else None
+
     def ipmi_raw(self, netfn, cmd):
         status = True
         result = ""

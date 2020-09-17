@@ -9,4 +9,5 @@ MINSTOP=13-002e/pwm1=89 13-002e/pwm2=89 13-002e/pwm3=89 13-002e/pwm4=89 13-002e/
 MINPWM=13-002e/pwm1=89 13-002e/pwm2=89 13-002e/pwm3=89 13-002e/pwm4=89 13-002e/pwm5=89 13-004d/pwm1=89 13-004d/pwm2=89 13-004d/pwm3=89 13-004d/pwm4=89 13-004d/pwm5=89
 MAXPWM=13-002e/pwm1=255 13-002e/pwm2=255 13-002e/pwm3=255 13-002e/pwm4=255 13-002e/pwm5=255 13-004d/pwm1=255 13-004d/pwm2=255 13-004d/pwm3=255 13-004d/pwm4=255 13-004d/pwm5=255
 THYST=13-002e/pwm1=3 13-002e/pwm2=3 13-002e/pwm3=3 13-002e/pwm4=3 13-002e/pwm5=3 13-004d/pwm1=3 13-004d/pwm2=3 13-004d/pwm3=3 13-004d/pwm4=3 13-004d/pwm5=3
-
+MAXTEMPCRIT=/sys/bus/i2c/devices/7-004a/hwmon/hwmon*/temp1_input=75 /sys/bus/i2c/devices/14-0048/hwmon/hwmon*/temp1_input=75
+MAXTEMPTYPE=/sys/bus/i2c/devices/7-004a/hwmon/hwmon*/temp1_input=ASIC /sys/bus/i2c/devices/14-0048/hwmon/hwmon*/temp1_input=CPU
