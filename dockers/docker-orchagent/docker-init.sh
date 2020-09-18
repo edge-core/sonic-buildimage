@@ -15,7 +15,7 @@ fi
 # Start arp_update when VLAN exists
 VLAN=`sonic-cfggen -d -v 'VLAN.keys() | join(" ") if VLAN'`
 if [ "$VLAN" != "" ]; then
-    cp /usr/share/sonic/templates/arp_update.conf /etc/supervisord/conf.d/
+    cp /usr/share/sonic/templates/arp_update.conf /etc/supervisor/conf.d/
 fi
 
 exec /usr/bin/supervisord
