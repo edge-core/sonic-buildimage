@@ -20,7 +20,7 @@ fi
 
 # Start arp_update when VLAN exists
 if [ "$VLAN" != "" ]; then
-    cp /usr/share/sonic/templates/arp_update.conf /etc/supervisord/conf.d/
+    cp /usr/share/sonic/templates/arp_update.conf /etc/supervisor/conf.d/
 fi
 
 exec /usr/bin/supervisord
