@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -20,6 +20,9 @@ RUN apt-get update && apt-get install -y build-essential \
                                          python-dev \
                                          python-scapy \
                                          python-setuptools \
+                                         python-pip \
+                                         python3-pip \
+                                         python3-venv \
                                          rsyslog \
                                          snmp \
                                          sshpass \
@@ -27,8 +30,6 @@ RUN apt-get update && apt-get install -y build-essential \
                                          tcpdump \
                                          telnet \
                                          vim
-
-RUN easy_install pip==20.1.1
 
 RUN pip install cffi==1.10.0 \
                 "cryptography>=2.5" \
@@ -156,18 +157,14 @@ USER $user
 
 # Install Azure CLI
 WORKDIR /var/$user
-RUN curl -L https://aka.ms/InstallAzureCliBundled -o azure-cli_bundle.tar.gz
-RUN tar -xvzf azure-cli_bundle.tar.gz
-RUN azure-cli_bundle_*/installer
+RUN curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
-# Known bug: azure keyvault cannot work behind a proxy
-# Temporary fix: upgrade the azure-keyvault package within az cli
-# TODO: if azure-cli contains newer version azure-keyvault, remove this
-RUN ~/lib/azure-cli/bin/python -m pip install azure-keyvault==0.3.7 -U
-
-# Install Virtual Environment
+# Install Virtual Environments
 RUN python -m virtualenv --system-site-packages env-201811
 RUN env-201811/bin/pip install ansible==2.0.0.2
+
+RUN python3 -m venv env-python3
+RUN env-python3/bin/pip3 install azure-kusto-data azure-kusto-ingest defusedxml pytest
 
 # NOTE: There is an ordering dependency for pycryptodome. Leaving this at
 #       the end until we figure that out.
