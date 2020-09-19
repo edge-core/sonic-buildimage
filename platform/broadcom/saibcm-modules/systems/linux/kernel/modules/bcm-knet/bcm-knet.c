@@ -65,6 +65,10 @@
 #include <kcom.h>
 #include <bcm-knet.h>
 
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(3,16,0)
+#include <linux/nsproxy.h>
+#endif
+
 #include <linux/netdevice.h>
 #include <linux/etherdevice.h>
 #include <linux/ethtool.h>
@@ -890,6 +894,13 @@ typedef struct bkn_filter_s {
     kcom_filter_t kf;
 } bkn_filter_t;
 
+#ifdef SAI_FIXUP    /* SDK-224448 */
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29))
+#define BKN_NETDEV_TX_BUSY      NETDEV_TX_BUSY
+#else
+#define BKN_NETDEV_TX_BUSY      1
+#endif
+#endif              /* SDK-224448 */
 
 /*
  * Multiple instance support in KNET
@@ -5758,15 +5769,15 @@ bkn_tx(struct sk_buff *skb, struct net_device *dev)
         priv->stats.tx_bytes += pktlen;
         sinfo->tx.pkts++;
     } else {
-        DBG_WARN(("Tx drop: No DMA resources\n"));
-        priv->stats.tx_dropped++;
+#ifdef SAI_FIXUP    /* SDK-224448 */
+        DBG_VERB(("Tx busy: No DMA resources\n"));
         sinfo->tx.pkts_d_dma_resrc++;
-        dev_kfree_skb_any(skb);
-    }
-
-    /* Check our Tx resources */
-    if (sinfo->tx.free <= 1) {
+#endif              /* SDK-224448 */
         bkn_suspend_tx(sinfo);
+#ifdef SAI_FIXUP    /* SDK-224448 */
+        spin_unlock_irqrestore(&sinfo->lock, flags);
+        return BKN_NETDEV_TX_BUSY;
+#endif              /* SDK-224448 */
     }
 
     NETDEV_UPDATE_TRANS_START_TIME(dev);
@@ -7707,7 +7718,7 @@ bkn_knet_netif_create(kcom_msg_netif_create_t *kmsg, int len)
     kmsg->netif.id = priv->id;
     memcpy(kmsg->netif.macaddr, dev->dev_addr, 6);
     memcpy(kmsg->netif.name, dev->name, KCOM_NETIF_NAME_MAX - 1);
-    
+
     if (knet_netif_create_cb != NULL) {
         int retv = knet_netif_create_cb(kmsg->hdr.unit, &(kmsg->netif), dev);
         if (retv) { 
