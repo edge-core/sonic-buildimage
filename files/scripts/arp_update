@@ -7,12 +7,13 @@
 # Send gratuitous ARP/NDP requests to VLAN member neighbors to refresh
 # the ipv4/ipv6 neighbors state.
 
+ARP_UPDATE_VARS_FILE="/usr/share/sonic/templates/arp_update_vars.j2"
+
 while /bin/true; do
   # find L3 interfaces which are UP, send ipv6 multicast pings
-  echo "{% for (name, prefix) in INTERFACE|pfx_filter %} {{name}} {% endfor %}" > /tmp/intf_tmp.j2
-  INTERFACE=`sonic-cfggen -d -t /tmp/intf_tmp.j2`
-  echo "{% for (name, prefix) in PORTCHANNEL_INTERFACE|pfx_filter %} {{name}} {% endfor %}" > /tmp/pc_intf_tmp.j2
-  PC_INTERFACE=`sonic-cfggen -d -t /tmp/pc_intf_tmp.j2`
+  ARP_UPDATE_VARS=$(sonic-cfggen -d -t ${ARP_UPDATE_VARS_FILE})
+  INTERFACE=$(echo $ARP_UPDATE_VARS | jq -r '.interface')
+  PC_INTERFACE=$(echo $ARP_UPDATE_VARS | jq -r '.pc_interface')
 
   ALL_INTERFACE="$INTERFACE $PC_INTERFACE"
   for intf in $ALL_INTERFACE; do
@@ -23,7 +24,7 @@ while /bin/true; do
       fi
   done
 
-  VLAN=`sonic-cfggen -d -v 'VLAN.keys() | join(" ") if VLAN'`
+  VLAN=$(echo $ARP_UPDATE_VARS | jq -r '.vlan')
   for vlan in $VLAN; do
       # generate a list of arping commands:
       #   arping -q -w 0 -c 1 -i <VLAN interface> <IP 1>;

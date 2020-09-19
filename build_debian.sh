@@ -315,7 +315,8 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     python-pip              \
     python3-pip             \
     cron                    \
-    haveged
+    haveged                 \
+    jq
 
 
 if [[ $CONFIGURED_ARCH == amd64 ]]; then
