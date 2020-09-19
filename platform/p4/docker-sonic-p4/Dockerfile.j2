@@ -16,6 +16,7 @@ RUN apt-get install -y net-tools \
                        ethtool \
                        tcpdump \
                        ifupdown \
+                       jq \
                        bridge-utils \
                        python-ply \
                        libqt5core5a \
@@ -79,6 +80,7 @@ COPY ["start.sh", "orchagent.sh", "config_bm.sh", "/usr/bin/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 COPY ["files/configdb-load.sh", "/usr/bin/"]
 COPY ["files/arp_update", "/usr/bin"]
+COPY ["files/arp_update_vars.j2", "/usr/share/sonic/templates/"]
 RUN echo "docker-sonic-p4" > /etc/hostname
 RUN touch /etc/quagga/zebra.conf
 

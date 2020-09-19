@@ -34,6 +34,7 @@ endif
 
 $(DOCKER_SONIC_VS)_FILES += $(CONFIGDB_LOAD_SCRIPT) \
                             $(ARP_UPDATE_SCRIPT) \
+                            $(ARP_UPDATE_VARS_TEMPLATE) \
                             $(BUFFERS_CONFIG_TEMPLATE) \
                             $(QOS_CONFIG_TEMPLATE) \
                             $(SONIC_VERSION)

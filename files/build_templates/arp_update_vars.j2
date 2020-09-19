@@ -1,0 +1,5 @@
+{
+    "interface": "{% for (name, prefix) in INTERFACE|pfx_filter %}{% if prefix|ipv6 %}{{ name }} {% endif %}{% endfor %}",
+    "pc_interface" : "{% for (name, prefix) in PORTCHANNEL_INTERFACE|pfx_filter %}{% if prefix|ipv6 %}{{ name }} {% endif %}{% endfor %}",
+    "vlan" : "{% if VLAN %}{{ VLAN.keys() | join(' ') }}{% endif %}"
+}
