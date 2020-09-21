@@ -253,7 +253,7 @@ check_iom_status()
             count=`expr $count + 1`
         done
 
-        if [ "$iom_sta" != "0" ];then
+        if [ "$iom_sta" != "1" ];then
             echo "All IOM's are UP"
         fi
     fi
