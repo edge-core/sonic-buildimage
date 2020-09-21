@@ -45,7 +45,6 @@ RUN apt-get update &&        \
         procps               \
         python               \
         python-pip           \
-        rsyslog              \
         vim-tiny             \
 # Install dependencies of supervisor
         python-pkg-resources \
@@ -65,6 +64,9 @@ RUN apt-get -y install       \
         iproute2             \
         net-tools
 {% endif %}
+
+# Install a newer version of rsyslog from stretch-backports to support -iNONE
+RUN apt-get -y -t stretch-backports install rsyslog
 
 # For templating
 RUN pip install j2cli
