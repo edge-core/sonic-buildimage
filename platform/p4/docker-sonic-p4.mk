@@ -11,7 +11,7 @@ $(DOCKER_SONIC_P4)_DEPENDS += $(SWSS) \
                               $(LIBTEAMDCTL) \
                               $(LIBTEAM_UTILS) \
                               $(SONIC_DEVICE_DATA) \
-                              $(SONIC_UTILS) \
+                              $(SONIC_UTILITIES_PY2) \
                               $(IPROUTE2)
 
 # ifeq ($(ROUTING_STACK), quagga)

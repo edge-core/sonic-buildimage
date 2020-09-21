@@ -27,6 +27,6 @@ check process rsyslog with pidfile /var/run/rsyslogd.pid
 # Hence for any discrepancy, there will be log messages for "ERR" level
 # from both route_check.py & monit.
 #
-check program routeCheck with path "/usr/bin/route_check.py"
+check program routeCheck with path "/usr/local/bin/route_check.py"
     every 5 cycles
     if status != 0 then alert

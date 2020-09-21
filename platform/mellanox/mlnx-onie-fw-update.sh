@@ -94,7 +94,7 @@ system_reboot() {
     sleep 5s
 
     # Use SONiC reboot scenario
-    /usr/bin/reboot
+    /usr/local/bin/reboot
 }
 
 terminate_handler() {

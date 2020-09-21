@@ -318,6 +318,10 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     haveged                 \
     jq
 
+# Install "wheel" package so that we can install .whl packages and not
+# encounter a "error: invalid command 'bdist_wheel'" error
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install wheel
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install wheel
 
 if [[ $CONFIGURED_ARCH == amd64 ]]; then
 ## Pre-install the fundamental packages for amd64 (x86)
@@ -397,7 +401,7 @@ sudo mkdir -p $FILESYSTEM_ROOT/var/core
 
 # Config sysctl
 sudo augtool --autosave "
-set /files/etc/sysctl.conf/kernel.core_pattern '|/usr/bin/coredump-compress %e %t %p %P'
+set /files/etc/sysctl.conf/kernel.core_pattern '|/usr/local/bin/coredump-compress %e %t %p %P'
 set /files/etc/sysctl.conf/kernel.softlockup_panic 1
 set /files/etc/sysctl.conf/kernel.panic 10
 set /files/etc/sysctl.conf/vm.panic_on_oom 2

@@ -1,7 +1,7 @@
 #! /bin/bash
 
 VERBOSE=no
-WATCHDOG_UTIL="/usr/bin/watchdogutil"
+WATCHDOG_UTIL="/usr/local/bin/watchdogutil"
 
 function debug()
 {

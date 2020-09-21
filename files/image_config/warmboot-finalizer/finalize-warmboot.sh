@@ -6,7 +6,7 @@ VERBOSE=no
 COMP_LIST="orchagent neighsyncd bgp natsyncd"
 EXP_STATE="reconciled"
 
-ASSISTANT_SCRIPT="/usr/bin/neighbor_advertiser"
+ASSISTANT_SCRIPT="/usr/local/bin/neighbor_advertiser"
 
 
 function debug()

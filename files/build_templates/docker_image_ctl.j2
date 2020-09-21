@@ -125,10 +125,10 @@ function postStartAction()
         $SONIC_DB_CLI CONFIG_DB SET "CONFIG_DB_INITIALIZED" "1"
     fi
 
-    if [[ -x /usr/bin/db_migrator.py ]]; then
+    if [[ -x /usr/local/bin/db_migrator.py ]]; then
         # Migrate the DB to the latest schema version if needed
         if [ -z "$DEV" ]; then
-            /usr/bin/db_migrator.py -o migrate
+            /usr/local/bin/db_migrator.py -o migrate
         fi
     fi
     # Add redis UDS to the redis group and give read/write access to the group

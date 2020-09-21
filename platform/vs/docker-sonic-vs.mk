@@ -10,9 +10,8 @@ $(DOCKER_SONIC_VS)_DEPENDS += $(SWSS) \
                               $(SONIC_DEVICE_DATA) \
                               $(LIBYANG) \
                               $(LIBYANG_CPP) \
-                              $(LIBYANG_PY2)
-
-$(DOCKER_SONIC_VS)_PYTHON_DEBS += $(SONIC_UTILS)
+                              $(LIBYANG_PY2) \
+                              $(SONIC_UTILITIES_DATA)
 
 # swsssdk is a dependency of sonic-py-common
 # TODO: sonic-py-common should depend on swsscommon instead
@@ -21,7 +20,8 @@ $(DOCKER_SONIC_VS)_PYTHON_WHEELS += $(SWSSSDK_PY2) \
                                     $(SONIC_PY_COMMON_PY2) \
                                     $(SONIC_PY_COMMON_PY3) \
                                     $(SONIC_YANG_MODELS_PY3) \
-                                    $(SONIC_YANG_MGMT_PY)
+                                    $(SONIC_YANG_MGMT_PY) \
+                                    $(SONIC_UTILITIES_PY2)
 
 ifeq ($(INSTALL_DEBUG_TOOLS), y)
 $(DOCKER_SONIC_VS)_DEPENDS += $(SWSS_DBG) \

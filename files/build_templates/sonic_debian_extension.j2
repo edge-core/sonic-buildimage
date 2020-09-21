@@ -169,26 +169,28 @@ sudo cp {{platform_common_py2_wheel_path}} $FILESYSTEM_ROOT/$PLATFORM_COMMON_PY2
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install $PLATFORM_COMMON_PY2_WHEEL_NAME
 sudo rm -rf $FILESYSTEM_ROOT/$PLATFORM_COMMON_PY2_WHEEL_NAME
 
+# Install Debian packages and their dependencies which are needed by sonic-utilities
+sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f python-m2crypto
+
 # Install built Python Click package (and its dependencies via 'apt-get -y install -f')
 # Do this before installing sonic-utilities so that it doesn't attempt to install
 # an older version as part of its dependencies
 sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/python-click*_all.deb || \
     sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
 
-# Install python pexpect used by sonic-utilities consutil
-# using pip install instead to get a more recent version than is available through debian
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install pexpect
+# Install SONiC Utilities Python 2 package
+SONIC_UTILITIES_PY2_WHEEL_NAME=$(basename {{sonic_utilities_py2_wheel_path}})
+sudo cp {{sonic_utilities_py2_wheel_path}} $FILESYSTEM_ROOT/$SONIC_UTILITIES_PY2_WHEEL_NAME
+sudo LANG=C chroot $FILESYSTEM_ROOT pip install $SONIC_UTILITIES_PY2_WHEEL_NAME
+sudo rm -rf $FILESYSTEM_ROOT/$SONIC_UTILITIES_PY2_WHEEL_NAME
 
-# Install tabulate >= 0.8.1 via pip in order to support multi-line row output for sonic-utilities
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install tabulate==0.8.2
-
-# Install packages to support Dynamic Port Breakout config command for sonic-utilities
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install xmltodict==0.12.0
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install jsondiff==1.2.0
-
-# Install SONiC Utilities (and its dependencies via 'apt-get -y install -f')
-sudo dpkg --root=$FILESYSTEM_ROOT -i $python_debs_path/python-sonic-utilities_*.deb || \
+# Install sonic-utilities data files (and any dependencies via 'apt-get -y install -f')
+sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/sonic-utilities-data_*.deb || \
     sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
+
+# sonic-utilities-data installs bash-completion as a dependency. However, it is disabled by default
+# in bash.bashrc, so we copy a version of the file with it enabled here.
+sudo cp -f $IMAGE_CONFIGS/bash/bash.bashrc $FILESYSTEM_ROOT/etc/
 
 {% if enable_ztp == "y" %}
 # Install ZTP (and its dependencies via 'apt-get -y install -f')
@@ -201,10 +203,6 @@ sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/sonic-ztp_*.deb || \
 sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/sonic-host-service_*.deb || \
     sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
 {% endif %}
-
-# SONiC utilities installs bash-completion as a dependency. However, it is disabled by default
-# in bash.bashrc, so we copy a version of the file with it enabled here.
-sudo cp -f $IMAGE_CONFIGS/bash/bash.bashrc $FILESYSTEM_ROOT/etc/
 
 # Install SONiC Device Data  (and its dependencies via 'apt-get -y install -f')
 sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/sonic-device-data_*.deb || \

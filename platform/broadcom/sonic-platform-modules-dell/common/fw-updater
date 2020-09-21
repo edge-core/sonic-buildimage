@@ -16,7 +16,7 @@ HOST_GRUB_CFG = HOST_GRUB_DIR + '/grub/grub.cfg'
 HOST_GRUB_ENV = HOST_GRUB_DIR + '/grub/grubenv'
 HOST_GRUB_BOOT_DIR = '--boot-directory=' + HOST_GRUB_DIR
 HOST_PLATFORM_INFO = HOST_GRUB_DIR + '/platform'
-dell_reload_tool = '/usr/bin/reboot'
+dell_reload_tool = '/usr/local/bin/reboot'
 
 
 

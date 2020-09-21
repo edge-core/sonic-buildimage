@@ -188,9 +188,9 @@ load_config()
         return $?
     fi
 
-    if [[ -x /usr/bin/db_migrator.py ]]; then
+    if [[ -x /usr/local/bin/db_migrator.py ]]; then
         # Migrate the DB to the latest schema version if needed
-        /usr/bin/db_migrator.py -o migrate
+        /usr/local/bin/db_migrator.py -o migrate
     fi
 
     sonic-db-cli CONFIG_DB SET "CONFIG_DB_INITIALIZED" "1"
