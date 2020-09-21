@@ -219,16 +219,58 @@ reset_muxes() {
 
 init_devnum
 
+check_iom_status()
+{
+    SMF_DIR="/sys/devices/platform/SMF.512/hwmon/*"
+    count=0
+    iom_sta=0
+    MAX_IOM_STARTUP_DELAY=50
+
+    if [ -d $SMF_DIR ]; then
+        iom_status=$(cat $SMF_DIR/iom_status)
+        cpu_iom1_sta=$(cat $SMF_DIR/cpu_iom1_control)
+        cpu_iom2_sta=$(cat $SMF_DIR/cpu_iom2_control)
+        cpu_iom3_sta=$(cat $SMF_DIR/cpu_iom3_control)
+        cpu_iom4_sta=$(cat $SMF_DIR/cpu_iom4_control)
+        cpu_iom_sta=$(( cpu_iom1_sta|cpu_iom2_sta|cpu_iom3_sta|cpu_iom4_sta ))
+        echo "Started polling IOM status"
+        while [ "$iom_status" != "f0" -o "$cpu_iom_sta" != "0" ];
+        do
+            if [ "$count" -gt "$MAX_IOM_STARTUP_DELAY" ];then
+                echo "IOM is taking longer than expected to power up.Aborting.
+                      iom_status- $iom_status cpu_iom_sta1- $cpu_iom1_sta cpu_iom_sta2- $cpu_iom2_sta
+                      cpu_iom_sta3- $cpu_iom3_sta cpu_iom_sta4- $cpu_iom4_sta "
+                iom_sta=1
+                break
+            fi
+            cpu_iom1_sta=$(cat $SMF_DIR/cpu_iom1_control)
+            cpu_iom2_sta=$(cat $SMF_DIR/cpu_iom2_control)
+            cpu_iom3_sta=$(cat $SMF_DIR/cpu_iom3_control)
+            cpu_iom4_sta=$(cat $SMF_DIR/cpu_iom4_control)
+            cpu_iom_sta=$(( cpu_iom1_sta|cpu_iom2_sta|cpu_iom3_sta|cpu_iom4_sta ))
+            iom_status=$(cat $SMF_DIR/iom_status)
+            sleep .1
+            count=`expr $count + 1`
+        done
+
+        if [ "$iom_sta" != "0" ];then
+            echo "All IOM's are UP"
+        fi
+    fi
+}
+
+
 if [[ "$1" == "init" ]]; then
     cpu_board_mux "new_device"
     switch_board_mux "new_device"
     sys_eeprom "new_device"
     switch_board_cpld "new_device"
-    /usr/local/bin/s6100_bitbang_reset.sh
+    check_iom_status
     switch_board_qsfp_mux "new_device"
     switch_board_sfp "new_device"
     switch_board_qsfp "new_device"
     switch_board_qsfp_lpmode "disable"
+    /usr/local/bin/s6100_bitbang_reset.sh
     xcvr_presence_interrupts "enable"
 elif [[ "$1" == "deinit" ]]; then
     xcvr_presence_interrupts "disable"
