@@ -15,3 +15,5 @@
 # write 0x1 to 0x04DC to power up IOM 4
 /usr/local/bin/io_rd_wr.py --set --val 0xdc --offset 0x211
 /usr/local/bin/io_rd_wr.py --set --val 0x1 --offset 0x213
+#Delay for SMF to power on IOMs
+sleep 3

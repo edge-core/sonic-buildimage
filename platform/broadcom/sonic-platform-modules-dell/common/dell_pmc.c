@@ -174,6 +174,11 @@
 /* Mailbox PowerOn Reason */
 #define TRACK_POWERON_REASON    0x05FF
 
+/* CPU Set IO Modules */
+#define CPU_IOM1_CTRL_FLAG 0x04D9
+#define CPU_IOM2_CTRL_FLAG 0x04DA
+#define CPU_IOM3_CTRL_FLAG 0x04DB
+#define CPU_IOM4_CTRL_FLAG 0x04DC
 
 unsigned long  *mmio;
 static struct kobject *dell_kobj;
@@ -752,7 +757,24 @@ static ssize_t show_psu_fan(struct device *dev,
         return sprintf(buf, "%d\n", ret);  
 }
 
+static ssize_t show_cpu_iom_control(struct device *dev,
+                struct device_attribute *devattr, char *buf)
+{
+        int index = to_sensor_dev_attr(devattr)->index;
+        struct smf_data *data = dev_get_drvdata(dev);
+        int cpu_iom_status;
 
+        if(index == 0)
+            cpu_iom_status = smf_read_reg(data, CPU_IOM1_CTRL_FLAG);
+        else if (index == 1)
+            cpu_iom_status = smf_read_reg(data, CPU_IOM2_CTRL_FLAG);
+        else if (index == 2)
+            cpu_iom_status = smf_read_reg(data, CPU_IOM3_CTRL_FLAG);
+        else if (index == 3)
+            cpu_iom_status = smf_read_reg(data, CPU_IOM4_CTRL_FLAG);
+
+        return sprintf(buf, "%x\n", cpu_iom_status);
+}
 
 static umode_t smf_fanin_is_visible(struct kobject *kobj,
                 struct attribute *a, int n)
@@ -2023,6 +2045,11 @@ static SENSOR_DEVICE_ATTR(fan9_serialno, S_IRUGO, show_ppid, NULL, 4);
 static SENSOR_DEVICE_ATTR(iom_status, S_IRUGO, show_voltage, NULL, 44);
 static SENSOR_DEVICE_ATTR(iom_presence, S_IRUGO, show_voltage, NULL, 45);
 
+static SENSOR_DEVICE_ATTR(cpu_iom1_control, S_IRUGO, show_cpu_iom_control, NULL, 0);
+static SENSOR_DEVICE_ATTR(cpu_iom2_control, S_IRUGO, show_cpu_iom_control, NULL, 1);
+static SENSOR_DEVICE_ATTR(cpu_iom3_control, S_IRUGO, show_cpu_iom_control, NULL, 2);
+static SENSOR_DEVICE_ATTR(cpu_iom4_control, S_IRUGO, show_cpu_iom_control, NULL, 3);
+
 static SENSOR_DEVICE_ATTR(psu1_presence, S_IRUGO, show_psu, NULL, 1);
 static SENSOR_DEVICE_ATTR(psu2_presence, S_IRUGO, show_psu, NULL, 6);
 static SENSOR_DEVICE_ATTR(psu1_serialno, S_IRUGO, show_ppid, NULL, 10);
@@ -2070,6 +2097,10 @@ static struct attribute *smf_dell_attrs[] = {
         &sensor_dev_attr_fan7_serialno.dev_attr.attr,
         &sensor_dev_attr_fan9_serialno.dev_attr.attr,
         &sensor_dev_attr_current_total_power.dev_attr.attr,
+        &sensor_dev_attr_cpu_iom1_control.dev_attr.attr,
+        &sensor_dev_attr_cpu_iom2_control.dev_attr.attr,
+        &sensor_dev_attr_cpu_iom3_control.dev_attr.attr,
+        &sensor_dev_attr_cpu_iom4_control.dev_attr.attr,
         NULL
 };
 
