@@ -73,3 +73,4 @@ fi
 supervisorctl start fpmsyncd
 
 supervisorctl start bgpcfgd
+supervisorctl start bgpmon
