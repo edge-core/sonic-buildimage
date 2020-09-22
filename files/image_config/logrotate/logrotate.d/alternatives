@@ -1,4 +1,4 @@
-/var/log/dpkg.log {
+/var/log/alternatives.log {
         size 100k
         rotate 1
         compress
