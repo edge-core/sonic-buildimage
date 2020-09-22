@@ -38,6 +38,8 @@
         "{{feature}}": {
             "state": "{{state}}",
             "has_timer" : {{has_timer | lower()}},
+            "has_global_scope": {% if feature + '.service' in installer_services.split(' ') %}true{% else %}false{% endif %},
+            "has_per_asic_scope": {% if feature + '@.service' in installer_services.split(' ') %}true{% else %}false{% endif %},
             "auto_restart": "{{autorestart}}",
             "high_mem_alert": "disabled"
         }{% if not loop.last %},{% endif -%}

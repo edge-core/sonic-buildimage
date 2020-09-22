@@ -10,6 +10,7 @@ import copy
 import jinja2
 import ipaddr as ipaddress
 from swsssdk import ConfigDBConnector
+from sonic_py_common import device_info
 
 # FILE
 PAM_AUTH_CONF = "/etc/pam.d/common-auth-sonic"
@@ -41,45 +42,6 @@ def obfuscate(data):
     else:
         return data
 
-
-def update_feature_state(feature_name, state, has_timer):
-    feature_suffixes = ["service"] + (["timer"] if ast.literal_eval(has_timer) else [])
-    if state == "enabled":
-        start_cmds = []
-        for suffix in feature_suffixes:
-            start_cmds.append("sudo systemctl unmask {}.{}".format(feature_name, suffix))
-        # If feature has timer associated with it, start/enable corresponding systemd .timer unit
-        # otherwise, start/enable corresponding systemd .service unit
-        start_cmds.append("sudo systemctl enable {}.{}".format(feature_name, feature_suffixes[-1]))
-        start_cmds.append("sudo systemctl start {}.{}".format(feature_name, feature_suffixes[-1]))
-        for cmd in start_cmds:
-            syslog.syslog(syslog.LOG_INFO, "Running cmd: '{}'".format(cmd))
-            try:
-                subprocess.check_call(cmd, shell=True)
-            except subprocess.CalledProcessError as err:
-                syslog.syslog(syslog.LOG_ERR, "'{}' failed. RC: {}, output: {}"
-                              .format(err.cmd, err.returncode, err.output))
-                continue
-        syslog.syslog(syslog.LOG_INFO, "Feature '{}.{}' is enabled and started"
-                      .format(feature_name, feature_suffixes[-1]))
-    elif state == "disabled":
-        stop_cmds = []
-        for suffix in reversed(feature_suffixes):
-            stop_cmds.append("sudo systemctl stop {}.{}".format(feature_name, suffix))
-            stop_cmds.append("sudo systemctl disable {}.{}".format(feature_name, suffix))
-            stop_cmds.append("sudo systemctl mask {}.{}".format(feature_name, suffix))
-        for cmd in stop_cmds:
-            syslog.syslog(syslog.LOG_INFO, "Running cmd: '{}'".format(cmd))
-            try:
-                subprocess.check_call(cmd, shell=True)
-            except subprocess.CalledProcessError as err:
-                syslog.syslog(syslog.LOG_ERR, "'{}' failed. RC: {}, output: {}"
-                              .format(err.cmd, err.returncode, err.output))
-                continue
-        syslog.syslog(syslog.LOG_INFO, "Feature '{}' is stopped and disabled".format(feature_name))
-    else:
-        syslog.syslog(syslog.LOG_ERR, "Unexpected state value '{}' for feature '{}'"
-                      .format(state, feature_name))
 
 
 class Iptables(object):
@@ -275,6 +237,66 @@ class HostConfigDaemon:
         lpbk_table = self.config_db.get_table('LOOPBACK_INTERFACE')
         self.iptables = Iptables()
         self.iptables.load(lpbk_table)
+        self.is_multi_npu = device_info.is_multi_npu()
+
+    def update_feature_state(self, feature_name, state, feature_table):
+        has_timer = ast.literal_eval(feature_table[feature_name].get('has_timer', 'False'))
+        has_global_scope = ast.literal_eval(feature_table[feature_name].get('has_global_scope', 'True'))
+        has_per_asic_scope = ast.literal_eval(feature_table[feature_name].get('has_per_asic_scope', 'False'))
+
+        # Create feature name suffix depending feature is running in host or namespace or in both 
+        feature_name_suffix_list = (([feature_name] if has_global_scope or not self.is_multi_npu else []) +
+                                   ([(feature_name + '@' + str(asic_inst)) for asic_inst in range(device_info.get_num_npus()) 
+                                    if has_per_asic_scope and self.is_multi_npu]))
+
+        if not feature_name_suffix_list:
+            syslog.syslog(syslog.LOG_ERR, "Feature '{}' service not available"
+                          .format(feature_name))
+
+        feature_suffixes = ["service"] + (["timer"] if has_timer else [])
+
+        if state == "enabled":
+            start_cmds = []
+            for feature_name_suffix in feature_name_suffix_list:
+                for suffix in feature_suffixes:
+                    start_cmds.append("sudo systemctl unmask {}.{}".format(feature_name_suffix, suffix))
+                # If feature has timer associated with it, start/enable corresponding systemd .timer unit
+                # otherwise, start/enable corresponding systemd .service unit
+                start_cmds.append("sudo systemctl enable {}.{}".format(feature_name_suffix, feature_suffixes[-1]))
+                start_cmds.append("sudo systemctl start {}.{}".format(feature_name_suffix, feature_suffixes[-1]))
+                for cmd in start_cmds:
+                    syslog.syslog(syslog.LOG_INFO, "Running cmd: '{}'".format(cmd))
+                    try:
+                        subprocess.check_call(cmd, shell=True)
+                    except subprocess.CalledProcessError as err:
+                        syslog.syslog(syslog.LOG_ERR, "'{}' failed. RC: {}, output: {}"
+                                      .format(err.cmd, err.returncode, err.output))
+                        syslog.syslog(syslog.LOG_ERR, "Feature '{}.{}' failed to be  enabled and started"
+                                      .format(feature_name, feature_suffixes[-1]))
+                        return
+            syslog.syslog(syslog.LOG_INFO, "Feature '{}.{}' is enabled and started"
+                          .format(feature_name, feature_suffixes[-1]))
+        elif state == "disabled":
+            stop_cmds = []
+            for feature_name_suffix in feature_name_suffix_list:
+                for suffix in reversed(feature_suffixes):
+                    stop_cmds.append("sudo systemctl stop {}.{}".format(feature_name_suffix, suffix))
+                    stop_cmds.append("sudo systemctl disable {}.{}".format(feature_name_suffix, suffix))
+                    stop_cmds.append("sudo systemctl mask {}.{}".format(feature_name_suffix, suffix))
+                for cmd in stop_cmds:
+                    syslog.syslog(syslog.LOG_INFO, "Running cmd: '{}'".format(cmd))
+                    try:
+                        subprocess.check_call(cmd, shell=True)
+                    except subprocess.CalledProcessError as err:
+                        syslog.syslog(syslog.LOG_ERR, "'{}' failed. RC: {}, output: {}"
+                                      .format(err.cmd, err.returncode, err.output))
+                        syslog.syslog(syslog.LOG_ERR, "Feature '{}' failed to be stopped and disabled".format(feature_name))
+                        return
+            syslog.syslog(syslog.LOG_INFO, "Feature '{}' is stopped and disabled".format(feature_name))
+        else:
+            syslog.syslog(syslog.LOG_ERR, "Unexpected state value '{}' for feature '{}'"
+                          .format(state, feature_name))
+
 
     def update_all_feature_states(self):
         feature_table = self.config_db.get_table('FEATURE')
@@ -288,7 +310,7 @@ class HostConfigDaemon:
                 syslog.syslog(syslog.LOG_WARNING, "Eanble state of feature '{}' is None".format(feature_name))
                 continue
 
-            update_feature_state(feature_name, state, feature_table[feature_name].get('has_timer', 'False'))
+            self.update_feature_state(feature_name, state, feature_table)
 
     def aaa_handler(self, key, data):
         self.aaacfg.aaa_update(key, data)
@@ -330,7 +352,7 @@ class HostConfigDaemon:
             syslog.syslog(syslog.LOG_WARNING, "Enable state of feature '{}' is None".format(feature_name))
             return
 
-        update_feature_state(feature_name, state, feature_table[feature_name].get('has_timer', 'False'))
+        self.update_feature_state(feature_name, state, feature_table)
 
     def start(self):
         # Update all feature states once upon starting
