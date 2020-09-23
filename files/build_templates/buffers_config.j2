@@ -34,7 +34,6 @@ def
 {%- else %}
     {%- set ports2cable = {
             'torrouter_server'       : '5m',
-            'internal'               : '5m',
             'leafrouter_torrouter'   : '40m',
             'spinerouter_leafrouter' : '300m'
             }
@@ -50,6 +49,9 @@ def
                 {%- set neighbor_role = neighbor.type %}
                 {%- if 'asic' == neighbor_role | lower %}
                          {%- set roles1 = 'internal' %}
+                         {%- if 'internal' not in ports2cable %}
+                             {%- set _ = ports2cable.update({'internal': '5m'}) %}
+                         {%- endif -%}
                 {%- else %}
                          {%- set roles1 = switch_role + '_' + neighbor_role %}
                          {%- set roles2 = neighbor_role + '_' + switch_role %}
