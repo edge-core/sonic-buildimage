@@ -68,6 +68,10 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
         "SSH": {
             "ip_protocols": ["tcp"],
             "dst_ports": ["22"]
+        },
+        "ANY": {
+            "ip_protocols": ["any"],
+            "dst_ports": ["0"]
         }
     }
 
@@ -375,14 +379,19 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
                     for ip_protocol in ip_protocols:
                         for dst_port in dst_ports:
                             rule_cmd = "ip6tables" if table_ip_version == 6 else "iptables"
-                            rule_cmd += " -A INPUT -p {}".format(ip_protocol)
 
+                            rule_cmd += " -A INPUT"
+                            if ip_protocol != "any":
+                                rule_cmd += " -p {}".format(ip_protocol)
+ 
                             if "SRC_IPV6" in rule_props and rule_props["SRC_IPV6"]:
                                 rule_cmd += " -s {}".format(rule_props["SRC_IPV6"])
                             elif "SRC_IP" in rule_props and rule_props["SRC_IP"]:
                                 rule_cmd += " -s {}".format(rule_props["SRC_IP"])
 
-                            rule_cmd += " --dport {}".format(dst_port)
+                            # Destination port 0 is reserved/unused port, so, using it to apply the rule to all ports.
+                            if dst_port != "0":
+                                rule_cmd += " --dport {}".format(dst_port)
 
                             # If there are TCP flags present and ip protocol is TCP, append them
                             if ip_protocol == "tcp" and "TCP_FLAGS" in rule_props and rule_props["TCP_FLAGS"]:
