@@ -14,6 +14,7 @@ import sonic_platform
 try:
     from sonic_platform_base.psu_base import PsuBase
     from sonic_platform.fan import Fan
+    from helper import APIHelper
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -41,6 +42,7 @@ class Psu(PsuBase):
     def __init__(self, psu_index):
         PsuBase.__init__(self)
         self.index = psu_index
+        self._api_helper = APIHelper()
         self.green_led_path = GREEN_LED_PATH.format(self.index+1)
         self.dx010_psu_gpio = [
             {'base': self.__get_gpio_base()},
@@ -54,27 +56,18 @@ class Psu(PsuBase):
             fan = Fan(fan_index, 0, is_psu_fan=True, psu_index=self.index)
             self._fan_list.append(fan)
 
-    def __read_txt_file(self, file_path):
-        try:
-            with open(file_path, 'r') as fd:
-                data = fd.read()
-                return data.strip()
-        except IOError:
-            pass
-        return ""
-
     def __search_file_by_contain(self, directory, search_str, file_start):
         for dirpath, dirnames, files in os.walk(directory):
             for name in files:
                 file_path = os.path.join(dirpath, name)
-                if name.startswith(file_start) and search_str in self.__read_txt_file(file_path):
+                if name.startswith(file_start) and search_str in self._api_helper.read_txt_file(file_path):
                     return file_path
         return None
 
     def __get_gpio_base(self):
         for r in os.listdir(GPIO_DIR):
             label_path = os.path.join(GPIO_DIR, r, "label")
-            if "gpiochip" in r and GPIO_LABEL in self.__read_txt_file(label_path):
+            if "gpiochip" in r and GPIO_LABEL in self._api_helper.read_txt_file(label_path):
                 return int(r[8:], 10)
         return 216  # Reserve
 
@@ -82,7 +75,7 @@ class Psu(PsuBase):
         gpio_base = self.dx010_psu_gpio[0]['base']
         gpio_dir = GPIO_DIR + '/gpio' + str(gpio_base+pinnum)
         gpio_file = gpio_dir + "/value"
-        retval = self.__read_txt_file(gpio_file)
+        retval = self._api_helper.read_txt_file(gpio_file)
         return retval.rstrip('\r\n')
 
     def get_voltage(self):
@@ -104,7 +97,7 @@ class Psu(PsuBase):
             in_num = filter(str.isdigit, basename)
             vout_path = os.path.join(
                 dir_name, voltage_name.format(in_num))
-            vout_val = self.__read_txt_file(vout_path)
+            vout_val = self._api_helper.read_txt_file(vout_path)
             psu_voltage = float(vout_val) / 1000
 
         return psu_voltage
@@ -127,7 +120,7 @@ class Psu(PsuBase):
             cur_num = filter(str.isdigit, basename)
             cur_path = os.path.join(
                 dir_name, current_name.format(cur_num))
-            cur_val = self.__read_txt_file(cur_path)
+            cur_val = self._api_helper.read_txt_file(cur_path)
             psu_current = float(cur_val) / 1000
 
         return psu_current
@@ -150,7 +143,7 @@ class Psu(PsuBase):
             pw_num = filter(str.isdigit, basename)
             pw_path = os.path.join(
                 dir_name, current_name.format(pw_num))
-            pw_val = self.__read_txt_file(pw_path)
+            pw_val = self._api_helper.read_txt_file(pw_path)
             psu_power = float(pw_val) / 1000000
 
         return psu_power
@@ -196,7 +189,7 @@ class Psu(PsuBase):
         Returns:
             A string, one of the predefined STATUS_LED_COLOR_* strings above
         """
-        status = self.__read_txt_file(self.green_led_path)
+        status = self._api_helper.read_txt_file(self.green_led_path)
         status_str = {
             '255': self.STATUS_LED_COLOR_GREEN,
             '0': self.STATUS_LED_COLOR_OFF

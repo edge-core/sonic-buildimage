@@ -2,7 +2,8 @@ dx010/scripts/dx010_check_qsfp.sh usr/local/bin
 dx010/cfg/dx010-modules.conf etc/modules-load.d
 dx010/systemd/platform-modules-dx010.service lib/systemd/system
 dx010/scripts/fancontrol.sh etc/init.d
-services/fancontrol/fancontrol.service lib/systemd/system
+dx010/scripts/fancontrol.service lib/systemd/system
+dx010/scripts/thermal_overload_control.sh usr/local/bin
 services/fancontrol/fancontrol  usr/local/bin
 dx010/modules/sonic_platform-1.0-py2-none-any.whl usr/share/sonic/device/x86_64-cel_seastone-r0
 services/platform_api/platform_api_mgnt.sh usr/local/bin

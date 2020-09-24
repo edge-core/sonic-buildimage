@@ -8,14 +8,13 @@
 #
 #############################################################################
 
-import json
 import os.path
 import shutil
-import shlex
 import subprocess
 
 try:
     from sonic_platform_base.component_base import ComponentBase
+    from helper import APIHelper
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -29,7 +28,8 @@ CPLD_ADDR_MAPPING = {
 GETREG_PATH = "/sys/devices/platform/dx010_cpld/getreg"
 BIOS_VERSION_PATH = "/sys/class/dmi/id/bios_version"
 COMPONENT_NAME_LIST = ["CPLD1", "CPLD2", "CPLD3", "CPLD4", "BIOS"]
-COMPONENT_DES_LIST = ["CPLD1", "CPLD2", "CPLD3", "CPLD4", "Basic Input/Output System"]
+COMPONENT_DES_LIST = ["Used for managing the CPU",
+                      "Used for managing QSFP+ ports (1-10)", "Used for managing QSFP+ ports (11-20)", "Used for managing QSFP+ ports (22-32)", "Basic Input/Output System"]
 
 
 class Component(ComponentBase):
@@ -40,23 +40,8 @@ class Component(ComponentBase):
     def __init__(self, component_index):
         ComponentBase.__init__(self)
         self.index = component_index
+        self._api_helper = APIHelper()
         self.name = self.get_name()
-
-    def __run_command(self, command):
-        # Run bash command and print output to stdout
-        try:
-            process = subprocess.Popen(
-                shlex.split(command), stdout=subprocess.PIPE)
-            while True:
-                output = process.stdout.readline()
-                if output == '' and process.poll() is not None:
-                    break
-            rc = process.poll()
-            if rc != 0:
-                return False
-        except:
-            return False
-        return True
 
     def __get_bios_version(self):
         # Retrieves the BIOS firmware version

@@ -76,42 +76,52 @@
 #define PORT_SFPP1              33
 #define PORT_SFPP2              34
 
-#define PORT_ID_BANK1           0x210
-#define PORT_ID_BANK2           0x290
-#define PORT_ID_BANK3           0x390
 
-#define OPCODE_ID_BANK1         0x211
-#define OPCODE_ID_BANK2         0x291
-#define OPCODE_ID_BANK3         0x391
+#define CPLD_I2C_CLK_100Khz_BIT    BIT(6)
+#define CPLD_I2C_DATA_SZ_MASK      GENMASK(7,4)
+#define CPLD_I2C_CMD_SZ_MASK       GENMASK(1,0)
+#define CPLD_I2C_ERR               BIT(7)
+#define CPLD_I2C_BUSY              BIT(6)
+#define CPLD_I2C_RST_BIT           BIT(0)
+#define CPLD_I2C_RESET             0
+#define CPLD_I2C_UNRESET           1
+#define CPLD_I2C_DATA_SZ_MAX       8
+#define CPLD_I2C_CMD_SZ_MAX        3
 
-#define DEVADDR_ID_BANK1        0x212
-#define DEVADDR_ID_BANK2        0x292
-#define DEVADDR_ID_BANK3        0x392
 
-#define CMDBYT_ID_BANK1         0x213
-#define CMDBYT_ID_BANK2         0x293
-#define CMDBYT_ID_BANK3         0x393
+#define CPLD_I2C_BANK1_BASE     0x210
+#define CPLD_I2C_BANK2_BASE     0x290
+#define CPLD_I2C_BANK3_BASE     0x390
 
-#define WRITE_ID_BANK1          0x220
-#define WRITE_ID_BANK2          0x2A0
-#define WRITE_ID_BANK3          0x3A0
+#define I2C_PORT_ID        0x0
+#define I2C_OPCODE         0x1
+#define I2C_DEV_ADDR       0x2
+#define I2C_CMD_BYT0       0x3
+#define I2C_SSR            0x6
+#define I2C_WRITE_DATA     0x10
+#define I2C_READ_DATA      0x20
 
-#define READ_ID_BANK1           0x230
-#define READ_ID_BANK2           0x2B0
-#define READ_ID_BANK3           0x3B0
+/*
+ * private data to send to I2C core
+ */
+struct current_xfer {
+    u8 addr;
+    u8 cmd[CPLD_I2C_CMD_SZ_MAX];
+    u8 cmd_len;
+    u8 data_len;
+    union i2c_smbus_data *data;
+};
 
-#define SSRR_ID_BANK1           0x216
-#define SSRR_ID_BANK2           0x296
-#define SSRR_ID_BANK3           0x396
-
-#define HST_CNTL2_QUICK         0x00
-#define HST_CNTL2_BYTE          0x01
-#define HST_CNTL2_BYTE_DATA     0x02
-#define HST_CNTL2_WORD_DATA     0x03
-#define HST_CNTL2_BLOCK         0x05
-
+/*
+ * private data of I2C adapter
+ * base_addr: Base address of this I2C adapter core.
+ * port_id: The port ID, use to mux an i2c core to a font panel port.
+ * current_xfer: The struct carry current data setup of current smbus transfer.
+ */
 struct dx010_i2c_data {
+        int base_addr;
         int portid;
+        struct current_xfer curr_xfer;
 };
 
 struct dx010_cpld_data {
@@ -364,179 +374,210 @@ static struct platform_device cel_dx010_lpc_dev = {
         }
 };
 
+// TODO: Refactoring this function with helper functions.
+static s32 cpld_smbus_transfer(struct dx010_i2c_data *priv) {
 
-/**
- * Read eeprom of QSFP device.
- * @param  a        i2c adapter.
- * @param  addr     address to read.
- * @param  new_data QSFP port number struct.
- * @param  cmd      i2c command.
- * @return          0 if not error, else the error code.
- */
-static int i2c_read_eeprom(struct i2c_adapter *a, u16 addr,
-               struct dx010_i2c_data *new_data, u8 cmd, union i2c_smbus_data *data){
+        u8 val;
+        s32 error;
+        unsigned long ioBase;
+        short portid, opcode, devaddr, cmdbyte0, ssr, writedata, readdata;
+        union i2c_smbus_data *data;
 
-        u32 reg;
-        int ioBase=0;
-        char byte;
-        short temp;
-        short portid, opcode, devaddr, cmdbyte0, ssrr, writedata, readdata;
-        __u16 word_data;
-        int error = -EIO;
+        error = -EIO;
 
         mutex_lock(&cpld_data->cpld_lock);
 
-        if (((new_data->portid >= PORT_BANK1_START)
-                        && (new_data->portid <= PORT_BANK1_END))
-                        || (new_data->portid == PORT_SFPP1)
-                        || (new_data->portid == PORT_SFPP2))
-        {
-                portid = PORT_ID_BANK1;
-                opcode = OPCODE_ID_BANK1;
-                devaddr = DEVADDR_ID_BANK1;
-                cmdbyte0 = CMDBYT_ID_BANK1;
-                ssrr = SSRR_ID_BANK1;
-                writedata = WRITE_ID_BANK1;
-                readdata = READ_ID_BANK1;
-        }else if ((new_data->portid >= PORT_BANK2_START) && (new_data->portid <= PORT_BANK2_END)){
-                portid = PORT_ID_BANK2;
-                opcode = OPCODE_ID_BANK2;
-                devaddr = DEVADDR_ID_BANK2;
-                cmdbyte0 = CMDBYT_ID_BANK2;
-                ssrr = SSRR_ID_BANK2;
-                writedata = WRITE_ID_BANK2;
-                readdata = READ_ID_BANK2;
-        }else if ((new_data->portid  >= PORT_BANK3_START) && (new_data->portid  <= PORT_BANK3_END)){
-                portid = PORT_ID_BANK3;
-                opcode = OPCODE_ID_BANK3;
-                devaddr = DEVADDR_ID_BANK3;
-                cmdbyte0 = CMDBYT_ID_BANK3;
-                ssrr = SSRR_ID_BANK3;
-                writedata = WRITE_ID_BANK3;
-                readdata = READ_ID_BANK3;
-        }else{
-            /* Invalid parameter! */
-                error = -EINVAL;
-                goto exit;
-        }
+        ioBase = priv->base_addr;
+        data = priv->curr_xfer.data;
 
-        while ((inb(ioBase + ssrr) & 0x40));
-        if ((inb(ioBase + ssrr) & 0x80) == 0x80) {
-                error = -EIO;
-                /* Read error reset the port */
-                outb(0x00, ioBase + ssrr);
-                udelay(3000);
-                outb(0x01, ioBase + ssrr);
-                goto exit;
-        }
+        portid = ioBase + I2C_PORT_ID;
+        opcode = ioBase + I2C_OPCODE;
+        devaddr = ioBase + I2C_DEV_ADDR;
+        cmdbyte0 = ioBase + I2C_CMD_BYT0;
+        ssr = ioBase + I2C_SSR;
+        writedata = ioBase + I2C_WRITE_DATA;
+        readdata = ioBase + I2C_READ_DATA;
 
-        byte = 0x40 +new_data->portid;
-        reg = cmd;
-        outb(byte, ioBase + portid);
-        outb(reg,ioBase + cmdbyte0);
-        byte = 33;
-        outb(byte, ioBase + opcode);
-        addr = addr << 1;
-        addr |= 0x01;
-        outb(addr, ioBase + devaddr);
-        while ((inb(ioBase + ssrr) & 0x40))
-        {
+        /* Wait for the core to be free */
+        pr_debug("CPLD_I2C Wait busy bit(6) to be cleared\n");
+        do {
+                val = inb(ssr);
+                if ((val & CPLD_I2C_BUSY) == 0)
+                        break;
                 udelay(100);
-        }
+        } while (true);  // Risky - add timeout
 
-        if ((inb(ioBase + ssrr) & 0x80) == 0x80) {
-            /* Read error reset the port */
-                error = -EIO;
-                outb(0x00, ioBase + ssrr);
+        /*
+         * If any error happen here, we do soft-reset
+         * and check the BUSY/ERROR again.
+         */
+        pr_debug("CPLD_I2C Check error bit(7)\n");
+        if (val & CPLD_I2C_ERR) {
+                pr_debug("CPLD_I2C Error, try soft-reset\n");
+                outb(CPLD_I2C_RESET, ssr);
                 udelay(3000);
-                outb(0x01, ioBase + ssrr);
-                goto exit;
+                outb(CPLD_I2C_UNRESET, ssr);
+
+                val = inb(ssr);
+                if (val & (CPLD_I2C_BUSY | CPLD_I2C_ERR)) {
+                    pr_debug("CPLD_I2C Error, core busy after reset\n");
+                    error = -EIO;
+                    goto exit_unlock;
+                }
         }
 
-        temp = ioBase + readdata;
-        word_data = inb(temp);
-        word_data |= (inb(++temp) << 8);
+        /* Configure PortID */
+        val = priv->portid | CPLD_I2C_CLK_100Khz_BIT;
+        outb(val, portid);
+        pr_debug("CPLD_I2C Write PortID 0x%x\n", val);
 
-        mutex_unlock(&cpld_data->cpld_lock);
-        data->word = word_data;
-        return 0;
+        /* Configure OP_Code */
+        val = (priv->curr_xfer.data_len << 4) &  CPLD_I2C_DATA_SZ_MASK;
+        val |= (priv->curr_xfer.cmd_len & CPLD_I2C_CMD_SZ_MASK);
+        outb(val, opcode);
+        pr_debug("CPLD_I2C Write OP_Code 0x%x\n", val);
 
-exit:
+        /* Configure CMD_Byte */
+        outb(priv->curr_xfer.cmd[0], cmdbyte0);
+        pr_debug("CPLD_I2C Write CMD_Byte 0x%x\n", priv->curr_xfer.cmd[0]);
+
+        /* Configure write data buffer */
+        if ((priv->curr_xfer.addr & BIT(0)) == I2C_SMBUS_WRITE){
+                pr_debug("CPLD_I2C Write WR_DATA buffer\n");
+                switch(priv->curr_xfer.data_len){
+                case 1:
+                        outb(data->byte, writedata);
+                        break;
+                case 2:
+                        outb(data->block[0], writedata);
+                        outb(data->block[1], ++writedata);
+                        break;
+                }
+        }
+
+        /* Start transfer, write the device address register */
+        pr_debug("CPLD_I2C Write DEV_ADDR 0x%x\n", priv->curr_xfer.addr);
+        outb(priv->curr_xfer.addr, devaddr);
+
+        /* Wait for transfer finish */
+        pr_debug("CPLD_I2C Wait busy bit(6) to be cleared\n");
+        do {
+                val = inb(ssr);
+                if ((val & CPLD_I2C_BUSY) == 0)
+                        break;
+                udelay(100);
+        } while (true); // Risky - add timeout
+
+        pr_debug("CPLD_I2C Check error bit(7)\n");
+        if (val & CPLD_I2C_ERR) {
+                error = -EIO;
+                goto exit_unlock;
+        }
+
+        /* Get the data from buffer */
+        if ((priv->curr_xfer.addr & BIT(0)) == I2C_SMBUS_READ){
+                pr_debug("CPLD_I2C Read RD_DATA buffer\n");
+                switch (priv->curr_xfer.data_len) {
+                case 1:
+                        data->byte = inb(readdata);
+                        break;
+                case 2:
+                        data->block[0] = inb(readdata);
+                        data->block[1] = inb(++readdata);
+                        break;
+                }
+        }
+
+        error = 0;
+
+exit_unlock:
+        pr_debug("CPLD_I2C Exit with %d\n", error);
         mutex_unlock(&cpld_data->cpld_lock);
         return error;
+
 }
 
-static int dx010_i2c_access(struct i2c_adapter *a, u16 addr,
-              unsigned short flags, char rw, u8 cmd,
-              int size, union i2c_smbus_data *data)
-{
+/*
+ * dx010_smbus_xfer - execute LPC-SMBus transfer
+ * Returns a negative errno code else zero on success.
+ */
+static s32 dx010_smbus_xfer(struct i2c_adapter *adap, u16 addr,
+               unsigned short flags, char read_write,
+               u8 command, int size, union i2c_smbus_data *data) {
 
         int error = 0;
+        struct dx010_i2c_data *priv;
 
-        struct dx010_i2c_data *new_data;
+        priv = i2c_get_adapdata(adap);
 
-        /* Write the command register */
-        new_data = i2c_get_adapdata(a);
+        pr_debug("smbus_xfer called RW:%x CMD:%x SIZE:0x%x",
+                 read_write, command, size);
+
+        priv->curr_xfer.addr = (addr << 1) | read_write;
+        priv->curr_xfer.data = data;
 
         /* Map the size to what the chip understands */
         switch (size) {
-        case I2C_SMBUS_QUICK:
-                size = HST_CNTL2_QUICK;
-        break;
         case I2C_SMBUS_BYTE:
-                size = HST_CNTL2_BYTE;
-        break;
+                priv->curr_xfer.cmd_len = 0;
+                priv->curr_xfer.data_len = 1;
+                break;
         case I2C_SMBUS_BYTE_DATA:
-                size = HST_CNTL2_BYTE_DATA;
-        break;
+                priv->curr_xfer.cmd_len = 1;
+                priv->curr_xfer.data_len = 1;
+                priv->curr_xfer.cmd[0] = command;
+                break;
         case I2C_SMBUS_WORD_DATA:
-            	size = HST_CNTL2_WORD_DATA;
-        break;
-        case I2C_SMBUS_BLOCK_DATA:
-                size = HST_CNTL2_BLOCK;
-        break;
+                priv->curr_xfer.cmd_len = 1;
+                priv->curr_xfer.data_len = 2;
+                priv->curr_xfer.cmd[0] = command;
+                break;
         default:
-                dev_warn(&a->dev, "Unsupported transaction %d\n", size);
+                dev_warn(&adap->dev, "Unsupported transaction %d\n", size);
                 error = -EOPNOTSUPP;
                 goto Done;
         }
 
-        switch (size) {
-        case HST_CNTL2_BYTE:    /* Result put in SMBHSTDAT0 */
-        break;
-        case HST_CNTL2_BYTE_DATA:
-        break;
-        case HST_CNTL2_WORD_DATA:
-                if( 0 == i2c_read_eeprom(a,addr,new_data,cmd,data)){
-                    error = 0;
-                }else{
-                    error = -EIO;
-                }
-        break;
-        }
+        error = cpld_smbus_transfer(priv);
 
 Done:
         return error;
 }
 
-static u32 dx010_i2c_func(struct i2c_adapter *a)
-{
-        return I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE |
-                        I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_WORD_DATA |
-                        I2C_FUNC_SMBUS_BLOCK_DATA;
+// TODO: Add support for I2C_FUNC_SMBUS_PROC_CALL and I2C_FUNC_SMBUS_I2C_BLOCK
+static u32 dx010_i2c_func(struct i2c_adapter *a) {
+        return  I2C_FUNC_SMBUS_READ_BYTE  |
+                I2C_FUNC_SMBUS_BYTE_DATA  |
+                I2C_FUNC_SMBUS_WORD_DATA;
 }
 
 static const struct i2c_algorithm dx010_i2c_algorithm = {
-        .smbus_xfer = dx010_i2c_access,
+        .smbus_xfer = dx010_smbus_xfer,
         .functionality  = dx010_i2c_func,
 };
 
-static struct i2c_adapter * cel_dx010_i2c_init(struct platform_device *pdev, int portid)
+static struct i2c_adapter *cel_dx010_i2c_init(struct platform_device *pdev, int portid)
 {
         int error;
-
+        int base_addr;
         struct i2c_adapter *new_adapter;
-        struct dx010_i2c_data *new_data;
+        struct dx010_i2c_data *priv;
+
+        switch (portid) {
+        case PORT_SFPP1 ... PORT_SFPP2:
+        case PORT_BANK1_START ... PORT_BANK1_END:
+                base_addr = CPLD_I2C_BANK1_BASE;
+                break;
+        case PORT_BANK2_START ... PORT_BANK2_END:
+                base_addr = CPLD_I2C_BANK2_BASE;
+                break;
+        case PORT_BANK3_START ... PORT_BANK3_END:
+                base_addr = CPLD_I2C_BANK3_BASE;
+                break;
+        default:
+                dev_err(&pdev->dev, "Invalid port adapter ID: %d\n", portid);
+                goto error_exit;
+        }
 
         new_adapter = kzalloc(sizeof(*new_adapter), GFP_KERNEL);
                 if (!new_adapter)
@@ -544,31 +585,39 @@ static struct i2c_adapter * cel_dx010_i2c_init(struct platform_device *pdev, int
 
         new_adapter->dev.parent = &pdev->dev;
         new_adapter->owner = THIS_MODULE;
-        new_adapter->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
+        new_adapter->class = I2C_CLASS_DEPRECATED;
         new_adapter->algo  = &dx010_i2c_algorithm;
 
         snprintf(new_adapter->name, sizeof(new_adapter->name),
-                        "SMBus dx010 i2c Adapter portid@%04x", portid);
+                        "SMBus dx010 i2c Adapter port %d", portid);
 
-        new_data = kzalloc(sizeof(*new_data), GFP_KERNEL);
-        if (!new_data)
-                return NULL;
+        priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+        if (!priv) {
+                goto free_adap;
+        }
 
-        new_data->portid = portid;
+        priv->portid = portid;
+        priv->base_addr = base_addr;
 
-        i2c_set_adapdata(new_adapter,new_data);
-
+        i2c_set_adapdata(new_adapter, priv);
         error = i2c_add_adapter(new_adapter);
         if(error)
-                return NULL;
+                goto free_data;
 
         return new_adapter;
+
+free_adap:
+        kzfree(new_adapter);
+free_data:
+        kzfree(priv);
+error_exit:
+        return NULL;
 };
 
 static int cel_dx010_lpc_drv_probe(struct platform_device *pdev)
 {
         struct resource *res;
-        int ret =0;
+        int ret = 0;
         int portid_count;
 
         cpld_data = devm_kzalloc(&pdev->dev, sizeof(struct dx010_cpld_data),
