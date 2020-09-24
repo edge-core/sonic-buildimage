@@ -136,10 +136,38 @@ def get_asic_id_from_name(asic_name):
         raise ValueError('Unknown asic namespace name {}'.format(asic_name))
 
 
+def get_current_namespace():
+    """
+    This API returns the network namespace in which it is
+    invoked. In case of global namepace the API returns None
+    """
+
+    net_namespace = None
+    command = ["/bin/ip netns identify", str(os.getpid())]
+    proc = subprocess.Popen(command,
+                            stdout=subprocess.PIPE,
+                            shell=True,
+                            stderr=subprocess.STDOUT)
+    try:
+        stdout, stderr = proc.communicate()
+        if proc.returncode != 0:
+            raise RuntimeError(
+                "Command {} failed with stderr {}".format(command, stderr)
+            )
+        if stdout.rstrip('\n') != "":
+            net_namespace = stdout.rstrip('\n')
+    except OSError as e:
+        raise OSError("Error running command {}".format(command))
+
+    return net_namespace
+
+
 def get_namespaces_from_linux():
     """
     In a multi asic platform, each ASIC is in a Linux Namespace.
-    This method returns list of all the Namespace present on the device
+    This method returns the asic namespace under which this is invoked,
+    if namespace is None (global namespace) it returns list of all
+    the Namespace present on the device
 
     Note: It is preferable to use this function only when config_db is not
     available. When configdb is available use get_all_namespaces()
@@ -147,6 +175,10 @@ def get_namespaces_from_linux():
     Returns:
         List of the namespaces present in the system
     """
+    current_ns = get_current_namespace()
+    if current_ns:
+        return [current_ns]
+
     ns_list = []
     for path in glob.glob(NAMESPACE_PATH_GLOB):
         ns = os.path.basename(path)
