@@ -12,7 +12,7 @@ setuptools.setup(name='sonic-bgpcfgd',
       scripts=['bgpcfgd'],
       entry_points={
           'console_scripts': [
-              'bgpmon = bgpmon_proj.bgpmon:main',
+              'bgpmon = bgpmon.bgpmon:main',
           ]
       },
       install_requires=['jinja2>=2.10', 'netaddr', 'pyyaml'],
