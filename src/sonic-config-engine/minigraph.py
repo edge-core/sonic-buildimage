@@ -1139,7 +1139,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
         'certs': {
             'server_crt': '/etc/sonic/credentials/restapiserver.crt',
             'server_key': '/etc/sonic/credentials/restapiserver.key',
-            'client_ca_crt': '/etc/sonic/credentials/restapiclient.crt',
+            'ca_crt': '/etc/sonic/credentials/restapica.crt',
             'client_crt_cname': 'client.restapi.sonic'
         }
     }
