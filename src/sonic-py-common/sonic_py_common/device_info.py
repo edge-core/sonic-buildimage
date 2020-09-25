@@ -20,6 +20,9 @@ SONIC_VERSION_YAML_PATH = "/etc/sonic/sonic_version.yml"
 PORT_CONFIG_FILE = "port_config.ini"
 PLATFORM_JSON_FILE = "platform.json"
 
+# HwSKU configuration file name
+HWSKU_JSON_FILE = 'hwsku.json'
+
 # Multi-NPU constants
 # TODO: Move Multi-ASIC-related functions and constants to a "multi_asic.py" module
 NPU_NAME_PREFIX = "asic"
@@ -247,8 +250,13 @@ def get_path_to_port_config_file(hwsku=None, asic=None):
 
     port_config_candidates = []
 
-    # Check for 'platform.json' file presence first
-    port_config_candidates.append(os.path.join(platform_path, PLATFORM_JSON_FILE))
+    # Check for 'hwsku.json' file presence first
+    hwsku_json_file = os.path.join(hwsku_path, HWSKU_JSON_FILE)
+
+    # if 'hwsku.json' file is available, Check for 'platform.json' file presence,
+    # if 'platform.json' is available, APPEND it. Otherwise, SKIP it.
+    if os.path.isfile(hwsku_json_file):
+        port_config_candidates.append(os.path.join(platform_path, PLATFORM_JSON_FILE))
 
     # Check for 'port_config.ini' file presence in a few locations
     if asic:
