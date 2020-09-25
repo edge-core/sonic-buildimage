@@ -1,0 +1,18 @@
+[Unit]
+Description=gbsyncd service
+Requires=database.service updategraph.service
+ConditionPathExists=!/usr/share/sonic/hwsku/gearbox_config.json
+After=database.service updategraph.service
+After=interfaces-config.service
+After=swss.service
+Before=ntp-config.service
+
+[Service]
+User=root
+Environment=sonic_asic_platform={{ sonic_asic_platform }}
+ExecStartPre=/usr/local/bin/gbsyncd.sh start
+ExecStart=/usr/local/bin/gbsyncd.sh wait
+ExecStop=/usr/local/bin/gbsyncd.sh stop
+
+[Install]
+WantedBy=multi-user.target
