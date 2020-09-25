@@ -184,9 +184,9 @@ class ProcDockerStats(daemon_base.DaemonBase):
             self.update_dockerstats_command()
             datetimeobj = datetime.now()
             # Adding key to store latest update time.
-            self.update_state_db('DOCKER_STATS|LastUpdateTime', 'lastupdate', datetimeobj)
+            self.update_state_db('DOCKER_STATS|LastUpdateTime', 'lastupdate', str(datetimeobj))
             self.update_processstats_command()
-            self.update_state_db('PROCESS_STATS|LastUpdateTime', 'lastupdate', datetimeobj)
+            self.update_state_db('PROCESS_STATS|LastUpdateTime', 'lastupdate', str(datetimeobj))
 
             # Data need to be updated every 2 mins. hence adding delay of 120 seconds
             time.sleep(120)
