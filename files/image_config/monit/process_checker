@@ -1,0 +1,57 @@
+#!/usr/bin/python
+import argparse
+import sys
+import syslog
+
+import psutil
+import swsssdk
+
+
+def check_process_existence(container_name, process_cmdline):
+    """
+    @summary: Check whether the process in the specified container is running or not and
+              an alerting message will written into syslog if it failed to run.
+    """
+    config_db = swsssdk.ConfigDBConnector()
+    config_db.connect()
+    feature_table = config_db.get_table("FEATURE")
+
+    if container_name in feature_table.keys():
+        # We look into the 'FEATURE' table to verify whether the container is disabled or not.
+        # If the container is diabled, we exit.
+        if ("state" in feature_table[container_name].keys()
+                and feature_table[container_name]["state"] == "disabled"):
+            sys.exit(0)
+        else:
+            # We leveraged the psutil library to help us check whether the process is running or not.
+            # If the process entity is found in process tree and it is also in the 'running' or 'sleeping'
+            # state, then it will be marked as 'running'.
+            is_running = False
+            for process in psutil.process_iter(["cmdline", "status"]):
+                if ((' '.join(process.cmdline())).startswith(process_cmdline) and process.status() in ["running", "sleeping"]):
+                    is_running = True
+                    break
+
+            if not is_running:
+                # If this script is run by Monit, then the following output will be appended to
+                # Monit's syslog message.
+                print("'{}' is not running.".format(process_cmdline))
+                sys.exit(1)
+    else:
+        syslog.syslog(syslog.LOG_ERR, "container '{}' is not included in SONiC image or the given container name is invalid!"
+                      .format(container_name))
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Check whether the process in the specified \
+             container is running and an alerting message will be written into syslog if it \
+             failed to run.", usage="/usr/bin/process_checker <container_name> <process_cmdline>")
+    parser.add_argument("container_name", help="container name")
+    parser.add_argument("process_cmdline", nargs=argparse.REMAINDER, help="process command line")
+    args = parser.parse_args()
+
+    check_process_existence(args.container_name, ' '.join(args.process_cmdline))
+
+
+if __name__ == '__main__':
+    main()

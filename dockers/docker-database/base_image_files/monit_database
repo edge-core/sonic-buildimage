@@ -3,5 +3,5 @@
 ## process list:
 ##  redis_server
 ###############################################################################
-check process redis_server matching "/usr/bin/redis-server"
-    if does not exist for 5 times within 5 cycles then alert
+check program database|redis_server with path "/usr/bin/process_checker database /usr/bin/redis-server"
+    if status != 0 for 5 times within 5 cycles then alert
