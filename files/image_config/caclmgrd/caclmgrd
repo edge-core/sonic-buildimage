@@ -81,7 +81,9 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
         self.config_db_map[''].connect()
         self.iptables_cmd_ns_prefix[''] = ""
         self.namespace_mgmt_ip = self.get_namespace_mgmt_ip(self.iptables_cmd_ns_prefix[''], '')
+        self.namespace_mgmt_ipv6 = self.get_namespace_mgmt_ipv6(self.iptables_cmd_ns_prefix[''], '')
         self.namespace_docker_mgmt_ip = {}
+        self.namespace_docker_mgmt_ipv6 = {}
         namespaces = device_info.get_all_namespaces()
         for front_asic_namespace in namespaces['front_ns']:
             self.config_db_map[front_asic_namespace] = ConfigDBConnector(use_unix_socket_path=True, namespace=front_asic_namespace)
@@ -89,10 +91,14 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
             self.iptables_cmd_ns_prefix[front_asic_namespace] = "ip netns exec " + front_asic_namespace + " "
             self.namespace_docker_mgmt_ip[front_asic_namespace] = self.get_namespace_mgmt_ip(self.iptables_cmd_ns_prefix[front_asic_namespace],
                                                                                               front_asic_namespace)
+            self.namespace_docker_mgmt_ipv6[front_asic_namespace] = self.get_namespace_mgmt_ipv6(self.iptables_cmd_ns_prefix[front_asic_namespace],
+                                                                                              front_asic_namespace)
 
         for back_asic_namespace in namespaces['back_ns']:
             self.iptables_cmd_ns_prefix[back_asic_namespace] = "ip netns exec " + back_asic_namespace + " "
             self.namespace_docker_mgmt_ip[back_asic_namespace] = self.get_namespace_mgmt_ip(self.iptables_cmd_ns_prefix[back_asic_namespace],
+                                                                                             back_asic_namespace)
+            self.namespace_docker_mgmt_ipv6[back_asic_namespace] = self.get_namespace_mgmt_ipv6(self.iptables_cmd_ns_prefix[back_asic_namespace],
                                                                                              back_asic_namespace)
 
     def get_namespace_mgmt_ip(self, iptable_ns_cmd_prefix, namespace):
@@ -100,6 +106,11 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
                                  " | awk '{print $4}' | cut -d'/' -f1 | head -1"
 
         return self.run_commands([ip_address_get_command])
+
+    def get_namespace_mgmt_ipv6(self, iptable_ns_cmd_prefix, namespace):
+        ipv6_address_get_command = iptable_ns_cmd_prefix + "ip -6 -o addr show scope global " + ("eth0" if namespace else "docker0") +\
+                                 " | awk '{print $4}' | cut -d'/' -f1 | head -1"
+        return self.run_commands([ipv6_address_get_command])
 
     def run_commands(self, commands):
         """
@@ -201,6 +212,39 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
                 allow_internal_docker_ip_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -A INPUT -p udp -s {} -d {} -j ACCEPT".format
                                                      (docker_mgmt_ip, self.namespace_mgmt_ip))
         return allow_internal_docker_ip_cmds
+
+    def generate_fwd_snmp_traffic_from_namespace_to_host_commands(self, namespace):
+        """
+        The below SNAT and DNAT rules are added in asic namespace in multi-ASIC platforms. It helps to forward the SNMP request coming
+        in through the front panel interfaces created/present in the asic namespace to the SNMP Agent running in SNMP container in
+        linux host network namespace. The external IP addresses are NATed to the internal docker IP addresses for the SNMP Agent to respond.
+        """
+        fwd_snmp_traffic_from_namespace_to_host_cmds = []
+
+        if namespace:
+            # IPv4 rules
+            fwd_snmp_traffic_from_namespace_to_host_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -t nat -X")
+            fwd_snmp_traffic_from_namespace_to_host_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -t nat -F")
+
+            fwd_snmp_traffic_from_namespace_to_host_cmds.append(self.iptables_cmd_ns_prefix[namespace] +
+                                               "iptables -t nat -A PREROUTING -p udp --dport {}  -j DNAT --to-destination {}".format
+                                               (self.ACL_SERVICES['SNMP']['dst_ports'][0], self.namespace_mgmt_ip))
+            fwd_snmp_traffic_from_namespace_to_host_cmds.append(self.iptables_cmd_ns_prefix[namespace] +
+                                               "iptables -t nat -A POSTROUTING -p udp --dport {} -j SNAT --to-source {}".format
+                                               (self.ACL_SERVICES['SNMP']['dst_ports'][0], self.namespace_docker_mgmt_ip[namespace]))
+
+            # IPv6 rules
+            fwd_snmp_traffic_from_namespace_to_host_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -t nat -X")
+            fwd_snmp_traffic_from_namespace_to_host_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -t nat -F")
+
+            fwd_snmp_traffic_from_namespace_to_host_cmds.append(self.iptables_cmd_ns_prefix[namespace] +
+                                               "ip6tables -t nat -A PREROUTING -p udp --dport {}  -j DNAT --to-destination {}".format
+                                               (self.ACL_SERVICES['SNMP']['dst_ports'][0], self.namespace_mgmt_ipv6))
+            fwd_snmp_traffic_from_namespace_to_host_cmds.append(self.iptables_cmd_ns_prefix[namespace] +
+                                               "ip6tables -t nat -A POSTROUTING -p udp --dport {} -j SNAT --to-source {}".format
+                                               (self.ACL_SERVICES['SNMP']['dst_ports'][0], self.namespace_docker_mgmt_ipv6[namespace]))
+
+        return fwd_snmp_traffic_from_namespace_to_host_cmds
 
     def is_rule_ipv4(self, rule_props):
         if (("SRC_IP" in rule_props and rule_props["SRC_IP"]) or
@@ -429,6 +473,19 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
 
         self.run_commands(iptables_cmds)
 
+    def update_control_plane_nat_acls(self, namespace):
+        """
+        Convenience wrapper which programs the NAT rules for allowing the
+        snmp traffic coming on the front panel interface
+        """
+        # Add iptables commands to allow front panel snmp traffic
+        iptables_cmds = self.generate_fwd_snmp_traffic_from_namespace_to_host_commands(namespace)
+        self.log_info("Issuing the following iptables commands:")
+        for cmd in iptables_cmds:
+            self.log_info("  " + cmd)
+
+        self.run_commands(iptables_cmds)
+
     def run(self):
         # Select Time-out for 10 Seconds
         SELECT_TIMEOUT_MS = 1000 * 10
@@ -453,6 +510,7 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
         for namespace in self.config_db_map.keys():
             # Unconditionally update control plane ACLs once at start on given namespace
             self.update_control_plane_acls(namespace)
+            self.update_control_plane_nat_acls(namespace)
             # Connect to Config DB of given namespace
             acl_db_connector = swsscommon.DBConnector("CONFIG_DB", 0, False, namespace)
             # Subscribe to notifications when ACL tables changes
