@@ -20,6 +20,7 @@ class Platform(PlatformBase):
             self._chassis = Chassis()
             self._chassis.initialize_components()
             self._chassis.initizalize_system_led()
+            self._chassis.initialize_eeprom()
         else:
             self._chassis = Chassis()
             self._chassis.initialize_psu()
