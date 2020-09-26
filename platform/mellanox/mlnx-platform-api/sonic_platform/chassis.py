@@ -19,7 +19,6 @@ try:
     import sys
     import io
     import re
-    import subprocess
     import syslog
 except ImportError as e:
     raise ImportError (str(e) + "- required module not found")
@@ -27,9 +26,6 @@ except ImportError as e:
 MAX_SELECT_DELAY = 3600
 
 MLNX_NUM_PSU = 2
-
-GET_HWSKU_CMD = "sonic-cfggen -d -v DEVICE_METADATA.localhost.hwsku"
-GET_PLATFORM_CMD = "sonic-cfggen -d -v DEVICE_METADATA.localhost.platform"
 
 EEPROM_CACHE_ROOT = '/var/cache/sonic/decode-syseeprom'
 EEPROM_CACHE_FILE = 'syseeprom_cache'
@@ -63,15 +59,12 @@ class Chassis(ChassisBase):
     def __init__(self):
         super(Chassis, self).__init__()
 
-        # Initialize SKU name and Platform name
-        self.sku_name = self._get_sku_name()
-        self.platform_name = self._get_platform_name()
-        mi = device_info.get_machine_info()
-        if mi is not None:
-            self.name = mi['onie_platform']
-        else:
-            self.name = self.sku_name
+        self.name = "Undefined"
+        self.model = "Undefined"
 
+        # Initialize Platform name
+        self.platform_name = device_info.get_platform()
+        
         # move the initialization of each components to their dedicated initializer
         # which will be called from platform
         self.sfp_module_initialized = False
@@ -155,6 +148,9 @@ class Chassis(ChassisBase):
         from eeprom import Eeprom
         # Initialize EEPROM
         self._eeprom = Eeprom()
+        # Get chassis name and model from eeprom
+        self.name = self._eeprom.get_product_name()
+        self.model = self._eeprom.get_part_number()
 
 
     def initialize_components(self):
@@ -176,6 +172,15 @@ class Chassis(ChassisBase):
         return self.name
 
 
+    def get_model(self):
+        """
+        Retrieves the model number (or part number) of the device
+
+        Returns:
+            string: Model/part number of device
+        """
+        return self.model
+        
     ##############################################
     # SFP methods
     ##############################################
@@ -246,19 +251,6 @@ class Chassis(ChassisBase):
                         num_of_drawer = int(match_obj.group(1))
 
         return num_of_fan, num_of_drawer
-
-
-    def _get_sku_name(self):
-        p = subprocess.Popen(GET_HWSKU_CMD, shell=True, stdout=subprocess.PIPE)
-        out, err = p.communicate()
-        return out.rstrip('\n')
-
-
-    def _get_platform_name(self):
-        p = subprocess.Popen(GET_PLATFORM_CMD, shell=True, stdout=subprocess.PIPE)
-        out, err = p.communicate()
-        return out.rstrip('\n')
-
 
     def _get_port_position_tuple_by_platform_name(self):
         position_tuple = port_position_tuple_list[platform_dict_port[self.platform_name]]
