@@ -18,6 +18,18 @@ constants:
       enabled: true
       ipv4: 64
       ipv6: 64
+    allow_list:
+      enabled: true
+      default_action: "permit"   # or "deny"
+      drop_community: 5060:12345  # value of the community to identify a prefix to drop. Make sense only with allow_list_default_action equal to 'permit'
+      default_pl_rules:
+        v4:
+          - "deny 0.0.0.0/0 le 17"
+          - "permit 127.0.0.1/32"
+        v6:
+          - "deny 0::/0 le 59"
+          - "deny 0::/0 ge 65"
+          - "permit fe80::/64"
     peers:
       general: # peer_type
         db_table: "BGP_NEIGHBOR"

@@ -6,6 +6,7 @@ $(SONIC_BGPCFGD)_SRC_PATH = $(SRC_PATH)/sonic-bgpcfgd
 # of sonic-config-engine and bgpcfgd explicitly calls sonic-cfggen
 # as part of its unit tests.
 # TODO: Refactor unit tests so that these dependencies are not needed
-$(SONIC_BGPCFGD)_DEPENDS += $(SWSSSDK_PY2) $(SONIC_PY_COMMON_PY2)
+$(SONIC_BGPCFGD)_DEPENDS += $(SONIC_PY_COMMON_PY2)
+$(SONIC_BGPCFGD)_DEBS_DEPENDS += $(LIBSWSSCOMMON) $(PYTHON_SWSSCOMMON)
 $(SONIC_BGPCFGD)_PYTHON_VERSION = 2
 SONIC_PYTHON_WHEELS += $(SONIC_BGPCFGD)
