@@ -2,10 +2,15 @@ Source: sonic-platform-modules-bfn-newport
 Section: main
 Priority: extra
 Maintainer: Support <support@edge-core.com>
-Build-Depends: debhelper (>= 8.0.0), bzip2
+Build-Depends: debhelper (>= 9.0.0), bzip2
 Standards-Version: 3.9.3
 
-Package: sonic-platform-modules-bfn-newport
+Package: sonic-platform-modules-bfn-newport-as9516
+Architecture: amd64
+Depends: linux-image-4.9.0-11-2-amd64
+Description: kernel module for bfn platform fpga and scripts for the devices such as fan, led, sfp
+
+Package: sonic-platform-modules-bfn-newport-as9516bf
 Architecture: amd64
 Depends: linux-image-4.9.0-11-2-amd64
 Description: kernel module for bfn platform fpga and scripts for the devices such as fan, led, sfp
