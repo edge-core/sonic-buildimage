@@ -31,3 +31,20 @@ if [ $? -ne 0 ]; then
        echo "Error: Unable to locate ${SONIC_PLATFORM_WHEEL}"
     fi
 fi
+
+# If the python3 sonic-platform package is not installed, try to install it
+python3 -m pip show sonic-platform > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+    SONIC_PLATFORM_WHEEL="/usr/share/sonic/platform/sonic_platform-1.0-py3-none-any.whl"
+    echo "sonic-platform package not installed, attempting to install..."
+    if [ -e ${SONIC_PLATFORM_WHEEL} ]; then
+       python3 -m pip install ${SONIC_PLATFORM_WHEEL}
+       if [ $? -eq 0 ]; then
+          echo "Successfully installed ${SONIC_PLATFORM_WHEEL}"
+       else
+          echo "Error: Failed to install ${SONIC_PLATFORM_WHEEL}"
+       fi
+    else
+       echo "Error: Unable to locate ${SONIC_PLATFORM_WHEEL}"
+    fi
+fi

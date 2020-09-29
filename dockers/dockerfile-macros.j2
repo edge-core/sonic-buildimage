@@ -5,12 +5,29 @@ RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return
     {%- endfor %}
 {%- endmacro %}
 
-{% macro install_python_wheels(packages) -%}
+{% macro install_python2_wheels(packages) -%}
 RUN cd /python-wheels/ && pip install {{ packages | join(' ') }}
 {%- endmacro %}
 
 {% macro install_python3_wheels(packages) -%}
 RUN cd /python-wheels/ && pip3 install {{ packages | join(' ') }}
+{%- endmacro %}
+
+{% macro install_python_wheels(packages) -%}
+{%- set py2_pkgs, py3_pkgs = [], [] %}
+{%- for pkg in packages %}
+    {%- if 'py3' in pkg %}
+       {{- py3_pkgs.append(pkg) or '' }}
+    {%- else %}
+       {{- py2_pkgs.append(pkg) or '' }}
+    {%- endif %}
+{%- endfor %}
+{%- if py3_pkgs | length %}
+{{ install_python3_wheels(py3_pkgs) }}
+{%- endif %}
+{%- if py2_pkgs | length %}
+{{  install_python2_wheels(py2_pkgs) }}
+{%- endif %}
 {%- endmacro %}
 
 {% macro copy_files(prefix, files, dest) -%}
