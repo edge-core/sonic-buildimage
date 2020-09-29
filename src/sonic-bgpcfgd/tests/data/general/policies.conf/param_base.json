@@ -4,12 +4,5 @@
             "sub_role": "NotBackEnd"
         }
     },
-    "loopback0_ipv4": "10.10.10.10/32",
-    "constants": {
-        "bgp": {
-            "allow_list": {
-                "enabled": false
-            }
-        }
-    }
+    "loopback0_ipv4": "10.10.10.10/32"
 }

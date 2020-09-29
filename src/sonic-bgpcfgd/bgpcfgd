@@ -15,13 +15,10 @@ import jinja2
 import netaddr
 from swsscommon import swsscommon
 
-from app.directory import Directory
-from app.manager import Manager
 from app.vars import g_debug
 from app.log import log_debug, log_notice, log_info, log_warn, log_err, log_crit
 from app.template import TemplateFabric
 from app.config import ConfigMgr
-from app.allow_list import BGPAllowListMgr
 from app.util import run_command
 
 g_run = True
@@ -849,7 +846,7 @@ def wait_for_daemons(daemons, seconds):
 def read_constants():
     """ Read file with constants values from /etc/sonic/constants.yml """
     with open('/etc/sonic/constants.yml') as fp:
-        content = yaml.load(fp) # FIXME: , Loader=yaml.FullLoader)
+        content = yaml.load(fp)
         if "constants" not in content:
             log_crit("/etc/sonic/constants.yml doesn't have 'constants' key")
             raise Exception("/etc/sonic/constants.yml doesn't have 'constants' key")
@@ -881,8 +878,6 @@ def main():
         BGPPeerMgrBase(common_objs, "CONFIG_DB", swsscommon.CFG_BGP_NEIGHBOR_TABLE_NAME, "general", True),
         BGPPeerMgrBase(common_objs, "CONFIG_DB", "BGP_MONITORS", "monitors", True),
         BGPPeerMgrBase(common_objs, "CONFIG_DB", "BGP_PEER_RANGE", "dynamic", False),
-        # AllowList Managers
-        BGPAllowListMgr(common_objs, "CONFIG_DB", "BGP_ALLOWED_PREFIXES"),
     ]
     runner = Runner()
     for mgr in managers:

@@ -5,7 +5,7 @@ CONSTANTS_PATH = os.path.abspath('../../files/image_config/constants/constants.y
 
 def load_constants():
     with open(CONSTANTS_PATH) as f:
-        data = yaml.load(f) # FIXME" , Loader=yaml.FullLoader)
+        data = yaml.load(f)
     result = {}
     assert "constants" in data, "'constants' key not found in constants.yml"
     assert "bgp" in data["constants"], "'bgp' key not found in constants.yml"
