@@ -2,6 +2,8 @@ import json
 import re
 import sys
 
+PY3x = sys.version_info >= (3, 0)
+PYvX_DIR = "py3" if PY3x else "py2"
 
 def tuple_to_str(tuplestr):
     """ Convert Python tuple '('elem1', 'elem2')' representation into string on the for "elem1|elem2" """

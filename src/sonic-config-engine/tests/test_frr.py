@@ -1,8 +1,11 @@
-from unittest import TestCase
-import subprocess
-import os
 import filecmp
+import os
+import subprocess
+import sys
 
+import tests.common_utils as utils
+
+from unittest import TestCase
 
 class TestCfgGen(TestCase):
     def setUp(self):
@@ -44,7 +47,7 @@ class TestCfgGen(TestCase):
         cmd = "-m %s -p %s -y %s -t %s -T %s > %s" % cmd_args
         self.run_script(cmd)
 
-        original_filename = os.path.join(self.test_dir, 'sample_output', target)
+        original_filename = os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, target)
         r = filecmp.cmp(original_filename, self.output_file)
         diff_output = self.run_diff(original_filename, self.output_file) if not r else ""
 

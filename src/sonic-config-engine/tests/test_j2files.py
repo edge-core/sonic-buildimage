@@ -1,10 +1,12 @@
 import filecmp
-import os
-import subprocess
 import json
+import os
 import shutil
+import subprocess
 
 from unittest import TestCase
+import tests.common_utils as utils
+
 
 class TestJ2Files(TestCase):
     def setUp(self):
@@ -34,42 +36,42 @@ class TestJ2Files(TestCase):
         interfaces_template = os.path.join(self.test_dir, '..', '..', '..', 'files', 'image_config', 'interfaces', 'interfaces.j2')
         argument = '-m ' + self.t0_minigraph + ' -a \'{\"hwaddr\":\"e4:1d:2d:a5:f3:ad\"}\' -t ' + interfaces_template + ' > ' + self.output_file
         self.run_script(argument)
-        self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', 'interfaces'), self.output_file))
+        self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, 'interfaces'), self.output_file))
 
         argument = '-m ' + self.t0_mvrf_minigraph + ' -a \'{\"hwaddr\":\"e4:1d:2d:a5:f3:ad\"}\' -t ' + interfaces_template + ' > ' + self.output_file
         self.run_script(argument)
-        self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', 'mvrf_interfaces'), self.output_file))
+        self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, 'mvrf_interfaces'), self.output_file))
 
     def test_ports_json(self):
         ports_template = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-orchagent', 'ports.json.j2')
         argument = '-m ' + self.simple_minigraph + ' -p ' + self.t0_port_config + ' -t ' + ports_template + ' > ' + self.output_file
         self.run_script(argument)
-        self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', 'ports.json'), self.output_file))
+        self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, 'ports.json'), self.output_file))
 
     def test_dhcp_relay(self):
         # Test generation of wait_for_intf.sh
         template_path = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-dhcp-relay', 'wait_for_intf.sh.j2')
         argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -t ' + template_path + ' > ' + self.output_file
         self.run_script(argument)
-        self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', 'wait_for_intf.sh'), self.output_file))
+        self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, 'wait_for_intf.sh'), self.output_file))
 
         # Test generation of docker-dhcp-relay.supervisord.conf
         template_path = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-dhcp-relay', 'docker-dhcp-relay.supervisord.conf.j2')
         argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -t ' + template_path + ' > ' + self.output_file
         self.run_script(argument)
-        self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', 'docker-dhcp-relay.supervisord.conf'), self.output_file))
+        self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, 'docker-dhcp-relay.supervisord.conf'), self.output_file))
 
     def test_lldp(self):
         lldpd_conf_template = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-lldp', 'lldpd.conf.j2')
         argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -t ' + lldpd_conf_template + ' > ' + self.output_file
         self.run_script(argument)
-        self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', 'lldpd.conf'), self.output_file))
+        self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, 'lldpd.conf'), self.output_file))
 
     def test_bgpd_quagga(self):
         conf_template = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-fpm-quagga', 'bgpd.conf.j2')
         argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -t ' + conf_template + ' > ' + self.output_file
         self.run_script(argument)
-        original_filename = os.path.join(self.test_dir, 'sample_output', 'bgpd_quagga.conf')
+        original_filename = os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, 'bgpd_quagga.conf')
         r = filecmp.cmp(original_filename, self.output_file)
         diff_output = self.run_diff(original_filename, self.output_file) if not r else ""
         self.assertTrue(r, "Diff:\n" + diff_output)
@@ -78,21 +80,21 @@ class TestJ2Files(TestCase):
         conf_template = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-fpm-quagga', 'zebra.conf.j2')
         argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -t ' + conf_template + ' > ' + self.output_file
         self.run_script(argument)
-        self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', 'zebra_quagga.conf'), self.output_file))
+        self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, 'zebra_quagga.conf'), self.output_file))
 
     def test_ipinip(self):
         ipinip_file = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-orchagent', 'ipinip.json.j2')
         argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -t ' + ipinip_file + ' > ' + self.output_file
         self.run_script(argument)
 
-        sample_output_file = os.path.join(self.test_dir, 'sample_output', 'ipinip.json')
+        sample_output_file = os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, 'ipinip.json')
         assert filecmp.cmp(sample_output_file, self.output_file)
 
     def test_l2switch_template(self):
         argument = '-k Mellanox-SN2700 -t ' + os.path.join(self.test_dir, '../data/l2switch.j2') + ' -p ' + self.t0_port_config + ' > ' + self.output_file
         self.run_script(argument)
 
-        sample_output_file = os.path.join(self.test_dir, 'sample_output', 'l2switch.json')
+        sample_output_file = os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, 'l2switch.json')
 
         self.assertTrue(filecmp.cmp(sample_output_file, self.output_file))
 
@@ -112,7 +114,7 @@ class TestJ2Files(TestCase):
         qos_config_file_new = os.path.join(arista_dir_path, 'qos_config.j2')
         os.remove(qos_config_file_new)
 
-        sample_output_file = os.path.join(self.test_dir, 'sample_output', 'qos-arista7050.json')
+        sample_output_file = os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, 'qos-arista7050.json')
         assert filecmp.cmp(sample_output_file, self.output_file)
 
     def test_qos_dell6100_render_template(self):
@@ -131,7 +133,7 @@ class TestJ2Files(TestCase):
         qos_config_file_new = os.path.join(dell_dir_path, 'qos_config.j2')
         os.remove(qos_config_file_new)
 
-        sample_output_file = os.path.join(self.test_dir, 'sample_output', 'qos-dell6100.json')
+        sample_output_file = os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, 'qos-dell6100.json')
         assert filecmp.cmp(sample_output_file, self.output_file)
 
     def test_buffers_dell6100_render_template(self):
@@ -150,7 +152,7 @@ class TestJ2Files(TestCase):
         buffers_config_file_new = os.path.join(dell_dir_path, 'buffers_config.j2')
         os.remove(buffers_config_file_new)
 
-        sample_output_file = os.path.join(self.test_dir, 'sample_output', 'buffers-dell6100.json')
+        sample_output_file = os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, 'buffers-dell6100.json')
         assert filecmp.cmp(sample_output_file, self.output_file)
 
     def test_ipinip_multi_asic(self):
@@ -158,7 +160,7 @@ class TestJ2Files(TestCase):
         argument = '-m ' + self.multi_asic_minigraph + ' -p ' + self.multi_asic_port_config + ' -t ' + ipinip_file  +  ' -n asic0 '  + ' > ' + self.output_file
         print(argument)
         self.run_script(argument) 
-        sample_output_file = os.path.join(self.test_dir, 'multi_npu_data',  'ipinip.json')
+        sample_output_file = os.path.join(self.test_dir, 'multi_npu_data', utils.PYvX_DIR, 'ipinip.json')
         assert filecmp.cmp(sample_output_file, self.output_file)
 
     def tearDown(self):

@@ -1,10 +1,12 @@
 import filecmp
-import os
-import subprocess
 import json
+import os
 import shutil
+import subprocess
 
 from unittest import TestCase
+import tests.common_utils as utils
+
 
 class TestJ2FilesT2ChassisFe(TestCase):
     def setUp(self):
@@ -37,7 +39,7 @@ class TestJ2FilesT2ChassisFe(TestCase):
         cmd = "-m %s -p %s -y %s -t %s -T %s > %s" % cmd_args
         self.run_script(cmd)
 
-        original_filename = os.path.join(self.test_dir, 'sample_output', target)
+        original_filename = os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, target)
         r = filecmp.cmp(original_filename, self.output_file)
         diff_output = self.run_diff(original_filename, self.output_file) if not r else ""
 
