@@ -77,30 +77,21 @@ def extract_rm_from_peer_group(path, peer_group_name):
     return list(rm_set)
 
 def check_routemap_in_file(filename, route_map_name):
-    route_map_re = re.compile(r'^route-map\s+%s\s+permit\s+(\d+)' % route_map_name)
+    route_map_re = re.compile(r'^route-map\s+%s\s+(\S+)' % route_map_name)
     set_re = re.compile(r'set ipv6 next-hop prefer-global')
     with open(filename) as fp:
         lines = [line.strip() for line in fp if not line.strip().startswith('!') and line.strip() != '']
-    found_entry = False
-    found_seq_no = None
-    route_map_entries = {}
+    found_first_entry = False
     for line in lines:
-        if found_entry:
-            route_map_entries[found_seq_no] = set_re.match(line) is not None
-            found_entry = False
-            found_seq_no = None
+        err_msg = "route-map %s doesn't have mandatory 'set ipv6 next-hop prefer-global' entry as the first rule" % route_map_name
+        assert not (found_first_entry and line.startswith("route-map")), err_msg
+        if found_first_entry and set_re.match(line):
+            break  # We're good
         if route_map_re.match(line):
-            found_seq_no = None
-            seq_n_txt = route_map_re.match(line).group(1)
-            assert seq_n_txt.isdigit(), "wrong sequence number for line '%s'" % line
-            found_seq_no = int(seq_n_txt)
-            assert found_seq_no not in route_map_entries, "Route-map has duplicate entries: %s - %d" % (route_map_name, found_seq_no)
-            found_entry = True
-    results = [route_map_entries[seq] for seq in sorted(route_map_entries.keys())]
-    if (len(results)):
-        err_msg = "route-map %s doesn't have mandatory permit entry for 'set ipv6 next-hop prefer-global" % route_map_name
-        assert results[0], err_msg
-    return len(results) > 0
+            err_msg = "route-map %s doesn't have mandatory permit entry for 'set ipv6 next-hop prefer-global" % route_map_name
+            assert route_map_re.match(line).group(1) == 'permit', err_msg
+            found_first_entry = True
+    return found_first_entry
 
 def check_routemap(path, route_map_name):
     result_files = load_results(path, "policies.conf")

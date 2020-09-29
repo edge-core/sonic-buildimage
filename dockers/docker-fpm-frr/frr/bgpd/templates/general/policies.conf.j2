@@ -3,33 +3,6 @@
 !
 !
 !
-{% if constants.bgp.allow_list is defined and constants.bgp.allow_list.enabled is defined and constants.bgp.allow_list.enabled %}
-{%   if constants.bgp.allow_list.default_action is defined and constants.bgp.allow_list.default_action.strip() == 'deny' %}
-route-map ALLOW_LIST_DEPLOYMENT_ID_0_V4 permit 65535
-  set community no-export additive
-!
-route-map ALLOW_LIST_DEPLOYMENT_ID_0_V6 permit 65535
-  set community no-export additive
-{%   else %}
-route-map ALLOW_LIST_DEPLOYMENT_ID_0_V4 permit 65535
-  set community {{ constants.bgp.allow_list.drop_community }} additive
-!
-route-map ALLOW_LIST_DEPLOYMENT_ID_0_V6 permit 65535
-  set community {{ constants.bgp.allow_list.drop_community }} additive
-{%   endif %}
-!
-route-map FROM_BGP_PEER_V4 permit 2
-  call ALLOW_LIST_DEPLOYMENT_ID_0_V4
-  on-match next
-!
-route-map FROM_BGP_PEER_V6 permit 2
-  call ALLOW_LIST_DEPLOYMENT_ID_0_V6
-  on-match next
-!
-{% endif %}
-!
-!
-!
 route-map FROM_BGP_PEER_V4 permit 100
 !
 route-map TO_BGP_PEER_V4 permit 100
