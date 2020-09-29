@@ -242,7 +242,9 @@ RUN apt-get update && apt-get install -y \
         sphinx-common \
         python3-sphinx \
 # For sonic config engine testing
+        python-dev \
         python-lxml \
+        python3-lxml \
         python-jinja2 \
         python-netaddr \
         python-ipaddr \
@@ -362,9 +364,11 @@ RUN pip install \
         crc16
 
 # For sonic config engine testing
-RUN pip install pyangbind==0.6.0
-# Note: force upgrade debian packaged jinja2, if installed
-RUN pip install --force-reinstall --upgrade "jinja2>=2.10"
+# Install pyangbind here, outside sonic-config-engine dependencies, as pyangbind causes enum34 to be installed.
+# enum34 causes Python 're' package to not work properly as it redefines an incompatible enum.py module
+# https://github.com/robshakir/pyangbind/issues/232
+RUN pip3 install pyangbind==0.8.1
+RUN pip3 uninstall -y enum34
 
 # For templating
 RUN pip install j2cli==0.3.10
