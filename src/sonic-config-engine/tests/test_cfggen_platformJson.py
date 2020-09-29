@@ -1,8 +1,12 @@
-from unittest import TestCase
-import subprocess
-import os
-import json
 import ast
+import json
+import os
+import subprocess
+
+import tests.common_utils as utils
+
+from unittest import TestCase
+
 
 # Global Variable
 PLATFORM_OUTPUT_FILE = "platform_output.json"
@@ -54,12 +58,12 @@ class TestCfgGenPlatformJson(TestCase):
         argument = '-m "' + self.sample_graph_simple + '" -p "' + self.platform_json + '" -S "' + self.hwsku_json  + '" -v "PORT[\'Ethernet8\']"'
         output = self.run_script(argument)
         expected = "{'index': '3', 'lanes': '8', 'description': 'Eth3/1', 'admin_status': 'up', 'mtu': '9100', 'alias': 'Eth3/1', 'pfc_asym': 'off', 'speed': '25000'}"
-        self.assertEqual(output.strip(), expected)
+        self.assertEqual(utils.to_dict(output.strip()), utils.to_dict(expected))
 
         argument = '-m "' + self.sample_graph_simple + '" -p "' + self.platform_json + '" -S "' + self.hwsku_json  + '" -v "PORT[\'Ethernet112\']"'
         output = self.run_script(argument)
         expected = "{'index': '29', 'lanes': '112', 'description': 'Eth29/1', 'admin_status': 'up', 'mtu': '9100', 'alias': 'Eth29/1', 'pfc_asym': 'off', 'speed': '25000'}"
-        self.assertEqual(output.strip(), expected)
+        self.assertEqual(utils.to_dict(output.strip()), utils.to_dict(expected))
 
     # Check all Interface with it's proper configuration as per platform.json
     def test_platform_json_all_ethernet_interfaces(self):

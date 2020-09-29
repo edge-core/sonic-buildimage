@@ -16,8 +16,6 @@ See usage string for detail description for arguments.
 """
 
 from __future__ import print_function
-import sys
-sys.path.insert(0, "/usr/local/lib/python2.7/dist-packages")
 
 # monkey patch re.compile to do lazy regular expression compilation.
 # This is done to improve import time of jinja2, yaml, natsort modules, because they
@@ -28,28 +26,24 @@ sys.path.insert(0, "/usr/local/lib/python2.7/dist-packages")
 # FIXME: remove this once sonic-cfggen and templates dependencies are replaced with a faster approach
 import lazy_re
 
-import sys
-import os.path
 import argparse
-import yaml
-import jinja2
-import netaddr
-import json
 import contextlib
+import jinja2
+import json
+import netaddr
+import os.path
+import sys
+import yaml
+
+from collections import OrderedDict
+from config_samples import generate_sample_config, get_available_config
 from functools import partial
-from minigraph import minigraph_encoder
-from minigraph import parse_xml
-from minigraph import parse_device_desc_xml
-from minigraph import parse_asic_sub_role
+from minigraph import minigraph_encoder, parse_xml, parse_device_desc_xml, parse_asic_sub_role
 from portconfig import get_port_config, get_breakout_mode
+from redis_bcc import RedisBytecodeCache
 from sonic_py_common.multi_asic import get_asic_id_from_name, is_multi_asic
 from sonic_py_common import device_info
-from config_samples import generate_sample_config
-from config_samples import get_available_config
 from swsssdk import SonicV2Connector, ConfigDBConnector, SonicDBConfig, ConfigDBPipeConnector
-from redis_bcc import RedisBytecodeCache
-from collections import OrderedDict
-from natsort import natsorted
 
 #TODO: Remove STR_TYPE once SONiC moves to Python 3.x
 PY3x = sys.version_info >= (3, 0)
@@ -166,9 +160,7 @@ TODO(taoyl): Current version of config db only supports BGP admin states.
     @staticmethod
     def to_serialized(data, lookup_key = None):
         if type(data) is dict:
-            data = OrderedDict(natsorted(data.items()))
-
-            if lookup_key != None:
+            if lookup_key is not None:
                 newData = {}
                 for key in data.keys():
                     if ((type(key) is STR_TYPE and lookup_key == key) or (type(key) is tuple and lookup_key in key)):
@@ -280,7 +272,7 @@ def main():
     platform = device_info.get_platform()
 
     db_kwargs = {}
-    if args.redis_unix_sock_file != None:
+    if args.redis_unix_sock_file is not None:
         db_kwargs['unix_socket_path'] = args.redis_unix_sock_file
 
     data = {}
@@ -314,17 +306,17 @@ def main():
 
     _process_json(args, data)
 
-    if args.minigraph != None:
+    if args.minigraph is not None:
         minigraph = args.minigraph
         if platform:
-            if args.port_config != None:
+            if args.port_config is not None:
                 deep_update(data, parse_xml(minigraph, platform, args.port_config, asic_name=asic_name, hwsku_config_file=args.hwsku_config))
             else:
                 deep_update(data, parse_xml(minigraph, platform, asic_name=asic_name))
         else:
             deep_update(data, parse_xml(minigraph, port_config_file=args.port_config, asic_name=asic_name, hwsku_config_file=args.hwsku_config))
 
-    if args.device_description != None:
+    if args.device_description is not None:
         deep_update(data, parse_device_desc_xml(args.device_description))
 
     for yaml_file in args.yaml:
@@ -335,7 +327,7 @@ def main():
                 additional_data = yaml.load(stream)
             deep_update(data, FormatConverter.to_deserialized(additional_data))
 
-    if args.additional_data != None:
+    if args.additional_data is not None:
         deep_update(data, json.loads(args.additional_data))
 
     if args.from_db:
@@ -379,22 +371,21 @@ def main():
         for template_file, _ in args.template:
             paths.append(os.path.dirname(os.path.abspath(template_file)))
         env = _get_jinja2_env(paths)
-        sorted_data = sort_data(data)
         for template_file, dest_file in args.template:
             template = env.get_template(os.path.basename(template_file))
-            template_data = template.render(sorted_data)
+            template_data = template.render(data)
             if dest_file == "config-db":
                 deep_update(data, FormatConverter.to_deserialized(json.loads(template_data)))
             else:
                 with smart_open(dest_file, 'w') as df:
                     print(template_data, file=df)
 
-    if args.var != None:
+    if args.var is not None:
         template = jinja2.Template('{{' + args.var + '}}')
         print(template.render(data))
 
-    if args.var_json != None and args.var_json in data:
-        if args.key != None:
+    if args.var_json is not None and args.var_json in data:
+        if args.key is not None:
             print(json.dumps(FormatConverter.to_serialized(data[args.var_json], args.key), indent=4, cls=minigraph_encoder))
         else:
             print(json.dumps(FormatConverter.to_serialized(data[args.var_json]), indent=4, cls=minigraph_encoder))
@@ -411,7 +402,7 @@ def main():
     if args.print_data:
         print(json.dumps(FormatConverter.to_serialized(data), indent=4, cls=minigraph_encoder))
 
-    if args.preset != None:
+    if args.preset is not None:
         data = generate_sample_config(data, args.preset)
         print(json.dumps(FormatConverter.to_serialized(data), indent=4, cls=minigraph_encoder))
 

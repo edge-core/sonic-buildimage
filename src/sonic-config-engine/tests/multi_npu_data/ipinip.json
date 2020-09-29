@@ -2,7 +2,7 @@
     {
         "TUNNEL_DECAP_TABLE:IPINIP_TUNNEL" : {
             "tunnel_type":"IPINIP",
-            "dst_ip":"10.1.0.32,8.0.0.0,10.0.0.0,10.1.0.1,10.1.0.3",
+            "dst_ip":"8.0.0.0,10.1.0.32,10.1.0.3,10.0.0.0,10.1.0.1",
             "dscp_mode":"pipe",
             "ecn_mode":"copy_from_outer",
             "ttl_mode":"pipe"
