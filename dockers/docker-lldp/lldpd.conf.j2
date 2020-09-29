@@ -1,7 +1,7 @@
 {% if MGMT_INTERFACE %}
 {# If MGMT port alias is available, use it for port ID subtype, otherwise use port name #}
-{% set mgmt_port_name = MGMT_INTERFACE.keys()[0][0] %}
-{% set ipv4 = MGMT_INTERFACE.keys()[0][1].split('/')[0] %}
+{% set mgmt_port_name = (MGMT_INTERFACE.keys()|list)[0][0] %}
+{% set ipv4 = (MGMT_INTERFACE.keys()|list)[0][1].split('/')[0] %}
 {% if MGMT_PORT and MGMT_PORT[mgmt_port_name] and MGMT_PORT[mgmt_port_name].alias %}
 configure ports eth0 lldp portidsubtype local {{ MGMT_PORT[mgmt_port_name].alias }}
 {% else %}

@@ -58,7 +58,7 @@ class TestCfgGen(TestCase):
         self.assertEqual(output.strip(), 'ACS-MSN2700')
 
     def test_device_desc_mgmt_ip(self):
-        argument = '-v "MGMT_INTERFACE.keys()[0]" -M "' + self.sample_device_desc + '"'
+        argument = '-v "(MGMT_INTERFACE.keys()|list)[0]" -M "' + self.sample_device_desc + '"'
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "('eth0', '10.0.1.5/28')")
 
@@ -185,7 +185,7 @@ class TestCfgGen(TestCase):
         )
 
     def test_minigraph_interfaces(self):
-        argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v "INTERFACE.keys()"'
+        argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v "INTERFACE.keys()|list"'
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "[('Ethernet0', '10.0.0.58/31'), 'Ethernet0', ('Ethernet0', 'FC00::75/126')]")
 
@@ -210,7 +210,7 @@ class TestCfgGen(TestCase):
         )
 
     def test_minigraph_vlan_interfaces(self):
-        argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v "VLAN_INTERFACE.keys()"'
+        argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v "VLAN_INTERFACE.keys()|list"'
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "[('Vlan1000', '192.168.0.1/27'), 'Vlan1000']")
 
@@ -231,7 +231,7 @@ class TestCfgGen(TestCase):
         )
 
     def test_minigraph_portchannel_members(self):
-        argument = '-m "' + self.sample_graph_pc_test + '" -p "' + self.port_config + '" -v "PORTCHANNEL_MEMBER.keys()"'
+        argument = '-m "' + self.sample_graph_pc_test + '" -p "' + self.port_config + '" -v "PORTCHANNEL_MEMBER.keys()|list"'
         output = self.run_script(argument)
         self.assertEqual(
             utils.liststr_to_dict(output.strip()),
@@ -239,7 +239,7 @@ class TestCfgGen(TestCase):
         )
 
     def test_minigraph_portchannel_interfaces(self):
-        argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v "PORTCHANNEL_INTERFACE.keys()"'
+        argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v "PORTCHANNEL_INTERFACE.keys()|list"'
         output = self.run_script(argument)
         self.assertEqual(
             utils.liststr_to_dict(output.strip()),
@@ -305,7 +305,7 @@ class TestCfgGen(TestCase):
         )
 
     def test_minigraph_peers_with_range(self):
-        argument = '-m "' + self.sample_graph_bgp_speaker + '" -p "' + self.port_config + '" -v BGP_PEER_RANGE.values\(\)'
+        argument = "-m " + self.sample_graph_bgp_speaker + " -p " + self.port_config + " -v \"BGP_PEER_RANGE.values()|list\""
         output = self.run_script(argument)
         self.assertEqual(
             utils.liststr_to_dict(output.strip()),

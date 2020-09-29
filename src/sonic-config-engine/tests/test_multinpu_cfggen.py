@@ -139,7 +139,7 @@ class TestMultiNpuCfgGen(TestCase):
             'PortChannel4014': {'admin_status': 'up', 'min_links': '2', 'members': ['Ethernet-BP392', 'Ethernet-BP396'], 'mtu': '9100'}})
 
     def test_frontend_asic_portchannel_mem(self):
-        argument = "-m {} -p {} -n asic0 --var-json \"PORTCHANNEL_MEMBER\"".format(self.sample_graph, self.port_config[0])
+        argument = "-m {} -p {} -n asic0 -v \"PORTCHANNEL_MEMBER.keys()|list\"".format(self.sample_graph, self.port_config[0])
         output = self.run_script(argument)
         self.assertEqual(
             utils.liststr_to_dict(output.strip()),
@@ -147,7 +147,7 @@ class TestMultiNpuCfgGen(TestCase):
         )
 
     def test_backend_asic_portchannels_mem(self):
-        argument = "-m {} -p {} -n asic3 --var-json \"PORTCHANNEL_MEMBER\"".format(self.sample_graph, self.port_config[3])
+        argument = "-m {} -p {} -n asic3 -v \"PORTCHANNEL_MEMBER.keys()|list\"".format(self.sample_graph, self.port_config[3])
         output = self.run_script(argument)
         self.assertEqual(
             utils.liststr_to_dict(output.strip()),
@@ -155,7 +155,7 @@ class TestMultiNpuCfgGen(TestCase):
         )
 
     def test_frontend_asic_portchannel_intf(self):
-        argument = "-m {} -p {} -n asic0 --var-json \"PORTCHANNEL_INTERFACE\"".format(self.sample_graph, self.port_config[0])
+        argument = "-m {} -p {} -n asic0 -v \"PORTCHANNEL_INTERFACE.keys()|list\"".format(self.sample_graph, self.port_config[0])
         output = self.run_script(argument)
         self.assertEqual(
             utils.liststr_to_dict(output.strip()),
@@ -163,7 +163,7 @@ class TestMultiNpuCfgGen(TestCase):
         )
 
     def test_backend_asic_portchannel_intf(self):
-        argument = "-m {} -p {} -n asic3 --var-json \"PORTCHANNEL_INTERFACE\"".format(self.sample_graph, self.port_config[3])
+        argument = "-m {} -p {} -n asic3 -v \"PORTCHANNEL_INTERFACE.keys()|list\"".format(self.sample_graph, self.port_config[3])
         output = self.run_script(argument)
         self.assertEqual(
             utils.liststr_to_dict(output.strip()),

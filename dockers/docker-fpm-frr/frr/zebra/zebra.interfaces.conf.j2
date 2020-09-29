@@ -1,7 +1,7 @@
 !
 {% block vrf %}
 {%  if VNET is defined %}
-{%   for vnet_name, vnet_metadata in VNET.iteritems() %}
+{%   for vnet_name, vnet_metadata in VNET.items() %}
 vrf {{ vnet_name }}
 vni {{ vnet_metadata['vni'] }}
 !

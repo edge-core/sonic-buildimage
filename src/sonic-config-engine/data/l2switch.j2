@@ -2,7 +2,7 @@
     "DEVICE_METADATA": {{ DEVICE_METADATA | tojson }},
     {% set ns = {'firstPrinted': False} -%}
     "PORT": {
-        {%- for key,value in PORT.iteritems() -%}
+        {%- for key,value in PORT.items() -%}
         {%- if ns.firstPrinted %},{% endif %}
 
         "{{ key }}": {

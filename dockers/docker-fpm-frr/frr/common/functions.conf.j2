@@ -25,8 +25,8 @@
 {% macro get_vnet_interfaces(interfaces) -%}
 {% set L = namespace(intfs=[]) %}
 {% set vnet_intfs = [] %}
-{% for (key, metadata) in interfaces.iteritems() %}
-{%   if metadata.has_key("vnet_name") %}
+{% for (key, metadata) in interfaces.items() %}
+{%   if "vnet_name" in metadata %}
 {%     set vnet_intfs = vnet_intfs.append(key) %}
 {%   endif %}
 {% endfor %}

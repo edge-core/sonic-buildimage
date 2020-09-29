@@ -14,7 +14,7 @@ log facility local4
 ! enable password {# {{ en_passwd }} TODO: param needed #}
 {% endblock system_init %}
 !
-{% if DEVICE_METADATA['localhost'].has_key('bgp_asn') %}
+{% if 'bgp_asn' in DEVICE_METADATA['localhost'] %}
 {% block bgp_init %}
 !
 ! bgp multiple-instance
@@ -58,7 +58,7 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
 {% endfor %}
 {% endblock vlan_advertisement %}
 {% block bgp_sessions %}
-{% for neighbor_addr, bgp_session in BGP_NEIGHBOR.iteritems() %}
+{% for neighbor_addr, bgp_session in BGP_NEIGHBOR.items() %}
 {% if bgp_session['asn'] | int != 0 %}
   neighbor {{ neighbor_addr }} remote-as {{ bgp_session['asn'] }}
   neighbor {{ neighbor_addr }} description {{ bgp_session['name'] }}
@@ -67,7 +67,7 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
       or  (bgp_session['holdtime'] is defined  and bgp_session['holdtime']  | int != 180) %}
   neighbor {{ neighbor_addr }} timers {{ bgp_session['keepalive'] }} {{ bgp_session['holdtime'] }}
 {% endif %}
-{% if bgp_session.has_key('admin_status') and bgp_session['admin_status'] == 'down' or not bgp_session.has_key('admin_status') and DEVICE_METADATA['localhost'].has_key('default_bgp_status') and DEVICE_METADATA['localhost']['default_bgp_status'] == 'down' %}
+{% if 'admin_status' in bgp_session and bgp_session['admin_status'] == 'down' or 'admin_status' not in bgp_session and 'default_bgp_status' in DEVICE_METADATA['localhost'] and DEVICE_METADATA['localhost']['default_bgp_status'] == 'down' %}
   neighbor {{ neighbor_addr }} shutdown
 {% endif %}
 {% if neighbor_addr | ipv4 %}
@@ -131,7 +131,7 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
 {% endif %}
 {% endblock bgp_peers_with_range %}
 !
-{% if DEVICE_METADATA['localhost'].has_key('bgp_asn') %}
+{% if 'bgp_asn' in DEVICE_METADATA['localhost'] %}
 maximum-paths 64
 !
 route-map ISOLATE permit 10

@@ -2,7 +2,7 @@
 {% set ports_with_speed_set=[] %}
 {% if PORT %}
 {% for port in PORT %}
-{% if PORT[port].has_key('speed') %}
+{% if 'speed' in PORT[port] %}
     {%- if ports_with_speed_set.append(port) -%}{%- endif -%}
 {%- endif -%}
 {% endfor %}
