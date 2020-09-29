@@ -45,9 +45,17 @@ from sonic_py_common.multi_asic import get_asic_id_from_name, is_multi_asic
 from sonic_py_common import device_info
 from swsssdk import SonicV2Connector, ConfigDBConnector, SonicDBConfig, ConfigDBPipeConnector
 
-#TODO: Remove STR_TYPE once SONiC moves to Python 3.x
+
 PY3x = sys.version_info >= (3, 0)
-STR_TYPE = str if PY3x else unicode
+
+#TODO: Remove STR_TYPE, FILE_TYPE once SONiC moves to Python 3.x
+if PY3x:
+    from io import IOBase
+    STR_TYPE = str
+    FILE_TYPE = IOBase
+else:
+    STR_TYPE = unicode
+    FILE_TYPE = file
 
 def sort_by_port_index(value):
     if not value:
@@ -168,7 +176,8 @@ TODO(taoyl): Current version of config db only supports BGP admin states.
                         break
                 return newData
 
-            for key in data.keys():
+            current_keys = list(data.keys())
+            for key in current_keys:
                 new_key = ConfigDBConnector.serialize_key(key)
                 if new_key != key:
                     data[new_key] = data.pop(key)
@@ -179,7 +188,8 @@ TODO(taoyl): Current version of config db only supports BGP admin states.
     def to_deserialized(data):
         for table in data:
             if type(data[table]) is dict:
-                for key in data[table].keys():
+                current_keys = list(data[table].keys())
+                for key in current_keys:
                     new_key = ConfigDBConnector.deserialize_key(key)
                     if new_key != key:
                         data[table][new_key] = data[table].pop(key)
@@ -195,6 +205,7 @@ def deep_update(dst, src):
              dst[key] = value
     return dst
 
+# sort_data is required as it is being imported by config/config_mgmt module in sonic_utilities
 def sort_data(data):
     for table in data:
         if type(data[table]) is dict:
@@ -206,11 +217,11 @@ def smart_open(filename=None, mode=None):
     """
     Provide contextual file descriptor of filename if it is not a file descriptor
     """
-    smart_file = open(filename, mode) if not isinstance(filename, file) else filename
+    smart_file = open(filename, mode) if not isinstance(filename, FILE_TYPE) else filename
     try:
         yield smart_file
     finally:
-        if not isinstance(filename, file):
+        if not isinstance(filename, FILE_TYPE):
             smart_file.close()
 
 def _process_json(args, data):

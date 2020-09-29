@@ -10,7 +10,7 @@ class TestCfgGenCaseInsensitive(TestCase):
 
     def setUp(self):
         self.test_dir = os.path.dirname(os.path.realpath(__file__))
-        self.script_file = os.path.join(self.test_dir, '..', 'sonic-cfggen')
+        self.script_file = utils.PYTHON_INTERPRETTER + ' ' + os.path.join(self.test_dir, '..', 'sonic-cfggen')
         self.sample_graph = os.path.join(self.test_dir, 'simple-sample-graph-case.xml')
         self.port_config = os.path.join(self.test_dir, 't0-sample-port-config.ini')
 
@@ -20,6 +20,9 @@ class TestCfgGenCaseInsensitive(TestCase):
             output = subprocess.check_output(self.script_file + ' ' + argument, stderr=subprocess.STDOUT, shell=True)
         else:
             output = subprocess.check_output(self.script_file + ' ' + argument, shell=True)
+
+        if utils.PY3x:
+            output = output.decode()
 
         linecount = output.strip().count('\n')
         if linecount <= 0:

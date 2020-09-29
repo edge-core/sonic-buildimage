@@ -21,7 +21,7 @@ class TestMultiNpuCfgGen(TestCase):
     def setUp(self):
         self.test_dir = os.path.dirname(os.path.realpath(__file__))
         self.test_data_dir = os.path.join(self.test_dir,  'multi_npu_data')
-        self.script_file = os.path.join(self.test_dir, '..', 'sonic-cfggen')
+        self.script_file = utils.PYTHON_INTERPRETTER + ' ' + os.path.join(self.test_dir, '..', 'sonic-cfggen')
         self.sample_graph = os.path.join(self.test_data_dir, 'sample-minigraph.xml')
         self.port_config = []
         for asic in range(NUM_ASIC):
@@ -33,6 +33,9 @@ class TestMultiNpuCfgGen(TestCase):
             output = subprocess.check_output(self.script_file + ' ' + argument, stderr=subprocess.STDOUT, shell=True)
         else:
             output = subprocess.check_output(self.script_file + ' ' + argument, shell=True)
+
+        if utils.PY3x:
+            output = output.decode()
 
         linecount = output.strip().count('\n')
         if linecount <= 0:

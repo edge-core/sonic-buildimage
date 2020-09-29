@@ -15,7 +15,7 @@ class TestCfgGenPlatformJson(TestCase):
 
     def setUp(self):
         self.test_dir = os.path.dirname(os.path.realpath(__file__))
-        self.script_file = os.path.join(self.test_dir, '..', 'sonic-cfggen')
+        self.script_file = utils.PYTHON_INTERPRETTER + ' ' + os.path.join(self.test_dir, '..', 'sonic-cfggen')
         self.sample_graph_simple = os.path.join(self.test_dir, 'simple-sample-graph.xml')
         self.platform_json = os.path.join(self.test_dir, 'sample_platform.json')
         self.hwsku_json = os.path.join(self.test_dir, 'sample_hwsku.json')
@@ -26,6 +26,9 @@ class TestCfgGenPlatformJson(TestCase):
             output = subprocess.check_output(self.script_file + ' ' + argument, stderr=subprocess.STDOUT, shell=True)
         else:
             output = subprocess.check_output(self.script_file + ' ' + argument, shell=True)
+
+        if utils.PY3x:
+            output = output.decode()
 
         linecount = output.strip().count('\n')
         if linecount <= 0:

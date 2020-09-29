@@ -11,7 +11,7 @@ import tests.common_utils as utils
 class TestJ2FilesT2ChassisFe(TestCase):
     def setUp(self):
         self.test_dir = os.path.dirname(os.path.realpath(__file__))
-        self.script_file = os.path.join(self.test_dir, '..', 'sonic-cfggen')
+        self.script_file = utils.PYTHON_INTERPRETTER + ' ' + os.path.join(self.test_dir, '..', 'sonic-cfggen')
         self.t2_chassis_fe_minigraph = os.path.join(self.test_dir, 't2-chassis-fe-graph.xml')
         self.t2_chassis_fe_vni_minigraph = os.path.join(self.test_dir, 't2-chassis-fe-graph-vni.xml')
         self.t2_chassis_fe_pc_minigraph = os.path.join(self.test_dir, 't2-chassis-fe-graph-pc.xml')
@@ -26,7 +26,12 @@ class TestJ2FilesT2ChassisFe(TestCase):
 
     def run_script(self, argument):
         print('CMD: sonic-cfggen ' + argument)
-        return subprocess.check_output(self.script_file + ' ' + argument, shell=True)
+        output = subprocess.check_output(self.script_file + ' ' + argument, shell=True)
+
+        if utils.PY3x:
+            output = output.decode()
+
+        return output
 
     def run_diff(self, file1, file2):
         return subprocess.check_output('diff -u {} {} || true'.format(file1, file2), shell=True)

@@ -12,8 +12,8 @@ $(SONIC_UTILITIES_PY2)_SRC_PATH = $(SRC_PATH)/sonic-utilities
 $(SONIC_UTILITIES_PY2)_PYTHON_VERSION = 2
 $(SONIC_UTILITIES_PY2)_DEPENDS += $(SONIC_PY_COMMON_PY2) \
                                   $(SONIC_PY_COMMON_PY3) \
-			          $(SWSSSDK_PY2) \
-                                  $(SONIC_CONFIG_ENGINE) \
+                                  $(SWSSSDK_PY2) \
+                                  $(SONIC_CONFIG_ENGINE_PY2) \
                                   $(SONIC_YANG_MGMT_PY) \
                                   $(SONIC_YANG_MODELS_PY3)
 $(SONIC_UTILITIES_PY2)_DEBS_DEPENDS = $(LIBYANG) \

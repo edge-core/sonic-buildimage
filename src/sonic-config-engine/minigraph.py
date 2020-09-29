@@ -1,5 +1,5 @@
-#!/usr/bin/env python
 from __future__ import print_function
+
 import calendar
 import math
 import os
@@ -922,7 +922,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
     results['BGP_PEER_RANGE'] = bgp_peers_with_range
     if mgmt_routes:
         # TODO: differentiate v4 and v6
-        iter(mgmt_intf.values()).next()['forced_mgmt_routes'] = mgmt_routes
+        next(iter(mgmt_intf.values()))['forced_mgmt_routes'] = mgmt_routes
     results['MGMT_PORT'] = {}
     results['MGMT_INTERFACE'] = {}
     mgmt_intf_count = 0
@@ -1044,7 +1044,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
 
     if port_config_file:
         port_set = set(ports.keys())
-        for (pc_name, mbr_map) in pcs.items():
+        for (pc_name, mbr_map) in list(pcs.items()):
             # remove portchannels that contain ports not existing in port_config.ini
             # when port_config.ini exists
             if not set(mbr_map['members']).issubset(port_set):
@@ -1059,7 +1059,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
     results['PORTCHANNEL'] = pcs
     results['PORTCHANNEL_MEMBER'] = pc_members
 
-    for pc_intf in pc_intfs.keys():
+    for pc_intf in list(pc_intfs.keys()):
         # remove portchannels not in PORTCHANNEL dictionary
         if isinstance(pc_intf, tuple) and pc_intf[0] not in pcs:
             print("Warning: ignore '%s' interface '%s' as '%s' is not in the valid PortChannel list" % (pc_intf[0], pc_intf[1], pc_intf[0]), file=sys.stderr)
@@ -1097,7 +1097,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
     results['VLAN'] = vlans
     results['VLAN_MEMBER'] = vlan_members
 
-    for nghbr in neighbors.keys():
+    for nghbr in list(neighbors.keys()):
         # remove port not in port_config.ini
         if nghbr not in ports:
             if port_config_file is not None:

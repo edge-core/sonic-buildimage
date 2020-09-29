@@ -10,7 +10,7 @@ class TestCfgGenT2ChassisFe(TestCase):
 
     def setUp(self):
         self.test_dir = os.path.dirname(os.path.realpath(__file__))
-        self.script_file = os.path.join(self.test_dir, '..', 'sonic-cfggen')
+        self.script_file = utils.PYTHON_INTERPRETTER + ' ' + os.path.join(self.test_dir, '..', 'sonic-cfggen')
         self.sample_graph_t2_chassis_fe = os.path.join(self.test_dir, 't2-chassis-fe-graph.xml')
         self.sample_graph_t2_chassis_fe_vni = os.path.join(self.test_dir, 't2-chassis-fe-graph-vni.xml')
         self.sample_graph_t2_chassis_fe_pc = os.path.join(self.test_dir, 't2-chassis-fe-graph-pc.xml')
@@ -22,6 +22,9 @@ class TestCfgGenT2ChassisFe(TestCase):
             output = subprocess.check_output(self.script_file + ' ' + argument, stderr=subprocess.STDOUT, shell=True)
         else:
             output = subprocess.check_output(self.script_file + ' ' + argument, shell=True)
+
+        if utils.PY3x:
+            output = output.decode()
 
         linecount = output.strip().count('\n')
         if linecount <= 0:

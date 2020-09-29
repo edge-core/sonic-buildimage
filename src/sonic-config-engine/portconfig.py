@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 try:
     import os
     import sys
