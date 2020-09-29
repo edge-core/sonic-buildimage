@@ -174,7 +174,7 @@ function LoadConfig
         echo "Settings for ${CSMAXTEMPTYPE[$tscount]} temperature sensor:"
         echo "  Depends on ${CSTEMP[$tscount]}"
         echo "  MAXTEMPCRIT=${CSMAXTEMPCRIT[$tscount]}"
-        let tscount=tscount+1
+        let tscount=tscount+1q
     done
     echo
 
