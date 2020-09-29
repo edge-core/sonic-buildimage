@@ -197,12 +197,16 @@ TODO(taoyl): Current version of config db only supports BGP admin states.
 
 
 def deep_update(dst, src):
-    for key, value in src.items():
-        if isinstance(value, dict):
-             node = dst.setdefault(key, {})
-             deep_update(node, value)
-        else:
-             dst[key] = value
+    """ Deep update of dst dict with contest of src dict"""
+    pending_nodes = [(dst, src)]
+    while len(pending_nodes) > 0:
+        d, s = pending_nodes.pop(0)
+        for key, value in s.items():
+            if isinstance(value, dict):
+                node = d.setdefault(key, type(value)())
+                pending_nodes.append((node, value))
+            else:
+                d[key] = value
     return dst
 
 # sort_data is required as it is being imported by config/config_mgmt module in sonic_utilities
