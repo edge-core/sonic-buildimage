@@ -1,6 +1,3 @@
 depmod -a
 systemctl enable platform-modules-haliburton.service
-systemctl enable fancontrol.service
-
 systemctl start platform-modules-haliburton.service
-systemctl start fancontrol.service

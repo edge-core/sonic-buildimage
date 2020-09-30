@@ -1,5 +1,2 @@
 haliburton/cfg/haliburton-modules.conf etc/modules-load.d
 haliburton/systemd/platform-modules-haliburton.service lib/systemd/system
-haliburton/scripts/fancontrol.sh etc/init.d
-haliburton/scripts/fancontrol.service lib/systemd/system
-services/fancontrol/fancontrol  usr/local/bin
