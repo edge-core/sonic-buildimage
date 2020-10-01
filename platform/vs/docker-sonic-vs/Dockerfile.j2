@@ -13,6 +13,7 @@ RUN echo "deb http://packages.microsoft.com/repos/sonic-dev/ jessie main" >> /et
 RUN apt-get update
 
 RUN apt-get install -y net-tools \
+                       redis-server=5:5.0.3-3~bpo9+2 \
                        arping \
                        ndisc6 \
                        ethtool \
@@ -46,12 +47,6 @@ RUN apt-get install -y net-tools \
                        conntrack \
                        iptables \
                        python3-pip
-
-# install redis-server
-RUN curl -o redis-tools_6.0.6-1~bpo10+1_amd64.deb "https://sonicstorage.blob.core.windows.net/packages/redis/redis-tools_6.0.6-1~bpo10+1_amd64.deb?sv=2015-04-05&sr=b&sig=73zbmjkf3pi%2Bn0R8Hy7CWT2EUvOAyzM5aLYJWCLySGM%3D&se=2030-09-06T19%3A44%3A59Z&sp=r"
-RUN curl -o redis-server_6.0.6-1~bpo10+1_amd64.deb "https://sonicstorage.blob.core.windows.net/packages/redis/redis-server_6.0.6-1~bpo10+1_amd64.deb?sv=2015-04-05&sr=b&sig=2Ketg7BmkZEaTxR%2FgvAFVmhjn7ywdmkc7l2T2rsL57o%3D&se=2030-09-06T19%3A45%3A20Z&sp=r"
-RUN dpkg -i redis-tools_6.0.6-1~bpo10+1_amd64.deb redis-server_6.0.6-1~bpo10+1_amd64.deb || apt-get install -f
-RUN rm redis-tools_6.0.6-1~bpo10+1_amd64.deb redis-server_6.0.6-1~bpo10+1_amd64.deb
 
 RUN pip install setuptools
 RUN pip install py2_ipaddress
