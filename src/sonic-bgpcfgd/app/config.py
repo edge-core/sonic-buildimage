@@ -10,19 +10,33 @@ class ConfigMgr(object):
     """ The class represents frr configuration """
     def __init__(self):
         self.current_config = None
+        self.current_config_raw = None
 
     def reset(self):
         """ Reset stored config """
         self.current_config = None
+        self.current_config_raw = None
 
     def update(self):
         """ Read current config from FRR """
         self.current_config = None
+        self.current_config_raw = None
         ret_code, out, err = run_command(["vtysh", "-c", "show running-config"])
         if ret_code != 0:
+            # FIXME: should we throw exception here?
             log_crit("can't update running config: rc=%d out='%s' err='%s'" % (ret_code, out, err))
             return
-        self.current_config = self.to_canonical(out)
+        text = []
+        for line in out.split('\n'):
+            if line.lstrip().startswith('!'):
+                continue
+            text.append(line)
+        text += ["     "]  # Add empty line to have something to work on, if there is no text
+        self.current_config_raw = text
+        self.current_config = self.to_canonical(out)  # FIXME: use test as an input
+
+    def push_list(self, cmdlist):
+        return self.push("\n".join(cmdlist))
 
     def push(self, cmd):
         """
@@ -51,7 +65,11 @@ class ConfigMgr(object):
             log_err("ConfigMgr::push(): can't push configuration '%s', rc='%d', stdout='%s', stderr='%s'" % err_tuple)
         if ret_code == 0:
             self.current_config = None  # invalidate config
+            self.current_config_raw = None
         return ret_code == 0
+
+    def get_text(self):
+        return self.current_config_raw
 
     @staticmethod
     def to_canonical(raw_config):

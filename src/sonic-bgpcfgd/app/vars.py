@@ -1,1 +1,1 @@
-g_debug = False
+g_debug = True  # FIXME: read from env variable, or from constants

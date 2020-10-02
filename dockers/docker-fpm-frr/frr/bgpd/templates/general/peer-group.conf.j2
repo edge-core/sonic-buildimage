@@ -24,7 +24,7 @@
 {% if CONFIG_DB__DEVICE_METADATA['localhost']['type'] == 'ToRRouter' %}
     neighbor PEER_V6 allowas-in 1
     neighbor PEER_V6_INT allowas-in 1
-  {% endif %}
+{% endif %}
 {% if CONFIG_DB__DEVICE_METADATA['localhost']['sub_role'] == 'BackEnd' %}
     neighbor PEER_V6_INT route-reflector-client
 {% endif %}
