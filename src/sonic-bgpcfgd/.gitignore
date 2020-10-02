@@ -6,3 +6,4 @@ app/*.pyc
 tests/*.pyc
 tests/__pycache__/
 .idea
+.coverage
