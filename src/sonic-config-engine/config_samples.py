@@ -41,13 +41,7 @@ def generate_empty_config(data):
     return new_data
 
 def generate_l2_config(data):
-    if 'hostname' not in data['DEVICE_METADATA']['localhost']:
-        data['DEVICE_METADATA']['localhost']['hostname'] = 'sonic'
-    if 'type' not in data['DEVICE_METADATA']['localhost']:
-        data['DEVICE_METADATA']['localhost']['type'] = 'ToRRouter'
     data['VLAN'] = {'Vlan1000': {'vlanid': '1000'}}
-    vp = natsorted(list(data['PORT'].keys()))
-    data['VLAN']['Vlan1000'].setdefault('members', vp)
     data['VLAN_MEMBER'] = {}
     for port in natsorted(data['PORT']):
         data['PORT'][port].setdefault('admin_status', 'up')

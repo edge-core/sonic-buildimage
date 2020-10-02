@@ -96,12 +96,15 @@ class TestJ2Files(TestCase):
         assert filecmp.cmp(sample_output_file, self.output_file)
 
     def test_l2switch_template(self):
-        argument = '-k Mellanox-SN2700 -t ' + os.path.join(self.test_dir, '../data/l2switch.j2') + ' -p ' + self.t0_port_config + ' > ' + self.output_file
-        self.run_script(argument)
+        argument = '-k Mellanox-SN2700 --preset l2 -p ' + self.t0_port_config
+        output = self.run_script(argument)
+        output_json = json.loads(output)
 
         sample_output_file = os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, 'l2switch.json')
+        with open(sample_output_file) as sample_output_fd:
+            sample_output_json = json.load(sample_output_fd)
 
-        self.assertTrue(filecmp.cmp(sample_output_file, self.output_file))
+        self.assertTrue(json.dumps(sample_output_json, sort_keys=True) == json.dumps(output_json, sort_keys=True))
 
     def test_qos_arista7050_render_template(self):
         arista_dir_path = os.path.join(self.test_dir, '..', '..', '..', 'device', 'arista', 'x86_64-arista_7050_qx32s', 'Arista-7050-QX-32S')
