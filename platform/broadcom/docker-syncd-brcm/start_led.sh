@@ -2,6 +2,12 @@
 
 PLATFORM_DIR=/usr/share/sonic/platform
 SYNCD_SOCKET_FILE=/var/run/sswsyncd/sswsyncd.socket
+LED_PROC_INIT_SOC=${PLATFORM_DIR}/led_proc_init.soc
+
+if [ ! -f "$LED_PROC_INIT_SOC" ]; then
+   echo "No soc led configuration found under $LED_SOC_INIT_SOC"
+   exit 0
+fi
 
 # Function: wait until syncd has created the socket for bcmcmd to connect to
 wait_syncd() {
@@ -30,8 +36,8 @@ wait_syncd() {
 }
 
 # If this platform has an initialization file for the Broadcom LED microprocessor, load it
-if [[ -r ${PLATFORM_DIR}/led_proc_init.soc && ! -f /var/warmboot/warm-starting ]]; then
+if [[ -r "$LED_PROC_INIT_SOC" && ! -f /var/warmboot/warm-starting ]]; then
     wait_syncd
 fi
 
-/usr/bin/bcmcmd -t 60 "rcload /usr/share/sonic/platform/led_proc_init.soc"
+/usr/bin/bcmcmd -t 60 "rcload $LED_PROC_INIT_SOC"
