@@ -1,5 +1,5 @@
 
-Copyright (c) 2019, Juniper Networks, Inc.
+Copyright (c) 2020, Juniper Networks, Inc.
 All rights reserved.
 
 Front panel LEDs
@@ -30,44 +30,93 @@ accepted.
 
 System FANs
 ===========
-There are 4 fans and each of the fan has 2 fan modules. Overall there are 
-8 fans in the system. 
+There are 5 fans and each of the fan has 2 fan modules. Overall there are 
+10 fans in the system. These fans are controlled by ADT7470 driver.
 
-Fan controls can be found in /sys/bus/i2c/devices/17-0068. All the fans 
-are controlled by one duty cycle value, ranges from 0 to 100
+Fan controls can be found in 
+ /sys/bus/i2c/devices/7-002c
+ /sys/bus/i2c/devices/7-002e
+ /sys/bus/i2c/devices/7-002f
 
-Fan duty cycle can be controlled through /sys/bus/i2c/devices/17-0068/pwm1
+For example, the complete path to driver control files will be 
+ /sys/bus/i2c/devices/7-002c/hwmon/hwmon12
 
-Fan module presence is given by /sys/bus/i2c/devices/17-0068/fan[1-4]_present 
+Fan duty cycle can be controlled through 'pwm1', 'pwm2', 'pwm3', 'pwm4' sysfs files.
+
+For example, these are the absolute paths to the control files
+
+ /sys/bus/i2c/devices/7-002c/hwmon/hwmon*/pwm1    7-002c controls 2 fan modules
+ /sys/bus/i2c/devices/7-002c/hwmon/hwmon*/pwm2
+ /sys/bus/i2c/devices/7-002c/hwmon/hwmon*/pwm3
+ /sys/bus/i2c/devices/7-002c/hwmon/hwmon*/pwm4
+
+ /sys/bus/i2c/devices/7-002e/hwmon/hwmon*/pwm1    7-002e controls 2 fan modules
+ /sys/bus/i2c/devices/7-002e/hwmon/hwmon*/pwm2
+ /sys/bus/i2c/devices/7-002e/hwmon/hwmon*/pwm3
+ /sys/bus/i2c/devices/7-002e/hwmon/hwmon*/pwm4
+
+ /sys/bus/i2c/devices/7-002f/hwmon/hwmon*/pwm1    7-002c controls only 1 fan module
+ /sys/bus/i2c/devices/7-002f/hwmon/hwmon*/pwm2
+
+For convenience, it will be represented as 
+/sys/bus/i2c/devices/7-002[c/e/f]/hwmon/hwmon*/pwm[1-4]
+
+Fan speed is given by 
+/sys/bus/i2c/devices/7-002[c/e/f]/hwmon/hwmon*/fan[1-4]_input
+
+Fan module presence is given by 
+/sys/devices/pci0000:00/0000:00:1c.0/0000:0f:00.0/refpga-tmc.15/fan[0-4]_present 
 file. A value of '1' indicate that fan is present & a value of '0' otherwise.
 
-Fan rotation direction is given by /sys/bus/i2c/devices/17-0068/fan[1-4]_direction.
-A value of '0' indicate the direction is AFO (Front to back airflow) or Airflow 
-out. A value of '1' indicate that direction is AFI (Back to front airflow) or 
+Fan rotation direction is given by 
+/sys/devices/pci0000:00/0000:00:1c.0/0000:0f:00.0/refpga-tmc.15/fan[0-4]_type
+A value of '1' indicate the direction is AFO (Front to back airflow) or Airflow 
+out. A value of '0' indicate that direction is AFI (Back to front airflow) or 
 Airflow in.
 
-Fan speed is given by fan[1-4]_input
 
 Temperature sensors
 ===================
-There are 6 temperature sensors. The readings are available in 
-/sys/bus/i2c/devices/{0}-00{1}/hwmon/hwmon*/temp1_input
+There are 10 temperature sensors. Kernel driver tmp401 is used for
+reading temeperature sensors.
+
+The readings are available in 
+
+/sys/bus/i2c/devices/5-0048/hwmon/hwmon*/temp1_input
+/sys/bus/i2c/devices/5-0049/hwmon/hwmon*/temp1_input
+/sys/bus/i2c/devices/5-004a/hwmon/hwmon*/temp1_input
+/sys/bus/i2c/devices/5-004b/hwmon/hwmon*/temp1_input
+
+/sys/bus/i2c/devices/6-0048/hwmon/hwmon*/temp1_input
+/sys/bus/i2c/devices/6-0049/hwmon/hwmon*/temp1_input
+/sys/bus/i2c/devices/6-004a/hwmon/hwmon*/temp1_input
+/sys/bus/i2c/devices/6-004b/hwmon/hwmon*/temp1_input
+
+/sys/bus/i2c/devices/7-0048/hwmon/hwmon*/temp1_input
+/sys/bus/i2c/devices/7-0049/hwmon/hwmon*/temp1_input
 
 System PSUs
 ===========
-There are two independent PSUs. These are controlled by a dedicated CPLD. 
-The status registers are mapped under /sys/bus/i2c/devices/9-0050 and 
-/sys/bus/i2c/devices/10-0053.
+There are two independent PSUs. These are controlled by TMC fpga. 
+
+PSU presence is given by jnx-tmc-psu dirver and is available at
+/sys/devices/pci0000:00/0000:00:1c.0/0000:0f:00.0/psu-tmc.15/psu*_present
+A value of '1' indicate PSU is present and a value of '0' otherwise.
+
+PSU monitoring data is provided by jnx-psu-monitor driver and is available at
+/sys/bus/i2c/devices/3-0058
+/sys/bus/i2c/devices/4-0058
 
 SFPs
 ====
-There are 64 QSFP+ modules supported in qfx5210 platform. EEPORMs will be 
-mapped under /sys/bus/i2c/devices/[25-88]-0050/ sysfs directory.
+There are 32 QSFP+ modules supported in qfx5200 platform. EEPORMs will be 
+mapped under /sys/bus/i2c/devices/[14-45]-0050/ sysfs directory.
 
-FEC should be turned on for 100G SR optics and should be turned off for
-100G LR optics. If the optic is changed, please update the entry and
-reload the configuration. If the FEC mode is not set as per the optic
-type the port may not link up or work properly.
+FEC should be turned on for 100G SR4 & PSM4 optics and should 
+be turned off for 100G LR4 optics. If the FEC mode is not set 
+as per the optic type the port may not link up or work properly.
+In some cases while interoperating between other NOSs & traffic
+generators, FEC need to be enabled even for 100G DAC cables.
 
 As an example, see this configuration for FEC for 100G SR4 optics in
 /etc/sonic/config_db.json
@@ -85,33 +134,19 @@ As an example, see this configuration for FEC for 100G SR4 optics in
 Sensor details
 ==============
 LM75 supported sensor modules will be available under 'sensors' command. 
-If you want to get all the sensor data including the SFPs & LEDs, you can 
-invoke 'sudo juniper_qfx5210_util.py show'
 
-Platform poweroff
+Platform reboot
 =================
-Linux poweroff commands such as 'poweroff', 'shutdown', 'halt', etc. will not
-power off qfx5210 platform as there are custom CPLDs control the power off 
-sequences. So acpi poweroff hooks are added for powering off the qfx5210. The 
-following messages are displayed in the console towards end of poweroff
-sequence:
-
-    [   52.500807] System halt/power_off
-    [   52.866331] reboot: Power down
-    [   52.903257] pm_power_off: qfx5210_cpld_power_off
-
-Once the above messages are seen, you can safely remove the power to the system.
-
-Similarly platform reboot sequences are in place for system reboot. The following
+Platform reboot sequences are in place for system reboot. The following
 messages are displayed in the console when the system is rebooted:
 
-    [ 6053.163363] System restart: qfx5210_cpld_soft_reset
+    [ 6053.163363] System restart: qfx5200_cpu_reset
 
 Platform monitoring daemon
 ==========================
-“juniper_qfx5210_monitor.py” is the platform monitoring script. 
-It implements the qfx5210 EM policy. This script will run as system service 
+“juniper_qfx5200_monitor.py” is the platform monitoring script. 
+It implements the qfx5200 EM policy. This script will run as system service 
 and monitor the temperature sensors in every 20 seconds. Based on the EM 
 policy thresholds, it controls the fan rpm, manage alarm leds, and 
-shutdown the box. 
+shutdown the box in case of any over heating.
 

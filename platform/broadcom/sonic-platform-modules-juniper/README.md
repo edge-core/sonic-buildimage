@@ -1,30 +1,27 @@
-Juniper Networks Platform Support for SONiC Readme
-==================================================
+Juniper Networks Platform Support for SONiC
+===========================================
 
-This readme provides information on how to install and upgrade ONIE and SONiC images on the Juniper Networks QFX5210-64C-S switch. 
+This readme provides information on how to install and upgrade ONIE and SONiC images on the Juniper Networks switches. 
 
-Note: The QFX5210-64C-S switch ships with ONIE and SONiC images preinstalled. 
-
-## Purpose
-
-This package contains kernel drivers, a python library, and a python script to provide platform support for Juniper Networks QFX5210-64C-S switch.
+Note: Switches ship with ONIE and SONiC images preinstalled. 
 
 ## Supported platforms
 
-The following Juniper Networks platform is supported for the SONiC operating system:
+The following Juniper Networks platforms are supported for the SONiC operating system:
 
  - QFX5210-64C-S
+ - QFX5200-32C-S
 
 
-## Installing ONIE on QFX5210-64C-S Switch
+## Building and Installing ONIE
 
-The following information describes how to install ONIE on the Juniper Networks QFX5210-64C-S switch. 
-
-To install ONIE on Juniper Networks QFX5210-64C-S switch, you need to:
+ONIE is the bootloader used and it's a prerequisite to install ONIE on the switches before installing SONiC.
 
 1. Cross compile ONIE
 
-To compile ONIE, you need to change the directories to "build-config" and then type "make MACHINEROOT=../machine/juniper MACHINE=juniper_qfx5210 all".
+To compile ONIE, you need to change the directories to "build-config" and then based on the platform issue the following commands
+
+a) For QFX5210-64C-S platform, invoke "make MACHINEROOT=../machine/juniper MACHINE=juniper_qfx5210 all".
 
 For example:
 
@@ -32,6 +29,8 @@ For example:
   $ cd build-config
   $ make -j4 MACHINEROOT=../machine/juniper MACHINE=juniper_qfx5210 all
 ```
+
+b) For QFX5200-32C-S platform, invoke "make MACHINEROOT=../machine/juniper MACHINE=juniper_qfx5200 all".
 
 ONIE binaries are located at the directory /build/images. The following command shows how to navigate the directory to view the ONIE binaries:
 
@@ -50,6 +49,8 @@ total 40740
 
 Note: Use the following command to build a demo target:
 
+For example:
+
 ```
   $ make -j4 MACHINEROOT=../machine/juniper MACHINE=juniper_qfx5210 all demo
 ```
@@ -65,19 +66,21 @@ You can install these binary files by using the 'onie-nos-install' command to te
 
 Use the following command for make clean:
 
+For example:
+
 ```
  $ make machine-clean MACHINEROOT=../machine/juniper MACHINE=juniper_qfx5210
 ```
 
 
-## Installing ONIE on a New QFX5210-64C-S Switch
+## Installing ONIE
 
-The following information describes on how to install ONIE on the Juniper Networks QFX5210-64C-S switch. You can do a fresh install of ONIE image on the QFX5210-64C-S switch, or recover an existing ONIE image from the QFX5210-64C-S switch that has been corrupted. 
-
-To install ONIE on a new QFX5210-64C-S switch, you can use one of the following ONIE recovery images:
+To install ONIE on a new switch, you can use one of the following ONIE recovery images:
 
 1) .<machine>.iso       -- Hybrid ISO image.
 2) .<machine>.efi64.pxe -- PXE image for UEFI64 machines.
+
+Note: Second method is not applicable for QFX5200-32C-S
 
 
 ## Creating an ISO Recovery Image
@@ -101,11 +104,11 @@ You can find the correct "/dev/sdX" by validating the "dmesg" output after inser
 
 1) Booting from a USB Memory Device
 
-To boot from an external USB memory device connected to the QFX5210-64C-S switch, you need to:
+To boot from an external USB memory device connected to the switch, you need to:
 
-a. Insert the USB memory device to the USB port of the QFX5210-64C-S switch.
+a. Insert the USB memory device to the USB port of the switch.
 
-b. Power on the QFX5210-64C-S switch and enter the BIOS configuration by pressing the Esc key, as displayed in the console screen.
+b. Power on the switch and enter the BIOS configuration by pressing the Esc key, as displayed in the console screen.
 
 c. Set the hard drive boot order as follows:
 
@@ -134,7 +137,7 @@ c. Set the hard drive boot order as follows:
 
 d. Go to "Save & Exit" in the BIOS screen and from the Boot Override option select the USB memory device (For example, JetFlashTranscend 8GB 8.07).
 
-e. After a few seconds, the QFX5210-64C-S switch would restart and boot from the USB memory device and then you will see the following on the console screen:
+e. After a few seconds, the switch would restart and boot from the USB memory device and then you will see the following on the console screen:
 
 ```
                      GNU GRUB  version 2.02~beta2+e4a1fe391
@@ -168,6 +171,8 @@ g. Select "ONIE: Rescue" to enter the ONIE recovery command-line shell (Optional
 
 2) Recovering ONIE using PXE-UEFI64 Recovery Image
 
+Note: This section is only applicable for QFX5210-64C-S platform.
+
 You can use the onie-recovery-x86_64-juniper_qfx5210-r0.efi64.pxe image to recover the ONIE image through UEFI PXE.
 
    The onie-recovery-x86_64-juniper_qfx5210-r0.efi64.pxe is made for the QFX5210-64C-S switch that has a PXE client which is based on UEFI64.
@@ -192,12 +197,12 @@ The following links provide more information about ONIE:
 
 ## SONiC Build Process:
 
-The instruction on how to build an ONIE compatible network operating system (NOS) installer image for Juniper Networks QFX5210-64C-S switch, and how to build docker images running inside the NOS is available at https://github.com/Azure/sonic-buildimage#usage. 
+The instruction on how to build an ONIE compatible network operating system (NOS) installer image for Juniper Networks switches, and how to build docker images running inside the NOS is available at https://github.com/Azure/sonic-buildimage#usage. 
 
 
-## Install SONiC on the Juniper Networks QFX5210-64C-S switch:
+## Install SONiC on the Juniper Networks switch:es
 
-You need to copy the SONiC image sonic-broadcom.bin to the Juniper Networks QFX5210-64C-S switch. You can copy the sonic-broadcom.bin to an USB memory device and insert it to the USB port of the QFX5210-64C-S switch. You can also use the 'scp' command to copy the sonic-broadcom.bin image to the QFX5210-64C-S switch over the network.
+You need to copy the SONiC image 'sonic-broadcom.bin' to the switch. You can copy the sonic-broadcom.bin to an USB memory device and insert it to the USB port of the switch. You can also use the 'scp' command to copy the sonic-broadcom.bin image to the switch over the network.
 
 Note: Unmount the USB memory device after copying the sonic-broadcom.bin. For example, umount /dev/sdX, where X is the name of the drive of the USB memory device.
 
@@ -210,7 +215,7 @@ ONIE:/var/tmp # onie-nos-install /var/tmp/sonic-broadcom.bin
 
 ## Booting SONiC 
 
-The QFX5210-64C-S switch restarts automatically after the SONiC image has been successfully installed. 
+The switch restarts automatically after the SONiC image has been successfully installed. 
 
 1) Select SONiC from the GRUB boot manager. 
 
@@ -239,35 +244,44 @@ The QFX5210-64C-S switch restarts automatically after the SONiC image has been s
 
 2. At the SONiC login prompt, enter the username as admin and password as YourPaSsWoRd.
 
-You can now start configuring the Juniper Networks QFX5210-64C-S switch running SONiC as its operating system. 
+You can now start configuring the Juniper Networks switch running SONiC as its operating system. 
 
 
 ## Upgrading SONiC image
 
 To upgrade the SONiC operating system to a latest version, you need to: 
 
- 1. Copy the latest image of the SONiC image to the QFX5210-64C-S switch. 
+ 1. Copy the latest image of the SONiC image to the switch. 
  2. Run the following command from the directory where the latest SONiC image has been copied.
 
 ```
 $ sudo ./sonic-braodcom.bin 
 ```
 
+or
+
+```
+$ sudo sonic-installer ./sonic-broadcom.bin -y
+```
+
 
 ## Uninstalling SONiC image
 
-To unintall SONiC operating system from QFX5210-64C-S switch, you need to:
+To unintall SONiC operating system from the switch, you need to:
 
- 1. Reboot the QFX5210-64C-S switch.
+ 1. Reboot the switch.
  2. Go to the ONIE GRUB menu and then select ONIE: Uninstall OS option to uninstall SONiC.
 
-For more details on drivers and platform scripts see https://github.com/Azure/sonic-buildimage/blob/master/platform/broadcom/sonic-platform-modules-juniper/qfx5210/utils/README
+For more details on drivers and platform scripts see the following links:
+
+1) QFX5210-64C-S: https://github.com/Azure/sonic-buildimage/blob/master/platform/broadcom/sonic-platform-modules-juniper/qfx5210/utils/README
+
+2) QFX5200-32C-S: https://github.com/Azure/sonic-buildimage/blob/master/platform/broadcom/sonic-platform-modules-juniper/qfx5200/utils/README
 
 ## Related Documentation for SONiC:
 
 The following links provide more information about SONiC:
  1. SONiC documentation: https://github.com/azure/sonic/wiki. 
- 2. Learn about QFX5210-64C-S SONiC platform: https://github.com/Azure/sonic-buildimage/blob/master/platform/broadcom/sonic-platform-modules-juniper/qfx5210/utils/README
 
 ## Viewing the Device Revision of the FRU Model from IDEEPROM
 
