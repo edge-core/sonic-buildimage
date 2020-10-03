@@ -170,8 +170,8 @@ DEVICE_DATA = {
     'x86_64-mlnx_msn4700-r0': {
        'thermal': {
             'minimum_table': {
-                "unk_trust":   {"-127:120":16},
-                "unk_untrust": {"-127:120":16},
+                "unk_trust":   {"-127:35":14, "36:120":15},
+                "unk_untrust": {"-127:35":14, "36:120":15},
             }
         },
         'fans': {
@@ -191,8 +191,8 @@ DEVICE_DATA = {
     'x86_64-mlnx_msn3420-r0': {
         'thermal': {
             'minimum_table': {
-                "unk_trust":   {"-127:120":16},
-                "unk_untrust": {"-127:120":16},
+                "unk_trust":   {"-127:120":12},
+                "unk_untrust": {"-127:25":12, "26:35":13, "36:40":14, "41:120":16},
             }
         },
         'fans': {
@@ -212,8 +212,8 @@ DEVICE_DATA = {
     'x86_64-mlnx_msn4600c-r0': {
         'thermal': {
             'minimum_table': {
-                "unk_trust":   {"-127:120":16},
-                "unk_untrust": {"-127:120":16},
+                "unk_trust":   {"-127:40":12, "41:120":13},
+                "unk_untrust": {"-127:5":12, "6:20":13, "21:30":14, "31:35":15, "36:40":16, "41:120":17},
             }
         },
         'fans': {
