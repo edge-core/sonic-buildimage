@@ -199,6 +199,7 @@ logger "SONiC version ${SONIC_VERSION} starting up..."
 
 # If the machine.conf is absent, it indicates that the unit booted
 # into SONiC from another NOS. Extract the machine.conf from ONIE.
+grub_installation_needed=""
 if [ ! -e /host/machine.conf ]; then
     onie_dev=$(blkid | grep ONIE-BOOT | head -n 1 | awk '{print $1}' |  sed -e 's/:.*$//')
     mkdir -p /mnt/onie-boot
@@ -213,6 +214,7 @@ if [ ! -e /host/machine.conf ]; then
             eval val='$'onie_$var
             echo "onie_${var}=${val}" >> /host/machine.conf
         done
+        grub_installation_needed="TRUE"
     fi
 
     umount /mnt/onie-boot
@@ -277,7 +279,7 @@ if [ -f $FIRST_BOOT_FILE ]; then
 
     # If the unit booted into SONiC from another NOS's grub,
     # we now install a grub for SONiC.
-    if [ -n "$onie_platform" ] && [ -n "$migration" ]; then
+    if [ -n "$onie_platform" ] && [ -n  "$grub_installation_needed" ]; then
 
         grub_bin=$(ls /host/image-$SONIC_VERSION/platform/x86_64-grub/grub-pc-bin*.deb 2> /dev/null)
         if [ -z "$grub_bin" ]; then
