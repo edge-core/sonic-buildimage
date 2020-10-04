@@ -267,7 +267,7 @@ thermal_profile_list = [
     },
     # 3420
     {
-        THERMAL_DEV_CATEGORY_CPU_CORE:(0, 4),
+        THERMAL_DEV_CATEGORY_CPU_CORE:(0, 2),
         THERMAL_DEV_CATEGORY_MODULE:(1, 60),
         THERMAL_DEV_CATEGORY_PSU:(1, 2),
         THERMAL_DEV_CATEGORY_CPU_PACK:(0,1),
