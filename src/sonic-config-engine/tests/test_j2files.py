@@ -171,6 +171,16 @@ class TestJ2Files(TestCase):
         sample_output_file = os.path.join(self.test_dir, 'multi_npu_data', utils.PYvX_DIR, 'ipinip.json')
         assert filecmp.cmp(sample_output_file, self.output_file)
 
+    def test_ndppd_conf(self):
+        conf_template = os.path.join(self.test_dir, "ndppd.conf.j2")
+        vlan_interfaces_json = os.path.join(self.test_dir, "data", "ndppd", "vlan_interfaces.json")
+        expected = os.path.join(self.test_dir, "sample_output", utils.PYvX_DIR, "ndppd.conf")
+
+        argument = '-j {} -t {} > {}'.format(vlan_interfaces_json, conf_template, self.output_file)
+        self.run_script(argument)
+        assert filecmp.cmp(expected, self.output_file), self.run_diff(expected, self.output_file)
+
+
     def tearDown(self):
         try:
             os.remove(self.output_file)

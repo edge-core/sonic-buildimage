@@ -10,6 +10,7 @@ CFGGEN_PARAMS=" \
     -t /usr/share/sonic/templates/ports.json.j2,/etc/swss/config.d/ports.json \
     -t /usr/share/sonic/templates/copp.json.j2,/etc/swss/config.d/00-copp.config.json \
     -t /usr/share/sonic/templates/vlan_vars.j2 \
+    -t /usr/share/sonic/templates/ndppd.conf.j2,/etc/ndppd.conf \
 "
 VLAN=$(sonic-cfggen $CFGGEN_PARAMS)
 
@@ -18,9 +19,10 @@ if [ -x /usr/share/sonic/hwsku/hwsku-init ]; then
     /usr/share/sonic/hwsku/hwsku-init
 fi
 
-# Start arp_update when VLAN exists
+# Start arp_update and NDP proxy daemon when VLAN exists
 if [ "$VLAN" != "" ]; then
     cp /usr/share/sonic/templates/arp_update.conf /etc/supervisor/conf.d/
+    cp /usr/share/sonic/templates/ndppd.conf /etc/supervisor/conf.d/
 fi
 
 exec /usr/bin/supervisord
