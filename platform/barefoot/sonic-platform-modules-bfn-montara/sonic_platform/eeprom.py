@@ -2,7 +2,6 @@
 
 
 try:
-    import time
     import os
     import sys
     import errno
@@ -17,7 +16,7 @@ try:
     from sonic_eeprom import eeprom_base
     from sonic_eeprom import eeprom_tlvinfo
 
-    from .platform_thrift_client import ThriftClient
+    from .platform_thrift_client import thrift_try
 except ImportError, e:
     raise ImportError (str(e) + "- required module not found")
 
@@ -65,8 +64,6 @@ EEPROM_SYMLINK = "/var/run/platform/eeprom/syseeprom"
 EEPROM_STATUS = "/var/run/platform/eeprom/status"
 
 class Eeprom(eeprom_tlvinfo.TlvInfoDecoder):
-    RETRIES = 35
-
     def __init__(self):
 
         with open(os.path.dirname(__file__) + "/logging.conf", 'r') as f:
@@ -88,20 +85,16 @@ class Eeprom(eeprom_tlvinfo.TlvInfoDecoder):
         self.eeprom_path = EEPROM_SYMLINK
         super(Eeprom, self).__init__(self.eeprom_path, 0, EEPROM_STATUS, True)
 
-        for attempt in range(self.RETRIES):
-            if self.eeprom_init():
-                break
-            if attempt + 1 == self.RETRIES:
-                raise RuntimeError("eeprom.py: Initialization failed")
-            time.sleep(1)
-
-    def eeprom_init(self):
+        def sys_eeprom_get(client):
+            return client.pltfm_mgr.pltfm_mgr_sys_eeprom_get()
         try:
-            with ThriftClient() as client:
-                self.eeprom = client.pltfm_mgr.pltfm_mgr_sys_eeprom_get()
+            self.eeprom = thrift_try(sys_eeprom_get)
         except Exception:
-            return False
+            raise RuntimeError("eeprom.py: Initialization failed")
 
+        self.eeprom_parse()
+
+    def eeprom_parse(self):
         f = open(EEPROM_STATUS, 'w')
         f.write("ok")
         f.close()
@@ -131,9 +124,13 @@ class Eeprom(eeprom_tlvinfo.TlvInfoDecoder):
             eeprom_params += "{0:s}={1:s}".format(elem[1], value)
 
         orig_stdout = sys.stdout
+
         sys.stdout = StringIO()
-        new_e = eeprom_tlvinfo.TlvInfoDecoder.set_eeprom(self, "", [eeprom_params])
-        sys.stdout = orig_stdout
+        try:
+            new_e = eeprom_tlvinfo.TlvInfoDecoder.set_eeprom(self, "", [eeprom_params])
+        finally:
+            sys.stdout = orig_stdout
+
         eeprom_base.EepromDecoder.write_eeprom(self, new_e)
 
         return True

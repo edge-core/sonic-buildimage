@@ -3,6 +3,7 @@
 try:
     import os
     import sys
+    import time
     import importlib
 
     sys.path.append(os.path.dirname(__file__))
@@ -11,6 +12,7 @@ try:
     from thrift.transport import TTransport
     from thrift.protocol import TBinaryProtocol
     from thrift.protocol import TMultiplexedProtocol
+    from thrift.Thrift import TException
 except ImportError as e:
     raise ImportError (str(e) + "- required module not found")
 
@@ -35,3 +37,13 @@ class ThriftClient(object):
         return self.open()
     def __exit__(self, exc_type, exc_value, tb):
         self.close()
+
+def thrift_try(func, attempts=35):
+    for attempt in range(attempts):
+        try:
+            with ThriftClient() as client:
+               return func(client)
+        except TException as e:
+            if attempt + 1 == attempts:
+               raise e
+        time.sleep(1)

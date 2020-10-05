@@ -24,7 +24,7 @@ class Chassis(ChassisBase):
             sfp_node = Sfp(index)
             self._sfp_list.append(sfp_node)
 
-        for i in range(MAX_PSU):
+        for i in range(1, MAX_PSU + 1):
             psu = Psu(i)
             self._psu_list.append(psu)
 

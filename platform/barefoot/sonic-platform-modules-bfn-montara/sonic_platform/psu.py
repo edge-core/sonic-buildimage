@@ -6,7 +6,7 @@ try:
 
     sys.path.append(os.path.dirname(__file__))
 
-    from .platform_thrift_client import ThriftClient
+    from .platform_thrift_client import thrift_try
 
     from sonic_platform_base.psu_base import PsuBase
 except ImportError as e:
@@ -34,9 +34,11 @@ class Psu(PsuBase):
         :param self.index: An integer, 1-based self.index of the PSU of which to query status
         :return: Boolean, True if PSU is operating properly, False if PSU is faulty
         """
+        def psu_info_get(client):
+            return client.pltfm_mgr.pltfm_mgr_pwr_supply_info_get(self.index)
+
         try:
-            with ThriftClient() as client:
-                psu_info = client.pltfm_mgr.pltfm_mgr_pwr_supply_info_get(self.index)
+            psu_info = thrift_try(psu_info_get)
         except Exception:
             return False
 
@@ -49,9 +51,11 @@ class Psu(PsuBase):
         :param self.index: An integer, 1-based self.index of the PSU of which to query status
         :return: Boolean, True if PSU is plugged, False if not
         """
+        def psu_present_get(client):
+            return client.pltfm_mgr.pltfm_mgr_pwr_supply_present_get(self.index)
+
         try:
-            with ThriftClient() as client:
-                status = client.pltfm_mgr.pltfm_mgr_pwr_supply_present_get(self.index)
+            status = thrift_try(psu_present_get)
         except Exception:
             return False
 

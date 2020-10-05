@@ -20,8 +20,6 @@ override_dh_auto_install:
 	cp -r $(SCRIPT_SRC)/* debian/$(PACKAGE_NAME)/usr/local/bin
 	dh_installdirs -p$(PACKAGE_NAME) etc/network/interfaces.d/
 	cp -r $(CONFIGS_SRC)/network/interfaces.d/* debian/$(PACKAGE_NAME)/etc/network/interfaces.d/
-	dh_installdirs -p$(PACKAGE_NAME) usr/share/sonic/platform/
-	cp -r $(WHEEL_BUILD_DIR)/*  debian/$(PACKAGE_NAME)/usr/share/sonic/platform/
 
 override_dh_usrlocal:
 
