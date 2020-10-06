@@ -67,6 +67,10 @@
 #include <mpool.h>
 #include <sdk_config.h>
 
+#if defined(IPROC_CMICD) && defined(CONFIG_OF)
+#include <linux/of.h>
+#endif
+
 #ifdef BCM_PLX9656_LOCAL_BUS
 #include <asm/cacheflush.h>
 #endif
@@ -117,9 +121,9 @@
 #endif
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,27))
-#define DMA_MAPPING_ERROR(d, p)     dma_mapping_error((d),(p))
+#define BDE_DMA_MAPPING_ERROR(d, p)     dma_mapping_error((d),(p))
 #else
-#define DMA_MAPPING_ERROR(d, p)     dma_mapping_error((p))
+#define BDE_DMA_MAPPING_ERROR(d, p)     dma_mapping_error((p))
 #endif
 
 #ifndef KMALLOC_MAX_SIZE
@@ -612,6 +616,15 @@ static void
 _alloc_mpool(size_t size)
 {
     unsigned long pbase = 0;
+    struct device *dev = DMA_DEV(DMA_DEV_INDEX);
+    int dma64_support = 0;
+
+#if defined(IPROC_CMICD) && defined(CONFIG_OF)
+    if (of_find_compatible_node(NULL, NULL, "brcm,iproc-cmicx")) {
+        dma64_support = 1;
+    }
+#endif
+
 #if defined(__arm__) && !defined(CONFIG_HIGHMEM)
     if (_use_himem) {
         gprintk("DMA in high memory requires CONFIG_HIGHMEM on ARM CPUs.\n");
@@ -647,8 +660,8 @@ _alloc_mpool(size_t size)
             /* get a memory allocation from the kernel */
             {
                 dma_addr_t dma_handle;
-                if (!(_dma_vbase = dma_alloc_coherent(DMA_DEV(DMA_DEV_INDEX),
-                        alloc_size, &dma_handle, GFP_KERNEL)) || !dma_handle) {
+                _dma_vbase = dma_alloc_coherent(dev, alloc_size, &dma_handle, GFP_KERNEL);
+                if (!_dma_vbase || !dma_handle) {
                     gprintk("Failed to allocate coherent memory pool of size 0x%lx\n", (unsigned long)alloc_size);
                     return;
                 }
@@ -672,9 +685,9 @@ _alloc_mpool(size_t size)
             }
             _cpu_pbase = virt_to_bus(_dma_vbase);
             /* Use dma_map_single to obtain DMA bus address or IOVA if iommu is present. */
-            if (DMA_DEV(DMA_DEV_INDEX)) {
-                pbase = dma_map_single(DMA_DEV(DMA_DEV_INDEX), _dma_vbase, size, DMA_BIDIRECTIONAL);
-                if (DMA_MAPPING_ERROR(DMA_DEV(DMA_DEV_INDEX), pbase)) {
+            if (dev) {
+                pbase = dma_map_single(dev, _dma_vbase, size, DMA_BIDIRECTIONAL);
+                if (BDE_DMA_MAPPING_ERROR(dev, pbase)) {
                     gprintk("Failed to map memory at %p\n", _dma_vbase);
                     _pgcleanup();
                     _dma_vbase = NULL;
@@ -692,7 +705,9 @@ _alloc_mpool(size_t size)
             return;
         }
 
-        if (((pbase + (size - 1)) >> 16) > DMA_BIT_MASK(16)) {
+        _dma_pbase = pbase;
+
+        if (!dma64_support && ((pbase + (size - 1)) >> 16) > DMA_BIT_MASK(16)) {
             gprintk("DMA memory allocated at 0x%lx size 0x%lx is beyond the 4GB limit and not supported.\n", pbase, (unsigned long)size);
             _pgcleanup();
             _dma_vbase = NULL;
@@ -700,14 +715,13 @@ _alloc_mpool(size_t size)
             return;
         }
 
-        _dma_pbase = pbase;
 #ifdef REMAP_DMA_NONCACHED
         _dma_vbase = IOREMAP(_dma_pbase, size);
 #endif
         if (dma_debug >= 1) {
-            gprintk("_use_dma_mapping:%d _dma_vbase:%p _dma_pbase:%lx _cpu_pbase:%lx allocated:%lx dmaalloc:%d\n",
+            gprintk("_use_dma_mapping:%d _dma_vbase:%p _dma_pbase:%lx _cpu_pbase:%lx allocated:%lx dmaalloc:%d, dma64_support:%d\n",
                      _use_dma_mapping, _dma_vbase, (unsigned long)_dma_pbase,
-                     (unsigned long)_cpu_pbase, (unsigned long)size, dmaalloc);
+                     (unsigned long)_cpu_pbase, (unsigned long)size, dmaalloc, dma64_support);
         }
     }
 }
@@ -749,7 +763,7 @@ void _dma_init(int dev_index)
     if (dev_index > DMA_DEV_INDEX) {
         if (_use_dma_mapping && DMA_DEV(dev_index) && _dma_vbase) {
             pbase = dma_map_single(DMA_DEV(dev_index), _dma_vbase, _dma_mem_size, DMA_BIDIRECTIONAL);
-            if (DMA_MAPPING_ERROR(DMA_DEV(dev_index), pbase)) {
+            if (BDE_DMA_MAPPING_ERROR(DMA_DEV(dev_index), pbase)) {
                 gprintk("Failed to map memory for device %d at %p\n", dev_index, _dma_vbase);
                 return;
             }
@@ -992,6 +1006,9 @@ lkbde_get_dma_info(phys_addr_t* cpu_pbase, phys_addr_t* dma_pbase, ssize_t* size
 void
 _dma_pprint(void)
 {
+    pprintf("\tdmasize=%s\n", dmasize);
+    pprintf("\thimem=%s\n", himem);
+    pprintf("\thimemaddr=%s\n", himemaddr);
     pprintf("DMA Memory (%s): %d bytes, %d used, %d free%s\n",
             (_use_himem) ? "high" : "kernel",
             (_dma_vbase) ? _dma_mem_size : 0,

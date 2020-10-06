@@ -85,7 +85,7 @@ endif
 build:
 	$(MAKE) $(CMD)
 
-DELIVER clean C_COMPILER CXX_COMPILER variable mod bcm user:
+DELIVER clean C_COMPILER CXX_COMPILER variable mod bcm user issu:
 	$(MAKE) $(CMD) $@
 
 clean_d: clean
@@ -93,5 +93,5 @@ clean_d: clean
 distclean:
 	$(MAKE) $(CMD) $@
         
-.PHONY: build clean distclean clean_d DELIVER variable mod bcm user
+.PHONY: build clean distclean clean_d DELIVER variable mod bcm user issu
 

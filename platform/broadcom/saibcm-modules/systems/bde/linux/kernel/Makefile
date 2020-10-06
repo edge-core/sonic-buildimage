@@ -55,14 +55,16 @@ THIS_MOD_NAME := linux-kernel-bde
 MODULE = $(LIBDIR)/$(THIS_MOD_NAME).o
 KMODULE = $(LIBDIR)/$(THIS_MOD_NAME).ko
 
-build: kernel_libs $(MODULE) $(KMODULE)
+build: kernel_libs module $(KMODULE)
 else
 MODULE = $(LIBDIR)/linux-kernel-bde.o
 
-build: kernel_libs $(MODULE)
+build: kernel_libs module
 endif
 
-$(MODULE): $(BLDDIR)/.tree kernel_libs $(BOBJS)
+module: kernel_libs $(MODULE)
+
+$(MODULE): $(BLDDIR)/.tree $(BOBJS)
 	mkdir -p $(@D)
 	$(LD) $(MODULE_LDFLAGS) -r -d $(BOBJS) $(LIBS) -o $@
 ifneq ($(kernel_version),2_4)

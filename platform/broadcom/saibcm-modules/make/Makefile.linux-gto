@@ -97,6 +97,21 @@ ifdef SHADOW_PLX
 CFLAGS += -DBCM_PLX9656_LOCAL_BUS -DBDE_LINUX_NON_INTERRUPTIBLE -DSHADOW_SVK
 endif
 
+ifdef LTSW_CHIPS
+# Default open source target build
+OPENSRC_BUILD ?= uclibc_201402_ppc
+
+# Hardware interface (see $SDKLT/bcma/sys/probe directory)
+SYSTEM_INTERFACE ?= ngbde
+
+# Turn on direct register access if running on real hardware.
+ifeq (ngbde,$(SYSTEM_INTERFACE))
+LTSW_ADD_CPPFLAGS += -DBCMDRD_CONFIG_MEMMAP_DIRECT=1
+endif
+
+export SYSTEM_INTERFACE
+endif
+
 ifeq (,$(KFLAGS))
 KFLAGS := -D__KERNEL__ -m32 -nostdinc -isystem $(KFLAG_INCLD) -I$(LINUX_INCLUDE) -include $(LINUX_INCLUDE)/generated/uapi/linux/version.h -include $(LINUX_INCLUDE)/generated/autoconf.h -I$(KERNDIR)/arch/powerpc -I$(KERNDIR)/arch/powerpc/include -I$(KERNDIR)/include/asm-powerpc -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -msoft-float -pipe -ffixed-r2 -mmultiple -mno-altivec -funit-at-a-time -Wa,-me500 -fomit-frame-pointer  -Wdeclaration-after-statement -Wno-pointer-sign
 endif

@@ -27,15 +27,14 @@ endif
 # TARGET_ARCHITECTURE   Compiler for target architecture
 # KERNDIR               Kernel directory for iPROC-CMICd devices
 ifeq (BE,$(ENDIAN_MODE))
-#While BE mode is supported, it's use is very limited.  We had a specific customer
-#request for BE support but don't currently mainstream it.  So a 5.1.0 version
-#has not been built.  Continue using 5.0.3 for any BE support
-TOOLCHAIN_BASE_DIR ?= /projects/ntsw-tools/linux/iproc_ldks/xldk50-be/XLDK32
-TARGET_ARCHITECTURE:=armeb-broadcom-linux-uclibcgnueabi
+#We've never actually built a 64 BE executable.  Just here for any future
+#customer requirements.
+TOOLCHAIN_BASE_DIR ?= /projects/ntsw-tools/linux/iproc_ldks/xldk51-be/XLDK64
+TARGET_ARCHITECTURE ?= aarch64_be-broadcom-linux-uclibc
 KERNDIR ?= $(TOOLCHAIN_BASE_DIR)/kernel/linux
 else
-TOOLCHAIN_BASE_DIR ?= /projects/ntsw-tools/linux/iproc_ldks/xldk51/XLDK32
-TARGET_ARCHITECTURE:= arm-broadcom-linux-uclibcgnueabi
+TOOLCHAIN_BASE_DIR ?= /projects/ntsw-tools/linux/iproc_ldks/xldk51/XLDK64
+TARGET_ARCHITECTURE ?= aarch64-broadcom-linux-uclibc
 KERNDIR ?= $(TOOLCHAIN_BASE_DIR)/kernel/linux
 endif
 
@@ -43,7 +42,7 @@ ifeq (,$(CROSS_COMPILE))
 CROSS_COMPILE:= $(TARGET_ARCHITECTURE)-
 endif
 
-# arm9tools
+# A72 tools
 TOOLCHAIN_BIN_DIR=$(TOOLCHAIN_BASE_DIR)/buildroot/host/usr/bin
 override PATH:=$(TOOLCHAIN_BASE_DIR)/buildroot/host/usr/$(TARGET_ARCHITECTURE)/bin:$(TOOLCHAIN_BIN_DIR):$(PATH)
 LD_LIBRARY_PATH=$(TOOLCHAIN_BASE_DIR)/buildroot/host/usr/lib
@@ -64,7 +63,9 @@ CFGFLAGS += -DSYS_BE_PIO=0 -DSYS_BE_PACKET=0 -DSYS_BE_OTHER=0
 ENDIAN = LE_HOST=1
 endif
 
-CFLAGS += -fno-aggressive-loop-optimizations
+CFLAGS += -DPTRS_ARE_64BITS -DLONGS_ARE_64BITS
+CFLAGS += -DPHYS_ADDRS_ARE_64BITS
+CFLAGS += -fno-aggressive-loop-optimizations -fno-strict-overflow
 CFLAGS += -Wno-error=maybe-uninitialized
 CFLAGS += -Wno-error=array-bounds
 CFLAGS += -fgnu89-inline
@@ -72,10 +73,12 @@ ifeq "$(shell expr `echo $(CROSS_GCC_VER) | cut -f1 -d.` \>= 7)" "1"
     CFLAGS += -Wno-error=bool-operation
 endif
 
+
 CFGFLAGS += -D$(ENDIAN) -DIPROC_CMICD
 CFGFLAGS += -DBCM_PLATFORM_STRING=\"IPROC_CMICD\"
+CFGFLAGS += -DSAL_BDE_DMA_MEM_DEFAULT=16
 
-ARCH = arm
+ARCH = arm64
 KBUILD_VERBOSE = 1
 
 export ARCH KBUILD_VERBOSE
@@ -95,8 +98,7 @@ modname_flags  = $(if $(filter 1,$(words $(modname))),\
 KFLAG_INCLD ?= $(LD_LIBRARY_PATH)/gcc/$(TARGET_ARCHITECTURE)/$(CROSS_GCC_VER)/include
 
 ifeq (,$(KFLAGS))
-KFLAGS := -D__LINUX_ARM_ARCH__=7 -D__KERNEL__ -nostdinc  -isystem $(KFLAG_INCLD) -I$(LINUX_INCLUDE) -include $(LINUX_INCLUDE)/generated/autoconf.h -I$(KERNDIR)/arch/arm/include -I$(KERNDIR)/arch/arm/include/generated -I$(KERNDIR)/arch/arm/mach-iproc/include -Wall -Wstrict-prototypes -Wno-trigraphs -Os -fno-strict-aliasing -fno-common -marm -mabi=aapcs-linux -fno-pic -pipe -msoft-float -ffreestanding -march=armv7-a -mfpu=vfp -mfloat-abi=softfp -fomit-frame-pointer -g -fno-stack-protector -Wdeclaration-after-statement -Wno-pointer-sign -mlong-calls
-KFLAGS += -I$(LINUX_INCLUDE)/uapi -I$(LINUX_INCLUDE)/generated/uapi -I$(KERNDIR)/arch/arm/include/uapi -I$(KERNDIR)/arch/arm/include/generated/uapi
+KFLAGS := -D__LINUX_ARM_ARCH__=8 -D__KERNEL__ -DPTRS_ARE_64BITS -DLONGS_ARE_64BITS -nostdinc -isystem $(KFLAG_INCLD) -I$(LINUX_INCLUDE) -include $(LINUX_INCLUDE)/generated/autoconf.h -I$(KERNDIR)/arch/arm64/include -I$(KERNDIR)/arch/arm64/include/generated -I$(KERNDIR)/arch/arm64/include/generated/uapi -I$(KERNDIR)/arch/arm64/include/generated/asm -I$(KERNDIR)/include/uapi -I$(KERNDIR)/include/generated/uapi -I$(KERNDIR)/arch/arm64/include/uapi  -Wall -Wstrict-prototypes -Wno-trigraphs -Os -fno-strict-aliasing -fno-common -fno-pic -pipe -ffreestanding -fomit-frame-pointer -g -fno-stack-protector -Wdeclaration-after-statement -Wno-pointer-sign -mcmodel=large
 endif
 
 ifneq ($(targetplat),user)

@@ -37,9 +37,6 @@ build: $(MODULE) $(KMODULE)
 endif
 
 KBUILD_EXTRA_SYMBOLS := ${BLDDIR}/../../../../bde/linux/kernel/kernel_module/Module.symvers
-ifeq (,$(findstring -DPROXY_SUPPORT=0,$(CFLAGS)))
-KBUILD_EXTRA_SYMBOLS += ${BLDDIR}/../uk-proxy/kernel_module/Module.symvers
-endif
 
 # BCM Network Device
 

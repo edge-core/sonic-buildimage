@@ -38,6 +38,11 @@
 #include <linux/kconfig.h>
 #endif
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0)
+#if defined(INCLUDE_KNET) && LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0)
+#ifdef CONFIG_NF_CONNTRACK_MODULE
+#include <linux/netfilter.h>
+#endif
+#endif
 #include <linux/slab.h>
 #endif
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,39)

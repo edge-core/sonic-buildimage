@@ -35,7 +35,7 @@ static const struct genl_multicast_group psample_nl_mcgrps[] = {
 	[PSAMPLE_NL_MCGRP_SAMPLE] = { .name = PSAMPLE_NL_MCGRP_SAMPLE_NAME },
 };
 
-static struct genl_family psample_nl_family __ro_after_init;
+static struct genl_family psample_nl_family;
 
 static int psample_group_nl_fill(struct sk_buff *msg,
 				 struct psample_group *group,
@@ -106,7 +106,7 @@ static const struct genl_ops psample_nl_ops[] = {
 	}
 };
 
-static struct genl_family psample_nl_family __ro_after_init = {
+static struct genl_family psample_nl_family = {
 	.name		= PSAMPLE_GENL_NAME,
 	.version	= PSAMPLE_GENL_VERSION,
 	.maxattr	= PSAMPLE_ATTR_MAX,

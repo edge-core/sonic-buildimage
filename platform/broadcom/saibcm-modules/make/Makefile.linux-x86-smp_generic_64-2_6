@@ -29,17 +29,33 @@ KFLAGS := -nostdinc -isystem $(SYSINC) -I$(KERNDIR)/include -I$(KERNDIR)/arch/x8
 endif
 
 ifeq ($(LINUX_MAKE_SHARED_LIB), 1)
-KFLAGS += -fPIC -mcmodel=small
+    KFLAGS += -fPIC -mcmodel=small
 else
-KFLAGS += -fno-pie -mcmodel=kernel
+    KFLAGS += -fno-pie -mcmodel=kernel
 endif
 
 LINUX_UAPI = $(LINUX_INCLUDE)/uapi
+ifneq (,$(shell ls $(LINUX_UAPI) 2>/dev/null))
 KFLAGS += -I$(LINUX_INCLUDE)/uapi -I$(LINUX_INCLUDE)/generated/uapi -I$(KERNDIR)/arch/x86/include/generated -I$(KERNDIR)/arch/x86/include/uapi -I$(KERNDIR)/arch/x86/include/generated/uapi
+endif
 
-ifeq (1,$(DEBIAN_LINUX_HEADER))
-KERNDIR_COMMON := $(subst amd64,common,$(KERNDIR))
-KFLAGS += -I$(KERNDIR_COMMON)/include -I$(KERNDIR_COMMON)/include/uapi -I$(KERNDIR_COMMON)/arch/x86/include -I$(KERNDIR_COMMON)/arch/x86/include/uapi
+ifdef LTSW_CHIPS
+# Ensure we do not use an out-of-date libelf.so
+ELFUTILS_MIN = 158
+ELFUTILS_DIR ?= /projects/ntsw-tools/lib
+
+# Default open source target build
+OPENSRC_BUILD ?= x86_64
+
+# Hardware interface (see $SDKLT/bcma/sys/probe directory)
+SYSTEM_INTERFACE ?= ngbde
+
+# Turn on direct register access if running on real hardware.
+ifeq (ngbde,$(SYSTEM_INTERFACE))
+LTSW_ADD_CPPFLAGS += -DBCMDRD_CONFIG_MEMMAP_DIRECT=1
+endif
+
+export SYSTEM_INTERFACE
 endif
 
 include ${SDK}/make/Makefile.linux-x86-common-2_6

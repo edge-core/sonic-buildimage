@@ -34,6 +34,12 @@ typedef struct ibde_dev_s {
     sal_vaddr_t base_address;
     sal_vaddr_t base_address1;
     sal_vaddr_t base_address2;
+    /* a unique number representing the specific device.
+     * Must be different for different devices.
+     * May be used to identify specific devices in the system.
+     * May be implemented as a full PCIe address, a persistent configurable user value, ...
+     * Possible implementation value stores in QSPI flash memory of the device. */
+    uint32 dev_unique_id;
 } ibde_dev_t;
 
 
