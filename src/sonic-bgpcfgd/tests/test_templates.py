@@ -2,8 +2,8 @@ import os
 import json
 
 
-from app.template import TemplateFabric
-from app.config import ConfigMgr
+from bgpcfgd.template import TemplateFabric
+from bgpcfgd.config import ConfigMgr
 from .util import load_constants
 
 TEMPLATE_PATH = os.path.abspath('../../dockers/docker-fpm-frr/frr')

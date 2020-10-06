@@ -1,6 +1,6 @@
 from swsscommon import swsscommon
 
-from app.log import log_debug, log_err
+from .log import log_debug, log_err
 
 
 class Manager(object):

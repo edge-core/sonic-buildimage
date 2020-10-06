@@ -3,7 +3,7 @@ import tempfile
 
 from .vars import g_debug
 from .log import log_crit, log_err
-from .util import run_command
+from .utils import run_command
 
 
 class ConfigMgr(object):
