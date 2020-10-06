@@ -2,7 +2,7 @@ import os
 import subprocess
 
 
-from app.config import ConfigMgr
+from bgpcfgd.config import ConfigMgr
 from .test_templates import compress_comments, write_result
 
 

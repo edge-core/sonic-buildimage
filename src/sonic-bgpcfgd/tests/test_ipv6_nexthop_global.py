@@ -1,7 +1,7 @@
 import os
 import re
 
-from app.template import TemplateFabric
+from bgpcfgd.template import TemplateFabric
 from .util import load_constants
 
 TEMPLATE_PATH = os.path.abspath('../../dockers/docker-fpm-frr/frr')

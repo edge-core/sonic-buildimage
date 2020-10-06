@@ -1,4 +1,4 @@
-from app.template import TemplateFabric
+from bgpcfgd.template import TemplateFabric
 from collections import OrderedDict
 import pytest
 

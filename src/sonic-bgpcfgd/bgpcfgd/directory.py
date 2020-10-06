@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from app.log import log_err
+from .log import log_err
 
 
 class Directory(object):
