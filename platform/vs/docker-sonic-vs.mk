@@ -5,6 +5,7 @@ $(DOCKER_SONIC_VS)_PATH = $(PLATFORM_PATH)/docker-sonic-vs
 $(DOCKER_SONIC_VS)_DEPENDS += $(SWSS) \
                               $(SYNCD_VS) \
                               $(PYTHON_SWSSCOMMON) \
+                              $(PYTHON3_SWSSCOMMON) \
                               $(LIBTEAMDCTL) \
                               $(LIBTEAM_UTILS) \
                               $(SONIC_DEVICE_DATA) \
