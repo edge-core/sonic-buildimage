@@ -190,7 +190,7 @@ sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/python-click*_all.deb || \
 # Install SONiC Utilities Python 2 package
 SONIC_UTILITIES_PY2_WHEEL_NAME=$(basename {{sonic_utilities_py2_wheel_path}})
 sudo cp {{sonic_utilities_py2_wheel_path}} $FILESYSTEM_ROOT/$SONIC_UTILITIES_PY2_WHEEL_NAME
-sudo LANG=C chroot $FILESYSTEM_ROOT pip install $SONIC_UTILITIES_PY2_WHEEL_NAME
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install $SONIC_UTILITIES_PY2_WHEEL_NAME
 sudo rm -rf $FILESYSTEM_ROOT/$SONIC_UTILITIES_PY2_WHEEL_NAME
 
 # Install sonic-utilities data files (and any dependencies via 'apt-get -y install -f')
