@@ -5279,7 +5279,7 @@ bkn_tx(struct sk_buff *skb, struct net_device *dev)
     }
 
     if (!netif_carrier_ok(dev)) {
-        DBG_WARN(("Tx drop: Invalid RCPU encapsulation\n"));
+        DBG_WARN(("Tx drop: Netif link is down.\n"));
         priv->stats.tx_dropped++;
         sinfo->tx.pkts_d_no_link++;
         dev_kfree_skb_any(skb);
