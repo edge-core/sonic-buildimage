@@ -10,4 +10,7 @@ Architecture: amd64
 Depends: linux-image-4.9.0-11-2-amd64
 Description: kernel modules for platform devices such as fan, led, sfp
 
-
+Package: platform-modules-evs-a-32q56
+Architecture: amd64
+Depends: linux-image-4.9.0-11-2-amd64
+Description: kernel modules for platform devices such as fan, led, sfp

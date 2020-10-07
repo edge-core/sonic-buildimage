@@ -5,7 +5,7 @@ export INSTALL_MOD_DIR:=extra
 KVERSION   ?= $(shell uname -r)
 KERNEL_SRC :=  /lib/modules/$(KVERSION)
 MOD_SRC_DIR:= $(shell pwd)
-MODULE_DIRS:= et-c032if
+MODULE_DIRS:= et-c032if evs-a-32q56
 
 %:
 	dh $@ --with=systemd
