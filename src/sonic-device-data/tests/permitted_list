@@ -15,6 +15,7 @@ cdma_timeout_usec
 core_clock_frequency
 ctr_evict_enable
 device_clock_frequency
+disable_pcie_firmware_check
 dma_desc_timeout_usec
 dport_map_direct
 dport_map_enable
