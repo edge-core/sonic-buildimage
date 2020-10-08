@@ -1,20 +1,25 @@
 {# the range of hash_seed is 0-15 #}
 {# set default hash seed to 0 #}
 {% set hash_seed = 0 %}
+{% set hash_seed_offset = 0 %}
 {% if DEVICE_METADATA.localhost.type %}
 {% if DEVICE_METADATA.localhost.type == "ToRRouter" %}
 {% set hash_seed = 0 %}
 {% elif DEVICE_METADATA.localhost.type == "LeafRouter" %}
 {% set hash_seed = 10 %}
 {% elif DEVICE_METADATA.localhost.type == "SpineRouter" %}
-{% set hash_seed = 15 %}
+{% set hash_seed = 25 %}
 {% endif %}
 {% endif %}
+{% if DEVICE_METADATA.localhost.namespace_id %}
+{% set hash_seed_offset = DEVICE_METADATA.localhost.namespace_id | int %}
+{% endif %}
+{% set hash_seed_value = hash_seed_offset + hash_seed %}
 [
     {
         "SWITCH_TABLE:switch": {
-            "ecmp_hash_seed": "{{ hash_seed }}",
-            "lag_hash_seed": "{{ hash_seed }}",
+            "ecmp_hash_seed": "{{ hash_seed_value }}",
+            "lag_hash_seed": "{{ hash_seed_value }}",
             "fdb_aging_time": "600"
         },
         "OP": "SET"

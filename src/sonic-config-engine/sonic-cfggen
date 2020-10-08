@@ -31,7 +31,7 @@ import contextlib
 import jinja2
 import json
 import netaddr
-import os.path
+import os
 import sys
 import yaml
 
@@ -61,7 +61,7 @@ def sort_by_port_index(value):
     if not value:
         return
     if isinstance(value, list):
-        # In multi-ASIC platforms backend ethernet ports are identified as 
+        # In multi-ASIC platforms backend ethernet ports are identified as
         # 'Ethernet-BPxy'. Add 1024 to sort backend ports to the end.
         value.sort(
             key = lambda k: int(k[8:]) if "BP" not in k else int(k[11:]) + 1024
@@ -296,8 +296,14 @@ def main():
     asic_id = None
     if asic_name is not None:
         asic_id = get_asic_id_from_name(asic_name)
-
-
+    # get the namespace ID
+    namespace_id = os.getenv("NAMESPACE_ID")
+    if namespace_id:
+        deep_update(data, {
+                            'DEVICE_METADATA': {
+                                'localhost': {'namespace_id': namespace_id}
+                             }
+                          })
     # Load the database config for the namespace from global database json
     if args.namespace is not None:
         SonicDBConfig.load_sonic_global_db_config(namespace=args.namespace)
