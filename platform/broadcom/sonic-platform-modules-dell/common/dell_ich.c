@@ -926,7 +926,7 @@ static int dell_ich_remove(struct platform_device *pdev)
 
     // Unmap and release PMC regions
     if(ich_data->pmc_base) iounmap(ich_data->pmc_base);
-    if(ich_data->pmc_alloc) release_region(pmc_res.start, PMC_REG_LEN);
+    if(ich_data->pmc_alloc) release_mem_region(pmc_res.start, PMC_REG_LEN);
 
     ret = acpi_remove_sci_handler(dell_ich_sci_handler);
     if(ret) {
