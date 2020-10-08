@@ -82,6 +82,11 @@ class TestCfgGen(TestCase):
         argument = '-v "DEVICE_METADATA[\'localhost\'][\'downstream_subrole\']" -m "' + self.sample_graph_metadata + '"'
         output = self.run_script(argument)
         self.assertEqual(output.strip(), 'downstream_subrole_y')
+    
+    def test_minigraph_resourcetype(self):
+        argument = '-v "DEVICE_METADATA[\'localhost\'][\'resource_type\']" -m "' + self.sample_graph_metadata + '"'
+        output = self.run_script(argument)
+        self.assertEqual(output.strip(), 'resource_type_x')
 
     def test_print_data(self):
         argument = '-m "' + self.sample_graph + '" --print-data'
