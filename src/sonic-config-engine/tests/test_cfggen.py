@@ -80,6 +80,11 @@ class TestCfgGen(TestCase):
         output = self.run_script(argument)
         self.assertEqual(output.strip(), 'Public')
 
+    def test_minigraph_resourcetype(self):
+        argument = '-v "DEVICE_METADATA[\'localhost\'][\'resource_type\']" -m "' + self.sample_graph_metadata + '"'
+        output = self.run_script(argument)
+        self.assertEqual(output.strip(), 'resource_type_x')
+
     def test_print_data(self):
         argument = '-m "' + self.sample_graph + '" --print-data'
         output = self.run_script(argument)
