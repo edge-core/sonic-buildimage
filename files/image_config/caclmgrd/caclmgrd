@@ -524,9 +524,13 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
             config_db_subscriber_table_map[namespace] = []
             config_db_subscriber_table_map[namespace].append(subscribe_acl_table)
             config_db_subscriber_table_map[namespace].append(subscribe_acl_rule_table)
-        
+
+        # Get the ACL rule table seprator
+        acl_rule_table_seprator = subscribe_acl_rule_table.getTableNameSeparator()
+
         # Loop on select to see if any event happen on config db of any namespace
         while True:
+            ctrl_plane_acl_notification = False
             (state, selectableObj) = sel.select(SELECT_TIMEOUT_MS)
             # Continue if select is timeout or selectable object is not return
             if state != swsscommon.Select.OBJECT:
@@ -537,9 +541,24 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
             namespace = redisSelectObj.getDbConnector().getNamespace()
             # Pop data of both Subscriber Table object of namespace that got config db acl table event
             for table in config_db_subscriber_table_map[namespace]:
-                table.pop()
-            # Update the Control Plane ACL of the namespace that got config db acl table event
-            self.update_control_plane_acls(namespace)
+                (key, op, fvp) = table.pop()
+                # Pop of table that does not have data
+                if key == '':
+                    continue
+                # ACL Table notification. We will take Control Plane ACTION for any ACL Table Event
+                # This can be optimize further but we should not have many acl table set/del events in normal
+                # scenario
+                elif acl_rule_table_seprator not in key:
+                    ctrl_plane_acl_notification = True
+                # Check ACL Rule notification and make sure Rule point to ACL Table which is Controlplane
+                else:
+                    acl_table = key.split(acl_rule_table_seprator)[0]
+                    if self.config_db_map[namespace].get_table(self.ACL_TABLE)[acl_table]["type"] == self.ACL_TABLE_TYPE_CTRLPLANE:
+                        ctrl_plane_acl_notification = True
+
+            # Update the Control Plane ACL of the namespace that got config db acl table/rule event
+            if ctrl_plane_acl_notification:
+                self.update_control_plane_acls(namespace)
 
 # ============================= Functions =============================
 
