@@ -164,6 +164,68 @@ class TestJ2Files(TestCase):
         sample_output_file = os.path.join(self.test_dir, 'multi_npu_data',  'ipinip.json')
         assert filecmp.cmp(sample_output_file, self.output_file)
 
+    def test_swss_switch_render_template(self):
+        switch_template = os.path.join(
+            self.test_dir, '..', '..', '..', 'dockers', 'docker-orchagent',
+            'switch.json.j2'
+        )
+        constants_yml = os.path.join(
+            self.test_dir, '..', '..', '..', 'files', 'image_config',
+            'constants', 'constants.yml'
+        )
+        test_list = {
+            "t1": {
+                "graph": self.t1_mlnx_minigraph,
+                "output": "t1-switch.json"
+            },
+            "t0": {
+                "graph": self.t0_minigraph,
+                "output": "t0-switch.json"
+            },
+        }
+        for _, v in test_list.items():
+            argument = " -m {} -y {} -t {} > {}".format(
+                v["graph"], constants_yml, switch_template, self.output_file
+            )
+            sample_output_file = os.path.join(
+                self.test_dir, 'sample_output', v["output"]
+            )
+            self.run_script(argument)
+            assert filecmp.cmp(sample_output_file, self.output_file)
+
+    def test_swss_switch_render_template_multi_asic(self):
+        # verify the ECMP hash seed changes per namespace
+        switch_template = os.path.join(
+            self.test_dir, '..', '..', '..', 'dockers', 'docker-orchagent',
+            'switch.json.j2'
+        )
+        constants_yml = os.path.join(
+            self.test_dir, '..', '..', '..', 'files', 'image_config',
+            'constants', 'constants.yml'
+        )
+        test_list = {
+            "0": {
+                "namespace_id": "1",
+                "output": "t0-switch-masic1.json"
+            },
+            "1": {
+                "namespace_id": "3",
+                "output": "t0-switch-masic3.json"
+            },
+        }
+        for _, v in test_list.items():
+            os.environ["NAMESPACE_ID"] = v["namespace_id"]
+            argument = " -m {} -y {} -t {} > {}".format(
+                self.t1_mlnx_minigraph, constants_yml, switch_template,
+                self.output_file
+            )
+            sample_output_file = os.path.join(
+                self.test_dir, 'sample_output', v["output"]
+            )
+            self.run_script(argument)
+            assert filecmp.cmp(sample_output_file, self.output_file)
+        os.environ["NAMESPACE_ID"] = ""
+
     def tearDown(self):
         try:
             os.remove(self.output_file)
