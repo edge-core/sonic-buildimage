@@ -301,6 +301,7 @@ reset :
 	        git reset --hard;
 	        git submodule foreach --recursive 'git clean -xfdf || true';
 	        git submodule foreach --recursive 'git reset --hard || true';
+	        git submodule foreach --recursive 'git remote update || true';
 	        git submodule update --init --recursive;
 	        echo "Reset complete!";
 	    else
