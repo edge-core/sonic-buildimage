@@ -35,6 +35,7 @@ import yaml
 import jinja2
 import netaddr
 import json
+import contextlib
 from functools import partial
 from minigraph import minigraph_encoder
 from minigraph import parse_xml
@@ -204,6 +205,45 @@ def sort_data(data):
             data[table] = OrderedDict(natsorted(data[table].items()))
     return data
 
+@contextlib.contextmanager
+def smart_open(filename=None, mode=None):
+    """
+    Provide contextual file descriptor of filename if it is not a file descriptor
+    """
+    smart_file = open(filename, mode) if not isinstance(filename, file) else filename
+    try:
+        yield smart_file
+    finally:
+        if not isinstance(filename, file):
+            smart_file.close()
+
+def _process_json(args, data):
+    """
+    Process JSON file and update switch configuration data
+    """
+    for json_file in args.json:
+        with open(json_file, 'r') as stream:
+            deep_update(data, FormatConverter.to_deserialized(json.load(stream)))
+
+def _get_jinja2_env(paths):
+    """
+    Retreive Jinj2 env used to render configuration templates
+    """
+    loader = jinja2.FileSystemLoader(paths)
+    redis_bcc = RedisBytecodeCache(SonicV2Connector(host='127.0.0.1'))
+    env = jinja2.Environment(loader=loader, trim_blocks=True, bytecode_cache=redis_bcc)
+    env.filters['sort_by_port_index'] = sort_by_port_index
+    env.filters['ipv4'] = is_ipv4
+    env.filters['ipv6'] = is_ipv6
+    env.filters['unique_name'] = unique_name
+    env.filters['pfx_filter'] = pfx_filter
+    env.filters['ip_network'] = ip_network
+    for attr in ['ip', 'network', 'prefixlen', 'netmask']:
+        env.filters[attr] = partial(prefix_attr, attr)
+    # Pass the is_multi_asic function as global
+    env.globals['multi_asic'] = is_multi_asic
+
+    return env
 
 def main():
     parser=argparse.ArgumentParser(description="Render configuration file from minigraph data and jinja2 template.")
@@ -220,14 +260,15 @@ def main():
     parser.add_argument("-H", "--platform-info", help="read platform and hardware info", action='store_true')
     parser.add_argument("-s", "--redis-unix-sock-file", help="unix sock file for redis connection")
     group = parser.add_mutually_exclusive_group()
-    group.add_argument("-t", "--template", help="render the data with the template file")
+    group.add_argument("-t", "--template", help="render the data with the template file", action="append", default=[],
+                       type=lambda opt_value: tuple(opt_value.split(',')) if ',' in opt_value else (opt_value, sys.stdout))
     parser.add_argument("-T", "--template_dir", help="search base for the template files", action='store')
     group.add_argument("-v", "--var", help="print the value of a variable, support jinja2 expression")
     group.add_argument("--var-json", help="print the value of a variable, in json format")
     group.add_argument("-w", "--write-to-db", help="write config into configdb", action='store_true')
-    group.add_argument("--print-data", help="print all data", action='store_true')
     group.add_argument("--preset", help="generate sample configuration from a preset template", choices=get_available_config())
     group = parser.add_mutually_exclusive_group()
+    group.add_argument("--print-data", help="print all data", action='store_true')
     group.add_argument("-K", "--key", help="Lookup for a specific key")
     args = parser.parse_args()
 
@@ -266,9 +307,7 @@ def main():
             sys.exit(1)
         deep_update(data, {'PORT': ports})
 
-    for json_file in args.json:
-        with open(json_file, 'r') as stream:
-            deep_update(data, FormatConverter.to_deserialized(json.load(stream)))
+    _process_json(args, data)
 
     if args.minigraph != None:
         minigraph = args.minigraph
@@ -332,28 +371,23 @@ def main():
             hardware_data['DEVICE_METADATA']['localhost'].update(asic_id=device_id)
         deep_update(data, hardware_data)
 
-    if args.template is not None:
-        template_file = os.path.abspath(args.template)
-        paths  = ['/', '/usr/share/sonic/templates', os.path.dirname(template_file)]
-        if args.template_dir is not None:
-            template_dir = os.path.abspath(args.template_dir)
-            paths.append(template_dir)
-        loader = jinja2.FileSystemLoader(paths)
+    paths = ['/', '/usr/share/sonic/templates']
+    if args.template_dir:
+        paths.append(os.path.abspath(args.template_dir))
 
-        redis_bcc = RedisBytecodeCache(SonicV2Connector(host='127.0.0.1'))
-        env = jinja2.Environment(loader=loader, trim_blocks=True, bytecode_cache=redis_bcc)
-        env.filters['sort_by_port_index'] = sort_by_port_index
-        env.filters['ipv4'] = is_ipv4
-        env.filters['ipv6'] = is_ipv6
-        env.filters['unique_name'] = unique_name
-        env.filters['pfx_filter'] = pfx_filter
-        env.filters['ip_network'] = ip_network
-        for attr in ['ip', 'network', 'prefixlen', 'netmask']:
-            env.filters[attr] = partial(prefix_attr, attr)
-        # Pass the is_multi_asic function as global
-        env.globals['multi_asic'] = is_multi_asic
-        template = env.get_template(template_file)
-        print(template.render(sort_data(data)))
+    if args.template:
+        for template_file, _ in args.template:
+            paths.append(os.path.dirname(os.path.abspath(template_file)))
+        env = _get_jinja2_env(paths)
+        sorted_data = sort_data(data)
+        for template_file, dest_file in args.template:
+            template = env.get_template(os.path.basename(template_file))
+            template_data = template.render(sorted_data)
+            if dest_file == "config-db":
+                deep_update(data, FormatConverter.to_deserialized(json.loads(template_data)))
+            else:
+                with smart_open(dest_file, 'w') as df:
+                    print(template_data, file=df)
 
     if args.var != None:
         template = jinja2.Template('{{' + args.var + '}}')
