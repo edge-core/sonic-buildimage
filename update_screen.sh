@@ -28,7 +28,9 @@ done
 
 function remove_target {
 # Check if TERM is available
-[[ "${TERM}" == "dumb" ]] && echo "[ finished ] [ $1 ] " && return
+local status="finished"
+[[ ! -z "${2}" ]] &&  status="cached"
+[[ "${TERM}" == "dumb" ]] && echo "[ ${status} ] [ $1 ] " && return
 
 old_list=$(cat ${target_list_file})
 rm ${target_list_file}
@@ -52,6 +54,17 @@ sleep 2 && print_targets  && rm -f .screen &
 exit 0
 }
 
+# $3 takes the DPKG caching argument, if the target is loaded from cache,
+# it adds the log as 'cached' else it is logged as 'finished'
+#
+# Without DPKG cache support :
+#   [ building ] [ target/docker-base.gz ]
+#   [ finished ] [ target/docker-base.gz ]
+#
+# With DPKG cache support :
+#   [ building ] [ target/docker-base.gz ]
+#   [ cached   ] [ target/docker-base.gz ]
+
 while getopts ":a:d:e:" opt; do
     case $opt in
         a)
@@ -61,12 +74,12 @@ while getopts ":a:d:e:" opt; do
             ;;
         d)
             scroll_up
-            remove_target ${OPTARG}
+            remove_target ${OPTARG} $3
             print_targets
             ;;
         e)
             scroll_up
-            remove_target ${OPTARG}
+            remove_target ${OPTARG} $3
             echo "[ FAIL LOG START ] [ ${OPTARG} ]"
             cat ${OPTARG}.log
             echo "[  FAIL LOG END  ] [ ${OPTARG} ]"

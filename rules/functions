@@ -64,12 +64,12 @@ define HEADER
 @
 $(PRINT_DEPENDENCIES)
 $(FLUSH_LOG)
-./update_screen.sh -a $@
+./update_screen.sh -a $@ $*
 endef
 
 # footer for each rule
 define FOOTER
-./update_screen.sh -d $@
+./update_screen.sh -d $@ $($*_CACHE_LOADED)
 endef
 
 ###############################################################################
