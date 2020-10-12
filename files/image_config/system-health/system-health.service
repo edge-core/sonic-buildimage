@@ -1,0 +1,11 @@
+[Unit]
+Description=SONiC system health monitor
+Requires=database.service updategraph.service
+After=database.service updategraph.service
+
+[Service]
+ExecStart=/usr/local/bin/healthd
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

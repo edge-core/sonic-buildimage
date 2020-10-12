@@ -172,6 +172,12 @@ sudo cp {{platform_common_py2_wheel_path}} $FILESYSTEM_ROOT/$PLATFORM_COMMON_PY2
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install $PLATFORM_COMMON_PY2_WHEEL_NAME
 sudo rm -rf $FILESYSTEM_ROOT/$PLATFORM_COMMON_PY2_WHEEL_NAME
 
+# Install system-health Python 2 package
+SYSTEM_HEALTH_PY2_WHEEL_NAME=$(basename {{system_health_py2_wheel_path}})
+sudo cp {{system_health_py2_wheel_path}} $FILESYSTEM_ROOT/$SYSTEM_HEALTH_PY2_WHEEL_NAME
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install $SYSTEM_HEALTH_PY2_WHEEL_NAME
+sudo rm -rf $FILESYSTEM_ROOT/$SYSTEM_HEALTH_PY2_WHEEL_NAME
+
 # Install sonic-platform-common Python 3 package
 PLATFORM_COMMON_PY3_WHEEL_NAME=$(basename {{platform_common_py3_wheel_path}})
 sudo cp {{platform_common_py3_wheel_path}} $FILESYSTEM_ROOT/$PLATFORM_COMMON_PY3_WHEEL_NAME
@@ -282,6 +288,10 @@ echo "rsyslog-config.service" | sudo tee -a $GENERATED_SERVICE_FILE
 sudo mkdir -p $FILESYSTEM_ROOT/etc/systemd/system/syslog.socket.d
 sudo cp $IMAGE_CONFIGS/syslog/override.conf $FILESYSTEM_ROOT/etc/systemd/system/syslog.socket.d/override.conf
 sudo cp $IMAGE_CONFIGS/syslog/host_umount.sh $FILESYSTEM_ROOT/usr/bin/
+
+# Copy system-health files
+sudo LANG=C cp $IMAGE_CONFIGS/system-health/system-health.service $FILESYSTEM_ROOT_USR_LIB_SYSTEMD_SYSTEM
+echo "system-health.service" | sudo tee -a $GENERATED_SERVICE_FILE
 
 # Copy logrotate.d configuration files
 sudo cp -f $IMAGE_CONFIGS/logrotate/logrotate.d/* $FILESYSTEM_ROOT/etc/logrotate.d/
