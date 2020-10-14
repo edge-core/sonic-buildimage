@@ -1,6 +1,10 @@
-from unittest import TestCase
-import subprocess
 import os
+import subprocess
+
+import tests.common_utils as utils
+
+from unittest import TestCase
+
 
 class TestCfgGenT2ChassisFe(TestCase):
 
@@ -34,24 +38,31 @@ class TestCfgGenT2ChassisFe(TestCase):
     def test_minigraph_t2_chassis_fe_interfaces(self):
         argument = '-m "' + self.sample_graph_t2_chassis_fe + '" -p "' + self.t2_chassis_fe_port_config + '" -v "INTERFACE"'
         output = self.run_script(argument)
-        self.assertEqual(output.strip(),
-                         "{'Ethernet8': {}, "
-                         "('Ethernet8', '172.16.0.9/30'): {}, "
-                         "'Ethernet0': {'vnet_name': 'VnetFE'}, "
-                         "('Ethernet4', '172.16.0.1/30'): {}, "
-                         "('Ethernet0', '192.168.0.2/30'): {}, "
-                         "'Ethernet4': {}}")
-
+        self.assertEqual(
+            utils.to_dict(output.strip()),
+            utils.to_dict(
+                "{'Ethernet8': {}, "
+                "('Ethernet8', '172.16.0.9/30'): {}, "
+                "'Ethernet0': {'vnet_name': 'VnetFE'}, "
+                "('Ethernet4', '172.16.0.1/30'): {}, "
+                "('Ethernet0', '192.168.0.2/30'): {}, "
+                "'Ethernet4': {}}"
+            )
+        )
     def test_minigraph_t2_chassis_fe_pc_interfaces(self):
         argument = '-m "' + self.sample_graph_t2_chassis_fe_pc + '" -p "' + self.t2_chassis_fe_port_config + '" -v "PORTCHANNEL_INTERFACE"'
         output = self.run_script(argument)
-        self.assertEqual(output.strip(),
-                         "{'PortChannel8': {}, "
-                         "('PortChannel0', '192.168.0.2/30'): {}, "
-                         "('PortChannel4', '172.16.0.1/30'): {}, "
-                         "'PortChannel4': {}, "
-                         "('PortChannel8', '172.16.0.9/30'): {}, "
-                         "'PortChannel0': {'vnet_name': 'VnetFE'}}")
+        self.assertEqual(
+            utils.to_dict(output.strip()),
+            utils.to_dict(
+                "{'PortChannel8': {}, "
+                "('PortChannel0', '192.168.0.2/30'): {}, "
+                "('PortChannel4', '172.16.0.1/30'): {}, "
+                "'PortChannel4': {}, "
+                "('PortChannel8', '172.16.0.9/30'): {}, "
+                "'PortChannel0': {'vnet_name': 'VnetFE'}}"
+            )
+        )
 
     # Test a minigraph file where VNI is not specified
     # Default VNI is 8000
