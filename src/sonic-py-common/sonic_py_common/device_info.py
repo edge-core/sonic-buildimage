@@ -3,9 +3,11 @@ import os
 import re
 import subprocess
 
-import yaml
-from natsort import natsorted
+# Move the yaml module import to the function where we use it. With python2.7 there
+# is a huge chunk of memory allocated in the process context with this module import.
+#import yaml
 
+from natsort import natsorted
 # TODD: Replace with swsscommon
 from swsssdk import ConfigDBConnector, SonicDBConfig
 
@@ -203,6 +205,7 @@ def get_path_to_port_config_file():
 
 
 def get_sonic_version_info():
+    import yaml
     if not os.path.isfile(SONIC_VERSION_YAML_PATH):
         return None
 
