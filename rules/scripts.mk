@@ -20,8 +20,8 @@ $(SUPERVISOR_PROC_EXIT_LISTENER_SCRIPT)_PATH = files/scripts
 SYSCTL_NET_CONFIG = sysctl-net.conf
 $(SYSCTL_NET_CONFIG)_PATH = files/image_config/sysctl
 
-RM_CHASSISDB_CONFIG_SCRIPT = remove_chassisdb_config
-$(RM_CHASSISDB_CONFIG_SCRIPT)_PATH = files/scripts
+UPDATE_CHASSISDB_CONFIG_SCRIPT = update_chassisdb_config
+$(UPDATE_CHASSISDB_CONFIG_SCRIPT)_PATH = files/scripts
 
 SONIC_COPY_FILES += $(CONFIGDB_LOAD_SCRIPT) \
                     $(ARP_UPDATE_SCRIPT) \
@@ -30,4 +30,4 @@ SONIC_COPY_FILES += $(CONFIGDB_LOAD_SCRIPT) \
                     $(QOS_CONFIG_TEMPLATE) \
                     $(SUPERVISOR_PROC_EXIT_LISTENER_SCRIPT) \
                     $(SYSCTL_NET_CONFIG) \
-                    $(RM_CHASSISDB_CONFIG_SCRIPT)
+                    $(UPDATE_CHASSISDB_CONFIG_SCRIPT)

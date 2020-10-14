@@ -73,7 +73,7 @@
             "separator": "|",
             "instance" : "redis"
         },
-        "CHASSIS_DB" : {
+        "CHASSIS_APP_DB" : {
             "id" : 11,
             "separator": "|",
             "instance" : "redis_chassis"

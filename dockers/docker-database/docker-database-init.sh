@@ -19,6 +19,7 @@ fi
 
 REDIS_DIR=/var/run/redis$NAMESPACE_ID
 mkdir -p $REDIS_DIR/sonic-db
+mkdir -p /etc/supervisor/conf.d/
 
 if [ -f /etc/sonic/database_config$NAMESPACE_ID.json ]; then
     cp /etc/sonic/database_config$NAMESPACE_ID.json $REDIS_DIR/sonic-db/database_config.json
@@ -26,7 +27,37 @@ else
     HOST_IP=$host_ip j2 /usr/share/sonic/templates/database_config.json.j2 > $REDIS_DIR/sonic-db/database_config.json
 fi
 
-mkdir -p /etc/supervisor/conf.d/
+# on VoQ system, we only publish redis_chassis instance and CHASSIS_APP_DB when
+# either chassisdb.conf indicates starts chassis_db or connect to chassis_db,
+# and redis_chassis instance is started in different container.
+# in order to do that, first we save original database config file, then
+# call update_chasissdb_config to remove chassis_db config from
+# the original database config file and use the modified config file to generate
+# supervisord config, so that we won't start redis_chassis service.
+# then we will decide to publish modified or original database config file based
+# on the setting in chassisdb.conf
+start_chassis_db=0
+chassis_db_address=""
+chassis_db_port=""
+chassisdb_config="/etc/sonic/chassisdb.conf"
+[ -f $chassisdb_config ] && source $chassisdb_config
+
+db_cfg_file="/var/run/redis/sonic-db/database_config.json"
+db_cfg_file_tmp="/var/run/redis/sonic-db/database_config.json.tmp"
+cp $db_cfg_file $db_cfg_file_tmp
+
+if [[ $DATABASE_TYPE == "chassisdb" ]]; then
+    # Docker init for database-chassis
+    echo "Init docker-database-chassis..."
+    update_chassisdb_config -j $db_cfg_file_tmp -k -p $chassis_db_port
+    mkdir -p /var/run/redis/sonic-db
+    cp /etc/default/sonic-db/database_config.json /var/run/redis/sonic-db
+    # generate all redis server supervisord configuration file
+    sonic-cfggen -j $db_cfg_file_tmp -t /usr/share/sonic/templates/supervisord.conf.j2 > /etc/supervisor/conf.d/supervisord.conf
+    rm $db_cfg_file_tmp
+    exec /usr/bin/supervisord
+    exit 0
+fi
 
 # copy/generate the database_global.json file if this is global database service in multi asic platform.
 if [[ $NAMESPACE_ID == "" ]] && [[ $NAMESPACE_COUNT -gt 1 ]]
@@ -37,8 +68,15 @@ then
         j2 /usr/share/sonic/templates/database_global.json.j2 > $REDIS_DIR/sonic-db/database_global.json
     fi
 fi
+# delete chassisdb config to generate supervisord config
+update_chassisdb_config -j $db_cfg_file_tmp -d
+sonic-cfggen -j $db_cfg_file_tmp -t /usr/share/sonic/templates/supervisord.conf.j2 > /etc/supervisor/conf.d/supervisord.conf
 
-# generate all redis server supervisord configuration file
-sonic-cfggen -j /var/run/redis/sonic-db/database_config.json -t /usr/share/sonic/templates/supervisord.conf.j2 > /etc/supervisor/conf.d/supervisord.conf
+if [[ "$start_chassis_db" != "1" ]] && [[ -z "$chassis_db_address" ]]; then
+     cp $db_cfg_file_tmp $db_cfg_file
+else
+     update_chassisdb_config -j $db_cfg_file -p $chassis_db_port
+fi
+rm $db_cfg_file_tmp
 
 exec /usr/bin/supervisord

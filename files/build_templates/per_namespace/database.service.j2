@@ -4,6 +4,8 @@ Description=Database container
 Requires=database.service
 After=database.service
 {% endif %}
+Wants=database-chassis.service
+After=database-chassis.service
 Requires=docker.service
 After=docker.service
 After=rc-local.service

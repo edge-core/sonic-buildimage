@@ -134,7 +134,7 @@ RUN sed -ri 's/^(save .*$)/# \1/g;                                              
             ' /etc/redis/redis.conf
 
 COPY ["50-default.conf", "/etc/rsyslog.d/"]
-COPY ["start.sh", "orchagent.sh", "files/remove_chassisdb_config", "/usr/bin/"]
+COPY ["start.sh", "orchagent.sh", "files/update_chassisdb_config", "/usr/bin/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 COPY ["files/configdb-load.sh", "/usr/bin/"]
 COPY ["files/arp_update", "/usr/bin/"]

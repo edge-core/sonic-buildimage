@@ -12,7 +12,7 @@ link_namespace() {
     # /var/run/netns so it can be managed with iproute2
 
     mkdir -p /var/run/netns
-    PID="$(docker inspect -f {{"'{{.State.Pid}}'"}} "{{docker_container_name}}$DEV")"
+    PID="$(docker inspect -f {{"'{{.State.Pid}}'"}} "${DOCKERNAME}")"
 
     PIDS=`ip netns pids "$NET_NS" 2>/dev/null`
     if [ "$?" -eq "0" ]; then # namespace exists
@@ -34,11 +34,11 @@ function updateSyslogConf()
     # Also update the container name  
     if [[ ($NUM_ASIC -gt 1) ]]; then
         TARGET_IP=$(docker network inspect bridge --format={{ "'{{(index .IPAM.Config 0).Gateway}}'" }})
-        CONTAINER_NAME="{{docker_container_name}}$DEV"
+        CONTAINER_NAME="$DOCKERNAME"
         TMP_FILE="/tmp/rsyslog.$CONTAINER_NAME.conf"
 
         sonic-cfggen -t /usr/share/sonic/templates/rsyslog-container.conf.j2 -a "{\"target_ip\": \"$TARGET_IP\", \"container_name\": \"$CONTAINER_NAME\" }"  > $TMP_FILE
-        docker cp $TMP_FILE {{docker_container_name}}$DEV:/etc/rsyslog.conf
+        docker cp $TMP_FILE ${DOCKERNAME}:/etc/rsyslog.conf
         rm -rf $TMP_FILE
     fi
 }
@@ -71,13 +71,15 @@ function preStartAction()
 {
 {%- if docker_container_name == "database" %}
     WARM_DIR=/host/warmboot
-    if [[ ("$BOOT_TYPE" == "warm" || "$BOOT_TYPE" == "fastfast")  && -f $WARM_DIR/dump.rdb ]]; then
-        # Load redis content from /host/warmboot/dump.rdb
-        docker cp $WARM_DIR/dump.rdb database$DEV:/var/lib/redis/dump.rdb
-    else
-        # Create an emtpy file and overwrite any RDB if already there
-        echo -n > /tmp/dump.rdb
-        docker cp /tmp/dump.rdb database$DEV:/var/lib/redis/
+    if [ "$DATABASE_TYPE" != "chassisdb" ]; then
+        if [[ ("$BOOT_TYPE" == "warm" || "$BOOT_TYPE" == "fastfast")  && -f $WARM_DIR/dump.rdb ]]; then
+            # Load redis content from /host/warmboot/dump.rdb
+            docker cp $WARM_DIR/dump.rdb database$DEV:/var/lib/redis/dump.rdb
+        else
+            # Create an emtpy file and overwrite any RDB if already there
+            echo -n > /tmp/dump.rdb
+            docker cp /tmp/dump.rdb database$DEV:/var/lib/redis/
+        fi
     fi
 {%- elif docker_container_name == "snmp" %}
     $SONIC_DB_CLI STATE_DB HSET 'DEVICE_METADATA|localhost' chassis_serial_number $(decode-syseeprom -s)
@@ -99,44 +101,51 @@ function postStartAction()
         link_namespace $DEV
     fi
 
-    # Wait until supervisord and redis starts. This change is needed
-    # because now database_config.json is jinja2 templated based
-    # and by the time file gets generated if we do redis ping
-    # then we catch python exception of file not valid
-    # that comes to syslog which is unwanted so wait till database
-    # config is ready and then ping
-    until [[ ($(docker exec -i database$DEV pgrep -x -c supervisord) -gt 0) && ($($SONIC_DB_CLI PING | grep -c PONG) -gt 0) ]]; do
-      sleep 1;
-    done
+    # chassisdb starts before database starts, bypass the PING check since other
+    # databases are not availbale until database container is ready.
+    # also chassisdb doesn't support warm/fast reboot, its dump.rdb is deleted
+    # at service startup time, nothing need to be done here.
+    if [ "$DATABASE_TYPE" != "chassisdb" ]; then
+        # Wait until supervisord and redis starts. This change is needed
+        # because now database_config.json is jinja2 templated based
+        # and by the time file gets generated if we do redis ping
+        # then we catch python exception of file not valid
+        # that comes to syslog which is unwanted so wait till database
+        # config is ready and then ping
+        until [[ ($(docker exec -i database$DEV pgrep -x -c supervisord) -gt 0) && ($($SONIC_DB_CLI PING | grep -c PONG) -gt 0) ]]; do
+          sleep 1;
+        done
+        if [[ ("$BOOT_TYPE" == "warm" || "$BOOT_TYPE" == "fastfast") && -f $WARM_DIR/dump.rdb ]]; then
+            rm -f $WARM_DIR/dump.rdb
+        else
+            # If there is a config_db.json dump file, load it.
+            if [ -r /etc/sonic/config_db$DEV.json ]; then
+                if [ -r /etc/sonic/init_cfg.json ]; then
+                    $SONIC_CFGGEN -j /etc/sonic/init_cfg.json -j /etc/sonic/config_db$DEV.json --write-to-db
+                else
+                    $SONIC_CFGGEN -j /etc/sonic/config_db$DEV.json --write-to-db
+                fi
+            fi
 
-    if [[ ("$BOOT_TYPE" == "warm" || "$BOOT_TYPE" == "fastfast") && -f $WARM_DIR/dump.rdb ]]; then
-        rm -f $WARM_DIR/dump.rdb
-    else
-        # If there is a config_db.json dump file, load it.
-        if [ -r /etc/sonic/config_db$DEV.json ]; then
-            if [ -r /etc/sonic/init_cfg.json ]; then
-                $SONIC_CFGGEN -j /etc/sonic/init_cfg.json -j /etc/sonic/config_db$DEV.json --write-to-db
-            else
-                $SONIC_CFGGEN -j /etc/sonic/config_db$DEV.json --write-to-db
+            if [[ "$BOOT_TYPE" == "fast" ]]; then
+                # set the key to expire in 3 minutes
+                $SONIC_DB_CLI STATE_DB SET "FAST_REBOOT|system" "1" "EX" "180"
+            fi
+
+            $SONIC_DB_CLI CONFIG_DB SET "CONFIG_DB_INITIALIZED" "1"
+        fi
+
+        if [[ -x /usr/local/bin/db_migrator.py ]]; then
+            # Migrate the DB to the latest schema version if needed
+            if [ -z "$DEV" ]; then
+                /usr/bin/db_migrator.py -o migrate
             fi
         fi
-
-        if [[ "$BOOT_TYPE" == "fast" ]]; then
-            # set the key to expire in 3 minutes
-            $SONIC_DB_CLI STATE_DB SET "FAST_REBOOT|system" "1" "EX" "180"
-        fi
-
-        $SONIC_DB_CLI CONFIG_DB SET "CONFIG_DB_INITIALIZED" "1"
+        # Add redis UDS to the redis group and give read/write access to the group
+        REDIS_SOCK="/var/run/redis${DEV}/redis.sock"
+    else
+        REDIS_SOCK="/var/run/redis-chassis/redis_chassis.sock"
     fi
-
-    if [[ -x /usr/local/bin/db_migrator.py ]]; then
-        # Migrate the DB to the latest schema version if needed
-        if [ -z "$DEV" ]; then
-            /usr/local/bin/db_migrator.py -o migrate
-        fi
-    fi
-    # Add redis UDS to the redis group and give read/write access to the group
-    REDIS_SOCK="/var/run/redis${DEV}/redis.sock"
     chgrp -f redis $REDIS_SOCK && chmod -f 0760 $REDIS_SOCK
 {%- elif docker_container_name == "swss" %}
     docker exec swss$DEV rm -f /ready   # remove cruft
@@ -170,6 +179,7 @@ start() {
     # Obtain our platform as we will mount directories with these names in each docker
     PLATFORM=${PLATFORM:-`$SONIC_CFGGEN -H -v DEVICE_METADATA.localhost.platform`}
 
+
     # Parse the device specific asic conf file, if it exists
     ASIC_CONF=/usr/share/sonic/device/$PLATFORM/asic.conf
     if [ -f "$ASIC_CONF" ]; then
@@ -183,8 +193,7 @@ start() {
     # Obtain our HWSKU as we will mount directories with these names in each docker
     HWSKU=${HWSKU:-`$SONIC_CFGGEN -d -v 'DEVICE_METADATA["localhost"]["hwsku"]'`}
     {%- endif %}
-
-    DOCKERCHECK=`docker inspect --type container {{docker_container_name}}$DEV 2>/dev/null`
+    DOCKERCHECK=`docker inspect --type container ${DOCKERNAME} 2>/dev/null`
     if [ "$?" -eq "0" ]; then
         {%- if docker_container_name == "database" %}
         DOCKERMOUNT=""
@@ -193,37 +202,40 @@ start() {
         {%- endif %}
         if [ x"$DOCKERMOUNT" == x"$HWSKU" ]; then
             {%- if docker_container_name == "database" %}
-            echo "Starting existing {{docker_container_name}}$DEV container"
+            echo "Starting existing ${DOCKERNAME} container"
             {%- else %}
-            echo "Starting existing {{docker_container_name}}$DEV container with HWSKU $HWSKU"
+            echo "Starting existing ${DOCKERNAME} container with HWSKU $HWSKU"
             {%- endif %}
             preStartAction
-            docker start {{docker_container_name}}$DEV
+            docker start ${DOCKERNAME}
             postStartAction
             exit $?
         fi
 
         # docker created with a different HWSKU, remove and recreate
-        echo "Removing obsolete {{docker_container_name}}$DEV container with HWSKU $DOCKERMOUNT"
-        docker rm -f {{docker_container_name}}$DEV
+        echo "Removing obsolete ${DOCKERNAME} container with HWSKU $DOCKERMOUNT"
+        docker rm -f ${DOCKERNAME}
     fi
 
     {%- if docker_container_name == "database" %}
-    echo "Creating new {{docker_container_name}}$DEV container"
-    if [ -z "$DEV" ]; then
-        # if database_global exists in old_config, use it; otherwise use the default one in new image
-        if [ -f /etc/sonic/old_config/database_global.json ]; then
-            echo "Use database_global.json from old system..."
-            mv /etc/sonic/old_config/database_global.json /etc/sonic/
+
+    echo "Creating new ${DOCKERNAME} container"
+    if [ "$DATABASE_TYPE" != "chassisdb" ]; then
+        if [ -z "$DEV" ]; then
+            # if database_global exists in old_config, use it; otherwise use the default one in new image
+            if [ -f /etc/sonic/old_config/database_global.json ]; then
+                echo "Use database_global.json from old system..."
+                mv /etc/sonic/old_config/database_global.json /etc/sonic/
+            fi
+        fi
+        # if database_config exists in old_config, use it; otherwise use the default one in new image
+        if [ -f /etc/sonic/old_config/database_config$DEV.json ]; then
+            echo "Use database_config.json from old system..."
+            mv /etc/sonic/old_config/database_config$DEV.json /etc/sonic/
         fi
     fi
-    # if database_config exists in old_config, use it; otherwise use the default one in new image
-    if [ -f /etc/sonic/old_config/database_config$DEV.json ]; then
-        echo "Use database_config.json from old system..."
-        mv /etc/sonic/old_config/database_config$DEV.json /etc/sonic/
-    fi
     {%- else %}
-    echo "Creating new {{docker_container_name}}$DEV container with HWSKU $HWSKU"
+    echo "Creating new ${DOCKERNAME} container with HWSKU $HWSKU"
     {%- endif %}
 
     # In Multi ASIC platforms the global database config file database_global.json will exist.
@@ -237,6 +249,19 @@ start() {
                         print(\" \".join([os.path.normpath(global_db_dir+'/'+elem['include']).partition('sonic-db')[0]\
                         for elem in data['INCLUDES'] if 'namespace' in elem])); f.close()" $SONIC_DB_GLOBAL_JSON`
     fi
+
+    {%- if docker_container_name == "database" %}
+    start_chassis_db=0
+    chassis_db_address=""
+    chassisdb_config="/etc/sonic/chassisdb.conf"
+    [ -f $chassisdb_config ] && source $chassisdb_config
+    DB_OPT=" -v /var/run/redis-chassis:/var/run/redis-chassis:ro "
+    if [[ "$start_chassis_db" != "1" ]] && [[ -z "$chassis_db_address" ]]; then
+        DB_OPT=""
+    else
+        DB_OPT=$DB_OPT" --add-host=redis_chassis.server:$chassis_db_address "
+    fi
+    {%- endif %}
 
     if [ -z "$DEV" ]; then
         NET="host"
@@ -256,6 +281,14 @@ start() {
                 REDIS_MNT=$REDIS_MNT" -v $redis_dir:$redis_dir:rw "
             done
         fi
+        {%- else %}
+        if [ "$DATABASE_TYPE" == "chassisdb" ]; then
+            DB_OPT=${DB_OPT/redis-chassis:ro/redis-chassis:rw}
+            DB_OPT=$DB_OPT"  -v /var/run/redis-chassis:/var/run/redis:rw "
+            DB_OPT=$DB_OPT" --env DATABASE_TYPE=$DATABASE_TYPE"
+        else
+            DB_OPT=$DB_OPT" -v /var/run/redis$DEV:/var/run/redis:rw "
+        fi
         {%- endif %}
     else
         # This part of code is applicable for Multi-ASIC platforms. Here we mount the namespace specific
@@ -269,9 +302,10 @@ start() {
         fi
 
         {%- if docker_container_name == "database" %}
-        NET="bridge"
+        DB_OPT=$DB_OPT" -v /var/run/redis$DEV:/var/run/redis:rw "
         {%- else %}
         NET="container:database$DEV"
+        DB_OPT=""
         {%- endif %}
     fi
 {%- if docker_container_name == "bgp" %}
@@ -319,12 +353,15 @@ start() {
 {%- if docker_container_name == "bgp" %}
         -v /etc/sonic/frr/$DEV:/etc/frr:rw \
 {%- endif %}
+{%- if docker_container_name == "database" %}
+        $DB_OPT \
+{%- else %}
         -v /var/run/redis$DEV:/var/run/redis:rw \
-        $REDIS_MNT \
-        -v /usr/share/sonic/device/$PLATFORM:/usr/share/sonic/platform:ro \
-{%- if docker_container_name != "database" %}
+        -v /var/run/redis-chassis:/var/run/redis-chassis:ro \
         -v /usr/share/sonic/device/$PLATFORM/$HWSKU/$DEV:/usr/share/sonic/hwsku:ro \
 {%- endif %}
+        $REDIS_MNT \
+        -v /usr/share/sonic/device/$PLATFORM:/usr/share/sonic/platform:ro \
 {%- if sonic_asic_platform != "mellanox" %}
         --tmpfs /tmp \
 {%- endif %}
@@ -332,22 +369,22 @@ start() {
         --env "NAMESPACE_ID"="$DEV" \
         --env "NAMESPACE_PREFIX"="$NAMESPACE_PREFIX" \
         --env "NAMESPACE_COUNT"=$NUM_ASIC \
-        --name={{docker_container_name}}$DEV {{docker_image_name}}:latest || {
+        --name=$DOCKERNAME {{docker_image_name}}:latest || {
             echo "Failed to docker run" >&1
             exit 4
     }
 
     preStartAction
-    docker start {{docker_container_name}}$DEV
+    docker start $DOCKERNAME
     postStartAction
 }
 
 wait() {
-    docker wait {{docker_container_name}}$DEV
+    docker wait $DOCKERNAME
 }
 
 stop() {
-    docker stop {{docker_container_name}}$DEV
+    docker stop $DOCKERNAME
 {%- if docker_container_name == "database" %}
     if [ "$DEV" ]; then
         ip netns delete "$NET_NS"
@@ -355,9 +392,18 @@ stop() {
 {%- endif %}
 }
 
+DOCKERNAME={{docker_container_name}}
 OP=$1
 DEV=$2 # namespace/device number to operate on
+{%- if docker_container_name == "database" %}
+if [ "$DEV" == "chassisdb" ]; then
+      DATABASE_TYPE="chassisdb"
+      DOCKERNAME=$DOCKERNAME"-chassis"
+      unset DEV
+fi
+{%- endif %}
 NAMESPACE_PREFIX="asic"
+DOCKERNAME=$DOCKERNAME$DEV
 if [ "$DEV" ]; then
     NET_NS="$NAMESPACE_PREFIX$DEV" #name of the network namespace
 
