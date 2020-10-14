@@ -1,7 +1,7 @@
 from setuptools import setup
 
 dependencies = [
-    'natsort',
+    'natsort==6.2.1', # 6.2.1 is the last version which supports Python 2
     'pyyaml',
     'swsssdk>=2.0.1',
 ]
@@ -28,7 +28,8 @@ setup(
         'sonic_py_common',
     ],
     setup_requires= [
-        'pytest-runner'
+        'pytest-runner',
+        'wheel'
     ],
     tests_require=[
         'pytest',

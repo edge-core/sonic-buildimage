@@ -40,12 +40,18 @@ RUN apt-get install -y net-tools \
                        iproute \
                        libpython2.7 \
                        grub2-common \
-                       python-click \
-                       python-natsort \
-                       python-tabulate \
                        bash-completion \
                        libelf1 \
-                       libmnl0
+                       libmnl0 \
+                       # For installing Python m2crypto package
+                       # (these can be uninstalled after installation)
+                       build-essential \
+                       python-dev \
+                       python3-dev \
+                       libssl-dev \
+                       swig \
+                       # For using Python m2crypto package
+                       openssl
 
 RUN pip install setuptools
 RUN pip install py2_ipaddress
@@ -62,6 +68,8 @@ debs/{{ deb }}{{' '}}
 {%- endfor %}
 
 ## Clean up
+RUN apt-get purge -y build-essential libssl-dev swig
+RUN apt-get purge -y python-dev python3-dev
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /debs
 

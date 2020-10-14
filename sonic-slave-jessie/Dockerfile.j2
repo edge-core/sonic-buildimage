@@ -246,16 +246,6 @@ RUN apt-get update && apt-get install -y \
         lynx \
         texlive-latex-extra \
         texlive-latex-recommended \
-# For python-click build
-        python-sphinx \
-        python-docutils \
-        python3-all \
-        python3-setuptools \
-        python3-sphinx \
-        python3-docutils \
-        python3-requests \
-        python3-pytest \
-        python3-colorama \
 # For bash
         texi2html \
 # For initramfs
@@ -309,9 +299,6 @@ RUN pip install --force-reinstall --upgrade "jinja2>=2.10"
 
 # For templating (requiring jinja2)
 RUN pip install j2cli==0.3.10
-
-# For sonic utilities testing
-RUN pip install click natsort tabulate netifaces==0.10.7 fastentrypoints
 
 # For supervisor build
 RUN pip install meld3 mock

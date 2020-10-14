@@ -270,17 +270,6 @@ RUN apt-get update && apt-get install -y \
         texlive-latex-extra \
         texlive-latex-recommended \
         iproute2 \
-# For python-click build
-        python-sphinx \
-        python3-pallets-sphinx-themes \
-        python-docutils \
-        python3-all \
-        python3-setuptools \
-        python3-sphinx \
-        python3-docutils \
-        python3-requests \
-        python3-pytest \
-        python3-colorama \
 # For bash
         texi2html \
 # For initramfs
@@ -349,6 +338,10 @@ RUN export VERSION=1.14.2 \
 RUN pip install setuptools==40.8.0
 RUN pip3 install setuptools==49.6.00
 
+# For building sonic-utilities
+RUN pip install fastentrypoints
+RUN pip3 install fastentrypoints
+
 # For running Python unit tests
 RUN pip install pytest-runner==4.4
 RUN pip3 install pytest-runner==5.2
@@ -374,11 +367,6 @@ RUN pip3 uninstall -y enum34
 
 # For templating
 RUN pip install j2cli==0.3.10
-
-# Remove python-click 6.6
-RUN apt-get purge -y python-click
-# For sonic utilities testing
-RUN pip install click natsort tabulate netifaces==0.10.7 fastentrypoints
 
 RUN pip3 install "PyYAML>=5.1"
 

@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
 
 # Dependencies for sonic-cfggen
-RUN apt-get install -y python-lxml python-yaml python-bitarray python-pip python-dev python-natsort
+RUN apt-get install -y python-lxml python-yaml python-bitarray python-pip python-dev
 
 RUN pip install --upgrade pip
 
