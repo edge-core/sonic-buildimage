@@ -8,9 +8,10 @@
 #
 #############################################################################
 
+from __future__ import division
+
 try:
-    import sys 
-    from __future__ import division
+    import sys
     from sonic_platform_base.chassis_base import ChassisBase
     from sonic_platform.sfp import Sfp
     from sonic_platform.eeprom import Eeprom
@@ -46,7 +47,7 @@ class Chassis(ChassisBase):
         self.PORT_START = 1
         self.PORT_END = 34 
         self.PORTS_IN_BLOCK = (self.PORT_END + 1)
-        _sfp_port = range(33, self.PORT_END + 1)
+        _sfp_port = list(range(33, self.PORT_END + 1))
         eeprom_base = "/sys/class/i2c-adapter/i2c-{0}/{0}-0050/eeprom"
 
         for index in range(self.PORT_START, self.PORTS_IN_BLOCK):
@@ -112,7 +113,7 @@ class Chassis(ChassisBase):
                 if elapsed_time_ms > timeout:
                     break
 
-            time.sleep(sleep_time)
+            sleep(sleep_time)
         return True, change_dict 
 
     def get_sfp(self, index):
@@ -187,14 +188,6 @@ class Chassis(ChassisBase):
             'XX:XX:XX:XX:XX:XX'
         """
         return self._eeprom.base_mac_addr('')
-
-    def get_serial_number(self):
-        """
-        Retrieves the hardware serial number for the chassis
-        Returns:
-            A string containing the hardware serial number for this chassis.
-        """
-        return self._eeprom.serial_number_str()
 
     def get_system_eeprom_info(self):
         """

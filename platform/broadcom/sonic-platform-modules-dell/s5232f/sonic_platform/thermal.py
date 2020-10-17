@@ -94,7 +94,7 @@ class Thermal(ThermalBase):
         if not is_valid:
             temperature = 0
 
-        return "{:.3f}".format(temperature)
+        return float(temperature)
 
     def get_high_threshold(self):
         """
@@ -109,7 +109,7 @@ class Thermal(ThermalBase):
         if not is_valid:
             high_threshold = 0
 
-        return "{:.3f}".format(high_threshold)
+        return float(high_threshold)
 
     def get_low_threshold(self):
         """
@@ -124,7 +124,7 @@ class Thermal(ThermalBase):
         if not is_valid:
             low_threshold = 0
 
-        return "{:.3f}".format(low_threshold)
+        return float(low_threshold)
 
     def set_high_threshold(self, temperature):
         """

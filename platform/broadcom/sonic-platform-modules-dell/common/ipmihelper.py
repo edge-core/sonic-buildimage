@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#!/usr/bin/python3
 
 ########################################################################
 # DellEMC
@@ -53,7 +53,7 @@ class IpmiSensor(object):
             stdout = proc.communicate()[0]
             proc.wait()
             if not proc.returncode:
-                result = stdout.rstrip('\n')
+                result = stdout.decode('utf-8').rstrip('\n')
         except:
             pass
 
@@ -144,10 +144,10 @@ class IpmiSensor(object):
         if self.is_discrete:
             raise TypeError("Threshold is not applicable for Discrete Sensor")
 
-        if threshold_type not in self.THRESHOLD_BIT_MASK.keys():
+        if threshold_type not in list(self.THRESHOLD_BIT_MASK.keys()):
             raise ValueError("Invalid threshold type {} provided. Valid types "
                              "are {}".format(threshold_type,
-                                             self.THRESHOLD_BIT_MASK.keys()))
+                                             list(self.THRESHOLD_BIT_MASK.keys())))
 
         bit_mask = self.THRESHOLD_BIT_MASK[threshold_type]
 
@@ -179,7 +179,7 @@ class IpmiFru(object):
             stdout = proc.communicate()[0]
             proc.wait()
             if not proc.returncode:
-                result = stdout.rstrip('\n')
+                result = stdout.decode('utf-8').rstrip('\n')
         except:
             pass
 
@@ -193,7 +193,7 @@ class IpmiFru(object):
         if not fru_output:
             return "NA"
 
-        info_req = re.search(r"%s\s*:(.*)"%info, fru_output)
+        info_req = re.search(r"%s\s*:(.*)" % info, fru_output)
         if not info_req:
             return "NA"
 
@@ -222,7 +222,6 @@ class IpmiFru(object):
         Returns a string containing the manufacturer id of the FRU.
         """
         return self._get_from_fru('Board Product')
-
 
     def get_fru_data(self, offset, count=1):
         """
@@ -253,7 +252,7 @@ class IpmiFru(object):
             stdout = proc.communicate()[0]
             proc.wait()
             if not proc.returncode:
-                result = stdout.rstrip('\n')
+                result = stdout.decode('utf-8').rstrip('\n')
         except:
             is_valid = False
 

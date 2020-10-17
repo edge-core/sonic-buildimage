@@ -258,7 +258,7 @@ class Sfp(SfpBase):
             compliance_code_dict)
         transceiver_info_dict['vendor_date'] = vendor_date
         transceiver_info_dict['vendor_oui'] = vendor_oui
-	transceiver_info_dict['type_abbrv_name']=type_abbrv_name	
+        transceiver_info_dict['type_abbrv_name'] = type_abbrv_name
 
         return transceiver_info_dict
 

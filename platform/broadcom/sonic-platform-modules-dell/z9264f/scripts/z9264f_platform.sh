@@ -105,20 +105,20 @@ switch_board_modsel() {
     do
         port_addr=$(( 16384 + ((i - 1) * 16)))
         hex=$( printf "0x%x" $port_addr )
-        python /usr/bin/pcisysfs.py --set --offset $hex --val 0x10 --res $resource  > /dev/null 2>&1
+        /usr/bin/pcisysfs.py --set --offset $hex --val 0x10 --res $resource  > /dev/null 2>&1
     done
 
     # Disabling low power mode for last two 10G ports
     # From last 6th bit: Disable - 0; Enable - 1
-    reg_offset=$(python /usr/bin/pcisysfs.py --get --offset 0x4400 --res $resource | cut -d':' -f 2)
+    reg_offset=$(/usr/bin/pcisysfs.py --get --offset 0x4400 --res $resource | cut -d':' -f 2)
     reg_offset=$( printf '0x%s' $reg_offset)
     reg_offset=$( printf '0x%x' $(( $reg_offset & 0xbf )) )
-    python /usr/bin/pcisysfs.py --set --offset 0x4400 --val $reg_offset --res $resource  > /dev/null 2>&1
+    /usr/bin/pcisysfs.py --set --offset 0x4400 --val $reg_offset --res $resource  > /dev/null 2>&1
 
-    reg_offset=$(python /usr/bin/pcisysfs.py --get --offset 0x4410 --res $resource | cut -d':' -f 2)
+    reg_offset=$(/usr/bin/pcisysfs.py --get --offset 0x4410 --res $resource | cut -d':' -f 2)
     reg_offset=$( printf '0x%s' $reg_offset)
     reg_offset=$( printf '0x%x' $(( $reg_offset & 0xbf )) )
-    python /usr/bin/pcisysfs.py --set --offset 0x4410 --val $reg_offset --res $resource  > /dev/null 2>&1
+    /usr/bin/pcisysfs.py --set --offset 0x4410 --val $reg_offset --res $resource  > /dev/null 2>&1
 }
 
 # Copy led_proc_init.soc file according to the HWSKU
@@ -142,12 +142,18 @@ install_python_api_package() {
     platform=$(/usr/local/bin/sonic-cfggen -H -v DEVICE_METADATA.localhost.platform)
 
     rv=$(pip install $device/$platform/sonic_platform-1.0-py2-none-any.whl)
+    rv=$(pip3 install $device/$platform/sonic_platform-1.0-py3-none-any.whl)
 }
 
 remove_python_api_package() {
     rv=$(pip show sonic-platform > /dev/null 2>/dev/null)
     if [ $? -eq 0 ]; then
         rv=$(pip uninstall -y sonic-platform > /dev/null 2>/dev/null)
+    fi
+
+    rv=$(pip3 show sonic-platform > /dev/null 2>/dev/null)
+    if [ $? -eq 0 ]; then
+        rv=$(pip3 uninstall -y sonic-platform > /dev/null 2>/dev/null)
     fi
 }
 
@@ -225,7 +231,7 @@ if [ "$1" == "init" ]; then
     switch_board_modsel
     init_switch_port_led
     install_python_api_package
-    python /usr/bin/port_irq_enable.py
+    /usr/bin/port_irq_enable.py
     platform_firmware_versions
 
 

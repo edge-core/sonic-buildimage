@@ -170,5 +170,5 @@ class Fan(FanBase):
         if not is_valid or self.max_speed == 0:
             speed = 0
         else:
-            speed = (100 * fan_speed)/self.max_speed
+            speed = (100 * fan_speed)//self.max_speed
         return speed

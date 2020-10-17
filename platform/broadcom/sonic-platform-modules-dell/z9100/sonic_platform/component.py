@@ -67,7 +67,7 @@ class Component(ComponentBase):
                                     stderr=subprocess.STDOUT)
             stdout = proc.communicate()[0]
             proc.wait()
-            result = stdout.rstrip('\n')
+            result = stdout.decode('utf-8').rstrip('\n')
         except OSError:
             result = None
 

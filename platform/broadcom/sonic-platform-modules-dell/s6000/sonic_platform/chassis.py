@@ -10,9 +10,7 @@
 try:
     import os
     import time
-    import datetime
     import struct
-    import subprocess
     from sonic_platform_base.chassis_base import ChassisBase
     from sonic_platform.sfp import Sfp
     from sonic_platform.eeprom import Eeprom, EepromS6000
@@ -189,16 +187,6 @@ class Chassis(ChassisBase):
             'XX:XX:XX:XX:XX:XX'
         """
         return self._eeprom.get_base_mac()
-
-    def get_serial_number(self):
-        """
-        Retrieves the hardware serial number for the chassis
-
-        Returns:
-            A string containing the hardware serial number for this
-            chassis.
-        """
-        return self._eeprom.get_serial_number()
 
     def get_system_eeprom_info(self):
         """

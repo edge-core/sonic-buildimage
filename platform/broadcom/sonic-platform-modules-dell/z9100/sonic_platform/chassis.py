@@ -18,7 +18,7 @@ try:
     from sonic_platform.psu import Psu
     from sonic_platform.thermal import Thermal
     from sonic_platform.component import Component
-    from eeprom import Eeprom
+    from sonic_platform.eeprom import Eeprom
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -231,15 +231,6 @@ class Chassis(ChassisBase):
             'XX:XX:XX:XX:XX:XX'
         """
         return self._eeprom.base_mac_addr()
-
-    def get_serial_number(self):
-        """
-        Retrieves the hardware serial number for the chassis
-
-        Returns:
-            A string containing the hardware serial number for this chassis.
-        """
-        return self._eeprom.serial_number_str()
 
     def get_system_eeprom_info(self):
         """

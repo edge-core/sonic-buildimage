@@ -13,22 +13,22 @@ try:
     import subprocess
     from sonic_platform_base.component_base import ComponentBase
     import sonic_platform.hwaccess as hwaccess
-    
+
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
 
 def get_bios_version():
-    return subprocess.check_output(['dmidecode', '-s', 'system-version']).strip()
+    return subprocess.check_output(['dmidecode', '-s', 'system-version']).decode('utf-8').strip()
 
 def get_fpga_version():
     val = hwaccess.pci_get_value('/sys/bus/pci/devices/0000:04:00.0/resource0', 0)
     return '{}.{}'.format((val >> 8) & 0xff, val & 0xff)
-    
+
 def get_bmc_version():
     return subprocess.check_output(
         ['cat', '/sys/class/ipmi/ipmi0/device/bmc/firmware_revision']
-        ).strip()
+        ).decode('utf-8').strip()
 
 def get_cpld_version(bus, i2caddr):
     return '{}.{}'.format(hwaccess.i2c_get(bus, i2caddr, 1),
@@ -60,8 +60,7 @@ class Component(ComponentBase):
          ],
 
         ['BMC',
-         'Platform management controller for on-board temperature ',
-         'monitoring, in-chassis power, Fan and LED control',
+         'Platform management controller for on-board temperature monitoring, in-chassis power, Fan and LED control',
          get_bmc_version
          ],
 

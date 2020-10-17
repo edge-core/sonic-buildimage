@@ -105,7 +105,7 @@ switch_board_modsel() {
 	do
 		port_addr=$(( 16384 + ((i - 1) * 16)))
 		hex=$( printf "0x%x" $port_addr )
-		python /usr/bin/pcisysfs.py --set --offset $hex --val 0x10 --res $resource  > /dev/null 2>&1
+		/usr/bin/pcisysfs.py --set --offset $hex --val 0x10 --res $resource  > /dev/null 2>&1
 	done
 }
 
@@ -160,7 +160,7 @@ if [ "$1" == "init" ]; then
     switch_board_qsfp "new_device"
     switch_board_sfp "new_device"
     switch_board_led_default
-  # python /usr/bin/qsfp_irq_enable.py
+  # /usr/bin/qsfp_irq_enable.py
     platform_firmware_versions
 
 elif [ "$1" == "deinit" ]; then

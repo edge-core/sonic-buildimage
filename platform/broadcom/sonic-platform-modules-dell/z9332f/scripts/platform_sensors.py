@@ -1,9 +1,9 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # On Z9332F, the BaseBoard Management Controller is an
 # autonomous subsystem provides monitoring and management
 # facility independent of the host CPU. IPMI standard
 # protocol is used with ipmitool to fetch sensor details.
-# Current script support X00 board only. X01 support will 
+# Current script support X00 board only. X01 support will
 # be added soon. This provies support for the
 # following objects:
 #   * Onboard temperature sensors
@@ -11,11 +11,9 @@
 #   * PSU
 
 
-import os
 import sys
 import logging
 import subprocess
-import commands
 
 Z9332F_MAX_FAN_TRAYS = 7
 Z9332F_MAX_PSUS = 2
@@ -40,7 +38,7 @@ def ipmi_sensor_dump():
     status = 1
     global ipmi_sdr_list
     ipmi_cmd = IPMI_SENSOR_DATA
-    status, ipmi_sdr_list = commands.getstatusoutput(ipmi_cmd)
+    status, ipmi_sdr_list = subprocess.getstatusoutput(ipmi_cmd)
 
     if status:
         logging.error('Failed to execute:' + ipmi_sdr_list)
@@ -57,7 +55,7 @@ def get_pmc_register(reg_name):
             output = item.strip()
 
     if output is None:
-        print('\nFailed to fetch: ' +  reg_name + ' sensor ')
+        print('\nFailed to fetch: ' + reg_name + ' sensor ')
         sys.exit(0)
 
     output = output.split('|')[1]
@@ -75,7 +73,7 @@ def print_temperature_sensors():
 
     for x in (('TEMP_FAN_U52',     'Fan U52'),
               ('TEMP_FAN_U17',     'Fan U17'),
-              ('TEMP_SW_U52',      'SW U52'), 
+              ('TEMP_SW_U52',      'SW U52'),
               ('TEMP_SW_U16',      'SW U16'),
               ('TEMP_BB_U3',       'Baseboard U3'),
               ('TEMP_CPU',         'Near CPU'),
@@ -88,7 +86,7 @@ def print_temperature_sensors():
               ('SW_U14_Temp',      'SW U14'),
               ('SW_U4403_Temp',    'SW U4403')
               ):
-        print '  {0:32}{1}'.format(x[1] + ':', get_pmc_register(x[0]))
+        print('  {0:32}{1}'.format(x[1] + ':', get_pmc_register(x[0])))
 
 ipmi_sensor_dump()
 
@@ -102,14 +100,14 @@ def print_fan_tray(tray):
     Fan_Status = [' Normal', ' Abnormal']
     Airflow_Direction = ['B2F', 'F2B']
 
-    print '  Fan Tray ' + str(tray) + ':'
+    print('  Fan Tray ' + str(tray) + ':')
 
-    print '    Fan1 Speed:                   ',\
-        get_pmc_register('Fan{}_Front'.format(tray))
-    print '    Fan2 Speed:                   ',\
-        get_pmc_register('Fan{}_Rear'.format(tray))
-    print '    Fan State:                    ',\
-        Fan_Status[int(get_pmc_register('Fan{}_Status'.format(tray)), 16)]
+    print('    Fan1 Speed:                   ',
+          get_pmc_register('Fan{}_Front'.format(tray)))
+    print('    Fan2 Speed:                   ',
+          get_pmc_register('Fan{}_Rear'.format(tray)))
+    print('    Fan State:                    ',
+          Fan_Status[int(get_pmc_register('Fan{}_Status'.format(tray)), 16)])
 
 
 print('\nFan Trays:')
@@ -119,7 +117,7 @@ for tray in range(1, Z9332F_MAX_FAN_TRAYS + 1):
     if (get_pmc_register(fan_presence)):
         print_fan_tray(tray)
     else:
-        print '\n  Fan Tray ' + str(tray + 1) + ':     Not present'
+        print('\n  Fan Tray ' + str(tray + 1) + ':     Not present')
 
     def get_psu_presence(index):
         """
@@ -132,9 +130,9 @@ for tray in range(1, Z9332F_MAX_FAN_TRAYS + 1):
         ret_status = 1
 
         if index == 1:
-           status, ipmi_cmd_ret = commands.getstatusoutput(IPMI_PSU1_DATA_DOCKER)
+            status, ipmi_cmd_ret = subprocess.getstatusoutput(IPMI_PSU1_DATA_DOCKER)
         elif index == 2:
-           ret_status, ipmi_cmd_ret = commands.getstatusoutput(IPMI_PSU2_DATA_DOCKER)
+            ret_status, ipmi_cmd_ret = subprocess.getstatusoutput(IPMI_PSU2_DATA_DOCKER)
 
         #if ret_status:
          #   print ipmi_cmd_ret
@@ -144,7 +142,7 @@ for tray in range(1, Z9332F_MAX_FAN_TRAYS + 1):
         psu_status = ipmi_cmd_ret
 
         if psu_status == '1':
-           status = 1
+            status = 1
 
         return status
 
@@ -165,28 +163,28 @@ def print_psu(psu):
     # print '    Input:          ', Psu_Input_Type[psu_input_type]
     # print '    Type:           ', Psu_Type[psu_type]
 
-    print '    PSU{}:'.format(psu)
-    print '       Inlet Temperature:            ',\
-        get_pmc_register('PSU{}_Temp1'.format(psu))
-    print '       Hotspot Temperature:          ',\
-        get_pmc_register('PSU{}_Temp2'.format(psu))
-    print '       FAN RPM:                      ',\
-        get_pmc_register('PSU{}_Fan'.format(psu))
+    print('    PSU{}:'.format(psu))
+    print('       Inlet Temperature:            ',
+          get_pmc_register('PSU{}_Temp1'.format(psu)))
+    print('       Hotspot Temperature:          ',
+          get_pmc_register('PSU{}_Temp2'.format(psu)))
+    print('       FAN RPM:                      ',
+          get_pmc_register('PSU{}_Fan'.format(psu)))
     # print '    FAN Status:      ', Psu_Fan_Status[psu1_fan_status]
 
     # PSU input & output monitors
-    print '       Input Voltage:                ',\
-        get_pmc_register('PSU{}_VIn'.format(psu))
-    print '       Output Voltage:               ',\
-        get_pmc_register('PSU{}_VOut'.format(psu))
-    print '       Input Power:                  ',\
-        get_pmc_register('PSU{}_PIn'.format(psu))
-    print '       Output Power:                 ',\
-        get_pmc_register('PSU{}_POut'.format(psu))
-    print '       Input Current:                ',\
-        get_pmc_register('PSU{}_CIn'.format(psu))
-    print '       Output Current:               ',\
-        get_pmc_register('PSU{}_COut'.format(psu))
+    print('       Input Voltage:                ',
+          get_pmc_register('PSU{}_VIn'.format(psu)))
+    print('       Output Voltage:               ',
+          get_pmc_register('PSU{}_VOut'.format(psu)))
+    print('       Input Power:                  ',
+          get_pmc_register('PSU{}_PIn'.format(psu)))
+    print('       Output Power:                 ',
+          get_pmc_register('PSU{}_POut'.format(psu)))
+    print('       Input Current:                ',
+          get_pmc_register('PSU{}_CIn'.format(psu)))
+    print('       Output Current:               ',
+          get_pmc_register('PSU{}_COut'.format(psu)))
 
 
 print('\nPSUs:')
@@ -195,4 +193,4 @@ for psu in range(1, Z9332F_MAX_PSUS + 1):
     if (get_psu_presence(psu)):
         print_psu(psu)
     else:
-        print '\n  PSU ', psu, 'Not present'
+        print('\n  PSU ', psu, 'Not present')

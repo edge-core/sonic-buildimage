@@ -241,7 +241,7 @@ class Sfp(SfpBase):
             vendor_sn = vendor_sn_data['data']['Vendor SN']['value']
         else:
             return transceiver_info_dict
-	
+
         # Fill The Dictionary and return
         transceiver_info_dict['type'] = identifier
         transceiver_info_dict['hardware_rev'] = vendor_rev
@@ -259,7 +259,7 @@ class Sfp(SfpBase):
             compliance_code_dict)
         transceiver_info_dict['vendor_date'] = vendor_date
         transceiver_info_dict['vendor_oui'] = vendor_oui
-	transceiver_info_dict['type_abbrv_name']=type_abbrv_name	
+        transceiver_info_dict['type_abbrv_name'] = type_abbrv_name
 
         return transceiver_info_dict
 

@@ -87,7 +87,7 @@ class Fan(FanBase):
         cpld_reg_file = self.CPLD_DIR + reg_name
 
         if (not os.path.isfile(cpld_reg_file)):
-            print "open error"
+            print("open error")
             return rv
 
         try:
@@ -251,7 +251,7 @@ class Fan(FanBase):
         fan_speed = self._get_i2c_register(self.get_fan_speed_reg)
         if (fan_speed != 'ERR') and self.get_presence():
             speed_in_rpm = int(fan_speed, 10)
-            speed = (100 * speed_in_rpm)/self.max_fan_speed
+            speed = (100 * speed_in_rpm)//self.max_fan_speed
         else:
             speed = 0
 

@@ -13,7 +13,7 @@ try:
     import os.path
     from sonic_eeprom import eeprom_tlvinfo
     import binascii
-except ImportError, e:
+except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
 
@@ -26,8 +26,8 @@ class Eeprom(eeprom_tlvinfo.TlvInfoDecoder):
             if os.path.exists(f):
                 self.eeprom_path = f
                 break
-            if self.eeprom_path is None:
-                return
+        if self.eeprom_path is None:
+            return
         super(Eeprom, self).__init__(self.eeprom_path, 0, '', True)
         self.eeprom_tlv_dict = dict()
         try:

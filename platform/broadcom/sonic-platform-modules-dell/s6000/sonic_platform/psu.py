@@ -168,7 +168,7 @@ class Psu(PsuBase):
         status = False
         psu_status = self._get_cpld_register(self.psu_status_reg)
         if (psu_status != 'ERR'):
-            psu_status = (int(psu_status, 16) >> ((2 - self.index) * 4)) & 0xF
+            psu_status = (int(psu_status, 16) >> int((2 - self.index) * 4)) & 0xF
             if (~psu_status & 0b1000) and (~psu_status & 0b0100):
                 status = True
 

@@ -104,14 +104,14 @@ switch_board_modsel() {
 	do
 		port_addr=$(( 16384 + ((i - 1) * 16)))
 		hex=$( printf "0x%x" $port_addr )
-		python /usr/bin/pcisysfs.py --set --offset $hex --val 0x10 --res $resource  > /dev/null 2>&1
+		/usr/bin/pcisysfs.py --set --offset $hex --val 0x10 --res $resource  > /dev/null 2>&1
 	done
 }
 
 #This enables the led control for CPU and default states 
 switch_board_led_default() {
 	resource="/sys/bus/pci/devices/0000:04:00.0/resource0"
-	python /usr/bin/pcisysfs.py --set --offset 0x24 --val 0x194 --res $resource  > /dev/null 2>&1
+	/usr/bin/pcisysfs.py --set --offset 0x24 --val 0x194 --res $resource  > /dev/null 2>&1
 }
 
 # Readout firmware version of the system and
@@ -161,12 +161,18 @@ install_python_api_package() {
     platform=$(/usr/local/bin/sonic-cfggen -H -v DEVICE_METADATA.localhost.platform)
 
     rv=$(pip install $device/$platform/sonic_platform-1.0-py2-none-any.whl)
+    rv=$(pip3 install $device/$platform/sonic_platform-1.0-py3-none-any.whl)
 }
 
 remove_python_api_package() {
     rv=$(pip show sonic-platform > /dev/null 2>/dev/null)
     if [ $? -eq 0 ]; then
         rv=$(pip uninstall -y sonic-platform > /dev/null 2>/dev/null)
+    fi
+
+    rv=$(pip3 show sonic-platform > /dev/null 2>/dev/null)
+    if [ $? -eq 0 ]; then
+        rv=$(pip3 uninstall -y sonic-platform > /dev/null 2>/dev/null)
     fi
 }
 
@@ -186,7 +192,7 @@ if [ "$1" == "init" ]; then
     switch_board_modsel
     switch_board_led_default
     install_python_api_package
-    python /usr/bin/qsfp_irq_enable.py
+    /usr/bin/qsfp_irq_enable.py
     platform_firmware_versions
 
 elif [ "$1" == "deinit" ]; then

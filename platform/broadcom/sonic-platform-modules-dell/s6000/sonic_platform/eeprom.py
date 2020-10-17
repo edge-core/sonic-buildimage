@@ -200,7 +200,7 @@ class Eeprom(TlvInfoDecoder):
         for field in self.format:
             field_end = field_start + field[2]
             if field[0] == field_name:
-                return (True, self.eeprom_data[field_start:field_end])
+                return (True, self.eeprom_data[field_start:field_end].decode('utf-8'))
             field_start = field_end
 
         return (False, None)
@@ -222,9 +222,9 @@ class Eeprom(TlvInfoDecoder):
         Returns the airflow fan type.
         """
         if self.is_psu_eeprom:
-            return int(self.psu_type.encode('hex'), 16)
+            return int(binascii.hexlify(self.psu_type.encode('utf-8')), 16)
         else:
-            return int(self.fan_type.encode('hex'), 16)
+            return int(binascii.hexlify(self.fan_type.encode('utf-8')), 16)
 
     # System EEPROM specific methods
     def get_base_mac(self):
@@ -323,13 +323,13 @@ class EepromS6000(EepromDecoder):
         """
         Decode and print out the contents of the EEPROM.
         """
-        print "     Field Name      Len        Value"
-        print "-------------------- --- --------------------"
-        for blk_code in self._BLK_INFO.keys():
+        print("     Field Name      Len        Value")
+        print("-------------------- --- --------------------")
+        for blk_code in list(self._BLK_INFO.keys()):
             blk_start = self._BLK_INFO[blk_code]["offset"]
             blk_end = blk_start + self._BLK_INFO[blk_code]["size"]
             if not self._is_valid_block(e[blk_start:blk_end], blk_code):
-                print "Invalid Block starting at EEPROM offset %d" % (blk_start)
+                print("Invalid Block starting at EEPROM offset %d" % (blk_start))
                 return
 
             offset = blk_start + self._BLK_HDR_LEN
@@ -342,11 +342,11 @@ class EepromS6000(EepromDecoder):
                     data = ":".join([binascii.b2a_hex(T) for T in e[offset:offset+f[1]]]).upper()
                 else:
                     data = e[offset:offset+f[1]]
-                print "{:<20s} {:>3d} {:<s}".format(f[0], f[1], data)
+                print("{:<20s} {:>3d} {:<s}".format(f[0], f[1], data))
                 offset += f[1]
 
             if not self._is_valid_block_checksum(e[blk_start:blk_end]):
-                print "(*** block checksum invalid)"
+                print("(*** block checksum invalid)")
 
     def read_eeprom(self):
         """
@@ -363,23 +363,23 @@ class EepromS6000(EepromDecoder):
         if db_state != '1':
             return -1
 
-        print "     Field Name      Len        Value"
-        print "-------------------- --- --------------------"
-        for blk_code in self._BLK_INFO.keys():
+        print("     Field Name      Len        Value")
+        print("-------------------- --- --------------------")
+        for blk_code in list(self._BLK_INFO.keys()):
             blk_name = self._BLK_INFO[blk_code]["name"]
             blk_start = self._BLK_INFO[blk_code]["offset"]
             is_valid = client.hget('EEPROM_INFO|{}'.format(blk_name), 'Valid')
             if is_valid == '0':
-                print "Invalid Block starting at EEPROM offset %d" % (blk_start)
+                print("Invalid Block starting at EEPROM offset %d" % (blk_start))
                 break
 
             for f in self._BLK_INFO[blk_code]["format"]:
                 data = client.hget('EEPROM_INFO|{}'.format(f[0]), 'Value')
-                print "{:<20s} {:>3d} {:<s}".format(f[0], f[1], data)
+                print("{:<20s} {:>3d} {:<s}".format(f[0], f[1], data))
 
             is_checksum_valid = client.hget('EEPROM_INFO|{}'.format(blk_name), 'Checksum_Valid')
             if is_checksum_valid == '0':
-                print "(*** block checksum invalid)"
+                print("(*** block checksum invalid)")
 
         return 0
 
@@ -388,13 +388,13 @@ class EepromS6000(EepromDecoder):
         Decode the contents of the EEPROM and update the contents to database
         """
         client = redis.Redis(db=STATE_DB_INDEX)
-        for blk_code in self._BLK_INFO.keys():
+        for blk_code in list(self._BLK_INFO.keys()):
             blk_name = self._BLK_INFO[blk_code]["name"]
             blk_start = self._BLK_INFO[blk_code]["offset"]
             blk_end = blk_start + self._BLK_INFO[blk_code]["size"]
             if not self._is_valid_block(e[blk_start:blk_end], blk_code):
                 client.hset('EEPROM_INFO|{}'.format(blk_name), 'Valid', '0')
-                print "Invalid Block starting at EEPROM offset %d" % (blk_start)
+                print("Invalid Block starting at EEPROM offset %d" % (blk_start))
                 break
             else:
                 client.hset('EEPROM_INFO|{}'.format(blk_name), 'Valid', '1')

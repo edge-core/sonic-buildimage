@@ -172,15 +172,6 @@ class Module(ModuleBase):
         # In S6100, individual modules doesn't have MAC address
         return '00:00:00:00:00:00'
 
-    def get_serial_number(self):
-        """
-        Retrieves the hardware serial number for the module
-
-        Returns:
-            A string containing the hardware serial number for this module.
-        """
-        return self._eeprom.serial_number_str()
-
     def get_system_eeprom_info(self):
         """
         Retrieves the full content of system EEPROM information for the module

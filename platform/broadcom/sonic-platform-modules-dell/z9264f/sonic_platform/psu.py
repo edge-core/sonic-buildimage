@@ -111,7 +111,7 @@ class Psu(PsuBase):
         if not is_valid:
             voltage = 0
 
-        return "{:.1f}".format(voltage)
+        return float(voltage)
 
     def get_current(self):
         """
@@ -125,7 +125,7 @@ class Psu(PsuBase):
         if not is_valid:
             current = 0
 
-        return "{:.1f}".format(current)
+        return float(current)
 
     def get_power(self):
         """
@@ -139,7 +139,7 @@ class Psu(PsuBase):
         if not is_valid:
             power = 0
 
-        return "{:.1f}".format(power)
+        return float(power)
 
     def get_powergood_status(self):
         """

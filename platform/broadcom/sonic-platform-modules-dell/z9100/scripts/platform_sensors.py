@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 # On Z9100, the Platform Management Controller runs the
 # thermal algorithm. It provides a mailbox for the Host
@@ -28,7 +28,7 @@ def get_pmc_register(reg_name):
     mb_reg_file = MAILBOX_DIR+'/'+reg_name
 
     if (not os.path.isfile(mb_reg_file)):
-        print mb_reg_file,  'not found !'
+        print(mb_reg_file,  'not found !')
         return retval
 
     try:
@@ -44,8 +44,8 @@ def get_pmc_register(reg_name):
 logging.basicConfig(level=logging.DEBUG)
 
 if (os.path.isdir(MAILBOX_DIR)):
-    print 'dell-z9100-lpc'
-    print 'Adapter: Z9100 Platform Management Controller'
+    print('dell-z9100-lpc')
+    print('Adapter: Z9100 Platform Management Controller')
 else:
     logging.error('Z9100 Platform Management Controller module not loaded !')
     # sys.exit(0)
@@ -55,18 +55,18 @@ else:
 
 def print_temperature_sensors():
     print("\nOnboard Temperature Sensors:")
-    print '  CPU:                            ',\
-        int(get_pmc_register('temp1_input'))/1000, 'C'
-    print '  BCM56960 (PSU side):            ',\
-        int(get_pmc_register('temp2_input'))/1000, 'C'
-    print '  System Outlet 1 (switch board): ',\
-        int(get_pmc_register('temp3_input'))/1000, 'C'
-    print '  BCM56960 (IO side):             ',\
-        int(get_pmc_register('temp4_input'))/1000, 'C'
-    print '  System Outlet 2 (CPU board):    ',\
-        int(get_pmc_register('temp9_input'))/1000, 'C'
-    print '  System Inlet Left (IO side):    ',\
-        int(get_pmc_register('temp6_input'))/1000, 'C'
+    print('  CPU:                            ',
+          int(get_pmc_register('temp1_input'))/1000, 'C')
+    print('  BCM56960 (PSU side):            ',
+          int(get_pmc_register('temp2_input'))/1000, 'C')
+    print('  System Outlet 1 (switch board): ',
+          int(get_pmc_register('temp3_input'))/1000, 'C')
+    print('  BCM56960 (IO side):             ',
+          int(get_pmc_register('temp4_input'))/1000, 'C')
+    print('  System Outlet 2 (CPU board):    ',
+          int(get_pmc_register('temp9_input'))/1000, 'C')
+    print('  System Inlet Left (IO side):    ',
+          int(get_pmc_register('temp6_input'))/1000, 'C')
 
 print_temperature_sensors()
 
@@ -77,63 +77,62 @@ print_temperature_sensors()
 def print_voltage_sensors():
     print("\nOnboard Voltage Sensors:")
 
-    print '  CPU XP3R3V_EARLY                ',\
-        float(get_pmc_register('in1_input'))/1000, 'V'
-    print '\n  CPU XP5R0V_CP                   ',\
-        float(get_pmc_register('in2_input'))/1000, 'V'
-    print '  CPU XP3R3V_STD                  ',\
-        float(get_pmc_register('in3_input'))/1000, 'V'
-    print '  CPU XP3R3V_CP                   ',\
-        float(get_pmc_register('in4_input'))/1000, 'V'
-    print '  CPU XP0R75V_VTT_A               ',\
-        float(get_pmc_register('in5_input'))/1000, 'V'
-    print '  CPU XPPR75V_VTT_B               ',\
-        float(get_pmc_register('in6_input'))/1000, 'V'
-    print '  CPU XP1R07V_CPU                 ',\
-        float(get_pmc_register('in7_input'))/1000, 'V'
-    print '  CPU XP1R0V_CPU                  ',\
-        float(get_pmc_register('in8_input'))/1000, 'V'
-    print '  CPU XP12R0V                     ',\
-        float(get_pmc_register('in9_input'))/1000, 'V'
-    print '  CPU VDDR_CPU_2                  ',\
-        float(get_pmc_register('in10_input'))/1000, 'V'
-    print '  CPU VDDR_CPU_1                  ',\
-        float(get_pmc_register('in11_input'))/1000, 'V'
-    print '  CPU XP1R5V_CLK                  ',\
-        float(get_pmc_register('in12_input'))/1000, 'V'
-    print '  CPU XP1R8V_CPU                  ',\
-        float(get_pmc_register('in13_input'))/1000, 'V'
-    print '  CPU XP1R0V_CPU_VNN              ',\
-        float(get_pmc_register('in14_input'))/1000, 'V'
-    print '  CPU XP1R0V_CPU_VCC              ',\
-        float(get_pmc_register('in15_input'))/1000, 'V'
-    print '  CPU XP1R5V_EARLY                ',\
-        float(get_pmc_register('in16_input'))/1000, 'V'
-    print '  SW XP3R3V_MON                   ',\
-        float(get_pmc_register('in17_input'))/1000, 'V'
-    print '  SW XP1R8V_MON                   ',\
-        float(get_pmc_register('in19_input'))/1000, 'V'
-    print '  SW XP1R2V_MON                   ',\
-        float(get_pmc_register('in20_input'))/1000, 'V'
-    print '  SW XP1R0V_SW_MON                ',\
-        float(get_pmc_register('in21_input'))/1000, 'V'
-    print '  SW XP1R0V_ROV_SW_MON            ',\
-        float(get_pmc_register('in22_input'))/1000, 'V'
-    print '  SW XR1R0V_BCM84752_MON          ',\
-        float(get_pmc_register('in23_input'))/1000, 'V'
-    print '  SW XP5V_MB_MON                  ',\
-        float(get_pmc_register('in24_input'))/1000, 'V'
-    print '  SW XP1R8V_FPGA_MON              ',\
-        float(get_pmc_register('in25_input'))/1000, 'V'
-    print '  SW XP3R3V_FPGA_MON              ',\
-        float(get_pmc_register('in26_input'))/1000, 'V'
-    print '  SW XP3R3V_EARLY_MON             ',\
-        float(get_pmc_register('in27_input'))/1000, 'V'
-    print '  SW XP1R0V_                      ',\
-        float(get_pmc_register('curr21_input'))/10000, 'A'
-    print '  SW XP1R0V_ROV                   ',\
-        float(get_pmc_register('curr22_input'))/10000, 'A'
-
+    print('  CPU XP3R3V_EARLY                ',
+          float(get_pmc_register('in1_input'))/1000, 'V')
+    print('\n  CPU XP5R0V_CP                   ',
+          float(get_pmc_register('in2_input'))/1000, 'V')
+    print('  CPU XP3R3V_STD                  ',
+          float(get_pmc_register('in3_input'))/1000, 'V')
+    print('  CPU XP3R3V_CP                   ',
+          float(get_pmc_register('in4_input'))/1000, 'V')
+    print('  CPU XP0R75V_VTT_A               ',
+          float(get_pmc_register('in5_input'))/1000, 'V')
+    print('  CPU XPPR75V_VTT_B               ',
+          float(get_pmc_register('in6_input'))/1000, 'V')
+    print('  CPU XP1R07V_CPU                 ',
+          float(get_pmc_register('in7_input'))/1000, 'V')
+    print('  CPU XP1R0V_CPU                  ',
+          float(get_pmc_register('in8_input'))/1000, 'V')
+    print('  CPU XP12R0V                     ',
+          float(get_pmc_register('in9_input'))/1000, 'V')
+    print('  CPU VDDR_CPU_2                  ',
+          float(get_pmc_register('in10_input'))/1000, 'V')
+    print('  CPU VDDR_CPU_1                  ',
+          float(get_pmc_register('in11_input'))/1000, 'V')
+    print('  CPU XP1R5V_CLK                  ',
+          float(get_pmc_register('in12_input'))/1000, 'V')
+    print('  CPU XP1R8V_CPU                  ',
+          float(get_pmc_register('in13_input'))/1000, 'V')
+    print('  CPU XP1R0V_CPU_VNN              ',
+          float(get_pmc_register('in14_input'))/1000, 'V')
+    print('  CPU XP1R0V_CPU_VCC              ',
+          float(get_pmc_register('in15_input'))/1000, 'V')
+    print('  CPU XP1R5V_EARLY                ',
+          float(get_pmc_register('in16_input'))/1000, 'V')
+    print('  SW XP3R3V_MON                   ',
+          float(get_pmc_register('in17_input'))/1000, 'V')
+    print('  SW XP1R8V_MON                   ',
+          float(get_pmc_register('in19_input'))/1000, 'V')
+    print('  SW XP1R2V_MON                   ',
+          float(get_pmc_register('in20_input'))/1000, 'V')
+    print('  SW XP1R0V_SW_MON                ',
+          float(get_pmc_register('in21_input'))/1000, 'V')
+    print('  SW XP1R0V_ROV_SW_MON            ',
+          float(get_pmc_register('in22_input'))/1000, 'V')
+    print('  SW XR1R0V_BCM84752_MON          ',
+          float(get_pmc_register('in23_input'))/1000, 'V')
+    print('  SW XP5V_MB_MON                  ',
+          float(get_pmc_register('in24_input'))/1000, 'V')
+    print('  SW XP1R8V_FPGA_MON              ',
+          float(get_pmc_register('in25_input'))/1000, 'V')
+    print('  SW XP3R3V_FPGA_MON              ',
+          float(get_pmc_register('in26_input'))/1000, 'V')
+    print('  SW XP3R3V_EARLY_MON             ',
+          float(get_pmc_register('in27_input'))/1000, 'V')
+    print('  SW XP1R0V_                      ',
+          float(get_pmc_register('curr21_input'))/10000, 'A')
+    print('  SW XP1R0V_ROV                   ',
+          float(get_pmc_register('curr22_input'))/10000, 'A')
 
 
 print_voltage_sensors()
@@ -146,68 +145,68 @@ def print_fan_tray(tray):
     Fan_Status = ['Normal', 'Abnormal']
     Airflow_Direction = ['B2F', 'F2B']
 
-    print '  Fan Tray ' + str(tray) + ':'
+    print('  Fan Tray ' + str(tray) + ':')
 
     if (tray == 1):
-        fan1_speed = get_pmc_register('fan1_input')
-        fan2_speed = get_pmc_register('fan2_input')
-    	air_flow_reg = int(get_pmc_register('fan1_airflow'), 16)
+        fan1_speed = int(get_pmc_register('fan1_input'))
+        fan2_speed = int(get_pmc_register('fan2_input'))
+        air_flow_reg = int(get_pmc_register('fan1_airflow'), 16)
         fan1_status = 0 if fan1_speed >= 1000 else 1
         fan2_status = 0 if fan2_speed >= 1000 else 1
 
-        print '    Fan1 Speed:    ', fan1_speed, 'RPM'
-        print '    Fan2 Speed:    ', fan2_speed, 'RPM'
-        print '    Fan1 State:       ', Fan_Status[fan1_status]
-        print '    Fan2 State:       ', Fan_Status[fan2_status]
-    	print '    Air Flow:           ', Airflow_Direction[air_flow_reg]
+        print('    Fan1 Speed:    ', fan1_speed, 'RPM')
+        print('    Fan2 Speed:    ', fan2_speed, 'RPM')
+        print('    Fan1 State:       ', Fan_Status[fan1_status])
+        print('    Fan2 State:       ', Fan_Status[fan2_status])
+        print('    Air Flow:           ', Airflow_Direction[air_flow_reg])
     elif (tray == 2):
-        fan1_speed = get_pmc_register('fan3_input')
-        fan2_speed = get_pmc_register('fan4_input')
-    	air_flow_reg = int(get_pmc_register('fan3_airflow'), 16)
+        fan1_speed = int(get_pmc_register('fan3_input'))
+        fan2_speed = int(get_pmc_register('fan4_input'))
+        air_flow_reg = int(get_pmc_register('fan3_airflow'), 16)
         fan1_status = 0 if fan1_speed >= 1000 else 1
         fan2_status = 0 if fan2_speed >= 1000 else 1
 
-        print '    Fan1 Speed:    ', fan1_speed, 'RPM'
-        print '    Fan2 Speed:    ', fan2_speed, 'RPM'
-        print '    Fan1 State:       ', Fan_Status[fan1_status]
-        print '    Fan2 State:       ', Fan_Status[fan2_status]
-    	print '    Air Flow:           ', Airflow_Direction[air_flow_reg]
+        print('    Fan1 Speed:    ', fan1_speed, 'RPM')
+        print('    Fan2 Speed:    ', fan2_speed, 'RPM')
+        print('    Fan1 State:       ', Fan_Status[fan1_status])
+        print('    Fan2 State:       ', Fan_Status[fan2_status])
+        print('    Air Flow:           ', Airflow_Direction[air_flow_reg])
     elif (tray == 3):
-        fan1_speed = get_pmc_register('fan5_input')
-        fan2_speed = get_pmc_register('fan6_input')
-    	air_flow_reg = int(get_pmc_register('fan5_airflow'), 16)
+        fan1_speed = int(get_pmc_register('fan5_input'))
+        fan2_speed = int(get_pmc_register('fan6_input'))
+        air_flow_reg = int(get_pmc_register('fan5_airflow'), 16)
         fan1_status = 0 if fan1_speed >= 1000 else 1
         fan2_status = 0 if fan2_speed >= 1000 else 1
 
-        print '    Fan1 Speed:    ', fan1_speed, 'RPM'
-        print '    Fan2 Speed:    ', fan2_speed, 'RPM'
-        print '    Fan1 State:       ', Fan_Status[fan1_status]
-        print '    Fan2 State:       ', Fan_Status[fan2_status]
-    	print '    Air Flow:           ', Airflow_Direction[air_flow_reg]
+        print('    Fan1 Speed:    ', fan1_speed, 'RPM')
+        print('    Fan2 Speed:    ', fan2_speed, 'RPM')
+        print('    Fan1 State:       ', Fan_Status[fan1_status])
+        print('    Fan2 State:       ', Fan_Status[fan2_status])
+        print('    Air Flow:           ', Airflow_Direction[air_flow_reg])
     elif (tray == 4):
-        fan1_speed = get_pmc_register('fan7_input')
-        fan2_speed = get_pmc_register('fan8_input')
-    	air_flow_reg = int(get_pmc_register('fan7_airflow'), 16)
+        fan1_speed = int(get_pmc_register('fan7_input'))
+        fan2_speed = int(get_pmc_register('fan8_input'))
+        air_flow_reg = int(get_pmc_register('fan7_airflow'), 16)
         fan1_status = 0 if fan1_speed >= 1000 else 1
         fan2_status = 0 if fan2_speed >= 1000 else 1
 
-        print '    Fan1 Speed:    ', fan1_speed, 'RPM'
-        print '    Fan2 Speed:    ', fan2_speed, 'RPM'
-        print '    Fan1 State:       ', Fan_Status[fan1_status]
-        print '    Fan2 State:       ', Fan_Status[fan2_status]
-    	print '    Air Flow:           ', Airflow_Direction[air_flow_reg]
+        print('    Fan1 Speed:    ', fan1_speed, 'RPM')
+        print('    Fan2 Speed:    ', fan2_speed, 'RPM')
+        print('    Fan1 State:       ', Fan_Status[fan1_status])
+        print('    Fan2 State:       ', Fan_Status[fan2_status])
+        print('    Air Flow:           ', Airflow_Direction[air_flow_reg])
     elif (tray == 5):
-        fan1_speed = get_pmc_register('fan9_input')
-        fan2_speed = get_pmc_register('fan10_input')
-    	air_flow_reg = int(get_pmc_register('fan9_airflow'), 16)
+        fan1_speed = int(get_pmc_register('fan9_input'))
+        fan2_speed = int(get_pmc_register('fan10_input'))
+        air_flow_reg = int(get_pmc_register('fan9_airflow'), 16)
         fan1_status = 0 if fan1_speed >= 1000 else 1
         fan2_status = 0 if fan2_speed >= 1000 else 1
 
-        print '    Fan1 Speed:    ', fan1_speed, 'RPM'
-        print '    Fan2 Speed:    ', fan2_speed, 'RPM'
-        print '    Fan1 State:       ', Fan_Status[fan1_status]
-        print '    Fan2 State:       ', Fan_Status[fan2_status]
-    	print '    Air Flow:           ', Airflow_Direction[air_flow_reg]
+        print('    Fan1 Speed:    ', fan1_speed, 'RPM')
+        print('    Fan2 Speed:    ', fan2_speed, 'RPM')
+        print('    Fan1 State:       ', Fan_Status[fan1_status])
+        print('    Fan2 State:       ', Fan_Status[fan2_status])
+        print('    Air Flow:           ', Airflow_Direction[air_flow_reg])
 
 
 print('\nFan Trays:')
@@ -220,7 +219,7 @@ if (fan_tray_presence != 'ERR'):
         if (fan_tray_presence & (1 << tray)):
             print_fan_tray(tray + 1)
         else:
-            print '\n  Fan Tray ' + str(tray + 1) + ':     Not present'
+            print('\n  Fan Tray ' + str(tray + 1) + ':     Not present')
 else:
     logging.error('Unable to read FAN presence')
 
@@ -238,9 +237,8 @@ def print_psu(psu):
     Psu_Fan_Presence = ['Present', 'Absent']
     Psu_Fan_Status = ['Normal', 'Abnormal']
     Psu_Fan_Airflow = ['B2F', 'F2B']
-	
 
-    print '  PSU ' + str(psu) + ':'
+    print('  PSU ' + str(psu) + ':')
     if (psu == 1):
         psu_status = int(get_pmc_register('psu1_presence'), 16)
     else:
@@ -251,12 +249,12 @@ def print_psu(psu):
     psu_type = (psu_status & (1 << PSU_STATUS_TYPE_BIT)) >>\
         PSU_STATUS_TYPE_BIT
 
-    print '    Input:          ', Psu_Input_Type[psu_input_type]
-    print '    Type:           ', Psu_Type[psu_type]
+    print('    Input:          ', Psu_Input_Type[psu_input_type])
+    print('    Type:           ', Psu_Type[psu_type])
 
     # PSU FAN details
     if (psu == 1):
-        print '    FAN Speed:      ', get_pmc_register('fan11_input'), 'RPM'
+        print('    FAN Speed:      ', get_pmc_register('fan11_input'), 'RPM')
         psu_fan_airflow = int(get_pmc_register('fan11_airflow'))
         psu_fan_status = int(get_pmc_register('fan11_alarm'))
         psu_fan_present = int(get_pmc_register('fan11_fault'))
@@ -266,10 +264,10 @@ def print_psu(psu):
         output_current = float(get_pmc_register('curr602_input')) / 1000
         input_power = float(get_pmc_register('power1_input')) / 1000000
         output_power = float(get_pmc_register('power2_input')) / 1000000
-	if (input_power != 0):
-		psu_fan_temp = int(get_pmc_register('temp14_input'))/1000
+        if (input_power != 0):
+            psu_fan_temp = int(get_pmc_register('temp14_input'))/1000
     else:
-        print '    FAN Speed:      ', get_pmc_register('fan12_input'), 'RPM'
+        print('    FAN Speed:      ', get_pmc_register('fan12_input'), 'RPM')
         psu_fan_airflow = int(get_pmc_register('fan12_airflow'))
         psu_fan_status = int(get_pmc_register('fan12_alarm'))
         psu_fan_present = int(get_pmc_register('fan12_fault'))
@@ -279,31 +277,31 @@ def print_psu(psu):
         output_current = float(get_pmc_register('curr702_input')) / 1000
         input_power = float(get_pmc_register('power3_input')) / 1000000
         output_power = float(get_pmc_register('power4_input')) / 1000000
-	if (input_power != 0):
-		psu_fan_temp = int(get_pmc_register('temp15_input'))/1000
+        if (input_power != 0):
+            psu_fan_temp = int(get_pmc_register('temp15_input'))/1000
 
-    print '    FAN:            ', Psu_Fan_Presence[psu_fan_present]
-    print '    FAN Status:     ', Psu_Fan_Status[psu_fan_status]
-    print '    FAN AIRFLOW:    ', Psu_Fan_Airflow[psu_fan_airflow]
+    print('    FAN:            ', Psu_Fan_Presence[psu_fan_present])
+    print('    FAN Status:     ', Psu_Fan_Status[psu_fan_status])
+    print('    FAN AIRFLOW:    ', Psu_Fan_Airflow[psu_fan_airflow])
 
     # PSU input & output monitors
-    print '    Input Voltage:   %6.2f' % (input_voltage), 'V'
+    print('    Input Voltage:   %6.2f' % (input_voltage), 'V')
 
-    print '    Output Voltage:  %6.2f' % (output_voltage), 'V'
+    print('    Output Voltage:  %6.2f' % (output_voltage), 'V')
 
-    print '    Input Current:   %6.2f' % (input_current), 'A'
+    print('    Input Current:   %6.2f' % (input_current), 'A')
 
-    print '    Output Current:  %6.2f' % (output_current), 'A'
+    print('    Output Current:  %6.2f' % (output_current), 'A')
 
-    print '    Input Power:     %6.2f' % (input_power), 'W'
+    print('    Input Power:     %6.2f' % (input_power), 'W')
 
-    print '    Output Power:    %6.2f' % (output_power), 'W'
+    print('    Output Power:    %6.2f' % (output_power), 'W')
 
     # PSU firmware gives spurious temperature reading without input power
     if (input_power != 0):
-        print '    Temperature:    ', psu_fan_temp, 'C'
+        print('    Temperature:    ', psu_fan_temp, 'C')
     else:
-        print '    Temperature:    ', 'NA'
+        print('    Temperature:    ', 'NA')
 
 print('\nPSUs:')
 for psu in range(1, Z9100_MAX_PSUS + 1):
@@ -319,8 +317,8 @@ for psu in range(1, Z9100_MAX_PSUS + 1):
         if (~psu_status & 0b1):
             print_psu(psu)
         else:
-            print '\n  PSU ', psu, 'Not present'
+            print('\n  PSU ', psu, 'Not present')
     else:
         logging.error('Unable to check PSU presence')
 
-print '\n  Total Power:      ', get_pmc_register('current_total_power'), 'W'
+print('\n  Total Power:      ', get_pmc_register('current_total_power'), 'W')

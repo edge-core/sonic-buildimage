@@ -12,7 +12,7 @@ try:
     import os.path
     from sonic_eeprom import eeprom_tlvinfo
     import binascii
-except ImportError, e:
+except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
 

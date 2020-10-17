@@ -186,7 +186,7 @@ class Fan(FanBase):
         fan_speed = self._get_pmc_register(self.get_fan_speed_reg)
         if (fan_speed != 'ERR') and self.get_presence():
             speed_in_rpm = int(fan_speed, 10)
-            speed = (100 * speed_in_rpm)/self.max_fan_speed
+            speed = (100 * speed_in_rpm)//self.max_fan_speed
         else:
             speed = 0
 
