@@ -86,7 +86,7 @@ class Chassis(ChassisBase):
             return False
 
 
-    def get_serial_number(self):
+    def get_serial(self):
         serial_number_list = self.get_parameter_value('Serial Number')
         if serial_number_list:
             serial_number = ''.join(serial_number_list)

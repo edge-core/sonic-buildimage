@@ -91,14 +91,6 @@ class Chassis(ChassisBase):
         """
         return self._eeprom.get_mac()
 
-    def get_serial_number(self):
-        """
-        Retrieves the hardware serial number for the chassis
-        Returns:
-            A string containing the hardware serial number for this chassis.
-        """
-        return self._eeprom.get_serial()
-
     def get_system_eeprom_info(self):
         """
         Retrieves the full content of system EEPROM information for the chassis
@@ -252,7 +244,7 @@ class Chassis(ChassisBase):
         Returns:
             string: Serial number of device
         """
-        return self.get_serial_number()
+        return self._eeprom.get_serial()
 
     def get_status(self):
         """
