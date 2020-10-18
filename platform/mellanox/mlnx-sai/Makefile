@@ -10,7 +10,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	pushd mlnx_sai
 
 	chmod a+x autogen.sh
-	debuild -e 'make_extra_flags="DEFS=-DACS_OS"' -us -uc -d -b
+	debuild -e 'make_extra_flags="DEFS=-DACS_OS -DCONFIG_SYSLOG"' -us -uc -d -b
 	popd
 
 	mv $(DERIVED_TARGETS) $* $(DEST)/
