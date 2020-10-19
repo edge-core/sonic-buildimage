@@ -9,7 +9,6 @@
 #############################################################################
 
 try:
-    import os
     import subprocess
     import time
     from sonic_platform_base.sfp_base import SfpBase
@@ -283,57 +282,39 @@ CPU_MASK = PORT_TYPE_MASK & (PORT_TYPE_CPU << PORT_TYPE_OFFSET)
 # Global logger class instance
 logger = Logger()
 
+
+# SDK initializing stuff, called from chassis
+def initialize_sdk_handle():
+    rc, sdk_handle = sx_api_open(None)
+    if (rc != SX_STATUS_SUCCESS):
+        logger.log_warning("Failed to open api handle, please check whether SDK is running.")
+        sdk_handle = None
+
+    return sdk_handle
+
+def deinitialize_sdk_handle(sdk_handle):
+    if sdk_handle is not None:
+        rc = sx_api_close(sdk_handle)
+        if (rc != SX_STATUS_SUCCESS):
+            logger.log_warning("Failed to close api handle.")
+
+        return rc == SXD_STATUS_SUCCESS
+    else:
+         logger.log_warning("Sdk handle is none")
+         return False
+
 class SFP(SfpBase):
     """Platform-specific SFP class"""
 
-    def __init__(self, sfp_index, sfp_type):
+    def __init__(self, sfp_index, sfp_type, sdk_handle):
         self.index = sfp_index + 1
         self.sfp_eeprom_path = "qsfp{}".format(self.index)
         self.sfp_status_path = "qsfp{}_status".format(self.index)
         self._detect_sfp_type(sfp_type)
         self.dom_tx_disable_supported = False
         self._dom_capability_detect()
-        self.sdk_handle = None
+        self.sdk_handle = sdk_handle
         self.sdk_index = sfp_index
-
-
-    #SDK initializing stuff
-    def _initialize_sdk_handle(self):
-        """
-        reference: device\mellanox\<sku>\pulgins\sfpreset.py
-        """
-        rc, self.sdk_handle = sx_api_open(None)
-        if (rc != SX_STATUS_SUCCESS):
-            logger.log_warning("Failed to open api handle, please check whether SDK is running.")
-            self.sdk_handle = None
-
-        self.mypid = os.getpid()
-
-
-    def _open_sdk(self):
-        if self.sdk_handle is None:
-            self._initialize_sdk_handle()
-
-        rc = sxd_access_reg_init(self.mypid, None, 0)
-        if rc != 0:
-            logger.log_warning("Failed to initializing register access, please check that SDK is running.")
-            return False
-
-        return True
-
-
-    def _close_sdk(self):
-        rc = sxd_access_reg_deinit()
-        if rc != 0:
-            logger.log_warning("Failed to deinitializing register access.")
-            #no further actions here
-
-
-    def _init_sx_meta_data(self):
-        meta = sxd_reg_meta_t()
-        meta.dev_id = DEVICE_ID
-        meta.swid = SWITCH_ID
-        return meta
 
 
     def get_presence(self):
@@ -1481,14 +1462,8 @@ class SFP(SfpBase):
         Returns:
             A Boolean, True if lpmode is enabled, False if disabled
         """
-        handle = self._open_sdk()
-        if handle is None:
-            logger.log_error("SDK handler is missing for sfp %d object" % self.index)
-            return False
-
         admin_pwr_mode, oper_pwr_mode = self.mgmt_phy_mod_pwr_attr_get(SX_MGMT_PHY_MOD_PWR_ATTR_PWR_MODE_E)
 
-        self._close_sdk()
         return oper_pwr_mode == SX_MGMT_PHY_MOD_PWR_MODE_LOW_E
 
 
@@ -1863,16 +1838,10 @@ class SFP(SfpBase):
 
         refer plugins/sfpreset.py
         """
-        handle = self._open_sdk()
-        if handle is None:
-            logger.log_error("SDK handler is missing for sfp %d object" % self.index)
-            return False
-
         rc = sx_mgmt_phy_mod_reset(self.sdk_handle, self.sdk_index)
         if rc != SX_STATUS_SUCCESS:
             logger.log_warning("sx_mgmt_phy_mod_reset failed, rc = %d" % rc)
 
-        self._close_sdk()
         return rc == SX_STATUS_SUCCESS
 
 
@@ -1927,6 +1896,11 @@ class SFP(SfpBase):
         assert rc == SXD_STATUS_SUCCESS, "sx_api_port_state_get failed, rc = %d" % rc
 
         admin_state = sx_port_admin_state_t_p_value(admin_state_p)
+        
+        delete_sx_port_oper_state_t_p(oper_state_p)
+        delete_sx_port_admin_state_t_p(admin_state_p)
+        delete_sx_port_module_state_t_p(module_state_p)
+
         if admin_state == SX_PORT_ADMIN_STATUS_UP:
             return True
         else:
@@ -1960,6 +1934,8 @@ class SFP(SfpBase):
                and self.is_port_admin_status_up(port_attributes.log_port):
                 log_port_list.append(port_attributes.log_port)
 
+        delete_sx_port_attributes_t_arr(port_attributes_list)
+        delete_uint32_t_p(port_cnt_p)
         return log_port_list
 
 
@@ -2017,11 +1993,6 @@ class SFP(SfpBase):
         Returns:
             A boolean, True if lpmode is set successfully, False if not
         """
-        handle = self._open_sdk()
-        if handle is None:
-            logger.log_error("SDK handler is missing for sfp %d object" % self.index)
-            return False
-
         log_port_list = self.get_logical_ports()
         if lpmode:
             self._set_lpmode_raw(log_port_list, SX_MGMT_PHY_MOD_PWR_ATTR_PWR_MODE_E, SX_MGMT_PHY_MOD_PWR_MODE_LOW_E)
@@ -2029,7 +2000,7 @@ class SFP(SfpBase):
         else:
             self._set_lpmode_raw(log_port_list, SX_MGMT_PHY_MOD_PWR_ATTR_PWR_MODE_E, SX_MGMT_PHY_MOD_PWR_MODE_AUTO_E)
             logger.log_info( "Disabled low power mode for module [%d]" % (self.sdk_index))
-        self._close_sdk()
+ 
         return True
 
 

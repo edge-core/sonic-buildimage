@@ -78,6 +78,10 @@ class Chassis(ChassisBase):
         if self.sfp_event_initialized:
             self.sfp_event.deinitialize()
 
+        if self.sfp_module_initialized:
+            from sonic_platform.sfp import deinitialize_sdk_handle
+            deinitialize_sdk_handle(self.sdk_handle)
+
 
     def initialize_psu(self):
         from sonic_platform.psu import Psu
@@ -118,8 +122,14 @@ class Chassis(ChassisBase):
 
     def initialize_sfp(self):
         from sonic_platform.sfp import SFP
+        from sonic_platform.sfp import initialize_sdk_handle
 
         self.sfp_module = SFP
+        self.sdk_handle = initialize_sdk_handle()
+        
+        if self.sdk_handle is None:
+            self.sfp_module_initialized = False
+            return
 
         # Initialize SFP list
         port_position_tuple = self._get_port_position_tuple_by_platform_name()
@@ -130,9 +140,9 @@ class Chassis(ChassisBase):
 
         for index in range(self.PORT_START, self.PORT_END + 1):
             if index in range(self.QSFP_PORT_START, self.PORTS_IN_BLOCK + 1):
-                sfp_module = SFP(index, 'QSFP')
+                sfp_module = SFP(index, 'QSFP', self.sdk_handle)
             else:
-                sfp_module = SFP(index, 'SFP')
+                sfp_module = SFP(index, 'SFP', self.sdk_handle)
             self._sfp_list.append(sfp_module)
 
         self.sfp_module_initialized = True
