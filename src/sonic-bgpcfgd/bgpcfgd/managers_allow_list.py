@@ -216,7 +216,7 @@ class BGPAllowListMgr(Manager):
         """
         assert af == self.V4 or af == self.V6
         constant_list = self.__get_constant_list(af)
-        allow_list = self.__to_prefix_list(allow_list)
+        allow_list = self.__to_prefix_list(af, allow_list)
         log_debug("BGPAllowListMgr::__update_prefix_list. af='%s' prefix-list name=%s" % (af, pl_name))
         exist, correct = self.__is_prefix_list_valid(af, pl_name, allow_list, constant_list)
         if correct:
@@ -614,14 +614,22 @@ class BGPAllowListMgr(Manager):
         else:
             return self.constants_v6
 
-    @staticmethod
-    def __to_prefix_list(allow_list):
+    def __to_prefix_list(self, af, allow_list):
         """
         Convert "allow list" prefix list, to a prefix-list rules
+        :param af: address-family
         :param allow_list: "allow list" prefix list
         :return: prefix-list rules
         """
-        return ["permit %s ge %d" % (prefix, int(prefix.split("/")[1])+1) for prefix in allow_list]
+        res = []
+        prefix_mask_default = 32 if af == self.V4 else 128
+        for prefix in allow_list:
+            prefix_mask = int(prefix.split("/")[1])
+            if prefix_mask == prefix_mask_default:
+                res.append("permit %s" % prefix)
+            else:
+                res.append("permit %s le %d" % (prefix, prefix_mask_default))
+        return res
 
     def __af_to_family(self, af):
         """

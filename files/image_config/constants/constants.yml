@@ -29,7 +29,6 @@ constants:
         v6:
           - "deny 0::/0 le 59"
           - "deny 0::/0 ge 65"
-          - "permit fe80::/64"
     peers:
       general: # peer_type
         db_table: "BGP_NEIGHBOR"
