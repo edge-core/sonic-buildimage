@@ -171,18 +171,22 @@ endef
 define GET_MOD_DEP_SHA
 	$(eval $(1)_MOD_DEP_PKGS := $(foreach dfile,$($(1)_DEPENDS) $($(1)_RDEPENDS) $($(1)_WHEEL_DEPENDS) \
                             $($(1)_PYTHON_DEBS) $($(1)_PYTHON_WHEELS) \
-                            $($(1)_DBG_DEPENDS) $($(1)_DBG_IMAGE_PACKAGES) $($(1)_LOAD_DOCKERS),\
+                            $($(1)_DBG_DEPENDS) $($(1)_LOAD_DOCKERS),\
                             $(if $($(dfile)_MAIN_DEB),$($(dfile)_MAIN_DEB),$(dfile))) )
 
 	$(if $(MDEBUG), $(info $(1)_MOD_DEP_PKGS: $($(1)_MOD_DEP_PKGS)))
 
 	# Warn if there is any missing dependency files
 	$(eval $(1)_DEP_MOD_SHA_FILES := $(foreach dfile,$($(1)_MOD_DEP_PKGS), \
-	                        $($(dfile)_DEP_FLAGS_FILE) $($(dfile)_MOD_HASH_FILE) $($(dfile)_SMOD_HASH_FILE)) )
+	                        $($(dfile)_DEP_FLAGS_FILE) $($(dfile)_MOD_HASH_FILE) $($(dfile)_SMOD_HASH_FILE) \
+							$($(dfile)_DST_PATH)/$(dfile) ))
+	echo "DEP_MOD_SHA_FILES : $($(1)_DEP_MOD_SHA_FILES)" >> $($(1)_DST_PATH)/$(1).log  
 	$(eval $(1)_DEP_FILES_MISSING := $(filter-out $(wildcard $($(1)_DEP_MOD_SHA_FILES)),$($(1)_DEP_MOD_SHA_FILES)) )
-	$(if $($(1)_DEP_FILES_MISSING), $(warning "[ DPKG ] Dependecy file(s) are not found for $(1) : $($(1)_DEP_FILES_MISSING)))
+	$(if $($(1)_DEP_FILES_MISSING), $(warning "[ DPKG ] Dependency file(s) are not found for $(1) : $($(1)_DEP_FILES_MISSING)))
 	
-	$(eval $(1)_DEP_MOD_SHA := $(shell git hash-object  $($(1)_DEP_MOD_SHA_FILES) \
+	$(eval $(1)_DEP_MOD_SHA_HASH := $(shell git hash-object  $($(1)_DEP_MOD_SHA_FILES)))
+	$(eval $(1)_DEP_MOD_SHA_VALUE:= $(foreach dfile,$($(1)_MOD_DEP_PKGS), $($(dfile)_DEP_MOD_SHA)))	
+	$(eval $(1)_DEP_MOD_SHA := $(shell echo $($(1)_DEP_MOD_SHA_HASH) $($(1)_DEP_MOD_SHA_VALUE) \
                             | sha1sum | awk '{print substr($$1,0,23);}'))
 endef
 
