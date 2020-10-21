@@ -39,7 +39,7 @@ fi
 start_chassis_db=0
 chassis_db_address=""
 chassis_db_port=""
-chassisdb_config="/etc/sonic/chassisdb.conf"
+chassisdb_config="/usr/share/sonic/platform/chassisdb.conf"
 [ -f $chassisdb_config ] && source $chassisdb_config
 
 db_cfg_file="/var/run/redis/sonic-db/database_config.json"

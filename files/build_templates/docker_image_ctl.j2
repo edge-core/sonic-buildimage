@@ -253,7 +253,7 @@ start() {
     {%- if docker_container_name == "database" %}
     start_chassis_db=0
     chassis_db_address=""
-    chassisdb_config="/etc/sonic/chassisdb.conf"
+    chassisdb_config="/usr/share/sonic/device/$PLATFORM/chassisdb.conf"
     [ -f $chassisdb_config ] && source $chassisdb_config
     DB_OPT=" -v /var/run/redis-chassis:/var/run/redis-chassis:ro "
     if [[ "$start_chassis_db" != "1" ]] && [[ -z "$chassis_db_address" ]]; then
