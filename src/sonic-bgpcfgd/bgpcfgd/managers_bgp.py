@@ -187,6 +187,7 @@ class BGPPeerMgrBase(Manager):
 
         kwargs = {
             'CONFIG_DB__DEVICE_METADATA': self.directory.get_slot("CONFIG_DB", swsscommon.CFG_DEVICE_METADATA_TABLE_NAME),
+            'CONFIG_DB__BGP_BBR': self.directory.get_slot('CONFIG_DB', 'BGP_BBR'),
             'constants': self.constants,
             'bgp_asn': bgp_asn,
             'vrf': vrf,
