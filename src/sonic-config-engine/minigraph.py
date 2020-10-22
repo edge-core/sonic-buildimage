@@ -727,13 +727,13 @@ def filter_acl_table_bindings(acls, neighbors, port_channels, sub_role):
         return filter_acls
 
     front_port_channel_intf = []
+
+    # List of Backplane ports
+    backplane_port_list = [v for k,v in port_alias_map.items() if v.startswith(backplane_prefix())]
    
-    # Get the front panel port channel. It will use port_alias_asic_map
-    # which will get populated from port_config.ini for Multi-NPU 
-    # architecture
+    # Get the front panel port channel.
     for port_channel_intf in port_channels:
-        backend_port_channel = any(lag_member in port_alias_asic_map \
-                                   and lag_member.startswith(backplane_prefix()) \
+        backend_port_channel = any(lag_member in backplane_port_list \
                                    for lag_member in port_channels[port_channel_intf]['members'])
         if not backend_port_channel:
             front_port_channel_intf.append(port_channel_intf)
@@ -755,8 +755,10 @@ def filter_acl_table_bindings(acls, neighbors, port_channels, sub_role):
         # This will be applicable in Multi-NPU Platforms.
         front_panel_ports = []
         for port in group_params.get('ports', []):
-            if port in port_alias_asic_map and port.startswith(backplane_prefix()):
+            # Filter out backplane ports
+            if port in backplane_port_list:
                 continue
+            # Filter out backplane port channels
             if port in port_channels and port not in front_port_channel_intf:
                 continue
             front_panel_ports.append(port)
