@@ -614,5 +614,5 @@ dport_map_port_129=126
 dport_map_port_66=127
 dport_map_port_130=128
 
-mmu_init_config="TD3-DEFAULT"
+mmu_init_config="TD3-DELL-lossless"
 sai_preinit_cmd_file=/usr/share/sonic/hwsku/sai_preinit_cmd.soc
