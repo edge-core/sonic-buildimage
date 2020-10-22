@@ -4,5 +4,8 @@
             "type": "LeafRouter",
             "sub_role": "BackEnd"
         }
+    },
+    "CONFIG_DB__BGP_BBR": {
+        "status": "disabled"
     }
 }

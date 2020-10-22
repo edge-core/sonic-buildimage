@@ -9,6 +9,10 @@
 {% if CONFIG_DB__DEVICE_METADATA['localhost']['type'] == 'ToRRouter' %}
     neighbor PEER_V4 allowas-in 1
     neighbor PEER_V4_INT allowas-in 1
+{% elif CONFIG_DB__DEVICE_METADATA['localhost']['type'] == 'LeafRouter' %}
+{%   if CONFIG_DB__BGP_BBR['status'] == 'enabled' %}
+    neighbor PEER_V4 allowas-in 1
+{%   endif %}
 {% endif %}
 {% if CONFIG_DB__DEVICE_METADATA['localhost']['sub_role'] == 'BackEnd' %}
     neighbor PEER_V4_INT route-reflector-client
@@ -24,6 +28,10 @@
 {% if CONFIG_DB__DEVICE_METADATA['localhost']['type'] == 'ToRRouter' %}
     neighbor PEER_V6 allowas-in 1
     neighbor PEER_V6_INT allowas-in 1
+{% elif CONFIG_DB__DEVICE_METADATA['localhost']['type'] == 'LeafRouter' %}
+{%   if CONFIG_DB__BGP_BBR['status'] == 'enabled' %}
+    neighbor PEER_V6 allowas-in 1
+{%   endif %}
 {% endif %}
 {% if CONFIG_DB__DEVICE_METADATA['localhost']['sub_role'] == 'BackEnd' %}
     neighbor PEER_V6_INT route-reflector-client

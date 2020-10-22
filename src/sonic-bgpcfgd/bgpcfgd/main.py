@@ -10,6 +10,7 @@ from .config import ConfigMgr
 from .directory import Directory
 from .log import log_notice, log_crit
 from .managers_allow_list import BGPAllowListMgr
+from .managers_bbr import BBRMgr
 from .managers_bgp import BGPPeerMgrBase
 from .managers_db import BGPDataBaseMgr
 from .managers_intf import InterfaceMgr
@@ -47,6 +48,8 @@ def do_work():
         BGPPeerMgrBase(common_objs, "CONFIG_DB", "BGP_PEER_RANGE", "dynamic", False),
         # AllowList Managers
         BGPAllowListMgr(common_objs, "CONFIG_DB", "BGP_ALLOWED_PREFIXES"),
+        # BBR Manager
+        BBRMgr(common_objs, "CONFIG_DB", "BGP_BBR"),
     ]
     runner = Runner()
     for mgr in managers:

@@ -29,10 +29,17 @@ constants:
         v6:
           - "deny 0::/0 le 59"
           - "deny 0::/0 ge 65"
+    bbr:
+      enabled: true
     peers:
       general: # peer_type
         db_table: "BGP_NEIGHBOR"
         template_dir: "general"
+        bbr:
+          PEER_V4:
+            - ipv4
+          PEER_V6:
+            - ipv6
       monitors: # peer_type
         enabled: true
         db_table: "BGP_MONITORS"

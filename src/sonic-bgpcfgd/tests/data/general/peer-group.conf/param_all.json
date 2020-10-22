@@ -3,5 +3,8 @@
         "localhost": {
             "type": "ToRRouter"
         }
-    }
+    },
+   "CONFIG_DB__BGP_BBR": {
+        "status": "enabled"
+   }
 }
