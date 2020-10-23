@@ -465,9 +465,28 @@ class Chassis(ChassisBase):
             status = self.sfp_event.check_sfp_status(port_dict, timeout)
 
         if status:
+            self.reinit_sfps(port_dict)
             return True, {'sfp':port_dict}
         else:
             return True, {'sfp':{}}
+
+    def reinit_sfps(self, port_dict):
+        """
+        Re-initialize SFP if there is any newly inserted SFPs
+        :param port_dict: SFP event data
+        :return:
+        """
+        # SFP not initialize yet, do nothing
+        if not self.sfp_module_initialized:
+            return
+
+        from . import sfp
+        for index, status in port_dict.items():
+            if status == sfp.SFP_STATUS_INSERTED:
+                try:
+                    self.get_sfp(index).reinit()
+                except Exception as e:
+                    logger.log_error("Fail to re-initialize SFP {} - {}".format(index, repr(e)))
 
     def get_thermal_manager(self):
         from .thermal_manager import ThermalManager

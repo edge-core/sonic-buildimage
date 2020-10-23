@@ -279,6 +279,9 @@ PORT_TYPE_MASK = 0xF0000000
 NVE_MASK = PORT_TYPE_MASK & (PORT_TYPE_NVE << PORT_TYPE_OFFSET)
 CPU_MASK = PORT_TYPE_MASK & (PORT_TYPE_CPU << PORT_TYPE_OFFSET)
 
+# parameters for SFP presence
+SFP_STATUS_INSERTED = '1'
+
 # Global logger class instance
 logger = Logger()
 
@@ -316,6 +319,13 @@ class SFP(SfpBase):
         self.sdk_handle = sdk_handle
         self.sdk_index = sfp_index
 
+    def reinit(self):
+        """
+        Re-initialize this SFP object when a new SFP inserted
+        :return: 
+        """
+        self._detect_sfp_type(self.sfp_type)
+        self._dom_capability_detect()
 
     def get_presence(self):
         """
