@@ -42,6 +42,9 @@ python-wheels/{{ whl }}{{' '}}
 {%- endfor %}
 {%- endif -%}
 
+# Copy files
+COPY ["files/swss_vars.j2", "/usr/share/sonic/templates/"]
+
 ## Clean up
 RUN apt-get purge -y python-pip python-dev; apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /debs /python-wheels

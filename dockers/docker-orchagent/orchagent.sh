@@ -1,15 +1,9 @@
 #!/usr/bin/env bash
 
-EXIT_SWSS_VARS_FILE_NOT_FOUND=1
 SWSS_VARS_FILE=/usr/share/sonic/templates/swss_vars.j2
 
-if [ ! -f "$SWSS_VARS_FILE" ]; then
-    echo "SWSS vars template file not found"
-    exit $EXIT_SWSS_VARS_FILE_NOT_FOUND
-fi
-
 # Retrieve SWSS vars from sonic-cfggen
-SWSS_VARS=$(sonic-cfggen -d -y /etc/sonic/sonic_version.yml -t $SWSS_VARS_FILE)
+SWSS_VARS=$(sonic-cfggen -d -y /etc/sonic/sonic_version.yml -t $SWSS_VARS_FILE) || exit 1
 export platform=$(echo $SWSS_VARS | jq -r '.asic_type')
 
 MAC_ADDRESS=$(echo $SWSS_VARS | jq -r '.mac')
