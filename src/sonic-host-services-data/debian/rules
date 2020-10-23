@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+
+build:
+
+%:
+	dh $@
+
+override_dh_installsystemd:
+	dh_installsystemd --no-start --name=procdockerstatsd

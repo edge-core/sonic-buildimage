@@ -206,6 +206,16 @@ sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/sonic-utilities-data_*.deb || \
 # in bash.bashrc, so we copy a version of the file with it enabled here.
 sudo cp -f $IMAGE_CONFIGS/bash/bash.bashrc $FILESYSTEM_ROOT/etc/
 
+# Install SONiC host services package
+SONIC_HOST_SERVICES_PY3_WHEEL_NAME=$(basename {{sonic_host_services_py3_wheel_path}})
+sudo cp {{sonic_host_services_py3_wheel_path}} $FILESYSTEM_ROOT/$SONIC_HOST_SERVICES_PY3_WHEEL_NAME
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install $SONIC_HOST_SERVICES_PY3_WHEEL_NAME
+sudo rm -rf $FILESYSTEM_ROOT/$SONIC_HOST_SERVICES_PY3_WHEEL_NAME
+
+# Install SONiC host services data files (and any dependencies via 'apt-get -y install -f')
+sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/sonic-host-services-data_*.deb || \
+    sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
+
 {% if enable_ztp == "y" %}
 # Install ZTP (and its dependencies via 'apt-get -y install -f')
 sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/sonic-ztp_*.deb || \
@@ -401,11 +411,6 @@ sudo cp $IMAGE_CONFIGS/sudoers/sudoers.lecture $FILESYSTEM_ROOT/etc/
 sudo cp $IMAGE_CONFIGS/caclmgrd/caclmgrd.service $FILESYSTEM_ROOT_USR_LIB_SYSTEMD_SYSTEM
 echo "caclmgrd.service" | sudo tee -a $GENERATED_SERVICE_FILE
 sudo cp $IMAGE_CONFIGS/caclmgrd/caclmgrd $FILESYSTEM_ROOT/usr/bin/
-
-# Copy process/docker cpu/memory utilization data export daemon
-sudo cp $IMAGE_CONFIGS/procdockerstatsd/procdockerstatsd.service $FILESYSTEM_ROOT_USR_LIB_SYSTEMD_SYSTEM
-echo "procdockerstatsd.service" | sudo tee -a $GENERATED_SERVICE_FILE
-sudo cp $IMAGE_CONFIGS/procdockerstatsd/procdockerstatsd $FILESYSTEM_ROOT/usr/bin/
 
 # Copy systemd timer configuration
 sudo cp $BUILD_TEMPLATES/pcie-check.timer $FILESYSTEM_ROOT_USR_LIB_SYSTEMD_SYSTEM
