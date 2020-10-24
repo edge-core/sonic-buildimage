@@ -8,6 +8,7 @@ from .logger import Logger
 #
 # Constants ====================================================================
 #
+
 REDIS_TIMEOUT_MSECS = 0
 
 EEPROM_MODULE_NAME = 'eeprom'
@@ -30,7 +31,11 @@ def db_connect(db_name, namespace=EMPTY_NAMESPACE):
 
 class DaemonBase(Logger):
     def __init__(self, log_identifier):
-        super(DaemonBase, self).__init__(log_identifier, Logger.LOG_FACILITY_DAEMON)
+        super(DaemonBase, self).__init__(
+            log_identifier=log_identifier,
+            log_facility=Logger.LOG_FACILITY_DAEMON,
+            log_option=(Logger.LOG_OPTION_NDELAY | Logger.LOG_OPTION_PID)
+        )
 
         # Register our default signal handlers, unless the signal already has a
         # handler registered, most likely from a subclass implementation
