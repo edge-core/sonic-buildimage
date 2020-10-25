@@ -11,8 +11,11 @@ class Logger(object):
     """
     Logger class for SONiC Python applications
     """
-    LOG_FACILITY_USER = syslog.LOG_USER
     LOG_FACILITY_DAEMON = syslog.LOG_DAEMON
+    LOG_FACILITY_USER = syslog.LOG_USER
+
+    LOG_OPTION_NDELAY = syslog.LOG_NDELAY
+    LOG_OPTION_PID = syslog.LOG_PID
 
     LOG_PRIORITY_ERROR = syslog.LOG_ERR
     LOG_PRIORITY_WARNING = syslog.LOG_WARNING
@@ -20,21 +23,23 @@ class Logger(object):
     LOG_PRIORITY_INFO = syslog.LOG_INFO
     LOG_PRIORITY_DEBUG = syslog.LOG_DEBUG
 
-    def __init__(self, log_identifier=None, log_facility=LOG_FACILITY_USER):
-        self.syslog = syslog
+    DEFAULT_LOG_FACILITY = LOG_FACILITY_USER
+    DEFAULT_LOG_OPTION = LOG_OPTION_NDELAY
 
-        if not log_identifier:
+    def __init__(self, log_identifier=None, log_facility=DEFAULT_LOG_FACILITY, log_option=DEFAULT_LOG_OPTION):
+        self._syslog = syslog
+
+        if log_identifier is None:
             log_identifier = os.path.basename(sys.argv[0])
 
-        self.syslog.openlog(ident=log_identifier,
-                            logoption=(syslog.LOG_PID | syslog.LOG_NDELAY),
-                            facility=log_facility)
+        # Initialize syslog
+        self._syslog.openlog(ident=log_identifier, logoption=log_option, facility=log_facility)
 
         # Set the default minimum log priority to LOG_PRIORITY_NOTICE
         self.set_min_log_priority(self.LOG_PRIORITY_NOTICE)
 
     def __del__(self):
-        self.syslog.closelog()
+        self._syslog.closelog()
 
     #
     # Methods for setting minimum log priority
@@ -48,7 +53,7 @@ class Logger(object):
         Args:
             priority: The minimum priority at which to log messages
         """
-        self.syslog.setlogmask(self.syslog.LOG_UPTO(priority))
+        self._min_log_priority = priority
 
     def set_min_log_priority_error(self):
         """
@@ -85,10 +90,13 @@ class Logger(object):
     #
 
     def log(self, priority, msg, also_print_to_console=False):
-        self.syslog.syslog(priority, msg)
+        if self._min_log_priority >= priority:
+            # Send message to syslog
+            self._syslog.syslog(priority, msg)
 
-        if also_print_to_console:
-            print(msg)
+            # Send message to console
+            if also_print_to_console:
+                print(msg)
 
     def log_error(self, msg, also_print_to_console=False):
         self.log(self.LOG_PRIORITY_ERROR, msg, also_print_to_console)
