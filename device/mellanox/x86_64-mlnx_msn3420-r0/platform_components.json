@@ -1,6 +1,6 @@
 {
     "chassis": {
-        "x86_64-mlnx_msn3420-r0": {
+        "MSN3420": {
             "component": {
                 "ONIE": { },
                 "SSD": { },

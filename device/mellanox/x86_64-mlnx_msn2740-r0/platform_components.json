@@ -1,6 +1,6 @@
 {
     "chassis": {
-        "x86_64-mlnx_msn2740-r0": {
+        "MSN2740": {
             "component": {
                 "ONIE": { },
                 "SSD": { },

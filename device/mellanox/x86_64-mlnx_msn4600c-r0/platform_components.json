@@ -1,6 +1,6 @@
 {
     "chassis": {
-        "x86_64-mlnx_msn4600c-r0": {
+        "MSN4600C": {
             "component": {
                 "ONIE": { },
                 "SSD": { },

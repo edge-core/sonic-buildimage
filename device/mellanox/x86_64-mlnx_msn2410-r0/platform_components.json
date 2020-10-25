@@ -1,6 +1,6 @@
 {
     "chassis": {
-        "x86_64-mlnx_msn2410-r0": {
+        "MSN2410": {
             "component": {
                 "ONIE": { },
                 "SSD": { },

@@ -1,6 +1,6 @@
 {
     "chassis": {
-        "x86_64-mlnx_msn2700-r0": {
+        "MSN2700": {
             "component": {
                 "ONIE": { },
                 "SSD": { },
