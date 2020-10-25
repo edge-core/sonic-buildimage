@@ -1,6 +1,6 @@
 {
     "chassis": {
-        "x86_64-mlnx_msn3700-r0": {
+        "MSN3700": {
             "component": {
                 "ONIE": { },
                 "SSD": { },

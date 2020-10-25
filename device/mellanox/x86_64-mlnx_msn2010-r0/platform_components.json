@@ -1,6 +1,6 @@
 {
     "chassis": {
-        "x86_64-mlnx_msn2010-r0": {
+        "MSN2010": {
             "component": {
                 "ONIE": { },
                 "SSD": { },
