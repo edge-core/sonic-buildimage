@@ -346,9 +346,9 @@ class TestCfgGen(TestCase):
         self.assertEqual(
             utils.to_dict(output.strip()),
             utils.to_dict(
-                "{'Ethernet8': {'lanes': '37,38,39,40', 'description': 'Interface description', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/8', 'admin_status': 'up', 'speed': '40000'}, "
+                "{'Ethernet8': {'lanes': '37,38,39,40', 'description': 'Interface description', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/8', 'admin_status': 'up', 'speed': '40000', 'mux_cable': 'true'}, "
                 "'Ethernet0': {'lanes': '29,30,31,32', 'description': 'switch-01t1:port1', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/0', 'admin_status': 'up', 'speed': '10000'}, "
-                "'Ethernet4': {'lanes': '25,26,27,28', 'description': 'fortyGigE0/4', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/4', 'admin_status': 'up', 'speed': '25000'}, "
+                "'Ethernet4': {'lanes': '25,26,27,28', 'description': 'fortyGigE0/4', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/4', 'admin_status': 'up', 'speed': '25000', 'mux_cable': 'true'}, "
                 "'Ethernet108': {'alias': 'fortyGigE0/108', 'pfc_asym': 'off', 'lanes': '81,82,83,84', 'description': 'fortyGigE0/108', 'mtu': '9100'}, "
                 "'Ethernet100': {'alias': 'fortyGigE0/100', 'pfc_asym': 'off', 'lanes': '125,126,127,128', 'description': 'fortyGigE0/100', 'mtu': '9100'}, "
                 "'Ethernet104': {'alias': 'fortyGigE0/104', 'pfc_asym': 'off', 'lanes': '85,86,87,88', 'description': 'fortyGigE0/104', 'mtu': '9100'}, "
