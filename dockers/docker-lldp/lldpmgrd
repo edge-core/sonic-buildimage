@@ -19,6 +19,9 @@ try:
     import subprocess
     import sys
 
+    import syslog
+    import os.path
+    import time
     from sonic_py_common import daemon_base
     from swsscommon import swsscommon
 except ImportError as err:
@@ -27,6 +30,7 @@ except ImportError as err:
 VERSION = "1.0"
 
 SYSLOG_IDENTIFIER = "lldpmgrd"
+PORT_INIT_TIMEOUT = 300
 
 
 class LldpManager(daemon_base.DaemonBase):
@@ -130,16 +134,14 @@ class LldpManager(daemon_base.DaemonBase):
         for (port_name, cmd) in self.pending_cmds.iteritems():
             self.log_debug("Running command: '{}'".format(cmd))
 
-            proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-            (stdout, stderr) = proc.communicate()
+            rc, stderr = run_cmd(self, cmd)
 
             # If the command succeeds, add the port name to our to_delete list.
             # We will delete this command from self.pending_cmds below.
             # If the command fails, log a message, but don't delete the command
             # from self.pending_cmds, so that the command will be retried the
             # next time this method is called.
-            if proc.returncode == 0:
+            if rc == 0:
                 to_delete.append(port_name)
             else:
                 self.log_warning("Command failed '{}': {}".format(cmd, stderr))
@@ -165,6 +167,13 @@ class LldpManager(daemon_base.DaemonBase):
 
         # Set select timeout to 10 seconds
         SELECT_TIMEOUT_MS = 1000 * 10
+
+        # Daemon is paused on the configuration file to avoid lldp packets with wrong information
+        # until all interfaces are well configured on lldpd
+        port_init_done = False
+        port_config_done = False
+        resume_lldp_sent = False
+        start_time = time.time()
 
         sel = swsscommon.Select()
 
@@ -204,9 +213,25 @@ class LldpManager(daemon_base.DaemonBase):
                             else:
                                 self.pending_cmds.pop(key, None)
 
+                elif key == "PortInitDone":
+                    port_init_done = True
+                elif key == "PortConfigDone":
+                    port_config_done = True
+
             # Process all pending commands
             self.process_pending_cmds()
 
+            # Resume the daemon since all interfaces data updated and configured to the lldpd so no miss leading packets will be sent
+            if not resume_lldp_sent:
+                if check_timeout(self, start_time):
+                    port_init_done = port_config_done = True
+            if port_init_done and port_config_done:
+                port_init_done = port_config_done = False
+                rc, stderr = run_cmd(self, "lldpcli resume")
+                if rc != 0:
+                    self.log_error("Failed to resume lldpd with command: 'lldpcli resume': {}".format(stderr))
+                    sys.exit(1)
+                resume_lldp_sent = True
 
 # ============================= Functions =============================
 
@@ -219,6 +244,16 @@ def main():
 
     lldpmgr.run()
 
+def run_cmd(self, cmd):
+    proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (stdout, stderr) = proc.communicate()
+    return proc.returncode, stderr
+
+def check_timeout(self, start_time):
+    if time.time() - start_time > PORT_INIT_TIMEOUT:
+        self.log_error("Port init timeout reached ({} seconds), resuming lldpd...".format(PORT_INIT_TIMEOUT))
+        return True
+    return False
 
 if __name__ == "__main__":
     main()
