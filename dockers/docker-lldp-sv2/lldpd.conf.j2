@@ -10,3 +10,5 @@ configure ports eth0 lldp portidsubtype local {{ mgmt_port_name }}
 configure system ip management pattern {{ ipv4 }}
 {% endif %}
 configure system hostname {{ DEVICE_METADATA['localhost']['hostname'] }}
+{# pause lldpd operations until all interfaces are well configured, resume command will run in lldpmgrd #}
+pause
