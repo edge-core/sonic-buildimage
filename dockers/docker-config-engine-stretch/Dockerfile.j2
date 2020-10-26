@@ -7,20 +7,12 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update         && \
     apt-get install -y        \
         # Dependencies for sonic-cfggen
-        python-lxml           \
-        python-yaml           \
-        python-bitarray       \
+        build-essential       \
         python-pip            \
         python-dev            \
         python-setuptools
 
 RUN pip install --upgrade pip
-
-RUN pip install             \
-        netaddr             \
-        ipaddr              \
-        jinja2              \
-        pyangbind==0.5.10
 
 {% if docker_config_engine_stretch_debs.strip() %}
 # Copy locally-built Debian package dependencies
@@ -43,6 +35,7 @@ COPY ["files/swss_vars.j2", "/usr/share/sonic/templates/"]
 
 ## Clean up
 RUN apt-get purge -y               \
+        build-essential            \
         python-pip                 \
         python-dev              && \
     apt-get clean -y            && \

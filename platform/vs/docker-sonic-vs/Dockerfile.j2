@@ -61,20 +61,20 @@ RUN curl -o redis-server_6.0.6-1~bpo10+1_amd64.deb "https://sonicstorage.blob.co
 RUN dpkg -i redis-tools_6.0.6-1~bpo10+1_amd64.deb redis-server_6.0.6-1~bpo10+1_amd64.deb || apt-get install -f
 RUN rm redis-tools_6.0.6-1~bpo10+1_amd64.deb redis-server_6.0.6-1~bpo10+1_amd64.deb
 
-RUN pip install setuptools
+RUN pip2 install setuptools
 RUN pip3 install setuptools
-RUN pip install py2_ipaddress
-RUN pip install six
-RUN pip install pyroute2==0.5.3 netifaces==0.10.7
-RUN pip install monotonic==1.5
-RUN pip install urllib3
-RUN pip install requests
-RUN pip install crontab
+RUN pip2 install py2_ipaddress
+RUN pip2 install six
+RUN pip2 install pyroute2==0.5.3 netifaces==0.10.7
+RUN pip2 install monotonic==1.5
+RUN pip2 install urllib3
+RUN pip2 install requests
+RUN pip2 install crontab
 
 # Install dependencies for Dynamic Port Breakout
-RUN pip install xmltodict==0.12.0
-RUN pip install jsondiff==1.2.0
-RUN pip install ijson==2.6.1
+RUN pip2 install xmltodict==0.12.0
+RUN pip2 install jsondiff==1.2.0
+RUN pip2 install ijson==2.6.1
 
 {% if docker_sonic_vs_debs.strip() -%}
 # Copy locally-built Debian package dependencies
@@ -109,7 +109,7 @@ COPY python-wheels/{{ whl }}  python-wheels/
 # install PKGs after copying all PKGs to avoid dependency failure
 # use py3 to find python3 package, which is forced by wheel as of now
 {%- for whl in docker_sonic_vs_whls.split(' ') %}
-RUN pip{% if 'py3' in whl %}3{% endif %} install python-wheels/{{ whl }}
+RUN pip{% if 'py3' in whl %}3{% else %}2{% endif %} install python-wheels/{{ whl }}
 {%- endfor %}
 {% endif %}
 

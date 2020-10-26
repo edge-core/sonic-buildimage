@@ -57,10 +57,10 @@ RUN apt-get update && apt-get install -y \
         libtinyxml2-dev \
         python \
         python-pip \
+        python3-pip \
         libncurses5-dev \
         texinfo \
         dh-autoreconf \
-        python3-pip \
         doxygen \
         devscripts \
         git-buildpackage \
@@ -244,13 +244,6 @@ RUN apt-get update && apt-get install -y \
         python3-sphinx \
 # For sonic config engine testing
         python-dev \
-        python-lxml \
-        python3-lxml \
-        python-jinja2 \
-        python-netaddr \
-        python-ipaddr \
-        python-yaml \
-        python3-yaml \
 # For lockfile
         procmail \
 # For pam_tacplus build
@@ -298,7 +291,14 @@ RUN apt-get update && apt-get install -y \
 # For libyang
         swig \
 # For SWI Tools
-        python-m2crypto
+        python-m2crypto \
+# For sonic-mgmt-framework
+        autoconf \
+        m4 \
+        libxml2-utils \
+        xsltproc \
+        python-lxml \
+        libexpat1-dev
 
 ## Config dpkg
 ## install the configuration file if it’s currently missing
@@ -330,13 +330,17 @@ RUN export VERSION=1.14.2 \
  && echo 'export PATH=$PATH:$GOROOT/bin' >> /etc/bash.bashrc \
  && rm go$VERSION.linux-*.tar.gz
 
+RUN pip2 install --upgrade pip
+RUN pip3 install --upgrade pip
+RUN apt-get purge -y python-pip python3-pip
+
 # For p4 build
-RUN pip install \
-        ctypesgen==0.r125 \
-        crc16
+RUN pip2 install \
+         ctypesgen==0.r125 \
+         crc16
 
 # Note: Stick with Jinja2 2.x branch as the 3.x dropped support for Python 2.7 
-RUN pip install --force-reinstall --upgrade "Jinja2<3.0.0"
+RUN pip2 install --force-reinstall --upgrade "Jinja2<3.0.0"
 
 # For sonic config engine testing
 # Install pyangbind here, outside sonic-config-engine dependencies, as pyangbind causes enum34 to be installed.
@@ -346,39 +350,44 @@ RUN pip3 install pyangbind==0.8.1
 RUN pip3 uninstall -y enum34
 
 # For templating
-RUN pip install j2cli==0.3.10
+RUN pip2 install j2cli==0.3.10
 
 # For sonic snmpagent mock testing
 RUN pip3 install mockredispy==2.9.3
 
-RUN pip3 install "PyYAML>=5.1"
+# For sonic-mgmt-framework
+RUN pip2 install "PyYAML==5.3.1"
+RUN pip3 install "PyYAML==5.3.1"
+RUN pip2 install "lxml==4.6.1"
+RUN pip3 install "lxml==4.6.1"
+
 
 # For sonic-platform-common testing
 RUN pip3 install redis
 
 # For supervisor build
-RUN pip install meld3 mock
+RUN pip2 install meld3 mock
 
 # For vs image build
-RUN pip install pexpect==4.6.0
+RUN pip2 install pexpect==4.6.0
 
 # For sonic-utilities build
-RUN pip install mockredispy==2.9.3
-RUN pip install pytest-runner==4.4
-RUN pip install setuptools==40.8.0
+RUN pip2 install mockredispy==2.9.3
+RUN pip2 install pytest-runner==4.4
+RUN pip2 install setuptools==40.8.0
 
 # For sonic-swss-common testing
-RUN pip install Pympler==0.8
+RUN pip2 install Pympler==0.8
 
 # For sonic_yang_mgmt build
-RUN pip install ijson==2.6.1
+RUN pip2 install ijson==2.6.1
 RUN pip3 install ijson==2.6.1
-RUN pip install jsondiff==1.2.0
-RUN pip install xmltodict==0.12.0
-RUN pip install pyang==2.1.1
+RUN pip2 install jsondiff==1.2.0
+RUN pip2 install xmltodict==0.12.0
+RUN pip2 install pyang==2.1.1
 
 # For mgmt-framework build
-RUN pip install mmh3
+RUN pip2 install mmh3
 
 # Install dependencies for isc-dhcp-relay build
 RUN apt-get -y build-dep isc-dhcp
@@ -437,4 +446,4 @@ RUN apt-get install -y docker-ce=18.06.3~ce~3-0~debian
 RUN echo "DOCKER_OPTS=\"--experimental --storage-driver=vfs\"" >> /etc/default/docker
 
 # Install swi tools
-RUN python -m pip install git+https://github.com/aristanetworks/swi-tools.git@d51761ec0bb93c73039233f3c01ed48235ffad00
+RUN pip2 install git+https://github.com/aristanetworks/swi-tools.git@d51761ec0bb93c73039233f3c01ed48235ffad00

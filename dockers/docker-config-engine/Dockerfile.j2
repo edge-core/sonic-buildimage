@@ -6,11 +6,11 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
 
 # Dependencies for sonic-cfggen
-RUN apt-get install -y python-lxml python-yaml python-bitarray python-pip python-dev
+RUN apt-get install -y build-essential python-pip python-dev
 
 RUN pip install --upgrade pip
 
-RUN pip install netaddr ipaddr jinja2 pyangbind==0.5.10
+RUN apt-get purge -y python-pip
 
 {% if docker_config_engine_debs.strip() %}
 COPY \
@@ -46,5 +46,5 @@ python-wheels/{{ whl }}{{' '}}
 COPY ["files/swss_vars.j2", "/usr/share/sonic/templates/"]
 
 ## Clean up
-RUN apt-get purge -y python-pip python-dev; apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
+RUN apt-get purge -y build-essential python-dev; apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /debs /python-wheels

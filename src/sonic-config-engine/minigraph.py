@@ -8,7 +8,7 @@ import socket
 import struct
 import json
 import copy
-import ipaddr as ipaddress
+import ipaddress
 from collections import defaultdict
 
 from lxml import etree as ET
@@ -17,6 +17,12 @@ from lxml.etree import QName
 from portconfig import get_port_config
 from sonic_py_common.multi_asic import get_asic_id_from_name
 from sonic_py_common.interface import backplane_prefix
+
+# TODO: Remove this once we no longer support Python 2
+if sys.version_info.major == 3:
+    UNICODE_TYPE = str
+else:
+    UNICODE_TYPE = unicode
 
 """minigraph.py
 version_added: "1.9"
@@ -323,8 +329,8 @@ def parse_dpg(dpg, hname):
         for mgmtintf in mgmtintfs.findall(str(QName(ns1, "ManagementIPInterface"))):
             intfname = mgmtintf.find(str(QName(ns, "AttachTo"))).text
             ipprefix = mgmtintf.find(str(QName(ns1, "PrefixStr"))).text
-            mgmtipn = ipaddress.IPNetwork(ipprefix)
-            gwaddr = ipaddress.IPAddress(int(mgmtipn.network) + 1)
+            mgmtipn = ipaddress.ip_network(UNICODE_TYPE(ipprefix), False)
+            gwaddr = ipaddress.ip_address(next(mgmtipn.hosts()))
             mgmt_intf[(intfname, ipprefix)] = {'gwaddr': gwaddr}
 
         pcintfs = child.find(str(QName(ns, "PortChannelInterfaces")))
@@ -665,9 +671,9 @@ def parse_spine_chassis_fe(results, vni, lo_intfs, phyport_intfs, pc_intfs, pc_m
     # Vxlan tunnel information
     lo_addr = '0.0.0.0'
     for lo in lo_intfs:
-        lo_network = ipaddress.IPNetwork(lo[1])
+        lo_network = ipaddress.ip_network(UNICODE_TYPE(lo[1]), False)
         if lo_network.version == 4:
-            lo_addr = str(lo_network.ip)
+            lo_addr = str(lo_network.network_address)
             break
     results['VXLAN_TUNNEL'] = {chassis_vxlan_tunnel: {
         'src_ip': lo_addr
@@ -1174,9 +1180,9 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
     # if erspan_dst:
     #     lo_addr = '0.0.0.0'
     #     for lo in lo_intfs:
-    #         lo_network = ipaddress.IPNetwork(lo[1])
+    #         lo_network = ipaddress.ip_network(UNICODE_TYPE(lo[1]), False)
     #         if lo_network.version == 4:
-    #             lo_addr = str(lo_network.ip)
+    #             lo_addr = str(lo_network.network_address)
     #             break
     #     count = 0
     #     for dst in erspan_dst:
@@ -1204,8 +1210,8 @@ def parse_device_desc_xml(filename):
     results['LOOPBACK_INTERFACE'] = {('lo', lo_prefix): {}}
 
     mgmt_intf = {}
-    mgmtipn = ipaddress.IPNetwork(mgmt_prefix)
-    gwaddr = ipaddress.IPAddress(int(mgmtipn.network) + 1)
+    mgmtipn = ipaddress.ip_network(UNICODE_TYPE(mgmt_prefix), False)
+    gwaddr = ipaddress.ip_address((next(mgmtipn.hosts())))
     results['MGMT_INTERFACE'] = {('eth0', mgmt_prefix): {'gwaddr': gwaddr}}
 
     return results

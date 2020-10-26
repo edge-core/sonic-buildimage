@@ -93,10 +93,7 @@ sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/iptables_*.deb || \
 # Install dependencies for SONiC config engine
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install \
     python-dev     \
-    python3-dev    \
-    python-lxml    \
-    python-yaml    \
-    python-bitarray
+    python3-dev
 
 # Install Python client for Redis
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install "redis==3.5.3"

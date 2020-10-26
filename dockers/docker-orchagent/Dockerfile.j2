@@ -4,7 +4,7 @@ FROM docker-config-engine-buster
 ARG docker_container_name
 RUN [ -f /etc/rsyslog.conf ] && sed -ri "s/%syslogtag%/$docker_container_name#%syslogtag%/;" /etc/rsyslog.conf
 
-## Make apt-get non-interactive
+# Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update &&       \
@@ -18,10 +18,14 @@ RUN apt-get update &&       \
         libmnl0             \
         bridge-utils        \
         conntrack           \
-        ndppd
+        ndppd               \
+        # Needed for installing netifaces Python package
+        build-essential     \
+        python-dev          \
+        python3-dev
 
 {% if ( CONFIGURED_ARCH == "armhf" or CONFIGURED_ARCH == "arm64" ) %}
-## Fix for gcc/python not found in arm docker
+# Fix for gcc/python not found in arm docker
 RUN apt-get install -f -y python2.7 python2.7-dev
 RUN apt-get install -y gcc-6
 {% endif %}
@@ -53,10 +57,14 @@ RUN apt-get remove -y gcc-6
 {{ install_debian_packages(docker_orchagent_debs.split(' ')) }}
 {%- endif %}
 
-## Clean up
-RUN apt-get clean -y        && \
-    apt-get autoclean -y    && \
-    apt-get autoremove -y   && \
+# Clean up
+RUN apt-get purge -y          \
+        build-essential       \
+        python-dev            \
+        python3-dev        && \
+    apt-get clean -y       && \
+    apt-get autoclean -y   && \
+    apt-get autoremove -y  && \
     rm -rf /debs
 
 COPY ["files/arp_update", "/usr/bin"]
@@ -68,7 +76,7 @@ COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 COPY ["files/supervisor-proc-exit-listener", "/usr/bin"]
 COPY ["critical_processes", "/etc/supervisor/"]
 
-## Copy all Jinja2 template files into the templates folder
+# Copy all Jinja2 template files into the templates folder
 COPY ["*.j2", "/usr/share/sonic/templates/"]
 
 ENTRYPOINT ["/usr/bin/docker-init.sh"]

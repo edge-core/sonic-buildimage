@@ -6,7 +6,7 @@ RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return
 {%- endmacro %}
 
 {% macro install_python2_wheels(packages) -%}
-RUN cd /python-wheels/ && pip install {{ packages | join(' ') }}
+RUN cd /python-wheels/ && pip2 install {{ packages | join(' ') }}
 {%- endmacro %}
 
 {% macro install_python3_wheels(packages) -%}
