@@ -28,9 +28,12 @@ def check_process_existence(container_name, process_cmdline):
             # state, then it will be marked as 'running'.
             is_running = False
             for process in psutil.process_iter(["cmdline", "status"]):
-                if ((' '.join(process.cmdline())).startswith(process_cmdline) and process.status() in ["running", "sleeping"]):
-                    is_running = True
-                    break
+                try:
+                    if ((' '.join(process.cmdline())).startswith(process_cmdline) and process.status() in ["running", "sleeping"]):
+                        is_running = True
+                        break
+                except psutil.NoSuchProcess:
+                    pass
 
             if not is_running:
                 # If this script is run by Monit, then the following output will be appended to
