@@ -29,10 +29,9 @@
 import argparse
 import sys
 import threading
-from docker import Client
 import time
 
-from docker import APIClient
+from docker import Client
 from sonic_py_common import logger, device_info
 
 SYSLOG_IDENTIFIER = 'docker-wait-any'
