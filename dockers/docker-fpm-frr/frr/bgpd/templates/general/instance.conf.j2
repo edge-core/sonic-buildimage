@@ -15,27 +15,12 @@
 !
 {% if neighbor_addr | ipv4 %}
   address-family ipv4
-{%   if 'ASIC' in bgp_session['name'] %}
-    neighbor {{ neighbor_addr }} peer-group PEER_V4_INT
-{%   else %}
     neighbor {{ neighbor_addr }} peer-group PEER_V4
-{%   endif %}
-!
-{%   if CONFIG_DB__DEVICE_METADATA['localhost']['sub_role'] == 'BackEnd' %}
-    neighbor {{ neighbor_addr }} route-map FROM_BGP_PEER_V4_INT in
-{%   endif %}
 !
 {% elif neighbor_addr | ipv6 %}
   address-family ipv6
-{%   if 'ASIC' in bgp_session['name'] %}
-    neighbor {{ neighbor_addr }} peer-group PEER_V6_INT
-{%   else %}
     neighbor {{ neighbor_addr }} peer-group PEER_V6
-{%   endif %}
 !
-{%   if CONFIG_DB__DEVICE_METADATA['localhost']['sub_role'] == 'BackEnd' %}
-    neighbor {{ neighbor_addr }} route-map FROM_BGP_PEER_V6_INT in
-{%   endif %}
 {% endif %}
 !
 {%   if bgp_session.has_key('rrclient') and bgp_session['rrclient'] | int != 0 %}
@@ -44,10 +29,6 @@
 !
 {%   if bgp_session.has_key('nhopself') and bgp_session['nhopself'] | int != 0 %}
     neighbor {{ neighbor_addr }} next-hop-self
-{%   endif %}
-!
-{%   if 'ASIC' in bgp_session['name'] %}
-    neighbor {{ neighbor_addr }} next-hop-self force
 {%   endif %}
 !
     neighbor {{ neighbor_addr }} activate
