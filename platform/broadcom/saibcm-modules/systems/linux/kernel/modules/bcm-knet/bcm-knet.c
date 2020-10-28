@@ -725,6 +725,12 @@ typedef struct bkn_filter_s {
 } bkn_filter_t;
 
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29))
+#define BKN_NETDEV_TX_BUSY      NETDEV_TX_BUSY
+#else
+#define BKN_NETDEV_TX_BUSY      1
+#endif
+
 /*
  * Multiple instance support in KNET
  */
@@ -4840,15 +4846,11 @@ bkn_tx(struct sk_buff *skb, struct net_device *dev)
         priv->stats.tx_bytes += pktlen;
         sinfo->tx.pkts++;
     } else {
-        DBG_WARN(("Tx drop: No DMA resources\n"));
-        priv->stats.tx_dropped++;
+        DBG_VERB(("Tx busy: No DMA resources\n"));
         sinfo->tx.pkts_d_dma_resrc++;
-        dev_kfree_skb_any(skb);
-    }
-
-    /* Check our Tx resources */
-    if (sinfo->tx.free <= 1) {
         bkn_suspend_tx(sinfo);
+        spin_unlock_irqrestore(&sinfo->lock, flags);
+        return BKN_NETDEV_TX_BUSY;
     }
 
     NETDEV_UPDATE_TRANS_START_TIME(dev);
