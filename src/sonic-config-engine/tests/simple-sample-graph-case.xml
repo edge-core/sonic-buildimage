@@ -134,6 +134,7 @@
           <VlanID>1000</VlanID>
           <Tag>1000</Tag>
           <Subnets>192.168.0.0/27</Subnets>
+          <MacAddress>00:aa:bb:cc:dd:ee</MacAddress>
         </VlanInterface>
       </VlanInterfaces>
       <IPInterfaces>

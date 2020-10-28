@@ -383,6 +383,10 @@ def parse_dpg(dpg, hname):
                 vdhcpserver_list = vintfdhcpservers.split(';')
                 vlan_attributes['dhcp_servers'] = vdhcpserver_list
 
+            vlanmac = vintf.find(str(QName(ns, "MacAddress")))
+            if vlanmac != None:
+                vlan_attributes['mac'] = vlanmac.text
+
             sonic_vlan_name = "Vlan%s" % vlanid
             if sonic_vlan_name != vintfname:
                 vlan_attributes['alias'] = vintfname
