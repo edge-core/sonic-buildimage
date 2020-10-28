@@ -1,8 +1,7 @@
 {
     "CONFIG_DB__DEVICE_METADATA": {
         "localhost": {
-            "type": "LeafRouter",
-            "sub_role": "BackEnd"
+            "type": "LeafRouter"
         }
     },
     "CONFIG_DB__BGP_BBR": {

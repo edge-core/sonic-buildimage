@@ -226,16 +226,21 @@ class TestMultiNpuCfgGen(TestCase):
         output = json.loads(self.run_script(argument))
         self.assertDictEqual(output, \
             {'10.0.0.1': {'rrclient': 0, 'name': '01T2', 'local_addr': '10.0.0.0', 'nhopself': 0, 'holdtime': '10', 'asn': '65200', 'keepalive': '3'},
-            '10.1.0.0': {'rrclient': 0, 'name': 'ASIC2', 'local_addr': '10.1.0.1', 'nhopself': 0, 'holdtime': '0', 'asn': '65100', 'keepalive': '0', 'admin_status': 'up'},
-            'fc00::2': {'rrclient': 0, 'name': '01T2', 'local_addr': 'fc00::1', 'nhopself': 0, 'holdtime': '10', 'asn': '65200', 'keepalive': '3'},
-            '10.1.0.2': {'rrclient': 0, 'name': 'ASIC3', 'local_addr': '10.1.0.3', 'nhopself': 0, 'holdtime': '0', 'asn': '65100', 'keepalive': '0', 'admin_status': 'up'}})
+            'fc00::2': {'rrclient': 0, 'name': '01T2', 'local_addr': 'fc00::1', 'nhopself': 0, 'holdtime': '10', 'asn': '65200', 'keepalive': '3'}})
 
-    def test_backend_asic_bgp_neighbor(self):
-        argument = "-m {} -p {} -n asic3 --var-json \"BGP_NEIGHBOR\"".format(self.sample_graph, self.port_config[3])
+    def test_frontend_asic_bgp_neighbor(self):
+        argument = "-m {} -p {} -n asic0 --var-json \"BGP_INTERNAL_NEIGHBOR\"".format(self.sample_graph, self.port_config[3])
         output = json.loads(self.run_script(argument))
         self.assertDictEqual(output, \
-             {'10.1.0.7': {'rrclient': 0, 'name': 'ASIC1', 'local_addr': '10.1.0.6', 'nhopself': 0, 'holdtime': '0', 'asn': '65100', 'keepalive': '0', 'admin_status': 'up'},
-             '10.1.0.3': {'rrclient': 0, 'name': 'ASIC0', 'local_addr': '10.1.0.2', 'nhopself': 0, 'holdtime': '0', 'asn': '65100', 'keepalive': '0', 'admin_status': 'up'}})
+                {'10.1.0.0': {'rrclient': 0, 'name': 'ASIC2', 'local_addr': '10.1.0.1', 'nhopself': 0, 'admin_status': 'up', 'holdtime': '0', 'asn': '65100', 'keepalive': '0'},
+                    '10.1.0.2': {'rrclient': 0, 'name': 'ASIC3', 'local_addr': '10.1.0.3', 'nhopself': 0, 'admin_status': 'up', 'holdtime': '0', 'asn': '65100', 'keepalive': '0'}})
+
+    def test_backend_asic_bgp_neighbor(self):
+        argument = "-m {} -p {} -n asic3 --var-json \"BGP_INTERNAL_NEIGHBOR\"".format(self.sample_graph, self.port_config[3])
+        output = json.loads(self.run_script(argument))
+        self.assertDictEqual(output, \
+                {'10.1.0.7': {'rrclient': 0, 'name': 'ASIC1', 'local_addr': '10.1.0.6', 'nhopself': 0, 'admin_status': 'up', 'holdtime': '0', 'asn': '65100', 'keepalive': '0'},
+                    '10.1.0.3': {'rrclient': 0, 'name': 'ASIC0', 'local_addr': '10.1.0.2', 'nhopself': 0, 'admin_status': 'up', 'holdtime': '0', 'asn': '65100', 'keepalive': '0'}})
 
     def test_device_asic_metadata(self):
         argument = "-m {} --var-json DEVICE_METADATA".format(self.sample_graph)

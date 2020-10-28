@@ -1,0 +1,34 @@
+!
+! template: bgpd/templates/internal/instance.conf.j2
+!
+  neighbor {{ neighbor_addr }} remote-as {{ bgp_session['asn'] }}
+  neighbor {{ neighbor_addr }} description {{ bgp_session['name'] }}
+!
+{% if neighbor_addr | ipv4 %}
+  address-family ipv4
+    neighbor {{ neighbor_addr }} peer-group INTERNAL_PEER_V4
+!
+{%   if CONFIG_DB__DEVICE_METADATA['localhost']['sub_role'] == 'BackEnd' %}
+    neighbor {{ neighbor_addr }} route-map FROM_BGP_INTERNAL_PEER_V4 in
+{%   endif %}
+!
+{% elif neighbor_addr | ipv6 %}
+  address-family ipv6
+    neighbor {{ neighbor_addr }} peer-group INTERNAL_PEER_V6
+!
+{%   if CONFIG_DB__DEVICE_METADATA['localhost']['sub_role'] == 'BackEnd' %}
+    neighbor {{ neighbor_addr }} route-map FROM_BGP_INTERNAL_PEER_V6 in
+{%   endif %}
+{% endif %}
+!
+{%   if bgp_session.has_key('rrclient') and bgp_session['rrclient'] | int != 0 %}
+    neighbor {{ neighbor_addr }} route-reflector-client
+{%   endif %}
+!
+    neighbor {{ neighbor_addr }} next-hop-self force
+!
+    neighbor {{ neighbor_addr }} activate
+  exit-address-family
+!
+! end of template: bgpd/templates/internal/instance.conf.j2
+!

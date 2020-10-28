@@ -1,4 +1,9 @@
 {
+    "CONFIG_DB__DEVICE_METADATA": {
+        "localhost": {
+            "sub_role": "FrontEnd"
+        }
+    },
     "neighbor_addr": "fc::10",
     "bgp_session": {
         "asn": "555",
@@ -6,9 +11,7 @@
         "keepalive": "5",
         "holdtime": "30",
         "admin_status": "down",
-        "ASIC": "something",
-        "rrclient": "1",
-        "nhopself": "1"
+        "ASIC": "something"
     },
     "constants": {
         "deployment_id_asn_map": {

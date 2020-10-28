@@ -1,9 +1,4 @@
 {
-    "CONFIG_DB__DEVICE_METADATA": {
-        "localhost": {
-            "sub_role": "BackEnd"
-        }
-    },
     "neighbor_addr": "10.10.10.10",
     "bgp_session": {
         "asn": "555",

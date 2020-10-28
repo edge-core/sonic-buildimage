@@ -42,16 +42,5 @@ route-map FROM_BGP_PEER_V6 permit 100
 !
 route-map TO_BGP_PEER_V6 permit 100
 !
-{% if CONFIG_DB__DEVICE_METADATA['localhost']['sub_role'] == 'BackEnd' %}
-route-map FROM_BGP_PEER_V4_INT permit 2
- set originator-id {{ loopback0_ipv4 | ip }}
-!
-route-map FROM_BGP_PEER_V6_INT permit 1
- set ipv6 next-hop prefer-global
-!
-route-map FROM_BGP_PEER_V6_INT permit 2
- set originator-id {{ loopback0_ipv4 | ip }}
-{% endif %}
-!
 ! end of template: bgpd/templates/general/policies.conf.j2
 !
