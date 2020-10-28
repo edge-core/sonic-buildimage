@@ -1807,6 +1807,16 @@ static ssize_t show_psu(struct device *dev,
                         }
                         ret = pow/10;
                         break;
+                case 11:
+                        psu_status = smf_read_reg(data, PSU_1_STATUS);
+                        if (psu_status &(2))
+                                ret=1;
+                        break;
+                case 12:
+                        psu_status = smf_read_reg(data, PSU_2_STATUS);
+                        if (psu_status &(2))
+                                ret=1;
+                        break;
                 default:
                         return ret;
         }
@@ -2055,7 +2065,8 @@ static SENSOR_DEVICE_ATTR(psu2_presence, S_IRUGO, show_psu, NULL, 6);
 static SENSOR_DEVICE_ATTR(psu1_serialno, S_IRUGO, show_ppid, NULL, 10);
 static SENSOR_DEVICE_ATTR(psu2_serialno, S_IRUGO, show_ppid, NULL, 11);
 static SENSOR_DEVICE_ATTR(current_total_power, S_IRUGO, show_psu, NULL, 10);
-
+static SENSOR_DEVICE_ATTR(psu1_type, S_IRUGO, show_psu, NULL, 11);
+static SENSOR_DEVICE_ATTR(psu2_type, S_IRUGO, show_psu, NULL, 12);
 /* SMF Version */
 static SENSOR_DEVICE_ATTR(smf_version, S_IRUGO, show_smf_version, NULL, 0);
 static SENSOR_DEVICE_ATTR(smf_firmware_ver, S_IRUGO, show_smf_version, NULL, 1);

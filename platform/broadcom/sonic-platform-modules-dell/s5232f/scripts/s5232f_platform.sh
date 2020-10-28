@@ -133,6 +133,20 @@ platform_firmware_versions() {
        r_maj=`/usr/sbin/i2cget -y 600 0x33 0x1 | sed ' s/.*\(0x..\)$/\1/'`
        echo "Slave CPLD 4: $((r_maj)).$((r_min))" >> $FIRMWARE_VERSION_FILE
 }
+
+install_python_api_package() {
+    device="/usr/share/sonic/device"
+    platform=$(/usr/local/bin/sonic-cfggen -H -v DEVICE_METADATA.localhost.platform)
+
+    rv=$(pip install $device/$platform/sonic_platform-1.0-py2-none-any.whl)
+}
+
+remove_python_api_package() {
+    rv=$(pip show sonic-platform > /dev/null 2>/dev/null)
+    if [ $? -eq 0 ]; then
+        rv=$(pip uninstall -y sonic-platform > /dev/null 2>/dev/null)
+    fi
+}
 init_devnum
 
 if [ "$1" == "init" ]; then
@@ -147,6 +161,7 @@ if [ "$1" == "init" ]; then
     switch_board_qsfp "new_device"
     switch_board_modsel
     switch_board_led_default
+    install_python_api_package
     python /usr/bin/qsfp_irq_enable.py
     platform_firmware_versions
 
@@ -155,9 +170,9 @@ elif [ "$1" == "deinit" ]; then
     switch_board_qsfp "delete_device"
     switch_board_sfp "delete_device"
     switch_board_qsfp_mux "delete_device"
-
     modprobe -r i2c-mux-pca954x
     modprobe -r i2c-dev
+    remove_python_api_package 
 else
      echo "s5232f_platform : Invalid option !"
 fi
