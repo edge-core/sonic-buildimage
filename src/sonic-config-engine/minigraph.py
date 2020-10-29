@@ -967,7 +967,8 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
         'docker_routing_config_mode': docker_routing_config_mode,
         'hostname': hostname,
         'hwsku': hwsku,
-        'type': device_type
+        'type': device_type,
+        'synchronous_mode': 'enable'
         }
     }
     # for this hostname, if sub_role is defined, add sub_role in 
