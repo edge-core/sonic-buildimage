@@ -11,18 +11,13 @@
 {%- macro generate_buffer_pool_and_profiles() %}
     "BUFFER_POOL": {
         "ingress_lossless_pool": {
-            "size": "37968320",
+            "size": "35621248",
             "type": "ingress",
             "mode": "dynamic",
-            "xoff": "4625920"
-        },
-        "egress_lossy_pool": {
-            "size": "36402496",
-            "type": "egress",
-            "mode": "dynamic"
+            "xoff": "7847424"
         },
         "egress_lossless_pool": {
-            "size": "43507776",
+            "size": "43468672",
             "type": "egress",
             "mode": "static"
         }
@@ -35,11 +30,11 @@
         },
         "egress_lossless_profile": {
             "pool":"[BUFFER_POOL|egress_lossless_pool]",
-            "size":"1518",
-            "static_th":"10876944"
+            "size":"0",
+            "static_th":"43468672"
         },
         "egress_lossy_profile": {
-            "pool":"[BUFFER_POOL|egress_lossy_pool]",
+            "pool":"[BUFFER_POOL|egress_lossless_pool]",
             "size":"1518",
             "dynamic_th":"3"
         }
