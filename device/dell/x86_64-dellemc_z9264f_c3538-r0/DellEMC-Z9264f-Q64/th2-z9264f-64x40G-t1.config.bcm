@@ -1004,4 +1004,4 @@ dport_map_port_100=66
 
 module_64ports=1
 
-mmu_init_config="MSFT-TH-Tier1"
+mmu_init_config="MSFT-TH2-Tier1"
