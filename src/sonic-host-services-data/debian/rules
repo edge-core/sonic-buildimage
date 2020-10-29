@@ -6,4 +6,5 @@ build:
 	dh $@
 
 override_dh_installsystemd:
+	dh_installsystemd --no-start --name=caclmgrd
 	dh_installsystemd --no-start --name=procdockerstatsd

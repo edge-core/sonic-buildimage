@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # caclmgrd
 #
@@ -148,7 +148,7 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
             commands: List of strings, each string is a shell command
         """
         for cmd in commands:
-            proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+            proc = subprocess.Popen(cmd, shell=True, universal_newlines=True, stdout=subprocess.PIPE)
 
             (stdout, stderr) = proc.communicate()
 
@@ -198,7 +198,7 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
         for iface_table_name in INTERFACE_TABLE_NAME_LIST:
             iface_table = self.config_db_map[namespace].get_table(iface_table_name)
             if iface_table:
-                for key, _ in iface_table.iteritems():
+                for key, _ in iface_table.items():
                     if not _ip_prefix_in_key(key):
                         continue
 
@@ -234,7 +234,7 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
                                                  (self.namespace_mgmt_ip, self.namespace_docker_mgmt_ip[namespace]))
         else:
             # In host allow all tcp/udp traffic from namespace docker eth0 management ip to host docker bridge
-            for docker_mgmt_ip in self.namespace_docker_mgmt_ip.values():
+            for docker_mgmt_ip in list(self.namespace_docker_mgmt_ip.values()):
                 allow_internal_docker_ip_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -A INPUT -p tcp -s {} -d {} -j ACCEPT".format
                                                      (docker_mgmt_ip, self.namespace_mgmt_ip))
 
@@ -374,7 +374,7 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
         num_ctrl_plane_acl_rules = 0
 
         # Walk the ACL tables
-        for (table_name, table_data) in self._tables_db_info.iteritems():
+        for (table_name, table_data) in self._tables_db_info.items():
 
             table_ip_version = None
 
@@ -399,7 +399,7 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
 
                 acl_rules = {}
 
-                for ((rule_table_name, rule_id), rule_props) in self._rules_db_info.iteritems():
+                for ((rule_table_name, rule_id), rule_props) in self._rules_db_info.items():
                     if rule_table_name == table_name:
                         if not rule_props:
                             self.log_warning("rule_props for rule_id {} empty or null!".format(rule_id))
@@ -437,7 +437,7 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
                     continue
 
                 # For each ACL rule in this table (in descending order of priority)
-                for priority in sorted(acl_rules.iterkeys(), reverse=True):
+                for priority in sorted(iter(acl_rules.keys()), reverse=True):
                     rule_props = acl_rules[priority]
 
                     if "PACKET_ACTION" not in rule_props:
@@ -576,7 +576,7 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
         config_db_subscriber_table_map = {}
         
         # Loop through all asic namespaces (if present) and host namespace (DEFAULT_NAMESPACE)
-        for namespace in self.config_db_map.keys():
+        for namespace in list(self.config_db_map.keys()):
             # Unconditionally update control plane ACLs once at start on given namespace
             self.update_control_plane_acls(namespace)
             self.update_control_plane_nat_acls(namespace)

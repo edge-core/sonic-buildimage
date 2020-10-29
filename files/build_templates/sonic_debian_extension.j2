@@ -404,11 +404,6 @@ sudo cp $IMAGE_CONFIGS/constants/constants.yml $FILESYSTEM_ROOT/etc/sonic/
 sudo cp $IMAGE_CONFIGS/sudoers/sudoers $FILESYSTEM_ROOT/etc/
 sudo cp $IMAGE_CONFIGS/sudoers/sudoers.lecture $FILESYSTEM_ROOT/etc/
 
-# Copy control plane ACL management daemon files
-sudo cp $IMAGE_CONFIGS/caclmgrd/caclmgrd.service $FILESYSTEM_ROOT_USR_LIB_SYSTEMD_SYSTEM
-echo "caclmgrd.service" | sudo tee -a $GENERATED_SERVICE_FILE
-sudo cp $IMAGE_CONFIGS/caclmgrd/caclmgrd $FILESYSTEM_ROOT/usr/bin/
-
 # Copy systemd timer configuration
 sudo cp $BUILD_TEMPLATES/pcie-check.timer $FILESYSTEM_ROOT_USR_LIB_SYSTEMD_SYSTEM
 sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable pcie-check.timer

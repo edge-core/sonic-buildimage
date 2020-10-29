@@ -11,6 +11,7 @@ setup(
     maintainer = 'Joe LeVeque',
     maintainer_email = 'jolevequ@microsoft.com',
     scripts = [
+        'scripts/caclmgrd',
         'scripts/procdockerstatsd',
     ],
     install_requires = [
