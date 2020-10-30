@@ -125,6 +125,7 @@ autorestart=unexpected
 stdout_logfile=syslog
 stderr_logfile=syslog
 startsecs=10
+startretries=50
 dependent_startup=true
 dependent_startup_wait_for=start:exited
 {% endif %}
