@@ -10,7 +10,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Install required packages
 RUN apt-get update &&   \
     apt-get install -y  \
-        python-pip      \
+        python-dev      \
         python3-dev     \
         ipmitool        \
         librrd8         \
@@ -19,11 +19,7 @@ RUN apt-get update &&   \
         python-smbus    \
         ethtool         \
         dmidecode       \
-        i2c-tools &&    \
-    pip install enum34
-
-# Install python3 required packages
-RUN python3 -m pip install --no-cache-dir setuptools wheel
+        i2c-tools
 
 {% if docker_platform_monitor_debs.strip() -%}
 # Copy locally-built Debian package dependencies
@@ -51,8 +47,8 @@ RUN python3 -m pip install --no-cache-dir setuptools wheel
 
 # Clean up
 RUN apt-get purge -y           \
-        python3-dev            \
-        python-pip          && \
+        python-dev             \
+        python3-dev         && \
     apt-get clean -y        && \
     apt-get autoclean -y    && \
     apt-get autoremove -y   && \

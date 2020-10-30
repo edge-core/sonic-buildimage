@@ -27,8 +27,7 @@ RUN apt-get update
 {% endif %}
 
 # Clean up
-RUN apt-get purge -y python-pip && \
-    apt-get clean -y            && \
+RUN apt-get clean -y            && \
     apt-get autoclean -y        && \
     apt-get autoremove -y       && \
     rm -rf /debs                   \
