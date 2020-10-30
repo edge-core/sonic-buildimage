@@ -14,7 +14,7 @@ try:
     from sonic_platform_base.chassis_base import ChassisBase
     from sonic_platform.sfp import Sfp
     from sonic_platform.eeprom import Eeprom, EepromS6000
-    from sonic_platform.fan import Fan
+    from sonic_platform.fan_drawer import FanDrawer
     from sonic_platform.psu import Psu
     from sonic_platform.thermal import Thermal
     from sonic_platform.component import Component
@@ -22,7 +22,7 @@ except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
 
-MAX_S6000_FAN = 3
+MAX_S6000_FANTRAY = 3
 MAX_S6000_PSU = 2
 MAX_S6000_THERMAL = 10
 MAX_S6000_COMPONENT = 4
@@ -74,9 +74,10 @@ class Chassis(ChassisBase):
         else:
             self._eeprom = EepromS6000()
 
-        for i in range(MAX_S6000_FAN):
-            fan = Fan(i)
-            self._fan_list.append(fan)
+        for i in range(MAX_S6000_FANTRAY):
+            fandrawer = FanDrawer(i)
+            self._fan_drawer_list.append(fandrawer)
+            self._fan_list.extend(fandrawer._fan_list)
 
         for i in range(MAX_S6000_PSU):
             psu = Psu(i)

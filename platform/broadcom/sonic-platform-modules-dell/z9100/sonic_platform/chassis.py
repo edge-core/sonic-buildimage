@@ -14,7 +14,7 @@ try:
     import sys
     from sonic_platform_base.chassis_base import ChassisBase
     from sonic_platform.sfp import Sfp
-    from sonic_platform.fan import Fan
+    from sonic_platform.fan_drawer import FanDrawer
     from sonic_platform.psu import Psu
     from sonic_platform.thermal import Thermal
     from sonic_platform.component import Component
@@ -24,7 +24,6 @@ except ImportError as e:
 
 
 MAX_Z9100_FANTRAY = 5
-MAX_Z9100_FAN = 2
 MAX_Z9100_PSU = 2
 MAX_Z9100_THERMAL = 8
 MAX_Z9100_COMPONENT = 6
@@ -100,9 +99,9 @@ class Chassis(ChassisBase):
         # Initialize EEPROM
         self._eeprom = Eeprom()
         for i in range(MAX_Z9100_FANTRAY):
-            for j in range(MAX_Z9100_FAN):
-                fan = Fan(i, j)
-                self._fan_list.append(fan)
+            fandrawer = FanDrawer(i)
+            self._fan_drawer_list.append(fandrawer)
+            self._fan_list.extend(fandrawer._fan_list)
 
         for i in range(MAX_Z9100_PSU):
             psu = Psu(i)

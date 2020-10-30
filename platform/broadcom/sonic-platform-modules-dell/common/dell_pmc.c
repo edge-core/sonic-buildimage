@@ -718,18 +718,13 @@ static ssize_t show_fan_airflow(struct device *dev,
 {
         int index = to_sensor_dev_attr(devattr)->index;
         struct smf_data *data = dev_get_drvdata(dev);
-        int ret=1, fan_airflow;
+        int ret, fan_airflow;
 
         if (data->kind == s6100smf && index == FAN_TRAY_5)
                 return 0;
 
         fan_airflow = smf_read_reg(data, FAN_TRAY_AIRFLOW);
-
-        if (fan_airflow & (1 << (index)))
-                ret=1;
-
-        if (ret < 0)
-                return ret;
+        ret = (fan_airflow >> index) & 1;
 
         return sprintf(buf, "%d\n", ret);  
 }

@@ -105,7 +105,7 @@ class Thermal(ThermalBase):
             Celsius up to nearest thousandth of one degree Celsius,
             e.g. 30.125
         """
-        is_valid, high_threshold = self.sensor.get_threshold("UpperNonRecoverable")
+        is_valid, high_threshold = self.sensor.get_threshold("UpperCritical")
         if not is_valid:
             high_threshold = 0
 
@@ -125,6 +125,21 @@ class Thermal(ThermalBase):
             low_threshold = 0
 
         return float(low_threshold)
+
+    def get_high_critical_threshold(self):
+        """
+        Retrieves the high critical threshold temperature of thermal
+
+        Returns:
+            A float number, the high critical threshold temperature of
+            thermal in Celsius up to nearest thousandth of one degree
+            Celsius, e.g. 30.125
+        """
+        is_valid, high_crit_threshold = self.sensor.get_threshold("UpperNonRecoverable")
+        if not is_valid:
+            high_crit_threshold = 0
+
+        return float(high_crit_threshold)
 
     def set_high_threshold(self, temperature):
         """

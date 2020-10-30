@@ -13,7 +13,7 @@ try:
     from sonic_platform_base.chassis_base import ChassisBase
     from sonic_platform.sfp import Sfp
     from sonic_platform.psu import Psu
-    from sonic_platform.fan import Fan
+    from sonic_platform.fan_drawer import FanDrawer
     from sonic_platform.module import Module
     from sonic_platform.thermal import Thermal
     from sonic_platform.component import Component
@@ -24,7 +24,7 @@ except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
 MAX_S6100_MODULE = 4
-MAX_S6100_FAN = 4
+MAX_S6100_FANTRAY = 4
 MAX_S6100_PSU = 2
 MAX_S6100_THERMAL = 10
 MAX_S6100_COMPONENT = 3
@@ -64,9 +64,10 @@ class Chassis(ChassisBase):
             self._module_list.append(module)
             self._sfp_list.extend(module._sfp_list)
 
-        for i in range(MAX_S6100_FAN):
-            fan = Fan(i)
-            self._fan_list.append(fan)
+        for i in range(MAX_S6100_FANTRAY):
+            fandrawer = FanDrawer(i)
+            self._fan_drawer_list.append(fandrawer)
+            self._fan_list.extend(fandrawer._fan_list)
 
         for i in range(MAX_S6100_PSU):
             psu = Psu(i)
