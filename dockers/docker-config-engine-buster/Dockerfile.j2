@@ -15,8 +15,8 @@ RUN apt-get update         && \
         python-setuptools     \
         python3-setuptools
 
-RUN pip2 install --upgrade pip
 RUN pip3 install --upgrade pip
+RUN pip2 install --upgrade pip
 RUN apt-get purge -y python-pip python3-pip
 
 # For sonic-config-engine Python 3 package
