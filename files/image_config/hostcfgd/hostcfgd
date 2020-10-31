@@ -229,17 +229,24 @@ class HostConfigDaemon:
         self.config_db = ConfigDBConnector()
         self.config_db.connect(wait_for_init=True, retry_on=True)
         syslog.syslog(syslog.LOG_INFO, 'ConfigDB connect success')
+
+        self.aaacfg = AaaCfg()
+        self.iptables = Iptables()
+        # Cache the values of 'state' field in 'FEATURE' table of each container
+        self.cached_feature_states = {}
+
+        self.is_multi_npu = device_info.is_multi_npu()
+
+
+    def load(self):
         aaa = self.config_db.get_table('AAA')
         tacacs_global = self.config_db.get_table('TACPLUS')
         tacacs_server = self.config_db.get_table('TACPLUS_SERVER')
-        self.aaacfg = AaaCfg()
         self.aaacfg.load(aaa, tacacs_global, tacacs_server)
+
         lpbk_table = self.config_db.get_table('LOOPBACK_INTERFACE')
-        self.iptables = Iptables()
         self.iptables.load(lpbk_table)
-        self.is_multi_npu = device_info.is_multi_npu()
-        # Cache the values of 'state' field in 'FEATURE' table of each container
-        self.cached_feature_states = {}
+
 
     def update_feature_state(self, feature_name, state, feature_table):
         has_timer = ast.literal_eval(feature_table[feature_name].get('has_timer', 'False'))
@@ -363,14 +370,19 @@ class HostConfigDaemon:
             self.update_feature_state(feature_name, state, feature_table)
 
     def start(self):
-        # Update all feature states once upon starting
-        self.update_all_feature_states()
 
         self.config_db.subscribe('AAA', lambda table, key, data: self.aaa_handler(key, data))
         self.config_db.subscribe('TACPLUS_SERVER', lambda table, key, data: self.tacacs_server_handler(key, data))
         self.config_db.subscribe('TACPLUS', lambda table, key, data: self.tacacs_global_handler(key, data))
         self.config_db.subscribe('LOOPBACK_INTERFACE', lambda table, key, data: self.lpbk_handler(key, data))
         self.config_db.subscribe('FEATURE', lambda table, key, data: self.feature_state_handler(key, data))
+
+        # Update all feature states once upon starting
+        self.update_all_feature_states()
+
+        # Defer load until subscribe
+        self.load()
+
         self.config_db.listen()
 
 
