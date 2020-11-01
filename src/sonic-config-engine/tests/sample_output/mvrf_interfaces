@@ -26,13 +26,13 @@ iface eth0 inet static
     # management port up rules
     up ip -4 route add default via 10.0.0.1 dev eth0 table 5000 metric 201
     up ip -4 route add 10.0.0.0/24 dev eth0 table 5000
-    up ip -4 rule add from 10.0.0.100/32 table 5000
+    up ip -4 rule add pref 32765 from 10.0.0.100/32 table 5000
     up cgcreate -g l3mdev:mgmt
     up cgset -r l3mdev.master-device=mgmt mgmt
     # management port down rules
     pre-down ip -4 route delete default via 10.0.0.1 dev eth0 table 5000
     pre-down ip -4 route delete 10.0.0.0/24 dev eth0 table 5000
-    pre-down ip -4 rule delete from 10.0.0.100/32 table 5000
+    pre-down ip -4 rule delete pref 32765 from 10.0.0.100/32 table 5000
     down cgdelete -g l3mdev:mgmt
 iface eth0 inet6 static
     address 2603:10e2:0:2902::8
@@ -42,13 +42,13 @@ iface eth0 inet6 static
     # management port up rules
     up ip -6 route add default via 2603:10e2:0:2902::1 dev eth0 table 5000 metric 201
     up ip -6 route add 2603:10e2:0:2902::/64 dev eth0 table 5000
-    up ip -6 rule add from 2603:10e2:0:2902::8/128 table 5000
+    up ip -6 rule add pref 32765 from 2603:10e2:0:2902::8/128 table 5000
     up cgcreate -g l3mdev:mgmt
     up cgset -r l3mdev.master-device=mgmt mgmt
     # management port down rules
     pre-down ip -6 route delete default via 2603:10e2:0:2902::1 dev eth0 table 5000
     pre-down ip -6 route delete 2603:10e2:0:2902::/64 dev eth0 table 5000
-    pre-down ip -6 rule delete from 2603:10e2:0:2902::8/128 table 5000
+    pre-down ip -6 rule delete pref 32765 from 2603:10e2:0:2902::8/128 table 5000
     down cgdelete -g l3mdev:mgmt
 #
 source /etc/network/interfaces.d/*
