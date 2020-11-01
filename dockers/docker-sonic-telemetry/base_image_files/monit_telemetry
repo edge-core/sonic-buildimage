@@ -5,7 +5,7 @@
 ##  dialout_client
 ###############################################################################
 check program telemetry|telemetry with path "/usr/bin/process_checker telemetry /usr/sbin/telemetry"
-    if status != 0 for 5 times within 5 cycles then alert
+    if status != 0 for 5 times within 5 cycles then alert repeat every 1 cycles
 
 check program telemetry|dialout_client with path "/usr/bin/process_checker telemetry /usr/sbin/dialout_client_cli"
-    if status != 0 for 5 times within 5 cycles then alert
+    if status != 0 for 5 times within 5 cycles then alert repeat every 1 cycles

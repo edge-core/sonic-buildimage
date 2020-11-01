@@ -4,4 +4,4 @@
 ##  sflowmgrd
 ###############################################################################
 check program sflow|sflowmgrd with path "/usr/bin/process_checker sflow /usr/bin/sflowmgrd"
-    if status != 0 for 5 times within 5 cycles then alert
+    if status != 0 for 5 times within 5 cycles then alert repeat every 1 cycles
