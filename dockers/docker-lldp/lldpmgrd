@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
     lldpmgrd
@@ -18,10 +18,8 @@ try:
     import os
     import subprocess
     import sys
-
-    import syslog
-    import os.path
     import time
+
     from sonic_py_common import daemon_base
     from swsscommon import swsscommon
 except ImportError as err:
@@ -74,7 +72,7 @@ class LldpManager(daemon_base.DaemonBase):
             port_table_dict = dict(fvp)
 
             # Get the oper-status for the port
-            if port_table_dict.has_key("oper_status"):
+            if "oper_status" in port_table_dict:
                 port_oper_status = port_table_dict.get("oper_status")
                 self.log_info("Port name {} oper status: {}".format(port_name, port_oper_status))
                 return port_oper_status == "up"
@@ -131,7 +129,7 @@ class LldpManager(daemon_base.DaemonBase):
         # List of port names (keys of elements) to delete from self.pending_cmds
         to_delete = []
 
-        for (port_name, cmd) in self.pending_cmds.iteritems():
+        for (port_name, cmd) in self.pending_cmds.items():
             self.log_debug("Running command: '{}'".format(cmd))
 
             rc, stderr = run_cmd(self, cmd)
@@ -195,7 +193,7 @@ class LldpManager(daemon_base.DaemonBase):
                     fvp_dict = dict(fvp)
 
                     # handle config change
-                    if (fvp_dict.has_key("alias") or fvp_dict.has_key("description")) and (op in ["SET", "DEL"]):
+                    if ("alias" in fvp_dict or "description" in fvp_dict) and (op in ["SET", "DEL"]):
                         if self.is_port_up(key):
                             self.generate_pending_lldp_config_cmd_for_port(key)
                         else:
@@ -207,7 +205,7 @@ class LldpManager(daemon_base.DaemonBase):
                         fvp_dict = dict(fvp)
 
                         # handle port status change
-                        if fvp_dict.has_key("oper_status"):
+                        if "oper_status" in fvp_dict:
                             if "up" in fvp_dict.get("oper_status"):
                                 self.generate_pending_lldp_config_cmd_for_port(key)
                             else:
@@ -245,7 +243,7 @@ def main():
     lldpmgr.run()
 
 def run_cmd(self, cmd):
-    proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    proc = subprocess.Popen(cmd, shell=True, universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (stdout, stderr) = proc.communicate()
     return proc.returncode, stderr
 
