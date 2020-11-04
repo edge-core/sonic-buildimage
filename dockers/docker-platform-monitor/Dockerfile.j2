@@ -21,6 +21,16 @@ RUN apt-get update &&   \
         dmidecode       \
         i2c-tools
 
+# On Arista devices, the sonic_platform wheel is not installed in the container.
+# Instead, the installation directory is mounted from the host OS. However, this method
+# doesn't ensure all dependencies are installed in the container. So here we
+# install any dependencies required by the Arista sonic_platform package.
+# TODO: eliminate the need to install these explicitly.
+# NOTE: Only install enum34 for Python 2, as our version of Python 3 is 3.7, which
+# contains 'enum' as part of the standard library. Installing enum34 there will
+# cause conflicts.
+RUN pip2 install enum34
+
 {% if docker_platform_monitor_debs.strip() -%}
 # Copy locally-built Debian package dependencies
 {{ copy_files("debs/", docker_platform_monitor_debs.split(' '), "/debs/") }}
