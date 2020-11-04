@@ -325,9 +325,9 @@ define SHOW_WHY
 	@echo "[ FLAGS  FILE    ] : [$($(1)_FILE_FLAGS)] " >> $($(1)_DST_PATH)/$(1).log
 	@echo "[ FLAGS  DEPENDS ] : [$($(1)_DEP_FLAGS_ALL)] " >> $($(1)_DST_PATH)/$(1).log
 	@echo "[ FLAGS  DIFF    ] : [$($(1)_FLAGS_DIFF)] " >> $($(1)_DST_PATH)/$(1).log
-	@echo "[ DEP    DEPENDS ] : [$($(1)_DEP_FILES_MODIFIED)] " >> $($(1)_DST_PATH)/$(1).log
-	@echo "[ SMDEP  DEPENDS ] : [$($(1)_SMDEP_FILES_MODIFIED)] " >> $($(1)_DST_PATH)/$(1).log
-	@echo "[ TARGET DEPENDS ] : [$?] " >> $($(1)_DST_PATH)/$(1).log
+	@$(file >>$($(1)_DST_PATH)/$(1).log, "[ DEP    DEPENDS ] : [$($(1)_DEP_FILES_MODIFIED)] ")
+	@$(file >>$($(1)_DST_PATH)/$(1).log, "[ SMDEP  DEPENDS ] : [$($(1)_SMDEP_FILES_MODIFIED)] ")
+	@$(file >>$($(1)_DST_PATH)/$(1).log, "[ TARGET DEPENDS ] : [$?] ")
 endef
 
 
