@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-import syslog
-import os
 import hashlib
+import os
+import syslog
 
 SYSLOG_IDENTIFIER = 'asic_config_checksum'
 
@@ -45,7 +45,7 @@ def generate_checksum(checksum_files):
     checksum = hashlib.sha1()
     for checksum_file in checksum_files:
         try:
-            with open(checksum_file, 'r') as f:
+            with open(checksum_file, 'rb') as f:
                 for chunk in iter(lambda: f.read(CHUNK_SIZE), b""):
                     checksum.update(chunk)
         except IOError as e:
