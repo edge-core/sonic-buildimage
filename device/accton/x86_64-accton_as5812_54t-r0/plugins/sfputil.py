@@ -5,7 +5,6 @@
 try:
     import time
     import os
-    import pickle
     from ctypes import create_string_buffer
     from sonic_sfp.sfputilbase import SfpUtilBase
 except ImportError as e:
@@ -83,16 +82,13 @@ class SfpUtil(SfpUtilBase):
 
     #Two i2c buses might get flipped order, check them both.
     def update_i2c_order(self):
-        if os.path.exists("/tmp/accton_util.p"):
-            self.I2C_BUS_ORDER = pickle.load(open("/tmp/accton_util.p", "rb"))
-        else:
-            if self.I2C_BUS_ORDER < 0:
-                eeprom_path = "/sys/bus/i2c/devices/1-0057/eeprom"
-                if os.path.exists(eeprom_path):
-                    self.I2C_BUS_ORDER = 0
-                eeprom_path = "/sys/bus/i2c/devices/0-0057/eeprom"
-                if os.path.exists(eeprom_path):
-                    self.I2C_BUS_ORDER = 1
+        if self.I2C_BUS_ORDER < 0:
+            eeprom_path = "/sys/bus/i2c/devices/1-0057/eeprom"
+            if os.path.exists(eeprom_path):
+                self.I2C_BUS_ORDER = 0
+            eeprom_path = "/sys/bus/i2c/devices/0-0057/eeprom"
+            if os.path.exists(eeprom_path):
+                self.I2C_BUS_ORDER = 1
         return self.I2C_BUS_ORDER 
 
     def get_presence(self, port_num):
@@ -285,4 +281,3 @@ class SfpUtil(SfpUtilBase):
         else:
             return True, {}
         return False, {}
-
