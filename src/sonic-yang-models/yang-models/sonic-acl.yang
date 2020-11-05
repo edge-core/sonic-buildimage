@@ -252,14 +252,19 @@ module sonic-acl {
 				}
 
 				leaf type {
+					mandatory true;
 					type stypes:acl_table_type;
 				}
 
 				leaf stage {
-					type enumeration {
-						enum INGRESS;
-						enum EGRESS;
+					type string {
+						pattern "ingress|egress|INGRESS|EGRESS";
 					}
+					default "INGRESS";
+				}
+
+				leaf-list services {
+					type string;
 				}
 
 				leaf-list ports {

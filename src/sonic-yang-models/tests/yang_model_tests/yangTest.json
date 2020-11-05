@@ -108,6 +108,47 @@
 		}
 	},
 
+	"PORT_CHANNEL_TEST": {
+		"sonic-portchannel:sonic-portchannel": {
+			"sonic-portchannel:PORTCHANNEL": {
+				"PORTCHANNEL_LIST": [{
+					"portchannel_name": "PortChannel0001",
+					"admin_status": "up",
+					"members": [
+						"Ethernet0"
+					],
+					"min_links": "1",
+					"mtu": "9100"
+				}]
+			}
+		},
+		"sonic-port:sonic-port": {
+			"sonic-port:PORT": {
+				"PORT_LIST": [{
+						"port_name": "Ethernet0",
+						"alias": "eth0",
+						"description": "Ethernet0",
+						"speed": 25000,
+						"mtu": 9000,
+						"lanes": "65",
+						"admin_status": "up"
+				}]
+			}
+		}
+	},
+
+	"PORT_CHANNEL_WRONG_PATTERN": {
+		"sonic-portchannel:sonic-portchannel": {
+			"sonic-portchannel:PORTCHANNEL": {
+				"PORTCHANNEL_LIST": [{
+					"portchannel_name": "PortChannel11001",
+					"admin_status": "up",
+					"mtu": "9100"
+				}]
+			}
+		}
+	},
+
 	"VLAN_MEMEBER_WITH_NON_EXIST_VLAN": {
 		"sonic-vlan:sonic-vlan": {
 			"sonic-vlan:VLAN_MEMBER": {
@@ -557,8 +598,45 @@
 					"lanes": "65",
 					"description": "Ethernet8",
 					"speed": 25000,
+					"fec": "rs",
 					"mtu": 9000,
 					"admin_status": "up"
+				}]
+			}
+		}
+	},
+
+	"PORT_TEST": {
+		"sonic-port:sonic-port": {
+			"sonic-port:PORT": {
+				"PORT_LIST": [{
+					"port_name": "Ethernet8",
+					"alias": "eth8",
+					"lanes": "65",
+					"description": "Ethernet8",
+					"speed": 25000,
+					"fec": "rs",
+					"mtu": 9000,
+					"admin_status": "up",
+					"pfc_asym": "on"
+				}]
+			}
+		}
+	},
+
+	"PORT_NEG_TEST": {
+		"sonic-port:sonic-port": {
+			"sonic-port:PORT": {
+				"PORT_LIST": [{
+					"port_name": "Ethernet8",
+					"alias": "eth8",
+					"lanes": "65",
+					"description": "Ethernet8",
+					"speed": 25000,
+					"fec": "rc",
+					"mtu": 9000,
+					"admin_status": "up",
+					"pfc_asym": "off"
 				}]
 			}
 		}
@@ -612,6 +690,43 @@
 		}
 	},
 
+	"ACL_TABLE_MANDATORY_TYPE": {
+		"sonic-acl:sonic-acl": {
+			"sonic-acl:ACL_TABLE": {
+				"ACL_TABLE_LIST": [{
+					"ACL_TABLE_NAME": "NO-NSW-PACL-V4",
+					"policy_desc": "Filter IPv4",
+					"stage": "EGRESS"
+				}]
+			}
+		}
+	},
+
+	"ACL_TABLE_DEFAULT_VALUE_STAGE": {
+		"sonic-acl:sonic-acl": {
+			"sonic-acl:ACL_TABLE": {
+				"ACL_TABLE_LIST": [{
+					"ACL_TABLE_NAME": "NO-NSW-PACL-V4",
+					"policy_desc": "Filter IPv4",
+					"type": "L3"
+				}]
+			}
+		}
+	},
+
+	"ACL_TABLE_STAGE_SERVICES": {
+		"sonic-acl:sonic-acl": {
+			"sonic-acl:ACL_TABLE": {
+				"ACL_TABLE_LIST": [{
+					"ACL_TABLE_NAME": "NO-NSW-PACL-V4",
+					"policy_desc": "Filter IPv4",
+					"type": "L3",
+					"stage": "ingress",
+					"services": ["SNMP"]
+				}]
+			}
+		}
+	},
 	"ACL_RULE_WRONG_INNER_ETHER_TYPE": {
 		"sonic-acl:sonic-acl": {
 			"sonic-acl:ACL_RULE": {
@@ -661,6 +776,24 @@
 	},
 
 	"SAMPLE_CONFIG_DB_JSON": {
+		"PORTCHANNEL": {
+			"PortChannel0003": {
+				"admin_status": "up",
+				"min_links": "1",
+				"members": [
+					"Ethernet1"
+				],
+				"mtu": "9100"
+			},
+			"PortChannel0004": {
+				"admin_status": "up",
+				"min_links": "1",
+				"members": [
+					"Ethernet2"
+				],
+				"mtu": "9100"
+			}
+		},
 		"VLAN_INTERFACE": {
 			"Vlan111": {},
 			"Vlan777": {},
@@ -1196,7 +1329,9 @@
 					"Ethernet26",
 					"Ethernet27",
 					"Ethernet24"
-				]
+				],
+				"stage": "INGRESS",
+				"services": ["SNMP", "SSH"]
 			},
 			"V6-ACL-TBLE": {
 				"type": "L3V6",

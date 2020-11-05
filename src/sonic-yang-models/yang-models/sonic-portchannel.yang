@@ -43,9 +43,9 @@ module sonic-portchannel {
 
 				key "portchannel_name";
 
-				ext:key-regex-configdb-to-yang "^(Ethernet[0-9]+)$";
+				ext:key-regex-configdb-to-yang "^(PortChannel[0-9]{1,4})$";
 
-				ext:key-regex-yang-to-configdb "<port_name>";
+				ext:key-regex-yang-to-configdb "<portchannel_name>";
 
 				leaf portchannel_name {
 					type string {

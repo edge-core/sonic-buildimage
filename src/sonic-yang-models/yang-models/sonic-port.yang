@@ -93,7 +93,13 @@ module sonic-port{
 
 				leaf fec {
 					type string {
-						pattern "rc|fc|None";
+						pattern "rs|fc|none";
+					}
+				}
+
+				leaf pfc_asym {
+					type string {
+						pattern "on|off";
 					}
 				}
 			} /* end of list PORT_LIST */
