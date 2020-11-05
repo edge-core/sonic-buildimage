@@ -413,13 +413,15 @@ done < files/image_config/sysctl/sysctl-net.conf
 
 sudo augtool --autosave "$sysctl_net_cmd_string" -r $FILESYSTEM_ROOT
 
-## docker Python API package is needed by Ansible docker module
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install 'docker==4.1.0'
+# docker Python API package is needed by Ansible docker module as well as some SONiC applications
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip2 install 'docker==4.1.0'
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install 'docker==4.3.1'
+
 ## Note: keep pip installed for maintainance purpose
 
 ## Get gcc and python dev pkgs
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install gcc libpython2.7-dev
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install 'netifaces==0.10.7'
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip2 install 'netifaces==0.10.7'
 
 ## Create /var/run/redis folder for docker-database to mount
 sudo mkdir -p $FILESYSTEM_ROOT/var/run/redis

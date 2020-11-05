@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
     docker-wait-any
@@ -23,7 +23,7 @@
     cases where we need the dependent container to be warm-restarted without
     affecting other services (eg: warm restart of teamd service)
 
-    NOTE: This script is written against docker Python package 4.1.0. Newer
+    NOTE: This script is written against docker Python package 4.3.1. Newer
     versions of docker may have a different API.
 """
 import argparse
@@ -68,7 +68,6 @@ def main():
     docker_client = APIClient(base_url='unix://var/run/docker.sock')
 
     parser  = argparse.ArgumentParser(description='Wait for dependent docker services',
-                                      version='1.0.0',
                                       formatter_class=argparse.RawTextHelpFormatter,
                                       epilog="""
 Examples:
