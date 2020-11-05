@@ -1,25 +1,19 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-import os
-import time
-import tarfile
-import socket
-import yaml
 import json
-import syslog
+import os
+import socket
+import tarfile
+import time
+
+import yaml
+from azure.storage.file import FileService
+from sonic_py_common.logger import Logger
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-from azure.storage.file import FileService
 
-global CORE_FILE_PATH, RC_FILE
-global hostname, sonicversion, asicname, acctname, acctkey, sharename, cwd
-global INIT_CWD
-global log_level
-global this_file
+SYSLOG_IDENTIFIER = os.path.basename(__file__)
 
-this_file = os.path.basename(__file__)
-
-global cfg
 cfg = ""
 
 CORE_FILE_PATH = "/var/core/"
@@ -42,31 +36,15 @@ POLL_SLEEP = (60 * 60)
 MAX_RETRIES = 5
 UPLOAD_PREFIX = "UPLOADED_"
 
-log_level = syslog.LOG_DEBUG
-
-def log_msg(lvl, fname, m):
-    if (lvl <= log_level):
-        syslog.syslog(lvl, "{}: {}".format(fname, m))
-
-    if log_level == syslog.LOG_DEBUG:
-        print("{}: {}".format(fname, m))
-
-def log_err(m):
-    log_msg(syslog.LOG_ERR, this_file, m)
-
-def log_info(m):
-    log_msg(syslog.LOG_INFO, this_file, m)
-
-def log_warn(m):
-    log_msg(syslog.LOG_WARNING, this_file, m)
-
-def log_debug(m):
-    log_msg(syslog.LOG_DEBUG, this_file, m)
+# Global logger instance
+logger = Logger(SYSLOG_IDENTIFIER)
+logger.set_min_log_priority_info()
 
 
 def make_new_dir(p):
     os.system("rm -rf " + p)
     os.system("mkdir -p " + p)
+
 
 def parse_a_json(data, prefix, val):
     for i in data:
@@ -75,6 +53,7 @@ def parse_a_json(data, prefix, val):
         else:
             val[prefix + (i,)] = data[i]
 
+
 class config:
     parsed_data = {}
     cfg_data = {}
@@ -82,7 +61,7 @@ class config:
     def __init__(self):
         while not os.path.exists(RC_FILE):
             # Wait here until service restart
-            log_err("Unable to retrieve Azure storage credentials")
+            logger.log_error("Unable to retrieve Azure storage credentials")
             time.sleep (HOURS_4)
 
         with open(RC_FILE, 'r') as f:
@@ -90,7 +69,7 @@ class config:
             parse_a_json(self.parsed_data, (), self.cfg_data)
 
     def get_data(self, k):
-        return self.cfg_data[k] if self.cfg_data.has_key(k) else ""
+        return self.cfg_data[k] if k in self.cfg_data else ""
 
     def get_dict(self):
         return self.parsed_data
@@ -123,15 +102,17 @@ class Watcher:
                 time.sleep(POLL_SLEEP)
         except:
             self.observer.stop()
-            log_err("Error in watcher")
+            logger.log_error("Error in watcher")
 
         self.observer.join()
+
 
 def set_env(lst):
     for k in lst:
         if lst[k]:
             os.environ[k] = lst[k]
-            log_debug("set env {} = {}".format(k, lst[k]))
+            logger.log_debug("set env {} = {}".format(k, lst[k]))
+
 
 class Handler(FileSystemEventHandler):
 
@@ -155,7 +136,7 @@ class Handler(FileSystemEventHandler):
         if not acctname or not acctkey or not sharename:
             while True:
                 # Wait here until service restart
-                log_err("Unable to retrieve Azure storage credentials")
+                logger.log_error("Unable to retrieve Azure storage credentials")
                 time.sleep (HOURS_4)
 
         with open("/etc/sonic/sonic_version.yml", 'r') as stream:
@@ -182,7 +163,7 @@ class Handler(FileSystemEventHandler):
 
         elif event.event_type == 'created':
             # Take any action here when a file is first created.
-            log_debug("Received create event - " +  event.src_path)
+            logger.log_debug("Received create event - " +  event.src_path)
             Handler.wait_for_file_write_complete(event.src_path)
             Handler.handle_file(event.src_path)
 
@@ -205,7 +186,7 @@ class Handler(FileSystemEventHandler):
             raise Exception("Dump file creation is too slow: " + path)
             # Give up as something is terribly wrong with this file.
 
-        log_debug("File write complete - " +  path)
+        logger.log_debug("File write complete - " +  path)
 
 
     @staticmethod
@@ -227,11 +208,11 @@ class Handler(FileSystemEventHandler):
             tar.add(metafiles[e])
         tar.add(path)
         tar.close()
-        log_debug("Tar file for upload created: " + tarf_name)
+        logger.log_debug("Tar file for upload created: " + tarf_name)
 
         Handler.upload_file(tarf_name, tarf_name, path)
 
-        log_debug("File uploaded - " +  path)
+        logger.log_debug("File uploaded - " +  path)
         os.chdir(INIT_CWD)
 
     @staticmethod
@@ -250,16 +231,16 @@ class Handler(FileSystemEventHandler):
                     e.append(l[len(e)])
                     svc.create_directory(sharename, "/".join(e))
 
-                log_debug("Remote dir created: " + "/".join(e))
+                logger.log_debug("Remote dir created: " + "/".join(e))
 
                 svc.create_file_from_path(sharename, "/".join(l), fname, fpath)
-                log_debug("Remote file created: name{} path{}".format(fname, fpath))
+                logger.log_debug("Remote file created: name{} path{}".format(fname, fpath))
                 newcoref = os.path.dirname(coref) + "/" + UPLOAD_PREFIX + os.path.basename(coref)
                 os.rename(coref, newcoref)
                 break
 
             except Exception as ex:
-                log_err("core uploader failed: Failed during upload (" + coref + ") err: ("+ str(ex) +") retry:" + str(i))
+                logger.log_error("core uploader failed: Failed during upload (" + coref + ") err: ("+ str(ex) +") retry:" + str(i))
                 if not os.path.exists(fpath):
                     break
                 i += 1
@@ -281,5 +262,5 @@ if __name__ == '__main__':
         Handler.scan()
         w.run()
     except Exception as e:
-        log_err("core uploader failed: " + str(e) + " Exiting ...")
+        logger.log_err("core uploader failed: " + str(e) + " Exiting ...")
     

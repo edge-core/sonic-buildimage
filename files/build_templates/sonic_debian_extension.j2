@@ -339,7 +339,9 @@ sudo chmod og-rw $FILESYSTEM_ROOT_ETC_SONIC/core_analyzer.rc.json
 
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install libffi-dev libssl-dev
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip2 install azure-storage==0.36.0
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install azure-storage==0.36.0
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip2 install watchdog==0.10.2
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install watchdog==0.10.3
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip2 install futures==3.3.0
 
 {% if include_kubernetes == "y" %}
