@@ -1,19 +1,22 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+
+import glob
 import re
 import sys
-import glob
 
 permitted_properties = []
 
+
 def usage():
-    print "Usage: " + sys.argv[0] + " <config_file>"
+    print("Usage: " + sys.argv[0] + " <config_file>")
     sys.exit(1)
 
-def check_property(p):
 
+def check_property(p):
     if p in permitted_properties:
         return True
     return False
+
 
 def check_file(file_name):
     try:
@@ -58,14 +61,14 @@ def check_file(file_name):
 
                 if not check_property(p):
                     file_ok = False
-                    print("[line %d] Error: %s is not permitted" % (lineno, p))
+                    print("[line {}] Error: {} is not permitted".format(lineno, p))
             if file_ok:
-                print "Result: " + file_name + " PASSED the config check!"
+                print("Result: " + file_name + " PASSED the config check!")
             else:
-                print "Result: " + file_name + " FAILED the config check!"
+                print("Result: " + file_name + " FAILED the config check!")
             return file_ok
     except IOError:
-        print "Error: Cannot open file " + file_name
+        print("Error: Cannot open file " + file_name)
         return False
 
 
@@ -92,6 +95,7 @@ def main(argv):
 
     if not all_good:
         sys.exit(-1)
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])

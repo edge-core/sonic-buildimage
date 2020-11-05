@@ -1,14 +1,16 @@
-#!/usr/bin/env python
-import re
-import sys
+#!/usr/bin/env python3
+
 import glob
 import json
+import re
+import sys
 
 level1_keys = ["GLOBAL_MEDIA_SETTINGS","PORT_MEDIA_SETTINGS"]
 setting_keys = ["preemphasis","idriver","ipredriver"]
 lane_prefix = "lane"
 comma_separator = ","
 range_separator = "-"
+
 
 def check_lane_and_value(lane_name, lane_value):
     if lane_prefix in lane_name:
@@ -18,30 +20,32 @@ def check_lane_and_value(lane_name, lane_value):
             return True
 
         except ValueError:
-            print "Invalid lane values " + lane_name + " " + lane_value
+            print("Invalid lane values " + lane_name + " " + lane_value)
             return False
 
     else:
         return False
 
+
 def usage():
-    print "Usage: " + sys.argv[0] + " <media_settings_file>"
+    print("Usage: " + sys.argv[0] + " <media_settings_file>")
     sys.exit(1)
+
 
 def check_media_dict(vendor_dict):
     if len(vendor_dict) == 0:
-        print "Expecting values for media type " + keys
+        print("Expecting values for media type " + keys)
         return False
 
     for vendor_key in vendor_dict:
         value_dict = vendor_dict[vendor_key]
         if len(value_dict) == 0:
-            print "Expecting settings for vendor type " + vendor_key
+            print("Expecting settings for vendor type " + vendor_key)
             return False
 
         for value_key in value_dict:
             if value_key not in setting_keys:
-                print "Unknown media setting " + value_key
+                print("Unknown media setting " + value_key)
                 return False
 
             lane_dict = value_dict[value_key]
@@ -50,6 +54,7 @@ def check_media_dict(vendor_dict):
                     return False
     return True
 
+
 def check_valid_port(port_name):
     try:
         val = int(port_name.strip())
@@ -57,16 +62,18 @@ def check_valid_port(port_name):
     except ValueError:
         return False
 
+
 def check_port_keys(port_media_dict):
     for port in port_media_dict:
 
         if not check_valid_port(port):
-            print "Invalid port name " + port
+            print("Invalid port name " + port)
             return False
 
         if not check_media_dict(port_media_dict[port]):
             return False
     return True
+
 
 def check_global_keys(global_media_dict):
     for keys in global_media_dict:
@@ -77,22 +84,22 @@ def check_global_keys(global_media_dict):
                     range_list = port.split(range_separator)
                     for port_val in range_list:
                         if not check_valid_port(port_val):
-                            print "Error: Unrecognized port number " + port_val
-                            print "Invalid range " + port
+                            print("Error: Unrecognized port number " + port_val)
+                            print("Invalid range " + port)
                             return False
                 else:
                     if not check_valid_port(port):
-                        print "Error: Unrecognized portname " + port
+                        print("Error: Unrecognized portname " + port)
                         return False
         elif range_separator in keys:
             range_list = keys.split(range_separator)
             for port_val in range_list:
                 if not check_valid_port(port_val):
-                    print "Error: Unrecognized portname " + port_val
-                    print "Invalid range " + keys
+                    print("Error: Unrecognized portname " + port_val)
+                    print("Invalid range " + keys)
                     return False
         else:
-            print "Invalid range " + keys
+            print("Invalid range " + keys)
             return False
 
         if not check_media_dict(global_media_dict[keys]):
@@ -110,7 +117,7 @@ def check_file(media_settings_file):
 
         for key_l1 in media_dict:
             if key_l1 not in level1_keys:
-                print "Error: Unknown key " + key_l1 + " at top level"
+                print("Error: Unknown key " + key_l1 + " at top level")
                 return False
         if "GLOBAL_MEDIA_SETTINGS" in media_dict:
             if not check_global_keys(media_dict["GLOBAL_MEDIA_SETTINGS"]):
@@ -121,11 +128,11 @@ def check_file(media_settings_file):
 
 
     except IOError:
-        print "Error: Cannot open file " + media_settings_file
+        print("Error: Cannot open file " + media_settings_file)
         return False
-    except ValueError,e:
-        print "Error in parsing json file " + media_settings_file + " "
-        print str(e)
+    except ValueError as e:
+        print("Error in parsing json file " + media_settings_file + " ")
+        print(str(e))
         return False
 
     return True
@@ -146,14 +153,15 @@ def main(argv):
     for f in files:
         good = check_file(f)
         if good:
-            print "File " + f + " passed validity check"
+            print("File " + f + " passed validity check")
         else:
-            print "File " + f + " failed validity check"
+            print("File " + f + " failed validity check")
 
         all_good = all_good and good
 
     if not all_good:
         sys.exit(-1)
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])
