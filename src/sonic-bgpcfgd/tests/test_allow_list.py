@@ -1,7 +1,8 @@
+from unittest.mock import MagicMock, patch
+
 from bgpcfgd.directory import Directory
 from bgpcfgd.template import TemplateFabric
 import bgpcfgd
-from mock import MagicMock, patch
 
 
 swsscommon_module_mock = MagicMock()
@@ -429,7 +430,7 @@ def test___find_peer_group_by_deployment_id():
     }
     mgr = BGPAllowListMgr(common_objs, "CONFIG_DB", "BGP_ALLOWED_PREFIXES")
     values = mgr._BGPAllowListMgr__find_peer_group_by_deployment_id(0)
-    assert values == ['PEER_V4_INT', 'PEER_V6_INT', 'PEER_V6', 'PEER_V4']
+    assert set(values) == set(['PEER_V4_INT', 'PEER_V6_INT', 'PEER_V6', 'PEER_V4'])
 
 @patch.dict("sys.modules", swsscommon=swsscommon_module_mock)
 def test___restart_peers_found_deployment_id():

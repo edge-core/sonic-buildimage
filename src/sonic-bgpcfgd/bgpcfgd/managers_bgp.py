@@ -308,7 +308,7 @@ class BGPPeerMgrBase(Manager):
         :return: ipv4 address for Loopback0, None if nothing found
         """
         loopback0_ipv4 = None
-        for loopback in self.directory.get_slot("CONFIG_DB", swsscommon.CFG_LOOPBACK_INTERFACE_TABLE_NAME).iterkeys():
+        for loopback in self.directory.get_slot("CONFIG_DB", swsscommon.CFG_LOOPBACK_INTERFACE_TABLE_NAME).keys():
             if loopback.startswith("Loopback0|"):
                 loopback0_prefix_str = loopback.replace("Loopback0|", "")
                 loopback0_ip_str = loopback0_prefix_str[:loopback0_prefix_str.find('/')]
@@ -333,7 +333,7 @@ class BGPPeerMgrBase(Manager):
         local_address = local_addresses[local_addr]
         interfaces = self.directory.get_slot("LOCAL", "interfaces")
         # Check if the information for the interface of this local address has been set
-        if local_address.has_key("interface") and local_address["interface"] in interfaces:
+        if "interface" in local_address and local_address["interface"] in interfaces:
             return interfaces[local_address["interface"]]
         else:
             return None
@@ -346,7 +346,7 @@ class BGPPeerMgrBase(Manager):
         :return: Return the vnet name of the interface if this interface belongs to a vnet,
                  Otherwise return None
         """
-        if interface.has_key("vnet_name") and interface["vnet_name"]:
+        if "vnet_name" in interface and interface["vnet_name"]:
             return interface["vnet_name"]
         else:
             return None

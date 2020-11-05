@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 """"
 Description: bgpmon.py -- populating bgp related information in stateDB.
@@ -6,7 +6,7 @@ Description: bgpmon.py -- populating bgp related information in stateDB.
 
     Initial creation of this daemon is to assist SNMP agent in obtaining the 
     BGP related information for its MIB support. The MIB that this daemon is
-    assiting is for the CiscoBgp4MIB (Neighbor state only). If there are other
+    assisting is for the CiscoBgp4MIB (Neighbor state only). If there are other
     BGP related items that needs to be updated in a periodic manner in the 
     future, then more can be added into this process.
 
@@ -23,7 +23,7 @@ Description: bgpmon.py -- populating bgp related information in stateDB.
     is a need to perform update or the peer is stale to be removed from the
     state DB
 """
-import commands
+import subprocess
 import json
 import os
 import syslog
@@ -32,7 +32,7 @@ import time
 
 PIPE_BATCH_MAX_COUNT = 50
 
-class BgpStateGet():
+class BgpStateGet:
     def __init__(self):
         # list peer_l stores the Neighbor peer Ip address
         # dic peer_state stores the Neighbor peer state entries
@@ -74,13 +74,13 @@ class BgpStateGet():
     # Get a new snapshot of BGP neighbors and store them in the "new" location
     def get_all_neigh_states(self):
         cmd = "vtysh -c 'show bgp summary json'"
-        rc, output = commands.getstatusoutput(cmd)
+        rc, output = subprocess.getstatusoutput(cmd)
         if rc:
             syslog.syslog(syslog.LOG_ERR, "*ERROR* Failed with rc:{} when execute: {}".format(rc, cmd))
             return
 
         peer_info = json.loads(output)
-        # cmd ran successfully, safe to Clean the "new" lists/dic for new sanpshot
+        # cmd ran successfully, safe to Clean the "new" lists/dic for new snapshot
         del self.new_peer_l[:]
         self.new_peer_state.clear()
         for key, value in peer_info.items():
@@ -136,7 +136,7 @@ class BgpStateGet():
                 self.flush_pipe(data)
         # Check for stale state entries to be cleaned up
         while len(self.peer_l) > 0:
-            # remove this from the stateDB and the current nighbor state entry
+            # remove this from the stateDB and the current neighbor state entry
             peer = self.peer_l.pop(0)
             del_key = "NEIGH_STATE_TABLE|%s" % peer
             data[del_key] = None
@@ -151,15 +151,15 @@ class BgpStateGet():
 
 def main():
 
-    print "bgpmon service started"
-
+    syslog.syslog(syslog.LOG_INFO, "bgpmon service started")
+    bgp_state_get = None
     try:
         bgp_state_get = BgpStateGet()
     except Exception as e:
-        syslog.syslog(syslog.LOG_ERR, "{}: error exit 1, reason {}".format(THIS_MODULE, str(e)))
+        syslog.syslog(syslog.LOG_ERR, "{}: error exit 1, reason {}".format("THIS_MODULE", str(e)))
         exit(1)
 
-    # periodically obtain the new neighbor infomraton and update if necessary
+    # periodically obtain the new neighbor information and update if necessary
     while True:
         time.sleep(15)
         if bgp_state_get.bgp_activity_detected():

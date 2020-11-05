@@ -9,7 +9,7 @@
   neighbor {{ neighbor_addr }} timers {{ bgp_session['keepalive'] | default("60") }} {{ bgp_session['holdtime'] | default("180") }}
 {% endif %}
 !
-{% if bgp_session.has_key('admin_status') and bgp_session['admin_status'] == 'down' or not bgp_session.has_key('admin_status') and CONFIG_DB__DEVICE_METADATA['localhost'].has_key('default_bgp_status') and CONFIG_DB__DEVICE_METADATA['localhost']['default_bgp_status'] == 'down' %}
+{% if 'admin_status' in bgp_session and bgp_session['admin_status'] == 'down' or 'admin_status' not in bgp_session and 'default_bgp_status' in CONFIG_DB__DEVICE_METADATA['localhost'] and CONFIG_DB__DEVICE_METADATA['localhost']['default_bgp_status'] == 'down' %}
   neighbor {{ neighbor_addr }} shutdown
 {% endif %}
 !
@@ -23,11 +23,11 @@
 !
 {% endif %}
 !
-{%   if bgp_session.has_key('rrclient') and bgp_session['rrclient'] | int != 0 %}
+{%   if 'rrclient' in bgp_session and bgp_session['rrclient'] | int != 0 %}
     neighbor {{ neighbor_addr }} route-reflector-client
 {%   endif %}
 !
-{%   if bgp_session.has_key('nhopself') and bgp_session['nhopself'] | int != 0 %}
+{%   if 'nhopself' in bgp_session and bgp_session['nhopself'] | int != 0 %}
     neighbor {{ neighbor_addr }} next-hop-self
 {%   endif %}
 !

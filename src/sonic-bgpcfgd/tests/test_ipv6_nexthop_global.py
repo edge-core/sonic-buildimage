@@ -19,7 +19,7 @@ def parse_instance_conf(filename):
             if TemplateFabric.is_ipv6(neighbor):
                 neighbors[neighbor] = {}
     # Extract peer-groups and route-maps
-    for neighbor, neighbor_data in neighbors.iteritems():
+    for neighbor, neighbor_data in neighbors.items():
         route_map_in_re = re.compile(r'^neighbor\s+%s\s+route-map\s+(\S+) in$' % neighbor)
         peer_group_re = re.compile(r'^neighbor\s+%s\s+peer-group\s+(\S+)$' % neighbor)
         for line in lines:
@@ -30,7 +30,7 @@ def parse_instance_conf(filename):
                 assert "peer-group" not in neighbor_data
                 neighbor_data["peer-group"] = peer_group_re.match(line).group(1)
     # Ensure that every ivp6 neighbor has either route-map or peer-group
-    for neighbor, neighbor_data in neighbors.iteritems():
+    for neighbor, neighbor_data in neighbors.items():
         assert "route-map" in neighbor_data or "peer-group" in neighbor_data,\
             "IPv6 neighbor '%s' must have either route-map in or peer-group %s" % (neighbor, neighbor_data)
     return neighbors

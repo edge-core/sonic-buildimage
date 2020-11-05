@@ -1,9 +1,11 @@
+from unittest.mock import MagicMock, patch
+
 from bgpcfgd.directory import Directory
 from bgpcfgd.template import TemplateFabric
-from mock import MagicMock, patch
 from copy import deepcopy
-import swsscommon_test
+from . import swsscommon_test
 import bgpcfgd
+
 
 with patch.dict("sys.modules", swsscommon=swsscommon_test):
     from bgpcfgd.managers_bbr import BBRMgr
