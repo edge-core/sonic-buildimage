@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """"
 Description: restore_nat_entries.py -- restoring nat entries table into kernel during system warm reboot.
@@ -11,13 +11,15 @@ Description: restore_nat_entries.py -- restoring nat entries table into kernel d
     reconciliation process.
 """
 
-import sys
-import subprocess
-from swsscommon import swsscommon
-import logging
-import logging.handlers
-import re
 import os
+import re
+import subprocess
+import sys
+
+from sonic_py_common.logger import Logger
+from swsscommon import swsscommon
+
+SYSLOG_IDENTIFIER = os.path.basename(__file__)
 
 WARM_BOOT_FILE_DIR = '/var/warmboot/nat/'
 NAT_WARM_BOOT_FILE = 'nat_entries.dump'
@@ -25,10 +27,10 @@ IP_PROTO_TCP       = '6'
 
 MATCH_CONNTRACK_ENTRY = '^(\w+)\s+(\d+).*src=([\d.]+)\s+dst=([\d.]+)\s+sport=(\d+)\s+dport=(\d+).*src=([\d.]+)\s+dst=([\d.]+)\s+sport=(\d+)\s+dport=(\d+)'
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-handler = logging.handlers.SysLogHandler(address = '/dev/log')
-logger.addHandler(handler)
+# Global logger instance
+logger = Logger(SYSLOG_IDENTIFIER)
+logger.set_min_log_priority_info()
+
 
 def add_nat_conntrack_entry_in_kernel(ipproto, srcip, dstip, srcport, dstport, natsrcip, natdstip, natsrcport, natdstport):
     # pyroute2 doesn't have support for adding conntrack entries via netlink yet. So, invoking the conntrack utility to add the entries.
@@ -39,7 +41,8 @@ def add_nat_conntrack_entry_in_kernel(ipproto, srcip, dstip, srcport, dstport, n
                        ' --protonum ' + ipproto + state + ' --timeout 432000 --src ' + srcip + ' --sport ' + srcport + \
                        ' --dst ' + dstip + ' --dport ' + dstport + ' -u ASSURED'
     subprocess.call(ctcmd, shell=True)
-    logger.info("Restored NAT entry: {}".format(ctcmd))
+    logger.log_info("Restored NAT entry: {}".format(ctcmd))
+
 
 # Set the statedb "NAT_RESTORE_TABLE|Flags", so natsyncd can start reconciliation
 def set_statedb_nat_restore_done():
@@ -48,6 +51,7 @@ def set_statedb_nat_restore_done():
     fvs = swsscommon.FieldValuePairs([("restored", "true")])
     tbl.set("Flags", fvs)
     return
+
 
 # This function is to restore the kernel nat entries based on the saved nat entries.
 def restore_update_kernel_nat_entries(filename):
@@ -64,8 +68,9 @@ def restore_update_kernel_nat_entries(filename):
                continue
             add_nat_conntrack_entry_in_kernel(*cmdargs)
 
+
 def main():
-    logger.info("restore_nat_entries service is started")
+    logger.log_info("restore_nat_entries service is started")
 
     # Use warmstart python binding to check warmstart information
     warmstart = swsscommon.WarmStart()
@@ -74,13 +79,13 @@ def main():
 
     # if swss or system warm reboot not enabled, don't run
     if not warmstart.isWarmStart():
-        logger.info("restore_nat_entries service is skipped as warm restart not enabled")
+        logger.log_info("restore_nat_entries service is skipped as warm restart not enabled")
         return
 
     # NAT restart not system warm reboot, set statedb directly
     if not warmstart.isSystemWarmRebootEnabled():
         set_statedb_nat_restore_done()
-        logger.info("restore_nat_entries service is done as system warm reboot not enabled")
+        logger.log_info("restore_nat_entries service is done as system warm reboot not enabled")
         return
 
     # Program the nat conntrack entries in the kernel by reading the
@@ -88,7 +93,7 @@ def main():
     try:
         restore_update_kernel_nat_entries(WARM_BOOT_FILE_DIR + NAT_WARM_BOOT_FILE)
     except Exception as e:
-        logger.exception(str(e))
+        logger.log_error(str(e))
         sys.exit(1)
 
     # Remove the dump file after restoration
@@ -96,8 +101,9 @@ def main():
 
     # set statedb to signal other processes like natsyncd
     set_statedb_nat_restore_done()
-    logger.info("restore_nat_entries service is done for system warmreboot")
+    logger.log_info("restore_nat_entries service is done for system warmreboot")
     return
+
 
 if __name__ == '__main__':
     main()
