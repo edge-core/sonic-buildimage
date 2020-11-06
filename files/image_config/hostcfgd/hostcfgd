@@ -368,6 +368,8 @@ class HostConfigDaemon:
             syslog.syslog(syslog.LOG_WARNING, "Enable state of feature '{}' is None".format(feature_name))
             return
 
+        self.cached_feature_states.setdefault(feature_name, 'disabled')
+
         # Enable/disable the container service if the feature state was changed from its previous state.
         if self.cached_feature_states[feature_name] != state:
             self.cached_feature_states[feature_name] = state
