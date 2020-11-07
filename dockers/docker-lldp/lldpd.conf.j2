@@ -1,13 +1,20 @@
+{% set mgmt_if = {} %}
 {% if MGMT_INTERFACE %}
-{# If MGMT port alias is available, use it for port ID subtype, otherwise use port name #}
-{% set mgmt_port_name = (MGMT_INTERFACE.keys()|list)[0][0] %}
-{% set ipv4 = (MGMT_INTERFACE.keys()|list)[0][1].split('/')[0] %}
-{% if MGMT_PORT and MGMT_PORT[mgmt_port_name] and MGMT_PORT[mgmt_port_name].alias %}
-configure ports eth0 lldp portidsubtype local {{ MGMT_PORT[mgmt_port_name].alias }}
-{% else %}
-configure ports eth0 lldp portidsubtype local {{ mgmt_port_name }}
+{% for (mgmt_name, mgmt_prefix) in MGMT_INTERFACE|pfx_filter %}
+{% if mgmt_prefix|ipv4 %}
+{% if mgmt_if.update({'port_name' : mgmt_name}) %} {% endif %}
+{% if mgmt_if.update({'ipv4' : mgmt_prefix|ip}) %} {% endif %}
 {% endif %}
-configure system ip management pattern {{ ipv4 }}
+{% endfor %}
+{% endif %}
+{% if mgmt_if %}
+{# If MGMT port alias is available, use it for port ID subtype, otherwise use port name #}
+{% if MGMT_PORT and MGMT_PORT[mgmt_if.port_name] and MGMT_PORT[mgmt_if.port_name].alias %}
+configure ports eth0 lldp portidsubtype local {{ MGMT_PORT[mgmt_if.port_name].alias }}
+{% else %}
+configure ports eth0 lldp portidsubtype local {{ mgmt_if.port_name }}
+{% endif %}
+configure system ip management pattern {{ mgmt_if.ipv4 }}
 {% endif %}
 configure system hostname {{ DEVICE_METADATA['localhost']['hostname'] }}
 {# pause lldpd operations until all interfaces are well configured, resume command will run in lldpmgrd #}
