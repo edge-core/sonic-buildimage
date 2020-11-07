@@ -22,7 +22,7 @@ $(DOCKER_SONIC_VS)_PYTHON_WHEELS += $(SWSSSDK_PY2) \
                                     $(SONIC_PY_COMMON_PY2) \
                                     $(SONIC_PY_COMMON_PY3) \
                                     $(SONIC_YANG_MODELS_PY3) \
-                                    $(SONIC_YANG_MGMT_PY) \
+                                    $(SONIC_YANG_MGMT_PY2) \
                                     $(SONIC_UTILITIES_PY2) \
                                     $(SONIC_HOST_SERVICES_PY3)
 

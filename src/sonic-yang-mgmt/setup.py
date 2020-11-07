@@ -4,37 +4,12 @@
 """The setup script."""
 
 from setuptools import setup, find_packages
-from setuptools.command.build_py import build_py
-from os import system
-from sys import exit
-import pytest
-
-setup_requirements = ['pytest-runner']
-
-test_requirements = ['pytest>=3']
 
 # read me
 with open('README.rst') as readme_file:
     readme = readme_file.read()
 
-# class for prerequisites to build this package
-class pkgBuild(build_py):
-    """Custom Build PLY"""
-
-    def run (self):
-        # run pytest for libyang python APIs
-        self.pytest_args = []
-        errno = pytest.main(self.pytest_args)
-        if (errno):
-            exit(errno)
-
-        # Continue usual build steps
-        build_py.run(self)
-
 setup(
-    cmdclass={
-        'build_py': pkgBuild,
-    },
     author="lnos-coders",
     author_email='lnos-coders@linkedin.com',
     python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*',
@@ -52,15 +27,26 @@ setup(
         'Programming Language :: Python :: 3.8',
     ],
     description="Package contains Python Library for YANG for sonic.",
-    tests_require = test_requirements,
     license="GNU General Public License v3",
     long_description=readme + '\n\n',
+    install_requires = [
+        'xmltodict==0.12.0',
+        'ijson==2.6.1'
+    ],
+    tests_require = [
+        'pytest>3',
+        'xmltodict==0.12.0',
+        'ijson==2.6.1'
+    ],
+    setup_requires = [
+        'pytest-runner',
+        'wheel'
+    ],
     include_package_data=True,
-    keywords='sonic_yang_mgmt',
-    name='sonic_yang_mgmt',
+    keywords='sonic-yang-mgmt',
+    name='sonic-yang-mgmt',
     py_modules=['sonic_yang', 'sonic_yang_ext'],
     packages=find_packages(),
-    setup_requires=setup_requirements,
     version='1.0',
     zip_safe=False,
 )

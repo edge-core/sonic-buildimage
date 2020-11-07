@@ -339,7 +339,7 @@ RUN pip2 install \
          ctypesgen==0.r125 \
          crc16
 
-# Note: Stick with Jinja2 2.x branch as the 3.x dropped support for Python 2.7 
+# Note: Stick with Jinja2 2.x branch as the 3.x dropped support for Python 2.7
 RUN pip2 install --force-reinstall --upgrade "Jinja2<3.0.0"
 
 # For sonic config engine testing
@@ -379,11 +379,7 @@ RUN pip2 install setuptools==40.8.0
 # For sonic-swss-common testing
 RUN pip2 install Pympler==0.8
 
-# For sonic_yang_mgmt build
-RUN pip2 install ijson==2.6.1
-RUN pip3 install ijson==2.6.1
-RUN pip2 install jsondiff==1.2.0
-RUN pip2 install xmltodict==0.12.0
+# For sonic_yang_model build
 RUN pip2 install pyang==2.1.1
 
 # For mgmt-framework build

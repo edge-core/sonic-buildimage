@@ -34,9 +34,9 @@ def printExceptionDetails():
 # Run function will run all the tests
 # from a user given list.
 
-class YangModelTesting:
+class Test_yang_models:
 
-    def __init__(self, tests, yangDir, jsonFile):
+    def initTest(self):
         self.defaultYANGFailure = {
             'Must': ['Must condition', 'not satisfied'],
             'InvalidValue': ['Invalid value'],
@@ -178,11 +178,9 @@ class YangModelTesting:
             }
         }
 
-        self.tests = tests
-        if (self.tests == None):
-            self.tests = self.ExceptionTests.keys()+self.SpecialTests.keys()
-        self.yangDir = yangDir
-        self.jsonFile = jsonFile
+        self.tests = list(self.ExceptionTests.keys())+list(self.SpecialTests.keys())
+        self.yangDir = './yang-models/'
+        self.jsonFile = './tests/yang_model_tests/yangTest.json'
         self.testNum = 1
         # other class vars
         # self.ctx
@@ -211,24 +209,6 @@ class YangModelTesting:
             printExceptionDetails()
             raise e
         return
-
-    """
-        Run all tests from list self.tests
-    """
-    def run(self):
-        try:
-            self.loadYangModel(self.yangDir)
-            ret = 0
-            for test in self.tests:
-                test = test.strip()
-                if test in self.ExceptionTests:
-                    ret = ret + self.runExceptionTest(test);
-                elif test in self.SpecialTests:
-                    ret = ret + self.runSpecialTest(test);
-        except Exception as e:
-            printExceptionDetails()
-            raise e
-        return ret
 
     """
         Get the JSON input based on func name
@@ -313,6 +293,8 @@ class YangModelTesting:
             elif (sum(1 for str in eStr if str not in s) == 0):
                 log.info(desc + " Passed\n")
                 return PASS
+            else:
+                raise Exception("Unknown Error")
         except Exception as e:
             printExceptionDetails()
         log.info(desc + " Failed\n")
@@ -336,7 +318,7 @@ class YangModelTesting:
             self.logStartTest(desc)
             jInput = json.loads(self.readJsonInput(test))
             # check all Vlan from 1 to 4094
-            for i in xrange(4095):
+            for i in range(4095):
                 vlan = 'Vlan'+str(i)
                 jInput["sonic-vlan:sonic-vlan"]["sonic-vlan:VLAN"]["VLAN_LIST"]\
                       [0]["vlan_name"] = vlan
@@ -349,6 +331,27 @@ class YangModelTesting:
             printExceptionDetails()
         log.info(desc + " Failed\n")
         return FAIL
+
+    """
+        Run all tests from list self.tests
+    """
+    def test_run_tests(self):
+        try:
+            self.initTest()
+            self.loadYangModel(self.yangDir)
+            ret = 0
+            for test in self.tests:
+                test = test.strip()
+                if test in self.ExceptionTests:
+                    ret = ret + self.runExceptionTest(test);
+                elif test in self.SpecialTests:
+                    ret = ret + self.runSpecialTest(test);
+                else:
+                    raise Exception("Unexpected Test")
+        except Exception as e:
+            printExceptionDetails()
+        assert ret == 0
+        return
 # End of Class
 
 """

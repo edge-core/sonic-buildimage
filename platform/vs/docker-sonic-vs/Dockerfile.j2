@@ -83,11 +83,6 @@ RUN pip2 install urllib3
 RUN pip2 install requests
 RUN pip2 install crontab
 
-# Install dependencies for Dynamic Port Breakout
-RUN pip2 install xmltodict==0.12.0
-RUN pip2 install jsondiff==1.2.0
-RUN pip2 install ijson==2.6.1
-
 {% if docker_sonic_vs_debs.strip() -%}
 # Copy locally-built Debian package dependencies
 {%- for deb in docker_sonic_vs_debs.split(' ') %}

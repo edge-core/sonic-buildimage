@@ -129,7 +129,8 @@ class SonicYangExtMixin:
     """
     def _cropConfigDB(self, croppedFile=None):
 
-        for table in self.jIn.keys():
+        tables = list(self.jIn.keys())
+        for table in tables:
             if table not in self.confDbYangMap:
                 # store in tablesWithOutYang
                 self.tablesWithOutYang[table] = self.jIn[table]
@@ -138,7 +139,7 @@ class SonicYangExtMixin:
         if len(self.tablesWithOutYang):
             print("Note: Below table(s) have no YANG models:")
             for table in self.tablesWithOutYang.keys():
-                print(unicode(table), end=", ")
+                print(str(table), end=", ")
             print()
 
         if croppedFile:
@@ -274,13 +275,14 @@ class SonicYangExtMixin:
         # fetch regex from YANG models.
         keyRegEx = model['ext:key-regex-configdb-to-yang']['@value']
         # seperator `|` has special meaning in regex, so change it appropriately.
-        keyRegEx = re.sub('\|', '\\|', keyRegEx)
+        keyRegEx = re.sub(r'\|', r'\\|', keyRegEx)
         # get keys from YANG model list itself
         listKeys = model['key']['@value']
         self.sysLog(msg="xlateList regex:{} keyList:{}".\
             format(keyRegEx, listKeys))
 
-        for pkey in config.keys():
+        primaryKeys = list(config.keys())
+        for pkey in primaryKeys:
             try:
                 vKey = None
                 self.sysLog(syslog.LOG_DEBUG, "xlateList Extract pkey:{}".\

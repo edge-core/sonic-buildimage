@@ -188,7 +188,7 @@
 		"sonic-vlan:sonic-vlan": {
 			"sonic-vlan:VLAN_MEMBER": {
 				"VLAN_MEMBER_LIST": [{
-					"vlan_name": 100,
+					"vlan_name": "Vlan100",
 					"port": "Ethernet0",
 					"tagging_mode": "non-tagged"
 				}]
