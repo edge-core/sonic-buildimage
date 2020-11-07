@@ -19,13 +19,13 @@ ipv6 prefix-list PL_LoopbackV6 permit {{ get_ipv6_loopback_address(LOOPBACK_INTE
 {% endif %}
 {% for (name, prefix) in VLAN_INTERFACE|pfx_filter %}
 {% if prefix | ipv4 and name not in vnet_intfs %}
-ip prefix-list LOCAL_VLAN_IPV4_PREFIX seq {{ loop.index * 5 }} permit {{ prefix }}
+ip prefix-list LOCAL_VLAN_IPV4_PREFIX seq {{ loop.index * 5 }} permit {{ prefix | ip_network }}/{{ prefix | prefixlen }}
 !
 {% endif %}
 {% endfor %}
 {% for (name, prefix) in VLAN_INTERFACE|pfx_filter %}
 {% if prefix | ipv6 and name not in vnet_intfs %}
-ipv6 prefix-list LOCAL_VLAN_IPV6_PREFIX seq {{ loop.index * 5 }} permit {{ prefix }}
+ipv6 prefix-list LOCAL_VLAN_IPV6_PREFIX seq {{ loop.index * 5 }} permit {{ prefix | ip_network }}/{{ prefix | prefixlen }}
 !
 {% endif %}
 {% endfor %}
