@@ -5,7 +5,7 @@ After=updategraph.service
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/hostcfgd
+ExecStart=/usr/local/bin/hostcfgd
 
 [Install]
 WantedBy=multi-user.target

@@ -1,16 +1,15 @@
-#!/usr/bin/python -u
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 import ast
+import copy
+import ipaddress
 import os
-import sys
 import subprocess
 import syslog
-import copy
+
 import jinja2
-import ipaddr as ipaddress
-from swsssdk import ConfigDBConnector
 from sonic_py_common import device_info
+from swsssdk import ConfigDBConnector
 
 # FILE
 PAM_AUTH_CONF = "/etc/pam.d/common-auth-sonic"
@@ -80,7 +79,7 @@ class Iptables(object):
 
         iface, ip = key
         ip_str = ip.split("/")[0]
-        ip_addr = ipaddress.IPAddress(ip_str)
+        ip_addr = ipaddress.ip_address(ip_str)
         if isinstance(ip_addr, ipaddress.IPv6Address):
             ver = '6'
         else:
@@ -313,7 +312,7 @@ class HostConfigDaemon:
 
     def update_all_feature_states(self):
         feature_table = self.config_db.get_table('FEATURE')
-        for feature_name in feature_table.keys():
+        for feature_name in feature_table:
             if not feature_name:
                 syslog.syslog(syslog.LOG_WARNING, "Feature is None")
                 continue
@@ -359,7 +358,7 @@ class HostConfigDaemon:
     def feature_state_handler(self, key, data):
         feature_name = key
         feature_table = self.config_db.get_table('FEATURE')
-        if feature_name not in feature_table.keys():
+        if feature_name not in feature_table:
             syslog.syslog(syslog.LOG_WARNING, "Feature '{}' not in FEATURE table".format(feature_name))
             return
 
