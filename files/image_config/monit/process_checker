@@ -1,4 +1,5 @@
-#!/usr/bin/python
+#!/usr/bin/python3
+
 import argparse
 import sys
 import syslog
@@ -16,10 +17,10 @@ def check_process_existence(container_name, process_cmdline):
     config_db.connect()
     feature_table = config_db.get_table("FEATURE")
 
-    if container_name in feature_table.keys():
+    if container_name in feature_table:
         # We look into the 'FEATURE' table to verify whether the container is disabled or not.
         # If the container is diabled, we exit.
-        if ("state" in feature_table[container_name].keys()
+        if ("state" in feature_table[container_name]
                 and feature_table[container_name]["state"] == "disabled"):
             sys.exit(0)
         else:
