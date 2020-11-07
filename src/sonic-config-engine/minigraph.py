@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import calendar
+from ipaddress import IPv4Address, IPv4Network, ip_address, ip_network
 import math
 import os
 import sys
@@ -280,6 +281,7 @@ def parse_loopback_intf(child):
 def parse_dpg(dpg, hname):
     aclintfs = None
     mgmtintfs = None
+    tunnelintfs = defaultdict(dict)
     for child in dpg:
         """ 
             In Multi-NPU platforms the acl intfs are defined only for the host not for individual asic.
@@ -473,7 +475,25 @@ def parse_dpg(dpg, hname):
                 except:
                     print("Warning: Ignoring Control Plane ACL %s without type" % aclname, file=sys.stderr)
 
-        return intfs, lo_intfs, mvrf, mgmt_intf, vlans, vlan_members, pcs, pc_members, acls, vni
+        mg_tunnels = child.find(str(QName(ns, "TunnelInterfaces")))
+        if mg_tunnels is not None:
+            table_key_to_mg_key_map = {"encap_ecn_mode": "EcnEncapsulationMode", 
+                                       "ecn_mode": "EcnDecapsulationMode", 
+                                       "dscp_mode": "DifferentiatedServicesCodePointMode", 
+                                       "ttl_mode": "TtlMode"}
+            for mg_tunnel in mg_tunnels.findall(str(QName(ns, "TunnelInterface"))):
+                tunnel_type = mg_tunnel.attrib["Type"]
+                tunnel_name = mg_tunnel.attrib["Name"]
+                tunnelintfs[tunnel_type][tunnel_name] = {
+                    "tunnel_type": mg_tunnel.attrib["Type"].upper(),
+                }
+
+                for table_key, mg_key in table_key_to_mg_key_map.items():
+                    # If the minigraph has the key, add the corresponding config DB key to the table
+                    if mg_key in mg_tunnel.attrib:
+                        tunnelintfs[tunnel_type][tunnel_name][table_key] = mg_tunnel.attrib[mg_key]
+
+        return intfs, lo_intfs, mvrf, mgmt_intf, vlans, vlan_members, pcs, pc_members, acls, vni, tunnelintfs
     return None, None, None, None, None, None, None, None, None, None
 
 def parse_host_loopback(dpg, hname):
@@ -866,6 +886,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
     intfs = None
     vlan_intfs = None
     pc_intfs = None
+    tunnel_intfs = None
     vlans = None
     vlan_members = None
     pcs = None
@@ -923,7 +944,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
     for child in root:
         if asic_name is None:
             if child.tag == str(QName(ns, "DpgDec")):
-                (intfs, lo_intfs, mvrf, mgmt_intf, vlans, vlan_members, pcs, pc_members, acls, vni) = parse_dpg(child, hostname)
+                (intfs, lo_intfs, mvrf, mgmt_intf, vlans, vlan_members, pcs, pc_members, acls, vni, tunnel_intfs) = parse_dpg(child, hostname)
             elif child.tag == str(QName(ns, "CpgDec")):
                 (bgp_sessions, bgp_internal_sessions, bgp_asn, bgp_peers_with_range, bgp_monitors) = parse_cpg(child, hostname)
             elif child.tag == str(QName(ns, "PngDec")):
@@ -938,7 +959,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
                 (port_speeds_default, port_descriptions) = parse_deviceinfo(child, hwsku)
         else:
             if child.tag == str(QName(ns, "DpgDec")):
-                (intfs, lo_intfs, mvrf, mgmt_intf, vlans, vlan_members, pcs, pc_members, acls, vni) = parse_dpg(child, asic_name)
+                (intfs, lo_intfs, mvrf, mgmt_intf, vlans, vlan_members, pcs, pc_members, acls, vni, tunnel_intfs) = parse_dpg(child, asic_name)
                 host_lo_intfs = parse_host_loopback(child, hostname)
             elif child.tag == str(QName(ns, "CpgDec")):
                 (bgp_sessions, bgp_internal_sessions, bgp_asn, bgp_peers_with_range, bgp_monitors) = parse_cpg(child, asic_name, local_devices)
@@ -1167,6 +1188,8 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
     results['VLAN'] = vlans
     results['VLAN_MEMBER'] = vlan_members
 
+    results['TUNNEL'] = get_tunnel_entries(tunnel_intfs, lo_intfs, hostname)
+
     for nghbr in list(neighbors.keys()):
         # remove port not in port_config.ini
         if nghbr not in ports:
@@ -1233,6 +1256,22 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
         parse_spine_chassis_fe(results, vni, lo_intfs, phyport_intfs, pc_intfs, pc_members, devices)
 
     return results
+
+def get_tunnel_entries(tunnel_intfs, lo_intfs, hostname):
+    lo_addr = ''
+    # Use the first IPv4 loopback as the tunnel destination IP
+    for addr in lo_intfs.keys():
+        ip_addr = ip_network(UNICODE_TYPE(addr[1]))
+        if isinstance(ip_addr, IPv4Network):
+            lo_addr = str(ip_addr.network_address)
+            break
+
+    tunnels = {}
+    for type, tunnel_dict in tunnel_intfs.items():
+        for tunnel_key, tunnel_attr in tunnel_dict.items():
+            tunnel_attr['dst_ip'] = lo_addr
+            tunnels[tunnel_key] = tunnel_attr
+    return tunnels
 
 
 def parse_device_desc_xml(filename):
