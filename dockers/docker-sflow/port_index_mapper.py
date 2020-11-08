@@ -28,12 +28,12 @@ class PortIndexMapper(object):
         self.state_db = SonicV2Connector(host='127.0.0.1', decode_responses=True)
         self.state_db.connect(self.state_db.STATE_DB, False)
         self.sel = swsscommon.Select()
-        self.tlbs = [swsscommon.SubscriberStateTable(self.appl_db, t)
+        self.tbls = [swsscommon.SubscriberStateTable(self.appl_db, t)
                      for t in tbl_lst]
 
         self.cur_interfaces = {}
 
-        for t in self.tlbs:
+        for t in self.tbls:
             self.sel.addSelectable(t)
 
     def set_port_index_table_entry(self, key, index, ifindex):
@@ -69,11 +69,12 @@ class PortIndexMapper(object):
         while True:
             (state, c) = self.sel.select(SELECT_TIMEOUT_MS)
             if state == swsscommon.Select.OBJECT:
-                for t in self.tlbs:
+                for t in self.tbls:
                     (key, op, cfvs) = t.pop()
                     if op == 'DEL' and key in self.cur_interfaces:
                         self.update_db(key, op)
                     elif (op == 'SET' and key != 'PortInitDone' and
+                            key != 'PortConfigDone' and
                             key not in self.cur_interfaces):
                         self.update_db(key, op)
             elif state == swsscomm.Select.ERROR:
@@ -86,9 +87,10 @@ class PortIndexMapper(object):
         while True:
             (state, c) = self.sel.select(SELECT_TIMEOUT_MS)
             if state == swsscommon.Select.OBJECT:
-                for t in self.tlbs:
+                for t in self.tbls:
                     (key, op, cfvs) = t.pop()
-                    if key and key != 'PortInitDone':
+                    if (key and key != 'PortInitDone' and
+                            key != 'PortConfigDone'):
                         self.update_db(key, op)
             else:
                 break

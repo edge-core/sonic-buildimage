@@ -12,9 +12,6 @@ RUN apt-get update      && \
             dmidecode      \
             libmnl0=1.0.4-2
 
-RUN pip install \
-        pyroute2==0.5.3
-
 {% if docker_sflow_debs.strip() -%}
 # Copy locally-built Debian package dependencies
 {{ copy_files("debs/", docker_sflow_debs.split(' '), "/debs/") }}
