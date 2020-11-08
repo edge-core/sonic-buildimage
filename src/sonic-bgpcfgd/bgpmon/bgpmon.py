@@ -68,8 +68,8 @@ class BgpStateGet:
     def update_new_peer_states(self, peer_dict):
         peer_l = peer_dict["peers"].keys()
         self.new_peer_l.extend(peer_l)
-        for i in range (0, len(peer_l)):
-            self.new_peer_state[peer_l[i]] = peer_dict["peers"][peer_l[i]]["state"]
+        for peer in peer_l:
+            self.new_peer_state[peer] = peer_dict["peers"][peer]["state"]
 
     # Get a new snapshot of BGP neighbors and store them in the "new" location
     def get_all_neigh_states(self):
