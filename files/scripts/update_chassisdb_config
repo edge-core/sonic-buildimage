@@ -1,12 +1,14 @@
-#!/usr/bin/python
+#!/usr/bin/python3
+
+import argparse
 import json
 import os
 import syslog
-import argparse
 
 database_config_file = "/var/run/redis/sonic-db/database_config.json"
 redis_chassis = 'redis_chassis'
 chassis_db = 'CHASSIS_APP_DB'
+
 
 def main():
     parser = argparse.ArgumentParser(description=
@@ -62,6 +64,7 @@ def main():
        json.dump(data_publish, write_file, indent=4, separators=(',', ': '))
     syslog.syslog(syslog.LOG_INFO,
        'remove chassis_db from config file {}'.format(jsonfile))
+
 
 if __name__ == "__main__":
     main()
