@@ -11,5 +11,5 @@ check program lldp|lldpd_monitor with path "/usr/bin/process_checker lldp lldpd:
 check program lldp|lldp_syncd with path "/usr/bin/process_checker lldp python2 -m lldp_syncd"
     if status != 0 for 5 times within 5 cycles then alert repeat every 1 cycles
 
-check program lldp|lldpmgrd with path "/usr/bin/process_checker lldp python /usr/bin/lldpmgrd"
+check program lldp|lldpmgrd with path "/usr/bin/process_checker lldp python3 /usr/bin/lldpmgrd"
     if status != 0 for 5 times within 5 cycles then alert repeat every 1 cycles
