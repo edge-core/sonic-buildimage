@@ -105,6 +105,18 @@ def test_general_instance():
     test_data = load_tests("general", "instance.conf")
     run_tests("general_instance", *test_data)
 
+def test_internal_policies():
+    test_data = load_tests("internal", "policies.conf")
+    run_tests("internal_policies", *test_data)
+
+def test_internal_pg():
+    test_data = load_tests("internal", "peer-group.conf")
+    run_tests("internal_pg", *test_data)
+
+def test_internal_instance():
+    test_data = load_tests("internal", "instance.conf")
+    run_tests("internal_instance", *test_data)
+
 def test_dynamic_policies():
     test_data = load_tests("dynamic", "policies.conf")
     run_tests("dynamic_policies", *test_data)
