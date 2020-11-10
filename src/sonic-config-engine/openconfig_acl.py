@@ -32,14 +32,10 @@ class yc_state_openconfig_acl__acl_state(PybindBase):
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__counter_capability',)
 
-  _yang_name = 'state'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'state'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__counter_capability = YANGDynClass(base=RestrictedClassType(base_type=str, restriction_type="dict_key", restriction_arg={'oc-acl:AGGREGATE_ONLY': {'@namespace': 'http://openconfig.net/yang/acl', '@module': 'openconfig-acl'}, 'oc-acl:INTERFACE_AGGREGATE': {'@namespace': 'http://openconfig.net/yang/acl', '@module': 'openconfig-acl'}, 'AGGREGATE_ONLY': {'@namespace': 'http://openconfig.net/yang/acl', '@module': 'openconfig-acl'}, 'INTERFACE_AGGREGATE': {'@namespace': 'http://openconfig.net/yang/acl', '@module': 'openconfig-acl'}, 'INTERFACE_ONLY': {'@namespace': 'http://openconfig.net/yang/acl', '@module': 'openconfig-acl'}, 'oc-acl:INTERFACE_ONLY': {'@namespace': 'http://openconfig.net/yang/acl', '@module': 'openconfig-acl'}},), is_leaf=True, yang_name="counter-capability", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='identityref', is_config=False)
 
@@ -125,14 +121,10 @@ class yc_config_openconfig_acl__acl_acl_sets_acl_set_config(PybindBase):
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__name','__description',)
 
-  _yang_name = 'config'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'config'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__name = YANGDynClass(base=str, is_leaf=True, yang_name="name", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='string', is_config=True)
     self.__description = YANGDynClass(base=str, is_leaf=True, yang_name="description", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='string', is_config=True)
@@ -255,14 +247,10 @@ class yc_state_openconfig_acl__acl_acl_sets_acl_set_state(PybindBase):
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__name','__description',)
 
-  _yang_name = 'state'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'state'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__name = YANGDynClass(base=str, is_leaf=True, yang_name="name", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='string', is_config=False)
     self.__description = YANGDynClass(base=str, is_leaf=True, yang_name="description", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='string', is_config=False)
@@ -385,14 +373,10 @@ class yc_config_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_confi
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__sequence_id','__description',)
 
-  _yang_name = 'config'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'config'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__sequence_id = YANGDynClass(base=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..4294967295']}, int_size=32), is_leaf=True, yang_name="sequence-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='uint32', is_config=True)
     self.__description = YANGDynClass(base=str, is_leaf=True, yang_name="description", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='string', is_config=True)
@@ -525,14 +509,10 @@ class yc_state_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_state(
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__sequence_id','__description','__matched_packets','__matched_octets',)
 
-  _yang_name = 'state'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'state'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__matched_octets = YANGDynClass(base=RestrictedClassType(base_type=int, restriction_dict={'range':  ['0..18446744073709551615']}, int_size=64), is_leaf=True, yang_name="matched-octets", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='yang:counter64', is_config=False)
     self.__sequence_id = YANGDynClass(base=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..4294967295']}, int_size=32), is_leaf=True, yang_name="sequence-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='uint32', is_config=False)
@@ -795,14 +775,10 @@ class yc_config_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_l2_co
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__source_mac','__source_mac_mask','__destination_mac','__destination_mac_mask','__ethertype',)
 
-  _yang_name = 'config'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'config'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__source_mac = YANGDynClass(base=RestrictedClassType(base_type=str, restriction_dict={'pattern': '[0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5}'}), is_leaf=True, yang_name="source-mac", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='yang:mac-address', is_config=True)
     self.__destination_mac = YANGDynClass(base=RestrictedClassType(base_type=str, restriction_dict={'pattern': '[0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5}'}), is_leaf=True, yang_name="destination-mac", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='yang:mac-address', is_config=True)
@@ -1042,14 +1018,10 @@ class yc_state_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_l2_sta
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__source_mac','__source_mac_mask','__destination_mac','__destination_mac_mask','__ethertype',)
 
-  _yang_name = 'state'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'state'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__source_mac = YANGDynClass(base=RestrictedClassType(base_type=str, restriction_dict={'pattern': '[0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5}'}), is_leaf=True, yang_name="source-mac", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='yang:mac-address', is_config=False)
     self.__destination_mac = YANGDynClass(base=RestrictedClassType(base_type=str, restriction_dict={'pattern': '[0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5}'}), is_leaf=True, yang_name="destination-mac", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='yang:mac-address', is_config=False)
@@ -1289,14 +1261,10 @@ class yc_l2_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_l2(Pybind
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__config','__state',)
 
-  _yang_name = 'l2'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'l2'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__state = YANGDynClass(base=yc_state_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_l2_state, is_container='container', yang_name="state", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='container', is_config=True)
     self.__config = YANGDynClass(base=yc_config_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_l2_config, is_container='container', yang_name="config", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='container', is_config=True)
@@ -1419,14 +1387,10 @@ class yc_config_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_ip_co
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__ip_version','__source_ip_address','__source_ip_flow_label','__destination_ip_address','__destination_ip_flow_label','__dscp','__protocol','__hop_limit',)
 
-  _yang_name = 'config'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'config'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__hop_limit = YANGDynClass(base=RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..255']}, int_size=8), restriction_dict={'range': ['0..255']}), is_leaf=True, yang_name="hop-limit", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='uint8', is_config=True)
     self.__protocol = YANGDynClass(base=[RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..255']}, int_size=8), restriction_dict={'range': ['0..254']}),RestrictedClassType(base_type=str, restriction_type="dict_key", restriction_arg={'oc-pkt-match-types:IP_TCP': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'IP_L2TP': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:IP_L2TP': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'IP_AUTH': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'IP_RSVP': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'IP_GRE': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'IP_TCP': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:IP_AUTH': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'IP_UDP': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'IP_PIM': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:IP_GRE': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'IP_IGMP': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:IP_RSVP': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:IP_ICMP': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:IP_PIM': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:IP_UDP': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:IP_IGMP': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'IP_ICMP': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}},),], is_leaf=True, yang_name="protocol", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='oc-pkt-match-types:ip-protocol-type', is_config=True)
@@ -1785,14 +1749,10 @@ class yc_state_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_ip_sta
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__ip_version','__source_ip_address','__source_ip_flow_label','__destination_ip_address','__destination_ip_flow_label','__dscp','__protocol','__hop_limit',)
 
-  _yang_name = 'state'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'state'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__hop_limit = YANGDynClass(base=RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..255']}, int_size=8), restriction_dict={'range': ['0..255']}), is_leaf=True, yang_name="hop-limit", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='uint8', is_config=False)
     self.__protocol = YANGDynClass(base=[RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..255']}, int_size=8), restriction_dict={'range': ['0..254']}),RestrictedClassType(base_type=str, restriction_type="dict_key", restriction_arg={'oc-pkt-match-types:IP_TCP': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'IP_L2TP': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:IP_L2TP': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'IP_AUTH': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'IP_RSVP': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'IP_GRE': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'IP_TCP': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:IP_AUTH': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'IP_UDP': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'IP_PIM': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:IP_GRE': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'IP_IGMP': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:IP_RSVP': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:IP_ICMP': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:IP_PIM': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:IP_UDP': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:IP_IGMP': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'IP_ICMP': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}},),], is_leaf=True, yang_name="protocol", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='oc-pkt-match-types:ip-protocol-type', is_config=False)
@@ -2151,14 +2111,10 @@ class yc_ip_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_ip(Pybind
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__config','__state',)
 
-  _yang_name = 'ip'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'ip'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__state = YANGDynClass(base=yc_state_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_ip_state, is_container='container', yang_name="state", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='container', is_config=True)
     self.__config = YANGDynClass(base=yc_config_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_ip_config, is_container='container', yang_name="config", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='container', is_config=True)
@@ -2281,14 +2237,10 @@ class yc_config_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_trans
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__source_port','__destination_port','__tcp_flags',)
 
-  _yang_name = 'config'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'config'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__source_port = YANGDynClass(base=[RestrictedClassType(base_type=str, restriction_dict={'pattern': '^(6[0-5][0-5][0-3][0-5]|[0-5]?[0-9]?[0-9]?[0-9]?[0-9]?)\\.\\.(6[0-5][0-5][0-3][0-5]|[0-5]?[0-9]?[0-9]?[0-9]?[0-9]?)$'}),RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..65535']},int_size=16), restriction_dict={'range': ['0..65535']}),RestrictedClassType(base_type=str, restriction_type="dict_key", restriction_arg={'ANY': {}},),], is_leaf=True, yang_name="source-port", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='oc-pkt-match-types:port-num-range', is_config=True)
     self.__tcp_flags = YANGDynClass(base=TypedListType(allowed_type=RestrictedClassType(base_type=str, restriction_type="dict_key", restriction_arg={'TCP_FIN': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'TCP_ACK': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'TCP_URG': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:TCP_RST': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:TCP_SYN': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'TCP_ECE': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:TCP_ACK': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'TCP_SYN': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:TCP_CWR': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'TCP_CWR': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:TCP_URG': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'TCP_RST': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:TCP_FIN': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:TCP_ECE': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'TCP_PSH': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:TCP_PSH': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}},)), is_leaf=False, yang_name="tcp-flags", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='identityref', is_config=True)
@@ -2450,14 +2402,10 @@ class yc_state_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_transp
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__source_port','__destination_port','__tcp_flags',)
 
-  _yang_name = 'state'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'state'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__source_port = YANGDynClass(base=[RestrictedClassType(base_type=str, restriction_dict={'pattern': '^(6[0-5][0-5][0-3][0-5]|[0-5]?[0-9]?[0-9]?[0-9]?[0-9]?)\\.\\.(6[0-5][0-5][0-3][0-5]|[0-5]?[0-9]?[0-9]?[0-9]?[0-9]?)$'}),RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..65535']},int_size=16), restriction_dict={'range': ['0..65535']}),RestrictedClassType(base_type=str, restriction_type="dict_key", restriction_arg={'ANY': {}},),], is_leaf=True, yang_name="source-port", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='oc-pkt-match-types:port-num-range', is_config=False)
     self.__tcp_flags = YANGDynClass(base=TypedListType(allowed_type=RestrictedClassType(base_type=str, restriction_type="dict_key", restriction_arg={'TCP_FIN': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'TCP_ACK': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'TCP_URG': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:TCP_RST': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:TCP_SYN': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'TCP_ECE': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:TCP_ACK': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'TCP_SYN': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:TCP_CWR': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'TCP_CWR': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:TCP_URG': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'TCP_RST': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:TCP_FIN': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:TCP_ECE': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'TCP_PSH': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}, 'oc-pkt-match-types:TCP_PSH': {'@namespace': 'http://openconfig.net/yang/packet-match-types', '@module': 'openconfig-packet-match-types'}},)), is_leaf=False, yang_name="tcp-flags", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='identityref', is_config=False)
@@ -2619,14 +2567,10 @@ class yc_transport_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_tr
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__config','__state',)
 
-  _yang_name = 'transport'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'transport'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__state = YANGDynClass(base=yc_state_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_transport_state, is_container='container', yang_name="state", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='container', is_config=True)
     self.__config = YANGDynClass(base=yc_config_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_transport_config, is_container='container', yang_name="config", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='container', is_config=True)
@@ -2749,14 +2693,10 @@ class yc_config_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_input
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__interface','__subinterface',)
 
-  _yang_name = 'config'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'config'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__interface = YANGDynClass(base=str, is_leaf=True, yang_name="interface", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='leafref', is_config=True)
     self.__subinterface = YANGDynClass(base=str, is_leaf=True, yang_name="subinterface", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='leafref', is_config=True)
@@ -2889,14 +2829,10 @@ class yc_state_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_input_
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__interface','__subinterface',)
 
-  _yang_name = 'state'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'state'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__interface = YANGDynClass(base=str, is_leaf=True, yang_name="interface", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='leafref', is_config=False)
     self.__subinterface = YANGDynClass(base=str, is_leaf=True, yang_name="subinterface", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='leafref', is_config=False)
@@ -3029,14 +2965,10 @@ class yc_interface_ref_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entr
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__config','__state',)
 
-  _yang_name = 'interface-ref'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'interface-ref'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__state = YANGDynClass(base=yc_state_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_input_interface_interface_ref_state, is_container='container', yang_name="state", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='container', is_config=True)
     self.__config = YANGDynClass(base=yc_config_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_input_interface_interface_ref_config, is_container='container', yang_name="config", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='container', is_config=True)
@@ -3159,14 +3091,10 @@ class yc_input_interface_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_en
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__interface_ref',)
 
-  _yang_name = 'input-interface'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'input-interface'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__interface_ref = YANGDynClass(base=yc_interface_ref_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_input_interface_interface_ref, is_container='container', yang_name="interface-ref", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='container', is_config=True)
 
@@ -3250,14 +3178,10 @@ class yc_config_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_actio
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__forwarding_action','__log_action',)
 
-  _yang_name = 'config'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'config'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__forwarding_action = YANGDynClass(base=RestrictedClassType(base_type=str, restriction_type="dict_key", restriction_arg={'DROP': {'@namespace': 'http://openconfig.net/yang/acl', '@module': 'openconfig-acl'}, 'oc-acl:REJECT': {'@namespace': 'http://openconfig.net/yang/acl', '@module': 'openconfig-acl'}, 'ACCEPT': {'@namespace': 'http://openconfig.net/yang/acl', '@module': 'openconfig-acl'}, 'REJECT': {'@namespace': 'http://openconfig.net/yang/acl', '@module': 'openconfig-acl'}, 'oc-acl:ACCEPT': {'@namespace': 'http://openconfig.net/yang/acl', '@module': 'openconfig-acl'}, 'oc-acl:DROP': {'@namespace': 'http://openconfig.net/yang/acl', '@module': 'openconfig-acl'}},), is_leaf=True, yang_name="forwarding-action", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='identityref', is_config=True)
     self.__log_action = YANGDynClass(base=RestrictedClassType(base_type=str, restriction_type="dict_key", restriction_arg={'LOG_SYSLOG': {'@namespace': 'http://openconfig.net/yang/acl', '@module': 'openconfig-acl'}, 'oc-acl:LOG_SYSLOG': {'@namespace': 'http://openconfig.net/yang/acl', '@module': 'openconfig-acl'}, 'LOG_NONE': {'@namespace': 'http://openconfig.net/yang/acl', '@module': 'openconfig-acl'}, 'oc-acl:LOG_NONE': {'@namespace': 'http://openconfig.net/yang/acl', '@module': 'openconfig-acl'}},), default=str("LOG_NONE"), is_leaf=True, yang_name="log-action", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='identityref', is_config=True)
@@ -3386,14 +3310,10 @@ class yc_state_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_action
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__forwarding_action','__log_action',)
 
-  _yang_name = 'state'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'state'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__forwarding_action = YANGDynClass(base=RestrictedClassType(base_type=str, restriction_type="dict_key", restriction_arg={'DROP': {'@namespace': 'http://openconfig.net/yang/acl', '@module': 'openconfig-acl'}, 'oc-acl:REJECT': {'@namespace': 'http://openconfig.net/yang/acl', '@module': 'openconfig-acl'}, 'ACCEPT': {'@namespace': 'http://openconfig.net/yang/acl', '@module': 'openconfig-acl'}, 'REJECT': {'@namespace': 'http://openconfig.net/yang/acl', '@module': 'openconfig-acl'}, 'oc-acl:ACCEPT': {'@namespace': 'http://openconfig.net/yang/acl', '@module': 'openconfig-acl'}, 'oc-acl:DROP': {'@namespace': 'http://openconfig.net/yang/acl', '@module': 'openconfig-acl'}},), is_leaf=True, yang_name="forwarding-action", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='identityref', is_config=False)
     self.__log_action = YANGDynClass(base=RestrictedClassType(base_type=str, restriction_type="dict_key", restriction_arg={'LOG_SYSLOG': {'@namespace': 'http://openconfig.net/yang/acl', '@module': 'openconfig-acl'}, 'oc-acl:LOG_SYSLOG': {'@namespace': 'http://openconfig.net/yang/acl', '@module': 'openconfig-acl'}, 'LOG_NONE': {'@namespace': 'http://openconfig.net/yang/acl', '@module': 'openconfig-acl'}, 'oc-acl:LOG_NONE': {'@namespace': 'http://openconfig.net/yang/acl', '@module': 'openconfig-acl'}},), default=str("LOG_NONE"), is_leaf=True, yang_name="log-action", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='identityref', is_config=False)
@@ -3523,14 +3443,10 @@ with an entry
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__config','__state',)
 
-  _yang_name = 'actions'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'actions'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__state = YANGDynClass(base=yc_state_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_actions_state, is_container='container', yang_name="state", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='container', is_config=True)
     self.__config = YANGDynClass(base=yc_config_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_actions_config, is_container='container', yang_name="config", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='container', is_config=True)
@@ -3653,14 +3569,10 @@ class yc_acl_entry_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry(Py
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__sequence_id','__config','__state','__l2','__ip','__transport','__input_interface','__actions',)
 
-  _yang_name = 'acl-entry'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'acl-entry'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__ip = YANGDynClass(base=yc_ip_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_ip, is_container='container', yang_name="ip", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='container', is_config=True)
     self.__input_interface = YANGDynClass(base=yc_input_interface_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_input_interface, is_container='container', yang_name="input-interface", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='container', is_config=True)
@@ -4024,14 +3936,10 @@ class yc_acl_entries_openconfig_acl__acl_acl_sets_acl_set_acl_entries(PybindBase
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__acl_entry',)
 
-  _yang_name = 'acl-entries'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'acl-entries'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__acl_entry = YANGDynClass(base=YANGListType("sequence_id",yc_acl_entry_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry, yang_name="acl-entry", parent=self, is_container='list', user_ordered=False, path_helper=self._path_helper, yang_keys='sequence-id', extensions=None), is_container='list', yang_name="acl-entry", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='list', is_config=True)
 
@@ -4116,14 +4024,10 @@ entries
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__name','__config','__state','__acl_entries',)
 
-  _yang_name = 'acl-set'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'acl-set'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__state = YANGDynClass(base=yc_state_openconfig_acl__acl_acl_sets_acl_set_state, is_container='container', yang_name="state", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='container', is_config=True)
     self.__config = YANGDynClass(base=yc_config_openconfig_acl__acl_acl_sets_acl_set_config, is_container='container', yang_name="config", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='container', is_config=True)
@@ -4329,14 +4233,10 @@ class yc_acl_sets_openconfig_acl__acl_acl_sets(PybindBase):
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__acl_set',)
 
-  _yang_name = 'acl-sets'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'acl-sets'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__acl_set = YANGDynClass(base=YANGListType("name",yc_acl_set_openconfig_acl__acl_acl_sets_acl_set, yang_name="acl-set", parent=self, is_container='list', user_ordered=False, path_helper=self._path_helper, yang_keys='name', extensions=None), is_container='list', yang_name="acl-set", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='list', is_config=True)
 
@@ -4422,14 +4322,10 @@ class yc_config_openconfig_acl__acl_interfaces_interface_config(PybindBase):
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__id',)
 
-  _yang_name = 'config'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'config'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__id = YANGDynClass(base=str, is_leaf=True, yang_name="id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='oc-if:interface-id', is_config=True)
 
@@ -4515,14 +4411,10 @@ class yc_state_openconfig_acl__acl_interfaces_interface_state(PybindBase):
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__id',)
 
-  _yang_name = 'state'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'state'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__id = YANGDynClass(base=str, is_leaf=True, yang_name="id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='oc-if:interface-id', is_config=False)
 
@@ -4608,14 +4500,10 @@ class yc_config_openconfig_acl__acl_interfaces_interface_interface_ref_config(Py
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__interface','__subinterface',)
 
-  _yang_name = 'config'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'config'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__interface = YANGDynClass(base=str, is_leaf=True, yang_name="interface", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='leafref', is_config=True)
     self.__subinterface = YANGDynClass(base=str, is_leaf=True, yang_name="subinterface", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='leafref', is_config=True)
@@ -4748,14 +4636,10 @@ class yc_state_openconfig_acl__acl_interfaces_interface_interface_ref_state(Pybi
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__interface','__subinterface',)
 
-  _yang_name = 'state'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'state'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__interface = YANGDynClass(base=str, is_leaf=True, yang_name="interface", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='leafref', is_config=False)
     self.__subinterface = YANGDynClass(base=str, is_leaf=True, yang_name="subinterface", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='leafref', is_config=False)
@@ -4888,14 +4772,10 @@ class yc_interface_ref_openconfig_acl__acl_interfaces_interface_interface_ref(Py
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__config','__state',)
 
-  _yang_name = 'interface-ref'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'interface-ref'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__state = YANGDynClass(base=yc_state_openconfig_acl__acl_interfaces_interface_interface_ref_state, is_container='container', yang_name="state", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='container', is_config=True)
     self.__config = YANGDynClass(base=yc_config_openconfig_acl__acl_interfaces_interface_interface_ref_config, is_container='container', yang_name="config", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='container', is_config=True)
@@ -5018,14 +4898,10 @@ class yc_config_openconfig_acl__acl_interfaces_interface_ingress_acl_sets_ingres
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__set_name',)
 
-  _yang_name = 'config'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'config'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__set_name = YANGDynClass(base=str, is_leaf=True, yang_name="set-name", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='leafref', is_config=True)
 
@@ -5109,14 +4985,10 @@ class yc_state_openconfig_acl__acl_interfaces_interface_ingress_acl_sets_ingress
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__set_name',)
 
-  _yang_name = 'state'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'state'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__set_name = YANGDynClass(base=str, is_leaf=True, yang_name="set-name", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='leafref', is_config=False)
 
@@ -5200,14 +5072,10 @@ class yc_state_openconfig_acl__acl_interfaces_interface_ingress_acl_sets_ingress
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__sequence_id','__matched_packets','__matched_octets',)
 
-  _yang_name = 'state'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'state'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__sequence_id = YANGDynClass(base=str, is_leaf=True, yang_name="sequence-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='leafref', is_config=False)
     self.__matched_packets = YANGDynClass(base=RestrictedClassType(base_type=int, restriction_dict={'range':  ['0..18446744073709551615']}, int_size=64), is_leaf=True, yang_name="matched-packets", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='yang:counter64', is_config=False)
@@ -5423,14 +5291,10 @@ class yc_acl_entry_openconfig_acl__acl_interfaces_interface_ingress_acl_sets_ing
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__sequence_id','__state',)
 
-  _yang_name = 'acl-entry'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'acl-entry'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__sequence_id = YANGDynClass(base=str, is_leaf=True, yang_name="sequence-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, is_keyval=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='leafref', is_config=False)
     self.__state = YANGDynClass(base=yc_state_openconfig_acl__acl_interfaces_interface_ingress_acl_sets_ingress_acl_set_acl_entries_acl_entry_state, is_container='container', yang_name="state", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='container', is_config=False)
@@ -5558,14 +5422,10 @@ class yc_acl_entries_openconfig_acl__acl_interfaces_interface_ingress_acl_sets_i
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__acl_entry',)
 
-  _yang_name = 'acl-entries'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'acl-entries'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__acl_entry = YANGDynClass(base=YANGListType("sequence_id",yc_acl_entry_openconfig_acl__acl_interfaces_interface_ingress_acl_sets_ingress_acl_set_acl_entries_acl_entry, yang_name="acl-entry", parent=self, is_container='list', user_ordered=False, path_helper=self._path_helper, yang_keys='sequence-id', extensions=None), is_container='list', yang_name="acl-entry", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='list', is_config=False)
 
@@ -5649,14 +5509,10 @@ class yc_ingress_acl_set_openconfig_acl__acl_interfaces_interface_ingress_acl_se
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__set_name','__config','__state','__acl_entries',)
 
-  _yang_name = 'ingress-acl-set'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'ingress-acl-set'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__set_name = YANGDynClass(base=str, is_leaf=True, yang_name="set-name", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, is_keyval=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='leafref', is_config=True)
     self.__config = YANGDynClass(base=yc_config_openconfig_acl__acl_interfaces_interface_ingress_acl_sets_ingress_acl_set_config, is_container='container', yang_name="config", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='container', is_config=True)
@@ -5863,14 +5719,10 @@ interface
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__ingress_acl_set',)
 
-  _yang_name = 'ingress-acl-sets'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'ingress-acl-sets'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__ingress_acl_set = YANGDynClass(base=YANGListType("set_name",yc_ingress_acl_set_openconfig_acl__acl_interfaces_interface_ingress_acl_sets_ingress_acl_set, yang_name="ingress-acl-set", parent=self, is_container='list', user_ordered=False, path_helper=self._path_helper, yang_keys='set-name', extensions=None), is_container='list', yang_name="ingress-acl-set", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='list', is_config=True)
 
@@ -5954,14 +5806,10 @@ class yc_config_openconfig_acl__acl_interfaces_interface_egress_acl_sets_egress_
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__set_name',)
 
-  _yang_name = 'config'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'config'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__set_name = YANGDynClass(base=str, is_leaf=True, yang_name="set-name", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='leafref', is_config=True)
 
@@ -6045,14 +5893,10 @@ class yc_state_openconfig_acl__acl_interfaces_interface_egress_acl_sets_egress_a
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__set_name',)
 
-  _yang_name = 'state'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'state'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__set_name = YANGDynClass(base=str, is_leaf=True, yang_name="set-name", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='leafref', is_config=False)
 
@@ -6136,14 +5980,10 @@ class yc_state_openconfig_acl__acl_interfaces_interface_egress_acl_sets_egress_a
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__sequence_id','__matched_packets','__matched_octets',)
 
-  _yang_name = 'state'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'state'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__sequence_id = YANGDynClass(base=str, is_leaf=True, yang_name="sequence-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='leafref', is_config=False)
     self.__matched_packets = YANGDynClass(base=RestrictedClassType(base_type=int, restriction_dict={'range':  ['0..18446744073709551615']}, int_size=64), is_leaf=True, yang_name="matched-packets", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='yang:counter64', is_config=False)
@@ -6359,14 +6199,10 @@ class yc_acl_entry_openconfig_acl__acl_interfaces_interface_egress_acl_sets_egre
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__sequence_id','__state',)
 
-  _yang_name = 'acl-entry'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'acl-entry'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__sequence_id = YANGDynClass(base=str, is_leaf=True, yang_name="sequence-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, is_keyval=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='leafref', is_config=False)
     self.__state = YANGDynClass(base=yc_state_openconfig_acl__acl_interfaces_interface_egress_acl_sets_egress_acl_set_acl_entries_acl_entry_state, is_container='container', yang_name="state", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='container', is_config=False)
@@ -6494,14 +6330,10 @@ class yc_acl_entries_openconfig_acl__acl_interfaces_interface_egress_acl_sets_eg
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__acl_entry',)
 
-  _yang_name = 'acl-entries'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'acl-entries'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__acl_entry = YANGDynClass(base=YANGListType("sequence_id",yc_acl_entry_openconfig_acl__acl_interfaces_interface_egress_acl_sets_egress_acl_set_acl_entries_acl_entry, yang_name="acl-entry", parent=self, is_container='list', user_ordered=False, path_helper=self._path_helper, yang_keys='sequence-id', extensions=None), is_container='list', yang_name="acl-entry", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='list', is_config=False)
 
@@ -6585,14 +6417,10 @@ class yc_egress_acl_set_openconfig_acl__acl_interfaces_interface_egress_acl_sets
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__set_name','__config','__state','__acl_entries',)
 
-  _yang_name = 'egress-acl-set'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'egress-acl-set'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__set_name = YANGDynClass(base=str, is_leaf=True, yang_name="set-name", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, is_keyval=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='leafref', is_config=True)
     self.__config = YANGDynClass(base=yc_config_openconfig_acl__acl_interfaces_interface_egress_acl_sets_egress_acl_set_config, is_container='container', yang_name="config", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='container', is_config=True)
@@ -6799,14 +6627,10 @@ interface
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__egress_acl_set',)
 
-  _yang_name = 'egress-acl-sets'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'egress-acl-sets'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__egress_acl_set = YANGDynClass(base=YANGListType("set_name",yc_egress_acl_set_openconfig_acl__acl_interfaces_interface_egress_acl_sets_egress_acl_set, yang_name="egress-acl-set", parent=self, is_container='list', user_ordered=False, path_helper=self._path_helper, yang_keys='set-name', extensions=None), is_container='list', yang_name="egress-acl-set", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='list', is_config=True)
 
@@ -6890,14 +6714,10 @@ class yc_interface_openconfig_acl__acl_interfaces_interface(PybindBase):
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__id','__config','__state','__interface_ref','__ingress_acl_sets','__egress_acl_sets',)
 
-  _yang_name = 'interface'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'interface'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__ingress_acl_sets = YANGDynClass(base=yc_ingress_acl_sets_openconfig_acl__acl_interfaces_interface_ingress_acl_sets, is_container='container', yang_name="ingress-acl-sets", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='container', is_config=True)
     self.__egress_acl_sets = YANGDynClass(base=yc_egress_acl_sets_openconfig_acl__acl_interfaces_interface_egress_acl_sets, is_container='container', yang_name="egress-acl-sets", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='container', is_config=True)
@@ -7186,14 +7006,10 @@ ACLs are set
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__interface',)
 
-  _yang_name = 'interfaces'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'interfaces'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__interface = YANGDynClass(base=YANGListType("id",yc_interface_openconfig_acl__acl_interfaces_interface, yang_name="interface", parent=self, is_container='list', user_ordered=False, path_helper=self._path_helper, yang_keys='id', extensions=None), is_container='list', yang_name="interface", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='list', is_config=True)
 
@@ -7278,14 +7094,10 @@ and operational state data
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__state','__acl_sets','__interfaces',)
 
-  _yang_name = 'acl'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'acl'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__state = YANGDynClass(base=yc_state_openconfig_acl__acl_state, is_container='container', yang_name="state", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='container', is_config=True)
     self.__acl_sets = YANGDynClass(base=yc_acl_sets_openconfig_acl__acl_acl_sets, is_container='container', yang_name="acl-sets", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='container', is_config=True)
@@ -7462,14 +7274,10 @@ layer matches.
   """
   __slots__ = ('_pybind_generated_by', '_path_helper', '_yang_name', '_extmethods', '__acl',)
 
-  _yang_name = 'openconfig-acl'
-
-  _pybind_generated_by = 'container'
-
   def __init__(self, *args, **kwargs):
-
+    self._yang_name = 'openconfig-acl'
+    self._pybind_generated_by = 'container'
     self._path_helper = False
-
     self._extmethods = False
     self.__acl = YANGDynClass(base=yc_acl_openconfig_acl__acl, is_container='container', yang_name="acl", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, extensions=None, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='container', is_config=True)
 
