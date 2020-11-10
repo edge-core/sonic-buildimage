@@ -214,6 +214,7 @@
       <Device i:type="ToRRouter">
         <Hostname>switch-t0</Hostname>
         <HwSku>Force10-S6000</HwSku>
+        <ClusterName>AAA00PrdStr00</ClusterName>
       </Device>
       <Device i:type="LeafRouter">
         <Hostname>switch-01t1</Hostname>

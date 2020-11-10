@@ -3,11 +3,11 @@
 {% set hash_seed = 0 %}
 {% set hash_seed_offset = 0 %}
 {% if DEVICE_METADATA.localhost.type %}
-{% if DEVICE_METADATA.localhost.type == "ToRRouter" %}
+{% if "ToRRouter" in DEVICE_METADATA.localhost.type %}
 {% set hash_seed = 0 %}
-{% elif DEVICE_METADATA.localhost.type == "LeafRouter" %}
+{% elif "LeafRouter" in DEVICE_METADATA.localhost.type %}
 {% set hash_seed = 10 %}
-{% elif DEVICE_METADATA.localhost.type == "SpineRouter" %}
+{% elif "SpineRouter" in DEVICE_METADATA.localhost.type %}
 {% set hash_seed = 25 %}
 {% endif %}
 {% endif %}
