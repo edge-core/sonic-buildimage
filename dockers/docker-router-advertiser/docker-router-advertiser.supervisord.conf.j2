@@ -30,7 +30,7 @@ dependent_startup=true
 {# Router advertiser should only run on ToR (T0) devices which have #}
 {# at least one VLAN interface which has an IPv6 address asigned #}
 {%- set vlan_v6 = namespace(count=0) -%}
-{%- if DEVICE_METADATA.localhost.type == "ToRRouter" -%}
+{%- if "ToRRouter" in DEVICE_METADATA.localhost.type and DEVICE_METADATA.localhost.type != "MgmtToRRouter" -%}
   {%- if VLAN_INTERFACE -%}
     {%- for (name, prefix) in VLAN_INTERFACE|pfx_filter -%}
       {# If this VLAN has an IPv6 address... #}

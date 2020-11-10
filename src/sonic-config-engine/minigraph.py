@@ -98,6 +98,7 @@ def parse_png(png, hname):
     port_speeds = {}
     console_ports = {}
     mux_cable_ports = {}
+    is_storage_device = False
     for child in png:
         if child.tag == str(QName(ns, "DeviceInterfaceLinks")):
             for link in child.findall(str(QName(ns, "DeviceLinkBase"))):
@@ -153,6 +154,12 @@ def parse_png(png, hname):
                     device_data['deployment_id'] = deployment_id
                 devices[name] = device_data
 
+                if name == hname:
+                    cluster = device.find(str(QName(ns, "ClusterName")))
+
+                    if cluster != None and "str" in cluster.text.lower():
+                        is_storage_device = True
+
         if child.tag == str(QName(ns, "DeviceInterfaceLinks")):
             for if_link in child.findall(str(QName(ns, 'DeviceLinkBase'))):
                 if str(QName(ns3, "type")) in if_link.attrib:
@@ -179,7 +186,7 @@ def parse_png(png, hname):
 
                     mux_cable_ports[intf_name] = "true"
 
-    return (neighbors, devices, console_dev, console_port, mgmt_dev, mgmt_port, port_speeds, console_ports, mux_cable_ports)
+    return (neighbors, devices, console_dev, console_port, mgmt_dev, mgmt_port, port_speeds, console_ports, mux_cable_ports, is_storage_device)
 
 def parse_asic_external_link(link, asic_name, hostname):
     neighbors = {}
@@ -915,6 +922,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
     hostname = None
     linkmetas = {}
     host_lo_intfs = None
+    is_storage_device = False
     local_devices = []
 
     # hostname is the asic_name, get the asic_id from the asic_name
@@ -948,7 +956,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
             elif child.tag == str(QName(ns, "CpgDec")):
                 (bgp_sessions, bgp_internal_sessions, bgp_asn, bgp_peers_with_range, bgp_monitors) = parse_cpg(child, hostname)
             elif child.tag == str(QName(ns, "PngDec")):
-                (neighbors, devices, console_dev, console_port, mgmt_dev, mgmt_port, port_speed_png, console_ports, mux_cable_ports) = parse_png(child, hostname)
+                (neighbors, devices, console_dev, console_port, mgmt_dev, mgmt_port, port_speed_png, console_ports, mux_cable_ports, is_storage_device) = parse_png(child, hostname)
             elif child.tag == str(QName(ns, "UngDec")):
                 (u_neighbors, u_devices, _, _, _, _, _, _) = parse_png(child, hostname)
             elif child.tag == str(QName(ns, "MetadataDeclaration")):
@@ -992,6 +1000,9 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
         'synchronous_mode': 'enable'
         }
     }
+
+    if is_storage_device:
+        results['DEVICE_METADATA']['localhost']['storage_device'] = "true"
     # for this hostname, if sub_role is defined, add sub_role in 
     # device_metadata
     if sub_role is not None:
@@ -1159,7 +1170,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
 
     results['PORTCHANNEL_INTERFACE'] = pc_intfs
 
-    if current_device['type'] in backend_device_types:
+    if current_device['type'] in backend_device_types and is_storage_device:
         del results['INTERFACE']
         del results['PORTCHANNEL_INTERFACE']
 

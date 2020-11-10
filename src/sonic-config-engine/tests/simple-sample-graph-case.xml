@@ -254,6 +254,7 @@
         </Address>
         <Hostname>switch-t0</Hostname>
         <HwSku>Force10-S6000</HwSku>
+        <ClusterName>AAA00PrdStr00</ClusterName>
       </Device>
       <Device i:type="ToRRouter">
         <Address xmlns:d5p1="Microsoft.Search.Autopilot.NetMux">

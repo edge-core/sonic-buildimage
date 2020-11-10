@@ -9,9 +9,9 @@ def
 {# Determine device topology and filename postfix #}
 {%- if DEVICE_METADATA is defined %}
 {%-     set switch_role = DEVICE_METADATA['localhost']['type'] %}
-{%-     if switch_role.lower() == 'torrouter' %}
+{%-     if 'torrouter' in switch_role.lower() %}
 {%-         set filename_postfix = 't0' %}
-{%-     elif switch_role.lower() == 'leafrouter' %}
+{%-     elif 'leafrouter' in switch_role.lower() %}
 {%-         set filename_postfix = 't1' %}
 {%-     else %}
 {%-         set filename_postfix = set_default_topology() %}
@@ -62,7 +62,7 @@ def
     {%- if cable_len -%}
         {{ cable_len.0 }}
     {%- else %}
-        {%- if switch_role.lower() == 'torrouter' %}
+        {%- if 'torrouter' in switch_role.lower() %}
             {%- for local_port in VLAN_MEMBER %}
                 {%- if local_port[1] == port_name %}
                     {%- set roles3 = switch_role + '_' + 'server' %}
