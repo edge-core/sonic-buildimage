@@ -79,7 +79,7 @@ iface eth0 {{ 'inet' if prefix | ipv4 else 'inet6' }} static
     up cgset -r l3mdev.master-device=mgmt mgmt
 {% endif %}
 {% for route in MGMT_INTERFACE[(name, prefix)]['forced_mgmt_routes'] %}
-    up ip rule add to {{ route }} table {{ vrf_table }}
+    up ip rule add pref 32764 to {{ route }} table {{ vrf_table }}
 {% endfor %}
     # management port down rules
     pre-down ip {{ '-4' if prefix | ipv4 else '-6' }} route delete default via {{ MGMT_INTERFACE[(name, prefix)]['gwaddr'] }} dev eth0 table {{ vrf_table }}
@@ -89,7 +89,7 @@ iface eth0 {{ 'inet' if prefix | ipv4 else 'inet6' }} static
     down cgdelete -g l3mdev:mgmt
 {% endif %}
 {% for route in MGMT_INTERFACE[(name, prefix)]['forced_mgmt_routes'] %}
-    pre-down ip rule delete to {{ route }} table {{ vrf_table }}
+    pre-down ip rule delete pref 32764 to {{ route }} table {{ vrf_table }}
 {% endfor %}
 {# TODO: COPP policy type rules #}
 {% endfor %}
