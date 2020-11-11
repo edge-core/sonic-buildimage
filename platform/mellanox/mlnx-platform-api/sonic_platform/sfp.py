@@ -1265,7 +1265,7 @@ class SFP(SfpBase):
                 return False
         elif self.sfp_type == QSFP_DD_TYPE:
             offset = 0
-            sfpd_obj = qsfp_dd_InterfaceId()
+            sfpd_obj = qsfp_dd_Dom()
             dom_channel_status_raw = self._read_eeprom_specific_bytes((offset + QSFP_DD_CHANNL_STATUS_OFFSET), QSFP_DD_CHANNL_STATUS_WIDTH)
 
             if dom_channel_status_raw is None:
