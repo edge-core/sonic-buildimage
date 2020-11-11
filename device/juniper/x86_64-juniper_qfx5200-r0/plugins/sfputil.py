@@ -50,7 +50,7 @@ except ImportError as e:
 
 SYSLOG_IDENTIFIER = "sfputil"
 
-# Global logger class instance
+# Global Logger class instance
 logger = Logger(SYSLOG_IDENTIFIER)
 
 qfx5200_qsfp_cable_length_tup = ('Length(km)', 'Length OM3(2m)',
@@ -331,12 +331,16 @@ class SfpUtil(SfpUtilBase):
 	"AFBR-89CDDZ-JU1",
         "AFBR-89CDDZ-JU2",
 	"FTLC9551REPM-J1",
+	"FCBN425QE1C30-J1",
+	"FCBN425QE1C10-J1",
         "FTLC9551REPM-J3",
 	"LUX42604CO",
+	"LUX42604BO",
 	"EOLQ-161HG-10-LJ1",
 	"FTLC1151RDPL-J1",
 	"TR-FC13R-NJC",
         "TR-FC13L-NJC",
+	"TR-FC13R-NJ3",
 	"SPQ-CE-LR-CDFB-J2",
         "1K1QAC",
         "SPQCELRCDFAJ2"

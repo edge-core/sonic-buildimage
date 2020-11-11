@@ -28,4 +28,10 @@ if [ -f $FIRST_BOOT_FILE ]; then
         # Creating the UEFI entry for the first time.
         efibootmgr -c -L "SONiC" -l "\EFI\BOOT\BOOTX64.EFI" > /var/tmp/efi_log 2>&1
     fi
+    mkdir /usr/bin/qfx5200-warm-reboot
+    mkdir /usr/bin/qfx5200-fast-reboot
+    cp /usr/bin/warm-reboot /usr/bin/qfx5200-warm-reboot
+    cp /usr/bin/fast-reboot /usr/bin/qfx5200-fast-reboot
+    cp /usr/local/bin/wrapper-warm-reboot /usr/bin/warm-reboot
+    cp /usr/local/bin/wrapper-fast-reboot /usr/bin/fast-reboot
 fi

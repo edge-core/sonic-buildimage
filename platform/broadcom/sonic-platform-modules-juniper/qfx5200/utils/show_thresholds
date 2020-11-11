@@ -1,17 +1,36 @@
 #!/usr/bin/env python
+import os
 import commands
-def main():
-    FAN0_TYPE="cat /sys/devices/pci0000:00/0000:00:1c.0/0000:0f:00.0/refpga-tmc.15/fan0_type"
 
-    try:	
-        status,fan0_type=commands.getstatusoutput(FAN0_TYPE)
-    except Exception as e:
-        print "Error on refpga-tmc.15 fan0_type e:" + str(e)
-        return False
+def fantype_detect():
+
+    refpgaTMC_path = "/sys/devices/pci0000:00/0000:00:1c.0/0000:0f:00.0/refpga-tmc.15"
 
     AFO = "1"
+    AFI = "0"
 
-    if fan0_type == AFO:
+    #default fan type is AFI
+    default_fantype = 0
+
+    for filename in os.listdir(refpgaTMC_path):
+        if filename.endswith('_type'):
+            fantype_path = os.path.join(refpgaTMC_path, filename)
+            cat_string = "cat "
+            fantype_string = cat_string + fantype_path
+            status,fan_type=commands.getstatusoutput(fantype_string)
+            if ((fan_type == AFO) or (fan_type == AFI)):
+                return fan_type
+            else:
+                pass
+
+    return default_fantype
+ 
+def main():
+    AFO_value = "1"
+
+    fan_type = fantype_detect()
+
+    if fan_type == AFO_value:
         temp_thres_file = open("/usr/local/bin/temperature_thresholds_AFO.txt", "r+")
         print temp_thres_file.read()
     else:

@@ -306,7 +306,7 @@ static void __exit qfx5210_64x_psu_exit(void)
     /*
      * Unregister the cpld soft reset handler
      */
-    if (!unregister_restart_handler(&qfx5210_nb)) {
+    if (unregister_reboot_notifier(&qfx5210_nb)) {
     	printk(KERN_CRIT "Failed to uregister restart handler\n");
     }
 

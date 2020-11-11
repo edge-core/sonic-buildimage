@@ -270,9 +270,13 @@ class Chassis(ChassisBase):
 
         elif str(platform_name) == "x86_64-juniper_networks_qfx5200-r0" : 		
 	    log_info("Juniper Platform QFX5200 ")
+	    status, major_version = commands.getstatusoutput("busybox devmem 0xFED50000 8")
+	    status, minor_version = commands.getstatusoutput("busybox devmem 0xFED50001 8")
 	    status, last_reboot_reason = commands.getstatusoutput("busybox devmem 0xFED50004 8")
 	    if (status == 0):
-	        if last_reboot_reason == "0x80":
+	        if (major_version == "0x31") and (minor_version == "0x03") and (last_reboot_reason == "0x80"):
+	            return (ChassisBase.REBOOT_CAUSE_NON_HARDWARE, None)
+	        elif (major_version == "0x31") and (minor_version == "0x05") and (last_reboot_reason == "0x02"):
 	            return (ChassisBase.REBOOT_CAUSE_NON_HARDWARE, None)
 	        elif last_reboot_reason == "0x40" or last_reboot_reason == "0x08":
 	            return (ChassisBase.REBOOT_CAUSE_WATCHDOG, None)
@@ -284,16 +288,23 @@ class Chassis(ChassisBase):
 	            return (ChassisBase.REBOOT_CAUSE_HARDWARE_OTHER, "Unknown reason")
 	    else:
 	        time.sleep(3)
+		status, major_version = commands.getstatusoutput("busybox devmem 0xFED50000 8")
+		status, minor_version = commands.getstatusoutput("busybox devmem 0xFED50001 8")
 	        status, last_reboot_reason = commands.getstatusoutput("busybox devmem 0xFED50004 8")
-	        if last_reboot_reason == "0x80":
-	            return (ChassisBase.REBOOT_CAUSE_NON_HARDWARE, None)
-                elif last_reboot_reason == "0x40" or last_reboot_reason == "0x08":
-                    return (ChassisBase.REBOOT_CAUSE_WATCHDOG, None)
-                elif last_reboot_reason == "0x20":
-                    return (ChassisBase.REBOOT_CAUSE_POWER_LOSS, None)
-                elif last_reboot_reason == "0x10":
-                    return (ChassisBase.REBOOT_CAUSE_HARDWARE_OTHER, "Swizzle Reset")
-                else:
-                    return (ChassisBase.REBOOT_CAUSE_HARDWARE_OTHER, "Unknown reason")
+	        if (status == 0):
+		    if (major_version == "0x31") and (minor_version == "0x03") and (last_reboot_reason == "0x80"):
+	            	return (ChassisBase.REBOOT_CAUSE_NON_HARDWARE, None)
+	            elif (major_version == "0x31") and (minor_version == "0x05") and (last_reboot_reason == "0x02"):
+	            	return (ChassisBase.REBOOT_CAUSE_NON_HARDWARE, None)
+              	    elif last_reboot_reason == "0x40" or last_reboot_reason == "0x08":
+                    	return (ChassisBase.REBOOT_CAUSE_WATCHDOG, None)
+                    elif last_reboot_reason == "0x20":
+                    	return (ChassisBase.REBOOT_CAUSE_POWER_LOSS, None)
+                    elif last_reboot_reason == "0x10":
+                    	return (ChassisBase.REBOOT_CAUSE_HARDWARE_OTHER, "Swizzle Reset")
+                    else:
+			return (ChassisBase.REBOOT_CAUSE_HARDWARE_OTHER, "Unknown reason")
+		else:
+		    log_info("Error while reading Re-Fpga")
         else:
-	    log_info("Juniper QFX5200 and QFX5210 platforms are supported")
+	    log_info("Unsupported platform")

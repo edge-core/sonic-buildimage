@@ -241,6 +241,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1c4503",
+                    "lane1":"0x1c4503",
+                    "lane2":"0x1c4503",
+                    "lane3":"0x1c4503"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x1c4503",
+                    "lane1":"0x1c4503",
+                    "lane2":"0x1c4503",
+                    "lane3":"0x1c4503"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "AVAGO-AFBR-79EQDZ-JU1": {
                 "preemphasis": {
                     "lane0":"0xd3a02",
@@ -328,6 +356,34 @@
                 }
             },
             "JUNIPER-AVAGO-AFBR-89CDDZ-JU1": {
+                "preemphasis": {
+                    "lane0":"0x1c4503",
+                    "lane1":"0x1c4503",
+                    "lane2":"0x1c4503",
+                    "lane3":"0x1c4503"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1c4503",
+                    "lane1":"0x1c4503",
+                    "lane2":"0x1c4503",
+                    "lane3":"0x1c4503"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
                 "preemphasis": {
                     "lane0":"0x1c4503",
                     "lane1":"0x1c4503",
@@ -651,6 +707,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1c4503",
+                    "lane1":"0x1c4503",
+                    "lane2":"0x1c4503",
+                    "lane3":"0x1c4503"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x1c4503",
+                    "lane1":"0x1c4503",
+                    "lane2":"0x1c4503",
+                    "lane3":"0x1c4503"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "JUNIPER-1F3-1F3QAA": {
                 "preemphasis": {
                     "lane0":"0x1c4503",
@@ -948,6 +1032,34 @@
                 }
             },
             "JUNIPER-AVAGO-AFBR-89CDDZ-JU1": {
+                "preemphasis": {
+                    "lane0":"0x1c4503",
+                    "lane1":"0x1c4503",
+                    "lane2":"0x1c4503",
+                    "lane3":"0x1c4503"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1c4503",
+                    "lane1":"0x1c4503",
+                    "lane2":"0x1c4503",
+                    "lane3":"0x1c4503"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
                 "preemphasis": {
                     "lane0":"0x1c4503",
                     "lane1":"0x1c4503",
@@ -1271,6 +1383,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1b4603",
+                    "lane1":"0x1b4603",
+                    "lane2":"0x1b4603",
+                    "lane3":"0x1b4603"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x1b4603",
+                    "lane1":"0x1b4603",
+                    "lane2":"0x1b4603",
+                    "lane3":"0x1b4603"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "JUNIPER-1F3-1F3QAA": {
                 "preemphasis": {
                     "lane0":"0x1b4603",
@@ -1559,6 +1699,34 @@
                     "lane1":"0x14410a",
                     "lane2":"0x14410a",
                     "lane3":"0x14410a"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1c4503",
+                    "lane1":"0x1c4503",
+                    "lane2":"0x1c4503",
+                    "lane3":"0x1c4503"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x1c4503",
+                    "lane1":"0x1c4503",
+                    "lane2":"0x1c4503",
+                    "lane3":"0x1c4503"
                 },
                 "idriver": {
                     "lane0":"0x8",
@@ -1891,6 +2059,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x174a03",
+                    "lane1":"0x174a03",
+                    "lane2":"0x174a03",
+                    "lane3":"0x174a03"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x174a03",
+                    "lane1":"0x174a03",
+                    "lane2":"0x174a03",
+                    "lane3":"0x174a03"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "JUNIPER-1F3-1F3QAA": {
                 "preemphasis": {
                     "lane0":"0x174a03",
@@ -2188,6 +2384,34 @@
                 }
             },
             "JUNIPER-AVAGO-AFBR-89CDDZ-JU1": {
+                "preemphasis": {
+                    "lane0":"0x194803",
+                    "lane1":"0x1b4603",
+                    "lane2":"0x174a03",
+                    "lane3":"0x174a03"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x194803",
+                    "lane1":"0x1b4603",
+                    "lane2":"0x174a03",
+                    "lane3":"0x174a03"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
                 "preemphasis": {
                     "lane0":"0x194803",
                     "lane1":"0x1b4603",
@@ -2511,6 +2735,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1c4503",
+                    "lane1":"0x1c4503",
+                    "lane2":"0x1c4503",
+                    "lane3":"0x1c4503"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x1c4503",
+                    "lane1":"0x1c4503",
+                    "lane2":"0x1c4503",
+                    "lane3":"0x1c4503"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "JUNIPER-1F3-1F3QAA": {
                 "preemphasis": {
                     "lane0":"0x1c4503",
@@ -2808,6 +3060,34 @@
                 }
             },
             "JUNIPER-AVAGO-AFBR-89CDDZ-JU1": {
+                "preemphasis": {
+                    "lane0":"0x1c4503",
+                    "lane1":"0x1c4503",
+                    "lane2":"0x1c4503",
+                    "lane3":"0x1d4403"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1c4503",
+                    "lane1":"0x1c4503",
+                    "lane2":"0x1c4503",
+                    "lane3":"0x1d4403"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
                 "preemphasis": {
                     "lane0":"0x1c4503",
                     "lane1":"0x1c4503",
@@ -3131,6 +3411,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1a4703",
+                    "lane1":"0x1a4703",
+                    "lane2":"0x1a4703",
+                    "lane3":"0x1a4703"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x1a4703",
+                    "lane1":"0x1a4703",
+                    "lane2":"0x1a4703",
+                    "lane3":"0x1a4703"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "JUNIPER-1F3-1F3QAA": {
                 "preemphasis": {
                     "lane0":"0x1a4703",
@@ -3428,6 +3736,34 @@
                 }
             },
             "JUNIPER-AVAGO-AFBR-89CDDZ-JU1": {
+                "preemphasis": {
+                    "lane0":"0x1b4603",
+                    "lane1":"0x1b4603",
+                    "lane2":"0x1a4703",
+                    "lane3":"0x1b4603"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1b4603",
+                    "lane1":"0x1b4603",
+                    "lane2":"0x1a4703",
+                    "lane3":"0x1b4603"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
                 "preemphasis": {
                     "lane0":"0x1b4603",
                     "lane1":"0x1b4603",
@@ -3751,6 +4087,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x154c03",
+                    "lane1":"0x154c03",
+                    "lane2":"0x154c03",
+                    "lane3":"0x154c03"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x154c03",
+                    "lane1":"0x154c03",
+                    "lane2":"0x154c03",
+                    "lane3":"0x154c03"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "JUNIPER-1F3-1F3QAA": {
                 "preemphasis": {
                     "lane0":"0x154c03",
@@ -4048,6 +4412,34 @@
                 }
             },
             "JUNIPER-AVAGO-AFBR-89CDDZ-JU1": {
+                "preemphasis": {
+                    "lane0":"0x154c03",
+                    "lane1":"0x154c03",
+                    "lane2":"0x154c03",
+                    "lane3":"0x154c03"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x154c03",
+                    "lane1":"0x154c03",
+                    "lane2":"0x154c03",
+                    "lane3":"0x154c03"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
                 "preemphasis": {
                     "lane0":"0x154c03",
                     "lane1":"0x154c03",
@@ -4371,6 +4763,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x154c03",
+                    "lane1":"0x154c03",
+                    "lane2":"0x154c03",
+                    "lane3":"0x154c03"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x154c03",
+                    "lane1":"0x154c03",
+                    "lane2":"0x154c03",
+                    "lane3":"0x154c03"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "JUNIPER-1F3-1F3QAA": {
                 "preemphasis": {
                     "lane0":"0x154c03",
@@ -4668,6 +5088,34 @@
                 }
             },
             "JUNIPER-AVAGO-AFBR-89CDDZ-JU1": {
+                "preemphasis": {
+                    "lane0":"0x154c03",
+                    "lane1":"0x154c03",
+                    "lane2":"0x154c03",
+                    "lane3":"0x154c03"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x154c03",
+                    "lane1":"0x154c03",
+                    "lane2":"0x154c03",
+                    "lane3":"0x154c03"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
                 "preemphasis": {
                     "lane0":"0x154c03",
                     "lane1":"0x154c03",
@@ -4991,6 +5439,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x154901",
+                    "lane1":"0x124901",
+                    "lane2":"0x124903",
+                    "lane3":"0x144900"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x154901",
+                    "lane1":"0x124901",
+                    "lane2":"0x124903",
+                    "lane3":"0x144900"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "JUNIPER-1F3-1F3QAA": {
                 "preemphasis": {
                     "lane0":"0x154901",
@@ -5288,6 +5764,34 @@
                 }
             },
             "JUNIPER-AVAGO-AFBR-89CDDZ-JU1": {
+                "preemphasis": {
+                    "lane0":"0x154900",
+                    "lane1":"0x124904",
+                    "lane2":"0x124901",
+                    "lane3":"0x144902"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x154900",
+                    "lane1":"0x124904",
+                    "lane2":"0x124901",
+                    "lane3":"0x144902"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
                 "preemphasis": {
                     "lane0":"0x154900",
                     "lane1":"0x124904",
@@ -5611,6 +6115,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x154900",
+                    "lane1":"0x124900",
+                    "lane2":"0x124903",
+                    "lane3":"0x144902"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x154900",
+                    "lane1":"0x124900",
+                    "lane2":"0x124903",
+                    "lane3":"0x144902"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "JUNIPER-1F3-1F3QAA": {
                 "preemphasis": {
                     "lane0":"0x154900",
@@ -5908,6 +6440,34 @@
                 }
             },
             "JUNIPER-AVAGO-AFBR-89CDDZ-JU1": {
+                "preemphasis": {
+                    "lane0":"0x154903",
+                    "lane1":"0x124904",
+                    "lane2":"0x124904",
+                    "lane3":"0x144904"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x154903",
+                    "lane1":"0x124904",
+                    "lane2":"0x124904",
+                    "lane3":"0x144904"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
                 "preemphasis": {
                     "lane0":"0x154903",
                     "lane1":"0x124904",
@@ -6231,6 +6791,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x194803",
+                    "lane1":"0x194803",
+                    "lane2":"0x194803",
+                    "lane3":"0x194803"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x194803",
+                    "lane1":"0x194803",
+                    "lane2":"0x194803",
+                    "lane3":"0x194803"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "JUNIPER-1F3-1F3QAA": {
                 "preemphasis": {
                     "lane0":"0x194803",
@@ -6528,6 +7116,34 @@
                 }
             },
             "JUNIPER-AVAGO-AFBR-89CDDZ-JU1": {
+                "preemphasis": {
+                    "lane0":"0x194803",
+                    "lane1":"0x194803",
+                    "lane2":"0x194803",
+                    "lane3":"0x194803"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x194803",
+                    "lane1":"0x194803",
+                    "lane2":"0x194803",
+                    "lane3":"0x194803"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
                 "preemphasis": {
                     "lane0":"0x194803",
                     "lane1":"0x194803",
@@ -6851,6 +7467,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1c4503",
+                    "lane1":"0x1c4503",
+                    "lane2":"0x1c4503",
+                    "lane3":"0x1c4503"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x1c4503",
+                    "lane1":"0x1c4503",
+                    "lane2":"0x1c4503",
+                    "lane3":"0x1c4503"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "JUNIPER-1F3-1F3QAA": {
                 "preemphasis": {
                     "lane0":"0x1c4503",
@@ -7148,6 +7792,34 @@
                 }
             },
             "JUNIPER-AVAGO-AFBR-89CDDZ-JU1": {
+                "preemphasis": {
+                    "lane0":"0x1e4303",
+                    "lane1":"0x1e4303",
+                    "lane2":"0x1d4403",
+                    "lane3":"0x1e4303"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x1e4303",
+                    "lane1":"0x1e4303",
+                    "lane2":"0x1d4403",
+                    "lane3":"0x1e4303"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
                 "preemphasis": {
                     "lane0":"0x1e4303",
                     "lane1":"0x1e4303",
@@ -7471,6 +8143,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x154906",
+                    "lane1":"0x154904",
+                    "lane2":"0x154903",
+                    "lane3":"0x154903"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x154906",
+                    "lane1":"0x154904",
+                    "lane2":"0x154903",
+                    "lane3":"0x154903"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "JUNIPER-1F3-1F3QAA": {
                 "preemphasis": {
                     "lane0":"0x154906",
@@ -7768,6 +8468,34 @@
                 }
             },
             "JUNIPER-AVAGO-AFBR-89CDDZ-JU1": {
+                "preemphasis": {
+                    "lane0":"0x174902",
+                    "lane1":"0x174902",
+                    "lane2":"0x174902",
+                    "lane3":"0x174904"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x174902",
+                    "lane1":"0x174902",
+                    "lane2":"0x174902",
+                    "lane3":"0x174904"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
                 "preemphasis": {
                     "lane0":"0x174902",
                     "lane1":"0x174902",
@@ -8091,6 +8819,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1a4703",
+                    "lane1":"0x184903",
+                    "lane2":"0x184903",
+                    "lane3":"0x1a4703"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x1a4703",
+                    "lane1":"0x184903",
+                    "lane2":"0x184903",
+                    "lane3":"0x1a4703"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "JUNIPER-1F3-1F3QAA": {
                 "preemphasis": {
                     "lane0":"0x1a4703",
@@ -8388,6 +9144,34 @@
                 }
             },
             "JUNIPER-AVAGO-AFBR-89CDDZ-JU1": {
+                "preemphasis": {
+                    "lane0":"0x1a4703",
+                    "lane1":"0x1a4703",
+                    "lane2":"0x1a4703",
+                    "lane3":"0x1a4703"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1a4703",
+                    "lane1":"0x1a4703",
+                    "lane2":"0x1a4703",
+                    "lane3":"0x1a4703"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
                 "preemphasis": {
                     "lane0":"0x1a4703",
                     "lane1":"0x1a4703",
@@ -8711,6 +9495,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1a4505",
+                    "lane1":"0x1a4505",
+                    "lane2":"0x1a4505",
+                    "lane3":"0x1a4505"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x1a4505",
+                    "lane1":"0x1a4505",
+                    "lane2":"0x1a4505",
+                    "lane3":"0x1a4505"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "JUNIPER-1F3-1F3QAA": {
                 "preemphasis": {
                     "lane0":"0x1a4505",
@@ -9008,6 +9820,34 @@
                 }
             },
             "JUNIPER-AVAGO-AFBR-89CDDZ-JU1": {
+                "preemphasis": {
+                    "lane0":"0x1b4603",
+                    "lane1":"0x1b4603",
+                    "lane2":"0x1b4603",
+                    "lane3":"0x1b4603"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1b4603",
+                    "lane1":"0x1b4603",
+                    "lane2":"0x1b4603",
+                    "lane3":"0x1b4603"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
                 "preemphasis": {
                     "lane0":"0x1b4603",
                     "lane1":"0x1b4603",
@@ -9331,6 +10171,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1a4604",
+                    "lane1":"0x1a4604",
+                    "lane2":"0x1a4604",
+                    "lane3":"0x1a4604"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x1a4604",
+                    "lane1":"0x1a4604",
+                    "lane2":"0x1a4604",
+                    "lane3":"0x1a4604"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "JUNIPER-1F3-1F3QAA": {
                 "preemphasis": {
                     "lane0":"0x1a4604",
@@ -9628,6 +10496,34 @@
                 }
             },
             "JUNIPER-AVAGO-AFBR-89CDDZ-JU1": {
+                "preemphasis": {
+                    "lane0":"0x1b4504",
+                    "lane1":"0x1b4504",
+                    "lane2":"0x1a4703",
+                    "lane3":"0x1b4504"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1b4504",
+                    "lane1":"0x1b4504",
+                    "lane2":"0x1a4703",
+                    "lane3":"0x1b4504"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
                 "preemphasis": {
                     "lane0":"0x1b4504",
                     "lane1":"0x1b4504",
@@ -9951,6 +10847,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1c4503",
+                    "lane1":"0x1c4404",
+                    "lane2":"0x1c4503",
+                    "lane3":"0x1c4404"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x1c4503",
+                    "lane1":"0x1c4404",
+                    "lane2":"0x1c4503",
+                    "lane3":"0x1c4404"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "JUNIPER-1F3-1F3QAA": {
                 "preemphasis": {
                     "lane0":"0x1c4503",
@@ -10248,6 +11172,34 @@
                 }
             },
             "JUNIPER-AVAGO-AFBR-89CDDZ-JU1": {
+                "preemphasis": {
+                    "lane0":"0x1c4503",
+                    "lane1":"0x1c4503",
+                    "lane2":"0x1c4503",
+                    "lane3":"0x1c4503"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1c4503",
+                    "lane1":"0x1c4503",
+                    "lane2":"0x1c4503",
+                    "lane3":"0x1c4503"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
                 "preemphasis": {
                     "lane0":"0x1c4503",
                     "lane1":"0x1c4503",
@@ -10571,6 +11523,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1a4703",
+                    "lane1":"0x1a4604",
+                    "lane2":"0x1a4703",
+                    "lane3":"0x1a4703"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x1a4703",
+                    "lane1":"0x1a4604",
+                    "lane2":"0x1a4703",
+                    "lane3":"0x1a4703"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "JUNIPER-1F3-1F3QAA": {
                 "preemphasis": {
                     "lane0":"0x1a4703",
@@ -10868,6 +11848,34 @@
                 }
             },
             "JUNIPER-AVAGO-AFBR-89CDDZ-JU1": {
+                "preemphasis": {
+                    "lane0":"0x1c4503",
+                    "lane1":"0x1b4603",
+                    "lane2":"0x1b4603",
+                    "lane3":"0x1b4603"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1c4503",
+                    "lane1":"0x1b4603",
+                    "lane2":"0x1b4603",
+                    "lane3":"0x1b4603"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
                 "preemphasis": {
                     "lane0":"0x1c4503",
                     "lane1":"0x1b4603",
@@ -11191,6 +12199,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1b4603",
+                    "lane1":"0x1b4603",
+                    "lane2":"0x1a4703",
+                    "lane3":"0x1b4603"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x1b4603",
+                    "lane1":"0x1b4603",
+                    "lane2":"0x1a4703",
+                    "lane3":"0x1b4603"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "JUNIPER-1F3-1F3QAA": {
                 "preemphasis": {
                     "lane0":"0x1b4603",
@@ -11488,6 +12524,34 @@
                 }
             },
             "JUNIPER-AVAGO-AFBR-89CDDZ-JU1": {
+                "preemphasis": {
+                    "lane0":"0x194803",
+                    "lane1":"0x194803",
+                    "lane2":"0x194803",
+                    "lane3":"0x194803"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x194803",
+                    "lane1":"0x194803",
+                    "lane2":"0x194803",
+                    "lane3":"0x194803"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
                 "preemphasis": {
                     "lane0":"0x194803",
                     "lane1":"0x194803",
@@ -11811,6 +12875,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x164903",
+                    "lane1":"0x164903",
+                    "lane2":"0x164903",
+                    "lane3":"0x164903"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x164903",
+                    "lane1":"0x164903",
+                    "lane2":"0x164903",
+                    "lane3":"0x164903"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "JUNIPER-1F3-1F3QAA": {
                 "preemphasis": {
                     "lane0":"0x164903",
@@ -12108,6 +13200,34 @@
                 }
             },
             "JUNIPER-AVAGO-AFBR-89CDDZ-JU1": {
+                "preemphasis": {
+                    "lane0":"0x164901",
+                    "lane1":"0x184901",
+                    "lane2":"0x184901",
+                    "lane3":"0x184901"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x164901",
+                    "lane1":"0x184901",
+                    "lane2":"0x184901",
+                    "lane3":"0x184901"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
                 "preemphasis": {
                     "lane0":"0x164901",
                     "lane1":"0x184901",
@@ -12431,6 +13551,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1c4503",
+                    "lane1":"0x1c4503",
+                    "lane2":"0x1c4503",
+                    "lane3":"0x1c4404"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x1c4503",
+                    "lane1":"0x1c4503",
+                    "lane2":"0x1c4503",
+                    "lane3":"0x1c4404"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "JUNIPER-1F3-1F3QAA": {
                 "preemphasis": {
                     "lane0":"0x1c4503",
@@ -12728,6 +13876,34 @@
                 }
             },
             "JUNIPER-AVAGO-AFBR-89CDDZ-JU1": {
+                "preemphasis": {
+                    "lane0":"0x1b4603",
+                    "lane1":"0x1a4703",
+                    "lane2":"0x1b4603",
+                    "lane3":"0x1c4503"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1b4603",
+                    "lane1":"0x1a4703",
+                    "lane2":"0x1b4603",
+                    "lane3":"0x1c4503"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
                 "preemphasis": {
                     "lane0":"0x1b4603",
                     "lane1":"0x1a4703",
@@ -13051,6 +14227,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1a4703",
+                    "lane1":"0x1a4703",
+                    "lane2":"0x1a4703",
+                    "lane3":"0x1a4703"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x1a4703",
+                    "lane1":"0x1a4703",
+                    "lane2":"0x1a4703",
+                    "lane3":"0x1a4703"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "JUNIPER-1F3-1F3QAA": {
                 "preemphasis": {
                     "lane0":"0x1a4703",
@@ -13348,6 +14552,34 @@
                 }
             },
             "JUNIPER-AVAGO-AFBR-89CDDZ-JU1": {
+                "preemphasis": {
+                    "lane0":"0x1b4603",
+                    "lane1":"0x1b4603",
+                    "lane2":"0x1a4703",
+                    "lane3":"0x1b4603"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1b4603",
+                    "lane1":"0x1b4603",
+                    "lane2":"0x1a4703",
+                    "lane3":"0x1b4603"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
                 "preemphasis": {
                     "lane0":"0x1b4603",
                     "lane1":"0x1b4603",
@@ -13671,6 +14903,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x184902",
+                    "lane1":"0x184902",
+                    "lane2":"0x154902",
+                    "lane3":"0x184902"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x184902",
+                    "lane1":"0x184902",
+                    "lane2":"0x154902",
+                    "lane3":"0x184902"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "JUNIPER-1F3-1F3QAA": {
                 "preemphasis": {
                     "lane0":"0x184902",
@@ -13968,6 +15228,34 @@
                 }
             },
             "JUNIPER-AVAGO-AFBR-89CDDZ-JU1": {
+                "preemphasis": {
+                    "lane0":"0x154900",
+                    "lane1":"0x154900",
+                    "lane2":"0x154900",
+                    "lane3":"0x154900"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x154900",
+                    "lane1":"0x154900",
+                    "lane2":"0x154900",
+                    "lane3":"0x154900"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
                 "preemphasis": {
                     "lane0":"0x154900",
                     "lane1":"0x154900",
@@ -14291,6 +15579,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x174900",
+                    "lane1":"0x174900",
+                    "lane2":"0x154900",
+                    "lane3":"0x174904"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x174900",
+                    "lane1":"0x174900",
+                    "lane2":"0x154900",
+                    "lane3":"0x174904"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "JUNIPER-1F3-1F3QAA": {
                 "preemphasis": {
                     "lane0":"0x174900",
@@ -14588,6 +15904,34 @@
                 }
             },
             "JUNIPER-AVAGO-AFBR-89CDDZ-JU1": {
+                "preemphasis": {
+                    "lane0":"0x154903",
+                    "lane1":"0x154903",
+                    "lane2":"0x154903",
+                    "lane3":"0x154903"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x154903",
+                    "lane1":"0x154903",
+                    "lane2":"0x154903",
+                    "lane3":"0x154903"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
                 "preemphasis": {
                     "lane0":"0x154903",
                     "lane1":"0x154903",
@@ -14911,6 +16255,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x184902",
+                    "lane1":"0x164902",
+                    "lane2":"0x164902",
+                    "lane3":"0x144900"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x184902",
+                    "lane1":"0x164902",
+                    "lane2":"0x164902",
+                    "lane3":"0x144900"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "JUNIPER-1F3-1F3QAA": {
                 "preemphasis": {
                     "lane0":"0x184902",
@@ -15208,6 +16580,34 @@
                 }
             },
             "JUNIPER-AVAGO-AFBR-89CDDZ-JU1": {
+                "preemphasis": {
+                    "lane0":"0x174901",
+                    "lane1":"0x144902",
+                    "lane2":"0x144902",
+                    "lane3":"0x144903"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x174901",
+                    "lane1":"0x144902",
+                    "lane2":"0x144902",
+                    "lane3":"0x144903"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
                 "preemphasis": {
                     "lane0":"0x174901",
                     "lane1":"0x144902",
@@ -15531,6 +16931,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x184901",
+                    "lane1":"0x174901",
+                    "lane2":"0x164903",
+                    "lane3":"0x154904"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x184901",
+                    "lane1":"0x174901",
+                    "lane2":"0x164903",
+                    "lane3":"0x154904"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "JUNIPER-1F3-1F3QAA": {
                 "preemphasis": {
                     "lane0":"0x184901",
@@ -15828,6 +17256,34 @@
                 }
             },
             "JUNIPER-AVAGO-AFBR-89CDDZ-JU1": {
+                "preemphasis": {
+                    "lane0":"0x154903",
+                    "lane1":"0x154903",
+                    "lane2":"0x134903",
+                    "lane3":"0x144904"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x154903",
+                    "lane1":"0x154903",
+                    "lane2":"0x134903",
+                    "lane3":"0x144904"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
                 "preemphasis": {
                     "lane0":"0x154903",
                     "lane1":"0x154903",
@@ -16151,6 +17607,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x194803",
+                    "lane1":"0x194803",
+                    "lane2":"0x194803",
+                    "lane3":"0x194803"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x194803",
+                    "lane1":"0x194803",
+                    "lane2":"0x194803",
+                    "lane3":"0x194803"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "JUNIPER-1F3-1F3QAA": {
                 "preemphasis": {
                     "lane0":"0x194803",
@@ -16448,6 +17932,34 @@
                 }
             },
             "JUNIPER-AVAGO-AFBR-89CDDZ-JU1": {
+                "preemphasis": {
+                    "lane0":"0x194803",
+                    "lane1":"0x194803",
+                    "lane2":"0x184803",
+                    "lane3":"0x194803"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x194803",
+                    "lane1":"0x194803",
+                    "lane2":"0x184803",
+                    "lane3":"0x194803"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
                 "preemphasis": {
                     "lane0":"0x194803",
                     "lane1":"0x194803",
@@ -16771,6 +18283,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1c4503",
+                    "lane1":"0x1e4204",
+                    "lane2":"0x1c4503",
+                    "lane3":"0x1d4304"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x1c4503",
+                    "lane1":"0x1e4204",
+                    "lane2":"0x1c4503",
+                    "lane3":"0x1d4304"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "JUNIPER-1F3-1F3QAA": {
                 "preemphasis": {
                     "lane0":"0x1c4503",
@@ -17068,6 +18608,34 @@
                 }
             },
             "JUNIPER-AVAGO-AFBR-89CDDZ-JU1": {
+                "preemphasis": {
+                    "lane0":"0x1a4703",
+                    "lane1":"0x1a4703",
+                    "lane2":"0x1a4703",
+                    "lane3":"0x1a4703"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1a4703",
+                    "lane1":"0x1a4703",
+                    "lane2":"0x1a4703",
+                    "lane3":"0x1a4703"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
                 "preemphasis": {
                     "lane0":"0x1a4703",
                     "lane1":"0x1a4703",
@@ -17391,6 +18959,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x184903",
+                    "lane1":"0x184903",
+                    "lane2":"0x184903",
+                    "lane3":"0x184903"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x184903",
+                    "lane1":"0x184903",
+                    "lane2":"0x184903",
+                    "lane3":"0x184903"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "JUNIPER-1F3-1F3QAA": {
                 "preemphasis": {
                     "lane0":"0x184903",
@@ -17688,6 +19284,34 @@
                 }
             },
             "JUNIPER-AVAGO-AFBR-89CDDZ-JU1": {
+                "preemphasis": {
+                    "lane0":"0x194803",
+                    "lane1":"0x194803",
+                    "lane2":"0x184903",
+                    "lane3":"0x194803"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x194803",
+                    "lane1":"0x194803",
+                    "lane2":"0x184903",
+                    "lane3":"0x194803"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
                 "preemphasis": {
                     "lane0":"0x194803",
                     "lane1":"0x194803",
@@ -18011,6 +19635,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1a4703",
+                    "lane1":"0x1a4703",
+                    "lane2":"0x1a4703",
+                    "lane3":"0x1a4703"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604C0": {
+                "preemphasis": {
+                    "lane0":"0x1a4703",
+                    "lane1":"0x1a4703",
+                    "lane2":"0x1a4703",
+                    "lane3":"0x1a4703"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "JUNIPER-1F3-1F3QAA": {
                 "preemphasis": {
                     "lane0":"0x1a4703",
@@ -18308,6 +19960,34 @@
                 }
             },
             "JUNIPER-AVAGO-AFBR-89CDDZ-JU1": {
+                "preemphasis": {
+                    "lane0":"0x1a4703",
+                    "lane1":"0x1a4703",
+                    "lane2":"0x1a4703",
+                    "lane3":"0x1a4703"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1a4703",
+                    "lane1":"0x1a4703",
+                    "lane2":"0x1a4703",
+                    "lane3":"0x1a4703"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
                 "preemphasis": {
                     "lane0":"0x1a4703",
                     "lane1":"0x1a4703",
@@ -18631,6 +20311,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1a4703",
+                    "lane1":"0x1a4703",
+                    "lane2":"0x1a4703",
+                    "lane3":"0x1a4505"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x1a4703",
+                    "lane1":"0x1a4703",
+                    "lane2":"0x1a4703",
+                    "lane3":"0x1a4505"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "JUNIPER-1F3-1F3QAA": {
                 "preemphasis": {
                     "lane0":"0x1a4703",
@@ -18928,6 +20636,34 @@
                 }
             },
             "JUNIPER-AVAGO-AFBR-89CDDZ-JU1": {
+                "preemphasis": {
+                    "lane0":"0x1b4603",
+                    "lane1":"0x1b4603",
+                    "lane2":"0x1b4603",
+                    "lane3":"0x1b4603"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1b4603",
+                    "lane1":"0x1b4603",
+                    "lane2":"0x1b4603",
+                    "lane3":"0x1b4603"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
                 "preemphasis": {
                     "lane0":"0x1b4603",
                     "lane1":"0x1b4603",
@@ -19251,6 +20987,34 @@
                     "lane3":"0x8"
                 }
             },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1c4404",
+                    "lane1":"0x1c4404",
+                    "lane2":"0x1b4504",
+                    "lane3":"0x1c4404"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
+                "preemphasis": {
+                    "lane0":"0x1c4404",
+                    "lane1":"0x1c4404",
+                    "lane2":"0x1b4504",
+                    "lane3":"0x1c4404"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
             "JUNIPER-1F3-1F3QAA": {
                 "preemphasis": {
                     "lane0":"0x1c4404",
@@ -19549,6 +21313,34 @@
                 }
             },
             "JUNIPER-AVAGO-AFBR-89CDDZ-JU1": {
+                "preemphasis": {
+                    "lane0":"0x1b4504",
+                    "lane1":"0x1b4504",
+                    "lane2":"0x1a4703",
+                    "lane3":"0x1b4504"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604BO": {
+                "preemphasis": {
+                    "lane0":"0x1b4504",
+                    "lane1":"0x1b4504",
+                    "lane2":"0x1a4703",
+                    "lane3":"0x1b4504"
+                },
+                "idriver": {
+                    "lane0":"0x8",
+                    "lane1":"0x8",
+                    "lane2":"0x8",
+                    "lane3":"0x8"
+                }
+            },
+            "JUNIPER-LUXTERA-LUX42604CO": {
                 "preemphasis": {
                     "lane0":"0x1b4504",
                     "lane1":"0x1b4504",

@@ -484,7 +484,6 @@ def set_device(args):
         if int(args[1])>100:
             show_set_help()
             return
-        #print  ALL_DEVICE['fan']
         #fan1~6 is all fine, all fan share same setting        
         node = ALL_DEVICE['fan'] ['fan1'][0] 
         node = node.replace(node.split("/")[-1], 'fan_duty_cycle_percentage')

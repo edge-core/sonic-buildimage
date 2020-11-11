@@ -37,22 +37,43 @@ import commands
 import binascii
 from sonic_eeprom import eeprom_tlvinfo
 
-def main():
-    eeprom_qfx5200 = Eeprom()
-    FAN0_TYPE="cat /sys/devices/pci0000:00/0000:00:1c.0/0000:0f:00.0/refpga-tmc.15/fan0_type"
 
-    try:	
-        status,fan0_type=commands.getstatusoutput(FAN0_TYPE)
-    except Exception as e:
-        print "Error on refpga-tmc.15 fan0_type e:" + str(e)
-        return False
+def fantype_detect():
+
+    refpgaTMC_path = "/sys/devices/pci0000:00/0000:00:1c.0/0000:0f:00.0/refpga-tmc.15"
 
     AFO = "1"
+    AFI = "0"
 
+    #default fan type is AFO
+    default_fantype = "0"
+
+    for filename in os.listdir(refpgaTMC_path):
+        if filename.endswith('_type'):
+            fantype_path = os.path.join(refpgaTMC_path, filename)
+            cat_string = "cat "
+            fantype_string = cat_string + fantype_path
+            status,fan_type=commands.getstatusoutput(fantype_string)
+            if ((fan_type == AFO) or (fan_type == AFI)):
+                return fan_type
+            else:
+                pass
+
+    return default_fantype 
+
+
+
+def main():
+    AFO_value = "1"
+
+    eeprom_qfx5200 = Eeprom()
+
+    fan_type = fantype_detect()
+    
     # creating the "/var/run/eeprom" file and storing values of CPU board EEPROM and MAIN Board EEPROM in this file.
     eeprom_file = open ("/var/run/eeprom", "a+")
     eeprom_file.write("\n")
-    if fan0_type == AFO:
+    if fan_type == AFO_value:
         eeprom_file.write("Fan Type=AFO\r\n")
     else:
         eeprom_file.write("Fan Type=AFI\r\n")

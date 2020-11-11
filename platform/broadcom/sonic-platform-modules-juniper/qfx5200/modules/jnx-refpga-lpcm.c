@@ -98,14 +98,15 @@ static int __init refpga_lpcm_init(void)
 
 static void __exit refpga_lpcm_exit(void)
 {
+	/*
+	 * Unregister the fpga soft reset handler
+	 */
+	if (unregister_reboot_notifier(&qfx5200_nb)) {
+		printk(KERN_CRIT "Failed to uregister reboot notifier\n");
+		return;
+	}
 	iounmap(fpga);
 	release_mem_region(REFPGA_LPC_BASE_ADDRESS, REFPGA_LPC_WINDOW_SIZE);
-	/*
-	 * Unregister the cpld soft reset handler
-	 */
-	if (!unregister_restart_handler(&qfx5200_nb)) {
-		printk(KERN_CRIT "Failed to uregister restart handler\n");
-	}
 	printk(KERN_INFO "Re-Fpga lpcm module removed\n");
 }
 

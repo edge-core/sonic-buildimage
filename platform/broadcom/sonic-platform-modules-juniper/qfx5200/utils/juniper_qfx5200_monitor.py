@@ -56,9 +56,6 @@ log_level = logging.DEBUG
 
 
 isPlatformAFI = False
-isFireThresholdReached = False
-isFireThresholdPrint = True
-FireThresholdSecsRemaining = 120
 PrevASICValue = 0
 
 temp_policy_AFI = {
@@ -223,6 +220,7 @@ class QFX5200_ThermalUtil(object):
     CORETEMP_PATH = '/sys/bus/platform/devices/coretemp.0/hwmon/hwmon*/temp{0}_input'
     MAJORALARM_LED_PATH = '/sys/class/leds/alarm-major/brightness'
     MINORALARM_LED_PATH = '/sys/class/leds/alarm-minor/brightness'
+    MONITORLOG_PATH = '/var/log/juniper_qfx5200_monitor.log'
 
     """ Dictionary where
         key1 = thermal id index (integer) starting from 1
@@ -449,9 +447,6 @@ class QFX5200_ThermalUtil(object):
 
     def getSensorTemp(self):
         global isPlatformAFI
-        global isFireThresholdReached
-        global FireThresholdSecsRemaining
-        global isFireThresholdPrint 
         global PrevASICValue
 
         sensor_str = ''
@@ -480,25 +475,6 @@ class QFX5200_ThermalUtil(object):
             10: [0,0,0,0,0,0,0,0,0,0,0,0],
             11: [0,0,0,0,0,0,0,0,0,0,0,0],
         }    
-        # if the Firethreshold Flag is set and 120 seconds have elapsed, invoking the "poweroff" to shutdown the box
-        if (isFireThresholdReached == True):
-            firethr = FireThresholdSecsRemaining - 20
-            if firethr == 0:
-                logging.critical('CRITICAL: Fire Threshold reached: System is going to shutdown now')
-                os.system("echo 'CRITICAL: Fire Threshold reached: System is going to shutdown now' > /dev/console")
-            else:
-                logging.critical('CRITICAL: Fire Threshold reached: System is going to shutdown in %s seconds', firethr)
-                os.system("echo 'CRITICAL: Fire Threshold reached: System is going to shutdown in %s seconds' > /dev/console" % firethr)
-
-            FireThresholdSecsRemaining = FireThresholdSecsRemaining - 20
-            logging.critical('CRITICAL: Value of FireThresholdSecsRemaining %s seconds', FireThresholdSecsRemaining)
-
-            if (FireThresholdSecsRemaining == 0):
-                isFireThresholdReached == False
-                time.sleep(20)
-                logging.debug('Executing poweroff command')
-                cmd = "poweroff"
-		os.system(cmd)
 
         for x in range(self.SENSOR_CORETEMP_NUM_ON_MAIN_BOARD):
             SEN_str = 'SEN'
@@ -591,26 +567,29 @@ class QFX5200_ThermalUtil(object):
         if (SensorFlag[0][11] or SensorFlag[1][11] or SensorFlag[2][11] or SensorFlag[3][11] or SensorFlag[4][11] or SensorFlag[5][11] or SensorFlag[6][11] or SensorFlag[7][11]
             or SensorFlag[8][11] or SensorFlag[9][11] or SensorFlag[10][11] or SensorFlag[11][11]):
 
-            isFireThresholdReached = True
+            logging.debug('Fire Threshold reached: System is going to shutdown now')
+            os.system("echo 'CRITICAL: Fire Threshold reached: System is going to shutdown now' > /dev/console")
 
-            if (isFireThresholdPrint == True):
-                logging.critical('CRITICAL: Fire Threshold reached: System is going to shutdown in 120 seconds')
-                os.system("echo 'CRITICAL: Fire Threshold reached: System is going to shutdown in 120 seconds' > /dev/console") 
-                isFireThresholdPrint = False
 
-            self.set_alarm_led_brightness(2)
-            logging.debug('Setting Red Alarm as one temp sensor is running at soft shutdown temp value')
+            logging.debug('Executing poweroff command')
 
+            time.sleep(1)
+
+            try:
+                monitorlog_file = open(self.MONITORLOG_PATH)
+            except IOError as e:
+                logging.error('get_Sensor_temp: unable to open file:  %s', str(e))
+                return False
+
+            monitorlog_file.close()
+
+            cmd = "poweroff"
+	    os.system(cmd)
+            
         # CHECK IF ANY TEMPERATURE SENSORS is running at RED warning , IF YES, SET THE ALARM LED TO 'RED'
         elif (SensorFlag[0][10] or SensorFlag[1][10] or SensorFlag[2][10] or SensorFlag[3][10] or SensorFlag[4][10] or SensorFlag[5][10] or SensorFlag[6][10] or SensorFlag[7][10]
             or SensorFlag[8][10] or SensorFlag[9][10] or SensorFlag[10][10] or SensorFlag[11][10]):
-
-            if (isFireThresholdReached == True):
-                 logging.critical('CRITICAL: System Stabilized, not shutting down')
-                 os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
-                 FireThresholdSecsRemaining = 120
-                 isFireThresholdReached = False
-
+  
             self.set_alarm_led_brightness(2)
 
             logging.debug('Setting Red Alarm')
@@ -619,13 +598,8 @@ class QFX5200_ThermalUtil(object):
         elif (SensorFlag[0][9] or SensorFlag[1][9] or SensorFlag[2][9] or SensorFlag[3][9] or SensorFlag[4][9] or SensorFlag[5][9] or SensorFlag[6][9] or SensorFlag[7][9]
             or SensorFlag[8][9] or SensorFlag[9][9] or SensorFlag[10][9] or SensorFlag[11][9]):
 
-            if (isFireThresholdReached == True):
-                 logging.critical('CRITICAL: System Stabilized, not shutting down')
-                 os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
-                 FireThresholdSecsRemaining = 120
-                 isFireThresholdReached = False
-
             self.set_alarm_led_brightness(1)
+
             logging.debug('Setting Yellow Alarm')
 
 	else:
@@ -641,16 +615,6 @@ class QFX5200_ThermalUtil(object):
         if (SensorFlag[0][8] or SensorFlag[1][8] or SensorFlag[2][8] or SensorFlag[3][8] or SensorFlag[4][8] or SensorFlag[5][8] or SensorFlag[6][8] or SensorFlag[7][8]
             or SensorFlag[8][8] or SensorFlag[9][8] or SensorFlag[10][8] or SensorFlag[11][8]):
 
-            if (isFireThresholdReached == True):
-                if (SensorFlag[0][11] or SensorFlag[1][11] or SensorFlag[2][11] or SensorFlag[3][11] or SensorFlag[4][11] or SensorFlag[5][11] or SensorFlag[6][11] or SensorFlag[7][11]
-                    or SensorFlag[8][11] or SensorFlag[9][11] or SensorFlag[10][11] or SensorFlag[11][11]):
-			pass
-		else:	
-                    logging.critical('CRITICAL: System Stabilized, not shutting down')
-                    os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
-                    FireThresholdSecsRemaining = 120
-                    isFireThresholdReached = False
-
             fan.get_check_fan_dutycycle()
 	    if (fan.get_fan_dutycycle() < 100):
 		time.sleep(0.50)
@@ -660,16 +624,6 @@ class QFX5200_ThermalUtil(object):
         # CHECK IF ANY TEMPERATURE SENSORS HAS SET 90% PREV DUTY CYCLE FLAG
         elif (SensorFlag[0][7] or SensorFlag[1][7] or SensorFlag[2][7] or SensorFlag[3][7] or SensorFlag[4][7] or SensorFlag[5][7] or SensorFlag[6][7] or SensorFlag[7][7]
             or SensorFlag[8][7] or SensorFlag[9][7] or SensorFlag[10][7] or SensorFlag[11][7]):
-
-            if (isFireThresholdReached == True):
-                if (SensorFlag[0][11] or SensorFlag[1][11] or SensorFlag[2][11] or SensorFlag[3][11] or SensorFlag[4][11] or SensorFlag[5][11] or SensorFlag[6][11] or SensorFlag[7][11]
-                    or SensorFlag[8][11] or SensorFlag[9][11] or SensorFlag[10][11] or SensorFlag[11][11]):
-			pass
-		else:	
-                    logging.critical('CRITICAL: System Stabilized, not shutting down')
-                    os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
-                    FireThresholdSecsRemaining = 120
-                    isFireThresholdReached = False
 
 	    fan.get_check_fan_dutycycle()
 
@@ -685,16 +639,6 @@ class QFX5200_ThermalUtil(object):
         # CHECK IF ANY TEMPERATURE SENSORS HAS SET 90% DUTY CYCLE FLAG
         elif (SensorFlag[0][6] or SensorFlag[1][6] or SensorFlag[2][6] or SensorFlag[3][6] or SensorFlag[4][6] or SensorFlag[5][6] or SensorFlag[6][6] or SensorFlag[7][6]
             or SensorFlag[8][6] or SensorFlag[9][6] or SensorFlag[10][6] or SensorFlag[11][6]):
-
-            if (isFireThresholdReached == True):
-                if (SensorFlag[0][11] or SensorFlag[1][11] or SensorFlag[2][11] or SensorFlag[3][11] or SensorFlag[4][11] or SensorFlag[5][11] or SensorFlag[6][11] or SensorFlag[7][11]
-                    or SensorFlag[8][11] or SensorFlag[9][11] or SensorFlag[10][11] or SensorFlag[11][11]):
-			pass
-		else:	
-                    logging.critical('CRITICAL: System Stabilized, not shutting down')
-		    os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
-                    FireThresholdSecsRemaining = 120
-                    isFireThresholdReached = False
 
 	    fan.get_check_fan_dutycycle()
 
@@ -712,16 +656,6 @@ class QFX5200_ThermalUtil(object):
         # CHECK IF ANY TEMPERATURE SENSORS HAS SET 75% PREV DUTY CYCLE FLAG
         elif (SensorFlag[0][5] or SensorFlag[1][5] or SensorFlag[2][5] or SensorFlag[3][5] or SensorFlag[4][5] or SensorFlag[5][5] or SensorFlag[6][5] or SensorFlag[7][5]
             or SensorFlag[8][5] or SensorFlag[9][5] or SensorFlag[10][5] or SensorFlag[11][5]):
-
-            if (isFireThresholdReached == True):
-                if (SensorFlag[0][11] or SensorFlag[1][11] or SensorFlag[2][11] or SensorFlag[3][11] or SensorFlag[4][11] or SensorFlag[5][11] or SensorFlag[6][11] or SensorFlag[7][11]
-                    or SensorFlag[8][11] or SensorFlag[9][11] or SensorFlag[10][11] or SensorFlag[11][11]):
-			pass
-		else:	
-                    logging.critical('CRITICAL: System Stabilized, not shutting down')
-                    os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
-                    FireThresholdSecsRemaining = 120
-                    isFireThresholdReached = False
 
             fan.get_check_fan_dutycycle()
 
@@ -742,17 +676,7 @@ class QFX5200_ThermalUtil(object):
         # CHECK IF ANY TEMPERATURE SENSORS HAS SET 75% DUTY CYCLE FLAG
         elif (SensorFlag[0][4] or SensorFlag[1][4] or SensorFlag[2][4] or SensorFlag[3][4] or SensorFlag[4][4] or SensorFlag[5][4] or SensorFlag[6][4] or SensorFlag[7][4]
             or SensorFlag[8][4] or SensorFlag[9][4] or SensorFlag[10][4] or SensorFlag[11][4]):
-            
-            if (isFireThresholdReached == True):
-                if (SensorFlag[0][11] or SensorFlag[1][11] or SensorFlag[2][11] or SensorFlag[3][11] or SensorFlag[4][11] or SensorFlag[5][11] or SensorFlag[6][11] or SensorFlag[7][11]
-                    or SensorFlag[8][11] or SensorFlag[9][11] or SensorFlag[10][11] or SensorFlag[11][11]):
-			pass
-		else:	
-                    logging.critical('CRITICAL: System Stabilized, not shutting down')
-                    os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
-                    FireThresholdSecsRemaining = 120
-                    isFireThresholdReached = False
-
+        
 	    fan.get_check_fan_dutycycle()    
 	    if (fan.get_fan_dutycycle() < 75):
 		time.sleep(0.25)
@@ -771,16 +695,6 @@ class QFX5200_ThermalUtil(object):
         # CHECK IF ANY TEMPERATURE SENSORS HAS SET 55% DUTY CYCLE PREV FLAG
         elif (SensorFlag[0][3] or SensorFlag[1][3] or SensorFlag[2][3] or SensorFlag[3][3] or SensorFlag[4][3] or SensorFlag[5][3] or SensorFlag[6][3] or SensorFlag[7][3]
             or SensorFlag[8][3] or SensorFlag[9][3] or SensorFlag[10][3] or SensorFlag[11][3]):
-
-            if (isFireThresholdReached == True):
-                if (SensorFlag[0][11] or SensorFlag[1][11] or SensorFlag[2][11] or SensorFlag[3][11] or SensorFlag[4][11] or SensorFlag[5][11] or SensorFlag[6][11] or SensorFlag[7][11]
-                    or SensorFlag[8][11] or SensorFlag[9][11] or SensorFlag[10][11] or SensorFlag[11][11]):
-			pass
-		else:	
-                    logging.critical('CRITICAL: System Stabilized, not shutting down')
-                    os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
-                    FireThresholdSecsRemaining = 120
-                    isFireThresholdReached = False
 
             fan.get_check_fan_dutycycle()
 
@@ -807,16 +721,6 @@ class QFX5200_ThermalUtil(object):
         elif (SensorFlag[0][2] or SensorFlag[1][2] or SensorFlag[2][2] or SensorFlag[3][2] or SensorFlag[4][2] or SensorFlag[5][2] or SensorFlag[6][2] or SensorFlag[7][2]
             or SensorFlag[8][2] or SensorFlag[9][2] or SensorFlag[10][2] or SensorFlag[11][2]):
 
-            if (isFireThresholdReached == True):
-                if (SensorFlag[0][11] or SensorFlag[1][11] or SensorFlag[2][11] or SensorFlag[3][11] or SensorFlag[4][11] or SensorFlag[5][11] or SensorFlag[6][11] or SensorFlag[7][11]
-                    or SensorFlag[8][11] or SensorFlag[9][11] or SensorFlag[10][11] or SensorFlag[11][11]):
-			pass
-		else:	
-                    logging.critical('CRITICAL: System Stabilized, not shutting down')
-                    os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
-                    FireThresholdSecsRemaining = 120
-                    isFireThresholdReached = False
-
 	    fan.get_check_fan_dutycycle()
 
 	    if (fan.get_fan_dutycycle() < 55):
@@ -833,18 +737,7 @@ class QFX5200_ThermalUtil(object):
         # CHECK IF ANY TEMPERATURE SENSORS HAS SET 35% PREV DUTY CYCLE FLAG
         elif (SensorFlag[0][1] or SensorFlag[1][1] or SensorFlag[2][1] or SensorFlag[3][1] or SensorFlag[4][1] or SensorFlag[5][1] or SensorFlag[6][1] or SensorFlag[7][1] 
             or SensorFlag[8][1] or SensorFlag[9][1] or SensorFlag[10][1] or SensorFlag[11][1]):
-	        
-            if (isFireThresholdReached == True):
-
-                if (SensorFlag[0][11] or SensorFlag[1][11] or SensorFlag[2][11] or SensorFlag[3][11] or SensorFlag[4][11] or SensorFlag[5][11] or SensorFlag[6][11] or SensorFlag[7][11]
-                    or SensorFlag[8][11] or SensorFlag[9][11] or SensorFlag[10][11] or SensorFlag[11][11]):
-			pass
-		else:	
-                    logging.critical('CRITICAL: System Stabilized, not shutting down')
-                    os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
-                    FireThresholdSecsRemaining = 120
-                    isFireThresholdReached = False
-
+	
 	    fan.get_check_fan_dutycycle()
 
 	    if (fan.get_fan_dutycycle() > 35):
@@ -868,17 +761,6 @@ class QFX5200_ThermalUtil(object):
         # CHECK IF ANY TEMPERATURE SENSORS HAS SET 35% DUTY CYCLE FLAG
         elif (SensorFlag[0][0] or SensorFlag[1][0] or SensorFlag[2][0] or SensorFlag[3][0] or SensorFlag[4][0] or SensorFlag[5][0] or SensorFlag[6][0] or SensorFlag[7][0] 
 	    or SensorFlag[8][0] or SensorFlag[9][0] or SensorFlag[10][0] or SensorFlag[11][0]):
-
-            if (isFireThresholdReached == True):
-                
-		if (SensorFlag[0][11] or SensorFlag[1][11] or SensorFlag[2][11] or SensorFlag[3][11] or SensorFlag[4][11] or SensorFlag[5][11] or SensorFlag[6][11] or SensorFlag[7][11]
-                    or SensorFlag[8][11] or SensorFlag[9][11] or SensorFlag[10][11] or SensorFlag[11][11]):
-			pass
-		else:	
-                    logging.critical('CRITICAL: System Stabilized, not shutting down')
-                    os.system("echo 'CRITICAL: System Stabilized, not shutting down' > /dev/console")
-                    FireThresholdSecsRemaining = 120
-                    isFireThresholdReached = False
 
             fan.get_check_fan_dutycycle()
 
@@ -939,10 +821,8 @@ class device_monitor(object):
         # set up logging to file
         logging.basicConfig(
             filename=log_file,
-            filemode='w',
             level=log_level,
-            format= '[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s',
-            datefmt='%H:%M:%S'
+            format= '[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s'
         )
 
         if DEBUG == True:
