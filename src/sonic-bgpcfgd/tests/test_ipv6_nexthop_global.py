@@ -2,7 +2,7 @@ import os
 import re
 
 from bgpcfgd.template import TemplateFabric
-from .util import load_constants
+from .util import load_constants_dir_mappings
 
 TEMPLATE_PATH = os.path.abspath('../../dockers/docker-fpm-frr/frr')
 
@@ -110,7 +110,7 @@ def check_routemap(path, route_map_name):
     assert checked, "route-map %s wasn't found" % route_map_name
 
 def test_v6_next_hop_global():
-    paths = ["tests/data/%s" % value for value in load_constants().values()]
+    paths = ["tests/data/%s" % value for value in load_constants_dir_mappings().values()]
     for path in paths:
         test_cases = process_instances(path)
         for test_case in test_cases:

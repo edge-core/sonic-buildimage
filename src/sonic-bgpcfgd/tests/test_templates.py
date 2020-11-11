@@ -4,14 +4,14 @@ import json
 
 from bgpcfgd.template import TemplateFabric
 from bgpcfgd.config import ConfigMgr
-from .util import load_constants
+from .util import load_constants_dir_mappings
 
 
 TEMPLATE_PATH = os.path.abspath('../../dockers/docker-fpm-frr/frr')
 
 
 def load_tests(peer_type, template_name):
-    constants = load_constants()
+    constants = load_constants_dir_mappings()
     path = "tests/data/%s/%s" % (constants[peer_type], template_name)
     param_files = [name for name in os.listdir(path)
                    if os.path.isfile(os.path.join(path, name)) and name.startswith("param_")]
