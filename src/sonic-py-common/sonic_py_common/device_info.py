@@ -391,9 +391,14 @@ def get_system_mac(namespace=None):
     elif (version_info['asic_type'] == 'marvell'):
         # Try valid mac in eeprom, else fetch it from eth0
         platform = get_platform()
-        hwsku = get_hwsku()
-        profile_cmd = 'cat' + HOST_DEVICE_PATH + '/' + platform +'/'+ hwsku +'/profile.ini | grep switchMacAddress | cut -f2 -d='
-        hw_mac_entry_cmds = [ profile_cmd, "sudo decode-syseeprom -m", "ip link show eth0 | grep ether | awk '{print $2}'" ]
+        machine_key = "onie_machine"
+        machine_vars = get_machine_info()
+        if machine_vars is not None and machine_key in machine_vars:
+            hwsku = machine_vars[machine_key]
+            profile_cmd = 'cat' + HOST_DEVICE_PATH + '/' + platform + '/' + hwsku + '/profile.ini | grep switchMacAddress | cut -f2 -d='
+        else:
+            profile_cmd = "false"
+        hw_mac_entry_cmds = ["sudo decode-syseeprom -m", profile_cmd, "ip link show eth0 | grep ether | awk '{print $2}'"]
     else:
         mac_address_cmd = "cat /sys/class/net/eth0/address"
         if namespace is not None:
