@@ -63,7 +63,14 @@ start)
 
         # Attach PCA9541 Ox70 Master Selector
         chmod 755 /sys/bus/i2c/devices/i2c-${devnum}/new_device
-        echo pca9541 0x70 > /sys/bus/i2c/devices/i2c-${devnum}/new_device
+        # FIXME: commenting out the following line.
+        #        there had been no pca9541 driver loaded on Celestica platform,
+        #        the recent addition of this driver casued following line
+        #        becoming effictive, but negatively impacted the platform
+        #        stability. Commenting it out restores the original behavior
+        #        on Celestica platform.
+        #        This change should be further analyzed and updated.
+        # echo pca9541 0x70 > /sys/bus/i2c/devices/i2c-${devnum}/new_device
         sleep 1
 
         # Attach PCA9548 0x71 Channel Extender for Main Board
