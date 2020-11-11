@@ -77,7 +77,7 @@ class Component(ComponentBase):
         ['Slave CPLD 2',
          'Used for managing SFP28/QSFP28 port transceivers (SFP28 25-48, QSFP28 5-8)',
          get_cpld2_version
-         ],
+         ]
 
     ]
 

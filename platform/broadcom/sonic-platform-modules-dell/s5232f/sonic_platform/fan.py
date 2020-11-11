@@ -24,16 +24,16 @@ PSU_FAN_DIRECTION_OFFSET = 47
 class Fan(FanBase):
     """DellEMC Platform-specific Fan class"""
     # { FAN-ID: { Sensor-Name: Sensor-ID } }
-    FAN_SENSOR_MAPPING = { 1: {"Prsnt": 0x51, "State": 0x64, "Speed": 0x24},
-                           2: {"Prsnt": 0x51, "State": 0x60, "Speed": 0x20},
-                           3: {"Prsnt": 0x52, "State": 0x65, "Speed": 0x25},
-                           4: {"Prsnt": 0x52, "State": 0x61, "Speed": 0x21},
-                           5: {"Prsnt": 0x53, "State": 0x66, "Speed": 0x26},
-                           6: {"Prsnt": 0x53, "State": 0x62, "Speed": 0x22},
-                           7: {"Prsnt": 0x54, "State": 0x67, "Speed": 0x27},
-                           8: {"Prsnt": 0x54, "State": 0x63, "Speed": 0x23} }
-    PSU_FAN_SENSOR_MAPPING = { 1: {"State": 0x46, "Speed": 0x2e},
-                               2: {"State": 0x47, "Speed": 0x2f} }
+    FAN_SENSOR_MAPPING = { 1: {"Prsnt": 0x53, "State": 0x57, "Speed": 0x24},
+                           2: {"Prsnt": 0x53, "State": 0x5b, "Speed": 0x20},
+                           3: {"Prsnt": 0x54, "State": 0x58, "Speed": 0x25},
+                           4: {"Prsnt": 0x54, "State": 0x5c, "Speed": 0x21},
+                           5: {"Prsnt": 0x55, "State": 0x59, "Speed": 0x26},
+                           6: {"Prsnt": 0x55, "State": 0x5d, "Speed": 0x22},
+                           7: {"Prsnt": 0x56, "State": 0x5a, "Speed": 0x27},
+                           8: {"Prsnt": 0x56, "State": 0x5e, "Speed": 0x23} }
+    PSU_FAN_SENSOR_MAPPING = { 1: {"State": 0x31, "Speed": 0x28},
+                               2: {"State": 0x32, "Speed": 0x29} }
 
     # { FANTRAY-ID: FRU-ID }
     FAN_FRU_MAPPING = { 1: 3, 2: 4, 3: 5, 4: 6 }
@@ -129,7 +129,7 @@ class Fan(FanBase):
         status = False
         is_valid, state = self.state_sensor.get_reading()
         if is_valid:
-            if (state == 0x00):
+            if  not state > 1:
                 status = True
         return status
 
@@ -146,11 +146,11 @@ class Fan(FanBase):
             - Reverse/Intake  : Air flows from Fan side to Port side.
         """
         direction = [self.FAN_DIRECTION_EXHAUST, self.FAN_DIRECTION_INTAKE]
-        fan_status = self.get_status()
+        fan_status = self.get_presence()
         if not fan_status:
             return 'NA'
         is_valid, fan_direction = self.fru.get_fru_data(self.fan_direction_offset)
-        if is_valid:
+        if is_valid and fan_direction[0] < len(direction):
             return direction[fan_direction[0]]
         else:
             return 'NA'

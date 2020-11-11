@@ -145,15 +145,6 @@ platform_firmware_versions() {
        r_maj=`/usr/sbin/i2cget -y 600 0x31 0x1 | sed ' s/.*\(0x..\)$/\1/'`
        echo "Slave CPLD 2: $((r_maj)).$((r_min))" >> $FIRMWARE_VERSION_FILE
 
-       #Slave CPLD 3 0x32 on i2c bus 600 ( physical FPGA I2C-1)
-       r_min=`/usr/sbin/i2cget -y 600 0x32 0x0 | sed ' s/.*\(0x..\)$/\1/'`
-       r_maj=`/usr/sbin/i2cget -y 600 0x32 0x1 | sed ' s/.*\(0x..\)$/\1/'`
-       echo "Slave CPLD 3: $((r_maj)).$((r_min))" >> $FIRMWARE_VERSION_FILE
-
-       #Slave CPLD 3 0x32 on i2c bus 600 ( physical FPGA I2C-1)
-       r_min=`/usr/sbin/i2cget -y 600 0x33 0x0 | sed ' s/.*\(0x..\)$/\1/'`
-       r_maj=`/usr/sbin/i2cget -y 600 0x33 0x1 | sed ' s/.*\(0x..\)$/\1/'`
-       echo "Slave CPLD 4: $((r_maj)).$((r_min))" >> $FIRMWARE_VERSION_FILE
 }
 
 install_python_api_package() {
@@ -176,16 +167,47 @@ remove_python_api_package() {
     fi
 }
 
+get_reboot_cause() {
+    REBOOT_REASON_FILE="/host/reboot-cause/platform/reboot_reason"
+    resource="/sys/bus/pci/devices/0000:04:00.0/resource0"
+
+    mkdir -p $(dirname $REBOOT_REASON_FILE)
+
+    # Handle First Boot into software version with reboot cause determination support
+    if [[ ! -e $REBOOT_REASON_FILE ]]; then
+        echo "0" > $REBOOT_REASON_FILE
+    else
+        /usr/bin/pcisysfs.py --get --offset 0x18 --res $resource | sed '1d; s/.*:\(.*\)$/\1/;' > $REBOOT_REASON_FILE
+    fi
+    /usr/bin/pcisysfs.py --set --val 0x0 --offset 0x18 --res $resource
+}
+
+get_reboot_cause() {
+    REBOOT_REASON_FILE="/host/reboot-cause/platform/reboot_reason"
+    resource="/sys/bus/pci/devices/0000:04:00.0/resource0"
+
+    mkdir -p $(dirname $REBOOT_REASON_FILE)
+
+    # Handle First Boot into software version with reboot cause determination support
+    if [[ ! -e $REBOOT_REASON_FILE ]]; then
+        echo "0" > $REBOOT_REASON_FILE
+    else
+        /usr/bin/pcisysfs.py --get --offset 0x18 --res $resource | sed '1d; s/.*:\(.*\)$/\1/;' > $REBOOT_REASON_FILE
+    fi
+    /usr/bin/pcisysfs.py --set --val 0x0 --offset 0x18 --res $resource
+}
+
 init_devnum
 
 if [ "$1" == "init" ]; then
     modprobe i2c-dev
     modprobe i2c-mux-pca954x force_deselect_on_exit=1
     modprobe ipmi_devintf
-    modprobe ipmi_si
+    modprobe ipmi_si kipmid_max_busy_us=1000
     modprobe i2c_ocores
     modprobe dell_s5232f_fpga_ocores
     sys_eeprom "new_device"
+    get_reboot_cause
     switch_board_qsfp_mux "new_device"
     switch_board_qsfp "new_device"
     switch_board_sfp "new_device"
@@ -194,6 +216,7 @@ if [ "$1" == "init" ]; then
     install_python_api_package
     /usr/bin/qsfp_irq_enable.py
     platform_firmware_versions
+    echo 1000 > /sys/module/ipmi_si/parameters/kipmid_max_busy_us
 
 elif [ "$1" == "deinit" ]; then
     sys_eeprom "delete_device"
@@ -203,6 +226,8 @@ elif [ "$1" == "deinit" ]; then
     modprobe -r i2c-mux-pca954x
     modprobe -r i2c-dev
     remove_python_api_package   
+    modprobe -r ipmi_devintf
+    modprobe -r ipmi_si
 else
      echo "s5232f_platform : Invalid option !"
 fi

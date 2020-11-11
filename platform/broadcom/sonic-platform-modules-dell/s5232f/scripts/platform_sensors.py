@@ -13,7 +13,6 @@
 
 import sys
 import logging
-import subprocess
 
 S5232F_MAX_FAN_TRAYS = 4
 S5232F_MAX_PSUS = 2
@@ -85,7 +84,7 @@ def get_psu_airflow(psu_id):
         if line.startswith('FRU Device Description') and fru_id in line.split(':')[1]:
             found_fru = True
         if found_fru and line.startswith(' Board Product '):
-            return ' B2F' if 'PS/IO' in line else ' F2B'
+            return 'Intake' if 'PS/IO' in line else 'Exhaust'
     return ''
 
 # Fetch FRU on given offset
@@ -98,7 +97,7 @@ def fetch_raw_fru(dev_id, offset):
 
 
 def get_fan_airflow(fan_id):
-    Airflow_Direction = [' F2B', ' B2F']
+    Airflow_Direction = ['Exhaust', 'Intake']
     return Airflow_Direction[fetch_raw_fru(fan_id+2, 0x46)]
 
 # Print the information for temperature sensors
@@ -119,6 +118,7 @@ def print_temperature_sensors():
     print('  CPU Temp:                       ',
           get_pmc_register('CPU_temp'))
 
+subprocess.getstatusoutput('echo 0 > /sys/module/ipmi_si/parameters/kipmid_max_busy_us')
 ipmi_sensor_dump()
 
 print_temperature_sensors()
@@ -329,3 +329,5 @@ for psu in range(1, S5232F_MAX_PSUS + 1):
 
 print('\n    Total Power:                     ',
       get_pmc_register('PSU_Total_watt'))
+
+subprocess.getstatusoutput('echo 1000 > /sys/module/ipmi_si/parameters/kipmid_max_busy_us')

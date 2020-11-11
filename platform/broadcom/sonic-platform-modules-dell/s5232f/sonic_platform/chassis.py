@@ -12,18 +12,19 @@ from __future__ import division
 
 try:
     import sys
+    import time
     from sonic_platform_base.chassis_base import ChassisBase
     from sonic_platform.sfp import Sfp
     from sonic_platform.eeprom import Eeprom
     from sonic_platform.component import Component
     from sonic_platform.psu import Psu
     from sonic_platform.thermal import Thermal
+    from sonic_platform.fan_drawer import FanDrawer
     from sonic_platform.watchdog import Watchdog
-    from sonic_platform.fan import Fan
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
-MAX_S5232F_COMPONENT = 6 # BIOS,BMC,FPGA,SYSTEM CPLD,4 SLAVE CPLDs
+MAX_S5232F_COMPONENT = 6 # BIOS,BMC,FPGA,SYSTEM CPLD,2 SLAVE CPLDs
 MAX_S5232F_FANTRAY =4
 MAX_S5232F_FAN = 2
 MAX_S5232F_PSU = 2
@@ -61,17 +62,20 @@ class Chassis(ChassisBase):
 
         self._eeprom = Eeprom()
         self._watchdog = Watchdog()
+        for i in range(MAX_S5232F_FANTRAY):
+            fandrawer = FanDrawer(i)
+            self._fan_drawer_list.append(fandrawer)
+            self._fan_list.extend(fandrawer._fan_list)
+
         self._num_sfps = self.PORT_END
         self._num_fans = MAX_S5232F_FANTRAY * MAX_S5232F_FAN
-        self._fan_list = [Fan(i, j) for i in range(MAX_S5232F_FANTRAY) \
-                            for j in range(MAX_S5232F_FAN)]
         self._psu_list = [Psu(i) for i in range(MAX_S5232F_PSU)]
         self._thermal_list = [Thermal(i) for i in range(MAX_S5232F_THERMAL)]
         self._component_list = [Component(i) for i in range(MAX_S5232F_COMPONENT)]
 
         for port_num in range(self.PORT_START, self.PORTS_IN_BLOCK):
             # sfp get uses zero-indexing, but port numbers start from 1
-            presence = self.get_sfp(port_num).get_presence()
+            presence = self.get_sfp(port_num-1).get_presence()
             self._global_port_pres_dict[port_num] = '1' if presence else '0'
 
     def __del__(self):
@@ -88,33 +92,30 @@ class Chassis(ChassisBase):
         Returns a nested dictionary containing all devices which have
         experienced a change at chassis level
         """
+        start_ms = time.time() * 1000
         port_dict = {}
         change_dict = {}
         change_dict['sfp'] = port_dict
-        elapsed_time_ms = 0
-        sleep_time_ms = 500
-        sleep_time = sleep_time_ms / 1000
-
         while True:
+            time.sleep(0.5)
             for port_num in range(self.PORT_START, (self.PORT_END + 1)):
-                presence = self.get_sfp(port_num).get_presence()
+                presence = self.get_sfp(port_num-1).get_presence()
                 if(presence and self._global_port_pres_dict[port_num] == '0'):
                     self._global_port_pres_dict[port_num] = '1'
                     port_dict[port_num] = '1'
                 elif(not presence and
-                     self._global_port_pres_dict[port_num] == '1'):
+                        self._global_port_pres_dict[port_num] == '1'):
                     self._global_port_pres_dict[port_num] = '0'
                     port_dict[port_num] = '0'
 
-                if(len(port_dict) > 0):
-                    return True, change_dict 
-            if timeout != 0:
-                elapsed_time_ms += sleep_time_ms
-                if elapsed_time_ms > timeout:
-                    break
+            if(len(port_dict) > 0):
+                return True, change_dict
 
-            sleep(sleep_time)
-        return True, change_dict 
+            if timeout:
+                now_ms = time.time() * 1000
+                if (now_ms - start_ms >= timeout):
+                    return True, change_dict
+
 
     def get_sfp(self, index):
         """
@@ -133,7 +134,7 @@ class Chassis(ChassisBase):
 
         try:
             # The index will start from 0
-            sfp = self._sfp_list[index-1]
+            sfp = self._sfp_list[index]
         except IndexError:
             sys.stderr.write("SFP index {} out of range (0-{})\n".format(
                              index, len(self._sfp_list)-1))
@@ -222,3 +223,40 @@ class Chassis(ChassisBase):
             An integer represences the number of SFPs on the chassis.
         """
         return self._num_sfps
+    def get_reboot_cause(self):
+        """
+        Retrieves the cause of the previous reboot
+        Returns:
+            A tuple (string, string) where the first element is a string
+            containing the cause of the previous reboot. This string must be
+            one of the predefined strings in this class. If the first string
+            is "REBOOT_CAUSE_HARDWARE_OTHER", the second string can be used
+            to pass a description of the reboot cause.
+        """
+        try:
+            with open(self.REBOOT_CAUSE_PATH) as fd:
+                reboot_cause = int(fd.read(), 16)
+        except EnvironmentError:
+            return (self.REBOOT_CAUSE_NON_HARDWARE, None)
+
+        if reboot_cause & 0x1:
+            return (self.REBOOT_CAUSE_POWER_LOSS, None)
+        elif reboot_cause & 0x2:
+            return (self.REBOOT_CAUSE_NON_HARDWARE, None)
+        elif reboot_cause & 0x4:
+            return (self.REBOOT_CAUSE_HARDWARE_OTHER, "PSU Shutdown")
+        elif reboot_cause & 0x8:
+            return (self.REBOOT_CAUSE_THERMAL_OVERLOAD_CPU, None)
+        elif reboot_cause & 0x10:
+            return (self.REBOOT_CAUSE_WATCHDOG, None)
+        elif reboot_cause & 0x20:
+            return (self.REBOOT_CAUSE_HARDWARE_OTHER, "BMC Shutdown")
+        elif reboot_cause & 0x40:
+            return (self.REBOOT_CAUSE_HARDWARE_OTHER, "Hot-Swap Shutdown")
+        elif reboot_cause & 0x80:
+            return (self.REBOOT_CAUSE_HARDWARE_OTHER, "Reset Button Shutdown")
+        elif reboot_cause & 0x100:
+            return (self.REBOOT_CAUSE_HARDWARE_OTHER, "Reset Button Cold Reboot")
+        else:
+            return (self.REBOOT_CAUSE_NON_HARDWARE, None)
+
