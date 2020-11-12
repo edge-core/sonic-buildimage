@@ -15,6 +15,7 @@ $(SONIC_UTILITIES_PY2)_DEPENDS += $(SONIC_PY_COMMON_PY2) \
                                   $(SWSSSDK_PY2) \
                                   $(SONIC_CONFIG_ENGINE_PY2) \
                                   $(SONIC_YANG_MGMT_PY2) \
+                                  $(SONIC_YANG_MGMT_PY3) \
                                   $(SONIC_YANG_MODELS_PY3)
 $(SONIC_UTILITIES_PY2)_DEBS_DEPENDS = $(LIBYANG) \
                                       $(LIBYANG_CPP) \
