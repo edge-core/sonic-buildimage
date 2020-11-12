@@ -57,6 +57,8 @@ def
                          {%- set roles2 = neighbor_role + '_' + switch_role %}
                          {%- set roles1 = roles1 | lower %}
                          {%- set roles2 = roles2 | lower %}
+                         {%- set roles1 = roles1.replace('backend', '') %}
+                         {%- set roles2 = roles2.replace('backend', '') %}
                 {%- endif %}
                 {%- if roles1 in ports2cable %}
                     {%- if cable_len.append(ports2cable[roles1]) %}{% endif %}
@@ -74,6 +76,7 @@ def
                 {%- if local_port[1] == port_name %}
                     {%- set roles3 = switch_role + '_' + 'server' %}
                     {%- set roles3 = roles3 | lower %}
+                    {%- set roles3 = roles3.replace('backend', '') %}
                     {%- if roles3 in ports2cable %}
                         {%- if cable_len.append(ports2cable[roles3]) %}{% endif %}
                     {%- endif %}
