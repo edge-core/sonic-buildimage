@@ -23,6 +23,9 @@ $(DOCKER_PLATFORM_MONITOR)_PYTHON_WHEELS += $(SONIC_PSUD)
 $(DOCKER_PLATFORM_MONITOR)_PYTHON_WHEELS += $(SONIC_SYSEEPROMD)
 $(DOCKER_PLATFORM_MONITOR)_PYTHON_WHEELS += $(SONIC_THERMALCTLD)
 $(DOCKER_PLATFORM_MONITOR)_PYTHON_WHEELS += $(SONIC_XCVRD)
+ifeq ($(PDDF_SUPPORT),y)
+$(DOCKER_PLATFORM_MONITOR)_PYTHON_WHEELS += $(PDDF_PLATFORM_API_BASE_PY2)
+endif
 
 $(DOCKER_PLATFORM_MONITOR)_DBG_DEPENDS = $($(DOCKER_CONFIG_ENGINE_BUSTER)_DBG_DEPENDS)
 $(DOCKER_PLATFORM_MONITOR)_DBG_DEPENDS += $(LIBSWSSCOMMON_DBG) $(LIBSENSORS_DBG)
@@ -42,6 +45,7 @@ $(DOCKER_PLATFORM_MONITOR)_CONTAINER_NAME = pmon
 $(DOCKER_PLATFORM_MONITOR)_RUN_OPT += --privileged -t
 $(DOCKER_PLATFORM_MONITOR)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
 $(DOCKER_PLATFORM_MONITOR)_RUN_OPT += -v /var/run/platform_cache:/var/run/platform_cache:ro
+$(DOCKER_PLATFORM_MONITOR)_RUN_OPT += -v /usr/share/sonic/device/pddf:/usr/share/sonic/device/pddf:ro
 
 # Mount Arista python library on Aboot images to be used by plugins
 $(DOCKER_PLATFORM_MONITOR)_aboot_RUN_OPT += -v /usr/lib/python2.7/dist-packages/arista:/usr/lib/python2.7/dist-packages/arista:ro

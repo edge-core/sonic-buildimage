@@ -19,7 +19,8 @@ RUN apt-get update &&   \
         python-smbus    \
         ethtool         \
         dmidecode       \
-        i2c-tools
+        i2c-tools       \
+        python-jsonschema
 
 # On Arista devices, the sonic_platform wheel is not installed in the container.
 # Instead, the installation directory is mounted from the host OS. However, this method

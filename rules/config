@@ -63,6 +63,10 @@ DEFAULT_PASSWORD = YourPaSsWoRd
 # Uncomment next line to enable:
 # INSTALL_DEBUG_TOOLS = y
 
+# SONIC_USE_PDDF_FRAMEWORK - Use PDDF generic drivers and plugins
+# Uncomment next line to enable:
+SONIC_USE_PDDF_FRAMEWORK = y
+
 # SONIC_ROUTING_STACK - specify the routing-stack being elected to drive SONiC's control-plane.
 # Supported routing stacks on SONiC are:
 # routing-stacks: quagga, frr.

@@ -277,6 +277,7 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     python                  \
     python-setuptools       \
     python3-setuptools      \
+    python-jsonschema       \
     python-apt              \
     traceroute              \
     iputils-ping            \
