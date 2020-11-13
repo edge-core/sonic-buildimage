@@ -396,6 +396,7 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
                 acl_rules = {}
 
                 for ((rule_table_name, rule_id), rule_props) in self._rules_db_info.iteritems():
+                    rule_props = {k.upper(): v for k,v in rule_props.iteritems()}
                     if rule_table_name == table_name:
                         if not rule_props:
                             self.log_warning("rule_props for rule_id {} empty or null!".format(rule_id))
