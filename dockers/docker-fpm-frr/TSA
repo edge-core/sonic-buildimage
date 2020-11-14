@@ -24,12 +24,17 @@ then
     case "$route_map_name" in
       *V4*)
         ip_version=V4
+        ip_protocol=ip
       ;;
       *V6*)
         ip_version=V6
+        ip_protocol=ipv6
+      ;;
+      *)
+        continue
       ;;
     esac
-    sonic-cfggen -d -a "{\"route_map_name\":\"$route_map_name\", \"ip_version\": \"$ip_version\"}" -y /etc/sonic/constants.yml -t /usr/share/sonic/templates/bgpd/tsa/bgpd.tsa.isolate.conf.j2 > "$TSA_FILE"
+    sonic-cfggen -d -a "{\"route_map_name\":\"$route_map_name\", \"ip_version\": \"$ip_version\", \"ip_protocol\": \"$ip_protocol\"}" -y /etc/sonic/constants.yml -t /usr/share/sonic/templates/bgpd/tsa/bgpd.tsa.isolate.conf.j2 > "$TSA_FILE"
     vtysh -f "$TSA_FILE"
     rm -f "$TSA_FILE"
   done
