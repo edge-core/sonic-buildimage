@@ -213,6 +213,24 @@
         <StartDevice>switch-02t1</StartDevice>
         <StartPort>port1</StartPort>
       </DeviceLinkBase>
+      <DeviceLinkBase i:type="DeviceInterfaceLink">
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <AutoNegotiation>true</AutoNegotiation>
+        <Bandwidth>25000</Bandwidth>
+        <EndDevice>switch-t0</EndDevice>
+        <EndPort>fortyGigE0/4</EndPort>
+        <StartDevice>server1</StartDevice>
+        <StartPort>port1</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase i:type="DeviceInterfaceLink">
+        <ElementType>DeviceInterfaceLink</ElementType>
+        <AutoNegotiation>true</AutoNegotiation>
+        <Bandwidth>40000</Bandwidth>
+        <EndDevice>switch-t0</EndDevice>
+        <EndPort>fortyGigE0/8</EndPort>
+        <StartDevice>server2</StartDevice>
+        <StartPort>port1</StartPort>
+      </DeviceLinkBase>
       <DeviceLinkBase i:type="LogicalLink">
         <ElementType>LogicalLink</ElementType>
         <Bandwidth>10000</Bandwidth>
@@ -277,6 +295,34 @@
           <a:IPPrefix>10.7.0.196/26</a:IPPrefix>
         </ManagementAddress> 
         <HwSku>Force10-S6000</HwSku>
+      </Device>
+      <Device i:type="Server">
+        <ElementType>Server</ElementType>
+        <Address xmlns:d5p1="Microsoft.Search.Autopilot.NetMux">
+          <d5p1:IPPrefix>10.10.10.1/32</d5p1:IPPrefix>
+        </Address>
+        <AddressV6 xmlns:d5p1="Microsoft.Search.Autopilot.NetMux">
+          <d5p1:IPPrefix>fe80::0001/128</d5p1:IPPrefix>
+        </AddressV6>
+        <ManagementAddress xmlns:d5p1="Microsoft.Search.Autopilot.NetMux">
+          <d5p1:IPPrefix>10.0.0.1/32</d5p1:IPPrefix>
+        </ManagementAddress>
+        <Hostname>server1</Hostname>
+        <HwSku>server-sku</HwSku>
+      </Device>
+      <Device i:type="Server">
+        <ElementType>Server</ElementType>
+        <Address xmlns:d5p1="Microsoft.Search.Autopilot.NetMux">
+          <d5p1:IPPrefix>10.10.10.2/32</d5p1:IPPrefix>
+        </Address>
+        <AddressV6 xmlns:d5p1="Microsoft.Search.Autopilot.NetMux">
+          <d5p1:IPPrefix>fe80::0002/128</d5p1:IPPrefix>
+        </AddressV6>
+        <ManagementAddress xmlns:d5p1="Microsoft.Search.Autopilot.NetMux">
+          <d5p1:IPPrefix>10.0.0.2/32</d5p1:IPPrefix>
+        </ManagementAddress>
+        <Hostname>server2</Hostname>
+        <HwSku>server-sku</HwSku>
       </Device>
     </Devices>
   </PngDec>

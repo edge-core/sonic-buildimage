@@ -79,6 +79,7 @@ def get_peer_switch_info(link_metadata, devices):
 
 def parse_device(device):
     lo_prefix = None
+    lo_prefix_v6 = None
     mgmt_prefix = None
     d_type = None   # don't shadow type()
     hwsku = None
@@ -90,6 +91,8 @@ def parse_device(device):
     for node in device:
         if node.tag == str(QName(ns, "Address")):
             lo_prefix = node.find(str(QName(ns2, "IPPrefix"))).text
+        elif node.tag == str(QName(ns, "AddressV6")):
+            lo_prefix_v6 = node.find(str(QName(ns2, "IPPrefix"))).text
         elif node.tag == str(QName(ns, "ManagementAddress")):
             mgmt_prefix = node.find(str(QName(ns2, "IPPrefix"))).text
         elif node.tag == str(QName(ns, "Hostname")):
@@ -98,7 +101,7 @@ def parse_device(device):
             hwsku = node.text
         elif node.tag == str(QName(ns, "DeploymentId")):
             deployment_id = node.text
-    return (lo_prefix, mgmt_prefix, name, hwsku, d_type, deployment_id)
+    return (lo_prefix, lo_prefix_v6, mgmt_prefix, name, hwsku, d_type, deployment_id)
 
 def parse_png(png, hname):
     neighbors = {}
@@ -160,10 +163,12 @@ def parse_png(png, hname):
 
         if child.tag == str(QName(ns, "Devices")):
             for device in child.findall(str(QName(ns, "Device"))):
-                (lo_prefix, mgmt_prefix, name, hwsku, d_type, deployment_id) = parse_device(device)
+                (lo_prefix, lo_prefix_v6, mgmt_prefix, name, hwsku, d_type, deployment_id) = parse_device(device)
                 device_data = {'lo_addr': lo_prefix, 'type': d_type, 'mgmt_addr': mgmt_prefix, 'hwsku': hwsku }
                 if deployment_id:
                     device_data['deployment_id'] = deployment_id
+                if lo_prefix_v6:
+                    device_data['lo_addr_v6'] = lo_prefix_v6
                 devices[name] = device_data
 
                 if name == hname:
@@ -281,10 +286,12 @@ def parse_asic_png(png, asic_name, hostname):
 
         if child.tag == str(QName(ns, "Devices")):
             for device in child.findall(str(QName(ns, "Device"))):
-                (lo_prefix, mgmt_prefix, name, hwsku, d_type, deployment_id) = parse_device(device)
+                (lo_prefix, lo_prefix_v6, mgmt_prefix, name, hwsku, d_type, deployment_id) = parse_device(device)
                 device_data = {'lo_addr': lo_prefix, 'type': d_type, 'mgmt_addr': mgmt_prefix, 'hwsku': hwsku }
                 if deployment_id:
                     device_data['deployment_id'] = deployment_id
+                if lo_prefix_v6:
+                    device_data['lo_addr_v6']= lo_prefix_v6
                 devices[name] = device_data
     return (neighbors, devices, port_speeds)
 
@@ -1234,6 +1241,8 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
 
     results['TUNNEL'] = get_tunnel_entries(tunnel_intfs, lo_intfs, hostname)
 
+    results['MUX_CABLE'] = get_mux_cable_entries(mux_cable_ports, neighbors, devices)
+
     for nghbr in list(neighbors.keys()):
         # remove port not in port_config.ini
         if nghbr not in ports:
@@ -1317,10 +1326,24 @@ def get_tunnel_entries(tunnel_intfs, lo_intfs, hostname):
             tunnels[tunnel_key] = tunnel_attr
     return tunnels
 
+def get_mux_cable_entries(mux_cable_ports, neighbors, devices):
+    mux_cable_table = {}
+
+    for intf in mux_cable_ports:
+        if intf in neighbors:
+            entry = {}
+            neighbor = neighbors[intf]['name']
+            entry['state'] = 'auto'
+            entry['server_ipv4'] = devices[neighbor]['lo_addr']
+            if 'lo_addr_v6' in devices[neighbor]:
+                entry['server_ipv6'] = devices[neighbor]['lo_addr_v6']
+            mux_cable_table[intf] = entry 
+
+    return mux_cable_table
 
 def parse_device_desc_xml(filename):
     root = ET.parse(filename).getroot()
-    (lo_prefix, mgmt_prefix, hostname, hwsku, d_type, _) = parse_device(root)
+    (lo_prefix, lo_prefix_v6, mgmt_prefix, hostname, hwsku, d_type, _) = parse_device(root)
 
     results = {}
     results['DEVICE_METADATA'] = {'localhost': {
@@ -1329,6 +1352,8 @@ def parse_device_desc_xml(filename):
         }}
 
     results['LOOPBACK_INTERFACE'] = {('lo', lo_prefix): {}}
+    if lo_prefix_v6:
+        results['LOOPBACK_INTERFACE'] = {('lo_v6', lo_prefix_v6): {}}
 
     mgmt_intf = {}
     mgmtipn = ipaddress.ip_network(UNICODE_TYPE(mgmt_prefix), False)
