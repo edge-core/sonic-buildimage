@@ -10,6 +10,9 @@ $(DOCKER_SYNCD_BASE)_DBG_DEPENDS += $(SYNCD_DBG) \
                                 $(LIBSAIMETADATA_DBG) \
                                 $(LIBSAIREDIS_DBG)
 
+SONIC_STRETCH_DOCKERS += $(DOCKER_SYNCD_BASE)
+SONIC_STRETCH_DBG_DOCKERS += $(DOCKER_SYNCD_BASE_DBG)
+
 $(DOCKER_SYNCD_BASE)_RUN_OPT += -v /host/warmboot:/var/warmboot
 $(DOCKER_SYNCD_CENTEC)_RUN_OPT += --privileged -t
 $(DOCKER_SYNCD_CENTEC)_RUN_OPT += -v /host/machine.conf:/etc/machine.conf
