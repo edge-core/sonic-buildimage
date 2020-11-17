@@ -13,6 +13,7 @@ import subprocess
 
 try:
     from sonic_platform_base.fan_base import FanBase
+    from .utils import read_int_from_file, read_str_from_file, write_file
 except ImportError as e:
     raise ImportError (str(e) + "- required module not found")
 
@@ -52,18 +53,19 @@ class Fan(FanBase):
         self.is_psu_fan = psu_fan
         self.always_presence = False if platform not in platform_with_unplugable_fan else True
 
-        self.fan_min_speed_path = "fan{}_min".format(self.index)
         if not self.is_psu_fan:
             self.fan_speed_get_path = "fan{}_speed_get".format(self.index)
             self.fan_speed_set_path = "fan{}_speed_set".format(self.index)
             self.fan_presence_path = "fan{}_status".format(self.drawer_index)
-            self.fan_max_speed_path = "fan{}_max".format(self.index)
-            self._name = "fan{}".format(fan_index + 1)
+            self.fan_max_speed_path = os.path.join(FAN_PATH, "fan{}_max".format(self.index))
+            self.fan_min_speed_path = os.path.join(FAN_PATH, "fan{}_min".format(self.index))
+            self._name = "fan{}".format(self.index)
         else:
             self.fan_speed_get_path = "psu{}_fan1_speed_get".format(self.index)
             self.fan_presence_path = "psu{}_fan1_speed_get".format(self.index)
             self._name = 'psu_{}_fan_{}'.format(self.index, 1)
-            self.fan_max_speed_path = None
+            self.fan_max_speed_path = os.path.join(CONFIG_PATH, "psu_fan_max")
+            self.fan_min_speed_path = os.path.join(CONFIG_PATH, "psu_fan_min")
             self.psu_i2c_bus_path = os.path.join(CONFIG_PATH, 'psu{0}_i2c_bus'.format(self.index))
             self.psu_i2c_addr_path = os.path.join(CONFIG_PATH, 'psu{0}_i2c_addr'.format(self.index))
             self.psu_i2c_command_path = os.path.join(CONFIG_PATH, 'fan_command')
@@ -128,11 +130,7 @@ class Fan(FanBase):
         if self.is_psu_fan:
             status = 0
         else:
-            try:
-                with open(os.path.join(FAN_PATH, self.fan_status_path), 'r') as fault_status:
-                    status = int(fault_status.read().strip())
-            except (ValueError, IOError):
-                status = 1
+            status = read_int_from_file(os.path.join(FAN_PATH, self.fan_status_path), 1)
 
         return status == 0
 
@@ -153,33 +151,9 @@ class Fan(FanBase):
             if self.always_presence:
                 status = 1
             else:
-                try:
-                    with open(os.path.join(FAN_PATH, self.fan_presence_path), 'r') as presence_status:
-                        status = int(presence_status.read().strip())
-                except (ValueError, IOError):
-                    status = 0
+                read_int_from_file(os.path.join(FAN_PATH, self.fan_presence_path), 0)
 
         return status == 1
-    
-    def _get_min_speed_in_rpm(self):
-        speed = 0
-        try:
-            with open(os.path.join(FAN_PATH, self.fan_min_speed_path), 'r') as min_fan_speed:
-                speed = int(min_fan_speed.read())
-        except (ValueError, IOError):
-            speed = 0
-        
-        return speed
-    
-    def _get_max_speed_in_rpm(self):
-        speed = 0
-        try:
-            with open(os.path.join(FAN_PATH, self.fan_max_speed_path), 'r') as max_fan_speed:
-                speed = int(max_fan_speed.read().strip())
-        except (ValueError, IOError):
-            speed = 0
-        
-        return speed
 
     def get_speed(self):
         """
@@ -189,17 +163,12 @@ class Fan(FanBase):
             int: percentage of the max fan speed
         """
         speed = 0
-        try:
-            with open(os.path.join(FAN_PATH, self.fan_speed_get_path), 'r') as fan_curr_speed:
-                speed_in_rpm = int(fan_curr_speed.read().strip())
-        except (ValueError, IOError):
-            speed_in_rpm = 0
+        speed_in_rpm = read_int_from_file(os.path.join(FAN_PATH, self.fan_speed_get_path))
 
-        if self.fan_max_speed_path is None:
-            # in case of max speed unsupported, we just return speed in unit of RPM.
+        max_speed_in_rpm = read_int_from_file(self.fan_max_speed_path)
+        if max_speed_in_rpm == 0:
             return speed_in_rpm
 
-        max_speed_in_rpm = self._get_max_speed_in_rpm()
         speed = 100*speed_in_rpm/max_speed_in_rpm
         if speed > 100:
             speed = 100
@@ -214,18 +183,15 @@ class Fan(FanBase):
             int: percentage of the max fan speed
         """
         if self.is_psu_fan:
-            # Not like system fan, psu fan speed can not be modified, so target speed is N/A 
-            return self.get_speed()
+            try:
+                # Get PSU fan target speed according to current system cooling level
+                cooling_level = self.get_cooling_level()
+                return int(self.PSU_FAN_SPEED[cooling_level], 16)
+            except Exception:
+                return self.get_speed()
 
-        try:
-            with open(os.path.join(FAN_PATH, self.fan_speed_set_path), 'r') as fan_pwm:
-                pwm = int(fan_pwm.read().strip())
-        except (ValueError, IOError):
-            pwm = 0
-        
-        speed = int(round(pwm*100.0/PWM_MAX))
-        
-        return speed
+        pwm = read_int_from_file(os.path.join(FAN_PATH, self.fan_speed_set_path))
+        return int(round(pwm*100.0/PWM_MAX))
 
     def set_speed(self, speed):
         """
@@ -245,12 +211,9 @@ class Fan(FanBase):
                 return False
             from .thermal import logger
             try:
-                with open(self.psu_i2c_bus_path, 'r') as f:
-                    bus = f.read().strip()
-                with open(self.psu_i2c_addr_path, 'r') as f:
-                    addr = f.read().strip()
-                with open(self.psu_i2c_command_path, 'r') as f:
-                    command = f.read().strip()
+                bus = read_str_from_file(self.psu_i2c_bus_path, raise_exception=True)
+                addr = read_str_from_file(self.psu_i2c_addr_path, raise_exception=True)
+                command = read_str_from_file(self.psu_i2c_command_path, raise_exception=True)
                 speed = Fan.PSU_FAN_SPEED[int(speed / 10)]
                 command = "i2cset -f -y {0} {1} {2} {3} wp".format(bus, addr, command, speed)
                 subprocess.check_call(command, shell = True)
@@ -269,8 +232,7 @@ class Fan(FanBase):
                 speed = self.min_cooling_level * 10
             self.set_cooling_level(cooling_level, cooling_level)
             pwm = int(round(PWM_MAX*speed/100.0))
-            with open(os.path.join(FAN_PATH, self.fan_speed_set_path), 'w') as fan_pwm:
-                fan_pwm.write(str(pwm))
+            write_file(os.path.join(FAN_PATH, self.fan_speed_set_path), pwm, raise_exception=True)
         except (ValueError, IOError):
             status = False
 
@@ -364,21 +326,17 @@ class Fan(FanBase):
             # Reset FAN cooling level vector. According to low level team,
             # if we need set cooling level to X, we need first write a (10+X) 
             # to cooling_cur_state file to reset the cooling level vector.
-            with open(COOLING_STATE_PATH, 'w') as cooling_state:
-                cooling_state.write(str(level + 10))
+            write_file(COOLING_STATE_PATH, level + 10, raise_exception=True)
 
             # We need set cooling level after resetting the cooling level vector 
-            with open(COOLING_STATE_PATH, 'w') as cooling_state:
-                cooling_state.write(str(cur_state))
+            write_file(COOLING_STATE_PATH, cur_state, raise_exception=True)
         except (ValueError, IOError) as e:
             raise RuntimeError("Failed to set cooling level - {}".format(e))
 
     @classmethod
     def get_cooling_level(cls):
         try:
-            with open(COOLING_STATE_PATH, 'r') as cooling_state:
-                cooling_level = int(cooling_state.read().strip())
-                return cooling_level
+            return read_int_from_file(COOLING_STATE_PATH, raise_exception=True)
         except (ValueError, IOError) as e:
             raise RuntimeError("Failed to get cooling level - {}".format(e))
 
