@@ -149,6 +149,7 @@ def get_current_namespace():
     proc = subprocess.Popen(command,
                             stdout=subprocess.PIPE,
                             shell=True,
+                            universal_newlines=True,
                             stderr=subprocess.STDOUT)
     try:
         stdout, stderr = proc.communicate()
