@@ -37,14 +37,16 @@ class Fan(FanBase):
     PSU_FAN_SPEED = ['0x3c', '0x3c', '0x3c', '0x3c', '0x3c',
                      '0x3c', '0x3c', '0x46', '0x50', '0x5a', '0x64']
 
-    def __init__(self, fan_index, fan_drawer, psu_fan = False):
+    def __init__(self, fan_index, fan_drawer, position, psu_fan = False, psu=None):
         super(Fan, self).__init__()
     
         # API index is starting from 0, Mellanox platform index is starting from 1
         self.index = fan_index + 1
         self.fan_drawer = fan_drawer
+        self.position = position
 
         self.is_psu_fan = psu_fan
+        self.psu = psu
         if self.fan_drawer:
             self.led = ComponentFaultyIndicator(self.fan_drawer.get_led())
         elif self.is_psu_fan:
@@ -123,13 +125,8 @@ class Fan(FanBase):
         Returns:
             bool: True if fan is present, False if not
         """
-        status = 0
         if self.is_psu_fan:
-            if os.path.exists(os.path.join(FAN_PATH, self.fan_presence_path)):
-                status = 1
-            else:
-                status = 0
-            return status == 1
+            return self.psu.get_presence() and self.psu.get_powergood_status() and os.path.exists(os.path.join(FAN_PATH, self.fan_presence_path))
         else:
             return self.fan_drawer.get_presence()
 
@@ -254,6 +251,22 @@ class Fan(FanBase):
         # The tolerance value is fixed as 50% for all the Mellanox platform
         return 50
 
+    def get_position_in_parent(self):
+        """
+        Retrieves 1-based relative physical position in parent device
+        Returns:
+            integer: The 1-based relative physical position in parent device
+        """
+        return self.position
+
+    def is_replaceable(self):
+        """
+        Indicate whether this device is replaceable.
+        Returns:
+            bool: True if it is replaceable.
+        """
+        return False
+
     @classmethod
     def set_cooling_level(cls, level, cur_state):
         """
@@ -288,3 +301,4 @@ class Fan(FanBase):
         except (ValueError, IOError) as e:
             raise RuntimeError("Failed to get cooling level - {}".format(e))
 
+    

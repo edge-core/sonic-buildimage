@@ -113,12 +113,10 @@ thermal_name = {
 }
 
 thermal_device_categories_all = [
-    THERMAL_DEV_CATEGORY_CPU_CORE,
-    THERMAL_DEV_CATEGORY_CPU_PACK,
-    THERMAL_DEV_CATEGORY_MODULE,
-    THERMAL_DEV_CATEGORY_PSU,
     THERMAL_DEV_CATEGORY_AMBIENT,
-    THERMAL_DEV_CATEGORY_GEARBOX
+    THERMAL_DEV_CATEGORY_CPU_PACK,
+    THERMAL_DEV_CATEGORY_CPU_CORE,
+    THERMAL_DEV_CATEGORY_GEARBOX,
 ]
 
 thermal_device_categories_singleton = [
@@ -305,18 +303,34 @@ thermal_profile_list = [
     }
 ]
 
+def initialize_psu_thermals(platform, thermal_list, psu_index, dependency):
+    tp_index = platform_dict_thermal[platform]
+    thermal_profile = thermal_profile_list[tp_index]
+    _, count = thermal_profile[THERMAL_DEV_CATEGORY_PSU]
+    if count == 0:
+        return
+    thermal = Thermal(THERMAL_DEV_CATEGORY_PSU, psu_index, True, 1, dependency)
+    thermal_list.append(thermal)
 
-def initialize_thermals(platform, thermal_list, psu_list):
+
+def initialize_sfp_thermals(platform, thermal_list, sfp_index):
+    thermal = Thermal(THERMAL_DEV_CATEGORY_MODULE, sfp_index, True, 1)
+    thermal_list.append(thermal)
+
+    
+def initialize_chassis_thermals(platform, thermal_list):
     # create thermal objects for all categories of sensors
     tp_index = platform_dict_thermal[platform]
     thermal_profile = thermal_profile_list[tp_index]
     Thermal.thermal_profile = thermal_profile
+    position = 1
     for category in thermal_device_categories_all:
         if category == THERMAL_DEV_CATEGORY_AMBIENT:
             count, ambient_list = thermal_profile[category]
             for ambient in ambient_list:
-                thermal = Thermal(category, ambient, True)
-                thermal_list.append(thermal)
+                thermal = Thermal(category, ambient, True, position)
+                thermal_list.append(thermal),
+                position += 1
         else:
             start, count = 0, 0
             if category in thermal_profile:
@@ -324,17 +338,14 @@ def initialize_thermals(platform, thermal_list, psu_list):
                 if count == 0:
                     continue
             if count == 1:
-                thermal = Thermal(category, 0, False)
+                thermal = Thermal(category, 0, False, position)
                 thermal_list.append(thermal)
+                position += 1
             else:
-                if category == THERMAL_DEV_CATEGORY_PSU:
-                    for index in range(count):
-                        thermal = Thermal(category, start + index, True, psu_list[index].get_power_available_status)
-                        thermal_list.append(thermal)
-                else:
-                    for index in range(count):
-                        thermal = Thermal(category, start + index, True)
-                        thermal_list.append(thermal)
+                for index in range(count):
+                    thermal = Thermal(category, start + index, True, position)
+                    thermal_list.append(thermal)
+                    position += 1
 
 
 
@@ -342,7 +353,7 @@ class Thermal(ThermalBase):
     thermal_profile = None
     thermal_algorithm_status = False
 
-    def __init__(self, category, index, has_index, dependency = None):
+    def __init__(self, category, index, has_index, position, dependency = None):
         """
         index should be a string for category ambient and int for other categories
         """
@@ -357,6 +368,7 @@ class Thermal(ThermalBase):
             self.index = 0
 
         self.category = category
+        self.position = position
         self.temperature = self._get_file_from_api(THERMAL_API_GET_TEMPERATURE)
         self.high_threshold = self._get_file_from_api(THERMAL_API_GET_HIGH_THRESHOLD)
         self.high_critical_threshold = self._get_file_from_api(THERMAL_API_GET_HIGH_CRITICAL_THRESHOLD)
@@ -480,6 +492,21 @@ class Thermal(ThermalBase):
             return None
         return value_float / 1000.0
 
+    def get_position_in_parent(self):
+        """
+        Retrieves 1-based relative physical position in parent device
+        Returns:
+            integer: The 1-based relative physical position in parent device
+        """
+        return self.position
+
+    def is_replaceable(self):
+        """
+        Indicate whether this device is replaceable.
+        Returns:
+            bool: True if it is replaceable.
+        """
+        return False
 
     @classmethod
     def _write_generic_file(cls, filename, content):

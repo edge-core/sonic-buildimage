@@ -16,7 +16,7 @@ from sonic_platform.device_data import DEVICE_DATA
 
 def test_get_absence_fan_direction():
     fan_drawer = RealDrawer(0, DEVICE_DATA['x86_64-mlnx_msn2700-r0']['fans'])
-    fan = Fan(0, fan_drawer)
+    fan = Fan(0, fan_drawer, 1)
     fan_drawer.get_presence = MagicMock(return_value=False)
 
     assert not fan.is_psu_fan
@@ -31,8 +31,8 @@ def test_fan_drawer_set_status_led():
     with pytest.raises(Exception):
         fan_drawer.set_status_led(None, Fan.STATUS_LED_COLOR_RED)
     
-    fan1 = Fan(0, fan_drawer)
-    fan2 = Fan(1, fan_drawer)
+    fan1 = Fan(0, fan_drawer, 1)
+    fan2 = Fan(1, fan_drawer, 2)
     fan_list = fan_drawer.get_all_fans()
     fan_list.append(fan1)
     fan_list.append(fan2)

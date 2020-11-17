@@ -309,7 +309,8 @@ def deinitialize_sdk_handle(sdk_handle):
 class SFP(SfpBase):
     """Platform-specific SFP class"""
 
-    def __init__(self, sfp_index, sfp_type, sdk_handle):
+    def __init__(self, sfp_index, sfp_type, sdk_handle, platform):
+        SfpBase.__init__(self)
         self.index = sfp_index + 1
         self.sfp_eeprom_path = "qsfp{}".format(self.index)
         self.sfp_status_path = "qsfp{}_status".format(self.index)
@@ -319,7 +320,12 @@ class SFP(SfpBase):
         self.sdk_handle = sdk_handle
         self.sdk_index = sfp_index
 
+        # initialize SFP thermal list
+        from .thermal import initialize_sfp_thermals
+        initialize_sfp_thermals(platform, self._thermal_list, self.index)
+
     def reinit(self):
+
         """
         Re-initialize this SFP object when a new SFP inserted
         :return: 
@@ -2034,3 +2040,11 @@ class SFP(SfpBase):
             False if not
         """
         return NotImplementedError
+
+    def is_replaceable(self):
+        """
+        Indicate whether this device is replaceable.
+        Returns:
+            bool: True if it is replaceable.
+        """
+        return True

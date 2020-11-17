@@ -104,7 +104,7 @@ class Chassis(ChassisBase):
             drawer = drawer_ctor(drawer_index, fan_data)
             self._fan_drawer_list.append(drawer)
             for index in range(fan_num_per_drawer):
-                fan = Fan(fan_index, drawer)
+                fan = Fan(fan_index, drawer, index + 1)
                 fan_index += 1
                 drawer._fan_list.append(fan)
                 self._fan_list.append(fan)
@@ -130,18 +130,19 @@ class Chassis(ChassisBase):
 
         for index in range(self.PORT_START, self.PORT_END + 1):
             if index in range(self.QSFP_PORT_START, self.PORTS_IN_BLOCK + 1):
-                sfp_module = SFP(index, 'QSFP', self.sdk_handle)
+                sfp_module = SFP(index, 'QSFP', self.sdk_handle, self.platform_name)
             else:
-                sfp_module = SFP(index, 'SFP', self.sdk_handle)
+                sfp_module = SFP(index, 'SFP', self.sdk_handle, self.platform_name)
+
             self._sfp_list.append(sfp_module)
 
         self.sfp_module_initialized = True
 
 
     def initialize_thermals(self):
-        from sonic_platform.thermal import initialize_thermals
+        from sonic_platform.thermal import initialize_chassis_thermals
         # Initialize thermals
-        initialize_thermals(self.platform_name, self._thermal_list, self._psu_list)
+        initialize_chassis_thermals(self.platform_name, self._thermal_list)
 
 
     def initialize_eeprom(self):
@@ -514,3 +515,20 @@ class Chassis(ChassisBase):
             specified.
         """
         return None if not Chassis._led else Chassis._led.get_status()
+
+    def get_position_in_parent(self):
+        """
+		Retrieves 1-based relative physical position in parent device. If the agent cannot determine the parent-relative position
+        for some reason, or if the associated value of entPhysicalContainedIn is '0', then the value '-1' is returned
+		Returns:
+		    integer: The 1-based relative physical position in parent device or -1 if cannot determine the position
+		"""
+        return -1
+
+    def is_replaceable(self):
+        """
+        Indicate whether this device is replaceable.
+        Returns:
+            bool: True if it is replaceable.
+        """
+        return False
