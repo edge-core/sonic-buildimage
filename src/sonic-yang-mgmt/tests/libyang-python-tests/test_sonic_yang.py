@@ -288,10 +288,13 @@ class Test_SonicYang(object):
         syc = sonic_yang_data['syc']
 
         jIn = self.readIjsonInput(test_file, 'SAMPLE_CONFIG_DB_JSON')
+        jIn = json.loads(jIn)
+        numTables = len(jIn)
 
-        syc.loadData(json.loads(jIn))
-
-        # TODO: Make sure no extra table is loaded
+        syc.loadData(jIn)
+        # check all tables are loaded and no tables is without Yang Models
+        assert len(syc.jIn) == numTables
+        assert len(syc.tablesWithOutYang) == 0
 
         syc.getData()
 

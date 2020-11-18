@@ -377,7 +377,8 @@ class SonicYangExtMixin:
 
         ## Handle other leaves in container,
         leafDict = self._createLeafDict(model)
-        for vKey in configC.keys():
+        vKeys = list(configC.keys())
+        for vKey in vKeys:
             #vkey must be a leaf\leaf-list\choice in container
             if leafDict.get(vKey):
                 self.sysLog(syslog.LOG_DEBUG, "xlateContainer vkey {}".format(vKey))

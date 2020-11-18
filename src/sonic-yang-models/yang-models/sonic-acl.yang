@@ -5,10 +5,6 @@ module sonic-acl {
 	namespace "http://github.com/Azure/sonic-acl";
 	prefix acl;
 
-	import ietf-yang-types {
-		prefix yang;
-	}
-
 	import ietf-inet-types {
 		prefix inet;
 	}

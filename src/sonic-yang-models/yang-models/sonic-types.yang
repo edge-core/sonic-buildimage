@@ -6,6 +6,10 @@ module sonic-types {
     prefix sonic-types;
 
     description "SONiC type for yang Models of SONiC OS";
+    /*
+     * Try to define only sonic specific types here. Rest can be written in
+     * respective YANG files.
+     */
 
     revision 2019-07-01 {
         description "First Revision";
@@ -82,11 +86,25 @@ module sonic-types {
         }
     }
 
+    typedef hwsku {
+        type string {
+            length 1..255;
+            /* Should we list all hwsku here */
+        }
+    }
+
     typedef vlan_tagging_mode {
         type enumeration {
             enum tagged;
             enum untagged;
             enum priority_tagged;
+        }
+    }
+
+    typedef crm_threshold_type {
+        type string {
+            length 1..64;
+            pattern "percentage|used|free|PERCENTAGE|USED|FREE";
         }
     }
 }

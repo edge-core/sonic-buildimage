@@ -727,6 +727,218 @@
 			}
 		}
 	},
+
+    "CRM_WITH_WRONG_PERCENTAGE": {
+        "sonic-crm:sonic-crm": {
+            "sonic-crm:CRM": {
+                "Config": {
+                    "acl_counter_high_threshold": 110,
+                    "acl_counter_low_threshold": 85,
+                    "acl_counter_threshold_type": "PERCENTAGE"
+                }
+            }
+        }
+    },
+
+    "CRM_WITH_HIGH_THRESHOLD_ERR": {
+        "sonic-crm:sonic-crm": {
+            "sonic-crm:CRM": {
+                "Config": {
+                    "acl_counter_high_threshold": 80,
+                    "acl_counter_low_threshold": 81,
+                    "acl_counter_threshold_type": "PERCENTAGE"
+                }
+            }
+        }
+    },
+
+    "CRM_WITH_WRONG_THRESHOLD": {
+        "sonic-crm:sonic-crm": {
+            "sonic-crm:CRM": {
+                "Config": {
+                    "acl_counter_high_threshold": 85,
+                    "acl_counter_low_threshold": 90,
+                    "acl_counter_threshold_type": "free"
+                }
+            }
+        }
+    },
+
+    "CRM_WITH_CORRECT_USED_VALUE": {
+        "sonic-crm:sonic-crm": {
+            "sonic-crm:CRM": {
+                "Config": {
+                    "acl_counter_high_threshold": 85,
+                    "acl_counter_low_threshold": 25,
+                    "acl_counter_threshold_type": "used"
+                }
+            }
+        }
+    },
+
+    "DEVICE_METADATA_DEFAULT_BGP_STATUS": {
+        "sonic-device_metadata:sonic-device_metadata": {
+            "sonic-device_metadata:DEVICE_METADATA": {
+                "sonic-device_metadata:localhost": {
+                "docker_routing_config_mode": "separated",
+                "platform": "Stone-DX010",
+                "hostname": "DUT-ASW",
+                "bgp_asn": "65000"
+                }
+            }
+        }
+    },
+
+    "DEVICE_METADATA_DEFAULT_PFCWD_STATUS": {
+        "sonic-device_metadata:sonic-device_metadata": {
+            "sonic-device_metadata:DEVICE_METADATA": {
+                "sonic-device_metadata:localhost": {
+                "platform": "DX010",
+                "hostname": "DUT-CSW",
+                "bgp_asn": "65001"
+                }
+            }
+        }
+    },
+
+    "DEVICE_METADATA_TYPE_INCORRECT_PATTERN": {
+        "sonic-device_metadata:sonic-device_metadata": {
+            "sonic-device_metadata:DEVICE_METADATA": {
+                "sonic-device_metadata:localhost": {
+                "bgp_asn": "65002",
+                "type": "ToRrouter"
+                }
+            }
+        }
+    },
+
+    "VERSIONS_WITH_INCORRECT_PATTERN": {
+        "sonic-versions:sonic-versions": {
+            "sonic-versions:VERSIONS": {
+                "DATABASE": {
+                    "VERSION": "version_1_2"
+                }
+            }
+        }
+    },
+
+    "VERSIONS_WITH_INCORRECT_PATTERN2": {
+        "sonic-versions:sonic-versions": {
+            "sonic-versions:VERSIONS": {
+                "DATABASE": {
+                    "VERSION": "version_0_2_77"
+                }
+            }
+        }
+    },
+
+    "FLEX_COUNTER_TABLE_WITH_CORRECT_USED_VALUE": {
+        "sonic-flex_counter:sonic-flex_counter": {
+            "sonic-flex_counter:FLEX_COUNTER_TABLE": {
+                "PFCWD": {
+                    "FLEX_COUNTER_STATUS": "enable"
+                },
+                "PG_WATERMARK": {
+                    "FLEX_COUNTER_STATUS": "enable"
+                },
+                "PORT": {
+                    "FLEX_COUNTER_STATUS": "enable"
+                },
+                "PORT_RATES": {
+                    "FLEX_COUNTER_STATUS": "enable"
+                },
+                "PORT_BUFFER_DROP": {
+                    "FLEX_COUNTER_STATUS": "enable"
+                },
+                "BUFFER_POOL_WATERMARK_KEY": {
+                    "FLEX_COUNTER_STATUS": "enable"
+                },
+                "QUEUE": {
+                    "FLEX_COUNTER_STATUS": "enable"
+                },
+                "QUEUE_WATERMARK": {
+                    "FLEX_COUNTER_STATUS": "enable"
+                },
+                "DEBUG_COUNTER": {
+                    "FLEX_COUNTER_STATUS": "enable"
+                }
+            }
+        }
+    },
+	"CRM_BRK_CFG_FLEX_TABLE": {
+		"sonic-crm:sonic-crm": {
+			"sonic-crm:CRM": {
+				"Config": {
+					"acl_counter_low_threshold": "70",
+					"acl_counter_high_threshold": "85",
+					"acl_counter_threshold_type": "percentage",
+					"ipv6_neighbor_high_threshold": "67",
+					"ipv6_neighbor_low_threshold": "56",
+					"ipv6_neighbor_threshold_type": "percentage",
+					"nexthop_group_high_threshold": "67",
+					"nexthop_group_low_threshold": "56",
+					"nexthop_group_threshold_type": "percentage",
+					"polling_interval": "0"
+				}
+			}
+		},
+		"sonic-breakout_cfg:sonic-breakout_cfg": {
+			"sonic-breakout_cfg:BREAKOUT_CFG": {
+				"BREAKOUT_CFG_LIST": [
+					{
+						"brkout_mode": "1x100G[40G]",
+						"port": "Ethernet0"
+					},
+					{
+						"brkout_mode": "4x25G[10G]",
+						"port": "Ethernet8"
+					},
+					{
+						"brkout_mode": "2x25G(2)+1x50G(2)",
+						"port": "Ethernet4"
+					},
+					{
+						"brkout_mode": "1x400G",
+						"port": "Ethernet12"
+					},
+					{
+						"brkout_mode": "2x200G",
+						"port": "Ethernet16"
+					},
+					{
+						"brkout_mode": "4x100G",
+						"port": "Ethernet20"
+					},
+					{
+						"brkout_mode": "8x50G",
+						"port": "Ethernet24"
+					}
+				]
+			}
+		},
+		"sonic-flex_counter:sonic-flex_counter": {
+			"sonic-flex_counter:FLEX_COUNTER_TABLE": {
+				"QUEUE": {
+					"FLEX_COUNTER_STATUS": "enable"
+				},
+				"PG_WATERMARK": {
+					"FLEX_COUNTER_STATUS": "enable"
+				},
+				"QUEUE_WATERMARK": {
+					"FLEX_COUNTER_STATUS": "enable"
+				},
+				"PFCWD": {
+					"FLEX_COUNTER_STATUS": "enable"
+				},
+				"PORT": {
+					"FLEX_COUNTER_STATUS": "enable"
+				},
+                "DEBUG_COUNTER": {
+                    "FLEX_COUNTER_STATUS": "enable"
+                }
+			}
+		}
+	},
 	"ACL_RULE_WRONG_INNER_ETHER_TYPE": {
 		"sonic-acl:sonic-acl": {
 			"sonic-acl:ACL_RULE": {
@@ -962,7 +1174,7 @@
 		},
 		"DEVICE_METADATA": {
 			"localhost": {
-				"type": "ToR",
+				"type": "ToRRouter",
 				"mac": "00:11:22:33:dd:5a",
 				"hostname": "asw.dc",
 				"bgp_asn": "64850",
@@ -1450,7 +1662,7 @@
                 "brkout_mode": "1x100G[40G]"
             },
             "Ethernet4": {
-                "brkout_mode": "4x25G"
+                "brkout_mode": "4x25G[10G]"
             },
             "Ethernet8": {
                 "brkout_mode": "1x100G[40G]"
@@ -1471,10 +1683,22 @@
             "PORT": {
                 "FLEX_COUNTER_STATUS": "enable"
             },
+            "PORT_RATES": {
+                "FLEX_COUNTER_STATUS": "enable"
+            },
+            "PORT_BUFFER_DROP": {
+                "FLEX_COUNTER_STATUS": "enable"
+            },
+            "BUFFER_POOL_WATERMARK_KEY": {
+                "FLEX_COUNTER_STATUS": "enable"
+            },
             "QUEUE": {
                 "FLEX_COUNTER_STATUS": "enable"
             },
             "QUEUE_WATERMARK": {
+                "FLEX_COUNTER_STATUS": "enable"
+            },
+            "DEBUG_COUNTER": {
                 "FLEX_COUNTER_STATUS": "enable"
             }
         },
@@ -1483,6 +1707,12 @@
                 "acl_counter_high_threshold": "85",
                 "acl_counter_low_threshold": "70",
                 "acl_counter_threshold_type": "percentage",
+                "ipv6_neighbor_high_threshold": "67",
+                "ipv6_neighbor_low_threshold": "56",
+                "ipv6_neighbor_threshold_type": "percentage",
+                "nexthop_group_high_threshold": "67",
+                "nexthop_group_low_threshold": "56",
+                "nexthop_group_threshold_type": "percentage",
                 "polling_interval": "0"
             }
         }

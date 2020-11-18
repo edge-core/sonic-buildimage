@@ -5,10 +5,6 @@ module sonic-loopback-interface {
     namespace "http://github.com/Azure/sonic-loopback-interface";
     prefix lointf;
 
-    import ietf-inet-types {
-        prefix inet;
-    }
-
     import sonic-types {
         prefix stypes;
         revision-date 2019-07-01;

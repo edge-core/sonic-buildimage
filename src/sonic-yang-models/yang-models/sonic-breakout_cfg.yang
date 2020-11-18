@@ -1,0 +1,64 @@
+module sonic-breakout_cfg {
+
+    yang-version 1.1;
+
+    namespace "http://github.com/Azure/sonic-breakout_cfg";
+    prefix breakout_cfg;
+
+    import sonic-extension {
+        prefix ext;
+        revision-date 2019-07-01;
+    }
+
+    description "BREAKOUT_CFG YANG Module for SONiC OS";
+
+    revision 2020-04-10 {
+        description "First Revision";
+    }
+
+    container sonic-breakout_cfg {
+
+        container BREAKOUT_CFG {
+
+            description "BREAKOUT_CFG part of config_db.json";
+
+            list BREAKOUT_CFG_LIST {
+
+                key "port";
+
+                ext:key-regex-configdb-to-yang "^([a-zA-Z0-9_-]+)$";
+
+                ext:key-regex-yang-to-configdb "<port>";
+
+                /*
+                 * This is leaf instead of a leafref towards port, because this
+                 * table will contains Parent ports and their current breakout-mode,
+                 * irrespective of port is present in PORT table or not. Specially
+                 * during Dynamic Port Breakout, Parent Port may not be present in
+                 * PORT table.
+                 */
+                leaf port {
+                    type string {
+                        length 1..255;
+                    }
+                }
+
+                leaf brkout_mode {
+                    type string {
+                        length 1..64;
+                        /*
+                         * Below allowed patterns are based on most used Platforms,
+                         * Add any other breakout-mode to allow Dynamic Port
+                         * Breakout to that breakout-mode.
+                         */
+                        pattern '1x100G\[40G\]|2x50G|4x25G\[10G\]|2x25G\(2\)\+1x50G\(2\)|1x50G\(2\)\+2x25G\(2\)|1x400G|2x200G|4x100G|8x50G';
+                    }
+                }
+            }
+            /* end of list BREAKOUT_CFG_LIST */
+        }
+        /* end of container BREAKOUT_CFG */
+    }
+    /* end of top level container */
+}
+/* end of module sonic-breakout_cfg */
