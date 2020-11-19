@@ -12,6 +12,7 @@ include $(PLATFORM_PATH)/platform-nokia.mk
 
 INCLUDE_SYSTEM_TELEMETRY = ""
 ENABLE_SYNCD_RPC = ""
+INCLUDE_MGMT_FRAMEWORK = ""
 
 SONIC_ALL += $(SONIC_ONE_IMAGE) \
              $(DOCKER_FPM)
