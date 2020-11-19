@@ -20,6 +20,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	git checkout $(FRR_BRANCH)
 	stg branch --delete $(STG_BRANCH)
 	git rev-parse --short HEAD | xargs git checkout
+	git checkout master
 	git branch -D $(FRR_BRANCH)
 	popd
 	mv $(DERIVED_TARGET) $* $(DEST)/

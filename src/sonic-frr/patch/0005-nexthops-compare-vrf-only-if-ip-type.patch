@@ -1,7 +1,7 @@
-From 2f0b5aef66316b47d2cc8ac18453600621a6a317 Mon Sep 17 00:00:00 2001
-From: Tyler Li <tyler.li@mediatek.com>
-Date: Thu, 14 Nov 2019 23:46:52 -0800
-Subject: [PATCH] nexthops compare vrf only if ip type
+From dd66532a0e73b0c3ae6375e795b3b47f16196d09 Mon Sep 17 00:00:00 2001
+From: Pavel Shirshov <pavelsh@microsoft.com>
+Date: Mon, 16 Nov 2020 18:35:01 -0800
+Subject: [PATCH 5/5] nexthops compare vrf only if ip type
 
 ---
  lib/nexthop.c | 12 ++++++------
@@ -9,7 +9,7 @@ Subject: [PATCH] nexthops compare vrf only if ip type
  2 files changed, 12 insertions(+), 12 deletions(-)
 
 diff --git a/lib/nexthop.c b/lib/nexthop.c
-index cf5bed3d6..7d9f646c9 100644
+index 0ea72d03e..50552df60 100644
 --- a/lib/nexthop.c
 +++ b/lib/nexthop.c
 @@ -105,12 +105,6 @@ static int _nexthop_cmp_no_labels(const struct nexthop *next1,
@@ -25,7 +25,7 @@ index cf5bed3d6..7d9f646c9 100644
  	if (next1->type < next2->type)
  		return -1;
  
-@@ -120,6 +114,12 @@ static int _nexthop_cmp_no_labels(const struct nexthop *next1,
+@@ -126,6 +120,12 @@ static int _nexthop_cmp_no_labels(const struct nexthop *next1,
  	switch (next1->type) {
  	case NEXTHOP_TYPE_IPV4:
  	case NEXTHOP_TYPE_IPV6:
@@ -39,10 +39,10 @@ index cf5bed3d6..7d9f646c9 100644
  		if (ret != 0)
  			return ret;
 diff --git a/lib/zclient.c b/lib/zclient.c
-index c739af043..0d37c46d1 100644
+index fb48d4a12..39132465f 100644
 --- a/lib/zclient.c
 +++ b/lib/zclient.c
-@@ -783,12 +783,6 @@ static int zapi_nexthop_cmp_no_labels(const struct zapi_nexthop *next1,
+@@ -822,12 +822,6 @@ static int zapi_nexthop_cmp_no_labels(const struct zapi_nexthop *next1,
  {
  	int ret = 0;
  
@@ -55,7 +55,7 @@ index c739af043..0d37c46d1 100644
  	if (next1->type < next2->type)
  		return -1;
  
-@@ -798,6 +792,12 @@ static int zapi_nexthop_cmp_no_labels(const struct zapi_nexthop *next1,
+@@ -843,6 +837,12 @@ static int zapi_nexthop_cmp_no_labels(const struct zapi_nexthop *next1,
  	switch (next1->type) {
  	case NEXTHOP_TYPE_IPV4:
  	case NEXTHOP_TYPE_IPV6:
@@ -69,5 +69,5 @@ index c739af043..0d37c46d1 100644
  					 &next2->gate);
  		if (ret != 0)
 -- 
-2.11.0
+2.29.2.windows.2
 

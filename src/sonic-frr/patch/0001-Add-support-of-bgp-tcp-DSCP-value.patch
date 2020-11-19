@@ -1,20 +1,20 @@
-From 3ec4fa4c8377330d4e3bdbdfc453a79a7827d84d Mon Sep 17 00:00:00 2001
+From 71415ae851357025a99b8ead7edf5755a55b6fbb Mon Sep 17 00:00:00 2001
 From: Pavel Shirshov <pavelsh@microsoft.com>
-Date: Mon, 4 Nov 2019 18:09:51 -0800
-Subject: [PATCH 1/1] Add support of bgp tcp DSCP value
+Date: Mon, 16 Nov 2020 18:00:12 -0800
+Subject: [PATCH 1/5] Add support of bgp tcp DSCP value
 
 ---
  bgpd/bgp_network.c | 11 ++++-------
- bgpd/bgp_vty.c     | 40 ++++++++++++++++++++++++++++++++++++++++
- bgpd/bgpd.c        |  5 ++++-
+ bgpd/bgp_vty.c     | 44 ++++++++++++++++++++++++++++++++++++++++++++
+ bgpd/bgpd.c        |  2 +-
  bgpd/bgpd.h        |  3 +++
- 4 files changed, 51 insertions(+), 8 deletions(-)
+ 4 files changed, 52 insertions(+), 8 deletions(-)
 
 diff --git a/bgpd/bgp_network.c b/bgpd/bgp_network.c
-index 1394c60b2..a70268b05 100644
+index cae11ae7b..f1d96664d 100644
 --- a/bgpd/bgp_network.c
 +++ b/bgpd/bgp_network.c
-@@ -633,11 +633,9 @@ int bgp_connect(struct peer *peer)
+@@ -721,11 +721,9 @@ int bgp_connect(struct peer *peer)
  #ifdef IPTOS_PREC_INTERNETCONTROL
  	frr_with_privs(&bgpd_privs) {
  		if (sockunion_family(&peer->su) == AF_INET)
@@ -28,7 +28,7 @@ index 1394c60b2..a70268b05 100644
  	}
  #endif
  
-@@ -713,10 +711,9 @@ static int bgp_listener(int sock, struct sockaddr *sa, socklen_t salen,
+@@ -801,10 +799,9 @@ static int bgp_listener(int sock, struct sockaddr *sa, socklen_t salen,
  
  #ifdef IPTOS_PREC_INTERNETCONTROL
  		if (sa->sa_family == AF_INET)
@@ -42,10 +42,10 @@ index 1394c60b2..a70268b05 100644
  
  		sockopt_v6only(sa->sa_family, sock);
 diff --git a/bgpd/bgp_vty.c b/bgpd/bgp_vty.c
-index 141d5cf30..8faa918d0 100644
+index bb2f89f9e..33662b08e 100644
 --- a/bgpd/bgp_vty.c
 +++ b/bgpd/bgp_vty.c
-@@ -1182,6 +1182,42 @@ DEFUN (no_router_bgp,
+@@ -1330,6 +1330,42 @@ DEFUN (no_router_bgp,
  	return CMD_SUCCESS;
  }
  
@@ -88,7 +88,18 @@ index 141d5cf30..8faa918d0 100644
  
  /* BGP router-id.  */
  
-@@ -13035,6 +13071,10 @@ void bgp_vty_init(void)
+@@ -15549,6 +15585,10 @@ int bgp_config_write(struct vty *vty)
+ 		if (CHECK_FLAG(bgp->flags, BGP_FLAG_NO_FAST_EXT_FAILOVER))
+ 			vty_out(vty, " no bgp fast-external-failover\n");
+ 
++		/* BGP session DSCP value */
++		if (bgp->tcp_dscp != IPTOS_PREC_INTERNETCONTROL)
++			vty_out(vty, " bgp session-dscp %02X\n", bgp->tcp_dscp >> 2);
++
+ 		/* BGP router ID. */
+ 		if (bgp->router_id_static.s_addr != 0)
+ 			vty_out(vty, " bgp router-id %s\n",
+@@ -16057,6 +16097,10 @@ void bgp_vty_init(void)
  	/* "no router bgp" commands. */
  	install_element(CONFIG_NODE, &no_router_bgp_cmd);
  
@@ -100,10 +111,10 @@ index 141d5cf30..8faa918d0 100644
  	install_element(BGP_NODE, &bgp_router_id_cmd);
  	install_element(BGP_NODE, &no_bgp_router_id_cmd);
 diff --git a/bgpd/bgpd.c b/bgpd/bgpd.c
-index 80c6dd613..87a8ef34f 100644
+index cf9ff038d..0e8579843 100644
 --- a/bgpd/bgpd.c
 +++ b/bgpd/bgpd.c
-@@ -3050,7 +3050,7 @@ static struct bgp *bgp_create(as_t *as, const char *name,
+@@ -3069,7 +3069,7 @@ static struct bgp *bgp_create(as_t *as, const char *name,
  
  	bgp->evpn_info = XCALLOC(MTYPE_BGP_EVPN_INFO,
  				 sizeof(struct bgp_evpn_info));
@@ -111,24 +122,14 @@ index 80c6dd613..87a8ef34f 100644
 +	bgp->tcp_dscp = IPTOS_PREC_INTERNETCONTROL;
  	bgp_evpn_init(bgp);
  	bgp_pbr_init(bgp);
- 	return bgp;
-@@ -7564,6 +7564,9 @@ int bgp_config_write(struct vty *vty)
- 		if (CHECK_FLAG(bgp->flags, BGP_FLAG_NO_FAST_EXT_FAILOVER))
- 			vty_out(vty, " no bgp fast-external-failover\n");
  
-+		if (bgp->tcp_dscp != IPTOS_PREC_INTERNETCONTROL)
-+			vty_out(vty, " bgp session-dscp %02X\n", bgp->tcp_dscp >> 2);
-+
- 		/* BGP router ID. */
- 		if (bgp->router_id_static.s_addr != 0)
- 			vty_out(vty, " bgp router-id %s\n",
 diff --git a/bgpd/bgpd.h b/bgpd/bgpd.h
-index e4f4dc0b5..4d372c562 100644
+index 2aa069002..914f296e5 100644
 --- a/bgpd/bgpd.h
 +++ b/bgpd/bgpd.h
-@@ -569,6 +569,9 @@ struct bgp {
- 	/* Count of peers in established state */
- 	uint32_t established_peers;
+@@ -678,6 +678,9 @@ struct bgp {
+ 	/* Weighted ECMP related config. */
+ 	enum bgp_link_bw_handling lb_handling;
  
 +	/* dscp value for tcp sessions */
 +	uint8_t tcp_dscp;
@@ -137,5 +138,5 @@ index e4f4dc0b5..4d372c562 100644
  };
  DECLARE_QOBJ_TYPE(bgp)
 -- 
-2.17.1.windows.2
+2.29.2.windows.2
 
