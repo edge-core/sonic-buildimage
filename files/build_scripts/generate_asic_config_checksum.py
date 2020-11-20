@@ -57,7 +57,7 @@ def generate_checksum(checksum_files):
 def main():
     config_files = sorted(get_config_files(CONFIG_FILES))
     checksum = generate_checksum(config_files)
-    if checksum == None:
+    if checksum is None:
         exit(1)
 
     with open(OUTPUT_FILE, 'w') as output:

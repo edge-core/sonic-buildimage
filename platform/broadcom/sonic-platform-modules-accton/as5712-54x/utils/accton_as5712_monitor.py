@@ -23,18 +23,11 @@
 # ------------------------------------------------------------------
 
 try:
-    import os
-    import sys, getopt
-    import subprocess
-    import click
-    import imp
+    import getopt
     import logging
     import logging.config
-    import types
     import time  # this is only being used as part of the example
-    import traceback
     import signal
-    from tabulate import tabulate
     from as5712_54x.fanutil import FanUtil
     from as5712_54x.thermalutil import ThermalUtil
 except ImportError as e:

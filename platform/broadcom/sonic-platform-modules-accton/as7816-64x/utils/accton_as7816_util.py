@@ -30,14 +30,12 @@ command:
     set         : change board setting with fan|led|sfp    
 """
 
-import os
 import commands
-import sys, getopt
+import getopt
+import sys
 import logging
 import re
 import time
-from collections import namedtuple
-
 
 
 

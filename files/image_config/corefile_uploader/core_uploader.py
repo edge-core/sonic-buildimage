@@ -219,7 +219,6 @@ class Handler(FileSystemEventHandler):
     def upload_file(fname, fpath, coref):
         daemonname = fname.split(".")[0]
         i = 0
-        fail_msg = ""
         
         while True:
             try:

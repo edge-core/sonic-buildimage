@@ -22,8 +22,8 @@
 
 try:
     import os
-    import sys, getopt
-    import subprocess
+    import getopt
+    import sys
     import subprocess
     import click
     import imp

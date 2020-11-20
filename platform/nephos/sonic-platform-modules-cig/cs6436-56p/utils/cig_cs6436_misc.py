@@ -335,7 +335,7 @@ def system_get_lswtemp():
         return 25
 
 #    chp = subprocess.Popen("docker ps --filter name=syncd", shell=True, stdout=subprocess.PIPE)
-#   if chp.poll() == None:
+#   if chp.poll() is None:
 #       misclogger.info("No subp.")
 #       chp.kill()
 #

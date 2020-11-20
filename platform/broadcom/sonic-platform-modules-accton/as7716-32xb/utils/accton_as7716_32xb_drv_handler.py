@@ -22,18 +22,12 @@
 # ------------------------------------------------------------------
 
 try:
-    import os
-    import sys, getopt
-    import subprocess
-    import click
-    import imp
+    import getopt
+    import sys
     import logging
     import logging.config
-    import types
     import time  # this is only being used as part of the example
-    import traceback
     import commands
-    from tabulate import tabulate    
 except ImportError as e:
     raise ImportError('%s - required module not found' % str(e))
 

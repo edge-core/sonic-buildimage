@@ -186,7 +186,7 @@ class SfpUtil(SfpUtilBase):
         phy_port_dict = {}
         status = True
 
-        if self.db_sel == None:
+        if self.db_sel is None:
             from swsscommon import swsscommon
             self.state_db = swsscommon.DBConnector("STATE_DB",
                                                    REDIS_TIMEOUT_USECS,

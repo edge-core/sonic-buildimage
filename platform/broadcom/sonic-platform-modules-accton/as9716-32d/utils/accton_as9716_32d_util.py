@@ -30,13 +30,12 @@ command:
     set         : change board setting with fan|led|sfp
 """
 
-import os
 import commands
-import sys, getopt
+import getopt
+import sys
 import logging
 import re
 import time
-from collections import namedtuple
 
 PROJECT_NAME = 'as9716_32d'
 version = '0.0.1'
@@ -54,7 +53,6 @@ hwmon_types = {'led': ['diag','fan','loc','psu1','psu2'],
                'fan2': ['fan'],
                'fan3': ['fan'],
                'fan4': ['fan'],
-               'fan5': ['fan'],
                'fan5': ['fan'],
               }
 hwmon_nodes = {'led': ['brightness'] ,

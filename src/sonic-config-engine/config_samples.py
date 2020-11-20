@@ -1,5 +1,3 @@
-import os
-import sys
 from natsort import natsorted
 
 def generate_t1_sample_config(data):

@@ -37,13 +37,12 @@ command:
     set         : change board setting with led|sfp
 """
 
-import os
 import commands
-import sys, getopt
+import getopt
+import sys
 import logging
 import re
 import time
-from collections import namedtuple
 
 PROJECT_NAME = 'minipack'
 version = '0.2.0'

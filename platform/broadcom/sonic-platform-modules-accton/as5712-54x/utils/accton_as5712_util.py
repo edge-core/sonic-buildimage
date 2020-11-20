@@ -31,11 +31,11 @@ command:
 
 import os
 import commands
-import sys, getopt
+import getopt
+import sys
 import logging
 import re
 import time
-from collections import namedtuple
 
 PROJECT_NAME = 'as5712_54x'
 version = '0.2.0'
@@ -546,7 +546,7 @@ def cpld_path_of_port(port_index):
 
 def get_path_sfp_tx_dis(port_index):
     cpld_p = cpld_path_of_port(port_index)
-    if cpld_p == None:
+    if cpld_p is None:
         return False, ''
     else:
         dev = cpld_p+"module_tx_disable_"+str(port_index)
@@ -554,7 +554,7 @@ def get_path_sfp_tx_dis(port_index):
 
 def get_path_sfp_presence(port_index):
     cpld_p = cpld_path_of_port(port_index)
-    if cpld_p == None:
+    if cpld_p is None:
         return False, ''
     else:
         dev = cpld_p+"module_present_"+str(port_index)
