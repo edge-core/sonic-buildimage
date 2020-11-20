@@ -76,6 +76,20 @@ function stop_control_plane_assistant()
     fi
 }
 
+function restore_counters_folder()
+{
+    debug "Restoring counters folder after warmboot..."
+
+    modules=("portstat-0" "dropstat" "pfcstat-0" "queuestat-0" "intfstat-0")
+    for module in ${modules[@]}
+    do
+        statfile="/host/counters/$module"
+        if [[ -d $statfile ]]; then
+            mv $statfile /tmp/
+        fi
+    done
+}
+
 
 wait_for_database_service
 
@@ -85,6 +99,8 @@ if [[ x"${WARM_BOOT}" != x"true" ]]; then
     debug "warmboot is not enabled ..."
     exit 0
 fi
+
+restore_counters_folder
 
 list=${COMP_LIST}
 
