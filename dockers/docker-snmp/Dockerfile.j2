@@ -76,4 +76,4 @@ COPY ["critical_processes", "/etc/supervisor"]
 # Although exposing ports is not needed for host net mode, keep it for possible bridge mode
 EXPOSE 161/udp 162/udp
 
-ENTRYPOINT ["/usr/bin/supervisord"]
+ENTRYPOINT ["supervisord"]

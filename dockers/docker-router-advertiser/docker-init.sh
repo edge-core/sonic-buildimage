@@ -14,4 +14,4 @@ sonic-cfggen $CFGGEN_PARAMS
 
 chmod +x /usr/bin/wait_for_link.sh
 
-exec /usr/bin/supervisord
+exec supervisord

@@ -31,4 +31,4 @@ RUN apt-get clean -y      && \
     apt-get autoremove -y && \
     rm -rf /debs
 
-ENTRYPOINT ["/usr/bin/supervisord"]
+ENTRYPOINT ["supervisord"]

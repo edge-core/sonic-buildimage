@@ -19,4 +19,4 @@ RUN mv /deps/basic_router /usr/sbin/basic_router
 COPY ["start.sh", "/usr/bin/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 
-ENTRYPOINT ["/usr/bin/supervisord"]
+ENTRYPOINT ["supervisord"]

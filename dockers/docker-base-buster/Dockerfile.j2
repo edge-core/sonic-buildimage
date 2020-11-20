@@ -50,9 +50,6 @@ RUN apt-get update &&        \
         python3-pip          \
         rsyslog              \
         vim-tiny             \
-# Install dependencies of supervisor
-        python-pkg-resources \
-        python-meld3         \
 # Install dependencies of redis-tools
         libatomic1           \
         libjemalloc2         \
@@ -67,9 +64,6 @@ RUN apt-get update &&        \
 # ip and ifconfig utility missing in docker for arm arch
         iproute2             \
         net-tools            \
-# for arm arch: Installing j2cli dependency package MarkupSafe from source relies on weeksetuptools and wheel
-        python-setuptools    \
-        python-wheel         \
 # for processing/handling json files in bash environment
         jq                   \
 # for sairedis zmq rpc channel
@@ -90,8 +84,21 @@ RUN dpkg -i redis-tools_6.0.6-1~bpo10+1_amd64.deb || apt-get install -f -y
 RUN rm redis-tools_6.0.6-1~bpo10+1_amd64.deb
 {% endif %}
 
+# Some Python packages require setuptools (or pkg_resources, which is supplied by setuptools)
+# and some require wheel
+RUN pip install setuptools==40.8.0
+RUN pip3 install setuptools==49.6.00
+RUN pip install wheel
+RUN pip3 install wheel
+
 # For templating
 RUN pip2 install j2cli
+
+# Install supervisor
+RUN pip3 install supervisor==4.2.1
+
+# Add support for supervisord to handle startup dependencies
+RUN pip3 install supervisord-dependent-startup==1.4.0
 
 RUN mkdir -p /etc/supervisor /var/log/supervisor
 
@@ -108,9 +115,6 @@ RUN apt-get -y purge   \
 # Install built Debian packages and implicitly install their dependencies
 {{ install_debian_packages(docker_base_buster_debs.split(' ')) }}
 {%- endif %}
-
-# Add support for supervisord to handle startup dependencies
-RUN pip2 install supervisord-dependent-startup==1.4.0
 
 # Clean up apt
 # Remove /var/lib/apt/lists/*, could be obsoleted for derived images

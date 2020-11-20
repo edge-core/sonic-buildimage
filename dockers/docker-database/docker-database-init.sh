@@ -55,7 +55,7 @@ if [[ $DATABASE_TYPE == "chassisdb" ]]; then
     # generate all redis server supervisord configuration file
     sonic-cfggen -j $db_cfg_file_tmp -t /usr/share/sonic/templates/supervisord.conf.j2 > /etc/supervisor/conf.d/supervisord.conf
     rm $db_cfg_file_tmp
-    exec /usr/bin/supervisord
+    exec supervisord
     exit 0
 fi
 
@@ -79,4 +79,4 @@ else
 fi
 rm $db_cfg_file_tmp
 
-exec /usr/bin/supervisord
+exec supervisord

@@ -40,4 +40,4 @@ if [ $HAVE_FANCONTROL_CONF -eq 1 ]; then
     /bin/cp -f $FANCONTROL_CONF_FILE /etc/
 fi
 
-exec /usr/bin/supervisord
+exec supervisord

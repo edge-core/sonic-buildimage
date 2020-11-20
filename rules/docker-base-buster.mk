@@ -3,7 +3,6 @@
 DOCKER_BASE_BUSTER = docker-base-buster.gz
 $(DOCKER_BASE_BUSTER)_PATH = $(DOCKERS_PATH)/docker-base-buster
 
-$(DOCKER_BASE_BUSTER)_DEPENDS += $(SUPERVISOR)
 $(DOCKER_BASE_BUSTER)_DEPENDS += $(SOCAT)
 
 GDB = gdb

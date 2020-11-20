@@ -25,4 +25,4 @@ if [ "$VLAN" != "" ]; then
     cp /usr/share/sonic/templates/ndppd.conf /etc/supervisor/conf.d/
 fi
 
-exec /usr/bin/supervisord
+exec supervisord

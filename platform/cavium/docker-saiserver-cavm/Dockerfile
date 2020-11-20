@@ -27,4 +27,4 @@ COPY ["portmap.ini", "profile.ini", "/etc/sai/"]
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf deps
 
-ENTRYPOINT ["/usr/bin/supervisord"]
+ENTRYPOINT ["supervisord"]
