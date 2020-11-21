@@ -4,3 +4,4 @@
 0004-Allow-BGP-attr-NEXT_HOP-to-be-0.0.0.0-due-to-allevia.patch
 0005-nexthops-compare-vrf-only-if-ip-type.patch
 0006-changes-for-making-snmp-socket-non-blocking.patch
+0007-frr-remove-frr-log-outchannel-to-var-log-frr.log.patch
