@@ -428,16 +428,6 @@ sudo cp $IMAGE_CONFIGS/pcie-check/pcie-check.service $FILESYSTEM_ROOT_USR_LIB_SY
 echo "pcie-check.service" | sudo tee -a $GENERATED_SERVICE_FILE
 sudo cp $IMAGE_CONFIGS/pcie-check/pcie-check.sh $FILESYSTEM_ROOT/usr/bin/
 
-# Copy systemd timer configuration
-# It implements delayed start of services
-sudo cp $BUILD_TEMPLATES/process-reboot-cause.timer $FILESYSTEM_ROOT_USR_LIB_SYSTEMD_SYSTEM
-sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable process-reboot-cause.timer
-
-# Copy process-reboot-cause service files
-sudo cp $IMAGE_CONFIGS/process-reboot-cause/process-reboot-cause.service $FILESYSTEM_ROOT_USR_LIB_SYSTEMD_SYSTEM
-echo "process-reboot-cause.service" | sudo tee -a $GENERATED_SERVICE_FILE
-sudo cp $IMAGE_CONFIGS/process-reboot-cause/process-reboot-cause $FILESYSTEM_ROOT/usr/bin/
-
 ## Install package without starting service
 ## ref: https://wiki.debian.org/chroot
 sudo tee -a $FILESYSTEM_ROOT/usr/sbin/policy-rc.d > /dev/null <<EOF
