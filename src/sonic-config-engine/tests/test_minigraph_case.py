@@ -96,10 +96,22 @@ class TestCfgGenCaseInsensitive(TestCase):
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "{('Vlan1000', 'Ethernet8'): {'tagging_mode': 'untagged'}}")
 
-    def test_minigraph_vlan_interfaces(self):
+    def test_minigraph_vlan_interfaces_keys(self):
         argument = '-m "' + self.sample_graph + '" -p "' + self.port_config + '" -v "VLAN_INTERFACE.keys()|list"'
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "[('Vlan1000', '192.168.0.1/27'), 'Vlan1000']")
+
+    def test_minigraph_vlan_interfaces(self):
+        argument = '-m "' + self.sample_graph + '" -p "' + self.port_config + '" -v "VLAN_INTERFACE"'
+        output = self.run_script(argument)
+        expected_table = {
+            'Vlan1000|192.168.0.1/27': {},
+            'Vlan1000': {
+                'proxy_arp': 'enabled',
+                'grat_arp': 'enabled'
+            }
+        }
+        self.assertEqual(utils.to_dict(output.strip()), expected_table)
 
     def test_minigraph_portchannels(self):
         argument = '-m "' + self.sample_graph + '" -p "' + self.port_config + '" -v PORTCHANNEL'

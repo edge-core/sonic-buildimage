@@ -1092,10 +1092,24 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
     for intf in intfs:
         if intf[0][0:4] == 'Vlan':
             vlan_intfs[intf] = {}
-            vlan_intfs[intf[0]] = {}
+
+            if bool(results['PEER_SWITCH']):
+                vlan_intfs[intf[0]] = {
+                    'proxy_arp': 'enabled',
+                    'grat_arp': 'enabled'
+                }
+            else:
+                vlan_intfs[intf[0]] = {}
         elif intf[0] in vlan_invert_mapping:
             vlan_intfs[(vlan_invert_mapping[intf[0]], intf[1])] = {}
-            vlan_intfs[vlan_invert_mapping[intf[0]]] = {}
+
+            if bool(results['PEER_SWITCH']):
+                vlan_intfs[vlan_invert_mapping[intf[0]]] = {
+                    'proxy_arp': 'enabled',
+                    'grat_arp': 'enabled'
+                }
+            else:
+                vlan_intfs[vlan_invert_mapping[intf[0]]] = {}
         elif intf[0][0:11] == 'PortChannel':
             pc_intfs[intf] = {}
             pc_intfs[intf[0]] = {}
