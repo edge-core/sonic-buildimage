@@ -1,0 +1,31 @@
+From 1f150992b074d07bce5157d203319512a3aeb4dc Mon Sep 17 00:00:00 2001
+From: Ying Xie <ying.xie@microsoft.com>
+Date: Wed, 18 Nov 2020 19:24:51 +0000
+Subject: [PATCH] [frr] remove frr log outchannel to /var/log/frr.log
+
+SONiC runs frr inside a docker and the logs are sent to base image
+via rsyslog and recorded already. There is no need to keep the
+frr.log inside the docker. It will grow and take all harddrive
+space eventually.
+
+Signed-off-by: Ying Xie <ying.xie@microsoft.com>
+---
+ tools/etc/rsyslog.d/45-frr.conf | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/etc/rsyslog.d/45-frr.conf b/tools/etc/rsyslog.d/45-frr.conf
+index ff7cd4831..af3c2c109 100644
+--- a/tools/etc/rsyslog.d/45-frr.conf
++++ b/tools/etc/rsyslog.d/45-frr.conf
+@@ -2,7 +2,7 @@
+ # to /var/log/frr/frr.log, then drops the message so it does
+ # not also go to /var/log/syslog, so the messages are not duplicated
+ 
+-$outchannel frr_log,/var/log/frr/frr.log
++$outchannel frr_log
+ if  $programname == 'babeld' or
+     $programname == 'bgpd' or
+     $programname == 'eigrpd' or
+-- 
+2.17.1
+
