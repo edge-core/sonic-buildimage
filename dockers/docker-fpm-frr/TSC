@@ -4,7 +4,7 @@ function check_not_installed()
 {
   c=0
   config=$(vtysh -c "show run")
-  for route_map_name in $(echo "$config" | sed -ne 's/  neighbor \S* route-map \(\S*\) out/\1/p');
+  for route_map_name in $(echo "$config" | sed -ne 's/  neighbor \S* route-map \(\S*\) out/\1/p' | egrep 'V4|V6');
   do
     echo "$config" | grep -q "route-map $route_map_name permit 2"
     c=$((c+$?))
@@ -19,7 +19,7 @@ function check_installed()
   c=0
   e=0
   config=$(vtysh -c "show run")
-  for route_map_name in $(echo "$config" | sed -ne 's/  neighbor \S* route-map \(\S*\) out/\1/p');
+  for route_map_name in $(echo "$config" | sed -ne 's/  neighbor \S* route-map \(\S*\) out/\1/p' | egrep 'V4|V6');
   do
     echo "$config" | grep -q "route-map $route_map_name permit 2"
     c=$((c+$?))
