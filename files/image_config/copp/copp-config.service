@@ -1,0 +1,11 @@
+[Unit]
+Description=Update CoPP configuration
+Requires=updategraph.service
+After=updategraph.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/copp-config.sh
+
+[Install]
+WantedBy=multi-user.target

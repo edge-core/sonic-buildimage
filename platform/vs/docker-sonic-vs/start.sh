@@ -46,6 +46,7 @@ else
     sed -i "s/up/down/g" /tmp/ports.json
     sonic-cfggen -j /etc/sonic/init_cfg.json -j /tmp/buffers.json -j /tmp/qos.json -j /tmp/ports.json --print-data > /etc/sonic/config_db.json
 fi
+sonic-cfggen -t /usr/share/sonic/templates/copp_cfg.j2 > /etc/sonic/copp_cfg.json
 
 mkdir -p /etc/swss/config.d/
 
@@ -93,6 +94,8 @@ supervisorctl start syncd
 supervisorctl start portsyncd
 
 supervisorctl start orchagent
+
+supervisorctl start coppmgrd
 
 supervisorctl start neighsyncd
 

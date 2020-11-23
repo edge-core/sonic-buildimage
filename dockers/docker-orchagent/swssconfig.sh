@@ -52,7 +52,7 @@ if [[ "$SYSTEM_WARM_START" == "true" ]] || [[ "$SWSS_WARM_START" == "true" ]]; t
   exit 0
 fi
 
-SWSSCONFIG_ARGS="00-copp.config.json ipinip.json ports.json switch.json "
+SWSSCONFIG_ARGS="ipinip.json ports.json switch.json "
 
 for file in $SWSSCONFIG_ARGS; do
     swssconfig /etc/swss/config.d/$file

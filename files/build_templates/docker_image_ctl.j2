@@ -138,7 +138,7 @@ function postStartAction()
         if [[ -x /usr/local/bin/db_migrator.py ]]; then
             # Migrate the DB to the latest schema version if needed
             if [ -z "$DEV" ]; then
-                /usr/bin/db_migrator.py -o migrate
+                /usr/local/bin/db_migrator.py -o migrate
             fi
         fi
         # Add redis UDS to the redis group and give read/write access to the group
