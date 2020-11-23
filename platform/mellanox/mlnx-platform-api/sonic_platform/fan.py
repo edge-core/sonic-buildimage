@@ -151,7 +151,7 @@ class Fan(FanBase):
             if self.always_presence:
                 status = 1
             else:
-                read_int_from_file(os.path.join(FAN_PATH, self.fan_presence_path), 0)
+                status = read_int_from_file(os.path.join(FAN_PATH, self.fan_presence_path), 0)
 
         return status == 1
 
