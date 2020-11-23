@@ -32,4 +32,4 @@ COPY ["profile.ini", "/etc/ssw/AS7512/"]
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /debs
 
-ENTRYPOINT ["supervisord"]
+ENTRYPOINT ["/usr/local/bin/supervisord"]

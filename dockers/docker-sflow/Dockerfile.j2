@@ -32,4 +32,4 @@ COPY ["files/supervisor-proc-exit-listener", "/usr/bin"]
 COPY ["critical_processes", "/etc/supervisor"]
 COPY ["port_index_mapper.py", "/usr/bin"]
 
-ENTRYPOINT ["supervisord"]
+ENTRYPOINT ["/usr/local/bin/supervisord"]

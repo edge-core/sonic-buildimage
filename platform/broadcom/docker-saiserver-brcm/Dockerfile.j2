@@ -33,4 +33,4 @@ COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /debs
 
-ENTRYPOINT ["supervisord"]
+ENTRYPOINT ["/usr/local/bin/supervisord"]

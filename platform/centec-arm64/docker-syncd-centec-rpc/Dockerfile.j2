@@ -48,4 +48,4 @@ RUN apt-get update \
 
 COPY ["ptf_nn_agent.conf", "/etc/supervisor/conf.d/"]
  
-ENTRYPOINT ["supervisord"]
+ENTRYPOINT ["/usr/local/bin/supervisord"]
