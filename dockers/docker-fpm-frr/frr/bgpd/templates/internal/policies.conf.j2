@@ -9,6 +9,7 @@ route-map TO_BGP_INTERNAL_PEER_V4 permit 100
 !
 !
 route-map FROM_BGP_INTERNAL_PEER_V6 permit 1
+ on-match next
  set ipv6 next-hop prefer-global
 !
 route-map FROM_BGP_INTERNAL_PEER_V6 permit 100
