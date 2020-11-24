@@ -2,31 +2,36 @@
 SHELL = /bin/bash
 .SHELLFLAGS += -e
 
-MAIN_TARGET = $(LIBYANG1)
-DERIVED_TARGETS = $(LIBYANG1_DEV) $(LIBYANG1_DBG) $(LIBYANG1_CPP) $(LIBYANG1_CPP_DEV) $(LIBYANG1_CPP_DBG)
+LIBYANG_URL = https://sonicstorage.blob.core.windows.net/debian/pool/main/liby/libyang
 
+DSC_FILE = libyang_$(LIBYANG1_FULLVERSION).dsc
+ORIG_FILE = libyang_$(LIBYANG1_VERSION).orig.tar.gz
+DEBIAN_FILE = libyang_$(LIBYANG1_FULLVERSION).debian.tar.xz
+
+DSC_FILE_URL = $(LIBYANG_URL)/$(DSC_FILE)
+ORIG_FILE_URL = $(LIBYANG_URL)/$(ORIG_FILE)
+DEBIAN_FILE_URL = $(LIBYANG_URL)/$(DEBIAN_FILE)
+
+MAIN_TARGET = $(LIBYANG1)
+DERIVED_TARGETS = $(LIBYANG1_DEV) $(LIBYANG1_DBG) $(LIBYANG1_CPP) $(LIBYANG1_CPP_DEV) $(LIBYANG1_CPP_DBG) $(YANG_TOOLS) $(LIBYANG1_TOOLS) $(LIBYANG1_TOOLS_DBG)
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
         # Obtaining the libyang
-#	rm -fr ./libyang-$(LIBYANG1_VERSION)
-#	git clone https://github.com/CESNET/libyang.git libyang-$(LIBYANG1_VERSION)
-#	pushd libyang-$(LIBYANG1_VERSION)
-#	git checkout tags/v1.0.184 -b libyang
-#	git cherry-pick 1054200178d0277010e832f270841a586a62b31b
-#	git cherry-pick aab48f14db4d8d21b22c50bdc6b29d0198f21996
-#	mkdir build
-#	pushd build
-#	cmake -DENABLE_STATIC=ON -DENABLE_LYD_PRIV=ON -DCMAKE_INSTALL_PREFIX:PATH=/usr -D CMAKE_BUILD_TYPE:String="Package" ..
-#	make build-deb
-	rm -fr ./libyang-1.0.184
-	wget -NO libyang_1.0.184-2.dsc http://deb.debian.org/debian/pool/main/liby/libyang/libyang_1.0.184-2.dsc
-	wget -NO libyang_1.0.184.orig.tar.gz http://deb.debian.org/debian/pool/main/liby/libyang/libyang_1.0.184.orig.tar.gz
-	wget -NO libyang_1.0.184-2.debian.tar.xz http://deb.debian.org/debian/pool/main/liby/libyang/libyang_1.0.184-2.debian.tar.xz
-	dpkg-source -x libyang_1.0.184-2.dsc
-	pushd libyang-1.0.184
+	rm -fr ./libyang-$(LIBYANG1_VERSION)
+
+	# download debian libyang
+	wget -NO "$(DSC_FILE)" $(DSC_FILE_URL)
+	wget -NO "$(ORIG_FILE)" $(ORIG_FILE_URL)
+	wget -NO "$(DEBIAN_FILE)" $(DEBIAN_FILE_URL)
+	dpkg-source -x libyang_$(LIBYANG1_FULLVERSION).dsc
+
+	pushd libyang-$(LIBYANG1_VERSION)
+	sed -i 's/set(LIBYANG_MAJOR_SOVERSION 1)/set(LIBYANG_MAJOR_SOVERSION 2)/' CMakeLists.txt
+	sed -i 's/libyang1/libyang2/' debian/libyang1.install
 	dpkg-buildpackage -rfakeroot -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS)
 	popd
-	mv $* $(DEST)/
-	mv $(DERIVED_TARGETS) $(DEST)/
+
+	# Move the newly-built .deb packages to the destination directory
+	mv $* $(DERIVED_TARGETS) $(DEST)/
 
 $(addprefix $(DEST)/, $(DERIVED_TARGETS)): $(DEST)/% : $(DEST)/$(MAIN_TARGET)
