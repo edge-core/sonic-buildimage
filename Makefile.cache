@@ -558,8 +558,10 @@ ALL_DEP_FILES_LIST += $(foreach pkg,$(2), $($(filter none,$($(1)_CACHE_MODE)), \
 $(addsuffix .$(3),$(addprefix $(2)/, $(1))) : $(2)/%.$(3) : \
 	$(2)/%.flags $$$$($$$$*_DEP_FILES) $$$$(if $$$$($$$$*_SMDEP_FILES), $(2)/%.smdep)
 	@$$(eval $$*_DEP_FILES_MODIFIED := $$? )
-	@$$(file >$$@,$$($$*_DEP_FILES))
-	@cat $$@ |xargs git hash-object >$$@.sha
+	@$$(file >$$@.tmp,$$($$*_DEP_FILES))
+	@cat $$@.tmp |xargs git hash-object >$$@.sha.tmp
+	@if ! cmp -s $$@.sha.tmp $$@.sha; then cp $$@.tmp $$@; cp $$@.sha.tmp $$@.sha; fi
+	@rm -f $$@.tmp $$@.sha.tmp
 	@$$(if $$(MDEBUG), $$(info DEP: $$@, MOD:$$?))
 endef
 $(eval $(call SHA_DEP_RULES, $(SONIC_MAKE_DEBS) $(SONIC_DPKG_DEBS) $(SONIC_ONLINE_DEBS) $(SONIC_COPY_DEBS), $(DEBS_PATH),dep))
