@@ -1,0 +1,14 @@
+{
+    "chassis": {
+        "x86_64-mlnx_msn4410-r0": {
+            "component": {
+                "ONIE": { },
+                "SSD": { },
+                "BIOS": { },
+                "CPLD1": { },
+                "CPLD2": { },
+                "CPLD3": { }
+            }
+        }
+    }
+}
