@@ -430,60 +430,7 @@ def test___find_peer_group_by_deployment_id():
     }
     mgr = BGPAllowListMgr(common_objs, "CONFIG_DB", "BGP_ALLOWED_PREFIXES")
     values = mgr._BGPAllowListMgr__find_peer_group_by_deployment_id(0)
-<<<<<<< HEAD
-    assert values == ['PEER_V4_INT', 'PEER_V6_INT', 'PEER_V6', 'PEER_V4']
-
-@patch.dict("sys.modules", swsscommon=swsscommon_module_mock)
-def test___restart_peers_found_deployment_id():
-    from bgpcfgd.managers_allow_list import BGPAllowListMgr
-    test___restart_peers_found_deployment_id.run_command_counter = 0
-    def run_command(cmd):
-        output = [
-            ['vtysh', '-c', 'clear bgp peer-group BGP_TEST_PEER_GROUP_1 soft in'],
-            ['vtysh', '-c', 'clear bgp peer-group BGP_TEST_PEER_GROUP_2 soft in'],
-        ]
-        desired_value = output[test___restart_peers_found_deployment_id.run_command_counter]
-        assert cmd == desired_value
-        test___restart_peers_found_deployment_id.run_command_counter += 1
-        return 0, "", ""
-    cfg_mgr = MagicMock()
-    common_objs = {
-        'directory': Directory(),
-        'cfg_mgr':   cfg_mgr,
-        'tf':        TemplateFabric(),
-        'constants': global_constants,
-    }
-    mgr = BGPAllowListMgr(common_objs, "CONFIG_DB", "BGP_ALLOWED_PREFIXES")
-    mocked = MagicMock(name='_BGPAllowListMgr__find_peer_group_by_deployment_id')
-    mocked.return_value = ["BGP_TEST_PEER_GROUP_1", "BGP_TEST_PEER_GROUP_2"]
-    mgr._BGPAllowListMgr__find_peer_group_by_deployment_id = mocked
-    bgpcfgd.managers_allow_list.run_command = run_command
-    rc = mgr._BGPAllowListMgr__restart_peers(5)
-    assert rc
-
-@patch.dict("sys.modules", swsscommon=swsscommon_module_mock)
-def test___restart_peers_not_found_deployment_id():
-    from bgpcfgd.managers_allow_list import BGPAllowListMgr
-    def run_command(cmd):
-        assert cmd == ['vtysh', '-c', 'clear bgp * soft in']
-        return 0, "", ""
-    cfg_mgr = MagicMock()
-    common_objs = {
-        'directory': Directory(),
-        'cfg_mgr':   cfg_mgr,
-        'tf':        TemplateFabric(),
-        'constants': global_constants,
-    }
-    mgr = BGPAllowListMgr(common_objs, "CONFIG_DB", "BGP_ALLOWED_PREFIXES")
-    mocked = MagicMock(name='_BGPAllowListMgr__find_peer_group_by_deployment_id')
-    mocked.return_value = []
-    mgr._BGPAllowListMgr__find_peer_group_by_deployment_id = mocked
-    bgpcfgd.managers_allow_list.run_command = run_command
-    rc = mgr._BGPAllowListMgr__restart_peers(5)
-    assert rc
-=======
     assert set(values) == {'PEER_V4_INT', 'PEER_V6_INT', 'PEER_V6', 'PEER_V4'}
->>>>>>> 148436d4... [bgpcfg]: Batch bgp updates (#6006)
 
 @patch.dict("sys.modules", swsscommon=swsscommon_module_mock)
 def test___to_prefix_list():
