@@ -18,15 +18,15 @@
         }
     },
 {%- set features = [("bgp", "enabled", false, "enabled"),
-                   ("database", "enabled", false, "disabled"),
+                   ("database", "always_enabled", false, "always_enabled"),
                    ("dhcp_relay", "enabled", false, "enabled"),
                    ("lldp", "enabled", false, "enabled"),
                    ("pmon", "enabled", false, "enabled"),
                    ("radv", "enabled", false, "enabled"),
                    ("snmp", "enabled", true, "enabled"),
-                   ("swss", "enabled", false, "enabled"),
-                   ("syncd", "enabled", false, "enabled"),
-                   ("teamd", "enabled", false, "enabled")] %}
+                   ("swss", "always_enabled", false, "enabled"),
+                   ("syncd", "always_enabled", false, "enabled"),
+                   ("teamd", "always_enabled", false, "enabled")] %}
 {%- if sonic_asic_platform == "vs" %}{% do features.append(("gbsyncd", "enabled", false, "enabled")) %}{% endif %}
 {%- if include_iccpd == "y" %}{% do features.append(("iccpd", "disabled", false, "enabled")) %}{% endif %}
 {%- if include_mgmt_framework == "y" %}{% do features.append(("mgmt-framework", "enabled", true, "enabled")) %}{% endif %}

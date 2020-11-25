@@ -252,6 +252,10 @@ class HostConfigDaemon:
 
 
     def update_feature_state(self, feature_name, state, feature_table):
+        if state == "always_enabled":
+            syslog.syslog(syslog.LOG_INFO, "Feature '{}' service is always enabled"
+                          .format(feature_name))
+            return
         has_timer = ast.literal_eval(feature_table[feature_name].get('has_timer', 'False'))
         has_global_scope = ast.literal_eval(feature_table[feature_name].get('has_global_scope', 'True'))
         has_per_asic_scope = ast.literal_eval(feature_table[feature_name].get('has_per_asic_scope', 'False'))
