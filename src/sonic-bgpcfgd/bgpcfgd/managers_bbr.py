@@ -2,9 +2,8 @@ import re
 
 from swsscommon import swsscommon
 
-from .log import log_err, log_info, log_crit
+from .log import log_err, log_info
 from .manager import Manager
-from .utils import run_command
 
 
 class BBRMgr(Manager):
@@ -34,12 +33,10 @@ class BBRMgr(Manager):
             return True
         if not self.__set_validation(key, data):
             return True
-        cmds = self.__set_prepare_config(data['status'])
-        rv = self.cfg_mgr.push_list(cmds)
-        if not rv:
-            log_crit("BBRMgr::can't apply configuration")
-            return True
-        self.__restart_peers()
+        cmds, peer_groups_to_restart = self.__set_prepare_config(data['status'])
+        self.cfg_mgr.push_list(cmds)
+        self.cfg_mgr.restart_peer_groups(peer_groups_to_restart)
+        log_info("BBRMgr::Scheduled BBR update")
         return True
 
     def del_handler(self, key):
@@ -112,12 +109,14 @@ class BBRMgr(Manager):
         available_peer_groups = self.__get_available_peer_groups()
         cmds = ["router bgp %s" % bgp_asn]
         prefix_of_commands = "" if status == "enabled" else "no "
+        peer_groups_to_restart = set()
         for af in ["ipv4", "ipv6"]:
             cmds.append(" address-family %s" % af)
             for pg_name in sorted(self.bbr_enabled_pgs.keys()):
                 if pg_name in available_peer_groups and af in self.bbr_enabled_pgs[pg_name]:
                     cmds.append("  %sneighbor %s allowas-in 1" % (prefix_of_commands, pg_name))
-        return cmds
+                    peer_groups_to_restart.add(pg_name)
+        return cmds, list(peer_groups_to_restart)
 
     def __get_available_peer_groups(self):
         """
@@ -132,11 +131,3 @@ class BBRMgr(Manager):
             if m:
                 res.add(m.group(1))
         return res
-
-    def __restart_peers(self):
-        """ Restart peer-groups which support BBR """
-        for peer_group in sorted(self.bbr_enabled_pgs.keys()):
-            rc, out, err = run_command(["vtysh", "-c", "clear bgp peer-group %s soft in" % peer_group])
-            if rc != 0:
-                log_value = peer_group, rc, out, err
-                log_crit("BBRMgr::Can't restart bgp peer-group '%s'. rc='%d', out='%s', err='%s'" % log_value)

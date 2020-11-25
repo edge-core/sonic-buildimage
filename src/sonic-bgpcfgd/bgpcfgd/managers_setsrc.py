@@ -57,10 +57,8 @@ class ZebraSetSrc(Manager):
             except jinja2.TemplateError as e:
                 log_err("Error while rendering 'set src' template: %s" % str(e))
                 return True
-            if self.cfg_mgr.push(txt):
-                log_info("The 'set src' configuration with Loopback0 ip '%s' was pushed" % ip_addr)
-            else:
-                log_err("The 'set src' configuration with Loopback0 ip '%s' wasn't pushed" % ip_addr)
+            self.cfg_mgr.push(txt)
+            log_info("The 'set src' configuration with Loopback0 ip '%s' has been scheduled to be added" % ip_addr)
         return True
 
     def del_handler(self, key):

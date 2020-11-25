@@ -3,7 +3,6 @@ from bgpcfgd.template import TemplateFabric
 from mock import MagicMock, patch
 from copy import deepcopy
 import swsscommon_test
-import bgpcfgd
 
 with patch.dict("sys.modules", swsscommon=swsscommon_test):
     from bgpcfgd.managers_bbr import BBRMgr
@@ -37,10 +36,9 @@ def test_constructor():#m1, m2, m3):
     assert m.directory.get("CONFIG_DB", "BGP_BBR", "status") == "disabled"
 
 @patch('bgpcfgd.managers_bbr.log_info')
-@patch('bgpcfgd.managers_bbr.log_crit')
 def set_handler_common(key, value,
-                       is_enabled, is_valid, has_no_push_cmd_errors,
-                       mocked_log_crit, mocked_log_info):
+                       is_enabled, is_valid,
+                       mocked_log_info):
     cfg_mgr = MagicMock()
     common_objs = {
         'directory': Directory(),
@@ -50,13 +48,19 @@ def set_handler_common(key, value,
     }
     m = BBRMgr(common_objs, "CONFIG_DB", "BGP_BBR")
     m.enabled = is_enabled
-    prepare_config_return_value = [
-                               ["vtysh", "-c", "clear bgp peer-group PEER_V4 soft in"],
-                               ["vtysh", "-c", "clear bgp peer-group PEER_V6 soft in"]
-                           ]
+    prepare_config_return_value = (
+        [
+           ["vtysh", "-c", "clear bgp peer-group PEER_V4 soft in"],
+           ["vtysh", "-c", "clear bgp peer-group PEER_V6 soft in"]
+        ],
+        [
+            "PEER_V4",
+            "PEER_V6"
+        ]
+    )
     m._BBRMgr__set_prepare_config = MagicMock(return_value = prepare_config_return_value)
-    m.cfg_mgr.push_list = MagicMock(return_value = has_no_push_cmd_errors)
-    m._BBRMgr__restart_peers = MagicMock()
+    m.cfg_mgr.push_list = MagicMock(return_value = None)
+    m.cfg_mgr.restart_peer_groups = MagicMock(return_value = None) # FIXME: check for input
     res = m.set_handler(key, value)
     assert res, "Returns always True"
     if not is_enabled:
@@ -64,28 +68,21 @@ def set_handler_common(key, value,
     else:
         if is_valid:
             m._BBRMgr__set_prepare_config.assert_called_once_with(value["status"])
-            m.cfg_mgr.push_list.assert_called_once_with(prepare_config_return_value)
-            if has_no_push_cmd_errors:
-                m._BBRMgr__restart_peers.assert_called_once()
-            else:
-                mocked_log_crit.assert_called_with("BBRMgr::can't apply configuration")
-                m._BBRMgr__restart_peers.assert_not_called()
+            m.cfg_mgr.push_list.assert_called_once_with(prepare_config_return_value[0])
+            m.cfg_mgr.restart_peer_groups.assert_called_once_with(prepare_config_return_value[1])
         else:
             m._BBRMgr__set_prepare_config.assert_not_called()
             m.cfg_mgr.push_list.assert_not_called()
-            m._BBRMgr__restart_peers.assert_not_called()
+            m.cfg_mgr.restart_peer_groups.assert_not_called()
 
-def test_set_handler_1():
-    set_handler_common("anything", {}, False, False, True)
+def test_set_handler_not_enabled_not_valid():
+    set_handler_common("anything", {}, False, False)
 
-def test_set_handler_2():
-    set_handler_common("anything", {}, True, False, True)
+def test_set_handler_enabled_not_valid():
+    set_handler_common("anything", {}, True, False)
 
-def test_set_handler_3():
-    set_handler_common("all", {"status": "enabled"}, True, True, True)
-
-def test_set_handler_4():
-    set_handler_common("all", {"status": "enabled"}, True, True, False)
+def test_set_handler_enabled_valid():
+    set_handler_common("all", {"status": "enabled"}, True, True)
 
 @patch('bgpcfgd.managers_bbr.log_err')
 def test_del_handler(mocked_log_err):
@@ -271,8 +268,9 @@ def __set_prepare_config_common(status, bbr_enabled_pgs, available_pgs, expected
     }
     m.bbr_enabled_pgs = bbr_enabled_pgs
     m._BBRMgr__get_available_peer_groups = MagicMock(return_value = available_pgs)
-    cmds = m._BBRMgr__set_prepare_config(status)
+    cmds, peer_groups = m._BBRMgr__set_prepare_config(status)
     assert cmds == expected_cmds
+    assert set(peer_groups) == available_pgs
 
 def test___set_prepare_config_enabled():
     __set_prepare_config_common("enabled", {
@@ -285,7 +283,7 @@ def test___set_prepare_config_enabled():
         ' address-family ipv6',
         '  neighbor PEER_V4 allowas-in 1',
         '  neighbor PEER_V6 allowas-in 1',
-    ])
+        ])
 
 def test___set_prepare_config_disabled():
     __set_prepare_config_common("disabled", {
@@ -357,45 +355,3 @@ def test__get_available_peer_groups():
     ])
     res = m._BBRMgr__get_available_peer_groups()
     assert res == {"PEER_V4", "PEER_V6"}
-
-@patch('bgpcfgd.managers_bbr.log_crit')
-def __restart_peers_common(run_command_results, run_command_expects, last_log_crit_message, mocked_log_crit):
-    cfg_mgr = MagicMock()
-    common_objs = {
-        'directory': Directory(),
-        'cfg_mgr': cfg_mgr,
-        'tf': TemplateFabric(),
-        'constants': global_constants,
-    }
-    m = BBRMgr(common_objs, "CONFIG_DB", "BGP_BBR")
-    m.bbr_enabled_pgs = {
-        "PEER_V4": ["ipv4", "ipv6"],
-        "PEER_V6": ["ipv6"],
-    }
-    def run_command_mock(cmd):
-        assert cmd == run_command_expects[run_command_mock.run]
-        res = run_command_results[run_command_mock.run]
-        run_command_mock.run += 1
-        return res
-    run_command_mock.run = 0
-    bgpcfgd.managers_bbr.run_command = run_command_mock
-        #lambda cmd: (0, "", "")
-    m._BBRMgr__restart_peers()
-    if last_log_crit_message is not None:
-        mocked_log_crit.assert_called_with(last_log_crit_message)
-
-def test___restart_peers_1():
-    __restart_peers_common([(0, "", ""), (0, "", "")],
-                           [
-                               ["vtysh", "-c", "clear bgp peer-group PEER_V4 soft in"],
-                               ["vtysh", "-c", "clear bgp peer-group PEER_V6 soft in"]
-                           ],
-                           None)
-
-def test___restart_peers_2():
-    __restart_peers_common([(1, "out1", "err1"), (0, "", "")],
-                           [
-                               ["vtysh", "-c", "clear bgp peer-group PEER_V4 soft in"],
-                               ["vtysh", "-c", "clear bgp peer-group PEER_V6 soft in"]
-                           ],
-                           "BBRMgr::Can't restart bgp peer-group 'PEER_V4'. rc='1', out='out1', err='err1'")

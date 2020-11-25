@@ -6,7 +6,7 @@ import re
 from .log import log_debug, log_info, log_err, log_warn
 from .template import TemplateFabric
 from .manager import Manager
-from .utils import run_command
+
 
 class BGPAllowListMgr(Manager):
     """ This class initialize "AllowList" settings """
@@ -147,9 +147,10 @@ class BGPAllowListMgr(Manager):
         cmds += self.__update_allow_route_map_entry(self.V4, names['pl_v4'], names['community'], names['rm_v4'])
         cmds += self.__update_allow_route_map_entry(self.V6, names['pl_v6'], names['community'], names['rm_v6'])
         if cmds:
-            rc = self.cfg_mgr.push_list(cmds)
-            rc = rc and self.__restart_peers(deployment_id)
-            log_debug("BGPAllowListMgr::__update_policy. The peers were updated: rc=%s" % rc)
+            self.cfg_mgr.push_list(cmds)
+            peer_groups = self.__find_peer_group_by_deployment_id(deployment_id)
+            self.cfg_mgr.restart_peers(peer_groups)
+            log_debug("BGPAllowListMgr::__update_policy. The peers configuration scheduled for updates")
         else:
             log_debug("BGPAllowListMgr::__update_policy. Nothing to update")
         log_info("BGPAllowListMgr::Done")
@@ -176,9 +177,10 @@ class BGPAllowListMgr(Manager):
         cmds += self.__remove_prefix_list(self.V6, names['pl_v6'])
         cmds += self.__remove_community(names['community'])
         if cmds:
-            rc = self.cfg_mgr.push_list(cmds)
-            rc = rc and self.__restart_peers(deployment_id)
-            log_debug("BGPAllowListMgr::__remove_policy. 'Allow list' policy was removed. rc:%s" % rc)
+            self.cfg_mgr.push_list(cmds)
+            peer_groups = self.__find_peer_group_by_deployment_id(deployment_id)
+            self.cfg_mgr.restart_peers(peer_groups)
+            log_debug("BGPAllowListMgr::__remove_policy. 'Allow list' policy was scheduled for removal")
         else:
             log_debug("BGPAllowListMgr::__remove_policy. Nothing to remove")
         log_info('BGPAllowListMgr::Done')
@@ -531,7 +533,8 @@ class BGPAllowListMgr(Manager):
             inside_name = result.group(1)
         return rm_2_call
 
-    def __get_peer_group_to_restart(self, deployment_id, pg_2_rm, rm_2_call):
+    @staticmethod
+    def __get_peer_group_to_restart(deployment_id, pg_2_rm, rm_2_call):
         """
         Get peer_groups which are assigned to deployment_id
         :deployment_id: deployment_id number
@@ -559,23 +562,6 @@ class BGPAllowListMgr(Manager):
         rm_2_call = self.__get_route_map_calls(set(pg_2_rm.values()))
         ret = self.__get_peer_group_to_restart(deployment_id, pg_2_rm, rm_2_call)
         return list(ret)
-
-    def __restart_peers(self, deployment_id):
-        """
-        Restart peer-groups with requested deployment_id
-        :param deployment_id: deployment_id number
-        """
-        log_info("BGPAllowListMgr::Restart peers with deployment_id=%d" % deployment_id)
-        peer_groups = self.__find_peer_group_by_deployment_id(deployment_id)
-        rv = True
-        if peer_groups:
-            for peer_group in peer_groups:
-                no_error, _, _ = run_command(["vtysh", "-c", "clear bgp peer-group %s soft in" % peer_group])
-                rv = no_error == 0 and rv
-        else:
-            no_error, _, _ = run_command(["vtysh", "-c", "clear bgp * soft in"])
-            rv = no_error == 0
-        return rv
 
     def __get_enabled(self):
         """
