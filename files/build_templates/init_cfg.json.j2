@@ -18,15 +18,15 @@
         }
     },
 {%- set features = [("bgp", "enabled", false, "enabled"),
-                   ("database", "enabled", false, "disabled"),
+                   ("database", "always_enabled", false, "always_enabled"),
                    ("dhcp_relay", "enabled", false, "enabled"),
                    ("lldp", "enabled", false, "enabled"),
                    ("pmon", "enabled", false, "enabled"),
                    ("radv", "enabled", false, "enabled"),
                    ("snmp", "enabled", true, "enabled"),
-                   ("swss", "enabled", false, "enabled"),
-                   ("syncd", "enabled", false, "enabled"),
-                   ("teamd", "enabled", false, "enabled")] %}
+                   ("swss", "always_enabled", false, "enabled"),
+                   ("syncd", "always_enabled", false, "enabled"),
+                   ("teamd", "always_enabled", false, "enabled")] %}
 {%- if include_mgmt_framework == "y" %}{% do features.append(("mgmt-framework", "enabled", true, "enabled")) %}{% endif %}
 {%- if include_nat == "y" %}{% do features.append(("nat", "disabled", false, "enabled")) %}{% endif %}
 {%- if include_restapi == "y" %}{% do features.append(("restapi", "enabled", false, "enabled")) %}{% endif %}
