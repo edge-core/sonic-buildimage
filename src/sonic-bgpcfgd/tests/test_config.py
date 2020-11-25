@@ -1,4 +1,5 @@
-from unittest.mock import MagicMock
+from mock import MagicMock
+
 
 from bgpcfgd.config import ConfigMgr
 
