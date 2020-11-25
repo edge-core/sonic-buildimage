@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 #############################################################################
 # Dell S6100
 #
@@ -30,4 +28,4 @@ class board(eeprom_tlvinfo.TlvInfoDecoder):
 
         # 'results' is a list containing 3 elements, type (int), length (int),
         # and value (string) of the requested TLV
-        return  results[2]
+        return results[2]

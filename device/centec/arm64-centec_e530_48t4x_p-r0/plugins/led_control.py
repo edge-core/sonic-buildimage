@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-#
 # led_control.py
 #
 # Platform-specific LED control functionality for SONiC
@@ -10,7 +8,7 @@ try:
     import syslog
     from socket import *
     from select import *
-except ImportError, e:
+except ImportError as e:
     raise ImportError(str(e) + " - required module not found")
 
 
@@ -22,7 +20,6 @@ def DBG_PRINT(str):
 
 class LedControl(LedControlBase):
     """Platform specific LED control class"""
-
 
     # Helper method to map SONiC port name to index
     def _port_name_to_index(self, port_name):
@@ -73,8 +70,8 @@ class LedControl(LedControlBase):
 
         DBG_PRINT("init led done")
 
-
     # Concrete implementation of port_link_state_change() method
+
     def port_link_state_change(self, portname, state):
         port_idx = self._port_name_to_index(portname)
         ledMode = self._port_state_to_mode(port_idx, state)
@@ -87,8 +84,8 @@ class LedControl(LedControlBase):
         self._port_led_mode_update(port_idx, ledMode)
         DBG_PRINT("update {} led mode from {} to {}".format(portname, saveMode, ledMode))
 
-
     # Constructor
+
     def __init__(self):
         self.SONIC_PORT_NAME_PREFIX = "Ethernet"
         self.LED_MODE_UP = [2, 11]

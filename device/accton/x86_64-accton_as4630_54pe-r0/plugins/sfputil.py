@@ -15,6 +15,7 @@ except ImportError as e:
 SFP_STATUS_INSERTED = '1'
 SFP_STATUS_REMOVED = '0'
 
+
 class SfpUtil(SfpUtilBase):
     """Platform-specific SfpUtil class"""
 
@@ -31,13 +32,13 @@ class SfpUtil(SfpUtilBase):
 
     _port_to_eeprom_mapping = {}
     _port_to_i2c_mapping = {
-           49: [18],
-           50: [19],
-           51: [20],
-           52: [21],
-           53: [22],
-           54: [23],
-           }
+        49: [18],
+        50: [19],
+        51: [20],
+        52: [21],
+        53: [22],
+        54: [23],
+    }
 
     @property
     def port_start(self):
@@ -49,7 +50,7 @@ class SfpUtil(SfpUtilBase):
 
     @property
     def qsfp_ports(self):
-        return range(self.PORT_START, self.PORTS_IN_BLOCK + 1)
+        return list(range(self.PORT_START, self.PORTS_IN_BLOCK + 1))
 
     @property
     def port_to_eeprom_mapping(self):
@@ -70,15 +71,15 @@ class SfpUtil(SfpUtilBase):
         present_path = self.BASE_CPLD_PATH + "module_present_" + str(port_num)
         self.__port_to_is_present = present_path
 
-        content="0"
+        content = "0"
         try:
             val_file = open(self.__port_to_is_present)
             content = val_file.readline().rstrip()
             val_file.close()
         except IOError as e:
-            print "Error: unable to access file: %s" % str(e)
+            print("Error: unable to access file: %s" % str(e))
             return False
-        
+
         if content == "1":
             return True
 
@@ -108,7 +109,7 @@ class SfpUtil(SfpUtilBase):
                 return False
 
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
         finally:
             if eeprom is not None:
@@ -123,7 +124,7 @@ class SfpUtil(SfpUtilBase):
         try:
             eeprom = None
             if not self.get_presence(port_num):
-                return False # Port is not present, unable to set the eeprom
+                return False  # Port is not present, unable to set the eeprom
 
             # Fill in write buffer
             # 0x3:Low Power Mode, 0x1:High Power Mode
@@ -138,7 +139,7 @@ class SfpUtil(SfpUtilBase):
             eeprom.write(buffer[0])
             return True
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
         finally:
             if eeprom is not None:
@@ -153,21 +154,22 @@ class SfpUtil(SfpUtilBase):
 
         bits = []
         for x in range(self.port_start, self.port_end+1):
-          bits.append(str(int(self.get_presence(x))))
+            bits.append(str(int(self.get_presence(x))))
 
         rev = "".join(bits[::-1])
-        return int(rev,2)
+        return int(rev, 2)
 
-    data = {'present':0}
+    data = {'present': 0}
+
     def get_transceiver_change_event(self, timeout=0):
         port_dict = {}
 
         if timeout == 0:
-            cd_ms = sys.maxint
+            cd_ms = sys.maxsize
         else:
             cd_ms = timeout
 
-        #poll per second
+        # poll per second
         while cd_ms > 0:
             reg_value = self._get_presence_bitmap
             changed_ports = self.data['present'] ^ reg_value
@@ -177,7 +179,7 @@ class SfpUtil(SfpUtilBase):
             cd_ms = cd_ms - 1000
 
         if changed_ports != 0:
-            for port in range (self.port_start, self.port_end+1):
+            for port in range(self.port_start, self.port_end+1):
                 # Mask off the bit corresponding to our port
                 mask = (1 << (port - self.port_start))
                 if changed_ports & mask:
@@ -192,4 +194,3 @@ class SfpUtil(SfpUtilBase):
         else:
             return True, {}
         return False, {}
-

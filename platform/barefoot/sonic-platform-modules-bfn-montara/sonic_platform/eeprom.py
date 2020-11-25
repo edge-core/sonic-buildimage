@@ -1,6 +1,3 @@
-#!/usr/bin/python
-
-
 try:
     import os
     import sys
@@ -12,12 +9,16 @@ try:
 
     sys.path.append(os.path.dirname(__file__))
 
-    from cStringIO import StringIO
+    if sys.version_info.major == 3:
+        from io import StringIO
+    else:
+        from cStringIO import StringIO
+
     from sonic_eeprom import eeprom_base
     from sonic_eeprom import eeprom_tlvinfo
 
     from .platform_thrift_client import thrift_try
-except ImportError, e:
+except ImportError as e:
     raise ImportError (str(e) + "- required module not found")
 
 

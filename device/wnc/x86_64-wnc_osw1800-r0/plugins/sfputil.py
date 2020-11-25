@@ -12,7 +12,7 @@ try:
     from sff8472 import sff8472Dom
     from sff8436 import sff8436InterfaceId
     from sff8436 import sff8436Dom
-except ImportError, e:
+except ImportError as e:
     raise ImportError("%s - required module not found" % str(e))
 
 
@@ -37,7 +37,7 @@ class SfpUtil(SfpUtilBase):
 
     @property
     def qsfp_ports(self):
-        return range(self.PORT_START + 48, self.PORTS_IN_BLOCK)
+        return list(range(self.PORT_START + 48, self.PORTS_IN_BLOCK))
 
     @property
     def port_to_eeprom_mapping(self):
@@ -77,7 +77,7 @@ class SfpUtil(SfpUtilBase):
         try:
             reg_file = open(presence_path, "rb")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         content = reg_file.readline().rstrip()
@@ -98,7 +98,7 @@ class SfpUtil(SfpUtilBase):
         try:
             reg_file = open("/sys/bus/i2c/devices/4-0032/qsfp_lpmode")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
 
         content = reg_file.readline().rstrip()
         reg_value = int(content, 16)
@@ -118,7 +118,7 @@ class SfpUtil(SfpUtilBase):
         try:
             reg_file = open("/sys/bus/i2c/devices/4-0032/qsfp_lpmode", "r+")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         content = reg_file.readline().rstrip()
@@ -144,7 +144,7 @@ class SfpUtil(SfpUtilBase):
         try:
             reg_file = open("/sys/bus/i2c/devices/4-0032/reset_control", "r+")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         content = reg_file.readline().rstrip()
@@ -160,7 +160,7 @@ class SfpUtil(SfpUtilBase):
         try:
             reg_file = open("/sys/bus/i2c/devices/4-0032/reset_control", "w")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         reg_value = reg_value | (1 << bit_mask)

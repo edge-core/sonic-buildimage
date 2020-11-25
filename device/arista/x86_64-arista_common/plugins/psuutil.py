@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 #
 # Arista PSU interface for SONiC
 #

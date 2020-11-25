@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 #############################################################################
 # Celestica
 #
@@ -14,7 +12,8 @@ import subprocess
 try:
     from sonic_psu.psu_base import PsuBase
 except ImportError as e:
-    raise ImportError (str(e) + "- required module not found")
+    raise ImportError(str(e) + "- required module not found")
+
 
 class PsuUtil(PsuBase):
     """Platform-specific PSUutil class"""
@@ -44,7 +43,6 @@ class PsuUtil(PsuBase):
         status = 1
         return status == 1
 
-
     def get_psu_presence(self, index):
         """
         Retrieves the presence status of power supply unit (PSU) defined
@@ -58,4 +56,3 @@ class PsuUtil(PsuBase):
 
         status = 1
         return status == 1
-

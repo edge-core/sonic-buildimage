@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 #############################################################################
 #
 # Module contains an implementation of SONiC Platform Base API and
@@ -20,6 +18,7 @@ FAN_PATH = "/sys/bus/i2c/devices/1-0063/"
 FANTRAY_NAME_LIST = ["FANTRAY-1", "FANTRAY-2",
                      "FANTRAY-3", "FANTRAY-4", "FANTRAY-5"]
 FAN_NAME_LIST = ["front", "rear"]
+
 
 class Fan(FanBase):
     """Platform-specific Fan class"""
@@ -67,7 +66,7 @@ class Fan(FanBase):
         """
         direction = self.FAN_DIRECTION_EXHAUST
         fan_direction_file = (FAN_PATH +
-            self.fan_direction.format(self.fan_tray_index+1))
+                              self.fan_direction.format(self.fan_tray_index+1))
         raw = self.__read_txt_file(fan_direction_file).strip('\r\n')
         direction = self.FAN_DIRECTION_INTAKE if str(
             raw).upper() == "1" else self.FAN_DIRECTION_EXHAUST
@@ -84,7 +83,7 @@ class Fan(FanBase):
         speed = 0
         if self.get_presence():
             fan_speed_file = (FAN_PATH +
-            self.fan_speed_rpm.format(self.fan_tray_index+1,FAN_NAME_LIST[self.fan_index]))
+                              self.fan_speed_rpm.format(self.fan_tray_index+1, FAN_NAME_LIST[self.fan_index]))
             speed = self.__read_txt_file(fan_speed_file).strip('\r\n')
 
         return int(speed)
@@ -98,9 +97,9 @@ class Fan(FanBase):
         """
         target = 0
         if self.get_presence():
-            fan_speed_file=(FAN_PATH +
-            self.fan_speed_rpm.format(self.fan_tray_index+1, FAN_NAME_LIST[self.fan_index]))
-            target=self.__read_txt_file(fan_speed_file).strip('\r\n')
+            fan_speed_file = (FAN_PATH +
+                              self.fan_speed_rpm.format(self.fan_tray_index+1, FAN_NAME_LIST[self.fan_index]))
+            target = self.__read_txt_file(fan_speed_file).strip('\r\n')
 
         return target
 

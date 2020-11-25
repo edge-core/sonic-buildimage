@@ -16,59 +16,56 @@ try:
 except ImportError as e:
     raise ImportError("%s - required module not found" % str(e))
 
-#from xcvrd
+# from xcvrd
 SFP_STATUS_REMOVED = '0'
 SFP_STATUS_INSERTED = '1'
-
-
-
 
 
 class SfpUtil(SfpUtilBase):
     """Platform-specific SfpUtil class"""
 
     PORT_START = 1
-    PORT_END = 34 
-    PORTS_IN_BLOCK = 34 
+    PORT_END = 34
+    PORTS_IN_BLOCK = 34
 
     BASE_RES_PATH = "/sys/bus/pci/devices/0000:09:00.0/resource0"
 
     _port_to_i2c_mapping = {
-            1:  10,
-            2:  11,
-            3:  12,
-            4:  13,
-            5:  14,
-            6:  15,
-            7:  16,
-            8:  17,
-            9:  18,
-            10: 19,
-            11: 20,
-            12: 21,
-            13: 22,
-            14: 23,
-            15: 24,
-            16: 25,
-            17: 26,
-            18: 27,
-            19: 28,
-            20: 29,
-            21: 30,
-            22: 31,
-            23: 32,
-            24: 33,
-            25: 34,
-            26: 35,
-            27: 36,
-            28: 37,
-            29: 38,
-            30: 39,
-            31: 40,
-            32: 41,
-            33: 1,
-            34: 2,
-            }
+        1:  10,
+        2:  11,
+        3:  12,
+        4:  13,
+        5:  14,
+        6:  15,
+        7:  16,
+        8:  17,
+        9:  18,
+        10: 19,
+        11: 20,
+        12: 21,
+        13: 22,
+        14: 23,
+        15: 24,
+        16: 25,
+        17: 26,
+        18: 27,
+        19: 28,
+        20: 29,
+        21: 30,
+        22: 31,
+        23: 32,
+        24: 33,
+        25: 34,
+        26: 35,
+        27: 36,
+        28: 37,
+        29: 38,
+        30: 39,
+        31: 40,
+        32: 41,
+        33: 1,
+        34: 2,
+    }
 
     _port_to_eeprom_mapping = {}
 
@@ -84,7 +81,7 @@ class SfpUtil(SfpUtilBase):
 
     @property
     def qsfp_ports(self):
-        return range(self.PORT_START, self.PORTS_IN_BLOCK + 1)
+        return list(range(self.PORT_START, self.PORTS_IN_BLOCK + 1))
 
     @property
     def port_to_eeprom_mapping(self):
@@ -128,27 +125,26 @@ class SfpUtil(SfpUtilBase):
                 self._global_port_pres_dict[port_num] = '0'
 
     def mod_pres(self):
-        port_pres_mask =0
+        port_pres_mask = 0
         for port_num in range(self.port_start, (self.port_end + 1)):
             presence = self.get_presence(port_num)
             if(presence):
                 self._global_port_pres_dict[port_num] = '1'
-                port_val = (1 << (port_num -1))
+                port_val = (1 << (port_num - 1))
                 port_pres_mask = (port_pres_mask | port_val)
             else:
                 self._global_port_pres_dict[port_num] = '0'
-                port_val = ~(1 << (port_num -1))
+                port_val = ~(1 << (port_num - 1))
                 port_pres_mask = (port_pres_mask & port_val)
 
         return port_pres_mask
-
 
     def __init__(self):
         eeprom_path = "/sys/class/i2c-adapter/i2c-{0}/{0}-0050/eeprom"
 
         for x in range(self.port_start, self.port_end + 1):
             self.port_to_eeprom_mapping[x] = eeprom_path.format(
-                    self._port_to_i2c_mapping[x])
+                self._port_to_i2c_mapping[x])
         self.init_global_port_presence()
         SfpUtilBase.__init__(self)
 
@@ -172,7 +168,7 @@ class SfpUtil(SfpUtilBase):
 
         # Mask off 1st bit for presence 33,34
         if (port_num > 32):
-            mask =  (1 << 0)
+            mask = (1 << 0)
 
         # ModPrsL is active low
         if reg_value & mask == 0:
@@ -271,20 +267,20 @@ class SfpUtil(SfpUtilBase):
         return True
 
     def get_register(self, reg_file):
-            retval = 'ERR'
-            if (not path.isfile(reg_file)):
-                print reg_file,  'not found !'
-                return retval
-
-            try:
-                with fdopen(open(reg_file, O_RDONLY)) as fd:
-                    retval = fd.read()
-            except Exception as error:
-                logging.error("Unable to open ", reg_file, "file !")
-
-            retval = retval.rstrip('\r\n')
-            retval = retval.lstrip(" ")
+        retval = 'ERR'
+        if (not path.isfile(reg_file)):
+            print(reg_file + ' not found !')
             return retval
+
+        try:
+            with fdopen(open(reg_file, O_RDONLY)) as fd:
+                retval = fd.read()
+        except Exception as error:
+            logging.error("Unable to open ", reg_file, "file !")
+
+        retval = retval.rstrip('\r\n')
+        retval = retval.lstrip(" ")
+        return retval
 
     def get_transceiver_change_event(self):
         port_dict = {}
@@ -303,5 +299,3 @@ class SfpUtil(SfpUtilBase):
                     return True, port_dict
 
             time.sleep(0.5)
-
-

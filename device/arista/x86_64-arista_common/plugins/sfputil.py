@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 #
 # Arista SFP transceiver interface for SONiC
 #

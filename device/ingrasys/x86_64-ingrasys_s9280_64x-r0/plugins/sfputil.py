@@ -19,7 +19,7 @@ class SfpUtil(SfpUtilBase):
     EEPROM_OFFSET = 41
     CPLD1_PORTS = 12
     CPLDx_PORTS = 13
-    #TODO: check init sequence for CPLD i2c bus 
+    # TODO: check init sequence for CPLD i2c bus
     CPLD_OFFSET = 1
     CPLD_PRES_BIT = 1
     CPLD_RESET_BIT = 0
@@ -32,72 +32,72 @@ class SfpUtil(SfpUtilBase):
 
     _port_to_eeprom_mapping = {}
 
-    #TODO: check the fp port to phy port mapping
+    # TODO: check the fp port to phy port mapping
     _fp2phy_port_mapping = {
-           0: 0,
-           1: 1,
-           2: 4,
-           3: 5,
-           4: 8,
-           5: 9,
-           6: 12,
-           7: 13,
-           8: 16,
-           9: 17,
-           10: 20,
-           11: 21,
-           12: 24,
-           13: 25,
-           14: 28,
-           15: 29,
-           16: 32,
-           17: 33,
-           18: 36,
-           19: 37,
-           20: 40,
-           21: 41,
-           22: 44,
-           23: 45,
-           24: 48,
-           25: 49,
-           26: 52,
-           27: 53,
-           28: 56,
-           29: 57,
-           30: 60,
-           31: 61,
-           32: 2,
-           33: 3,
-           34: 6,
-           35: 7,
-           36: 10,
-           37: 11,
-           38: 14,
-           39: 15,
-           40: 18,
-           41: 19,
-           42: 22,
-           43: 23,
-           44: 26,
-           45: 27,
-           46: 30,
-           47: 31,
-           48: 34,
-           49: 35,
-           50: 38,
-           51: 39,
-           52: 42,
-           53: 43,
-           54: 46,
-           55: 47,
-           56: 50,
-           57: 51,
-           58: 54,
-           59: 55,
-           60: 58,
-           61: 59,
-           62: 62,
-           63: 63
+        0: 0,
+        1: 1,
+        2: 4,
+        3: 5,
+        4: 8,
+        5: 9,
+        6: 12,
+        7: 13,
+        8: 16,
+        9: 17,
+        10: 20,
+        11: 21,
+        12: 24,
+        13: 25,
+        14: 28,
+        15: 29,
+        16: 32,
+        17: 33,
+        18: 36,
+        19: 37,
+        20: 40,
+        21: 41,
+        22: 44,
+        23: 45,
+        24: 48,
+        25: 49,
+        26: 52,
+        27: 53,
+        28: 56,
+        29: 57,
+        30: 60,
+        31: 61,
+        32: 2,
+        33: 3,
+        34: 6,
+        35: 7,
+        36: 10,
+        37: 11,
+        38: 14,
+        39: 15,
+        40: 18,
+        41: 19,
+        42: 22,
+        43: 23,
+        44: 26,
+        45: 27,
+        46: 30,
+        47: 31,
+        48: 34,
+        49: 35,
+        50: 38,
+        51: 39,
+        52: 42,
+        53: 43,
+        54: 46,
+        55: 47,
+        56: 50,
+        57: 51,
+        58: 54,
+        59: 55,
+        60: 58,
+        61: 59,
+        62: 62,
+        63: 63
     }
 
     @property
@@ -110,12 +110,11 @@ class SfpUtil(SfpUtilBase):
 
     @property
     def qsfp_ports(self):
-        return range(0, self.PORTS_IN_BLOCK + 1)
+        return list(range(0, self.PORTS_IN_BLOCK + 1))
 
     @property
     def port_to_eeprom_mapping(self):
         return self._port_to_eeprom_mapping
-
 
     def __init__(self):
         # Override port_to_eeprom_mapping for class initialization
@@ -134,7 +133,7 @@ class SfpUtil(SfpUtilBase):
         else:
             cpld_id = 1 + (port_num - self.CPLD1_PORTS) / self.CPLDx_PORTS
             cpld_port_index = ((port_num - self.CPLD1_PORTS) % self.CPLDx_PORTS) + 1
-        return  cpld_id, cpld_port_index
+        return cpld_id, cpld_port_index
 
     def fp2phy_port_num(self, fp_port_num):
 
@@ -151,25 +150,25 @@ class SfpUtil(SfpUtilBase):
 
         cpld_id, cpld_port_index = self.qsfp_to_cpld_index(port_num)
         i2c_id = self.CPLD_OFFSET + cpld_id
-        reg_path = self.CPLD_REG_PATH.format(i2c_id, self.CPLDx_I2C_ADDR, \
-                               self.CPLD_PORT_STATUS_KEY, cpld_port_index)
+        reg_path = self.CPLD_REG_PATH.format(i2c_id, self.CPLDx_I2C_ADDR,
+                                             self.CPLD_PORT_STATUS_KEY, cpld_port_index)
 
         try:
             reg_file = open(reg_path)
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         # content is a string containing the status register value
         content = reg_file.readline().rstrip()
         reg_file.close()
-        
+
         reg_value = int(content, 16)
         # mask for presence bit (bit 1)
         mask = (1 << self.CPLD_PRES_BIT)
 
         # 0 - presence, 1 - absence
-        if reg_value & mask  == 0:
+        if reg_value & mask == 0:
             return True
 
         return False
@@ -184,13 +183,13 @@ class SfpUtil(SfpUtilBase):
 
         cpld_id, cpld_port_index = self.qsfp_to_cpld_index(port_num)
         i2c_id = self.CPLD_OFFSET + cpld_id
-        reg_path = self.CPLD_REG_PATH.format(i2c_id, self.CPLDx_I2C_ADDR, \
-                               self.CPLD_PORT_CONFIG_KEY, cpld_port_index)
+        reg_path = self.CPLD_REG_PATH.format(i2c_id, self.CPLDx_I2C_ADDR,
+                                             self.CPLD_PORT_CONFIG_KEY, cpld_port_index)
 
         try:
             reg_file = open(reg_path)
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         # content is a string containing the status register value
@@ -202,7 +201,7 @@ class SfpUtil(SfpUtilBase):
         mask = (1 << self.CPLD_LPMOD_BIT)
 
         # 0 - disable, 1 - low power mode
-        if reg_value & mask  == 0:
+        if reg_value & mask == 0:
             return False
 
         return True
@@ -217,13 +216,13 @@ class SfpUtil(SfpUtilBase):
 
         cpld_id, cpld_port_index = self.qsfp_to_cpld_index(port_num)
         i2c_id = self.CPLD_OFFSET + cpld_id
-        reg_path = self.CPLD_REG_PATH.format(i2c_id, self.CPLDx_I2C_ADDR, \
-                               self.CPLD_PORT_CONFIG_KEY, cpld_port_index)
+        reg_path = self.CPLD_REG_PATH.format(i2c_id, self.CPLDx_I2C_ADDR,
+                                             self.CPLD_PORT_CONFIG_KEY, cpld_port_index)
 
         try:
             reg_file = open(reg_path, "r+")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         # content is a string containing the status register value
@@ -257,14 +256,14 @@ class SfpUtil(SfpUtilBase):
 
         cpld_id, cpld_port_index = self.qsfp_to_cpld_index(port_num)
         i2c_id = self.CPLD_OFFSET + cpld_id
-        reg_path = self.CPLD_REG_PATH.format(i2c_id, self.CPLDx_I2C_ADDR, \
-                               self.CPLD_PORT_CONFIG_KEY, cpld_port_index)
+        reg_path = self.CPLD_REG_PATH.format(i2c_id, self.CPLDx_I2C_ADDR,
+                                             self.CPLD_PORT_CONFIG_KEY, cpld_port_index)
 
         # reset the port
         try:
             reg_file = open(reg_path, "r+")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         # content is a string containing the status register value
@@ -287,7 +286,7 @@ class SfpUtil(SfpUtilBase):
         try:
             reg_file = open(reg_path, "w")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         reg_value = reg_value | mask
@@ -305,4 +304,3 @@ class SfpUtil(SfpUtilBase):
         on this platform.
         """
         raise NotImplementedError
-

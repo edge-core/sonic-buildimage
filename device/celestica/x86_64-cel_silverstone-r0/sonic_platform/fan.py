@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 #############################################################################
 # Celestica
 #
@@ -14,7 +12,7 @@ import os.path
 
 try:
     from sonic_platform_base.fan_base import FanBase
-    from helper import APIHelper
+    from .helper import APIHelper
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -150,7 +148,7 @@ class Fan(FanBase):
         # register = 22 32 42 52 62 72 82
 
         if self.is_psu_fan:
-            ## TODO
+            # TODO
             return False
 
         speed_hex = hex(int(float(speed)/100 * 255))

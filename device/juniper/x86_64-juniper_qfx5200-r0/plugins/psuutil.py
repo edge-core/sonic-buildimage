@@ -1,15 +1,14 @@
-#!/usr/bin/env python
 #
 # Name: psuutil.py version: 1.0
 #
-# Description: Platform-specific PSU status interface for Juniper QFX5200 
+# Description: Platform-specific PSU status interface for Juniper QFX5200
 #
 # Copyright (c) 2020, Juniper Networks, Inc.
 # All rights reserved.
 #
-# Notice and Disclaimer: This code is licensed to you under the GNU General 
-# Public License as published by the Free Software Foundation, version 3 or 
-# any later version. This code is not an official Juniper product. You can 
+# Notice and Disclaimer: This code is licensed to you under the GNU General
+# Public License as published by the Free Software Foundation, version 3 or
+# any later version. This code is not an official Juniper product. You can
 # obtain a copy of the License at <https://www.gnu.org/licenses/>
 #
 # OSS License:
@@ -27,9 +26,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
-# Third-Party Code: This code may depend on other components under separate 
-# copyright notice and license terms.  Your use of the source code for those 
-# components is subject to the terms and conditions of the respective license 
+# Third-Party Code: This code may depend on other components under separate
+# copyright notice and license terms.  Your use of the source code for those
+# components is subject to the terms and conditions of the respective license
 # as noted in the Third-Party source code file.
 
 
@@ -51,9 +50,11 @@ class PsuUtil(PsuBase):
 
 
 # Get sysfs attribute
+
+
     def get_attr_value(self, attr_path):
-        
-        retval = 'ERR'        
+
+        retval = 'ERR'
         if (not os.path.isfile(attr_path)):
             return retval
 
@@ -65,7 +66,7 @@ class PsuUtil(PsuBase):
 
         retval = retval.rstrip(' \t\n\r')
         return int(retval)
-    
+
     def get_num_psus(self):
         """
         Retrieves the number of PSUs available on the device
@@ -82,8 +83,8 @@ class PsuUtil(PsuBase):
         :return: Boolean, True if PSU is operating properly, False if PSU is\
         faulty
         """
-        attr_file = 'psu'+ str(index-1) +'_' + 'present'        
-        attr_path = self.PSU_DIR +'/' + attr_file
+        attr_file = 'psu' + str(index-1) + '_' + 'present'
+        attr_path = self.PSU_DIR + '/' + attr_file
         attr_value = self.get_attr_value(attr_path)
 
         return attr_value == 1
@@ -95,7 +96,7 @@ class PsuUtil(PsuBase):
         :param index: An integer, index of the PSU of which to query status
         :return: Boolean, True if PSU is plugged, False if not
         """
-        attr_file ='psu'+ str(index-1) +'_' + 'present'
-        attr_path = self.PSU_DIR +'/' + attr_file
+        attr_file = 'psu' + str(index-1) + '_' + 'present'
+        attr_path = self.PSU_DIR + '/' + attr_file
         attr_value = self.get_attr_value(attr_path)
         return attr_value == 1

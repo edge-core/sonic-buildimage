@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+
 """
 This utility get the power mode of a given module.
 """
@@ -6,6 +7,7 @@ This utility get the power mode of a given module.
 import sys
 import errno
 from python_sdk_api.sx_api import *
+
 
 def mgmt_phy_mod_pwr_attr_get(handle, module_id, power_attr_type):
     sx_mgmt_phy_mod_pwr_attr_p = new_sx_mgmt_phy_mod_pwr_attr_t_p()
@@ -20,6 +22,7 @@ def mgmt_phy_mod_pwr_attr_get(handle, module_id, power_attr_type):
         return pwr_mode_attr.admin_pwr_mode_e, pwr_mode_attr.oper_pwr_mode_e
     finally:
         delete_sx_mgmt_phy_mod_pwr_attr_t_p(sx_mgmt_phy_mod_pwr_attr_p)
+
 
 # Check if SFP port number is provided
 if len(sys.argv) < 2:
@@ -46,6 +49,6 @@ elif oper_pwr_mode == SX_MGMT_PHY_MOD_PWR_MODE_LOW_E:
 else:
     print("LPM UNKNOWN")
 
-print "LPM ON" if lpm_status else "LPM OFF"
+print("LPM ON" if lpm_status else "LPM OFF")
 
 sx_api_close(handle)

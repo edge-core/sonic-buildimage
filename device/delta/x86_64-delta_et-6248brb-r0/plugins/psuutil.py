@@ -3,7 +3,8 @@ import os.path
 try:
     from sonic_psu.psu_base import PsuBase
 except ImportError as e:
-    raise ImportError (str(e) + "- required module not found")
+    raise ImportError(str(e) + "- required module not found")
+
 
 class PsuUtil(PsuBase):
     """Platform-specific PSUutil class"""
@@ -14,7 +15,6 @@ class PsuUtil(PsuBase):
         self.psu_path = "/sys/devices/platform/delta-et6248brb-gpio.0/PSU/psu{}_pg"
         self.psu_oper_status = "in1_input"
         self.psu_presence = "/sys/devices/platform/delta-et6248brb-gpio.0/PSU/psu{}_pres"
-
 
     def get_num_psus(self):
         """
@@ -31,7 +31,7 @@ class PsuUtil(PsuBase):
         try:
             reg_file = open(self.psu_path.format(index))
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         if int(reg_file.readline()) == 1:
@@ -46,7 +46,7 @@ class PsuUtil(PsuBase):
         try:
             reg_file = open(self.psu_presence.format(index))
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         if int(reg_file.readline()) == 0:

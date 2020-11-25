@@ -14,7 +14,9 @@
 #
 try:
     import time
-    import socket, re,os
+    import socket
+    import re
+    import os
     from collections import OrderedDict
     from sonic_sfp.sfputilbase import SfpUtilBase
     from sonic_sfp.sff8472 import sff8472Dom
@@ -30,6 +32,7 @@ SFP_CHANNL_MON_WIDTH = 6
 
 NETLINK_KOBJECT_UEVENT = 15
 monitor = None
+
 
 class SWPSEventMonitor(object):
 
@@ -76,6 +79,7 @@ class SWPSEventMonitor(object):
                 except ValueError:
                     pass
 
+
 class SfpUtil(SfpUtilBase):
     """Platform-specific SfpUtil class"""
 
@@ -87,62 +91,62 @@ class SfpUtil(SfpUtilBase):
 
     _port_to_eeprom_mapping = {}
     port_to_i2c_mapping = {
-        0:22,
-        1:23,
-        2:24,
-        3:25,
-        4:26,
-        5:27,
-        6:28,
-        7:29,
-        8:30,
-        9:31,
-        10:32,
-        11:33,
-        12:34,
-        13:35,
-        14:36,
-        15:37,
-        16:38,
-        17:39,
-        18:40,
-        19:41,
-        20:42,
-        21:43,
-        22:44,
-        23:45,
-        24:46,
-        25:47,
-        26:48,
-        27:49,
-        28:50,
-        29:51,
-        30:52,
-        31:53,
-        32:54,
-        33:55,
-        34:56,
-        35:57,
-        36:58,
-        37:59,
-        38:60,
-        39:61,
-        40:62,
-        41:63,
-        42:64,
-        43:65,
-        44:66,
-        45:67,
-        46:68,
-        47:69,
-        48:14,
-        49:15,
-        50:16,
-        51:17,
-        52:18,
-        53:19,
-        54:20,
-        55:21
+        0: 22,
+        1: 23,
+        2: 24,
+        3: 25,
+        4: 26,
+        5: 27,
+        6: 28,
+        7: 29,
+        8: 30,
+        9: 31,
+        10: 32,
+        11: 33,
+        12: 34,
+        13: 35,
+        14: 36,
+        15: 37,
+        16: 38,
+        17: 39,
+        18: 40,
+        19: 41,
+        20: 42,
+        21: 43,
+        22: 44,
+        23: 45,
+        24: 46,
+        25: 47,
+        26: 48,
+        27: 49,
+        28: 50,
+        29: 51,
+        30: 52,
+        31: 53,
+        32: 54,
+        33: 55,
+        34: 56,
+        35: 57,
+        36: 58,
+        37: 59,
+        38: 60,
+        39: 61,
+        40: 62,
+        41: 63,
+        42: 64,
+        43: 65,
+        44: 66,
+        45: 67,
+        46: 68,
+        47: 69,
+        48: 14,
+        49: 15,
+        50: 16,
+        51: 17,
+        52: 18,
+        53: 19,
+        54: 20,
+        55: 21
     }
 
     @property
@@ -163,7 +167,7 @@ class SfpUtil(SfpUtilBase):
 
     @property
     def qsfp_ports(self):
-        return range(self.QSFP_PORT_START, self.PORTS_IN_BLOCK + 1)
+        return list(range(self.QSFP_PORT_START, self.PORTS_IN_BLOCK + 1))
 
     @property
     def port_to_eeprom_mapping(self):
@@ -185,7 +189,7 @@ class SfpUtil(SfpUtilBase):
         try:
             reg_file = open("/sys/class/swps/port"+str(port_num)+"/present")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         reg_value = int(reg_file.readline().rstrip())
@@ -205,7 +209,7 @@ class SfpUtil(SfpUtilBase):
         try:
             reg_file = open("/sys/class/swps/port"+str(port_num)+"/lpmod")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
 
         reg_value = int(reg_file.readline().rstrip())
 
@@ -219,13 +223,13 @@ class SfpUtil(SfpUtilBase):
         if port_num < self.port_start or port_num > self.port_end:
             return False
         if port_num < self.qsfp_port_start or port_num > self.qsfp_port_end:
-            print "\nError:SFP's don't support this property"
+            print("\nError:SFP's don't support this property")
             return False
 
         try:
             reg_file = open("/sys/class/swps/port"+str(port_num)+"/lpmod", "r+")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         reg_value = int(reg_file.readline().rstrip())
@@ -247,13 +251,13 @@ class SfpUtil(SfpUtilBase):
         if port_num < self.port_start or port_num > self.port_end:
             return False
         if port_num < self.qsfp_port_start or port_num > self.qsfp_port_end:
-            print "\nError:SFP's don't support this property"
+            print("\nError:SFP's don't support this property")
             return False
 
         try:
             reg_file = open(QSFP_RESET_REGISTER_DEVICE_FILE, "r+")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         reg_value = 0
@@ -267,7 +271,7 @@ class SfpUtil(SfpUtilBase):
         try:
             reg_file = open(QSFP_RESET_REGISTER_DEVICE_FILE, "r+")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         reg_value = 1
@@ -293,7 +297,7 @@ class SfpUtil(SfpUtilBase):
                 if event['SUBSYSTEM'] == 'swps':
                     #print('SWPS event. From %s, ACTION %s, IF_TYPE %s, IF_LANE %s' % (event['DEVPATH'], event['ACTION'], event['IF_TYPE'], event['IF_LANE']))
                     portname = event['DEVPATH'].split("/")[-1]
-                    rc = re.match(r"port(?P<num>\d+)",portname)
+                    rc = re.match(r"port(?P<num>\d+)", portname)
                     if rc is not None:
                         if event['ACTION'] == "remove":
                             remove_num = int(rc.group("num"))
@@ -335,19 +339,22 @@ class SfpUtil(SfpUtilBase):
             if sfpd_obj is None:
                 return None
 
-            dom_temperature_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + SFP_TEMPE_OFFSET), SFP_TEMPE_WIDTH)
+            dom_temperature_raw = self._read_eeprom_specific_bytes(
+                sysfsfile_eeprom, (offset + SFP_TEMPE_OFFSET), SFP_TEMPE_WIDTH)
             if dom_temperature_raw is not None:
                 dom_temperature_data = sfpd_obj.parse_temperature(dom_temperature_raw, 0)
             else:
                 return None
 
-            dom_voltage_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + SFP_VLOT_OFFSET), SFP_VOLT_WIDTH)
+            dom_voltage_raw = self._read_eeprom_specific_bytes(
+                sysfsfile_eeprom, (offset + SFP_VLOT_OFFSET), SFP_VOLT_WIDTH)
             if dom_voltage_raw is not None:
                 dom_voltage_data = sfpd_obj.parse_voltage(dom_voltage_raw, 0)
             else:
                 return None
 
-            dom_channel_monitor_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + SFP_CHANNL_MON_OFFSET), SFP_CHANNL_MON_WIDTH)
+            dom_channel_monitor_raw = self._read_eeprom_specific_bytes(
+                sysfsfile_eeprom, (offset + SFP_CHANNL_MON_OFFSET), SFP_CHANNL_MON_WIDTH)
             if dom_channel_monitor_raw is not None:
                 dom_channel_monitor_data = sfpd_obj.parse_channel_monitor_params(dom_channel_monitor_raw, 0)
             else:
@@ -375,5 +382,3 @@ class SfpUtil(SfpUtilBase):
             transceiver_dom_info_dict['tx4power'] = 'N/A'
 
             return transceiver_dom_info_dict
-
-

@@ -9,7 +9,8 @@ import subprocess
 try:
     from sonic_psu.psu_base import PsuBase
 except ImportError as e:
-    raise ImportError (str(e) + "- required module not found")
+    raise ImportError(str(e) + "- required module not found")
+
 
 class PsuUtil(PsuBase):
     """Platform-specific PSUutil class"""
@@ -44,14 +45,12 @@ class PsuUtil(PsuBase):
             content = p.readline().rstrip()
             reg_value = int(content)
             if reg_value != 0:
-               return False
+                return False
             status = 1
             p.close()
         except IOError:
             return False
         return status == 1
-
-
 
     def get_psu_presence(self, index):
         """
@@ -75,4 +74,3 @@ class PsuUtil(PsuBase):
         except IOError:
             return False
         return status == 1
-

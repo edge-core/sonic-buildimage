@@ -1,10 +1,8 @@
-#!/usr/bin/env python
-
 try:
     import time
-    from sonic_sfp.sfputilbase import SfpUtilBase 
-except ImportError, e:
-    raise ImportError (str(e) + "- required module not found")
+    from sonic_sfp.sfputilbase import SfpUtilBase
+except ImportError as e:
+    raise ImportError(str(e) + "- required module not found")
 
 
 class SfpUtil(SfpUtilBase):
@@ -16,17 +14,18 @@ class SfpUtil(SfpUtilBase):
 
     port_to_eeprom = {}
     port_to_i2cbus_mapping = {
-         1 : 14,
-         2 : 15,
-         3 : 16,
-         4 : 17,
+        1: 14,
+        2: 15,
+        3: 16,
+        4: 17,
     }
 
     eeprom_path = "/sys/bus/i2c/devices/{0}-005f/sfp{1}_eeprom"
     port_reset_path = "/sys/bus/i2c/devices/{0}-005f/sfp{1}_port_reset"
     present_path = "/sys/bus/i2c/devices/{0}-005f/sfp{1}_is_present"
 
-    _qsfp_ports = range(first_port, port_num + 1)
+    _qsfp_ports = list(range(first_port, port_num + 1))
+
     @property
     def port_start(self):
         return self.first_port
@@ -37,11 +36,11 @@ class SfpUtil(SfpUtilBase):
 
     @property
     def qsfp_ports(self):
-        return range(self.first_port, self.port_num + 1)
+        return list(range(self.first_port, self.port_num + 1))
 
-    @property 
+    @property
     def port_to_eeprom_mapping(self):
-         return self.port_to_eeprom
+        return self.port_to_eeprom
 
     def get_transceiver_change_event(self):
         """
@@ -68,11 +67,11 @@ class SfpUtil(SfpUtilBase):
         i2c_index = (port_num / 8) + 1
         path = self.port_reset_path
         port_path = path.format(self.port_to_i2cbus_mapping[i2c_index], (index + 1))
-          
+
         try:
             reg_file = open(port_path, 'w')
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         # reset
@@ -90,7 +89,7 @@ class SfpUtil(SfpUtilBase):
 
     def get_low_power_mode(self, port_num):
         raise NotImplementedError
-        
+
     def get_presence(self, port_num):
         # Check for invalid port_num
         if port_num < self.first_port or port_num > self.last_port:
@@ -101,11 +100,10 @@ class SfpUtil(SfpUtilBase):
         path = self.present_path
         port_path = path.format(self.port_to_i2cbus_mapping[i2c_index], (index + 1))
 
-          
         try:
             reg_file = open(port_path)
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         reg_value = reg_file.readline().rstrip()
@@ -113,4 +111,3 @@ class SfpUtil(SfpUtilBase):
             return True
 
         return False
-

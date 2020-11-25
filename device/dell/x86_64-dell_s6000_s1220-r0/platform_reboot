@@ -1,23 +1,25 @@
-#!/usr/bin/python
+#!/usr/bin/python3
+
 import sys
 import os
 import struct
 
 NVRAM_RES = '/dev/nvram'
-COLD_RESET = 0xE     # Cold Reset 
-WARM_RESET = 0x6     # Warm Reset 
+COLD_RESET = 0xE     # Cold Reset
+WARM_RESET = 0x6     # Warm Reset
+
 
 def io_reg_write(resource, offset, val):
     fd = os.open(resource, os.O_RDWR)
     if(fd < 0):
-        print 'file open failed %s" % resource'
+        print('file open failed %s" % resource')
         return
     if(os.lseek(fd, offset, os.SEEK_SET) != offset):
-        print 'lseek failed on %s' % resource
+        print('lseek failed on %s' % resource)
         return
     ret = os.write(fd, struct.pack('B', val))
     if(ret != 1):
-        print 'write failed %d' % ret
+        print('write failed %d' % ret)
         return
     os.close(fd)
 
@@ -27,17 +29,20 @@ def power_reset(val):
         p.write(str(int(val)) + '\n')
         p.flush()
 
-def gpio_direction(pin,direction):
+
+def gpio_direction(pin, direction):
     kernpath = '/sys/class/gpio/gpio'+str(pin)+'/direction'
     with open(('kernpath'), 'w') as p:
         p.write(str(direction) + '\n')
         p.flush()
 
-def gpio_set(pin,value):
+
+def gpio_set(pin, value):
     kernpath = '/sys/class/gpio/gpio'+str(pin)+'/value'
     with open(('kernpath'), 'w') as p:
         p.write(str(int(value)) + '\n')
         p.flush()
+
 
 def gpio_export(value):
     with open('/sys/class/gpio/export', 'w') as p:
@@ -49,8 +54,8 @@ if __name__ == "__main__":
     io_reg_write(NVRAM_RES, 0x49, COLD_RESET)
     if not os.path.isdir("/sys/class/gpio/gpio10"):
         gpio_export(10)
-    gpio_direction("10","out")
-    #Toggle GPIO10 pin (to reset MUX)
-    gpio_set("10",1)
-    gpio_set("10",0)
+    gpio_direction("10", "out")
+    # Toggle GPIO10 pin (to reset MUX)
+    gpio_set("10", 1)
+    gpio_set("10", 0)
     power_reset(1)

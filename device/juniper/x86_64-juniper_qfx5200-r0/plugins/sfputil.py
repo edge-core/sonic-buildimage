@@ -1,15 +1,13 @@
-#!/usr/bin/env python
-#
 # Name: sfputil.py version: 1.0
 #
-# Description: Platform-specific SFP transceiver interface for Juniper QFX5200 
+# Description: Platform-specific SFP transceiver interface for Juniper QFX5200
 #
 # Copyright (c) 2020, Juniper Networks, Inc.
 # All rights reserved.
 #
-# Notice and Disclaimer: This code is licensed to you under the GNU General 
-# Public License as published by the Free Software Foundation, version 3 or 
-# any later version. This code is not an official Juniper product. You can 
+# Notice and Disclaimer: This code is licensed to you under the GNU General
+# Public License as published by the Free Software Foundation, version 3 or
+# any later version. This code is not an official Juniper product. You can
 # obtain a copy of the License at <https://www.gnu.org/licenses/>
 #
 # OSS License:
@@ -27,9 +25,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
-# Third-Party Code: This code may depend on other components under separate 
-# copyright notice and license terms.  Your use of the source code for those 
-# components is subject to the terms and conditions of the respective license 
+# Third-Party Code: This code may depend on other components under separate
+# copyright notice and license terms.  Your use of the source code for those
+# components is subject to the terms and conditions of the respective license
 # as noted in the Third-Party source code file.
 
 try:
@@ -54,23 +52,23 @@ SYSLOG_IDENTIFIER = "sfputil"
 logger = Logger(SYSLOG_IDENTIFIER)
 
 qfx5200_qsfp_cable_length_tup = ('Length(km)', 'Length OM3(2m)',
-                          'Length OM2(m)', 'Length OM1(m)',
-                          'Length Cable Assembly(m)')
- 
+                                 'Length OM2(m)', 'Length OM1(m)',
+                                 'Length Cable Assembly(m)')
+
 qfx5200_sfp_cable_length_tup = ('LengthSMFkm-UnitsOfKm', 'LengthSMF(UnitsOf100m)',
-                        'Length50um(UnitsOf10m)', 'Length62.5um(UnitsOfm)',
-                        'LengthCable(UnitsOfm)', 'LengthOM3(UnitsOf10m)')
-   
+                                'Length50um(UnitsOf10m)', 'Length62.5um(UnitsOfm)',
+                                'LengthCable(UnitsOfm)', 'LengthOM3(UnitsOf10m)')
+
 qfx5200_sfp_compliance_code_tup = ('10GEthernetComplianceCode', 'InfinibandComplianceCode',
-                            'ESCONComplianceCodes', 'SONETComplianceCodes',
-                            'EthernetComplianceCodes','FibreChannelLinkLength',
-                            'FibreChannelTechnology', 'SFP+CableTechnology',
-                            'FibreChannelTransmissionMedia','FibreChannelSpeed')
-     
+                                   'ESCONComplianceCodes', 'SONETComplianceCodes',
+                                   'EthernetComplianceCodes', 'FibreChannelLinkLength',
+                                   'FibreChannelTechnology', 'SFP+CableTechnology',
+                                   'FibreChannelTransmissionMedia', 'FibreChannelSpeed')
+
 qfx5200_qsfp_compliance_code_tup = ('10/40G Ethernet Compliance Code', 'SONET Compliance codes',
-                            'SAS/SATA compliance codes', 'Gigabit Ethernet Compliant codes',
-                            'Fibre Channel link length/Transmitter Technology',
-                            'Fibre Channel transmission media', 'Fibre Channel Speed')
+                                    'SAS/SATA compliance codes', 'Gigabit Ethernet Compliant codes',
+                                    'Fibre Channel link length/Transmitter Technology',
+                                    'Fibre Channel transmission media', 'Fibre Channel Speed')
 
 
 GPIO_SLAVE0_PORT_START = 0
@@ -122,7 +120,7 @@ OSFP_VENDOR_PN_OFFSET = 148
 OSFP_HW_REV_OFFSET = 164
 OSFP_VENDOR_SN_OFFSET = 166
 
-#definitions of the offset and width for values in DOM info eeprom
+# definitions of the offset and width for values in DOM info eeprom
 QSFP_DOM_REV_OFFSET = 1
 QSFP_DOM_REV_WIDTH = 1
 QSFP_TEMPE_OFFSET = 22
@@ -155,21 +153,22 @@ def gpio_create_file(gpio_pin):
             gpio_export_file.write(str(gpio_pin))
             gpio_export_file.close()
         except IOError as e:
-            print "Error: unable to open export file: %s" % str(e)
+            print("Error: unable to open export file: %s" % str(e))
             return False
-     
+
     return True
 
+
 def gpio_sfp_port_init(gpio_base, port):
-        presence_pin = gpio_base + GPIO_PRESENCE_OFFSET + (port % 16)
-        if gpio_create_file(presence_pin):
-            gpio_sfp_presence[port] = presence_pin
-        reset_pin = gpio_base + GPIO_RESET_OFFSET + (port % 16)
-        if gpio_create_file(reset_pin):
-            gpio_sfp_reset[port] = reset_pin
-        lpmode_pin = gpio_base + GPIO_LPMODE_OFFSET + (port % 16)
-        if gpio_create_file(lpmode_pin):
-            gpio_sfp_lpmode[port] = lpmode_pin
+    presence_pin = gpio_base + GPIO_PRESENCE_OFFSET + (port % 16)
+    if gpio_create_file(presence_pin):
+        gpio_sfp_presence[port] = presence_pin
+    reset_pin = gpio_base + GPIO_RESET_OFFSET + (port % 16)
+    if gpio_create_file(reset_pin):
+        gpio_sfp_reset[port] = reset_pin
+    lpmode_pin = gpio_base + GPIO_LPMODE_OFFSET + (port % 16)
+    if gpio_create_file(lpmode_pin):
+        gpio_sfp_lpmode[port] = lpmode_pin
 
 
 def gpio_sfp_slave_init(gpio_base_path, gpio_port_start, gpio_port_end):
@@ -179,71 +178,79 @@ def gpio_sfp_slave_init(gpio_base_path, gpio_port_start, gpio_port_end):
             fp = open(flist[0]+"/base")
             gpio_base = int(fp.readline().rstrip())
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return
-        
-	for port in range(gpio_port_start, gpio_port_end + 1):
+
+        for port in range(gpio_port_start, gpio_port_end + 1):
             gpio_sfp_port_init(gpio_base, port)
+
 
 def gpio_sfp_base_init():
     gpio_sfp_slave_init("/sys/bus/platform/drivers/gpioslave-tmc/gpioslave-tmc.21/gpio/gpio*",
-                   GPIO_SLAVE0_PORT_START, GPIO_SLAVE0_PORT_END)
+                        GPIO_SLAVE0_PORT_START, GPIO_SLAVE0_PORT_END)
     gpio_sfp_slave_init("/sys/bus/platform/drivers/gpioslave-tmc/gpioslave-tmc.22/gpio/gpio*",
-                   GPIO_SLAVE1_PORT_START, GPIO_SLAVE1_PORT_END)
+                        GPIO_SLAVE1_PORT_START, GPIO_SLAVE1_PORT_END)
+
 
 def gpio_sfp_read(gpio_pin):
     gpio_pin_path = "/sys/class/gpio/gpio" + str(gpio_pin)
     value = 0
 
     try:
-        reg_file = open(gpio_pin_path +"/value")
+        reg_file = open(gpio_pin_path + "/value")
         value = int(reg_file.readline().rstrip())
     except IOError as e:
-         print "error: unable to open file: %s" % str(e)
-    
+        print("error: unable to open file: %s" % str(e))
+
     return value
+
 
 def gpio_sfp_write(gpio_pin, value):
     success = False
     gpio_pin_path = "/sys/class/gpio/gpio" + str(gpio_pin)
 
     try:
-        gpio_file = open(gpio_pin_path +"/value", 'w')
+        gpio_file = open(gpio_pin_path + "/value", 'w')
         gpio_file.write(str(value))
         success = True
     except IOError as e:
-         print "error: unable to open file: %s" % str(e)
+        print("error: unable to open file: %s" % str(e))
 
     return success
 
+
 def gpio_sfp_presence_get(port):
-    if port not in gpio_sfp_presence.keys():
-        print "Port:" + str(port) +  " not in sfp dict"
+    if port not in list(gpio_sfp_presence.keys()):
+        print("Port:" + str(port) + " not in sfp dict")
         return 0
 
     gpio_pin = gpio_sfp_presence[port]
     return gpio_sfp_read(gpio_pin)
 
+
 def gpio_sfp_lpmode_get(port):
-    if port not in gpio_sfp_lpmode.keys():
+    if port not in list(gpio_sfp_lpmode.keys()):
         return 0
 
     gpio_pin = gpio_sfp_lpmode[port]
     return gpio_sfp_read(gpio_pin)
 
+
 def gpio_sfp_lpmode_set(port, value):
-    if port not in gpio_sfp_lpmode.keys():
+    if port not in list(gpio_sfp_lpmode.keys()):
         return False
 
     gpio_pin = gpio_sfp_lpmode[port]
     return gpio_sfp_write(gpio_pin, value)
 
+
 def gpio_sfp_reset_set(port, value):
-    if port not in gpio_sfp_reset.keys():
+    if port not in list(gpio_sfp_reset.keys()):
         return False
 
     gpio_pin = gpio_sfp_reset[port]
     return gpio_sfp_write(gpio_pin, value)
+
 
 class SfpUtil(SfpUtilBase):
     """Platform-specific SfpUtil class"""
@@ -291,57 +298,57 @@ class SfpUtil(SfpUtilBase):
         30: 44,
         31: 45
     }
-    
+
     port_ctle_settings = {
-	0: 119,  # 0x77
-	1: 102,  # 0x66
-	2: 102,  # 0x66
-	3: 102,  # 0x66
-	4: 102,  # 0x66
-	5: 85,   # 0x55
-	6: 102,  # 0x66
-	7: 85,   # 0x55
-	8: 85,   # 0x55
-	9: 85,   # 0x55
-	10: 119, # 0x77
-	11: 119, # 0x77
-	12: 102, # 0x66
-	13: 85,  # 0x55
-	14: 68,  # 0x44
-	15: 51,  # 0x33
-	16: 68,  # 0x44 
-	17: 85,  # 0x55
-	18: 102, # 0x66
-	19: 102, # 0x66
-	20: 119, # 0X77
-	21: 102, # 0x66
-	22: 85,  # 0X55
-	23: 85,  # 0X55
-	24: 85,  # 0x55
-	25: 85,  # 0x55
-	26: 102, # 0x66
-	27: 85,  # 0x55
-	28: 102, # 0x66
-	29: 102, # 0x66
-	30: 119, # 0x77 
-	31: 119  # 0x77
+        0: 119,  # 0x77
+        1: 102,  # 0x66
+        2: 102,  # 0x66
+        3: 102,  # 0x66
+        4: 102,  # 0x66
+        5: 85,   # 0x55
+        6: 102,  # 0x66
+        7: 85,   # 0x55
+        8: 85,   # 0x55
+        9: 85,   # 0x55
+        10: 119,  # 0x77
+        11: 119,  # 0x77
+        12: 102,  # 0x66
+        13: 85,  # 0x55
+        14: 68,  # 0x44
+        15: 51,  # 0x33
+        16: 68,  # 0x44
+        17: 85,  # 0x55
+        18: 102,  # 0x66
+        19: 102,  # 0x66
+        20: 119,  # 0X77
+        21: 102,  # 0x66
+        22: 85,  # 0X55
+        23: 85,  # 0X55
+        24: 85,  # 0x55
+        25: 85,  # 0x55
+        26: 102,  # 0x66
+        27: 85,  # 0x55
+        28: 102,  # 0x66
+        29: 102,  # 0x66
+        30: 119,  # 0x77
+        31: 119  # 0x77
     }
 
     optics_list_100g = {
-	"AFBR-89CDDZ-JU1",
+        "AFBR-89CDDZ-JU1",
         "AFBR-89CDDZ-JU2",
-	"FTLC9551REPM-J1",
-	"FCBN425QE1C30-J1",
-	"FCBN425QE1C10-J1",
+        "FTLC9551REPM-J1",
+        "FCBN425QE1C30-J1",
+        "FCBN425QE1C10-J1",
         "FTLC9551REPM-J3",
-	"LUX42604CO",
-	"LUX42604BO",
-	"EOLQ-161HG-10-LJ1",
-	"FTLC1151RDPL-J1",
-	"TR-FC13R-NJC",
+        "LUX42604CO",
+        "LUX42604BO",
+        "EOLQ-161HG-10-LJ1",
+        "FTLC1151RDPL-J1",
+        "TR-FC13R-NJC",
         "TR-FC13L-NJC",
-	"TR-FC13R-NJ3",
-	"SPQ-CE-LR-CDFB-J2",
+        "TR-FC13R-NJ3",
+        "SPQ-CE-LR-CDFB-J2",
         "1K1QAC",
         "SPQCELRCDFAJ2"
     }
@@ -361,11 +368,11 @@ class SfpUtil(SfpUtilBase):
 
     def is_100g_optics(self, part_num):
         ret = part_num in self.optics_list_100g
-	return ret
-    
+        return ret
+
     def is_40g_optics(self, part_num):
         ret = part_num in self.optics_list_40g
-	return ret
+        return ret
 
     def is_optics(self, part_num):
         if self.is_100g_optics(part_num):
@@ -377,27 +384,27 @@ class SfpUtil(SfpUtilBase):
 
     def process_TxCTLE(self, eeprom, port_num, part_num):
         if self.is_100g_optics(part_num):
-            logger.log_debug(" QFX5200: TxCTLE port {} and SFP PN NUM {} ".format(port_num,part_num))
-	    # Accessing page 3 of optics
-	    regval = 3                        
-	    buffer = create_string_buffer(1)
-	    buffer[0] = chr(regval)
-	    eeprom.seek(127)
-	    eeprom.write(buffer[0])
+            logger.log_debug(" QFX5200: TxCTLE port {} and SFP PN NUM {} ".format(port_num, part_num))
+            # Accessing page 3 of optics
+            regval = 3
+            buffer = create_string_buffer(1)
+            buffer[0] = chr(regval)
+            eeprom.seek(127)
+            eeprom.write(buffer[0])
 
             regval = self.port_ctle_settings[port_num]
-            logger.log_debug("QFX5200: TxCTLE port {}, SFP PN NUM {}, regval {} ".format(port_num,part_num,regval))
+            logger.log_debug("QFX5200: TxCTLE port {}, SFP PN NUM {}, regval {} ".format(port_num, part_num, regval))
 
             eeprom.seek(234)
-	    buffer[0] = chr(regval)
+            buffer[0] = chr(regval)
             eeprom.write(buffer[0])
             eeprom.seek(235)
-	    eeprom.write(buffer[0])
-	    # Moving back the optics page to 0
-	    regval = 0x0
-	    buffer[0] = chr(regval)
-	    eeprom.seek(127)
-	    eeprom.write(buffer[0])
+            eeprom.write(buffer[0])
+            # Moving back the optics page to 0
+            regval = 0x0
+            buffer[0] = chr(regval)
+            eeprom.seek(127)
+            eeprom.write(buffer[0])
         else:
             pass
 
@@ -425,7 +432,7 @@ class SfpUtil(SfpUtilBase):
 
     @property
     def qsfp_ports(self):
-        return range(0, self.PORTS_IN_BLOCK + 1)
+        return list(range(0, self.PORTS_IN_BLOCK + 1))
 
     @property
     def port_to_eeprom_mapping(self):
@@ -436,12 +443,12 @@ class SfpUtil(SfpUtilBase):
         eeprom_path = "/sys/class/i2c-adapter/i2c-{0}/{0}-0050/eeprom"
         for x in range(0, self.port_end + 1):
             self.port_to_eeprom_mapping[x] = eeprom_path.format(self.port_to_i2cbus_mapping[x])
-        
+
         logger.log_debug("QFX5200: SfpUtil __init__")
         if os.path.isfile(self.cmd):
             logger.log_debug("QFX5200: SfpUtil removing sfppresence file")
             os.remove(self.cmd)
-        
+
         SfpUtilBase.__init__(self)
 
     def get_presence(self, port_num):
@@ -464,7 +471,7 @@ class SfpUtil(SfpUtilBase):
             lpmode = 1
         else:
             lpmode = 0
-            
+
         status = gpio_sfp_lpmode_set(port_num, lpmode)
         return status
 
@@ -478,7 +485,7 @@ class SfpUtil(SfpUtilBase):
         try:
             fp1 = open(file_name, 'w')
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         for i in from_list:
@@ -488,19 +495,19 @@ class SfpUtil(SfpUtilBase):
         fp1.close()
         return True
 
-     
     # Reading from a file to a list
+
     def read_from_file(self, file_name):
         try:
             fp = open(file_name, 'r')
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
-	to_list = fp.readlines()
-	to_list = [x.rstrip() for x in to_list]
-	fp.close()
-	return to_list
+        to_list = fp.readlines()
+        to_list = [x.rstrip() for x in to_list]
+        fp.close()
+        return to_list
 
     def sfp_detect(self):
         port = 0
@@ -522,55 +529,56 @@ class SfpUtil(SfpUtilBase):
 
         # Read the current values from sysfs
         for port in range(GPIO_PORT_START, GPIO_PORT_END + 1):
-		sfp_present = gpio_sfp_presence_get(port)
-		current_sfp_values[port] = str(sfp_present)
-                ret_dict.update({port:current_sfp_values[port]})
+            sfp_present = gpio_sfp_presence_get(port)
+            current_sfp_values[port] = str(sfp_present)
+            ret_dict.update({port: current_sfp_values[port]})
 
-                prev_value = str(previous_sfp_values[port])
+            prev_value = str(previous_sfp_values[port])
 
-                current_value = current_sfp_values[port]
-		if (prev_value != current_value):
-                    ret_dict.update({port:current_sfp_values[port]})
-                    value = str(current_sfp_values[port])
-                    if (value):
-                         offset = 128
-                         sfpi_obj = sff8436InterfaceId()
-                         if sfpi_obj is None:
-                             return None
+            current_value = current_sfp_values[port]
+            if (prev_value != current_value):
+                ret_dict.update({port: current_sfp_values[port]})
+                value = str(current_sfp_values[port])
+                if (value):
+                    offset = 128
+                    sfpi_obj = sff8436InterfaceId()
+                    if sfpi_obj is None:
+                        return None
 
-                         file_path = self._get_port_eeprom_path(port, self.IDENTITY_EEPROM_ADDR)
-                         if not self._sfp_eeprom_present(file_path, 0):
-                             print("Error, file not exist %s" % file_path)
-                             return None
+                    file_path = self._get_port_eeprom_path(port, self.IDENTITY_EEPROM_ADDR)
+                    if not self._sfp_eeprom_present(file_path, 0):
+                        print("Error, file not exist %s" % file_path)
+                        return None
 
-                         try:
-                             sysfsfile_eeprom = open(file_path, mode="rb", buffering=0)
-                         except IOError:
-                             print("Error: reading sysfs file %s" % file_path)
-                             return None
+                    try:
+                        sysfsfile_eeprom = open(file_path, mode="rb", buffering=0)
+                    except IOError:
+                        print("Error: reading sysfs file %s" % file_path)
+                        return None
 
-                         sfp_vendor_pn_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + XCVR_VENDOR_PN_OFFSET), XCVR_VENDOR_PN_WIDTH)
-                         if sfp_vendor_pn_raw is not None:
-                             sfp_vendor_pn_data = sfpi_obj.parse_vendor_pn(sfp_vendor_pn_raw, 0)
-                         else:
-                             return None
+                    sfp_vendor_pn_raw = self._read_eeprom_specific_bytes(
+                        sysfsfile_eeprom, (offset + XCVR_VENDOR_PN_OFFSET), XCVR_VENDOR_PN_WIDTH)
+                    if sfp_vendor_pn_raw is not None:
+                        sfp_vendor_pn_data = sfpi_obj.parse_vendor_pn(sfp_vendor_pn_raw, 0)
+                    else:
+                        return None
 
-                         try:
-                             sysfsfile_eeprom.close()
-                         except IOError:
-                             print("Error: closing sysfs file %s" % file_path)
-                             return None
+                    try:
+                        sysfsfile_eeprom.close()
+                    except IOError:
+                        print("Error: closing sysfs file %s" % file_path)
+                        return None
 
-                         sfp_pn_num = str(sfp_vendor_pn_data['data']['Vendor PN']['value'])
-                         if self.is_optics(sfp_pn_num):
-                            logger.log_debug("QFX5200: Port {} is connected with Optics with Part Number {}".format(port,sfp_pn_num))
-                            eeprom1 = open(self._port_to_eeprom_mapping[port],  "r+b")
-                            self.process_TxCTLE(eeprom1, port, sfp_pn_num)
-                            eeprom1.close
-                    # End of if(value)
-                # End of current_sfp_values != previous_sfp_vlalues
+                    sfp_pn_num = str(sfp_vendor_pn_data['data']['Vendor PN']['value'])
+                    if self.is_optics(sfp_pn_num):
+                        logger.log_debug(
+                            "QFX5200: Port {} is connected with Optics with Part Number {}".format(port, sfp_pn_num))
+                        eeprom1 = open(self._port_to_eeprom_mapping[port],  "r+b")
+                        self.process_TxCTLE(eeprom1, port, sfp_pn_num)
+                        eeprom1.close
+                # End of if(value)
+            # End of current_sfp_values != previous_sfp_vlalues
         # End of for loop
-
 
         if(self.write_to_file(self.cmd, current_sfp_values) == True):
             logger.log_debug("QFX5200: sfp_detect, current sfp values written successfully to sfppresence file")
@@ -609,31 +617,36 @@ class SfpUtil(SfpUtilBase):
                 print("Error: reading sysfs file %s" % file_path)
                 return None
 
-            sfp_type_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + OSFP_TYPE_OFFSET), XCVR_TYPE_WIDTH)
+            sfp_type_raw = self._read_eeprom_specific_bytes(
+                sysfsfile_eeprom, (offset + OSFP_TYPE_OFFSET), XCVR_TYPE_WIDTH)
             if sfp_type_raw is not None:
                 sfp_type_data = sfpi_obj.parse_sfp_type(sfp_type_raw, 0)
             else:
                 return None
 
-            sfp_vendor_name_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + OSFP_VENDOR_NAME_OFFSET), XCVR_VENDOR_NAME_WIDTH)
+            sfp_vendor_name_raw = self._read_eeprom_specific_bytes(
+                sysfsfile_eeprom, (offset + OSFP_VENDOR_NAME_OFFSET), XCVR_VENDOR_NAME_WIDTH)
             if sfp_vendor_name_raw is not None:
                 sfp_vendor_name_data = sfpi_obj.parse_vendor_name(sfp_vendor_name_raw, 0)
             else:
                 return None
 
-            sfp_vendor_pn_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + OSFP_VENDOR_PN_OFFSET), XCVR_VENDOR_PN_WIDTH)
+            sfp_vendor_pn_raw = self._read_eeprom_specific_bytes(
+                sysfsfile_eeprom, (offset + OSFP_VENDOR_PN_OFFSET), XCVR_VENDOR_PN_WIDTH)
             if sfp_vendor_pn_raw is not None:
                 sfp_vendor_pn_data = sfpi_obj.parse_vendor_pn(sfp_vendor_pn_raw, 0)
             else:
                 return None
 
-            sfp_vendor_rev_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + OSFP_HW_REV_OFFSET), vendor_rev_width)
+            sfp_vendor_rev_raw = self._read_eeprom_specific_bytes(
+                sysfsfile_eeprom, (offset + OSFP_HW_REV_OFFSET), vendor_rev_width)
             if sfp_vendor_rev_raw is not None:
                 sfp_vendor_rev_data = sfpi_obj.parse_vendor_rev(sfp_vendor_rev_raw, 0)
             else:
                 return None
 
-            sfp_vendor_sn_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + OSFP_VENDOR_SN_OFFSET), XCVR_VENDOR_SN_WIDTH)
+            sfp_vendor_sn_raw = self._read_eeprom_specific_bytes(
+                sysfsfile_eeprom, (offset + OSFP_VENDOR_SN_OFFSET), XCVR_VENDOR_SN_WIDTH)
             if sfp_vendor_sn_raw is not None:
                 sfp_vendor_sn_data = sfpi_obj.parse_vendor_sn(sfp_vendor_sn_raw, 0)
             else:
@@ -697,43 +710,50 @@ class SfpUtil(SfpUtilBase):
                 print("Error: reading sysfs file %s" % file_path)
                 return None
 
-            sfp_interface_bulk_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + XCVR_INTFACE_BULK_OFFSET), interface_info_bulk_width)
+            sfp_interface_bulk_raw = self._read_eeprom_specific_bytes(
+                sysfsfile_eeprom, (offset + XCVR_INTFACE_BULK_OFFSET), interface_info_bulk_width)
             if sfp_interface_bulk_raw is not None:
                 sfp_interface_bulk_data = sfpi_obj.parse_sfp_info_bulk(sfp_interface_bulk_raw, 0)
             else:
                 return None
 
-            sfp_vendor_name_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + XCVR_VENDOR_NAME_OFFSET), XCVR_VENDOR_NAME_WIDTH)
+            sfp_vendor_name_raw = self._read_eeprom_specific_bytes(
+                sysfsfile_eeprom, (offset + XCVR_VENDOR_NAME_OFFSET), XCVR_VENDOR_NAME_WIDTH)
             if sfp_vendor_name_raw is not None:
                 sfp_vendor_name_data = sfpi_obj.parse_vendor_name(sfp_vendor_name_raw, 0)
             else:
                 return None
 
-            sfp_vendor_pn_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + XCVR_VENDOR_PN_OFFSET), XCVR_VENDOR_PN_WIDTH)
+            sfp_vendor_pn_raw = self._read_eeprom_specific_bytes(
+                sysfsfile_eeprom, (offset + XCVR_VENDOR_PN_OFFSET), XCVR_VENDOR_PN_WIDTH)
             if sfp_vendor_pn_raw is not None:
                 sfp_vendor_pn_data = sfpi_obj.parse_vendor_pn(sfp_vendor_pn_raw, 0)
             else:
                 return None
 
-            sfp_vendor_rev_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + XCVR_HW_REV_OFFSET), vendor_rev_width)
+            sfp_vendor_rev_raw = self._read_eeprom_specific_bytes(
+                sysfsfile_eeprom, (offset + XCVR_HW_REV_OFFSET), vendor_rev_width)
             if sfp_vendor_rev_raw is not None:
                 sfp_vendor_rev_data = sfpi_obj.parse_vendor_rev(sfp_vendor_rev_raw, 0)
             else:
                 return None
 
-            sfp_vendor_sn_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + XCVR_VENDOR_SN_OFFSET), XCVR_VENDOR_SN_WIDTH)
+            sfp_vendor_sn_raw = self._read_eeprom_specific_bytes(
+                sysfsfile_eeprom, (offset + XCVR_VENDOR_SN_OFFSET), XCVR_VENDOR_SN_WIDTH)
             if sfp_vendor_sn_raw is not None:
                 sfp_vendor_sn_data = sfpi_obj.parse_vendor_sn(sfp_vendor_sn_raw, 0)
             else:
                 return None
 
-            sfp_vendor_oui_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + XCVR_VENDOR_OUI_OFFSET), XCVR_VENDOR_OUI_WIDTH)
+            sfp_vendor_oui_raw = self._read_eeprom_specific_bytes(
+                sysfsfile_eeprom, (offset + XCVR_VENDOR_OUI_OFFSET), XCVR_VENDOR_OUI_WIDTH)
             if sfp_vendor_oui_raw is not None:
                 sfp_vendor_oui_data = sfpi_obj.parse_vendor_oui(sfp_vendor_oui_raw, 0)
             else:
                 return None
 
-            sfp_vendor_date_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + XCVR_VENDOR_DATE_OFFSET), XCVR_VENDOR_DATE_WIDTH)
+            sfp_vendor_date_raw = self._read_eeprom_specific_bytes(
+                sysfsfile_eeprom, (offset + XCVR_VENDOR_DATE_OFFSET), XCVR_VENDOR_DATE_WIDTH)
             if sfp_vendor_date_raw is not None:
                 sfp_vendor_date_data = sfpi_obj.parse_vendor_date(sfp_vendor_date_raw, 0)
             else:
@@ -752,7 +772,8 @@ class SfpUtil(SfpUtilBase):
             transceiver_info_dict['hardware_rev'] = sfp_vendor_rev_data['data']['Vendor Rev']['value']
             transceiver_info_dict['serial'] = sfp_vendor_sn_data['data']['Vendor SN']['value']
             transceiver_info_dict['vendor_oui'] = sfp_vendor_oui_data['data']['Vendor OUI']['value']
-            transceiver_info_dict['vendor_date'] = sfp_vendor_date_data['data']['VendorDataCode(YYYY-MM-DD Lot)']['value']
+            transceiver_info_dict['vendor_date'] = sfp_vendor_date_data[
+                'data']['VendorDataCode(YYYY-MM-DD Lot)']['value']
             transceiver_info_dict['connector'] = sfp_interface_bulk_data['data']['Connector']['value']
             transceiver_info_dict['encoding'] = sfp_interface_bulk_data['data']['EncodingCodes']['value']
             transceiver_info_dict['ext_identifier'] = sfp_interface_bulk_data['data']['Extended Identifier']['value']
@@ -771,10 +792,11 @@ class SfpUtil(SfpUtilBase):
                     if key in sfp_interface_bulk_data['data']['Specification compliance']['value']:
                         compliance_code_dict[key] = sfp_interface_bulk_data['data']['Specification compliance']['value'][key]['value']
                 transceiver_info_dict['specification_compliance'] = str(compliance_code_dict)
-               
-                if sfp_interface_bulk_data['data'].has_key('Nominal Bit Rate(100Mbs)'):
-                    transceiver_info_dict['nominal_bit_rate'] = str(sfp_interface_bulk_data['data']['Nominal Bit Rate(100Mbs)']['value'])
-                else:    
+
+                if 'Nominal Bit Rate(100Mbs)' in sfp_interface_bulk_data['data']:
+                    transceiver_info_dict['nominal_bit_rate'] = str(
+                        sfp_interface_bulk_data['data']['Nominal Bit Rate(100Mbs)']['value'])
+                else:
                     transceiver_info_dict['nominal_bit_rate'] = 'N/A'
             else:
                 for key in qfx5200_sfp_cable_length_tup:
@@ -784,17 +806,18 @@ class SfpUtil(SfpUtilBase):
                     else:
                         transceiver_info_dict['cable_type'] = key
                         transceiver_info_dict['cable_length'] = 'N/A'
- 
+
                 for key in qfx5200_sfp_compliance_code_tup:
                     if key in sfp_interface_bulk_data['data']['Specification compliance']['value']:
                         compliance_code_dict[key] = sfp_interface_bulk_data['data']['Specification compliance']['value'][key]['value']
                 transceiver_info_dict['specification_compliance'] = str(compliance_code_dict)
 
-                if sfp_interface_bulk_data['data'].has_key('NominalSignallingRate(UnitsOf100Mbd)'):
-                    transceiver_info_dict['nominal_bit_rate'] = str(sfp_interface_bulk_data['data']['NominalSignallingRate(UnitsOf100Mbd)']['value'])
-                else:    
+                if 'NominalSignallingRate(UnitsOf100Mbd)' in sfp_interface_bulk_data['data']:
+                    transceiver_info_dict['nominal_bit_rate'] = str(
+                        sfp_interface_bulk_data['data']['NominalSignallingRate(UnitsOf100Mbd)']['value'])
+                else:
                     transceiver_info_dict['nominal_bit_rate'] = 'N/A'
- 
+
         logger.log_debug("QFX5200: get_transceiver_info_dict End")
         return transceiver_info_dict
 
@@ -844,25 +867,29 @@ class SfpUtil(SfpUtilBase):
             # TODO: in the future when decided to migrate to support SFF-8636 instead of SFF-8436,
             # need to add more code for determining the capability and version compliance
             # in SFF-8636 dom capability definitions evolving with the versions.
-            qsfp_dom_capability_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset_xcvr + XCVR_DOM_CAPABILITY_OFFSET), XCVR_DOM_CAPABILITY_WIDTH)
+            qsfp_dom_capability_raw = self._read_eeprom_specific_bytes(
+                sysfsfile_eeprom, (offset_xcvr + XCVR_DOM_CAPABILITY_OFFSET), XCVR_DOM_CAPABILITY_WIDTH)
             if qsfp_dom_capability_raw is not None:
                 qspf_dom_capability_data = sfpi_obj.parse_qsfp_dom_capability(qsfp_dom_capability_raw, 0)
             else:
                 return None
 
-            dom_temperature_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + QSFP_TEMPE_OFFSET), QSFP_TEMPE_WIDTH)
+            dom_temperature_raw = self._read_eeprom_specific_bytes(
+                sysfsfile_eeprom, (offset + QSFP_TEMPE_OFFSET), QSFP_TEMPE_WIDTH)
             if dom_temperature_raw is not None:
                 dom_temperature_data = sfpd_obj.parse_temperature(dom_temperature_raw, 0)
             else:
                 return None
 
-            dom_voltage_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + QSFP_VOLT_OFFSET), QSFP_VOLT_WIDTH)
+            dom_voltage_raw = self._read_eeprom_specific_bytes(
+                sysfsfile_eeprom, (offset + QSFP_VOLT_OFFSET), QSFP_VOLT_WIDTH)
             if dom_voltage_raw is not None:
                 dom_voltage_data = sfpd_obj.parse_voltage(dom_voltage_raw, 0)
             else:
                 return None
 
-            qsfp_dom_rev_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + QSFP_DOM_REV_OFFSET), QSFP_DOM_REV_WIDTH)
+            qsfp_dom_rev_raw = self._read_eeprom_specific_bytes(
+                sysfsfile_eeprom, (offset + QSFP_DOM_REV_OFFSET), QSFP_DOM_REV_WIDTH)
             if qsfp_dom_rev_raw is not None:
                 qsfp_dom_rev_data = sfpd_obj.parse_sfp_dom_rev(qsfp_dom_rev_raw, 0)
             else:
@@ -877,7 +904,8 @@ class SfpUtil(SfpUtilBase):
             qsfp_dom_rev = qsfp_dom_rev_data['data']['dom_rev']['value']
             qsfp_tx_power_support = qspf_dom_capability_data['data']['Tx_power_support']['value']
             if (qsfp_dom_rev[0:8] != 'SFF-8636' or (qsfp_dom_rev[0:8] == 'SFF-8636' and qsfp_tx_power_support != 'on')):
-                dom_channel_monitor_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + QSFP_CHANNL_MON_OFFSET), QSFP_CHANNL_MON_WIDTH)
+                dom_channel_monitor_raw = self._read_eeprom_specific_bytes(
+                    sysfsfile_eeprom, (offset + QSFP_CHANNL_MON_OFFSET), QSFP_CHANNL_MON_WIDTH)
                 if dom_channel_monitor_raw is not None:
                     dom_channel_monitor_data = sfpd_obj.parse_channel_monitor_params(dom_channel_monitor_raw, 0)
                 else:
@@ -888,9 +916,11 @@ class SfpUtil(SfpUtilBase):
                 transceiver_dom_info_dict['tx3power'] = 'N/A'
                 transceiver_dom_info_dict['tx4power'] = 'N/A'
             else:
-                dom_channel_monitor_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + QSFP_CHANNL_MON_OFFSET), QSFP_CHANNL_MON_WITH_TX_POWER_WIDTH)
+                dom_channel_monitor_raw = self._read_eeprom_specific_bytes(
+                    sysfsfile_eeprom, (offset + QSFP_CHANNL_MON_OFFSET), QSFP_CHANNL_MON_WITH_TX_POWER_WIDTH)
                 if dom_channel_monitor_raw is not None:
-                    dom_channel_monitor_data = sfpd_obj.parse_channel_monitor_params_with_tx_power(dom_channel_monitor_raw, 0)
+                    dom_channel_monitor_data = sfpd_obj.parse_channel_monitor_params_with_tx_power(
+                        dom_channel_monitor_raw, 0)
                 else:
                     return None
 
@@ -932,19 +962,22 @@ class SfpUtil(SfpUtilBase):
             if sfpd_obj is None:
                 return None
 
-            dom_temperature_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + SFP_TEMPE_OFFSET), SFP_TEMPE_WIDTH)
+            dom_temperature_raw = self._read_eeprom_specific_bytes(
+                sysfsfile_eeprom, (offset + SFP_TEMPE_OFFSET), SFP_TEMPE_WIDTH)
             if dom_temperature_raw is not None:
                 dom_temperature_data = sfpd_obj.parse_temperature(dom_temperature_raw, 0)
             else:
                 return None
 
-            dom_voltage_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + SFP_VOLT_OFFSET), SFP_VOLT_WIDTH)
+            dom_voltage_raw = self._read_eeprom_specific_bytes(
+                sysfsfile_eeprom, (offset + SFP_VOLT_OFFSET), SFP_VOLT_WIDTH)
             if dom_voltage_raw is not None:
                 dom_voltage_data = sfpd_obj.parse_voltage(dom_voltage_raw, 0)
             else:
                 return None
 
-            dom_channel_monitor_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + SFP_CHANNL_MON_OFFSET), SFP_CHANNL_MON_WIDTH)
+            dom_channel_monitor_raw = self._read_eeprom_specific_bytes(
+                sysfsfile_eeprom, (offset + SFP_CHANNL_MON_OFFSET), SFP_CHANNL_MON_WIDTH)
             if dom_channel_monitor_raw is not None:
                 dom_channel_monitor_data = sfpd_obj.parse_channel_monitor_params(dom_channel_monitor_raw, 0)
             else:
@@ -986,7 +1019,7 @@ class SfpUtil(SfpUtilBase):
                               'txpowerlowalarm',  'txpowerlowwarning',
                               'txbiashighalarm',  'txbiashighwarning',
                               'txbiaslowalarm',   'txbiaslowwarning'
-                             ]
+                              ]
         transceiver_dom_threshold_info_dict = dict.fromkeys(dom_info_dict_keys, 'N/A')
 
         logger.log_debug("QFX5200: get_transceiver_dom_threshold_info_dict Start")
@@ -1009,18 +1042,18 @@ class SfpUtil(SfpUtilBase):
             # Revert offset back to 0 once data is retrieved
             offset = 384
             dom_module_threshold_raw = self._read_eeprom_specific_bytes(
-                                     sysfsfile_eeprom,
-                                     (offset + QSFP_MODULE_THRESHOLD_OFFSET),
-                                     QSFP_MODULE_THRESHOLD_WIDTH)
+                sysfsfile_eeprom,
+                (offset + QSFP_MODULE_THRESHOLD_OFFSET),
+                QSFP_MODULE_THRESHOLD_WIDTH)
             if dom_module_threshold_raw is not None:
                 dom_module_threshold_data = sfpd_obj.parse_module_threshold_values(dom_module_threshold_raw, 0)
             else:
                 return transceiver_dom_threshold_info_dict
 
             dom_channel_threshold_raw = self._read_eeprom_specific_bytes(
-                                      sysfsfile_eeprom,
-                                      (offset + QSFP_CHANNL_THRESHOLD_OFFSET),
-                                 QSFP_CHANNL_THRESHOLD_WIDTH)
+                sysfsfile_eeprom,
+                (offset + QSFP_CHANNL_THRESHOLD_OFFSET),
+                QSFP_CHANNL_THRESHOLD_WIDTH)
             if dom_channel_threshold_raw is not None:
                 dom_channel_threshold_data = sfpd_obj.parse_channel_threshold_values(dom_channel_threshold_raw, 0)
             else:
@@ -1057,18 +1090,18 @@ class SfpUtil(SfpUtilBase):
                 return None
 
             try:
-                sysfsfile_eeprom = io.open(file_path,"rb",0)
+                sysfsfile_eeprom = io.open(file_path, "rb", 0)
             except IOError:
                 print("Error: reading sysfs file %s" % file_path)
                 return None
-            
-            sfpd_obj = sff8472Dom(None,1)
+
+            sfpd_obj = sff8472Dom(None, 1)
             if sfpd_obj is None:
                 return transceiver_dom_threshold_info_dict
-            
-            dom_module_threshold_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, 
-                                             (offset + SFP_MODULE_THRESHOLD_OFFSET), SFP_MODULE_THRESHOLD_WIDTH)
-            
+
+            dom_module_threshold_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom,
+                                                                        (offset + SFP_MODULE_THRESHOLD_OFFSET), SFP_MODULE_THRESHOLD_WIDTH)
+
             if dom_module_threshold_raw is not None:
                 dom_module_threshold_data = sfpd_obj.parse_alarm_warning_threshold(dom_module_threshold_raw, 0)
             else:
@@ -1080,7 +1113,7 @@ class SfpUtil(SfpUtilBase):
                 print("Error: closing sysfs file %s" % file_path)
                 return None
 
-            #Threshold Data
+            # Threshold Data
             transceiver_dom_threshold_info_dict['temphighalarm'] = dom_module_threshold_data['data']['TempHighAlarm']['value']
             transceiver_dom_threshold_info_dict['templowalarm'] = dom_module_threshold_data['data']['TempLowAlarm']['value']
             transceiver_dom_threshold_info_dict['temphighwarning'] = dom_module_threshold_data['data']['TempHighWarning']['value']
@@ -1101,11 +1134,10 @@ class SfpUtil(SfpUtilBase):
             transceiver_dom_threshold_info_dict['rxpowerlowalarm'] = dom_module_threshold_data['data']['RXPowerLowAlarm']['value']
             transceiver_dom_threshold_info_dict['rxpowerhighwarning'] = dom_module_threshold_data['data']['RXPowerHighWarning']['value']
             transceiver_dom_threshold_info_dict['rxpowerlowwarning'] = dom_module_threshold_data['data']['RXPowerLowWarning']['value']
-            
+
         logger.log_debug("QFX5200: get_transceiver_dom_threshold_info_dict End")
         return transceiver_dom_threshold_info_dict
 
     def get_transceiver_change_event(self, timeout=2000):
-	time.sleep(3)
+        time.sleep(3)
         return self.sfp_detect()
-

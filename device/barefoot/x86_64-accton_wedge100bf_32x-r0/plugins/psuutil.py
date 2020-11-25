@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 try:
     import os
     import sys
@@ -16,11 +14,12 @@ try:
 
     from sonic_psu.psu_base import PsuBase
 except ImportError as e:
-    raise ImportError (str(e) + "- required module not found")
+    raise ImportError(str(e) + "- required module not found")
 
 thrift_server = 'localhost'
 transport = None
 pltfm_mgr = None
+
 
 class PsuUtil(PsuBase):
     """Platform-specific PSUutil class"""
@@ -35,8 +34,10 @@ class PsuUtil(PsuBase):
         transport = TTransport.TBufferedTransport(transport)
         bprotocol = TBinaryProtocol.TBinaryProtocol(transport)
 
-        pltfm_mgr_client_module = importlib.import_module(".".join(["pltfm_mgr_rpc", "pltfm_mgr_rpc"]))
-        pltfm_mgr_protocol = TMultiplexedProtocol.TMultiplexedProtocol(bprotocol, "pltfm_mgr_rpc")
+        pltfm_mgr_client_module = importlib.import_module(
+            ".".join(["pltfm_mgr_rpc", "pltfm_mgr_rpc"]))
+        pltfm_mgr_protocol = TMultiplexedProtocol.TMultiplexedProtocol(
+            bprotocol, "pltfm_mgr_rpc")
         pltfm_mgr = pltfm_mgr_client_module.Client(pltfm_mgr_protocol)
 
         transport.open()
@@ -65,9 +66,9 @@ class PsuUtil(PsuBase):
         global pltfm_mgr
 
         try:
-           self.thrift_setup()
-           psu_info = pltfm_mgr.pltfm_mgr_pwr_supply_info_get(index)
-           self.thrift_teardown()
+            self.thrift_setup()
+            psu_info = pltfm_mgr.pltfm_mgr_pwr_supply_info_get(index)
+            self.thrift_teardown()
         except:
             return False
 
@@ -86,11 +87,10 @@ class PsuUtil(PsuBase):
         global pltfm_mgr
 
         try:
-	    self.thrift_setup()
-	    status = pltfm_mgr.pltfm_mgr_pwr_supply_present_get(index)
-	    self.thrift_teardown()
+            self.thrift_setup()
+            status = pltfm_mgr.pltfm_mgr_pwr_supply_present_get(index)
+            self.thrift_teardown()
         except:
             return False
 
         return status
-

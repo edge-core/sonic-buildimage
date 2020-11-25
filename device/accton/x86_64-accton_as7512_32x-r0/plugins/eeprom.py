@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 #############################################################################
 # Cavium
 #
@@ -10,7 +8,6 @@
 #############################################################################
 
 try:
-    import exceptions
     import binascii
     import time
     import optparse
@@ -20,8 +17,9 @@ try:
     from sonic_eeprom import eeprom_base
     from sonic_eeprom import eeprom_tlvinfo
     import subprocess
-except ImportError, e:
-    raise ImportError (str(e) + "- required module not found")
+except ImportError as e:
+    raise ImportError(str(e) + "- required module not found")
+
 
 class board(eeprom_tlvinfo.TlvInfoDecoder):
 

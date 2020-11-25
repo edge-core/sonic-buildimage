@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 #############################################################################
 # Celestica
 #
@@ -15,7 +13,7 @@ import sonic_platform
 
 try:
     from sonic_platform_base.psu_base import PsuBase
-    from helper import APIHelper
+    from .helper import APIHelper
     from sonic_platform.fan import Fan
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
@@ -238,6 +236,6 @@ class Psu(PsuBase):
         if status:
             failure_detected = (int(status_byte, 16) >> 1) & 1
             input_lost = (int(status_byte, 16) >> 3) & 1
-            psu_status = False if (input_lost or failure_detected) else True            
+            psu_status = False if (input_lost or failure_detected) else True
 
         return psu_status

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-#
 # Platform-specific SFP transceiver interface for SONiC
 # This plugin supports QSFP-DD, QSFP and SFP.
 
@@ -41,7 +39,7 @@ class SfpUtil(SfpUtilBase):
 
     @property
     def osfp_ports(self):
-        return range(self.OSFP_PORT_START, self.OSFP_PORT_END + 1)
+        return list(range(self.OSFP_PORT_START, self.OSFP_PORT_END + 1))
 
     @property
     def port_to_eeprom_mapping(self):
@@ -78,7 +76,7 @@ class SfpUtil(SfpUtilBase):
 
     def get_presence(self, port_num):
         # Check for invalid port_num
-        if port_num not in range(self.port_start, self.port_end + 1):
+        if port_num not in list(range(self.port_start, self.port_end + 1)):
             return False
 
         # Get path for access port presence status
@@ -92,7 +90,7 @@ class SfpUtil(SfpUtilBase):
             content = reg_file.readline().rstrip()
             reg_value = int(content)
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         # Module present is active low
@@ -111,7 +109,7 @@ class SfpUtil(SfpUtilBase):
             reg_file = open("/".join([self.PORT_INFO_PATH,
                                       port_name, "qsfp_lpmode"]))
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         # Read status
@@ -133,7 +131,7 @@ class SfpUtil(SfpUtilBase):
             reg_file = open("/".join([self.PORT_INFO_PATH,
                                       port_name, "qsfp_lpmode"]), "r+")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         content = hex(lpmode)
@@ -154,7 +152,7 @@ class SfpUtil(SfpUtilBase):
             reg_file = open("/".join([self.PORT_INFO_PATH,
                                       port_name, "qsfp_reset"]), "w")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         # Convert our register value back to a hex string and write back
@@ -170,7 +168,7 @@ class SfpUtil(SfpUtilBase):
             reg_file = open(
                 "/".join([self.PORT_INFO_PATH, port_name, "qsfp_reset"]), "w")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         reg_file.seek(0)

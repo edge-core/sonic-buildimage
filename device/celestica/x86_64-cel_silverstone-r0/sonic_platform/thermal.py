@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 #############################################################################
 # Celestica
 #
@@ -14,7 +12,7 @@ import os.path
 
 try:
     from sonic_platform_base.thermal_base import ThermalBase
-    from helper import APIHelper
+    from .helper import APIHelper
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -47,20 +45,21 @@ class Thermal(ThermalBase):
         self.sensor_id = self.THERMAL_LIST[self.index][0]
         self.sensor_des = self.THERMAL_LIST[self.index][1]
         self.sensor_reading_addr = self.THERMAL_LIST[self.index][2]
+
     def __set_threshold(self, key, value):
-        print(key, value)
+        print('{} {}'.format(key, value))
 
     def get_temperature(self):
         """
         Retrieves current temperature reading from thermal
         Returns:
             A float number of current temperature in Celsius up to nearest thousandth
-            of one degree Celsius, e.g. 30.125 
+            of one degree Celsius, e.g. 30.125
         """
         temperature = 0.0
         status, raw_ss_read = self._api_helper.ipmi_raw(
             IPMI_SENSOR_NETFN, IPMI_SS_READ_CMD.format(self.sensor_reading_addr))
-        if status and len(raw_ss_read.split()) > 0: 
+        if status and len(raw_ss_read.split()) > 0:
             ss_read = raw_ss_read.split()[0]
             temperature = float(int(ss_read, 16))
         return temperature
@@ -75,7 +74,7 @@ class Thermal(ThermalBase):
         high_threshold = 0.0
         status, raw_up_thres_read = self._api_helper.ipmi_raw(
             IPMI_SENSOR_NETFN, IPMI_SS_THRESHOLD_CMD.format(self.sensor_reading_addr))
-        if status and len(raw_up_thres_read.split()) > 6: 
+        if status and len(raw_up_thres_read.split()) > 6:
             ss_read = raw_up_thres_read.split()[4]
             high_threshold = float(int(ss_read, 16))
         return high_threshold
@@ -92,8 +91,8 @@ class Thermal(ThermalBase):
     def set_high_threshold(self, temperature):
         """
         Sets the high threshold temperature of thermal
-        Args : 
-            temperature: A float number up to nearest thousandth of one degree Celsius, 
+        Args :
+            temperature: A float number up to nearest thousandth of one degree Celsius,
             e.g. 30.125
         Returns:
             A boolean, True if threshold is set successfully, False if not
@@ -104,7 +103,7 @@ class Thermal(ThermalBase):
     def set_low_threshold(self, temperature):
         """
         Sets the low threshold temperature of thermal
-        Args : 
+        Args :
             temperature: A float number up to nearest thousandth of one degree Celsius,
             e.g. 30.125
         Returns:

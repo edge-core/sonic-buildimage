@@ -83,6 +83,14 @@ RUN pip2 install urllib3
 RUN pip2 install requests
 RUN pip2 install crontab
 
+# For sonic-config-engine Python 3 package
+# Install pyangbind here, outside sonic-config-engine dependencies, as pyangbind causes enum34 to be installed.
+# Then immediately uninstall enum34, as enum34 should not be installed for Python >= 3.4, as it causes a
+# conflict with the new 'enum' module in the standard library
+# https://github.com/robshakir/pyangbind/issues/232
+RUN pip3 install pyangbind==0.8.1
+RUN pip3 uninstall -y enum34
+
 {% if docker_sonic_vs_debs.strip() -%}
 # Copy locally-built Debian package dependencies
 {%- for deb in docker_sonic_vs_debs.split(' ') %}

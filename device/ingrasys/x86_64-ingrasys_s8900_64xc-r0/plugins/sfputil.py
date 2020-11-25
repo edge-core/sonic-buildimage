@@ -16,6 +16,7 @@ i2c_get = 'i2cget'
 cpld_addr = '0x33'
 mux_reg = '0x4A'
 
+
 class SfpUtil(SfpUtilBase):
     """Platform-specific SfpUtil class"""
 
@@ -26,70 +27,70 @@ class SfpUtil(SfpUtilBase):
 
     _port_to_eeprom_mapping = {}
     port_to_i2c_mapping = {
-           0: [2,1],
-           1: [2,2],
-           2: [2,3],
-           3: [2,4],
-           4: [2,5],
-           5: [2,6],
-           6: [2,7],
-           7: [2,8],
-           8: [2,9],
-           9: [2,10],
-           10: [2,11],
-           11: [2,12],
-           12: [2,13],
-           13: [2,14],
-           14: [2,15],
-           15: [2,16],
-           16: [2,17],
-           17: [2,18],
-           18: [2,19],
-           19: [2,20],
-           20: [2,21],
-           21: [2,22],
-           22: [2,23],
-           23: [2,24],
-           24: [3,25],
-           25: [3,26],
-           26: [3,27],
-           27: [3,28],
-           28: [3,29],
-           29: [3,30],
-           30: [3,31],
-           31: [3,32],
-           32: [3,33],
-           33: [3,34],
-           34: [3,35],
-           35: [3,36],
-           36: [3,37],
-           37: [3,38],
-           38: [3,39],
-           39: [3,40],
-           40: [3,41],
-           41: [3,42],
-           42: [3,43],
-           43: [3,44],
-           44: [3,45],
-           45: [3,46],
-           46: [3,47],
-           47: [3,48],
-           48: [4,49],
-           49: [4,50],
-           50: [4,51],
-           51: [4,52],
-           52: [4,53],
-           53: [4,54],
-           54: [4,55],
-           55: [4,56],
-           56: [4,57],
-           57: [4,58],
-           58: [4,59],
-           59: [4,60],
-           60: [4,61],
-           61: [4,62],
-           62: [4,63],
-           63: [4,64]
+        0: [2, 1],
+        1: [2, 2],
+        2: [2, 3],
+        3: [2, 4],
+        4: [2, 5],
+        5: [2, 6],
+        6: [2, 7],
+        7: [2, 8],
+        8: [2, 9],
+        9: [2, 10],
+        10: [2, 11],
+        11: [2, 12],
+        12: [2, 13],
+        13: [2, 14],
+        14: [2, 15],
+        15: [2, 16],
+        16: [2, 17],
+        17: [2, 18],
+        18: [2, 19],
+        19: [2, 20],
+        20: [2, 21],
+        21: [2, 22],
+        22: [2, 23],
+        23: [2, 24],
+        24: [3, 25],
+        25: [3, 26],
+        26: [3, 27],
+        27: [3, 28],
+        28: [3, 29],
+        29: [3, 30],
+        30: [3, 31],
+        31: [3, 32],
+        32: [3, 33],
+        33: [3, 34],
+        34: [3, 35],
+        35: [3, 36],
+        36: [3, 37],
+        37: [3, 38],
+        38: [3, 39],
+        39: [3, 40],
+        40: [3, 41],
+        41: [3, 42],
+        42: [3, 43],
+        43: [3, 44],
+        44: [3, 45],
+        45: [3, 46],
+        46: [3, 47],
+        47: [3, 48],
+        48: [4, 49],
+        49: [4, 50],
+        50: [4, 51],
+        51: [4, 52],
+        52: [4, 53],
+        53: [4, 54],
+        54: [4, 55],
+        55: [4, 56],
+        56: [4, 57],
+        57: [4, 58],
+        58: [4, 59],
+        59: [4, 60],
+        60: [4, 61],
+        61: [4, 62],
+        62: [4, 63],
+        63: [4, 64]
     }
 
     @property
@@ -102,7 +103,7 @@ class SfpUtil(SfpUtilBase):
 
     @property
     def qsfp_ports(self):
-        return range(self.QSFP_PORT_START, self.PORTS_IN_BLOCK + 1)
+        return list(range(self.QSFP_PORT_START, self.PORTS_IN_BLOCK + 1))
 
     @property
     def port_to_eeprom_mapping(self):
@@ -133,7 +134,7 @@ class SfpUtil(SfpUtilBase):
         try:
             reg_file = open("/sys/devices/platform/ingrasys-s8900-64xc-cpld.0/qsfp_modprs")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         content = reg_file.readline().rstrip()
@@ -158,7 +159,7 @@ class SfpUtil(SfpUtilBase):
         try:
             reg_file = open("/sys/devices/platform/ingrasys-s8900-64xc-cpld.0/qsfp_lpmode")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         content = reg_file.readline().rstrip()
@@ -167,7 +168,7 @@ class SfpUtil(SfpUtilBase):
         reg_value = int(content, 16)
 
         # Mask off the bit corresponding to our port
-        mask = (1 << (port_num - self.qsfp_port_start) )
+        mask = (1 << (port_num - self.qsfp_port_start))
 
         # LPMode is active high
         if reg_value & mask == 0:
@@ -183,7 +184,7 @@ class SfpUtil(SfpUtilBase):
         try:
             reg_file = open("/sys/devices/platform/ingrasys-s8900-64xc-cpld.0/qsfp_lpmode", "r+")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         content = reg_file.readline().rstrip()
@@ -192,7 +193,7 @@ class SfpUtil(SfpUtilBase):
         reg_value = int(content, 16)
 
         # Mask off the bit corresponding to our port
-        mask = (1 << (port_num - self.qsfp_port_start) )
+        mask = (1 << (port_num - self.qsfp_port_start))
 
         # LPMode is active high; set or clear the bit accordingly
         if lpmode is True:
@@ -219,7 +220,7 @@ class SfpUtil(SfpUtilBase):
         try:
             reg_file = open(QSFP_RESET_REGISTER_DEVICE_FILE, "r+")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         content = reg_file.readline().rstrip()
@@ -245,7 +246,7 @@ class SfpUtil(SfpUtilBase):
         try:
             reg_file = open(QSFP_RESET_REGISTER_DEVICE_FILE, "w")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         reg_value = reg_value | mask

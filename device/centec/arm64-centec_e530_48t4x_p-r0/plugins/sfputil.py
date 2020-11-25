@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # sfputil.py
 #
 # Platform-specific SFP transceiver interface for SONiC
@@ -15,7 +13,7 @@ except ImportError as e:
 
 
 def DBG_PRINT(str):
-    print str + "\n"
+    print(str + "\n")
 
 
 class SfpUtil(SfpUtilBase):
@@ -68,26 +66,27 @@ class SfpUtil(SfpUtilBase):
         return ret
 
     # todo
-    #def _get_port_eeprom_path(self, port_num, devid):
+    # def _get_port_eeprom_path(self, port_num, devid):
     #    pass
 
     def __init__(self):
         self.SONIC_PORT_NAME_PREFIX = "Ethernet"
         self.PORT_START = 1
         self.PORT_END = 52
-	self.SFP_BASE = 49
+        self.SFP_BASE = 49
         self.PORTS_IN_BLOCK = 52
 
         self.eeprom_mapping = {}
         self.f_sfp_present = "/sys/class/sfp/sfp{}/sfp_presence"
         self.f_sfp_enable = "/sys/class/sfp/sfp{}/sfp_enable"
-	for x in range(self.port_start, self.sfp_base):
+        for x in range(self.port_start, self.sfp_base):
             self.eeprom_mapping[x] = None
         for x in range(self.sfp_base, self.port_end + 1):
-            self.eeprom_mapping[x] = "/sys/class/sfp/sfp{}/sfp_eeprom".format(x - self.sfp_base + 1)
+            self.eeprom_mapping[x] = "/sys/class/sfp/sfp{}/sfp_eeprom".format(
+                x - self.sfp_base + 1)
         self.presence = {}
         for x in range(self.sfp_base, self.port_end + 1):
-            self.presence[x] = False;
+            self.presence[x] = False
 
         SfpUtilBase.__init__(self)
 

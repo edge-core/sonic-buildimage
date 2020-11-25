@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import os.path
 import subprocess
 import sys
@@ -8,7 +6,8 @@ import re
 try:
     from sonic_psu.psu_base import PsuBase
 except ImportError as e:
-    raise ImportError (str(e) + "- required module not found")
+    raise ImportError(str(e) + "- required module not found")
+
 
 class PsuUtil(PsuBase):
     """Platform-specific PSUutil class"""
@@ -18,21 +17,21 @@ class PsuUtil(PsuBase):
         PsuBase.__init__(self)
 
     def run_command(self, command):
-        proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+        proc = subprocess.Popen(command, shell=True, universal_newlines=True, stdout=subprocess.PIPE)
         (out, err) = proc.communicate()
 
         if proc.returncode != 0:
             sys.exit(proc.returncode)
-    
+
         return out
-    
+
     def find_value(self, grep_string):
         result = re.search(".+\| (0x\d{2})\d{2}\|.+", grep_string)
         if result:
             return result.group(1)
         else:
             return result
-        
+
     def get_num_psus(self):
         """
         Retrieves the number of PSUs available on the device
@@ -51,9 +50,9 @@ class PsuUtil(PsuBase):
             return False
 
         grep_key = "PSUL_Status" if index == 1 else "PSUR_Status"
-        grep_string = self.run_command(self.ipmi_sensor + ' | grep '+ grep_key)
+        grep_string = self.run_command(self.ipmi_sensor + ' | grep ' + grep_key)
         status_byte = self.find_value(grep_string)
-        
+
         if status_byte is None:
             return False
 
@@ -75,13 +74,13 @@ class PsuUtil(PsuBase):
             return False
 
         grep_key = "PSUL_Status" if index == 1 else "PSUR_Status"
-        grep_string = self.run_command(self.ipmi_sensor + ' | grep '+ grep_key)
+        grep_string = self.run_command(self.ipmi_sensor + ' | grep ' + grep_key)
         status_byte = self.find_value(grep_string)
-        
+
         if status_byte is None:
             return False
-        
-        presence = ( int(status_byte, 16) >> 0 ) & 1
+
+        presence = (int(status_byte, 16) >> 0) & 1
         if presence:
             return True
         else:

@@ -19,12 +19,12 @@ class PsuUtil(PsuBase):
 
     def __init__(self):
         PsuBase.__init__(self)
-    
-             
+
     # Get sysfs attribute
+
     def get_attr_value(self, attr_path):
-        
-        retval = 'ERR'        
+
+        retval = 'ERR'
         if (not os.path.isfile(attr_path)):
             return retval
 
@@ -54,17 +54,17 @@ class PsuUtil(PsuBase):
         faulty
         """
         status = 0
-        mask = [ 0x08, 0x10 ]
-        attr_file = 'cpld_pw_good'        
-        attr_path = self.PSU_CPLD_DIR +'/'+ attr_file
-                  
+        mask = [0x08, 0x10]
+        attr_file = 'cpld_pw_good'
+        attr_path = self.PSU_CPLD_DIR + '/' + attr_file
+
         attr_value = self.get_attr_value(attr_path)
-        
+
         if (attr_value != 'ERR'):
             attr_value = int(attr_value, 16)
             # Check for PSU status
             if (attr_value & mask[index-1]):
-                    status = 1
+                status = 1
 
         return status
 
@@ -76,17 +76,16 @@ class PsuUtil(PsuBase):
         :return: Boolean, True if PSU is plugged, False if not
         """
         status = 0
-        mask = [ 0x01, 0x02 ]
-        attr_file ='cpld_pw_abs'
-        attr_path = self.PSU_CPLD_DIR +'/'+ attr_file
-        
+        mask = [0x01, 0x02]
+        attr_file = 'cpld_pw_abs'
+        attr_path = self.PSU_CPLD_DIR + '/' + attr_file
+
         attr_value = self.get_attr_value(attr_path)
 
         if (attr_value != 'ERR'):
             attr_value = int(attr_value, 16)
             # Check for PSU presence
             if (~attr_value & mask[index-1]):
-                    status = 1
+                status = 1
 
         return status
-

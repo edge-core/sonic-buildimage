@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 #############################################################################
 # Celestica
 #
@@ -22,7 +20,7 @@ try:
     from sonic_platform.sfp import Sfp
     from sonic_platform.psu import Psu
     from sonic_platform.thermal import Thermal
-    from helper import APIHelper
+    from .helper import APIHelper
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -64,7 +62,6 @@ class Chassis(ChassisBase):
         for index in range(0, NUM_THERMAL):
             thermal = Thermal(index)
             self._thermal_list.append(thermal)
-
 
     def get_base_mac(self):
         """

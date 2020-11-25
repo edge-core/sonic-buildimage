@@ -1,6 +1,3 @@
-#!/usr/bin/python
-
-
 try:
     import importlib
     import time
@@ -23,51 +20,62 @@ try:
     from thrift.protocol import TMultiplexedProtocol
 
     from argparse import ArgumentParser
-    from cStringIO import StringIO
+
+    if sys.version_info.major == 3:
+        from io import StringIO
+    else:
+        from cStringIO import StringIO
+
     from sonic_eeprom import eeprom_base
     from sonic_eeprom import eeprom_tlvinfo
-except ImportError, e:
-    raise ImportError (str(e) + "- required module not found")
+except ImportError as e:
+    raise ImportError(str(e) + "- required module not found")
+
+
+if sys.version_info.major == 3:
+    STRING_TYPE = str
+else:
+    STRING_TYPE = basestring
 
 
 eeprom_default_dict = {
-	"prod_name"         : ("Product Name",                "0x21", 12),
-	"odm_pcba_part_num" : ("Part Number",                 "0x22", 13),
-	"prod_ser_num"      : ("Serial Number",               "0x23", 12),
-	"ext_mac_addr"      : ("Extended MAC Address Base",   "0x24", 12),
-	"sys_mfg_date"      : ("System Manufacturing Date",   "0x25",  4),
-	"prod_ver"          : ("Product Version",             "0x26",  1),
-	"ext_mac_addr_size" : ("Extende MAC Address Size",    "0x2A",  2),
-	"sys_mfger"         : ("Manufacturer",                "0x2B",  8)
+    "prod_name": ("Product Name",                "0x21", 12),
+    "odm_pcba_part_num": ("Part Number",                 "0x22", 13),
+    "prod_ser_num": ("Serial Number",               "0x23", 12),
+    "ext_mac_addr": ("Extended MAC Address Base",   "0x24", 12),
+    "sys_mfg_date": ("System Manufacturing Date",   "0x25",  4),
+    "prod_ver": ("Product Version",             "0x26",  1),
+    "ext_mac_addr_size": ("Extende MAC Address Size",    "0x2A",  2),
+    "sys_mfger": ("Manufacturer",                "0x2B",  8)
 }
 
-eeprom_dict = { "version"           : ("Version",                     None,    0),
-		"pcb_mfger"         : ("PCB Manufacturer",            "0x01",  8),
-		"prod_ser_num"      : ("Serial Number",               "0x23", 12),
-		"bfn_pcba_part_num" : ("Switch PCBA Part Number",     "0x02", 12),
-		"odm_pcba_part_num" : ("Part Number",                 "0x22", 13),
-		"bfn_pcbb_part_num" : ("Switch PCBB Part Number",     "0x04", 12),
-		"sys_asm_part_num"  : ("System Assembly Part Number", "0x05", 12),
-		"prod_state"        : ("Product Production State",    "0x06",  1),
-		"location"          : ("EEPROM Location of Fabric",   "0x07",  8),
-		"ext_mac_addr_size" : ("Extende MAC Address Size",    "0x08",  2),
-		"sys_mfg_date"      : ("System Manufacturing Date",   "0x25",  4),
-		"prod_name"         : ("Product Name",                "0x21", 12),
-		"prod_ver"          : ("Product Version",             "0x26",  1),
-		"prod_part_num"     : ("Product Part Number",         "0x09",  8),
-		"sys_mfger"         : ("Manufacturer",                "0x2B",  8),
-		"assembled_at"      : ("Assembled at",                "0x08",  8),
-		"prod_ast_tag"      : ("Product Asset Tag",           "0x09", 12),
-		"loc_mac_addr"      : ("Local MAC address",           "0x0A", 12),
-		"odm_pcba_ser_num"  : ("ODM PBCA Serial Number",      "0x0B", 12),
-		"ext_mac_addr"      : ("Extended MAC Address Base",   "0x0C", 12),
-		"prod_sub_ver"      : ("Product Sub Version",         "0x0D",  1)
-              }
-
-product_dict = { "Montara"   : "Wedge100BF-32X-O-AC-F-BF",
-                 "Lower MAV" : "Wedge100BF-65X-O-AC-F-BF",
-                 "Upper MAV" : "Wedge100BF-65X-O-AC-F-BF"
+eeprom_dict = {"version": ("Version",                     None,    0),
+               "pcb_mfger": ("PCB Manufacturer",            "0x01",  8),
+               "prod_ser_num": ("Serial Number",               "0x23", 12),
+               "bfn_pcba_part_num": ("Switch PCBA Part Number",     "0x02", 12),
+               "odm_pcba_part_num": ("Part Number",                 "0x22", 13),
+               "bfn_pcbb_part_num": ("Switch PCBB Part Number",     "0x04", 12),
+               "sys_asm_part_num": ("System Assembly Part Number", "0x05", 12),
+               "prod_state": ("Product Production State",    "0x06",  1),
+               "location": ("EEPROM Location of Fabric",   "0x07",  8),
+               "ext_mac_addr_size": ("Extende MAC Address Size",    "0x08",  2),
+               "sys_mfg_date": ("System Manufacturing Date",   "0x25",  4),
+               "prod_name": ("Product Name",                "0x21", 12),
+               "prod_ver": ("Product Version",             "0x26",  1),
+               "prod_part_num": ("Product Part Number",         "0x09",  8),
+               "sys_mfger": ("Manufacturer",                "0x2B",  8),
+               "assembled_at": ("Assembled at",                "0x08",  8),
+               "prod_ast_tag": ("Product Asset Tag",           "0x09", 12),
+               "loc_mac_addr": ("Local MAC address",           "0x0A", 12),
+               "odm_pcba_ser_num": ("ODM PBCA Serial Number",      "0x0B", 12),
+               "ext_mac_addr": ("Extended MAC Address Base",   "0x0C", 12),
+               "prod_sub_ver": ("Product Sub Version",         "0x0D",  1)
                }
+
+product_dict = {"Montara": "Wedge100BF-32X-O-AC-F-BF",
+                "Lower MAV": "Wedge100BF-65X-O-AC-F-BF",
+                "Upper MAV": "Wedge100BF-65X-O-AC-F-BF"
+                }
 
 thrift_server = 'localhost'
 transport = None
@@ -75,6 +83,7 @@ pltfm_mgr = None
 
 EEPROM_SYMLINK = "/var/run/platform/eeprom/syseeprom"
 EEPROM_STATUS = "/var/run/platform/eeprom/status"
+
 
 class board(eeprom_tlvinfo.TlvInfoDecoder):
     RETRIES = 35
@@ -114,8 +123,10 @@ class board(eeprom_tlvinfo.TlvInfoDecoder):
         transport = TTransport.TBufferedTransport(transport)
         bprotocol = TBinaryProtocol.TBinaryProtocol(transport)
 
-        pltfm_mgr_client_module = importlib.import_module(".".join(["pltfm_mgr_rpc", "pltfm_mgr_rpc"]))
-        pltfm_mgr_protocol = TMultiplexedProtocol.TMultiplexedProtocol(bprotocol, "pltfm_mgr_rpc")
+        pltfm_mgr_client_module = importlib.import_module(
+            ".".join(["pltfm_mgr_rpc", "pltfm_mgr_rpc"]))
+        pltfm_mgr_protocol = TMultiplexedProtocol.TMultiplexedProtocol(
+            bprotocol, "pltfm_mgr_rpc")
         pltfm_mgr = pltfm_mgr_client_module.Client(pltfm_mgr_protocol)
 
         transport.open()
@@ -139,7 +150,7 @@ class board(eeprom_tlvinfo.TlvInfoDecoder):
         f.close()
 
         eeprom_params = ""
-        for attr, val in eeprom.__dict__.iteritems():
+        for attr, val in eeprom.__dict__.items():
             if val is None:
                 continue
 
@@ -147,13 +158,14 @@ class board(eeprom_tlvinfo.TlvInfoDecoder):
             if elem is None:
                 continue
 
-            if isinstance(val, basestring):
+            if isinstance(val, STRING_TYPE):
                 value = val.replace('\0', '')
             else:
                 value = str(val)
 
             if attr == "sys_mfg_date":
-                value = datetime.datetime.strptime(value, '%m-%d-%y').strftime('%m/%d/%Y 00:00:00')
+                value = datetime.datetime.strptime(
+                    value, '%m-%d-%y').strftime('%m/%d/%Y 00:00:00')
 
             product = product_dict.get(value)
             if product is not None:
@@ -164,9 +176,9 @@ class board(eeprom_tlvinfo.TlvInfoDecoder):
 
         orig_stdout = sys.stdout
         sys.stdout = StringIO()
-        new_e = eeprom_tlvinfo.TlvInfoDecoder.set_eeprom(self, "", [eeprom_params])
+        new_e = eeprom_tlvinfo.TlvInfoDecoder.set_eeprom(
+            self, "", [eeprom_params])
         sys.stdout = orig_stdout
         eeprom_base.EepromDecoder.write_eeprom(self, new_e)
 
         return True
-

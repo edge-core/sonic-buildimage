@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import os.path
 import sys
 sys.path.append('/usr/share/sonic/platform/plugins')
@@ -10,8 +8,9 @@ try:
     import time
     from ctypes import create_string_buffer
     from sonic_sfp.sfputilbase import SfpUtilBase
-except ImportError, e:
-    raise ImportError (str(e) + "- required module not found")
+except ImportError as e:
+    raise ImportError(str(e) + "- required module not found")
+
 
 class SfpUtil(SfpUtilBase):
     """Platform generic PDDF SfpUtil class"""
@@ -36,8 +35,8 @@ class SfpUtil(SfpUtilBase):
         self._port_end = self.get_num_ports()
 
         for port_num in range(self._port_start, self._port_end):
-            device = "PORT" + "%d"%(port_num+1)
-            port_eeprom_path = pddf_obj.get_path(device,"eeprom")
+            device = "PORT" + "%d" % (port_num+1)
+            port_eeprom_path = pddf_obj.get_path(device, "eeprom")
             self._port_to_eeprom_mapping[port_num] = port_eeprom_path
             port_type = pddf_obj.get_device_type(device)
             self._port_to_type_mapping[port_num] = port_type
@@ -56,7 +55,7 @@ class SfpUtil(SfpUtilBase):
         if port_num < self._port_start or port_num > self._port_end:
             return False
 
-        device = "PORT" + "%d"%(port_num+1)
+        device = "PORT" + "%d" % (port_num+1)
         output = pddf_obj.get_attr_name_output(device, 'xcvr_present')
         if not output:
             return False
@@ -105,15 +104,15 @@ class SfpUtil(SfpUtilBase):
         if port_num < self._port_start or port_num > self._port_end:
             return False
 
-        device = "PORT" + "%d"%(port_num+1)
-        port_ps = pddf_obj.get_path(device,"xcvr_reset")
+        device = "PORT" + "%d" % (port_num+1)
+        port_ps = pddf_obj.get_path(device, "xcvr_reset")
         if port_ps is None:
             return False
 
         try:
             reg_file = open(port_ps, 'w')
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         try:
@@ -135,31 +134,32 @@ class SfpUtil(SfpUtilBase):
         if not self.get_presence(port_num):
             return False
 
-        device = "PORT" + "%d"%(port_num+1)
+        device = "PORT" + "%d" % (port_num+1)
         output = pddf_obj.get_attr_name_output(device, 'xcvr_lpmode')
         if not output:
             if port_num not in self.qsfp_ports:
-                return False # Read from eeprom only for QSFP ports
+                return False  # Read from eeprom only for QSFP ports
             try:
                 eeprom = None
                 eeprom = open(self.port_to_eeprom_mapping[port_num], "rb")
                 # check for valid connector type
                 eeprom.seek(2)
                 ctype = eeprom.read(1)
-                if ctype in ['21','23']:
+                if ctype in ['21', '23']:
                     return False
 
                 eeprom.seek(93)
                 lpmode = ord(eeprom.read(1))
-                
+
                 if ((lpmode & 0x3) == 0x3):
-                    return True # Low Power Mode if "Power override" bit is 1 and "Power set" bit is 1
+                    return True  # Low Power Mode if "Power override" bit is 1 and "Power set" bit is 1
                 else:
-                    return False # High Power Mode if one of the following conditions is matched:
-                                 # 1. "Power override" bit is 0
-                                 # 2. "Power override" bit is 1 and "Power set" bit is 0
+                    # High Power Mode if one of the following conditions is matched:
+                    # 1. "Power override" bit is 0
+                    # 2. "Power override" bit is 1 and "Power set" bit is 0
+                    return False
             except IOError as e:
-                print "Error: unable to open file: %s" % str(e)
+                print("Error: unable to open file: %s" % str(e))
                 return False
             finally:
                 if eeprom is not None:
@@ -180,33 +180,33 @@ class SfpUtil(SfpUtilBase):
             return False
 
         if not self.get_presence(port_num):
-            return False # Port is not present, unable to set the eeprom
+            return False  # Port is not present, unable to set the eeprom
 
-        device = "PORT" + "%d"%(port_num+1)
-        port_ps = pddf_obj.get_path(device,"xcvr_lpmode")
+        device = "PORT" + "%d" % (port_num+1)
+        port_ps = pddf_obj.get_path(device, "xcvr_lpmode")
         if port_ps is None:
             if port_num not in self.qsfp_ports:
-                return False # Write to eeprom only for QSFP ports
+                return False  # Write to eeprom only for QSFP ports
             try:
                 eeprom = None
                 eeprom = open(self.port_to_eeprom_mapping[port_num], "r+b")
                 # check for valid connector type
                 eeprom.seek(2)
                 ctype = eeprom.read(1)
-                if ctype in ['21','23']:
+                if ctype in ['21', '23']:
                     return False
 
                 # Fill in write buffer
-                regval = 0x3 if lpmode else 0x1 # 0x3:Low Power Mode, 0x1:High Power Mode
+                regval = 0x3 if lpmode else 0x1  # 0x3:Low Power Mode, 0x1:High Power Mode
                 buffer = create_string_buffer(1)
                 buffer[0] = chr(regval)
-                
+
                 # Write to eeprom
                 eeprom.seek(93)
                 eeprom.write(buffer[0])
                 return True
             except IOError as e:
-                print "Error: unable to open file: %s" % str(e)
+                print("Error: unable to open file: %s" % str(e))
                 return False
             finally:
                 if eeprom is not None:
@@ -231,7 +231,6 @@ class SfpUtil(SfpUtilBase):
         on this platform.
         """
         raise NotImplementedError
-
 
     def dump_sysfs(self):
         return pddf_obj.cli_dump_dsysfs('xcvr')

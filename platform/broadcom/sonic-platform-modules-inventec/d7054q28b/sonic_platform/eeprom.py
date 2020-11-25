@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #
 # Name: eeprom.py, version: 1.0
 #
@@ -8,7 +7,7 @@
 try:
     from sonic_eeprom import eeprom_tlvinfo
     import binascii
-except ImportError, e:
+except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
 class Eeprom(eeprom_tlvinfo.TlvInfoDecoder):

@@ -23,8 +23,8 @@ class PsuUtil(PsuBase):
 
 # Get sysfs attribute
     def get_attr_value(self, attr_path):
-        
-        retval = 'ERR'        
+
+        retval = 'ERR'
         if (not os.path.isfile(attr_path)):
             return retval
 
@@ -36,7 +36,7 @@ class PsuUtil(PsuBase):
 
         retval = retval.rstrip(' \t\n\r')
         return retval
-    
+
     def get_num_psus(self):
         """
         Retrieves the number of PSUs available on the device
@@ -54,18 +54,18 @@ class PsuUtil(PsuBase):
         faulty
         """
         status = 0
-        attr_file = 'psoc_psu'+ str(index) + '_iout'        
-        attr_path = self.PSU_DIR1 +'/' + attr_file
-                  
+        attr_file = 'psoc_psu' + str(index) + '_iout'
+        attr_path = self.PSU_DIR1 + '/' + attr_file
+
         attr_value = self.get_attr_value(attr_path)
         if (attr_value == 'ERR'):
-            attr_path = self.PSU_DIR2 +'/' + attr_file
+            attr_path = self.PSU_DIR2 + '/' + attr_file
             attr_value = self.get_attr_value(attr_path)
             # Check for PSU status
             if (attr_value != 0):
-                    status = 1
+                status = 1
         if (attr_value != 0):
-	    status = 1	    
+            status = 1
         return status
 
     def get_psu_presence(self, index):
@@ -78,16 +78,16 @@ class PsuUtil(PsuBase):
         status = 0
         psu_absent = 0
         ind = index-1
-        attr_file ='psu'+ str(ind)
+        attr_file = 'psu' + str(ind)
         normal_attr_value = '0 : normal'
-        attr_path = self.PSU_DIR1 +'/' + attr_file 
+        attr_path = self.PSU_DIR1 + '/' + attr_file
         attr_value = self.get_attr_value(attr_path)
         if (attr_value == 'ERR'):
-            attr_path = self.PSU_DIR2 +'/' + attr_file
+            attr_path = self.PSU_DIR2 + '/' + attr_file
             attr_value = self.get_attr_value(attr_path)
             # Check for PSU presence
             if (attr_value == normal_attr_value):
-                    status = 1
+                status = 1
         if (attr_value == normal_attr_value):
-                    status = 1
+            status = 1
         return status

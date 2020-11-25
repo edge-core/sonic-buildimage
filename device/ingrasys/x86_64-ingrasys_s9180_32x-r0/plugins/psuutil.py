@@ -20,16 +20,16 @@ class PsuUtil(PsuBase):
 
     def set_gpio_offset(self):
         sys_gpio_dir = "/sys/class/gpio"
-        self.GPIO_OFFSET = 0 
-        gpiochip_no = 0 
+        self.GPIO_OFFSET = 0
+        gpiochip_no = 0
         for d in os.listdir(sys_gpio_dir):
             if "gpiochip" in d:
                 try:
-                    gpiochip_no = int(d[8:],10)
+                    gpiochip_no = int(d[8:], 10)
                 except ValueError as e:
-                    print "Error: %s" % str(e)
+                    print("Error: %s" % str(e))
                 if gpiochip_no > 255:
-                    self.GPIO_OFFSET=256
+                    self.GPIO_OFFSET = 256
                     return True
         return True
 
@@ -37,8 +37,8 @@ class PsuUtil(PsuBase):
         self.set_gpio_offset()
         PsuBase.__init__(self)
 
-
     # Get sysfs attribute
+
     def get_attr_value(self, attr_path):
 
         retval = 'ERR'
@@ -71,7 +71,7 @@ class PsuUtil(PsuBase):
         faulty
         """
         status = 0
-        gpio_path = [ 'gpio'+str(99+self.GPIO_OFFSET)+'/value', 'gpio'+str(96+self.GPIO_OFFSET)+'/value' ]
+        gpio_path = ['gpio'+str(99+self.GPIO_OFFSET)+'/value', 'gpio'+str(96+self.GPIO_OFFSET)+'/value']
         attr_path = self.SYS_GPIO_DIR + gpio_path[index-1]
 
         attr_value = self.get_attr_value(attr_path)
@@ -80,7 +80,7 @@ class PsuUtil(PsuBase):
             attr_value = int(attr_value, 10)
             # Check for PSU status
             if (attr_value == 1):
-                    status = 1
+                status = 1
 
         return status
 
@@ -92,7 +92,7 @@ class PsuUtil(PsuBase):
         :return: Boolean, True if PSU is plugged, False if not
         """
         status = 0
-        gpio_path = [ 'gpio'+str(100+self.GPIO_OFFSET)+'/value', 'gpio'+str(97+self.GPIO_OFFSET)+'/value' ]
+        gpio_path = ['gpio'+str(100+self.GPIO_OFFSET)+'/value', 'gpio'+str(97+self.GPIO_OFFSET)+'/value']
         attr_path = self.SYS_GPIO_DIR + gpio_path[index-1]
 
         attr_value = self.get_attr_value(attr_path)
@@ -101,7 +101,6 @@ class PsuUtil(PsuBase):
             attr_value = int(attr_value, 10)
             # Check for PSU status
             if (attr_value == 1):
-                    status = 1
+                status = 1
 
         return status
-

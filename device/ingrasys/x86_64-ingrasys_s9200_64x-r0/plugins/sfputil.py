@@ -14,7 +14,7 @@ class SfpUtil(SfpUtilBase):
     """Platform-specific SfpUtil class"""
 
     PORT_START = 0
-    PORT_END = 63 
+    PORT_END = 63
     PORTS_IN_BLOCK = 64
 
     EEPROM_OFFSET = 29
@@ -22,70 +22,70 @@ class SfpUtil(SfpUtilBase):
     _port_to_eeprom_mapping = {}
 
     _logic_to_phy_port_mapping = {
-           0: 0,
-           1: 1,
-           2: 4,
-           3: 5,
-           4: 8,
-           5: 9,
-           6: 12,
-           7: 13,
-           8: 16,
-           9: 17,
-           10: 20,
-           11: 21,
-           12: 24,
-           13: 25,
-           14: 28,
-           15: 29,
-           16: 32,
-           17: 33,
-           18: 36,
-           19: 37,
-           20: 40,
-           21: 41,
-           22: 44,
-           23: 45,
-           24: 48,
-           25: 49,
-           26: 52,
-           27: 53,
-           28: 56,
-           29: 57,
-           30: 60,
-           31: 61,
-           32: 2,
-           33: 3,
-           34: 6,
-           35: 7,
-           36: 10,
-           37: 11,
-           38: 14,
-           39: 15,
-           40: 18,
-           41: 19,
-           42: 22,
-           43: 23,
-           44: 26,
-           45: 27,
-           46: 30,
-           47: 31,
-           48: 34,
-           49: 35,
-           50: 38,
-           51: 39,
-           52: 42,
-           53: 43,
-           54: 46,
-           55: 47,
-           56: 50,
-           57: 51,
-           58: 54,
-           59: 55,
-           60: 58,
-           61: 59,
-           62: 62,
-           63: 63
+        0: 0,
+        1: 1,
+        2: 4,
+        3: 5,
+        4: 8,
+        5: 9,
+        6: 12,
+        7: 13,
+        8: 16,
+        9: 17,
+        10: 20,
+        11: 21,
+        12: 24,
+        13: 25,
+        14: 28,
+        15: 29,
+        16: 32,
+        17: 33,
+        18: 36,
+        19: 37,
+        20: 40,
+        21: 41,
+        22: 44,
+        23: 45,
+        24: 48,
+        25: 49,
+        26: 52,
+        27: 53,
+        28: 56,
+        29: 57,
+        30: 60,
+        31: 61,
+        32: 2,
+        33: 3,
+        34: 6,
+        35: 7,
+        36: 10,
+        37: 11,
+        38: 14,
+        39: 15,
+        40: 18,
+        41: 19,
+        42: 22,
+        43: 23,
+        44: 26,
+        45: 27,
+        46: 30,
+        47: 31,
+        48: 34,
+        49: 35,
+        50: 38,
+        51: 39,
+        52: 42,
+        53: 43,
+        54: 46,
+        55: 47,
+        56: 50,
+        57: 51,
+        58: 54,
+        59: 55,
+        60: 58,
+        61: 59,
+        62: 62,
+        63: 63
     }
 
     @property
@@ -98,7 +98,7 @@ class SfpUtil(SfpUtilBase):
 
     @property
     def qsfp_ports(self):
-        return range(0, self.PORTS_IN_BLOCK + 1)
+        return list(range(0, self.PORTS_IN_BLOCK + 1))
 
     @property
     def port_to_eeprom_mapping(self):
@@ -124,7 +124,7 @@ class SfpUtil(SfpUtilBase):
         try:
             reg_file = open("/sys/devices/platform/ingrasys-s9200-cpld.0/qsfp_modprs")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         content = reg_file.readline().rstrip()
@@ -152,7 +152,7 @@ class SfpUtil(SfpUtilBase):
         try:
             reg_file = open("/sys/devices/platform/ingrasys-s9200-cpld.0/qsfp_lpmode")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
 
         content = reg_file.readline().rstrip()
 
@@ -175,15 +175,14 @@ class SfpUtil(SfpUtilBase):
 
     # logic port to physical port mapping
         port_num = self._logic_to_phy_port_mapping[port_num]
-    
+
         try:
             reg_file = open("/sys/devices/platform/ingrasys-s9200-cpld.0/qsfp_lpmode", "r+")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         content = reg_file.readline().rstrip()
-    
 
         # content is a string containing the hex representation of the register
         reg_value = int(content, 16)
@@ -219,7 +218,7 @@ class SfpUtil(SfpUtilBase):
         try:
             reg_file = open(QSFP_RESET_REGISTER_DEVICE_FILE, "r+")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         content = reg_file.readline().rstrip()
@@ -247,7 +246,7 @@ class SfpUtil(SfpUtilBase):
         try:
             reg_file = open(QSFP_RESET_REGISTER_DEVICE_FILE, "w")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         reg_value = reg_value | mask

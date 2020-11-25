@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 try:
     import time
     import os
@@ -15,15 +13,15 @@ class SfpUtil(SfpUtilBase):
     PORT_START = 1
     PORT_END = 52
     port_to_i2c_mapping = {
-         1: None,
-         2: None,
-         3: None,
-         4: None,
-         5: None,
-         6: None,
-         7: None,
-         8: None,
-         9: None,
+        1: None,
+        2: None,
+        3: None,
+        4: None,
+        5: None,
+        6: None,
+        7: None,
+        8: None,
+        9: None,
         10: None,
         11: None,
         12: None,
@@ -69,7 +67,7 @@ class SfpUtil(SfpUtilBase):
         52: 16
     }
     _port_to_eeprom_mapping = {}
-    _sfp_port = range(49, PORT_END + 1)
+    _sfp_port = list(range(49, PORT_END + 1))
 
     @property
     def port_start(self):
@@ -94,7 +92,6 @@ class SfpUtil(SfpUtilBase):
             port_eeprom_path = eeprom_path.format(self.port_to_i2c_mapping[x])
             self.port_to_eeprom_mapping[x] = port_eeprom_path
         SfpUtilBase.__init__(self)
-
 
     def get_presence(self, port_num):
         sfp_modabs_path = '/sys/devices/platform/e1031.smc/SFP/sfp_modabs'
@@ -129,7 +126,7 @@ class SfpUtil(SfpUtilBase):
         try:
             # We get notified when there is an SCI interrupt from GPIO SUS7
             fd = open("/sys/devices/platform/hlx-ich.0/sci_int_gpio_sus7", "r")
-            fd.read()       
+            fd.read()
 
             epoll.register(fd.fileno(), select.EPOLLIN & select.EPOLLET)
             events = epoll.poll(timeout=timeout_sec if timeout != 0 else -1)
@@ -139,16 +136,16 @@ class SfpUtil(SfpUtilBase):
                 with open(modabs_interrupt_path, 'r') as port_changes:
                     changes = int(port_changes.read(), 16)
                     for port_num in self._sfp_port:
-                        change = (changes >> ( port_num - 49)) & 1
+                        change = (changes >> (port_num - 49)) & 1
                         if change == 1:
                             port_dict[str(port_num)] = str(int(self.get_presence(port_num)))
                             found_flag = 1
-                    
+
                     if not found_flag:
                         return False, {}
 
                 return True, port_dict
-            
+
         finally:
             fd.close()
             epoll.close()

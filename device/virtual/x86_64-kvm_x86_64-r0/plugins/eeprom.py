@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 #############################################################################
 # SONiC Virtual switch platform
 #
@@ -18,7 +16,7 @@ class board():
 
     def read_eeprom(self):
         return \
-"""
+            """
 TLV Name             Code Len Value
 -------------------- ---- --- -----
 Product Name         0x21   5 SONiC
@@ -35,7 +33,7 @@ Vendor Name          0x2D   5 SONiC
 """
 
     def decode_eeprom(self, e):
-        print e
+        print(e)
 
     def serial_number_str(self, e):
         """Return service tag instead of serial number"""

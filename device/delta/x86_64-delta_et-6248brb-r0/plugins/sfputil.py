@@ -31,7 +31,7 @@ class SfpUtil(SfpUtilBase):
 
     @property
     def qsfp_ports(self):
-        return range(0)
+        return list(range(0))
 
     @property
     def port_to_eeprom_mapping(self):
@@ -52,13 +52,13 @@ class SfpUtil(SfpUtilBase):
         # Check for invalid port_num
         if port_num < self.port_start or port_num > self.port_end:
             return False
-        
+
         presence_path = "/sys/devices/platform/delta-et6248brb-gpio.0/SFP/sfp_mod_p{}"
 
         try:
             reg_file = open(presence_path.format(port_num - 47))
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         if int(reg_file.readline()) == 0:

@@ -11,9 +11,10 @@ try:
 except ImportError as e:
     raise ImportError("%s - required module not found" % str(e))
 
-#from xcvrd
+# from xcvrd
 SFP_STATUS_REMOVED = '0'
 SFP_STATUS_INSERTED = '1'
+
 
 class SfpUtil(SfpUtilBase):
     """Platform-specific SfpUtil class"""
@@ -31,69 +32,69 @@ class SfpUtil(SfpUtilBase):
 
     _port_to_eeprom_mapping = {}
     _cpld_mapping = {
-       1:  "12-0062",
-       2:  "18-0060",
-       3:  "19-0064",
-           }
+        1:  "12-0062",
+        2:  "18-0060",
+        3:  "19-0064",
+    }
 
     _port_to_i2c_mapping = {
-           1:  42,
-           2:  41,
-           3:  44,
-           4:  43,
-           5:  47,
-           6:  45,
-           7:  46,
-           8:  50,
-           9:  48,
-           10:  49,
-           11:  52,
-           12:  51,
-           13:  53,
-           14:  56,
-           15:  55,
-           16:  54,
-           17:  58,
-           18:  57,
-           19:  60,
-           20:  59,
-           21:  61,
-           22:  63,
-           23:  62,
-           24:  64,
-           25:  66,
-           26:  68,
-           27:  65,
-           28:  67,
-           29:  69,
-           30:  71,
-           31:  72,
-           32:  70,
-           33:  74,
-           34:  73,
-           35:  76,
-           36:  75,
-           37:  77,
-           38:  79,
-           39:  78,
-           40:  80,
-           41:  81,
-           42:  82,
-           43:  84,
-           44:  85,
-           45:  83,
-           46:  87,
-           47:  88,
-           48:  86,
-           49:  25,#QSFP49
-           50:  26,
-           51:  27,
-           52:  28,
-           53:  29,
-           54:  30,
-           55:  31,
-           56:  32,#QSFP56
-           }
+        1:  42,
+        2:  41,
+        3:  44,
+        4:  43,
+        5:  47,
+        6:  45,
+        7:  46,
+        8:  50,
+        9:  48,
+        10:  49,
+        11:  52,
+        12:  51,
+        13:  53,
+        14:  56,
+        15:  55,
+        16:  54,
+        17:  58,
+        18:  57,
+        19:  60,
+        20:  59,
+        21:  61,
+        22:  63,
+        23:  62,
+        24:  64,
+        25:  66,
+        26:  68,
+        27:  65,
+        28:  67,
+        29:  69,
+        30:  71,
+        31:  72,
+        32:  70,
+        33:  74,
+        34:  73,
+        35:  76,
+        36:  75,
+        37:  77,
+        38:  79,
+        39:  78,
+        40:  80,
+        41:  81,
+        42:  82,
+        43:  84,
+        44:  85,
+        45:  83,
+        46:  87,
+        47:  88,
+        48:  86,
+        49:  25,  # QSFP49
+        50:  26,
+        51:  27,
+        52:  28,
+        53:  29,
+        54:  30,
+        55:  31,
+        56:  32,  # QSFP56
+    }
 
     @property
     def port_start(self):
@@ -113,7 +114,7 @@ class SfpUtil(SfpUtilBase):
 
     @property
     def qsfp_ports(self):
-        return range(self.QSFP_PORT_START, self.PORTS_IN_BLOCK + 1)
+        return list(range(self.QSFP_PORT_START, self.PORTS_IN_BLOCK + 1))
 
     @property
     def port_to_eeprom_mapping(self):
@@ -145,13 +146,13 @@ class SfpUtil(SfpUtilBase):
         path = "/sys/bus/i2c/devices/{0}/module_present_{1}"
         port_ps = path.format(cpld_ps, port_num)
 
-        content="0"
+        content = "0"
         try:
             val_file = open(port_ps)
             content = val_file.readline().rstrip()
             val_file.close()
         except IOError as e:
-            print "Error: unable to access file: %s" % str(e)
+            print("Error: unable to access file: %s" % str(e))
             return False
 
         if content == "1":
@@ -175,14 +176,15 @@ class SfpUtil(SfpUtilBase):
             lpmode = ord(eeprom.read(1))
 
             if ((lpmode & 0x3) == 0x3):
-                return True # Low Power Mode if "Power override" bit is 1 and "Power set" bit is 1
+                return True  # Low Power Mode if "Power override" bit is 1 and "Power set" bit is 1
             else:
-                return False # High Power Mode if one of the following conditions is matched:
-                             # 1. "Power override" bit is 0
-                             # 2. "Power override" bit is 1 and "Power set" bit is 0 
+                # High Power Mode if one of the following conditions is matched:
+                # 1. "Power override" bit is 0
+                # 2. "Power override" bit is 1 and "Power set" bit is 0
+                return False
 
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
         finally:
             if eeprom is not None:
@@ -198,10 +200,10 @@ class SfpUtil(SfpUtilBase):
             eeprom = None
 
             if not self.get_presence(port_num):
-                return False # Port is not present, unable to set the eeprom
+                return False  # Port is not present, unable to set the eeprom
 
             # Fill in write buffer
-            regval = 0x3 if lpmode else 0x1 # 0x3:Low Power Mode, 0x1:High Power Mode
+            regval = 0x3 if lpmode else 0x1  # 0x3:Low Power Mode, 0x1:High Power Mode
             buffer = create_string_buffer(1)
             buffer[0] = chr(regval)
 
@@ -211,7 +213,7 @@ class SfpUtil(SfpUtilBase):
             eeprom.write(buffer[0])
             return True
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
         finally:
             if eeprom is not None:
@@ -226,28 +228,29 @@ class SfpUtil(SfpUtilBase):
         cpld_ps = self._cpld_mapping[cpld_i]
         path = "/sys/bus/i2c/devices/{0}/module_reset_{1}"
         port_ps = path.format(cpld_ps, port_num)
-        
+
         self.__port_to_mod_rst = port_ps
         try:
             reg_file = open(self.__port_to_mod_rst, 'r+', buffering=0)
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
-        #toggle reset
+        # toggle reset
         reg_file.seek(0)
         reg_file.write('1')
         time.sleep(1)
         reg_file.seek(0)
         reg_file.write('0')
         reg_file.close()
-        
+
         return True
+
     @property
     def _get_present_bitmap(self):
         nodes = []
         rev = []
-        port_num = [30,26]
+        port_num = [30, 26]
 
         path = "/sys/bus/i2c/devices/{0}/module_present_all"
         cpld_i = self.get_cpld_num(self.port_start)
@@ -262,7 +265,7 @@ class SfpUtil(SfpUtilBase):
             try:
                 reg_file = open(node[0])
             except IOError as e:
-                print "Error: unable to open file: %s" % str(e)
+                print("Error: unable to open file: %s" % str(e))
                 return False
             bitmap = reg_file.readline().rstrip()
             bitmap = bin(int(bitmap, 16))[2:].zfill(node[1])
@@ -273,7 +276,8 @@ class SfpUtil(SfpUtilBase):
         bitmaps = hex(int(bitmaps, 2))
         return int(bitmaps, 0)
 
-    data = {'valid':0, 'last':0, 'present':0}
+    data = {'valid': 0, 'last': 0, 'present': 0}
+
     def get_transceiver_change_event(self, timeout=2000):
         now = time.time()
         port_dict = {}
@@ -281,7 +285,7 @@ class SfpUtil(SfpUtilBase):
 
         if timeout < 1000:
             timeout = 1000
-        timeout = (timeout) / float(1000) # Convert to secs
+        timeout = (timeout) / float(1000)  # Convert to secs
 
         if now < (self.data['last'] + timeout) and self.data['valid']:
             return True, {}
@@ -289,7 +293,7 @@ class SfpUtil(SfpUtilBase):
         reg_value = self._get_present_bitmap
         changed_ports = self.data['present'] ^ reg_value
         if changed_ports:
-            for port in range (self.port_start, self.port_end+1):
+            for port in range(self.port_start, self.port_end+1):
                 # Mask off the bit corresponding to our port
                 mask = (1 << (port - 1))
                 if changed_ports & mask:

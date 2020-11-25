@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 #############################################################################
 # Module contains an implementation of SONiC Platform Base API and
 # provides the platform information
@@ -11,6 +9,7 @@ try:
     from sonic_platform.chassis import Chassis
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
+
 
 class Platform(PlatformBase):
     """Platform-specific Platform class"""

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 #
 # Arista LED controls for SONiC
 #

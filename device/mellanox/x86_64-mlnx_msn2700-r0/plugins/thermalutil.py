@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 #############################################################################
 # Mellanox
 #
@@ -14,7 +12,8 @@ try:
     import subprocess
     from sonic_thermal.thermal_base import ThermalBase
 except ImportError as e:
-    raise ImportError (str(e) + "- required module not found")
+    raise ImportError(str(e) + "- required module not found")
+
 
 def log_info(msg):
     syslog.openlog("thermalutil")
@@ -44,57 +43,57 @@ THERMAL_API_INVALID_HIGH_THRESHOLD = 0.0
 HW_MGMT_THERMAL_ROOT = "/var/run/hw-management/thermal/"
 
 thermal_api_handler_cpu_core = {
-    THERMAL_API_GET_TEMPERATURE:"cpu_core{}",
-    THERMAL_API_GET_HIGH_THRESHOLD:"cpu_core{}_max",
-    THERMAL_API_GET_HIGH_CRITICAL_THRESHOLD:"cpu_core{}_crit"
+    THERMAL_API_GET_TEMPERATURE: "cpu_core{}",
+    THERMAL_API_GET_HIGH_THRESHOLD: "cpu_core{}_max",
+    THERMAL_API_GET_HIGH_CRITICAL_THRESHOLD: "cpu_core{}_crit"
 }
 thermal_api_handler_cpu_pack = {
-    THERMAL_API_GET_TEMPERATURE:"cpu_pack",
-    THERMAL_API_GET_HIGH_THRESHOLD:"cpu_pack_max",
-    THERMAL_API_GET_HIGH_CRITICAL_THRESHOLD:"cpu_pack_crit"
+    THERMAL_API_GET_TEMPERATURE: "cpu_pack",
+    THERMAL_API_GET_HIGH_THRESHOLD: "cpu_pack_max",
+    THERMAL_API_GET_HIGH_CRITICAL_THRESHOLD: "cpu_pack_crit"
 }
 thermal_api_handler_module = {
-    THERMAL_API_GET_TEMPERATURE:"module{}_temp_input",
-    THERMAL_API_GET_HIGH_THRESHOLD:"module{}_temp_crit",
-    THERMAL_API_GET_HIGH_CRITICAL_THRESHOLD:"module{}_temp_emergency"
+    THERMAL_API_GET_TEMPERATURE: "module{}_temp_input",
+    THERMAL_API_GET_HIGH_THRESHOLD: "module{}_temp_crit",
+    THERMAL_API_GET_HIGH_CRITICAL_THRESHOLD: "module{}_temp_emergency"
 }
 thermal_api_handler_psu = {
-    THERMAL_API_GET_TEMPERATURE:"psu{}_temp",
-    THERMAL_API_GET_HIGH_THRESHOLD:"psu{}_temp_max",
-    THERMAL_API_GET_HIGH_CRITICAL_THRESHOLD:None
+    THERMAL_API_GET_TEMPERATURE: "psu{}_temp",
+    THERMAL_API_GET_HIGH_THRESHOLD: "psu{}_temp_max",
+    THERMAL_API_GET_HIGH_CRITICAL_THRESHOLD: None
 }
 thermal_api_handler_gearbox = {
-    THERMAL_API_GET_TEMPERATURE:"gearbox{}_temp_input",
-    THERMAL_API_GET_HIGH_THRESHOLD:None,
-    THERMAL_API_GET_HIGH_CRITICAL_THRESHOLD:None
+    THERMAL_API_GET_TEMPERATURE: "gearbox{}_temp_input",
+    THERMAL_API_GET_HIGH_THRESHOLD: None,
+    THERMAL_API_GET_HIGH_CRITICAL_THRESHOLD: None
 }
 thermal_ambient_apis = {
-    THERMAL_DEV_ASIC_AMBIENT : "asic",
-    THERMAL_DEV_PORT_AMBIENT : "port_amb",
-    THERMAL_DEV_FAN_AMBIENT : "fan_amb",
-    THERMAL_DEV_COMEX_AMBIENT : "comex_amb",
-    THERMAL_DEV_BOARD_AMBIENT : "board_amb"
+    THERMAL_DEV_ASIC_AMBIENT: "asic",
+    THERMAL_DEV_PORT_AMBIENT: "port_amb",
+    THERMAL_DEV_FAN_AMBIENT: "fan_amb",
+    THERMAL_DEV_COMEX_AMBIENT: "comex_amb",
+    THERMAL_DEV_BOARD_AMBIENT: "board_amb"
 }
 thermal_ambient_name = {
-    THERMAL_DEV_ASIC_AMBIENT : "Ambient ASIC Temp",
-    THERMAL_DEV_PORT_AMBIENT : "Ambient Port Side Temp",
-    THERMAL_DEV_FAN_AMBIENT : "Ambient Fan Side Temp",
-    THERMAL_DEV_COMEX_AMBIENT : "Ambient COMEX Temp",
-    THERMAL_DEV_BOARD_AMBIENT : "Ambient Board Temp"
+    THERMAL_DEV_ASIC_AMBIENT: "Ambient ASIC Temp",
+    THERMAL_DEV_PORT_AMBIENT: "Ambient Port Side Temp",
+    THERMAL_DEV_FAN_AMBIENT: "Ambient Fan Side Temp",
+    THERMAL_DEV_COMEX_AMBIENT: "Ambient COMEX Temp",
+    THERMAL_DEV_BOARD_AMBIENT: "Ambient Board Temp"
 }
 thermal_api_handlers = {
-    THERMAL_DEV_CATEGORY_CPU_CORE : thermal_api_handler_cpu_core, 
-    THERMAL_DEV_CATEGORY_CPU_PACK : thermal_api_handler_cpu_pack,
-    THERMAL_DEV_CATEGORY_MODULE : thermal_api_handler_module,
-    THERMAL_DEV_CATEGORY_PSU : thermal_api_handler_psu,
-    THERMAL_DEV_CATEGORY_GEARBOX : thermal_api_handler_gearbox
+    THERMAL_DEV_CATEGORY_CPU_CORE: thermal_api_handler_cpu_core,
+    THERMAL_DEV_CATEGORY_CPU_PACK: thermal_api_handler_cpu_pack,
+    THERMAL_DEV_CATEGORY_MODULE: thermal_api_handler_module,
+    THERMAL_DEV_CATEGORY_PSU: thermal_api_handler_psu,
+    THERMAL_DEV_CATEGORY_GEARBOX: thermal_api_handler_gearbox
 }
 thermal_name = {
-    THERMAL_DEV_CATEGORY_CPU_CORE : "CPU Core {} Temp", 
-    THERMAL_DEV_CATEGORY_CPU_PACK : "CPU Pack Temp",
-    THERMAL_DEV_CATEGORY_MODULE : "xSFP module {} Temp",
-    THERMAL_DEV_CATEGORY_PSU : "PSU-{} Temp",
-    THERMAL_DEV_CATEGORY_GEARBOX : "Gearbox {} Temp"
+    THERMAL_DEV_CATEGORY_CPU_CORE: "CPU Core {} Temp",
+    THERMAL_DEV_CATEGORY_CPU_PACK: "CPU Pack Temp",
+    THERMAL_DEV_CATEGORY_MODULE: "xSFP module {} Temp",
+    THERMAL_DEV_CATEGORY_PSU: "PSU-{} Temp",
+    THERMAL_DEV_CATEGORY_GEARBOX: "Gearbox {} Temp"
 }
 
 thermal_device_categories_all = [
@@ -115,130 +114,131 @@ thermal_api_names = [
     THERMAL_API_GET_HIGH_THRESHOLD
 ]
 
-hwsku_dict_thermal = {'ACS-MSN2700': 0, 'LS-SN2700':0, 'ACS-MSN2740': 3, 'ACS-MSN2100': 1, 'ACS-MSN2410': 2, 'ACS-MSN2010': 4, 'ACS-MSN3700': 5, 'ACS-MSN3700C': 6, 'Mellanox-SN2700': 0, 'Mellanox-SN2700-D48C8': 0, 'ACS-MSN3800': 7, 'Mellanox-SN3800-D112C8': 7}
+hwsku_dict_thermal = {'ACS-MSN2700': 0, 'LS-SN2700': 0, 'ACS-MSN2740': 3, 'ACS-MSN2100': 1, 'ACS-MSN2410': 2, 'ACS-MSN2010': 4,
+                      'ACS-MSN3700': 5, 'ACS-MSN3700C': 6, 'Mellanox-SN2700': 0, 'Mellanox-SN2700-D48C8': 0, 'ACS-MSN3800': 7, 'Mellanox-SN3800-D112C8': 7}
 thermal_profile_list = [
     # 2700
     {
-        THERMAL_DEV_CATEGORY_CPU_CORE:(0, 2),
-        THERMAL_DEV_CATEGORY_MODULE:(1, 32),
-        THERMAL_DEV_CATEGORY_PSU:(1, 2),
-        THERMAL_DEV_CATEGORY_CPU_PACK:(0,1),
-        THERMAL_DEV_CATEGORY_GEARBOX:(0,0),
-        THERMAL_DEV_CATEGORY_AMBIENT:(0,
-            [
-                THERMAL_DEV_ASIC_AMBIENT,
-                THERMAL_DEV_PORT_AMBIENT,
-                THERMAL_DEV_FAN_AMBIENT
-            ]
-        )
+        THERMAL_DEV_CATEGORY_CPU_CORE: (0, 2),
+        THERMAL_DEV_CATEGORY_MODULE: (1, 32),
+        THERMAL_DEV_CATEGORY_PSU: (1, 2),
+        THERMAL_DEV_CATEGORY_CPU_PACK: (0, 1),
+        THERMAL_DEV_CATEGORY_GEARBOX: (0, 0),
+        THERMAL_DEV_CATEGORY_AMBIENT: (0,
+                                       [
+                                           THERMAL_DEV_ASIC_AMBIENT,
+                                           THERMAL_DEV_PORT_AMBIENT,
+                                           THERMAL_DEV_FAN_AMBIENT
+                                       ]
+                                       )
     },
     # 2100
     {
-        THERMAL_DEV_CATEGORY_CPU_CORE:(0, 4),
-        THERMAL_DEV_CATEGORY_MODULE:(1, 16),
-        THERMAL_DEV_CATEGORY_PSU:(0, 0),
-        THERMAL_DEV_CATEGORY_CPU_PACK:(0,0),
-        THERMAL_DEV_CATEGORY_GEARBOX:(0,0),
-        THERMAL_DEV_CATEGORY_AMBIENT:(0,
-            [
-                THERMAL_DEV_ASIC_AMBIENT,
-                THERMAL_DEV_PORT_AMBIENT,
-                THERMAL_DEV_FAN_AMBIENT,
-            ]
-        )
+        THERMAL_DEV_CATEGORY_CPU_CORE: (0, 4),
+        THERMAL_DEV_CATEGORY_MODULE: (1, 16),
+        THERMAL_DEV_CATEGORY_PSU: (0, 0),
+        THERMAL_DEV_CATEGORY_CPU_PACK: (0, 0),
+        THERMAL_DEV_CATEGORY_GEARBOX: (0, 0),
+        THERMAL_DEV_CATEGORY_AMBIENT: (0,
+                                       [
+                                           THERMAL_DEV_ASIC_AMBIENT,
+                                           THERMAL_DEV_PORT_AMBIENT,
+                                           THERMAL_DEV_FAN_AMBIENT,
+                                       ]
+                                       )
     },
     # 2410
     {
-        THERMAL_DEV_CATEGORY_CPU_CORE:(0, 2),
-        THERMAL_DEV_CATEGORY_MODULE:(1, 56),
-        THERMAL_DEV_CATEGORY_PSU:(1, 2),
-        THERMAL_DEV_CATEGORY_CPU_PACK:(0,1),
-        THERMAL_DEV_CATEGORY_GEARBOX:(0,0),
-        THERMAL_DEV_CATEGORY_AMBIENT:(0,
-            [
-                THERMAL_DEV_ASIC_AMBIENT,
-                THERMAL_DEV_PORT_AMBIENT,
-                THERMAL_DEV_FAN_AMBIENT,
-            ]
-        )
+        THERMAL_DEV_CATEGORY_CPU_CORE: (0, 2),
+        THERMAL_DEV_CATEGORY_MODULE: (1, 56),
+        THERMAL_DEV_CATEGORY_PSU: (1, 2),
+        THERMAL_DEV_CATEGORY_CPU_PACK: (0, 1),
+        THERMAL_DEV_CATEGORY_GEARBOX: (0, 0),
+        THERMAL_DEV_CATEGORY_AMBIENT: (0,
+                                       [
+                                           THERMAL_DEV_ASIC_AMBIENT,
+                                           THERMAL_DEV_PORT_AMBIENT,
+                                           THERMAL_DEV_FAN_AMBIENT,
+                                       ]
+                                       )
     },
     # 2740
     {
-        THERMAL_DEV_CATEGORY_CPU_CORE:(0, 4),
-        THERMAL_DEV_CATEGORY_MODULE:(1, 32),
-        THERMAL_DEV_CATEGORY_PSU:(1, 2),
-        THERMAL_DEV_CATEGORY_CPU_PACK:(0,0),
-        THERMAL_DEV_CATEGORY_GEARBOX:(0,0),
-        THERMAL_DEV_CATEGORY_AMBIENT:(0,
-            [
-                THERMAL_DEV_ASIC_AMBIENT,
-                THERMAL_DEV_PORT_AMBIENT,
-                THERMAL_DEV_FAN_AMBIENT,
-            ]
-        )
+        THERMAL_DEV_CATEGORY_CPU_CORE: (0, 4),
+        THERMAL_DEV_CATEGORY_MODULE: (1, 32),
+        THERMAL_DEV_CATEGORY_PSU: (1, 2),
+        THERMAL_DEV_CATEGORY_CPU_PACK: (0, 0),
+        THERMAL_DEV_CATEGORY_GEARBOX: (0, 0),
+        THERMAL_DEV_CATEGORY_AMBIENT: (0,
+                                       [
+                                           THERMAL_DEV_ASIC_AMBIENT,
+                                           THERMAL_DEV_PORT_AMBIENT,
+                                           THERMAL_DEV_FAN_AMBIENT,
+                                       ]
+                                       )
     },
     # 2010
     {
-        THERMAL_DEV_CATEGORY_CPU_CORE:(0, 4),
-        THERMAL_DEV_CATEGORY_MODULE:(1, 22),
-        THERMAL_DEV_CATEGORY_PSU:(0, 0),
-        THERMAL_DEV_CATEGORY_CPU_PACK:(0,0),
-        THERMAL_DEV_CATEGORY_GEARBOX:(0,0),
-        THERMAL_DEV_CATEGORY_AMBIENT:(0,
-            [
-                THERMAL_DEV_ASIC_AMBIENT,
-                THERMAL_DEV_PORT_AMBIENT,
-                THERMAL_DEV_FAN_AMBIENT,
-            ]
-        )
+        THERMAL_DEV_CATEGORY_CPU_CORE: (0, 4),
+        THERMAL_DEV_CATEGORY_MODULE: (1, 22),
+        THERMAL_DEV_CATEGORY_PSU: (0, 0),
+        THERMAL_DEV_CATEGORY_CPU_PACK: (0, 0),
+        THERMAL_DEV_CATEGORY_GEARBOX: (0, 0),
+        THERMAL_DEV_CATEGORY_AMBIENT: (0,
+                                       [
+                                           THERMAL_DEV_ASIC_AMBIENT,
+                                           THERMAL_DEV_PORT_AMBIENT,
+                                           THERMAL_DEV_FAN_AMBIENT,
+                                       ]
+                                       )
     },
     # 3700
     {
-        THERMAL_DEV_CATEGORY_CPU_CORE:(0, 4),
-        THERMAL_DEV_CATEGORY_MODULE:(1, 32),
-        THERMAL_DEV_CATEGORY_PSU:(1, 2),
-        THERMAL_DEV_CATEGORY_CPU_PACK:(0,1),
-        THERMAL_DEV_CATEGORY_GEARBOX:(0,0),
-        THERMAL_DEV_CATEGORY_AMBIENT:(0,
-            [
-                THERMAL_DEV_ASIC_AMBIENT,
-                THERMAL_DEV_COMEX_AMBIENT,
-                THERMAL_DEV_PORT_AMBIENT,
-                THERMAL_DEV_FAN_AMBIENT
-            ]
-        )
+        THERMAL_DEV_CATEGORY_CPU_CORE: (0, 4),
+        THERMAL_DEV_CATEGORY_MODULE: (1, 32),
+        THERMAL_DEV_CATEGORY_PSU: (1, 2),
+        THERMAL_DEV_CATEGORY_CPU_PACK: (0, 1),
+        THERMAL_DEV_CATEGORY_GEARBOX: (0, 0),
+        THERMAL_DEV_CATEGORY_AMBIENT: (0,
+                                       [
+                                           THERMAL_DEV_ASIC_AMBIENT,
+                                           THERMAL_DEV_COMEX_AMBIENT,
+                                           THERMAL_DEV_PORT_AMBIENT,
+                                           THERMAL_DEV_FAN_AMBIENT
+                                       ]
+                                       )
     },
     # 3700c
     {
-        THERMAL_DEV_CATEGORY_CPU_CORE:(0, 2),
-        THERMAL_DEV_CATEGORY_MODULE:(1, 32),
-        THERMAL_DEV_CATEGORY_PSU:(1, 2),
-        THERMAL_DEV_CATEGORY_CPU_PACK:(0,1),
-        THERMAL_DEV_CATEGORY_GEARBOX:(0,0),
-        THERMAL_DEV_CATEGORY_AMBIENT:(0,
-            [
-                THERMAL_DEV_ASIC_AMBIENT,
-                THERMAL_DEV_COMEX_AMBIENT,
-                THERMAL_DEV_PORT_AMBIENT,
-                THERMAL_DEV_FAN_AMBIENT
-            ]
-        )
+        THERMAL_DEV_CATEGORY_CPU_CORE: (0, 2),
+        THERMAL_DEV_CATEGORY_MODULE: (1, 32),
+        THERMAL_DEV_CATEGORY_PSU: (1, 2),
+        THERMAL_DEV_CATEGORY_CPU_PACK: (0, 1),
+        THERMAL_DEV_CATEGORY_GEARBOX: (0, 0),
+        THERMAL_DEV_CATEGORY_AMBIENT: (0,
+                                       [
+                                           THERMAL_DEV_ASIC_AMBIENT,
+                                           THERMAL_DEV_COMEX_AMBIENT,
+                                           THERMAL_DEV_PORT_AMBIENT,
+                                           THERMAL_DEV_FAN_AMBIENT
+                                       ]
+                                       )
     },
     # 3800
     {
-        THERMAL_DEV_CATEGORY_CPU_CORE:(0, 4),
-        THERMAL_DEV_CATEGORY_MODULE:(1, 64),
-        THERMAL_DEV_CATEGORY_PSU:(1, 2),
-        THERMAL_DEV_CATEGORY_CPU_PACK:(0,1),
-        THERMAL_DEV_CATEGORY_GEARBOX:(1,32),
-        THERMAL_DEV_CATEGORY_AMBIENT:(0,
-            [
-                THERMAL_DEV_ASIC_AMBIENT,
-                THERMAL_DEV_COMEX_AMBIENT,
-                THERMAL_DEV_PORT_AMBIENT,
-                THERMAL_DEV_FAN_AMBIENT
-            ]
-        )
+        THERMAL_DEV_CATEGORY_CPU_CORE: (0, 4),
+        THERMAL_DEV_CATEGORY_MODULE: (1, 64),
+        THERMAL_DEV_CATEGORY_PSU: (1, 2),
+        THERMAL_DEV_CATEGORY_CPU_PACK: (0, 1),
+        THERMAL_DEV_CATEGORY_GEARBOX: (1, 32),
+        THERMAL_DEV_CATEGORY_AMBIENT: (0,
+                                       [
+                                           THERMAL_DEV_ASIC_AMBIENT,
+                                           THERMAL_DEV_COMEX_AMBIENT,
+                                           THERMAL_DEV_PORT_AMBIENT,
+                                           THERMAL_DEV_FAN_AMBIENT
+                                       ]
+                                       )
     },
 ]
 
@@ -364,7 +364,7 @@ class ThermalUtil(ThermalBase):
     thermal_list = []
 
     def _get_sku_name(self):
-        p = subprocess.Popen(self.GET_HWSKU_CMD, shell=True, stdout=subprocess.PIPE)
+        p = subprocess.Popen(self.GET_HWSKU_CMD, shell=True, universal_newlines=True, stdout=subprocess.PIPE)
         out, err = p.communicate()
         return out.rstrip('\n')
 

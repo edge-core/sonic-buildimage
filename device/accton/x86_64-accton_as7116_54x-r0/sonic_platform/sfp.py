@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 #############################################################################
 # Sfp contains an implementation of SONiC Platform Base API and
 # provides the sfp device status which are available in the platform
@@ -105,6 +103,7 @@ qsfp_compliance_code_tup = ('10/40G Ethernet Compliance Code', 'SONET Compliance
                             'Fibre Channel link length/Transmitter Technology',
                             'Fibre Channel transmission media', 'Fibre Channel Speed')
 
+
 class Sfp(SfpBase):
     """Platform-specific Sfp class"""
 
@@ -168,7 +167,7 @@ class Sfp(SfpBase):
         52: 25,
         53: 26,
     }
-    _sfp_port = range(48, PORT_END + 1)
+    _sfp_port = list(range(48, PORT_END + 1))
     RESET_PATH = "/sys/bus/i2c/devices/{}-0050/sfp_port_reset"
     PRS_PATH = "/sys/bus/i2c/devices/{}-0050/sfp_is_present"
 
@@ -180,7 +179,7 @@ class Sfp(SfpBase):
     HWSKU = "Accton-AS7116-54X-R0"
 
     def __init__(self, sfp_index, sfp_type):
-	    # Init index
+        # Init index
         self.index = sfp_index
         self.port_num = self.index + 1
         self.sfp_type = sfp_type

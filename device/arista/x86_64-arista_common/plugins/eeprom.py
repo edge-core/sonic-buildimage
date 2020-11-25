@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 #
 # Arista eeprom processing for SONiC
 # Uses the arista driver library to obtain the TlvInfoDecoder

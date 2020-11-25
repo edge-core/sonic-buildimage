@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 #############################################################################
 # Component contains an implementation of SONiC Platform Base API and
 # provides the components firmware management function
@@ -18,6 +16,7 @@ except ImportError as e:
 
 BIOS_VERSION_PATH = "/sys/class/dmi/id/bios_version"
 
+
 class Component(DeviceBase):
     """Platform-specific Component class"""
 
@@ -31,7 +30,7 @@ class Component(DeviceBase):
         # Run bash command and print output to stdout
         try:
             process = subprocess.Popen(
-                shlex.split(command), stdout=subprocess.PIPE)
+                shlex.split(command), universal_newlines=True, stdout=subprocess.PIPE)
             while True:
                 output = process.stdout.readline()
                 if output == '' and process.poll() is not None:

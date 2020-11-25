@@ -6,8 +6,12 @@
 
 import os.path
 import logging
-import commands
 import sys
+
+if sys.version_info[0] < 3:
+    import commands
+else:
+    import subprocess as commands
 
 
 Z9332F_MAX_PSUS = 2
@@ -50,15 +54,15 @@ class PsuUtil(PsuBase):
         ipmi_cmd_2 = IPMI_PSU1_DATA
         dockerenv = self.isDockerEnv()
         if dockerenv == True:
-           if index == 1:
-              status, ipmi_sdr_list = commands.getstatusoutput(IPMI_PSU1_DATA_DOCKER)
-           elif index == 2:
-              status, ipmi_sdr_list = commands.getstatusoutput(IPMI_PSU2_DATA_DOCKER)
+            if index == 1:
+                status, ipmi_sdr_list = commands.getstatusoutput(IPMI_PSU1_DATA_DOCKER)
+            elif index == 2:
+                status, ipmi_sdr_list = commands.getstatusoutput(IPMI_PSU2_DATA_DOCKER)
         else:
-           if index == 1:
-              status, ipmi_sdr_list = commands.getstatusoutput(IPMI_PSU1_DATA)
-           elif index == 2:
-              status, ipmi_sdr_list = commands.getstatusoutput(IPMI_PSU2_DATA)
+            if index == 1:
+                status, ipmi_sdr_list = commands.getstatusoutput(IPMI_PSU1_DATA)
+            elif index == 2:
+                status, ipmi_sdr_list = commands.getstatusoutput(IPMI_PSU2_DATA)
 
         if status:
             logging.error('Failed to execute ipmitool')
@@ -102,25 +106,24 @@ class PsuUtil(PsuBase):
         ipmi_dev_node = "/dev/pmi0"
         dockerenv = self.isDockerEnv()
         if dockerenv == True:
-           if index == 1:
-              status, ipmi_sdr_list = commands.getstatusoutput(IPMI_PSU1_DATA_DOCKER)
-           elif index == 2:
-              status, ipmi_sdr_list = commands.getstatusoutput(IPMI_PSU2_DATA_DOCKER)
+            if index == 1:
+                status, ipmi_sdr_list = commands.getstatusoutput(IPMI_PSU1_DATA_DOCKER)
+            elif index == 2:
+                status, ipmi_sdr_list = commands.getstatusoutput(IPMI_PSU2_DATA_DOCKER)
         else:
-           if index == 1:
-              status, ipmi_sdr_list = commands.getstatusoutput(IPMI_PSU1_DATA)
-           elif index == 2:
-              ret_status, ipmi_sdr_list = commands.getstatusoutput(IPMI_PSU2_DATA)
+            if index == 1:
+                status, ipmi_sdr_list = commands.getstatusoutput(IPMI_PSU1_DATA)
+            elif index == 2:
+                ret_status, ipmi_sdr_list = commands.getstatusoutput(IPMI_PSU2_DATA)
 
-        #if ret_status:
-         #   print ipmi_sdr_list
-         #   logging.error('Failed to execute ipmitool')
-         #   sys.exit(0)
+        # if ret_status:
+           #   print ipmi_sdr_list
+           #   logging.error('Failed to execute ipmitool')
+           #   sys.exit(0)
 
         psu_status = ipmi_sdr_list
 
         if psu_status == '1':
-           status = 1
+            status = 1
 
         return status
-

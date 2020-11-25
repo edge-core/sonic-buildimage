@@ -41,7 +41,7 @@ class SfpUtil(SfpUtilBase):
 
     @property
     def qsfp_ports(self):
-        return range(0, self.PORTS_IN_BLOCK + 1)
+        return list(range(0, self.PORTS_IN_BLOCK + 1))
 
     @property
     def port_to_eeprom_mapping(self):
@@ -49,16 +49,16 @@ class SfpUtil(SfpUtilBase):
 
     def set_gpio_offset(self):
         sys_gpio_dir = "/sys/class/gpio"
-        self.GPIO_OFFSET = 0 
-        gpiochip_no = 0 
+        self.GPIO_OFFSET = 0
+        gpiochip_no = 0
         for d in os.listdir(sys_gpio_dir):
             if "gpiochip" in d:
                 try:
-                    gpiochip_no = int(d[8:],10)
+                    gpiochip_no = int(d[8:], 10)
                 except ValueError as e:
-                    print "Error: %s" % str(e)
+                    print("Error: %s" % str(e))
                 if gpiochip_no > 255:
-                    self.GPIO_OFFSET=256
+                    self.GPIO_OFFSET = 256
                     return True
         return True
 
@@ -92,14 +92,14 @@ class SfpUtil(SfpUtilBase):
         # open corrsponding gpio file
         try:
             if port_num <= 15:
-               gpio_base = self.ABS_GPIO_BASE_0_15
-            else :
-               gpio_base = self.ABS_GPIO_BASE_16_31
+                gpio_base = self.ABS_GPIO_BASE_0_15
+            else:
+                gpio_base = self.ABS_GPIO_BASE_16_31
             gpio_index = gpio_base + (port_num % 16)
             gpio_file_path = self.GPIO_VAL_PATH.format(gpio_index)
             gpio_file = open(gpio_file_path)
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         # content is a string containing the gpio value
@@ -121,13 +121,13 @@ class SfpUtil(SfpUtilBase):
         try:
             if port_num <= 15:
                 gpio_base = self.LP_MODE_GPIO_BASE_0_15
-            else :
+            else:
                 gpio_base = self.LP_MODE_GPIO_BASE_16_31
             gpio_index = gpio_base + (port_num % 16)
             gpio_file_path = self.GPIO_VAL_PATH.format(gpio_index)
             gpio_file = open(gpio_file_path)
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         # content is a string containing the gpio value
@@ -148,13 +148,13 @@ class SfpUtil(SfpUtilBase):
         try:
             if port_num <= 15:
                 gpio_base = self.LP_MODE_GPIO_BASE_0_15
-            else :
+            else:
                 gpio_base = self.LP_MODE_GPIO_BASE_16_31
             gpio_index = gpio_base + (port_num % 16)
             gpio_file_path = self.GPIO_VAL_PATH.format(gpio_index)
             gpio_file = open(gpio_file_path, "r+")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         # the gpio pin is ACTIVE_HIGH
@@ -179,13 +179,13 @@ class SfpUtil(SfpUtilBase):
         try:
             if port_num <= 15:
                 gpio_base = self.RST_GPIO_BASE_0_15
-            else :
+            else:
                 gpio_base = self.RST_GPIO_BASE_16_31
             gpio_index = gpio_base + (port_num % 16)
             gpio_file_path = self.GPIO_VAL_PATH.format(gpio_index)
             gpio_file = open(gpio_file_path, "w")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         # set the gpio to take port into reset
@@ -203,13 +203,13 @@ class SfpUtil(SfpUtilBase):
         try:
             gpio_file = open(gpio_file_path, "w")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         # set gpio back low to take port out of reset
         # the gpio pin is ACTIVE_LOW but reversed
         gpio_val = "0"
-                # write value to gpio
+        # write value to gpio
         gpio_file.seek(0)
         gpio_file.write(gpio_val)
         gpio_file.close()

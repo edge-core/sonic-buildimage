@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 #############################################################################
 # Centec
 #
@@ -13,7 +11,8 @@ import os.path
 try:
     from sonic_psu.psu_base import PsuBase
 except ImportError as e:
-    raise ImportError (str(e) + "- required module not found")
+    raise ImportError(str(e) + "- required module not found")
+
 
 class PsuUtil(PsuBase):
     """Platform-specific PSUutil class"""

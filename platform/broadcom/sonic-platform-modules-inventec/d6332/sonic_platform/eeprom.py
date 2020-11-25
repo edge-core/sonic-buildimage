@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #
 # Name: eeprom.py, version: 1.0
 #
@@ -7,7 +6,7 @@
 
 try:
     from sonic_eeprom import eeprom_tlvinfo
-except ( ImportError, e ):
+except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
 EEPROM_TOTAL_LEN_HIGH_OFFSET = 9

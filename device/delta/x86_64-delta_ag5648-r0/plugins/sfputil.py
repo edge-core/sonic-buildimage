@@ -25,6 +25,7 @@ class SfpUtil(SfpUtilBase):
     @property
     def port_start(self):
         return self.PORT_START
+
     @property
     def port_start_qsfp(self):
         return self.PORT_START_QSFP
@@ -35,7 +36,7 @@ class SfpUtil(SfpUtilBase):
 
     @property
     def qsfp_ports(self):
-        return range(0, self.PORTS_IN_BLOCK + 1)
+        return list(range(0, self.PORTS_IN_BLOCK + 1))
 
     @property
     def port_to_eeprom_mapping(self):
@@ -45,7 +46,7 @@ class SfpUtil(SfpUtilBase):
         eeprom_path = "/sys/class/i2c-adapter/i2c-{0}/{0}-0050/eeprom"
 
         for x in range(0, self.port_end + 1):
-            if x > self.port_start_qsfp -1 and x < self.port_end + 1:
+            if x > self.port_start_qsfp - 1 and x < self.port_end + 1:
                 self.get_response(x)
             self._port_to_eeprom_mapping[x] = eeprom_path.format(x + self.EEPROM_OFFSET)
         SfpUtilBase.__init__(self)
@@ -58,12 +59,12 @@ class SfpUtil(SfpUtilBase):
         try:
             reg_file = open("/sys/devices/platform/delta-ag5648-cpld.0/sfp_response", "r+")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
-	# set the bit corresponding to our port
-	mask = (port_num + 1) % 8 - 1
-	mask = 1 << mask
+        # set the bit corresponding to our port
+        mask = (port_num + 1) % 8 - 1
+        mask = 1 << mask
 
         # Convert our register value back to a hex string and write back
         content = hex(mask)
@@ -81,7 +82,7 @@ class SfpUtil(SfpUtilBase):
         try:
             reg_file = open("/sys/devices/platform/delta-ag5648-cpld.0/sfp_present")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         content = reg_file.readline().rstrip()
@@ -106,7 +107,7 @@ class SfpUtil(SfpUtilBase):
         try:
             reg_file = open("/sys/devices/platform/delta-ag5648-cpld.0/sfp_lpmode")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
 
         content = reg_file.readline().rstrip()
 
@@ -130,7 +131,7 @@ class SfpUtil(SfpUtilBase):
         try:
             reg_file = open("/sys/devices/platform/delta-ag5648-cpld.0/sfp_lpmode", "r+")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         content = reg_file.readline().rstrip()
@@ -166,7 +167,7 @@ class SfpUtil(SfpUtilBase):
         try:
             reg_file = open(QSFP_RESET_REGISTER_DEVICE_FILE, "r+")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         content = reg_file.readline().rstrip()
@@ -192,7 +193,7 @@ class SfpUtil(SfpUtilBase):
         try:
             reg_file = open(QSFP_RESET_REGISTER_DEVICE_FILE, "w")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         reg_value = reg_value | mask

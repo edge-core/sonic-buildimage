@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 #############################################################################
 # Celestica
 #
@@ -81,7 +79,7 @@ class Sfp(SfpBase):
         51: 17,
         52: 16
     }
-    _sfp_port = range(49, PORT_END + 1)
+    _sfp_port = list(range(49, PORT_END + 1))
     PRS_PATH = "/sys/devices/platform/e1031.smc/SFP/sfp_modabs"
     PLATFORM_ROOT_PATH = '/usr/share/sonic/device'
     PMON_HWSKU_PATH = '/usr/share/sonic/hwsku'

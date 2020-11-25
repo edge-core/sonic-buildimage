@@ -171,7 +171,7 @@ class pltfm_mgr_sys_tmp_t(object):
 
     def __repr__(self):
         L = ['%s=%r' % (key, value)
-             for key, value in self.__dict__.items()]
+             for key, value in list(self.__dict__.items())]
         return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
@@ -274,37 +274,44 @@ class pltfm_mgr_eeprom_t(object):
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.prod_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.prod_name = iprot.readString().decode(
+                        'utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.STRING:
-                    self.prod_part_num = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.prod_part_num = iprot.readString().decode(
+                        'utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 4:
                 if ftype == TType.STRING:
-                    self.sys_asm_part_num = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.sys_asm_part_num = iprot.readString().decode(
+                        'utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 5:
                 if ftype == TType.STRING:
-                    self.bfn_pcba_part_num = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.bfn_pcba_part_num = iprot.readString().decode(
+                        'utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 6:
                 if ftype == TType.STRING:
-                    self.bfn_pcbb_part_num = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.bfn_pcbb_part_num = iprot.readString().decode(
+                        'utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 7:
                 if ftype == TType.STRING:
-                    self.odm_pcba_part_num = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.odm_pcba_part_num = iprot.readString().decode(
+                        'utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 8:
                 if ftype == TType.STRING:
-                    self.odm_pcba_ser_num = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.odm_pcba_ser_num = iprot.readString().decode(
+                        'utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 9:
@@ -324,42 +331,50 @@ class pltfm_mgr_eeprom_t(object):
                     iprot.skip(ftype)
             elif fid == 12:
                 if ftype == TType.STRING:
-                    self.prod_ser_num = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.prod_ser_num = iprot.readString().decode(
+                        'utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 13:
                 if ftype == TType.STRING:
-                    self.prod_ast_tag = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.prod_ast_tag = iprot.readString().decode(
+                        'utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 14:
                 if ftype == TType.STRING:
-                    self.sys_mfger = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.sys_mfger = iprot.readString().decode(
+                        'utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 15:
                 if ftype == TType.STRING:
-                    self.sys_mfg_date = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.sys_mfg_date = iprot.readString().decode(
+                        'utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 16:
                 if ftype == TType.STRING:
-                    self.pcb_mfger = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.pcb_mfger = iprot.readString().decode(
+                        'utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 17:
                 if ftype == TType.STRING:
-                    self.assembled_at = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.assembled_at = iprot.readString().decode(
+                        'utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 18:
                 if ftype == TType.STRING:
-                    self.loc_mac_addr = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.loc_mac_addr = iprot.readString().decode(
+                        'utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 19:
                 if ftype == TType.STRING:
-                    self.ext_mac_addr = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.ext_mac_addr = iprot.readString().decode(
+                        'utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 20:
@@ -369,7 +384,8 @@ class pltfm_mgr_eeprom_t(object):
                     iprot.skip(ftype)
             elif fid == 21:
                 if ftype == TType.STRING:
-                    self.location = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.location = iprot.readString().decode(
+                        'utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 22:
@@ -401,23 +417,28 @@ class pltfm_mgr_eeprom_t(object):
             oprot.writeFieldEnd()
         if self.sys_asm_part_num is not None:
             oprot.writeFieldBegin('sys_asm_part_num', TType.STRING, 4)
-            oprot.writeString(self.sys_asm_part_num.encode('utf-8') if sys.version_info[0] == 2 else self.sys_asm_part_num)
+            oprot.writeString(self.sys_asm_part_num.encode('utf-8')
+                              if sys.version_info[0] == 2 else self.sys_asm_part_num)
             oprot.writeFieldEnd()
         if self.bfn_pcba_part_num is not None:
             oprot.writeFieldBegin('bfn_pcba_part_num', TType.STRING, 5)
-            oprot.writeString(self.bfn_pcba_part_num.encode('utf-8') if sys.version_info[0] == 2 else self.bfn_pcba_part_num)
+            oprot.writeString(self.bfn_pcba_part_num.encode('utf-8')
+                              if sys.version_info[0] == 2 else self.bfn_pcba_part_num)
             oprot.writeFieldEnd()
         if self.bfn_pcbb_part_num is not None:
             oprot.writeFieldBegin('bfn_pcbb_part_num', TType.STRING, 6)
-            oprot.writeString(self.bfn_pcbb_part_num.encode('utf-8') if sys.version_info[0] == 2 else self.bfn_pcbb_part_num)
+            oprot.writeString(self.bfn_pcbb_part_num.encode('utf-8')
+                              if sys.version_info[0] == 2 else self.bfn_pcbb_part_num)
             oprot.writeFieldEnd()
         if self.odm_pcba_part_num is not None:
             oprot.writeFieldBegin('odm_pcba_part_num', TType.STRING, 7)
-            oprot.writeString(self.odm_pcba_part_num.encode('utf-8') if sys.version_info[0] == 2 else self.odm_pcba_part_num)
+            oprot.writeString(self.odm_pcba_part_num.encode('utf-8')
+                              if sys.version_info[0] == 2 else self.odm_pcba_part_num)
             oprot.writeFieldEnd()
         if self.odm_pcba_ser_num is not None:
             oprot.writeFieldBegin('odm_pcba_ser_num', TType.STRING, 8)
-            oprot.writeString(self.odm_pcba_ser_num.encode('utf-8') if sys.version_info[0] == 2 else self.odm_pcba_ser_num)
+            oprot.writeString(self.odm_pcba_ser_num.encode('utf-8')
+                              if sys.version_info[0] == 2 else self.odm_pcba_ser_num)
             oprot.writeFieldEnd()
         if self.prod_state is not None:
             oprot.writeFieldBegin('prod_state', TType.I16, 9)
@@ -483,7 +504,7 @@ class pltfm_mgr_eeprom_t(object):
 
     def __repr__(self):
         L = ['%s=%r' % (key, value)
-             for key, value in self.__dict__.items()]
+             for key, value in list(self.__dict__.items())]
         return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
@@ -651,7 +672,7 @@ class pltfm_mgr_pwr_supply_info_t(object):
 
     def __repr__(self):
         L = ['%s=%r' % (key, value)
-             for key, value in self.__dict__.items()]
+             for key, value in list(self.__dict__.items())]
         return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
@@ -891,7 +912,7 @@ class pltfm_mgr_pwr_rail_info_t(object):
 
     def __repr__(self):
         L = ['%s=%r' % (key, value)
-             for key, value in self.__dict__.items()]
+             for key, value in list(self.__dict__.items())]
         return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
@@ -987,7 +1008,7 @@ class pltfm_mgr_fan_info_t(object):
 
     def __repr__(self):
         L = ['%s=%r' % (key, value)
-             for key, value in self.__dict__.items()]
+             for key, value in list(self.__dict__.items())]
         return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
@@ -1050,7 +1071,7 @@ class InvalidPltfmMgrOperation(TException):
 
     def __repr__(self):
         L = ['%s=%r' % (key, value)
-             for key, value in self.__dict__.items()]
+             for key, value in list(self.__dict__.items())]
         return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):

@@ -76,15 +76,15 @@ class SfpUtil(SfpUtilBase):
         52: 65,
         53: 64,
         54: 63,
-	55: 62,
-	56: 69,
-	57: 68,
-	58: 67,
-	59: 66,
-	60: 73,
-	61: 72,
-	62: 71,
-	63: 70
+        55: 62,
+        56: 69,
+        57: 68,
+        58: 67,
+        59: 66,
+        60: 73,
+        61: 72,
+        62: 71,
+        63: 70
     }
 
     @property
@@ -105,7 +105,7 @@ class SfpUtil(SfpUtilBase):
 
     @property
     def qsfp_ports(self):
-        return range(self.QSFP_PORT_START, self.PORTS_IN_BLOCK + 1)
+        return list(range(self.QSFP_PORT_START, self.PORTS_IN_BLOCK + 1))
 
     @property
     def port_to_eeprom_mapping(self):
@@ -127,7 +127,7 @@ class SfpUtil(SfpUtilBase):
         try:
             reg_file = open("/sys/class/swps/port"+str(port_num)+"/present")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         reg_value = int(reg_file.readline().rstrip())
@@ -147,7 +147,7 @@ class SfpUtil(SfpUtilBase):
         try:
             reg_file = open("/sys/class/swps/port"+str(port_num)+"/lpmod")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
 
         reg_value = int(reg_file.readline().rstrip())
 
@@ -161,13 +161,13 @@ class SfpUtil(SfpUtilBase):
         if port_num < self.port_start or port_num > self.port_end:
             return False
         if port_num < self.qsfp_port_start or port_num > self.qsfp_port_end:
-            print "\nError:SFP's don't support this property"
+            print("\nError:SFP's don't support this property")
             return False
 
         try:
             reg_file = open("/sys/class/swps/port"+str(port_num)+"/lpmod", "r+")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         reg_value = int(reg_file.readline().rstrip())
@@ -189,13 +189,13 @@ class SfpUtil(SfpUtilBase):
         if port_num < self.port_start or port_num > self.port_end:
             return False
         if port_num < self.qsfp_port_start or port_num > self.qsfp_port_end:
-            print "\nError:SFP's don't support this property"
+            print("\nError:SFP's don't support this property")
             return False
 
         try:
             reg_file = open(QSFP_RESET_REGISTER_DEVICE_FILE, "r+")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         reg_value = 0
@@ -209,7 +209,7 @@ class SfpUtil(SfpUtilBase):
         try:
             reg_file = open(QSFP_RESET_REGISTER_DEVICE_FILE, "r+")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         reg_value = 1

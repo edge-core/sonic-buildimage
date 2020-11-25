@@ -6,8 +6,12 @@
 
 import os.path
 import logging
-import commands
 import sys
+
+if sys.version_info[0] < 3:
+    import commands
+else:
+    import subprocess as commands
 
 
 Z9264F_MAX_PSUS = 2
@@ -102,6 +106,5 @@ class PsuUtil(PsuBase):
         if (psu_status != 'ERR'):
             # Check for PSU presence
             if (psu_status):
-                    status = 1
+                status = 1
         return status
-

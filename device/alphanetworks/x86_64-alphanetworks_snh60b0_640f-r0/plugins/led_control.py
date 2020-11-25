@@ -1,22 +1,21 @@
-#!/usr/bin/env python
-#
 # led_control.py
-# 
+#
 # Platform-specific LED control functionality for SONiC
 #
 
 # try:
 #     from sonic_led.led_control_base import LedControlBase
 #     import swsssdk
-# except ImportError, e:
+# except ImportError as e:
 #     raise ImportError (str(e) + " - required module not found")
 
 import time
 
-class LedControlBase(object):
-#    __metaclass__ = abc.ABCMeta
 
-#    @abc.abstractmethod
+class LedControlBase(object):
+    #    __metaclass__ = abc.ABCMeta
+
+    #    @abc.abstractmethod
     def port_link_state_change(self, port, state):
         """
         Called when port link state changes. Update port link state LED here.
@@ -25,6 +24,7 @@ class LedControlBase(object):
         :param state: A string, the port link state (either "up" or "down")
         """
         return
+
 
 ### Goreme specified ###
 read_fan_fault = 0
@@ -35,91 +35,93 @@ is_thermal_high = 0
 is_reset_button_push = 0
 ##########################
 
+
 def sysled_task():
     while True:
         system_led_check()
         time.sleep(5)
-		
-########## Goreme System LED checking
+
+# Goreme System LED checking
+
+
 def system_led_check():
-	global read_fan_fault, read_power_status, is_fan_all_OK, is_power_all_OK, is_thermal_high, is_reset_button_push
-	is_fan_all_OK = 1
-	is_power_all_OK = 0
-	is_thermal_high = 0
-	is_reset_button_push = 0
-	with open("/sys/bus/i2c/devices/0-005e/fan1_fault", "r") as f1:
-		read_fan_fault = f1.read()
-		if str(read_fan_fault) == str("1\n"):
-			is_fan_all_OK = 0
-	with open("/sys/bus/i2c/devices/0-005e/fan2_fault", "r") as f1:
-		read_fan_fault = f1.read()
-		if str(read_fan_fault) == str("1\n"):
-			is_fan_all_OK = 0
-	with open("/sys/bus/i2c/devices/0-005e/fan3_fault", "r") as f1:
-		read_fan_fault = f1.read()
-		if str(read_fan_fault) == str("1\n"):
-			is_fan_all_OK = 0
-	with open("/sys/bus/i2c/devices/0-005e/fan4_fault", "r") as f1:
-		read_fan_fault = f1.read()
-		if str(read_fan_fault) == str("1\n"):
-			is_fan_all_OK = 0
+    global read_fan_fault, read_power_status, is_fan_all_OK, is_power_all_OK, is_thermal_high, is_reset_button_push
+    is_fan_all_OK = 1
+    is_power_all_OK = 0
+    is_thermal_high = 0
+    is_reset_button_push = 0
+    with open("/sys/bus/i2c/devices/0-005e/fan1_fault", "r") as f1:
+        read_fan_fault = f1.read()
+        if str(read_fan_fault) == str("1\n"):
+            is_fan_all_OK = 0
+    with open("/sys/bus/i2c/devices/0-005e/fan2_fault", "r") as f1:
+        read_fan_fault = f1.read()
+        if str(read_fan_fault) == str("1\n"):
+            is_fan_all_OK = 0
+    with open("/sys/bus/i2c/devices/0-005e/fan3_fault", "r") as f1:
+        read_fan_fault = f1.read()
+        if str(read_fan_fault) == str("1\n"):
+            is_fan_all_OK = 0
+    with open("/sys/bus/i2c/devices/0-005e/fan4_fault", "r") as f1:
+        read_fan_fault = f1.read()
+        if str(read_fan_fault) == str("1\n"):
+            is_fan_all_OK = 0
 
-	with open("/sys/bus/i2c/devices/8-005f/fan1_led", "w") as f11:
-		if int(is_fan_all_OK) == 1:
-			f11.write("1")
-		else:
-			f11.write("4")
+    with open("/sys/bus/i2c/devices/8-005f/fan1_led", "w") as f11:
+        if int(is_fan_all_OK) == 1:
+            f11.write("1")
+        else:
+            f11.write("4")
 
+    with open("/sys/bus/i2c/devices/0-005e/psu1_power_good", "r") as f1:
+        read_power_status = f1.read()
+        if str(read_power_status) != str("1\n"):
+            is_power_all_OK = -10
+    with open("/sys/bus/i2c/devices/0-005e/psu1_present", "r") as f1:
+        read_power_status = f1.read()
+        if str(read_power_status) == str("1\n"):
+            is_power_all_OK = is_power_all_OK + 1
+    with open("/sys/bus/i2c/devices/0-005e/psu2_power_good", "r") as f1:
+        read_power_status = f1.read()
+        if str(read_power_status) != str("1\n"):
+            is_power_all_OK = -10
+    with open("/sys/bus/i2c/devices/0-005e/psu2_present", "r") as f1:
+        read_power_status = f1.read()
+        if str(read_power_status) == str("1\n"):
+            is_power_all_OK = is_power_all_OK + 1
 
-	with open("/sys/bus/i2c/devices/0-005e/psu1_power_good", "r") as f1:
-		read_power_status = f1.read()
-		if str(read_power_status) != str("1\n"):
-			is_power_all_OK = -10
-	with open("/sys/bus/i2c/devices/0-005e/psu1_present", "r") as f1:
-		read_power_status = f1.read()
-		if str(read_power_status) == str("1\n"):
-			is_power_all_OK = is_power_all_OK + 1
-	with open("/sys/bus/i2c/devices/0-005e/psu2_power_good", "r") as f1:
-		read_power_status = f1.read()
-		if str(read_power_status) != str("1\n"):
-			is_power_all_OK = -10
-	with open("/sys/bus/i2c/devices/0-005e/psu2_present", "r") as f1:
-		read_power_status = f1.read()
-		if str(read_power_status) == str("1\n"):
-			is_power_all_OK = is_power_all_OK + 1
+    with open("/sys/bus/i2c/devices/8-005f/sys_pwr", "w") as f11:
+        if int(is_power_all_OK) > 0:
+            f11.write("1")
+        else:
+            f11.write("4")
 
-	with open("/sys/bus/i2c/devices/8-005f/sys_pwr", "w") as f11:
-		if int(is_power_all_OK) > 0:
-			f11.write("1")
-		else:
-			f11.write("4")
+    with open("/sys/bus/i2c/devices/8-005f/swi_ctrl", "r") as f5:
+        is_reset_button_push = f5.read()
+        if str(is_reset_button_push) == "1\n":
+            is_reset_button_push = 1
+        else:
+            is_reset_button_push = 0
 
+    with open("/sys/bus/i2c/devices/3-004d/hwmon/hwmon2/temp1_input", "r") as f3:
+        is_thermal_high = f3.read()
+        if int(is_thermal_high) >= 70000:
+            is_thermal_high = 1
+        else:
+            is_thermal_high = 0
 
-	with open("/sys/bus/i2c/devices/8-005f/swi_ctrl", "r") as f5:
-		is_reset_button_push = f5.read()
-		if str(is_reset_button_push) == "1\n":
-			is_reset_button_push = 1
-		else:
-			is_reset_button_push = 0
+    with open("/sys/bus/i2c/devices/8-005f/sys_status", "w") as f2:
+        if is_reset_button_push == 1:
+            f2.write("3")
+        elif is_fan_all_OK == 0 or is_power_all_OK == 0 or is_thermal_high == 1:
+            f2.write("4")
+        else:
+            f2.write("1")
 
-	with open("/sys/bus/i2c/devices/3-004d/hwmon/hwmon2/temp1_input", "r") as f3:
-		is_thermal_high = f3.read()
-		if int(is_thermal_high) >= 70000:
-			is_thermal_high = 1
-		else:
-			is_thermal_high = 0
-
-	with open("/sys/bus/i2c/devices/8-005f/sys_status", "w") as f2:
-		if is_reset_button_push == 1:
-			f2.write("3")
-		elif is_fan_all_OK == 0 or is_power_all_OK == 0 or is_thermal_high == 1:
-			f2.write("4")
-		else:
-			f2.write("1")
-
-	return
+    return
 ##########
-	
+
+
 class LedControl(LedControlBase):
     """Platform specific LED control class"""
     PORT_TABLE_PREFIX = "PORT_TABLE:"
@@ -149,18 +151,18 @@ class LedControl(LedControlBase):
         swss = swsssdk.SonicV2Connector()
         swss.connect(swss.APPL_DB)
 
-        lanes = swss.get(swss.APPL_DB, self.PORT_TABLE_PREFIX + port_name, 'lanes')
+        lanes = swss.get(
+            swss.APPL_DB, self.PORT_TABLE_PREFIX + port_name, 'lanes')
 
         # SONiC port nums are 0-based and increment by 4
         # Arista QSFP indices are 1-based and increment by 1
-        return (((sonic_port_num/4) + 1), sonic_port_num%4, len(lanes.split(',')))
-
-    
+        return (((sonic_port_num/4) + 1), sonic_port_num % 4, len(lanes.split(',')))
 
     # Concrete implementation of port_link_state_change() method
+
     def port_link_state_change_bk(self, port, state):
         qsfp_index, lane_index, lanes = self._port_name_to_qsfp_index(port)
-        
+
         # Ignore invalid QSFP indices
         if qsfp_index <= 0 or lanes <= 0 or lanes > 4:
             return
@@ -169,9 +171,11 @@ class LedControl(LedControlBase):
         # whereas indices 25-32 are not breakout-capable, and only have one
         if qsfp_index <= self.QSFP_BREAKOUT_END_IDX:
             # assuming 40G, then we need to control four lanes
-            led_sysfs_paths = [ self.LED_SYSFS_PATH_BREAKOUT_CAPABLE.format(qsfp_index, i) for i in range(lane_index + 1, lane_index + 1 + lanes) ]
+            led_sysfs_paths = [self.LED_SYSFS_PATH_BREAKOUT_CAPABLE.format(
+                qsfp_index, i) for i in range(lane_index + 1, lane_index + 1 + lanes)]
         else:
-            led_sysfs_paths = [ self.LED_SYSFS_PATH_NO_BREAKOUT.format(qsfp_index) ]
+            led_sysfs_paths = [
+                self.LED_SYSFS_PATH_NO_BREAKOUT.format(qsfp_index)]
 
         for led_sysfs_path in led_sysfs_paths:
             led_file = open(led_sysfs_path, "w")
@@ -202,7 +206,7 @@ class LedControl(LedControlBase):
             f.write("1")
         with open("/sys/bus/i2c/devices/8-005f/fan4_led", "w") as f:
             f.write("1")
-        sysled_task()	
+        sysled_task()
 
         # Initialize: Turn all front panel QSFP LEDs off
         # # for qsfp_index in range(self.QSFP_BREAKOUT_START_IDX, self.QSFP_BREAKOUT_END_IDX + 1):

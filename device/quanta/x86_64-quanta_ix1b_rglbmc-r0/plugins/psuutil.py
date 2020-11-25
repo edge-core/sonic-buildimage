@@ -15,63 +15,72 @@ except ImportError as e:
 
 DEBUG = False
 
+
 def show_log(txt):
     if DEBUG == True:
         print("[IX2]"+txt)
     return
 
+
 def exec_cmd(cmd, show):
     logging.info('Run :'+cmd)
     try:
-        output = subprocess.check_output(cmd, shell=True)
-        show_log (cmd +"output:"+str(output))
+        output = subprocess.check_output(cmd, shell=True, universal_newlines=True)
+        show_log(cmd + "output:"+str(output))
     except subprocess.CalledProcessError as e:
         logging.info("Failed :"+cmd)
         if show:
-            print("Failed :"+cmd +"returncode = {}, err msg: {}".format(e.returncode, e.output))
-    return  output
+            print("Failed :"+cmd + "returncode = {}, err msg: {}".format(e.returncode, e.output))
+    return output
+
 
 def my_log(txt):
     if DEBUG == True:
         print("[QUANTA DBG]: "+txt)
     return
 
+
 def log_os_system(cmd, show):
     logging.info('Run :'+cmd)
     status = 1
     output = ""
     try:
-        output = subprocess.check_output(cmd, shell=True)
-        my_log (cmd +"output:"+str(output))
+        output = subprocess.check_output(cmd, shell=True, universal_newlines=True)
+        my_log(cmd + "output:"+str(output))
     except subprocess.CalledProcessError as e:
         logging.info('Failed :'+cmd)
         if show:
-            print("Failed :"+cmd +"returncode = {}, err msg: {}".format(e.returncode, e.output))
-    return  output
+            print("Failed :"+cmd + "returncode = {}, err msg: {}".format(e.returncode, e.output))
+    return output
+
 
 def gpio16_exist():
     ls = log_os_system("ls /sys/class/gpio/ | grep gpio16", 0)
     logging.info('mods:'+ls)
-    if len(ls) ==0:
+    if len(ls) == 0:
         return False
+
 
 def gpio17_exist():
     ls = log_os_system("ls /sys/class/gpio/ | grep gpio17", 0)
     logging.info('mods:'+ls)
-    if len(ls) ==0:
+    if len(ls) == 0:
         return False
+
 
 def gpio19_exist():
     ls = log_os_system("ls /sys/class/gpio/ | grep gpio19", 0)
     logging.info('mods:'+ls)
-    if len(ls) ==0:
+    if len(ls) == 0:
         return False
+
 
 def gpio20_exist():
     ls = log_os_system("ls /sys/class/gpio/ | grep gpio20", 0)
     logging.info('mods:'+ls)
-    if len(ls) ==0:
+    if len(ls) == 0:
         return False
+
 
 class PsuUtil(PsuBase):
     """Platform-specific PSUutil class"""
@@ -81,6 +90,7 @@ class PsuUtil(PsuBase):
 
     SYSFS_PSU_POWERGOOD_DIR = ["/sys/class/gpio/gpio17",
                                "/sys/class/gpio/gpio20"]
+
     def __init__(self):
         PsuBase.__init__(self)
 
@@ -134,7 +144,7 @@ class PsuUtil(PsuBase):
         """
         status = 0
         attr_file = 'value'
-        attr_path = self.SYSFS_PSU_POWERGOOD_DIR[index-1] +'/' + attr_file
+        attr_path = self.SYSFS_PSU_POWERGOOD_DIR[index-1] + '/' + attr_file
 
         attr_value = self.get_attr_value(attr_path)
 
@@ -142,7 +152,7 @@ class PsuUtil(PsuBase):
             attr_value = int(attr_value, 16)
             # Check for PSU status
             if (attr_value == 1):
-                    status = 1
+                status = 1
 
         return status
 
@@ -155,8 +165,8 @@ class PsuUtil(PsuBase):
         """
         status = 0
         psu_absent = 0
-        attr_file ='value'
-        attr_path = self.SYSFS_PSU_PRESENT_DIR[index-1] +'/' + attr_file
+        attr_file = 'value'
+        attr_path = self.SYSFS_PSU_PRESENT_DIR[index-1] + '/' + attr_file
 
         attr_value = self.get_attr_value(attr_path)
 
@@ -164,7 +174,6 @@ class PsuUtil(PsuBase):
             attr_value = int(attr_value, 16)
             # Check for PSU presence
             if (attr_value == 0):
-                    status = 1
+                status = 1
 
         return status
-

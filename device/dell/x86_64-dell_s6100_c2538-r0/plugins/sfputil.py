@@ -31,70 +31,70 @@ class SfpUtil(SfpUtilBase):
 
     _port_to_eeprom_mapping = {}
     _port_to_i2c_mapping = {
-       0: [6, 18, 34, 50, 66],
-       1: [6, 19, 35, 51, 67],
-       2: [6, 20, 36, 52, 68],
-       3: [6, 21, 37, 53, 69],
-       4: [6, 22, 38, 54, 70],
-       5: [6, 23, 39, 55, 71],
-       6: [6, 24, 40, 56, 72],
-       7: [6, 25, 41, 57, 73],
-       8: [6, 26, 42, 58, 74],
-       9: [6, 27, 43, 59, 75],
-       10: [6, 28, 44, 60, 76],
-       11: [6, 29, 45, 61, 77],
-       12: [6, 30, 46, 62, 78],
-       13: [6, 31, 47, 63, 79],
-       14: [6, 32, 48, 64, 80],
-       15: [6, 33, 49, 65, 81],
-       16: [8, 18, 34, 50, 66],
-       17: [8, 19, 35, 51, 67],
-       18: [8, 20, 36, 52, 68],
-       19: [8, 21, 37, 53, 69],
-       20: [8, 22, 38, 54, 70],
-       21: [8, 23, 39, 55, 71],
-       22: [8, 24, 40, 56, 72],
-       23: [8, 25, 41, 57, 73],
-       24: [8, 26, 42, 58, 74],
-       25: [8, 27, 43, 59, 75],
-       26: [8, 28, 44, 60, 76],
-       27: [8, 29, 45, 61, 77],
-       28: [8, 30, 46, 62, 78],
-       29: [8, 31, 47, 63, 79],
-       30: [8, 32, 48, 64, 80],
-       31: [8, 33, 49, 65, 81],
-       32: [7, 18, 34, 50, 66],
-       33: [7, 19, 35, 51, 67],
-       34: [7, 20, 36, 52, 68],
-       35: [7, 21, 37, 53, 69],
-       36: [7, 22, 38, 54, 70],
-       37: [7, 23, 39, 55, 71],
-       38: [7, 24, 40, 56, 72],
-       39: [7, 25, 41, 57, 73],
-       40: [7, 26, 42, 58, 74],
-       41: [7, 27, 43, 59, 75],
-       42: [7, 28, 44, 60, 76],
-       43: [7, 29, 45, 61, 77],
-       44: [7, 30, 46, 62, 78],
-       45: [7, 31, 47, 63, 79],
-       46: [7, 32, 48, 64, 80],
-       47: [7, 33, 49, 65, 81],
-       48: [9, 18, 34, 50, 66],
-       49: [9, 19, 35, 51, 67],
-       50: [9, 20, 36, 52, 68],
-       51: [9, 21, 37, 53, 69],
-       52: [9, 22, 38, 54, 70],
-       53: [9, 23, 39, 55, 71],
-       54: [9, 24, 40, 56, 72],
-       55: [9, 25, 41, 57, 73],
-       56: [9, 26, 42, 58, 74],
-       57: [9, 27, 43, 59, 75],
-       58: [9, 28, 44, 60, 76],
-       59: [9, 29, 45, 61, 77],
-       60: [9, 30, 46, 62, 78],
-       61: [9, 31, 47, 63, 79],
-       62: [9, 32, 48, 64, 80],
-       63: [9, 33, 49, 65, 81]
+        0: [6, 18, 34, 50, 66],
+        1: [6, 19, 35, 51, 67],
+        2: [6, 20, 36, 52, 68],
+        3: [6, 21, 37, 53, 69],
+        4: [6, 22, 38, 54, 70],
+        5: [6, 23, 39, 55, 71],
+        6: [6, 24, 40, 56, 72],
+        7: [6, 25, 41, 57, 73],
+        8: [6, 26, 42, 58, 74],
+        9: [6, 27, 43, 59, 75],
+        10: [6, 28, 44, 60, 76],
+        11: [6, 29, 45, 61, 77],
+        12: [6, 30, 46, 62, 78],
+        13: [6, 31, 47, 63, 79],
+        14: [6, 32, 48, 64, 80],
+        15: [6, 33, 49, 65, 81],
+        16: [8, 18, 34, 50, 66],
+        17: [8, 19, 35, 51, 67],
+        18: [8, 20, 36, 52, 68],
+        19: [8, 21, 37, 53, 69],
+        20: [8, 22, 38, 54, 70],
+        21: [8, 23, 39, 55, 71],
+        22: [8, 24, 40, 56, 72],
+        23: [8, 25, 41, 57, 73],
+        24: [8, 26, 42, 58, 74],
+        25: [8, 27, 43, 59, 75],
+        26: [8, 28, 44, 60, 76],
+        27: [8, 29, 45, 61, 77],
+        28: [8, 30, 46, 62, 78],
+        29: [8, 31, 47, 63, 79],
+        30: [8, 32, 48, 64, 80],
+        31: [8, 33, 49, 65, 81],
+        32: [7, 18, 34, 50, 66],
+        33: [7, 19, 35, 51, 67],
+        34: [7, 20, 36, 52, 68],
+        35: [7, 21, 37, 53, 69],
+        36: [7, 22, 38, 54, 70],
+        37: [7, 23, 39, 55, 71],
+        38: [7, 24, 40, 56, 72],
+        39: [7, 25, 41, 57, 73],
+        40: [7, 26, 42, 58, 74],
+        41: [7, 27, 43, 59, 75],
+        42: [7, 28, 44, 60, 76],
+        43: [7, 29, 45, 61, 77],
+        44: [7, 30, 46, 62, 78],
+        45: [7, 31, 47, 63, 79],
+        46: [7, 32, 48, 64, 80],
+        47: [7, 33, 49, 65, 81],
+        48: [9, 18, 34, 50, 66],
+        49: [9, 19, 35, 51, 67],
+        50: [9, 20, 36, 52, 68],
+        51: [9, 21, 37, 53, 69],
+        52: [9, 22, 38, 54, 70],
+        53: [9, 23, 39, 55, 71],
+        54: [9, 24, 40, 56, 72],
+        55: [9, 25, 41, 57, 73],
+        56: [9, 26, 42, 58, 74],
+        57: [9, 27, 43, 59, 75],
+        58: [9, 28, 44, 60, 76],
+        59: [9, 29, 45, 61, 77],
+        60: [9, 30, 46, 62, 78],
+        61: [9, 31, 47, 63, 79],
+        62: [9, 32, 48, 64, 80],
+        63: [9, 33, 49, 65, 81]
     }
 
     IOM_1_PORT_START = 0
@@ -125,7 +125,7 @@ class SfpUtil(SfpUtilBase):
 
     @property
     def qsfp_ports(self):
-        return range(0, self.PORTS_IN_BLOCK + 1)
+        return list(range(0, self.PORTS_IN_BLOCK + 1))
 
     @property
     def iom1_port_start(self):
@@ -172,69 +172,69 @@ class SfpUtil(SfpUtilBase):
         global port_to_eeprom_path
 
         for port_num in range(0, self.port_end + 1):
-                if port_num >= self.iom1_port_start and port_num <=\
-                                                        self.iom1_port_end:
-                    assigned = 0
-                    # i2c-6
-                    for x in range(1, 5):
-                        port_to_eeprom_path = eeprom_path.format(
-                                    self.port_to_i2c_mapping[port_num][0],
-                                    self.port_to_i2c_mapping[port_num][x])
-                        if (os.path.isfile(port_to_eeprom_path)):
-                                self.port_to_eeprom_mapping[port_num] =\
-                                                        port_to_eeprom_path
-                                assigned = 1
-                        elif (not assigned):
-                                self.port_to_eeprom_mapping[port_num] =\
-                                                        "No IOM"
+            if port_num >= self.iom1_port_start and port_num <=\
+                    self.iom1_port_end:
+                assigned = 0
+                # i2c-6
+                for x in range(1, 5):
+                    port_to_eeprom_path = eeprom_path.format(
+                        self.port_to_i2c_mapping[port_num][0],
+                        self.port_to_i2c_mapping[port_num][x])
+                    if (os.path.isfile(port_to_eeprom_path)):
+                        self.port_to_eeprom_mapping[port_num] =\
+                            port_to_eeprom_path
+                        assigned = 1
+                    elif (not assigned):
+                        self.port_to_eeprom_mapping[port_num] =\
+                            "No IOM"
 
-                elif(port_num >= self.iom2_port_start and
-                        port_num <= self.iom2_port_end):
-                    assigned = 0
-                    # i2c-8
-                    for x in range(1, 5):
-                        port_to_eeprom_path = eeprom_path.format(
-                                        self.port_to_i2c_mapping[port_num][0],
-                                        self.port_to_i2c_mapping[port_num][x])
-                        if (os.path.isfile(port_to_eeprom_path)):
-                                self.port_to_eeprom_mapping[port_num] =\
-                                                        port_to_eeprom_path
-                                assigned = 1
-                        elif (not assigned):
-                                self.port_to_eeprom_mapping[port_num] =\
-                                                        "No IOM"
+            elif(port_num >= self.iom2_port_start and
+                    port_num <= self.iom2_port_end):
+                assigned = 0
+                # i2c-8
+                for x in range(1, 5):
+                    port_to_eeprom_path = eeprom_path.format(
+                        self.port_to_i2c_mapping[port_num][0],
+                        self.port_to_i2c_mapping[port_num][x])
+                    if (os.path.isfile(port_to_eeprom_path)):
+                        self.port_to_eeprom_mapping[port_num] =\
+                            port_to_eeprom_path
+                        assigned = 1
+                    elif (not assigned):
+                        self.port_to_eeprom_mapping[port_num] =\
+                            "No IOM"
 
-                elif(port_num >= self.iom3_port_start and port_num <=
-                        self.iom3_port_end):
-                    assigned = 0
-                    # i2c-7
-                    for x in range(1, 5):
-                        port_to_eeprom_path = eeprom_path.format(
-                                        self.port_to_i2c_mapping[port_num][0],
-                                        self.port_to_i2c_mapping[port_num][x])
-                        if (os.path.isfile(port_to_eeprom_path)):
-                                self.port_to_eeprom_mapping[port_num] =\
-                                                        port_to_eeprom_path
-                                assigned = 1
-                        elif (not assigned):
-                                self.port_to_eeprom_mapping[port_num] =\
-                                                        "No IOM"
+            elif(port_num >= self.iom3_port_start and port_num <=
+                    self.iom3_port_end):
+                assigned = 0
+                # i2c-7
+                for x in range(1, 5):
+                    port_to_eeprom_path = eeprom_path.format(
+                        self.port_to_i2c_mapping[port_num][0],
+                        self.port_to_i2c_mapping[port_num][x])
+                    if (os.path.isfile(port_to_eeprom_path)):
+                        self.port_to_eeprom_mapping[port_num] =\
+                            port_to_eeprom_path
+                        assigned = 1
+                    elif (not assigned):
+                        self.port_to_eeprom_mapping[port_num] =\
+                            "No IOM"
 
-                elif(port_num >= self.iom4_port_start and port_num <=
-                        self.iom4_port_end):
-                    assigned = 0
-                    # i2c-9
-                    for x in range(1, 5):
-                        port_to_eeprom_path = eeprom_path.format(
-                                    self.port_to_i2c_mapping[port_num][0],
-                                    self.port_to_i2c_mapping[port_num][x])
-                        if (os.path.isfile(port_to_eeprom_path)):
-                                self.port_to_eeprom_mapping[port_num] =\
-                                                        port_to_eeprom_path
-                                assigned = 1
-                        elif (not assigned):
-                                self.port_to_eeprom_mapping[port_num] =\
-                                                        "No IOM"
+            elif(port_num >= self.iom4_port_start and port_num <=
+                    self.iom4_port_end):
+                assigned = 0
+                # i2c-9
+                for x in range(1, 5):
+                    port_to_eeprom_path = eeprom_path.format(
+                        self.port_to_i2c_mapping[port_num][0],
+                        self.port_to_i2c_mapping[port_num][x])
+                    if (os.path.isfile(port_to_eeprom_path)):
+                        self.port_to_eeprom_mapping[port_num] =\
+                            port_to_eeprom_path
+                        assigned = 1
+                    elif (not assigned):
+                        self.port_to_eeprom_mapping[port_num] =\
+                            "No IOM"
 
         SfpUtilBase.__init__(self)
 
@@ -267,11 +267,11 @@ class SfpUtil(SfpUtilBase):
             i2c_line = 17
 
         try:
-                qsfp_path = self.BASE_VAL_PATH.format(i2c_line)+"qsfp_modprs"
-                reg_file = open(qsfp_path, "r")
+            qsfp_path = self.BASE_VAL_PATH.format(i2c_line)+"qsfp_modprs"
+            reg_file = open(qsfp_path, "r")
 
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         content = reg_file.readline().rstrip()
@@ -316,11 +316,11 @@ class SfpUtil(SfpUtilBase):
             i2c_line = 17
 
         try:
-                qsfp_path = self.BASE_VAL_PATH.format(i2c_line)+"qsfp_lpmode"
-                reg_file = open(qsfp_path, "r")
+            qsfp_path = self.BASE_VAL_PATH.format(i2c_line)+"qsfp_lpmode"
+            reg_file = open(qsfp_path, "r")
 
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         content = reg_file.readline().rstrip()
@@ -365,11 +365,11 @@ class SfpUtil(SfpUtilBase):
             i2c_line = 17
 
         try:
-                qsfp_path = self.BASE_VAL_PATH.format(i2c_line)+"qsfp_lpmode"
-                reg_file = open(qsfp_path, "r+")
+            qsfp_path = self.BASE_VAL_PATH.format(i2c_line)+"qsfp_lpmode"
+            reg_file = open(qsfp_path, "r+")
 
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         content = reg_file.readline().rstrip()
@@ -426,11 +426,11 @@ class SfpUtil(SfpUtilBase):
             i2c_line = 17
 
         try:
-                qsfp_path = self.BASE_VAL_PATH.format(i2c_line)+"qsfp_lpmode"
-                reg_file = open(qsfp_path, "r+")
+            qsfp_path = self.BASE_VAL_PATH.format(i2c_line)+"qsfp_lpmode"
+            reg_file = open(qsfp_path, "r+")
 
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         content = reg_file.readline().rstrip()
@@ -465,11 +465,11 @@ class SfpUtil(SfpUtilBase):
         # Flip the bit back high and write back to the register to take port
         # out of reset
         try:
-                qsfp_path = self.BASE_VAL_PATH.format(i2c_line)+"qsfp_lpmode"
-                reg_file = open(qsfp_path, "w")
+            qsfp_path = self.BASE_VAL_PATH.format(i2c_line)+"qsfp_lpmode"
+            reg_file = open(qsfp_path, "w")
 
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
             return False
 
         reg_value = reg_value | mask
@@ -480,158 +480,157 @@ class SfpUtil(SfpUtilBase):
         return True
 
     def get_register(self, reg_file):
-            retval = 'ERR'
+        retval = 'ERR'
 
-            if (not os.path.isfile(reg_file)):
-                print reg_file,  'not found !'
-                return retval
-
-            try:
-                with open(reg_file, 'r') as fd:
-                    retval = fd.read()
-            except Exception as error:
-                logging.error("Unable to open ", reg_file, "file !")
-
-            retval = retval.rstrip('\r\n')
-            retval = retval.lstrip(" ")
+        if (not os.path.isfile(reg_file)):
+            print(reg_file + ' not found !')
             return retval
 
+        try:
+            with open(reg_file, 'r') as fd:
+                retval = fd.read()
+        except Exception as error:
+            logging.error("Unable to open ", reg_file, "file !")
+
+        retval = retval.rstrip('\r\n')
+        retval = retval.lstrip(" ")
+        return retval
+
     def check_interrupts(self, port_dict):
-            retval = 0
-            is_port_dict_updated = False
+        retval = 0
+        is_port_dict_updated = False
 
-            # Read the QSFP ABS interrupt & status registers
-            cpld2_abs_int = self.get_register(
-                        "/sys/class/i2c-adapter/i2c-14/14-003e/qsfp_abs_int")
-            cpld2_abs_sta = self.get_register(
-                        "/sys/class/i2c-adapter/i2c-14/14-003e/qsfp_abs_sta")
-            cpld3_abs_int = self.get_register(
-                        "/sys/class/i2c-adapter/i2c-15/15-003e/qsfp_abs_int")
-            cpld3_abs_sta = self.get_register(
-                        "/sys/class/i2c-adapter/i2c-15/15-003e/qsfp_abs_sta")
-            cpld4_abs_int = self.get_register(
-                        "/sys/class/i2c-adapter/i2c-16/16-003e/qsfp_abs_int")
-            cpld4_abs_sta = self.get_register(
-                        "/sys/class/i2c-adapter/i2c-16/16-003e/qsfp_abs_sta")
-            cpld5_abs_int = self.get_register(
-                        "/sys/class/i2c-adapter/i2c-17/17-003e/qsfp_abs_int")
-            cpld5_abs_sta = self.get_register(
-                        "/sys/class/i2c-adapter/i2c-17/17-003e/qsfp_abs_sta")
+        # Read the QSFP ABS interrupt & status registers
+        cpld2_abs_int = self.get_register(
+            "/sys/class/i2c-adapter/i2c-14/14-003e/qsfp_abs_int")
+        cpld2_abs_sta = self.get_register(
+            "/sys/class/i2c-adapter/i2c-14/14-003e/qsfp_abs_sta")
+        cpld3_abs_int = self.get_register(
+            "/sys/class/i2c-adapter/i2c-15/15-003e/qsfp_abs_int")
+        cpld3_abs_sta = self.get_register(
+            "/sys/class/i2c-adapter/i2c-15/15-003e/qsfp_abs_sta")
+        cpld4_abs_int = self.get_register(
+            "/sys/class/i2c-adapter/i2c-16/16-003e/qsfp_abs_int")
+        cpld4_abs_sta = self.get_register(
+            "/sys/class/i2c-adapter/i2c-16/16-003e/qsfp_abs_sta")
+        cpld5_abs_int = self.get_register(
+            "/sys/class/i2c-adapter/i2c-17/17-003e/qsfp_abs_int")
+        cpld5_abs_sta = self.get_register(
+            "/sys/class/i2c-adapter/i2c-17/17-003e/qsfp_abs_sta")
 
-            if (cpld2_abs_int == 'ERR' or cpld2_abs_sta == 'ERR' or
-                    cpld3_abs_int == 'ERR' or cpld3_abs_sta == 'ERR' or
-                    cpld4_abs_int == 'ERR' or cpld4_abs_sta == 'ERR' or
-                    cpld5_abs_int == 'ERR' or cpld5_abs_sta == 'ERR'):
-                return -1
+        if (cpld2_abs_int == 'ERR' or cpld2_abs_sta == 'ERR' or
+                cpld3_abs_int == 'ERR' or cpld3_abs_sta == 'ERR' or
+                cpld4_abs_int == 'ERR' or cpld4_abs_sta == 'ERR' or
+                cpld5_abs_int == 'ERR' or cpld5_abs_sta == 'ERR'):
+            return -1
 
-            # If IOM is not present, interrupt will return 'read error'
-            # Handle the scenario gracefully
-            if (cpld2_abs_int == 'read error'):
-                cpld2_abs_int = "0x0"
-                cpld2_abs_sta = "0x0"
-            if (cpld3_abs_int == 'read error'):
-                cpld3_abs_int = "0x0"
-                cpld3_abs_sta = "0x0"
-            if (cpld4_abs_int == 'read error'):
-                cpld4_abs_int = "0x0"
-                cpld4_abs_sta = "0x0"
-            if (cpld5_abs_int == 'read error'):
-                cpld5_abs_int = "0x0"
-                cpld5_abs_sta = "0x0"
+        # If IOM is not present, interrupt will return 'read error'
+        # Handle the scenario gracefully
+        if (cpld2_abs_int == 'read error'):
+            cpld2_abs_int = "0x0"
+            cpld2_abs_sta = "0x0"
+        if (cpld3_abs_int == 'read error'):
+            cpld3_abs_int = "0x0"
+            cpld3_abs_sta = "0x0"
+        if (cpld4_abs_int == 'read error'):
+            cpld4_abs_int = "0x0"
+            cpld4_abs_sta = "0x0"
+        if (cpld5_abs_int == 'read error'):
+            cpld5_abs_int = "0x0"
+            cpld5_abs_sta = "0x0"
 
-            cpld2_abs_int = int(cpld2_abs_int, 16)
-            cpld2_abs_sta = int(cpld2_abs_sta, 16)
-            cpld3_abs_int = int(cpld3_abs_int, 16)
-            cpld3_abs_sta = int(cpld3_abs_sta, 16)
-            cpld4_abs_int = int(cpld4_abs_int, 16)
-            cpld4_abs_sta = int(cpld4_abs_sta, 16)
-            cpld5_abs_int = int(cpld5_abs_int, 16)
-            cpld5_abs_sta = int(cpld5_abs_sta, 16)
+        cpld2_abs_int = int(cpld2_abs_int, 16)
+        cpld2_abs_sta = int(cpld2_abs_sta, 16)
+        cpld3_abs_int = int(cpld3_abs_int, 16)
+        cpld3_abs_sta = int(cpld3_abs_sta, 16)
+        cpld4_abs_int = int(cpld4_abs_int, 16)
+        cpld4_abs_sta = int(cpld4_abs_sta, 16)
+        cpld5_abs_int = int(cpld5_abs_int, 16)
+        cpld5_abs_sta = int(cpld5_abs_sta, 16)
 
-            # Make it contiguous
-            interrupt_reg = (cpld2_abs_int & 0xffff) | \
-                            ((cpld4_abs_int & 0xffff) << 16) | \
-                            ((cpld3_abs_int & 0xffff) << 32) | \
-                            ((cpld5_abs_int & 0xffff) << 48)
-            status_reg = (cpld2_abs_sta & 0xffff) | \
-                         ((cpld4_abs_sta & 0xffff) << 16) | \
-                         ((cpld3_abs_sta & 0xffff) << 32) | \
-                         ((cpld5_abs_sta & 0xffff) << 48)
+        # Make it contiguous
+        interrupt_reg = (cpld2_abs_int & 0xffff) | \
+                        ((cpld4_abs_int & 0xffff) << 16) | \
+                        ((cpld3_abs_int & 0xffff) << 32) | \
+                        ((cpld5_abs_int & 0xffff) << 48)
+        status_reg = (cpld2_abs_sta & 0xffff) | \
+                     ((cpld4_abs_sta & 0xffff) << 16) | \
+                     ((cpld3_abs_sta & 0xffff) << 32) | \
+                     ((cpld5_abs_sta & 0xffff) << 48)
 
-            port = self.port_start
-            while port <= self.port_end:
-                if interrupt_reg & (1 << port):
-                    # update only if atleast one port has generated
-                    # interrupt
-                    is_port_dict_updated = True
-                    if status_reg & (1 << port):
-                        # status reg 1 => optics is removed
-                        port_dict[port] = '0'
-                    else:
-                        # status reg 0 => optics is inserted
-                        port_dict[port] = '1'
-                port += 1
-            return retval, is_port_dict_updated
+        port = self.port_start
+        while port <= self.port_end:
+            if interrupt_reg & (1 << port):
+                # update only if atleast one port has generated
+                # interrupt
+                is_port_dict_updated = True
+                if status_reg & (1 << port):
+                    # status reg 1 => optics is removed
+                    port_dict[port] = '0'
+                else:
+                    # status reg 0 => optics is inserted
+                    port_dict[port] = '1'
+            port += 1
+        return retval, is_port_dict_updated
 
     def get_transceiver_change_event(self, timeout=0):
-            port_dict = {}
-            try:
-                # We get notified when there is an SCI interrupt from GPIO SUS6
-                # Open the sysfs file and register the epoll object
-                self.oir_fd = open(self.OIR_FD_PATH, "r")
-                if self.oir_fd != -1:
-                    # Do a dummy read before epoll register
-                    self.oir_fd.read()
-                    self.epoll = select.epoll()
-                    self.epoll.register(self.oir_fd.fileno(),
-                                        select.EPOLLIN & select.EPOLLET)
-                else:
-                    print("get_transceiver_change_event : unable to create fd")
+        port_dict = {}
+        try:
+            # We get notified when there is an SCI interrupt from GPIO SUS6
+            # Open the sysfs file and register the epoll object
+            self.oir_fd = open(self.OIR_FD_PATH, "r")
+            if self.oir_fd != -1:
+                # Do a dummy read before epoll register
+                self.oir_fd.read()
+                self.epoll = select.epoll()
+                self.epoll.register(self.oir_fd.fileno(),
+                                    select.EPOLLIN & select.EPOLLET)
+            else:
+                print("get_transceiver_change_event : unable to create fd")
+                return False, {}
+
+            # Check for missed interrupts by invoking self.check_interrupts
+            # which will update the port_dict.
+            while True:
+                interrupt_count_start = self.get_register(self.OIR_FD_PATH)
+
+                retval, is_port_dict_updated = \
+                    self.check_interrupts(port_dict)
+                if ((retval == 0) and (is_port_dict_updated is True)):
+                    return True, port_dict
+
+                interrupt_count_end = self.get_register(self.OIR_FD_PATH)
+
+                if (interrupt_count_start == 'ERR' or
+                        interrupt_count_end == 'ERR'):
+                    print("get_transceiver_change_event : \
+                            unable to retrive interrupt count")
+                    break
+
+                # check_interrupts() itself may take upto 100s of msecs.
+                # We detect a missed interrupt based on the count
+                if interrupt_count_start == interrupt_count_end:
+                    break
+
+            # Block until an xcvr is inserted or removed with timeout = -1
+            events = self.epoll.poll(
+                timeout=timeout if timeout != 0 else -1)
+            if events:
+                # check interrupts and return the port_dict
+                retval, is_port_dict_updated = \
+                    self.check_interrupts(port_dict)
+                if (retval != 0):
                     return False, {}
 
-                # Check for missed interrupts by invoking self.check_interrupts
-                # which will update the port_dict.
-                while True:
-                    interrupt_count_start = self.get_register(self.OIR_FD_PATH)
-
-                    retval, is_port_dict_updated = \
-                        self.check_interrupts(port_dict)
-                    if ((retval == 0) and (is_port_dict_updated is True)):
-                        return True, port_dict
-
-                    interrupt_count_end = self.get_register(self.OIR_FD_PATH)
-
-                    if (interrupt_count_start == 'ERR' or
-                            interrupt_count_end == 'ERR'):
-                        print("get_transceiver_change_event : \
-                            unable to retrive interrupt count")
-                        break
-
-                    # check_interrupts() itself may take upto 100s of msecs.
-                    # We detect a missed interrupt based on the count
-                    if interrupt_count_start == interrupt_count_end:
-                        break
-
-                # Block until an xcvr is inserted or removed with timeout = -1
-                events = self.epoll.poll(
-                    timeout=timeout if timeout != 0 else -1)
-                if events:
-                    # check interrupts and return the port_dict
-                    retval, is_port_dict_updated = \
-                                              self.check_interrupts(port_dict)
-                    if (retval != 0):
-                        return False, {}
-
-                return True, port_dict
-            except:
-                return False, {}
-            finally:
-                if self.oir_fd != -1:
-                    self.epoll.unregister(self.oir_fd.fileno())
-                    self.epoll.close()
-                    self.oir_fd.close()
-                    self.oir_fd = -1
-                    self.epoll = -1
-
+            return True, port_dict
+        except:
             return False, {}
+        finally:
+            if self.oir_fd != -1:
+                self.epoll.unregister(self.oir_fd.fileno())
+                self.epoll.close()
+                self.oir_fd.close()
+                self.oir_fd = -1
+                self.epoll = -1
 
+        return False, {}

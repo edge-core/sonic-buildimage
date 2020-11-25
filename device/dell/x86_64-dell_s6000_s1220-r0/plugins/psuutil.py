@@ -21,7 +21,7 @@ class PsuUtil(PsuBase):
     def get_cpld_register(self, reg_name):
         cpld_dir = "/sys/devices/platform/dell-s6000-cpld.0"
         retval = 'ERR'
-        reg_file = cpld_dir +'/' + reg_name
+        reg_file = cpld_dir + '/' + reg_name
         if (not os.path.isfile(reg_file)):
             return retval
 

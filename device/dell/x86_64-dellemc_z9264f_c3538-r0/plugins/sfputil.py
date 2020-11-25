@@ -21,7 +21,7 @@ try:
 except ImportError as e:
     raise ImportError("%s - required module not found" % str(e))
 
-#definitions of the offset and width for values in DOM info eeprom
+# definitions of the offset and width for values in DOM info eeprom
 QSFP_DOM_REV_OFFSET = 1
 QSFP_DOM_REV_WIDTH = 1
 QSFP_TEMPE_OFFSET = 22
@@ -50,6 +50,7 @@ SFP_CHANNL_MON_WIDTH = 6
 XCVR_DOM_CAPABILITY_OFFSET = 92
 XCVR_DOM_CAPABILITY_WIDTH = 1
 
+
 class SfpUtil(SfpUtilBase):
     """Platform-specific SfpUtil class"""
 
@@ -77,7 +78,7 @@ class SfpUtil(SfpUtilBase):
 
     @property
     def qsfp_ports(self):
-        return range(self.PORT_START, self.PORTS_IN_BLOCK + 1)
+        return list(range(self.PORT_START, self.PORTS_IN_BLOCK + 1))
 
     @property
     def port_to_eeprom_mapping(self):
@@ -150,7 +151,7 @@ class SfpUtil(SfpUtilBase):
 
         # Mask off 1st bit for presence 65,66
         if (port_num > 64):
-            mask =  (1 << 0)
+            mask = (1 << 0)
         # ModPrsL is active low
         if reg_value & mask == 0:
             return True
@@ -248,96 +249,96 @@ class SfpUtil(SfpUtilBase):
         return True
 
     def get_register(self, reg_file):
-            retval = 'ERR'
-            if (not path.isfile(reg_file)):
-                print reg_file,  'not found !'
-                return retval
-
-            try:
-                with fdopen(open(reg_file, O_RDONLY)) as fd:
-                    retval = fd.read()
-            except Exception as error:
-                logging.error("Unable to open ", reg_file, "file !")
-
-            retval = retval.rstrip('\r\n')
-            retval = retval.lstrip(" ")
+        retval = 'ERR'
+        if (not path.isfile(reg_file)):
+            print(reg_file + ' not found !')
             return retval
 
+        try:
+            with fdopen(open(reg_file, O_RDONLY)) as fd:
+                retval = fd.read()
+        except Exception as error:
+            logging.error("Unable to open ", reg_file, "file !")
+
+        retval = retval.rstrip('\r\n')
+        retval = retval.lstrip(" ")
+        return retval
+
     def check_interrupts(self, port_dict):
-            retval = 0
-            is_port_dict_updated = False
-            for port_num in range(self.port_start, (self.port_end + 1)):
-                presence = self.get_presence(port_num)
-                if(presence and self._global_port_pres_dict[port_num] == '0'):
-                    is_port_dict_updated = True
-                    self._global_port_pres_dict[port_num] = '1'
-                    port_dict[port_num] = '1'
-                elif(not presence and
-                     self._global_port_pres_dict[port_num] == '1'):
-                    is_port_dict_updated = True
-                    self._global_port_pres_dict[port_num] = '0'
-                    port_dict[port_num] = '0'
-            return retval, is_port_dict_updated
+        retval = 0
+        is_port_dict_updated = False
+        for port_num in range(self.port_start, (self.port_end + 1)):
+            presence = self.get_presence(port_num)
+            if(presence and self._global_port_pres_dict[port_num] == '0'):
+                is_port_dict_updated = True
+                self._global_port_pres_dict[port_num] = '1'
+                port_dict[port_num] = '1'
+            elif(not presence and
+                 self._global_port_pres_dict[port_num] == '1'):
+                is_port_dict_updated = True
+                self._global_port_pres_dict[port_num] = '0'
+                port_dict[port_num] = '0'
+        return retval, is_port_dict_updated
 
     def get_transceiver_change_event(self, timeout=0):
-            port_dict = {}
-            try:
-                # We get notified when there is a MSI interrupt (vector 4/5)CVR
-                # Open the sysfs file and register the epoll object
-                self.oir_fd = fdopen(open(self.OIR_FD_PATH, O_RDONLY))
-                if self.oir_fd != -1:
-                    # Do a dummy read before epoll register
-                    self.oir_fd.read()
-                    self.epoll = select.epoll()
-                    self.epoll.register(
-                        self.oir_fd.fileno(), select.EPOLLIN & select.EPOLLET)
-                else:
-                    print("get_transceiver_change_event : unable to create fd")
+        port_dict = {}
+        try:
+            # We get notified when there is a MSI interrupt (vector 4/5)CVR
+            # Open the sysfs file and register the epoll object
+            self.oir_fd = fdopen(open(self.OIR_FD_PATH, O_RDONLY))
+            if self.oir_fd != -1:
+                # Do a dummy read before epoll register
+                self.oir_fd.read()
+                self.epoll = select.epoll()
+                self.epoll.register(
+                    self.oir_fd.fileno(), select.EPOLLIN & select.EPOLLET)
+            else:
+                print("get_transceiver_change_event : unable to create fd")
+                return False, {}
+
+            # Check for missed interrupts by invoking self.check_interrupts
+            # which will update the port_dict.
+            while True:
+                interrupt_count_start = self.get_register(self.OIR_FD_PATH)
+                retval, is_port_dict_updated = \
+                    self.check_interrupts(port_dict)
+                if ((retval == 0) and (is_port_dict_updated is True)):
+                    return True, port_dict
+                interrupt_count_end = self.get_register(self.OIR_FD_PATH)
+                if (interrupt_count_start == 'ERR' or
+                        interrupt_count_end == 'ERR'):
+                    print("get_transceiver_change_event : \
+                            unable to retrive interrupt count")
+                    break
+
+                # check_interrupts() itself may take upto 100s of msecs.
+                # We detect a missed interrupt based on the count
+                if interrupt_count_start == interrupt_count_end:
+                    break
+
+            # Block until an xcvr is inserted or removed with timeout = -1
+            events = self.epoll.poll(
+                timeout=timeout if timeout != 0 else -1)
+            if events:
+                # check interrupts and return the port_dict
+                retval, is_port_dict_updated = \
+                    self.check_interrupts(port_dict)
+                if (retval != 0):
                     return False, {}
 
-                # Check for missed interrupts by invoking self.check_interrupts
-                # which will update the port_dict.
-                while True:
-                    interrupt_count_start = self.get_register(self.OIR_FD_PATH)
-                    retval, is_port_dict_updated = \
-                        self.check_interrupts(port_dict)
-                    if ((retval == 0) and (is_port_dict_updated is True)):
-                        return True, port_dict
-                    interrupt_count_end = self.get_register(self.OIR_FD_PATH)
-                    if (interrupt_count_start == 'ERR' or
-                            interrupt_count_end == 'ERR'):
-                        print("get_transceiver_change_event : \
-                            unable to retrive interrupt count")
-                        break
-
-                    # check_interrupts() itself may take upto 100s of msecs.
-                    # We detect a missed interrupt based on the count
-                    if interrupt_count_start == interrupt_count_end:
-                        break
-
-                # Block until an xcvr is inserted or removed with timeout = -1
-                events = self.epoll.poll(
-                    timeout=timeout if timeout != 0 else -1)
-                if events:
-                    # check interrupts and return the port_dict
-                    retval, is_port_dict_updated = \
-                                              self.check_interrupts(port_dict)
-                    if (retval != 0):
-                        return False, {}
-
-                return True, port_dict
-            except:
-                return False, {}
-            finally:
-                if self.oir_fd != -1:
-                    self.epoll.unregister(self.oir_fd.fileno())
-                    self.epoll.close()
-                    self.oir_fd.close()
-                    self.oir_fd = -1
-                    self.epoll = -1
-
+            return True, port_dict
+        except:
             return False, {}
-    
+        finally:
+            if self.oir_fd != -1:
+                self.epoll.unregister(self.oir_fd.fileno())
+                self.epoll.close()
+                self.oir_fd.close()
+                self.oir_fd = -1
+                self.epoll = -1
+
+        return False, {}
+
     def get_transceiver_dom_info_dict(self, port_num):
         transceiver_dom_info_dict = {}
 
@@ -346,7 +347,7 @@ class SfpUtil(SfpUtilBase):
                               'tx1bias',     'tx2bias',  'tx3bias',
                               'tx4bias',     'tx1power', 'tx2power',
                               'tx3power',    'tx4power',
-                             ]
+                              ]
         transceiver_dom_info_dict = dict.fromkeys(dom_info_dict_keys, 'N/A')
 
         if port_num in self.qsfp_ports:
@@ -374,25 +375,29 @@ class SfpUtil(SfpUtilBase):
             # TODO: in the future when decided to migrate to support SFF-8636 instead of SFF-8436,
             # need to add more code for determining the capability and version compliance
             # in SFF-8636 dom capability definitions evolving with the versions.
-            qsfp_dom_capability_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset_xcvr + XCVR_DOM_CAPABILITY_OFFSET), XCVR_DOM_CAPABILITY_WIDTH)
+            qsfp_dom_capability_raw = self._read_eeprom_specific_bytes(
+                sysfsfile_eeprom, (offset_xcvr + XCVR_DOM_CAPABILITY_OFFSET), XCVR_DOM_CAPABILITY_WIDTH)
             if qsfp_dom_capability_raw is not None:
                 qspf_dom_capability_data = sfpi_obj.parse_qsfp_dom_capability(qsfp_dom_capability_raw, 0)
             else:
                 return transceiver_dom_info_dict
 
-            dom_temperature_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + QSFP_TEMPE_OFFSET), QSFP_TEMPE_WIDTH)
+            dom_temperature_raw = self._read_eeprom_specific_bytes(
+                sysfsfile_eeprom, (offset + QSFP_TEMPE_OFFSET), QSFP_TEMPE_WIDTH)
             if dom_temperature_raw is not None:
                 dom_temperature_data = sfpd_obj.parse_temperature(dom_temperature_raw, 0)
             else:
                 return transceiver_dom_info_dict
 
-            dom_voltage_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + QSFP_VOLT_OFFSET), QSFP_VOLT_WIDTH)
+            dom_voltage_raw = self._read_eeprom_specific_bytes(
+                sysfsfile_eeprom, (offset + QSFP_VOLT_OFFSET), QSFP_VOLT_WIDTH)
             if dom_voltage_raw is not None:
                 dom_voltage_data = sfpd_obj.parse_voltage(dom_voltage_raw, 0)
             else:
                 return transceiver_dom_info_dict
 
-            qsfp_dom_rev_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + QSFP_DOM_REV_OFFSET), QSFP_DOM_REV_WIDTH)
+            qsfp_dom_rev_raw = self._read_eeprom_specific_bytes(
+                sysfsfile_eeprom, (offset + QSFP_DOM_REV_OFFSET), QSFP_DOM_REV_WIDTH)
             if qsfp_dom_rev_raw is not None:
                 qsfp_dom_rev_data = sfpd_obj.parse_sfp_dom_rev(qsfp_dom_rev_raw, 0)
             else:
@@ -407,7 +412,8 @@ class SfpUtil(SfpUtilBase):
             qsfp_dom_rev = qsfp_dom_rev_data['data']['dom_rev']['value']
             qsfp_tx_power_support = qspf_dom_capability_data['data']['Tx_power_support']['value']
             if (qsfp_dom_rev[0:8] != 'SFF-8636' or (qsfp_dom_rev[0:8] == 'SFF-8636' and qsfp_tx_power_support != 'on')):
-                dom_channel_monitor_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + QSFP_CHANNL_MON_OFFSET), QSFP_CHANNL_MON_WIDTH)
+                dom_channel_monitor_raw = self._read_eeprom_specific_bytes(
+                    sysfsfile_eeprom, (offset + QSFP_CHANNL_MON_OFFSET), QSFP_CHANNL_MON_WIDTH)
                 if dom_channel_monitor_raw is not None:
                     dom_channel_monitor_data = sfpd_obj.parse_channel_monitor_params(dom_channel_monitor_raw, 0)
                 else:
@@ -418,9 +424,11 @@ class SfpUtil(SfpUtilBase):
                 transceiver_dom_info_dict['tx3power'] = 'N/A'
                 transceiver_dom_info_dict['tx4power'] = 'N/A'
             else:
-                dom_channel_monitor_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + QSFP_CHANNL_MON_OFFSET), QSFP_CHANNL_MON_WITH_TX_POWER_WIDTH)
+                dom_channel_monitor_raw = self._read_eeprom_specific_bytes(
+                    sysfsfile_eeprom, (offset + QSFP_CHANNL_MON_OFFSET), QSFP_CHANNL_MON_WITH_TX_POWER_WIDTH)
                 if dom_channel_monitor_raw is not None:
-                    dom_channel_monitor_data = sfpd_obj.parse_channel_monitor_params_with_tx_power(dom_channel_monitor_raw, 0)
+                    dom_channel_monitor_data = sfpd_obj.parse_channel_monitor_params_with_tx_power(
+                        dom_channel_monitor_raw, 0)
                 else:
                     return None
 
@@ -453,16 +461,16 @@ class SfpUtil(SfpUtilBase):
                 return None
 
             try:
-                sysfsfile_eeprom = io.open(file_path,"rb",0)
+                sysfsfile_eeprom = io.open(file_path, "rb", 0)
             except IOError:
                 print("Error: reading sysfs file %s" % file_path)
                 return None
 
-            sfpd_obj = sff8472Dom(None,1)
+            sfpd_obj = sff8472Dom(None, 1)
             if sfpd_obj is None:
                 return None
             dom_temperature_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + SFP_TEMPE_OFFSET),
-                                                                  SFP_TEMPE_WIDTH)
+                                                                   SFP_TEMPE_WIDTH)
 
             if dom_temperature_raw is not None:
                 dom_temperature_data = sfpd_obj.parse_temperature(dom_temperature_raw, 0)
@@ -470,7 +478,7 @@ class SfpUtil(SfpUtilBase):
                 return transceiver_dom_info_dict
 
             dom_voltage_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, (offset + SFP_VOLT_OFFSET),
-                                                                  SFP_VOLT_WIDTH)
+                                                               SFP_VOLT_WIDTH)
 
             if dom_voltage_raw is not None:
                 dom_voltage_data = sfpd_obj.parse_voltage(dom_voltage_raw, 0)
@@ -519,7 +527,7 @@ class SfpUtil(SfpUtilBase):
                               'txpowerlowalarm',  'txpowerlowwarning',
                               'txbiashighalarm',  'txbiashighwarning',
                               'txbiaslowalarm',   'txbiaslowwarning'
-                             ]
+                              ]
         transceiver_dom_threshold_info_dict = dict.fromkeys(dom_info_dict_keys, 'N/A')
 
         if port_num in self.qsfp_ports:
@@ -541,18 +549,18 @@ class SfpUtil(SfpUtilBase):
             # Revert offset back to 0 once data is retrieved
             offset = 384
             dom_module_threshold_raw = self._read_eeprom_specific_bytes(
-                                     sysfsfile_eeprom,
-                                     (offset + QSFP_MODULE_THRESHOLD_OFFSET),
-                                     QSFP_MODULE_THRESHOLD_WIDTH)
+                sysfsfile_eeprom,
+                (offset + QSFP_MODULE_THRESHOLD_OFFSET),
+                QSFP_MODULE_THRESHOLD_WIDTH)
             if dom_module_threshold_raw is not None:
                 dom_module_threshold_data = sfpd_obj.parse_module_threshold_values(dom_module_threshold_raw, 0)
             else:
                 return transceiver_dom_threshold_info_dict
 
             dom_channel_threshold_raw = self._read_eeprom_specific_bytes(
-                                      sysfsfile_eeprom,
-                                      (offset + QSFP_CHANNL_THRESHOLD_OFFSET),
-                                 QSFP_CHANNL_THRESHOLD_WIDTH)
+                sysfsfile_eeprom,
+                (offset + QSFP_CHANNL_THRESHOLD_OFFSET),
+                QSFP_CHANNL_THRESHOLD_WIDTH)
             if dom_channel_threshold_raw is not None:
                 dom_channel_threshold_data = sfpd_obj.parse_channel_threshold_values(dom_channel_threshold_raw, 0)
             else:
@@ -589,18 +597,18 @@ class SfpUtil(SfpUtilBase):
                 return None
 
             try:
-                sysfsfile_eeprom = io.open(file_path,"rb",0)
+                sysfsfile_eeprom = io.open(file_path, "rb", 0)
             except IOError:
                 print("Error: reading sysfs file %s" % file_path)
                 return None
-            
-            sfpd_obj = sff8472Dom(None,1)
+
+            sfpd_obj = sff8472Dom(None, 1)
             if sfpd_obj is None:
                 return transceiver_dom_threshold_info_dict
-            
-            dom_module_threshold_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom, 
-                                             (offset + SFP_MODULE_THRESHOLD_OFFSET), SFP_MODULE_THRESHOLD_WIDTH)
-            
+
+            dom_module_threshold_raw = self._read_eeprom_specific_bytes(sysfsfile_eeprom,
+                                                                        (offset + SFP_MODULE_THRESHOLD_OFFSET), SFP_MODULE_THRESHOLD_WIDTH)
+
             if dom_module_threshold_raw is not None:
                 dom_module_threshold_data = sfpd_obj.parse_alarm_warning_threshold(dom_module_threshold_raw, 0)
             else:
@@ -612,7 +620,7 @@ class SfpUtil(SfpUtilBase):
                 print("Error: closing sysfs file %s" % file_path)
                 return None
 
-            #Threshold Data
+            # Threshold Data
             transceiver_dom_threshold_info_dict['temphighalarm'] = dom_module_threshold_data['data']['TempHighAlarm']['value']
             transceiver_dom_threshold_info_dict['templowalarm'] = dom_module_threshold_data['data']['TempLowAlarm']['value']
             transceiver_dom_threshold_info_dict['temphighwarning'] = dom_module_threshold_data['data']['TempHighWarning']['value']
@@ -633,5 +641,5 @@ class SfpUtil(SfpUtilBase):
             transceiver_dom_threshold_info_dict['rxpowerlowalarm'] = dom_module_threshold_data['data']['RXPowerLowAlarm']['value']
             transceiver_dom_threshold_info_dict['rxpowerhighwarning'] = dom_module_threshold_data['data']['RXPowerHighWarning']['value']
             transceiver_dom_threshold_info_dict['rxpowerlowwarning'] = dom_module_threshold_data['data']['RXPowerLowWarning']['value']
-            
+
         return transceiver_dom_threshold_info_dict

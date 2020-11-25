@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # sfputil.py
 #
 # Platform-specific SFP transceiver interface for SONiC
@@ -15,10 +13,12 @@ except ImportError as e:
 
 
 def DBG_PRINT(str):
-    print str + "\n"
+    print(str + "\n")
+
 
 SFP_STATUS_INSERTED = '1'
 SFP_STATUS_REMOVED = '0'
+
 
 class SfpUtil(SfpUtilBase):
     """Platform-specific SfpUtil class"""
@@ -37,7 +37,7 @@ class SfpUtil(SfpUtilBase):
 
     @property
     def qsfp_ports(self):
-        return range(25, self.PORTS_IN_BLOCK + 1)
+        return list(range(25, self.PORTS_IN_BLOCK + 1))
 
     @property
     def port_to_eeprom_mapping(self):
@@ -62,30 +62,30 @@ class SfpUtil(SfpUtilBase):
         return ret
 
     # todo
-    #def _get_port_eeprom_path(self, port_num, devid):
+    # def _get_port_eeprom_path(self, port_num, devid):
     #    pass
 
     def __init__(self):
         self.SONIC_PORT_NAME_PREFIX = "Ethernet"
         self.PORT_START = 1
         self.PORT_END = 26
-	self.SFP_BASE = 1
+        self.SFP_BASE = 1
         self.PORTS_IN_BLOCK = 26
         self.logical = []
         self.physical_to_logical = {}
         self.logical_to_physical = {}
 
-
         self.eeprom_mapping = {}
         self.f_sfp_present = "/sys/class/sfp/sfp{}/sfp_presence"
         self.f_sfp_enable = "/sys/class/sfp/sfp{}/sfp_enable"
-	for x in range(self.port_start, self.sfp_base):
+        for x in range(self.port_start, self.sfp_base):
             self.eeprom_mapping[x] = None
         for x in range(self.sfp_base, self.port_end + 1):
-            self.eeprom_mapping[x] = "/sys/class/sfp/sfp{}/sfp_eeprom".format(x - self.sfp_base + 1)
+            self.eeprom_mapping[x] = "/sys/class/sfp/sfp{}/sfp_eeprom".format(
+                x - self.sfp_base + 1)
         self.presence = {}
         for x in range(self.sfp_base, self.port_end + 1):
-            self.presence[x] = False;
+            self.presence[x] = False
 
         SfpUtilBase.__init__(self)
 
@@ -127,20 +127,20 @@ class SfpUtil(SfpUtilBase):
 
         return False
 
-
     def read_porttab_mappings(self, porttabfile):
         for x in range(self.sfp_base, self.port_end + 1):
             self.logical_to_physical['Ethernet' + str(x)] = [x]
             self.physical_to_logical[x] = ['Ethernet' + str(x)]
 
-    data = {'valid':0, 'last':0}
+    data = {'valid': 0, 'last': 0}
+
     def get_transceiver_change_event(self, timeout=2000):
         now = time.time()
         port_dict = {}
 
         if timeout < 1000:
             timeout = 1000
-            timeout = (timeout) / float(1000) # Convert to secs
+            timeout = (timeout) / float(1000)  # Convert to secs
 
         if now < (self.data['last'] + timeout) and self.data['valid']:
             return True, {}

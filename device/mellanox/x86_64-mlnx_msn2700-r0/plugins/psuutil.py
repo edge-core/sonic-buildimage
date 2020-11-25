@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 #############################################################################
 # Mellanox
 #
@@ -14,7 +12,8 @@ try:
     import subprocess
     from sonic_psu.psu_base import PsuBase
 except ImportError as e:
-    raise ImportError (str(e) + "- required module not found")
+    raise ImportError(str(e) + "- required module not found")
+
 
 def log_err(msg):
     syslog.openlog("psuutil")
@@ -30,7 +29,8 @@ class PsuUtil(PsuBase):
     GET_HWSKU_CMD = "sonic-cfggen -d -v DEVICE_METADATA.localhost.hwsku"
     # for spectrum1 switches with plugable PSUs, the output voltage file is psuX_volt
     # for spectrum2 switches the output voltage file is psuX_volt_out2
-    sku_spectrum1_with_plugable_psu = ['ACS-MSN2410', 'ACS-MSN2700', 'Mellanox-SN2700', 'Mellanox-SN2700-D48C8', 'LS-SN2700', 'ACS-MSN2740']
+    sku_spectrum1_with_plugable_psu = ['ACS-MSN2410', 'ACS-MSN2700',
+                                       'Mellanox-SN2700', 'Mellanox-SN2700-D48C8', 'LS-SN2700', 'ACS-MSN2740']
 
     def __init__(self):
         PsuBase.__init__(self)
@@ -49,7 +49,7 @@ class PsuUtil(PsuBase):
         self.fan_speed = "thermal/psu{}_fan1_speed_get"
 
     def _get_sku_name(self):
-        p = subprocess.Popen(self.GET_HWSKU_CMD, shell=True, stdout=subprocess.PIPE)
+        p = subprocess.Popen(self.GET_HWSKU_CMD, shell=True, universal_newlines=True, stdout=subprocess.PIPE)
         out, err = p.communicate()
         return out.rstrip('\n')
 

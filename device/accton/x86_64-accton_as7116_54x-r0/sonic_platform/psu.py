@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 #############################################################################
 # psuutil.py
 # Platform-specific PSU status interface for SONiC
@@ -17,6 +15,7 @@ except ImportError as e:
 FAN_MAX_RPM = 9600
 PSU_NAME_LIST = ["PSU-0", "PSU-1"]
 
+
 class Psu(PsuBase):
     """Platform-specific Psu class"""
 
@@ -26,7 +25,6 @@ class Psu(PsuBase):
     def __init__(self):
         self.index = psu_index
         PsuBase.__init__(self)
-
 
     def get_fan(self):
         """
@@ -73,8 +71,8 @@ class Psu(PsuBase):
         Returns:
             bool: True if PSU is present, False if not
         """
-        attr_file ='psu_present'
-        attr_path = self.SYSFS_PSU_DIR[self.index-1] +'/' + attr_file
+        attr_file = 'psu_present'
+        attr_path = self.SYSFS_PSU_DIR[self.index-1] + '/' + attr_file
         status = 0
         try:
             with open(attr_path, 'r') as psu_prs:
@@ -91,11 +89,11 @@ class Psu(PsuBase):
             A boolean value, True if device is operating properly, False if not
         """
         attr_file = 'psu_power_good'
-        attr_path = self.SYSFS_PSU_DIR[self.index-1] +'/' + attr_file
+        attr_path = self.SYSFS_PSU_DIR[self.index-1] + '/' + attr_file
         status = 0
         try:
-			with open(attr_path, 'r') as power_status:
-			    status = int(power_status.read())
+            with open(attr_path, 'r') as power_status:
+                status = int(power_status.read())
         except IOError:
             return False
 

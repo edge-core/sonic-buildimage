@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 #############################################################################
 # Mellanox
 #
@@ -7,11 +5,14 @@
 # provides the eeprom information which are available in the platform
 #
 #############################################################################
-import exceptions
 import os
 import sys
 import re
-from cStringIO import StringIO
+
+if sys.version_info.major == 3:
+    from io import StringIO
+else:
+    from cStringIO import StringIO
 
 try:
     from sonic_platform_base.sonic_eeprom import eeprom_tlvinfo
