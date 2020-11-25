@@ -45,8 +45,8 @@ class BGPPeerGroupMgr(object):
         except jinja2.TemplateError as e:
             log_err("Can't render policy template name: '%s': %s" % (name, str(e)))
             return False
-
-        return self.update_entity(policy, "Routing policy for peer '%s'" % name)
+        self.update_entity(policy, "Routing policy for peer '%s'" % name)
+        return True
 
     def update_pg(self, name, **kwargs):
         """
@@ -64,8 +64,8 @@ class BGPPeerGroupMgr(object):
             cmd = ('router bgp %s\n' % kwargs['bgp_asn']) + pg
         else:
             cmd = ('router bgp %s vrf %s\n' % (kwargs['bgp_asn'], kwargs['vrf'])) + pg
-
-        return self.update_entity(cmd, "Peer-group for peer '%s'" % name)
+        self.update_entity(cmd, "Peer-group for peer '%s'" % name)
+        return True
 
     def update_entity(self, cmd, txt):
         """
@@ -74,12 +74,9 @@ class BGPPeerGroupMgr(object):
         :param txt: text for the syslog output
         :return:
         """
-        ret_code = self.cfg_mgr.push(cmd)
-        if ret_code:
-            log_info("%s was updated" % txt)
-        else:
-            log_err("Can't update %s" % txt)
-        return ret_code
+        self.cfg_mgr.push(cmd)
+        log_info("%s has been scheduled to be updated" % txt)
+        return True
 
 
 class BGPPeerMgrBase(Manager):
@@ -212,13 +209,10 @@ class BGPPeerMgrBase(Manager):
             log_err("%s: %s" % (msg, str(e)))
             return True
         if cmd is not None:
-            ret_code = self.apply_op(cmd, vrf)
+            self.apply_op(cmd, vrf)
             key = (vrf, nbr)
-            if ret_code:
-                self.peers.add(key)
-                log_info("Peer '(%s|%s)' added with attributes '%s'" % print_data)
-            else:
-                log_err("Peer '(%s|%s)' wasn't added." % (vrf, nbr))
+            self.peers.add(key)
+            log_info("Peer '(%s|%s)' has been scheduled to be added with attributes '%s'" % print_data)
 
         return True
 
@@ -300,7 +294,8 @@ class BGPPeerMgrBase(Manager):
             cmd = ('router bgp %s\n' % bgp_asn) + cmd
         else:
             cmd = ('router bgp %s vrf %s\n' % (bgp_asn, vrf)) + cmd
-        return self.cfg_mgr.push(cmd)
+        self.cfg_mgr.push(cmd)
+        return True
 
     def get_lo0_ipv4(self):
         """

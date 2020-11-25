@@ -1,31 +1,24 @@
-import os
-import tempfile
-
-from .vars import g_debug
-from .log import log_crit, log_err
-from .utils import run_command
-
-
 class ConfigMgr(object):
     """ The class represents frr configuration """
-    def __init__(self):
+    def __init__(self, frr):
+        self.frr = frr
         self.current_config = None
         self.current_config_raw = None
+        self.changes = ""
+        self.peer_groups_to_restart = []
 
     def reset(self):
         """ Reset stored config """
         self.current_config = None
         self.current_config_raw = None
+        self.changes = ""
+        self.peer_groups_to_restart = []
 
     def update(self):
         """ Read current config from FRR """
         self.current_config = None
         self.current_config_raw = None
-        ret_code, out, err = run_command(["vtysh", "-c", "show running-config"])
-        if ret_code != 0:
-            # FIXME: should we throw exception here?
-            log_crit("can't update running config: rc=%d out='%s' err='%s'" % (ret_code, out, err))
-            return
+        out = self.frr.get_config()
         text = []
         for line in out.split('\n'):
             if line.lstrip().startswith('!'):
@@ -33,40 +26,41 @@ class ConfigMgr(object):
             text.append(line)
         text += ["     "]  # Add empty line to have something to work on, if there is no text
         self.current_config_raw = text
-        self.current_config = self.to_canonical(out)  # FIXME: use test as an input
+        self.current_config = self.to_canonical(out)  # FIXME: use text as an input
 
     def push_list(self, cmdlist):
-        return self.push("\n".join(cmdlist))
+        """
+        Prepare new changes for FRR. The changes should be committed by self.commit()
+        :param cmdlist: configuration change for FRR. Type: List of Strings
+        """
+        self.changes += "\n".join(cmdlist) + "\n"
 
     def push(self, cmd):
         """
-        Push new changes to FRR
+        Prepare new changes for FRR. The changes should be committed by self.commit()
         :param cmd: configuration change for FRR. Type: String
-        :return: True if change was applied successfully, False otherwise
         """
-        return self.write(cmd)
+        self.changes += cmd + "\n"
+        return True
 
-    def write(self, cmd):
+    def restart_peer_groups(self, peer_groups):
+        """
+        Schedule peer_groups for restart on commit
+        :param peer_groups: List of peer_groups
+        """
+        self.peer_groups_to_restart.extend(peer_groups)
+
+    def commit(self):
         """
         Write configuration change to FRR.
-        :param cmd: new configuration to write into FRR. Type: String
         :return: True if change was applied successfully, False otherwise
         """
-        fd, tmp_filename = tempfile.mkstemp(dir='/tmp')
-        os.close(fd)
-        with open(tmp_filename, 'w') as fp:
-            fp.write("%s\n" % cmd)
-        command = ["vtysh", "-f", tmp_filename]
-        ret_code, out, err = run_command(command)
-        if not g_debug:
-            os.remove(tmp_filename)
-        if ret_code != 0:
-            err_tuple = str(cmd), ret_code, out, err
-            log_err("ConfigMgr::push(): can't push configuration '%s', rc='%d', stdout='%s', stderr='%s'" % err_tuple)
-        if ret_code == 0:
-            self.current_config = None  # invalidate config
-            self.current_config_raw = None
-        return ret_code == 0
+        if self.changes.strip() == "":
+            return True
+        rc_write = self.frr.write(self.changes)
+        rc_restart = self.frr.restart_peer_groups(self.peer_groups_to_restart)
+        self.reset()
+        return rc_write and rc_restart
 
     def get_text(self):
         return self.current_config_raw
@@ -89,7 +83,6 @@ class ConfigMgr(object):
         for line in lines:
             n_spaces = ConfigMgr.count_spaces(line)
             s_line = line.strip()
-#            assert(n_spaces == cur_offset or (n_spaces + 1) == cur_offset or (n_spaces - 1) == cur_offset)
             if n_spaces == cur_offset:
                 cur_path[-1] = s_line
             elif n_spaces > cur_offset:

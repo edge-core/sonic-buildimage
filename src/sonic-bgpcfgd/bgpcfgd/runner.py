@@ -1,7 +1,7 @@
 from collections import defaultdict
 from swsscommon import swsscommon
 
-from .log import log_debug
+from .log import log_debug, log_crit
 
 
 g_run = True
@@ -20,8 +20,9 @@ class Runner(object):
     """
     SELECT_TIMEOUT = 1000
 
-    def __init__(self):
+    def __init__(self, cfg_manager):
         """ Constructor """
+        self.cfg_manager = cfg_manager
         self.db_connectors = {}
         self.selector = swsscommon.Select()
         self.callbacks = defaultdict(lambda: defaultdict(list))  # db -> table -> handlers[]
@@ -57,9 +58,13 @@ class Runner(object):
                 raise Exception("Received error from select")
 
             for subscriber in self.subscribers:
-                key, op, fvs = subscriber.pop()
-                if not key:
-                    continue
-                log_debug("Received message : '%s'" % str((key, op, fvs)))
-                for callback in self.callbacks[subscriber.getDbConnector().getDbId()][subscriber.getTableName()]:
-                    callback(key, op, dict(fvs))
+                while True:
+                    key, op, fvs = subscriber.pop()
+                    if not key:
+                        break
+                    log_debug("Received message : '%s'" % str((key, op, fvs)))
+                    for callback in self.callbacks[subscriber.getDbConnector().getDbId()][subscriber.getTableName()]:
+                        callback(key, op, dict(fvs))
+            rc = self.cfg_manager.commit()
+            if not rc:
+                log_crit("Runner::commit was unsuccessful")
