@@ -1,4 +1,5 @@
 import re
+from collections import defaultdict
 
 from swsscommon import swsscommon
 
@@ -106,7 +107,9 @@ class BBRMgr(Manager):
         :return: list of commands prepared for FRR
         """
         bgp_asn = self.directory.get_slot("CONFIG_DB", swsscommon.CFG_DEVICE_METADATA_TABLE_NAME)["localhost"]["bgp_asn"]
+        self.cfg_mgr.update()
         available_peer_groups = self.__get_available_peer_groups()
+        available_peers_per_pg = self.__get_available_peers_per_peer_group(available_peer_groups)
         cmds = ["router bgp %s" % bgp_asn]
         prefix_of_commands = "" if status == "enabled" else "no "
         peer_groups_to_restart = set()
@@ -114,7 +117,8 @@ class BBRMgr(Manager):
             cmds.append(" address-family %s" % af)
             for pg_name in sorted(self.bbr_enabled_pgs.keys()):
                 if pg_name in available_peer_groups and af in self.bbr_enabled_pgs[pg_name]:
-                    cmds.append("  %sneighbor %s allowas-in 1" % (prefix_of_commands, pg_name))
+                    for peer in available_peers_per_pg[pg_name]:
+                        cmds.append("  %sneighbor %s allowas-in 1" % (prefix_of_commands, peer))
                     peer_groups_to_restart.add(pg_name)
         return cmds, list(peer_groups_to_restart)
 
@@ -125,9 +129,25 @@ class BBRMgr(Manager):
         """
         re_pg = re.compile(r'^\s*neighbor\s+(\S+)\s+peer-group\s*$')
         res = set()
-        self.cfg_mgr.update()
         for line in self.cfg_mgr.get_text():
             m = re_pg.match(line)
             if m:
                 res.add(m.group(1))
+        return res
+
+    def __get_available_peers_per_peer_group(self, available_peer_groups):
+        """
+        Extract mapping peer_group->[peers]
+        :param available_peer_groups: list of peer groups to check
+        :return: dictionary peer_group->[peers]
+        """
+        re_pg = re.compile(r'^\s*neighbor\s+(\S+)\s+peer-group\s+(\S+)\s*$')
+        res = defaultdict(list)
+        for line in self.cfg_mgr.get_text():
+            m = re_pg.match(line)
+            if m:
+                peer = m.group(1)
+                pg = m.group(2)
+                if pg in available_peer_groups:
+                    res[pg].append(peer)
         return res

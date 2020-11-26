@@ -1,7 +1,12 @@
 {
     "CONFIG_DB__DEVICE_METADATA": {
-        "localhost": {}
+        "localhost": {
+            "type": "LeafRouter"
+        }
     },
+   "CONFIG_DB__BGP_BBR": {
+        "status": "disabled"
+   },
     "neighbor_addr": "fc00::2",
     "bgp_session": {
         "asn": "555",

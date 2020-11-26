@@ -16,10 +16,20 @@
 {% if neighbor_addr | ipv4 %}
   address-family ipv4
     neighbor {{ neighbor_addr }} peer-group PEER_V4
+{%   if CONFIG_DB__DEVICE_METADATA['localhost']['type'] == 'LeafRouter' %}
+{%     if CONFIG_DB__BGP_BBR['status'] == 'enabled' %}
+    neighbor {{ neighbor_addr }} allowas-in 1
+{%     endif %}
+{%   endif %}
 !
 {% elif neighbor_addr | ipv6 %}
   address-family ipv6
     neighbor {{ neighbor_addr }} peer-group PEER_V6
+{%   if CONFIG_DB__DEVICE_METADATA['localhost']['type'] == 'LeafRouter' %}
+{%     if CONFIG_DB__BGP_BBR['status'] == 'enabled' %}
+    neighbor {{ neighbor_addr }} allowas-in 1
+{%     endif %}
+{%   endif %}
 !
 {% endif %}
 !
