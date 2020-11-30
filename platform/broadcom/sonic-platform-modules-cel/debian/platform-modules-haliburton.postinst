@@ -6,3 +6,5 @@ systemctl start platform-modules-haliburton.service
 systemctl start fancontrol.service
 
 /usr/local/bin/platform_api_mgnt.sh install
+sudo chmod +x /usr/local/bin/udev_prefix.sh
+sudo chmod +x /usr/local/bin/popmsg.sh
