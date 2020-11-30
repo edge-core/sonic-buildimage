@@ -69,7 +69,7 @@ dependent_startup=true
 dependent_startup_wait_for=lldpd:running
 
 [program:lldp-syncd]
-command=/usr/bin/env python2 -m lldp_syncd
+command=/usr/bin/env python3 -m lldp_syncd
 priority=4
 autostart=false
 autorestart=false
