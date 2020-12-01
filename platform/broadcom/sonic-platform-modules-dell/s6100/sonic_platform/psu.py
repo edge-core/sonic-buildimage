@@ -25,6 +25,7 @@ class Psu(PsuBase):
     MAILBOX_DIR = HWMON_DIR + HWMON_NODE
 
     def __init__(self, psu_index):
+        PsuBase.__init__(self)
         # PSU is 1-based in DellEMC platforms
         self.index = psu_index + 1
         self.psu_presence_reg = "psu{}_presence".format(self.index)
@@ -37,10 +38,6 @@ class Psu(PsuBase):
             self.psu_voltage_reg = "in32_input"
             self.psu_current_reg = "curr702_input"
             self.psu_power_reg = "power4_input"
-
-        # Overriding _fan_list class variable defined in PsuBase, to
-        # make it unique per Psu object
-        self._fan_list = []
 
         # Passing True to specify it is a PSU fan
         psu_fan = Fan(fan_index=self.index, psu_fan=True)

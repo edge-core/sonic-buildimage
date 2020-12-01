@@ -155,7 +155,7 @@ class Fan(FanBase):
             string: The name of the Fan
         """
         if not self.is_psu_fan:
-            return "Fan{}".format(self.index)
+            return "FanTray{}-Fan1".format(self.index)
         else:
             return "PSU{} Fan".format(self.index)
 
@@ -213,7 +213,7 @@ class Fan(FanBase):
         status = False
         fan_speed = self._get_i2c_register(self.get_fan_speed_reg)
         if (fan_speed != 'ERR'):
-            if (int(fan_speed) > 14000):
+            if (int(fan_speed) > 1000):
                 status = True
 
         return status
@@ -337,4 +337,5 @@ class Fan(FanBase):
             An integer, the percentage of full fan speed, in the range 0
             (off) to 100 (full speed)
         """
-        return 79
+        # Fan speeds are controlled by fancontrol.sh
+        return self.get_speed()

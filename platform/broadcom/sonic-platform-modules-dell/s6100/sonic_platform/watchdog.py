@@ -131,7 +131,7 @@ class Watchdog(WatchdogBase):
         """
         gpio = "/sys/devices/platform/dell_ich.0/sc_gp_lvl"
         timer_offset = -1
-        if seconds <= 30:
+        if seconds > 0 and seconds <= 30:
             timer_offset = 1
             seconds = 30
         elif seconds > 30 and seconds <= 60:

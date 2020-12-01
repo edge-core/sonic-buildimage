@@ -8,7 +8,6 @@
 #############################################################################
 
 try:
-    import os
     from sonic_platform_base.platform_base import PlatformBase
     from sonic_platform.chassis import Chassis
 except ImportError as e:
