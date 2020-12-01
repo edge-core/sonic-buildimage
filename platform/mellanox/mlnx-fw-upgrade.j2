@@ -19,9 +19,11 @@ declare -r EXIT_SUCCESS="0"
 declare -r EXIT_FAILURE="1"
 
 declare -r QUERY_CMD="mlxfwmanager --query"
+declare -r LIST_CONTENT_CMD="mlxfwmanager --list-content"
 declare -r BURN_CMD="mlxfwmanager -u -f -y"
 
 declare -r QUERY_FILE="/tmp/mlxfwmanager-query.log"
+declare -r LIST_CONTENT_FILE="/tmp/mlxfwmanager-list-content.log"
 
 declare -r SPC1_ASIC="spc1"
 declare -r SPC2_ASIC="spc2"
@@ -32,11 +34,6 @@ declare -rA FW_FILE_MAP=( \
     [$SPC1_ASIC]="/etc/mlnx/fw-SPC.mfa" \
     [$SPC2_ASIC]="/etc/mlnx/fw-SPC2.mfa" \
     [$SPC3_ASIC]="/etc/mlnx/fw-SPC3.mfa" \
-)
-declare -rA FW_REQUIRED_MAP=( \
-    [$SPC1_ASIC]="{{ MLNX_SPC_FW_VERSION }}" \
-    [$SPC2_ASIC]="{{ MLNX_SPC2_FW_VERSION }}" \
-    [$SPC3_ASIC]="{{ MLNX_SPC3_FW_VERSION }}" \
 )
 
 IMAGE_UPGRADE="${NO_PARAM}"
@@ -180,25 +177,23 @@ function UpgradeFW() {
 
     if [ ! -z "${_FS_MOUNTPOINT}" ]; then
         local -r _FW_FILE="${_FS_MOUNTPOINT}/${FW_FILE_MAP[$_ASIC_TYPE]}"
-
-        if [ ! -f "${_FW_FILE}" ]; then
-            ExitFailure "no such file: ${_FW_FILE}"
-        fi
-
-        RunCmd "${QUERY_CMD} -i ${_FW_FILE} -L ${QUERY_FILE}" &>/dev/null
-
-        local -r _FW_INFO="$(grep FW ${QUERY_FILE})"
-        local -r _FW_CURRENT="$(echo ${_FW_INFO} | cut -f2 -d' ')"
-        local -r _FW_AVAILABLE="$(echo ${_FW_INFO} | cut -f3 -d' ')"
     else
         local -r _FW_FILE="${FW_FILE_MAP[$_ASIC_TYPE]}"
-
-        RunCmd "${QUERY_CMD} -L ${QUERY_FILE}" &>/dev/null
-
-        local -r _FW_INFO="$(grep FW ${QUERY_FILE})"
-        local -r _FW_CURRENT="$(echo ${_FW_INFO} | cut -f2 -d' ')"
-        local -r _FW_AVAILABLE="${FW_REQUIRED_MAP[$_ASIC_TYPE]}"
     fi
+
+    if [ ! -f "${_FW_FILE}" ]; then
+        ExitFailure "no such file: ${_FW_FILE}"
+    fi
+
+    RunCmd "${QUERY_CMD} -o ${QUERY_FILE}"
+    local -r _FW_CURRENT_INFO="$(grep FW ${QUERY_FILE})"
+    local -r _FW_CURRENT="$(echo ${_FW_CURRENT_INFO} | cut -f2 -d' ')"
+    local -r _PSID_INFO="$(grep PSID ${QUERY_FILE})"
+    local -r _PSID="$(echo ${_PSID_INFO} | cut -f2 -d' ')"
+
+    RunCmd "${LIST_CONTENT_CMD} -i ${_FW_FILE} -o ${LIST_CONTENT_FILE}"
+    local -r _FW_AVAILABLE_INFO="$(grep ${_PSID} ${LIST_CONTENT_FILE})"
+    local -r _FW_AVAILABLE="$(echo ${_FW_AVAILABLE_INFO} | cut -f4 -d' ')"
 
     if [[ -z "${_FW_CURRENT}" ]]; then
         ExitFailure "could not retreive current FW version"
