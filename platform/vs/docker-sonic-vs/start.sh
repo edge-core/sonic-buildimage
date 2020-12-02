@@ -76,7 +76,6 @@ supervisorctl start redis-server
 start_chassis_db=`sonic-cfggen -v DEVICE_METADATA.localhost.start_chassis_db -y $chassisdb_cfg_file`
 if [[ "$HOSTNAME" == *"supervisor"* ]] || [ "$start_chassis_db" == "1" ]; then
    supervisorctl start redis-chassis
-   python /usr/bin/chassis_db.py
 fi
 
 conn_chassis_db=`sonic-cfggen -v DEVICE_METADATA.localhost.connect_to_chassis_db -y $chassisdb_cfg_file`
@@ -86,6 +85,11 @@ if [ "$start_chassis_db" != "1" ] && [ "$conn_chassis_db" != "1" ]; then
    cp $db_cfg_file_tmp $db_cfg_file
 fi
 
+if [ "$conn_chassis_db" == "1" ]; then
+   if [ -f /usr/share/sonic/virtual_chassis/coreportindexmap.ini ]; then
+      cp /usr/share/sonic/virtual_chassis/coreportindexmap.ini /usr/share/sonic/hwsku/
+   fi
+fi
 
 /usr/bin/configdb-load.sh
 
