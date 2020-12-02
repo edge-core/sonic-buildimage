@@ -252,10 +252,17 @@ class HostConfigDaemon:
 
 
     def update_feature_state(self, feature_name, state, feature_table):
-        if state == "always_enabled":
-            syslog.syslog(syslog.LOG_INFO, "Feature '{}' service is always enabled"
-                          .format(feature_name))
+        if self.cached_feature_states[feature_name] == "always_enabled":
+            if state != "always_enabled":
+                syslog.syslog(syslog.LOG_INFO, "Feature '{}' service is always enabled"
+                              .format(feature_name))
+                entry = self.config_db.get_entry('FEATURE', feature_name)
+                entry['state'] = 'always_enabled'
+                self.config_db.set_entry('FEATURE', feature_name, entry)
             return
+
+        self.cached_feature_states[feature_name] = state
+
         has_timer = ast.literal_eval(feature_table[feature_name].get('has_timer', 'False'))
         has_global_scope = ast.literal_eval(feature_table[feature_name].get('has_global_scope', 'True'))
         has_per_asic_scope = ast.literal_eval(feature_table[feature_name].get('has_per_asic_scope', 'False'))
@@ -375,7 +382,6 @@ class HostConfigDaemon:
 
         # Enable/disable the container service if the feature state was changed from its previous state.
         if self.cached_feature_states[feature_name] != state:
-            self.cached_feature_states[feature_name] = state
             self.update_feature_state(feature_name, state, feature_table)
 
     def start(self):
