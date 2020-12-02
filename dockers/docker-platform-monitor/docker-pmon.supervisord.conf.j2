@@ -79,7 +79,11 @@ dependent_startup_wait_for=start:exited
 
 {% if not skip_xcvrd %}
 [program:xcvrd]
+{% if delay_xcvrd %}
+command=bash -c "sleep 30 && /usr/local/bin/xcvrd"
+{% else %}
 command=/usr/local/bin/xcvrd
+{% endif %}
 priority=6
 autostart=false
 autorestart=false
