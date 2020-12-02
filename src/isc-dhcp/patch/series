@@ -1,4 +1,4 @@
-# This series applies on GIT commit d613b77d0473054fb0071b00d01eaa1623e50a07
+# This series applies on GIT commit d0d58776805d720029619ea06df5c57706eecd5a
 0001-Bugfix-Don-t-print-log-messages-to-stderr-in-release.patch
 0002-Customizable-Option-82-circuit-ID-and-remote-ID-fiel.patch
 0003-Support-for-obtaining-name-of-physical-interface-tha.patch
@@ -7,3 +7,5 @@
 0006-Bugfix-Ensure-HAVE_SO_BINDTODEVICE-has-a-chance-to-b.patch
 0007-If-destination-of-BOOTREQUEST-is-directed-broadcast-.patch
 0008-Don-t-skip-down-interfaces-when-discovering-interfac.patch
+0009-Support-for-dual-tor-scenario.patch
+0010-Bugfix-correctly-set-interface-netmask.patch
