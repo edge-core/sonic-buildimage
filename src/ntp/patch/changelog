@@ -1,0 +1,12 @@
+ntp (1:4.2.8p12+dfsg-4+deb10u2) stretch; urgency=medium
+
+  * Adjust the ENOBUFS syslog level on the Netlink routing to LOG_WARNING.
+
+ -- Arun Barboza <arun.barboza@broadcom.com>  Mon, 09 Sep 2019 10:15:35 -0700
+
+ntp (1:4.2.8p12+dfsg-4+deb10u1) stretch; urgency=medium
+
+  * Apply Bug1970 fix for UNLINK_EXPR_SLIST_empty_list from dev branch.
+
+ -- Arun Barboza <arun.barboza@broadcom.com>  Tue, 25 Jun 2019 14:35:24 -0700
+
