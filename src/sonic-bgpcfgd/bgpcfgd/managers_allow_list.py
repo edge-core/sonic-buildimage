@@ -149,7 +149,7 @@ class BGPAllowListMgr(Manager):
         if cmds:
             self.cfg_mgr.push_list(cmds)
             peer_groups = self.__find_peer_group_by_deployment_id(deployment_id)
-            self.cfg_mgr.restart_peers(peer_groups)
+            self.cfg_mgr.restart_peer_groups(peer_groups)
             log_debug("BGPAllowListMgr::__update_policy. The peers configuration scheduled for updates")
         else:
             log_debug("BGPAllowListMgr::__update_policy. Nothing to update")
@@ -179,7 +179,7 @@ class BGPAllowListMgr(Manager):
         if cmds:
             self.cfg_mgr.push_list(cmds)
             peer_groups = self.__find_peer_group_by_deployment_id(deployment_id)
-            self.cfg_mgr.restart_peers(peer_groups)
+            self.cfg_mgr.restart_peer_groups(peer_groups)
             log_debug("BGPAllowListMgr::__remove_policy. 'Allow list' policy was scheduled for removal")
         else:
             log_debug("BGPAllowListMgr::__remove_policy. Nothing to remove")
