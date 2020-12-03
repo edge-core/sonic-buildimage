@@ -44,6 +44,7 @@ g_thread_exit_event = threading.Event()
 g_service = []
 g_dep_services = []
 
+
 def wait_for_container(docker_client, container_name):
     while True:
         while docker_client.inspect_container(container_name)['State']['Status'] != "running":
@@ -56,26 +57,27 @@ def wait_for_container(docker_client, container_name):
         # If this is a dependent service and warm restart is enabled for the system/container,
         # OR if the system is going through a fast-reboot, DON'T signal main thread to exit
         if (container_name in g_dep_services and
-            (device_info.is_warm_restart_enabled(container_name) or device_info.is_fast_reboot_enabled())):
+                (device_info.is_warm_restart_enabled(container_name) or device_info.is_fast_reboot_enabled())):
             continue
 
         # Signal the main thread to exit
         g_thread_exit_event.set()
+
 
 def main():
     thread_list = []
 
     docker_client = APIClient(base_url='unix://var/run/docker.sock')
 
-    parser  = argparse.ArgumentParser(description='Wait for dependent docker services',
-                                      formatter_class=argparse.RawTextHelpFormatter,
-                                      epilog="""
+    parser = argparse.ArgumentParser(description='Wait for dependent docker services',
+                                     formatter_class=argparse.RawTextHelpFormatter,
+                                     epilog="""
 Examples:
   docker-wait-any -s swss -d syncd teamd
 """)
 
-    parser.add_argument('-s','--service', nargs='+', default=None, help='name of the service')
-    parser.add_argument('-d','--dependent', nargs='*', default=None, help='other dependent services')
+    parser.add_argument('-s', '--service', nargs='+', default=None, help='name of the service')
+    parser.add_argument('-d', '--dependent', nargs='*', default=None, help='other dependent services')
     args = parser.parse_args()
 
     global g_service
@@ -101,6 +103,7 @@ Examples:
     # Wait until we receive an event signifying one of the containers has stopped
     g_thread_exit_event.wait()
     sys.exit(0)
+
 
 if __name__ == '__main__':
     main()

@@ -14,6 +14,7 @@ SYSLOG_IDENTIFIER = 'port_index_mapper'
 logger = Logger(SYSLOG_IDENTIFIER)
 logger.set_min_log_priority_info()
 
+
 class PortIndexMapper(object):
 
     def __init__(self):
@@ -105,6 +106,7 @@ def main():
     port_mapper = PortIndexMapper()
     port_mapper.populate()
     port_mapper.listen()
+
 
 if __name__ == '__main__':
     rc = 0

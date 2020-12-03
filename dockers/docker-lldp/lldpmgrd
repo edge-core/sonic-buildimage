@@ -81,9 +81,10 @@ class LldpManager(daemon_base.DaemonBase):
         else:
             # Retrieve PortInitDone entry from the Port table
             (init_status, init_fvp) = port_table.get("PortInitDone")
-            #The initialization procedure is done, but don't have this port entry
+            # The initialization procedure is done, but don't have this port entry
             if init_status:
-                self.log_error("Port '{}' not found in {} table in App DB".format(port_name, swsscommon.APP_PORT_TABLE_NAME))
+                self.log_error("Port '{}' not found in {} table in App DB".format(
+                    port_name, swsscommon.APP_PORT_TABLE_NAME))
             return False
 
     def generate_pending_lldp_config_cmd_for_port(self, port_name):
@@ -105,12 +106,13 @@ class LldpManager(daemon_base.DaemonBase):
             if not port_alias:
                 self.log_info("Unable to retrieve port alias for port '{}'. Using port name instead.".format(port_name))
                 port_alias = port_name
-            
-            # Get the port description. If None or empty string, we'll skip this configuration 
+
+            # Get the port description. If None or empty string, we'll skip this configuration
             port_desc = port_table_dict.get("description")
 
         else:
-            self.log_error("Port '{}' not found in {} table in Config DB. Using port name instead of port alias.".format(port_name, swsscommon.CFG_PORT_TABLE_NAME))
+            self.log_error("Port '{}' not found in {} table in Config DB. Using port name instead of port alias.".format(
+                port_name, swsscommon.CFG_PORT_TABLE_NAME))
             port_alias = port_name
 
         lldpcli_cmd = "lldpcli configure ports {0} lldp portidsubtype local {1}".format(port_name, port_alias)
@@ -233,6 +235,7 @@ class LldpManager(daemon_base.DaemonBase):
 
 # ============================= Functions =============================
 
+
 def main():
     # Instantiate a LldpManager object
     lldpmgr = LldpManager(SYSLOG_IDENTIFIER)
@@ -242,16 +245,19 @@ def main():
 
     lldpmgr.run()
 
+
 def run_cmd(self, cmd):
     proc = subprocess.Popen(cmd, shell=True, universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (stdout, stderr) = proc.communicate()
     return proc.returncode, stderr
+
 
 def check_timeout(self, start_time):
     if time.time() - start_time > PORT_INIT_TIMEOUT:
         self.log_error("Port init timeout reached ({} seconds), resuming lldpd...".format(PORT_INIT_TIMEOUT))
         return True
     return False
+
 
 if __name__ == "__main__":
     main()

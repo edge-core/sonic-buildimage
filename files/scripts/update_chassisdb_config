@@ -11,59 +11,58 @@ chassis_db = 'CHASSIS_APP_DB'
 
 
 def main():
-    parser = argparse.ArgumentParser(description=
-          "Update chassis_db config from database-config.json")
+    parser = argparse.ArgumentParser(description="Update chassis_db config from database-config.json")
     parser.add_argument("-j", "--json", help="databse-config json file", nargs='?',
-          const=database_config_file)
-    parser.add_argument("-p", "--port", help="update port number", nargs='?' )
+                        const=database_config_file)
+    parser.add_argument("-p", "--port", help="update port number", nargs='?')
     group = parser.add_mutually_exclusive_group()
-    group.add_argument("-k", "--keep", help="keep configuration", action='store_true' )
-    group.add_argument("-d", "--delete", help="delete configuration", action='store_true' )
+    group.add_argument("-k", "--keep", help="keep configuration", action='store_true')
+    group.add_argument("-d", "--delete", help="delete configuration", action='store_true')
 
     args = parser.parse_args()
     jsonfile = ""
     if args.json != None:
         jsonfile = args.json
     else:
-       return
+        return
     if args.port != None:
         port_number = args.port
     else:
         port_number = ""
     if args.keep:
-       keep_config = True
+        keep_config = True
     else:
-       keep_config = False
+        keep_config = False
     if args.delete:
-       delete_config = True
+        delete_config = True
     else:
-       delete_config = False
+        delete_config = False
     data = {}
     data_keep = {}
     if os.path.isfile(jsonfile):
         with open(jsonfile, "r") as read_file:
             data = json.load(read_file)
     else:
-       syslog.syslog(syslog.LOG_ERR,
-            'config file {} does notexist'.format(jsonfile))
-       return
+        syslog.syslog(syslog.LOG_ERR,
+                      'config file {} does notexist'.format(jsonfile))
+        return
     if 'INSTANCES' in data and redis_chassis in data['INSTANCES']:
-       data_keep['INSTANCES'] = {}
-       data_keep['INSTANCES'][redis_chassis] = data['INSTANCES'][redis_chassis]
-       if delete_config:
-           del data['INSTANCES'][redis_chassis]
+        data_keep['INSTANCES'] = {}
+        data_keep['INSTANCES'][redis_chassis] = data['INSTANCES'][redis_chassis]
+        if delete_config:
+            del data['INSTANCES'][redis_chassis]
     if 'DATABASES' in data and chassis_db in data['DATABASES']:
-       data_keep['DATABASES'] = {}
-       data_keep['DATABASES'][chassis_db] = data['DATABASES'][chassis_db]
-       if delete_config:
-           del data['DATABASES'][chassis_db]
+        data_keep['DATABASES'] = {}
+        data_keep['DATABASES'][chassis_db] = data['DATABASES'][chassis_db]
+        if delete_config:
+            del data['DATABASES'][chassis_db]
     with open(jsonfile, "w") as write_file:
-       data_publish = data_keep if keep_config else data
-       if port_number:
-          data_publish['INSTANCES']['redis_chassis']['port'] = int(port_number)
-       json.dump(data_publish, write_file, indent=4, separators=(',', ': '))
+        data_publish = data_keep if keep_config else data
+        if port_number:
+            data_publish['INSTANCES']['redis_chassis']['port'] = int(port_number)
+        json.dump(data_publish, write_file, indent=4, separators=(',', ': '))
     syslog.syslog(syslog.LOG_INFO,
-       'remove chassis_db from config file {}'.format(jsonfile))
+                  'remove chassis_db from config file {}'.format(jsonfile))
 
 
 if __name__ == "__main__":

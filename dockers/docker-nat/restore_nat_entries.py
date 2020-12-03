@@ -23,7 +23,7 @@ SYSLOG_IDENTIFIER = os.path.basename(__file__)
 
 WARM_BOOT_FILE_DIR = '/var/warmboot/nat/'
 NAT_WARM_BOOT_FILE = 'nat_entries.dump'
-IP_PROTO_TCP       = '6'
+IP_PROTO_TCP = '6'
 
 MATCH_CONNTRACK_ENTRY = '^(\w+)\s+(\d+).*src=([\d.]+)\s+dst=([\d.]+)\s+sport=(\d+)\s+dport=(\d+).*src=([\d.]+)\s+dst=([\d.]+)\s+sport=(\d+)\s+dport=(\d+)'
 
@@ -38,8 +38,8 @@ def add_nat_conntrack_entry_in_kernel(ipproto, srcip, dstip, srcport, dstport, n
     if (ipproto == IP_PROTO_TCP):
         state = ' --state ESTABLISHED '
     ctcmd = 'conntrack -I -n ' + natdstip + ':' + natdstport + ' -g ' + natsrcip + ':' + natsrcport + \
-                       ' --protonum ' + ipproto + state + ' --timeout 432000 --src ' + srcip + ' --sport ' + srcport + \
-                       ' --dst ' + dstip + ' --dport ' + dstport + ' -u ASSURED'
+        ' --protonum ' + ipproto + state + ' --timeout 432000 --src ' + srcip + ' --sport ' + srcport + \
+        ' --dst ' + dstip + ' --dport ' + dstport + ' -u ASSURED'
     subprocess.call(ctcmd, shell=True)
     logger.log_info("Restored NAT entry: {}".format(ctcmd))
 
@@ -65,7 +65,7 @@ def restore_update_kernel_nat_entries(filename):
             cmdargs = list(ctline.pop(0))
             proto = cmdargs.pop(0)
             if proto not in ('tcp', 'udp'):
-               continue
+                continue
             add_nat_conntrack_entry_in_kernel(*cmdargs)
 
 
@@ -97,7 +97,7 @@ def main():
         sys.exit(1)
 
     # Remove the dump file after restoration
-    os.remove(WARM_BOOT_FILE_DIR + NAT_WARM_BOOT_FILE) 
+    os.remove(WARM_BOOT_FILE_DIR + NAT_WARM_BOOT_FILE)
 
     # set statedb to signal other processes like natsyncd
     set_statedb_nat_restore_done()

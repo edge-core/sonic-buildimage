@@ -21,6 +21,8 @@ CRITICAL_PROCESSES_FILE = '/etc/supervisor/critical_processes'
 FEATURE_TABLE_NAME = 'FEATURE'
 
 # Read the critical processes/group names from CRITICAL_PROCESSES_FILE
+
+
 def get_critical_group_and_process_list():
     critical_group_list = []
     critical_process_list = []
@@ -29,7 +31,8 @@ def get_critical_group_and_process_list():
         for line in file:
             line_info = line.strip(' \n').split(':')
             if len(line_info) != 2:
-                syslog.syslog(syslog.LOG_ERR, "Syntax of the line {} in critical_processes file is incorrect. Exiting...".format(line))
+                syslog.syslog(syslog.LOG_ERR,
+                              "Syntax of the line {} in critical_processes file is incorrect. Exiting...".format(line))
                 sys.exit(5)
 
             identifier_key = line_info[0].strip()
@@ -39,10 +42,12 @@ def get_critical_group_and_process_list():
             elif identifier_key == "program" and identifier_value:
                 critical_process_list.append(identifier_value)
             else:
-              syslog.syslog(syslog.LOG_ERR, "Syntax of the line {} in critical_processes file is incorrect. Exiting...".format(line))
-              sys.exit(6)
+                syslog.syslog(syslog.LOG_ERR,
+                              "Syntax of the line {} in critical_processes file is incorrect. Exiting...".format(line))
+                sys.exit(6)
 
     return critical_group_list, critical_process_list
+
 
 def main(argv):
     container_name = None
@@ -90,13 +95,14 @@ def main(argv):
 
             restart_feature = features_table[container_name].get('auto_restart')
             if not restart_feature:
-                syslog.syslog(syslog.LOG_ERR, "Unable to determine auto-restart feature status for '{}'. Exiting...".format(container_name))
+                syslog.syslog(
+                    syslog.LOG_ERR, "Unable to determine auto-restart feature status for '{}'. Exiting...".format(container_name))
                 sys.exit(4)
 
             # If auto-restart feature is not disabled and at the same time
             # a critical process exited unexpectedly, terminate supervisor
             if (restart_feature != 'disabled' and expected == 0 and
-               (processname in critical_process_list or groupname in critical_group_list)):
+                    (processname in critical_process_list or groupname in critical_group_list)):
                 MSG_FORMAT_STR = "Process {} exited unxepectedly. Terminating supervisor..."
                 msg = MSG_FORMAT_STR.format(payload_headers['processname'])
                 syslog.syslog(syslog.LOG_INFO, msg)

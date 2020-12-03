@@ -65,5 +65,6 @@ def main():
     p.sendline('sync')
     p.expect([cmd_prompt])
 
+
 if __name__ == '__main__':
     main()

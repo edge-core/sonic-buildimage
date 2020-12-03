@@ -31,7 +31,7 @@ cwd = []
 HOURS_4 = (4 * 60 * 60)
 PAUSE_ON_FAIL = (60 * 60)
 WAIT_FILE_WRITE1 = (10 * 60)
-WAIT_FILE_WRITE2= (5 * 60)
+WAIT_FILE_WRITE2 = (5 * 60)
 POLL_SLEEP = (60 * 60)
 MAX_RETRIES = 5
 UPLOAD_PREFIX = "UPLOADED_"
@@ -62,7 +62,7 @@ class config:
         while not os.path.exists(RC_FILE):
             # Wait here until service restart
             logger.log_error("Unable to retrieve Azure storage credentials")
-            time.sleep (HOURS_4)
+            time.sleep(HOURS_4)
 
         with open(RC_FILE, 'r') as f:
             self.parsed_data = json.load(f)
@@ -137,7 +137,7 @@ class Handler(FileSystemEventHandler):
             while True:
                 # Wait here until service restart
                 logger.log_error("Unable to retrieve Azure storage credentials")
-                time.sleep (HOURS_4)
+                time.sleep(HOURS_4)
 
         with open("/etc/sonic/sonic_version.yml", 'r') as stream:
             l = yaml.safe_load(stream)
@@ -163,10 +163,9 @@ class Handler(FileSystemEventHandler):
 
         elif event.event_type == 'created':
             # Take any action here when a file is first created.
-            logger.log_debug("Received create event - " +  event.src_path)
+            logger.log_debug("Received create event - " + event.src_path)
             Handler.wait_for_file_write_complete(event.src_path)
             Handler.handle_file(event.src_path)
-
 
     @staticmethod
     def wait_for_file_write_complete(path):
@@ -186,8 +185,7 @@ class Handler(FileSystemEventHandler):
             raise Exception("Dump file creation is too slow: " + path)
             # Give up as something is terribly wrong with this file.
 
-        logger.log_debug("File write complete - " +  path)
-
+        logger.log_debug("File write complete - " + path)
 
     @staticmethod
     def handle_file(path):
@@ -202,7 +200,7 @@ class Handler(FileSystemEventHandler):
         tarf_name = fname + ".tar.gz"
 
         cfg.get_core_info(path, hostname)
-        
+
         tar = tarfile.open(tarf_name, "w:gz")
         for e in metafiles:
             tar.add(metafiles[e])
@@ -212,14 +210,14 @@ class Handler(FileSystemEventHandler):
 
         Handler.upload_file(tarf_name, tarf_name, path)
 
-        logger.log_debug("File uploaded - " +  path)
+        logger.log_debug("File uploaded - " + path)
         os.chdir(INIT_CWD)
 
     @staticmethod
     def upload_file(fname, fpath, coref):
         daemonname = fname.split(".")[0]
         i = 0
-        
+
         while True:
             try:
                 svc = FileService(account_name=acctname, account_key=acctkey)
@@ -239,12 +237,12 @@ class Handler(FileSystemEventHandler):
                 break
 
             except Exception as ex:
-                logger.log_error("core uploader failed: Failed during upload (" + coref + ") err: ("+ str(ex) +") retry:" + str(i))
+                logger.log_error("core uploader failed: Failed during upload (" +
+                                 coref + ") err: (" + str(ex) + ") retry:" + str(i))
                 if not os.path.exists(fpath):
                     break
                 i += 1
                 time.sleep(PAUSE_ON_FAIL)
-
 
     @staticmethod
     def scan():
@@ -262,4 +260,3 @@ if __name__ == '__main__':
         w.run()
     except Exception as e:
         logger.log_err("core uploader failed: " + str(e) + " Exiting ...")
-    

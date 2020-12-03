@@ -4,7 +4,7 @@ import time
 import swsssdk
 
 # ALPHA defines the size of the window over which we calculate the average value. ALPHA is 2/(N+1) where N is the interval(window size)
-# In this case we configure the window to be 10s. This way if we have a huge 1s spike in traffic, 
+# In this case we configure the window to be 10s. This way if we have a huge 1s spike in traffic,
 # the average rate value will show a curve descending from the spike to the usual rate over approximately 10s.
 DEFAULT_SMOOTH_INTERVAL = '10'
 DEFAULT_ALPHA = '0.18'
@@ -17,7 +17,7 @@ def enable_counter_group(db, name):
 
 
 def enable_rates():
-    # set the default interval for rates 
+    # set the default interval for rates
     counters_db = swsssdk.SonicV2Connector()
     counters_db.connect('COUNTERS_DB')
     counters_db.set('COUNTERS_DB', 'RATES:PORT', 'PORT_SMOOTH_INTERVAL', DEFAULT_SMOOTH_INTERVAL)
@@ -59,4 +59,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

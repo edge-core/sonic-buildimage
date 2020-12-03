@@ -10,6 +10,7 @@ SYSLOG_IDENTIFIER = 'core_cleanup.py'
 CORE_FILE_DIR = '/var/core/'
 MAX_CORE_FILES = 4
 
+
 def main():
     logger = Logger(SYSLOG_IDENTIFIER)
     logger.set_min_log_priority_info()
@@ -28,7 +29,7 @@ def main():
         curr_files.append(f)
 
         if len(curr_files) > MAX_CORE_FILES:
-            curr_files.sort(reverse = True, key = lambda x: datetime.utcfromtimestamp(int(x.split('.')[1])))
+            curr_files.sort(reverse=True, key=lambda x: datetime.utcfromtimestamp(int(x.split('.')[1])))
             oldest_core = curr_files[MAX_CORE_FILES]
             logger.log_info('Deleting {}'.format(oldest_core))
             try:
@@ -38,6 +39,7 @@ def main():
             core_files_by_process[process] = curr_files[0:MAX_CORE_FILES]
 
     logger.log_info('Finished cleaning up core files')
+
 
 if __name__ == '__main__':
     main()
