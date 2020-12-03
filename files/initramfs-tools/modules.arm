@@ -5,3 +5,10 @@ m25p80
 ubi
 ubifs
 squashfs
+marvell_nand
+i2c_mv64xxx
+ar7part
+ofpart
+mtdswap
+mtd_blkdevs
+adt7475

@@ -27,13 +27,13 @@ RUN apt-get update &&       \
 {% if ( CONFIGURED_ARCH == "armhf" or CONFIGURED_ARCH == "arm64" ) %}
 # Fix for gcc/python not found in arm docker
 RUN apt-get install -f -y python2.7 python2.7-dev
-RUN apt-get install -y gcc-6
+RUN apt-get install -y gcc-8
 {% endif %}
 {% if CONFIGURED_ARCH == "armhf" %}
-RUN ln -s -f /usr/bin/gcc-6 /usr/bin/arm-linux-gnueabihf-gcc
+RUN ln -s -f /usr/bin/gcc-8 /usr/bin/arm-linux-gnueabihf-gcc
 {% endif %}
 {% if CONFIGURED_ARCH == "arm64" %}
-RUN ln -s -f /usr/bin/gcc-6 /usr/bin/aarch64-linux-gnu-gcc
+RUN ln -s -f /usr/bin/gcc-8 /usr/bin/aarch64-linux-gnu-gcc
 {% endif %}
 
 RUN pip2 install \
@@ -46,7 +46,7 @@ RUN pip2 install \
 
 {% if ( CONFIGURED_ARCH == "armhf" or CONFIGURED_ARCH == "arm64" ) %}
 # Remove installed gcc
-RUN apt-get remove -y gcc-6
+RUN apt-get remove -y gcc-8
 {% endif %}
 
 {% if docker_orchagent_debs.strip() -%}

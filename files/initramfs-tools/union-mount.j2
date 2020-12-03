@@ -109,7 +109,7 @@ case "${ROOT}" in
     ubi*)
         mtd=$(cat /proc/cmdline | sed -e 's/.*ubi.mtd=\([0-9]\) .*/\1/')
         if [ ! -f /dev/${ROOT}_0 ]; then
-            ubiattach /dev/ubi_ctrl -m $mtd || true
+            ubiattach /dev/ubi_ctrl -m $mtd 2>dev/null || true
         fi
         mount -t ubifs /dev/${ROOT}_0 ${rootmnt}/host
         ;;

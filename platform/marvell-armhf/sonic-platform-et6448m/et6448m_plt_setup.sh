@@ -52,6 +52,9 @@ main()
 {
     fw_uboot_env_cfg
     et6448m_profile
+
+    python /etc/entropy.py &
+    /bin/sh /etc/inband_mgmt.sh
 }
 
 main $@

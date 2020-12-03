@@ -1,5 +1,7 @@
 {%- if CONFIGURED_ARCH == "armhf" %}
+FROM multiarch/qemu-user-static:x86_64-arm-5.0.0-2 as qemu
 FROM multiarch/debian-debootstrap:armhf-buster
+COPY --from=qemu /usr/bin/qemu-arm-static /usr/bin
 {%- elif CONFIGURED_ARCH == "arm64" %}
 FROM multiarch/debian-debootstrap:arm64-buster
 {%- else -%}
@@ -438,11 +440,7 @@ RUN add-apt-repository \
            $(lsb_release -cs) \
            stable"
 RUN apt-get update
-{%- if CONFIGURED_ARCH == "amd64" %}
 RUN apt-get install -y docker-ce=5:18.09.5~3-0~debian-buster docker-ce-cli=5:18.09.5~3-0~debian-buster
-{%- else %}
-RUN apt-get install -y docker-ce=18.06.3~ce~3-0~debian
-{%- endif %}
 RUN echo "DOCKER_OPTS=\"--experimental --storage-driver=vfs\"" >> /etc/default/docker
 RUN update-alternatives --set iptables /usr/sbin/iptables-legacy
 
