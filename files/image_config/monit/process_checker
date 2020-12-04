@@ -1,10 +1,12 @@
 #!/usr/bin/python3
 
 import argparse
+import ast
 import sys
 import syslog
 
 import psutil
+from sonic_py_common import multi_asic
 import swsssdk
 
 
@@ -27,20 +29,55 @@ def check_process_existence(container_name, process_cmdline):
             # We leveraged the psutil library to help us check whether the process is running or not.
             # If the process entity is found in process tree and it is also in the 'running' or 'sleeping'
             # state, then it will be marked as 'running'.
-            is_running = False
-            for process in psutil.process_iter(["cmdline", "status"]):
+
+            # For given feature we get the host and network namespace instances it's processes should be running
+            # based on it's scope and add it to expected set.
+
+            # From psutil we get number of running instances of the processes and add it to the the actual set
+
+            # Difference bwetween expected and actual set provides instances where the processes are not running
+            # and will be logged as syslog message by monit
+
+            process_namespace_expected_set = set()
+            process_namespace_found_set = set()
+
+            has_global_scope = ast.literal_eval(feature_table[container_name].get('has_global_scope', 'True'))
+            has_per_asic_scope = ast.literal_eval(feature_table[container_name].get('has_per_asic_scope', 'False'))
+
+            if has_global_scope:
+                process_namespace_expected_set.add(multi_asic.DEFAULT_NAMESPACE)
+
+            if has_per_asic_scope:
+                process_namespace_expected_set.update(multi_asic.get_namespace_list())
+
+            for process in psutil.process_iter(["cmdline", "status", "pid"]):
                 try:
                     if ((' '.join(process.cmdline())).startswith(process_cmdline) and process.status() in ["running", "sleeping"]):
-                        is_running = True
-                        break
+                         process_namespace_found_set.add(multi_asic.get_current_namespace(process.info['pid']))
                 except psutil.NoSuchProcess:
                     pass
 
-            if not is_running:
-                # If this script is run by Monit, then the following output will be appended to
-                # Monit's syslog message.
-                print("'{}' is not running.".format(process_cmdline))
-                sys.exit(1)
+            process_namespace_diff_set = process_namespace_expected_set.difference(process_namespace_found_set)
+
+            if process_namespace_diff_set:
+                 host_display_str = ""
+                 namespace_display_str = ""
+
+                 for ns in process_namespace_diff_set:
+                     if ns == multi_asic.DEFAULT_NAMESPACE:
+                         host_display_str = " in host"
+                     else:
+                         if not namespace_display_str:
+                             namespace_display_str = " in namespace " + ns
+                         else:
+                             namespace_display_str += ", " + ns
+
+                 join_str = " and" if host_display_str and namespace_display_str else ""
+                 
+                 # If this script is run by Monit, then the following output will be appended to
+                 # Monit's syslog message.
+                 print("'{}' is not running{}{}{}".format(process_cmdline, host_display_str, join_str, namespace_display_str))
+                 sys.exit(1)
     else:
         syslog.syslog(syslog.LOG_ERR, "container '{}' is not included in SONiC image or the given container name is invalid!"
                       .format(container_name))
