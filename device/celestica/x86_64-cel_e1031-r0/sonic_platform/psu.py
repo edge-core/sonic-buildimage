@@ -82,7 +82,7 @@ class Psu(PsuBase):
         if vout_label_path:
             dir_name = os.path.dirname(vout_label_path)
             basename = os.path.basename(vout_label_path)
-            in_num = list(filter(str.isdigit, basename))
+            in_num = ''.join(list(filter(str.isdigit, basename)))
             vout_path = os.path.join(
                 dir_name, voltage_name.format(in_num))
             vout_val = self.__read_txt_file(vout_path)
@@ -105,7 +105,7 @@ class Psu(PsuBase):
         if curr_label_path:
             dir_name = os.path.dirname(curr_label_path)
             basename = os.path.basename(curr_label_path)
-            cur_num = list(filter(str.isdigit, basename))
+            cur_num = ''.join(list(filter(str.isdigit, basename)))
             cur_path = os.path.join(
                 dir_name, current_name.format(cur_num))
             cur_val = self.__read_txt_file(cur_path)
@@ -128,7 +128,7 @@ class Psu(PsuBase):
         if pw_label_path:
             dir_name = os.path.dirname(pw_label_path)
             basename = os.path.basename(pw_label_path)
-            pw_num = list(filter(str.isdigit, basename))
+            pw_num = ''.join(list(filter(str.isdigit, basename)))
             pw_path = os.path.join(
                 dir_name, current_name.format(pw_num))
             pw_val = self.__read_txt_file(pw_path)
