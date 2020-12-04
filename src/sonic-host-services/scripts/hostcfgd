@@ -42,6 +42,13 @@ def obfuscate(data):
         return data
 
 
+def run_cmd(cmd, log_err = True):
+    try:
+        subprocess.check_call(cmd, shell = True)
+    except Exception as err:
+        if log_err:
+            syslog.syslog(syslog.LOG_ERR, "{} - failed: return code - {}, output:\n{}"
+                  .format(err.cmd, err.returncode, err.output))
 
 class Iptables(object):
     def __init__(self):
@@ -226,6 +233,55 @@ class AaaCfg(object):
         with open(NSS_TACPLUS_CONF, 'w') as f:
             f.write(nss_tacplus_conf)
 
+class KdumpCfg(object):
+    def __init__(self, CfgDb):
+        self.config_db = CfgDb
+        self.kdump_defaults = { "enabled" : "false",
+                                "memory": "0M-2G:256M,2G-4G:320M,4G-8G:384M,8G-:448M",
+                                "num_dumps": "3" }
+
+    def load(self, kdump_table):
+        syslog.syslog(syslog.LOG_INFO, "KdumpCfg load ...")
+        data = {}
+        kdump_conf = kdump_table.get("config", {})
+        for row in self.kdump_defaults:
+            value = self.kdump_defaults.get(row)
+            if kdump_conf.get(row) is not None:
+                value = kdump_conf.get(row)
+            else:
+                self.config_db.mod_entry("KDUMP", "config", { row : value})
+            data[row] = value
+        self.kdump_update("config", data, True)
+
+    def kdump_update(self, key, data, isLoad):
+        syslog.syslog(syslog.LOG_INFO, "Kdump global configuration update")
+        if key == "config":
+            # Admin mode
+            kdump_enabled = self.kdump_defaults["enabled"]
+            if data.get("enabled") is not None:
+                kdump_enabled = data.get("enabled")
+            if kdump_enabled.lower() == "true":
+                enabled = True
+            else:
+                enabled = False
+            if enabled:
+                run_cmd("sonic-kdump-config --enable")
+            else:
+                run_cmd("sonic-kdump-config --disable")
+
+            # Memory configuration
+            memory = self.kdump_defaults["memory"]
+            if data.get("memory") is not None:
+                memory = data.get("memory")
+            if isLoad or data.get("memory") is not None:
+                run_cmd("sonic-kdump-config --memory " + memory)
+
+            # Num dumps
+            num_dumps = self.kdump_defaults["num_dumps"]
+            if data.get("num_dumps") is not None:
+                num_dumps = data.get("num_dumps")
+            if isLoad or data.get("num_dumps") is not None:
+                run_cmd("sonic-kdump-config --num_dumps " + num_dumps)
 
 class HostConfigDaemon:
     def __init__(self):
@@ -240,6 +296,9 @@ class HostConfigDaemon:
 
         self.is_multi_npu = device_info.is_multi_npu()
 
+        # Load Kdump configuration
+        self.kdumpCfg = KdumpCfg(self.config_db)
+        self.kdumpCfg.load(self.config_db.get_table('KDUMP'))
 
     def load(self):
         aaa = self.config_db.get_table('AAA')
@@ -384,6 +443,10 @@ class HostConfigDaemon:
         if self.cached_feature_states[feature_name] != state:
             self.update_feature_state(feature_name, state, feature_table)
 
+    def kdump_handler (self, key, data):
+        syslog.syslog(syslog.LOG_INFO, 'Kdump handler...')
+        self.kdumpCfg.kdump_update(key, data, False)
+
     def start(self):
 
         self.config_db.subscribe('AAA', lambda table, key, data: self.aaa_handler(key, data))
@@ -391,6 +454,7 @@ class HostConfigDaemon:
         self.config_db.subscribe('TACPLUS', lambda table, key, data: self.tacacs_global_handler(key, data))
         self.config_db.subscribe('LOOPBACK_INTERFACE', lambda table, key, data: self.lpbk_handler(key, data))
         self.config_db.subscribe('FEATURE', lambda table, key, data: self.feature_state_handler(key, data))
+        self.config_db.subscribe('KDUMP', lambda table, key, data: self.kdump_handler(key, data))
 
         # Update all feature states once upon starting
         self.update_all_feature_states()
