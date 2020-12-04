@@ -166,14 +166,14 @@ def get_asic_device_id(asic_id):
     return None
 
 
-def get_current_namespace():
+def get_current_namespace(pid=None):
     """
     This API returns the network namespace in which it is
     invoked. In case of global namepace the API returns None
     """
 
     net_namespace = None
-    command = ["/bin/ip netns identify", str(os.getpid())]
+    command = ["sudo /bin/ip netns identify {}".format(os.getpid() if not pid else pid)]
     proc = subprocess.Popen(command,
                             stdout=subprocess.PIPE,
                             shell=True,
@@ -186,6 +186,8 @@ def get_current_namespace():
             )
         if stdout.rstrip('\n') != "":
             net_namespace = stdout.rstrip('\n')
+        else:
+            net_namespace = DEFAULT_NAMESPACE
     except OSError as e:
         raise OSError("Error running command {}".format(command))
 
