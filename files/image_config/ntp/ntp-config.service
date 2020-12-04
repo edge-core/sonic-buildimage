@@ -2,6 +2,7 @@
 Description=Update NTP configuration
 Requires=updategraph.service
 After=updategraph.service
+Before=ntp.service
 
 [Service]
 Type=oneshot
