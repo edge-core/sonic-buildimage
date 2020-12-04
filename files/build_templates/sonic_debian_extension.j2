@@ -217,6 +217,12 @@ sudo cp {{platform_common_py3_wheel_path}} $FILESYSTEM_ROOT/$PLATFORM_COMMON_PY3
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install $PLATFORM_COMMON_PY3_WHEEL_NAME
 sudo rm -rf $FILESYSTEM_ROOT/$PLATFORM_COMMON_PY3_WHEEL_NAME
 
+{# Barefoot platform vendors' sonic_platform packages import the Python 'thrift' library #}
+{% if sonic_asic_platform == "barefoot" %}
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip2 install thrift==0.13.0
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install thrift==0.13.0
+{% endif %}
+
 # Install prerequisites needed for installing the Python m2crypto package, used by sonic-utilities
 # These packages can be uninstalled after intallation
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install build-essential libssl-dev swig

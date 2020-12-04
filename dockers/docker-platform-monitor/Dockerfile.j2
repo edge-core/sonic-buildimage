@@ -32,6 +32,10 @@ RUN apt-get update &&   \
 # cause conflicts.
 RUN pip2 install enum34
 
+# Barefoot platform vendors' sonic_platform packages import the Python 'thrift' library
+RUN pip2 install thrift==0.13.0
+RUN pip3 install thrift==0.13.0
+
 {% if docker_platform_monitor_debs.strip() -%}
 # Copy locally-built Debian package dependencies
 {{ copy_files("debs/", docker_platform_monitor_debs.split(' '), "/debs/") }}
