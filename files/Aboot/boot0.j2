@@ -530,6 +530,7 @@ write_platform_specific_cmdline() {
     if in_array "$platform" "rook" "sprucefish"; then
         cmdline_add iommu=on
         cmdline_add intel_iommu=on
+        cmdline_add intel_idle.max_cstate=0
         read_system_eeprom
     fi
     if in_array "$platform" "crow" "magpie"; then
@@ -542,6 +543,7 @@ write_platform_specific_cmdline() {
         read_system_eeprom
     fi
     if in_array "$platform" "lorikeet" "hedgehog"; then
+        cmdline_add processor.max_cstate=1
         read_system_eeprom
     fi
 
