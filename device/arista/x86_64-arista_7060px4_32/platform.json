@@ -1,0 +1,223 @@
+{
+    "chassis": {
+        "name": "DCS-7060PX4-32",
+        "components": [],
+        "fans": [],
+        "fan_drawers": [
+            {
+                "name": "slot1",
+                "fans": [
+                    {
+                        "name": "fan1"
+                    }
+                ]
+            },
+            {
+                "name": "slot2",
+                "fans": [
+                    {
+                        "name": "fan2"
+                    }
+                ]
+            },
+            {
+                "name": "slot3",
+                "fans": [
+                    {
+                        "name": "fan3"
+                    }
+                ]
+            },
+            {
+                "name": "slot4",
+                "fans": [
+                    {
+                        "name": "fan4"
+                    }
+                ]
+            },
+            {
+                "name": "slot5",
+                "fans": [
+                    {
+                        "name": "fan5"
+                    }
+                ]
+            }
+        ],
+        "psus": [
+            {
+                "name": "psu1",
+                "fans": []
+            },
+            {
+                "name": "psu2",
+                "fans": []
+            }
+        ],
+        "thermals": [
+            {
+                "name": "Board sensor"
+            },
+            {
+                "name": "Switch board middle sensor"
+            },
+            {
+                "name": "Switch board left sensor"
+            },
+            {
+                "name": "Front-panel temp sensor"
+            },
+            {
+                "name": "Switch chip diode 1 sensor"
+            },
+            {
+                "name": "Switch chip diode 2 sensor"
+            },
+            {
+                "name": "PCH temp sensor"
+            },
+            {
+                "name": "Physical id 0"
+            },
+            {
+                "name": "CPU core0 temp sensor"
+            },
+            {
+                "name": "CPU core1 temp sensor"
+            },
+            {
+                "name": "CPU board temp sensor"
+            },
+            {
+                "name": "Back-panel temp sensor"
+            },
+            {
+                "name": "Front-panel temp sensor"
+            },
+            {
+                "name": "Power supply 1 hotspot sensor"
+            },
+            {
+                "name": "Power supply 1 inlet temp sensor"
+            },
+            {
+                "name": "Power supply 1 exhaust temp sensor"
+            },
+            {
+                "name": "Power supply 2 hotspot sensor"
+            },
+            {
+                "name": "Power supply 2 inlet temp sensor"
+            },
+            {
+                "name": "Power supply 2 exhaust temp sensor"
+            }
+        ],
+        "sfps": [
+            {
+                "name": "osfp1"
+            },
+            {
+                "name": "osfp2"
+            },
+            {
+                "name": "osfp3"
+            },
+            {
+                "name": "osfp4"
+            },
+            {
+                "name": "osfp5"
+            },
+            {
+                "name": "osfp6"
+            },
+            {
+                "name": "osfp7"
+            },
+            {
+                "name": "osfp8"
+            },
+            {
+                "name": "osfp9"
+            },
+            {
+                "name": "osfp10"
+            },
+            {
+                "name": "osfp11"
+            },
+            {
+                "name": "osfp12"
+            },
+            {
+                "name": "osfp13"
+            },
+            {
+                "name": "osfp14"
+            },
+            {
+                "name": "osfp15"
+            },
+            {
+                "name": "osfp16"
+            },
+            {
+                "name": "osfp17"
+            },
+            {
+                "name": "osfp18"
+            },
+            {
+                "name": "osfp19"
+            },
+            {
+                "name": "osfp20"
+            },
+            {
+                "name": "osfp21"
+            },
+            {
+                "name": "osfp22"
+            },
+            {
+                "name": "osfp23"
+            },
+            {
+                "name": "osfp24"
+            },
+            {
+                "name": "osfp25"
+            },
+            {
+                "name": "osfp26"
+            },
+            {
+                "name": "osfp27"
+            },
+            {
+                "name": "osfp28"
+            },
+            {
+                "name": "osfp29"
+            },
+            {
+                "name": "osfp30"
+            },
+            {
+                "name": "osfp31"
+            },
+            {
+                "name": "osfp32"
+            },
+            {
+                "name": "sfp33"
+            },
+            {
+                "name": "sfp34"
+            }
+        ]
+    },
+    "interfaces": {}
+}

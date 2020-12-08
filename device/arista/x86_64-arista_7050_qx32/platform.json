@@ -1,0 +1,189 @@
+{
+    "chassis": {
+        "name": "DCS-7050QX-32",
+        "components": [],
+        "fans": [
+            {
+                "name": "fan1"
+            },
+            {
+                "name": "fan2"
+            },
+            {
+                "name": "fan3"
+            },
+            {
+                "name": "fan4"
+            }
+        ],
+        "fan_drawers": [
+            {
+                "name": "fan1",
+                "fans": [
+                    {
+                        "name": "fan1"
+                    }
+                ]
+            },
+            {
+                "name": "fan2",
+                "fans": [
+                    {
+                        "name": "fan2"
+                    }
+                ]
+            },
+            {
+                "name": "fan3",
+                "fans": [
+                    {
+                        "name": "fan3"
+                    }
+                ]
+            },
+            {
+                "name": "fan4",
+                "fans": [
+                    {
+                        "name": "fan4"
+                    }
+                ]
+            }
+        ],
+        "psus": [
+            {
+                "name": "psu1",
+                "fans": []
+            },
+            {
+                "name": "psu2",
+                "fans": []
+            }
+        ],
+        "thermals": [
+            {
+                "name": "Cpu temp sensor"
+            },
+            {
+                "name": "Board sensor"
+            },
+            {
+                "name": "Front-panel temp sensor"
+            },
+            {
+                "name": "Rear temp sensor"
+            },
+            {
+                "name": "Power supply 1 inlet temp sensor"
+            },
+            {
+                "name": "Power supply 1 internal sensor"
+            },
+            {
+                "name": "Power supply 2 inlet temp sensor"
+            },
+            {
+                "name": "Power supply 2 internal sensor"
+            }
+        ],
+        "sfps": [
+            {
+                "name": "qsfp1"
+            },
+            {
+                "name": "qsfp2"
+            },
+            {
+                "name": "qsfp3"
+            },
+            {
+                "name": "qsfp4"
+            },
+            {
+                "name": "qsfp5"
+            },
+            {
+                "name": "qsfp6"
+            },
+            {
+                "name": "qsfp7"
+            },
+            {
+                "name": "qsfp8"
+            },
+            {
+                "name": "qsfp9"
+            },
+            {
+                "name": "qsfp10"
+            },
+            {
+                "name": "qsfp11"
+            },
+            {
+                "name": "qsfp12"
+            },
+            {
+                "name": "qsfp13"
+            },
+            {
+                "name": "qsfp14"
+            },
+            {
+                "name": "qsfp15"
+            },
+            {
+                "name": "qsfp16"
+            },
+            {
+                "name": "qsfp17"
+            },
+            {
+                "name": "qsfp18"
+            },
+            {
+                "name": "qsfp19"
+            },
+            {
+                "name": "qsfp20"
+            },
+            {
+                "name": "qsfp21"
+            },
+            {
+                "name": "qsfp22"
+            },
+            {
+                "name": "qsfp23"
+            },
+            {
+                "name": "qsfp24"
+            },
+            {
+                "name": "qsfp25"
+            },
+            {
+                "name": "qsfp26"
+            },
+            {
+                "name": "qsfp27"
+            },
+            {
+                "name": "qsfp28"
+            },
+            {
+                "name": "qsfp29"
+            },
+            {
+                "name": "qsfp30"
+            },
+            {
+                "name": "qsfp31"
+            },
+            {
+                "name": "qsfp32"
+            }
+        ]
+    },
+    "interfaces": {}
+}
