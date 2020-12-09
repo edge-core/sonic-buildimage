@@ -357,5 +357,8 @@ RUN echo "deb [arch={{ CONFIGURED_ARCH }}] http://archive.debian.org/debian jess
 RUN apt-get -o Acquire::Check-Valid-Until=false update
 RUN apt-get -y -o Acquire::Check-Valid-Until=false install ca-certificates-java=20161107~bpo8+1 openjdk-8-jdk
 
+# Install m2crypto package, needed by SWI tools
+RUN pip install m2crypto==0.36.0
+
 # Install swi tools
 RUN python -m pip install git+https://github.com/aristanetworks/swi-tools.git@d51761ec0bb93c73039233f3c01ed48235ffad00

@@ -303,8 +303,6 @@ RUN apt-get update && apt-get install -y \
         libevent-dev \
 # For libyang
         swig \
-# For SWI Tools
-        python-m2crypto \
 # For build dtb
         device-tree-compiler \
 # For sonic-mgmt-framework
@@ -443,6 +441,9 @@ RUN apt-get update
 RUN apt-get install -y docker-ce=5:18.09.5~3-0~debian-buster docker-ce-cli=5:18.09.5~3-0~debian-buster
 RUN echo "DOCKER_OPTS=\"--experimental --storage-driver=vfs\"" >> /etc/default/docker
 RUN update-alternatives --set iptables /usr/sbin/iptables-legacy
+
+# Install m2crypto package, needed by SWI tools
+RUN pip2 install m2crypto==0.36.0
 
 # Install swi tools
 RUN pip2 install git+https://github.com/aristanetworks/swi-tools.git@d51761ec0bb93c73039233f3c01ed48235ffad00
