@@ -5,7 +5,7 @@
 ##  teammgrd
 ###############################################################################
 check program teamd|teamsyncd with path "/usr/bin/process_checker teamd /usr/bin/teamsyncd"
-    if status != 0 for 5 times within 5 cycles then alert
+    if status != 0 for 5 times within 5 cycles then alert repeat every 1 cycles
 
 check program teamd|teammgrd with path "/usr/bin/process_checker teamd /usr/bin/teammgrd"
-    if status != 0 for 5 times within 5 cycles then alert
+    if status != 0 for 5 times within 5 cycles then alert repeat every 1 cycles
