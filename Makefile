@@ -25,7 +25,11 @@ ifeq ($(NOSTRETCH), 0)
 	make -f Makefile.work stretch
 endif
 
-clean reset init configure showtag sonic-slave-build sonic-slave-bash :
+init:
+	@echo "+++ Making $@ +++"
+	make -f Makefile.work $@
+
+clean configure reset showtag sonic-slave-build sonic-slave-bash :
 	@echo "+++ Making $@ +++"
 ifeq ($(NOJESSIE), 0)
 	make -f Makefile.work $@
