@@ -106,6 +106,11 @@ fi
 if [ "$install_env" != "build" ]; then
     onie_dev=$(blkid | grep ONIE-BOOT | head -n 1 | awk '{print $1}' |  sed -e 's/:.*$//')
     blk_dev=$(echo $onie_dev | sed -e 's/[1-9][0-9]*$//' | sed -e 's/\([0-9]\)\(p\)/\1/')
+
+    # check if we have an nvme device
+    blk_suffix=
+    echo $blk_dev | grep -q nvme0 && blk_suffix="p"
+
     # Note: ONIE has no mount setting for / with device node, so below will be empty string
     cur_part=$(cat /proc/mounts | awk "{ if(\$2==\"/\") print \$1 }" | grep $blk_dev || true)
 
@@ -225,7 +230,7 @@ create_demo_gpt_partition()
     echo "Partition #$demo_part is available"
 
     # Create new partition
-    echo "Creating new $demo_volume_label partition ${blk_dev}$demo_part ..."
+    echo "Creating new $demo_volume_label partition ${blk_dev}${blk_suffix}$demo_part ..."
 
     if [ "$demo_type" = "DIAG" ] ; then
         # set the GPT 'system partition' attribute bit for the DIAG
@@ -424,6 +429,7 @@ image_dir="image-$image_version"
 if [ "$install_env" = "onie" ]; then
     eval $create_demo_partition $blk_dev
     demo_dev=$(echo $blk_dev | sed -e 's/\(mmcblk[0-9]\)/\1p/')$demo_part
+    echo $blk_dev | grep -q nvme0 && demo_dev=$(echo $blk_dev | sed -e 's/\(nvme[0-9]n[0-9]\)/\1p/')$demo_part
 
     # Make filesystem
     mkfs.ext4 -L $demo_volume_label $demo_dev
