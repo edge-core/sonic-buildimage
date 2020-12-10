@@ -121,6 +121,13 @@ class TestCfgGenCaseInsensitive(TestCase):
             utils.to_dict("{'PortChannel01': {'admin_status': 'up', 'min_links': '1', 'members': ['Ethernet4'], 'mtu': '9100'}}")
         )
 
+    def test_minigraph_console_mgmt_feature(self):
+        argument = '-m "' + self.sample_graph + '" -v CONSOLE_SWITCH'
+        output = self.run_script(argument)
+        self.assertEqual(
+            utils.to_dict(output.strip()),
+            utils.to_dict("{'console_mgmt': {'enabled': 'no'}}"))
+
     def test_minigraph_console_port(self):
         argument = '-m "' + self.sample_graph + '" -p "' + self.port_config + '" -v CONSOLE_PORT'
         output = self.run_script(argument)

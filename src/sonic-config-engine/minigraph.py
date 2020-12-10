@@ -36,6 +36,7 @@ spine_chassis_frontend_role = 'SpineChassisFrontendRouter'
 chassis_backend_role = 'ChassisBackendRouter'
 
 backend_device_types = ['BackEndToRRouter', 'BackEndLeafRouter']
+console_device_types = ['MgmtTsToR']
 VLAN_SUB_INTERFACE_SEPARATOR = '.'
 VLAN_SUB_INTERFACE_VLAN_ID = '10'
 
@@ -1316,6 +1317,13 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
     # Special parsing for spine chassis frontend routers
     if current_device['type'] == spine_chassis_frontend_role:
         parse_spine_chassis_fe(results, vni, lo_intfs, phyport_intfs, pc_intfs, pc_members, devices)
+
+    # Enable console management feature for console swtich
+    results['CONSOLE_SWITCH'] = {
+        'console_mgmt' : {
+            'enabled' : 'yes' if current_device['type'] in console_device_types else 'no'
+        }
+    }
 
     return results
 
