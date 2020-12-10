@@ -33,3 +33,11 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 {%     endfor %}
 {% endif %}
+
+[program:flushdb]
+command=/bin/bash -c "sleep 300 && /usr/local/bin/flush_unused_database"
+priority=3
+autostart=true
+autorestart=false
+stdout_logfile=syslog
+stderr_logfile=syslog

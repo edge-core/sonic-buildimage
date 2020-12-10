@@ -77,4 +77,20 @@ else
 fi
 rm $db_cfg_file_tmp
 
+# copy dump.rdb file to each instance for restoration
+DUMPFILE=/var/lib/redis/dump.rdb
+redis_inst_list=`/usr/bin/python -c "import swsssdk; print(' '.join(swsssdk.SonicDBConfig.get_instancelist().keys()))"`
+for inst in $redis_inst_list
+do
+    mkdir -p /var/lib/$inst
+    if [[ -f $DUMPFILE ]]; then
+        # copy warmboot rdb file into each new instance location
+        if [[ "$DUMPFILE" != "/var/lib/$inst/dump.rdb" ]]; then
+            cp $DUMPFILE /var/lib/$inst/dump.rdb
+        fi
+    else
+        echo -n > /var/lib/$inst/dump.rdb
+    fi
+done
+
 exec /usr/local/bin/supervisord
