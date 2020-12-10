@@ -3,5 +3,9 @@ z9332f/scripts/platform_sensors.py usr/local/bin
 z9332f/scripts/sensors usr/bin
 z9332f/cfg/z9332f-modules.conf etc/modules-load.d
 z9332f/systemd/platform-modules-z9332f.service etc/systemd/system
+z9332f/modules/sonic_platform-1.0-py2-none-any.whl usr/share/sonic/device/x86_64-dellemc_z9332f_d1508-r0
+z9332f/modules/sonic_platform-1.0-py3-none-any.whl usr/share/sonic/device/x86_64-dellemc_z9332f_d1508-r0
 common/platform_reboot usr/share/sonic/device/x86_64-dellemc_z9332f_d1508-r0
 common/pcisysfs.py usr/bin
+common/fw-updater usr/local/bin
+common/onie_mode_set usr/local/bin

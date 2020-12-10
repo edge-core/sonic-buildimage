@@ -145,6 +145,29 @@ platform_firmware_versions() {
 	ver=`/usr/sbin/i2cget -y 4 0x31 0x0`
 	echo "Switch CPLD 2: $((ver))" >> $FIRMWARE_VERSION_FILE
 }
+
+install_python_api_package() {
+    device="/usr/share/sonic/device"
+    platform=$(/usr/local/bin/sonic-cfggen -H -v DEVICE_METADATA.localhost.platform)
+
+    rv=$(pip install $device/$platform/sonic_platform-1.0-py2-none-any.whl)
+    rv=$(pip3 install $device/$platform/sonic_platform-1.0-py3-none-any.whl)
+}
+
+remove_python_api_package() {
+    rv=$(pip show sonic-platform > /dev/null 2>/dev/null)
+    if [ $? -eq 0 ]; then
+        rv=$(pip uninstall -y sonic-platform > /dev/null 2>/dev/null)
+    fi
+
+    rv=$(pip3 show sonic-platform > /dev/null 2>/dev/null)
+    if [ $? -eq 0 ]; then
+        rv=$(pip3 uninstall -y sonic-platform > /dev/null 2>/dev/null)
+    fi
+}
+
+
+
 init_devnum
 
 if [ "$1" == "init" ]; then
@@ -160,6 +183,7 @@ if [ "$1" == "init" ]; then
     switch_board_qsfp "new_device"
     switch_board_sfp "new_device"
     switch_board_led_default
+    install_python_api_package
   # /usr/bin/qsfp_irq_enable.py
     platform_firmware_versions
 
@@ -174,6 +198,7 @@ elif [ "$1" == "deinit" ]; then
     modprobe -r cls-i2c-ocore
     modprobe -r cls-switchboard 
     modprobe -r mc24lc64t 
+    remove_python_api_package
 else
      echo "z9332f_platform : Invalid option !"
 fi
