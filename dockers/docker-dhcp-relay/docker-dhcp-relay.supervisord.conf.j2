@@ -75,6 +75,8 @@ isc-dhcp-relay-{{ vlan_name }}
 [program:isc-dhcp-relay-{{ vlan_name }}]
 {# We treat this VLAN as a downstream interface (-id), as we only want to listen for requests #}
 command=/usr/sbin/dhcrelay -d -m discard -a %%h:%%p %%P --name-alias-map-file /tmp/port-name-alias-map.txt -id {{ vlan_name }}
+{#- Dual ToR Option #}
+{% if 'subtype' in DEVICE_METADATA['localhost'] and DEVICE_METADATA['localhost']['subtype'] == 'DualToR' %} -U Loopback0 -dt{% endif -%}
 {#- We treat all other interfaces as upstream interfaces (-iu), as we only want to listen for replies #}
 {% for (name, prefix) in VLAN_INTERFACE|pfx_filter %}
 {% if prefix | ipv4 and name != vlan_name %} -iu {{ name }}{% endif -%}
