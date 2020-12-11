@@ -346,7 +346,9 @@ RUN apt-get purge -y python-pip python3-pip
 
 # For building Python packages
 RUN pip2 install setuptools==40.8.0
+RUN pip2 install wheel==0.35.1
 RUN pip3 install setuptools==49.6.00
+RUN pip3 install wheel==0.35.1
 
 # For building sonic-utilities
 RUN pip2 install fastentrypoints
