@@ -144,7 +144,7 @@ class Fan(FanBase):
         if max_speed_in_rpm == 0:
             return speed_in_rpm
 
-        speed = 100*speed_in_rpm/max_speed_in_rpm
+        speed = 100*speed_in_rpm//max_speed_in_rpm
         if speed > 100:
             speed = 100
 
@@ -191,9 +191,9 @@ class Fan(FanBase):
                 bus = read_str_from_file(self.psu_i2c_bus_path, raise_exception=True)
                 addr = read_str_from_file(self.psu_i2c_addr_path, raise_exception=True)
                 command = read_str_from_file(self.psu_i2c_command_path, raise_exception=True)
-                speed = Fan.PSU_FAN_SPEED[int(speed / 10)]
+                speed = Fan.PSU_FAN_SPEED[int(speed // 10)]
                 command = "i2cset -f -y {0} {1} {2} {3} wp".format(bus, addr, command, speed)
-                subprocess.check_call(command, shell = True)
+                subprocess.check_call(command, shell = True, universal_newlines=True)
                 return True
             except subprocess.CalledProcessError as ce:
                 logger.log_error('Failed to call command {}, return code={}, command output={}'.format(ce.cmd, ce.returncode, ce.output))
@@ -203,7 +203,7 @@ class Fan(FanBase):
                 return False
 
         try:
-            cooling_level = int(speed / 10)
+            cooling_level = int(speed // 10)
             if cooling_level < self.min_cooling_level:
                 cooling_level = self.min_cooling_level
                 speed = self.min_cooling_level * 10
@@ -300,5 +300,3 @@ class Fan(FanBase):
             return read_int_from_file(COOLING_STATE_PATH, raise_exception=True)
         except (ValueError, IOError) as e:
             raise RuntimeError("Failed to get cooling level - {}".format(e))
-
-    

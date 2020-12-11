@@ -1,6 +1,7 @@
 {
     "skip_ledd": true,
     "skip_fancontrol": true,
-    "delay_xcvrd": true
+    "delay_xcvrd": true,
+    "python2_daemons": ["xcvrd"]
 }
 

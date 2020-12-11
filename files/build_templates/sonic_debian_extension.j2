@@ -640,11 +640,17 @@ sudo cp $files_path/$MLNX_SSD_FW_UPDATE $FILESYSTEM_ROOT/usr/bin/$MLNX_SSD_FW_UP
 j2 platform/mellanox/mlnx-fw-upgrade.j2 | sudo tee $FILESYSTEM_ROOT/usr/bin/mlnx-fw-upgrade.sh
 sudo chmod 755 $FILESYSTEM_ROOT/usr/bin/mlnx-fw-upgrade.sh
 
-# Install mlnx-sonic-platform-common Python 2 package
-MLNX_PLATFORM_COMMON_PY2_WHEEL_NAME=$(basename {{mlnx_platform_api_py2_wheel_path}})
-sudo cp {{mlnx_platform_api_py2_wheel_path}} $FILESYSTEM_ROOT/$MLNX_PLATFORM_COMMON_PY2_WHEEL_NAME
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip2 install $MLNX_PLATFORM_COMMON_PY2_WHEEL_NAME
-sudo rm -rf $FILESYSTEM_ROOT/$MLNX_PLATFORM_COMMON_PY2_WHEEL_NAME
+# Install mlnx-sonic-platform Python 2 package
+MLNX_SONIC_PLATFORM_PY2_WHEEL_NAME=$(basename {{mlnx_platform_api_py2_wheel_path}})
+sudo cp {{mlnx_platform_api_py2_wheel_path}} $FILESYSTEM_ROOT/$MLNX_SONIC_PLATFORM_PY2_WHEEL_NAME
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip2 install $MLNX_SONIC_PLATFORM_PY2_WHEEL_NAME
+sudo rm -rf $FILESYSTEM_ROOT/$MLNX_SONIC_PLATFORM_PY2_WHEEL_NAME
+
+# Install mlnx-sonic-platform Python 3 package
+MLNX_SONIC_PLATFORM_PY3_WHEEL_NAME=$(basename {{mlnx_platform_api_py3_wheel_path}})
+sudo cp {{mlnx_platform_api_py3_wheel_path}} $FILESYSTEM_ROOT/$MLNX_SONIC_PLATFORM_PY3_WHEEL_NAME
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install $MLNX_SONIC_PLATFORM_PY3_WHEEL_NAME
+sudo rm -rf $FILESYSTEM_ROOT/$MLNX_SONIC_PLATFORM_PY3_WHEEL_NAME
 {% endif %}
 
 {%- if SONIC_ROUTING_STACK == "frr" %}

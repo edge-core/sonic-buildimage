@@ -35,14 +35,18 @@ class Platform(PlatformBase):
         """
         is_host = False
         try:
-            proc = subprocess.Popen("docker --version 2>/dev/null", stdout=subprocess.PIPE, shell=True, stderr=subprocess.STDOUT)
+            proc = subprocess.Popen("docker --version 2>/dev/null", 
+                                    stdout=subprocess.PIPE, 
+                                    shell=True, 
+                                    stderr=subprocess.STDOUT, 
+                                    universal_newlines=True)
             stdout = proc.communicate()[0]
             proc.wait()
             result = stdout.rstrip('\n')
             if result != '':
                 is_host = True
 
-        except OSError, e:
+        except OSError as e:
             pass
 
         return is_host

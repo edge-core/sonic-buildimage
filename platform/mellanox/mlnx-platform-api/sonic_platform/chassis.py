@@ -68,6 +68,7 @@ class Chassis(ChassisBase):
         self.sfp_module_initialized = False
         self.sfp_event_initialized = False
         self.reboot_cause_initialized = False
+        self.sdk_handle = None
         logger.log_info("Chassis loaded successfully")
 
 
@@ -75,7 +76,7 @@ class Chassis(ChassisBase):
         if self.sfp_event_initialized:
             self.sfp_event.deinitialize()
 
-        if self.sfp_module_initialized:
+        if self.sdk_handle:
             from sonic_platform.sfp import deinitialize_sdk_handle
             deinitialize_sdk_handle(self.sdk_handle)
 
@@ -115,11 +116,6 @@ class Chassis(ChassisBase):
         from sonic_platform.sfp import initialize_sdk_handle
 
         self.sfp_module = SFP
-        self.sdk_handle = initialize_sdk_handle()
-        
-        if self.sdk_handle is None:
-            self.sfp_module_initialized = False
-            return
 
         # Initialize SFP list
         port_position_tuple = self._get_port_position_tuple_by_platform_name()
@@ -130,13 +126,21 @@ class Chassis(ChassisBase):
 
         for index in range(self.PORT_START, self.PORT_END + 1):
             if index in range(self.QSFP_PORT_START, self.PORTS_IN_BLOCK + 1):
-                sfp_module = SFP(index, 'QSFP', self.sdk_handle, self.platform_name)
+                sfp_module = SFP(index, 'QSFP', self.get_sdk_handle, self.platform_name)
             else:
-                sfp_module = SFP(index, 'SFP', self.sdk_handle, self.platform_name)
+                sfp_module = SFP(index, 'SFP', self.get_sdk_handle, self.platform_name)
 
             self._sfp_list.append(sfp_module)
 
         self.sfp_module_initialized = True
+
+
+    def get_sdk_handle(self):
+        if not self.sdk_handle:
+            self.sdk_handle = initialize_sdk_handle()
+            if self.sdk_handle is None:
+                logger.log_error('Failed to open SDK handle')
+        return self.sdk_handle
 
 
     def initialize_thermals(self):
@@ -146,7 +150,7 @@ class Chassis(ChassisBase):
 
 
     def initialize_eeprom(self):
-        from eeprom import Eeprom
+        from .eeprom import Eeprom
         # Initialize EEPROM
         self._eeprom = Eeprom()
         # Get chassis name and model from eeprom
@@ -385,11 +389,11 @@ class Chassis(ChassisBase):
         if not self.reboot_cause_initialized:
             self.initialize_reboot_cause()
 
-        for reset_file, reset_cause in self.reboot_major_cause_dict.iteritems():
+        for reset_file, reset_cause in self.reboot_major_cause_dict.items():
             if self._verify_reboot_cause(reset_file):
                 return reset_cause, ''
 
-        for reset_file, reset_cause in self.reboot_minor_cause_dict.iteritems():
+        for reset_file, reset_cause in self.reboot_minor_cause_dict.items():
             if self._verify_reboot_cause(reset_file):
                 return self.REBOOT_CAUSE_HARDWARE_OTHER, reset_cause
 
@@ -410,7 +414,7 @@ class Chassis(ChassisBase):
         """
         for s in self._sfp_list:
             try:
-                print "index {} tx disable {} dom {} calibration {} temp {} volt {} power (tx {} rx {})".format(s.index,
+                print("index {} tx disable {} dom {} calibration {} temp {} volt {} power (tx {} rx {})".format(s.index,
                     s.dom_tx_disable_supported,
                     s.dom_supported,
                     s.calibration,
@@ -418,9 +422,9 @@ class Chassis(ChassisBase):
                     s.dom_volt_supported,
                     s.dom_rx_power_supported,
                     s.dom_tx_power_supported
-                    )
+                    ))
             except:
-                print "fail to retrieve capabilities for module index {}".format(s.index)
+                print("fail to retrieve capabilities for module index {}".format(s.index))
 
 
     def get_change_event(self, timeout=0):

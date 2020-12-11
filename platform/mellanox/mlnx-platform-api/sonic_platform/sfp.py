@@ -21,11 +21,19 @@ try:
     from sonic_platform_base.sonic_sfp.qsfp_dd import qsfp_dd_InterfaceId
     from sonic_platform_base.sonic_sfp.qsfp_dd import qsfp_dd_Dom
     from sonic_py_common.logger import Logger
-    from python_sdk_api.sxd_api import *
-    from python_sdk_api.sx_api import *
 
 except ImportError as e:
     raise ImportError (str(e) + "- required module not found")
+
+try:
+    # python_sdk_api does not support python3 for now. Daemons like thermalctld or psud 
+    # also import this file without actually use the sdk lib. So we catch the ImportError
+    # and ignore it here. Meanwhile, we have to trigger xcvrd using python2 now because it
+    # uses the sdk lib.
+    from python_sdk_api.sxd_api import *
+    from python_sdk_api.sx_api import *
+except ImportError as e:
+    pass
 
 # definitions of the offset and width for values in XCVR info eeprom
 XCVR_INTFACE_BULK_OFFSET = 0
@@ -309,7 +317,7 @@ def deinitialize_sdk_handle(sdk_handle):
 class SFP(SfpBase):
     """Platform-specific SFP class"""
 
-    def __init__(self, sfp_index, sfp_type, sdk_handle, platform):
+    def __init__(self, sfp_index, sfp_type, sdk_handle_getter, platform):
         SfpBase.__init__(self)
         self.index = sfp_index + 1
         self.sfp_eeprom_path = "qsfp{}".format(self.index)
@@ -317,12 +325,16 @@ class SFP(SfpBase):
         self._detect_sfp_type(sfp_type)
         self.dom_tx_disable_supported = False
         self._dom_capability_detect()
-        self.sdk_handle = sdk_handle
+        self.sdk_handle_getter = sdk_handle_getter
         self.sdk_index = sfp_index
 
         # initialize SFP thermal list
         from .thermal import initialize_sfp_thermals
         initialize_sfp_thermals(platform, self._thermal_list, self.index)
+
+    @property
+    def sdk_handle(self):
+        return self.sdk_handle_getter()
 
     def reinit(self):
 
@@ -343,14 +355,18 @@ class SFP(SfpBase):
         presence = False
         ethtool_cmd = "ethtool -m sfp{} hex on offset 0 length 1 2>/dev/null".format(self.index)
         try:
-            proc = subprocess.Popen(ethtool_cmd, stdout=subprocess.PIPE, shell=True, stderr=subprocess.STDOUT)
+            proc = subprocess.Popen(ethtool_cmd, 
+                                    stdout=subprocess.PIPE, 
+                                    shell=True, 
+                                    stderr=subprocess.STDOUT, 
+                                    universal_newlines=True)
             stdout = proc.communicate()[0]
             proc.wait()
             result = stdout.rstrip('\n')
             if result != '':
                 presence = True
 
-        except OSError, e:
+        except OSError as e:
             raise OSError("Cannot detect sfp")
 
         return presence
@@ -361,7 +377,9 @@ class SFP(SfpBase):
         eeprom_raw = []
         ethtool_cmd = "ethtool -m sfp{} hex on offset {} length {}".format(self.index, offset, num_bytes)
         try:
-            output = subprocess.check_output(ethtool_cmd, shell=True)
+            output = subprocess.check_output(ethtool_cmd, 
+                                             shell=True, 
+                                             universal_newlines=True)
             output_lines = output.splitlines()
             first_line_raw = output_lines[0]
             if "Offset" in first_line_raw:

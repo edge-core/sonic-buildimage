@@ -3,7 +3,7 @@
 listen to the SDK for the SFP change event and return to chassis.
 '''
 
-from __future__ import print_function
+
 import sys, errno
 import os
 import time
@@ -301,12 +301,12 @@ class sfp_event:
                 logger.log_info("Receive PMPE plug in/out event on module {}: status {}".format(module_id, module_state))
             else:
                 logger.log_error("Receive PMPE unknown event on module {}: status {}".format(module_id, module_state))
-            for i in xrange(port_list_size):
+            for i in range(port_list_size):
                 logical_port = sx_port_log_id_t_arr_getitem(logical_port_list, i)
                 rc = sx_api_port_device_get(self.handle, 1 , 0, port_attributes_list,  port_cnt_p)
                 port_cnt = uint32_t_p_value(port_cnt_p)
 
-                for i in xrange(port_cnt):
+                for i in range(port_cnt):
                     port_attributes = sx_port_attributes_t_arr_getitem(port_attributes_list,i)
                     if port_attributes.log_port == logical_port:
                         lable_port = port_attributes.port_mapping.module_port
