@@ -166,8 +166,6 @@ class Sfp(SfpBase):
         self.dom_tx_power_supported = False
         self.calibration = 0
 
-        self._dom_capability_detect()
-
     def __convert_string_to_num(self, value_str):
         if "-inf" in value_str:
             return 'N/A'
@@ -402,6 +400,7 @@ class Sfp(SfpBase):
 
         if self.sfp_type == SFP_TYPE:
 
+            self._dom_capability_detect()
             if not self.dom_supported:
                 return transceiver_dom_info_dict
 
@@ -487,6 +486,7 @@ class Sfp(SfpBase):
 
             offset = SFP_MODULE_ADDRA2_OFFSET
 
+            self._dom_capability_detect()
             if not self.dom_supported:
                 return transceiver_dom_threshold_info_dict
 
@@ -533,6 +533,7 @@ class Sfp(SfpBase):
         Returns:
             A Boolean, True if reset enabled, False if disabled
         """
+        self._dom_capability_detect()
         if not self.dom_supported:
             return False
         if self.sfp_type == COPPER_TYPE:
@@ -710,6 +711,7 @@ class Sfp(SfpBase):
             if sfpd_obj is None:
                 return None
 
+            self._dom_capability_detect()
             if self.dom_supported:
                 sfpd_obj._calibration_type = self.calibration
 
@@ -747,6 +749,7 @@ class Sfp(SfpBase):
             if sfpd_obj is None:
                 return None
 
+            self._dom_capability_detect()
             if self.dom_supported:
                 sfpd_obj._calibration_type = self.calibration
 
