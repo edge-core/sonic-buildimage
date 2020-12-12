@@ -516,7 +516,6 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y re
 
 ## Add mtd and uboot firmware tools package
 sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install u-boot-tools mtd-utils device-tree-compiler
-sudo LANG=C chroot $FILESYSTEM_ROOT apt-mark manual u-boot-tools mtd-utils device-tree-compiler
 
 ## Update initramfs
 sudo chroot $FILESYSTEM_ROOT update-initramfs -u
