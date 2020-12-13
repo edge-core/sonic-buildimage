@@ -1,0 +1,59 @@
+{%- if DEVICE_METADATA is defined and DEVICE_METADATA['localhost']['platform'] is defined %}
+{%-     set platform = DEVICE_METADATA['localhost']['platform'] %}
+{%- else -%}
+{%-     set platform = "vs-platform" %}
+{%- endif -%}
+
+
+[
+{% set platform2asic = {
+        'x86_64-mlnx_lssn2700-r0':'MELLANOX-SPECTRUM',
+        'x86_64-mlnx_msn2010-r0':'MELLANOX-SPECTRUM',
+        'x86_64-mlnx_msn2100-r0':'MELLANOX-SPECTRUM',
+        'x86_64-mlnx_msn2410-r0':'MELLANOX-SPECTRUM',
+        'x86_64-mlnx_msn2700-r0':'MELLANOX-SPECTRUM',
+        'x86_64-mlnx_msn2700_simx-r0':'MELLANOX-SPECTRUM',
+        'x86_64-mlnx_msn2740-r0':'MELLANOX-SPECTRUM',
+        'x86_64-mlnx_msn3700c-r0':'MELLANOX-SPECTRUM-2',
+        'x86_64-mlnx_msn3700-r0':'MELLANOX-SPECTRUM-2',
+        'x86_64-mlnx_msn3700_simx-r0':'MELLANOX-SPECTRUM-2',
+        'x86_64-mlnx_msn3800-r0':'MELLANOX-SPECTRUM-2',
+        'x86_64-mlnx_msn4700_simx-r0':'MELLANOX-SPECTRUM-3',
+        'x86_64-mlnx_msn4700-r0':'MELLANOX-SPECTRUM-3',
+        'x86_64-mlnx_msn4600c-r0':'MELLANOX-SPECTRUM-3',
+        'vs-platform':'vs'
+    }
+%}
+{% set asic_type = platform2asic[platform] %}
+{% if asic_type == 'MELLANOX-SPECTRUM' %}
+    {
+        "ASIC_TABLE:MELLANOX-SPECTRUM": {
+            "cell_size": "96",
+            "pipeline_latency": "19",
+            "mac_phy_delay": "0.8",
+            "peer_response_time": "3.8"
+        },
+        "OP": "SET"
+    }
+{% elif asic_type == 'MELLANOX-SPECTRUM-2' %}
+    {
+        "ASIC_TABLE:MELLANOX-SPECTRUM-2": {
+            "cell_size": "144",
+            "pipeline_latency": "19",
+            "mac_phy_delay": "0.8",
+            "peer_response_time": "3.8"
+        },
+        "OP": "SET"
+    }
+{% elif asic_type == 'MELLANOX-SPECTRUM-3' %}
+    {
+        "ASIC_TABLE:MELLANOX-SPECTRUM-3": {
+            "cell_size": "144",
+            "pipeline_latency": "19",
+            "mac_phy_delay": "0.8",
+            "peer_response_time": "3.8"
+        },
+        "OP": "SET"
+    }
+{% endif %}
+]

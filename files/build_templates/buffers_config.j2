@@ -22,7 +22,7 @@ def
 {%- endif -%}
 
 {# Import default values from device HWSKU folder #}
-{%- import 'buffers_defaults_%s.j2' % filename_postfix as defs %}
+{%- import 'buffers_defaults_%s.j2' % filename_postfix as defs with context %}
 
 {%- set default_cable = defs.default_cable -%}
 
@@ -142,6 +142,11 @@ def
 {% else %}
     "BUFFER_PG": {
 {% for port in PORT_ACTIVE %}
+{% if dynamic_mode is defined %}
+        "{{ port }}|3-4": {
+            "profile" : "NULL"
+        },
+{% endif %}
         "{{ port }}|0": {
             "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
         }{% if not loop.last %},{% endif %}
@@ -170,6 +175,20 @@ def
         }{% if not loop.last %},{% endif %}
 
 {% endfor %}
+    }
+{% endif %}
+{% if dynamic_mode is defined %}
+   ,
+    "DEFAULT_LOSSLESS_BUFFER_PARAMETER": {
+        "AZURE": {
+            "default_dynamic_th": "0"
+        }
+    },
+    "LOSSLESS_TRAFFIC_PATTERN": {
+        "AZURE": {
+            "mtu": "1024",
+            "small_packet_percentage": "100"
+        }
     }
 {% endif %}
 }

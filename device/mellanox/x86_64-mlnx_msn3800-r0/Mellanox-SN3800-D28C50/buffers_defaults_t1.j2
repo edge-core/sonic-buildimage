@@ -13,7 +13,9 @@
 {%- macro generate_buffer_pool_and_profiles() %}
     "BUFFER_POOL": {
         "ingress_lossless_pool": {
+            {%- if dynamic_mode is not defined %}
             "size": "{{ ingress_lossless_pool_size }}",
+            {%- endif %}
             "type": "ingress",
             "mode": "dynamic"
         },
@@ -23,7 +25,9 @@
             "mode": "dynamic"
         },
         "egress_lossy_pool": {
+            {%- if dynamic_mode is not defined %}
             "size": "{{ egress_lossy_pool_size }}",
+            {%- endif %}
             "type": "egress",
             "mode": "dynamic"
         }

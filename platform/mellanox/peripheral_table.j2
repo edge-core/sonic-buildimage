@@ -1,0 +1,17 @@
+{%- if DEVICE_METADATA is defined and DEVICE_METADATA['localhost']['platform'] is defined %}
+{%-     set platform = DEVICE_METADATA['localhost']['platform'] %}
+{%- endif -%}
+
+{% set platform2gearbox = {
+        'x86_64-mlnx_msn3800-r0':'MELLANOX-GEARBOX-3800'
+    }
+%}
+{% set gearbox_type = platform2gearbox[platform] %}
+{% if gearbox_type == 'MELLANOX-GEARBOX-3800' %}
+{
+    "PERIPHERAL_TABLE:MELLANOX-GEARBOX-3800": {
+        "gearbox_delay": "400"
+    },
+    "OP": "SET"
+}
+{% endif %}
