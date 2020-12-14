@@ -46,6 +46,7 @@ start)
         modprobe dx010_wdt
         modprobe leds-dx010
         modprobe lm75
+        modprobe slx_gpio_ich
 
         found=0
         for devnum in 0 1; do

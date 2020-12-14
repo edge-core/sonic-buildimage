@@ -17,7 +17,6 @@ try:
     from sonic_platform_base.sonic_sfp.sff8436 import sff8436InterfaceId
     from sonic_platform_base.sonic_sfp.sff8436 import sff8436Dom
     from sonic_platform_base.sonic_sfp.inf8628 import inf8628InterfaceId
-    from sonic_platform_base.sonic_sfp.sfputilhelper import SfpUtilHelper
     from .helper import APIHelper
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
@@ -166,10 +165,8 @@ class Sfp(SfpBase):
     RESET_PATH = "/sys/devices/platform/dx010_cpld/qsfp_reset"
     LP_PATH = "/sys/devices/platform/dx010_cpld/qsfp_lpmode"
     PRS_PATH = "/sys/devices/platform/dx010_cpld/qsfp_modprs"
-    PLATFORM_ROOT_PATH = "/usr/share/sonic/device"
-    PMON_HWSKU_PATH = "/usr/share/sonic/hwsku"
 
-    def __init__(self, sfp_index):
+    def __init__(self, sfp_index, sfp_name):
         SfpBase.__init__(self)
         # Init index
         self.index = sfp_index
@@ -177,8 +174,7 @@ class Sfp(SfpBase):
         self.dom_supported = False
         self.sfp_type, self.port_name = self.__get_sfp_info()
         self._api_helper = APIHelper()
-        self.platform = self._api_helper.platform
-        self.hwsku = self._api_helper.hwsku
+        self.name = sfp_name
 
         # Init eeprom path
         eeprom_path = '/sys/bus/i2c/devices/i2c-{0}/{0}-0050/eeprom'
@@ -232,12 +228,6 @@ class Sfp(SfpBase):
             return float(t_str)
         else:
             return 'N/A'
-
-    def __get_path_to_port_config_file(self):
-        platform_path = "/".join([self.PLATFORM_ROOT_PATH, self.platform])
-        hwsku_path = "/".join([platform_path, self.hwsku]
-                              ) if self._api_helper.is_host() else self.PMON_HWSKU_PATH
-        return "/".join([hwsku_path, "port_config.ini"])
 
     def __read_eeprom_specific_bytes(self, offset, num_bytes):
         sysfsfile_eeprom = None
@@ -1317,11 +1307,7 @@ class Sfp(SfpBase):
             Returns:
             string: The name of the device
         """
-        sfputil_helper = SfpUtilHelper()
-        sfputil_helper.read_porttab_mappings(
-            self.__get_path_to_port_config_file())
-        name = sfputil_helper.logical[self.index] or "Unknown"
-        return name
+        return self.name
 
     def get_presence(self):
         """
