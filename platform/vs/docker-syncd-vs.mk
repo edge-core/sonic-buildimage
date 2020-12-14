@@ -11,6 +11,4 @@ $(DOCKER_SYNCD_BASE)_DBG_DEPENDS += $(SYNCD_VS_DBG) \
 									$(LIBSAIREDIS_DBG) \
 									$(LIBSAIVS_DBG)
 
-SONIC_INSTALL_DOCKER_IMAGES += $(DOCKER_SYNCD_VS)
-
-$(DOCKER_SYNCD_VS)_RUN_OPT += -v /host/warmboot:/var/warmboot
+$(DOCKER_SYNCD_BASE)_RUN_OPT += -v /host/warmboot:/var/warmboot
