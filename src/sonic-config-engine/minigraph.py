@@ -64,8 +64,6 @@ def parse_device(device):
     hwsku = None
     name = None
     deployment_id = None
-    if str(QName(ns3, "type")) in device.attrib:
-        d_type = device.attrib[str(QName(ns3, "type"))]
 
     for node in device:
         if node.tag == str(QName(ns, "Address")):
@@ -78,6 +76,12 @@ def parse_device(device):
             hwsku = node.text
         elif node.tag == str(QName(ns, "DeploymentId")):
             deployment_id = node.text
+        elif node.tag == str(QName(ns, "ElementType")):
+            d_type = node.text
+
+    if d_type is None and str(QName(ns3, "type")) in device.attrib:
+        d_type = device.attrib[str(QName(ns3, "type"))]
+
     return (lo_prefix, mgmt_prefix, name, hwsku, d_type, deployment_id)
 
 def parse_png(png, hname):

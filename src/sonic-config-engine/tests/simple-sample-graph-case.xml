@@ -211,7 +211,8 @@
       </DeviceLinkBase>
     </DeviceInterfaceLinks>
     <Devices>
-      <Device i:type="ToRRouter">
+      <Device xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution" i:type="a:ToRRouter">
+        <ElementType>ToRRouter</ElementType>
         <Hostname>switch-t0</Hostname>
         <HwSku>Force10-S6000</HwSku>
         <ClusterName>AAA00PrdStr00</ClusterName>
