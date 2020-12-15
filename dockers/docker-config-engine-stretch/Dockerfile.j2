@@ -10,6 +10,10 @@ RUN apt-get update         && \
         build-essential       \
         python-pip            \
         python-dev            \
+{%- if CONFIGURED_ARCH == "armhf" or CONFIGURED_ARCH == "arm64" %}
+        libxslt-dev           \
+        libz-dev              \
+{%- endif %}
         python-setuptools
 
 RUN pip install --upgrade pip

@@ -248,6 +248,9 @@ RUN apt-get update && apt-get install -y \
         python3-sphinx \
 # For sonic config engine testing
         python-dev \
+{%- if CONFIGURED_ARCH == "armhf" or CONFIGURED_ARCH == "arm64" %}
+        libxslt-dev \
+{%- endif %}
 # For lockfile
         procmail \
 # For gtest

@@ -12,6 +12,10 @@ RUN apt-get update         && \
         python-dev            \
         python3-dev           \
         apt-utils             \
+{%- if CONFIGURED_ARCH == "armhf" or CONFIGURED_ARCH == "arm64" %}
+        libxslt-dev           \
+        libz-dev              \
+{%- endif %}
         python-setuptools     \
         python3-setuptools
 
