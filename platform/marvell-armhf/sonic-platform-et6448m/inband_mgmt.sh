@@ -10,6 +10,9 @@ inband_mgmt(){
 # order.
 # NOTE: In the nokia platform the following sequence is performed by the Nokia
 # platform service init script and thus should not be performed here
+ if [ ! -f /host/machine.conf ]; then
+     exit 0
+ fi
  grep ^onie_platform /host/machine.conf 2>/dev/null | grep nokia >/dev/null
  if [ $? != 0 ]; then
      rmmod i2c-dev
