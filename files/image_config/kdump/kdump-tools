@@ -1,3 +1,6 @@
+# Default configuration
+KDUMP_CMDLINE_APPEND="irqpoll nr_cpus=1 nousb systemd.unit=kdump-tools.service ata_piix.prefer_ms_hyperv=0"
+
 # ---------------------------------------------------------------------------
 # Additional Kdump environment settings used in SONiC
 #
