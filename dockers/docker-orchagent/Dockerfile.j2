@@ -44,6 +44,12 @@ RUN pip2 install \
          netifaces==0.10.7 \
          monotonic==1.5
 
+# Dependencies of restore_neighbors.py
+RUN pip3 install \
+         scapy==2.4.4 \
+         pyroute2==0.5.14 \
+         netifaces==0.10.9
+
 {% if ( CONFIGURED_ARCH == "armhf" or CONFIGURED_ARCH == "arm64" ) %}
 # Remove installed gcc
 RUN apt-get remove -y gcc-8
