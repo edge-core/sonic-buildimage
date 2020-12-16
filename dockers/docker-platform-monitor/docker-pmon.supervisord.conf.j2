@@ -38,6 +38,19 @@ startsecs=0
 dependent_startup=true
 dependent_startup_wait_for=rsyslogd:running
 
+{% if not skip_chassisd and IS_MODULAR_CHASSIS == 1 %}
+[program:chassisd]
+command=/usr/local/bin/chassisd
+priority=3
+autostart=false
+autorestart=false
+stdout_logfile=syslog
+stderr_logfile=syslog
+startsecs=0
+dependent_startup=true
+dependent_startup_wait_for=rsyslogd:running
+{% endif %}
+
 {% if not skip_sensors and HAVE_SENSORS_CONF == 1 %}
 [program:lm-sensors]
 command=/usr/bin/lm-sensors.sh
