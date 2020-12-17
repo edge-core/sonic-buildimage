@@ -1,0 +1,6 @@
+#!/bin/bash
+
+. /usr/local/share/buildinfo/scripts/buildinfo_base.sh
+[ -z $REAL_COMMAND ] && REAL_COMMAND=/usr/bin/curl
+
+REAL_COMMAND=$REAL_COMMAND download_packages "$@"

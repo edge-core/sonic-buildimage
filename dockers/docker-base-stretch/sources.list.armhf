@@ -6,3 +6,6 @@ deb-src [arch=armhf] http://deb.debian.org/debian stretch main contrib non-free
 deb [arch=armhf] http://security.debian.org stretch/updates main contrib non-free
 deb-src [arch=armhf] http://security.debian.org stretch/updates main contrib non-free
 deb [arch=armhf] http://deb.debian.org/debian/ stretch-backports main contrib non-free
+deb [arch=armhf] http://packages.trafficmanager.net/debian/debian stretch main contrib non-free
+deb [arch=armhf] http://packages.trafficmanager.net/debian/debian stretch-updates main contrib non-free
+deb [arch=armhf] http://packages.trafficmanager.net/debian/debian stretch-backports main contrib non-free

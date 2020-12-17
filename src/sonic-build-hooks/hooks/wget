@@ -1,0 +1,15 @@
+#!/bin/bash
+
+. /usr/local/share/buildinfo/scripts/buildinfo_base.sh
+[ -z $REAL_COMMAND ] && REAL_COMMAND=$(get_command wget)
+if [ -z "$REAL_COMMAND" ]; then
+    echo "The command wget does not exist." 1>&2
+    exit 1
+fi
+
+if [ "$SKIP_BUILD_HOOK" == y ]; then
+    $REAL_COMMAND "$@"
+    exit $?
+fi
+
+REAL_COMMAND=$REAL_COMMAND download_packages "$@"

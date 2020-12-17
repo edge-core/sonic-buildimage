@@ -40,6 +40,8 @@ PLATFORM_DIR=platform
 ## Hostname for the linux image
 HOSTNAME=sonic
 DEFAULT_USERINFO="Default admin user,,,"
+BUILD_TOOL_PATH=src/sonic-build-hooks/buildinfo
+TRUSTED_GPG_DIR=$BUILD_TOOL_PATH/trusted.gpg.d
 
 ## Read ONIE image related config file
 . ./onie-image.conf
@@ -70,16 +72,12 @@ pushd $FILESYSTEM_ROOT
 sudo mount --bind . .
 popd
 
-## Build a basic Debian system by debootstrap
-echo '[INFO] Debootstrap...'
-if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
-    # qemu arm bin executable for cross-building
-    sudo mkdir -p $FILESYSTEM_ROOT/usr/bin
-    sudo cp /usr/bin/qemu*static $FILESYSTEM_ROOT/usr/bin || true
-    sudo http_proxy=$http_proxy debootstrap --variant=minbase --arch $CONFIGURED_ARCH $IMAGE_DISTRO $FILESYSTEM_ROOT http://deb.debian.org/debian
-else
-    sudo http_proxy=$http_proxy debootstrap --variant=minbase --arch $CONFIGURED_ARCH $IMAGE_DISTRO $FILESYSTEM_ROOT http://debian-archive.trafficmanager.net/debian
-fi
+## Build the host debian base system
+echo '[INFO] Build host debian base system...'
+TARGET_PATH=$TARGET_PATH scripts/build_debian_base_system.sh $CONFIGURED_ARCH $IMAGE_DISTRO $FILESYSTEM_ROOT
+
+# Prepare buildinfo
+sudo scripts/prepare_debian_image_buildinfo.sh $CONFIGURED_ARCH $IMAGE_DISTRO $FILESYSTEM_ROOT $http_proxy
 
 ## Config hostname and hosts, otherwise 'sudo ...' will complain 'sudo: unable to resolve host ...'
 sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "echo '$HOSTNAME' > /etc/hostname"
@@ -99,6 +97,9 @@ sudo LANG=C chroot $FILESYSTEM_ROOT mount proc /proc -t proc
 echo '[INFO] Mount all'
 ## Output all the mounted device for troubleshooting
 sudo LANG=C chroot $FILESYSTEM_ROOT mount
+
+## Install the trusted gpg public keys
+[ -d $TRUSTED_GPG_DIR ] && [ ! -z "$(ls $TRUSTED_GPG_DIR)" ] && sudo cp $TRUSTED_GPG_DIR/* ${FILESYSTEM_ROOT}/etc/apt/trusted.gpg.d/
 
 ## Pointing apt to public apt mirrors and getting latest packages, needed for latest security updates
 sudo cp files/apt/sources.list.$CONFIGURED_ARCH $FILESYSTEM_ROOT/etc/apt/sources.list
@@ -582,6 +583,8 @@ sudo rm -f $ONIE_INSTALLER_PAYLOAD $FILESYSTEM_SQUASHFS
 sudo du -hsx $FILESYSTEM_ROOT
 sudo mkdir -p $FILESYSTEM_ROOT/var/lib/docker
 sudo mksquashfs $FILESYSTEM_ROOT $FILESYSTEM_SQUASHFS -e boot -e var/lib/docker -e $PLATFORM_DIR
+
+scripts/collect_host_image_version_files.sh $TARGET_PATH $FILESYSTEM_ROOT
 
 ## Compress docker files
 pushd $FILESYSTEM_ROOT && sudo tar czf $OLDPWD/$FILESYSTEM_DOCKERFS -C ${DOCKERFS_PATH}var/lib/docker .; popd

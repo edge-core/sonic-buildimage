@@ -1,0 +1,20 @@
+#!/bin/bash
+
+. /usr/local/share/buildinfo/scripts/buildinfo_base.sh
+
+[ -d $DIFF_VERSION_PATH ] && rm -rf $DIFF_VERSION_PATH
+mkdir -p $DIFF_VERSION_PATH
+mkdir -p $BUILD_VERSION_PATH
+mkdir -p $LOG_PATH
+
+[ -d $PRE_VERSION_PATH ] && rm -rf $PRE_VERSION_PATH
+collect_version_files $PRE_VERSION_PATH
+symlink_build_hooks
+
+chmod -R a+rw $BUILDINFO_PATH
+
+if [ "$ENABLE_VERSION_CONTROL_DEB" == "y" ] && [ -f $VERSION_DEB_PREFERENCE ]; then
+    cp -f $VERSION_DEB_PREFERENCE /etc/apt/preferences.d/
+fi
+
+exit 0
