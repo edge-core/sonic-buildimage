@@ -68,19 +68,22 @@ class HealthDaemon(DaemonBase):
         """
         self.log_notice("Starting up...")
 
-        import sonic_platform.platform
-        chassis = sonic_platform.platform.Platform().get_chassis()
-        manager = HealthCheckerManager()
-        if not manager.config.config_file_exists():
-            self.log_warning("System health configuration file not found, exit...")
-            return
-        while 1:
-            state, stat = manager.check(chassis)
-            if state == HealthCheckerManager.STATE_RUNNING:
-                self._process_stat(chassis, manager.config, stat)
+        try:
+            import sonic_platform.platform
+            chassis = sonic_platform.platform.Platform().get_chassis()
+            manager = HealthCheckerManager()
+            if not manager.config.config_file_exists():
+                self.log_warning("System health configuration file not found, exit...")
+                return
+            while 1:
+                state, stat = manager.check(chassis)
+                if state == HealthCheckerManager.STATE_RUNNING:
+                    self._process_stat(chassis, manager.config, stat)
 
-            if self.stop_event.wait(manager.config.interval):
-                break
+                if self.stop_event.wait(manager.config.interval):
+                    break
+        except ImportError:
+            self.log_warning("sonic_platform package not installed. Cannot start system-health daemon")
 
         self.deinit()
 
