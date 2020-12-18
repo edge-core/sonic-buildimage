@@ -3,6 +3,7 @@
 
 import ast
 import os
+import time
 import sys
 import subprocess
 import syslog
@@ -247,6 +248,20 @@ class HostConfigDaemon:
         lpbk_table = self.config_db.get_table('LOOPBACK_INTERFACE')
         self.iptables.load(lpbk_table)
 
+    def wait_till_system_init_done(self):
+        systemctl_cmd = "sudo systemctl is-system-running"
+        while True:
+            proc = subprocess.Popen(
+                systemctl_cmd,
+                shell=True,
+                stdout=subprocess.PIPE,
+            )
+            output = proc.communicate()[0].rstrip('\n')
+            if output.lower() in ["initializing", "starting"]:
+                time.sleep(1)
+                continue
+
+            return
 
     def update_feature_state(self, feature_name, state, feature_table):
         if state == "always_enabled":
@@ -382,6 +397,13 @@ class HostConfigDaemon:
         self.config_db.subscribe('TACPLUS', lambda table, key, data: self.tacacs_global_handler(key, data))
         self.config_db.subscribe('LOOPBACK_INTERFACE', lambda table, key, data: self.lpbk_handler(key, data))
         self.config_db.subscribe('FEATURE', lambda table, key, data: self.feature_state_handler(key, data))
+
+        if self.is_multi_npu:
+            syslog.syslog(syslog.LOG_INFO,
+                          "Waiting for systemctl to finish initialization")
+            self.wait_till_system_init_done()
+            syslog.syslog(syslog.LOG_INFO,
+                          "systemctl has finished initialization -- proceeding ...")
 
         # Update all feature states once upon starting
         self.update_all_feature_states()
