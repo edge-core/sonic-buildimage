@@ -322,6 +322,22 @@ RUN apt-get update && apt-get install -y \
         python-lxml \
         libexpat1-dev
 
+# Build fix for ARMHF buster libsairedis
+{%- if CONFIGURED_ARCH == "armhf" %}
+       # Install doxygen build dependency packages
+       RUN apt install -y libxapian-dev yui-compressor libclang-3.9-dev texlive-extra-utils \
+           texlive-font-utils  rdfind llvm-6.0-dev libclang-6.0-dev sassc
+
+       # Update doxygen with 64bit file offset patch
+       RUN dget -u http://deb.debian.org/debian/pool/main/d/doxygen/doxygen_1.8.13-10.dsc && \
+           cd doxygen-1.8.13 && \
+           sed -i '56 a add_definitions(-D_FILE_OFFSET_BITS=64)' CMakeLists.txt && \
+           DEB_BUILD_OPTIONS=nocheck dpkg-buildpackage -us -uc -b && \
+           cd .. && \
+           dpkg -i ./doxygen_1.8.13-10_armhf.deb && \
+           rm -fr doxygen*
+{%- endif %}
+
 ## Config dpkg
 ## install the configuration file if it’s currently missing
 RUN sudo augtool --autosave "set /files/etc/dpkg/dpkg.cfg/force-confmiss"
