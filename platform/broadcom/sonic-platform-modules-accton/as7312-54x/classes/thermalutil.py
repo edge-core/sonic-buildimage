@@ -69,26 +69,19 @@ class ThermalUtil(object):
         device_path = self.get_thermal_to_device_path(thermal_num)
         for filename in glob.glob(device_path):
             try:
-                val_file = open(filename, 'r')
+                with open(filename, 'r') as val_file:
+                    val_file = open(filename, 'r')
+                    content = val_file.readline().rstrip()
+                    if not content :
+                        logging.debug('File is NULL. path:%s', device_path)
+                        return None
+                    else:
+                        return int(content)
             except IOError as e:
                 logging.error('GET. unable to open file: %s', str(e))
-                return None
 
-        content = val_file.readline().rstrip()
-
-        if content == '':
-            logging.debug('GET. content is NULL. device_path:%s', device_path)
-            return None
-
-        try:
-		    val_file.close()
-        except:
-            logging.debug('GET. unable to close file. device_path:%s', device_path)
-            return None
+        return None
       
-        return int(content)
-
-
     def get_num_thermals(self):
         return self.THERMAL_NUM_ON_MAIN_BROAD
 

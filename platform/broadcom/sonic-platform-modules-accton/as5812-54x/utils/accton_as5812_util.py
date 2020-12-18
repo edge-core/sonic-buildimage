@@ -80,7 +80,6 @@ i2c_nodes = {
            'sfp': ['sfp_is_present ', 'sfp_tx_disable']}
 
 QSFP_START = 48
-I2C_BUS_ORDER = -1
 
 sfp_map =  [2, 3, 4, 5, 6, 7, 8, 9, 10,
             11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
@@ -241,7 +240,7 @@ def log_os_system(cmd, show):
     return  status, output
 
 def driver_inserted():
-    ret, lsmod = log_os_system("lsmod| grep accton", 0)
+    ret, lsmod = log_os_system("ls /sys/module | grep accton", 0)
     logging.info('mods:'+lsmod)
     if len(lsmod) ==0:
         return False
@@ -293,34 +292,23 @@ def driver_uninstall():
 def i2c_order_check():
     # i2c bus 0 and 1 might be installed in different order.
     # Here check if 0x70 is exist @ i2c-0
-    tmp = "echo pca9548 0x70 > /sys/bus/i2c/devices/i2c-1/new_device"
-    log_os_system(tmp, 0)
-    if not device_exist():
+    tmp = "i2cget -y -f 0 0x70"
+    ret = log_os_system(tmp, 0)
+    if not ret[0]:
         order = 1
     else:
         order = 0
-    tmp = "echo 0x70 > /sys/bus/i2c/devices/i2c-1/delete_device"
-    log_os_system(tmp, 0)
+    m =  "[%s]Detected I2C_BUS_ORDER:%d" % (os.path.basename(__file__), order)
+    my_log(m)
     return order
 
-def update_i2c_order():
-    global I2C_BUS_ORDER
-   
-    order = i2c_order_check()
-    I2C_BUS_ORDER = order
-    print "[%s]Detected I2C_BUS_ORDER:%d" % (os.path.basename(__file__), I2C_BUS_ORDER)
-
 def get_i2c_order():
-    global I2C_BUS_ORDER
-    if I2C_BUS_ORDER < 0:
-        update_i2c_order()
+    return i2c_order_check()
 
 def device_install():
     global FORCE
-    global I2C_BUS_ORDER
 
-    update_i2c_order()
-    order = I2C_BUS_ORDER
+    order = get_i2c_order()
     # if 0x76 is not exist @i2c-0, use reversed bus order
     if order:
         for i in range(0,len(mknod2)):
@@ -344,7 +332,7 @@ def device_install():
                 print output
                 if FORCE == 0:
                     return status
-         
+
     for i in range(0,len(sfp_map)):
         if i < QSFP_START:
             status, output =log_os_system("echo optoe2 0x50 > /sys/bus/i2c/devices/i2c-"+str(sfp_map[i])+"/new_device", 1)
@@ -359,7 +347,7 @@ def device_install():
             print output
             if FORCE == 0:
                 return status
-   
+
     return
 
 def device_uninstall():
@@ -372,8 +360,8 @@ def device_uninstall():
             print output
             if FORCE == 0:
                 return status
-    status, output = log_os_system("ls /sys/bus/i2c/devices/1-0070", 0)
-    order = 0 if (status == 0) else 1
+
+    order = get_i2c_order()
     if order == 0:
         nodelist = mknod
     else:
@@ -526,19 +514,15 @@ def show_eeprom(index):
 
 
 def get_cpld_path(index):
-    global I2C_BUS_ORDER
-
-    if I2C_BUS_ORDER < 0:
-       get_i2c_order()
-
-    if I2C_BUS_ORDER !=0 :
+    order = get_i2c_order()
+    if order !=0 :
         return port_cpld_path[index].replace("0-", "1-")
     else:
         return port_cpld_path[index]
 
 def cpld_path_of_port(port_index):
     if port_index < 1 and port_index > DEVICE_NO['sfp']:
-        return None 
+        return None
     if port_index < 25:
         return get_cpld_path(0)
     else:
@@ -550,7 +534,7 @@ def get_path_sfp_tx_dis(port_index):
         return False, ''
     else:
         dev = cpld_p+"module_tx_disable_"+str(port_index)
-        return True, dev  
+        return True, dev
 
 def get_path_sfp_presence(port_index):
     cpld_p = cpld_path_of_port(port_index)
@@ -558,7 +542,7 @@ def get_path_sfp_presence(port_index):
         return False, ''
     else:
         dev = cpld_p+"module_present_"+str(port_index)
-        return True, dev  
+        return True, dev
 
 
 def set_device(args):
@@ -635,7 +619,7 @@ def print_1_device_traversal(i, j, k):
         return func+"="+log+" "
     else:
         return func+"="+"X"+" "
- 
+
 def device_traversal():
     if system_ready()==False:
         print("System's not ready.")
@@ -659,18 +643,18 @@ def device_traversal():
                         if ret == False:
                             continue
                         log = print_1_device_traversal(i, j, k)
-                        print log, 
+                        print log,
                     if k.find('present')!= -1:
                         ret, k = get_path_sfp_presence(port_index)
                         if ret == False:
                             continue
                         log = print_1_device_traversal(i, j, k)
-                        print log, 
-                     
+                        print log,
+
             else:
                 for k in (ALL_DEVICE[i][j]):
                     log = print_1_device_traversal(i, j, k)
-                    print log, 
+                    print log,
             print
             print("----------------------------------------------------------------")
 

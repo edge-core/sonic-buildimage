@@ -100,26 +100,17 @@ class FanUtil(object):
             return None
 
         device_path = self.get_fan_to_device_path(fan_num, node_num)
-       
         try:
-            val_file = open(device_path, 'r')
+            with open(device_path, 'r') as val_file:
+                content = val_file.readline().rstrip()
+                if not content:
+                    logging.debug('GET. content is NULL, path:%s', device_path)
+                    return None
         except IOError as e:
-            logging.error('GET. unable to open file: %s', str(e))
-            return None
+            logging.error('GET. unable to read file: %s', str(e))
+        else:
+            return int(content)
 
-        content = val_file.readline().rstrip()
-        
-        if content == '':
-            logging.debug('GET. content is NULL. device_path:%s', device_path)
-            return None
-
-        try:
-		    val_file.close()
-        except:
-            logging.debug('GET. unable to close file. device_path:%s', device_path)
-            return None
-
-        return int(content)
 
     def _set_fan_node_val(self, fan_num, node_num, val):
         if fan_num < self.FAN_NUM_1_IDX or fan_num > self.FAN_NUM_ON_MAIN_BROAD:
@@ -137,19 +128,11 @@ class FanUtil(object):
 
         device_path = self.get_fan_to_device_path(fan_num, node_num)
         try:
-            val_file = open(device_path, 'w')
+            with open(device_path, 'w') as val_file:
+                val_file.write(content)
         except IOError as e:
             logging.error('GET. unable to open file: %s', str(e))
             return None
-
-        val_file.write(content)
-
-        try:
-		    val_file.close()
-        except:
-            logging.debug('GET. unable to close file. device_path:%s', device_path)
-            return None
-
         return True
 
     def __init__(self):
@@ -193,32 +176,20 @@ class FanUtil(object):
     def get_fan_duty_cycle(self):
         #duty_path = self.FAN_DUTY_PATH
         try:
-            val_file = open(self.FAN_DUTY_PATH)
+            with open(self.FAN_DUTY_PATH) as val_file:
+                content = val_file.readline().rstrip()
         except IOError as e:
             print "Error: unable to open file: %s" % str(e)          
             return False
-
-        content = val_file.readline().rstrip()
-        val_file.close()
-        
         return int(content)
-        #self._get_fan_node_val(fan_num, self.FAN_NODE_DUTY_IDX_OF_MAP)
-#static u32 reg_val_to_duty_cycle(u8 reg_val) 
-#{
-#    reg_val &= FAN_DUTY_CYCLE_REG_MASK;
-#    return ((u32)(reg_val+1) * 625 + 75)/ 100;
-#}
-#
+
     def set_fan_duty_cycle(self, val):
-        
         try:
-            fan_file = open(self.FAN_DUTY_PATH, 'r+')
+            with open(self.FAN_DUTY_PATH, 'r+') as val_file:
+                val_file.write(str(val))
         except IOError as e:
             print "Error: unable to open file: %s" % str(e)          
             return False
-        #val = ((val + 1 ) * 625 +75 ) / 100
-        fan_file.write(str(val))
-        fan_file.close()
         return True
 
     #def get_fanr_fault(self, fan_num):

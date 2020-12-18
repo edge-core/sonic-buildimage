@@ -72,6 +72,7 @@ class accton_as7312_monitor(object):
     _new_perc = 0
     _ori_perc = 0
 
+
     def __init__(self, log_file, log_level):
         """Needs a logger and a logger level."""
         # set up logging to file
@@ -93,6 +94,9 @@ class accton_as7312_monitor(object):
 
         logging.debug('SET. logfile:%s / loglevel:%d', log_file, log_level)
 
+        self.thermal = ThermalUtil()
+        self.fan = FanUtil()
+
     def manage_fans(self):
         max_duty = DUTY_MAX
         fan_policy_f2b = {
@@ -113,8 +117,8 @@ class accton_as7312_monitor(object):
            2: 50000,
         }
   
-        thermal = ThermalUtil()
-        fan = FanUtil()
+        thermal = self.thermal
+        fan = self.fan
         for x in range(fan.get_idx_fan_start(), fan.get_num_fans()+1):
             fan_status = fan.get_fan_status(x)
             if fan_status is None:
