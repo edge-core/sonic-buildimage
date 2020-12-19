@@ -89,23 +89,10 @@ else
 SLAVE_DIR = sonic-slave-jessie
 endif
 
-include rules/config
-
+SLAVE_BASE_TAG = $(shell CONFIGURED_ARCH=$(CONFIGURED_ARCH) j2 $(SLAVE_DIR)/Dockerfile.j2 > $(SLAVE_DIR)/Dockerfile && sha1sum $(SLAVE_DIR)/Dockerfile | awk '{print substr($$1,0,11);}')
+SLAVE_TAG = $(shell cat $(SLAVE_DIR)/Dockerfile.user $(SLAVE_DIR)/Dockerfile | sha1sum | awk '{print substr($$1,0,11);}')
 SLAVE_BASE_IMAGE = $(SLAVE_DIR)
 SLAVE_IMAGE = $(SLAVE_BASE_IMAGE)-$(USER)
-
-# Generate the version control build info
-$(shell SONIC_VERSION_CONTROL_COMPONENTS=$(SONIC_VERSION_CONTROL_COMPONENTS) \
-    TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) PACKAGE_URL_PREFIX=$(PACKAGE_URL_PREFIX) \
-    scripts/generate_buildinfo_config.sh)
-
-# Generate the slave Dockerfile, and prepare build info for it
-$(shell CONFIGURED_ARCH=$(CONFIGURED_ARCH) j2 $(SLAVE_DIR)/Dockerfile.j2 > $(SLAVE_DIR)/Dockerfile)
-$(shell BUILD_SLAVE=y scripts/prepare_docker_buildinfo.sh $(SLAVE_BASE_IMAGE) $(SLAVE_DIR)/Dockerfile $(CONFIGURED_ARCH) "" $(BLDENV))
-
-# Add the versions in the tag, if the version change, need to rebuild the slave
-SLAVE_BASE_TAG = $(shell cat $(SLAVE_DIR)/Dockerfile $(SLAVE_DIR)/buildinfo/versions/versions-* | sha1sum | awk '{print substr($$1,0,11);}')
-SLAVE_TAG = $(shell cat $(SLAVE_DIR)/Dockerfile.user $(SLAVE_DIR)/Dockerfile $(SLAVE_DIR)/buildinfo/versions/versions-* | sha1sum | awk '{print substr($$1,0,11);}')
 
 OVERLAY_MODULE_CHECK := \
     lsmod | grep -q "^overlay " &>/dev/null || \
@@ -130,6 +117,8 @@ DOCKER_RUN := docker run --rm=true --privileged --init \
     -e "https_proxy=$(https_proxy)" \
     -i$(if $(TERM),t,) \
     $(SONIC_BUILDER_EXTRA_CMDLINE)
+
+include rules/config
 
 ifneq ($(DOCKER_BUILDER_USER_MOUNT),)
 	DOCKER_RUN += $(foreach mount,$(subst $(comma), ,$(DOCKER_BUILDER_USER_MOUNT)), $(addprefix -v , $(mount)))
@@ -229,7 +218,6 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            EXTRA_DOCKER_TARGETS=$(EXTRA_DOCKER_TARGETS) \
                            BUILD_LOG_TIMESTAMP=$(BUILD_LOG_TIMESTAMP) \
                            SONIC_ENABLE_IMAGE_SIGNATURE=$(ENABLE_IMAGE_SIGNATURE) \
-                           SLAVE_DIR=$(SLAVE_DIR) \
                            $(SONIC_OVERRIDE_BUILD_VARS)
 
 .PHONY: sonic-slave-build sonic-slave-bash init reset
@@ -246,35 +234,27 @@ endif
 endif
 	@$(OVERLAY_MODULE_CHECK)
 
-	@pushd src/sonic-build-hooks; TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) make all; popd
-	@cp src/sonic-build-hooks/buildinfo/sonic-build-hooks* $(SLAVE_BASE_IMAGE)/buildinfo
 	@docker inspect --type image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) &> /dev/null || \
 	    { echo Image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) not found. Building... ; \
-	    $(DOCKER_BASE_BUILD) ; \
-	    scripts/collect_docker_version_files.sh $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) target ; }
+	    $(DOCKER_BASE_BUILD) ; }
 	@docker inspect --type image $(SLAVE_IMAGE):$(SLAVE_TAG) &> /dev/null || \
 	    { echo Image $(SLAVE_IMAGE):$(SLAVE_TAG) not found. Building... ; \
 	    $(DOCKER_BUILD) ; }
 ifeq "$(KEEP_SLAVE_ON)" "yes"
     ifdef SOURCE_FOLDER
-		@$(DOCKER_RUN) -v $(SOURCE_FOLDER):/var/$(USER)/src $(SLAVE_IMAGE):$(SLAVE_TAG) bash -c "$(SONIC_BUILD_INSTRUCTION) $@; scripts/collect_build_version_files.sh \$$?; /bin/bash"
+		@$(DOCKER_RUN) -v $(SOURCE_FOLDER):/var/$(USER)/src $(SLAVE_IMAGE):$(SLAVE_TAG) bash -c "$(SONIC_BUILD_INSTRUCTION) $@; /bin/bash"
     else
-		@$(DOCKER_RUN) $(SLAVE_IMAGE):$(SLAVE_TAG) bash -c "$(SONIC_BUILD_INSTRUCTION) $@; scripts/collect_build_version_files.sh \$$?; /bin/bash"
+		@$(DOCKER_RUN) $(SLAVE_IMAGE):$(SLAVE_TAG) bash -c "$(SONIC_BUILD_INSTRUCTION) $@; /bin/bash"
     endif
 else
-	@$(DOCKER_RUN) $(SLAVE_IMAGE):$(SLAVE_TAG) bash -c "$(SONIC_BUILD_INSTRUCTION) $@; scripts/collect_build_version_files.sh \$$?"
+	@$(DOCKER_RUN) $(SLAVE_IMAGE):$(SLAVE_TAG) $(SONIC_BUILD_INSTRUCTION) $@
 endif
 
-sonic-build-hooks:
-	@pushd src/sonic-build-hooks; TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) make all; popd
-	@cp src/sonic-build-hooks/buildinfo/sonic-build-hooks* $(SLAVE_BASE_IMAGE)/buildinfo
-
-sonic-slave-base-build : sonic-build-hooks
+sonic-slave-base-build :
 	@$(OVERLAY_MODULE_CHECK)
 	@docker inspect --type image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) &> /dev/null || \
 	    { echo Image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) not found. Building... ; \
-	    $(DOCKER_BASE_BUILD) ; \
-	    scripts/collect_docker_version_files.sh $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) target ; }
+	    $(DOCKER_BASE_BUILD) ; }
 
 sonic-slave-build : sonic-slave-base-build
 	@docker inspect --type image $(SLAVE_IMAGE):$(SLAVE_TAG) &> /dev/null || \
