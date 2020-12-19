@@ -19,7 +19,7 @@ DPKGTOOL = $(shell which dpkg-deb)
 
 # If the depk-deb not installed, use the docker container to make the debian package
 ifeq ($(shell which dpkg-deb),)
-BUILD_COMMAND=docker run --rm -v $(shell pwd):/build debian:buster bash -c "cd build; dpkg-deb --build $(TMP_DIR)/$(SONIC_BUILD_HOOKS) $(SONIC_BUILD_HOOKS_TARGET)"
+BUILD_COMMAND=docker run --user $(shell id -u):$(shell id -g) --rm -v $(shell pwd):/build debian:buster bash -c 'cd /build; dpkg-deb --build $(TMP_DIR)/$(SONIC_BUILD_HOOKS) $(SONIC_BUILD_HOOKS_TARGET)'
 else
 BUILD_COMMAND=dpkg-deb --build $(TMP_DIR)/$(SONIC_BUILD_HOOKS) $(SONIC_BUILD_HOOKS_TARGET)
 endif
@@ -27,13 +27,13 @@ endif
 DEPENDS := $(shell find scripts hooks debian -type f)
 $(SONIC_BUILD_HOOKS_TARGET): $(DEPENDS)
 	@rm -rf $(BUILDINFO_DIR)/$(SONIC_BUILD_HOOKS) $(TMP_DIR)
-	@mkdir -p $(DEBIAN_DIR) $(SCRIPTS_PATH) $(HOOKS_PATH) $(SYMBOL_LINK_PATH) $(TRUSTED_GPG_PATH)
+	@mkdir -p $(DEBIAN_DIR) $(SCRIPTS_PATH) $(HOOKS_PATH) $(SYMBOL_LINK_PATH) $(TRUSTED_GPG_PATH) $(BUILDINFO_DIR)
+	@chmod 0775 $(DEBIAN_DIR)
 	@cp debian/* $(DEBIAN_DIR)/
 	@cp scripts/* $(SCRIPTS_PATH)/
 	@cp hooks/* $(HOOKS_PATH)/
 	@for url in $$(echo $(TRUSTED_GPG_URLS) | sed 's/[,;]/ /g'); do wget -q "$$url" -P "$(TRUSTED_GPG_PATH)/"; done
 	@for f in $(SYMBOL_LINKS); do ln -s $(SYMBOL_LINKS_SRC_DIR)/$$f $(SYMBOL_LINK_PATH)/$$f; done
 	@$(BUILD_COMMAND)
-	@sudo chmod a+rw $(SONIC_BUILD_HOOKS_TARGET)
 
 all: $(SONIC_BUILD_HOOKS_TARGET)
