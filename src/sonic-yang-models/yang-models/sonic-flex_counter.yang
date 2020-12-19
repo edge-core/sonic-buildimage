@@ -27,7 +27,7 @@ module sonic-flex_counter {
 
             /* below are in alphabetical order */
 
-            container BUFFER_POOL_WATERMARK_KEY {
+            container BUFFER_POOL_WATERMARK {
                 /* BUFFER_POOL_WATERMARK_STAT_COUNTER_FLEX_COUNTER_GROUP */
                 leaf FLEX_COUNTER_STATUS {
                     type flex_status;

@@ -850,7 +850,7 @@
                 "PORT_BUFFER_DROP": {
                     "FLEX_COUNTER_STATUS": "enable"
                 },
-                "BUFFER_POOL_WATERMARK_KEY": {
+                "BUFFER_POOL_WATERMARK": {
                     "FLEX_COUNTER_STATUS": "enable"
                 },
                 "QUEUE": {
@@ -1689,7 +1689,7 @@
             "PORT_BUFFER_DROP": {
                 "FLEX_COUNTER_STATUS": "enable"
             },
-            "BUFFER_POOL_WATERMARK_KEY": {
+            "BUFFER_POOL_WATERMARK": {
                 "FLEX_COUNTER_STATUS": "enable"
             },
             "QUEUE": {
