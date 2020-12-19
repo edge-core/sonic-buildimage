@@ -330,6 +330,10 @@ RUN apt-get update && apt-get install -y \
            cd .. && \
            dpkg -i ./doxygen_1.8.13-10_armhf.deb && \
            rm -fr doxygen*
+
+       # Aspell is unable to locate the language dictionaries.
+       # Re-installing aspell-en dictionary to fix it.
+       RUN apt-get install --reinstall -y aspell-en
 {%- endif %}
 
 ## Config dpkg
