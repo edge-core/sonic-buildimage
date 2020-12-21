@@ -3,6 +3,7 @@ Description=Update NTP configuration
 Requires=updategraph.service
 After=updategraph.service
 Before=ntp.service
+StartLimitIntervalSec=0
 
 [Service]
 Type=oneshot
