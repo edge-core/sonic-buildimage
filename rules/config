@@ -162,3 +162,20 @@ K8s_GCR_IO_PAUSE_VERSION = 3.2
 #     CA_CERT =
 # The relative path is build root folder.
 SONIC_ENABLE_IMAGE_SIGNATURE ?= n
+
+# PACKAGE_URL_PREFIX - the package url prefix
+PACKAGE_URL_PREFIX ?= https://packages.trafficmanager.net/public/packages
+
+# TRUSTED_GPG_URLS - the trusted gpgs, separated by comma
+TRUSTED_GPG_URLS = https://packages.trafficmanager.net/debian/public_key.gpg,https://packages.microsoft.com/keys/microsoft.asc
+
+# SONIC_VERSION_CONTROL_COMPONENTS - Valid values: none|all|components..., the components consist of one or multiple: deb,py2,py3,web,git,docker, seperated by comma
+#   none  : disable the version control
+#   all   : enable the version control for all components
+#   deb   : debian packages
+#   py2   : python2 packages
+#   py3   : python3 pakcages
+#   web   : web packages, downloaded by wget, curl
+#   git   : git repositories, donloaded by git clone
+#   docker: docker base images
+SONIC_VERSION_CONTROL_COMPONENTS ?= none
