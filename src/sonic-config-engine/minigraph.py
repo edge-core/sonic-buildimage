@@ -66,11 +66,11 @@ def get_peer_switch_info(link_metadata, devices):
     for data in link_metadata.values():
         if "PeerSwitch" in data:
             peer_hostname = data["PeerSwitch"]
-            peer_lo_addr = devices[peer_hostname]["lo_addr"] 
-            peer_lo_addr = ipaddress.ip_network(UNICODE_TYPE(peer_lo_addr))
+            peer_lo_addr_str = devices[peer_hostname]["lo_addr"]
+            peer_lo_addr = ipaddress.ip_network(UNICODE_TYPE(peer_lo_addr_str)) if peer_lo_addr_str else None
 
             peer_switch_table[peer_hostname] = {
-                'address_ipv4': str(peer_lo_addr.network_address)
+                'address_ipv4': str(peer_lo_addr.network_address) if peer_lo_addr else peer_lo_addr_str
             }
 
     return peer_switch_table
