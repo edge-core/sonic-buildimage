@@ -130,9 +130,26 @@ update_next_boot() {
     fi
 }
 
+is_in_memory() {
+    local file="$1"
+    local filedev=$(df "$file" | tail -n 1 | tr -s ' ' | cut -f6 -d' ')
+    local filedevfs=$(mount | grep " $filedev " | cut -f5 -d' ')
+
+    case "$filedevfs" in
+       tmpfs|ramfs) return 0;;
+       *) return 1;;
+    esac
+}
+
 move_swi_to_tmpfs() {
     local oldswi="$1"
     local newswi="$swi_tmpfs/$(basename $oldswi)"
+
+    # check if the swi is already in memory
+    if ! $in_aboot && is_in_memory "$oldswi"; then
+       echo "$oldswi"
+       return 0
+    fi
 
     mkdir -p "$swi_tmpfs"
     if ! $in_aboot && ! mount | grep -q ' /tmp type tmpfs'; then
