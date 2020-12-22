@@ -431,7 +431,9 @@ RUN pip2 install pyang==2.1.1
 RUN pip3 install pyang==2.1.1
 
 # For mgmt-framework build
-RUN pip2 install mmh3
+RUN pip2 install mmh3==2.5.1
+RUN pip3 install mmh3==2.5.1
+
 RUN apt-get install -y xsltproc
 
 # Install dependencies for isc-dhcp-relay build
