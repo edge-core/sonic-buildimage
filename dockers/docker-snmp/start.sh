@@ -1,5 +1,16 @@
 #!/usr/bin/env bash
 
+
+if [ "${RUNTIME_OWNER}" == "" ]; then
+    RUNTIME_OWNER="kube"
+fi
+
+CTR_SCRIPT="/usr/share/sonic/scripts/container_startup.py"
+if test -f ${CTR_SCRIPT}
+then
+    ${CTR_SCRIPT} -f snmp -o ${RUNTIME_OWNER} -v ${IMAGE_VERSION}
+fi
+
 mkdir -p /etc/ssw /etc/snmp
 
 SONIC_CFGGEN_ARGS=" \

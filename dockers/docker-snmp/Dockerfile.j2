@@ -2,6 +2,7 @@
 FROM docker-config-engine-buster
 
 ARG docker_container_name
+ARG image_version
 RUN [ -f /etc/rsyslog.conf ] && sed -ri "s/%syslogtag%/$docker_container_name#%syslogtag%/;" /etc/rsyslog.conf
 
 # Enable -O for all Python calls
@@ -9,6 +10,9 @@ ENV PYTHONOPTIMIZE 1
 
 # Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
+
+# Pass the image_version to container
+ENV IMAGE_VERSION=$image_version
 
 # Update apt's cache of available packages
 # Install make/gcc which is required for installing hiredis

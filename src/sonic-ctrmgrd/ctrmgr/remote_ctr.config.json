@@ -1,0 +1,7 @@
+{
+    "join_latency_on_boot_seconds": 300,
+    "retry_join_interval_seconds": 30,
+    "retry_labels_update_seconds": 5,
+    "revert_to_local_on_wait_seconds": 60
+}
+

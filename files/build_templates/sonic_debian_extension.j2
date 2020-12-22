@@ -37,6 +37,7 @@ FILESYSTEM_ROOT_USR="$FILESYSTEM_ROOT/usr"
 FILESYSTEM_ROOT_USR_LIB_SYSTEMD_SYSTEM="$FILESYSTEM_ROOT/usr/lib/systemd/system"
 FILESYSTEM_ROOT_USR_SHARE="$FILESYSTEM_ROOT_USR/share"
 FILESYSTEM_ROOT_USR_SHARE_SONIC="$FILESYSTEM_ROOT_USR_SHARE/sonic"
+FILESYSTEM_ROOT_USR_SHARE_SONIC_SCRIPTS="$FILESYSTEM_ROOT_USR_SHARE_SONIC/scripts"
 FILESYSTEM_ROOT_USR_SHARE_SONIC_TEMPLATES="$FILESYSTEM_ROOT_USR_SHARE_SONIC/templates"
 FILESYSTEM_ROOT_ETC="$FILESYSTEM_ROOT/etc"
 FILESYSTEM_ROOT_ETC_SONIC="$FILESYSTEM_ROOT_ETC/sonic"
@@ -395,10 +396,36 @@ sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install watchd
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip2 install futures==3.3.0
 
 {% if include_kubernetes == "y" %}
-# Copy kubelet service files
-# Keep it disabled until join, else it continuously restart and as well spew too many
-# non-required log lines wasting syslog resources.
+# Install remote Container mgmt package
+# Required even if include_kubernetes != y, as it contains the 
+# the container wrapper for docker start/stop/wait commands.
+#
+SONIC_CTRMGMT_WHEEL_NAME=$(basename {{sonic_ctrmgmt_py3_wheel_path}})
+sudo cp {{sonic_ctrmgmt_py3_wheel_path}} $FILESYSTEM_ROOT/$SONIC_CTRMGMT_WHEEL_NAME
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install $SONIC_CTRMGMT_WHEEL_NAME
+sudo rm -rf $FILESYSTEM_ROOT/$SONIC_CTRMGMT_WHEEL_NAME
+
+# Copy remote container mangement files
+# File called from each container upon start/stop to record the state
+sudo mkdir -p ${FILESYSTEM_ROOT_USR_SHARE_SONIC_SCRIPTS}
+sudo cp ${files_path}/container_startup.py ${FILESYSTEM_ROOT_USR_SHARE_SONIC_SCRIPTS}/
+sudo chmod a+x ${FILESYSTEM_ROOT_USR_SHARE_SONIC_SCRIPTS}/container_startup.py
+
+# Config file used by container mgmt scripts/service
+sudo cp ${files_path}/remote_ctr.config.json ${FILESYSTEM_ROOT_ETC_SONIC}/
+
+# Remote container management service files
+sudo cp ${files_path}/ctrmgrd.service ${FILESYSTEM_ROOT_USR_LIB_SYSTEMD_SYSTEM}/
+sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable ctrmgrd.service
+
+# kubelet service is controlled by ctrmgrd daemon.
 sudo LANG=C chroot $FILESYSTEM_ROOT systemctl disable kubelet.service
+{% else %}
+# container script for docker commands, which is required as 
+# all docker commands are replaced with container commands.
+# So just copy that file only.
+#
+sudo cp ${files_path}/container $FILESYSTEM_ROOT/usr/local/bin/
 {% endif %}
 
 # Copy the buffer configuration template
@@ -585,6 +612,22 @@ else
 fi
 sudo umount /proc || true
 sudo rm $FILESYSTEM_ROOT/etc/init.d/docker
+
+sudo bash -c "echo { > $FILESYSTEM_ROOT_USR_SHARE_SONIC_TEMPLATES/ctr_image_names.json"
+{% for entry in feature_vs_image_names.split(' ') -%}
+{% if entry|length %}
+{% set lst = entry.split(':') %}
+{% set lst1 = lst[1].split('.') %}
+    sudo bash -c "echo -n -e \"\x22{{ lst[0] }}\x22 : \x22{{ lst1[0] }}\x22\" >> $FILESYSTEM_ROOT_USR_SHARE_SONIC_TEMPLATES/ctr_image_names.json"
+{% if not loop.last %}
+    sudo bash -c "echo \",\" >> $FILESYSTEM_ROOT_USR_SHARE_SONIC_TEMPLATES/ctr_image_names.json"
+{% else %}
+    sudo bash -c "echo \"\" >> $FILESYSTEM_ROOT_USR_SHARE_SONIC_TEMPLATES/ctr_image_names.json"
+{% endif %}
+{% endif %}
+{% endfor %}
+sudo bash -c "echo } >> $FILESYSTEM_ROOT_USR_SHARE_SONIC_TEMPLATES/ctr_image_names.json"
+
 {% for script in installer_start_scripts.split(' ') -%}
 sudo cp {{script}} $FILESYSTEM_ROOT/usr/bin/
 {% endfor %}
