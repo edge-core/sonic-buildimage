@@ -235,7 +235,7 @@ class Chassis(ChassisBase):
             A string containing the MAC address in the format
             'XX:XX:XX:XX:XX:XX'
         """
-        return self._eeprom.base_mac_addr('')
+        return self._eeprom.base_mac_addr()
 
     def get_serial_number(self):
         """
