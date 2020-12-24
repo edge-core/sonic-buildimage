@@ -13,6 +13,7 @@ try:
     from sonic_platform_base.psu_base import PsuBase
     from sonic_py_common.logger import Logger
     from sonic_platform.fan import Fan
+    from sonic_platform.led import Led
 except ImportError as e:
     raise ImportError (str(e) + "- required module not found")
 
@@ -188,7 +189,7 @@ class Psu(PsuBase):
     def _get_led_capability(self):
         cap_list = None
         try:
-            with open(os.path.join(LED_PATH, self.psu_led_cap_path), 'r') as psu_led_cap:
+            with open(os.path.join(Led.LED_PATH, self.psu_led_cap_path), 'r') as psu_led_cap:
                     caps = psu_led_cap.read()
                     cap_list = caps.split()
         except (ValueError, IOError):
@@ -217,33 +218,21 @@ class Psu(PsuBase):
 
         status = False
         try:
-            if color == self.STATUS_LED_COLOR_GREEN:
-                with open(os.path.join(LED_PATH, self.psu_green_led_path), 'w') as psu_led:
-                    psu_led.write(LED_ON)
+            if color == Led.STATUS_LED_COLOR_GREEN:
+                with open(os.path.join(Led.LED_PATH, self.psu_green_led_path), 'w') as psu_led:
+                    psu_led.write(Led.LED_ON)
                     status = True
-            elif color == self.STATUS_LED_COLOR_RED:
+            elif color == Led.STATUS_LED_COLOR_RED:
                 # Some fan don't support red led but support orange led, in this case we set led to orange
-                if self.STATUS_LED_COLOR_RED in led_cap_list:
-                    led_path = os.path.join(LED_PATH, self.psu_red_led_path)
-                elif self.STATUS_LED_COLOR_ORANGE in led_cap_list:
-                    led_path = os.path.join(LED_PATH, self.psu_orange_led_path)
+                if Led.STATUS_LED_COLOR_RED in led_cap_list:
+                    led_path = os.path.join(Led.LED_PATH, self.psu_red_led_path)
+                elif Led.STATUS_LED_COLOR_ORANGE in led_cap_list:
+                    led_path = os.path.join(Led.LED_PATH, self.psu_orange_led_path)
                 else:
                     return False
                 with open(led_path, 'w') as psu_led:
-                    psu_led.write(LED_ON)
+                    psu_led.write(Led.LED_ON)
                     status = True
-            elif color == self.STATUS_LED_COLOR_OFF:
-                if self.STATUS_LED_COLOR_GREEN in led_cap_list:
-                    with open(os.path.join(LED_PATH, self.psu_green_led_path), 'w') as psu_led:
-                        psu_led.write(str(LED_OFF))
-                if self.STATUS_LED_COLOR_RED in led_cap_list:
-                    with open(os.path.join(LED_PATH, self.psu_red_led_path), 'w') as psu_led:
-                        psu_led.write(str(LED_OFF))
-                if self.STATUS_LED_COLOR_ORANGE in led_cap_list:
-                    with open(os.path.join(LED_PATH, self.psu_orange_led_path), 'w') as psu_led:
-                        psu_led.write(str(LED_OFF))
-
-                status = True
             else:
                 status = False
         except (ValueError, IOError):
@@ -261,24 +250,24 @@ class Psu(PsuBase):
         """
         led_cap_list = self._get_led_capability()
         if led_cap_list is None:
-            return self.STATUS_LED_COLOR_OFF
+            return Led.STATUS_LED_COLOR_OFF
 
         try:
-            with open(os.path.join(LED_PATH, self.psu_green_led_path), 'r') as psu_led:
-                if LED_OFF != psu_led.read().rstrip('\n'):
-                    return self.STATUS_LED_COLOR_GREEN
-            if self.STATUS_LED_COLOR_RED in led_cap_list:
-                with open(os.path.join(LED_PATH, self.psu_red_led_path), 'r') as psu_led:
-                    if LED_OFF != psu_led.read().rstrip('\n'):
-                        return self.STATUS_LED_COLOR_RED
-            if self.STATUS_LED_COLOR_ORANGE in led_cap_list:
-                with open(os.path.join(LED_PATH, self.psu_orange_led_path), 'r') as psu_led:
-                    if LED_OFF != psu_led.read().rstrip('\n'):
-                        return self.STATUS_LED_COLOR_RED
+            with open(os.path.join(Led.LED_PATH, self.psu_green_led_path), 'r') as psu_led:
+                if Led.LED_OFF != psu_led.read().rstrip('\n'):
+                    return Led.STATUS_LED_COLOR_GREEN
+            if Led.STATUS_LED_COLOR_RED in led_cap_list:
+                with open(os.path.join(Led.LED_PATH, self.psu_red_led_path), 'r') as psu_led:
+                    if Led.LED_OFF != psu_led.read().rstrip('\n'):
+                        return Led.STATUS_LED_COLOR_RED
+            if Led.STATUS_LED_COLOR_ORANGE in led_cap_list:
+                with open(os.path.join(Led.LED_PATH, self.psu_orange_led_path), 'r') as psu_led:
+                    if Led.LED_OFF != psu_led.read().rstrip('\n'):
+                        return Led.STATUS_LED_COLOR_RED
         except (ValueError, IOError) as e:
             raise RuntimeError("Failed to read led status for psu due to {}".format(repr(e)))
 
-        return self.STATUS_LED_COLOR_OFF
+        return Led.STATUS_LED_COLOR_OFF
 
 
     def get_power_available_status(self):
