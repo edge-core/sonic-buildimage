@@ -568,12 +568,6 @@ sudo LANG=C chroot $FILESYSTEM_ROOT fuser -km /proc || true
 sleep 15
 sudo LANG=C chroot $FILESYSTEM_ROOT umount /proc || true
 
-if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
-    # Remove qemu arm bin executable used for cross-building
-    sudo rm -f $FILESYSTEM_ROOT/usr/bin/qemu*static || true
-    DOCKERFS_PATH=../dockerfs/
-fi
-
 ## Prepare empty directory to trigger mount move in initramfs-tools/mount_loop_root, implemented by patching
 sudo mkdir $FILESYSTEM_ROOT/host
 
@@ -585,7 +579,13 @@ sudo du -hsx $FILESYSTEM_ROOT
 sudo mkdir -p $FILESYSTEM_ROOT/var/lib/docker
 sudo mksquashfs $FILESYSTEM_ROOT $FILESYSTEM_SQUASHFS -e boot -e var/lib/docker -e $PLATFORM_DIR
 
-scripts/collect_host_image_version_files.sh $TARGET_PATH $FILESYSTEM_ROOT
+sudo scripts/collect_host_image_version_files.sh $TARGET_PATH $FILESYSTEM_ROOT
+
+if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
+    # Remove qemu arm bin executable used for cross-building
+    sudo rm -f $FILESYSTEM_ROOT/usr/bin/qemu*static || true
+    DOCKERFS_PATH=../dockerfs/
+fi
 
 ## Compress docker files
 pushd $FILESYSTEM_ROOT && sudo tar czf $OLDPWD/$FILESYSTEM_DOCKERFS -C ${DOCKERFS_PATH}var/lib/docker .; popd
