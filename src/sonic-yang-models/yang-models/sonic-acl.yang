@@ -264,7 +264,7 @@ module sonic-acl {
 				}
 
 				leaf-list ports {
-                    /* union of leafref is allowed in YANG 1.1 */
+					/* union of leafref is allowed in YANG 1.1 */
 					type union {
 						type leafref {
 							path /port:sonic-port/port:PORT/port:PORT_LIST/port:port_name;
@@ -272,7 +272,15 @@ module sonic-acl {
 						type leafref {
 							path /lag:sonic-portchannel/lag:PORTCHANNEL/lag:PORTCHANNEL_LIST/lag:portchannel_name;
 						}
+						type string {
+							pattern "";
+						}
 					}
+					/* Today in SONiC, we do not delete the list once
+					 * created, instead we set to empty list. Due to that
+					 * below default values are needed.
+					 */
+					default "";
 				}
 			}
 			/* end of ACL_TABLE_LIST */

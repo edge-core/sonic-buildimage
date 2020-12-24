@@ -129,6 +129,10 @@ class Test_yang_models:
                 'desc': 'CRM BREAKOUT CFG FLEX COUNTER TABLE.',
                 'eStr': self.defaultYANGFailure['None']
             },
+            'DEV_META_DEV_NEIGH_VERSION_TABLE': {
+                'desc': 'DEVICE_METADATA DEVICE_NEIGHBOR VERSION TABLE.',
+                'eStr': self.defaultYANGFailure['None']
+            },
             'INCORRECT_VLAN_NAME': {
                 'desc': 'INCORRECT VLAN_NAME FIELD IN VLAN TABLE.',
                 'eStr': self.defaultYANGFailure['Pattern'] + ["Vlan"]
@@ -180,8 +184,7 @@ class Test_yang_models:
             'CRM_WITH_HIGH_THRESHOLD_ERR': {
                 'desc': 'CRM_WITH_HIGH_THRESHOLD_ERR must condition failure \
                     about high threshold being lower than low threshold.',
-                'eStr': self.defaultYANGFailure['high_threshold should be more \
-                    than low_threshold']
+                'eStr': ['high_threshold should be more than low_threshold']
             },
             'CRM_WITH_CORRECT_USED_VALUE': {
                 'desc': 'CRM_WITH_CORRECT_USED_VALUE no failure.',
@@ -390,6 +393,8 @@ class Test_yang_models:
         try:
             self.initTest()
             self.loadYangModel(self.yangDir)
+            assert len(self.tests) != 0
+            print("Tests:{}".format(self.tests))
             for test in self.tests:
                 test = test.strip()
                 if test in self.ExceptionTests:
@@ -399,6 +404,7 @@ class Test_yang_models:
                 else:
                     raise Exception("Unexpected Test")
         except Exception as e:
+            ret = FAIL * len(self.tests)
             printExceptionDetails()
 
         assert ret == 0

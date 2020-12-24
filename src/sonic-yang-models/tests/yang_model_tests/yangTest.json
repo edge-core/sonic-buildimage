@@ -728,6 +728,54 @@
 		}
 	},
 
+	"DEV_META_DEV_NEIGH_VERSION_TABLE": {
+		"sonic-device_metadata:sonic-device_metadata": {
+			"sonic-device_metadata:DEVICE_METADATA": {
+				"localhost": {
+					"bgp_asn": "64850",
+					"mac": "00:11:22:33:44:55",
+					"hostname": "asw.dc",
+					"type": "ToRRouter",
+					"docker_routing_config_mode": "separated",
+					"hwsku": "Stone"
+				}
+			}
+		},
+		"sonic-device_neighbor:sonic-device_neighbor": {
+			"sonic-device_neighbor:DEVICE_NEIGHBOR": {
+				"DEVICE_NEIGHBOR_LIST": [
+					{
+						"port": "Eth18",
+						"name": "dccsw03.nw",
+						"peer_name": "Ethernet116"
+					},
+					{
+						"port": "Eth18",
+						"name": "dccsw02.nw",
+						"peer_name": "Ethernet114"
+					},
+					{
+						"port": "Eth18",
+						"name": "dccsw01.nw",
+						"peer_name": "Ethernet112"
+					},
+					{
+						"port": "Eth18",
+						"name": "dccsw04.nw",
+						"peer_name": "Ethernet118"
+					}
+				]
+			}
+		},
+		"sonic-versions:sonic-versions": {
+			"sonic-versions:VERSIONS": {
+				"DATABASE": {
+					"VERSION": "version_2_10_31"
+				}
+			}
+		}
+	},
+
     "CRM_WITH_WRONG_PERCENTAGE": {
         "sonic-crm:sonic-crm": {
             "sonic-crm:CRM": {
@@ -1189,44 +1237,7 @@
 				],
 				"vlanid": "111",
 				"mtu": "9216",
-				"admin_status": "up",
-				"members": [
-					"Ethernet8",
-					"Ethernet3",
-					"Ethernet0",
-					"Ethernet1",
-					"Ethernet6",
-					"Ethernet4",
-					"Ethernet5",
-					"Ethernet9",
-					"Ethernet2",
-					"Ethernet7",
-					"Ethernet32",
-					"Ethernet30",
-					"Ethernet31",
-					"Ethernet36",
-					"Ethernet34",
-					"Ethernet33",
-					"Ethernet35",
-					"Ethernet29",
-					"Ethernet21",
-					"Ethernet20",
-					"Ethernet23",
-					"Ethernet22",
-					"Ethernet27",
-					"Ethernet26",
-					"Ethernet18",
-					"Ethernet19",
-					"Ethernet14",
-					"Ethernet15",
-					"Ethernet16",
-					"Ethernet17",
-					"Ethernet10",
-					"Ethernet11",
-					"Ethernet12",
-					"Ethernet13",
-					"Ethernet28"
-				]
+				"admin_status": "up"
 			},
 			"Vlan777": {
 				"description": "pvlan",
@@ -1235,15 +1246,7 @@
 				],
 				"vlanid": "777",
 				"mtu": "9216",
-				"admin_status": "up",
-				"members": [
-					"Ethernet9",
-					"Ethernet2",
-					"Ethernet8",
-					"Ethernet27",
-					"Ethernet14",
-					"Ethernet35"
-				]
+				"admin_status": "up"
 			}
 		},
 		"DEVICE_NEIGHBOR": {

@@ -155,14 +155,6 @@ module sonic-vlan {
 				leaf admin_status {
 					type stypes:admin_status;
 				}
-
-				leaf-list members {
-					/* leaf-list members are unique by default */
-
-					type leafref {
-						path "/port:sonic-port/port:PORT/port:PORT_LIST/port:port_name";
-					}
-				}
 			}
 			/* end of VLAN_LIST */
 		}
