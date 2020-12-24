@@ -65,13 +65,18 @@ if [ $# -ne 0 ]; then
     exit 1
 fi
 
+mountpoint_for_file() {
+   local file="$1"
+   df "$file" | tail -1 | tr -s " " | cut -d ' ' -f6
+}
+
 # extract mount point from the swi path, e.g., /mnt/flash/sonic.swi --> /mnt/flash
 if [ -z "$target_path" ]; then
     if [ -z "$swipath" ]; then
        err "target_path= is required when swipath= is not provided"
        exit 1
     fi
-    target_path=$(df "$swipath" | tail -1 | tr -s " " | cut -d ' ' -f6)
+    target_path=$(mountpoint_for_file "$swipath")
 fi
 image_path="$target_path/$image_name"
 hook_path="$image_path/platform/hooks"
@@ -221,8 +226,19 @@ find_first_initrd_under() {
     find "$path" -name 'initrd.img-*' -type f | head -n 1
 }
 
+is_file_in_memory() {
+    local file="$1"
+    local filemnt=$(mountpoint_for_file "$file")
+    local filemntfs=$(mount | grep " $filemnt " | cut -f5 -d' ')
+
+    case "$filemntfs" in
+       tmpfs|ramfs) return 0;;
+       *) return 1;;
+    esac
+}
+
 get_tmpfs() {
-    local tmpfs="${1:-$(mktemp -d)}"
+    local tmpfs="$(mktemp -d)"
 
     mkdir -p "$tmpfs"
     if ! $in_aboot && ! mount | grep -q ' /tmp type tmpfs'; then
@@ -234,16 +250,27 @@ get_tmpfs() {
 
 clean_tmpfs() {
     local tmpfs="$1"
+
+    case "$tmpfs" in
+       /tmp) return 0;;
+       /tmp/*);; # only cleanup tmpfs created by this script
+       *) return 0;;
+    esac
+
     if mount | grep -q "$tmpfs"; then
         umount "$tmpfs" || :
-    else
-        rm -rf "$tmpfs"
     fi
 }
 
 move_swi_to_tmpfs() {
     local oldswi="$1"
-    local tmpfs="$(get_tmpfs "$swi_tmpfs")"
+
+    if is_file_in_memory "$oldswi"; then
+       echo "$oldswi"
+       return 0
+    fi
+
+    local tmpfs="$(get_tmpfs)"
     local newswi="$tmpfs/$(basename "$oldswi")"
 
     mv "$oldswi" "$newswi"
@@ -252,7 +279,7 @@ move_swi_to_tmpfs() {
 
 cleanup_swi_tmpfs() {
    rm -f "$swipath"
-   clean_tmpfs "$(dirname "$swipath")"
+   clean_tmpfs "$(mountpoint_for_file "$swipath")"
 }
 
 mount_relpath() {
@@ -351,7 +378,7 @@ extract_image() {
         chmod a+r "$installer_image_path"
     else
         info "Remove installer"
-        cleanup_swi_tmpfs "$(basename "$swipath")"
+        cleanup_swi_tmpfs "$swipath"
     fi
 
     ## use new reduced-size boot swi
