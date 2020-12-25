@@ -72,9 +72,9 @@ SONIC_COMMON_FLAGS_LIST :=  $(CONFIGURED_PLATFORM) \
                             $(SONIC_PROFILING_ON) $(SONIC_ENABLE_SYNCD_RPC)
 SONIC_COMMON_DPKG_LIST  :=  debian/control debian/changelog debian/rules \
                             debian/compat debian/install debian/copyright
-SONIC_COMMON_BASE_FILES_LIST  := sonic-slave-jessie/Dockerfile.j2 sonic-slave-jessie/Dockerfile.user \
-                                 sonic-slave-stretch/Dockerfile.j2 sonic-slave-stretch/Dockerfile.user \
-                                 sonic-slave-buster/Dockerfile.j2 sonic-slave-buster/Dockerfile.user
+SONIC_COMMON_BASE_FILES_LIST  := sonic-slave-jessie/Dockerfile.j2 sonic-slave-jessie/Dockerfile.user.j2 \
+                                 sonic-slave-stretch/Dockerfile.j2 sonic-slave-stretch/Dockerfile.user.j2 \
+                                 sonic-slave-buster/Dockerfile.j2 sonic-slave-buster/Dockerfile.user.j2
 
 
 
@@ -181,7 +181,7 @@ define GET_MOD_DEP_SHA
 	                        $($(dfile)_DEP_FLAGS_FILE) $($(dfile)_MOD_HASH_FILE) $($(dfile)_SMOD_HASH_FILE)) )
 	$(eval $(1)_DEP_FILES_MISSING := $(filter-out $(wildcard $($(1)_DEP_MOD_SHA_FILES)),$($(1)_DEP_MOD_SHA_FILES)) )
 	$(if $($(1)_DEP_FILES_MISSING), $(warning "[ DPKG ] Dependecy file(s) are not found for $(1) : $($(1)_DEP_FILES_MISSING)))
-	
+
 	$(eval $(1)_DEP_MOD_SHA := $(shell git hash-object  $($(1)_DEP_MOD_SHA_FILES) \
                             | sha1sum | awk '{print substr($$1,0,23);}'))
 endef

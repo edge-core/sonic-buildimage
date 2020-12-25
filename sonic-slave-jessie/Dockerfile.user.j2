@@ -1,5 +1,9 @@
 ARG slave_base_tag_ref=latest
+{%- if CONFIGURED_ARCH == "amd64" %}
 FROM sonic-slave-jessie:${slave_base_tag_ref}
+{%- else %}
+FROM sonic-slave-jessie-{{ CONFIGURED_ARCH }}:${slave_base_tag_ref}
+{%- endif %}
 
 # Add user
 ARG user
