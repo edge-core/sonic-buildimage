@@ -103,6 +103,8 @@ supervisorctl start coppmgrd
 
 supervisorctl start neighsyncd
 
+supervisorctl start fdbsyncd
+
 supervisorctl start teamsyncd
 
 supervisorctl start fpmsyncd

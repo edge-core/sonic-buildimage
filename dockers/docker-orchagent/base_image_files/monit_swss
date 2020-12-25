@@ -4,6 +4,7 @@
 ##  orchagent
 ##  portsyncd
 ##  neighsyncd
+##  fdbsyncd
 ##  vrfmgrd
 ##  vlanmgrd
 ##  intfmgrd
@@ -20,6 +21,9 @@ check program swss|portsyncd with path "/usr/bin/process_checker swss /usr/bin/p
     if status != 0 for 5 times within 5 cycles then alert repeat every 1 cycles
 
 check program swss|neighsyncd with path "/usr/bin/process_checker swss /usr/bin/neighsyncd"
+    if status != 0 for 5 times within 5 cycles then alert repeat every 1 cycles
+
+check program swss|fdbsyncd with path "/usr/bin/process_checker swss /usr/bin/fdbsyncd"
     if status != 0 for 5 times within 5 cycles then alert repeat every 1 cycles
 
 check program swss|vrfmgrd with path "/usr/bin/process_checker swss /usr/bin/vrfmgrd"
