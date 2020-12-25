@@ -1,6 +1,6 @@
 # SONiC make file
 
-NOJESSIE ?= 0
+NOJESSIE ?= 1
 NOSTRETCH ?= 0
 
 %::
