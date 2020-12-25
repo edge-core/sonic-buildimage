@@ -146,16 +146,20 @@ endif
 ifeq ($(SONIC_CONFIG_USE_NATIVE_DOCKERD_FOR_BUILD), y)
     DOCKER_RUN += -v /var/run/docker.sock:/var/run/docker.sock
 endif
+
 ifneq (,$(filter $(CONFIGURED_ARCH), armhf arm64))
+ifeq ($(DOCKER_DATA_ROOT_FOR_MULTIARCH),)
+	DOCKER_DATA_ROOT_FOR_MULTIARCH := /var/lib/march/docker
+endif
     # Multiarch docker cannot start dockerd service due to iptables cannot run over different arch kernel
     SONIC_SERVICE_DOCKERD_FOR_MULTIARCH=y
     SONIC_NATIVE_DOCKERD_FOR_MUTLIARCH := dockerd  --experimental=true --storage-driver=vfs \
-	--data-root=/var/lib/march/docker/ --exec-root=/var/run/march/docker/ \
-	-H unix:///var/run/march/docker.sock -p /var/run/march/docker.pid
+        --data-root=$(DOCKER_DATA_ROOT_FOR_MULTIARCH) --exec-root=/var/run/march/docker/ \
+        -H unix:///var/run/march/docker.sock -p /var/run/march/docker.pid
     DOCKER_RUN += -v /var/run/march/docker.sock:/var/run/docker.sock
     DOCKER_RUN += -v /var/run/march/docker.pid:/var/run/docker.pid
     DOCKER_RUN += -v /var/run/march/docker:/var/run/docker
-    DOCKER_RUN += -v /var/lib/march/docker:/var/lib/docker
+    DOCKER_RUN += -v $(DOCKER_DATA_ROOT_FOR_MULTIARCH):/var/lib/docker
     SONIC_USERFACL_DOCKERD_FOR_MUTLIARCH := setfacl -m user:$(USER):rw /var/run/march/docker.sock
 
     #Override Native config to prevent docker service
@@ -247,7 +251,7 @@ endif
 	@$(OVERLAY_MODULE_CHECK)
 
 	@pushd src/sonic-build-hooks; TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) make all; popd
-	@cp src/sonic-build-hooks/buildinfo/sonic-build-hooks* $(SLAVE_BASE_IMAGE)/buildinfo
+	@cp src/sonic-build-hooks/buildinfo/sonic-build-hooks* $(SLAVE_DIR)/buildinfo
 	@docker inspect --type image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) &> /dev/null || \
 	    { echo Image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) not found. Building... ; \
 	    $(DOCKER_BASE_BUILD) ; \
@@ -267,7 +271,7 @@ endif
 
 sonic-build-hooks:
 	@pushd src/sonic-build-hooks; TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) make all; popd
-	@cp src/sonic-build-hooks/buildinfo/sonic-build-hooks* $(SLAVE_BASE_IMAGE)/buildinfo
+	@cp src/sonic-build-hooks/buildinfo/sonic-build-hooks* $(SLAVE_DIR)/buildinfo
 
 sonic-slave-base-build : sonic-build-hooks
 	@$(OVERLAY_MODULE_CHECK)
