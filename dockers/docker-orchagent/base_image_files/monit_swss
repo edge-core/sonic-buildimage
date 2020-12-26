@@ -13,6 +13,8 @@
 ##  nbrmgrd
 ##  vxlanmgrd
 ##  coppmgrd
+##  tunnelmgrd
+
 ##############################################################################
 check program swss|orchagent with path "/usr/bin/process_checker swss /usr/bin/orchagent -d /var/log/swss"
     if status != 0 for 5 times within 5 cycles then alert repeat every 1 cycles
@@ -49,3 +51,6 @@ check program swss|vxlanmgrd with path "/usr/bin/process_checker swss /usr/bin/v
 
 check program swss|coppmgrd with path "/usr/bin/process_checker swss /usr/bin/coppmgrd"
     if status != 0 for 5 times within 5 cycles then alert repeat every 1 cycles
+
+check program swss|tunnelmgrd with path "/usr/bin/process_checker swss /usr/bin/tunnelmgrd"
+        if status != 0 for 5 times within 5 cycles then alert repeat every 1 cycles
