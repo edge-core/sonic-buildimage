@@ -370,7 +370,7 @@ RUN export VERSION=1.14.2 \
  && rm go$VERSION.linux-*.tar.gz
 
 RUN pip3 install --upgrade pip
-RUN pip2 install --upgrade pip
+RUN pip2 install --upgrade 'pip<21'
 RUN apt-get purge -y python-pip python3-pip
 
 # For building Python packages

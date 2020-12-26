@@ -40,12 +40,8 @@ ENV LC_CTYPE=en_US.UTF-8
 RUN sed -i '/^#.* en_US.* /s/^#//' /etc/locale.gen
 RUN locale-gen
 
-# Install up-to-date version of pip
-RUN pip3 install --no-cache-dir setuptools wheel
-
-# Install pyyaml dependency for use by some plugins
-# Install smbus dependency for use by some plugins
-RUN python3 -m pip install --no-cache-dir \
+# Install dependencies used by some plugins
+RUN pip3 install --no-cache-dir \
         hiredis                             \
         pyyaml                              \
         smbus

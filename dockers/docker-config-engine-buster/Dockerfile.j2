@@ -6,22 +6,15 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update         && \
     apt-get install -y        \
-        build-essential       \
-        python-pip            \
-        python3-pip           \
-        python-dev            \
-        python3-dev           \
         apt-utils             \
-{%- if CONFIGURED_ARCH == "armhf" or CONFIGURED_ARCH == "arm64" %}
-        libxslt-dev           \
-        libz-dev              \
-{%- endif %}
-        python-setuptools     \
-        python3-setuptools
+        build-essential       \
+        python3-dev
 
-RUN pip3 install --upgrade pip
-RUN pip2 install --upgrade pip
-RUN apt-get purge -y python-pip python3-pip
+{%- if CONFIGURED_ARCH == "armhf" or CONFIGURED_ARCH == "arm64" %}
+RUN apt-get install -y        \
+        libxslt-dev           \
+        libz-dev
+{%- endif %}
 
 # For sonic-config-engine Python 3 package
 # Explicitly install pyangbind here, as pyangbind causes enum34 to be installed.
@@ -51,7 +44,6 @@ COPY ["files/swss_vars.j2", "/usr/share/sonic/templates/"]
 
 ## Clean up
 RUN apt-get purge -y               \
-        python-dev                 \
         python3-dev                \
         build-essential         && \
     apt-get clean -y            && \

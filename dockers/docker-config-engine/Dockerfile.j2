@@ -6,11 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
 
 # Dependencies for sonic-cfggen
-RUN apt-get install -y build-essential python-pip python-dev
-
-RUN pip install --upgrade pip
-
-RUN apt-get purge -y python-pip
+RUN apt-get install -y build-essential python-dev
 
 {% if docker_config_engine_debs.strip() %}
 COPY \

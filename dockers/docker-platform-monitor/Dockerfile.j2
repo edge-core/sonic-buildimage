@@ -14,7 +14,7 @@ ENV IMAGE_VERSION=$image_version
 # Install required packages
 RUN apt-get update &&   \
     apt-get install -y  \
-        python-dev      \
+        build-essential \
         python3-dev     \
         ipmitool        \
         librrd8         \
@@ -25,6 +25,11 @@ RUN apt-get update &&   \
         dmidecode       \
         i2c-tools       \
         python-jsonschema
+
+# TODO: Remove these lines once we no longer need Python 2
+RUN apt-get install -f -y python-dev python-pip
+RUN pip2 install --upgrade 'pip<21'
+RUN apt-get purge -y python-pip
 
 # On Arista devices, the sonic_platform wheel is not installed in the container.
 # Instead, the installation directory is mounted from the host OS. However, this method
@@ -64,9 +69,13 @@ RUN pip3 install thrift==0.13.0
 {{ install_python_wheels(docker_platform_monitor_whls.split(' ')) }}
 {% endif %}
 
+
+# TODO: Remove this line once we no longer need Python 2
+RUN apt-get purge -y python-dev
+
 # Clean up
 RUN apt-get purge -y           \
-        python-dev             \
+        build-essential        \
         python3-dev         && \
     apt-get clean -y        && \
     apt-get autoclean -y    && \
