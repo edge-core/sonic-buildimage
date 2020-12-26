@@ -179,3 +179,10 @@ TRUSTED_GPG_URLS = https://packages.trafficmanager.net/debian/public_key.gpg,htt
 #   git   : git repositories, donloaded by git clone
 #   docker: docker base images
 SONIC_VERSION_CONTROL_COMPONENTS ?= none
+
+# SONiC docker registry
+#
+# Uncomment below line to enable pulling sonic-slave docker from registry
+# ENABLE_DOCKER_BASE_PULL = y
+REGISTRY_PORT=443
+REGISTRY_SERVER=sonicdev-microsoft.azurecr.io
