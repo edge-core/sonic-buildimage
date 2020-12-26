@@ -1,2 +1,4 @@
 haliburton/cfg/haliburton-modules.conf etc/modules-load.d
 haliburton/systemd/platform-modules-haliburton.service lib/systemd/system
+haliburton/systemd/cpu_wdt.service lib/systemd/system
+haliburton/scripts/cpu_wdt /usr/local/bin/

@@ -1,3 +1,6 @@
 depmod -a
 systemctl enable platform-modules-haliburton.service
 systemctl start platform-modules-haliburton.service
+
+systemctl enable cpu_wdt.service
+systemctl start cpu_wdt.service

@@ -1,0 +1,321 @@
+#!/usr/bin/env python
+
+import os
+import sys
+import time
+import signal
+import syslog
+import argparse
+import subprocess
+
+from sonic_platform_base.watchdog_base import WatchdogBase
+
+SYSLOG_IDENTIFIER = 'cpu_wdt'
+CPUWDT_MAIN_TASK_RUNNING_FLAG = True
+
+PLATFORM_CPLD_PATH = '/sys/devices/platform/e1031.smc/'
+SETREG_FILE = 'setreg'
+GETREG_FILE = 'getreg'
+WDT_COMMON_ERROR = -1
+MMC_VERSION_REG = "0x100"
+
+# watchdog infomation for cpld v06
+V06_MMC_VERSION = 0x05
+V06_WDT_WIDTH = '0x110'
+V06_WDT_WIDTH_SELECTOR = {
+    30: '0x1',
+    60: '0x2',
+    180: '0x3'
+}
+
+V06_CPLD_WDT_INFO = {
+    'wdt_en_reg': '0x111',
+    'wdt_en_cmd': '0x0',
+    'wdt_dis_cmd': '0x1'
+}
+
+# watchdog infomation
+WDT_TIMER_L_BIT_REG = '0x117'
+WDT_TIMER_M_BIT_REG = '0x118'
+WDT_TIMER_H_BIT_REG = '0x119'
+WDT_KEEP_ALVIVE_REG = '0x11a'
+
+CPLD_WDT_INFO = {
+    'wdt_en_reg': '0x116',
+    'wdt_en_cmd': '0x1',
+    'wdt_dis_cmd': '0x0'
+}
+
+
+# default input
+DEFAULT_TIMEOUT = 180
+DEFAULT_KEEPALIVE = 60
+
+
+# ========================== Syslog wrappers ==========================
+
+
+def log_info(msg, also_print_to_console=False):
+    syslog.openlog(SYSLOG_IDENTIFIER)
+    syslog.syslog(syslog.LOG_INFO, msg)
+    syslog.closelog()
+
+    if also_print_to_console:
+        print(msg)
+
+
+def log_warning(msg, also_print_to_console=False):
+    syslog.openlog(SYSLOG_IDENTIFIER)
+    syslog.syslog(syslog.LOG_WARNING, msg)
+    syslog.closelog()
+
+    if also_print_to_console:
+        print(msg)
+
+
+def log_error(msg, also_print_to_console=False):
+    syslog.openlog(SYSLOG_IDENTIFIER)
+    syslog.syslog(syslog.LOG_ERR, msg)
+    syslog.closelog()
+
+    if also_print_to_console:
+        print(msg)
+
+
+class Watchdog(WatchdogBase):
+
+    def __init__(self):
+        # Init cpld reg path
+        self.setreg_path = os.path.join(PLATFORM_CPLD_PATH, SETREG_FILE)
+        self.getreg_path = os.path.join(PLATFORM_CPLD_PATH, GETREG_FILE)
+
+        self.mmc_v = self._get_mmc_version()
+        self.cpld_info = V06_CPLD_WDT_INFO if self.mmc_v <= V06_MMC_VERSION else CPLD_WDT_INFO
+
+        # Set default value
+        self._disable()
+        self.armed = False
+        self.timeout = 0
+
+    def _get_mmc_version(self):
+        hex_str_v = self._get_register_value(MMC_VERSION_REG)
+        return int(hex_str_v, 16)
+
+    def _get_register_value(self, register):
+        # Retrieves the value in the cpld register.
+        self._write_reg(self.getreg_path, register)
+        return self._read_reg(self.getreg_path)
+
+    def _write_reg(self, file_path, value):
+        with open(file_path, 'w') as fd:
+            fd.write(str(value))
+
+    def _read_reg(self, path):
+        with open(path, 'r') as fd:
+            output = fd.readline()
+        return output.strip('\n')
+
+    def _get_level_hex(self, sub_hex):
+        sub_hex_str = sub_hex.replace("x", "0")
+        return hex(int(sub_hex_str, 16))
+
+    def _seconds_to_lmh_hex(self, seconds):
+        ms = seconds*1000  # calculate timeout in ms format
+        hex_str = hex(ms)
+        l = self._get_level_hex(hex_str[-2:])
+        m = self._get_level_hex(hex_str[-4:-2])
+        h = self._get_level_hex(hex_str[-6:-4])
+        return (l, m, h)
+
+    def _enable(self):
+        """
+        Turn on the watchdog timer
+        """
+        enable_val = '{} {}'.format(
+            self.cpld_info['wdt_en_reg'], self.cpld_info['wdt_en_cmd'])
+        return self._write_reg(self.setreg_path, enable_val)
+
+    def _disable(self):
+        """
+        Turn off the watchdog timer
+        """
+        disable_val = '{} {}'.format(
+            self.cpld_info['wdt_en_reg'], self.cpld_info['wdt_dis_cmd'])
+        return self._write_reg(self.setreg_path, disable_val)
+
+    def _keepalive(self):
+        """
+        Keep alive watchdog timer
+        """
+        if self.mmc_v <= V06_MMC_VERSION:
+            self._disable()
+            self._enable()
+
+        else:
+            enable_val = '{} {}'.format(
+                WDT_KEEP_ALVIVE_REG, self.cpld_info['wdt_en_cmd'])
+            self._write_reg(self.setreg_path, enable_val)
+
+    def _settimeout(self, seconds):
+        """
+        Set watchdog timer timeout
+        @param seconds - timeout in seconds
+        @return is the actual set timeout
+        """
+
+        if self.mmc_v <= V06_MMC_VERSION:
+            timeout_hex = V06_WDT_WIDTH_SELECTOR.get(seconds)
+            set_timeout_val = '{} {}'.format(V06_WDT_WIDTH, timeout_hex)
+            self._write_reg(self.setreg_path, set_timeout_val)
+
+        else:
+            (l, m, h) = self._seconds_to_lmh_hex(seconds)
+            set_h_val = '{} {}'.format(WDT_TIMER_H_BIT_REG, h)
+            set_m_val = '{} {}'.format(WDT_TIMER_M_BIT_REG, m)
+            set_l_val = '{} {}'.format(WDT_TIMER_L_BIT_REG, l)
+            self._write_reg(self.setreg_path, set_h_val)  # set high bit
+            self._write_reg(self.setreg_path, set_m_val)  # set med bit
+            self._write_reg(self.setreg_path, set_l_val)  # set low bit
+
+        return seconds
+
+    #################################################################
+
+    def arm(self, seconds):
+        """
+        Arm the hardware watchdog with a timeout of <seconds> seconds.
+        If the watchdog is currently armed, calling this function will
+        simply reset the timer to the provided value. If the underlying
+        hardware does not support the value provided in <seconds>, this
+        method should arm the watchdog with the *next greater* available
+        value.
+        Returns:
+            An integer specifying the *actual* number of seconds the watchdog
+            was armed with. On failure returns -1.
+        """
+        ret = WDT_COMMON_ERROR
+
+        try:
+            if self.timeout != seconds:
+                self.timeout = self._settimeout(seconds)
+
+            if self.armed:
+                self._keepalive()
+            else:
+                self._enable()
+                self.armed = True
+
+            ret = self.timeout
+            self.arm_timestamp = time.time()
+        except IOError as e:
+            log_error("Error: unable to enable wdt due to : {}".format(e))
+
+        return ret
+
+    def disarm(self):
+        """
+        Disarm the hardware watchdog
+        Returns:
+            A boolean, True if watchdog is disarmed successfully, False if not
+        """
+        disarmed = False
+        try:
+            self._disable()
+            self.armed = False
+            disarmed = True
+        except IOError as e:
+            log_error("Error: unable to disable wdt due to : {}".format(e))
+        return disarmed
+
+    def is_armed(self):
+        """
+        Retrieves the armed state of the hardware watchdog.
+        Returns:
+            A boolean, True if watchdog is armed, False if not
+        """
+        return self.armed
+
+# ========================== Signal Handling ==========================
+
+
+def signal_handler(sig, frame):
+    global CPUWDT_MAIN_TASK_RUNNING_FLAG
+    if sig == signal.SIGHUP:
+        log_info("Caught SIGHUP - ignoring...")
+        return
+    elif sig == signal.SIGINT:
+        log_info("Caught SIGINT - exiting...")
+        CPUWDT_MAIN_TASK_RUNNING_FLAG = False
+    elif sig == signal.SIGTERM:
+        log_info("Caught SIGTERM - exiting...")
+        CPUWDT_MAIN_TASK_RUNNING_FLAG = False
+    else:
+        log_warning("Caught unhandled signal '" + sig + "'")
+        return
+
+#
+# Main =========================================================================
+#
+
+
+def check_cpld_driver():
+    # Check the cpld driver loading status.
+    cpld_setreg = os.path.join(PLATFORM_CPLD_PATH, SETREG_FILE)
+
+    c = 0
+    while c < 60:
+        if os.path.isfile(cpld_setreg):
+            return
+        c += 1
+        time.sleep(1)
+
+    print("Error: The cpld driver has not been loaded.")
+    sys.exit(1)
+
+
+def main():
+    # Register our signal handlers
+    signal.signal(signal.SIGHUP, signal_handler)
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+
+    # Init argument parser
+    parser = argparse.ArgumentParser()
+    parser.add_argument("action", help="Start/Stop CPU WDT",
+                        choices=['start', 'stop'])
+    parser.add_argument(
+        "--timeout", "-t", help="WDT timeout period", choices=[30, 60, 180], type=int)
+    parser.add_argument("--keep_alive", "-k",
+                        help="WDT keep alive period", type=int)
+    args = parser.parse_args()
+
+    # Check the cpld driver
+    check_cpld_driver()
+
+    # Init WDT Class
+    watchdog = Watchdog()
+
+    if args.action == 'start':
+        log_info('Enable CPU WDT..')
+
+        # Enable
+        timeout = args.timeout or DEFAULT_TIMEOUT
+        watchdog.arm(timeout)
+        log_info('CPU WDT has been enabled with {} seconds timeout'.format(timeout))
+
+        # Keep Alive
+        keep_alive = args.keep_alive or DEFAULT_KEEPALIVE
+        log_info('Enable keep alive messaging every {} seconds'.format(keep_alive))
+        while CPUWDT_MAIN_TASK_RUNNING_FLAG:
+            time.sleep(keep_alive-1)
+            watchdog.arm(timeout)
+        log_info('Keep alive messaging has been disabled')
+
+    # Disable
+    log_info('Disable CPU WDT..')
+    watchdog.disarm()
+    log_info('CPU WDT has been disabled!')
+
+
+if __name__ == '__main__':
+    main()
