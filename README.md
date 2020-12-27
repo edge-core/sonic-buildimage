@@ -8,8 +8,10 @@
 [![Barefoot](https://sonic-jenkins.westus2.cloudapp.azure.com/job/barefoot/job/buildimage-bf-all/badge/icon?subject=Barefoot)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/barefoot/job/buildimage-bf-all)
 [![Broadcom](https://sonic-jenkins.westus2.cloudapp.azure.com/job/broadcom/job/buildimage-brcm-all/badge/icon?subject=Broadcom)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/broadcom/job/buildimage-brcm-all)
 [![Centec](https://sonic-jenkins.westus2.cloudapp.azure.com/job/centec/job/buildimage-centec-all/badge/icon?subject=Centec)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/centec/job/buildimage-centec-all)
+[![Centec(arm64)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/centec/job/buildimage-centec-arm64-all/badge/icon?subject=Centec(arm64))](https://sonic-jenkins.westus2.cloudapp.azure.com/job/centec/job/buildimage-centec-arm64-all)
 [![Innovium](https://sonic-jenkins.westus2.cloudapp.azure.com/job/innovium/job/buildimage-invm-all/badge/icon?subject=Innovium)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/innovium/job/buildimage-invm-all)
 [![Mellanox](https://sonic-jenkins.westus2.cloudapp.azure.com/job/mellanox/job/buildimage-mlnx-all/badge/icon?subject=Mellanox)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/mellanox/job/buildimage-mlnx-all)
+[![Marvell(armhf)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/marvell/job/buildimage-mrvl-armhf-all/badge/icon?subject=Marvell(armhf))](https://sonic-jenkins.westus2.cloudapp.azure.com/job/marvell/job/buildimage-mrvl-armhf-all)
 [![Nephos](https://sonic-jenkins.westus2.cloudapp.azure.com/job/nephos/job/buildimage-nephos-all/badge/icon?subject=Nephos)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/nephos/job/buildimage-nephos-all)
 [![P4](https://sonic-jenkins.westus2.cloudapp.azure.com/job/p4/job/buildimage-p4-all/badge/icon?subject=P4)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/p4/job/buildimage-p4-all)
 [![VS](https://sonic-jenkins.westus2.cloudapp.azure.com/job/vs/job/buildimage-vs-all/badge/icon?subject=VS)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/vs/job/buildimage-vs-all)
@@ -48,7 +50,7 @@
 
 ## Build SONiC Switch Images
 
-# Description 
+# Description
 
 Following is the instruction on how to build an [(ONIE)](https://github.com/opencomputeproject/onie) compatible network operating system (NOS) installer image for network switches, and also how to build docker images running inside the NOS. Note that SONiC image are build per ASIC platform. Switches using the same ASIC platform share a common image. For a list of supported switches and ASIC, please refer to this [list](https://github.com/Azure/SONiC/wiki/Supported-Devices-and-Platforms)
 
@@ -69,8 +71,8 @@ Configure your system to allow running the 'docker' command without 'sudo':
 	 `sudo gpasswd -a ${USER} docker`
     Log out and log back in so that your group membership is re-evaluated
 
-## SAI Version 
-Please refer to [SONiC roadmap](https://github.com/Azure/SONiC/wiki/Sonic-Roadmap-Planning) on the SAI version for each SONiC release. 
+## SAI Version
+Please refer to [SONiC roadmap](https://github.com/Azure/SONiC/wiki/Sonic-Roadmap-Planning) on the SAI version for each SONiC release.
 
 ## Clone or fetch the code repository with all git submodules
 To clone the code repository recursively, assuming git version 1.9 or newer:
@@ -145,7 +147,7 @@ To build Arm64 bit for plaform
 The SONiC installer contains all docker images needed. SONiC uses one image for all devices of a same ASIC vendor. The supported ASIC vendors are:
 
 - PLATFORM=broadcom
-- PLATFORM=marvell 
+- PLATFORM=marvell
 - PLATFORM=mellanox
 - PLATFORM=cavium
 - PLATFORM=centec
@@ -154,7 +156,7 @@ The SONiC installer contains all docker images needed. SONiC uses one image for 
 - PLATFORM=p4
 - PLATFORM=vs
 
-For Broadcom ASIC, we build ONIE and EOS image. EOS image is used for Arista devices, ONIE image is used for all other Broadcom ASIC based devices. 
+For Broadcom ASIC, we build ONIE and EOS image. EOS image is used for Arista devices, ONIE image is used for all other Broadcom ASIC based devices.
 
     make configure PLATFORM=broadcom
     # build debian stretch required targets
