@@ -8,5 +8,8 @@
         "eth0|10.10.10.10/24": {
             "gwaddr": "10.10.10.1"
         }
+    },
+    "LOOPBACK_INTERFACE": {
+        "Loopback0|FC00:1::32/128": {}
     }
 }

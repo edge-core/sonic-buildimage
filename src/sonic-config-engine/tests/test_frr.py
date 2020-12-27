@@ -39,7 +39,12 @@ class TestCfgGen(TestCase):
         return output
 
     def run_diff(self, file1, file2):
-        return subprocess.check_output('diff -u {} {} || true'.format(file1, file2), shell=True)
+        output = subprocess.check_output('diff -u {} {} || true'.format(file1, file2), shell=True)
+
+        if utils.PY3x:
+            output = output.decode()
+
+        return output
 
     def run_case(self, template, target):
         template_dir = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-fpm-frr', "frr")
@@ -54,7 +59,6 @@ class TestCfgGen(TestCase):
         diff_output = self.run_diff(original_filename, self.output_file) if not r else ""
 
         return r, "Diff:\n" + diff_output
-
 
     def test_config_frr(self):
         self.assertTrue(*self.run_case('frr.conf.j2', 'frr.conf'))

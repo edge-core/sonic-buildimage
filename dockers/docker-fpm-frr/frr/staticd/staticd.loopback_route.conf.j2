@@ -1,0 +1,10 @@
+!
+{% from "common/functions.conf.j2" import get_ipv4_loopback_address, get_ipv6_loopback_address, get_vnet_interfaces %}
+!
+{% block loopback_route %}
+! add static ipv6 /64 loopback route to allow bgpd to advertise the loopback route prefix
+{% if get_ipv6_loopback_address(LOOPBACK_INTERFACE, "Loopback0") != 'None' %}
+ipv6 route {{ get_ipv6_loopback_address(LOOPBACK_INTERFACE, "Loopback0") | replace('/128', '/64') | ip_network }}/64 Loopback0
+{% endif %}
+{% endblock loopback_route %}
+!
