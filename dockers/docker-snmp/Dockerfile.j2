@@ -68,6 +68,7 @@ RUN apt-get -y purge     \
     rm -rf /debs /python-wheels ~/.cache
 
 COPY ["start.sh", "/usr/bin/"]
+COPY ["snmp_yml_to_configdb.py", "/usr/bin/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 COPY ["*.j2", "/usr/share/sonic/templates/"]
 COPY ["files/supervisor-proc-exit-listener", "/usr/bin"]
