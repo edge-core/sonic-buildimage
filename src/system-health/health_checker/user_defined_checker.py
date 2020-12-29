@@ -19,6 +19,7 @@ class UserDefinedChecker(HealthChecker):
     Device2:OK
     Device3:Out of power
     """
+
     def __init__(self, cmd):
         """
         Constructor.

@@ -24,10 +24,10 @@ setup(
     scripts=[
         'scripts/healthd',
     ],
-    setup_requires= [
+    setup_requires=[
         'pytest-runner'
     ],
-    tests_require = [
+    tests_require=[
         'pytest',
         'mock>=2.0.0'
     ],
@@ -40,10 +40,9 @@ setup(
         'License :: OSI Approved :: Apache Software License',
         'Natural Language :: English',
         'Operating System :: POSIX :: Linux',
-        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.7',
         'Topic :: System :: Hardware',
     ],
     keywords='SONiC sonic HEALTH health',
     test_suite='setup.get_test_suite'
 )
-

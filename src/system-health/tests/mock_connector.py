@@ -22,4 +22,3 @@ class MockConnector(object):
 
     def get_all(self, db_id, key):
         return MockConnector.data[key]
-

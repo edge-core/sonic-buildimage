@@ -73,8 +73,8 @@ def test_service_checker():
                    'telemetry                        Does not exist              Process\n' \
                    'orchagent                        Running                     Process\n' \
                    'root-overlay                     Accessible                  Filesystem\n' \
-                   'var-log                          Is not accessible           Filesystem\n' 
-                   
+                   'var-log                          Is not accessible           Filesystem\n'
+
     checker = ServiceChecker()
     config = Config()
     checker.check(config)

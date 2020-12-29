@@ -17,7 +17,7 @@ class HealthCheckerManager(object):
     def initialize(self):
         """
         Initialize the manager. Create service checker and hardware checker by default.
-        :return: 
+        :return:
         """
         from .service_checker import ServiceChecker
         from .hardware_checker import HardwareChecker
@@ -26,7 +26,7 @@ class HealthCheckerManager(object):
 
     def check(self, chassis):
         """
-        Load new configuration if any and perform the system health check for all existing checkers. 
+        Load new configuration if any and perform the system health check for all existing checkers.
         :param chassis: A chassis object.
         :return: A tuple. The first element indicate the status of the checker; the second element is a dictionary that
         contains the status for all objects that was checked.
@@ -60,7 +60,7 @@ class HealthCheckerManager(object):
         Do check for a particular checker and collect the check statistic.
         :param checker: A checker object.
         :param stats: Check statistic.
-        :return: 
+        :return:
         """
         try:
             checker.check(self.config)
@@ -74,9 +74,9 @@ class HealthCheckerManager(object):
             from .health_checker import HealthChecker
             error_msg = 'Failed to perform health check for {} due to exception - {}'.format(checker, repr(e))
             entry = {str(checker): {
-                    HealthChecker.INFO_FIELD_OBJECT_STATUS: HealthChecker.STATUS_NOT_OK,
-                    HealthChecker.INFO_FIELD_OBJECT_MSG: error_msg
-                }}
+                HealthChecker.INFO_FIELD_OBJECT_STATUS: HealthChecker.STATUS_NOT_OK,
+                HealthChecker.INFO_FIELD_OBJECT_MSG: error_msg
+            }}
             if 'Internal' not in stats:
                 stats['Internal'] = entry
             else:
