@@ -46,19 +46,18 @@
     {
         "TUNNEL_DECAP_TABLE:IPINIP_TUNNEL" : {
             "tunnel_type":"IPINIP",
+            "dst_ip":"{% for prefix in ipv4_addresses|sort %}{{ prefix | ip }}{% if not loop.last %},{% endif %}{% endfor %}",
 {% if "mlnx" in DEVICE_METADATA.localhost.platform %}
-            "dst_ip":"{% for prefix in ipv4_loopback_addresses %}{{ prefix | ip }}{% if not loop.last %},{% endif %}{% endfor %}",
             "dscp_mode":"uniform",
             "ecn_mode":"standard",
 {% else %}
-            "dst_ip":"{% for prefix in ipv4_addresses %}{{ prefix | ip }}{% if not loop.last %},{% endif %}{% endfor %}",
             "dscp_mode":"pipe",
             "ecn_mode":"copy_from_outer",
 {% endif %}
             "ttl_mode":"pipe"
         },
         "OP": "SET"
-    } 
+    }
 {% endif %}
 {% if ipv4_loopback_addresses and ipv6_loopback_addresses %}    ,
 {% endif %}
@@ -66,12 +65,11 @@
     {
         "TUNNEL_DECAP_TABLE:IPINIP_V6_TUNNEL" : {
             "tunnel_type":"IPINIP",
+            "dst_ip":"{% for prefix in ipv6_addresses|sort %}{{ prefix | ip }}{% if not loop.last %},{% endif %}{% endfor %}",
 {% if "mlnx" in DEVICE_METADATA.localhost.platform %}
-            "dst_ip":"{% for prefix in ipv6_loopback_addresses %}{{ prefix | ip }}{% if not loop.last %},{% endif %}{% endfor %}",
             "dscp_mode":"uniform",
             "ecn_mode":"standard",
 {% else %}
-            "dst_ip":"{% for prefix in ipv6_addresses %}{{ prefix | ip }}{% if not loop.last %},{% endif %}{% endfor %}",
             "dscp_mode":"pipe",
             "ecn_mode":"copy_from_outer",
 {% endif %}
