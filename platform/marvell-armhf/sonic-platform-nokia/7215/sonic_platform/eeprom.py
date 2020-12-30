@@ -97,7 +97,7 @@ class Eeprom(TlvInfoDecoder):
                 self.serial = 'NA'
                 return
 
-            total_length = (ord(eeprom[9]) << 8) | ord(eeprom[10])
+            total_length = (eeprom[9] << 8) | eeprom[10]
             tlv_index = self._TLV_INFO_HDR_LEN
             tlv_end = self._TLV_INFO_HDR_LEN + total_length
 
@@ -106,21 +106,16 @@ class Eeprom(TlvInfoDecoder):
                     break
 
                 tlv = eeprom[tlv_index:tlv_index + 2
-                             + ord(eeprom[tlv_index + 1])]
-                code = "0x%02X" % (ord(tlv[0]))
-
-                if ord(tlv[0]) == self._TLV_CODE_VENDOR_EXT:
-                    value = str((ord(tlv[2]) << 24) | (ord(tlv[3]) << 16) |
-                                (ord(tlv[4]) << 8) | ord(tlv[5]))
-                    value += str(tlv[6:6 + ord(tlv[1])])
-                else:
-                    name, value = self.decoder(None, tlv)
+                             + eeprom[tlv_index + 1]]
+                code = "0x%02X" % (tlv[0])
+                    
+                name, value = self.decoder(None, tlv)
 
                 self.eeprom_tlv_dict[code] = value
-                if ord(eeprom[tlv_index]) == self._TLV_CODE_CRC_32:
+                if eeprom[tlv_index] == self._TLV_CODE_CRC_32:
                     break
 
-                tlv_index += ord(eeprom[tlv_index+1]) + 2
+                tlv_index += eeprom[tlv_index+1] + 2
 
             self.base_mac = self.eeprom_tlv_dict.get(
                                 "0x%X" % (self._TLV_CODE_MAC_BASE), 'NA')
@@ -181,7 +176,10 @@ class Eeprom(TlvInfoDecoder):
         for field in self.format:
             field_end = field_start + field[2]
             if field[0] == field_name:
-                return (True, self.eeprom_data[field_start:field_end])
+                if decode:
+                    return (True, self.eeprom_data[field_start:field_end].decode('ascii'))
+                else:
+                    return (True, self.eeprom_data[field_start:field_end])
             field_start = field_end
 
         return (False, None)
