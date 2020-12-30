@@ -23,8 +23,10 @@ class TestCfgGen(TestCase):
         self.sample_graph_bgp_speaker = os.path.join(self.test_dir, 't0-sample-bgp-speaker.xml')
         self.sample_device_desc = os.path.join(self.test_dir, 'device.xml')
         self.port_config = os.path.join(self.test_dir, 't0-sample-port-config.ini')
+        self.mlnx_port_config = os.path.join(self.test_dir, 'mellanox-sample-port-config.ini')
         self.output_file = os.path.join(self.test_dir, 'output')
         self.output2_file = os.path.join(self.test_dir, 'output2')
+        self.ecmp_graph = os.path.join(self.test_dir, 'fg-ecmp-sample-minigraph.xml')
 
     def tearDown(self):
         try:
@@ -222,6 +224,34 @@ class TestCfgGen(TestCase):
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "[('Vlan1000', '192.168.0.1/27'), 'Vlan1000']")
 
+    def test_minigraph_ecmp_fg_nhg(self):
+        argument = '-m "' + self.ecmp_graph + '" -p "' + self.mlnx_port_config + '" -v \"FG_NHG.values()|list\"'
+        output = self.run_script(argument)
+        self.assertEqual(output.strip(), "[{'bucket_size': 120}, {'bucket_size': 120}]")
+
+    def test_minigraph_ecmp_members(self):
+        argument = '-m "' + self.ecmp_graph + '" -p "' + self.mlnx_port_config + '" -v "FG_NHG_MEMBER.keys()|list|sort"'
+        output = self.run_script(argument)
+        self.assertEqual(output.strip(), "['200.200.200.1', '200.200.200.10', '200.200.200.2', '200.200.200.3', '200.200.200.4', '200.200.200.5',"
+                                         " '200.200.200.6', '200.200.200.7', '200.200.200.8', '200.200.200.9', '200:200:200:200::1', '200:200:200:200::10',"
+                                         " '200:200:200:200::2', '200:200:200:200::3', '200:200:200:200::4', '200:200:200:200::5', '200:200:200:200::6',"
+                                         " '200:200:200:200::7', '200:200:200:200::8', '200:200:200:200::9']")
+
+    def test_minigraph_ecmp_neighbors(self):
+        argument = '-m "' + self.ecmp_graph + '" -p "' + self.mlnx_port_config + '" -v "NEIGH.keys()|list|sort"'
+        output = self.run_script(argument)
+        self.assertEqual(output.strip(), "['Vlan31|200.200.200.1', 'Vlan31|200.200.200.10', 'Vlan31|200.200.200.2', 'Vlan31|200.200.200.3',"
+                                         " 'Vlan31|200.200.200.4', 'Vlan31|200.200.200.5', 'Vlan31|200.200.200.6', 'Vlan31|200.200.200.7',"
+                                         " 'Vlan31|200.200.200.8', 'Vlan31|200.200.200.9', 'Vlan31|200:200:200:200::1', 'Vlan31|200:200:200:200::10',"
+                                         " 'Vlan31|200:200:200:200::2', 'Vlan31|200:200:200:200::3', 'Vlan31|200:200:200:200::4', 'Vlan31|200:200:200:200::5', "
+                                         "'Vlan31|200:200:200:200::6', 'Vlan31|200:200:200:200::7', 'Vlan31|200:200:200:200::8', 'Vlan31|200:200:200:200::9']")
+
+    def test_minigraph_ecmp_prefixes(self):
+        argument = '-m "' + self.ecmp_graph + '" -p "' + self.mlnx_port_config + '" -v "FG_NHG_PREFIX.keys()|list|sort"'
+        output = self.run_script(argument)
+        self.assertEqual(output.strip(), "['100.50.25.12/32', 'fc:5::/128']")
+
+        
     def test_minigraph_portchannels(self):
         argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v PORTCHANNEL'
         output = self.run_script(argument)
