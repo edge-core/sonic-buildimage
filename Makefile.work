@@ -39,6 +39,7 @@ SHELL = /bin/bash
 
 USER := $(shell id -un)
 PWD := $(shell pwd)
+USER_LC := $(shell echo $(USER) | tr A-Z a-z)
 
 ifeq ($(USER), root)
 $(error Add your user account to docker group and use your user account to make. root or sudo are not supported!)
@@ -81,7 +82,7 @@ endif
 SLAVE_BASE_TAG = $(shell CONFIGURED_ARCH=$(CONFIGURED_ARCH) j2 $(SLAVE_DIR)/Dockerfile.j2 > $(SLAVE_DIR)/Dockerfile && sha1sum $(SLAVE_DIR)/Dockerfile | awk '{print substr($$1,0,11);}')
 SLAVE_TAG = $(shell cat $(SLAVE_DIR)/Dockerfile.user $(SLAVE_DIR)/Dockerfile | sha1sum | awk '{print substr($$1,0,11);}')
 SLAVE_BASE_IMAGE = $(SLAVE_DIR)
-SLAVE_IMAGE = $(SLAVE_BASE_IMAGE)-$(USER)
+SLAVE_IMAGE = $(SLAVE_BASE_IMAGE)-$(USER_LC)
 
 OVERLAY_MODULE_CHECK := \
     lsmod | grep -q "^overlay " &>/dev/null || \
@@ -131,7 +132,7 @@ ifneq (,$(filter $(CONFIGURED_ARCH), armhf arm64))
     DOCKER_SERVICE_SAFE_KILLER :=  (MARCH_PID=`ps -eo pid,cmd | grep "[0-9] dockerd.*march" | awk '{print $$1}'`; echo "Killing march docker $$MARCH_PID"; [ -z "$$MARCH_PID" ] || sudo kill -9 "$$MARCH_PID";)
     DOCKER_SERVICE_MULTIARCH_CHECK := ($(DOCKER_SERVICE_SAFE_KILLER); sudo rm -fr /var/run/march/; (echo "Starting docker march service..."; sudo $(SONIC_NATIVE_DOCKERD_FOR_MUTLIARCH) &) &>/dev/null ; sleep 2; sudo $(SONIC_USERFACL_DOCKERD_FOR_MUTLIARCH);)
 
-   # Docker service to load the compiled dockers-*.gz 
+   # Docker service to load the compiled dockers-*.gz
     SONIC_NATIVE_DOCKERD_FOR_DOCKERFS := rm -fr $(PWD)/dockerfs/; mkdir -p $(PWD)/dockerfs/; sudo dockerd --storage-driver=overlay2 --iptables=false \
 	--data-root $(PWD)/dockerfs/var/lib/docker/ --exec-root=$(PWD)/dockerfs/var/run/docker/ \
 	-H unix://$(PWD)/dockerfs/var/run/docker.sock -p $(PWD)/dockerfs/var/run/docker.pid &
@@ -199,7 +200,7 @@ ifneq ($(BLDENV), )
 endif
 endif
 	@$(OVERLAY_MODULE_CHECK)
-	
+
 	@docker inspect --type image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) &> /dev/null || \
 	    { echo Image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) not found. Building... ; \
 	    $(DOCKER_BASE_BUILD) ; }
