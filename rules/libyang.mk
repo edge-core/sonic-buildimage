@@ -10,6 +10,9 @@ export LIBYANG_SUBVERSION
 
 LIBYANG = libyang_$(LIBYANG_VERSION)_$(CONFIGURED_ARCH).deb
 $(LIBYANG)_SRC_PATH = $(SRC_PATH)/libyang
+# introduce artifical dependency between LIBYANG and FRR
+# make sure LIBYANG is compile after FRR
+$(LIBYANG)_AFTER = $(FRR)
 SONIC_MAKE_DEBS += $(LIBYANG)
 
 LIBYANG_DEV = libyang-dev_$(LIBYANG_VERSION)_$(CONFIGURED_ARCH).deb
@@ -29,5 +32,8 @@ $(eval $(call add_derived_package,$(LIBYANG),$(LIBYANG_PY3)))
 LIBYANG_PY2 = python2-yang_$(LIBYANG_VERSION)_$(CONFIGURED_ARCH).deb
 $(LIBYANG_PY2)_DEPENDS += $(LIBYANG) $(LIBYANG_CPP)
 $(eval $(call add_derived_package,$(LIBYANG),$(LIBYANG_PY2)))
+
+$(eval $(call add_conflict_package,$(LIBYANG),$(LIBYANG1)))
+$(eval $(call add_conflict_package,$(LIBYANG_DEV),$(LIBYANG1_DEV)))
 
 export LIBYANG LIBYANG_DBG LIBYANG_DEV LIBYANG_CPP LIBYANG_PY3 LIBYANG_PY2
