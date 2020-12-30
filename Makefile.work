@@ -137,7 +137,7 @@ DOCKER_RUN := docker run --rm=true --privileged --init \
     -w $(DOCKER_BUILDER_WORKDIR) \
     -e "http_proxy=$(http_proxy)" \
     -e "https_proxy=$(https_proxy)" \
-    -i$(if $(TERM),t,) \
+    -i$(shell { if [ -t 0 ]; then echo t; fi }) \
     $(SONIC_BUILDER_EXTRA_CMDLINE)
 
 ifneq ($(DOCKER_BUILDER_USER_MOUNT),)
