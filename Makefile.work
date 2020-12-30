@@ -38,6 +38,7 @@ SHELL = /bin/bash
 
 USER := $(shell id -un)
 PWD := $(shell pwd)
+USER_LC := $(shell echo $(USER) | tr A-Z a-z)
 
 ifeq ($(USER), root)
 $(error Add your user account to docker group and use your user account to make. root or sudo are not supported!)
@@ -52,13 +53,13 @@ ifeq ($(BLDENV), stretch)
 SLAVE_BASE_TAG = $(shell sha1sum sonic-slave-stretch/Dockerfile | awk '{print substr($$1,0,11);}')
 SLAVE_TAG = $(shell cat sonic-slave-stretch/Dockerfile.user sonic-slave-stretch/Dockerfile | sha1sum | awk '{print substr($$1,0,11);}')
 SLAVE_BASE_IMAGE = sonic-slave-stretch-base
-SLAVE_IMAGE = sonic-slave-stretch-$(USER)
+SLAVE_IMAGE = sonic-slave-stretch-$(USER_LC)
 SLAVE_DIR = sonic-slave-stretch
 else
 SLAVE_BASE_TAG = $(shell sha1sum sonic-slave/Dockerfile | awk '{print substr($$1,0,11);}')
 SLAVE_TAG = $(shell cat sonic-slave/Dockerfile.user sonic-slave/Dockerfile | sha1sum | awk '{print substr($$1,0,11);}')
 SLAVE_BASE_IMAGE = sonic-slave-base
-SLAVE_IMAGE = sonic-slave-$(USER)
+SLAVE_IMAGE = sonic-slave-$(USER_LC)
 SLAVE_DIR = sonic-slave
 endif
 
