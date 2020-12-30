@@ -268,7 +268,7 @@ endif
 	@docker inspect --type image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) &> /dev/null || \
 	    { [ $(ENABLE_DOCKER_BASE_PULL) == y ] && { echo Image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) not found. Pulling...; } && \
 	      $(DOCKER_BASE_PULL) && \
-		    { docker tag $(REGISTRY_SERVER):$(REGISTRY_PORT)/$(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG)
+		    { docker tag $(REGISTRY_SERVER):$(REGISTRY_PORT)/$(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) \
 	          scripts/collect_docker_version_files.sh $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) target ; } } || \
 	    { echo Image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) not found. Building... ; \
 	      $(DOCKER_BASE_BUILD) ; \
@@ -296,7 +296,7 @@ sonic-slave-base-build : sonic-build-hooks
 	@docker inspect --type image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) &> /dev/null || \
 	    { [ $(ENABLE_DOCKER_BASE_PULL) == y ] && { echo Image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) not found. Pulling...; } && \
 	      $(DOCKER_BASE_PULL) && \
-		    { docker tag $(REGISTRY_SERVER):$(REGISTRY_PORT)/$(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG)
+		    { docker tag $(REGISTRY_SERVER):$(REGISTRY_PORT)/$(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) \
 	          scripts/collect_docker_version_files.sh $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) target ; } } || \
 	    { echo Image $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) not found. Building... ; \
 	      $(DOCKER_BASE_BUILD) ; \
