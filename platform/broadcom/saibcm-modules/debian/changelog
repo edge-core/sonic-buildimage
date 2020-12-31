@@ -1,3 +1,10 @@
+opennsl (3.7.5.2-1) unstable; urgency=medium
+
+  * Port Broadcom SAI 3.7.5.2, with latest commits.
+  * GPL module fix from CSP (CS00011619081)
+
+ -- Judy Joseph <jujoseph@microsoft.com>  Fri, 30 Dec 2020 15:32:47 +0000
+
 opennsl (3.7.5.2) unstable; urgency=medium
 
   * Port Broadcom SAI 3.7.5.2

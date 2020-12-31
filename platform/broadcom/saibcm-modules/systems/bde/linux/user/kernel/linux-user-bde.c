@@ -178,6 +178,11 @@ typedef struct {
 } bde_inst_resource_t;
 
 static bde_inst_resource_t _bde_inst_resource[LINUX_BDE_MAX_DEVICES];
+/*
+ * Lock used to protect changes to _bde_inst_resource
+ */
+static spinlock_t bde_resource_lock;
+
 
 typedef struct {
     phys_addr_t  cpu_pbase; /* CPU physical base address of the DMA pool */
@@ -906,6 +911,7 @@ _init(void)
     if ((linux_bde_create(NULL, &user_bde) < 0) || user_bde == NULL) {
         return -ENODEV;
     }
+    spin_lock_init(&bde_resource_lock);
 
     init_waitqueue_head(&_ether_interrupt_wq);
 
@@ -1121,17 +1127,29 @@ _instance_attach(unsigned int inst_id, unsigned int dma_size)
     /* Reprobe the system for hot-plugged device */
     _device_reprobe();
 
+    gprintk("INFO: Request to attach to instance_id %d with dma size %d!\n", inst_id, dma_size);
+
+    spin_lock(&bde_resource_lock);
+
     /* Validate the resource with inst_id */
     exist = _instance_validate(inst_id, dma_size);
+
     if (exist < 0) {
+        gprintk("ERROR: The instance_id %d is not valid!\n", inst_id);
+        spin_unlock(&bde_resource_lock);
         return LUBDE_FAIL;
     }
     if (exist > 0) {
+        gprintk("INFO: Already attached to instance_id %d with dma size %d!\n", inst_id, dma_size);
+        spin_unlock(&bde_resource_lock);
         return LUBDE_SUCCESS;
     }
     if (_dma_resource_alloc(dma_size, &dma_offset) < 0) {
+        gprintk("ERROR: Dma resource alloc FAIL for instance_id %d with dma size %d!\n", inst_id, dma_size);
+        spin_unlock(&bde_resource_lock);
         return LUBDE_FAIL;
     }
+
     for (i = 0; i < user_bde->num_devices(BDE_ALL_DEVICES); i++) {
         res = &_bde_inst_resource[i];
         if ((_bde_multi_inst == 0) || (res->inst_id == 0)) {
@@ -1157,6 +1175,8 @@ _instance_attach(unsigned int inst_id, unsigned int dma_size)
             }
         }
     }
+    spin_unlock(&bde_resource_lock);
+    gprintk("INFO: Attached to instance_id %d with dma size %d! SUCCESS\n", inst_id, dma_size);
 
     return LUBDE_SUCCESS;
 }
