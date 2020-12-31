@@ -100,7 +100,7 @@ def find_proc_cmdline_reboot_cause():
     return proc_cmdline_reboot_cause
 
 
-def find_hardware_reboot_cause():
+def get_reboot_cause_from_platform():
     # Find hardware reboot cause using sonic_platform library
     try:
         import sonic_platform
@@ -112,6 +112,11 @@ def find_hardware_reboot_cause():
         sonic_logger.log_warning("sonic_platform package not installed. Unable to detect hardware reboot causes.")
         hardware_reboot_cause_major, hardware_reboot_cause_minor = REBOOT_CAUSE_NON_HARDWARE, "N/A"
 
+    return hardware_reboot_cause_major, hardware_reboot_cause_minor
+
+
+def find_hardware_reboot_cause():
+    hardware_reboot_cause_major, hardware_reboot_cause_minor = get_reboot_cause_from_platform()
     if hardware_reboot_cause_major:
         sonic_logger.log_info("Platform api indicates reboot cause {}".format(hardware_reboot_cause_major))
     else:
