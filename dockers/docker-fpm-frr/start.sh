@@ -6,8 +6,7 @@ mkdir -p /etc/supervisor/conf.d
 CFGGEN_PARAMS=" \
     -d \
     -y /etc/sonic/constants.yml \
-    -t /usr/share/sonic/templates/supervisord/frr_vars.j2 \
-    -t /usr/share/sonic/templates/supervisord/supervisord.conf.j2,/etc/supervisor/conf.d/supervisord.conf \
+    -t /usr/share/sonic/templates/frr_vars.j2 \
     -t /usr/share/sonic/templates/bgpd/bgpd.conf.j2,/etc/frr/bgpd.conf \
     -t /usr/share/sonic/templates/zebra/zebra.conf.j2,/etc/frr/zebra.conf \
     -t /usr/share/sonic/templates/staticd/staticd.conf.j2,/etc/frr/staticd.conf \
