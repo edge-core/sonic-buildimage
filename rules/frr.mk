@@ -14,13 +14,13 @@ $(FRR)_SRC_PATH = $(SRC_PATH)/sonic-frr
 SONIC_MAKE_DEBS += $(FRR)
 
 FRR_PYTHONTOOLS = frr-pythontools_$(FRR_VERSION)-sonic-$(FRR_SUBVERSION)_all.deb
-$(eval $(call add_derived_package,$(FRR),$(FRR_PYTHONTOOLS)))
+$(eval $(call add_extra_package,$(FRR),$(FRR_PYTHONTOOLS)))
 
 FRR_DBG = frr-dbgsym_$(FRR_VERSION)-sonic-$(FRR_SUBVERSION)_$(CONFIGURED_ARCH).deb
 $(eval $(call add_derived_package,$(FRR),$(FRR_DBG)))
 
 FRR_SNMP = frr-snmp_$(FRR_VERSION)-sonic-$(FRR_SUBVERSION)_$(CONFIGURED_ARCH).deb
-$(eval $(call add_derived_package,$(FRR),$(FRR_SNMP)))
+$(eval $(call add_extra_package,$(FRR),$(FRR_SNMP)))
 
 FRR_SNMP_DBG = frr-snmp-dbgsym_$(FRR_VERSION)-sonic-$(FRR_SUBVERSION)_$(CONFIGURED_ARCH).deb
 $(eval $(call add_derived_package,$(FRR),$(FRR_SNMP_DBG)))
