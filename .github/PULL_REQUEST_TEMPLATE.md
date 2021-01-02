@@ -28,6 +28,7 @@ Please provide the following information:
 - [ ] 201811
 - [ ] 201911
 - [ ] 202006
+- [ ] 202012
 
 **- Description for the changelog**
 <!--
