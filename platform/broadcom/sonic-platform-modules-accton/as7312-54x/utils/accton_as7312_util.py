@@ -150,11 +150,12 @@ def log_os_system(cmd, show):
 
 
 def driver_check():
-    (ret, lsmod) = log_os_system('ls /sys/module/ | grep accton', 0)
-    logging.info('mods:' + lsmod)
-    if not lsmod:
+    ret, lsmod = log_os_system("ls /sys/module/*accton*", 0)
+    logging.info('mods:'+lsmod)
+    if ret :
         return False
-    return True
+    else :
+        return True
 
 
 kos = [
