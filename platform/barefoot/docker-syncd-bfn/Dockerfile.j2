@@ -1,4 +1,4 @@
-FROM docker-config-engine-stretch
+FROM docker-config-engine-buster
 
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
@@ -15,7 +15,7 @@ RUN apt-get install -y \
         libxml2 \
         libpcap-dev \
         libusb-1.0-0-dev \
-        libcurl3 \
+        libcurl4 \
         libcurl4-gnutls-dev \
         libunwind8-dev \
         libpython3.4 \
