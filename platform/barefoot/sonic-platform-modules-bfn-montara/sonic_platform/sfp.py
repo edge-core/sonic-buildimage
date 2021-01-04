@@ -46,7 +46,7 @@ class SfpUtil(SfpUtilBase):
 
     @property
     def port_to_eeprom_mapping(self):
-        print "dependency on sysfs has been removed"
+        print("dependency on sysfs has been removed")
         raise Exception()
 
     def __init__(self):
@@ -88,8 +88,8 @@ class SfpUtil(SfpUtilBase):
         try:
             presence = thrift_try(qsfp_presence_get)
         except Exception as e:
-            print e.__doc__
-            print e.message
+            print( e.__doc__)
+            print(e.message)
 
         return presence
 
@@ -167,7 +167,7 @@ class SfpUtil(SfpUtilBase):
         elif timeout > 0:
             timeout = timeout / float(1000) # Convert to secs
         else:
-            print "get_transceiver_change_event:Invalid timeout value", timeout
+            print("get_transceiver_change_event:Invalid timeout value", timeout)
             return False, {}
 
         while forever or timeout > 0:
