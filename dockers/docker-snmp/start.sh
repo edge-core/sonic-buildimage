@@ -20,7 +20,6 @@ SONIC_CFGGEN_ARGS=" \
     -d \
     -y /etc/sonic/sonic_version.yml \
     -t /usr/share/sonic/templates/sysDescription.j2,/etc/ssw/sysDescription \
-    -y /etc/sonic/snmp.yml \
     -t /usr/share/sonic/templates/snmpd.conf.j2,/etc/snmp/snmpd.conf \
 "
 

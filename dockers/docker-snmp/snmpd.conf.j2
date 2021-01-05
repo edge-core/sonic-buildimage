@@ -34,15 +34,39 @@ view   systemonly  included   .1.3.6.1.2.1.1
 view   systemonly  included   .1.3.6.1.2.1.25.1
 
                                                  #  Default access to basic system info
-{% if snmp_rocommunities %}
-{% for community in snmp_rocommunities %}
+
+
+{% if SNMP_COMMUNITY is defined %}
+{% for community in SNMP_COMMUNITY %}
+{% if SNMP_COMMUNITY[community]['TYPE'] == 'RO' %}
 rocommunity {{ community }}
 rocommunity6 {{ community }}
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if SNMP_COMMUNITY is defined %}
+{% for community in SNMP_COMMUNITY %}
+{% if SNMP_COMMUNITY[community]['TYPE'] == 'RW' %}
+rwcommunity {{ community }}
+rwcommunity6 {{ community }}
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if SNMP_USER is defined %}
+{% for user in SNMP_USER %}
+{% if SNMP_USER[user]['SNMP_USER_PERMISSION'] == 'RO' %}
+rouser {{ user }} {{ SNMP_USER[user]['SNMP_USER_TYPE'] }}
+CreateUser {{ user }} {{ SNMP_USER[user]['SNMP_USER_AUTH_TYPE'] }} {{ SNMP_USER[user]['SNMP_USER_AUTH_PASSWORD'] }} {{ SNMP_USER[user]['SNMP_USER_ENCRYPTION_TYPE'] }} {{ SNMP_USER[user]['SNMP_USER_ENCRYPTION_PASSWORD'] }}
+{% elif SNMP_USER[user]['SNMP_USER_PERMISSION'] == 'RW' %}
+rwuser {{ user }} {{ SNMP_USER[user]['SNMP_USER_TYPE'] }}
+CreateUser {{ user }} {{ SNMP_USER[user]['SNMP_USER_AUTH_TYPE'] }} {{ SNMP_USER[user]['SNMP_USER_AUTH_PASSWORD'] }} {{ SNMP_USER[user]['SNMP_USER_ENCRYPTION_TYPE'] }} {{ SNMP_USER[user]['SNMP_USER_ENCRYPTION_PASSWORD'] }}
+{% endif %}
 {% endfor %}
 {% else %}
-rocommunity {{ snmp_rocommunity }}
-rocommunity6 {{ snmp_rocommunity }}
 {% endif %}
+
 
 ###############################################################################
 #
@@ -51,8 +75,18 @@ rocommunity6 {{ snmp_rocommunity }}
 
 #  Note that setting these values here, results in the corresponding MIB objects being 'read-only'
 #  See snmpd.conf(5) for more details
-sysLocation    {{ snmp_location }}
+
+{% if SNMP is defined and SNMP.LOCATION is defined %}
+sysLocation    {{ SNMP.LOCATION.Location }}
+{% else %}
+sysLocation    public
+{% endif %}
+{% if SNMP is defined and SNMP.CONTACT is defined %}
+sysContact     {{ SNMP.CONTACT.keys()[0] }} {{ SNMP.CONTACT.values()[0] }}
+{% else %}
 sysContact     Azure Cloud Switch vteam <linuxnetdev@microsoft.com>
+{% endif %}
+
                                                  # Application + End-to-End layers
 sysServices    72
 
