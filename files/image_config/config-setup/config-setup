@@ -112,10 +112,13 @@ reload_minigraph()
 }
 
 # Reload exisitng config db file on disk
+# Usage: reload_configdb <config_file>
 reload_configdb()
 {
+    CONFIG_FILE=${1}
+
     echo "Reloading existing config db..."
-    config reload -y -n
+    config reload ${CONFIG_FILE} -y -n
 }
 # Restore SONiC configuration from a backup copy
 function copy_config_files_and_directories()
@@ -171,33 +174,6 @@ ztp_is_enabled()
     return $rv
 }
 
-# Load requested SONiC configuration into config DB and initialize it
-# Usage: load_config <config_file>
-#
-#
-load_config()
-{
-    CONFIG_FILE=${1}
-    if [ "${CONFIG_FILE}" = "" ]; then
-        return 1
-    fi
-
-    sonic-db-cli CONFIG_DB FLUSHDB
-    sonic-cfggen -j ${CONFIG_FILE} --write-to-db
-    if [ $? -ne 0 ]; then
-        return $?
-    fi
-
-    if [[ -x /usr/local/bin/db_migrator.py ]]; then
-        # Migrate the DB to the latest schema version if needed
-        /usr/local/bin/db_migrator.py -o migrate
-    fi
-
-    sonic-db-cli CONFIG_DB SET "CONFIG_DB_INITIALIZED" "1"
-    return 0
-}
-
-
 # Generate requested SONiC configuration and save it as destination file
 # Usage: generate_config < factory | ztp > <destination_file>
 #
@@ -249,14 +225,14 @@ do_config_initialization()
         if ! ztp_is_enabled ; then
             echo "No configuration detected, generating factory default configuration..."
             generate_config factory ${CONFIG_DB_JSON}
-            load_config ${CONFIG_DB_JSON}
+            reload_configdb ${CONFIG_DB_JSON}
         fi
     fi
 
     if  ztp_is_enabled ; then
         echo "No configuration detected, initiating zero touch provisioning..."
         generate_config ztp ${TMP_ZTP_CONFIG_DB_JSON}
-        load_config ${TMP_ZTP_CONFIG_DB_JSON}
+        reload_configdb ${TMP_ZTP_CONFIG_DB_JSON}
         rm -f ${TMP_ZTP_CONFIG_DB_JSON}
     fi
 
