@@ -66,6 +66,68 @@ ACTION=="add",KERNELS=="1-1.1.7.6:1.1",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}
 ACTION=="add",KERNELS=="1-1.1.7.6:1.2",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="02",ATTRS{interface}=="CP2108 Interface 2",SYMLINK+="C0-47",MODE="0666"
 ACTION=="add",KERNELS=="1-1.1.7.6:1.3",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="03",ATTRS{interface}=="CP2108 Interface 3",SYMLINK+="C0-48",MODE="0666"
 
+ACTION=="add",KERNELS=="1-1.1.7.7.1:1.0",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="00",ATTRS{interface}=="CP2108 Interface 0",SYMLINK+="C0-49",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.1:1.1",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="01",ATTRS{interface}=="CP2108 Interface 1",SYMLINK+="C0-50",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.1:1.2",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="02",ATTRS{interface}=="CP2108 Interface 2",SYMLINK+="C0-51",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.1:1.3",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="03",ATTRS{interface}=="CP2108 Interface 3",SYMLINK+="C0-52",MODE="0666"
+
+ACTION=="add",KERNELS=="1-1.1.7.7.2:1.0",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="00",ATTRS{interface}=="CP2108 Interface 0",SYMLINK+="C0-53",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.2:1.1",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="01",ATTRS{interface}=="CP2108 Interface 1",SYMLINK+="C0-54",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.2:1.2",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="02",ATTRS{interface}=="CP2108 Interface 2",SYMLINK+="C0-55",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.2:1.3",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="03",ATTRS{interface}=="CP2108 Interface 3",SYMLINK+="C0-56",MODE="0666"
+
+ACTION=="add",KERNELS=="1-1.1.7.7.3:1.0",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="00",ATTRS{interface}=="CP2108 Interface 0",SYMLINK+="C0-57",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.3:1.1",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="01",ATTRS{interface}=="CP2108 Interface 1",SYMLINK+="C0-58",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.3:1.2",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="02",ATTRS{interface}=="CP2108 Interface 2",SYMLINK+="C0-59",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.3:1.3",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="03",ATTRS{interface}=="CP2108 Interface 3",SYMLINK+="C0-60",MODE="0666"
+
+ACTION=="add",KERNELS=="1-1.1.7.7.4:1.0",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="00",ATTRS{interface}=="CP2108 Interface 0",SYMLINK+="C0-61",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.4:1.1",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="01",ATTRS{interface}=="CP2108 Interface 1",SYMLINK+="C0-62",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.4:1.2",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="02",ATTRS{interface}=="CP2108 Interface 2",SYMLINK+="C0-63",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.4:1.3",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="03",ATTRS{interface}=="CP2108 Interface 3",SYMLINK+="C0-64",MODE="0666"
+
+ACTION=="add",KERNELS=="1-1.1.7.7.5:1.0",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="00",ATTRS{interface}=="CP2108 Interface 0",SYMLINK+="C0-65",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.5:1.1",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="01",ATTRS{interface}=="CP2108 Interface 1",SYMLINK+="C0-66",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.5:1.2",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="02",ATTRS{interface}=="CP2108 Interface 2",SYMLINK+="C0-67",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.5:1.3",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="03",ATTRS{interface}=="CP2108 Interface 3",SYMLINK+="C0-68",MODE="0666"
+
+ACTION=="add",KERNELS=="1-1.1.7.7.6:1.0",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="00",ATTRS{interface}=="CP2108 Interface 0",SYMLINK+="C0-69",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.6:1.1",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="01",ATTRS{interface}=="CP2108 Interface 1",SYMLINK+="C0-70",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.6:1.2",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="02",ATTRS{interface}=="CP2108 Interface 2",SYMLINK+="C0-71",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.6:1.3",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="03",ATTRS{interface}=="CP2108 Interface 3",SYMLINK+="C0-72",MODE="0666"
+
+ACTION=="add",KERNELS=="1-1.1.7.7.7.1:1.0",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="00",ATTRS{interface}=="CP2108 Interface 0",SYMLINK+="C0-73",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.7.1:1.1",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="01",ATTRS{interface}=="CP2108 Interface 1",SYMLINK+="C0-74",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.7.1:1.2",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="02",ATTRS{interface}=="CP2108 Interface 2",SYMLINK+="C0-75",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.7.1:1.3",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="03",ATTRS{interface}=="CP2108 Interface 3",SYMLINK+="C0-76",MODE="0666"
+
+ACTION=="add",KERNELS=="1-1.1.7.7.7.2:1.0",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="00",ATTRS{interface}=="CP2108 Interface 0",SYMLINK+="C0-77",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.7.2:1.1",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="01",ATTRS{interface}=="CP2108 Interface 1",SYMLINK+="C0-78",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.7.2:1.2",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="02",ATTRS{interface}=="CP2108 Interface 2",SYMLINK+="C0-79",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.7.2:1.3",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="03",ATTRS{interface}=="CP2108 Interface 3",SYMLINK+="C0-80",MODE="0666"
+
+ACTION=="add",KERNELS=="1-1.1.7.7.7.3:1.0",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="00",ATTRS{interface}=="CP2108 Interface 0",SYMLINK+="C0-81",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.7.3:1.1",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="01",ATTRS{interface}=="CP2108 Interface 1",SYMLINK+="C0-82",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.7.3:1.2",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="02",ATTRS{interface}=="CP2108 Interface 2",SYMLINK+="C0-83",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.7.3:1.3",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="03",ATTRS{interface}=="CP2108 Interface 3",SYMLINK+="C0-84",MODE="0666"
+
+ACTION=="add",KERNELS=="1-1.1.7.7.7.4:1.0",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="00",ATTRS{interface}=="CP2108 Interface 0",SYMLINK+="C0-85",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.7.4:1.1",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="01",ATTRS{interface}=="CP2108 Interface 1",SYMLINK+="C0-86",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.7.4:1.2",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="02",ATTRS{interface}=="CP2108 Interface 2",SYMLINK+="C0-87",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.7.4:1.3",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="03",ATTRS{interface}=="CP2108 Interface 3",SYMLINK+="C0-88",MODE="0666"
+
+ACTION=="add",KERNELS=="1-1.1.7.7.7.5:1.0",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="00",ATTRS{interface}=="CP2108 Interface 0",SYMLINK+="C0-89",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.7.5:1.1",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="01",ATTRS{interface}=="CP2108 Interface 1",SYMLINK+="C0-90",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.7.5:1.2",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="02",ATTRS{interface}=="CP2108 Interface 2",SYMLINK+="C0-91",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.7.5:1.3",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="03",ATTRS{interface}=="CP2108 Interface 3",SYMLINK+="C0-92",MODE="0666"
+
+ACTION=="add",KERNELS=="1-1.1.7.7.7.6:1.0",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="00",ATTRS{interface}=="CP2108 Interface 0",SYMLINK+="C0-93",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.7.6:1.1",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="01",ATTRS{interface}=="CP2108 Interface 1",SYMLINK+="C0-94",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.7.6:1.2",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="02",ATTRS{interface}=="CP2108 Interface 2",SYMLINK+="C0-95",MODE="0666"
+ACTION=="add",KERNELS=="1-1.1.7.7.7.6:1.3",DRIVERS=="cp210x",ATTRS{bInterfaceNumber}=="03",ATTRS{interface}=="CP2108 Interface 3",SYMLINK+="C0-96",MODE="0666"
+
+
+
 LABEL="C0 Remove"
 ACTION=="remove",KERNELS=="1-1.1.1:1.0",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 1'"
 ACTION=="remove",KERNELS=="1-1.1.1:1.1",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 2'"
@@ -126,5 +188,67 @@ ACTION=="remove",KERNELS=="1-1.1.7.6:1.0",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin
 ACTION=="remove",KERNELS=="1-1.1.7.6:1.1",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 46"
 ACTION=="remove",KERNELS=="1-1.1.7.6:1.2",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 47"
 ACTION=="remove",KERNELS=="1-1.1.7.6:1.3",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 48"
+
+
+ACTION=="remove",KERNELS=="1-1.1.7.7.1:1.0",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 49"
+ACTION=="remove",KERNELS=="1-1.1.7.7.1:1.1",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 50"
+ACTION=="remove",KERNELS=="1-1.1.7.7.1:1.2",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 51"
+ACTION=="remove",KERNELS=="1-1.1.7.7.1:1.3",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 52"
+
+ACTION=="remove",KERNELS=="1-1.1.7.7.2:1.0",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 53"
+ACTION=="remove",KERNELS=="1-1.1.7.7.2:1.1",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 54"
+ACTION=="remove",KERNELS=="1-1.1.7.7.2:1.2",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 55"
+ACTION=="remove",KERNELS=="1-1.1.7.7.2:1.3",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 56"
+
+ACTION=="remove",KERNELS=="1-1.1.7.7.3:1.0",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 57"
+ACTION=="remove",KERNELS=="1-1.1.7.7.3:1.1",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 58"
+ACTION=="remove",KERNELS=="1-1.1.7.7.3:1.2",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 59"
+ACTION=="remove",KERNELS=="1-1.1.7.7.3:1.3",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 60"
+
+ACTION=="remove",KERNELS=="1-1.1.7.7.4:1.0",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 61"
+ACTION=="remove",KERNELS=="1-1.1.7.7.4:1.1",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 62"
+ACTION=="remove",KERNELS=="1-1.1.7.7.4:1.2",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 63"
+ACTION=="remove",KERNELS=="1-1.1.7.7.4:1.3",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 64"
+
+ACTION=="remove",KERNELS=="1-1.1.7.7.5:1.0",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 65"
+ACTION=="remove",KERNELS=="1-1.1.7.7.5:1.1",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 66"
+ACTION=="remove",KERNELS=="1-1.1.7.7.5:1.2",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 67"
+ACTION=="remove",KERNELS=="1-1.1.7.7.5:1.3",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 68"
+
+ACTION=="remove",KERNELS=="1-1.1.7.7.6:1.0",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 69"
+ACTION=="remove",KERNELS=="1-1.1.7.7.6:1.1",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 70"
+ACTION=="remove",KERNELS=="1-1.1.7.7.6:1.2",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 71"
+ACTION=="remove",KERNELS=="1-1.1.7.7.6:1.3",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 72"
+
+
+ACTION=="remove",KERNELS=="1-1.1.7.7.7.1:1.0",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 73"
+ACTION=="remove",KERNELS=="1-1.1.7.7.7.1:1.1",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 74"
+ACTION=="remove",KERNELS=="1-1.1.7.7.7.1:1.2",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 75"
+ACTION=="remove",KERNELS=="1-1.1.7.7.7.1:1.3",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 76"
+
+ACTION=="remove",KERNELS=="1-1.1.7.7.7.2:1.0",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 77"
+ACTION=="remove",KERNELS=="1-1.1.7.7.7.2:1.1",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 78"
+ACTION=="remove",KERNELS=="1-1.1.7.7.7.2:1.2",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 79"
+ACTION=="remove",KERNELS=="1-1.1.7.7.7.2:1.3",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 80"
+
+ACTION=="remove",KERNELS=="1-1.1.7.7.7.3:1.0",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 81"
+ACTION=="remove",KERNELS=="1-1.1.7.7.7.3:1.1",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 82"
+ACTION=="remove",KERNELS=="1-1.1.7.7.7.3:1.2",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 83"
+ACTION=="remove",KERNELS=="1-1.1.7.7.7.3:1.3",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 84"
+
+ACTION=="remove",KERNELS=="1-1.1.7.7.7.4:1.0",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 85"
+ACTION=="remove",KERNELS=="1-1.1.7.7.7.4:1.1",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 86"
+ACTION=="remove",KERNELS=="1-1.1.7.7.7.4:1.2",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 87"
+ACTION=="remove",KERNELS=="1-1.1.7.7.7.4:1.3",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 88"
+
+ACTION=="remove",KERNELS=="1-1.1.7.7.7.5:1.0",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 89"
+ACTION=="remove",KERNELS=="1-1.1.7.7.7.5:1.1",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 90"
+ACTION=="remove",KERNELS=="1-1.1.7.7.7.5:1.2",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 91"
+ACTION=="remove",KERNELS=="1-1.1.7.7.7.5:1.3",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 92"
+
+ACTION=="remove",KERNELS=="1-1.1.7.7.7.6:1.0",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 93"
+ACTION=="remove",KERNELS=="1-1.1.7.7.7.6:1.1",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 94"
+ACTION=="remove",KERNELS=="1-1.1.7.7.7.6:1.2",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 95"
+ACTION=="remove",KERNELS=="1-1.1.7.7.7.6:1.3",ENV{PRODUCT}=="10c4/ea71/*",RUN+="/bin/bash -c '/usr/local/bin/popmsg.sh 96"
 
 
