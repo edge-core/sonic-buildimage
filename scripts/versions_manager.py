@@ -190,6 +190,8 @@ class VersionModule:
             if ctype not in ctype_components:
                 ctype_components[ctype] = []
         for components in ctype_components.values():
+            if len(components) == 0:
+                continue
             config_component = self._get_config_for_ctype(components, dist, arch)
             config_components.append(config_component)
         config_module = VersionModule(self.name, config_components)
