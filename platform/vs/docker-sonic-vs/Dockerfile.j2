@@ -101,33 +101,23 @@ RUN pip3 install \
 
 {% if docker_sonic_vs_debs.strip() -%}
 # Copy locally-built Debian package dependencies
-{%- for deb in docker_sonic_vs_debs.split(' ') %}
-COPY debs/{{ deb }} /debs/
-{%- endfor %}
+COPY {%- for deb in docker_sonic_vs_debs.split(' ') %} debs/{{ deb }}{%- endfor %} /debs/
 
 # Install locally-built Debian packages and implicitly install their dependencies
-{%- for deb in docker_sonic_vs_debs.split(' ') %}
-RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /debs/{{ deb }}
-{%- endfor %}
+RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; {%- for deb in docker_sonic_vs_debs.split(' ') %} dpkg_apt /debs/{{ deb }};{%- endfor %}
 {%- endif %}
 
 {% if docker_sonic_vs_pydebs.strip() -%}
 # Copy locally-built Debian package dependencies
-{%- for deb in docker_sonic_vs_pydebs.split(' ') %}
-COPY python-debs/{{ deb }} /debs/
-{%- endfor %}
+COPY {%- for deb in docker_sonic_vs_pydebs.split(' ') %} python-debs/{{ deb }}{%- endfor %} /debs/
 
 # Install locally-built Debian packages and implicitly install their dependencies
-{%- for deb in docker_sonic_vs_pydebs.split(' ') %}
-RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; dpkg_apt /debs/{{ deb }}
-{%- endfor %}
+RUN dpkg_apt() { [ -f $1 ] && { dpkg -i $1 || apt-get -y install -f; } || return 1; }; {%- for deb in docker_sonic_vs_pydebs.split(' ') %} dpkg_apt /debs/{{ deb }};{%- endfor %}
 {%- endif %}
 
 {% if docker_sonic_vs_whls.strip() %}
 # copy all whl PKGs first,
-{% for whl in docker_sonic_vs_whls.split(' ') -%}
-COPY python-wheels/{{ whl }}  python-wheels/
-{% endfor %}
+copy {%- for whl in docker_sonic_vs_whls.split(' ') %} python-wheels/{{ whl }}{%- endfor %} python-wheels/
 
 # install PKGs after copying all PKGs to avoid dependency failure
 # use py3 to find python3 package, which is forced by wheel as of now
