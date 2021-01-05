@@ -4,6 +4,9 @@ SLAVE_DIR=$1
 ARCH=$2
 DISTRO=$3
 
+# Install the latest debian package sonic-build-hooks in the slave container
+sudo dpkg -i --force-overwrite $SLAVE_DIR/buildinfo/sonic-build-hooks_*.deb > /dev/null
+
 # Enable the build hooks
 symlink_build_hooks
 
