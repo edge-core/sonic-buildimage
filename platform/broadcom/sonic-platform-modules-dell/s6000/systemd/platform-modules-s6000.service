@@ -1,7 +1,7 @@
 [Unit]
 Description=Dell S6000 Platform modules
 After=local-fs.target
-Before=pmon.service
+Before=pmon.service determine-reboot-cause.service
 
 [Service]
 Type=oneshot

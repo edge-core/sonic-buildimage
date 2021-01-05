@@ -1,6 +1,6 @@
 [Unit]
 Description=Dell S6100 Platform modules
-Before=pmon.service
+Before=pmon.service determine-reboot-cause.service
 DefaultDependencies=no
 
 [Service]
