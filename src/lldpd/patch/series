@@ -3,3 +3,5 @@
 0004-lldpctl-put-a-lock-around-some-commands-to-avoid-rac.patch
 0006-lib-fix-memory-leak.patch
 0007-lib-fix-memory-leak-when-handling-I-O.patch
+0010-Ported-fix-for-length-exceeded-from-lldp-community.patch
+0011-fix-med-location-len.patch
