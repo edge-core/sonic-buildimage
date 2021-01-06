@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #############################################################################
-# DELLEMC S5248F
+# DELLEMC Z9332F
 #
 # Module contains an implementation of SONiC Platform Base API and
 # provides the platform information
@@ -11,6 +11,7 @@
 try:
     import os
     import time
+    import subprocess
     import struct
     import mmap
     from sonic_platform_base.sfp_base import SfpBase
@@ -157,6 +158,24 @@ sff8472_parser = {
       'vendor_date': [SFP_INFO_OFFSET, 84,  8, 'parse_vendor_date'],
   'ModuleThreshold': [SFP_DOM_OFFSET,   0, 56, 'parse_alarm_warning_threshold'],
 }
+MEDIA_TYPE_OFFSET = 0
+MEDIA_TYPE_WIDTH = 1
+
+SFP_TYPE_LIST = [
+    '03' # SFP/SFP+/SFP28 and later
+]
+QSFP_TYPE_LIST = [
+    '0c', # QSFP
+    '0d', # QSFP+ or later
+    '11'  # QSFP28 or later
+]
+QSFP_DD_TYPE_LIST = [
+    '18' #QSFP-DD Type
+]
+OSFP_TYPE_LIST=[
+    '19' # OSFP 8X Type
+]
+
 
 
 class Sfp(SfpBase):
@@ -164,12 +183,51 @@ class Sfp(SfpBase):
     DELLEMC Platform-specific Sfp class
     """
     BASE_RES_PATH = "/sys/bus/pci/devices/0000:09:00.0/resource0"
+    _port_to_i2c_mapping = {
+            1:  10,
+            2:  11,
+            3:  12,
+            4:  13,
+            5:  14,
+            6:  15,
+            7:  16,
+            8:  17,
+            9:  18,
+            10: 19,
+            11: 20,
+            12: 21,
+            13: 22,
+            14: 23,
+            15: 24,
+            16: 25,
+            17: 26,
+            18: 27,
+            19: 28,
+            20: 29,
+            21: 30,
+            22: 31,
+            23: 32,
+            24: 33,
+            25: 34,
+            26: 35,
+            27: 36,
+            28: 37,
+            29: 38,
+            30: 39,
+            31: 40,
+            32: 41,
+            33: 1,
+            34: 2
+            }
 
     def __init__(self, index, sfp_type, eeprom_path):
         SfpBase.__init__(self)
-        self.sfp_type = sfp_type
         self.index = index
         self.eeprom_path = eeprom_path
+        #sfp_type is the native port type and media_type is the transceiver type
+        #media_type will be detected in get_transceiver_info
+        self.sfp_type = sfp_type
+        self.media_type = self.sfp_type
         self.qsfpInfo = sff8436InterfaceId()
         self.qsfpDomInfo = sff8436Dom()
         self.sfpInfo = sff8472InterfaceId()
@@ -238,7 +296,7 @@ class Sfp(SfpBase):
         eeprom_data = None
         page_offset = None
 
-        if(self.sfp_type == 'QSFP'):
+        if(self.media_type == 'QSFP' or self.media_type == 'QSFP-DD'):
             page_offset = sff8436_parser[eeprom_key][PAGE_OFFSET]
             eeprom_data_raw = self._read_eeprom_bytes(
                 self.eeprom_path,
@@ -292,6 +350,9 @@ class Sfp(SfpBase):
         transceiver_info_dict = {}
         compliance_code_dict = {}
         transceiver_info_dict = dict.fromkeys(info_dict_keys, 'N/A')
+        self.media_type = self.set_media_type()
+        self.reinit_sfp_driver()
+
         # BaseInformation
         try:
             iface_data = self._get_eeprom_data('type')
@@ -301,7 +362,7 @@ class Sfp(SfpBase):
             rate_identifier = iface_data['data']['RateIdentifier']['value']
             identifier = iface_data['data']['type']['value']
             type_abbrv_name=iface_data['data']['type_abbrv_name']['value']
-            if(self.sfp_type == 'QSFP'):
+            if(self.media_type == 'QSFP' or self.media_type == 'QSFP-DD'):
                 bit_rate = str(
                     iface_data['data']['Nominal Bit Rate(100Mbs)']['value'])
                 for key in qsfp_compliance_code_tup:
@@ -398,7 +459,7 @@ class Sfp(SfpBase):
         try:
             # Module Threshold
             module_threshold_data = self._get_eeprom_data('ModuleThreshold')
-            if (self.sfp_type == 'QSFP'):
+            if (self.media_type == 'QSFP' or self.media_type == 'QSFP-DD'):
                 transceiver_dom_threshold_dict['temphighalarm'] = module_threshold_data['data']['TempHighAlarm']['value']
                 transceiver_dom_threshold_dict['temphighwarning'] = module_threshold_data['data']['TempHighWarning']['value']
                 transceiver_dom_threshold_dict['templowalarm'] = module_threshold_data['data']['TempLowAlarm']['value']
@@ -431,7 +492,7 @@ class Sfp(SfpBase):
         except (ValueError, TypeError) : pass
 
         try:
-            if (self.sfp_type == 'QSFP'):
+            if (self.media_type == 'QSFP' or self.media_type == 'QSFP-DD'):
                 channel_threshold_data = self._get_eeprom_data('ChannelThreshold')
                 transceiver_dom_threshold_dict['rxpowerhighalarm'] = channel_threshold_data['data']['RxPowerHighAlarm']['value']
                 transceiver_dom_threshold_dict['rxpowerhighwarning'] = channel_threshold_data['data']['RxPowerHighWarning']['value']
@@ -598,7 +659,7 @@ class Sfp(SfpBase):
         """
         rx_los = False
         try:
-            if (self.sfp_type == 'QSFP'):
+            if (self.media_type == 'QSFP' or self.media_type == 'QSFP-DD'):
                 rx_los_data = self._get_eeprom_data('rx_los')
                 # As the function expects a single boolean, if any one channel experience LOS,
                 # is considered LOS for QSFP 
@@ -618,7 +679,7 @@ class Sfp(SfpBase):
         """
         tx_fault = False
         try:
-            if (self.sfp_type == 'QSFP'):
+            if (self.media_type == 'QSFP' or self.media_type == 'QSFP-DD'):
                 tx_fault_data = self._get_eeprom_data('tx_fault')
                 for tx_fault_id in ('Tx1Fault', 'Tx2Fault', 'Tx3Fault', 'Tx4Fault') : 
                     tx_fault |= (tx_fault_data['data'][tx_fault_id]['value'] is 'On')
@@ -636,7 +697,7 @@ class Sfp(SfpBase):
         """
         tx_disable = False
         try:
-            if (self.sfp_type == 'QSFP'):
+            if (self.media_type == 'QSFP' or self.media_type == 'QSFP-DD'):
                 tx_disable_data = self._get_eeprom_data('tx_disable')
                 for tx_disable_id in ('Tx1Disable', 'Tx2Disable', 'Tx3Disable', 'Tx4Disable'):
                     tx_disable |= (tx_disable_data['data'][tx_disable_id]['value'] is 'On')
@@ -656,7 +717,7 @@ class Sfp(SfpBase):
         """
         tx_disable_channel = 0
         try:
-            if (self.sfp_type == 'QSFP'):
+            if (self.media_type == 'QSFP' or self.media_type == 'QSFP-DD'):
                 tx_disable_data = self._get_eeprom_data('tx_disable')
                 for tx_disable_id in ('Tx1Disable', 'Tx2Disable', 'Tx3Disable', 'Tx4Disable'):
                     tx_disable_channel <<= 1
@@ -671,7 +732,7 @@ class Sfp(SfpBase):
         """
         lpmode_state = False
         try: 
-            if (self.sfp_type == 'QSFP'):
+            if (self.media_type == 'QSFP' or self.media_type == 'QSFP-DD'):
                 # Port offset starts with 0x4000
                 port_offset = 16384 + ((self.index-1) * 16)
 
@@ -692,7 +753,7 @@ class Sfp(SfpBase):
         power_override_state = False
 
         try:
-            if (self.sfp_type == 'QSFP'):
+            if (self.media_type == 'QSFP' or self.media_type == 'QSFP-DD'):
                 power_override_data = self._get_eeprom_data('power_override')
                 power_override = power_override_data['data']['PowerOverRide']['value']
                 power_override_state = (power_override is 'On')
@@ -730,7 +791,7 @@ class Sfp(SfpBase):
         tx_bias_list = []
         try:
             tx_bias_data = self._get_eeprom_data('ChannelMonitor')
-            if (self.sfp_type == 'QSFP'):
+            if (self.media_type == 'QSFP' or self.media_type == 'QSFP-DD'):
                 for tx_bias_id in ('TX1Bias', 'TX2Bias', 'TX3Bias', 'TX4Bias') :
                     tx_bias = tx_bias_data['data'][tx_bias_id]['value']
                     tx_bias_list.append(tx_bias)
@@ -748,7 +809,7 @@ class Sfp(SfpBase):
         rx_power_list = []
         try:
             rx_power_data = self._get_eeprom_data('ChannelMonitor')
-            if (self.sfp_type == 'QSFP'):
+            if (self.media_type == 'QSFP' or self.media_type == 'QSFP-DD'):
                 for rx_power_id in ('RX1Power', 'RX2Power', 'RX3Power', 'RX4Power'):
                     rx_power = rx_power_data['data'][rx_power_id]['value']
                     rx_power_list.append(rx_power)
@@ -765,7 +826,7 @@ class Sfp(SfpBase):
         """
         tx_power_list = []
         try:
-            if(self.sfp_type == 'QSFP'):
+            if(self.media_type == 'QSFP' or self.media_type == 'QSFP-DD'):
                 # QSFP capability byte parse, through this byte can know whether it support tx_power or not.
                 # TODO: in the future when decided to migrate to support SFF-8636 instead of SFF-8436,
                 # need to add more code for determining the capability and version compliance
@@ -895,6 +956,12 @@ class Sfp(SfpBase):
         reset = self.get_reset_status()
         return (not reset)
 
+    def get_port_form_factor(self):
+        """
+        Retrieves the native port type
+        """
+        return self.sfp_type
+
     def get_max_port_power(self):
         """
         Retrieves the maximum power allowed on the port in watts
@@ -906,3 +973,58 @@ class Sfp(SfpBase):
         """
         return (12.0 if self.sfp_type=='QSFP' else 2.5)
 
+    def set_media_type(self):
+        """
+        Reads optic eeprom byte to determine media type inserted
+        """
+        eeprom_raw = []
+        eeprom_raw = self._read_eeprom_bytes(self.eeprom_path, MEDIA_TYPE_OFFSET, MEDIA_TYPE_WIDTH)
+        if eeprom_raw is not None:
+            if eeprom_raw[0] in SFP_TYPE_LIST:
+                self.media_type = 'SFP'
+            elif eeprom_raw[0] in QSFP_TYPE_LIST:
+                self.media_type = 'QSFP'
+            elif eeprom_raw[0] in QSFP_DD_TYPE_LIST:
+                self.media_type = 'QSFP-DD'
+            else:
+                #Set native port type if EEPROM type is not recognized/readable
+                self.media_type = self.sfp_type
+        else:
+            self.media_type = self.sfp_type
+
+        return self.media_type
+
+    def reinit_sfp_driver(self):
+        """
+        Changes the driver based on media type detected
+        """
+        del_sfp_path = "/sys/class/i2c-adapter/i2c-{0}/delete_device".format(self._port_to_i2c_mapping[self.index])
+        new_sfp_path = "/sys/class/i2c-adapter/i2c-{0}/new_device".format(self._port_to_i2c_mapping[self.index])
+        driver_path = "/sys/class/i2c-adapter/i2c-{0}/{0}-0050/name".format(self._port_to_i2c_mapping[self.index])
+        delete_device = "echo 0x50 >" + del_sfp_path
+
+        try:
+            with os.fdopen(os.open(driver_path, os.O_RDONLY)) as fd:
+                driver_name = fd.read()
+                driver_name = driver_name.rstrip('\r\n')
+                driver_name = driver_name.lstrip(" ")
+
+            #Avoid re-initialization of the QSFP/SFP optic on QSFP/SFP port.
+            if (self.media_type == 'SFP' and (driver_name == 'optoe1' or driver_name == 'optoe3')):
+                subprocess.Popen(delete_device, shell=True, stdout=subprocess.PIPE)
+                new_device = "echo optoe2 0x50 >" + new_sfp_path
+                subprocess.Popen(new_device, shell=True, stdout=subprocess.PIPE)
+                time.sleep(2)
+            elif (self.media_type == 'QSFP' and (driver_name == 'optoe2' or driver_name  == 'optoe3')):
+                subprocess.Popen(delete_device, shell=True, stdout=subprocess.PIPE)
+                new_device = "echo optoe1 0x50 >" + new_sfp_path
+                subprocess.Popen(new_device, shell=True, stdout=subprocess.PIPE)
+                time.sleep(2)
+            elif (self.media_type == 'QSFP-DD' and (driver_name == 'optoe1' or driver_name  == 'optoe2')):
+                subprocess.Popen(delete_device, shell=True, stdout=subprocess.PIPE)
+                new_device = "echo optoe3 0x50 >" + new_sfp_path
+                subprocess.Popen(new_device, shell=True, stdout=subprocess.PIPE)
+                time.sleep(2)
+
+        except IOError as e:
+            print("Error: Unable to open file: %s" % str(e))
