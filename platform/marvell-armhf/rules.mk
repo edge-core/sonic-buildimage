@@ -10,7 +10,6 @@ include $(PLATFORM_PATH)/linux-kernel-armhf.mk
 include $(PLATFORM_PATH)/platform-et6448m.mk
 include $(PLATFORM_PATH)/platform-nokia.mk
 
-INCLUDE_SYSTEM_TELEMETRY = ""
 ENABLE_SYNCD_RPC = ""
 INCLUDE_MGMT_FRAMEWORK = ""
 
