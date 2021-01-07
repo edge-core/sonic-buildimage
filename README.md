@@ -1,9 +1,10 @@
+*static anaylsis*:
+
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/Azure/sonic-buildimage.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Azure/sonic-buildimage/alerts/)
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/Azure/sonic-buildimage.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Azure/sonic-buildimage/context:python)
 
 
 *master builds*:
-
 
 [![Barefoot](https://sonic-jenkins.westus2.cloudapp.azure.com/job/barefoot/job/buildimage-bf-all/badge/icon?subject=Barefoot)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/barefoot/job/buildimage-bf-all)
 [![Broadcom](https://sonic-jenkins.westus2.cloudapp.azure.com/job/broadcom/job/buildimage-brcm-all/badge/icon?subject=Broadcom)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/broadcom/job/buildimage-brcm-all)
@@ -14,7 +15,19 @@
 [![Marvell(armhf)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/marvell/job/buildimage-mrvl-armhf-all/badge/icon?subject=Marvell(armhf))](https://sonic-jenkins.westus2.cloudapp.azure.com/job/marvell/job/buildimage-mrvl-armhf-all)
 [![Nephos](https://sonic-jenkins.westus2.cloudapp.azure.com/job/nephos/job/buildimage-nephos-all/badge/icon?subject=Nephos)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/nephos/job/buildimage-nephos-all)
 [![P4](https://sonic-jenkins.westus2.cloudapp.azure.com/job/p4/job/buildimage-p4-all/badge/icon?subject=P4)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/p4/job/buildimage-p4-all)
-[![VS](https://sonic-jenkins.westus2.cloudapp.azure.com/job/vs/job/buildimage-vs-all/badge/icon?subject=VS)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/vs/job/buildimage-vs-all)
+[![VS](https://sonic-jenkins.westus2.cloudapp.azure.com/job/vs/job/buildimage-vs-image/badge/icon?subject=VS)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/vs/job/buildimage-vs-image)
+
+*202012 builds*:
+
+[![Barefoot](https://sonic-jenkins.westus2.cloudapp.azure.com/job/barefoot/job/buildimage-bf-202012/badge/icon?subject=Barefoot)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/barefoot/job/buildimage-bf-202012/)
+[![Broadcom](https://sonic-jenkins.westus2.cloudapp.azure.com/job/broadcom/job/buildimage-brcm-202012/badge/icon?subject=Broadcom)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/broadcom/job/buildimage-brcm-202012)
+[![Centec](https://sonic-jenkins.westus2.cloudapp.azure.com/job/centec/job/buildimage-centec-202012/badge/icon?subject=Centec)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/centec/job/buildimage-centec-202012)
+[![Centec(arm64)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/centec/job/buildimage-centec-arm64-202012/badge/icon?subject=Centec(arm64))](https://sonic-jenkins.westus2.cloudapp.azure.com/job/centec/job/buildimage-centec-arm64-202012)
+[![Innovium](https://sonic-jenkins.westus2.cloudapp.azure.com/job/innovium/job/buildimage-invm-202012/badge/icon?subject=Innovium)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/innovium/job/buildimage-invm-202012/)
+[![Marvell(armhf)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/marvell/job/buildimage-mrvl-armhf-202012/badge/icon?subject=Marvell(armhf))](https://sonic-jenkins.westus2.cloudapp.azure.com/job/marvell/job/buildimage-mrvl-armhf-202012)
+[![Mellanox](https://sonic-jenkins.westus2.cloudapp.azure.com/job/mellanox/job/buildimage-mlnx-202012/badge/icon?subject=Mellanox)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/mellanox/job/buildimage-mlnx-202012)
+[![Nephos](https://sonic-jenkins.westus2.cloudapp.azure.com/job/nephos/job/buildimage-nephos-202012/badge/icon?subject=Nephos)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/nephos/job/buildimage-nephos-202012)
+[![VS](https://sonic-jenkins.westus2.cloudapp.azure.com/job/vs/job/buildimage-vs-image-202012/badge/icon?subject=VS)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/vs/job/buildimage-vs-image-202012)
 
 *201911 builds*:
 
@@ -26,7 +39,6 @@
 [![VS](https://sonic-jenkins.westus2.cloudapp.azure.com/job/vs/job/buildimage-vs-201911/badge/icon?subject=VS)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/vs/job/buildimage-vs-201911)
 
 *201811 builds*:
-
 
 [![Broadcom](https://sonic-jenkins.westus2.cloudapp.azure.com/job/broadcom/job/buildimage-brcm-201811/badge/icon?subject=Broadcom)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/broadcom/job/buildimage-brcm-201811/)
 [![Mellanox](https://sonic-jenkins.westus2.cloudapp.azure.com/job/mellanox/job/buildimage-mlnx-201811/badge/icon?subject=Mellanox)](https://sonic-jenkins.westus2.cloudapp.azure.com/job/mellanox/job/buildimage-mlnx-201811/)
