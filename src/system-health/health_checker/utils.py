@@ -8,8 +8,8 @@ def run_command(command):
     :return: Output of the shell command.
     """
     try:
-        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
-        return process.communicate()[0].encode('utf-8')
+        process = subprocess.Popen(command, shell=True, universal_newlines=True, stdout=subprocess.PIPE)
+        return process.communicate()[0]
     except Exception:
         return None
 
