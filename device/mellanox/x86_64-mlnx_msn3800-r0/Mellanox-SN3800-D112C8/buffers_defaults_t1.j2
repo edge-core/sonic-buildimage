@@ -1,7 +1,8 @@
 {% set default_cable = '5m' %}
-{% set ingress_lossless_pool_size =  '14790656' %}
+{% set ingress_lossless_pool_size =  '19124224' %}
+{% set ingress_lossless_pool_xoff =  '4333568' %}
 {% set egress_lossless_pool_size =  '34287552' %}
-{% set egress_lossy_pool_size =  '14790656' %}
+{% set egress_lossy_pool_size =  '19124224' %}
 
 {%- macro generate_port_lists(PORT_ALL) %}
     {# Generate list of ports #}
@@ -14,6 +15,7 @@
     "BUFFER_POOL": {
         "ingress_lossless_pool": {
             "size": "{{ ingress_lossless_pool_size }}",
+            "xoff": "{{ ingress_lossless_pool_xoff }}",
             "type": "ingress",
             "mode": "dynamic"
         },
