@@ -67,47 +67,41 @@ class PddfEeprom(eeprom_tlvinfo.TlvInfoDecoder):
                 tlv_index += ord(eeprom[tlv_index+1]) + 2
 
     def serial_number_str(self):
-        (is_valid, results) = self.get_tlv_field(
-                         self.eeprom_data, self._TLV_CODE_SERIAL_NUMBER)
+        (is_valid, results) = self.get_tlv_field(self.eeprom_data, self._TLV_CODE_SERIAL_NUMBER)
         if not is_valid:
             return "N/A"
         return results[2]
 
     def base_mac_addr(self):
-        (is_valid, t) = self.get_tlv_field(
-                          self.eeprom_data, self._TLV_CODE_MAC_BASE)
+        (is_valid, t) = self.get_tlv_field(self.eeprom_data, self._TLV_CODE_MAC_BASE)
         if not is_valid or t[1] != 6:
             return super(TlvInfoDecoder, self).switchaddrstr(e)
 
         return ":".join([binascii.b2a_hex(T) for T in t[2]])
 
     def modelstr(self):
-        (is_valid, results) = self.get_tlv_field(
-                        self.eeprom_data, self._TLV_CODE_PRODUCT_NAME)
+        (is_valid, results) = self.get_tlv_field(self.eeprom_data, self._TLV_CODE_PRODUCT_NAME)
         if not is_valid:
             return "N/A"
 
         return results[2]
 
     def part_number_str(self):
-        (is_valid, results) = self.get_tlv_field(
-                    self.eeprom_data, self._TLV_CODE_PART_NUMBER)
+        (is_valid, results) = self.get_tlv_field(self.eeprom_data, self._TLV_CODE_PART_NUMBER)
         if not is_valid:
             return "N/A"
 
         return results[2]
 
     def serial_str(self):
-        (is_valid, results) = self.get_tlv_field(
-                    self.eeprom_data, self._TLV_CODE_SERVICE_TAG)
+        (is_valid, results) = self.get_tlv_field(self.eeprom_data, self._TLV_CODE_SERVICE_TAG)
         if not is_valid:
             return "N/A"
 
         return results[2]
 
     def revision_str(self):
-        (is_valid, results) = self.get_tlv_field(
-                    self.eeprom_data, self._TLV_CODE_DEVICE_VERSION)
+        (is_valid, results) = self.get_tlv_field(self.eeprom_data, self._TLV_CODE_DEVICE_VERSION)
         if not is_valid:
             return "N/A"
 

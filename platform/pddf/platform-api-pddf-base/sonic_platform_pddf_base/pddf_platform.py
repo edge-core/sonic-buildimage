@@ -10,7 +10,7 @@
 
 try:
     import json
-    import pddfparse
+    from . import pddfparse
     from sonic_platform_base.platform_base import PlatformBase
     from sonic_platform.chassis import Chassis
 except ImportError as e:
@@ -23,6 +23,7 @@ class PddfPlatform(PlatformBase):
     """
     pddf_data = {}
     pddf_plugin_data = {}
+
     def __init__(self):
         # Initialize the JSON data
         self.pddf_data = pddfparse.PddfParse()
@@ -30,7 +31,7 @@ class PddfPlatform(PlatformBase):
             self.pddf_plugin_data = json.load(pd)
 
         if not self.pddf_data or not self.pddf_plugin_data:
-            print "Error: PDDF JSON data is not loaded properly ... Exiting"
+            print("Error: PDDF JSON data is not loaded properly ... Exiting")
             raise ValueError
 
         PlatformBase.__init__(self)

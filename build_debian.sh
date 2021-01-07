@@ -275,7 +275,6 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     ntpstat                 \
     openssh-server          \
     python                  \
-    python-jsonschema       \
     python-apt              \
     traceroute              \
     iputils-ping            \

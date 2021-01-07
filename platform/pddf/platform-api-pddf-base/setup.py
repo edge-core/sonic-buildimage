@@ -14,6 +14,9 @@ setup(
     packages=[
         'sonic_platform_pddf_base',
     ],
+    install_requires=[
+        'jsonschema==2.6.0'
+    ],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Plugins',
@@ -24,6 +27,7 @@ setup(
         'Natural Language :: English',
         'Operating System :: POSIX :: Linux',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.7',
         'Topic :: Utilities',
     ],
     keywords='sonic SONiC platform PLATFORM',
