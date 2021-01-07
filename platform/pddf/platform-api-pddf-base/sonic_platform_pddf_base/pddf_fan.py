@@ -22,7 +22,7 @@ class PddfFan(FanBase):
     plugin_data = {}
 
     def __init__(self, tray_idx, fan_idx=0, pddf_data=None, pddf_plugin_data=None, is_psu_fan=False, psu_index=0):
-        # idx is 0-based 
+        # idx is 0-based
         if not pddf_data or not pddf_plugin_data:
             raise ValueError('PDDF JSON data error')
 
@@ -30,12 +30,12 @@ class PddfFan(FanBase):
         self.plugin_data = pddf_plugin_data
         self.platform = self.pddf_obj.get_platform()
 
-        if tray_idx<0 or tray_idx>=self.platform['num_fantrays']:
-            print "Invalid fantray index %d\n"%tray_idx
+        if tray_idx < 0 or tray_idx >= self.platform['num_fantrays']:
+            print("Invalid fantray index %d\n" % tray_idx)
             return
-        
-        if fan_idx<0 or fan_idx>=self.platform['num_fans_pertray']:
-            print "Invalid fan index (within a tray) %d\n"%fan_idx
+
+        if fan_idx < 0 or fan_idx >= self.platform['num_fans_pertray']:
+            print("Invalid fan index (within a tray) %d\n" % fan_idx)
             return
 
         self.fantray_index = tray_idx+1
@@ -160,7 +160,7 @@ class PddfFan(FanBase):
 
             if not output:
                 return 0
-            
+
             output['status'] = output['status'].rstrip()
             if output['status'].isalpha():
                 return 0
@@ -185,7 +185,7 @@ class PddfFan(FanBase):
             output = self.pddf_obj.get_attr_name_output(device, attr)
             if not output:
                 return 0
-            
+
             output['status'] = output['status'].rstrip()
             if output['status'].isalpha():
                 return 0
@@ -229,7 +229,7 @@ class PddfFan(FanBase):
 
             if not output:
                 return 0
-            
+
             output['status'] = output['status'].rstrip()
             if output['status'].isalpha():
                 return 0
@@ -250,7 +250,7 @@ class PddfFan(FanBase):
             An integer, the percentage of variance from target speed which is
                  considered tolerable
         """
-        # Fix the speed vairance to 10 percent. If it changes based on platforms, overwrite 
+        # Fix the speed vairance to 10 percent. If it changes based on platforms, overwrite
         # this value in derived pddf fan class
         return 10
 
@@ -266,20 +266,19 @@ class PddfFan(FanBase):
             A boolean, True if speed is set successfully, False if not
         """
         if self.is_psu_fan:
-            print "Setting PSU fan speed is not allowed"
+            print("Setting PSU fan speed is not allowed")
             return False
         else:
-            if speed<0 or speed>100:
-                print "Error: Invalid speed %d. Please provide a valid speed percentage"%speed
+            if speed < 0 or speed > 100:
+                print("Error: Invalid speed %d. Please provide a valid speed percentage" % speed)
                 return False
 
             if 'duty_cycle_to_pwm' not in self.plugin_data['FAN']:
-                print "Setting fan speed is not allowed !"
+                print("Setting fan speed is not allowed !")
                 return False
             else:
                 duty_cycle_to_pwm = eval(self.plugin_data['FAN']['duty_cycle_to_pwm'])
                 pwm = int(round(duty_cycle_to_pwm(speed)))
-
 
                 status = False
                 idx = (self.fantray_index-1)*self.platform['num_fans_pertray'] + self.fan_index
@@ -287,7 +286,7 @@ class PddfFan(FanBase):
                 output = self.pddf_obj.set_attr_name_output("FAN-CTRL", attr, pwm)
                 if not output:
                     return False
-                
+
                 status = output['status']
 
                 return status
@@ -296,36 +295,34 @@ class PddfFan(FanBase):
         index = str(self.fantray_index-1)
         led_device_name = "FANTRAY{}".format(self.fantray_index) + "_LED"
 
-        result, msg = self.pddf_obj.is_supported_sysled_state(led_device_name, color);
+        result, msg = self.pddf_obj.is_supported_sysled_state(led_device_name, color)
         if result == False:
-                print msg
-                return (False)
+            print(msg)
+            return (False)
 
-
-        device_name=self.pddf_obj.data[led_device_name]['dev_info']['device_name']
+        device_name = self.pddf_obj.data[led_device_name]['dev_info']['device_name']
         self.pddf_obj.create_attr('device_name', device_name,  self.pddf_obj.get_led_path())
         self.pddf_obj.create_attr('index', index, self.pddf_obj.get_led_path())
         self.pddf_obj.create_attr('color', color, self.pddf_obj.get_led_cur_state_path())
         self.pddf_obj.create_attr('dev_ops', 'set_status',  self.pddf_obj.get_led_path())
         return (True)
 
-
     def get_status_led(self):
         index = str(self.fantray_index-1)
         fan_led_device = "FANTRAY{}".format(self.fantray_index) + "_LED"
 
-        if (not fan_led_device in self.pddf_obj.data.keys()):
+        if fan_led_device not in self.pddf_obj.data.keys():
             # Implement a generic status_led color scheme
             if self.get_status():
                 return self.STATUS_LED_COLOR_GREEN
             else:
                 return self.STATUS_LED_COLOR_OFF
 
-        device_name=self.pddf_obj.data[fan_led_device]['dev_info']['device_name']
+        device_name = self.pddf_obj.data[fan_led_device]['dev_info']['device_name']
         self.pddf_obj.create_attr('device_name', device_name,  self.pddf_obj.get_led_path())
         self.pddf_obj.create_attr('index', index, self.pddf_obj.get_led_path())
         self.pddf_obj.create_attr('dev_ops', 'get_status',  self.pddf_obj.get_led_path())
-        color=self.pddf_obj.get_led_color()
+        color = self.pddf_obj.get_led_color()
         return (color)
 
     def dump_sysfs(self):

@@ -18,6 +18,7 @@ try:
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
+
 class PddfChassis(ChassisBase):
     """
     PDDF Generic Chassis class
@@ -33,7 +34,7 @@ class PddfChassis(ChassisBase):
         self.plugin_data = pddf_plugin_data if pddf_plugin_data else None
         if not self.pddf_obj or not self.plugin_data:
             try:
-                import pddfparse
+                from . import pddfparse
                 import json
                 self.pddf_obj = pddfparse.PddfParse()
                 with open('/usr/share/sonic/platform/pddf/pd-plugin.json') as pd:
@@ -67,8 +68,8 @@ class PddfChassis(ChassisBase):
             thermal = Thermal(i, self.pddf_obj, self.plugin_data)
             self._thermal_list.append(thermal)
 
-	# SYSTEM LED Test Cases 
-	"""
+        # SYSTEM LED Test Cases
+        """
 	#comment out test cases
 	sys_led_list= { "LOC":0,
 			"DIAG":0, 
@@ -89,8 +90,6 @@ class PddfChassis(ChassisBase):
 	color=self.get_system_led("LOC_LED")
 	print "Set off: " + color
 	"""
-
-
 
     def get_name(self):
         """
@@ -438,33 +437,31 @@ class PddfChassis(ChassisBase):
     # System LED  methods
     ##############################################
     def set_system_led(self, led_device_name, color):
-        result, msg = self.pddf_obj.is_supported_sysled_state(led_device_name, color);
+        result, msg = self.pddf_obj.is_supported_sysled_state(led_device_name, color)
         if result == False:
-                print msg
-                return (False)
+            print(msg)
+            return (False)
 
-        index=self.pddf_obj.data[led_device_name]['dev_attr']['index']
-        device_name=self.pddf_obj.data[led_device_name]['dev_info']['device_name']
+        index = self.pddf_obj.data[led_device_name]['dev_attr']['index']
+        device_name = self.pddf_obj.data[led_device_name]['dev_info']['device_name']
         self.pddf_obj.create_attr('device_name', device_name,  self.pddf_obj.get_led_path())
         self.pddf_obj.create_attr('index', index, self.pddf_obj.get_led_path())
         self.pddf_obj.create_attr('color', color, self.pddf_obj.get_led_cur_state_path())
         self.pddf_obj.create_attr('dev_ops', 'set_status',  self.pddf_obj.get_led_path())
         return (True)
 
-
     def get_system_led(self, led_device_name):
-        if (not led_device_name in self.pddf_obj.data.keys()):
-                status= "[FAILED] " + led_device_name + " is not configured"
-                return (status)
+        if led_device_name not in self.pddf_obj.data.keys():
+            status = "[FAILED] " + led_device_name + " is not configured"
+            return (status)
 
-        index=self.pddf_obj.data[led_device_name]['dev_attr']['index']
-        device_name=self.pddf_obj.data[led_device_name]['dev_info']['device_name']
+        index = self.pddf_obj.data[led_device_name]['dev_attr']['index']
+        device_name = self.pddf_obj.data[led_device_name]['dev_info']['device_name']
         self.pddf_obj.create_attr('device_name', device_name,  self.pddf_obj.get_led_path())
         self.pddf_obj.create_attr('index', index, self.pddf_obj.get_led_path())
         self.pddf_obj.create_attr('dev_ops', 'get_status',  self.pddf_obj.get_led_path())
-        color=self.pddf_obj.get_led_color()
+        color = self.pddf_obj.get_led_color()
         return (color)
-
 
     ##############################################
     # Other methods
@@ -513,4 +510,3 @@ class PddfChassis(ChassisBase):
                       has been inserted and sfp 11 has been removed.
         """
         raise NotImplementedError
-
