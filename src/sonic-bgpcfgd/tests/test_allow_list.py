@@ -17,7 +17,9 @@ global_constants = {
                     "deny 0::/0 le 59",
                     "deny 0::/0 ge 65"
                 ]
-            }
+            },
+            "default_action": "permit",
+            "drop_community": "123:123"
         }
     }
 }
@@ -63,7 +65,12 @@ def test_set_handler_with_community():
                 "prefixes_v4": "10.20.30.0/24,30.50.0.0/16",
                 "prefixes_v6": "fc00:20::/64,fc00:30::/64",
         }),
-        [],
+        [
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 65535',
+            ' set community 123:123 additive',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 65535',
+            ' set community 123:123 additive'
+        ],
         [
             'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V4 seq 10 deny 0.0.0.0/0 le 17',
             'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V4 seq 20 permit 10.20.30.0/24 le 32',
@@ -89,7 +96,12 @@ def test_set_handler_no_community():
                 "prefixes_v4": "20.20.30.0/24,40.50.0.0/16",
                 "prefixes_v6": "fc01:20::/64,fc01:30::/64",
         }),
-        [],
+        [
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 65535',
+            ' set community 123:123 additive',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 65535',
+            ' set community 123:123 additive',
+        ],
         [
             'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V4 seq 10 deny 0.0.0.0/0 le 17',
             'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V4 seq 20 permit 20.20.30.0/24 le 32',
@@ -183,6 +195,10 @@ def test_set_handler_with_community_data_is_already_presented():
             'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 10',
             ' match ipv6 address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6',
             ' match community COMMUNITY_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 65535',
+            ' set community 123:123 additive',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 65535',
+            ' set community 123:123 additive',
             ""
         ],
         []
@@ -205,6 +221,10 @@ def test_set_handler_no_community_data_is_already_presented():
         ' match ip address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V4',
         'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 30000',
         ' match ipv6 address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V6',
+        'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 65535',
+        ' set community 123:123 additive',
+        'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 65535',
+        ' set community 123:123 additive',
         ""
     ]
     common_objs = {
@@ -258,6 +278,10 @@ def test_set_handler_with_community_update_prefixes_add():
             'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 10',
             ' match ipv6 address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6',
             ' match community COMMUNITY_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 65535',
+            ' set community 123:123 additive',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 65535',
+            ' set community 123:123 additive',
             ""
         ],
         [
@@ -294,6 +318,10 @@ def test_set_handler_no_community_update_prefixes_add():
             ' match ip address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V4',
             'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 30000',
             ' match ipv6 address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V6',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 65535',
+            ' set community 123:123 additive',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 65535',
+            ' set community 123:123 additive',
             ""
         ],
         [
@@ -448,5 +476,115 @@ def test___to_prefix_list():
     assert res_v4 == ["permit 1.2.3.4/32", "permit 10.20.20.10/24 le 32"]
     res_v6 = mgr._BGPAllowListMgr__to_prefix_list(mgr.V6, ["fc00::1/128", "fc00::/64"])
     assert res_v6 == ["permit fc00::1/128", "permit fc00::/64 le 128"]
+
+@patch.dict("sys.modules", swsscommon=swsscommon_module_mock)
+def construct_BGPAllowListMgr(constants):
+    from bgpcfgd.managers_allow_list import BGPAllowListMgr
+    cfg_mgr = MagicMock()
+    common_objs = {
+        'directory': Directory(),
+        'cfg_mgr':   cfg_mgr,
+        'tf':        TemplateFabric(),
+        'constants': constants,
+    }
+    mgr = BGPAllowListMgr(common_objs, "CONFIG_DB", "BGP_ALLOWED_PREFIXES")
+    return mgr
+
+def test___get_enabled_enabled():
+    constants = {
+        "bgp": {
+            "allow_list": {
+                "enabled": True,
+            }
+        }
+    }
+    mgr = construct_BGPAllowListMgr(constants)
+    assert mgr._BGPAllowListMgr__get_enabled()
+
+def test___get_enabled_disabled_1():
+    constants = {
+        "bgp": {
+            "allow_list": {
+                "enabled": False,
+            }
+        }
+    }
+    mgr = construct_BGPAllowListMgr(constants)
+    assert not mgr._BGPAllowListMgr__get_enabled()
+
+def test___get_enabled_disabled_2():
+    constants = {
+        "bgp": {
+            "allow_list": {}
+        }
+    }
+    mgr = construct_BGPAllowListMgr(constants)
+    assert not mgr._BGPAllowListMgr__get_enabled()
+
+def test___get_enabled_disabled_3():
+    constants = {
+        "bgp": {}
+    }
+    mgr = construct_BGPAllowListMgr(constants)
+    assert not mgr._BGPAllowListMgr__get_enabled()
+
+def test___get_enabled_disabled_4():
+    constants = {}
+    mgr = construct_BGPAllowListMgr(constants)
+    assert not mgr._BGPAllowListMgr__get_enabled()
+
+def test___get_default_action_deny():
+    constants = {
+        "bgp": {
+            "allow_list": {
+                "enabled": True,
+                "default_action": "deny",
+                "drop_community": "123:123"
+            }
+        }
+    }
+    data = {}
+    mgr = construct_BGPAllowListMgr(constants)
+    assert mgr._BGPAllowListMgr__get_default_action_community(data) == "no-export"
+
+def test___get_default_action_permit_1():
+    constants = {
+        "bgp": {
+            "allow_list": {
+                "enabled": True,
+                "default_action": "permit",
+                "drop_community": "123:123"
+            }
+        }
+    }
+    data = {}
+    mgr = construct_BGPAllowListMgr(constants)
+    assert mgr._BGPAllowListMgr__get_default_action_community(data) == "123:123"
+
+def test___get_default_action_permit_2():
+    constants = {
+        "bgp": {
+            "allow_list": {
+                "enabled": True,
+                "drop_community": "123:123"
+            }
+        }
+    }
+    data = {}
+    mgr = construct_BGPAllowListMgr(constants)
+    assert mgr._BGPAllowListMgr__get_default_action_community(data) == "123:123"
+
+def test___get_default_action_permit_3():
+    constants = {
+        "bgp": {
+            "allow_list": {
+                "enabled": False,
+                "drop_community": "123:123"
+            }
+        }
+    }
+    data = {}
+    mgr = construct_BGPAllowListMgr(constants)
+    assert mgr._BGPAllowListMgr__get_default_action_community(data) == "123:123"
 
 # FIXME: more testcases for coverage
