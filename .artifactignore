@@ -1,0 +1,4 @@
+**/*
+!target/*.bin
+!target/*.log
+!target/*.img.gz

@@ -6,14 +6,128 @@
 trigger:
 - main
 
-pool:
-  vmImage: 'ubuntu-latest'
+pr:
+- master
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+name: $(TeamProject)_$(Build.DefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+resources:
+  repositories:
+  - repository: sonic-mgmt
+    type: github
+    name: Azure/sonic-mgmt
+    endpoint: build
+
+stages:
+- stage: Build
+  pool: sonicbld
+
+  jobs:
+  - job:
+    displayName: "broadcom"
+    timeoutInMinutes: 3600
+    steps:
+    - checkout: self
+      submodules: recursive
+      displayName: 'Checkout code'
+
+    - script: |
+        sudo modprobe overlay
+        CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=rcache SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/broadcom"
+        ENABLE_DOCKER_BASE_PULL=y make configure PLATFORM=broadcom
+        make USERNAME=admin SONIC_BUILD_JOBS=$(nproc) $CACHE_OPTIONS target/sonic-broadcom.bin
+      displayName: 'Build sonic image'
+    - script: |
+        sudo rm -rf fsroot
+      displayName: 'Clean up build artifacts'
+    - publish: $(System.DefaultWorkingDirectory)/
+      artifact: sonic-buildimage.broadcom
+      displayName: "Archive sonic image"
+
+  - job:
+    displayName: "kvm"
+    timeoutInMinutes: 3600
+    steps:
+    - checkout: self
+      submodules: recursive
+      displayName: 'Checkout code'
+
+    - script: |
+        echo $(Build.BuildNumber)
+        sudo modprobe overlay
+        CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=rcache SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/vs"
+        ENABLE_DOCKER_BASE_PULL=y make configure PLATFORM=vs
+        make USERNAME=admin SONIC_BUILD_JOBS=$(nproc) $CACHE_OPTIONS target/sonic-vs.img.gz
+        sudo cp target/sonic-vs.img.gz /nfs/azpl/kvmimage/sonic-vs.$(Build.BuildNumber).img.gz
+      displayName: 'Build sonic image'
+    - script: |
+        sudo rm -rf fsroot
+      displayName: 'Clean up build artifacts'
+    - publish: $(System.DefaultWorkingDirectory)/
+      artifact: sonic-buildimage.kvm
+      displayName: "Archive sonic image"
+
+- stage: Test
+  pool: sonictest
+  variables:
+  - name: dut
+    value: vlab-01
+  - name: tbname
+    value: vms-kvm-t0
+  - name: inventory
+    value: veos_vtb
+  - name: testbed_file
+    value: vtestbed.csv
+  - name: ptf_name
+    value: ptf_vms6-1
+
+  jobs:
+  - job:
+    displayName: "kvmtest"
+    timeoutInMinutes: 240
+    steps:
+    - script: |
+        sudo mkdir -p /data/sonic-vm/images
+        sudo cp -v /nfs/azpl/kvmimage/sonic-vs.$(Build.BuildNumber).img.gz /data/sonic-vm/images/sonic-vs.img.gz
+        sudo gzip -fd /data/sonic-vm/images/sonic-vs.img.gz
+        username=$(id -un)
+        sudo chown -R $username.$username /data/sonic-vm
+        pushd /data/sonic-mgmt
+        git remote update
+        git reset --hard origin/master
+        sed -i s/use_own_value/${username}/ ansible/veos_vtb
+        echo aaa > ansible/password.txt
+        docker exec sonic-mgmt bash -c "pushd /data/sonic-mgmt/ansible;./testbed-cli.sh -d /data/sonic-vm -m $(inventory) -t $(testbed_file) refresh-dut $(tbname) password.txt" && sleep 180
+      displayName: "Setup T0 testbed"
+    - script: |
+        pwd
+        username=$(id -un)
+
+        docker exec sonic-mgmt bash -c "/data/sonic-mgmt/tests/kvmtest.sh -n $(tbname) $(dut)"
+
+        # save dut state if test fails
+        if [ $? != 0 ]; then
+            virsh_version=$(virsh --version)
+            if [ $virsh_version == "6.0.0" ]; then
+                rm -rf kvmdump
+                mkdir -p kvmdump
+                virsh -c qemu:///system list
+                virsh -c qemu:///system save $(dut) kvmdump/$(dut).memdmp
+                virsh -c qemu:///system dumpxml $(dut) > kvmdump/$(dut).xml
+                img=$(virsh -c qemu:///system domblklist $(dut) | grep vda | awk '{print $2}')
+                cp $img kvmdump/$(dut).img
+                sudo chown -R $username.$username kvmdump
+                virsh -c qemu:///system undefine $(dut)
+            fi
+
+            rm -rf ptfdump
+            mkdir -p ptfdump
+            docker commit $ptf_name docker-ptf:$(Build.BuildNumber)
+            docker save docker-ptf:$(Build.BuildNumber) | gzip -c > ptfdump/docker-ptf-dump.gz
+            docker rmi docker-ptf:$(Build.BuildNumber)
+
+            exit 2
+        else
+            sudo rm /nfs/azpl/kvmimage/sonic-vs.$(Build.BuildNumber).img.gz
+        fi
+      displayName: "Run T0 tests"
