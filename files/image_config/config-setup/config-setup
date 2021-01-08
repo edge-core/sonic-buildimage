@@ -41,6 +41,8 @@ CONFIG_SETUP_PRE_MIGRATION_FLAG=${CONFIG_SETUP_VAR_DIR}/pending_pre_migration
 CONFIG_SETUP_POST_MIGRATION_FLAG=${CONFIG_SETUP_VAR_DIR}/pending_post_migration
 CONFIG_SETUP_INITIALIZATION_FLAG=${CONFIG_SETUP_VAR_DIR}/pending_initialization
 
+TACACS_JSON_BACKUP=tacacs.json
+
 # Command usage and help
 usage()
 {
@@ -108,6 +110,11 @@ reload_minigraph()
 {
     echo "Reloading minigraph..."
     config load_minigraph -y -n 
+    if [ -r /etc/sonic/old_config/${TACACS_JSON_BACKUP} ]; then
+        sonic-cfggen -j /etc/sonic/old_config/${TACACS_JSON_BACKUP} --write-to-db
+    else
+        echo "Missing tacacs json to restore tacacs credentials"
+    fi
     config save -y
 }
 
