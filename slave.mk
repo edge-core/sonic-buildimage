@@ -116,14 +116,6 @@ ifeq ($(SONIC_INCLUDE_SYSTEM_TELEMETRY),y)
 INCLUDE_SYSTEM_TELEMETRY = y
 endif
 
-ifneq (,$(filter $(CONFIGURED_ARCH), arm64))
-    # Workaround: Force disable Telmetry for ARM, will be removed after fixing issue
-    # Issue: qemu crashes when it uses "go get url"
-    # Qemu Support: https://bugs.launchpad.net/qemu/+bug/1838946
-    # Golang Support: https://groups.google.com/forum/?utm_medium=email&utm_source=footer#!topic/golang-nuts/1txPOGa4aGc
-INCLUDE_SYSTEM_TELEMETRY = n
-endif
-
 ifeq ($(SONIC_INCLUDE_RESTAPI),y)
 INCLUDE_RESTAPI = y
 endif
