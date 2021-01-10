@@ -85,3 +85,6 @@
 [submodule "src/sonic-mgmt-common"]
 	path = src/sonic-mgmt-common
 	url = https://github.com/Azure/sonic-mgmt-common.git
+[submodule "src/wpasupplicant/sonic-wpa-supplicant"]
+	path = src/wpasupplicant/sonic-wpa-supplicant
+	url = https://github.com/Azure/sonic-wpa-supplicant.git
