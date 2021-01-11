@@ -41,7 +41,7 @@ check_version_control()
 get_url_version()
 {
     local package_url=$1
-    /usr/bin/curl -ks $package_url | md5sum | cut -d' ' -f1
+    /usr/bin/curl -Lks $package_url | md5sum | cut -d' ' -f1
 }
 
 check_if_url_exist()
