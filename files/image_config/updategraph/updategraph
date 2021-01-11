@@ -1,6 +1,7 @@
 #!/bin/bash
 
 CONFIG_DB_INDEX=4
+TACACS_JSON_BACKUP=tacacs.json
 
 reload_minigraph()
 {
@@ -15,6 +16,11 @@ reload_minigraph()
         acl-loader update full /etc/sonic/acl.json
     fi
     config qos reload
+    if [ -r /etc/sonic/old_config/${TACACS_JSON_BACKUP} ]; then
+        sonic-cfggen -j /etc/sonic/old_config/${TACACS_JSON_BACKUP} --write-to-db
+    else
+        echo "Missing tacacs json to restore tacacs credentials"
+    fi
     DEVICE_TYPE=`sonic-cfggen -m -v DEVICE_METADATA.localhost.type`
     if [ "${DEVICE_TYPE}" != "MgmtToRRouter" ]; then
         pfcwd start_default
