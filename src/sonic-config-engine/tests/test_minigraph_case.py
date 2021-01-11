@@ -57,6 +57,11 @@ class TestCfgGenCaseInsensitive(TestCase):
         output = self.run_script(argument)
         self.assertEqual(output.strip(), 'DualToR')
 
+    def test_minigraph_peer_switch_hostname(self):
+        argument = '-m "' + self.sample_graph + '" -v "DEVICE_METADATA[\'localhost\'][\'peer_switch\']"'
+        output = self.run_script(argument)
+        self.assertEqual(output.strip(), 'switch2-t0')
+
     def test_additional_json_data(self):
         argument = '-a \'{"key1":"value1"}\' -v key1'
         output = self.run_script(argument)
