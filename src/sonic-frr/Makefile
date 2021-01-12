@@ -25,7 +25,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	cp -a debianpkg debian
 	make -f debian/rules backports
 
-	# new directory to build the package 
+	# new directory to build the package
 	rm -rf frrpkg
 	mkdir frrpkg
 	cd frrpkg
@@ -34,7 +34,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	tar xf ../../frr_*sonic.debian8*.debian.tar.xz
 
 	# build package
-	dpkg-buildpackage -rfakeroot -b -us -uc
+	dpkg-buildpackage -rfakeroot -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS) --admindir $(SONIC_DPKG_ADMINDIR)
 	cd ..
 	mv $(DERIVED_TARGET) $* $(DEST)/
 
