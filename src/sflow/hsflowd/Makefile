@@ -21,7 +21,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	chmod u+x debian/rules
 	sed -i -e s/_VERSION_/$(HSFLOWD_VERSION)-$(HSFLOWD_SUBVERSION)/g debian/changelog
 
-	dpkg-buildpackage -rfakeroot -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS) --buildinfo-option=-u. --changes-option=-u.
+	dpkg-buildpackage -rfakeroot -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS) --buildinfo-option=-u. --changes-option=-u. --admindir $(SONIC_DPKG_ADMINDIR)
 
 	mv $(DERIVED_TARGET) $* $(DEST)/
 	popd

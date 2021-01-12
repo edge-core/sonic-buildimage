@@ -5,7 +5,7 @@ BINARY = systemd-sonic-generator
 MAIN_TARGET = $(BINARY)_1.0.0_$(CONFIGURED_ARCH).deb
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
-	dpkg-buildpackage -us -uc -b
+	dpkg-buildpackage -us -uc -b -j$(SONIC_CONFIG_MAKE_JOBS) --admindir $(SONIC_DPKG_ADMINDIR)
 	mv ../$(MAIN_TARGET) $(DEST)/
 	rm ../$(BINARY)-* ../$(BINARY)_*
 
