@@ -9,7 +9,7 @@ DERIVED_TARGETS = libtac2_$(PAM_TACPLUS_VERSION)_$(CONFIGURED_ARCH).deb \
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# Obtain pam_tacplus
 	rm -rf ./pam_tacplus
-	git clone https://github.com/jeroennijhof/pam_tacplus.git 
+	git clone https://github.com/jeroennijhof/pam_tacplus.git
 	pushd ./pam_tacplus
 	git checkout -f v1.4.1
 
@@ -21,7 +21,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	git apply ../0005-pam-Modify-parsing-of-IP-address-and-port-number-to-.patch
 	git apply ../0006-Add-support-for-source-ip-address.patch
 
-	dpkg-buildpackage -rfakeroot -b -us -uc
+	dpkg-buildpackage -rfakeroot -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS) --admindir $(SONIC_DPKG_ADMINDIR)
 	popd
 
 	mv $(DERIVED_TARGETS) $* $(DEST)/

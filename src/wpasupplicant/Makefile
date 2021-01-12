@@ -8,7 +8,7 @@ DERIVED_TARGETS = wpasupplicant-dbgsym_$(WPASUPPLICANT_VERSION)_$(CONFIGURED_ARC
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# Clone wpa repo
 	pushd ./sonic-wpa-supplicant
-	dpkg-buildpackage -rfakeroot -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS)
+	dpkg-buildpackage -rfakeroot -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS) --admindir $(SONIC_DPKG_ADMINDIR)
 	popd
 
 	# Move the newly-built .deb packages to the destination directory

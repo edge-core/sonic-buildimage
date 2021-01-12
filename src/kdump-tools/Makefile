@@ -25,7 +25,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	stg import -s ../patch/series
 
 	# Build source and Debian packages
-	fakeroot debian/rules binary-indep
+	dpkg-buildpackage -rfakeroot -b -us -uc -Tbinary-indep -j$(SONIC_CONFIG_MAKE_JOBS) --admindir $(SONIC_DPKG_ADMINDIR)
 	popd
 
 	# Move the newly-built .deb packages to the destination directory

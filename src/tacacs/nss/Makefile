@@ -6,7 +6,7 @@ MAIN_TARGET = libnss-tacplus_$(NSS_TACPLUS_VERSION)_$(CONFIGURED_ARCH).deb
 
 GIT_APPLY = am
 ifneq (,$(filter $(CONFIGURED_ARCH), armhf arm64))
-# Workaround git am issue "Out of memory getdelim failed" 
+# Workaround git am issue "Out of memory getdelim failed"
 GIT_APPLY = apply
 endif
 
@@ -26,7 +26,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	git $(GIT_APPLY) ../0006-fix-compiling-warning-about-token-dereference.patch
 	git $(GIT_APPLY) ../0007-Add-support-for-TACACS-source-address.patch
 
-	dpkg-buildpackage -rfakeroot -b -us -uc
+	dpkg-buildpackage -rfakeroot -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS) --admindir $(SONIC_DPKG_ADMINDIR)
 	popd
 
 	mv $(DERIVED_TARGETS) $* $(DEST)/
