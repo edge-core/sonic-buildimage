@@ -278,6 +278,7 @@ class sfp_event:
         port_cnt_p = new_uint32_t_p()
         uint32_t_p_assign(port_cnt_p,64)
         label_port_list = []
+        label_port = None
         module_state = 0
 
         rc = sx_lib_host_ifc_recv(fd_p, pkt, pkt_size_p, recv_info_p)
@@ -309,9 +310,11 @@ class sfp_event:
                 for i in range(port_cnt):
                     port_attributes = sx_port_attributes_t_arr_getitem(port_attributes_list,i)
                     if port_attributes.log_port == logical_port:
-                        lable_port = port_attributes.port_mapping.module_port
+                        label_port = port_attributes.port_mapping.module_port
                         break
-                label_port_list.append(lable_port)
+
+                if label_port is not None:
+                    label_port_list.append(label_port)
 
         delete_uint32_t_p(pkt_size_p)
         delete_uint8_t_arr(pkt)
