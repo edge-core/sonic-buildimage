@@ -25,7 +25,7 @@ stages:
   jobs:
   - job:
     displayName: "broadcom"
-    timeoutInMinutes: 3600
+    timeoutInMinutes: 600
     steps:
     - checkout: self
       submodules: recursive
@@ -45,8 +45,29 @@ stages:
       displayName: "Archive sonic image"
 
   - job:
+    displayName: "mellanox"
+    timeoutInMinutes: 600
+    steps:
+    - checkout: self
+      submodules: recursive
+      displayName: 'Checkout code'
+
+    - script: |
+        sudo modprobe overlay
+        CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=rcache SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/mellanox"
+        ENABLE_DOCKER_BASE_PULL=y make configure PLATFORM=mellanox
+        make USERNAME=admin SONIC_BUILD_JOBS=$(nproc) $CACHE_OPTIONS target/sonic-mellanox.bin
+      displayName: 'Build sonic image'
+    - script: |
+        sudo rm -rf fsroot
+      displayName: 'Clean up build artifacts'
+    - publish: $(System.DefaultWorkingDirectory)/
+      artifact: sonic-buildimage.mellanox
+      displayName: "Archive sonic image"
+
+  - job:
     displayName: "kvm"
-    timeoutInMinutes: 3600
+    timeoutInMinutes: 600
     steps:
     - checkout: self
       submodules: recursive
