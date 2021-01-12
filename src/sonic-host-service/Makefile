@@ -21,7 +21,7 @@ MAIN_TARGET = sonic-host-service_1.0.0_all.deb
 INSTALL := /usr/bin/install
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
-	dpkg-buildpackage -us -uc -b
+	dpkg-buildpackage -us -uc -b -j$(SONIC_CONFIG_MAKE_JOBS) --admindir $(SONIC_DPKG_ADMINDIR)
 	mv ../$(MAIN_TARGET) $(DEST)/
 
 SOURCES := $(wildcard '*.*') $(wildcard 'host_modules/*.py')

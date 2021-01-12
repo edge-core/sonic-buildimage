@@ -14,7 +14,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 
 	dpkg-source -x mpdecimal_$(MPDECIMAL_VERSION_FULL).dsc
 	pushd mpdecimal-$(MPDECIMAL_VERSION)
-	dpkg-buildpackage -us -uc -b -j$(SONIC_CONFIG_MAKE_JOBS)
+	dpkg-buildpackage -us -uc -b -j$(SONIC_CONFIG_MAKE_JOBS) --admindir $(SONIC_DPKG_ADMINDIR)
 	popd
 
 	mv $* $(DERIVED_TARGETS) $(DEST)/
