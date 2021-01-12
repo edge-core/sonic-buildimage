@@ -15,7 +15,7 @@ from sonic_py_common import logger
 """ ioctl constants """
 IO_READ = 0x80000000
 IO_SIZE_INT = 0x00040000
-IO_TYPE_WATCHDOG = ord('W') << 8
+IO_TYPE_WATCHDOG = 'W' << 8
 
 WDR_INT = IO_READ | IO_SIZE_INT | IO_TYPE_WATCHDOG
 

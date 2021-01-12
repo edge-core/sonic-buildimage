@@ -210,7 +210,7 @@ class Sfp(SfpBase):
             sysfsfile_eeprom.seek(offset)
             raw = sysfsfile_eeprom.read(num_bytes)
             for n in range(0, num_bytes):
-                eeprom_raw[n] = hex(ord(raw[n]))[2:].zfill(2)
+                eeprom_raw[n] = hex(raw[n])[2:].zfill(2)
         except Exception as e:
             pass
         finally:
