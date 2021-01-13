@@ -22,15 +22,20 @@ log_err()
     echo "$1" 1>&2
 }
 
+# Get the real command not hooked by sonic-build-hook package
 get_command()
 {
-    local path=$(echo $PATH | sed 's#[^:]*buildinfo/scripts:##' | sed "s#/usr/sbin:##")
+    # Change the PATH env to get the real command by excluding the command in the hooked folders
+    local path=$(echo $PATH | sed 's#[^:]*buildinfo/scripts:##' | sed "s#/usr/local/sbin:##")
     local command=$(PATH=$path which $1)
     echo $command
 }
 
 check_version_control()
 {
+    # The env variable SONIC_VERSION_CONTROL_COMPONENTS examples:
+    # all            -- match all components
+    # py2,py3,deb    -- match py2, py3 and deb only
     if [[ ",$SONIC_VERSION_CONTROL_COMPONENTS," == *,all,* ]] || [[ ",$SONIC_VERSION_CONTROL_COMPONENTS," == *,$1,* ]]; then
         echo "y"
     else
