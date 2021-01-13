@@ -113,7 +113,6 @@ class Chassis(ChassisBase):
 
     def initialize_sfp(self):
         from sonic_platform.sfp import SFP
-        from sonic_platform.sfp import initialize_sdk_handle
 
         self.sfp_module = SFP
 
@@ -137,6 +136,7 @@ class Chassis(ChassisBase):
 
     def get_sdk_handle(self):
         if not self.sdk_handle:
+            from sonic_platform.sfp import initialize_sdk_handle
             self.sdk_handle = initialize_sdk_handle()
             if self.sdk_handle is None:
                 logger.log_error('Failed to open SDK handle')
