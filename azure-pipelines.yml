@@ -35,11 +35,9 @@ stages:
         sudo modprobe overlay
         CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=rcache SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/broadcom"
         ENABLE_DOCKER_BASE_PULL=y make configure PLATFORM=broadcom
+        trap "sudo rm -rf fsroot" EXIT
         make USERNAME=admin SONIC_BUILD_JOBS=$(nproc) $CACHE_OPTIONS target/sonic-broadcom.bin
       displayName: 'Build sonic image'
-    - script: |
-        sudo rm -rf fsroot
-      displayName: 'Clean up build artifacts'
     - publish: $(System.DefaultWorkingDirectory)/
       artifact: sonic-buildimage.broadcom
       displayName: "Archive sonic image"
@@ -56,11 +54,9 @@ stages:
         sudo modprobe overlay
         CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=rcache SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/mellanox"
         ENABLE_DOCKER_BASE_PULL=y make configure PLATFORM=mellanox
+        trap "sudo rm -rf fsroot" EXIT
         make USERNAME=admin SONIC_BUILD_JOBS=$(nproc) $CACHE_OPTIONS target/sonic-mellanox.bin
       displayName: 'Build sonic image'
-    - script: |
-        sudo rm -rf fsroot
-      displayName: 'Clean up build artifacts'
     - publish: $(System.DefaultWorkingDirectory)/
       artifact: sonic-buildimage.mellanox
       displayName: "Archive sonic image"
@@ -78,12 +74,10 @@ stages:
         sudo modprobe overlay
         CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=rcache SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/vs"
         ENABLE_DOCKER_BASE_PULL=y make configure PLATFORM=vs
-        make USERNAME=admin SONIC_BUILD_JOBS=$(nproc) $CACHE_OPTIONS target/sonic-vs.img.gz
-        sudo cp target/sonic-vs.img.gz /nfs/azpl/kvmimage/sonic-vs.$(Build.BuildNumber).img.gz
+        trap "sudo rm -rf fsroot" EXIT
+        make USERNAME=admin SONIC_BUILD_JOBS=$(nproc) $CACHE_OPTIONS target/sonic-vs.img.gz && \
+            sudo cp target/sonic-vs.img.gz /nfs/azpl/kvmimage/sonic-vs.$(Build.BuildNumber).img.gz
       displayName: 'Build sonic image'
-    - script: |
-        sudo rm -rf fsroot
-      displayName: 'Clean up build artifacts'
     - publish: $(System.DefaultWorkingDirectory)/
       artifact: sonic-buildimage.kvm
       displayName: "Archive sonic image"
