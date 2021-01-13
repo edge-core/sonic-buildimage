@@ -1,7 +1,7 @@
 #!/bin/bash
 
 HOOK_PATH=/usr/local/share/buildinfo/hooks
-TARGET_PATH=/usr/sbin
+TARGET_PATH=/usr/local/sbin
 FILES=$(ls $HOOK_PATH)
 
 usage()
