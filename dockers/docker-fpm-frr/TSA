@@ -6,9 +6,9 @@ function check_not_installed()
   config=$(vtysh -c "show run")
   for route_map_name in $(echo "$config" | sed -ne 's/  neighbor \S* route-map \(\S*\) out/\1/p');
   do
-    echo "$config" | grep -q "route-map $route_map_name permit 20"
+    echo "$config" | egrep -q "^route-map $route_map_name permit 20$"
     c=$((c+$?))
-    echo "$config" | grep -q "route-map $route_map_name deny 30"
+    echo "$config" | egrep -q "^route-map $route_map_name deny 30$"
     c=$((c+$?))
   done
   return $c
