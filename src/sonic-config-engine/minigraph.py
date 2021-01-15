@@ -255,7 +255,7 @@ def parse_png(png, hname, dpg_ecmp_content = None):
                 if name == hname:
                     cluster = device.find(str(QName(ns, "ClusterName")))
 
-                    if cluster != None and "str" in cluster.text.lower():
+                    if cluster != None and cluster.text != None and "str" in cluster.text.lower():
                         is_storage_device = True
 
         if child.tag == str(QName(ns, "DeviceInterfaceLinks")):
