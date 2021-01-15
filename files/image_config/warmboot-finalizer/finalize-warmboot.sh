@@ -2,8 +2,15 @@
 
 VERBOSE=no
 
-# Check components
-COMP_LIST="orchagent neighsyncd bgp natsyncd"
+# Define components that needs to reconcile during warm
+# boot:
+#       The key is the name of the service that the components belong to.
+#       The value is list of component names that will reconcile.
+declare -A RECONCILE_COMPONENTS=( \
+                        ["swss"]="orchagent neighsyncd" \
+                        ["bgp"]="bgp"                   \
+                        ["nat"]="natsyncd"              \
+                       )
 EXP_STATE="reconciled"
 
 ASSISTANT_SCRIPT="/usr/local/bin/neighbor_advertiser"
@@ -15,6 +22,20 @@ function debug()
     if [[ x"${VERBOSE}" == x"yes" ]]; then
         echo `date` "- $1"
     fi
+}
+
+
+function get_component_list()
+{
+    SVC_LIST=${!RECONCILE_COMPONENTS[@]}
+    COMPONENT_LIST=""
+    for service in ${SVC_LIST}; do
+        components=${RECONCILE_COMPONENTS[${service}]}
+        status=$(sonic-db-cli CONFIG_DB HGET "FEATURE|${service}" state)
+        if [[ x"${status}" == x"enabled" || x"${status}" == x"always_enabled" ]]; then
+            COMPONENT_LIST="${COMPONENT_LIST} ${components}"
+        fi
+    done
 }
 
 
@@ -53,9 +74,9 @@ function check_list()
     RET_LIST=''
     for comp in $@; do
         state=`get_component_state ${comp}`
-	if [[ x"${state}" != x"${EXP_STATE}" ]]; then
+        if [[ x"${state}" != x"${EXP_STATE}" ]]; then
             RET_LIST="${RET_LIST} ${comp}"
-	fi
+        fi
     done
 
     echo ${RET_LIST}
@@ -102,13 +123,17 @@ fi
 
 restore_counters_folder
 
-list=${COMP_LIST}
+get_component_list
+
+debug "Waiting for components: '${COMPONENT_LIST}' to reconcile ..."
+
+list=${COMPONENT_LIST}
 
 # Wait up to 5 minutes
 for i in `seq 60`; do
     list=`check_list ${list}`
     if [[ -z "${list}" ]]; then
-	break
+        break
     fi
     sleep 5
 done
