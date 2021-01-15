@@ -68,8 +68,9 @@ class Chassis(ChassisBase):
 
     def __initialize_thermals(self):
         from sonic_platform.thermal import Thermal
+        airflow = self.__get_air_flow()
         for index in range(0, NUM_THERMAL):
-            thermal = Thermal(index)
+            thermal = Thermal(index, airflow)
             self._thermal_list.append(thermal)
 
     def __initialize_eeprom(self):
@@ -81,6 +82,11 @@ class Chassis(ChassisBase):
         for index in range(0, NUM_COMPONENT):
             component = Component(index)
             self._component_list.append(component)
+
+    def __get_air_flow(self):
+        air_flow_path = '/usr/share/sonic/device/{}/fan_airflow'.format(self._api_helper.platform) if self.is_host else '/usr/share/sonic/platform/fan_airflow'
+        air_flow = self._api_helper.read_one_line_file(air_flow_path)
+        return air_flow or 'B2F'
 
     def get_base_mac(self):
         """
@@ -261,3 +267,7 @@ class Chassis(ChassisBase):
             A boolean value, True if device is operating properly, False if not
         """
         return True
+
+    def get_thermal_manager(self):
+        from .thermal_manager import ThermalManager
+        return ThermalManager

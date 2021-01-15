@@ -180,42 +180,6 @@ function LoadConfig
 
 }
 
-function CheckFanFault()
-{
-    let fancount=0
-    while (( $fancount < ${#AFCFANFAULT[@]} )) # go through all fan fault.
-    do
-        fault=`cat ${AFCFANFAULT[$fancount]}`
-        if [[ "$fault" == "1" ]]
-        then
-            return 1 # fan fault detected
-        fi
-        let fancount=$fancount+1
-    done
-    return 0
-}
-
-function CheckTempOver()
-{
-    let tempcount=0
-    while (( $tempcount < ${#CSTEMP[@]} )) # go through all temp.
-    do
-        ctemp=`cat ${CSTEMP[$tempcount]}`
-        let maxcrit="${CSMAXTEMPCRIT[$tempcount]}*1000"
-        if [ $ctemp -ge $maxcrit ]
-        then
-            logger "Thermal overload : ${CSMAXTEMPTYPE[$tempcount]} temperature ${ctemp} > ${maxcrit}"
-            if [ -f "$THERMAL_OVERLOAD_CONTROL_FILE" ]
-            then
-                toc_cmd="${THERMAL_OVERLOAD_CONTROL_FILE} ${CSMAXTEMPTYPE[$tempcount],,}"
-                bash $toc_cmd
-                exit 1
-            fi
-        fi
-        let tempcount=$tempcount+1
-    done
-    return 0
-}
 
 function DevicePath()
 {
@@ -508,18 +472,6 @@ function UpdateFanSpeeds
         maxpwm=${AFCMAXPWM[$fcvcount]}
         let tHyst="${AFCTHYST[$fcvcount]}*1000"
 
-        #if some fan fault detected all pwm=100%
-        CheckFanFault
-        if [ $? -ne 0 ]
-        then
-            echo $MAX > $pwmo
-            let fcvcount=$fcvcount+1
-            continue
-        fi
-
-		#check thermal overload
-        CheckTempOver
-
         read tval < ${tsens}
         if [ $? -ne 0 ]
         then
@@ -619,7 +571,7 @@ function UpdateFanSpeeds
                 echo $minsa > $pwmo
                 # Sleep while still handling signals
                 sleep 1 &
-                wait $!
+                wait
             fi
         fi
         echo $pwmval > $pwmo # write new value to pwm output
@@ -658,5 +610,5 @@ do
     UpdateFanSpeeds
     # Sleep while still handling signals
     sleep $INTERVAL &
-    wait $!
+    wait
 done
