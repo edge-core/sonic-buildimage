@@ -60,6 +60,9 @@ class accton_as7816_monitor(object):
 
     def __init__(self, log_file, log_level):
         """Needs a logger and a logger level."""
+
+        self.thermal = ThermalUtil()
+        self.fan = FanUtil()
         # set up logging to file
         logging.basicConfig(
             filename=log_file,
@@ -89,8 +92,8 @@ class accton_as7816_monitor(object):
            4: [max_duty, 57000, sys.maxsize],
         }
   
-        thermal = ThermalUtil()
-        fan = FanUtil()
+        thermal = self.thermal
+        fan = self.fan
         for x in range(fan.get_idx_fan_start(), fan.get_num_fans()+1):
             fan_status = fan.get_fan_status(x)
             if fan_status is None:
