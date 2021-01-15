@@ -304,4 +304,20 @@ class Fan(FanBase):
         Returns:
             A boolean value, True if device is operating properly, False if not
         """
-        return self.get_presence() and self.get_speed() > 0
+        status = 1
+        if self.is_psu_fan:
+            fan_fault_sysfs_name = "fan1_fault"
+            fan_fault_sysfs_path = self.__search_file_by_name(
+                self.psu_hwmon_path, fan_fault_sysfs_name)
+            status = self._api_helper.read_one_line_file(fan_fault_sysfs_path)
+
+        elif self.get_presence():
+            chip = self.emc2305_chip_mapping[self.fan_index]
+            device = chip['device']
+            fan_index = chip['index_map']
+            sysfs_path = "%s%s/%s" % (
+                EMC2305_PATH, device, 'fan{}_fault')
+            sysfs_path = sysfs_path.format(fan_index[self.fan_tray_index])
+            status = self._api_helper.read_one_line_file(sysfs_path)
+
+        return False if int(status) != 0 else True
