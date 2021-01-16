@@ -12,8 +12,8 @@ SONIC_ALL += $(SONIC_INVM_ONE_IMAGE) \
              $(DOCKER_PTF_INVM) \
              $(DOCKER_SYNCD_INVM_RPC)
 
-# Inject invm sai into sairedis
-$(LIBSAIREDIS)_DEPENDS += $(INVM_HSAI) $(INVM_LIBSAI) $(LIBSAITHRIFT_DEV)
+# Inject invm sai into syncd
+$(SYNCD)_DEPENDS += $(INVM_HSAI) $(INVM_LIBSAI) $(LIBSAITHRIFT_DEV_INVM)
 
 # Runtime dependency on invm sai is set only for syncd
 $(SYNCD)_RDEPENDS += $(INVM_HSAI)

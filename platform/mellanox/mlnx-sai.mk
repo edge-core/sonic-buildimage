@@ -10,4 +10,5 @@ $(MLNX_SAI)_DEPENDS += $(MLNX_SDK_DEBS)
 $(MLNX_SAI)_RDEPENDS += $(MLNX_SDK_RDEBS) $(MLNX_SDK_DEBS)
 MLNX_SAI_DBGSYM = mlnx-sai-dbgsym_1.mlnx.$(MLNX_SAI_VERSION)_amd64.deb
 $(eval $(call add_derived_package,$(MLNX_SAI),$(MLNX_SAI_DBGSYM)))
+$(MLNX_SAI)_CONFLICTS += $(LIBSAIVS_DEV)
 SONIC_MAKE_DEBS += $(MLNX_SAI)

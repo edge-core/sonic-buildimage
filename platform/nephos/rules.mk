@@ -22,10 +22,10 @@ SONIC_ONLINE_FILES += $(NPX_DIAG) $(WARM_VERIFIER) $(DSSERVE)
 
 SONIC_ALL += $(SONIC_ONE_IMAGE) $(DOCKER_FPM)
 
-# Inject nephos sai into sairedis
-$(LIBSAIREDIS)_DEPENDS += $(NEPHOS_SAI) 
+# Inject nephos sai into syncd
+$(SYNCD)_DEPENDS += $(NEPHOS_SAI) $(NEPHOS_SAI_DEV)
 ifeq ($(ENABLE_SYNCD_RPC),y)
-$(LIBSAIREDIS)_DEPENDS += $(LIBSAITHRIFT_DEV)
+$(SYNCD)_DEPENDS += $(LIBSAITHRIFT_DEV)
 endif
 
 # Runtime dependency on nephos sai is set only for syncd
