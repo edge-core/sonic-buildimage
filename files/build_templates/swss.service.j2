@@ -2,9 +2,9 @@
 Description=switch state service
 Requires=database.service updategraph.service
 {% if sonic_asic_platform == 'broadcom' %}
-Requires=opennsl-modules-4.9.0-9-amd64.service
+Requires=opennsl-modules-4.9.0-14-amd64.service
 {% elif sonic_asic_platform == 'nephos' %}
-Requires=nps-modules-4.9.0-9-amd64.service
+Requires=nps-modules-4.9.0-14-amd64.service
 {% endif %}
 After=database.service updategraph.service
 After=interfaces-config.service

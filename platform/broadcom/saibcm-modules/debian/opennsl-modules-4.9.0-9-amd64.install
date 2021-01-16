@@ -1,5 +1,0 @@
-systems/linux/user/x86-smp_generic_64-2_6/linux-bcm-knet.ko lib/modules/4.9.0-9-amd64/extra
-systems/linux/user/x86-smp_generic_64-2_6/linux-kernel-bde.ko lib/modules/4.9.0-9-amd64/extra
-systems/linux/user/x86-smp_generic_64-2_6/linux-user-bde.ko lib/modules/4.9.0-9-amd64/extra
-systems/linux/user/x86-smp_generic_64-2_6/linux-knet-cb.ko lib/modules/4.9.0-9-amd64/extra
-systemd/opennsl-modules-4.9.0-9-amd64.service lib/systemd/system

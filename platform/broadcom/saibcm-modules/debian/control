@@ -7,8 +7,8 @@ Standards-Version: 3.9.3
 #Vcs-Git: git://git.debian.org/collab-maint/bcmsdk.git
 #Vcs-Browser: http://git.debian.org/?p=collab-maint/bcmsdk.git;a=summary
 
-Package: opennsl-modules-4.9.0-9-amd64
+Package: opennsl-modules-4.9.0-14-amd64
 Architecture: amd64
 Section: main
-Depends: linux-image-4.9.0-9-amd64
+Depends: linux-image-4.9.0-14-amd64
 Description: kernel modules for broadcom SAI
