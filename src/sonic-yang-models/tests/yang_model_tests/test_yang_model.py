@@ -221,6 +221,14 @@ class Test_yang_models:
             'DEVICE_METADATA_TYPE_INCORRECT_PATTERN': {
                 'desc': 'DEVICE_METADATA_TYPE_INCORRECT_PATTERN pattern failure.',
                 'eStr': self.defaultYANGFailure['Pattern']
+            },
+            'BREAKOUT_CFG_CORRECT_MODES': {
+                'desc': 'BREAKOUT_CFG correct breakout modes',
+                'eStr': self.defaultYANGFailure['None']
+            },
+            'BREAKOUT_CFG_INCORRECT_MODES': {
+                'desc': 'BREAKOUT_CFG wrong breakout modes',
+                'eStr': self.defaultYANGFailure['Pattern']
             }
         }
 

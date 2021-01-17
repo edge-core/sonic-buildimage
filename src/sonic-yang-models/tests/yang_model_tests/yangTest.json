@@ -1749,5 +1749,61 @@
         "UNKNOWN_TABLE": {
             "Error": "This Table is for testing, This Table does not have YANG models."
         }
-    }
+	},
+	"BREAKOUT_CFG_CORRECT_MODES": {
+		"sonic-breakout_cfg:sonic-breakout_cfg": {
+			"sonic-breakout_cfg:BREAKOUT_CFG": {
+				"BREAKOUT_CFG_LIST": [
+					{
+						"brkout_mode": "1x200G[100G,50G,40G,25G,10G,1G]",
+						"port": "Ethernet0"
+					},
+					{
+						"brkout_mode": "2x100G[50G,40G,25G,10G,1G]",
+						"port": "Ethernet8"
+					},
+					{
+						"brkout_mode": "4x50G[40G,25G,10G,1G]",
+						"port": "Ethernet4"
+					},
+					{
+						"brkout_mode": "1x25G[10G]",
+						"port": "Ethernet12"
+					},
+					{
+						"brkout_mode": "1x100G[50G,40G,25G,10G]",
+						"port": "Ethernet16"
+					},
+					{
+						"brkout_mode": "2x50G[40G,25G,10G]",
+						"port": "Ethernet20"
+					},
+					{
+						"brkout_mode": "1x400G[200G,100G,50G,40G,25G,10G,1G]",
+						"port": "Ethernet24"
+					}
+				]
+			}
+		}
+	},
+	"BREAKOUT_CFG_INCORRECT_MODES": {
+		"sonic-breakout_cfg:sonic-breakout_cfg": {
+			"sonic-breakout_cfg:BREAKOUT_CFG": {
+				"BREAKOUT_CFG_LIST": [
+					{
+						"brkout_mode": "1x500G[100G,50G,40G,25G,10G,1G]",
+						"port": "Ethernet0"
+					},
+					{
+						"brkout_mode": "2x300G[50G,40G,25G,1G]",
+						"port": "Ethernet8"
+					},
+					{
+						"brkout_mode": "5x50G[40G,25G]",
+						"port": "Ethernet4"
+					}
+				]
+			}
+		}
+	}
 }
