@@ -1506,14 +1506,17 @@ def get_mux_cable_entries(mux_cable_ports, neighbors, devices):
             neighbor = neighbors[intf]['name']
             entry['state'] = 'auto'
 
-            # Always force a /32 prefix for server IPv4 loopbacks
-            server_ipv4_lo_addr = devices[neighbor]['lo_addr'].split("/")[0]
-            server_ipv4_lo_prefix = ipaddress.ip_network(UNICODE_TYPE(server_ipv4_lo_addr))
-            entry['server_ipv4'] = str(server_ipv4_lo_prefix)
+            if devices[neighbor]['lo_addr'] is not None:
+                # Always force a /32 prefix for server IPv4 loopbacks
+                server_ipv4_lo_addr = devices[neighbor]['lo_addr'].split("/")[0]
+                server_ipv4_lo_prefix = ipaddress.ip_network(UNICODE_TYPE(server_ipv4_lo_addr))
+                entry['server_ipv4'] = str(server_ipv4_lo_prefix)
 
-            if 'lo_addr_v6' in devices[neighbor]:
-                entry['server_ipv6'] = devices[neighbor]['lo_addr_v6']
-            mux_cable_table[intf] = entry 
+                if 'lo_addr_v6' in devices[neighbor]:
+                    entry['server_ipv6'] = devices[neighbor]['lo_addr_v6']
+                mux_cable_table[intf] = entry 
+            else:
+                print("Warning: no server IPv4 loopback found for {}, skipping mux cable table entry".format(neighbor))
 
     return mux_cable_table
 
