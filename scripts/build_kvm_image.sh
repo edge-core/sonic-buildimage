@@ -22,6 +22,7 @@ on_exit()
 
 on_error()
 {
+    netstat -antp
     echo "============= kvm_log =============="
     cat $kvm_log
 }
@@ -51,12 +52,12 @@ create_disk
 prepare_installer_disk
 
 echo "Prepare memory for KVM build: $vs_build_prepare_mem"
-sudo mount proc /proc -t proc || true
+mount proc /proc -t proc || true
 free -m
 if [[ "$vs_build_prepare_mem" == "yes" ]]; then
     # Force o.s. to drop cache and compact memory so that KVM can get 2G memory
-    sudo bash -c 'echo 1 > /proc/sys/vm/drop_caches'
-    sudo bash -c 'echo 1 > /proc/sys/vm/compact_memory'
+    bash -c 'echo 1 > /proc/sys/vm/drop_caches'
+    bash -c 'echo 1 > /proc/sys/vm/compact_memory'
     free -m
 fi
 
