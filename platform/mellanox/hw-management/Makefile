@@ -8,7 +8,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	pushd hw-mgmt
 	git am ../*.patch
 	chmod +x ./debian/rules
-	sudo ./debian/rules binary KVERSION=$(KVERSION)
+	KVERSION=$(KVERSION) dpkg-buildpackage -us -uc -b -rfakeroot -j$(SONIC_CONFIG_MAKE_JOBS) --admindir $(SONIC_DPKG_ADMINDIR)
 	popd
 
 	mv $* $(DEST)/
