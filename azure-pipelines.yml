@@ -118,7 +118,7 @@ stages:
         pwd
         username=$(id -un)
 
-        docker exec sonic-mgmt bash -c "/data/sonic-mgmt/tests/kvmtest.sh -n $(tbname) $(dut)"
+        docker exec sonic-mgmt bash -c "/data/sonic-mgmt/tests/kvmtest.sh -en $(tbname) $(dut)"
 
         # save dut state if test fails
         if [ $? != 0 ]; then
@@ -137,7 +137,7 @@ stages:
 
             rm -rf ptfdump
             mkdir -p ptfdump
-            docker commit $ptf_name docker-ptf:$(Build.BuildNumber)
+            docker commit $(ptf_name) docker-ptf:$(Build.BuildNumber)
             docker save docker-ptf:$(Build.BuildNumber) | gzip -c > ptfdump/docker-ptf-dump.gz
             docker rmi docker-ptf:$(Build.BuildNumber)
 
