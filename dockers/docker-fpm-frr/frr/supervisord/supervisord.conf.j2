@@ -51,7 +51,7 @@ dependent_startup=true
 dependent_startup_wait_for=zebra:running
 
 [program:bgpd]
-command=/usr/lib/frr/bgpd -A 127.0.0.1 -M snmp
+command=/usr/bin/bgpd.sh -A 127.0.0.1 -M snmp
 priority=5
 stopsignal=KILL
 autostart=false
