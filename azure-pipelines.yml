@@ -75,7 +75,8 @@ stages:
         CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=rcache SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/vs"
         ENABLE_DOCKER_BASE_PULL=y make configure PLATFORM=vs
         trap "sudo rm -rf fsroot" EXIT
-        make USERNAME=admin SONIC_BUILD_JOBS=$(nproc) $CACHE_OPTIONS target/sonic-vs.img.gz && \
+        make USERNAME=admin SONIC_BUILD_JOBS=$(nproc) $CACHE_OPTIONS \
+            target/docker-sonic-vs.gz target/sonic-vs.img.gz && \
             sudo cp target/sonic-vs.img.gz /nfs/azpl/kvmimage/sonic-vs.$(Build.BuildNumber).img.gz
       displayName: 'Build sonic image'
     - publish: $(System.DefaultWorkingDirectory)/
