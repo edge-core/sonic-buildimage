@@ -55,6 +55,7 @@ COPY ["TSB", "/usr/bin/TSB"]
 COPY ["TSC", "/usr/bin/TSC"]
 COPY ["files/supervisor-proc-exit-listener", "/usr/bin"]
 COPY ["critical_processes", "/etc/supervisor"]
+COPY ["bgpd.sh", "/usr/bin/"]
 RUN chmod a+x /usr/bin/TSA && \
     chmod a+x /usr/bin/TSB && \
     chmod a+x /usr/bin/TSC
