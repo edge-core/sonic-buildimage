@@ -4,4 +4,4 @@
 0004-Allow-BGP-attr-NEXT_HOP-to-be-0.0.0.0-due-to-allevia.patch
 0005-nexthops-compare-vrf-only-if-ip-type.patch
 0007-frr-remove-frr-log-outchannel-to-var-log-frr.log.patch
-
+0008-Add-support-of-bgp-l3vni-evpn.patch
