@@ -19,11 +19,11 @@ class RedisBytecodeCache(jinja2.BytecodeCache):
             return
         code = self._client.get(self._client.LOGLEVEL_DB, self.REDIS_HASH, bucket.key)
         if code is not None:
-            bucket.bytecode_from_string(b64decode(code))
+            bucket.bytecode_from_string(b64decode(code.encode()))
 
     def dump_bytecode(self, bucket):
         if self._client is None:
             return
         self._client.set(self._client.LOGLEVEL_DB, self.REDIS_HASH,
-                         bucket.key, b64encode(bucket.bytecode_to_string()))
+                         bucket.key, b64encode(bucket.bytecode_to_string()).decode())
 

@@ -43,7 +43,7 @@ from portconfig import get_port_config, get_breakout_mode
 from redis_bcc import RedisBytecodeCache
 from sonic_py_common.multi_asic import get_asic_id_from_name, is_multi_asic
 from sonic_py_common import device_info
-from swsssdk import SonicV2Connector, ConfigDBConnector, SonicDBConfig, ConfigDBPipeConnector
+from swsscommon.swsscommon import SonicV2Connector, ConfigDBConnector, SonicDBConfig, ConfigDBPipeConnector
 
 
 PY3x = sys.version_info >= (3, 0)
