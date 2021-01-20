@@ -31,6 +31,11 @@ if [[ -f /usr/share/sonic/virtual_chassis/default_config.json ]]; then
     CHASS_CFG="-j /usr/share/sonic/virtual_chassis/default_config.json"
 fi
 
+# Note: libswsscommon requires a dabase_config file in /var/run/redis/sonic-db/
+# Prepare this file before any dependent application, such as sonic-cfggen
+mkdir -p /var/run/redis/sonic-db
+cp /etc/default/sonic-db/database_config.json /var/run/redis/sonic-db/
+
 SYSTEM_MAC_ADDRESS=$(ip link show eth0 | grep ether | awk '{print $2}')
 sonic-cfggen -a '{"DEVICE_METADATA":{"localhost": {"mac": "'$SYSTEM_MAC_ADDRESS'", "buffer_model": "traditional"}}}' $CHASS_CFG --print-data > /etc/sonic/init_cfg.json
 
@@ -67,9 +72,6 @@ else
    chassisdb_cfg_file="$chassisdb_cfg_file_default"
    echo "10.8.1.200 redis_chassis.server" >> /etc/hosts
 fi
-
-mkdir -p /var/run/redis/sonic-db
-cp /etc/default/sonic-db/database_config.json /var/run/redis/sonic-db/
 
 supervisorctl start redis-server
 

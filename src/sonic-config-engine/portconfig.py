@@ -5,7 +5,7 @@ try:
     import re
     import sys
 
-    from swsssdk import ConfigDBConnector
+    from swsscommon.swsscommon import ConfigDBConnector
     from sonic_py_common import device_info
 except ImportError as e:
     raise ImportError("%s - required module not found" % str(e))
