@@ -1,0 +1,5 @@
+**/*
+!target/*.bin
+!target/*.log
+!target/*.img.gz
+!target/docker-sonic-vs.gz
