@@ -22,6 +22,7 @@ $(eval $(call add_derived_package,$(LIBSAIREDIS),$(LIBSAIVS)))
 
 LIBSAIVS_DEV = libsaivs-dev_1.0.0_$(CONFIGURED_ARCH).deb
 $(eval $(call add_derived_package,$(LIBSAIREDIS),$(LIBSAIVS_DEV)))
+$(LIBSAIVS_DEV)_DEPENDS += $(LIBSAIVS)
 
 ifneq ($(CONFIGURED_PLATFORM),vs)
 SYNCD = syncd_1.0.0_$(CONFIGURED_ARCH).deb
