@@ -303,7 +303,7 @@
           <d5p1:IPPrefix>10.10.10.1/32</d5p1:IPPrefix>
         </Address>
         <AddressV6 xmlns:d5p1="Microsoft.Search.Autopilot.NetMux">
-          <d5p1:IPPrefix>fe80::0001/128</d5p1:IPPrefix>
+          <d5p1:IPPrefix>fe80::0001/80</d5p1:IPPrefix>
         </AddressV6>
         <ManagementAddress xmlns:d5p1="Microsoft.Search.Autopilot.NetMux">
           <d5p1:IPPrefix>10.0.0.1/32</d5p1:IPPrefix>
