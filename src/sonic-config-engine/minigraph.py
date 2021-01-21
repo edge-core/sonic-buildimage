@@ -1512,8 +1512,10 @@ def get_mux_cable_entries(mux_cable_ports, neighbors, devices):
                 server_ipv4_lo_prefix = ipaddress.ip_network(UNICODE_TYPE(server_ipv4_lo_addr))
                 entry['server_ipv4'] = str(server_ipv4_lo_prefix)
 
-                if 'lo_addr_v6' in devices[neighbor]:
-                    entry['server_ipv6'] = devices[neighbor]['lo_addr_v6']
+                if 'lo_addr_v6' in devices[neighbor] and devices[neighbor]['lo_addr_v6'] is not None:
+                    server_ipv6_lo_addr = devices[neighbor]['lo_addr_v6'].split('/')[0]
+                    server_ipv6_lo_prefix = ipaddress.ip_network(UNICODE_TYPE(server_ipv6_lo_addr))
+                    entry['server_ipv6'] = str(server_ipv6_lo_prefix)
                 mux_cable_table[intf] = entry 
             else:
                 print("Warning: no server IPv4 loopback found for {}, skipping mux cable table entry".format(neighbor))

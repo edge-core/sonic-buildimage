@@ -165,7 +165,7 @@ class TestCfgGenCaseInsensitive(TestCase):
             'server1': {
                 'hwsku': 'server-sku',
                 'lo_addr': '10.10.10.1/32',
-                'lo_addr_v6': 'fe80::0001/128',
+                'lo_addr_v6': 'fe80::0001/80',
                 'mgmt_addr': '10.0.0.1/32',
                 'type': 'Server'
             },
@@ -275,12 +275,12 @@ class TestCfgGenCaseInsensitive(TestCase):
             'Ethernet4': {
                 'state': 'auto',
                 'server_ipv4': '10.10.10.1/32',
-                'server_ipv6': 'fe80::0001/128'
+                'server_ipv6': 'fe80::1/128'
             },
             'Ethernet8': {
                 'state': 'auto',
                 'server_ipv4': '10.10.10.2/32',
-                'server_ipv6': 'fe80::0002/128'
+                'server_ipv6': 'fe80::2/128'
             }
         }
 
