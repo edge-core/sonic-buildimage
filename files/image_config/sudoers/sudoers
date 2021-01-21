@@ -23,9 +23,8 @@ Cmnd_Alias      READ_ONLY_CMDS = /bin/cat /var/log/syslog*, \
                                  /sbin/brctl show, \
                                  /usr/bin/docker exec snmp cat /etc/snmp/snmpd.conf, \
                                  /usr/bin/docker exec bgp cat /etc/quagga/bgpd.conf, \
-                                 /usr/bin/docker exec * ps aux, \
                                  /usr/bin/docker images *, \
-                                 /usr/bin/docker ps*, \
+                                 /usr/bin/docker ps *, \
                                  /usr/bin/lldpctl, \
                                  /usr/bin/sensors, \
                                  /usr/bin/tail -F /var/log/syslog, \
