@@ -2,11 +2,14 @@
 
 import getopt
 import os
+import select
 import signal
 import sys
 import syslog
+import time
 
 import swsssdk
+
 from supervisor import childutils
 
 # Each line of this file should specify either one critical process or one
@@ -20,10 +23,18 @@ CRITICAL_PROCESSES_FILE = '/etc/supervisor/critical_processes'
 # The FEATURE table in config db contains auto-restart field
 FEATURE_TABLE_NAME = 'FEATURE'
 
-# Read the critical processes/group names from CRITICAL_PROCESSES_FILE
+# Value of parameter 'timeout' in select(...) method
+SELECT_TIMEOUT_SECS = 1.0
+
+# Alerting message will be written into syslog in the following interval
+ALERTING_INTERVAL_SECS = 60
 
 
 def get_critical_group_and_process_list():
+    """
+    @summary: Read the critical processes/group names from CRITICAL_PROCESSES_FILE.
+    @return: Two lists which contain critical processes and group names respectively.
+    """
     critical_group_list = []
     critical_process_list = []
 
@@ -49,6 +60,47 @@ def get_critical_group_and_process_list():
     return critical_group_list, critical_process_list
 
 
+def generate_alerting_message(process_name):
+    """
+    @summary: If a critical process was not running, this function will determine it resides in host
+              or in a specific namespace. Then an alerting message will be written into syslog.
+    """
+    namespace_prefix = os.environ.get("NAMESPACE_PREFIX")
+    namespace_id = os.environ.get("NAMESPACE_ID")
+
+    if not namespace_prefix or not namespace_id:
+        namespace = "host"
+    else:
+        namespace = namespace_prefix + namespace_id
+
+    syslog.syslog(syslog.LOG_ERR, "Process '{}' is not running in namespace '{}'.".format(process_name, namespace))
+
+
+def get_autorestart_state(container_name):
+    """
+    @summary: Read the status of auto-restart feature from Config_DB.
+    @return: Return the status of auto-restart feature.
+    """
+    config_db = swsssdk.ConfigDBConnector()
+    config_db.connect()
+    features_table = config_db.get_table(FEATURE_TABLE_NAME)
+    if not features_table:
+        syslog.syslog(syslog.LOG_ERR, "Unable to retrieve features table from Config DB. Exiting...")
+        sys.exit(2)
+
+    if container_name not in features_table:
+        syslog.syslog(syslog.LOG_ERR, "Unable to retrieve feature '{}'. Exiting...".format(container_name))
+        sys.exit(3)
+
+    is_auto_restart = features_table[container_name].get('auto_restart')
+    if not is_auto_restart:
+        syslog.syslog(
+            syslog.LOG_ERR, "Unable to determine auto-restart feature status for '{}'. Exiting...".format(container_name))
+        sys.exit(4)
+
+    return is_auto_restart
+
+
 def main(argv):
     container_name = None
     opts, args = getopt.getopt(argv, "c:", ["container-name="])
@@ -62,51 +114,55 @@ def main(argv):
 
     critical_group_list, critical_process_list = get_critical_group_and_process_list()
 
+    process_under_alerting = {}
+    # Transition from ACKNOWLEDGED to READY
+    childutils.listener.ready()
+
     while True:
-        # Transition from ACKNOWLEDGED to READY
-        childutils.listener.ready()
+        file_descriptor_list = select.select([sys.stdin], [], [], SELECT_TIMEOUT_SECS)[0]
+        if len(file_descriptor_list) > 0:
+            line = file_descriptor_list[0].readline()
+            headers = childutils.get_headers(line)
+            payload = sys.stdin.read(int(headers['len']))
 
-        line = sys.stdin.readline()
-        headers = childutils.get_headers(line)
-        payload = sys.stdin.read(int(headers['len']))
+            # Handle the PROCESS_STATE_EXITED event
+            if headers['eventname'] == 'PROCESS_STATE_EXITED':
+                payload_headers, payload_data = childutils.eventdata(payload + '\n')
 
-        # Transition from READY to ACKNOWLEDGED
-        childutils.listener.ok()
+                expected = int(payload_headers['expected'])
+                process_name = payload_headers['processname']
+                group_name = payload_headers['groupname']
 
-        # We only care about PROCESS_STATE_EXITED events
-        if headers['eventname'] == 'PROCESS_STATE_EXITED':
-            payload_headers, payload_data = childutils.eventdata(payload + '\n')
+                if (process_name in critical_process_list or group_name in critical_group_list) and expected == 0:
+                    is_auto_restart = get_autorestart_state(container_name)
+                    if is_auto_restart != "disabled":
+                        MSG_FORMAT_STR = "Process '{}' exited unexpectedly. Terminating supervisor '{}'"
+                        msg = MSG_FORMAT_STR.format(payload_headers['processname'], container_name)
+                        syslog.syslog(syslog.LOG_INFO, msg)
+                        os.kill(os.getppid(), signal.SIGTERM)
+                    else:
+                        process_under_alerting[process_name] = time.time()
 
-            expected = int(payload_headers['expected'])
-            processname = payload_headers['processname']
-            groupname = payload_headers['groupname']
+            # Handle the PROCESS_STATE_RUNNING event
+            elif headers['eventname'] == 'PROCESS_STATE_RUNNING':
+                payload_headers, payload_data = childutils.eventdata(payload + '\n')
+                process_name = payload_headers['processname']
 
-            # Read the status of auto-restart feature from Config_DB.
-            config_db = swsssdk.ConfigDBConnector()
-            config_db.connect()
-            features_table = config_db.get_table(FEATURE_TABLE_NAME)
-            if not features_table:
-                syslog.syslog(syslog.LOG_ERR, "Unable to retrieve features table from Config DB. Exiting...")
-                sys.exit(2)
+                if process_name in process_under_alerting:
+                    process_under_alerting.pop(process_name)
 
-            if container_name not in features_table:
-                syslog.syslog(syslog.LOG_ERR, "Unable to retrieve feature '{}'. Exiting...".format(container_name))
-                sys.exit(3)
+            # Transition from BUSY to ACKNOWLEDGED
+            childutils.listener.ok()
 
-            restart_feature = features_table[container_name].get('auto_restart')
-            if not restart_feature:
-                syslog.syslog(
-                    syslog.LOG_ERR, "Unable to determine auto-restart feature status for '{}'. Exiting...".format(container_name))
-                sys.exit(4)
+            # Transition from ACKNOWLEDGED to READY
+            childutils.listener.ready()
 
-            # If auto-restart feature is not disabled and at the same time
-            # a critical process exited unexpectedly, terminate supervisor
-            if (restart_feature != 'disabled' and expected == 0 and
-                    (processname in critical_process_list or groupname in critical_group_list)):
-                MSG_FORMAT_STR = "Process {} exited unxepectedly. Terminating supervisor..."
-                msg = MSG_FORMAT_STR.format(payload_headers['processname'])
-                syslog.syslog(syslog.LOG_INFO, msg)
-                os.kill(os.getppid(), signal.SIGTERM)
+        # Check whether we need write alerting messages into syslog
+        for process in process_under_alerting.keys():
+            epoch_time = time.time()
+            if epoch_time - process_under_alerting[process] >= ALERTING_INTERVAL_SECS:
+                process_under_alerting[process] = epoch_time
+                generate_alerting_message(process)
 
 
 if __name__ == "__main__":
