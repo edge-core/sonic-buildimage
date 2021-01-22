@@ -116,10 +116,11 @@ class BBRMgr(Manager):
         for af in ["ipv4", "ipv6"]:
             cmds.append(" address-family %s" % af)
             for pg_name in sorted(self.bbr_enabled_pgs.keys()):
-                if pg_name in available_peer_groups and af in self.bbr_enabled_pgs[pg_name]:
-                    for peer in available_peers_per_pg[pg_name]:
-                        cmds.append("  %sneighbor %s allowas-in 1" % (prefix_of_commands, peer))
-                    peer_groups_to_restart.add(pg_name)
+                for peer_group_name in available_peer_groups:
+                    if peer_group_name.startswith(pg_name) and af in self.bbr_enabled_pgs[pg_name]:
+                        for peer in available_peers_per_pg[peer_group_name]:
+                            cmds.append("  %sneighbor %s allowas-in 1" % (prefix_of_commands, peer))
+                        peer_groups_to_restart.add(peer_group_name)
         return cmds, list(peer_groups_to_restart)
 
     def __get_available_peer_groups(self):

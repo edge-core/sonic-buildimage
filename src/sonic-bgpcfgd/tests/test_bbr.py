@@ -250,7 +250,7 @@ def test___set_validation_4():
 def test___set_validation_5():
     __set_validation_common("all", {"status": "disabled"}, None, True)
 
-def __set_prepare_config_common(status, bbr_enabled_pgs, available_pgs, mapping_pgs, expected_cmds):
+def __set_prepare_config_common(status, bbr_enabled_pgs, available_pgs, mapping_pgs, expected_cmds, bbr_applied_pgs=None):
     cfg_mgr = MagicMock()
     common_objs = {
         'directory': Directory(),
@@ -271,7 +271,7 @@ def __set_prepare_config_common(status, bbr_enabled_pgs, available_pgs, mapping_
     m._BBRMgr__get_available_peers_per_peer_group = MagicMock(return_value = mapping_pgs)
     cmds, peer_groups = m._BBRMgr__set_prepare_config(status)
     assert cmds == expected_cmds
-    assert set(peer_groups) == available_pgs
+    assert set(peer_groups) == (available_pgs if not bbr_applied_pgs else bbr_applied_pgs)
 
 def test___set_prepare_config_enabled():
     __set_prepare_config_common("enabled", {
@@ -330,6 +330,44 @@ def test___set_prepare_config_disabled_part():
         '  no neighbor 10.0.0.1 allowas-in 1',
         '  no neighbor fc00::1 allowas-in 1',
     ])
+def test___set_prepare_config_enabled_multiple_peers():
+    __set_prepare_config_common("enabled", {
+                "PEER_V4": ["ipv4"],
+                "PEER_V6": ["ipv6"],
+        }, {"PEER_V4", "PEER_V4_DEPLOYMENT_ID_0", "PEER_V4_DEPLOYMENT_ID_1", "PEER_V6", "PEER_V6_DEPLOYMENT_ID_0", "PEER_V6_DEPLOYMENT_ID_1", "PEER_INVALID"},
+        {"PEER_V6": ['fc00::1'],"PEER_V6_DEPLOYMENT_ID_0":['fc00::2'],"PEER_V6_DEPLOYMENT_ID_1":['fc00::3'],
+            "PEER_V4":['10.0.0.1'],"PEER_V4_DEPLOYMENT_ID_0":['10.0.0.2'],"PEER_V4_DEPLOYMENT_ID_1":['10.0.0.3'], "PEER_INVALID":['10.0.0.4']},[
+             'router bgp 65500',
+        ' address-family ipv4',
+        '  neighbor 10.0.0.1 allowas-in 1',
+        '  neighbor 10.0.0.3 allowas-in 1',
+        '  neighbor 10.0.0.2 allowas-in 1',
+        ' address-family ipv6',
+        '  neighbor fc00::3 allowas-in 1',
+        '  neighbor fc00::2 allowas-in 1',
+        '  neighbor fc00::1 allowas-in 1',
+        ],
+        {"PEER_V4", "PEER_V4_DEPLOYMENT_ID_0", "PEER_V4_DEPLOYMENT_ID_1", "PEER_V6", "PEER_V6_DEPLOYMENT_ID_0", "PEER_V6_DEPLOYMENT_ID_1"})
+
+def test___set_prepare_config_disabled_multiple_peers():
+    __set_prepare_config_common("disabled", {
+                "PEER_V4": ["ipv4"],
+                "PEER_V6": ["ipv6"],
+        }, {"PEER_V4", "PEER_V4_DEPLOYMENT_ID_0", "PEER_V4_DEPLOYMENT_ID_1", "PEER_V6", "PEER_V6_DEPLOYMENT_ID_0", "PEER_V6_DEPLOYMENT_ID_1", "PEER_INVALID"},
+        {"PEER_V6": ['fc00::1'],"PEER_V6_DEPLOYMENT_ID_0":['fc00::2'],"PEER_V6_DEPLOYMENT_ID_1":['fc00::3'],
+            "PEER_V4":['10.0.0.1'],"PEER_V4_DEPLOYMENT_ID_0":['10.0.0.2'],"PEER_V4_DEPLOYMENT_ID_1":['10.0.0.3'], "PEER_INVALID":['10.0.0.4']},[
+             'router bgp 65500',
+        ' address-family ipv4',
+        '  no neighbor 10.0.0.1 allowas-in 1',
+        '  no neighbor 10.0.0.3 allowas-in 1',
+        '  no neighbor 10.0.0.2 allowas-in 1',
+        ' address-family ipv6',
+        '  no neighbor fc00::3 allowas-in 1',
+        '  no neighbor fc00::2 allowas-in 1',
+        '  no neighbor fc00::1 allowas-in 1',
+        ],
+        {"PEER_V4", "PEER_V4_DEPLOYMENT_ID_0", "PEER_V4_DEPLOYMENT_ID_1", "PEER_V6", "PEER_V6_DEPLOYMENT_ID_0", "PEER_V6_DEPLOYMENT_ID_1"})
+
 
 def test__get_available_peer_groups():
     cfg_mgr = MagicMock()
