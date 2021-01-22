@@ -41,6 +41,11 @@ then
     ORCHAGENT_ARGS+="-i $asic_id "
 fi
 
+# for multi asic platforms add the asic name to the record file names
+if [[ "$NAMESPACE_ID" ]]; then
+    ORCHAGENT_ARGS+="-f swss.asic$NAMESPACE_ID.rec -j sairedis.asic$NAMESPACE_ID.rec "
+fi
+
 # Add platform specific arguments if necessary
 if [ "$platform" == "broadcom" ]; then
     ORCHAGENT_ARGS+="-m $MAC_ADDRESS"
