@@ -38,7 +38,7 @@ def get_ipmitool_raw_output(args):
         proc.wait()
         if not proc.returncode:
             result = stdout.rstrip('\n')
-    except:
+    except EnvironmentError:
         pass
 
     for i in result.split():
@@ -180,7 +180,7 @@ class IpmiFru(object):
             proc.wait()
             if not proc.returncode:
                 result = stdout.decode('utf-8').rstrip('\n')
-        except:
+        except EnvironmentError:
             pass
 
         return result
@@ -253,7 +253,7 @@ class IpmiFru(object):
             proc.wait()
             if not proc.returncode:
                 result = stdout.decode('utf-8').rstrip('\n')
-        except:
+        except EnvironmentError:
             is_valid = False
 
         if (not result) or (not is_valid):
