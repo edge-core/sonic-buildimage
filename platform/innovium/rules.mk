@@ -6,7 +6,6 @@ include $(PLATFORM_PATH)/docker-syncd-invm-rpc.mk
 include $(PLATFORM_PATH)/one-image.mk
 include $(PLATFORM_PATH)/libsaithrift-dev.mk
 include $(PLATFORM_PATH)/python-saithrift.mk
-include $(PLATFORM_PATH)/docker-ptf-invm.mk
 
 SONIC_ALL += $(SONIC_INVM_ONE_IMAGE) \
              $(DOCKER_FPM) \

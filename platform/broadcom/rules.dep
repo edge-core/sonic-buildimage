@@ -22,4 +22,3 @@ include $(PLATFORM_PATH)/one-pde-image.dep
 include $(PLATFORM_PATH)/raw-image.dep
 include $(PLATFORM_PATH)/one-aboot.dep
 include $(PLATFORM_PATH)/libsaithrift-dev.dep
-include $(PLATFORM_PATH)/docker-ptf-brcm.dep
