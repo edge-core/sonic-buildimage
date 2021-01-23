@@ -61,7 +61,6 @@ RUN apt-get update && apt-get install -y \
         dh-exec \
         kmod \
         libtinyxml2-6a \
-        libboost-program-options1.67-dev \
         libtinyxml2-dev \
         python \
         python-pip \
@@ -121,7 +120,6 @@ RUN apt-get update && apt-get install -y \
         module-assistant \
 # For thrift build\
         gem2deb \
-        libboost-all-dev \
         libevent-dev \
         libglib2.0-dev \
         libqt4-dev \
@@ -304,7 +302,27 @@ RUN apt-get update && apt-get install -y \
         python-lxml \
         libexpat1-dev \
 # For kdump-tools
-        libbz2-dev
+        libbz2-dev \
+# For linkmgrd
+        libboost1.71-dev \
+        libboost-program-options1.71-dev \
+        libboost-system1.71-dev \
+        libboost-thread1.71-dev \
+        libboost-atomic1.71-dev \
+        libboost-chrono1.71-dev \
+        libboost-container1.71-dev \
+        libboost-context1.71-dev \
+        libboost-contract1.71-dev \
+        libboost-coroutine1.71-dev \
+        libboost-date-time1.71-dev \
+        libboost-fiber1.71-dev \
+        libboost-filesystem1.71-dev \
+        libboost-graph-parallel1.71-dev \
+        libboost-log1.71-dev \
+        libboost-regex1.71-dev \
+        googletest \
+        libgtest-dev \
+        libgcc-8-dev
 
 # Build fix for ARMHF buster libsairedis
 {%- if CONFIGURED_ARCH == "armhf" %}
