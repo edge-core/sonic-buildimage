@@ -1,7 +1,7 @@
-# docker image for ptf
+# docker image for docker-ptf
 
 DOCKER_PTF = docker-ptf.gz
 $(DOCKER_PTF)_PATH = $(DOCKERS_PATH)/docker-ptf
-$(DOCKER_PTF)_DEPENDS += $(LIBTHRIFT) $(PYTHON_THRIFT) $(PTF)
+$(DOCKER_PTF)_DEPENDS += $(LIBTHRIFT) $(PYTHON_THRIFT) $(PTF) $(PYTHON_SAITHRIFT)
 SONIC_DOCKER_IMAGES += $(DOCKER_PTF)
 SONIC_STRETCH_DOCKERS += $(DOCKER_PTF)

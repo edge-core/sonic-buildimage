@@ -78,7 +78,7 @@ RUN rm -rf /debs \
     && apt-get -y autoclean \
     && apt-get -y autoremove \
     && rm -rf /var/lib/apt/lists/* \
-    && wget --https-only https://bootstrap.pypa.io/get-pip.py \
+    && wget --https-only https://bootstrap.pypa.io/2.7/get-pip.py \
     && python get-pip.py \
     && rm -f get-pip.py \
     && pip install setuptools \
@@ -146,6 +146,18 @@ RUN git clone https://github.com/lguohan/gnxi.git \
     && cd gnmi_cli_py \
     && pip install -r requirements.txt
 
+COPY \
+{% for deb in docker_ptf_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor -%}
+debs/
+
+RUN dpkg -i \
+{% for deb in docker_ptf_debs.split(' ') -%}
+debs/{{ deb }}{{' '}}
+{%- endfor %}
+
+COPY ["*.ini", "/etc/ptf/"]
 EXPOSE 22 8009
 
 ENTRYPOINT ["/usr/local/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
