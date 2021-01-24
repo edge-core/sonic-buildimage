@@ -400,7 +400,7 @@ if [[ $CONFIGURED_ARCH == amd64 ]]; then
 fi
 
 ## docker-py is needed by Ansible docker module
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT easy_install pip
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT easy_install 'pip==20.3.3'
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install 'docker-py==1.6.0'
 ## Note: keep pip installed for maintainance purpose
 
