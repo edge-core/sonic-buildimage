@@ -100,12 +100,12 @@ def read_state(feature):
             [(CURRENT_OWNER, "none"), (REMOTE_STATE, "none"), (CONTAINER_ID, "")])
 
 
-def docker_action(action, feature):
+def docker_action(action, feature, **kwargs):
     """ Execute docker action """
     try:
         client = docker.from_env()
         container = client.containers.get(feature)
-        getattr(container, action)()
+        getattr(container, action)(**kwargs)
         syslog.syslog(syslog.LOG_INFO, "docker cmd: {} for {}".format(action, feature))
         return 0
 
@@ -161,7 +161,7 @@ def container_id(feature):
         return data.get(CONTAINER_ID, feature)
 
 
-def container_start(feature):
+def container_start(feature, **kwargs):
     """
     Starts a container for given feature.
     
@@ -219,7 +219,7 @@ def container_start(feature):
     update_data(feature, data)
 
     if (start_val & START_LOCAL):
-        ret = docker_action("start", feature)
+        ret = docker_action("start", feature, **kwargs)
 
     if (start_val & START_KUBE):
         set_label(feature, True)
@@ -227,7 +227,7 @@ def container_start(feature):
     return ret
 
 
-def container_stop(feature):
+def container_stop(feature, **kwargs):
     """
     Stops the running container for this feature.
 
@@ -257,7 +257,7 @@ def container_stop(feature):
         set_label(feature, False)
 
     if docker_id:
-        docker_action("stop", docker_id)
+        docker_action("stop", docker_id, **kwargs)
     else:
         syslog.syslog(
                 syslog.LOG_ERR if current_owner != "none" else syslog.LOG_INFO,
@@ -289,7 +289,7 @@ def container_stop(feature):
     debug_msg("END")
 
 
-def container_kill(feature):
+def container_kill(feature, **kwargs):
     """
     Kills the running container for this feature.
 
@@ -314,7 +314,7 @@ def container_kill(feature):
         set_label(feature, False)
 
     if docker_id:
-        docker_action("kill", docker_id)
+        docker_action("kill", docker_id, **kwargs)
 
     else:
         syslog.syslog(
@@ -325,7 +325,7 @@ def container_kill(feature):
     debug_msg("END")
 
 
-def container_wait(feature):
+def container_wait(feature, **kwargs):
     """
     Waits on the running container for this feature.
 
@@ -378,30 +378,34 @@ def container_wait(feature):
                 format(feature))
     else:
         debug_msg("END -- transitioning to docker wait")
-        docker_action("wait", docker_id)
+        docker_action("wait", docker_id, **kwargs)
 
 
 def main():
     parser=argparse.ArgumentParser(description="container commands for start/stop/wait/kill/id")
     parser.add_argument("action", choices=["start", "stop", "wait", "kill", "id"])
+    parser.add_argument('-t', '--timeout', type=int, help='container action timeout value', default=None)
     parser.add_argument("name")
 
     args = parser.parse_args()
+    kwargs = {}
 
     if args.action == "start":
-        container_start(args.name)
+        container_start(args.name, **kwargs)
 
     elif args.action == "stop":
-        container_stop(args.name)
+        if args.timeout is not None:
+            kwargs['timeout'] = args.timeout
+        container_stop(args.name, **kwargs)
 
     elif args.action == "kill":
-        container_kill(args.name)
+        container_kill(args.name, **kwargs)
 
     elif args.action == "wait":
-        container_wait(args.name)
+        container_wait(args.name, **kwargs)
 
     elif args.action == "id":
-        id = container_id(args.name)
+        id = container_id(args.name, **kwargs)
         print(id)
 
 
