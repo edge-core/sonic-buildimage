@@ -242,6 +242,20 @@
 		}
 	},
 
+    "ACL_TABLE_EMPTY_PORTS": {
+        "sonic-acl:sonic-acl": {
+            "sonic-acl:ACL_TABLE": {
+                "ACL_TABLE_LIST": [{
+                    "ACL_TABLE_NAME": "NO-NSW-PACL-V4",
+                    "policy_desc": "Filter IPv4",
+                    "type": "L3",
+                    "stage": "EGRESS",
+                    "ports": [""]
+                }]
+            }
+        }
+    },
+
 	"ACL_RULE_UNDEFINED_PACKET_ACTION": {
 		"sonic-acl:sonic-acl": {
 			"sonic-acl:ACL_RULE": {
@@ -832,6 +846,19 @@
                 "platform": "Stone-DX010",
                 "hostname": "DUT-ASW",
                 "bgp_asn": "65000"
+                }
+            }
+        }
+    },
+
+    "DEVICE_METADATA_DEFAULT_DOCKER_ROUTING_CONFIG_MODE": {
+        "sonic-device_metadata:sonic-device_metadata": {
+            "sonic-device_metadata:DEVICE_METADATA": {
+                "sonic-device_metadata:localhost": {
+                "default_bgp_status": "up",
+                "platform": "Stone-DX010",
+                "hostname": "DUT-CSW",
+                "bgp_asn": "65001"
                 }
             }
         }

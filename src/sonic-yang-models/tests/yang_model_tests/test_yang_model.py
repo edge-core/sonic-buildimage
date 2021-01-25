@@ -81,6 +81,10 @@ class Test_yang_models:
                 'desc': 'Configure undefined packet_action in ACL_RULE table.',
                 'eStr': self.defaultYANGFailure['InvalidValue'] + ['PACKET_ACTION']
             },
+            'ACL_TABLE_EMPTY_PORTS': {
+                'desc': 'Configure ACL_TABLE with empty ports.',
+                'eStr': self.defaultYANGFailure['None']
+            },
             'ACL_TABLE_UNDEFINED_TABLE_TYPE': {
                 'desc': 'Configure undefined acl_table_type in ACL_TABLE table.',
                 'eStr': self.defaultYANGFailure['InvalidValue'] + ['type']
@@ -208,6 +212,14 @@ class Test_yang_models:
                 'verify': {'xpath': '/sonic-device_metadata:sonic-device_metadata/DEVICE_METADATA/localhost/hostname',
                     'key': 'sonic-device_metadata:default_bgp_status',
                     'value': 'up'
+                }
+            },
+            'DEVICE_METADATA_DEFAULT_DOCKER_ROUTING_CONFIG_MODE': {
+                'desc': 'DEVICE_METADATA DEFAULT VALUE FOR DOCKER_ROUTING_CONFIG_MODE FIELD.',
+                'eStr': self.defaultYANGFailure['Verify'],
+                'verify': {'xpath': '/sonic-device_metadata:sonic-device_metadata/DEVICE_METADATA/localhost/hostname',
+                    'key': 'sonic-device_metadata:docker_routing_config_mode',
+                    'value': 'unified'
                 }
             },
             'DEVICE_METADATA_DEFAULT_PFCWD_STATUS': {
