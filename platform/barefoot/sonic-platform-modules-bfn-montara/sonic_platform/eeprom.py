@@ -136,14 +136,17 @@ class Eeprom(eeprom_tlvinfo.TlvInfoDecoder):
 
         return True
 
-    def serial_number_str(self):
+    def serial_str(self):
         return self.eeprom.prod_ser_num
 
     def system_eeprom_info(self):
         return self.eeprom.__dict__
 
-    def get_base_mac(self):
-        return self.eeprom.ext_mac_addr
+    def base_mac_addr(self):
+        return self.eeprom.ext_mac_addr.rstrip('\x00')
 
     def part_number_str(self):
         return self.eeprom.prod_part_num
+
+    def modelstr(self):
+        return self.eeprom.prod_name
