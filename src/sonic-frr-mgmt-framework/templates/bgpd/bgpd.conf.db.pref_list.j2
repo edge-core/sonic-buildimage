@@ -1,0 +1,30 @@
+{# ------------------------------------------------------------------------------------ #}
+{% if (PREFIX_SET is defined and PREFIX_SET|length > 0) and
+      (PREFIX is defined and PREFIX|length > 0) %}
+{% set modes = ['IPv4', 'IPv6'] %}
+{% set ip_str = {'IPv4':'ip', 'IPv6':'ipv6' } %}
+{% for md in modes %}
+!
+{% for key, val in PREFIX_SET.items() %}
+{% if 'mode' in val %}
+{% for pf_key, pf_val in PREFIX.items() %}
+{% if pf_key[0] == key and md == val['mode'] %}
+{% if pf_key[2] == 'exact' %}
+{{ip_str[md]}} prefix-list {{key}} permit {{pf_key[1]}}
+{% else %}
+{% set len = pf_key[1].split('/')[1] %}
+{% set rb = pf_key[2].split('..')[0] %}
+{% set re = pf_key[2].split('..')[1] %}
+{% if rb > len %}
+{{ip_str[md]}} prefix-list {{key}} permit {{pf_key[1]}} ge {{rb}} le {{re}}
+{% else %}
+{{ip_str[md]}} prefix-list {{key}} permit {{pf_key[1]}} le {{re}}
+{% endif %}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% endif %}
+{# ------------------------------------------------------------------------------------ #}

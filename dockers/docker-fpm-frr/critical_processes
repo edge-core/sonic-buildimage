@@ -1,5 +1,0 @@
-program:zebra
-program:staticd
-program:bgpd
-program:fpmsyncd
-program:bgpcfgd
