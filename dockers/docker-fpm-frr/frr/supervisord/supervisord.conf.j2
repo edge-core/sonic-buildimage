@@ -50,6 +50,20 @@ stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=zebra:running
 
+{% if DEVICE_METADATA.localhost.frr_mgmt_framework_config is defined and DEVICE_METADATA.localhost.frr_mgmt_framework_config == "true" %}
+[program:bfdd]
+command=/usr/lib/frr/bfdd -A 127.0.0.1
+priority=4
+stopsignal=KILL
+autostart=false
+autorestart=false
+startsecs=0
+stdout_logfile=syslog
+stderr_logfile=syslog
+dependent_startup=true
+dependent_startup_wait_for=zebra:running
+{% endif %}
+
 [program:bgpd]
 command=/usr/bin/bgpd.sh -A 127.0.0.1 -M snmp
 priority=5
@@ -62,6 +76,32 @@ stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=zebra:running
 
+{% if DEVICE_METADATA.localhost.frr_mgmt_framework_config is defined and DEVICE_METADATA.localhost.frr_mgmt_framework_config == "true" %}
+[program:ospfd]
+command=/usr/lib/frr/ospfd -A 127.0.0.1 -M snmp
+priority=5
+stopsignal=KILL
+autostart=false
+autorestart=false
+startsecs=0
+stdout_logfile=syslog
+stderr_logfile=syslog
+dependent_startup=true
+dependent_startup_wait_for=zebra:running
+
+[program:pimd]
+command=/usr/lib/frr/pimd -A 127.0.0.1
+priority=5
+stopsignal=KILL
+autostart=false
+autorestart=false
+startsecs=0
+stdout_logfile=syslog
+stderr_logfile=syslog
+dependent_startup=true
+dependent_startup_wait_for=zebra:running
+{% endif %}
+
 [program:fpmsyncd]
 command=fpmsyncd
 priority=6
@@ -73,8 +113,13 @@ stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=bgpd:running
 
+{% if DEVICE_METADATA.localhost.frr_mgmt_framework_config is defined and DEVICE_METADATA.localhost.frr_mgmt_framework_config == "true" %}
+[program:frrcfgd]
+command=/usr/local/bin/frrcfgd
+{% else %}
 [program:bgpcfgd]
 command=/usr/local/bin/bgpcfgd
+{% endif %}
 priority=6
 autostart=false
 autorestart=false
