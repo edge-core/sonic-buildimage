@@ -36,7 +36,8 @@ stages:
         CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=rcache SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/broadcom"
         ENABLE_DOCKER_BASE_PULL=y make configure PLATFORM=broadcom
         trap "sudo rm -rf fsroot" EXIT
-        make USERNAME=admin SONIC_BUILD_JOBS=$(nproc) $CACHE_OPTIONS target/sonic-broadcom.bin
+        make USERNAME=admin SONIC_BUILD_JOBS=$(nproc) $CACHE_OPTIONS target/sonic-broadcom.bin && \
+            ENABLE_SYNCD_RPC=y make USERNAME=admin SONIC_BUILD_JOBS=$(nproc) $CACHE_OPTIONS target/docker-syncd-brcm-rpc.gz
       displayName: 'Build sonic image'
     - publish: $(System.DefaultWorkingDirectory)/
       artifact: sonic-buildimage.broadcom
@@ -55,7 +56,8 @@ stages:
         CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=rcache SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/mellanox"
         ENABLE_DOCKER_BASE_PULL=y make configure PLATFORM=mellanox
         trap "sudo rm -rf fsroot" EXIT
-        make USERNAME=admin SONIC_BUILD_JOBS=$(nproc) $CACHE_OPTIONS target/sonic-mellanox.bin
+        make USERNAME=admin SONIC_BUILD_JOBS=$(nproc) $CACHE_OPTIONS target/sonic-mellanox.bin && \
+            ENABLE_SYNCD_RPC=y make USERNAME=admin SONIC_BUILD_JOBS=$(nproc) $CACHE_OPTIONS target/docker-syncd-mlnx-rpc.gz
       displayName: 'Build sonic image'
     - publish: $(System.DefaultWorkingDirectory)/
       artifact: sonic-buildimage.mellanox
