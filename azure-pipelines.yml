@@ -81,7 +81,7 @@ stages:
         ENABLE_DOCKER_BASE_PULL=y make configure PLATFORM=vs
         trap "sudo rm -rf fsroot" EXIT
         make USERNAME=admin SONIC_BUILD_JOBS=$(nproc) $CACHE_OPTIONS \
-            target/docker-sonic-vs.gz target/sonic-vs.img.gz && \
+            target/docker-sonic-vs.gz target/sonic-vs.img.gz target/docker-ptf.gz && \
             sudo cp target/sonic-vs.img.gz /nfs/azpl/kvmimage/sonic-vs.$(Build.BuildNumber).img.gz && \
             sudo cp target/docker-sonic-vs.gz /nfs/azpl/kvmimage/docker-sonic-vs.$(Build.BuildNumber).gz
       displayName: 'Build sonic image'
