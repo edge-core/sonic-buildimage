@@ -31,6 +31,7 @@
 {%- if sonic_asic_platform == "vs" %}{% do features.append(("gbsyncd", "enabled", false, "enabled")) %}{% endif %}
 {%- if include_iccpd == "y" %}{% do features.append(("iccpd", "disabled", false, "enabled")) %}{% endif %}
 {%- if include_mgmt_framework == "y" %}{% do features.append(("mgmt-framework", "enabled", true, "enabled")) %}{% endif %}
+{%- if include_mux == "y" %}{% do features.append(("mux", "enabled", false, "enabled")) %}{% endif %}
 {%- if include_nat == "y" %}{% do features.append(("nat", "disabled", false, "enabled")) %}{% endif %}
 {%- if include_restapi == "y" %}{% do features.append(("restapi", "enabled", false, "enabled")) %}{% endif %}
 {%- if include_sflow == "y" %}{% do features.append(("sflow", "disabled", false, "enabled")) %}{% endif %}
