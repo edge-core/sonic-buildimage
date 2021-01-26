@@ -199,3 +199,6 @@ REGISTRY_SERVER ?= sonicdev-microsoft.azurecr.io
 
 # BUILD_MULTIASIC_KVM - if set to y multi-asic KVM images will be generated.
 BUILD_MULTIASIC_KVM = n
+
+# INCLUDE_MUX - build docker-mux for dual ToR (Gemini)
+INCLUDE_MUX = y
