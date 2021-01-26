@@ -125,11 +125,13 @@ stages:
         sudo docker load -i /nfs/azpl/kvmimage/docker-sonic-vs.$(Build.BuildNumber).gz
         docker tag docker-sonic-vs:latest docker-sonic-vs:$(Build.BuildNumber)
         username=$(id -un)
+        set -x
 
         trap "docker ps; docker images; ip netns list; \
               docker rmi docker-sonic-vs:$(Build.BuildNumber); \
               ip netns list | grep -E [-]srv[0-9]+ | awk '{print $1}' | xargs -I {} sudo ip netns delete {}; \
-              sudo chown -R ${username}.${username} ." EXIT
+              sudo chown -R ${username}.${username} .; \
+              sudo chown -R ${username}.${username} $(System.DefaultWorkingDirectory)" EXIT
         pushd platform/vs/tests
         sudo py.test -v --junitxml=tr.xml --imgname=docker-sonic-vs:$(Build.BuildNumber) && \
             sudo rm /nfs/azpl/kvmimage/docker-sonic-vs.$(Build.BuildNumber).gz
