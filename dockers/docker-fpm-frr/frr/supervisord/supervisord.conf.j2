@@ -39,6 +39,17 @@ stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=rsyslogd:running
 
+[program:zsocket]
+command=/usr/bin/zsocket.sh
+priority=4
+autostart=false
+autorestart=false
+startsecs=0
+stdout_logfile=syslog
+stderr_logfile=syslog
+dependent_startup=true
+dependent_startup_wait_for=zebra:running
+
 [program:staticd]
 command=/usr/lib/frr/staticd -A 127.0.0.1
 priority=4
@@ -48,7 +59,7 @@ startsecs=0
 stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
-dependent_startup_wait_for=zebra:running
+dependent_startup_wait_for=zsocket:exited
 
 {% if DEVICE_METADATA.localhost.frr_mgmt_framework_config is defined and DEVICE_METADATA.localhost.frr_mgmt_framework_config == "true" %}
 [program:bfdd]
@@ -65,7 +76,7 @@ dependent_startup_wait_for=zebra:running
 {% endif %}
 
 [program:bgpd]
-command=/usr/bin/bgpd.sh -A 127.0.0.1 -M snmp
+command=/usr/lib/frr/bgpd -A 127.0.0.1 -M snmp
 priority=5
 stopsignal=KILL
 autostart=false
@@ -74,7 +85,7 @@ startsecs=0
 stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
-dependent_startup_wait_for=zebra:running
+dependent_startup_wait_for=zsocket:exited
 
 {% if DEVICE_METADATA.localhost.frr_mgmt_framework_config is defined and DEVICE_METADATA.localhost.frr_mgmt_framework_config == "true" %}
 [program:ospfd]
