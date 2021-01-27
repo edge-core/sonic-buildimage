@@ -42,6 +42,18 @@ function updateSyslogConf()
         rm -rf $TMP_FILE
     fi
 }
+function ebtables_config()
+{
+    if [ "$DEV" ]; then
+        # Install ebtables filter in namespaces on multi-asic.
+        ip netns exec $NET_NS ebtables-restore < /etc/ebtables.filter.cfg
+    else
+        if [[ ! ($NUM_ASIC -gt 1) ]]; then
+            # Install ebtables filter in host for single asic.
+            ebtables-restore < /etc/ebtables.filter.cfg
+        fi
+    fi
+}
 
 function getMountPoint()
 {
@@ -98,6 +110,8 @@ function postStartAction()
         docker exec -i database$DEV sysctl --system -e
         link_namespace $DEV
     fi
+    # Setup ebtables configuration
+    ebtables_config
 
     # Wait until supervisord and redis starts. This change is needed
     # because now database_config.json is jinja2 templated based
