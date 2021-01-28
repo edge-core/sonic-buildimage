@@ -1,5 +1,10 @@
 /*
- * Copyright 2017 Broadcom
+ * Copyright 2007-2020 Broadcom Inc. All rights reserved.
+ * 
+ * Permission is granted to use, copy, modify and/or distribute this
+ * software under either one of the licenses below.
+ * 
+ * License Option 1: GPL
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -12,6 +17,12 @@
  * 
  * You should have received a copy of the GNU General Public License
  * version 2 (GPLv2) along with this source code.
+ * 
+ * 
+ * License Option 2: Broadcom Open Network Switch APIs (OpenNSA) license
+ * 
+ * This software is governed by the Broadcom Open Network Switch APIs license:
+ * https://www.broadcom.com/products/ethernet-connectivity/software/opennsa
  */
 /*
  * $Id: gmodule.c,v 1.20 Broadcom SDK $
@@ -26,8 +37,6 @@
 #include <lkm.h>
 #include <gmodule.h>
 #include <linux/init.h>
-#include <linux/seq_file.h>
-
 /* Module Vector Table */
 static gmodule_t* _gmodule = NULL;
 
@@ -94,21 +103,18 @@ gdbg(const char* fmt, ...)
  * Proc FS Utilities
  */
 #if PROC_INTERFACE_KERN_VER_3_10
-static struct seq_file* _proc_buf = NULL;
-
 int 
-pprintf(const char* fmt, ...)
+pprintf(struct seq_file *m, const char* fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    seq_vprintf(_proc_buf, fmt, args);
+    seq_vprintf(m, fmt, args);
     va_end(args);
     return 0;
 }
 
 static int _gmodule_proc_show(struct seq_file *m, void *v){
-    _proc_buf = m;
-    _gmodule->pprint();
+    _gmodule->pprint(m);
     return 0;
 }
 
@@ -174,7 +180,7 @@ gmodule_pprintf(char** page_ptr, const char* fmt, ...)
 static char* _proc_buf = NULL;
 
 int 
-pprintf(const char* fmt, ...)
+pprintf(struct seq_file *m, const char* fmt, ...)
 {  
     int rv;
 
@@ -193,7 +199,7 @@ static int
 _gmodule_pprint(char* buf)
 {
     PSTART(buf);
-    _gmodule->pprint();
+    _gmodule->pprint(NULL);
     return PEND(buf);
 }
 

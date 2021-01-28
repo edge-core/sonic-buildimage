@@ -60,10 +60,6 @@
 #include <kcom.h>
 #include <bcm-knet.h>
 
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(3,16,0)
-#include <linux/nsproxy.h>
-#endif
-
 #include <linux/netdevice.h>
 #include <linux/etherdevice.h>
 #include <linux/ethtool.h>
@@ -222,6 +218,7 @@ MODULE_PARM_DESC(ft_vid,
 #define DBG_LVL_DCB_RX  0x20000
 #define DBG_LVL_PDMP_TX 0x40000
 #define DBG_LVL_PDMP_RX 0x80000
+#define DBG_LVL_PTP     0x100000
 
 #define DBG_VERB(_s)    do { if (debug & DBG_LVL_VERB) gprintk _s; } while (0)
 #define DBG_PKT(_s)     do { if (debug & DBG_LVL_PKT)  gprintk _s; } while (0)
@@ -245,6 +242,7 @@ MODULE_PARM_DESC(ft_vid,
 #define DBG_DCB(_s)     do { if (debug & (DBG_LVL_DCB|DBG_LVL_DCB_TX| \
                                           DBG_LVL_DCB_RX)) \
                                  gprintk _s; } while (0)
+#define DBG_PTP(_s)    do { if (debug & DBG_LVL_PTP) gprintk _s; } while (0)
 
 
 /* This flag is used to indicate if debugging packet function is open or closed */
@@ -499,6 +497,12 @@ static inline void bkn_skb_tx_timestamp(struct sk_buff *skb)
 #define BKN_DMA_MAPPING_ERROR(d,a)          bkn_pci_dma_mapping_error(d,a)
 #endif
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29))
+#define BKN_NETDEV_TX_BUSY      NETDEV_TX_BUSY
+#else
+#define BKN_NETDEV_TX_BUSY      1
+#endif
+
 /*
  * Get a 16-bit value from packet offset
  * _data Pointer to packet
@@ -671,6 +675,8 @@ typedef struct bkn_switch_info_s {
         uint32_t pkts_d_no_api_buf; /* Rx drop - no API buffers */
     } rx[NUM_RX_CHAN];
 } bkn_switch_info_t;
+
+#define INVALID_INSTANCE_ID         BDE_DEV_INST_ID_INVALID
 
 /* 0x1 - Jericho 2 mode */
 #define BKN_DNX_JR2_MODE            1
@@ -936,13 +942,6 @@ typedef struct bkn_filter_s {
     kcom_filter_t kf;
 } bkn_filter_t;
 
-#ifdef SAI_FIXUP    /* SDK-224448 */
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29))
-#define BKN_NETDEV_TX_BUSY      NETDEV_TX_BUSY
-#else
-#define BKN_NETDEV_TX_BUSY      1
-#endif
-#endif              /* SDK-224448 */
 
 /*
  * Multiple instance support in KNET
@@ -1071,6 +1070,7 @@ bkn_sleep(int clicks)
 
 #define DEV_IS_CMICX(_sinfo)    ((_sinfo)->cmic_type == 'x')
 #define DEV_IS_CMICM(_sinfo)    ((_sinfo)->cmic_type == 'm')
+#define DEV_IS_CMIC(_sinfo)     ((_sinfo)->cmic_type != 0)
 #define CDMA_CH(_d, _ch)        ((_d)->cdma_channels & (1 << (_ch)))
 
 /*
@@ -2125,12 +2125,13 @@ bkn_api_rx_chain_done(bkn_switch_info_t *sinfo, int chan)
 
 static int
 bkn_api_rx_copy_from_skb(bkn_switch_info_t *sinfo,
-                         int chan, bkn_desc_info_t *desc)
+                         int chan, bkn_desc_info_t *desc, int rx_hwts)
 {
     bkn_dcb_chain_t *dcb_chain;
     uint32_t *dcb;
     uint32_t dcb_stat;
     uint8_t *pkt;
+    uint8_t *skb_pkt;
     uint64_t pkt_dma;
     int pktlen;
     int i;
@@ -2168,8 +2169,18 @@ bkn_api_rx_copy_from_skb(bkn_switch_info_t *sinfo,
         return -1;
     }
 
+    skb_pkt = desc->skb->data;
+
+    /* Strip custom header from KNETSync packets.  */
+    if ((rx_hwts) &&
+        ((skb_pkt[0] == 'B') && (skb_pkt[1] == 'C') &&
+         (skb_pkt[2] == 'M') && (skb_pkt[3] == 'C'))) {
+
+        skb_pkt = skb_pkt + skb_pkt[4];
+    }
+
     /* Copy packet data */
-    memcpy(pkt, desc->skb->data, pktlen);
+    memcpy(pkt, skb_pkt, pktlen);
 
     /* Copy packet metadata and mark as done */
     if (sinfo->cmic_type != 'x') {
@@ -2235,11 +2246,11 @@ bkn_rx_refill(bkn_switch_info_t *sinfo, int chan)
     while (sinfo->rx[chan].free < MAX_RX_DCBS) {
         desc = &sinfo->rx[chan].desc[sinfo->rx[chan].cur];
         if (desc->skb == NULL) {
-            skb = dev_alloc_skb(rx_buffer_size + RCPU_RX_ENCAP_SIZE);
+            skb = dev_alloc_skb(rx_buffer_size + SKB_DATA_ALIGN(resv_size));
             if (skb == NULL) {
                 break;
             }
-            skb_reserve(skb, resv_size);
+            skb_reserve(skb, SKB_DATA_ALIGN(resv_size));
             desc->skb = skb;
         } else {
             DBG_DCB_RX(("Refill Rx%d SKB in DCB %d recycled.\n",
@@ -3832,6 +3843,11 @@ bkn_do_skb_rx(bkn_switch_info_t *sinfo, int chan, int budget)
 
     while (dcbs_done < budget) {
         char str[32];
+
+        if (!sinfo->rx[chan].running) {
+            /* DCBs might be cleaned up when bkn_knet_hw_reset is triggered. */
+            return 0;
+        }
         sprintf(str, "Rx DCB (%d)", sinfo->rx[chan].dirty);
         desc = &sinfo->rx[chan].desc[sinfo->rx[chan].dirty];
         dcb = desc->dcb_mem;
@@ -3849,6 +3865,12 @@ bkn_do_skb_rx(bkn_switch_info_t *sinfo, int chan, int budget)
         }
         sinfo->rx[chan].pkts++;
         skb = desc->skb;
+
+        DBG_DCB_RX(("Rx%d SKB DMA done (%d).\n", chan, sinfo->rx[chan].dirty));
+        BKN_DMA_UNMAP_SINGLE(sinfo->dma_dev,
+                             desc->skb_dma, desc->dma_size,
+                             BKN_DMA_FROMDEV);
+        desc->skb_dma = 0;
 
         if (device_is_sand(sinfo)) {
             err_woff = BKN_SAND_SCRATCH_DATA_SIZE - 1;
@@ -3868,11 +3890,6 @@ bkn_do_skb_rx(bkn_switch_info_t *sinfo, int chan, int budget)
 
         pktlen = dcb[sinfo->dcb_wsize-1] & 0xffff;
         priv = netdev_priv(sinfo->dev);
-        DBG_DCB_RX(("Rx%d SKB DMA done (%d).\n", chan, sinfo->rx[chan].dirty));
-        BKN_DMA_UNMAP_SINGLE(sinfo->dma_dev,
-                         desc->skb_dma, desc->dma_size,
-                         BKN_DMA_FROMDEV);
-        desc->skb_dma = 0;
         bkn_dump_pkt(skb->data, pktlen, XGS_DMA_RX_CHAN);
 
         if (device_is_sand(sinfo)) {
@@ -3945,7 +3962,7 @@ bkn_do_skb_rx(bkn_switch_info_t *sinfo, int chan, int budget)
             case KCOM_DEST_T_API:
                 DBG_FLTR(("Send to Rx API\n"));
                 sinfo->rx[chan].pkts_f_api++;
-                bkn_api_rx_copy_from_skb(sinfo, chan, desc);
+                bkn_api_rx_copy_from_skb(sinfo, chan, desc, 0);
                 break;
             case KCOM_DEST_T_NETIF:
                 priv = bkn_netif_lookup(sinfo, filter->kf.dest_id);
@@ -3961,7 +3978,7 @@ bkn_do_skb_rx(bkn_switch_info_t *sinfo, int chan, int budget)
 
                     if ((filter->kf.mirror_type == KCOM_DEST_T_API) || dbg_pkt_enable) {
                         sinfo->rx[chan].pkts_m_api++;
-                        bkn_api_rx_copy_from_skb(sinfo, chan, desc);
+                        bkn_api_rx_copy_from_skb(sinfo, chan, desc, priv->rx_hwts);
                     }
 
                     if (device_is_sand(sinfo)) {
@@ -4095,6 +4112,9 @@ bkn_do_skb_rx(bkn_switch_info_t *sinfo, int chan, int budget)
                         }
                     }
 
+                    /* Ensure that we reallocate SKB for this DCB */
+                    desc->skb = NULL;
+
                     /* Unlock while calling up network stack */
                     spin_unlock(&sinfo->lock);
                     if (use_napi) {
@@ -4104,8 +4124,6 @@ bkn_do_skb_rx(bkn_switch_info_t *sinfo, int chan, int budget)
                     }
                     spin_lock(&sinfo->lock);
 
-                    /* Ensure that we reallocate SKB for this DCB */
-                    desc->skb = NULL;
                 } else {
                     DBG_FLTR(("Unknown netif %d\n",
                               filter->kf.dest_id));
@@ -4299,11 +4317,28 @@ bkn_hw_tstamp_tx_work(struct work_struct *work)
 {
     bkn_switch_info_t *sinfo = container_of(work, bkn_switch_info_t, tx_ptp_work);
     struct sk_buff *skb;
+    int ret;
 
     while (skb_queue_len(&sinfo->tx_ptp_queue)) {
         skb = skb_dequeue(&sinfo->tx_ptp_queue);
-        if (bkn_hw_tstamp_tx_set(sinfo, skb) < 0) {
-            gprintk("Timestamp has not been taken for the current skb.\n");
+        ret = bkn_hw_tstamp_tx_set(sinfo, skb);
+        if (ret < 0) {
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26))
+            ktime_t now;
+            now = ktime_get();
+            DBG_PTP(("2Step TX Timestamp has not been taken for the current skb (%lld us)\n",
+                                    ktime_us_delta(now, skb->tstamp)));
+        } else {
+            ktime_t now;
+            now = ktime_get();
+            /* Timeout 20 should be same as configured by PTP4L */
+            if (ktime_us_delta(now, skb->tstamp) >= 20000) {
+                DBG_PTP(("2Step TX Timestamp fetch took long time %lld us\n",
+                            ktime_us_delta(now, skb->tstamp)));
+            }
+#else 
+            DBG_PTP(("2Step TX Timestamp has not been taken for the current skb\n"));
+#endif
         }
         dev_kfree_skb_any(skb);
     }
@@ -4346,6 +4381,9 @@ bkn_do_tx(bkn_switch_info_t *sinfo)
             }
 
             if (bkn_skb_tx_flags(desc->skb) & SKBTX_IN_PROGRESS) {
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,26))
+                desc->skb->tstamp = ktime_get();
+#endif
                 skb_queue_tail(&sinfo->tx_ptp_queue, desc->skb);
                 schedule_work(&sinfo->tx_ptp_work);
             } else {
@@ -5310,6 +5348,7 @@ bkn_hw_tstamp_tx_config(bkn_switch_info_t *sinfo,
     case 26:
     case 32:
     case 33:
+    case 35:
         meta[2] |= md[0];
         meta[3] |= md[1];
         meta[4] |= md[2];
@@ -5342,6 +5381,7 @@ bkn_tx(struct sk_buff *skb, struct net_device *dev)
     uint32_t *metadata;
     unsigned long flags;
     uint32_t cpu_channel = 0;
+    int headroom, tailroom;
 
     DBG_VERB(("Netif Tx: Len=%d priv->id=%d\n", skb->len, priv->id));
 
@@ -5449,7 +5489,16 @@ bkn_tx(struct sk_buff *skb, struct net_device *dev)
                         if (skb_header_cloned(skb)) {
                             /* Current SKB cannot be modified */
                             DBG_SKB(("Realloc Tx SKB\n"));
-                            new_skb = dev_alloc_skb(pktlen + TAG_SZ + FCS_SZ);
+                            /*
+                             * New SKB needs extra TAG_SZ for VLAN tag
+                             * and extra FCS_SZ for Ethernet FCS.
+                             */
+                            headroom = TAG_SZ;
+                            tailroom = FCS_SZ;
+                            new_skb = skb_copy_expand(skb,
+                                                      headroom + skb_headroom(skb),
+                                                      tailroom + skb_tailroom(skb),
+                                                      GFP_ATOMIC);
                             if (new_skb == NULL) {
                                 DBG_WARN(("Tx drop: No SKB memory\n"));
                                 priv->stats.tx_dropped++;
@@ -5458,9 +5507,12 @@ bkn_tx(struct sk_buff *skb, struct net_device *dev)
                                 spin_unlock_irqrestore(&sinfo->lock, flags);
                                 return 0;
                             }
+                            /* Remove rcpulen from buffer. */
+                            skb_pull(new_skb, rcpulen);
+                            /* Extended by TAG_SZ at the start of buffer. */
+                            skb_push(new_skb, TAG_SZ);
+                            /* Restore the data before the tag. */
                             memcpy(new_skb->data, pktdata, 12);
-                            memcpy(&new_skb->data[16], &pktdata[12], pktlen - 12);
-                            skb_put(new_skb, pktlen + TAG_SZ);
                             bkn_skb_tstamp_copy(new_skb, skb);
                             dev_kfree_skb_any(skb);
                             skb = new_skb;
@@ -5489,7 +5541,16 @@ bkn_tx(struct sk_buff *skb, struct net_device *dev)
                 if (skb_header_cloned(skb) || skb_headroom(skb) < hdrlen + 4) {
                     /* Current SKB cannot be modified */
                     DBG_SKB(("Realloc Tx SKB\n"));
-                    new_skb = dev_alloc_skb(pktlen + hdrlen + 4 + FCS_SZ);
+                    if (device_is_sand(sinfo)) {
+                        headroom = hdrlen;
+                    } else {
+                        headroom = hdrlen + 4;
+                    }
+                    tailroom = FCS_SZ;
+                    new_skb = skb_copy_expand(skb,
+                                              headroom + skb_headroom(skb),
+                                              tailroom + skb_tailroom(skb),
+                                              GFP_ATOMIC);
                     if (new_skb == NULL) {
                         DBG_WARN(("Tx drop: No SKB memory\n"));
                         priv->stats.tx_dropped++;
@@ -5498,12 +5559,7 @@ bkn_tx(struct sk_buff *skb, struct net_device *dev)
                         spin_unlock_irqrestore(&sinfo->lock, flags);
                         return 0;
                     }
-                    if (!device_is_sand(sinfo))
-                    {
-                        skb_reserve(new_skb, 4);
-                    }
-                    memcpy(new_skb->data + hdrlen, skb->data, pktlen);
-                    skb_put(new_skb, pktlen + hdrlen);
+                    skb_push(new_skb, hdrlen);
                     bkn_skb_tstamp_copy(new_skb, skb);
                     dev_kfree_skb_any(skb);
                     skb = new_skb;
@@ -5526,7 +5582,12 @@ bkn_tx(struct sk_buff *skb, struct net_device *dev)
                     if (skb_header_cloned(skb) || skb_headroom(skb) < 4) {
                         /* Current SKB cannot be modified */
                         DBG_SKB(("Realloc Tx SKB\n"));
-                        new_skb = dev_alloc_skb(pktlen + TAG_SZ + FCS_SZ);
+                        headroom = TAG_SZ;
+                        tailroom = FCS_SZ;
+                        new_skb = skb_copy_expand(skb,
+                                                  headroom + skb_headroom(skb),
+                                                  tailroom + skb_tailroom(skb),
+                                                  GFP_ATOMIC);
                         if (new_skb == NULL) {
                             DBG_WARN(("Tx drop: No SKB memory\n"));
                             priv->stats.tx_dropped++;
@@ -5535,10 +5596,8 @@ bkn_tx(struct sk_buff *skb, struct net_device *dev)
                             spin_unlock_irqrestore(&sinfo->lock, flags);
                             return 0;
                         }
-                        memcpy(new_skb->data, skb->data, hdrlen + 12);
-                        memcpy(&new_skb->data[hdrlen + 16], &skb->data[hdrlen + 12],
-                               pktlen - hdrlen - 12);
-                        skb_put(new_skb, pktlen + TAG_SZ);
+                        skb_push(new_skb, TAG_SZ);
+                        memcpy(new_skb->data, pktdata, hdrlen + 12);
                         bkn_skb_tstamp_copy(new_skb, skb);
                         dev_kfree_skb_any(skb);
                         skb = new_skb;
@@ -5868,24 +5927,11 @@ bkn_tx(struct sk_buff *skb, struct net_device *dev)
         priv->stats.tx_bytes += pktlen;
         sinfo->tx.pkts++;
     } else {
-#ifdef SAI_FIXUP    /* SDK-224448 */
         DBG_VERB(("Tx busy: No DMA resources\n"));
         sinfo->tx.pkts_d_dma_resrc++;
-#else
-        DBG_WARN(("Tx drop: No DMA resources\n"));
-        priv->stats.tx_dropped++;
-        sinfo->tx.pkts_d_dma_resrc++;
-        dev_kfree_skb_any(skb);
-    }
-
-    /* Check our Tx resources */
-    if (sinfo->tx.free <= 1) {
-#endif              /* SDK-224448 */
         bkn_suspend_tx(sinfo);
-#ifdef SAI_FIXUP    /* SDK-224448 */
         spin_unlock_irqrestore(&sinfo->lock, flags);
         return BKN_NETDEV_TX_BUSY;
-#endif              /* SDK-224448 */
     }
 
     NETDEV_UPDATE_TRANS_START_TIME(dev);
@@ -6105,6 +6151,7 @@ bkn_create_sinfo(int dev_no)
     sinfo->dma_dev = lkbde_get_dma_dev(dev_no);
     sinfo->pdev = lkbde_get_hw_dev(dev_no);
     sinfo->dev_no = dev_no;
+    sinfo->inst_id = INVALID_INSTANCE_ID;
     sinfo->evt_idx = -1;
 
     spin_lock_init(&sinfo->lock);
@@ -6196,6 +6243,7 @@ bkn_get_ts_info(struct net_device *dev, struct ethtool_ts_info *info)
     case 26:
     case 32:
     case 33:
+    case 35:
     case 36:
     case 38:
     case 40:
@@ -6292,10 +6340,6 @@ bkn_init_ndev(u8 *mac, char *name)
     if (dev->mtu == 0) {
         dev->mtu = rx_buffer_size;
     }
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,10,0))
-    dev->min_mtu = 68;
-    dev->max_mtu = rx_buffer_size;
-#endif
 
     /* Device vectors */
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29))
@@ -7296,9 +7340,9 @@ bkn_proc_cleanup(void)
  */
 
 static int
-_pprint(void)
+_pprint(struct seq_file *m)
 {
-    pprintf("Broadcom BCM KNET Linux Network Driver\n");
+    pprintf(m, "Broadcom BCM KNET Linux Network Driver\n");
 
     return 0;
 }
@@ -7460,7 +7504,7 @@ bkn_create_inst(uint32 inst_id)
             DBG_INST(("%s evt_idx %d inst_id 0x%x\n",__FUNCTION__, i, inst_id));
             break;
         }
-        if ((_bkn_multi_inst == 0) || (evt->inst_id == 0)) {
+        if ((_bkn_multi_inst == 0) || (evt->inst_id == INVALID_INSTANCE_ID)) {
             _bkn_multi_inst ++;
             evt_idx = i;
             init_waitqueue_head(&evt->evt_wq);
@@ -7475,7 +7519,7 @@ bkn_create_inst(uint32 inst_id)
         return -1;
     }
     for (i = 0; i < kernel_bde->num_devices(BDE_ALL_DEVICES); i++) {
-        if (inst_id & (1 << i)) {
+        if (lkbde_is_dev_managed_by_instance(i, inst_id)) {
             sinfo = bkn_sinfo_from_unit(i);
             spin_lock_irqsave(&sinfo->lock, flags);
             sinfo->evt_idx = evt_idx;
@@ -7519,23 +7563,28 @@ bkn_knet_dev_inst_set(kcom_msg_reprobe_t *kmsg)
 {
     bkn_switch_info_t *sinfo;
     int d = kmsg->hdr.unit;
-    uint32 inst = 0;
+    uint32 inst = INVALID_INSTANCE_ID;
     unsigned long flags;
     struct list_head *list;
 
     sinfo = bkn_sinfo_from_unit(d);
+#ifdef BCM_INSTANCE_SUPPORT
     lkbde_dev_instid_get(d, &inst);
+#else
+    inst = INVALID_INSTANCE_ID;
+#endif
+    DBG_INST(("%s sinfo->inst_id %d d %d inst %d\n",__FUNCTION__,sinfo->inst_id, d, inst));
 
     spin_lock_irqsave(&sinfo->lock, flags);
     if (sinfo->inst_id != inst) {
         /* Instance database changed, reinit the inst_id */
-        sinfo->inst_id = 0;
+        sinfo->inst_id = INVALID_INSTANCE_ID;
         sinfo->evt_idx = -1;
     }
     spin_unlock_irqrestore(&sinfo->lock, flags);
 
-    if (inst) {
-        if (sinfo->inst_id == 0) {
+    if (inst != INVALID_INSTANCE_ID) {
+        if (sinfo->inst_id == INVALID_INSTANCE_ID) {
             if (bkn_create_inst(inst) != 0) {
                 return -1;
             }
@@ -7549,7 +7598,7 @@ bkn_knet_dev_inst_set(kcom_msg_reprobe_t *kmsg)
             sinfo = (bkn_switch_info_t *)list;
             spin_lock_irqsave(&sinfo->lock, flags);
             sinfo->evt_idx = 0;
-            sinfo->inst_id = 0;
+            sinfo->inst_id = INVALID_INSTANCE_ID;
             spin_unlock_irqrestore(&sinfo->lock, flags);
         }
     }
@@ -7880,16 +7929,16 @@ bkn_knet_netif_create(kcom_msg_netif_create_t *kmsg, int len)
         }
     }
 
+
     DBG_VERB(("Assigned ID %d to Ethernet device %s\n",
               priv->id, dev->name));
 
     kmsg->netif.id = priv->id;
     memcpy(kmsg->netif.macaddr, dev->dev_addr, 6);
     memcpy(kmsg->netif.name, dev->name, KCOM_NETIF_NAME_MAX - 1);
-
     if (knet_netif_create_cb != NULL) {
         int retv = knet_netif_create_cb(kmsg->hdr.unit, &(kmsg->netif), dev);
-        if (retv) { 
+        if (retv) {
             gprintk("Warning: knet_netif_create_cb() returned %d for netif '%s'\n", retv, dev->name);
         }
     }
@@ -7947,6 +7996,7 @@ bkn_knet_netif_destroy(kcom_msg_netif_destroy_t *kmsg, int len)
         netif.id = priv->id;
         knet_netif_destroy_cb(kmsg->hdr.unit, &netif, priv->dev);
     }
+
     list_del(&priv->list);
 
     if (priv->id < sinfo->ndev_max) {
@@ -8473,8 +8523,8 @@ bkn_get_next_dma_event(kcom_msg_dma_info_t *kmsg)
             sinfo = bkn_sinfo_from_unit(dev_no);
         }
 
-        if (sinfo && (sinfo->inst_id != 0) &&
-           ((sinfo->inst_id & (1 << dev_evt)) == 0)) {
+        if (sinfo && (sinfo->inst_id != INVALID_INSTANCE_ID) &&
+           (!lkbde_is_dev_managed_by_instance(dev_evt, sinfo->inst_id))) {
             DBG_INST((" %s skip dev(%d)\n",__FUNCTION__,dev_no));
             continue;
         }
@@ -8540,8 +8590,10 @@ _cleanup(void)
         del_timer_sync(&sinfo->rxtick);
 
         spin_lock_irqsave(&sinfo->lock, flags);
-        bkn_dma_abort(sinfo);
-        dev_irq_mask_set(sinfo, 0);
+        if (DEV_IS_CMIC(sinfo)) {
+            bkn_dma_abort(sinfo);
+            dev_irq_mask_set(sinfo, 0);
+        }
         spin_unlock_irqrestore(&sinfo->lock, flags);
 
         DBG_IRQ(("Unregister ISR.\n"));
@@ -8759,6 +8811,7 @@ _init(void)
     /* Initialize event queue */
     for (idx = 0; idx < LINUX_BDE_MAX_DEVICES; idx++) {
         memset(&_bkn_evt[idx], 0, sizeof(bkn_evt_resource_t));
+        _bkn_evt[idx].inst_id = INVALID_INSTANCE_ID;
     }
     evt = &_bkn_evt[0];
     init_waitqueue_head(&evt->evt_wq);

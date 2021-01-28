@@ -1,5 +1,10 @@
 /*
- * Copyright 2017 Broadcom
+ * Copyright 2007-2020 Broadcom Inc. All rights reserved.
+ * 
+ * Permission is granted to use, copy, modify and/or distribute this
+ * software under either one of the licenses below.
+ * 
+ * License Option 1: GPL
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -12,6 +17,12 @@
  * 
  * You should have received a copy of the GNU General Public License
  * version 2 (GPLv2) along with this source code.
+ * 
+ * 
+ * License Option 2: Broadcom Open Network Switch APIs (OpenNSA) license
+ * 
+ * This software is governed by the Broadcom Open Network Switch APIs license:
+ * https://www.broadcom.com/products/ethernet-connectivity/software/opennsa
  */
 /*
  * $Id: linux-user-bde.h,v 1.23 Broadcom SDK $
@@ -45,7 +56,7 @@ typedef struct  {
     unsigned int d3;    
     bde_kernel_addr_t p0;
     union {
-        unsigned int dw[2];
+        uint32_t dw[16];
         unsigned char buf[64];
     } dx;
 } lubde_ioctl_t;
@@ -54,34 +65,41 @@ typedef struct  {
 /* LUBDE ioctls */
 #define LUBDE_MAGIC 'L'
 
-#define LUBDE_VERSION             _IO(LUBDE_MAGIC, 0)
-#define LUBDE_GET_NUM_DEVICES     _IO(LUBDE_MAGIC, 1)
-#define LUBDE_GET_DEVICE          _IO(LUBDE_MAGIC, 2)
-#define LUBDE_PCI_CONFIG_PUT32    _IO(LUBDE_MAGIC, 3)
-#define LUBDE_PCI_CONFIG_GET32    _IO(LUBDE_MAGIC, 4)
-#define LUBDE_GET_DMA_INFO        _IO(LUBDE_MAGIC, 5)
-#define LUBDE_ENABLE_INTERRUPTS   _IO(LUBDE_MAGIC, 6)
-#define LUBDE_DISABLE_INTERRUPTS  _IO(LUBDE_MAGIC, 7)
-#define LUBDE_USLEEP              _IO(LUBDE_MAGIC, 8)
-#define LUBDE_WAIT_FOR_INTERRUPT  _IO(LUBDE_MAGIC, 9)
-#define LUBDE_SEM_OP              _IO(LUBDE_MAGIC, 10)
-#define LUBDE_UDELAY              _IO(LUBDE_MAGIC, 11)
-#define LUBDE_GET_DEVICE_TYPE     _IO(LUBDE_MAGIC, 12)
-#define LUBDE_SPI_READ_REG        _IO(LUBDE_MAGIC, 13)
-#define LUBDE_SPI_WRITE_REG       _IO(LUBDE_MAGIC, 14)
-#define LUBDE_READ_REG_16BIT_BUS  _IO(LUBDE_MAGIC, 19)
-#define LUBDE_WRITE_REG_16BIT_BUS _IO(LUBDE_MAGIC, 20)
-#define LUBDE_GET_BUS_FEATURES    _IO(LUBDE_MAGIC, 21)
-#define LUBDE_WRITE_IRQ_MASK      _IO(LUBDE_MAGIC, 22)
-#define LUBDE_CPU_WRITE_REG       _IO(LUBDE_MAGIC, 23)
-#define LUBDE_CPU_READ_REG        _IO(LUBDE_MAGIC, 24)
-#define LUBDE_CPU_PCI_REGISTER    _IO(LUBDE_MAGIC, 25)
-#define LUBDE_DEV_RESOURCE        _IO(LUBDE_MAGIC, 26)
-#define LUBDE_IPROC_READ_REG      _IO(LUBDE_MAGIC, 27)
-#define LUBDE_IPROC_WRITE_REG     _IO(LUBDE_MAGIC, 28)
-#define LUBDE_ATTACH_INSTANCE     _IO(LUBDE_MAGIC, 29)
-#define LUBDE_GET_DEVICE_STATE    _IO(LUBDE_MAGIC, 30)
-#define LUBDE_REPROBE             _IO(LUBDE_MAGIC, 31)
+#define LUBDE_VERSION                   _IO(LUBDE_MAGIC, 0)
+#define LUBDE_GET_NUM_DEVICES           _IO(LUBDE_MAGIC, 1)
+#define LUBDE_GET_DEVICE                _IO(LUBDE_MAGIC, 2)
+#define LUBDE_PCI_CONFIG_PUT32          _IO(LUBDE_MAGIC, 3)
+#define LUBDE_PCI_CONFIG_GET32          _IO(LUBDE_MAGIC, 4)
+#define LUBDE_GET_DMA_INFO              _IO(LUBDE_MAGIC, 5)
+#define LUBDE_ENABLE_INTERRUPTS         _IO(LUBDE_MAGIC, 6)
+#define LUBDE_DISABLE_INTERRUPTS        _IO(LUBDE_MAGIC, 7)
+#define LUBDE_USLEEP                    _IO(LUBDE_MAGIC, 8)
+#define LUBDE_WAIT_FOR_INTERRUPT        _IO(LUBDE_MAGIC, 9)
+#define LUBDE_SEM_OP                    _IO(LUBDE_MAGIC, 10)
+#define LUBDE_UDELAY                    _IO(LUBDE_MAGIC, 11)
+#define LUBDE_GET_DEVICE_TYPE           _IO(LUBDE_MAGIC, 12)
+#define LUBDE_SPI_READ_REG              _IO(LUBDE_MAGIC, 13)
+#define LUBDE_SPI_WRITE_REG             _IO(LUBDE_MAGIC, 14)
+#define LUBDE_READ_REG_16BIT_BUS        _IO(LUBDE_MAGIC, 19)
+#define LUBDE_WRITE_REG_16BIT_BUS       _IO(LUBDE_MAGIC, 20)
+#define LUBDE_GET_BUS_FEATURES          _IO(LUBDE_MAGIC, 21)
+#define LUBDE_WRITE_IRQ_MASK            _IO(LUBDE_MAGIC, 22)
+#define LUBDE_CPU_WRITE_REG             _IO(LUBDE_MAGIC, 23)
+#define LUBDE_CPU_READ_REG              _IO(LUBDE_MAGIC, 24)
+#define LUBDE_CPU_PCI_REGISTER          _IO(LUBDE_MAGIC, 25)
+#define LUBDE_DEV_RESOURCE              _IO(LUBDE_MAGIC, 26)
+#define LUBDE_IPROC_READ_REG            _IO(LUBDE_MAGIC, 27)
+#define LUBDE_IPROC_WRITE_REG           _IO(LUBDE_MAGIC, 28)
+#define LUBDE_ATTACH_INSTANCE           _IO(LUBDE_MAGIC, 29)
+#define LUBDE_GET_DEVICE_STATE          _IO(LUBDE_MAGIC, 30)
+#define LUBDE_REPROBE                   _IO(LUBDE_MAGIC, 31)
+#define LUBDE_SET_EDK_INTERRUPTS        _IO(LUBDE_MAGIC, 32)
+#define LUBDE_ENABLE_EDK_INTERRUPTS     _IO(LUBDE_MAGIC, 33)
+#define LUBDE_DISABLE_EDK_INTERRUPTS    _IO(LUBDE_MAGIC, 34)
+#define LUBDE_WAIT_FOR_EDK_INTERRUPT    _IO(LUBDE_MAGIC, 35)
+#define LUBDE_ATTACH_EDK_INSTANCE       _IO(LUBDE_MAGIC, 36)
+#define LUBDE_GET_EDK_DMA_INFO          _IO(LUBDE_MAGIC, 37)
+
 
 #define LUBDE_SEM_OP_CREATE       1
 #define LUBDE_SEM_OP_DESTROY      2

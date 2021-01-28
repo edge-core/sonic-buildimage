@@ -1,5 +1,10 @@
 /*
- * Copyright 2017 Broadcom
+ * Copyright 2007-2020 Broadcom Inc. All rights reserved.
+ * 
+ * Permission is granted to use, copy, modify and/or distribute this
+ * software under either one of the licenses below.
+ * 
+ * License Option 1: GPL
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -12,6 +17,12 @@
  * 
  * You should have received a copy of the GNU General Public License
  * version 2 (GPLv2) along with this source code.
+ * 
+ * 
+ * License Option 2: Broadcom Open Network Switch APIs (OpenNSA) license
+ * 
+ * This software is governed by the Broadcom Open Network Switch APIs license:
+ * https://www.broadcom.com/products/ethernet-connectivity/software/opennsa
  */
 /***********************************************************************
  *
@@ -58,7 +69,6 @@
 #define __LINUX_BDE_H__
 
 #include <sal/types.h>
-
 #include <ibde.h>
 
 
@@ -104,12 +114,17 @@
 
 /* Max devices */
 /* 16 switch chips + 2 out-of-band Ethernet + 2 CPUs */
+#ifndef LINUX_BDE_MAX_SWITCH_DEVICES
 #define LINUX_BDE_MAX_SWITCH_DEVICES    16
+#endif
 #define LINUX_BDE_MAX_ETHER_DEVICES     2
 #define LINUX_BDE_MAX_CPU_DEVICES       2
 #define LINUX_BDE_MAX_DEVICES           (LINUX_BDE_MAX_SWITCH_DEVICES + \
                                          LINUX_BDE_MAX_ETHER_DEVICES + \
-                                         LINUX_BDE_MAX_CPU_DEVICES) 
+                                         LINUX_BDE_MAX_CPU_DEVICES)
+#define LINUX_BDE_NOF_DEVICE_BITMAP_WORDS ((LINUX_BDE_MAX_DEVICES+31)/32)
+#define LINUX_BDE_MAX_IPROC_UC_CORES    12 /* Maximum number of R5 cores per device */
+typedef uint32 linux_bde_device_bitmap_t[LINUX_BDE_NOF_DEVICE_BITMAP_WORDS];
 
 /* 
  * PCI devices will be initialized by the Linux Kernel, 
@@ -148,13 +163,23 @@ typedef struct linux_bde_bus_s {
  */
 #define BDE_DEV_STATE_CHANGED      (2)
 
+/*
+ * BDE_DEV_INST_ID_INVALID : The invalid instance identifier.
+ */
+#define BDE_DEV_INST_ID_INVALID    ((uint32)-1)
+
 extern int linux_bde_create(linux_bde_bus_t* bus, ibde_t** bde);
 extern int linux_bde_destroy(ibde_t* bde);
 #ifdef BCM_INSTANCE_SUPPORT
 extern int linux_bde_instance_attach(unsigned int dev_mask,unsigned int dma_size);
+extern int linux_bde_instance_config(linux_bde_device_bitmap_t dev_mask,unsigned int dma_size);
 #endif
 
 #ifdef __KERNEL__
+
+#ifdef INCLUDE_EDK
+#define BDE_EDK_SUPPORT
+#endif
 
 /*
  *  Backdoors provided by the kernel bde
@@ -171,6 +196,10 @@ extern int linux_bde_instance_attach(unsigned int dev_mask,unsigned int dma_size
 extern int lkbde_get_dma_info(phys_addr_t *cpu_pbase, phys_addr_t *dma_pbase, ssize_t *size);
 extern uint32 lkbde_get_dev_phys(int d);
 extern uint32 lkbde_get_dev_phys_hi(int d);
+#ifdef BDE_EDK_SUPPORT
+extern int lkbde_edk_get_dma_info(int dev_id, phys_addr_t* cpu_pbase,
+                                  phys_addr_t* dma_pbase, ssize_t* size);
+#endif
 
 /*
  * Virtual device address needed by kernel space
@@ -183,8 +212,8 @@ extern void *lkbde_get_dev_virt(int d);
  * the userland code to mmap. The following functions
  * supports multiple resources for a single device.
  */
-extern int lkbde_get_dev_resource(int d, int rsrc, uint32 *flags,
-                                  uint32 *phys_lo, uint32 *phys_hi); 
+extern int lkbde_get_dev_resource(int d, int rsrc, uint32_t *phys_lo,
+                                  uint32_t *phys_hi, uint32_t *size);
 
 /*
  * Backdoor to retrieve OS device structure to be used for
@@ -214,6 +243,19 @@ extern int lkbde_dev_state_set(int d, uint32 state);
  */
 extern int lkbde_dev_instid_get(int d, uint32 *instid);
 extern int lkbde_dev_instid_set(int d, uint32 instid);
+
+
+/*
+ * Return none-zero if the SDK instance with the given instance ID
+ * manages the given device.
+ */
+extern int lkbde_is_dev_managed_by_instance(uint32 dev, uint32 inst_id);
+
+/*
+ * Return a pointer to the bitmap of the SDK instance managed devices.
+ */
+extern linux_bde_device_bitmap_t* lkbde_get_inst_devs(uint32 inst_id);
+
 
 /*
  * Functions that allow an interrupt handler in user mode to
@@ -253,13 +295,6 @@ extern int lkbde_cpu_pci_register(int d);
 #if defined(IPROC_CMICD) && defined(CONFIG_CMA)
 #ifndef _SIMPLE_MEMORY_ALLOCATION_
 #define _SIMPLE_MEMORY_ALLOCATION_ 1
-#endif
-#endif
-
-/* Don't use _SIMPLE_MEMORY_ALLOCATION_ method for newer kernel than 3.10.0 */
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0))
-#ifndef _SIMPLE_MEMORY_ALLOCATION_
-#define _SIMPLE_MEMORY_ALLOCATION_ 0
 #endif
 #endif
 

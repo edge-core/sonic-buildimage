@@ -18,7 +18,9 @@ function create_devices()
     rm -f /dev/linux-bcm-knet
     rm -f /dev/linux-bcm-bde
     rm -f /dev/linux-kernel-bde
+    rm -f /dev/linux_ngbde
 
+    mknod /dev/linux_ngbde      c 120 0
     mknod /dev/linux-knet-cb    c 121 0
     mknod /dev/linux-bcm-knet   c 122 0
     mknod /dev/linux-bcm-bde    c 126 0
@@ -57,8 +59,9 @@ function load_kernel_modules()
     # There is a different psample.ko module getting created at net/psample/psample.ko 
     insmod /lib/modules/$(uname -r)/extra/psample.ko
 
-    modprobe linux-bcm-knet use_rx_skb=1 rx_buffer_size=9238 debug=0x5020
+    modprobe linux-bcm-knet use_rx_skb=1 rx_buffer_size=9238 debug=0x5020 default_mtu=9100
     modprobe linux-knet-cb
+    modprobe linux_ngbde
 }
 
 function remove_kernel_modules()
@@ -68,6 +71,7 @@ function remove_kernel_modules()
     rmmod linux-bcm-knet
     rmmod linux-user-bde
     rmmod linux-kernel-bde
+    rmmod linux_ngbde
 }
 
 case "$1" in

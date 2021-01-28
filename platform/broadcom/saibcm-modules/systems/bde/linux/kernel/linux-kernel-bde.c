@@ -339,10 +339,19 @@ typedef struct bde_ctrl_s {
     uint32 dev_state;
 
     /* inst_id */
-    uint32 inst_id;
+    uint32 inst_id; /* The instance ID of the instance controlling the device */
 } bde_ctrl_t;
 
 static bde_ctrl_t _devices[LINUX_BDE_MAX_DEVICES];
+
+/* information stored per SDK instance, curently the devices it manages */
+typedef struct {
+    linux_bde_device_bitmap_t devices; /* The devices controlled by this instance */
+} lkbde_inst_info_t;
+
+/* Information for each SDK instance (array index), the device that it manages */
+static lkbde_inst_info_t _instance_info[LINUX_BDE_MAX_DEVICES] = {{ .devices = {0}}};
+
 static int _ndevices = 0;
 static int _switch_ndevices = 0;
 static int _ether_ndevices = 0;
@@ -810,6 +819,25 @@ iproc_cmicd_probe(struct platform_device *pldev)
 static int
 iproc_cmicd_remove(struct platform_device *pldev)
 {
+    int i;
+    uint32 mask = BDE_SWITCH_DEV_TYPE | BDE_AXI_DEV_TYPE;
+    bde_ctrl_t *ctrl;
+
+    for (i = 0; i < _ndevices; i++) {
+        ctrl = _devices + i;
+        if ((ctrl->dev_type & mask) == mask) {
+            if (ctrl->bde_dev.base_address1) {
+                iounmap((void *)ctrl->bde_dev.base_address1);
+                ctrl->bde_dev.base_address1 = 0;
+            }
+
+            if (ctrl->bde_dev.base_address) {
+                iounmap((void *)ctrl->bde_dev.base_address);
+                ctrl->bde_dev.base_address = 0;
+            }
+        }
+    }
+
     return 0;
 }
 #ifdef CONFIG_OF
@@ -1429,6 +1457,7 @@ static const struct pci_device_id _id_table[] = {
     { BROADCOM_VENDOR_ID, BCM53575_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM56070_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM56071_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM56072_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { PCI_VENDOR_ID_PLX, PCI_DEVICE_ID_PLX_9656, PCI_ANY_ID, PCI_ANY_ID },
     { PCI_VENDOR_ID_PLX, PCI_DEVICE_ID_PLX_9056, PCI_ANY_ID, PCI_ANY_ID },
     { BCM53000_VENDOR_ID, BCM53000PCIE_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
@@ -1474,9 +1503,11 @@ static const struct pci_device_id _id_table[] = {
 
 
     { BROADCOM_VENDOR_ID, BCM88270_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88271_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88272_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88273_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88274_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88276_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88278_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88279_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
 
@@ -1496,7 +1527,6 @@ static const struct pci_device_id _id_table[] = {
     { BROADCOM_VENDOR_ID, BCM88687_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88380_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88381_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
-    { BROADCOM_VENDOR_ID, BCM88202_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88360_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88361_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88363_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
@@ -1527,18 +1557,37 @@ static const struct pci_device_id _id_table[] = {
     { BROADCOM_VENDOR_ID, BCM8869E_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM8869F_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88800_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
-    { BROADCOM_VENDOR_ID, BCM88821_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
-    { BROADCOM_VENDOR_ID, BCM88826_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88801_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88802_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88803_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88804_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88805_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88806_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88807_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88808_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88809_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM8880A_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM8880B_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM8880C_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM8880D_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM8880E_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM8880F_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88820_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88821_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88822_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88823_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88824_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88825_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88826_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88827_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88828_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88829_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM8882A_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM8882B_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM8882C_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM8882D_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM8882E_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM8882F_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88480_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88481_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88482_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
@@ -1555,12 +1604,40 @@ static const struct pci_device_id _id_table[] = {
     { BROADCOM_VENDOR_ID, BCM8848D_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM8848E_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM8848F_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88280_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88281_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88282_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88283_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88284_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88285_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88286_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88287_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88288_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88289_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM8828A_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM8828B_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM8828C_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM8828D_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM8828E_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM8828F_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88850_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88851_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88852_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88853_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88854_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88855_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88856_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88857_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88858_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88859_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM8885A_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM8885B_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM8885C_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM8885D_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM8885E_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM8885F_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
 #endif /* BCM_DNX_SUPPORT */
 #ifdef BCM_DFE_SUPPORT
-    { BROADCOM_VENDOR_ID, BCM88750_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
-    { BROADCOM_VENDOR_ID, BCM88753_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
-    { BROADCOM_VENDOR_ID, BCM88755_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88770_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88773_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88774_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
@@ -1574,7 +1651,6 @@ static const struct pci_device_id _id_table[] = {
     { BROADCOM_VENDOR_ID, BCM88954_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88955_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88956_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
-    { BROADCOM_VENDOR_ID, BCM88752_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88772_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM88952_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
 #endif
@@ -1613,6 +1689,10 @@ static const struct pci_device_id _id_table[] = {
     { BROADCOM_VENDOR_ID, BCM56276_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM56277_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM56278_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM56279_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM56575_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM56175_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM56176_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM56370_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM56371_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM56372_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
@@ -1638,6 +1718,7 @@ static const struct pci_device_id _id_table[] = {
     { BROADCOM_VENDOR_ID, BCM56470_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM56471_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM56472_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM56475_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { 0, 0, 0, 0 }
 };;
 
@@ -2540,9 +2621,6 @@ _pci_probe(struct pci_dev *dev, const struct pci_device_id *ent)
 
 #if defined(BCM_DFE_SUPPORT)
     switch (dev->device) {
-    case BCM88750_DEVICE_ID:
-    case BCM88753_DEVICE_ID:
-    case BCM88755_DEVICE_ID:
     case BCM88770_DEVICE_ID:
     case BCM88773_DEVICE_ID:
     case BCM88774_DEVICE_ID:
@@ -2554,7 +2632,6 @@ _pci_probe(struct pci_dev *dev, const struct pci_device_id *ent)
     case BCM88954_DEVICE_ID:
     case BCM88955_DEVICE_ID:
     case BCM88956_DEVICE_ID:
-    case BCM88752_DEVICE_ID:
     case BCM88772_DEVICE_ID:
     case BCM88952_DEVICE_ID:
 
@@ -2801,9 +2878,10 @@ _pci_remove(struct pci_dev* dev)
 }
 
 static struct pci_driver _device_driver = {
-    probe: _pci_probe,
-    remove: _pci_remove,
-    id_table: _id_table,
+    .name = LINUX_KERNEL_BDE_NAME,
+    .probe = _pci_probe,
+    .remove = _pci_remove,
+    .id_table = _id_table,
     /* The rest are dynamic */
 };
 
@@ -2978,7 +3056,13 @@ probe_plx_local_bus(void)
 static int
 _init(void)
 {
+    unsigned i;
 #ifdef IPROC_CMICD
+    /*
+     * Adjust the PCI driver name to prevent our device file from
+     * getting removed when the module is unloaded.
+     */
+    _device_driver.name = LINUX_KERNEL_BDE_NAME ".iproc";
 #ifdef CONFIG_OF
     if (of_find_compatible_node(NULL, NULL, IPROC_CMICX_COMPATIBLE)) {
         iproc_platform_driver_register(&iproc_cmicd_driver);
@@ -3000,9 +3084,6 @@ _init(void)
 #ifdef BCM_ICS
     _ics_bde_create();
 #else /* PCI */
-    /* Register our goodies */
-    _device_driver.name = LINUX_KERNEL_BDE_NAME;
-
 
     /* Configure MSI interrupt support */
     use_msi = usemsi;
@@ -3078,6 +3159,10 @@ _init(void)
         }
     }
 
+    for (i = 0; i < LINUX_BDE_MAX_DEVICES; ++i) {
+        _devices[i].inst_id = BDE_DEV_INST_ID_INVALID;
+    }
+
     return 0;
 }
 
@@ -3150,45 +3235,45 @@ _cleanup(void)
  *    Always 0
  */
 static int
-_pprint(void)
+_pprint(struct seq_file *m)
 {
     int i = 0;
 
-    pprintf("Broadcom Device Enumerator (%s)\n", LINUX_KERNEL_BDE_NAME);
+    pprintf(m, "Broadcom Device Enumerator (%s)\n", LINUX_KERNEL_BDE_NAME);
 
-    pprintf("Module parameters:\n");
-    pprintf("\tmaxpayload=%d\n", maxpayload);
-    pprintf("\tusemsi=%d\n", usemsi);
+    pprintf(m, "Module parameters:\n");
+    pprintf(m, "\tmaxpayload=%d\n", maxpayload);
+    pprintf(m, "\tusemsi=%d\n", usemsi);
 
-    _dma_pprint();
+    _dma_pprint(m);
 
     if (_ndevices == 0) {
-        pprintf("No devices found\n");
+        pprintf(m, "No devices found\n");
     } else {
-        pprintf("Devices:\n");
+        pprintf(m, "Devices:\n");
     }
     for (i = 0; i < _ndevices; i++) {
         bde_ctrl_t *ctrl = _devices + i;
 
         if (ctrl->dev_type & BDE_SWITCH_DEV_TYPE) {
-            pprintf("\t%d (swi) : ", i);
+            pprintf(m, "\t%d (swi) : ", i);
         } else if (ctrl->dev_type & BDE_ETHER_DEV_TYPE) {
-            pprintf("\t%d (eth) : ", i);
+            pprintf(m, "\t%d (eth) : ", i);
         } else if (ctrl->dev_type & BDE_CPU_DEV_TYPE) {
-            pprintf("\t%d (cpu) : ", i);
+            pprintf(m, "\t%d (cpu) : ", i);
         } else {
-            pprintf("\t%d (?)   : ", i);
+            pprintf(m, "\t%d (?)   : ", i);
         }
 
         if (ctrl->dev_state == BDE_DEV_STATE_REMOVED) {
-            pprintf("PCI device 0x%x:0x%x:%d   REMOVED\n",
+            pprintf(m, "PCI device 0x%x:0x%x:%d   REMOVED\n",
                     ctrl->pci_device->vendor,
                     ctrl->pci_device->device,
                     ctrl->bde_dev.rev);
             continue;
         }
         if (ctrl->dev_type & BDE_PCI_DEV_TYPE) {
-            pprintf("PCI device %02x:%02x.%x 0x%x:0x%x:%d:0x%.8lx:0x%.8lx:%d%s\n",
+            pprintf(m, "PCI device %02x:%02x.%x 0x%x:0x%x:%d:0x%.8lx:0x%.8lx:%d%s\n",
                     (unsigned int)ctrl->pci_device->bus->number,
                     PCI_SLOT(ctrl->pci_device->devfn),
                     PCI_FUNC(ctrl->pci_device->devfn),
@@ -3200,7 +3285,7 @@ _pprint(void)
                     ctrl->pci_device->irq,
                     ctrl->use_msi ? " (MSI)" : "");
         } else if (ctrl->dev_type & BDE_SPI_DEV_TYPE) {
-            pprintf("SPI Device %d:%x:%x:0x%x:0x%x:%d\n",
+            pprintf(m, "SPI Device %d:%x:%x:0x%x:0x%x:%d\n",
                     ctrl->spi_device->cid,
                     ctrl->spi_device->part,
                     ctrl->spi_device->rev,
@@ -3208,25 +3293,34 @@ _pprint(void)
                     ctrl->spi_device->phyid_low,
                     ctrl->bde_dev.rev);
         } else if (ctrl->dev_type & BDE_ICS_DEV_TYPE) {
-            pprintf("ICS Device 0x%x:0x%x\n",
+            pprintf(m, "ICS Device 0x%x:0x%x\n",
                     ctrl->bde_dev.device,
                     ctrl->bde_dev.rev);
         } else if (ctrl->dev_type & BDE_AXI_DEV_TYPE) {
-            pprintf("AXI Device 0x%x:0x%x:0x%.8lx:%d\n",
+            pprintf(m, "AXI Device 0x%x:0x%x:0x%.8lx:%d\n",
                     ctrl->bde_dev.device,
                     ctrl->bde_dev.rev,
                     (unsigned long)ctrl->iowin[0].addr,
                     ctrl->iLine);
         } else if (ctrl->dev_type & BDE_EB_DEV_TYPE) {
-            pprintf("EB Bus Device 0x%x:0x%x\n",
+            pprintf(m, "EB Bus Device 0x%x:0x%x\n",
                     ctrl->bde_dev.device,
                     ctrl->bde_dev.rev);
         }
         if (debug >= 1) {
-            pprintf("\t\timask:imask2:fmask 0x%x:0x%x:0x%x\n",
+            pprintf(m, "\t\timask:imask2:fmask 0x%x:0x%x:0x%x\n",
                     ctrl->imask,
                     ctrl->imask2,
                     ctrl->fmask);
+        }
+        if (debug >= 1) {
+            if (ctrl->inst_id == BDE_DEV_INST_ID_INVALID) {
+                pprintf(m, "\t\tinst_id INVALID\n");
+            } else {
+                pprintf(m, "\t\tinst_id %u%s\n",
+                        ctrl->inst_id,
+                        ctrl->inst_id < LINUX_BDE_MAX_DEVICES ? "":"(Illegal)");
+            }
         }
     }
     return 0;
@@ -3952,9 +4046,6 @@ lkbde_cpu_pci_register(int d)
         pci_write_config_byte(ctrl->pci_device, 0x88, 0x2f);
         pci_write_config_byte(ctrl->pci_device, 0x89, 0x10);
         break;
-    case BCM88750_DEVICE_ID:
-    case BCM88753_DEVICE_ID:
-    case BCM88755_DEVICE_ID:
     case BCM88770_DEVICE_ID:
     case BCM88773_DEVICE_ID:
     case BCM88774_DEVICE_ID:
@@ -3966,7 +4057,6 @@ lkbde_cpu_pci_register(int d)
     case BCM88954_DEVICE_ID:
     case BCM88955_DEVICE_ID:
     case BCM88956_DEVICE_ID:                        
-    case BCM88752_DEVICE_ID:
     case BCM88772_DEVICE_ID:
     case BCM88952_DEVICE_ID:
     case ACP_PCI_DEVICE_ID:
@@ -4013,9 +4103,11 @@ lkbde_cpu_pci_register(int d)
     case BCM88476_DEVICE_ID:
     case BCM88477_DEVICE_ID:
     case BCM88270_DEVICE_ID:
+    case BCM88271_DEVICE_ID:
     case BCM88272_DEVICE_ID:
     case BCM88273_DEVICE_ID:
     case BCM88274_DEVICE_ID:
+    case BCM88276_DEVICE_ID:
     case BCM88278_DEVICE_ID:
     case BCM8206_DEVICE_ID:
     case BCM88350_DEVICE_ID:
@@ -4061,6 +4153,7 @@ lkbde_cpu_pci_register(int d)
       case J2C_DEVICE_ID:
       case J2C_2ND_DEVICE_ID:
       case Q2A_DEVICE_ID:
+      case Q2U_DEVICE_ID:
       case J2P_DEVICE_ID:
 #endif
 #ifdef BCM_DNXF_SUPPORT
@@ -4277,14 +4370,14 @@ lkbde_get_dev_virt(int d)
 }
 
 int
-lkbde_get_dev_resource(int d, int rsrc, uint32_t *flags,
-                       uint32_t *phys_lo, uint32_t *phys_hi)
+lkbde_get_dev_resource(int d, int rsrc, uint32_t *phys_lo,
+                       uint32_t *phys_hi, uint32_t *size)
 {
     if (!VALID_DEVICE(d)) {
         return -1;
     }
 
-    *flags = 0;
+    *size = 0;
     *phys_lo = 0;
     *phys_hi = 0;
 
@@ -4300,12 +4393,14 @@ lkbde_get_dev_resource(int d, int rsrc, uint32_t *flags,
 #ifdef PHYS_ADDR_IS_64BIT
         *phys_hi = (uint32_t)(_devices[d].iowin[0].addr >> 32);
 #endif
+        *size = _devices[d].iowin[0].size;
         break;
     case 1:
         *phys_lo = (uint32_t)(_devices[d].iowin[1].addr);
 #ifdef PHYS_ADDR_IS_64BIT
         *phys_hi = (uint32_t)(_devices[d].iowin[1].addr >> 32);
 #endif
+        *size = _devices[d].iowin[1].size;
         break;
     default:
         break;
@@ -4431,7 +4526,7 @@ lkbde_irq_mask_set(int d, uint32_t addr, uint32_t mask, uint32_t fmask)
     if (iproc_reg) {
         _iproc_write(d, addr, ctrl->imask | ctrl->imask2);
     } else {
-    _write(d, addr, ctrl->imask | ctrl->imask2);
+        _write(d, addr, ctrl->imask | ctrl->imask2);
     }
 
     spin_unlock_irqrestore(&ctrl->lock, flags);
@@ -4482,6 +4577,29 @@ lkbde_get_num_devices(int type)
 }
 
 /*
+ * Return none-zero if the SDK instance with the given instance ID
+ * manages the given device.
+ */
+int lkbde_is_dev_managed_by_instance(uint32 dev, uint32 inst_id)
+{
+    if (inst_id >= LINUX_BDE_MAX_DEVICES || dev >= _ndevices) {
+        return 0;
+    }
+    return _instance_info[inst_id].devices[dev / 32] & (1 << (dev % 32)) ? 1 : 0;
+}
+
+/*
+ * Return a pointer to the bitmap of the SDK instance managed devices.
+ */
+linux_bde_device_bitmap_t* lkbde_get_inst_devs(uint32 inst_id)
+{
+    if (inst_id >= LINUX_BDE_MAX_DEVICES) {
+        return NULL;
+    }
+    return &_instance_info[inst_id].devices;
+}
+
+/*
  * Export functions
  */
 LKM_EXPORT_SYM(linux_bde_create);
@@ -4503,3 +4621,5 @@ LKM_EXPORT_SYM(lkbde_cpu_write);
 LKM_EXPORT_SYM(lkbde_cpu_read);
 LKM_EXPORT_SYM(lkbde_cpu_pci_register);
 #endif
+LKM_EXPORT_SYM(lkbde_is_dev_managed_by_instance);
+LKM_EXPORT_SYM(lkbde_get_inst_devs);

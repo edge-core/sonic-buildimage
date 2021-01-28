@@ -1,5 +1,10 @@
 #
-#  Copyright 2017 Broadcom
+#  Copyright 2007-2020 Broadcom Inc. All rights reserved.
+#  
+#  Permission is granted to use, copy, modify and/or distribute this
+#  software under either one of the licenses below.
+#  
+#  License Option 1: GPL
 #  
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License, version 2, as
@@ -12,6 +17,12 @@
 #  
 #  You should have received a copy of the GNU General Public License
 #  version 2 (GPLv2) along with this source code.
+#  
+#  
+#  License Option 2: Broadcom Open Network Switch APIs (OpenNSA) license
+#  
+#  This software is governed by the Broadcom Open Network Switch APIs license:
+#  https://www.broadcom.com/products/ethernet-connectivity/software/opennsa
 #
 # $Id: Makefile.linux-xlr-4_19,v 0.1 Broadcom SDK $
 # $Copyright: (c) 2015 Broadcom Corp.
@@ -37,6 +48,8 @@
 # some basic path variables for tools and kernel source, etc #
 export XLR_TOOLS_BASE = /projects/ntsw-tools/linux/xlr-419
 TOOLCHAIN_DIR = $(XLR_TOOLS_BASE)/buildroot/host/usr
+# Target machine for EDK-Host defconfig
+TARGET_MACHINE ?= x86_64
 KERNDIR       = $(XLR_TOOLS_BASE)/kernel/linux
 
 # set up cross compile prefix, tools dir variables. #
@@ -125,12 +138,21 @@ OPENSRC_BUILD ?= fed21-x86_64
 # Hardware interface (see $SDKLT/bcma/sys/probe directory)
 SYSTEM_INTERFACE ?= ngbde
 
+# Support BCMSIM in the same build
+ifeq (1,$(BCM_SIM_PATH_SUPPORT))
+EXTRA_SYSTEM_INTERFACES = plisim
+endif
+
 # Turn on direct register access if running on real hardware.
 ifeq (ngbde,$(SYSTEM_INTERFACE))
+# Except if using multiple probe interfaces
+ifeq (,$(EXTRA_SYSTEM_INTERFACES))
 LTSW_ADD_CPPFLAGS += -DBCMDRD_CONFIG_MEMMAP_DIRECT=1
+endif
 endif
 
 export SYSTEM_INTERFACE
+export EXTRA_SYSTEM_INTERFACES
 endif
 
 ifneq ($(targetplat),user)

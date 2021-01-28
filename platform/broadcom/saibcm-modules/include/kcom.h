@@ -1,5 +1,10 @@
 /*
- * Copyright 2017 Broadcom
+ * Copyright 2007-2020 Broadcom Inc. All rights reserved.
+ * 
+ * Permission is granted to use, copy, modify and/or distribute this
+ * software under either one of the licenses below.
+ * 
+ * License Option 1: GPL
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -12,6 +17,12 @@
  * 
  * You should have received a copy of the GNU General Public License
  * version 2 (GPLv2) along with this source code.
+ * 
+ * 
+ * License Option 2: Broadcom Open Network Switch APIs (OpenNSA) license
+ * 
+ * This software is governed by the Broadcom Open Network Switch APIs license:
+ * https://www.broadcom.com/products/ethernet-connectivity/software/opennsa
  */
 /*
  * $Id: kcom.h,v 1.9 Broadcom SDK $
@@ -341,6 +352,8 @@ typedef struct kcom_msg_version_s {
 #define KSYNC_M_HW_DEINIT          1
 #define KSYNC_M_VERSION            2
 #define KSYNC_M_HW_TS_DISABLE      3
+#define KSYNC_M_MTP_TS_UPDATE_ENABLE  4
+#define KSYNC_M_MTP_TS_UPDATE_DISABLE 5
 
 typedef struct kcom_clock_info_s {
     uint8 cmd;

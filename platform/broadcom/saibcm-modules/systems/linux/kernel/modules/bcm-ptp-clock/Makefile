@@ -14,9 +14,9 @@
 #  version 2 (GPLv2) along with this source code.
 #
 # -*- Makefile -*-
-# $Id: Makefile,v 1.3 Broadcom SDK $
-# $Copyright: (c) 2020 Broadcom.
-# Broadcom Proprietary and Confidential. All rights reserved.$
+# $Id: Makefile,v 1.3 2012/07/17 07:39:51 mlarsen Exp $
+# $Copyright: (c) 2005 Broadcom Corp.
+# All Rights Reserved.$
 #
 LOCALDIR = systems/linux/kernel/modules/bcm-ptp-clock
 

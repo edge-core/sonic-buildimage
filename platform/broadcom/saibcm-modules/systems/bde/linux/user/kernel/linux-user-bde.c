@@ -24,13 +24,12 @@
 #include <sal/core/thread.h>
 #include <sal/core/sync.h>
 #include <soc/devids.h>
-
+#include <linux/jiffies.h>
 #include "linux-user-bde.h"
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4,12,0)
 #include <linux/uaccess.h>
 #endif
-
 
 MODULE_AUTHOR("Broadcom Corporation");
 MODULE_DESCRIPTION("User BDE Helper Module");
@@ -71,7 +70,7 @@ MODULE_LICENSE("GPL");
 
 /* CMICX defines */
 #define INTC_INTR_REG_NUM               (8)
-
+#define PAXB_INTRCLR_DELAY_REG_NUM      (16)
 /*
 TODO:HX5
 The INTR base address values are changed for HX5,
@@ -80,15 +79,27 @@ be made.
 */
 #define PAXB_0_PAXB_IC_INTRCLR_0       (0x180123a0)
 #define PAXB_0_PAXB_IC_INTRCLR_1       (0x180123a4)
-
 #define PAXB_0_PAXB_IC_INTRCLR_MODE_0  (0x180123a8)
 #define PAXB_0_PAXB_IC_INTRCLR_MODE_1  (0x180123ac)
+#define PAXB_0_PAXB_INTR_STATUS             (0x18012f38)
+#define PAXB_0_PAXB_IC_INTR_PACING_CTRL     (0x18012398)
+#define PAXB_0_PAXB_INTRCLR_DELAY_UNIT      (0x1801239c)
+#define PAXB_0_PAXB_IC_INTRCLR_DELAY_REG0   (0x180123b0)
+#define PAXB_0_PCIE_ERROR_STATUS            (0x18012024)
 
 #define HX5_PAXB_0_PAXB_IC_INTRCLR_0   (0x102303a0)
 #define HX5_PAXB_0_PAXB_IC_INTRCLR_1   (0x102303a4)
 
 #define HX5_PAXB_0_PAXB_IC_INTRCLR_MODE_0   (0x102303a8)
 #define HX5_PAXB_0_PAXB_IC_INTRCLR_MODE_1   (0x102303ac)
+#define HX5_PAXB_0_PAXB_INTR_STATUS         (0x10230f38)
+#define HX5_PAXB_0_PAXB_IC_INTR_PACING_CTRL (0x10230398)
+#define HX5_PAXB_0_PAXB_INTRCLR_DELAY_UNIT  (0x1023039c)
+#define HX5_PAXB_0_PAXB_IC_INTRCLR_DELAY_REG0 (0x102303b0)
+#define HX5_PAXB_0_PCIE_ERROR_STATUS          (0x10230024)
+
+#define PAXB_0_PAXB_IC_INTRCLR_DELAY_BASE     (PAXB_0_PAXB_IC_INTRCLR_DELAY_REG0)
+#define HX5_PAXB_0_PAXB_IC_INTRCLR_DELAY_BASE (HX5_PAXB_0_PAXB_IC_INTRCLR_DELAY_REG0)
 
 #define INTC_INTR_ENABLE_REG0          (0x180130f0)
 #define INTC_INTR_STATUS_REG0          (0x18013190)
@@ -129,9 +140,9 @@ be made.
 #define INTC_LOW_PRIORITY_INTR_REG_IND     IRQ_MASK_INDEX(HX5_CHIP_INTR_LOW_PRIORITY)
 #define INTC_PDMA_INTR_REG_IND             4
 
-#define READ_INTC_INTR(d, reg, v) \
+#define IPROC_READ(d, reg, v) \
         (v = user_bde->iproc_read(d, reg))
-#define WRITE_INTC_INTR(d, reg, v) \
+#define IPROC_WRITE(d, reg, v) \
         (user_bde->iproc_write(d, reg, v))
 
 #define IHOST_READ_INTR(d, reg, v) \
@@ -155,6 +166,22 @@ be made.
 static uint32 *ihost_intr_status_base = NULL;
 static uint32 *ihost_intr_enable_base = NULL;
 
+/* Module parameter for Interruptible timeout */
+static int intr_timeout = 0;
+LKM_MOD_PARAM(intr_timeout, "i", int, (S_IRUGO | S_IWUSR));
+MODULE_PARM_DESC(intr_timeout,
+"Interruptible wait timeout in milliseconds for Interrupt to be triggered.");
+
+static ulong intr_count = 0;
+LKM_MOD_PARAM(intr_count, "intr_count", ulong, (S_IRUGO | S_IWUSR));
+MODULE_PARM_DESC(intr_count,
+"Interrupt count provides information about the number of times the ISR is called.");
+
+static ulong intr_timeout_count = 0;
+LKM_MOD_PARAM(intr_timeout_count, "intr_timeout_count", ulong, (S_IRUGO | S_IWUSR));
+MODULE_PARM_DESC(intr_timeout_count,
+"Interrupt timeout count provides information about the number of times the interrupt wait is timeed out.");
+
 /* Debug output */
 static int debug;
 LKM_MOD_PARAM(debug, "i", int, (S_IRUGO | S_IWUSR));
@@ -168,10 +195,16 @@ typedef void (*isr_f)(void *);
 typedef struct _intr_regs_s {
     uint32 intc_intr_status_base;
     uint32 intc_intr_enable_base;
+    uint32 intc_intr_raw_status_base;
     uint32 intc_intr_clear_0;
     uint32 intc_intr_clear_1;
     uint32 intc_intr_clear_mode_0;
     uint32 intc_intr_clear_mode_1;
+    uint32 intc_intr_status;
+    uint32 intc_intr_pacing_ctrl;
+    uint32 intc_intr_clear_delay_unit;
+    uint32 intc_intr_clear_delay_base;
+    uint32 intc_intr_pcie_err_status;
 } _intr_regs_t;
 
 typedef struct bde_ctrl_s {
@@ -181,7 +214,8 @@ typedef struct bde_ctrl_s {
     int devid;
     isr_f isr;
     uint32 *ba;
-    int inst;   /* associate to _bde_inst_resource[] */
+    uint32 inst;   /* the resource/instance index in _bde_inst_resource[] */
+    int edk_irq_enabled;
     _intr_regs_t intr_regs;
 } bde_ctrl_t;
 
@@ -199,19 +233,36 @@ static atomic_t _ether_interrupt_has_taken_place = ATOMIC_INIT(0);
  */
 static int _bde_multi_inst = 0;
 
+#define MAX_UC_CORES LINUX_BDE_MAX_IPROC_UC_CORES
+
+/* Structure to hold info about interrupts handled by EDK */
 typedef struct {
-    unsigned int    inst_id;
-    unsigned int    dma_offset;
-    unsigned int    dma_size;
+    uint32_t timer_intrc_offset; /* Timer interrupts INTC offset */
+    uint32_t timer_intrc_mask; /* Timer interrupts mask */
+    uint32_t sw_intr_intrc_offset; /* SW Programmable Interrupt's offset */
+    uint32_t sw_intr_intrc_mask; /* SW interrupt's mask */
+    uint32_t sw_intr_src_bitmap; /* SW interrupt's bitmask to navigate ICFG registers */
+    uint32_t sw_intr_icfg_reg[MAX_UC_CORES]; /* ICFG registers for each core */
+} bde_edk_intr_t;
+
+typedef struct {
+    int             is_active;  /* Is the instance active */
+    unsigned int    dma_offset; /* offset of the instance's DMA memory in the DMA buffer pool */
+    unsigned int    dma_size; /* size of the instance's DMA memory (in the DMA buffer pool) */
     wait_queue_head_t intr_wq;
+    wait_queue_head_t edk_intr_wq;
     atomic_t intr;
+    atomic_t edk_intr;
+    bde_edk_intr_t edk_irqs;
 } bde_inst_resource_t;
 
+/* This array contains information for SDK instance, the index in the array is the instance ID */
 static bde_inst_resource_t _bde_inst_resource[LINUX_BDE_MAX_DEVICES];
 /*
  * Lock used to protect changes to _bde_inst_resource
  */
 static spinlock_t bde_resource_lock;
+
 
 typedef struct {
     phys_addr_t  cpu_pbase; /* CPU physical base address of the DMA pool */
@@ -291,22 +342,97 @@ _cmic_interrupt(bde_ctrl_t *ctrl)
 #endif
 }
 
-static void 
-_cmicx_interrupt(bde_ctrl_t *ctrl)
+void
+dump_interrupt_regs(bde_ctrl_t *ctrl , int dev)
 {
-    int d, ind;
-    uint32 stat, iena, mask, fmask;
+    int ind;
+    uint32_t val;
+
+    if (debug >= 2) {
+        gprintk("Interrupt timeout count = %lu\n", intr_timeout_count);
+        gprintk("Interrupt count = %lu\n", intr_count);
+        for (ind = 0; ind < INTC_INTR_REG_NUM; ind++) {
+            IPROC_READ(dev, ctrl->intr_regs.intc_intr_status_base + 4 * ind, val);
+            gprintk("INTC_INTR_STATUS_REG_%d = 0x%x\n", ind, val);
+            IPROC_READ(dev, ctrl->intr_regs.intc_intr_raw_status_base + 4 * ind, val);
+            gprintk("INTC_INTR_RAW_STATUS_REG_%d = 0x%x\n", ind, val);
+            IPROC_READ(dev, ctrl->intr_regs.intc_intr_enable_base + 4 * ind, val);
+            gprintk("INTC_INTR_ENABLE_REG_%d = 0x%x\n", ind, val);
+        }
+        /* Dump PAXB Register */
+        IPROC_READ(dev, ctrl->intr_regs.intc_intr_status, val);
+        gprintk("PAXB_0_PAXB_INTR_STATUS = 0x%x\n", val);
+        IPROC_READ(dev, ctrl->intr_regs.intc_intr_pacing_ctrl, val);
+        gprintk("PAXB_0_PAXB_IC_INTR_PACING_CTRL = 0x%x\n", val);
+        IPROC_READ(dev, ctrl->intr_regs.intc_intr_clear_delay_unit, val);
+        gprintk("PAXB_0_PAXB_INTRCLR_DELAY_UNIT = 0x%x\n", val);
+        IPROC_READ(dev, ctrl->intr_regs.intc_intr_pcie_err_status, val);
+        gprintk("PAXB_0_PCIE_ERROR_STATUS = 0x%x\n", val);
+
+        for (ind = 0; ind < PAXB_INTRCLR_DELAY_REG_NUM; ind++) {
+            IPROC_READ(dev, ctrl->intr_regs.intc_intr_clear_delay_base + 4 * ind, val);
+            gprintk("PAXB_0_PAXB_IC_INTRCLR_DELAY_REG_%d = 0x%x\n", ind, val);
+        }
+    }
+    /* Clear interrupt enable registers */
+    for (ind = 0; ind < INTC_INTR_REG_NUM; ind++) {
+        IPROC_WRITE(dev, ctrl->intr_regs.intc_intr_enable_base + 4 * ind, 0);
+    }
+}
+
+#ifdef BDE_EDK_SUPPORT
+static int
+_cmicx_edk_interrupt_check(bde_ctrl_t *ctrl, int d)
+{
     bde_inst_resource_t *res;
+    uint32 stat, mask = 0, bitmap = 0;
+    int idx;
+
+    res = &_bde_inst_resource[ctrl->inst];
+    bitmap = res->edk_irqs.sw_intr_src_bitmap;
+
+    /* Explicitly reading raw_status so as to not clear the status on read */
+    IPROC_READ(d, ctrl->intr_regs.intc_intr_raw_status_base +
+        (res->edk_irqs.sw_intr_intrc_offset * 4), stat);
+    /* Check whether Software Programmable Interrupt is set */
+    if (stat & res->edk_irqs.sw_intr_intrc_mask) {
+        for (idx = 0; (bitmap && (idx < MAX_UC_CORES)); idx++) {
+            if (bitmap & 1) {
+                IPROC_READ(d, res->edk_irqs.sw_intr_icfg_reg[idx], stat);
+                mask |= (stat & 1) << idx;
+            }
+            bitmap = (bitmap >> 1);
+        }
+        if (mask)
+            return 1;
+    }
+
+    /* EDK uses timer interrupt as watchdog to indicate the the firmware has crashed */
+    IPROC_READ(d, ctrl->intr_regs.intc_intr_raw_status_base +
+        (res->edk_irqs.timer_intrc_offset * 4), stat);
+    if (stat & res->edk_irqs.timer_intrc_mask) {
+        return 1;
+    }
+    return 0;
+}
+#endif
+
+static int
+_cmicx_interrupt_prepare(bde_ctrl_t *ctrl)
+{
+    int d, ind, ret = 0;
+    uint32 stat, iena, mask, fmask;
 
     d = (((uint8 *)ctrl - (uint8 *)_devices) / sizeof (bde_ctrl_t));
 
     if (ctrl->dev_type & BDE_PCI_DEV_TYPE) {
+        IPROC_READ(d, ctrl->intr_regs.intc_intr_clear_mode_0, stat);
         /* Clear MSI interrupts immediately to prevent spurious interrupts */
-        WRITE_INTC_INTR(d, ctrl->intr_regs.intc_intr_clear_0, 0xFFFFFFFF);
-        WRITE_INTC_INTR(d, ctrl->intr_regs.intc_intr_clear_1, 0xFFFFFFFF);
+        if (stat == 0) {
+            IPROC_WRITE(d, ctrl->intr_regs.intc_intr_clear_0, 0xFFFFFFFF);
+            IPROC_WRITE(d, ctrl->intr_regs.intc_intr_clear_1, 0xFFFFFFFF);
+        }
     }
-
-    res = &_bde_inst_resource[ctrl->inst];
 
     lkbde_irq_mask_get(d, &mask, &fmask);
 
@@ -315,15 +441,15 @@ _cmicx_interrupt(bde_ctrl_t *ctrl)
             IHOST_READ_INTR(d, ihost_intr_status_base + INTC_PDMA_INTR_REG_IND, stat);
             IHOST_READ_INTR(d, ihost_intr_enable_base + INTC_PDMA_INTR_REG_IND, iena);
         } else {
-            READ_INTC_INTR(d, ctrl->intr_regs.intc_intr_status_base + 4 * INTC_PDMA_INTR_REG_IND, stat);
-            READ_INTC_INTR(d, ctrl->intr_regs.intc_intr_enable_base + 4 * INTC_PDMA_INTR_REG_IND, iena);
+            IPROC_READ(d, ctrl->intr_regs.intc_intr_status_base + 4 * INTC_PDMA_INTR_REG_IND, stat);
+            IPROC_READ(d, ctrl->intr_regs.intc_intr_enable_base + 4 * INTC_PDMA_INTR_REG_IND, iena);
         }
         if (stat & iena) {
             if (ctrl->dev_type & BDE_AXI_DEV_TYPE) {
                 IHOST_WRITE_INTR(d, ihost_intr_enable_base + INTC_PDMA_INTR_REG_IND +
                     HX5_IHOST_IRQ_MASK_OFFSET, ~0);
             } else {
-                WRITE_INTC_INTR(d, ctrl->intr_regs.intc_intr_enable_base + 4 * INTC_PDMA_INTR_REG_IND, 0);
+                IPROC_WRITE(d, ctrl->intr_regs.intc_intr_enable_base + 4 * INTC_PDMA_INTR_REG_IND, 0);
             }
 
             for (ind = 0; ind < INTC_INTR_REG_NUM; ind++) {
@@ -344,16 +470,16 @@ _cmicx_interrupt(bde_ctrl_t *ctrl)
                         }
                     }
                 } else {
-                    READ_INTC_INTR(d, ctrl->intr_regs.intc_intr_status_base + 4 * ind, stat);
-                    READ_INTC_INTR(d, ctrl->intr_regs.intc_intr_enable_base + 4 * ind, iena);
+                    IPROC_READ(d, ctrl->intr_regs.intc_intr_status_base + 4 * ind, stat);
+                    IPROC_READ(d, ctrl->intr_regs.intc_intr_enable_base + 4 * ind, iena);
                 }
                 if (stat & iena) {
                     break;
                 }
             }
-
+            /* No pending interrupts */
             if (ind >= INTC_INTR_REG_NUM) {
-                return;
+                return -1;
             }
         }
     }
@@ -362,6 +488,11 @@ _cmicx_interrupt(bde_ctrl_t *ctrl)
      * So as to avoid getting new interrupts until the user level driver
      * enumerates the interrupts to be serviced
      */
+#ifdef BDE_EDK_SUPPORT
+    if (ctrl->edk_irq_enabled)
+        ret = _cmicx_edk_interrupt_check(ctrl, d);
+#endif
+
     for (ind = 0; ind < INTC_INTR_REG_NUM; ind++) {
         if (fmask && ind == INTC_PDMA_INTR_REG_IND) {
             continue;
@@ -381,17 +512,42 @@ _cmicx_interrupt(bde_ctrl_t *ctrl)
                     HX5_IHOST_IRQ_MASK_OFFSET, ~0);
             }
         } else {
-            WRITE_INTC_INTR(d, ctrl->intr_regs.intc_intr_enable_base + 4*ind, 0);
+            IPROC_WRITE(d, ctrl->intr_regs.intc_intr_enable_base + (4 * ind), 0);
         }
     }
 
-    /* Notify */
-    atomic_set(&res->intr, 1);
+    return ret;
+}
+
+static void
+_cmicx_interrupt(bde_ctrl_t *ctrl)
+{
+    bde_inst_resource_t *res;
+    int ret;
+
+    intr_count++;
+
+    res = &_bde_inst_resource[ctrl->inst];
+    ret = _cmicx_interrupt_prepare(ctrl);
+    if (ret < 0) {
+        return;
+    } else if (ret > 0) {
+        /* Notify */
+        atomic_set(&res->edk_intr, 1);
 #ifdef BDE_LINUX_NON_INTERRUPTIBLE
-    wake_up(&res->intr_wq);
+        wake_up(&res->edk_intr_wq);
 #else
-    wake_up_interruptible(&res->intr_wq);
+        wake_up_interruptible(&res->edk_intr_wq);
 #endif
+    } else {
+        /* Notify */
+        atomic_set(&res->intr, 1);
+#ifdef BDE_LINUX_NON_INTERRUPTIBLE
+        wake_up(&res->intr_wq);
+#else
+        wake_up_interruptible(&res->intr_wq);
+#endif
+    }
 }
 
 static void
@@ -695,25 +851,6 @@ _cmicd_interrupt(bde_ctrl_t *ctrl)
 #endif
 }
 
-static void 
-_bcm88750_interrupt(bde_ctrl_t *ctrl)
-{
-    int d;
-    bde_inst_resource_t *res;
-
-    d = (((uint8 *)ctrl - (uint8 *)_devices) / sizeof (bde_ctrl_t));
-    res = &_bde_inst_resource[ctrl->inst];
-    lkbde_irq_mask_set(d, CMIC_IRQ_MASK, 0, 0);
-
-    lkbde_irq_mask_set(d, CMIC_IRQ_MASK_1, 0, 0); 
-    lkbde_irq_mask_set(d, CMIC_IRQ_MASK_2, 0, 0);
-    atomic_set(&res->intr, 1);
-#ifdef BDE_LINUX_NON_INTERRUPTIBLE
-    wake_up(&res->intr_wq);
-#else
-    wake_up_interruptible(&res->intr_wq);
-#endif
-}
 
 /* The actual interrupt handler of ethernet devices */
 static void 
@@ -738,7 +875,6 @@ static struct _intr_mode_s {
     { (isr_f)_cmicm_interrupt,      "CMICm" },
     { (isr_f)_cmicd_interrupt,      "CMICd" },
     { (isr_f)_cmicd_cmc0_interrupt, "CMICd CMC0" },
-    { (isr_f)_bcm88750_interrupt,   "BCM88750" },
     { (isr_f)_cmicx_interrupt,      "CMICx" },
     { NULL, NULL }
 };
@@ -764,17 +900,31 @@ _intr_regs_init(bde_ctrl_t *ctrl, int hx5_intr)
     if (hx5_intr) {
         ctrl->intr_regs.intc_intr_status_base = HX5_INTC_INTR_STATUS_BASE;
         ctrl->intr_regs.intc_intr_enable_base = HX5_INTC_INTR_ENABLE_BASE;
+        ctrl->intr_regs.intc_intr_raw_status_base = HX5_INTC_INTR_RAW_STATUS_BASE;
         ctrl->intr_regs.intc_intr_clear_0 = HX5_PAXB_0_PAXB_IC_INTRCLR_0;
         ctrl->intr_regs.intc_intr_clear_1 = HX5_PAXB_0_PAXB_IC_INTRCLR_1;
         ctrl->intr_regs.intc_intr_clear_mode_0 = HX5_PAXB_0_PAXB_IC_INTRCLR_MODE_0;
         ctrl->intr_regs.intc_intr_clear_mode_1 = HX5_PAXB_0_PAXB_IC_INTRCLR_MODE_1;
+        ctrl->intr_regs.intc_intr_status = HX5_PAXB_0_PAXB_INTR_STATUS;
+        ctrl->intr_regs.intc_intr_pacing_ctrl = HX5_PAXB_0_PAXB_IC_INTR_PACING_CTRL;
+        ctrl->intr_regs.intc_intr_clear_delay_unit = HX5_PAXB_0_PAXB_INTRCLR_DELAY_UNIT;
+        ctrl->intr_regs.intc_intr_clear_delay_base = HX5_PAXB_0_PAXB_IC_INTRCLR_DELAY_BASE;
+        ctrl->intr_regs.intc_intr_pcie_err_status = HX5_PAXB_0_PCIE_ERROR_STATUS;
+
     } else {
         ctrl->intr_regs.intc_intr_status_base = INTC_INTR_STATUS_BASE;
+        ctrl->intr_regs.intc_intr_raw_status_base = INTC_INTR_RAW_STATUS_BASE;
         ctrl->intr_regs.intc_intr_enable_base = INTC_INTR_ENABLE_BASE;
         ctrl->intr_regs.intc_intr_clear_0 = PAXB_0_PAXB_IC_INTRCLR_0;
         ctrl->intr_regs.intc_intr_clear_1 = PAXB_0_PAXB_IC_INTRCLR_1;
         ctrl->intr_regs.intc_intr_clear_mode_0 = PAXB_0_PAXB_IC_INTRCLR_MODE_0;
         ctrl->intr_regs.intc_intr_clear_mode_1 = PAXB_0_PAXB_IC_INTRCLR_MODE_1;
+        ctrl->intr_regs.intc_intr_status = PAXB_0_PAXB_INTR_STATUS;
+        ctrl->intr_regs.intc_intr_pacing_ctrl = PAXB_0_PAXB_IC_INTR_PACING_CTRL;
+        ctrl->intr_regs.intc_intr_clear_delay_unit = PAXB_0_PAXB_INTRCLR_DELAY_UNIT;
+        ctrl->intr_regs.intc_intr_clear_delay_base = PAXB_0_PAXB_IC_INTRCLR_DELAY_BASE;
+        ctrl->intr_regs.intc_intr_pcie_err_status = PAXB_0_PCIE_ERROR_STATUS;
+
     }
 }
 
@@ -804,13 +954,6 @@ _devices_init(int d)
     }
     if (ctrl->dev_type & BDE_SWITCH_DEV_TYPE) {
         switch (user_bde->get_dev(d)->device) {
-        case BCM88750_DEVICE_ID:
-        case BCM88753_DEVICE_ID:
-        case BCM88754_DEVICE_ID:
-        case BCM88755_DEVICE_ID:
-        case BCM88752_DEVICE_ID:
-            ctrl->isr = (isr_f)_bcm88750_interrupt;
-            break;
         case BCM53540_DEVICE_ID:
         case BCM53547_DEVICE_ID:
         case BCM53548_DEVICE_ID:
@@ -894,6 +1037,10 @@ _devices_init(int d)
         case BCM56276_DEVICE_ID:
         case BCM56277_DEVICE_ID:
         case BCM56278_DEVICE_ID:
+        case BCM56279_DEVICE_ID:
+        case BCM56575_DEVICE_ID:
+        case BCM56175_DEVICE_ID:
+        case BCM56176_DEVICE_ID:
             ctrl->isr = (isr_f)_cmicx_interrupt;
             if (ctrl->dev_type & BDE_AXI_DEV_TYPE) {
                 if (!ihost_intr_enable_base) {
@@ -944,6 +1091,7 @@ _devices_init(int d)
           case J2C_DEVICE_ID:
           case J2C_2ND_DEVICE_ID:
           case Q2A_DEVICE_ID:
+          case Q2U_DEVICE_ID:
           case J2P_DEVICE_ID:
 #endif
 #ifdef BCM_DNXF_SUPPORT
@@ -974,10 +1122,11 @@ _devices_init(int d)
 static int
 _init(void)
 {
-    int i;
+    int i, nof_devices;
     phys_addr_t cpu_pbase, dma_pbase;
     ssize_t dmasize;
     bde_inst_resource_t *res;
+    uint32 *bitmap_ptr;
 
     /* Connect to the kernel bde */
     if ((linux_bde_create(NULL, &user_bde) < 0) || user_bde == NULL) {
@@ -1002,14 +1151,28 @@ _init(void)
     res->dma_offset = 0;
     res->dma_size = _dma_pool.total_size;
     init_waitqueue_head(&res->intr_wq);
+    init_waitqueue_head(&res->edk_intr_wq);
     atomic_set(&res->intr, 0);
+    atomic_set(&res->edk_intr, 0);
 
     ihost_intr_enable_base = NULL;
     ihost_intr_status_base = NULL;
 
-    for (i = 0; i < user_bde->num_devices(BDE_ALL_DEVICES); i++) {
-        res->inst_id |= (1 << i);
+    nof_devices = user_bde->num_devices(BDE_ALL_DEVICES);
+    /* for no BDE instances, mark the single SDK as controlling all devices */
+    bitmap_ptr = *lkbde_get_inst_devs(0);
+    for (i = nof_devices; i >=32; i -= 32) {
+      *(bitmap_ptr++) = 0xffffffff;
+    }
+    *bitmap_ptr = (((uint32)1) << i) - 1;
+    res->is_active = 1;
+
+    for (i = 0; i < nof_devices; i++) { /* init all devices */
         _devices_init(i);
+    }
+
+    if (intr_timeout > 0) {
+        gprintk("Interruptible wait timeout = %d msecs\n", intr_timeout);
     }
 
     return 0;
@@ -1036,7 +1199,7 @@ _cleanup(void)
                 BDE_DEV_MEM_MAPPED(_devices[i].dev_type)) {
                 user_bde->interrupt_disconnect(i);
             }
-            lkbde_dev_instid_set(i, 0);
+            lkbde_dev_instid_set(i, BDE_DEV_INST_ID_INVALID);
         }
         linux_bde_destroy(user_bde);
         user_bde = NULL;
@@ -1065,48 +1228,53 @@ _cleanup(void)
  *    Always 0
  */
 static int
-_pprint(void)
+_pprint(struct seq_file *m)
 {
     int idx;
     const char *name;
     bde_inst_resource_t *res;
     uint32 state, instid;
 
-    pprintf("Broadcom Device Enumerator (%s)\n", LINUX_USER_BDE_NAME);
+    pprintf(m, "Broadcom Device Enumerator (%s)\n", LINUX_USER_BDE_NAME);
     for (idx = 0; idx < user_bde->num_devices(BDE_ALL_DEVICES); idx++) {
         name = _intr_mode_str(_devices[idx].isr);
         if (name == NULL) {
             name = "unknown";
         }
-        pprintf("\t%d: Interrupt mode  %s ",idx, name);
+        pprintf(m, "\t%d: Interrupt mode  %s ",idx, name);
         (void)lkbde_dev_state_get(idx, &state);
         if (state == BDE_DEV_STATE_REMOVED) {
-            pprintf(" Device REMOVED ! \n");
+            pprintf(m, " Device REMOVED ! \n");
         } else {
             (void)lkbde_dev_instid_get(idx, &instid);
-            if (instid) {
-                pprintf("Inst id 0x%x\n",instid);
+            if (instid != BDE_DEV_INST_ID_INVALID) {
+                pprintf(m, "Inst id 0x%x\n",instid);
             } else {
-                pprintf("\n");
+                pprintf(m, "\n");
             }
         }
     }
-    pprintf("Instance resource \n");
+    pprintf(m, "Instance resource \n");
 
     for (idx = 0; idx < user_bde->num_devices(BDE_ALL_DEVICES); idx++) {
         res = &_bde_inst_resource[idx];
-        if (res->inst_id) {
-            pprintf("\tDev mask 0x%x : "
-                    "DMA offset %d size %d MB\n",
-                    res->inst_id,
+        if (res->is_active) {
+            linux_bde_device_bitmap_t* bitmap_p = lkbde_get_inst_devs(idx);
+            pprintf(m, "\t%d: DMA offset %d size %d MB Dev mask 0x",
+                    idx,
                     res->dma_offset,
                     res->dma_size);
+            for (state = 0; state * 32 < user_bde->num_devices(BDE_ALL_DEVICES); ++state) {
+                pprintf(m,"%.8x ", (*bitmap_p)[state]);
+            }
+            pprintf(m,"\n");
         }
     }
 
     return 0;
 }
 
+#ifdef BCM_INSTANCE_SUPPORT
 /* 
  * Allocate the DMA resource from DMA pool
  * Parameter :
@@ -1127,22 +1295,21 @@ _dma_resource_alloc(unsigned int dma_size, unsigned int *dma_offset)
     _dma_pool.offset += dma_size;
     return 0;
 }
+#endif
 
 static int
-_dma_resource_get(int inst_id, phys_addr_t *cpu_pbase, phys_addr_t *dma_pbase, ssize_t* size)
+_dma_resource_get(unsigned inst_id, phys_addr_t *cpu_pbase, phys_addr_t *dma_pbase, ssize_t* size)
 {
-    int i;
     unsigned int dma_size = 0, dma_offset = 0;
     bde_inst_resource_t *res;
 
-    for (i = 0; i < user_bde->num_devices(BDE_ALL_DEVICES); i++) {
-        res = &_bde_inst_resource[i];
-        if (res->inst_id == inst_id) {
-            dma_size = res->dma_size;
-            dma_offset = res->dma_offset;
-            break;
-        }
+    if (inst_id >= user_bde->num_devices(BDE_ALL_DEVICES)) {
+        gprintk("ERROR: requested DMA resources for an instance number out of range: %u\n", inst_id);
+        return -1;
     }
+    res = &_bde_inst_resource[inst_id];
+    dma_size = res->dma_size;
+    dma_offset = res->dma_offset;
 
     *cpu_pbase = _dma_pool.cpu_pbase + dma_offset * ONE_MB;
     *dma_pbase = _dma_pool.dma_pbase + dma_offset * ONE_MB;
@@ -1151,28 +1318,49 @@ _dma_resource_get(int inst_id, phys_addr_t *cpu_pbase, phys_addr_t *dma_pbase, s
     return 0;
 }
 
+#ifdef BCM_INSTANCE_SUPPORT
+/*
+ * Checks if we have the instance in _bde_inst_resource. If not, return LUBDE_SUCCESS==0 (considered a new instance).
+ * If it exists with the same dmasize, return 1 (It is considered already in use)
+ * Otherwise if the device with the same index of the resource, has resource/instance index 0, return LUBDE_SUCCESS==0. (bug)
+ * Otherwise return LUBDE_FAIL==-1 (It is considered to exist with a different dmasize).
+ */
 static int
-_instance_validate(unsigned int inst_id, unsigned int dmasize)
+_instance_validate(unsigned int inst_id, unsigned int dmasize, linux_bde_device_bitmap_t inst_devices)
 {
-    int i;
-    bde_inst_resource_t *res;
+    unsigned i;
+    uint32 bits;
+    bde_inst_resource_t *res = _bde_inst_resource + inst_id;
+    linux_bde_device_bitmap_t* bitmap_p;
 
-    for (i = 0; i < user_bde->num_devices(BDE_ALL_DEVICES); i++) {
-        res = &_bde_inst_resource[i];
-        if (res->inst_id == inst_id) {
-            if (res->dma_size != dmasize) {
-                if(_devices[i].inst == 0){
-                    /* Skip _instance_validate (not init yet) */
-                    return LUBDE_SUCCESS;
-                }
-                gprintk("ERROR: dma_size mismatch\n");
-                return LUBDE_FAIL;
-            }
-            return (1);
+    if (inst_id >= user_bde->num_devices(BDE_ALL_DEVICES)) {
+        gprintk("ERROR: instance number out of range: %u\n", inst_id);
+        return LUBDE_FAIL;
+    }
+
+    if (res->is_active == 0) {
+        /* FIXME SDK-225233 check that the devices are not used by another active instance */
+        return LUBDE_SUCCESS;
+    }
+
+    bitmap_p = lkbde_get_inst_devs(inst_id);
+    for (i = 0; i < LINUX_BDE_NOF_DEVICE_BITMAP_WORDS; ++i) {
+        bits = inst_devices[i] ^ (*bitmap_p)[i];
+        if (bits != 0) {
+            for (i *= 32; (bits & 1) == 0; bits >>= 1, ++i);
+            gprintk("ERROR: existing instance number %u does not control the same devices, see device %u\n", inst_id, i);
+            return LUBDE_FAIL;
         }
     }
-    return LUBDE_SUCCESS;
+
+    if (res->dma_size == dmasize) {
+        return 1; /* For an existing same instance with the same DMA size, do nothing */
+    }
+    /* with a different DMS size */
+    gprintk("ERROR: dma_size mismatch\n");
+    return LUBDE_FAIL;
 }
+#endif
 
 static int
 _device_reprobe(void)
@@ -1187,33 +1375,49 @@ _device_reprobe(void)
     return 0;
 }
 
+#ifdef BCM_INSTANCE_SUPPORT
+/*
+ * Attach an SDK instance:
+ * _device_reprobe();
+ * Check If an instance with the same bitmap exists, if yes with the same dmasize, return, if yes a different dmasize return an error, if no:
+ * Allocate DMA for the instance.
+ * This loop finds the first free resource in _bde_inst_resource[] and configure it for the instance.
+ * Store the resource/instance index in _bde_inst_resource for every device in the instance.
+ */
 static int
-_instance_attach(unsigned int inst_id, unsigned int dma_size)
+_instance_attach(unsigned int inst_id, unsigned int dma_size, linux_bde_device_bitmap_t inst_devices)
 {
     unsigned int dma_offset;
     int i, exist;
     bde_inst_resource_t *res;
-    int inst_idx = -1;
-    uint32 instid;
+    uint32 previous_inst_id;
 
     /* Reprobe the system for hot-plugged device */
     _device_reprobe();
 
     if (debug >= 2) {
-        gprintk("INFO: Request to attach to instance_id %d with dma size %d!\n", inst_id, dma_size);
+        gprintk("INFO: Request to attach to instance_id %u with dma size %d!\n", inst_id, dma_size);
     }
 
     spin_lock(&bde_resource_lock);
 
-    /* Validate the resource with inst_id */
-    exist = _instance_validate(inst_id, dma_size);
-    if (exist < 0) {
+    /* If not in multi instance mode, move to the mode and fix the first instance that represented all devices */
+    if (_bde_multi_inst == 0) {
+        _bde_multi_inst = 1;
+        _bde_inst_resource->is_active = 0;
+        /*_bde_inst_resource->dev will not be used when _bde_inst_resource->is_active == 0 */
+    }
+    
+    /* Validate the resource with inst_devices */
+    exist = _instance_validate(inst_id, dma_size, inst_devices);
+
+    if (exist == LUBDE_FAIL) {
         spin_unlock(&bde_resource_lock);
         return LUBDE_FAIL;
     }
     if (exist > 0) {
         if (debug >= 2) {
-            gprintk("INFO: Already attached to instance_id %d with dma size %d!\n", inst_id, dma_size);
+            gprintk("INFO: Already attached to instance_id %u with dma size %d!\n", inst_id, dma_size);
         }
         spin_unlock(&bde_resource_lock);
         return LUBDE_SUCCESS;
@@ -1222,38 +1426,59 @@ _instance_attach(unsigned int inst_id, unsigned int dma_size)
         spin_unlock(&bde_resource_lock);
         return LUBDE_FAIL;
     }
-    for (i = 0; i < user_bde->num_devices(BDE_ALL_DEVICES); i++) {
-        res = &_bde_inst_resource[i];
-        if ((_bde_multi_inst == 0) || (res->inst_id == 0)) {
-            res->inst_id = inst_id;
-            res->dma_offset = dma_offset;
-            res->dma_size = dma_size;
-            _bde_multi_inst++;
-            inst_idx = i;
-            init_waitqueue_head(&res->intr_wq);
-            atomic_set(&res->intr, 0);
-            break;
-        }
-    }
 
+    /* configure the instance ID resources */
+    res = _bde_inst_resource + inst_id;
+    res->is_active = 1;
+    res->dma_offset = dma_offset;
+    res->dma_size = dma_size;
+#ifdef SAI_FIXUP    /* SDK-240875 */
+    /* skip instance 0, WQ for instance 0 has been initialized in user_bde init, see _init() */
+    if (inst_id != 0) {
+        init_waitqueue_head(&res->intr_wq);
+        init_waitqueue_head(&res->edk_intr_wq);
+        atomic_set(&res->intr, 0);
+        atomic_set(&res->edk_intr, 0);
+    }
+#endif
+    memcpy(*lkbde_get_inst_devs(inst_id), inst_devices, sizeof(linux_bde_device_bitmap_t)); /* SDK-225233 */
+
+    /* store the resource/instance index in _bde_inst_resource for every device in the instance */
     for (i = 0; i < user_bde->num_devices(BDE_ALL_DEVICES); i++) {
-        if (inst_id & (1 << i)) {
-            _devices[i].inst = inst_idx;
-            /* Pass the instid to the kernel BDE */
-            if (lkbde_dev_instid_get(i, &instid) == 0) {
-                if (!instid) {
+        if (inst_devices[i / 32] & (1 << (i % 32))) {
+            _devices[i].inst = inst_id;
+            /* Pass the inst_id to the kernel BDE */
+            if (lkbde_dev_instid_get(i, &previous_inst_id) == 0) { /* If the linux-kernel-bde inst_id is not set for the device, set it to the instance ID */
+                if (previous_inst_id == BDE_DEV_INST_ID_INVALID) {
                     lkbde_dev_instid_set(i, inst_id);
                 }
-            }
+            } /* TODO handle the case where the device is marked belonging to a different instance */
         }
     }
     spin_unlock(&bde_resource_lock);
     if (debug >= 2) {
-        gprintk("INFO: Attached to instance_id %d with dma size %d! SUCCESS\n", inst_id, dma_size);
+        gprintk("INFO: Attached to instance_id %lu with dma size %d! SUCCESS\n", (unsigned long)inst_devices, dma_size);
     }
 
     return LUBDE_SUCCESS;
 }
+#endif /* BCM_INSTANCE_SUPPORT */
+
+#ifdef BDE_EDK_SUPPORT
+static int
+_edk_instance_attach(unsigned int inst_id, unsigned int dma_size)
+{
+    ssize_t size = (ssize_t)dma_size;
+    if (size) {
+        lkbde_edk_get_dma_info(inst_id, NULL, NULL, &size);
+        if (!size) {
+            gprintk("Error: EDK Attached to instance_id %lu failed\n", (unsigned long)inst_id);
+            return LUBDE_FAIL;
+        }
+    }
+    return LUBDE_SUCCESS;
+}
+#endif
 
 /*
  * Function: _ioctl
@@ -1273,7 +1498,7 @@ _ioctl(unsigned int cmd, unsigned long arg)
     phys_addr_t cpu_pbase, dma_pbase;
     ssize_t size;
     const ibde_dev_t *bde_dev;
-    int inst_id;
+    int inst_id, idx;
     bde_inst_resource_t *res;
     uint32_t *mapaddr;
 
@@ -1341,10 +1566,19 @@ _ioctl(unsigned int cmd, unsigned long arg)
     case LUBDE_GET_DMA_INFO:
         inst_id = io.dev;
         if (_bde_multi_inst){
-            _dma_resource_get(inst_id, &cpu_pbase, &dma_pbase, &size);
+            if (_dma_resource_get(inst_id, &cpu_pbase, &dma_pbase, &size)) {
+                io.rc = LUBDE_FAIL;
+            }
         } else {
             lkbde_get_dma_info(&cpu_pbase, &dma_pbase, &size);
         }
+#ifdef BDE_EDK_SUPPORT
+    case LUBDE_GET_EDK_DMA_INFO:
+        if (cmd == LUBDE_GET_EDK_DMA_INFO) {
+            inst_id = io.dev;
+            lkbde_edk_get_dma_info(inst_id, &cpu_pbase, &dma_pbase, &size);
+        }
+#endif
         io.d0 = dma_pbase;
         io.d1 = size;
         /* Optionally enable DMA mmap via /dev/linux-kernel-bde */
@@ -1365,14 +1599,6 @@ _ioctl(unsigned int cmd, unsigned long arg)
         }
         if (_devices[io.dev].dev_type & BDE_SWITCH_DEV_TYPE) {
             if (_devices[io.dev].isr && !_devices[io.dev].enabled) {
-                bde_ctrl_t *ctrl;
-                ctrl = &_devices[io.dev];
-                if ((ctrl->isr == (isr_f)_cmicx_interrupt)  &&
-                    (ctrl->dev_type & BDE_PCI_DEV_TYPE)) {
-                    /* Set MSI mode to SW clear vs auto clear */
-                    WRITE_INTC_INTR(io.dev, ctrl->intr_regs.intc_intr_clear_mode_0, 0x0);
-                    WRITE_INTC_INTR(io.dev, ctrl->intr_regs.intc_intr_clear_mode_1, 0x0);
-                }
                 user_bde->interrupt_connect(io.dev,
                                             _devices[io.dev].isr,
                                             _devices+io.dev);
@@ -1398,6 +1624,32 @@ _ioctl(unsigned int cmd, unsigned long arg)
             _devices[io.dev].enabled = 0;
         }
         break;
+    case LUBDE_SET_EDK_INTERRUPTS:
+        if (!VALID_DEVICE(io.dev)) {
+            return -EINVAL;
+        }
+        res = &_bde_inst_resource[_devices[io.dev].inst];
+        res->edk_irqs.timer_intrc_offset = io.d0;
+        res->edk_irqs.timer_intrc_mask =  io.d1;
+        res->edk_irqs.sw_intr_intrc_offset = io.d2;
+        res->edk_irqs.sw_intr_intrc_mask = io.d3;
+        res->edk_irqs.sw_intr_src_bitmap = io.dx.dw[0];
+        for (idx = 0; idx < MAX_UC_CORES; idx++) {
+            res->edk_irqs.sw_intr_icfg_reg[idx] = io.dx.dw[idx + 1];
+        }
+        break;
+    case LUBDE_ENABLE_EDK_INTERRUPTS:
+        if (!VALID_DEVICE(io.dev)) {
+            return -EINVAL;
+        }
+        _devices[io.dev].edk_irq_enabled = 1;
+        break;
+    case LUBDE_DISABLE_EDK_INTERRUPTS:
+        if (!VALID_DEVICE(io.dev)) {
+            return -EINVAL;
+        }
+        _devices[io.dev].edk_irq_enabled = 0;
+        break;
     case LUBDE_WAIT_FOR_INTERRUPT:
         if (!VALID_DEVICE(io.dev)) {
             return -EINVAL;
@@ -1409,8 +1661,34 @@ _ioctl(unsigned int cmd, unsigned long arg)
                                atomic_read(&res->intr) != 0, 100);
 
 #else
-            wait_event_interruptible(res->intr_wq,
-                                     atomic_read(&res->intr) != 0);
+            /* CMICX Devices */
+            if ((_devices[io.dev].dev_type & BDE_PCI_DEV_TYPE) &&
+                (_devices[io.dev].isr == (isr_f)_cmicx_interrupt)  &&
+                (intr_timeout > 0)) {
+                unsigned long t_jiffies;
+                int err=0;
+                t_jiffies =  msecs_to_jiffies(intr_timeout);
+                err = wait_event_interruptible_timeout(res->intr_wq,
+                             atomic_read(&res->intr) != 0,
+                             t_jiffies);
+                /* Timeout happend and condition not set */
+                if (err == 0) {
+                    bde_ctrl_t *ctrl;
+                    ctrl = &_devices[io.dev];
+                    intr_timeout_count++;
+                    if (debug >= 1) {
+                        gprintk("Timeout happend and condition not set\n");
+                    }
+                    dump_interrupt_regs(ctrl, io.dev);
+                } else if (err == -ERESTARTSYS) {
+                    if (debug >= 1) {
+                       gprintk("Interrupted by Signal\n");
+                    }
+                }
+            } else {
+                wait_event_interruptible(res->intr_wq,
+                                      atomic_read(&res->intr) != 0);
+            }
 #endif
             /* 
              * Even if we get multiple interrupts, we 
@@ -1424,13 +1702,55 @@ _ioctl(unsigned int cmd, unsigned long arg)
 #else
             wait_event_interruptible(_ether_interrupt_wq,     
                                      atomic_read(&_ether_interrupt_has_taken_place) != 0);
+
 #endif
             /* 
-             * Even if we get multiple interrupts, we 
+             * Even if we get multiple interrupts, we
              * only run the interrupt handler once.
              */
             atomic_set(&_ether_interrupt_has_taken_place, 0);
         }
+        break;
+   case LUBDE_WAIT_FOR_EDK_INTERRUPT:
+        if (!VALID_DEVICE(io.dev)) {
+            return -EINVAL;
+        }
+        res = &_bde_inst_resource[_devices[io.dev].inst];
+#ifdef BDE_LINUX_NON_INTERRUPTIBLE
+        wait_event_timeout(res->edk_intr_wq,
+                           atomic_read(&res->edk_intr) != 0, 100);
+
+#else
+        /* CMICX Devices */
+        if ((_devices[io.dev].dev_type & BDE_PCI_DEV_TYPE) &&
+            (_devices[io.dev].isr == (isr_f)_cmicx_interrupt) &&
+            (intr_timeout > 0)) {
+            unsigned long t_jiffies;
+            int err = 0;
+            t_jiffies = msecs_to_jiffies(intr_timeout);
+            err = wait_event_interruptible_timeout(res->edk_intr_wq,
+                         atomic_read(&res->edk_intr) != 0, t_jiffies);
+            /* Timeout happend and condition not set */
+            if (err == 0) {
+                bde_ctrl_t *ctrl;
+                ctrl = &_devices[io.dev];
+                intr_timeout_count++;
+                if (debug >= 1) {
+                    gprintk("EDK Interrrupt: Timeout happened\n");
+                }
+                dump_interrupt_regs(ctrl, io.dev);
+            } else if (err == -ERESTARTSYS) {
+                if (debug >= 1) {
+                    gprintk("EDK Interrrupt: Interrupted by Signal\n");
+                }
+            }
+        } else {
+            wait_event_interruptible(res->edk_intr_wq, atomic_read(&res->edk_intr) != 0);
+        }
+#endif
+        /* Even if we get multiple interrupts, we
+         * only run the interrupt handler once. */
+        atomic_set(&res->edk_intr, 0);
         break;
     case LUBDE_USLEEP:
     case LUBDE_UDELAY:
@@ -1487,7 +1807,7 @@ _ioctl(unsigned int cmd, unsigned long arg)
             if (BDE_DEV_MEM_MAPPED(_devices[io.dev].dev_type)) {
                 /* Get physical address to map */
                 io.rc = lkbde_get_dev_resource(io.dev, io.d0,
-                                               &io.d1, &io.d2, &io.d3);
+                                               &io.d2, &io.d3, &io.d1);
             }
         } else {
             io.rc = LUBDE_FAIL;
@@ -1517,9 +1837,16 @@ _ioctl(unsigned int cmd, unsigned long arg)
             io.rc = LUBDE_FAIL;
         }
         break;
-    case LUBDE_ATTACH_INSTANCE:
-        io.rc = _instance_attach(io.d0, io.d1);
+#ifdef BDE_EDK_SUPPORT
+    case LUBDE_ATTACH_EDK_INSTANCE:
+        io.rc = _edk_instance_attach(io.d0, io.d1);
         break;
+#endif
+#ifdef BCM_INSTANCE_SUPPORT
+    case LUBDE_ATTACH_INSTANCE:
+        io.rc = _instance_attach(io.d0, io.d1, io.dx.dw);
+        break;
+#endif
     case LUBDE_GET_DEVICE_STATE:
         io.rc = lkbde_dev_state_get(io.dev, &io.d0);
         break;
