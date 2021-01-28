@@ -203,11 +203,11 @@ stages:
         fi
       displayName: "Run T0 tests"
     - publish: $(Build.ArtifactStagingDirectory)/kvmdump
-      artifact: sonic-buildimage.kvmtest.memdump
+      artifact: sonic-buildimage.kvmtest.memdump@$(System.JobAttempt)
       displayName: "Archive sonic kvm memdump"
       condition: failed()
     - publish: $(Build.ArtifactStagingDirectory)/logs
-      artifact: sonic-buildimage.kvmtest.log
+      artifact: sonic-buildimage.kvmtest.log@$(System.JobAttempt)
       displayName: "Archive sonic kvm logs"
       condition: succeededOrFailed()
     - task: PublishTestResults@2
