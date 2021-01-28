@@ -8,7 +8,7 @@ RUN apt-get update
 # Dependencies for sonic-cfggen
 RUN apt-get install -y python-lxml python-yaml python-bitarray python-pip python-dev python-natsort
 
-RUN pip install --upgrade pip
+RUN pip install --upgrade pip==20.3.3
 
 RUN pip install netaddr==0.7.19 ipaddr==2.2.0 jinja2==2.11.2 pyangbind==0.5.10
 
