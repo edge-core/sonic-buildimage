@@ -107,7 +107,7 @@ static struct sk_buff *strip_tag_rx_cb(struct sk_buff *skb, int dev_no, void *me
 static struct sk_buff *strip_tag_tx_cb(struct sk_buff *skb, int dev_no, void *meta);
 static int  strip_tag_filter_cb(uint8_t * pkt, int size, int dev_no, void *meta,
                                 int chan, kcom_filter_t * kf);
-static int  _pprint(void);
+static int  _pprint(struct seq_file *m);
 static int  _cleanup(void);
 static int  _init(void);
 
@@ -333,11 +333,11 @@ knet_filter_cb(uint8_t * pkt, int size, int dev_no, void *meta,
                      int chan, kcom_filter_t *kf)
 {
     /* check for filter callback handler */
-#ifdef PSAMPLE_SUPPORT
+    #ifdef PSAMPLE_SUPPORT
     if (strncmp(kf->desc, PSAMPLE_CB_NAME, KCOM_FILTER_DESC_MAX) == 0) {
         return psample_filter_cb (pkt, size, dev_no, meta, chan, kf);
     }
-#endif
+    #endif
     return strip_tag_filter_cb (pkt, size, dev_no, meta, chan, kf);
 }
 
@@ -366,12 +366,12 @@ knet_netif_destroy_cb(int unit, kcom_netif_t *netif, struct net_device *dev)
  * % cat /proc/linux-knet-cb
  */
 static int
-_pprint(void)
+_pprint(struct seq_file *m)
 {
-    pprintf("Broadcom Linux KNET Call-Back: Untagged VLAN Stripper\n");
-    pprintf("    %lu stripped packets\n", strip_stats.stripped);
-    pprintf("    %lu packets checked\n", strip_stats.checked);
-    pprintf("    %lu packets skipped\n", strip_stats.skipped);
+    pprintf(m, "Broadcom Linux KNET Call-Back: Untagged VLAN Stripper\n");
+    pprintf(m, "    %lu stripped packets\n", strip_stats.stripped);
+    pprintf(m ,"    %lu packets checked\n", strip_stats.checked);
+    pprintf(m, "    %lu packets skipped\n", strip_stats.skipped);
 
     return 0;
 }
@@ -395,6 +395,7 @@ _cleanup(void)
 #ifdef PSAMPLE_SUPPORT
     psample_cleanup();
 #endif
+
     return 0;
 }
 
@@ -410,9 +411,10 @@ _init(void)
         bkn_tx_skb_cb_register(strip_tag_tx_cb);
     }
 
-#ifdef PSAMPLE_SUPPORT
+    #ifdef PSAMPLE_SUPPORT
     psample_init();
-#endif
+    #endif
+
 
     bkn_filter_cb_register(knet_filter_cb);
     bkn_netif_create_cb_register(knet_netif_create_cb);

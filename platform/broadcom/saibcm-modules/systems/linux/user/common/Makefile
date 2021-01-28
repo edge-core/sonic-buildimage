@@ -1,5 +1,10 @@
 #
-#  Copyright 2017 Broadcom
+#  Copyright 2007-2020 Broadcom Inc. All rights reserved.
+#  
+#  Permission is granted to use, copy, modify and/or distribute this
+#  software under either one of the licenses below.
+#  
+#  License Option 1: GPL
 #  
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License, version 2, as
@@ -12,6 +17,12 @@
 #  
 #  You should have received a copy of the GNU General Public License
 #  version 2 (GPLv2) along with this source code.
+#  
+#  
+#  License Option 2: Broadcom Open Network Switch APIs (OpenNSA) license
+#  
+#  This software is governed by the Broadcom Open Network Switch APIs license:
+#  https://www.broadcom.com/products/ethernet-connectivity/software/opennsa
 #
 # -*- Makefile -*-
 # $Id: Makefile,v 1.4 Broadcom SDK $
@@ -113,6 +124,7 @@ endif
 ifndef BUILD_KNET
 BUILD_KNET = 1
 endif
+
 # Remove this when LinuxPTP support becomes optional.
 ifndef BUILD_LPTP
 BUILD_LPTP = 1
@@ -141,7 +153,6 @@ ifdef BUILD_PSAMPLE
 all_targets += $(PSAMPLE)
 ADD_TO_CFLAGS += -DPSAMPLE_SUPPORT
 
-
 # KnetSync support
 ifdef BUILD_KNETSYNC
 
@@ -151,17 +162,17 @@ LOCAL_KERNEL_TARGETS += $(patsubst %,$(realpath ..)/$(platform)/%,$(BCM_PTP_CLOC
 endif # BUILD_KNETSYNC
 
 ifeq ($(NO_LOCAL_TARGETS),)
-LOCAL_TARGETS +=$(patsubst %,../$(platform)/%,$(PSAMPLE_LOCAL))
-all_targets +=$(LOCAL_TARGETS)
+    LOCAL_TARGETS +=$(patsubst %,../$(platform)/%,$(PSAMPLE_LOCAL))
+    all_targets +=$(LOCAL_TARGETS)
 endif
 endif
 
 ifdef BUILD_LPTP
-all_targets += $(BCM_LPTP)
+    all_targets += $(BCM_LPTP)
 
 ifeq ($(NO_LOCAL_TARGETS),)
-LOCAL_TARGETS +=$(patsubst %,../$(platform)/%,$(BCM_LPTP_LOCAL))
-all_targets +=$(LOCAL_TARGETS)
+    LOCAL_TARGETS +=$(patsubst %,../$(platform)/%,$(BCM_LPTP_LOCAL))
+    all_targets +=$(LOCAL_TARGETS)
 endif
 endif
 
@@ -191,7 +202,7 @@ CFLAGS:=$(filter-out -fPIC, $(CFLAGS))
 
 # KnetSync Support
 ifdef BUILD_KNETSYNC
-knetsync_subdirs = bcm-ptp-clock
+    knetsync_subdirs = bcm-ptp-clock
 endif # BUILD_KNETSYNC
 
 kernel_modules:
@@ -200,7 +211,7 @@ kernel_modules:
 ifeq ($(BUILD_KNET),1)
 	$(MAKE) -C $(SDK)/systems/linux/kernel/modules kernel_version=$(kernel_version) \
 		subdirs="shared bcm-knet" override-target=linux-$(platform) CFLAGS="$(CFLAGS)"
-ifdef BUILD_PSAMPLE 
+ifdef BUILD_PSAMPLE
 	$(MAKE) -C $(SDK)/systems/linux/kernel/modules kernel_version=$(kernel_version) \
 		subdirs="psample" override-target=linux-$(platform) CFLAGS="$(CFLAGS)"
 endif

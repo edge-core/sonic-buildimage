@@ -1,5 +1,10 @@
 /*
- * Copyright 2017 Broadcom
+ * Copyright 2007-2020 Broadcom Inc. All rights reserved.
+ * 
+ * Permission is granted to use, copy, modify and/or distribute this
+ * software under either one of the licenses below.
+ * 
+ * License Option 1: GPL
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -12,6 +17,12 @@
  * 
  * You should have received a copy of the GNU General Public License
  * version 2 (GPLv2) along with this source code.
+ * 
+ * 
+ * License Option 2: Broadcom Open Network Switch APIs (OpenNSA) license
+ * 
+ * This software is governed by the Broadcom Open Network Switch APIs license:
+ * https://www.broadcom.com/products/ethernet-connectivity/software/opennsa
  */
 /*
  * $Id: lkm.h,v 1.22 Broadcom SDK $
@@ -34,7 +45,8 @@
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
 #include <linux/config.h>
 #endif
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,1,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,32)
+/* The version kconfig.h became available in. */
 #include <linux/kconfig.h>
 #endif
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0)

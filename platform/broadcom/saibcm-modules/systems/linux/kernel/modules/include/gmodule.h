@@ -1,5 +1,10 @@
 /*
- * Copyright 2017 Broadcom
+ * Copyright 2007-2020 Broadcom Inc. All rights reserved.
+ * 
+ * Permission is granted to use, copy, modify and/or distribute this
+ * software under either one of the licenses below.
+ * 
+ * License Option 1: GPL
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -12,6 +17,12 @@
  * 
  * You should have received a copy of the GNU General Public License
  * version 2 (GPLv2) along with this source code.
+ * 
+ * 
+ * License Option 2: Broadcom Open Network Switch APIs (OpenNSA) license
+ * 
+ * This software is governed by the Broadcom Open Network Switch APIs license:
+ * https://www.broadcom.com/products/ethernet-connectivity/software/opennsa
  */
 /*
  * $Id: gmodule.h,v 1.9 Broadcom SDK $
@@ -23,6 +34,7 @@
 #define __COMMON_LINUX_KRN_GMODULE_H__
 
 #include <lkm.h>
+#include <linux/seq_file.h>
 
 typedef struct gmodule_s {
   
@@ -32,9 +44,7 @@ typedef struct gmodule_s {
 
     int (*init)(void);
     int (*cleanup)(void);
-  
-    int (*pprint)(void);
-  
+    int (*pprint)(struct seq_file *m);
     int (*open)(void);
     int (*ioctl)(unsigned int cmd, unsigned long arg);
     int (*close)(void);
@@ -48,8 +58,8 @@ extern gmodule_t* gmodule_get(void);
 
 
 /* Proc Filesystem information */
-extern int pprintf(const char* fmt, ...)
-    __attribute__ ((format (printf, 1, 2)));
+extern int pprintf(struct seq_file *m, const char* fmt, ...)
+    __attribute__ ((format (printf, 2, 3)));
 extern int gmodule_vpprintf(char** page, const char* fmt, va_list args)
     __attribute__ ((format (printf, 2, 0)));
 extern int gmodule_pprintf(char** page, const char* fmt, ...)

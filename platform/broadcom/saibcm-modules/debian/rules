@@ -67,6 +67,9 @@ kdist_clean: clean
 	    KERNDIR=/usr/src/linux-headers-$(KERNVERSION)-common \
 	    KERNEL_SRC=/usr/src/linux-headers-$(KERNVERSION)-amd64 \
 	    $(MAKE) -C systems/linux/user/x86-smp_generic_64-2_6 clean
+	SDK=$(realpath .) BUILD_KNET_CB=1 BUILD_PSAMPLE=1 \
+	    KDIR=/usr/src/linux-headers-$(KERNVERSION)-common \
+	    $(MAKE) -C sdklt/ clean
 #	rm -f driver/*.o driver/*.ko
 #
 ### end  KERNEL SETUP
@@ -100,6 +103,10 @@ build-arch-stamp:
 	    KERNEL_SRC=/usr/src/linux-headers-$(KERNVERSION)-amd64 \
 	    $(MAKE) -C systems/linux/user/x86-smp_generic_64-2_6
 
+	SDK=$(realpath .) BUILD_KNET_CB=1 BUILD_PSAMPLE=1 \
+	    KDIR=/usr/src/linux-headers-$(KERNVERSION)-common \
+	    $(MAKE) -C sdklt/ kmod
+
 	touch $@
 
 #k = $(shell echo $(KVERS) | grep -q ^2.6 && echo k)
@@ -127,6 +134,10 @@ clean:
 	    KERNDIR=/usr/src/linux-headers-$(KERNVERSION)-common \
 	    KERNEL_SRC=/usr/src/linux-headers-$(KERNVERSION)-amd64 \
 	    $(MAKE) -C systems/linux/user/x86-smp_generic_64-2_6 clean
+
+	SDK=$(realpath .) BUILD_KNET_CB=1 BUILD_PSAMPLE=1 \
+	    KDIR=/usr/src/linux-headers-$(KERNVERSION)-common \
+	    $(MAKE) -C sdklt/ clean
 
 	dh_clean
 

@@ -1,5 +1,10 @@
 /*
- * Copyright 2017 Broadcom
+ * Copyright 2007-2020 Broadcom Inc. All rights reserved.
+ * 
+ * Permission is granted to use, copy, modify and/or distribute this
+ * software under either one of the licenses below.
+ * 
+ * License Option 1: GPL
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -12,6 +17,12 @@
  * 
  * You should have received a copy of the GNU General Public License
  * version 2 (GPLv2) along with this source code.
+ * 
+ * 
+ * License Option 2: Broadcom Open Network Switch APIs (OpenNSA) license
+ * 
+ * This software is governed by the Broadcom Open Network Switch APIs license:
+ * https://www.broadcom.com/products/ethernet-connectivity/software/opennsa
  */
 /***********************************************************************
  *
@@ -60,7 +71,7 @@
 
 extern void _dma_init(int dev_index);
 extern int _dma_cleanup(void);
-extern void _dma_pprint(void);
+extern void _dma_pprint(struct seq_file *m);
 extern uint32_t *_salloc(int d, int size, const char *name);
 extern void _sfree(int d, void *ptr);
 extern int _sinval(int d, void *ptr, int length);

@@ -967,7 +967,7 @@ psample_proc_stats_open(struct inode * inode, struct file * file)
  * psample stats Proc Write Entry
  *
  *   Syntax:
- *   write any value to clear stats 
+ *   write any value to clear stats
  */
 static ssize_t
 psample_proc_stats_write(struct file *file, const char *buf,
@@ -1009,13 +1009,13 @@ int psample_cleanup(void)
 int psample_init(void)
 {
     #define PROCFS_MAX_PATH 1024
+    #define PSAMPLE_PROCFS_PATH "bcm/knet-cb"
     char psample_procfs_path[PROCFS_MAX_PATH];
     struct proc_dir_entry *entry;
 
     /* create procfs for psample */
-    snprintf(psample_procfs_path, PROCFS_MAX_PATH, "bcm/knet-cb");
-    knet_cb_proc_root = proc_mkdir(psample_procfs_path, NULL);
-    snprintf(psample_procfs_path, PROCFS_MAX_PATH, "%s/%s", psample_procfs_path, PSAMPLE_CB_NAME);
+    proc_mkdir(PSAMPLE_PROCFS_PATH, NULL);
+    snprintf(psample_procfs_path, sizeof(psample_procfs_path), "%s/%s", PSAMPLE_PROCFS_PATH, PSAMPLE_CB_NAME);
     psample_proc_root = proc_mkdir(psample_procfs_path, NULL);
 
     /* create procfs for psample stats */
@@ -1031,7 +1031,7 @@ int psample_init(void)
         gprintk("%s: Unable to create procfs entry '/procfs/%s/rate'\n", __func__, psample_procfs_path);
         return -1;
     }
-    
+
     /* create procfs for setting sample size */
     PROC_CREATE(entry, "size", 0666, psample_proc_root, &psample_proc_size_file_ops);
     if (entry == NULL) {
@@ -1059,23 +1059,23 @@ int psample_init(void)
     memset(&g_psample_work, 0, sizeof(psample_work_t));
 
     /* setup psample_info struct */
-    INIT_LIST_HEAD(&g_psample_info.netif_list); 
+    INIT_LIST_HEAD(&g_psample_info.netif_list);
     spin_lock_init(&g_psample_info.lock);
 
     /* setup psample work queue */
-    spin_lock_init(&g_psample_work.lock); 
-    INIT_LIST_HEAD(&g_psample_work.pkt_list); 
+    spin_lock_init(&g_psample_work.lock);
+    INIT_LIST_HEAD(&g_psample_work.pkt_list);
     INIT_WORK(&g_psample_work.wq, psample_task);
 
-    /* get net namespace */ 
+    /* get net namespace */
     g_psample_info.netns = get_net_ns_by_pid(current->pid);
     if (!g_psample_info.netns) {
         gprintk("%s: Could not get network namespace for pid %d\n", __func__, current->pid);
         return (-1);
     }
-    PSAMPLE_CB_DBG_PRINT("%s: current->pid %d, netns 0x%p, sample_size %d\n", __func__, 
+    PSAMPLE_CB_DBG_PRINT("%s: current->pid %d, netns 0x%p, sample_size %d\n", __func__,
             current->pid, g_psample_info.netns, psample_size);
-   
+
 
     return 0;
 }

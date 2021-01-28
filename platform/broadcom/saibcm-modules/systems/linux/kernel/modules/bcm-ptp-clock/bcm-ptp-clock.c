@@ -76,9 +76,13 @@ MODULE_PARM_DESC(fw_core,
 /* Debug levels */
 #define DBG_LVL_VERB    0x1
 #define DBG_LVL_WARN    0x2
+#define DBG_LVL_TXTS    0x4
+#define DBG_LVL_CMDS    0x8
 
 #define DBG_VERB(_s)    do { if (debug & DBG_LVL_VERB) gprintk _s; } while (0)
 #define DBG_WARN(_s)    do { if (debug & DBG_LVL_WARN) gprintk _s; } while (0)
+#define DBG_TXTS(_s)    do { if (debug & DBG_LVL_TXTS) gprintk _s; } while (0)
+#define DBG_CMDS(_s)    do { if (debug & DBG_LVL_CMDS) gprintk _s; } while (0)
 #define DBG_ERR(_s)     do { if (1) gprintk _s; } while (0)
 
 
@@ -98,40 +102,36 @@ MODULE_PARM_DESC(fw_core,
 #define BKSYNC_PACKLEN_U24    3
 #define BKSYNC_PACKLEN_U32    4
 
-#define BKSYNC_UNPACK_U8(_buf, _var)         \
+#define BKSYNC_UNPACK_U8(_buf, _var)        \
     _var = *_buf++
 
-#define BKSYNC_UNPACK_U16(_buf, _var)         \
+#define BKSYNC_UNPACK_U16(_buf, _var)       \
     do {                                    \
         (_var) = (((_buf)[0] << 8) |        \
                   (_buf)[1]);               \
-        (_buf) += BKSYNC_PACKLEN_U16;         \
+        (_buf) += BKSYNC_PACKLEN_U16;       \
     } while (0)
 
-#define BKSYNC_UNPACK_U24(_buf, _var)         \
+#define BKSYNC_UNPACK_U24(_buf, _var)       \
     do {                                    \
         (_var) = (((_buf)[0] << 16) |       \
                   ((_buf)[1] << 8)  |       \
                   (_buf)[2]);               \
-        (_buf) += BKSYNC_PACKLEN_U24;         \
+        (_buf) += BKSYNC_PACKLEN_U24;       \
     } while (0)
 
-#define BKSYNC_UNPACK_U32(_buf, _var)         \
+#define BKSYNC_UNPACK_U32(_buf, _var)       \
     do {                                    \
         (_var) = (((_buf)[0] << 24) |       \
                   ((_buf)[1] << 16) |       \
                   ((_buf)[2] << 8)  |       \
                   (_buf)[3]);               \
-        (_buf) += BKSYNC_PACKLEN_U32;         \
+        (_buf) += BKSYNC_PACKLEN_U32;       \
     } while (0)
 
 
 #define CMICX_DEV_TYPE   ((ptp_priv->dcb_type == 38) || \
                           (ptp_priv->dcb_type == 36))
-
-#define HOSTCMD_USE_REGS ((ptp_priv->dcb_type == 38) || \
-                          (ptp_priv->dcb_type == 36) || \
-                          (ptp_priv->dcb_type == 32))
 
 /* CMIC MCS-0 SCHAN Messaging registers */
 /* Core0:CMC1 Core1:CMC2 */
@@ -154,30 +154,58 @@ MODULE_PARM_DESC(fw_core,
 
 u32 hostcmd_regs[5] = { 0 };
 
-/* TX Timestamp FIFO Access */
-#define BCM_NUM_PORTS           128
+#define BCMKSYNC_NUM_PORTS           128    /* NUM_PORTS where 2-step is supported. */
+#define BCMKSYNC_MAX_NUM_PORTS       256    /* Max ever NUM_PORTS in the system */
+#define BCMKSYNC_MAX_MTP_IDX        8    /* Max number of mtps in the system */
 
-/* Service request commands to R5 */
+/* Service request commands to Firmware. */
 enum {
-    BCM_KSYNC_DONE = 0x0,
-    BCM_KSYNC_INIT = 0x1,
-    BCM_KSYNC_DEINIT = 0x2,
-    BCM_KSYNC_GETTIME = 0x3,
-    BCM_KSYNC_SETTIME = 0x4,
-    BCM_KSYNC_FREQCOR = 0x5,
-    BCM_KSYNC_PBM_UPDATE = 0x6,
-    BCM_KSYNC_ADJTIME = 0x7,
-    BCM_KSYNC_GET_TSTIME = 0x8,
+    BKSYNC_DONE                     = (0x0),
+    BKSYNC_INIT                     = (0x1),
+    BKSYNC_DEINIT                   = (0x2),
+    BKSYNC_GETTIME                  = (0x3),
+    BKSYNC_SETTIME                  = (0x4),
+    BKSYNC_FREQCOR                  = (0x5),
+    BKSYNC_PBM_UPDATE               = (0x6),
+    BKSYNC_ADJTIME                  = (0x7),
+    BKSYNC_GET_TSTIME               = (0x8),
+    BKSYNC_MTP_TS_UPDATE_ENABLE     = (0x9),
+    BKSYNC_MTP_TS_UPDATE_DISABLE    = (0xa),
+    BKSYNC_ACK_TSTIME               = (0xb),
+};
+
+
+/* 1588 message types. */
+enum
+{
+    IEEE1588_MSGTYPE_SYNC           = (0x0),
+    IEEE1588_MSGTYPE_DELREQ         = (0x1),
+    IEEE1588_MSGTYPE_PDELREQ        = (0x2),
+    IEEE1588_MSGTYPE_PDELRESP       = (0x3),
+    /* reserved                       (0x4) */
+    /* reserved                       (0x5) */
+    /* reserved                       (0x6) */
+    /* reserved                       (0x7) */
+    IEEE1588_MSGTYPE_GENERALMASK    = (0x8),    /* all non-event messages have this bit set */
+    IEEE1588_MSGTYPE_FLWUP          = (0x8),
+    IEEE1588_MSGTYPE_DELRESP        = (0x9),
+    IEEE1588_MSGTYPE_PDELRES_FLWUP  = (0xA),
+    IEEE1588_MSGTYPE_ANNOUNCE       = (0xB),
+    IEEE1588_MSGTYPE_SGNLNG         = (0xC),
+    IEEE1588_MSGTYPE_MNGMNT         = (0xD)
+    /* reserved                       (0xE) */
+    /* reserved                       (0xF) */
 };
 
 /* Usage macros */
 #define ONE_BILLION (1000000000)
 
 #define SKB_U16_GET(_skb, _pkt_offset) \
-        ((_skb->data[_pkt_offset] << 8) | _skb->data[_pkt_offset + 1])
+            ((_skb->data[_pkt_offset] << 8) | _skb->data[_pkt_offset + 1])
 
 #define BKSYNC_PTP_EVENT_MSG(_ptp_msg_type) \
-        ((_ptp_msg_type == DELAY_REQ) || (_ptp_msg_type == SYNC))
+            ((_ptp_msg_type == IEEE1588_MSGTYPE_DELREQ) ||    \
+             (_ptp_msg_type == IEEE1588_MSGTYPE_SYNC))
 
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,30)
@@ -186,10 +214,6 @@ enum {
 #include <linux/net_tstamp.h>
 #endif
 
-
-/* Values for the messageType field */
-#define SYNC                  0x0
-#define DELAY_REQ             0x1
 
 /*
  *  Hardware specific information.
@@ -224,6 +248,19 @@ uint32_t sobmhudpipv4_dcb32[24] = {0x00000000, 0x00012A00, 0x00000000, 0x0000000
 uint32_t sobmhudpipv6_dcb32[24] = {0x00000000, 0x00013E00, 0x00000000, 0x00000000, 0x00000000, 0x00014200, 0x00000000, 0x00000000,
                                    0x00000000, 0x000C3E00, 0x00000000, 0x00000000, 0x00000000, 0x000C4200, 0x00000000, 0x00000000,
                                    0x00000000, 0x000C3E00, 0x00000000, 0x00000000, 0x00000000, 0x000C4200, 0x00000000, 0x00000000};
+
+uint32_t sobmhrawpkts_dcb35[24] = {0x00000000, 0x0020E000, 0x00000000, 0x00000000, 0x00000000, 0x00212000, 0x00000000, 0x00000000,
+                                   0x00000000, 0x0100E000, 0x00000000, 0x00000000, 0x00000000, 0x01012000, 0x00000000, 0x00000000,
+                                   0x00000000, 0x0140E000, 0x00000000, 0x00000000, 0x00000000, 0x01412000, 0x00000000, 0x00000000};
+
+uint32_t sobmhudpipv4_dcb35[24] = {0x00000000, 0x0022A000, 0x00000000, 0x00000000, 0x00000000, 0x0022E000, 0x00000000, 0x00000000,
+                                   0x00000000, 0x0102A000, 0x00000000, 0x00000000, 0x00000000, 0x0102E000, 0x00000000, 0x00000000,
+                                   0x00000000, 0x0142A000, 0x00000000, 0x00000000, 0x00000000, 0x0142E000, 0x00000000, 0x00000000};
+
+uint32_t sobmhudpipv6_dcb35[24] = {0x00000000, 0x0023E000, 0x00000000, 0x00000000, 0x00000000, 0x00242000, 0x00000000, 0x00000000,
+                                   0x00000000, 0x0103E000, 0x00000000, 0x00000000, 0x00000000, 0x01042000, 0x00000000, 0x00000000,
+                                   0x00000000, 0x0143E000, 0x00000000, 0x00000000, 0x00000000, 0x01442000, 0x00000000, 0x00000000};
+
 
 uint32_t sobmhrawpkts_dcb36[24] = {0x00000000, 0x00010E00, 0x00000000, 0x00000000, 0x00000000, 0x00011200, 0x00000000, 0x00000000,
                                    0x00000000, 0x00080E00, 0x00000000, 0x00000000, 0x00000000, 0x00081200, 0x00000000, 0x00000000,
@@ -267,21 +304,26 @@ typedef struct _bksync_uc_linux_ipc_s
     u32 ksyncinit;
     u32 dev_id;
     s64 freqcorr;
-    u64 portmap[BCM_NUM_PORTS/64];
+    u64 portmap[BCMKSYNC_NUM_PORTS/64];  /* Two-step enabled ports */
     u64 ptptime;
     u64 reftime;
     s64 phase_offset;
-    bksync_tx_ts_data_t port_ts_data[BCM_NUM_PORTS];
+    bksync_tx_ts_data_t port_ts_data[BCMKSYNC_NUM_PORTS];
 } bksync_uc_linux_ipc_t;
 
 typedef struct bksync_port_stats_s {
     u32 pkt_rxctr;             /* All ingress packets */
     u32 pkt_txctr;             /* All egress packets  */
+    u32 pkt_txonestep;         /* 1-step Tx packet counter */
     u32 tsts_match;            /* 2-Step tstamp req match */
     u32 tsts_timeout;          /* 2-Step tstamp req timeouts */
     u32 tsts_discard;          /* 2-Step tstamp req discards */
     u32 osts_event_pkts;       /* 1-step event packet counter */
     u32 osts_tstamp_reqs;      /* 1-step events with tstamp request */
+    u32 fifo_rxctr;            /* 2-Step tstamp req match */
+    u64 tsts_best_fetch_time;      /* 1-step events with tstamp request */
+    u64 tsts_worst_fetch_time;      /* 1-step events with tstamp request */
+    u32 tsts_avg_fetch_time;      /* 1-step events with tstamp request */
 } bksync_port_stats_t;
 
 /* Clock Private Data */
@@ -296,14 +338,10 @@ struct bksync_ptp_priv {
     volatile bksync_uc_linux_ipc_t    *shared_addr; /* address for shared memory access */
     uint64_t                dma_mem;
     int                     dma_mem_size;
-    int                     num_pports;
     struct DMA_DEV          *dma_dev;    /* Required for DMA memory control */
-    u32                     pkt_rxctr[BCM_NUM_PORTS];
-    u32                     pkt_txctr[BCM_NUM_PORTS];
-    u32                     ts_match[BCM_NUM_PORTS];
-    u32                     ts_timeout[BCM_NUM_PORTS];
-    u32                     ts_discard[BCM_NUM_PORTS];
+    int                     num_pports;
     int                     timekeep_status;
+    u32                     mirror_encap_bmp;
     struct delayed_work     time_keep;
     bksync_port_stats_t     *port_stats;
 };
@@ -311,7 +349,7 @@ struct bksync_ptp_priv {
 static struct bksync_ptp_priv *ptp_priv;
 volatile bksync_uc_linux_ipc_t *linuxPTPMemory = (bksync_uc_linux_ipc_t*)(0);
 static volatile int module_initialized;
-static int retry_count = 10;   /* Default retry for 10 jiffies */
+static int num_retries = 10;   /* Retry count */
 
 static void bksync_ptp_time_keep_init(void);
 static void bksync_ptp_time_keep_deinit(void);
@@ -366,64 +404,6 @@ ptp_sleep(int jiffies)
 }
 
 
-static int bksync_cmd_cmicm_go(u32 cmd, void *data0, void *data1)
-{
-    int ret = -1;
-    int retry_cnt = retry_count;
-    u32 cmd_status;
-
-    mutex_lock(&ptp_priv->ptp_lock);
-    ptp_priv->shared_addr->ksyncinit = cmd;
-    switch (cmd) {
-        case BCM_KSYNC_INIT:
-            ptp_priv->shared_addr->phase_offset  = 0;
-            ret = 0;
-            break;
-        case BCM_KSYNC_FREQCOR:
-            ptp_priv->shared_addr->freqcorr  = *((s32 *)data0);
-            break;
-        case BCM_KSYNC_ADJTIME:
-            ptp_priv->shared_addr->phase_offset  = *((s64 *)data0);
-            break;
-        case BCM_KSYNC_GETTIME:
-            break;
-        case BCM_KSYNC_SETTIME:
-            ptp_priv->shared_addr->ptptime   = *((s64 *)data0);
-            ptp_priv->shared_addr->phase_offset = 0;
-            break;
-        default:
-            break;
-    }
-
-    do {
-        cmd_status = ptp_priv->shared_addr->ksyncinit;
-        if (cmd_status == BCM_KSYNC_DONE) {
-            switch (cmd) {
-                case BCM_KSYNC_GETTIME:
-                    *((s64 *)data0) = ptp_priv->shared_addr->ptptime;
-                    *((s64 *)data1) = ptp_priv->shared_addr->reftime; /* ptp counter */
-                    break;
-                default:
-                    break;
-            }
-            ret = 0;
-            break;
-        }
-        ptp_sleep(1);
-        retry_cnt--;
-    } while (retry_cnt);
-    mutex_unlock(&ptp_priv->ptp_lock);
-
-    if (retry_cnt == 0) {
-        DBG_ERR(("Timeout on response from R5\n"));
-    }
-
-
-    return ret;
-}
-
-
-
 static void bksync_hostcmd_data_op(int setget, u64 *d1, u64 *d2)
 {
     u32 w0, w1;
@@ -455,14 +435,28 @@ static void bksync_hostcmd_data_op(int setget, u64 *d1, u64 *d2)
 }
 
 
-static int bksync_cmd_cmicx_go(u32 cmd, void *data0, void *data1)
+static int bksync_cmd_go(u32 cmd, void *data0, void *data1)
 {
     int ret = -1;
-    int retry_cnt = (retry_count * 100);
+    int retry_cnt = (1000); /* 1ms default timeout for hostcmd response */
     u32 cmd_status;
     char cmd_str[20];
+    int port;
+    uint32_t seq_id;
+    ktime_t start, now;
+
+    if (ptp_priv == NULL || ptp_priv->shared_addr == NULL) {
+        return ret;
+    }
 
     mutex_lock(&ptp_priv->ptp_lock);
+
+    if (cmd == BKSYNC_GET_TSTIME || cmd == BKSYNC_ACK_TSTIME) {
+        port = *((uint64_t *)data0) & 0xFFF;
+        seq_id = *((uint64_t*)data0) >> 16;
+    }
+    start = ktime_get();
+
     ptp_priv->shared_addr->ksyncinit = cmd;
 
     /* init data */
@@ -472,36 +466,53 @@ static int bksync_cmd_cmicx_go(u32 cmd, void *data0, void *data1)
     DEV_WRITE32(ptp_priv, hostcmd_regs[4], 0x0);
 
     switch (cmd) {
-        case BCM_KSYNC_INIT:
+        case BKSYNC_INIT:
             sprintf(cmd_str, "KSYNC_INIT");
             ptp_priv->shared_addr->phase_offset  = 0;
             bksync_hostcmd_data_op(1, (u64 *)&(ptp_priv->shared_addr->phase_offset), 0);
             break;
-        case BCM_KSYNC_FREQCOR:
+        case BKSYNC_FREQCOR:
             sprintf(cmd_str, "KSYNC_FREQCORR");
             ptp_priv->shared_addr->freqcorr  = *((s32 *)data0);
             bksync_hostcmd_data_op(1, (u64 *)&(ptp_priv->shared_addr->freqcorr), 0);
             break;
-        case BCM_KSYNC_ADJTIME:
+        case BKSYNC_ADJTIME:
             sprintf(cmd_str, "KSYNC_ADJTIME");
             ptp_priv->shared_addr->phase_offset  = *((s64 *)data0);
             bksync_hostcmd_data_op(1, (u64 *)&(ptp_priv->shared_addr->phase_offset), 0);
             break;
-        case BCM_KSYNC_GETTIME:
+        case BKSYNC_GETTIME:
+            retry_cnt = (retry_cnt * 2);
             sprintf(cmd_str, "KSYNC_GETTIME");
             break;
-        case BCM_KSYNC_GET_TSTIME:
+        case BKSYNC_GET_TSTIME:
             retry_cnt = (retry_cnt * 2);
             sprintf(cmd_str, "KSYNC_GET_TSTIME");
             bksync_hostcmd_data_op(1, data0, data1);
             break;
-        case BCM_KSYNC_SETTIME:
+         case BKSYNC_ACK_TSTIME:
+            retry_cnt = (retry_cnt * 2);
+            sprintf(cmd_str, "KSYNC_ACK_TSTIME");
+            bksync_hostcmd_data_op(1, data0, data1);
+            break;
+        case BKSYNC_SETTIME:
             sprintf(cmd_str, "KSYNC_SETTIME");
             ptp_priv->shared_addr->ptptime   = *((s64 *)data0);
             ptp_priv->shared_addr->phase_offset = 0;
             bksync_hostcmd_data_op(1, (u64 *)&(ptp_priv->shared_addr->ptptime), (u64 *)&(ptp_priv->shared_addr->phase_offset));
             break;
-        case BCM_KSYNC_DEINIT:
+        case BKSYNC_MTP_TS_UPDATE_ENABLE:
+            retry_cnt = (retry_cnt * 6);
+            sprintf(cmd_str, "KSYNC_MTP_TS_UPDATE_ENABLE");
+            bksync_hostcmd_data_op(1, (u64 *)data0, 0);
+            break;
+        case BKSYNC_MTP_TS_UPDATE_DISABLE:
+            retry_cnt = (retry_cnt * 6);
+            sprintf(cmd_str, "KSYNC_MTP_TS_UPDATE_DISABLE");
+            bksync_hostcmd_data_op(1, (u64 *)data0, 0);
+            break;
+        case BKSYNC_DEINIT:
+            retry_cnt = (retry_cnt * 4);
             sprintf(cmd_str, "KSYNC_DEINIT");
             break;
         default:
@@ -514,11 +525,11 @@ static int bksync_cmd_cmicx_go(u32 cmd, void *data0, void *data1)
         DEV_READ32(ptp_priv, hostcmd_regs[0], &cmd_status);
         ptp_priv->shared_addr->ksyncinit = cmd_status;
 
-        if (cmd_status == BCM_KSYNC_DONE) {
+        if (cmd_status == BKSYNC_DONE) {
             ret = 0;
             switch (cmd) {
-                case BCM_KSYNC_GET_TSTIME:
-                case BCM_KSYNC_GETTIME:
+                case BKSYNC_GET_TSTIME:
+                case BKSYNC_GETTIME:
                     bksync_hostcmd_data_op(0, (u64 *)data0, (u64 *)data1);
                     break;
                 default:
@@ -530,37 +541,20 @@ static int bksync_cmd_cmicx_go(u32 cmd, void *data0, void *data1)
         retry_cnt--;
     } while (retry_cnt);
 
+    now = ktime_get();
     mutex_unlock(&ptp_priv->ptp_lock);
 
     if (retry_cnt == 0) {
-        DBG_ERR(("Timeout on response from R5 to cmd %s\n", cmd_str));
+        DBG_ERR(("Timeout on response from R5 to cmd %s time taken %lld us\n", cmd_str, ktime_us_delta(now, start)));
+        if (cmd == BKSYNC_GET_TSTIME) {
+            DBG_TXTS(("Timeout Port %d SeqId %d\n", port, seq_id));
+        }
+    }
+    if (debug & DBG_LVL_CMDS) {
+        if (ktime_us_delta(now, start) > 5000)
+            DBG_CMDS(("R5 Command %s exceeded time expected (%lld us)\n", cmd_str, ktime_us_delta(now, start)));
     }
 
-
-    return ret;
-}
-
-
-static int bksync_cmd_go(u32 cmd, void *data0, void *data1)
-{
-    int ret = -1;
-
-    if (ptp_priv == NULL || ptp_priv->shared_addr == NULL) {
-        return ret;
-    }
-
-    switch (ptp_priv->dcb_type) {
-        case 26:
-            ret = bksync_cmd_cmicm_go(cmd, data0, data1);
-            break;
-        case 32:
-        case 36:
-        case 38:
-            ret = bksync_cmd_cmicx_go(cmd, data0, data1);
-            break;
-        default:
-            break;
-    }
 
     return ret;
 }
@@ -577,7 +571,7 @@ static int bksync_cmd_go(u32 cmd, void *data0, void *data1)
 static int bksync_ptp_adjfreq(struct ptp_clock_info *ptp, s32 ppb)
 {
     int ret = -1;
-    u32 cmd_status = BCM_KSYNC_FREQCOR;
+    u32 cmd_status = BKSYNC_FREQCOR;
 
     ret = bksync_cmd_go(cmd_status, &ppb, NULL);
     DBG_VERB(("applying freq correction: %x\n", ppb));
@@ -595,7 +589,7 @@ static int bksync_ptp_adjfreq(struct ptp_clock_info *ptp, s32 ppb)
  */
 static int bksync_ptp_adjtime(struct ptp_clock_info *ptp, s64 delta)
 {
-    u32 cmd_status = BCM_KSYNC_ADJTIME;
+    u32 cmd_status = BKSYNC_ADJTIME;
     int ret = -1;
 
     ret = bksync_cmd_go(cmd_status, (void *)&delta, NULL);
@@ -616,18 +610,20 @@ static int bksync_ptp_adjtime(struct ptp_clock_info *ptp, s64 delta)
 static int bksync_ptp_gettime(struct ptp_clock_info *ptp, struct timespec64 *ts)
 {
     int ret = -1;
-    u32 cmd_status = BCM_KSYNC_GETTIME;
+    u32 cmd_status = BKSYNC_GETTIME;
     s64 reftime = 0;
     s64 refctr = 0;
 
     ret = bksync_cmd_go(cmd_status, (void *)&reftime, (void *)&refctr);
-    DBG_VERB(("ptp gettime: 0x%llx refctr:0x%llx\n", reftime, refctr));
-    mutex_lock(&ptp_priv->ptp_pair_lock);
-    ptp_priv->shared_addr->ptptime = reftime;
-    ptp_priv->shared_addr->reftime = refctr;
-    mutex_unlock(&ptp_priv->ptp_pair_lock);
+    if (ret == 0) {
+        DBG_VERB(("ptp gettime: 0x%llx refctr:0x%llx\n", reftime, refctr));
+        mutex_lock(&ptp_priv->ptp_pair_lock);
+        ptp_priv->shared_addr->ptptime = reftime;
+        ptp_priv->shared_addr->reftime = refctr;
+        mutex_unlock(&ptp_priv->ptp_pair_lock);
 
-    *ts = ns_to_timespec64(reftime);
+        *ts = ns_to_timespec64(reftime);
+    }
     return ret;
 }
 
@@ -646,7 +642,7 @@ static int bksync_ptp_settime(struct ptp_clock_info *ptp,
 {
     s64 reftime, phaseadj;
     int ret = -1;
-    u32 cmd_status = BCM_KSYNC_SETTIME;
+    u32 cmd_status = BKSYNC_SETTIME;
 
     phaseadj = 0;
     reftime = timespec64_to_ns(ts);
@@ -661,6 +657,38 @@ static int bksync_ptp_enable(struct ptp_clock_info *ptp,
         struct ptp_clock_request *rq, int on)
 {
     return 0;
+}
+
+
+static int bksync_ptp_mirror_encap_update(struct ptp_clock_info *ptp,
+                                          int mtp_idx, int start)
+{
+    int ret = -1;
+    u64 mirror_encap_idx;
+    u32 cmd_status;
+
+    if (mtp_idx > BCMKSYNC_MAX_MTP_IDX) {
+        return ret;
+    }
+
+    mirror_encap_idx = mtp_idx;
+    if (start) {
+        cmd_status = BKSYNC_MTP_TS_UPDATE_ENABLE;
+        ptp_priv->mirror_encap_bmp |= (1 << mtp_idx);
+    } else {
+        if (!(ptp_priv->mirror_encap_bmp & mtp_idx)) {
+            /* Not running */
+            return ret;
+        }
+        cmd_status = BKSYNC_MTP_TS_UPDATE_DISABLE;
+        ptp_priv->mirror_encap_bmp &= ~mtp_idx;
+    }
+
+    ret = bksync_cmd_go(cmd_status, &mirror_encap_idx, NULL);
+    DBG_VERB(("ptp mmirror_encap_update: %d, mpt_index: %d, ret:%d \n", start, mtp_idx, ret));
+
+    return ret;
+
 }
 
 /* structure describing a PTP hardware clock */
@@ -721,7 +749,7 @@ int bksync_ptp_hw_tstamp_enable(int dev_no, int port, int tx_type)
         portmap |= (uint64_t)0x1 << port;
         ptp_priv->shared_addr->portmap[map] = portmap;
         /* Command to R5 for the update */
-        ptp_priv->shared_addr->ksyncinit=BCM_KSYNC_PBM_UPDATE;
+        ptp_priv->shared_addr->ksyncinit=BKSYNC_PBM_UPDATE;
     }
 
 exit:
@@ -769,7 +797,7 @@ int bksync_ptp_hw_tstamp_disable(int dev_no, int port, int tx_type)
         ptp_priv->shared_addr->portmap[map]= portmap;
 
         /* Command to R5 for the update */
-        ptp_priv->shared_addr->ksyncinit = BCM_KSYNC_PBM_UPDATE;
+        ptp_priv->shared_addr->ksyncinit = BKSYNC_PBM_UPDATE;
     }
 exit:
     return ret;
@@ -818,23 +846,26 @@ bksync_txpkt_tsts_tsamp_get(int port, uint32_t pkt_seq_id, uint32_t *ts_valid, u
 {
     int ret = 0;
     uint64_t tmp;
+    u32 fifo_rxctr = 0;
 
     tmp = (port & 0xFFFF) | (pkt_seq_id << 16);
 
-    if (HOSTCMD_USE_REGS) {
-        ret = bksync_cmd_go(BCM_KSYNC_GET_TSTIME, &tmp, timestamp);
+    ret = bksync_cmd_go(BKSYNC_GET_TSTIME, &tmp, timestamp);
 
-        if (ret >= 0) {
-            *seq_id = ((tmp >> 16) & 0xFFFF);
-            *ts_valid = (tmp & 0x1);
+    if (ret >= 0) {
+        fifo_rxctr = (tmp >> 32) & 0xFFFF;
+        *seq_id = ((tmp >> 16) & 0xFFFF);
+        *ts_valid = (tmp & 0x1);
+         if (*ts_valid) {
+            tmp = (port & 0xFFFF) | (pkt_seq_id << 16);
+            bksync_cmd_go(BKSYNC_ACK_TSTIME, &tmp, 0);
+            if (fifo_rxctr != 0) {
+                if (fifo_rxctr != ptp_priv->port_stats[port].fifo_rxctr + 1) {
+                    DBG_ERR(("FW Reset or Lost Timestamp RxSeq:(Prev %d : Current %d)\n", ptp_priv->port_stats[port].fifo_rxctr, fifo_rxctr));
+                }
+                ptp_priv->port_stats[port].fifo_rxctr = fifo_rxctr;
+            }
         }
-#if 0
-        if (tmp & 0x1) gprintk("in_port: %d in_seq_id: %d out_port: %lld ts_valid: %lld seq_id: %lld ts: %llx\n", port, pkt_seq_id, ((tmp & 0xFFFF) >> 1), (tmp & 0x1), (tmp >> 16), *timestamp);
-#endif
-    } else {
-        *ts_valid = ptp_priv->shared_addr->port_ts_data[port].ts_valid;
-        *seq_id    = ptp_priv->shared_addr->port_ts_data[port].ts_seq_id;
-        *timestamp = ptp_priv->shared_addr->port_ts_data[port].timestamp;
     }
 
 
@@ -861,9 +892,12 @@ int bksync_ptp_hw_tstamp_tx_time_get(int dev_no, int port, uint8_t *pkt, uint64_
     uint32_t pktseq_id = 0;
     uint64_t timestamp = 0;
     uint16_t tpid = 0;
-    int retry_cnt = retry_count;
+    ktime_t start;
+    u64 delta;
+    int retry_cnt = num_retries;
     int seq_id_offset, tpid_offset;
     int transport = network_transport;
+    start = ktime_get();
 
     if (!ptp_priv || !pkt || !ts || port < 1 || port > 255 || ptp_priv->shared_addr == NULL) {
         return -1;
@@ -918,25 +952,26 @@ int bksync_ptp_hw_tstamp_tx_time_get(int dev_no, int port, uint8_t *pkt, uint64_
 
             if (seq_id == pktseq_id) {
                 *ts = timestamp;
-                if (HOSTCMD_USE_REGS) {
-                    ptp_priv->port_stats[port].tsts_match += 1;
-                } else {
-                    ptp_priv->ts_match[port] += 1;
+                ptp_priv->port_stats[port].tsts_match += 1;
+
+                delta = ktime_us_delta(ktime_get(), start);
+                DBG_VERB(("Port: %d Skb_SeqID %d FW_SeqId %d and TS:%llx FetchTime %lld\n",
+                          port, pktseq_id, seq_id, timestamp, delta));
+
+                if (delta < ptp_priv->port_stats[port].tsts_best_fetch_time || ptp_priv->port_stats[port].tsts_best_fetch_time == 0) {
+                    ptp_priv->port_stats[port].tsts_best_fetch_time = delta;
                 }
-
-                DBG_VERB(("Port: %d Skb_SeqID %d FW_SeqId %d and TS:%llx\n",
-                          port, pktseq_id, seq_id, timestamp));
-
+                if (delta > ptp_priv->port_stats[port].tsts_worst_fetch_time || ptp_priv->port_stats[port].tsts_worst_fetch_time == 0) {
+                    ptp_priv->port_stats[port].tsts_worst_fetch_time = delta;
+                }
+                /* Calculate Moving Average*/
+                ptp_priv->port_stats[port].tsts_avg_fetch_time = ((u32)delta + ((ptp_priv->port_stats[port].tsts_match - 1) * ptp_priv->port_stats[port].tsts_avg_fetch_time)) / ptp_priv->port_stats[port].tsts_match;
                 break;
             } else {
-                DBG_ERR(("discard timestamp on port %d Skb_SeqID %d FW_SeqId %d\n",
-                          port, pktseq_id, seq_id));
+                DBG_TXTS(("Discard timestamp on port %d Skb_SeqID %d FW_SeqId %d RetryCnt %d TimeLapsed (%lld us)\n",
+                          port, pktseq_id, seq_id, (num_retries - retry_cnt), ktime_us_delta(ktime_get(),start)));
 
-                if (HOSTCMD_USE_REGS) {
-                    ptp_priv->port_stats[port].tsts_discard += 1;
-                } else {
-                ptp_priv->ts_discard[port] += 1;
-                }
+                ptp_priv->port_stats[port].tsts_discard += 1;
                 continue;
             }
         }
@@ -945,19 +980,12 @@ int bksync_ptp_hw_tstamp_tx_time_get(int dev_no, int port, uint8_t *pkt, uint64_
     } while(retry_cnt);
 
 
-    if (HOSTCMD_USE_REGS) {
-        ptp_priv->port_stats[port].pkt_txctr += 1;
-    } else {
-        ptp_priv->pkt_txctr[port] += 1;
-    }
+    ptp_priv->port_stats[port].pkt_txctr += 1;
 
     if (retry_cnt == 0) {
-        if (HOSTCMD_USE_REGS) {
-            ptp_priv->port_stats[port].tsts_timeout += 1;
-        } else {
-        ptp_priv->ts_timeout[port] += 1;
-        }
-        DBG_ERR(("FW Response timeout: Tx TS on phy port:%d Skb_SeqID: %d\n", port, seq_id));
+        ptp_priv->port_stats[port].tsts_timeout += 1;
+        DBG_ERR(("FW Response timeout: Tx TS on phy port:%d Skb_SeqID: %d TimeLapsed (%lld us)\n", 
+                        port, pktseq_id, ktime_us_delta(ktime_get(), start)));
     }
 
 
@@ -1113,6 +1141,7 @@ int bksync_ptp_hw_tstamp_rx_time_upscale(int dev_no, int port, struct sk_buff *s
     switch (KNET_SKB_CB(skb)->dcb_type) {
         case 26:
         case 32:
+        case 35:
             if (pci_cos != (meta[4] & 0x3F)) {
                 return -1;
             }
@@ -1142,12 +1171,8 @@ int bksync_ptp_hw_tstamp_rx_time_upscale(int dev_no, int port, struct sk_buff *s
     }
 
     if (port > 0){
-    port -= 1;
-    if (HOSTCMD_USE_REGS) {
+        port -= 1;
         ptp_priv->port_stats[port].pkt_rxctr += 1;
-        } else {
-            ptp_priv->pkt_rxctr[port] += 1;
-        }
     }
 
     return ret;
@@ -1240,6 +1265,8 @@ int bksync_ptp_hw_tstamp_tx_meta_get(int dev_no,
                 if (md) *md = &sobmhrawpkts_dcb32[md_offset];
             } else if(KNET_SKB_CB(skb)->dcb_type == 26) {
                 if (md) *md = &sobmhrawpkts_dcb26[md_offset];
+            } else if(KNET_SKB_CB(skb)->dcb_type == 35) {
+                if (md) *md = &sobmhrawpkts_dcb35[md_offset];
             } else if(KNET_SKB_CB(skb)->dcb_type == 36) {
                 if (md) *md = &sobmhrawpkts_dcb36[md_offset];
             } else if(KNET_SKB_CB(skb)->dcb_type == 38) {
@@ -1252,6 +1279,8 @@ int bksync_ptp_hw_tstamp_tx_meta_get(int dev_no,
                 if (md) *md = &sobmhudpipv4_dcb32[md_offset];
             } else if(KNET_SKB_CB(skb)->dcb_type == 26) {
                 if (md) *md = &sobmhudpipv4_dcb26[md_offset];
+            } else if(KNET_SKB_CB(skb)->dcb_type == 35) {
+                if (md) *md = &sobmhudpipv4_dcb35[md_offset];
             } else if(KNET_SKB_CB(skb)->dcb_type == 36) {
                 if (md) *md = &sobmhudpipv4_dcb36[md_offset];
             } else if(KNET_SKB_CB(skb)->dcb_type == 38) {
@@ -1264,6 +1293,8 @@ int bksync_ptp_hw_tstamp_tx_meta_get(int dev_no,
                 if (md) *md = &sobmhudpipv6_dcb32[md_offset];
             } else if(KNET_SKB_CB(skb)->dcb_type == 26) {
                 if (md) *md = &sobmhudpipv6_dcb26[md_offset];
+            } else if(KNET_SKB_CB(skb)->dcb_type == 35) {
+                if (md) *md = &sobmhudpipv6_dcb35[md_offset];
             } else if(KNET_SKB_CB(skb)->dcb_type == 36) {
                 if (md) *md = &sobmhudpipv6_dcb36[md_offset];
             } else if(KNET_SKB_CB(skb)->dcb_type == 38) {
@@ -1276,6 +1307,8 @@ int bksync_ptp_hw_tstamp_tx_meta_get(int dev_no,
                 if (md) *md = &sobmhudpipv4_dcb32[md_offset];
             } else if(KNET_SKB_CB(skb)->dcb_type == 26) {
                 if (md) *md = &sobmhudpipv4_dcb26[md_offset];
+            } else if(KNET_SKB_CB(skb)->dcb_type == 35) {
+                if (md) *md = &sobmhudpipv4_dcb35[md_offset];
             } else if(KNET_SKB_CB(skb)->dcb_type == 36) {
                 if (md) *md = &sobmhudpipv4_dcb36[md_offset];
             } else if(KNET_SKB_CB(skb)->dcb_type == 38) {
@@ -1285,7 +1318,7 @@ int bksync_ptp_hw_tstamp_tx_meta_get(int dev_no,
     }
 
 
-    if ((hwts == HWTSTAMP_TX_ONESTEP_SYNC) && 
+    if ((hwts == HWTSTAMP_TX_ONESTEP_SYNC) &&
         BKSYNC_PTP_EVENT_MSG(skb->data[ptp_hdr_offset])) {
         /* One Step Timestamp Field updation */
         int corr_offset = ptp_hdr_offset + 8;
@@ -1295,6 +1328,7 @@ int bksync_ptp_hw_tstamp_tx_meta_get(int dev_no,
         int udp_csum_regen;
         u32 udp_csum20;
         u16 udp_csum;
+        int port;
 
         udp_csum = SKB_U16_GET(skb, (ptp_hdr_offset - 2));
 
@@ -1360,12 +1394,15 @@ int bksync_ptp_hw_tstamp_tx_meta_get(int dev_no,
             skb->data[ptp_hdr_offset - 1] = ((udp_csum      ) & 0xFF);
         }
 
-        if (skb->data[ptp_hdr_offset] == DELAY_REQ) {
+        if (skb->data[ptp_hdr_offset] == IEEE1588_MSGTYPE_DELREQ) {
             *tstamp = ptptime;
 
             DBG_VERB(("ptp delay req packet tstamp : 0x%llx corrField: 0x%llx\n", ptptime, corrField));
         }
 
+        port = KNET_SKB_CB(skb)->port;
+        port -= 1;
+        ptp_priv->port_stats[port].pkt_txonestep += 1;
     }
 
     return 0;
@@ -1425,14 +1462,14 @@ static void bksync_ptp_time_keep_deinit(void)
 
 static int bksync_ptp_init(struct ptp_clock_info *ptp)
 {
-    return bksync_cmd_go(BCM_KSYNC_INIT, NULL, NULL);
+    return bksync_cmd_go(BKSYNC_INIT, NULL, NULL);
 }
 
 static int bksync_ptp_deinit(struct ptp_clock_info *ptp)
 {
     bksync_ptp_time_keep_deinit();
 
-    return bksync_cmd_go(BCM_KSYNC_DEINIT, NULL, NULL);
+    return bksync_cmd_go(BKSYNC_DEINIT, NULL, NULL);
 }
 
 /*
@@ -1450,14 +1487,15 @@ static void *bksync_proc_seq_start(struct seq_file *s, loff_t *pos)
    /* beginning a new sequence ? */
    if ( (int)*pos == 0 && ptp_priv->shared_addr != NULL)
    {
-        seq_printf(s, "Port Bitmap : %08llx%08llx\n",
+        seq_printf(s, "TwoStep Port Bitmap : %08llx%08llx\n",
                       (uint64_t)(ptp_priv->shared_addr->portmap[1]),
                       (uint64_t)(ptp_priv->shared_addr->portmap[0]));
-        seq_printf(s,"%4s| %9s| %9s| %9s| %9s| %9s| %9s|\n",
-                     "Port", "RxCounter", "TxCounter", "TSTimeout", "TSRead", "TSMatch", "TSDiscard");
+        seq_printf(s,"%4s| %9s| %9s| %9s| %9s| %9s| %9s| %9s| %9s| %9s| %9s| %9s\n",
+                     "Port", "RxCounter", "TxCounter", "TxOneStep", "TSTimeout", "TSRead", "TSMatch", "TSDiscard",
+                        "TimeHi" , "TimeLo", "TimeAvg", "FIFORx");
    }
 
-   if (ptp_priv->shared_addr != NULL && (int)*pos < (ptp_priv->num_pports))
+   if ((int)*pos < (ptp_priv->num_pports))
         return (void *)(unsigned long)(*pos + 1);
    /* End of the sequence, return NULL */
    return NULL;
@@ -1490,33 +1528,24 @@ static int bksync_proc_seq_show(struct seq_file *s, void *v)
 {
     unsigned long port = (unsigned long)v;
     port = port - 1;
-    if (HOSTCMD_USE_REGS) {
-        if (ptp_priv->port_stats[port].pkt_rxctr || ptp_priv->port_stats[port].pkt_txctr ||
-            ptp_priv->port_stats[port].tsts_discard || ptp_priv->port_stats[port].tsts_timeout ||
-            ptp_priv->shared_addr->port_ts_data[port].ts_cnt || ptp_priv->port_stats[port].tsts_match) {
-              seq_printf(s, "%4lu | %9d| %9d| %9d| %9d| %9d| %9d| %s\n", (port + 1),
-                    ptp_priv->port_stats[port].pkt_rxctr,
-                    ptp_priv->port_stats[port].pkt_txctr,
-                    ptp_priv->port_stats[port].tsts_timeout,
-                    ptp_priv->shared_addr->port_ts_data[port].ts_cnt,
-                    ptp_priv->port_stats[port].tsts_match,
-                    ptp_priv->port_stats[port].tsts_discard,
-                    ptp_priv->port_stats[port].pkt_txctr != ptp_priv->port_stats[port].tsts_match ? "***":"");
-        }
-     } else {
-    if (ptp_priv->pkt_rxctr[port] || ptp_priv->pkt_txctr[port] ||
-        ptp_priv->ts_discard[port] || ptp_priv->ts_timeout[port] ||
-        ptp_priv->shared_addr->port_ts_data[port].ts_cnt || ptp_priv->ts_match[port]) {
-                seq_printf(s, "%4lu | %9d| %9d| %9d| %9d| %9d| %9d| %s\n", (port + 1),
-                ptp_priv->pkt_rxctr[port],
-                ptp_priv->pkt_txctr[port],
-                ptp_priv->ts_timeout[port],
+    if (ptp_priv->port_stats[port].pkt_rxctr || ptp_priv->port_stats[port].pkt_txctr ||
+        ptp_priv->port_stats[port].pkt_txonestep||
+        ptp_priv->port_stats[port].tsts_discard || ptp_priv->port_stats[port].tsts_timeout ||
+        ptp_priv->shared_addr->port_ts_data[port].ts_cnt || ptp_priv->port_stats[port].tsts_match) {
+          seq_printf(s, "%4lu | %9d| %9d| %9d| %9d| %9d| %9d| %9d| %9lld| %9lld | %9d|%9d | %s\n", (port + 1),
+                ptp_priv->port_stats[port].pkt_rxctr,
+                ptp_priv->port_stats[port].pkt_txctr,
+                ptp_priv->port_stats[port].pkt_txonestep,
+                ptp_priv->port_stats[port].tsts_timeout,
                 ptp_priv->shared_addr->port_ts_data[port].ts_cnt,
-                ptp_priv->ts_match[port],
-                ptp_priv->ts_discard[port],
-                ptp_priv->pkt_txctr[port] != ptp_priv->ts_match[port] ? "***":"");
+                ptp_priv->port_stats[port].tsts_match,
+                ptp_priv->port_stats[port].tsts_discard,
+                ptp_priv->port_stats[port].tsts_worst_fetch_time,
+                ptp_priv->port_stats[port].tsts_best_fetch_time,
+                ptp_priv->port_stats[port].tsts_avg_fetch_time,
+                ptp_priv->port_stats[port].fifo_rxctr,
+                ptp_priv->port_stats[port].pkt_txctr != ptp_priv->port_stats[port].tsts_match ? "***":"");
     }
-     }
     return 0;
 }
 
@@ -1549,19 +1578,12 @@ bksync_proc_txts_write(struct file *file, const char *buf,
 
     if ((ptr = strstr(debug_str, "clear")) != NULL) {
         for (port = 0; port < ptp_priv->num_pports; port++) {
-            if (HOSTCMD_USE_REGS) {
-                ptp_priv->port_stats[port].pkt_rxctr = 0;
-                ptp_priv->port_stats[port].pkt_txctr = 0;
-                ptp_priv->port_stats[port].tsts_discard = 0;
-                ptp_priv->port_stats[port].tsts_timeout = 0;
-                ptp_priv->port_stats[port].tsts_match = 0;
-            } else {
-            ptp_priv->pkt_rxctr[port] = 0;
-            ptp_priv->pkt_txctr[port] = 0;
-            ptp_priv->ts_discard[port] = 0;
-            ptp_priv->ts_timeout[port] = 0;
-            ptp_priv->ts_match[port] = 0;
-            }
+            ptp_priv->port_stats[port].pkt_rxctr = 0;
+            ptp_priv->port_stats[port].pkt_txctr = 0;
+            ptp_priv->port_stats[port].pkt_txonestep = 0;
+            ptp_priv->port_stats[port].tsts_timeout = 0;
+            ptp_priv->port_stats[port].tsts_match = 0;
+            ptp_priv->port_stats[port].tsts_discard = 0;
             if (ptp_priv->shared_addr)
                 ptp_priv->shared_addr->port_ts_data[port].ts_cnt = 0;
         }
@@ -1581,12 +1603,64 @@ struct file_operations bksync_proc_txts_file_ops = {
     release:    seq_release,
 };
 
+/*
+ * Driver Debug Proc Entry
+ */
+static int
+bksync_proc_debug_show(struct seq_file *m, void *v)
+{
+    seq_printf(m, "Configuration:\n");
+    seq_printf(m, "  debug:          0x%x\n", debug);
+    return 0;
+}
+
+static ssize_t
+bksync_proc_debug_write(struct file *file, const char *buf,
+                      size_t count, loff_t *loff)
+{
+    char debug_str[40];
+    char *ptr;
+
+    if (copy_from_user(debug_str, buf, count)) {
+        return -EFAULT;
+    }
+
+    if ((ptr = strstr(debug_str, "debug=")) != NULL) {
+        ptr += 6;
+        debug = simple_strtol(ptr, NULL, 0);
+    } else {
+        gprintk("Warning: unknown configuration\n");
+    }
+
+    return count;
+}
+
+static int bksync_proc_debug_open(struct inode * inode, struct file * file)
+{
+    return single_open(file, bksync_proc_debug_show, NULL);
+}
+
+
+struct file_operations bksync_proc_debug_file_ops = {
+    owner:      THIS_MODULE,
+    open:       bksync_proc_debug_open,
+    read:       seq_read,
+    llseek:     seq_lseek,
+    write:      bksync_proc_debug_write,
+    release:    single_release,
+};
+
+
 static int
 bksync_proc_init(void)
 {
     struct proc_dir_entry *entry;
 
     PROC_CREATE(entry, "stats", 0666, bksync_proc_root, &bksync_proc_txts_file_ops);
+    if (entry == NULL) {
+        return -1;
+    }
+    PROC_CREATE(entry, "debug", 0666, bksync_proc_root, &bksync_proc_debug_file_ops);
     if (entry == NULL) {
         return -1;
     }
@@ -1597,75 +1671,22 @@ static int
 bksync_proc_cleanup(void)
 {
     remove_proc_entry("stats", bksync_proc_root);
+    remove_proc_entry("debug", bksync_proc_root);
     return 0;
 }
 
-static void bksync_ptp_cmicm_dma_init(int dcb_type)
-{
-    int endianess;
-    int num_pports = 128;
-    dma_addr_t dma_mem = 0;
-
-    /* Initialize the Base address for CMIC and shared Memory access */
-    ptp_priv->base_addr = lkbde_get_dev_virt(0);
-    ptp_priv->dma_dev = lkbde_get_dma_dev(0);
-
-    ptp_priv->dma_mem_size = 16384;/*sizeof(bksync_uc_linux_ipc_t);*/
-
-    if (ptp_priv->shared_addr == NULL) {
-        DBG_ERR(("Allocate shared memory with R5\n"));
-        ptp_priv->shared_addr = DMA_ALLOC_COHERENT(ptp_priv->dma_dev,
-                                                   ptp_priv->dma_mem_size,
-                                                   &dma_mem);
-        ptp_priv->dma_mem = (uint64_t)dma_mem;
-        ptp_priv->num_pports = num_pports;
-        ptp_priv->port_stats = kzalloc((sizeof(bksync_port_stats_t) * num_pports), GFP_KERNEL);
-    }
-
-    if (ptp_priv->shared_addr != NULL) {
-        /* Reset memory */
-        memset((void *)ptp_priv->shared_addr, 0, ptp_priv->dma_mem_size);
-
-        DBG_ERR(("Shared memory allocation (%d bytes) successful at 0x%016lx.\n",
-                ptp_priv->dma_mem_size, (long unsigned int)ptp_priv->dma_mem));
-#ifdef __LITTLE_ENDIAN
-        endianess = 0;
-#else
-        endianess = 1;
-#endif
-        DEV_WRITE32(ptp_priv, CMIC_CMC_SCHAN_MESSAGE_12r(CMIC_CMC_BASE), ((pci_cos << 16) | endianess));
-
-        DEV_WRITE32(ptp_priv, CMIC_CMC_SCHAN_MESSAGE_10r(CMIC_CMC_BASE),
-                    (ptp_priv->dma_mem & 0xffffffff));
-        DEV_WRITE32(ptp_priv, CMIC_CMC_SCHAN_MESSAGE_11r(CMIC_CMC_BASE),
-                    (ptp_priv->dma_mem >> 32) & 0xffffffff);
-
-        ptp_priv->dcb_type = dcb_type;
-    }
-
-    if (debug & DBG_LVL_VERB) {
-        printk(KERN_EMERG"%s %p:%p\n",__FUNCTION__,
-               ptp_priv->base_addr,(void *)ptp_priv->shared_addr);
-    }
-
-    return;
-}
-
-static void bksync_ptp_cmicx_dma_init(int dcb_type)
+static void bksync_ptp_dma_init(int dcb_type)
 {
     int endianess;
     int num_pports = 256;
 
-    /* Initialize the Base address for CMIC and shared Memory access */
-    ptp_priv->base_addr = lkbde_get_dev_virt(0);
-    ptp_priv->dma_dev = lkbde_get_dma_dev(0);
 
+    ptp_priv->num_pports = num_pports;
     ptp_priv->dcb_type = dcb_type;
     ptp_priv->dma_mem_size = 16384;/*sizeof(bksync_uc_linux_ipc_t);*/
 
     if (ptp_priv->shared_addr == NULL) {
         ptp_priv->shared_addr = kzalloc(16384, GFP_KERNEL);
-        ptp_priv->num_pports = num_pports;
         ptp_priv->port_stats = kzalloc((sizeof(bksync_port_stats_t) * num_pports), GFP_KERNEL);
     }
 
@@ -1678,10 +1699,10 @@ static void bksync_ptp_cmicx_dma_init(int dcb_type)
 #else
         endianess = 1;
 #endif
-        DEV_WRITE32(ptp_priv, CMIC_CMC_SCHAN_MESSAGE_12r(CMIC_CMC_BASE), ((pci_cos << 16) | endianess));
+        DEV_WRITE32(ptp_priv, CMIC_CMC_SCHAN_MESSAGE_14r(CMIC_CMC_BASE), ((pci_cos << 16) | endianess));
 
-        DEV_WRITE32(ptp_priv, CMIC_CMC_SCHAN_MESSAGE_10r(CMIC_CMC_BASE), 1);
-        DEV_WRITE32(ptp_priv, CMIC_CMC_SCHAN_MESSAGE_11r(CMIC_CMC_BASE), 1);
+        DEV_WRITE32(ptp_priv, CMIC_CMC_SCHAN_MESSAGE_15r(CMIC_CMC_BASE), 1);
+        DEV_WRITE32(ptp_priv, CMIC_CMC_SCHAN_MESSAGE_16r(CMIC_CMC_BASE), 1);
 
     }
 
@@ -1690,6 +1711,7 @@ static void bksync_ptp_cmicx_dma_init(int dcb_type)
                ptp_priv->base_addr,(void *)ptp_priv->shared_addr);
     }
 
+    ptp_priv->mirror_encap_bmp = 0x0;
 
     hostcmd_regs[0] = CMIC_CMC_SCHAN_MESSAGE_21r(CMIC_CMC_BASE);
     hostcmd_regs[1] = CMIC_CMC_SCHAN_MESSAGE_20r(CMIC_CMC_BASE);
@@ -1701,28 +1723,6 @@ static void bksync_ptp_cmicx_dma_init(int dcb_type)
 }
 
 
-static void bksync_ptp_dma_init(int dcb_type)
-{
-    switch (dcb_type) {
-        case 26:
-            bksync_ptp_cmicm_dma_init(dcb_type);
-            ptp_priv->dcb_type = dcb_type;
-            break;
-        case 32:
-        case 36:
-        case 38:
-            bksync_ptp_cmicx_dma_init(dcb_type);
-            ptp_priv->dcb_type = dcb_type;
-            break;
-        default:
-            break;
-    }
-
-    return;
-}
-
-
-
 /**
  * bksync_ioctl_cmd_handler
  * @kmsg: kcom message - ptp clock ioctl command.
@@ -1732,6 +1732,7 @@ static void bksync_ptp_dma_init(int dcb_type)
 static int
 bksync_ioctl_cmd_handler(kcom_msg_clock_cmd_t *kmsg, int len, int dcb_type)
 {
+    u32 fw_status;
     kmsg->hdr.type = KCOM_MSG_TYPE_RSP;
 
     if (!module_initialized && kmsg->clock_info.cmd != KSYNC_M_HW_INIT) {
@@ -1744,6 +1745,20 @@ bksync_ioctl_cmd_handler(kcom_msg_clock_cmd_t *kmsg, int len, int dcb_type)
             pci_cos = kmsg->clock_info.data[0];
             if (kmsg->clock_info.data[1] == 0 || kmsg->clock_info.data[1] == 1) {
                 fw_core = kmsg->clock_info.data[1];
+                DEV_READ32(ptp_priv, CMIC_CMC_SCHAN_MESSAGE_21r(CMIC_CMC_BASE), &fw_status);
+
+                /* Return success if the app is already initialized. */
+                if (module_initialized) {
+                    kmsg->hdr.status = KCOM_E_NONE;
+                    return sizeof(kcom_msg_hdr_t);
+                }
+
+                /* Return error if the app is not ready yet. */
+                if (fw_status != 0xBADC0DE1) {
+                    kmsg->hdr.status = KCOM_E_RESOURCE;
+                    return sizeof(kcom_msg_hdr_t);
+                }
+
                 bksync_ptp_dma_init(dcb_type);
                 if (bksync_ptp_init(&(ptp_priv->ptp_caps)) >= 0) {
                     module_initialized = 1;
@@ -1756,6 +1771,12 @@ bksync_ioctl_cmd_handler(kcom_msg_clock_cmd_t *kmsg, int len, int dcb_type)
             break;
         case KSYNC_M_HW_TS_DISABLE:
             bksync_ptp_hw_tstamp_disable(0, kmsg->clock_info.data[0], 0);
+            break;
+        case KSYNC_M_MTP_TS_UPDATE_ENABLE:
+            bksync_ptp_mirror_encap_update(0, kmsg->clock_info.data[0], TRUE);
+            break;
+        case KSYNC_M_MTP_TS_UPDATE_DISABLE:
+            bksync_ptp_mirror_encap_update(0, kmsg->clock_info.data[0], FALSE);
             break;
         case KSYNC_M_VERSION:
             break;
@@ -1813,6 +1834,10 @@ static int bksync_ptp_register(void)
     /* Register ptp clock driver with bksync_ptp_caps */
     ptp_priv->ptp_clock = ptp_clock_register(&ptp_priv->ptp_caps, NULL);
 
+    /* Initialize the Base address for CMIC and shared Memory access */
+    ptp_priv->base_addr = lkbde_get_dev_virt(0);
+    ptp_priv->dma_dev = lkbde_get_dma_dev(0);
+
     if (IS_ERR(ptp_priv->ptp_clock)) {
         ptp_priv->ptp_clock = NULL;
     } else if (ptp_priv->ptp_clock) {
@@ -1858,8 +1883,8 @@ static int bksync_ptp_remove(void)
     bkn_hw_tstamp_ioctl_cmd_cb_unregister(bksync_ioctl_cmd_handler);
  
     if (module_initialized) {
-        DEV_WRITE32(ptp_priv, CMIC_CMC_SCHAN_MESSAGE_10r(CMIC_CMC_BASE), 0);
-        DEV_WRITE32(ptp_priv, CMIC_CMC_SCHAN_MESSAGE_11r(CMIC_CMC_BASE), 0);
+        DEV_WRITE32(ptp_priv, CMIC_CMC_SCHAN_MESSAGE_15r(CMIC_CMC_BASE), 0);
+        DEV_WRITE32(ptp_priv, CMIC_CMC_SCHAN_MESSAGE_16r(CMIC_CMC_BASE), 0);
     }
     /* Deinitialize the PTP */
     bksync_ptp_deinit(&(ptp_priv->ptp_caps));
@@ -1870,12 +1895,7 @@ static int bksync_ptp_remove(void)
         ptp_priv->port_stats = NULL;
     }
     if (ptp_priv->shared_addr != NULL) {
-        if (HOSTCMD_USE_REGS) {
-            kfree((void *)ptp_priv->shared_addr);
-        } else {
-            DMA_FREE_COHERENT(ptp_priv->dma_dev, ptp_priv->dma_mem_size,
-                              (void *)ptp_priv->shared_addr, (dma_addr_t)ptp_priv->dma_mem);
-        }
+        kfree((void *)ptp_priv->shared_addr);
         ptp_priv->shared_addr = NULL;
         DBG_ERR(("Free R5 memory\n"));
     }
@@ -1906,13 +1926,13 @@ static int bksync_ptp_remove(void)
  *    Always 0
  */
     static int
-_pprint(void)
+_pprint(struct seq_file *m)
 {
 #if LINUX_VERSION_CODE > KERNEL_VERSION(3,17,0)
     /* put some goodies here */
-    pprintf("Broadcom BCM PTP Hardware Clock Module\n");
+    pprintf(m, "Broadcom BCM PTP Hardware Clock Module\n");
 #else
-    pprintf("Broadcom BCM PTP Hardware Clock Module not supported\n");
+    pprintf(m, "Broadcom BCM PTP Hardware Clock Module not supported\n");
 #endif
     return 0;
 }

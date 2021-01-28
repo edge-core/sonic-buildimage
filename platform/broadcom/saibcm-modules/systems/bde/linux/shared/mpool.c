@@ -1,5 +1,10 @@
 /*
- * Copyright 2017 Broadcom
+ * Copyright 2007-2020 Broadcom Inc. All rights reserved.
+ * 
+ * Permission is granted to use, copy, modify and/or distribute this
+ * software under either one of the licenses below.
+ * 
+ * License Option 1: GPL
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2, as
@@ -12,6 +17,12 @@
  * 
  * You should have received a copy of the GNU General Public License
  * version 2 (GPLv2) along with this source code.
+ * 
+ * 
+ * License Option 2: Broadcom Open Network Switch APIs (OpenNSA) license
+ * 
+ * This software is governed by the Broadcom Open Network Switch APIs license:
+ * https://www.broadcom.com/products/ethernet-connectivity/software/opennsa
  */
 /*
  * $Id: mpool.c,v 1.18 Broadcom SDK $
@@ -71,7 +82,7 @@ static sal_sem_t _mpool_lock;
 #endif
 
 #define MPOOL_BUF_SIZE               1024
-#define MPOOL_BUF_ALLOC_COUNT_MAX      16
+#define MPOOL_BUF_ALLOC_COUNT_MAX     128
 
 typedef struct mpool_mem_s {
     unsigned char *address;
@@ -80,20 +91,42 @@ typedef struct mpool_mem_s {
     struct mpool_mem_s *next;
 } mpool_mem_t;
 
+static int _mpool_count;
 static int _buf_alloc_count;
 static mpool_mem_t *mpool_buf[MPOOL_BUF_ALLOC_COUNT_MAX];
 static mpool_mem_t *free_list;
 
-#define ALLOC_INIT_MPOOL_BUF(ptr) \
-        ptr = MALLOC((sizeof(mpool_mem_t) * MPOOL_BUF_SIZE)); \
-        if (ptr) { \
-            int i; \
-            for (i = 0; i < MPOOL_BUF_SIZE - 1; i++) { \
-                ptr[i].next = &ptr[i+1]; \
-            } \
-            ptr[MPOOL_BUF_SIZE - 1].next = NULL; \
-            free_list = &ptr[0]; \
-        }
+static mpool_mem_t *
+_mpool_buf_create(void)
+{
+    int i;
+    mpool_mem_t *ptr;
+
+    if (_buf_alloc_count == MPOOL_BUF_ALLOC_COUNT_MAX) {
+        return NULL;
+    }
+
+    mpool_buf[_buf_alloc_count] = MALLOC((sizeof(mpool_mem_t) * MPOOL_BUF_SIZE));
+    if (!mpool_buf[_buf_alloc_count]) {
+        return NULL;
+    }
+
+    ptr = mpool_buf[_buf_alloc_count];
+    for (i = 0; i < MPOOL_BUF_SIZE - 1; i++) {
+        ptr[i].next = &ptr[i+1];
+    }
+
+    ptr[MPOOL_BUF_SIZE - 1].next = NULL;
+
+    if (free_list) {
+        free_list->next = &ptr[0];
+    } else {
+        free_list = &ptr[0];
+    }
+
+    _buf_alloc_count++;
+    return ptr;
+}
 
 /*
  * Function: mpool_init
@@ -108,7 +141,15 @@ static mpool_mem_t *free_list;
 int 
 mpool_init(void)
 {
+    int i;
+
     MPOOL_LOCK_INIT();
+    _buf_alloc_count = 0;
+    _mpool_count = 0;
+    for (i = 0; i < MPOOL_BUF_ALLOC_COUNT_MAX; i++) {
+        mpool_buf[i] = NULL;
+    }
+    free_list = NULL;
     return 0;
 }
 
@@ -140,7 +181,7 @@ mpool_alloc(mpool_handle_t pool, int size)
     }
 
     mod = size & (BCM_CACHE_LINE_BYTES - 1);
-    if (mod != 0 ) {
+    if (mod != 0) {
         size += (BCM_CACHE_LINE_BYTES - mod);
     }
     while (ptr && ptr->next) {
@@ -155,20 +196,9 @@ mpool_alloc(mpool_handle_t pool, int size)
         return NULL;
     }
 
-    if (!free_list) {
-        if (_buf_alloc_count == MPOOL_BUF_ALLOC_COUNT_MAX) {
-            MPOOL_UNLOCK();
-            return NULL;
-        }
-
-        ALLOC_INIT_MPOOL_BUF(mpool_buf[_buf_alloc_count]);
-
-        if (mpool_buf[_buf_alloc_count] == NULL) {
-            MPOOL_UNLOCK();
-            return NULL;
-        }
-
-        _buf_alloc_count++;
+    if (!free_list && !_mpool_buf_create()) {
+        MPOOL_UNLOCK();
+        return NULL;
     }
 
     newptr = free_list;
@@ -251,24 +281,15 @@ mpool_create(void *base_ptr, int size)
 {
     mpool_mem_t *head, *tail;
     int mod = (int)(((unsigned long)base_ptr) & (BCM_CACHE_LINE_BYTES - 1));
-    int i;
 
     MPOOL_LOCK();
 
-    for (i = 0; i < MPOOL_BUF_ALLOC_COUNT_MAX; i++) {
-        mpool_buf[i] = NULL;
+    if (!free_list || !(free_list->next)) {
+        if (!_mpool_buf_create()) {
+            MPOOL_UNLOCK();
+            return NULL;
+        }
     }
-
-    _buf_alloc_count = 0;
-
-    ALLOC_INIT_MPOOL_BUF(mpool_buf[_buf_alloc_count]);
-
-    if (mpool_buf[_buf_alloc_count] == NULL) {
-        MPOOL_UNLOCK();
-        return NULL;
-    }
-
-    _buf_alloc_count++;
 
     if (mod) {
         base_ptr = (char*)base_ptr + (BCM_CACHE_LINE_BYTES - mod);
@@ -288,6 +309,7 @@ mpool_create(void *base_ptr, int size)
     head->next = tail;
     tail->prev = head;
     tail->next = NULL;
+    _mpool_count++;
 
     MPOOL_UNLOCK();
     return head;
@@ -307,19 +329,27 @@ int
 mpool_destroy(mpool_handle_t pool)
 {
     int i;
+    mpool_mem_t *head = pool;
 
     MPOOL_LOCK();
 
-    if ((mpool_mem_t *)pool != mpool_buf[0]) {
+    if (!(head && head->prev)) {
         MPOOL_UNLOCK();
         return 0;
     }
 
-    for (i = 0; i < MPOOL_BUF_ALLOC_COUNT_MAX; i++) {
-        if (mpool_buf[i]) {
-            FREE(mpool_buf[i]);
-            mpool_buf[i] = NULL;
+    head->prev->next = free_list;
+    free_list = head;
+    _mpool_count--;
+
+    if (_mpool_count == 0) {
+        for (i = 0; i < MPOOL_BUF_ALLOC_COUNT_MAX; i++) {
+            if (mpool_buf[i]) {
+                FREE(mpool_buf[i]);
+                mpool_buf[i] = NULL;
+            }
         }
+        free_list = NULL;
     }
 
     MPOOL_UNLOCK();
