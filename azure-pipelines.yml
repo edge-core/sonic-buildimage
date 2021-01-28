@@ -187,17 +187,15 @@ stages:
                 virsh -c qemu:///system dumpxml $(dut) > $(Build.ArtifactStagingDirectory)/kvmdump/$(dut).xml
                 img=$(virsh -c qemu:///system domblklist $(dut) | grep vda | awk '{print $2}')
                 cp $img $(Build.ArtifactStagingDirectory)/kvmdump/$(dut).img
-                sudo chown -R $username.$username kvmdump
                 virsh -c qemu:///system undefine $(dut)
             fi
 
-            rm -rf ptfdump
-            mkdir -p ptfdump
             docker commit $(ptf_name) docker-ptf:$(Build.BuildNumber)
             docker save docker-ptf:$(Build.BuildNumber) | gzip -c > $(Build.ArtifactStagingDirectory)/kvmdump/docker-ptf-dump.gz
             docker rmi docker-ptf:$(Build.BuildNumber)
 
             cp -r /data/sonic-mgmt/tests/logs $(Build.ArtifactStagingDirectory)/
+            sudo chown -R $username.$username $(Build.ArtifactStagingDirectory)
 
             exit 2
         else
