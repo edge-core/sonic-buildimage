@@ -11,8 +11,8 @@ After=topology.service
 Requires=opennsl-modules.service
 After=opennsl-modules.service
 {% elif sonic_asic_platform == 'nephos' %}
-Requires=nps-modules-4.9.0-11-2-amd64.service
-After=nps-modules-4.9.0-11-2-amd64.service
+Requires=nps-modules-4.9.0-14-2-amd64.service
+After=nps-modules-4.9.0-14-2-amd64.service
 {% endif %}
 Requires=updategraph.service
 After=updategraph.service
