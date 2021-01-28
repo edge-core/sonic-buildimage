@@ -9,7 +9,7 @@ dependencies = [
     'ipaddress==1.0.23',
     'lxml==4.6.2',
     'netaddr==0.8.0',
-    'pyyaml==5.3.1',
+    'pyyaml==5.4.1',
     'sonic-py-common',
 ]
 
