@@ -1,3 +1,13 @@
+sai_trap_group_priority
+use_all_splithorizon_groups
+riot_enable
+sai_tunnel_support
+riot_overlay_l3_intf_mem_size
+riot_overlay_l3_egress_mem_size
+l3_ecmp_levels
+riot_overlay_ecmp_resilient_hash_size
+flow_init_mode
+sai_load_hw_config
 arl_clean_timeout_usec
 asf_mem_profile
 bcm_linkscan_interval
@@ -219,3 +229,4 @@ serdes_fec_enable
 pbmp_gport_stack
 reglist_enable
 scache_filename
+host_as_route_disable
