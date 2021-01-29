@@ -35,7 +35,9 @@ Cmnd_Alias      READ_ONLY_CMDS = /bin/cat /var/log/syslog*, \
                                  /usr/local/bin/lldpshow, \
                                  /usr/local/bin/psuutil *, \
                                  /usr/local/bin/sonic-installer list, \
-                                 /usr/local/bin/sfputil show *
+                                 /usr/local/bin/sfputil show *, \
+                                 /bin/ip netns identify [0-9]*
+                                 
 
 Cmnd_Alias      PASSWD_CMDS = /usr/local/bin/config tacacs passkey *, \
                               /usr/sbin/chpasswd *
