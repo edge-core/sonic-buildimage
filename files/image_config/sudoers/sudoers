@@ -36,6 +36,7 @@ Cmnd_Alias      READ_ONLY_CMDS = /sbin/brctl show, \
                                  /usr/bin/teamshow, \
                                  /usr/bin/vtysh -c show *, \
                                  /usr/bin/vtysh -n [0-9] -c show *, \
+                                 /bin/ip netns identify [0-9]*, \
                                  /bin/cat /var/log/syslog*, \
                                  /usr/bin/tail -F /var/log/syslog
 
