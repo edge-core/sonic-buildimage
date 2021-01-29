@@ -33,7 +33,11 @@ stages:
     - checkout: self
       submodules: recursive
       displayName: 'Checkout code'
-
+    - script: |
+         git submodule foreach --recursive git clean -xfdf
+         git submodule foreach --recursive git reset --hard
+         git submodule update --init --recursive
+      displayName: 'reset submodules'
     - script: |
         sudo modprobe overlay
         CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=rcache SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/broadcom"
@@ -55,6 +59,11 @@ stages:
       displayName: 'Checkout code'
 
     - script: |
+         git submodule foreach --recursive git clean -xfdf
+         git submodule foreach --recursive git reset --hard
+         git submodule update --init --recursive
+      displayName: 'reset submodules'
+    - script: |
         sudo modprobe overlay
         CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=rcache SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/mellanox"
         ENABLE_DOCKER_BASE_PULL=y make configure PLATFORM=mellanox
@@ -74,6 +83,11 @@ stages:
       submodules: recursive
       displayName: 'Checkout code'
 
+    - script: |
+         git submodule foreach --recursive git clean -xfdf
+         git submodule foreach --recursive git reset --hard
+         git submodule update --init --recursive
+      displayName: 'reset submodules'
     - script: |
         echo $(Build.BuildNumber)
         sudo modprobe overlay
