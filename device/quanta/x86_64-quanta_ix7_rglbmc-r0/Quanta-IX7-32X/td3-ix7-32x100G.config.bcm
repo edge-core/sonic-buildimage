@@ -1,3 +1,4 @@
+sai_load_hw_config=/etc/bcm/flex/bcm56870_a0/b870.6.6.1/
 bcm_tunnel_term_compatible_mode=1
 core_clock_frequency=1525
 dpp_clock_ratio=2:3

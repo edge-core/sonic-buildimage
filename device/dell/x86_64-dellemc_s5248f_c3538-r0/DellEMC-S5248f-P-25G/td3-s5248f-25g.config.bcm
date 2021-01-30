@@ -1,3 +1,4 @@
+sai_load_hw_config=/etc/bcm/flex/bcm56870_a0/b870.6.6.1/
 os=unix
 
 dpp_clock_ratio=2:3
