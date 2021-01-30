@@ -48,6 +48,7 @@ prepare_installer_disk()
     umount $tmpdir
 }
 
+apt-get install -y net-tools
 create_disk
 prepare_installer_disk
 

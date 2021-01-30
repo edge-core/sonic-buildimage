@@ -58,6 +58,8 @@ def main():
 
     # check version
     time.sleep(5)
+    p.sendline('uptime')
+    p.expect([cmd_prompt])
     p.sendline('show version')
     p.expect([cmd_prompt])
     p.sendline('show ip bgp sum')
