@@ -89,11 +89,6 @@ class HardwareChecker(HealthChecker):
                 self.set_object_not_ok('Fan', name, '{} is missing'.format(name))
                 continue
 
-            status = data_dict.get('status', 'false')
-            if status.lower() != 'true':
-                self.set_object_not_ok('Fan', name, '{} is broken'.format(name))
-                continue
-
             if not self._ignore_check(config.ignore_devices, 'fan', name, 'speed'):
                 speed = data_dict.get('speed', None)
                 speed_target = data_dict.get('speed_target', None)
@@ -129,6 +124,11 @@ class HardwareChecker(HealthChecker):
                                                    speed_target,
                                                    speed_tolerance))
                         continue
+
+            status = data_dict.get('status', 'false')
+            if status.lower() != 'true':
+                self.set_object_not_ok('Fan', name, '{} is broken'.format(name))
+                continue
 
             self.set_object_ok('Fan', name)
 
