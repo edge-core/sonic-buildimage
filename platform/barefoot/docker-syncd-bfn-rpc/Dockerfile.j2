@@ -21,6 +21,7 @@ RUN apt-get update \
  && apt-get -y install  \
     net-tools           \
     python-pip          \
+    python-setuptools   \
     build-essential     \
     libssl-dev          \
     libffi-dev          \
@@ -38,9 +39,10 @@ RUN apt-get update \
  && cd ..               \
  && rm -fr nanomsg-1.0.0 \
  && rm -f 1.0.0.tar.gz  \
- && pip install cffi==1.7.0    \
- && pip install --upgrade cffi==1.7.0 \
- && pip install nnpy    \
+ && pip2 install cffi==1.7.0    \
+ && pip2 install --upgrade cffi==1.7.0 \
+ && pip2 install wheel  \
+ && pip2 install nnpy   \
  && mkdir -p /opt       \
  && cd /opt             \
  && wget https://raw.githubusercontent.com/p4lang/ptf/master/ptf_nn/ptf_nn_agent.py \
