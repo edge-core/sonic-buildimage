@@ -1,0 +1,27 @@
+# This is a comment.
+# Each line is a file pattern followed by one or more owners.
+
+# rules are explained here
+# https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/about-code-owners
+
+# These owners will be the default owners for everything in
+# the repo. Unless a later match takes precedence,
+# @lguohan will be requested for review when someone opens
+# a pull request.
+*       @Azure/sonic
+
+/device/ @jleveque
+
+# build
+/rules/         @qiluo-msft @xumia @lguohan
+/Makefile       @qiluo-msft @xumia @lguohan
+/Makefile.cache @qiluo-msft @xumia @lguohan
+/Makefile.work  @qiluo-msft @xumia @lguohan
+/slave.mk       @qiluo-msft @xumia @lguohan
+/scripts        @qiluo-msft @xumia @lguohan
+
+# installer
+/installer/     @qiluo-msft
+
+# permission
+/files/image_config/sudoers/  @qiluo-msft
