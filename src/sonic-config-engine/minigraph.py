@@ -84,6 +84,7 @@ def parse_device(device):
     hwsku = None
     name = None
     deployment_id = None
+    cluster = None
 
     for node in device:
         if node.tag == str(QName(ns, "Address")):
@@ -100,11 +101,13 @@ def parse_device(device):
             deployment_id = node.text
         elif node.tag == str(QName(ns, "ElementType")):
             d_type = node.text
+        elif node.tag == str(QName(ns, "ClusterName")):
+            cluster = node.text
 
     if d_type is None and str(QName(ns3, "type")) in device.attrib:
         d_type = device.attrib[str(QName(ns3, "type"))]
 
-    return (lo_prefix, lo_prefix_v6, mgmt_prefix, name, hwsku, d_type, deployment_id)
+    return (lo_prefix, lo_prefix_v6, mgmt_prefix, name, hwsku, d_type, deployment_id, cluster)
 
 def calculate_lcm_for_ecmp (nhdevices_bank_map, nhip_bank_map):
     banks_enumerated = {}
@@ -244,8 +247,10 @@ def parse_png(png, hname, dpg_ecmp_content = None):
 
         if child.tag == str(QName(ns, "Devices")):
             for device in child.findall(str(QName(ns, "Device"))):
-                (lo_prefix, lo_prefix_v6, mgmt_prefix, name, hwsku, d_type, deployment_id) = parse_device(device)
+                (lo_prefix, lo_prefix_v6, mgmt_prefix, name, hwsku, d_type, deployment_id, cluster) = parse_device(device)
                 device_data = {'lo_addr': lo_prefix, 'type': d_type, 'mgmt_addr': mgmt_prefix, 'hwsku': hwsku }
+                if cluster:
+                    device_data['cluster'] = cluster
                 if deployment_id:
                     device_data['deployment_id'] = deployment_id
                 if lo_prefix_v6:
@@ -253,9 +258,7 @@ def parse_png(png, hname, dpg_ecmp_content = None):
                 devices[name] = device_data
 
                 if name == hname:
-                    cluster = device.find(str(QName(ns, "ClusterName")))
-
-                    if cluster != None and cluster.text != None and "str" in cluster.text.lower():
+                    if cluster and "str" in cluster.lower():
                         is_storage_device = True
 
         if child.tag == str(QName(ns, "DeviceInterfaceLinks")):
@@ -380,8 +383,10 @@ def parse_asic_png(png, asic_name, hostname):
 
         if child.tag == str(QName(ns, "Devices")):
             for device in child.findall(str(QName(ns, "Device"))):
-                (lo_prefix, lo_prefix_v6, mgmt_prefix, name, hwsku, d_type, deployment_id) = parse_device(device)
+                (lo_prefix, lo_prefix_v6, mgmt_prefix, name, hwsku, d_type, deployment_id, cluster) = parse_device(device)
                 device_data = {'lo_addr': lo_prefix, 'type': d_type, 'mgmt_addr': mgmt_prefix, 'hwsku': hwsku }
+                if cluster:
+                    device_data['cluster'] = cluster
                 if deployment_id:
                     device_data['deployment_id'] = deployment_id
                 if lo_prefix_v6:
@@ -780,6 +785,7 @@ def parse_meta(meta, hname):
     region = None
     cloudtype = None
     resource_type = None
+    kube_data = {}
     device_metas = meta.find(str(QName(ns, "Devices")))
     for device in device_metas.findall(str(QName(ns1, "DeviceMetadata"))):
         if device.find(str(QName(ns1, "Name"))).text.lower() == hname.lower():
@@ -808,7 +814,11 @@ def parse_meta(meta, hname):
                     cloudtype = value
                 elif name == "ResourceType":
                     resource_type = value
-    return syslog_servers, dhcp_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id, region, cloudtype, resource_type
+                elif name == "KubernetesEnabled":
+                    kube_data["enable"] = value
+                elif name == "KubernetesServerIp":
+                    kube_data["ip"] = value
+    return syslog_servers, dhcp_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id, region, cloudtype, resource_type, kube_data
 
 
 def parse_linkmeta(meta, hname):
@@ -1097,6 +1107,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
     host_lo_intfs = None
     is_storage_device = False
     local_devices = []
+    kube_data = {}
 
     # hostname is the asic_name, get the asic_id from the asic_name
     if asic_name is not None:
@@ -1133,7 +1144,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
             elif child.tag == str(QName(ns, "UngDec")):
                 (u_neighbors, u_devices, _, _, _, _, _, _) = parse_png(child, hostname, None)
             elif child.tag == str(QName(ns, "MetadataDeclaration")):
-                (syslog_servers, dhcp_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id, region, cloudtype, resource_type) = parse_meta(child, hostname)
+                (syslog_servers, dhcp_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id, region, cloudtype, resource_type, kube_data) = parse_meta(child, hostname)
             elif child.tag == str(QName(ns, "LinkMetadataDeclaration")):
                 linkmetas = parse_linkmeta(child, hostname)
             elif child.tag == str(QName(ns, "DeviceInfos")):
@@ -1173,6 +1184,18 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
         'synchronous_mode': 'enable'
         }
     }
+
+    cluster = [devices[key] for key in devices if key.lower() == hostname.lower()][0].get('cluster', "")
+    if cluster:
+        results['DEVICE_METADATA']['localhost']['cluster'] = cluster
+
+    if kube_data:
+        results['KUBERNETES_MASTER'] = {
+            'SERVER': {
+                'disable': str(kube_data.get('enable', '0') == '0'),
+                'ip': kube_data.get('ip', '')
+            }
+        }
 
     results['PEER_SWITCH'] = get_peer_switch_info(linkmetas, devices)
 
@@ -1524,7 +1547,7 @@ def get_mux_cable_entries(mux_cable_ports, neighbors, devices):
 
 def parse_device_desc_xml(filename):
     root = ET.parse(filename).getroot()
-    (lo_prefix, lo_prefix_v6, mgmt_prefix, hostname, hwsku, d_type, _) = parse_device(root)
+    (lo_prefix, lo_prefix_v6, mgmt_prefix, hostname, hwsku, d_type, _, _) = parse_device(root)
 
     results = {}
     results['DEVICE_METADATA'] = {'localhost': {
