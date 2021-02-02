@@ -15,6 +15,7 @@ docker_inram=false
 logs_inram=false
 secureboot=false
 bootloader=generic
+in_kdump=false
 
 # Extract kernel parameters
 for x in $(cat /proc/cmdline); do
@@ -34,6 +35,9 @@ for x in $(cat /proc/cmdline); do
             ;;
         platform=*)
             platform_flag="${x#platform=}"
+            ;;
+        systemd.unit=kdump-tools.service)
+            in_kdump=true
             ;;
     esac
 done
@@ -86,7 +90,7 @@ mkdir -p "$rw_dir"
 mkdir -p "$work_dir"
 
 ## Remove the files not in allowlist in the rw folder
-if $secureboot; then
+if [ "$secureboot" = true ] && [ "$in_kdump" = false ]; then
     if [ "$bootloader" = "aboot" ]; then
         swi_path="${rootmnt}/host/$(sed -E 's/.*loop=([^ ]+).*/\1/' /proc/cmdline)"
         unzip -q "$swi_path" allowlist_paths.conf -d /tmp
@@ -120,23 +124,25 @@ case "${ROOT}" in
 esac
 
 mkdir -p ${rootmnt}/var/lib/docker
-if $secureboot; then
-    mount -t tmpfs -o rw,nodev,size={{ DOCKER_RAMFS_SIZE }} tmpfs ${rootmnt}/var/lib/docker
-    if [ "$bootloader" = "aboot" ]; then
-        unzip -qp "$swi_path" dockerfs.tar.gz | tar xz --numeric-owner -C ${rootmnt}/var/lib/docker
-        ## Boot folder is not extracted during secureboot since content would inherently become unsafe
-        mkdir -p ${rootmnt}/host/$image_dir/boot
+if [ "$in_kdump" = false ]; then
+    if [ "$secureboot" = true ]; then
+        mount -t tmpfs -o rw,nodev,size={{ DOCKER_RAMFS_SIZE }} tmpfs ${rootmnt}/var/lib/docker
+        if [ "$bootloader" = "aboot" ]; then
+            unzip -qp "$swi_path" dockerfs.tar.gz | tar xz --numeric-owner -C ${rootmnt}/var/lib/docker
+            ## Boot folder is not extracted during secureboot since content would inherently become unsafe
+            mkdir -p ${rootmnt}/host/$image_dir/boot
+        else
+            echo "secureboot unsupported for bootloader $bootloader" 1>&2
+            exit 1
+        fi
+    elif [ -f ${rootmnt}/host/$image_dir/{{ FILESYSTEM_DOCKERFS }} ]; then
+        ## mount tmpfs and extract docker into it
+        mount -t tmpfs -o rw,nodev,size={{ DOCKER_RAMFS_SIZE }} tmpfs ${rootmnt}/var/lib/docker
+        tar xz --numeric-owner -f ${rootmnt}/host/$image_dir/{{ FILESYSTEM_DOCKERFS }} -C ${rootmnt}/var/lib/docker
     else
-        echo "secureboot unsupported for bootloader $bootloader" 1>&2
-        exit 1
+        ## Mount the working directory of docker engine in the raw partition, bypass the overlay
+        mount --bind ${rootmnt}/host/$image_dir/{{ DOCKERFS_DIR }} ${rootmnt}/var/lib/docker
     fi
-elif [ -f ${rootmnt}/host/$image_dir/{{ FILESYSTEM_DOCKERFS }} ]; then
-    ## mount tmpfs and extract docker into it
-    mount -t tmpfs -o rw,nodev,size={{ DOCKER_RAMFS_SIZE }} tmpfs ${rootmnt}/var/lib/docker
-    tar xz --numeric-owner -f ${rootmnt}/host/$image_dir/{{ FILESYSTEM_DOCKERFS }} -C ${rootmnt}/var/lib/docker
-else
-    ## Mount the working directory of docker engine in the raw partition, bypass the overlay
-    mount --bind ${rootmnt}/host/$image_dir/{{ DOCKERFS_DIR }} ${rootmnt}/var/lib/docker
 fi
 
 ## Mount the boot directory in the raw partition, bypass the overlay

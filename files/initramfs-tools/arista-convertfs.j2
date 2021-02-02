@@ -19,7 +19,8 @@ block_flash=''
 aboot_flag=''
 backup_file=''
 prev_os=''
-sonic_fast_reboot=''
+sonic_fast_reboot=false
+in_kdump=false
 
 # Wait until get the fullpath of flash device, e.g., /dev/sda
 wait_get_flash_dev() {
@@ -141,14 +142,20 @@ for x in "$@"; do
         SONIC_BOOT_TYPE=warm*|SONIC_BOOT_TYPE=fast*)
             sonic_fast_reboot=true
             ;;
+        systemd.unit=kdump-tools.service)
+            in_kdump=true
+            ;;
     esac
 done
 
 # Check aboot
 [ -z "$aboot_flag" ] && exit 0
 
+# Check kdump
+[ "$in_kdump" = true ] && exit 0
+
 # Skip this script for warm-reboot/fast-reboot from sonic
-[ "$sonic_fast_reboot" == true ] && [ "$prev_os" != eos ] && exit 0
+[ "$sonic_fast_reboot" = true ] && [ "$prev_os" != eos ] && exit 0
 
 # Get flash dev name
 if [ -z "$block_flash" ]; then

@@ -45,6 +45,10 @@ for x in "$@"; do
             # Skip this script for warm-reboot and fast-reboot
             exit 0
             ;;
+        systemd.unit=kdump-tools.service)
+            # In kdump environment, skip hooks
+            exit 0
+            ;;
     esac
 done
 

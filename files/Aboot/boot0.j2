@@ -86,7 +86,7 @@ installer_image_path="$image_path/$installer_image"
 
 boot_config="$target_path/boot-config"
 
-cmdline_allowlist='crashkernel'
+cmdline_allowlist="crashkernel hwaddr_ma1"
 
 # for backward compatibility with the sonic_upgrade= behavior
 install="${install:-${sonic_upgrade:-}}"
@@ -392,7 +392,8 @@ extract_image() {
 
 extract_image_secureboot() {
     info "Extracting necessary swi content"
-    unzip -oq "$swipath" platform/firsttime .imagehash -d "$image_path"
+    # NOTE: boot/ is not used by the boot process but only extracted for kdump
+    unzip -oq "$swipath" 'boot/*' platform/firsttime .imagehash -d "$image_path"
 
     info "Installing image as $installer_image_path"
     mv "$swipath" "$installer_image_path"
@@ -650,6 +651,27 @@ write_default_cmdline() {
     cmdline_add "$delimiter"
 }
 
+write_cmdline() {
+    # use extra parameters from kernel-params hook if the file exists
+    if [ -f "$target_path/$kernel_params" ] && ! $secureboot; then
+        info "Loading extra kernel parameters from $kernel_params"
+        cat "$target_path/$kernel_params" | cmdline_append
+    fi
+
+    # FIXME: sonic sometimes adds extra kernel parameters from user space
+    #        this is unsafe but some will be kept as part of the regular boot
+    if [ -f "$image_path/kernel-cmdline" ]; then
+        for field in $cmdline_allowlist; do
+           cat "$image_path/kernel-cmdline" | tr ' ' '\n' | grep -E "$field" | tail -n 1 | cmdline_append
+        done
+    fi
+
+    # FIXME: legacy configuration files used by fast-reboot and eos2sonic
+    #        these should be deprecated over time.
+    cmdline_echo > "$image_path/kernel-cmdline"
+    cmdline_echo | sed 's/ cmdline-aboot-end.*$//' > "$target_path/kernel-params-base"
+}
+
 write_common_configs() {
     write_default_cmdline
     write_platform_specific_cmdline
@@ -667,28 +689,14 @@ write_secureboot_configs() {
     cmdline_add aboot.secureboot=enabled
     # setting panic= has the side effect of disabling the initrd shell on error
     cmdline_add panic=0
+    write_cmdline
 }
 
 write_regular_configs() {
     write_common_configs
     cmdline_add "loop=$image_name/fs.squashfs"
     cmdline_add loopfstype=squashfs
-
-    # use extra parameters from kernel-params hook if the file exists
-    if [ -f "$target_path/$kernel_params" ]; then
-        cat "$target_path/$kernel_params" | cmdline_append
-    fi
-
-    # FIXME: sonic sometimes adds extra kernel parameters from user space
-    #        this is unsafe but some will be kept as part of the regular boot
-    if [ -f "$image_path/kernel-cmdline" ]; then
-        cat "$image_path/kernel-cmdline" | tr ' ' '\n' | grep -E "$cmdline_allowlist" | cmdline_append
-    fi
-
-    # FIXME: legacy configuration files used by fast-reboot and eos2sonic
-    #        these should be deprecated over time.
-    cmdline_echo > "$image_path/kernel-cmdline"
-    cmdline_echo | sed 's/ cmdline-aboot-end.*$//' > "$target_path/kernel-params-base"
+    write_cmdline
 }
 
 run_kexec() {
@@ -753,8 +761,8 @@ secureboot_boot() {
 
 regular_boot() {
     # boot uses the image installed on the flash
-    run_hooks pre-kexec
     write_regular_configs "$image_path"
+    run_hooks pre-kexec
     update_next_boot
     run_kexec
 }
