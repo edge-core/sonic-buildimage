@@ -1,3 +1,4 @@
+import json
 import os
 import subprocess
 
@@ -145,6 +146,11 @@ class TestCfgGenCaseInsensitive(TestCase):
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "1")
 
+    def test_minigraph_cluster(self):
+        argument = '-m "' + self.sample_graph + '" -p "' + self.port_config + '" -v "DEVICE_METADATA[\'localhost\'][\'cluster\']"'
+        output = self.run_script(argument)
+        self.assertEqual(output.strip(), "AAA00PrdStr00")
+
     def test_minigraph_neighbor_metadata(self):
         argument = '-m "' + self.sample_graph + '" -p "' + self.port_config + '" -v "DEVICE_NEIGHBOR_METADATA"'
 
@@ -194,6 +200,12 @@ class TestCfgGenCaseInsensitive(TestCase):
         argument = '-m "' + self.sample_graph + '" -p "' + self.port_config + '" -v "TACPLUS_SERVER"'
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "{'10.0.10.7': {'priority': '1', 'tcp_port': '49'}, '10.0.10.8': {'priority': '1', 'tcp_port': '49'}}")
+
+    def test_metadata_kube(self):
+        argument = '-m "' + self.sample_graph + '" -p "' + self.port_config + '" -v "KUBERNETES_MASTER[\'SERVER\']"'
+        output = self.run_script(argument)
+        self.assertEqual(json.loads(output.strip().replace("'", "\"")),
+                json.loads('{"ip": "10.10.10.10", "disable": "True"}'))
 
     def test_minigraph_mgmt_port(self):
         argument = '-m "' + self.sample_graph + '" -p "' + self.port_config + '" -v "MGMT_PORT"'
@@ -289,4 +301,3 @@ class TestCfgGenCaseInsensitive(TestCase):
             utils.to_dict(output.strip()),
             expected_table
         )
-        
