@@ -30,7 +30,7 @@ class InterfaceMgr(Manager):
             try:
                 network = netaddr.IPNetwork(str(network_str))
             except (netaddr.NotRegisteredError, netaddr.AddrFormatError, netaddr.AddrConversionError):
-                log_warn("Subnet '%s' format is wrong for interface '%s'" % (network_str, data["interface"]))
+                log_warn("Subnet '%s' format is wrong for interface '%s'" % (network_str, interface_name))
                 return True
             data["interface"] = interface_name
             data["prefixlen"] = str(network.prefixlen)
