@@ -42,7 +42,7 @@ def get_critical_group_and_process_list():
     with open(CRITICAL_PROCESSES_FILE, 'r') as file:
         for line in file:
             # ignore blank lines
-            if re.match(r"^\s*$", line)
+            if re.match(r"^\s*$", line):
                 continue
             line_info = line.strip(' \n').split(':')
             if len(line_info) != 2:
