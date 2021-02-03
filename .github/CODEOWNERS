@@ -25,3 +25,11 @@
 
 # permission
 /files/image_config/sudoers/  @qiluo-msft
+
+# dockers
+/dockers/docker-base*/                  @qiluo-msft
+/dockers/docker-config-engine*/         @qiluo-msft
+/dockers/docker-snmp/                   @qiluo-msft
+
+# src
+/src/initramfs-tools/                   @qiluo-msft
