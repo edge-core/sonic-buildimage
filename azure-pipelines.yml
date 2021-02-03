@@ -40,6 +40,8 @@ stages:
     steps:
     - script: |
         sudo rm -rf fsroot
+        username=$(id -un)
+        sudo chown -R ${username}.${username} .
       displayName: 'Cleanup'
     - checkout: self
       clean: true
@@ -68,6 +70,8 @@ stages:
     steps:
     - script: |
         sudo rm -rf fsroot
+        username=$(id -un)
+        sudo chown -R ${username}.${username} .
       displayName: 'Cleanup'
     - checkout: self
       clean: true
@@ -97,6 +101,8 @@ stages:
     steps:
     - script: |
         sudo rm -rf fsroot
+        username=$(id -un)
+        sudo chown -R ${username}.${username} .
       displayName: 'Cleanup'
     - checkout: self
       clean: true
