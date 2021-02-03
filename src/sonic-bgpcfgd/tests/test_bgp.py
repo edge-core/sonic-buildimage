@@ -12,11 +12,12 @@ TEMPLATE_PATH = os.path.abspath('../../dockers/docker-fpm-frr/frr')
 
 def constructor():
     cfg_mgr = MagicMock()
+    constants = load_constants()['constants']
     common_objs = {
         'directory': Directory(),
         'cfg_mgr':   cfg_mgr,
         'tf':        TemplateFabric(TEMPLATE_PATH),
-        'constants': load_constants()['constants']
+        'constants': constants
     }
 
     return_value_map = {
@@ -27,7 +28,7 @@ def constructor():
     bgpcfgd.managers_bgp.run_command = lambda cmd: return_value_map[str(cmd)]
     m = bgpcfgd.managers_bgp.BGPPeerMgrBase(common_objs, "CONFIG_DB", swsscommon.CFG_BGP_NEIGHBOR_TABLE_NAME, "general", True)
     assert m.peer_type == "general"
-    assert m.check_neig_meta == False # Because constants['bgp']['use_neighbors_meta'] is false in constants.yml
+    assert m.check_neig_meta == ('bgp' in constants and 'use_neighbors_meta' in constants['bgp'] and constants['bgp']['use_neighbors_meta'])
 
     m.directory.put("CONFIG_DB", swsscommon.CFG_DEVICE_METADATA_TABLE_NAME, "localhost", {"bgp_asn": "65100"})
     m.directory.put("CONFIG_DB", swsscommon.CFG_LOOPBACK_INTERFACE_TABLE_NAME, "Loopback0|11.11.11.11/32", {})
