@@ -30,6 +30,9 @@ stages:
     displayName: "broadcom"
     timeoutInMinutes: 600
     steps:
+    - script: |
+        sudo rm -rf fsroot
+      displayName: 'Cleanup'
     - checkout: self
       clean: true
       submodules: recursive
@@ -55,6 +58,9 @@ stages:
     displayName: "mellanox"
     timeoutInMinutes: 600
     steps:
+    - script: |
+        sudo rm -rf fsroot
+      displayName: 'Cleanup'
     - checkout: self
       clean: true
       submodules: recursive
@@ -81,6 +87,9 @@ stages:
     displayName: "kvm"
     timeoutInMinutes: 600
     steps:
+    - script: |
+        sudo rm -rf fsroot
+      displayName: 'Cleanup'
     - checkout: self
       clean: true
       submodules: recursive
