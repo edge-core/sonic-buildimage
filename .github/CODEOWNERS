@@ -8,7 +8,7 @@
 # the repo. Unless a later match takes precedence,
 # @lguohan will be requested for review when someone opens
 # a pull request.
-*       @Azure/sonic
+*       @lguohan
 
 /device/ @jleveque
 
