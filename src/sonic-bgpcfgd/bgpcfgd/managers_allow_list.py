@@ -173,6 +173,7 @@ class BGPAllowListMgr(Manager):
         msg += " deployment_id '%s'. community: '%s'"
         log_info(msg % info)
 
+        default_action = self.__get_default_action_community()
         names = self.__generate_names(deployment_id, community_value)
         self.cfg_mgr.update()
         cmds = []
@@ -181,6 +182,8 @@ class BGPAllowListMgr(Manager):
         cmds += self.__remove_prefix_list(self.V4, names['pl_v4'])
         cmds += self.__remove_prefix_list(self.V6, names['pl_v6'])
         cmds += self.__remove_community(names['community'])
+        cmds += self.__update_default_route_map_entry(names['rm_v4'], default_action)
+        cmds += self.__update_default_route_map_entry(names['rm_v6'], default_action)
         if cmds:
             self.cfg_mgr.push_list(cmds)
             peer_groups = self.__find_peer_group_by_deployment_id(deployment_id)
@@ -676,7 +679,7 @@ class BGPAllowListMgr(Manager):
         """
         return 'ip' if af == self.V4 else 'ipv6'
 
-    def __get_default_action_community(self, data):
+    def __get_default_action_community(self, data=None):
         """
         Determine the default action community based on the request.
         If request doesn't contain "default_action" field - the default_action value
@@ -685,7 +688,7 @@ class BGPAllowListMgr(Manager):
         :return: returns community value for "default_action"
         """
         drop_community = self.constants["bgp"]["allow_list"]["drop_community"]
-        if "default_action" in data:
+        if data and "default_action" in data:
             if data["default_action"] == "deny":
                 return "no-export"
             else: # "permit"
