@@ -29,6 +29,7 @@ declare -r SPC1_ASIC="spc1"
 declare -r SPC2_ASIC="spc2"
 declare -r SPC3_ASIC="spc3"
 declare -r UNKN_ASIC="unknown"
+declare -r UNKN_MST="unknown"
 
 declare -rA FW_FILE_MAP=( \
     [$SPC1_ASIC]="/etc/mlnx/fw-SPC.mfa" \
@@ -152,6 +153,18 @@ function GetAsicType() {
     exit "${EXIT_FAILURE}"
 }
 
+function GetMstDevice() {
+    local _MST_DEVICE="$(ls /dev/mst/*_pci_cr0 2>&1)"
+
+    if [[ ! -c "${_MST_DEVICE}" ]]; then
+        echo "${UNKN_MST}"
+    else 
+        echo "${_MST_DEVICE}"
+    fi
+
+    exit "${EXIT_SUCCESS}"
+}
+
 function RunCmd() {
     local ERROR_CODE="${EXIT_SUCCESS}"
 
@@ -207,7 +220,13 @@ function UpgradeFW() {
         ExitSuccess "firmware is up to date"
     else
         LogNotice "firmware upgrade is required. Installing compatible version..."
-        RunCmd "${BURN_CMD} -i ${_FW_FILE}"
+        local -r _MST_DEVICE="$(GetMstDevice)"
+        if [[ "${_MST_DEVICE}" = "${UNKN_MST}" ]]; then
+            LogWarning "could not find fastest mst device, using default device"
+            RunCmd "${BURN_CMD} -i ${_FW_FILE}"
+        else
+            RunCmd "${BURN_CMD} -d ${_MST_DEVICE} -i ${_FW_FILE}"
+        fi
     fi
 }
 
