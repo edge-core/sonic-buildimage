@@ -20,6 +20,26 @@ _trap_push() {
 }
 _trap_push true
 
+read_conf_file() {
+    local conf_file=$1
+    while IFS='=' read -r var value || [ -n "$var" ]
+    do
+        # remove newline character
+        var=$(echo $var | tr -d '\r\n')
+        value=$(echo $value | tr -d '\r\n')
+        # remove comment string
+        var=${var%#*}
+        value=${value%#*}
+        # skip blank line
+        [ -z "$var" ] && continue
+        # remove double quote in the beginning
+        tmp_val=${value#\"}
+        # remove double quote in the end
+        value=${tmp_val%\"}
+        eval "$var=\"$value\""
+    done < "$conf_file"
+}
+
 # Main
 set -e
 cd $(dirname $0)
@@ -37,7 +57,7 @@ else
 fi
 
 if [ -r ./machine.conf ]; then
-. ./machine.conf
+    read_conf_file "./machine.conf"
 fi
 
 if [ -r ./onie-image.conf ]; then
@@ -54,9 +74,9 @@ fi
 
 # get running machine from conf file
 if [ -r /etc/machine.conf ]; then
-    . /etc/machine.conf
+    read_conf_file "/etc/machine.conf"
 elif [ -r /host/machine.conf ]; then
-    . /host/machine.conf
+    read_conf_file "/host/machine.conf"
 elif [ "$install_env" != "build" ]; then
     echo "cannot find machine.conf"
     exit 1
