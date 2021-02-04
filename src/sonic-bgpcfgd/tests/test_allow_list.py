@@ -3,6 +3,7 @@ from bgpcfgd.directory import Directory
 from bgpcfgd.template import TemplateFabric
 import bgpcfgd
 from mock import MagicMock, patch
+from copy import deepcopy
 
 
 swsscommon_module_mock = MagicMock()
@@ -25,7 +26,7 @@ global_constants = {
 }
 
 @patch.dict("sys.modules", swsscommon=swsscommon_module_mock)
-def set_del_test(op, args, currect_config, expected_config):
+def set_del_test(op, args, currect_config, expected_config, update_global_default_action=None):
     from bgpcfgd.managers_allow_list import BGPAllowListMgr
     set_del_test.push_list_called = False
     def push_list(args):
@@ -43,10 +44,12 @@ def set_del_test(op, args, currect_config, expected_config):
         'directory': Directory(),
         'cfg_mgr':   cfg_mgr,
         'tf':        TemplateFabric(),
-        'constants': global_constants,
+        'constants': deepcopy(global_constants),
     }
 
     mgr = BGPAllowListMgr(common_objs, "CONFIG_DB", "BGP_ALLOWED_PREFIXES")
+    if update_global_default_action:
+        mgr.constants["bgp"]["allow_list"]["default_action"] = update_global_default_action
     if op == "SET":
         mgr.set_handler(*args)
     elif op == "DEL":
@@ -88,6 +91,74 @@ def test_set_handler_with_community():
             ' match community COMMUNITY_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020',
         ]
     )
+def test_set_handler_with_community_and_permit_action():
+    set_del_test(
+        "SET",
+        ("DEPLOYMENT_ID|5|1010:2020", {
+                "prefixes_v4": "10.20.30.0/24,30.50.0.0/16",
+                "prefixes_v6": "fc00:20::/64,fc00:30::/64",
+                "default_action":"permit"
+        }),
+        [
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 65535',
+            ' set community 123:123 additive',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 65535',
+            ' set community 123:123 additive'
+        ],
+        [
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V4 seq 10 deny 0.0.0.0/0 le 17',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V4 seq 20 permit 10.20.30.0/24 le 32',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V4 seq 30 permit 30.50.0.0/16 le 32',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6 seq 10 deny 0::/0 le 59',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6 seq 20 deny 0::/0 ge 65',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6 seq 30 permit fc00:20::/64 le 128',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6 seq 40 permit fc00:30::/64 le 128',
+            'bgp community-list standard COMMUNITY_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020 permit 1010:2020',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 10',
+            ' match ip address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V4',
+            ' match community COMMUNITY_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 10',
+            ' match ipv6 address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6',
+            ' match community COMMUNITY_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020',
+        ]
+    )
+
+def test_set_handler_with_community_and_deny_action():
+    set_del_test(
+        "SET",
+        ("DEPLOYMENT_ID|5|1010:2020", {
+                "prefixes_v4": "10.20.30.0/24,30.50.0.0/16",
+                "prefixes_v6": "fc00:20::/64,fc00:30::/64",
+                "default_action":"deny"
+        }),
+        [
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 65535',
+            ' set community 123:123 additive',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 65535',
+            ' set community 123:123 additive'
+        ],
+        [
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V4 seq 10 deny 0.0.0.0/0 le 17',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V4 seq 20 permit 10.20.30.0/24 le 32',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V4 seq 30 permit 30.50.0.0/16 le 32',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6 seq 10 deny 0::/0 le 59',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6 seq 20 deny 0::/0 ge 65',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6 seq 30 permit fc00:20::/64 le 128',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6 seq 40 permit fc00:30::/64 le 128',
+            'bgp community-list standard COMMUNITY_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020 permit 1010:2020',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 10',
+            ' match ip address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V4',
+            ' match community COMMUNITY_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 10',
+            ' match ipv6 address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6',
+            ' match community COMMUNITY_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 65535', 
+            ' set community no-export additive', 
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 65535', 
+            ' set community no-export additive'
+        ]
+    )
+
 
 def test_set_handler_no_community():
     set_del_test(
@@ -116,6 +187,66 @@ def test_set_handler_no_community():
             ' match ipv6 address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V6',
         ]
     )
+def test_set_handler_no_community_with_permit_action():
+    set_del_test(
+        "SET",
+        ("DEPLOYMENT_ID|5", {
+                "prefixes_v4": "20.20.30.0/24,40.50.0.0/16",
+                "prefixes_v6": "fc01:20::/64,fc01:30::/64",
+                "default_action":"permit"
+        }),
+        [
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 65535',
+            ' set community 123:123 additive',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 65535',
+            ' set community 123:123 additive',
+        ],
+        [
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V4 seq 10 deny 0.0.0.0/0 le 17',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V4 seq 20 permit 20.20.30.0/24 le 32',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V4 seq 30 permit 40.50.0.0/16 le 32',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V6 seq 10 deny 0::/0 le 59',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V6 seq 20 deny 0::/0 ge 65',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V6 seq 30 permit fc01:20::/64 le 128',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V6 seq 40 permit fc01:30::/64 le 128',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 30000',
+            ' match ip address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V4',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 30000',
+            ' match ipv6 address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V6',
+        ]
+    )
+def test_set_handler_no_community_with_deny_action():
+    set_del_test(
+        "SET",
+        ("DEPLOYMENT_ID|5", {
+                "prefixes_v4": "20.20.30.0/24,40.50.0.0/16",
+                "prefixes_v6": "fc01:20::/64,fc01:30::/64",
+                "default_action":"deny"
+        }),
+        [
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 65535',
+            ' set community 123:123 additive',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 65535',
+            ' set community 123:123 additive',
+        ],
+        [
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V4 seq 10 deny 0.0.0.0/0 le 17',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V4 seq 20 permit 20.20.30.0/24 le 32',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V4 seq 30 permit 40.50.0.0/16 le 32',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V6 seq 10 deny 0::/0 le 59',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V6 seq 20 deny 0::/0 ge 65',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V6 seq 30 permit fc01:20::/64 le 128',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V6 seq 40 permit fc01:30::/64 le 128',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 30000',
+            ' match ip address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V4',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 30000',
+            ' match ipv6 address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V6',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 65535', 
+            ' set community no-export additive', 
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 65535', 
+            ' set community no-export additive'
+        ]
+    )
 
 def test_del_handler_with_community():
     set_del_test(
@@ -136,6 +267,11 @@ def test_del_handler_with_community():
             'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 10',
             ' match ipv6 address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6',
             ' match community COMMUNITY_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 65535',
+            ' set community 123:123 additive',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 65535',
+            ' set community 123:123 additive',
+
             ""
         ],
         [
@@ -146,6 +282,155 @@ def test_del_handler_with_community():
             'no bgp community-list standard COMMUNITY_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020',
         ]
     )
+
+def test_del_handler_with_exiting_community_deny_action():
+    set_del_test(
+        "DEL",
+        ("DEPLOYMENT_ID|5|1010:2020",),
+        [
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V4 seq 10 deny 0.0.0.0/0 le 17',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V4 seq 20 permit 10.20.30.0/24 ge 25',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V4 seq 30 permit 30.50.0.0/16 ge 17',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6 seq 10 deny 0::/0 le 59',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6 seq 20 deny 0::/0 ge 65',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6 seq 30 permit fc00:20::/64 ge 65',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6 seq 40 permit fc00:30::/64 ge 65',
+            'bgp community-list standard COMMUNITY_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020 permit 1010:2020',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 10',
+            ' match ip address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V4',
+            ' match community COMMUNITY_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 10',
+            ' match ipv6 address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6',
+            ' match community COMMUNITY_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 65535',
+            ' set community no-export additive',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 65535',
+            ' set community no-export additive',
+            ""
+        ],
+        [
+            'no route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 10',
+            'no route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 10',
+            'no ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V4',
+            'no ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6',
+            'no bgp community-list standard COMMUNITY_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 65535',
+            ' set community 123:123 additive',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 65535',
+            ' set community 123:123 additive',
+        ]
+    )
+
+
+def test_del_handler_with_exiting_community_permit_action():
+    set_del_test(
+        "DEL",
+        ("DEPLOYMENT_ID|5|1010:2020",),
+        [
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V4 seq 10 deny 0.0.0.0/0 le 17',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V4 seq 20 permit 10.20.30.0/24 ge 25',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V4 seq 30 permit 30.50.0.0/16 ge 17',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6 seq 10 deny 0::/0 le 59',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6 seq 20 deny 0::/0 ge 65',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6 seq 30 permit fc00:20::/64 ge 65',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6 seq 40 permit fc00:30::/64 ge 65',
+            'bgp community-list standard COMMUNITY_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020 permit 1010:2020',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 10',
+            ' match ip address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V4',
+            ' match community COMMUNITY_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 10',
+            ' match ipv6 address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6',
+            ' match community COMMUNITY_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 65535',
+            ' set community 123:123 additive',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 65535',
+            ' set community 123:123 additive',
+            ""
+        ],
+        [
+            'no route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 10',
+            'no route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 10',
+            'no ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V4',
+            'no ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6',
+            'no bgp community-list standard COMMUNITY_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020',
+        ]
+    )
+
+def test_del_handler_with_exiting_community_deny_action_global_deny():
+    set_del_test(
+        "DEL",
+        ("DEPLOYMENT_ID|5|1010:2020",),
+        [
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V4 seq 10 deny 0.0.0.0/0 le 17',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V4 seq 20 permit 10.20.30.0/24 ge 25',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V4 seq 30 permit 30.50.0.0/16 ge 17',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6 seq 10 deny 0::/0 le 59',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6 seq 20 deny 0::/0 ge 65',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6 seq 30 permit fc00:20::/64 ge 65',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6 seq 40 permit fc00:30::/64 ge 65',
+            'bgp community-list standard COMMUNITY_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020 permit 1010:2020',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 10',
+            ' match ip address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V4',
+            ' match community COMMUNITY_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 10',
+            ' match ipv6 address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6',
+            ' match community COMMUNITY_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 65535',
+            ' set community no-export additive',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 65535',
+            ' set community no-export additive',
+            ""
+        ],
+        [
+            'no route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 10',
+            'no route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 10',
+            'no ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V4',
+            'no ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6',
+            'no bgp community-list standard COMMUNITY_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020',
+        ],
+        "deny"
+    )
+
+
+def test_del_handler_with_exiting_community_permit_action_global_deny():
+    set_del_test(
+        "DEL",
+        ("DEPLOYMENT_ID|5|1010:2020",),
+        [
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V4 seq 10 deny 0.0.0.0/0 le 17',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V4 seq 20 permit 10.20.30.0/24 ge 25',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V4 seq 30 permit 30.50.0.0/16 ge 17',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6 seq 10 deny 0::/0 le 59',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6 seq 20 deny 0::/0 ge 65',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6 seq 30 permit fc00:20::/64 ge 65',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6 seq 40 permit fc00:30::/64 ge 65',
+            'bgp community-list standard COMMUNITY_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020 permit 1010:2020',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 10',
+            ' match ip address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V4',
+            ' match community COMMUNITY_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 10',
+            ' match ipv6 address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6',
+            ' match community COMMUNITY_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 65535',
+            ' set community 123:123 additive',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 65535',
+            ' set community 123:123 additive',
+            ""
+        ],
+        [
+            'no route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 10',
+            'no route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 10',
+            'no ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V4',
+            'no ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020_V6',
+            'no bgp community-list standard COMMUNITY_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_1010:2020',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 65535',
+            ' set community no-export additive',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 65535',
+            ' set community no-export additive',
+        ],
+        "deny"
+    )
+
 
 def test_del_handler_no_community():
     set_del_test(
@@ -163,6 +448,10 @@ def test_del_handler_no_community():
             ' match ip address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V4',
             'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 30000',
             ' match ipv6 address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V6',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 65535',
+            ' set community 123:123 additive',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 65535',
+            ' set community 123:123 additive',
             " "
         ],
         [
@@ -172,6 +461,75 @@ def test_del_handler_no_community():
             'no ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V6',
         ]
     )
+def test_del_handler_with_no_community_deny_action():
+    set_del_test(
+        "DEL",
+        ("DEPLOYMENT_ID|5",),
+        [
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V4 seq 10 deny 0.0.0.0/0 le 17',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V4 seq 20 permit 20.20.30.0/24 ge 25',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V4 seq 30 permit 40.50.0.0/16 ge 17',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V6 seq 10 deny 0::/0 le 59',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V6 seq 20 deny 0::/0 ge 65',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V6 seq 30 permit fc01:20::/64 ge 65',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V6 seq 40 permit fc01:30::/64 ge 65',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 30000',
+            ' match ip address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V4',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 30000',
+            ' match ipv6 address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V6',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 65535',
+            ' set community no-export additive',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 65535',
+            ' set community no-export additive',
+            ""
+        ],
+        [
+            'no route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 30000',
+            'no route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 30000',
+            'no ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V4',
+            'no ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V6',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 65535',
+            ' set community 123:123 additive',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 65535',
+            ' set community 123:123 additive',
+        ]
+    )
+def test_del_handler_with_no_community_permit_action_global_deny():
+    set_del_test(
+        "DEL",
+        ("DEPLOYMENT_ID|5",),
+        [
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V4 seq 10 deny 0.0.0.0/0 le 17',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V4 seq 20 permit 20.20.30.0/24 ge 25',
+            'ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V4 seq 30 permit 40.50.0.0/16 ge 17',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V6 seq 10 deny 0::/0 le 59',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V6 seq 20 deny 0::/0 ge 65',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V6 seq 30 permit fc01:20::/64 ge 65',
+            'ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V6 seq 40 permit fc01:30::/64 ge 65',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 30000',
+            ' match ip address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V4',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 30000',
+            ' match ipv6 address prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V6',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 65535',
+            ' set community 123:123 additive',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 65535',
+            ' set community 123:123 additive',
+            ""
+        ],
+        [
+            'no route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 30000',
+            'no route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 30000',
+            'no ip prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V4',
+            'no ipv6 prefix-list PL_ALLOW_LIST_DEPLOYMENT_ID_5_COMMUNITY_empty_V6',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 65535',
+            ' set community no-export additive',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 65535',
+            ' set community no-export additive',
+        ],
+        "deny"
+    )
+
+
 
 def test_set_handler_with_community_data_is_already_presented():
     set_del_test(
@@ -244,7 +602,12 @@ def test_del_handler_with_community_no_data():
     set_del_test(
         "DEL",
         ("DEPLOYMENT_ID|5|1010:2020",),
-        [""],
+        [
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 65535',
+            ' set community 123:123 additive',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 65535',
+            ' set community 123:123 additive'
+        ],
         []
     )
 
@@ -252,7 +615,12 @@ def test_del_handler_no_community_no_data():
     set_del_test(
         "DEL",
         ("DEPLOYMENT_ID|5",),
-        [""],
+        [
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V4 permit 65535',
+            ' set community 123:123 additive',
+            'route-map ALLOW_LIST_DEPLOYMENT_ID_5_V6 permit 65535',
+            ' set community 123:123 additive'
+        ],
         []
     )
 
