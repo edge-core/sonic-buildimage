@@ -34,6 +34,7 @@ Cmnd_Alias      READ_ONLY_CMDS = /bin/cat /var/log/syslog*, \
                                  /usr/local/bin/decode-syseeprom, \
                                  /usr/local/bin/generate_dump, \
                                  /usr/local/bin/lldpshow, \
+                                 /usr/local/bin/pcieutil *, \
                                  /usr/local/bin/psuutil *, \
                                  /usr/local/bin/sonic-installer list, \
                                  /usr/local/bin/sfputil show *, \
