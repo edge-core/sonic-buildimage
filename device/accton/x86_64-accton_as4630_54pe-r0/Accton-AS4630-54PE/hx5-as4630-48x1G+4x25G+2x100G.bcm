@@ -19,7 +19,10 @@ l2_mem_entries=32768
 #l3_mem_entries=49152
 #fpem_mem_entries=16384
 l2xmsg_mode=1
+l3_alpm_enable=2
+ipv6_lpm_128b_enable=1
 port_flex_enable=1
+ifp_inports_support_enable=1
 
 #3x PM4x10Q (3 * 16 = 48 physical ports)
 #Doesn't support oversubscribe in Q mode
