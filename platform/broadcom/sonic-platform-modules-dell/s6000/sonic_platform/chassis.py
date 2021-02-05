@@ -24,7 +24,7 @@ except ImportError as e:
 
 MAX_S6000_FANTRAY = 3
 MAX_S6000_PSU = 2
-MAX_S6000_THERMAL = 10
+MAX_S6000_THERMAL = 6
 MAX_S6000_COMPONENT = 4
 
 
@@ -44,6 +44,8 @@ class Chassis(ChassisBase):
 
     def __init__(self):
         ChassisBase.__init__(self)
+        self.status_led_reg = "system_led"
+        self.supported_led_color = ['green', 'blinking green', 'amber', 'blinking amber']
         # Initialize SFP list
         self.PORT_START = 0
         self.PORT_END = 31
@@ -101,11 +103,28 @@ class Chassis(ChassisBase):
         try:
             with open(mb_reg_file, 'r') as fd:
                 rv = fd.read()
-        except Exception as error:
+        except IOError:
             rv = 'ERR'
 
         rv = rv.rstrip('\r\n')
         rv = rv.lstrip(" ")
+        return rv
+
+    def _set_cpld_register(self, reg_name, value):
+        # On successful write, returns the value will be written on
+        # reg_name and on failure returns 'ERR'
+        rv = 'ERR'
+        cpld_reg_file = self.CPLD_DIR+'/'+reg_name
+
+        if (not os.path.isfile(cpld_reg_file)):
+            return rv
+
+        try:
+            with open(cpld_reg_file, 'w') as fd:
+                rv = fd.write(str(value))
+        except IOError:
+            rv = 'ERR'
+
         return rv
 
     def _nvram_write(self, offset, val):
@@ -178,6 +197,23 @@ class Chassis(ChassisBase):
             False if not
         """
         return True
+
+    def get_position_in_parent(self):
+        """
+        Retrieves 1-based relative physical position in parent device.
+        Returns:
+            integer: The 1-based relative physical position in parent
+            device or -1 if cannot determine the position
+        """
+        return -1
+
+    def is_replaceable(self):
+        """
+        Indicate whether Chassis is replaceable.
+        Returns:
+            bool: True if it is replaceable.
+        """
+        return False
 
     def get_base_mac(self):
         """
@@ -305,4 +341,41 @@ class Chassis(ChassisBase):
                     return True, ret_dict
         return False, ret_dict
 
+    def set_status_led(self, color):
+        """
+        Sets the state of the system LED
 
+        Args:
+            color: A string representing the color with which to set the
+                   system LED
+
+        Returns:
+            bool: True if system LED state is set successfully, False if not
+        """
+        if color not in self.supported_led_color:
+            return False
+
+        # Change color string format to the one used by driver
+        color = color.replace('amber', 'yellow')
+        color = color.replace('blinking ', 'blink_')
+        rv = self._set_cpld_register(self.status_led_reg, color)
+        if (rv != 'ERR'):
+            return True
+        else:
+            return False
+
+    def get_status_led(self):
+        """
+        Gets the state of the system LED
+
+        Returns:
+            A string, one of the valid LED color strings which could be vendor
+            specified.
+        """
+        status_led = self._get_cpld_register(self.status_led_reg)
+        if (status_led != 'ERR'):
+            status_led = status_led.replace('yellow', 'amber')
+            status_led = status_led.replace('blink_', 'blinking ')
+            return status_led
+        else:
+            return None
