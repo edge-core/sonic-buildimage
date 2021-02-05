@@ -10,6 +10,7 @@
 
 try:
     import re
+    import struct
     import time
     from sonic_platform_base.sfp_base import SfpBase
     from sonic_platform_base.sonic_sfp.sff8436 import sff8436InterfaceId
@@ -26,6 +27,9 @@ FUNC_NAME = 3
 INFO_OFFSET = 128
 DOM_OFFSET = 0
 DOM_OFFSET1 = 384
+
+QSFP_CONTROL_OFFSET = 86
+QSFP_POWEROVERRIDE_OFFSET = 93
 
 cable_length_tup = ('Length(km)', 'Length OM3(2m)', 'Length OM2(m)',
                     'Length OM1(m)', 'Length Cable Assembly(m)')
@@ -107,7 +111,7 @@ class Sfp(SfpBase):
             sfp_control, sfp_ctrl_idx):
         SfpBase.__init__(self)
         self.sfp_type = sfp_type
-        self.index = index
+        self.index = index + 1
         self.eeprom_path = eeprom_path
         self.sfp_control = sfp_control
         self.sfp_ctrl_idx = sfp_ctrl_idx
@@ -131,9 +135,10 @@ class Sfp(SfpBase):
             eeprom.close()
             return None
 
+        raw = bytearray(raw)
         try:
             for n in range(0, num_bytes):
-                eeprom_raw[n] = hex(ord(raw[n]))[2:].zfill(2)
+                eeprom_raw[n] = hex(raw[n])[2:].zfill(2)
         except BaseException:
             eeprom.close()
             return None
@@ -594,40 +599,14 @@ class Sfp(SfpBase):
         """
         Retrieves the TX disabled channels in this SFP
         """
-        tx_disable = None
-        tx_disable_list = []
+        tx_disable_channel = 0
 
-        tx_disable_data = self._get_eeprom_data('tx_disable')
-        if (tx_disable_data is not None):
-            tx_disable = tx_disable_data['data']['Tx1Disable']['value']
-            if (tx_disable == 'On'):
-                tx_disable_list.append(1)
-            else:
-                tx_disable_list.append(0)
-            tx_disable = tx_disable_data['data']['Tx2Disable']['value']
-            if (tx_disable == 'On'):
-                tx_disable_list.append(1)
-            else:
-                tx_disable_list.append(0)
-            tx_disable = tx_disable_data['data']['Tx3Disable']['value']
-            if (tx_disable == 'On'):
-                tx_disable_list.append(1)
-            else:
-                tx_disable_list.append(0)
-            tx_disable = tx_disable_data['data']['Tx4Disable']['value']
-            if (tx_disable == 'On'):
-                tx_disable_list.append(1)
-            else:
-                tx_disable_list.append(0)
+        tx_disable = self.get_tx_disable()
+        for channel, disable in enumerate(tx_disable):
+            if disable:
+                tx_disable_channel |= 1 << channel
 
-            bit4 = int(tx_disable_list[3]) * 8
-            bit3 = int(tx_disable_list[2]) * 4
-            bit2 = int(tx_disable_list[1]) * 2
-            bit1 = int(tx_disable_list[0]) * 1
-
-            tx_disable_channel = hex(bit4 + bit3 + bit2 + bit1)
-
-            return tx_disable_channel
+        return tx_disable_channel
 
     def get_lpmode(self):
         """
@@ -836,19 +815,68 @@ class Sfp(SfpBase):
         """
         Disable SFP TX for all channels
         """
-        return False
+        eeprom = None
+        tx_disable_value = 0xf if tx_disable else 0x0
+
+        try:
+            eeprom = open(self.eeprom_path, "r+b")
+            eeprom.seek(QSFP_CONTROL_OFFSET)
+            eeprom.write(struct.pack('B', tx_disable_value))
+        except IOError:
+            return False
+        finally:
+            if eeprom is not None:
+                eeprom.close()
+                time.sleep(0.01)
+
+        return True
 
     def tx_disable_channel(self, channel, disable):
         """
         Sets the tx_disable for specified SFP channels
         """
-        return False
+        eeprom = None
+        current_state = self.get_tx_disable_channel()
+
+        if disable:
+            tx_disable_value = current_state | channel
+        else:
+            tx_disable_value = current_state & (~channel)
+
+        try:
+            eeprom = open(self.eeprom_path, "r+b")
+            eeprom.seek(QSFP_CONTROL_OFFSET)
+            eeprom.write(struct.pack('B', tx_disable_value))
+        except IOError:
+            return False
+        finally:
+            if eeprom is not None:
+                eeprom.close()
+                time.sleep(0.01)
+
+        return True
 
     def set_power_override(self, power_override, power_set):
         """
         Sets SFP power level using power_override and power_set
         """
-        return False
+        eeprom = None
+        power_override_bit = 0x1 if power_override else 0
+        power_set_bit = 0x2 if power_set else 0
+        value = power_override_bit | power_set_bit
+
+        try:
+            eeprom = open(self.eeprom_path, "r+b")
+            eeprom.seek(QSFP_POWEROVERRIDE_OFFSET)
+            eeprom.write(struct.pack('B', value))
+        except IOError:
+            return False
+        finally:
+            if eeprom is not None:
+                eeprom.close()
+                time.sleep(0.01)
+
+        return True
 
     def get_status(self):
         """
@@ -862,3 +890,20 @@ class Sfp(SfpBase):
             status = True
 
         return status
+
+    def get_position_in_parent(self):
+        """
+        Retrieves 1-based relative physical position in parent device.
+        Returns:
+            integer: The 1-based relative physical position in parent
+            device or -1 if cannot determine the position
+        """
+        return self.index
+
+    def is_replaceable(self):
+        """
+        Indicate whether this device  is replaceable.
+        Returns:
+            bool: True if it is replaceable.
+        """
+        return True

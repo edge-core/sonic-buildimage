@@ -15,8 +15,11 @@ try:
     from sonic_platform_base.psu_base import PsuBase
     from sonic_platform.eeprom import Eeprom
     from sonic_platform.fan import Fan
+    from sonic_platform.thermal import Thermal
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
+
+MAX_S6000_THERMALS_PER_PSU = 2
 
 
 class Psu(PsuBase):
@@ -53,7 +56,10 @@ class Psu(PsuBase):
 
         self.eeprom = Eeprom(is_psu=True, psu_index=self.index)
 
-        self._fan_list.append(Fan(self.index, psu_fan=True, dependency=self))
+        self._fan_list.append(Fan(psu_index=self.index, psu_fan=True, dependency=self))
+        for i in range(1, MAX_S6000_THERMALS_PER_PSU+1):
+            self._thermal_list.append(Thermal(psu_index=self.index, thermal_index=i,
+                                              psu_thermal=True, dependency=self))
 
     def _get_cpld_register(self, reg_name):
         # On successful read, returns the value read from given
@@ -171,6 +177,23 @@ class Psu(PsuBase):
 
         return status
 
+    def get_position_in_parent(self):
+        """
+        Retrieves 1-based relative physical position in parent device.
+        Returns:
+            integer: The 1-based relative physical position in parent
+            device or -1 if cannot determine the position
+        """
+        return self.index
+
+    def is_replaceable(self):
+        """
+        Indicate whether PSU is replaceable.
+        Returns:
+            bool: True if it is replaceable.
+        """
+        return True
+
     def get_voltage(self):
         """
         Retrieves current PSU voltage output
@@ -266,3 +289,50 @@ class Psu(PsuBase):
         # In S6000, the firmware running in the PSU controls the LED
         # and the PSU LED state cannot be changed from CPU.
         return False
+
+    def get_temperature(self):
+        """
+        Retrieves current temperature reading from PSU
+
+        Returns:
+            A float number of current temperature in Celsius up to
+            nearest thousandth of one degree Celsius, e.g. 30.125
+        """
+        if self.get_presence():
+            return self.get_thermal(0).get_temperature()
+        else:
+            return 0.0
+
+    def get_temperature_high_threshold(self):
+        """
+        Retrieves the high threshold temperature of PSU
+
+        Returns:
+            A float number, the high threshold temperature of PSU in
+            Celsius up to nearest thousandth of one degree Celsius,
+            e.g. 30.125
+        """
+        if self.get_presence():
+            return self.get_thermal(0).get_high_threshold()
+        else:
+            return 0.0
+
+    def get_voltage_high_threshold(self):
+        """
+        Retrieves the high threshold PSU voltage output
+
+        Returns:
+            A float number, the high threshold output voltage in volts,
+            e.g. 12.1
+        """
+        return 12.6
+
+    def get_voltage_low_threshold(self):
+        """
+        Retrieves the low threshold PSU voltage output
+
+        Returns:
+            A float number, the low threshold output voltage in volts,
+            e.g. 12.1
+        """
+        return 11.4
