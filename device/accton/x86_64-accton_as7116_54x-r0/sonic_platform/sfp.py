@@ -698,7 +698,7 @@ class Sfp(SfpBase):
         qsfp_dom_capability_raw = self.__read_eeprom_specific_bytes(
             (offset_xcvr + XCVR_DOM_CAPABILITY_OFFSET), XCVR_DOM_CAPABILITY_WIDTH)
         if qsfp_dom_capability_raw is not None:
-            qspf_dom_capability_data = sfpi_obj.parse_qsfp_dom_capability(
+            qspf_dom_capability_data = sfpi_obj.parse_dom_capability(
                 qsfp_dom_capability_raw, 0)
         else:
             return None

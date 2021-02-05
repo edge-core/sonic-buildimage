@@ -118,7 +118,7 @@ sff8436_parser = {
      'hardware_rev': [QSFP_INFO_OFFSET, 56,  2, 'parse_vendor_rev'],
            'serial': [QSFP_INFO_OFFSET, 68, 16, 'parse_vendor_sn'],
       'vendor_date': [QSFP_INFO_OFFSET, 84,  8, 'parse_vendor_date'],
-   'dom_capability': [QSFP_INFO_OFFSET, 92,  1, 'parse_qsfp_dom_capability'],
+   'dom_capability': [QSFP_INFO_OFFSET, 92,  1, 'parse_dom_capability'],
           'dom_rev': [QSFP_DOM_OFFSET,   1,  1, 'parse_sfp_dom_rev'],
   'ModuleThreshold': [QSFP_DOM_OFFSET1, 128, 24, 'parse_module_threshold_values'],
  'ChannelThreshold': [QSFP_DOM_OFFSET1, 176, 16, 'parse_channel_threshold_values'],
