@@ -1,0 +1,12 @@
+steps:
+- script: |
+    sudo kill -9 `sudo cat /var/run/march/docker.pid` || true
+    sudo rm -f /var/run/march/docker.pid || true
+    sudo rm -rf fsroot || true
+    git clean -xfdf || true
+    git reset --hard || true
+    git submodule foreach --recursive 'git clean -xfdf || true' || true
+    git submodule foreach --recursive 'git reset --hard || true' || true
+    git submodule foreach --recursive 'git remote update || true' || true
+    git submodule update --init --recursive || true
+  displayName: "Clean Workspace"

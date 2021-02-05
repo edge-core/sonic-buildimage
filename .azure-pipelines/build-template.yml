@@ -1,0 +1,66 @@
+parameters:
+- name: platform
+  type: string
+  values:
+  - broadcom
+  - mellanox
+
+- name: platform_short
+  type: string
+  values:
+  - brcm
+  - mlnx
+
+- name: cache_mode
+  type: string
+  values:
+  - wcache
+  - rcache
+  - cache
+
+- name: dbg_image
+  type: boolean
+
+- name: swi_image
+  type: boolean
+
+- name: raw_image
+  type: boolean
+
+- name: sync_rpc_image
+  type: boolean
+
+jobs:
+- job:
+  displayName: ${{ parameters.platform }}
+  timeoutInMinutes: 600
+  steps:
+  - checkout: self
+    submodules: recursive
+    displayName: 'Checkout code'
+  - template: cleanup.yml
+  - script: |
+      set -e
+      sudo modprobe overlay
+      CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=${{ parameters.cache_mode }} SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/${{ parameters.platform }}"
+      ENABLE_DOCKER_BASE_PULL=y make configure PLATFORM=${{ parameters.platform }}
+      trap "sudo rm -rf fsroot" EXIT
+      if [ ${{ parameters.dbg_image }} ];then
+        make USERNAME=admin $CACHE_OPTIONS SONIC_BUILD_JOBS=$(nproc) INSTALL_DEBUG_TOOLS=y target/sonic-${{ parameters.platform }}.bin && \
+          mv target/sonic-${{ parameters.platform }}.bin target/sonic-${{ parameters.platform }}-dbg.bin
+      fi
+      if [ ${{ parameters.swi_image }} ];then
+        make USERNAME=admin $CACHE_OPTIONS SONIC_BUILD_JOBS=$(nproc) ENABLE_IMAGE_SIGNATURE=y target/sonic-aboot-${{ parameters.platform }}.swi
+      fi
+      if [ ${{ parameters.raw_image }} ];then
+        make USERNAME=admin $CACHE_OPTIONS SONIC_BUILD_JOBS=$(nproc) target/sonic-${{ parameters.platform }}.raw
+      fi
+      if [ ${{ parameters.sync_rpc_image }} ];then
+        make USERNAME=admin $CACHE_OPTIONS SONIC_BUILD_JOBS=$(nproc) ENABLE_SYNCD_RPC=y target/docker-syncd-${{ parameters.platform_short }}-rpc.gz
+      fi
+      make USERNAME=admin $CACHE_OPTIONS SONIC_BUILD_JOBS=$(nproc) target/sonic-${{ parameters.platform }}.bin
+    displayName: 'Build sonic image'
+  - publish: $(System.DefaultWorkingDirectory)/
+    artifact: sonic-buildimage.${{ parameters.platform }}
+    displayName: "Archive sonic image"
+  - template: cleanup.yml
