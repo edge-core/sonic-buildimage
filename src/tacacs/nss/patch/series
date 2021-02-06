@@ -5,3 +5,4 @@
 0005-libnss-Modify-parsing-of-IP-addr-and-port-number-str.patch
 0006-fix-compiling-warning-about-token-dereference.patch
 0007-Add-support-for-TACACS-source-address.patch
+0008-do-not-create-or-modify-local-user-if-there-is-no-pr.patch
