@@ -23,6 +23,7 @@ on_exit()
 on_error()
 {
     netstat -antp
+    ps aux
     echo "============= kvm_log =============="
     cat $kvm_log
 }
