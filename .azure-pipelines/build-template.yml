@@ -73,17 +73,17 @@ jobs:
       CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=${{ parameters.cache_mode }} SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/${{ parameters.platform }}"
       ENABLE_DOCKER_BASE_PULL=y make configure PLATFORM=${{ parameters.platform }} PLATFORM_ARCH=${{ parameters.platform_arch }}
       trap "sudo rm -rf fsroot" EXIT
-      if [ ${{ parameters.dbg_image }} ];then
+      if [ ${{ parameters.dbg_image }} == true ];then
         make USERNAME=admin $CACHE_OPTIONS SONIC_BUILD_JOBS=$(nproc) INSTALL_DEBUG_TOOLS=y target/sonic-${{ parameters.platform }}.bin && \
           mv target/sonic-${{ parameters.platform }}.bin target/sonic-${{ parameters.platform }}-dbg.bin
       fi
-      if [ ${{ parameters.swi_image }} ];then
+      if [ ${{ parameters.swi_image }} == true ];then
         make USERNAME=admin $CACHE_OPTIONS SONIC_BUILD_JOBS=$(nproc) ENABLE_IMAGE_SIGNATURE=y target/sonic-aboot-${{ parameters.platform }}.swi
       fi
-      if [ ${{ parameters.raw_image }} ];then
+      if [ ${{ parameters.raw_image }} == true ];then
         make USERNAME=admin $CACHE_OPTIONS SONIC_BUILD_JOBS=$(nproc) target/sonic-${{ parameters.platform }}.raw
       fi
-      if [ ${{ parameters.sync_rpc_image }} ];then
+      if [ ${{ parameters.sync_rpc_image }} == true ];then
         make USERNAME=admin $CACHE_OPTIONS SONIC_BUILD_JOBS=$(nproc) ENABLE_SYNCD_RPC=y target/docker-syncd-${{ parameters.platform_short }}-rpc.gz
       fi
       make USERNAME=admin $CACHE_OPTIONS SONIC_BUILD_JOBS=$(nproc) target/sonic-${{ parameters.platform }}.bin
