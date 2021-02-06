@@ -1,0 +1,6 @@
+#!/bin/sh
+
+python2 -m pip uninstall -y sonic-platform
+python3 -m pip uninstall -y sonic-platform
+
+#DEBHELPER#
