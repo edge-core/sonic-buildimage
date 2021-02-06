@@ -19,6 +19,7 @@ try:
     from sonic_platform.thermal import Thermal
     from sonic_platform.fan_drawer import FanDrawer
     from sonic_platform.watchdog import Watchdog
+    import sonic_platform.hwaccess as hwaccess
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -53,9 +54,25 @@ class Chassis(ChassisBase):
     REBOOT_CAUSE_PATH = "/host/reboot-cause/platform/reboot_reason"
     oir_fd = -1
     epoll = -1
+    io_res = "/dev/port"
+    sysled_offset = 0xA162
+    SYSLED_COLOR_TO_REG = {
+       "green": 0xd0,
+       "yellow": 0xe0,
+       "flash_green": 0xd2,
+       "flash_yellow": 0xe2
+       }
+
+    REG_TO_SYSLED_COLOR = {
+        0xd0 : "green",
+        0xe0 : "yellow",
+        0xd2 : "flash_green",
+        0xd1 : "flash_green",
+        0xe2 : "flash_yellow",
+        0xe1 : "flash_yellow"
+        }
 
     _global_port_pres_dict = {}
-
     _port_to_i2c_mapping = {
             1:  10,
             2:  11,
@@ -317,3 +334,35 @@ class Chassis(ChassisBase):
 
     def get_qualified_media_list(self):
         return media_part_num_list
+
+    def initizalize_system_led(self):
+        self.sys_ledcolor = "green"
+
+    def get_status_led(self):
+        """
+        Gets the current system LED color
+
+        Returns:
+            A string that represents the supported color
+        """
+        val = hwaccess.io_reg_read(self.io_res, self.sysled_offset)
+        if val != -1:
+            return self.REG_TO_SYSLED_COLOR.get(val)
+        return self.sys_ledcolor
+
+    def set_status_led(self, color):
+        """ 
+        Set system LED status based on the color type passed in the argument.
+        Argument: Color to be set
+        Returns:
+          bool: True is specified color is set, Otherwise return False
+        """
+
+        if color not in list(self.SYSLED_COLOR_TO_REG.keys()):
+            return False
+
+        if(not hwaccess.io_reg_write(self.io_res, self.sysled_offset, self.SYSLED_COLOR_TO_REG[color])):
+            return False
+        self.sys_ledcolor = color
+        return True
+
