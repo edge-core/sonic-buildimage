@@ -11,6 +11,9 @@ schedules:
     - master
   always: true
 
+trigger: none
+pr: none
+
 stages:
 - stage: Build
   pool: sonicbld
