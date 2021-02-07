@@ -85,7 +85,7 @@ class MinCoolingLevelChangeCondition(ThermalPolicyConditionBase):
 
         trust_state = Thermal.check_module_temperature_trustable()
         temperature = Thermal.get_min_amb_temperature()
-        temperature = temperature / 1000
+        temperature = int(temperature / 1000)
 
         change_cooling_level = False
         if trust_state != MinCoolingLevelChangeCondition.trust_state:

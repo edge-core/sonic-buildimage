@@ -482,7 +482,7 @@ def test_dynamic_minimum_policy(thermal_manager):
     condition = policy.conditions[MinCoolingLevelChangeCondition]
     action = policy.actions[ChangeMinCoolingLevelAction]
     Thermal.check_module_temperature_trustable = MagicMock(return_value='trust')
-    Thermal.get_min_amb_temperature = MagicMock(return_value=35000)
+    Thermal.get_min_amb_temperature = MagicMock(return_value=35001)
     assert condition.is_match(None)
     assert MinCoolingLevelChangeCondition.trust_state == 'trust'
     assert MinCoolingLevelChangeCondition.temperature == 35
@@ -492,7 +492,7 @@ def test_dynamic_minimum_policy(thermal_manager):
     assert condition.is_match(None)
     assert MinCoolingLevelChangeCondition.trust_state == 'untrust'
 
-    Thermal.get_min_amb_temperature = MagicMock(return_value=25000)
+    Thermal.get_min_amb_temperature = MagicMock(return_value=25999)
     assert condition.is_match(None)
     assert MinCoolingLevelChangeCondition.temperature == 25
 
