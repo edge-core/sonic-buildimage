@@ -16,7 +16,6 @@ pr: none
 
 stages:
 - stage: Build
-  pool: sonicbld
 
   jobs:
   - template: build-template.yml
@@ -28,3 +27,12 @@ stages:
       swi_image: true
       raw_image: true
       sync_rpc_image: true
+
+  - template: build-template.yml
+    parameters:
+      timeout: 3600
+      platform: marvell-armhf
+      platform_arch: armhf
+      platform_short: marvell-armhf
+      cache_mode: wcache
+      pool: sonicbld_8c

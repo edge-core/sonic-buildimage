@@ -9,4 +9,10 @@ steps:
     git submodule foreach --recursive 'git reset --hard || true' || true
     git submodule foreach --recursive 'git remote update || true' || true
     git submodule update --init --recursive || true
+
+    # clean native docker build
+    if sudo [ -f dockerfs/var/run/docker.pid ] ; then
+        pid=`sudo cat dockerfs/var/run/docker.pid` ; sudo kill $pid
+    fi
+    sudo rm -rf /data/march/docker
   displayName: "Clean Workspace"

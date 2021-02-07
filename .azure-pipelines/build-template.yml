@@ -4,12 +4,22 @@ parameters:
   values:
   - broadcom
   - mellanox
+  - marvell-armhf
+
+- name: platform_arch
+  type: string
+  values:
+  - amd64
+  - armhf
+  - arm64
+  default: amd64
 
 - name: platform_short
   type: string
   values:
   - brcm
   - mlnx
+  - marvell-armhf
 
 - name: cache_mode
   type: string
@@ -18,22 +28,38 @@ parameters:
   - rcache
   - cache
 
+- name: pool
+  type: string
+  values:
+  - sonicbld
+  - sonicbld_8c
+  default: sonicbld
+
 - name: dbg_image
   type: boolean
+  default: false
 
 - name: swi_image
   type: boolean
+  default: false
 
 - name: raw_image
   type: boolean
+  default: false
 
 - name: sync_rpc_image
   type: boolean
+  default: false
+
+- name: timeout
+  type: number
+  default: 600
 
 jobs:
 - job:
+  pool: ${{ parameters.pool }}
   displayName: ${{ parameters.platform }}
-  timeoutInMinutes: 600
+  timeoutInMinutes: ${{ parameters.timeout }}
   steps:
   - checkout: self
     submodules: recursive
@@ -42,8 +68,10 @@ jobs:
   - script: |
       set -e
       sudo modprobe overlay
+      sudo apt-get install -y acl
+      export DOCKER_DATA_ROOT_FOR_MULTIARCH=/data/march/docker
       CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=${{ parameters.cache_mode }} SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/${{ parameters.platform }}"
-      ENABLE_DOCKER_BASE_PULL=y make configure PLATFORM=${{ parameters.platform }}
+      ENABLE_DOCKER_BASE_PULL=y make configure PLATFORM=${{ parameters.platform }} PLATFORM_ARCH=${{ parameters.platform_arch }}
       trap "sudo rm -rf fsroot" EXIT
       if [ ${{ parameters.dbg_image }} ];then
         make USERNAME=admin $CACHE_OPTIONS SONIC_BUILD_JOBS=$(nproc) INSTALL_DEBUG_TOOLS=y target/sonic-${{ parameters.platform }}.bin && \
