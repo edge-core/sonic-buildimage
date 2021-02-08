@@ -61,10 +61,17 @@ jobs:
   displayName: ${{ parameters.platform }}
   timeoutInMinutes: ${{ parameters.timeout }}
   steps:
+  - template: cleanup.yml
   - checkout: self
+    clean: true
     submodules: recursive
     displayName: 'Checkout code'
-  - template: cleanup.yml
+  - script: |
+      git submodule foreach --recursive 'git clean -xfdf || true'
+      git submodule foreach --recursive 'git reset --hard || true'
+      git submodule foreach --recursive 'git remote update || true'
+      git submodule update --init --recursive
+    displayName: 'Reset submodules'
   - script: |
       set -e
       sudo modprobe overlay

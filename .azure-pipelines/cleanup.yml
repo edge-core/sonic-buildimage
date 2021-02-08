@@ -1,18 +1,15 @@
 steps:
 - script: |
-    sudo kill -9 `sudo cat /var/run/march/docker.pid` || true
-    sudo rm -f /var/run/march/docker.pid || true
-    sudo rm -rf fsroot || true
-    git clean -xfdf || true
-    git reset --hard || true
-    git submodule foreach --recursive 'git clean -xfdf || true' || true
-    git submodule foreach --recursive 'git reset --hard || true' || true
-    git submodule foreach --recursive 'git remote update || true' || true
-    git submodule update --init --recursive || true
+    if sudo [ -f /var/run/march/docker.pid ] ; then
+        pid=`sudo cat /var/run/march/docker.pid` ; sudo kill $pid
+    fi
+    sudo rm -f /var/run/march/docker.pid
+    sudo rm -rf /data/march/docker
 
     # clean native docker build
     if sudo [ -f dockerfs/var/run/docker.pid ] ; then
         pid=`sudo cat dockerfs/var/run/docker.pid` ; sudo kill $pid
     fi
-    sudo rm -rf /data/march/docker
+    sudo rm -rf dockerfs
+    sudo rm -rf fsroot
   displayName: "Clean Workspace"
