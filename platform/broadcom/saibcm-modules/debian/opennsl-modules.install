@@ -5,4 +5,4 @@ systems/linux/user/x86-smp_generic_64-2_6/linux-knet-cb.ko lib/modules/4.19.0-12
 systems/linux/user/x86-smp_generic_64-2_6/psample.ko lib/modules/4.19.0-12-2-amd64/extra
 systems/linux/user/x86-smp_generic_64-2_6/linux-bcm-ptp-clock.ko lib/modules/4.19.0-12-2-amd64/extra
 systemd/opennsl-modules.service lib/systemd/system
-sdklt/linux/bde/linux_ngbde.ko lib/modules/4.19.0-9-2-amd64/extra
+sdklt/linux/bde/linux_ngbde.ko lib/modules/4.19.0-12-2-amd64/extra
