@@ -5,6 +5,7 @@ parameters:
   - broadcom
   - mellanox
   - marvell-armhf
+  - centec-arm64
 
 - name: platform_arch
   type: string
@@ -20,6 +21,7 @@ parameters:
   - brcm
   - mlnx
   - marvell-armhf
+  - centec-arm64
 
 - name: cache_mode
   type: string

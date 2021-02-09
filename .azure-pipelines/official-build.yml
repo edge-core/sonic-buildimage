@@ -36,3 +36,12 @@ stages:
       platform_short: marvell-armhf
       cache_mode: wcache
       pool: sonicbld_8c
+
+  - template: build-template.yml
+    parameters:
+      timeout: 3600
+      platform: centec-arm64
+      platform_arch: arm64
+      platform_short: centec-arm64
+      cache_mode: wcache
+      pool: sonicbld_8c
