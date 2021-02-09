@@ -214,7 +214,9 @@ else
     sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install docker-ce=${DOCKER_VERSION}
 fi
 
-sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y remove software-properties-common gnupg2
+# Uninstall 'python3-gi' installed as part of 'software-properties-common' to remove debian version of 'PyGObject'
+# pip version of 'PyGObject' will be installed during installation of 'sonic-host-services'
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y remove software-properties-common gnupg2 python3-gi
 
 if [ "$INCLUDE_KUBERNETES" == "y" ]
 then

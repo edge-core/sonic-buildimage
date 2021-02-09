@@ -10,17 +10,24 @@ setup(
     url = 'https://github.com/Azure/sonic-buildimage',
     maintainer = 'Joe LeVeque',
     maintainer_email = 'jolevequ@microsoft.com',
+    packages = [
+        'host_modules'
+    ],
     scripts = [
         'scripts/caclmgrd',
         'scripts/hostcfgd',
         'scripts/procdockerstatsd',
         'scripts/determine-reboot-cause',
         'scripts/process-reboot-cause',
+        'scripts/sonic-host-server'
     ],
     install_requires = [
+        'dbus-python',
         'Jinja2>=2.10',
+        'PyGObject',
         'sonic-py-common',
         'swsssdk>=2.0.1',
+        'systemd-python',
     ],
     setup_requires = [
         'pytest-runner',

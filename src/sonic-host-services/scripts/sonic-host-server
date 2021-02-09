@@ -15,7 +15,7 @@ from gi.repository import GObject
 
 def register_modules():
     """Register all host modules"""
-    mod_path = os.path.join(os.path.dirname(__file__), 'host_modules')
+    mod_path = '/usr/local/lib/python3.7/dist-packages/host_modules'
     sys.path.append(mod_path)
     for mod_file in glob.glob(os.path.join(mod_path, '*.py')):
         if os.path.isfile(mod_file) and not mod_file.endswith('__init__.py'):

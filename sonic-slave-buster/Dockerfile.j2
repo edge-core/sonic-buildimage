@@ -339,7 +339,13 @@ RUN apt-get update && apt-get install -y \
         libboost-regex1.71-dev \
         googletest \
         libgtest-dev \
-        libgcc-8-dev
+        libgcc-8-dev \
+# For sonic-host-services build
+        libcairo2-dev \
+        libdbus-1-dev \
+        libgirepository1.0-dev \
+        libsystemd-dev \
+        pkg-config
 
 # Build fix for ARMHF buster libsairedis
 {%- if CONFIGURED_ARCH == "armhf" %}
@@ -390,7 +396,7 @@ RUN export VERSION=1.14.2 \
 
 RUN pip3 install --upgrade pip
 RUN pip2 install --upgrade 'pip<21'
-RUN apt-get purge -y python-pip python3-pip
+RUN apt-get purge -y python-pip python3-pip python3-yaml
 
 # For building Python packages
 RUN pip2 install setuptools==40.8.0
