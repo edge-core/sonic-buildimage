@@ -482,7 +482,7 @@ class SFP(SfpBase):
             if qsfp_dom_capability_raw is not None:
                 self.dom_temp_supported = True
                 self.dom_volt_supported = True
-                dom_capability = sfpi_obj.parse_qsfp_dom_capability(qsfp_dom_capability_raw, 0)
+                dom_capability = sfpi_obj.parse_dom_capability(qsfp_dom_capability_raw, 0)
                 if dom_capability['data']['Flat_MEM']['value'] == 'Off':
                     self.dom_supported = True
                     self.second_application_list = True
