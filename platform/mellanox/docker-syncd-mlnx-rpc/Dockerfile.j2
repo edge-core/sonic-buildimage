@@ -11,17 +11,11 @@ RUN apt-get purge -y syncd
 {% if docker_syncd_mlnx_rpc_debs.strip() -%}
 # Copy locally-built Debian package dependencies
 {{ copy_files("debs/", docker_syncd_mlnx_rpc_debs.split(' '), "/debs/") }}
-
-# Install locally-built Debian packages and implicitly install their dependencies
-{{ install_debian_packages(docker_syncd_mlnx_rpc_debs.split(' ')) }}
 {% endif %}
 
 {% if docker_syncd_mlnx_rpc_pydebs.strip() -%}
 # Copy locally-built Debian package dependencies
 {{ copy_files("python-debs/", docker_syncd_mlnx_rpc_pydebs.split(' '), "/debs/") }}
-
-# Install locally-built Debian packages and implicitly install their dependencies
-{{ install_debian_packages(docker_syncd_mlnx_rpc_pydebs.split(' ')) }}
 {% endif %}
 
 ## Pre-install the fundamental packages
@@ -36,7 +30,22 @@ RUN apt-get update \
     python-dev          \
     wget                \
     cmake               \
- && wget https://github.com/nanomsg/nanomsg/archive/1.0.0.tar.gz \
+    libqt5core5a        \
+    libqt5network5      \
+    libboost-atomic1.71.0
+
+{% if docker_syncd_mlnx_rpc_debs.strip() -%}
+# Install locally-built Debian packages and implicitly install their dependencies
+{{ install_debian_packages(docker_syncd_mlnx_rpc_debs.split(' ')) }}
+{% endif %}
+
+{% if docker_syncd_mlnx_rpc_pydebs.strip() -%}
+# Install locally-built Debian packages and implicitly install their dependencies
+{{ install_debian_packages(docker_syncd_mlnx_rpc_pydebs.split(' ')) }}
+{% endif %}
+
+
+RUN wget https://github.com/nanomsg/nanomsg/archive/1.0.0.tar.gz \
  && tar xvfz 1.0.0.tar.gz \
  && cd nanomsg-1.0.0    \
  && mkdir -p build      \
