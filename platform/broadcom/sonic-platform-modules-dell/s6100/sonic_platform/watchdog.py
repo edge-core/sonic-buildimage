@@ -151,9 +151,9 @@ class Watchdog(WatchdogBase):
         if self.is_armed():
             gpio_val = self._read_gpio_file(gpio)
             high_val = gpio_val | (1 << 15)
-            if self._write_gpio_file(gpio, hex(high_val)) != -1:
+            if self._write_gpio_file(gpio, hex(high_val).encode('utf-8')) != -1:
                 low_val = high_val & 0xFFFF7FFF
-                if self._write_gpio_file(gpio, hex(low_val)) != -1:
+                if self._write_gpio_file(gpio, hex(low_val).encode('utf-8')) != -1:
                     self.armed_time = self._get_time()
                     self.timeout = seconds
                     return seconds
