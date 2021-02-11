@@ -8,7 +8,7 @@ load_firmware=0x2
 
 ccm_dma_enable=0
 ccmdma_intr_enable=0
-mem_cache_enable=0
+mem_cache_enable=1
 phy_enable=0
 phy_null=1
 
