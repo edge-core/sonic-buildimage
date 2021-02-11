@@ -12,4 +12,6 @@ steps:
     fi
     sudo rm -rf dockerfs
     sudo rm -rf fsroot
+    username=$(id -un)
+    sudo chown -R ${username}.${username} .
   displayName: "Clean Workspace"
