@@ -10,9 +10,11 @@
 try:
     import os
     from sonic_platform_base.thermal_base import ThermalBase
+    from sonic_py_common import logger
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
+sonic_logger = logger.Logger('thermal')
 
 class Thermal(ThermalBase):
     """Nokia platform-specific Thermal class"""
@@ -175,7 +177,6 @@ class Thermal(ThermalBase):
             Celsius up to nearest thousandth of one degree Celsius,
             e.g. 30.125
         """
-
         # Not implemented for this sensor
         if not self.thermal_high_threshold_file:
             raise  NotImplementedError
@@ -224,3 +225,19 @@ class Thermal(ThermalBase):
             thermal_high_crit_threshold = 0.0
 
         return float("{:.3f}".format(thermal_high_crit_threshold))
+
+    def get_position_in_parent(self):
+        """
+        Retrieves 1-based relative physical position in parent device
+        Returns:
+            integer: The 1-based relative physical position in parent device
+        """
+        return self.index
+
+    def is_replaceable(self):
+        """
+        Indicate whether this device is replaceable.
+        Returns:
+            bool: True if it is replaceable.
+        """
+        return False

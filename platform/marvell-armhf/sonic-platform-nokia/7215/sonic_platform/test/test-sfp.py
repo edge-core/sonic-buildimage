@@ -1,21 +1,25 @@
 #!/usr/bin/env python
 
 try:
-    import sonic_platform
+    from sonic_platform.chassis import Chassis
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
 
 def main():
 
-    PORT_START = 49
+    PORT_START = 1
     PORT_END = 52
 
-    chassis = sonic_platform.platform.Platform().get_chassis()
+    chassis = Chassis()
 
     for physical_port in range(PORT_START, PORT_END+1):
+
+        
         print(" ")
         print(" SFP transceiver tests  PORT = ", physical_port)
+        name = chassis.get_sfp(physical_port).get_name()
+        print(" SFP transceiver tests  NAME = ", name)
 
         presence = chassis.get_sfp(physical_port).get_presence()
         print("TEST 1 - sfp presence       [ True ] ", physical_port, presence)

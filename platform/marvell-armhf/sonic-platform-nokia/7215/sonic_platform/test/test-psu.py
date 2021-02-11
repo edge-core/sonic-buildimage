@@ -17,9 +17,7 @@ def main():
                                                                  psu.get_status_led()))
         print("        Model: {}, Serial: {}".format(psu.get_model(),
                                                      psu.get_serial()))
-        print("        Voltage: {}, Current: {}, Power: {}\n".format(psu.get_voltage(),
-                                                                     psu.get_current(),
-                                                                     psu.get_power()))
+        print("        Voltage: {}, Current: NO, Power: NO \n".format(psu.get_voltage()))
     return
 
 

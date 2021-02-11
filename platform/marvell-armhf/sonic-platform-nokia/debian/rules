@@ -14,7 +14,7 @@ SERVICE_DIR := service
 PLATFORM_DIR := sonic_platform
 
 %:
-	dh $@ --with systemd,python2,python3 --buildsystem=pybuild
+	dh $@ --with systemd,python3 --buildsystem=pybuild
 
 clean:
 	dh_testdir
@@ -23,7 +23,6 @@ clean:
 
 build:
 	(for mod in $(MODULE_DIRS); do \
-		python2 $${mod}/setup.py bdist_wheel -d $(MOD_SRC_DIR)/$${mod}; \
 		python3 $${mod}/setup.py bdist_wheel -d $(MOD_SRC_DIR)/$${mod}; \
 	done)
 
@@ -42,7 +41,6 @@ binary-indep:
 		dh_installdirs -p$(PACKAGE_PRE_NAME)-$${mod} /usr/local/bin; \
 		cp $(MOD_SRC_DIR)/$${mod}/$(SERVICE_DIR)/*.service debian/$(PACKAGE_PRE_NAME)-$${mod}/lib/systemd/system/; \
 		cp $(MOD_SRC_DIR)/$${mod}/$(UTILS_DIR)/* debian/$(PACKAGE_PRE_NAME)-$${mod}/usr/local/bin/; \
-		python2 $${mod}/setup.py install --root=$(MOD_SRC_DIR)/debian/$(PACKAGE_PRE_NAME)-$${mod} --install-layout=deb; \
 		python3 $${mod}/setup.py install --root=$(MOD_SRC_DIR)/debian/$(PACKAGE_PRE_NAME)-$${mod} --install-layout=deb; \
 	done)
 
