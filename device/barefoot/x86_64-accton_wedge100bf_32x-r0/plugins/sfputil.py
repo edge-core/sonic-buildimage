@@ -146,7 +146,7 @@ class SfpUtil(SfpUtilBase):
         status = pltfm_mgr.pltfm_mgr_qsfp_reset(port_num, True)
         status = pltfm_mgr.pltfm_mgr_qsfp_reset(port_num, False)
         self.thrift_teardown()
-        return status
+        return (status == 0)
 
     def check_transceiver_change(self):
         if not self.ready:
