@@ -23,8 +23,6 @@ def main():
 
     print("  Chassis status: {}".format(chassis.get_status()))
 
-    print("  Chassis serial_number: {}".format(chassis.get_serial_number()))
-
     print("  Chassis base_mac: {}".format(chassis.get_base_mac()))
 
     print("  Chassis reboot cause: {}\n".format(chassis.get_reboot_cause()))

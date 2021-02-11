@@ -9,6 +9,7 @@
 try:
     import sys
     from sonic_platform_base.psu_base import PsuBase
+    from sonic_py_common import logger
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -23,6 +24,7 @@ try:
 except ImportError as e:
     smbus_present = 0
 
+sonic_logger = logger.Logger('psu')
 
 class Psu(PsuBase):
     """Nokia platform-specific PSU class for 7215 """
@@ -76,7 +78,9 @@ class Psu(PsuBase):
         Returns:
             string: Part number of PSU
         """
-        return self.eeprom.modelstr()
+        return "N/A"
+#        return self.eeprom.serial_number_str()
+
 
     def get_serial(self):
         """
@@ -85,7 +89,9 @@ class Psu(PsuBase):
         Returns:
             string: Serial number of PSU
         """
-        return self.eeprom.serial_number_str()
+        return "N/A"
+#        return self.eeprom.serial_number_str()
+
 
     def get_status(self):
         """
@@ -98,6 +104,7 @@ class Psu(PsuBase):
         if smbus_present == 0:
             cmdstatus, psustatus = cmd.getstatusoutput('i2cget -y 0 0x41 0xa')
             psustatus = int(psustatus, 16)
+            sonic_logger.log_warning("PMON psu-smbus - presence = 0 ")
         else:
             bus = smbus.SMBus(0)
             DEVICE_ADDRESS = 0x41
@@ -146,29 +153,45 @@ class Psu(PsuBase):
         psu_voltage = 0.0
         return psu_voltage
 
-    def get_current(self):
-        """
-        Retrieves present electric current supplied by PSU
+#    def get_current(self):
+#        """
+#        Retrieves present electric current supplied by PSU
+#
+#        Returns:
+#            A float number, electric current in amperes,
+#            e.g. 15.4
+#        """
+#        psu_current = 0.0
+#
+#        return psu_current
+#
+#    def get_power(self):
+#        """
+#        Retrieves current energy supplied by PSU
+#
+#        Returns:
+#            A float number, the power in watts,
+#            e.g. 302.6
+#        """
+#        psu_power = 0.0
+#
+#        return psu_power
 
+    def get_position_in_parent(self):
+        """
+        Retrieves 1-based relative physical position in parent device
         Returns:
-            A float number, electric current in amperes,
-            e.g. 15.4
+            integer: The 1-based relative physical position in parent device
         """
-        psu_current = 0.0
+        return self.index
 
-        return psu_current
-
-    def get_power(self):
+    def is_replaceable(self):
         """
-        Retrieves current energy supplied by PSU
-
+        Indicate whether this device is replaceable.
         Returns:
-            A float number, the power in watts,
-            e.g. 302.6
+            bool: True if it is replaceable.
         """
-        psu_power = 0.0
-
-        return psu_power
+        return True 
 
     def get_powergood_status(self):
         """
@@ -220,6 +243,6 @@ class Psu(PsuBase):
             bool: True if status LED state is set successfully, False if
                   not
         """
-        # In IXR7220_D1, the firmware running in the PSU controls the LED
+        # In ISX7215 , the firmware running in the PSU controls the LED
         # and the PSU LED state cannot be changed from CPU.
         return False

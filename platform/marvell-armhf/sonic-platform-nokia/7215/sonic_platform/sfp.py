@@ -276,6 +276,7 @@ class Sfp(SfpBase):
         specification_compliance   |1*255VCHAR     |specification compliance
         vendor_date                |1*255VCHAR     |vendor date
         vendor_oui                 |1*255VCHAR     |vendor OUI
+        application_advertisement  |1*255VCHAR     |supported applications advertisement
         ========================================================================
          """
 
@@ -364,7 +365,8 @@ class Sfp(SfpBase):
 
             transceiver_info_dict['nominal_bit_rate'] = str(
                 sfp_interface_bulk_data['data']['NominalSignallingRate(UnitsOf100Mbd)']['value'])
-
+            transceiver_info_dict['application_advertisement'] = 'N/A'
+            
         return transceiver_info_dict
 
     def get_transceiver_bulk_status(self):
@@ -557,26 +559,20 @@ class Sfp(SfpBase):
             A Boolean, True if SFP has RX LOS, False if not.
         """
         if self.sfp_type == COPPER_TYPE:
-            return False
+            return None
+        if not self.dom_supported:
+            return None
+        rx_los_list = []
 
-        if smbus_present == 0:
-            sonic_logger.log_info("  PMON - smbus ERROR -    ")
-            cmdstatus, rxlosstatus = cmd.getstatusoutput('i2cget -y 0 0x41 0x4')
-            rxlosstatus = int(rxlosstatus, 16)
+        offset = 256
+        dom_channel_monitor_raw = self.__read_eeprom_specific_bytes((offset + SFP_CHANNL_STATUS_OFFSET), SFP_CHANNL_STATUS_WIDTH)
+        if dom_channel_monitor_raw is not None:
+            rx_los_data = int(dom_channel_monitor_raw[0], 16)
+            rx_los_list.append(rx_los_data & 0x02 != 0)
         else:
-            bus = smbus.SMBus(0)
-            DEVICE_ADDRESS = 0x41
-            DEVICE_REG = 0x4
-            rxlosstatus = bus.read_byte_data(DEVICE_ADDRESS, DEVICE_REG)
-
-        pos = [1, 2, 4, 8]
-        bit_pos = pos[self.index-SFP_PORT_START]
-        rxlosstatus = rxlosstatus & (bit_pos)
-
-        if rxlosstatus == 0:
-            return True
-
-        return False
+            return None
+        
+        return rx_los_list
 
     def get_tx_fault(self):
         """
@@ -585,8 +581,21 @@ class Sfp(SfpBase):
             A Boolean, True if SFP has TX fault, False if not
             Note : TX fault status is lached until a call to get_tx_fault or a reset.
         """
+        if self.sfp_type == COPPER_TYPE:
+            return None
+        if not self.dom_supported:
+            return None
+        tx_fault_list = []
 
-        return False
+        offset = 256
+        dom_channel_monitor_raw = self.__read_eeprom_specific_bytes((offset + SFP_CHANNL_STATUS_OFFSET), SFP_CHANNL_STATUS_WIDTH)
+        if dom_channel_monitor_raw is not None:
+            tx_fault_data = int(dom_channel_monitor_raw[0], 16)
+            tx_fault_list.append(tx_fault_data & 0x04 != 0)
+        else:
+            return None
+        return tx_fault_list
+
 
     def get_tx_disable(self):
         """
@@ -596,26 +605,20 @@ class Sfp(SfpBase):
         """
 
         if self.sfp_type == COPPER_TYPE:
-            return False
+            return None
+        if not self.dom_supported:
+            return None
 
-        # Enable optical SFP Tx
-        if smbus_present == 0:
-            cmdstatus, disstatus = cmd.getstatusoutput('i2cget -y 0 0x41 0x5')
-            sonic_logger.log_info(" PMON - smbus ERROR  tx- DEBUG    ")
+        tx_disable_list = []
+        offset = 256
+        dom_channel_monitor_raw = self.__read_eeprom_specific_bytes((offset + SFP_CHANNL_STATUS_OFFSET), SFP_CHANNL_STATUS_WIDTH)
+        if dom_channel_monitor_raw is not None:
+            tx_disable_data = int(dom_channel_monitor_raw[0], 16)
+            tx_disable_list.append(tx_disable_data & 0xC0 != 0)
         else:
-            bus = smbus.SMBus(0)
-            DEVICE_ADDRESS = 0x41
-            DEVICE_REG = 0x5
-            disstatus = bus.read_byte_data(DEVICE_ADDRESS, DEVICE_REG)
-
-        pos = [1, 2, 4, 8]
-        bit_pos = pos[self.index-SFP_PORT_START]
-        disstatus = disstatus & (bit_pos)
-
-        if disstatus == 0:
-            return True
-
-        return False
+            return None
+        
+        return tx_disable_list
 
     def get_tx_disable_channel(self):
         """
@@ -663,6 +666,9 @@ class Sfp(SfpBase):
         Returns:
             An integer number of current temperature in Celsius
         """
+        if self.sfp_type == COPPER_TYPE:
+            return None
+        
         transceiver_bulk_status = self.get_transceiver_bulk_status()
         return transceiver_bulk_status.get("temperature", "N/A")
 
@@ -672,6 +678,9 @@ class Sfp(SfpBase):
         Returns:
             An integer number of supply voltage in mV
         """
+        if self.sfp_type == COPPER_TYPE:
+            return None
+        
         transceiver_bulk_status = self.get_transceiver_bulk_status()
         return transceiver_bulk_status.get("voltage", "N/A")
 
@@ -679,17 +688,17 @@ class Sfp(SfpBase):
         """
         Retrieves the TX bias current of this SFP
         Returns:
-            A list of four integer numbers, representing TX bias in mA
-            for channel 0 to channel 4.
-            Ex. ['110.09', '111.12', '108.21', '112.09']
+           
         """
+        if self.sfp_type == COPPER_TYPE:
+            return None
+       
+        tx_bias_list = []
         transceiver_bulk_status = self.get_transceiver_bulk_status()
-        tx1_bs = transceiver_bulk_status.get("tx1bias", "N/A")
-        tx2_bs = transceiver_bulk_status.get("tx2bias", "N/A")
-        tx3_bs = transceiver_bulk_status.get("tx3bias", "N/A")
-        tx4_bs = transceiver_bulk_status.get("tx4bias", "N/A")
-        tx_bias_list = [tx1_bs, tx2_bs, tx3_bs, tx4_bs]
+        tx_bias_list.append(transceiver_bulk_status.get("tx1bias", "N/A"))
+
         return tx_bias_list
+
 
     def get_rx_power(self):
         """
@@ -803,7 +812,7 @@ class Sfp(SfpBase):
             A boolean, True if tx_disable is set successfully, False if not
         """
 
-        return False
+        return NotImplementedError
 
     def tx_disable_channel(self, channel, disable):
         """
@@ -817,7 +826,7 @@ class Sfp(SfpBase):
             A boolean, True if successful, False if not
         """
 
-        return False
+        return NotImplementedError
 
     def set_lpmode(self, lpmode):
         """
@@ -851,7 +860,7 @@ class Sfp(SfpBase):
             False if not
         """
 
-        return False
+        return NotImplementedError
 
     def get_name(self):
         """
@@ -917,3 +926,23 @@ class Sfp(SfpBase):
             A boolean value, True if device is operating properly, False if not
         """
         return self.get_presence()
+
+    def is_replaceable(self):
+        """
+        Indicate whether this device is replaceable.
+        Returns:
+            bool: True if it is replaceable.
+        """
+
+        if self.sfp_type == "SFP":
+            return True
+        else:
+            return False
+        
+    def get_position_in_parent(self):
+        """
+        Retrieves 1-based relative physical position in parent device
+        Returns:
+            integer: The 1-based relative physical position in parent device
+        """
+        return self.index

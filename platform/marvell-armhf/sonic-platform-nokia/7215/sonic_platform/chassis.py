@@ -13,7 +13,7 @@ try:
     from sonic_platform.sfp import Sfp
     from sonic_platform.eeprom import Eeprom
     from sonic_platform.fan import Fan
-    from .fan_drawer import VirtualDrawer
+    from .fan_drawer import RealDrawer
     from sonic_platform.psu import Psu
     from sonic_platform.thermal import Thermal
     from sonic_platform.component import Component
@@ -35,8 +35,8 @@ SFP_PORT_END = 52
 PORT_END = 52
 
 # Device counts
-MAX_7215_FAN_DRAWER = 1
-MAX_7215_FAN = 2
+MAX_7215_FAN_DRAWERS = 2
+MAX_7215_FANS_PER_DRAWER = 1
 MAX_7215_PSU = 2
 MAX_7215_THERMAL = 6
 
@@ -89,9 +89,9 @@ class Chassis(ChassisBase):
         self._eeprom = Eeprom()
 
         # Construct lists fans, power supplies, thermals & components
-        drawer_num = MAX_7215_FAN_DRAWER
-        fan_num_per_drawer = MAX_7215_FAN
-        drawer_ctor = VirtualDrawer
+        drawer_num = MAX_7215_FAN_DRAWERS
+        fan_num_per_drawer = MAX_7215_FANS_PER_DRAWER
+        drawer_ctor = RealDrawer
         fan_index = 0
         for drawer_index in range(drawer_num):
             drawer = drawer_ctor(drawer_index)
@@ -159,14 +159,6 @@ class Chassis(ChassisBase):
         """
         return self._eeprom.part_number_str()
 
-    def get_serial(self):
-        """
-        Retrieves the serial number of the chassis (Service tag)
-        Returns:
-            string: Serial number of chassis
-        """
-        return self._eeprom.serial_str()
-
     def get_status(self):
         """
         Retrieves the operational status of the chassis
@@ -186,7 +178,7 @@ class Chassis(ChassisBase):
         """
         return self._eeprom.base_mac_addr()
 
-    def get_serial_number(self):
+    def get_serial(self):
         """
         Retrieves the hardware serial number for the chassis
 
@@ -307,7 +299,7 @@ class Chassis(ChassisBase):
 
         # Write sys led
         if smbus_present == 0:
-            sonic_logger.log_info("PMON LED SET ERROR-> smbus present = 0")
+            sonic_logger.log_warning("PMON LED SET -> smbus present = 0")
         else:
             bus = smbus.SMBus(0)
             DEVICE_ADDRESS = 0x41
@@ -328,7 +320,7 @@ class Chassis(ChassisBase):
         """
         # Read sys led
         if smbus_present == 0:
-            sonic_logger.log_info("PMON LED GET ERROR-> smbus present = 0")
+            sonic_logger.log_warning("PMON LED GET -> smbus present = 0")
             return False
         else:
             bus = smbus.SMBus(0)
@@ -372,6 +364,23 @@ class Chassis(ChassisBase):
                 watchdog_device_path = "/dev/watchdog0"
                 self._watchdog = WatchdogImplBase(watchdog_device_path)
         except Exception as e:
-            sonic_logger.log_info("Fail to load watchdog {}".format(repr(e)))
+            sonic_logger.log_warning(" Fail to load watchdog {}".format(repr(e)))
 
         return self._watchdog
+    
+    def get_position_in_parent(self):
+        """
+		Retrieves 1-based relative physical position in parent device. If the agent cannot determine the parent-relative position
+        for some reason, or if the associated value of entPhysicalContainedIn is '0', then the value '-1' is returned
+		Returns:
+		    integer: The 1-based relative physical position in parent device or -1 if cannot determine the position
+		"""
+        return -1
+
+    def is_replaceable(self):
+        """
+        Indicate whether this device is replaceable.
+        Returns:
+            bool: True if it is replaceable.
+        """
+        return False

@@ -163,7 +163,24 @@ class Fan(FanBase):
             FAN_DIRECTION_EXHAUST depending on fan direction
         """
 
-        return 'FAN_DIRECTION_INTAKE'
+        return 'intake'
+
+    def get_position_in_parent(self):
+        """
+        Retrieves 1-based relative physical position in parent device
+        Returns:
+            integer: The 1-based relative physical position in parent device
+        """
+        return self.index
+
+    def is_replaceable(self):
+        """
+        Indicate whether this device is replaceable.
+        Returns:
+            bool: True if it is replaceable.
+        """
+        return True
+
 
     def get_speed(self):
         """
@@ -176,9 +193,13 @@ class Fan(FanBase):
 
         fan_speed = self._get_i2c_register(self.get_fan_speed_reg)
         if (fan_speed != 'ERR'):
-            speed = int(fan_speed)
+            speed_in_rpm = int(fan_speed)
         else:
-            speed = 0
+            speed_in_rpm = 0
+
+        speed = 100*speed_in_rpm//MAX_IXS7215_FAN_SPEED
+        if speed > 100:
+            speed = 100
 
         return speed
 
@@ -320,11 +341,21 @@ class Fan(FanBase):
             (off) to 100 (full speed)
         """
         speed = 0
-
-        fan_speed = self._get_i2c_register(self.get_fan_speed_reg)
-        if (fan_speed != 'ERR'):
-            speed = int(fan_speed)
-        else:
-            speed = 0
-
+     
+        fan_duty = self._get_i2c_register(self.set_fan_speed_reg)
+        if (fan_duty != 'ERR'):
+            dutyspeed = int(fan_duty)
+            if dutyspeed == 0:
+                speed = 0
+            elif dutyspeed == 64:
+                speed = 25
+            elif dutyspeed == 128:
+                speed = 50
+            elif dutyspeed == 255:
+                speed = 100
+ 
         return speed
+         
+
+
+    

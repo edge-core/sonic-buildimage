@@ -16,8 +16,7 @@ def main():
                                                         thermal.get_status()))
         print("        Model: {}, Serial: {}".format(thermal.get_model(),
                                                      thermal.get_serial()))
-        print("        Temperature: {}C, Low Threshold: {}C, High Threshold: {}C\n".format(thermal.get_temperature(),
-                                                                                           thermal.get_low_threshold(),
+        print("        Temperature: {}C, High Threshold: {}C\n".format(thermal.get_temperature(),
                                                                                            thermal.get_high_threshold()))
     return
 
