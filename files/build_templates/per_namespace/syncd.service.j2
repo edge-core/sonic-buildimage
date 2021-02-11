@@ -26,7 +26,7 @@ ExecStartPre=/usr/local/bin/syncd.sh start{% if multi_instance == 'true' %} %i{%
 ExecStart=/usr/local/bin/syncd.sh wait{% if multi_instance == 'true' %} %i{% endif %}
 ExecStop=/usr/local/bin/syncd.sh stop{% if multi_instance == 'true' %} %i{% endif %}
 {% if sonic_asic_platform == 'mellanox' %}
-TimeoutStartSec=150
+TimeoutStartSec=480
 {% endif %}
 
 [Install]
