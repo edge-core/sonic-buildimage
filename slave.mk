@@ -842,7 +842,6 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
         $(addprefix $(IMAGE_DISTRO_DEBS_PATH)/,$(INITRAMFS_TOOLS) \
                 $(LINUX_KERNEL) \
                 $(SONIC_DEVICE_DATA) \
-                $(PYTHON_CLICK) \
                 $(IFUPDOWN2) \
                 $(KDUMP_TOOLS) \
                 $(NTP) \
