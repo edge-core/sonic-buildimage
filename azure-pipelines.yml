@@ -48,37 +48,11 @@ stages:
       cache_mode: rcache
       sync_rpc_image: true
 
-  - job:
-    displayName: "kvm"
-    timeoutInMinutes: 600
-    steps:
-    - script: |
-        sudo rm -rf fsroot
-        username=$(id -un)
-        sudo chown -R ${username}.${username} .
-      displayName: 'Cleanup'
-    - checkout: self
-      clean: true
-      submodules: recursive
-      displayName: 'Checkout code'
-
-    - script: |
-         git submodule foreach --recursive git clean -xfdf
-         git submodule foreach --recursive git reset --hard
-         git submodule update --init --recursive
-      displayName: 'reset submodules'
-    - script: |
-        echo $(Build.BuildNumber)
-        sudo modprobe overlay
-        CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=rcache SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/vs"
-        ENABLE_DOCKER_BASE_PULL=y make configure PLATFORM=vs
-        trap "sudo rm -rf fsroot" EXIT
-        make USERNAME=admin SONIC_BUILD_JOBS=$(nproc) $CACHE_OPTIONS \
-            target/docker-sonic-vs.gz target/sonic-vs.img.gz target/docker-ptf.gz
-      displayName: 'Build sonic image'
-    - publish: $(System.DefaultWorkingDirectory)/
-      artifact: sonic-buildimage.kvm
-      displayName: "Archive sonic image"
+  - template: .azure-pipelines/build-template.yml
+    parameters:
+      platform: vs
+      platform_short: vs
+      cache_mode: rcache
 
 - stage: Test
   variables:
@@ -110,8 +84,8 @@ stages:
 
     - task: DownloadPipelineArtifact@2
       inputs:
-        artifact: sonic-buildimage.kvm
-      displayName: "Download sonic-buildimage.kvm artifact"
+        artifact: sonic-buildimage.vs
+      displayName: "Download sonic-buildimage.vs artifact"
 
     - script: |
         set -x

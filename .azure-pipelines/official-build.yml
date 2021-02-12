@@ -30,6 +30,13 @@ stages:
 
   - template: build-template.yml
     parameters:
+      platform: vs
+      platform_short: vs
+      dbg_image: true
+      cache_mode: wcache
+
+  - template: build-template.yml
+    parameters:
       timeout: 3600
       platform: marvell-armhf
       platform_arch: armhf

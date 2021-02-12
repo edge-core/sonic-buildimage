@@ -15,8 +15,8 @@ steps:
 
 - task: DownloadPipelineArtifact@2
   inputs:
-    artifact: sonic-buildimage.kvm
-  displayName: "Download sonic-buildimage.kvm artifact"
+    artifact: sonic-buildimage.vs
+  displayName: "Download sonic-buildimage.vs artifact"
 
 - script: |
     set -x

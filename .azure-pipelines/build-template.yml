@@ -3,9 +3,10 @@ parameters:
   type: string
   values:
   - broadcom
-  - mellanox
-  - marvell-armhf
   - centec-arm64
+  - marvell-armhf
+  - mellanox
+  - vs
 
 - name: platform_arch
   type: string
@@ -19,9 +20,10 @@ parameters:
   type: string
   values:
   - brcm
-  - mlnx
-  - marvell-armhf
   - centec-arm64
+  - marvell-armhf
+  - mlnx
+  - vs
 
 - name: cache_mode
   type: string
@@ -82,20 +84,31 @@ jobs:
       CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=${{ parameters.cache_mode }} SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/${{ parameters.platform }}"
       ENABLE_DOCKER_BASE_PULL=y make configure PLATFORM=${{ parameters.platform }} PLATFORM_ARCH=${{ parameters.platform_arch }}
       trap "sudo rm -rf fsroot" EXIT
-      if [ ${{ parameters.dbg_image }} == true ];then
-        make USERNAME=admin $CACHE_OPTIONS SONIC_BUILD_JOBS=$(nproc) INSTALL_DEBUG_TOOLS=y target/sonic-${{ parameters.platform }}.bin && \
-          mv target/sonic-${{ parameters.platform }}.bin target/sonic-${{ parameters.platform }}-dbg.bin
+
+      if [ ${{ parameters.platform }} == vs ]; then
+        if [ ${{ parameters.dbg_image }} == true ]; then
+          make USERNAME=admin $CACHE_OPTIONS SONIC_BUILD_JOBS=$(nproc) INSTALL_DEBUG_TOOLS=y target/sonic-vs.img.gz && \
+            mv target/sonic-vs.img.gz target/sonic-vs-dbg.img.gz
+        fi
+
+        make USERNAME=admin $CACHE_OPTIONS SONIC_BUILD_JOBS=$(nproc) target/docker-sonic-vs.gz target/sonic-vs.img.gz target/docker-ptf.gz
+      else
+        if [ ${{ parameters.dbg_image }} == true ]; then
+          make USERNAME=admin $CACHE_OPTIONS SONIC_BUILD_JOBS=$(nproc) INSTALL_DEBUG_TOOLS=y target/sonic-${{ parameters.platform }}.bin && \
+            mv target/sonic-${{ parameters.platform }}.bin target/sonic-${{ parameters.platform }}-dbg.bin
+        fi
+        if [ ${{ parameters.swi_image }} == true ]; then
+          make USERNAME=admin $CACHE_OPTIONS SONIC_BUILD_JOBS=$(nproc) ENABLE_IMAGE_SIGNATURE=y target/sonic-aboot-${{ parameters.platform }}.swi
+        fi
+        if [ ${{ parameters.raw_image }} == true ]; then
+          make USERNAME=admin $CACHE_OPTIONS SONIC_BUILD_JOBS=$(nproc) target/sonic-${{ parameters.platform }}.raw
+        fi
+        if [ ${{ parameters.sync_rpc_image }} == true ]; then
+          make USERNAME=admin $CACHE_OPTIONS SONIC_BUILD_JOBS=$(nproc) ENABLE_SYNCD_RPC=y target/docker-syncd-${{ parameters.platform_short }}-rpc.gz
+        fi
+
+        make USERNAME=admin $CACHE_OPTIONS SONIC_BUILD_JOBS=$(nproc) target/sonic-${{ parameters.platform }}.bin
       fi
-      if [ ${{ parameters.swi_image }} == true ];then
-        make USERNAME=admin $CACHE_OPTIONS SONIC_BUILD_JOBS=$(nproc) ENABLE_IMAGE_SIGNATURE=y target/sonic-aboot-${{ parameters.platform }}.swi
-      fi
-      if [ ${{ parameters.raw_image }} == true ];then
-        make USERNAME=admin $CACHE_OPTIONS SONIC_BUILD_JOBS=$(nproc) target/sonic-${{ parameters.platform }}.raw
-      fi
-      if [ ${{ parameters.sync_rpc_image }} == true ];then
-        make USERNAME=admin $CACHE_OPTIONS SONIC_BUILD_JOBS=$(nproc) ENABLE_SYNCD_RPC=y target/docker-syncd-${{ parameters.platform_short }}-rpc.gz
-      fi
-      make USERNAME=admin $CACHE_OPTIONS SONIC_BUILD_JOBS=$(nproc) target/sonic-${{ parameters.platform }}.bin
     displayName: 'Build sonic image'
   - template: cleanup.yml
   - publish: $(System.DefaultWorkingDirectory)/
