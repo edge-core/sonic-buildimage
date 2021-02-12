@@ -1,18 +1,7 @@
 #!/bin/bash
 
-function check_not_installed()
-{
-  c=0
-  config=$(vtysh -c "show run")
-  for route_map_name in $(echo "$config" | sed -ne 's/  neighbor \S* route-map \(\S*\) out/\1/p');
-  do
-    echo "$config" | egrep -q "^route-map $route_map_name permit 20$"
-    c=$((c+$?))
-    echo "$config" | egrep -q "^route-map $route_map_name deny 30$"
-    c=$((c+$?))
-  done
-  return $c
-}
+# Load the common functions
+source /usr/bin/TS
 
 check_not_installed
 not_installed=$?
@@ -21,6 +10,7 @@ then
   TSA_FILE=$(mktemp)
   for route_map_name in $(echo "$config" | sed -ne 's/  neighbor \S* route-map \(\S*\) out/\1/p');
   do
+    is_internal_route_map $route_map_name && continue
     case "$route_map_name" in
       *V4*)
         ip_version=V4
