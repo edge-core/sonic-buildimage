@@ -31,4 +31,5 @@ $(DOCKER_FPM_FRR)_BASE_IMAGE_FILES += rvtysh:/usr/bin/rvtysh
 $(DOCKER_FPM_FRR)_BASE_IMAGE_FILES += TSA:/usr/bin/TSA
 $(DOCKER_FPM_FRR)_BASE_IMAGE_FILES += TSB:/usr/bin/TSB
 $(DOCKER_FPM_FRR)_BASE_IMAGE_FILES += TSC:/usr/bin/TSC
+$(DOCKER_FPM_FRR)_BASE_IMAGE_FILES += TS:/usr/bin/TS
 $(DOCKER_FPM_FRR)_BASE_IMAGE_FILES += monit_bgp:/etc/monit/conf.d
