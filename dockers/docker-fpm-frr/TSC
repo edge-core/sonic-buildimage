@@ -1,37 +1,7 @@
 #!/bin/bash
 
-function check_not_installed()
-{
-  c=0
-  config=$(vtysh -c "show run")
-  for route_map_name in $(echo "$config" | sed -ne 's/  neighbor \S* route-map \(\S*\) out/\1/p' | egrep 'V4|V6');
-  do
-    echo "$config" | egrep -q "^route-map $route_map_name permit 20$"
-    c=$((c+$?))
-    echo "$config" | egrep -q "^route-map $route_map_name deny 30$"
-    c=$((c+$?))
-  done
-  return $c
-}
-
-function check_installed()
-{
-  c=0
-  e=0
-  config=$(vtysh -c "show run")
-  for route_map_name in $(echo "$config" | sed -ne 's/  neighbor \S* route-map \(\S*\) out/\1/p' | egrep 'V4|V6');
-  do
-    echo "$config" | egrep -q "^route-map $route_map_name permit 20$"
-    c=$((c+$?))
-    e=$((e+1))
-    echo "$config" | egrep -q "^route-map $route_map_name deny 30$"
-    c=$((c+$?))
-    e=$((e+1))
-  done
-  return $((e-c))
-}
-
-echo "Traffic Shift Check:"
+# Load the common functions
+source /usr/bin/TS
 
 check_not_installed
 not_installed=$?
@@ -48,5 +18,3 @@ then
 else
   echo "System Mode: Not consistent"
 fi
-
-echo
