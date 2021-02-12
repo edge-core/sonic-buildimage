@@ -118,9 +118,9 @@ class SfpUtil(SfpUtilBase):
             client.pltfm_mgr.pltfm_mgr_qsfp_reset(port_num, True)
             return client.pltfm_mgr.pltfm_mgr_qsfp_reset(port_num, False)
 
-        status = thrift_try(qsfp_reset)
+        err = thrift_try(qsfp_reset)
 
-        return status
+        return not err
 
     def check_transceiver_change(self):
         if not self.ready:
