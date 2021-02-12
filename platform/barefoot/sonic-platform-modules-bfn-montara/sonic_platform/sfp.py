@@ -4,7 +4,10 @@ try:
     import os
     import sys
     import time
-    import errno
+
+    import tempfile
+    from contextlib import contextmanager
+    from copy import copy
 
     sys.path.append(os.path.dirname(__file__))
 
@@ -15,8 +18,6 @@ try:
     from sonic_platform_base.sonic_sfp.sfputilbase import SfpUtilBase
 except ImportError as e:
     raise ImportError (str(e) + "- required module not found")
-
-SFP_EEPROM_CACHE = "/var/run/platform/sfp/cache"
 
 class SfpUtil(SfpUtilBase):
     """Platform-specific SfpUtil class"""
@@ -54,15 +55,6 @@ class SfpUtil(SfpUtilBase):
         self.phy_port_dict = {'-1': 'system_not_ready'}
         self.phy_port_cur_state = {}
         self.qsfp_interval = self.QSFP_CHECK_INTERVAL
-
-        if not os.path.exists(os.path.dirname(SFP_EEPROM_CACHE)):
-            try:
-                os.makedirs(os.path.dirname(SFP_EEPROM_CACHE))
-            except OSError as e:
-                if e.errno != errno.EEXIST:
-                    raise
-
-        open(SFP_EEPROM_CACHE, 'ab').close()
 
         SfpUtilBase.__init__(self)
 
@@ -200,21 +192,28 @@ class SfpUtil(SfpUtilBase):
 
         return self.ready, self.phy_port_dict
 
-    def _get_port_eeprom_path(self, port_num, devid):
-        eeprom_path = None
+    @contextmanager
+    def eeprom_action(self):
+        u = copy(self)
+        with tempfile.NamedTemporaryFile() as f:
+            u.eeprom_path = f.name
+            yield u
 
+    def _sfp_eeprom_present(self, client_eeprompath, offset):
+        return client_eeprompath and super(SfpUtil, self)._sfp_eeprom_present(client_eeprompath, offset)
+
+    def _get_port_eeprom_path(self, port_num, devid):
         def qsfp_info_get(client):
             return client.pltfm_mgr.pltfm_mgr_qsfp_info_get(port_num)
 
         if self.get_presence(port_num):
             eeprom_hex = thrift_try(qsfp_info_get)
-            eeprom_cache = open(SFP_EEPROM_CACHE, 'wb')
             eeprom_raw = bytearray.fromhex(eeprom_hex)
-            eeprom_cache.write(eeprom_raw)
-            eeprom_cache.close()
-            eeprom_path = SFP_EEPROM_CACHE
+            with open(self.eeprom_path, 'wb') as eeprom_cache:
+                eeprom_cache.write(eeprom_raw)
+            return self.eeprom_path
 
-        return eeprom_path
+        return None
 
 class Sfp(SfpBase):
     """Platform-specific Sfp class"""
@@ -242,25 +241,31 @@ class Sfp(SfpBase):
         SfpBase.__init__(self)
 
     def get_presence(self):
-        return Sfp.sfputil.get_presence(self.port_num)
+        with Sfp.sfputil.eeprom_action() as u:
+            return u.get_presence(self.port_num)
 
     def get_lpmode(self):
-        return Sfp.sfputil.get_low_power_mode(self.port_num)
+        with Sfp.sfputil.eeprom_action() as u:
+            return u.get_low_power_mode(self.port_num)
 
     def set_lpmode(self, lpmode):
-        return Sfp.sfputil.set_low_power_mode(self.port_num, lpmode)
+        with Sfp.sfputil.eeprom_action() as u:
+            return u.set_low_power_mode(self.port_num, lpmode)
 
     def reset(self):
         return Sfp.sfputil.reset(self.port_num)
 
     def get_transceiver_info(self):
-        return Sfp.sfputil.get_transceiver_info_dict(self.port_num)
+        with Sfp.sfputil.eeprom_action() as u:
+            return u.get_transceiver_info_dict(self.port_num)
 
     def get_transceiver_bulk_status(self):
-        return Sfp.sfputil.get_transceiver_dom_info_dict(self.port_num)
+        with Sfp.sfputil.eeprom_action() as u:
+            return u.get_transceiver_dom_info_dict(self.port_num)
 
     def get_transceiver_threshold_info(self):
-        return Sfp.sfputil.get_transceiver_dom_threshold_info_dict(self.port_num)
+        with Sfp.sfputil.eeprom_action() as u:
+            return u.get_transceiver_dom_threshold_info_dict(self.port_num)
 
     def get_change_event(self, timeout=0):
         return Sfp.get_transceiver_change_event(timeout)
