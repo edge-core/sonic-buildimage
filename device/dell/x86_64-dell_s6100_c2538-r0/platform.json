@@ -1,0 +1,343 @@
+{
+    "chassis": {
+        "name": "S6100-ON",
+        "components": [
+            {
+                "name": "BIOS"
+            },
+            {
+                "name": "CPLD"
+            },
+            {
+                "name": "FPGA"
+            }
+        ],
+        "fans": [
+            {
+                "name": "FanTray1-Fan1"
+            },
+            {
+                "name": "FanTray2-Fan1"
+            },
+            {
+                "name": "FanTray3-Fan1"
+            },
+            {
+                "name": "FanTray4-Fan1"
+            }
+        ],
+        "fan_drawers":[
+            {
+                "name": "FanTray1",
+                "fans": [
+                    {
+                        "name": "FanTray1-Fan1"
+                    }
+                ]
+            },
+            {
+                "name": "FanTray2",
+                "fans": [
+                    {
+                        "name": "FanTray2-Fan1"
+                    }
+                ]
+            },
+            {
+                "name": "FanTray3",
+                "fans": [
+                    {
+                        "name": "FanTray3-Fan1"
+                    }
+                ]
+            },
+            {
+                "name": "FanTray4",
+                "fans": [
+                    {
+                        "name": "FanTray4-Fan1"
+                    }
+                ]
+            }
+        ],
+        "psus": [
+            {
+                "name": "PSU1",
+                "fans": [
+                    {
+                        "name": "PSU1 Fan"
+                    }
+                ]
+            },
+            {
+                "name": "PSU2",
+                "fans": [
+                    {
+                        "name": "PSU2 Fan"
+                    }
+                ]
+            }
+        ],
+        "thermals": [
+            {
+                "name": "CPU On-board"
+            },
+            {
+                "name": "ASIC On-board Front"
+            },
+            {
+                "name": "System Front"
+            },
+            {
+                "name": "ASIC On-board Rear"
+            },
+            {
+                "name": "Front GE board"
+            },
+            {
+                "name": "Front SFP+ board"
+            },
+            {
+                "name": "CPU Core 0"
+            },
+            {
+                "name": "CPU Core 1"
+            },
+            {
+                "name": "CPU Core 2"
+            },
+            {
+                "name": "CPU Core 3"
+            }
+        ],
+        "modules": [
+            {
+                "name": "IOM1: 16x40G QSFP+ Module",
+                "components": [
+                    {
+                        "name": "IOM1-CPLD"
+                    }
+                ]
+            },
+            {
+                "name": "IOM2: 16x40G QSFP+ Module",
+                "components": [
+                    {
+                        "name": "IOM2-CPLD"
+                    }
+                ]
+            },
+            {
+                "name": "IOM3: 16x40G QSFP+ Module",
+                "components": [
+                    {
+                        "name": "IOM3-CPLD"
+                    }
+                ]
+            },
+            {
+                "name": "IOM4: 16x40G QSFP+ Module",
+                "components": [
+                    {
+                        "name": "IOM4-CPLD"
+                    }
+                ]
+            }
+        ],
+        "sfps": [
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            }
+        ]
+    },
+    "interfaces": {}
+}

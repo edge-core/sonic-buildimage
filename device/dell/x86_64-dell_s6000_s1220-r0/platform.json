@@ -1,0 +1,228 @@
+{
+    "chassis": {
+        "name": "S6000",
+        "components": [
+            {
+                "name": "BIOS"
+            },
+            {
+                "name": "System-CPLD"
+            },
+            {
+                "name": "Master-CPLD"
+            },
+            {
+                "name": "Slave-CPLD"
+            }
+        ],
+        "fans": [
+            {
+                "name": "FanTray1-Fan1"
+            },
+            {
+                "name": "FanTray1-Fan2"
+            },
+            {
+                "name": "FanTray2-Fan1"
+            },
+            {
+                "name": "FanTray2-Fan2"
+            },
+            {
+                "name": "FanTray3-Fan1"
+            },
+            {
+                "name": "FanTray3-Fan2"
+            }
+        ],
+        "fan_drawers":[
+            {
+                "name": "FanTray1",
+                "fans": [
+                    {
+                        "name": "FanTray1-Fan1"
+                    },
+                    {
+                        "name": "FanTray1-Fan2"
+                    }
+                ]
+            },
+            {
+                "name": "FanTray2",
+                "fans": [
+                    {
+                        "name": "FanTray2-Fan1"
+                    },
+                    {
+                        "name": "FanTray2-Fan2"
+                    }
+                ]
+            },
+            {
+                "name": "FanTray3",
+                "fans": [
+                    {
+                        "name": "FanTray3-Fan1"
+                    },
+                    {
+                        "name": "FanTray3-Fan2"
+                    }
+                ]
+            }
+        ],
+        "psus": [
+            {
+                "name": "PSU1",
+                "fans": [
+                    {
+                        "name": "PSU1 Fan"
+                    }
+                ],
+                "thermals": [
+                    {
+                        "name": "PSU1-Sensor 1"
+                    },
+                    {
+                        "name": "PSU1-Sensor 2"
+                    }
+                ]
+            },
+            {
+                "name": "PSU2",
+                "fans": [
+                    {
+                        "name": "PSU2 Fan"
+                    }
+                ],
+                "thermals": [
+                    {
+                        "name": "PSU2-Sensor 1"
+                    },
+                    {
+                        "name": "PSU2-Sensor 2"
+                    }
+                ]
+            }
+        ],
+        "thermals": [
+            {
+                "name": "ASIC On-board"
+            },
+            {
+                "name": "NIC"
+            },
+            {
+                "name": "System Front"
+            },
+            {
+                "name": "DIMM"
+            },
+            {
+                "name": "CPU Core 0"
+            },
+            {
+                "name": "CPU Core 1"
+            }
+        ],
+        "modules": [],
+        "sfps": [
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            },
+            {
+                "name": "QSFP+ or later"
+            }
+        ]
+    },
+    "interfaces": {}
+}
