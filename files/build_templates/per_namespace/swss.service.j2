@@ -12,7 +12,7 @@ Requires=opennsl-modules.service
 Requires=updategraph.service
 After=updategraph.service
 After=interfaces-config.service
-Before=ntp-config.service
+Before=ntp-config.service pmon.service
 StartLimitIntervalSec=1200
 StartLimitBurst=3
 
