@@ -388,12 +388,23 @@ sudo cp $IMAGE_CONFIGS/corefile_uploader/core_analyzer.rc.json $FILESYSTEM_ROOT_
 sudo chmod og-rw $FILESYSTEM_ROOT_ETC_SONIC/core_analyzer.rc.json
 
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install libffi-dev libssl-dev
+
+if [[ $CONFIGURED_ARCH == armhf ]]; then
+    # The azure-storage package depends on the cryptography package. Newer
+    # versions of cryptography require the rust compiler, the correct version
+    # for which is not readily available in buster. Hence we pre-install an
+    # older version here to satisfy the azure-storage dependency.
+    # Note: This is not a problem for other architectures as pre-built versions
+    # of cryptography are available for those. This sequence can be removed
+    # after upgrading to debian bullseye.
+    sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install cryptography==3.3.1
+fi
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install azure-storage==0.36.0
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install watchdog==0.10.3
 
 {% if include_kubernetes == "y" %}
 # Install remote Container mgmt package
-# Required even if include_kubernetes != y, as it contains the 
+# Required even if include_kubernetes != y, as it contains the
 # the container wrapper for docker start/stop/wait commands.
 #
 SONIC_CTRMGMT_WHEEL_NAME=$(basename {{sonic_ctrmgmt_py3_wheel_path}})
@@ -417,7 +428,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable ctrmgrd.service
 # kubelet service is controlled by ctrmgrd daemon.
 sudo LANG=C chroot $FILESYSTEM_ROOT systemctl disable kubelet.service
 {% else %}
-# container script for docker commands, which is required as 
+# container script for docker commands, which is required as
 # all docker commands are replaced with container commands.
 # So just copy that file only.
 #
