@@ -101,14 +101,6 @@ start_peer_and_dependent_services() {
 stop_peer_and_dependent_services() {
     # if warm start enabled or peer lock exists, don't stop peer service docker
     if [[ x"$WARM_BOOT" != x"true" ]]; then
-        if [[ ! -z $DEV ]]; then
-            /bin/systemctl stop ${PEER}@$DEV
-        else
-            /bin/systemctl stop ${PEER}
-        fi
-        for dep in ${DEPENDENT}; do
-            /bin/systemctl stop ${dep}
-        done
         for dep in ${MULTI_INST_DEPENDENT}; do
             if [[ ! -z $DEV ]]; then
                 /bin/systemctl stop ${dep}@$DEV
@@ -116,7 +108,14 @@ stop_peer_and_dependent_services() {
                 /bin/systemctl stop ${dep}
             fi
         done
-
+        for dep in ${DEPENDENT}; do
+            /bin/systemctl stop ${dep}
+        done
+        if [[ ! -z $DEV ]]; then
+            /bin/systemctl stop ${PEER}@$DEV
+        else
+            /bin/systemctl stop ${PEER}
+        fi
     fi
 }
 
