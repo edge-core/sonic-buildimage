@@ -25,9 +25,10 @@ stages:
     timeoutInMinutes: 600
     steps:
     - script: |
+        set -x
         sudo rm -rf fsroot
         username=$(id -un)
-        sudo chown -R ${username}.${username} .
+        sudo chown -cR ${username}.${username} .
       displayName: 'Cleanup'
     - checkout: self
       clean: true
@@ -54,9 +55,10 @@ stages:
     timeoutInMinutes: 600
     steps:
     - script: |
+        set -x
         sudo rm -rf fsroot
         username=$(id -un)
-        sudo chown -R ${username}.${username} .
+        sudo chown -cR ${username}.${username} .
       displayName: 'Cleanup'
     - checkout: self
       clean: true
@@ -84,9 +86,10 @@ stages:
     timeoutInMinutes: 600
     steps:
     - script: |
+        set -x
         sudo rm -rf fsroot
         username=$(id -un)
-        sudo chown -R ${username}.${username} .
+        sudo chown -cR ${username}.${username} .
       displayName: 'Cleanup'
     - checkout: self
       clean: true
