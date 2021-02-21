@@ -56,6 +56,13 @@ platform/**/*-none-any.whl
 platform/**/.pybuild
 platform/**/debian/*
 platform/**/build
+platform/**/*.ko
+platform/**/*.mod.c
+platform/**/*.mod.o
+platform/**/*.o
+platform/**/*.d
+platform/**/*.cmd
+platform/**/*.order
 platform/broadcom/sonic-platform-modules-dell/s5232f/sonic_platform/ipmihelper.py
 platform/broadcom/sonic-platform-modules-dell/s6100/modules/dell_ich.c
 platform/broadcom/sonic-platform-modules-dell/s6100/modules/dell_s6100_lpc.c
