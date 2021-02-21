@@ -19,7 +19,7 @@ function check_and_rescan_pcie_devices()
     PCIE_CHK_CMD='sudo pcieutil check | grep "$RESULTS"'
     PLATFORM=$(sonic-cfggen -H -v DEVICE_METADATA.localhost.platform)
 
-    if [ ! -f /usr/share/sonic/device/$PLATFORM/plugins/pcie.yaml ]; then
+    if [ ! -f /usr/share/sonic/device/$PLATFORM/pcie.yaml ]; then
         debug "pcie.yaml does not exist! Can't check PCIe status!"
         exit
     fi

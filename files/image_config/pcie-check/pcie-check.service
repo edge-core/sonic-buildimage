@@ -5,3 +5,6 @@ After=rc.local.service database.service
 [Service]
 Type=simple
 ExecStart=/usr/bin/pcie-check.sh
+
+[Install]
+WantedBy=multi-user.target
