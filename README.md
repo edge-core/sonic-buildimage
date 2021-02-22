@@ -1,4 +1,4 @@
-*static anaylsis*:
+*static analysis*:
 
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/Azure/sonic-buildimage.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Azure/sonic-buildimage/alerts/)
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/Azure/sonic-buildimage.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Azure/sonic-buildimage/context:python)
@@ -114,7 +114,7 @@ To build SONiC installer image and docker images, run the following commands:
     make all
 
 ## Usage for ARM Architecture
-To build Arm32 bit for (ARMHF) plaform
+To build Arm32 bit for (ARMHF) platform
     ARM build has dependency in docker version 18,
     if docker version is 19, downgrade to 18 as below
     sudo apt-get install --allow-downgrades  -y docker-ce=5:18.09.0~3-0~ubuntu-xenial
@@ -134,7 +134,7 @@ To build Arm32 bit for (ARMHF) plaform
 
 
 
-To build Arm64 bit for plaform
+To build Arm64 bit for platform
 
     # Execute make configure once to configure ASIC and ARCH
 
