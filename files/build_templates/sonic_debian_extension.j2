@@ -151,6 +151,9 @@ sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install click-d
 # Install tabulate >= 0.8.1 via pip in order to support multi-line row output for sonic-utilities
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install tabulate==0.8.2
 
+#Install pyroute2==0.5.14 via pip in order to support get ip interface from kernal for sonic-utilities
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install pyroute2==0.5.14
+
 # Install SONiC Utilities (and its dependencies via 'apt-get -y install -f')
 sudo dpkg --root=$FILESYSTEM_ROOT -i $python_debs_path/python-sonic-utilities_*.deb || \
     sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
