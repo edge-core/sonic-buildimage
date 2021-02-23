@@ -10,7 +10,6 @@ SCRIPT_SRC := $(shell pwd)/scripts
 CONFIGS_SRC := $(shell pwd)/configs
 BUILD_DIR := $(shell pwd)/build
 WHEEL_BUILD_DIR := $(BUILD_DIR)/wheel
-PLUGINS_DIR := $(shell pwd)/plugins
 MODULE_NAMES := as9516 as9516bf
 
 %:
@@ -33,8 +32,6 @@ override_dh_auto_install:
 		cp -r $(CONFIGS_SRC)/network/interfaces.d/* debian/$(PACKAGE_PRE_NAME)-$${mod}/etc/network/interfaces.d/; \
 		dh_installdirs -p$(PACKAGE_PRE_NAME)-$${mod} usr/share/sonic/device/x86_64-accton_$${mod}_32d-r0/; \
 		cp -r $(WHEEL_BUILD_DIR)/*  debian/$(PACKAGE_PRE_NAME)-$${mod}/usr/share/sonic/device/x86_64-accton_$${mod}_32d-r0/; \
-		dh_installdirs -p$(PACKAGE_PRE_NAME)-$${mod} usr/share/sonic/device/x86_64-accton_$${mod}_32d-r0/plugins; \
-		cp -r $(PLUGINS_DIR)/*  debian/$(PACKAGE_PRE_NAME)-$${mod}/usr/share/sonic/device/x86_64-accton_$${mod}_32d-r0/plugins/; \
 	done)
 
 override_dh_usrlocal:
