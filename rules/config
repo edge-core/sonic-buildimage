@@ -146,6 +146,9 @@ INCLUDE_NAT = y
 # run as worker node in kubernetes cluster.
 INCLUDE_KUBERNETES = n
 
+# INCLUDE_MACSEC - build docker-macsec for macsec support
+INCLUDE_MACSEC = y
+
 # KUBERNETES_VERSION - Set to the required version.
 # K8s_GCR_IO_PAUSE_VERSION - Version of k8s universal pause container image
 # These are Used *only* when INCLUDE_KUBERNETES=y

@@ -26,5 +26,6 @@ COPY ["start.sh", "/usr/bin/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 COPY ["files/supervisor-proc-exit-listener", "/usr/bin"]
 COPY ["critical_processes", "/etc/supervisor"]
+COPY ["etc/wpa_supplicant.conf", "/etc/wpa_supplicant.conf"]
 
-# ENTRYPOINT ["/usr/bin/supervisord"]
+ENTRYPOINT ["/usr/local/bin/supervisord"]
