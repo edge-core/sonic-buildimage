@@ -110,7 +110,9 @@ class TestCfgGen(TestCase):
         self.assertEqual(
             utils.to_dict(output.strip()),
             utils.to_dict(
-                '{\n    "Vlan1000|Ethernet8": {\n        "tagging_mode": "untagged"\n    }\n}'
+                '{\n    "Vlan1000|Ethernet8": {\n        "tagging_mode": "untagged"\n    },'
+                ' \n    "Vlan2000|Ethernet12": {\n        "tagging_mode": "tagged"\n    },'
+                ' \n    "Vlan2001|Ethernet12": {\n        "tagging_mode": "tagged"\n    }}'
             )
         )
 
@@ -194,7 +196,9 @@ class TestCfgGen(TestCase):
         self.assertEqual(
             utils.to_dict(output.strip()),
             utils.to_dict(
-                "{'Vlan1000': {'alias': 'ab1', 'dhcp_servers': ['192.0.0.1', '192.0.0.2'], 'vlanid': '1000'}}"
+                "{'Vlan1000': {'alias': 'ab1', 'dhcp_servers': ['192.0.0.1', '192.0.0.2'], 'vlanid': '1000'}, "
+                "'Vlan2001': {'alias': 'ab3', 'dhcp_servers': ['192.0.0.1', '192.0.0.2'], 'vlanid': '2001'},"
+                "'Vlan2000': {'alias': 'ab2', 'dhcp_servers': ['192.0.0.1', '192.0.0.2'], 'vlanid': '2000'}}"
             )
         )
 
@@ -202,8 +206,12 @@ class TestCfgGen(TestCase):
         argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v VLAN_MEMBER'
         output = self.run_script(argument)
         self.assertEqual(
-            output.strip(),
-            "{('Vlan1000', 'Ethernet8'): {'tagging_mode': 'untagged'}}"
+            utils.to_dict(output.strip()),
+            utils.to_dict(
+                "{('Vlan2000', 'Ethernet12'): {'tagging_mode': 'tagged'}, "
+                "('Vlan1000', 'Ethernet8'): {'tagging_mode': 'untagged'}, "
+                "('Vlan2001', 'Ethernet12'): {'tagging_mode': 'tagged'}}"
+            )
         )
 
     def test_minigraph_vlan_interfaces(self):
@@ -325,7 +333,7 @@ class TestCfgGen(TestCase):
         output = self.run_script(argument)
         self.assertEqual(
             utils.to_dict(output.strip()),
-            utils.to_dict("{'lanes': '33,34,35,36', 'fec': 'rs', 'mtu': '9100', 'alias': 'fortyGigE0/12', 'pfc_asym': 'off', 'speed': '100000', 'description': 'Interface description'}")
+            utils.to_dict("{'lanes': '33,34,35,36', 'fec': 'rs', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/12', 'admin_status': 'up', 'speed': '100000', 'description': 'Interface description'}")
         )
 
     def test_minigraph_neighbor_interfaces(self):
@@ -396,7 +404,7 @@ class TestCfgGen(TestCase):
                 "'Ethernet32': {'alias': 'fortyGigE0/32', 'pfc_asym': 'off', 'lanes': '9,10,11,12', 'description': 'fortyGigE0/32', 'mtu': '9100'}, "
                 "'Ethernet16': {'alias': 'fortyGigE0/16', 'pfc_asym': 'off', 'lanes': '41,42,43,44', 'description': 'fortyGigE0/16', 'mtu': '9100'}, "
                 "'Ethernet36': {'alias': 'fortyGigE0/36', 'pfc_asym': 'off', 'lanes': '13,14,15,16', 'description': 'fortyGigE0/36', 'mtu': '9100'}, "
-                "'Ethernet12': {'lanes': '33,34,35,36', 'fec': 'rs', 'mtu': '9100', 'alias': 'fortyGigE0/12', 'pfc_asym': 'off', 'speed': '100000', 'description': 'Interface description'}, "
+                "'Ethernet12': {'lanes': '33,34,35,36', 'fec': 'rs', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/12', 'admin_status': 'up', 'speed': '100000', 'description': 'Interface description'}, "
                 "'Ethernet88': {'alias': 'fortyGigE0/88', 'pfc_asym': 'off', 'lanes': '117,118,119,120', 'description': 'fortyGigE0/88', 'mtu': '9100'}, "
                 "'Ethernet116': {'alias': 'fortyGigE0/116', 'pfc_asym': 'off', 'lanes': '93,94,95,96', 'description': 'fortyGigE0/116', 'mtu': '9100'}, "
                 "'Ethernet80': {'alias': 'fortyGigE0/80', 'pfc_asym': 'off', 'lanes': '105,106,107,108', 'description': 'fortyGigE0/80', 'mtu': '9100'}, "
