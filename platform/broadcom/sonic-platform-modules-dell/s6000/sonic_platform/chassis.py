@@ -341,6 +341,9 @@ class Chassis(ChassisBase):
                     return True, ret_dict
         return False, ret_dict
 
+    def initizalize_system_led(self):
+        return True
+
     def set_status_led(self, color):
         """
         Sets the state of the system LED
