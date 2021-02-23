@@ -159,6 +159,14 @@ class Chassis(ChassisBase):
         """
         return self._eeprom.part_number_str()
 
+    def get_service_tag(self):
+        """
+        Retrieves the Service Tag of the chassis
+        Returns:
+            string: Service Tag of chassis
+        """
+        return self._eeprom.service_tag_str()
+
     def get_status(self):
         """
         Retrieves the operational status of the chassis
@@ -367,7 +375,7 @@ class Chassis(ChassisBase):
             sonic_logger.log_warning(" Fail to load watchdog {}".format(repr(e)))
 
         return self._watchdog
-    
+
     def get_position_in_parent(self):
         """
 		Retrieves 1-based relative physical position in parent device. If the agent cannot determine the parent-relative position

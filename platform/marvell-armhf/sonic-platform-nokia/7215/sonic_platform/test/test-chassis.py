@@ -41,6 +41,10 @@ def main():
 
     print("  Chassis all_fans: {}\n".format(chassis.get_all_fans()))
 
+    print("  Chassis num_psus: {}".format(chassis.get_num_psus()))
+
+    print("  Chassis all_psus: {}\n".format(chassis.get_all_psus()))
+
     print("  Chassis num_thermals: {}".format(chassis.get_num_thermals()))
 
     print("  Chassis all_thermals: {}\n".format(chassis.get_all_thermals()))

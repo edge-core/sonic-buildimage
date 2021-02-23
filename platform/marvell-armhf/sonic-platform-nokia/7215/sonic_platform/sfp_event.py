@@ -51,7 +51,7 @@ class sfp_event:
     def _get_transceiver_status(self):
         if smbus_present == 0:
             sonic_logger.log_info("  PMON - smbus ERROR - DEBUG sfp_event   ")
-            cmdstatus, sfpstatus = cmd.getstatusoutput('i2cget -y 0 0x41 0x3')
+            cmdstatus, sfpstatus = cmd.getstatusoutput('sudo i2cget -y 0 0x41 0x3')
             sfpstatus = int(sfpstatus, 16)
         else:
             bus = smbus.SMBus(0)
