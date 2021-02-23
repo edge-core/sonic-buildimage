@@ -1,5 +1,5 @@
 ########################################################################
-# Nokia 7215
+# Nokia IXS7215
 #
 # Module contains an implementation of SONiC Platform Base API and
 # provides the PSUs' information which are available in the platform
@@ -10,6 +10,7 @@ try:
     import sys
     from sonic_platform_base.psu_base import PsuBase
     from sonic_py_common import logger
+    from sonic_platform.eeprom import Eeprom
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -34,6 +35,9 @@ class Psu(PsuBase):
         self.index = psu_index + 1
         self._fan_list = []
 
+        # PSU eeprom
+        self.eeprom = Eeprom(is_psu=True, psu_index=self.index)
+
     def get_name(self):
         """
         Retrieves the name of the device
@@ -52,7 +56,7 @@ class Psu(PsuBase):
         """
 
         if smbus_present == 0:  # if called from psuutil outside of pmon
-            cmdstatus, psustatus = cmd.getstatusoutput('i2cget -y 0 0x41 0xa')
+            cmdstatus, psustatus = cmd.getstatusoutput('sudo i2cget -y 0 0x41 0xa')
             psustatus = int(psustatus, 16)
         else:
             bus = smbus.SMBus(0)
@@ -78,8 +82,7 @@ class Psu(PsuBase):
         Returns:
             string: Part number of PSU
         """
-        return "N/A"
-#        return self.eeprom.serial_number_str()
+        return self.eeprom.modelstr()
 
 
     def get_serial(self):
@@ -89,9 +92,17 @@ class Psu(PsuBase):
         Returns:
             string: Serial number of PSU
         """
-        return "N/A"
-#        return self.eeprom.serial_number_str()
+        return self.eeprom.serial_number_str()
 
+
+    def get_part_number(self):
+        """
+        Retrieves the part number of the PSU
+
+        Returns:
+            string: Part number of PSU
+        """
+        return self.eeprom.part_number_str()
 
     def get_status(self):
         """
@@ -102,7 +113,7 @@ class Psu(PsuBase):
         """
 
         if smbus_present == 0:
-            cmdstatus, psustatus = cmd.getstatusoutput('i2cget -y 0 0x41 0xa')
+            cmdstatus, psustatus = cmd.getstatusoutput('sudo i2cget -y 0 0x41 0xa')
             psustatus = int(psustatus, 16)
             sonic_logger.log_warning("PMON psu-smbus - presence = 0 ")
         else:
@@ -131,7 +142,7 @@ class Psu(PsuBase):
             e.g. 12.1
         """
         if smbus_present == 0:
-            cmdstatus, psustatus = cmd.getstatusoutput('i2cget -y 0 0x41 0xa')
+            cmdstatus, psustatus = cmd.getstatusoutput('sudo i2cget -y 0 0x41 0xa')
             psustatus = int(psustatus, 16)
         else:
             bus = smbus.SMBus(0)
@@ -153,30 +164,6 @@ class Psu(PsuBase):
         psu_voltage = 0.0
         return psu_voltage
 
-#    def get_current(self):
-#        """
-#        Retrieves present electric current supplied by PSU
-#
-#        Returns:
-#            A float number, electric current in amperes,
-#            e.g. 15.4
-#        """
-#        psu_current = 0.0
-#
-#        return psu_current
-#
-#    def get_power(self):
-#        """
-#        Retrieves current energy supplied by PSU
-#
-#        Returns:
-#            A float number, the power in watts,
-#            e.g. 302.6
-#        """
-#        psu_power = 0.0
-#
-#        return psu_power
-
     def get_position_in_parent(self):
         """
         Retrieves 1-based relative physical position in parent device
@@ -191,7 +178,7 @@ class Psu(PsuBase):
         Returns:
             bool: True if it is replaceable.
         """
-        return True 
+        return True
 
     def get_powergood_status(self):
         """
@@ -202,7 +189,7 @@ class Psu(PsuBase):
         """
 
         if smbus_present == 0:
-            cmdstatus, psustatus = cmd.getstatusoutput('i2cget -y 0 0x41 0xa')
+            cmdstatus, psustatus = cmd.getstatusoutput('sudo i2cget -y 0 0x41 0xa')
             psustatus = int(psustatus, 16)
         else:
             bus = smbus.SMBus(0)
@@ -243,6 +230,6 @@ class Psu(PsuBase):
             bool: True if status LED state is set successfully, False if
                   not
         """
-        # In ISX7215 , the firmware running in the PSU controls the LED
+        # The firmware running in the PSU controls the LED
         # and the PSU LED state cannot be changed from CPU.
         return False

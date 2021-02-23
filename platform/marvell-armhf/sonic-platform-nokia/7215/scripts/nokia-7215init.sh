@@ -51,7 +51,7 @@ chmod 644 /sys/class/i2c-adapter/i2c-0/0-0053/eeprom
 echo eeprom 0x55 > /sys/class/i2c-adapter/i2c-0/new_device
 echo eeprom 0x56 > /sys/class/i2c-adapter/i2c-0/new_device
 
-# Enumerate psu eeprom devices
+# Enumerate PSU eeprom devices
 echo eeprom 0x51 > /sys/class/i2c-adapter/i2c-1/new_device
 echo eeprom 0x52 > /sys/class/i2c-adapter/i2c-1/new_device
 

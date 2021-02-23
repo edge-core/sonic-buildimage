@@ -7,15 +7,16 @@ except ImportError as e:
 
 
 def main():
+    print("---------------------")
+    print("Chassis SFP Unit Test")
+    print("---------------------")
+
+    chassis = Chassis()
 
     PORT_START = 1
     PORT_END = 52
 
-    chassis = Chassis()
-
     for physical_port in range(PORT_START, PORT_END+1):
-
-        
         print(" ")
         print(" SFP transceiver tests  PORT = ", physical_port)
         name = chassis.get_sfp(physical_port).get_name()

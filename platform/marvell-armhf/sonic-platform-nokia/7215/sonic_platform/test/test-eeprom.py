@@ -12,11 +12,11 @@ def main():
 
     eeprom = chassis.get_eeprom()
 
-    print "    Model: {}, Serial: {}".format(eeprom.modelstr(),
-                                             eeprom.serial_str())
-    print "    Part#: {}, Serial#: {}".format(eeprom.part_number_str(),
-                                              eeprom.serial_number_str())
-    print "    Base MAC: {}".format(eeprom.base_mac_addr())
+    print("    Model: {}, Service Tag: {}".format(eeprom.modelstr(),
+                                             eeprom.service_tag_str()))
+    print("    Part#: {}, Serial#: {}".format(eeprom.part_number_str(),
+                                              eeprom.serial_number_str()))
+    print("    Base MAC: {}".format(eeprom.base_mac_addr()))
 
     return
 

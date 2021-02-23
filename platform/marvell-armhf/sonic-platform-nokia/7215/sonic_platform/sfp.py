@@ -366,7 +366,7 @@ class Sfp(SfpBase):
             transceiver_info_dict['nominal_bit_rate'] = str(
                 sfp_interface_bulk_data['data']['NominalSignallingRate(UnitsOf100Mbd)']['value'])
             transceiver_info_dict['application_advertisement'] = 'N/A'
-            
+
         return transceiver_info_dict
 
     def get_transceiver_bulk_status(self):
@@ -571,7 +571,7 @@ class Sfp(SfpBase):
             rx_los_list.append(rx_los_data & 0x02 != 0)
         else:
             return None
-        
+
         return rx_los_list
 
     def get_tx_fault(self):
@@ -617,7 +617,7 @@ class Sfp(SfpBase):
             tx_disable_list.append(tx_disable_data & 0xC0 != 0)
         else:
             return None
-        
+
         return tx_disable_list
 
     def get_tx_disable_channel(self):
@@ -668,7 +668,7 @@ class Sfp(SfpBase):
         """
         if self.sfp_type == COPPER_TYPE:
             return None
-        
+
         transceiver_bulk_status = self.get_transceiver_bulk_status()
         return transceiver_bulk_status.get("temperature", "N/A")
 
@@ -680,7 +680,7 @@ class Sfp(SfpBase):
         """
         if self.sfp_type == COPPER_TYPE:
             return None
-        
+
         transceiver_bulk_status = self.get_transceiver_bulk_status()
         return transceiver_bulk_status.get("voltage", "N/A")
 
@@ -688,11 +688,11 @@ class Sfp(SfpBase):
         """
         Retrieves the TX bias current of this SFP
         Returns:
-           
+
         """
         if self.sfp_type == COPPER_TYPE:
             return None
-       
+
         tx_bias_list = []
         transceiver_bulk_status = self.get_transceiver_bulk_status()
         tx_bias_list.append(transceiver_bulk_status.get("tx1bias", "N/A"))
@@ -884,7 +884,7 @@ class Sfp(SfpBase):
             return False
 
         if smbus_present == 0:  # if called from sfputil outside of pmon
-            cmdstatus, sfpstatus = cmd.getstatusoutput('i2cget -y 0 0x41 0x3')
+            cmdstatus, sfpstatus = cmd.getstatusoutput('sudo i2cget -y 0 0x41 0x3')
             sfpstatus = int(sfpstatus, 16)
         else:
             bus = smbus.SMBus(0)
@@ -938,7 +938,7 @@ class Sfp(SfpBase):
             return True
         else:
             return False
-        
+
     def get_position_in_parent(self):
         """
         Retrieves 1-based relative physical position in parent device

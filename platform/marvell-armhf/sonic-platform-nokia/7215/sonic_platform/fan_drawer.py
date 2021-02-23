@@ -30,7 +30,7 @@ class NokiaFanDrawer(FanDrawerBase):
         """
         Retrieves the model number of the Fan Drawer
         Returns:
-            string: Part number of Fan Drawer 
+            string: Part number of Fan Drawer
         """
         return self._fan_list[0].get_model()
 
@@ -49,7 +49,7 @@ class NokiaFanDrawer(FanDrawerBase):
             bool: True if Fan is operating properly, False if not
         """
         return self._fan_list[0].get_status()
-   
+
     def get_direction(self):
         return 'intake'
 
@@ -74,8 +74,8 @@ class NokiaFanDrawer(FanDrawerBase):
             integer: The 1-based relative physical position in parent device
         """
         return self._index
-    
-       
+
+
 # For Nokia platforms with fan drawer(s)
 class RealDrawer(NokiaFanDrawer):
     def __init__(self, index):
@@ -84,8 +84,3 @@ class RealDrawer(NokiaFanDrawer):
 
     def get_name(self):
         return self._name
-    
-   
-
- 
-
