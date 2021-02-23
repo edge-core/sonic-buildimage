@@ -1,0 +1,4 @@
+six==1.15.0
+sonic-config-engine==1.0
+sonic-py-common==1.0
+swsssdk==2.0.1

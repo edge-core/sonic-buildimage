@@ -1,0 +1,11 @@
+bzip2==1.0.6-8.1
+dpkg-dev==1.18.25
+libhiredis0.14==0.14.0-3~bpo9+1
+libnl-3-200==3.5.0-1
+libnl-cli-3-200==3.5.0-1
+libnl-genl-3-200==3.5.0-1
+libnl-nf-3-200==3.5.0-1
+libnl-route-3-200==3.5.0-1
+libswsscommon==1.0.0
+python-swsscommon==1.0.0
+xz-utils==5.2.2-1.2+b1

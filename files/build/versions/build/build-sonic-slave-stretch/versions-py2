@@ -1,0 +1,3 @@
+natsort==6.2.1
+redis==3.5.3
+SaiRedis==1.0

@@ -1,0 +1,4 @@
+j2cli==0.3.10
+supervisor==4.2.1
+supervisord-dependent-startup==1.4.0
+toposort==1.6
