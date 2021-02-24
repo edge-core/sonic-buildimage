@@ -30,6 +30,14 @@ stages:
 
   - template: build-template.yml
     parameters:
+      platform: mellanox
+      platform_short: mlnx
+      cache_mode: wcache
+      dbg_image: true
+      sync_rpc_image: true
+
+  - template: build-template.yml
+    parameters:
       platform: vs
       platform_short: vs
       dbg_image: true
