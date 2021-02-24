@@ -12,7 +12,8 @@ setup(
     maintainer_email='',
     packages=[
         'sonic_platform',
-        'sonic_platform/pltfm_mgr_rpc'
+        'sonic_platform/pltfm_mgr_rpc',
+        'sonic_platform/bfn_extensions',
     ],
     package_data = {'sonic_platform':['logging.conf']},
     classifiers=[
