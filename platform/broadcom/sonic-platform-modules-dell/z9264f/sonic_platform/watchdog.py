@@ -10,8 +10,6 @@
 ########################################################################
 
 try:
-    import sys
-    import struct
     import ctypes
     import subprocess
     from sonic_platform_base.watchdog_base import WatchdogBase
@@ -45,7 +43,7 @@ class Watchdog(WatchdogBase):
     def _get_command_result(self, cmdline):
         try:
             proc = subprocess.Popen(cmdline.split(), stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT)
+                                    stderr=subprocess.STDOUT, universal_newlines=True)
             stdout = proc.communicate()[0]
             proc.wait()
             result = stdout.rstrip('\n')
@@ -139,8 +137,6 @@ class Watchdog(WatchdogBase):
             self.timeout = seconds
             return seconds
 
-        return -1
-
     def disarm(self):
         """
         Disarm the hardware watchdog
@@ -211,4 +207,3 @@ class Watchdog(WatchdogBase):
                 return self.timeout - diff_time
 
         return 0
-

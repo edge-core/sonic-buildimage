@@ -43,7 +43,7 @@ class Watchdog(WatchdogBase):
     def _get_command_result(self, cmdline):
         try:
             proc = subprocess.Popen(cmdline.split(), stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT)
+                                    stderr=subprocess.STDOUT, universal_newlines=True)
             stdout = proc.communicate()[0]
             proc.wait()
             result = stdout.rstrip('\n')
@@ -207,4 +207,3 @@ class Watchdog(WatchdogBase):
                 return self.timeout - diff_time
 
         return 0
-

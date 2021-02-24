@@ -87,7 +87,6 @@ class Chassis(ChassisBase):
 # check for this event change for sfp / do we need to handle timeout/sleep
 
     def get_change_event(self, timeout=0):
-        from time import sleep
         """
         Returns a nested dictionary containing all devices which have
         experienced a change at chassis level
@@ -116,7 +115,6 @@ class Chassis(ChassisBase):
                 if (now_ms - start_ms >= timeout):
                     return True, change_dict
 
-
     def get_sfp(self, index):
         """
         Retrieves sfp represented by (0-based) index <index>
@@ -136,7 +134,7 @@ class Chassis(ChassisBase):
             # The index will start from 0
             sfp = self._sfp_list[index-1]
         except IndexError:
-            sys.stderr.write("SFP index {} out of range (0-{})\n".format(
+            sys.stderr.write("SFP index {} out of range (1-{})\n".format(
                              index, len(self._sfp_list)))
         return sfp
 
@@ -223,6 +221,7 @@ class Chassis(ChassisBase):
             An integer represences the number of SFPs on the chassis.
         """
         return self._num_sfps
+
     def get_reboot_cause(self):
         """
         Retrieves the cause of the previous reboot
@@ -259,4 +258,3 @@ class Chassis(ChassisBase):
             return (self.REBOOT_CAUSE_HARDWARE_OTHER, "Reset Button Cold Reboot")
         else:
             return (self.REBOOT_CAUSE_NON_HARDWARE, None)
-

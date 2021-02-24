@@ -104,7 +104,7 @@ class Chassis(ChassisBase):
         try:
             with os.fdopen(os.open(reg_file, os.O_RDONLY)) as fd:
                 retval = fd.read()
-        except:
+        except Exception:
             pass
         retval = retval.rstrip('\r\n')
         retval = retval.lstrip(" ")
@@ -134,6 +134,8 @@ class Chassis(ChassisBase):
         port_dict = {}
         change_dict = {}
         change_dict['sfp'] = port_dict
+        if timeout != 0:
+            timeout = timeout / 1000
         try:
             # We get notified when there is a MSI interrupt (vector 4/5)CVR
             # Open the sysfs file and register the epoll object
@@ -174,7 +176,7 @@ class Chassis(ChassisBase):
                 if (retval != 0):
                     return False, change_dict
             return True, change_dict
-        except:
+        except Exception:
             return False, change_dict
         finally:
             if self.oir_fd != -1:
@@ -183,7 +185,6 @@ class Chassis(ChassisBase):
                 self.oir_fd.close()
                 self.oir_fd = -1
                 self.epoll = -1
-        return False, change_dict
 
     def get_sfp(self, index):
         """
@@ -281,7 +282,7 @@ class Chassis(ChassisBase):
         try:
             with open(self.REBOOT_CAUSE_PATH) as fd:
                 reboot_cause = int(fd.read(), 16)
-        except:
+        except Exception:
             return (self.REBOOT_CAUSE_NON_HARDWARE, None)
 
         if reboot_cause & 0x1:
