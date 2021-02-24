@@ -12,11 +12,7 @@ try:
     import os
     import time
     import struct
-    import sys
-    import getopt
-    import select
     import mmap
-    from sonic_platform_base.chassis_base import ChassisBase
     from sonic_platform_base.sfp_base import SfpBase
     from sonic_platform_base.sonic_sfp.sff8436 import sff8436InterfaceId
     from sonic_platform_base.sonic_sfp.sff8436 import sff8436Dom
@@ -971,7 +967,7 @@ class Sfp(SfpBase):
             reg_value = reg_value & ~mask
 
             # Convert our register value back to a hex string and write back
-            status = self.pci_set_value(self.BASE_RES_PATH, reg_value, port_offset)
+            self.pci_set_value(self.BASE_RES_PATH, reg_value, port_offset)
 
             # Sleep 1 second to allow it to settle
             time.sleep(1)
@@ -979,7 +975,7 @@ class Sfp(SfpBase):
             reg_value = reg_value | mask
 
             # Convert our register value back to a hex string and write back
-            status = self.pci_set_value(self.BASE_RES_PATH, reg_value, port_offset)
+            self.pci_set_value(self.BASE_RES_PATH, reg_value, port_offset)
 
             return True
 
@@ -1011,7 +1007,7 @@ class Sfp(SfpBase):
                 reg_value = reg_value & ~mask
 
             # Convert our register value back to a hex string and write back
-            status = self.pci_set_value(self.BASE_RES_PATH, reg_value, port_offset)
+            self.pci_set_value(self.BASE_RES_PATH, reg_value, port_offset)
 
             return True
 
@@ -1021,12 +1017,6 @@ class Sfp(SfpBase):
     def tx_disable(self, tx_disable):
         """
         Disable SFP TX for all channels
-        """
-        return False
-
-    def tx_disable_channel(self, channel, disable):
-        """
-        Sets the tx_disable for specified SFP channels
         """
         return False
 

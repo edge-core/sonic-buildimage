@@ -11,7 +11,7 @@
 
 try:
     from sonic_platform_base.thermal_base import ThermalBase
-    from sonic_platform.ipmihelper import IpmiSensor, IpmiFru
+    from sonic_platform.ipmihelper import IpmiSensor
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -105,9 +105,9 @@ class Thermal(ThermalBase):
             Celsius up to nearest thousandth of one degree Celsius,
             e.g. 30.125
         """
-        is_valid, high_threshold = self.sensor.get_threshold("UpperCritical")
+        is_valid, high_threshold = self.sensor.get_threshold("UpperNonCritical")
         if not is_valid:
-            high_threshold = 0
+            return super(Thermal, self).get_high_threshold()
 
         return float(high_threshold)
 
@@ -135,9 +135,9 @@ class Thermal(ThermalBase):
             thermal in Celsius up to nearest thousandth of one degree
             Celsius, e.g. 30.125
         """
-        is_valid, high_crit_threshold = self.sensor.get_threshold("UpperNonRecoverable")
+        is_valid, high_crit_threshold = self.sensor.get_threshold("UpperCritical")
         if not is_valid:
-            high_crit_threshold = 0
+            return super(Thermal, self).get_high_critical_threshold()
 
         return float(high_crit_threshold)
 
