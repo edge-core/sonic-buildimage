@@ -510,6 +510,14 @@ write_platform_specific_cmdline() {
         aboot_machine=arista_7050cx3_32s
         flash_size=3700
     fi
+    if [ "$sid" = "Marysville" ]; then
+        aboot_machine=arista_7050sx3_48yc8
+        flash_size=7382
+    fi
+    if [ "$sid" = "Marysville10" ]; then
+        aboot_machine=arista_7050sx3_48c8
+        flash_size=7382
+    fi
     if [ "$sid" = "BlackhawkO" ]; then
         aboot_machine=arista_7060px4_32
         flash_size=28000
@@ -520,19 +528,21 @@ write_platform_specific_cmdline() {
     fi
     if [ "$sid" = "Smartsville" ]; then
         aboot_machine=arista_7280cr3_32p4
-        flash_size=7382
     fi
     if [ "$sid" = "SmartsvilleBK" ]; then
         aboot_machine=arista_7280cr3k_32p4
-        flash_size=7382
+    fi
+    if [ "$sid" = "SmartsvilleBkMs" ] || [ "$sid" = "SmartsvilleBkMsTpm" ]; then
+        aboot_machine=arista_7280cr3mk_32p4
     fi
     if [ "$sid" = "SmartsvilleDD" ]; then
         aboot_machine=arista_7280cr3_32d4
-        flash_size=7382
     fi
     if [ "$sid" = "SmartsvilleDDBK" ]; then
         aboot_machine=arista_7280cr3k_32d4
-        flash_size=7382
+    fi
+    if [ "$sid" = "SmartsvilleDDBkMs" ] || [ "$sid" = "SmartsvilleDDBkMsTpm" ]; then
+        aboot_machine=arista_7280cr3mk_32d4
     fi
     if [ "$sid" = "Clearwater2" ]; then
         aboot_machine=arista_7800r3_48cq2_lc
@@ -546,6 +556,10 @@ write_platform_specific_cmdline() {
         aboot_machine=arista_7800_sup
         flash_size=30000
         sonic_mode=$supervisor_mode
+    fi
+    if [ "$sid" = "SmartsvilleBkMs" ]; then
+        aboot_machine=arista_7280cr3mk_32p4
+        flash_size=7382
     fi
     if in_array "$platform" "rook" "magpie" "woodpecker" "sprucefish"; then
         cmdline_add tsc=reliable

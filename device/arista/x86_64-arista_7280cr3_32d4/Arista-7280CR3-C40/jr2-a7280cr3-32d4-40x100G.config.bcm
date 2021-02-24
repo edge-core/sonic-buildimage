@@ -135,13 +135,13 @@ tm_port_header_type_in_203.BCM8869X=INJECTED_2_PP
 tm_port_header_type_out_203.BCM8869X=ETH
 
 sat_enable.BCM8869X=1
-tm_port_header_type_out_218.BCM8869X=CPU
-tm_port_header_type_in_218.BCM8869X=INJECTED_2
+tm_port_header_type_out_210.BCM8869X=CPU
+tm_port_header_type_in_210.BCM8869X=INJECTED_2
 
-tm_port_header_type_in_232.BCM8869X=INJECTED_2
-tm_port_header_type_out_232.BCM8869X=CPU
-tm_port_header_type_in_233.BCM8869X=INJECTED_2
-tm_port_header_type_out_233.BCM8869X=CPU
+tm_port_header_type_in_211.BCM8869X=INJECTED_2
+tm_port_header_type_out_211.BCM8869X=CPU
+tm_port_header_type_in_212.BCM8869X=INJECTED_2
+tm_port_header_type_out_212.BCM8869X=CPU
 
 tm_port_header_type_in_240.BCM8869X=INJECTED_2
 tm_port_header_type_out_240.BCM8869X=RAW
