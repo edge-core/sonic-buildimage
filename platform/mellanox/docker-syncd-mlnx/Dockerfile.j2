@@ -11,7 +11,13 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
     apt-get install -y \
-        libxml2
+        libxml2     \
+        python-pip  \
+        python-dev \
+        python-setuptools
+
+RUN pip2 install --upgrade pip
+RUN apt-get purge -y python-pip
 
 {% if docker_syncd_mlnx_debs.strip() -%}
 # Copy locally-built Debian package dependencies
