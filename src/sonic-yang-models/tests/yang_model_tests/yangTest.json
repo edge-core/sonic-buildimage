@@ -814,12 +814,12 @@
         }
     },
 
-    "CRM_WITH_WRONG_THRESHOLD": {
+    "CRM_WITH_CORRECT_FREE_VALUE": {
         "sonic-crm:sonic-crm": {
             "sonic-crm:CRM": {
                 "Config": {
-                    "acl_counter_high_threshold": 85,
-                    "acl_counter_low_threshold": 90,
+                    "acl_counter_high_threshold": 90,
+                    "acl_counter_low_threshold": 70,
                     "acl_counter_threshold_type": "free"
                 }
             }
@@ -833,6 +833,198 @@
                     "acl_counter_high_threshold": 85,
                     "acl_counter_low_threshold": 25,
                     "acl_counter_threshold_type": "used"
+                }
+            }
+        }
+    },
+
+    "CRM_WITH_WRONG_THRESHOLD_TYPE": {
+        "sonic-crm:sonic-crm": {
+            "sonic-crm:CRM": {
+                "Config": {
+                    "acl_counter_high_threshold": 90,
+                    "acl_counter_low_threshold": 70,
+                    "acl_counter_threshold_type": "wrong"
+                }
+            }
+        }
+    },
+
+    "SNAT_WITH_WRONG_PERCENTAGE": {
+        "sonic-crm:sonic-crm": {
+            "sonic-crm:CRM": {
+                "Config": {
+                    "snat_entry_high_threshold": 110,
+                    "snat_entry_low_threshold": 85,
+                    "snat_entry_threshold_type": "PERCENTAGE"
+                }
+            }
+        }
+    },
+
+    "SNAT_WITH_HIGH_THRESHOLD_ERR": {
+        "sonic-crm:sonic-crm": {
+            "sonic-crm:CRM": {
+                "Config": {
+                    "snat_entry_high_threshold": 80,
+                    "snat_entry_low_threshold": 81,
+                    "snat_entry_threshold_type": "PERCENTAGE"
+                }
+            }
+        }
+    },
+
+    "SNAT_WITH_CORRECT_FREE_VALUE": {
+        "sonic-crm:sonic-crm": {
+            "sonic-crm:CRM": {
+                "Config": {
+                    "snat_entry_high_threshold": 90,
+                    "snat_entry_low_threshold": 70,
+                    "snat_entry_threshold_type": "free"
+                }
+            }
+        }
+    },
+
+    "SNAT_WITH_CORRECT_USED_VALUE": {
+        "sonic-crm:sonic-crm": {
+            "sonic-crm:CRM": {
+                "Config": {
+                    "snat_entry_high_threshold": 85,
+                    "snat_entry_low_threshold": 25,
+                    "snat_entry_threshold_type": "used"
+                }
+            }
+        }
+    },
+
+    "SNAT_WITH_WRONG_THRESHOLD_TYPE": {
+        "sonic-crm:sonic-crm": {
+            "sonic-crm:CRM": {
+                "Config": {
+                    "snat_entry_high_threshold": 90,
+                    "snat_entry_low_threshold": 70,
+                    "snat_entry_threshold_type": "wrong"
+                }
+            }
+        }
+    },
+
+    "DNAT_WITH_WRONG_PERCENTAGE": {
+        "sonic-crm:sonic-crm": {
+            "sonic-crm:CRM": {
+                "Config": {
+                    "dnat_entry_high_threshold": 110,
+                    "dnat_entry_low_threshold": 85,
+                    "dnat_entry_threshold_type": "PERCENTAGE"
+                }
+            }
+        }
+    },
+
+    "DNAT_WITH_HIGH_THRESHOLD_ERR": {
+        "sonic-crm:sonic-crm": {
+            "sonic-crm:CRM": {
+                "Config": {
+                    "dnat_entry_high_threshold": 80,
+                    "dnat_entry_low_threshold": 81,
+                    "dnat_entry_threshold_type": "PERCENTAGE"
+                }
+            }
+        }
+    },
+
+    "DNAT_WITH_CORRECT_FREE_VALUE": {
+        "sonic-crm:sonic-crm": {
+            "sonic-crm:CRM": {
+                "Config": {
+                    "dnat_entry_high_threshold": 90,
+                    "dnat_entry_low_threshold": 70,
+                    "dnat_entry_threshold_type": "free"
+                }
+            }
+        }
+    },
+
+    "DNAT_WITH_CORRECT_USED_VALUE": {
+        "sonic-crm:sonic-crm": {
+            "sonic-crm:CRM": {
+                "Config": {
+                    "dnat_entry_high_threshold": 85,
+                    "dnat_entry_low_threshold": 25,
+                    "dnat_entry_threshold_type": "used"
+                }
+            }
+        }
+    },
+
+    "DNAT_WITH_WRONG_THRESHOLD_TYPE": {
+        "sonic-crm:sonic-crm": {
+            "sonic-crm:CRM": {
+                "Config": {
+                    "dnat_entry_high_threshold": 90,
+                    "dnat_entry_low_threshold": 70,
+                    "dnat_entry_threshold_type": "wrong"
+                }
+            }
+        }
+    },
+
+    "IPMC_WITH_WRONG_PERCENTAGE": {
+        "sonic-crm:sonic-crm": {
+            "sonic-crm:CRM": {
+                "Config": {
+                    "ipmc_entry_high_threshold": 110,
+                    "ipmc_entry_low_threshold": 85,
+                    "ipmc_entry_threshold_type": "PERCENTAGE"
+                }
+            }
+        }
+    },
+
+    "IPMC_WITH_HIGH_THRESHOLD_ERR": {
+        "sonic-crm:sonic-crm": {
+            "sonic-crm:CRM": {
+                "Config": {
+                    "ipmc_entry_high_threshold": 80,
+                    "ipmc_entry_low_threshold": 81,
+                    "ipmc_entry_threshold_type": "PERCENTAGE"
+                }
+            }
+        }
+    },
+
+    "IPMC_WITH_CORRECT_FREE_VALUE": {
+        "sonic-crm:sonic-crm": {
+            "sonic-crm:CRM": {
+                "Config": {
+                    "ipmc_entry_high_threshold": 90,
+                    "ipmc_entry_low_threshold": 70,
+                    "ipmc_entry_threshold_type": "free"
+                }
+            }
+        }
+    },
+
+    "IPMC_WITH_CORRECT_USED_VALUE": {
+        "sonic-crm:sonic-crm": {
+            "sonic-crm:CRM": {
+                "Config": {
+                    "ipmc_entry_high_threshold": 85,
+                    "ipmc_entry_low_threshold": 25,
+                    "ipmc_entry_threshold_type": "used"
+                }
+            }
+        }
+    },
+
+    "IPMC_WITH_WRONG_THRESHOLD_TYPE": {
+        "sonic-crm:sonic-crm": {
+            "sonic-crm:CRM": {
+                "Config": {
+                    "ipmc_entry_high_threshold": 90,
+                    "ipmc_entry_low_threshold": 70,
+                    "ipmc_entry_threshold_type": "wrong"
                 }
             }
         }
@@ -953,6 +1145,15 @@
 					"nexthop_group_high_threshold": "67",
 					"nexthop_group_low_threshold": "56",
 					"nexthop_group_threshold_type": "percentage",
+					"snat_entry_threshold_type": "percentage",
+					"snat_entry_low_threshold": "70",
+					"snat_entry_high_threshold": "85",
+					"dnat_entry_threshold_type": "percentage",
+					"dnat_entry_low_threshold": "70",
+					"dnat_entry_high_threshold": "85",
+					"ipmc_entry_threshold_type": "percentage",
+					"ipmc_entry_low_threshold": "70",
+					"ipmc_entry_high_threshold": "85",
 					"polling_interval": "0"
 				}
 			}
@@ -1743,6 +1944,15 @@
                 "nexthop_group_high_threshold": "67",
                 "nexthop_group_low_threshold": "56",
                 "nexthop_group_threshold_type": "percentage",
+                "snat_entry_threshold_type": "percentage",
+                "snat_entry_low_threshold": "70",
+                "snat_entry_high_threshold": "85",
+                "dnat_entry_threshold_type": "percentage",
+                "dnat_entry_low_threshold": "70",
+                "dnat_entry_high_threshold": "85",
+                "ipmc_entry_threshold_type": "percentage",
+                "ipmc_entry_low_threshold": "70",
+                "ipmc_entry_high_threshold": "85",
                 "polling_interval": "0"
             }
         }
