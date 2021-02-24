@@ -5,5 +5,8 @@ s6000/scripts/fancontrol.sh usr/local/bin
 s6000/systemd/platform-modules-s6000.service etc/systemd/system
 s6000/systemd/fancontrol.service etc/systemd/system
 common/io_rd_wr.py usr/local/bin
+s6000/scripts/platform_reboot_override usr/share/sonic/device/x86_64-dell_s6000_s1220-r0
+s6000/scripts/platform_update_reboot_cause usr/share/sonic/device/x86_64-dell_s6000_s1220-r0
+s6000/scripts/override.conf /etc/systemd/system/systemd-reboot.service.d
 s6000/modules/sonic_platform-1.0-py2-none-any.whl usr/share/sonic/device/x86_64-dell_s6000_s1220-r0
 s6000/modules/sonic_platform-1.0-py3-none-any.whl usr/share/sonic/device/x86_64-dell_s6000_s1220-r0
