@@ -31,6 +31,8 @@ WDT_COMMON_ERROR = -1
 class Watchdog(WatchdogBase):
 
     def __init__(self):
+        WatchdogBase.__init__(self)
+
         # Init helper
         self._api_helper = APIHelper()
 

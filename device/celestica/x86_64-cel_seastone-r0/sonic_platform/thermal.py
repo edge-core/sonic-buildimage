@@ -67,6 +67,7 @@ class Thermal(ThermalBase):
     SS_CONFIG_PATH = "/usr/share/sonic/device/x86_64-cel_seastone-r0/sensors.conf"
 
     def __init__(self, thermal_index, airflow):
+        ThermalBase.__init__(self)
         self.index = thermal_index
         self._api_helper = APIHelper()
         self._airflow = airflow

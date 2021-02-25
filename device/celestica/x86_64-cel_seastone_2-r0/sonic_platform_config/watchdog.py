@@ -29,6 +29,8 @@ WDT_COMMON_ERROR = -1
 class Watchdog(WatchdogBase):
 
     def __init__(self):
+        WatchdogBase.__init__(self)
+
         self._api_common = Common()
 
         # Init cpld reg path

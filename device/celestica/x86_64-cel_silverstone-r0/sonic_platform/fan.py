@@ -54,6 +54,7 @@ class Fan(FanBase):
     """Platform-specific Fan class"""
 
     def __init__(self, fan_tray_index, fan_index=0, is_psu_fan=False, psu_index=0):
+        FanBase.__init__(self)
         self.fan_index = fan_index
         self.fan_tray_index = fan_tray_index
         self.is_psu_fan = is_psu_fan
