@@ -128,9 +128,13 @@ thermal_api_names = [
     THERMAL_API_GET_HIGH_THRESHOLD
 ]
 
-platform_dict_thermal = {'x86_64-mlnx_msn2700-r0': 0, 'x86_64-mlnx_lssn2700-r0':0, 'x86_64-mlnx_msn2740-r0': 3, 'x86_64-mlnx_msn2100-r0': 1, 'x86_64-mlnx_msn2410-r0': 2, 'x86_64-mlnx_msn2010-r0': 4, 'x86_64-mlnx_msn3420-r0':9, 'x86_64-mlnx_msn3700-r0': 5, 'x86_64-mlnx_msn3700c-r0': 6, 'x86_64-mlnx_msn3800-r0': 7, 'x86_64-mlnx_msn4600c-r0':9, 'x86_64-mlnx_msn4700-r0': 8, 'x86_64-mlnx_msn4410-r0': 8}
+platform_dict_thermal = {'x86_64-mlnx_msn2700-r0': 0, 'x86_64-mlnx_lssn2700-r0': 0, 'x86_64-mlnx_msn2740-r0': 3,
+                         'x86_64-mlnx_msn2100-r0': 1, 'x86_64-mlnx_msn2410-r0': 2, 'x86_64-mlnx_msn2010-r0': 4,
+                         'x86_64-mlnx_msn3420-r0': 9, 'x86_64-mlnx_msn3700-r0': 5, 'x86_64-mlnx_msn3700c-r0': 6,
+                         'x86_64-mlnx_msn3800-r0': 7, 'x86_64-mlnx_msn4600-r0': 12, 'x86_64-mlnx_msn4600c-r0': 9,
+                         'x86_64-mlnx_msn4700-r0': 8, 'x86_64-mlnx_msn4410-r0': 8}
 thermal_profile_list = [
-    # 2700
+    # 0 2700
     {
         THERMAL_DEV_CATEGORY_CPU_CORE:(0, 2),
         THERMAL_DEV_CATEGORY_MODULE:(1, 32),
@@ -145,7 +149,7 @@ thermal_profile_list = [
             ]
         )
     },
-    # 2100
+    # 1 2100
     {
         THERMAL_DEV_CATEGORY_CPU_CORE:(0, 4),
         THERMAL_DEV_CATEGORY_MODULE:(1, 16),
@@ -160,7 +164,7 @@ thermal_profile_list = [
             ]
         )
     },
-    # 2410
+    # 2 2410
     {
         THERMAL_DEV_CATEGORY_CPU_CORE:(0, 2),
         THERMAL_DEV_CATEGORY_MODULE:(1, 56),
@@ -175,7 +179,7 @@ thermal_profile_list = [
             ]
         )
     },
-    # 2740
+    # 3 2740
     {
         THERMAL_DEV_CATEGORY_CPU_CORE:(0, 4),
         THERMAL_DEV_CATEGORY_MODULE:(1, 32),
@@ -190,7 +194,7 @@ thermal_profile_list = [
             ]
         )
     },
-    # 2010
+    # 4 2010
     {
         THERMAL_DEV_CATEGORY_CPU_CORE:(0, 4),
         THERMAL_DEV_CATEGORY_MODULE:(1, 22),
@@ -205,7 +209,7 @@ thermal_profile_list = [
             ]
         )
     },
-    # 3700
+    # 5 3700
     {
         THERMAL_DEV_CATEGORY_CPU_CORE:(0, 4),
         THERMAL_DEV_CATEGORY_MODULE:(1, 32),
@@ -221,7 +225,7 @@ thermal_profile_list = [
             ]
         )
     },
-    # 3700c
+    # 6 3700c
     {
         THERMAL_DEV_CATEGORY_CPU_CORE:(0, 2),
         THERMAL_DEV_CATEGORY_MODULE:(1, 32),
@@ -237,7 +241,7 @@ thermal_profile_list = [
             ]
         )
     },
-    # 3800
+    # 7 3800
     {
         THERMAL_DEV_CATEGORY_CPU_CORE:(0, 4),
         THERMAL_DEV_CATEGORY_MODULE:(1, 64),
@@ -253,7 +257,7 @@ thermal_profile_list = [
             ]
         )
     },
-    # 4700
+    # 8 4700
     {
         THERMAL_DEV_CATEGORY_CPU_CORE:(0, 4),
         THERMAL_DEV_CATEGORY_MODULE:(1, 32),
@@ -269,7 +273,7 @@ thermal_profile_list = [
             ]
         )
     },
-    # 3420
+    # 9 3420
     {
         THERMAL_DEV_CATEGORY_CPU_CORE:(0, 2),
         THERMAL_DEV_CATEGORY_MODULE:(1, 60),
@@ -285,7 +289,7 @@ thermal_profile_list = [
             ]
         )
     },
-    # 4600C
+    # 10 4600C
     {
         THERMAL_DEV_CATEGORY_CPU_CORE:(0, 4),
         THERMAL_DEV_CATEGORY_MODULE:(1, 64),
@@ -301,10 +305,26 @@ thermal_profile_list = [
             ]
         )
     },
-    # 4410
+    # 11 4410
     {
         THERMAL_DEV_CATEGORY_CPU_CORE:(0, 4),
         THERMAL_DEV_CATEGORY_MODULE:(1, 32),
+        THERMAL_DEV_CATEGORY_PSU:(1, 2),
+        THERMAL_DEV_CATEGORY_CPU_PACK:(0,1),
+        THERMAL_DEV_CATEGORY_GEARBOX:(0,0),
+        THERMAL_DEV_CATEGORY_AMBIENT:(0,
+            [
+                THERMAL_DEV_ASIC_AMBIENT,
+                THERMAL_DEV_COMEX_AMBIENT,
+                THERMAL_DEV_PORT_AMBIENT,
+                THERMAL_DEV_FAN_AMBIENT
+            ]
+        )
+    },
+    # 12 4600
+    {
+        THERMAL_DEV_CATEGORY_CPU_CORE:(0, 4),
+        THERMAL_DEV_CATEGORY_MODULE:(1, 64),
         THERMAL_DEV_CATEGORY_PSU:(1, 2),
         THERMAL_DEV_CATEGORY_CPU_PACK:(0,1),
         THERMAL_DEV_CATEGORY_GEARBOX:(0,0),
