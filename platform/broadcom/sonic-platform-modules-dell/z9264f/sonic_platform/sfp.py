@@ -219,8 +219,13 @@ class Sfp(SfpBase):
             return None
 
         try:
-            for n in range(0, num_bytes):
-                eeprom_raw[n] = hex(ord(raw[n]))[2:].zfill(2)
+            if isinstance(raw , str):
+                for n in range(0, num_bytes):
+                    eeprom_raw[n] = hex(ord(raw[n]))[2:].zfill(2)
+            else:
+                for n in range(0, num_bytes):
+                    eeprom_raw[n] = hex(raw[n])[2:].zfill(2)
+
         except BaseException:
             eeprom.close()
             return None
