@@ -251,7 +251,7 @@ function UpgradeFWFromImage() {
 }
 
 function ExitIfQEMU() {
-    if [[ $(cat /sys/devices/virtual/dmi/id/chassis_vendor) = "QEMU" ]]; then
+    if [ -n "$(lspci -vvv | grep SimX)" ]; then
         ExitSuccess "No FW upgrade for SimX platform"
     fi
 }
