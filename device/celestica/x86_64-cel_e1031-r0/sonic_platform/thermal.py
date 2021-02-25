@@ -25,6 +25,8 @@ class Thermal(ThermalBase):
     SS_CONFIG_PATH = "/usr/share/sonic/device/x86_64-cel_e1031-r0/sensors.conf"
 
     def __init__(self, thermal_index):
+        ThermalBase.__init__(self)
+
         self.index = thermal_index
 
         # Add thermal name
