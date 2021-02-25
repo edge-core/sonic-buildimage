@@ -5,6 +5,8 @@ ConditionPathExists=!/usr/share/sonic/hwsku/gearbox_config.json
 After=database.service updategraph.service
 After=interfaces-config.service
 After=swss.service
+BindsTo=sonic.target
+After=sonic.target
 Before=ntp-config.service
 
 [Service]
@@ -15,4 +17,4 @@ ExecStart=/usr/local/bin/gbsyncd.sh wait
 ExecStop=/usr/local/bin/gbsyncd.sh stop
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=sonic.target

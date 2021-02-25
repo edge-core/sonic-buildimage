@@ -2,6 +2,8 @@
 Description=Process and docker CPU/memory utilization data export daemon
 Requires=database.service updategraph.service
 After=database.service updategraph.service
+BindsTo=sonic.target
+After=sonic.target
 
 [Service]
 Type=simple
@@ -9,5 +11,4 @@ ExecStart=/usr/local/bin/procdockerstatsd
 Restart=always
 
 [Install]
-WantedBy=multi-user.target
-
+WantedBy=sonic.target

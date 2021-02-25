@@ -3,8 +3,9 @@ Description=SNMP container
 Requires=updategraph.service
 Requisite=swss.service
 After=updategraph.service swss.service syncd.service
+BindsTo=sonic.target
+After=sonic.target
 Before=ntp-config.service
-Conflicts=snmp.timer
 StartLimitIntervalSec=1200
 StartLimitBurst=3
 
@@ -14,4 +15,3 @@ ExecStart=/usr/bin/{{docker_container_name}}.sh wait
 ExecStop=/usr/bin/{{docker_container_name}}.sh stop
 Restart=always
 RestartSec=30
-

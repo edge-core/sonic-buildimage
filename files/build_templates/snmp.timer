@@ -1,6 +1,6 @@
 [Unit]
 Description=Delays snmp container until SONiC has started
-Conflicts=snmp.service
+PartOf=snmp.service
 After=swss.service
 
 [Timer]

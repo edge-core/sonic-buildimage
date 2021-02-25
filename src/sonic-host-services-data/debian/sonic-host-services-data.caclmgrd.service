@@ -2,6 +2,8 @@
 Description=Control Plane ACL configuration daemon
 Requires=updategraph.service
 After=updategraph.service
+BindsTo=sonic.target
+After=sonic.target
 
 [Service]
 Type=simple
@@ -10,4 +12,4 @@ Restart=always
 RestartSec=30
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=sonic.target
