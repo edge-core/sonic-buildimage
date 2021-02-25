@@ -8,6 +8,7 @@ import signal
 import sys
 import syslog
 import time
+from collections import defaultdict
 
 import swsssdk
 
@@ -64,7 +65,7 @@ def get_critical_group_and_process_list():
     return critical_group_list, critical_process_list
 
 
-def generate_alerting_message(process_name):
+def generate_alerting_message(process_name, dead_minutes):
     """
     @summary: If a critical process was not running, this function will determine it resides in host
               or in a specific namespace. Then an alerting message will be written into syslog.
@@ -77,7 +78,8 @@ def generate_alerting_message(process_name):
     else:
         namespace = namespace_prefix + namespace_id
 
-    syslog.syslog(syslog.LOG_ERR, "Process '{}' is not running in namespace '{}'.".format(process_name, namespace))
+    syslog.syslog(syslog.LOG_ERR, "Process '{}' is not running in namespace '{}' ({} minutes)."
+                  .format(process_name, namespace, dead_minutes))
 
 
 def get_autorestart_state(container_name):
@@ -118,7 +120,7 @@ def main(argv):
 
     critical_group_list, critical_process_list = get_critical_group_and_process_list()
 
-    process_under_alerting = {}
+    process_under_alerting = defaultdict(dict)
     # Transition from ACKNOWLEDGED to READY
     childutils.listener.ready()
 
@@ -145,7 +147,8 @@ def main(argv):
                         syslog.syslog(syslog.LOG_INFO, msg)
                         os.kill(os.getppid(), signal.SIGTERM)
                     else:
-                        process_under_alerting[process_name] = time.time()
+                        process_under_alerting[process_name]["last_alerted"] = time.time()
+                        process_under_alerting[process_name]["dead_minutes"] = 0
 
             # Handle the PROCESS_STATE_RUNNING event
             elif headers['eventname'] == 'PROCESS_STATE_RUNNING':
@@ -162,11 +165,14 @@ def main(argv):
             childutils.listener.ready()
 
         # Check whether we need write alerting messages into syslog
-        for process in process_under_alerting.keys():
+        for process_name in process_under_alerting.keys():
             epoch_time = time.time()
-            if epoch_time - process_under_alerting[process] >= ALERTING_INTERVAL_SECS:
-                process_under_alerting[process] = epoch_time
-                generate_alerting_message(process)
+            elapsed_secs = epoch_time - process_under_alerting[process_name]["last_alerted"]
+            if elapsed_secs >= ALERTING_INTERVAL_SECS:
+                elapsed_mins = elapsed_secs // 60
+                process_under_alerting[process_name]["last_alerted"] = epoch_time
+                process_under_alerting[process_name]["dead_minutes"] += elapsed_mins
+                generate_alerting_message(process_name, process_under_alerting[process_name]["dead_minutes"])
 
 
 if __name__ == "__main__":
