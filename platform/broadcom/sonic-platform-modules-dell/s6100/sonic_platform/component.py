@@ -41,6 +41,7 @@ class Component(ComponentBase):
     def __init__(self, component_index=0,
                  is_module=False, iom_index=0, i2c_line=0, dependency=None):
 
+        ComponentBase.__init__(self)
         self.is_module_component = is_module
         self.dependency = dependency
 

@@ -36,6 +36,7 @@ class Watchdog(WatchdogBase):
     CLOCK_MONOTONIC = 1
 
     def __init__(self):
+        WatchdogBase.__init__(self)
         self._librt = ctypes.CDLL('librt.so.1', use_errno=True)
         self._clock_gettime = self._librt.clock_gettime
         self._clock_gettime.argtypes=[ctypes.c_int, ctypes.POINTER(_timespec)]
