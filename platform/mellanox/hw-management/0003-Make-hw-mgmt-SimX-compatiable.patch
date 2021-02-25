@@ -1,0 +1,48 @@
+diff --git a/usr/usr/bin/hw-management-ready.sh b/usr/usr/bin/hw-management-ready.sh
+index 3c9f7b6..05d143f 100755
+--- a/usr/usr/bin/hw-management-ready.sh
++++ b/usr/usr/bin/hw-management-ready.sh
+@@ -49,9 +49,12 @@ if [ -d /var/run/hw-management ]; then
+ 	rm -fr /var/run/hw-management
+ fi
+ 
+-while [ ! -d /sys/devices/platform/mlxplat/mlxreg-hotplug/hwmon ]
+-do
+-	sleep 1
+-done
++if [ -z "$(lspci -vvv | grep SimX)" ]; then
++        while [ ! -d /sys/devices/platform/mlxplat/mlxreg-hotplug/hwmon ]
++        do
++                sleep 1
++        done
++fi
++
+ echo "Start Chassis HW management service."
+ logger -t hw-management -p daemon.notice "Start Chassis HW management service."
+diff --git a/usr/usr/bin/hw-management.sh b/usr/usr/bin/hw-management.sh
+index 70f1297..e427a3d 100755
+--- a/usr/usr/bin/hw-management.sh
++++ b/usr/usr/bin/hw-management.sh
+@@ -1110,6 +1110,13 @@ do_chip_down()
+ 	/usr/bin/hw-management-thermal-events.sh change hotplug_asic down %S %p
+ }
+ 
++check_simx()
++{
++        if [ -n "$(lspci -vvv | grep SimX)" ]; then
++                exit 0
++        fi
++}
++
+ __usage="
+ Usage: $(basename $0) [Options]
+ 
+@@ -1135,6 +1142,8 @@ Options:
+ 	force-reload	Performs hw-management 'stop' and the 'start.
+ "
+ 
++check_simx
++
+ case $ACTION in
+ 	start)
+ 		if [ -d /var/run/hw-management ]; then
