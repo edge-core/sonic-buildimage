@@ -250,5 +250,26 @@ DEVICE_DATA = {
             'hot_swappable': True,
             'led_num': 1
         }
+    },
+    'x86_64-mlnx_msn4600-r0': {
+        'thermal': {
+            'minimum_table': {
+                "unk_trust": {"-127:40": 12, "41:120": 13},
+                "unk_untrust": {"-127:5": 12, "6:20": 13, "21:30": 14, "31:35": 15, "36:40": 16, "41:120": 17},
+            }
+        },
+        'fans': {
+            'drawer_num': 3,
+            'drawer_type': 'real',
+            'fan_num_per_drawer': 1,
+            'support_fan_direction': True,
+            'hot_swappable': True
+        },
+        'psus': {
+            'psu_num': 2,
+            'fan_num_per_psu': 1,
+            'hot_swappable': True,
+            'led_num': 1
+        }
     }
 }
