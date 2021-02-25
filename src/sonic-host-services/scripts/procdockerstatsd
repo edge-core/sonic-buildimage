@@ -72,7 +72,7 @@ class ProcDockerStats(daemon_base.DaemonBase):
         UNITS_MiB = 'MiB'
         UNITS_GiB = 'GiB'
 
-        res = re.match('(\d+\.?\d*)([a-zA-Z]+)', value)
+        res = re.match(r'(\d+\.?\d*)([a-zA-Z]+)', value)
         value = float(res.groups()[0])
         units = res.groups()[1]
         if units.lower() == UNITS_KB.lower():

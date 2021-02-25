@@ -1,4 +1,4 @@
-import imp
+import importlib
 import sys
 import os
 import pytest
@@ -28,6 +28,15 @@ modules_path = os.path.dirname(test_path)
 scripts_path = os.path.join(modules_path, "scripts")
 sys.path.insert(0, modules_path)
 
+# Load the file under test
+determine_reboot_cause_path = os.path.join(scripts_path, 'determine-reboot-cause')
+loader = importlib.machinery.SourceFileLoader('determine_reboot_cause', determine_reboot_cause_path)
+spec = importlib.util.spec_from_loader(loader.name, loader)
+determine_reboot_cause = importlib.util.module_from_spec(spec)
+loader.exec_module(determine_reboot_cause)
+sys.modules['determine_reboot_cause'] = determine_reboot_cause
+
+
 PROC_CMDLINE_CONTENTS = """\
 BOOT_IMAGE=/image-20191130.52/boot/vmlinuz-4.9.0-11-2-amd64 root=/dev/sda4 rw console=tty0 console=ttyS1,9600n8 quiet net.ifnames=0 biosdevname=0 loop=image-20191130.52/fs.squashfs loopfstype=squashfs apparmor=1 security=apparmor varlog_size=4096 usbcore.autosuspend=-1 module_blacklist=gpio_ich SONIC_BOOT_TYPE=warm"""
 
@@ -37,9 +46,9 @@ PROC_CMDLINE_CONTENTS = """\
 BOOT_IMAGE=/image-20191130.52/boot/vmlinuz-4.9.0-11-2-amd64 root=/dev/sda4 rw console=tty0 console=ttyS1,9600n8 quiet net.ifnames=0 biosdevname=0 loop=image-20191130.52/fs.squashfs loopfstype=squashfs apparmor=1 security=apparmor varlog_size=4096 usbcore.autosuspend=-1 module_blacklist=gpio_ich SONIC_BOOT_TYPE=warm"""
 
 REBOOT_CAUSE_CONTENTS = """\
-User issued 'warm-reboot' command [User: admin, Time: Mon Nov  2 22:37:45 UTC 2020]""" 
+User issued 'warm-reboot' command [User: admin, Time: Mon Nov  2 22:37:45 UTC 2020]"""
 
-GET_SONIC_VERSION_INFO = {'commit_id': 'e59ec8291', 'build_date': 'Mon Nov  2 06:00:14 UTC 2020', 'build_number': 75, 'kernel_version': '4.9.0-11-2-amd64', 'debian_version': '9.13', 'built_by': 'sonicbld@jenkins-slave-phx-2', 'asic_type': 'mellanox', 'build_version': '20191130.52'} 
+GET_SONIC_VERSION_INFO = {'commit_id': 'e59ec8291', 'build_date': 'Mon Nov  2 06:00:14 UTC 2020', 'build_number': 75, 'kernel_version': '4.9.0-11-2-amd64', 'debian_version': '9.13', 'built_by': 'sonicbld@jenkins-slave-phx-2', 'asic_type': 'mellanox', 'build_version': '20191130.52'}
 
 REBOOT_CAUSE_WATCHDOG = "Watchdog"
 GEN_TIME_WATCHDOG = "2020_10_22_03_15_08"
@@ -55,63 +64,52 @@ EXPECTED_HARDWARE_REBOOT_CAUSE = {"warm-reboot", ""}
 EXPECTED_WATCHDOG_REBOOT_CAUSE_DICT = {'comment': '', 'gen_time': '2020_10_22_03_15_08', 'cause': 'Watchdog', 'user': 'N/A', 'time': 'N/A'}
 EXPECTED_USER_REBOOT_CAUSE_DICT = {'comment': '', 'gen_time': '2020_10_22_03_14_07', 'cause': 'reboot', 'user': 'admin', 'time': 'Thu Oct 22 03:11:08 UTC 2020'}
 
-imp.load_source('determine_reboot_cause', scripts_path + '/determine-reboot-cause')
-from determine_reboot_cause import *
 
 class TestDetermineRebootCause(object):
-    @classmethod
-    def setup_class(cls):
-        print("SETUP")
-
     def test_parse_warmfast_reboot_from_proc_cmdline(self):
         with mock.patch("os.path.isfile") as mock_isfile:
             mock_isfile.return_value = True
-            open_mocked = mock.mock_open(read_data=PROC_CMDLINE_CONTENTS) 
-            with mock.patch("{}.open".format(BUILTINS), open_mocked): 
-                result = parse_warmfast_reboot_from_proc_cmdline() 
+            open_mocked = mock.mock_open(read_data=PROC_CMDLINE_CONTENTS)
+            with mock.patch("{}.open".format(BUILTINS), open_mocked):
+                result = determine_reboot_cause.parse_warmfast_reboot_from_proc_cmdline()
                 assert result == EXPECTED_PARSE_WARMFAST_REBOOT_FROM_PROC_CMDLINE
-                open_mocked.assert_called_once_with("/proc/cmdline") 
+                open_mocked.assert_called_once_with("/proc/cmdline")
 
     def test_find_software_reboot_cause_user(self):
-        with mock.patch("os.path.isfile") as mock_isfile: 
-            mock_isfile.return_value = True 
-            open_mocked = mock.mock_open(read_data=REBOOT_CAUSE_CONTENTS) 
-            with mock.patch("{}.open".format(BUILTINS), open_mocked): 
-                 result = find_software_reboot_cause_from_reboot_cause_file() 
+        with mock.patch("os.path.isfile") as mock_isfile:
+            mock_isfile.return_value = True
+            open_mocked = mock.mock_open(read_data=REBOOT_CAUSE_CONTENTS)
+            with mock.patch("{}.open".format(BUILTINS), open_mocked):
+                 result = determine_reboot_cause.find_software_reboot_cause_from_reboot_cause_file()
                  assert result == EXPECTED_FIND_SOFTWARE_REBOOT_CAUSE_USER
-                 open_mocked.assert_called_once_with("/host/reboot-cause/reboot-cause.txt") 
+                 open_mocked.assert_called_once_with("/host/reboot-cause/reboot-cause.txt")
 
     def test_find_software_reboot_cause_first_boot(self):
         with mock.patch("sonic_py_common.device_info.get_sonic_version_info", return_value=GET_SONIC_VERSION_INFO):
-            result = find_first_boot_version() 
+            result = determine_reboot_cause.find_first_boot_version()
             assert result == EXPECTED_FIND_FIRSTBOOT_VERSION
 
     def test_find_software_reboot_cause(self):
         with mock.patch("determine_reboot_cause.find_software_reboot_cause_from_reboot_cause_file", return_value="Unknown"):
-            with mock.patch("os.path.isfile") as mock_isfile: 
-                mock_isfile.return_value = False 
-                result = find_software_reboot_cause() 
+            with mock.patch("os.path.isfile") as mock_isfile:
+                mock_isfile.return_value = False
+                result = determine_reboot_cause.find_software_reboot_cause()
                 assert result == "Unknown"
 
     def test_find_proc_cmdline_reboot_cause(self):
         with mock.patch("determine_reboot_cause.parse_warmfast_reboot_from_proc_cmdline", return_value="fast-reboot"):
-            result = find_proc_cmdline_reboot_cause() 
+            result = determine_reboot_cause.find_proc_cmdline_reboot_cause()
             assert result == "fast-reboot"
 
     def test_find_hardware_reboot_cause(self):
         with mock.patch("determine_reboot_cause.get_reboot_cause_from_platform", return_value=("Powerloss", None)):
-            result = find_hardware_reboot_cause()
+            result = determine_reboot_cause.find_hardware_reboot_cause()
             assert result == "Powerloss (None)"
 
     def test_get_reboot_cause_dict_watchdog(self):
-        reboot_cause_dict = get_reboot_cause_dict(REBOOT_CAUSE_WATCHDOG, "", GEN_TIME_WATCHDOG) 
+        reboot_cause_dict = determine_reboot_cause.get_reboot_cause_dict(REBOOT_CAUSE_WATCHDOG, "", GEN_TIME_WATCHDOG)
         assert reboot_cause_dict == EXPECTED_WATCHDOG_REBOOT_CAUSE_DICT
 
     def test_get_reboot_cause_dict_user(self):
-        reboot_cause_dict = get_reboot_cause_dict(REBOOT_CAUSE_USER, "", GEN_TIME_USER) 
+        reboot_cause_dict = determine_reboot_cause.get_reboot_cause_dict(REBOOT_CAUSE_USER, "", GEN_TIME_USER)
         assert reboot_cause_dict == EXPECTED_USER_REBOOT_CAUSE_DICT
-
-    @classmethod
-    def teardown_class(cls):
-        print("TEARDOWN")
-
