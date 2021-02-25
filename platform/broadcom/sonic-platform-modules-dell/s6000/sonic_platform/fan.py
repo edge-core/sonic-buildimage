@@ -33,6 +33,7 @@ class Fan(FanBase):
 
     def __init__(self, fantray_index=1, fan_index=1,
                  psu_index=1, psu_fan=False, dependency=None):
+        FanBase.__init__(self)
         self.is_psu_fan = psu_fan
         self.is_driver_initialized = True
 

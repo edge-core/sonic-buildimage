@@ -25,6 +25,7 @@ class Psu(PsuBase):
     MAILBOX_DIR = HWMON_DIR + HWMON_NODE
 
     def __init__(self, psu_index):
+        PsuBase.__init__(self)
         # PSU is 1-based in DellEMC platforms
         self.index = psu_index + 1
         self.psu_presence_reg = "psu{}_presence".format(self.index)

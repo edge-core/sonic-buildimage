@@ -36,6 +36,7 @@ class Component(ComponentBase):
     ]
 
     def __init__(self, component_index=0):
+        ComponentBase.__init__(self)
         self.index = component_index
         self.name = self.CHASSIS_COMPONENTS[self.index][0]
         self.description = self.CHASSIS_COMPONENTS[self.index][1]

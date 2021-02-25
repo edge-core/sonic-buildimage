@@ -26,6 +26,7 @@ class Thermal(ThermalBase):
         )
 
     def __init__(self, thermal_index):
+        ThermalBase.__init__(self)
         self.is_cpu_thermal = False
         self.index = thermal_index + 1
 

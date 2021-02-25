@@ -35,6 +35,7 @@ class Thermal(ThermalBase):
 
     def __init__(self, thermal_index,
                  psu_index=1, psu_thermal=False, dependency=None):
+        ThermalBase.__init__(self)
         self.is_psu_thermal = psu_thermal
         self.dependency = dependency
         self.is_driver_initialized = True

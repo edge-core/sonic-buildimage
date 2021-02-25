@@ -27,6 +27,7 @@ class Fan(FanBase):
     MAILBOX_DIR = HWMON_DIR + HWMON_NODE
 
     def __init__(self, fantray_index=1, fan_index=1, psu_fan=False):
+        FanBase.__init__(self)
         self.is_psu_fan = psu_fan
         if not self.is_psu_fan:
             # API index is starting from 0, DellEMC platform index is starting
