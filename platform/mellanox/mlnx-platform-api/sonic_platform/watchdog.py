@@ -63,6 +63,7 @@ class WatchdogImplBase(WatchdogBase):
         Open a watchdog handle
         @param wd_device_path Path to watchdog device
         """
+        super(WatchdogImplBase, self).__init__()
 
         self.watchdog_path = wd_device_path
         self.watchdog = os.open(self.watchdog_path, os.O_WRONLY)

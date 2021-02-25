@@ -393,6 +393,7 @@ class Thermal(ThermalBase):
         """
         index should be a string for category ambient and int for other categories
         """
+        super(Thermal, self).__init__()
         if category == THERMAL_DEV_CATEGORY_AMBIENT:
             self.name = thermal_ambient_name[index]
             self.index = index
