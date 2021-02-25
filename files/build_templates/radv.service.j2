@@ -3,6 +3,8 @@ Description=Router advertiser container
 Requires=updategraph.service
 After=updategraph.service swss.service syncd.service
 Before=ntp-config.service
+BindsTo=sonic.target
+After=sonic.target
 StartLimitIntervalSec=1200
 StartLimitBurst=3
 
@@ -15,4 +17,4 @@ Restart=always
 RestartSec=30
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=sonic.target

@@ -17,6 +17,8 @@ After=nps-modules.service
 Requires=updategraph.service
 After=updategraph.service
 After=interfaces-config.service
+BindsTo=sonic.target
+After=sonic.target
 Before=ntp-config.service
 
 [Service]
@@ -30,4 +32,4 @@ TimeoutStartSec=480
 {% endif %}
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=sonic.target

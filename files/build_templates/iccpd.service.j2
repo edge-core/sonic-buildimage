@@ -2,6 +2,8 @@
 Description=ICCPD container
 Requires=updategraph.service swss.service
 After=updategraph.service swss.service
+BindsTo=sonic.target
+After=sonic.target
 
 [Service]
 User={{ sonicadmin_user }}
@@ -10,4 +12,4 @@ ExecStart=/usr/bin/{{docker_container_name}}.sh wait
 ExecStop=/usr/bin/{{docker_container_name}}.sh stop
 
 [Install]
-WantedBy=multi-user.target swss.service
+WantedBy=sonic.target swss.service

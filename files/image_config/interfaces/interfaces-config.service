@@ -2,10 +2,13 @@
 Description=Update interfaces configuration
 Requires=updategraph.service
 After=updategraph.service
+BindsTo=sonic.target
+After=sonic.target
 
 [Service]
 Type=oneshot
+RemainAfterExit=yes
 ExecStart=/usr/bin/interfaces-config.sh
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=sonic.target

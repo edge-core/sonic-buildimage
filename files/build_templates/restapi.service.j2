@@ -2,6 +2,8 @@
 Description=RestAPI container
 Requires=updategraph.service
 After=updategraph.service
+BindsTo=sonic.target
+After=sonic.target
 Before=ntp-config.service
 
 [Service]
@@ -13,4 +15,4 @@ Restart=always
 RestartSec=30
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=sonic.target

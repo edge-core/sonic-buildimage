@@ -682,6 +682,9 @@ sudo cp $BUILD_TEMPLATES/mgmt-framework.timer $FILESYSTEM_ROOT_USR_LIB_SYSTEMD_S
 echo "mgmt-framework.timer" | sudo tee -a $GENERATED_SERVICE_FILE
 {% endif %}
 
+sudo cp $BUILD_TEMPLATES/sonic.target $FILESYSTEM_ROOT_USR_LIB_SYSTEMD_SYSTEM
+sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable sonic.target
+
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get purge -y python-dev python3-dev
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get purge -y build-essential libssl-dev swig
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get purge -y libcairo2-dev libdbus-1-dev libgirepository1.0-dev libsystemd-dev pkg-config
