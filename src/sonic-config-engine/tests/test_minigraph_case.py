@@ -94,7 +94,7 @@ class TestCfgGenCaseInsensitive(TestCase):
         output = self.run_script(argument)
         self.assertEqual(
             utils.to_dict(output.strip()),
-            utils.to_dict("{'Vlan1000': {'alias': 'ab1', 'dhcp_servers': ['192.0.0.1', '192.0.0.2'], 'vlanid': '1000', 'mac': '00:aa:bb:cc:dd:ee' }}")
+            utils.to_dict("{'Vlan1000': {'alias': 'ab1', 'dhcp_servers': ['192.0.0.1', '192.0.0.2'], 'vlanid': '1000', 'mac': '00:aa:bb:cc:dd:ee', 'members': ['Ethernet8'] }}")
         )
 
     def test_minigraph_vlan_members(self):
