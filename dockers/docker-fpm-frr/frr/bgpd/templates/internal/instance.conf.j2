@@ -28,6 +28,7 @@
 !
     neighbor {{ neighbor_addr }} next-hop-self force
 !
+    neighbor {{ neighbor_addr }} allowas-in 1
     neighbor {{ neighbor_addr }} activate
   exit-address-family
 !
