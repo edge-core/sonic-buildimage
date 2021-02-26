@@ -177,7 +177,7 @@ class TestCfgGen(TestCase):
                 "'DATAACLINGRESS': {'stage': 'ingress', 'type': 'L3', 'ports': ['PortChannel01', 'PortChannel02', 'PortChannel03', 'PortChannel04'], 'policy_desc': 'DATAACLINGRESS'}, "
                 "'SNMP_ACL': {'services': ['SNMP'], 'type': 'CTRLPLANE', 'policy_desc': 'SNMP_ACL', 'stage': 'ingress'}, "
                 "'SSH_ACL': {'services': ['SSH'], 'type': 'CTRLPLANE', 'policy_desc': 'SSH_ACL', 'stage': 'ingress'}, "
-                "'DATAACLEGRESS': {'stage': 'egress', 'type': 'L3', 'ports': ['PortChannel01', 'PortChannel02'], 'policy_desc': 'DATAACLEGRESS'}, "
+                "'DATAACLEGRESS': {'stage': 'egress', 'type': 'L3', 'ports': ['PortChannel01', 'PortChannel02', 'Ethernet100', 'PortChannel03'], 'policy_desc': 'DATAACLEGRESS'}, "
                 "'EVERFLOWV6': {'stage': 'ingress', 'type': 'MIRRORV6', 'ports': ['PortChannel01', 'PortChannel02', 'PortChannel03', 'PortChannel04', 'Ethernet4', 'Ethernet100'], 'policy_desc': 'EVERFLOWV6'}}"
             )
         )
@@ -207,10 +207,10 @@ class TestCfgGen(TestCase):
         self.assertEqual(
             utils.to_dict(output.strip()),
             utils.to_dict(
-                "{'Vlan1000': {'alias': 'ab1', 'dhcp_servers': ['192.0.0.1', '192.0.0.2'], 'vlanid': '1000'}, "
-                "'Vlan2001': {'alias': 'ab3', 'dhcp_servers': ['192.0.0.1', '192.0.0.2'], 'vlanid': '2001'},"
-                "'Vlan2000': {'alias': 'ab2', 'dhcp_servers': ['192.0.0.1', '192.0.0.2'], 'vlanid': '2000'},"
-                "'Vlan2020': {'alias': 'kk1', 'dhcp_servers': ['192.0.0.1', '192.0.0.2'], 'vlanid': '2020'}}"
+                "{'Vlan1000': {'alias': 'ab1', 'dhcp_servers': ['192.0.0.1', '192.0.0.2'], 'vlanid': '1000', 'members': ['Ethernet8']}, "
+                "'Vlan2001': {'alias': 'ab3', 'dhcp_servers': ['192.0.0.1', '192.0.0.2'], 'vlanid': '2001', 'members': ['Ethernet12']},"
+                "'Vlan2000': {'alias': 'ab2', 'dhcp_servers': ['192.0.0.1', '192.0.0.2'], 'vlanid': '2000', 'members': ['Ethernet12']},"
+                "'Vlan2020': {'alias': 'kk1', 'dhcp_servers': ['192.0.0.1', '192.0.0.2'], 'vlanid': '2020', 'members': ['Ethernet12']}}"
             )
         )
 
