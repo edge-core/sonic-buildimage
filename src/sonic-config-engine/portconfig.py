@@ -26,8 +26,7 @@ CUR_BRKOUT_MODE = "brkout_mode"
 INTF_KEY = "interfaces"
 OPTIONAL_HWSKU_ATTRIBUTES = ["fec", "autoneg"]
 
-BRKOUT_PATTERN = r'(\d{1,3})x(\d{1,3}G)(\[\d{1,3}G\])?(\((\d{1,3})\))?'
-
+BRKOUT_PATTERN = r'(\d{1,3})x(\d{1,3}G)(\[(\d{1,3}G,?)*\])?(\((\d{1,3})\))?'
 
 #
 # Helper Functions
@@ -149,23 +148,24 @@ def parse_port_config_file(port_config_file):
     return (ports, port_alias_map, port_alias_asic_map)
 
 # Generate configs (i.e. alias, lanes, speed, index) for port
-def gen_port_config(ports, parent_intf_id, index, alias_at_lanes, lanes, k,  offset):
+def gen_port_config(ports, parent_intf_id, index, alias_list, lanes, k,  offset):
     if k is not None:
-        num_lane_used, speed, alt_speed, _ , assigned_lane = k[0], k[1], k[2], k[3], k[4]
+        num_lane_used, speed, alt_speed, _, _ , assigned_lane = k[0], k[1], k[2], k[3], k[4], k[5]
 
         # In case of symmetric mode
         if assigned_lane is None:
             assigned_lane = len(lanes.split(","))
 
         parent_intf_id = int(offset)+int(parent_intf_id)
-        alias_start = 0 + offset
+        alias_position = 0 + int(offset)//int(num_lane_used)
+        lanes_start = 0 + int(offset)
 
         step = int(assigned_lane)//int(num_lane_used)
         for i in range(0,int(assigned_lane), step):
             intf_name = PORT_STR + str(parent_intf_id)
             ports[intf_name] = {}
-            ports[intf_name]['alias'] = alias_at_lanes.split(",")[alias_start]
-            ports[intf_name]['lanes'] = ','.join(lanes.split(",")[alias_start:alias_start+step])
+            ports[intf_name]['alias'] = alias_list[alias_position]
+            ports[intf_name]['lanes'] = ','.join(lanes.split(",")[lanes_start:lanes_start+step])
             if speed:
                 speed_pat = re.search("^((\d+)G|\d+)$", speed.upper())
                 if speed_pat is None:
@@ -179,11 +179,12 @@ def gen_port_config(ports, parent_intf_id, index, alias_at_lanes, lanes, k,  off
             else:
                 raise Exception('Regex return for speed is None...')
 
-            ports[intf_name]['index'] = index.split(",")[alias_start]
+            ports[intf_name]['index'] = index.split(",")[alias_position]
             ports[intf_name]['admin_status'] = "up"
 
             parent_intf_id += step
-            alias_start += step
+            alias_position += 1
+            lanes_start += step
 
         offset = int(assigned_lane) + int(offset)
         return offset
@@ -200,7 +201,7 @@ def get_child_ports(interface, breakout_mode, platform_json_file):
     port_dict = readJson(platform_json_file)
 
     index = port_dict[INTF_KEY][interface]['index']
-    alias_at_lanes = port_dict[INTF_KEY][interface]['alias_at_lanes']
+    alias_list = port_dict[INTF_KEY][interface]['breakout_modes'][breakout_mode]
     lanes = port_dict[INTF_KEY][interface]['lanes']
 
     """
@@ -224,7 +225,7 @@ def get_child_ports(interface, breakout_mode, platform_json_file):
     offset = 0
     parent_intf_id = int(re.search("Ethernet(\d+)", interface).group(1))
     for k in match_list:
-        offset = gen_port_config(child_ports, parent_intf_id, index, alias_at_lanes, lanes, k, offset)
+        offset = gen_port_config(child_ports, parent_intf_id, index, alias_list, lanes, k, offset)
     return child_ports
 
 def parse_platform_json_file(hwsku_json_file, platform_json_file):

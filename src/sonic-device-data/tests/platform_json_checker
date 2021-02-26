@@ -6,7 +6,7 @@ import re
 import sys
 
 # Global variable
-PORT_ATTRIBUTES = ["index", "lanes", "alias_at_lanes", "breakout_modes"]
+PORT_ATTRIBUTES = ["index", "lanes", "breakout_modes"]
 ATTR_LEN = len(PORT_ATTRIBUTES)
 PORT_REG = "Ethernet(\d+)"
 PLATFORM_JSON = '*platform.json'
@@ -23,12 +23,20 @@ def check_port_attr(port_attr):
         if each_key not in PORT_ATTRIBUTES:
             print("Error: "+ each_key + " is not the correct Port attribute.")
             return False
+
         if not port_attr[each_key]:
             print("Error: "+ each_key + " has no value.")
             return False
-        if not isinstance(port_attr[each_key], str):
-            print("Error:value type of  "+ each_key + " must be string.")
-            return False
+
+        if each_key.lower() == "breakout_modes":
+            brkout_modes = port_attr[each_key]
+            if not isinstance(brkout_modes, dict):
+                print("Error:value type of  "+ each_key + " must be dictionary.")
+                return False
+        else:
+            if not isinstance(port_attr[each_key], str):
+                print("Error:value type of  "+ each_key + " must be string.")
+                return False
     return True
 
 

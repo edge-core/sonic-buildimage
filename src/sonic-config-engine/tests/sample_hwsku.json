@@ -31,10 +31,10 @@
             "default_brkout_mode": "1x50G(2)+2x25G(2)"
         },
         "Ethernet40": {
-            "default_brkout_mode": "1x100G[40G]"
+            "default_brkout_mode": "1x100G[50G,40G,25G,10G,1G]"
         },
         "Ethernet44": {
-            "default_brkout_mode": "2x50G"
+            "default_brkout_mode": "2x50G[40G,25G,10G,1G]"
         },
         "Ethernet48": {
             "default_brkout_mode": "4x25G[10G]"
