@@ -191,6 +191,8 @@ class BGPPeerMgrBase(Manager):
             'neighbor_addr': nbr,
             'bgp_session': data,
             'loopback0_ipv4': lo0_ipv4,
+            'CONFIG_DB__LOOPBACK_INTERFACE':{ tuple(key.split('|')) : {} for key in self.directory.get_slot("CONFIG_DB", swsscommon.CFG_LOOPBACK_INTERFACE_TABLE_NAME)
+                                                                         if '|' in key }
         }
         if self.check_neig_meta:
             neigmeta = self.directory.get_slot("CONFIG_DB", swsscommon.CFG_DEVICE_NEIGHBOR_METADATA_TABLE_NAME)

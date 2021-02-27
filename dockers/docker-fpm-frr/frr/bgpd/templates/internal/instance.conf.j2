@@ -10,6 +10,7 @@
     neighbor {{ neighbor_addr }} peer-group INTERNAL_PEER_V4
 !
 {%   if CONFIG_DB__DEVICE_METADATA['localhost']['sub_role'] == 'BackEnd' %}
+    neighbor {{ neighbor_addr }} next-hop-self force
     neighbor {{ neighbor_addr }} route-map FROM_BGP_INTERNAL_PEER_V4 in
 {%   endif %}
 !
@@ -18,6 +19,7 @@
     neighbor {{ neighbor_addr }} peer-group INTERNAL_PEER_V6
 !
 {%   if CONFIG_DB__DEVICE_METADATA['localhost']['sub_role'] == 'BackEnd' %}
+    neighbor {{ neighbor_addr }} next-hop-self force
     neighbor {{ neighbor_addr }} route-map FROM_BGP_INTERNAL_PEER_V6 in
 {%   endif %}
 {% endif %}
@@ -26,7 +28,6 @@
     neighbor {{ neighbor_addr }} route-reflector-client
 {%   endif %}
 !
-    neighbor {{ neighbor_addr }} next-hop-self force
 !
     neighbor {{ neighbor_addr }} allowas-in 1
     neighbor {{ neighbor_addr }} activate
