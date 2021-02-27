@@ -41,7 +41,7 @@ from functools import partial
 from minigraph import minigraph_encoder, parse_xml, parse_device_desc_xml, parse_asic_sub_role
 from portconfig import get_port_config, get_breakout_mode
 from redis_bcc import RedisBytecodeCache
-from sonic_py_common.multi_asic import get_asic_id_from_name, is_multi_asic
+from sonic_py_common.multi_asic import get_asic_id_from_name
 from sonic_py_common import device_info
 from swsscommon.swsscommon import SonicV2Connector, ConfigDBConnector, SonicDBConfig, ConfigDBPipeConnector
 
@@ -251,8 +251,6 @@ def _get_jinja2_env(paths):
     env.filters['ip_network'] = ip_network
     for attr in ['ip', 'network', 'prefixlen', 'netmask', 'broadcast']:
         env.filters[attr] = partial(prefix_attr, attr)
-    # Pass the is_multi_asic function as global
-    env.globals['multi_asic'] = is_multi_asic
 
     return env
 
