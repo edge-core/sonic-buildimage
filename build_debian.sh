@@ -293,7 +293,6 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     ethtool                 \
     screen                  \
     hping3                  \
-    python-scapy            \
     tcptraceroute           \
     mtr-tiny                \
     locales                 \
@@ -407,6 +406,9 @@ sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install 'docker
 ## Get gcc and python dev pkgs
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install gcc libpython2.7-dev
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install 'netifaces==0.10.7'
+
+# Install scapy
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip install 'scapy==2.4.4'
 
 ## Create /var/run/redis folder for docker-database to mount
 sudo mkdir -p $FILESYSTEM_ROOT/var/run/redis
