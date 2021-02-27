@@ -7,7 +7,9 @@
     },
     "LOOPBACK_INTERFACE": {
         "Loopback0|55.55.55.55/32": {},
-        "Loopback0|fc00::1/128": {}
+        "Loopback0|fc00::1/128": {},
+        "Loopback4096|55.55.55.56/32": {},
+        "Loopback4096|fc00::2/128": {}
     },
     "VLAN_INTERFACE": {
         "Vlan10|10.10.10.1/24": {},

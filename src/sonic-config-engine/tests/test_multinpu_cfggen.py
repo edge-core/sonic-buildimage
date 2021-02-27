@@ -1,3 +1,4 @@
+import filecmp
 import json
 import os
 import shutil
@@ -26,6 +27,7 @@ class TestMultiNpuCfgGen(TestCase):
         self.port_config = []
         for asic in range(NUM_ASIC):
             self.port_config.append(os.path.join(self.test_data_dir, "sample_port_config-{}.ini".format(asic)))
+        self.output_file = os.path.join(self.test_dir, 'output')
 
     def run_script(self, argument, check_stderr=False):
         print('\n    Running sonic-cfggen ' + argument)
@@ -46,6 +48,22 @@ class TestMultiNpuCfgGen(TestCase):
 
     def run_diff(self, file1, file2):
         return subprocess.check_output('diff -u {} {} || true'.format(file1, file2), shell=True)
+
+    def run_frr_asic_case(self, template, target, asic, port_config):
+        template_dir = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-fpm-frr', "frr")
+        conf_template = os.path.join(template_dir, template)
+        constants = os.path.join(self.test_dir, '..', '..', '..', 'files', 'image_config', 'constants', 'constants.yml')
+        cmd_args = asic, self.sample_graph, port_config, constants, conf_template, template_dir, self.output_file
+        cmd = "-n %s -m %s -p %s -y %s -t %s -T %s > %s" % cmd_args
+        self.run_script(cmd)
+
+        original_filename = os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, target)
+        r = filecmp.cmp(original_filename, self.output_file)
+        diff_output = self.run_diff(original_filename, self.output_file) if not r else ""
+
+        return r, "Diff:\n" + diff_output
+
+
 
     def run_script_for_asic(self,argument,asic, port_config=None):
         argument = "{} -n asic{} ".format(argument, asic)
@@ -352,3 +370,8 @@ class TestMultiNpuCfgGen(TestCase):
                 }
             }
         )
+    def test_bgpd_frr_frontendasic(self):
+        self.assertTrue(*self.run_frr_asic_case('bgpd/bgpd.conf.j2', 'bgpd_frr_frontend_asic.conf', "asic0", self.port_config[0]))
+    
+    def test_bgpd_frr_backendasic(self):
+        self.assertTrue(*self.run_frr_asic_case('bgpd/bgpd.conf.j2', 'bgpd_frr_backend_asic.conf', "asic3", self.port_config[3]))

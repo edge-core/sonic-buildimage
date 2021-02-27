@@ -4,5 +4,7 @@
             "sub_role": "BackEnd"
         }
     },
-    "loopback0_ipv4": "10.10.10.10/32"
+    "CONFIG_DB__LOOPBACK_INTERFACE": {
+        "Loopback4096|10.10.10.10/32": {}
+    }
 }
