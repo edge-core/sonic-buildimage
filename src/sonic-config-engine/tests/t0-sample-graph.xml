@@ -260,6 +260,20 @@
           <MacAddress i:nil="true"/>
           <SecondarySubnets/>
         </VlanInterface>
+        <VlanInterface>
+          <Name>Vlan98</Name>
+          <AttachTo>fortyGigE0/100;PortChannel01;PortChannel03</AttachTo>
+          <NoDhcpRelay>False</NoDhcpRelay>
+          <StaticDHCPRelay>0.0.0.0/0</StaticDHCPRelay>
+          <FhrpProtoType i:nil="true"/>
+          <Type>UserDefinedL2Vlan</Type>
+          <DhcpRelays>192.0.0.1;192.0.0.2</DhcpRelays>
+          <VlanID>98</VlanID>
+          <Tag>98</Tag>
+          <Subnets/>
+          <MacAddress i:nil="true"/>
+          <SecondarySubnets/>
+        </VlanInterface>
       </VlanInterfaces>
       <IPInterfaces>
         <IPInterface>
@@ -331,7 +345,7 @@
           <Type>DataPlane</Type>
         </AclInterface>
         <AclInterface>
-          <AttachTo>PortChannel01;PortChannel02</AttachTo>
+          <AttachTo>PortChannel01;PortChannel02;Vlan98</AttachTo>
           <OutAcl>DataAclEgress</OutAcl>
           <Type>DataPlane</Type>
         </AclInterface>

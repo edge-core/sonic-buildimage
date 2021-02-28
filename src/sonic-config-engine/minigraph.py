@@ -347,7 +347,6 @@ def parse_dpg(dpg, hname):
                 pcs[pcintfname] = {'members': pcmbr_list, 'min_links': str(int(math.ceil(len(pcmbr_list) * 0.75)))}
 
         vlanintfs = child.find(str(QName(ns, "VlanInterfaces")))
-        vlan_intfs = []
         vlans = {}
         vlan_members = {}
         intf_vlan_mbr = defaultdict(list)
@@ -370,7 +369,7 @@ def parse_dpg(dpg, hname):
                 else:
                     vlan_members[(sonic_vlan_member_name, vmbr_list[i])] = {'tagging_mode': 'untagged'}
 
-            vlan_attributes = {'vlanid': vlanid}
+            vlan_attributes = {'vlanid': vlanid, 'members': vmbr_list }
 
             # If this VLAN requires a DHCP relay agent, it will contain a <DhcpRelays> element
             # containing a list of DHCP server IPs
@@ -394,7 +393,7 @@ def parse_dpg(dpg, hname):
                 aclname = aclintf.find(str(QName(ns, "OutAcl"))).text.upper().replace(" ", "_").replace("-", "_")
                 stage = "egress"
             else:
-                system.exit("Error: 'AclInterface' must contain either an 'InAcl' or 'OutAcl' subelement.")
+                sys.exit("Error: 'AclInterface' must contain either an 'InAcl' or 'OutAcl' subelement.")
             aclattach = aclintf.find(str(QName(ns, "AttachTo"))).text.split(';')
             acl_intfs = []
             is_mirror = False
@@ -411,7 +410,11 @@ def parse_dpg(dpg, hname):
                     # to LAG will be applied to all the LAG members internally by SAI/SDK
                     acl_intfs.append(member)
                 elif vlans.has_key(member):
-                    acl_intfs.append(member)
+                    # For egress ACL attaching to vlan, we break them into vlan members
+                    if stage == "egress":
+                        acl_intfs.extend(vlans[member]['members'])
+                    else:
+                        acl_intfs.append(member)
                 elif port_alias_map.has_key(member):
                     acl_intfs.append(port_alias_map[member])
                     # Give a warning if trying to attach ACL to a LAG member interface, correct way is to attach ACL to the LAG interface
@@ -435,9 +438,15 @@ def parse_dpg(dpg, hname):
                             acl_intfs.append(panel_port)
                     break
             if acl_intfs:
+                # Remove duplications
+                dedup_intfs = []
+                for intf in acl_intfs:
+                    if intf not in dedup_intfs:
+                        dedup_intfs.append(intf)
+
                 acls[aclname] = {'policy_desc': aclname,
                                  'stage': stage,
-                                 'ports': acl_intfs}
+                                 'ports': dedup_intfs}
                 if is_mirror:
                     acls[aclname]['type'] = 'MIRROR'
                 elif is_mirror_v6:
