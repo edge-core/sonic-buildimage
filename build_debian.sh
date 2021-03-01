@@ -302,7 +302,6 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     ethtool                 \
     screen                  \
     hping3                  \
-    python-scapy            \
     tcptraceroute           \
     mtr-tiny                \
     locales                 \
