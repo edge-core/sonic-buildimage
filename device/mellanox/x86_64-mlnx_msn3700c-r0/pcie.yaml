@@ -130,13 +130,13 @@
   id: 6f53
   name: 'System peripheral: Intel Corporation Xeon Processor D Family QuickData Technology
     Register DMA Channel 3'
-- bus: '06'
+- bus: '07'
   dev: '00'
   fn: '0'
   id: cf6c
   name: 'Ethernet controller: Mellanox Technologies MT53100 [Spectrum-2, 64 x 100GbE
     switch]'
-- bus: 08
+- bus: 09
   dev: '00'
   fn: '0'
   id: '1533'
