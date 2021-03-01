@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 #############################################################################
 # PDDF
 # Module contains an implementation of SONiC Platform API and

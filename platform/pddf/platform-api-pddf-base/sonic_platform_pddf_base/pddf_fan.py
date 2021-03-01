@@ -1,13 +1,16 @@
-#!/usr/bin/env python
-
-# All the supported FAN SysFS aattributes are
-#- fan<idx>_present
-#- fan<idx>_direction
-#- fan<idx>_input
-#- fan<idx>_pwm
-#- fan<idx>_fault
-# where idx is in the range [1-32]
+#############################################################################
+# PDDF
 #
+# PDDF fan base class inherited from the base class
+#
+# All the supported FAN SysFS aattributes are
+# - fan<idx>_present
+# - fan<idx>_direction
+# - fan<idx>_input
+# - fan<idx>_pwm
+# - fan<idx>_fault
+# where idx is in the range [1-32]
+#############################################################################
 
 try:
     from sonic_platform_base.fan_base import FanBase

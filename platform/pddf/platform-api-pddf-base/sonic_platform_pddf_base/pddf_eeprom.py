@@ -41,7 +41,7 @@ class PddfEeprom(eeprom_tlvinfo.TlvInfoDecoder):
             if not self.is_valid_tlvinfo_header(eeprom):
                 return
 
-            total_length = (ord(eeprom[9]) << 8) | ord(eeprom[10])
+            total_length = ((eeprom[9]) << 8) | (eeprom[10])
             tlv_index = self._TLV_INFO_HDR_LEN
             tlv_end = self._TLV_INFO_HDR_LEN + total_length
 
@@ -50,21 +50,21 @@ class PddfEeprom(eeprom_tlvinfo.TlvInfoDecoder):
                     break
 
                 tlv = eeprom[tlv_index:tlv_index + 2
-                             + ord(eeprom[tlv_index + 1])]
-                code = "0x%02X" % (ord(tlv[0]))
+                             + (eeprom[tlv_index + 1])]
+                code = "0x%02X" % ((tlv[0]))
 
-                if ord(tlv[0]) == self._TLV_CODE_VENDOR_EXT:
-                    value = str((ord(tlv[2]) << 24) | (ord(tlv[3]) << 16) |
-                                (ord(tlv[4]) << 8) | ord(tlv[5]))
-                    value += str(tlv[6:6 + ord(tlv[1])])
+                if (tlv[0]) == self._TLV_CODE_VENDOR_EXT:
+                    value = str(((tlv[2]) << 24) | ((tlv[3]) << 16) |
+                                ((tlv[4]) << 8) | (tlv[5]))
+                    value += str(tlv[6:6 + (tlv[1])])
                 else:
                     name, value = self.decoder(None, tlv)
 
                 self.eeprom_tlv_dict[code] = value
-                if ord(eeprom[tlv_index]) == self._TLV_CODE_CRC_32:
+                if (eeprom[tlv_index]) == self._TLV_CODE_CRC_32:
                     break
 
-                tlv_index += ord(eeprom[tlv_index+1]) + 2
+                tlv_index += (eeprom[tlv_index+1]) + 2
 
     def serial_number_str(self):
         (is_valid, results) = self.get_tlv_field(self.eeprom_data, self._TLV_CODE_SERIAL_NUMBER)

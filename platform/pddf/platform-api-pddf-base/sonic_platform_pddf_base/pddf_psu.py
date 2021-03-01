@@ -1,17 +1,20 @@
-#!/usr/bin/env python
+#############################################################################
+# PDDF
+#
+# PDDF psu base class inherited from the base class
 #
 # All the supported PSU SysFS aattributes are
-#- psu_present
-#- psu_model_name
-#- psu_power_good
-#- psu_mfr_id
-#- psu_serial_num
-#- psu_fan_dir
-#- psu_v_out
-#- psu_i_out
-#- psu_p_out
-#- psu_fan1_speed_rpm
-#
+# - psu_present
+# - psu_model_name
+# - psu_power_good
+# - psu_mfr_id
+# - psu_serial_num
+# - psu_fan_dir
+# - psu_v_out
+# - psu_i_out
+# - psu_p_out
+# - psu_fan1_speed_rpm
+#############################################################################
 
 
 try:
@@ -37,7 +40,6 @@ class PddfPsu(PsuBase):
         self.platform = self.pddf_obj.get_platform()
         self.psu_index = index + 1
 
-        self._fan_list = []     # _fan_list under PsuBase class is a global variable, hence we need to use _fan_list per class instatiation
         self.num_psu_fans = int(self.pddf_obj.get_num_psu_fans('PSU{}'.format(index+1)))
         for psu_fan_idx in range(self.num_psu_fans):
             psu_fan = Fan(0, psu_fan_idx, pddf_data, pddf_plugin_data, True, self.psu_index)

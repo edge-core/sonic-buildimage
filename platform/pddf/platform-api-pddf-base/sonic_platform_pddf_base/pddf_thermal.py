@@ -1,11 +1,15 @@
-#!/usr/bin/env python
-
+#############################################################################
+# PDDF
+#
+# PDDF thermal base class inherited from the base class
+#
 # All the supported Temperature Sensor SysFS aattributes are
-#- temp1_high_crit_threshold
-#- temp1_high_threshold
-#- temp1_input
-#- temp_low_threshold
-#- temp1_low_crit_threshold
+# - temp1_high_crit_threshold
+# - temp1_high_threshold
+# - temp1_input
+# - temp_low_threshold
+# - temp1_low_crit_threshold
+#############################################################################
 
 try:
     from sonic_platform_base.thermal_base import ThermalBase

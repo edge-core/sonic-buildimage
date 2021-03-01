@@ -1,9 +1,7 @@
-#!/usr/bin/env python
-
 #############################################################################
 # PDDF
-# Module contains an implementation of SONiC Platform Base API and
-# provides the platform information
+# Module contains an implementation of SONiC PDDF Chassis Base API and
+# provides the chassis information
 #
 #############################################################################
 
