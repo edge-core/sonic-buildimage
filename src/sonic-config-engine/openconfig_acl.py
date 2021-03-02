@@ -832,7 +832,7 @@ class yc_config_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_l2_co
     self.__destination_mac_mask = YANGDynClass(base=RestrictedClassType(base_type=six.text_type, restriction_dict={u'pattern': u'[0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5}'}), is_leaf=True, yang_name="destination-mac-mask", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='yang:mac-address', is_config=True)
     self.__source_mac = YANGDynClass(base=RestrictedClassType(base_type=six.text_type, restriction_dict={u'pattern': u'[0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5}'}), is_leaf=True, yang_name="source-mac", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='yang:mac-address', is_config=True)
     self.__source_mac_mask = YANGDynClass(base=RestrictedClassType(base_type=six.text_type, restriction_dict={u'pattern': u'[0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5}'}), is_leaf=True, yang_name="source-mac-mask", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='yang:mac-address', is_config=True)
-    self.__vlan_id = YANGDynClass(base=RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..65535']},int_size=16), restriction_dict={u'range': [u'0..4095']}), is_leaf=True, yang_name="vlan-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='https://github.com/Azure/sonic-buildimage', defining_module='sonic-acl-extension', yang_type='vlan-id-type', is_config=True)
+    self.__vlan_id = YANGDynClass(base=[RestrictedClassType(base_type=six.text_type, restriction_dict={u'pattern': u'null'}),RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..65535']},int_size=16), restriction_dict={u'range': [u'1..4095']}),], is_leaf=True, yang_name="vlan-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='https://github.com/Azure/sonic-buildimage', defining_module='sonic-acl-extension', yang_type='vlan-id-type', is_config=True)
     self.__destination_mac = YANGDynClass(base=RestrictedClassType(base_type=six.text_type, restriction_dict={u'pattern': u'[0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5}'}), is_leaf=True, yang_name="destination-mac", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='http://openconfig.net/yang/acl', defining_module='openconfig-acl', yang_type='yang:mac-address', is_config=True)
 
     load = kwargs.pop("load", None)
@@ -1068,12 +1068,12 @@ class yc_config_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_l2_co
     if hasattr(v, "_utype"):
       v = v._utype(v)
     try:
-      t = YANGDynClass(v,base=RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..65535']},int_size=16), restriction_dict={u'range': [u'0..4095']}), is_leaf=True, yang_name="vlan-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='https://github.com/Azure/sonic-buildimage', defining_module='sonic-acl-extension', yang_type='vlan-id-type', is_config=True)
+      t = YANGDynClass(v,base=[RestrictedClassType(base_type=six.text_type, restriction_dict={u'pattern': u'null'}),RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..65535']},int_size=16), restriction_dict={u'range': [u'1..4095']}),], is_leaf=True, yang_name="vlan-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='https://github.com/Azure/sonic-buildimage', defining_module='sonic-acl-extension', yang_type='vlan-id-type', is_config=True)
     except (TypeError, ValueError):
       raise ValueError({
           'error-string': """vlan_id must be of a type compatible with vlan-id-type""",
           'defined-type': "sonic-acl-extension:vlan-id-type",
-          'generated-type': """YANGDynClass(base=RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..65535']},int_size=16), restriction_dict={u'range': [u'0..4095']}), is_leaf=True, yang_name="vlan-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='https://github.com/Azure/sonic-buildimage', defining_module='sonic-acl-extension', yang_type='vlan-id-type', is_config=True)""",
+          'generated-type': """YANGDynClass(base=[RestrictedClassType(base_type=six.text_type, restriction_dict={u'pattern': u'null'}),RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..65535']},int_size=16), restriction_dict={u'range': [u'1..4095']}),], is_leaf=True, yang_name="vlan-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='https://github.com/Azure/sonic-buildimage', defining_module='sonic-acl-extension', yang_type='vlan-id-type', is_config=True)""",
         })
 
     self.__vlan_id = t
@@ -1081,7 +1081,7 @@ class yc_config_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_l2_co
       self._set()
 
   def _unset_vlan_id(self):
-    self.__vlan_id = YANGDynClass(base=RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..65535']},int_size=16), restriction_dict={u'range': [u'0..4095']}), is_leaf=True, yang_name="vlan-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='https://github.com/Azure/sonic-buildimage', defining_module='sonic-acl-extension', yang_type='vlan-id-type', is_config=True)
+    self.__vlan_id = YANGDynClass(base=[RestrictedClassType(base_type=six.text_type, restriction_dict={u'pattern': u'null'}),RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..65535']},int_size=16), restriction_dict={u'range': [u'1..4095']}),], is_leaf=True, yang_name="vlan-id", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='https://github.com/Azure/sonic-buildimage', defining_module='sonic-acl-extension', yang_type='vlan-id-type', is_config=True)
 
   source_mac = __builtin__.property(_get_source_mac, _set_source_mac)
   source_mac_mask = __builtin__.property(_get_source_mac_mask, _set_source_mac_mask)
@@ -3723,8 +3723,8 @@ class yc_config_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_icmp_
     self._path_helper = False
 
     self._extmethods = False
-    self.__code = YANGDynClass(base=RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..255']}, int_size=8), restriction_dict={u'range': [u'0..255']}), is_leaf=True, yang_name="code", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='https://github.com/Azure/sonic-buildimage', defining_module='sonic-acl-extension', yang_type='icmp-code-type', is_config=True)
-    self.__type = YANGDynClass(base=RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..255']}, int_size=8), restriction_dict={u'range': [u'0..255']}), is_leaf=True, yang_name="type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='https://github.com/Azure/sonic-buildimage', defining_module='sonic-acl-extension', yang_type='icmp-type-type', is_config=True)
+    self.__code = YANGDynClass(base=[RestrictedClassType(base_type=six.text_type, restriction_dict={u'pattern': u'null'}),RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..255']}, int_size=8), restriction_dict={u'range': [u'0..255']}),], is_leaf=True, yang_name="code", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='https://github.com/Azure/sonic-buildimage', defining_module='sonic-acl-extension', yang_type='icmp-code-type', is_config=True)
+    self.__type = YANGDynClass(base=[RestrictedClassType(base_type=six.text_type, restriction_dict={u'pattern': u'null'}),RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..255']}, int_size=8), restriction_dict={u'range': [u'0..255']}),], is_leaf=True, yang_name="type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='https://github.com/Azure/sonic-buildimage', defining_module='sonic-acl-extension', yang_type='icmp-type-type', is_config=True)
 
     load = kwargs.pop("load", None)
     if args:
@@ -3774,12 +3774,12 @@ class yc_config_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_icmp_
     if hasattr(v, "_utype"):
       v = v._utype(v)
     try:
-      t = YANGDynClass(v,base=RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..255']}, int_size=8), restriction_dict={u'range': [u'0..255']}), is_leaf=True, yang_name="type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='https://github.com/Azure/sonic-buildimage', defining_module='sonic-acl-extension', yang_type='icmp-type-type', is_config=True)
+      t = YANGDynClass(v,base=[RestrictedClassType(base_type=six.text_type, restriction_dict={u'pattern': u'null'}),RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..255']}, int_size=8), restriction_dict={u'range': [u'0..255']}),], is_leaf=True, yang_name="type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='https://github.com/Azure/sonic-buildimage', defining_module='sonic-acl-extension', yang_type='icmp-type-type', is_config=True)
     except (TypeError, ValueError):
       raise ValueError({
           'error-string': """type must be of a type compatible with icmp-type-type""",
           'defined-type': "sonic-acl-extension:icmp-type-type",
-          'generated-type': """YANGDynClass(base=RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..255']}, int_size=8), restriction_dict={u'range': [u'0..255']}), is_leaf=True, yang_name="type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='https://github.com/Azure/sonic-buildimage', defining_module='sonic-acl-extension', yang_type='icmp-type-type', is_config=True)""",
+          'generated-type': """YANGDynClass(base=[RestrictedClassType(base_type=six.text_type, restriction_dict={u'pattern': u'null'}),RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..255']}, int_size=8), restriction_dict={u'range': [u'0..255']}),], is_leaf=True, yang_name="type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='https://github.com/Azure/sonic-buildimage', defining_module='sonic-acl-extension', yang_type='icmp-type-type', is_config=True)""",
         })
 
     self.__type = t
@@ -3787,7 +3787,7 @@ class yc_config_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_icmp_
       self._set()
 
   def _unset_type(self):
-    self.__type = YANGDynClass(base=RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..255']}, int_size=8), restriction_dict={u'range': [u'0..255']}), is_leaf=True, yang_name="type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='https://github.com/Azure/sonic-buildimage', defining_module='sonic-acl-extension', yang_type='icmp-type-type', is_config=True)
+    self.__type = YANGDynClass(base=[RestrictedClassType(base_type=six.text_type, restriction_dict={u'pattern': u'null'}),RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..255']}, int_size=8), restriction_dict={u'range': [u'0..255']}),], is_leaf=True, yang_name="type", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='https://github.com/Azure/sonic-buildimage', defining_module='sonic-acl-extension', yang_type='icmp-type-type', is_config=True)
 
 
   def _get_code(self):
@@ -3811,12 +3811,12 @@ class yc_config_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_icmp_
     if hasattr(v, "_utype"):
       v = v._utype(v)
     try:
-      t = YANGDynClass(v,base=RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..255']}, int_size=8), restriction_dict={u'range': [u'0..255']}), is_leaf=True, yang_name="code", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='https://github.com/Azure/sonic-buildimage', defining_module='sonic-acl-extension', yang_type='icmp-code-type', is_config=True)
+      t = YANGDynClass(v,base=[RestrictedClassType(base_type=six.text_type, restriction_dict={u'pattern': u'null'}),RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..255']}, int_size=8), restriction_dict={u'range': [u'0..255']}),], is_leaf=True, yang_name="code", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='https://github.com/Azure/sonic-buildimage', defining_module='sonic-acl-extension', yang_type='icmp-code-type', is_config=True)
     except (TypeError, ValueError):
       raise ValueError({
           'error-string': """code must be of a type compatible with icmp-code-type""",
           'defined-type': "sonic-acl-extension:icmp-code-type",
-          'generated-type': """YANGDynClass(base=RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..255']}, int_size=8), restriction_dict={u'range': [u'0..255']}), is_leaf=True, yang_name="code", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='https://github.com/Azure/sonic-buildimage', defining_module='sonic-acl-extension', yang_type='icmp-code-type', is_config=True)""",
+          'generated-type': """YANGDynClass(base=[RestrictedClassType(base_type=six.text_type, restriction_dict={u'pattern': u'null'}),RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..255']}, int_size=8), restriction_dict={u'range': [u'0..255']}),], is_leaf=True, yang_name="code", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='https://github.com/Azure/sonic-buildimage', defining_module='sonic-acl-extension', yang_type='icmp-code-type', is_config=True)""",
         })
 
     self.__code = t
@@ -3824,7 +3824,7 @@ class yc_config_openconfig_acl__acl_acl_sets_acl_set_acl_entries_acl_entry_icmp_
       self._set()
 
   def _unset_code(self):
-    self.__code = YANGDynClass(base=RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..255']}, int_size=8), restriction_dict={u'range': [u'0..255']}), is_leaf=True, yang_name="code", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='https://github.com/Azure/sonic-buildimage', defining_module='sonic-acl-extension', yang_type='icmp-code-type', is_config=True)
+    self.__code = YANGDynClass(base=[RestrictedClassType(base_type=six.text_type, restriction_dict={u'pattern': u'null'}),RestrictedClassType(base_type=RestrictedClassType(base_type=int, restriction_dict={'range': ['0..255']}, int_size=8), restriction_dict={u'range': [u'0..255']}),], is_leaf=True, yang_name="code", parent=self, path_helper=self._path_helper, extmethods=self._extmethods, register_paths=True, namespace='https://github.com/Azure/sonic-buildimage', defining_module='sonic-acl-extension', yang_type='icmp-code-type', is_config=True)
 
   type = __builtin__.property(_get_type, _set_type)
   code = __builtin__.property(_get_code, _set_code)
