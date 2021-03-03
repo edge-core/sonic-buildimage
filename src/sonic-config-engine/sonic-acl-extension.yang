@@ -4,28 +4,43 @@ module sonic-acl-extension {
 
   prefix "sonic-acl-extension";
 
-  import openconfig-acl                { prefix oc-acl; }
+  import openconfig-acl { prefix oc-acl; }
 
   typedef vlan-id-type {
-    type uint16 {
-      range 0..4095;
-	  }
-	  description
-	    "The VLAN ID value may be expressed as a 12-bit number in decimal notation";
+    type union {
+      type string {
+        pattern "null";
+      }
+      type uint16 {
+        range 1..4095;
+      }
+    }
+    description
+      "The VLAN ID value may be expressed as a 12-bit number in decimal notation";
   }
 
   typedef icmp-type-type {
-    type uint8 {
-      range 0..255;
+    type union {
+      type string {
+        pattern "null";
+      }
+      type uint8 {
+        range 0..255;
+      }
     }
     description
       "The ICMP type value may be expressed as an 8-bit number in decimal notation";
   }
 
   typedef icmp-code-type {
-	  type uint8 {
-      range 0..255;
-	  }
+    type union {
+      type string {
+        pattern "null";
+      }
+      type uint8 {
+        range 0..255;
+      }
+    }
     description
       "The ICMP code value may be expressed as an 8-bit number in decimal notation";
   }
@@ -49,20 +64,20 @@ module sonic-acl-extension {
     }
 
     leaf code {
-	    type icmp-code-type;
-	    description
-	      "ICMP(V6) code.";
-	  }
+      type icmp-code-type;
+      description
+        "ICMP(V6) code.";
+    }
   }
 
   grouping icmp-protocol-fields-top {
     description
-	    "ICMP header fields for IPv4 and IPv6";
+      "ICMP header fields for IPv4 and IPv6";
 
-	  container icmp {
-	    container config {
+    container icmp {
+      container config {
         uses icmp-protocol-fields-config;
-	    }
+      }
     }
   }
 
@@ -71,6 +86,6 @@ module sonic-acl-extension {
   }
 
   augment "/oc-acl:acl/oc-acl:acl-sets/oc-acl:acl-set/oc-acl:acl-entries/oc-acl:acl-entry" {
-	  uses icmp-protocol-fields-top;
+    uses icmp-protocol-fields-top;
   }
 }
