@@ -3,7 +3,6 @@ bitarray==1.5.3
 bottle==0.12.15
 contextlib2==0.6.0.post1
 enum34==1.1.6
-funcsigs==1.0.2
 functools32==3.2.3.post2
 future==0.18.2
 importlib-resources==3.3.1
@@ -13,11 +12,9 @@ Jinja2==2.11.3
 jsonschema==2.6.0
 lxml==4.6.2
 MarkupSafe==1.1.1
-mock==2.0.0
 natsort==6.2.1
 netaddr==0.8.0
 pathlib2==2.3.5
-pbr==4.2.0
 platform-arista==1.0
 pyang==2.4.0
 pyangbind==0.6.0
@@ -26,8 +23,8 @@ PyYAML==5.4.1
 redis==3.5.3
 scandir==1.10.0
 scapy==2.4.0
-singledispatch==3.6.0
-six==1.12.0
+singledispatch==3.6.1
+six==1.15.0
 thrift==0.13.0
 typing==3.7.4.3
 zipp==1.2.0

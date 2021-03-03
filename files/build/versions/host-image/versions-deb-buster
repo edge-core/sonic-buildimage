@@ -218,17 +218,9 @@ python-apt-common==1.8.4.3
 python-argcomplete==1.8.1-1
 python-bottle==0.12.15-2+deb10u1
 python-enum34==1.1.6-2
-python-funcsigs==1.0.2-4
-python-functools32==3.2.3.2-3
 python-ipaddr==2.2.0-2
-python-jsonschema==2.6.0-4
 python-minimal==2.7.16-1
-python-mock==2.0.0-4
-python-pbr==4.2.0-5
-python-pkg-resources==40.8.0-1
 python-scapy==2.4.0-2
-python-setuptools==40.8.0-1
-python-six==1.12.0-1
 python-smbus==4.1-1
 python-sonic-platform-arista==1.0
 python-swsscommon==1.0.0

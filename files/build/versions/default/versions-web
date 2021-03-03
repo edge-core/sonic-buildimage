@@ -12,11 +12,11 @@ http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0-3~bpo9+1.debian
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0-3~bpo9+1.dsc==be4ce11ef67268e59e4b6be587327c40
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0.orig.tar.gz==6d565680a4af0d2e261abbc3e3431b2b
 http://www.mellanox.com/downloads/MFT/mft-4.15.3-3-x86_64-deb.tgz==21caa3657b4100da3d08cf47961edc6f
-https://chrome-infra-packages.appspot.com/client?platform=linux-amd64&version=git_revision:61ac72e84956112656e2500701dd252c5d92f6e6==314a78da036bd5b54637cd17c54ccfd9
+https://chrome-infra-packages.appspot.com/client?platform=linux-amd64&version=git_revision:e75c9bf286fbb31347379cb478df2a556ab185b1==9df7a96a4a4fb6e484027d80b3ee821c
 https://download.docker.com/linux/debian/gpg==1afae06b34a13c1b3d9cb61a26285a15
 https://github.com/aristanetworks/sonic-firmware/raw/78a3df2/phy/phy-credo_1.0_amd64.deb==f0d5b5efa18cf775cdc3fccaba7ac181
-https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnplatform_20201228_deb10.deb==d4045769acf8abd2ff176ff7e659cc69
-https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnsdk_20201228_deb10.deb==b59589104e5189b1f598b8c46d3d6c8a
+https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnplatform_20210219_deb10.deb==4bd3f9c10d159d6d32e984c1de5a569c
+https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnsdk_20210219_deb10.deb==57e0b2f6a8412de63e307105571b7ed2
 https://github.com/CentecNetworks/sonic-binaries/raw/master/amd64/libsai_1.6.3-1_amd64.deb==e7a41e5cf06b44ae3ed615d553de40d3
 https://github.com/CumulusNetworks/ifupdown2/archive/1.2.8-1.tar.gz==12f45e90d23178e96cf70f68dc9455e6
 https://github.com/Innovium/SONiC/raw/master/debian/master/ipd.deb==a0f512aba05180b15c2f6b5809b9d5c1

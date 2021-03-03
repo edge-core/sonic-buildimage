@@ -50,8 +50,10 @@ patch==2.7.6-3+deb10u1
 python-dev==2.7.16-1
 python-pip==18.1-5
 python-pip-whl==18.1-5
+python-pkg-resources==40.8.0-1
 python-ptf==0.9-1
 python-scapy==2.4.0-2
+python-setuptools==40.8.0-1
 python2-dev==2.7.16-1
 python2.7-dev==2.7.16-2+deb10u1
 syncd-rpc==1.0.0
