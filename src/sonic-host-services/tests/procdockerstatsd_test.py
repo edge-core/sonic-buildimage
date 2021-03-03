@@ -1,4 +1,5 @@
-import importlib
+import importlib.machinery
+import importlib.util
 import sys
 import os
 import pytest
