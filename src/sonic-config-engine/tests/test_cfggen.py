@@ -233,9 +233,14 @@ class TestCfgGen(TestCase):
         self.assertEqual(output.strip(), "[('Vlan1000', '192.168.0.1/27'), 'Vlan1000']")
 
     def test_minigraph_ecmp_fg_nhg(self):
-        argument = '-m "' + self.ecmp_graph + '" -p "' + self.mlnx_port_config + '" -v \"FG_NHG.values()|list\"'
+        argument = '-m "' + self.ecmp_graph + '" -p "' + self.mlnx_port_config + '" -v FG_NHG'
         output = self.run_script(argument)
-        self.assertEqual(output.strip(), "[{'bucket_size': 120}, {'bucket_size': 120}]")
+        print(output.strip())
+        self.assertEqual(utils.to_dict(output.strip()), 
+                         utils.to_dict(
+                            "{'fgnhg_v4': {'match_mode': 'nexthop-based', 'bucket_size': 120}, "
+                            "'fgnhg_v6': {'match_mode': 'nexthop-based', 'bucket_size': 120}}"
+                        ))
 
     def test_minigraph_ecmp_members(self):
         argument = '-m "' + self.ecmp_graph + '" -p "' + self.mlnx_port_config + '" -v "FG_NHG_MEMBER.keys()|list|sort"'
@@ -254,12 +259,6 @@ class TestCfgGen(TestCase):
                                          " 'Vlan31|200:200:200:200::2', 'Vlan31|200:200:200:200::3', 'Vlan31|200:200:200:200::4', 'Vlan31|200:200:200:200::5', "
                                          "'Vlan31|200:200:200:200::6', 'Vlan31|200:200:200:200::7', 'Vlan31|200:200:200:200::8', 'Vlan31|200:200:200:200::9']")
 
-    def test_minigraph_ecmp_prefixes(self):
-        argument = '-m "' + self.ecmp_graph + '" -p "' + self.mlnx_port_config + '" -v "FG_NHG_PREFIX.keys()|list|sort"'
-        output = self.run_script(argument)
-        self.assertEqual(output.strip(), "['100.50.25.12/32', 'fc:5::/128']")
-
-        
     def test_minigraph_portchannels(self):
         argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v PORTCHANNEL'
         output = self.run_script(argument)
