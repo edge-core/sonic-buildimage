@@ -91,7 +91,6 @@ python3-yang==1.0.73
 sonic-mgmt-common==1.0.0
 sonic-mgmt-common-codegen==1.0.0
 sonic-mgmt-framework==1.0-01
-swss==1.0.0
 sx-acl-helper==1.mlnx.4.4.2308
 sx-acl-helper-dev==1.mlnx.4.4.2308
 sx-complib==1.mlnx.4.4.2308

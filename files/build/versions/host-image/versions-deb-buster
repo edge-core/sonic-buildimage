@@ -42,8 +42,8 @@ gpg-wks-client==2.2.12-1+deb10u1
 gpg-wks-server==2.2.12-1+deb10u1
 gpgconf==2.2.12-1+deb10u1
 gpgsm==2.2.12-1+deb10u1
-grub-common==2.02+dfsg1-20+deb10u3
-grub2-common==2.02+dfsg1-20+deb10u3
+grub-common==2.02+dfsg1-20+deb10u4
+grub2-common==2.02+dfsg1-20+deb10u4
 haveged==1.9.1-7
 hdparm==9.58+ds-1
 hping3==3.a2.ds2-7
