@@ -38,6 +38,11 @@ update_default_gw()
          # so here we are programming administrative distance of 210 (210 << 24) > 200 (for routes learnt via IBGP)
          ip -${IP_VER} route add default via $GATEWAY_IP dev eth0 metric 3523215360
       fi
+      if [[ "$IP_VER" == "4" ]]; then
+          # Add route in default table. This is needed for BGPMON to route BGP Ipv4 loopback
+          # traffic from namespace to host
+          ip -${IP_VER} route add table default default via $GATEWAY_IP dev eth0 metric 3523215360
+      fi
    fi
 }
 

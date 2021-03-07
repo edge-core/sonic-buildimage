@@ -10,8 +10,8 @@ import syslog
 import copy
 import jinja2
 import ipaddr as ipaddress
-from swsssdk import ConfigDBConnector
-from sonic_py_common import device_info
+from swsssdk import ConfigDBConnector, SonicDBConfig
+from sonic_py_common import device_info,multi_asic
 
 # FILE
 PAM_AUTH_CONF = "/etc/pam.d/common-auth-sonic"
@@ -64,7 +64,7 @@ class Iptables(object):
 
     def load(self, lpbk_table):
         for row in lpbk_table:
-            self.iptables_handler(row, lpbk_table[row])
+            self.iptables_tcpmss_handler(row, lpbk_table[row])
 
     def command(self, chain, ip, ver, op):
         cmd = 'iptables' if ver == '4' else 'ip6tables'
@@ -75,7 +75,7 @@ class Iptables(object):
 
         return cmd
 
-    def iptables_handler(self, key, data, add=True):
+    def iptables_tcpmss_handler(self, key, data, add=True):
         if not self.is_ip_prefix_in_key(key):
             return
 
@@ -87,21 +87,19 @@ class Iptables(object):
         else:
             ver = '4'
 
-        self.mangle_handler(ip_str, ver, add)
+        iptables_tcpmss_cmds = []
 
-    def mangle_handler(self, ip, ver, add):
-        if not add:
-            op = 'delete'
-        else:
-            op = 'check'
+        for chain in ['PREROUTING', 'POSTROUTING']:
+            iptables_tcpmss_cmds.append(self.command(chain, ip_str, ver, 'delete' if not add else 'check'))
+
+        self.mangle_handler(iptables_tcpmss_cmds, add)
+
+    def mangle_handler(self, cmds, add):
 
         iptables_cmds = []
-        chains = ['PREROUTING', 'POSTROUTING']
-        for chain in chains:
-            cmd = self.command(chain, ip, ver, op)
-            if not add:
-                iptables_cmds.append(cmd)
-            else:
+
+        if add:
+            for cmd in cmds:
                 '''
                 For add case, first check if rule exists. Iptables just appends to the chain
                 as a new rule even if it is the same as an existing one. Check this and
@@ -109,10 +107,12 @@ class Iptables(object):
                 '''
                 ret = subprocess.call(cmd, shell=True)
                 if ret == 0:
-                    syslog.syslog(syslog.LOG_INFO, "{} rule exists in {}".format(ip, chain))
+                    syslog.syslog(syslog.LOG_INFO, "{} rule exists".format(cmd))
                 else:
                     # Modify command from Check to Append
                     iptables_cmds.append(cmd.replace("check", "append"))
+        else:
+            iptables_cmds = cmds
 
         for cmd in iptables_cmds:
             syslog.syslog(syslog.LOG_INFO, "Running cmd - {}".format(cmd))
@@ -224,6 +224,118 @@ class AaaCfg(object):
         with open(NSS_TACPLUS_CONF, 'w') as f:
             f.write(nss_tacplus_conf)
 
+class MultiAsicBgpMonCfg(object):
+    def __init__(self):
+        self.ns_for_bgp_mon = 'asic4'
+        ip_address_get_command = "ip -n {} -4 -o addr show eth0".format(self.ns_for_bgp_mon) +\
+                                 " | awk '{print $4}' | cut -d'/' -f1 | head -1"
+
+        self.ns_docker_ip_fo_bgp_mon = self.run_ip_commands([ip_address_get_command]) 
+        self.bgp_monitor_table = 'BGP_MONITORS'
+        self.config_db = ConfigDBConnector()
+        self.config_db.connect()
+        SonicDBConfig.load_sonic_global_db_config()
+        self.backend_config_db = ConfigDBConnector(namespace=self.ns_for_bgp_mon)
+        self.backend_config_db.connect()
+        self.frontend_namespace = multi_asic.get_front_end_namespaces()
+        self.bgp_listen_port = 179
+        self.bgp_fw_mark = 1
+        self.iptable_handler = Iptables()
+
+    def run_ip_commands(self, commands):
+        """
+        Given a list of shell ip commands, run them in order
+        Args:
+            commands: List of strings, each string is a shell command
+        """
+        for cmd in commands:
+            proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            (stdout, stderr) = proc.communicate()
+            if proc.returncode != 0 and stderr.rstrip('\n') != "RTNETLINK answers: File exists":
+                syslog.syslog(syslog.LOG_ERR,"Error running command '{}'".format(cmd))
+            elif stdout:
+                return stdout.rstrip('\n')
+
+    def _update_bgp_mon_backend_asic(self, key, data):
+        op = "added" if data is not None else "deleted"
+        syslog.syslog(syslog.LOG_INFO,
+                      '{} bgp mon{} on {}'.format(op, key,
+                                                  self.ns_for_bgp_mon))
+        self.backend_config_db.set_entry(self.bgp_monitor_table, key, data)
+
+    def get_lo0_ipv4(self, lpbk_table):
+        """
+        Extract Loopback0 ipv4 address from the Directory
+        :return: ipv4 address for Loopback0, None if nothing found
+        """
+        for loopback in lpbk_table.iterkeys():
+            if loopback[0].startswith("Loopback0"):
+                if loopback[1] and isinstance(ipaddress.IPAddress(loopback[1].split("/")[0]), ipaddress.IPv4Address):
+                    return loopback[1].split("/")[0]
+
+        return None
+
+    def load(self, lpbk_table):
+        '''
+        This function loads the bgp mon configuration from the host
+        config_db to a backend config_db.
+        It also Add the ip rule and default route in host to take BGP packet 
+        to the ASIC running BGPMON
+        '''
+
+        loopback0_ipv4 = self.get_lo0_ipv4(lpbk_table)
+
+        if loopback0_ipv4:
+            bgpmon_ip_cmd = []
+            bgpmon_iptable_cmd = []
+            '''
+            Add route in host main routing table for Loopback IP to go to pre-define bgpmon backend asic
+            '''
+            bgpmon_ip_cmd.append("ip route add {}/32 via {} dev docker0".format(loopback0_ipv4, self.ns_docker_ip_fo_bgp_mon))
+            for front_ns in self.frontend_namespace:
+                '''
+                Add ip table rule on front asic to mark the BGP packets for destination as Loopback IP
+                '''
+                bgpmon_iptable_cmd.append("ip netns exec {} iptables -t mangle -d {}/32 -p tcp --sport {} --check PREROUTING -j MARK --set-mark {}"
+                                .format(front_ns, loopback0_ipv4, self.bgp_listen_port, self.bgp_fw_mark))
+                bgpmon_iptable_cmd.append("ip netns exec {} iptables -t mangle -d {}/32 -p tcp --dport {} --check PREROUTING -j MARK --set-mark {}"
+                                .format(front_ns, loopback0_ipv4, self.bgp_listen_port, self.bgp_fw_mark))
+                '''
+                Add ip rule in front asic namespace to match mark packet and lookup default table
+                '''
+                bgpmon_ip_cmd.append("ip -n {} rule add fwmark {} pref 101 lookup default".format(front_ns, self.bgp_fw_mark))
+
+            self.run_ip_commands(bgpmon_ip_cmd)
+            self.iptable_handler.mangle_handler(bgpmon_iptable_cmd, True)
+        else:
+            '''
+            Log error as IPv4 Loopback0 Address not present
+            '''
+            syslog.syslog(syslog.LOG_ERR, "Loopback0 IPv4 does not exist")
+
+        host_bgp_mon_table = self.config_db.get_table(self.bgp_monitor_table)
+        if host_bgp_mon_table:
+            for key in host_bgp_mon_table:
+                data = host_bgp_mon_table[key]
+                self._update_bgp_mon_backend_asic(key, data)
+                self.backend_config_db.set_entry(self.bgp_monitor_table, key,
+                                                 data)
+        else:
+            '''
+            the host config_db has no bgp monitor configuration.
+            delete the configuration from the backend asic, if present.
+            '''
+            bkend_bgp_mon_table = self.backend_config_db.get_table(self.bgp_monitor_table)
+            if bkend_bgp_mon_table:
+                self.backend_config_db.delete_table(self.bgp_monitor_table)
+
+    def cfg_handler(self, key, data):
+        key = ConfigDBConnector.deserialize_key(key)
+        keys = self.config_db.get_keys(self.bgp_monitor_table)
+        if key not in keys:
+            data = None
+        self._update_bgp_mon_backend_asic(key, data)
+
 
 class HostConfigDaemon:
     def __init__(self):
@@ -238,6 +350,10 @@ class HostConfigDaemon:
 
         self.is_multi_npu = device_info.is_multi_npu()
 
+        # Default is None. Gets initialize for multi-npu platforms
+        self.masicBgpMonCfg = None
+        if self.is_multi_npu:
+            self.masicBgpMonCfg = MultiAsicBgpMonCfg()
 
     def load(self):
         aaa = self.config_db.get_table('AAA')
@@ -248,6 +364,14 @@ class HostConfigDaemon:
         lpbk_table = self.config_db.get_table('LOOPBACK_INTERFACE')
         self.iptables.load(lpbk_table)
 
+        if self.masicBgpMonCfg:
+            self.masicBgpMonCfg.load(lpbk_table)
+
+    def masic_bgp_mon_cfg_handler(self, key, data):
+        if self.masicBgpMonCfg:
+            syslog.syslog(syslog.LOG_INFO, 'Multi asic bgp cfg handler...')
+            self.masicBgpMonCfg.cfg_handler(key, data)
+    
     def wait_till_system_init_done(self):
         systemctl_cmd = "sudo systemctl is-system-running"
         while True:
@@ -369,7 +493,7 @@ class HostConfigDaemon:
         else:
             add = False
 
-        self.iptables.iptables_handler(key, data, add)
+        self.iptables.iptables_tcpmss_handler(key, data, add)
 
     def feature_state_handler(self, key, data):
         feature_name = key
@@ -399,6 +523,8 @@ class HostConfigDaemon:
         self.config_db.subscribe('FEATURE', lambda table, key, data: self.feature_state_handler(key, data))
 
         if self.is_multi_npu:
+            self.config_db.subscribe('BGP_MONITORS', lambda table, key, data: self.masic_bgp_mon_cfg_handler(key, data))
+
             syslog.syslog(syslog.LOG_INFO,
                           "Waiting for systemctl to finish initialization")
             self.wait_till_system_init_done()
