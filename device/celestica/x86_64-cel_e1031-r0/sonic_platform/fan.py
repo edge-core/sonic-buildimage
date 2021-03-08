@@ -247,3 +247,11 @@ class Fan(FanBase):
         present_str = self.__read_txt_file(fan_direction_file) or '1'
 
         return int(present_str) == 0 if not self.is_psu_fan else True
+
+    def get_status(self):
+        """
+        Retrieves the operational status of the device
+        Returns:
+            A boolean value, True if device is operating properly, False if not
+        """
+        return self.get_presence() and self.get_speed() > 0

@@ -13,13 +13,15 @@ MODULE_DIRS:= dx010 haliburton silverstone seastone2
 override_dh_auto_build:
 	(for mod in $(MODULE_DIRS); do \
 		make -C $(KERNEL_SRC)/build M=$(MOD_SRC_DIR)/$${mod}/modules; \
-		cd $(MOD_SRC_DIR)/$${mod}; \
-		python2.7 setup.py bdist_wheel -d $(MOD_SRC_DIR)/$${mod}/modules; \
-		cd $(MOD_SRC_DIR); \
 		if [ $$mod = "seastone2" ]; then \
 			cd services/platform_api; \
-			python2 setup.py bdist_wheel -d $(MOD_SRC_DIR)/$${mod}/modules; \
-		fi \
+			python2.7 setup.py bdist_wheel -d $(MOD_SRC_DIR)/$${mod}/modules; \
+			python3 setup.py bdist_wheel -d $(MOD_SRC_DIR)/$${mod}/modules; \
+			continue; \
+		fi; \
+		cd $(MOD_SRC_DIR)/$${mod}; \
+		python2.7 setup.py bdist_wheel -d $(MOD_SRC_DIR)/$${mod}/modules; \
+		python3 setup.py bdist_wheel -d $(MOD_SRC_DIR)/$${mod}/modules; \
 	done)
 
 override_dh_auto_install:
@@ -37,4 +39,3 @@ override_dh_clean:
 	(for mod in $(MODULE_DIRS); do \
 		make -C $(KERNEL_SRC)/build M=$(MOD_SRC_DIR)/$${mod}/modules clean; \
 	done)
-
