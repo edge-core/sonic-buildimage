@@ -119,7 +119,7 @@ libreadline7==7.0-5
 librrd-dev==1.7.1-2
 librrd8==1.7.1-2
 librtmp1==2.4+20151223.gitfa8646d.1-2
-libsaibcm==4.3.0.13-1
+libsaibcm==4.3.3.1
 libsaimetadata==1.0.0
 libsairedis==1.0.0
 libsasl2-2==2.1.27+dfsg-1+deb10u1

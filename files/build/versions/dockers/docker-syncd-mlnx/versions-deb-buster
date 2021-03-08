@@ -3,8 +3,17 @@ applibs-dev==1.mlnx.4.4.2308
 iproute2==1.mlnx.4.4.2308
 iproute2-dev==1.mlnx.4.4.2308
 libelf1==0.176-1.1
+libexpat1-dev==2.2.6-2+deb10u1
+libpython-dev==2.7.16-1
+libpython2-dev==2.7.16-1
+libpython2.7-dev==2.7.16-2+deb10u1
 mlnx-sai==1.mlnx.SAIRel1.18.1.0
+python-dev==2.7.16-1
+python-pkg-resources==40.8.0-1
 python-sdk-api==1.mlnx.4.4.2308
+python-setuptools==40.8.0-1
+python2-dev==2.7.16-1
+python2.7-dev==2.7.16-2+deb10u1
 sx-acl-helper==1.mlnx.4.4.2308
 sx-acl-helper-dev==1.mlnx.4.4.2308
 sx-complib==1.mlnx.4.4.2308

@@ -334,7 +334,7 @@ libc6-dev-i386==2.24-11+deb9u4
 libc6-dev-x32==2.24-11+deb9u4
 libc6-i386==2.24-11+deb9u4
 libc6-x32==2.24-11+deb9u4
-libcaca0==0.99.beta19-2.1~deb9u1
+libcaca0==0.99.beta19-2.1~deb9u2
 libcacard0==1:2.5.0-3
 libcairo-gobject2==1.14.8-1+deb9u1
 libcairo2==1.14.8-1+deb9u1

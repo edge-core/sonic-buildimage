@@ -47,7 +47,7 @@ grub2-common==2.02+dfsg1-20+deb10u4
 haveged==1.9.1-7
 hdparm==9.58+ds-1
 hping3==3.a2.ds2-7
-hw-management==1.mlnx.7.0010.1300
+hw-management==1.mlnx.7.0010.2000
 i2c-tools==4.1-1
 ifmetric==0.3-5
 ifupdown2==1.2.8-1
@@ -220,7 +220,6 @@ python-bottle==0.12.15-2+deb10u1
 python-enum34==1.1.6-2
 python-ipaddr==2.2.0-2
 python-minimal==2.7.16-1
-python-scapy==2.4.0-2
 python-smbus==4.1-1
 python-sonic-platform-arista==1.0
 python-swsscommon==1.0.0
