@@ -9,6 +9,7 @@ install() {
     # Install sonic-platform package
     if [ -e $DEVICE/$PLATFORM/sonic_platform-1.0-py2-none-any.whl ]; then
         pip install $DEVICE/$PLATFORM/sonic_platform-1.0-py2-none-any.whl
+        pip3 install $device/$platform/sonic_platform-1.0-py3-none-any.whl
     fi
 }
 
