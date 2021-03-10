@@ -201,7 +201,7 @@ class MainServer:
         """ Modify entry for given table|key with given dict type data """
         conn = self.db_connectors[db_name]
         tbl = swsscommon.Table(conn, table_name)
-        print("mod_db_entry: db={} tbl={} key={} data={}".format(db_name, table_name, key, str(data)))
+        log_debug("mod_db_entry: db={} tbl={} key={} data={}".format(db_name, table_name, key, str(data)))
         tbl.set(key, list(data.items()))
 
 
@@ -242,7 +242,7 @@ class MainServer:
                 if not UNIT_TESTING:
                     raise Exception("Received error from select")
                 else:
-                    print("Skipped Exception; Received error from select")
+                    log_debug("Skipped Exception; Received error from select")
                     return
 
             for subscriber in self.subscribers:
@@ -588,7 +588,7 @@ def main():
     FeatureTransitionHandler(server)
     LabelsPendingHandler(server)
     server.run()
-    print("ctrmgrd.py main called")
+    log_debug("ctrmgrd.py main called")
     return 0
 
 

@@ -403,6 +403,10 @@ sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install azure-
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install watchdog==0.10.3
 
 {% if include_kubernetes == "y" %}
+# Copy Flannel conf file into sonic-templates
+#
+sudo cp $BUILD_TEMPLATES/kube_cni.10-flannel.conflist $FILESYSTEM_ROOT_USR_SHARE_SONIC_TEMPLATES/
+
 # Install remote Container mgmt package
 # Required even if include_kubernetes != y, as it contains the
 # the container wrapper for docker start/stop/wait commands.
