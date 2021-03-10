@@ -39,35 +39,31 @@ start)
         modprobe leds-dx010
         modprobe lm75
 
-        found=0
-        for devnum in 0 1; do
-                devname=`cat /sys/bus/i2c/devices/i2c-${devnum}/name`
-                # iSMT adapter can be at either dffd0000 or dfff0000
-                if [[ $devname == 'SMBus iSMT adapter at '* ]]; then
-                        found=1
-                break
-                fi
-        done
+        # Detect iSMT SMBus
+        ismt_bus=$(i2cdetect -l | grep 'SMBus iSMT' | cut -c5)
 
-        [ $found -eq 0 ] && echo "cannot find iSMT" && exit 1
+        [ -z $ismt_bus ] && echo "cannot find iSMT" && exit 1
 
-        i2cset -y ${devnum} 0x70 0x10 0x00 0x01 i
+        # Update the iSMT bus number in the fancontrol configuration.
+        sed -i "s/13.0\/i2c-[0-9]/13.0\/i2c-$ismt_bus/g" /usr/share/sonic/device/x86_64-cel_seastone-r0/fancontrol
+
+        i2cset -y ${ismt_bus} 0x70 0x10 0x00 0x01 i
 
         # Attach PCA9541 Ox70 Master Selector
-        chmod 755 /sys/bus/i2c/devices/i2c-${devnum}/new_device
-        echo pca9541 0x70 > /sys/bus/i2c/devices/i2c-${devnum}/new_device
+        chmod 755 /sys/bus/i2c/devices/i2c-${ismt_bus}/new_device
+        echo pca9541 0x70 > /sys/bus/i2c/devices/i2c-${ismt_bus}/new_device
         sleep 1
 
         # Attach PCA9548 0x71 Channel Extender for Main Board
-        echo pca9548 0x71 > /sys/bus/i2c/devices/i2c-${devnum}/new_device
+        echo pca9548 0x71 > /sys/bus/i2c/devices/i2c-${ismt_bus}/new_device
         sleep 1
 
         # Attach PCA9548 0x73 Channel Extender for CPU Board
-        echo pca9548 0x73 > /sys/bus/i2c/devices/i2c-${devnum}/new_device
+        echo pca9548 0x73 > /sys/bus/i2c/devices/i2c-${ismt_bus}/new_device
         sleep 1
 
         # Attach PCA9548 0x77 Channel Extender for Fan's EEPROMs
-        echo pca9548 0x77 > /sys/bus/i2c/devices/i2c-${devnum}/new_device
+        echo pca9548 0x77 > /sys/bus/i2c/devices/i2c-${ismt_bus}/new_device
         sleep 1
 
         # Attach syseeprom
