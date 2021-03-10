@@ -19,28 +19,30 @@ except ImportError as e:
 class Thermal(ThermalBase):
     """DellEMC Platform-specific Thermal class"""
 
-    # [ Sensor-Name, Sensor-ID ]
+    # [ Sensor-Name, Sensor-ID, high threshold, high critical_threshold ]
     SENSOR_MAPPING = [
-        ['CPU On-board', 0x5],
-        ['Baseboard U3', 0x4],
-        ['SW Internal', 0x61],
-        ['Fan U52', 0x0],
-        ['Fan U17', 0x1],
-        ['SW U52', 0x2],
-        ['SW U16', 0x3],
-        ['PSU1 Inlet', 0x34],
-        ['PSU1 Hotspot', 0x35],
-        ['PSU2 Inlet',  0x3E],
-        ['PSU2 Hotspot', 0x3F],
-        ['SW U04', 0x4F],
-        ['SW U14', 0x56],
-        ['SW U4403', 0x5D]
+        ['CPU On-board', 0x5, False, True],
+        ['Baseboard U3', 0x4, False, False],
+        ['SW Internal', 0x61, True, True],
+        ['Fan U52', 0x0, True, True],
+        ['Fan U17', 0x1, False, False],
+        ['SW U52', 0x2, False, False],
+        ['SW U16', 0x3, True, True],
+        ['PSU1 Inlet', 0x34, False, False],
+        ['PSU1 Hotspot', 0x35, False, False],
+        ['PSU2 Inlet',  0x3E, False, False],
+        ['PSU2 Hotspot', 0x3F, False, False],
+        ['SW U04', 0x4F, False, False],
+        ['SW U14', 0x56, False, False],
+        ['SW U4403', 0x5D, False, False]
     ]
 
     def __init__(self, thermal_index=0):
         ThermalBase.__init__(self)
         self.index = thermal_index + 1
         self.sensor = IpmiSensor(self.SENSOR_MAPPING[self.index - 1][1])
+        self.has_high_threshold = self.SENSOR_MAPPING[self.index - 1][2]
+        self.has_high_crit_threshold = self.SENSOR_MAPPING[self.index - 1][3]
 
     def get_name(self):
         """
@@ -111,11 +113,12 @@ class Thermal(ThermalBase):
             Celsius up to nearest thousandth of one degree Celsius,
             e.g. 30.125
         """
-        is_valid, high_threshold = self.sensor.get_threshold("UpperNonCritical")
-        if not is_valid:
-            return super(Thermal, self).get_high_threshold()
+        if self.has_high_threshold:
+            is_valid, high_threshold = self.sensor.get_threshold("UpperNonCritical")
+            if is_valid:
+                return float(high_threshold)
 
-        return float(high_threshold)
+        return super(Thermal, self).get_high_threshold()
 
     def get_low_threshold(self):
         """
@@ -126,11 +129,7 @@ class Thermal(ThermalBase):
             Celsius up to nearest thousandth of one degree Celsius,
             e.g. 30.125
         """
-        is_valid, low_threshold = self.sensor.get_threshold("LowerNonRecoverable")
-        if not is_valid:
-            low_threshold = 0
-
-        return float(low_threshold)
+        return 0.0
 
     def get_high_critical_threshold(self):
         """
@@ -140,12 +139,12 @@ class Thermal(ThermalBase):
             thermal in Celsius up to nearest thousandth of one degree
             Celsius, e.g. 30.125
         """
-        is_valid, high_crit_threshold = self.sensor.get_threshold("UpperCritical")
-        if not is_valid:
-            return super(Thermal, self).get_high_critical_threshold()
+        if self.has_high_crit_threshold:
+            is_valid, high_crit_threshold = self.sensor.get_threshold("UpperCritical")
+            if is_valid:
+                return float(high_crit_threshold)
 
-        return float(high_crit_threshold)
-	
+        return super(Thermal, self).get_high_critical_threshold()
 
     def set_high_threshold(self, temperature):
         """
@@ -173,4 +172,21 @@ class Thermal(ThermalBase):
             not
         """
         # Thermal threshold values are pre-defined based on HW.
+        return False
+
+    def get_position_in_parent(self):
+        """
+        Retrieves 1-based relative physical position in parent device.
+        Returns:
+            integer: The 1-based relative physical position in parent
+            device or -1 if cannot determine the position
+        """
+        return self.index
+
+    def is_replaceable(self):
+        """
+        Indicate whether this Thermal is replaceable.
+        Returns:
+            bool: True if it is replaceable.
+        """
         return False

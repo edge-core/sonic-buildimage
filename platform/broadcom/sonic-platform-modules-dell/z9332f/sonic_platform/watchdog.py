@@ -11,8 +11,8 @@
 
 try:
     import ctypes
-    import subprocess
     from sonic_platform_base.watchdog_base import WatchdogBase
+    from sonic_platform.hwaccess import io_reg_read, io_reg_write
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -29,7 +29,14 @@ class Watchdog(WatchdogBase):
     Abstract base class for interfacing with a hardware watchdog module
     """
 
-    TIMERS = [15,20,30,40,50,60,65,70]
+    TIMERS = [0.2, 30, 60, 180, 240, 300, 420, 600]
+    io_resource = "/dev/port"
+    wd_timer_offset = 0xA181
+    wd_status_offset = 0xA182
+    wd_timer_punch_offset = 0xA184
+    wd_enable = 1
+    wd_disable = 0
+    wd_punch_enable = 0
 
     armed_time = 0
     timeout = 0
@@ -40,34 +47,6 @@ class Watchdog(WatchdogBase):
         self._librt = ctypes.CDLL('librt.so.1', use_errno=True)
         self._clock_gettime = self._librt.clock_gettime
         self._clock_gettime.argtypes=[ctypes.c_int, ctypes.POINTER(_timespec)]
-
-    def _get_command_result(self, cmdline):
-        try:
-            proc = subprocess.Popen(cmdline.split(), stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT)
-            stdout = proc.communicate()[0]
-            proc.wait()
-            result = stdout.rstrip('\n')
-        except OSError:
-            result = None
-
-        return result
-
-    def _get_reg_val(self):
-        # 0x31 = CPLD I2C Base Address
-        # 0x07 = Watchdog Function Register
-        value = self._get_command_result("/usr/sbin/i2cget -y 601 0x31 0x07")
-        if not value:
-            return None
-        else:
-            return int(value, 16)
-
-    def _set_reg_val(self,val):
-        # 0x31 = CPLD I2C Base Address
-        # 0x07 = Watchdog Function Register
-        value = self._get_command_result("/usr/sbin/i2cset -y 601 0x31 0x07 %s"
-                % (val))
-        return value
 
     def _get_time(self):
         """
@@ -94,7 +73,7 @@ class Watchdog(WatchdogBase):
         """
         timer_offset = -1
         for key,timer_seconds in enumerate(self.TIMERS):
-            if seconds <= timer_seconds:
+            if seconds > 0 and seconds <= timer_seconds:
                 timer_offset = key
                 seconds = timer_seconds
                 break
@@ -102,42 +81,24 @@ class Watchdog(WatchdogBase):
         if timer_offset == -1:
             return -1
 
-        # Extracting 5th to 7th bits for WD timer values
-        # 000 - 15 sec
-        # 001 - 20 sec
-        # 010 - 30 sec
-        # 011 - 40 sec
-        # 100 - 50 sec
-        # 101 - 60 sec
-        # 110 - 65 sec
-        # 111 - 70 sec
-        reg_val = self._get_reg_val()
-        wd_timer_offset = (reg_val >> 4) & 0x7
+        wd_timer_val = io_reg_read(self.io_resource, self.wd_timer_offset)
 
-        if wd_timer_offset != timer_offset:
-            # Setting 5th to 7th bits
-            # value from timer_offset
+        if wd_timer_val != timer_offset:
             self.disarm()
-            self._set_reg_val(reg_val | (timer_offset << 4))
+            io_reg_write(self.io_resource, self.wd_timer_offset, timer_offset)
 
         if self.is_armed():
-            # Setting last bit to WD Timer punch
-            # Last bit = WD Timer punch
-            self._set_reg_val(reg_val & 0xFE)
-
+            # Setting the WD timer punch
+            io_reg_write(self.io_resource, self.wd_timer_punch_offset, self.wd_punch_enable)
             self.armed_time = self._get_time()
             self.timeout = seconds
             return seconds
         else:
-            # Setting 4th bit to enable WD
-            # 4th bit = Enable WD
-            reg_val = self._get_reg_val()
-            self._set_reg_val(reg_val | 0x8)
-
+            # Enable WD
+            io_reg_write(self.io_resource, self.wd_status_offset, self.wd_enable)
             self.armed_time = self._get_time()
             self.timeout = seconds
             return seconds
-
 
     def disarm(self):
         """
@@ -148,11 +109,8 @@ class Watchdog(WatchdogBase):
             if not
         """
         if self.is_armed():
-            # Setting 4th bit to disable WD
-            # 4th bit = Disable WD
-            reg_val = self._get_reg_val()
-            self._set_reg_val(reg_val & 0xF7)
-
+            # Disable WD
+            io_reg_write(self.io_resource, self.wd_status_offset, self.wd_disable)
             self.armed_time = 0
             self.timeout = 0
             return True
@@ -166,14 +124,11 @@ class Watchdog(WatchdogBase):
         Returns:
             A boolean, True if watchdog is armed, False if not
         """
-
-        # Extracting 4th bit to get WD Enable/Disable status
+        # Getting the WD Enable/Disable status
         # 0 - Disabled WD
         # 1 - Enabled WD
-        reg_val = self._get_reg_val()
-        wd_offset = (reg_val >> 3) & 1
-
-        return bool(wd_offset)
+        wd_status = io_reg_read(self.io_resource, self.wd_status_offset)
+        return bool(wd_status)
 
     def get_remaining_time(self):
         """
@@ -185,7 +140,7 @@ class Watchdog(WatchdogBase):
             their watchdog timer. If the watchdog is not armed, returns
             -1.
 
-            S5232 doesnot have hardware support to show remaining time.
+            Z9332 does not have hardware support to show remaining time.
             Due to this limitation, this API is implemented in software.
             This API would return correct software time difference if it
             is called from the process which armed the watchdog timer.

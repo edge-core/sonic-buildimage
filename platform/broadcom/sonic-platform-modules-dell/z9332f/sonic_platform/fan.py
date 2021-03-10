@@ -9,7 +9,7 @@
 ########################################################################
 try:
     from sonic_platform_base.fan_base import FanBase
-    from sonic_platform.ipmihelper import IpmiSensor, IpmiFru, get_ipmitool_raw_output
+    from sonic_platform.ipmihelper import IpmiSensor, get_ipmitool_raw_output
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -33,10 +33,6 @@ class Fan(FanBase):
     PSU_FAN_SENSOR_MAPPING = { 1: {"State": 0x2f, "Speed": 0x33},
                                2: {"State": 0x39, "Speed": 0x3d} }
 
-    # { FANTRAY-ID: FRU-ID }
-    FAN_FRU_MAPPING = { 1: 6, 2: 7, 3: 8, 4: 9, 5: 10, 6: 11, 7: 12 }
-    PSU_FRU_MAPPING = { 1: 3, 2: 4 }
-
     def __init__(self, fantray_index=1, fan_index=1, psu_fan=False, dependency=None):
         FanBase.__init__(self)
         self.is_psu_fan = psu_fan
@@ -51,7 +47,6 @@ class Fan(FanBase):
             self.state_sensor = IpmiSensor(self.FAN_SENSOR_MAPPING[self.index]["State"],
                                            is_discrete=True)
             self.speed_sensor = IpmiSensor(self.FAN_SENSOR_MAPPING[self.index]["Speed"])
-            self.fru = IpmiFru(self.FAN_FRU_MAPPING[self.fantrayindex])
             self.fan_dir_raw_cmd = "0x3a 0x0a {}".format(fantray_index)
         else:
             self.dependency = dependency
@@ -59,7 +54,6 @@ class Fan(FanBase):
             self.state_sensor = IpmiSensor(self.PSU_FAN_SENSOR_MAPPING[self.fanindex]["State"],
                                            is_discrete=True)
             self.speed_sensor = IpmiSensor(self.PSU_FAN_SENSOR_MAPPING[self.fanindex]["Speed"])
-            self.fru = IpmiFru(self.PSU_FRU_MAPPING[self.fanindex])
             self.fan_dir_raw_cmd = "0x3a 0x0a {}".format(7+(fan_index-1))
         self.max_speed = 23500
 
@@ -80,10 +74,7 @@ class Fan(FanBase):
         Returns:
             String: Part number of FAN
         """
-        if self.is_psu_fan:
-            return None
-        else:
-            return self.fru.get_board_part_number()
+        return 'NA'
 
     def get_serial(self):
         """
@@ -91,10 +82,7 @@ class Fan(FanBase):
         Returns:
             String: Serial number of FAN
         """
-        if self.is_psu_fan:
-            return None
-        else:
-            return self.fru.get_board_serial()
+        return 'NA'
 
     def get_presence(self):
         """
@@ -159,7 +147,7 @@ class Fan(FanBase):
         if not is_valid or self.max_speed == 0:
             return None
         else:
-            speed = (100 * fan_speed)/self.max_speed
+            speed = (100 * fan_speed)//self.max_speed
         return speed
 
     def get_speed_rpm(self):
@@ -170,3 +158,48 @@ class Fan(FanBase):
         """
         is_valid, fan_speed = self.speed_sensor.get_reading()
         return fan_speed if is_valid else None
+
+    def get_position_in_parent(self):
+        """
+        Retrieves 1-based relative physical position in parent device.
+        Returns:
+            integer: The 1-based relative physical position in parent
+            device or -1 if cannot determine the position
+        """
+        return self.fanindex
+
+    def is_replaceable(self):
+        """
+        Indicate whether Fan is replaceable.
+        Returns:
+            bool: True if it is replaceable.
+        """
+        return False
+
+    def get_speed_tolerance(self):
+        """
+        Retrieves the speed tolerance of the fan
+        Returns:
+            An integer, the percentage of variance from target speed which is
+            considered tolerable
+        """
+        if self.get_presence():
+            # The tolerance value is fixed as 20% for all the DellEMC platforms
+            tolerance = 20
+        else:
+            tolerance = 0
+
+        return tolerance
+
+    def set_status_led(self, color):
+        """
+        Set led to expected color
+        Args:
+           color: A string representing the color with which to set the
+                 fan status LED
+        Returns:
+            bool: True if set success, False if fail.
+        """
+        # Fan tray status LED controlled by HW
+        # Return True to avoid thermalctld alarm
+        return True
