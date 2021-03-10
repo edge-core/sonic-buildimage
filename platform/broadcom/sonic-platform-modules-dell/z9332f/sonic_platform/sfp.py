@@ -10,6 +10,7 @@
 
 try:
     import os
+    import re
     import time
     import subprocess
     import struct
@@ -75,7 +76,8 @@ info_dict_keys = ['type', 'hardware_rev', 'serial',
                   'manufacturer', 'model', 'connector',
                   'encoding', 'ext_identifier', 'ext_rateselect_compliance',
                   'cable_type', 'cable_length', 'nominal_bit_rate',
-                  'specification_compliance', 'type_abbrv_name','vendor_date', 'vendor_oui']
+                  'specification_compliance', 'type_abbrv_name', 'vendor_date',
+                  'vendor_oui', 'application_advertisement']
 
 dom_dict_keys = ['rx_los',       'tx_fault',   'reset_status',
                  'power_lpmode', 'tx_disable', 'tx_disable_channel',
@@ -236,6 +238,15 @@ class Sfp(SfpBase):
     def get_eeprom_sysfs_path(self):
         return self.eeprom_path
 
+    def _strip_unit_from_str(self, value_str):
+        match = re.match(r'(.*)C$|(.*)Volts$|(.*)mA$|(.*)dBm$', value_str)
+        if match:
+            for value in match.groups():
+                if value is not None:
+                    return float(value)
+
+        return None
+
     def pci_mem_read(self, mm, offset):
         mm.seek(offset)
         read_data_stream = mm.read(4)
@@ -356,8 +367,8 @@ class Sfp(SfpBase):
         compliance_code_dict = {}
         transceiver_info_dict = dict.fromkeys(info_dict_keys, 'N/A')
         self.media_type = self.set_media_type()
-        if self.reinit_sfp_driver() == False:
-           return transceiver_info_dict
+        if not self.reinit_sfp_driver():
+            return transceiver_info_dict
 
         # BaseInformation
         try:
@@ -663,59 +674,59 @@ class Sfp(SfpBase):
         """
         Retrieves the RX LOS (lost-of-signal) status of SFP
         """
-        rx_los = False
+        rx_los_list = []
         try:
             if  self.media_type.startswith('QSFP'):
                 rx_los_data = self._get_eeprom_data('rx_los')
                 # As the function expects a single boolean, if any one channel experience LOS,
                 # is considered LOS for QSFP 
                 for rx_los_id in ('Rx1LOS', 'Rx2LOS', 'Rx3LOS', 'Rx4LOS') :
-                    rx_los |= (rx_los_data['data'][rx_los_id]['value'] is 'On')
+                    rx_los_list.append(rx_los_data['data'][rx_los_id]['value'] == 'On')
             else:
                 rx_los_data = self._read_eeprom_bytes(self.eeprom_path, SFP_STATUS_CONTROL_OFFSET, SFP_STATUS_CONTROL_WIDTH)
                 data = int(rx_los_data[0], 16)
-                rx_los = sffbase().test_bit(data, 1) != 0
+                rx_los_list.append(sffbase().test_bit(data, 1) != 0)
         except (TypeError, ValueError):
             return 'N/A'
-        return rx_los
+        return rx_los_list
 
     def get_tx_fault(self):
         """
         Retrieves the TX fault status of SFP
         """
-        tx_fault = False
+        tx_fault_list = []
         try:
             if  self.media_type.startswith('QSFP'):
                 tx_fault_data = self._get_eeprom_data('tx_fault')
                 for tx_fault_id in ('Tx1Fault', 'Tx2Fault', 'Tx3Fault', 'Tx4Fault') : 
-                    tx_fault |= (tx_fault_data['data'][tx_fault_id]['value'] is 'On')
+                    tx_fault_list.append(tx_fault_data['data'][tx_fault_id]['value'] == 'On')
             else:
                 tx_fault_data = self._read_eeprom_bytes(self.eeprom_path, SFP_STATUS_CONTROL_OFFSET, SFP_STATUS_CONTROL_WIDTH)
                 data = int(tx_fault_data[0], 16)
-                tx_fault = (sffbase().test_bit(data, 2) != 0)
+                tx_fault_list.append(sffbase().test_bit(data, 2) != 0)
         except (TypeError, ValueError):
             return 'N/A'
-        return tx_fault
+        return tx_fault_list
 
     def get_tx_disable(self):
         """
         Retrieves the tx_disable status of this SFP
         """
-        tx_disable = False
+        tx_disable_list = []
         try:
             if  self.media_type.startswith('QSFP'):
                 tx_disable_data = self._get_eeprom_data('tx_disable')
                 for tx_disable_id in ('Tx1Disable', 'Tx2Disable', 'Tx3Disable', 'Tx4Disable'):
-                    tx_disable |= (tx_disable_data['data'][tx_disable_id]['value'] is 'On')
+                    tx_disable_list.append(tx_disable_data['data'][tx_disable_id]['value'] == 'On')
             else:
                 tx_disable_data = self._read_eeprom_bytes(self.eeprom_path, SFP_STATUS_CONTROL_OFFSET, SFP_STATUS_CONTROL_WIDTH)
                 data = int(tx_disable_data[0], 16)
                 tx_disable_hard = (sffbase().test_bit(data, SFP_TX_DISABLE_HARD_BIT) != 0)
                 tx_disable_soft = (sffbase().test_bit(data, SFP_TX_DISABLE_SOFT_BIT) != 0)
-                tx_disable = tx_disable_hard | tx_disable_soft
+                tx_disable_list.append(tx_disable_hard | tx_disable_soft)
         except (TypeError, ValueError):
             return 'N/A'
-        return tx_disable
+        return tx_disable_list
 
     def get_tx_disable_channel(self):
         """
@@ -727,7 +738,7 @@ class Sfp(SfpBase):
                 tx_disable_data = self._get_eeprom_data('tx_disable')
                 for tx_disable_id in ('Tx1Disable', 'Tx2Disable', 'Tx3Disable', 'Tx4Disable'):
                     tx_disable_channel <<= 1
-                    tx_disable_channel |= (tx_disable_data['data']['Tx1Disable']['value'] is 'On')
+                    tx_disable_channel |= (tx_disable_data['data']['Tx1Disable']['value'] == 'On')
         except (TypeError, ValueError):
             return 'N/A'
         return tx_disable_channel
@@ -762,7 +773,7 @@ class Sfp(SfpBase):
             if  self.media_type.startswith('QSFP'):
                 power_override_data = self._get_eeprom_data('power_override')
                 power_override = power_override_data['data']['PowerOverRide']['value']
-                power_override_state = (power_override is 'On')
+                power_override_state = (power_override == 'On')
         except (TypeError, ValueError): pass
         return power_override_state
 
@@ -773,7 +784,7 @@ class Sfp(SfpBase):
         temperature = None
         try :
             temperature_data = self._get_eeprom_data('Temperature')
-            temperature = temperature_data['data']['Temperature']['value']
+            temperature = self._strip_unit_from_str(temperature_data['data']['Temperature']['value'])
         except (TypeError, ValueError):
             return None
         return temperature
@@ -785,7 +796,7 @@ class Sfp(SfpBase):
         voltage = None
         try:
             voltage_data = self._get_eeprom_data('Voltage')
-            voltage = voltage_data['data']['Vcc']['value']
+            voltage = self._strip_unit_from_str(voltage_data['data']['Vcc']['value'])
         except (TypeError, ValueError):
             return None
         return voltage
@@ -799,11 +810,11 @@ class Sfp(SfpBase):
             tx_bias_data = self._get_eeprom_data('ChannelMonitor')
             if  self.media_type.startswith('QSFP'):
                 for tx_bias_id in ('TX1Bias', 'TX2Bias', 'TX3Bias', 'TX4Bias') :
-                    tx_bias = tx_bias_data['data'][tx_bias_id]['value']
+                    tx_bias = self._strip_unit_from_str(tx_bias_data['data'][tx_bias_id]['value'])
                     tx_bias_list.append(tx_bias)
             else:
                 tx1_bias = tx_bias_data['data']['TXBias']['value']
-                tx_bias_list =  [tx1_bias, "N/A", "N/A", "N/A"]
+                tx_bias_list.append(self._strip_unit_from_str(tx1_bias))
         except (TypeError, ValueError):
             return None
         return tx_bias_list
@@ -817,11 +828,11 @@ class Sfp(SfpBase):
             rx_power_data = self._get_eeprom_data('ChannelMonitor')
             if  self.media_type.startswith('QSFP'):
                 for rx_power_id in ('RX1Power', 'RX2Power', 'RX3Power', 'RX4Power'):
-                    rx_power = rx_power_data['data'][rx_power_id]['value']
-                    rx_power_list.append(rx_power)
+                    rx_power = self._strip_unit_from_str(rx_power_data['data'][rx_power_id]['value'])
+                    rx_power_list.append(self._strip_unit_from_str(rx_power))
             else:
                 rx1_pw = rx_power_data['data']['RXPower']['value']
-                rx_power_list =  [rx1_pw, "N/A", "N/A", "N/A"]
+                rx_power_list.append(self._strip_unit_from_str(rx1_pw))
         except (TypeError, ValueError):
             return None
         return rx_power_list
@@ -849,11 +860,11 @@ class Sfp(SfpBase):
                 channel_monitor_data = self._get_eeprom_data('ChannelMonitor_TxPower')
                 for tx_power_id in ('TX1Power', 'TX2Power', 'TX3Power', 'TX4Power'):
                     tx_pw = channel_monitor_data['data'][tx_power_id]['value']
-                    tx_power_list.append(tx_pw)
+                    tx_power_list.append(self._strip_unit_from_str(tx_pw))
             else:
                 channel_monitor_data = self._get_eeprom_data('ChannelMonitor')
                 tx1_pw = channel_monitor_data['data']['TXPower']['value'] 
-                tx_power_list = [tx1_pw, 'N/A', 'N/A', 'N/A']
+                tx_power_list.append(self._strip_unit_from_str(tx1_pw))
         except (TypeError, ValueError):
             return None
         return tx_power_list
@@ -1012,7 +1023,7 @@ class Sfp(SfpBase):
         if not os.path.isfile(driver_path):
             print(driver_path, "does not exist")
             return False
- 
+
         try:
             with os.fdopen(os.open(driver_path, os.O_RDONLY)) as fd:
                 driver_name = fd.read()
@@ -1038,3 +1049,23 @@ class Sfp(SfpBase):
 
         except IOError as e:
             print("Error: Unable to open file: %s" % str(e))
+            return False
+
+        return True
+
+    def get_position_in_parent(self):
+        """
+        Retrieves 1-based relative physical position in parent device.
+        Returns:
+            integer: The 1-based relative physical position in parent
+            device or -1 if cannot determine the position
+        """
+        return self.index
+
+    def is_replaceable(self):
+        """
+        Indicate whether this device is replaceable.
+        Returns:
+            bool: True if it is replaceable.
+        """
+        return True

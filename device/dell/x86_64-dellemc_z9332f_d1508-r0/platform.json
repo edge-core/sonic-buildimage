@@ -1,0 +1,317 @@
+{
+    "chassis": {
+        "name": "Z9332F-ON",
+        "components": [
+            {
+                "name": "BIOS"
+            },
+            {
+                "name": "FPGA"
+            },
+            {
+                "name": "BMC"
+            },
+            {
+                "name": "Baseboard CPLD"
+            },
+            {
+                "name": "Switch CPLD 1"
+            },
+            {
+                "name": "Switch CPLD 2"
+            }
+        ],
+        "fans": [
+            {
+                "name": "FanTray1-Fan1"
+            },
+            {
+                "name": "FanTray1-Fan2"
+            },
+            {
+                "name": "FanTray2-Fan1"
+            },
+            {
+                "name": "FanTray2-Fan2"
+            },
+            {
+                "name": "FanTray3-Fan1"
+            },
+            {
+                "name": "FanTray3-Fan2"
+            },
+            {
+                "name": "FanTray4-Fan1"
+            },
+            {
+                "name": "FanTray4-Fan2"
+            },
+            {
+                "name": "FanTray5-Fan1"
+            },
+            {
+                "name": "FanTray5-Fan2"
+            },
+            {
+                "name": "FanTray6-Fan1"
+            },
+            {
+                "name": "FanTray6-Fan2"
+            },
+            {
+                "name": "FanTray7-Fan1"
+            },
+            {
+                "name": "FanTray7-Fan2"
+            }
+        ],
+        "fan_drawers":[
+            {
+                "name": "FanTray1",
+                "fans": [
+                    {
+                        "name": "FanTray1-Fan1"
+                    },
+                    {
+                        "name": "FanTray1-Fan2"
+                    }
+                ]
+            },
+            {
+                "name": "FanTray2",
+                "fans": [
+                    {
+                        "name": "FanTray2-Fan1"
+                    },
+                    {
+                        "name": "FanTray2-Fan2"
+                    }
+                ]
+            },
+            {
+                "name": "FanTray3",
+                "fans": [
+                    {
+                        "name": "FanTray3-Fan1"
+                    },
+                    {
+                        "name": "FanTray3-Fan2"
+                    }
+                ]
+            },
+            {
+                "name": "FanTray4",
+                "fans": [
+                    {
+                        "name": "FanTray4-Fan1"
+                    },
+                    {
+                        "name": "FanTray4-Fan2"
+                    }
+                ]
+            },
+                        {
+                "name": "FanTray5",
+                "fans": [
+                    {
+                        "name": "FanTray5-Fan1"
+                    },
+                    {
+                        "name": "FanTray5-Fan2"
+                    }
+                ]
+            },
+            {
+                "name": "FanTray6",
+                "fans": [
+                    {
+                        "name": "FanTray6-Fan1"
+                    },
+                    {
+                        "name": "FanTray6-Fan2"
+                    }
+                ]
+            },
+            {
+                "name": "FanTray7",
+                "fans": [
+                    {
+                        "name": "FanTray7-Fan1"
+                    },
+                    {
+                        "name": "FanTray7-Fan2"
+                    }
+                ]
+            }
+        ],
+        "psus": [
+            {
+                "name": "PSU1",
+                "fans": [
+                    {
+                        "name": "PSU1 Fan"
+                    }
+                ]
+            },
+            {
+                "name": "PSU2",
+                "fans": [
+                    {
+                        "name": "PSU2 Fan"
+                    }
+                ]
+            }
+        ],
+        "thermals": [
+            {
+                "name": "CPU On-board"
+            },
+            {
+                "name": "Baseboard U3"
+            },
+            {
+                "name": "SW Internal"
+            },
+            {
+                "name": "Fan U52"
+            },
+            {
+                "name": "Fan U17"
+            },
+            {
+                "name": "SW U52"
+            },
+            {
+                "name": "SW U16"
+            },
+            {
+                "name": "PSU1 Inlet"
+            },
+            {
+                "name": "PSU1 Hotspot"
+            },
+            {
+                "name": "PSU2 Inlet"
+            },
+            {
+                "name": "PSU2 Hotspot"
+            },
+            {
+                "name": "SW U04"
+            },
+            {
+                "name": "SW U14"
+            },
+            {
+                "name": "SW U4403"
+            }
+        ],
+        "modules": [],
+        "sfps": [
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "QSFP-DD Double Density 8X Pluggable Transceiver"
+            },
+            {
+                "name": "SFP/SFP+/SFP28"
+            },
+            {
+                "name": "SFP/SFP+/SFP28"
+            }
+
+        ]
+    },
+    "interfaces": {}
+}
