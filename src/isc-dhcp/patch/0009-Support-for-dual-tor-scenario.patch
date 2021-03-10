@@ -238,7 +238,7 @@ index e158efe..055d97f 100644
  		  (flags & INTERFACE_UPSTREAM ? 'Y' : 'N'),
  		  (flags & INTERFACE_DOWNSTREAM ? 'Y' : 'N'));
  
-+	if (flags & INTERFACE_DOWNSTREAM) {
++	if (flags & INTERFACE_DOWNSTREAM || flags & INTERFACE_UPSTREAM) { /* include all vlan intf in downstream_intf_list */
 +		ci = ((struct downstream_intf_list *)dmalloc(sizeof *ci, MDL));
 +		if (!ci)
 +			log_fatal("no memory for downstream interface pointer.\n");
