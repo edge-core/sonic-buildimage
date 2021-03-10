@@ -678,11 +678,16 @@ class SonicYangExtMixin:
     """
     load_data: load Config DB, crop, xlate and create data tree from it. (Public)
     input:    data
+              debug Flag
     returns:  True - success   False - failed
     """
-    def loadData(self, configdbJson):
+    def loadData(self, configdbJson, debug=False):
 
        try:
+          # write Translated config in file if debug enabled
+          xlateFile = None
+          if debug:
+              xlateFile = "xlateConfig.json"
           self.jIn = configdbJson
           # reset xlate and tablesWithOutYang
           self.xlateJson = dict()
@@ -690,7 +695,7 @@ class SonicYangExtMixin:
           # self.jIn will be cropped
           self._cropConfigDB()
           # xlated result will be in self.xlateJson
-          self._xlateConfigDB()
+          self._xlateConfigDB(xlateFile=xlateFile)
           #print(self.xlateJson)
           self.sysLog(msg="Try to load Data in the tree")
           self.root = self.ctx.parse_data_mem(dumps(self.xlateJson), \
@@ -706,14 +711,18 @@ class SonicYangExtMixin:
     """
     Get data from Data tree, data tree will be assigned in self.xlateJson. (Public)
     """
-    def getData(self):
+    def getData(self, debug=False):
 
         try:
+            # write reverse Translated config in file if debug enabled
+            revXlateFile = None
+            if debug:
+                revXlateFile = "revXlateConfig.json"
             self.xlateJson = loads(self._print_data_mem('JSON'))
             # reset reverse xlate
             self.revXlateJson = dict()
             # result will be stored self.revXlateJson
-            self._revXlateConfigDB()
+            self._revXlateConfigDB(revXlateFile=revXlateFile)
 
         except Exception as e:
             print("Get Data Tree Failed")
