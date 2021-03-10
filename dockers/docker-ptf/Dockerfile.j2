@@ -77,7 +77,7 @@ RUN rm -rf /debs \
     && apt-get -y autoclean \
     && apt-get -y autoremove \
     && rm -rf /var/lib/apt/lists/* \
-    && wget --https-only https://bootstrap.pypa.io/2.7/get-pip.py \
+    && wget --https-only https://bootstrap.pypa.io/pip/2.7/get-pip.py \
     && python get-pip.py \
     && rm -f get-pip.py \
     && pip install setuptools \
