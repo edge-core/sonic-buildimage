@@ -65,7 +65,9 @@ RUN sed --in-place 's/httpredir.debian.org/debian-archive.trafficmanager.net/' /
         ntpstat             \
         ntpdate             \
         arping              \
-        bridge-utils
+        bridge-utils        \
+        libteam-utils
+
 
 RUN dpkg -i \
 {% for deb in docker_ptf_debs.split(' ') -%}
