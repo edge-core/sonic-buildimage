@@ -1,13 +1,13 @@
 import sys
 import codecs
-import urllib
+from urllib.parse import quote
 
 from sonic_platform.platform_thrift_client import thrift_try
 
 def platform_sensors_get(args):
     options = ""
     if len(args)!=0:
-        options = urllib.quote(" ".join(args))
+        options = quote(" ".join(args))
     def get_data(client):
         return client.pltfm_mgr.pltfm_mgr_sensor_info_get(options)
     raw_out = thrift_try(get_data)
