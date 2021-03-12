@@ -5,6 +5,8 @@ try:
     from sonic_platform_base.chassis_base import ChassisBase
     from sonic_platform.sfp import Sfp
     from sonic_platform.psu import Psu
+    from sonic_platform.fan_drawer import fan_drawer_list_get
+    from sonic_platform.thermal import thermal_list_get
     from eeprom import Eeprom
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
@@ -25,6 +27,9 @@ class Chassis(ChassisBase):
         for i in range(1, Psu.get_num_psus() + 1):
             psu = Psu(i)
             self._psu_list.append(psu)
+
+        self._fan_drawer_list = fan_drawer_list_get()
+        self._thermal_list = thermal_list_get()
 
     def get_name(self):
         """
