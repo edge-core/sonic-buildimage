@@ -1,0 +1,17 @@
+steps:
+- script: |
+    if sudo [ -f /var/run/march/docker.pid ] ; then
+        pid=`sudo cat /var/run/march/docker.pid` ; sudo kill $pid
+    fi
+    sudo rm -f /var/run/march/docker.pid
+    sudo rm -rf /data/march/docker
+
+    # clean native docker build
+    if sudo [ -f dockerfs/var/run/docker.pid ] ; then
+        pid=`sudo cat dockerfs/var/run/docker.pid` ; sudo kill $pid
+    fi
+    sudo rm -rf dockerfs
+    sudo rm -rf fsroot
+    username=$(id -un)
+    sudo chown -R ${username}.${username} .
+  displayName: "Clean Workspace"
