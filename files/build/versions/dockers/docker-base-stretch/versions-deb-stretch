@@ -48,7 +48,7 @@ libssl1.1==1.1.0l-1~deb9u3
 libtasn1-6==4.10-1.1+deb9u1
 libunistring0==0.9.6+really0.9.3-0.1
 libwrap0==7.6.q-26
-libzmq5==4.2.1-4+deb9u3
+libzmq5==4.2.1-4+deb9u4
 lua-cjson==2.1.0+dfsg-2
 mime-support==3.60
 net-tools==1.60+git20161116.90da8a0-1
