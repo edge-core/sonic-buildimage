@@ -83,7 +83,7 @@ QSFP_POWEROVERRIDE_WIDTH = 1
 QSFP_MODULE_THRESHOLD_OFFSET = 128
 QSFP_MODULE_THRESHOLD_WIDTH = 24
 QSFP_CHANNEL_THRESHOLD_OFFSET = 176
-QSFP_CHANNEL_THRESHOLD_WIDTH = 16
+QSFP_CHANNEL_THRESHOLD_WIDTH = 24
 
 
 SFP_TEMPE_OFFSET = 96
@@ -94,8 +94,6 @@ SFP_CHANNL_MON_OFFSET = 100
 SFP_CHANNL_MON_WIDTH = 6
 SFP_MODULE_THRESHOLD_OFFSET = 0
 SFP_MODULE_THRESHOLD_WIDTH = 40
-SFP_CHANNL_THRESHOLD_OFFSET = 112
-SFP_CHANNL_THRESHOLD_WIDTH = 2
 SFP_STATUS_CONTROL_OFFSET = 110
 SFP_STATUS_CONTROL_WIDTH = 1
 SFP_TX_DISABLE_HARD_BIT = 7
@@ -327,16 +325,16 @@ class PddfSfp(SfpBase):
         else:
             xcvr_info_dict['type'] = sfp_type_data['data']['type']['value'] if sfp_type_data else 'N/A'
             xcvr_info_dict['type_abbrv_name'] = sfp_type_abbrv_name['data']['type_abbrv_name']['value'] \
-                    if sfp_type_abbrv_name else 'N/A'
+                if sfp_type_abbrv_name else 'N/A'
 
         xcvr_info_dict['manufacturer'] = sfp_vendor_name_data['data']['Vendor Name']['value'] \
-                if sfp_vendor_name_data else 'N/A'
+            if sfp_vendor_name_data else 'N/A'
         xcvr_info_dict['model'] = sfp_vendor_pn_data['data']['Vendor PN']['value'] if sfp_vendor_pn_data else 'N/A'
         xcvr_info_dict['hardware_rev'] = sfp_vendor_rev_data['data']['Vendor Rev']['value'] \
-                if sfp_vendor_rev_data else 'N/A'
+            if sfp_vendor_rev_data else 'N/A'
         xcvr_info_dict['serial'] = sfp_vendor_sn_data['data']['Vendor SN']['value'] if sfp_vendor_sn_data else 'N/A'
         xcvr_info_dict['vendor_oui'] = sfp_vendor_oui_data['data']['Vendor OUI']['value'] \
-                if sfp_vendor_oui_data else 'N/A'
+            if sfp_vendor_oui_data else 'N/A'
         xcvr_info_dict['vendor_date'] = sfp_vendor_date_data['data'][
             'VendorDataCode(YYYY-MM-DD Lot)']['value'] if sfp_vendor_date_data else 'N/A'
         xcvr_info_dict['cable_type'] = "Unknown"
@@ -351,7 +349,7 @@ class PddfSfp(SfpBase):
             for key in qsfp_compliance_code_tup:
                 if key in sfp_interface_bulk_data['data']['Specification compliance']['value']:
                     compliance_code_dict[key] = sfp_interface_bulk_data['data']['Specification compliance'][
-                            'value'][key]['value']
+                        'value'][key]['value']
             xcvr_info_dict['specification_compliance'] = str(compliance_code_dict)
 
             nkey = 'Nominal Bit Rate(100Mbs)'
@@ -371,7 +369,7 @@ class PddfSfp(SfpBase):
             for key in sfp_compliance_code_tup:
                 if key in sfp_interface_bulk_data['data']['Specification compliance']['value']:
                     compliance_code_dict[key] = sfp_interface_bulk_data['data']['Specification compliance'][
-                            'value'][key]['value']
+                        'value'][key]['value']
             xcvr_info_dict['specification_compliance'] = str(compliance_code_dict)
 
             xcvr_info_dict['nominal_bit_rate'] = str(
@@ -592,8 +590,9 @@ class PddfSfp(SfpBase):
             if sfpd_obj is None:
                 return None
 
-            dom_thres_raw = self.__read_eeprom_specific_bytes(QSFP_MODULE_THRESHOLD_OFFSET, QSFP_MODULE_THRESHOLD_WIDTH)
-
+            offset = 384
+            dom_thres_raw = self.__read_eeprom_specific_bytes(
+                (offset+QSFP_MODULE_THRESHOLD_OFFSET), QSFP_MODULE_THRESHOLD_WIDTH)
             if dom_thres_raw:
                 module_threshold_values = sfpd_obj.parse_module_threshold_values(
                     dom_thres_raw, 0)
@@ -608,8 +607,8 @@ class PddfSfp(SfpBase):
                     xcvr_dom_threshold_info_dict['vcchighwarning'] = module_threshold_data['VccHighWarning']['value']
                     xcvr_dom_threshold_info_dict['vcclowwarning'] = module_threshold_data['VccLowWarning']['value']
 
-            dom_thres_raw = self.__read_eeprom_specific_bytes(
-                QSFP_CHANNEL_THRESHOLD_OFFSET, QSFP_CHANNEL_THRESHOLD_WIDTH)
+            dom_thres_raw = self.__read_eeprom_specific_bytes((offset + QSFP_CHANNEL_THRESHOLD_OFFSET),
+                                                              QSFP_CHANNEL_THRESHOLD_WIDTH)
             if dom_thres_raw:
                 channel_threshold_values = sfpd_obj.parse_channel_threshold_values(
                     dom_thres_raw, 0)
@@ -659,15 +658,15 @@ class PddfSfp(SfpBase):
                 xcvr_dom_threshold_info_dict['txpowerhighalarm'] = dom_mod_th_data['data']['TXPowerHighAlarm']['value']
                 xcvr_dom_threshold_info_dict['txpowerlowalarm'] = dom_mod_th_data['data']['TXPowerLowAlarm']['value']
                 xcvr_dom_threshold_info_dict['txpowerhighwarning'] = dom_mod_th_data['data']['TXPowerHighWarning'][
-                        'value']
+                    'value']
                 xcvr_dom_threshold_info_dict['txpowerlowwarning'] = dom_mod_th_data['data']['TXPowerLowWarning'][
-                        'value']
+                    'value']
                 xcvr_dom_threshold_info_dict['rxpowerhighalarm'] = dom_mod_th_data['data']['RXPowerHighAlarm']['value']
                 xcvr_dom_threshold_info_dict['rxpowerlowalarm'] = dom_mod_th_data['data']['RXPowerLowAlarm']['value']
                 xcvr_dom_threshold_info_dict['rxpowerhighwarning'] = dom_mod_th_data['data']['RXPowerHighWarning'][
-                        'value']
+                    'value']
                 xcvr_dom_threshold_info_dict['rxpowerlowwarning'] = dom_mod_th_data['data']['RXPowerLowWarning'][
-                        'value']
+                    'value']
 
         return xcvr_dom_threshold_info_dict
 
@@ -764,7 +763,7 @@ class PddfSfp(SfpBase):
                 tx_fault_list = []
                 dom_channel_monitor_raw = self.__read_eeprom_specific_bytes(
                     QSFP_CHANNL_TX_FAULT_STATUS_OFFSET, QSFP_CHANNL_TX_FAULT_STATUS_WIDTH) \
-                            if self.get_presence() else None
+                    if self.get_presence() else None
                 if dom_channel_monitor_raw is not None:
                     tx_fault_data = int(dom_channel_monitor_raw[0], 16)
                     tx_fault_list.append(tx_fault_data & 0x01 != 0)
@@ -1039,6 +1038,28 @@ class PddfSfp(SfpBase):
             return [tx1_pw, tx2_pw, tx3_pw, tx4_pw]
         else:
             return None
+
+    def get_intr_status(self):
+        """
+        Retrieves the interrupt status for this transceiver
+        Returns:
+            A Boolean, True if there is interrupt, False if not
+        """
+        intr_status = False
+
+        # Interrupt status can be checked for absent ports too
+        device = 'PORT{}'.format(self.port_index)
+        output = self.pddf_obj.get_attr_name_output(device, 'xcvr_intr_status')
+
+        if output:
+            status = int(output['status'].rstrip())
+
+            if status == 1:
+                intr_status = True
+            else:
+                intr_status = False
+
+        return intr_status
 
     def reset(self):
         """
@@ -1354,6 +1375,8 @@ class PddfSfp(SfpBase):
         # if self.plugin_data doesn't specify anything regarding Transceivers
         if modpres == '1':
             return True
+        else:
+            return False
 
     def get_model(self):
         """

@@ -6,7 +6,6 @@
 
 try:
     from sonic_eeprom import eeprom_tlvinfo
-    import binascii
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -70,42 +69,42 @@ class PddfEeprom(eeprom_tlvinfo.TlvInfoDecoder):
         (is_valid, results) = self.get_tlv_field(self.eeprom_data, self._TLV_CODE_SERIAL_NUMBER)
         if not is_valid:
             return "N/A"
-        return results[2]
+        return results[2].decode('ascii')
 
     def base_mac_addr(self):
         (is_valid, t) = self.get_tlv_field(self.eeprom_data, self._TLV_CODE_MAC_BASE)
         if not is_valid or t[1] != 6:
             return super(TlvInfoDecoder, self).switchaddrstr(e)
 
-        return ":".join([binascii.b2a_hex(T) for T in t[2]])
+        return ":".join(["{:02x}".format(T) for T in t[2]]).upper()
 
     def modelstr(self):
         (is_valid, results) = self.get_tlv_field(self.eeprom_data, self._TLV_CODE_PRODUCT_NAME)
         if not is_valid:
             return "N/A"
 
-        return results[2]
+        return results[2].decode('ascii')
 
     def part_number_str(self):
         (is_valid, results) = self.get_tlv_field(self.eeprom_data, self._TLV_CODE_PART_NUMBER)
         if not is_valid:
             return "N/A"
 
-        return results[2]
+        return results[2].decode('ascii')
 
     def serial_str(self):
         (is_valid, results) = self.get_tlv_field(self.eeprom_data, self._TLV_CODE_SERVICE_TAG)
         if not is_valid:
             return "N/A"
 
-        return results[2]
+        return results[2].decode('ascii')
 
     def revision_str(self):
         (is_valid, results) = self.get_tlv_field(self.eeprom_data, self._TLV_CODE_DEVICE_VERSION)
         if not is_valid:
             return "N/A"
 
-        return results[2]
+        return results[2].decode('ascii')
 
     def system_eeprom_info(self):
         """

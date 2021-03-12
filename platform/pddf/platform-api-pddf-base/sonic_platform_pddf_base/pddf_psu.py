@@ -260,6 +260,24 @@ class PddfPsu(PsuBase):
         color = self.pddf_obj.get_led_color()
         return (color)
 
+    def get_temperature(self):
+        """
+        Retrieves current temperature reading from PSU
+
+        Returns:
+            A float number of current temperature in Celsius up to nearest thousandth
+            of one degree Celsius, e.g. 30.125
+        """
+        device = "PSU{}".format(self.psu_index)
+        output = self.pddf_obj.get_attr_name_output(device, "psu_temp1_input")
+        if not output:
+            return 0.0
+
+        temp1 = output['status']
+
+        # temperature returned is in milli celcius
+        return float(temp1)/1000
+
     def get_input_voltage(self):
         """
         Retrieves current PSU input voltage
