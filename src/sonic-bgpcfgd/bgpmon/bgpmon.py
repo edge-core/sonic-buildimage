@@ -153,7 +153,7 @@ def main():
     try:
         bgp_state_get = BgpStateGet()
     except Exception as e:
-        syslog.syslog(syslog.LOG_ERR, "{}: error exit 1, reason {}".format(THIS_MODULE, str(e)))
+        syslog.syslog(syslog.LOG_ERR, "{}: error exit 1, reason {}".format("THIS_MODULE", str(e)))
         exit(1)
 
     # periodically obtain the new neighbor infomraton and update if necessary
