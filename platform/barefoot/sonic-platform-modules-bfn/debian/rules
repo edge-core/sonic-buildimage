@@ -12,7 +12,6 @@ WHEEL_BUILD_DIR := $(BUILD_DIR)/wheel
 
 override_dh_auto_build:
 	set -e
-	python2.7 setup.py bdist_wheel -d $(WHEEL_BUILD_DIR)
 	python3 setup.py bdist_wheel -d $(WHEEL_BUILD_DIR)
 	set +e
 

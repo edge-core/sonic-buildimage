@@ -18,7 +18,6 @@ MODULE_NAMES := as9516 as9516bf
 override_dh_auto_build:
 	make -C $(KERNEL_SRC)/build M=$(MODULE_SRC)
 	set -e
-	python2.7 setup.py bdist_wheel -d $(WHEEL_BUILD_DIR)
 	python3 setup.py bdist_wheel -d $(WHEEL_BUILD_DIR)
 	set +e 
 
