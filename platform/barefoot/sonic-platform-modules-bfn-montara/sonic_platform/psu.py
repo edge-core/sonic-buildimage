@@ -17,7 +17,21 @@ class Psu(PsuBase):
 
     def __init__(self, index):
         PsuBase.__init__(self)
-        self.index = index
+        self.__index = index
+
+    '''
+    Units of returned info object values:
+        vin - V
+        iout - mA
+        vout - V
+        pwr_out - mW
+        fspeed - RPM
+    '''
+    def __info_get(self):
+        def psu_info_get(client):
+            return client.pltfm_mgr.pltfm_mgr_pwr_supply_info_get(self.__index)
+
+        return thrift_try(psu_info_get)
 
     @staticmethod
     def get_num_psus():
@@ -34,15 +48,36 @@ class Psu(PsuBase):
         :param self.index: An integer, 1-based self.index of the PSU of which to query status
         :return: Boolean, True if PSU is operating properly, False if PSU is faulty
         """
-        def psu_info_get(client):
-            return client.pltfm_mgr.pltfm_mgr_pwr_supply_info_get(self.index)
+        info = self.__info_get()
+        return info.ffault == False and info.vout != 0
 
-        try:
-            psu_info = thrift_try(psu_info_get)
-        except Exception:
-            return False
+    def get_voltage(self):
+        """
+        Retrieves current PSU voltage output
 
-        return (psu_info.ffault == False)
+        Returns:
+            A float number, the output voltage in volts,
+            e.g. 12.1
+        """
+        return float(self.__info_get().vout)
+
+    def get_current(self):
+        """
+        Retrieves present electric current supplied by PSU
+
+        Returns:
+            A float number, the electric current in amperes, e.g 15.4
+        """
+        return self.__info_get().iout / 1000.
+
+    def get_power(self):
+        """
+        Retrieves current energy supplied by PSU
+
+        Returns:
+            A float number, the power in watts, e.g. 302.6
+        """
+        return self.__info_get().pwr_out / 1000.
 
     def get_presence(self):
         """
@@ -52,11 +87,17 @@ class Psu(PsuBase):
         :return: Boolean, True if PSU is plugged, False if not
         """
         def psu_present_get(client):
-            return client.pltfm_mgr.pltfm_mgr_pwr_supply_present_get(self.index)
+            return client.pltfm_mgr.pltfm_mgr_pwr_supply_present_get(self.__index)
 
-        try:
-            status = thrift_try(psu_present_get)
-        except Exception:
-            return False
-
+        status = thrift_try(psu_present_get)
         return status
+
+    # DeviceBase iface:
+    def get_serial(self):
+        return self.__info_get().serial
+
+    def get_model(self):
+        return self.__info_get().model
+
+    def is_replaceable(self):
+        return True
