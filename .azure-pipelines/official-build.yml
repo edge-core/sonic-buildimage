@@ -9,6 +9,7 @@ schedules:
   branches:
     include:
     - master
+    - 202012
   always: true
 
 trigger: none
