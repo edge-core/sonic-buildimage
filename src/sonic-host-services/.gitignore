@@ -12,5 +12,6 @@ dist/
 
 # Unit test coverage
 .coverage
+.pytest_cache/
 coverage.xml
 htmlcov/
