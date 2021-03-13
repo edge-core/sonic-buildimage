@@ -9,5 +9,5 @@ with open(INIT_CFG_FILE_PATH) as init_cfg_file:
     init_cfg = json.load(init_cfg_file)
     if 'FEATURE' in init_cfg:
         for feature_name, feature_props in init_cfg['FEATURE'].items():
-            if 'state' in feature_props and feature_props['state'] == 'disabled':
+            if 'state' in feature_props and feature_props['state'] != 'enabled' and feature_props['state'] != 'always_enabled':
                 subprocess.run(['systemctl', 'mask', '{}.service'.format(feature_name)])
