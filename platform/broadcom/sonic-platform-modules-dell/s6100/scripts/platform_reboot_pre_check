@@ -1,0 +1,28 @@
+#!/bin/bash
+SSD_FW_UPGRADE="/host/ssd_fw_upgrade"
+
+# Check SSD Status
+if [ -e $SSD_FW_UPGRADE/GPIO7_low ] || [ -e $SSD_FW_UPGRADE/GPIO7_error ] || [ -e $SSD_FW_UPGRADE/GPIO_pending_upgrade ]; then
+    logger -p user.crit -t DELL_S6100_SSD_MON "The SSD on this unit is faulty and does not support cold reboot."
+    logger -p user.crit -t DELL_S6100_SSD_MON "Please perform a soft-/fast-/warm-reboot instead"
+    exit 1
+fi
+
+if [ -e $SSD_FW_UPGRADE/GPIO7_high ]; then
+    iSMART="/usr/local/bin/iSMART_64"
+    iSMART_OPTIONS="-d /dev/sda"
+
+    iSMART_CMD=`$iSMART $iSMART_OPTIONS`
+
+    GPIO_STATUS=$(echo "$iSMART_CMD" | grep GPIO | awk '{print $NF}')
+
+    if [ $GPIO_STATUS == "0x01" ];then
+	exit 0
+    else
+        logger -p user.crit -t DELL_S6100_SSD_MON "The SSD on this unit is faulty and does not support cold reboot."
+        logger -p user.crit -t DELL_S6100_SSD_MON "Please perform a soft-/fast-/warm-reboot instead"
+        exit 1
+    fi
+fi
+
+exit 1
