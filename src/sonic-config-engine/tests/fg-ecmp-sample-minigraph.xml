@@ -685,12 +685,10 @@
    </PngDec>
    <DeviceInfos>
       <DeviceInfo>
-         <AutoNegotiation>true</AutoNegotiation>
          <EthernetInterfaces xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp1</InterfaceName>
@@ -703,7 +701,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp2</InterfaceName>
@@ -716,7 +713,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp3</InterfaceName>
@@ -729,7 +725,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp4</InterfaceName>
@@ -742,7 +737,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp5</InterfaceName>
@@ -755,7 +749,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp6</InterfaceName>
@@ -768,7 +761,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp7</InterfaceName>
@@ -781,7 +773,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp8</InterfaceName>
@@ -794,7 +785,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp9</InterfaceName>
@@ -807,7 +797,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp10</InterfaceName>
@@ -820,7 +809,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp11</InterfaceName>
@@ -833,7 +821,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp12</InterfaceName>
@@ -846,7 +833,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp13</InterfaceName>
@@ -859,7 +845,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp14</InterfaceName>
@@ -872,7 +857,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp15</InterfaceName>
@@ -885,7 +869,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp16</InterfaceName>
@@ -898,7 +881,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp17</InterfaceName>
@@ -911,7 +893,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp18</InterfaceName>
@@ -924,7 +905,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp19</InterfaceName>
@@ -937,7 +917,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp20</InterfaceName>
@@ -950,7 +929,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp21</InterfaceName>
@@ -963,7 +941,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp22</InterfaceName>
@@ -976,7 +953,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp23</InterfaceName>
@@ -989,7 +965,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp24</InterfaceName>
@@ -1002,7 +977,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp25</InterfaceName>
@@ -1015,7 +989,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp26</InterfaceName>
@@ -1028,7 +1001,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp27</InterfaceName>
@@ -1041,7 +1013,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp28</InterfaceName>
@@ -1054,7 +1025,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp29</InterfaceName>
@@ -1067,7 +1037,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp30</InterfaceName>
@@ -1080,7 +1049,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp31</InterfaceName>
@@ -1093,7 +1061,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp32</InterfaceName>
@@ -1106,7 +1073,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp33</InterfaceName>
@@ -1119,7 +1085,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp34</InterfaceName>
@@ -1132,7 +1097,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp35</InterfaceName>
@@ -1145,7 +1109,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp36</InterfaceName>
@@ -1158,7 +1121,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp37</InterfaceName>
@@ -1171,7 +1133,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp38</InterfaceName>
@@ -1184,7 +1145,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp39</InterfaceName>
@@ -1197,7 +1157,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp40</InterfaceName>
@@ -1210,7 +1169,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp41</InterfaceName>
@@ -1223,7 +1181,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp42</InterfaceName>
@@ -1236,7 +1193,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp43</InterfaceName>
@@ -1249,7 +1205,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp44</InterfaceName>
@@ -1262,7 +1217,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp45</InterfaceName>
@@ -1275,7 +1229,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp46</InterfaceName>
@@ -1288,7 +1241,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp47</InterfaceName>
@@ -1301,7 +1253,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp48</InterfaceName>
@@ -1314,7 +1265,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp49</InterfaceName>
@@ -1327,7 +1277,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp50</InterfaceName>
@@ -1340,7 +1289,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp51</InterfaceName>
@@ -1353,7 +1301,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp52</InterfaceName>
@@ -1366,7 +1313,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp53</InterfaceName>
@@ -1379,7 +1325,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp54</InterfaceName>
@@ -1392,7 +1337,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp55</InterfaceName>
@@ -1405,7 +1349,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp56</InterfaceName>
@@ -1418,7 +1361,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp57</InterfaceName>
@@ -1431,7 +1373,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp58</InterfaceName>
@@ -1444,7 +1385,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp59</InterfaceName>
@@ -1457,7 +1397,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp60</InterfaceName>
@@ -1470,7 +1409,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp61</InterfaceName>
@@ -1483,7 +1421,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp62</InterfaceName>
@@ -1496,7 +1433,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp63</InterfaceName>
@@ -1509,7 +1445,6 @@
             <a:EthernetInterface>
                <ElementType>DeviceInterface</ElementType>
                <AlternateSpeeds i:nil="true" />
-               <EnableAutoNegotiation>true</EnableAutoNegotiation>
                <EnableFlowControl>true</EnableFlowControl>
                <Index>1</Index>
                <InterfaceName>etp64</InterfaceName>
@@ -1586,6 +1521,274 @@
       </Devices>
       <Properties xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution" />
    </MetadataDeclaration>
+  <LinkMetadataDeclaration>
+    <Link xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>str2-sn3800-azd:etp29;ARISTA01T1:Ethernet1</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>str2-sn3800-azd:etp30;ARISTA02T1:Ethernet1</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>str2-sn3800-azd:etp31;ARISTA03T1:Ethernet1</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>str2-sn3800-azd:etp32;ARISTA04T1:Ethernet1</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>Servers0:eth0;str2-sn3800-azd:etp2</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>Servers3:eth0;str2-sn3800-azd:etp5</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>Servers4:eth0;str2-sn3800-azd:etp6</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>Servers7:eth0;str2-sn3800-azd:etp9</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>Servers10:eth0;str2-sn3800-azd:etp10</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>Servers11:eth0;str2-sn3800-azd:etp11</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>Servers10:eth0;str2-sn3800-azd:etp12</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>Servers11:eth0;str2-sn3800-azd:etp13</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>Servers10:eth0;str2-sn3800-azd:etp14</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>Servers11:eth0;str2-sn3800-azd:etp15</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>Servers10:eth0;str2-sn3800-azd:etp16</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>Servers11:eth0;str2-sn3800-azd:etp17</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>Servers10:eth0;str2-sn3800-azd:etp18</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>Servers11:eth0;str2-sn3800-azd:etp19</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>Servers10:eth0;str2-sn3800-azd:etp20</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>Servers11:eth0;str2-sn3800-azd:etp21</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>Servers20:eth0;str2-sn3800-azd:etp22</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>Servers21:eth0;str2-sn3800-azd:etp23</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>Servers22:eth0;str2-sn3800-azd:etp24</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>Servers23:eth0;str2-sn3800-azd:etp25</a:Key>
+      </a:LinkMetadata>
+    </Link>
+  </LinkMetadataDeclaration>
    <Hostname>str2-sn3800-azd</Hostname>
    <HwSku>ACS-MSN3800</HwSku>
 </DeviceMiniGraph>
