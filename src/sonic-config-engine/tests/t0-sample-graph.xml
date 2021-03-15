@@ -247,6 +247,20 @@
           <SecondarySubnets/>
         </VlanInterface>
         <VlanInterface>
+          <Name>Vlan2000</Name>
+          <AttachTo>fortyGigE0/112;fortyGigE0/116;fortyGigE0/120</AttachTo>
+          <NoDhcpRelay>False</NoDhcpRelay>
+          <StaticDHCPRelay>0.0.0.0/0</StaticDHCPRelay>
+          <FhrpProtoType i:nil="true"/>
+          <Type i:nil="true"/>
+          <DhcpRelays></DhcpRelays>
+          <VlanID>2000</VlanID>
+          <Tag>2000</Tag>
+          <Subnets>192.168.200.0/27</Subnets>
+          <MacAddress i:nil="true"/>
+          <SecondarySubnets/>
+        </VlanInterface>
+        <VlanInterface>
           <Name>Vlan99</Name>
           <AttachTo>fortyGigE0/100</AttachTo>
           <NoDhcpRelay>False</NoDhcpRelay>
@@ -320,6 +334,11 @@
           <Name i:nil="true"/>
           <AttachTo>Vlan1000</AttachTo>
           <Prefix>192.168.0.1/27</Prefix>
+        </IPInterface>
+        <IPInterface>
+          <Name i:nil="true"/>
+          <AttachTo>Vlan2000</AttachTo>
+          <Prefix>192.168.200.1/27</Prefix>
         </IPInterface>
       </IPInterfaces>
       <DataAcls/>
