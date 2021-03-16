@@ -27,13 +27,13 @@ module sonic-loopback-interface {
         container LOOPBACK_INTERFACE {
 
             list LOOPBACK_INTERFACE_LIST {
-                key "loopback_interface_name";
+                key "name";
 
                 ext:key-regex-configdb-to-yang "^([a-zA-Z0-9-_]+)$";
 
-                ext:key-regex-yang-to-configdb "<loopback_interface_name>";
+                ext:key-regex-yang-to-configdb "<name>";
 
-                leaf loopback_interface_name{
+                leaf name{
                     type string;
                 }
 
@@ -48,15 +48,15 @@ module sonic-loopback-interface {
 
             list LOOPBACK_INTERFACE_IPPREFIX_LIST {
 
-                key "loopback_interface_name ip-prefix";
+                key "name ip-prefix";
 
                 ext:key-regex-configdb-to-yang "^([a-zA-Z0-9-_]+)|([a-fA-F0-9:./]+$)";
 
-                ext:key-regex-yang-to-configdb "<loopback_interface_name>|<ip-prefix>";
+                ext:key-regex-yang-to-configdb "<name>|<ip-prefix>";
 
-                leaf loopback_interface_name{
+                leaf name{
                     /* This node must be present in LOOPBACK_INTERFACE_LIST */
-                    must "(current() = ../../LOOPBACK_INTERFACE_LIST[loopback_interface_name=current()]/loopback_interface_name)"
+                    must "(current() = ../../LOOPBACK_INTERFACE_LIST[name=current()]/name)"
                     {
                         error-message "Must condition not satisfied, Try adding lo<>: {}, Example: 'lo1': {}";
                     }

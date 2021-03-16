@@ -3,10 +3,10 @@
 		"sonic-vlan:sonic-vlan": {
 			"sonic-vlan:VLAN_INTERFACE": {
 				"VLAN_INTERFACE_LIST": [{
-					"vlan_name": "Vlan100"
+					"name": "Vlan100"
 				}],
 				"VLAN_INTERFACE_IPPREFIX_LIST": [{
-					"vlan_name": "Vlan100",
+					"name": "Vlan100",
 					"ip-prefix": "2a04:5555:66:7777::1/64",
 					"scope": "global",
 					"family": "IPv4"
@@ -14,7 +14,7 @@
 			},
 			"sonic-vlan:VLAN": {
 				"VLAN_LIST": [{
-					"vlan_name": "Vlan100",
+					"name": "Vlan100",
 					"description": "server_vlan"
 				}]
 			}
@@ -25,7 +25,7 @@
 		"sonic-vlan:sonic-vlan": {
 			"sonic-vlan:VLAN": {
 				"VLAN_LIST": [{
-					"vlan_name": "Vlan100",
+					"name": "Vlan100",
 					"description": "server_vlan",
 					"dhcp_servers": [
 						"10.186.72.566"
@@ -41,7 +41,7 @@
 		"sonic-vlan:sonic-vlan": {
 			"sonic-vlan:VLAN": {
 				"VLAN_LIST": [{
-					"vlan_name": "Vlan1-4094",
+					"name": "Vlan1-4094",
 					"description": "server_vlan",
 					"dhcp_servers": [
 						"10.186.72.56"
@@ -57,7 +57,7 @@
 		"sonic-vlan:sonic-vlan": {
 			"sonic-vlan:VLAN": {
 				"VLAN_LIST": [{
-					"vlan_name": "Vlan8090",
+					"name": "Vlan8090",
 					"description": "server_vlan",
 					"dhcp_servers": [
 						"10.186.72.56"
@@ -73,14 +73,14 @@
 		"sonic-vlan:sonic-vlan": {
 			"sonic-vlan:VLAN_MEMBER": {
 				"VLAN_MEMBER_LIST": [{
-					"vlan_name": "Vlan100",
+					"name": "Vlan100",
 					"port": "Ethernet156",
 					"tagging_mode": "tagged"
 				}]
 			},
 			"sonic-vlan:VLAN": {
 				"VLAN_LIST": [{
-					"vlan_name": "Vlan100",
+					"name": "Vlan100",
 					"description": "server_vlan"
 				}]
 			}
@@ -88,7 +88,7 @@
 		"sonic-port:sonic-port": {
 			"sonic-port:PORT": {
 				"PORT_LIST": [{
-						"port_name": "Ethernet0",
+						"name": "Ethernet0",
 						"alias": "eth0",
 						"description": "Ethernet0",
 						"speed": 25000,
@@ -96,7 +96,7 @@
 						"admin_status": "up"
 					},
 					{
-						"port_name": "Ethernet1",
+						"name": "Ethernet1",
 						"alias": "eth1",
 						"description": "Ethernet1",
 						"speed": 25000,
@@ -112,7 +112,7 @@
 		"sonic-portchannel:sonic-portchannel": {
 			"sonic-portchannel:PORTCHANNEL": {
 				"PORTCHANNEL_LIST": [{
-					"portchannel_name": "PortChannel0001",
+					"name": "PortChannel0001",
 					"admin_status": "up",
 					"members": [
 						"Ethernet0"
@@ -125,7 +125,7 @@
 		"sonic-port:sonic-port": {
 			"sonic-port:PORT": {
 				"PORT_LIST": [{
-						"port_name": "Ethernet0",
+						"name": "Ethernet0",
 						"alias": "eth0",
 						"description": "Ethernet0",
 						"speed": 25000,
@@ -141,7 +141,7 @@
 		"sonic-portchannel:sonic-portchannel": {
 			"sonic-portchannel:PORTCHANNEL": {
 				"PORTCHANNEL_LIST": [{
-					"portchannel_name": "PortChannel11001",
+					"name": "PortChannel11001",
 					"admin_status": "up",
 					"mtu": "9100"
 				}]
@@ -153,18 +153,18 @@
 		"sonic-vlan:sonic-vlan": {
 			"sonic-vlan:VLAN_MEMBER": {
 				"VLAN_MEMBER_LIST": [{
-					"vlan_name": "Vlan200",
+					"name": "Vlan200",
 					"port": "Ethernet0",
 					"tagging_mode": "tagged"
 				}]
 			},
 			"sonic-vlan:VLAN": {
 				"VLAN_LIST": [{
-						"vlan_name": "Vlan100",
+						"name": "Vlan100",
 						"description": "server_vlan"
 					},
 					{
-						"vlan_name": "Vlan300",
+						"name": "Vlan300",
 						"description": "ipmi_vlan"
 					}
 				]
@@ -173,7 +173,7 @@
 		"sonic-port:sonic-port": {
 			"sonic-port:PORT": {
 				"PORT_LIST": [{
-					"port_name": "Ethernet0",
+					"name": "Ethernet0",
 					"alias": "eth0",
 					"description": "Ethernet0",
 					"speed": 25000,
@@ -188,14 +188,14 @@
 		"sonic-vlan:sonic-vlan": {
 			"sonic-vlan:VLAN_MEMBER": {
 				"VLAN_MEMBER_LIST": [{
-					"vlan_name": "Vlan100",
+					"name": "Vlan100",
 					"port": "Ethernet0",
 					"tagging_mode": "non-tagged"
 				}]
 			},
 			"sonic-vlan:VLAN": {
 				"VLAN_LIST": [{
-					"vlan_name": "Vlan100",
+					"name": "Vlan100",
 					"description": "server_vlan"
 				}]
 			}
@@ -203,7 +203,7 @@
 		"sonic-port:sonic-port": {
 			"sonic-port:PORT": {
 				"PORT_LIST": [{
-					"port_name": "Ethernet0",
+					"name": "Ethernet0",
 					"alias": "eth0",
 					"description": "Ethernet0",
 					"speed": 25000,
@@ -218,10 +218,10 @@
 		"sonic-interface:sonic-interface": {
 			"sonic-interface:INTERFACE": {
 				"INTERFACE_LIST": [{
-					"port_name": "Ethernet8"
+					"name": "Ethernet8"
 				}],
 				"INTERFACE_IPPREFIX_LIST": [{
-					"port_name": "Ethernet8",
+					"name": "Ethernet8",
 					"ip-prefix": "",
 					"scope": "global",
 					"family": "IPv4"
@@ -231,7 +231,7 @@
 		"sonic-port:sonic-port": {
 			"sonic-port:PORT": {
 				"PORT_LIST": [{
-					"port_name": "Ethernet8",
+					"name": "Ethernet8",
 					"alias": "eth8",
 					"description": "Ethernet8",
 					"speed": 25000,
@@ -282,7 +282,7 @@
 		"sonic-port:sonic-port": {
 			"sonic-port:PORT": {
 				"PORT_LIST": [{
-						"port_name": "Ethernet0",
+						"name": "Ethernet0",
 						"alias": "eth0",
 						"description": "Ethernet0",
 						"speed": 25000,
@@ -290,7 +290,7 @@
 						"admin_status": "up"
 					},
 					{
-						"port_name": "Ethernet1",
+						"name": "Ethernet1",
 						"alias": "eth1",
 						"description": "Ethernet1",
 						"speed": 25000,
@@ -317,7 +317,7 @@
 		"sonic-port:sonic-port": {
 			"sonic-port:PORT": {
 				"PORT_LIST": [{
-						"port_name": "Ethernet0",
+						"name": "Ethernet0",
 						"alias": "eth0",
 						"description": "Ethernet0",
 						"speed": 25000,
@@ -325,7 +325,7 @@
 						"admin_status": "up"
 					},
 					{
-						"port_name": "Ethernet1",
+						"name": "Ethernet1",
 						"alias": "eth1",
 						"description": "Ethernet1",
 						"speed": 25000,
@@ -363,7 +363,7 @@
 		"sonic-port:sonic-port": {
 			"sonic-port:PORT": {
 				"PORT_LIST": [{
-						"port_name": "Ethernet0",
+						"name": "Ethernet0",
 						"alias": "eth0",
 						"description": "Ethernet0",
 						"speed": 25000,
@@ -371,7 +371,7 @@
 						"admin_status": "up"
 					},
 					{
-						"port_name": "Ethernet1",
+						"name": "Ethernet1",
 						"alias": "eth1",
 						"description": "Ethernet1",
 						"speed": 25000,
@@ -408,7 +408,7 @@
 		"sonic-port:sonic-port": {
 			"sonic-port:PORT": {
 				"PORT_LIST": [{
-						"port_name": "Ethernet0",
+						"name": "Ethernet0",
 						"alias": "eth0",
 						"description": "Ethernet0",
 						"speed": 25000,
@@ -416,7 +416,7 @@
 						"admin_status": "up"
 					},
 					{
-						"port_name": "Ethernet1",
+						"name": "Ethernet1",
 						"alias": "eth1",
 						"description": "Ethernet1",
 						"speed": 25000,
@@ -453,7 +453,7 @@
 		"sonic-port:sonic-port": {
 			"sonic-port:PORT": {
 				"PORT_LIST": [{
-						"port_name": "Ethernet0",
+						"name": "Ethernet0",
 						"alias": "eth0",
 						"description": "Ethernet0",
 						"speed": 25000,
@@ -461,7 +461,7 @@
 						"admin_status": "up"
 					},
 					{
-						"port_name": "Ethernet1",
+						"name": "Ethernet1",
 						"alias": "eth1",
 						"description": "Ethernet1",
 						"speed": 25000,
@@ -500,7 +500,7 @@
 		"sonic-port:sonic-port": {
 			"sonic-port:PORT": {
 				"PORT_LIST": [{
-						"port_name": "Ethernet0",
+						"name": "Ethernet0",
 						"alias": "eth0",
 						"description": "Ethernet0",
 						"speed": 25000,
@@ -508,7 +508,7 @@
 						"admin_status": "up"
 					},
 					{
-						"port_name": "Ethernet1",
+						"name": "Ethernet1",
 						"alias": "eth1",
 						"description": "Ethernet1",
 						"speed": 25000,
@@ -524,7 +524,7 @@
 		"sonic-vlan:sonic-vlan": {
 			"sonic-vlan:VLAN_INTERFACE": {
 				"VLAN_INTERFACE_IPPREFIX_LIST": [{
-					"vlan_name": "Vlan100",
+					"name": "Vlan100",
 					"ip-prefix": "2a04:5555:66:7777::1/64",
 					"scope": "global",
 					"family": "IPv6"
@@ -532,7 +532,7 @@
 			},
 			"sonic-vlan:VLAN": {
 				"VLAN_LIST": [{
-					"vlan_name": "Vlan100",
+					"name": "Vlan100",
 					"description": "server_vlan"
 				}]
 			}
@@ -543,7 +543,7 @@
 		"sonic-loopback-interface:sonic-loopback-interface": {
 			"sonic-loopback-interface:LOOPBACK_INTERFACE": {
 				"LOOPBACK_INTERFACE_IPPREFIX_LIST": [{
-					"loopback_interface_name": "lo1",
+					"name": "lo1",
 					"ip-prefix": "2a04:5555:66:7777::1/64",
 					"scope": "global",
 					"family": "IPv6"
@@ -556,10 +556,10 @@
 		"sonic-interface:sonic-interface": {
 			"sonic-interface:INTERFACE": {
 				"INTERFACE_LIST": [{
-					"port_name": "Ethernet9"
+					"name": "Ethernet9"
 				}],
 				"INTERFACE_IPPREFIX_LIST": [{
-					"port_name": "Ethernet8",
+					"name": "Ethernet8",
 					"ip-prefix": "10.0.0.1/30",
 					"scope": "global",
 					"family": "IPv4"
@@ -569,7 +569,7 @@
 		"sonic-port:sonic-port": {
 			"sonic-port:PORT": {
 				"PORT_LIST": [{
-					"port_name": "Ethernet8",
+					"name": "Ethernet8",
 					"alias": "eth8",
 					"lanes": "65",
 					"description": "Ethernet8",
@@ -578,7 +578,7 @@
 					"admin_status": "up"
 				},
 				{
-					"port_name": "Ethernet9",
+					"name": "Ethernet9",
 					"alias": "eth9",
 					"lanes": "71",
 					"description": "Ethernet9",
@@ -594,10 +594,10 @@
 		"sonic-interface:sonic-interface": {
 			"sonic-interface:INTERFACE": {
 				"INTERFACE_LIST": [{
-					"port_name": "Ethernet8"
+					"name": "Ethernet8"
 				}],
 				"INTERFACE_IPPREFIX_LIST": [{
-					"port_name": "Ethernet8",
+					"name": "Ethernet8",
 					"ip-prefix": "10.0.0.1/30",
 					"scope": "global",
 					"family": "IPv4"
@@ -607,7 +607,7 @@
 		"sonic-port:sonic-port": {
 			"sonic-port:PORT": {
 				"PORT_LIST": [{
-					"port_name": "Ethernet8",
+					"name": "Ethernet8",
 					"alias": "eth8",
 					"lanes": "65",
 					"description": "Ethernet8",
@@ -624,7 +624,7 @@
 		"sonic-port:sonic-port": {
 			"sonic-port:PORT": {
 				"PORT_LIST": [{
-					"port_name": "Ethernet8",
+					"name": "Ethernet8",
 					"alias": "eth8",
 					"lanes": "65",
 					"description": "Ethernet8",
@@ -642,7 +642,7 @@
 		"sonic-port:sonic-port": {
 			"sonic-port:PORT": {
 				"PORT_LIST": [{
-					"port_name": "Ethernet8",
+					"name": "Ethernet8",
 					"alias": "eth8",
 					"lanes": "65",
 					"description": "Ethernet8",
@@ -684,7 +684,7 @@
 		"sonic-port:sonic-port": {
 			"sonic-port:PORT": {
 				"PORT_LIST": [{
-						"port_name": "Ethernet0",
+						"name": "Ethernet0",
 						"alias": "eth0",
 						"description": "Ethernet0",
 						"speed": 25000,
@@ -692,7 +692,7 @@
 						"admin_status": "up"
 					},
 					{
-						"port_name": "Ethernet1",
+						"name": "Ethernet1",
 						"alias": "eth1",
 						"description": "Ethernet1",
 						"speed": 25000,
@@ -1243,7 +1243,7 @@
 		"sonic-port:sonic-port": {
 			"sonic-port:PORT": {
 				"PORT_LIST": [{
-						"port_name": "Ethernet0",
+						"name": "Ethernet0",
 						"alias": "eth0",
 						"description": "Ethernet0",
 						"speed": 25000,
@@ -1251,7 +1251,7 @@
 						"admin_status": "up"
 					},
 					{
-						"port_name": "Ethernet1",
+						"name": "Ethernet1",
 						"alias": "eth1",
 						"description": "Ethernet1",
 						"speed": 25000,

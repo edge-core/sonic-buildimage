@@ -267,10 +267,10 @@ module sonic-acl {
 					/* union of leafref is allowed in YANG 1.1 */
 					type union {
 						type leafref {
-							path /port:sonic-port/port:PORT/port:PORT_LIST/port:port_name;
+							path /port:sonic-port/port:PORT/port:PORT_LIST/port:name;
 						}
 						type leafref {
-							path /lag:sonic-portchannel/lag:PORTCHANNEL/lag:PORTCHANNEL_LIST/lag:portchannel_name;
+							path /lag:sonic-portchannel/lag:PORTCHANNEL/lag:PORTCHANNEL_LIST/lag:name;
 						}
 						type string {
 							pattern "";

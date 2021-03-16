@@ -172,7 +172,7 @@ class Test_yang_models:
             'PORT_TEST': {
                 'desc': 'LOAD PORT TABLE WITH FEC AND PFC_ASYM SUCCESSFULLY. VERIFY PFC_ASYM.',
                 'eStr': self.defaultYANGFailure['Verify'],
-                'verify': {'xpath': "/sonic-port:sonic-port/PORT/PORT_LIST[port_name='Ethernet8']/port_name",
+                'verify': {'xpath': "/sonic-port:sonic-port/PORT/PORT_LIST[name='Ethernet8']/name",
                     'key': 'sonic-port:pfc_asym',
                     'value': 'on'
                 }
@@ -465,7 +465,7 @@ class Test_yang_models:
             for i in range(4095):
                 vlan = 'Vlan'+str(i)
                 jInput["sonic-vlan:sonic-vlan"]["sonic-vlan:VLAN"]["VLAN_LIST"]\
-                      [0]["vlan_name"] = vlan
+                      [0]["name"] = vlan
                 log.debug(jInput)
                 s = self.loadConfigData(json.dumps(jInput))
                 if s!="":

@@ -57,7 +57,7 @@ module sonic-device_neighbor {
 
                 leaf local_port {
                     type leafref {
-                        path /port:sonic-port/port:PORT/port:PORT_LIST/port:port_name;
+                        path /port:sonic-port/port:PORT/port:PORT_LIST/port:name;
                     }
                 }
 

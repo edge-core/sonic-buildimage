@@ -40,15 +40,15 @@ module sonic-vlan {
 
 				description "VLAN INTERFACE part of config_db.json with vrf";
 
-				key "vlan_name";
+				key "name";
 
 				ext:key-regex-configdb-to-yang "^(Vlan[a-zA-Z0-9_-]+)$";
 
-				ext:key-regex-yang-to-configdb "<vlan_name>";
+				ext:key-regex-yang-to-configdb "<name>";
 
-				leaf vlan_name {
+				leaf name {
 					type leafref {
-						path /vlan:sonic-vlan/vlan:VLAN/vlan:VLAN_LIST/vlan:vlan_name;
+						path /vlan:sonic-vlan/vlan:VLAN/vlan:VLAN_LIST/vlan:name;
 					}
 				}
 
@@ -63,21 +63,21 @@ module sonic-vlan {
 
 			list VLAN_INTERFACE_IPPREFIX_LIST {
 
-				key "vlan_name ip-prefix";
+				key "name ip-prefix";
 
 				ext:key-regex-configdb-to-yang "^(Vlan[a-zA-Z0-9_-]+)|([a-fA-F0-9:./]+$)";
 
-				ext:key-regex-yang-to-configdb "<vlan_name>|<ip-prefix>";
+				ext:key-regex-yang-to-configdb "<name>|<ip-prefix>";
 
-				leaf vlan_name {
+				leaf name {
 					/* This node must be present in VLAN_INTERFACE_LIST */
-					must "(current() = ../../VLAN_INTERFACE_LIST[vlan_name=current()]/vlan_name)"
+					must "(current() = ../../VLAN_INTERFACE_LIST[name=current()]/name)"
 					{
 						error-message "Must condition not satisfied, Try adding Vlan<vlanid>: {}, Example: 'Vlan100': {}";
 					}
 
 					type leafref {
-						path "/vlan:sonic-vlan/vlan:VLAN/vlan:VLAN_LIST/vlan:vlan_name";
+						path "/vlan:sonic-vlan/vlan:VLAN/vlan:VLAN_LIST/vlan:name";
 					}
 				}
 
@@ -118,13 +118,13 @@ module sonic-vlan {
 
 			list VLAN_LIST {
 
-				key "vlan_name";
+				key "name";
 
 				ext:key-regex-configdb-to-yang "^(Vlan[a-zA-Z0-9_-]+)$";
 
-				ext:key-regex-yang-to-configdb "<vlan_name>";
+				ext:key-regex-yang-to-configdb "<name>";
 
-				leaf vlan_name {
+				leaf name {
 					type string {
 						pattern 'Vlan([0-9]{1,3}|[1-3][0-9]{3}|[4][0][0-8][0-9]|[4][0][9][0-4])';
 					}
@@ -166,22 +166,22 @@ module sonic-vlan {
 
 			list VLAN_MEMBER_LIST {
 
-				key "vlan_name port";
+				key "name port";
 
 				ext:key-regex-configdb-to-yang "^(Vlan[a-zA-Z0-9-_]+)|(Ethernet[0-9]+)$";
 
-				ext:key-regex-yang-to-configdb "<vlan_name>|<port>";
+				ext:key-regex-yang-to-configdb "<name>|<port>";
 
-				leaf vlan_name {
+				leaf name {
 					type leafref {
-						path "/vlan:sonic-vlan/vlan:VLAN/vlan:VLAN_LIST/vlan:vlan_name";
+						path "/vlan:sonic-vlan/vlan:VLAN/vlan:VLAN_LIST/vlan:name";
 					}
 				}
 
 				leaf port {
 					/* key elements are mandatory by default */
 					type leafref {
-						path /port:sonic-port/port:PORT/port:PORT_LIST/port:port_name;
+						path /port:sonic-port/port:PORT/port:PORT_LIST/port:name;
 					}
 				}
 

@@ -36,15 +36,15 @@ module sonic-interface {
 
 				description "INTERFACE part of config_db.json with vrf";
 
-				key "port_name";
+				key "name";
 
 				ext:key-regex-configdb-to-yang "^(Ethernet[0-9]+)$";
 
-				ext:key-regex-yang-to-configdb "<port_name>";
+				ext:key-regex-yang-to-configdb "<name>";
 
-				leaf port_name {
+				leaf name {
 					type leafref {
-						path /port:sonic-port/port:PORT/port:PORT_LIST/port:port_name;
+						path /port:sonic-port/port:PORT/port:PORT_LIST/port:name;
 					}
 				}
 
@@ -61,21 +61,21 @@ module sonic-interface {
 
 				description "INTERFACE part of config_db.json with ip-prefix";
 
-				key "port_name ip-prefix";
+				key "name ip-prefix";
 
 				ext:key-regex-configdb-to-yang "^(Ethernet[0-9]+)|([a-fA-F0-9:./]+)$";
 
-				ext:key-regex-yang-to-configdb "<port_name>|<ip-prefix>";
+				ext:key-regex-yang-to-configdb "<name>|<ip-prefix>";
 
-				leaf port_name {
+				leaf name {
 					/* This node must be present in INTERFACE_LIST */
-					must "(current() = ../../INTERFACE_LIST[port_name=current()]/port_name)"
+					must "(current() = ../../INTERFACE_LIST[name=current()]/name)"
 					{
 						error-message "Must condition not satisfied, Try adding PORT: {}, Example: 'Ethernet0': {}";
 					}
 
 					type leafref {
-						path /port:sonic-port/port:PORT/port:PORT_LIST/port:port_name;
+						path /port:sonic-port/port:PORT/port:PORT_LIST/port:name;
 					}
 				}
 

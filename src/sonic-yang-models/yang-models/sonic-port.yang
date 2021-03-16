@@ -29,13 +29,13 @@ module sonic-port{
 
 			list PORT_LIST {
 
-				key "port_name";
+				key "name";
 
 				ext:key-regex-configdb-to-yang "^(Ethernet[0-9]+)$";
 
-				ext:key-regex-yang-to-configdb "<port_name>";
+				ext:key-regex-yang-to-configdb "<name>";
 
-				leaf port_name {
+				leaf name {
 					type string {
 						length 1..128;
 					}
