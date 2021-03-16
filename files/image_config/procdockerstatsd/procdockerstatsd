@@ -66,28 +66,26 @@ class ProcDockerStats(daemon_base.DaemonBase):
         return process_data_list
 
     def convert_to_bytes(self, value):
-        unit_value = re.search('[a-zA-Z]+', value)
-        value_to_convert = float(filter(str.isdigit, value))
-        unit = unit_value.group(0)
         UNITS_B = 'B'
         UNITS_KB = 'KB'
         UNITS_MB = 'MB'
         UNITS_MiB = 'MiB'
         UNITS_GiB = 'GiB'
-        if unit.lower() == UNITS_B.lower():
-            return int(round(value_to_convert))
-        elif unit.lower() == UNITS_KB.lower():
-            value_converted = value_to_convert * 1000
-            return int(round(value_converted))
+
+        res = re.match(r'(\d+\.?\d*)([a-zA-Z]+)', value)
+        value = float(res.groups()[0])
+        units = res.groups()[1]
+
+        if unit.lower() == UNITS_KB.lower():
+            value *= 1000
         elif unit.lower() == UNITS_MB.lower():
-            value_converted = value_to_convert * 1000 * 1000
-            return int(round(value_converted))
+            value *= (1000 * 1000)
         elif unit.lower() == UNITS_MiB.lower():
-            value_converted = value_to_convert * 1024 * 1024
-            return int(round(value_converted))
+            value *= (1024 * 1024)
         elif unit.lower() == UNITS_GiB.lower():
-            value_converted = value_to_convert * 1024 * 1024 * 1024
-            return int(round(value_converted))
+            value *= (1024 * 1024 * 1024)
+
+        return int(round(value))
 
     def create_docker_dict(self, dict_list):
         dockerdict = {}
