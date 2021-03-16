@@ -931,6 +931,7 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
 		export docker_image="$(docker)"
 		export docker_image_name="$(basename $(docker))"
 		export docker_container_name="$($(docker:-dbg.gz=.gz)_CONTAINER_NAME)"
+		export mount_default_tmpfs="y"
 		$(eval $(docker:-dbg.gz=.gz)_RUN_OPT += $($(docker:-dbg.gz=.gz)_$($*_IMAGE_TYPE)_RUN_OPT))
 		export docker_image_run_opt="$($(docker:-dbg.gz=.gz)_RUN_OPT)"
 

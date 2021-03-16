@@ -31,7 +31,7 @@ function updateSyslogConf()
 {
     # On multiNPU platforms, change the syslog target ip to docker0 ip to allow logs from containers
     # running on the namespace to reach the rsyslog service running on the host
-    # Also update the container name  
+    # Also update the container name
     if [[ ($NUM_ASIC -gt 1) ]]; then
         TARGET_IP=$(docker network inspect bridge --format={{ "'{{(index .IPAM.Config 0).Gateway}}'" }})
         CONTAINER_NAME="$DOCKERNAME"
@@ -380,7 +380,9 @@ start() {
         -e SX_API_SOCKET_FILE=/var/run/sx_sdk/sx_api.sock \
         -v /dev/shm:/dev/shm:rw \
 {%- else %}
+{%- if mount_default_tmpfs|default("n") == "y" %}
         --tmpfs /tmp \
+{%- endif %}
 {%- endif %}
 {%- endif %}
 {%- if sonic_asic_platform == "broadcom" %}
@@ -404,13 +406,23 @@ start() {
         $REDIS_MNT \
         -v /usr/share/sonic/device/$PLATFORM:/usr/share/sonic/platform:ro \
 {%- if sonic_asic_platform != "mellanox" %}
+{%- if mount_default_tmpfs|default("n") == "y" %}
         --tmpfs /tmp \
 {%- endif %}
+{%- endif %}
+{%- if mount_default_tmpfs|default("n") == "y" %}
         --tmpfs /var/tmp \
+{%- endif %}
         --env "NAMESPACE_ID"="$DEV" \
         --env "NAMESPACE_PREFIX"="$NAMESPACE_PREFIX" \
         --env "NAMESPACE_COUNT"=$NUM_ASIC \
-        --name=$DOCKERNAME {{docker_image_name}}:latest || {
+        --name=$DOCKERNAME \
+{%- if docker_image_name is defined %}
+        {{docker_image_name}}:latest \
+{%- else %}
+        {{docker_image_id}} \
+{%- endif %}
+        || {
             echo "Failed to docker run" >&1
             exit 4
     }
