@@ -422,6 +422,7 @@ def parse_linkmeta(meta, hname):
     for linkmeta in link.findall(str(QName(ns1, "LinkMetadata"))):
         port = None
         fec_disabled = None
+        auto_negotiation = None
 
         # Sample: ARISTA05T1:Ethernet1/33;switch-t0:fortyGigE0/4
         key = linkmeta.find(str(QName(ns1, "Key"))).text
@@ -441,10 +442,14 @@ def parse_linkmeta(meta, hname):
             value = device_property.find(str(QName(ns1, "Value"))).text
             if name == "FECDisabled":
                 fec_disabled = value
+            elif name == "AutoNegotiation":
+                auto_negotiation = value
 
         linkmetas[port] = {}
         if fec_disabled:
             linkmetas[port]["FECDisabled"] = fec_disabled
+        if auto_negotiation:
+            linkmetas[port]["AutoNegotiation"] = auto_negotiation
     return linkmetas
 
 
@@ -637,6 +642,11 @@ def parse_xml(filename, platform=None, port_config_file=None):
         # Note: FECDisabled only be effective on 100G port right now
         if port.get('speed') == '100000' and linkmetas.get(alias, {}).get('FECDisabled', '').lower() != 'true':
             port['fec'] = 'rs'
+
+        # If AutoNegotiation is available in the minigraph, we override any value we may have received from port_config.ini
+        autoneg = linkmetas.get(alias, {}).get('AutoNegotiation')
+        if autoneg:
+            port['autoneg'] = '1' if autoneg.lower() == 'true' else '0'
 
     # set port description if parsed from deviceinfo
     for port_name in port_descriptions:

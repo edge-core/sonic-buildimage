@@ -15,6 +15,7 @@ class TestCfgGen(TestCase):
         self.sample_graph_bgp_speaker = os.path.join(self.test_dir, 't0-sample-bgp-speaker.xml')
         self.sample_device_desc = os.path.join(self.test_dir, 'device.xml')
         self.port_config = os.path.join(self.test_dir, 't0-sample-port-config.ini')
+        self.port_config_autoneg = os.path.join(self.test_dir, 't0-sample-autoneg-port-config.ini')
 
     def run_script(self, argument, check_stderr=False):
         print '\n    Running sonic-cfggen ' + argument
@@ -169,7 +170,82 @@ class TestCfgGen(TestCase):
         # Test for FECDisabled
         argument = '-m "' + self.sample_graph_t0 + '" -p "' + self.port_config + '" -v "PORT[\'Ethernet4\']"'
         output = self.run_script(argument)
-        self.assertEqual(output.strip(), "{'lanes': '25,26,27,28', 'description': 'Servers0:eth0', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/4', 'admin_status': 'up', 'speed': '100000'}")
+        self.assertEqual(output.strip(), "{'lanes': '25,26,27,28', 'description': 'Servers0:eth0', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/4', 'admin_status': 'up', 'autoneg': '1', 'speed': '100000'}")
+
+    def test_minigraph_port_autonegotiation(self):
+        # Test with a port_config.ini file which doesn't have an 'autoneg' column
+        argument = '-m "' + self.sample_graph_t0 + '" -p "' + self.port_config + '" -v "PORT"'
+        output = self.run_script(argument)
+        self.assertEqual(output.strip(),
+                "{'Ethernet8': {'lanes': '37,38,39,40', 'description': 'fortyGigE0/8', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/8', 'admin_status': 'up', 'autoneg': '0'}, "
+                "'Ethernet0': {'alias': 'fortyGigE0/0', 'pfc_asym': 'off', 'lanes': '29,30,31,32', 'description': 'fortyGigE0/0', 'mtu': '9100'}, "
+                "'Ethernet4': {'lanes': '25,26,27,28', 'description': 'Servers0:eth0', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/4', 'admin_status': 'up', 'autoneg': '1', 'speed': '100000'}, "
+                "'Ethernet108': {'alias': 'fortyGigE0/108', 'pfc_asym': 'off', 'lanes': '81,82,83,84', 'description': 'fortyGigE0/108', 'mtu': '9100'}, "
+                "'Ethernet100': {'alias': 'fortyGigE0/100', 'pfc_asym': 'off', 'lanes': '125,126,127,128', 'description': 'fortyGigE0/100', 'mtu': '9100'}, "
+                "'Ethernet104': {'alias': 'fortyGigE0/104', 'pfc_asym': 'off', 'lanes': '85,86,87,88', 'description': 'fortyGigE0/104', 'mtu': '9100'}, "
+                "'Ethernet68': {'lanes': '69,70,71,72', 'description': 'fortyGigE0/68', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/68', 'admin_status': 'up'}, "
+                "'Ethernet96': {'lanes': '121,122,123,124', 'description': 'fortyGigE0/96', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/96', 'admin_status': 'up'}, "
+                "'Ethernet124': {'lanes': '101,102,103,104', 'fec': 'rs', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/124', 'admin_status': 'up', 'speed': '100000', 'description': 'ARISTA04T1:Ethernet1/1'}, "
+                "'Ethernet92': {'lanes': '113,114,115,116', 'description': 'fortyGigE0/92', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/92', 'admin_status': 'up'}, "
+                "'Ethernet120': {'lanes': '97,98,99,100', 'description': 'ARISTA03T1:Ethernet1/1', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/120', 'admin_status': 'up'}, "
+                "'Ethernet52': {'lanes': '53,54,55,56', 'description': 'fortyGigE0/52', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/52', 'admin_status': 'up'}, "
+                "'Ethernet56': {'lanes': '61,62,63,64', 'description': 'fortyGigE0/56', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/56', 'admin_status': 'up'}, "
+                "'Ethernet76': {'lanes': '73,74,75,76', 'description': 'fortyGigE0/76', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/76', 'admin_status': 'up'}, "
+                "'Ethernet72': {'lanes': '77,78,79,80', 'description': 'fortyGigE0/72', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/72', 'admin_status': 'up'}, "
+                "'Ethernet64': {'lanes': '65,66,67,68', 'description': 'fortyGigE0/64', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/64', 'admin_status': 'up'}, "
+                "'Ethernet32': {'lanes': '9,10,11,12', 'description': 'fortyGigE0/32', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/32', 'admin_status': 'up'}, "
+                "'Ethernet16': {'lanes': '41,42,43,44', 'description': 'fortyGigE0/16', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/16', 'admin_status': 'up'}, "
+                "'Ethernet36': {'lanes': '13,14,15,16', 'description': 'fortyGigE0/36', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/36', 'admin_status': 'up'}, "
+                "'Ethernet12': {'lanes': '33,34,35,36', 'description': 'fortyGigE0/12', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/12', 'admin_status': 'up'}, "
+                "'Ethernet88': {'lanes': '117,118,119,120', 'description': 'fortyGigE0/88', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/88', 'admin_status': 'up'}, "
+                "'Ethernet116': {'lanes': '93,94,95,96', 'description': 'ARISTA02T1:Ethernet1/1', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/116', 'admin_status': 'up'}, "
+                "'Ethernet80': {'lanes': '105,106,107,108', 'description': 'fortyGigE0/80', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/80', 'admin_status': 'up'}, "
+                "'Ethernet112': {'lanes': '89,90,91,92', 'description': 'ARISTA01T1:Ethernet1/1', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/112', 'admin_status': 'up'}, "
+                "'Ethernet84': {'lanes': '109,110,111,112', 'description': 'fortyGigE0/84', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/84', 'admin_status': 'up'}, "
+                "'Ethernet48': {'lanes': '49,50,51,52', 'description': 'fortyGigE0/48', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/48', 'admin_status': 'up'}, "
+                "'Ethernet44': {'lanes': '17,18,19,20', 'description': 'fortyGigE0/44', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/44', 'admin_status': 'up'}, "
+                "'Ethernet40': {'lanes': '21,22,23,24', 'description': 'fortyGigE0/40', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/40', 'admin_status': 'up'}, "
+                "'Ethernet28': {'lanes': '1,2,3,4', 'description': 'fortyGigE0/28', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/28', 'admin_status': 'up'}, "
+                "'Ethernet60': {'lanes': '57,58,59,60', 'description': 'fortyGigE0/60', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/60', 'admin_status': 'up'}, "
+                "'Ethernet20': {'lanes': '45,46,47,48', 'description': 'fortyGigE0/20', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/20', 'admin_status': 'up'}, "
+                "'Ethernet24': {'lanes': '5,6,7,8', 'description': 'fortyGigE0/24', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/24', 'admin_status': 'up'}}")
+
+        # Test with a port_config.ini file which has an 'autoneg' column
+        argument = '-m "' + self.sample_graph_t0 + '" -p "' + self.port_config_autoneg + '" -v "PORT"'
+        output = self.run_script(argument)
+        self.assertEqual(output.strip(),
+                "{'Ethernet8': {'lanes': '37,38,39,40', 'description': 'fortyGigE0/8', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/8', 'admin_status': 'up', 'autoneg': '0'}, "
+                "'Ethernet0': {'lanes': '29,30,31,32', 'description': 'fortyGigE0/0', 'mtu': '9100', 'alias': 'fortyGigE0/0', 'pfc_asym': 'off', 'autoneg': '0'}, "
+                "'Ethernet4': {'lanes': '25,26,27,28', 'description': 'Servers0:eth0', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/4', 'admin_status': 'up', 'autoneg': '1', 'speed': '100000'}, "
+                "'Ethernet108': {'lanes': '81,82,83,84', 'description': 'fortyGigE0/108', 'mtu': '9100', 'alias': 'fortyGigE0/108', 'pfc_asym': 'off', 'autoneg': '0'}, "
+                "'Ethernet100': {'lanes': '125,126,127,128', 'description': 'fortyGigE0/100', 'mtu': '9100', 'alias': 'fortyGigE0/100', 'pfc_asym': 'off', 'autoneg': '0'}, "
+                "'Ethernet104': {'lanes': '85,86,87,88', 'description': 'fortyGigE0/104', 'mtu': '9100', 'alias': 'fortyGigE0/104', 'pfc_asym': 'off', 'autoneg': '0'}, "
+                "'Ethernet68': {'lanes': '69,70,71,72', 'description': 'fortyGigE0/68', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/68', 'admin_status': 'up', 'autoneg': '0'}, "
+                "'Ethernet96': {'lanes': '121,122,123,124', 'description': 'fortyGigE0/96', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/96', 'admin_status': 'up', 'autoneg': '0'}, "
+                "'Ethernet124': {'lanes': '101,102,103,104', 'fec': 'rs', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/124', 'admin_status': 'up', 'autoneg': '1', 'speed': '100000', 'description': 'ARISTA04T1:Ethernet1/1'}, "
+                "'Ethernet92': {'lanes': '113,114,115,116', 'description': 'fortyGigE0/92', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/92', 'admin_status': 'up', 'autoneg': '0'}, "
+                "'Ethernet120': {'lanes': '97,98,99,100', 'description': 'ARISTA03T1:Ethernet1/1', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/120', 'admin_status': 'up', 'autoneg': '1'}, "
+                "'Ethernet52': {'lanes': '53,54,55,56', 'description': 'fortyGigE0/52', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/52', 'admin_status': 'up', 'autoneg': '0'}, "
+                "'Ethernet56': {'lanes': '61,62,63,64', 'description': 'fortyGigE0/56', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/56', 'admin_status': 'up', 'autoneg': '0'}, "
+                "'Ethernet76': {'lanes': '73,74,75,76', 'description': 'fortyGigE0/76', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/76', 'admin_status': 'up', 'autoneg': '0'}, "
+                "'Ethernet72': {'lanes': '77,78,79,80', 'description': 'fortyGigE0/72', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/72', 'admin_status': 'up', 'autoneg': '0'}, "
+                "'Ethernet64': {'lanes': '65,66,67,68', 'description': 'fortyGigE0/64', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/64', 'admin_status': 'up', 'autoneg': '0'}, "
+                "'Ethernet32': {'lanes': '9,10,11,12', 'description': 'fortyGigE0/32', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/32', 'admin_status': 'up', 'autoneg': '0'}, "
+                "'Ethernet16': {'lanes': '41,42,43,44', 'description': 'fortyGigE0/16', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/16', 'admin_status': 'up', 'autoneg': '0'}, "
+                "'Ethernet36': {'lanes': '13,14,15,16', 'description': 'fortyGigE0/36', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/36', 'admin_status': 'up', 'autoneg': '0'}, "
+                "'Ethernet12': {'lanes': '33,34,35,36', 'description': 'fortyGigE0/12', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/12', 'admin_status': 'up', 'autoneg': '0'}, "
+                "'Ethernet88': {'lanes': '117,118,119,120', 'description': 'fortyGigE0/88', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/88', 'admin_status': 'up', 'autoneg': '0'}, "
+                "'Ethernet116': {'lanes': '93,94,95,96', 'description': 'ARISTA02T1:Ethernet1/1', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/116', 'admin_status': 'up', 'autoneg': '1'}, "
+                "'Ethernet80': {'lanes': '105,106,107,108', 'description': 'fortyGigE0/80', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/80', 'admin_status': 'up', 'autoneg': '0'}, "
+                "'Ethernet112': {'lanes': '89,90,91,92', 'description': 'ARISTA01T1:Ethernet1/1', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/112', 'admin_status': 'up', 'autoneg': '1'}, "
+                "'Ethernet84': {'lanes': '109,110,111,112', 'description': 'fortyGigE0/84', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/84', 'admin_status': 'up', 'autoneg': '0'}, "
+                "'Ethernet48': {'lanes': '49,50,51,52', 'description': 'fortyGigE0/48', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/48', 'admin_status': 'up', 'autoneg': '0'}, "
+                "'Ethernet44': {'lanes': '17,18,19,20', 'description': 'fortyGigE0/44', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/44', 'admin_status': 'up', 'autoneg': '0'}, "
+                "'Ethernet40': {'lanes': '21,22,23,24', 'description': 'fortyGigE0/40', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/40', 'admin_status': 'up', 'autoneg': '0'}, "
+                "'Ethernet28': {'lanes': '1,2,3,4', 'description': 'fortyGigE0/28', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/28', 'admin_status': 'up', 'autoneg': '0'}, "
+                "'Ethernet60': {'lanes': '57,58,59,60', 'description': 'fortyGigE0/60', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/60', 'admin_status': 'up', 'autoneg': '0'}, "
+                "'Ethernet20': {'lanes': '45,46,47,48', 'description': 'fortyGigE0/20', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/20', 'admin_status': 'up', 'autoneg': '0'}, "
+                "'Ethernet24': {'lanes': '5,6,7,8', 'description': 'fortyGigE0/24', 'pfc_asym': 'off', 'mtu': '9100', 'alias': 'fortyGigE0/24', 'admin_status': 'up', 'autoneg': '0'}}")
 
     def test_minigraph_port_rs(self):
         argument = '-m "' + self.sample_graph_t0 + '" -p "' + self.port_config + '" -v "PORT[\'Ethernet124\']"'
