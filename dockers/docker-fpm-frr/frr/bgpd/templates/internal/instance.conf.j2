@@ -4,6 +4,7 @@
   neighbor {{ neighbor_addr }} remote-as {{ bgp_session['asn'] }}
   neighbor {{ neighbor_addr }} description {{ bgp_session['name'] }}
   neighbor {{ neighbor_addr }} timers 3 10
+  neighbor {{ neighbor_addr }} timers connect 10
 !
 {% if neighbor_addr | ipv4 %}
   address-family ipv4
