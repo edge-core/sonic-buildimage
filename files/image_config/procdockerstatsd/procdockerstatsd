@@ -69,8 +69,11 @@ class ProcDockerStats(daemon_base.DaemonBase):
         UNITS_B = 'B'
         UNITS_KB = 'KB'
         UNITS_MB = 'MB'
+        UNITS_GB = 'GB'
+        UNITS_GB = 'TB'
         UNITS_MiB = 'MiB'
         UNITS_GiB = 'GiB'
+        UNITS_TiB = 'TiB'
 
         res = re.match(r'(\d+\.?\d*)([a-zA-Z]+)', value)
         value = float(res.groups()[0])
@@ -79,11 +82,17 @@ class ProcDockerStats(daemon_base.DaemonBase):
         if units.lower() == UNITS_KB.lower():
             value *= 1000
         elif units.lower() == UNITS_MB.lower():
-            value *= (1000 * 1000)
+            value *= (1000 ** 2)
+        elif units.lower() == UNITS_GB.lower():
+            value *= (1000 ** 3)
+        elif units.lower() == UNITS_TB.lower():
+            value *= (1000 ** 4)
         elif units.lower() == UNITS_MiB.lower():
-            value *= (1024 * 1024)
+            value *= (1024 ** 2)
         elif units.lower() == UNITS_GiB.lower():
-            value *= (1024 * 1024 * 1024)
+            value *= (1024 ** 3)
+        elif units.lower() == UNITS_TiB.lower():
+            value *= (1024 ** 4)
 
         return int(round(value))
 
@@ -204,4 +213,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
