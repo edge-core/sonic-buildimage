@@ -28,8 +28,28 @@ class Chassis(ChassisBase):
             psu = Psu(i)
             self._psu_list.append(psu)
 
-        self._fan_drawer_list = fan_drawer_list_get()
-        self._thermal_list = thermal_list_get()
+        self.__fan_drawers = None
+        self.__thermals = None
+
+    @property
+    def _fan_drawer_list(self):
+        if self.__fan_drawers is None:
+            self.__fan_drawers = fan_drawer_list_get()
+        return self.__fan_drawers
+
+    @_fan_drawer_list.setter
+    def _fan_drawer_list(self, value):
+        pass
+
+    @property
+    def _thermal_list(self):
+        if self.__thermals is None:
+            self.__thermals = thermal_list_get()
+        return self.__thermals
+
+    @_thermal_list.setter
+    def _thermal_list(self, value):
+        pass
 
     def get_name(self):
         """
