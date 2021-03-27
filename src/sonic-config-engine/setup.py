@@ -7,7 +7,7 @@ from setuptools import setup
 dependencies = [
     'bitarray==1.5.3',
     'ipaddress==1.0.23',
-    'lxml==4.6.2',
+    'lxml==4.6.3',
     'netaddr==0.8.0',
     'pyyaml==5.4.1',
     'sonic-py-common',
