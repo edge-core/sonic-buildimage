@@ -8,6 +8,7 @@
       or  (bgp_session['holdtime'] is defined  and bgp_session['holdtime']  | int != 180) %}
   neighbor {{ neighbor_addr }} timers {{ bgp_session['keepalive'] | default("60") }} {{ bgp_session['holdtime'] | default("180") }}
 {% endif %}
+  neighbor {{ neighbor_addr }} timers connect 10
 !
 {% if 'admin_status' in bgp_session and bgp_session['admin_status'] == 'down' or 'admin_status' not in bgp_session and 'default_bgp_status' in CONFIG_DB__DEVICE_METADATA['localhost'] and CONFIG_DB__DEVICE_METADATA['localhost']['default_bgp_status'] == 'down' %}
   neighbor {{ neighbor_addr }} shutdown
