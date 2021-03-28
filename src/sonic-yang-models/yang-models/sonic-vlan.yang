@@ -42,10 +42,6 @@ module sonic-vlan {
 
 				key "name";
 
-				ext:key-regex-configdb-to-yang "^(Vlan[a-zA-Z0-9_-]+)$";
-
-				ext:key-regex-yang-to-configdb "<name>";
-
 				leaf name {
 					type leafref {
 						path /vlan:sonic-vlan/vlan:VLAN/vlan:VLAN_LIST/vlan:name;
@@ -64,10 +60,6 @@ module sonic-vlan {
 			list VLAN_INTERFACE_IPPREFIX_LIST {
 
 				key "name ip-prefix";
-
-				ext:key-regex-configdb-to-yang "^(Vlan[a-zA-Z0-9_-]+)|([a-fA-F0-9:./]+$)";
-
-				ext:key-regex-yang-to-configdb "<name>|<ip-prefix>";
 
 				leaf name {
 					/* This node must be present in VLAN_INTERFACE_LIST */
@@ -119,11 +111,7 @@ module sonic-vlan {
 			list VLAN_LIST {
 
 				key "name";
-
-				ext:key-regex-configdb-to-yang "^(Vlan[a-zA-Z0-9_-]+)$";
-
-				ext:key-regex-yang-to-configdb "<name>";
-
+        
 				leaf name {
 					type string {
 						pattern 'Vlan([0-9]{1,3}|[1-3][0-9]{3}|[4][0][0-8][0-9]|[4][0][9][0-4])';
@@ -167,10 +155,6 @@ module sonic-vlan {
 			list VLAN_MEMBER_LIST {
 
 				key "name port";
-
-				ext:key-regex-configdb-to-yang "^(Vlan[a-zA-Z0-9-_]+)|(Ethernet[0-9]+)$";
-
-				ext:key-regex-yang-to-configdb "<name>|<port>";
 
 				leaf name {
 					type leafref {

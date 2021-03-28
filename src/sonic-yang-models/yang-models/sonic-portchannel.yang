@@ -35,10 +35,6 @@ module sonic-portchannel {
 
 				key "name";
 
-				ext:key-regex-configdb-to-yang "^(PortChannel[0-9]{1,4})$";
-
-				ext:key-regex-yang-to-configdb "<name>";
-
 				leaf name {
 					type string {
 						length 1..128;

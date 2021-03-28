@@ -29,10 +29,6 @@ module sonic-loopback-interface {
             list LOOPBACK_INTERFACE_LIST {
                 key "name";
 
-                ext:key-regex-configdb-to-yang "^([a-zA-Z0-9-_]+)$";
-
-                ext:key-regex-yang-to-configdb "<name>";
-
                 leaf name{
                     type string;
                 }
@@ -49,10 +45,6 @@ module sonic-loopback-interface {
             list LOOPBACK_INTERFACE_IPPREFIX_LIST {
 
                 key "name ip-prefix";
-
-                ext:key-regex-configdb-to-yang "^([a-zA-Z0-9-_]+)|([a-fA-F0-9:./]+$)";
-
-                ext:key-regex-yang-to-configdb "<name>|<ip-prefix>";
 
                 leaf name{
                     /* This node must be present in LOOPBACK_INTERFACE_LIST */

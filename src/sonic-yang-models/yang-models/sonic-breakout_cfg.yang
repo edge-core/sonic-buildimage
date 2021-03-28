@@ -26,10 +26,6 @@ module sonic-breakout_cfg {
 
                 key "port";
 
-                ext:key-regex-configdb-to-yang "^([a-zA-Z0-9_-]+)$";
-
-                ext:key-regex-yang-to-configdb "<port>";
-
                 /*
                  * This is leaf instead of a leafref towards port, because this
                  * table will contains Parent ports and their current breakout-mode,

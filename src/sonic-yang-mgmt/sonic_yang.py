@@ -47,11 +47,13 @@ class SonicYang(SonicYangExtMixin):
     def __del__(self):
         pass
 
-    def sysLog(self, debug=syslog.LOG_INFO, msg=None):
+    def sysLog(self, debug=syslog.LOG_INFO, msg=None, doPrint=False):
 
         # log debug only if enabled
         if self.DEBUG == False and debug == syslog.LOG_DEBUG:
             return
+        if doPrint:
+            print("{}({}):{}".format(self.SYSLOG_IDENTIFIER, debug, msg))
         syslog.openlog(self.SYSLOG_IDENTIFIER)
         syslog.syslog(debug, msg)
         syslog.closelog()

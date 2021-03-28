@@ -35,10 +35,6 @@ module sonic-device_neighbor {
 
                 key "peer_name";
 
-                ext:key-regex-configdb-to-yang "^([a-zA-Z0-9_-]+)$";
-
-                ext:key-regex-yang-to-configdb "<peer_name>";
-
                 leaf peer_name {
                     type string {
                         length 1..255;

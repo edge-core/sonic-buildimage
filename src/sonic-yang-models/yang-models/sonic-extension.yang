@@ -10,14 +10,4 @@ module sonic-extension {
     revision 2019-07-01 {
         description "First Revision";
     }
-
-    extension key-regex-configdb-to-yang {
-        description "Key regex used to convert config DB keys to YANG Config";
-        argument "value";
-    }
-
-    extension key-regex-yang-to-configdb {
-        description "Key regex used to convert config DB keys to YANG Config";
-        argument "value";
-    }
 }

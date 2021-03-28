@@ -45,10 +45,6 @@ module sonic-acl {
 
 				key "ACL_TABLE_NAME RULE_NAME";
 
-				ext:key-regex-configdb-to-yang "^([a-zA-Z0-9_-]+)|([a-zA-Z0-9_-]+)$";
-
-				ext:key-regex-yang-to-configdb "<ACL_TABLE_NAME>|<RULE_NAME>";
-
 				leaf ACL_TABLE_NAME {
 					type leafref {
 						path "/acl:sonic-acl/acl:ACL_TABLE/acl:ACL_TABLE_LIST/acl:ACL_TABLE_NAME";
@@ -232,10 +228,6 @@ module sonic-acl {
 			list ACL_TABLE_LIST {
 
 				key "ACL_TABLE_NAME";
-
-				ext:key-regex-configdb-to-yang "^([a-zA-Z0-9-_]+)$";
-
-				ext:key-regex-yang-to-configdb "<ACL_TABLE_NAME>";
 
 				leaf ACL_TABLE_NAME {
 					type string;

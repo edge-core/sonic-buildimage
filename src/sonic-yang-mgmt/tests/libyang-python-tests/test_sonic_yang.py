@@ -340,6 +340,11 @@ class Test_SonicYang(object):
             print("Xlate and Rev Xlate Passed")
         else:
             print("Xlate and Rev Xlate failed")
+            # print for better debugging, in case of failure.
+            print("syc.jIn: {}".format({t:syc.jIn[t].keys() \
+                for t in syc.jIn.keys()}))
+            print("syc.revXlateJson: {}".format({t:syc.revXlateJson[t].keys() \
+                for t in syc.revXlateJson.keys()}))
             # make it fail
             assert False == True
 
