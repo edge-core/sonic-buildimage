@@ -44,6 +44,13 @@ module sonic-types {
         }
     }
 
+    typedef sonic-ip-prefix {
+      type union {
+        type sonic-ip4-prefix;
+        type sonic-ip6-prefix;
+      }
+    }
+
     typedef admin_status {
         type enumeration {
             enum up;

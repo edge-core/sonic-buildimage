@@ -26,7 +26,6 @@ module sonic-acl {
 
 	import sonic-portchannel {
 		prefix lag;
-		revision-date 2019-07-01;
 	}
 
 	description "ACL YANG Module for SONiC OS";

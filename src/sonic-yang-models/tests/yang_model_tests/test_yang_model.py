@@ -65,6 +65,14 @@ class Test_yang_models:
                 'desc': 'Configure a member port in PORT_CHANNEL table.',
                 'eStr': self.defaultYANGFailure['None']
             },
+            'PORTCHANNEL_INTERFACE_IP_ADDR_TEST': {
+                'desc': 'Configure IP address on PORTCHANNEL_INTERFACE table.',
+                'eStr': self.defaultYANGFailure['None']
+            },
+            'PORTCHANNEL_INTERFACE_IP_ADDR_ON_NON_EXIST_PO': {
+                'desc': 'Configure IP address on a non existent PortChannel.',
+                'eStr': self.defaultYANGFailure['LeafRef']
+            },
             'VLAN_MEMEBER_WITH_NON_EXIST_VLAN': {
                 'desc': 'Configure vlan-id in VLAN_MEMBER table which does not exist in VLAN  table.',
                 'eStr': self.defaultYANGFailure['LeafRef']
