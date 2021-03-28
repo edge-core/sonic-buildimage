@@ -266,7 +266,7 @@
 					"DST_IP": "10.186.72.0/26",
 					"SRC_IP": "10.176.0.0/15",
 					"PRIORITY": 999980,
-					"IP_TYPE": "IPV4ANY"
+					"IP_TYPE": "IPv4ANY"
 				}]
 			},
 			"sonic-acl:ACL_TABLE": {
