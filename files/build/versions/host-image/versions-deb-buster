@@ -24,7 +24,6 @@ dpkg-dev==1.19.7
 drivers-sonic-platform-arista==1.0
 ebtables==2.0.10.4+snapshot20181205-3
 efibootmgr==15-1
-ethtool==1:4.19-1
 file==1:5.35-4+deb10u2
 firmware-amd-graphics==20190114-2
 firmware-linux-nonfree==20190114-2
@@ -62,7 +61,7 @@ iputils-ping==3:20180629-2+deb10u1
 isc-dhcp-client==4.4.1-2
 jq==1.5+dfsg-2+b1
 kdump-tools==1:1.6.1-1
-kernel-mft-dkms-modules-4.19.0-12-2-amd64==4.15.3
+kernel-mft-dkms-modules-4.19.0-12-2-amd64==4.16.0
 kexec-tools==1:2.0.18-1
 klibc-utils==2.0.6-1
 kmod==26-1
@@ -71,6 +70,9 @@ libapparmor1==2.13.2-10
 libapt-inst2.0==1.8.2.2
 libargon2-1==0~20171227-0.2
 libassuan0==2.5.2-1
+libboost-filesystem1.67.0==1.67.0-13+deb10u1
+libboost-program-options1.67.0==1.67.0-13+deb10u1
+libboost-system1.67.0==1.67.0-13+deb10u1
 libbsd0==0.9.1-2
 libc-l10n==2.28-10
 libcap2==1:2.25-2
@@ -83,12 +85,14 @@ libdbi-perl==1.642-1+deb10u2
 libdbus-1-3==1.12.20-0+deb10u1
 libdevmapper1.02.1==2:1.02.155-3
 libdns-export1104==1:9.11.5.P4+dfsg-5.1+deb10u3
+libdouble-conversion1==3.1.0-3
 libdw1==0.176-1.1
 libedit2==3.1-20181209-1
 libefiboot1==37-2+deb10u1
 libefivar1==37-2+deb10u1
 libelf1==0.176-1.1
 libestr0==0.1.10-2.1
+libevent-2.1-6==2.1.8-stable-4
 libexpat1==2.2.6-2+deb10u1
 libfastjson4==0.99.8-2
 libffi-dev==3.2.1-9
@@ -98,7 +102,9 @@ libftdi1-2==1.4-1+b2
 libfuse2==2.9.9-1+deb10u1
 libgdbm-compat4==1.18.1-4
 libgdbm6==1.18.1-4
+libgflags2.2==2.2.2-1
 libglib2.0-0==2.58.3-2+deb10u2
+libgoogle-glog0v5==0.3.5-1
 libgpm2==1.20.7-5
 libgssapi-krb5-2==1.17-3+deb10u1
 libhavege1==1.9.1-7
@@ -164,11 +170,12 @@ libsasl2-2==2.1.27+dfsg-1+deb10u1
 libsasl2-modules-db==2.1.27+dfsg-1+deb10u1
 libsqlite3-0==3.27.2-3+deb10u1
 libssh2-1==1.8.0-2.1
-libssl1.1==1.1.1d-0+deb10u5
+libssl1.1==1.1.1d-0+deb10u6
 libswsscommon==1.0.0
 libsysfs2==2.1.0+repack-5
 libtac2==1.4.1-1
 libtcl8.6==8.6.9+dfsg-2
+libunwind8==1.2.1-10~deb10u1
 libusb-0.1-4==2:0.1.12-32
 libusb-1.0-0==2:1.0.22-2
 libutempter0==1.1.6-3
@@ -186,8 +193,8 @@ lsb-base==10.2019051400
 lsb-release==10.2019051400
 makedev==2.3.1-94
 makedumpfile==1:1.6.5-1
-mft==4.15.3-3
-mft-oem==4.15.3-3
+mft==4.16.0-105
+mft-oem==4.16.0-105
 mime-support==3.62
 monit==1:5.20.0-6
 mtd-utils==1:2.0.1-1
@@ -203,7 +210,7 @@ opennsl-modules==4.3.0.10-2
 openssh-client==1:7.9p1-10+deb10u2
 openssh-server==1:7.9p1-10+deb10u2
 openssh-sftp-server==1:7.9p1-10+deb10u2
-openssl==1.1.1d-0+deb10u5
+openssl==1.1.1d-0+deb10u6
 pciutils==1:3.5.2-1
 perl==5.28.1-6+deb10u1
 perl-modules-5.28==5.28.1-6+deb10u1
@@ -254,7 +261,7 @@ sonic-utilities-data==1.0-1
 sqlite3==3.27.2-3+deb10u1
 squashfs-tools==1:4.3-12
 sudo==1.8.27-1+deb10u3
-sx-kernel==1.mlnx.4.4.2308
+sx-kernel==1.mlnx.4.4.2418
 sysfsutils==2.1.0+repack-5
 systemd==241-7~deb10u6
 systemd-sonic-generator==1.0.0

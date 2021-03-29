@@ -1009,8 +1009,8 @@ libsqlite3-0==3.27.2-3+deb10u1
 libsratom-0-0==0.6.0~dfsg0-1
 libssh-gcrypt-4==0.8.7-1+deb10u1
 libssh2-1==1.8.0-2.1
-libssl-dev==1.1.1d-0+deb10u5
-libssl1.1==1.1.1d-0+deb10u5
+libssl-dev==1.1.1d-0+deb10u6
+libssl1.1==1.1.1d-0+deb10u6
 libstdc++-8-dev==8.3.0-6
 libstemmer0d==0+svn585-1+b2
 libstrictures-perl==2.000005-1
@@ -1057,7 +1057,7 @@ libthai-data==0.1.28-2
 libthai0==0.1.28-2
 libtheora0==1.1.1+dfsg.1-15
 libtie-ixhash-perl==1.23-2
-libtiff5==4.1.0+git191117-2~deb10u1
+libtiff5==4.1.0+git191117-2~deb10u2
 libtimedate-perl==2.3000-2+deb10u1
 libtinyxml2-6a==7.0.0+dfsg-1
 libtinyxml2-dev==7.0.0+dfsg-1
@@ -1309,7 +1309,7 @@ opensp==1.5.2-13+b1
 openssh-client==1:7.9p1-10+deb10u2
 openssh-server==1:7.9p1-10+deb10u2
 openssh-sftp-server==1:7.9p1-10+deb10u2
-openssl==1.1.1d-0+deb10u5
+openssl==1.1.1d-0+deb10u6
 ovmf==0~20181115.85588389-3+deb10u3
 packagekit==1.1.12-5
 packagekit-tools==1.1.12-5
@@ -1444,7 +1444,7 @@ python-pluggy==0.8.0-1
 python-py==1.7.0-2
 python-pyasn1==0.4.2-3
 python-pyasn1-modules==0.2.1-0.2
-python-pygments==2.3.1+dfsg-1
+python-pygments==2.3.1+dfsg-1+deb10u1
 python-pyparsing==2.2.0+dfsg1-2
 python-pytest==3.10.1-2
 python-pytest-cov==2.6.0-1
@@ -1525,7 +1525,7 @@ python3-pkg-resources==40.8.0-1
 python3-pluggy==0.8.0-1
 python3-py==1.7.0-2
 python3-pycurl==7.43.0.2-0.1
-python3-pygments==2.3.1+dfsg-1
+python3-pygments==2.3.1+dfsg-1+deb10u1
 python3-pyparsing==2.2.0+dfsg1-2
 python3-pytest==3.10.1-2
 python3-pytest-cov==2.6.0-1
