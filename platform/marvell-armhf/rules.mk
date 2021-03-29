@@ -5,9 +5,9 @@ include $(PLATFORM_PATH)/docker-syncd-mrvl-rpc.mk
 include $(PLATFORM_PATH)/docker-saiserver-mrvl.mk
 include $(PLATFORM_PATH)/libsaithrift-dev.mk
 include $(PLATFORM_PATH)/one-image.mk
-include $(PLATFORM_PATH)/linux-kernel-armhf.mk
 include $(PLATFORM_PATH)/platform-et6448m.mk
 include $(PLATFORM_PATH)/platform-nokia.mk
+include $(PLATFORM_PATH)/prestera.mk
 
 ENABLE_SYNCD_RPC = ""
 INCLUDE_MGMT_FRAMEWORK = ""
