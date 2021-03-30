@@ -32,6 +32,7 @@ module sonic-portchannel {
 
 
 	container sonic-portchannel {
+
 		container PORTCHANNEL {
 
 			description "PORTCHANNEL part of config_db.json";
@@ -90,6 +91,29 @@ module sonic-portchannel {
 
 		} /* end of container PORTCHANNEL */
 
+		container PORTCHANNEL_MEMBER {
+
+			description "PORTCHANNEL_MEMBER part of config_db.json";
+
+			list PORTCHANNEL_MEMBER_LIST {
+
+				key "name port";
+
+				leaf name {
+					type leafref {
+						path "/lag:sonic-portchannel/lag:PORTCHANNEL/lag:PORTCHANNEL_LIST/lag:name";
+					}
+				}
+        
+ 				leaf port {
+					/* key elements are mandatory by default */
+					type leafref {
+						path /port:sonic-port/port:PORT/port:PORT_LIST/port:name;
+					}
+				}
+			} /* end of list PORTCHANNEL_MEMBER_LIST */
+
+		} /* end of container PORTCHANNEL_MEMBER */
 
 		container PORTCHANNEL_INTERFACE {
 

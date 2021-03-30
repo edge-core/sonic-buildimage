@@ -18,6 +18,10 @@
                 "mtu": "9100"
             }
         },
+        "PORTCHANNEL_MEMBER": {
+            "PortChannel0003|Ethernet1": {},
+            "PortChannel0004|Ethernet2": {}
+        },
         "VLAN_INTERFACE": {
             "Vlan111": {},
             "Vlan777": {},
