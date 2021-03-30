@@ -45,6 +45,7 @@ class Test_yang_models:
             'Pattern': ['pattern', 'does not satisfy'],
             'Mandatory': ['required element', 'Missing'],
             'Verify': ['verified'],
+            'Range': ['does not satisfy', 'range'],
             'None': []
         }
 
@@ -200,6 +201,18 @@ class Test_yang_models:
             'PORT_NEG_TEST': {
                 'desc': 'LOAD PORT TABLE FEC PATTERN FAILURE',
                 'eStr': self.defaultYANGFailure['Pattern'] + ['rc']
+            },
+            'PORT_VALID_AUTONEG_TEST_1': {
+                'desc': 'PORT_VALID_AUTONEG_TEST_1 no failure.',
+                'eStr': self.defaultYANGFailure['None']
+            },
+            'PORT_VALID_AUTONEG_TEST_2': {
+                'desc': 'PORT_VALID_AUTONEG_TEST_2 no failure.',
+                'eStr': self.defaultYANGFailure['None']
+            },
+            'PORT_INVALID_AUTONEG_TEST': {
+                'desc': 'PORT_INVALID_AUTONEG_TEST must condition failure.',
+                'eStr': self.defaultYANGFailure['Pattern'] + ['on|off']
             },
             'CRM_WITH_WRONG_PERCENTAGE': {
                 'desc': 'CRM_WITH_WRONG_PERCENTAGE must condition failure.',

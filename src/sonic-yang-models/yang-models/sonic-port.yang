@@ -90,6 +90,12 @@ module sonic-port{
 						pattern "on|off";
 					}
 				}
+
+				leaf autoneg {
+					type string {
+						pattern "on|off";
+					}
+				}
 			} /* end of list PORT_LIST */
 
 		} /* end of container PORT */
