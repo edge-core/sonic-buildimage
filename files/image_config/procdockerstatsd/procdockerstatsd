@@ -70,7 +70,7 @@ class ProcDockerStats(daemon_base.DaemonBase):
         UNITS_KB = 'KB'
         UNITS_MB = 'MB'
         UNITS_GB = 'GB'
-        UNITS_GB = 'TB'
+        UNITS_TB = 'TB'
         UNITS_MiB = 'MiB'
         UNITS_GiB = 'GiB'
         UNITS_TiB = 'TiB'
