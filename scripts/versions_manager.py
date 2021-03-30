@@ -22,7 +22,7 @@ class Component:
     ctype -- Component Type, such as deb, py2, etc
     dist  -- Distribution, such as stretch, buster, etc
     arch  -- Architectrue, such as amd64, arm64, etc
-    
+
     '''
     def __init__(self, versions, ctype, dist=ALL_DIST, arch=ALL_ARCH):
         self.versions = versions
@@ -44,6 +44,8 @@ class Component:
                 offset = line.rfind('==')
                 if offset > 0:
                     package = line[:offset].strip()
+                    if 'py2' in version_file.lower() or 'py3' in version_file.lower():
+                        package = package.lower()
                     version = line[offset+2:].strip()
                     result[package] = version
         return result
@@ -86,7 +88,7 @@ class Component:
         if config and self.ctype == 'deb':
             none_config_file_path = os.path.join(file_path, filename)
             self.dump_to_file(none_config_file_path, False, priority)
-            filename = VERSION_DEB_PREFERENCE 
+            filename = VERSION_DEB_PREFERENCE
         file_path = os.path.join(file_path, filename)
         self.dump_to_file(file_path, config, priority)
 
