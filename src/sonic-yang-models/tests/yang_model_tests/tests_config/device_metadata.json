@@ -1,0 +1,94 @@
+{
+    "DEVICE_METADATA_DEFAULT_BGP_STATUS": {
+        "sonic-device_metadata:sonic-device_metadata": {
+            "sonic-device_metadata:DEVICE_METADATA": {
+                "sonic-device_metadata:localhost": {
+                    "bgp_asn": "65000",
+                    "docker_routing_config_mode": "separated",
+                    "hostname": "DUT-ASW",
+                    "platform": "Stone-DX010"
+                }
+            }
+        }
+    },
+    "DEVICE_METADATA_DEFAULT_DOCKER_ROUTING_CONFIG_MODE": {
+        "sonic-device_metadata:sonic-device_metadata": {
+            "sonic-device_metadata:DEVICE_METADATA": {
+                "sonic-device_metadata:localhost": {
+                    "bgp_asn": "65001",
+                    "default_bgp_status": "up",
+                    "hostname": "DUT-CSW",
+                    "platform": "Stone-DX010"
+                }
+            }
+        }
+    },
+    "DEVICE_METADATA_DEFAULT_PFCWD_STATUS": {
+        "sonic-device_metadata:sonic-device_metadata": {
+            "sonic-device_metadata:DEVICE_METADATA": {
+                "sonic-device_metadata:localhost": {
+                    "bgp_asn": "65001",
+                    "hostname": "DUT-CSW",
+                    "platform": "DX010"
+                }
+            }
+        }
+    },
+    "DEVICE_METADATA_TYPE_INCORRECT_PATTERN": {
+        "sonic-device_metadata:sonic-device_metadata": {
+            "sonic-device_metadata:DEVICE_METADATA": {
+                "sonic-device_metadata:localhost": {
+                    "bgp_asn": "65002",
+                    "type": "ToRrouter"
+                }
+            }
+        }
+    },
+    "DEV_META_DEV_NEIGH_VERSION_TABLE": {
+        "sonic-device_metadata:sonic-device_metadata": {
+            "sonic-device_metadata:DEVICE_METADATA": {
+                "localhost": {
+                    "bgp_asn": "64850",
+                    "docker_routing_config_mode": "separated",
+                    "hostname": "asw.dc",
+                    "hwsku": "Stone",
+                    "mac": "00:11:22:33:44:55",
+                    "type": "ToRRouter"
+                }
+            }
+        },
+        "sonic-device_neighbor:sonic-device_neighbor": {
+            "sonic-device_neighbor:DEVICE_NEIGHBOR": {
+                "DEVICE_NEIGHBOR_LIST": [
+                    {
+                        "name": "dccsw03.nw",
+                        "peer_name": "Ethernet116",
+                        "port": "Eth18"
+                    },
+                    {
+                        "name": "dccsw02.nw",
+                        "peer_name": "Ethernet114",
+                        "port": "Eth18"
+                    },
+                    {
+                        "name": "dccsw01.nw",
+                        "peer_name": "Ethernet112",
+                        "port": "Eth18"
+                    },
+                    {
+                        "name": "dccsw04.nw",
+                        "peer_name": "Ethernet118",
+                        "port": "Eth18"
+                    }
+                ]
+            }
+        },
+        "sonic-versions:sonic-versions": {
+            "sonic-versions:VERSIONS": {
+                "DATABASE": {
+                    "VERSION": "version_2_10_31"
+                }
+            }
+        }
+    }
+}

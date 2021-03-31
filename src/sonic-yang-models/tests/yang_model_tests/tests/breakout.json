@@ -1,0 +1,12 @@
+{
+    "BREAKOUT_CFG_CORRECT_MODES": {
+	"desc": "BREAKOUT_CFG correct breakout modes"
+    },
+    "BREAKOUT_CFG_INCORRECT_MODES": {
+	"desc": "BREAKOUT_CFG wrong breakout modes",
+	"eStr": ["pattern", "does not satisfy"]
+    },
+    "CRM_BRK_CFG_FLEX_TABLE": {
+	"desc": "CRM BREAKOUT CFG FLEX COUNTER TABLE."
+    }
+}

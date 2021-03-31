@@ -1,0 +1,35 @@
+{
+    "FLEX_COUNTER_TABLE_WITH_CORRECT_USED_VALUE": {
+        "sonic-flex_counter:sonic-flex_counter": {
+            "sonic-flex_counter:FLEX_COUNTER_TABLE": {
+                "BUFFER_POOL_WATERMARK": {
+                    "FLEX_COUNTER_STATUS": "enable"
+                },
+                "DEBUG_COUNTER": {
+                    "FLEX_COUNTER_STATUS": "enable"
+                },
+                "PFCWD": {
+                    "FLEX_COUNTER_STATUS": "enable"
+                },
+                "PG_WATERMARK": {
+                    "FLEX_COUNTER_STATUS": "enable"
+                },
+                "PORT": {
+                    "FLEX_COUNTER_STATUS": "enable"
+                },
+                "PORT_BUFFER_DROP": {
+                    "FLEX_COUNTER_STATUS": "enable"
+                },
+                "PORT_RATES": {
+                    "FLEX_COUNTER_STATUS": "enable"
+                },
+                "QUEUE": {
+                    "FLEX_COUNTER_STATUS": "enable"
+                },
+                "QUEUE_WATERMARK": {
+                    "FLEX_COUNTER_STATUS": "enable"
+                }
+            }
+        }
+    }
+}

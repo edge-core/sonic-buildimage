@@ -1,0 +1,65 @@
+{
+    "ACL_RULE_UNDEFINED_PACKET_ACTION": {
+        "desc": "Configure undefined packet_action in ACL_RULE table.",
+        "eStrKey" : "InvalidValue",
+        "eStr": ["PACKET_ACTION"]
+    },
+    "ACL_TABLE_EMPTY_PORTS": {
+        "desc": "Configure ACL_TABLE with empty ports."
+    },
+    "ACL_TABLE_UNDEFINED_TABLE_TYPE": {
+        "desc": "Configure undefined acl_table_type in ACL_TABLE table.",
+        "eStrKey" : "InvalidValue",
+        "eStr": ["type"]
+    },
+    "ACL_RULE_WITH_NON_EXIST_ACL_TABLE": {
+        "desc": "Configure non-existing ACL_TABLE in ACL_RULE.",
+        "eStrKey" : "LeafRef"
+    },
+    "ACL_RULE_IP_TYPE_SRC_IPV6_MISMATCH": {
+        "desc": "Configure IP_TYPE as ipv4any and SRC_IPV6 in ACL_RULE.",
+        "eStrKey" : "When",
+        "eStr": ["IP_TYPE"]
+    },
+    "ACL_RULE_ARP_TYPE_DST_IPV6_MISMATCH": {
+        "desc": "Configure IP_TYPE as ARP and DST_IPV6 in ACL_RULE.",
+        "eStrKey" : "When",
+        "eStr": ["IP_TYPE"]
+    },
+    "ACL_RULE_WRONG_L4_SRC_PORT_RANGE": {
+        "desc": "Configure l4_src_port_range as 99999-99999 in ACL_RULE",
+        "eStrKey" : "Pattern"
+    },
+    "ACL_RULE_ARP_TYPE_ICMPV6_CODE_MISMATCH": {
+        "desc": "Configure IP_TYPE as ARP and ICMPV6_CODE in ACL_RULE.",
+        "eStrKey" : "When",
+        "eStr": ["IP_TYPE"]
+    },
+    "ACL_RULE_WRONG_INNER_ETHER_TYPE": {
+        "desc": "Configure INNER_ETHER_TYPE as 0x080C in ACL_RULE.",
+        "eStrKey" : "Pattern"
+    },
+    "ACL_TABLE_MANDATORY_TYPE": {
+        "desc": "ACL_TABLE MANDATORY TYPE FIELD.",
+        "eStrKey" : "Mandatory",
+        "eStr": ["ACL_TABLE"]
+    },
+    "ACL_TABLE_DEFAULT_VALUE_STAGE": {
+        "desc": "ACL_TABLE DEFAULT VALUE FOR STAGE FIELD.",
+        "eStrKey" : "Verify",
+        "verify": {
+            "xpath": "/sonic-acl:sonic-acl/ACL_TABLE/ACL_TABLE_LIST[ACL_TABLE_NAME='NO-NSW-PACL-V4']/ACL_TABLE_NAME",
+            "key": "sonic-acl:stage",
+            "value": "INGRESS"
+        }
+    },
+    "ACL_TABLE_STAGE_SERVICES": {
+        "desc": "ACL_TABLE LOAD STAGE SERVICES SUCCESSFULLY.",
+        "eStrKey" : "Verify",
+        "verify": {
+            "xpath": "/sonic-acl:sonic-acl/ACL_TABLE/ACL_TABLE_LIST[ACL_TABLE_NAME='NO-NSW-PACL-V4']/ACL_TABLE_NAME",
+            "key": "sonic-acl:services",
+            "value": ["SNMP"]
+        }
+    }
+}

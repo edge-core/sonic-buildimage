@@ -1,0 +1,217 @@
+{
+    "INCORRECT_VLAN_NAME": {
+        "sonic-vlan:sonic-vlan": {
+            "sonic-vlan:VLAN": {
+                "VLAN_LIST": [
+                    {
+                        "admin_status": "up",
+                        "description": "server_vlan",
+                        "dhcp_servers": [
+                            "10.186.72.56"
+                        ],
+                        "mtu": "9100",
+                        "name": "Vlan8090"
+                    }
+                ]
+            }
+        }
+    },
+    "DHCP_SERVER_INCORRECT_FORMAT": {
+        "sonic-vlan:sonic-vlan": {
+            "sonic-vlan:VLAN": {
+                "VLAN_LIST": [
+                    {
+                        "admin_status": "up",
+                        "description": "server_vlan",
+                        "dhcp_servers": [
+                            "10.186.72.566"
+                        ],
+                        "mtu": "9216",
+                        "name": "Vlan100"
+                    }
+                ]
+            }
+        }
+    },
+    "TAGGING_MODE_WRONG_VALUE": {
+        "sonic-port:sonic-port": {
+            "sonic-port:PORT": {
+                "PORT_LIST": [
+                    {
+                        "admin_status": "up",
+                        "alias": "eth0",
+                        "description": "Ethernet0",
+                        "mtu": 9000,
+                        "name": "Ethernet0",
+                        "speed": 25000
+                    }
+                ]
+            }
+        },
+        "sonic-vlan:sonic-vlan": {
+            "sonic-vlan:VLAN": {
+                "VLAN_LIST": [
+                    {
+                        "description": "server_vlan",
+                        "name": "Vlan100"
+                    }
+                ]
+            },
+            "sonic-vlan:VLAN_MEMBER": {
+                "VLAN_MEMBER_LIST": [
+                    {
+                        "port": "Ethernet0",
+                        "tagging_mode": "non-tagged",
+                        "name": "Vlan100"
+                    }
+                ]
+            }
+        }
+    },
+    "VLAN_INTERFACE_IPPREFIX_MUST_CONDITION_FALSE": {
+        "sonic-vlan:sonic-vlan": {
+            "sonic-vlan:VLAN": {
+                "VLAN_LIST": [
+                    {
+                        "description": "server_vlan",
+                        "name": "Vlan100"
+                    }
+                ]
+            },
+            "sonic-vlan:VLAN_INTERFACE": {
+                "VLAN_INTERFACE_IPPREFIX_LIST": [
+                    {
+                        "family": "IPv6",
+                        "ip-prefix": "2a04:5555:66:7777::1/64",
+                        "scope": "global",
+                        "name": "Vlan100"
+                    }
+                ]
+            }
+        }
+    },
+    "VLAN_MEMEBER_WITH_NON_EXIST_VLAN": {
+        "sonic-port:sonic-port": {
+            "sonic-port:PORT": {
+                "PORT_LIST": [
+                    {
+                        "admin_status": "up",
+                        "alias": "eth0",
+                        "description": "Ethernet0",
+                        "mtu": 9000,
+                        "name": "Ethernet0",
+                        "speed": 25000
+                    }
+                ]
+            }
+        },
+        "sonic-vlan:sonic-vlan": {
+            "sonic-vlan:VLAN": {
+                "VLAN_LIST": [
+                    {
+                        "description": "server_vlan",
+                        "name": "Vlan100"
+                    },
+                    {
+                        "description": "ipmi_vlan",
+                        "name": "Vlan300"
+                    }
+                ]
+            },
+            "sonic-vlan:VLAN_MEMBER": {
+                "VLAN_MEMBER_LIST": [
+                    {
+                        "port": "Ethernet0",
+                        "tagging_mode": "tagged",
+                        "name": "Vlan200"
+                    }
+                ]
+            }
+        }
+    },
+    "VLAN_WITH_NON_EXIST_PORT": {
+        "sonic-port:sonic-port": {
+            "sonic-port:PORT": {
+                "PORT_LIST": [
+                    {
+                        "admin_status": "up",
+                        "alias": "eth0",
+                        "description": "Ethernet0",
+                        "mtu": 9000,
+                        "name": "Ethernet0",
+                        "speed": 25000
+                    },
+                    {
+                        "admin_status": "up",
+                        "alias": "eth1",
+                        "description": "Ethernet1",
+                        "mtu": 9000,
+                        "name": "Ethernet1",
+                        "speed": 25000
+                    }
+                ]
+            }
+        },
+        "sonic-vlan:sonic-vlan": {
+            "sonic-vlan:VLAN": {
+                "VLAN_LIST": [
+                    {
+                        "description": "server_vlan",
+                        "name": "Vlan100"
+                    }
+                ]
+            },
+            "sonic-vlan:VLAN_MEMBER": {
+                "VLAN_MEMBER_LIST": [
+                    {
+                        "port": "Ethernet156",
+                        "tagging_mode": "tagged",
+                        "name": "Vlan100"
+                    }
+                ]
+            }
+        }
+    },
+    "WRONG_FAMILY_WITH_IP_PREFIX": {
+        "sonic-vlan:sonic-vlan": {
+            "sonic-vlan:VLAN": {
+                "VLAN_LIST": [
+                    {
+                        "description": "server_vlan",
+                        "name": "Vlan100"
+                    }
+                ]
+            },
+            "sonic-vlan:VLAN_INTERFACE": {
+                "VLAN_INTERFACE_IPPREFIX_LIST": [
+                    {
+                        "family": "IPv4",
+                        "ip-prefix": "2a04:5555:66:7777::1/64",
+                        "scope": "global",
+                        "name": "Vlan100"
+                    }
+                ],
+                "VLAN_INTERFACE_LIST": [
+                    {
+                        "name": "Vlan100"
+                    }
+                ]
+            }
+        }
+    },
+    "ALL_VLAN_TEST": {
+	"sonic-vlan:sonic-vlan": {
+	    "sonic-vlan:VLAN": {
+		"VLAN_LIST": [{
+		    "name": "Vlan1-4094",
+		    "description": "server_vlan",
+		    "dhcp_servers": [
+			"10.186.72.56"
+		    ],
+		    "mtu": "9100",
+		    "admin_status": "up"
+		}]
+	    }
+	}
+    }
+}

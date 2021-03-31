@@ -1,0 +1,6 @@
+{
+    "LOOPBACK_IPPREFIX_PORT_MUST_CONDITION_FALSE": {
+	"desc": "Loopback Ip-prefix port-name must condition failure.",
+	"eStrKey" : "Must"
+    }
+}

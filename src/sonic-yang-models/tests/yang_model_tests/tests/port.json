@@ -1,0 +1,27 @@
+{
+    "PORT_TEST": {
+        "desc": "LOAD PORT TABLE WITH FEC AND PFC_ASYM SUCCESSFULLY. VERIFY PFC_ASYM.",
+        "eStrKey" : "Verify",
+        "verify": {
+            "xpath": "/sonic-port:sonic-port/PORT/PORT_LIST[name='Ethernet8']/name",
+            "key": "sonic-port:pfc_asym",
+            "value": "on"
+        }
+    },
+    "PORT_NEG_TEST": {
+        "desc": "LOAD PORT TABLE FEC PATTERN FAILURE",
+        "eStrKey" : "Pattern",
+        "eStr": ["rc"]
+    },
+    "PORT_VALID_AUTONEG_TEST_1": {
+        "desc": "PORT_VALID_AUTONEG_TEST_1 no failure."
+    },
+    "PORT_VALID_AUTONEG_TEST_2": {
+        "desc": "PORT_VALID_AUTONEG_TEST_2 no failure."
+    },
+    "PORT_INVALID_AUTONEG_TEST": {
+        "desc": "PORT_INVALID_AUTONEG_TEST must condition failure.",
+        "eStrKey" : "Pattern",
+        "eStr": ["on|off"]
+    }
+}

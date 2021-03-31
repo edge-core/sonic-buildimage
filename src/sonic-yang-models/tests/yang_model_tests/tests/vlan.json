@@ -1,0 +1,33 @@
+{
+    "VLAN_INTERFACE_IPPREFIX_MUST_CONDITION_FALSE": {
+	"desc": "Vlan Interface Ip-prefix must condition failure.",
+	"eStrKey" : "Must"
+    },
+    "INCORRECT_VLAN_NAME": {
+	"desc": "INCORRECT VLAN_NAME FIELD IN VLAN TABLE.",
+	"eStrKey" : "Pattern",
+	"eStr": ["Vlan"]
+    },
+    "WRONG_FAMILY_WITH_IP_PREFIX": {
+	"desc": "Configure Wrong family with ip-prefix for VLAN_Interface Table",
+	"eStrKey" : "Must"
+    },
+    "DHCP_SERVER_INCORRECT_FORMAT": {
+	"desc": "Add dhcp_server which is not in correct ip-prefix format.",
+	"eStrKey" : "InvalidValue",
+	"eStr": ["dhcp_servers"]
+    },
+    "VLAN_WITH_NON_EXIST_PORT": {
+	"desc": "Configure a member port in VLAN_MEMBER table which does not exist.",
+	"eStrKey" : "LeafRef"
+    },
+    "VLAN_MEMEBER_WITH_NON_EXIST_VLAN": {
+	"desc": "Configure vlan-id in VLAN_MEMBER table which does not exist in VLAN  table.",
+	"eStrKey" : "LeafRef"
+    },
+    "TAGGING_MODE_WRONG_VALUE": {
+	"desc": "Configure wrong value for tagging_mode.",
+	"eStrKey" : "InvalidValue",
+	"eStr": ["tagging_mode"]
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "LOOPBACK_IPPREFIX_PORT_MUST_CONDITION_FALSE": {
+        "sonic-loopback-interface:sonic-loopback-interface": {
+            "sonic-loopback-interface:LOOPBACK_INTERFACE": {
+                "LOOPBACK_INTERFACE_IPPREFIX_LIST": [
+                    {
+                        "family": "IPv6",
+                        "ip-prefix": "2a04:5555:66:7777::1/64",
+                        "name": "lo1",
+                        "scope": "global"
+                    }
+                ]
+            }
+        }
+    }
+}
