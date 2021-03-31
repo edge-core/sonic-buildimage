@@ -127,7 +127,15 @@ def find_hardware_reboot_cause():
 
 
 def get_reboot_cause_dict(previous_reboot_cause, comment, gen_time):
-    # resultant dictionary
+    """Store the key infomation of device reboot into a dictionary by parsing the string in
+    previous_reboot_cause.
+
+    If user issused a command to reboot device, then user, command and time will be
+    stored into a dictionary.
+
+    If device was rebooted due to the kernel panic, then the string `Kernel Panic` 
+    and time will be stored into a dictionary.
+    """
     reboot_cause_dict = {}
     reboot_cause_dict['gen_time'] = gen_time
     reboot_cause_dict['cause'] = previous_reboot_cause
@@ -142,7 +150,12 @@ def get_reboot_cause_dict(previous_reboot_cause, comment, gen_time):
             reboot_cause_dict['cause'] = match.group(1)
             reboot_cause_dict['user'] = match.group(2)
             reboot_cause_dict['time'] = match.group(3)
-
+    elif re.search(r'Kernel Panic', previous_reboot_cause):
+        match = re.search(r'Kernel Panic \[Time: (.*)\]', previous_reboot_cause)
+        if match is not None:
+            reboot_cause_dict['cause'] = "Kernel Panic"
+            reboot_cause_dict['time'] = match.group(1)
+ 
     return reboot_cause_dict
 
 

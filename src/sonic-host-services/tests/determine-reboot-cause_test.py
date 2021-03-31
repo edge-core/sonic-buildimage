@@ -55,6 +55,9 @@ REBOOT_CAUSE_WATCHDOG = "Watchdog"
 GEN_TIME_WATCHDOG = "2020_10_22_03_15_08"
 REBOOT_CAUSE_USER = "User issued 'reboot' command [User: admin, Time: Thu Oct 22 03:11:08 UTC 2020]"
 GEN_TIME_USER = "2020_10_22_03_14_07"
+REBOOT_CAUSE_KERNEL_PANIC = "Kernel Panic [Time: Sun Mar 28 13:45:12 UTC 2021]"
+GEN_TIME_KERNEL_PANIC = "2021_3_28_13_48_49"
+
 
 EXPECTED_PARSE_WARMFAST_REBOOT_FROM_PROC_CMDLINE = "warm-reboot"
 EXPECTED_FIND_SOFTWARE_REBOOT_CAUSE_USER = "User issued 'warm-reboot' command [User: admin, Time: Mon Nov  2 22:37:45 UTC 2020]"
@@ -64,6 +67,7 @@ EXPECTED_HARDWARE_REBOOT_CAUSE = {"warm-reboot", ""}
 
 EXPECTED_WATCHDOG_REBOOT_CAUSE_DICT = {'comment': '', 'gen_time': '2020_10_22_03_15_08', 'cause': 'Watchdog', 'user': 'N/A', 'time': 'N/A'}
 EXPECTED_USER_REBOOT_CAUSE_DICT = {'comment': '', 'gen_time': '2020_10_22_03_14_07', 'cause': 'reboot', 'user': 'admin', 'time': 'Thu Oct 22 03:11:08 UTC 2020'}
+EXPECTED_KERNEL_PANIC_REBOOT_CAUSE_DICT = {'comment': '', 'gen_time': '2021_3_28_13_48_49', 'cause': 'Kernel Panic', 'user': 'N/A', 'time': 'Sun Mar 28 13:45:12 UTC 2021'}
 
 
 class TestDetermineRebootCause(object):
@@ -114,3 +118,7 @@ class TestDetermineRebootCause(object):
     def test_get_reboot_cause_dict_user(self):
         reboot_cause_dict = determine_reboot_cause.get_reboot_cause_dict(REBOOT_CAUSE_USER, "", GEN_TIME_USER)
         assert reboot_cause_dict == EXPECTED_USER_REBOOT_CAUSE_DICT
+
+    def test_get_reboot_cause_dict_kernel_panic(self):
+        reboot_cause_dict = determine_reboot_cause.get_reboot_cause_dict(REBOOT_CAUSE_KERNEL_PANIC, "", GEN_TIME_KERNEL_PANIC)
+        assert reboot_cause_dict == EXPECTED_KERNEL_PANIC_REBOOT_CAUSE_DICT
