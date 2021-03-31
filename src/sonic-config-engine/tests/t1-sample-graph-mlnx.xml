@@ -1745,12 +1745,10 @@
   </PngDec>
   <DeviceInfos>
     <DeviceInfo>
-      <AutoNegotiation>true</AutoNegotiation>
       <EthernetInterfaces xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet0</InterfaceName>
@@ -1763,7 +1761,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet4</InterfaceName>
@@ -1776,7 +1773,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet8</InterfaceName>
@@ -1789,7 +1785,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet12</InterfaceName>
@@ -1802,7 +1797,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet16</InterfaceName>
@@ -1815,7 +1809,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet20</InterfaceName>
@@ -1828,7 +1821,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet24</InterfaceName>
@@ -1841,7 +1833,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet28</InterfaceName>
@@ -1854,7 +1845,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet32</InterfaceName>
@@ -1867,7 +1857,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet36</InterfaceName>
@@ -1880,7 +1869,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet40</InterfaceName>
@@ -1893,7 +1881,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet44</InterfaceName>
@@ -1906,7 +1893,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet48</InterfaceName>
@@ -1919,7 +1905,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet52</InterfaceName>
@@ -1932,7 +1917,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet56</InterfaceName>
@@ -1945,7 +1929,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet60</InterfaceName>
@@ -1958,7 +1941,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet64</InterfaceName>
@@ -1971,7 +1953,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet68</InterfaceName>
@@ -1984,7 +1965,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet72</InterfaceName>
@@ -1997,7 +1977,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet76</InterfaceName>
@@ -2010,7 +1989,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet80</InterfaceName>
@@ -2023,7 +2001,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet84</InterfaceName>
@@ -2036,7 +2013,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet88</InterfaceName>
@@ -2049,7 +2025,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet92</InterfaceName>
@@ -2062,7 +2037,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet96</InterfaceName>
@@ -2075,7 +2049,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet100</InterfaceName>
@@ -2088,7 +2061,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet104</InterfaceName>
@@ -2101,7 +2073,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet108</InterfaceName>
@@ -2114,7 +2085,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet112</InterfaceName>
@@ -2127,7 +2097,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet116</InterfaceName>
@@ -2140,7 +2109,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet120</InterfaceName>
@@ -2153,7 +2121,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>Ethernet124</InterfaceName>
@@ -2235,6 +2202,362 @@
     </Devices>
     <Properties xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
   </MetadataDeclaration>
+  <LinkMetadataDeclaration>
+    <Link xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA01T2:Ethernet1;arc-switch1026:Ethernet0</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA02T2:Ethernet1;arc-switch1026:Ethernet4</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA03T2:Ethernet1;arc-switch1026:Ethernet8</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA04T2:Ethernet1;arc-switch1026:Ethernet12</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA05T2:Ethernet1;arc-switch1026:Ethernet16</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA06T2:Ethernet1;arc-switch1026:Ethernet20</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA07T2:Ethernet1;arc-switch1026:Ethernet24</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA08T2:Ethernet1;arc-switch1026:Ethernet28</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA09T2:Ethernet1;arc-switch1026:Ethernet32</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA10T2:Ethernet1;arc-switch1026:Ethernet36</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA11T2:Ethernet1;arc-switch1026:Ethernet40</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA12T2:Ethernet1;arc-switch1026:Ethernet44</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA13T2:Ethernet1;arc-switch1026:Ethernet48</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA14T2:Ethernet1;arc-switch1026:Ethernet52</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA15T2:Ethernet1;arc-switch1026:Ethernet56</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA16T2:Ethernet1;arc-switch1026:Ethernet60</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA01T0:Ethernet1;arc-switch1026:Ethernet64</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA02T0:Ethernet1;arc-switch1026:Ethernet68</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA03T0:Ethernet1;arc-switch1026:Ethernet72</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA04T0:Ethernet1;arc-switch1026:Ethernet76</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA05T0:Ethernet1;arc-switch1026:Ethernet80</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA06T0:Ethernet1;arc-switch1026:Ethernet84</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA07T0:Ethernet1;arc-switch1026:Ethernet88</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA08T0:Ethernet1;arc-switch1026:Ethernet92</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA09T0:Ethernet1;arc-switch1026:Ethernet96</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA10T0:Ethernet1;arc-switch1026:Ethernet100</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA11T0:Ethernet1;arc-switch1026:Ethernet104</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA12T0:Ethernet1;arc-switch1026:Ethernet108</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA13T0:Ethernet1;arc-switch1026:Ethernet112</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA14T0:Ethernet1;arc-switch1026:Ethernet116</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA15T0:Ethernet1;arc-switch1026:Ethernet120</a:Key>
+      </a:LinkMetadata>
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>AutoNegotiation</a:Name>
+            <a:Reference i:nil="true"/>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>ARISTA16T0:Ethernet1;arc-switch1026:Ethernet124</a:Key>
+      </a:LinkMetadata>
+    </Link>
+  </LinkMetadataDeclaration>
   <Hostname>arc-switch1026</Hostname>
   <HwSku>ACS-MSN2700</HwSku>
 </DeviceMiniGraph>

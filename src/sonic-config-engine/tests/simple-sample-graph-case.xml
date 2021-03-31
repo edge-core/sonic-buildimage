@@ -197,7 +197,6 @@
       </DeviceLinkBase>
       <DeviceLinkBase i:type="DeviceInterfaceLink">
         <ElementType>DeviceInterfaceLink</ElementType>
-        <AutoNegotiation>true</AutoNegotiation>
         <Bandwidth>10000</Bandwidth>
         <EndDevice>switch-t0</EndDevice>
         <EndPort>fortyGigE0/0</EndPort>
@@ -206,7 +205,6 @@
       </DeviceLinkBase>
       <DeviceLinkBase i:type="DeviceInterfaceLink">
         <ElementType>DeviceInterfaceLink</ElementType>
-        <AutoNegotiation>true</AutoNegotiation>
         <Bandwidth>10000</Bandwidth>
         <EndDevice>switch-t0</EndDevice>
         <EndPort>fortyGigE0/12</EndPort>
@@ -215,7 +213,6 @@
       </DeviceLinkBase>
       <DeviceLinkBase i:type="DeviceInterfaceLink">
         <ElementType>DeviceInterfaceLink</ElementType>
-        <AutoNegotiation>true</AutoNegotiation>
         <Bandwidth>25000</Bandwidth>
         <EndDevice>switch-t0</EndDevice>
         <EndPort>fortyGigE0/4</EndPort>
@@ -224,7 +221,6 @@
       </DeviceLinkBase>
       <DeviceLinkBase i:type="DeviceInterfaceLink">
         <ElementType>DeviceInterfaceLink</ElementType>
-        <AutoNegotiation>true</AutoNegotiation>
         <Bandwidth>40000</Bandwidth>
         <EndDevice>switch-t0</EndDevice>
         <EndPort>fortyGigE0/8</EndPort>
@@ -330,26 +326,70 @@
 <LinkMetadataDeclaration>
   <Link xmlns:d3p1="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
     <d3p1:LinkMetadata>
-        <d3p1:Name i:nil="true" />
-        <d3p1:Properties>
-          <d3p1:DeviceProperty>
-            <d3p1:Name>GeminiPeeringLink</d3p1:Name>
-            <d3p1:Reference i:nil="true" />
-            <d3p1:Value>True</d3p1:Value>
-          </d3p1:DeviceProperty>
-          <d3p1:DeviceProperty>
-            <d3p1:Name>UpperTOR</d3p1:Name>
-            <d3p1:Reference i:nil="true" />
-            <d3p1:Value>switch-t0</d3p1:Value>
-          </d3p1:DeviceProperty>
-          <d3p1:DeviceProperty>
-            <d3p1:Name>LowerTOR</d3p1:Name>
-            <d3p1:Reference i:nil="true" />
-            <d3p1:Value>switch2-t0</d3p1:Value>
-          </d3p1:DeviceProperty>
-        </d3p1:Properties>
-        <d3p1:Key>switch2-t0:MuxTunnel0;switch-t0:MuxTunnel0</d3p1:Key>
-      </d3p1:LinkMetadata>
+      <d3p1:Name i:nil="true" />
+      <d3p1:Properties>
+        <d3p1:DeviceProperty>
+          <d3p1:Name>GeminiPeeringLink</d3p1:Name>
+          <d3p1:Reference i:nil="true" />
+          <d3p1:Value>True</d3p1:Value>
+        </d3p1:DeviceProperty>
+        <d3p1:DeviceProperty>
+          <d3p1:Name>UpperTOR</d3p1:Name>
+          <d3p1:Reference i:nil="true" />
+          <d3p1:Value>switch-t0</d3p1:Value>
+        </d3p1:DeviceProperty>
+        <d3p1:DeviceProperty>
+          <d3p1:Name>LowerTOR</d3p1:Name>
+          <d3p1:Reference i:nil="true" />
+          <d3p1:Value>switch2-t0</d3p1:Value>
+        </d3p1:DeviceProperty>
+      </d3p1:Properties>
+      <d3p1:Key>switch2-t0:MuxTunnel0;switch-t0:MuxTunnel0</d3p1:Key>
+    </d3p1:LinkMetadata>
+    <d3p1:LinkMetadata>
+      <d3p1:Name i:nil="true"/>
+      <d3p1:Properties>
+        <d3p1:DeviceProperty>
+          <d3p1:Name>AutoNegotiation</d3p1:Name>
+          <d3p1:Reference i:nil="true"/>
+          <d3p1:Value>True</d3p1:Value>
+        </d3p1:DeviceProperty>
+      </d3p1:Properties>
+      <d3p1:Key>switch-01t1:port1;switch-t0:fortyGigE0/0</d3p1:Key>
+    </d3p1:LinkMetadata>
+    <d3p1:LinkMetadata>
+      <d3p1:Name i:nil="true"/>
+      <d3p1:Properties>
+        <d3p1:DeviceProperty>
+          <d3p1:Name>AutoNegotiation</d3p1:Name>
+          <d3p1:Reference i:nil="true"/>
+          <d3p1:Value>True</d3p1:Value>
+        </d3p1:DeviceProperty>
+      </d3p1:Properties>
+      <d3p1:Key>switch-02t1:port1;switch-t0:fortyGigE0/12</d3p1:Key>
+    </d3p1:LinkMetadata>
+    <d3p1:LinkMetadata>
+      <d3p1:Name i:nil="true"/>
+      <d3p1:Properties>
+        <d3p1:DeviceProperty>
+          <d3p1:Name>AutoNegotiation</d3p1:Name>
+          <d3p1:Reference i:nil="true"/>
+          <d3p1:Value>True</d3p1:Value>
+        </d3p1:DeviceProperty>
+      </d3p1:Properties>
+      <d3p1:Key>server1:port1;switch-t0:fortyGigE0/4</d3p1:Key>
+    </d3p1:LinkMetadata>
+    <d3p1:LinkMetadata>
+      <d3p1:Name i:nil="true"/>
+      <d3p1:Properties>
+        <d3p1:DeviceProperty>
+          <d3p1:Name>AutoNegotiation</d3p1:Name>
+          <d3p1:Reference i:nil="true"/>
+          <d3p1:Value>True</d3p1:Value>
+        </d3p1:DeviceProperty>
+      </d3p1:Properties>
+      <d3p1:Key>server2:port1;switch-t0:fortyGigE0/8</d3p1:Key>
+    </d3p1:LinkMetadata>
   </Link>
 </LinkMetadataDeclaration>
 <MetadataDeclaration>
@@ -407,12 +447,10 @@
 </MetadataDeclaration>
   <DeviceInfos>
     <DeviceInfo>
-      <AutoNegotiation>true</AutoNegotiation>
       <EthernetInterfaces xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>fortyGigE0/0</InterfaceName>
@@ -425,7 +463,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>fortyGigE0/4</InterfaceName>
@@ -438,7 +475,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>fortyGigE0/8</InterfaceName>
@@ -452,7 +488,6 @@
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
-          <EnableAutoNegotiation>true</EnableAutoNegotiation>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
           <InterfaceName>fortyGigE0/12</InterfaceName>
@@ -471,7 +506,6 @@
 	<a:ManagementInterface>
 	  <ElementType>DeviceInterface</ElementType>
 	  <AlternateSpeeds i:nil="true"/>
-	  <EnableAutoNegotiation>true</EnableAutoNegotiation>
 	  <EnableFlowControl>true</EnableFlowControl>
 	  <Index>1</Index>
 	  <InterfaceName>eth0</InterfaceName>

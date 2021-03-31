@@ -845,6 +845,7 @@ def parse_linkmeta(meta, hname):
         has_peer_switch = False
         upper_tor_hostname = ''
         lower_tor_hostname = ''
+        auto_negotiation = None
 
         properties = linkmeta.find(str(QName(ns1, "Properties")))
         for device_property in properties.findall(str(QName(ns1, "DeviceProperty"))):
@@ -858,6 +859,8 @@ def parse_linkmeta(meta, hname):
                 upper_tor_hostname = value
             elif name == "LowerTOR":
                 lower_tor_hostname = value
+            elif name == "AutoNegotiation":
+                auto_negotiation = value
 
         linkmetas[port] = {}
         if fec_disabled:
@@ -867,6 +870,8 @@ def parse_linkmeta(meta, hname):
                 linkmetas[port]["PeerSwitch"] = lower_tor_hostname
             else:
                 linkmetas[port]["PeerSwitch"] = upper_tor_hostname
+        if auto_negotiation:
+            linkmetas[port]["AutoNegotiation"] = auto_negotiation
     return linkmetas
 
 
@@ -1317,6 +1322,11 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
         # Note: FECDisabled only be effective on 100G port right now
         if port.get('speed') == '100000' and linkmetas.get(alias, {}).get('FECDisabled', '').lower() != 'true':
             port['fec'] = 'rs'
+
+        # If AutoNegotiation is available in the minigraph, we override any value we may have received from port_config.ini
+        autoneg = linkmetas.get(alias, {}).get('AutoNegotiation')
+        if autoneg:
+            port['autoneg'] = '1' if autoneg.lower() == 'true' else '0'
 
     # If connected to a smart cable, get the connection position
     for port_name, port in ports.items():
