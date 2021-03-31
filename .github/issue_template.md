@@ -50,6 +50,11 @@
 ```
 (paste your output here)
 ```
+#### Output of `show techsupport`:
+
+```
+(paste your output here or download and attach the file here )
+```
 
 #### Additional information you deem important (e.g. issue happens only occasionally):
 
