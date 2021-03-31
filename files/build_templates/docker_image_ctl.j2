@@ -101,6 +101,19 @@ function preStartAction()
     updateSyslogConf
 }
 
+{%- if docker_container_name == "database" %}
+
+function setPlatformLagIdBoundaries()
+{
+    CHASSIS_CONF=/usr/share/sonic/device/$PLATFORM/chassisdb.conf
+    if [ -f "$CHASSIS_CONF" ]; then
+        source $CHASSIS_CONF
+        $SONIC_DB_CLI CHASSIS_APP_DB SET "SYSTEM_LAG_ID_START" "$lag_id_start"
+        $SONIC_DB_CLI CHASSIS_APP_DB SET "SYSTEM_LAG_ID_END" "$lag_id_end"
+    fi
+}
+{%- endif %}
+
 function postStartAction()
 {
 {%- if docker_container_name == "database" %}
@@ -162,6 +175,7 @@ function postStartAction()
                  ($(docker exec -i ${DOCKERNAME} $SONIC_DB_CLI CHASSIS_APP_DB PING | grep -c True) -gt 0) ]]; do
            sleep 1
         done
+        setPlatformLagIdBoundaries
         REDIS_SOCK="/var/run/redis-chassis/redis_chassis.sock"
     fi
     chgrp -f redis $REDIS_SOCK && chmod -f 0760 $REDIS_SOCK
