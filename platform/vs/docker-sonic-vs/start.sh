@@ -90,6 +90,16 @@ fi
 if [ "$conn_chassis_db" == "1" ]; then
    if [ -f /usr/share/sonic/virtual_chassis/coreportindexmap.ini ]; then
       cp /usr/share/sonic/virtual_chassis/coreportindexmap.ini /usr/share/sonic/hwsku/
+
+      pushd /usr/share/sonic/hwsku
+
+      # filter available front panel ports in coreportindexmap.ini
+      [ -f coreportindexmap.ini.orig ] || cp coreportindexmap.ini coreportindexmap.ini.orig
+      for p in $(ip link show | grep -oE "eth[0-9]+" | grep -v eth0); do
+          grep ^$p: coreportindexmap.ini.orig
+      done > coreportindexmap.ini
+
+      popd
    fi
 fi
 

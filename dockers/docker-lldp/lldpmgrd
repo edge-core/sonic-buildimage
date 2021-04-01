@@ -22,6 +22,7 @@ try:
 
     from sonic_py_common import daemon_base
     from swsscommon import swsscommon
+    from sonic_py_common.interface import inband_prefix
 except ImportError as err:
     raise ImportError("%s - required module not found" % str(err))
 
@@ -93,6 +94,11 @@ class LldpManager(daemon_base.DaemonBase):
         then form the appropriate lldpcli configuration command and run it.
         """
         port_desc = None
+
+        # Skip inband interface prefixes. These are recycle ports exposed in PORT_TABLE for
+        # asic-to-asic communication in VOQ based chassis system. We do not configure LLDP on these.
+        if port_name.startswith(inband_prefix()):
+            return
 
         # Retrieve all entires for this port from the Port table
         port_table = swsscommon.Table(self.config_db, swsscommon.CFG_PORT_TABLE_NAME)
