@@ -17,7 +17,6 @@ except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
 NUM_FAN_TRAY = 5
-NUM_FAN = 2
 NUM_PSU = 2
 NUM_THERMAL = 5
 NUM_SFP = 32
@@ -28,6 +27,7 @@ REBOOT_CAUSE_FILE = "reboot-cause.txt"
 PREV_REBOOT_CAUSE_FILE = "previous-reboot-cause.txt"
 GETREG_PATH = "/sys/devices/platform/dx010_cpld/getreg"
 HOST_CHK_CMD = "docker > /dev/null 2>&1"
+STATUS_LED_PATH = "/sys/devices/platform/leds_dx010/leds/dx010:green:stat/brightness"
 
 
 class Chassis(ChassisBase):
@@ -40,12 +40,10 @@ class Chassis(ChassisBase):
         self.__initialize_eeprom()
         self.is_host = self._api_helper.is_host()
 
-        if not self.is_host:
-            self.__initialize_fan()
-            self.__initialize_psu()
-            self.__initialize_thermals()
-        else:
-            self.__initialize_components()
+        self.__initialize_fan()
+        self.__initialize_psu()
+        self.__initialize_thermals()
+        self.__initialize_components()
 
     def __initialize_sfp(self):
         sfputil_helper = SfpUtilHelper()
@@ -54,8 +52,7 @@ class Chassis(ChassisBase):
 
         from sonic_platform.sfp import Sfp
         for index in range(0, NUM_SFP):
-            name_idx = 0 if index+1 == NUM_SFP else index+1
-            sfp = Sfp(index, sfputil_helper.logical[name_idx])
+            sfp = Sfp(index, sfputil_helper.logical[index])
             self._sfp_list.append(sfp)
         self.sfp_module_initialized = True
 
@@ -66,11 +63,11 @@ class Chassis(ChassisBase):
             self._psu_list.append(psu)
 
     def __initialize_fan(self):
-        from sonic_platform.fan import Fan
-        for fant_index in range(0, NUM_FAN_TRAY):
-            for fan_index in range(0, NUM_FAN):
-                fan = Fan(fant_index, fan_index)
-                self._fan_list.append(fan)
+        from sonic_platform.fan_drawer import FanDrawer
+        for i in range(NUM_FAN_TRAY):
+            fandrawer = FanDrawer(i)
+            self._fan_drawer_list.append(fandrawer)
+            self._fan_list.extend(fandrawer._fan_list)
 
     def __initialize_thermals(self):
         from sonic_platform.thermal import Thermal
@@ -90,7 +87,9 @@ class Chassis(ChassisBase):
             self._component_list.append(component)
 
     def __get_air_flow(self):
-        air_flow_path = '/usr/share/sonic/device/{}/fan_airflow'.format(self._api_helper.platform) if self.is_host else '/usr/share/sonic/platform/fan_airflow'
+        air_flow_path = '/usr/share/sonic/device/{}/fan_airflow'.format(
+            self._api_helper.platform) \
+            if self.is_host else '/usr/share/sonic/platform/fan_airflow'
         air_flow = self._api_helper.read_one_line_file(air_flow_path)
         return air_flow or 'B2F'
 
@@ -154,7 +153,6 @@ class Chassis(ChassisBase):
                 self.REBOOT_CAUSE_NON_HARDWARE, sw_reboot_cause)
 
         return prev_reboot_cause
-
 
     def get_change_event(self, timeout=0):
         """
@@ -231,7 +229,7 @@ class Chassis(ChassisBase):
 
         try:
             # The index will start from 1
-            sfp = self._sfp_list[index-1]
+            sfp = self._sfp_list[index - 1]
         except IndexError:
             sys.stderr.write("SFP index {} out of range (1-{})\n".format(
                              index, len(self._sfp_list)))
@@ -253,6 +251,10 @@ class Chassis(ChassisBase):
             self._watchdog = Watchdog()
 
         return self._watchdog
+
+    def get_thermal_manager(self):
+        from .thermal_manager import ThermalManager
+        return ThermalManager
 
     ##############################################################
     ###################### Device methods ########################
@@ -298,6 +300,53 @@ class Chassis(ChassisBase):
         """
         return True
 
-    def get_thermal_manager(self):
-        from .thermal_manager import ThermalManager
-        return ThermalManager
+    def get_position_in_parent(self):
+        """
+        Retrieves 1-based relative physical position in parent device. If the agent cannot determine the parent-relative position
+        for some reason, or if the associated value of entPhysicalContainedIn is '0', then the value '-1' is returned
+        Returns:
+            integer: The 1-based relative physical position in parent device or -1 if cannot determine the position
+        """
+        return -1
+
+    def is_replaceable(self):
+        """
+        Indicate whether this device is replaceable.
+        Returns:
+            bool: True if it is replaceable.
+        """
+        return False
+
+    def set_status_led(self, color):
+        """
+        Sets the state of the PSU status LED
+        Args:
+            color: A string representing the color with which to set the PSU status LED
+                   Note: Only support green and off
+        Returns:
+            bool: True if status LED state is set successfully, False if not
+        """
+
+        set_status_str = {
+            self.STATUS_LED_COLOR_GREEN: '1',
+            self.STATUS_LED_COLOR_OFF: '0'
+        }.get(color, None)
+
+        if not set_status_str:
+            return False
+
+        return self._api_helper.write_txt_file(STATUS_LED_PATH, set_status_str)
+
+    def get_status_led(self):
+        """
+        Gets the state of the PSU status LED
+        Returns:
+            A string, one of the predefined STATUS_LED_COLOR_* strings above
+        """
+        status = self._api_helper.read_txt_file(STATUS_LED_PATH)
+        status_str = {
+            '255': self.STATUS_LED_COLOR_GREEN,
+            '0': self.STATUS_LED_COLOR_OFF
+        }.get(status, None)
+
+        return status_str

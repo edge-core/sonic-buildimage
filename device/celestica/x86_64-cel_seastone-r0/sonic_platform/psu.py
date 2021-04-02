@@ -7,7 +7,6 @@
 #############################################################################
 
 import os
-import sonic_platform
 
 try:
     from sonic_platform_base.psu_base import PsuBase
@@ -16,6 +15,9 @@ try:
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
+TLV_ATTR_TYPE_MODEL = 2
+TLV_ATTR_TYPE_SERIAL = 5
+PSU_EEPROM_PATH = "/sys/bus/i2c/devices/{}-00{}/eeprom"
 GREEN_LED_PATH = "/sys/devices/platform/leds_dx010/leds/dx010:green:p-{}/brightness"
 HWMON_PATH = "/sys/bus/i2c/devices/i2c-{0}/{0}-00{1}/hwmon"
 GPIO_DIR = "/sys/class/gpio"
@@ -25,11 +27,13 @@ PSU_NUM_FAN = [1, 1]
 PSU_I2C_MAPPING = {
     0: {
         "num": 10,
-        "addr": "5a"
+        "addr": "5a",
+        "eeprom_addr": "52"
     },
     1: {
         "num": 11,
-        "addr": "5b"
+        "addr": "5b",
+        "eeprom_addr": "53"
     },
 }
 
@@ -41,7 +45,7 @@ class Psu(PsuBase):
         PsuBase.__init__(self)
         self.index = psu_index
         self._api_helper = APIHelper()
-        self.green_led_path = GREEN_LED_PATH.format(self.index+1)
+        self.green_led_path = GREEN_LED_PATH.format(self.index + 1)
         self.dx010_psu_gpio = [
             {'base': self.__get_gpio_base()},
             {'prs': 27, 'status': 22},
@@ -50,6 +54,7 @@ class Psu(PsuBase):
         self.i2c_num = PSU_I2C_MAPPING[self.index]["num"]
         self.i2c_addr = PSU_I2C_MAPPING[self.index]["addr"]
         self.hwmon_path = HWMON_PATH.format(self.i2c_num, self.i2c_addr)
+        self.eeprom_addr = PSU_EEPROM_PATH.format(self.i2c_num, PSU_I2C_MAPPING[self.index]["eeprom_addr"])
         for fan_index in range(0, PSU_NUM_FAN[self.index]):
             fan = Fan(fan_index, 0, is_psu_fan=True, psu_index=self.index)
             self._fan_list.append(fan)
@@ -71,10 +76,36 @@ class Psu(PsuBase):
 
     def __get_gpio_value(self, pinnum):
         gpio_base = self.dx010_psu_gpio[0]['base']
-        gpio_dir = GPIO_DIR + '/gpio' + str(gpio_base+pinnum)
+        gpio_dir = GPIO_DIR + '/gpio' + str(gpio_base + pinnum)
         gpio_file = gpio_dir + "/value"
         retval = self._api_helper.read_txt_file(gpio_file)
         return retval.rstrip('\r\n')
+
+    def read_fru(self, path, attr_type):
+        content = []
+        attr_idx = 0
+        attr_length = 0
+
+        if(os.path.exists(path)):
+            with open(path, 'r', encoding='unicode_escape') as f:
+                content = f.read()
+            target_offset = ord(content[4])
+            target_offset *= 8  # spec defined: offset are in multiples of 8 bytes
+
+            attr_idx = target_offset + 3
+            for i in range(1, attr_type):
+                if attr_idx > len(content):
+                    raise SyntaxError
+                attr_length = (ord(content[attr_idx])) & (0x3f)
+                attr_idx += (attr_length + 1)
+
+            attr_length = (ord(content[attr_idx])) & (0x3f)
+            attr_idx += 1
+        else:
+            print("[PSU] Can't find path to eeprom : %s" % path)
+            return SyntaxError
+
+        return content[attr_idx:attr_idx + attr_length]
 
     def get_voltage(self):
         """
@@ -209,7 +240,7 @@ class Psu(PsuBase):
         Returns:
             bool: True if PSU is present, False if not
         """
-        raw = self.__get_gpio_value(self.dx010_psu_gpio[self.index+1]['prs'])
+        raw = self.__get_gpio_value(self.dx010_psu_gpio[self.index + 1]['prs'])
         return int(raw, 10) == 0
 
     def get_status(self):
@@ -219,5 +250,142 @@ class Psu(PsuBase):
             A boolean value, True if device is operating properly, False if not
         """
         raw = self.__get_gpio_value(
-            self.dx010_psu_gpio[self.index+1]['status'])
+            self.dx010_psu_gpio[self.index + 1]['status'])
         return int(raw, 10) == 1
+
+    def get_model(self):
+        """
+        Retrieves the model number (or part number) of the device
+        Returns:
+            string: Model/part number of device
+        """
+        model = self.read_fru(self.eeprom_addr, TLV_ATTR_TYPE_MODEL)
+        if not model:
+            return "N/A"
+        return model
+
+    def get_serial(self):
+        """
+        Retrieves the serial number of the device
+        Returns:
+            string: Serial number of device
+        """
+        serial = self.read_fru(self.eeprom_addr, TLV_ATTR_TYPE_SERIAL)
+        if not serial:
+            return "N/A"
+        return serial
+
+    def get_position_in_parent(self):
+        """
+        Retrieves 1-based relative physical position in parent device. If the agent cannot determine the parent-relative position
+        for some reason, or if the associated value of entPhysicalContainedIn is '0', then the value '-1' is returned
+        Returns:
+            integer: The 1-based relative physical position in parent device or -1 if cannot determine the position
+        """
+        return -1
+
+    def is_replaceable(self):
+        """
+        Indicate whether this device is replaceable.
+        Returns:
+            bool: True if it is replaceable.
+        """
+        return True
+
+    def get_temperature(self):
+        """
+        Retrieves current temperature reading from PSU
+        Returns:
+            A float number of current temperature in Celsius up to nearest thousandth
+            of one degree Celsius, e.g. 30.125
+            there are three temp sensors , we choose one of them
+        """
+        psu_temperature = None
+        temperature_name = "temp{}_input"
+        temperature_label = "vout1"
+
+        vout_label_path = self.__search_file_by_contain(
+            self.hwmon_path, temperature_label, "in")
+        if vout_label_path:
+            dir_name = os.path.dirname(vout_label_path)
+            basename = os.path.basename(vout_label_path)
+            in_num = ''.join(list(filter(str.isdigit, basename)))
+            temp_path = os.path.join(
+                dir_name, temperature_name.format(in_num))
+            vout_val = self._api_helper.read_txt_file(temp_path)
+            psu_temperature = float(vout_val) / 1000
+
+        return psu_temperature
+
+    def get_temperature_high_threshold(self):
+        """
+        Retrieves the high threshold temperature of PSU
+        Returns:
+            A float number, the high threshold temperature of PSU in Celsius
+            up to nearest thousandth of one degree Celsius, e.g. 30.125
+            there are three temp sensors , we choose one of them
+        """
+        psu_temperature = None
+        temperature_name = "temp{}_max"
+        temperature_label = "vout1"
+
+        vout_label_path = self.__search_file_by_contain(
+            self.hwmon_path, temperature_label, "in")
+        if vout_label_path:
+            dir_name = os.path.dirname(vout_label_path)
+            basename = os.path.basename(vout_label_path)
+            in_num = ''.join(list(filter(str.isdigit, basename)))
+            temp_path = os.path.join(
+                dir_name, temperature_name.format(in_num))
+            vout_val = self._api_helper.read_txt_file(temp_path)
+            psu_temperature = float(vout_val) / 1000
+
+        return psu_temperature
+
+    def get_voltage_high_threshold(self):
+        """
+        Retrieves the high threshold PSU voltage output
+        Returns:
+            A float number, the high threshold output voltage in volts,
+            e.g. 12.1
+        """
+        psu_voltage = 0.0
+        voltage_name = "in{}_crit"
+        voltage_label = "vout1"
+
+        vout_label_path = self.__search_file_by_contain(
+            self.hwmon_path, voltage_label, "in")
+        if vout_label_path:
+            dir_name = os.path.dirname(vout_label_path)
+            basename = os.path.basename(vout_label_path)
+            in_num = ''.join(list(filter(str.isdigit, basename)))
+            vout_path = os.path.join(
+                dir_name, voltage_name.format(in_num))
+            vout_val = self._api_helper.read_txt_file(vout_path)
+            psu_voltage = float(vout_val) / 1000
+
+        return psu_voltage
+
+    def get_voltage_low_threshold(self):
+        """
+        Retrieves the low threshold PSU voltage output
+        Returns:
+            A float number, the low threshold output voltage in volts,
+            e.g. 12.1
+        """
+        psu_voltage = 0.0
+        voltage_name = "in{}_lcrit"
+        voltage_label = "vout1"
+
+        vout_label_path = self.__search_file_by_contain(
+            self.hwmon_path, voltage_label, "in")
+        if vout_label_path:
+            dir_name = os.path.dirname(vout_label_path)
+            basename = os.path.basename(vout_label_path)
+            in_num = ''.join(list(filter(str.isdigit, basename)))
+            vout_path = os.path.join(
+                dir_name, voltage_name.format(in_num))
+            vout_val = self._api_helper.read_txt_file(vout_path)
+            psu_voltage = float(vout_val) / 1000
+
+        return psu_voltage

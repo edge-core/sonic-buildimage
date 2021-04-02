@@ -7,7 +7,6 @@
 #############################################################################
 
 import os
-import re
 import os.path
 
 try:
@@ -19,14 +18,18 @@ except ImportError as e:
 THERMAL_INFO = {
     0: {
         "F2B_max": 50,
+        "F2B_max_crit": 75,
         "B2F_max": 55,
+        "B2F_max_crit": 75,
         "postion": "asic",
         "name": "Front-panel temp sensor 1",
         "i2c_path": "i2c-5/5-0048/hwmon/hwmon1",    # u4 system-inlet
     },
     1: {
         "F2B_max": 50,
+        "F2B_max_crit": 75,
         "B2F_max": 55,
+        "B2F_max_crit": 75,
         "postion": "asic",
         "name": "Front-panel temp sensor 2",
         "i2c_path": "i2c-6/6-0049/hwmon/hwmon2",    # u2 system-inlet
@@ -51,7 +54,9 @@ THERMAL_INFO = {
     },
     4: {
         "F2B_max": 70,
+        "F2B_max_crit": 75,
         "B2F_max": 55,
+        "B2F_max_crit": 75,
         "postion": "cpu",
         "name": "Rear-panel temp sensor 2",
         "i2c_path": "i2c-15/15-004e/hwmon/hwmon5"   # u9201 system-outlet
@@ -72,8 +77,7 @@ class Thermal(ThermalBase):
         self._api_helper = APIHelper()
         self._airflow = airflow
         self._thermal_info = THERMAL_INFO[self.index]
-        self._hwmon_path = "{}/{}".format(I2C_ADAPTER_PATH,
-                                         self._thermal_info["i2c_path"])
+        self._hwmon_path = "{}/{}".format(I2C_ADAPTER_PATH, self._thermal_info["i2c_path"])
         self.name = self.get_name()
         self.postion = self._thermal_info["postion"]
         self.ss_index = 1
@@ -110,8 +114,9 @@ class Thermal(ThermalBase):
             A float number, the high threshold temperature of thermal in Celsius
             up to nearest thousandth of one degree Celsius, e.g. 30.125
         """
-        max_crit_key = '{}_max'.format(self._airflow)
-        return self._thermal_info.get(max_crit_key, None)
+        temp_file = "temp{}_max".format(self.ss_index)
+        temp = float(self.__get_temp(temp_file))
+        return temp
 
     def get_low_threshold(self):
         """
@@ -120,7 +125,7 @@ class Thermal(ThermalBase):
             A float number, the low threshold temperature of thermal in Celsius
             up to nearest thousandth of one degree Celsius, e.g. 30.125
         """
-        return 0.0
+        return 0.001
 
     def set_high_threshold(self, temperature):
         """
@@ -133,31 +138,33 @@ class Thermal(ThermalBase):
         """
         temp_file = "temp{}_max".format(self.ss_index)
         is_set = self.__set_threshold(temp_file, int(temperature*1000))
-        file_set = False
-        if is_set:
-            try:
-                with open(self.SS_CONFIG_PATH, 'r+') as f:
-                    content = f.readlines()
-                    f.seek(0)
-                    ss_found = False
-                    for idx, val in enumerate(content):
-                        if self.name in val:
-                            ss_found = True
-                        elif ss_found and temp_file in val:
-                            content[idx] = "    set {} {}\n".format(
-                                temp_file, temperature)
-                            f.writelines(content)
-                            file_set = True
-                            break
-            except IOError:
-                file_set = False
+        file_set = True
+        if self._api_helper.is_host():
+            file_set = False
+            if is_set:
+                try:
+                    with open(self.SS_CONFIG_PATH, 'r+') as f:
+                        content = f.readlines()
+                        f.seek(0)
+                        ss_found = False
+                        for idx, val in enumerate(content):
+                            if self.name in val:
+                                ss_found = True
+                            elif ss_found and temp_file in val:
+                                content[idx] = "    set {} {}\n".format(
+                                    temp_file, temperature)
+                                f.writelines(content)
+                                file_set = True
+                                break
+                except IOError as err:
+                    file_set = False
 
         return is_set & file_set
 
     def set_low_threshold(self, temperature):
         """
         Sets the low threshold temperature of thermal
-        Args : 
+        Args :
             temperature: A float number up to nearest thousandth of one degree Celsius,
             e.g. 30.125
         Returns:
@@ -173,7 +180,10 @@ class Thermal(ThermalBase):
             up to nearest thousandth of one degree Celsius, e.g. 30.125
         """
         max_crit_key = '{}_max_crit'.format(self._airflow)
-        return self._thermal_info.get(max_crit_key, None)
+        max_crit_threshold = self._thermal_info.get(max_crit_key, None)
+        if max_crit_threshold is not None:
+            max_crit_threshold = float(max_crit_threshold)
+        return max_crit_threshold
 
     def get_low_critical_threshold(self):
         """
@@ -182,7 +192,7 @@ class Thermal(ThermalBase):
             A float number, the low critical threshold temperature of thermal in Celsius
             up to nearest thousandth of one degree Celsius, e.g. 30.125
         """
-        return 0.0
+        return 0.001
 
     def get_name(self):
         """
@@ -234,3 +244,21 @@ class Thermal(ThermalBase):
 
         raw_txt = self.__read_txt_file(fault_file_path)
         return int(raw_txt) == 0
+
+    def is_replaceable(self):
+        """
+        Retrieves whether thermal module is replaceable
+        Returns:
+            A boolean value, True if replaceable, False if not
+        """
+        return False
+
+    def get_position_in_parent(self):
+        """
+        Retrieves the thermal position information
+        Returns:
+            A int value, 0 represent ASIC thermal, 1 represent CPU thermal info
+        """
+        if self.postion == "cpu":
+            return 1
+        return 0
