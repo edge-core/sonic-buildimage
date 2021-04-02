@@ -6,7 +6,10 @@ import re
 import sys
 
 level1_keys = ["GLOBAL_MEDIA_SETTINGS","PORT_MEDIA_SETTINGS"]
-setting_keys = ["preemphasis","idriver","ipredriver"]
+
+setting_keys = ["preemphasis","idriver","ipredriver",\
+                "main","pre1","pre2","pre3",\
+                "post1","post2","post3","attn"]
 lane_prefix = "lane"
 comma_separator = ","
 range_separator = "-"
