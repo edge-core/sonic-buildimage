@@ -5,4 +5,5 @@ dx010/scripts/fancontrol.sh etc/init.d
 dx010/scripts/fancontrol.service lib/systemd/system
 services/fancontrol/fancontrol  usr/local/bin
 dx010/modules/sonic_platform-1.0-py2-none-any.whl usr/share/sonic/device/x86_64-cel_seastone-r0
+dx010/modules/sonic_platform-1.0-py3-none-any.whl usr/share/sonic/device/x86_64-cel_seastone-r0
 services/platform_api/platform_api_mgnt.sh usr/local/bin

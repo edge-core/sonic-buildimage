@@ -135,6 +135,9 @@ class Watchdog(WatchdogBase):
         ret = WDT_COMMON_ERROR
         if seconds < 0:
             return ret
+        if seconds > 16779:
+            return ret
+
 
         try:
             if self.timeout != seconds:

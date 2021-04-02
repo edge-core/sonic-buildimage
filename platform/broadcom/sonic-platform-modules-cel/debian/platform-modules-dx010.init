@@ -89,9 +89,18 @@ start)
         echo emc2305 0x2e > /sys/bus/i2c/devices/i2c-13/new_device
         echo emc2305 0x4d > /sys/bus/i2c/devices/i2c-13/new_device
 
+        echo 24c02 0x50 > /sys/bus/i2c/devices/i2c-18/new_device
+        echo 24c02 0x50 > /sys/bus/i2c/devices/i2c-19/new_device
+        echo 24c02 0x50 > /sys/bus/i2c/devices/i2c-20/new_device
+        echo 24c02 0x50 > /sys/bus/i2c/devices/i2c-21/new_device
+        echo 24c02 0x50 > /sys/bus/i2c/devices/i2c-22/new_device
+
         # Attach PSUs
         echo dps460 0x5a > /sys/bus/i2c/devices/i2c-10/new_device
         echo dps460 0x5b > /sys/bus/i2c/devices/i2c-11/new_device
+
+        echo 24c02 0x52 > /sys/bus/i2c/devices/i2c-10/new_device
+        echo 24c02 0x53 > /sys/bus/i2c/devices/i2c-11/new_device
 
         # Attach PCA9506 GPIO expander for 40 pins
         echo pca9505 0x20 > /sys/bus/i2c/devices/i2c-17/new_device
@@ -117,16 +126,16 @@ start)
         export_gpio 27 "in" # PSU L ABS
         export_gpio 28 "in" # PSU R ABS
 
-        export_gpio 29 "out" # Fan 1 LED: Red
-        export_gpio 30 "out" # Fan 1 LED: Yellow
-        export_gpio 31 "out" # Fan 2 LED: Red
-        export_gpio 32 "out" # Fan 2 LED: Yellow
-        export_gpio 33 "out" # Fan 3 LED: Red
-        export_gpio 34 "out" # Fan 3 LED: Yellow
-        export_gpio 35 "out" # Fan 4 LED: Red
-        export_gpio 36 "out" # Fan 4 LED: Yellow
-        export_gpio 37 "out" # Fan 5 LED: Red
-        export_gpio 38 "out" # Fan 5 LED: Yellow
+        export_gpio 29 "out" # Fan 2 LED: Red
+        export_gpio 30 "out" # Fan 2 LED: Green
+        export_gpio 31 "out" # Fan 1 LED: Red
+        export_gpio 32 "out" # Fan 1 LED: Green
+        export_gpio 33 "out" # Fan 5 LED: Red
+        export_gpio 34 "out" # Fan 5 LED: Green
+        export_gpio 35 "out" # Fan 3 LED: Red
+        export_gpio 36 "out" # Fan 3 LED: Green
+        export_gpio 37 "out" # Fan 4 LED: Red
+        export_gpio 38 "out" # Fan 4 LED: Green
 
         # Turn off/down lpmod by defult (0 - Normal, 1 - Low Pow)
         echo 0x00000000 > /sys/devices/platform/dx010_cpld/qsfp_lpmode
