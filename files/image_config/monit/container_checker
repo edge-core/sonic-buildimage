@@ -48,11 +48,11 @@ def get_command_result(command):
 def get_expected_running_containers():
     """
     @summary: This function will get the expected running containers by following the rule:
-              The 'state' field of container in 'FEATURE' table should not be 'disabled'. Then
-              if the device has Multi-ASIC, this function will get container list by determining the
+              The 'state' field of container in 'FEATURE' table should not be 'disabled' or 'always_disabled'.
+              If the device has Multi-ASIC, this function will get container list by determining the
               value of field 'has_global_scope', the number of ASICs and the value of field
-              'has_per_asic_scope'. If the device has single ASIC, the container name was put into
-              the list.
+              'has_per_asic_scope'.
+              If the device has single ASIC, the container name was put into the list.
     @return:  A set which contains the expected running containers.
     """
     config_db = swsssdk.ConfigDBConnector()
@@ -62,7 +62,7 @@ def get_expected_running_containers():
     expected_running_containers = set()
 
     for container_name in feature_table.keys():
-        if feature_table[container_name]["state"] != "disabled":
+        if feature_table[container_name]["state"] not in ["disabled", "always_disabled"]:
             if multi_asic.is_multi_asic():
                 if feature_table[container_name]["has_global_scope"] == "True":
                     expected_running_containers.add(container_name)
