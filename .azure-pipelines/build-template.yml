@@ -114,3 +114,12 @@ jobs:
   - publish: $(System.DefaultWorkingDirectory)/
     artifact: sonic-buildimage.${{ parameters.platform }}
     displayName: "Archive sonic image"
+  - script: |
+      set -x
+      find target -name "*.log" | xargs -I{} cp {} $(Build.ArtifactStagingDirectory)/
+    condition: failed()
+    displayName: "Copy build logs"
+  - publish: $(Build.ArtifactStagingDirectory)/
+    artifact: sonic-buildimage.${{ parameters.platform}}.logs@$(System.JobAttempt)
+    displayName: "Archive build logs"
+    condition: failed()
