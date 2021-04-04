@@ -562,9 +562,10 @@ trap_push "rm $grub_cfg || true"
 [ -r ./platform.conf ] && . ./platform.conf
 
 # Check if the CPU vendor is 'Intel' and disable c-states if True
-CPUVENDOR=$(cat /proc/cpuinfo | grep -m 1 vendor_id | awk '{print $3}')
+CPUVENDOR="$(cat /proc/cpuinfo | grep -m 1 vendor_id | awk '{print $3}')"
 echo "Switch CPU vendor is: $CPUVENDOR"
-if [[ $(echo $CPUVENDOR | grep -i "Intel") ]] ; then
+if echo "$CPUVENDOR" | grep -i 'Intel' >/dev/null 2>&1; then
+    echo "Switch CPU cstates are: disabled"
     CSTATES="intel_idle.max_cstate=0"
 else
     CSTATES=""
