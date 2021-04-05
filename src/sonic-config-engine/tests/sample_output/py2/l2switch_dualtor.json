@@ -1,0 +1,454 @@
+{
+    "DEVICE_METADATA": {
+        "localhost": {
+            "hwsku": "Mellanox-SN2700",
+            "subtype": "DualToR"
+        }
+    },
+    "PORT": {
+        "Ethernet0": {
+            "alias": "fortyGigE0/0",
+            "lanes": "29,30,31,32",
+            "admin_status": "up"
+        },
+        "Ethernet4": {
+            "alias": "fortyGigE0/4",
+            "lanes": "25,26,27,28",
+            "admin_status": "up"
+        },
+        "Ethernet8": {
+            "alias": "fortyGigE0/8",
+            "lanes": "37,38,39,40",
+            "admin_status": "up"
+        },
+        "Ethernet12": {
+            "alias": "fortyGigE0/12",
+            "lanes": "33,34,35,36",
+            "admin_status": "up"
+        },
+        "Ethernet16": {
+            "alias": "fortyGigE0/16",
+            "lanes": "41,42,43,44",
+            "admin_status": "up"
+        },
+        "Ethernet20": {
+            "alias": "fortyGigE0/20",
+            "lanes": "45,46,47,48",
+            "admin_status": "up"
+        },
+        "Ethernet24": {
+            "alias": "fortyGigE0/24",
+            "lanes": "5,6,7,8",
+            "admin_status": "up"
+        },
+        "Ethernet28": {
+            "alias": "fortyGigE0/28",
+            "lanes": "1,2,3,4",
+            "admin_status": "up"
+        },
+        "Ethernet32": {
+            "alias": "fortyGigE0/32",
+            "lanes": "9,10,11,12",
+            "admin_status": "up"
+        },
+        "Ethernet36": {
+            "alias": "fortyGigE0/36",
+            "lanes": "13,14,15,16",
+            "admin_status": "up"
+        },
+        "Ethernet40": {
+            "alias": "fortyGigE0/40",
+            "lanes": "21,22,23,24",
+            "admin_status": "up"
+        },
+        "Ethernet44": {
+            "alias": "fortyGigE0/44",
+            "lanes": "17,18,19,20",
+            "admin_status": "up"
+        },
+        "Ethernet48": {
+            "alias": "fortyGigE0/48",
+            "lanes": "49,50,51,52",
+            "admin_status": "up"
+        },
+        "Ethernet52": {
+            "alias": "fortyGigE0/52",
+            "lanes": "53,54,55,56",
+            "admin_status": "up"
+        },
+        "Ethernet56": {
+            "alias": "fortyGigE0/56",
+            "lanes": "61,62,63,64",
+            "admin_status": "up"
+        },
+        "Ethernet60": {
+            "alias": "fortyGigE0/60",
+            "lanes": "57,58,59,60",
+            "admin_status": "up"
+        },
+        "Ethernet64": {
+            "alias": "fortyGigE0/64",
+            "lanes": "65,66,67,68",
+            "admin_status": "up"
+        },
+        "Ethernet68": {
+            "alias": "fortyGigE0/68",
+            "lanes": "69,70,71,72",
+            "admin_status": "up"
+        },
+        "Ethernet72": {
+            "alias": "fortyGigE0/72",
+            "lanes": "77,78,79,80",
+            "admin_status": "up"
+        },
+        "Ethernet76": {
+            "alias": "fortyGigE0/76",
+            "lanes": "73,74,75,76",
+            "admin_status": "up"
+        },
+        "Ethernet80": {
+            "alias": "fortyGigE0/80",
+            "lanes": "105,106,107,108",
+            "admin_status": "up"
+        },
+        "Ethernet84": {
+            "alias": "fortyGigE0/84",
+            "lanes": "109,110,111,112",
+            "admin_status": "up"
+        },
+        "Ethernet88": {
+            "alias": "fortyGigE0/88",
+            "lanes": "117,118,119,120",
+            "admin_status": "up"
+        },
+        "Ethernet92": {
+            "alias": "fortyGigE0/92",
+            "lanes": "113,114,115,116",
+            "admin_status": "up"
+        },
+        "Ethernet96": {
+            "alias": "fortyGigE0/96",
+            "lanes": "121,122,123,124",
+            "admin_status": "up"
+        },
+        "Ethernet100": {
+            "alias": "fortyGigE0/100",
+            "lanes": "125,126,127,128",
+            "admin_status": "up"
+        },
+        "Ethernet104": {
+            "alias": "fortyGigE0/104",
+            "lanes": "85,86,87,88",
+            "admin_status": "up"
+        },
+        "Ethernet108": {
+            "alias": "fortyGigE0/108",
+            "lanes": "81,82,83,84",
+            "admin_status": "up"
+        },
+        "Ethernet112": {
+            "alias": "fortyGigE0/112",
+            "lanes": "89,90,91,92",
+            "admin_status": "up"
+        },
+        "Ethernet116": {
+            "alias": "fortyGigE0/116",
+            "lanes": "93,94,95,96",
+            "admin_status": "up"
+        },
+        "Ethernet120": {
+            "alias": "fortyGigE0/120",
+            "lanes": "97,98,99,100",
+            "admin_status": "up"
+        },
+        "Ethernet124": {
+            "alias": "fortyGigE0/124",
+            "lanes": "101,102,103,104",
+            "admin_status": "up"
+        }
+    },
+    "VLAN": {
+        "Vlan1000": {
+            "vlanid": "1000"
+        }
+    },
+    "VLAN_MEMBER": {
+        "Vlan1000|Ethernet0": {
+            "tagging_mode": "untagged"
+        },
+        "Vlan1000|Ethernet4": {
+            "tagging_mode": "untagged"
+        },
+        "Vlan1000|Ethernet8": {
+            "tagging_mode": "untagged"
+        },
+        "Vlan1000|Ethernet12": {
+            "tagging_mode": "untagged"
+        },
+        "Vlan1000|Ethernet16": {
+            "tagging_mode": "untagged"
+        },
+        "Vlan1000|Ethernet20": {
+            "tagging_mode": "untagged"
+        },
+        "Vlan1000|Ethernet24": {
+            "tagging_mode": "untagged"
+        },
+        "Vlan1000|Ethernet28": {
+            "tagging_mode": "untagged"
+        },
+        "Vlan1000|Ethernet32": {
+            "tagging_mode": "untagged"
+        },
+        "Vlan1000|Ethernet36": {
+            "tagging_mode": "untagged"
+        },
+        "Vlan1000|Ethernet40": {
+            "tagging_mode": "untagged"
+        },
+        "Vlan1000|Ethernet44": {
+            "tagging_mode": "untagged"
+        },
+        "Vlan1000|Ethernet48": {
+            "tagging_mode": "untagged"
+        },
+        "Vlan1000|Ethernet52": {
+            "tagging_mode": "untagged"
+        },
+        "Vlan1000|Ethernet56": {
+            "tagging_mode": "untagged"
+        },
+        "Vlan1000|Ethernet60": {
+            "tagging_mode": "untagged"
+        },
+        "Vlan1000|Ethernet64": {
+            "tagging_mode": "untagged"
+        },
+        "Vlan1000|Ethernet68": {
+            "tagging_mode": "untagged"
+        },
+        "Vlan1000|Ethernet72": {
+            "tagging_mode": "untagged"
+        },
+        "Vlan1000|Ethernet76": {
+            "tagging_mode": "untagged"
+        },
+        "Vlan1000|Ethernet80": {
+            "tagging_mode": "untagged"
+        },
+        "Vlan1000|Ethernet84": {
+            "tagging_mode": "untagged"
+        },
+        "Vlan1000|Ethernet88": {
+            "tagging_mode": "untagged"
+        },
+        "Vlan1000|Ethernet92": {
+            "tagging_mode": "untagged"
+        },
+        "Vlan1000|Ethernet96": {
+            "tagging_mode": "untagged"
+        },
+        "Vlan1000|Ethernet100": {
+            "tagging_mode": "untagged"
+        },
+        "Vlan1000|Ethernet104": {
+            "tagging_mode": "untagged"
+        },
+        "Vlan1000|Ethernet108": {
+            "tagging_mode": "untagged"
+        },
+        "Vlan1000|Ethernet112": {
+            "tagging_mode": "untagged"
+        },
+        "Vlan1000|Ethernet116": {
+            "tagging_mode": "untagged"
+        },
+        "Vlan1000|Ethernet120": {
+            "tagging_mode": "untagged"
+        },
+        "Vlan1000|Ethernet124": {
+            "tagging_mode": "untagged"
+        }
+    },
+    "TUNNEL": {
+        "MuxTunnel0": {
+            "dscp_mode": "uniform",
+            "dst_ip": "2.2.2.2",
+            "ecn_mode": "copy_from_outer",
+            "encap_ecn_mode": "standard",
+            "ttl_mode": "pipe",
+            "tunnel_type": "IPINIP"
+        }
+    },
+    "PEER_SWITCH": {
+        "peer_switch_hostname": {
+            "address_ipv4": "1.1.1.1"
+        }
+    },
+    "LOOPBACK_INTERFACE": {
+        "Loopback2": {},
+        "Loopback2|3.3.3.3": {}
+    },
+    "MUX_CABLE":{
+        "Ethernet0": {
+            "server_ipv4": "192.168.0.1/32",
+            "server_ipv6": "fc02:1000::1/128",
+            "state": "auto"
+        },
+        "Ethernet4": {
+            "server_ipv4": "192.168.0.2/32",
+            "server_ipv6": "fc02:1000::2/128",
+            "state": "auto"
+        },
+        "Ethernet8": {
+            "server_ipv4": "192.168.0.3/32",
+            "server_ipv6": "fc02:1000::3/128",
+            "state": "auto"
+        },
+        "Ethernet12": {
+            "server_ipv4": "192.168.0.4/32",
+            "server_ipv6": "fc02:1000::4/128",
+            "state": "auto"
+        },
+        "Ethernet16": {
+            "server_ipv4": "192.168.0.5/32",
+            "server_ipv6": "fc02:1000::5/128",
+            "state": "auto"
+        },
+        "Ethernet20": {
+            "server_ipv4": "192.168.0.6/32",
+            "server_ipv6": "fc02:1000::6/128",
+            "state": "auto"
+        },
+        "Ethernet24": {
+            "server_ipv4": "192.168.0.7/32",
+            "server_ipv6": "fc02:1000::7/128",
+            "state": "auto"
+        },
+        "Ethernet28": {
+            "server_ipv4": "192.168.0.8/32",
+            "server_ipv6": "fc02:1000::8/128",
+            "state": "auto"
+        },
+        "Ethernet32": {
+            "server_ipv4": "192.168.0.9/32",
+            "server_ipv6": "fc02:1000::9/128",
+            "state": "auto"
+        },
+        "Ethernet36": {
+            "server_ipv4": "192.168.0.10/32",
+            "server_ipv6": "fc02:1000::a/128",
+            "state": "auto"
+        },
+        "Ethernet40": {
+            "server_ipv4": "192.168.0.11/32",
+            "server_ipv6": "fc02:1000::b/128",
+            "state": "auto"
+        },
+        "Ethernet44": {
+            "server_ipv4": "192.168.0.12/32",
+            "server_ipv6": "fc02:1000::c/128",
+            "state": "auto"
+        },
+        "Ethernet48": {
+            "server_ipv4": "192.168.0.13/32",
+            "server_ipv6": "fc02:1000::d/128",
+            "state": "auto"
+        },
+        "Ethernet52": {
+            "server_ipv4": "192.168.0.14/32",
+            "server_ipv6": "fc02:1000::e/128",
+            "state": "auto"
+        },
+        "Ethernet56": {
+            "server_ipv4": "192.168.0.15/32",
+            "server_ipv6": "fc02:1000::f/128",
+            "state": "auto"
+        },
+        "Ethernet60": {
+            "server_ipv4": "192.168.0.16/32",
+            "server_ipv6": "fc02:1000::10/128",
+            "state": "auto"
+        },
+        "Ethernet64": {
+            "server_ipv4": "192.168.0.17/32",
+            "server_ipv6": "fc02:1000::11/128",
+            "state": "auto"
+        },
+        "Ethernet68": {
+            "server_ipv4": "192.168.0.18/32",
+            "server_ipv6": "fc02:1000::12/128",
+            "state": "auto"
+        },
+        "Ethernet72": {
+            "server_ipv4": "192.168.0.19/32",
+            "server_ipv6": "fc02:1000::13/128",
+            "state": "auto"
+        },
+        "Ethernet76": {
+            "server_ipv4": "192.168.0.20/32",
+            "server_ipv6": "fc02:1000::14/128",
+            "state": "auto"
+        },
+        "Ethernet80": {
+            "server_ipv4": "192.168.0.21/32",
+            "server_ipv6": "fc02:1000::15/128",
+            "state": "auto"
+        },
+        "Ethernet84": {
+            "server_ipv4": "192.168.0.22/32",
+            "server_ipv6": "fc02:1000::16/128",
+            "state": "auto"
+        },
+        "Ethernet88": {
+            "server_ipv4": "192.168.0.23/32",
+            "server_ipv6": "fc02:1000::17/128",
+            "state": "auto"
+        },
+        "Ethernet92": {
+            "server_ipv4": "192.168.0.24/32",
+            "server_ipv6": "fc02:1000::18/128",
+            "state": "auto"
+        },
+        "Ethernet96": {
+            "server_ipv4": "192.168.0.25/32",
+            "server_ipv6": "fc02:1000::19/128",
+            "state": "auto"
+        },
+        "Ethernet100": {
+            "server_ipv4": "192.168.0.26/32",
+            "server_ipv6": "fc02:1000::1a/128",
+            "state": "auto"
+        },
+        "Ethernet104": {
+            "server_ipv4": "192.168.0.27/32",
+            "server_ipv6": "fc02:1000::1b/128",
+            "state": "auto"
+        },
+        "Ethernet108": {
+            "server_ipv4": "192.168.0.28/32",
+            "server_ipv6": "fc02:1000::1c/128",
+            "state": "auto"
+        },
+        "Ethernet112": {
+            "server_ipv4": "192.168.0.29/32",
+            "server_ipv6": "fc02:1000::1d/128",
+            "state": "auto"
+        },
+        "Ethernet116": {
+            "server_ipv4": "192.168.0.30/32",
+            "server_ipv6": "fc02:1000::1e/128",
+            "state": "auto"
+        },
+        "Ethernet120": {
+            "server_ipv4": "192.168.0.31/32",
+            "server_ipv6": "fc02:1000::1f/128",
+            "state": "auto"
+        },
+        "Ethernet124": {
+            "server_ipv4": "192.168.0.32/32",
+            "server_ipv6": "fc02:1000::20/128",
+            "state": "auto"
+        }
+    }
+}

@@ -132,6 +132,17 @@ class TestJ2Files(TestCase):
 
         self.assertTrue(json.dumps(sample_output_json, sort_keys=True) == json.dumps(output_json, sort_keys=True))
 
+    def test_l2switch_template_dualtor(self):
+        argument = '-a \'{"is_dualtor": true}\' -k Mellanox-SN2700 --preset l2 -p ' + self.t0_port_config
+        output = self.run_script(argument)
+        output_json = json.loads(output)
+
+        sample_output_file = os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, 'l2switch_dualtor.json')
+        with open(sample_output_file) as sample_output_fd:
+            sample_output_json = json.load(sample_output_fd)
+        self.maxDiff = None
+        self.assertEqual(sample_output_json, output_json)
+
     def test_qos_arista7050_render_template(self):
         arista_dir_path = os.path.join(self.test_dir, '..', '..', '..', 'device', 'arista', 'x86_64-arista_7050_qx32s', 'Arista-7050-QX-32S')
         qos_file = os.path.join(arista_dir_path, 'qos.json.j2')
