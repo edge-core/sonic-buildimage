@@ -40,7 +40,7 @@ check program swss|intfmgrd with path "/usr/bin/process_checker swss /usr/bin/in
 check program swss|portmgrd with path "/usr/bin/process_checker swss /usr/bin/portmgrd"
     if status != 0 for 5 times within 5 cycles then alert repeat every 1 cycles
 
-check program swss|buffermgrd with path "/usr/bin/process_checker swss /usr/bin/buffermgrd -l"
+check program swss|buffermgrd with path "/usr/bin/process_checker swss /usr/bin/buffermgrd"
     if status != 0 for 5 times within 5 cycles then alert repeat every 1 cycles
 
 check program swss|nbrmgrd with path "/usr/bin/process_checker swss /usr/bin/nbrmgrd"
