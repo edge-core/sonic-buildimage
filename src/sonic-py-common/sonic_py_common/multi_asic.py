@@ -230,6 +230,23 @@ def get_namespace_list(namespace=None):
 
     return ns_list
 
+def get_port_entry(port, namespace):
+    """
+    Retrieves the given port information
+
+    Returns:
+        a dict of given port entry
+    """
+    all_ports = {}
+    ns_list = get_namespace_list(namespace)
+
+    for ns in ns_list:
+        ports = get_port_entry_for_asic(port, ns)
+        if ports:
+            return ports
+
+    return all_ports
+
 
 def get_port_table(namespace=None):
     """
@@ -246,6 +263,12 @@ def get_port_table(namespace=None):
         all_ports.update(ports)
 
     return all_ports
+
+def get_port_entry_for_asic(port, namespace):
+
+    config_db = connect_config_db_for_ns(namespace)
+    ports = config_db.get_entry(PORT_CFG_DB_TABLE, port)
+    return ports
 
 
 def get_port_table_for_asic(namespace):
@@ -274,14 +297,14 @@ def get_namespace_for_port(port_name):
 
 def get_port_role(port_name, namespace=None):
 
-    ports_config = get_port_table(namespace)
-    if port_name not in ports_config:
+    ports_config = get_port_entry(port_name, namespace)
+    if not ports_config:
         raise ValueError('Unknown port name {}'.format(port_name))
 
-    if PORT_ROLE not in ports_config[port_name]:
+    if PORT_ROLE not in ports_config:
         return EXTERNAL_PORT
 
-    role = ports_config[port_name][PORT_ROLE]
+    role = ports_config[PORT_ROLE]
     return role
 
 
@@ -315,11 +338,11 @@ def is_port_channel_internal(port_channel, namespace=None):
 
     for ns in ns_list:
         config_db = connect_config_db_for_ns(ns)
-        port_channels = config_db.get_table(PORT_CHANNEL_CFG_DB_TABLE)
+        port_channels = config_db.get_entry(PORT_CHANNEL_CFG_DB_TABLE, port_channel)
 
-        if port_channel in port_channels:
-            if 'members' in port_channels[port_channel]:
-                members = port_channels[port_channel]['members']
+        if port_channels:
+            if 'members' in port_channels:
+                members = port_channels['members']
                 if is_port_internal(members[0], namespace):
                     return True
 
@@ -363,8 +386,8 @@ def is_bgp_session_internal(bgp_neigh_ip, namespace=None):
     for ns in ns_list:
 
         config_db = connect_config_db_for_ns(ns)
-        bgp_sessions = config_db.get_table(BGP_INTERNAL_NEIGH_CFG_DB_TABLE)
-        if bgp_neigh_ip in bgp_sessions:
+        bgp_sessions = config_db.get_entry(BGP_INTERNAL_NEIGH_CFG_DB_TABLE, bgp_neigh_ip)
+        if bgp_sessions:
             return True
 
     return False
