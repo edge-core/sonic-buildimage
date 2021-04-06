@@ -348,7 +348,7 @@ RUN pip install j2cli==0.3.10
 # Remove python-click 6.6
 RUN apt-get purge -y python-click
 # For sonic utilities testing
-RUN pip install click-default-group click natsort tabulate netifaces==0.10.7 fastentrypoints pyroute2==0.5.14
+RUN pip install click-default-group click natsort tabulate netifaces==0.10.7 fastentrypoints pyroute2==0.5.14 deepdiff==3.3.0
 
 # For sonic snmpagent build and mock testing
 RUN pip3 install -U setuptools
