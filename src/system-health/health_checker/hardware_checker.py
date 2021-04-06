@@ -8,6 +8,7 @@ class HardwareChecker(HealthChecker):
     """
     Check system hardware status. For now, it checks ASIC, PSU and fan status.
     """
+
     ASIC_TEMPERATURE_KEY = 'TEMPERATURE_INFO|ASIC'
     FAN_TABLE_NAME = 'FAN_INFO'
     PSU_TABLE_NAME = 'PSU_INFO'
@@ -35,27 +36,34 @@ class HardwareChecker(HealthChecker):
         if config.ignore_devices and 'asic' in config.ignore_devices:
             return
 
-        temperature = self._db.get(self._db.STATE_DB, HardwareChecker.ASIC_TEMPERATURE_KEY, 'temperature')
-        temperature_threshold = self._db.get(self._db.STATE_DB, HardwareChecker.ASIC_TEMPERATURE_KEY, 'high_threshold')
-        if not temperature:
-            self.set_object_not_ok('ASIC', 'ASIC', 'Failed to get ASIC temperature')
-        elif not temperature_threshold:
-            self.set_object_not_ok('ASIC', 'ASIC', 'Failed to get ASIC temperature threshold')
-        else:
-            try:
-                temperature = float(temperature)
-                temperature_threshold = float(temperature_threshold)
-                if temperature > temperature_threshold:
-                    self.set_object_not_ok('ASIC', 'ASIC',
-                                           'ASIC temperature is too hot, temperature={}, threshold={}'.format(
-                                               temperature,
-                                               temperature_threshold))
-                else:
-                    self.set_object_ok('ASIC', 'ASIC')
-            except ValueError as e:
-                self.set_object_not_ok('ASIC', 'ASIC',
-                                       'Invalid ASIC temperature data, temperature={}, threshold={}'.format(temperature,
-                                                                                                            temperature_threshold))
+        ASIC_TEMPERATURE_KEY_LIST = self._db.keys(self._db.STATE_DB,
+                                                  HardwareChecker.ASIC_TEMPERATURE_KEY + '*')
+        for asic_key in ASIC_TEMPERATURE_KEY_LIST:
+            temperature = self._db.get(self._db.STATE_DB, asic_key,
+                                                          'temperature')
+            temperature_threshold = self._db.get(self._db.STATE_DB, asic_key,
+                                                          'high_threshold')
+            asic_name = asic_key.split('|')[1]
+            if not temperature:
+                self.set_object_not_ok('ASIC', asic_name,
+                        'Failed to get {} temperature'.format(asic_name))
+            elif not temperature_threshold:
+                self.set_object_not_ok('ASIC', asic_name,
+                        'Failed to get {} temperature threshold'.format(asic_name))
+            else:
+                try:
+                    temperature = float(temperature)
+                    temperature_threshold = float(temperature_threshold)
+                    if temperature > temperature_threshold:
+                        self.set_object_not_ok('ASIC', asic_name,
+                                               '{} temperature is too hot, temperature={}, threshold={}'.format(
+                                                asic_name, temperature, temperature_threshold))
+                    else:
+                        self.set_object_ok('ASIC', asic_name)
+                except ValueError as e:
+                    self.set_object_not_ok('ASIC', asic_name,
+                                           'Invalid {} temperature data, temperature={}, threshold={}'.format(
+                                            asic_name, temperature, temperature_threshold))
 
     def _check_fan_status(self, config):
         """
