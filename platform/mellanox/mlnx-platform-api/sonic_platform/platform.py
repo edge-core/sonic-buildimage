@@ -16,16 +16,14 @@ except ImportError as e:
 class Platform(PlatformBase):
     def __init__(self):
         PlatformBase.__init__(self)
-        if self._is_host():
-            self._chassis = Chassis()
+        self._chassis = Chassis()
+        self._chassis.initialize_psu()
+        self._chassis.initialize_eeprom()
+        if self._is_host():  
             self._chassis.initialize_components()
-            self._chassis.initizalize_system_led()
-            self._chassis.initialize_eeprom()
-        else:
-            self._chassis = Chassis()
-            self._chassis.initialize_psu()
+            self._chassis.initizalize_system_led()  
+        else:    
             self._chassis.initialize_fan()
-            self._chassis.initialize_eeprom()
             self._chassis.initialize_thermals()
 
     def _is_host(self):
