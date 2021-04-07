@@ -5,7 +5,7 @@
 {% if DEVICE_METADATA['localhost']['sub_role'] == 'FrontEnd' or  DEVICE_METADATA['localhost']['sub_role'] == 'BackEnd'%}
 {% set loopback_intf_names = ['Loopback0', 'Loopback4096'] %}
 {% else %}
-{% set loopback_intf_names = ['Loopback0'] %}
+{% set loopback_intf_names = ['Loopback0', 'Loopback2', 'Loopback3'] %}
 {% endif %}
 {% for (name, prefix) in LOOPBACK_INTERFACE|pfx_filter %}
     {%- if prefix | ipv4 and name in loopback_intf_names %}
@@ -47,11 +47,10 @@
         "TUNNEL_DECAP_TABLE:IPINIP_TUNNEL" : {
             "tunnel_type":"IPINIP",
             "dst_ip":"{% for prefix in ipv4_addresses|sort %}{{ prefix | ip }}{% if not loop.last %},{% endif %}{% endfor %}",
-{% if "mlnx" in DEVICE_METADATA.localhost.platform %}
             "dscp_mode":"uniform",
+{% if "mlnx" in DEVICE_METADATA.localhost.platform %}
             "ecn_mode":"standard",
 {% else %}
-            "dscp_mode":"pipe",
             "ecn_mode":"copy_from_outer",
 {% endif %}
             "ttl_mode":"pipe"
@@ -66,11 +65,10 @@
         "TUNNEL_DECAP_TABLE:IPINIP_V6_TUNNEL" : {
             "tunnel_type":"IPINIP",
             "dst_ip":"{% for prefix in ipv6_addresses|sort %}{{ prefix | ip }}{% if not loop.last %},{% endif %}{% endfor %}",
-{% if "mlnx" in DEVICE_METADATA.localhost.platform %}
             "dscp_mode":"uniform",
+{% if "mlnx" in DEVICE_METADATA.localhost.platform %}
             "ecn_mode":"standard",
 {% else %}
-            "dscp_mode":"pipe",
             "ecn_mode":"copy_from_outer",
 {% endif %}
             "ttl_mode":"pipe"
