@@ -28,6 +28,7 @@ declare -r FW_REQUIRED="{{ MLNX_SPC_FW_VERSION }}"
 
 IMAGE_UPGRADE="${NO_PARAM}"
 CPLD_UPGRADE="${NO_PARAM}"
+SYSLOG_LOGGER="${NO_PARAM}"
 VERBOSE_LEVEL="${VERBOSE_MIN}"
 
 function PrintHelp() {
@@ -37,7 +38,8 @@ function PrintHelp() {
     echo "OPTIONS:"
     echo "  -u, --upgrade  Upgrade firmware using next boot image (useful after SONiC-To-SONiC update)"
     echo "  -c, --cpld     Upgrade CPLD firmware (requires -u|--upgrade)"
-    echo "  -v, --verbose  Verbose mode"
+    echo "  -s, --syslog   Use syslog logger (enabled when -u|--upgrade)"
+    echo "  -v, --verbose  Verbose mode (enabled when -u|--upgrade)"
     echo "  -h, --help     Print help"
     echo
     echo "Examples:"
@@ -53,10 +55,14 @@ function ParseArguments() {
         case "$1" in
             -u|--upgrade)
                 IMAGE_UPGRADE="${YES_PARAM}"
+                SYSLOG_LOGGER="${YES_PARAM}"
                 VERBOSE_LEVEL="${VERBOSE_MAX}"
             ;;
             -c|--cpld)
                 CPLD_UPGRADE="${YES_PARAM}"
+            ;;
+            -s|--syslog)
+                SYSLOG_LOGGER="${YES_PARAM}"
             ;;
             -v|--verbose)
                 VERBOSE_LEVEL="${VERBOSE_MAX}"
@@ -74,11 +80,19 @@ function LogError() {
     if [[ "${VERBOSE_LEVEL}" -ge "${VERBOSE_ERROR}" ]]; then
         echo "ERROR: $*"
     fi
+
+    if [[ "${SYSLOG_LOGGER}" = "${YES_PARAM}" ]]; then
+        logger -p "ERROR" -t "${SCRIPT_NAME}" "$*"
+    fi
 }
 
 function LogWarning() {
     if [[ "${VERBOSE_LEVEL}" -ge "${VERBOSE_WARNING}" ]]; then
         echo "WARNING: $*"
+    fi
+
+    if [[ "${SYSLOG_LOGGER}" = "${YES_PARAM}" ]]; then
+        logger -p "WARNING" -t "${SCRIPT_NAME}" "$*"
     fi
 }
 
@@ -86,11 +100,19 @@ function LogNotice() {
     if [[ "${VERBOSE_LEVEL}" -ge "${VERBOSE_NOTICE}" ]]; then
         echo "NOTICE: $*"
     fi
+
+    if [[ "${SYSLOG_LOGGER}" = "${YES_PARAM}" ]]; then
+        logger -p "NOTICE" -t "${SCRIPT_NAME}" "$*"
+    fi
 }
 
 function LogInfo() {
     if [[ "${VERBOSE_LEVEL}" -ge "${VERBOSE_INFO}" ]]; then
         echo "INFO: $*"
+    fi
+
+    if [[ "${SYSLOG_LOGGER}" = "${YES_PARAM}" ]]; then
+        logger -p "INFO" -t "${SCRIPT_NAME}" "$*"
     fi
 }
 
@@ -219,7 +241,11 @@ function UpgradeASICFW() {
 function UpgradeCPLDFW_Worker() {
     local -r _CPLD_BURN_FILE="${1}"
     local -r _CPLD_REFRESH_FILE="${2}"
-    local -r _ASIC_DEV="$(find /dev/mst -iname '*_pciconf0')"
+    local -r _ASIC_DEV="$(find /dev/mst -iname '*_pci_cr0')"
+
+    # Flush syslog
+    RunCmd "kill -HUP $(cat /var/run/rsyslogd.pid)"
+    RunCmd "sync; sync"
 
     if [[ -f /tmp/cpld_fw_updated ]]; then
         RunCmd "cpldupdate --dev ${_ASIC_DEV} ${_CPLD_REFRESH_FILE}"
