@@ -437,7 +437,11 @@ def parse_dpg(dpg, hname):
                         if panel_port not in intfs_inpc and panel_port not in acl_intfs:
                             acl_intfs.append(panel_port)
                     break
-            if acl_intfs:
+            # if acl is classified as mirror (erpsan) or acl interface 
+            # are binded then do not classify as Control plane.
+            # For multi-asic platforms it's possible there is no
+            # interface are binded to everflow in host namespace.
+            if acl_intfs or is_mirror_v6 or is_mirror:
                 # Remove duplications
                 dedup_intfs = []
                 for intf in acl_intfs:
