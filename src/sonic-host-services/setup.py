@@ -28,6 +28,7 @@ setup(
     ],
     tests_require = [
         'pytest',
+        'sonic-py-common'
     ],
     classifiers = [
         'Development Status :: 3 - Alpha',

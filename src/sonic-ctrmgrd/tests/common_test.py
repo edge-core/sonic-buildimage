@@ -1,6 +1,4 @@
 import copy
-import importlib.machinery
-import importlib.util
 import json
 import os
 import subprocess
@@ -655,13 +653,3 @@ def create_remote_ctr_config_json():
         s.write(str_conf)
 
     return fname
-
-
-def load_mod_from_file(modname, fpath):
-    spec = importlib.util.spec_from_loader(modname,
-            importlib.machinery.SourceFileLoader(modname, fpath))
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    sys.modules[modname] = mod
-    return mod
-

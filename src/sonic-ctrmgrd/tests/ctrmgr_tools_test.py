@@ -3,10 +3,11 @@ import sys
 from unittest.mock import MagicMock, patch
 
 import pytest
+from sonic_py_common.general import load_module_from_source
 
 from . import common_test
 
-common_test.load_mod_from_file("docker",
+load_module_from_source("docker",
         os.path.join(os.path.dirname(os.path.realpath(__file__)), "mock_docker.py"))
 
 sys.path.append("ctrmgr")
