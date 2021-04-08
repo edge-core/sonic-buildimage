@@ -43,7 +43,7 @@ SFP_PORT_NAME_CONVENTION = "sfp{}"
 platform_dict = {'x86_64-mlnx_msn2700-r0': 0, 'x86_64-mlnx_msn2740-r0': 0, 'x86_64-mlnx_msn2100-r0': 1,
                  'x86_64-mlnx_msn2410-r0': 2, 'x86_64-mlnx_msn2010-r0': 3, 'x86_64-mlnx_msn3420-r0': 5,
                  'x86_64-mlnx_msn3700-r0': 0, 'x86_64-mlnx_msn3700c-r0': 0, 'x86_64-mlnx_msn3800-r0': 4,
-                 'x86_64-mlnx_msn4410-r0': 0, 'x86_64-mlnx_msn4600-r0': 4, 'x86_64-mlnx_msn4600c': 4, 
+                 'x86_64-mlnx_msn4410-r0': 0, 'x86_64-mlnx_msn4600-r0': 4, 'x86_64-mlnx_msn4600c-r0': 4, 
                  'x86_64-mlnx_msn4700-r0': 0}
 port_position_tuple_list = [(0, 0, 31, 32, 1), (0, 0, 15, 16, 1), (0, 48, 55, 56, 1),
                             (0, 18, 21, 22, 1), (0, 0, 63, 64, 1), (0, 48, 59, 60, 1)]
