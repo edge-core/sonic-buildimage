@@ -300,7 +300,6 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     squashfs-tools          \
     grub2-common            \
     rsyslog                 \
-    ethtool                 \
     screen                  \
     hping3                  \
     tcptraceroute           \
