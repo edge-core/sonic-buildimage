@@ -15,6 +15,7 @@ from .managers_bgp import BGPPeerMgrBase
 from .managers_db import BGPDataBaseMgr
 from .managers_intf import InterfaceMgr
 from .managers_setsrc import ZebraSetSrc
+from .managers_static_rt import StaticRouteMgr
 from .runner import Runner, signal_handler
 from .template import TemplateFabric
 from .utils import read_constants
@@ -53,6 +54,8 @@ def do_work():
         BGPAllowListMgr(common_objs, "CONFIG_DB", "BGP_ALLOWED_PREFIXES"),
         # BBR Manager
         BBRMgr(common_objs, "CONFIG_DB", "BGP_BBR"),
+        # Static Route Managers
+        StaticRouteMgr(common_objs, "CONFIG_DB", "STATIC_ROUTE"),
     ]
     runner = Runner(common_objs['cfg_mgr'])
     for mgr in managers:
