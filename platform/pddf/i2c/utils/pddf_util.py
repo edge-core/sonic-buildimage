@@ -45,14 +45,14 @@ devs = []
 try:
     pddf_obj = pddfparse.PddfParse()
 except Exception as e:
-    print "%s" % str(e)
+    print("%s" % str(e))
     sys.exit()
 
 
 
 if DEBUG == True:
-    print sys.argv[0]
-    print 'ARGV      :', sys.argv[1:]   
+    print(sys.argv[0])
+    print('ARGV      :', sys.argv[1:])
 
 def main():
     global DEBUG
@@ -68,9 +68,9 @@ def main():
                                                        'force',
                                                           ])
     if DEBUG == True:                                                           
-        print options
-        print args
-        print len(sys.argv)
+        print(options)
+        print(args)
+        print(len(sys.argv))
     
     # generate the KOS list from pddf device JSON file
     if 'std_perm_kos' in pddf_obj.data['PLATFORM'].keys():
@@ -110,12 +110,12 @@ def main():
     return 0              
         
 def show_help():
-    print __doc__ % {'scriptName' : sys.argv[0].split("/")[-1]}
+    print(__doc__ % {'scriptName' : sys.argv[0].split("/")[-1]})
     sys.exit(0)
 
 def my_log(txt):
     if DEBUG == True:
-        print "[PDDF]"+txt    
+        print("[PDDF]"+txt)
     return
     
 def log_os_system(cmd, show):
@@ -180,10 +180,10 @@ def config_pddf_utils():
     pddf_path = get_path_to_pddf_plugin()
 
     # ##########################################################################
-    SONIC_PLATFORM_BSP_WHL_PKG = "/".join([device_path, 'sonic_platform-1.0-py2-none-any.whl'])
-    SONIC_PLATFORM_PDDF_WHL_PKG = "/".join([device_path, 'pddf', 'sonic_platform-1.0-py2-none-any.whl'])
-    SONIC_PLATFORM_BSP_WHL_PKG_BK = "/".join([device_path, 'sonic_platform-1.0-py2-none-any.whl.orig'])
-    status, output = log_os_system("pip show sonic-platform > /dev/null 2>&1", 1)
+    SONIC_PLATFORM_BSP_WHL_PKG = "/".join([device_path, 'sonic_platform-1.0-py3-none-any.whl'])
+    SONIC_PLATFORM_PDDF_WHL_PKG = "/".join([device_path, 'pddf', 'sonic_platform-1.0-py3-none-any.whl'])
+    SONIC_PLATFORM_BSP_WHL_PKG_BK = "/".join([device_path, 'sonic_platform-1.0-py3-none-any.whl.orig'])
+    status, output = log_os_system("pip3 show sonic-platform > /dev/null 2>&1", 1)
     if status:
         if os.path.exists(SONIC_PLATFORM_PDDF_WHL_PKG):
             # Platform API 2.0 is supported
@@ -194,18 +194,18 @@ def config_pddf_utils():
             # PDDF whl package exist ... this must be the whl package created from 
             # PDDF 2.0 ref API classes and some changes on top of it ... install it
             shutil.copy(SONIC_PLATFORM_PDDF_WHL_PKG, SONIC_PLATFORM_BSP_WHL_PKG)
-            print "Attemting to install the PDDF sonic_platform wheel package ..."
-            status, output = log_os_system("pip install "+ SONIC_PLATFORM_BSP_WHL_PKG, 1)
+            print("Attemting to install the PDDF sonic_platform wheel package ...")
+            status, output = log_os_system("pip3 install "+ SONIC_PLATFORM_BSP_WHL_PKG, 1)
             if status:
-                print "Error: Failed to install {}".format(SONIC_PLATFORM_BSP_WHL_PKG)
+                print("Error: Failed to install {}".format(SONIC_PLATFORM_BSP_WHL_PKG))
                 return status
             else:
-                print "Successfully installed {} package".format(SONIC_PLATFORM_BSP_WHL_PKG)
+                print("Successfully installed {} package".format(SONIC_PLATFORM_BSP_WHL_PKG))
         else:
             # PDDF with platform APIs 1.5 must be supported
             device_plugin_path = "/".join([device_path, "plugins"])
             backup_path = "/".join([device_plugin_path, "orig"])
-            print "Loading PDDF generic plugins (1.0)"
+            print("Loading PDDF generic plugins (1.0)")
             if os.path.exists(backup_path) is False:
                 os.mkdir(backup_path)
                 log_os_system("mv "+device_plugin_path+"/*.*"+" "+backup_path, 0)
@@ -224,23 +224,23 @@ def config_pddf_utils():
                 log_os_system('mv '+SONIC_PLATFORM_BSP_WHL_PKG+' '+SONIC_PLATFORM_BSP_WHL_PKG_BK, 1)
                 shutil.copy(SONIC_PLATFORM_PDDF_WHL_PKG, SONIC_PLATFORM_BSP_WHL_PKG)
                 # uninstall the existing bsp whl pkg
-                status, output = log_os_system("pip uninstall sonic-platform -y &> /dev/null", 1)
+                status, output = log_os_system("pip3 uninstall sonic-platform -y &> /dev/null", 1)
                 if status:
-                    print "Error: Unable to uninstall BSP sonic-platform whl package"
+                    print("Error: Unable to uninstall BSP sonic-platform whl package")
                     return status
-                print "Attemting to install the PDDF sonic_platform wheel package ..."
-                status, output = log_os_system("pip install "+ SONIC_PLATFORM_BSP_WHL_PKG, 1)
+                print("Attemting to install the PDDF sonic_platform wheel package ...")
+                status, output = log_os_system("pip3 install "+ SONIC_PLATFORM_BSP_WHL_PKG, 1)
                 if status:
-                    print "Error: Failed to install {}".format(SONIC_PLATFORM_BSP_WHL_PKG)
+                    print("Error: Failed to install {}".format(SONIC_PLATFORM_BSP_WHL_PKG))
                     return status
                 else:
-                    print "Successfully installed {} package".format(SONIC_PLATFORM_BSP_WHL_PKG)
+                    print("Successfully installed {} package".format(SONIC_PLATFORM_BSP_WHL_PKG))
             else:
                 # system rebooted in pddf mode 
-                print "System rebooted in PDDF mode, hence keeping the PDDF 2.0 classes"
+                print("System rebooted in PDDF mode, hence keeping the PDDF 2.0 classes")
         else:
             # pddf whl package doesnt exist
-            print "Error: PDDF 2.0 classes doesnt exist. PDDF mode can not be enabled"
+            print("Error: PDDF 2.0 classes doesnt exist. PDDF mode can not be enabled")
             sys.exit(1)
 
     # ##########################################################################
@@ -266,11 +266,11 @@ def config_pddf_utils():
 
 def cleanup_pddf_utils():
     device_path = get_path_to_device()
-    SONIC_PLATFORM_BSP_WHL_PKG = "/".join([device_path, 'sonic_platform-1.0-py2-none-any.whl'])
-    SONIC_PLATFORM_PDDF_WHL_PKG = "/".join([device_path, 'pddf', 'sonic_platform-1.0-py2-none-any.whl'])
-    SONIC_PLATFORM_BSP_WHL_PKG_BK = "/".join([device_path, 'sonic_platform-1.0-py2-none-any.whl.orig'])
+    SONIC_PLATFORM_BSP_WHL_PKG = "/".join([device_path, 'sonic_platform-1.0-py3-none-any.whl'])
+    SONIC_PLATFORM_PDDF_WHL_PKG = "/".join([device_path, 'pddf', 'sonic_platform-1.0-py3-none-any.whl'])
+    SONIC_PLATFORM_BSP_WHL_PKG_BK = "/".join([device_path, 'sonic_platform-1.0-py3-none-any.whl.orig'])
     # ##########################################################################
-    status, output = log_os_system("pip show sonic-platform > /dev/null 2>&1", 1)
+    status, output = log_os_system("pip3 show sonic-platform > /dev/null 2>&1", 1)
     if status:
         # PDDF Platform API 2.0 is not supported but system is in PDDF mode, hence PDDF 1.0 plugins are present
         device_plugin_path = "/".join([device_path, "plugins"])
@@ -283,7 +283,7 @@ def cleanup_pddf_utils():
             log_os_system("mv "+backup_path+"/*"+" "+device_plugin_path, 1)
             os.rmdir(backup_path)
         else:
-            print "\nERR: Unable to locate original device files...\n"
+            print("\nERR: Unable to locate original device files...\n")
 
     else:
         # PDDF 2.0 apis are supported and PDDF whl package is installed
@@ -291,29 +291,29 @@ def cleanup_pddf_utils():
             if os.path.exists(SONIC_PLATFORM_BSP_WHL_PKG_BK):
                 # platform is 2.0 compliant and original bsp 2.0 whl package exist
                 log_os_system('mv '+SONIC_PLATFORM_BSP_WHL_PKG_BK+' '+SONIC_PLATFORM_BSP_WHL_PKG, 1)
-                status, output = log_os_system("pip uninstall sonic-platform -y &> /dev/null", 1)
+                status, output = log_os_system("pip3 uninstall sonic-platform -y &> /dev/null", 1)
                 if status:
-                    print "Error: Unable to uninstall PDDF sonic-platform whl package"
+                    print("Error: Unable to uninstall PDDF sonic-platform whl package")
                     return status
-                print "Attemting to install the BSP sonic_platform wheel package ..."
-                status, output = log_os_system("pip install "+ SONIC_PLATFORM_BSP_WHL_PKG, 1)
+                print("Attemting to install the BSP sonic_platform wheel package ...")
+                status, output = log_os_system("pip3 install "+ SONIC_PLATFORM_BSP_WHL_PKG, 1)
                 if status:
-                    print "Error: Failed to install {}".format(SONIC_PLATFORM_BSP_WHL_PKG)
+                    print("Error: Failed to install {}".format(SONIC_PLATFORM_BSP_WHL_PKG))
                     return status
                 else:
-                    print "Successfully installed {} package".format(SONIC_PLATFORM_BSP_WHL_PKG)
+                    print("Successfully installed {} package".format(SONIC_PLATFORM_BSP_WHL_PKG))
             else:
                 # platform doesnt support 2.0 APIs but PDDF is 2.0 based
                 # remove and uninstall the PDDF whl package
                 if os.path.exists(SONIC_PLATFORM_BSP_WHL_PKG):
                     os.remove(SONIC_PLATFORM_BSP_WHL_PKG)
-                status, output = log_os_system("pip uninstall sonic-platform -y &> /dev/null", 1)
+                status, output = log_os_system("pip3 uninstall sonic-platform -y &> /dev/null", 1)
                 if status:
-                    print "Error: Unable to uninstall PDDF sonic-platform whl package"
+                    print("Error: Unable to uninstall PDDF sonic-platform whl package")
                     return status
         else:
             # something seriously wrong. System is in PDDF mode but pddf whl pkg is not present
-            print "Error: Fatal error as the system is in PDDF mode but the pddf .whl original is not present"
+            print("Error: Fatal error as the system is in PDDF mode but the pddf .whl original is not present")
     # ################################################################################################################
 
     if os.path.exists(device_path+"/fancontrol"):
@@ -351,26 +351,28 @@ def driver_install():
     if os.path.exists('/usr/local/bin/pddf_pre_driver_install.sh'):
         status, output = log_os_system('/usr/local/bin/pddf_pre_driver_install.sh', 1)
         if status:
-            print "Error: pddf_pre_driver_install script failed with error %d"%status
+            print("Error: pddf_pre_driver_install script failed with error %d"%status)
             return status
 
     log_os_system("depmod", 1)
     for i in range(0,len(kos)):
         status, output = log_os_system(kos[i], 1)
         if status:
-            print "driver_install() failed with error %d"%status
+            print("driver_install() failed with error %d"%status)
             if FORCE == 0:        
                 return status       
 
     output = config_pddf_utils()
     if output:
-        print "config_pddf_utils() failed with error %d"%output
+        print("config_pddf_utils() failed with error %d"%output)
     # check for post_driver_install script
     if os.path.exists('/usr/local/bin/pddf_post_driver_install.sh'):
         status, output = log_os_system('/usr/local/bin/pddf_post_driver_install.sh', 1)
         if status:
-            print "Error: pddf_post_driver_install script failed with error %d"%status
+            print("Error: pddf_post_driver_install script failed with error %d"%status)
             return status
+        # Useful for debugging
+        print(output)
 
 
     return 0
@@ -380,7 +382,7 @@ def driver_uninstall():
 
     status = cleanup_pddf_utils()
     if status:
-        print "cleanup_pddf_utils() failed with error %d"%status
+        print("cleanup_pddf_utils() failed with error %d"%status)
 
     for i in range(0,len(kos)):
         # if it is in perm_kos, do not remove
@@ -391,7 +393,7 @@ def driver_uninstall():
         rm = rm.replace("insmod", "rmmod")        
         status, output = log_os_system(rm, 1)
         if status:
-            print "driver_uninstall() failed with error %d"%status
+            print("driver_uninstall() failed with error %d"%status)
             if FORCE == 0:        
                 return status              
     return 0
@@ -403,13 +405,13 @@ def device_install():
     if os.path.exists('/usr/local/bin/pddf_pre_device_create.sh'):
         status, output = log_os_system('/usr/local/bin/pddf_pre_device_create.sh', 1)
         if status:
-            print "Error: pddf_pre_device_create script failed with error %d"%status
+            print("Error: pddf_pre_device_create script failed with error %d"%status)
             return status
 
     # trigger the pddf_obj script for FAN, PSU, CPLD, MUX, etc
     status = pddf_obj.create_pddf_devices()
     if status:
-        print "Error: create_pddf_devices() failed with error %d"%status
+        print("Error: create_pddf_devices() failed with error %d"%status)
         if FORCE == 0:
             return status
 
@@ -417,8 +419,10 @@ def device_install():
     if os.path.exists('/usr/local/bin/pddf_post_device_create.sh'):
         status, output = log_os_system('/usr/local/bin/pddf_post_device_create.sh', 1)
         if status:
-            print "Error: pddf_post_device_create script failed with error %d"%status
+            print("Error: pddf_post_device_create script failed with error %d"%status)
             return status
+        # Useful for debugging
+        print(output)
 
     return
 
@@ -427,28 +431,28 @@ def device_uninstall():
     # Trigger the paloparse script for deletion of FAN, PSU, OPTICS, CPLD clients
     status = pddf_obj.delete_pddf_devices()
     if status:
-        print "Error: delete_pddf_devices() failed with error %d"%status
+        print("Error: delete_pddf_devices() failed with error %d"%status)
         if FORCE == 0:
             return status
     return 
         
 def do_install():
-    print "Checking system...."
+    print("Checking system....")
     if not os.path.exists('/usr/share/sonic/platform/pddf_support'):
-        print PROJECT_NAME.upper() +" mode is not enabled"
+        print(PROJECT_NAME.upper() +" mode is not enabled")
         return
 
     if driver_check()== False :
-        print PROJECT_NAME.upper() +" has no PDDF driver installed...."
+        print(PROJECT_NAME.upper() +" has no PDDF driver installed....")
         create_pddf_log_files()
-        print "Installing ..."    
+        print("Installing ...")
         status = driver_install()
         if status:
             return  status
     else:
-        print PROJECT_NAME.upper() +" drivers detected...."
+        print(PROJECT_NAME.upper() +" drivers detected....")
 
-    print "Creating devices ..." 
+    print("Creating devices ...")
     status = device_install()
     if status:
         return status
@@ -456,26 +460,26 @@ def do_install():
     return
     
 def do_uninstall():
-    print "Checking system...."
+    print("Checking system....")
     if not os.path.exists('/usr/share/sonic/platform/pddf_support'):
-        print PROJECT_NAME.upper() +" mode is not enabled"
+        print(PROJECT_NAME.upper() +" mode is not enabled")
         return
 
 
     if os.path.exists('/var/log/pddf'):
-        print "Remove pddf log files....."
+        print("Remove pddf log files.....")
         log_os_system("sudo rm -rf /var/log/pddf", 1)
 
-    print "Remove all the devices..."
+    print("Remove all the devices...")
     status = device_uninstall()
     if status:
         return status
 
 
     if driver_check()== False :
-        print PROJECT_NAME.upper() +" has no PDDF driver installed...."
+        print(PROJECT_NAME.upper() +" has no PDDF driver installed....")
     else:
-        print "Removing installed driver...."
+        print("Removing installed driver....")
         status = driver_uninstall()
         if status:
             if FORCE == 0:        
@@ -486,60 +490,60 @@ def do_switch_pddf():
     try:
         import pddf_switch_svc
     except ImportError:
-        print "Unable to find pddf_switch_svc.py. PDDF might not be supported on this platform"
+        print("Unable to find pddf_switch_svc.py. PDDF might not be supported on this platform")
         sys.exit()
-    print "Check the pddf support..."
+    print("Check the pddf support...")
     status = pddf_switch_svc.check_pddf_support()
     if not status:
-        print "PDDF is not supported on this platform"
+        print("PDDF is not supported on this platform")
         return status
 
 
-    print "Checking system...."
+    print("Checking system....")
     if os.path.exists('/usr/share/sonic/platform/pddf_support'):
-        print PROJECT_NAME.upper() +" system is already in pddf mode...."
+        print(PROJECT_NAME.upper() +" system is already in pddf mode....")
     else:
-        print "Check if the native sonic-platform whl package is installed in the pmon docker"
-        status, output = log_os_system("docker exec -it pmon pip show sonic-platform", 1)
+        print("Check if the native sonic-platform whl package is installed in the pmon docker")
+        status, output = log_os_system("docker exec -it pmon pip3 show sonic-platform", 1)
         if not status:
             # Need to remove this whl module
-            status, output = log_os_system("docker exec -it pmon pip uninstall sonic-platform -y", 1)
+            status, output = log_os_system("docker exec -it pmon pip3 uninstall sonic-platform -y", 1)
             if not status:
-                print "Successfully uninstalled the native sonic-platform whl pkg from pmon container"
+                print("Successfully uninstalled the native sonic-platform whl pkg from pmon container")
             else:
-                print "Error: Unable to uninstall the sonic-platform whl pkg from pmon container.\
-                        Do it manually before moving to nonpddf mode"
+                print("Error: Unable to uninstall the sonic-platform whl pkg from pmon container."
+                        " Do it manually before moving to nonpddf mode")
                 return status
-        print "Stopping the pmon service ..."
+        print("Stopping the pmon service ...")
         status, output = log_os_system("systemctl stop pmon.service", 1)
         if status:
-            print "Pmon stop failed"
+            print("Pmon stop failed")
             if FORCE==0:
                 return status
 
-        print "Stopping the platform services.."
+        print("Stopping the platform services..")
         status = pddf_switch_svc.stop_platform_svc()
         if not status:
             if FORCE==0:
                 return status
 
-        print "Creating the pddf_support file..."
+        print("Creating the pddf_support file...")
         if os.path.exists('/usr/share/sonic/platform'):
             log_os_system("touch /usr/share/sonic/platform/pddf_support", 1)
         else:
-            print "/usr/share/sonic/platform path doesn't exist. Unable to set pddf mode"
+            print("/usr/share/sonic/platform path doesn't exist. Unable to set pddf mode")
             return -1
 
-        print "Starting the PDDF platform service..."
+        print("Starting the PDDF platform service...")
         status = pddf_switch_svc.start_platform_pddf()
         if not status:
             if FORCE==0:
                 return status
 
-        print "Restart the pmon service ..."
+        print("Restart the pmon service ...")
         status, output = log_os_system("systemctl start pmon.service", 1)
         if status:
-            print "Pmon restart failed"
+            print("Pmon restart failed")
             if FORCE==0:
                 return status
 
@@ -549,53 +553,53 @@ def do_switch_nonpddf():
     try:
         import pddf_switch_svc
     except ImportError:
-        print "Unable to find pddf_switch_svc.py. PDDF might not be supported on this platform"
+        print("Unable to find pddf_switch_svc.py. PDDF might not be supported on this platform")
         sys.exit()
-    print "Checking system...."
+    print("Checking system....")
     if not os.path.exists('/usr/share/sonic/platform/pddf_support'):
-        print PROJECT_NAME.upper() +" system is already in non-pddf mode...."
+        print(PROJECT_NAME.upper() +" system is already in non-pddf mode....")
     else:
-        print "Check if the sonic-platform whl package is installed in the pmon docker"
-        status, output = log_os_system("docker exec -it pmon pip show sonic-platform", 1)
+        print("Check if the sonic-platform whl package is installed in the pmon docker")
+        status, output = log_os_system("docker exec -it pmon pip3 show sonic-platform", 1)
         if not status:
             # Need to remove this whl module
-            status, output = log_os_system("docker exec -it pmon pip uninstall sonic-platform -y", 1)
+            status, output = log_os_system("docker exec -it pmon pip3 uninstall sonic-platform -y", 1)
             if not status:
-                print "Successfully uninstalled the sonic-platform whl pkg from pmon container"
+                print("Successfully uninstalled the sonic-platform whl pkg from pmon container")
             else:
-                print "Error: Unable to uninstall the sonic-platform whl pkg from pmon container.\
-                        Do it manually before moving to nonpddf mode"
+                print("Error: Unable to uninstall the sonic-platform whl pkg from pmon container."
+                        " Do it manually before moving to nonpddf mode")
                 return status
-        print "Stopping the pmon service ..."
+        print("Stopping the pmon service ...")
         status, output = log_os_system("systemctl stop pmon.service", 1)
         if status:
-            print "Stopping pmon service failed"
+            print("Stopping pmon service failed")
             if FORCE==0:
                 return status
 
-        print "Stopping the PDDF platform service..."
+        print("Stopping the PDDF platform service...")
         status = pddf_switch_svc.stop_platform_pddf()
         if not status:
             if FORCE==0:
                 return status
 
-        print "Removing the pddf_support file..."
+        print("Removing the pddf_support file...")
         if os.path.exists('/usr/share/sonic/platform'):
             log_os_system("rm -f /usr/share/sonic/platform/pddf_support", 1)
         else:
-            print "/usr/share/sonic/platform path doesnt exist. Unable to set non-pddf mode"
+            print("/usr/share/sonic/platform path doesnt exist. Unable to set non-pddf mode")
             return -1
 
-        print "Starting the platform services..."
+        print("Starting the platform services...")
         status = pddf_switch_svc.start_platform_svc()
         if not status:
             if FORCE==0:
                 return status
 
-        print "Restart the pmon service ..."
+        print("Restart the pmon service ...")
         status, output = log_os_system("systemctl start pmon.service", 1)
         if status:
-            print "Restarting pmon service failed"
+            print("Restarting pmon service failed")
             if FORCE==0:
                 return status
 
