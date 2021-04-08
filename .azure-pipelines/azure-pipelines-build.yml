@@ -21,7 +21,7 @@ jobs:
     preSteps: ${{ parameters.preSteps }}
     postSteps: ${{ parameters.postSteps }}
     jobVariables:
-      PLATFORM: $(GROUP_NAME)
+      PLATFORM_AZP: $(GROUP_NAME)
       PLATFORM_ARCH: amd64
       BUILD_OPTIONS: ${{ parameters.buildOptions }}
       dbg_image: false
