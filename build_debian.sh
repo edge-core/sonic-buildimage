@@ -246,14 +246,15 @@ sudo cp files/docker/docker.service.conf $_
 ## Fix systemd race between docker and containerd
 sudo sed -i '/After=/s/$/ containerd.service/' $FILESYSTEM_ROOT/lib/systemd/system/docker.service
 
-## Create redis group
-sudo LANG=C chroot $FILESYSTEM_ROOT groupadd -f redis
-
 ## Create default user
 ## Note: user should be in the group with the same name, and also in sudo/docker/redis groups
-sudo LANG=C chroot $FILESYSTEM_ROOT useradd -G sudo,docker,redis $USERNAME -c "$DEFAULT_USERINFO" -m -s /bin/bash
+sudo LANG=C chroot $FILESYSTEM_ROOT useradd -G sudo,docker $USERNAME -c "$DEFAULT_USERINFO" -m -s /bin/bash
 ## Create password for the default user
 echo "$USERNAME:$PASSWORD" | sudo LANG=C chroot $FILESYSTEM_ROOT chpasswd
+
+## Create redis group
+sudo LANG=C chroot $FILESYSTEM_ROOT groupadd -f redis
+sudo LANG=C chroot $FILESYSTEM_ROOT usermod -aG redis $USERNAME
 
 if [[ $CONFIGURED_ARCH == amd64 ]]; then
     ## Pre-install hardware drivers
@@ -584,6 +585,12 @@ if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
     # Remove qemu arm bin executable used for cross-building
     sudo rm -f $FILESYSTEM_ROOT/usr/bin/qemu*static || true
     DOCKERFS_PATH=../dockerfs/
+fi
+
+# Ensure admin gid is 1000
+gid_user=$(sudo LANG=C chroot $FILESYSTEM_ROOT id -g $USERNAME) || gid_user="none"
+if [ "${gid_user}" != "1000" ]; then
+    die "expect gid 1000. current:${gid_user}"
 fi
 
 ## Compress docker files
