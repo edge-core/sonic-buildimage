@@ -3,12 +3,18 @@
 # Load the common functions
 source /usr/bin/TS
 
+find_num_routemap
+routemap_count=$?
 check_installed
 installed=$?
-if [[ $installed -ne 0 ]];
+
+if [[ $routemap_count -eq 0 ]];
+then
+  echo "System Mode: No external neighbors"
+elif [[ $installed -ne 0 ]]; 
 then
   TSB_FILE=$(mktemp)
-  for route_map_name in $(echo "$config" | sed -ne 's/  neighbor \S* route-map \(\S*\) out/\1/p');
+  for route_map_name in $(echo "$config" | sed -ne 's/  neighbor \S* route-map \(\S*\) out/\1/p' | uniq);
   do
     is_internal_route_map $route_map_name && continue
     case "$route_map_name" in
