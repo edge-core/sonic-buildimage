@@ -24,6 +24,7 @@ setup(
     tests_require=[
         'pytest',
         'pytest-cov',
+        'sonic-py-common',
     ],
     install_requires=['netaddr', 'pyyaml'],
     license="GNU General Public License v3",

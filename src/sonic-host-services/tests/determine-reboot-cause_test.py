@@ -1,10 +1,9 @@
-import importlib.machinery
-import importlib.util
 import sys
 import os
 import pytest
 
 import swsssdk
+from sonic_py_common.general import load_module_from_source
 
 # TODO: Remove this if/else block once we no longer support Python 2
 if sys.version_info.major == 3:
@@ -31,11 +30,7 @@ sys.path.insert(0, modules_path)
 
 # Load the file under test
 determine_reboot_cause_path = os.path.join(scripts_path, 'determine-reboot-cause')
-loader = importlib.machinery.SourceFileLoader('determine_reboot_cause', determine_reboot_cause_path)
-spec = importlib.util.spec_from_loader(loader.name, loader)
-determine_reboot_cause = importlib.util.module_from_spec(spec)
-loader.exec_module(determine_reboot_cause)
-sys.modules['determine_reboot_cause'] = determine_reboot_cause
+determine_reboot_cause = load_module_from_source('determine_reboot_cause', determine_reboot_cause_path)
 
 
 PROC_CMDLINE_CONTENTS = """\
