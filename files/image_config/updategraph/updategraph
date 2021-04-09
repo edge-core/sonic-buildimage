@@ -22,7 +22,7 @@ reload_minigraph()
         echo "Missing tacacs json to restore tacacs credentials"
     fi
     DEVICE_TYPE=`sonic-cfggen -m -v DEVICE_METADATA.localhost.type`
-    if [ "${DEVICE_TYPE}" != "MgmtToRRouter" ]; then
+    if [[ "${DEVICE_TYPE}" != "MgmtToRRouter" && "${DEVICE_TYPE}" != "EPMS" ]]; then
         pfcwd start_default
     fi
 
