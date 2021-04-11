@@ -50,9 +50,9 @@ jobs:
           platform_rpc: centec
       - name: centec-arm64
         pool: sonicbld_8c
+        timeoutInMinutes: 1800
         variables:
-          arch: arm64
-          timeoutInMinutes: 1800
+          PLATFORM_ARCH: arm64
       - name: generic
         variables:
           dbg_image: true
@@ -61,9 +61,9 @@ jobs:
           swi_image: true
       - name: marvell-armhf
         pool: sonicbld_8c
+        timeoutInMinutes: 1800
         variables:
-          arch: armhf
-          timeoutInMinutes: 1800
+          PLATFORM_ARCH: armhf
       - name: mellanox
         variables:
           dbg_image: true
@@ -97,3 +97,4 @@ jobs:
             fi
             make $BUILD_OPTIONS target/sonic-$(GROUP_NAME).bin
           fi
+        displayName: "Build sonic image"
