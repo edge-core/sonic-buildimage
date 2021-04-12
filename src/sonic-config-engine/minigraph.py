@@ -791,6 +791,7 @@ def parse_meta(meta, hname):
     region = None
     cloudtype = None
     resource_type = None
+    downstream_subrole = None
     kube_data = {}
     device_metas = meta.find(str(QName(ns, "Devices")))
     for device in device_metas.findall(str(QName(ns1, "DeviceMetadata"))):
@@ -820,11 +821,13 @@ def parse_meta(meta, hname):
                     cloudtype = value
                 elif name == "ResourceType":
                     resource_type = value
+                elif name == "DownStreamSubRole":
+                    downstream_subrole = value
                 elif name == "KubernetesEnabled":
                     kube_data["enable"] = value
                 elif name == "KubernetesServerIp":
                     kube_data["ip"] = value
-    return syslog_servers, dhcp_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id, region, cloudtype, resource_type, kube_data
+    return syslog_servers, dhcp_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id, region, cloudtype, resource_type, downstream_subrole, kube_data
 
 
 def parse_linkmeta(meta, hname):
@@ -1097,6 +1100,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
     devices = None
     sub_role = None
     resource_type = None
+    downstream_subrole = None
     docker_routing_config_mode = "separated"
     port_speeds_default = {}
     port_speed_png = {}
@@ -1155,7 +1159,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
             elif child.tag == str(QName(ns, "UngDec")):
                 (u_neighbors, u_devices, _, _, _, _, _, _) = parse_png(child, hostname, None)
             elif child.tag == str(QName(ns, "MetadataDeclaration")):
-                (syslog_servers, dhcp_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id, region, cloudtype, resource_type, kube_data) = parse_meta(child, hostname)
+                (syslog_servers, dhcp_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id, region, cloudtype, resource_type, downstream_subrole, kube_data) = parse_meta(child, hostname)
             elif child.tag == str(QName(ns, "LinkMetadataDeclaration")):
                 linkmetas = parse_linkmeta(child, hostname)
             elif child.tag == str(QName(ns, "DeviceInfos")):
@@ -1229,6 +1233,9 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
 
     if resource_type is not None:
         results['DEVICE_METADATA']['localhost']['resource_type'] = resource_type
+
+    if downstream_subrole is not None:
+        results['DEVICE_METADATA']['localhost']['downstream_subrole'] = downstream_subrole
 
     results['BGP_NEIGHBOR'] = bgp_sessions
     results['BGP_MONITORS'] = bgp_monitors
