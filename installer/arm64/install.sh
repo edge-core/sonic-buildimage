@@ -98,7 +98,13 @@ if [ "$install_env" = "onie" ]; then
     mount_partition
 elif [ "$install_env" = "sonic" ]; then
     demo_mnt="/host"
-    eval running_sonic_revision=$(cat /etc/sonic/sonic_version.yml | grep build_version | cut -f2 -d" ")
+    # Get current SONiC image (grub/aboot/uboot)
+    eval running_sonic_revision="$(cat /proc/cmdline | sed -n 's/^.*loop=\/*image-\(\S\+\)\/.*$/\1/p')"
+    # Verify SONiC image exists
+    if [ ! -d "$demo_mnt/image-$running_sonic_revision" ]; then
+        echo "ERROR: SONiC installation is corrupted: path $demo_mnt/image-$running_sonic_revision doesn't exist"
+        exit 1
+    fi
     # Prevent installing existing SONiC if it is running
     if [ "$image_dir" = "image-$running_sonic_revision" ]; then
         echo "Not installing SONiC version $running_sonic_revision, as current running SONiC has the same version"
