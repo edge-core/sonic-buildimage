@@ -16,7 +16,6 @@ try:
     import time
     import os
     import logging
-    import select
     from sonic_sfp.sfputilbase import SfpUtilBase
 except ImportError as e:
     raise ImportError("%s - required module not found" % str(e))
@@ -28,7 +27,7 @@ class SfpUtil(SfpUtilBase):
     PORT_START = 0
     PORT_END = 63
     PORTS_IN_BLOCK = 64
-
+    POLL_INTERVAL = 1
     _port_to_eeprom_mapping = {}
     _port_to_i2c_mapping = {
         0: [6, 18, 34, 50, 66],
@@ -110,7 +109,6 @@ class SfpUtil(SfpUtilBase):
     IOM_4_PORT_END = 63
 
     BASE_VAL_PATH = "/sys/class/i2c-adapter/i2c-{0}/{0}-003e/"
-    OIR_FD_PATH = "/sys/devices/platform/dell_ich.0/sci_int_gpio_sus6"
 
     oir_fd = -1
     epoll = -1
@@ -235,8 +233,8 @@ class SfpUtil(SfpUtilBase):
                     elif (not assigned):
                         self.port_to_eeprom_mapping[port_num] =\
                             "No IOM"
-
         SfpUtilBase.__init__(self)
+        self._transceiver_presence = self._get_transceiver_presence()
 
     def __del__(self):
         if self.oir_fd != -1:
@@ -482,7 +480,7 @@ class SfpUtil(SfpUtilBase):
     def get_register(self, reg_file):
         retval = 'ERR'
 
-        if (not os.path.isfile(reg_file)):
+        if not os.path.isfile(reg_file):
             print(reg_file + ' not found !')
             return retval
 
@@ -496,141 +494,88 @@ class SfpUtil(SfpUtilBase):
         retval = retval.lstrip(" ")
         return retval
 
-    def check_interrupts(self, port_dict):
-        retval = 0
-        is_port_dict_updated = False
+    def _get_transceiver_presence(self):
 
-        # Read the QSFP ABS interrupt & status registers
-        cpld2_abs_int = self.get_register(
-            "/sys/class/i2c-adapter/i2c-14/14-003e/qsfp_abs_int")
-        cpld2_abs_sta = self.get_register(
-            "/sys/class/i2c-adapter/i2c-14/14-003e/qsfp_abs_sta")
-        cpld3_abs_int = self.get_register(
-            "/sys/class/i2c-adapter/i2c-15/15-003e/qsfp_abs_int")
-        cpld3_abs_sta = self.get_register(
-            "/sys/class/i2c-adapter/i2c-15/15-003e/qsfp_abs_sta")
-        cpld4_abs_int = self.get_register(
-            "/sys/class/i2c-adapter/i2c-16/16-003e/qsfp_abs_int")
-        cpld4_abs_sta = self.get_register(
-            "/sys/class/i2c-adapter/i2c-16/16-003e/qsfp_abs_sta")
-        cpld5_abs_int = self.get_register(
-            "/sys/class/i2c-adapter/i2c-17/17-003e/qsfp_abs_int")
-        cpld5_abs_sta = self.get_register(
-            "/sys/class/i2c-adapter/i2c-17/17-003e/qsfp_abs_sta")
+        cpld2_modprs = self.get_register(
+                    "/sys/class/i2c-adapter/i2c-14/14-003e/qsfp_modprs")
+        cpld3_modprs = self.get_register(
+                    "/sys/class/i2c-adapter/i2c-15/15-003e/qsfp_modprs")
+        cpld4_modprs = self.get_register(
+                    "/sys/class/i2c-adapter/i2c-16/16-003e/qsfp_modprs")
+        cpld5_modprs = self.get_register(
+                    "/sys/class/i2c-adapter/i2c-17/17-003e/qsfp_modprs")
 
-        if (cpld2_abs_int == 'ERR' or cpld2_abs_sta == 'ERR' or
-                cpld3_abs_int == 'ERR' or cpld3_abs_sta == 'ERR' or
-                cpld4_abs_int == 'ERR' or cpld4_abs_sta == 'ERR' or
-                cpld5_abs_int == 'ERR' or cpld5_abs_sta == 'ERR'):
-            return -1
-
-        # If IOM is not present, interrupt will return 'read error'
+        # If IOM is not present, register read will fail.
         # Handle the scenario gracefully
-        if (cpld2_abs_int == 'read error'):
-            cpld2_abs_int = "0x0"
-            cpld2_abs_sta = "0x0"
-        if (cpld3_abs_int == 'read error'):
-            cpld3_abs_int = "0x0"
-            cpld3_abs_sta = "0x0"
-        if (cpld4_abs_int == 'read error'):
-            cpld4_abs_int = "0x0"
-            cpld4_abs_sta = "0x0"
-        if (cpld5_abs_int == 'read error'):
-            cpld5_abs_int = "0x0"
-            cpld5_abs_sta = "0x0"
-
-        cpld2_abs_int = int(cpld2_abs_int, 16)
-        cpld2_abs_sta = int(cpld2_abs_sta, 16)
-        cpld3_abs_int = int(cpld3_abs_int, 16)
-        cpld3_abs_sta = int(cpld3_abs_sta, 16)
-        cpld4_abs_int = int(cpld4_abs_int, 16)
-        cpld4_abs_sta = int(cpld4_abs_sta, 16)
-        cpld5_abs_int = int(cpld5_abs_int, 16)
-        cpld5_abs_sta = int(cpld5_abs_sta, 16)
+        if cpld2_modprs == 'read error' or cpld2_modprs == 'ERR':
+            cpld2_modprs = '0x0'
+        if cpld3_modprs == 'read error' or cpld3_modprs == 'ERR':
+            cpld3_modprs = '0x0'
+        if cpld4_modprs == 'read error' or cpld4_modprs == 'ERR':
+            cpld4_modprs = '0x0'
+        if cpld5_modprs == 'read error' or cpld5_modprs == 'ERR':
+            cpld5_modprs = '0x0'
 
         # Make it contiguous
-        interrupt_reg = (cpld2_abs_int & 0xffff) | \
-                        ((cpld4_abs_int & 0xffff) << 16) | \
-                        ((cpld3_abs_int & 0xffff) << 32) | \
-                        ((cpld5_abs_int & 0xffff) << 48)
-        status_reg = (cpld2_abs_sta & 0xffff) | \
-                     ((cpld4_abs_sta & 0xffff) << 16) | \
-                     ((cpld3_abs_sta & 0xffff) << 32) | \
-                     ((cpld5_abs_sta & 0xffff) << 48)
+        transceiver_presence = (int(cpld2_modprs, 16) & 0xffff) |\
+                               ((int(cpld4_modprs, 16) & 0xffff) << 16) |\
+                               ((int(cpld3_modprs, 16) & 0xffff) << 32) |\
+                               ((int(cpld5_modprs, 16) & 0xffff) << 48)
 
-        port = self.port_start
-        while port <= self.port_end:
-            if interrupt_reg & (1 << port):
-                # update only if atleast one port has generated
-                # interrupt
-                is_port_dict_updated = True
-                if status_reg & (1 << port):
-                    # status reg 1 => optics is removed
-                    port_dict[port] = '0'
-                else:
-                    # status reg 0 => optics is inserted
-                    port_dict[port] = '1'
-            port += 1
-        return retval, is_port_dict_updated
+        return transceiver_presence
 
     def get_transceiver_change_event(self, timeout=0):
+        """
+        Returns a dictionary containing optics insertion/removal status.
+        Args:
+            timeout: Timeout in milliseconds (optional). If timeout == 0,
+                this method will block until a change is detected.
+        Returns:
+            (bool, dict):
+                - True if call successful, False if not;
+        """
         port_dict = {}
-        try:
-            # We get notified when there is an SCI interrupt from GPIO SUS6
-            # Open the sysfs file and register the epoll object
-            self.oir_fd = open(self.OIR_FD_PATH, "r")
-            if self.oir_fd != -1:
-                # Do a dummy read before epoll register
-                self.oir_fd.read()
-                self.epoll = select.epoll()
-                self.epoll.register(self.oir_fd.fileno(),
-                                    select.EPOLLIN & select.EPOLLET)
+        forever = False
+
+        if timeout == 0:
+            forever = True
+        elif timeout > 0:
+            timeout = timeout / float(1000) # Convert to secs
+        else:
+            return False, port_dict # Incorrect timeout
+
+        while True:
+            if forever:
+                timer = self.POLL_INTERVAL
             else:
-                print("get_transceiver_change_event : unable to create fd")
-                return False, {}
+                timer = min(timeout, self.POLL_INTERVAL)
+                start_time = time.time()
 
-            # Check for missed interrupts by invoking self.check_interrupts
-            # which will update the port_dict.
-            while True:
-                interrupt_count_start = self.get_register(self.OIR_FD_PATH)
+            time.sleep(timer)
+            cur_presence = self._get_transceiver_presence()
 
-                retval, is_port_dict_updated = \
-                    self.check_interrupts(port_dict)
-                if ((retval == 0) and (is_port_dict_updated is True)):
-                    return True, port_dict
+            # Update dict only if a change has been detected
+            if cur_presence != self._transceiver_presence:
+                changed_ports = self._transceiver_presence ^ cur_presence
+                for port in range(self.port_end):
+                    # Mask off the bit corresponding to particular port
+                    mask = 1 << port
+                    if changed_ports & mask:
+                        # qsfp_modprs 1 => optics is removed
+                        if cur_presence & mask:
+                            port_dict[port] = '0'
+                        # qsfp_modprs 0 => optics is inserted
+                        else:
+                            port_dict[port] = '1'
 
-                interrupt_count_end = self.get_register(self.OIR_FD_PATH)
+                # Update current presence
+                self._transceiver_presence = cur_presence
+                break
 
-                if (interrupt_count_start == 'ERR' or
-                        interrupt_count_end == 'ERR'):
-                    print("get_transceiver_change_event : \
-                            unable to retrive interrupt count")
+            if not forever:
+                elapsed_time = time.time() - start_time
+                timeout = round(timeout - elapsed_time, 3)
+                if timeout <= 0:
                     break
 
-                # check_interrupts() itself may take upto 100s of msecs.
-                # We detect a missed interrupt based on the count
-                if interrupt_count_start == interrupt_count_end:
-                    break
-
-            # Block until an xcvr is inserted or removed with timeout = -1
-            events = self.epoll.poll(
-                timeout=timeout if timeout != 0 else -1)
-            if events:
-                # check interrupts and return the port_dict
-                retval, is_port_dict_updated = \
-                    self.check_interrupts(port_dict)
-                if (retval != 0):
-                    return False, {}
-
-            return True, port_dict
-        except:
-            return False, {}
-        finally:
-            if self.oir_fd != -1:
-                self.epoll.unregister(self.oir_fd.fileno())
-                self.epoll.close()
-                self.oir_fd.close()
-                self.oir_fd = -1
-                self.epoll = -1
-
-        return False, {}
+        return True, port_dict
