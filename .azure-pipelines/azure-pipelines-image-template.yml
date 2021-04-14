@@ -38,6 +38,7 @@ jobs:
         submodules: recursive
         displayName: 'Checkout code'
       - script: |
+          git checkout -b $(Build.SourceBranchName)
           sudo modprobe overlay
           sudo apt-get install -y acl
           export DOCKER_DATA_ROOT_FOR_MULTIARCH=/data/march/docker
