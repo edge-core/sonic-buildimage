@@ -41,7 +41,6 @@ jobs:
           git checkout -b $(Build.SourceBranchName)
           sudo modprobe overlay
           sudo apt-get install -y acl
-          export DOCKER_DATA_ROOT_FOR_MULTIARCH=/data/march/docker
           sudo bash -c "echo 1 > /proc/sys/vm/compact_memory"
           ENABLE_DOCKER_BASE_PULL=y make PLATFORM=$(PLATFORM_AZP) PLATFORM_ARCH=$(PLATFORM_ARCH) configure
         displayName: 'Make configure'
