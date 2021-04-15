@@ -87,7 +87,7 @@ LIBSWSSCOMMON_DEV = libswsscommon-dev_1.0.0_amd64.deb
 $(eval $(call add_derived_package,$(LIBSWSSCOMMON),$(LIBSWSSCOMMON_DEV)))
 ```
 First we define our package swsscommon.  
-Then we secify **SRC_PATH** (path to sources),
+Then we specify **SRC_PATH** (path to sources),
 **DEPENDS** (build dependencies),
 and **RDEPENDS** (runtime dependencies for docker installation).  
 Then we add our target to SONIC_DPKG_DEBS target group.  
