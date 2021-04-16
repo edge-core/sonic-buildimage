@@ -153,7 +153,7 @@ To build Arm64 bit for platform
     `/usr/bin/tar: /path/to/sonic-buildimage/<some_file>: Cannot write: No space left on device`
 
     The solution is to [move the directory](https://linuxconfig.org/how-to-move-docker-s-default-var-lib-docker-to-another-directory-on-ubuntu-debian-linux) to a partition with more free space.
-- Use `http_proxy=[your_proxy] https_proxy=[your_proxy] make` to enable http(s) proxy in the build process.
+- Use `http_proxy=[your_proxy] https_proxy=[your_proxy] no_proxy=[your_no_proxy] make` to enable http(s) proxy in the build process.
 - Add your user account to `docker` group and use your user account to make. `root` or `sudo` are not supported.
 
 The SONiC installer contains all docker images needed. SONiC uses one image for all devices of a same ASIC vendor. The supported ASIC vendors are:

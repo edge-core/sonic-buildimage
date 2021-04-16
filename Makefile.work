@@ -138,6 +138,7 @@ DOCKER_RUN := docker run --rm=true --privileged --init \
     -w $(DOCKER_BUILDER_WORKDIR) \
     -e "http_proxy=$(http_proxy)" \
     -e "https_proxy=$(https_proxy)" \
+    -e "no_proxy=$(no_proxy)" \
     -i$(shell { if [ -t 0 ]; then echo t; fi }) \
     $(SONIC_BUILDER_EXTRA_CMDLINE)
 
@@ -197,6 +198,7 @@ DOCKER_BASE_BUILD = docker build --no-cache \
 		    -t $(SLAVE_BASE_IMAGE):$(SLAVE_BASE_TAG) \
 		    --build-arg http_proxy=$(http_proxy) \
 		    --build-arg https_proxy=$(https_proxy) \
+		    --build-arg no_proxy=$(no_proxy) \
 		    $(SLAVE_DIR)
 
 DOCKER_BASE_PULL = docker pull \
@@ -240,6 +242,7 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            SONIC_DPKG_CACHE_SOURCE=$(SONIC_DPKG_CACHE_SOURCE) \
                            HTTP_PROXY=$(http_proxy) \
                            HTTPS_PROXY=$(https_proxy) \
+                           NO_PROXY=$(no_proxy) \
                            SONIC_INCLUDE_SYSTEM_TELEMETRY=$(INCLUDE_SYSTEM_TELEMETRY) \
                            SONIC_INCLUDE_RESTAPI=$(INCLUDE_RESTAPI) \
                            TELEMETRY_WRITABLE=$(TELEMETRY_WRITABLE) \

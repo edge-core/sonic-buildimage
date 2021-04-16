@@ -238,6 +238,7 @@ $(info "ENABLE_SYNCD_RPC"                : "$(ENABLE_SYNCD_RPC)")
 $(info "ENABLE_ORGANIZATION_EXTENSIONS"  : "$(ENABLE_ORGANIZATION_EXTENSIONS)")
 $(info "HTTP_PROXY"                      : "$(HTTP_PROXY)")
 $(info "HTTPS_PROXY"                     : "$(HTTPS_PROXY)")
+$(info "NO_PROXY"                        : "$(NO_PROXY)")
 $(info "ENABLE_ZTP"                      : "$(ENABLE_ZTP)")
 $(info "SONIC_DEBUGGING_ON"              : "$(SONIC_DEBUGGING_ON)")
 $(info "SONIC_PROFILING_ON"              : "$(SONIC_PROFILING_ON)")
@@ -647,7 +648,8 @@ $(SONIC_INSTALL_WHEELS) : $(PYTHON_WHEELS_PATH)/%-install : .platform $$(addsuff
 # start docker daemon
 docker-start :
 	@sudo sed -i '/http_proxy/d' /etc/default/docker
-	@sudo bash -c "echo \"export http_proxy=$$http_proxy\" >> /etc/default/docker"
+	@sudo bash -c "{ echo \"export http_proxy=$$http_proxy\"; \
+	            echo \"export no_proxy=$$no_proxy\"; } >> /etc/default/docker"
 	@test x$(SONIC_CONFIG_USE_NATIVE_DOCKERD_FOR_BUILD) != x"y" && sudo service docker status &> /dev/null || ( sudo service docker start &> /dev/null && ./scripts/wait_for_docker.sh 60 )
 
 # targets for building simple docker images that do not depend on any debian packages
@@ -661,6 +663,7 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_SIMPLE_DOCKER_IMAGES)) : $(TARGET_PATH)/%.g
 	docker build --squash --no-cache \
 		--build-arg http_proxy=$(HTTP_PROXY) \
 		--build-arg https_proxy=$(HTTPS_PROXY) \
+		--build-arg no_proxy=$(NO_PROXY) \
 		--build-arg user=$(USER) \
 		--build-arg uid=$(UID) \
 		--build-arg guid=$(GUID) \
@@ -751,6 +754,7 @@ $(addprefix $(TARGET_PATH)/, $(DOCKER_IMAGES)) : $(TARGET_PATH)/%.gz : .platform
 		docker build --squash --no-cache \
 			--build-arg http_proxy=$(HTTP_PROXY) \
 			--build-arg https_proxy=$(HTTPS_PROXY) \
+			--build-arg no_proxy=$(NO_PROXY) \
 			--build-arg user=$(USER) \
 			--build-arg uid=$(UID) \
 			--build-arg guid=$(GUID) \
@@ -802,7 +806,8 @@ $(addprefix $(TARGET_PATH)/, $(DOCKER_DBG_IMAGES)) : $(TARGET_PATH)/%-$(DBG_IMAG
 		docker build \
 			$(if $($*.gz_DBG_DEPENDS), --squash --no-cache, --no-cache) \
 			--build-arg http_proxy=$(HTTP_PROXY) \
-			--build-arg https_proxy=$(HTTPS_PROXY) \
+			--build-arg http_proxy=$(HTTP_PROXY) \
+			--build-arg no_proxy=$(NO_PROXY) \
 			--build-arg docker_container_name=$($*.gz_CONTAINER_NAME) \
 			--label Tag=$(SONIC_IMAGE_VERSION) \
 			--file $($*.gz_PATH)/Dockerfile-dbg \
