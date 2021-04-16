@@ -205,6 +205,9 @@ sudo cp $IMAGE_CONFIGS/monit/conf.d/* $FILESYSTEM_ROOT/etc/monit/conf.d/
 sudo chmod 600 $FILESYSTEM_ROOT/etc/monit/conf.d/*
 sudo cp $IMAGE_CONFIGS/monit/process_checker $FILESYSTEM_ROOT/usr/bin/
 sudo chmod 755 $FILESYSTEM_ROOT/usr/bin/process_checker
+sudo cp $IMAGE_CONFIGS/monit/generate_monit_config.service $FILESYSTEM_ROOT_USR_LIB_SYSTEMD_SYSTEM
+sudo cp $IMAGE_CONFIGS/monit/generate_monit_config $FILESYSTEM_ROOT/usr/bin/
+sudo chmod 755 $FILESYSTEM_ROOT/usr/bin/generate_monit_config
 
 # Copy crontabs
 sudo cp -f $IMAGE_CONFIGS/cron.d/* $FILESYSTEM_ROOT/etc/cron.d/

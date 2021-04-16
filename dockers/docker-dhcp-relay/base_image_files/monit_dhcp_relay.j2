@@ -1,0 +1,36 @@
+{# This template file is used to generate Monit configuration file of dhcp_relay container -#}
+
+################################################################################
+## Monit configuration file for dhcp_relay container
+## process list:
+##  dhcrelay
+################################################################################
+{# If our configuration has VLANs... #}
+{%- if VLAN_INTERFACE -%}
+ {# Count how may VLANs require a DHCP relay agent... #}
+ {%- set num_relays = namespace(count=0) -%}
+  {%- for vlan_name in VLAN_INTERFACE -%}
+    {%- if VLAN and vlan_name in VLAN and 'dhcp_servers' in VLAN[vlan_name] and VLAN[vlan_name]['dhcp_servers']|length > 0 -%}
+      {%- set num_relays.count = num_relays.count + 1 -%}
+    {%- endif -%}
+  {%- endfor -%}
+  {# if one or more VLANs require DHCP relay agent #}
+  {%- if num_relays.count > 0 -%}
+    {%- set relay_for_ipv4 = namespace(flag=False) -%}
+    {%- for vlan_name in VLAN_INTERFACE -%}
+      {%- if VLAN and vlan_name in VLAN and 'dhcp_servers' in VLAN[vlan_name] and VLAN[vlan_name]['dhcp_servers']|length >0 -%}
+        {%- for dhcp_server in VLAN[vlan_name]['dhcp_servers'] -%}
+          {%- if dhcp_server | ipv4 -%}
+            {%- set relay_for_ipv4.flag = True -%}
+          {%- endif -%}
+        {%- endfor -%}
+        {%- if relay_for_ipv4.flag -%}
+          {%- set relay_for_ipv4 = False -%}
+          {# Check the running status of each DHCP relay agent instance #}
+check program dhcp_relay|dhcrelay with path "/usr/bin/process_checker dhcp_relay /usr/sbin/dhcrelay -d -m discard -a %h:%p %P --name-alias-map-file /tmp/port-name-alias-map.txt -id {{ vlan_name }}"
+    if status != 0 for 5 times within 5 cycles then alert repeat every 1 cycles
+        {%- endif -%}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
+{%- endif -%}

@@ -1,0 +1,33 @@
+{# This template is used to generate Monit configuration file of router advertiser container -#}
+
+###############################################################################
+## Monit configuration for radv container
+## process list:
+##  radvd
+###############################################################################
+{# Router advertiser should only run on ToR (T0) devices which have #}
+{# at least one VLAN interface which has an IPv6 address asigned #}
+{# But not for specific deployment_id #}
+{%- set vlan_v6 = namespace(count=0) -%}
+{%- if DEVICE_METADATA is defined and DEVICE_METADATA.localhost is defined -%}
+  {%- if DEVICE_METADATA.localhost.deployment_id is defined and DEVICE_METADATA.localhost.type is defined -%}
+    {%- if DEVICE_METADATA.localhost.deployment_id != "8" -%}
+      {%- if "ToRRouter" in DEVICE_METADATA.localhost.type and DEVICE_METADATA.localhost.type != "MgmtToRRouter" -%}
+        {%- if VLAN_INTERFACE -%}
+          {%- for (name, prefix) in VLAN_INTERFACE|pfx_filter -%}
+            {# If this VLAN has an IPv6 address... #}
+            {%- if prefix | ipv6 -%}
+              {%- set vlan_v6.count = vlan_v6.count + 1 -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endif -%}
+    {%- endif -%}
+  {%- endif -%}
+{%- endif -%}
+
+{%- if vlan_v6.count > 0 -%}
+{# Check the running status of radvd process #}
+check program radv|radvd with path "/usr/bin/process_checker radv /usr/sbin/radvd -n"
+    if status != 0 for 5 times within 5 cycles then alert repeat every 1 cycles
+{%- endif -%}
