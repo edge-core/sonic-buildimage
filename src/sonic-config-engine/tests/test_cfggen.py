@@ -586,6 +586,19 @@ class TestCfgGen(TestCase):
             utils.to_dict("{'10.20.30.40': {'rrclient': 0, 'name': 'BGPMonitor', 'local_addr': '10.1.0.32', 'nhopself': 0, 'holdtime': '10', 'asn': '0', 'keepalive': '3'}}")
         )
 
+    def test_minigraph_bgp_voq_chassis_peer(self):
+        argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v "BGP_VOQ_CHASSIS_NEIGHBOR[\'10.2.0.21\']"'
+        output = self.run_script(argument)
+        self.assertEqual(
+            utils.to_dict(output.strip()),
+            utils.to_dict("{'rrclient': 0, 'name': 'CHASSIS_PEER', 'local_addr': '10.2.0.20', 'nhopself': 0, 'holdtime': '180', 'asn': '65100', 'keepalive': '60', 'admin_status': 'up'}")
+        )
+
+        # make sure VoQChassisInternal value of false is honored
+        argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v "BGP_VOQ_CHASSIS_NEIGHBOR[\'10.0.0.57\']"'
+        output = self.run_script(argument)
+        self.assertEqual(output.strip(), "")
+
     def test_minigraph_sub_port_interfaces(self, check_stderr=True):
         try:
             print('\n    Change device type to %s' % (BACKEND_TOR_ROUTER))

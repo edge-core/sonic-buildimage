@@ -681,6 +681,7 @@ def parse_host_loopback(dpg, hname):
 def parse_cpg(cpg, hname, local_devices=[]):
     bgp_sessions = {}
     bgp_internal_sessions = {}
+    bgp_voq_chassis_sessions = {}
     myasn = None
     bgp_peers_with_range = {}
     for child in cpg:
@@ -702,46 +703,40 @@ def parse_cpg(cpg, hname, local_devices=[]):
                     keepalive = 60
                 nhopself = 1 if session.find(str(QName(ns, "NextHopSelf"))) is not None else 0
 
+                # choose the right table and admin_status for the peer
+                voq_chassis = session.find(str(QName(ns, "VoQChassisInternal")))
+                if voq_chassis is not None and voq_chassis.text == "true":
+                    table = bgp_voq_chassis_sessions
+                    admin_status = 'up'
+                elif end_router.lower() in local_devices and start_router.lower() in local_devices:
+                    table = bgp_internal_sessions
+                    admin_status = 'up'
+                else:
+                    table = bgp_sessions
+                    admin_status = None
+
                 if end_router.lower() == hname.lower():
-                    if end_router.lower() in local_devices and start_router.lower() in local_devices:
-                        bgp_internal_sessions[start_peer.lower()] = {
-                            'name': start_router,
-                            'local_addr': end_peer.lower(),
-                            'rrclient': rrclient,
-                            'holdtime': holdtime,
-                            'keepalive': keepalive,
-                            'nhopself': nhopself,
-                            'admin_status': 'up'
-                        }
-                    else:
-                        bgp_sessions[start_peer.lower()] = {
-                            'name': start_router,
-                            'local_addr': end_peer.lower(),
-                            'rrclient': rrclient,
-                            'holdtime': holdtime,
-                            'keepalive': keepalive,
-                            'nhopself': nhopself
-                        }
+                    table[start_peer.lower()] = {
+                        'name': start_router,
+                        'local_addr': end_peer.lower(),
+                        'rrclient': rrclient,
+                        'holdtime': holdtime,
+                        'keepalive': keepalive,
+                        'nhopself': nhopself
+                    }
+                    if admin_status:
+                        table[start_peer.lower()]['admin_status'] = admin_status
                 elif start_router.lower() == hname.lower():
-                    if end_router.lower() in local_devices and start_router.lower() in local_devices:
-                        bgp_internal_sessions[end_peer.lower()] = {
-                            'name': end_router,
-                            'local_addr': start_peer.lower(),
-                            'rrclient': rrclient,
-                            'holdtime': holdtime,
-                            'keepalive': keepalive,
-                            'nhopself': nhopself,
-                            'admin_status': 'up'
-                        }
-                    else:
-                        bgp_sessions[end_peer.lower()] = {
-                            'name': end_router,
-                            'local_addr': start_peer.lower(),
-                            'rrclient': rrclient,
-                            'holdtime': holdtime,
-                            'keepalive': keepalive,
-                            'nhopself': nhopself
-                        }
+                    table[end_peer.lower()] = {
+                        'name': end_router,
+                        'local_addr': start_peer.lower(),
+                        'rrclient': rrclient,
+                        'holdtime': holdtime,
+                        'keepalive': keepalive,
+                        'nhopself': nhopself
+                    }
+                    if admin_status:
+                        table[end_peer.lower()]['admin_status'] = admin_status
         elif child.tag == str(QName(ns, "Routers")):
             for router in child.findall(str(QName(ns1, "BGPRouterDeclaration"))):
                 asn = router.find(str(QName(ns1, "ASN"))).text
@@ -772,12 +767,19 @@ def parse_cpg(cpg, hname, local_devices=[]):
                         bgp_internal_session = bgp_internal_sessions[peer]
                         if hostname.lower() == bgp_internal_session['name'].lower():
                             bgp_internal_session['asn'] = asn
+                    for peer in bgp_voq_chassis_sessions:
+                        bgp_session = bgp_voq_chassis_sessions[peer]
+                        if hostname.lower() == bgp_session['name'].lower():
+                            bgp_session['asn'] = asn
 
     bgp_monitors = { key: bgp_sessions[key] for key in bgp_sessions if 'asn' in bgp_sessions[key] and bgp_sessions[key]['name'] == 'BGPMonitor' }
-    bgp_sessions = { key: bgp_sessions[key] for key in bgp_sessions if 'asn' in bgp_sessions[key] and int(bgp_sessions[key]['asn']) != 0 }
-    bgp_internal_sessions = { key: bgp_internal_sessions[key] for key in bgp_internal_sessions if 'asn' in bgp_internal_sessions[key] and int(bgp_internal_sessions[key]['asn']) != 0 }
+    def filter_bad_asn(table):
+        return { key: table[key] for key in table if 'asn' in table[key] and int(table[key]['asn']) != 0 }
+    bgp_sessions = filter_bad_asn(bgp_sessions)
+    bgp_internal_sessions = filter_bad_asn(bgp_internal_sessions)
+    bgp_voq_chassis_sessions = filter_bad_asn(bgp_voq_chassis_sessions)
 
-    return bgp_sessions, bgp_internal_sessions, myasn, bgp_peers_with_range, bgp_monitors
+    return bgp_sessions, bgp_internal_sessions, bgp_voq_chassis_sessions, myasn, bgp_peers_with_range, bgp_monitors
 
 
 def parse_meta(meta, hname):
@@ -1153,7 +1155,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
             if child.tag == str(QName(ns, "DpgDec")):
                 (intfs, lo_intfs, mvrf, mgmt_intf, vlans, vlan_members, pcs, pc_members, acls, vni, tunnel_intfs, dpg_ecmp_content) = parse_dpg(child, hostname)
             elif child.tag == str(QName(ns, "CpgDec")):
-                (bgp_sessions, bgp_internal_sessions, bgp_asn, bgp_peers_with_range, bgp_monitors) = parse_cpg(child, hostname)
+                (bgp_sessions, bgp_internal_sessions, bgp_voq_chassis_sessions, bgp_asn, bgp_peers_with_range, bgp_monitors) = parse_cpg(child, hostname)
             elif child.tag == str(QName(ns, "PngDec")):
                 (neighbors, devices, console_dev, console_port, mgmt_dev, mgmt_port, port_speed_png, console_ports, mux_cable_ports, is_storage_device, png_ecmp_content) = parse_png(child, hostname, dpg_ecmp_content)
             elif child.tag == str(QName(ns, "UngDec")):
@@ -1169,7 +1171,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
                 (intfs, lo_intfs, mvrf, mgmt_intf, vlans, vlan_members, pcs, pc_members, acls, vni, tunnel_intfs, dpg_ecmp_content) = parse_dpg(child, asic_name)
                 host_lo_intfs = parse_host_loopback(child, hostname)
             elif child.tag == str(QName(ns, "CpgDec")):
-                (bgp_sessions, bgp_internal_sessions, bgp_asn, bgp_peers_with_range, bgp_monitors) = parse_cpg(child, asic_name, local_devices)
+                (bgp_sessions, bgp_internal_sessions, bgp_voq_chassis_sessions, bgp_asn, bgp_peers_with_range, bgp_monitors) = parse_cpg(child, asic_name, local_devices)
             elif child.tag == str(QName(ns, "PngDec")):
                 (neighbors, devices, port_speed_png) = parse_asic_png(child, asic_name, hostname)
             elif child.tag == str(QName(ns, "MetadataDeclaration")):
@@ -1241,6 +1243,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
     results['BGP_MONITORS'] = bgp_monitors
     results['BGP_PEER_RANGE'] = bgp_peers_with_range
     results['BGP_INTERNAL_NEIGHBOR'] = bgp_internal_sessions
+    results['BGP_VOQ_CHASSIS_NEIGHBOR'] = bgp_voq_chassis_sessions
     if mgmt_routes:
         # TODO: differentiate v4 and v6
         next(iter(mgmt_intf.values()))['forced_mgmt_routes'] = mgmt_routes

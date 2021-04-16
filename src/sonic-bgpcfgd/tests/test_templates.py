@@ -140,3 +140,15 @@ def test_monitors_pg():
 def test_monitors_instance():
     test_data = load_tests("monitors", "instance.conf")
     run_tests("monitors_instance", *test_data)
+
+def test_voq_chassis_policies():
+    test_data = load_tests("voq_chassis", "policies.conf")
+    run_tests("voq_chassis_policies", *test_data)
+
+def test_voq_chassis_pg():
+    test_data = load_tests("voq_chassis", "peer-group.conf")
+    run_tests("voq_chassis_pg", *test_data)
+
+def test_voq_chassis_instance():
+    test_data = load_tests("voq_chassis", "instance.conf")
+    run_tests("voq_chassis_instance", *test_data)

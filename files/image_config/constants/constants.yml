@@ -54,3 +54,7 @@ constants:
         db_table: "BGP_PEER_RANGE"
         peer_group: "BGP_SPEAKER"
         template_dir: "dynamic"
+      voq_chassis: # peer_type
+        enabled: true
+        db_table: "BGP_VOQ_CHASSIS_NEIGHBOR"
+        template_dir: "voq_chassis"

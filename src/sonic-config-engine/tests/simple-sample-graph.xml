@@ -20,6 +20,7 @@
         <Multihop>1</Multihop>
         <HoldTime>180</HoldTime>
         <KeepAliveTime>60</KeepAliveTime>
+        <VoQChassisInternal>false</VoQChassisInternal>
       </BGPSession>
       <BGPSession>
         <StartRouter>switch-t0</StartRouter>
@@ -48,6 +49,26 @@
         <Multihop>1</Multihop>
         <HoldTime>180</HoldTime>
         <KeepAliveTime>60</KeepAliveTime>
+      </BGPSession>
+      <BGPSession>
+        <StartRouter>switch-t0</StartRouter>
+        <StartPeer>FC00::75</StartPeer>
+        <EndRouter>ARISTA02T1</EndRouter>
+        <EndPeer>FC00::76</EndPeer>
+        <Multihop>1</Multihop>
+        <HoldTime>180</HoldTime>
+        <KeepAliveTime>60</KeepAliveTime>
+      </BGPSession>
+      <BGPSession>
+        <MacSec>false</MacSec>
+        <StartRouter>switch-t0</StartRouter>
+        <StartPeer>10.2.0.20</StartPeer>
+        <EndRouter>CHASSIS_PEER</EndRouter>
+        <EndPeer>10.2.0.21</EndPeer>
+        <Multihop>1</Multihop>
+        <HoldTime>180</HoldTime>
+        <KeepAliveTime>60</KeepAliveTime>
+        <VoQChassisInternal>true</VoQChassisInternal>
       </BGPSession>
     </PeeringSessions>
     <Routers xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
@@ -82,6 +103,12 @@
             <RouteMapOut i:nil="true"/>
             <Vrf i:nil="true"/>
           </BGPPeer>
+          <BGPPeer>
+            <Address>10.2.0.21</Address>
+            <RouteMapIn i:nil="true"/>
+            <RouteMapOut i:nil="true"/>
+            <Vrf i:nil="true"/>
+          </BGPPeer>
         </a:Peers>
         <a:RouteMaps/>
       </a:BGPRouterDeclaration>
@@ -103,6 +130,11 @@
       <a:BGPRouterDeclaration>
         <a:ASN>64600</a:ASN>
         <a:Hostname>ARISTA04T1</a:Hostname>
+        <a:RouteMaps/>
+      </a:BGPRouterDeclaration>
+      <a:BGPRouterDeclaration>
+        <a:ASN>65100</a:ASN>
+        <a:Hostname>CHASSIS_PEER</a:Hostname>
         <a:RouteMaps/>
       </a:BGPRouterDeclaration>
     </Routers>

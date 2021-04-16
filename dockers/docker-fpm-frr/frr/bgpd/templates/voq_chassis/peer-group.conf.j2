@@ -1,0 +1,23 @@
+!
+! template: bgpd/templates/voq_chassis/peer-group.conf.j2
+!
+  neighbor VOQ_CHASSIS_PEER peer-group
+  address-family ipv4
+{% if CONFIG_DB__DEVICE_METADATA['localhost']['type'] == 'ToRRouter' %}
+    neighbor VOQ_CHASSIS_PEER allowas-in 1
+{% endif %}
+    neighbor VOQ_CHASSIS_PEER activate
+    neighbor VOQ_CHASSIS_PEER addpath-tx-all-paths
+    neighbor VOQ_CHASSIS_PEER soft-reconfiguration inbound
+  exit-address-family
+  address-family ipv6
+{% if CONFIG_DB__DEVICE_METADATA['localhost']['type'] == 'ToRRouter' %}
+    neighbor VOQ_CHASSIS_PEER allowas-in 1
+{% endif %}
+    neighbor VOQ_CHASSIS_PEER activate
+    neighbor VOQ_CHASSIS_PEER addpath-tx-all-paths
+    neighbor VOQ_CHASSIS_PEER soft-reconfiguration inbound
+  exit-address-family
+!
+! end of template: bgpd/templates/voq_chassis/peer-group.conf.j2
+!
