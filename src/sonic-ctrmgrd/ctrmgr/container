@@ -278,7 +278,6 @@ def container_stop(feature, **kwargs):
             CURRENT_OWNER: "none",
             UPD_TIMESTAMP: str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
             CONTAINER_ID: "",
-            VERSION: "",
             SYSTEM_STATE: "down"
             }
     if remote_state == "running":
