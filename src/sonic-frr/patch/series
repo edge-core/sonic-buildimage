@@ -5,3 +5,4 @@
 0005-nexthops-compare-vrf-only-if-ip-type.patch
 0007-frr-remove-frr-log-outchannel-to-var-log-frr.log.patch
 0008-Add-support-of-bgp-l3vni-evpn.patch
+0009-Add-bgp-bestpath-peer-type-multipath-relax.patch
