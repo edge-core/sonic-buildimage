@@ -59,10 +59,7 @@ def _run_command(cmd, timeout=5):
         (o, e) = proc.communicate(timeout)
         output = to_str(o)
         err = to_str(e)
-        if err:
-            ret = -1
-        else:
-            ret = proc.returncode
+        ret = proc.returncode
     except subprocess.TimeoutExpired as error:
         proc.kill()
         output = ""
@@ -207,25 +204,11 @@ def _download_file(server, port, insecure):
     data = r.read()
     os.write(h, data)
     os.close(h)
+    log_debug("Downloaded = {}".format(fname))
 
-    # Ensure the admin.conf has given VIP as server-IP.
-    update_file = "{}.upd".format(fname)
-    cmd = r'sed "s/server:.*:{}/server: https:\/\/{}:{}/" {} > {}'.format(
-            str(port), server, str(port), fname, update_file)
-    (ret, _, err) = _run_command(cmd)
+    shutil.copyfile(fname, KUBE_ADMIN_CONF)
 
-    log_debug("sed command: ret={}".format(ret))
-    if ret != 0:
-        log_error("sed update of downloaded file failed with ret={}".
-                format(ret))
-        log_debug("sed command failed: ret={}".format(ret))
-        return ret
-
-    shutil.copyfile(update_file, KUBE_ADMIN_CONF)
-
-    _run_command("rm -f {} {}".format(fname, update_file))
     log_debug("{} downloaded".format(KUBE_ADMIN_CONF))
-    return ret
 
 
 def _troubleshoot_tips():
@@ -284,16 +267,15 @@ def _do_join(server, port, insecure):
     KUBEADM_JOIN_CMD = "kubeadm join --discovery-file {} --node-name {}"
     err = ""
     out = ""
+    ret = 0
     try:
-        ret = _download_file(server, port, insecure)
-        log_debug("_download ret={}".format(ret))
-        if ret == 0:
-            _do_reset(True)
-            _run_command("modprobe br_netfilter")
-            # Copy flannel.conf
-            _run_command("mkdir -p {}".format(CNI_DIR))
-            _run_command("cp {} {}".format(FLANNEL_CONF_FILE, CNI_DIR))
-            (ret, _, _) = _run_command("systemctl start kubelet")
+        _download_file(server, port, insecure)
+        _do_reset(True)
+        _run_command("modprobe br_netfilter")
+        # Copy flannel.conf
+        _run_command("mkdir -p {}".format(CNI_DIR))
+        _run_command("cp {} {}".format(FLANNEL_CONF_FILE, CNI_DIR))
+        (ret, _, _) = _run_command("systemctl start kubelet")
 
         if ret == 0:
             (ret, out, err) = _run_command(KUBEADM_JOIN_CMD.format(

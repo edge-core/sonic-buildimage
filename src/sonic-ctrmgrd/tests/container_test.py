@@ -179,7 +179,8 @@ stop_test_data = {
                         "remote_state": "none",
                         "system_state": "up",
                         "current_owner": "local",
-                        "container_id": "snmp"
+                        "container_id": "snmp",
+                        "container_version": "20201230.0.15"
                     }
                 }
             }
@@ -192,7 +193,7 @@ stop_test_data = {
                         "system_state": "down",
                         "current_owner": "none",
                         "container_id": "",
-                        "container_version": ""
+                        "container_version": "20201230.0.15"
                     }
                 },
                 common_test.KUBE_LABEL_TABLE: {
@@ -222,7 +223,8 @@ stop_test_data = {
                         "container_id": "xxx",
                         "system_state": "up",
                         "current_owner": "kube",
-                        "remote_state": "running"
+                        "remote_state": "running",
+                        "container_version": "20201230.1.15"
                     }
                 }
             }
@@ -235,7 +237,7 @@ stop_test_data = {
                         "system_state": "down",
                         "current_owner": "none",
                         "container_id": "",
-                        "container_version": ""
+                        "container_version": "20201230.1.15"
                     }
                 },
                 common_test.KUBE_LABEL_TABLE: {
