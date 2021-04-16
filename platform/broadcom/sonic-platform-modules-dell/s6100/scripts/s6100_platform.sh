@@ -28,6 +28,7 @@ if [[ "$1" == "init" ]]; then
     pericom="/sys/bus/pci/devices/0000:08:00.0"
     modprobe i2c-dev
     modprobe i2c-mux-pca954x force_deselect_on_exit=1
+    modprobe dell_ich
     modprobe dell_s6100_iom_cpld
     modprobe dell_s6100_lpc
     modprobe nvram
@@ -59,6 +60,7 @@ elif [[ "$1" == "deinit" ]]; then
     modprobe -r dell_s6100_iom_cpld
     modprobe -r i2c-mux-pca954x
     modprobe -r i2c-dev
+    modprobe -r dell_ich
     modprobe -r nvram
     remove_python_api_package
 else
