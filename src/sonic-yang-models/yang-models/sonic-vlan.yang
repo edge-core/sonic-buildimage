@@ -24,7 +24,15 @@ module sonic-vlan {
 		revision-date 2019-07-01;
 	}
 
+	import sonic-vrf {
+		prefix vrf;
+	}
+
 	description "VLAN yang Module for SONiC OS";
+
+	revision 2021-03-30 {
+		description "Modify the type of vrf name";
+	}
 
 	revision 2019-07-01 {
 		description "First Revision";
@@ -49,9 +57,8 @@ module sonic-vlan {
 				}
 
 				leaf vrf_name {
-					type string {
-						pattern "Vrf[a-zA-Z0-9_-]+";
-						length 3..255;
+					type leafref{
+						path "/vrf:sonic-vrf/vrf:VRF/vrf:VRF_LIST/vrf:name";
 					}
 				}
 			}

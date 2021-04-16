@@ -125,5 +125,79 @@
                 ]
             }
         }
+    },
+    "PORTCHANNEL_INTERFACE_LIST_VRF_TEST": {
+        "sonic-vrf:sonic-vrf": {
+            "sonic-vrf:VRF": {
+                "VRF_LIST": [{
+                    "name": "Vrf_blue"
+                }]
+            }
+        },
+        "sonic-portchannel:sonic-portchannel": {
+            "sonic-portchannel:PORTCHANNEL": {
+                "PORTCHANNEL_LIST": [{
+                    "name": "PortChannel0001",
+                    "admin_status": "up"
+                }]
+            },
+            "sonic-portchannel:PORTCHANNEL_INTERFACE": {
+                "PORTCHANNEL_INTERFACE_LIST": [{
+                    "name": "PortChannel0001",
+                    "vrf_name": "Vrf_blue"
+                }]
+            }
+        }
+    },
+
+    "PORTCHANNEL_INTERFACE_LIST_WITH_NO_VRF": {
+        "sonic-portchannel:sonic-portchannel": {
+            "sonic-portchannel:PORTCHANNEL": {
+                "PORTCHANNEL_LIST": [{
+                    "name": "PortChannel0001",
+                    "admin_status": "up"
+                }]
+            },
+            "sonic-portchannel:PORTCHANNEL_INTERFACE": {
+                "PORTCHANNEL_INTERFACE_LIST": [{
+                    "name": "PortChannel0001"
+                }]
+            }
+        }
+    },
+
+    "PORTCHANNEL_INTERFACE_LIST_VRF_TEST_ON_NON_EXIST_PO": {
+        "sonic-vrf:sonic-vrf": {
+            "sonic-vrf:VRF": {
+                "VRF_LIST": [{
+                    "name": "Vrf_blue"
+                }]
+            }
+        },
+        "sonic-portchannel:sonic-portchannel": {
+            "sonic-portchannel:PORTCHANNEL_INTERFACE": {
+                "PORTCHANNEL_INTERFACE_LIST": [{
+                    "name": "PortChannel0001",
+                    "vrf_name": "Vrf_blue"
+                }]
+            }
+        }
+    },
+
+    "PORTCHANNEL_INTERFACE_LIST_NON_EXIST_VRF_TEST": {
+        "sonic-portchannel:sonic-portchannel": {
+            "sonic-portchannel:PORTCHANNEL": {
+                "PORTCHANNEL_LIST": [{
+                    "name": "PortChannel0001",
+                    "admin_status": "up"
+                }]
+            },
+            "sonic-portchannel:PORTCHANNEL_INTERFACE": {
+                "PORTCHANNEL_INTERFACE_LIST": [{
+                    "name": "PortChannel0001",
+                    "vrf_name": "Vrf_blue"
+                }]
+            }
+        }
     }
 }

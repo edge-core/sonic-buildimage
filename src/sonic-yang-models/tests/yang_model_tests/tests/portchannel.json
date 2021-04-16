@@ -23,5 +23,21 @@
          "desc": "Configure Port in PORTCHANNEL_MEMEBER table which does not exist in PORT table.",
          "eStrKey": "LeafRef",
          "eStr": ["port", "name"]
+    },
+    "PORTCHANNEL_INTERFACE_LIST_VRF_TEST": {
+        "desc": "Configure Vrf name in PORTCHANNEL_INTERFACE table."
+    },
+    "PORTCHANNEL_INTERFACE_LIST_WITH_NO_VRF": {
+        "desc": "Empty PORTCHANNEL_INTERFACE table."
+    },
+    "PORTCHANNEL_INTERFACE_LIST_VRF_TEST_ON_NON_EXIST_PO": {
+        "desc": "Configure vrf name on a non existent PortChannel.",
+        "eStrKey": "LeafRef",
+        "eStr": ["sonic-portchannel:name"]
+    },
+    "PORTCHANNEL_INTERFACE_LIST_NON_EXIST_VRF_TEST": {
+        "desc": "Configure a non existent Vrf in PORTCHANNEL_INTERFACE table.",
+        "eStrKey": "LeafRef",
+        "eStr": ["sonic-vrf:name"]
     }
 }

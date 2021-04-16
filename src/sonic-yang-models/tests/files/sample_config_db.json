@@ -1,5 +1,9 @@
 {
     "SAMPLE_CONFIG_DB_JSON": {
+        "VRF": {
+                "Vrf_blue": {
+                }
+        },
         "PORTCHANNEL": {
             "PortChannel0003": {
                 "admin_status": "up",
@@ -17,6 +21,10 @@
                 ],
                 "mtu": "9100"
             }
+        },
+        "PORTCHANNEL_INTERFACE": {
+                "PortChannel0003": {},
+                "PortChannel0004": {"vrf_name": "Vrf_blue"}
         },
         "PORTCHANNEL_MEMBER": {
             "PortChannel0003|Ethernet1": {},

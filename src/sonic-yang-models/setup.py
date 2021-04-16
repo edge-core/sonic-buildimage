@@ -55,6 +55,7 @@ setup(
                          './yang-models/sonic-types.yang',
                          './yang-models/sonic-versions.yang',
                          './yang-models/sonic-vlan.yang',
+                         './yang-models/sonic-vrf.yang',
                          './yang-models/sonic_yang_tree']),
     ],
     zip_safe=False,

@@ -1,143 +1,168 @@
 module sonic-portchannel {
 
-	yang-version 1.1;
+    yang-version 1.1;
 
-	namespace "http://github.com/Azure/sonic-portchannel";
-	prefix lag;
+    namespace "http://github.com/Azure/sonic-portchannel";
+    prefix lag;
 
-	import sonic-types {
-		prefix stypes;
-		revision-date 2019-07-01;
-	}
+    import sonic-types {
+        prefix stypes;
+        revision-date 2019-07-01;
+    }
 
-	import sonic-extension {
-		prefix ext;
-		revision-date 2019-07-01;
-	}
+    import sonic-extension {
+        prefix ext;
+        revision-date 2019-07-01;
+    }
 
-	import sonic-port {
-		prefix port;
-		revision-date 2019-07-01;
-	}
+    import sonic-port {
+        prefix port;
+        revision-date 2019-07-01;
+    }
 
-	description "PORTCHANNEL yang Module for SONiC OS";
+    import sonic-vrf {
+        prefix vrf;
+    }
 
-	revision 2021-03-15 {
-		description "Add SONiC PortChannel Interface model";
-	}
+    description "PORTCHANNEL yang Module for SONiC OS";
 
-	revision 2019-07-01 {
-		description "First Revision";
-	}
+    revision 2021-03-31 {
+        description "Add PortChannel Interface List with VRF attribute";
+    }
+
+    revision 2021-03-15 {
+        description "Add SONiC PortChannel Interface model";
+    }
+
+    revision 2019-07-01 {
+        description "First Revision";
+    }
 
 
-	container sonic-portchannel {
+    container sonic-portchannel {
 
-		container PORTCHANNEL {
+        container PORTCHANNEL {
 
-			description "PORTCHANNEL part of config_db.json";
+            description "PORTCHANNEL part of config_db.json";
 
-			list PORTCHANNEL_LIST {
+            list PORTCHANNEL_LIST {
 
-				key "name";
+                key "name";
 
-				leaf name {
-					type string {
-						length 1..128;
-						pattern 'PortChannel[0-9]{1,4}';
-					}
-				}
+                leaf name {
+                    type string {
+                        length 1..128;
+                        pattern 'PortChannel[0-9]{1,4}';
+                    }
+                }
 
-				leaf-list members {
-					/* leaf-list members are unique by default */
-					type union {
-						type leafref {
-							path /port:sonic-port/port:PORT/port:PORT_LIST/port:name;
-						}
-						type string {
-							pattern "";
-						}
-					}
-					/* Today in SONiC, we do not delete the list once
-					 * created, instead we set to empty list. Due to that
-					 * below default values are needed.
-					 */
-					default "";
-				}
+                leaf-list members {
+                    /* leaf-list members are unique by default */
+                    type union {
+                        type leafref {
+                            path /port:sonic-port/port:PORT/port:PORT_LIST/port:name;
+                        }
+                        type string {
+                            pattern "";
+                        }
+                    }
+                    /* Today in SONiC, we do not delete the list once
+                     * created, instead we set to empty list. Due to that
+                     * below default values are needed.
+                     */
+                    default "";
+                }
 
-				leaf min_links {
-					type uint8 {
-						range 1..128;
-					}
-				}
+                leaf min_links {
+                    type uint8 {
+                        range 1..128;
+                    }
+                }
 
-				leaf description {
-					type string {
-						length 1..255;
-					}
-				}
+                leaf description {
+                    type string {
+                        length 1..255;
+                    }
+                }
 
-				leaf mtu {
-					type uint16 {
-						range 1..9216;
-					}
-				}
+                leaf mtu {
+                    type uint16 {
+                        range 1..9216;
+                    }
+                }
 
-				leaf admin_status {
-					mandatory true;
-					type stypes:admin_status;
-				}
-			} /* end of list PORTCHANNEL_LIST */
+                leaf admin_status {
+                    mandatory true;
+                    type stypes:admin_status;
+                }
+            } /* end of list PORTCHANNEL_LIST */
 
-		} /* end of container PORTCHANNEL */
+        } /* end of container PORTCHANNEL */
 
-		container PORTCHANNEL_MEMBER {
+        container PORTCHANNEL_MEMBER {
 
-			description "PORTCHANNEL_MEMBER part of config_db.json";
+            description "PORTCHANNEL_MEMBER part of config_db.json";
 
-			list PORTCHANNEL_MEMBER_LIST {
+            list PORTCHANNEL_MEMBER_LIST {
 
-				key "name port";
+                key "name port";
 
-				leaf name {
-					type leafref {
-						path "/lag:sonic-portchannel/lag:PORTCHANNEL/lag:PORTCHANNEL_LIST/lag:name";
-					}
-				}
+                leaf name {
+                    type leafref {
+                        path "/lag:sonic-portchannel/lag:PORTCHANNEL/lag:PORTCHANNEL_LIST/lag:name";
+                    }
+                }
         
- 				leaf port {
-					/* key elements are mandatory by default */
-					type leafref {
-						path /port:sonic-port/port:PORT/port:PORT_LIST/port:name;
-					}
-				}
-			} /* end of list PORTCHANNEL_MEMBER_LIST */
+                leaf port {
+                    /* key elements are mandatory by default */
+                    type leafref {
+                        path /port:sonic-port/port:PORT/port:PORT_LIST/port:name;
+                    }
+                }
+            } /* end of list PORTCHANNEL_MEMBER_LIST */
 
-		} /* end of container PORTCHANNEL_MEMBER */
+        } /* end of container PORTCHANNEL_MEMBER */
 
-		container PORTCHANNEL_INTERFACE {
+        container PORTCHANNEL_INTERFACE {
 
-			description "PORTCHANNEL_INTERFACE part of config_db.json";
+            description "PORTCHANNEL_INTERFACE part of config_db.json";
 
-			list PORTCHANNEL_INTERFACE_IPPREFIX_LIST {
+            list PORTCHANNEL_INTERFACE_LIST {
+                key "name";
 
-				key "name ip_prefix";
+                leaf name {
+                    /* key elements are mandatory by default */
+                    type leafref {
+                        path "/lag:sonic-portchannel/lag:PORTCHANNEL/lag:PORTCHANNEL_LIST/lag:name";
+                    }
+                }
 
-				leaf name {
-					/* key elements are mandatory by default */
-					type leafref {
-						path "/lag:sonic-portchannel/lag:PORTCHANNEL/lag:PORTCHANNEL_LIST/lag:name";
-					}
-				}
+                leaf vrf_name {
+                    type leafref {
+                        path "/vrf:sonic-vrf/vrf:VRF/vrf:VRF_LIST/vrf:name";
+                    }
+                }
+            } /* end of list PORTCHANNEL_INTERFACE_LIST */
 
-				leaf ip_prefix {
-					/* key elements are mandatory by default */
-					type stypes:sonic-ip-prefix;
-				}
-			} /* end of list PORTCHANNEL_INTERFACE_IPPREFIX_LIST */
+            list PORTCHANNEL_INTERFACE_IPPREFIX_LIST {
 
-		} /* end of container PORTCHANNEL_INTERFACE */
+                key "name ip_prefix";
 
-	} /* end of container sonic-portchannel */
+                leaf name {
+                    /* key elements are mandatory by default */
+                    type leafref {
+                        path "/lag:sonic-portchannel/lag:PORTCHANNEL/lag:PORTCHANNEL_LIST/lag:name";
+                    }
+                }
+
+                leaf ip_prefix {
+                    /* key elements are mandatory by default */
+                    type stypes:sonic-ip-prefix;
+                }
+            } /* end of list PORTCHANNEL_INTERFACE_IPPREFIX_LIST */
+
+        } /* end of container PORTCHANNEL_INTERFACE */
+
+    } /* end of container sonic-portchannel */
 
 } /* end of module sonic-portchannel */
