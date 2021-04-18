@@ -20,9 +20,11 @@ generate_version_file()
 
 if [ "$ENABLE_VERSION_CONTROL_DEB" != "y" ]; then
     if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
-        # qemu arm bin executable for cross-building
-        sudo mkdir -p $FILESYSTEM_ROOT/usr/bin
-        sudo cp /usr/bin/qemu*static $FILESYSTEM_ROOT/usr/bin || true
+        if [ $MULTIARCH_QEMU_ENVIRON == y ]; then
+            # qemu arm bin executable for cross-building
+            sudo mkdir -p $FILESYSTEM_ROOT/usr/bin
+            sudo cp /usr/bin/qemu*static $FILESYSTEM_ROOT/usr/bin || true
+        fi
         sudo http_proxy=$HTTP_PROXY SKIP_BUILD_HOOK=y debootstrap --variant=minbase --arch $CONFIGURED_ARCH $IMAGE_DISTRO $FILESYSTEM_ROOT http://deb.debian.org/debian
     else
         sudo http_proxy=$HTTP_PROXY SKIP_BUILD_HOOK=y debootstrap --variant=minbase --arch $CONFIGURED_ARCH $IMAGE_DISTRO $FILESYSTEM_ROOT http://debian-archive.trafficmanager.net/debian

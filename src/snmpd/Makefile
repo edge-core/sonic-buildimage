@@ -29,7 +29,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	stg init
 	stg import -s ../patch-$(SNMPD_VERSION)/series
 
-ifeq ($(CONFIGURED_ARCH), arm64)
+ifeq ($(MULTIARCH_QEMU_ENVIRON), y)
 	dpkg-buildpackage -rfakeroot -b -d -us -uc -j1 --admindir $(SONIC_DPKG_ADMINDIR)
 else
 	dpkg-buildpackage -rfakeroot -b -d -us -uc -j$(SONIC_CONFIG_MAKE_JOBS) --admindir $(SONIC_DPKG_ADMINDIR)

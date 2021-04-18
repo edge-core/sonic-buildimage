@@ -1,8 +1,8 @@
 ARG slave_base_tag_ref=latest
-{%- if CONFIGURED_ARCH == "amd64"  %}
+{%- if MULTIARCH_QEMU_ENVIRON != "y"  %}
 FROM sonic-slave-stretch:${slave_base_tag_ref}
 {%- else %}
-FROM sonic-slave-stretch-{{ CONFIGURED_ARCH }}:${slave_base_tag_ref}
+FROM sonic-slave-stretch-march-{{ CONFIGURED_ARCH }}:${slave_base_tag_ref}
 {%- endif %}
 
 # Add user
