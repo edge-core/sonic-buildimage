@@ -100,6 +100,7 @@ SLAVE_DIR = sonic-slave-jessie
 endif
 
 include rules/config
+-include rules/config.user
 
 ifeq ($(ENABLE_DOCKER_BASE_PULL),)
 	override ENABLE_DOCKER_BASE_PULL = n
