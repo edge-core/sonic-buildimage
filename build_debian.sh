@@ -189,6 +189,9 @@ if [ -f platform/$CONFIGURED_PLATFORM/modules ]; then
     cat platform/$CONFIGURED_PLATFORM/modules | sudo tee -a $FILESYSTEM_ROOT/etc/initramfs-tools/modules > /dev/null
 fi
 
+## Add mtd and uboot firmware tools package
+sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install u-boot-tools mtd-utils device-tree-compiler
+
 ## Install docker
 echo '[INFO] Install docker'
 ## Install apparmor utils since they're missing and apparmor is enabled in the kernel
@@ -493,7 +496,7 @@ fi
 sudo cp ./asic_config_checksum $FILESYSTEM_ROOT/etc/sonic/asic_config_checksum
 
 if [ -f sonic_debian_extension.sh ]; then
-    ./sonic_debian_extension.sh $FILESYSTEM_ROOT $PLATFORM_DIR
+    ./sonic_debian_extension.sh $FILESYSTEM_ROOT $PLATFORM_DIR $IMAGE_DISTRO
 fi
 
 ## Organization specific extensions such as Configuration & Scripts for features like AAA, ZTP...
@@ -530,9 +533,6 @@ then
     sudo mkdir -p $FILESYSTEM_ROOT/debug
 
 fi
-
-## Add mtd and uboot firmware tools package
-sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install u-boot-tools mtd-utils device-tree-compiler
 
 ## Update initramfs
 sudo chroot $FILESYSTEM_ROOT update-initramfs -u
@@ -594,7 +594,7 @@ fi
 # ALERT: This bit of logic tears down the qemu based build environment used to
 # perform builds for the ARM architecture. This must be the last step in this
 # script before creating the Sonic installer payload zip file.
-if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
+if [ $MULTIARCH_QEMU_ENVIRON == y ]; then
     # Remove qemu arm bin executable used for cross-building
     sudo rm -f $FILESYSTEM_ROOT/usr/bin/qemu*static || true
     DOCKERFS_PATH=../dockerfs/

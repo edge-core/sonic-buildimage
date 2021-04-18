@@ -49,6 +49,15 @@ USER_LC := $(shell echo $(USER) | tr A-Z a-z)
 
 comma := ,
 
+ifeq ($(shell uname -m), aarch64)
+COMPILE_HOST_ARCH := arm64
+else ifeq ($(shell uname -m), armv7l)
+COMPILE_HOST_ARCH := armhf
+else
+COMPILE_HOST_ARCH := amd64
+endif
+
+
 ifeq ($(USER), root)
 $(error Add your user account to docker group and use your user account to make. root or sudo are not supported!)
 endif
@@ -98,8 +107,15 @@ endif
 
 ifeq ($(CONFIGURED_ARCH),amd64)
 SLAVE_BASE_IMAGE = $(SLAVE_DIR)
+MULTIARCH_QEMU_ENVIRON = n
 else
-SLAVE_BASE_IMAGE = $(SLAVE_DIR)-$(CONFIGURED_ARCH)
+ifeq ($(CONFIGURED_ARCH), $(COMPILE_HOST_ARCH))
+SLAVE_BASE_IMAGE = $(SLAVE_DIR)
+MULTIARCH_QEMU_ENVIRON = n
+else ifneq ($(CONFIGURED_ARCH),)
+SLAVE_BASE_IMAGE = $(SLAVE_DIR)-march-$(CONFIGURED_ARCH)
+MULTIARCH_QEMU_ENVIRON = y
+endif
 endif
 SLAVE_IMAGE = $(SLAVE_BASE_IMAGE)-$(USER_LC)
 
@@ -109,8 +125,8 @@ $(shell SONIC_VERSION_CONTROL_COMPONENTS=$(SONIC_VERSION_CONTROL_COMPONENTS) \
     scripts/generate_buildinfo_config.sh)
 
 # Generate the slave Dockerfile, and prepare build info for it
-$(shell CONFIGURED_ARCH=$(CONFIGURED_ARCH) j2 $(SLAVE_DIR)/Dockerfile.j2 > $(SLAVE_DIR)/Dockerfile)
-$(shell CONFIGURED_ARCH=$(CONFIGURED_ARCH) j2 $(SLAVE_DIR)/Dockerfile.user.j2 > $(SLAVE_DIR)/Dockerfile.user)
+$(shell CONFIGURED_ARCH=$(CONFIGURED_ARCH) MULTIARCH_QEMU_ENVIRON=$(MULTIARCH_QEMU_ENVIRON) j2 $(SLAVE_DIR)/Dockerfile.j2 > $(SLAVE_DIR)/Dockerfile)
+$(shell CONFIGURED_ARCH=$(CONFIGURED_ARCH) MULTIARCH_QEMU_ENVIRON=$(MULTIARCH_QEMU_ENVIRON) j2 $(SLAVE_DIR)/Dockerfile.user.j2 > $(SLAVE_DIR)/Dockerfile.user)
 $(shell BUILD_SLAVE=y scripts/prepare_docker_buildinfo.sh $(SLAVE_BASE_IMAGE) $(SLAVE_DIR)/Dockerfile $(CONFIGURED_ARCH) "" $(BLDENV))
 
 # Add the versions in the tag, if the version change, need to rebuild the slave
@@ -157,7 +173,7 @@ ifeq ($(SONIC_CONFIG_USE_NATIVE_DOCKERD_FOR_BUILD), y)
     DOCKER_RUN += -v /var/run/docker.sock:/var/run/docker.sock
 endif
 
-ifneq (,$(filter $(CONFIGURED_ARCH), armhf arm64))
+ifeq ($(MULTIARCH_QEMU_ENVIRON), y)
 ifeq ($(DOCKER_DATA_ROOT_FOR_MULTIARCH),)
 	DOCKER_DATA_ROOT_FOR_MULTIARCH := /var/lib/march/docker
 endif
@@ -216,6 +232,7 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            -f slave.mk \
                            PLATFORM=$(PLATFORM) \
                            PLATFORM_ARCH=$(PLATFORM_ARCH) \
+                           MULTIARCH_QEMU_ENVIRON=$(MULTIARCH_QEMU_ENVIRON)  \
                            BUILD_NUMBER=$(BUILD_NUMBER) \
                            BUILD_TIMESTAMP=$(BUILD_TIMESTAMP) \
                            SONIC_IMAGE_VERSION=$(SONIC_IMAGE_VERSION) \

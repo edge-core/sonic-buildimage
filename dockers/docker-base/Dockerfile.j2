@@ -1,6 +1,6 @@
-{% if CONFIGURED_ARCH == "armhf" %}
+{% if CONFIGURED_ARCH == "armhf" and MULTIARCH_QEMU_ENVIRON == "y" %}
 FROM multiarch/debian-debootstrap:armhf-jessie
-{% elif CONFIGURED_ARCH == "arm64" %}
+{% elif CONFIGURED_ARCH == "arm64" and MULTIARCH_QEMU_ENVIRON == "y" %}
 FROM multiarch/debian-debootstrap:arm64-jessie
 {% else %}
 FROM debian:jessie

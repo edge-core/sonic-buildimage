@@ -1,8 +1,8 @@
-{%- if CONFIGURED_ARCH == "armhf" %}
+{%- if CONFIGURED_ARCH == "armhf" and MULTIARCH_QEMU_ENVIRON == "y" %}
 FROM multiarch/qemu-user-static:x86_64-arm-5.0.0-2 as qemu
 FROM multiarch/debian-debootstrap:armhf-buster
 COPY --from=qemu /usr/bin/qemu-arm-static /usr/bin
-{%- elif CONFIGURED_ARCH == "arm64" %}
+{%- elif CONFIGURED_ARCH == "arm64" and MULTIARCH_QEMU_ENVIRON == "y" %}
 FROM multiarch/debian-debootstrap:arm64-buster
 {%- else -%}
 FROM debian:buster

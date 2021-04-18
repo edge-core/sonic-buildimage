@@ -61,6 +61,7 @@ export CONFIGURED_ARCH
 export PYTHON_WHEELS_PATH
 export IMAGE_DISTRO
 export IMAGE_DISTRO_DEBS_PATH
+export MULTIARCH_QEMU_ENVIRON
 
 ###############################################################################
 ## Utility rules
@@ -254,6 +255,7 @@ $(info "INCLUDE_NAT"                     : "$(INCLUDE_NAT)")
 $(info "INCLUDE_KUBERNETES"              : "$(INCLUDE_KUBERNETES)")
 $(info "TELEMETRY_WRITABLE"              : "$(TELEMETRY_WRITABLE)")
 $(info "PDDF_SUPPORT"                    : "$(PDDF_SUPPORT)")
+$(info "MULTIARCH_QEMU_ENVIRON"          : "$(MULTIARCH_QEMU_ENVIRON)")
 $(info )
 else
 $(info SONiC Build System for $(CONFIGURED_PLATFORM):$(CONFIGURED_ARCH))
@@ -1007,6 +1009,7 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
 	SONIC_ENFORCE_VERSIONS=$(SONIC_ENFORCE_VERSIONS) \
 	TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) \
 	PACKAGE_URL_PREFIX=$(PACKAGE_URL_PREFIX) \
+	MULTIARCH_QEMU_ENVIRON=$(MULTIARCH_QEMU_ENVIRON) \
 		./build_debian.sh $(LOG)
 
 	USERNAME="$(USERNAME)" \

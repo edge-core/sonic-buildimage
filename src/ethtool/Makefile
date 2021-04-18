@@ -12,7 +12,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	pushd ethtool
 	git checkout tags/debian/1%$(ETHTOOL_VERSION_BASE)-1
 	# Build package
-ifneq (,(filter $(CONFIGURED_ARCH),arm64 armhf))
+ifeq ($(MULTIARCH_QEMU_ENVIRON), y)
 	DEB_BUILD_OPTIONS=nocheck dpkg-buildpackage -rfakeroot -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS) --admindir $(SONIC_DPKG_ADMINDIR)
 else
 	dpkg-buildpackage -rfakeroot -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS) --admindir $(SONIC_DPKG_ADMINDIR)
