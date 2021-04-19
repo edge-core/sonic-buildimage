@@ -158,7 +158,7 @@ updategraph_is_enabled()
     rv=1
     if [ -e ${UPDATEGRAPH_CONF} ]; then
         updategraph_mode=$(grep enabled ${UPDATEGRAPH_CONF} | head -n 1 | cut -f2 -d=)
-        [ "${updategraph_mode}" = "true" ] && rv = 0
+        [ "${updategraph_mode}" = "true" ] && rv=0
     fi
     return $rv
 }
