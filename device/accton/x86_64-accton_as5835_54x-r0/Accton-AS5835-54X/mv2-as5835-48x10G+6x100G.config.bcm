@@ -6,6 +6,7 @@ ptp_ts_pll_fref=50000000
 ptp_bs_fref_0=50000000
 ptp_bs_fref_1=50000000
 
+
 oversubscribe_mode=1
 
 pbmp_xport_xe=0x1FFFFFFFFFFFFFFFE
@@ -14,9 +15,31 @@ parity_enable=0
 mem_cache_enable=0
 
 l2_mem_entries=32768
-#l3_mem_entries=49152
-#fpem_mem_entries=16384
+l3_mem_entries=16384
+fpem_mem_entries=16384
 l2xmsg_mode=1
+
+# Platform specfic
+bcm_num_cos=8
+bcm_stat_interval=2000000
+cdma_timeout_usec=3000000
+help_cli_enable=1
+ifp_inports_support_enable=1
+ipv6_lpm_128b_enable=0x1
+l3_alpm_enable=2
+l3_max_ecmp_mode=1
+max_vp_lags=0
+memlist_enable=1
+reglist_enable=1
+miim_intr_enable=0
+module_64ports=1
+port_flex_enable=1
+schan_intr_enable=0
+stable_size=0x5500000 ;Specify the stable cache size in bytes used for Warm boot operations
+tdma_timeout_usec=3000000
+skip_L2_USER_ENTRY=0
+bcm_tunnel_term_compatible_mode=1
+l3_alpm_ipv6_128b_bkt_rsvd=1
 
 #FC0
 dport_map_port_1=1
@@ -218,9 +241,6 @@ phy_chain_tx_polarity_flip_physical{36.0}=0x0
 
 #FC9
 dport_map_port_27=49
-dport_map_port_28=52
-dport_map_port_29=53
-dport_map_port_30=54
 portmap_27=37:100:4
 phy_chain_rx_lane_map_physical{37.0}=0x2130
 phy_chain_rx_lane_map_physical{38.0}=0x2130
@@ -460,8 +480,8 @@ phy_chain_tx_polarity_flip_physical{76.0}=0x0
 
 #FC19
 
-dport_map_port_64=64
-portmap_64=81:10:m
-phy_chain_rx_polarity_flip_physical{81.0}=0x1
-phy_chain_tx_polarity_flip_physical{81.0}=0x1
+#dport_map_port_64=64
+#portmap_64=81:10:m
+#phy_chain_rx_polarity_flip_physical{81.0}=0x1
+#phy_chain_tx_polarity_flip_physical{81.0}=0x1
 
