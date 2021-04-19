@@ -1,4 +1,5 @@
-FROM docker-config-engine-stretch
+{% from "dockers/dockerfile-macros.j2" import install_debian_packages %}
+FROM docker-config-engine-buster
 
 ARG docker_container_name
 RUN [ -f /etc/rsyslog.conf ] && sed -ri "s/%syslogtag%/$docker_container_name#%syslogtag%/;" /etc/rsyslog.conf
@@ -19,7 +20,7 @@ RUN apt-get update \
     net-tools           \
     iputils-ping
 
-RUN apt-get -y install libpcap-dev libxml2-dev python-dev swig libsensors4-dev libjemalloc1 nfs-common
+RUN apt-get -y install libpcap-dev libxml2-dev python-dev swig libsensors4-dev nfs-common
 
 RUN dpkg -i \
 {% for deb in docker_syncd_mrvl_debs.split(' ') -%}
