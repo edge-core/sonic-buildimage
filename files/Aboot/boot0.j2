@@ -614,6 +614,9 @@ write_image_specific_cmdline() {
     # disable deterministic interface naming
     cmdline_add net.ifnames=0
 
+    # disable unified cgroup hierarchy to workaround dockerd limitation
+    cmdline_add systemd.unified_cgroup_hierarchy=0
+
     # verbosity
     cmdline_add quiet
     # Start showing systemd information from the first failing unit if any.
