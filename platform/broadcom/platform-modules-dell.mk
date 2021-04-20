@@ -52,6 +52,3 @@ $(eval $(call add_extra_package,$(DELL_Z9100_PLATFORM_MODULE),$(DELL_S5248F_PLAT
 DELL_S5296F_PLATFORM_MODULE = platform-modules-s5296f_$(DELL_S5296F_PLATFORM_MODULE_VERSION)_amd64.deb
 $(DELL_S5296F_PLATFORM_MODULE)_PLATFORM = x86_64-dellemc_s5296f_c3538-r0
 $(eval $(call add_extra_package,$(DELL_Z9100_PLATFORM_MODULE),$(DELL_S5296F_PLATFORM_MODULE)))
-
-#flashrom tool
-$(shell ./$(PLATFORM_PATH)/sonic-platform-modules-dell/tools/flashrom.sh  > /dev/null 2>&1)
