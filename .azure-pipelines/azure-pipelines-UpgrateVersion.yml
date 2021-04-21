@@ -1,0 +1,127 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger: none
+pr: none
+
+schedules:
+- cron: "0 0 * * *"
+  displayName: Daily Build
+  branches:
+    include:
+    - 202012
+  always: true
+
+pool: sonicbld
+
+stages:
+- stage: Build
+  variables:
+    CACHE_MODE: none
+    VERSION_CONTROL_OPTIONS: 'SONIC_VERSION_CONTROL_COMPONENTS='
+  jobs:
+  - template: azure-pipelines-build.yml
+    parameters:
+      buildOptions: '${{ variables.VERSION_CONTROL_OPTIONS }} SONIC_BUILD_JOBS=$(nproc) ENABLE_IMAGE_SIGNATURE=y'
+      preSteps:
+      - script: |
+          containers=$(docker container ls | grep "sonic-slave" | awk '{ print $1 }')
+          if [ ! -z "$containers" ]; then
+            docker container kill $containers || true
+            sleep 5
+          fi
+          images=$(docker images 'sonic-slave-*' -a -q)
+          if [ ! -z "$images" ]; then
+            docker rmi -f $images
+          fi
+        displayName: 'Cleanup sonic slave'
+- stage: UpgradeVersions
+  jobs:
+  - job: UpgradeVersions
+    pool:
+      vmImage: 'ubuntu-20.04'
+    steps:
+    - script: |
+        if [ -z "$(which gh)" ]; then
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+          sudo apt-add-repository https://cli.github.com/packages
+          sudo apt update
+          sudo apt install gh
+        fi
+      displayName: 'Install gh'
+    - checkout: self
+      displayName: 'Checkout code'
+    - download: current
+      patterns: '**/versions-*'
+    - script: |
+        mkdir -p target
+        default_platform=broadcom
+        artifacts=$(find $(Pipeline.Workspace) -maxdepth 1 -type d -name 'sonic-buildimage.*' | grep -v "sonic-buildimage.${default_platform}")
+        echo "artifacts$artifacts"
+        cp -r $(Pipeline.Workspace)/sonic-buildimage.${default_platform}/versions target/
+        make freeze FREEZE_VERSION_OPTIONS=-r
+        find files/build/versions 
+        ordered_artifacts=$(echo "$artifacts" | grep -v -E "arm64|armhf" && echo "$artifacts" | grep -E "arm64|armhf")
+        for artifact in $ordered_artifacts
+        do
+          rm -rf target/versions
+          cp -r $artifact/versions target/
+          OPTIONS="-a -d"
+          [[ "$artifact" == *arm64* || "$artifact" == *armhf* ]] && OPTIONS="-d"
+          make freeze FREEZE_VERSION_OPTIONS="$OPTIONS"
+        done
+        git diff files/build/versions
+      displayName: 'Freeze Versions'
+    - script: |
+        if [ -z "$GIT_USER" ]; then
+          echo "Skipped to send the pull request, GIT_USER not set."
+          exit 0
+        fi
+        GIT_STATUS=$(git status  --porcelain files/build/versions)
+        if [ -z "$GIT_STATUS" ]; then
+          echo "Skipped to send the pull request, no version change in files/build/versions"
+          exit 0
+        fi
+        if [ ! -d "$HOME" ]; then
+          sudo mkdir -p $HOME
+          sudo chown -R $(id -un):$(id -gn) $HOME
+        fi
+        SOURCE_BRANCH=$(Build.SourceBranch)
+        REPO_NAME=$(Build.Repository.Name)
+        [ -z "$GIT_REPO" ] && GIT_REPO=${REPO_NAME#*/}
+        BRANCH_NAME=repd/versions/${SOURCE_BRANCH#refs/heads/}
+        echo '#!/bin/bash' > git_env_password.sh
+        echo 'echo $GIT_PASSWORD' >> git_env_password.sh
+        chmod a+x git_env_password.sh
+        export GIT_ASKPASS=./git_env_password.sh
+
+        git config user.name $GIT_USER
+        git config credential.https://github.com.username $GIT_USER
+        git add files/build/versions
+        git commit -m "[ci/build]: Upgrade SONiC package versions"
+        git checkout -b $BRANCH_NAME
+        git remote add remote https://github.com/$GIT_USER/$GIT_REPO
+        git push remote HEAD:refs/heads/$BRANCH_NAME -f
+        git branch -u remote/$BRANCH_NAME
+
+        echo $GIT_PASSWORD | gh auth login --with-token
+        TITLE="Upgrade SONiC Versions"
+        BODY="Upgrade SONiC Versions"
+        RET=0
+        if ! gh pr create -t "$TITLE" -b "$BODY" -B $(Build.SourceBranch) -R $(Build.Repository.Name) > pr.log 2>&1; then
+          if ! grep -q "already exists" pr.log; then
+            RET=1
+          fi
+        fi
+        cat pr.log
+        exit $RET
+      env:
+        GIT_USER: $(GIT_USER)
+        GIT_PASSWORD: $(GIT_PASSWORD)
+      displayName: 'Send Pull Request'
+    - publish: $(System.DefaultWorkingDirectory)/files/build/versions
+      artifact: 'sonic-buildimage.versions'
+      displayName: 'Archive SONiC versions'
+    
