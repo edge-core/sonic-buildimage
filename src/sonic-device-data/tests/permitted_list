@@ -74,6 +74,7 @@ phy_an_allow_pll_change_hg
 phy_an_c37
 phy_an_c73
 phy_an_fec
+phy_an_lt_msft 
 phy_automedium
 phy_aux_voltage_enable
 phy_chain_rx_lane_map_physical
