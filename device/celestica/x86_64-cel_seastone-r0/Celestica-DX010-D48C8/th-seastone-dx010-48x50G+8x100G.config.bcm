@@ -646,3 +646,4 @@ serdes_preemphasis_lane1_5=0x244a02
 serdes_preemphasis_lane2_5=0x244a02
 serdes_preemphasis_lane3_5=0x254902
 
+phy_an_lt_msft=1

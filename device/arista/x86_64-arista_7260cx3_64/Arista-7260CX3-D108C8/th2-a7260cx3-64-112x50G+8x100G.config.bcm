@@ -934,3 +934,5 @@ serdes_preemphasis_130=0x580c
 serdes_preemphasis_131=0x580c
 
 mmu_init_config="MSFT-TH2-Tier0"
+
+phy_an_lt_msft=1
