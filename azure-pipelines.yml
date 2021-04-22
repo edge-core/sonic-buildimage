@@ -33,27 +33,18 @@ resources:
 stages:
 - stage: Build
   pool: sonicbld
-
+  variables:
+    CACHE_MODE: rcache
+    ${{ if eq(variables['Build.SourceBranchName'], '202012') }}:
+      VERSION_CONTROL_OPTIONS: 'SONIC_VERSION_CONTROL_COMPONENTS=deb,py2,py3,web'
   jobs:
-  - template: .azure-pipelines/build-template.yml
+  - template: .azure-pipelines/azure-pipelines-build.yml
     parameters:
-      platform: broadcom
-      platform_short: brcm
-      cache_mode: rcache
-      sync_rpc_image: true
-
-  - template: .azure-pipelines/build-template.yml
-    parameters:
-      platform: mellanox
-      platform_short: mlnx
-      cache_mode: rcache
-      sync_rpc_image: true
-
-  - template: .azure-pipelines/build-template.yml
-    parameters:
-      platform: vs
-      platform_short: vs
-      cache_mode: rcache
+      buildOptions: 'USERNAME=admin SONIC_BUILD_JOBS=$(nproc) ${{ variables.VERSION_CONTROL_OPTIONS }}'
+      jobFilters:
+      - vs
+      - broadcom
+      - mellanox
 
 - stage: Test
   variables:
