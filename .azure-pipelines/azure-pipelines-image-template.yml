@@ -1,0 +1,56 @@
+# The azure pipeline template for PR build, Official build, and upgrade version build
+
+parameters:
+- name: 'jobFilters'
+  type: object
+  default: ''
+- name: 'preSteps'
+  type: stepList
+  default: []
+- name: 'buildSteps'
+  type: stepList
+  default: []
+- name: 'postSteps'
+  type: stepList
+  default: []
+- name: jobGroups
+  type: object
+  default: []
+- name: jobVariables
+  type: object
+  default: []
+jobs:
+- template: azure-pipelines-job-groups.yml
+  parameters:
+    jobFilters: ${{ parameters.jobFilters }}
+    jobVariables: ${{ parameters.jobVariables }}
+    preSteps:
+      - template: cleanup.yml
+      - ${{ parameters. preSteps }}
+      - script: |
+          if [ -n "$(CACHE_MODE)" ] && echo $(PLATFORM_AZP) | grep -E -q "^(vs|broadcom|mellanox)$"; then
+            CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=$(CACHE_MODE) SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/$(PLATFORM_AZP)"
+            BUILD_OPTIONS="$(BUILD_OPTIONS) $CACHE_OPTIONS"
+            echo "##vso[task.setvariable variable=BUILD_OPTIONS]$BUILD_OPTIONS"
+          fi
+        displayName: "Set cache options"
+      - checkout: self
+        submodules: recursive
+        displayName: 'Checkout code'
+      - script: |
+          git checkout -b $(Build.SourceBranchName)
+          sudo modprobe overlay
+          sudo apt-get install -y acl
+          sudo bash -c "echo 1 > /proc/sys/vm/compact_memory"
+          ENABLE_DOCKER_BASE_PULL=y make PLATFORM=$(PLATFORM_AZP) PLATFORM_ARCH=$(PLATFORM_ARCH) configure
+        displayName: 'Make configure'
+    postSteps:
+      - script: cp target -r $(Build.ArtifactStagingDirectory)/
+        displayName: Copy Artifacts
+      - publish:  $(Build.ArtifactStagingDirectory)
+        artifact: 'sonic-buildimage.$(GROUP_NAME)$(GROUP_EXTNAME)'
+        displayName: "Archive sonic image"
+      - ${{ parameters.postSteps }}
+      - template: cleanup.yml
+    jobGroups: ${{ parameters.jobGroups }}
+    buildSteps: ${{ parameters.buildSteps }}

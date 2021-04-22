@@ -2,6 +2,9 @@ parameters:
 - name: 'preSteps'
   type: stepList
   default: []
+- name: 'buildSteps'
+  type: stepList
+  default: []
 - name: "postSteps"
   type: stepList
   default: []
@@ -16,14 +19,14 @@ parameters:
   default: ''
 - name: 'timeoutInMinutes'
   type: 'number'
-  default: 1440
+  default: 600
 - name: 'jobFilters'
   type: object
   default: ''
 
 jobs:
 - ${{ each jobGroup in parameters.jobGroups }}:
-  - ${{ if or(eq(parameters.jobFilters, ''), containsValue(parameters.jobFilters, jobGroup.name)) }}:
+  - ${{ if or(eq(parameters.jobFilters, ''), containsValue(parameters.jobFilters, jobGroup.name), endswith(variables['Build.DefinitionName'], format('.{0}{1}', jobGroup.name, jobGroup.extName))) }}:
     - job: ${{ replace(format('{0}{1}', jobGroup.name, jobGroup.extName), '-', '_') }}
       ${{ each pair in jobGroup }}:
         ${{ if not(in(pair.key, 'job', 'name', 'extName', 'variables', 'steps', 'script', 'scriptEnv')) }}:
@@ -50,4 +53,5 @@ jobs:
           displayName: 'JobScript'
       - ${{ if ne(jobGroup.steps, '') }}:
         - ${{ jobGroup.steps }}
+      - ${{ parameters.buildSteps }}
       - ${{ parameters.postSteps }}
