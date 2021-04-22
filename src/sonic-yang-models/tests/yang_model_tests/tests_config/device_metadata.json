@@ -90,5 +90,32 @@
                 }
             }
         }
+    },
+    "DEVICE_METADATA_CORRECT_BUFFER_MODEL_PATTERN": {
+        "sonic-device_metadata:sonic-device_metadata": {
+             "sonic-device_metadata:DEVICE_METADATA": {
+                "sonic-device_metadata:localhost": {
+                "buffer_model": "dynamic"
+                }
+            }
+        }
+    },
+    "DEVICE_METADATA_CORRECT_BUFFER_MODEL_PATTERN2": {
+        "sonic-device_metadata:sonic-device_metadata": {
+            "sonic-device_metadata:DEVICE_METADATA": {
+                "sonic-device_metadata:localhost": {
+                "buffer_model": "traditional"
+                }
+            }
+        }
+    },
+    "DEVICE_METADATA_INCORRECT_BUFFER_MODEL_PATTERN": {
+        "sonic-device_metadata:sonic-device_metadata": {
+            "sonic-device_metadata:DEVICE_METADATA": {
+                "sonic-device_metadata:localhost": {
+                "buffer_model": "incorrect_pattern"
+                }
+            }
+        }
     }
 }

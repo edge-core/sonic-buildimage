@@ -202,7 +202,8 @@
                 "mac": "00:11:22:33:dd:5a",
                 "hostname": "asw.dc",
                 "bgp_asn": "64850",
-                "hwsku": "Stone"
+                "hwsku": "Stone",
+                "buffer_model": "dynamic"
             }
         },
         "VLAN": {

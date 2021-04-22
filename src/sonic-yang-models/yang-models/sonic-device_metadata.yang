@@ -89,6 +89,18 @@ module sonic-device_metadata {
                         pattern "ToRRouter|LeafRouter|SpineChassisFrontendRouter|ChassisBackendRouter|ASIC";
                     }
                 }
+
+                leaf buffer_model {
+                    description "This leaf is added for dynamic buffer calculation.
+                                The dynamic model represents the model in which the buffer configurations,
+                                like the headroom sizes and buffer pool sizes, are dynamically calculated based
+                                on the ports' speed, cable length, and MTU. This model is used by Mellanox so far.
+                                The traditional model represents the model in which all the buffer configurations
+                                are statically configured in CONFIG_DB tables. This is the default model used by all other vendors";
+                    type string {
+                        pattern "dynamic|traditional";
+                    }
+                }
             }
             /* end of container localhost */
         }
