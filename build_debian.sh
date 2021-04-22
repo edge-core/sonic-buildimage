@@ -581,16 +581,19 @@ sudo mksquashfs $FILESYSTEM_ROOT $FILESYSTEM_SQUASHFS -e boot -e var/lib/docker 
 
 scripts/collect_host_image_version_files.sh $TARGET_PATH $FILESYSTEM_ROOT
 
-if [ $MULTIARCH_QEMU_ENVIRON == y ]; then
-    # Remove qemu arm bin executable used for cross-building
-    sudo rm -f $FILESYSTEM_ROOT/usr/bin/qemu*static || true
-    DOCKERFS_PATH=../dockerfs/
-fi
-
 # Ensure admin gid is 1000
 gid_user=$(sudo LANG=C chroot $FILESYSTEM_ROOT id -g $USERNAME) || gid_user="none"
 if [ "${gid_user}" != "1000" ]; then
     die "expect gid 1000. current:${gid_user}"
+fi
+
+# ALERT: This bit of logic tears down the qemu based build environment used to
+# perform builds for the ARM architecture. This must be the last step in this
+# script before creating the Sonic installer payload zip file.
+if [ $MULTIARCH_QEMU_ENVIRON == y ]; then
+    # Remove qemu arm bin executable used for cross-building
+    sudo rm -f $FILESYSTEM_ROOT/usr/bin/qemu*static || true
+    DOCKERFS_PATH=../dockerfs/
 fi
 
 ## Compress docker files
