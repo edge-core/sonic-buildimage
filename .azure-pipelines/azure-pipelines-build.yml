@@ -13,6 +13,9 @@ parameters:
 - name: 'postSteps'
   type: stepList
   default: []
+- name: 'jobGroups'
+  type: object
+  default: []
 
 jobs:
 - template: azure-pipelines-image-template.yml
@@ -25,75 +28,78 @@ jobs:
       PLATFORM_ARCH: amd64
       BUILD_OPTIONS: ${{ parameters.buildOptions }}
       DOCKER_DATA_ROOT_FOR_MULTIARCH: /data/march/docker
-      dbg_image: false
-      swi_image: false
-      raw_image: false
-      sync_rpc_image: false
-      platform_rpc: false
-    jobGroups:
-      - name: vs
-        variables:
-          dbg_image: true
-      - name: barefoot
-        variables:
-          swi_image: true
-      - name: broadcom
-        variables:
-          dbg_image: true
-          swi_image: true
-          raw_image: true
-          sync_rpc_image: true
-          platform_rpc: brcm
-      - name: centec
-        variables:
-          dbg_image: true
-          sync_rpc_image: true
-          platform_rpc: centec
-      - name: centec-arm64
-        pool: sonicbld_8c
-        timeoutInMinutes: 1800
-        variables:
-          PLATFORM_ARCH: arm64
-      - name: generic
-        variables:
-          dbg_image: true
-      - name: innovium
-        variables:
-          swi_image: true
-      - name: marvell-armhf
-        pool: sonicbld_8c
-        timeoutInMinutes: 1800
-        variables:
-          PLATFORM_ARCH: armhf
-      - name: mellanox
-        variables:
-          dbg_image: true
-          sync_rpc_image: true
-          platform_rpc: mlnx
-      - name: nephos
-        variables:
-          dbg_image: true
-          sync_rpc_image: true
-          platform_rpc: nephos
+      dbg_image: no
+      swi_image: no
+      raw_image: no
+      sync_rpc_image: no
+      platform_rpc: no
+    ${{ if ne(parameters.jobGroups, '') }}:
+      jobGroups: ${{ parameters.jobGroups }}
+    ${{ if eq(parameters.jobGroups, '') }}:
+      jobGroups:
+        - name: vs
+          variables:
+            dbg_image: yes
+        - name: barefoot
+          variables:
+            swi_image: yes
+        - name: broadcom
+          variables:
+            dbg_image: yes
+            swi_image: yes
+            raw_image: yes
+            sync_rpc_image: yes
+            platform_rpc: brcm
+        - name: centec
+          variables:
+            dbg_image: yes
+            sync_rpc_image: yes
+            platform_rpc: centec
+        - name: centec-arm64
+          pool: sonicbld_8c
+          timeoutInMinutes: 1800
+          variables:
+            PLATFORM_ARCH: arm64
+        - name: generic
+          variables:
+            dbg_image: yes
+        - name: innovium
+          variables:
+            swi_image: yes
+        - name: marvell-armhf
+          pool: sonicbld_8c
+          timeoutInMinutes: 1800
+          variables:
+            PLATFORM_ARCH: armhf
+        - name: mellanox
+          variables:
+            dbg_image: yes
+            sync_rpc_image: yes
+            platform_rpc: mlnx
+        - name: nephos
+          variables:
+            dbg_image: yes
+            sync_rpc_image: yes
+            platform_rpc: nephos
     buildSteps:
       - bash: |
           if [ $(GROUP_NAME) == vs ]; then
-            if [ $(dbg_image) == true ]; then
+            if [ $(dbg_image) == yes ]; then
               make $BUILD_OPTIONS INSTALL_DEBUG_TOOLS=y target/sonic-vs.img.gz && mv target/sonic-vs.img.gz target/sonic-vs-dbg.img.gz
             fi
             make $BUILD_OPTIONS target/docker-sonic-vs.gz target/sonic-vs.img.gz target/docker-ptf.gz
           else
-            if [ $(dbg_image) == true ]; then
+            if [ $(dbg_image) == yes ]; then
               make  $BUILD_OPTIONS INSTALL_DEBUG_TOOLS=y target/sonic-$(GROUP_NAME).bin && \
                 mv target/sonic-$(GROUP_NAME).bin target/sonic-$(GROUP_NAME)-dbg.bin
             fi
-            if [ $(swi_image) == true ]; then
+            if [ $(swi_image) == yes ]; then
               make $BUILD_OPTIONS ENABLE_IMAGE_SIGNATURE=y target/sonic-aboot-$(GROUP_NAME).swi
             fi
-            if [ $(raw_image) == true ]; then
+            if [ $(raw_image) == yes ]; then
               make $BUILD_OPTIONS target/sonic-$(GROUP_NAME).raw
             fi
-            if [ $(sync_rpc_image) == true ]; then
+            if [ $(sync_rpc_image) == yes ]; then
               make $BUILD_OPTIONS ENABLE_SYNCD_RPC=y target/docker-syncd-$(platform_rpc)-rpc.gz
             fi
             make $BUILD_OPTIONS target/sonic-$(GROUP_NAME).bin
