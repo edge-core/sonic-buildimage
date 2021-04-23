@@ -15,7 +15,7 @@ parameters:
   default: []
 - name: 'jobGroups'
   type: object
-  default: []
+  default: ''
 
 jobs:
 - template: azure-pipelines-image-template.yml
