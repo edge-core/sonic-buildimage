@@ -26,6 +26,7 @@ jobs:
     jobVariables:
       PLATFORM_AZP: $(GROUP_NAME)
       PLATFORM_ARCH: amd64
+      BUILD_NUMBER: $(Build.BuildId)
       BUILD_OPTIONS: ${{ parameters.buildOptions }}
       DOCKER_DATA_ROOT_FOR_MULTIARCH: /data/march/docker
       dbg_image: no
