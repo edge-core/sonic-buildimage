@@ -8,23 +8,13 @@ CFGGEN_PARAMS=" \
     -y /etc/sonic/constants.yml \
     -t /usr/share/sonic/templates/frr_vars.j2 \
     -t /usr/share/sonic/templates/supervisord/supervisord.conf.j2,/etc/supervisor/conf.d/supervisord.conf \
-    -t /usr/share/sonic/templates/bgpd/gen_bgpd.conf.j2,/etc/frr/bgpd.conf \
     -t /usr/share/sonic/templates/supervisord/critical_processes.j2,/etc/supervisor/critical_processes \
-    -t /usr/share/sonic/templates/zebra/zebra.conf.j2,/etc/frr/zebra.conf \
-    -t /usr/share/sonic/templates/staticd/gen_staticd.conf.j2,/etc/frr/staticd.conf \
-    -t /usr/share/sonic/templates/gen_frr.conf.j2,/etc/frr/frr.conf \
     -t /usr/share/sonic/templates/isolate.j2,/usr/sbin/bgp-isolate \
     -t /usr/share/sonic/templates/unisolate.j2,/usr/sbin/bgp-unisolate \
-    -t /usr/local/sonic/frrcfgd/bfdd.conf.j2,/etc/frr/bfdd.conf \
-    -t /usr/local/sonic/frrcfgd/ospfd.conf.j2,/etc/frr/ospfd.conf \
 "
 
 FRR_VARS=$(sonic-cfggen $CFGGEN_PARAMS)
-MGMT_FRAMEWORK_CONFIG=$(echo $FRR_VARS | jq -r '.frr_mgmt_framework_config')
 CONFIG_TYPE=$(echo $FRR_VARS | jq -r '.docker_routing_config_mode')
-if [ -z "$MGMT_FRAMEWORK_CONFIG" ] || [ "$MGMT_FRAMEWORK_CONFIG" == "false" ]; then
-    rm /etc/frr/bfdd.conf /etc/frr/ospfd.conf
-fi
 
 update_default_gw()
 {
@@ -57,9 +47,35 @@ if [[ ! -z "$NAMESPACE_ID" ]]; then
 fi
 
 if [ -z "$CONFIG_TYPE" ] || [ "$CONFIG_TYPE" == "separated" ]; then
+    CFGGEN_PARAMS=" \
+        -d \
+        -y /etc/sonic/constants.yml \
+        -t /usr/share/sonic/templates/bgpd/gen_bgpd.conf.j2,/etc/frr/bgpd.conf \
+        -t /usr/share/sonic/templates/zebra/zebra.conf.j2,/etc/frr/zebra.conf \
+        -t /usr/share/sonic/templates/staticd/gen_staticd.conf.j2,/etc/frr/staticd.conf \
+    "
+    MGMT_FRAMEWORK_CONFIG=$(echo $FRR_VARS | jq -r '.frr_mgmt_framework_config')
+    if [ -n "$MGMT_FRAMEWORK_CONFIG" ] && [ "$MGMT_FRAMEWORK_CONFIG" != "false" ]; then
+        CFGGEN_PARAMS="$CFGGEN_PARAMS \
+            -t /usr/local/sonic/frrcfgd/bfdd.conf.j2,/etc/frr/bfdd.conf \
+            -t /usr/local/sonic/frrcfgd/ospfd.conf.j2,/etc/frr/ospfd.conf \
+        "
+    else
+        rm -f /etc/frr/bfdd.conf /etc/frr/ospfd.conf
+    fi
+    sonic-cfggen $CFGGEN_PARAMS
+    echo "no service integrated-vtysh-config" > /etc/frr/vtysh.conf
+    rm -f /etc/frr/frr.conf
+elif [ "$CONFIG_TYPE" == "split" ]; then
     echo "no service integrated-vtysh-config" > /etc/frr/vtysh.conf
     rm -f /etc/frr/frr.conf
 elif [ "$CONFIG_TYPE" == "unified" ]; then
+    CFGGEN_PARAMS=" \
+        -d \
+        -y /etc/sonic/constants.yml \
+        -t /usr/share/sonic/templates/gen_frr.conf.j2,/etc/frr/frr.conf \
+    "
+    sonic-cfggen $CFGGEN_PARAMS
     echo "service integrated-vtysh-config" > /etc/frr/vtysh.conf
     rm -f /etc/frr/bgpd.conf /etc/frr/zebra.conf /etc/frr/staticd.conf \
           /etc/frr/bfdd.conf /etc/frr/ospfd.conf /etc/frr/pimd.conf
