@@ -1,0 +1,4 @@
+# Ignore all test generated files
+*
+# But keep this file
+!.gitignore

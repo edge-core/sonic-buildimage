@@ -1,0 +1,16 @@
+Source: libpam-radius-auth
+Maintainer: Arun Barboza <29963827+a-barboza@users.noreply.github.com>
+Section: libs
+Priority: extra
+Standards-Version: 3.6.2
+Build-Depends: libpam0g-dev | libpam-dev, debhelper (>= 10~)
+
+Package: libpam-radius-auth
+Architecture: any
+Depends: ${shlibs:Depends}
+Suggests: radius-server
+Description: The PAM RADIUS authentication module
+ This is the PAM to RADIUS authentication module. It allows any PAM-capable
+ machine to become a RADIUS client for authentication and accounting
+ requests. You will, however, need to supply your own RADIUS server to
+ perform the actual authentication

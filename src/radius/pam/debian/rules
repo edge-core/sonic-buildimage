@@ -1,0 +1,116 @@
+#!/usr/bin/make -f
+
+# Uncomment this to turn on verbose mode.
+export DH_VERBOSE=1
+
+# Build options.
+CC=gcc
+CFLAGS= -g -Wall -fPIC -DCONF_FILE=\"/etc/pam_radius_auth.conf\"
+#LDFLAGS=
+#CFLAGS= -g -Wall -fPIC
+#LDFLAGS = -shared
+
+ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+	CFLAGS += -O0
+else
+	CFLAGS += -O2
+endif
+
+ifeq ($(DEB_HOST_GNU_CPU),(hppa|m68k|mips|powerpc|s390|sparc|sparc64|sheb))
+	CFLAGS += -DHIGHFIRST
+endif
+
+export CFLAGS
+#export LDFLAGS
+export CC
+
+build: patch build-stamp
+
+build-stamp:
+	dh_testdir
+
+	# Add here commands to compile the package.
+	dh_auto_configure -- --enable-pamdir=/lib/$(DEB_HOST_MULTIARCH)/security
+
+#	$(MAKE) -e
+	$(MAKE)
+
+	touch build-stamp
+
+#patch:
+#	if [ ! -f patch-stamp ]; then \
+#	 patch -p1 < debian/patches/001.fix_Makefile.diff && \
+#	 patch -p1 < debian/patches/002.CAN2005-0108.diff && \
+#	 touch patch-stamp; \
+#	fi
+#
+#unpatch:
+#	if [ -f patch-stamp ]; then \
+#	 patch -Rp1 < debian/patches/002.CAN2005-0108.diff && \
+#	 patch -Rp1 < debian/patches/001.fix_Makefile.diff && \
+#	 rm -f patch-stamp; \
+#	fi
+
+patch:
+	if [ ! -f patch-stamp ]; then \
+	 touch patch-stamp; \
+	fi
+
+unpatch:
+	if [ -f patch-stamp ]; then \
+	 rm -f patch-stamp; \
+	fi
+
+clean: unpatch real-clean
+real-clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp
+
+	# Add here commands to clean up after the build process.
+	[ ! -f Makefile ] || $(MAKE) clean
+
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs /lib /lib/$(DEB_HOST_MULTIARCH) /lib/$(DEB_HOST_MULTIARCH)/security /etc /etc/logrotate.d /etc/pam_radius_auth.d /etc/pam_radius_auth.d/statistics /usr/share/doc/libpam-radius-auth/html
+
+	install -p pam_radius_auth.so debian/libpam-radius-auth/lib/$(DEB_HOST_MULTIARCH)/security/pam_radius_auth.so
+	install -p ../freeradius/freeradius-server/src/lib/.libs/libradius-1.1.8.so debian/libpam-radius-auth/lib/$(DEB_HOST_MULTIARCH)/libradius-1.1.8.so
+	install -p ../freeradius/freeradius-server/src/modules/rlm_eap/libeap/.libs/libeap-1.1.8.so debian/libpam-radius-auth/lib/$(DEB_HOST_MULTIARCH)/libeap-1.1.8.so
+	install -p pam_radius_auth.conf debian/libpam-radius-auth/etc/pam_radius_auth.conf
+	install -p pam_radius debian/libpam-radius-auth/etc/logrotate.d/pam_radius
+	install -p index.html debian/libpam-radius-auth/usr/share/doc/libpam-radius-auth/html/index.html
+	install -p debian/index.html debian/libpam-radius-auth/usr/share/doc/libpam-radius-auth/html/index.debian.html
+
+# Build architecture-independent
+binary-indep: build install
+	# nothing to do
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs Changelog
+	dh_installdocs README.rst TODO USAGE debian/README.Debian
+	dh_installexamples pam_radius_auth.conf debian/pam_example INSTALL
+	dh_strip
+	dh_compress usr/share/doc/libpam-radius-auth/README.rst\
+		    usr/share/doc/libpam-radius-auth/README.Debian\
+	            usr/share/doc/libpam-radius-auth/USAGE\
+		    usr/share/doc/libpam-radius-auth/examples/INSTALL
+	dh_fixperms
+	chmod 600 debian/libpam-radius-auth/etc/pam_radius_auth.conf
+	chmod 644 debian/libpam-radius-auth/etc/logrotate.d/pam_radius
+	dh_makeshlibs
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-arch binary-indep
+.PHONY: build clean binary-arch binary install patch unpatch
