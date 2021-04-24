@@ -1,7 +1,7 @@
 bfnplatform==1.0.0
 bfnsdk==1.0.0
-libcurl3-gnutls==7.64.0-4+deb10u1
-libcurl4-gnutls-dev==7.64.0-4+deb10u1
+libcurl3-gnutls==7.64.0-4+deb10u2
+libcurl4-gnutls-dev==7.64.0-4+deb10u2
 libgoogle-perftools4==2.7-1
 liblzma-dev==5.2.4-1
 libpcap-dev==1.8.1-6

@@ -15,8 +15,8 @@ http://www.mellanox.com/downloads/MFT/mft-4.16.0-105-x86_64-deb.tgz==2c4a40535af
 https://chrome-infra-packages.appspot.com/client?platform=linux-amd64&version=git_revision:e75c9bf286fbb31347379cb478df2a556ab185b1==9df7a96a4a4fb6e484027d80b3ee821c
 https://download.docker.com/linux/debian/gpg==1afae06b34a13c1b3d9cb61a26285a15
 https://github.com/aristanetworks/sonic-firmware/raw/6d0d1661d92a342acedb6839dba970ae5778b478/phy/phy-credo_1.0_amd64.deb==dd74acbb7bf979b01c1a89e2a628aaf3
-https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnplatform_20210219_deb10.deb==4bd3f9c10d159d6d32e984c1de5a569c
-https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnsdk_20210219_deb10.deb==57e0b2f6a8412de63e307105571b7ed2
+https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnplatform_20210324_deb10.deb==b1f3087f05b82504130c5a7d428b9ef5
+https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnsdk_20210324_deb10.deb==40a5468c7b7a003df6f4e6c2f9f98817
 https://github.com/CentecNetworks/sonic-binaries/raw/master/amd64/libsai_1.6.3-1_amd64.deb==e7a41e5cf06b44ae3ed615d553de40d3
 https://github.com/CumulusNetworks/ifupdown2/archive/1.2.8-1.tar.gz==12f45e90d23178e96cf70f68dc9455e6
 https://github.com/Innovium/SONiC/raw/master/debian/master/ipd.deb==a0f512aba05180b15c2f6b5809b9d5c1
@@ -42,8 +42,8 @@ https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_
 https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_5.7.3+dfsg.orig.tar.xz==6391ae27eb1ae34ff5530712bb1c4209
 https://sonicstorage.blob.core.windows.net/packages/20190307/bcmcmd?sv=2015-04-05&sr=b&sig=sUdbU7oVbh5exbXXHVL5TDFBTWDDBASHeJ8Cp0B0TIc%3D&se=2038-05-06T22%3A34%3A19Z&sp=r==b8aefc751bdf93218716bca6797460ff
 https://sonicstorage.blob.core.windows.net/packages/20190307/dsserve?sv=2015-04-05&sr=b&sig=lk7BH3DtW%2F5ehc0Rkqfga%2BUCABI0UzQmDamBsZH9K6w%3D&se=2038-05-06T22%3A34%3A45Z&sp=r==f9d4b815ebb9be9f755dedca8a51170d
-https://sonicstorage.blob.core.windows.net/packages/bcmsai/4.3/master/libsaibcm-dev_4.3.3.1-1_amd64.deb?sv=2015-04-05&sr=b&sig=EavLNMXA6OS3s9oD34bKbdtfYHppR4egkh7V7jc4gWM%3D&se=2034-11-14T03%3A31%3A04Z&sp=r==81da461319cada4059a94f43d4d8509c
-https://sonicstorage.blob.core.windows.net/packages/bcmsai/4.3/master/libsaibcm_4.3.3.1-1_amd64.deb?sv=2015-04-05&sr=b&sig=n7KoEZ5wXY%2FobPAy62d9C%2BKyAkKo4PIdIAWwqnDBm3E%3D&se=2034-11-14T03%3A30%3A33Z&sp=r==12b8cdd22a07c0ce6b33114cf75b2fe3
+https://sonicstorage.blob.core.windows.net/packages/bcmsai/4.3/202012/libsaibcm-dev_4.3.3.5_amd64.deb?sv=2015-04-05&sr=b&sig=7I70XjzysspEht%2BsOwCM5QbtCe%2Boelh0%2FfwrhHPGh1g%3D&se=2034-12-30T07%3A06%3A51Z&sp=r==873ad911d2b9b03bab053fc5df78db17
+https://sonicstorage.blob.core.windows.net/packages/bcmsai/4.3/202012/libsaibcm_4.3.3.5_amd64.deb?sv=2015-04-05&sr=b&sig=7XHTTf9%2FWBxEqX0Y8g7KqH8t3AFz1dJIZeY3YEDRypc%3D&se=2034-12-30T07%3A06%3A11Z&sp=r==58723be632fd726323e71f81a51540e6
 https://sonicstorage.blob.core.windows.net/packages/cmake/cmake-data_3.13.2-1_bpo9%2B1_all.deb?st=2020-03-27T02%3A22%3A24Z&se=2100-03-26T19%3A00%3A00Z&sp=rl&sv=2018-03-28&sr=b&sig=Xby%2Bm3OZOjPB%2FSlDbHD65yDcPzAgoys%2FA3vK8RB4BzA%3D==147cf42f3a68f6d6f1e53d95a599a1af
 https://sonicstorage.blob.core.windows.net/packages/cmake/cmake_3.13.2-1_bpo9%2B1_amd64.deb?st=2020-03-27T02%3A27%3A21Z&se=2100-03-26T19%3A00%3A00Z&sp=rl&sv=2018-03-28&sr=b&sig=4MvmmDBQuicFEJYakLm7xCNU19yJ8GIP4ankFSnITKY%3D==e75c741e8b6918b8f03625e456fa0275
 https://sonicstorage.blob.core.windows.net/packages/debian/smartmontools_6.6-1.debian.tar.xz?sv=2015-04-05&sr=b&sig=H0RFeC41MCvhTQCln85DuPLn5v2goozwz%2FB9sA9p5eQ%3D&se=2046-08-20T23%3A46%3A02Z&sp=r==47a284f4762f86ba24753ea75d85e6cb
