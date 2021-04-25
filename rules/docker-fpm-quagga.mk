@@ -13,3 +13,4 @@ $(DOCKER_FPM_QUAGGA)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
 $(DOCKER_FPM_QUAGGA)_FILES += $(SUPERVISOR_PROC_EXIT_LISTENER_SCRIPT)
 
 $(DOCKER_FPM_QUAGGA)_BASE_IMAGE_FILES += vtysh:/usr/bin/vtysh
+$(DOCKER_FPM_QUAGGA)_BASE_IMAGE_FILES += rvtysh:/usr/bin/rvtysh

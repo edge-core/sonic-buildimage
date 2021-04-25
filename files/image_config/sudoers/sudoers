@@ -30,6 +30,7 @@ Cmnd_Alias      READ_ONLY_CMDS = /bin/cat /var/log/syslog*, \
                                  /usr/bin/lldpctl, \
                                  /usr/bin/sensors, \
                                  /usr/bin/tail -F /var/log/syslog, \
+                                 /usr/bin/rvtysh *, \
                                  /usr/bin/vtysh -c show *, \
                                  /usr/bin/vtysh -n [0-9] -c show *, \
                                  /usr/local/bin/decode-syseeprom, \
