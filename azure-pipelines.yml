@@ -4,7 +4,22 @@
 # https://aka.ms/yaml
 
 trigger:
-- main
+  branches:
+    include:
+      - master
+      - 202012
+  paths:
+    exclude:
+      - .github
+
+pr:
+  branches:
+    include:
+      - master
+      - 202012
+  paths:
+    exclude:
+      - .github
 
 name: $(TeamProject)_$(Build.DefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
 
@@ -40,96 +55,74 @@ stages:
 
   jobs:
   - job:
-    displayName: "broadcom"
-    timeoutInMinutes: 600
+    pool: sonictest
+    displayName: "vstest"
+    timeoutInMinutes: 60
     steps:
-    - script: |
-        set -x
-        sudo rm -rf fsroot
-        username=$(id -un)
-        sudo chown -cR ${username}.${username} .
-      displayName: 'Cleanup'
     - checkout: self
       clean: true
       submodules: recursive
       displayName: 'Checkout code'
+
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        source: specific
+        project: build
+        pipeline: 9
+        artifacts: sonic-swss-common.amd64.ubuntu20_04
+        runVersion: 'latestFromBranch'
+        runBranch: 'refs/heads/master'
+      displayName: "Download sonic swss common deb packages"
+
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        artifact: sonic-buildimage.vs
+      displayName: "Download sonic-buildimage.vs artifact"
+
     - script: |
-         git submodule foreach --recursive git clean -xfdf
-         git submodule foreach --recursive git reset --hard
-         git submodule update --init --recursive
-      displayName: 'reset submodules'
-    - script: |
-        sudo modprobe overlay
-        CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=rcache SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/broadcom"
-        make configure PLATFORM=broadcom
-        trap "sudo rm -rf fsroot" EXIT
-        make USERNAME=admin SONIC_BUILD_JOBS=$(nproc) $CACHE_OPTIONS target/sonic-broadcom.bin
-      displayName: 'Build sonic image'
-    - publish: $(System.DefaultWorkingDirectory)/
-      artifact: sonic-buildimage.broadcom.201911
-      displayName: "Archive sonic image"
+        set -x
+        sudo dpkg -i --force-confask,confnew ../sonic-swss-common.amd64.ubuntu20_04/libswsscommon_1.0.0_amd64.deb
+        sudo dpkg -i ../sonic-swss-common.amd64.ubuntu20_04/python3-swsscommon_1.0.0_amd64.deb
+        sudo docker load -i ../target/docker-sonic-vs.gz
+        docker tag docker-sonic-vs:latest docker-sonic-vs:$(Build.BuildNumber)
+        username=$(id -un)
+
+        trap "docker ps; docker images; ip netns list; \
+              docker rmi docker-sonic-vs:$(Build.BuildNumber); \
+              ip netns list | grep -E [-]srv[0-9]+ | awk '{print $1}' | xargs -I {} sudo ip netns delete {}; \
+              sudo chown -R ${username}.${username} .; \
+              sudo chown -R ${username}.${username} $(System.DefaultWorkingDirectory)" EXIT
+        pushd platform/vs/tests
+        sudo py.test -v --junitxml=tr.xml --imgname=docker-sonic-vs:$(Build.BuildNumber)
+      displayName: "Run vs tests"
+
+    - task: PublishTestResults@2
+      inputs:
+        testResultsFiles: '**/tr.xml'
+        testRunTitle: vstest
 
   - job:
-    displayName: "mellanox"
-    timeoutInMinutes: 600
-    steps:
-    - script: |
-        set -x
-        sudo rm -rf fsroot
-        username=$(id -un)
-        sudo chown -cR ${username}.${username} .
-      displayName: 'Cleanup'
-    - checkout: self
-      clean: true
-      submodules: recursive
-      displayName: 'Checkout code'
+    pool: sonictest
+    displayName: "kvmtest-t0"
+    timeoutInMinutes: 240
 
-    - script: |
-         git submodule foreach --recursive git clean -xfdf
-         git submodule foreach --recursive git reset --hard
-         git submodule update --init --recursive
-      displayName: 'reset submodules'
-    - script: |
-        sudo modprobe overlay
-        CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=rcache SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/mellanox"
-        make configure PLATFORM=mellanox
-        trap "sudo rm -rf fsroot" EXIT
-        make USERNAME=admin SONIC_BUILD_JOBS=$(nproc) $CACHE_OPTIONS target/sonic-mellanox.bin
-      displayName: 'Build sonic image'
-    - publish: $(System.DefaultWorkingDirectory)/
-      artifact: sonic-buildimage.mellanox.201911
-      displayName: "Archive sonic image"
+    steps:
+    - template: .azure-pipelines/run-test-template.yml
+      parameters:
+        dut: vlab-01
+        tbname: vms-kvm-t0
+        ptf_name: ptf_vms6-1
+        tbtype: t0
 
   - job:
-    displayName: "kvm"
-    timeoutInMinutes: 600
-    steps:
-    - script: |
-        set -x
-        sudo rm -rf fsroot
-        username=$(id -un)
-        sudo chown -cR ${username}.${username} .
-      displayName: 'Cleanup'
-    - checkout: self
-      clean: true
-      submodules: recursive
-      displayName: 'Checkout code'
+    pool: sonictest-t1-lag
+    displayName: "kvmtest-t1-lag"
+    timeoutInMinutes: 240
 
-    - script: |
-         git submodule foreach --recursive git clean -xfdf
-         git submodule foreach --recursive git reset --hard
-         git submodule update --init --recursive
-      displayName: 'reset submodules'
-    - script: |
-        echo $(Build.BuildNumber)
-        sudo modprobe overlay
-        CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=rcache SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/vs"
-        make configure PLATFORM=vs
-        trap "sudo rm -rf fsroot" EXIT
-        make USERNAME=admin SONIC_BUILD_JOBS=$(nproc) $CACHE_OPTIONS \
-            target/docker-sonic-vs.gz target/sonic-vs.img.gz && \
-            sudo cp target/sonic-vs.img.gz /nfs/azpl/kvmimage/sonic-vs.$(Build.BuildNumber).img.gz
-      displayName: 'Build sonic image'
-    - publish: $(System.DefaultWorkingDirectory)/
-      artifact: sonic-buildimage.kvm.201911
-      displayName: "Archive sonic image"
+    steps:
+    - template: .azure-pipelines/run-test-template.yml
+      parameters:
+        dut: vlab-03
+        tbname: vms-kvm-t1-lag
+        ptf_name: ptf_vms6-2
+        tbtype: t1-lag
