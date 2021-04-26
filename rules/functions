@@ -166,3 +166,36 @@ sudo mount -t overlay overlay -olowerdir=/var/lib/dpkg,upperdir=$$upperdir,workd
 export SONIC_DPKG_ADMINDIR=$$mergedir
 trap "sudo umount $$mergedir && rm -rf $$mergedir $$upperdir $$workdir" EXIT
 endef
+
+
+###############################################################################
+## Manifest generation routine
+## TODO: changelog generation
+###############################################################################
+# call:
+#     generate_manifest some_docker.gz, version_suffix
+define generate_manifest
+    $(eval export version=$($(1).gz_VERSION)$(2))
+    $(eval export name=$($(1).gz_CONTAINER_NAME))
+    $(eval export package_name=$($(1).gz_PACKAGE_NAME))
+    $(eval export asic_service=$(shell [ -f files/build_templates/per_namespace/$(name).service.j2 ] && echo true || echo false))
+    $(eval export host_service=$(shell [ -f files/build_templates/$(name).service.j2 ] && echo true || echo false))
+    $(eval export depends=$($(1).gz_PACKAGE_DEPENDS))
+    $(eval export requires=$($(1).gz_SERVICE_REQUIRES))
+    $(eval export after=$($(1).gz_SERVICE_AFTER))
+    $(eval export before=$($(1).gz_SERVICE_BEFORE))
+    $(eval export dependent_of=$($(1).gz_SERVICE_DEPENDENT_OF))
+    $(eval export privileged=$($(1).gz_CONTAINER_PRIVILEGED))
+    $(eval export volumes=$($(1).gz_CONTAINER_VOLUMES))
+    $(eval export tmpfs=$($(1).gz_CONTAINER_TMPFS))
+    $(eval export config_cli_plugin=$($(1).gz_CLI_CONFIG_PLUGIN))
+    $(eval export show_cli_plugin=$($(1).gz_CLI_SHOW_PLUGIN))
+    j2 $($*.gz_PATH)/Dockerfile.j2 > $($(1).gz_PATH)/Dockerfile
+    j2 --customize scripts/j2cli/json_filter.py files/build_templates/manifest.json.j2 > $($(1).gz_PATH)/manifest.common.json
+    if [ -f $($*.gz_PATH)/manifest.part.json.j2 ]; then
+        j2 --customize scripts/j2cli/json_filter.py $($(1).gz_PATH)/manifest.part.json.j2 > $($(1).gz_PATH)/manifest.part.json
+        jq -s '.[0] * .[1]' $($(1).gz_PATH)/manifest.common.json $($(1).gz_PATH)/manifest.part.json > $($(1).gz_PATH)/manifest.json
+    else
+        mv $($(1).gz_PATH)/manifest.common.json $($(1).gz_PATH)/manifest.json
+    fi
+endef

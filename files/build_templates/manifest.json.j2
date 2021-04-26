@@ -1,0 +1,26 @@
+{
+    "version": "1.0.0",
+    "package": {
+        "version": "{{ version }}",
+        "depends": {{ depends.split()|json if depends is defined else []}},
+        "name": "{{ package_name }}"
+    },
+    "service": {
+        "name": "{{ name }}",
+        "requires": {{ requires.split()|json if requires is defined else [] }},
+        "after": {{ after.split()|json if after is defined else [] }},
+        "before": {{ before.split()|json if before is defined else [] }},
+        "dependent-of": {{ dependent_of.split()|json if dependent_of is defined else [] }},
+        "asic-service": {{ asic_service }},
+        "host-service": {{ host_service }}
+    },
+    "container": {
+        "privileged": {{ privileged if privileged else 'false' }},
+        "volumes": {{ volumes.split()|json if volumes is defined else [] }},
+        "tmpfs": {{ tmpfs.split()|json if tmpfs is defined else [] }}
+    },
+    "cli": {
+        "config": "{{ config_cli_plugin|default('') }}",
+        "show": "{{ show_cli_plugin|default('') }}"
+    }
+}
