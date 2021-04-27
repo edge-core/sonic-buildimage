@@ -21,6 +21,7 @@ class TestCfgGen(TestCase):
         self.sample_graph_metadata = os.path.join(self.test_dir, 'simple-sample-graph-metadata.xml')
         self.sample_graph_pc_test = os.path.join(self.test_dir, 'pc-test-graph.xml')
         self.sample_graph_bgp_speaker = os.path.join(self.test_dir, 't0-sample-bgp-speaker.xml')
+        self.sample_graph_voq = os.path.join(self.test_dir, 'sample-voq-graph.xml')
         self.sample_device_desc = os.path.join(self.test_dir, 'device.xml')
         self.port_config = os.path.join(self.test_dir, 't0-sample-port-config.ini')
         self.port_config_autoneg = os.path.join(self.test_dir, 't0-sample-autoneg-port-config.ini')
@@ -67,6 +68,11 @@ class TestCfgGen(TestCase):
         argument = '-v "(MGMT_INTERFACE.keys()|list)[0]" -M "' + self.sample_device_desc + '"'
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "('eth0', '10.0.1.5/28')")
+
+    def test_minigraph_hostname(self):
+        argument = '-v "DEVICE_METADATA[\'localhost\'][\'hostname\']" -m "' + self.sample_graph + '"'
+        output = self.run_script(argument)
+        self.assertEqual(output.strip(), 'OCPSCH01040DDLF')
 
     def test_minigraph_sku(self):
         argument = '-v "DEVICE_METADATA[\'localhost\'][\'hwsku\']" -m "' + self.sample_graph + '"'
@@ -665,3 +671,39 @@ class TestCfgGen(TestCase):
         argument = '-a \'{"key1":"value"}\' --var-json INTERFACE'
         output = self.run_script(argument)
         self.assertEqual(output, '')
+
+    def test_minigraph_voq_metadata(self):
+        argument = "-m {} --var-json DEVICE_METADATA".format(self.sample_graph_voq)
+        output = json.loads(self.run_script(argument))
+        self.assertEqual(output['localhost']['asic_name'], 'Asic0')
+        self.assertEqual(output['localhost']['switch_id'], '0')
+        self.assertEqual(output['localhost']['switch_type'], 'voq')
+        self.assertEqual(output['localhost']['max_cores'], '16')
+
+    def test_minigraph_voq_system_ports(self):
+        argument = "-m {} --var-json SYSTEM_PORT".format(self.sample_graph_voq)
+        self.assertDictEqual(
+            json.loads(self.run_script(argument)),
+            {
+                "linecard-1|Asic0|Cpu0": { "core_port_index": "0", "num_voq": "8", "switch_id": "0", "speed": "1000", "core_index": "0", "system_port_id": "1" },
+                "linecard-1|Asic0|Ethernet1/1": { "core_port_index": "1", "num_voq": "8", "switch_id": "0", "speed": "40000", "core_index": "0", "system_port_id": "2" },
+                "linecard-1|Asic0|Ethernet1/2": { "core_port_index": "2", "num_voq": "8", "switch_id": "0", "speed": "40000", "core_index": "0", "system_port_id": "3" },
+                "linecard-1|Asic0|Ethernet1/3": { "core_port_index": "3", "num_voq": "8", "switch_id": "0", "speed": "40000", "core_index": "1", "system_port_id": "4" },
+                "linecard-1|Asic0|Ethernet1/4": { "core_port_index": "4", "num_voq": "8", "switch_id": "0", "speed": "40000", "core_index": "1", "system_port_id": "5" },
+                "linecard-2|Asic0|Cpu0": { "core_port_index": "0", "num_voq": "8", "switch_id": "2", "speed": "1000", "core_index": "0", "system_port_id": "256" },
+                "linecard-2|Asic0|Ethernet1/5": { "core_port_index": "1", "num_voq": "8", "switch_id": "2", "speed": "40000", "core_index": "0", "system_port_id": "257" },
+                "linecard-2|Asic0|Ethernet1/6": { "core_port_index": "2", "num_voq": "8", "switch_id": "2", "speed": "40000", "core_index": "1", "system_port_id": "258" },
+                "linecard-2|Asic1|Cpu0": { "core_port_index": "0", "num_voq": "8", "switch_id": "4", "speed": "1000", "core_index": "0", "system_port_id": "259" },
+                "linecard-2|Asic1|Ethernet1/7": { "core_port_index": "1", "num_voq": "8", "switch_id": "4", "speed": "40000", "core_index": "0", "system_port_id": "260" },
+                "linecard-2|Asic1|Ethernet1/8": { "core_port_index": "2", "num_voq": "8", "switch_id": "4", "speed": "40000", "core_index": "1", "system_port_id": "261" }
+            }
+        )
+
+    def test_minigraph_voq_inband_interface(self):
+        argument = "-m {} --var-json VOQ_INBAND_INTERFACE".format(self.sample_graph_voq)
+        self.assertDictEqual(
+            json.loads(self.run_script(argument)),
+            { 'Vlan3094': {'inband_type': 'Vlan'},
+              'Vlan3094|1.1.1.1/24': {}
+            }
+        )

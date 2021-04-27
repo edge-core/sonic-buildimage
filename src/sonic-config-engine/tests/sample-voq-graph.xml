@@ -1,0 +1,338 @@
+<DeviceMiniGraph xmlns="Microsoft.Search.Autopilot.Evolution" xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+  <CpgDec>
+    <PeeringSessions/>
+    <Routers xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
+  </CpgDec>
+  <DpgDec>
+    <DeviceDataPlaneInfo>
+      <IPSecTunnels/>
+      <LoopbackIPInterfaces xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
+        <a:LoopbackIPInterface>
+          <Name>HostIP</Name>
+          <AttachTo>Loopback0</AttachTo>
+          <a:Prefix xmlns:b="Microsoft.Search.Autopilot.Evolution">
+            <b:IPPrefix>10.1.0.32/32</b:IPPrefix>
+          </a:Prefix>
+          <a:PrefixStr>10.1.0.32/32</a:PrefixStr>
+        </a:LoopbackIPInterface>
+        <a:LoopbackIPInterface>
+          <Name>HostIP1</Name>
+          <AttachTo>Loopback0</AttachTo>
+          <a:Prefix xmlns:b="Microsoft.Search.Autopilot.Evolution">
+            <b:IPPrefix>FC00:1::32/128</b:IPPrefix>
+          </a:Prefix>
+          <a:PrefixStr>FC00:1::32/128</a:PrefixStr>
+        </a:LoopbackIPInterface>
+      </LoopbackIPInterfaces>
+      <ManagementIPInterfaces xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
+        <a:ManagementIPInterface>
+          <Name>HostIP</Name>
+          <AttachTo>eth0</AttachTo>
+          <a:Prefix xmlns:b="Microsoft.Search.Autopilot.Evolution">
+            <b:IPPrefix>10.0.0.100/24</b:IPPrefix>
+          </a:Prefix>
+          <a:PrefixStr>10.0.0.100/24</a:PrefixStr>
+        </a:ManagementIPInterface>
+      </ManagementIPInterfaces>
+      <ManagementVIPInterfaces xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
+      <MplsInterfaces/>
+      <MplsTeInterfaces/>
+      <RsvpInterfaces/>
+      <Hostname>linecard-1</Hostname>
+      <PortChannelInterfaces/>
+      <VlanInterfaces/>
+      <IPInterfaces/>
+      <VoqInbandInterfaces xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
+        <a:VoqInbandInterface>
+          <Name>Vlan3094</Name>
+          <Type>Vlan</Type>
+          <a:PrefixStr>1.1.1.1/24</a:PrefixStr>
+        </a:VoqInbandInterface>
+      </VoqInbandInterfaces>
+      <DataAcls/>
+      <AclInterfaces/>
+      <DownstreamSummaries/>
+      <DownstreamSummarySet xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
+    </DeviceDataPlaneInfo>
+  </DpgDec>
+  <PngDec>
+    <DeviceInterfaceLinks/>
+    <Devices>
+      <Device i:type="ToRRouter">
+        <Hostname>linecard-1</Hostname>
+        <HwSku>Force10-S6000</HwSku>
+      </Device>
+    </Devices>
+  </PngDec>
+<MetadataDeclaration>
+ <Devices xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
+  <a:DeviceMetadata>
+   <a:Name>linecard-1</a:Name>
+   <a:Properties>
+    <a:DeviceProperty>
+     <a:Name>DeploymentId</a:Name>
+     <a:Reference i:nil="true"/>
+     <a:Value>1</a:Value>
+    </a:DeviceProperty>
+    <a:DeviceProperty>
+     <a:Name>Region</a:Name>
+     <a:Reference i:nil="true"/>
+     <a:Value>usfoo</a:Value>
+    </a:DeviceProperty>
+    <a:DeviceProperty>
+     <a:Name>CloudType</a:Name>
+     <a:Reference i:nil="true"/>
+     <a:Value>Public</a:Value>
+    </a:DeviceProperty>
+    <a:DeviceProperty>
+     <a:Name>ErspanDestinationIpv4</a:Name>
+     <a:Reference i:nil="true"/>
+     <a:Value>10.0.100.1</a:Value>
+    </a:DeviceProperty>
+    <a:DeviceProperty>
+     <a:Name>NtpResources</a:Name>
+     <a:Value>
+      10.0.10.1;10.0.10.2
+     </a:Value>
+    </a:DeviceProperty>
+    <a:DeviceProperty>
+     <a:Name>SnmpResources</a:Name>
+     <a:Value>
+      10.0.10.3;10.0.10.4
+     </a:Value>
+    </a:DeviceProperty>
+    <a:DeviceProperty>
+     <a:Name>SyslogResources</a:Name>
+     <a:Value>
+      10.0.10.5;10.0.10.6;
+     </a:Value>
+    </a:DeviceProperty>
+    <a:DeviceProperty>
+     <a:Name>TacacsServer</a:Name>
+     <a:Reference i:nil="true"/>
+     <a:Value>10.0.10.7;10.0.10.8</a:Value>
+    </a:DeviceProperty>
+    <a:DeviceProperty>
+     <a:Name>ResourceType</a:Name>
+     <a:Reference i:nil="true"/>
+     <a:Value>resource_type_x</a:Value>
+    </a:DeviceProperty>
+    <a:DeviceProperty>
+      <a:Name>SwitchId</a:Name>
+      <a:Reference i:nil="true"/>
+      <a:Value>0</a:Value>
+    </a:DeviceProperty>
+    <a:DeviceProperty>
+      <a:Name>SwitchType</a:Name>
+      <a:Reference i:nil="true"/>
+      <a:Value>voq</a:Value>
+    </a:DeviceProperty>
+    <a:DeviceProperty>
+      <a:Name>MaxCores</a:Name>
+      <a:Reference i:nil="true"/>
+      <a:Value>16</a:Value>
+    </a:DeviceProperty>
+  </a:Properties>
+  </a:DeviceMetadata>
+ </Devices>
+ <Properties xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
+</MetadataDeclaration>
+  <DeviceInfos>
+    <DeviceInfo>
+      <EthernetInterfaces xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
+        <a:EthernetInterface>
+          <ElementType>DeviceInterface</ElementType>
+          <AlternateSpeeds i:nil="true"/>
+          <EnableFlowControl>true</EnableFlowControl>
+          <Index>1</Index>
+          <InterfaceName>fortyGigE0/0</InterfaceName>
+          <InterfaceType i:nil="true"/>
+          <MultiPortsInterface>false</MultiPortsInterface>
+          <PortName>0</PortName>
+          <Priority>0</Priority>
+          <Speed>10000</Speed>
+        </a:EthernetInterface>
+        <a:EthernetInterface>
+          <ElementType>DeviceInterface</ElementType>
+          <AlternateSpeeds i:nil="true"/>
+          <EnableFlowControl>true</EnableFlowControl>
+          <Index>1</Index>
+          <InterfaceName>fortyGigE0/4</InterfaceName>
+          <InterfaceType i:nil="true"/>
+          <MultiPortsInterface>false</MultiPortsInterface>
+          <PortName>0</PortName>
+          <Priority>0</Priority>
+          <Speed>25000</Speed>
+        </a:EthernetInterface>
+        <a:EthernetInterface>
+          <ElementType>DeviceInterface</ElementType>
+          <AlternateSpeeds i:nil="true"/>
+          <EnableFlowControl>true</EnableFlowControl>
+          <Index>1</Index>
+          <InterfaceName>fortyGigE0/8</InterfaceName>
+          <InterfaceType i:nil="true"/>
+          <MultiPortsInterface>false</MultiPortsInterface>
+          <PortName>0</PortName>
+          <Priority>0</Priority>
+          <Speed>40000</Speed>
+          <Description>Interface description</Description>
+        </a:EthernetInterface>
+        <a:EthernetInterface>
+          <ElementType>DeviceInterface</ElementType>
+          <AlternateSpeeds i:nil="true"/>
+          <EnableFlowControl>true</EnableFlowControl>
+          <Index>1</Index>
+          <InterfaceName>fortyGigE0/12</InterfaceName>
+          <InterfaceType i:nil="true"/>
+          <MultiPortsInterface>false</MultiPortsInterface>
+          <PortName>0</PortName>
+          <Priority>0</Priority>
+          <Speed>100000</Speed>
+          <Description>Interface description</Description>
+        </a:EthernetInterface>
+      </EthernetInterfaces>
+      <FlowControl>true</FlowControl>
+      <Height>0</Height>
+      <HwSku>Force10-S6000</HwSku>
+      <ManagementInterfaces xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
+	<a:ManagementInterface>
+	  <ElementType>DeviceInterface</ElementType>
+	  <AlternateSpeeds i:nil="true"/>
+	  <EnableFlowControl>true</EnableFlowControl>
+	  <Index>1</Index>
+	  <InterfaceName>Management1</InterfaceName>
+	  <MultiPortsInterface>false</MultiPortsInterface>
+	  <PortName>mgmt1</PortName>
+	  <Speed>1000</Speed>
+  	</a:ManagementInterface>
+      </ManagementInterfaces>
+      <SystemPorts>
+        <SystemPort>
+          <Name>Cpu0</Name>
+          <Hostname>linecard-1</Hostname>
+          <AsicName>Asic0</AsicName>
+          <Speed>1000</Speed>
+          <SystemPortId>1</SystemPortId>
+          <SwitchId>0</SwitchId>
+          <CoreId>0</CoreId>
+          <CorePortId>0</CorePortId>
+          <NumVoq>8</NumVoq>
+        </SystemPort>
+        <SystemPort>
+          <Name>Ethernet1/1</Name>
+          <Hostname>linecard-1</Hostname>
+          <AsicName>Asic0</AsicName>
+          <Speed>40000</Speed>
+          <SystemPortId>2</SystemPortId>
+          <SwitchId>0</SwitchId>
+          <CoreId>0</CoreId>
+          <CorePortId>1</CorePortId>
+          <NumVoq>8</NumVoq>
+        </SystemPort>
+        <SystemPort>
+          <Name>Ethernet1/2</Name>
+          <Hostname>linecard-1</Hostname>
+          <AsicName>Asic0</AsicName>
+          <Speed>40000</Speed>
+          <SystemPortId>3</SystemPortId>
+          <SwitchId>0</SwitchId>
+          <CoreId>0</CoreId>
+          <CorePortId>2</CorePortId>
+          <NumVoq>8</NumVoq>
+        </SystemPort>
+        <SystemPort>
+          <Name>Ethernet1/3</Name>
+          <Hostname>linecard-1</Hostname>
+          <AsicName>Asic0</AsicName>
+          <Speed>40000</Speed>
+          <SystemPortId>4</SystemPortId>
+          <SwitchId>0</SwitchId>
+          <CoreId>1</CoreId>
+          <CorePortId>3</CorePortId>
+          <NumVoq>8</NumVoq>
+        </SystemPort>
+        <SystemPort>
+          <Name>Ethernet1/4</Name>
+          <Hostname>linecard-1</Hostname>
+          <AsicName>Asic0</AsicName>
+          <Speed>40000</Speed>
+          <SystemPortId>5</SystemPortId>
+          <SwitchId>0</SwitchId>
+          <CoreId>1</CoreId>
+          <CorePortId>4</CorePortId>
+          <NumVoq>8</NumVoq>
+        </SystemPort>
+        <SystemPort>
+          <Name>Cpu0</Name>
+          <Hostname>linecard-2</Hostname>
+          <AsicName>Asic0</AsicName>
+          <Speed>1000</Speed>
+          <AttachTo>Cpu0</AttachTo>
+          <SystemPortId>256</SystemPortId>
+          <SwitchId>2</SwitchId>
+          <CoreId>0</CoreId>
+          <CorePortId>0</CorePortId>
+          <NumVoq>8</NumVoq>
+        </SystemPort>
+        <SystemPort>
+          <Name>Ethernet1/5</Name>
+          <Hostname>linecard-2</Hostname>
+          <AsicName>Asic0</AsicName>
+          <Speed>40000</Speed>
+          <SystemPortId>257</SystemPortId>
+          <SwitchId>2</SwitchId>
+          <CoreId>0</CoreId>
+          <CorePortId>1</CorePortId>
+          <NumVoq>8</NumVoq>
+        </SystemPort>
+        <SystemPort>
+          <Name>Ethernet1/6</Name>
+          <Hostname>linecard-2</Hostname>
+          <AsicName>Asic0</AsicName>
+          <Speed>40000</Speed>
+          <SystemPortId>258</SystemPortId>
+          <SwitchId>2</SwitchId>
+          <CoreId>1</CoreId>
+          <CorePortId>2</CorePortId>
+          <NumVoq>8</NumVoq>
+        </SystemPort>
+        <SystemPort>
+          <Name>Cpu0</Name>
+          <Hostname>linecard-2</Hostname>
+          <AsicName>Asic1</AsicName>
+          <Speed>1000</Speed>
+          <AttachTo>Cpu0</AttachTo>
+          <SystemPortId>259</SystemPortId>
+          <SwitchId>4</SwitchId>
+          <CoreId>0</CoreId>
+          <CorePortId>0</CorePortId>
+          <NumVoq>8</NumVoq>
+        </SystemPort>
+        <SystemPort>
+          <Name>Ethernet1/7</Name>
+          <Hostname>linecard-2</Hostname>
+          <AsicName>Asic1</AsicName>
+          <Speed>40000</Speed>
+          <SystemPortId>260</SystemPortId>
+          <SwitchId>4</SwitchId>
+          <CoreId>0</CoreId>
+          <CorePortId>1</CorePortId>
+          <NumVoq>8</NumVoq>
+        </SystemPort>
+        <SystemPort>
+          <Name>Ethernet1/8</Name>
+          <Hostname>linecard-2</Hostname>
+          <AsicName>Asic1</AsicName>
+          <Speed>40000</Speed>
+          <SystemPortId>261</SystemPortId>
+          <SwitchId>4</SwitchId>
+          <CoreId>1</CoreId>
+          <CorePortId>2</CorePortId>
+          <NumVoq>8</NumVoq>
+        </SystemPort>
+      </SystemPorts>
+    </DeviceInfo>
+  </DeviceInfos>
+  <Hostname>linecard-1</Hostname>
+  <HwSku>Force10-S6000</HwSku>
+</DeviceMiniGraph>
