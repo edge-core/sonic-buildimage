@@ -42,8 +42,8 @@ ENV LC_CTYPE=en_US.UTF-8
 RUN sed -i '/^#.* en_US.* /s/^#//' /etc/locale.gen
 RUN locale-gen
 
-# Install up-to-date version of pip
-RUN curl https://bootstrap.pypa.io/get-pip.py | python3.6
+COPY ["get-pip.py", "/usr/bin/"]
+RUN python3.6 /usr/bin/get-pip.py pip==21.0.1
 
 # pin down setuptools version for issues to install sonic_ax_impl
 # see https://github.com/Azure/sonic-buildimage/issues/5279
