@@ -1,3 +1,13 @@
+From 5858f60aa5948a502ca8a1c9357ac81baa6f68dc Mon Sep 17 00:00:00 2001
+From: junchao <junchao@nvidia.com>
+Date: Fri, 23 Apr 2021 09:27:43 +0800
+Subject: [PATCH] Make hw-mgmt SimX compatible
+
+---
+ usr/usr/bin/hw-management-ready.sh | 11 +++++++----
+ usr/usr/bin/hw-management.sh       |  9 +++++++++
+ 2 files changed, 16 insertions(+), 4 deletions(-)
+
 diff --git a/usr/usr/bin/hw-management-ready.sh b/usr/usr/bin/hw-management-ready.sh
 index 3c9f7b6..05d143f 100755
 --- a/usr/usr/bin/hw-management-ready.sh
@@ -20,10 +30,10 @@ index 3c9f7b6..05d143f 100755
  echo "Start Chassis HW management service."
  logger -t hw-management -p daemon.notice "Start Chassis HW management service."
 diff --git a/usr/usr/bin/hw-management.sh b/usr/usr/bin/hw-management.sh
-index 70f1297..e427a3d 100755
+index 991cf45..16ad0bf 100755
 --- a/usr/usr/bin/hw-management.sh
 +++ b/usr/usr/bin/hw-management.sh
-@@ -1110,6 +1110,13 @@ do_chip_down()
+@@ -1265,6 +1265,13 @@ do_chip_down()
  	/usr/bin/hw-management-thermal-events.sh change hotplug_asic down %S %p
  }
  
@@ -35,9 +45,9 @@ index 70f1297..e427a3d 100755
 +}
 +
  __usage="
- Usage: $(basename $0) [Options]
+ Usage: $(basename "$0") [Options]
  
-@@ -1135,6 +1142,8 @@ Options:
+@@ -1290,6 +1297,8 @@ Options:
  	force-reload	Performs hw-management 'stop' and the 'start.
  "
  
@@ -46,3 +56,6 @@ index 70f1297..e427a3d 100755
  case $ACTION in
  	start)
  		if [ -d /var/run/hw-management ]; then
+-- 
+1.9.1
+
