@@ -16,6 +16,18 @@ schedules:
 
 pool: sonicbld
 
+parameters:
+  - name: jobFilters
+    type: object
+    default:
+    - vs
+    - broadcom
+    - centec
+    - generic
+    - innovium
+    - mellanox
+    - nephos
+
 stages:
 - stage: Build
   variables:
@@ -25,6 +37,7 @@ stages:
   - template: azure-pipelines-build.yml
     parameters:
       buildOptions: '${{ variables.VERSION_CONTROL_OPTIONS }} SONIC_BUILD_JOBS=$(nproc) ENABLE_IMAGE_SIGNATURE=y'
+      jobFilters: ${{ parameters.jobFilters }}
       preSteps:
       - script: |
           containers=$(docker container ls | grep "sonic-slave" | awk '{ print $1 }')
