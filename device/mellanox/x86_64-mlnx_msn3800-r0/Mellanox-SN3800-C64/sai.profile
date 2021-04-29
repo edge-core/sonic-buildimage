@@ -1,1 +1,2 @@
-../ACS-MSN3800/sai.profile
+SAI_INIT_CONFIG_FILE=/usr/share/sonic/hwsku/sai_3800.xml
+SAI_VXLAN_SRCPORT_RANGE_ENABLE=1
