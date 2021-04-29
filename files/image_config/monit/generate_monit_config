@@ -1,12 +1,39 @@
 #!/bin/bash
 
 # Generate the following files from templates:
-# 1. Monit configuration file of radv container
-# 2. Monit configuration file of dhcp_relay container
+# 1. Monit configuration file of dhcp_relay container
+# 2. Monit configuration file of PMon container
+# 3. Monit configuration file of radv container
 
 CFGGEN_PARAMS=" \
     -d \
-    -t /usr/share/sonic/templates/monit_radv.j2,/etc/monit/conf.d/monit_radv \
     -t /usr/share/sonic/templates/monit_dhcp_relay.j2,/etc/monit/conf.d/monit_dhcp_relay \
+    -t /usr/share/sonic/templates/monit_radv.j2,/etc/monit/conf.d/monit_radv \
 "
 sonic-cfggen $CFGGEN_PARAMS
+
+PLATFORM=$(sonic-cfggen -d -v DEVICE_METADATA.localhost.platform 2> /dev/null)
+
+if [[ $? == 0 && $PLATFORM != "" ]]; then
+    SENSORS_CONF_FILE="/usr/share/sonic/device/$PLATFORM/sensors.conf" 
+    FANCONTROL_CONF_FILE="/usr/share/sonic/device/$PLATFORM/fancontrol" 
+
+    HAVE_SENSORS_CONF=0
+    HAVE_FANCONTROL_CONF=0
+
+    if [ -e $SENSORS_CONF_FILE ]; then
+        HAVE_SENSORS_CONF=1
+    fi	
+
+    if [ -e $FANCONTROL_CONF_FILE ]; then
+        HAVE_FANCONTROL_CONF=1
+    fi
+
+    confvar="{\"HAVE_SENSORS_CONF\":$HAVE_SENSORS_CONF, \"HAVE_FANCONTROL_CONF\":$HAVE_FANCONTROL_CONF}"
+
+    if [ -e /usr/share/sonic/device/$PLATFORM/pmon_daemon_control.json ]; then
+        sonic-cfggen -j /usr/share/sonic/device/$PLATFORM/pmon_daemon_control.json -a "$confvar" -t /usr/share/sonic/template/monit_pmon.j2,/etc/monit/conf.d/monit_pmon
+    else
+        sonic-cfggen -a "$confvar" -t /usr/share/sonic/template/monit_pmon.j2,/etc/monit/conf.d/monit_pmon
+    fi
+fi

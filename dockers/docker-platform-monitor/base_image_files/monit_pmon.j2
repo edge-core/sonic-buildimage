@@ -1,0 +1,61 @@
+{# This template file is used to generate Monit configuration file of platform monitor container -#}
+
+###############################################################################
+## Monit configuration file for PMon container
+## process list:
+{% if not skip_fancontrol and HAVE_FANCONTROL_CONF == 1 %}
+##  fancontrol
+{% endif %}
+{% if not skip_ledd %}
+##  ledd
+{% endif %}
+{% if not skip_psud %}
+##  psud
+{% endif %}
+{% if not skip_sensors and HAVE_SENSORS_CONF == 1 %}
+##  sensord
+{% endif %}
+{% if not skip_syseepromd %}
+##  syseepromd
+{% endif %}
+{% if not skip_thermalctld %}
+##  thermalctld
+{% endif %}
+{% if not skip_xcvrd %}
+##  xcvrd
+{% endif %}
+###############################################################################
+{% if not skip_fancontrol and HAVE_FANCONTROL_CONF == 1 %}
+check program pmon|fancontrol with path "/usr/bin/process_checker pmon /bin/bash /usr/sbin/fancontrol"
+    if status != 0 for 5 times within 5 cycles then alert repeat every 1 cycles
+{% endif %}
+
+{% if not skip_ledd %}
+check program pmon|ledd with path "/usr/bin/process_checker pmon /usr/bin/python /usr/bin/ledd"
+    if status != 0 for 5 times within 5 cycles then alert repeat every 1 cycles
+{% endif %}
+
+{% if not skip_psud %}
+check program pmon|psud with path "/usr/bin/process_checker pmon /usr/bin/python /usr/bin/psud"
+    if status != 0 for 5 times within 5 cycles then alert repeat every 1 cycles
+{% endif %}
+
+{% if not skip_sensors and HAVE_SENSORS_CONF == 1 %}
+check program pmon|sensord with path "/usr/bin/process_checker pmon /usr/sbin/sensord -f daemon"
+    if status != 0 for 5 times within 5 cycles then alert repeat every 1 cycles
+{% endif %}
+
+{% if not skip_syseepromd %}
+check program pmon|syseepromd with path "/usr/bin/process_checker pmon /usr/bin/python /usr/bin/syseepromd"
+    if status != 0 for 5 times within 5 cycles then alert repeat every 1 cycles
+{% endif %}
+
+{% if not skip_thermalctld %}
+check program pmon|thermalctld with path "/usr/bin/process_checker pmon /usr/bin/python /usr/bin/thermalctld"
+    if status != 0 for 5 times within 5 cycles then alert repeat every 1 cycles
+{% endif %}
+
+{% if not skip_xcvrd %}
+check program pmon|xcvrd with path "/usr/bin/process_checker pmon /usr/bin/python /usr/bin/xcvrd"
+    if status != 0 for 5 times within 5 cycles then alert repeat every 1 cycles
+{%- endif -%}

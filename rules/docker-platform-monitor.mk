@@ -46,4 +46,5 @@ $(DOCKER_PLATFORM_MONITOR)_BASE_IMAGE_FILES += cmd_wrapper:/usr/bin/sensors
 $(DOCKER_PLATFORM_MONITOR)_BASE_IMAGE_FILES += cmd_wrapper:/usr/sbin/smartctl
 $(DOCKER_PLATFORM_MONITOR)_BASE_IMAGE_FILES += cmd_wrapper:/usr/sbin/iSmart
 $(DOCKER_PLATFORM_MONITOR)_BASE_IMAGE_FILES += cmd_wrapper:/usr/sbin/SmartCmd
+$(DOCKER_PLATFORM_MONITOR)_BASE_IMAGE_FILES += monit_pmon.j2:/usr/share/sonic/templates
 $(DOCKER_PLATFORM_MONITOR)_FILES += $(SUPERVISOR_PROC_EXIT_LISTENER_SCRIPT)
