@@ -289,6 +289,10 @@ RUN pip install setuptools==40.8.0
 # For sonic-swss-common testing
 RUN pip install Pympler==0.8
 
+# For swsssdk build
+RUN pip2 install redis==2.10.6
+RUN pip3 install redis==2.10.6
+
 # Install dependencies for isc-dhcp-relay build
 RUN apt-get -y build-dep isc-dhcp
 
