@@ -33,11 +33,11 @@ stages:
          git submodule update --init --recursive
       displayName: 'reset submodules'
     - script: |
+        set -ex
         sudo modprobe overlay
-        CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=rcache SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/broadcom"
-        make configure PLATFORM=broadcom
+        ENABLE_DOCKER_BASE_PULL=y make configure PLATFORM=broadcom
         trap "sudo rm -rf fsroot" EXIT
-        make USERNAME=admin SONIC_BUILD_JOBS=$(nproc) $CACHE_OPTIONS target/sonic-broadcom.bin
+        make USERNAME=admin SONIC_BUILD_JOBS=$(nproc) target/sonic-broadcom.bin
       displayName: 'Build sonic image'
     - publish: $(System.DefaultWorkingDirectory)/
       artifact: sonic-buildimage.broadcom.201811
@@ -57,9 +57,9 @@ stages:
          git submodule update --init --recursive
       displayName: 'reset submodules'
     - script: |
+        set -ex
         sudo modprobe overlay
-        CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=rcache SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/mellanox"
-        make configure PLATFORM=mellanox
+        ENABLE_DOCKER_BASE_PULL=y make configure PLATFORM=mellanox
         trap "sudo rm -rf fsroot" EXIT
         make USERNAME=admin SONIC_BUILD_JOBS=$(nproc) $CACHE_OPTIONS target/sonic-mellanox.bin
       displayName: 'Build sonic image'
@@ -81,12 +81,11 @@ stages:
          git submodule update --init --recursive
       displayName: 'reset submodules'
     - script: |
-        echo $(Build.BuildNumber)
+        set -ex
         sudo modprobe overlay
-        CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=rcache SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/vs"
         ENABLE_DOCKER_BASE_PULL=y make configure PLATFORM=vs
         trap "sudo rm -rf fsroot" EXIT
-        make USERNAME=admin SONIC_BUILD_JOBS=$(nproc) $CACHE_OPTIONS \
+        make USERNAME=admin SONIC_BUILD_JOBS=$(nproc) \
             target/docker-sonic-vs.gz target/sonic-vs.img.gz && \
             sudo cp target/sonic-vs.img.gz /nfs/azpl/kvmimage/sonic-vs.$(Build.BuildNumber).img.gz
       displayName: 'Build sonic image'
