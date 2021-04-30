@@ -99,6 +99,11 @@ else
 SLAVE_DIR = sonic-slave-jessie
 endif
 
+# Define a do-nothing target for rules/config.user so that when
+# the file is missing, make won't try to rebuld everything.
+rules/config.user:
+	@echo -n ""
+
 include rules/config
 -include rules/config.user
 
