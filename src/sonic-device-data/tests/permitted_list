@@ -230,3 +230,7 @@ pbmp_gport_stack
 reglist_enable
 scache_filename
 host_as_route_disable
+sai_optimized_mmu
+buf.map.egress_pool0.ingress_pool
+buf.map.egress_pool1.ingress_pool
+buf.map.egress_pool2.ingress_pool
