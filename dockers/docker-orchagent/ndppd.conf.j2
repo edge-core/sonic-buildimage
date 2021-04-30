@@ -21,7 +21,7 @@
 {%              set _x = proxy_interfaces[intf].append(prefix) %}
 {%          endif %}
 {%      endfor -%}
-
+route-ttl 2147483647
 {%      for intf, prefix_list in proxy_interfaces.items() %}
 {%          if prefix_list %}
 
