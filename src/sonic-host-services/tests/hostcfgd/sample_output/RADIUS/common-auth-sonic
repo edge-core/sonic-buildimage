@@ -12,8 +12,8 @@
 # root user can only be authenticated locally. Jump to local.
 auth	[success=2 default=ignore]	pam_succeed_if.so user = root
 # For the RADIUS servers, on success jump to the cache the MPL(Privilege)
-auth	[success=3 new_authtok_reqd=done default=ignore auth_err=die]	pam_radius_auth.so conf=/etc/pam_radius_auth.d/10.10.10.1:1645.conf privilege_level protocol=pap retry=1 nas_ip_address=10.10.10.10 debug try_first_pass
-auth	[success=2 new_authtok_reqd=done default=ignore auth_err=die]	pam_radius_auth.so conf=/etc/pam_radius_auth.d/10.10.10.2:1645.conf privilege_level protocol=chap retry=2 nas_ip_address=10.10.10.10 debug try_first_pass
+auth	[success=3 new_authtok_reqd=done default=ignore auth_err=die]	pam_radius_auth.so conf=/etc/pam_radius_auth.d/10.10.10.1_1645.conf privilege_level protocol=pap retry=1 nas_ip_address=10.10.10.10 debug try_first_pass
+auth	[success=2 new_authtok_reqd=done default=ignore auth_err=die]	pam_radius_auth.so conf=/etc/pam_radius_auth.d/10.10.10.2_1645.conf privilege_level protocol=chap retry=2 nas_ip_address=10.10.10.10 debug try_first_pass
 # Local
 auth	[success=done new_authtok_reqd=done default=ignore auth_err=die maxtries=die]	pam_unix.so nullok try_first_pass
 auth	requisite	pam_deny.so

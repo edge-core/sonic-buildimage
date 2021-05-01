@@ -458,7 +458,7 @@ class AaaCfg(object):
         if radsrvs_conf:
             for srv in radsrvs_conf:
                 # Configuration File
-                pam_radius_auth_file = RADIUS_PAM_AUTH_CONF_DIR + srv['ip'] + ":" + srv['auth_port'] + ".conf"
+                pam_radius_auth_file = RADIUS_PAM_AUTH_CONF_DIR + srv['ip'] + "_" + srv['auth_port'] + ".conf"
                 template_file = os.path.abspath(PAM_RADIUS_AUTH_CONF_TEMPLATE)
                 template = env.get_template(template_file)
                 pam_radius_auth_conf = template.render(server=srv)
