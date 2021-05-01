@@ -1,9 +1,11 @@
+#ifdef CLANG
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wgnu-designator"
+#endif
 
-/*SYSTEM MODIFIED, Added by weij for compile SDK, 2017-09-11*/
-//#include "sal.h"
 #include "dal_mpool.h"
-#define DAL_MAX_CHIP_NUM 32
-#ifdef __KERNEL__
+#include "dal_common.h"
+
 #include <linux/spinlock.h>
 #include <linux/slab.h>
 
@@ -16,20 +18,7 @@ static spinlock_t dal_mpool_lock[DAL_MAX_CHIP_NUM];
 #define MPOOL_LOCK() unsigned long flags; spin_lock_irqsave(&dal_mpool_lock[lchip], flags)
 #define MPOOL_UNLOCK() spin_unlock_irqrestore(&dal_mpool_lock[lchip], flags)
 #define DAL_PRINT(fmt,arg...) printk(fmt,##arg)
-#else /* !__KERNEL__*/
 
-#include <stdlib.h>
-#include "sal.h"
-#define DAL_MALLOC(x) sal_malloc(x)
-#define DAL_FREE(x) sal_free(x)
-static sal_mutex_t* dal_mpool_lock[DAL_MAX_CHIP_NUM];
-#define MPOOL_LOCK_INIT() sal_mutex_create(&dal_mpool_lock[lchip])
-#define MPOOL_LOCK_DEINIT() sal_mutex_destroy(dal_mpool_lock[lchip])
-#define MPOOL_LOCK() sal_mutex_lock(dal_mpool_lock[lchip])
-#define MPOOL_UNLOCK() sal_mutex_unlock(dal_mpool_lock[lchip])
-#define DAL_PRINT(fmt,arg...) sal_printf(fmt,##arg)
-
-#endif /* __KERNEL__ */
 dal_mpool_mem_t* g_free_block_ptr = NULL;
 
 /* System cache line size */
@@ -40,14 +29,12 @@ dal_mpool_mem_t* g_free_block_ptr = NULL;
 static dal_mpool_mem_t* p_desc_pool[DAL_MAX_CHIP_NUM] = {0};
 static dal_mpool_mem_t* p_data_pool[DAL_MAX_CHIP_NUM] = {0};
 
-/*SYSTEM MODIFIED, Added by weij for compile SDK, 2017-09-11*/
 int
 dal_mpool_init(uint8_t lchip)
 {
     MPOOL_LOCK_INIT();
     return 0;
 }
-/*SYSTEM MODIFIED, Added by weij for compile SDK, 2017-09-11*/
 int
 dal_mpool_deinit(uint8_t lchip)
 {
@@ -320,7 +307,6 @@ dal_mpool_usage(dal_mpool_mem_t* pool, int type)
 {
     int usage = 0;
     dal_mpool_mem_t* ptr;
-    /*SYSTEM MODIFIED, Added by weij for compile SDK, 2017-09-11*/
     uint8_t lchip = 0;
     MPOOL_LOCK();
 
@@ -342,7 +328,6 @@ dal_mpool_debug(dal_mpool_mem_t* pool)
 {
     dal_mpool_mem_t* ptr;
     int index = 0;
-    /*SYSTEM MODIFIED, Added by weij for compile SDK, 2017-09-11*/
     uint8_t lchip = 0;
     MPOOL_LOCK();
 
@@ -357,4 +342,8 @@ dal_mpool_debug(dal_mpool_mem_t* pool)
 
     return 0;
 }
+
+#ifdef CLANG
+#pragma clang diagnostic pop
+#endif
 

@@ -55,6 +55,7 @@ typedef  unsigned int uintptr;
 #define DAL_DEV_NAME      "/dev/" DAL_NAME
 #define DAL_ONE_KB 1024
 #define DAL_ONE_MB (1024*1024)
+#define CTC_MAX_INTR_NUM 8
 struct dal_chip_parm_s
 {
     unsigned int lchip;     /*tmp should be uint8*/
@@ -84,6 +85,8 @@ struct dal_user_dev_s
     unsigned int lchip;       /*input: local chip id*/
     unsigned int phy_base0; /* low 32bits physical base address */
     unsigned int phy_base1; /* high 32bits physical base address */
+    unsigned int dma_phy_base0; /* low 32bits physical base address */
+    unsigned int dma_phy_base1; /* high 32bits physical base address */
     unsigned int bus_no;
     unsigned int dev_no;
     unsigned int fun_no;
@@ -100,11 +103,20 @@ struct dal_pci_cfg_ioctl_s
 };
 typedef struct dal_pci_cfg_ioctl_s  dal_pci_cfg_ioctl_t;
 
+enum dal_msi_type_e
+{
+    DAL_MSI_TYPE_MSI,
+    DAL_MSI_TYPE_MSIX,
+    DAL_MSI_TYPE_MAX
+};
+typedef enum dal_msi_type_e dal_msi_type_t;
+
 struct dal_msi_info_s
 {
     unsigned int lchip;
-    unsigned int irq_base;
+    unsigned int irq_base[CTC_MAX_INTR_NUM];
     unsigned int irq_num;
+    unsigned int msi_type;
 };
 typedef struct dal_msi_info_s dal_msi_info_t;
 
@@ -147,6 +159,7 @@ typedef struct dal_dma_cache_info_s dal_dma_cache_info_t;
 #define CMD_SET_DMA_INFO             _IO(CMD_MAGIC, 21)
 #define CMD_REG_DMA_CHAN             _IO(CMD_MAGIC, 22)
 #define CMD_HANDLE_NETIF             _IO(CMD_MAGIC, 23)
+#define CMD_GET_WB_INFO              _IO(CMD_MAGIC, 24)
 
 enum dal_version_e
 {
@@ -154,6 +167,8 @@ enum dal_version_e
     VERSION_1DOT0,
     VERSION_1DOT1,
     VERSION_1DOT2,
+    VERSION_1DOT3,
+    VERSION_1DOT4,
 
     VERSION_MAX
 };
@@ -171,7 +186,8 @@ typedef struct dal_ops_s dal_ops_t;
 extern int dal_get_dal_ops(dal_ops_t **dal_ops);
 extern int dal_cache_inval(unsigned long ptr, unsigned int length);
 extern int dal_cache_flush(unsigned long ptr, unsigned int length);
-
+extern int dal_dma_direct_read(unsigned char lchip, unsigned int offset, unsigned int* value);
+extern int dal_dma_direct_write(unsigned char lchip, unsigned int offset, unsigned int value);
 #ifdef __cplusplus
 }
 #endif

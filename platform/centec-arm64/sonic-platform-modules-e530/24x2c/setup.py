@@ -5,11 +5,11 @@ from setuptools import setup
 os.listdir
 
 setup(
-   name='24x2c',
-   version='1.1',
+   name='sonic_platform',
+   version='1.0',
    description='Module to initialize centec e530-24x2c platforms',
    
-   packages=['24x2c'],
-   package_dir={'24x2c': '24x2c/classes'},
+   packages=['sonic_platform'],
+   package_dir={'sonic_platform': 'sonic_platform'},
 )
 

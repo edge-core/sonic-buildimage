@@ -82,7 +82,7 @@ class SfpUtil(SfpUtilBase):
         try:
             reg_file = open("/sys/devices/platform/dell-s6000-cpld.0/qsfp_lpmode")
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
 
         content = reg_file.readline().rstrip()
 

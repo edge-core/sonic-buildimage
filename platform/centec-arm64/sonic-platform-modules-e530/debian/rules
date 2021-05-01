@@ -13,22 +13,20 @@ include /usr/share/dpkg/pkg-info.mk
 
 export INSTALL_MOD_DIR:=extra
 
-PYTHON         ?= python2
-
-PACKAGE_PRE_NAME := sonic-platform-modules-e530
+PACKAGE_PRE_NAME := platform-modules-e530
 KVERSION   ?= $(shell uname -r)
 KERNEL_SRC :=  /lib/modules/$(KVERSION)
 MOD_SRC_DIR:= $(shell pwd)
-MODULE_DIRS:= 48t4x_p 24x2c
+MODULE_DIRS:= 48t4x-p 24x2c 48s4x 24x2q
 MODULE_DIR := modules
-UTILS_DIR := utils
 SERVICE_DIR := service
 CLASSES_DIR := classes
 CONF_DIR := conf
 KDAL_DIR := ../../centec/centec-dal/
+FAN_DIR := fan
 
 %:
-	dh $@ --with systemd,python2,python3 --buildsystem=pybuild
+	dh $@
 
 clean:
 	dh_testdir
@@ -40,9 +38,15 @@ build:
 	(for mod in $(KDAL_DIR); do \
 		make modules -C $(KERNEL_SRC)/build M=$(MOD_SRC_DIR)/$${mod}/; \
 	done)
+	(for mod in $(FAN_DIR); do \
+		make modules -C $(KERNEL_SRC)/build M=$(MOD_SRC_DIR)/$${mod}/; \
+	done)
 	(for mod in $(MODULE_DIRS); do \
 		make modules -C $(KERNEL_SRC)/build M=$(MOD_SRC_DIR)/$${mod}/modules; \
-		$(PYTHON) $${mod}/setup.py build; \
+		cd $${mod}; \
+		python2.7 setup.py bdist_wheel -d $(MOD_SRC_DIR)/$${mod}/modules; \
+		python3 setup.py bdist_wheel -d $(MOD_SRC_DIR)/$${mod}/modules; \
+		cd -; \
 	done)
 
 binary: binary-arch binary-indep
@@ -64,13 +68,12 @@ binary-indep:
 	# Custom package commands
 	(for mod in $(MODULE_DIRS); do \
 		dh_installdirs -p$(PACKAGE_PRE_NAME)-$${mod} $(KERNEL_SRC)/$(INSTALL_MOD_DIR); \
-		dh_installdirs -p$(PACKAGE_PRE_NAME)-$${mod} usr/local/bin; \
 		dh_installdirs -p$(PACKAGE_PRE_NAME)-$${mod} lib/systemd/system; \
+		dh_installdirs -p$(PACKAGE_PRE_NAME)-$${mod} etc; \
 		cp $(MOD_SRC_DIR)/$${mod}/$(MODULE_DIR)/*.ko debian/$(PACKAGE_PRE_NAME)-$${mod}/$(KERNEL_SRC)/$(INSTALL_MOD_DIR); \
 		cp $(MOD_SRC_DIR)/$(KDAL_DIR)/*.ko debian/$(PACKAGE_PRE_NAME)-$${mod}/$(KERNEL_SRC)/$(INSTALL_MOD_DIR); \
-		cp $(MOD_SRC_DIR)/$${mod}/$(UTILS_DIR)/* debian/$(PACKAGE_PRE_NAME)-$${mod}/usr/local/bin/; \
+		cp $(MOD_SRC_DIR)/$(FAN_DIR)/*.ko debian/$(PACKAGE_PRE_NAME)-$${mod}/$(KERNEL_SRC)/$(INSTALL_MOD_DIR); \
 		cp $(MOD_SRC_DIR)/$${mod}/$(SERVICE_DIR)/*.service debian/$(PACKAGE_PRE_NAME)-$${mod}/lib/systemd/system/; \
-		$(PYTHON) $${mod}/setup.py install --root=$(MOD_SRC_DIR)/debian/$(PACKAGE_PRE_NAME)-$${mod} --install-layout=deb; \
 	done)
 	# Resuming debhelper scripts
 	dh_testroot

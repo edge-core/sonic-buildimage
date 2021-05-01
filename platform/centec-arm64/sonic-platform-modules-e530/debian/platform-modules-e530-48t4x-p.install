@@ -1,3 +1,2 @@
-../../centec/centec-dal/dal.ko /lib/modules/4.19.0-12-2-arm64/kernel/extra
-48t4x_p/modules/centec_e530_48t4x_p_platform.ko /lib/modules/4.19.0-12-2-arm64/kernel/extra
-48t4x_p/service/48t4x_p_platform.service /lib/systemd/system
+48t4x-p/modules/sonic_platform-1.0-py2-none-any.whl usr/share/sonic/device/arm64-centec_e530_48t4x_p-r0
+48t4x-p/modules/sonic_platform-1.0-py3-none-any.whl usr/share/sonic/device/arm64-centec_e530_48t4x_p-r0

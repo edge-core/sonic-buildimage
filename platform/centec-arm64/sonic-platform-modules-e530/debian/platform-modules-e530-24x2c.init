@@ -12,11 +12,30 @@
 # Short-Description: Load Centec kernel modules
 ### END INIT INFO
 
+function install_python_api_package()
+{
+    device="/usr/share/sonic/device"
+    platform=$(/usr/local/bin/sonic-cfggen -H -v DEVICE_METADATA.localhost.platform)
+
+    rv=$(pip2 show sonic-platform > /dev/null 2>/dev/null)
+    if [ $? -ne 0 ]; then
+        rv=$(pip2 install $device/$platform/sonic_platform-1.0-py2-none-any.whl)
+    fi
+    rv=$(pip3 show sonic-platform > /dev/null 2>/dev/null)
+    if [ $? -ne 0 ]; then
+        rv=$(pip3 install $device/$platform/sonic_platform-1.0-py3-none-any.whl)
+    fi
+}
 
 function load_kernel_modules()
 {
+    hwaddr=`fw_printenv ethaddr | awk -F = '{print $2}'`
+    if [ "$hwaddr" != "" ]; then
+        ifconfig eth0 hw ether $hwaddr
+    fi
     depmod -a
     modprobe centec_e530_24x2c_platform
+    modprobe fan-ctc5236
     modprobe dal
     modprobe tun
     modprobe tap
@@ -27,6 +46,7 @@ function remove_kernel_modules()
     modprobe -r tap
     modprobe -r tun
     modprobe -r dal
+    modprobe -r fan-ctc5236
     modprobe -r centec_e530_24x2c_platform
 }
 
@@ -35,6 +55,7 @@ start)
     echo -n "Load Centec kernel modules... "
 
     load_kernel_modules
+    install_python_api_package
 
     echo "done."
     ;;

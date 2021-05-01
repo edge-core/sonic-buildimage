@@ -1,3 +1,2 @@
-../../centec/centec-dal/dal.ko /lib/modules/4.19.0-12-2-arm64/kernel/extra
-24x2c/modules/centec_e530_24x2c_platform.ko /lib/modules/4.19.0-12-2-arm64/kernel/extra
-24x2c/service/24x2c_platform.service /lib/systemd/system
+24x2c/modules/sonic_platform-1.0-py2-none-any.whl usr/share/sonic/device/arm64-centec_e530_24x2c-r0
+24x2c/modules/sonic_platform-1.0-py3-none-any.whl usr/share/sonic/device/arm64-centec_e530_24x2c-r0

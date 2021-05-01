@@ -8,14 +8,90 @@
 #include <linux/reboot.h>
 #include <linux/delay.h>
 #include <linux/spinlock.h>
+#include <linux/kernel.h>
+#include <linux/sched.h>
+#include <asm/irq.h>
+#include <asm/types.h>
+#include <asm/io.h>
+#include <linux/poll.h>
+#include <linux/wait.h>
+#include <linux/pci.h>
+#include <linux/interrupt.h>
+#include <asm/delay.h>
+#include <linux/err.h>
+#include <linux/io.h>
+#include <linux/of_address.h>
+#include <linux/of_irq.h>
+#include <linux/of.h>
+#include <linux/of_device.h>
+#include <linux/gpio.h>
 
 #define SEP(XXX) 1
-#define IS_INVALID_PTR(_PTR_) ((_PTR_ == NULL) || IS_ERR(_PTR_))
-#define IS_VALID_PTR(_PTR_) (!IS_INVALID_PTR(_PTR_))
 
 #if SEP("defines")
+
+#define CTC_GPIO_BASE         496
+int xirq_gpio_0 = 0;
+int xirq_gpio_1 = 0;
+int xirq_gpio_6 = 0;  /* add for E530_48S4X EPLD INT0*/
+int xirq_gpio_7 = 0;  /* add for E530_48S4X EPLD INT1*/
+int xirq_gpio_15 = 0;
+#define IS_INVALID_PTR(_PTR_) ((_PTR_ == NULL) || IS_ERR(_PTR_))
+#define IS_VALID_PTR(_PTR_) (!IS_INVALID_PTR(_PTR_))
 #define SFP_NUM                 4
 #define PORT_NUM                (48+SFP_NUM)
+#endif
+
+#if SEP("ctc:pinctl")
+u8 ctc_gpio_set(u8 gpio_pin, u8 val)
+{
+    gpio_set_value_cansleep(gpio_pin + CTC_GPIO_BASE, val);
+    return 0;
+}
+
+u8 ctc_gpio_get(u8 gpio_pin)
+{
+    return gpio_get_value_cansleep(gpio_pin + CTC_GPIO_BASE);
+}
+
+u8 ctc_gpio_direction_config(u8 gpio_pin, u8 dir,u8 default_out)
+{
+    return dir ? gpio_direction_input(gpio_pin + CTC_GPIO_BASE)
+               : gpio_direction_output(gpio_pin + CTC_GPIO_BASE,default_out);
+}
+
+static void ctc_pincrtl_init(void)
+{
+    /* configure mgmt-phy reset-pin output on product, mgmt-phy release must before this */
+    ctc_gpio_direction_config(4, 0, 1);
+    /* configure power-up pin output on product */
+    ctc_gpio_direction_config(6, 0, 0);
+    /* configure phy interrupt pin input */
+    ctc_gpio_direction_config(0, 1, 0);
+    ctc_gpio_direction_config(1, 1, 0);
+    /* configure phy reset-pin output, for release phy */
+    ctc_gpio_direction_config(5, 0, 1);
+
+    return;
+}
+
+static void ctc_irq_init(void)
+{
+    struct device_node *xnp;
+    for_each_node_by_type(xnp, "ctc-irq")
+    {
+        if (of_device_is_compatible(xnp, "centec,ctc-irq"))
+        {
+            xirq_gpio_0 = irq_of_parse_and_map(xnp, 0);
+            printk(KERN_INFO "ctc-irq GPIO0 IRQ is %d\n", xirq_gpio_0);
+            xirq_gpio_1 = irq_of_parse_and_map(xnp, 1);
+            printk(KERN_INFO "ctc-irq GPIO1 IRQ is %d\n", xirq_gpio_1);
+            xirq_gpio_15 = irq_of_parse_and_map(xnp, 2);
+            printk(KERN_INFO "ctc-irq GPIO15 IRQ is %d\n", xirq_gpio_15);
+        }
+    }
+    return;
+}
 #endif
 
 #if SEP("i2c:smbus")
@@ -966,6 +1042,9 @@ static int e530_48t4x_p_init(void)
     int failed = 0;
     
     printk(KERN_ALERT "install e530_48t4x_p board dirver...\n");
+
+    ctc_irq_init();
+    ctc_pincrtl_init();
     
     ret = e530_48t4x_p_init_i2c_master();
     if (ret != 0)

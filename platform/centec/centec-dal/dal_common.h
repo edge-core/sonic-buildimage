@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 
-#define DAL_MAX_CHIP_NUM   8                   /* DAL support max chip num is 8 */
+#define DAL_MAX_CHIP_NUM   4                   /* DAL support max chip num is 4 */
 #define DAL_MAX_INTR_NUM    8
 
 #define DAL_NETIF_T_PORT       0
@@ -22,6 +22,10 @@ extern "C" {
 
 #define DAL_MAX_KNET_NETIF       64
 #define DAL_MAX_KNET_NAME_LEN        32
+
+#define DAL_PCI_CMD_STATUS  0x0
+#define DAL_PCI_ADDR  0x4
+#define DAL_PCI_DATA_BUF  0x8
 
 enum dal_operate_code_e
 {
@@ -44,7 +48,7 @@ struct dal_dma_info_s
 };
 typedef struct dal_dma_info_s dal_dma_info_t;
 
-struct dal_dma_chan_s 
+struct dal_dma_chan_s
 {
     unsigned char lchip;
     unsigned char channel_id;
@@ -110,6 +114,64 @@ struct dal_pci_dev_s
     unsigned int funNo;
 };
 typedef struct dal_pci_dev_s dal_pci_dev_t;
+
+#ifndef HOST_IS_LE
+#define HOST_IS_LE 1
+#endif
+
+#if (HOST_IS_LE == 0)
+
+/* pci cmd struct define */
+typedef struct pci_cmd_status_s
+{
+    unsigned int pcieReqOverlap   : 1;
+    unsigned int wrReqState       : 3;
+    unsigned int pciePoison       : 1;
+    unsigned int rcvregInProc     : 1;
+    unsigned int regInProc        : 1;
+    unsigned int reqProcAckCnt    : 5;
+    unsigned int reqProcAckError  : 1;
+    unsigned int reqProcTimeout   : 1;
+    unsigned int reqProcError     : 1;
+    unsigned int reqProcDone      : 1;
+    unsigned int pcieDataError    : 1;
+    unsigned int pcieReqError     : 1;
+    unsigned int reserved         : 1;
+    unsigned int cmdDataLen       : 5;
+    unsigned int cmdEntryWords    : 4;
+    unsigned int pcieReqCmdChk    : 3;
+    unsigned int cmdReadType      : 1;
+} pci_cmd_status_t;
+
+#else
+
+typedef struct pci_cmd_status_s
+{
+    unsigned int cmdReadType      : 1;       /* bit0 */
+    unsigned int pcieReqCmdChk    : 3;       /* bit1~3 */
+    unsigned int cmdEntryWords    : 4;       /* bit4~7 */
+    unsigned int cmdDataLen       : 5;       /* bit8~12 */
+    unsigned int reserved : 1;               /* bit13 */
+    unsigned int pcieReqError     : 1;
+    unsigned int pcieDataError    : 1;
+    unsigned int reqProcDone      : 1;
+    unsigned int reqProcError     : 1;
+    unsigned int reqProcTimeout   : 1;
+    unsigned int reqProcAckError  : 1;
+    unsigned int reqProcAckCnt    : 5;
+    unsigned int regInProc        : 1;
+    unsigned int rcvregInProc     : 1;
+    unsigned int pciePoison       : 1;
+    unsigned int wrReqState       : 3;
+    unsigned int pcieReqOverlap   : 1;
+} pci_cmd_status_t;
+#endif
+
+typedef union pci_cmd_status_u_e
+{
+    pci_cmd_status_t cmd_status;
+    unsigned int val;
+} pci_cmd_status_u_t;
 
 #ifdef __cplusplus
 }

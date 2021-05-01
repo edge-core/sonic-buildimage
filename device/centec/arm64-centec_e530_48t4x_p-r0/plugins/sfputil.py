@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # sfputil.py
 #
 # Platform-specific SFP transceiver interface for SONiC
@@ -15,6 +17,8 @@ except ImportError as e:
 def DBG_PRINT(str):
     print(str + "\n")
 
+SFP_STATUS_INSERTED = '1'
+SFP_STATUS_REMOVED = '0'
 
 class SfpUtil(SfpUtilBase):
     """Platform-specific SfpUtil class"""
@@ -42,17 +46,9 @@ class SfpUtil(SfpUtilBase):
     def is_logical_port(self, port_name):
         return True
 
-    def get_logical_to_physical(self, port_name):
-        if not port_name.startswith(self.SONIC_PORT_NAME_PREFIX):
-            return None
-
-        port_idx = int(port_name[len(self.SONIC_PORT_NAME_PREFIX):])
-
-        return [port_idx]
-
     def get_eeprom_data(self, port):
         ret = None
-        port_num = self.get_logical_to_physical(port)[0]
+        port_num = self.get_logical_to_physical(port)[0] + 1
         if port_num < self.port_start or port_num > self.port_end:
             return ret
         if port_num < self.sfp_base:
@@ -65,16 +61,17 @@ class SfpUtil(SfpUtilBase):
 
         return ret
 
-    # todo
-    # def _get_port_eeprom_path(self, port_num, devid):
-    #    pass
-
     def __init__(self):
         self.SONIC_PORT_NAME_PREFIX = "Ethernet"
-        self.PORT_START = 1
-        self.PORT_END = 52
-        self.SFP_BASE = 49
+        self.PORT_START = 0
+        self.PORT_END = 51
+        self.SFP_BASE = 48
         self.PORTS_IN_BLOCK = 52
+        self.logical = []
+        self.physical_to_logical = {}
+        self.logical_to_physical = {}
+        self.logical_to_asic = {}
+        self.data = {'valid':0, 'last':0}
 
         self.eeprom_mapping = {}
         self.f_sfp_present = "/sys/class/sfp/sfp{}/sfp_presence"
@@ -82,13 +79,15 @@ class SfpUtil(SfpUtilBase):
         for x in range(self.port_start, self.sfp_base):
             self.eeprom_mapping[x] = None
         for x in range(self.sfp_base, self.port_end + 1):
-            self.eeprom_mapping[x] = "/sys/class/sfp/sfp{}/sfp_eeprom".format(
-                x - self.sfp_base + 1)
+            self.eeprom_mapping[x] = "/sys/class/sfp/sfp{}/sfp_eeprom".format(x - self.sfp_base + 1)
         self.presence = {}
         for x in range(self.sfp_base, self.port_end + 1):
-            self.presence[x] = False
+            self.presence[x] = False;
 
         SfpUtilBase.__init__(self)
+
+        for x in range(self.sfp_base, self.port_end + 1):
+            self.logical.append('Ethernet' + str(x))
 
     def get_presence(self, port_num):
         # Check for invalid port_num
@@ -125,13 +124,38 @@ class SfpUtil(SfpUtilBase):
 
         return False
 
-    def get_transceiver_change_event(self, timeout=0):
+
+    def read_porttab_mappings(self, porttabfile, asic_inst = 0):
+        for x in range(self.sfp_base, self.port_end + 1):
+            self.logical_to_physical['Ethernet' + str(x)] = [x]
+            self.logical_to_asic['Ethernet' + str(x)] = 0
+            self.physical_to_logical[x] = ['Ethernet' + str(x)]
+
+    def get_transceiver_change_event(self, timeout=2000):
+        now = time.time()
         port_dict = {}
-        while True:
-            for x in range(self.sfp_base, self.port_end + 1):
-                presence = self.get_presence(x)
-                if presence != self.presence[x]:
-                    self.presence[x] = presence
-                    port_dict[x] = presence
-                    return True, port_dict
+
+        if timeout < 1000:
+            timeout = 1000
+        timeout = (timeout) / float(1000) # Convert to secs
+
+        if now < (self.data['last'] + timeout) and self.data['valid']:
+            return True, {}
+
+        for x in range(self.sfp_base, self.port_end + 1):
+            presence = self.get_presence(x)
+            if presence != self.presence[x]:
+                self.presence[x] = presence
+                # index in port_config.ini
+                if presence:
+                    port_dict[x] = SFP_STATUS_INSERTED
+                else:
+                    port_dict[x] = SFP_STATUS_REMOVED
+
+        if bool(port_dict):
+            self.data['last'] = now
+            self.data['valid'] = 1
+            return True, port_dict
+        else:
             time.sleep(0.5)
+            return True, {}

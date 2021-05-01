@@ -1,0 +1,11 @@
+#!/usr/bin/python
+import os
+
+def main():
+    # reboot the system
+    os.system('echo 502 > /sys/class/gpio/export')
+    os.system('echo out > /sys/class/gpio/gpio502/direction')
+    os.system('echo 1 > /sys/class/gpio/gpio502/value')
+
+if __name__ == "__main__":
+    main()

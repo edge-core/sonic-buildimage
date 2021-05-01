@@ -1,0 +1,12 @@
+#!/usr/bin/python
+import os
+
+def main():
+    # reboot the system
+    os.system('modprobe i2c-dev')
+    os.system('i2cset -y 0 0x36 0x23 0x0')
+    os.system('sleep 1')
+    os.system('i2cset -y 0 0x36 0x23 0x3')
+
+if __name__ == "__main__":
+    main()
