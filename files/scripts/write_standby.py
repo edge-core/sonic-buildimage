@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 
-import logging
 import time
 
 from swsscommon.swsscommon import ConfigDBConnector, DBConnector, FieldValuePairs, ProducerStateTable, SonicV2Connector
-from swsscommon.swsscommon import APPL_DB, ASIC_DB
+from swsscommon.swsscommon import APPL_DB 
 
 logger = logging.getLogger(__name__)
 
