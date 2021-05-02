@@ -66,7 +66,7 @@ class Fan(FanBase):
         else:
             self.fan_speed_get_path = "psu{}_fan1_speed_get".format(self.index)
             self.fan_presence_path = "psu{}_fan1_speed_get".format(self.index)
-            self._name = 'psu_{}_fan_{}'.format(self.index, 1)
+            self._name = 'psu{}_fan{}'.format(self.index, 1)
             self.fan_max_speed_path = os.path.join(CONFIG_PATH, "psu_fan_max")
             self.fan_min_speed_path = os.path.join(CONFIG_PATH, "psu_fan_min")
             self.psu_i2c_bus_path = os.path.join(CONFIG_PATH, 'psu{0}_i2c_bus'.format(self.index))
