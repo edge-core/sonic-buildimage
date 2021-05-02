@@ -58,7 +58,7 @@ jobs:
             platform_rpc: centec
         - name: centec-arm64
           pool: sonicbld_8c
-          timeoutInMinutes: 1800
+          timeoutInMinutes: 2160
           variables:
             PLATFORM_ARCH: arm64
         - name: generic
@@ -69,7 +69,7 @@ jobs:
             swi_image: yes
         - name: marvell-armhf
           pool: sonicbld_8c
-          timeoutInMinutes: 1800
+          timeoutInMinutes: 2160
           variables:
             PLATFORM_ARCH: armhf
         - name: mellanox
