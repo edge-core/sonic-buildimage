@@ -6,14 +6,88 @@
 #
 #############################################################################
 
-import os
-import re
-import os.path
-
 try:
+    import os
     from sonic_platform_base.thermal_base import ThermalBase
+    from .common import Common
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
+
+
+THERMAL_INFO = {
+    0: {
+        "F2B_max": 55.000,
+        "F2B_max_crit": 58.000,
+        "B2F_max": 55.000,
+        "B2F_max_crit": 58.000,
+        "postion": "asic",
+        "name": "Inlet ambient sensor (Rear to Front)",
+        "ss_index": 1,
+        "i2c_path": "i2c-11/11-001a/hwmon",    # U7273
+    },
+    1: {
+        "F2B_max": 85.000,
+        "F2B_max_crit": 90.000,
+        "B2F_max": 85.000,
+        "B2F_max_crit": 90.000,
+        "postion": "asic",
+        "name": "Helix shutdown sensor (Rear to Front)",
+        "ss_index": 2,
+        "i2c_path": "i2c-11/11-001a/hwmon",    # Q7000
+    },
+    2: {
+        "F2B_max": 55.000,
+        "F2B_max_crit": 58.000,
+        "B2F_max": 55.000,
+        "B2F_max_crit": 58.000,
+        "postion": "asic",
+        "name": "Inlet ambient sensor (Front to Rear, right)",
+        "ss_index": 3,
+        "i2c_path": "i2c-11/11-001a/hwmon",    # Q7001
+    },
+    3: {
+        "F2B_max": 85.000,
+        "F2B_max_crit": 90.000,
+        "B2F_max": 85.000,
+        "B2F_max_crit": 90.000,
+        "postion": "asic",
+        "name": "Helix shutdown sensor (Front to Rear)",
+        "ss_index": 4,
+        "i2c_path": "i2c-11/11-001a/hwmon",  # Q7751
+    },
+    4: {
+        "F2B_max": 55.000,
+        "F2B_max_crit": 58.000,
+        "B2F_max": 55.000,
+        "B2F_max_crit": 58.000,
+        "postion": "cpu",
+        "name": "Inlet ambient sensor (Front to Rear, left)",
+        "ss_index": 5,
+        "i2c_path": "i2c-11/11-001a/hwmon"   # Q7752
+    },
+    5: {
+        "F2B_max": 90.000,
+        "F2B_max_crit": 95.000,
+        "B2F_max": 90.000,
+        "B2F_max_crit": 95.000,
+        "postion": "cpu",
+        "name": "CPU errata sensor (Front to Rear)",
+        "ss_index": 2,
+        "i2c_path": "i2c-3/3-001a/hwmon"   # Q5
+    },
+    6: {
+        "F2B_max": 90.000,
+        "F2B_max_crit": 95.000,
+        "B2F_max": 90.000,
+        "B2F_max_crit": 95.000,
+        "postion": "cpu",
+        "name": "CPU errata sensor (Rear to Front)",
+        "ss_index": 3,
+        "i2c_path": "i2c-3/3-001a/hwmon"   # Q6
+    }
+}
+NULL_VAL = "N/A"
+I2C_ADAPTER_PATH = "/sys/class/i2c-adapter"
 
 
 class Thermal(ThermalBase):
@@ -24,57 +98,33 @@ class Thermal(ThermalBase):
     CPUBOARD_SS_PATH = "/sys/class/i2c-adapter/i2c-3/3-001a/hwmon/hwmon1"
     SS_CONFIG_PATH = "/usr/share/sonic/device/x86_64-cel_e1031-r0/sensors.conf"
 
-    def __init__(self, thermal_index):
+    def __init__(self, thermal_index, airflow):
         ThermalBase.__init__(self)
-
         self.index = thermal_index
+        self._api_common = Common()
 
-        # Add thermal name
-        self.THERMAL_NAME_LIST.append("Rear  panel-Inlet ambient sensor")
-        self.THERMAL_NAME_LIST.append("Rear  panel-Helix shutdown sensor")
-        self.THERMAL_NAME_LIST.append(
-            "Front panel-Inlet ambient sensor (right)")
-        self.THERMAL_NAME_LIST.append("Front panel-Helix shutdown sensor")
-        self.THERMAL_NAME_LIST.append(
-            "Front panel-Inlet ambient sensor (left)")
-        self.THERMAL_NAME_LIST.append("CPU board temperature sensor : 1")
-        self.THERMAL_NAME_LIST.append("CPU board temperature sensor : 2")
+        self._airflow = airflow
+        self._thermal_info = THERMAL_INFO[self.index]
+        self._hwmon_path = self._get_hwmon_path()
+        self._ss_index = self._thermal_info["ss_index"]
 
-        # Set hwmon path
-        self.ss_index, self.hwmon_path = self.__get_ss_info(self.index)
-        self.ss_key = self.THERMAL_NAME_LIST[self.index]
+        self.name = self.get_name()
+        self.postion = self._thermal_info["postion"]
 
-    def __get_ss_info(self, index):
-        if self.index <= 4:
-            ss_path = self.MAINBOARD_SS_PATH
-            ss_index = index+1
-        else:
-            ss_path = self.CPUBOARD_SS_PATH
-            ss_index = index-3
-        return ss_index, ss_path
+    def _get_hwmon_path(self):
+        hwmon_path = os.path.join(I2C_ADAPTER_PATH, self._thermal_info["i2c_path"])
+        hwmon_dir = os.listdir(hwmon_path)[0]
+        return os.path.join(hwmon_path, hwmon_dir)
 
-    def __read_txt_file(self, file_path):
-        try:
-            with open(file_path, 'r') as fd:
-                data = fd.read()
-                return data.strip()
-        except IOError:
-            raise IOError("Unable to open %s file !" % file_path)
-
-    def __get_temp(self, temp_file):
-        temp_file_path = os.path.join(self.hwmon_path, temp_file)
-        raw_temp = self.__read_txt_file(temp_file_path)
+    def _get_temp(self, temp_file):
+        temp_file_path = os.path.join(self._hwmon_path, temp_file)
+        raw_temp = self._api_common.read_txt_file(temp_file_path)
         temp = float(raw_temp)/1000
-        return "{:.3f}".format(temp)
+        return float("{:.3f}".format(temp))
 
-    def __set_threshold(self, file_name, temperature):
-        temp_file_path = os.path.join(self.hwmon_path, file_name)
-        try:
-            with open(temp_file_path, 'w') as fd:
-                fd.write(str(temperature))
-            return True
-        except IOError:
-            return False
+    def _set_threshold(self, file_name, temperature):
+        temp_file_path = os.path.join(self._hwmon_path, file_name)
+        return self._api_common.write_txt_file(temp_file_path, str(temperature))
 
     def get_temperature(self):
         """
@@ -83,8 +133,8 @@ class Thermal(ThermalBase):
             A float number of current temperature in Celsius up to nearest thousandth
             of one degree Celsius, e.g. 30.125
         """
-        temp_file = "temp{}_input".format(self.ss_index)
-        return self.__get_temp(temp_file)
+        temp_file = "temp{}_input".format(self._ss_index)
+        return self._get_temp(temp_file)
 
     def get_high_threshold(self):
         """
@@ -93,8 +143,17 @@ class Thermal(ThermalBase):
             A float number, the high threshold temperature of thermal in Celsius
             up to nearest thousandth of one degree Celsius, e.g. 30.125
         """
-        temp_file = "temp{}_max".format(self.ss_index)
-        return self.__get_temp(temp_file)
+        max_crit_key = '{}_max'.format(self._airflow)
+        return self._thermal_info.get(max_crit_key, None)
+
+    def get_low_threshold(self):
+        """
+        Retrieves the low threshold temperature of thermal
+        Returns:
+            A float number, the low threshold temperature of thermal in Celsius
+            up to nearest thousandth of one degree Celsius, e.g. 30.125
+        """
+        return 0.0
 
     def set_high_threshold(self, temperature):
         """
@@ -105,8 +164,8 @@ class Thermal(ThermalBase):
         Returns:
             A boolean, True if threshold is set successfully, False if not
         """
-        temp_file = "temp{}_max".format(self.ss_index)
-        is_set = self.__set_threshold(temp_file, int(temperature*1000))
+        temp_file = "temp{}_max".format(self._ss_index)
+        is_set = self._set_threshold(temp_file, int(temperature*1000))
         file_set = False
         if is_set:
             try:
@@ -115,7 +174,7 @@ class Thermal(ThermalBase):
                     f.seek(0)
                     ss_found = False
                     for idx, val in enumerate(content):
-                        if self.ss_key in val:
+                        if self.name in val:
                             ss_found = True
                         elif ss_found and temp_file in val:
                             content[idx] = "        set {} {}\n".format(
@@ -128,13 +187,43 @@ class Thermal(ThermalBase):
 
         return is_set & file_set
 
+    def set_low_threshold(self, temperature):
+        """
+        Sets the low threshold temperature of thermal
+        Args : 
+            temperature: A float number up to nearest thousandth of one degree Celsius,
+            e.g. 30.125
+        Returns:
+            A boolean, True if threshold is set successfully, False if not
+        """
+        return False
+
+    def get_high_critical_threshold(self):
+        """
+        Retrieves the high critical threshold temperature of thermal
+        Returns:
+            A float number, the high critical threshold temperature of thermal in Celsius
+            up to nearest thousandth of one degree Celsius, e.g. 30.125
+        """
+        max_crit_key = '{}_max_crit'.format(self._airflow)
+        return self._thermal_info.get(max_crit_key, None)
+
+    def get_low_critical_threshold(self):
+        """
+        Retrieves the low critical threshold temperature of thermal
+        Returns:
+            A float number, the low critical threshold temperature of thermal in Celsius
+            up to nearest thousandth of one degree Celsius, e.g. 30.125
+        """
+        return 0.0
+
     def get_name(self):
         """
         Retrieves the name of the thermal device
             Returns:
             string: The name of the thermal device
         """
-        return self.THERMAL_NAME_LIST[self.index]
+        return self._thermal_info["name"]
 
     def get_presence(self):
         """
@@ -142,9 +231,25 @@ class Thermal(ThermalBase):
         Returns:
             bool: True if PSU is present, False if not
         """
-        temp_file = "temp{}_input".format(self.ss_index)
-        temp_file_path = os.path.join(self.hwmon_path, temp_file)
+        temp_file = "temp{}_input".format(self._ss_index)
+        temp_file_path = os.path.join(self._hwmon_path, temp_file)
         return os.path.isfile(temp_file_path)
+
+    def get_model(self):
+        """
+        Retrieves the model number (or part number) of the device
+        Returns:
+            string: Model/part number of device
+        """
+        return NULL_VAL
+
+    def get_serial(self):
+        """
+        Retrieves the serial number of the device
+        Returns:
+            string: Serial number of device
+        """
+        return NULL_VAL
 
     def get_status(self):
         """
@@ -155,10 +260,10 @@ class Thermal(ThermalBase):
         if not self.get_presence():
             return False
 
-        fault_file = "temp{}_fault".format(self.ss_index)
-        fault_file_path = os.path.join(self.hwmon_path, fault_file)
+        fault_file = "temp{}_fault".format(self._ss_index)
+        fault_file_path = os.path.join(self._hwmon_path, fault_file)
         if not os.path.isfile(fault_file_path):
             return True
 
-        raw_txt = self.__read_txt_file(fault_file_path)
+        raw_txt = self._api_common.read_txt_file(fault_file_path)
         return int(raw_txt) == 0
