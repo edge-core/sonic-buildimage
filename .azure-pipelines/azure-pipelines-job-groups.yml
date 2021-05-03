@@ -19,7 +19,7 @@ parameters:
   default: ''
 - name: 'timeoutInMinutes'
   type: 'number'
-  default: 600
+  default: 720
 - name: 'jobFilters'
   type: object
   default: ''
