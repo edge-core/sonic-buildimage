@@ -2,5 +2,6 @@
     "asic_type": "{{ asic_type }}",
     "asic_id": "{{ DEVICE_METADATA.localhost.asic_id }}",
     "mac": "{{ DEVICE_METADATA.localhost.mac }}",
-    "synchronous_mode": {% if DEVICE_METADATA.localhost.synchronous_mode == "disable" %}"disable"{% else %}"enable"{% endif %}
+    "synchronous_mode": {% if DEVICE_METADATA.localhost.synchronous_mode == "disable" %}"disable"{% else %}"enable"{% endif %},
+    "resource_type": "{{ DEVICE_METADATA.localhost.resource_type }}"
 }
