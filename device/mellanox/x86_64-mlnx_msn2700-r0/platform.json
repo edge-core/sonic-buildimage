@@ -86,12 +86,12 @@
                 "name": "PSU 2",
                 "fans": [
                     {
-                        "name": "PSU-2 Temp"
+                        "name": "psu_2_fan_1"
                     }
                 ],
                 "thermals": [
                     {
-                        "name": "xSFP module 1 Temp"
+                        "name": "PSU-2 Temp"
                     }
                 ]
             }
