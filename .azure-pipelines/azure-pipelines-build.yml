@@ -41,10 +41,12 @@ jobs:
         - name: vs
           variables:
             dbg_image: yes
+
         - name: barefoot
           variables:
             sync_rpc_image: yes
             swi_image: yes
+
         - name: broadcom
           variables:
             dbg_image: yes
@@ -52,11 +54,13 @@ jobs:
             raw_image: yes
             sync_rpc_image: yes
             platform_rpc: brcm
+
         - name: centec
           variables:
             dbg_image: yes
             sync_rpc_image: yes
             platform_rpc: centec
+
         - name: centec-arm64
           pool: sonicbld_8c
           timeoutInMinutes: 2160
@@ -66,9 +70,11 @@ jobs:
         - name: generic
           variables:
             dbg_image: yes
+
         - name: innovium
           variables:
             swi_image: yes
+
         - name: marvell-armhf
           pool: sonicbld_8c
           timeoutInMinutes: 2160
@@ -80,13 +86,16 @@ jobs:
             dbg_image: yes
             sync_rpc_image: yes
             platform_rpc: mlnx
+
         - name: nephos
           variables:
             dbg_image: yes
             sync_rpc_image: yes
             platform_rpc: nephos
+
     buildSteps:
       - bash: |
+          set -ex
           if [ $(GROUP_NAME) == vs ]; then
             if [ $(dbg_image) == yes ]; then
               make $BUILD_OPTIONS INSTALL_DEBUG_TOOLS=y target/sonic-vs.img.gz && mv target/sonic-vs.img.gz target/sonic-vs-dbg.img.gz
