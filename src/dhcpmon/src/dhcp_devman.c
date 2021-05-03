@@ -37,6 +37,12 @@ static uint32_t dhcp_num_mgmt_intf = 0;
  *  This IP is used to filter Offer/Ack packet coming from DHCP server */
 static in_addr_t vlan_ip = 0;
 
+/* Device loopback interface ip, which will be used as the giaddr in dual tor setup. */
+static in_addr_t loopback_ip = 0;
+
+/* Whether the device is in dual tor mode, 0 as default for single tor mode. */
+static int dual_tor_mode = 0;
+
 /** mgmt interface */
 static struct intf *mgmt_intf = NULL;
 
@@ -149,6 +155,37 @@ int dhcp_devman_add_intf(const char *name, char intf_type)
 }
 
 /**
+ * @code dhcp_devman_setup_dual_tor_mode(name);
+ *
+ * @brief set up dual tor mode: 1) set dual_tor_mode flag and 2) retrieve loopback_ip.
+ */
+int dhcp_devman_setup_dual_tor_mode(const char *name)
+{
+    int rv = -1;
+
+    dhcp_device_context_t loopback_intf_context;
+
+    if (strlen(name) < sizeof(loopback_intf_context.intf)) {
+        strncpy(loopback_intf_context.intf, name, sizeof(loopback_intf_context.intf) - 1);
+        loopback_intf_context.intf[sizeof(loopback_intf_context.intf) - 1] = '\0';
+    } else {
+        syslog(LOG_ALERT, "loopback interface name (%s) is too long", name);
+        return rv;
+    }
+
+    if (initialize_intf_mac_and_ip_addr(&loopback_intf_context) == 0 &&
+        dhcp_device_get_ip(&loopback_intf_context, &loopback_ip) == 0) {
+            dual_tor_mode = 1;
+    } else {
+        syslog(LOG_ALERT, "failed to retrieve ip addr for loopback interface (%s)", name);
+        return rv;
+    }
+
+    rv = 0;
+    return rv;
+}
+
+/**
  * @code dhcp_devman_start_capture(snaplen, base);
  *
  * @brief start packet capture on the devman interface list
@@ -160,7 +197,7 @@ int dhcp_devman_start_capture(size_t snaplen, struct event_base *base)
 
     if ((dhcp_num_south_intf == 1) && (dhcp_num_north_intf >= 1)) {
         LIST_FOREACH(int_ptr, &intfs, entry) {
-            rv = dhcp_device_start_capture(int_ptr->dev_context, snaplen, base, vlan_ip);
+            rv = dhcp_device_start_capture(int_ptr->dev_context, snaplen, base, dual_tor_mode ? loopback_ip : vlan_ip);
             if (rv == 0) {
                 syslog(LOG_INFO,
                        "Capturing DHCP packets on interface %s, ip: 0x%08x, mac [%02x:%02x:%02x:%02x:%02x:%02x] \n",

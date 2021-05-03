@@ -40,11 +40,12 @@ static const uint32_t dhcpmon_default_unhealthy_max_count = 10;
  */
 static void usage(const char *prog)
 {
-    printf("Usage: %s -id <south interface> {-iu <north interface>}+ -im <mgmt interface> [-w <snapshot window in sec>]"
-            "[-c <unhealthy status count>] [-s <snap length>] [-d]\n", prog);
+    printf("Usage: %s -id <south interface> {-iu <north interface>}+ -im <mgmt interface> [-u <loopback interface>]"
+            "[-w <snapshot window in sec>] [-c <unhealthy status count>] [-s <snap length>] [-d]\n", prog);
     printf("where\n");
     printf("\tsouth interface: is a vlan interface,\n");
     printf("\tnorth interface: is a TOR-T1 interface,\n");
+    printf("\tloopback interface: is the loopback interface for dual tor setup,\n");
     printf("\tsnapshot window: during which DHCP counters are gathered and DHCP status is validated (default %d),\n",
             dhcpmon_default_health_check_window);
     printf("\tunhealthy status count: count of consecutive unhealthy status before writing an alert to syslog "
@@ -128,6 +129,12 @@ int main(int argc, char **argv)
             break;
         case 'i':
             if (dhcp_devman_add_intf(argv[i + 1], argv[i][2]) != 0) {
+                usage(basename(argv[0]));
+            }
+            i += 2;
+            break;
+        case 'u':
+            if (dhcp_devman_setup_dual_tor_mode(argv[i + 1]) != 0) {
                 usage(basename(argv[0]));
             }
             i += 2;

@@ -130,7 +130,7 @@ static void handle_dhcp_option_53(dhcp_device_context_t *context,
     case DHCP_MESSAGE_TYPE_INFORM:
         giaddr = ntohl(dhcphdr[DHCP_GIADDR_OFFSET] << 24 | dhcphdr[DHCP_GIADDR_OFFSET + 1] << 16 |
                        dhcphdr[DHCP_GIADDR_OFFSET + 2] << 8 | dhcphdr[DHCP_GIADDR_OFFSET + 3]);
-        if ((context->vlan_ip == giaddr && context->is_uplink && dir == DHCP_TX) ||
+        if ((context->giaddr_ip == giaddr && context->is_uplink && dir == DHCP_TX) ||
             (!context->is_uplink && dir == DHCP_RX && iphdr->ip_dst.s_addr == INADDR_BROADCAST)) {
             context->counters[DHCP_COUNTERS_CURRENT][dir][dhcp_option[2]]++;
             aggregate_dev.counters[DHCP_COUNTERS_CURRENT][dir][dhcp_option[2]]++;
@@ -140,7 +140,7 @@ static void handle_dhcp_option_53(dhcp_device_context_t *context,
     case DHCP_MESSAGE_TYPE_OFFER:
     case DHCP_MESSAGE_TYPE_ACK:
     case DHCP_MESSAGE_TYPE_NAK:
-        if ((context->vlan_ip == iphdr->ip_dst.s_addr && context->is_uplink && dir == DHCP_RX) ||
+        if ((context->giaddr_ip == iphdr->ip_dst.s_addr && context->is_uplink && dir == DHCP_RX) ||
             (!context->is_uplink && dir == DHCP_TX)) {
             context->counters[DHCP_COUNTERS_CURRENT][dir][dhcp_option[2]]++;
             aggregate_dev.counters[DHCP_COUNTERS_CURRENT][dir][dhcp_option[2]]++;
@@ -438,7 +438,7 @@ static int init_socket(dhcp_device_context_t *context, const char *intf)
  *
  * @return 0 on success, otherwise for failure
  */
-static int initialize_intf_mac_and_ip_addr(dhcp_device_context_t *context)
+int initialize_intf_mac_and_ip_addr(dhcp_device_context_t *context)
 {
     int rv = -1;
 
@@ -543,14 +543,14 @@ int dhcp_device_init(dhcp_device_context_t **context, const char *intf, uint8_t 
 }
 
 /**
- * @code dhcp_device_start_capture(context, snaplen, base, vlan_ip);
+ * @code dhcp_device_start_capture(context, snaplen, base, giaddr_ip);
  *
  * @brief starts packet capture on this interface
  */
 int dhcp_device_start_capture(dhcp_device_context_t *context,
                               size_t snaplen,
                               struct event_base *base,
-                              in_addr_t vlan_ip)
+                              in_addr_t giaddr_ip)
 {
     int rv = -1;
 
@@ -565,7 +565,7 @@ int dhcp_device_start_capture(dhcp_device_context_t *context,
             break;
         }
 
-        context->vlan_ip = vlan_ip;
+        context->giaddr_ip = giaddr_ip;
 
         context->buffer = (uint8_t *) malloc(snaplen);
         if (context->buffer == NULL) {
