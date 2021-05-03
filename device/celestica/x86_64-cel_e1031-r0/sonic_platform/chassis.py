@@ -6,18 +6,12 @@
 #
 #############################################################################
 
-import sys
-import re
-import os
-import subprocess
-import json
-
 try:
+    import sys
     from sonic_platform_base.sonic_sfp.sfputilhelper import SfpUtilHelper
     from sonic_platform_base.chassis_base import ChassisBase
-    from sonic_py_common import device_info
+    from .common import Common
     from .event import SfpEvent
-    from .helper import APIHelper
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -38,11 +32,10 @@ class Chassis(ChassisBase):
 
     def __init__(self):
         ChassisBase.__init__(self)
-        self._api_helper = APIHelper()
+        self._api_common = Common()
         self.sfp_module_initialized = False
         self.__initialize_eeprom()
-        self.is_host = self._api_helper.is_host()
-
+        self.is_host = self._api_common.is_host()
 
         if not self.is_host:
             self.__initialize_fan()
@@ -81,8 +74,9 @@ class Chassis(ChassisBase):
 
     def __initialize_thermals(self):
         from sonic_platform.thermal import Thermal
+        airflow = self.__get_air_flow()
         for index in range(0, NUM_THERMAL):
-            thermal = Thermal(index)
+            thermal = Thermal(index, airflow)
             self._thermal_list.append(thermal)
 
     def __initialize_eeprom(self):
@@ -95,17 +89,11 @@ class Chassis(ChassisBase):
             component = Component(index)
             self._component_list.append(component)
 
-    def __is_host(self):
-        return os.system(HOST_CHK_CMD) == 0
-
-    def __read_txt_file(self, file_path):
-        try:
-            with open(file_path, 'r') as fd:
-                data = fd.read()
-                return data.strip()
-        except IOError:
-            pass
-        return None
+    def __get_air_flow(self):
+        air_flow_path = '/usr/share/sonic/device/{}/fan_airflow'.format(
+            self._api_common.platform) if self.is_host else '/usr/share/sonic/platform/fan_airflow'
+        air_flow = self._api_common.read_txt_file(air_flow_path)
+        return air_flow or 'B2F'
 
     def get_base_mac(self):
         """
@@ -115,6 +103,14 @@ class Chassis(ChassisBase):
             'XX:XX:XX:XX:XX:XX'
         """
         return self._eeprom.get_mac()
+
+    def get_serial_number(self):
+        """
+        Retrieves the hardware serial number for the chassis
+        Returns:
+            A string containing the hardware serial number for this chassis.
+        """
+        return self._eeprom.get_serial()
 
     def get_system_eeprom_info(self):
         """
@@ -141,7 +137,7 @@ class Chassis(ChassisBase):
         reboot_cause = self.REBOOT_CAUSE_HARDWARE_OTHER
         hw_reboot_cause = self._component_list[0].get_register_value(
             RESET_REGISTER)
-        sw_reboot_cause = self.__read_txt_file(
+        sw_reboot_cause = self._api_common.read_txt_file(
             self._reboot_cause_path) or "Unknown"
 
         if hw_reboot_cause == "0x55":
@@ -151,8 +147,12 @@ class Chassis(ChassisBase):
             reboot_cause = self.REBOOT_CAUSE_POWER_LOSS
         elif hw_reboot_cause == "0x33":
             reboot_cause = self.REBOOT_CAUSE_WATCHDOG
+        elif hw_reboot_cause == "0x88":
+            reboot_cause = self.REBOOT_CAUSE_THERMAL_OVERLOAD_CPU
+        elif hw_reboot_cause == "0x99":
+            reboot_cause = self.REBOOT_CAUSE_THERMAL_OVERLOAD_ASIC
         else:
-            reboot_cause = self.REBOOT_CAUSE_HARDWARE_OTHER
+            reboot_cause = self.REBOOT_CAUSE_NON_HARDWARE
             description = 'Unknown reason'
 
         return (reboot_cause, description)
@@ -252,6 +252,14 @@ class Chassis(ChassisBase):
         return sfp
 
     ##############################################################
+    ################## ThermalManager methods ####################
+    ##############################################################
+
+    def get_thermal_manager(self):
+        from .thermal_manager import ThermalManager
+        return ThermalManager
+
+    ##############################################################
     ###################### Device methods ########################
     ##############################################################
 
@@ -261,13 +269,13 @@ class Chassis(ChassisBase):
             Returns:
             string: The name of the device
         """
-        return self._api_helper.hwsku
+        return self._api_common.hwsku
 
     def get_presence(self):
         """
-        Retrieves the presence of the Chassis
+        Retrieves the presence of the PSU
         Returns:
-            bool: True if Chassis is present, False if not
+            bool: True if PSU is present, False if not
         """
         return True
 
@@ -285,7 +293,7 @@ class Chassis(ChassisBase):
         Returns:
             string: Serial number of device
         """
-        return self._eeprom.get_serial()
+        return self.get_serial_number()
 
     def get_status(self):
         """
@@ -294,3 +302,4 @@ class Chassis(ChassisBase):
             A boolean value, True if device is operating properly, False if not
         """
         return True
+

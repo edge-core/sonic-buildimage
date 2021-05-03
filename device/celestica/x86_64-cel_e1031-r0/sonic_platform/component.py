@@ -6,7 +6,6 @@
 #
 #############################################################################
 
-import json
 import os.path
 import shutil
 import shlex
@@ -49,7 +48,7 @@ class Component(ComponentBase):
             rc = process.poll()
             if rc != 0:
                 return False
-        except:
+        except Exception:
             return False
         return True
 

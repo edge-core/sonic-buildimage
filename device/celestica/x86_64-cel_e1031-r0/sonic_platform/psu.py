@@ -7,7 +7,6 @@
 #############################################################################
 
 import os.path
-import sonic_platform
 
 try:
     from sonic_platform_base.psu_base import PsuBase

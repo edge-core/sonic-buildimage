@@ -8,7 +8,6 @@
 
 import os
 import time
-import subprocess
 from ctypes import create_string_buffer
 
 try:
@@ -159,7 +158,7 @@ class Sfp(SfpBase):
             raw = sysfsfile_eeprom.read(num_bytes)
             for n in range(0, num_bytes):
                 eeprom_raw[n] = hex(ord(raw[n]))[2:].zfill(2)
-        except:
+        except Exception:
             pass
         finally:
             if sysfsfile_eeprom:
@@ -469,7 +468,6 @@ class Sfp(SfpBase):
             A Boolean, True if tx_disable is enabled, False if disabled
         """
         tx_disable = False
-        tx_fault = False
         status_control_raw = self.__read_eeprom_specific_bytes(
             SFP_STATUS_CONTROL_OFFSET, SFP_STATUS_CONTROL_WIDTH)
         if status_control_raw:
@@ -602,7 +600,7 @@ class Sfp(SfpBase):
                 # Write to eeprom
                 sysfsfile_eeprom.seek(SFP_STATUS_CONTROL_OFFSET)
                 sysfsfile_eeprom.write(buffer[0])
-            except:
+            except Exception:
                 #print("Error: unable to open file: %s" % str(e))
                 return False
             finally:

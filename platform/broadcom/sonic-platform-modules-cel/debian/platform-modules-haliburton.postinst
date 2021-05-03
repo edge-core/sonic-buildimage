@@ -1,12 +1,15 @@
 depmod -a
+
 sudo chmod +x /usr/local/bin/udev_prefix.sh
 sudo chmod +x /usr/local/bin/popmsg.sh
 sudo chmod +x /usr/local/bin/reload_udev.sh
+
+/usr/local/bin/platform_api_mgnt.sh install
+/etc/init.d/fancontrol.sh install
+/usr/local/bin/reload_udev.sh
+
 systemctl enable platform-modules-haliburton.service
 systemctl enable fancontrol.service
 
 systemctl start platform-modules-haliburton.service
 systemctl start fancontrol.service
-
-/usr/local/bin/platform_api_mgnt.sh install
-/usr/local/bin/reload_udev.sh

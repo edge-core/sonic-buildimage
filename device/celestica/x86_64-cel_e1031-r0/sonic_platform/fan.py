@@ -6,12 +6,12 @@
 #
 #############################################################################
 
-import json
 import math
 import os.path
 
 try:
     from sonic_platform_base.fan_base import FanBase
+    from .common import Common
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -67,24 +67,9 @@ class Fan(FanBase):
             self.STATUS_LED_COLOR_RED: "amber",
             self.STATUS_LED_COLOR_OFF: "off"
         }
+
+        self._api_common = Common()
         FanBase.__init__(self)
-
-    def __read_txt_file(self, file_path):
-        try:
-            with open(file_path, 'r') as fd:
-                data = fd.read()
-                return data.strip()
-        except IOError:
-            pass
-        return ""
-
-    def __write_txt_file(self, file_path, value):
-        try:
-            with open(file_path, 'w') as fd:
-                fd.write(str(value))
-        except:
-            return False
-        return True
 
     def __search_file_by_name(self, directory, file_name):
         for dirpath, dirnames, files in os.walk(directory):
@@ -105,7 +90,8 @@ class Fan(FanBase):
         if not self.is_psu_fan:
             fan_direction_file = (FAN_PATH +
                                   self.fan_e1031_direction.format(self.fan_tray_index+1))
-            raw = self.__read_txt_file(fan_direction_file).strip('\r\n')
+            raw = self._api_common.read_txt_file(
+                fan_direction_file).strip('\r\n')
             direction = self.FAN_DIRECTION_INTAKE if str(
                 raw).upper() == "F2B" else self.FAN_DIRECTION_EXHAUST
 
@@ -126,8 +112,8 @@ class Fan(FanBase):
             fan_speed_sysfs_name = "fan{}_input".format(self.fan_index+1)
             fan_speed_sysfs_path = self.__search_file_by_name(
                 self.psu_hwmon_path, fan_speed_sysfs_name)
-            fan_speed_rpm = self.__read_txt_file(fan_speed_sysfs_path) or 0
-            fan_speed_raw = float(fan_speed_rpm)/PSU_FAN_MAX_RPM * 100
+            fan_speed_rpm = self._api_common.read_txt_file(
+                fan_speed_sysfs_path) or 0
             speed = math.ceil(float(fan_speed_rpm) * 100 / PSU_FAN_MAX_RPM)
         elif self.get_presence():
             chip = self.emc2305_chip_mapping[self.fan_index]
@@ -136,7 +122,7 @@ class Fan(FanBase):
             sysfs_path = "%s%s/%s" % (
                 EMC2305_PATH, device, EMC2305_FAN_INPUT)
             sysfs_path = sysfs_path.format(fan_index[self.fan_tray_index])
-            raw = self.__read_txt_file(sysfs_path).strip('\r\n')
+            raw = self._api_common.read_txt_file(sysfs_path).strip('\r\n')
             pwm = int(raw, 10) if raw else 0
             speed = math.ceil(float(pwm * 100 / EMC2305_MAX_PWM))
 
@@ -163,7 +149,7 @@ class Fan(FanBase):
             sysfs_path = "%s%s/%s" % (
                 EMC2305_PATH, device, EMC2305_FAN_TARGET)
             sysfs_path = sysfs_path.format(fan_index[self.fan_tray_index])
-            raw = self.__read_txt_file(sysfs_path).strip('\r\n')
+            raw = self._api_common.read_txt_file(sysfs_path).strip('\r\n')
             pwm = int(raw, 10) if raw else 0
             target = math.ceil(float(pwm) * 100 / EMC2305_MAX_PWM)
 
@@ -202,7 +188,7 @@ class Fan(FanBase):
             sysfs_path = "%s%s/%s" % (
                 EMC2305_PATH, device, EMC2305_FAN_PWM)
             sysfs_path = sysfs_path.format(fan_index[self.fan_tray_index])
-            return self.__write_txt_file(sysfs_path, int(pwm))
+            return self._api_common.write_txt_file(sysfs_path, int(pwm))
 
         return False
 
@@ -220,7 +206,7 @@ class Fan(FanBase):
             fan_led_file = (FAN_PATH +
                             self.fan_e1031_led.format(self.fan_tray_index+1))
 
-            set_status_led = self.__write_txt_file(
+            set_status_led = self._api_common.write_txt_file(
                 fan_led_file, self.fan_e1031_led_col_map[color]) if self.get_presence() else False
 
         return set_status_led
@@ -244,9 +230,33 @@ class Fan(FanBase):
         """
         fan_direction_file = (FAN_PATH +
                               self.fan_e1031_presence.format(self.fan_tray_index+1))
-        present_str = self.__read_txt_file(fan_direction_file) or '1'
+        present_str = self._api_common.read_txt_file(fan_direction_file) or '1'
 
         return int(present_str) == 0 if not self.is_psu_fan else True
+
+    def get_model(self):
+        """
+        Retrieves the model number (or part number) of the device
+        Returns:
+            string: Model/part number of device
+        """
+        if self.is_psu_fan:
+            return NULL_VAL
+
+        model = NULL_VAL
+        return model
+
+    def get_serial(self):
+        """
+        Retrieves the serial number of the device
+        Returns:
+            string: Serial number of device
+        """
+        if self.is_psu_fan:
+            return NULL_VAL
+
+        serial = NULL_VAL
+        return serial
 
     def get_status(self):
         """
@@ -254,4 +264,21 @@ class Fan(FanBase):
         Returns:
             A boolean value, True if device is operating properly, False if not
         """
-        return self.get_presence() and self.get_speed() > 0
+        status = 1
+        if self.is_psu_fan:
+            fan_fault_sysfs_name = "fan1_fault"
+            fan_fault_sysfs_path = self.__search_file_by_name(
+                self.psu_hwmon_path, fan_fault_sysfs_name)
+            status = self._api_common.read_txt_file(fan_fault_sysfs_path)
+
+        elif self.get_presence():
+            chip = self.emc2305_chip_mapping[self.fan_index]
+            device = chip['device']
+            fan_index = chip['index_map']
+            sysfs_path = "%s%s/%s" % (
+                EMC2305_PATH, device, 'fan{}_fault')
+            sysfs_path = sysfs_path.format(fan_index[self.fan_tray_index])
+            status = self._api_common.read_txt_file(sysfs_path)
+
+        return False if int(status) != 0 else True
+
