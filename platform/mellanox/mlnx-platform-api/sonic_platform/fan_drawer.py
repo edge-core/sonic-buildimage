@@ -14,6 +14,7 @@ try:
     from sonic_platform_base.fan_drawer_base import FanDrawerBase
     from sonic_platform_base.fan_base import FanBase
     from .led import FanLed, SharedLed
+    from .utils import read_int_from_file
 except ImportError as e:
     raise ImportError (str(e) + "- required module not found")
 
@@ -51,14 +52,14 @@ class MellanoxFanDrawer(FanDrawerBase):
             return FanBase.FAN_DIRECTION_NOT_APPLICABLE
         
         try:
-            from .fan import FAN_DIR
-            with open(FAN_DIR, 'r') as fan_dir:
-                fan_dir_bits = int(fan_dir.read())
-                fan_mask = 1 << self._index - 1
-                if fan_dir_bits & fan_mask:
-                    return FanBase.FAN_DIRECTION_INTAKE
-                else:
-                    return FanBase.FAN_DIRECTION_EXHAUST
+            from .fan import FAN_DIR, FAN_DIR_VALUE_INTAKE, FAN_DIR_VALUE_EXHAUST
+            fan_dir = read_int_from_file(FAN_DIR.format(self._index), raise_exception=True)
+            if fan_dir == FAN_DIR_VALUE_INTAKE:
+                return FanBase.FAN_DIRECTION_INTAKE
+            elif fan_dir == FAN_DIR_VALUE_EXHAUST:
+                return FanBase.FAN_DIRECTION_EXHAUST
+            else:
+                raise RuntimeError("Got wrong value {} for fan direction {}".format(fan_dir, self._index))
         except (ValueError, IOError) as e:
             raise RuntimeError("Failed to read fan direction status to {}".format(repr(e)))
 
