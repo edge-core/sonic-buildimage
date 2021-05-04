@@ -22,8 +22,10 @@ PWM_MAX = 255
 
 FAN_PATH = "/var/run/hw-management/thermal/"
 CONFIG_PATH = "/var/run/hw-management/config"
-# fan_dir isn't supported on Spectrum 1. It is supported on Spectrum 2 and later switches
-FAN_DIR = "/var/run/hw-management/system/fan_dir"
+
+FAN_DIR = "/var/run/hw-management/thermal/fan{}_dir"
+FAN_DIR_VALUE_EXHAUST = 0
+FAN_DIR_VALUE_INTAKE = 1
 COOLING_STATE_PATH = "/var/run/hw-management/thermal/cooling_cur_state"
 
 class Fan(FanBase):
