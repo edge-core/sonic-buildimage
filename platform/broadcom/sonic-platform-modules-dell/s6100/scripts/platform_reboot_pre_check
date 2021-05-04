@@ -1,10 +1,16 @@
 #!/bin/bash
 SSD_FW_UPGRADE="/host/ssd_fw_upgrade"
 
+_error_msg(){
+    echo "The SSD on this unit is faulty. Do not power-cycle/reboot this unit!"
+    echo "soft-/fast-/warm-reboot is allowed."
+    logger -p user.crit -t DELL_S6100_SSD_MON "The SSD on this unit is faulty. Do not power-cycle/reboot this unit!"
+    logger -p user.crit -t DELL_S6100_SSD_MON "soft-/fast-/warm-reboot is allowed."
+}
+
 # Check SSD Status
-if [ -e $SSD_FW_UPGRADE/GPIO7_low ] || [ -e $SSD_FW_UPGRADE/GPIO7_error ] || [ -e $SSD_FW_UPGRADE/GPIO_pending_upgrade ]; then
-    logger -p user.crit -t DELL_S6100_SSD_MON "The SSD on this unit is faulty and does not support cold reboot."
-    logger -p user.crit -t DELL_S6100_SSD_MON "Please perform a soft-/fast-/warm-reboot instead"
+if [ -e $SSD_FW_UPGRADE/GPIO7_low ] || [ -e $SSD_FW_UPGRADE/GPIO7_error ] || [ -e $SSD_FW_UPGRADE/GPIO7_pending_upgrade ]; then
+    _error_msg
     exit 1
 fi
 
@@ -19,8 +25,7 @@ if [ -e $SSD_FW_UPGRADE/GPIO7_high ]; then
     if [ $GPIO_STATUS == "0x01" ];then
 	exit 0
     else
-        logger -p user.crit -t DELL_S6100_SSD_MON "The SSD on this unit is faulty and does not support cold reboot."
-        logger -p user.crit -t DELL_S6100_SSD_MON "Please perform a soft-/fast-/warm-reboot instead"
+        _error_msg
         exit 1
     fi
 fi
