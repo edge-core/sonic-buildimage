@@ -27,26 +27,40 @@ psu_list = []
 PSU_CURRENT = "current"
 PSU_VOLTAGE = "voltage"
 PSU_POWER = "power"
+PSU_VPD = "vpd"
+
+SN_VPD_FIELD = "SN_VPD_FIELD"
+PN_VPD_FIELD = "PN_VPD_FIELD"
 
 # in most platforms the file psuX_curr, psuX_volt and psuX_power contain current, voltage and power data respectively. 
 # but there are exceptions which will be handled by the following dictionary
 
 platform_dict_psu = {'x86_64-mlnx_msn3420-r0': 1, 'x86_64-mlnx_msn3700-r0': 1, 'x86_64-mlnx_msn3700c-r0': 1,
                      'x86_64-mlnx_msn3800-r0': 1, 'x86_64-mlnx_msn4600-r0': 1, 'x86_64-mlnx_msn4600c-r0': 1,
-                     'x86_64-mlnx_msn4700-r0': 1, 'x86_64-mlnx_msn4410-r0': 1}
+                     'x86_64-mlnx_msn4700-r0': 1, 'x86_64-mlnx_msn4410-r0': 1, 'x86_64-mlnx_msn2010-r0' : 2,
+                     'x86_64-mlnx_msn2100-r0': 2}
 
 psu_profile_list = [
     # default filename convention
     {
         PSU_CURRENT : "power/psu{}_curr",
         PSU_VOLTAGE : "power/psu{}_volt",
-        PSU_POWER : "power/psu{}_power"
+        PSU_POWER : "power/psu{}_power",
+        PSU_VPD : "eeprom/psu{}_vpd"
     },
     # for 3420, 3700, 3700c, 3800, 4600c, 4700
     {
         PSU_CURRENT : "power/psu{}_curr",
         PSU_VOLTAGE : "power/psu{}_volt_out2",
-        PSU_POWER : "power/psu{}_power"
+        PSU_POWER : "power/psu{}_power",
+        PSU_VPD : "eeprom/psu{}_vpd"
+    },
+    # for fixed platforms 2100, 2010
+    {
+        PSU_CURRENT : "power/psu{}_curr",
+        PSU_VOLTAGE : "power/psu{}_volt_out2",
+        PSU_POWER : "power/psu{}_power",
+        PSU_VPD : None
     }
 ]
 
@@ -73,6 +87,27 @@ class Psu(PsuBase):
             filemap = psu_profile_list[0]
 
         self.psu_data = DEVICE_DATA[platform]['psus']
+        psu_vpd = filemap[PSU_VPD]
+
+        if psu_vpd is not None:
+            self.psu_vpd = os.path.join(self.psu_path, psu_vpd.format(self.index))
+            self.vpd_data = self._read_vpd_file(self.psu_vpd)
+
+            if PN_VPD_FIELD in self.vpd_data:
+                self.model = self.vpd_data[PN_VPD_FIELD]
+            else:
+                self.model = ""
+                logger.log_error("Fail to read PSU{} model number: No key {} in VPD {}".format(self.index, PN_VPD_FIELD, self.psu_vpd))
+
+            if SN_VPD_FIELD in self.vpd_data:
+                self.serial = self.vpd_data[SN_VPD_FIELD]
+            else:
+                self.serial = ""
+                logger.log_error("Fail to read PSU{} serial number: No key {} in VPD {}".format(self.index, SN_VPD_FIELD, self.psu_vpd))
+
+        else: 
+            logger.log_info("Not reading PSU{} VPD data: Platform is fixed".format(self.index))
+
 
         if not self.psu_data['hot_swappable']:
             self.always_present = True
@@ -122,6 +157,24 @@ class Psu(PsuBase):
         return self._name
 
 
+    def _read_vpd_file(self, filename):
+        """
+        Read a vpd file parsed from eeprom with keys and values.
+        Returns a dictionary.
+        """
+        result = {}
+        try:
+            if not os.path.exists(filename):
+                return result
+            with open(filename, 'r') as fileobj:
+                for line in fileobj.readlines():
+                    key, val = line.split(":")
+                    result[key.strip()] = val.strip()
+        except Exception as e:
+            logger.log_error("Fail to read VPD file {} due to {}".format(filename, repr(e)))
+        return result
+
+
     def _read_generic_file(self, filename, len):
         """
         Read a generic file, returns the contents of the file
@@ -135,6 +188,26 @@ class Psu(PsuBase):
         except Exception as e:
             logger.log_info("Fail to read file {} due to {}".format(filename, repr(e)))
         return result
+
+
+    def get_model(self):
+        """
+        Retrieves the model number (or part number) of the device
+
+        Returns:
+            string: Model/part number of device
+        """
+        return self.model
+
+
+    def get_serial(self):
+        """
+        Retrieves the serial number of the device
+
+        Returns:
+            string: Serial number of device
+        """
+        return self.serial
 
 
     def get_powergood_status(self):
