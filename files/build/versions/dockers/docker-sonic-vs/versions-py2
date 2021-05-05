@@ -1,0 +1,11 @@
+certifi==2020.12.5
+chardet==4.0.0
+crontab==0.23.0
+idna==2.10
+monotonic==1.5
+netifaces==0.10.7
+ply==3.11
+py2-ipaddress==3.4.2
+pyroute2==0.5.3
+requests==2.25.1
+urllib3==1.26.4

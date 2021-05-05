@@ -1,0 +1,15 @@
+certifi==2020.12.5
+chardet==3.0.4
+Click==7.0
+deepdiff==5.2.3
+ijson==2.6.1
+jsondiff==1.2.0
+M2Crypto==0.31.0
+netifaces==0.10.7
+ordered-set==4.0.2
+pexpect==4.8.0
+ptyprocess==0.7.0
+requests==2.25.0
+tabulate==0.8.2
+urllib3==1.26.4
+xmltodict==0.12.0

@@ -2,7 +2,7 @@ gdb==7.12-6
 gdbserver==7.12-6
 libbabeltrace-ctf1==1.5.1-1
 libbabeltrace1==1.5.1-1
-libbsd0==0.8.3-1
+libbsd0==0.8.3-1+deb9u1
 libdw1==0.168-1
 libedit2==3.1-20160903-3
 libglib2.0-0==2.50.3-2+deb9u2
@@ -10,9 +10,9 @@ libgpm2==1.20.4-6.2+b1
 libicu57==57.1-6+deb9u4
 libmpdec2==2.4.2-1
 libpopt0==1.16-10+b2
-libpython3.5==3.5.3-1+deb9u3
-libpython3.5-minimal==3.5.3-1+deb9u3
-libpython3.5-stdlib==3.5.3-1+deb9u3
+libpython3.5==3.5.3-1+deb9u4
+libpython3.5-minimal==3.5.3-1+deb9u4
+libpython3.5-stdlib==3.5.3-1+deb9u4
 libsaimetadata==1.0.0
 libsaimetadata-dbg==1.0.0
 libsainps==1.5.0

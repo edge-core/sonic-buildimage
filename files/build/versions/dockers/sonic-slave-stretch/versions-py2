@@ -43,7 +43,6 @@ pexpect==4.6.0
 Pillow==4.0.0
 ptyprocess==0.7.0
 py==1.4.32
-pyang==2.1.1
 pyasn1==0.1.9
 pyasn1-modules==0.0.7
 pycrypto==2.6.1

@@ -1,6 +1,5 @@
 applibs==1.mlnx.4.4.2522
 applibs-dev==1.mlnx.4.4.2522
-bfnplatform==1.0.0
 gir1.2-atk-1.0==2.30.0-2
 gir1.2-atspi-2.0==2.30.0-7
 gir1.2-freedesktop==1.58.3-2
@@ -8,7 +7,6 @@ gir1.2-gdkpixbuf-2.0==2.38.1+dfsg-1
 gir1.2-gtk-3.0==3.24.5-1
 gir1.2-harfbuzz-0.0==2.3.1-1
 gir1.2-pango-1.0==1.42.4-8~deb10u1
-iproute2==1.mlnx.4.4.2522
 iproute2-dev==1.mlnx.4.4.2522
 isc-dhcp-relay==4.4.1-2
 kernel-mft-dkms==4.16.0-105
@@ -91,6 +89,7 @@ python3-yang==1.0.73
 sonic-mgmt-common==1.0.0
 sonic-mgmt-common-codegen==1.0.0
 sonic-mgmt-framework==1.0-01
+swss==1.0.0
 sx-acl-helper==1.mlnx.4.4.2522
 sx-acl-helper-dev==1.mlnx.4.4.2522
 sx-complib==1.mlnx.4.4.2522
@@ -104,6 +103,7 @@ sx-scew-dev==1.mlnx.4.4.2522
 sxd-libs==1.mlnx.4.4.2522
 sxd-libs-dev==1.mlnx.4.4.2522
 syncd==1.0.0
+syncd-vs==1.0.0
 thrift-compiler==0.11.0-4
 wayland-protocols==1.17-1
 wjh-libs==1.mlnx.4.4.2522

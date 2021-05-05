@@ -40,7 +40,7 @@ Pillow==5.4.1
 pluggy==0.8.0
 ptyprocess==0.7.0
 py==1.7.0
-pyang==2.1.1
+pyang==2.4.0
 pyangbind==0.8.1
 pycrypto==2.6.1
 pycurl==7.43.0.2

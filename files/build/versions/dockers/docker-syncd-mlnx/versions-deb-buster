@@ -7,7 +7,7 @@ libexpat1-dev==2.2.6-2+deb10u1
 libpython-dev==2.7.16-1
 libpython2-dev==2.7.16-1
 libpython2.7-dev==2.7.16-2+deb10u1
-mlnx-sai==1.mlnx.SAIRel1.18.1.0
+mlnx-sai==1.mlnx.SAIRel1.18.3.0
 python-dev==2.7.16-1
 python-pkg-resources==40.8.0-1
 python-sdk-api==1.mlnx.4.4.2522
