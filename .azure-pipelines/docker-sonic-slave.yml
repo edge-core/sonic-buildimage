@@ -8,7 +8,7 @@ schedules:
 - cron: "0 8 * * *"
   branches:
     include:
-    - master
+    - 202012
   always: true
 
 trigger: none
@@ -20,12 +20,12 @@ pr:
     include:
     - sonic-slave-jessie
     - sonic-slave-stretch
-    - sonic-slave-buster   
+    - sonic-slave-buster
 
 parameters:
 - name: 'arches'
   type: object
-  default: 
+  default:
   - amd64
   - armhf
   - arm64
