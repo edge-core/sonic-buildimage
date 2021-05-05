@@ -389,9 +389,6 @@ start() {
         -v /var/run/redis-chassis:/var/run/redis-chassis:ro \
         -v /usr/share/sonic/device/$PLATFORM/$HWSKU/$DEV:/usr/share/sonic/hwsku:ro \
 {%- endif %}
-{%- if docker_container_name == "mux" -%}
-        -v /opt/write_standby/bin:/opt/write_standby/bin:ro \
-{%- endif -%}
         $REDIS_MNT \
         -v /usr/share/sonic/device/$PLATFORM:/usr/share/sonic/platform:ro \
 {%- if sonic_asic_platform != "mellanox" %}

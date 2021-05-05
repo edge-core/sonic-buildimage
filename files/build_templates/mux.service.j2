@@ -9,10 +9,11 @@ StartLimitBurst=3
 
 [Service]
 User={{ sonicadmin_user }}
+ExecStartPre=/usr/local/bin/write_standby.py
 ExecStartPre=/usr/bin/{{docker_container_name}}.sh start
 ExecStart=/usr/bin/{{docker_container_name}}.sh wait
 ExecStop=/usr/bin/{{docker_container_name}}.sh stop
-ExecStopPost=/opt/write_standby/bin/write_standby.py
+ExecStopPost=/usr/local/bin/write_standby.py
 Restart=always
 RestartSec=30
 
