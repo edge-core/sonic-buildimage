@@ -113,7 +113,7 @@ class Psu(PsuBase):
         if not is_valid:
             return None
 
-        return "{:.1f}".format(voltage)
+        return float(voltage)
 
     def get_voltage_low_threshold(self):
         """
@@ -159,7 +159,7 @@ class Psu(PsuBase):
         if not is_valid:
             return None
 
-        return "{:.1f}".format(current)
+        return float(current)
 
     def get_power(self):
         """
@@ -173,7 +173,7 @@ class Psu(PsuBase):
         if not is_valid:
             return None
 
-        return "{:.1f}".format(power)
+        return float(power)
 
     def get_powergood_status(self):
         """
