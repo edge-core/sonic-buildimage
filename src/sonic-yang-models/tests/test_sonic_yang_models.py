@@ -24,9 +24,12 @@ def test_content(response):
 def test_generate_yang_tree():
 
     # Generate YANG Tree, see no error in it.
-    pyang_tree_cmd = "pyang -f tree ./yang-models/*.yang > ./yang-models/sonic_yang_tree"
+    pyang_tree_cmd = "pyang -Vf tree -p /usr/local/share/yang/modules/ietf ./yang-models/*.yang > ./yang-models/sonic_yang_tree"
     if (system(pyang_tree_cmd)):
         print("Failed: {}".format(pyang_tree_cmd))
+        system("pyang --version")
+        system("env")
+        system("ls -l /usr/local/share/yang/modules/ietf/")
         exit(1)
     else:
         print("Passed: {}".format(pyang_tree_cmd))
