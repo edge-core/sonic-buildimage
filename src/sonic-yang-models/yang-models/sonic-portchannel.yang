@@ -95,7 +95,21 @@ module sonic-portchannel {
                     mandatory true;
                     type stypes:admin_status;
                 }
-            } /* end of list PORTCHANNEL_LIST */
+
+                leaf lacp_key {
+                    /* lacp key should be either auto or a integer in the range of 1 to 65535 */
+                    /* When lacp_key is set to 'auto' the lacp key would be set to be the number */
+                    /* on the end of the PortChannel name with a prefix of 1 */
+                    type union {
+                        type string {
+                            pattern "auto";
+                        }
+                        type uint16 {
+                            range 1..65535;
+                        }
+                    }
+                }
+			} /* end of list PORTCHANNEL_LIST */
 
         } /* end of container PORTCHANNEL */
 

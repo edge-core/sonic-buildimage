@@ -25,6 +25,7 @@
                         ],
                         "min_links": "1",
                         "mtu": "9100",
+                        "lacp_key": "auto",
                         "name": "PortChannel0001"
                     }
                 ]
