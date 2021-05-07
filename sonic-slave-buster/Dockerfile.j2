@@ -366,6 +366,9 @@ RUN apt-get update && apt-get install -y \
        # Aspell is unable to locate the language dictionaries.
        # Re-installing aspell-en dictionary to fix it.
        RUN apt-get install --reinstall -y aspell-en
+
+       # workaround because of https://bugs.launchpad.net/qemu/+bug/1805913, just disable aspell
+       RUN cp /bin/true /usr/bin/aspell
 {%- endif %}
 
 ## Config dpkg
