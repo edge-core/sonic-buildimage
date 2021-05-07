@@ -41,7 +41,7 @@ from functools import partial
 from minigraph import minigraph_encoder, parse_xml, parse_device_desc_xml, parse_asic_sub_role
 from portconfig import get_port_config, get_breakout_mode
 from redis_bcc import RedisBytecodeCache
-from sonic_py_common.multi_asic import get_asic_id_from_name
+from sonic_py_common.multi_asic import get_asic_id_from_name, get_asic_device_id
 from sonic_py_common import device_info
 from swsscommon.swsscommon import SonicV2Connector, ConfigDBConnector, SonicDBConfig, ConfigDBPipeConnector
 
@@ -380,7 +380,12 @@ def main():
             }}}
         # The ID needs to be passed to the SAI to identify the asic.
         if asic_name is not None:
-            hardware_data['DEVICE_METADATA']['localhost'].update(asic_id=asic_id)
+            device_id = get_asic_device_id(asic_id)
+            # if the device_id obtained is None, exit with error
+            if device_id is None:
+                print('Failed to get device ID for', asic_name, file=sys.stderr)
+                sys.exit(1)
+            hardware_data['DEVICE_METADATA']['localhost'].update(asic_id=device_id)
         deep_update(data, hardware_data)
 
     paths = ['/', '/usr/share/sonic/templates']
