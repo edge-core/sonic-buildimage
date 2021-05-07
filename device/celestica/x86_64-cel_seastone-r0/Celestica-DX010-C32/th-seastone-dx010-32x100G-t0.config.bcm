@@ -374,3 +374,5 @@ phy_xaui_tx_polarity_flip_130=0x0006
 phy_xaui_rx_polarity_flip_130=0x0000
 
 mmu_init_config="MSFT-TH-Tier0"
+
+phy_an_lt_msft=1
