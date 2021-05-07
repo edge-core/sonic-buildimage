@@ -19,7 +19,14 @@
     },
     "VLAN_WITH_NON_EXIST_PORT": {
 	"desc": "Configure a member port in VLAN_MEMBER table which does not exist.",
-	"eStrKey" : "LeafRef"
+	"eStrKey" : "InvalidValue"
+    },
+    "VLAN_WITH_PORTCHANNEL_MEMBER": {
+        "desc": "Configure a PortChannel as a member of Vlan."
+    },
+    "VLAN_WITH_NON_EXIST_PORTCHANNEL_MEMBER": {
+        "desc": "Configure a non existent PortChannel as a member of Vlan.",
+        "eStrKey" : "InvalidValue"
     },
     "VLAN_MEMEBER_WITH_NON_EXIST_VLAN": {
 	"desc": "Configure vlan-id in VLAN_MEMBER table which does not exist in VLAN  table.",

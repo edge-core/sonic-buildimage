@@ -624,6 +624,9 @@
             },
             "Vlan111|Ethernet36": {
                 "tagging_mode": "untagged"
+            },
+            "Vlan111|PortChannel0003": {
+                "tagging_mode": "untagged"
             }
         },
         "LOOPBACK_INTERFACE": {

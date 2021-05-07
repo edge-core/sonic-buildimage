@@ -172,6 +172,56 @@
             }
         }
     },
+    "VLAN_WITH_PORTCHANNEL_MEMBER": {
+        "sonic-portchannel:sonic-portchannel": {
+            "sonic-portchannel:PORTCHANNEL": {
+                "PORTCHANNEL_LIST": [
+                    {
+                        "admin_status": "up",
+                        "name": "PortChannel5"
+                    }
+                ]
+            }
+        },
+        "sonic-vlan:sonic-vlan": {
+            "sonic-vlan:VLAN": {
+                "VLAN_LIST": [
+                    {
+                        "name": "Vlan200"
+                    }
+                ]
+            },
+            "sonic-vlan:VLAN_MEMBER": {
+                "VLAN_MEMBER_LIST": [
+                    {
+                        "port": "PortChannel5",
+                        "tagging_mode": "tagged",
+                        "name": "Vlan200"
+                    }
+                ]
+            }
+        }
+    },
+    "VLAN_WITH_NON_EXIST_PORTCHANNEL_MEMBER": {
+        "sonic-vlan:sonic-vlan": {
+            "sonic-vlan:VLAN": {
+                "VLAN_LIST": [
+                    {
+                        "name": "Vlan100"
+                    }
+                ]
+            },
+            "sonic-vlan:VLAN_MEMBER": {
+                "VLAN_MEMBER_LIST": [
+                    {
+                        "port": "PortChannel1",
+                        "tagging_mode": "tagged",
+                        "name": "Vlan100"
+                    }
+                ]
+            }
+        }
+    },
     "WRONG_FAMILY_WITH_IP_PREFIX": {
         "sonic-vlan:sonic-vlan": {
             "sonic-vlan:VLAN": {
