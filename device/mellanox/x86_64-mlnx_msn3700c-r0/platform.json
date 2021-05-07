@@ -73,7 +73,7 @@
                 "name": "PSU 1",
                 "fans": [
                     {
-                        "name": "psu_1_fan_1"
+                        "name": "psu1_fan1"
                     }
                 ],
                 "thermals": [
@@ -86,7 +86,7 @@
                 "name": "PSU 2",
                 "fans": [
                     {
-                        "name": "psu_2_fan_1"
+                        "name": "psu2_fan1"
                     }
                 ],
                 "thermals": [
