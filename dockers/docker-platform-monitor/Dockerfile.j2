@@ -23,7 +23,8 @@ RUN apt-get update &&   \
         python-smbus    \
         python3-smbus   \
         dmidecode       \
-        i2c-tools
+        i2c-tools       \
+        psmisc
 
 # TODO: Remove these lines once we no longer need Python 2
 RUN apt-get install -f -y python-dev python-pip
