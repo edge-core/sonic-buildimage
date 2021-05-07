@@ -206,6 +206,7 @@ sudo chmod 600 $FILESYSTEM_ROOT/etc/monit/conf.d/*
 sudo cp $IMAGE_CONFIGS/monit/process_checker $FILESYSTEM_ROOT/usr/bin/
 sudo chmod 755 $FILESYSTEM_ROOT/usr/bin/process_checker
 sudo cp $IMAGE_CONFIGS/monit/generate_monit_config.service $FILESYSTEM_ROOT_USR_LIB_SYSTEMD_SYSTEM
+echo "generate_monit_config.service" | sudo tee -a $GENERATED_SERVICE_FILE
 sudo cp $IMAGE_CONFIGS/monit/generate_monit_config $FILESYSTEM_ROOT/usr/bin/
 sudo chmod 755 $FILESYSTEM_ROOT/usr/bin/generate_monit_config
 
