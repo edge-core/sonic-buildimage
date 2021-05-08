@@ -17,15 +17,6 @@ class ThermalManager(ThermalManagerBase):
         cls._add_private_thermal_policy()
 
     @classmethod
-    def deinitialize(cls):
-        """
-        Destroy thermal manager, including any vendor specific cleanup. The default behavior of this function
-        is a no-op.
-        :return:
-        """
-        cls.start_thermal_control_algorithm()
-
-    @classmethod
     def start_thermal_control_algorithm(cls):
         """
         Start thermal control algorithm
