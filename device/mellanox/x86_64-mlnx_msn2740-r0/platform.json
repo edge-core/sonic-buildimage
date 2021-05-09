@@ -1,6 +1,6 @@
 {
     "chassis": {
-        "name": "MSN2700",
+        "name": "MSN2740",
         "components": [
             {
                 "name": "ONIE"
@@ -16,9 +16,6 @@
             },
             {
                 "name": "CPLD2"
-            },
-            {
-                "name": "CPLD3"
             }
         ],
         "fans": [],
@@ -28,9 +25,6 @@
                 "fans": [
                     {
                         "name": "fan1"
-                    },
-                    {
-                        "name": "fan2"
                     }
                 ]
             },
@@ -38,10 +32,7 @@
                 "name": "drawer2",
                 "fans": [
                     {
-                        "name": "fan3"
-                    },
-                    {
-                        "name": "fan4"
+                        "name": "fan2"
                     }
                 ]
             },
@@ -49,10 +40,7 @@
                 "name": "drawer3",
                 "fans": [
                     {
-                        "name": "fan5"
-                    },
-                    {
-                        "name": "fan6"
+                        "name": "fan3"
                     }
                 ]
             },
@@ -60,10 +48,7 @@
                 "name": "drawer4",
                 "fans": [
                     {
-                        "name": "fan7"
-                    },
-                    {
-                        "name": "fan8"
+                        "name": "fan4"
                     }
                 ]
             }
@@ -113,7 +98,10 @@
                 "name": "CPU Core 1 Temp"
             },
             {
-                "name": "CPU Pack Temp"
+                "name": "CPU Core 3 Temp"
+            },
+            {
+                "name": "CPU Core 4 Temp"
             }
         ],
         "sfps": [

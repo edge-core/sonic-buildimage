@@ -1,6 +1,6 @@
 {
     "chassis": {
-        "name": "MSN2700",
+        "name": "MSN4700",
         "components": [
             {
                 "name": "ONIE"
@@ -66,6 +66,28 @@
                         "name": "fan8"
                     }
                 ]
+            },
+            {
+                "name": "drawer5",
+                "fans": [
+                    {
+                        "name": "fan9"
+                    },
+                    {
+                        "name": "fan10"
+                    }
+                ]
+            },
+            {
+                "name": "drawer6",
+                "fans": [
+                    {
+                        "name": "fan11"
+                    },
+                    {
+                        "name": "fan12"
+                    }
+                ]
             }
         ],
         "psus": [
@@ -101,6 +123,9 @@
                 "name": "ASIC"
             },
             {
+                "name": "Ambient COMEX Temp"
+            },
+            {
                 "name": "Ambient Fan Side Temp"
             },
             {
@@ -111,6 +136,12 @@
             },
             {
                 "name": "CPU Core 1 Temp"
+            },
+            {
+                "name": "CPU Core 2 Temp"
+            },
+            {
+                "name": "CPU Core 3 Temp"
             },
             {
                 "name": "CPU Pack Temp"

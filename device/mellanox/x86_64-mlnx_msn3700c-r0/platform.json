@@ -1,6 +1,6 @@
 {
     "chassis": {
-        "name": "MSN2700",
+        "name": "MSN3700C",
         "components": [
             {
                 "name": "ONIE"
@@ -99,6 +99,9 @@
         "thermals": [
             {
                 "name": "ASIC"
+            },
+            {
+                "name": "Ambient COMEX Temp"
             },
             {
                 "name": "Ambient Fan Side Temp"

@@ -1,6 +1,6 @@
 {
     "chassis": {
-        "name": "MSN2700",
+        "name": "MSN2010",
         "components": [
             {
                 "name": "ONIE"
@@ -16,27 +16,19 @@
             },
             {
                 "name": "CPLD2"
-            },
-            {
-                "name": "CPLD3"
             }
         ],
         "fans": [],
         "fan_drawers": [
             {
-                "name": "drawer1",
+                "name": "N/A",
                 "fans": [
                     {
                         "name": "fan1"
                     },
                     {
                         "name": "fan2"
-                    }
-                ]
-            },
-            {
-                "name": "drawer2",
-                "fans": [
+                    },
                     {
                         "name": "fan3"
                     },
@@ -44,56 +36,14 @@
                         "name": "fan4"
                     }
                 ]
-            },
-            {
-                "name": "drawer3",
-                "fans": [
-                    {
-                        "name": "fan5"
-                    },
-                    {
-                        "name": "fan6"
-                    }
-                ]
-            },
-            {
-                "name": "drawer4",
-                "fans": [
-                    {
-                        "name": "fan7"
-                    },
-                    {
-                        "name": "fan8"
-                    }
-                ]
-            }
-        ],
+			}
+		],
         "psus": [
             {
-                "name": "PSU 1",
-                "fans": [
-                    {
-                        "name": "psu1_fan1"
-                    }
-                ],
-                "thermals": [
-                    {
-                        "name": "PSU-1 Temp"
-                    }
-                ]
+                "name": "PSU 1"
             },
             {
-                "name": "PSU 2",
-                "fans": [
-                    {
-                        "name": "psu2_fan1"
-                    }
-                ],
-                "thermals": [
-                    {
-                        "name": "PSU-2 Temp"
-                    }
-                ]
+                "name": "PSU 2"
             }
         ],
         "thermals": [
@@ -113,7 +63,10 @@
                 "name": "CPU Core 1 Temp"
             },
             {
-                "name": "CPU Pack Temp"
+                "name": "CPU Core 2 Temp"
+            },
+            {
+                "name": "CPU Core 3 Temp"
             }
         ],
         "sfps": [
@@ -290,86 +243,6 @@
                 "thermals": [
                     {
                         "name": "xSFP module 22 Temp"
-                    }
-                ]
-            },
-            {
-                "name": "sfp23",
-                "thermals": [
-                    {
-                        "name": "xSFP module 23 Temp"
-                    }
-                ]
-            },
-            {
-                "name": "sfp24",
-                "thermals": [
-                    {
-                        "name": "xSFP module 24 Temp"
-                    }
-                ]
-            },
-            {
-                "name": "sfp25",
-                "thermals": [
-                    {
-                        "name": "xSFP module 25 Temp"
-                    }
-                ]
-            },
-            {
-                "name": "sfp26",
-                "thermals": [
-                    {
-                        "name": "xSFP module 26 Temp"
-                    }
-                ]
-            },
-            {
-                "name": "sfp27",
-                "thermals": [
-                    {
-                        "name": "xSFP module 27 Temp"
-                    }
-                ]
-            },
-            {
-                "name": "sfp28",
-                "thermals": [
-                    {
-                        "name": "xSFP module 28 Temp"
-                    }
-                ]
-            },
-            {
-                "name": "sfp29",
-                "thermals": [
-                    {
-                        "name": "xSFP module 29 Temp"
-                    }
-                ]
-            },
-            {
-                "name": "sfp30",
-                "thermals": [
-                    {
-                        "name": "xSFP module 30 Temp"
-                    }
-                ]
-            },
-            {
-                "name": "sfp31",
-                "thermals": [
-                    {
-                        "name": "xSFP module 31 Temp"
-                    }
-                ]
-            },
-            {
-                "name": "sfp32",
-                "thermals": [
-                    {
-                        "name": "xSFP module 32 Temp"
                     }
                 ]
             }

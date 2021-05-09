@@ -1,0 +1,723 @@
+{
+    "chassis": {
+        "name": "MSN3800",
+        "components": [
+            {
+                "name": "ONIE"
+            },
+            {
+                "name": "SSD"
+            },
+            {
+                "name": "BIOS"
+            },
+            {
+                "name": "CPLD1"
+            },
+            {
+                "name": "CPLD2"
+            },
+            {
+                "name": "CPLD3"
+            },
+            {
+                "name": "CPLD4"
+            }
+        ],
+        "fans": [],
+        "fan_drawers": [
+            {
+                "name": "drawer1",
+                "fans": [
+                    {
+                        "name": "fan1"
+                    }
+                ]
+            },
+            {
+                "name": "drawer2",
+                "fans": [
+                    {
+                        "name": "fan2"
+                    }
+                ]
+            },
+            {
+                "name": "drawer3",
+                "fans": [
+                    {
+                        "name": "fan3"
+                    }
+                ]
+            }
+        ],
+        "psus": [
+            {
+                "name": "PSU 1",
+                "fans": [
+                    {
+                        "name": "psu1_fan1"
+                    }
+                ],
+                "thermals": [
+                    {
+                        "name": "PSU-1 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "PSU 2",
+                "fans": [
+                    {
+                        "name": "psu2_fan1"
+                    }
+                ],
+                "thermals": [
+                    {
+                        "name": "PSU-2 Temp"
+                    }
+                ]
+            }
+        ],
+        "thermals": [
+            {
+                "name": "ASIC"
+            },
+            {
+                "name": "Ambient COMEX Temp"
+            },
+            {
+                "name": "Ambient Fan Side Temp"
+            },
+            {
+                "name": "Ambient Port Side Temp"
+            },
+            {
+                "name": "CPU Core 0 Temp"
+            },
+            {
+                "name": "CPU Core 1 Temp"
+            },
+            {
+                "name": "CPU Core 2 Temp"
+            },
+            {
+                "name": "CPU Core 3 Temp"
+            },
+            {
+                "name": "CPU Pack Temp"
+            },
+            {
+                "name": "Gearbox 1 Temp"
+            },
+            {
+                "name": "Gearbox 2 Temp"
+            },
+            {
+                "name": "Gearbox 3 Temp"
+            },
+            {
+                "name": "Gearbox 4 Temp"
+            },
+            {
+                "name": "Gearbox 5 Temp"
+            },
+            {
+                "name": "Gearbox 6 Temp"
+            },
+            {
+                "name": "Gearbox 7 Temp"
+            },
+            {
+                "name": "Gearbox 8 Temp"
+            },
+            {
+                "name": "Gearbox 9 Temp"
+            },
+            {
+                "name": "Gearbox 10 Temp"
+            },
+            {
+                "name": "Gearbox 11 Temp"
+            },
+            {
+                "name": "Gearbox 12 Temp"
+            },
+            {
+                "name": "Gearbox 13 Temp"
+            },
+            {
+                "name": "Gearbox 14 Temp"
+            },
+            {
+                "name": "Gearbox 15 Temp"
+            },
+            {
+                "name": "Gearbox 16 Temp"
+            },
+            {
+                "name": "Gearbox 17 Temp"
+            },
+            {
+                "name": "Gearbox 18 Temp"
+            },
+            {
+                "name": "Gearbox 19 Temp"
+            },
+            {
+                "name": "Gearbox 20 Temp"
+            },
+            {
+                "name": "Gearbox 21 Temp"
+            },
+            {
+                "name": "Gearbox 22 Temp"
+            },
+            {
+                "name": "Gearbox 23 Temp"
+            },
+            {
+                "name": "Gearbox 24 Temp"
+            },
+            {
+                "name": "Gearbox 25 Temp"
+            },
+            {
+                "name": "Gearbox 26 Temp"
+            },
+            {
+                "name": "Gearbox 27 Temp"
+            },
+            {
+                "name": "Gearbox 28 Temp"
+            },
+            {
+                "name": "Gearbox 29 Temp"
+            },
+            {
+                "name": "Gearbox 30 Temp"
+            },
+            {
+                "name": "Gearbox 31 Temp"
+            },
+            {
+                "name": "Gearbox 32 Temp"
+            }
+        ],
+        "sfps": [
+            {
+                "name": "sfp1",
+                "thermals": [
+                    {
+                        "name": "xSFP module 1 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp2",
+                "thermals": [
+                    {
+                        "name": "xSFP module 2 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp3",
+                "thermals": [
+                    {
+                        "name": "xSFP module 3 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp4",
+                "thermals": [
+                    {
+                        "name": "xSFP module 4 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp5",
+                "thermals": [
+                    {
+                        "name": "xSFP module 5 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp6",
+                "thermals": [
+                    {
+                        "name": "xSFP module 6 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp7",
+                "thermals": [
+                    {
+                        "name": "xSFP module 7 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp8",
+                "thermals": [
+                    {
+                        "name": "xSFP module 8 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp9",
+                "thermals": [
+                    {
+                        "name": "xSFP module 9 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp10",
+                "thermals": [
+                    {
+                        "name": "xSFP module 10 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp11",
+                "thermals": [
+                    {
+                        "name": "xSFP module 11 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp12",
+                "thermals": [
+                    {
+                        "name": "xSFP module 12 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp13",
+                "thermals": [
+                    {
+                        "name": "xSFP module 13 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp14",
+                "thermals": [
+                    {
+                        "name": "xSFP module 14 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp15",
+                "thermals": [
+                    {
+                        "name": "xSFP module 15 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp16",
+                "thermals": [
+                    {
+                        "name": "xSFP module 16 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp17",
+                "thermals": [
+                    {
+                        "name": "xSFP module 17 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp18",
+                "thermals": [
+                    {
+                        "name": "xSFP module 18 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp19",
+                "thermals": [
+                    {
+                        "name": "xSFP module 19 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp20",
+                "thermals": [
+                    {
+                        "name": "xSFP module 20 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp21",
+                "thermals": [
+                    {
+                        "name": "xSFP module 21 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp22",
+                "thermals": [
+                    {
+                        "name": "xSFP module 22 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp23",
+                "thermals": [
+                    {
+                        "name": "xSFP module 23 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp24",
+                "thermals": [
+                    {
+                        "name": "xSFP module 24 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp25",
+                "thermals": [
+                    {
+                        "name": "xSFP module 25 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp26",
+                "thermals": [
+                    {
+                        "name": "xSFP module 26 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp27",
+                "thermals": [
+                    {
+                        "name": "xSFP module 27 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp28",
+                "thermals": [
+                    {
+                        "name": "xSFP module 28 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp29",
+                "thermals": [
+                    {
+                        "name": "xSFP module 29 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp30",
+                "thermals": [
+                    {
+                        "name": "xSFP module 30 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp31",
+                "thermals": [
+                    {
+                        "name": "xSFP module 31 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp32",
+                "thermals": [
+                    {
+                        "name": "xSFP module 32 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp33",
+                "thermals": [
+                    {
+                        "name": "xSFP module 33 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp34",
+                "thermals": [
+                    {
+                        "name": "xSFP module 34 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp35",
+                "thermals": [
+                    {
+                        "name": "xSFP module 35 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp36",
+                "thermals": [
+                    {
+                        "name": "xSFP module 36 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp37",
+                "thermals": [
+                    {
+                        "name": "xSFP module 37 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp38",
+                "thermals": [
+                    {
+                        "name": "xSFP module 38 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp39",
+                "thermals": [
+                    {
+                        "name": "xSFP module 39 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp40",
+                "thermals": [
+                    {
+                        "name": "xSFP module 40 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp41",
+                "thermals": [
+                    {
+                        "name": "xSFP module 41 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp42",
+                "thermals": [
+                    {
+                        "name": "xSFP module 42 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp43",
+                "thermals": [
+                    {
+                        "name": "xSFP module 43 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp44",
+                "thermals": [
+                    {
+                        "name": "xSFP module 44 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp45",
+                "thermals": [
+                    {
+                        "name": "xSFP module 45 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp46",
+                "thermals": [
+                    {
+                        "name": "xSFP module 46 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp47",
+                "thermals": [
+                    {
+                        "name": "xSFP module 47 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp48",
+                "thermals": [
+                    {
+                        "name": "xSFP module 48 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp49",
+                "thermals": [
+                    {
+                        "name": "xSFP module 49 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp50",
+                "thermals": [
+                    {
+                        "name": "xSFP module 50 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp51",
+                "thermals": [
+                    {
+                        "name": "xSFP module 51 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp52",
+                "thermals": [
+                    {
+                        "name": "xSFP module 52 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp53",
+                "thermals": [
+                    {
+                        "name": "xSFP module 53 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp54",
+                "thermals": [
+                    {
+                        "name": "xSFP module 54 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp55",
+                "thermals": [
+                    {
+                        "name": "xSFP module 55 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp56",
+                "thermals": [
+                    {
+                        "name": "xSFP module 56 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp57",
+                "thermals": [
+                    {
+                        "name": "xSFP module 57 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp58",
+                "thermals": [
+                    {
+                        "name": "xSFP module 58 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp59",
+                "thermals": [
+                    {
+                        "name": "xSFP module 59 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp60",
+                "thermals": [
+                    {
+                        "name": "xSFP module 60 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp61",
+                "thermals": [
+                    {
+                        "name": "xSFP module 61 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp62",
+                "thermals": [
+                    {
+                        "name": "xSFP module 62 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp63",
+                "thermals": [
+                    {
+                        "name": "xSFP module 63 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp64",
+                "thermals": [
+                    {
+                        "name": "xSFP module 64 Temp"
+                    }
+                ]
+            }
+        ]
+    },
+    "interfaces": {}
+}

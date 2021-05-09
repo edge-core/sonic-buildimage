@@ -1,6 +1,6 @@
 {
     "chassis": {
-        "name": "MSN2700",
+        "name": "MSN4600C",
         "components": [
             {
                 "name": "ONIE"
@@ -28,9 +28,6 @@
                 "fans": [
                     {
                         "name": "fan1"
-                    },
-                    {
-                        "name": "fan2"
                     }
                 ]
             },
@@ -38,10 +35,7 @@
                 "name": "drawer2",
                 "fans": [
                     {
-                        "name": "fan3"
-                    },
-                    {
-                        "name": "fan4"
+                        "name": "fan2"
                     }
                 ]
             },
@@ -49,21 +43,7 @@
                 "name": "drawer3",
                 "fans": [
                     {
-                        "name": "fan5"
-                    },
-                    {
-                        "name": "fan6"
-                    }
-                ]
-            },
-            {
-                "name": "drawer4",
-                "fans": [
-                    {
-                        "name": "fan7"
-                    },
-                    {
-                        "name": "fan8"
+                        "name": "fan3"
                     }
                 ]
             }
@@ -99,6 +79,9 @@
         "thermals": [
             {
                 "name": "ASIC"
+            },
+            {
+                "name": "Ambient COMEX Temp"
             },
             {
                 "name": "Ambient Fan Side Temp"
@@ -370,6 +353,262 @@
                 "thermals": [
                     {
                         "name": "xSFP module 32 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp33",
+                "thermals": [
+                    {
+                        "name": "xSFP module 33 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp34",
+                "thermals": [
+                    {
+                        "name": "xSFP module 34 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp35",
+                "thermals": [
+                    {
+                        "name": "xSFP module 35 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp36",
+                "thermals": [
+                    {
+                        "name": "xSFP module 36 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp37",
+                "thermals": [
+                    {
+                        "name": "xSFP module 37 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp38",
+                "thermals": [
+                    {
+                        "name": "xSFP module 38 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp39",
+                "thermals": [
+                    {
+                        "name": "xSFP module 39 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp40",
+                "thermals": [
+                    {
+                        "name": "xSFP module 40 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp41",
+                "thermals": [
+                    {
+                        "name": "xSFP module 41 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp42",
+                "thermals": [
+                    {
+                        "name": "xSFP module 42 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp43",
+                "thermals": [
+                    {
+                        "name": "xSFP module 43 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp44",
+                "thermals": [
+                    {
+                        "name": "xSFP module 44 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp45",
+                "thermals": [
+                    {
+                        "name": "xSFP module 45 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp46",
+                "thermals": [
+                    {
+                        "name": "xSFP module 46 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp47",
+                "thermals": [
+                    {
+                        "name": "xSFP module 47 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp48",
+                "thermals": [
+                    {
+                        "name": "xSFP module 48 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp49",
+                "thermals": [
+                    {
+                        "name": "xSFP module 49 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp50",
+                "thermals": [
+                    {
+                        "name": "xSFP module 50 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp51",
+                "thermals": [
+                    {
+                        "name": "xSFP module 51 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp52",
+                "thermals": [
+                    {
+                        "name": "xSFP module 52 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp53",
+                "thermals": [
+                    {
+                        "name": "xSFP module 53 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp54",
+                "thermals": [
+                    {
+                        "name": "xSFP module 54 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp55",
+                "thermals": [
+                    {
+                        "name": "xSFP module 55 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp56",
+                "thermals": [
+                    {
+                        "name": "xSFP module 56 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp57",
+                "thermals": [
+                    {
+                        "name": "xSFP module 57 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp58",
+                "thermals": [
+                    {
+                        "name": "xSFP module 58 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp59",
+                "thermals": [
+                    {
+                        "name": "xSFP module 59 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp60",
+                "thermals": [
+                    {
+                        "name": "xSFP module 60 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp61",
+                "thermals": [
+                    {
+                        "name": "xSFP module 61 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp62",
+                "thermals": [
+                    {
+                        "name": "xSFP module 62 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp63",
+                "thermals": [
+                    {
+                        "name": "xSFP module 63 Temp"
+                    }
+                ]
+            },
+            {
+                "name": "sfp64",
+                "thermals": [
+                    {
+                        "name": "xSFP module 64 Temp"
                     }
                 ]
             }
