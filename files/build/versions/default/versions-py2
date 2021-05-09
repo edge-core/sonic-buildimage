@@ -24,7 +24,7 @@ redis-dump-load==1.1
 scandir==1.10.0
 scapy==2.4.0
 singledispatch==3.6.1
-six==1.15.0
+six==1.16.0
 thrift==0.13.0
-typing==3.7.4.3
+typing==3.10.0.0
 zipp==1.2.0
