@@ -78,7 +78,7 @@ do
 done
 touch $APTDEBIAN
 touch $DEBOOTSTRAP_BASE
-(cd $BASEIMAGE_TARBALLPATH && tar -zcf $BASEIMAGE_TARBALL .)
+(cd $BASEIMAGE_TARBALLPATH && fakeroot tar -zcf $BASEIMAGE_TARBALL .)
 
 sudo debootstrap --verbose --variant=minbase --arch $CONFIGURED_ARCH --unpack-tarball=$BASEIMAGE_TARBALL $IMAGE_DISTRO $FILESYSTEM_ROOT
 RET=$?
