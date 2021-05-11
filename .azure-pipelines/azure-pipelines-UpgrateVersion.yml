@@ -69,6 +69,9 @@ stages:
     - download: current
       patterns: '**/versions-*'
     - script: |
+        # Cleanup the old versions
+        rm -rf files/build/versions
+
         mkdir -p target
         default_platform=broadcom
         artifacts=$(find $(Pipeline.Workspace) -maxdepth 1 -type d -name 'sonic-buildimage.*' | grep -v "sonic-buildimage.${default_platform}")
