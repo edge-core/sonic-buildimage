@@ -20,11 +20,18 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 
 {# If our configuration has VLANs... #}
-{% if VLAN %}
+{% if VLAN_INTERFACE %}
+{% set d = namespace(vlan_list=[]) %}
+{% for (name, prefix) in VLAN_INTERFACE %}
+{% if name not in d.vlan_list %}
+{% set d.vlan_list = d.vlan_list + [name] %}
+{% endif %}
+{% endfor %}
+{% set vlan_list = d.vlan_list %}
 {# Count how many VLANs require a DHCP relay agent... #}
 {% set num_relays = { 'count': 0 } %}
-{% for vlan_name in VLAN %}
-{% if VLAN[vlan_name]['dhcp_servers'] %}
+{% for vlan_name in vlan_list %}
+{% if VLAN and vlan_name in VLAN and VLAN[vlan_name]['dhcp_servers'] %}
 {% set _dummy = num_relays.update({'count': num_relays.count + 1}) %}
 {% endif %}
 {% endfor %}
@@ -33,8 +40,8 @@ stderr_logfile=syslog
 [group:isc-dhcp-relay]
 programs=
 {%- set add_preceding_comma = { 'flag': False } %}
-{% for vlan_name in VLAN %}
-{% if VLAN[vlan_name]['dhcp_servers'] %}
+{% for vlan_name in vlan_list %}
+{% if VLAN and vlan_name in VLAN and VLAN[vlan_name]['dhcp_servers'] %}
 {% if add_preceding_comma.flag %},{% endif %}
 {% set _dummy = add_preceding_comma.update({'flag': True}) %}
 isc-dhcp-relay-{{ vlan_name }}
@@ -43,8 +50,8 @@ isc-dhcp-relay-{{ vlan_name }}
 
 
 {# Create a program entry for each DHCP relay agent instance #}
-{% for vlan_name in VLAN %}
-{% if VLAN[vlan_name]['dhcp_servers'] %}
+{% for vlan_name in vlan_list %}
+{% if VLAN and vlan_name in VLAN and VLAN[vlan_name]['dhcp_servers'] %}
 [program:isc-dhcp-relay-{{ vlan_name }}]
 {# We treat this VLAN as a downstream interface (-id), as we only want to listen for requests #}
 command=/usr/sbin/dhcrelay -d -m discard -a %%h:%%p %%P --name-alias-map-file /tmp/port-name-alias-map.txt -id {{ vlan_name }}
@@ -72,8 +79,8 @@ stderr_logfile=syslog
 [group:dhcpmon]
 programs=
 {%- set add_preceding_comma = { 'flag': False } %}
-{% for vlan_name in VLAN %}
-{% if VLAN[vlan_name]['dhcp_servers'] %}
+{% for vlan_name in vlan_list %}
+{% if VLAN and vlan_name in VLAN and VLAN[vlan_name]['dhcp_servers'] %}
 {% if add_preceding_comma.flag %},{% endif %}
 {% set _dummy = add_preceding_comma.update({'flag': True}) %}
 dhcpmon-{{ vlan_name }}
@@ -83,8 +90,8 @@ dhcpmon-{{ vlan_name }}
 
 {# Create a program entry for each DHCP MONitor instance #}
 {% set relay_for_ipv4 = { 'flag': False } %}
-{% for vlan_name in VLAN %}
-{% if VLAN[vlan_name]['dhcp_servers'] %}
+{% for vlan_name in vlan_list %}
+{% if VLAN and vlan_name in VLAN and VLAN[vlan_name]['dhcp_servers'] %}
 {% for dhcp_server in VLAN[vlan_name]['dhcp_servers'] %}
 {% if dhcp_server | ipv4 %}
 {% set _dummy = relay_for_ipv4.update({'flag': True}) %}
