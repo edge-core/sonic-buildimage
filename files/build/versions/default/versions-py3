@@ -2,10 +2,10 @@ attrs==21.2.0
 bitarray==1.5.3
 certifi==2017.4.17
 chardet==4.0.0
-click==7.1.2
+click==8.0.0
 clickclick==20.10.2
 connexion==2.7.0
-Flask==1.1.2
+Flask==2.0.0
 grpcio==1.37.1
 grpcio-tools==1.20.0
 hiredis==2.0.0
@@ -14,12 +14,12 @@ importlib-metadata==4.0.1
 inflection==0.5.1
 ipaddress==1.0.23
 isodate==0.6.0
-itsdangerous==1.1.0
+itsdangerous==2.0.0
 j2cli==0.3.10
-Jinja2==2.11.3
+Jinja2==3.0.0
 jsonschema==3.2.0
 lxml==4.6.3
-MarkupSafe==1.1.1
+MarkupSafe==2.0.0
 natsort==6.2.1
 netaddr==0.8.0
 netifaces==0.10.9
@@ -46,4 +46,4 @@ thrift==0.13.0
 toposort==1.6
 typing-extensions==3.10.0.0
 urllib3==1.21.1
-Werkzeug==1.0.1
+Werkzeug==2.0.0
