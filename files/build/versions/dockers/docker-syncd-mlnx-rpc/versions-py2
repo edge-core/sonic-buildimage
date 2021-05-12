@@ -1,5 +1,0 @@
-cffi==1.7.0
-nnpy==1.4.2
-ptf==0.9.1
-pycparser==2.20
-scapy==2.4.0
