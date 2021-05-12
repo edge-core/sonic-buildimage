@@ -1,0 +1,111 @@
+- bus: '00'
+  dev: '00'
+  fn: '0'
+  id: 3e10
+  name: 'Host bridge : Intel Corporation Device (rev 07)' 
+- bus: '00'
+  dev: '01'
+  fn: '0'
+  id: 1901
+  name: 'PCI bridge : Intel Corporation Skylake PCIe Controller (x16) (rev 07) 
+    (prog-if 00 [Normal decode])'
+- bus: '00'
+  dev: '08'
+  fn: '0'
+  id: 1911
+  name: 'System peripheral : Intel Corporation Skylake Gaussian Mixture Model'
+- bus: '00'
+  dev: '12'
+  fn: '0'
+  id: a379
+  name: 'Signal processing controller : Intel Corporation Device (rev 10)'
+- bus: '00'
+  dev: '14'
+  fn: '0'
+  id: a36d
+  name: 'USB controller : Intel Corporation Device (rev 10) (prog-if 30 [XHCI])'
+- bus: '00'
+  dev: '14'
+  fn: '2'
+  id: a36f
+  name: 'RAM memory : Intel Corporation Device (rev 10)'
+- bus: '00'
+  dev: '15'
+  fn: '0'
+  id: a368
+  name: 'Serial bus controller : Intel Corporation Device (rev 10)'
+- bus: '00'
+  dev: '16'
+  fn: '0'
+  id: a360
+  name: 'Communication controller : Intel Corporation Device (rev 10)'
+- bus: '00'
+  dev: '17'
+  fn: '0'
+  id: a353
+  name: 'SATA controller : Intel Corporation Device (rev 10) (prog-if 01 [AHCI 1.0])'
+- bus: '00'
+  dev: '1b'
+  fn: '0'
+  id: a340
+  name: 'PCI bridge : Intel Corporation Device (rev f0) (prog-if 00 [Normal decode])'
+- bus: '00'
+  dev: '1b'
+  fn: '2'
+  id: a342
+  name: 'PCI bridge : Intel Corporation Device (rev f0) (prog-if 00 [Normal decode])'
+- bus: '00'
+  dev: '1b'
+  fn: '4'
+  id: a32c
+  name: 'PCI bridge : Intel Corporation Device (rev f0) (prog-if 00 [Normal decode])'
+- bus: '00'
+  dev: '1c'
+  fn: '0'
+  id: a33d
+  name: 'PCI bridge : Intel Corporation Device (rev f0) (prog-if 00 [Normal decode])'
+- bus: '00'
+  dev: '1c'
+  fn: '6'
+  id: a33e
+  name: 'PCI bridge : Intel Corporation Device (rev f0) (prog-if 00 [Normal decode])'
+- bus: '00'
+  dev: '1c'
+  fn: '7'
+  id: a33f
+  name: 'PCI bridge : Intel Corporation Device (rev f0) (prog-if 00 [Normal decode])'
+- bus: '00'
+  dev: '1d'
+  fn: '0'
+  id: a334
+  name: 'PCI bridge : Intel Corporation Device (rev f0) (prog-if 00 [Normal decode])'
+- bus: '00'
+  dev: '1e'
+  fn: '0'
+  id: a328
+  name: 'Communication controller : Intel Corporation Device (rev 10)'
+- bus: '00'
+  dev: '1f'
+  fn: '0'
+  id: a30e
+  name: 'ISA bridge : Intel Corporation Device (rev 10)'
+- bus: '00'
+  dev: '1f'
+  fn: '4'
+  id: a323
+  name: 'SMBus : Intel Corporation Device (rev 10)'
+- bus: '00'
+  dev: '1f'
+  fn: '5'
+  id: a324
+  name: 'Serial bus controller : Intel Corporation Device (rev 10)'
+- bus: '00'
+  dev: '1f'
+  fn: '6'
+  id: 15bb
+  name: 'Ethernet controller : Intel Corporation Device (rev 10)'
+- bus: '01'
+  dev: '00'
+  fn: '0'
+  id: cf6c
+  name: 'Ethernet controller : Mellanox Technologies Device'
