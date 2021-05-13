@@ -11,6 +11,12 @@ schedules:
     - master
     - 202012
   always: true
+- cron: "0 4 * * *"
+  displayName: nightly build for release
+  branches:
+    include:
+    - 201911
+    - 201811
 
 trigger: none
 pr: none
