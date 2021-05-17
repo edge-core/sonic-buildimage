@@ -209,6 +209,11 @@ sudo cp $IMAGE_CONFIGS/monit/generate_monit_config.service $FILESYSTEM_ROOT_USR_
 echo "generate_monit_config.service" | sudo tee -a $GENERATED_SERVICE_FILE
 sudo cp $IMAGE_CONFIGS/monit/generate_monit_config $FILESYSTEM_ROOT/usr/bin/
 sudo chmod 755 $FILESYSTEM_ROOT/usr/bin/generate_monit_config
+sudo cp $IMAGE_CONFIGS/monit/memory_checker $FILESYSTEM_ROOT/usr/bin/
+sudo chmod 755 $FILESYSTEM_ROOT/usr/bin/memory_checker
+sudo cp $IMAGE_CONFIGS/monit/restart_service $FILESYSTEM_ROOT/usr/bin/
+sudo chmod 755 $FILESYSTEM_ROOT/usr/bin/restart_service
+
 
 # Copy crontabs
 sudo cp -f $IMAGE_CONFIGS/cron.d/* $FILESYSTEM_ROOT/etc/cron.d/
