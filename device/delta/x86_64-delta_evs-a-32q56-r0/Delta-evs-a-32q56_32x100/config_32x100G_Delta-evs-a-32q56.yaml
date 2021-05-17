@@ -10,6 +10,8 @@ nodes:
       multi_interface: "yes"
     buffer_management_mode: "api_driven"
     max_lossless_tc: "2"
+    ilpm_enable: "1"
+    forward_profile: "IFCS_FORWARD_PROFILE_ID_PROFILE_E"
     skip_pll_check: "false"
     mac_clk: "750"
     sys_clk: "1300"
