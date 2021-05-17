@@ -29,6 +29,11 @@
                 "enabled": true,
                 "ipv4": 32,
                 "ipv6": 32
+            },
+            "peers": {
+               "internal": {
+                  "community": "1234:5678"
+               }
             }
         }
     }

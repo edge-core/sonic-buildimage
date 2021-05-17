@@ -32,7 +32,12 @@ ipv6 prefix-list LOCAL_VLAN_IPV6_PREFIX seq {{ loop.index * 5 }} permit {{ prefi
 !
 {% if DEVICE_METADATA['localhost']['sub_role'] == 'FrontEnd' or DEVICE_METADATA['localhost']['sub_role'] == 'BackEnd' %}
 route-map HIDE_INTERNAL permit 10
-  set community local-AS
+  set community no-export
+{% if constants.bgp.peers is defined and constants.bgp.peers.internal is defined and constants.bgp.peers.internal.community is defined %}
+  on-match next
+route-map HIDE_INTERNAL permit 20
+  set community {{ constants.bgp.peers.internal.community }} additive
+{% endif %}
 {% set multi_asic = True %}
 !
 {% endif %}
