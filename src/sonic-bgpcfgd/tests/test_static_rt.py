@@ -4,6 +4,7 @@ from bgpcfgd.directory import Directory
 from bgpcfgd.template import TemplateFabric
 from bgpcfgd.managers_static_rt import StaticRouteMgr
 from collections import Counter
+from swsscommon import swsscommon
 
 def constructor():
     cfg_mgr = MagicMock()
@@ -16,6 +17,7 @@ def constructor():
     }
 
     mgr = StaticRouteMgr(common_objs, "CONFIG_DB", "STATIC_ROUTE")
+    mgr.directory.put("CONFIG_DB", swsscommon.CFG_DEVICE_METADATA_TABLE_NAME, "localhost", {"bgp_asn": "65100"})
     assert len(mgr.static_routes) == 0
 
     return mgr
@@ -28,9 +30,9 @@ def set_del_test(mgr, op, args, expected_ret, expected_cmds):
         max_del_idx = -1
         min_set_idx = len(cmds)
         for idx in range(len(cmds)):
-            if cmds[idx].startswith('no') and idx > max_del_idx:
+            if cmds[idx].startswith('no ip') and idx > max_del_idx:
                 max_del_idx = idx
-            if not cmds[idx].startswith('no') and idx < min_set_idx:
+            if cmds[idx].startswith('ip') and idx < min_set_idx:
                 min_set_idx = idx
         assert max_del_idx < min_set_idx, "DEL command comes after SET command" # DEL commands should be done first
         return True
@@ -59,7 +61,12 @@ def test_set():
         }),
         True,
         [
-            "ip route 10.1.0.0/24 10.0.0.57"
+            "ip route 10.1.0.0/24 10.0.0.57",
+            "router bgp 65100",
+            " address-family ipv4",
+            "  redistribute static",
+            " address-family ipv6",
+            "  redistribute static"
         ]
     )
 
@@ -77,7 +84,12 @@ def test_set_nhvrf():
         }),
         True,
         [
-            "ip route 10.1.1.0/24 10.0.0.57 PortChannel0001 10 nexthop-vrf nh_vrf"
+            "ip route 10.1.1.0/24 10.0.0.57 PortChannel0001 10 nexthop-vrf nh_vrf",
+            "router bgp 65100",
+            " address-family ipv4",
+            "  redistribute static",
+            " address-family ipv6",
+            "  redistribute static"
         ]
     )
 
@@ -95,7 +107,12 @@ def test_set_blackhole():
         }),
         True,
         [
-            "ip route 10.1.2.0/24 blackhole 10"
+            "ip route 10.1.2.0/24 blackhole 10",
+            "router bgp 65100",
+            " address-family ipv4",
+            "  redistribute static",
+            " address-family ipv6",
+            "  redistribute static"
         ]
     )
 
@@ -113,7 +130,12 @@ def test_set_vrf():
         }),
         True,
         [
-            "ip route 10.1.3.0/24 10.0.0.57 PortChannel0001 10 nexthop-vrf nh_vrf vrf vrfRED"
+            "ip route 10.1.3.0/24 10.0.0.57 PortChannel0001 10 nexthop-vrf nh_vrf vrf vrfRED",
+            "router bgp 65100 vrf vrfRED",
+            " address-family ipv4",
+            "  redistribute static",
+            " address-family ipv6",
+            "  redistribute static"
         ]
     )
 
@@ -131,7 +153,12 @@ def test_set_ipv6():
         }),
         True,
         [
-            "ipv6 route fc00:10::/64 fc00::72 PortChannel0001 10"
+            "ipv6 route fc00:10::/64 fc00::72 PortChannel0001 10",
+            "router bgp 65100",
+            " address-family ipv4",
+            "  redistribute static",
+            " address-family ipv6",
+            "  redistribute static"
         ]
     )
 
@@ -150,7 +177,12 @@ def test_set_nh_only():
         [
             "ip route 10.1.3.0/24 10.0.0.57 10 nexthop-vrf nh_vrf vrf vrfRED",
             "ip route 10.1.3.0/24 10.0.0.59 20 vrf vrfRED",
-            "ip route 10.1.3.0/24 10.0.0.61 30 nexthop-vrf default vrf vrfRED"
+            "ip route 10.1.3.0/24 10.0.0.61 30 nexthop-vrf default vrf vrfRED",
+            "router bgp 65100 vrf vrfRED",
+            " address-family ipv4",
+            "  redistribute static",
+            " address-family ipv6",
+            "  redistribute static"
         ]
     )
 
@@ -169,7 +201,12 @@ def test_set_ifname_only():
         [
             "ip route 10.1.3.0/24 PortChannel0001 10 nexthop-vrf nh_vrf vrf vrfRED",
             "ip route 10.1.3.0/24 PortChannel0002 20 vrf vrfRED",
-            "ip route 10.1.3.0/24 PortChannel0003 30 nexthop-vrf default vrf vrfRED"
+            "ip route 10.1.3.0/24 PortChannel0003 30 nexthop-vrf default vrf vrfRED",
+            "router bgp 65100 vrf vrfRED",
+            " address-family ipv4",
+            "  redistribute static",
+            " address-family ipv6",
+            "  redistribute static"
         ]
     )
 
@@ -189,7 +226,12 @@ def test_set_with_empty_ifname():
         [
             "ip route 10.1.3.0/24 10.0.0.57 PortChannel0001 10 nexthop-vrf nh_vrf vrf vrfRED",
             "ip route 10.1.3.0/24 10.0.0.59 20 vrf vrfRED",
-            "ip route 10.1.3.0/24 10.0.0.61 PortChannel0003 30 nexthop-vrf default vrf vrfRED"
+            "ip route 10.1.3.0/24 10.0.0.61 PortChannel0003 30 nexthop-vrf default vrf vrfRED",
+            "router bgp 65100 vrf vrfRED",
+            " address-family ipv4",
+            "  redistribute static",
+            " address-family ipv6",
+            "  redistribute static"
         ]
     )
 
@@ -209,7 +251,12 @@ def test_set_with_empty_nh():
         [
             "ip route 10.1.3.0/24 10.0.0.57 PortChannel0001 10 nexthop-vrf nh_vrf vrf vrfRED",
             "ip route 10.1.3.0/24 PortChannel0002 20 vrf vrfRED",
-            "ip route 10.1.3.0/24 PortChannel0003 30 nexthop-vrf default vrf vrfRED"
+            "ip route 10.1.3.0/24 PortChannel0003 30 nexthop-vrf default vrf vrfRED",
+            "router bgp 65100 vrf vrfRED",
+            " address-family ipv4",
+            "  redistribute static",
+            " address-family ipv6",
+            "  redistribute static"
         ]
     )
 
@@ -229,7 +276,12 @@ def test_set_del():
         [
             "ip route 10.1.3.0/24 10.0.0.57 PortChannel0001 10 nexthop-vrf nh_vrf vrf vrfRED",
             "ip route 10.1.3.0/24 10.0.0.59 PortChannel0002 20 vrf vrfRED",
-            "ip route 10.1.3.0/24 10.0.0.61 PortChannel0003 30 nexthop-vrf default vrf vrfRED"
+            "ip route 10.1.3.0/24 10.0.0.61 PortChannel0003 30 nexthop-vrf default vrf vrfRED",
+            "router bgp 65100 vrf vrfRED",
+            " address-family ipv4",
+            "  redistribute static",
+            " address-family ipv6",
+            "  redistribute static"
         ]
     )
     set_del_test(
@@ -240,7 +292,12 @@ def test_set_del():
         [
             "no ip route 10.1.3.0/24 10.0.0.57 PortChannel0001 10 nexthop-vrf nh_vrf vrf vrfRED",
             "no ip route 10.1.3.0/24 10.0.0.59 PortChannel0002 20 vrf vrfRED",
-            "no ip route 10.1.3.0/24 10.0.0.61 PortChannel0003 30 nexthop-vrf default vrf vrfRED"
+            "no ip route 10.1.3.0/24 10.0.0.61 PortChannel0003 30 nexthop-vrf default vrf vrfRED",
+            "router bgp 65100 vrf vrfRED",
+            " address-family ipv4",
+            "  no redistribute static",
+            " address-family ipv6",
+            "  no redistribute static"
         ]
     )
     set_del_test(
@@ -257,7 +314,12 @@ def test_set_del():
         [
             "ip route 10.1.3.0/24 10.0.0.57 PortChannel0001 10 nexthop-vrf nh_vrf vrf vrfRED",
             "ip route 10.1.3.0/24 10.0.0.59 PortChannel0002 20 vrf vrfRED",
-            "ip route 10.1.3.0/24 10.0.0.61 PortChannel0003 30 nexthop-vrf default vrf vrfRED"
+            "ip route 10.1.3.0/24 10.0.0.61 PortChannel0003 30 nexthop-vrf default vrf vrfRED",
+            "router bgp 65100 vrf vrfRED",
+            " address-family ipv4",
+            "  redistribute static",
+            " address-family ipv6",
+            "  redistribute static"
         ]
     )
 
@@ -277,7 +339,12 @@ def test_set_same_route():
         [
             "ip route 10.1.3.0/24 10.0.0.57 PortChannel0001 10 nexthop-vrf nh_vrf vrf vrfRED",
             "ip route 10.1.3.0/24 10.0.0.59 PortChannel0002 20 vrf vrfRED",
-            "ip route 10.1.3.0/24 10.0.0.61 PortChannel0003 30 nexthop-vrf default vrf vrfRED"
+            "ip route 10.1.3.0/24 10.0.0.61 PortChannel0003 30 nexthop-vrf default vrf vrfRED",
+            "router bgp 65100 vrf vrfRED",
+            " address-family ipv4",
+            "  redistribute static",
+            " address-family ipv6",
+            "  redistribute static"
         ]
     )
     set_del_test(
@@ -317,7 +384,12 @@ def test_set_add_del_nh():
         [
             "ip route 10.1.3.0/24 10.0.0.57 PortChannel0001 10 nexthop-vrf nh_vrf vrf vrfRED",
             "ip route 10.1.3.0/24 10.0.0.59 PortChannel0002 20 vrf vrfRED",
-            "ip route 10.1.3.0/24 10.0.0.61 PortChannel0003 30 nexthop-vrf default vrf vrfRED"
+            "ip route 10.1.3.0/24 10.0.0.61 PortChannel0003 30 nexthop-vrf default vrf vrfRED",
+            "router bgp 65100 vrf vrfRED",
+            " address-family ipv4",
+            "  redistribute static",
+            " address-family ipv6",
+            "  redistribute static"
         ]
     )
     set_del_test(
@@ -368,7 +440,12 @@ def test_set_add_del_nh_ethernet():
         [
             "ip route 20.1.3.0/24 20.0.0.57 Ethernet4 10 nexthop-vrf default",
             "ip route 20.1.3.0/24 20.0.0.59 Ethernet8 20",
-            "ip route 20.1.3.0/24 20.0.0.61 Ethernet12 30 nexthop-vrf default"
+            "ip route 20.1.3.0/24 20.0.0.61 Ethernet12 30 nexthop-vrf default",
+            "router bgp 65100",
+            " address-family ipv4",
+            "  redistribute static",
+            " address-family ipv6",
+            "  redistribute static"
         ]
     )
     set_del_test(
@@ -416,7 +493,12 @@ def test_set_no_action(mocked_log_debug):
         }),
         True,
         [
-            "ip route 10.1.1.0/24 blackhole"
+            "ip route 10.1.1.0/24 blackhole",
+            "router bgp 65100",
+            " address-family ipv4",
+            "  redistribute static",
+            " address-family ipv6",
+            "  redistribute static"
         ]
     )
 
@@ -470,7 +552,13 @@ def test_set_invalid_blackhole(mocked_log_err):
             "blackhole": "false",
         }),
         True,
-        []
+        [
+            "router bgp 65100",
+            " address-family ipv4",
+            "  redistribute static",
+            " address-family ipv6",
+            "  redistribute static"
+        ]
     )
     mocked_log_err.assert_called_with("Mandatory attribute not found for nexthop")
 
