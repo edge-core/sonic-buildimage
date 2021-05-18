@@ -50,14 +50,51 @@ class LldpManager(daemon_base.DaemonBase):
         # Open a handle to the Config database
         self.config_db = swsscommon.DBConnector("CONFIG_DB",
                                                 self.REDIS_TIMEOUT_MS,
-                                                True)
+                                                False)
 
         # Open a handle to the Application database
         self.appl_db = swsscommon.DBConnector("APPL_DB",
                                               self.REDIS_TIMEOUT_MS,
-                                              True)
+                                              False)
 
         self.pending_cmds = {}
+        self.hostname = "None"
+        self.mgmt_ip = "None"
+
+        self.device_table = swsscommon.Table(self.config_db, swsscommon.CFG_DEVICE_METADATA_TABLE_NAME)
+        self.port_table = swsscommon.Table(self.config_db, swsscommon.CFG_PORT_TABLE_NAME)
+        self.mgmt_table = swsscommon.Table(self.config_db, swsscommon.CFG_MGMT_INTERFACE_TABLE_NAME)
+        self.app_port_table = swsscommon.Table(self.appl_db, swsscommon.APP_PORT_TABLE_NAME)
+
+    def update_hostname(self, hostname):
+        cmd = "lldpcli configure system hostname {0}".format(hostname)
+        self.log_debug("Running command: '{}'".format(cmd))
+
+        proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        (stdout, stderr) = proc.communicate()
+        
+        if proc.returncode != 0:
+            log_warning("Command failed '{}': {}".format(cmd, stderr))
+        else:
+            self.hostname = hostname
+
+    def update_mgmt_addr(self, ip):
+        if ip == "None":
+            cmd = "lldpcli unconfigure system ip management pattern"
+            self.log_info("Mgmt IP {0} deleted".format(self.mgmt_ip))
+        else:
+            cmd = "lldpcli configure system ip management pattern {0}".format(ip)
+            self.log_info("Mgmt IP changed old ip {0}, new ip {1}".format(self.mgmt_ip, ip))
+
+        self.log_debug("Running command: '{}'".format(cmd))
+
+        proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        (stdout, stderr) = proc.communicate()
+        
+        if proc.returncode != 0:
+            log_warning("Command failed '{}': {}".format(cmd, stderr))
+        else:
+            self.mgmt_ip = ip
 
     def is_port_up(self, port_name):
         """
@@ -65,8 +102,7 @@ class LldpManager(daemon_base.DaemonBase):
         PORT TABLE in the Application DB
         """
         # Retrieve all entires for this port from the Port table
-        port_table = swsscommon.Table(self.appl_db, swsscommon.APP_PORT_TABLE_NAME)
-        (status, fvp) = port_table.get(port_name)
+        (status, fvp) = self.app_port_table.get(port_name)
         if status:
             # Convert list of tuples to a dictionary
             port_table_dict = dict(fvp)
@@ -95,8 +131,7 @@ class LldpManager(daemon_base.DaemonBase):
         port_desc = None
 
         # Retrieve all entires for this port from the Port table
-        port_table = swsscommon.Table(self.config_db, swsscommon.CFG_PORT_TABLE_NAME)
-        (status, fvp) = port_table.get(port_name)
+        (status, fvp) = self.port_table.get(port_name)
         if status:
             # Convert list of tuples to a dictionary
             port_table_dict = dict(fvp)
@@ -150,6 +185,56 @@ class LldpManager(daemon_base.DaemonBase):
         for port_name in to_delete:
             self.pending_cmds.pop(port_name, None)
 
+    def lldp_get_mgmt_ip(self):
+        mgmt_intf_keys = self.mgmt_table.getKeys()        
+        ipv4_addr = "None"
+        ipv6_addr = "None"
+        for key in mgmt_intf_keys:
+            if '|' in key:
+                key = key.split('|', 1)
+                if '/' in key[1]:
+                    ip = key[1].split('/', 1)
+                    if self.mgmt_ip != ip[0]:
+                        if '.' in ip[0]:
+                            ipv4_addr = ip[0]
+                        else:
+                            ipv6_addr = ip[0]
+        
+        if ipv4_addr != "None":
+            return ipv4_addr
+        elif ipv6_addr != "None":
+            return ipv6_addr
+        else:
+            return "None"
+
+    def lldp_process_mgmt_info_change(self, op, mgmt_dict, key):
+        if not op in ["SET", "DEL"]:
+            return
+        self.log_info("Mgmt Config Opcode: {} Dict {} Key {} Curr {}".format(op, mgmt_dict, key, self.mgmt_ip))
+        if '|' in key:
+            key = key.split('|', 1)
+            if '/' in key[1]:
+                ip = key[1].split('/', 1)
+                if op == "DEL":
+                    if self.mgmt_ip == ip[0]:
+                        ip_addr = self.lldp_get_mgmt_ip()
+                        self.update_mgmt_addr(ip_addr)
+                else:
+                    if not self.mgmt_ip == ip[0]:
+                        if '.' in ip[0]:
+                            self.update_mgmt_addr(ip[0]) 
+                        elif '.' not in self.mgmt_ip:
+                            self.update_mgmt_addr(ip[0])
+
+    def lldp_process_device_table_event(self, op, device_dict, key):
+        if not op in ["SET", "DEL"]:
+            return
+        self.log_info("Device Config Opcode: {} Dict {} Key {}".format(op, device_dict, key))
+        hostname = device_dict.get("hostname")
+        if not self.hostname == hostname:
+            self.log_info("Hostname changed old {0}, new {1}".format(self.hostname, hostname))
+            self.update_hostname(hostname)
+
     def run(self):
         """
         Subscribes to notifications of changes in the PORT table
@@ -184,6 +269,14 @@ class LldpManager(daemon_base.DaemonBase):
         # Subscribe to PORT table notifications in the App DB
         sst_appdb = swsscommon.SubscriberStateTable(self.appl_db, swsscommon.APP_PORT_TABLE_NAME)
         sel.addSelectable(sst_appdb)
+        
+        # Subscribe to MGMT PORT table notifications in the Config DB
+        sst_mgmt_ip_confdb = swsscommon.SubscriberStateTable(self.config_db, swsscommon.CFG_MGMT_INTERFACE_TABLE_NAME)
+        sel.addSelectable(sst_mgmt_ip_confdb)
+        
+        # Subscribe to DEVICE_METADATA table notifications in the Config DB
+        sst_device_confdb = swsscommon.SubscriberStateTable(self.config_db, swsscommon.CFG_DEVICE_METADATA_TABLE_NAME)
+        sel.addSelectable(sst_device_confdb)
 
         # Listen for changes to the PORT table in the CONFIG_DB and APP_DB
         while True:
@@ -200,6 +293,14 @@ class LldpManager(daemon_base.DaemonBase):
                             self.generate_pending_lldp_config_cmd_for_port(key)
                         else:
                             self.pending_cmds.pop(key, None)
+
+                (key, op, fvp) = sst_mgmt_ip_confdb.pop()
+                if key:
+                    self.lldp_process_mgmt_info_change(op, dict(fvp), key)
+
+                (key, op, fvp) = sst_device_confdb.pop()
+                if key:
+                    self.lldp_process_device_table_event(op, dict(fvp), key)
 
                 (key, op, fvp) = sst_appdb.pop()
                 if (key != "PortInitDone") and (key != "PortConfigDone"):
