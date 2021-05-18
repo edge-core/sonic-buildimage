@@ -1,6 +1,6 @@
 [Unit]
 Description=Check the PCIe device presence and status
-After=rc.local.service database.service
+After=rc.local.service database.service config-setup.service
 
 [Service]
 Type=simple
