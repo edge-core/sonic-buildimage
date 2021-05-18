@@ -71,6 +71,12 @@ download_packages()
         if [[ "$para" == *://* ]]; then
             local url=$para
             local real_version=
+
+            # Skip to use the proxy, if the url has already used the proxy server
+            if [[ $url == ${URL_PREFIX}* ]]; then
+                continue
+            fi
+
             if [ "$ENABLE_VERSION_CONTROL_WEB" == y ]; then
                 local version=
                 local filename=$(echo $url | awk -F"/" '{print $NF}' | cut -d? -f1 | cut -d# -f1)
