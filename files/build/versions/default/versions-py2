@@ -6,10 +6,10 @@ functools32==3.2.3.post2
 future==0.18.2
 importlib-resources==3.3.1
 ipaddress==1.0.23
-Jinja2==2.11.3
+jinja2==2.11.3
 jsonschema==2.6.0
 lxml==4.6.3
-MarkupSafe==1.1.1
+markupsafe==1.1.1
 natsort==6.2.1
 netaddr==0.8.0
 nnpy==1.4.2
@@ -18,7 +18,7 @@ ptf==0.9.1
 pyang==2.4.0
 pyangbind==0.6.0
 pycparser==2.20
-PyYAML==5.4.1
+pyyaml==5.4.1
 redis==3.5.3
 redis-dump-load==1.1
 scandir==1.10.0

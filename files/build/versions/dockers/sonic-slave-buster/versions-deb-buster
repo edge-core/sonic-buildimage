@@ -1,7 +1,6 @@
 adwaita-icon-theme==3.30.1-1
 ant==1.10.5-2
 ant-optional==1.10.5-2
-apt==1.8.2.3
 apt-file==3.2.2
 apt-transport-https==1.8.2.3
 apt-utils==1.8.2.3
@@ -160,7 +159,7 @@ gpg-wks-client==2.2.12-1+deb10u1
 gpg-wks-server==2.2.12-1+deb10u1
 gpgconf==2.2.12-1+deb10u1
 gpgsm==2.2.12-1+deb10u1
-graphviz==2.40.1-6
+graphviz==2.40.1-6+deb10u1
 groff==1.22.4-3+deb10u1
 groff-base==1.22.4-3+deb10u1
 gsettings-desktop-schemas==3.28.1-1
@@ -337,11 +336,11 @@ libcc1-0==8.3.0-6
 libcdi-api-java==1.2-2
 libcdio18==2.0.0-2
 libcdparanoia0==3.10.2+debian-13
-libcdt5==2.40.1-6
+libcdt5==2.40.1-6+deb10u1
 libcgi-fast-perl==1:2.13-1
 libcgi-pm-perl==4.40-1
 libcglib-java==3.2.10-1
-libcgraph6==2.40.1-6
+libcgraph6==2.40.1-6+deb10u1
 libchromaprint1==1.4.3-3
 libclang-common-7-dev==1:7.0.1-8+deb10u2
 libclang1-6.0==1:6.0.1-10
@@ -550,8 +549,8 @@ libgts-bin==0.7.6+darcs121130-4
 libguava-java==19.0-1
 libgudev-1.0-0==232-2
 libguice-java==4.2.1-1
-libgvc6==2.40.1-6
-libgvpr2==2.40.1-6
+libgvc6==2.40.1-6+deb10u1
+libgvpr2==2.40.1-6+deb10u1
 libharfbuzz-icu0==2.3.1-1
 libharfbuzz0b==2.3.1-1
 libhawtjni-runtime-java==1.16-1
@@ -665,7 +664,7 @@ libkrb5-3==1.17-3+deb10u1
 libkrb5-dev==1.17-3+deb10u1
 libkrb5support0==1.17-3+deb10u1
 libksba8==1.3.5-2
-liblab-gamut1==2.40.1-6
+liblab-gamut1==2.40.1-6+deb10u1
 liblcms2-2==2.9-3
 libldap-2.4-2==2.4.47+dfsg-3+deb10u6
 libldap-common==2.4.47+dfsg-3+deb10u6
@@ -820,7 +819,7 @@ libparboiled-java==1.1.7-2
 libparse-debianchangelog-perl==1.2.0-13
 libpath-iterator-rule-perl==1.014-1
 libpath-tiny-perl==0.108-1
-libpathplan4==2.40.1-6
+libpathplan4==2.40.1-6+deb10u1
 libpcap-dev==1.8.1-6
 libpcap0.8==1.8.1-6
 libpcap0.8-dev==1.8.1-6
@@ -1190,7 +1189,7 @@ libxdamage1==1:1.1.4-3+b3
 libxdelta2==1.1.3-9.2
 libxdmcp-dev==1:1.1.2-3
 libxdmcp6==1:1.1.2-3
-libxdot4==2.40.1-6
+libxdot4==2.40.1-6+deb10u1
 libxencall1==4.11.4+99-g8bce4698f6-1
 libxendevicemodel1==4.11.4+99-g8bce4698f6-1
 libxenevtchn1==4.11.4+99-g8bce4698f6-1

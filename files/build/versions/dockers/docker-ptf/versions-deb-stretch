@@ -13,7 +13,7 @@ cmake-data==3.7.2-1
 cpp==4:6.3.0-4
 cpp-6==6.3.0-18+deb9u1
 cron==3.0pl1-128+deb9u1
-curl==7.52.1-5+deb9u13
+curl==7.52.1-5+deb9u14
 dbus==1.10.32-0+deb9u1
 dirmngr==2.1.18-8~deb9u4
 dmsetup==2:1.02.137-2
@@ -54,8 +54,8 @@ libcc1-0==6.3.0-18+deb9u1
 libcgmanager0==0.41-2
 libcilkrts5==6.3.0-18+deb9u1
 libcryptsetup4==2:1.7.3-4
-libcurl3==7.52.1-5+deb9u13
-libcurl3-gnutls==7.52.1-5+deb9u13
+libcurl3==7.52.1-5+deb9u14
+libcurl3-gnutls==7.52.1-5+deb9u14
 libdbus-1-3==1.10.32-0+deb9u1
 libdevmapper1.02.1==2:1.02.137-2
 libdouble-conversion1==2.0.1-4
@@ -104,6 +104,7 @@ liblogging-stdlog0==1.0.5-2+b2
 liblognorm5==2.0.1-1.1+b1
 liblsan0==6.3.0-18+deb9u1
 libltdl7==2.4.6-2
+liblz4-1==0.0~r131-2+deb9u1
 liblzo2-2==2.08-1.2+b2
 libmagic-mgc==1:5.30-1+deb9u3
 libmagic1==1:5.30-1+deb9u3

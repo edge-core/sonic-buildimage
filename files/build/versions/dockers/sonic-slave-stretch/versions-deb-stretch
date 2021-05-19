@@ -52,7 +52,7 @@ cpp==4:6.3.0-4
 cpp-6==6.3.0-18+deb9u1
 cppcheck==1.76.1-1
 cron==3.0pl1-128+deb9u1
-curl==7.52.1-5+deb9u13
+curl==7.52.1-5+deb9u14
 dbus==1.10.32-0+deb9u1
 dconf-gsettings-backend==0.26.0-2+b1
 dconf-service==0.26.0-2+b1
@@ -144,7 +144,7 @@ gnupg-agent==2.1.18-8~deb9u4
 gnupg-l10n==2.1.18-8~deb9u4
 gnupg2==2.1.18-8~deb9u4
 googletest==1.8.0-6
-graphviz==2.38.0-17
+graphviz==2.38.0-17+deb9u1
 groff==1.22.3-9
 groff-base==1.22.3-9
 gsettings-desktop-schemas==3.22.0-1
@@ -344,12 +344,12 @@ libcap2-bin==1:2.25-1
 libcarp-clan-perl==6.06-1
 libcc1-0==6.3.0-18+deb9u1
 libcdi-api-java==1.0-2
-libcdt5==2.38.0-17
+libcdt5==2.38.0-17+deb9u1
 libcgi-fast-perl==1:2.12-1
 libcgi-pm-perl==4.35-1
 libcglib-java==3.2.4-1
 libcgmanager0==0.41-2
-libcgraph6==2.38.0-17
+libcgraph6==2.38.0-17+deb9u1
 libcilkrts5==6.3.0-18+deb9u1
 libclang-common-3.8-dev==1:3.8.1-24
 libclang1-3.8==1:3.8.1-24
@@ -383,10 +383,10 @@ libcryptsetup4==2:1.7.3-4
 libcups2==2.2.1-8+deb9u6
 libcupsfilters1==1.11.6-3+deb9u1
 libcupsimage2==2.2.1-8+deb9u6
-libcurl3==7.52.1-5+deb9u13
-libcurl3-gnutls==7.52.1-5+deb9u13
-libcurl3-nss==7.52.1-5+deb9u13
-libcurl4-nss-dev==7.52.1-5+deb9u13
+libcurl3==7.52.1-5+deb9u14
+libcurl3-gnutls==7.52.1-5+deb9u14
+libcurl3-nss==7.52.1-5+deb9u14
+libcurl4-nss-dev==7.52.1-5+deb9u14
 libdaemon-dev==0.14-6
 libdaemon0==0.14-6
 libdata-optlist-perl==0.110-1
@@ -524,8 +524,8 @@ libgts-bin==0.7.6+darcs121130-4
 libguava-java==19.0-1
 libgudev-1.0-0==230-3
 libguice-java==4.0-3
-libgvc6==2.38.0-17
-libgvpr2==2.38.0-17
+libgvc6==2.38.0-17+deb9u1
+libgvpr2==2.38.0-17+deb9u1
 libhamcrest-java==1.3-6
 libharfbuzz-icu0==1.4.2-1
 libharfbuzz0b==1.4.2-1
@@ -593,7 +593,7 @@ libjbig2dec0==0.13-4.1
 libjdom1-java==1.1.3-1
 libjemalloc-dev==3.6.0-9.1
 libjemalloc1==3.6.0-9.1
-libjetty9-java==9.2.21-1+deb9u1
+libjetty9-java==9.2.30-0+deb9u1
 libjline-java==1.0-2
 libjpeg62-turbo==1:1.5.1-2+deb9u1
 libjs-bootstrap==3.3.7+dfsg-2+deb9u2
@@ -759,7 +759,7 @@ libparams-validate-perl==1.26-1
 libparse-debianchangelog-perl==1.2.0-12
 libpath-iterator-rule-perl==1.009-1
 libpath-tiny-perl==0.100-1
-libpathplan4==2.38.0-17
+libpathplan4==2.38.0-17+deb9u1
 libpcap-dev==1.8.1-3
 libpcap0.8==1.8.1-3
 libpcap0.8-dev==1.8.1-3
@@ -1068,7 +1068,7 @@ libxdamage1==1:1.1.4-2+b3
 libxdelta2==1.1.3-9.1+b1
 libxdmcp-dev==1:1.1.2-3
 libxdmcp6==1:1.1.2-3
-libxdot4==2.38.0-17
+libxdot4==2.38.0-17+deb9u1
 libxen-4.8==4.8.5.final+shim4.10.4-1+deb9u12
 libxenstore3.0==4.8.5.final+shim4.10.4-1+deb9u12
 libxerces2-java==2.11.0-7
