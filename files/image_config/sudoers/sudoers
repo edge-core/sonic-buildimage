@@ -35,6 +35,7 @@ Cmnd_Alias      READ_ONLY_CMDS = /sbin/brctl show, \
                                  /usr/bin/sfputil show *, \
                                  /usr/bin/sonic_installer list, \
                                  /usr/bin/teamshow, \
+                                 /usr/bin/rvtysh *, \
                                  /usr/bin/vtysh -c show *, \
                                  /usr/bin/vtysh -n [0-9] -c show *, \
                                  /bin/ip netns identify [0-9]*, \
