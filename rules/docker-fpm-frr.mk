@@ -24,4 +24,5 @@ $(DOCKER_FPM_FRR)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
 $(DOCKER_FPM_FRR)_RUN_OPT += -v /etc/sonic/frr:/etc/frr:rw
 
 $(DOCKER_FPM_FRR)_BASE_IMAGE_FILES += vtysh:/usr/bin/vtysh
+$(DOCKER_FPM_FRR)_BASE_IMAGE_FILES += rvtysh:/usr/bin/rvtysh
 $(DOCKER_FPM_FRR)_BASE_IMAGE_FILES += monit_bgp:/etc/monit/conf.d
