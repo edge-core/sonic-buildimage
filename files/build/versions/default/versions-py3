@@ -2,7 +2,7 @@ attrs==21.2.0
 bitarray==1.5.3
 certifi==2017.4.17
 chardet==4.0.0
-click==8.0.0
+click==8.0.1
 clickclick==20.10.2
 connexion==2.7.0
 flask==2.0.0
