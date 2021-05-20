@@ -9,14 +9,14 @@ if printf -- "$*" | grep -qPz '[\n\r|&$;]'; then
 fi
 
 # The sub commands must start with "show"
-LAST_PARA=
-for para in "$@"
+LAST_PARAM=
+for param in "$@"
 do
-    if [ "$LAST_PARA" == "-c" ] && [[ "$para" != show*  ]]; then
-        echo "Not allow to run the command '$para', please use the comand 'sudo vtysh' instead." 1>&2
+    if [ "$LAST_PARAM" == "-c" ] && [[ "$param" != show*  ]]; then
+        echo "Not allow to run the command '$param', please use the comand 'sudo vtysh' instead." 1>&2
         exit 1
     fi
-    LAST_PARA=$para
+    LAST_PARAM=$param
 done
 
 vtysh "$@"
