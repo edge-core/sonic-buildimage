@@ -23,5 +23,43 @@
         "desc": "PORT_INVALID_AUTONEG_TEST must condition failure.",
         "eStrKey" : "Pattern",
         "eStr": ["on|off"]
+    },
+    "PORT_VALID_ADVSPEEDS_TEST_1": {
+        "desc": "PORT_VALID_ADVSPEEDS_TEST_1 no failure."
+    },
+    "PORT_VALID_ADVSPEEDS_TEST_2": {
+        "desc": "PORT_VALID_ADVSPEEDS_TEST_2 no failure."
+    },
+    "PORT_INVALID_ADVSPEEDS_TEST_1": {
+        "desc": "PORT_INVALID_ADVSPEEDS_TEST_1 InvalidValue condition failure.",
+        "eStrKey" : "InvalidValue",
+        "eStr": ["adv_speeds"]
+    },
+    "PORT_INVALID_ADVSPEEDS_TEST_2": {
+        "desc": "PORT_INVALID_ADVSPEEDS_TEST_2 must condition failure.",
+        "eStrKey" : "Must"
+    },
+    "PORT_VALID_TYPE_TEST": {
+        "desc": "PORT_VALID_TYPE_TEST no failure."
+    },
+    "PORT_INVALID_TYPE_TEST": {
+        "desc": "PORT_INVALID_TYPE_TEST InvalidValue condition failure.",
+        "eStrKey" : "InvalidValue",
+        "eStr": ["interface_type"]
+    },
+    "PORT_VALID_ADVTYPES_TEST_1": {
+        "desc": "PORT_VALID_ADVTYPES_TEST_1 no failure."
+    },
+    "PORT_VALID_ADVTYPES_TEST_2": {
+        "desc": "PORT_VALID_ADVTYPES_TEST_2 no failure."
+    },
+    "PORT_INVALID_ADVTYPES_TEST_1": {
+        "desc": "PORT_INVALID_ADVTYPES_TEST_1 InvalidValue condition failure.",
+        "eStrKey" : "InvalidValue",
+        "eStr": ["adv_interface_types"]
+    },
+    "PORT_INVALID_ADVTYPES_TEST_2": {
+        "desc": "PORT_INVALID_ADVTYPES_TEST_2 must condition failure.",
+        "eStrKey" : "Must"
     }
 }

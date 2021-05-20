@@ -114,4 +114,28 @@ module sonic-types {
             pattern "percentage|used|free|PERCENTAGE|USED|FREE";
         }
     }
+
+    typedef interface_type {
+        type enumeration {
+            enum CR;
+            enum CR2;
+            enum CR4;
+            enum SR;
+            enum SR2;
+            enum SR4;
+            enum LR;
+            enum LR4;
+            enum KR;
+            enum KR4;
+            enum CAUI;
+            enum GMII;
+            enum SFI;
+            enum XLAUI;
+            enum KR2;
+            enum CAUI4;
+            enum XAUI;
+            enum XFI;
+            enum XGMII;
+        }
+    }
 }
