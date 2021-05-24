@@ -277,6 +277,7 @@ class Sfp(SfpBase):
         self.sfpDomInfo = sff8472Dom(None,1)
         self.qsfp_dd_Info = qsfp_dd_InterfaceId()
         self.qsfp_dd_DomInfo = qsfp_dd_Dom()
+        self.qsfp_dd_app2_list = False
 
     def get_eeprom_sysfs_path(self):
         return self.eeprom_path
@@ -292,18 +293,6 @@ class Sfp(SfpBase):
                 dom_capability = self.qsfp_dd_Info.parse_dom_capability(qsfp_dom_capability_raw, 0)
                 if dom_capability['data']['Flat_MEM']['value'] == 'Off':
                     self.qsfp_dd_app2_list = True
-                    self.dom_rx_power_supported = True
-                    self.dom_tx_power_supported = True
-                    self.dom_tx_bias_supported = True
-                else:
-                    self.qsfp_dd_app2_list = False
-                    self.dom_rx_power_supported = False
-                    self.dom_tx_power_supported = False
-                    self.dom_tx_bias_supported = False
-            else:
-                self.dom_rx_power_supported = False
-                self.dom_tx_power_supported = False
-                self.dom_tx_bias_supported = False
 
     def _strip_unit_from_str(self, value_str):
         match = re.match(r'(.*)C$|(.*)Volts$|(.*)mA$|(.*)dBm$', value_str)
@@ -629,7 +618,7 @@ class Sfp(SfpBase):
                     break
                 host_electrical, media_interface = self.qsfp_dd_Info.parse_application(sfp_media_type_dict,
                                             sfp_application_type_list[i * 4], sfp_application_type_list[i * 4 + 1])
-                host_media_list = host_media_list + host_electrical + ' - ' + media_interface
+                host_media_list = host_media_list + host_electrical + ' - ' + media_interface + '    '
             transceiver_info_dict['application_advertisement'] = host_media_list
 
         return transceiver_info_dict
@@ -1079,8 +1068,6 @@ class Sfp(SfpBase):
             if self.sfp_type == 'QSFP_DD':
                 if self.qsfp_dd_DomInfo is None:
                     return None
-                if not self.dom_tx_bias_supported:
-                    return None
                 tx_bias_data_raw = self._read_eeprom_bytes(self.eeprom_path, offset + QSFP_DD_TXBIAS_OFFSET, QSFP_DD_TXBIAS_WIDTH)
                 tx_bias_data = self.qsfp_dd_DomInfo.parse_dom_tx_bias(tx_bias_data_raw, 0)
 
@@ -1114,8 +1101,6 @@ class Sfp(SfpBase):
         try:
             if self.sfp_type == 'QSFP_DD':
                 if self.qsfp_dd_DomInfo is None:
-                    return None
-                if not self.dom_rx_power_supported:
                     return None
 
                 offset = 128
@@ -1152,9 +1137,6 @@ class Sfp(SfpBase):
         try:
             if self.sfp_type == 'QSFP_DD':
                 if self.qsfp_dd_DomInfo is None:
-                    return None
-
-                if not self.dom_tx_power_supported:
                     return None
 
                 tx_power_data_raw = self._read_eeprom_bytes(self.eeprom_path, offset + QSFP_DD_TXPOWER_OFFSET,
