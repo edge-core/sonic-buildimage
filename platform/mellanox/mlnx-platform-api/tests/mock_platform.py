@@ -36,16 +36,28 @@ class MockPsu:
         return []
 
 
+class MockFanDrawer:
+    def __init__(self):
+        self.fan_list = []
+
+    def get_all_fans(self):
+        return self.fan_list
+
+
 class MockChassis:
     def __init__(self):
         self.fan_list = []
         self.psu_list = []
+        self.fan_drawer_list = []
 
     def get_all_psus(self):
         return self.psu_list
 
     def get_all_fans(self):
         return self.fan_list
+
+    def get_all_fan_drawers(self):
+        return self.fan_drawer_list
 
     def get_thermal_manager(self):
         from sonic_platform.thermal_manager import ThermalManager
@@ -54,7 +66,9 @@ class MockChassis:
     def make_fan_absence(self):
         fan = MockFan()
         fan.presence = False
-        self.fan_list.append(fan)
+        fan_drawer = MockFanDrawer()
+        self.fan_drawer_list.append(fan_drawer)
+        fan_drawer.fan_list.append(fan)
 
     def make_psu_absence(self):
         psu = MockPsu()
