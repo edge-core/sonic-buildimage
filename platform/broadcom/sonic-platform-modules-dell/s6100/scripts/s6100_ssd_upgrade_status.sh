@@ -89,6 +89,14 @@ elif [ $SSD_FW_VERSION == "s141002g" ] || [ $SSD_FW_VERSION == "s16425cg" ]; the
         fi
     fi
 
+elif [ $SSD_FW_VERSION == "s210506g" ] || [ $SSD_UPGRADE_STATUS2 == "3" ]; then
+    rm -rf $SSD_FW_UPGRADE/GPIO7_*
+    touch $SSD_FW_UPGRADE/GPIO7_low
+    logger -p user.crit -t DELL_S6100_SSD_MON "The SSD on this unit is faulty. Do not power-cycle/reboot this unit!"
+    logger -p user.crit -t DELL_S6100_SSD_MON "soft-/fast-/warm-reboot is allowed."
+
+    echo "$0 `date` SSD entered loader mode in first mp_64 and upgraded to version s210506g after second mp_64." >> $SSD_UPGRADE_LOG
+
 else
     if [ $SSD_UPGRADE_STATUS1 == "ff" ] && [ $SSD_UPGRADE_STATUS2 == "ff" ]; then
         rm -rf $SSD_FW_UPGRADE/GPIO7_*
@@ -116,6 +124,3 @@ echo "$0 `date` SMF Register 2 = $SSD_UPGRADE_STATUS2" >> $SSD_UPGRADE_LOG
 echo "$SMART_CMD" >> $SSD_UPGRADE_LOG
 echo "$iSMART_CMD" >> $SSD_UPGRADE_LOG
 sync
-# Clearing the upgrade status
-io_rd_wr.py --set --val 06 --offset 210; io_rd_wr.py --set --val 09 --offset 211; io_rd_wr.py --set --val ff --offset 213
-io_rd_wr.py --set --val 06 --offset 210; io_rd_wr.py --set --val 0A --offset 211; io_rd_wr.py --set --val ff --offset 213
