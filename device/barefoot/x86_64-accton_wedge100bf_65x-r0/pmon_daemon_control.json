@@ -1,5 +1,5 @@
 {
-    "skip_pcied": true,
+    "skip_pcied": false,
     "skip_fancontrol": true,
     "skip_thermalctld": false,
     "skip_ledd": true,
