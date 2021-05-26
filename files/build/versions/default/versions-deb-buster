@@ -200,8 +200,8 @@ libubsan1==8.3.0-6
 libunwind8==1.2.1-10~deb10u1
 libuv1==1.24.1-1
 libwrap0==7.6.q-28
-libx11-6==2:1.6.7-1+deb10u1
-libx11-data==2:1.6.7-1+deb10u1
+libx11-6==2:1.6.7-1+deb10u2
+libx11-data==2:1.6.7-1+deb10u2
 libxau6==1:1.0.8-1+b2
 libxcb-render0==1.13.1-2
 libxcb-shm0==1.13.1-2
