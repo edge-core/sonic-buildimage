@@ -26,7 +26,7 @@ read_labels_test_data = {
         common_test.RETVAL: 0,
         common_test.PROC_CMD: ["\
 kubectl --kubeconfig {} get nodes --show-labels |\
- grep None | tr -s ' ' | cut -f6 -d' '".format(KUBE_ADMIN_CONF)],
+ grep none | tr -s ' ' | cut -f6 -d' '".format(KUBE_ADMIN_CONF)],
         common_test.PROC_OUT: ["foo=bar,hello=world"],
         common_test.POST: {
             "foo": "bar",
@@ -40,7 +40,7 @@ kubectl --kubeconfig {} get nodes --show-labels |\
         common_test.RETVAL: -1,
         common_test.PROC_CMD: ["\
 kubectl --kubeconfig {} get nodes --show-labels |\
- grep None | tr -s ' ' | cut -f6 -d' '".format(KUBE_ADMIN_CONF)],
+ grep none | tr -s ' ' | cut -f6 -d' '".format(KUBE_ADMIN_CONF)],
         common_test.POST: {
         },
         common_test.PROC_KILLED: 1
@@ -50,7 +50,7 @@ kubectl --kubeconfig {} get nodes --show-labels |\
         common_test.RETVAL: -1,
         common_test.PROC_CMD: ["\
 kubectl --kubeconfig {} get nodes --show-labels |\
- grep None | tr -s ' ' | cut -f6 -d' '".format(KUBE_ADMIN_CONF)],
+ grep none | tr -s ' ' | cut -f6 -d' '".format(KUBE_ADMIN_CONF)],
         common_test.PROC_OUT: [""],
         common_test.PROC_ERR: ["command failed"],
         common_test.POST: {
@@ -66,10 +66,10 @@ write_labels_test_data = {
         common_test.ARGS: { "foo": "bar", "hello": "World!", "test": "ok" },
         common_test.PROC_CMD: [
 "kubectl --kubeconfig {} get nodes --show-labels |\
- grep None | tr -s ' ' | cut -f6 -d' '".format(KUBE_ADMIN_CONF),
-"kubectl --kubeconfig {} label --overwrite nodes None hello-".format(
+ grep none | tr -s ' ' | cut -f6 -d' '".format(KUBE_ADMIN_CONF),
+"kubectl --kubeconfig {} label --overwrite nodes none hello-".format(
     KUBE_ADMIN_CONF),
-"kubectl --kubeconfig {} label --overwrite nodes None hello=World! test=ok".format(
+"kubectl --kubeconfig {} label --overwrite nodes none hello=World! test=ok".format(
     KUBE_ADMIN_CONF)
  ],
         common_test.PROC_OUT: ["foo=bar,hello=world", "", ""]
@@ -80,7 +80,7 @@ write_labels_test_data = {
         common_test.ARGS: { "foo": "bar", "hello": "world" },
         common_test.PROC_CMD: [
 "kubectl --kubeconfig {} get nodes --show-labels |\
- grep None | tr -s ' ' | cut -f6 -d' '".format(KUBE_ADMIN_CONF)
+ grep none | tr -s ' ' | cut -f6 -d' '".format(KUBE_ADMIN_CONF)
  ],
         common_test.PROC_OUT: ["foo=bar,hello=world"]
     },
@@ -91,7 +91,7 @@ write_labels_test_data = {
         common_test.RETVAL: -1,
         common_test.PROC_CMD: [
 "kubectl --kubeconfig {} get nodes --show-labels |\
- grep None | tr -s ' ' | cut -f6 -d' '".format(KUBE_ADMIN_CONF)
+ grep none | tr -s ' ' | cut -f6 -d' '".format(KUBE_ADMIN_CONF)
 ],
         common_test.PROC_ERR: ["read failed"]
     }
@@ -103,10 +103,10 @@ join_test_data = {
         common_test.RETVAL: 0,
         common_test.ARGS: ["10.3.157.24", 6443, True, False],
         common_test.PROC_CMD: [
-            "kubectl --kubeconfig {} --request-timeout 20s drain None \
+            "kubectl --kubeconfig {} --request-timeout 20s drain none \
 --ignore-daemonsets".format(KUBE_ADMIN_CONF),
             "kubectl --kubeconfig {} --request-timeout 20s delete node \
-None".format(KUBE_ADMIN_CONF),
+none".format(KUBE_ADMIN_CONF),
             "kubeadm reset -f",
             "rm -rf {}".format(CNI_DIR),
             "systemctl stop kubelet",
@@ -114,7 +114,7 @@ None".format(KUBE_ADMIN_CONF),
             "mkdir -p {}".format(CNI_DIR),
             "cp {} {}".format(FLANNEL_CONF_FILE, CNI_DIR),
             "systemctl start kubelet",
-            "kubeadm join --discovery-file {} --node-name None".format(
+            "kubeadm join --discovery-file {} --node-name none".format(
                 KUBE_ADMIN_CONF)
         ],
         common_test.PROC_RUN: [True, True]
@@ -124,10 +124,10 @@ None".format(KUBE_ADMIN_CONF),
         common_test.RETVAL: 0,
         common_test.ARGS: ["10.3.157.24", 6443, False, False],
         common_test.PROC_CMD: [
-            "kubectl --kubeconfig {} --request-timeout 20s drain None \
+            "kubectl --kubeconfig {} --request-timeout 20s drain none \
 --ignore-daemonsets".format(KUBE_ADMIN_CONF),
             "kubectl --kubeconfig {} --request-timeout 20s delete node \
-None".format(KUBE_ADMIN_CONF),
+none".format(KUBE_ADMIN_CONF),
             "kubeadm reset -f",
             "rm -rf {}".format(CNI_DIR),
             "systemctl stop kubelet",
@@ -135,7 +135,7 @@ None".format(KUBE_ADMIN_CONF),
             "mkdir -p {}".format(CNI_DIR),
             "cp {} {}".format(FLANNEL_CONF_FILE, CNI_DIR),
             "systemctl start kubelet",
-            "kubeadm join --discovery-file {} --node-name None".format(
+            "kubeadm join --discovery-file {} --node-name none".format(
                 KUBE_ADMIN_CONF)
         ],
         common_test.PROC_RUN: [True, True]
@@ -165,10 +165,10 @@ reset_test_data = {
         common_test.DO_JOIN: True,
         common_test.ARGS: [False],
         common_test.PROC_CMD: [
-            "kubectl --kubeconfig {} --request-timeout 20s drain None \
+            "kubectl --kubeconfig {} --request-timeout 20s drain none \
 --ignore-daemonsets".format(KUBE_ADMIN_CONF),
             "kubectl --kubeconfig {} --request-timeout 20s delete node \
-None".format(KUBE_ADMIN_CONF),
+none".format(KUBE_ADMIN_CONF),
             "kubeadm reset -f",
             "rm -rf {}".format(CNI_DIR),
             "rm -f {}".format(KUBE_ADMIN_CONF),
@@ -180,10 +180,10 @@ None".format(KUBE_ADMIN_CONF),
         common_test.RETVAL: 0,
         common_test.ARGS: [False],
         common_test.PROC_CMD: [
-            "kubectl --kubeconfig {} --request-timeout 20s drain None \
+            "kubectl --kubeconfig {} --request-timeout 20s drain none \
 --ignore-daemonsets".format(KUBE_ADMIN_CONF),
             "kubectl --kubeconfig {} --request-timeout 20s delete node \
-None".format(KUBE_ADMIN_CONF),
+none".format(KUBE_ADMIN_CONF),
             "kubeadm reset -f",
             "rm -rf {}".format(CNI_DIR),
             "rm -f {}".format(KUBE_ADMIN_CONF),

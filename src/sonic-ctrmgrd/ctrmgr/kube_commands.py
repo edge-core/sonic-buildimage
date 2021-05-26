@@ -25,9 +25,6 @@ LOCK_FILE = "/var/lock/kube_join.lock"
 FLANNEL_CONF_FILE = "/usr/share/sonic/templates/kube_cni.10-flannel.conflist"
 CNI_DIR = "/etc/cni/net.d"
 
-# kubectl --kubeconfig <KUBE_ADMIN_CONF> label nodes
-#       <device_info.get_hostname()> <label to be added>
-
 def log_debug(m):
     msg = "{}: {}".format(inspect.stack()[1][3], m)
     print(msg)
@@ -48,6 +45,9 @@ def to_str(s):
         return s.decode('utf-8')
 
     return str(s)
+
+def get_device_name():
+    return str(device_info.get_hostname()).lower()
 
 
 def _run_command(cmd, timeout=5):
@@ -82,7 +82,7 @@ def kube_read_labels():
 
     labels = {}
     ret, out, _ = _run_command(KUBECTL_GET_CMD.format(
-        KUBE_ADMIN_CONF, device_info.get_hostname()))
+        KUBE_ADMIN_CONF, get_device_name()))
 
     if ret == 0:
         lst = out.split(",")
@@ -130,9 +130,9 @@ def kube_write_labels(set_labels):
         # First remove if any
         if del_label_str:
             (ret, _, _) = _run_command(KUBECTL_SET_CMD.format(
-            KUBE_ADMIN_CONF, device_info.get_hostname(), del_label_str.strip()))
+            KUBE_ADMIN_CONF, get_device_name(), del_label_str.strip()))
         (ret, _, _) = _run_command(KUBECTL_SET_CMD.format(
-            KUBE_ADMIN_CONF, device_info.get_hostname(), add_label_str.strip()))
+            KUBE_ADMIN_CONF, get_device_name(), add_label_str.strip()))
 
         log_debug("{} kube labels {} ret={}".format(
             "Applied" if ret == 0 else "Failed to apply", add_label_str, ret))
@@ -251,10 +251,10 @@ def _do_reset(pending_join = False):
     if os.path.exists(KUBE_ADMIN_CONF):
         _run_command(
                 "kubectl --kubeconfig {} --request-timeout 20s drain {} --ignore-daemonsets".
-                format(KUBE_ADMIN_CONF, device_info.get_hostname()))
+                format(KUBE_ADMIN_CONF, get_device_name()))
 
         _run_command("kubectl --kubeconfig {} --request-timeout 20s delete node {}".
-                format(KUBE_ADMIN_CONF, device_info.get_hostname()))
+                format(KUBE_ADMIN_CONF, get_device_name()))
 
     _run_command("kubeadm reset -f", 10)
     _run_command("rm -rf {}".format(CNI_DIR))
@@ -279,7 +279,7 @@ def _do_join(server, port, insecure):
 
         if ret == 0:
             (ret, out, err) = _run_command(KUBEADM_JOIN_CMD.format(
-                KUBE_ADMIN_CONF, device_info.get_hostname()), timeout=60)
+                KUBE_ADMIN_CONF, get_device_name()), timeout=60)
             log_debug("ret = {}".format(ret))
 
     except IOError as e:
