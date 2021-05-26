@@ -41,6 +41,9 @@ class Psu(PsuBase):
         """
         return 2
 
+    def get_name(self):
+        return f"psu-{self.__index}"
+
     def get_powergood_status(self):
         """
         Retrieves the oprational status of power supply unit (PSU) defined
