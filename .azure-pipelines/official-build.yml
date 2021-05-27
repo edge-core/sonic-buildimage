@@ -33,3 +33,17 @@ stages:
     parameters:
       buildOptions: 'USERNAME=admin SONIC_BUILD_JOBS=$(nproc) ${{ variables.VERSION_CONTROL_OPTIONS }}'
       jobFilters: none
+      jobGroups:
+        - name: vs
+        - name: barefoot
+          variables:
+            swi_image: yes
+        - name: broadcom
+          variables:
+            swi_image: yes
+        - name: innovium
+        - name: mellanox
+          variables:
+            sync_rpc_image: yes
+            platform_rpc: mlnx
+        - name: nephos
