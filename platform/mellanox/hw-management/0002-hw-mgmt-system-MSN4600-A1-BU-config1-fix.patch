@@ -1,0 +1,28 @@
+From 1b2c2343d62b2fadb5c8fc9e61f2f654f4085193 Mon Sep 17 00:00:00 2001
+From: Mykola Kostenok <c_mykolak@nvidia.com>
+Date: Wed, 12 May 2021 10:59:57 +0300
+Subject: [PATCH] hw-mgmt: system: MSN4600 A1 BU config1 fix
+
+Fix config1 matching for MSN4600.
+
+Signed-off-by: Mykola Kostenok <c_mykolak@nvidia.com>
+---
+ usr/usr/bin/hw-management.sh |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/usr/usr/bin/hw-management.sh b/usr/usr/bin/hw-management.sh
+index d5b2728..150e583 100755
+--- a/usr/usr/bin/hw-management.sh
++++ b/usr/usr/bin/hw-management.sh
+@@ -728,7 +728,7 @@ msn46xx_specific()
+ 	if [ $res -eq 0 ]; then
+ 		sys_ver=$(cut "$regio_path"/config1 -d' ' -f 1)
+ 		case $sys_ver in
+-			3)
++			1)
+ 				connect_msn4700_msn4600_A1
+ 			;;
+ 			*)
+-- 
+1.7.1
+
