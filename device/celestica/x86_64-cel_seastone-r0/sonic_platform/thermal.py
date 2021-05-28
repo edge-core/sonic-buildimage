@@ -23,7 +23,7 @@ THERMAL_INFO = {
         "B2F_max_crit": 75,
         "postion": "asic",
         "name": "Front-panel temp sensor 1",
-        "i2c_path": "i2c-5/5-0048/hwmon/hwmon1",    # u4 system-inlet
+        "i2c_path": "i2c-5/5-0048/hwmon",    # u4 system-inlet
     },
     1: {
         "F2B_max": 50,
@@ -32,7 +32,7 @@ THERMAL_INFO = {
         "B2F_max_crit": 75,
         "postion": "asic",
         "name": "Front-panel temp sensor 2",
-        "i2c_path": "i2c-6/6-0049/hwmon/hwmon2",    # u2 system-inlet
+        "i2c_path": "i2c-6/6-0049/hwmon",    # u2 system-inlet
     },
     2: {
         "F2B_max": 70,
@@ -41,7 +41,7 @@ THERMAL_INFO = {
         "B2F_max_crit": 65,
         "postion": "asic",
         "name": "ASIC temp sensor",
-        "i2c_path": "i2c-7/7-004a/hwmon/hwmon3",    # u44 bmc56960-on-board
+        "i2c_path": "i2c-7/7-004a/hwmon",    # u44 bmc56960-on-board
     },
     3: {
         "F2B_max": 70,
@@ -50,7 +50,7 @@ THERMAL_INFO = {
         "B2F_max_crit": 75,
         "postion": "cpu",
         "name": "Rear-panel temp sensor 1",
-        "i2c_path": "i2c-14/14-0048/hwmon/hwmon4",  # u9200 cpu-on-board
+        "i2c_path": "i2c-14/14-0048/hwmon",  # u9200 cpu-on-board
     },
     4: {
         "F2B_max": 70,
@@ -59,7 +59,7 @@ THERMAL_INFO = {
         "B2F_max_crit": 75,
         "postion": "cpu",
         "name": "Rear-panel temp sensor 2",
-        "i2c_path": "i2c-15/15-004e/hwmon/hwmon5"   # u9201 system-outlet
+        "i2c_path": "i2c-15/15-004e/hwmon"   # u9201 system-outlet
     }
 }
 NULL_VAL = "N/A"
@@ -77,16 +77,37 @@ class Thermal(ThermalBase):
         self._api_helper = APIHelper()
         self._airflow = airflow
         self._thermal_info = THERMAL_INFO[self.index]
-        self._hwmon_path = "{}/{}".format(I2C_ADAPTER_PATH, self._thermal_info["i2c_path"])
+
+        self._i2c_hwmon_path = "{}/{}".format(
+            I2C_ADAPTER_PATH, self._thermal_info["i2c_path"])
+        self._hwmon_path = os.path.join(
+            self._i2c_hwmon_path, self.__get_hwmon_name(self._i2c_hwmon_path))
         self.name = self.get_name()
         self.postion = self._thermal_info["postion"]
         self.ss_index = 1
+
+        self.minimum_thermal = self.get_temperature()
+        self.maximum_thermal = self.get_temperature()
+
+    def __get_hwmon_name(self, path):
+        return os.listdir(path)[0]
 
     def __get_temp(self, temp_file):
         temp_file_path = os.path.join(self._hwmon_path, temp_file)
         raw_temp = self._api_helper.read_txt_file(temp_file_path)
         temp = float(raw_temp)/1000
         return float("{:.3f}".format(temp))
+
+    def __get_threshold(self, file_name):
+        temp_file_path = os.path.join(self._hwmon_path, file_name)
+        data = self._api_helper.read_txt_file(temp_file_path)
+        if data:
+            try:
+                threshold = float(data)
+                return round(threshold/1000, 3)
+            except Exception:
+                pass
+        return None
 
     def __set_threshold(self, file_name, temperature):
         temp_file_path = os.path.join(self._hwmon_path, file_name)
@@ -114,9 +135,10 @@ class Thermal(ThermalBase):
             A float number, the high threshold temperature of thermal in Celsius
             up to nearest thousandth of one degree Celsius, e.g. 30.125
         """
-        temp_file = "temp{}_max".format(self.ss_index)
-        temp = float(self.__get_temp(temp_file))
-        return temp
+        max_crit_key = '{}_max'.format(self._airflow)
+        high_threshold_file = "temp{}_max".format(self.ss_index)
+        return self.__get_threshold(high_threshold_file) or self._thermal_info.get(max_crit_key, None)
+
 
     def get_low_threshold(self):
         """
@@ -193,6 +215,34 @@ class Thermal(ThermalBase):
             up to nearest thousandth of one degree Celsius, e.g. 30.125
         """
         return 0.001
+
+    def get_minimum_recorded(self):
+        """
+        Retrieves the minimum recorded temperature of thermal
+        Returns:
+            A float number, the minimum recorded temperature of thermal in Celsius
+            up to nearest thousandth of one degree Celsius, e.g. 30.125
+        """
+        tmp = self.get_temperature()
+        if tmp < self.minimum_thermal:
+            self.minimum_thermal = tmp
+        return self.minimum_thermal
+
+    def get_maximum_recorded(self):
+        """
+        Retrieves the maximum recorded temperature of thermal
+        Returns:
+            A float number, the maximum recorded temperature of thermal in Celsius
+            up to nearest thousandth of one degree Celsius, e.g. 30.125
+        """
+        tmp = self.get_temperature()
+        if tmp > self.maximum_thermal:
+            self.maximum_thermal = tmp
+        return self.maximum_thermal
+
+    ##############################################################
+    ###################### Device methods ########################
+    ##############################################################
 
     def get_name(self):
         """

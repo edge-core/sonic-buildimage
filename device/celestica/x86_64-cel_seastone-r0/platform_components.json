@@ -1,0 +1,13 @@
+{
+    "chassis": {
+        "Celestica-DX010-C32": {
+            "component": {
+                "CPLD1": {},
+                "CPLD2": {},
+                "CPLD3": {},
+                "CPLD4": {},
+                "BIOS": {}
+            }
+        }
+    }
+}
