@@ -297,7 +297,7 @@ class TestCfgGen(TestCase):
             "'Ethernet72': {'alias': 'fortyGigE0/72', 'pfc_asym': 'off', 'lanes': '77,78,79,80', 'description': 'fortyGigE0/72', 'mtu': '9100'}, "
             "'Ethernet64': {'alias': 'fortyGigE0/64', 'pfc_asym': 'off', 'lanes': '65,66,67,68', 'description': 'fortyGigE0/64', 'mtu': '9100'}, "
             "'Ethernet32': {'alias': 'fortyGigE0/32', 'pfc_asym': 'off', 'lanes': '9,10,11,12', 'description': 'fortyGigE0/32', 'mtu': '9100'}, "
-            "'Ethernet16': {'alias': 'fortyGigE0/16', 'pfc_asym': 'off', 'lanes': '41,42,43,44', 'description': 'fortyGigE0/16', 'mtu': '9100'}, "
+            "'Ethernet16': {'lanes': '41,42,43,44', 'pfc_asym': 'off', 'description': 'fortyGigE0/16', 'mtu': '9100', 'alias': 'fortyGigE0/16', 'speed': '1000'}, "
             "'Ethernet36': {'alias': 'fortyGigE0/36', 'pfc_asym': 'off', 'lanes': '13,14,15,16', 'description': 'fortyGigE0/36', 'mtu': '9100'}, "
             "'Ethernet12': {'lanes': '33,34,35,36', 'fec': 'rs', 'mtu': '9100', 'alias': 'fortyGigE0/12', 'pfc_asym': 'off', 'speed': '100000', 'description': 'Interface description'}, "
             "'Ethernet88': {'alias': 'fortyGigE0/88', 'pfc_asym': 'off', 'lanes': '117,118,119,120', 'description': 'fortyGigE0/88', 'mtu': '9100'}, "
