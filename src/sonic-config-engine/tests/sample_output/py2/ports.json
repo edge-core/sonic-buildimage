@@ -21,6 +21,13 @@
         "OP": "SET"
     },
     {
+        "PORT_TABLE:Ethernet16": {
+            "speed": "1000",
+            "description": "fortyGigE0/16"
+        },
+        "OP": "SET"
+    },
+    {
         "PORT_TABLE:Ethernet12": {
             "speed": "100000",
             "description": "Interface description"

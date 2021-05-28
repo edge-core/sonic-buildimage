@@ -218,7 +218,7 @@ def parse_png(png, hname, dpg_ecmp_content = None):
                     startdevice = link.find(str(QName(ns, "StartDevice"))).text
                     port_device_map[endport] = startdevice
 
-                if linktype != "DeviceInterfaceLink" and linktype != "UnderlayInterfaceLink":
+                if linktype != "DeviceInterfaceLink" and linktype != "UnderlayInterfaceLink" and linktype != "DeviceMgmtLink":
                     continue
 
                 enddevice = link.find(str(QName(ns, "EndDevice"))).text
@@ -230,13 +230,15 @@ def parse_png(png, hname, dpg_ecmp_content = None):
                 if enddevice.lower() == hname.lower():
                     if endport in port_alias_map:
                         endport = port_alias_map[endport]
-                    neighbors[endport] = {'name': startdevice, 'port': startport}
+                    if linktype != "DeviceMgmtLink":
+                        neighbors[endport] = {'name': startdevice, 'port': startport}
                     if bandwidth:
                         port_speeds[endport] = bandwidth
                 elif startdevice.lower() == hname.lower():
                     if startport in port_alias_map:
                         startport = port_alias_map[startport]
-                    neighbors[startport] = {'name': enddevice, 'port': endport}
+                    if linktype != "DeviceMgmtLink":
+                        neighbors[startport] = {'name': enddevice, 'port': endport}
                     if bandwidth:
                         port_speeds[startport] = bandwidth
 
@@ -1323,6 +1325,10 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
             if port_name not in ports:
                 print("Warning: ignore interface '%s' as it is not in the port_config.ini" % port_name, file=sys.stderr)
                 continue
+
+        # skip management ports
+        if port_name in mgmt_alias_reverse_mapping.keys():
+            continue
 
         ports.setdefault(port_name, {})['speed'] = port_speed_png[port_name]
 
