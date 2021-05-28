@@ -1,0 +1,109 @@
+#!/usr/bin/env python3
+
+"""
+memory_checker
+
+This script is part of the feature which will restart the container if memory
+usage of it is larger than the threshold value.
+
+This script is used to check the memory usage of specified cotnainer and
+is intended to be run by Monit. It will write an alerting message into
+syslog if memory usage of the container is larger than the threshold value for X
+times within Y cycles/minutes. Note that if print(...) statement in this script
+was executed, the string in it will be appended to Monit syslog messages.
+
+The following is an example in Monit configuration file to show how Monit will run
+this script:
+
+check program container_memory_<container_name> with path "/usr/bin/memory_checker <container_name> <threshold_value>"
+    if status == 3 for X times within Y cycles exec "/usr/bin/restart_service <container_name>"
+"""
+
+import argparse
+import subprocess
+import sys
+import syslog
+import re
+
+
+def get_command_result(command):
+    """Executes the command and return the resulting output.
+
+    Args:
+        command: A string contains the command to be executed.
+
+    Returns:
+        A string which contains the output of command.
+    """
+    command_stdout = ""
+
+    try:
+        proc_instance = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                         shell=True, universal_newlines=True)
+        command_stdout, command_stderr = proc_instance.communicate()
+        if proc_instance.returncode != 0:
+            syslog.syslog(syslog.LOG_ERR, "[memory_checker] Failed to execute the command '{}'. Return code: '{}'"
+                          .format(command, proc_instance.returncode))
+            sys.exit(1)
+    except (OSError, ValueError) as err:
+        syslog.syslog(syslog.LOG_ERR, "[memory_checker] Failed to execute the command '{}'. Error: '{}'"
+                      .format(command, err))
+        sys.exit(2)
+
+    return command_stdout.strip()
+
+
+def check_memory_usage(container_name, threshold_value):
+    """Checks the memory usage of a container and writes an alerting messages into
+    the syslog if the memory usage is larger than the threshold value.
+
+    Args:
+        container_name: A string represtents name of a container
+        threshold_value: An integer indicates the threshold value (Bytes) of memory usage.
+
+    Returns:
+        None.
+    """
+    command = "docker stats --no-stream --format \{{\{{.MemUsage\}}\}} {}".format(container_name)
+    command_stdout = get_command_result(command)
+    mem_usage = command_stdout.split("/")[0].strip()
+    match_obj = re.match(r"\d+\.?\d*", mem_usage)
+    if match_obj:
+        mem_usage_value = float(mem_usage[match_obj.start():match_obj.end()])
+        mem_usage_unit = mem_usage[match_obj.end():]
+
+        mem_usage_bytes = 0.0
+        if mem_usage_unit == "B":
+            mem_usage_bytes = mem_usage_value
+        elif mem_usage_unit == "KiB":
+            mem_usage_bytes = mem_usage_value * 1024
+        elif mem_usage_unit == "MiB":
+            mem_usage_bytes = mem_usage_value * 1024 ** 2
+        elif mem_usage_unit == "GiB":
+            mem_usage_bytes = mem_usage_value * 1024 ** 3
+
+        if mem_usage_bytes > threshold_value:
+            print("[{}]: Memory usage ({} Bytes) is larger than the threshold ({} Bytes)!"
+                  .format(container_name, mem_usage_bytes, threshold_value))
+            sys.exit(3)
+    else:
+        syslog.syslog(syslog.LOG_ERR, "[memory_checker] Failed to retrieve memory value from '{}'"
+                      .format(mem_usage))
+        sys.exit(4)
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Check memory usage of a container \
+            and an alerting message will be written into syslog if memory usage \
+            is larger than the threshold value", usage="/usr/bin/memory_checker <container_name> <threshold_value_in_bytes>")
+    parser.add_argument("container_name", help="container name")
+    # TODO: Currently the threshold value is hard coded as a command line argument and will
+    # remove this in the new version since we want to read this value from 'CONFIG_DB'.
+    parser.add_argument("threshold_value", type=int, help="threshold value in bytes")
+    args = parser.parse_args()
+
+    check_memory_usage(args.container_name, args.threshold_value)
+
+
+if __name__ == "__main__":
+    main()

@@ -9,3 +9,6 @@ check program telemetry|telemetry with path "/usr/bin/process_checker telemetry 
 
 check program telemetry|dialout_client with path "/usr/bin/process_checker telemetry /usr/sbin/dialout_client_cli"
     if status != 0 for 5 times within 5 cycles then alert repeat every 1 cycles
+
+check program container_memory_telemetry with path "/usr/bin/memory_checker telemetry 419430400"
+    if status == 3 for 10 times within 20 cycles then exec "/usr/bin/restart_service telemetry"
