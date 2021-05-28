@@ -26,5 +26,12 @@
             "description": "Interface description"
         },
         "OP": "SET"
+    },
+    {
+        "PORT_TABLE:Ethernet16": {
+            "speed": "1000",
+            "description": "fortyGigE0/16"
+        },
+        "OP": "SET"
     }
 ]
