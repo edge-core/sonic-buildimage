@@ -14,7 +14,7 @@ include /usr/share/dpkg/pkg-info.mk
 export INSTALL_MOD_DIR:=extra
 
 PYTHON         ?= python2
-PYTHON3         ?= python3
+PYTHON3        ?= python3
 
 PACKAGE_PRE_NAME := sonic-platform-accton
 KVERSION   ?= $(shell uname -r)
