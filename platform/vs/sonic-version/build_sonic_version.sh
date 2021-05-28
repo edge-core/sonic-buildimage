@@ -1,8 +1,7 @@
-tee $1 > /dev/null <<EOF
-build_version: '$sonic_version'
-asic_type: $sonic_asic_platform
-commit_id: '$(git rev-parse --short HEAD)'
-build_date: $(date -u)
-build_number: ${BUILD_NUMBER:-0}
-built_by: $USER@$BUILD_HOSTNAME
-EOF
+export build_version="${sonic_version}"
+export asic_type="${sonic_asic_platform}"
+export commit_id="$(git rev-parse --short HEAD)"
+export build_date="$(date -u)"
+export build_number="${BUILD_NUMBER:-0}"
+export built_by="$USER@$BUILD_HOSTNAME"
+j2 sonic_version.yml.j2 > $1

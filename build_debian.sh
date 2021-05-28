@@ -474,16 +474,15 @@ fi
 
 ## Version file
 sudo mkdir -p $FILESYSTEM_ROOT/etc/sonic
-sudo tee $FILESYSTEM_ROOT/etc/sonic/sonic_version.yml > /dev/null <<EOF
-build_version: '${SONIC_IMAGE_VERSION}'
-debian_version: '$(cat $FILESYSTEM_ROOT/etc/debian_version)'
-kernel_version: '$kversion'
-asic_type: $sonic_asic_platform
-commit_id: '$(git rev-parse --short HEAD)'
-build_date: $(date -u)
-build_number: ${BUILD_NUMBER:-0}
-built_by: $USER@$BUILD_HOSTNAME
-EOF
+export build_version="${SONIC_IMAGE_VERSION}"
+export debian_version="$(cat $FILESYSTEM_ROOT/etc/debian_version)"
+export kernel_version="${kversion}"
+export asic_type="${sonic_asic_platform}"
+export commit_id="$(git rev-parse --short HEAD)"
+export build_date="$(date -u)"
+export build_number="${BUILD_NUMBER:-0}"
+export built_by="$USER@$BUILD_HOSTNAME"
+j2 files/build_templates/sonic_version.yml.j2 | sudo tee $FILESYSTEM_ROOT/etc/sonic/sonic_version.yml
 
 ## Copy over clean-up script
 sudo cp ./files/scripts/core_cleanup.py $FILESYSTEM_ROOT/usr/bin/core_cleanup.py

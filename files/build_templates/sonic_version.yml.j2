@@ -1,0 +1,20 @@
+---
+build_version: '{{ build_version }}'
+{% if debian_version is defined -%}
+debian_version: '{{ debian_version }}'
+{% endif -%}
+{% if kernel_version is defined -%}
+kernel_version: '{{ kernel_version }}'
+{% endif -%}
+asic_type: {{ asic_type }}
+commit_id: '{{ commit_id }}'
+build_date: {{ build_date }}
+build_number: {{ build_number }}
+built_by: {{ built_by }}
+{% if components is defined -%}
+{% for component in components.split() | unique -%}
+{% set name, version = component.split('==') -%}
+{{ name }}: {{ version }}
+{% endfor -%}
+{% endif -%}
+

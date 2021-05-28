@@ -85,6 +85,8 @@ $(2)_MAIN_DEB = $(1)
 $(1)_DERIVED_DEBS += $(2)
 $(2)_URL = $($(1)_URL)
 $(2)_SRC_PATH = $($(1)_SRC_PATH)
+$(2)_NAME = $($(1)_NAME)
+$(2)_VERSION = $($(1)_VERSION)
 SONIC_DERIVED_DEBS += $(2)
 endef
 
