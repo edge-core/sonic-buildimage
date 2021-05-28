@@ -41,6 +41,17 @@ dependent_startup=true
 dependent_startup_wait_for=rsyslogd:running
 {% endif %}
 
+[program:chassis_db_init]
+command=/usr/local/bin/chassis_db_init
+priority=3
+autostart=false
+autorestart=false
+stdout_logfile=syslog
+stderr_logfile=syslog
+startsecs=0
+dependent_startup=true
+dependent_startup_wait_for=rsyslogd:running
+
 {% if not skip_sensors and HAVE_SENSORS_CONF == 1 %}
 [program:lm-sensors]
 command=/usr/bin/lm-sensors.sh
