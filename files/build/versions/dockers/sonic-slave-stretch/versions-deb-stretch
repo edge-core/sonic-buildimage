@@ -403,8 +403,8 @@ libdevmapper-event1.02.1==2:1.02.137-2
 libdevmapper1.02.1==2:1.02.137-2
 libdigest-hmac-perl==1.03+dfsg-1
 libdistro-info-perl==0.14
-libdjvulibre-text==3.5.27.1-7
-libdjvulibre21==3.5.27.1-7
+libdjvulibre-text==3.5.27.1-7+deb9u1
+libdjvulibre21==3.5.27.1-7+deb9u1
 libdns-export162==1:9.10.3.dfsg.P4-12.3+deb9u9
 libdns162==1:9.10.3.dfsg.P4-12.3+deb9u9
 libdom4j-java==1.6.1+dfsg.3-2+deb9u1

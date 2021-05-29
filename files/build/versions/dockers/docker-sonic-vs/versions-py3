@@ -7,5 +7,5 @@ parameterized==0.8.1
 pexpect==4.8.0
 ptyprocess==0.7.0
 tabulate==0.8.9
-urllib3==1.26.4
+urllib3==1.26.5
 xmltodict==0.12.0

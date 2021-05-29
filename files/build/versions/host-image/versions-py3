@@ -36,7 +36,7 @@ requests==2.25.1
 scapy==2.4.4
 six==1.16.0
 tabulate==0.8.9
-urllib3==1.26.4
+urllib3==1.26.5
 watchdog==0.10.3
 websocket-client==1.0.1
 xmltodict==0.12.0

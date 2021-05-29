@@ -8,7 +8,7 @@ busybox==1:1.30.1-4
 ca-certificates==20200601~deb10u2
 cgroup-tools==0.41-8.1
 conntrack==1:1.4.5-2
-containerd.io==1.4.4-1
+containerd.io==1.4.6-1
 cpio==2.12+dfsg-9
 cron==3.0pl1-134+deb10u1
 curl==7.64.0-4+deb10u2
@@ -44,7 +44,7 @@ grub2-common==2.02+dfsg1-20+deb10u4
 haveged==1.9.1-7
 hdparm==9.58+ds-1
 hping3==3.a2.ds2-7
-hw-management==1.mlnx.7.0010.2303
+hw-management==1.mlnx.7.0010.2304
 i2c-tools==4.1-1
 ifmetric==0.3-5
 ifupdown2==1.2.8-1
