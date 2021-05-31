@@ -73,9 +73,9 @@ class LldpManager(daemon_base.DaemonBase):
 
         proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (stdout, stderr) = proc.communicate()
-        
+
         if proc.returncode != 0:
-            log_warning("Command failed '{}': {}".format(cmd, stderr))
+            self.log_warning("Command failed '{}': {}".format(cmd, stderr))
         else:
             self.hostname = hostname
 
@@ -91,15 +91,15 @@ class LldpManager(daemon_base.DaemonBase):
 
         proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (stdout, stderr) = proc.communicate()
-        
+
         if proc.returncode != 0:
-            log_warning("Command failed '{}': {}".format(cmd, stderr))
+            self.log_warning("Command failed '{}': {}".format(cmd, stderr))
         else:
             self.mgmt_ip = ip
 
     def is_port_up(self, port_name):
         """
-        Determine if a port is up or down by looking into the oper-status for the port in 
+        Determine if a port is up or down by looking into the oper-status for the port in
         PORT TABLE in the Application DB
         """
         # Retrieve all entires for this port from the Port table
@@ -117,7 +117,7 @@ class LldpManager(daemon_base.DaemonBase):
                 return False
         else:
             # Retrieve PortInitDone entry from the Port table
-            (init_status, init_fvp) = port_table.get("PortInitDone")
+            (init_status, init_fvp) = self.port_table.get("PortInitDone")
             # The initialization procedure is done, but don't have this port entry
             if init_status:
                 self.log_error("Port '{}' not found in {} table in App DB".format(
@@ -192,7 +192,7 @@ class LldpManager(daemon_base.DaemonBase):
             self.pending_cmds.pop(port_name, None)
 
     def lldp_get_mgmt_ip(self):
-        mgmt_intf_keys = self.mgmt_table.getKeys()        
+        mgmt_intf_keys = self.mgmt_table.getKeys()
         ipv4_addr = "None"
         ipv6_addr = "None"
         for key in mgmt_intf_keys:
@@ -205,7 +205,7 @@ class LldpManager(daemon_base.DaemonBase):
                             ipv4_addr = ip[0]
                         else:
                             ipv6_addr = ip[0]
-        
+
         if ipv4_addr != "None":
             return ipv4_addr
         elif ipv6_addr != "None":
@@ -228,7 +228,7 @@ class LldpManager(daemon_base.DaemonBase):
                 else:
                     if not self.mgmt_ip == ip[0]:
                         if '.' in ip[0]:
-                            self.update_mgmt_addr(ip[0]) 
+                            self.update_mgmt_addr(ip[0])
                         elif '.' not in self.mgmt_ip:
                             self.update_mgmt_addr(ip[0])
 
@@ -275,11 +275,11 @@ class LldpManager(daemon_base.DaemonBase):
         # Subscribe to PORT table notifications in the App DB
         sst_appdb = swsscommon.SubscriberStateTable(self.appl_db, swsscommon.APP_PORT_TABLE_NAME)
         sel.addSelectable(sst_appdb)
-        
+
         # Subscribe to MGMT PORT table notifications in the Config DB
         sst_mgmt_ip_confdb = swsscommon.SubscriberStateTable(self.config_db, swsscommon.CFG_MGMT_INTERFACE_TABLE_NAME)
         sel.addSelectable(sst_mgmt_ip_confdb)
-        
+
         # Subscribe to DEVICE_METADATA table notifications in the Config DB
         sst_device_confdb = swsscommon.SubscriberStateTable(self.config_db, swsscommon.CFG_DEVICE_METADATA_TABLE_NAME)
         sel.addSelectable(sst_device_confdb)
