@@ -61,5 +61,10 @@
     "PORT_INVALID_ADVTYPES_TEST_2": {
         "desc": "PORT_INVALID_ADVTYPES_TEST_2 must condition failure.",
         "eStrKey" : "Must"
-    }
+    },
+    "PORT_INVALID_TPID_TEST": {
+        "desc": "PORT_INVALID_TPID_TEST invalid tpid value failure.",
+        "eStrKey" : "Pattern",
+        "eStr": ["0x8100|0x9100|0x9200|0x88a8|0x88A8"]
+     }
 }

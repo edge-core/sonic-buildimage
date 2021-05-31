@@ -7,6 +7,11 @@
         "eStrKey" : "Pattern",
         "eStr": ["PortChannel"]
     },
+    "PORT_CHANNEL_WRONG_TPID_PATTERN": {
+        "desc": "INCORRECT PORTCHANNEL TPID IN PORT_CHANNEL TABLE.",
+        "eStrKey" : "Pattern",
+        "eStr": ["0x8100|0x9100|0x9200|0x88a8|0x88A8"]
+    },
     "PORTCHANNEL_INTERFACE_IP_ADDR_TEST": {
         "desc": "Configure IP address on PORTCHANNEL_INTERFACE table."
     },

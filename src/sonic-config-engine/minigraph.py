@@ -1450,9 +1450,10 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
                 # for the ports w/o neighbor info, set it to port alias
                 port['description'] = port.get('alias', port_name)
 
-    # set default port MTU as 9100
+    # set default port MTU as 9100 and default TPID 0x8100
     for port in ports.values():
         port['mtu'] = '9100'
+        port['tpid'] = '0x8100'
 
     # asymmetric PFC is disabled by default
     for port in ports.values():
@@ -1485,9 +1486,10 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
                 print("Warning: ignore '%s' as part of its member interfaces is not in the port_config.ini" % pc_name, file=sys.stderr)
                 del pcs[pc_name]
 
-    # set default port channel MTU as 9100 and admin status up
+    # set default port channel MTU as 9100 and admin status up and default TPID 0x8100
     for pc in pcs.values():
         pc['mtu'] = '9100'
+        pc['tpid'] = '0x8100'
         pc['admin_status'] = 'up'
 
     results['PORTCHANNEL'] = pcs

@@ -51,6 +51,7 @@ class TestCfgGenPlatformJson(TestCase):
     def test_platform_json_interfaces_keys(self):
         argument = '-m "' + self.sample_graph_simple + '" -p "' + self.platform_json + '" -S "' + self.hwsku_json + '" -v "PORT.keys()|list"'
         output = self.run_script(argument)
+        self.maxDiff = None
         expected = "['Ethernet8', 'Ethernet9', 'Ethernet36', 'Ethernet98', 'Ethernet0', 'Ethernet6', 'Ethernet4', 'Ethernet109', 'Ethernet108', 'Ethernet18', 'Ethernet100', 'Ethernet34', 'Ethernet104', 'Ethernet106', 'Ethernet94', 'Ethernet126', 'Ethernet96', 'Ethernet124', 'Ethernet90', 'Ethernet91', 'Ethernet92', 'Ethernet93', 'Ethernet50', 'Ethernet51', 'Ethernet52', 'Ethernet53', 'Ethernet54', 'Ethernet99', 'Ethernet56', 'Ethernet113', 'Ethernet76', 'Ethernet74', 'Ethernet39', 'Ethernet72', 'Ethernet73', 'Ethernet70', 'Ethernet71', 'Ethernet32', 'Ethernet33', 'Ethernet16', 'Ethernet111', 'Ethernet10', 'Ethernet11', 'Ethernet12', 'Ethernet13', 'Ethernet58', 'Ethernet19', 'Ethernet59', 'Ethernet38', 'Ethernet78', 'Ethernet68', 'Ethernet14', 'Ethernet89', 'Ethernet88', 'Ethernet118', 'Ethernet119', 'Ethernet116', 'Ethernet114', 'Ethernet80', 'Ethernet112', 'Ethernet86', 'Ethernet110', 'Ethernet84', 'Ethernet31', 'Ethernet49', 'Ethernet48', 'Ethernet46', 'Ethernet30', 'Ethernet29', 'Ethernet40', 'Ethernet120', 'Ethernet28', 'Ethernet66', 'Ethernet60', 'Ethernet64', 'Ethernet44', 'Ethernet20', 'Ethernet79', 'Ethernet69', 'Ethernet24', 'Ethernet26']"
 
         self.assertEqual(sorted(output.strip()), sorted(expected))
@@ -60,18 +61,21 @@ class TestCfgGenPlatformJson(TestCase):
 
         argument = '-m "' + self.sample_graph_simple + '" -p "' + self.platform_json + '" -S "' + self.hwsku_json  + '" -v "PORT[\'Ethernet8\']"'
         output = self.run_script(argument)
-        expected = "{'index': '3', 'lanes': '8', 'description': 'Eth3/1', 'admin_status': 'up', 'mtu': '9100', 'alias': 'Eth3/1', 'pfc_asym': 'off', 'speed': '25000'}"
+        self.maxDiff = None
+        expected = "{'index': '3', 'lanes': '8', 'description': 'Eth3/1', 'admin_status': 'up', 'mtu': '9100', 'alias': 'Eth3/1', 'pfc_asym': 'off', 'speed': '25000', 'tpid': '0x8100'}"
         self.assertEqual(utils.to_dict(output.strip()), utils.to_dict(expected))
 
         argument = '-m "' + self.sample_graph_simple + '" -p "' + self.platform_json + '" -S "' + self.hwsku_json  + '" -v "PORT[\'Ethernet112\']"'
         output = self.run_script(argument)
-        expected = "{'index': '29', 'lanes': '112', 'description': 'Eth29/1', 'admin_status': 'up', 'mtu': '9100', 'alias': 'Eth29/1', 'pfc_asym': 'off', 'speed': '25000'}"
+        self.maxDiff = None
+        expected = "{'index': '29', 'lanes': '112', 'description': 'Eth29/1', 'admin_status': 'up', 'mtu': '9100', 'alias': 'Eth29/1', 'pfc_asym': 'off', 'speed': '25000', 'tpid': '0x8100'}"
         self.assertEqual(utils.to_dict(output.strip()), utils.to_dict(expected))
 
     # Check all Interface with it's proper configuration as per platform.json
     def test_platform_json_all_ethernet_interfaces(self):
         argument = '-m "' + self.sample_graph_simple + '" -p "' + self.platform_json + '" -S "' + self.hwsku_json  + '" -v "PORT"'
         output = self.run_script(argument)
+        self.maxDiff = None
 
         sample_file = os.path.join(self.test_dir, 'sample_output', PLATFORM_OUTPUT_FILE)
         fh = open(sample_file, 'rb')

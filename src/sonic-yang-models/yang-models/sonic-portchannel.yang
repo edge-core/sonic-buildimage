@@ -109,7 +109,15 @@ module sonic-portchannel {
                         }
                     }
                 }
-			} /* end of list PORTCHANNEL_LIST */
+
+                leaf tpid {
+                    description "This leaf describes the possible TPID value that can be configured
+                                to the specified portchannel if the HW supports TPID configuration. The possible
+                                values are 0x8100, 0x9100, 0x9200, 0x88a8, and 0x88A8";
+                    type stypes:tpid_type;
+                }
+
+            } /* end of list PORTCHANNEL_LIST */
 
         } /* end of container PORTCHANNEL */
 

@@ -132,6 +132,14 @@ module sonic-port{
 						pattern "on|off";
 					}
 				}
+
+				leaf tpid {
+					description "This leaf describes the possible TPID value that can be configured
+					            to the specified port if the HW supports TPID configuration. The possible
+					            values are 0x8100, 0x9100, 0x9200, 0x88a8, and 0x88A8";
+					type stypes:tpid_type;
+				}
+
 			} /* end of list PORT_LIST */
 
 		} /* end of container PORT */

@@ -10,6 +10,7 @@
                         "lanes": "65",
                         "mtu": 9000,
                         "name": "Ethernet0",
+                        "tpid": "0x8100",
                         "speed": 25000
                     }
                 ]
@@ -25,6 +26,7 @@
                         ],
                         "min_links": "1",
                         "mtu": "9100",
+                        "tpid": "0x8100",
                         "lacp_key": "auto",
                         "name": "PortChannel0001"
                     }
@@ -40,6 +42,20 @@
                         "admin_status": "up",
                         "mtu": "9100",
                         "name": "PortChannel11001"
+                    }
+                ]
+            }
+        }
+    },
+    "PORT_CHANNEL_WRONG_TPID_PATTERN": {
+        "sonic-portchannel:sonic-portchannel": {
+            "sonic-portchannel:PORTCHANNEL": {
+                "PORTCHANNEL_LIST": [
+                    {
+                        "admin_status": "up",
+                        "mtu": "9100",
+                        "tpid": "0x9500",
+                        "name": "PortChannel0001"
                     }
                 ]
             }
