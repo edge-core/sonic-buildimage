@@ -38,7 +38,7 @@ class Fan(FanBase):
 
     def set_speed(self, percent):
         def set_fan_speed(client):
-            return client.pltfm_mgr.pltfm_mgr_fan_speed_set(fan, percent)
+            return client.pltfm_mgr.pltfm_mgr_fan_speed_set(self.__num, percent)
         return thrift_try(set_fan_speed)
 
     # DeviceBase interface methods:
