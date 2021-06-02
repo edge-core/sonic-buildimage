@@ -176,3 +176,7 @@ RUN env-python3/bin/pip3 install cryptography==3.3.2 azure-kusto-data azure-kust
 # NOTE: There is an ordering dependency for pycryptodome. Leaving this at
 #       the end until we figure that out.
 RUN pip install pycryptodome==3.9.8
+
+# Install allure-pytest library
+RUN pip install --upgrade setuptools \
+    && pip install allure-pytest==2.8.22
