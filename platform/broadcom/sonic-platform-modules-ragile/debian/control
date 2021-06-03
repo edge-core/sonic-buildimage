@@ -1,0 +1,9 @@
+Source: sonic-ragile-platform-modules
+Section: main
+Priority: extra
+Maintainer: support <support@ragile.com>
+Standards-Version: 3.9.3
+
+Package: platform-modules-ragile-ra-b6510-48v8c
+Architecture: amd64
+Description: kernel modules for platform devices such as fan, led, sfp

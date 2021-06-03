@@ -1,0 +1,95 @@
+#!/usr/bin/make -f
+CC=gcc
+INSTALL_MOD_DIR:=extra
+KVERSION   ?= $(shell uname -r)
+KERNEL_SRC :=  /lib/modules/$(KVERSION)
+MOD_SRC_DIR:= $(shell pwd)
+KBUILD_OUTPUT=$(KERNEL_SRC)/build
+
+LIB_DIR = usr/lib/python3.7/dist-packages
+CUSTOM_RULES_DIR := $(shell pwd)/debian
+
+PLATFORM_PREFIX = "x86_64-ragile"
+PLATFORM_VER = "r0"
+BDIST_DIR = "dist"
+BDIST_TARGET = "bdist_t"
+
+export  INSTALL_MOD_DIR top_srcdir KVERSION  KERNEL_SRC CC  KBUILD_OUTPUT
+
+include $(CUSTOM_RULES_DIR)/rule-ragile.mk
+
+#all product need common
+COMPILE_DIRS = $(MODULE_DIRS)
+
+clean_dirs = $(MODULE_DIRS)
+clean_dirs += common
+
+custom_clean_dirs := $(addprefix _clean_,$(clean_dirs) )
+
+
+%:
+	dh $@
+build: $(COMPILE_DIRS)
+	@echo "build success"
+
+$(custom_clean_dirs):
+	$(MAKE) -C $(patsubst _clean_%,%,$@) clean
+
+common_build :
+	$(MAKE) -C  $(MOD_SRC_DIR)/common
+
+$(COMPILE_DIRS): common_build
+	$(MAKE) -C  $(MOD_SRC_DIR)/$@
+	dh_testdir
+	dh_installdirs
+	#
+	# wheel pcakage
+	@cp -r \
+		$(MOD_SRC_DIR)/common/lib/rgutil \
+		$(MOD_SRC_DIR)/common/lib/eepromutil \
+		$(MOD_SRC_DIR)/$@/; \
+	cd $(MOD_SRC_DIR)/$@; \
+	python3 setup.py bdist_wheel --bdist-dir $(BDIST_DIR) -d $(BDIST_TARGET); \
+	mkdir -p build/usr/share/sonic/device/$(PLATFORM_PREFIX)_$@-$(PLATFORM_VER); \
+	mkdir -p build/usr/share/sonic/device/$(PLATFORM_PREFIX)_$@-$(PLATFORM_VER)/pddf; \
+	cp $(BDIST_TARGET)/*.whl build/usr/share/sonic/device/$(PLATFORM_PREFIX)_$@-$(PLATFORM_VER); \
+	cp $(BDIST_TARGET)/*.whl build/usr/share/sonic/device/$(PLATFORM_PREFIX)_$@-$(PLATFORM_VER)/pddf/; \
+	cd $(MOD_SRC_DIR); \
+	rm -rf \
+		$(MOD_SRC_DIR)/$@/rgutil \
+		$(MOD_SRC_DIR)/$@/eepromutil \
+		$(MOD_SRC_DIR)/$@/$(BDIST_TARGET)
+
+	cp -r $(MOD_SRC_DIR)/common/build/*  debian/platform-modules-ragile-$@/
+	cp -r $(MOD_SRC_DIR)/$@/build/*  debian/platform-modules-ragile-$@/
+
+binary: binary-indep
+	@echo "======================================================="
+
+binary-indep:
+	# Resuming debhelper scripts
+	dh_testroot
+	dh_install
+	dh_installchangelogs
+	dh_installdocs
+	dh_systemd_enable
+	dh_installinit
+	dh_systemd_start
+	dh_link
+	dh_fixperms
+	dh_compress
+	dh_strip
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+override_dh_usrlocal:
+
+override_dh_pysupport:
+
+clean: $(custom_clean_dirs)
+	dh_testdir
+	dh_testroot
+	dh_clean
+
+.PHONY: build  $(COMPILE_DIRS) binary binary-arch binary-indep clean
