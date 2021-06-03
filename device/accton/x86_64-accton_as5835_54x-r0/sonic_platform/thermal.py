@@ -44,7 +44,7 @@ class Thermal(ThermalBase):
         self.ss_index = 1
 
     def __read_txt_file(self, file_path):
-        for filename in glob.glob(file_path):           
+        for filename in glob.glob(file_path):
             try:
                 with open(filename, 'r') as fd:
                     data =fd.readline().rstrip()

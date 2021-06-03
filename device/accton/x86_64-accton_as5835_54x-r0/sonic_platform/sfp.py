@@ -18,6 +18,7 @@ try:
     from sonic_platform_base.sonic_sfp.sff8436 import sff8436InterfaceId
     from sonic_platform_base.sonic_sfp.sff8472 import sff8472Dom
     from sonic_platform_base.sonic_sfp.sff8472 import sff8472InterfaceId
+    #from sonic_platform_base.sonic_sfp.sff8472 import sffbase
     from sonic_platform_base.sonic_sfp.sfputilhelper import SfpUtilHelper
     from .helper import APIHelper
 except ImportError as e:
@@ -240,14 +241,6 @@ class Sfp(SfpBase):
             return float(t_str)
         else:
             return 'N/A'
-
-    def __write_txt_file(self, file_path, value):
-        try:
-            with open(file_path, 'w') as fd:
-                fd.write(str(value))
-        except Exception:
-            return False
-        return True
 
     def __is_host(self):
         return os.system(self.HOST_CHK_CMD) == 0
@@ -1006,11 +999,11 @@ class Sfp(SfpBase):
         cpld_i = self.__get_cpld_num(self.port_num)
         cpld_path = self._cpld_mapping[cpld_i]        
         reset_path = "{}{}{}{}".format(CPLD_I2C_PATH, cpld_path, '/module_reset_', self.port_num)      
-        ret = self.__write_txt_file(reset_path, 1)
+        ret = self._api_helper.write_txt_file(reset_path, 1)
         
         if ret is not True:
             time.sleep(0.01)
-            ret = self.__write_txt_file(reset_path, 0)
+            ret = self.self._api_helper.write_txt_file(reset_path, 0)
             time.sleep(0.2)        
             return ret
         else:
@@ -1030,7 +1023,7 @@ class Sfp(SfpBase):
             cpld_i = self.__get_cpld_num(self.port_num)
             cpld_path = self._cpld_mapping[cpld_i]        
             tx_path = "{}{}{}{}".format(CPLD_I2C_PATH, cpld_path, '/module_tx_disable_', self.port_num)      
-            ret = self.__write_txt_file(tx_path,  1 if tx_disable else 0)
+            ret = self._api_helper.write_txt_file(tx_path,  1 if tx_disable else 0)
 
             if ret is not None:
                 time.sleep(0.01)

@@ -104,7 +104,7 @@ class Psu(PsuBase):
             return float(val)/1000
         else:
             return 0
-        
+
     def get_powergood_status(self):
         """
         Retrieves the powergood status of PSU
@@ -123,7 +123,7 @@ class Psu(PsuBase):
         Returns:
             bool: True if status LED state is set successfully, False if not
         """
-        
+
         return False  #Controlled by HW
 
     def get_status_led(self):
@@ -133,14 +133,13 @@ class Psu(PsuBase):
             A string, one of the predefined STATUS_LED_COLOR_* strings above
         """
         status=self.get_status()
-        if not status:
-            return  self.STATUS_LED_COLOR_RED
+        if status is None:
+            return  self.STATUS_LED_COLOR_OFF
         
-        if status==1:
-            return self.STATUS_LED_COLOR_GREEN
-        else:
-            return self.STATUS_LED_COLOR_RED
-        
+        return {
+            1: self.STATUS_LED_COLOR_GREEN,
+            0: self.STATUS_LED_COLOR_RED            
+        }.get(status, self.STATUS_LED_COLOR_OFF)
 
     def get_temperature(self):
         """
@@ -235,7 +234,8 @@ class Psu(PsuBase):
         """
         model_path="{}{}".format(self.cpld_path, 'psu_model_name')
         model=self._api_helper.read_txt_file(model_path)
-        if not model:
+        
+        if model is None:
             return "N/A"
         return model
 
@@ -247,6 +247,7 @@ class Psu(PsuBase):
         """
         serial_path="{}{}".format(self.cpld_path, 'psu_serial_numer')
         serial=self._api_helper.read_txt_file(serial_path)
-        if not serial:
+        
+        if serial is None:
             return "N/A"
         return serial
