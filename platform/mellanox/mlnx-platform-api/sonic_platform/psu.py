@@ -65,7 +65,7 @@ class Psu(PsuBase):
         psu_oper_status = "thermal/psu{}_pwr_status".format(self.index)
         #psu_oper_status should always be present for all platforms
         self.psu_oper_status = os.path.join(self.psu_path, psu_oper_status)
-        self._name = "PSU{}".format(psu_index + 1)
+        self._name = "PSU {}".format(psu_index + 1)
 
         if platform in platform_dict_psu:
             filemap = psu_profile_list[platform_dict_psu[platform]]
