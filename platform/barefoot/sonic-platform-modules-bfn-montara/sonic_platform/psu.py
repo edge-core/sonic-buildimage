@@ -101,3 +101,10 @@ class Psu(PsuBase):
 
     def is_replaceable(self):
         return True
+
+def psu_list_get():
+    psu_list = []
+    for i in range(1, Psu.get_num_psus() + 1):
+        psu = Psu(i)
+        psu_list.append(psu)
+    return psu_list
