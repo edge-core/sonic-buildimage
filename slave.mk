@@ -344,7 +344,7 @@ $(addprefix $(DEBS_PATH)/, $(SONIC_ONLINE_DEBS)) : $(DEBS_PATH)/% : .platform \
 	if [ -z '$($*_CACHE_LOADED)' ] ; then
 
 		$(foreach deb,$* $($*_DERIVED_DEBS), \
-			{ curl -L -f -o $(DEBS_PATH)/$(deb) $($(deb)_URL) $(LOG) || { exit 1 ; } } ; )
+			{ curl -L -f -o $(DEBS_PATH)/$(deb) $($(deb)_CURL_OPTIONS) $($(deb)_URL) $(LOG) || { exit 1 ; } } ; )
 
 		# Save the target deb into DPKG cache
 		$(call SAVE_CACHE,$*,$@)
@@ -361,7 +361,7 @@ SONIC_TARGET_LIST += $(addprefix $(DEBS_PATH)/, $(SONIC_ONLINE_DEBS))
 #     SONIC_ONLINE_FILES += $(SOME_NEW_FILE)
 $(addprefix $(FILES_PATH)/, $(SONIC_ONLINE_FILES)) : $(FILES_PATH)/% : .platform
 	$(HEADER)
-	curl -L -f -o $@ $($*_URL) $(LOG)
+	curl -L -f -o $@ $($*_CURL_OPTIONS) $($*_URL) $(LOG)
 	$(FOOTER)
 
 SONIC_TARGET_LIST += $(addprefix $(FILES_PATH)/, $(SONIC_ONLINE_FILES))
