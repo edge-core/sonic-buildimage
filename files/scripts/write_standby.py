@@ -65,6 +65,16 @@ class MuxStateWriter(object):
         """
         return self.config_db.get_keys('TUNNEL')[0]
 
+    @property
+    def is_dualtor(self):
+        """
+        Checks if script is running on a dual ToR system
+        """
+        localhost_key = self.config_db.get_keys('DEVICE_METADATA')[0]
+        metadata = self.config_db.get_entry('DEVICE_METADATA', localhost_key)
+
+        return 'subtype' in metadata and 'dualtor' in metadata['subtype'].lower()
+
     def get_all_mux_intfs(self):
         """
         Returns a list of all mux cable interfaces
@@ -97,11 +107,13 @@ class MuxStateWriter(object):
         # If we timed out, return False else return True
         return curr_time - start < timeout
 
-
     def apply_mux_config(self):
         """
         Writes standby mux state to APP DB for all mux interfaces
         """
+        if not self.is_dualtor:
+            # If not running on a dual ToR system, take no action
+            return
         intfs = self.get_all_mux_intfs()
         state = 'standby'
         if self.wait_for_tunnel():
