@@ -1,0 +1,8 @@
+mem_cache_enable=0
+ifp_inports_support_enable=1
+ipv6_lpm_128b_enable=0x1
+l3_max_ecmp_mode=1
+lpm_scaling_enable=0
+bcm_num_cos=10
+default_cpu_tx_queue=9
+mmu_lossless=0
