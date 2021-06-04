@@ -269,3 +269,10 @@ class Sfp(SfpBase):
 
     def get_change_event(self, timeout=0):
         return Sfp.get_transceiver_change_event(timeout)
+
+def sfp_list_get():
+    sfp_list = []
+    for index in range(Sfp.port_start(), Sfp.port_end() + 1):
+        sfp_node = Sfp(index)
+        sfp_list.append(sfp_node)
+    return sfp_list
