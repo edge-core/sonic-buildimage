@@ -56,14 +56,14 @@ switch_board_qsfp_mux() {
 switch_board_qsfp() {
         case $1 in
         "new_device")
-                        for ((i=10;i<=41;i++));
+                        for ((i=4;i<=35;i++));
                         do
                             echo optoe3 0x50 > /sys/bus/i2c/devices/i2c-$i/$1
                         done
                         ;;
  
         "delete_device")
-                        for ((i=10;i<=41;i++));
+                        for ((i=4;i<=35;i++));
                         do
                             echo 0x50 > /sys/bus/i2c/devices/i2c-$i/$1
                         done
@@ -112,7 +112,7 @@ switch_board_modsel() {
 
 #This enables the led control for CPU and default states 
 switch_board_led_default() {
-	/usr/sbin/i2cset -y 5 0x0d 0x62 0xd0
+	/usr/sbin/i2cset -y 37 0x0d 0x62 0xd0
 }
 
 # Readout firmware version of the system and
@@ -135,15 +135,15 @@ platform_firmware_versions() {
 	echo "BMC: $r" >> $FIRMWARE_VERSION_FILE
 
 	#BaseBoard CPLD 0x0d on i2c bus 5 ( physical FPGA I2C-5)
-	ver=`/usr/sbin/i2cget -y 5 0x0d 0x0`
+	ver=`/usr/sbin/i2cget -y 37 0x0d 0x0`
 	echo "Baseboard CPLD: $((ver))" >> $FIRMWARE_VERSION_FILE
 
 	#Switch CPLD 1 0x30 on i2c bus 4 ( physical FPGA I2C-4)
-	ver=`/usr/sbin/i2cget -y 4 0x30 0x0`
+	ver=`/usr/sbin/i2cget -y 36 0x30 0x0`
 	echo "Switch CPLD 1: $((ver))" >> $FIRMWARE_VERSION_FILE
 
 	#Switch CPLD 1 0x30 on i2c bus 4 ( physical FPGA I2C-4)
-	ver=`/usr/sbin/i2cget -y 4 0x31 0x0`
+	ver=`/usr/sbin/i2cget -y 36 0x31 0x0`
 	echo "Switch CPLD 2: $((ver))" >> $FIRMWARE_VERSION_FILE
 }
 
@@ -176,7 +176,7 @@ get_reboot_cause() {
     if [[ ! -e $REBOOT_REASON_FILE ]]; then
         echo "0" > $REBOOT_REASON_FILE
     else
-        /usr/sbin/i2cget -y 5 0x0d 0x06  > $REBOOT_REASON_FILE
+        /usr/sbin/i2cget -y 37 0x0d 0x06  > $REBOOT_REASON_FILE
     fi
 }
 
