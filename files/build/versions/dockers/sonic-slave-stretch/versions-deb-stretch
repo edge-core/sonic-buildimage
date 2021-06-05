@@ -154,9 +154,9 @@ guile-2.0-libs==2.0.13+1-4
 hicolor-icon-theme==0.15-1
 icc-profiles-free==2.0.1+dfsg-1
 icu-devtools==57.1-6+deb9u4
-imagemagick==8:6.9.7.4+dfsg-11+deb9u12
-imagemagick-6-common==8:6.9.7.4+dfsg-11+deb9u12
-imagemagick-6.q16==8:6.9.7.4+dfsg-11+deb9u12
+imagemagick==8:6.9.7.4+dfsg-11+deb9u13
+imagemagick-6-common==8:6.9.7.4+dfsg-11+deb9u13
+imagemagick-6.q16==8:6.9.7.4+dfsg-11+deb9u13
 install-info==6.3.0.dfsg.1-1+b2
 intltool-debian==0.35.0+20060710.4
 iptables==1.6.0+snapshot20161117-6
@@ -656,9 +656,9 @@ liblzo2-2==2.08-1.2+b2
 liblzo2-dev==2.08-1.2+b2
 libmagic-mgc==1:5.30-1+deb9u3
 libmagic1==1:5.30-1+deb9u3
-libmagickcore-6.q16-3==8:6.9.7.4+dfsg-11+deb9u12
-libmagickcore-6.q16-3-extra==8:6.9.7.4+dfsg-11+deb9u12
-libmagickwand-6.q16-3==8:6.9.7.4+dfsg-11+deb9u12
+libmagickcore-6.q16-3==8:6.9.7.4+dfsg-11+deb9u13
+libmagickcore-6.q16-3-extra==8:6.9.7.4+dfsg-11+deb9u13
+libmagickwand-6.q16-3==8:6.9.7.4+dfsg-11+deb9u13
 libmail-sendmail-perl==0.79.16-2
 libmailtools-perl==2.18-1
 libmailutils5==1:3.1.1-1

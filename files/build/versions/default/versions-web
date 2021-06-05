@@ -16,6 +16,8 @@ https://bootstrap.pypa.io/pip/2.7/get-pip.py==60e8267eb1b7bc71dc4843eb7bd294d3
 https://chrome-infra-packages.appspot.com/client?platform=linux-amd64&version=git_revision:6484b93c6b0dfc5f2c425e8abc1e3737850851e7==e3b2bf07ac069c32110a2ebd7425b44d
 https://download.docker.com/linux/debian/gpg==1afae06b34a13c1b3d9cb61a26285a15
 https://github.com/aristanetworks/sonic-firmware/raw/6d0d1661d92a342acedb6839dba970ae5778b478/phy/phy-credo_1.0_amd64.deb==dd74acbb7bf979b01c1a89e2a628aaf3
+https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnplatform_20210324_deb10.deb==b1f3087f05b82504130c5a7d428b9ef5
+https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnsdk_20210324_deb10.deb==40a5468c7b7a003df6f4e6c2f9f98817
 https://github.com/CentecNetworks/sonic-binaries/raw/master/amd64/libsai_1.6.3-1_amd64.deb==e7a41e5cf06b44ae3ed615d553de40d3
 https://github.com/CumulusNetworks/ifupdown2/archive/1.2.8-1.tar.gz==12f45e90d23178e96cf70f68dc9455e6
 https://github.com/Innovium/SONiC/raw/master/debian/master/ipd.deb==a0f512aba05180b15c2f6b5809b9d5c1

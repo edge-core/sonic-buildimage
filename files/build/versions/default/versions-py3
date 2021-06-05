@@ -10,7 +10,7 @@ grpcio==1.38.0
 grpcio-tools==1.20.0
 hiredis==2.0.0
 idna==2.10
-importlib-metadata==4.3.1
+importlib-metadata==4.5.0
 inflection==0.5.1
 ipaddress==1.0.23
 isodate==0.6.0
@@ -25,7 +25,7 @@ netaddr==0.8.0
 netifaces==0.10.9
 openapi-schema-validator==0.1.5
 openapi-spec-validator==0.3.1
-protobuf==3.17.1
+protobuf==3.17.2
 psutil==5.8.0
 pyang==2.4.0
 pyangbind==0.8.1
