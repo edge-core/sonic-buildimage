@@ -35,13 +35,13 @@ def get_cpld_version(bus, i2caddr):
     return '{}'.format(hwaccess.i2c_get(bus, i2caddr, 0))
 
 def get_cpld0_version():
-    return get_cpld_version(5, 0x0d)
+    return get_cpld_version(37, 0x0d)
 
 def get_cpld1_version():
-    return get_cpld_version(4, 0x30)
+    return get_cpld_version(36, 0x30)
 
 def get_cpld2_version():
-    return get_cpld_version(4, 0x31)
+    return get_cpld_version(36, 0x31)
 
 
 
