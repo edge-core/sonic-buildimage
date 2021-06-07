@@ -12,7 +12,6 @@ from lxml.etree import QName
 
 
 from portconfig import get_port_config
-from sonic_py_common.multi_asic import get_asic_id_from_name
 from sonic_py_common.interface import backplane_prefix
 
 # TODO: Remove this once we no longer support Python 2
@@ -1183,12 +1182,6 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
     local_devices = []
     kube_data = {}
 
-    # hostname is the asic_name, get the asic_id from the asic_name
-    if asic_name is not None:
-        asic_id = get_asic_id_from_name(asic_name)
-    else:
-        asic_id = None
-
     hwsku_qn = QName(ns, "HwSku")
     hostname_qn = QName(ns, "Hostname")
     docker_routing_config_mode_qn = QName(ns, "DockerRoutingConfigMode")
@@ -1200,7 +1193,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
         if child.tag == str(docker_routing_config_mode_qn):
             docker_routing_config_mode = child.text
 
-    (ports, alias_map, alias_asic_map) = get_port_config(hwsku=hwsku, platform=platform, port_config_file=port_config_file, asic=asic_id, hwsku_config_file=hwsku_config_file)
+    (ports, alias_map, alias_asic_map) = get_port_config(hwsku=hwsku, platform=platform, port_config_file=port_config_file, asic_name=asic_name, hwsku_config_file=hwsku_config_file)
     port_alias_map.update(alias_map)
     port_alias_asic_map.update(alias_asic_map)
 

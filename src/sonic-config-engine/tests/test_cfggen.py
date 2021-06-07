@@ -29,8 +29,11 @@ class TestCfgGen(TestCase):
         self.output_file = os.path.join(self.test_dir, 'output')
         self.output2_file = os.path.join(self.test_dir, 'output2')
         self.ecmp_graph = os.path.join(self.test_dir, 'fg-ecmp-sample-minigraph.xml')
+        # To ensure that mock config_db data is used for unit-test cases
+        os.environ["CFGGEN_UNIT_TESTING"] = "2"
 
     def tearDown(self):
+        os.environ["CFGGEN_UNIT_TESTING"] = ""
         try:
             os.remove(self.output_file)
             os.remove(self.output2_file)
@@ -510,6 +513,49 @@ class TestCfgGen(TestCase):
                 "'Ethernet116': {'alias': 'fortyGigE0/116', 'pfc_asym': 'off', 'lanes': '93,94,95,96', 'description': 'fortyGigE0/116', 'mtu': '9100', 'tpid': '0x8100'}, "
                 "'Ethernet120': {'alias': 'fortyGigE0/120', 'pfc_asym': 'off', 'lanes': '97,98,99,100', 'description': 'fortyGigE0/120', 'mtu': '9100', 'tpid': '0x8100'}, "
                 "'Ethernet124': {'alias': 'fortyGigE0/124', 'pfc_asym': 'off', 'lanes': '101,102,103,104', 'description': 'fortyGigE0/124', 'mtu': '9100', 'tpid': '0x8100'}}"
+            )
+        )
+
+    def test_minigraph_neighbor_interfaces_config_db(self):
+        # test to check if PORT table is retrieved from config_db
+        argument = '-m "' + self.sample_graph_simple_case + '" -v "PORT"'
+        output = self.run_script(argument)
+
+        self.assertEqual(
+            utils.to_dict(output.strip()),
+            utils.to_dict(
+                "{'Ethernet0': {'lanes': '29,30,31,32', 'description': 'config_db:switch-01t1:port1', 'pfc_asym': 'off', 'mtu': '9100', 'tpid': '0x8100', 'alias': 'fortyGigE0/0', 'admin_status': 'up', 'speed': '10000', 'autoneg': 'on'}, "
+                "'Ethernet4': {'lanes': '25,26,27,28', 'description': 'config_db:server1:port1', 'pfc_asym': 'off', 'mtu': '9100', 'tpid': '0x8100', 'alias': 'fortyGigE0/4', 'admin_status': 'up', 'speed': '25000', 'autoneg': 'on', 'mux_cable': 'true'}, "
+                "'Ethernet8': {'lanes': '37,38,39,40', 'description': 'Interface description', 'pfc_asym': 'off', 'mtu': '9100', 'tpid': '0x8100', 'alias': 'fortyGigE0/8', 'admin_status': 'up', 'speed': '40000', 'autoneg': 'on', 'mux_cable': 'true'}, "
+                "'Ethernet12': {'lanes': '33,34,35,36', 'description': 'Interface description', 'pfc_asym': 'off', 'mtu': '9100', 'tpid': '0x8100', 'alias': 'fortyGigE0/12', 'admin_status': 'up', 'speed': '10000', 'autoneg': 'on'}, "
+                "'Ethernet16': {'alias': 'fortyGigE0/16', 'pfc_asym': 'off', 'lanes': '41,42,43,44', 'description': 'config_db:fortyGigE0/16', 'mtu': '9100', 'tpid': '0x8100'}, "
+                "'Ethernet20': {'alias': 'fortyGigE0/20', 'pfc_asym': 'off', 'lanes': '45,46,47,48', 'description': 'config_db:fortyGigE0/20', 'mtu': '9100', 'tpid': '0x8100'}, "
+                "'Ethernet24': {'alias': 'fortyGigE0/24', 'pfc_asym': 'off', 'lanes': '5,6,7,8', 'description': 'config_db:fortyGigE0/24', 'mtu': '9100', 'tpid': '0x8100'}, "
+                "'Ethernet28': {'alias': 'fortyGigE0/28', 'pfc_asym': 'off', 'lanes': '1,2,3,4', 'description': 'config_db:fortyGigE0/28', 'mtu': '9100', 'tpid': '0x8100'}, "
+                "'Ethernet32': {'alias': 'fortyGigE0/32', 'pfc_asym': 'off', 'lanes': '9,10,11,12', 'description': 'config_db:fortyGigE0/32', 'mtu': '9100', 'tpid': '0x8100'}, "
+                "'Ethernet36': {'alias': 'fortyGigE0/36', 'pfc_asym': 'off', 'lanes': '13,14,15,16', 'description': 'config_db:fortyGigE0/36', 'mtu': '9100', 'tpid': '0x8100'}, "
+                "'Ethernet40': {'alias': 'fortyGigE0/40', 'pfc_asym': 'off', 'lanes': '21,22,23,24', 'description': 'config_db:fortyGigE0/40', 'mtu': '9100', 'tpid': '0x8100'}, "
+                "'Ethernet44': {'alias': 'fortyGigE0/44', 'pfc_asym': 'off', 'lanes': '17,18,19,20', 'description': 'config_db:fortyGigE0/44', 'mtu': '9100', 'tpid': '0x8100'}, "
+                "'Ethernet48': {'alias': 'fortyGigE0/48', 'pfc_asym': 'off', 'lanes': '49,50,51,52', 'description': 'config_db:fortyGigE0/48', 'mtu': '9100', 'tpid': '0x8100'}, "
+                "'Ethernet52': {'alias': 'fortyGigE0/52', 'pfc_asym': 'off', 'lanes': '53,54,55,56', 'description': 'config_db:fortyGigE0/52', 'mtu': '9100', 'tpid': '0x8100'}, "
+                "'Ethernet56': {'alias': 'fortyGigE0/56', 'pfc_asym': 'off', 'lanes': '61,62,63,64', 'description': 'config_db:fortyGigE0/56', 'mtu': '9100', 'tpid': '0x8100'}, "
+                "'Ethernet60': {'alias': 'fortyGigE0/60', 'pfc_asym': 'off', 'lanes': '57,58,59,60', 'description': 'config_db:fortyGigE0/60', 'mtu': '9100', 'tpid': '0x8100'}, "
+                "'Ethernet64': {'alias': 'fortyGigE0/64', 'pfc_asym': 'off', 'lanes': '65,66,67,68', 'description': 'config_db:fortyGigE0/64', 'mtu': '9100', 'tpid': '0x8100'}, "
+                "'Ethernet68': {'alias': 'fortyGigE0/68', 'pfc_asym': 'off', 'lanes': '69,70,71,72', 'description': 'config_db:fortyGigE0/68', 'mtu': '9100', 'tpid': '0x8100'}, "
+                "'Ethernet72': {'alias': 'fortyGigE0/72', 'pfc_asym': 'off', 'lanes': '77,78,79,80', 'description': 'config_db:fortyGigE0/72', 'mtu': '9100', 'tpid': '0x8100'}, "
+                "'Ethernet76': {'alias': 'fortyGigE0/76', 'pfc_asym': 'off', 'lanes': '73,74,75,76', 'description': 'config_db:fortyGigE0/76', 'mtu': '9100', 'tpid': '0x8100'}, "
+                "'Ethernet80': {'alias': 'fortyGigE0/80', 'pfc_asym': 'off', 'lanes': '105,106,107,108', 'description': 'config_db:fortyGigE0/80', 'mtu': '9100', 'tpid': '0x8100'}, "
+                "'Ethernet84': {'alias': 'fortyGigE0/84', 'pfc_asym': 'off', 'lanes': '109,110,111,112', 'description': 'config_db:fortyGigE0/84', 'mtu': '9100', 'tpid': '0x8100'}, "
+                "'Ethernet88': {'alias': 'fortyGigE0/88', 'pfc_asym': 'off', 'lanes': '117,118,119,120', 'description': 'config_db:fortyGigE0/88', 'mtu': '9100', 'tpid': '0x8100'}, "
+                "'Ethernet92': {'alias': 'fortyGigE0/92', 'pfc_asym': 'off', 'lanes': '113,114,115,116', 'description': 'config_db:fortyGigE0/92', 'mtu': '9100', 'tpid': '0x8100'}, "
+                "'Ethernet96': {'alias': 'fortyGigE0/96', 'pfc_asym': 'off', 'lanes': '121,122,123,124', 'description': 'config_db:fortyGigE0/96', 'mtu': '9100', 'tpid': '0x8100'}, "
+                "'Ethernet100': {'alias': 'fortyGigE0/100', 'pfc_asym': 'off', 'lanes': '125,126,127,128', 'description': 'config_db:fortyGigE0/100', 'mtu': '9100', 'tpid': '0x8100'}, "
+                "'Ethernet104': {'alias': 'fortyGigE0/104', 'pfc_asym': 'off', 'lanes': '85,86,87,88', 'description': 'config_db:fortyGigE0/104', 'mtu': '9100', 'tpid': '0x8100'}, "
+                "'Ethernet108': {'alias': 'fortyGigE0/108', 'pfc_asym': 'off', 'lanes': '81,82,83,84', 'description': 'config_db:fortyGigE0/108', 'mtu': '9100', 'tpid': '0x8100'}, "
+                "'Ethernet112': {'alias': 'fortyGigE0/112', 'pfc_asym': 'off', 'lanes': '89,90,91,92', 'description': 'config_db:fortyGigE0/112', 'mtu': '9100', 'tpid': '0x8100'}, "
+                "'Ethernet116': {'alias': 'fortyGigE0/116', 'pfc_asym': 'off', 'lanes': '93,94,95,96', 'description': 'config_db:fortyGigE0/116', 'mtu': '9100', 'tpid': '0x8100'}, "
+                "'Ethernet120': {'alias': 'fortyGigE0/120', 'pfc_asym': 'off', 'lanes': '97,98,99,100', 'description': 'config_db:fortyGigE0/120', 'mtu': '9100', 'tpid': '0x8100'}, "
+                "'Ethernet124': {'alias': 'fortyGigE0/124', 'pfc_asym': 'off', 'lanes': '101,102,103,104', 'description': 'config_db:fortyGigE0/124', 'mtu': '9100', 'tpid': '0x8100'}}"
             )
         )
 

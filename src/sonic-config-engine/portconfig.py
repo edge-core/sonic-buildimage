@@ -5,10 +5,23 @@ try:
     import re
     import sys
 
-    from swsscommon.swsscommon import ConfigDBConnector
+    from swsscommon import swsscommon
     from sonic_py_common import device_info
+    from sonic_py_common.multi_asic import get_asic_id_from_name
 except ImportError as e:
     raise ImportError("%s - required module not found" % str(e))
+
+try:
+    if os.environ["CFGGEN_UNIT_TESTING"] == "2":
+        modules_path = os.path.join(os.path.dirname(__file__), ".")
+        tests_path = os.path.join(modules_path, "tests")
+        sys.path.insert(0, modules_path)
+        sys.path.insert(0, tests_path)
+        import mock_tables.dbconnector
+        mock_tables.dbconnector.load_namespace_config()
+
+except KeyError:
+    pass
 
 # Global Variable
 PLATFORM_ROOT_PATH = '/usr/share/sonic/device'
@@ -45,11 +58,16 @@ def readJson(filename):
         print("error occurred while parsing json: {}".format(sys.exc_info()[1]))
         return None
 
-def db_connect_configdb():
+def db_connect_configdb(namespace=None):
     """
     Connect to configdb
     """
-    config_db = ConfigDBConnector()
+    try:
+        if namespace is not None:
+            swsscommon.SonicDBConfig.load_sonic_global_db_config(namespace=namespace)
+        config_db = swsscommon.ConfigDBConnector(use_unix_socket_path=True, namespace=namespace)
+    except Exception as e:
+        return None
     if config_db is None:
         return None
     try:
@@ -77,8 +95,8 @@ def get_hwsku_file_name(hwsku=None, platform=None):
             return candidate
     return None
 
-def get_port_config(hwsku=None, platform=None, port_config_file=None, hwsku_config_file=None, asic=None):
-    config_db = db_connect_configdb()
+def get_port_config(hwsku=None, platform=None, port_config_file=None, hwsku_config_file=None, asic_name=None):
+    config_db = db_connect_configdb(asic_name)
     # If available, Read from CONFIG DB first
     if config_db is not None and port_config_file is None:
 
@@ -88,11 +106,18 @@ def get_port_config(hwsku=None, platform=None, port_config_file=None, hwsku_conf
             port_alias_map = {}
             port_alias_asic_map = {}
             for intf_name in ports.keys():
-                port_alias_map[ports[intf_name]["alias"]] = intf_name
+                if "alias" in ports[intf_name]:
+                    port_alias_map[ports[intf_name]["alias"]] = intf_name
             return (ports, port_alias_map, port_alias_asic_map)
 
+    if asic_name is not None:
+        asic_id = str(get_asic_id_from_name(asic_name))
+    else:
+        asic_id = None
+
     if not port_config_file:
-        port_config_file = device_info.get_path_to_port_config_file(hwsku, asic)
+        port_config_file = device_info.get_path_to_port_config_file(hwsku, asic_id)
+
         if not port_config_file:
             return ({}, {}, {})
 

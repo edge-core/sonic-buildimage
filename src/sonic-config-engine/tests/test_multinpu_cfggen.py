@@ -29,6 +29,7 @@ class TestMultiNpuCfgGen(TestCase):
         for asic in range(NUM_ASIC):
             self.port_config.append(os.path.join(self.test_data_dir, "sample_port_config-{}.ini".format(asic)))
         self.output_file = os.path.join(self.test_dir, 'output')
+        os.environ["CFGGEN_UNIT_TESTING"] = "2"
 
     def run_script(self, argument, check_stderr=False):
         print('\n    Running sonic-cfggen ' + argument)
@@ -212,6 +213,19 @@ class TestMultiNpuCfgGen(TestCase):
              "Ethernet-BP4": { "admin_status": "up",  "alias": "Eth5-ASIC0",  "asic_port_name": "Eth5-ASIC0",  "description": "ASIC2:Eth1-ASIC2",  "index": "1",  "lanes": "17,18,19,20",  "mtu": "9100", "tpid": "0x8100", "pfc_asym": "off",  "role": "Int",  "speed": "40000" },
              "Ethernet-BP8": { "admin_status": "up",  "alias": "Eth6-ASIC0",  "asic_port_name": "Eth6-ASIC0",  "description": "ASIC3:Eth0-ASIC3",  "index": "2",  "lanes": "21,22,23,24",  "mtu": "9100", "tpid": "0x8100", "pfc_asym": "off",  "role": "Int",  "speed": "40000" },
              "Ethernet-BP12": { "admin_status": "up",  "alias": "Eth7-ASIC0",  "asic_port_name": "Eth7-ASIC0",  "description": "ASIC3:Eth1-ASIC3",  "index": "3",  "lanes": "25,26,27,28",  "mtu": "9100", "tpid": "0x8100", "pfc_asym": "off",  "role": "Int",  "speed": "40000" }})
+
+    def test_frontend_asic_ports_config_db(self):
+        argument = "-m {} -n asic0 --var-json \"PORT\"".format(self.sample_graph)
+        output = json.loads(self.run_script(argument))
+        self.assertDictEqual(output,
+                {"Ethernet0": { "admin_status": "up",  "alias": "Ethernet1/1",  "asic_port_name": "Eth0-ASIC0",  "description": "01T2:Ethernet1:config_db",  "index": "0",  "lanes": "33,34,35,36",   "mtu": "9100", "tpid": "0x8100",   "pfc_asym": "off",  "role": "Ext",  "speed": "40000", "autoneg": "on" },
+                "Ethernet4": { "admin_status": "up",  "alias": "Ethernet1/2",  "asic_port_name": "Eth1-ASIC0",  "description": "01T2:Ethernet2:config_db",  "index": "1",  "lanes": "29,30,31,32",   "mtu": "9100", "tpid": "0x8100",  "pfc_asym": "off",  "role": "Ext",  "speed": "40000", "autoneg": "on" },
+                "Ethernet8": { "admin_status": "up", "alias": "Ethernet1/3",  "asic_port_name": "Eth2-ASIC0",  "description": "Ethernet1/3:config_db",  "index": "2",  "lanes": "41,42,43,44",   "mtu": "9100", "tpid": "0x8100",  "pfc_asym": "off",  "role": "Ext",  "speed": "40000" },
+                "Ethernet12": { "admin_status": "up", "alias": "Ethernet1/4",  "asic_port_name": "Eth3-ASIC0",  "description": "Ethernet1/4:config_db",  "index": "3",  "lanes": "37,38,39,40",   "mtu": "9100", "tpid": "0x8100",  "pfc_asym": "off",  "role": "Ext",  "speed": "40000" },
+                "Ethernet-BP0": { "admin_status": "up",  "alias": "Eth4-ASIC0",  "asic_port_name": "Eth4-ASIC0",  "description": "ASIC2:Eth0-ASIC2:config_db",  "index": "0",  "lanes": "13,14,15,16",   "mtu": "9100", "tpid": "0x8100",  "pfc_asym": "off",  "role": "Int",  "speed": "40000" },
+                    "Ethernet-BP4": { "admin_status": "up",  "alias": "Eth5-ASIC0",  "asic_port_name": "Eth5-ASIC0",  "description": "ASIC2:Eth1-ASIC2:config_db",  "index": "1",  "lanes": "17,18,19,20",   "mtu": "9100", "tpid": "0x8100",  "pfc_asym": "off",  "role": "Int",  "speed": "40000" },
+                    "Ethernet-BP8": { "admin_status": "up",  "alias": "Eth6-ASIC0",  "asic_port_name": "Eth6-ASIC0",  "description": "ASIC3:Eth0-ASIC3:config_db",  "index": "2",  "lanes": "21,22,23,24",   "mtu": "9100", "tpid": "0x8100",  "pfc_asym": "off",  "role": "Int",  "speed": "40000" },
+                    "Ethernet-BP12": { "admin_status": "up",  "alias": "Eth7-ASIC0",  "asic_port_name": "Eth7-ASIC0",  "description": "ASIC3:Eth1-ASIC3:config_db",  "index": "3",  "lanes": "25,26,27,28",   "mtu": "9100", "tpid": "0x8100",  "pfc_asym": "off",  "role": "Int",  "speed": "40000" }})
 
     def test_frontend_asic_device_neigh(self):
         argument = "-m {} -p {} -n asic0 --var-json \"DEVICE_NEIGHBOR\"".format(self.sample_graph, self.port_config[0])
@@ -409,3 +423,6 @@ class TestMultiNpuCfgGen(TestCase):
 
     def test_bgpd_frr_backendasic(self):
         self.assertTrue(*self.run_frr_asic_case('bgpd/bgpd.conf.j2', 'bgpd_frr_backend_asic.conf', "asic3", self.port_config[3]))
+
+    def tearDown(self):
+        os.environ["CFGGEN_UNIT_TESTING"] = ""

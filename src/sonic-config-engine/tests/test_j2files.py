@@ -25,6 +25,7 @@ class TestJ2Files(TestCase):
         self.multi_asic_minigraph = os.path.join(self.test_dir, 'multi_npu_data', 'sample-minigraph.xml')
         self.multi_asic_port_config = os.path.join(self.test_dir, 'multi_npu_data', 'sample_port_config-0.ini')
         self.output_file = os.path.join(self.test_dir, 'output')
+        os.environ["CFGGEN_UNIT_TESTING"] = "2"
 
     def run_script(self, argument):
         print('CMD: sonic-cfggen ' + argument)
@@ -307,6 +308,7 @@ class TestJ2Files(TestCase):
         assert filecmp.cmp(expected, self.output_file), self.run_diff(expected, self.output_file)
 
     def tearDown(self):
+        os.environ["CFGGEN_UNIT_TESTING"] = ""
         try:
             os.remove(self.output_file)
         except OSError:
