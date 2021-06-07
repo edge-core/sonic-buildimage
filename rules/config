@@ -69,7 +69,7 @@ SONIC_USE_PDDF_FRAMEWORK = y
 
 # SONIC_ROUTING_STACK - specify the routing-stack being elected to drive SONiC's control-plane.
 # Supported routing stacks on SONiC are:
-# routing-stacks: quagga, frr.
+# routing-stacks: frr.
 SONIC_ROUTING_STACK = frr
 
 # ENABLE_SYNCD_RPC - build docker-syncd with rpc packages for testing purposes.
