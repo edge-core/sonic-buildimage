@@ -498,6 +498,10 @@ static ssize_t show_status(struct device *dev, struct device_attribute *da,
     if (attr->index >= MODULE_PRESENT_1 && attr->index <= MODULE_PRESENT_34) {
         revert = 1;
     }
+    if (attr->index >= MODULE_RESET_1 && attr->index <= MODULE_RESET_32) {
+        revert = 1;
+    }
+    
 
     mutex_lock(&data->update_lock);
 	status = as7726_32x_cpld_read_internal(client, reg);
