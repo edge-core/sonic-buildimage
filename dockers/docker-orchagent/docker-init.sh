@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 mkdir -p /etc/swss/config.d/
+mkdir -p /etc/supervisor/
+mkdir -p /etc/supervisor/conf.d/
 
 CFGGEN_PARAMS=" \
     -d \
@@ -10,6 +12,8 @@ CFGGEN_PARAMS=" \
     -t /usr/share/sonic/templates/ports.json.j2,/etc/swss/config.d/ports.json \
     -t /usr/share/sonic/templates/vlan_vars.j2 \
     -t /usr/share/sonic/templates/ndppd.conf.j2,/etc/ndppd.conf \
+    -t /usr/share/sonic/templates/critical_processes.j2,/etc/supervisor/critical_processes \
+    -t /usr/share/sonic/templates/supervisord.conf.j2,/etc/supervisor/conf.d/supervisord.conf
 "
 VLAN=$(sonic-cfggen $CFGGEN_PARAMS)
 

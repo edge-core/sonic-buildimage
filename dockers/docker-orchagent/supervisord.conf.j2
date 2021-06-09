@@ -28,6 +28,16 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
 
+{% set is_fabric_asic = 0 %}
+{% set orchagent_dependent_startup_wait_for = "portsyncd:running" %}
+{% if DEVICE_METADATA.localhost.switch_type %}
+{% if DEVICE_METADATA.localhost.switch_type == "fabric" %}
+{% set is_fabric_asic = 1 %}
+{% set orchagent_dependent_startup_wait_for = "rsyslogd:running" %}
+{%- endif %}
+{%- endif %}
+
+{% if is_fabric_asic == 0 %}
 [program:gearsyncd]
 command=/usr/bin/gearsyncd -p /usr/share/sonic/hwsku/gearbox_config.json
 priority=3
@@ -39,7 +49,9 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=rsyslogd:running
+{%- endif %}
 
+{% if is_fabric_asic == 0 %}
 [program:portsyncd]
 command=/usr/bin/portsyncd
 priority=3
@@ -49,6 +61,7 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=rsyslogd:running
+{%- endif %}
 
 [program:orchagent]
 command=/usr/bin/orchagent.sh
@@ -58,7 +71,7 @@ autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
-dependent_startup_wait_for=portsyncd:running
+dependent_startup_wait_for={{ orchagent_dependent_startup_wait_for }}
 
 [program:swssconfig]
 command=/usr/bin/swssconfig.sh
@@ -72,6 +85,7 @@ stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=orchagent:running
 
+{% if is_fabric_asic == 0 %}
 [program:restore_neighbors]
 command=/usr/bin/restore_neighbors.py
 priority=6
@@ -83,7 +97,9 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
+{%- endif %}
 
+{% if is_fabric_asic == 0 %}
 [program:coppmgrd]
 command=/usr/bin/coppmgrd
 priority=6
@@ -95,7 +111,9 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=orchagent:running
+{%- endif %}
 
+{% if is_fabric_asic == 0 %}
 [program:neighsyncd]
 command=/usr/bin/neighsyncd
 priority=7
@@ -105,7 +123,9 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
+{%- endif %}
 
+{% if is_fabric_asic == 0 %}
 [program:vlanmgrd]
 command=/usr/bin/vlanmgrd
 priority=8
@@ -115,7 +135,9 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
+{%- endif %}
 
+{% if is_fabric_asic == 0 %}
 [program:intfmgrd]
 command=/usr/bin/intfmgrd
 priority=9
@@ -125,7 +147,9 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
+{%- endif %}
 
+{% if is_fabric_asic == 0 %}
 [program:portmgrd]
 command=/usr/bin/portmgrd
 priority=10
@@ -135,7 +159,9 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
+{%- endif %}
 
+{% if is_fabric_asic == 0 %}
 [program:buffermgrd]
 command=/usr/bin/buffermgrd.sh
 priority=11
@@ -145,7 +171,9 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
+{%- endif %}
 
+{% if is_fabric_asic == 0 %}
 [program:vrfmgrd]
 command=/usr/bin/vrfmgrd
 priority=13
@@ -155,7 +183,9 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
+{%- endif %}
 
+{% if is_fabric_asic == 0 %}
 [program:nbrmgrd]
 command=/usr/bin/nbrmgrd
 priority=15
@@ -165,7 +195,9 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
+{%- endif %}
 
+{% if is_fabric_asic == 0 %}
 [program:vxlanmgrd]
 command=/usr/bin/vxlanmgrd
 priority=16
@@ -175,7 +207,9 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
+{%- endif %}
 
+{% if is_fabric_asic == 0 %}
 [program:tunnelmgrd]
 command=/usr/bin/tunnelmgrd
 priority=17
@@ -185,6 +219,7 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
+{%- endif %}
 
 [program:enable_counters]
 command=/usr/bin/enable_counters.py
@@ -196,6 +231,7 @@ stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
 
+{% if is_fabric_asic == 0 %}
 [program:fdbsyncd]
 command=/usr/bin/fdbsyncd
 priority=17
@@ -205,4 +241,4 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
-
+{%- endif %}
