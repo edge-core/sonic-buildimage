@@ -29,5 +29,4 @@ $(DOCKER_LLDP)_RUN_OPT += -v /usr/share/sonic/scripts:/usr/share/sonic/scripts:r
 
 $(DOCKER_LLDP)_BASE_IMAGE_FILES += lldpctl:/usr/bin/lldpctl
 $(DOCKER_LLDP)_BASE_IMAGE_FILES += lldpcli:/usr/bin/lldpcli
-$(DOCKER_LLDP)_BASE_IMAGE_FILES += monit_lldp:/etc/monit/conf.d
 $(DOCKER_LLDP)_FILES += $(SUPERVISOR_PROC_EXIT_LISTENER_SCRIPT)

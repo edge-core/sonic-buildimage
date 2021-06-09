@@ -14,4 +14,3 @@ $(DOCKER_SYNCD_CENTEC)_RUN_OPT += --privileged -t
 $(DOCKER_SYNCD_CENTEC)_RUN_OPT += -v /host/machine.conf:/etc/machine.conf
 $(DOCKER_SYNCD_CENTEC)_RUN_OPT += -v /var/run/docker-syncd:/var/run/sswsyncd
 $(DOCKER_SYNCD_CENTEC)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
-$(DOCKER_SYNCD_CENTEC)_BASE_IMAGE_FILES += monit_syncd:/etc/monit/conf.d
