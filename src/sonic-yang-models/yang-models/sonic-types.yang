@@ -63,6 +63,7 @@ module sonic-types {
             enum DROP;
             enum FORWARD;
             enum REDIRECT;
+            enum DO_NOT_NAT;
         }
     }
 
@@ -115,6 +116,20 @@ module sonic-types {
         }
     }
 
+    typedef admin_mode {
+        type enumeration {
+            enum enabled;
+            enum disabled;
+        }
+    }
+
+    typedef ip-protocol-type {
+        type enumeration {
+            enum TCP;
+            enum UDP;
+        }
+    }
+    
     typedef interface_type {
         type enumeration {
             enum CR;

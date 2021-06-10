@@ -36,5 +36,12 @@
 	"desc": "Configure wrong value for tagging_mode.",
 	"eStrKey" : "InvalidValue",
 	"eStr": ["tagging_mode"]
+    },
+    "VLAN_INTERFACE_WRONG_NAT_ZONE_RANGE": {
+        "desc": "Configure wrong value for nat zone.",
+        "eStr" : "Invalid nat zone for the vlan interface."
+    },
+    "VLAN_INTERFACE_VALID_NAT_ZONE_RANGE": {
+        "desc": "Configure valid value for nat zone."
     }
 }

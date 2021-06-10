@@ -164,6 +164,17 @@ module sonic-portchannel {
                         path "/vrf:sonic-vrf/vrf:VRF/vrf:VRF_LIST/vrf:name";
                     }
                 }
+
+		leaf nat_zone {
+		    description "NAT Zone for the portchannel interface";
+		    type uint8 {
+		        range "0..3" {
+			    error-message "Invalid nat zone for the portchannel interface.";
+			    error-app-tag nat-zone-invalid;
+			}
+		    }
+		    default "0";
+		}
             } /* end of list PORTCHANNEL_INTERFACE_LIST */
 
             list PORTCHANNEL_INTERFACE_IPPREFIX_LIST {

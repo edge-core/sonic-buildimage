@@ -216,5 +216,99 @@
                 }]
             }
         }
+    },
+
+    "PORTCHANNEL_INTERFACE_WRONG_NAT_ZONE_RANGE": {
+        "sonic-port:sonic-port": {
+            "sonic-port:PORT": {
+                "PORT_LIST": [
+                    {
+                        "admin_status": "up",
+                        "alias": "eth0",
+                        "description": "Ethernet0",
+                        "lanes": "65",
+                        "mtu": 9000,
+                        "name": "Ethernet0",
+                        "speed": 25000
+                    }
+                ]
+            }
+        },
+        "sonic-portchannel:sonic-portchannel": {
+            "sonic-portchannel:PORTCHANNEL": {
+                "PORTCHANNEL_LIST": [
+                    {
+                        "admin_status": "up",
+                        "members": [
+                            "Ethernet0"
+                        ],
+                        "min_links": "1",
+                        "mtu": "9100",
+                        "name": "PortChannel0001"
+                    }
+                ]
+            },
+            "sonic-portchannel:PORTCHANNEL_INTERFACE": {
+                "PORTCHANNEL_INTERFACE_LIST": [
+                    {
+                        "name": "PortChannel0001",
+                        "nat_zone": "4"
+                    }
+                ],
+                "PORTCHANNEL_INTERFACE_IPPREFIX_LIST": [
+                    {
+                        "name": "PortChannel0001",
+                        "ip_prefix": "1.1.1.1/24"
+                    }
+                ]
+            }
+        }
+    },
+
+    "PORTCHANNEL_INTERFACE_VALID_NAT_ZONE_RANGE": {
+        "sonic-port:sonic-port": {
+            "sonic-port:PORT": {
+                "PORT_LIST": [
+                    {
+                        "admin_status": "up",
+                        "alias": "eth0",
+                        "description": "Ethernet0",
+                        "lanes": "65",
+                        "mtu": 9000,
+                        "name": "Ethernet0",
+                        "speed": 25000
+                    }
+                ]
+            }
+        },
+        "sonic-portchannel:sonic-portchannel": {
+            "sonic-portchannel:PORTCHANNEL": {
+                "PORTCHANNEL_LIST": [
+                    {
+                        "admin_status": "up",
+                        "members": [
+                            "Ethernet0"
+                        ],
+                        "min_links": "1",
+                        "mtu": "9100",
+                        "name": "PortChannel0001"
+                    }
+                ]
+            },
+            "sonic-portchannel:PORTCHANNEL_INTERFACE": {
+                "PORTCHANNEL_INTERFACE_LIST": [
+                    {
+                        "name": "PortChannel0001",
+                        "nat_zone": "1"
+                    }
+                ],
+                "PORTCHANNEL_INTERFACE_IPPREFIX_LIST": [
+                    {
+                        "name": "PortChannel0001",
+                        "ip_prefix": "1.1.1.1/24"
+                    }
+                ]
+            }
+        }
     }
 }

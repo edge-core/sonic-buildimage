@@ -2,5 +2,12 @@
     "LOOPBACK_IPPREFIX_PORT_MUST_CONDITION_FALSE": {
 	"desc": "Loopback Ip-prefix port-name must condition failure.",
 	"eStrKey" : "Must"
+    },
+    "LOOPBACK_INTERFACE_WRONG_NAT_ZONE_RANGE": {
+        "desc": "Configure wrong value for nat zone.",
+        "eStr" : "Invalid nat zone for the loopback interface."
+    },
+    "LOOPBACK_INTERFACE_VALID_NAT_ZONE_RANGE": {
+        "desc": "Configure valid value for nat zone."
     }
 }

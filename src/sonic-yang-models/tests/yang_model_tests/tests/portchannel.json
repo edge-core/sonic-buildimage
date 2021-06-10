@@ -44,5 +44,12 @@
         "desc": "Configure a non existent Vrf in PORTCHANNEL_INTERFACE table.",
         "eStrKey": "LeafRef",
         "eStr": ["sonic-vrf:name"]
+    },
+    "PORTCHANNEL_INTERFACE_WRONG_NAT_ZONE_RANGE": {
+        "desc": "Configure wrong value for nat zone.",
+        "eStr" : "Invalid nat zone for the portchannel interface."
+    },
+    "PORTCHANNEL_INTERFACE_VALID_NAT_ZONE_RANGE": {
+        "desc": "Configure valid value for nat zone."
     }
 }
