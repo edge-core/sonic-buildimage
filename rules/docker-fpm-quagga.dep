@@ -1,0 +1,10 @@
+
+DPATH       := $($(DOCKER_FPM_QUAGGA)_PATH)
+DEP_FILES   := $(SONIC_COMMON_FILES_LIST) rules/docker-fpm-quagga.mk rules/docker-fpm-quagga.dep   
+DEP_FILES   += $(SONIC_COMMON_BASE_FILES_LIST)
+DEP_FILES   += $(shell git ls-files $(DPATH))
+
+$(DOCKER_FPM_QUAGGA)_CACHE_MODE  := GIT_CONTENT_SHA 
+$(DOCKER_FPM_QUAGGA)_DEP_FLAGS   := $(SONIC_COMMON_FLAGS_LIST)
+$(DOCKER_FPM_QUAGGA)_DEP_FILES   := $(DEP_FILES)
+

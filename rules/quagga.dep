@@ -1,0 +1,13 @@
+
+SPATH       := $($(QUAGGA)_SRC_PATH)
+DEP_FILES   := $(SONIC_COMMON_FILES_LIST) rules/quagga.mk rules/quagga.dep   
+DEP_FILES   += $(SONIC_COMMON_BASE_FILES_LIST)
+SMDEP_FILES := $(addprefix $(SPATH)/,$(shell cd $(SPATH) && git ls-files))
+
+#DPKG_FRK
+$(QUAGGA)_CACHE_MODE  := GIT_CONTENT_SHA 
+$(QUAGGA)_DEP_FLAGS   := $(SONIC_COMMON_FLAGS_LIST)
+$(QUAGGA)_DEP_FILES   := $(DEP_FILES)
+$(QUAGGA)_SMDEP_FILES := $(SMDEP_FILES)
+$(QUAGGA)_SMDEP_PATHS := $(SPATH)
+
