@@ -20,7 +20,9 @@ if sys.version_info.major == 3:
         # Python3 has enum module and so pyangbind should be installed outside
         # dependencies section of setuptools followed by uninstall of enum43
         # 'pyangbind==0.8.1',
-        'Jinja2>=2.10'
+        'Jinja2>=2.10',
+        'sonic-yang-mgmt>=1.0',
+        'sonic-yang-models>=1.0'
     ]
 else:
     # Python 2-only dependencies
@@ -34,6 +36,20 @@ else:
         'importlib-resources==3.3.1'  # importlib-resources v4.0.0 was released 2020-12-23 and drops support for Python 2
     ]
 
+# Common modules for python2 and python3
+py_modules = [
+    'config_samples',
+    'lazy_re',
+    'minigraph',
+    'openconfig_acl',
+    'portconfig',
+    'redis_bcc',
+]
+if sys.version_info.major == 3:
+    # Python 3-only modules
+    py_modules += [
+        'sonic_yang_cfg_generator'
+    ]
 
 setup(
     name = 'sonic-config-engine',
@@ -42,14 +58,7 @@ setup(
     author = 'Taoyu Li',
     author_email = 'taoyl@microsoft.com',
     url = 'https://github.com/Azure/sonic-buildimage',
-    py_modules = [
-        'config_samples',
-        'lazy_re',
-        'minigraph',
-        'openconfig_acl',
-        'portconfig',
-        'redis_bcc',
-    ],
+    py_modules = py_modules,
     scripts = [
         'sonic-cfggen',
     ],

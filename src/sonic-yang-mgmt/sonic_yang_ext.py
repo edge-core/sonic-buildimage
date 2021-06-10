@@ -37,8 +37,8 @@ class SonicYangExtMixin:
             # keep only modules name in self.yangFiles
             self.yangFiles = [f.split('/')[-1] for f in self.yangFiles]
             self.yangFiles = [f.split('.')[0] for f in self.yangFiles]
-            print('Loaded below Yang Models')
-            print(self.yangFiles)
+            self.sysLog(syslog.LOG_DEBUG,'Loaded below Yang Models')
+            self.sysLog(syslog.LOG_DEBUG,self.yangFiles)
 
             # load json for each yang model
             self._loadJsonYangModel()
@@ -578,8 +578,13 @@ class SonicYangExtMixin:
         for module_top in yangJ.keys():
             # module _top will be of from module:top
             for container in yangJ[module_top].keys():
-                #table = container.split(':')[1]
-                table = container
+                # the module_top can the format
+                # moduleName:TableName or
+                # TableName
+                names = container.split(':')
+                if len(names) > 2:
+                    raise SonicYangException("Invalid Yang data file structure")
+                table = names[0] if len(names) == 1 else names[1]
                 #print("revXlate " + table)
                 cmap = self.confDbYangMap[table]
                 cDbJson[table] = dict()
@@ -779,5 +784,14 @@ class SonicYangExtMixin:
                 format( xpath, str(e)))
 
         return True
+
+
+    def XlateYangToConfigDB(self, yang_data):
+        config_db_json = dict()
+        self.xlateJson = yang_data
+        self.revXlateJson = config_db_json
+        self._revXlateYangtoConfigDB(yang_data, config_db_json)
+        return config_db_json
+
 
     # End of class sonic_yang

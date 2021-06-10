@@ -302,7 +302,7 @@ class Test_SonicYang(object):
         jIn = json.loads(jIn)
         numTables = len(jIn)
         # load config and create Data tree
-        syc.loadData(jIn, debug=True)
+        syc.loadData(jIn)
         # check all tables are loaded and config related to all Yang Models is
         # loaded in Data tree.
         assert len(syc.jIn) == numTables
@@ -329,12 +329,12 @@ class Test_SonicYang(object):
         jIn = json.loads(jIn)
         numTables = len(jIn)
 
-        syc.loadData(jIn, debug=True)
+        syc.loadData(jIn)
         # check all tables are loaded and no tables is without Yang Models
         assert len(syc.jIn) == numTables
         assert len(syc.tablesWithOutYang) == 0
 
-        syc.getData(debug=True)
+        syc.getData()
 
         if syc.jIn and syc.jIn == syc.revXlateJson:
             print("Xlate and Rev Xlate Passed")
