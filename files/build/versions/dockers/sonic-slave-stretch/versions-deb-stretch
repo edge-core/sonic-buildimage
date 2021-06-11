@@ -1002,9 +1002,9 @@ libwayland-client0==1.12.0-1+deb9u1
 libwayland-cursor0==1.12.0-1+deb9u1
 libwayland-egl1-mesa==13.0.6-1+b2
 libwayland-server0==1.12.0-1+deb9u1
-libwebp6==0.5.2-1
-libwebpdemux2==0.5.2-1
-libwebpmux2==0.5.2-1
+libwebp6==0.5.2-1+deb9u1
+libwebpdemux2==0.5.2-1+deb9u1
+libwebpmux2==0.5.2-1+deb9u1
 libwmf0.2-7==0.2.8.4-10.6
 libwrap0==7.6.q-26
 libwrap0-dev==7.6.q-26
