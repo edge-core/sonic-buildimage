@@ -161,3 +161,16 @@ class Chassis(ChassisBase):
     def get_change_event(self, timeout=0):
         ready, event_sfp = Sfp.get_transceiver_change_event(timeout)
         return ready, { 'sfp': event_sfp } if ready else {}
+
+    def get_reboot_cause(self):
+        """
+        Retrieves the cause of the previous reboot
+
+        Returns:
+            A tuple (string, string) where the first element is a string
+            containing the cause of the previous reboot. This string must be
+            one of the predefined strings in this class. If the first string
+            is "REBOOT_CAUSE_HARDWARE_OTHER", the second string can be used
+            to pass a description of the reboot cause.
+        """
+        return self.REBOOT_CAUSE_NON_HARDWARE, ''
