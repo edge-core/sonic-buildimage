@@ -1121,9 +1121,9 @@ libwayland-client0==1.16.0-1
 libwayland-cursor0==1.16.0-1
 libwayland-egl1==1.16.0-1
 libwayland-server0==1.16.0-1
-libwebp6==0.6.1-2
-libwebpdemux2==0.6.1-2
-libwebpmux3==0.6.1-2
+libwebp6==0.6.1-2+deb10u1
+libwebpdemux2==0.6.1-2+deb10u1
+libwebpmux3==0.6.1-2+deb10u1
 libwebsocket-api-java==1.1-1+deb10u1
 libwmf0.2-7==0.2.8.4-14
 libwoff1==1.0.2-1

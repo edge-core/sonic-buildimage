@@ -76,7 +76,6 @@ libxtst-dev==2:1.2.3-1
 libyang==1.0.73
 libyang-cpp==1.0.73
 libyang-dev==1.0.73
-libyang1==1.0.184-2
 linux-headers-4.19.0-12-2-amd64==4.19.152-1
 linux-headers-4.19.0-12-2-common==4.19.152-1
 lldpd==1.0.4-1
@@ -105,6 +104,7 @@ sx-scew-dev==1.mlnx.4.4.3106
 sxd-libs==1.mlnx.4.4.3106
 sxd-libs-dev==1.mlnx.4.4.3106
 syncd==1.0.0
+syncd-vs==1.0.0
 thrift-compiler==0.11.0-4
 wayland-protocols==1.17-1
 wjh-libs==1.mlnx.4.4.3106
