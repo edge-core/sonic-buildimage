@@ -79,7 +79,7 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
 {% if multi_asic is defined %}
 {% if get_ipv6_loopback_address(LOOPBACK_INTERFACE, "Loopback4096") != 'None' %}
   address-family ipv6
-    network {{ get_ipv6_loopback_address(LOOPBACK_INTERFACE, "Loopback4096") | ip }}/64 route-map HIDE_INTERNAL
+    network {{ get_ipv6_loopback_address(LOOPBACK_INTERFACE, "Loopback4096") | ip }}/128 route-map HIDE_INTERNAL
   exit-address-family
 {% endif %}
 {% endif %}
