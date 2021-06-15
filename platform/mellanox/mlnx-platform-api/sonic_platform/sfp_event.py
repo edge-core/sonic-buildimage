@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 '''
 listen to the SDK for the SFP change event and return to chassis.
 '''
