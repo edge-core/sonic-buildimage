@@ -110,12 +110,19 @@ reload_minigraph()
 {
     echo "Reloading minigraph..."
     config load_minigraph -y -n 
+    config save -y
+}
+
+# Apply tacacs config
+apply_tacacs()
+{
     if [ -r /etc/sonic/old_config/${TACACS_JSON_BACKUP} ]; then
         sonic-cfggen -j /etc/sonic/old_config/${TACACS_JSON_BACKUP} --write-to-db
+        echo "Applied tacacs json to restore tacacs credentials"
+        config save -y
     else
         echo "Missing tacacs json to restore tacacs credentials"
     fi
-    config save -y
 }
 
 # Reload exisitng config db file on disk
@@ -443,6 +450,11 @@ fi
 # Take a backup of current configuration
 if [ "$CMD" = "backup" ]; then
     do_config_backup
+fi
+
+# Apply tacacs from old configuration
+if [ "$CMD" = "apply_tacacs" ]; then
+    apply_tacacs
 fi
 
 exit 0
