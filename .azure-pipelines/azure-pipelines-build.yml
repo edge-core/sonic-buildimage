@@ -74,7 +74,7 @@ jobs:
 
         - name: innovium
           variables:
-            swi_image: yes
+            dbg_image: yes
 
         - name: marvell-armhf
           pool: sonicbld_8c
