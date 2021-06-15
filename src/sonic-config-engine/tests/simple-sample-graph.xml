@@ -267,6 +267,25 @@
         <StartPort>Ethernet1/33</StartPort>
         <Validate>true</Validate>
       </DeviceLinkBase>
+      <DeviceLinkBase i:type="DeviceMgmtLink">
+        <ElementType>DeviceMgmtLink</ElementType>
+        <Bandwidth>1000</Bandwidth>
+        <EndDevice>switch-t0</EndDevice>
+        <EndPort>fortyGigE0/16</EndPort>
+        <FlowControl>true</FlowControl>
+        <StartDevice>ChassisMTS1</StartDevice>
+        <StartPort>mgmt0</StartPort>
+        <Validate>true</Validate>
+      </DeviceLinkBase>
+      <DeviceLinkBase i:type="DeviceMgmtLink">
+        <ElementType>DeviceMgmtLink</ElementType>
+        <Bandwidth>1000</Bandwidth>
+        <EndDevice>switch-t0</EndDevice>
+        <EndPort>Management1</EndPort>
+        <StartDevice>switch-m0</StartDevice>
+        <StartPort>Management1</StartPort>
+        <Validate>true</Validate>
+      </DeviceLinkBase>
     </DeviceInterfaceLinks>
     <Devices>
       <Device i:type="ToRRouter">
@@ -368,6 +387,18 @@
           <Priority>0</Priority>
           <Speed>100000</Speed>
           <Description>Interface description</Description>
+        </a:EthernetInterface>
+        <a:EthernetInterface>
+          <ElementType>DeviceInterface</ElementType>
+          <AlternateSpeeds i:nil="true"/>
+          <EnableFlowControl>true</EnableFlowControl>
+          <Index>1</Index>
+          <InterfaceName>fortyGigE0/16</InterfaceName>
+          <InterfaceType i:nil="true"/>
+          <MultiPortsInterface>false</MultiPortsInterface>
+          <PortName>0</PortName>
+          <Priority>0</Priority>
+          <Speed>100000</Speed>
         </a:EthernetInterface>
       </EthernetInterfaces>
       <FlowControl>true</FlowControl>
