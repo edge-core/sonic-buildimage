@@ -20,6 +20,10 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	pushd libnl3-$(LIBNL3_VERSION_BASE)
 	git checkout tags/libnl$(subst .,_,$(LIBNL3_VERSION_BASE))
 
+	git checkout -b sonic
+	stg init
+	stg import -s ../patch/series
+
 	ln -s ../debian debian
 	dpkg-buildpackage -rfakeroot -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS) --admindir $(SONIC_DPKG_ADMINDIR)
 	popd
