@@ -5,6 +5,7 @@ VERBOSE="no"
 RESULTS="PCIe Device Checking All Test"
 EXPECTED="PCIe Device Checking All Test ----------->>> PASSED"
 MAX_WAIT_SECONDS=15
+PCIE_STATUS_TABLE="PCIE_DEVICES|status"
 
 function debug()
 {
@@ -19,7 +20,7 @@ function check_and_rescan_pcie_devices()
     PCIE_CHK_CMD='sudo pcieutil check | grep "$RESULTS"'
     PLATFORM=$(sonic-cfggen -H -v DEVICE_METADATA.localhost.platform)
 
-    if [ ! -f /usr/share/sonic/device/$PLATFORM/pcie.yaml ]; then
+    if [ ! -f /usr/share/sonic/device/$PLATFORM/pcie*.yaml ]; then
         debug "pcie.yaml does not exist! Can't check PCIe status!"
         exit
     fi
@@ -37,7 +38,7 @@ function check_and_rescan_pcie_devices()
         fi
 
         if [ "$(eval $PCIE_CHK_CMD)" = "$EXPECTED" ]; then
-            redis-cli -n 6 HSET "PCIE_DEVICES" "status" "PASSED"
+            redis-cli -n 6 HSET $PCIE_STATUS_TABLE "status" "PASSED"
             debug "PCIe check passed"
             exit
         else
@@ -53,7 +54,7 @@ function check_and_rescan_pcie_devices()
 
      done
      debug "PCIe check failed"
-     redis-cli -n 6 HSET "PCIE_DEVICES" "status" "FAILED"
+     redis-cli -n 6 HSET $PCIE_STATUS_TABLE "status" "FAILED"
 }
 
 check_and_rescan_pcie_devices
