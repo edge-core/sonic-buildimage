@@ -18,7 +18,11 @@ try:
     else:
         import ConfigParser as configparser
 
-    from sonic_platform_base.component_base import ComponentBase
+    from sonic_platform_base.component_base import ComponentBase,           \
+                                                    FW_AUTO_INSTALLED,      \
+                                                    FW_AUTO_ERR_BOOT_TYPE,  \
+                                                    FW_AUTO_ERR_IMAGE,      \
+                                                    FW_AUTO_ERR_UKNOWN
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -332,6 +336,30 @@ class Component(ComponentBase):
     def get_description(self):
         return self.description
 
+    def auto_update_firmware(self, image_path, boot_action):
+        """
+        Default handling of attempted automatic update for a component of a Mellanox switch.
+        Will skip the installation if the boot_action is 'warm' or 'fast' and will call update_firmware()
+        if boot_action is fast.
+        """
+
+        default_supported_boot = ['cold']
+
+        # Verify image path exists
+        if not os.path.exists(image_path):
+            # Invalid image path
+            return FW_AUTO_ERR_IMAGE
+
+        if boot_action in default_supported_boot:
+            if self.install_firmware(image_path):
+                # Successful update
+                return FW_AUTO_INSTALLED
+            # Failed update (unknown reason)
+            return FW_AUTO_ERR_UKNOWN
+
+        # boot_type did not match (skip)
+        return FW_AUTO_ERR_BOOT_TYPE
+
     @staticmethod
     def _read_generic_file(filename, len, ignore_errors=False):
         """
@@ -466,6 +494,40 @@ class ComponentSSD(Component):
             return False
 
         return True
+
+    def auto_update_firmware(self, image_path, boot_action):
+        """
+        Handling of attempted automatic update for a SSD of a Mellanox switch.
+        Will first check the image_path to determine if a post-install reboot is required, 
+        then compares it against boot_action to determine whether to proceed with install.
+        """
+
+        # All devices support cold boot
+        supported_boot = ['cold']
+
+        # Verify image path exists
+        if not os.path.exists(image_path):
+            # Invalid image path
+            return FW_AUTO_ERR_IMAGE
+
+        # Check if post_install reboot is required
+        try:
+            if self.get_firmware_update_notification(image_path) is None:
+                # No power cycle required
+                supported_boot += ['warm', 'fast', 'none', 'any']
+        except RuntimeError:
+            # Unknown error from firmware probe
+            return FW_AUTO_ERR_UKNOWN
+
+        if boot_action in supported_boot:
+            if self.install_firmware(image_path):
+                # Successful update
+                return FW_AUTO_INSTALLED
+            # Failed update (unknown reason)
+            return FW_AUTO_ERR_UKNOWN
+
+        # boot_type did not match (skip)
+        return FW_AUTO_ERR_BOOT_TYPE
 
     def get_firmware_version(self):
         cmd = self.SSD_INFO_COMMAND
