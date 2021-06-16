@@ -198,18 +198,18 @@ def parse_png(png, hname, dpg_ecmp_content = None):
                     startport = link.find(str(QName(ns, "StartPort"))).text
                     baudrate = link.find(str(QName(ns, "Bandwidth"))).text
                     flowcontrol = 1 if link.find(str(QName(ns, "FlowControl"))) is not None and link.find(str(QName(ns, "FlowControl"))).text == 'true' else 0
-                    if enddevice.lower() == hname.lower():
+                    if enddevice.lower() == hname.lower() and endport.isdigit():
                         console_ports[endport] = {
                             'remote_device': startdevice,
                             'baud_rate': baudrate,
                             'flow_control': flowcontrol
-                            }
-                    else:
+                        }
+                    elif startport.isdigit():
                         console_ports[startport] = {
                             'remote_device': enddevice,
                             'baud_rate': baudrate,
                             'flow_control': flowcontrol
-                            }
+                        }
                     continue
 
                 if linktype == "DeviceInterfaceLink":

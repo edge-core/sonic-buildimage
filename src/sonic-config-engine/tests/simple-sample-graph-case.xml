@@ -198,6 +198,15 @@
         <ElementType>DeviceSerialLink</ElementType>
         <Bandwidth>9600</Bandwidth>
         <EndDevice>switch-t0</EndDevice>
+        <EndPort>console</EndPort>
+        <FlowControl>true</FlowControl>
+        <StartDevice>switch-t1</StartDevice>
+        <StartPort>1</StartPort>
+      </DeviceLinkBase>
+      <DeviceLinkBase i:type="DeviceSerialLink">
+        <ElementType>DeviceSerialLink</ElementType>
+        <Bandwidth>9600</Bandwidth>
+        <EndDevice>switch-t0</EndDevice>
         <EndPort>1</EndPort>
         <FlowControl>true</FlowControl>
         <StartDevice>managed_device</StartDevice>
