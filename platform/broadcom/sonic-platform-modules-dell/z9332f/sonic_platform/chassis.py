@@ -110,6 +110,14 @@ class Chassis(ChassisBase):
             34: 2,
             }
 
+    reboot_reason_dict = { 0x11: (ChassisBase.REBOOT_CAUSE_HARDWARE_OTHER, "Power on reset"),
+                           0x22: (ChassisBase.REBOOT_CAUSE_HARDWARE_OTHER, "Soft-set CPU warm reset"),
+                           0x33: (ChassisBase.REBOOT_CAUSE_HARDWARE_OTHER, "Soft-set CPU cold reset"),
+                           0x66: (ChassisBase.REBOOT_CAUSE_WATCHDOG, "GPIO watchdog reset"),
+                           0x77: (ChassisBase.REBOOT_CAUSE_HARDWARE_OTHER, "Power cycle reset"),
+                           0x88: (ChassisBase.REBOOT_CAUSE_WATCHDOG, "CPLD watchdog reset")
+                        }
+
     def __init__(self):
         ChassisBase.__init__(self)
         # sfp.py will read eeprom contents and retrive the eeprom data.
@@ -312,22 +320,8 @@ class Chassis(ChassisBase):
         except EnvironmentError:
             return (self.REBOOT_CAUSE_NON_HARDWARE, None)
 
-        if reboot_cause & 0x1:
-            return (self.REBOOT_CAUSE_POWER_LOSS, None)
-        elif reboot_cause & 0x2:
-            return (self.REBOOT_CAUSE_NON_HARDWARE, None)
-        elif reboot_cause & 0x44:
-            return (self.REBOOT_CAUSE_HARDWARE_OTHER, "CPU warm reset")
-        elif reboot_cause & 0x8:
-            return (self.REBOOT_CAUSE_THERMAL_OVERLOAD_CPU, None)
-        elif reboot_cause & 0x66:
-            return (self.REBOOT_CAUSE_WATCHDOG, None)
-        elif reboot_cause & 0x55:
-            return (self.REBOOT_CAUSE_HARDWARE_OTHER, "CPU cold reset")
-        elif reboot_cause & 0x11:
-            return (self.REBOOT_CAUSE_HARDWARE_OTHER, "Power on reset")
-        elif reboot_cause & 0x77:
-            return (self.REBOOT_CAUSE_HARDWARE_OTHER, "Power Cycle reset")
+        if reboot_cause in self.reboot_reason_dict.keys():
+            return self.reboot_reason_dict.get(reboot_cause)
         else:
             return (self.REBOOT_CAUSE_NON_HARDWARE, None)
 
