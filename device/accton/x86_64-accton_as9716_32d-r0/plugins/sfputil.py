@@ -9,15 +9,44 @@ try:
     import sys
     from ctypes import create_string_buffer
     from sonic_sfp.sfputilbase import SfpUtilBase
+    from sonic_sfp.sff8472 import sff8472InterfaceId
+    from sonic_sfp.sff8472 import sff8472Dom
+    from sonic_sfp.sff8436 import sff8436InterfaceId
+    from sonic_sfp.sff8436 import sff8436Dom
+    from sonic_sfp.inf8628 import inf8628InterfaceId
 except ImportError as e:
     raise ImportError("%s - required module not found" % str(e))
 
+# definitions of the offset and width for values in XCVR info eeprom
+XCVR_TYPE_OFFSET = 0
+XCVR_TYPE_WIDTH = 1
+
+SFP_TYPE_CODE_LIST = [
+    '03'  # SFP/SFP+/SFP28
+]
+QSFP_TYPE_CODE_LIST = [
+    '0d',  # QSFP+ or later
+    '11'  # QSFP28 or later
+]
+QSFP_DD_TYPE_CODE_LIST = [
+    '18'  # QSFP-DD Double Density 8X Pluggable Transceiver
+]
+
+SFP_TYPE = "SFP"
+QSFP_TYPE = "QSFP"
+OSFP_TYPE = "OSFP"
+QSFP_DD_TYPE = "QSFP_DD"
+
+SFP_I2C_START = 25
+I2C_EEPROM_PATH = '/sys/bus/i2c/devices/{0}-0050/eeprom'
 
 class SfpUtil(SfpUtilBase):
     """Platform-specific SfpUtil class"""
 
     PORT_START = 0
     PORT_END = 33
+    OSFP_PORT_START = 0
+    OSFP_PORT_END = 31
     PORTS_IN_BLOCK = 34
 
     BASE_OOM_PATH = "/sys/bus/i2c/devices/{0}-0050/"
@@ -75,7 +104,11 @@ class SfpUtil(SfpUtilBase):
 
     @property
     def qsfp_ports(self):
-        return list(range(self.PORT_START, self.PORTS_IN_BLOCK + 1))
+        return []
+
+    @property
+    def osfp_ports(self):
+        return list(range(self.OSFP_PORT_START, self.OSFP_PORT_END + 1))
 
     @property
     def port_to_eeprom_mapping(self):
@@ -90,6 +123,111 @@ class SfpUtil(SfpUtilBase):
             )
 
         SfpUtilBase.__init__(self)
+
+    def _get_eeprom_path(self, port_num):
+        port_to_i2c_mapping = SFP_I2C_START + port_num
+        port_eeprom_path = I2C_EEPROM_PATH.format(port_to_i2c_mapping)
+        return port_eeprom_path
+
+    def _read_eeprom_specific_bytes_(self, offset, num_bytes, port_num):
+        sysfs_sfp_i2c_client_eeprom_path = self._get_eeprom_path(port_num)
+        eeprom_raw = []
+        try:
+            eeprom = open(
+                sysfs_sfp_i2c_client_eeprom_path,
+                mode="rb", buffering=0)
+        except IOError:
+            return None
+
+        for i in range(0, num_bytes):
+            eeprom_raw.append("0x00")
+
+        try:
+            eeprom.seek(offset)
+            raw = eeprom.read(num_bytes)
+        except IOError:
+            eeprom.close()
+            return None
+
+        try:
+            if isinstance(raw, str):
+                for n in range(0, num_bytes):
+                    eeprom_raw[n] = hex(ord(raw[n]))[2:].zfill(2)
+            else:
+                for n in range(0, num_bytes):
+                    eeprom_raw[n] = hex(raw[n])[2:].zfill(2)
+
+        except BaseException:
+            eeprom.close()
+            return None
+
+        eeprom.close()
+        return eeprom_raw
+
+    def _detect_sfp_type(self, port_num):
+        sfp_type = QSFP_TYPE
+        eeprom_raw = []
+        eeprom_raw = self._read_eeprom_specific_bytes_(
+            XCVR_TYPE_OFFSET, XCVR_TYPE_WIDTH, port_num)
+        if eeprom_raw:
+            if eeprom_raw[0] in SFP_TYPE_CODE_LIST:
+                self.sfp_type = SFP_TYPE
+            elif eeprom_raw[0] in QSFP_TYPE_CODE_LIST:
+                self.sfp_type = QSFP_TYPE
+            elif eeprom_raw[0] in QSFP_DD_TYPE_CODE_LIST:
+                self.sfp_type = QSFP_DD_TYPE
+            else:
+                self.sfp_type = sfp_type
+        else:
+            self.sfp_type = sfp_type
+
+    def get_eeprom_dict(self, port_num):
+        """Returns dictionary of interface and dom data.
+        format: {<port_num> : {'interface': {'version' : '1.0', 'data' : {...}},
+                               'dom' : {'version' : '1.0', 'data' : {...}}}}
+        """
+        self._detect_sfp_type(port_num)
+        sfp_data = {}
+
+        eeprom_ifraw = self.get_eeprom_raw(port_num)
+        eeprom_domraw = self.get_eeprom_dom_raw(port_num)
+
+        if eeprom_ifraw is None:
+            return None
+
+        if self.sfp_type == QSFP_DD_TYPE:
+            sfpi_obj = inf8628InterfaceId(eeprom_ifraw)
+
+            if sfpi_obj is not None:
+                sfp_data['interface'] = sfpi_obj.get_data_pretty()
+
+            return sfp_data
+        elif self.sfp_type == QSFP_TYPE:
+            sfpi_obj = sff8436InterfaceId(eeprom_ifraw)
+
+            if sfpi_obj is not None:
+                sfp_data['interface'] = sfpi_obj.get_data_pretty()
+
+            # For Qsfp's the dom data is part of eeprom_if_raw
+            # The first 128 bytes
+            sfpd_obj = sff8436Dom(eeprom_ifraw)
+            if sfpd_obj is not None:
+                sfp_data['dom'] = sfpd_obj.get_data_pretty()
+
+            return sfp_data
+        else:
+            sfpi_obj = sff8472InterfaceId(eeprom_ifraw)
+
+            if sfpi_obj is not None:
+                sfp_data['interface'] = sfpi_obj.get_data_pretty()
+                cal_type = sfpi_obj.get_calibration_type()
+
+            if eeprom_domraw is not None:
+                sfpd_obj = sff8472Dom(eeprom_domraw, cal_type)
+                if sfpd_obj is not None:
+                    sfp_data['dom'] = sfpd_obj.get_data_pretty()
+
+            return sfp_data
 
     def get_presence(self, port_num):
         # Check for invalid port_num
