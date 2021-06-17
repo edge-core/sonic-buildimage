@@ -886,6 +886,9 @@
                 "PFCWD": {
                     "FLEX_COUNTER_STATUS": "enable"
                 },
+                "PG_DROP": {
+                    "FLEX_COUNTER_STATUS": "enable"
+                },
                 "PG_WATERMARK": {
                     "FLEX_COUNTER_STATUS": "enable"
                 },
@@ -967,6 +970,9 @@
 		"sonic-flex_counter:sonic-flex_counter": {
 			"sonic-flex_counter:FLEX_COUNTER_TABLE": {
 				"QUEUE": {
+					"FLEX_COUNTER_STATUS": "enable"
+				},
+				"PG_DROP": {
 					"FLEX_COUNTER_STATUS": "enable"
 				},
 				"PG_WATERMARK": {
@@ -1678,6 +1684,9 @@
         },
         "FLEX_COUNTER_TABLE": {
             "PFCWD": {
+                "FLEX_COUNTER_STATUS": "enable"
+            },
+            "PG_DROP": {
                 "FLEX_COUNTER_STATUS": "enable"
             },
             "PG_WATERMARK": {
