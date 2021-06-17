@@ -31,8 +31,9 @@ wait_syncd() {
 }
 
 # If this platform has an initialization file for the Broadcom LED microprocessor, load it
-if [[ -r "$LED_PROC_INIT_SOC" && ! -f /var/warmboot/warm-starting ]]; then
-    wait_syncd
+if [ -r "$LED_PROC_INIT_SOC" ]; then
+    if [ ! -f /var/warmboot/warm-starting ]; then
+        wait_syncd
+    fi
     /usr/bin/bcmcmd -t 60 "rcload $LED_PROC_INIT_SOC"
 fi
-
