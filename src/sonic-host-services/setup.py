@@ -35,6 +35,7 @@ setup(
         'wheel'
     ],
     tests_require = [
+        'parameterized',
         'pytest',
         'sonic-py-common'
     ],
