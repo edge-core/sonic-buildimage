@@ -43,6 +43,7 @@ stages:
         set -xe
         make configure PLATFORM=generic
         make target/docker-sonic-mgmt.gz
+        cp target -r $(Build.ArtifactStagingDirectory)/target
         docker load -i target/docker-sonic-mgmt.gz
         docker tag docker-sonic-mgmt $REGISTRY_SERVER/docker-sonic-mgmt:latest
       env:
@@ -55,3 +56,7 @@ stages:
         repository: docker-sonic-mgmt
         command: push
         tags: latest
+    - publish:  $(Build.ArtifactStagingDirectory)
+      artifact: 'docker-sonic-mgmt'
+      displayName: "Archive docker image sonic-mgmt"
+
