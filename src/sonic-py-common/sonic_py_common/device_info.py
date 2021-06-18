@@ -448,7 +448,7 @@ def get_system_mac(namespace=None):
         machine_vars = get_machine_info()
         if machine_vars is not None and machine_key in machine_vars:
             hwsku = machine_vars[machine_key]
-            profile_cmd = 'cat' + HOST_DEVICE_PATH + '/' + platform + '/' + hwsku + '/profile.ini | grep switchMacAddress | cut -f2 -d='
+            profile_cmd = 'cat ' + HOST_DEVICE_PATH + '/' + platform + '/' + hwsku + '/profile.ini | grep switchMacAddress | cut -f2 -d='
         else:
             profile_cmd = "false"
         hw_mac_entry_cmds = ["sudo decode-syseeprom -m", profile_cmd, "ip link show eth0 | grep ether | awk '{print $2}'"]
