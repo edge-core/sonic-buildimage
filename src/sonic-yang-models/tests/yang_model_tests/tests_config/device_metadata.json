@@ -117,5 +117,16 @@
                 }
             }
         }
+    },
+    "DEVICE_METADATA_FRR_MGMT_FWK_CONFIG": {
+        "sonic-device_metadata:sonic-device_metadata": {
+            "sonic-device_metadata:DEVICE_METADATA": {
+                "sonic-device_metadata:localhost": {
+                    "frr_mgmt_framework_config": true,
+                    "hostname": "DUT-CSW",
+                    "platform": "Stone-DX010"
+                }
+            }
+        }
     }
 }

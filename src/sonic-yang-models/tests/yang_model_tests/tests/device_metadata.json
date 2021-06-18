@@ -42,5 +42,9 @@
     "DEVICE_METADATA_INCORRECT_BUFFER_MODEL_PATTERN": {
         "desc": "DEVICE_METADATA wrong value for BUFFER_MODEL field.",
         "eStr": ["pattern", "does not satisfy"]
+    },
+    "DEVICE_METADATA_FRR_MGMT_FWK_CONFIG": {
+        "desc": "Verifying FRR MGMT framework configuration."
     }
+
 }

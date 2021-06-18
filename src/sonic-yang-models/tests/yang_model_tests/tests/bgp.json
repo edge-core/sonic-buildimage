@@ -1,0 +1,139 @@
+{
+    "BGP_GLOBAL_VALID": {
+        "desc": "Configure BGP global table."
+    },
+    "BGP_NEIGHBOR_ALL_VALID": {
+        "desc": "Configure BGP neighbor table."
+    },
+    "BGP_PEERGROUP_ALL_VALID": {
+        "desc": "Configure BGP peer group table."
+    },
+    "BGP_GLOBAL_NEG_VRF_NOT_EXIST": {
+        "desc": "Referring non-existing VRF table.",
+        "eStrKey": "InvalidValue"
+    },
+    "BGP_GLOBAL_AF_NEG_GLOBAL_NOT_EXIST": {
+        "desc": "Referring non-existing BGP global table.",
+        "eStrKey" : "LeafRef"
+    },
+    "BGP_NEIGHBOR_NEG_GLOBAL_NOT_EXIST": {
+        "desc": "Referring non-existing BGP global table.",
+        "eStrKey" : "LeafRef"
+    },
+    "BGP_NEIGHBOR_AF_NEG_NEIGHBOR_NOT_EXIST": {
+        "desc": "Referring non-existing BGP neighbor table.",
+        "eStrKey" : "LeafRef"
+    },
+    "BGP_NEIGHBOR_NEG_INVALID_NAME": {
+        "desc": "Incorrect neighbor name.",
+        "eStrKey": "InvalidValue",
+        "eStr": ["neighbor"]
+    },
+    "BGP_NEIGHBOR_NEG_INVALID_ASN": {
+        "desc": "Invalid local AS number.",
+        "eStrKey" : "InvalidValue"
+    },
+    "BGP_NEIGHBOR_NEG_INVALID_ENFORCE_FIRST_AS": {
+        "desc": "Invalid boolean value for enforce first AS.",
+        "eStrKey" : "InvalidValue",
+        "eStr": ["enforce_first_as"]
+    },
+    "BGP_NEIGHBOR_NEG_INVALID_PEER_TYPE": {
+        "desc": "Invalid value for peer type.",
+        "eStrKey" : "InvalidValue",
+        "eStr": ["peer_type"]
+    },
+    "BGP_NEIGHBOR_NEG_PEERGROUP_NOT_EXIST": {
+        "desc": "Reference to non-existent peergroup.",
+        "eStrKey" : "LeafRef"
+    },
+    "BGP_NEIGHBOR_AF_NEG_INVALID_NAME": {
+        "desc": "Incorrect neighbor name in neighbor AF.",
+        "eStrKey" : "LeafRef"
+    },
+    "BGP_NEIGHBOR_AF_NEG_INVALID_MAXTHRESHOLD": {
+        "desc": "Invalid maximum prefix warning threshold in neighbor AF.",
+        "eStrKey" : "Pattern"
+    },
+    "BGP_NEIGHBOR_AF_NEG_INVALID_SOFT_RECFG_IN": {
+        "desc": "Invalid boolean value for soft reconfiguration-in in neighbor AF.",
+        "eStrKey" : "InvalidValue",
+        "eStr": ["soft_reconfiguration_in"]
+    },
+    "BGP_NEIGHBOR_AF_NEG_INVALID_SEND_COMNTY": {
+        "desc": "Invalid value for send community type in neighbor AF.",
+        "eStrKey" : "InvalidValue",
+        "eStr": ["send_community"]
+    },
+    "BGP_NEIGHBOR_AF_NEG_ROUTE_MAP_NOT_EXIST": {
+        "desc": "Reference to non-existent route-map.",
+        "eStrKey" : "LeafRef"
+    },
+    "BGP_PEER_GROUP_NEG_GLOBAL_NOT_EXIST": {
+        "desc": "Referring non-existing BGP global table.",
+        "eStrKey" : "LeafRef"
+    },
+    "BGP_PEER_GROUP_AF_NEG_PEER_GROUP_NOT_EXIST": {
+        "desc": "Referring non-existing BGP peer group table.",
+        "eStrKey" : "LeafRef"
+    },
+    "BGP_PEERGROUP_INVALID_ASN": {
+        "desc": "Invalid local AS number.",
+        "eStrKey" : "InvalidValue"
+    },
+    "BGP_PEERGROUP_INVALID_ENFORCE_FIRST_AS": {
+        "desc": "Invalid boolean value for enforce first AS.",
+        "eStrKey" : "InvalidValue",
+        "eStr": ["enforce_first_as"]
+    },
+    "BGP_PEERGROUP_INVALID_PEER_TYPE": {
+        "desc": "Invalid value for peer type.",
+        "eStrKey" : "InvalidValue",
+        "eStr": ["peer_type"]
+    },
+    "BGP_PEERGROUP_INVALID_HOPS": {
+        "desc": "Invalid TTL hops for peergroup.",
+        "eStrKey" : "Pattern"
+    },
+    "BGP_PEERGROUP_AF_INVALID_MAXTHRESHOLD": {
+        "desc": "Invalid maximum prefix warning threshold in peergroup AF.",
+        "eStrKey" : "Pattern"
+    },
+    "BGP_PEERGROUP_AF_INVALID_SOFT_RECFG_IN": {
+        "desc": "Invalid boolean value for soft reconfiguration-in in peergroup AF.",
+        "eStrKey" : "InvalidValue",
+        "eStr": ["soft_reconfiguration_in"]
+    },
+    "BGP_PEERGROUP_AF_INVALID_SEND_COMNTY": {
+        "desc": "Invalid value for send community type in peergroup AF.",
+        "eStrKey" : "InvalidValue",
+        "eStr": ["send_community"]
+    },
+    "BGP_PEERGROUP_AF_ROUTE_MAP_NOT_EXIST": {
+        "desc": "Missing or non-existent route-map reference in peergroup AF.",
+        "eStrKey" : "LeafRef"
+    },
+    "BGP_NEIGHBOR_AF_NEG_INVALID_MAP_IN": {
+        "desc": "Invalid route-map in count in neighbor AF.",
+        "eStr" : "Too many route_map_in elements"
+    },
+    "BGP_NEIGHBOR_AF_NEG_INVALID_MAP_OUT": {
+        "desc": "Invalid route-map out count in neighbor AF.",
+        "eStr" : " Too many route_map_out elements"
+    },
+
+    "BGP_PEERGROUP_AF_NEG_INVALID_MAP_IN": {
+        "desc": "Invalid route-map in count in peergroup AF.",
+        "eStr" : "Too many route_map_in elements"
+    },
+    "BGP_PEERGROUP_AF_NEG_INVALID_MAP_OUT": {
+        "desc": "Invalid route-map out count in peergroup AF.",
+        "eStr" : "Too many route_map_out elements"
+    },
+    "BGP_NEIGHBOR_NEG_INVALID_HOPS": {
+        "desc": "Invalid TTL hops for unnumbered interface neigbhor.",
+        "eStrKey" : "Pattern"
+    }
+
+}
+

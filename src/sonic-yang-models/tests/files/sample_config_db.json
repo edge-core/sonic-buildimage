@@ -749,6 +749,7 @@
                 "polling_interval": "0"
             }
         },
+
         "NAT_BINDINGS": {
             "bind1": {
                 "nat_pool": "pool1",
@@ -779,6 +780,73 @@
         "STATIC_NAT": {
             "125.56.90.8": {
                 "local_ip": "12.12.0.2"
+            }
+        },
+
+        "BGP_GLOBALS": {
+            "default": {
+                "router_id": "5.5.5.5",
+                "local_asn": "65001"
+            }
+        },
+        "BGP_GLOBALS_AF": {
+            "default|ipv4_unicast": {
+                "max_ebgp_paths": "2",
+                "max_ibgp_paths": "2"
+            },
+            "default|ipv6_unicast": {
+                "max_ebgp_paths": "2",
+                "max_ibgp_paths": "2"
+            }
+        },
+        "BGP_GLOBALS_AF_AGGREGATE_ADDR": {
+            "default|ipv4_unicast|21.0.0.0/8": {
+            }
+        },
+        "BGP_GLOBALS_AF_NETWORK": {
+            "default|ipv4_unicast|21.0.0.0/8": {
+            }
+        },
+        "BGP_NEIGHBOR": {
+            "default|192.168.1.1": {
+            }
+        },
+        "BGP_NEIGHBOR_AF": {
+            "default|192.168.1.1|ipv4_unicast": {
+            }
+        },
+        "BGP_PEER_GROUP": {
+            "default|PG1": {
+            }
+        },
+        "BGP_PEER_GROUP_AF": {
+            "default|PG1|ipv4_unicast": {
+            }
+        },
+        "BGP_GLOBALS_LISTEN_PREFIX": {
+            "default|30.0.0.0/8": {
+                "peer_group": "PG1"
+            }
+        },
+        "ROUTE_MAP_SET": {
+            "map1": {
+            }
+        },
+        "ROUTE_MAP": {
+            "map1|1": {
+                "match_med" : "100"
+            }
+        },
+        "ROUTE_REDISTRIBUTE": {
+            "default|connected|bgp|ipv4": {
+            }
+        },
+        "PREFIX_SET": {
+            "prefix1": {
+            } 
+        },
+        "PREFIX": {
+            "prefix1|1|10.0.0.0/8|8..16": {
             }
         }
     },

@@ -19,6 +19,11 @@ module sonic-device_metadata {
     }
 
     description "DEVICE_METADATA YANG Module for SONiC OS";
+    
+    revision 2021-02-27 {
+        description "Added frr_mgmt_framework_config field to handle BGP 
+            config DB schema events to configure FRR protocols.";
+    }
 
     revision 2020-04-10 {
         description "First Revision";
@@ -100,6 +105,13 @@ module sonic-device_metadata {
                     type string {
                         pattern "dynamic|traditional";
                     }
+                }
+
+                leaf frr_mgmt_framework_config {
+                    type boolean;
+                    description "FRR configurations are handled by sonic-frr-mgmt-framework module when set to true, 
+                        otherwise, sonic-bgpcfgd handles the FRR configurations based on the predefined templates.";
+                    default "false";
                 }
             }
             /* end of container localhost */
