@@ -75,11 +75,14 @@ class MuxStateWriter(object):
 
         return 'subtype' in metadata and 'dualtor' in metadata['subtype'].lower()
 
-    def get_all_mux_intfs(self):
+    def get_auto_mux_intfs(self):
         """
-        Returns a list of all mux cable interfaces
+        Returns a list of all mux cable interfaces that are configured to auto-switch
         """
-        return self.config_db.get_keys('MUX_CABLE')
+        all_intfs = self.config_db.get_table('MUX_CABLE')
+        auto_intfs = [intf for intf, status in all_intfs.items()
+                                if status['state'].lower() == 'auto']
+        return auto_intfs
 
     def tunnel_exists(self):
         """
@@ -114,7 +117,7 @@ class MuxStateWriter(object):
         if not self.is_dualtor:
             # If not running on a dual ToR system, take no action
             return
-        intfs = self.get_all_mux_intfs()
+        intfs = self.get_auto_mux_intfs()
         state = 'standby'
         if self.wait_for_tunnel():
             logger.log_warning("Applying {} state to interfaces {}".format(state, intfs))
