@@ -252,6 +252,49 @@
                 "port": "Eth18"
             }
         },
+        "MGMT_PORT": {
+            "eth0": {
+                "alias": "eth0",
+                "admin_status": "up",
+                "speed": "1000",
+                "autoneg": "off",
+                "description": "Management port",
+                "mtu": "3500"
+            }
+        },
+        "MGMT_INTERFACE": {
+            "eth0|10.11.150.11/16": {
+                "gwaddr": "10.11.0.1"
+            },
+            "eth0|fc00:2::32/64": {
+                "forced_mgmt_routes": [
+                    "10.3.145.14",
+                    "2001:aa:aa::aa",
+                    "10.0.0.100/31",
+                    "10.255.0.0/28"
+                ],
+                "gwaddr": "fc00:2::1"
+            }
+        },
+        "MGMT_VRF_CONFIG": {
+            "vrf_global": {
+                "mgmtVrfEnabled": "true"
+            }
+        },
+        "NTP": {
+            "global": {
+                "vrf": "mgmt",
+                "src_intf": [
+		    "eth0",
+		    "Loopback0"
+		]
+            }
+        },
+        "NTP_SERVER": {
+            "0.debian.pool.ntp.org": {},
+            "23.92.29.245": {},
+            "2001:aa:aa::aa": {}
+        },
         "PORT": {
             "Ethernet0": {
                 "alias": "Eth1/1",

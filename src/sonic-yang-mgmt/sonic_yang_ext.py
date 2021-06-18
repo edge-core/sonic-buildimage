@@ -477,6 +477,8 @@ class SonicYangExtMixin:
             vValue = list()
             for v in value:
                 vValue.append(_revYangConvert(v))
+        elif leafDict[key]['type']['@name'] == 'boolean':
+            vValue = 'true' if value else 'false'
         else:
             vValue = _revYangConvert(value)
 

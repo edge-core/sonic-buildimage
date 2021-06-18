@@ -1,0 +1,121 @@
+module sonic-ntp {
+
+    yang-version 1.1;
+
+    namespace "http://github.com/Azure/sonic-system-ntp";
+    prefix ntp;
+
+    import ietf-inet-types {
+        prefix inet;
+    }
+
+    import sonic-port {
+        prefix port;
+    }
+
+    import sonic-mgmt_vrf {
+        prefix mvrf;
+    }
+
+    import sonic-portchannel {
+        prefix lag;
+    }
+    /* comment out sonic-vlan until related build issue is fixed
+    import sonic-vlan {
+        prefix vlan;
+    }
+    */
+    import sonic-loopback-interface {
+        prefix lo;
+    }
+
+    import sonic-mgmt_port {
+        prefix mprt;
+    }
+    
+    description
+        "NTP yang Module for SONiC OS";
+
+    revision 2021-04-07 {
+        description
+            "First revision";
+    }
+
+    container sonic-ntp {
+
+        container NTP {
+
+            container global {
+
+                description "Global NTP part of config_db.json";
+                
+                leaf-list src_intf {
+                    type union {
+                        type leafref {
+                            path /port:sonic-port/port:PORT/port:PORT_LIST/port:name;
+                        }
+                        type leafref {
+                            path /lag:sonic-portchannel/lag:PORTCHANNEL/lag:PORTCHANNEL_LIST/lag:name;
+                        }
+                        /*
+                        type leafref {
+                            path /vlan:sonic-vlan/vlan:VLAN/vlan:VLAN_LIST/vlan:name;
+                        }
+                        */
+                        type leafref {
+                            path /lo:sonic-loopback-interface/lo:LOOPBACK_INTERFACE/lo:LOOPBACK_INTERFACE_LIST/lo:name;
+                        }
+                        type leafref {
+                            path /mprt:sonic-mgmt_port/mprt:MGMT_PORT/mprt:MGMT_PORT_LIST/mprt:name;
+                        }
+                    }
+
+                    description
+                        "This is the interface whose IP address is used as the source IP address for
+                         generating NTP traffic. User is required to make sure that the NTP server 
+                         is reachable via this IP address and the same IP address is reachable 
+                         from the NTP server. The source interface should be in the same VRF as the 
+                         VRF NTP is enabled in.";
+                }
+
+                leaf vrf {
+                    must "(current() != 'mgmt') or (/mvrf:sonic-mgmt_vrf/mvrf:MGMT_VRF_CONFIG/mvrf:vrf_global/mvrf:mgmtVrfEnabled = 'true')" {
+                        error-message "Must condition not satisfied. Try enable Management VRF.";
+                    }
+
+                    type string {
+                        pattern "mgmt|default";
+                    }
+
+                    description
+                        "NTP can be enabled only in one VRF at a time. In this revision, it is either
+                         default VRF or Management VRF."; 
+                }
+
+            } /* end of container global */
+
+        } /* end of container NTP */
+
+        container NTP_SERVER {
+        
+            description "NTP SERVER part of config_db.json";
+    
+            list NTP_SERVER_LIST {
+                max-elements 10;
+                description
+                    "Number of upstream NTP servers is discussed at
+                     https://support.ntp.org/bin/view/Support/SelectingOffsiteNTPServers
+                     (5.3.4. Excessive Number of Upstream Time Servers).";
+
+                key "server_address";
+
+                leaf server_address {
+                    type inet:host;
+                }
+            } /* end of list NTP_SERVER_LIST */ 
+
+        } /* end of container NTP_SERVER */
+
+    } /* end of container  sonic-ntp */
+
+} /* end of module sonic-ntp */
