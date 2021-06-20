@@ -1,3 +1,4 @@
+import functools
 import subprocess
 
 # flags to indicate whether this process is running in docker or host
@@ -89,3 +90,15 @@ def is_host():
         pass
 
     return _is_host
+
+
+def default_return(return_value):
+    def wrapper(method):
+        @functools.wraps(method)
+        def _impl(*args, **kwargs):
+            try:
+                return method(*args, **kwargs)
+            except:
+                return return_value
+        return _impl
+    return wrapper
