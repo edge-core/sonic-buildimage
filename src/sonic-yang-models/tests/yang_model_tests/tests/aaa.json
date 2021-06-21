@@ -1,0 +1,13 @@
+{
+    "AAA_TEST": {
+        "desc": "Configure an authentication type in AAA table."
+    },
+    "AAA_TEST_WRONG_TYPE": {
+        "desc": "Configure a wrong type in AAA table.",
+        "eStrKey": "InvalidValue"
+    },
+    "AAA_TEST_WRONG_FAILTHROUGH": {
+        "desc": "Configure a wrong failthrough in AAA table.",
+        "eStrKey": "InvalidValue"
+    }
+}

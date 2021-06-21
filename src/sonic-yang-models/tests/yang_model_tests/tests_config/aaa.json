@@ -1,0 +1,35 @@
+{
+    "AAA_TEST": {
+        "sonic-system-aaa:sonic-system-aaa": {
+            "sonic-system-aaa:AAA": {
+                "AAA_LIST": [{
+                        "type": "authentication",
+                        "login": "tacacs+,local",
+                        "failthrough": "true",
+                        "debug": "true"
+                }]
+            }
+        }
+    },
+
+    "AAA_TEST_WRONG_TYPE": {
+        "sonic-system-aaa:sonic-system-aaa": {
+            "sonic-system-aaa:AAA": {
+                "AAA_LIST": [{
+                        "type": "authorization"
+                }]
+            }
+        }
+    },
+
+    "AAA_TEST_WRONG_FAILTHROUGH": {
+        "sonic-system-aaa:sonic-system-aaa": {
+            "sonic-system-aaa:AAA": {
+                "AAA_LIST": [{
+                        "type": "authentication",
+                        "failthrough": "enable"
+                }]
+            }
+        }
+    }
+}

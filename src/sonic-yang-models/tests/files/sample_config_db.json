@@ -792,6 +792,22 @@
                 "polling_interval": "0"
             }
         },
+        "AAA": {
+            "authentication": {
+                "login": "local" 
+            }
+        },
+        "TACPLUS": {
+            "global": {
+                "auth_type": "pap",
+                "timeout": "5"
+            }
+        },
+        "TACPLUS_SERVER": {
+            "192.168.1.1": {
+                "timeout": "10"
+            }
+        },
 
         "NAT_BINDINGS": {
             "bind1": {
@@ -899,4 +915,5 @@
             "Error": "This Table is for testing, This Table does not have YANG models."
         }
     }
+    
 }
