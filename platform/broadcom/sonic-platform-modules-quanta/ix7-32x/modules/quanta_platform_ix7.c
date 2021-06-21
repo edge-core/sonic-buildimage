@@ -39,119 +39,12 @@
 #include <linux/input-polldev.h>
 #include <linux/rfkill.h>
 #include <linux/slab.h>
-#include <linux/platform_data/pca954x.h>
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3,16,0))
 #include <linux/i2c/pca953x.h>
 #else
 #include <linux/platform_data/pca953x.h>
 #endif
 
-#define MUX_INFO(bus, deselect) \
-	{.adap_id = bus, .deselect_on_exit = deselect}
-
-static struct pca954x_platform_mode pca9548sfp1_modes[] = {
-	MUX_INFO(0x20, 1),
-	MUX_INFO(0x21, 1),
-	MUX_INFO(0x22, 1),
-	MUX_INFO(0x23, 1),
-	MUX_INFO(0x24, 1),
-	MUX_INFO(0x25, 1),
-	MUX_INFO(0x26, 1),
-	MUX_INFO(0x27, 1),
-};
-
-static struct pca954x_platform_data pca9548sfp1_data = {
-	.modes 		= pca9548sfp1_modes,
-	.num_modes 	= 8,
-};
-
-static struct pca954x_platform_mode pca9548sfp2_modes[] = {
-	MUX_INFO(0x28, 1),
-	MUX_INFO(0x29, 1),
-	MUX_INFO(0x2a, 1),
-	MUX_INFO(0x2b, 1),
-	MUX_INFO(0x2c, 1),
-	MUX_INFO(0x2d, 1),
-	MUX_INFO(0x2e, 1),
-	MUX_INFO(0x2f, 1),
-};
-
-static struct pca954x_platform_data pca9548sfp2_data = {
-	.modes 		= pca9548sfp2_modes,
-	.num_modes 	= 8,
-};
-static struct pca954x_platform_mode pca9548sfp3_modes[] = {
-	MUX_INFO(0x30, 1),
-	MUX_INFO(0x31, 1),
-	MUX_INFO(0x32, 1),
-	MUX_INFO(0x33, 1),
-	MUX_INFO(0x34, 1),
-	MUX_INFO(0x35, 1),
-	MUX_INFO(0x36, 1),
-	MUX_INFO(0x37, 1),
-};
-
-static struct pca954x_platform_data pca9548sfp3_data = {
-	.modes 		= pca9548sfp3_modes,
-	.num_modes 	= 8,
-};
-
-static struct pca954x_platform_mode pca9548sfp4_modes[] = {
-	MUX_INFO(0x38, 1),
-	MUX_INFO(0x39, 1),
-	MUX_INFO(0x3a, 1),
-	MUX_INFO(0x3b, 1),
-	MUX_INFO(0x3c, 1),
-	MUX_INFO(0x3d, 1),
-	MUX_INFO(0x3e, 1),
-	MUX_INFO(0x3f, 1),
-};
-
-static struct pca954x_platform_data pca9548sfp4_data = {
-	.modes 		= pca9548sfp4_modes,
-	.num_modes 	= 8,
-};
-
-static struct pca954x_platform_mode pca9546_modes[] = {
-	MUX_INFO(0x10, 1),
-	MUX_INFO(0x11, 1),
-	MUX_INFO(0x12, 1),
-	MUX_INFO(0x13, 1),
-};
-
-static struct pca954x_platform_data pca9546_data = {
-	.modes 		= pca9546_modes,
-	.num_modes 	= 4,
-};
-
-static struct pca954x_platform_mode pca9548_modes[] = {
-	MUX_INFO(0x14, 1),
-	MUX_INFO(0x15, 1),
-	MUX_INFO(0x16, 1),
-	MUX_INFO(0x17, 1),
-	MUX_INFO(0x18, 1),
-	MUX_INFO(0x19, 1),
-	MUX_INFO(0x1a, 1),
-	MUX_INFO(0x1b, 1),
-};
-
-static struct pca954x_platform_data pca9548_data = {
-	.modes 		= pca9548_modes,
-	.num_modes 	= 8,
-};
-
-/* CPU Board i2c device */
-static struct pca954x_platform_mode pca9546_cpu_modes[] = {
-	MUX_INFO(0x02, 1),
-	MUX_INFO(0x03, 1),
-	MUX_INFO(0x04, 1),
-	MUX_INFO(0x05, 1),
-};
-
-static struct pca954x_platform_data pca9546_cpu_data = {
-	.modes 		= pca9546_cpu_modes,
-	.num_modes 	= 4,
-};
 //MB Board Data
 static struct pca953x_platform_data pca9555_1_data = {
 	.gpio_base = 0x10,
@@ -164,30 +57,24 @@ static struct pca953x_platform_data pca9555_CPU_data = {
 static struct i2c_board_info ix7_i2c_devices[] = {
 	{
 		I2C_BOARD_INFO("pca9546", 0x72),		// 0
-		.platform_data = &pca9546_data,
 	},
 	{
 		I2C_BOARD_INFO("pca9548", 0x77),		// 1
-		.platform_data = &pca9548_data,
 	},
 	{
 		I2C_BOARD_INFO("24c02", 0x54),			// 2 0x72 ch2 eeprom
 	},
 	{
 		I2C_BOARD_INFO("pca9548", 0x73),		// 3 0x77 ch0
-		.platform_data = &pca9548sfp1_data,
 	},
 	{
 		I2C_BOARD_INFO("pca9548", 0x73),		// 4 0x77 ch1
-		.platform_data = &pca9548sfp2_data,
 	},
 	{
 		I2C_BOARD_INFO("pca9548", 0x73),		// 5 0x77 ch2
-		.platform_data = &pca9548sfp3_data,
 	},
 	{
 		I2C_BOARD_INFO("pca9548", 0x73),		// 6 0x77 ch3
-		.platform_data = &pca9548sfp4_data,
 	},
 	{
 		I2C_BOARD_INFO("pca9555", 0x23),		// 7 0x72 ch3 pca9555 MB Board Data
@@ -201,7 +88,6 @@ static struct i2c_board_info ix7_i2c_devices[] = {
 	},
 	{
 		I2C_BOARD_INFO("pca9546", 0x71),		// 10 CPU Board i2c device
-		.platform_data = &pca9546_cpu_data,
 	},
 	{
 		I2C_BOARD_INFO("pca9555", 0x20),		// 11 0x71 ch0 CPU Board Data
@@ -227,9 +113,13 @@ static struct platform_driver ix7_platform_driver = {
 
 static struct platform_device *ix7_device;
 
+static struct i2c_client **g_client;
+static struct i2c_client **g_client_port;
+int numof_i2c_devices = 14; // num of ix7_i2c_devices - 1 (for optoe1)
+int numof_ports = 32;
+
 static int __init ix7_platform_init(void)
 {
-	struct i2c_client *client;
 	struct i2c_adapter *adapter;
 	int ret, i;
 
@@ -248,53 +138,137 @@ static int __init ix7_platform_init(void)
 	if (ret)
 		goto fail_platform_device;
 
+	g_client = kmalloc(sizeof(*g_client) * numof_i2c_devices, GFP_KERNEL);
+	for (i = 0; i < numof_i2c_devices; i++) g_client[i] = NULL;
+
+	g_client_port = kmalloc(sizeof(*g_client_port) * numof_ports, GFP_KERNEL);
+	for (i = 0; i < numof_ports; i++) g_client_port[i] = NULL;
+
 	adapter = i2c_get_adapter(0);
-	client = i2c_new_device(adapter, &ix7_i2c_devices[0]);		// pca9546
-	client = i2c_new_device(adapter, &ix7_i2c_devices[1]);		// pca9548
-	client = i2c_new_device(adapter, &ix7_i2c_devices[10]);		// pca9546 in CPU board
-	i2c_put_adapter(adapter);
-
-	adapter = i2c_get_adapter(0x02);
-	client = i2c_new_device(adapter, &ix7_i2c_devices[11]);		// CPU Board Data
-	i2c_put_adapter(adapter);
-
-	adapter = i2c_get_adapter(0x10);
-	client = i2c_new_device(adapter, &ix7_i2c_devices[8]);		// CPLD2
-	client = i2c_new_device(adapter, &ix7_i2c_devices[13]);		// CPLD_led_1
-	i2c_put_adapter(adapter);
-
-	adapter = i2c_get_adapter(0x11);
-	client = i2c_new_device(adapter, &ix7_i2c_devices[9]);		// CPLD3
-	client = i2c_new_device(adapter, &ix7_i2c_devices[14]);		// CPLD_led_2
-	i2c_put_adapter(adapter);
-
-	adapter = i2c_get_adapter(0x12);
-	client = i2c_new_device(adapter, &ix7_i2c_devices[2]);		// MB_BOARDINFO_EEPROM
-	i2c_put_adapter(adapter);
-
-	adapter = i2c_get_adapter(0x13);
-	client = i2c_new_device(adapter, &ix7_i2c_devices[7]);		// pca9555 MB Board Data
-	i2c_put_adapter(adapter);
-
-	adapter = i2c_get_adapter(0x14);
-	client = i2c_new_device(adapter, &ix7_i2c_devices[3]);		// pca9548_1 SFP
-	i2c_put_adapter(adapter);
-
-	adapter = i2c_get_adapter(0x15);
-	client = i2c_new_device(adapter, &ix7_i2c_devices[4]);		// pca9548_2 SFP
-	i2c_put_adapter(adapter);
-
-	adapter = i2c_get_adapter(0x16);
-	client = i2c_new_device(adapter, &ix7_i2c_devices[5]);		// pca9548_3 SFP
-	i2c_put_adapter(adapter);
-
-	adapter = i2c_get_adapter(0x17);
-	client = i2c_new_device(adapter, &ix7_i2c_devices[6]);		// pca9548_4 SFP
-	i2c_put_adapter(adapter);
-	for(i = 32; i < 64; i ++){									// QSFP 1~32 EEPROM
-		adapter = i2c_get_adapter(i);
-		client = i2c_new_device(adapter, &ix7_i2c_devices[12]);
+	if (adapter == NULL)
+	{
+		printk("[%s] get i2c adapter fail at line %d", __FUNCTION__, __LINE__);
+	}
+	else
+	{
+		g_client[0] = i2c_new_device(adapter, &ix7_i2c_devices[0]);		// pca9546
+		g_client[1] = i2c_new_device(adapter, &ix7_i2c_devices[1]);		// pca9548
+		g_client[2] = i2c_new_device(adapter, &ix7_i2c_devices[10]);		// pca9546 in CPU board
 		i2c_put_adapter(adapter);
+	}
+
+	adapter = i2c_get_adapter(13);
+	if (adapter == NULL)
+	{
+		printk("[%s] get i2c adapter fail at line %d", __FUNCTION__, __LINE__);
+	}
+	else
+	{
+		g_client[3] = i2c_new_device(adapter, &ix7_i2c_devices[11]);		// CPU Board Data
+		i2c_put_adapter(adapter);
+	}
+
+	adapter = i2c_get_adapter(1);
+	if (adapter == NULL)
+	{
+		printk("[%s] get i2c adapter fail at line %d", __FUNCTION__, __LINE__);
+	}
+	else
+	{
+		g_client[4] = i2c_new_device(adapter, &ix7_i2c_devices[8]);		// CPLD2
+		g_client[5] = i2c_new_device(adapter, &ix7_i2c_devices[13]);		// CPLD_led_1
+		i2c_put_adapter(adapter);
+	}
+
+	adapter = i2c_get_adapter(2);
+	if (adapter == NULL)
+	{
+		printk("[%s] get i2c adapter fail at line %d", __FUNCTION__, __LINE__);
+	}
+	else
+	{
+		g_client[6] = i2c_new_device(adapter, &ix7_i2c_devices[9]);		// CPLD3
+		g_client[7] = i2c_new_device(adapter, &ix7_i2c_devices[14]);		// CPLD_led_2
+		i2c_put_adapter(adapter);
+	}
+
+	adapter = i2c_get_adapter(3);
+	if (adapter == NULL)
+	{
+		printk("[%s] get i2c adapter fail at line %d", __FUNCTION__, __LINE__);
+	}
+	else
+	{
+		g_client[8] = i2c_new_device(adapter, &ix7_i2c_devices[2]);		// MB_BOARDINFO_EEPROM
+		i2c_put_adapter(adapter);
+	}
+
+	adapter = i2c_get_adapter(4);
+	if (adapter == NULL)
+	{
+		printk("[%s] get i2c adapter fail at line %d", __FUNCTION__, __LINE__);
+	}
+	else
+	{
+		g_client[9] = i2c_new_device(adapter, &ix7_i2c_devices[7]);		// pca9555 MB Board Data
+		i2c_put_adapter(adapter);
+	}
+
+	adapter = i2c_get_adapter(5);
+	if (adapter == NULL)
+	{
+		printk("[%s] get i2c adapter fail at line %d", __FUNCTION__, __LINE__);
+	}
+	else
+	{
+		g_client[10] = i2c_new_device(adapter, &ix7_i2c_devices[3]);		// pca9548_1 SFP
+		i2c_put_adapter(adapter);
+	}
+
+	adapter = i2c_get_adapter(6);
+	if (adapter == NULL)
+	{
+		printk("[%s] get i2c adapter fail at line %d", __FUNCTION__, __LINE__);
+	}
+	else
+	{
+		g_client[11] = i2c_new_device(adapter, &ix7_i2c_devices[4]);		// pca9548_2 SFP
+		i2c_put_adapter(adapter);
+	}
+
+	adapter = i2c_get_adapter(7);
+	if (adapter == NULL)
+	{
+		printk("[%s] get i2c adapter fail at line %d", __FUNCTION__, __LINE__);
+	}
+	else
+	{
+		g_client[12] = i2c_new_device(adapter, &ix7_i2c_devices[5]);		// pca9548_3 SFP
+		i2c_put_adapter(adapter);
+	}
+
+	adapter = i2c_get_adapter(8);
+	if (adapter == NULL)
+	{
+		printk("[%s] get i2c adapter fail at line %d", __FUNCTION__, __LINE__);
+	}
+	else
+	{
+		g_client[13] = i2c_new_device(adapter, &ix7_i2c_devices[6]);		// pca9548_4 SFP
+		i2c_put_adapter(adapter);
+	}
+
+	for(i = 17; i < 49; i ++){									// QSFP 1~32 EEPROM
+		adapter = i2c_get_adapter(i);
+		if (adapter == NULL)
+		{
+			printk("[%s] get i2c adapter fail at line %d", __FUNCTION__, __LINE__);
+		}
+		else
+		{
+			g_client_port[i - 17] = i2c_new_device(adapter, &ix7_i2c_devices[12]);
+			i2c_put_adapter(adapter);
+		}
 	}
 
 	return 0;
@@ -309,6 +283,26 @@ fail_platform_driver:
 
 static void __exit ix7_platform_exit(void)
 {
+	int i = 0;
+
+	for (i = numof_ports - 1; i >= 0; i--)
+	{
+		if (g_client_port[i])
+		{
+			i2c_unregister_device(g_client_port[i]);
+			g_client_port[i] = NULL;
+		}
+	}
+
+	for (i = numof_i2c_devices - 1; i >= 0; i--)
+	{
+		if (g_client[i])
+		{
+			i2c_unregister_device(g_client[i]);
+			g_client[i] = NULL;
+		}
+	}
+
 	platform_device_unregister(ix7_device);
 	platform_driver_unregister(&ix7_platform_driver);
 }

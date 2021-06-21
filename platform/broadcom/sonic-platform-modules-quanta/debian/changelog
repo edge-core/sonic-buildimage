@@ -32,3 +32,17 @@ sonic-quanta-platform-modules (1.0) unstable; urgency=low
   * Initial release
 
  -- Jonathan Tsai <jonathan.tsai@quantatw.com>  Thu, 31 Jan 2019 13:09:01 +0800
+
+sonic-quanta-platform-modules (1.0) unstable; urgency=low
+
+  * Add support for Quanta IX7-BWDE-32X
+  * Initial release
+
+ -- Robert Hong <robert.hong@qct.io> Tue, 2 Mar 2021 11:07:01 +0800
+
+sonic-quanta-platform-modules (1.0) unstable; urgency=low
+
+  * Add support for Quanta IX8A-BWDE-56X
+  * Initial release
+
+ -- Robert Hong <robert.hong@qct.io> Tue, 2 Mar 2021 15:20:01 +0800

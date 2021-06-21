@@ -298,7 +298,7 @@ static int cpld_probe(struct i2c_client *client,
 
 	if (!cpld_class)
 	{
-		cpld_class = class_create(THIS_MODULE, name);
+		cpld_class = class_create(THIS_MODULE, "cpld-sfp28");
 		if (IS_ERR(cpld_class)) {
 			pr_err("couldn't create sysfs class\n");
 			return PTR_ERR(cpld_class);
@@ -358,7 +358,7 @@ err_out:
 }
 
 /* FIXME: for older kernel doesn't with idr_is_empty function, implement here */
-#if 1
+#if 0
 static int idr_has_entry(int id, void *p, void *data)
 {
 	return 1;
@@ -384,8 +384,11 @@ static int cpld_remove(struct i2c_client *client)
 		kfree(data->port_data[i]);
 	}
 
-	if (cpld_idr_is_empty(&cpld_ida.idr))
+	if (ida_is_empty(&cpld_ida))
+	{
 		class_destroy(cpld_class);
+		cpld_class = NULL;
+	}
 
 	return 0;
 }

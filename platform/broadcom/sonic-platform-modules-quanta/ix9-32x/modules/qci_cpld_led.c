@@ -26,6 +26,7 @@
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 
+#include <linux/version.h>
 #include <linux/module.h>
 #include <linux/jiffies.h>
 #include <linux/i2c.h>
@@ -244,6 +245,8 @@ err_out:
 }
 
 /* FIXME: for older kernel doesn't with idr_is_empty function, implement here */
+#if LINUX_VERSION_CODE > KERNEL_VERSION(4,10,0)
+#else
 static int idr_has_entry(int id, void *p, void *data)
 {
 	return 1;
@@ -253,6 +256,7 @@ static bool cpld_idr_is_empty(struct idr *idp)
 {
 	return !idr_for_each(idp, idr_has_entry, NULL);
 }
+#endif
 
 static int cpld_led_remove(struct i2c_client *client)
 {
@@ -262,8 +266,11 @@ static int cpld_led_remove(struct i2c_client *client)
 	device_unregister(data->port_dev);
 	ida_simple_remove(&cpld_led_ida, data->cpld_data->cpld_id);
 	kfree(data->cpld_data);
-
+#if LINUX_VERSION_CODE > KERNEL_VERSION(4,10,0)
+	if (ida_is_empty(&cpld_led_ida))
+#else
 	if (cpld_idr_is_empty(&cpld_led_ida.idr))
+#endif
 		class_destroy(cpld_class);
 
 	return 0;

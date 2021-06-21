@@ -242,6 +242,7 @@ err_out:
 }
 
 /* FIXME: for older kernel doesn't with idr_is_empty function, implement here */
+#if 0
 static int idr_has_entry(int id, void *p, void *data)
 {
 	return 1;
@@ -251,6 +252,7 @@ static bool cpld_idr_is_empty(struct idr *idp)
 {
 	return !idr_for_each(idp, idr_has_entry, NULL);
 }
+#endif
 
 static int cpld_led_remove(struct i2c_client *client)
 {
@@ -261,7 +263,7 @@ static int cpld_led_remove(struct i2c_client *client)
 	ida_simple_remove(&cpld_led_ida, data->cpld_data->cpld_id);
 	kfree(data->cpld_data);
 
-	if (cpld_idr_is_empty(&cpld_led_ida.idr))
+	if (ida_is_empty(&cpld_led_ida))
 		class_destroy(cpld_class);
 
 	return 0;

@@ -396,8 +396,11 @@ static int cpld_remove(struct i2c_client *client)
 		kfree(data->port_data[i]);
 	}
 
-	if (cpld_idr_is_empty(&cpld_ida.idr))
+	if (ida_is_empty(&cpld_ida))
+	{
 		class_destroy(cpld_class);
+		cpld_class = NULL;
+	}
 
 	return 0;
 }
