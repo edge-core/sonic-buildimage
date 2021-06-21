@@ -8,4 +8,4 @@ OnBootSec=3min 30 sec
 Unit=mgmt-framework.service
 
 [Install]
-WantedBy=timers.target sonic.target
+WantedBy=timers.target sonic.target sonic-delayed.target
