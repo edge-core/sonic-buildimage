@@ -32,7 +32,8 @@ jobs:
       dbg_image: no
       swi_image: no
       raw_image: no
-      sync_rpc_image: no
+      docker_syncd_rpc_image: no
+      syncd_rpc_image: no
       platform_rpc: no
     ${{ if ne(parameters.jobGroups, '') }}:
       jobGroups: ${{ parameters.jobGroups }}
@@ -44,7 +45,7 @@ jobs:
 
         - name: barefoot
           variables:
-            sync_rpc_image: yes
+            docker_syncd_rpc_image: yes
             platform_rpc: bfn
             swi_image: yes
 
@@ -53,13 +54,13 @@ jobs:
             dbg_image: yes
             swi_image: yes
             raw_image: yes
-            sync_rpc_image: yes
+            docker_syncd_rpc_image: yes
             platform_rpc: brcm
 
         - name: centec
           variables:
             dbg_image: yes
-            sync_rpc_image: yes
+            docker_syncd_rpc_image: yes
             platform_rpc: centec
 
         - name: centec-arm64
@@ -85,13 +86,14 @@ jobs:
         - name: mellanox
           variables:
             dbg_image: yes
-            sync_rpc_image: yes
+            docker_syncd_rpc_image: yes
+            syncd_rpc_image: yes
             platform_rpc: mlnx
 
         - name: nephos
           variables:
             dbg_image: yes
-            sync_rpc_image: yes
+            docker_syncd_rpc_image: yes
             platform_rpc: nephos
 
     buildSteps:
@@ -113,8 +115,12 @@ jobs:
             if [ $(raw_image) == yes ]; then
               make $BUILD_OPTIONS target/sonic-$(GROUP_NAME).raw
             fi
-            if [ $(sync_rpc_image) == yes ]; then
+            if [ $(docker_syncd_rpc_image) == yes ]; then
               make $BUILD_OPTIONS ENABLE_SYNCD_RPC=y target/docker-syncd-$(platform_rpc)-rpc.gz
+            fi
+            if [ $(syncd_rpc_image) == yes ]; then
+              make $BUILD_OPTIONS ENABLE_SYNCD_RPC=y target/sonic-$(GROUP_NAME).bin
+              mv target/sonic-mellanox.bin target/sonic-$(GROUP_NAME)-rpc.bin
             fi
             make $BUILD_OPTIONS target/sonic-$(GROUP_NAME).bin
           fi
