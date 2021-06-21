@@ -3,10 +3,10 @@ link off
 counter off
 
 #***
-#*** Port CD0 Preemphasis setting ***
+#*** Port CE0-CE3 Preemphasis setting ***
 #***
 
-local port cd0
+local port ce0
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=4
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E4
@@ -25,6 +25,7 @@ phy $port TXFIR_TAP_CTL4r.1 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.1 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.1 TXFIR_TAP_LOAD=0x1
 
+local port ce1
 #*** lane 2 ***
 phy $port TXFIR_TAP_CTL0r.2 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.2 TXFIR_TAP1_COEFF=0x1E8
@@ -43,6 +44,7 @@ phy $port TXFIR_TAP_CTL4r.3 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.3 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.3 TXFIR_TAP_LOAD=0x1
 
+local port ce2
 #*** lane 4 ***
 phy $port TXFIR_TAP_CTL0r.4 TXFIR_TAP0_COEFF=4
 phy $port TXFIR_TAP_CTL1r.4 TXFIR_TAP1_COEFF=0x1E4
@@ -61,6 +63,7 @@ phy $port TXFIR_TAP_CTL4r.5 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.5 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.5 TXFIR_TAP_LOAD=0x1
 
+local port ce3
 #*** lane 6 ***
 phy $port TXFIR_TAP_CTL0r.6 TXFIR_TAP0_COEFF=4
 phy $port TXFIR_TAP_CTL1r.6 TXFIR_TAP1_COEFF=0x1E4
@@ -82,10 +85,10 @@ phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP_LOAD=0x1
 delay 10
 
 #***
-#*** Port CD1 Preemphasis setting ***
+#*** Port CE4-CE7 Preemphasis setting ***
 #***
 
-local port cd1
+local port ce4
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E8
@@ -104,6 +107,7 @@ phy $port TXFIR_TAP_CTL4r.1 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.1 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.1 TXFIR_TAP_LOAD=0x1
 
+local port ce5
 #*** lane 2 ***
 phy $port TXFIR_TAP_CTL0r.2 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.2 TXFIR_TAP1_COEFF=0x1E8
@@ -122,6 +126,7 @@ phy $port TXFIR_TAP_CTL4r.3 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.3 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.3 TXFIR_TAP_LOAD=0x1
 
+local port ce6
 #*** lane 4 ***
 phy $port TXFIR_TAP_CTL0r.4 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.4 TXFIR_TAP1_COEFF=0x1E8
@@ -140,6 +145,7 @@ phy $port TXFIR_TAP_CTL4r.5 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.5 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.5 TXFIR_TAP_LOAD=0x1
 
+local port ce7
 #*** lane 6 ***
 phy $port TXFIR_TAP_CTL0r.6 TXFIR_TAP0_COEFF=4
 phy $port TXFIR_TAP_CTL1r.6 TXFIR_TAP1_COEFF=0x1E4
@@ -161,10 +167,10 @@ phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP_LOAD=0x1
 delay 10
 
 #***
-#*** Port CD2 Preemphasis setting ***
+#*** Port CE8-CE11 Preemphasis setting ***
 #***
 
-local port cd2
+local port ce8
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=4
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E4
@@ -183,6 +189,7 @@ phy $port TXFIR_TAP_CTL4r.1 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.1 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.1 TXFIR_TAP_LOAD=0x1
 
+local port ce9
 #*** lane 2 ***
 phy $port TXFIR_TAP_CTL0r.2 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.2 TXFIR_TAP1_COEFF=0x1E8
@@ -201,6 +208,7 @@ phy $port TXFIR_TAP_CTL4r.3 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.3 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.3 TXFIR_TAP_LOAD=0x1
 
+local port ce10
 #*** lane 4 ***
 phy $port TXFIR_TAP_CTL0r.4 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.4 TXFIR_TAP1_COEFF=0x1E8
@@ -219,6 +227,7 @@ phy $port TXFIR_TAP_CTL4r.5 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.5 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.5 TXFIR_TAP_LOAD=0x1
 
+local port ce11
 #*** lane 6 ***
 phy $port TXFIR_TAP_CTL0r.6 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.6 TXFIR_TAP1_COEFF=0x1E8
@@ -240,10 +249,10 @@ phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP_LOAD=0x1
 delay 10
 
 #***
-#*** Port CD3 Preemphasis setting ***
+#*** Port CE12-CE15 Preemphasis setting ***
 #***
 
-local port cd3
+local port ce12
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E8
@@ -262,6 +271,7 @@ phy $port TXFIR_TAP_CTL4r.1 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.1 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.1 TXFIR_TAP_LOAD=0x1
 
+local port ce13
 #*** lane 2 ***
 phy $port TXFIR_TAP_CTL0r.2 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.2 TXFIR_TAP1_COEFF=0x1E8
@@ -280,6 +290,7 @@ phy $port TXFIR_TAP_CTL4r.3 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.3 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.3 TXFIR_TAP_LOAD=0x1
 
+local port ce14
 #*** lane 4 ***
 phy $port TXFIR_TAP_CTL0r.4 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.4 TXFIR_TAP1_COEFF=0x1E8
@@ -298,6 +309,7 @@ phy $port TXFIR_TAP_CTL4r.5 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.5 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.5 TXFIR_TAP_LOAD=0x1
 
+local port ce15
 #*** lane 6 ***
 phy $port TXFIR_TAP_CTL0r.6 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.6 TXFIR_TAP1_COEFF=0x1E8
@@ -319,10 +331,10 @@ phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP_LOAD=0x1
 delay 10
 
 #***
-#*** Port CD4 Preemphasis setting ***
+#*** Port CE16-CE19 Preemphasis setting ***
 #***
 
-local port cd4
+local port ce16
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=4
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E4
@@ -341,6 +353,8 @@ phy $port TXFIR_TAP_CTL4r.1 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.1 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.1 TXFIR_TAP_LOAD=0x1
 
+
+local port ce17
 #*** lane 2 ***
 phy $port TXFIR_TAP_CTL0r.2 TXFIR_TAP0_COEFF=4
 phy $port TXFIR_TAP_CTL1r.2 TXFIR_TAP1_COEFF=0x1E4
@@ -368,6 +382,8 @@ phy $port TXFIR_TAP_CTL4r.4 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.4 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.4 TXFIR_TAP_LOAD=0x1
 
+
+local port ce18
 #*** lane 5 ***
 phy $port TXFIR_TAP_CTL0r.5 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.5 TXFIR_TAP1_COEFF=0x1E8
@@ -386,6 +402,7 @@ phy $port TXFIR_TAP_CTL4r.6 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.6 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.6 TXFIR_TAP_LOAD=0x1
 
+local port ce19
 #*** lane 7 ***
 phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP0_COEFF=4
 phy $port TXFIR_TAP_CTL1r.7 TXFIR_TAP1_COEFF=0x1E4
@@ -397,11 +414,12 @@ phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP_LOAD=0x1
 
 delay 10
 
+
 #***
-#*** Port CD5 Preemphasis setting ***
+#*** Port CE20-CE23 Preemphasis setting ***
 #***
 
-local port cd5
+local port ce20
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E8
@@ -420,6 +438,8 @@ phy $port TXFIR_TAP_CTL4r.1 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.1 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.1 TXFIR_TAP_LOAD=0x1
 
+
+local port ce21
 #*** lane 2 ***
 phy $port TXFIR_TAP_CTL0r.2 TXFIR_TAP0_COEFF=4
 phy $port TXFIR_TAP_CTL1r.2 TXFIR_TAP1_COEFF=0x1E4
@@ -438,6 +458,8 @@ phy $port TXFIR_TAP_CTL4r.3 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.3 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.3 TXFIR_TAP_LOAD=0x1
 
+
+local port ce22
 #*** lane 4 ***
 phy $port TXFIR_TAP_CTL0r.4 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.4 TXFIR_TAP1_COEFF=0x1E8
@@ -456,6 +478,8 @@ phy $port TXFIR_TAP_CTL4r.5 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.5 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.5 TXFIR_TAP_LOAD=0x1
 
+
+local port ce23
 #*** lane 6 ***
 phy $port TXFIR_TAP_CTL0r.6 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.6 TXFIR_TAP1_COEFF=0x1E8
@@ -476,11 +500,12 @@ phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP_LOAD=0x1
 
 delay 10
 
+
 #***
-#*** Port CD6 Preemphasis setting ***
+#*** Port CD24-27 Preemphasis setting ***
 #***
 
-local port cd6
+local port ce24
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E8
@@ -499,6 +524,8 @@ phy $port TXFIR_TAP_CTL4r.1 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.1 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.1 TXFIR_TAP_LOAD=0x1
 
+
+local port ce25
 #*** lane 2 ***
 phy $port TXFIR_TAP_CTL0r.2 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.2 TXFIR_TAP1_COEFF=0x1E8
@@ -517,6 +544,7 @@ phy $port TXFIR_TAP_CTL4r.3 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.3 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.3 TXFIR_TAP_LOAD=0x1
 
+local port ce26
 #*** lane 4 ***
 phy $port TXFIR_TAP_CTL0r.4 TXFIR_TAP0_COEFF=4
 phy $port TXFIR_TAP_CTL1r.4 TXFIR_TAP1_COEFF=0x1E4
@@ -535,6 +563,7 @@ phy $port TXFIR_TAP_CTL4r.5 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.5 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.5 TXFIR_TAP_LOAD=0x1
 
+local port ce27
 #*** lane 6 ***
 phy $port TXFIR_TAP_CTL0r.6 TXFIR_TAP0_COEFF=4
 phy $port TXFIR_TAP_CTL1r.6 TXFIR_TAP1_COEFF=0x1E4
@@ -555,11 +584,12 @@ phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP_LOAD=0x1
 
 delay 10
 
+
+local port ce28
 #***
-#*** Port CD7 Preemphasis setting ***
+#*** Port CE28-CE31 Preemphasis setting ***
 #***
 
-local port cd7
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E8
@@ -578,6 +608,7 @@ phy $port TXFIR_TAP_CTL4r.1 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.1 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.1 TXFIR_TAP_LOAD=0x1
 
+local port ce29
 #*** lane 2 ***
 phy $port TXFIR_TAP_CTL0r.2 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.2 TXFIR_TAP1_COEFF=0x1E8
@@ -596,6 +627,7 @@ phy $port TXFIR_TAP_CTL4r.3 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.3 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.3 TXFIR_TAP_LOAD=0x1
 
+local port ce30
 #*** lane 4 ***
 phy $port TXFIR_TAP_CTL0r.4 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.4 TXFIR_TAP1_COEFF=0x1E8
@@ -614,6 +646,7 @@ phy $port TXFIR_TAP_CTL4r.5 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.5 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.5 TXFIR_TAP_LOAD=0x1
 
+local port ce31
 #*** lane 6 ***
 phy $port TXFIR_TAP_CTL0r.6 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.6 TXFIR_TAP1_COEFF=0x1E8
@@ -635,10 +668,10 @@ phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP_LOAD=0x1
 delay 10
 
 #***
-#*** Port CD8 Preemphasis setting ***
+#*** Port CE32-CE35 Preemphasis setting ***
 #***
 
-local port cd8
+local port ce32
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=4
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E4
@@ -657,6 +690,7 @@ phy $port TXFIR_TAP_CTL4r.1 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.1 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.1 TXFIR_TAP_LOAD=0x1
 
+local port ce33
 #*** lane 2 ***
 phy $port TXFIR_TAP_CTL0r.2 TXFIR_TAP0_COEFF=4
 phy $port TXFIR_TAP_CTL1r.2 TXFIR_TAP1_COEFF=0x1E4
@@ -675,6 +709,7 @@ phy $port TXFIR_TAP_CTL4r.3 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.3 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.3 TXFIR_TAP_LOAD=0x1
 
+local port ce34
 #*** lane 4 ***
 phy $port TXFIR_TAP_CTL0r.4 TXFIR_TAP0_COEFF=4
 phy $port TXFIR_TAP_CTL1r.4 TXFIR_TAP1_COEFF=0x1E4
@@ -693,6 +728,7 @@ phy $port TXFIR_TAP_CTL4r.5 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.5 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.5 TXFIR_TAP_LOAD=0x1
 
+local port ce35
 #*** lane 6 ***
 phy $port TXFIR_TAP_CTL0r.6 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.6 TXFIR_TAP1_COEFF=0x1E8
@@ -714,10 +750,10 @@ phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP_LOAD=0x1
 delay 10
 
 #***
-#*** Port CD9 Preemphasis setting ***
+#*** Port CD36-39 Preemphasis setting ***
 #***
 
-local port cd9
+local port ce36
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E8
@@ -736,6 +772,7 @@ phy $port TXFIR_TAP_CTL4r.1 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.1 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.1 TXFIR_TAP_LOAD=0x1
 
+local port ce37
 #*** lane 2 ***
 phy $port TXFIR_TAP_CTL0r.2 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.2 TXFIR_TAP1_COEFF=0x1E8
@@ -754,6 +791,7 @@ phy $port TXFIR_TAP_CTL4r.3 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.3 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.3 TXFIR_TAP_LOAD=0x1
 
+local port ce38
 #*** lane 4 ***
 phy $port TXFIR_TAP_CTL0r.4 TXFIR_TAP0_COEFF=4
 phy $port TXFIR_TAP_CTL1r.4 TXFIR_TAP1_COEFF=0x1E4
@@ -772,6 +810,7 @@ phy $port TXFIR_TAP_CTL4r.5 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.5 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.5 TXFIR_TAP_LOAD=0x1
 
+local port ce39
 #*** lane 6 ***
 phy $port TXFIR_TAP_CTL0r.6 TXFIR_TAP0_COEFF=4
 phy $port TXFIR_TAP_CTL1r.6 TXFIR_TAP1_COEFF=0x1E4
@@ -793,10 +832,10 @@ phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP_LOAD=0x1
 delay 10
 
 #***
-#*** Port CD10 Preemphasis setting ***
+#*** Port CE40-CE43 Preemphasis setting ***
 #***
 
-local port cd10
+local port ce40
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=4
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E4
@@ -815,6 +854,7 @@ phy $port TXFIR_TAP_CTL4r.1 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.1 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.1 TXFIR_TAP_LOAD=0x1
 
+local port ce41
 #*** lane 2 ***
 phy $port TXFIR_TAP_CTL0r.2 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.2 TXFIR_TAP1_COEFF=0x1E8
@@ -833,6 +873,7 @@ phy $port TXFIR_TAP_CTL4r.3 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.3 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.3 TXFIR_TAP_LOAD=0x1
 
+local port ce42
 #*** lane 4 ***
 phy $port TXFIR_TAP_CTL0r.4 TXFIR_TAP0_COEFF=4
 phy $port TXFIR_TAP_CTL1r.4 TXFIR_TAP1_COEFF=0x1E4
@@ -851,6 +892,7 @@ phy $port TXFIR_TAP_CTL4r.5 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.5 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.5 TXFIR_TAP_LOAD=0x1
 
+local port ce43
 #*** lane 6 ***
 phy $port TXFIR_TAP_CTL0r.6 TXFIR_TAP0_COEFF=4
 phy $port TXFIR_TAP_CTL1r.6 TXFIR_TAP1_COEFF=0x1E4
@@ -872,10 +914,10 @@ phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP_LOAD=0x1
 delay 10
 
 #***
-#*** Port CD11 Preemphasis setting ***
+#*** Port CE44-CE47 Preemphasis setting ***
 #***
 
-local port cd11
+local port ce44
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E8
@@ -894,6 +936,7 @@ phy $port TXFIR_TAP_CTL4r.1 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.1 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.1 TXFIR_TAP_LOAD=0x1
 
+local port ce45
 #*** lane 2 ***
 phy $port TXFIR_TAP_CTL0r.2 TXFIR_TAP0_COEFF=4
 phy $port TXFIR_TAP_CTL1r.2 TXFIR_TAP1_COEFF=0x1E4
@@ -912,6 +955,7 @@ phy $port TXFIR_TAP_CTL4r.3 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.3 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.3 TXFIR_TAP_LOAD=0x1
 
+local port ce46
 #*** lane 4 ***
 phy $port TXFIR_TAP_CTL0r.4 TXFIR_TAP0_COEFF=4
 phy $port TXFIR_TAP_CTL1r.4 TXFIR_TAP1_COEFF=0x1E4
@@ -939,6 +983,7 @@ phy $port TXFIR_TAP_CTL4r.6 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.6 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.6 TXFIR_TAP_LOAD=0x1
 
+local port ce47
 #*** lane 7 ***
 phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP0_COEFF=4
 phy $port TXFIR_TAP_CTL1r.7 TXFIR_TAP1_COEFF=0x1E4
@@ -951,10 +996,10 @@ phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP_LOAD=0x1
 delay 10
 
 #***
-#*** Port CD12 Preemphasis setting ***
+#*** Port CD0 Preemphasis setting ***
 #***
 
-local port cd12
+local port cd0
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E8
@@ -1030,10 +1075,10 @@ phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP_LOAD=0x1
 delay 10
 
 #***
-#*** Port CD13 Preemphasis setting ***
+#*** Port CD1 Preemphasis setting ***
 #***
 
-local port cd13
+local port cd1
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E8
@@ -1108,10 +1153,10 @@ phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP_LOAD=0x1
 delay 10
 
 #***
-#*** Port CD14 Preemphasis setting ***
+#*** Port CD2 Preemphasis setting ***
 #***
 
-local port cd14
+local port cd2
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E8
@@ -1187,10 +1232,10 @@ phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP_LOAD=0x1
 delay 10
 
 #***
-#*** Port CD15 Preemphasis setting ***
+#*** Port CD3 Preemphasis setting ***
 #***
 
-local port cd15
+local port cd3
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E8
@@ -1266,10 +1311,10 @@ phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP_LOAD=0x1
 delay 10
 
 #***
-#*** Port CD16 Preemphasis setting ***
+#*** Port CE48-CE51 Preemphasis setting ***
 #***
 
-local port cd16
+local port ce48
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E8
@@ -1288,6 +1333,7 @@ phy $port TXFIR_TAP_CTL4r.1 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.1 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.1 TXFIR_TAP_LOAD=0x1
 
+local port ce49
 #*** lane 2 ***
 phy $port TXFIR_TAP_CTL0r.2 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.2 TXFIR_TAP1_COEFF=0x1E8
@@ -1306,6 +1352,7 @@ phy $port TXFIR_TAP_CTL4r.3 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.3 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.3 TXFIR_TAP_LOAD=0x1
 
+local port ce50
 #*** lane 4 ***
 phy $port TXFIR_TAP_CTL0r.4 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.4 TXFIR_TAP1_COEFF=0x1E8
@@ -1324,6 +1371,7 @@ phy $port TXFIR_TAP_CTL4r.5 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.5 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.5 TXFIR_TAP_LOAD=0x1
 
+local port ce51
 #*** lane 6 ***
 phy $port TXFIR_TAP_CTL0r.6 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.6 TXFIR_TAP1_COEFF=0x1E8
@@ -1345,10 +1393,10 @@ phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP_LOAD=0x1
 delay 10
 
 #***
-#*** Port CD17 Preemphasis setting ***
+#*** Port CE52-CE55 Preemphasis setting ***
 #***
 
-local port cd17
+local port ce52
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E8
@@ -1367,6 +1415,7 @@ phy $port TXFIR_TAP_CTL4r.1 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.1 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.1 TXFIR_TAP_LOAD=0x1
 
+local port ce53
 #*** lane 2 ***
 phy $port TXFIR_TAP_CTL0r.2 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.2 TXFIR_TAP1_COEFF=0x1E8
@@ -1385,6 +1434,7 @@ phy $port TXFIR_TAP_CTL4r.3 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.3 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.3 TXFIR_TAP_LOAD=0x1
 
+local port ce54
 #*** lane 4 ***
 phy $port TXFIR_TAP_CTL0r.4 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.4 TXFIR_TAP1_COEFF=0x1E8
@@ -1403,6 +1453,7 @@ phy $port TXFIR_TAP_CTL4r.5 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.5 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.5 TXFIR_TAP_LOAD=0x1
 
+local port ce55
 #*** lane 6 ***
 phy $port TXFIR_TAP_CTL0r.6 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.6 TXFIR_TAP1_COEFF=0x1E8
@@ -1424,10 +1475,10 @@ phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP_LOAD=0x1
 delay 10
 
 #***
-#*** Port CD18 Preemphasis setting ***
+#*** Port CD56-59 Preemphasis setting ***
 #***
 
-local port cd18
+local port ce56
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E8
@@ -1446,6 +1497,7 @@ phy $port TXFIR_TAP_CTL4r.1 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.1 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.1 TXFIR_TAP_LOAD=0x1
 
+local port ce57
 #*** lane 2 ***
 phy $port TXFIR_TAP_CTL0r.2 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.2 TXFIR_TAP1_COEFF=0x1E8
@@ -1464,6 +1516,7 @@ phy $port TXFIR_TAP_CTL4r.3 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.3 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.3 TXFIR_TAP_LOAD=0x1
 
+local port ce58
 #*** lane 4 ***
 phy $port TXFIR_TAP_CTL0r.4 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.4 TXFIR_TAP1_COEFF=0x1E8
@@ -1482,6 +1535,7 @@ phy $port TXFIR_TAP_CTL4r.5 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.5 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.5 TXFIR_TAP_LOAD=0x1
 
+local port ce59
 #*** lane 6 ***
 phy $port TXFIR_TAP_CTL0r.6 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.6 TXFIR_TAP1_COEFF=0x1E8
@@ -1503,10 +1557,10 @@ phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP_LOAD=0x1
 delay 10
 
 #***
-#*** Port CD19 Preemphasis setting ***
+#*** Port CE60-CE63 Preemphasis setting ***
 #***
 
-local port cd19
+local port ce60
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E8
@@ -1525,6 +1579,7 @@ phy $port TXFIR_TAP_CTL4r.1 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.1 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.1 TXFIR_TAP_LOAD=0x1
 
+local port ce61
 #*** lane 2 ***
 phy $port TXFIR_TAP_CTL0r.2 TXFIR_TAP0_COEFF=4
 phy $port TXFIR_TAP_CTL1r.2 TXFIR_TAP1_COEFF=0x1E4
@@ -1543,6 +1598,7 @@ phy $port TXFIR_TAP_CTL4r.3 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.3 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.3 TXFIR_TAP_LOAD=0x1
 
+local port ce62
 #*** lane 4 ***
 phy $port TXFIR_TAP_CTL0r.4 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.4 TXFIR_TAP1_COEFF=0x1E8
@@ -1561,6 +1617,7 @@ phy $port TXFIR_TAP_CTL4r.5 TXFIR_TAP4_COEFF=0
 phy $port TXFIR_TAP_CTL5r.5 TXFIR_TAP5_COEFF=0
 phy $port TXFIR_TAP_CTL0r.5 TXFIR_TAP_LOAD=0x1
 
+local port ce63
 #*** lane 6 ***
 phy $port TXFIR_TAP_CTL0r.6 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.6 TXFIR_TAP1_COEFF=0x1E8
@@ -1582,10 +1639,10 @@ phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP_LOAD=0x1
 delay 10
 
 #***
-#*** Port CD20 Preemphasis setting ***
+#*** Port CD4 Preemphasis setting ***
 #***
 
-local port cd20
+local port cd4
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E8
@@ -1661,10 +1718,10 @@ phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP_LOAD=0x1
 delay 10
 
 #***
-#*** Port CD21 Preemphasis setting ***
+#*** Port CD5 Preemphasis setting ***
 #***
 
-local port cd21
+local port cd5
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=4
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E4
@@ -1740,10 +1797,10 @@ phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP_LOAD=0x1
 delay 10
 
 #***
-#*** Port CD22 Preemphasis setting ***
+#*** Port CD6 Preemphasis setting ***
 #***
 
-local port cd22
+local port cd6
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E8
@@ -1819,10 +1876,10 @@ phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP_LOAD=0x1
 delay 10
 
 #***
-#*** Port CD23 Preemphasis setting ***
+#*** Port CD7 Preemphasis setting ***
 #***
 
-local port cd23
+local port cd7
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=4
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E4
@@ -1898,10 +1955,10 @@ phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP_LOAD=0x1
 delay 10
 
 #***
-#*** Port CD24 Preemphasis setting ***
+#*** Port CD8 Preemphasis setting ***
 #***
 
-local port cd24
+local port cd8
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E8
@@ -1977,10 +2034,10 @@ phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP_LOAD=0x1
 delay 10
 
 #***
-#*** Port CD25 Preemphasis setting ***
+#*** Port CD9 Preemphasis setting ***
 #***
 
-local port cd25
+local port cd9
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E8
@@ -2055,10 +2112,10 @@ phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP_LOAD=0x1
 delay 10
 
 #***
-#*** Port CD26 Preemphasis setting ***
+#*** Port CD10 Preemphasis setting ***
 #***
 
-local port cd26
+local port cd10
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E8
@@ -2134,10 +2191,10 @@ phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP_LOAD=0x1
 delay 10
 
 #***
-#*** Port CD27 Preemphasis setting ***
+#*** Port CD11 Preemphasis setting ***
 #***
 
-local port cd27
+local port cd11
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=4
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E4
@@ -2213,10 +2270,10 @@ phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP_LOAD=0x1
 delay 10
 
 #***
-#*** Port CD28 Preemphasis setting ***
+#*** Port CD12 Preemphasis setting ***
 #***
 
-local port cd28
+local port cd12
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E8
@@ -2292,10 +2349,10 @@ phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP_LOAD=0x1
 delay 10
 
 #***
-#*** Port CD29 Preemphasis setting ***
+#*** Port CD13 Preemphasis setting ***
 #***
 
-local port cd29
+local port cd13
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=4
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E4
@@ -2371,10 +2428,10 @@ phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP_LOAD=0x1
 delay 10
 
 #***
-#*** Port CD30 Preemphasis setting ***
+#*** Port CD14 Preemphasis setting ***
 #***
 
-local port cd30
+local port cd14
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=0
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E8
@@ -2450,10 +2507,10 @@ phy $port TXFIR_TAP_CTL0r.7 TXFIR_TAP_LOAD=0x1
 delay 10
 
 #***
-#*** Port CD31 Preemphasis setting ***
+#*** Port CD15 Preemphasis setting ***
 #***
 
-local port cd31
+local port cd15
 #*** lane 0 ***
 phy $port TXFIR_TAP_CTL0r.0 TXFIR_TAP0_COEFF=4
 phy $port TXFIR_TAP_CTL1r.0 TXFIR_TAP1_COEFF=0x1E4
