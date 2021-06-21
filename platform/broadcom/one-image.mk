@@ -53,7 +53,9 @@ $(SONIC_ONE_IMAGE)_LAZY_INSTALLS += $(DELL_S6000_PLATFORM_MODULE) \
                                $(DELTA_ET6248BRB_PLATFORM_MODULE) \
                                $(QUANTA_IX1B_32X_PLATFORM_MODULE) \
                                $(QUANTA_IX7_32X_PLATFORM_MODULE) \
+                               $(QUANTA_IX7_BWDE_32X_PLATFORM_MODULE) \
                                $(QUANTA_IX8_56X_PLATFORM_MODULE) \
+                               $(QUANTA_IX8A_BWDE_56X_PLATFORM_MODULE) \
                                $(QUANTA_IX8C_56X_PLATFORM_MODULE) \
                                $(QUANTA_IX9_32X_PLATFORM_MODULE) \
                                $(MITAC_LY1200_32X_PLATFORM_MODULE) \
