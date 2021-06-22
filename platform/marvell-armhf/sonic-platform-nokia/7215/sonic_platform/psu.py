@@ -31,6 +31,7 @@ class Psu(PsuBase):
     """Nokia platform-specific PSU class for 7215 """
 
     def __init__(self, psu_index):
+        PsuBase.__init__(self)
         # PSU is 1-based in Nokia platforms
         self.index = psu_index + 1
         self._fan_list = []
