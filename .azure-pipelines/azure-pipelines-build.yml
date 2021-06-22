@@ -65,7 +65,7 @@ jobs:
 
         - name: centec-arm64
           pool: sonicbld_8c
-          timeoutInMinutes: 2160
+          timeoutInMinutes: 2880
           variables:
             PLATFORM_ARCH: arm64
             BUILD_OPTIONS: ${{ parameters.buildOptions }} SONIC_VERSION_CONTROL_COMPONENTS=
@@ -79,7 +79,7 @@ jobs:
 
         - name: marvell-armhf
           pool: sonicbld_8c
-          timeoutInMinutes: 2160
+          timeoutInMinutes: 2880
           variables:
             PLATFORM_ARCH: armhf
             BUILD_OPTIONS: ${{ parameters.buildOptions }} SONIC_VERSION_CONTROL_COMPONENTS=
