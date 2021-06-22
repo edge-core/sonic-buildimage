@@ -382,7 +382,7 @@ start() {
 {%- endif %}
 {%- if sonic_asic_platform == "mellanox" %}
 {%- if docker_container_name == "syncd" %}
-        -v /var/log/mellanox/sniffer:/var/log/mellanox/sniffer:rw \
+        -v /var/log/mellanox:/var/log/mellanox:rw \
         -v mlnx_sdk_socket:/var/run/sx_sdk \
         -v mlnx_sdk_ready:/tmp \
         -v /dev/shm:/dev/shm:rw \
