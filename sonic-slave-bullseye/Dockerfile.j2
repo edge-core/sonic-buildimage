@@ -1,0 +1,496 @@
+{%- if CONFIGURED_ARCH == "armhf" and MULTIARCH_QEMU_ENVIRON == "y" %}
+FROM multiarch/qemu-user-static:x86_64-arm-5.0.0-2 as qemu
+FROM multiarch/debian-debootstrap:armhf-bullseye
+COPY --from=qemu /usr/bin/qemu-arm-static /usr/bin
+{%- elif CONFIGURED_ARCH == "arm64" and MULTIARCH_QEMU_ENVIRON == "y" %}
+FROM multiarch/debian-debootstrap:arm64-bullseye
+{%- else -%}
+FROM debian:bullseye
+{%- endif %}
+
+MAINTAINER gulv@microsoft.com
+
+COPY ["no-check-valid-until", "/etc/apt/apt.conf.d/"]
+
+## TODO: Re-add in any necessary mirror URLs here as they become available
+RUN echo "deb [arch=amd64] http://debian-archive.trafficmanager.net/debian/ bullseye main contrib non-free" >> /etc/apt/sources.list && \
+        echo "deb-src [arch=amd64] http://debian-archive.trafficmanager.net/debian/ bullseye main contrib non-free" >> /etc/apt/sources.list && \
+        echo "deb [arch=amd64] http://debian-archive.trafficmanager.net/debian bullseye-backports main" >> /etc/apt/sources.list
+
+{%- if CONFIGURED_ARCH == "armhf" %}
+RUN echo "deb [arch=armhf] http://deb.debian.org/debian bullseye main contrib non-free" > /etc/apt/sources.list && \
+        echo "deb-src [arch=armhf] http://deb.debian.org/debian bullseye main contrib non-free" >> /etc/apt/sources.list && \
+        echo "deb [arch=armhf] http://deb.debian.org/debian bullseye-updates main contrib non-free" >> /etc/apt/sources.list && \
+        echo "deb-src [arch=armhf] http://deb.debian.org/debian bullseye-updates main contrib non-free" >> /etc/apt/sources.list && \
+        echo "deb [arch=armhf] http://security.debian.org bullseye/updates main contrib non-free" >> /etc/apt/sources.list && \
+        echo "deb-src [arch=armhf] http://security.debian.org bullseye/updates main contrib non-free" >> /etc/apt/sources.list && \
+        echo 'deb [arch=armhf] http://ftp.debian.org/debian bullseye-backports main' >> /etc/apt/sources.list && \
+        echo "deb [arch=armhf] http://packages.trafficmanager.net/debian/debian bullseye main contrib non-free" >> /etc/apt/sources.list && \
+        echo "deb [arch=armhf] http://packages.trafficmanager.net/debian/debian bullseye-updates main contrib non-free" >> /etc/apt/sources.list
+{%- elif CONFIGURED_ARCH == "arm64" %}
+RUN echo "deb [arch=arm64] http://deb.debian.org/debian bullseye main contrib non-free" > /etc/apt/sources.list && \
+        echo "deb-src [arch=arm64] http://deb.debian.org/debian bullseye main contrib non-free" >> /etc/apt/sources.list && \
+        echo "deb [arch=arm64] http://deb.debian.org/debian bullseye-updates main contrib non-free" >> /etc/apt/sources.list && \
+        echo "deb-src [arch=arm64] http://deb.debian.org/debian bullseye-updates main contrib non-free" >> /etc/apt/sources.list && \
+        echo "deb [arch=arm64] http://security.debian.org bullseye/updates main contrib non-free" >> /etc/apt/sources.list && \
+        echo "deb-src [arch=arm64] http://security.debian.org bullseye/updates main contrib non-free" >> /etc/apt/sources.list && \
+        echo 'deb [arch=arm64] http://ftp.debian.org/debian bullseye-backports main' >> /etc/apt/sources.list && \
+        echo "deb [arch=arm64] http://packages.trafficmanager.net/debian/debian bullseye main contrib non-free" >> /etc/apt/sources.list && \
+        echo "deb [arch=arm64] http://packages.trafficmanager.net/debian/debian bullseye-updates main contrib non-free" >> /etc/apt/sources.list
+{%- endif %}
+
+## Make apt-get non-interactive
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y \
+        apt-utils \
+        default-jre-headless \
+        openssh-server \
+        curl \
+        wget \
+        unzip \
+        git \
+        build-essential \
+        libtool \
+        lintian \
+        sudo \
+        dh-make \
+        dh-exec \
+        kmod \
+        libtinyxml2-dev \
+        python \
+        python3 \
+        python3-pip \
+        libncurses5-dev \
+        texinfo \
+        dh-autoreconf \
+        doxygen \
+        devscripts \
+        git-buildpackage \
+        perl-modules \
+        libswitch-perl \
+        libzmq5 \
+        libzmq3-dev \
+        jq \
+# For quagga build
+        libreadline-dev \
+        texlive-latex-base \
+        texlive-plain-generic \
+        texlive-fonts-recommended \
+        libpam0g-dev \
+        libpam-dev \
+        libcap-dev \
+        imagemagick \
+        ghostscript \
+        groff \
+        libpcre3-dev \
+        gawk \
+        chrpath \
+# For frr build
+        libc-ares-dev \
+        libsnmp-dev \
+        libjson-c-dev \
+        libsystemd-dev \
+        python3-ipaddr \
+        libcmocka-dev \
+        python3-all-dev \
+        python3-all-dbg \
+        install-info \
+        logrotate \
+# For libnl3 (local) build
+        cdbs \
+# For SAI meta build
+        libxml-simple-perl \
+        graphviz \
+        aspell \
+# For linux build
+        bc \
+        fakeroot \
+        build-essential \
+        devscripts \
+        quilt \
+        stgit \
+# For platform-modules build
+        module-assistant \
+# For thrift build\
+        gem2deb \
+        libevent-dev \
+        libglib2.0-dev \
+        python3-all-dev \
+        python3-twisted \
+        phpunit \
+        libbit-vector-perl \
+        openjdk-11-jdk \
+        javahelper \
+        maven-debian-helper \
+        ant \
+        libhttpclient-java \
+        libslf4j-java \
+        libservlet3.1-java \
+        pkg-php-tools \
+# For mellanox sdk build
+        libpcre3 \
+        libpcre3-dev \
+        byacc \
+        flex \
+        libglib2.0-dev \
+        bison \
+        expat \
+        libexpat1-dev \
+        dpatch \
+        libdb-dev \
+        libiptc-dev \
+        libxtables-dev \
+# For mellanox sai build
+        libtool-bin \
+        libxml2-dev \
+# For BFN sdk build
+        libusb-1.0-0-dev \
+        libcurl3-nss-dev \
+        libunwind8-dev \
+        telnet \
+        libc-ares2 \
+        libgoogle-perftools4 \
+# For build image
+        cpio \
+        squashfs-tools \
+        zip \
+# For broadcom sdk build
+{%- if CONFIGURED_ARCH == "amd64" %}
+        linux-compiler-gcc-10-x86 \
+{%- endif %}
+{%- if CONFIGURED_ARCH == "armhf" %}
+        linux-compiler-gcc-10-arm \
+{%- endif %}
+        linux-kbuild-5.10 \
+# teamd build
+        libdaemon-dev \
+        libdbus-1-dev \
+        libjansson-dev \
+# For cavium sdk build
+        libpcap-dev \
+        dnsutils \
+        libusb-dev \
+# For debian image reconfiguration
+        augeas-tools \
+# For p4 build
+        libyaml-dev \
+        libevent-dev \
+        libjudy-dev \
+        libedit-dev \
+        libnanomsg-dev \
+        python3-stdeb \
+# For redis build
+        libjemalloc-dev \
+        liblua5.1-0-dev \
+        lua-bitop-dev  \
+        lua-cjson-dev \
+# For mft kernel module build
+        dkms \
+# For Jenkins static analysis, unit testing and code coverage
+        cppcheck \
+        clang \
+        pylint \
+        python3-pytest \
+        python3-pytest \
+        gcovr \
+        python3-pytest-cov \
+        python3-pytest-cov \
+        python3-parse \
+# For snmpd
+        default-libmysqlclient-dev \
+        libssl-dev \
+        libperl-dev \
+        libpci-dev \
+        libpci3 \
+        libsensors5 \
+        libsensors4-dev \
+        libwrap0-dev \
+# For lldpd
+	debhelper \
+        autotools-dev \
+        libbsd-dev \
+        pkg-config \
+        check \
+# For mpdecimal
+        docutils-common \
+        libjs-sphinxdoc \
+        libjs-underscore \
+        python3-docutils \
+        python3-jinja2 \
+        python3-markupsafe \
+        python3-pygments \
+        python3-roman \
+        python3-sphinx \
+        sphinx-common \
+        python3-sphinx \
+# For sonic config engine testing
+        python3-dev \
+{%- if CONFIGURED_ARCH == "armhf" or CONFIGURED_ARCH == "arm64" %}
+        libxslt-dev \
+{%- endif %}
+# For lockfile
+        procmail \
+# For gtest
+        libgtest-dev \
+        cmake \
+# For pam_tacplus build
+        autoconf-archive \
+# For iproute2
+        cm-super-minimal \
+        libatm1-dev \
+        libelf-dev \
+        libmnl-dev \
+        libselinux1-dev \
+        linuxdoc-tools \
+        lynx \
+        texlive-latex-extra \
+        texlive-latex-recommended \
+        iproute2 \
+# For bash
+        texi2html \
+# For initramfs
+        shellcheck \
+        bash-completion \
+{%- if CONFIGURED_ARCH == "amd64" %}
+# For sonic vs image build
+        dosfstools \
+        qemu-kvm \
+        libvirt-clients \
+{%- endif %}
+# For ntp
+        autogen \
+        libopts25-dev \
+        pps-tools \
+        dh-apparmor \
+# For lm-sensors
+        librrd8 \
+        librrd-dev \
+        rrdtool \
+# For smartmontools 6.6-1
+        automake1.11 \
+        libselinux1-dev \
+# For kdump-tools
+        liblzo2-dev \
+# For iptables
+        libnetfilter-conntrack-dev \
+        libnftnl-dev \
+# For SAI3.7
+        protobuf-compiler \
+        libprotobuf-dev \
+        xxd \
+# For DHCP Monitor tool
+        libexplain-dev \
+        libevent-dev \
+# For libyang
+        swig \
+# For build dtb
+        device-tree-compiler \
+# For sonic-mgmt-framework
+        autoconf \
+        m4 \
+        libxml2-utils \
+        xsltproc \
+        python3-lxml \
+        libexpat1-dev \
+        libcurl3-gnutls \
+        libcjson-dev \
+# For WPA supplication
+        qtbase5-dev          \
+        aspell-en            \
+        libpython2.7-dev     \
+        libssl-dev           \
+        dbus                 \
+        libdbus-1-dev        \
+        libdbus-glib-1-2     \
+        libdbus-glib-1-dev   \
+        libreadline-dev      \
+        libncurses5-dev      \
+        libpcsclite-dev      \
+        docbook-to-man       \
+        docbook-utils        \
+# For kdump-tools
+        libbz2-dev \
+# For linkmgrd
+        libboost1.74-dev \
+        libboost-program-options1.74-dev \
+        libboost-system1.74-dev \
+        libboost-thread1.74-dev \
+        libboost-atomic1.74-dev \
+        libboost-chrono1.74-dev \
+        libboost-container1.74-dev \
+        libboost-context1.74-dev \
+        libboost-contract1.74-dev \
+        libboost-coroutine1.74-dev \
+        libboost-date-time1.74-dev \
+        libboost-fiber1.74-dev \
+        libboost-filesystem1.74-dev \
+        libboost-graph-parallel1.74-dev \
+        libboost-log1.74-dev \
+        libboost-regex1.74-dev \
+        googletest \
+        libgtest-dev \
+        libgcc-10-dev \
+# For sonic-host-services build
+        libcairo2-dev \
+        libdbus-1-dev \
+        libgirepository1.0-dev \
+        libsystemd-dev \
+        pkg-config
+
+# Build fix for ARMHF bullseye libsairedis
+{%- if CONFIGURED_ARCH == "armhf" %}
+       # Install doxygen build dependency packages
+       RUN apt install -y libxapian-dev yui-compressor libclang-3.9-dev texlive-extra-utils \
+           texlive-font-utils  rdfind llvm-6.0-dev libclang-6.0-dev sassc
+
+       # Update doxygen with 64bit file offset patch
+       RUN dget -u http://deb.debian.org/debian/pool/main/d/doxygen/doxygen_1.8.13-10.dsc && \
+           cd doxygen-1.8.13 && \
+           sed -i '56 a add_definitions(-D_FILE_OFFSET_BITS=64)' CMakeLists.txt && \
+           DEB_BUILD_OPTIONS=nocheck dpkg-buildpackage -us -uc -b && \
+           cd .. && \
+           dpkg -i ./doxygen_1.8.13-10_armhf.deb && \
+           rm -fr doxygen*
+
+       # Aspell is unable to locate the language dictionaries.
+       # Re-installing aspell-en dictionary to fix it.
+       RUN apt-get install --reinstall -y aspell-en
+
+       # workaround because of https://bugs.launchpad.net/qemu/+bug/1805913, just disable aspell
+       RUN cp /bin/true /usr/bin/aspell
+{%- endif %}
+
+## Config dpkg
+## install the configuration file if it’s currently missing
+RUN sudo augtool --autosave "set /files/etc/dpkg/dpkg.cfg/force-confmiss"
+## combined with confold: overwrite configuration files that you have not modified
+RUN sudo augtool --autosave "set /files/etc/dpkg/dpkg.cfg/force-confdef"
+## do not modify the current configuration file, the new version is installed with a .dpkg-dist suffix
+RUN sudo augtool --autosave "set /files/etc/dpkg/dpkg.cfg/force-confold"
+
+# For linux build
+RUN apt-get -y build-dep linux
+
+# For gobgp and telemetry build
+RUN export VERSION=1.14.2 \
+{%- if CONFIGURED_ARCH == "armhf" %}
+ && wget https://storage.googleapis.com/golang/go$VERSION.linux-armv6l.tar.gz \
+ && tar -C /usr/local -xzf go$VERSION.linux-armv6l.tar.gz \
+{%- elif CONFIGURED_ARCH == "arm64" %}
+ && wget https://storage.googleapis.com/golang/go$VERSION.linux-arm64.tar.gz \
+ && tar -C /usr/local -xzf go$VERSION.linux-arm64.tar.gz \
+{%- else %}
+ && wget https://storage.googleapis.com/golang/go$VERSION.linux-amd64.tar.gz \
+ && tar -C /usr/local -xzf go$VERSION.linux-amd64.tar.gz \
+{%- endif %}
+ && echo 'export GOROOT=/usr/local/go' >> /etc/bash.bashrc \
+ && echo 'export PATH=$PATH:$GOROOT/bin' >> /etc/bash.bashrc \
+ && rm go$VERSION.linux-*.tar.gz
+
+RUN pip3 install --upgrade pip
+RUN apt-get purge -y python3-pip python3-yaml
+
+# For building Python packages
+RUN pip3 install setuptools==49.6.00
+RUN pip3 install wheel==0.35.1
+
+# For building sonic-utilities
+RUN pip3 install fastentrypoints
+
+# For running Python unit tests
+RUN pip3 install pytest-runner==5.2
+RUN pip3 install nose==1.3.7
+RUN pip3 install mockredispy==2.9.3
+
+# For p4 build
+RUN pip3 install \
+         ctypesgen==1.0.2 \
+         crc16
+
+# For sonic config engine testing
+# Install pyangbind here, outside sonic-config-engine dependencies, as pyangbind causes enum34 to be installed.
+# enum34 causes Python 're' package to not work properly as it redefines an incompatible enum.py module
+# https://github.com/robshakir/pyangbind/issues/232
+RUN pip3 install pyangbind==0.8.1
+RUN pip3 uninstall -y enum34
+
+# For templating
+RUN pip3 install j2cli==0.3.10
+
+# For sonic-mgmt-framework
+RUN pip3 install "PyYAML==5.4.1"
+RUN pip3 install "lxml==4.6.2"
+
+# For sonic-platform-common testing
+RUN pip3 install redis
+
+# For vs image build
+RUN pip3 install pexpect==4.8.0
+
+# For sonic-swss-common testing
+RUN pip3 install Pympler==0.8
+
+# For sonic_yang_model build
+RUN pip3 install pyang==2.4.0
+
+# For mgmt-framework build
+RUN pip3 install mmh3==2.5.1
+
+RUN pip3 install parameterized==0.8.1
+
+RUN apt-get install -y xsltproc
+
+# Install dependencies for isc-dhcp-relay build
+RUN apt-get -y build-dep isc-dhcp
+
+# Install vim
+RUN apt-get install -y vim
+
+# Install rsyslog
+RUN apt-get install -y rsyslog
+
+RUN cd /usr/src/gtest && cmake . && make -C /usr/src/gtest
+
+RUN mkdir /var/run/sshd
+EXPOSE 22
+
+# Install depot-tools (for git-retry)
+RUN git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git /usr/share/depot_tools
+ENV PATH /usr/share/depot_tools:$PATH
+
+# Install docker engine 20.10 inside docker and enable experimental feature
+RUN apt-get update
+RUN apt-get install -y \
+           apt-transport-https \
+           ca-certificates \
+           curl \
+           gnupg2 \
+           software-properties-common
+{%- if CONFIGURED_ARCH == "armhf" %}
+    RUN update-ca-certificates --fresh
+{%- endif %}
+RUN curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+RUN add-apt-repository \
+           "deb [arch={{ CONFIGURED_ARCH }}] https://download.docker.com/linux/debian \
+           $(lsb_release -cs) \
+           stable"
+RUN apt-get update
+RUN apt-get install -y docker-ce=5:20.10.7~3-0~debian-bullseye docker-ce-cli=5:20.10.7~3-0~debian-bullseye
+RUN echo "DOCKER_OPTS=\"--experimental --storage-driver=vfs {{ DOCKER_EXTRA_OPTS }}\"" >> /etc/default/docker
+RUN update-alternatives --set iptables /usr/sbin/iptables-legacy
+
+# Install m2crypto package, needed by SWI tools
+RUN pip3 install m2crypto==0.36.0
+
+# Install swi tools
+RUN pip3 install git+https://github.com/aristanetworks/swi-tools.git@bead66bf261770237f7dd21ace3774ba04a017e9
+
+{% if CONFIGURED_ARCH != "amd64" -%}
+# Install node.js for azure pipeline
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
+RUN apt-get install -y nodejs
+
+# Tell azure pipeline to use node.js in the docker
+LABEL "com.azure.dev.pipelines.agent.handler.node.path"="/usr/bin/node"
+{% endif -%}
