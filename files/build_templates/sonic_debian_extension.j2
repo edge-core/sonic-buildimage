@@ -350,6 +350,11 @@ sudo chmod 755 $FILESYSTEM_ROOT/usr/bin/restart_service
 # Install custom-built openssh sshd
 sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/openssh-server_*.deb
 
+{% if sonic_asic_platform == 'broadcom' %}
+# Install custom-built flashrom
+sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/flashrom_*.deb
+{% endif %}
+
 # Copy crontabs
 sudo cp -f $IMAGE_CONFIGS/cron.d/* $FILESYSTEM_ROOT/etc/cron.d/
 

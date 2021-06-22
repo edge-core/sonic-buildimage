@@ -1,0 +1,13 @@
+# flashrom package
+#
+
+FLASHROM_VERSION_FULL = 0.9.7
+
+export FLASHROM_VERSION_FULL
+
+FLASHROM = flashrom_$(FLASHROM_VERSION_FULL)_amd64.deb
+$(FLASHROM)_SRC_PATH = $(SRC_PATH)/flashrom
+
+SONIC_MAKE_DEBS += $(FLASHROM)
+
+export FLASHROM
