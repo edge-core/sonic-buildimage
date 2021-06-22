@@ -88,3 +88,7 @@
 [submodule "src/wpasupplicant/sonic-wpa-supplicant"]
 	path = src/wpasupplicant/sonic-wpa-supplicant
 	url = https://github.com/Azure/sonic-wpa-supplicant.git
+[submodule "platform/broadcom/saibcm-modules-dnx"]
+	path = platform/broadcom/saibcm-modules-dnx
+	url = https://github.com/Azure/saibcm-modules.git
+	branch =  sdk-6.5.22-gpl-dnx

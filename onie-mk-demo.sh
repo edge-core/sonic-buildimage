@@ -40,8 +40,7 @@ fi
 }
 
 [ -r "$platform_conf" ] || {
-    echo "Error: Unable to read installer platform configuration file: $platform_conf"
-    exit 1
+    echo "Warning: Unable to read installer platform configuration file: $platform_conf"
 }
 
 [ $# -gt 0 ] || {
@@ -98,7 +97,9 @@ sed -i -e "s/%%DEMO_TYPE%%/$demo_type/g" \
 echo -n "."
 cp -r $* $tmp_installdir || clean_up 1
 echo -n "."
-cp $platform_conf $tmp_installdir || clean_up 1
+[ -r "$platform_conf" ] && {
+    cp $platform_conf $tmp_installdir || clean_up 1
+}
 echo "machine=$machine" > $tmp_installdir/machine.conf
 echo "platform=$platform" >> $tmp_installdir/machine.conf
 echo -n "."

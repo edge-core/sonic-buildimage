@@ -285,6 +285,14 @@ sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/sonic-ztp_*.deb || \
     sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
 {% endif %}
 
+{% for machine_debs in lazy_build_installer_debs.strip().split() -%}
+{% set machine, pkgname = machine_debs.split('|') %}
+if [[ -z "{{machine}}" || -n "{{machine}}" && $TARGET_MACHINE == "{{machine}}" ]]; then
+sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/{{pkgname}} || \
+    sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
+fi
+{% endfor %}
+
 # Install SONiC Device Data  (and its dependencies via 'apt-get -y install -f')
 sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/sonic-device-data_*.deb || \
     sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
@@ -653,10 +661,11 @@ sudo mount --bind target $FILESYSTEM_ROOT/target
 sudo chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS info
 
 {% for docker_installation_target in installer_images.strip().split() -%}
-{% set pkgname, docker_build_path, image = docker_installation_target.split('|') %}
+{% set pkgname, docker_build_path, machine, image = docker_installation_target.split('|') %}
 {% set imagefilepath = image.split(':')|first -%}
 {% set imagefilename = imagefilepath.split('/')|last -%}
 {% set imagename = imagefilename.split('.')|first -%}
+if [[ -z "{{machine}}" || -n "{{machine}}" && $TARGET_MACHINE == "{{machine}}" ]]; then
 sudo LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS load -i {{imagefilepath}}
 sudo LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS tag {{imagename}}:latest {{imagename}}:"${SONIC_IMAGE_VERSION}"
 # Check if manifest exists for {{imagename}} and it is a valid JSON
@@ -671,6 +680,7 @@ jq -e . /tmp/manifest.json || {
 sudo LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS tag {{imagename}}:latest {{imagebasename}}:"${SONIC_IMAGE_VERSION}"
 sudo LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS tag {{imagename}}:latest {{imagebasename}}:latest
 {% endif %}
+fi
 {% endfor %}
 
 SONIC_PACKAGE_MANAGER_FOLDER="/var/lib/sonic-package-manager/"
@@ -714,7 +724,11 @@ sudo bash -c "echo { > $FILESYSTEM_ROOT_USR_SHARE_SONIC_TEMPLATES/ctr_image_name
 sudo bash -c "echo } >> $FILESYSTEM_ROOT_USR_SHARE_SONIC_TEMPLATES/ctr_image_names.json"
 
 {% for script in installer_start_scripts.split(' ') -%}
-sudo cp {{script}} $FILESYSTEM_ROOT/usr/bin/
+if [ -f $TARGET_MACHINE"_{{script}}" ]; then
+    sudo cp $TARGET_MACHINE"_{{script}}" $FILESYSTEM_ROOT/usr/bin/{{script}}
+else
+    sudo cp {{script}} $FILESYSTEM_ROOT/usr/bin/
+fi
 {% endfor %}
 {% for service in installer_services.split(' ') -%}
 if [ -f {{service}} ]; then

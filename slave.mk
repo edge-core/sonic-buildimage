@@ -717,6 +717,7 @@ $(foreach IMAGE,$(DOCKER_DBG_IMAGES), $(eval $(IMAGE)_FILES_PATH := $(FILES_PATH
 # Targets for building docker images
 $(addprefix $(TARGET_PATH)/, $(DOCKER_IMAGES)) : $(TARGET_PATH)/%.gz : .platform docker-start \
 		$$(addprefix $$($$*.gz_DEBS_PATH)/,$$($$*.gz_DEPENDS)) \
+		$$(addprefix $(TARGET_PATH)/,$$($$*.gz_AFTER)) \
 		$$(addprefix $$($$*.gz_FILES_PATH)/,$$($$*.gz_FILES)) \
 		$$(addprefix $(PYTHON_DEBS_PATH)/,$$($$*.gz_PYTHON_DEBS)) \
 		$$(addprefix $(PYTHON_WHEELS_PATH)/,$$($$*.gz_PYTHON_WHEELS)) \
@@ -789,6 +790,7 @@ SONIC_TARGET_LIST += $(addprefix $(TARGET_PATH)/, $(DOCKER_IMAGES))
 
 # Targets for building docker images
 $(addprefix $(TARGET_PATH)/, $(DOCKER_DBG_IMAGES)) : $(TARGET_PATH)/%-$(DBG_IMAGE_MARK).gz : .platform docker-start \
+		$$(addprefix $(TARGET_PATH)/,$$($$*.gz_AFTER)) \
 		$$(addprefix $$($$*.gz_DEBS_PATH)/,$$($$*.gz_DBG_DEPENDS)) \
 		$$(addsuffix -load,$$(addprefix $(TARGET_PATH)/,$$*.gz)) \
 		$(call dpkg_depend,$(TARGET_PATH)/%-$(DBG_IMAGE_MARK).gz.dep)
@@ -862,6 +864,7 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
         $$(addsuffix -install,$$(addprefix $(IMAGE_DISTRO_DEBS_PATH)/,$$($$*_DEPENDS))) \
         $$(addprefix $(IMAGE_DISTRO_DEBS_PATH)/,$$($$*_INSTALLS)) \
         $$(addprefix $(IMAGE_DISTRO_DEBS_PATH)/,$$($$*_LAZY_INSTALLS)) \
+        $$(addprefix $(IMAGE_DISTRO_DEBS_PATH)/,$$($$*_LAZY_BUILD_INSTALLS)) \
         $(addprefix $(IMAGE_DISTRO_DEBS_PATH)/,$(INITRAMFS_TOOLS) \
                 $(LINUX_KERNEL) \
                 $(SONIC_DEVICE_DATA) \
@@ -927,10 +930,12 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
 	export enable_pfcwd_on_start="$(ENABLE_PFCWD_ON_START)"
 	export installer_debs="$(addprefix $(IMAGE_DISTRO_DEBS_PATH)/,$($*_INSTALLS))"
 	export lazy_installer_debs="$(foreach deb, $($*_LAZY_INSTALLS),$(foreach device, $($(deb)_PLATFORM),$(addprefix $(device)@, $(IMAGE_DISTRO_DEBS_PATH)/$(deb))))"
+	export lazy_build_installer_debs="$(foreach deb, $($*_LAZY_BUILD_INSTALLS), $(addprefix $($(deb)_MACHINE)|,$(deb)))"
 	export installer_images="$(foreach docker, $($*_DOCKERS),\
 				$(addprefix $($(docker)_PACKAGE_NAME)|,\
 					$(addprefix $($(docker)_PATH)|,\
-						$(addprefix $(TARGET_PATH)/,$(addsuffix :$($(docker)_VERSION),$(docker))))))"
+					$(addprefix $($(docker)_MACHINE)|,\
+						$(addprefix $(TARGET_PATH)/,$(addsuffix :$($(docker)_VERSION),$(docker)))))))"
 	export sonic_py_common_py2_wheel_path="$(addprefix $(PYTHON_WHEELS_PATH)/,$(SONIC_PY_COMMON_PY2))"
 	export sonic_py_common_py3_wheel_path="$(addprefix $(PYTHON_WHEELS_PATH)/,$(SONIC_PY_COMMON_PY3))"
 	export config_engine_py2_wheel_path="$(addprefix $(PYTHON_WHEELS_PATH)/,$(SONIC_CONFIG_ENGINE_PY2))"
@@ -990,7 +995,12 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
 
 		j2 files/build_templates/docker_image_ctl.j2 > $($(docker:-dbg.gz=.gz)_CONTAINER_NAME).sh
 		chmod +x $($(docker:-dbg.gz=.gz)_CONTAINER_NAME).sh
+
+		$(if $($(docker:-dbg.gz=.gz)_MACHINE),\
+			mv $($(docker:-dbg.gz=.gz)_CONTAINER_NAME).sh $($(docker:-dbg.gz=.gz)_MACHINE)_$($(docker:-dbg.gz=.gz)_CONTAINER_NAME).sh
+		)
 	)
+
 
 	# Exported variables are used by sonic_debian_extension.sh
 	export installer_start_scripts="$(foreach docker, $($*_DOCKERS),$(addsuffix .sh, $($(docker:-dbg.gz=.gz)_CONTAINER_NAME)))"
@@ -1023,36 +1033,40 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
 		chmod +x sonic_debian_extension.sh,
 	)
 
-	DEBUG_IMG="$(INSTALL_DEBUG_TOOLS)" \
-	DEBUG_SRC_ARCHIVE_DIRS="$(DBG_SRC_ARCHIVE)" \
-	DEBUG_SRC_ARCHIVE_FILE="$(DBG_SRC_ARCHIVE_FILE)" \
-		scripts/dbg_files.sh
+	# Build images for the MACHINE, DEPENDENT_MACHINE defined.
+	$(foreach dep_machine, $($*_MACHINE) $($*_DEPENDENT_MACHINE), \
+		DEBUG_IMG="$(INSTALL_DEBUG_TOOLS)" \
+		DEBUG_SRC_ARCHIVE_DIRS="$(DBG_SRC_ARCHIVE)" \
+		DEBUG_SRC_ARCHIVE_FILE="$(DBG_SRC_ARCHIVE_FILE)" \
+			scripts/dbg_files.sh
 
-	DEBUG_IMG="$(INSTALL_DEBUG_TOOLS)" \
-	DEBUG_SRC_ARCHIVE_FILE="$(DBG_SRC_ARCHIVE_FILE)" \
-	USERNAME="$(USERNAME)" \
-	PASSWORD="$(PASSWORD)" \
-	IMAGE_TYPE=$($*_IMAGE_TYPE) \
-	TARGET_PATH=$(TARGET_PATH) \
-	SONIC_ENFORCE_VERSIONS=$(SONIC_ENFORCE_VERSIONS) \
-	TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) \
-	PACKAGE_URL_PREFIX=$(PACKAGE_URL_PREFIX) \
-	MULTIARCH_QEMU_ENVIRON=$(MULTIARCH_QEMU_ENVIRON) \
-		./build_debian.sh $(LOG)
+		DEBUG_IMG="$(INSTALL_DEBUG_TOOLS)" \
+		DEBUG_SRC_ARCHIVE_FILE="$(DBG_SRC_ARCHIVE_FILE)" \
+		USERNAME="$(USERNAME)" \
+		PASSWORD="$(PASSWORD)" \
+		TARGET_MACHINE=$(dep_machine) \
+		IMAGE_TYPE=$($*_IMAGE_TYPE) \
+		TARGET_PATH=$(TARGET_PATH) \
+		SONIC_ENFORCE_VERSIONS=$(SONIC_ENFORCE_VERSIONS) \
+		TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) \
+		PACKAGE_URL_PREFIX=$(PACKAGE_URL_PREFIX) \
+		MULTIARCH_QEMU_ENVIRON=$(MULTIARCH_QEMU_ENVIRON) \
+			./build_debian.sh $(LOG)
 
-	USERNAME="$(USERNAME)" \
-	PASSWORD="$(PASSWORD)" \
-	TARGET_MACHINE=$($*_MACHINE) \
-	IMAGE_TYPE=$($*_IMAGE_TYPE) \
-	SONIC_ENABLE_IMAGE_SIGNATURE="$(SONIC_ENABLE_IMAGE_SIGNATURE)" \
-	SIGNING_KEY="$(SIGNING_KEY)" \
-	SIGNING_CERT="$(SIGNING_CERT)" \
-	CA_CERT="$(CA_CERT)" \
-	TARGET_PATH="$(TARGET_PATH)" \
-		./build_image.sh $(LOG)
+		USERNAME="$(USERNAME)" \
+		PASSWORD="$(PASSWORD)" \
+		TARGET_MACHINE=$(dep_machine) \
+		IMAGE_TYPE=$($*_IMAGE_TYPE) \
+		SONIC_ENABLE_IMAGE_SIGNATURE="$(SONIC_ENABLE_IMAGE_SIGNATURE)" \
+		SIGNING_KEY="$(SIGNING_KEY)" \
+		SIGNING_CERT="$(SIGNING_CERT)" \
+		CA_CERT="$(CA_CERT)" \
+		TARGET_PATH="$(TARGET_PATH)" \
+			./build_image.sh $(LOG)
+	)
 
 	$(foreach docker, $($*_DOCKERS), \
-		rm -f $($(docker:-dbg.gz=.gz)_CONTAINER_NAME).sh
+		rm -f *$($(docker:-dbg.gz=.gz)_CONTAINER_NAME).sh
 		rm -f $($(docker:-dbg.gz=.gz)_CONTAINER_NAME).service
 		rm -f $($(docker:-dbg.gz=.gz)_CONTAINER_NAME)@.service
 	)

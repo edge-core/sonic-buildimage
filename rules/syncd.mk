@@ -21,10 +21,12 @@ $(SYNCD)_DEPENDS += $(LIBSWSSCOMMON_DEV) $(LIBTHRIFT_DEV)
 $(SYNCD)_DPKG_TARGET = binary-syncd-rpc
 endif
 
+ifeq ($(INSTALL_DEBUG_TOOLS), y)
 SYNCD_DBG = syncd-dbg_1.0.0_$(CONFIGURED_ARCH).deb
 $(SYNCD_DBG)_DEPENDS += $(SYNCD)
 $(SYNCD_DBG)_RDEPENDS += $(SYNCD)
 $(eval $(call add_derived_package,$(SYNCD),$(SYNCD_DBG)))
+endif
 
 ifeq ($(ENABLE_SYNCD_RPC),y)
 SYNCD_RPC_DBG = syncd-rpc-dbg_1.0.0_$(CONFIGURED_ARCH).deb
