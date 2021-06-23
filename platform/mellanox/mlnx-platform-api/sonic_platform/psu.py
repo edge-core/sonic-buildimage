@@ -88,6 +88,10 @@ class Psu(PsuBase):
         self.psu_data = DEVICE_DATA[platform]['psus']
         psu_vpd = filemap[PSU_VPD]
 
+        self.model = "N/A"
+        self.serial = "N/A"
+        self.rev = "N/A"
+
         if psu_vpd is not None:
             self.psu_vpd = os.path.join(self.psu_path, psu_vpd.format(self.index))
             self.vpd_data = self._read_vpd_file(self.psu_vpd)
@@ -95,24 +99,20 @@ class Psu(PsuBase):
             if PN_VPD_FIELD in self.vpd_data:
                 self.model = self.vpd_data[PN_VPD_FIELD]
             else:
-                self.model = ""
                 logger.log_error("Fail to read PSU{} model number: No key {} in VPD {}".format(self.index, PN_VPD_FIELD, self.psu_vpd))
 
             if SN_VPD_FIELD in self.vpd_data:
                 self.serial = self.vpd_data[SN_VPD_FIELD]
             else:
-                self.serial = ""
                 logger.log_error("Fail to read PSU{} serial number: No key {} in VPD {}".format(self.index, SN_VPD_FIELD, self.psu_vpd))
 
             if REV_VPD_FIELD in self.vpd_data:
                 self.rev = self.vpd_data[REV_VPD_FIELD]
             else:
-                self.rev = ""
                 logger.log_error("Fail to read PSU{} serial number: No key {} in VPD {}".format(self.index, REV_VPD_FIELD, self.psu_vpd))
 
         else: 
             logger.log_info("Not reading PSU{} VPD data: Platform is fixed".format(self.index))
-
 
         if not self.psu_data['hot_swappable']:
             self.always_present = True
