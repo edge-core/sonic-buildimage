@@ -6,14 +6,7 @@
 #
 #############################################################################
 import os
-import sys
-import re
 import time
-
-if sys.version_info.major == 3:
-    from io import StringIO
-else:
-    from cStringIO import StringIO
 
 from sonic_py_common.logger import Logger
 
@@ -22,16 +15,9 @@ try:
 except ImportError as e:
     raise ImportError (str(e) + "- required module not found")
 
-logger = Logger()
+from .utils import default_return
 
-#
-# CACHE_XXX stuffs are supposted to be moved to the base classes
-# since they are common for all vendors
-# they are defined in decode-syseeprom which might be removed in the future
-# currently we just copy them here
-#
-CACHE_ROOT = '/var/cache/sonic/decode-syseeprom'
-CACHE_FILE = 'syseeprom_cache'
+logger = Logger()
 
 #
 # this is mlnx-specific
@@ -41,10 +27,6 @@ EEPROM_SYMLINK = "/var/run/hw-management/eeprom/vpd_info"
 
 class Eeprom(eeprom_tlvinfo.TlvInfoDecoder):
     RETRIES = 3
-    EEPROM_DECODE_HEADLINES = 6
-    EEPROM_DECODE_MAXITEM = 3
-    EEPROM_DECODE_OFFSET = 0
-    EEPROM_DECODE_CONTENT = 2
 
     def __init__(self):
         for attempt in range(self.RETRIES):
@@ -53,95 +35,15 @@ class Eeprom(eeprom_tlvinfo.TlvInfoDecoder):
             else:
                 break  
 
-        if not (os.path.exists(EEPROM_SYMLINK) \
-                or os.path.isfile(os.path.join(CACHE_ROOT, CACHE_FILE))):
-            log_error("Nowhere to read syseeprom from! No symlink or cache file found")
+        if not os.path.exists(EEPROM_SYMLINK):
+            logger.log_error("Nowhere to read syseeprom from! No symlink or cache file found")
             raise RuntimeError("No syseeprom symlink or cache file found")
 
         self.eeprom_path = EEPROM_SYMLINK
         super(Eeprom, self).__init__(self.eeprom_path, 0, '', True)
-        self._eeprom_loaded = False
-        self._load_eeprom()
-        self._eeprom_loaded = True
+        self._eeprom_info_dict = None
 
-    def _load_eeprom(self):
-        cache_file = os.path.join(CACHE_ROOT, CACHE_FILE)
-        if not os.path.exists(CACHE_ROOT):
-            try:
-                os.makedirs(CACHE_ROOT)
-            except:
-                pass
-        else:
-            try:
-                # Make sure first time always read eeprom data from hardware
-                if os.path.exists(cache_file):
-                    os.remove(cache_file)
-            except Exception as e:
-                logger.log_error('Failed to remove cache file {} - {}'.format(cache_file, repr(e)))
-
-        try:
-            self.set_cache_name(cache_file)
-        except:
-            pass
-
-        eeprom = self.read_eeprom()
-        if eeprom is None :
-            return 0
-
-        try:
-            self.update_cache(eeprom)
-        except:
-            pass
-
-        self._base_mac = self.mgmtaddrstr(eeprom)
-        if self._base_mac is None:
-            self._base_mac = "Undefined."
-        else:
-            self._base_mac = self._base_mac.strip('\0')
-
-        self._serial_str = self.serial_number_str(eeprom)
-        if self._serial_str is None:
-            self._serial_str = "Undefined."
-        else:
-            self._serial_str = self._serial_str.strip('\0')
-
-        self._product_name = self.modelstr(eeprom)
-        if self._product_name is None:
-            self._product_name = "Undefined."
-        else:
-            self._product_name = self._product_name.strip('\0')
-
-        self._part_number = self.part_number_str(eeprom)
-        if self._part_number is None:
-            self._part_number = "Undefined."
-        else:
-            self._part_number = self._part_number.strip('\0')
-
-        original_stdout = sys.stdout
-        sys.stdout = StringIO()
-        self.decode_eeprom(eeprom)
-        decode_output = sys.stdout.getvalue()
-        sys.stdout = original_stdout
-
-        #parse decode_output into a dictionary
-        decode_output.replace('\0', '')
-        lines = decode_output.split('\n')
-        lines = lines[self.EEPROM_DECODE_HEADLINES:]
-        self._eeprom_info_dict = dict()
-
-        for line in lines:
-            try:
-                match = re.search('(0x[0-9a-fA-F]{2})([\s]+[\S]+[\s]+)([\S]+[\s]*[\S]*)', line)
-                if match is not None:
-                    idx = match.group(1)
-                    value = match.group(3).rstrip('\0')
-
-                self._eeprom_info_dict[idx] = value
-            except:
-                pass
-
-        return 0
-
+    @default_return(return_value='Undefined.')
     def get_base_mac(self):
         """
         Retrieves the base MAC address for the chassis
@@ -150,10 +52,9 @@ class Eeprom(eeprom_tlvinfo.TlvInfoDecoder):
             A string containing the MAC address in the format
             'XX:XX:XX:XX:XX:XX'
         """
-        if not self._eeprom_loaded:
-            self._load_eeprom()
-        return self._base_mac
-
+        return self._get_eeprom_value(self._TLV_CODE_MAC_BASE)
+        
+    @default_return(return_value='Undefined.')
     def get_serial_number(self):
         """
         Retrieves the hardware serial number for the chassis
@@ -161,10 +62,9 @@ class Eeprom(eeprom_tlvinfo.TlvInfoDecoder):
         Returns:
             A string containing the hardware serial number for this chassis.
         """
-        if not self._eeprom_loaded:
-            self._load_eeprom()
-        return self._serial_str
+        return self._get_eeprom_value(self._TLV_CODE_SERIAL_NUMBER)
 
+    @default_return(return_value='Undefined.')
     def get_product_name(self):
         """
         Retrieves the hardware product name for the chassis
@@ -172,10 +72,9 @@ class Eeprom(eeprom_tlvinfo.TlvInfoDecoder):
         Returns:
             A string containing the hardware product name for this chassis.
         """
-        if not self._eeprom_loaded:
-            self._load_eeprom()
-        return self._product_name
+        return self._get_eeprom_value(self._TLV_CODE_PRODUCT_NAME)
 
+    @default_return(return_value='Undefined.')
     def get_part_number(self):
         """
         Retrieves the hardware part number for the chassis
@@ -183,10 +82,9 @@ class Eeprom(eeprom_tlvinfo.TlvInfoDecoder):
         Returns:
             A string containing the hardware part number for this chassis.
         """
-        if not self._eeprom_loaded:
-            self._load_eeprom()
-        return self._part_number
+        return self._get_eeprom_value(self._TLV_CODE_PART_NUMBER)
 
+    @default_return({})
     def get_system_eeprom_info(self):
         """
         Retrieves the full content of system EEPROM information for the chassis
@@ -196,6 +94,72 @@ class Eeprom(eeprom_tlvinfo.TlvInfoDecoder):
             OCP ONIE TlvInfo EEPROM format and values are their corresponding
             values.
         """
-        if not self._eeprom_loaded:
-            self._load_eeprom()
+        if self._eeprom_info_dict is None:
+            self._eeprom_info_dict = {}
+
+            # Try get from DB first
+            db_initialized = self._redis_hget('EEPROM_INFO|State', 'Initialized')
+            if db_initialized == '1':
+                code = self._TLV_CODE_PRODUCT_NAME
+                while code <= self._TLV_CODE_SERVICE_TAG:
+                    value = self._redis_hget('EEPROM_INFO|{}'.format(hex(code)), 'Value')
+                    if value:
+                        self._eeprom_info_dict[hex(code)] = value
+                    code += 1
+
+                # Handle vendor extension TLV
+                vendor_extension_tlv_code = hex(self._TLV_CODE_VENDOR_EXT)
+                try:
+                    vendor_extension_num = int(self._redis_hget('EEPROM_INFO|{}'.format(vendor_extension_tlv_code), 'Num_vendor_ext'))
+                except (ValueError, TypeError):
+                    vendor_extension_num = 0
+
+                if vendor_extension_num != 0:
+                    for i in range(vendor_extension_num):
+                        value = self._redis_hget('EEPROM_INFO|{}'.format(vendor_extension_tlv_code), 'Value_{}'.format(i))
+                        if value:
+                            if vendor_extension_tlv_code not in self._eeprom_info_dict:
+                                self._eeprom_info_dict[vendor_extension_tlv_code] = [value]
+                            else:
+                                self._eeprom_info_dict[vendor_extension_tlv_code].append(value)
+            
+                # Get CRC 
+                value = self._redis_hget('EEPROM_INFO|{}'.format(hex(self._TLV_CODE_CRC_32)), 'Value')
+                if value:
+                    self._eeprom_info_dict[hex(self._TLV_CODE_CRC_32)] = value
+            else:
+                eeprom = self.read_eeprom()
+                visitor = EepromContentVisitor(self._eeprom_info_dict)
+                self.visit_eeprom(eeprom, visitor)
         return self._eeprom_info_dict
+
+    def _get_eeprom_value(self, code):
+        """Helper function to help get EEPROM data by code
+
+        Args:
+            code (int): EEPROM TLV code
+
+        Returns:
+            str: value of EEPROM TLV
+        """
+        eeprom_info_dict = self.get_system_eeprom_info()
+        return eeprom_info_dict[hex(code)]
+
+
+class EepromContentVisitor(eeprom_tlvinfo.EepromDefaultVisitor):
+    def __init__(self, content):
+        self.content = content
+
+    def visit_tlv(self, name, code, length, value):
+        if code != Eeprom._TLV_CODE_VENDOR_EXT:
+            self.content[hex(code)] = value.rstrip('\0')
+        else:
+            if value:
+                value = value.rstrip('\0')
+                if value:
+                    code = hex(code)
+                    if code not in self.content:
+                        self.content[code] = [value]
+                    else:
+                        self.content[code].append(value)
+

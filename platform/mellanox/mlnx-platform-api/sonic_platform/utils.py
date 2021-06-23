@@ -1,3 +1,10 @@
+import functools
+import subprocess
+
+# flags to indicate whether this process is running in docker or host
+_is_host = None
+
+
 def read_str_from_file(file_path, default='', raise_exception=False):
     """
     Read string content from file
@@ -55,3 +62,43 @@ def write_file(file_path, content, raise_exception=False):
         else:
             raise e
     return True
+
+
+def is_host():
+    """
+    Test whether current process is running on the host or an docker
+    return True for host and False for docker
+    """
+    global _is_host
+    if _is_host is not None:
+        return _is_host
+        
+    _is_host = False
+    try:
+        proc = subprocess.Popen("docker --version 2>/dev/null", 
+                                stdout=subprocess.PIPE, 
+                                shell=True, 
+                                stderr=subprocess.STDOUT, 
+                                universal_newlines=True)
+        stdout = proc.communicate()[0]
+        proc.wait()
+        result = stdout.rstrip('\n')
+        if result != '':
+            _is_host = True
+
+    except OSError as e:
+        pass
+
+    return _is_host
+
+
+def default_return(return_value):
+    def wrapper(method):
+        @functools.wraps(method)
+        def _impl(*args, **kwargs):
+            try:
+                return method(*args, **kwargs)
+            except:
+                return return_value
+        return _impl
+    return wrapper
