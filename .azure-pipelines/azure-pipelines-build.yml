@@ -67,7 +67,7 @@ jobs:
             dbg_image: yes
         - name: innovium
           variables:
-            swi_image: yes
+            dbg_image: yes
         - name: marvell-armhf
           pool: sonicbld_8c
           timeoutInMinutes: 1800
