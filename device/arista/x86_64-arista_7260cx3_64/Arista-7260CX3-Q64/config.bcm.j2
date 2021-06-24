@@ -13,6 +13,7 @@
 {%-         if 'dualtor' in switch_subtype.lower() %}
 {%-             set IPinIP_sock = 'sai_tunnel_support=1
                                    host_as_route_disable=1
+                                   sai_adjust_acl_drop_in_rx_drop=1
                                    l3_ecmp_levels=2' -%}
 {%-         endif %}
 {%-     endif %}

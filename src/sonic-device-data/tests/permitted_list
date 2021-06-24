@@ -248,3 +248,4 @@ buf.map.egress_pool0.ingress_pool
 buf.map.egress_pool1.ingress_pool
 buf.map.egress_pool2.ingress_pool
 dpp_db_path
+sai_adjust_acl_drop_in_rx_drop
