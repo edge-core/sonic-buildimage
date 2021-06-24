@@ -1,0 +1,37 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+schedules:
+- cron: "0 */6 * * *"
+  displayName: Build cache quickly
+  branches:
+    include:
+    - master
+    - 202012
+
+trigger: none
+pr: none
+
+stages:
+- stage: Build
+  pool: sonicbld
+  variables:
+    CACHE_MODE: cache
+  jobs:
+  - template: azure-pipelines-build.yml
+    parameters:
+      buildOptions: 'USERNAME=admin SONIC_BUILD_JOBS=$(nproc) ${{ variables.VERSION_CONTROL_OPTIONS }}'
+      jobGroups:
+        - name: vs
+        - name: broadcom
+          variables:
+            swi_image: yes
+            raw_image: yes
+            docker_syncd_rpc_image: yes
+            platform_rpc: brcm
+        - name: mellanox
+          variables:
+            docker_syncd_rpc_image: yes
+            platform_rpc: mlnx
