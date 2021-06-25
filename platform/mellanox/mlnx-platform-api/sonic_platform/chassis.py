@@ -569,18 +569,22 @@ class Chassis(ChassisBase):
 
         wait_for_ever = (timeout == 0)
         port_dict = {}
+        error_dict = {}
         if wait_for_ever:
             timeout = MAX_SELECT_DELAY
             while True:
-                status = self.sfp_event.check_sfp_status(port_dict, timeout)
+                status = self.sfp_event.check_sfp_status(port_dict, error_dict, timeout)
                 if bool(port_dict):
                     break
         else:
-            status = self.sfp_event.check_sfp_status(port_dict, timeout)
+            status = self.sfp_event.check_sfp_status(port_dict, error_dict, timeout)
 
         if status:
             self.reinit_sfps(port_dict)
-            return True, {'sfp':port_dict}
+            result_dict = {'sfp':port_dict}
+            if error_dict:
+                result_dict['sfp_error'] = error_dict
+            return True, result_dict
         else:
             return True, {'sfp':{}}
 
