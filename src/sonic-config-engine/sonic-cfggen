@@ -392,14 +392,16 @@ def main():
             'platform': platform,
             'mac': mac,
             }}}
+
         # The ID needs to be passed to the SAI to identify the asic.
         if asic_name is not None:
             device_id = get_asic_device_id(asic_id)
             # if the device_id obtained is None, exit with error
             if device_id is None:
-                print('Failed to get device ID for', asic_name, file=sys.stderr)
-                sys.exit(1)
-            hardware_data['DEVICE_METADATA']['localhost'].update(asic_id=device_id)
+                print('Warning: Failed to get device ID from asic.conf file for', asic_name, file=sys.stderr)
+            else:
+                hardware_data['DEVICE_METADATA']['localhost'].update(asic_id=device_id)
+
         deep_update(data, hardware_data)
 
     paths = ['/', '/usr/share/sonic/templates']
