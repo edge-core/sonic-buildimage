@@ -7,6 +7,8 @@ import minigraph
 
 from unittest import TestCase
 
+TOR_ROUTER = 'ToRRouter'
+BACKEND_TOR_ROUTER = 'BackEndToRRouter'
 
 class TestCfgGenCaseInsensitive(TestCase):
 
@@ -14,6 +16,9 @@ class TestCfgGenCaseInsensitive(TestCase):
         self.test_dir = os.path.dirname(os.path.realpath(__file__))
         self.script_file = utils.PYTHON_INTERPRETTER + ' ' + os.path.join(self.test_dir, '..', 'sonic-cfggen')
         self.sample_graph = os.path.join(self.test_dir, 'simple-sample-graph-case.xml')
+        self.sample_simple_graph = os.path.join(self.test_dir, 'simple-sample-graph.xml')
+        self.sample_resource_graph = os.path.join(self.test_dir, 'sample-graph-resource-type.xml')
+        self.sample_subintf_graph = os.path.join(self.test_dir, 'sample-graph-subintf.xml')
         self.port_config = os.path.join(self.test_dir, 't0-sample-port-config.ini')
 
     def run_script(self, argument, check_stderr=False):
@@ -284,7 +289,35 @@ class TestCfgGenCaseInsensitive(TestCase):
         argument = '-m "' + self.sample_graph + '" -p "' + self.port_config + '" -v "DEVICE_METADATA[\'localhost\'][\'storage_device\']"'
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "true")
-        
+
+    def test_minigraph_storage_backend_no_resource_type(self):
+        self.verify_storage_device_set(self.sample_simple_graph)
+
+    def test_minigraph_storage_backend_resource_type(self):
+        self.verify_storage_device_set(self.sample_resource_graph)
+
+    def test_minigraph_storage_backend_subintf(self):
+        self.verify_storage_device_set(self.sample_subintf_graph)
+
+    def verify_storage_device_set(self, graph_file, check_stderr=False):
+        try:
+            print('\n    Change device type to %s' % (BACKEND_TOR_ROUTER))
+            if check_stderr:
+                output = subprocess.check_output("sed -i \'s/%s/%s/g\' %s" % (TOR_ROUTER, BACKEND_TOR_ROUTER, graph_file), stderr=subprocess.STDOUT, shell=True)
+            else:
+                output = subprocess.check_output("sed -i \'s/%s/%s/g\' %s" % (TOR_ROUTER, BACKEND_TOR_ROUTER, graph_file), shell=True)
+
+            argument = '-m "' + graph_file + '" -p "' + self.port_config + '" -v "DEVICE_METADATA[\'localhost\'][\'storage_device\']"'
+            output = self.run_script(argument)
+            self.assertEqual(output.strip(), "true")
+
+        finally:
+            print('\n    Change device type back to %s' % (TOR_ROUTER))
+            if check_stderr:
+                output = subprocess.check_output("sed -i \'s/%s/%s/g\' %s" % (BACKEND_TOR_ROUTER, TOR_ROUTER, graph_file), stderr=subprocess.STDOUT, shell=True)
+            else:
+                output = subprocess.check_output("sed -i \'s/%s/%s/g\' %s" % (BACKEND_TOR_ROUTER, TOR_ROUTER, graph_file), shell=True)
+  
     def test_minigraph_tunnel_table(self):
         argument = '-m "' + self.sample_graph + '" -p "' + self.port_config + '" -v "TUNNEL"'
         expected_tunnel = {
