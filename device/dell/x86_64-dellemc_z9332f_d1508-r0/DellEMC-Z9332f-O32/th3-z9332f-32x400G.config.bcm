@@ -44,6 +44,9 @@ l3_mem_entries=40960
 l2xlrn_thread_interval=50000
 l2xlrn_intr_en=0
 
+sai_optimized_mmu=1
+mmu_init_config="TH3-MSFT-T1"
+
 pbmp_xport_xe=0xffffffFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE
 
 phy_an_c73=3
