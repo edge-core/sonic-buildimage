@@ -9,6 +9,8 @@ else:
     # https://pypi.python.org/pypi/mock
     import mock
 
+import pytest
+
 from sonic_py_common import device_info
 
 from .mock_swsssdk import SonicV2Connector
@@ -51,9 +53,12 @@ EXPECTED_GET_MACHINE_INFO_RESULT = {
 }
 
 class TestDeviceInfo(object):
-    @classmethod
-    def setup_class(cls):
-        print("SETUP")
+    @pytest.fixture(scope="class", autouse=True)
+    def sanitize_environment(self):
+        # Clear environment variables, in case a variable is set in the test
+        # environment (e.g., PLATFORM) which could modify the behavior of sonic-py-common
+        with mock.patch.dict(os.environ, {}, clear=True):
+            yield
 
     def test_get_machine_info(self):
         with mock.patch("os.path.isfile") as mock_isfile:
