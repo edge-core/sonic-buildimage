@@ -86,6 +86,20 @@ switch_board_modsel() {
 	done
 }
 
+install_python_api_package() {
+    device="/usr/share/sonic/device"
+    platform=$(/usr/local/bin/sonic-cfggen -H -v DEVICE_METADATA.localhost.platform)
+
+    rv=$(pip3 install $device/$platform/sonic_platform-1.0-py3-none-any.whl)
+}
+
+remove_python_api_package() {
+    rv=$(pip3 show sonic-platform > /dev/null 2>/dev/null)
+    if [ $? -eq 0 ]; then
+        rv=$(pip3 uninstall -y sonic-platform > /dev/null 2>/dev/null)
+    fi
+}
+
 platform_firmware_versions() {
 	FIRMWARE_VERSION_FILE=/var/log/firmware_versions
 	rm -rf ${FIRMWARE_VERSION_FILE}
@@ -146,6 +160,7 @@ if [ "$1" == "init" ]; then
     switch_board_modsel
     switch_board_led_default
     #/usr/bin/qsfp_irq_enable.py
+    install_python_api_package
     platform_firmware_versions
 
 elif [ "$1" == "deinit" ]; then
@@ -153,6 +168,7 @@ elif [ "$1" == "deinit" ]; then
     switch_board_qsfp "delete_device"
     switch_board_qsfp_mux "delete_device"
 
+    remove_python_api_package
     modprobe -r i2c-mux-pca954x
     modprobe -r i2c-dev
 else
