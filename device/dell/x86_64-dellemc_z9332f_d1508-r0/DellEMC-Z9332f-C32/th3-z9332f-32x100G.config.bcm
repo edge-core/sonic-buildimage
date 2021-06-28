@@ -514,6 +514,5 @@ serdes_lane_config_media_type_27=copper
 serdes_lane_config_media_type_28=copper
 serdes_lane_config_media_type_24=copper
 
-#sai_preinit_cmd_file=/usr/share/sonic/hwsku/sai_preinit_cmd.soc
+sai_preinit_cmd_file=/usr/share/sonic/hwsku/sai_preinit_cmd.soc
 sai_postinit_cmd_file=/usr/share/sonic/hwsku/sai_postinit_cmd.soc
-
