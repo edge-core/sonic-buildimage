@@ -13,5 +13,4 @@ StartLimitBurst=3
 ExecStartPre=/usr/bin/{{docker_container_name}}.sh start
 ExecStart=/usr/bin/{{docker_container_name}}.sh wait
 ExecStop=/usr/bin/{{docker_container_name}}.sh stop
-Restart=always
 RestartSec=30

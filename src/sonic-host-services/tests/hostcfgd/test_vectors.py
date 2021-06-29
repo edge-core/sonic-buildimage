@@ -41,7 +41,7 @@ HOSTCFGD_TEST_VECTOR = [
                         "state": "{% if 'subtype' in DEVICE_METADATA['localhost'] and DEVICE_METADATA['localhost']['subtype'] == 'DualToR' %}enabled{% else %}always_disabled{% endif %}"
                     },
                     "telemetry": {
-                        "auto_restart": "enabled",
+                        "auto_restart": "disabled",
                         "has_global_scope": "True",
                         "has_per_asic_scope": "False",
                         "has_timer": "True",
@@ -73,7 +73,7 @@ HOSTCFGD_TEST_VECTOR = [
                         "state": "enabled"
                     },
                     "telemetry": {
-                        "auto_restart": "enabled",
+                        "auto_restart": "disabled",
                         "has_global_scope": "True",
                         "has_per_asic_scope": "False",
                         "has_timer": "True",

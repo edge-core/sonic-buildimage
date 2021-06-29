@@ -25,6 +25,11 @@ class MockConfigDb(object):
     def get_entry(self, key, field):
         return MockConfigDb.CONFIG_DB[key][field]
 
+    def mod_entry(self, key, field, data):
+        existing_data = self.get_entry(key, field)
+        existing_data.update(data)
+        self.set_entry(key, field, existing_data)
+
     def set_entry(self, key, field, data):
         MockConfigDb.CONFIG_DB[key][field] = data
 
