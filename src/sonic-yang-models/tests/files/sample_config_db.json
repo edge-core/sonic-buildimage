@@ -841,7 +841,6 @@
                 "local_ip": "12.12.0.2"
             }
         },
-
         "BGP_GLOBALS": {
             "default": {
                 "router_id": "5.5.5.5",
@@ -906,6 +905,24 @@
         },
         "PREFIX": {
             "prefix1|1|10.0.0.0/8|8..16": {
+            }
+        },
+        "COPP_GROUP": {
+            "queue1_group1": {
+                "queue": "1",
+                "trap_priority":"1",
+                "trap_action":"trap",
+                "meter_type":"packets",
+                "mode":"sr_tcm",
+                "cir":"6000",
+                "cbs":"6000",
+                "red_action":"drop"
+            }
+        },
+        "COPP_TRAP": {
+            "ip2me": {
+                "trap_ids": "ip2me",
+                "trap_group": "queue1_group1"
             }
         }
     },

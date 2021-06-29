@@ -47,6 +47,7 @@ setup(
                          './yang-models/sonic-bgp-neighbor.yang',
                          './yang-models/sonic-bgp-peergroup.yang',
                          './yang-models/sonic-breakout_cfg.yang',
+                         './yang-models/sonic-copp.yang',
                          './yang-models/sonic-crm.yang',
                          './yang-models/sonic-device_metadata.yang',
                          './yang-models/sonic-device_neighbor.yang',

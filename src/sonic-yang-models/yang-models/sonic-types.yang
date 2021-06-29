@@ -159,4 +159,24 @@ module sonic-types {
             pattern "0x8100|0x9100|0x9200|0x88a8|0x88A8";
         }
     }
+
+    typedef meter_type {
+        type enumeration {
+            enum packets; 
+            enum bytes;
+        }
+    }
+
+    typedef copp_packet_action {
+        type enumeration {
+            enum drop;
+            enum forward;
+            enum copy;
+            enum copy_cancel;
+            enum trap;
+            enum log;
+            enum deny;
+            enum transit;
+        }
+    }        
 }
