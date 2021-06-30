@@ -93,7 +93,7 @@ jobs:
         - name: nephos
           variables:
             dbg_image: yes
-            docker_syncd_rpc_image: yes
+            docker_syncd_rpc_image: no
             platform_rpc: nephos
 
     buildSteps:
