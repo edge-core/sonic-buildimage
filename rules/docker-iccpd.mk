@@ -25,3 +25,6 @@ $(DOCKER_ICCPD)_RUN_OPT += --privileged -t
 $(DOCKER_ICCPD)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
 
 $(DOCKER_ICCPD)_BASE_IMAGE_FILES += mclagdctl:/usr/bin/mclagdctl
+
+SONIC_BUSTER_DOCKERS += $(DOCKER_ICCPD)
+SONIC_BUSTER_DBG_DOCKERS += $(DOCKER_ICCPD_DBG)

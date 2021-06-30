@@ -35,3 +35,6 @@ $(DOCKER_LLDP)_RUN_OPT += -v /usr/share/sonic/scripts:/usr/share/sonic/scripts:r
 $(DOCKER_LLDP)_BASE_IMAGE_FILES += lldpctl:/usr/bin/lldpctl
 $(DOCKER_LLDP)_BASE_IMAGE_FILES += lldpcli:/usr/bin/lldpcli
 $(DOCKER_LLDP)_FILES += $(SUPERVISOR_PROC_EXIT_LISTENER_SCRIPT)
+
+SONIC_BUSTER_DOCKERS += $(DOCKER_LLDP)
+SONIC_BUSTER_DBG_DOCKERS += $(DOCKER_LLDP_DBG)
