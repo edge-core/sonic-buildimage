@@ -237,6 +237,7 @@ then
     sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install kubelet=${KUBERNETES_VERSION}-00
     sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install kubectl=${KUBERNETES_VERSION}-00
     sudo LANG=C chroot $FILESYSTEM_ROOT apt-get -y install kubeadm=${KUBERNETES_VERSION}-00
+    # kubeadm package auto install kubelet & kubectl
 else
     echo '[INFO] Skipping Install kubernetes'
 fi

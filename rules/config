@@ -142,7 +142,6 @@ INCLUDE_NAT = y
 # TELEMETRY_WRITABLE - Enable write/config operations via the gNMI interface.
 # Uncomment to enable:
 # TELEMETRY_WRITABLE = y
-
 # INCLUDE_KUBERNETES - if set to y kubernetes packages are installed to be able to
 # run as worker node in kubernetes cluster.
 INCLUDE_KUBERNETES = n
@@ -155,9 +154,9 @@ INCLUDE_MACSEC = y
 # These are Used *only* when INCLUDE_KUBERNETES=y
 # NOTE: As a worker node it has to run version compatible to kubernetes master.
 #
-KUBERNETES_VERSION = 1.21.1
-KUBERNETES_CNI_VERSION = 0.8.7
-K8s_GCR_IO_PAUSE_VERSION = 3.4.1
+KUBERNETES_VERSION = 1.18.6
+KUBERNETES_CNI_VERSION = 0.8.6
+K8s_GCR_IO_PAUSE_VERSION = 3.2
 
 # SONIC_ENABLE_IMAGE_SIGNATURE - enable image signature
 # To not use the auto-generated self-signed certificate, the required files to sign the image as below:
