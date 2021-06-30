@@ -108,8 +108,8 @@ function setPlatformLagIdBoundaries()
     CHASSIS_CONF=/usr/share/sonic/device/$PLATFORM/chassisdb.conf
     if [ -f "$CHASSIS_CONF" ]; then
         source $CHASSIS_CONF
-        $SONIC_DB_CLI CHASSIS_APP_DB SET "SYSTEM_LAG_ID_START" "$lag_id_start"
-        $SONIC_DB_CLI CHASSIS_APP_DB SET "SYSTEM_LAG_ID_END" "$lag_id_end"
+        docker exec -i ${DOCKERNAME} $SONIC_DB_CLI CHASSIS_APP_DB SET "SYSTEM_LAG_ID_START" "$lag_id_start"
+        docker exec -i ${DOCKERNAME} $SONIC_DB_CLI CHASSIS_APP_DB SET "SYSTEM_LAG_ID_END" "$lag_id_end"
     fi
 }
 {%- endif %}
