@@ -92,7 +92,9 @@ ifeq ($(PLATFORM_ARCH),)
 	override PLATFORM_ARCH = $(CONFIGURED_ARCH)
 endif
 
-ifeq ($(BLDENV), buster)
+ifeq ($(BLDENV), bullseye)
+SLAVE_DIR = sonic-slave-bullseye
+else ifeq ($(BLDENV), buster)
 SLAVE_DIR = sonic-slave-buster
 else ifeq ($(BLDENV), stretch)
 SLAVE_DIR = sonic-slave-stretch
