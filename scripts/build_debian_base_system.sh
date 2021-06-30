@@ -63,14 +63,18 @@ mkdir -p $ARCHIEVES
 mkdir -p $APTLIST
 mkdir -p $TARGET_DEBOOTSTRAP
 PACKAGES=$(sed -E 's/=(=[^=]*)$/\1/' $BASE_VERSIONS)
-URL_ARR=($(apt-get download --print-uris $PACKAGES | cut -d" " -f1 | tr -d "'"))
+URL_ARR=$(apt-get download --print-uris $PACKAGES | cut -d" " -f1 | tr -d "'")
 PACKAGE_ARR=($PACKAGES)
 LENGTH=${#PACKAGE_ARR[@]}
 for ((i=0;i<LENGTH;i++))
 do
     package=${PACKAGE_ARR[$i]}
     packagename=$(echo $package | sed -E 's/=[^=]*$//')
-    url=${URL_ARR[$i]}
+    url=$(echo "$URL_ARR" | grep "/${packagename}_")
+    if [ -z "$url" ] || [[ $(echo "$url" | wc -l) -gt 1 ]]; then
+        echo "No found package or found multiple package for package $packagename, url: $url" 2>&1
+        exit 1
+    fi
     filename=$(basename "$url")
     SKIP_BUILD_HOOK=y wget $url -P $ARCHIEVES
     echo $packagename >> $DEBOOTSTRAP_REQUIRED
