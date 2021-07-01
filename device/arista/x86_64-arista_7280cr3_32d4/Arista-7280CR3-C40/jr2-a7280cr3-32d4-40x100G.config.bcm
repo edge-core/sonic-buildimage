@@ -760,7 +760,7 @@ ucode_port_38=CGE23:core_1.38
 ucode_port_39=CGE20:core_1.39
 ucode_port_40=CGE21:core_1.40
 
-rif_id_max=0x4000
+rif_id_max=0x6000
 
 dma_desc_aggregator_chain_length_max.BCM8869X=1000
 dma_desc_aggregator_buff_size_kb.BCM8869X=100

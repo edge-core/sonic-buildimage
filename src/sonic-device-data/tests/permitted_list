@@ -249,3 +249,10 @@ buf.map.egress_pool1.ingress_pool
 buf.map.egress_pool2.ingress_pool
 dpp_db_path
 sai_adjust_acl_drop_in_rx_drop
+port_init_cl72_sfi
+serdes_lane_config_cl72_auto_polarity_en_sfi
+sai_recycle_port_lane_base
+appl_param_module_id
+serdes_lane_config_cl72_auto_polarity_en
+serdes_lane_config_cl72_restart_timeout_en
+bist_enable
