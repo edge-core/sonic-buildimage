@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+set -e
 
 ICCPD_CONF_PATH=/etc/iccpd
 
