@@ -3,6 +3,7 @@ applibs-dev==1.mlnx.4.4.3106
 iproute2==1.mlnx.4.4.3106
 iproute2-dev==1.mlnx.4.4.3106
 libelf1==0.176-1.1
+mft==4.16.0-105
 mlnx-sai==1.mlnx.SAIRel1.18.3.0
 python-sdk-api==1.mlnx.4.4.3106
 sx-acl-helper==1.mlnx.4.4.3106

@@ -34,7 +34,7 @@ gdbserver==8.2.1-2+b3
 hsflowd==2.0.32-1
 i2c-tools==4.1-1
 ifupdown==0.8.35
-ipmitool==1.8.18-6
+ipmitool==1.8.18-6+deb10u1
 iptables==1.8.2-4
 isc-dhcp-relay==4.4.1-2
 isc-dhcp-relay-dbgsym==4.4.1-2
@@ -79,7 +79,7 @@ libfribidi0==1.0.5-3.1+deb10u1
 libgcc-8-dev==8.3.0-6
 libgdbm-compat4==1.18.1-4
 libgdbm6==1.18.1-4
-libglib2.0-0==2.58.3-2+deb10u2
+libglib2.0-0==2.58.3-2+deb10u3
 libgomp1==8.3.0-6
 libgpm2==1.20.7-5
 libgraphite2-3==1.3.13-7
@@ -112,7 +112,7 @@ libldap-common==2.4.47+dfsg-3+deb10u6
 liblognorm5==2.0.5-1
 liblsan0==8.3.0-6
 liblua5.1-0==5.1.5-8.1+b2
-libmariadb3==1:10.3.27-0+deb10u1
+libmariadb3==1:10.3.29-0+deb10u1
 libmpc3==1.1.0-1
 libmpdec2==2.4.2-2
 libmpfr6==4.0.2-1
@@ -168,7 +168,7 @@ librhash0==1.3.8-1
 librrd-dev==1.7.1-2
 librrd8==1.7.1-2
 librtmp1==2.4+20151223.gitfa8646d.1-2
-libsaibcm==4.3.3.5-3
+libsaibcm==4.3.3.8-1
 libsaimetadata==1.0.0
 libsaimetadata-dbg==1.0.0
 libsairedis==1.0.0
@@ -208,7 +208,7 @@ libxcb-shm0==1.13.1-2
 libxcb1==1.13.1-2
 libxdmcp6==1:1.1.2-3
 libxext6==2:1.3.3-1+b2
-libxml2==2.9.4+dfsg1-7+deb10u1
+libxml2==2.9.4+dfsg1-7+deb10u2
 libxrender1==1:0.9.10-1
 libyaml-0-2==0.2.1-1
 libyaml-dev==0.2.1-1
@@ -216,7 +216,7 @@ libyang==1.0.73
 libyang1==1.0.184-2
 libyang1-dbgsym==1.0.184-2
 libzmq5==4.3.1-4+deb10u2
-linux-libc-dev==4.19.181-1
+linux-libc-dev==4.19.194-2
 lldpd==1.0.4-1
 lldpd-dbgsym==1.0.4-1
 lm-sensors==1:3.5.0-3
@@ -228,7 +228,7 @@ lsof==4.91+dfsg-1
 lua-bitop==1.0.2-5
 lua-cjson==2.1.0+dfsg-2.1
 make==4.2.1-1.2
-mariadb-common==1:10.3.27-0+deb10u1
+mariadb-common==1:10.3.29-0+deb10u1
 mime-support==3.62
 mysql-common==5.8+1.0.5
 ndisc6==1.0.4-1

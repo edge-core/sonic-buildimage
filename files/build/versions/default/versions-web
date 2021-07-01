@@ -13,7 +13,7 @@ http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0-3~bpo9+1.dsc==b
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0.orig.tar.gz==6d565680a4af0d2e261abbc3e3431b2b
 http://www.mellanox.com/downloads/MFT/mft-4.16.0-105-x86_64-deb.tgz==2c4a40535af10a278ba7e33022e407dc
 https://bootstrap.pypa.io/pip/2.7/get-pip.py==60e8267eb1b7bc71dc4843eb7bd294d3
-https://chrome-infra-packages.appspot.com/client?platform=linux-amd64&version=git_revision:6484b93c6b0dfc5f2c425e8abc1e3737850851e7==e3b2bf07ac069c32110a2ebd7425b44d
+https://chrome-infra-packages.appspot.com/client?platform=linux-amd64&version=git_revision:4511c670f851c56473a7370c10c199cdad4dfc3c==dfba6e41ed652d9110c5749eae9aed0d
 https://download.docker.com/linux/debian/gpg==1afae06b34a13c1b3d9cb61a26285a15
 https://github.com/aristanetworks/sonic-firmware/raw/6d0d1661d92a342acedb6839dba970ae5778b478/phy/phy-credo_1.0_amd64.deb==dd74acbb7bf979b01c1a89e2a628aaf3
 https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnplatform_20210324_deb10.deb==b1f3087f05b82504130c5a7d428b9ef5

@@ -231,7 +231,7 @@ libbind-export-dev==1:9.10.3.dfsg.P4-12.3+deb9u9
 libbind9-140==1:9.10.3.dfsg.P4-12.3+deb9u9
 libbison-dev==2:3.0.4.dfsg-1+b1
 libbit-vector-perl==7.4-1+b2
-libbluetooth3==5.43-2+deb9u3
+libbluetooth3==5.43-2+deb9u4
 libboost-all-dev==1.62.0.1
 libboost-atomic-dev==1.62.0.1
 libboost-atomic1.62-dev==1.62.0+dfsg-4
@@ -593,7 +593,7 @@ libjbig2dec0==0.13-4.1
 libjdom1-java==1.1.3-1
 libjemalloc-dev==3.6.0-9.1
 libjemalloc1==3.6.0-9.1
-libjetty9-java==9.2.30-0+deb9u1
+libjetty9-java==9.2.30-0+deb9u2
 libjline-java==1.0-2
 libjpeg62-turbo==1:1.5.1-2+deb9u1
 libjs-bootstrap==3.3.7+dfsg-2+deb9u2
@@ -960,7 +960,7 @@ libtext-wrapi18n-perl==0.06-7.1
 libthai-data==0.1.26-1
 libthai0==0.1.26-1
 libtie-ixhash-perl==1.23-2
-libtiff5==4.0.8-2+deb9u5
+libtiff5==4.0.8-2+deb9u6
 libtimedate-perl==2.3000-2+deb9u1
 libtinfo-dev==6.0+20161126-1+deb9u2
 libtinyxml2-4==4.0.1-1
@@ -1128,12 +1128,12 @@ libzmq5==4.2.1-4+deb9u4
 libzzip-0-13==0.13.62-3.2~deb9u1
 licensecheck==3.0.29-1
 lintian==2.5.50.4
-linux-compiler-gcc-6-x86==4.9.258-1
-linux-headers-4.9.0-15-amd64==4.9.258-1
-linux-headers-4.9.0-15-common==4.9.258-1
-linux-headers-amd64==4.9+80+deb9u13
-linux-kbuild-4.9==4.9.258-1
-linux-libc-dev==4.9.258-1
+linux-compiler-gcc-6-x86==4.9.272-1
+linux-headers-4.9.0-16-amd64==4.9.272-1
+linux-headers-4.9.0-16-common==4.9.272-1
+linux-headers-amd64==4.9+80+deb9u14
+linux-kbuild-4.9==4.9.272-1
+linux-libc-dev==4.9.272-1
 linuxdoc-tools==0.9.72-4
 llvm-3.8==1:3.8.1-24
 llvm-3.8-dev==1:3.8.1-24
@@ -1311,7 +1311,7 @@ python-twisted==16.6.0-2
 python-twisted-bin==16.6.0-2
 python-twisted-core==16.6.0-2
 python-tz==2016.7-0.3
-python-urllib3==1.19.1-1
+python-urllib3==1.19.1-1+deb9u1
 python-webencodings==0.5-2
 python-wheel==0.29.0-2
 python-wrapt==1.9.0-2
