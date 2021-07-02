@@ -36,7 +36,7 @@ python-dateutil==2.6.0
 pyyaml==5.4.1
 redis==3.5.3
 redis-dump-load==1.1
-regex==2021.4.4
+regex==2021.7.1
 requests==2.25.1
 scapy==2.4.4
 smbus==1.1.post2
