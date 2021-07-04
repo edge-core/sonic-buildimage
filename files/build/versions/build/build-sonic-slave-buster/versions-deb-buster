@@ -42,6 +42,7 @@ libpango1.0-dev==1.42.4-8~deb10u1
 libpangoxft-1.0-0==1.42.4-8~deb10u1
 libpixman-1-dev==0.36.0-1
 libsaibcm==4.3.3.8-1
+libsaibcm-dev==4.3.3.8-1
 libsaimetadata==1.0.0
 libsaimetadata-dev==1.0.0
 libsairedis==1.0.0
