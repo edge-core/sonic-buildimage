@@ -240,6 +240,13 @@ class FeatureHandler(object):
         cmds = []
         feature_names, feature_suffixes = self.get_feature_attribute(feature)
         for feature_name in feature_names:
+            # Check if it is already enabled, if yes skip the system call
+            cmd = "sudo systemctl status {}.{} | grep Loaded".format(feature_name, feature_suffixes[-1])
+            proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            (stdout, stderr) = proc.communicate()
+            if "enabled" in str(stdout):
+                continue
+
             for suffix in feature_suffixes:
                 cmds.append("sudo systemctl unmask {}.{}".format(feature_name, suffix))
             # If feature has timer associated with it, start/enable corresponding systemd .timer unit
@@ -259,6 +266,13 @@ class FeatureHandler(object):
         cmds = []
         feature_names, feature_suffixes = self.get_feature_attribute(feature)
         for feature_name in feature_names:
+            # Check if it is already disabled, if yes skip the system call
+            cmd = "sudo systemctl status {}.{} | grep Loaded".format(feature_name, feature_suffixes[-1])
+            proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            (stdout, stderr) = proc.communicate()
+            if "disabled" in str(stdout) or "masked" in str(stdout):
+                continue
+
             for suffix in reversed(feature_suffixes):
                 cmds.append("sudo systemctl stop {}.{}".format(feature_name, suffix))
                 cmds.append("sudo systemctl disable {}.{}".format(feature_name, feature_suffixes[-1]))
