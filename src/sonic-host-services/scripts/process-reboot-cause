@@ -12,7 +12,7 @@ try:
     import pwd
     import sys
 
-    import swsssdk
+    from swsscommon import swsscommon
     from sonic_py_common import logger
 except ImportError as err:
     raise ImportError("%s - required module not found" % str(err))
@@ -39,7 +39,7 @@ sonic_logger = logger.Logger(SYSLOG_IDENTIFIER)
 # ============================= Functions =============================
 def read_reboot_cause_files_and_save_state_db():
     # Connect State DB
-    state_db = swsssdk.SonicV2Connector(host=REDIS_HOSTIP)
+    state_db = swsscommon.SonicV2Connector(host=REDIS_HOSTIP)
     state_db.connect(state_db.STATE_DB)
 
     # Sort the previous reboot cause files by creation time
