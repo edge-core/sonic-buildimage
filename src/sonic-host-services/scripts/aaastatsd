@@ -4,7 +4,7 @@
 import os
 import syslog
 import threading
-from swsssdk import ConfigDBConnector
+from swsscommon.swsscommon import ConfigDBConnector
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 

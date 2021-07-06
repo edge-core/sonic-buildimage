@@ -2,7 +2,7 @@ import sys
 import os
 import pytest
 
-import swsssdk
+from swsscommon import swsscommon
 from sonic_py_common.general import load_module_from_source
 
 # TODO: Remove this if/else block once we no longer support Python 2
@@ -21,7 +21,7 @@ else:
 
 from .mock_connector import MockConnector
 
-swsssdk.SonicV2Connector = MockConnector
+swsscommon.SonicV2Connector = MockConnector
 
 test_path = os.path.dirname(os.path.abspath(__file__))
 modules_path = os.path.dirname(test_path)

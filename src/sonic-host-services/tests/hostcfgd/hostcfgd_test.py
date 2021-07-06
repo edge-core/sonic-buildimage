@@ -1,6 +1,6 @@
 import os
 import sys
-import swsssdk
+import swsscommon
 
 from parameterized import parameterized
 from sonic_py_common.general import load_module_from_source
@@ -12,7 +12,7 @@ from .mock_configdb import MockConfigDb
 from pyfakefs.fake_filesystem_unittest import patchfs
 
 
-swsssdk.ConfigDBConnector = MockConfigDb
+swsscommon.swsscommon.ConfigDBConnector = MockConfigDb
 test_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 modules_path = os.path.dirname(test_path)
 scripts_path = os.path.join(modules_path, "scripts")
@@ -93,7 +93,7 @@ class TestHostcfgd(TestCase):
             Returns:
                 None
         """
-        fs.add_real_paths(swsssdk.__path__)  # add real path of swsssdk for database_config.json
+        fs.add_real_paths(swsscommon.__path__)  # add real path of swsscommon for database_config.json
         fs.create_dir(hostcfgd.FeatureHandler.SYSTEMD_SYSTEM_DIR)
         MockConfigDb.set_config_db(test_data["config_db"])
         with mock.patch("hostcfgd.subprocess") as mocked_subprocess:

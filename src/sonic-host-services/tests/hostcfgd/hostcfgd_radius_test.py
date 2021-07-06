@@ -5,7 +5,7 @@ import shutil
 import os
 import sys
 import subprocess
-import swsssdk
+from swsscommon import swsscommon
 
 from parameterized import parameterized
 from unittest import TestCase, mock
@@ -13,7 +13,7 @@ from tests.hostcfgd.test_radius_vectors import HOSTCFGD_TEST_RADIUS_VECTOR
 from tests.hostcfgd.mock_configdb import MockConfigDb
 
 
-swsssdk.ConfigDBConnector = MockConfigDb
+swsscommon.ConfigDBConnector = MockConfigDb
 test_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 modules_path = os.path.dirname(test_path)
 scripts_path = os.path.join(modules_path, "scripts")
