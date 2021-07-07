@@ -243,7 +243,7 @@ sonic-utilities-data==1.0-1
 sqlite3==3.27.2-3+deb10u1
 squashfs-tools==1:4.3-12
 sudo==1.8.27-1+deb10u3
-sx-kernel==1.mlnx.4.4.3106
+sx-kernel==1.mlnx.4.4.3216
 sysfsutils==2.1.0+repack-5
 systemd==247.3-5~bpo10+2
 systemd-sonic-generator==1.0.0

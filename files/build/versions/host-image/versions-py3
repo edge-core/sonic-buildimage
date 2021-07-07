@@ -30,7 +30,7 @@ pycparser==2.20
 python-dateutil==2.8.1
 pyyaml==5.4.1
 redis==3.5.3
-regex==2021.7.1
+regex==2021.7.6
 requests==2.25.1
 scapy==2.4.4
 six==1.16.0

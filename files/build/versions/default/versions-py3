@@ -10,7 +10,7 @@ grpcio==1.38.1
 grpcio-tools==1.20.0
 hiredis==2.0.0
 idna==2.10
-importlib-metadata==4.6.0
+importlib-metadata==4.6.1
 inflection==0.5.1
 ipaddress==1.0.23
 isodate==0.6.0
@@ -36,7 +36,7 @@ python-dateutil==2.6.0
 pyyaml==5.4.1
 redis==3.5.3
 redis-dump-load==1.1
-regex==2021.7.1
+regex==2021.7.6
 requests==2.25.1
 scapy==2.4.4
 smbus==1.1.post2
