@@ -17,6 +17,7 @@ pr:
     include:
       - master
       - 202012
+      - 201811
   paths:
     exclude:
       - .github
