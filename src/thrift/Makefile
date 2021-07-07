@@ -23,6 +23,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	dpkg-source -x thrift_$(THRIFT_VERSION_FULL).dsc
 	pushd thrift-$(THRIFT_VERSION)
 	patch -p1 < ../patch/THRIFT-3577-assertion-failed.patch
+	patch -p1 < ../patch/0002-cve-2017-1000487.patch
 	DEB_BUILD_OPTIONS=nocheck dpkg-buildpackage -d -rfakeroot -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS) --admindir $(SONIC_DPKG_ADMINDIR)
 	popd
 
