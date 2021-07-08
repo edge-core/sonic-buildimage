@@ -26,6 +26,10 @@ module sonic-portchannel {
 
     description "PORTCHANNEL yang Module for SONiC OS";
 
+    revision 2021-06-13 {
+        description "Change min-links valid range from 1-128 to 1-1024";
+    }
+
     revision 2021-03-31 {
         description "Add PortChannel Interface List with VRF attribute";
     }
@@ -74,8 +78,8 @@ module sonic-portchannel {
                 }
 
                 leaf min_links {
-                    type uint8 {
-                        range 1..128;
+                    type uint16 {
+                        range 1..1024;
                     }
                 }
 
