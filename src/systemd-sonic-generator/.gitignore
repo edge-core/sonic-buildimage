@@ -1,4 +1,5 @@
 systemd-sonic-generator
+ssg_test
 debian/*
 !debian/changelog
 !debian/compat

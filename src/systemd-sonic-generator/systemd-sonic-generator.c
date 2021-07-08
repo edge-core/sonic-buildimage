@@ -9,14 +9,36 @@
 #include <sys/stat.h>
 #include <linux/limits.h>
 
-#define MAX_NUM_TARGETS 15
-#define MAX_NUM_INSTALL_LINES 15
+#define MAX_NUM_TARGETS 48
+#define MAX_NUM_INSTALL_LINES 48
 #define MAX_NUM_UNITS 128
 #define MAX_BUF_SIZE 512
 
-static const char* UNIT_FILE_PREFIX = "/usr/lib/systemd/system/";
-static const char* CONFIG_FILE = "/etc/sonic/generated_services.conf";
-static const char* MACHINE_CONF_FILE = "/host/machine.conf";
+const char* UNIT_FILE_PREFIX = "/usr/lib/systemd/system/";
+const char* CONFIG_FILE = "/etc/sonic/generated_services.conf";
+const char* MACHINE_CONF_FILE = "/host/machine.conf";
+const char* ASIC_CONF_FORMAT = "/usr/share/sonic/device/%s/asic.conf";
+
+const char* g_unit_file_prefix = NULL;
+const char* get_unit_file_prefix() {
+    return (g_unit_file_prefix) ? g_unit_file_prefix : UNIT_FILE_PREFIX;
+}
+
+const char* g_config_file = NULL;
+const char* get_config_file() {
+    return (g_config_file) ? g_config_file : CONFIG_FILE;
+}
+
+const char* g_machine_config_file = NULL;
+const char* get_machine_config_file() {
+    return (g_machine_config_file) ? g_machine_config_file : MACHINE_CONF_FILE;
+}
+
+const char* g_asic_conf_format = NULL;
+const char* get_asic_conf_format() {
+    return (g_asic_conf_format) ? g_asic_conf_format : ASIC_CONF_FORMAT;
+}
+
 static int num_asics;
 static char** multi_instance_services;
 static int num_multi_inst;
@@ -128,7 +150,7 @@ static int get_install_targets_from_line(char* target_string, char* install_type
         strcat(final_target, install_type);
 
         free(target);
-        
+
         targets[num_targets + existing_targets] = strdup(final_target);
         num_targets++;
     }
@@ -152,12 +174,12 @@ static void replace_multi_inst_dep(char *src) {
     ssize_t nread;
     bool section_done = false;
     char tmp_file_path[PATH_MAX];
-    
+
     /* Assumes that the service files has 3 sections,
      * in the order: Unit, Service and Install.
-     * Assumes that the timer file has 3 sectiosn, 
+     * Assumes that the timer file has 3 sections,
      * in the order: Unit, Timer and Install.
-     * Read service dependency from Unit and Install 
+     * Read service dependency from Unit and Install
      * sections, replace if dependent on multi instance
      * service.
      */
@@ -166,7 +188,7 @@ static void replace_multi_inst_dep(char *src) {
     fp_tmp = fopen(tmp_file_path, "w");
 
     while ((nread = getline(&line, &len, fp_src)) != -1 ) {
-        if ((strstr(line, "[Service]") != NULL) || 
+        if ((strstr(line, "[Service]") != NULL) ||
             (strstr(line, "[Timer]") != NULL)) {
             section_done = true;
             fputs(line,fp_tmp);
@@ -188,7 +210,7 @@ static void replace_multi_inst_dep(char *src) {
                 } else {
                     service_name = strdup(word);
                     service_name = strtok_r(service_name, ".", &save_ptr2);
-                    type = strtok_r(NULL, " ", &save_ptr2);
+                    type = strtok_r(NULL, "\n", &save_ptr2);
                     if (is_multi_instance_service(word)) {
                         for(i = 0; i < num_asics; i++) {
                             snprintf(buf, MAX_BUF_SIZE, "%s=%s@%d.%s\n",
@@ -215,7 +237,7 @@ static void replace_multi_inst_dep(char *src) {
     rename(tmp_file_path, src);
 }
 
-static int get_install_targets(char* unit_file, char* targets[]) {
+int get_install_targets(char* unit_file, char* targets[]) {
     /***
     Returns install targets for a unit file
 
@@ -234,7 +256,7 @@ static int get_install_targets(char* unit_file, char* targets[]) {
     char *instance_name;
     char *dot_ptr;
 
-    strcpy(file_path, UNIT_FILE_PREFIX);
+    strcpy(file_path, get_unit_file_prefix());
     strcat(file_path, unit_file);
 
     instance_name = strdup(unit_file);
@@ -280,7 +302,7 @@ static int get_install_targets(char* unit_file, char* targets[]) {
 }
 
 
-static int get_unit_files(char* unit_files[]) {
+int get_unit_files(char* unit_files[]) {
     /***
     Reads a list of unit files to be installed from /etc/sonic/generated_services.conf
     ***/
@@ -289,18 +311,19 @@ static int get_unit_files(char* unit_files[]) {
     size_t len = 0;
     ssize_t read;
     char *pos;
+    const char* config_file = get_config_file();
 
-    fp = fopen(CONFIG_FILE, "r");
+    fp = fopen(config_file, "r");
 
     if (fp == NULL) {
-        fprintf(stderr, "Failed to open %s\n", CONFIG_FILE);
+        fprintf(stderr, "Failed to open %s\n", config_file);
         exit(EXIT_FAILURE);
     }
 
     int num_unit_files = 0;
     num_multi_inst = 0;
 
-    multi_instance_services = malloc(MAX_NUM_UNITS * sizeof(char *));
+    multi_instance_services = calloc(MAX_NUM_UNITS, sizeof(char *));
 
     while ((read = getline(&line, &len, fp)) != -1) {
         if (num_unit_files >= MAX_NUM_UNITS) {
@@ -312,7 +335,7 @@ static int get_unit_files(char* unit_files[]) {
         /* Get the multi-instance services */
         pos = strchr(line, '@');
         if (pos != NULL) {
-            multi_instance_services[num_multi_inst] = malloc(strlen(line)*sizeof(char));
+            multi_instance_services[num_multi_inst] = calloc(strlen(line), sizeof(char));
             strncpy(multi_instance_services[num_multi_inst], line, pos-line);
             num_multi_inst++;
         }
@@ -334,40 +357,32 @@ static int get_unit_files(char* unit_files[]) {
 }
 
 
-static char* insert_instance_number(char* unit_file, int instance) {
+char* insert_instance_number(char* unit_file, int instance) {
     /***
     Adds an instance number to a systemd template name
 
     E.g. given unit_file='example@.service', instance=3,
-    returns a pointer to 'example@1.service'
+    returns a pointer to 'example@3.service'
     ***/
-    char* prefix;
-    char* suffix;
-    char* instance_string;
     char* instance_name;
-    char* temp_unit_file;
-
-    instance_string = malloc(2 * sizeof(char));
-    snprintf(instance_string, 2, "%d", instance);
-
-    instance_name = malloc(strlen(unit_file) + 2);
-
-    if (instance_name == NULL) {
-        fprintf(stderr, "Error creating instance %d of %s\n", instance, unit_file);
+    int   ret;
+    int   prefix_len;
+    const char *suffix = strchr(unit_file, '@');
+    if (!suffix) {
+        fprintf(stderr, "Invalid unit file %s for instance %d\n", unit_file, instance);
         return NULL;
     }
 
-    temp_unit_file = strdup(unit_file);
-    prefix = strtok(temp_unit_file, "@");
-    suffix = strtok(NULL, "@");
-
-    strcpy(instance_name, prefix);
-    strcat(instance_name, "@");
-    strcat(instance_name, instance_string);
-    strcat(instance_name, suffix);
-
-    free(instance_string);
-    free(temp_unit_file);
+    /***
+    suffix is "@.service", set suffix=".service"
+    prefix_len is length of "example@"
+    ***/
+    prefix_len = ++suffix - unit_file;
+    ret = asprintf(&instance_name, "%.*s%d%s", prefix_len, unit_file, instance, suffix);
+    if (ret == -1) {
+        fprintf(stderr, "Error creating instance %d of %s\n", instance, unit_file);
+        return NULL;
+    }
 
     return instance_name;
 }
@@ -381,7 +396,7 @@ static int create_symlink(char* unit, char* target, char* install_dir, int insta
     char* unit_instance;
     int r;
 
-    strcpy(src_path, UNIT_FILE_PREFIX);
+    strcpy(src_path, get_unit_file_prefix());
     strcat(src_path, unit);
 
     if (instance < 0) {
@@ -462,7 +477,7 @@ static int install_unit_file(char* unit_file, char* target, char* install_dir) {
 
     assert(unit_file);
     assert(target);
-            
+
 
     if ((num_asics > 1) && strstr(unit_file, "@") != NULL) {
 
@@ -476,16 +491,16 @@ static int install_unit_file(char* unit_file, char* target, char* install_dir) {
             }
 
             r = create_symlink(unit_file, target_instance, install_dir, i);
-            if (r < 0) 
+            if (r < 0)
                 fprintf(stderr, "Error installing %s for target %s\n", unit_file, target_instance);
-            
+
             free(target_instance);
 
-        } 
+        }
     }
     else {
         r = create_symlink(unit_file, target, install_dir, -1);
-        if (r < 0) 
+        if (r < 0)
             fprintf(stderr, "Error installing %s for target %s\n", unit_file, target);
     }
 
@@ -493,7 +508,7 @@ static int install_unit_file(char* unit_file, char* target, char* install_dir) {
 }
 
 
-static int get_num_of_asic() {
+int get_num_of_asic() {
     /***
     Determines if the current platform is single or multi-ASIC
     ***/
@@ -507,11 +522,12 @@ static int get_num_of_asic() {
     char asic_file[512];
     char* str_num_asic;
     int num_asic = 1;
+    const char* machine_config_file = get_machine_config_file();
 
-    fp = fopen(MACHINE_CONF_FILE, "r");
+    fp = fopen(machine_config_file, "r");
 
     if (fp == NULL) {
-        fprintf(stderr, "Failed to open %s\n", MACHINE_CONF_FILE);
+        fprintf(stderr, "Failed to open %s\n", machine_config_file);
         exit(EXIT_FAILURE);
     }
 
@@ -524,10 +540,9 @@ static int get_num_of_asic() {
             break;
         }
     }
-
     fclose(fp);
     if(platform != NULL) {
-        snprintf(asic_file, 512, "/usr/share/sonic/device/%s/asic.conf", platform);
+        snprintf(asic_file, 512, get_asic_conf_format(), platform);
         fp = fopen(asic_file, "r");
         if (fp != NULL) {
             while ((nread = getline(&line, &len, fp)) != -1) {
@@ -549,8 +564,7 @@ static int get_num_of_asic() {
 
 }
 
-
-int main(int argc, char **argv) {
+int ssg_main(int argc, char **argv) {
     char* unit_files[MAX_NUM_UNITS];
     char install_dir[PATH_MAX];
     char* targets[MAX_NUM_TARGETS];
@@ -567,10 +581,8 @@ int main(int argc, char **argv) {
     }
 
     num_asics = get_num_of_asic();
-
     strcpy(install_dir, argv[1]);
     strcat(install_dir, "/");
-
     num_unit_files = get_unit_files(unit_files);
 
     // For each unit file, get the installation targets and install the unit
@@ -610,3 +622,10 @@ int main(int argc, char **argv) {
 
     return 0;
 }
+
+
+#ifndef _SSG_UNITTEST
+int main(int argc, char **argv) {
+   return ssg_main(argc, argv);
+}
+#endif
