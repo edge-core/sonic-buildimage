@@ -42,6 +42,11 @@ parameters:
   type: string
   default: sonicdev
 
+variables:
+- ${{ if and(startsWith(variables['Build.SourceBranchName'], '202'), eq(length(variables['Build.SourceBranchName']), 6)) }}:
+  - name: BUILD_OPTIONS
+    value: 'SONIC_VERSION_CONTROL_COMPONENTS=deb,py2,py3,web'
+
 stages:
 - stage: Build
   jobs:
@@ -80,7 +85,7 @@ stages:
 
               echo ${{ arch }} > .arch
 
-              DOCKER_DATA_ROOT_FOR_MULTIARCH=/data/march/docker BLDENV=${{ dist }} make -f Makefile.work sonic-slave-build | tee $tmpfile
+              DOCKER_DATA_ROOT_FOR_MULTIARCH=/data/march/docker BLDENV=${{ dist }} $(BUILD_OPTIONS) make -f Makefile.work sonic-slave-build | tee $tmpfile
               SLAVE_BASE_TAG=$(grep "^Checking sonic-slave-base image:" $tmpfile | awk -F ':' '{print $3}')
               SLAVE_TAG=$(grep "^Checking sonic-slave image:" $tmpfile | awk -F ':' '{print $3}')
 
