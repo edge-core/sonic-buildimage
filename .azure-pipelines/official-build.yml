@@ -9,6 +9,7 @@ schedules:
   branches:
     include:
     - master
+    - 202106
     - 202012
   always: true
 - cron: "0 4 * * *"
