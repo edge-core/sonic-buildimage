@@ -374,10 +374,12 @@ class VersionBuild:
     def load_from_target(self):
         dockers_path = os.path.join(self.target_path, 'versions/dockers')
         build_path = os.path.join(self.target_path, 'versions/build')
+        default_path = os.path.join(self.target_path, 'versions/default')
         modules = {}
         self.modules = modules
         file_paths = glob.glob(dockers_path + '/*')
         file_paths += glob.glob(build_path + '/build-*')
+        file_paths += glob.glob(default_path)
         file_paths.append(os.path.join(self.target_path, 'versions/host-image'))
         file_paths.append(os.path.join(self.target_path, 'versions/host-base-image'))
         for file_path in file_paths:
