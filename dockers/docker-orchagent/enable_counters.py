@@ -18,6 +18,8 @@ def enable_counters():
     enable_counter_group(db, 'QUEUE_WATERMARK')
     enable_counter_group(db, 'BUFFER_POOL_WATERMARK')
     enable_counter_group(db, 'PORT_BUFFER_DROP')
+    if 'mlnx' in db.get_table('DEVICE_METADATA')['localhost'].get('platform'):
+        enable_counter_group(db, 'RIF')
 
 def get_uptime():
     with open('/proc/uptime') as fp:
