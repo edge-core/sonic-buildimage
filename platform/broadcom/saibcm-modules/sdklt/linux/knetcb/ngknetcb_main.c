@@ -398,6 +398,17 @@ static struct file_operations ngknetcb_fops = {
     .mmap = ngknetcb_mmap,
 };
 
+static struct proc_ops ngknetcb_proc_ops = {
+    .proc_open = ngknetcb_open,
+    .proc_read = seq_read,
+    .proc_write = ngknetcb_write,
+    .proc_lseek = seq_lseek,
+    .proc_release = ngknetcb_release,
+    .proc_ioctl = ngknetcb_ioctl,
+    .proc_compat_ioctl = ngknetcb_ioctl,
+    .proc_mmap = ngknetcb_mmap,
+};
+
 static int __init
 ngknetcb_init_module(void)
 {
@@ -411,7 +422,7 @@ ngknetcb_init_module(void)
         return rv;
     }
 
-    PROC_CREATE(entry, NGKNETCB_MODULE_NAME, 0666, NULL, &ngknetcb_fops);
+    PROC_CREATE(entry, NGKNETCB_MODULE_NAME, 0666, NULL, &ngknetcb_proc_ops);
     if (entry == NULL) {
         printk(KERN_ERR "%s: proc_mkdir failed\n",
                 NGKNETCB_MODULE_NAME);

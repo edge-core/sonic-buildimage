@@ -36,7 +36,7 @@ ngbde_pio_map(void *devh, phys_addr_t addr, phys_addr_t size)
         ngbde_pio_unmap(devh);
     }
 
-    sd->pio_mem = ioremap_nocache(addr, size);
+    sd->pio_mem = ioremap(addr, size);
 
     if (sd->pio_mem) {
         /* Save mapped resources */

@@ -113,7 +113,7 @@ kal_time_val_get(struct timeval *tv)
 {
     do_gettimeofday(tv);
 }
-#else
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,6,0)
 static inline void
 kal_time_val_get(struct timeval *tv)
 {
@@ -121,6 +121,12 @@ kal_time_val_get(struct timeval *tv)
     ktime_get_real_ts64(&ts);
     tv->tv_sec = ts.tv_sec;
     tv->tv_usec = ts.tv_nsec / 1000;
+}
+#else
+static inline void
+kal_time_val_get(struct timespec64 *tv)
+{
+    ktime_get_real_ts64(tv);
 }
 #endif /* KERNEL_VERSION(3,17,0) */
 

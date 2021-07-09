@@ -149,6 +149,7 @@ static int _gmodule_proc_release(struct inode * inode, struct file * file) {
     return single_release(inode, file);
 }
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,6,0)
 struct file_operations _gmodule_proc_fops = {
     owner:      THIS_MODULE,
     open:       _gmodule_proc_open,
@@ -157,6 +158,15 @@ struct file_operations _gmodule_proc_fops = {
     write:      _gmodule_proc_write,
     release:    _gmodule_proc_release,
 };
+#else
+struct proc_ops _gmodule_proc_fops = {
+    proc_open:       _gmodule_proc_open,
+    proc_read:       seq_read,
+    proc_lseek:      seq_lseek,
+    proc_write:      _gmodule_proc_write,
+    proc_release:    _gmodule_proc_release,
+};
+#endif
 #else
 int
 gmodule_vpprintf(char** page_ptr, const char* fmt, va_list args)
@@ -271,7 +281,7 @@ _gmodule_release(struct inode *inode, struct file *filp)
     return 0;
 }
 
-#ifdef HAVE_UNLOCKED_IOCTL
+#if defined(HAVE_UNLOCKED_IOCTL) || LINUX_VERSION_CODE >= KERNEL_VERSION(5,9,0)
 static long
 _gmodule_unlocked_ioctl(struct file *filp,
                         unsigned int cmd, unsigned long arg)
@@ -334,7 +344,7 @@ _gmodule_mmap(struct file *filp, struct vm_area_struct *vma)
 /* FILE OPERATIONS */
 
 struct file_operations _gmodule_fops = {
-#ifdef HAVE_UNLOCKED_IOCTL
+#if defined(HAVE_UNLOCKED_IOCTL) || LINUX_VERSION_CODE >= KERNEL_VERSION(5,9,0)
     unlocked_ioctl: _gmodule_unlocked_ioctl,
 #else
     ioctl:      _gmodule_ioctl,

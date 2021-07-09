@@ -39,11 +39,19 @@
 unsigned long
 sal_time_usecs(void)
 {
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,6,0)
     struct timeval tv;
 
     kal_time_val_get(&tv);
 
     return tv.tv_sec * 1000000 + tv.tv_usec;
+#else
+    struct timespec64 tv;
+
+    kal_time_val_get(&tv);
+
+    return tv.tv_sec * 1000000 + tv.tv_nsec / 1000;
+#endif
 }
 
 void

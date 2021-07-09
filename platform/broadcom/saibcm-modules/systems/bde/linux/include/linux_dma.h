@@ -49,7 +49,7 @@
 /* ioremap is broken in kernel */
 #define IOREMAP(addr, size) ((void *)KSEG1ADDR(addr))
 #else
-#define IOREMAP(addr, size) ioremap_nocache(addr, size)
+#define IOREMAP(addr, size) ioremap(addr, size)
 #endif
 
 #if defined (__mips__)

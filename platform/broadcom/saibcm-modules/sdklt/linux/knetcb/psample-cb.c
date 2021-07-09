@@ -628,13 +628,12 @@ psample_proc_rate_write(struct file *file, const char *buf,
     return count;
 }
 
-struct file_operations psample_proc_rate_file_ops = {
-    owner:      THIS_MODULE,
-    open:       psample_proc_rate_open,
-    read:       seq_read,
-    llseek:     seq_lseek,
-    write:      psample_proc_rate_write,
-    release:    single_release,
+struct proc_ops psample_proc_rate_file_ops = {
+    proc_open:       psample_proc_rate_open,
+    proc_read:       seq_read,
+    proc_lseek:     seq_lseek,
+    proc_write:      psample_proc_rate_write,
+    proc_release:    single_release,
 };
 
 /*
@@ -727,13 +726,12 @@ psample_proc_size_write(struct file *file, const char *buf,
     return count;
 }
 
-struct file_operations psample_proc_size_file_ops = {
-    owner:      THIS_MODULE,
-    open:       psample_proc_size_open,
-    read:       seq_read,
-    llseek:     seq_lseek,
-    write:      psample_proc_size_write,
-    release:    single_release,
+struct proc_ops psample_proc_size_file_ops = {
+    proc_open:       psample_proc_size_open,
+    proc_read:       seq_read,
+    proc_lseek:     seq_lseek,
+    proc_write:      psample_proc_size_write,
+    proc_release:    single_release,
 };
 
 /*
@@ -768,13 +766,12 @@ psample_proc_map_open(struct inode * inode, struct file * file)
     return single_open(file, psample_proc_map_show, NULL);
 }
 
-struct file_operations psample_proc_map_file_ops = {
-    owner:      THIS_MODULE,
-    open:       psample_proc_map_open,
-    read:       seq_read,
-    llseek:     seq_lseek,
-    write:      NULL,
-    release:    single_release,
+struct proc_ops psample_proc_map_file_ops = {
+    proc_open:       psample_proc_map_open,
+    proc_read:       seq_read,
+    proc_lseek:     seq_lseek,
+    proc_write:      NULL,
+    proc_release:    single_release,
 };
 
 /*
@@ -834,13 +831,12 @@ psample_proc_debug_write(struct file *file, const char *buf,
     return count;
 }
 
-struct file_operations psample_proc_debug_file_ops = {
-    owner:      THIS_MODULE,
-    open:       psample_proc_debug_open,
-    read:       seq_read,
-    llseek:     seq_lseek,
-    write:      psample_proc_debug_write,
-    release:    single_release,
+struct proc_ops psample_proc_debug_file_ops = {
+    proc_open:       psample_proc_debug_open,
+    proc_read:       seq_read,
+    proc_lseek:     seq_lseek,
+    proc_write:      psample_proc_debug_write,
+    proc_release:    single_release,
 };
 
 static int
@@ -896,13 +892,12 @@ psample_proc_stats_write(struct file *file, const char *buf,
 
     return count;
 }
-struct file_operations psample_proc_stats_file_ops = {
-    owner:      THIS_MODULE,
-    open:       psample_proc_stats_open,
-    read:       seq_read,
-    llseek:     seq_lseek,
-    write:      psample_proc_stats_write,
-    release:    single_release,
+struct proc_ops psample_proc_stats_file_ops = {
+    proc_open:       psample_proc_stats_open,
+    proc_read:       seq_read,
+    proc_lseek:     seq_lseek,
+    proc_write:      psample_proc_stats_write,
+    proc_release:    single_release,
 };
 
 int psample_cleanup(void)

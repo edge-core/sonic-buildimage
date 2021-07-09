@@ -65,7 +65,7 @@ iproc_cmicd_probe(struct platform_device *pldev)
                (void *)memres->start, (void *)memres->end);
     }
 
-    base_address = ioremap_nocache(memres->start, size);
+    base_address = ioremap(memres->start, size);
     if (!base_address) {
         printk(KERN_WARNING "Error mapping iProc CMIC registers");
         return -1;

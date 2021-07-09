@@ -233,7 +233,11 @@ ngknet_pkt_dump(uint8_t *data, int len)
 static void
 ngknet_pkt_stats(struct pdma_dev *pdev, int dir)
 {
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,6,0)
     static struct timeval tv0[2], tv1[2];
+#else
+    static struct timespec64 tv0[2], tv1[2];
+#endif
     static uint32_t pkts[2] = {0}, prts[2] = {0};
     static uint64_t intrs = 0;
     uint32_t iv_time;
@@ -257,8 +261,13 @@ ngknet_pkt_stats(struct pdma_dev *pdev, int dir)
     }
     if (++pkts[dir] >= boudary) {
         kal_time_val_get(&tv1[dir]);
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,6,0)
         iv_time = (tv1[dir].tv_sec - tv0[dir].tv_sec) * 1000000 +
                   (tv1[dir].tv_usec - tv0[dir].tv_usec);
+#else
+        iv_time = (tv1[dir].tv_sec - tv0[dir].tv_sec) * 1000000 +
+                  (tv1[dir].tv_nsec - tv0[dir].tv_nsec) / 1000;
+#endif
         pps = boudary * 1000 / (iv_time / 1000);
         prts[dir]++;
         /* pdev->stats.intrs is reset and re-count from 0. */
