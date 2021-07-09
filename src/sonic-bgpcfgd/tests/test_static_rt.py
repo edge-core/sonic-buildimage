@@ -6,7 +6,7 @@ from bgpcfgd.managers_static_rt import StaticRouteMgr
 from collections import Counter
 from swsscommon import swsscommon
 
-def constructor():
+def constructor(skip_bgp_asn=False):
     cfg_mgr = MagicMock()
 
     common_objs = {
@@ -17,7 +17,8 @@ def constructor():
     }
 
     mgr = StaticRouteMgr(common_objs, "CONFIG_DB", "STATIC_ROUTE")
-    mgr.directory.put("CONFIG_DB", swsscommon.CFG_DEVICE_METADATA_TABLE_NAME, "localhost", {"bgp_asn": "65100"})
+    if not skip_bgp_asn:
+        mgr.directory.put("CONFIG_DB", swsscommon.CFG_DEVICE_METADATA_TABLE_NAME, "localhost", {"bgp_asn": "65100"})
     assert len(mgr.static_routes) == 0
 
     return mgr
@@ -573,3 +574,80 @@ def test_set_invalid_ipaddr():
         False,
         []
     )
+
+def test_set_del_no_bgp_asn():
+    mgr = constructor(skip_bgp_asn=True)
+    set_del_test(
+        mgr,
+        "SET",
+        ("vrfRED|10.1.3.0/24", {
+            "nexthop": "10.0.0.57,10.0.0.59,10.0.0.61",
+            "ifname": "PortChannel0001,PortChannel0002,PortChannel0003",
+            "distance": "10,20,30",
+            "nexthop-vrf": "nh_vrf,,default",
+            "blackhole": "false,false,false",
+        }),
+        True,
+        [
+            "ip route 10.1.3.0/24 10.0.0.57 PortChannel0001 10 nexthop-vrf nh_vrf vrf vrfRED",
+            "ip route 10.1.3.0/24 10.0.0.59 PortChannel0002 20 vrf vrfRED",
+            "ip route 10.1.3.0/24 10.0.0.61 PortChannel0003 30 nexthop-vrf default vrf vrfRED",
+        ]
+    )
+    set_del_test(
+        mgr,
+        "DEL",
+        ("vrfRED|10.1.3.0/24",),
+        True,
+        [
+            "no ip route 10.1.3.0/24 10.0.0.57 PortChannel0001 10 nexthop-vrf nh_vrf vrf vrfRED",
+            "no ip route 10.1.3.0/24 10.0.0.59 PortChannel0002 20 vrf vrfRED",
+            "no ip route 10.1.3.0/24 10.0.0.61 PortChannel0003 30 nexthop-vrf default vrf vrfRED",
+        ]
+    )
+
+def test_set_del_bgp_asn_change():
+    mgr = constructor(skip_bgp_asn=True)
+    set_del_test(
+        mgr,
+        "SET",
+        ("vrfRED|10.1.3.0/24", {
+            "nexthop": "10.0.0.57,10.0.0.59,10.0.0.61",
+            "ifname": "PortChannel0001,PortChannel0002,PortChannel0003",
+            "distance": "10,20,30",
+            "nexthop-vrf": "nh_vrf,,default",
+            "blackhole": "false,false,false",
+        }),
+        True,
+        [
+            "ip route 10.1.3.0/24 10.0.0.57 PortChannel0001 10 nexthop-vrf nh_vrf vrf vrfRED",
+            "ip route 10.1.3.0/24 10.0.0.59 PortChannel0002 20 vrf vrfRED",
+            "ip route 10.1.3.0/24 10.0.0.61 PortChannel0003 30 nexthop-vrf default vrf vrfRED",
+        ]
+    )
+
+    assert mgr.vrf_pending_redistribution == {"vrfRED"}
+
+    expected_cmds = [
+        "router bgp 65100 vrf vrfRED",
+        " address-family ipv4",
+        "  redistribute static",
+        " address-family ipv6",
+        "  redistribute static"
+    ]
+    def push_list(cmds):
+        set_del_test.push_list_called = True
+        assert Counter(cmds) == Counter(expected_cmds) # check if commands are expected (regardless of the order)
+        max_del_idx = -1
+        min_set_idx = len(cmds)
+        for idx in range(len(cmds)):
+            if cmds[idx].startswith('no ip') and idx > max_del_idx:
+                max_del_idx = idx
+            if cmds[idx].startswith('ip') and idx < min_set_idx:
+                min_set_idx = idx
+        assert max_del_idx < min_set_idx, "DEL command comes after SET command" # DEL commands should be done first
+        return True
+    mgr.cfg_mgr.push_list = push_list
+    mgr.directory.put("CONFIG_DB", swsscommon.CFG_DEVICE_METADATA_TABLE_NAME, "localhost", {"bgp_asn": "65100"})
+
+    assert not mgr.vrf_pending_redistribution
