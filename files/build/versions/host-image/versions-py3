@@ -3,7 +3,7 @@ azure-nspkg==3.0.2
 azure-storage==0.36.0
 bitarray==1.5.3
 certifi==2021.5.30
-cffi==1.14.5
+cffi==1.14.6
 chardet==4.0.0
 click==7.0
 cryptography==3.4.7
