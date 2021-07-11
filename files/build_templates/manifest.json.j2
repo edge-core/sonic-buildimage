@@ -12,7 +12,15 @@
         "before": {{ before.split()|json if before is defined else [] }},
         "dependent-of": {{ dependent_of.split()|json if dependent_of is defined else [] }},
         "asic-service": {{ asic_service }},
-        "host-service": {{ host_service }}
+        "host-service": {{ host_service }},
+        "warm-shutdown": {
+            "after": {{ warm_shutdown_after.split()|json if warm_shutdown_after is defined else [] }},
+            "before": {{ warm_shutdown_before.split()|json if warm_shutdown_before is defined else [] }}
+        },
+        "fast-shutdown": {
+            "after": {{ fast_shutdown_after.split()|json if fast_shutdown_after is defined else [] }},
+            "before": {{ fast_shutdown_before.split()|json if fast_shutdown_before is defined else [] }}
+        }
     },
     "container": {
         "privileged": {{ privileged if privileged else 'false' }},
