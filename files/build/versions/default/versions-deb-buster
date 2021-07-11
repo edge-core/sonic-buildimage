@@ -286,6 +286,7 @@ socat==1.7.3.1-2+deb9u1
 sonic-dhcpmon==1.0.0-0
 sonic-mgmt-common==1.0.0
 sonic-mgmt-framework==1.0-01
+sonic-mgmt-framework-dbg==1.0-01
 sonic-telemetry==0.1
 sshpass==1.06-1
 strace==4.26-0.2
