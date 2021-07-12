@@ -256,6 +256,7 @@
           <FhrpProtoType i:nil="true"/>
           <Type i:nil="true"/>
           <DhcpRelays>192.0.0.1;192.0.0.2</DhcpRelays>
+          <Dhcpv6Relays>fc02:2000::1;fc02:2000::2</Dhcpv6Relays>
           <VlanID>1000</VlanID>
           <Tag>1000</Tag>
           <Subnets>192.168.0.0/27</Subnets>
