@@ -57,7 +57,7 @@ index a17e740..2bef5cb 100644
  	modprobe loop
  	modprobe "${FSTYPE}"
  
-+	if [ ! -z "${LOOPOFFSET}" ]; then
++	if [ -n "${LOOPOFFSET}" ]; then
 +		# create a loop device for the fs within the file
 +		loopdev="$(losetup -f)"
 +		losetup -o "${LOOPOFFSET:-0}" "${loopdev}" "${loopfile}" || \
