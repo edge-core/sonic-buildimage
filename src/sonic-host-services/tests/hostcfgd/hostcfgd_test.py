@@ -65,6 +65,11 @@ class TestHostcfgd(TestCase):
         """
         MockConfigDb.set_config_db(test_data["config_db"])
         with mock.patch("hostcfgd.subprocess") as mocked_subprocess:
+            popen_mock = mock.Mock()
+            attrs = test_data["popen_attributes"]
+            popen_mock.configure_mock(**attrs)
+            mocked_subprocess.Popen.return_value = popen_mock
+
             host_config_daemon = hostcfgd.HostConfigDaemon()
             host_config_daemon.update_all_feature_states()
             assert self.__verify_table(
