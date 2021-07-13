@@ -22,6 +22,7 @@ pr:
     - sonic-slave-jessie
     - sonic-slave-stretch
     - sonic-slave-buster
+    - sonic-slave-bullseye
 
 parameters:
 - name: 'arches'
@@ -33,6 +34,7 @@ parameters:
 - name: 'dists'
   type: object
   default:
+  - bullseye
   - buster
   - stretch
   - jessie
