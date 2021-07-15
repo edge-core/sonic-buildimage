@@ -139,6 +139,9 @@ INCLUDE_RESTAPI = n
 # INCLUDE_NAT - build docker-nat for nat support
 INCLUDE_NAT = y
 
+# INCLUDE_DHCP_RELAY - build and install dhcp-relay package
+INCLUDE_DHCP_RELAY = y
+
 # TELEMETRY_WRITABLE - Enable write/config operations via the gNMI interface.
 # Uncomment to enable:
 # TELEMETRY_WRITABLE = y
