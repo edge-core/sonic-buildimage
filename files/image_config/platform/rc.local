@@ -120,6 +120,8 @@ migrate_nos_configuration()
         MG_FILE=$NOS_DIR/minigraph.xml
         ACL_GZFILE=$NOS_DIR/acl.json.gz.base64.txt
         ACL_FILE=$NOS_DIR/acl.json
+        PORT_CONFIG_GZFILE=$NOS_DIR/port_config.json.gz.base64.txt
+        PORT_CONFIG_FILE=$NOS_DIR/port_config.json
         SNMP_FILE=$NOS_DIR/snmp.yml
         mkdir -p $NOS_DIR
 
@@ -131,11 +133,13 @@ migrate_nos_configuration()
             # decode & unzip minigraph.xml.gz.base64.txt
             [ -f $MG_GZFILE ] && /usr/bin/base64 -d $MG_GZFILE | /bin/gunzip > $MG_FILE
             [ -f $ACL_GZFILE ] && /usr/bin/base64 -d $ACL_GZFILE | /bin/gunzip > $ACL_FILE
+            [ -f $PORT_CONFIG_GZFILE ] && /usr/bin/base64 -d $PORT_CONFIG_GZFILE | /bin/gunzip > $PORT_CONFIG_FILE
 
             # Copy relevant files
             nos_migration_import $NOS_DIR/mgmt_interface.cfg /host/migration
             nos_migration_import $MG_FILE /host/migration
             nos_migration_import $ACL_FILE /host/migration
+            nos_migration_import $PORT_CONFIG_FILE /host/migration
             nos_migration_import $SNMP_FILE /host/migration
 
             if [ "$sonic_fast_reboot" == true ]; then
@@ -249,12 +253,14 @@ if [ -f $FIRST_BOOT_FILE ]; then
         mkdir -p /etc/sonic/old_config
         mv /host/minigraph.xml /etc/sonic/old_config/
         [ -f /host/acl.json ] && mv /host/acl.json /etc/sonic/old_config/
+        [ -f /host/port_config.json ] && mv /host/port_config.json /etc/sonic/old_config/
         [ -f /host/snmp.yml ] && mv /host/snmp.yml /etc/sonic/old_config/
         touch /tmp/pending_config_migration
     elif [ -n "$migration" ] && [ -f /host/migration/minigraph.xml ];  then
         mkdir -p /etc/sonic/old_config
         mv /host/migration/minigraph.xml /etc/sonic/old_config/
         [ -f /host/migration/acl.json ] && mv /host/migration/acl.json /etc/sonic/old_config/
+        [ -f /host/migration/port_config.json ] && mv /host/migration/port_config.json /etc/sonic/old_config/
         [ -f /host/migration/snmp.yml ] && mv /host/migration/snmp.yml /etc/sonic/old_config/
         touch /tmp/pending_config_migration
         [ -f /etc/sonic/updategraph.conf ] && sed -i -e "s/enabled=false/enabled=true/g" /etc/sonic/updategraph.conf
