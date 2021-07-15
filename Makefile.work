@@ -270,6 +270,7 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            HTTPS_PROXY=$(https_proxy) \
                            NO_PROXY=$(no_proxy) \
                            SONIC_INCLUDE_SYSTEM_TELEMETRY=$(INCLUDE_SYSTEM_TELEMETRY) \
+                           INCLUDE_DHCP_RELAY=$(INCLUDE_DHCP_RELAY) \
                            SONIC_INCLUDE_RESTAPI=$(INCLUDE_RESTAPI) \
                            TELEMETRY_WRITABLE=$(TELEMETRY_WRITABLE) \
                            EXTRA_DOCKER_TARGETS=$(EXTRA_DOCKER_TARGETS) \

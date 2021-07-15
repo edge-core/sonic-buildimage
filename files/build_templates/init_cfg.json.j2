@@ -47,7 +47,7 @@
             "has_per_asic_scope": {% if feature + '@.service' in installer_services.split(' ') %}true{% else %}false{% endif %},
             "auto_restart": "{{autorestart}}",
 {%- if include_kubernetes == "y" %}
-{%- if feature in ["dhcp_relay", "lldp", "pmon", "radv", "snmp", "telemetry"] %}
+{%- if feature in ["lldp", "pmon", "radv", "snmp", "telemetry"] %}
             "set_owner": "kube", {% else %}
             "set_owner": "local", {% endif %} {% endif %}
             "high_mem_alert": "disabled"
