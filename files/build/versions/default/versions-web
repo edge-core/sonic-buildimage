@@ -15,7 +15,6 @@ http://www.mellanox.com/downloads/MFT/mft-4.16.0-105-x86_64-deb.tgz==2c4a40535af
 https://bootstrap.pypa.io/pip/2.7/get-pip.py==60e8267eb1b7bc71dc4843eb7bd294d3
 https://chrome-infra-packages.appspot.com/client?platform=linux-amd64&version=git_revision:9464003f070813371070f9b8f7c350d87619d145==354f6511de4cd572aed26b4facd9b8a2
 https://download.docker.com/linux/debian/gpg==1afae06b34a13c1b3d9cb61a26285a15
-https://github.com/aristanetworks/sonic-firmware/raw/6d0d1661d92a342acedb6839dba970ae5778b478/phy/phy-credo_1.0_amd64.deb==dd74acbb7bf979b01c1a89e2a628aaf3
 https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnplatform_20210324_deb10.deb==b1f3087f05b82504130c5a7d428b9ef5
 https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnsdk_20210324_deb10.deb==40a5468c7b7a003df6f4e6c2f9f98817
 https://github.com/CentecNetworks/sonic-binaries/raw/master/amd64/libsai_1.6.3-1_amd64.deb==e7a41e5cf06b44ae3ed615d553de40d3
@@ -41,10 +40,7 @@ https://sonicstorage.blob.core.windows.net/debian/pool/main/liby/libyang/libyang
 https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_5.7.3+dfsg-5.debian.tar.xz==ad957e90207d0669beb2109e4e325def
 https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_5.7.3+dfsg-5.dsc==2443e4dffbdb020e7ab4f947a7904912
 https://sonicstorage.blob.core.windows.net/debian/pool/main/n/net-snmp/net-snmp_5.7.3+dfsg.orig.tar.xz==6391ae27eb1ae34ff5530712bb1c4209
-https://sonicstorage.blob.core.windows.net/packages/20190307/bcmcmd?sv=2015-04-05&sr=b&sig=sUdbU7oVbh5exbXXHVL5TDFBTWDDBASHeJ8Cp0B0TIc%3D&se=2038-05-06T22%3A34%3A19Z&sp=r==b8aefc751bdf93218716bca6797460ff
 https://sonicstorage.blob.core.windows.net/packages/20190307/dsserve?sv=2015-04-05&sr=b&sig=lk7BH3DtW%2F5ehc0Rkqfga%2BUCABI0UzQmDamBsZH9K6w%3D&se=2038-05-06T22%3A34%3A45Z&sp=r==f9d4b815ebb9be9f755dedca8a51170d
-https://sonicstorage.blob.core.windows.net/packages/bcmsai/4.3/202012/libsaibcm-dev_4.3.3.9_amd64.deb?sv=2015-04-05&sr=b&sig=yQJG%2Fy%2BRyxbgHXERIHMeHDGcy%2BSjV%2BFeCTop9wfW5hQ%3D&se=2035-03-23T05%3A33%3A01Z&sp=r==73e00bc480f157a683d5f870a9f7230e
-https://sonicstorage.blob.core.windows.net/packages/bcmsai/4.3/202012/libsaibcm_4.3.3.9_amd64.deb?sv=2015-04-05&sr=b&sig=UgZ4pYi9Q5mSK6QLlDCkz%2Br3u0WBdbS28K5apa0RmgQ%3D&se=2035-03-23T05%3A31%3A58Z&sp=r==dc19ba17c86e1e1c3bcfff0d6fd84fd1
 https://sonicstorage.blob.core.windows.net/packages/cmake/cmake-data_3.13.2-1_bpo9%2B1_all.deb?st=2020-03-27T02%3A22%3A24Z&se=2100-03-26T19%3A00%3A00Z&sp=rl&sv=2018-03-28&sr=b&sig=Xby%2Bm3OZOjPB%2FSlDbHD65yDcPzAgoys%2FA3vK8RB4BzA%3D==147cf42f3a68f6d6f1e53d95a599a1af
 https://sonicstorage.blob.core.windows.net/packages/cmake/cmake_3.13.2-1_bpo9%2B1_amd64.deb?st=2020-03-27T02%3A27%3A21Z&se=2100-03-26T19%3A00%3A00Z&sp=rl&sv=2018-03-28&sr=b&sig=4MvmmDBQuicFEJYakLm7xCNU19yJ8GIP4ankFSnITKY%3D==e75c741e8b6918b8f03625e456fa0275
 https://sonicstorage.blob.core.windows.net/packages/debian/smartmontools_6.6-1.debian.tar.xz?sv=2015-04-05&sr=b&sig=H0RFeC41MCvhTQCln85DuPLn5v2goozwz%2FB9sA9p5eQ%3D&se=2046-08-20T23%3A46%3A02Z&sp=r==47a284f4762f86ba24753ea75d85e6cb

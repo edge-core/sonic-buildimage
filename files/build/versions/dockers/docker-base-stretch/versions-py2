@@ -1,4 +1,6 @@
 j2cli==0.3.10
+jinja2==2.11.3
+markupsafe==1.1.1
 supervisor==4.2.2
 supervisord-dependent-startup==1.4.0
 toposort==1.6

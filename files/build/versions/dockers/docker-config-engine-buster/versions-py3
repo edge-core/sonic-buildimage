@@ -1,1 +1,12 @@
+bitarray==1.5.3
+ipaddress==1.0.23
+lxml==4.6.3
+natsort==6.2.1
+netaddr==0.8.0
+pyang==2.5.0
+pyangbind==0.8.1
+pyyaml==5.4.1
+redis==3.5.3
+redis-dump-load==1.1
+regex==2021.7.6
 six==1.16.0

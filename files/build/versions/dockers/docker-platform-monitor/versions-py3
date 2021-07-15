@@ -1,1 +1,2 @@
 python-sdk-api==4.4.3216
+thrift==0.13.0
