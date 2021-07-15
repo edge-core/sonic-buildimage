@@ -281,8 +281,7 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     dbus                    \
     ntpstat                 \
     openssh-server          \
-    python                  \
-    python-apt              \
+    python3-apt             \
     traceroute              \
     iputils-ping            \
     net-tools               \
@@ -314,12 +313,12 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     ndisc6                  \
     makedumpfile            \
     conntrack               \
-    python-pip              \
     python3                 \
     python3-distutils       \
     python3-pip             \
+    python-is-python3       \
     cron                    \
-    libprotobuf17           \
+    libprotobuf23           \
     libgrpc++               \
     haveged                 \
     jq
@@ -350,9 +349,7 @@ sudo sed -i '/^#.* en_US.* /s/^#//' $FILESYSTEM_ROOT/etc/locale.gen && \
 sudo LANG=en_US.UTF-8 DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT update-locale "LANG=en_US.UTF-8"
 sudo LANG=C chroot $FILESYSTEM_ROOT bash -c "find /usr/share/i18n/locales/ ! -name 'en_US' -type f -exec rm -f {} +"
 
-# Install certain fundamental packages from $IMAGE_DISTRO-backports in order to get
-# more up-to-date (but potentially less stable) versions
-sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y -t $IMAGE_DISTRO-backports install \
+sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install \
     picocom \
     systemd \
     systemd-sysv
@@ -425,13 +422,10 @@ done < files/image_config/sysctl/sysctl-net.conf
 sudo augtool --autosave "$sysctl_net_cmd_string" -r $FILESYSTEM_ROOT
 
 # Upgrade pip via PyPI and uninstall the Debian version
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip2 install --upgrade 'pip<21'
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install --upgrade pip
-sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get purge -y python-pip python3-pip
+sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get purge -y python3-pip
 
 # For building Python packages
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip2 install 'setuptools==40.8.0'
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip2 install 'wheel==0.35.1'
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install 'setuptools==49.6.00'
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install 'wheel==0.35.1'
 
