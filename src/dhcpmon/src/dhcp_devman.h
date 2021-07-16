@@ -64,6 +64,17 @@ dhcp_device_context_t* dhcp_devman_get_mgmt_dev();
 int dhcp_devman_add_intf(const char *name, char intf_type);
 
 /**
+ * @code dhcp_devman_setup_dual_tor_mode(name);
+ *
+ * @brief set up dual tor mode: 1) set dual_tor_mode flag and 2) retrieve loopback_ip.
+ *
+ * @param name              interface name
+ *
+ * @return 0 on success, nonzero otherwise
+ */
+int dhcp_devman_setup_dual_tor_mode(const char *name);
+
+/**
  * @code dhcp_devman_start_capture(snaplen, base);
  *
  * @brief start packet capture on the devman interface list
