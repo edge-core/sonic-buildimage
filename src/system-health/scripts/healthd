@@ -9,7 +9,7 @@ import signal
 import threading
 
 from sonic_py_common.daemon_base import DaemonBase
-from swsssdk import SonicV2Connector
+from swsscommon.swsscommon import SonicV2Connector
 
 from health_checker.manager import HealthCheckerManager
 

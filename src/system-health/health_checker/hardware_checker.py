@@ -1,5 +1,5 @@
 from natsort import natsorted
-from swsssdk import SonicV2Connector
+from swsscommon.swsscommon import SonicV2Connector
 
 from .health_checker import HealthChecker
 
