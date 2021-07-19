@@ -7,3 +7,4 @@
 0008-Add-support-of-bgp-l3vni-evpn.patch
 0009-Add-bgp-bestpath-peer-type-multipath-relax.patch
 0009-Link-local-scope-was-not-set-while-binding-socket-for-bgp-ipv6-link-local-neighbors.patch
+0010-remove-doc-png-install.patch
