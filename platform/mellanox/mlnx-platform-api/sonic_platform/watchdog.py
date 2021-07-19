@@ -275,6 +275,9 @@ def get_watchdog():
         if device.startswith("watchdog") and is_mlnx_wd_main(device):
             watchdog_main_device_name = device
 
+    if watchdog_main_device_name is None:
+        return None
+
     watchdog_device_path = "/dev/{}".format(watchdog_main_device_name)
 
     watchdog = None
