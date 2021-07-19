@@ -46,6 +46,8 @@ class Test_yang_models:
             'Mandatory': ['required element', 'Missing'],
             'Verify': ['verified'],
             'Range': ['does not satisfy', 'range'],
+            'MinElements': ['Too few'],
+            'MaxElements': ['Too many'],
             'None': []
         }
 
