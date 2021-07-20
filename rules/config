@@ -146,12 +146,14 @@ INCLUDE_DHCP_RELAY = y
 # Uncomment to enable:
 # TELEMETRY_WRITABLE = y
 
+# INCLUDE_MACSEC - build docker-macsec for macsec support
+INCLUDE_MACSEC = y
+
 # INCLUDE_KUBERNETES - if set to y kubernetes packages are installed to be able to
 # run as worker node in kubernetes cluster.
 INCLUDE_KUBERNETES = n
 
-# INCLUDE_MACSEC - build docker-macsec for macsec support
-INCLUDE_MACSEC = y
+KUBE_DOCKER_PROXY = http://172.16.1.1:3128/
 
 # KUBERNETES_VERSION - Set to the required version.
 # K8s_GCR_IO_PAUSE_VERSION - Version of k8s universal pause container image

@@ -480,7 +480,7 @@ with open("'${fl}'", "r") as s:
 if [ "${use_k8s_as_http_proxy}" == "y" ]; then
     # create proxy files for docker using private IP which will
     # be later directed to k8s master upon config
-    PROXY_INFO="http://172.16.1.1:3128/"
+    PROXY_INFO="${kube_docker_proxy}"
     cat <<EOT | sudo tee $FILESYSTEM_ROOT/etc/systemd/system/docker.service.d/http_proxy.conf > /dev/null
 [Service]
 Environment="HTTP_PROXY=${PROXY_INFO}"
