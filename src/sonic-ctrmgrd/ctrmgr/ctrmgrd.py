@@ -8,6 +8,7 @@ import sys
 import syslog
 
 from collections import defaultdict
+from ctrmgr.ctrmgr_iptables import iptable_proxy_rule_upd
 
 from swsscommon import swsscommon
 from sonic_py_common import device_info
@@ -87,11 +88,13 @@ dflt_st_feat= {
 JOIN_LATENCY = "join_latency_on_boot_seconds"
 JOIN_RETRY = "retry_join_interval_seconds"
 LABEL_RETRY = "retry_labels_update_seconds"
+USE_K8S_PROXY = "use_k8s_as_http_proxy"
 
 remote_ctr_config = {
     JOIN_LATENCY: 10,
     JOIN_RETRY: 10,
-    LABEL_RETRY: 2
+    LABEL_RETRY: 2,
+    USE_K8S_PROXY: ""
     }
 
 def log_debug(m):
@@ -309,6 +312,9 @@ class RemoteServerHandler:
 
         self.start_time = datetime.datetime.now()
 
+        if remote_ctr_config[USE_K8S_PROXY] == "y":
+            iptable_proxy_rule_upd(self.cfg_server[CFG_SER_IP])
+
         if not self.st_server[ST_FEAT_UPDATE_TS]:
             # This is upon system start. Sleep 10m before join
             self.start_time += datetime.timedelta(
@@ -336,6 +342,9 @@ class RemoteServerHandler:
         log_debug("Received config update: {}".format(str(data)))
         self.cfg_server = cfg_data
 
+        if remote_ctr_config[USE_K8S_PROXY] == "y":
+            iptable_proxy_rule_upd(self.cfg_server[CFG_SER_IP])
+
         if self.pending:
             tnow = datetime.datetime.now()
             if tnow < self.start_time:
@@ -359,7 +368,7 @@ class RemoteServerHandler:
 
         ip = self.cfg_server[CFG_SER_IP]
         disable = self.cfg_server[CFG_SER_DISABLE] != "false"
-        
+
         pre_state = dict(self.st_server)
         log_debug("server: handle_update: disable={} ip={}".format(disable, ip))
         if disable or not ip:

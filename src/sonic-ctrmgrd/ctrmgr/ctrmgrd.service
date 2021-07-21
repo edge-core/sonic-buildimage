@@ -1,8 +1,9 @@
 [Unit]
 Description=Container Manager watcher daemon
-Requires=updategraph.service
-After=updategraph.service
-
+Requires=caclmgrd.service
+After=caclmgrd.service
+BindsTo=sonic.target
+After=sonic.target
 
 [Service]
 Type=simple
@@ -11,4 +12,4 @@ Restart=always
 RestartSec=30
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=sonic.target

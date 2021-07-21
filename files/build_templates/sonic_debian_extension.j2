@@ -414,6 +414,10 @@ sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install azure-
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install watchdog==0.10.3
 
 {% if include_kubernetes == "y" %}
+# Point to kubelet to /etc/resolv.conf
+#
+echo 'KUBELET_EXTRA_ARGS="--resolv-conf=/etc/resolv.conf"' | sudo tee -a  $FILESYSTEM_ROOT/etc/default/kubelet
+
 # Copy Flannel conf file into sonic-templates
 #
 sudo cp $BUILD_TEMPLATES/kube_cni.10-flannel.conflist $FILESYSTEM_ROOT_USR_SHARE_SONIC_TEMPLATES/
@@ -434,6 +438,25 @@ sudo cp ${files_path}/container_startup.py ${FILESYSTEM_ROOT_USR_SHARE_SONIC_SCR
 sudo chmod a+x ${FILESYSTEM_ROOT_USR_SHARE_SONIC_SCRIPTS}/container_startup.py
 
 # Config file used by container mgmt scripts/service
+fl="${files_path}/remote_ctr.config.json"
+use_k8s_as_http_proxy=$(python3 -c 'import json
+with open("'${fl}'", "r") as s:
+    d=json.load(s);print(d.get("use_k8s_as_http_proxy", ""))
+')
+if [ "${use_k8s_as_http_proxy}" == "y" ]; then
+    # create proxy files for docker using private IP which will
+    # be later directed to k8s master upon config
+    PROXY_INFO="${kube_docker_proxy}"
+    cat <<EOT | sudo tee $FILESYSTEM_ROOT/etc/systemd/system/docker.service.d/http_proxy.conf > /dev/null
+[Service]
+Environment="HTTP_PROXY=${PROXY_INFO}"
+EOT
+    cat <<EOT | sudo tee $FILESYSTEM_ROOT/etc/systemd/system/docker.service.d/https_proxy.conf > /dev/null
+[Service]
+Environment="HTTPS_PROXY=${PROXY_INFO}"
+EOT
+fi
+
 sudo cp ${files_path}/remote_ctr.config.json ${FILESYSTEM_ROOT_ETC_SONIC}/
 
 # Remote container management service files
