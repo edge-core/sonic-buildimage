@@ -197,11 +197,11 @@ ssize_t psu_vout_get(struct device *dev, struct device_attribute *da, char *buf)
         switch(attr->index)
         {
             case PSU1_VOUT:
-                u16_vmode = i2c_smbus_read_byte_data(Cameo_BMC_14_client, PSU_1_VOMDE_REG); 
+                u16_vmode = i2c_smbus_read_byte_data(Cameo_BMC_14_client, PSU_1_VMODE_REG); 
                 u16_vout  = i2c_smbus_read_word_data(Cameo_BMC_14_client, PSU_1_VOUT_REG); 
                 break;
             case PSU2_VOUT:
-                u16_vmode = i2c_smbus_read_byte_data(Cameo_BMC_14_client, PSU_2_VOMDE_REG); 
+                u16_vmode = i2c_smbus_read_byte_data(Cameo_BMC_14_client, PSU_2_VMODE_REG); 
                 u16_vout  = i2c_smbus_read_word_data(Cameo_BMC_14_client, PSU_2_VOUT_REG); 
                 break;
         }
@@ -417,7 +417,7 @@ ssize_t psu_pin_get(struct device *dev, struct device_attribute *da, char *buf)
 ssize_t psu_mfr_model_get(struct device *dev, struct device_attribute *da, char *buf)
 {
     u16 u16_val = 0;
-    char model[2];
+    char model[I2C_SMBUS_BLOCK_MAX] = {0};
     struct sensor_device_attribute *attr = to_sensor_dev_attr(da);
     
     sprintf(buf, "");
@@ -426,19 +426,21 @@ ssize_t psu_mfr_model_get(struct device *dev, struct device_attribute *da, char 
         switch(attr->index)
         {
             case PSU1_MFR_MODEL:
-                u16_val = i2c_smbus_read_word_data(Cameo_BMC_14_client, PSU_1_MFR_MODEL_REG);
+                u16_val = i2c_smbus_read_i2c_block_data(Cameo_BMC_14_client, PSU_1_MFR_MODEL_REG, I2C_SMBUS_BLOCK_MAX, model);
                 break;
             case PSU2_MFR_MODEL:
-                u16_val = i2c_smbus_read_word_data(Cameo_BMC_14_client, PSU_2_MFR_MODEL_REG);
+                u16_val = i2c_smbus_read_i2c_block_data(Cameo_BMC_14_client, PSU_2_MFR_MODEL_REG, I2C_SMBUS_BLOCK_MAX, model);
                 break;
         }
-        if(u16_val == 0xffff || u16_val == -1)
+        if(u16_val != I2C_SMBUS_BLOCK_MAX)
         {
-            return sprintf(buf, "%s0\n", buf);
+            return sprintf(buf, "%sERROR\n", buf);
         }
-        model[0] = u16_val >> 8;
-        model[1] = u16_val;
-        sprintf(buf, "%s%c%c\n", buf, model[0], model[1]);
+        if (model[1] < 0x20 || model[1] > 0x7f)
+        {
+            return sprintf(buf, "%sERROR\n", buf);
+        }
+        sprintf(buf, "%s%s", buf, model);
     }
     else
     {
@@ -495,11 +497,11 @@ ssize_t psu_vmode_get(struct device *dev, struct device_attribute *da, char *buf
     {
         switch(attr->index)
         {
-            case PSU1_VOMDE:
-                u16_vmode = i2c_smbus_read_byte_data(Cameo_BMC_14_client, PSU_1_VOMDE_REG); 
+            case PSU1_VMODE:
+                u16_vmode = i2c_smbus_read_byte_data(Cameo_BMC_14_client, PSU_1_VMODE_REG); 
                 break;
-            case PSU2_VOMDE:
-                u16_vmode = i2c_smbus_read_byte_data(Cameo_BMC_14_client, PSU_2_VOMDE_REG); 
+            case PSU2_VMODE:
+                u16_vmode = i2c_smbus_read_byte_data(Cameo_BMC_14_client, PSU_2_VMODE_REG); 
                 break;
         }
         if(u16_vmode == 0xffff || u16_vmode == -1)

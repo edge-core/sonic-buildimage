@@ -12,7 +12,7 @@
 #include <linux/uaccess.h>
 #include <linux/string.h>
 
-#define DRIVER_VERSION  "1.0.1"
+#define DRIVER_VERSION  "1.0.3"
 
 struct i2c_adap {
 	int nr;
@@ -223,7 +223,7 @@ enum Cameo_i2c_sysfs_attributes
     PSU1_PIN,
     PSU1_MFR_MODEL,
     PSU1_MFR_IOUT_MAX,
-    PSU1_VOMDE,
+    PSU1_VMODE,
     PSU2_VIN,
     PSU2_IIN,
     PSU2_VOUT,
@@ -234,7 +234,7 @@ enum Cameo_i2c_sysfs_attributes
     PSU2_PIN,
     PSU2_MFR_MODEL,
     PSU2_MFR_IOUT_MAX,
-    PSU2_VOMDE,
+    PSU2_VMODE,
     DC6E_P0_VOUT,
     DC6E_P0_IOUT,
     DC6E_P0_POUT,
@@ -515,7 +515,7 @@ static SENSOR_DEVICE_ATTR(psu1_pout             , S_IRUGO           , psu_pout_g
 static SENSOR_DEVICE_ATTR(psu1_pin              , S_IRUGO           , psu_pin_get              , NULL                     , PSU1_PIN);
 static SENSOR_DEVICE_ATTR(psu1_mfr_model        , S_IRUGO           , psu_mfr_model_get        , NULL                     , PSU1_MFR_MODEL);
 static SENSOR_DEVICE_ATTR(psu1_mfr_iout_max     , S_IRUGO           , psu_iout_max_get         , NULL                     , PSU1_MFR_IOUT_MAX);
-static SENSOR_DEVICE_ATTR(psu1_vomde            , S_IRUGO           , psu_vmode_get            , NULL                     , PSU1_VOMDE);
+static SENSOR_DEVICE_ATTR(psu1_vmode            , S_IRUGO           , psu_vmode_get            , NULL                     , PSU1_VMODE);
 static SENSOR_DEVICE_ATTR(psu2_vin              , S_IRUGO           , psu_vin_get              , NULL                     , PSU2_VIN);
 static SENSOR_DEVICE_ATTR(psu2_iin              , S_IRUGO           , psu_iin_get              , NULL                     , PSU2_IIN);
 static SENSOR_DEVICE_ATTR(psu2_vout             , S_IRUGO           , psu_vout_get             , NULL                     , PSU2_VOUT);
@@ -526,7 +526,7 @@ static SENSOR_DEVICE_ATTR(psu2_pout             , S_IRUGO           , psu_pout_g
 static SENSOR_DEVICE_ATTR(psu2_pin              , S_IRUGO           , psu_pin_get              , NULL                     , PSU2_PIN);
 static SENSOR_DEVICE_ATTR(psu2_mfr_model        , S_IRUGO           , psu_mfr_model_get        , NULL                     , PSU2_MFR_MODEL);
 static SENSOR_DEVICE_ATTR(psu2_mfr_iout_max     , S_IRUGO           , psu_iout_max_get         , NULL                     , PSU2_MFR_IOUT_MAX);
-static SENSOR_DEVICE_ATTR(psu2_vomde            , S_IRUGO           , psu_vmode_get            , NULL                     , PSU2_VOMDE);
+static SENSOR_DEVICE_ATTR(psu2_vmode            , S_IRUGO           , psu_vmode_get            , NULL                     , PSU2_VMODE);
 static SENSOR_DEVICE_ATTR(dc6e_p0_vout          , S_IRUGO           , dc_vout_get              , NULL                     , DC6E_P0_VOUT);
 static SENSOR_DEVICE_ATTR(dc6e_p0_iout          , S_IRUGO           , dc_iout_get              , NULL                     , DC6E_P0_IOUT);
 static SENSOR_DEVICE_ATTR(dc6e_p0_pout          , S_IRUGO           , dc_pout_get              , NULL                     , DC6E_P0_POUT);
@@ -825,7 +825,7 @@ static struct attribute *ESC602_POWER_attributes[] =
     &sensor_dev_attr_psu1_pin.dev_attr.attr,
     &sensor_dev_attr_psu1_mfr_model.dev_attr.attr,
     &sensor_dev_attr_psu1_mfr_iout_max.dev_attr.attr,
-    &sensor_dev_attr_psu1_vomde.dev_attr.attr,
+    &sensor_dev_attr_psu1_vmode.dev_attr.attr,
     &sensor_dev_attr_psu2_vin.dev_attr.attr,
     &sensor_dev_attr_psu2_iin.dev_attr.attr,
     &sensor_dev_attr_psu2_vout.dev_attr.attr,
@@ -836,7 +836,7 @@ static struct attribute *ESC602_POWER_attributes[] =
     &sensor_dev_attr_psu2_pin.dev_attr.attr,
     &sensor_dev_attr_psu2_mfr_model.dev_attr.attr,
     &sensor_dev_attr_psu2_mfr_iout_max.dev_attr.attr,
-    &sensor_dev_attr_psu2_vomde.dev_attr.attr,
+    &sensor_dev_attr_psu2_vmode.dev_attr.attr,
     &sensor_dev_attr_dc6e_p0_vout.dev_attr.attr,
     &sensor_dev_attr_dc6e_p0_iout.dev_attr.attr,
     &sensor_dev_attr_dc6e_p0_pout.dev_attr.attr,

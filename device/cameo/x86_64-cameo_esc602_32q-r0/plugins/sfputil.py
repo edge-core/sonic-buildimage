@@ -4,7 +4,7 @@ try:
     import time
     import json
     from sonic_sfp.sfputilbase import SfpUtilBase 
-except ImportError, e:
+except ImportError as e:
     raise ImportError (str(e) + "- required module not found")
 
 attr_path = '/sys/class/hwmon/hwmon2/device/'

@@ -155,7 +155,7 @@ I2C_DEVICES = {
         'status':'NOTINST'
     },
     # NCT7511Y sensor & fan control
-    'NCT7511Y(U73)': {
+    'NCT7511Y(U48)': {
         'parent':'PCA9548_0x75',
         'parent_ch': 0,
         'driver':'nct7511',
@@ -164,7 +164,7 @@ I2C_DEVICES = {
         'status':'NOTINST'
     },
     # G781 sensors
-    'G781(U94)': {
+    'G781(U44)': {
         'parent':'PCA9548_0x75',
         'parent_ch': 1,
         'driver':'g781',
@@ -172,7 +172,7 @@ I2C_DEVICES = {
         'path': ' ',
         'status':'NOTINST'
     },
-    'G781(U4)': {
+    'G781(U45)': {
         'parent':'PCA9548_0x75',
         'parent_ch': 2,
         'driver':'g781',
@@ -180,7 +180,7 @@ I2C_DEVICES = {
         'path': ' ',
         'status':'NOTINST'
     },
-    'G781(U34)': {
+    'G781(U47)': {
         'parent':'PCA9548_0x75',
         'parent_ch': 3,
         'driver':'g781',
@@ -651,7 +651,7 @@ def hw_adjustment():
         
 
 def set_led_control():
-    cmd = "echo 1 > /sys/class/hwmon/hwmon2/device/ESQC610_LED/led_ctrl"
+    cmd = "echo 1 > /sys/class/hwmon/hwmon2/device/ESQC610_LED/led_fiber"
     status, output = log_os_system(cmd, 1)
     if status:
         print output
@@ -710,9 +710,9 @@ def get_attr_value(attr_path):
 
 def get_hw_version():
     value = ''
-    filePath = '/sys/class/hwmon/hwmon2/device/ESQC610_SYS/hw_version'
+    filePath = '/sys/class/hwmon/hwmon2/device/ESQC610_SYS/cpld_30_ver'
     if os.path.exists(filePath):
-        value = get_attr_value(filePath).split()
+        value = get_attr_value(filePath)
         return value[-1]
     else:
         return None
@@ -721,10 +721,10 @@ def get_hw_version():
 
 def bmc_is_exist():
     value = ''
-    bmc_filePath = '/sys/class/hwmon/hwmon2/device/ESQC610_BMC/bmc_present'
+    bmc_filePath = '/sys/class/hwmon/hwmon2/device/ESQC610_SYS/bmc_present'
     if os.path.exists(bmc_filePath):
        value = get_attr_value(bmc_filePath)
-       if value.find('not') < 0:
+       if int(value) == 1:
             return True
        else:
             return False

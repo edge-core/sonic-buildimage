@@ -1,13 +1,12 @@
-BALDEAGLESDK_100G_EXE="/usr/local/bin/BaldEagleSdk_v2_12_00_20190715_cameo_gearbox.py"
-BALDEAGLESDK_400G_EXE="/usr/local/bin/BaldEagleSdk_v2_14_18.py"
+BALDEAGLESDK_EXE="/usr/local/bin/BaldEagleSdk_v2_18.py"
 
-EXE2=$BALDEAGLESDK_100G_EXE
-EXE4=$BALDEAGLESDK_100G_EXE
-EXE6=$BALDEAGLESDK_100G_EXE
-EXE8=$BALDEAGLESDK_100G_EXE
+EXE2=$BALDEAGLESDK_EXE
+EXE4=$BALDEAGLESDK_EXE
+EXE6=$BALDEAGLESDK_EXE
+EXE8=$BALDEAGLESDK_EXE
 
 # credo_auto2468.sh x x x x
-#   x: type of PHY module, 1 = 100G, 2 = 400G, 0 = don't init
+#   x: type of PHY module, 1 = init, 0 = don't init
 if [ $# -ne 4 ]; then
     echo "invalid parameter"
     exit 1
@@ -15,24 +14,11 @@ fi
 
 for var in $1 $2 $3 $4
 do
-    if [ $var -lt 0 ] || [ $var -gt 2 ]; then
+    if [ $var -lt 0 ] || [ $var -gt 1 ]; then
         echo "invalid parameter"
         exit 1
     fi
 done
-
-if [ $1 -eq 2 ]; then
-    EXE2=$BALDEAGLESDK_400G_EXE
-fi
-if [ $2 -eq 2 ]; then
-    EXE4=$BALDEAGLESDK_400G_EXE
-fi
-if [ $3 -eq 2 ]; then
-    EXE6=$BALDEAGLESDK_400G_EXE
-fi
-if [ $4 -eq 2 ]; then
-    EXE8=$BALDEAGLESDK_400G_EXE
-fi
 
 d1=$(date +"%s")
 #long action here

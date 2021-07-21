@@ -4,12 +4,18 @@ try:
     import time
     import json
     from sonic_sfp.sfputilbase import SfpUtilBase 
-except ImportError, e:
+except ImportError as e:
     raise ImportError (str(e) + "- required module not found")
 
 attr_path = '/sys/class/hwmon/hwmon2/device/'
 PLATFORM_INSTALL_INFO_FILE="/etc/sonic/platform_install.json"
 PLATFORM_SFP_GROUPS = ['SFP-G01','SFP-G02','SFP-G03','SFP-G04','SFP-G05', 'SFP-G06', 'SFP-G07']
+
+QSFP_RESET_FILE = 'ESQC610_QSFP/qsfp{}_reset'
+QSFP_LOWPOWER_FILE = 'ESQC610_QSFP/qsfp{}_low_power'
+QSFP_PRESENT_FILE = 'ESQC610_QSFP/qsfp{}_present'
+
+SFP_PRESENT_FILE = 'ESQC610_SFP/sfp{}_present'
 
 class SfpUtil(SfpUtilBase):
     """Platform specific SfpUtill class"""
@@ -45,28 +51,25 @@ class SfpUtil(SfpUtilBase):
         if port_num < self._qsfp_port_start or port_num > self._port_end:
             return False
 
-        path = attr_path+'ESQC610_QSFP/QSFP_reset'
+        path = attr_path+QSFP_RESET_FILE.format(port_num-self._qsfp_port_start+1)
         try:
             reg_file = open(path, 'w')
         except IOError as e:
             print( "Error: unable to open file: %s" % str(e))
             return False
+        
+        reg_file.seek(0)
+        reg_file.write('1')
 
-        #toggle reset
-        #reg_file.seek(0)
-        reg_file.write(str(port_num-self._qsfp_port_start+1))
-        #time.sleep(1)
-        #reg_file.seek(0)
-        #reg_file.write('0')
         reg_file.close()
         return True
 
     def set_low_power_mode(self, port_num, lpmode):
         # Check for invalid port_num
-        if port_num < self._qsfp_port_start or port_num > self.port_end:
+        if port_num < self._qsfp_port_start or port_num > self._port_end:
             return False
 
-        path = attr_path+'ESQC610_QSFP/QSFP_low_power_'+str(port_num-self._qsfp_port_start+1)
+        path = attr_path+QSFP_LOWPOWER_FILE.format(port_num-self._qsfp_port_start+1)
         try:
             reg_file = open(path, 'w')
         except IOError as e:
@@ -91,16 +94,16 @@ class SfpUtil(SfpUtilBase):
         if port_num < self._qsfp_port_start or port_num > self._port_end:
             return False
 
-        path = attr_path+'ESQC610_QSFP/QSFP_low_power_'+str(port_num-self._qsfp_port_start+1)
+        path = attr_path+QSFP_LOWPOWER_FILE.format(port_num-self._qsfp_port_start+1)
         try:
           reg_file = open(path, 'r')
         except IOError as e:
             print( "Error: unable to open file: %s" % str(e))
             return False 
        
-        text_lines = reg_file.readline()
+        text = reg_file.read()
         reg_file.close()
-        if text_lines.find('OFF') < 0:
+        if int(text) == 1:
             return True
 
         return False
@@ -111,26 +114,24 @@ class SfpUtil(SfpUtilBase):
             return False
 
         if port_num >= self._qsfp_port_start:
-            path = attr_path+'ESQC610_QSFP/QSFP_present'
-            line = port_num - self._qsfp_port_start
+            path = attr_path+QSFP_PRESENT_FILE.format(port_num-self._qsfp_port_start+1)
         else:
-            path = attr_path+'ESQC610_SFP/SFP_present'
-            line = port_num
+            path = attr_path+SFP_PRESENT_FILE.format(port_num+1)
             
         try:
           reg_file = open(path, 'r')
         except IOError as e:
             print( "Error: unable to open file: %s" % str(e))
             return False
-        text_lines = reg_file.readlines()
+        text = reg_file.read()
         reg_file.close()
-        if text_lines[line].find('not') < 0:
+        if int(text) == 1:
             return True
 
         return False
 
     def init_global_port_presence(self):
-        for port_num in range(self.port_start, (self.port_end + 1)):
+        for port_num in range(self._port_start, (self._port_end + 1)):
             presence = self.get_presence(port_num)
             if(presence):
                 self._global_port_pres_dict[port_num] = '1'
@@ -140,7 +141,7 @@ class SfpUtil(SfpUtilBase):
     def get_transceiver_change_event(self, timeout=0):
         port_dict = {}
         while True:
-            for port_num in range(self.port_start, (self.port_end + 1)):
+            for port_num in range(self._port_start, (self._port_end + 1)):
                 presence = self.get_presence(port_num)
                 if(presence and self._global_port_pres_dict[port_num] == '0'):
                     self._global_port_pres_dict[port_num] = '1'
@@ -165,7 +166,7 @@ class SfpUtil(SfpUtilBase):
 
     @property
     def qsfp_ports(self):
-        return range(self._qsfp_port_start, self._port_in_block + 1)
+        return range(self._qsfp_port_start, self._port_end + 1)
 
     @property 
     def port_to_eeprom_mapping(self):

@@ -11,13 +11,10 @@ try:
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
-attr_path = '/sys/class/hwmon/hwmon2/device/'
+attr_path = '/sys/class/hwmon/hwmon2/device/ESC600_POWER/'
 
 class PsuUtil(PsuBase):
     """Platform-specific PSUutil class"""
-
-    SYSFS_PSU_DIR = ["/sys/bus/i2c/devices/i2c-10/10-0050",
-                     "/sys/bus/i2c/devices/i2c-9/9-0050"]
 
     def __init__(self):
         PsuBase.__init__(self)
@@ -56,18 +53,16 @@ class PsuUtil(PsuBase):
         faulty
         """
         status = 0
-        attr_file = 'psu_status'        
-        status_path = attr_path+'/ESC600_PSU/' + attr_file
+        attr_file = 'psu{}_good'.format(index)        
+        status_path = attr_path + attr_file
         try:
             reg_file = open(status_path, 'r')
         except IOError as e:
             print( "Error: unable to open file: %s" % str(e))
             return False
-        text_lines = reg_file.read()
+        text = reg_file.read()
         
-        search_str = "PSU {} is power good".format(index)
-        
-        if search_str in text_lines:
+        if int(text) == 1:
             status = 1
 
         reg_file.close() 
@@ -82,18 +77,16 @@ class PsuUtil(PsuBase):
         :return: Boolean, True if PSU is plugged, False if not
         """
         status = 0
-        attr_file ='psu_present'
-        presence_path = attr_path+'ESC600_PSU/' + attr_file
+        attr_file ='psu{}_prnt'.format(index)
+        presence_path = attr_path + attr_file
         try:
             reg_file = open(presence_path, 'r')
         except IOError as e:
             print( "Error: unable to open file: %s" % str(e))
             return False
-        text_lines = reg_file.read()
+        text = reg_file.read()
         
-        search_str = "PSU {} is present".format(index)
-        
-        if search_str in text_lines:
+        if int(text) == 1:
             status = 1
 
         reg_file.close()    

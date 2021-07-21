@@ -4,6 +4,7 @@ ifcs:
 nodes:                                                         
 - node_id: "0"                                               
   options:                                                     
+    sd_low_power_mode_global_default: "true"
     sku: "configs/sku/innovium.77700_B"
     netdev:
     - auto_create: "no"

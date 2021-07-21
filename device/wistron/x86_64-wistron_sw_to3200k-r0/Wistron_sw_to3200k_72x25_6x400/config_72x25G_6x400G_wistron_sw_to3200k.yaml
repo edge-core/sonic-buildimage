@@ -4,6 +4,7 @@ ifcs:
 nodes:
 - node_id: "0"
   options:
+    sd_low_power_mode_global_default: "true"
     sku: "configs/sku/innovium.77700_A"
     netdev:
     - auto_create: "no"
@@ -13,9 +14,14 @@ nodes:
     ilpm_enable: "1"
     forward_profile: "IFCS_FORWARD_PROFILE_ID_PROFILE_E"
     ecn_stats_enable: "1"
-    led_cfg_sck_rate: "0x4"
-    led_refresh_precliff_timer: "0xa"
-    led_refresh_cliff_timer: "0xc350"
+    pcie_attn: "10, 0, 0, 0"
+    pcie_post: "10, 18, 18, 18"
+    pcie_pre1: "0, 0, 0, 0"
+    led_cfg_sck_rate: "0x5"
+    led_refresh_precliff_timer: "0x18eec2"
+    led_refresh_cliff_timer: "0x15e"
+    led_cfg_pic_stream_mode: "1"
+    led_refresh_tmr_ctl_enable: "1"
     txring:
     - txring_id: "0"
       desc_count: "1024"

@@ -11,78 +11,8 @@
 #include <linux/fs.h>
 #include <linux/uaccess.h>
 #include <linux/string.h>
-#include <linux/delay.h>
 
-#define DRIVER_VERSION  "2.5"
-
-#define TURN_OFF            0
-#define TURN_ON             1
-#define LED_ON              0x1
-#define LED_OFF             0xfe
-#define ALERT_TH0           1
-#define ALERT_TH1           2
-#define ALERT_TH2           3
-#define ALERT_TH3           4
-#define ALERT_TH4           5
-#define ALERT_TH5           6
-#define ALERT_TH0_MASK      1
-#define ALERT_TH1_MASK      2
-#define ALERT_TH2_MASK      3
-#define ALERT_TH3_MASK      4
-#define ALERT_TH4_MASK      5
-#define ALERT_TH5_MASK      6
-#define SW_ALERT_TH0        1
-#define SW_ALERT_TH1        2
-#define SW_ALERT_TH2        3
-#define SW_ALERT_TH3        4
-#define SW_ALERT_TH0_MASK   1
-#define SW_ALERT_TH1_MASK   2
-#define SW_ALERT_TH2_MASK   3
-#define SW_ALERT_TH3_MASK   4
-#define SENSOR_INT_0        1
-#define SENSOR_INT_1        2
-#define SENSOR_INT_0_MASK   1
-#define SENSOR_INT_1_MASK   2
-#define FAN_CH1             1
-#define FAN_CH2             2
-#define FAN_CH3             3
-#define USB_ON              0x1
-#define USB_OFF             0xfe
-#define MODULE_INS_INT      1
-#define MODULE_INT          2
-#define MODULE_POWER_INT    3
-#define THER_SENSOR_INT     4
-#define IO_BOARD_INT        5
-#define FAN_ERROR_INT       6
-#define MODULE_INS_INT_MASK 1
-#define MODULE_INT_MASK     2
-#define MODULE_POW_INT_MASK 3
-#define THER_SEN_INT_MASK   4
-#define IO_BOARD_INT_MASK   5
-#define FAN_ERROR_INT_MASK  6
-#define SFP_PORT_1          1
-#define SFP_PORT_2          2
-#define SFP_PORT_MGM        3
-#define SFP_PORT_1_ON       1
-#define SFP_PORT_1_OFF      2
-#define SFP_PORT_2_ON       3
-#define SFP_PORT_2_OFF      4
-#define SFP_PORT_MGM_ON     5
-#define SFP_PORT_MGM_OFF    6
-#define SYS_LED_A           1
-#define SYS_LED_G           2
-#define SYS_LED_BLINK       3
-#define SYS_LED_OFF         0
-#define SYS_LED_A_N         1
-#define SYS_LED_A_B         2
-#define SYS_LED_G_N         3
-#define SYS_LED_G_B         4
-#define SWITCH_LED_OFF      0
-#define SWITCH_LED_A_N      1
-#define SWITCH_LED_A_B      2
-#define SWITCH_LED_G_N      3
-#define SWITCH_LED_G_B      4
-#define SWITCH_LED_BLINK    1
+#define DRIVER_VERSION  "1.0.5"
 
 struct i2c_adap {
 	int nr;
@@ -95,139 +25,99 @@ struct i2c_adap *gather_i2c_busses(void);
 void free_adapters(struct i2c_adap *adapters);
 
 /* compiler conditional */
-#define LED_CTRL_WANTED
-#define USB_CTRL_WANTED
-#define ESC_600_BMC_WANTED
-#define ESC_600_INT_WANTED
-#define ESC_600_ALARM_WANTED
-#define ESC_600_STAT_WANTED
-#define ESC_600_JTAG_WANTED
-#define WDT_CTRL_WANTED
-#define EEPROM_WP_WANTED
-//#define EEPROM_WANTED
-//#define LED_L3_CTRL_WANTED
-//#define LINEAR_CONVERT_FUNCTION
-
-#define DEBUG_MSG
-#ifdef DEBUG_MSG
-    #define debug_print(s) printk s
-#else
-    #define debug_print(s)
-#endif
 /* end of compiler conditional */
 
-/* i2c_client Declaration */
-static struct i2c_client *ESC_600_128q_client;      //0x33 I/O Board CPLD ,XO2-640
-static struct i2c_client *Cameo_Extpand_1_client;   //0x20 I/O Extpander ,PCA9534PW
-static struct i2c_client *Cameo_Extpand_2_client;   //0x21 I/O Extpander ,PCA9534PW
-static struct i2c_client *Cameo_CPLD_2_client;      //0x30 CPLD ,XO2-2000HC-4FTG256C
-static struct i2c_client *Cameo_CPLD_3_client;      //0x31 CPLD ,XO2-7000HC-4TG144C
-static struct i2c_client *Cameo_CPLD_4_client;      //0x35 CPLD ,XO2-2000HC-4FTG256C
-#ifdef ESC_600_BMC_WANTED
-static struct i2c_client *Cameo_BMC_client;         //0x14 BMC ,Aspeed
-#endif /*ESC_600_BMC_WANTED*/
-/* end of i2c_client Declaration */
-
 /* Function Declaration */
-/*0x33 I/O Board CPLD*/
-static ssize_t sfp_select_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t sfp_select_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
-static ssize_t sfp_tx_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t sfp_tx_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
-static ssize_t sfp_insert_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t sfp_rx_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t psu_status_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t switch_button_get(struct device *dev, struct device_attribute *da, char *buf);
-#ifdef LED_CTRL_WANTED
-static ssize_t sys_led_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t sys_led_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
-static ssize_t switch_led_all_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t switch_led_all_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
-#ifdef LED_L3_CTRL_WANTED
-static ssize_t switch_led_3_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t switch_led_3_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
-#endif /*LED_L3_CTRL_WANTED*/
-static ssize_t switch_led_4_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t switch_led_4_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
-static ssize_t switch_led_5_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t switch_led_5_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
-#endif /*LED_CTRL_WANTED*/
-#ifdef ESC_600_INT_WANTED
-static ssize_t sfp_int_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t psu_int_get(struct device *dev, struct device_attribute *da, char *buf);
-#endif /*ESC_600_INT_WANTED*/
-/*0x31 CPLD-1 700HC*/
-#ifdef LED_CTRL_WANTED
-static ssize_t led_ctrl_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t led_ctrl_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
-#endif /*LED_CTRL_WANTED*/
-#ifdef ESC_600_JTAG_WANTED
-static ssize_t jtag_select_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t jtag_select_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
-#endif /*ESC_600_JTAG_WANTED*/
-#ifdef ESC_600_STAT_WANTED
-static ssize_t sensor_status_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t sersor_status_mask_all_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t sersor_status_mask_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t sersor_status_mask_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
-#endif /*ESC_600_STAT_WANTED*/
-#ifdef ESC_600_ALARM_WANTED
-static ssize_t switch_alarm_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t switch_alarm_mask_all_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t switch_alarm_mask_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t switch_alarm_mask_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
-#endif /*ESC_600_ALARM_WANTED*/
-#ifdef ESC_600_INT_WANTED
-static ssize_t sensor_int_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t sersor_int_mask_all_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t sersor_int_mask_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t sersor_int_mask_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
-static ssize_t int_mask_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t int_mask_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
-#endif /*ESC_600_INT_WANTED*/
-/*0x30 CPLD-1 640UHC*/
-static ssize_t fan_status_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t fan_insert_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t fan_power_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t fan_direct_get(struct device *dev, struct device_attribute *da, char *buf);
-#ifdef USB_CTRL_WANTED
-static ssize_t usb_power_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t usb_power_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
-#endif /*USB_CTRL_WANTED*/
-static ssize_t shutdown_sys_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t shutdown_sys_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
-static ssize_t reset_sys_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
-static ssize_t module_reset_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
-static ssize_t module_power_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t module_12v_status_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t module_enable_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t module_enable_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
-static ssize_t module_insert_get(struct device *dev, struct device_attribute *da, char *buf);
-#ifdef ESC_600_INT_WANTED
-static ssize_t switch_int_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t switch_int_mask_all_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t switch_int_mask_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t switch_int_mask_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
-#endif /*ESC_600_INT_WANTED*/
-static ssize_t cpld_version_get(struct device *dev, struct device_attribute *da, char *buf);
-#ifdef WDT_CTRL_WANTED
-static ssize_t wdt_status_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t wdt_status_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
-#endif /*WDT_CTRL_WANTED*/
-#ifdef EEPROM_WP_WANTED
-static ssize_t eeprom_wp_status_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t eeprom_wp_status_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
-#endif /*EEPROM_WP_WANTED*/
-/*0x14 BMC*/
-#ifdef ESC_600_BMC_WANTED
-static ssize_t bmc_module_detect(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t themal_temp_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t module_temp_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t mac_temp_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t psu_module_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t dc_chip_switch_get(struct device *dev, struct device_attribute *da, char *buf);
-static ssize_t dc_chip_slot_get(struct device *dev, struct device_attribute *da, char *buf);
-#endif /*ESC_600_BMC_WANTED*/
+/* x86-64-cameo-esc600-128q-sys.c */
+ssize_t cpld_hw_ver_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t wdt_enable_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t wdt_enable_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
+ssize_t eeprom_wp_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t eeprom_wp_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
+ssize_t usb_enable_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t usb_enable_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
+ssize_t reset_mac_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
+ssize_t shutdown_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
+ssize_t bmc_enable_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t switch_alarm_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t switch_alarm_mask_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t switch_alarm_mask_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
+ssize_t sensor_int_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t sersor_int_mask_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t sersor_int_mask_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
+ssize_t module_reset_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
+ssize_t module_insert_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t module_power_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t module_enable_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t module_enable_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
+ssize_t switch_int_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t switch_int_mask_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t switch_int_mask_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
+ssize_t sfp_select_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t sfp_select_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
+ssize_t sfp_tx_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t sfp_tx_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
+ssize_t sfp_insert_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t sfp_rx_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t sys_int_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t sys_int_mask_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t sys_int_mask_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
+ssize_t thermal_int_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t thermal_int_mask_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t thermal_int_mask_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
+/* x86-64-cameo-esc600-128q-led.c */
+ssize_t led_ctrl_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t led_ctrl_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
+ssize_t switch_led_4_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t switch_led_4_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
+ssize_t switch_led_5_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t switch_led_5_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
+ssize_t led_fiber_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t led_fiber_set(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
+/* x86-64-cameo-esc600-128q-thermal.c */
+ssize_t line_card_temp_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t themal_temp_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t themal_temp_max_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t themal_temp_min_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t themal_temp_crit_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t themal_temp_lcrit_get(struct device *dev, struct device_attribute *da, char *buf);
+/* x86-64-cameo-esc600-128q-fan.c */
+ssize_t fan_ctrl_mode_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t fan_ctrl_rpm_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t fan_status_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t fan_present_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t fan_power_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t fan_direct_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t fan_rpm_get(struct device *dev, struct device_attribute *da, char *buf);
+/* x86-64-cameo-esc600-128q-power.c */
+ssize_t psu_status_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t psu_present_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t psu_vin_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t psu_iin_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t psu_vout_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t psu_iout_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t psu_temp_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t psu_fan_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t psu_pout_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t psu_pin_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t psu_mfr_model_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t psu_iout_max_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t psu_vmode_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t dc_vout_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t dc_iout_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t dc_pout_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t dc_11_p0_vout_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t dc_11_p1_vout_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t dc_12_p0_vout_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t dc_12_p1_vout_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t dc_13_p0_vout_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t dc_13_p1_vout_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t dc_11_p0_iout_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t dc_11_p1_iout_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t dc_12_p0_iout_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t dc_12_p1_iout_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t dc_13_p0_iout_get(struct device *dev, struct device_attribute *da, char *buf);
+ssize_t dc_13_p1_iout_get(struct device *dev, struct device_attribute *da, char *buf);
 /* end of Function Declaration */
 
 /* struct i2c_data */
@@ -235,405 +125,962 @@ struct Cameo_i2c_data
 {
     struct device      *hwmon_dev;
     struct mutex        update_lock;
-    char                valid;          /* !=0 if registers are valid */
-    unsigned long       last_updated;   /* In jiffies */
-    u8  status;                         /* Status register read from CPLD */
+    char                valid;
+    unsigned long       last_updated;
+    u8  status;
 };
-/*end of struct i2c_data */
 
 /* struct i2c_sysfs_attributes */
 enum Cameo_i2c_sysfs_attributes
 {
-    /*0x31 CPLD-1 700HC*/
-#ifdef LED_CTRL_WANTED
-    LED_CTRL,
-#endif /*LED_CTRL_WANTED*/
-#ifdef ESC_600_JTAG_WANTED
-    JTAG_SELECT,
-#endif /*ESC_600_JTAG_WANTED*/
-#ifdef ESC_600_STAT_WANTED
-    SENSOR_STATUS,
-    SENSOR_STATUS_MASK,
-#endif /*ESC_600_STAT_WANTED*/
-#ifdef ESC_600_ALARM_WANTED
-    SWITCH_ALARM,
-    SWITCH_ALARM_MASK,
-#endif /*ESC_600_ALARM_WANTED*/
-#ifdef ESC_600_INT_WANTED
-    SENSOR_INT,
-    SENSOR_INT_MASK,
-#endif /*ESC_600_INT_WANTED*/
-    /*0x30 CPLD-1 640UHC*/
-    FAN_STATUS,
-    FAN_INSERT,
-    FAN_POWER,
-    FAN_DIRECT,
-    FAN_SPEED_RPM,
-#ifdef USB_CTRL_WANTED
-    USB_POWER,
-#endif /*USB_CTRL_WANTED*/
-    SYS_SHUTDOWN,
-    SYS_RESET,
+    /* x86-64-cameo-esc600-128q-sys.c */
+    CPLD_30_VER,
+    CPLD_31_VER,
+    CPLD_33_VER,
+    WDT_EN,
+    EEPROM_WP,
+    USB_EN,
+    SHUTDOWN_SET,
+    RESET,
+    BMC_PRESENT,
+    SW_ALERT_TH0,
+    SW_ALERT_TH1,
+    SW_ALERT_TH2,
+    SW_ALERT_TH3,
+    SW_ALERT_TH0_MASK,
+    SW_ALERT_TH1_MASK,
+    SW_ALERT_TH2_MASK,
+    SW_ALERT_TH3_MASK,
+    CB_INT,
+    SB_INT,
+    CB_INT_MASK,
+    SB_INT_MASK,
     MODULE_RESET,
-    MODULE_INSERT,
-    MODULE_POWER,
-    MODULE_ENABLE,
-    MODULE_12V_STAT,
-    CPLD_VER,
-#ifdef ESC_600_INT_WANTED
-    SWITCH_INT,
-    SWITCH_INT_MASK,
-#endif /*ESC_600_INT_WANTED*/
-#ifdef WDT_CTRL_WANTED
-    WDT_CTRL,
-#endif
-#ifdef EEPROM_WP_WANTED
-    EEPROM_WP_CTRL,
-#endif
-    /*0x33 I/O Board CPLD*/
+    MODULE_1_PRESENT,
+    MODULE_2_PRESENT,
+    MODULE_3_PRESENT,
+    MODULE_4_PRESENT,
+    MODULE_5_PRESENT,
+    MODULE_6_PRESENT,
+    MODULE_7_PRESENT,
+    MODULE_8_PRESENT,
+    MODULE_1_POWER,
+    MODULE_2_POWER,
+    MODULE_3_POWER,
+    MODULE_4_POWER,
+    MODULE_5_POWER,
+    MODULE_6_POWER,
+    MODULE_7_POWER,
+    MODULE_8_POWER,
+    MODULE_1_ENABLE,
+    MODULE_2_ENABLE,
+    MODULE_3_ENABLE,
+    MODULE_4_ENABLE,
+    MODULE_5_ENABLE,
+    MODULE_6_ENABLE,
+    MODULE_7_ENABLE,
+    MODULE_8_ENABLE,
+    MODULE_INS_INT,
+    MODULE_INT,
+    MODULE_POWER_INT,
+    THER_SENSOR_INT,
+    IO_BOARD_INT,
+    FAN_ERROR_INT,
+    PHY_POWER_INT,
+    SW_POWER_INT,
+    MODULE_INS_INT_MASK,
+    MODULE_INT_MASK,
+    MODULE_POW_INT_MASK,
+    THER_SEN_INT_MASK,
+    IO_BOARD_INT_MASK,
+    FAN_ERROR_INT_MASK,
+    PHY_POWER_INT_MASK,
+    SW_POWER_INT_MASK,
     SFP_SELECT,
-    SFP_INSERT,
-    SFP_TX_DISABLE,
-    SFP_RX_LOSS,
-    PSU_PRESENT,
-    PSU_STATUS,
-    SWITCH_BUTTON,
-#ifdef ESC_600_BMC_WANTED
-    SENSOR_TEMP,
-    MODULE_TEMP,
-    MAC_TEMP,
-    DC_CHIP_SWITCH,
-    DC_CHIP_SLOT_1,
-    DC_CHIP_SLOT_2,
-    DC_CHIP_SLOT_3,
-    DC_CHIP_SLOT_4,
-    DC_CHIP_SLOT_5,
-    DC_CHIP_SLOT_6,
-    DC_CHIP_SLOT_7,
-    DC_CHIP_SLOT_8,
-    PSU_MODULE_1,
-    PSU_MODULE_2,
-    PSU_MODULE_3,
-    PSU_MODULE_4,
-    BMC_DETECT,
-#endif /*ESC_600_BMC_WANTED*/
-#ifdef LED_CTRL_WANTED
-    SYS_LED,
-    SWITCH_LED,
-#endif /*LED_CTRL_WANTED*/
-#ifdef ESC_600_INT_WANTED
-    SFP_INT,
-    SFP_INT_MASK,
-    PSU_INT,
-#endif /*ESC_600_INT_WANTED*/
+    SFP_PORT_TX_1,
+    SFP_PORT_TX_2,
+    SFP_PORT_TX_MGM,
+    SFP_PORT_1,
+    SFP_PORT_2,
+    SFP_PORT_MGM,
+    SFP_PORT_RX_1,
+    SFP_PORT_RX_2,
+    SFP_PORT_RX_MGM,
+    SFP_LOSS_INT,
+    SFP_ABS_INT,
+    SFP_LOSS_MASK,
+    SFP_ABS_MASK,
+    ALERT_TH0_INT,
+    ALERT_TH1_INT,
+    ALERT_TH2_INT,
+    ALERT_TH3_INT,
+    ALERT_TH4_INT,
+    ALERT_TH5_INT,
+    ALERT_TH0_INT_MASK,
+    ALERT_TH1_INT_MASK,
+    ALERT_TH2_INT_MASK,
+    ALERT_TH3_INT_MASK,
+    ALERT_TH4_INT_MASK,
+    ALERT_TH5_INT_MASK,
+    /* x86-64-cameo-esc600-128q-led.c */
+    LED_SYS,
+    LED_LOC,
+    LED_FLOW,
+    LED_4_1,
+    LED_4_2,
+    LED_4_3,
+    LED_4_4,
+    LED_5_1,
+    LED_5_2,
+    LED_5_3,
+    LED_5_4,
+    LED_FIBER,
+    /* x86-64-cameo-esc600-128q-thermal.c */
+    LINE_CARD_1_UP_TEMP,
+    LINE_CARD_2_UP_TEMP,
+    LINE_CARD_3_UP_TEMP,
+    LINE_CARD_4_UP_TEMP,
+    LINE_CARD_5_UP_TEMP,
+    LINE_CARD_6_UP_TEMP,
+    LINE_CARD_7_UP_TEMP,
+    LINE_CARD_8_UP_TEMP,
+    LINE_CARD_1_DN_TEMP,
+    LINE_CARD_2_DN_TEMP,
+    LINE_CARD_3_DN_TEMP,
+    LINE_CARD_4_DN_TEMP,
+    LINE_CARD_5_DN_TEMP,
+    LINE_CARD_6_DN_TEMP,
+    LINE_CARD_7_DN_TEMP,
+    LINE_CARD_8_DN_TEMP,
+    NCT7511_TEMP,
+    LEFT_BOT_SB_TEMP,
+    CTR_TOP_SB_TEMP,
+    CTR_SB_TEMP,
+    LEFT_TOP_CB_TEMP,
+    CTR_CB_TEMP,
+    RIGHT_BOT_CB_TEMP,
+    LEFT_BOT_CB_TEMP,
+    IO_BOARD_TEMP,
+    /* x86-64-cameo-esc600-128q-fan.c */
+    FANCTRL_MODE,
+    FANCTRL_RPM,
+    FAN_1_STAT,
+    FAN_2_STAT,
+    FAN_3_STAT,
+    FAN_4_STAT,
+    FAN_1_PRESENT,
+    FAN_2_PRESENT,
+    FAN_3_PRESENT,
+    FAN_4_PRESENT,
+    FAN_1_POWER,
+    FAN_2_POWER,
+    FAN_3_POWER,
+    FAN_4_POWER,
+    FAN_1_DIRECT,
+    FAN_2_DIRECT,
+    FAN_3_DIRECT,
+    FAN_4_DIRECT,
+    FAN_1_RPM,
+    FAN_2_RPM,
+    FAN_3_RPM,
+    FAN_4_RPM,
+    /* x86-64-cameo-esc600-128q-power.c */
+    PSU_1_STST,
+    PSU_2_STST,
+    PSU_3_STST,
+    PSU_4_STST,
+    PSU_1_PRESENT,
+    PSU_2_PRESENT,
+    PSU_3_PRESENT,
+    PSU_4_PRESENT,
+    PSU1_VIN,
+    PSU2_VIN,
+    PSU3_VIN,
+    PSU4_VIN,
+    PSU1_IIN,
+    PSU2_IIN,
+    PSU3_IIN,
+    PSU4_IIN,
+    PSU1_VOUT,
+    PSU2_VOUT,
+    PSU3_VOUT,
+    PSU4_VOUT,
+    PSU1_IOUT,
+    PSU2_IOUT,
+    PSU3_IOUT,
+    PSU4_IOUT,
+    PSU1_TEMP,
+    PSU2_TEMP,
+    PSU3_TEMP,
+    PSU4_TEMP,
+    PSU1_FAN_SPEED,
+    PSU2_FAN_SPEED,
+    PSU3_FAN_SPEED,
+    PSU4_FAN_SPEED,
+    PSU1_POUT,
+    PSU2_POUT,
+    PSU3_POUT,
+    PSU4_POUT, 
+    PSU1_PIN,
+    PSU2_PIN,
+    PSU3_PIN,
+    PSU4_PIN,
+    PSU1_MFR_MODEL,
+    PSU2_MFR_MODEL,
+    PSU3_MFR_MODEL,
+    PSU4_MFR_MODEL,
+    PSU1_MFR_IOUT_MAX,
+    PSU2_MFR_IOUT_MAX,
+    PSU3_MFR_IOUT_MAX,
+    PSU4_MFR_IOUT_MAX,
+    PSU1_VMODE,
+    PSU2_VMODE,
+    PSU3_VMODE,
+    PSU4_VMODE,
+    DC_6E_P0_VOUT,
+    DC_70_P0_VOUT,
+    DC_70_P1_VOUT,
+    DC_6E_P0_IOUT,
+    DC_70_P0_IOUT,
+    DC_70_P1_IOUT,
+    DC_6E_P0_POUT,
+    DC_70_P0_POUT,
+    DC_70_P1_POUT,
+    CARD_1_DC_11_P0_VOUT,
+    CARD_2_DC_11_P0_VOUT,
+    CARD_3_DC_11_P0_VOUT,
+    CARD_4_DC_11_P0_VOUT,
+    CARD_5_DC_11_P0_VOUT,
+    CARD_6_DC_11_P0_VOUT,
+    CARD_7_DC_11_P0_VOUT,
+    CARD_8_DC_11_P0_VOUT,
+    CARD_1_DC_11_P1_VOUT,
+    CARD_2_DC_11_P1_VOUT,
+    CARD_3_DC_11_P1_VOUT,
+    CARD_4_DC_11_P1_VOUT,
+    CARD_5_DC_11_P1_VOUT,
+    CARD_6_DC_11_P1_VOUT,
+    CARD_7_DC_11_P1_VOUT,
+    CARD_8_DC_11_P1_VOUT,
+    CARD_1_DC_12_P0_VOUT,
+    CARD_2_DC_12_P0_VOUT,
+    CARD_3_DC_12_P0_VOUT,
+    CARD_4_DC_12_P0_VOUT,
+    CARD_5_DC_12_P0_VOUT,
+    CARD_6_DC_12_P0_VOUT,
+    CARD_7_DC_12_P0_VOUT,
+    CARD_8_DC_12_P0_VOUT,
+    CARD_1_DC_12_P1_VOUT,
+    CARD_2_DC_12_P1_VOUT,
+    CARD_3_DC_12_P1_VOUT,
+    CARD_4_DC_12_P1_VOUT,
+    CARD_5_DC_12_P1_VOUT,
+    CARD_6_DC_12_P1_VOUT,
+    CARD_7_DC_12_P1_VOUT,
+    CARD_8_DC_12_P1_VOUT,
+    CARD_1_DC_13_P0_VOUT,
+    CARD_2_DC_13_P0_VOUT,
+    CARD_3_DC_13_P0_VOUT,
+    CARD_4_DC_13_P0_VOUT,
+    CARD_5_DC_13_P0_VOUT,
+    CARD_6_DC_13_P0_VOUT,
+    CARD_7_DC_13_P0_VOUT,
+    CARD_8_DC_13_P0_VOUT,
+    CARD_1_DC_13_P1_VOUT,
+    CARD_2_DC_13_P1_VOUT,
+    CARD_3_DC_13_P1_VOUT,
+    CARD_4_DC_13_P1_VOUT,
+    CARD_5_DC_13_P1_VOUT,
+    CARD_6_DC_13_P1_VOUT,
+    CARD_7_DC_13_P1_VOUT,
+    CARD_8_DC_13_P1_VOUT,
+    CARD_1_DC_11_P0_IOUT,
+    CARD_2_DC_11_P0_IOUT,
+    CARD_3_DC_11_P0_IOUT,
+    CARD_4_DC_11_P0_IOUT,
+    CARD_5_DC_11_P0_IOUT,
+    CARD_6_DC_11_P0_IOUT,
+    CARD_7_DC_11_P0_IOUT,
+    CARD_8_DC_11_P0_IOUT,
+    CARD_1_DC_11_P1_IOUT,
+    CARD_2_DC_11_P1_IOUT,
+    CARD_3_DC_11_P1_IOUT,
+    CARD_4_DC_11_P1_IOUT,
+    CARD_5_DC_11_P1_IOUT,
+    CARD_6_DC_11_P1_IOUT,
+    CARD_7_DC_11_P1_IOUT,
+    CARD_8_DC_11_P1_IOUT,
+    CARD_1_DC_12_P0_IOUT,
+    CARD_2_DC_12_P0_IOUT,
+    CARD_3_DC_12_P0_IOUT,
+    CARD_4_DC_12_P0_IOUT,
+    CARD_5_DC_12_P0_IOUT,
+    CARD_6_DC_12_P0_IOUT,
+    CARD_7_DC_12_P0_IOUT,
+    CARD_8_DC_12_P0_IOUT,
+    CARD_1_DC_12_P1_IOUT,
+    CARD_2_DC_12_P1_IOUT,
+    CARD_3_DC_12_P1_IOUT,
+    CARD_4_DC_12_P1_IOUT,
+    CARD_5_DC_12_P1_IOUT,
+    CARD_6_DC_12_P1_IOUT,
+    CARD_7_DC_12_P1_IOUT,
+    CARD_8_DC_12_P1_IOUT,
+    CARD_1_DC_13_P0_IOUT,
+    CARD_2_DC_13_P0_IOUT,
+    CARD_3_DC_13_P0_IOUT,
+    CARD_4_DC_13_P0_IOUT,
+    CARD_5_DC_13_P0_IOUT,
+    CARD_6_DC_13_P0_IOUT,
+    CARD_7_DC_13_P0_IOUT,
+    CARD_8_DC_13_P0_IOUT,
+    CARD_1_DC_13_P1_IOUT,
+    CARD_2_DC_13_P1_IOUT,
+    CARD_3_DC_13_P1_IOUT,
+    CARD_4_DC_13_P1_IOUT,
+    CARD_5_DC_13_P1_IOUT,
+    CARD_6_DC_13_P1_IOUT,
+    CARD_7_DC_13_P1_IOUT,
+    CARD_8_DC_13_P1_IOUT,
 };
 /* end of struct i2c_sysfs_attributes */
 
 /* sysfs attributes for SENSOR_DEVICE_ATTR */
-/*ESC600_SYS_attributes*/
-static SENSOR_DEVICE_ATTR(cpld_version              , S_IRUGO           , cpld_version_get              , NULL                      , CPLD_VER);
-#ifdef WDT_CTRL_WANTED
-static SENSOR_DEVICE_ATTR(wdt_ctrl                  , S_IRUGO | S_IWUSR , wdt_status_get                , wdt_status_set            , WDT_CTRL);
-#endif /*WDT_CTRL_WANTED*/
-#ifdef EEPROM_WP_WANTED
-static SENSOR_DEVICE_ATTR(eeprom_wp_ctrl    , S_IRUGO | S_IWUSR , eeprom_wp_status_get   , eeprom_wp_status_set   , EEPROM_WP_CTRL);
-#endif /*EEPROM_WP_WANTED*/
-/*ESC600_PSU_attributes*/
-static SENSOR_DEVICE_ATTR(psu_present               , S_IRUGO           , psu_status_get                , NULL                      , PSU_PRESENT);
-static SENSOR_DEVICE_ATTR(psu_status                , S_IRUGO           , psu_status_get                , NULL                      , PSU_STATUS);
-#ifdef ESC_600_BMC_WANTED
-static SENSOR_DEVICE_ATTR(psu_module_1              , S_IRUGO           , psu_module_get                , NULL                      , PSU_MODULE_1);
-static SENSOR_DEVICE_ATTR(psu_module_2              , S_IRUGO           , psu_module_get                , NULL                      , PSU_MODULE_2);
-static SENSOR_DEVICE_ATTR(psu_module_3              , S_IRUGO           , psu_module_get                , NULL                      , PSU_MODULE_3);
-static SENSOR_DEVICE_ATTR(psu_module_4              , S_IRUGO           , psu_module_get                , NULL                      , PSU_MODULE_4);
-static SENSOR_DEVICE_ATTR(dc_chip_switch            , S_IRUGO           , dc_chip_switch_get            , NULL                      , DC_CHIP_SWITCH);
-static SENSOR_DEVICE_ATTR(dc_chip_slot_1            , S_IRUGO           , dc_chip_slot_get              , NULL                      , DC_CHIP_SLOT_1);
-static SENSOR_DEVICE_ATTR(dc_chip_slot_2            , S_IRUGO           , dc_chip_slot_get              , NULL                      , DC_CHIP_SLOT_2);
-static SENSOR_DEVICE_ATTR(dc_chip_slot_3            , S_IRUGO           , dc_chip_slot_get              , NULL                      , DC_CHIP_SLOT_3);
-static SENSOR_DEVICE_ATTR(dc_chip_slot_4            , S_IRUGO           , dc_chip_slot_get              , NULL                      , DC_CHIP_SLOT_4);
-static SENSOR_DEVICE_ATTR(dc_chip_slot_5            , S_IRUGO           , dc_chip_slot_get              , NULL                      , DC_CHIP_SLOT_5);
-static SENSOR_DEVICE_ATTR(dc_chip_slot_6            , S_IRUGO           , dc_chip_slot_get              , NULL                      , DC_CHIP_SLOT_6);
-static SENSOR_DEVICE_ATTR(dc_chip_slot_7            , S_IRUGO           , dc_chip_slot_get              , NULL                      , DC_CHIP_SLOT_7);
-static SENSOR_DEVICE_ATTR(dc_chip_slot_8            , S_IRUGO           , dc_chip_slot_get              , NULL                      , DC_CHIP_SLOT_8);
-#endif /*ESC_600_BMC_WANTED*/
-/*ESC600_JTAG_attributes*/
-#ifdef ESC_600_JTAG_WANTED
-static SENSOR_DEVICE_ATTR(jtag_select               , S_IRUGO | S_IWUSR , jtag_select_get               , jtag_select_set           , JTAG_SELECT);
-#endif /*ESC_600_JTAG_WANTED*/
-/*ESC600_SFP_attributes*/
-static SENSOR_DEVICE_ATTR(sfp_select                , S_IRUGO | S_IWUSR , sfp_select_get                , sfp_select_set            , SFP_SELECT);
-static SENSOR_DEVICE_ATTR(sfp_insert                , S_IRUGO           , sfp_insert_get                , NULL                      , SFP_INSERT);
-static SENSOR_DEVICE_ATTR(sfp_tx_disable            , S_IRUGO | S_IWUSR , sfp_tx_get                    , sfp_tx_set                , SFP_TX_DISABLE);
-static SENSOR_DEVICE_ATTR(sfp_rx_loss               , S_IRUGO           , sfp_rx_get                    , NULL                      , SFP_RX_LOSS);
-/*ESC600_Mask_attributes*/
-#ifdef ESC_600_STAT_WANTED
-static SENSOR_DEVICE_ATTR(sersor_status_mask_all    , S_IRUGO           , sersor_status_mask_all_get    , NULL                      , SENSOR_STATUS_MASK);
-static SENSOR_DEVICE_ATTR(sersor_status_mask_1      , S_IRUGO | S_IWUSR , sersor_status_mask_get        , sersor_status_mask_set    , 1);
-static SENSOR_DEVICE_ATTR(sersor_status_mask_2      , S_IRUGO | S_IWUSR , sersor_status_mask_get        , sersor_status_mask_set    , 2);
-static SENSOR_DEVICE_ATTR(sersor_status_mask_3      , S_IRUGO | S_IWUSR , sersor_status_mask_get        , sersor_status_mask_set    , 3);
-static SENSOR_DEVICE_ATTR(sersor_status_mask_4      , S_IRUGO | S_IWUSR , sersor_status_mask_get        , sersor_status_mask_set    , 4);
-static SENSOR_DEVICE_ATTR(sersor_status_mask_5      , S_IRUGO | S_IWUSR , sersor_status_mask_get        , sersor_status_mask_set    , 5);
-static SENSOR_DEVICE_ATTR(sersor_status_mask_6      , S_IRUGO | S_IWUSR , sersor_status_mask_get        , sersor_status_mask_set    , 6);
-#endif /*ESC_600_STAT_WANTED*/
-#ifdef ESC_600_ALARM_WANTED
-static SENSOR_DEVICE_ATTR(switch_alarm_mask_all     , S_IRUGO           , switch_alarm_mask_all_get     , NULL                      , SWITCH_ALARM_MASK);
-static SENSOR_DEVICE_ATTR(switch_alarm_mask_1       , S_IRUGO | S_IWUSR , switch_alarm_mask_get         , switch_alarm_mask_set     , 1);
-static SENSOR_DEVICE_ATTR(switch_alarm_mask_2       , S_IRUGO | S_IWUSR , switch_alarm_mask_get         , switch_alarm_mask_set     , 2);
-static SENSOR_DEVICE_ATTR(switch_alarm_mask_3       , S_IRUGO | S_IWUSR , switch_alarm_mask_get         , switch_alarm_mask_set     , 3);
-static SENSOR_DEVICE_ATTR(switch_alarm_mask_4       , S_IRUGO | S_IWUSR , switch_alarm_mask_get         , switch_alarm_mask_set     , 4);
-#endif /*ESC_600_ALARM_WANTED*/
-#ifdef ESC_600_INT_WANTED
-static SENSOR_DEVICE_ATTR(sersor_int_mask_all       , S_IRUGO           , sersor_int_mask_all_get       , NULL                      , SENSOR_INT_MASK);
-static SENSOR_DEVICE_ATTR(sersor_int_mask_1         , S_IRUGO | S_IWUSR , sersor_int_mask_get           , sersor_int_mask_set       , 1);
-static SENSOR_DEVICE_ATTR(sersor_int_mask_2         , S_IRUGO | S_IWUSR , sersor_int_mask_get           , sersor_int_mask_set       , 2);
-static SENSOR_DEVICE_ATTR(switch_int_mask_all       , S_IRUGO           , switch_int_mask_all_get       , NULL                      , SWITCH_INT_MASK);
-static SENSOR_DEVICE_ATTR(phy_module_ins_mask       , S_IRUGO | S_IWUSR , switch_int_mask_get           , switch_int_mask_set       , 1);
-static SENSOR_DEVICE_ATTR(phy_module_int_mask       , S_IRUGO | S_IWUSR , switch_int_mask_get           , switch_int_mask_set       , 2);
-static SENSOR_DEVICE_ATTR(phy_module_power_mask     , S_IRUGO | S_IWUSR , switch_int_mask_get           , switch_int_mask_set       , 3);
-static SENSOR_DEVICE_ATTR(cpld2_int_mask            , S_IRUGO | S_IWUSR , switch_int_mask_get           , switch_int_mask_set       , 4);
-static SENSOR_DEVICE_ATTR(io_board_int_mask         , S_IRUGO | S_IWUSR , switch_int_mask_get           , switch_int_mask_set       , 5);
-static SENSOR_DEVICE_ATTR(fan_error_mask            , S_IRUGO | S_IWUSR , switch_int_mask_get           , switch_int_mask_set       , 6);
-static SENSOR_DEVICE_ATTR(psu_int_mask              , S_IRUGO | S_IWUSR , int_mask_get                  , int_mask_set              , 1);
-static SENSOR_DEVICE_ATTR(sfp_loss_int_mask         , S_IRUGO | S_IWUSR , int_mask_get                  , int_mask_set              , 2);
-static SENSOR_DEVICE_ATTR(sfp_abs_int_mask          , S_IRUGO | S_IWUSR , int_mask_get                  , int_mask_set              , 3);
-#endif /*ESC_600_INT_WANTED*/
-/*ESC600_Fan_attributes*/
-static SENSOR_DEVICE_ATTR(fan_status                , S_IRUGO           , fan_status_get                , NULL                      , FAN_STATUS);
-static SENSOR_DEVICE_ATTR(fan_insert                , S_IRUGO           , fan_insert_get                , NULL                      , FAN_INSERT);
-static SENSOR_DEVICE_ATTR(fan_power                 , S_IRUGO           , fan_power_get                 , NULL                      , FAN_POWER);
-static SENSOR_DEVICE_ATTR(fan_direct                , S_IRUGO           , fan_direct_get                , NULL                      , FAN_DIRECT);
-static SENSOR_DEVICE_ATTR(fan_speed_rpm             , S_IRUGO           , fan_status_get                , NULL                      , FAN_SPEED_RPM);
-/*ESC600_USB_attributes*/
-#ifdef USB_CTRL_WANTED
-static SENSOR_DEVICE_ATTR(usb_power                 , S_IRUGO | S_IWUSR , usb_power_get                 , usb_power_set             , USB_POWER);
-#endif /*USB_CTRL_WANTED*/
-/*ESC600_LED_attributes*/
-#ifdef LED_CTRL_WANTED
-static SENSOR_DEVICE_ATTR(led_ctrl                  , S_IRUGO | S_IWUSR , led_ctrl_get                  , led_ctrl_set              , LED_CTRL);
-static SENSOR_DEVICE_ATTR(sys_led                   , S_IRUGO | S_IWUSR , sys_led_get                   , sys_led_set               , SYS_LED);
-static SENSOR_DEVICE_ATTR(switch_led_all            , S_IRUGO | S_IWUSR , switch_led_all_get            , switch_led_all_set        , SWITCH_LED);
-#ifdef LED_L3_CTRL_WANTED
-static SENSOR_DEVICE_ATTR(switch_led_3_1            , S_IRUGO | S_IWUSR , switch_led_3_get              , switch_led_3_set          , 1);
-static SENSOR_DEVICE_ATTR(switch_led_3_2            , S_IRUGO | S_IWUSR , switch_led_3_get              , switch_led_3_set          , 2);
-static SENSOR_DEVICE_ATTR(switch_led_3_3            , S_IRUGO | S_IWUSR , switch_led_3_get              , switch_led_3_set          , 3);
-static SENSOR_DEVICE_ATTR(switch_led_3_4            , S_IRUGO | S_IWUSR , switch_led_3_get              , switch_led_3_set          , 4);
-#endif /*LED_L3_CTRL_WANTED*/
-static SENSOR_DEVICE_ATTR(switch_led_4_1            , S_IRUGO | S_IWUSR , switch_led_4_get              , switch_led_4_set          , 1);
-static SENSOR_DEVICE_ATTR(switch_led_4_2            , S_IRUGO | S_IWUSR , switch_led_4_get              , switch_led_4_set          , 2);
-static SENSOR_DEVICE_ATTR(switch_led_4_3            , S_IRUGO | S_IWUSR , switch_led_4_get              , switch_led_4_set          , 3);
-static SENSOR_DEVICE_ATTR(switch_led_4_4            , S_IRUGO | S_IWUSR , switch_led_4_get              , switch_led_4_set          , 4);
-static SENSOR_DEVICE_ATTR(switch_led_5_1            , S_IRUGO | S_IWUSR , switch_led_5_get              , switch_led_5_set          , 1);
-static SENSOR_DEVICE_ATTR(switch_led_5_2            , S_IRUGO | S_IWUSR , switch_led_5_get              , switch_led_5_set          , 2);
-static SENSOR_DEVICE_ATTR(switch_led_5_3            , S_IRUGO | S_IWUSR , switch_led_5_get              , switch_led_5_set          , 3);
-static SENSOR_DEVICE_ATTR(switch_led_5_4            , S_IRUGO | S_IWUSR , switch_led_5_get              , switch_led_5_set          , 4);
-#endif /*LED_CTRL_WANTED*/
-/*ESC600_Reset_attributes*/
-static SENSOR_DEVICE_ATTR(shutdown_sys              , S_IRUGO | S_IWUSR , shutdown_sys_get              , shutdown_sys_set          , SYS_SHUTDOWN);
-static SENSOR_DEVICE_ATTR(reset_sys                 , S_IRUGO | S_IWUSR , NULL                          , reset_sys_set             , SYS_RESET);
-/*ESC600_Sensor_attributes*/
-#ifdef ESC_600_STAT_WANTED
-static SENSOR_DEVICE_ATTR(sensor_status             , S_IRUGO           , sensor_status_get             , NULL                      , SENSOR_STATUS);
-#endif /*ESC_600_STAT_WANTED*/
-#ifdef ESC_600_ALARM_WANTED
-static SENSOR_DEVICE_ATTR(switch_alarm              , S_IRUGO           , switch_alarm_get              , NULL                      , SWITCH_ALARM);
-#endif /*ESC_600_ALARM_WANTED*/
-static SENSOR_DEVICE_ATTR(switch_button             , S_IRUGO           , switch_button_get             , NULL                      , SWITCH_BUTTON);
-#ifdef ESC_600_BMC_WANTED
-static SENSOR_DEVICE_ATTR(sensor_temp               , S_IRUGO           , themal_temp_get               , NULL                      , SENSOR_TEMP);
-static SENSOR_DEVICE_ATTR(module_temp               , S_IRUGO           , module_temp_get               , NULL                      , MODULE_TEMP);
-static SENSOR_DEVICE_ATTR(mac_temp                  , S_IRUGO           , mac_temp_get                  , NULL                      , MAC_TEMP);
-static SENSOR_DEVICE_ATTR(bmc_present               , S_IRUGO           , bmc_module_detect             , NULL                      , BMC_DETECT);
-#endif /*ESC_600_BMC_WANTED*/
-/*ESC600_INT_attributes*/
-#ifdef ESC_600_INT_WANTED
-static SENSOR_DEVICE_ATTR(sensor_int                , S_IRUGO           , sensor_int_get                , NULL                      , SENSOR_INT);
-static SENSOR_DEVICE_ATTR(switch_int                , S_IRUGO           , switch_int_get                , NULL                      , SWITCH_INT);
-static SENSOR_DEVICE_ATTR(sfp_int                   , S_IRUGO           , sfp_int_get                   , NULL                      , SFP_INT);
-static SENSOR_DEVICE_ATTR(psu_int                   , S_IRUGO           , psu_int_get                   , NULL                      , PSU_INT);
-#endif /*ESC_600_INT_WANTED*/
-/*ESC600_Module_attributes*/
-static SENSOR_DEVICE_ATTR(module_reset              , S_IRUGO | S_IWUSR , NULL                          , module_reset_set          , MODULE_RESET);
-static SENSOR_DEVICE_ATTR(module_insert             , S_IRUGO           , module_insert_get             , NULL                      , MODULE_INSERT);
-static SENSOR_DEVICE_ATTR(module_power              , S_IRUGO           , module_power_get              , NULL                      , MODULE_POWER);
-static SENSOR_DEVICE_ATTR(module_enable             , S_IRUGO | S_IWUSR , module_enable_get             , module_enable_set         , MODULE_ENABLE);
-static SENSOR_DEVICE_ATTR(module_12v_status         , S_IRUGO           , module_12v_status_get         , NULL                      , MODULE_12V_STAT);
+ /* x86-64-cameo-esc600-128q-sys.c */
+ static SENSOR_DEVICE_ATTR(cpld_30_ver              , S_IRUGO           , cpld_hw_ver_get           , NULL                      , 30);
+ static SENSOR_DEVICE_ATTR(cpld_31_ver              , S_IRUGO           , cpld_hw_ver_get           , NULL                      , 31);
+ static SENSOR_DEVICE_ATTR(cpld_33_ver              , S_IRUGO           , cpld_hw_ver_get           , NULL                      , 33);
+ static SENSOR_DEVICE_ATTR(wdt_en                   , S_IRUGO | S_IWUSR , wdt_enable_get            , wdt_enable_set            , WDT_EN);
+ static SENSOR_DEVICE_ATTR(eeprom_wp                , S_IRUGO | S_IWUSR , eeprom_wp_get             , eeprom_wp_set             , EEPROM_WP);
+ static SENSOR_DEVICE_ATTR(usb_en                   , S_IRUGO | S_IWUSR , usb_enable_get            , usb_enable_set            , USB_EN);
+ static SENSOR_DEVICE_ATTR(shutdown_set             , S_IRUGO | S_IWUSR , NULL                      , shutdown_set              , SHUTDOWN_SET);
+ static SENSOR_DEVICE_ATTR(reset                    , S_IRUGO | S_IWUSR , NULL                      , reset_mac_set             , RESET);
+ static SENSOR_DEVICE_ATTR(bmc_present              , S_IRUGO           , bmc_enable_get            , NULL                      , BMC_PRESENT);
+ static SENSOR_DEVICE_ATTR(sw_alert_th0             , S_IRUGO           , switch_alarm_get          , NULL                      , SW_ALERT_TH0);
+ static SENSOR_DEVICE_ATTR(sw_alert_th1             , S_IRUGO           , switch_alarm_get          , NULL                      , SW_ALERT_TH1);
+ static SENSOR_DEVICE_ATTR(sw_alert_th2             , S_IRUGO           , switch_alarm_get          , NULL                      , SW_ALERT_TH2);
+ static SENSOR_DEVICE_ATTR(sw_alert_th3             , S_IRUGO           , switch_alarm_get          , NULL                      , SW_ALERT_TH3);
+ static SENSOR_DEVICE_ATTR(sw_alert_th0_mask        , S_IRUGO | S_IWUSR , switch_alarm_mask_get     , switch_alarm_mask_set     , SW_ALERT_TH0_MASK);
+ static SENSOR_DEVICE_ATTR(sw_alert_th1_mask        , S_IRUGO | S_IWUSR , switch_alarm_mask_get     , switch_alarm_mask_set     , SW_ALERT_TH1_MASK);
+ static SENSOR_DEVICE_ATTR(sw_alert_th2_mask        , S_IRUGO | S_IWUSR , switch_alarm_mask_get     , switch_alarm_mask_set     , SW_ALERT_TH2_MASK);
+ static SENSOR_DEVICE_ATTR(sw_alert_th3_mask        , S_IRUGO | S_IWUSR , switch_alarm_mask_get     , switch_alarm_mask_set     , SW_ALERT_TH3_MASK);
+ static SENSOR_DEVICE_ATTR(cb_int                   , S_IRUGO           , sensor_int_get            , NULL                      , CB_INT);
+ static SENSOR_DEVICE_ATTR(sb_int                   , S_IRUGO           , sensor_int_get            , NULL                      , SB_INT);
+ static SENSOR_DEVICE_ATTR(cb_int_mask              , S_IRUGO | S_IWUSR , sersor_int_mask_get       , sersor_int_mask_set       , CB_INT_MASK);
+ static SENSOR_DEVICE_ATTR(sb_int_mask              , S_IRUGO | S_IWUSR , sersor_int_mask_get       , sersor_int_mask_set       , SB_INT_MASK);
+ static SENSOR_DEVICE_ATTR(module_reset             , S_IRUGO | S_IWUSR , NULL                      , module_reset_set          , MODULE_RESET);
+ static SENSOR_DEVICE_ATTR(module_1_present         , S_IRUGO           , module_insert_get         , NULL                      , MODULE_1_PRESENT);
+ static SENSOR_DEVICE_ATTR(module_2_present         , S_IRUGO           , module_insert_get         , NULL                      , MODULE_2_PRESENT);
+ static SENSOR_DEVICE_ATTR(module_3_present         , S_IRUGO           , module_insert_get         , NULL                      , MODULE_3_PRESENT);
+ static SENSOR_DEVICE_ATTR(module_4_present         , S_IRUGO           , module_insert_get         , NULL                      , MODULE_4_PRESENT);
+ static SENSOR_DEVICE_ATTR(module_5_present         , S_IRUGO           , module_insert_get         , NULL                      , MODULE_5_PRESENT);
+ static SENSOR_DEVICE_ATTR(module_6_present         , S_IRUGO           , module_insert_get         , NULL                      , MODULE_6_PRESENT);
+ static SENSOR_DEVICE_ATTR(module_7_present         , S_IRUGO           , module_insert_get         , NULL                      , MODULE_7_PRESENT);
+ static SENSOR_DEVICE_ATTR(module_8_present         , S_IRUGO           , module_insert_get         , NULL                      , MODULE_8_PRESENT);
+ static SENSOR_DEVICE_ATTR(module_1_power           , S_IRUGO           , module_power_get          , NULL                      , MODULE_1_POWER);
+ static SENSOR_DEVICE_ATTR(module_2_power           , S_IRUGO           , module_power_get          , NULL                      , MODULE_2_POWER);
+ static SENSOR_DEVICE_ATTR(module_3_power           , S_IRUGO           , module_power_get          , NULL                      , MODULE_3_POWER);
+ static SENSOR_DEVICE_ATTR(module_4_power           , S_IRUGO           , module_power_get          , NULL                      , MODULE_4_POWER);
+ static SENSOR_DEVICE_ATTR(module_5_power           , S_IRUGO           , module_power_get          , NULL                      , MODULE_5_POWER);
+ static SENSOR_DEVICE_ATTR(module_6_power           , S_IRUGO           , module_power_get          , NULL                      , MODULE_6_POWER);
+ static SENSOR_DEVICE_ATTR(module_7_power           , S_IRUGO           , module_power_get          , NULL                      , MODULE_7_POWER);
+ static SENSOR_DEVICE_ATTR(module_8_power           , S_IRUGO           , module_power_get          , NULL                      , MODULE_8_POWER);
+ static SENSOR_DEVICE_ATTR(module_1_enable          , S_IRUGO | S_IWUSR , module_enable_get         , module_enable_set         , MODULE_1_ENABLE);
+ static SENSOR_DEVICE_ATTR(module_2_enable          , S_IRUGO | S_IWUSR , module_enable_get         , module_enable_set         , MODULE_2_ENABLE);
+ static SENSOR_DEVICE_ATTR(module_3_enable          , S_IRUGO | S_IWUSR , module_enable_get         , module_enable_set         , MODULE_3_ENABLE);
+ static SENSOR_DEVICE_ATTR(module_4_enable          , S_IRUGO | S_IWUSR , module_enable_get         , module_enable_set         , MODULE_4_ENABLE);
+ static SENSOR_DEVICE_ATTR(module_5_enable          , S_IRUGO | S_IWUSR , module_enable_get         , module_enable_set         , MODULE_5_ENABLE);
+ static SENSOR_DEVICE_ATTR(module_6_enable          , S_IRUGO | S_IWUSR , module_enable_get         , module_enable_set         , MODULE_6_ENABLE);
+ static SENSOR_DEVICE_ATTR(module_7_enable          , S_IRUGO | S_IWUSR , module_enable_get         , module_enable_set         , MODULE_7_ENABLE);
+ static SENSOR_DEVICE_ATTR(module_8_enable          , S_IRUGO | S_IWUSR , module_enable_get         , module_enable_set         , MODULE_8_ENABLE);
+ static SENSOR_DEVICE_ATTR(module_ins_int           , S_IRUGO           , switch_int_get            , NULL                      , MODULE_INS_INT);
+ static SENSOR_DEVICE_ATTR(module_int               , S_IRUGO           , switch_int_get            , NULL                      , MODULE_INT);
+ static SENSOR_DEVICE_ATTR(module_power_int         , S_IRUGO           , switch_int_get            , NULL                      , MODULE_POWER_INT);
+ static SENSOR_DEVICE_ATTR(ther_sensor_int          , S_IRUGO           , switch_int_get            , NULL                      , THER_SENSOR_INT);
+ static SENSOR_DEVICE_ATTR(io_board_int             , S_IRUGO           , switch_int_get            , NULL                      , IO_BOARD_INT);
+ static SENSOR_DEVICE_ATTR(fan_error_int            , S_IRUGO           , switch_int_get            , NULL                      , FAN_ERROR_INT);
+ static SENSOR_DEVICE_ATTR(phy_power_int            , S_IRUGO           , switch_int_get            , NULL                      , PHY_POWER_INT);
+ static SENSOR_DEVICE_ATTR(sw_power_int             , S_IRUGO           , switch_int_get            , NULL                      , SW_POWER_INT);
+ static SENSOR_DEVICE_ATTR(module_ins_int_mask      , S_IRUGO | S_IWUSR , switch_int_mask_get       , switch_int_mask_set       , MODULE_INS_INT_MASK);
+ static SENSOR_DEVICE_ATTR(module_int_mask          , S_IRUGO | S_IWUSR , switch_int_mask_get       , switch_int_mask_set       , MODULE_INT_MASK);
+ static SENSOR_DEVICE_ATTR(module_pow_int_mask      , S_IRUGO | S_IWUSR , switch_int_mask_get       , switch_int_mask_set       , MODULE_POW_INT_MASK);
+ static SENSOR_DEVICE_ATTR(ther_sen_int_mask        , S_IRUGO | S_IWUSR , switch_int_mask_get       , switch_int_mask_set       , THER_SEN_INT_MASK);
+ static SENSOR_DEVICE_ATTR(io_board_int_mask        , S_IRUGO | S_IWUSR , switch_int_mask_get       , switch_int_mask_set       , IO_BOARD_INT_MASK);
+ static SENSOR_DEVICE_ATTR(fan_error_int_mask       , S_IRUGO | S_IWUSR , switch_int_mask_get       , switch_int_mask_set       , FAN_ERROR_INT_MASK);
+ static SENSOR_DEVICE_ATTR(phy_power_int_mask       , S_IRUGO | S_IWUSR , switch_int_mask_get       , switch_int_mask_set       , PHY_POWER_INT_MASK);
+ static SENSOR_DEVICE_ATTR(sw_power_int_mask        , S_IRUGO | S_IWUSR , switch_int_mask_get       , switch_int_mask_set       , SW_POWER_INT_MASK);
+ static SENSOR_DEVICE_ATTR(sfp_select               , S_IRUGO | S_IWUSR , sfp_select_get            , sfp_select_set            , SFP_SELECT);
+ static SENSOR_DEVICE_ATTR(sfp_port_tx_1            , S_IRUGO | S_IWUSR , sfp_tx_get                , sfp_tx_set                , 1);
+ static SENSOR_DEVICE_ATTR(sfp_port_tx_2            , S_IRUGO | S_IWUSR , sfp_tx_get                , sfp_tx_set                , 2);
+ static SENSOR_DEVICE_ATTR(sfp_port_tx_mgm          , S_IRUGO | S_IWUSR , sfp_tx_get                , sfp_tx_set                , 3);
+ static SENSOR_DEVICE_ATTR(sfp_port_1               , S_IRUGO           , sfp_insert_get            , NULL                      , SFP_PORT_1);
+ static SENSOR_DEVICE_ATTR(sfp_port_2               , S_IRUGO           , sfp_insert_get            , NULL                      , SFP_PORT_2);
+ static SENSOR_DEVICE_ATTR(sfp_port_mgm             , S_IRUGO           , sfp_insert_get            , NULL                      , SFP_PORT_MGM);
+ static SENSOR_DEVICE_ATTR(sfp_port_rx_1            , S_IRUGO           , sfp_rx_get                , NULL                      , SFP_PORT_RX_1);
+ static SENSOR_DEVICE_ATTR(sfp_port_rx_2            , S_IRUGO           , sfp_rx_get                , NULL                      , SFP_PORT_RX_2);
+ static SENSOR_DEVICE_ATTR(sfp_port_rx_mgm          , S_IRUGO           , sfp_rx_get                , NULL                      , SFP_PORT_RX_MGM);
+ static SENSOR_DEVICE_ATTR(sfp_loss_int             , S_IRUGO           , sys_int_get               , NULL                      , SFP_LOSS_INT);
+ static SENSOR_DEVICE_ATTR(sfp_abs_int              , S_IRUGO           , sys_int_get               , NULL                      , SFP_ABS_INT);
+ static SENSOR_DEVICE_ATTR(sfp_loss_mask            , S_IRUGO | S_IWUSR , sys_int_mask_get          , sys_int_mask_set          , SFP_LOSS_MASK);
+ static SENSOR_DEVICE_ATTR(sfp_abs_mask             , S_IRUGO | S_IWUSR , sys_int_mask_get          , sys_int_mask_set          , SFP_ABS_MASK);
+ static SENSOR_DEVICE_ATTR(alert_th0_int            , S_IRUGO           , thermal_int_get           , NULL                      , ALERT_TH0_INT);
+ static SENSOR_DEVICE_ATTR(alert_th1_int            , S_IRUGO           , thermal_int_get           , NULL                      , ALERT_TH1_INT);
+ static SENSOR_DEVICE_ATTR(alert_th2_int            , S_IRUGO           , thermal_int_get           , NULL                      , ALERT_TH2_INT);
+ static SENSOR_DEVICE_ATTR(alert_th3_int            , S_IRUGO           , thermal_int_get           , NULL                      , ALERT_TH3_INT);
+ static SENSOR_DEVICE_ATTR(alert_th4_int            , S_IRUGO           , thermal_int_get           , NULL                      , ALERT_TH4_INT);
+ static SENSOR_DEVICE_ATTR(alert_th5_int            , S_IRUGO           , thermal_int_get           , NULL                      , ALERT_TH5_INT);
+ static SENSOR_DEVICE_ATTR(alert_th0_int_mask       , S_IRUGO | S_IWUSR , thermal_int_mask_get      , thermal_int_mask_set      , ALERT_TH0_INT_MASK);
+ static SENSOR_DEVICE_ATTR(alert_th1_int_mask       , S_IRUGO | S_IWUSR , thermal_int_mask_get      , thermal_int_mask_set      , ALERT_TH1_INT_MASK);
+ static SENSOR_DEVICE_ATTR(alert_th2_int_mask       , S_IRUGO | S_IWUSR , thermal_int_mask_get      , thermal_int_mask_set      , ALERT_TH2_INT_MASK);
+ static SENSOR_DEVICE_ATTR(alert_th3_int_mask       , S_IRUGO | S_IWUSR , thermal_int_mask_get      , thermal_int_mask_set      , ALERT_TH3_INT_MASK);
+ static SENSOR_DEVICE_ATTR(alert_th4_int_mask       , S_IRUGO | S_IWUSR , thermal_int_mask_get      , thermal_int_mask_set      , ALERT_TH4_INT_MASK);
+ static SENSOR_DEVICE_ATTR(alert_th5_int_mask       , S_IRUGO | S_IWUSR , thermal_int_mask_get      , thermal_int_mask_set      , ALERT_TH5_INT_MASK);
+ /* x86-64-cameo-esc600-128q-led.c */
+ static SENSOR_DEVICE_ATTR(led_sys                  , S_IRUGO | S_IWUSR , led_ctrl_get              , led_ctrl_set              , 1 );
+ static SENSOR_DEVICE_ATTR(led_loc                  , S_IRUGO | S_IWUSR , led_ctrl_get              , led_ctrl_set              , 2 );
+ static SENSOR_DEVICE_ATTR(led_flow                 , S_IRUGO | S_IWUSR , led_ctrl_get              , led_ctrl_set              , 3 );
+ static SENSOR_DEVICE_ATTR(led_4_1                  , S_IRUGO | S_IWUSR , switch_led_4_get          , switch_led_4_set          , 1 );
+ static SENSOR_DEVICE_ATTR(led_4_2                  , S_IRUGO | S_IWUSR , switch_led_4_get          , switch_led_4_set          , 2 );
+ static SENSOR_DEVICE_ATTR(led_4_3                  , S_IRUGO | S_IWUSR , switch_led_4_get          , switch_led_4_set          , 3 );
+ static SENSOR_DEVICE_ATTR(led_4_4                  , S_IRUGO | S_IWUSR , switch_led_4_get          , switch_led_4_set          , 4 );
+ static SENSOR_DEVICE_ATTR(led_5_1                  , S_IRUGO | S_IWUSR , switch_led_5_get          , switch_led_5_set          , 1 );
+ static SENSOR_DEVICE_ATTR(led_5_2                  , S_IRUGO | S_IWUSR , switch_led_5_get          , switch_led_5_set          , 2 );
+ static SENSOR_DEVICE_ATTR(led_5_3                  , S_IRUGO | S_IWUSR , switch_led_5_get          , switch_led_5_set          , 3 );
+ static SENSOR_DEVICE_ATTR(led_5_4                  , S_IRUGO | S_IWUSR , switch_led_5_get          , switch_led_5_set          , 4 );
+ static SENSOR_DEVICE_ATTR(led_fiber                , S_IRUGO | S_IWUSR , led_fiber_get             , led_fiber_set             , LED_FIBER);
+ /* x86-64-cameo-esc600-128q-thermal.c */
+ static SENSOR_DEVICE_ATTR(line_card_1_up_temp      , S_IRUGO           , line_card_temp_get        , NULL                      , LINE_CARD_1_UP_TEMP);
+ static SENSOR_DEVICE_ATTR(line_card_2_up_temp      , S_IRUGO           , line_card_temp_get        , NULL                      , LINE_CARD_2_UP_TEMP);
+ static SENSOR_DEVICE_ATTR(line_card_3_up_temp      , S_IRUGO           , line_card_temp_get        , NULL                      , LINE_CARD_3_UP_TEMP);
+ static SENSOR_DEVICE_ATTR(line_card_4_up_temp      , S_IRUGO           , line_card_temp_get        , NULL                      , LINE_CARD_4_UP_TEMP);
+ static SENSOR_DEVICE_ATTR(line_card_5_up_temp      , S_IRUGO           , line_card_temp_get        , NULL                      , LINE_CARD_5_UP_TEMP);
+ static SENSOR_DEVICE_ATTR(line_card_6_up_temp      , S_IRUGO           , line_card_temp_get        , NULL                      , LINE_CARD_6_UP_TEMP);
+ static SENSOR_DEVICE_ATTR(line_card_7_up_temp      , S_IRUGO           , line_card_temp_get        , NULL                      , LINE_CARD_7_UP_TEMP);
+ static SENSOR_DEVICE_ATTR(line_card_8_up_temp      , S_IRUGO           , line_card_temp_get        , NULL                      , LINE_CARD_8_UP_TEMP);
+ static SENSOR_DEVICE_ATTR(line_card_1_dn_temp      , S_IRUGO           , line_card_temp_get        , NULL                      , LINE_CARD_1_DN_TEMP);
+ static SENSOR_DEVICE_ATTR(line_card_2_dn_temp      , S_IRUGO           , line_card_temp_get        , NULL                      , LINE_CARD_2_DN_TEMP);
+ static SENSOR_DEVICE_ATTR(line_card_3_dn_temp      , S_IRUGO           , line_card_temp_get        , NULL                      , LINE_CARD_3_DN_TEMP);
+ static SENSOR_DEVICE_ATTR(line_card_4_dn_temp      , S_IRUGO           , line_card_temp_get        , NULL                      , LINE_CARD_4_DN_TEMP);
+ static SENSOR_DEVICE_ATTR(line_card_5_dn_temp      , S_IRUGO           , line_card_temp_get        , NULL                      , LINE_CARD_5_DN_TEMP);
+ static SENSOR_DEVICE_ATTR(line_card_6_dn_temp      , S_IRUGO           , line_card_temp_get        , NULL                      , LINE_CARD_6_DN_TEMP);
+ static SENSOR_DEVICE_ATTR(line_card_7_dn_temp      , S_IRUGO           , line_card_temp_get        , NULL                      , LINE_CARD_7_DN_TEMP);
+ static SENSOR_DEVICE_ATTR(line_card_8_dn_temp      , S_IRUGO           , line_card_temp_get        , NULL                      , LINE_CARD_8_DN_TEMP);
+ static SENSOR_DEVICE_ATTR(nct7511_temp             , S_IRUGO           , themal_temp_get           , NULL                      , NCT7511_TEMP);
+ static SENSOR_DEVICE_ATTR(left_bot_sb_temp         , S_IRUGO           , themal_temp_get           , NULL                      , LEFT_BOT_SB_TEMP);
+ static SENSOR_DEVICE_ATTR(ctr_top_sb_temp          , S_IRUGO           , themal_temp_get           , NULL                      , CTR_TOP_SB_TEMP);
+ static SENSOR_DEVICE_ATTR(ctr_sb_temp              , S_IRUGO           , themal_temp_get           , NULL                      , CTR_SB_TEMP);
+ static SENSOR_DEVICE_ATTR(left_top_cb_temp         , S_IRUGO           , themal_temp_get           , NULL                      , LEFT_TOP_CB_TEMP);
+ static SENSOR_DEVICE_ATTR(ctr_cb_temp              , S_IRUGO           , themal_temp_get           , NULL                      , CTR_CB_TEMP);
+ static SENSOR_DEVICE_ATTR(right_bot_cb_temp        , S_IRUGO           , themal_temp_get           , NULL                      , RIGHT_BOT_CB_TEMP);
+ static SENSOR_DEVICE_ATTR(left_bot_cb_temp         , S_IRUGO           , themal_temp_get           , NULL                      , LEFT_BOT_CB_TEMP);
+ static SENSOR_DEVICE_ATTR(io_board_temp            , S_IRUGO           , themal_temp_get           , NULL                      , IO_BOARD_TEMP);
+ /* x86-64-cameo-esc600-128q-fan.c */
+ static SENSOR_DEVICE_ATTR(fanctrl_mode             , S_IRUGO           , fan_ctrl_mode_get         , NULL                      , FANCTRL_MODE);
+ static SENSOR_DEVICE_ATTR(fanctrl_rpm              , S_IRUGO           , fan_ctrl_rpm_get          , NULL                      , FANCTRL_RPM);
+ static SENSOR_DEVICE_ATTR(fan1_stat               , S_IRUGO           , fan_status_get            , NULL                      , 1);
+ static SENSOR_DEVICE_ATTR(fan2_stat               , S_IRUGO           , fan_status_get            , NULL                      , 2);
+ static SENSOR_DEVICE_ATTR(fan3_stat               , S_IRUGO           , fan_status_get            , NULL                      , 3);
+ static SENSOR_DEVICE_ATTR(fan4_stat               , S_IRUGO           , fan_status_get            , NULL                      , 4);
+ static SENSOR_DEVICE_ATTR(fan1_present            , S_IRUGO           , fan_present_get           , NULL                      , 1);
+ static SENSOR_DEVICE_ATTR(fan2_present            , S_IRUGO           , fan_present_get           , NULL                      , 2);
+ static SENSOR_DEVICE_ATTR(fan3_present            , S_IRUGO           , fan_present_get           , NULL                      , 3);
+ static SENSOR_DEVICE_ATTR(fan4_present            , S_IRUGO           , fan_present_get           , NULL                      , 4);
+ static SENSOR_DEVICE_ATTR(fan1_power              , S_IRUGO           , fan_power_get             , NULL                      , 1);
+ static SENSOR_DEVICE_ATTR(fan2_power              , S_IRUGO           , fan_power_get             , NULL                      , 2);
+ static SENSOR_DEVICE_ATTR(fan3_power              , S_IRUGO           , fan_power_get             , NULL                      , 3);
+ static SENSOR_DEVICE_ATTR(fan4_power              , S_IRUGO           , fan_power_get             , NULL                      , 4);
+ static SENSOR_DEVICE_ATTR(fan1_direct             , S_IRUGO           , fan_direct_get            , NULL                      , 1);
+ static SENSOR_DEVICE_ATTR(fan2_direct             , S_IRUGO           , fan_direct_get            , NULL                      , 2);
+ static SENSOR_DEVICE_ATTR(fan3_direct             , S_IRUGO           , fan_direct_get            , NULL                      , 3);
+ static SENSOR_DEVICE_ATTR(fan4_direct             , S_IRUGO           , fan_direct_get            , NULL                      , 4);
+ static SENSOR_DEVICE_ATTR(fan1_rpm                , S_IRUGO           , fan_rpm_get               , NULL                      , FAN_1_RPM);
+ static SENSOR_DEVICE_ATTR(fan2_rpm                , S_IRUGO           , fan_rpm_get               , NULL                      , FAN_2_RPM);
+ static SENSOR_DEVICE_ATTR(fan3_rpm                , S_IRUGO           , fan_rpm_get               , NULL                      , FAN_3_RPM);
+ static SENSOR_DEVICE_ATTR(fan4_rpm                , S_IRUGO           , fan_rpm_get               , NULL                      , FAN_4_RPM);
+ /* x86-64-cameo-esc600-128q-power.c */
+ static SENSOR_DEVICE_ATTR(psu1_good                , S_IRUGO           , psu_status_get            , NULL                      , 1);
+ static SENSOR_DEVICE_ATTR(psu2_good                , S_IRUGO           , psu_status_get            , NULL                      , 2);
+ static SENSOR_DEVICE_ATTR(psu3_good                , S_IRUGO           , psu_status_get            , NULL                      , 3);
+ static SENSOR_DEVICE_ATTR(psu4_good                , S_IRUGO           , psu_status_get            , NULL                      , 4);
+ static SENSOR_DEVICE_ATTR(psu1_prnt                , S_IRUGO           , psu_present_get           , NULL                      , 1);
+ static SENSOR_DEVICE_ATTR(psu2_prnt                , S_IRUGO           , psu_present_get           , NULL                      , 2);
+ static SENSOR_DEVICE_ATTR(psu3_prnt                , S_IRUGO           , psu_present_get           , NULL                      , 3);
+ static SENSOR_DEVICE_ATTR(psu4_prnt                , S_IRUGO           , psu_present_get           , NULL                      , 4);
+ static SENSOR_DEVICE_ATTR(psu1_vin                 , S_IRUGO           , psu_vin_get               , NULL                      , PSU1_VIN);
+ static SENSOR_DEVICE_ATTR(psu2_vin                 , S_IRUGO           , psu_vin_get               , NULL                      , PSU2_VIN);
+ static SENSOR_DEVICE_ATTR(psu3_vin                 , S_IRUGO           , psu_vin_get               , NULL                      , PSU3_VIN);
+ static SENSOR_DEVICE_ATTR(psu4_vin                 , S_IRUGO           , psu_vin_get               , NULL                      , PSU4_VIN);
+ static SENSOR_DEVICE_ATTR(psu1_iin                 , S_IRUGO           , psu_iin_get               , NULL                      , PSU1_IIN);
+ static SENSOR_DEVICE_ATTR(psu2_iin                 , S_IRUGO           , psu_iin_get               , NULL                      , PSU2_IIN);
+ static SENSOR_DEVICE_ATTR(psu3_iin                 , S_IRUGO           , psu_iin_get               , NULL                      , PSU3_IIN);
+ static SENSOR_DEVICE_ATTR(psu4_iin                 , S_IRUGO           , psu_iin_get               , NULL                      , PSU4_IIN);
+ static SENSOR_DEVICE_ATTR(psu1_vout                , S_IRUGO           , psu_vout_get              , NULL                      , PSU1_VOUT);
+ static SENSOR_DEVICE_ATTR(psu2_vout                , S_IRUGO           , psu_vout_get              , NULL                      , PSU2_VOUT);
+ static SENSOR_DEVICE_ATTR(psu3_vout                , S_IRUGO           , psu_vout_get              , NULL                      , PSU3_VOUT);
+ static SENSOR_DEVICE_ATTR(psu4_vout                , S_IRUGO           , psu_vout_get              , NULL                      , PSU4_VOUT);
+ static SENSOR_DEVICE_ATTR(psu1_iout                , S_IRUGO           , psu_iout_get              , NULL                      , PSU1_IOUT);
+ static SENSOR_DEVICE_ATTR(psu2_iout                , S_IRUGO           , psu_iout_get              , NULL                      , PSU2_IOUT);
+ static SENSOR_DEVICE_ATTR(psu3_iout                , S_IRUGO           , psu_iout_get              , NULL                      , PSU3_IOUT);
+ static SENSOR_DEVICE_ATTR(psu4_iout                , S_IRUGO           , psu_iout_get              , NULL                      , PSU4_IOUT);
+ static SENSOR_DEVICE_ATTR(psu1_temp                , S_IRUGO           , psu_temp_get              , NULL                      , PSU1_TEMP);
+ static SENSOR_DEVICE_ATTR(psu2_temp                , S_IRUGO           , psu_temp_get              , NULL                      , PSU2_TEMP);
+ static SENSOR_DEVICE_ATTR(psu3_temp                , S_IRUGO           , psu_temp_get              , NULL                      , PSU3_TEMP);
+ static SENSOR_DEVICE_ATTR(psu4_temp                , S_IRUGO           , psu_temp_get              , NULL                      , PSU4_TEMP);
+ static SENSOR_DEVICE_ATTR(psu1_fan_speed           , S_IRUGO           , psu_fan_get               , NULL                      , PSU1_FAN_SPEED);
+ static SENSOR_DEVICE_ATTR(psu2_fan_speed           , S_IRUGO           , psu_fan_get               , NULL                      , PSU2_FAN_SPEED);
+ static SENSOR_DEVICE_ATTR(psu3_fan_speed           , S_IRUGO           , psu_fan_get               , NULL                      , PSU3_FAN_SPEED);
+ static SENSOR_DEVICE_ATTR(psu4_fan_speed           , S_IRUGO           , psu_fan_get               , NULL                      , PSU4_FAN_SPEED);
+ static SENSOR_DEVICE_ATTR(psu1_pout                , S_IRUGO           , psu_pout_get              , NULL                      , PSU1_POUT);
+ static SENSOR_DEVICE_ATTR(psu2_pout                , S_IRUGO           , psu_pout_get              , NULL                      , PSU2_POUT);
+ static SENSOR_DEVICE_ATTR(psu3_pout                , S_IRUGO           , psu_pout_get              , NULL                      , PSU3_POUT);
+ static SENSOR_DEVICE_ATTR(psu4_pout                , S_IRUGO           , psu_pout_get              , NULL                      , PSU4_POUT);
+ static SENSOR_DEVICE_ATTR(psu1_pin                 , S_IRUGO           , psu_pin_get               , NULL                      , PSU1_PIN);
+ static SENSOR_DEVICE_ATTR(psu2_pin                 , S_IRUGO           , psu_pin_get               , NULL                      , PSU2_PIN);
+ static SENSOR_DEVICE_ATTR(psu3_pin                 , S_IRUGO           , psu_pin_get               , NULL                      , PSU3_PIN);
+ static SENSOR_DEVICE_ATTR(psu4_pin                 , S_IRUGO           , psu_pin_get               , NULL                      , PSU4_PIN);
+ static SENSOR_DEVICE_ATTR(psu1_mfr_model           , S_IRUGO           , psu_mfr_model_get         , NULL                      , PSU1_MFR_MODEL);
+ static SENSOR_DEVICE_ATTR(psu2_mfr_model           , S_IRUGO           , psu_mfr_model_get         , NULL                      , PSU2_MFR_MODEL);
+ static SENSOR_DEVICE_ATTR(psu3_mfr_model           , S_IRUGO           , psu_mfr_model_get         , NULL                      , PSU3_MFR_MODEL);
+ static SENSOR_DEVICE_ATTR(psu4_mfr_model           , S_IRUGO           , psu_mfr_model_get         , NULL                      , PSU4_MFR_MODEL);
+ static SENSOR_DEVICE_ATTR(psu1_mfr_iout_max        , S_IRUGO           , psu_iout_max_get          , NULL                      , PSU1_MFR_IOUT_MAX);
+ static SENSOR_DEVICE_ATTR(psu2_mfr_iout_max        , S_IRUGO           , psu_iout_max_get          , NULL                      , PSU2_MFR_IOUT_MAX);
+ static SENSOR_DEVICE_ATTR(psu3_mfr_iout_max        , S_IRUGO           , psu_iout_max_get          , NULL                      , PSU3_MFR_IOUT_MAX);
+ static SENSOR_DEVICE_ATTR(psu4_mfr_iout_max        , S_IRUGO           , psu_iout_max_get          , NULL                      , PSU4_MFR_IOUT_MAX);
+ static SENSOR_DEVICE_ATTR(psu1_vmode               , S_IRUGO           , psu_vmode_get             , NULL                      , PSU1_VMODE);
+ static SENSOR_DEVICE_ATTR(psu2_vmode               , S_IRUGO           , psu_vmode_get             , NULL                      , PSU2_VMODE);
+ static SENSOR_DEVICE_ATTR(psu3_vmode               , S_IRUGO           , psu_vmode_get             , NULL                      , PSU3_VMODE);
+ static SENSOR_DEVICE_ATTR(psu4_vmode               , S_IRUGO           , psu_vmode_get             , NULL                      , PSU4_VMODE);
+ static SENSOR_DEVICE_ATTR(dc_6e_p0_vout            , S_IRUGO           , dc_vout_get               , NULL                      , DC_6E_P0_VOUT);        
+ static SENSOR_DEVICE_ATTR(dc_70_p0_vout            , S_IRUGO           , dc_vout_get               , NULL                      , DC_70_P0_VOUT); 
+ static SENSOR_DEVICE_ATTR(dc_70_p1_vout            , S_IRUGO           , dc_vout_get               , NULL                      , DC_70_P1_VOUT); 
+ static SENSOR_DEVICE_ATTR(dc_6e_p0_iout            , S_IRUGO           , dc_iout_get               , NULL                      , DC_6E_P0_IOUT);
+ static SENSOR_DEVICE_ATTR(dc_70_p0_iout            , S_IRUGO           , dc_iout_get               , NULL                      , DC_70_P0_IOUT);
+ static SENSOR_DEVICE_ATTR(dc_70_p1_iout            , S_IRUGO           , dc_iout_get               , NULL                      , DC_70_P1_IOUT);
+ static SENSOR_DEVICE_ATTR(dc_6e_p0_pout            , S_IRUGO           , dc_pout_get               , NULL                      , DC_6E_P0_POUT);
+ static SENSOR_DEVICE_ATTR(dc_70_p0_pout            , S_IRUGO           , dc_pout_get               , NULL                      , DC_70_P0_POUT);
+ static SENSOR_DEVICE_ATTR(dc_70_p1_pout            , S_IRUGO           , dc_pout_get               , NULL                      , DC_70_P1_POUT);
+ static SENSOR_DEVICE_ATTR(card_1_dc_11_p0_vout     , S_IRUGO           , dc_11_p0_vout_get         , NULL                      , CARD_1_DC_11_P0_VOUT);
+ static SENSOR_DEVICE_ATTR(card_2_dc_11_p0_vout     , S_IRUGO           , dc_11_p0_vout_get         , NULL                      , CARD_2_DC_11_P0_VOUT);
+ static SENSOR_DEVICE_ATTR(card_3_dc_11_p0_vout     , S_IRUGO           , dc_11_p0_vout_get         , NULL                      , CARD_3_DC_11_P0_VOUT);
+ static SENSOR_DEVICE_ATTR(card_4_dc_11_p0_vout     , S_IRUGO           , dc_11_p0_vout_get         , NULL                      , CARD_4_DC_11_P0_VOUT);
+ static SENSOR_DEVICE_ATTR(card_5_dc_11_p0_vout     , S_IRUGO           , dc_11_p0_vout_get         , NULL                      , CARD_5_DC_11_P0_VOUT);
+ static SENSOR_DEVICE_ATTR(card_6_dc_11_p0_vout     , S_IRUGO           , dc_11_p0_vout_get         , NULL                      , CARD_6_DC_11_P0_VOUT);
+ static SENSOR_DEVICE_ATTR(card_7_dc_11_p0_vout     , S_IRUGO           , dc_11_p0_vout_get         , NULL                      , CARD_7_DC_11_P0_VOUT);
+ static SENSOR_DEVICE_ATTR(card_8_dc_11_p0_vout     , S_IRUGO           , dc_11_p0_vout_get         , NULL                      , CARD_8_DC_11_P0_VOUT);
+ static SENSOR_DEVICE_ATTR(card_1_dc_11_p1_vout     , S_IRUGO           , dc_11_p1_vout_get         , NULL                      , CARD_1_DC_11_P1_VOUT);
+ static SENSOR_DEVICE_ATTR(card_2_dc_11_p1_vout     , S_IRUGO           , dc_11_p1_vout_get         , NULL                      , CARD_2_DC_11_P1_VOUT);
+ static SENSOR_DEVICE_ATTR(card_3_dc_11_p1_vout     , S_IRUGO           , dc_11_p1_vout_get         , NULL                      , CARD_3_DC_11_P1_VOUT);
+ static SENSOR_DEVICE_ATTR(card_4_dc_11_p1_vout     , S_IRUGO           , dc_11_p1_vout_get         , NULL                      , CARD_4_DC_11_P1_VOUT);
+ static SENSOR_DEVICE_ATTR(card_5_dc_11_p1_vout     , S_IRUGO           , dc_11_p1_vout_get         , NULL                      , CARD_5_DC_11_P1_VOUT);
+ static SENSOR_DEVICE_ATTR(card_6_dc_11_p1_vout     , S_IRUGO           , dc_11_p1_vout_get         , NULL                      , CARD_6_DC_11_P1_VOUT);
+ static SENSOR_DEVICE_ATTR(card_7_dc_11_p1_vout     , S_IRUGO           , dc_11_p1_vout_get         , NULL                      , CARD_7_DC_11_P1_VOUT);
+ static SENSOR_DEVICE_ATTR(card_8_dc_11_p1_vout     , S_IRUGO           , dc_11_p1_vout_get         , NULL                      , CARD_8_DC_11_P1_VOUT);
+ static SENSOR_DEVICE_ATTR(card_1_dc_12_p0_vout     , S_IRUGO           , dc_12_p0_vout_get         , NULL                      , CARD_1_DC_12_P0_VOUT);
+ static SENSOR_DEVICE_ATTR(card_2_dc_12_p0_vout     , S_IRUGO           , dc_12_p0_vout_get         , NULL                      , CARD_2_DC_12_P0_VOUT);
+ static SENSOR_DEVICE_ATTR(card_3_dc_12_p0_vout     , S_IRUGO           , dc_12_p0_vout_get         , NULL                      , CARD_3_DC_12_P0_VOUT);
+ static SENSOR_DEVICE_ATTR(card_4_dc_12_p0_vout     , S_IRUGO           , dc_12_p0_vout_get         , NULL                      , CARD_4_DC_12_P0_VOUT);
+ static SENSOR_DEVICE_ATTR(card_5_dc_12_p0_vout     , S_IRUGO           , dc_12_p0_vout_get         , NULL                      , CARD_5_DC_12_P0_VOUT);
+ static SENSOR_DEVICE_ATTR(card_6_dc_12_p0_vout     , S_IRUGO           , dc_12_p0_vout_get         , NULL                      , CARD_6_DC_12_P0_VOUT);
+ static SENSOR_DEVICE_ATTR(card_7_dc_12_p0_vout     , S_IRUGO           , dc_12_p0_vout_get         , NULL                      , CARD_7_DC_12_P0_VOUT);
+ static SENSOR_DEVICE_ATTR(card_8_dc_12_p0_vout     , S_IRUGO           , dc_12_p0_vout_get         , NULL                      , CARD_8_DC_12_P0_VOUT);
+ static SENSOR_DEVICE_ATTR(card_1_dc_12_p1_vout     , S_IRUGO           , dc_12_p1_vout_get         , NULL                      , CARD_1_DC_12_P1_VOUT);
+ static SENSOR_DEVICE_ATTR(card_2_dc_12_p1_vout     , S_IRUGO           , dc_12_p1_vout_get         , NULL                      , CARD_2_DC_12_P1_VOUT);
+ static SENSOR_DEVICE_ATTR(card_3_dc_12_p1_vout     , S_IRUGO           , dc_12_p1_vout_get         , NULL                      , CARD_3_DC_12_P1_VOUT);
+ static SENSOR_DEVICE_ATTR(card_4_dc_12_p1_vout     , S_IRUGO           , dc_12_p1_vout_get         , NULL                      , CARD_4_DC_12_P1_VOUT);
+ static SENSOR_DEVICE_ATTR(card_5_dc_12_p1_vout     , S_IRUGO           , dc_12_p1_vout_get         , NULL                      , CARD_5_DC_12_P1_VOUT);
+ static SENSOR_DEVICE_ATTR(card_6_dc_12_p1_vout     , S_IRUGO           , dc_12_p1_vout_get         , NULL                      , CARD_6_DC_12_P1_VOUT);
+ static SENSOR_DEVICE_ATTR(card_7_dc_12_p1_vout     , S_IRUGO           , dc_12_p1_vout_get         , NULL                      , CARD_7_DC_12_P1_VOUT);
+ static SENSOR_DEVICE_ATTR(card_8_dc_12_p1_vout     , S_IRUGO           , dc_12_p1_vout_get         , NULL                      , CARD_8_DC_12_P1_VOUT);
+ static SENSOR_DEVICE_ATTR(card_1_dc_13_p0_vout     , S_IRUGO           , dc_13_p0_vout_get         , NULL                      , CARD_1_DC_13_P0_VOUT);
+ static SENSOR_DEVICE_ATTR(card_2_dc_13_p0_vout     , S_IRUGO           , dc_13_p0_vout_get         , NULL                      , CARD_2_DC_13_P0_VOUT);
+ static SENSOR_DEVICE_ATTR(card_3_dc_13_p0_vout     , S_IRUGO           , dc_13_p0_vout_get         , NULL                      , CARD_3_DC_13_P0_VOUT);
+ static SENSOR_DEVICE_ATTR(card_4_dc_13_p0_vout     , S_IRUGO           , dc_13_p0_vout_get         , NULL                      , CARD_4_DC_13_P0_VOUT);
+ static SENSOR_DEVICE_ATTR(card_5_dc_13_p0_vout     , S_IRUGO           , dc_13_p0_vout_get         , NULL                      , CARD_5_DC_13_P0_VOUT);
+ static SENSOR_DEVICE_ATTR(card_6_dc_13_p0_vout     , S_IRUGO           , dc_13_p0_vout_get         , NULL                      , CARD_6_DC_13_P0_VOUT);
+ static SENSOR_DEVICE_ATTR(card_7_dc_13_p0_vout     , S_IRUGO           , dc_13_p0_vout_get         , NULL                      , CARD_7_DC_13_P0_VOUT);
+ static SENSOR_DEVICE_ATTR(card_8_dc_13_p0_vout     , S_IRUGO           , dc_13_p0_vout_get         , NULL                      , CARD_8_DC_13_P0_VOUT);
+ static SENSOR_DEVICE_ATTR(card_1_dc_13_p1_vout     , S_IRUGO           , dc_13_p1_vout_get         , NULL                      , CARD_1_DC_13_P1_VOUT);
+ static SENSOR_DEVICE_ATTR(card_2_dc_13_p1_vout     , S_IRUGO           , dc_13_p1_vout_get         , NULL                      , CARD_2_DC_13_P1_VOUT);
+ static SENSOR_DEVICE_ATTR(card_3_dc_13_p1_vout     , S_IRUGO           , dc_13_p1_vout_get         , NULL                      , CARD_3_DC_13_P1_VOUT);
+ static SENSOR_DEVICE_ATTR(card_4_dc_13_p1_vout     , S_IRUGO           , dc_13_p1_vout_get         , NULL                      , CARD_4_DC_13_P1_VOUT);
+ static SENSOR_DEVICE_ATTR(card_5_dc_13_p1_vout     , S_IRUGO           , dc_13_p1_vout_get         , NULL                      , CARD_5_DC_13_P1_VOUT);
+ static SENSOR_DEVICE_ATTR(card_6_dc_13_p1_vout     , S_IRUGO           , dc_13_p1_vout_get         , NULL                      , CARD_6_DC_13_P1_VOUT);
+ static SENSOR_DEVICE_ATTR(card_7_dc_13_p1_vout     , S_IRUGO           , dc_13_p1_vout_get         , NULL                      , CARD_7_DC_13_P1_VOUT);
+ static SENSOR_DEVICE_ATTR(card_8_dc_13_p1_vout     , S_IRUGO           , dc_13_p1_vout_get         , NULL                      , CARD_8_DC_13_P1_VOUT);
+ static SENSOR_DEVICE_ATTR(card_1_dc_11_p0_iout     , S_IRUGO           , dc_11_p0_iout_get         , NULL                      , CARD_1_DC_11_P0_IOUT);
+ static SENSOR_DEVICE_ATTR(card_2_dc_11_p0_iout     , S_IRUGO           , dc_11_p0_iout_get         , NULL                      , CARD_2_DC_11_P0_IOUT);
+ static SENSOR_DEVICE_ATTR(card_3_dc_11_p0_iout     , S_IRUGO           , dc_11_p0_iout_get         , NULL                      , CARD_3_DC_11_P0_IOUT);
+ static SENSOR_DEVICE_ATTR(card_4_dc_11_p0_iout     , S_IRUGO           , dc_11_p0_iout_get         , NULL                      , CARD_4_DC_11_P0_IOUT);
+ static SENSOR_DEVICE_ATTR(card_5_dc_11_p0_iout     , S_IRUGO           , dc_11_p0_iout_get         , NULL                      , CARD_5_DC_11_P0_IOUT);
+ static SENSOR_DEVICE_ATTR(card_6_dc_11_p0_iout     , S_IRUGO           , dc_11_p0_iout_get         , NULL                      , CARD_6_DC_11_P0_IOUT);
+ static SENSOR_DEVICE_ATTR(card_7_dc_11_p0_iout     , S_IRUGO           , dc_11_p0_iout_get         , NULL                      , CARD_7_DC_11_P0_IOUT);
+ static SENSOR_DEVICE_ATTR(card_8_dc_11_p0_iout     , S_IRUGO           , dc_11_p0_iout_get         , NULL                      , CARD_8_DC_11_P0_IOUT);
+ static SENSOR_DEVICE_ATTR(card_1_dc_11_p1_iout     , S_IRUGO           , dc_11_p1_iout_get         , NULL                      , CARD_1_DC_11_P1_IOUT);
+ static SENSOR_DEVICE_ATTR(card_2_dc_11_p1_iout     , S_IRUGO           , dc_11_p1_iout_get         , NULL                      , CARD_2_DC_11_P1_IOUT);
+ static SENSOR_DEVICE_ATTR(card_3_dc_11_p1_iout     , S_IRUGO           , dc_11_p1_iout_get         , NULL                      , CARD_3_DC_11_P1_IOUT);
+ static SENSOR_DEVICE_ATTR(card_4_dc_11_p1_iout     , S_IRUGO           , dc_11_p1_iout_get         , NULL                      , CARD_4_DC_11_P1_IOUT);
+ static SENSOR_DEVICE_ATTR(card_5_dc_11_p1_iout     , S_IRUGO           , dc_11_p1_iout_get         , NULL                      , CARD_5_DC_11_P1_IOUT);
+ static SENSOR_DEVICE_ATTR(card_6_dc_11_p1_iout     , S_IRUGO           , dc_11_p1_iout_get         , NULL                      , CARD_6_DC_11_P1_IOUT);
+ static SENSOR_DEVICE_ATTR(card_7_dc_11_p1_iout     , S_IRUGO           , dc_11_p1_iout_get         , NULL                      , CARD_7_DC_11_P1_IOUT);
+ static SENSOR_DEVICE_ATTR(card_8_dc_11_p1_iout     , S_IRUGO           , dc_11_p1_iout_get         , NULL                      , CARD_8_DC_11_P1_IOUT);
+ static SENSOR_DEVICE_ATTR(card_1_dc_12_p0_iout     , S_IRUGO           , dc_12_p0_iout_get         , NULL                      , CARD_1_DC_12_P0_IOUT);
+ static SENSOR_DEVICE_ATTR(card_2_dc_12_p0_iout     , S_IRUGO           , dc_12_p0_iout_get         , NULL                      , CARD_2_DC_12_P0_IOUT);
+ static SENSOR_DEVICE_ATTR(card_3_dc_12_p0_iout     , S_IRUGO           , dc_12_p0_iout_get         , NULL                      , CARD_3_DC_12_P0_IOUT);
+ static SENSOR_DEVICE_ATTR(card_4_dc_12_p0_iout     , S_IRUGO           , dc_12_p0_iout_get         , NULL                      , CARD_4_DC_12_P0_IOUT);
+ static SENSOR_DEVICE_ATTR(card_5_dc_12_p0_iout     , S_IRUGO           , dc_12_p0_iout_get         , NULL                      , CARD_5_DC_12_P0_IOUT);
+ static SENSOR_DEVICE_ATTR(card_6_dc_12_p0_iout     , S_IRUGO           , dc_12_p0_iout_get         , NULL                      , CARD_6_DC_12_P0_IOUT);
+ static SENSOR_DEVICE_ATTR(card_7_dc_12_p0_iout     , S_IRUGO           , dc_12_p0_iout_get         , NULL                      , CARD_7_DC_12_P0_IOUT);
+ static SENSOR_DEVICE_ATTR(card_8_dc_12_p0_iout     , S_IRUGO           , dc_12_p0_iout_get         , NULL                      , CARD_8_DC_12_P0_IOUT);
+ static SENSOR_DEVICE_ATTR(card_1_dc_12_p1_iout     , S_IRUGO           , dc_12_p1_iout_get         , NULL                      , CARD_1_DC_12_P1_IOUT);
+ static SENSOR_DEVICE_ATTR(card_2_dc_12_p1_iout     , S_IRUGO           , dc_12_p1_iout_get         , NULL                      , CARD_2_DC_12_P1_IOUT);
+ static SENSOR_DEVICE_ATTR(card_3_dc_12_p1_iout     , S_IRUGO           , dc_12_p1_iout_get         , NULL                      , CARD_3_DC_12_P1_IOUT);
+ static SENSOR_DEVICE_ATTR(card_4_dc_12_p1_iout     , S_IRUGO           , dc_12_p1_iout_get         , NULL                      , CARD_4_DC_12_P1_IOUT);
+ static SENSOR_DEVICE_ATTR(card_5_dc_12_p1_iout     , S_IRUGO           , dc_12_p1_iout_get         , NULL                      , CARD_5_DC_12_P1_IOUT);
+ static SENSOR_DEVICE_ATTR(card_6_dc_12_p1_iout     , S_IRUGO           , dc_12_p1_iout_get         , NULL                      , CARD_6_DC_12_P1_IOUT);
+ static SENSOR_DEVICE_ATTR(card_7_dc_12_p1_iout     , S_IRUGO           , dc_12_p1_iout_get         , NULL                      , CARD_7_DC_12_P1_IOUT);
+ static SENSOR_DEVICE_ATTR(card_8_dc_12_p1_iout     , S_IRUGO           , dc_12_p1_iout_get         , NULL                      , CARD_8_DC_12_P1_IOUT);
+ static SENSOR_DEVICE_ATTR(card_1_dc_13_p0_iout     , S_IRUGO           , dc_13_p0_iout_get         , NULL                      , CARD_1_DC_13_P0_IOUT);
+ static SENSOR_DEVICE_ATTR(card_2_dc_13_p0_iout     , S_IRUGO           , dc_13_p0_iout_get         , NULL                      , CARD_2_DC_13_P0_IOUT);
+ static SENSOR_DEVICE_ATTR(card_3_dc_13_p0_iout     , S_IRUGO           , dc_13_p0_iout_get         , NULL                      , CARD_3_DC_13_P0_IOUT);
+ static SENSOR_DEVICE_ATTR(card_4_dc_13_p0_iout     , S_IRUGO           , dc_13_p0_iout_get         , NULL                      , CARD_4_DC_13_P0_IOUT);
+ static SENSOR_DEVICE_ATTR(card_5_dc_13_p0_iout     , S_IRUGO           , dc_13_p0_iout_get         , NULL                      , CARD_5_DC_13_P0_IOUT);
+ static SENSOR_DEVICE_ATTR(card_6_dc_13_p0_iout     , S_IRUGO           , dc_13_p0_iout_get         , NULL                      , CARD_6_DC_13_P0_IOUT);
+ static SENSOR_DEVICE_ATTR(card_7_dc_13_p0_iout     , S_IRUGO           , dc_13_p0_iout_get         , NULL                      , CARD_7_DC_13_P0_IOUT);
+ static SENSOR_DEVICE_ATTR(card_8_dc_13_p0_iout     , S_IRUGO           , dc_13_p0_iout_get         , NULL                      , CARD_8_DC_13_P0_IOUT);
+ static SENSOR_DEVICE_ATTR(card_1_dc_13_p1_iout     , S_IRUGO           , dc_13_p1_iout_get         , NULL                      , CARD_1_DC_13_P1_IOUT);
+ static SENSOR_DEVICE_ATTR(card_2_dc_13_p1_iout     , S_IRUGO           , dc_13_p1_iout_get         , NULL                      , CARD_2_DC_13_P1_IOUT);
+ static SENSOR_DEVICE_ATTR(card_3_dc_13_p1_iout     , S_IRUGO           , dc_13_p1_iout_get         , NULL                      , CARD_3_DC_13_P1_IOUT);
+ static SENSOR_DEVICE_ATTR(card_4_dc_13_p1_iout     , S_IRUGO           , dc_13_p1_iout_get         , NULL                      , CARD_4_DC_13_P1_IOUT);
+ static SENSOR_DEVICE_ATTR(card_5_dc_13_p1_iout     , S_IRUGO           , dc_13_p1_iout_get         , NULL                      , CARD_5_DC_13_P1_IOUT);
+ static SENSOR_DEVICE_ATTR(card_6_dc_13_p1_iout     , S_IRUGO           , dc_13_p1_iout_get         , NULL                      , CARD_6_DC_13_P1_IOUT);
+ static SENSOR_DEVICE_ATTR(card_7_dc_13_p1_iout     , S_IRUGO           , dc_13_p1_iout_get         , NULL                      , CARD_7_DC_13_P1_IOUT);
+ static SENSOR_DEVICE_ATTR(card_8_dc_13_p1_iout     , S_IRUGO           , dc_13_p1_iout_get         , NULL                      , CARD_8_DC_13_P1_IOUT);
 /* end of sysfs attributes for SENSOR_DEVICE_ATTR */
 
 /* sysfs attributes for hwmon */
+/* i2c-0 */
 static struct attribute *ESC600_SYS_attributes[] =
 {
-#ifdef ESC_600_BMC_WANTED
+    &sensor_dev_attr_cpld_30_ver.dev_attr.attr,
+    &sensor_dev_attr_cpld_31_ver.dev_attr.attr,
+    &sensor_dev_attr_cpld_33_ver.dev_attr.attr,
+    &sensor_dev_attr_wdt_en.dev_attr.attr,
+    &sensor_dev_attr_eeprom_wp.dev_attr.attr,
+    &sensor_dev_attr_usb_en.dev_attr.attr,
+    &sensor_dev_attr_shutdown_set.dev_attr.attr,
+    &sensor_dev_attr_reset.dev_attr.attr,
     &sensor_dev_attr_bmc_present.dev_attr.attr,
-#endif /*ESC_600_BMC_WANTED*/
-    &sensor_dev_attr_cpld_version.dev_attr.attr,
-#ifdef WDT_CTRL_WANTED
-    &sensor_dev_attr_wdt_ctrl.dev_attr.attr,
-#endif
-#ifdef EEPROM_WP_WANTED
-    &sensor_dev_attr_eeprom_wp_ctrl.dev_attr.attr,
-#endif
-    NULL
-};
-static struct attribute *ESC600_PSU_attributes[] =
-{
-    &sensor_dev_attr_psu_present.dev_attr.attr,
-    &sensor_dev_attr_psu_status.dev_attr.attr,
-#ifdef ESC_600_BMC_WANTED
-    &sensor_dev_attr_psu_module_1.dev_attr.attr,
-    &sensor_dev_attr_psu_module_2.dev_attr.attr,
-    &sensor_dev_attr_psu_module_3.dev_attr.attr,
-    &sensor_dev_attr_psu_module_4.dev_attr.attr,
-    &sensor_dev_attr_dc_chip_switch.dev_attr.attr,
-    &sensor_dev_attr_dc_chip_slot_1.dev_attr.attr,
-    &sensor_dev_attr_dc_chip_slot_2.dev_attr.attr,
-    &sensor_dev_attr_dc_chip_slot_3.dev_attr.attr,
-    &sensor_dev_attr_dc_chip_slot_4.dev_attr.attr,
-    &sensor_dev_attr_dc_chip_slot_5.dev_attr.attr,
-    &sensor_dev_attr_dc_chip_slot_6.dev_attr.attr,
-    &sensor_dev_attr_dc_chip_slot_7.dev_attr.attr,
-    &sensor_dev_attr_dc_chip_slot_8.dev_attr.attr,
-#endif /*ESC_600_BMC_WANTED*/
-    NULL
-};
-
-#ifdef ESC_600_JTAG_WANTED
-static struct attribute *ESC600_JTAG_attributes[] =
-{
-    &sensor_dev_attr_jtag_select.dev_attr.attr,
-    NULL
-};
-#endif
-
-static struct attribute *ESC600_SFP_attributes[] =
-{
-    &sensor_dev_attr_sfp_select.dev_attr.attr,
-    &sensor_dev_attr_sfp_insert.dev_attr.attr,
-    &sensor_dev_attr_sfp_tx_disable.dev_attr.attr,
-    &sensor_dev_attr_sfp_rx_loss.dev_attr.attr,
-    NULL
-};
-
-static struct attribute *ESC600_Mask_attributes[] =
-{
-#ifdef ESC_600_STAT_WANTED
-    &sensor_dev_attr_sersor_status_mask_all.dev_attr.attr,
-    &sensor_dev_attr_sersor_status_mask_1.dev_attr.attr,
-    &sensor_dev_attr_sersor_status_mask_2.dev_attr.attr,
-    &sensor_dev_attr_sersor_status_mask_3.dev_attr.attr,
-    &sensor_dev_attr_sersor_status_mask_4.dev_attr.attr,
-    &sensor_dev_attr_sersor_status_mask_5.dev_attr.attr,
-    &sensor_dev_attr_sersor_status_mask_6.dev_attr.attr,
-#endif /*ESC_600_STAT_WANTED*/
-#ifdef ESC_600_ALARM_WANTED
-    &sensor_dev_attr_switch_alarm_mask_all.dev_attr.attr,
-    &sensor_dev_attr_switch_alarm_mask_1.dev_attr.attr,
-    &sensor_dev_attr_switch_alarm_mask_2.dev_attr.attr,
-    &sensor_dev_attr_switch_alarm_mask_3.dev_attr.attr,
-    &sensor_dev_attr_switch_alarm_mask_4.dev_attr.attr,
-#endif /*ESC_600_ALARM_WANTED*/
-#ifdef ESC_600_INT_WANTED
-    &sensor_dev_attr_sersor_int_mask_all.dev_attr.attr,
-    &sensor_dev_attr_sersor_int_mask_1.dev_attr.attr,
-    &sensor_dev_attr_sersor_int_mask_2.dev_attr.attr,
-    &sensor_dev_attr_switch_int_mask_all.dev_attr.attr,
-    &sensor_dev_attr_phy_module_ins_mask.dev_attr.attr,
-    &sensor_dev_attr_phy_module_int_mask.dev_attr.attr,
-    &sensor_dev_attr_phy_module_power_mask.dev_attr.attr,
-    &sensor_dev_attr_cpld2_int_mask.dev_attr.attr,
+    &sensor_dev_attr_sw_alert_th0.dev_attr.attr,
+    &sensor_dev_attr_sw_alert_th1.dev_attr.attr,
+    &sensor_dev_attr_sw_alert_th2.dev_attr.attr,
+    &sensor_dev_attr_sw_alert_th3.dev_attr.attr,
+    &sensor_dev_attr_sw_alert_th0_mask.dev_attr.attr,
+    &sensor_dev_attr_sw_alert_th1_mask.dev_attr.attr,
+    &sensor_dev_attr_sw_alert_th2_mask.dev_attr.attr,
+    &sensor_dev_attr_sw_alert_th3_mask.dev_attr.attr,
+    &sensor_dev_attr_cb_int.dev_attr.attr,
+    &sensor_dev_attr_sb_int.dev_attr.attr,
+    &sensor_dev_attr_cb_int_mask.dev_attr.attr,
+    &sensor_dev_attr_sb_int_mask.dev_attr.attr,
+    &sensor_dev_attr_module_reset.dev_attr.attr,
+    &sensor_dev_attr_module_1_present.dev_attr.attr,  
+    &sensor_dev_attr_module_2_present.dev_attr.attr,  
+    &sensor_dev_attr_module_3_present.dev_attr.attr,  
+    &sensor_dev_attr_module_4_present.dev_attr.attr,  
+    &sensor_dev_attr_module_5_present.dev_attr.attr,  
+    &sensor_dev_attr_module_6_present.dev_attr.attr,  
+    &sensor_dev_attr_module_7_present.dev_attr.attr,  
+    &sensor_dev_attr_module_8_present.dev_attr.attr,  
+    &sensor_dev_attr_module_1_power.dev_attr.attr,    
+    &sensor_dev_attr_module_2_power.dev_attr.attr,    
+    &sensor_dev_attr_module_3_power.dev_attr.attr,    
+    &sensor_dev_attr_module_4_power.dev_attr.attr,    
+    &sensor_dev_attr_module_5_power.dev_attr.attr,    
+    &sensor_dev_attr_module_6_power.dev_attr.attr,    
+    &sensor_dev_attr_module_7_power.dev_attr.attr,    
+    &sensor_dev_attr_module_8_power.dev_attr.attr,    
+    &sensor_dev_attr_module_1_enable.dev_attr.attr,   
+    &sensor_dev_attr_module_2_enable.dev_attr.attr,   
+    &sensor_dev_attr_module_3_enable.dev_attr.attr,   
+    &sensor_dev_attr_module_4_enable.dev_attr.attr,   
+    &sensor_dev_attr_module_5_enable.dev_attr.attr,   
+    &sensor_dev_attr_module_6_enable.dev_attr.attr,   
+    &sensor_dev_attr_module_7_enable.dev_attr.attr,   
+    &sensor_dev_attr_module_8_enable.dev_attr.attr,   
+    &sensor_dev_attr_module_ins_int.dev_attr.attr,
+    &sensor_dev_attr_module_int.dev_attr.attr,
+    &sensor_dev_attr_module_power_int.dev_attr.attr,
+    &sensor_dev_attr_ther_sensor_int.dev_attr.attr,
+    &sensor_dev_attr_io_board_int.dev_attr.attr,
+    &sensor_dev_attr_fan_error_int.dev_attr.attr,
+    &sensor_dev_attr_phy_power_int.dev_attr.attr,
+    &sensor_dev_attr_sw_power_int.dev_attr.attr,
+    &sensor_dev_attr_module_ins_int_mask.dev_attr.attr,
+    &sensor_dev_attr_module_int_mask.dev_attr.attr,
+    &sensor_dev_attr_module_pow_int_mask.dev_attr.attr,
+    &sensor_dev_attr_ther_sen_int_mask.dev_attr.attr,
     &sensor_dev_attr_io_board_int_mask.dev_attr.attr,
-    &sensor_dev_attr_fan_error_mask.dev_attr.attr,
-    &sensor_dev_attr_psu_int_mask.dev_attr.attr,
-    &sensor_dev_attr_sfp_loss_int_mask.dev_attr.attr,
-    &sensor_dev_attr_sfp_abs_int_mask.dev_attr.attr,
-#endif /*ESC_600_INT_WANTED*/
+    &sensor_dev_attr_fan_error_int_mask.dev_attr.attr,
+    &sensor_dev_attr_phy_power_int_mask.dev_attr.attr,
+    &sensor_dev_attr_sw_power_int_mask.dev_attr.attr,
+    &sensor_dev_attr_sfp_select.dev_attr.attr,
+    &sensor_dev_attr_sfp_port_tx_1.dev_attr.attr,
+    &sensor_dev_attr_sfp_port_tx_2.dev_attr.attr,
+    &sensor_dev_attr_sfp_port_tx_mgm.dev_attr.attr,
+    &sensor_dev_attr_sfp_port_1.dev_attr.attr,
+    &sensor_dev_attr_sfp_port_2.dev_attr.attr,
+    &sensor_dev_attr_sfp_port_mgm.dev_attr.attr,
+    &sensor_dev_attr_sfp_port_rx_1.dev_attr.attr,
+    &sensor_dev_attr_sfp_port_rx_2.dev_attr.attr,
+    &sensor_dev_attr_sfp_port_rx_mgm.dev_attr.attr,
+    &sensor_dev_attr_sfp_loss_int.dev_attr.attr,
+    &sensor_dev_attr_sfp_abs_int.dev_attr.attr,
+    &sensor_dev_attr_sfp_loss_mask.dev_attr.attr,
+    &sensor_dev_attr_sfp_abs_mask.dev_attr.attr,
+    &sensor_dev_attr_alert_th0_int.dev_attr.attr,       
+    &sensor_dev_attr_alert_th1_int.dev_attr.attr,       
+    &sensor_dev_attr_alert_th2_int.dev_attr.attr,       
+    &sensor_dev_attr_alert_th3_int.dev_attr.attr,       
+    &sensor_dev_attr_alert_th4_int.dev_attr.attr,       
+    &sensor_dev_attr_alert_th5_int.dev_attr.attr,       
+    &sensor_dev_attr_alert_th0_int_mask.dev_attr.attr,
+    &sensor_dev_attr_alert_th1_int_mask.dev_attr.attr,
+    &sensor_dev_attr_alert_th2_int_mask.dev_attr.attr,
+    &sensor_dev_attr_alert_th3_int_mask.dev_attr.attr,
+    &sensor_dev_attr_alert_th4_int_mask.dev_attr.attr,
+    &sensor_dev_attr_alert_th5_int_mask.dev_attr.attr,
     NULL
 };
-
-static struct attribute *ESC600_Fan_attributes[] =
-{
-    &sensor_dev_attr_fan_status.dev_attr.attr,
-    &sensor_dev_attr_fan_insert.dev_attr.attr,
-    &sensor_dev_attr_fan_power.dev_attr.attr,
-    &sensor_dev_attr_fan_direct.dev_attr.attr,
-    &sensor_dev_attr_fan_speed_rpm.dev_attr.attr,
-    NULL
-};
-
-#ifdef USB_CTRL_WANTED
-static struct attribute *ESC600_USB_attributes[] =
-{
-    &sensor_dev_attr_usb_power.dev_attr.attr,
-    NULL
-};
-#endif /*USB_CTRL_WANTED*/
-
-#ifdef LED_CTRL_WANTED
 static struct attribute *ESC600_LED_attributes[] =
 {
-
-    &sensor_dev_attr_led_ctrl.dev_attr.attr,
-    &sensor_dev_attr_sys_led.dev_attr.attr,
-    &sensor_dev_attr_switch_led_all.dev_attr.attr,
-#ifdef LED_L3_CTRL_WANTED
-    &sensor_dev_attr_switch_led_3_1.dev_attr.attr,
-    &sensor_dev_attr_switch_led_3_2.dev_attr.attr,
-    &sensor_dev_attr_switch_led_3_3.dev_attr.attr,
-    &sensor_dev_attr_switch_led_3_4.dev_attr.attr,
-#endif /*LED_L3_CTRL_WANTED*/
-    &sensor_dev_attr_switch_led_4_1.dev_attr.attr,
-    &sensor_dev_attr_switch_led_4_2.dev_attr.attr,
-    &sensor_dev_attr_switch_led_4_3.dev_attr.attr,
-    &sensor_dev_attr_switch_led_4_4.dev_attr.attr,
-    &sensor_dev_attr_switch_led_5_1.dev_attr.attr,
-    &sensor_dev_attr_switch_led_5_2.dev_attr.attr,
-    &sensor_dev_attr_switch_led_5_3.dev_attr.attr,
-    &sensor_dev_attr_switch_led_5_4.dev_attr.attr,
+    &sensor_dev_attr_led_sys.dev_attr.attr,
+    &sensor_dev_attr_led_loc.dev_attr.attr,
+    &sensor_dev_attr_led_flow.dev_attr.attr,        
+    &sensor_dev_attr_led_4_1.dev_attr.attr,
+    &sensor_dev_attr_led_4_2.dev_attr.attr,
+    &sensor_dev_attr_led_4_3.dev_attr.attr,
+    &sensor_dev_attr_led_4_4.dev_attr.attr,
+    &sensor_dev_attr_led_5_1.dev_attr.attr,
+    &sensor_dev_attr_led_5_2.dev_attr.attr,
+    &sensor_dev_attr_led_5_3.dev_attr.attr,
+    &sensor_dev_attr_led_5_4.dev_attr.attr,
+    &sensor_dev_attr_led_fiber.dev_attr.attr,
     NULL
 };
-#endif
-
-static struct attribute *ESC600_Reset_attributes[] =
+static struct attribute *ESC600_THERMAL_attributes[] =
 {
-    &sensor_dev_attr_shutdown_sys.dev_attr.attr,
-    &sensor_dev_attr_reset_sys.dev_attr.attr,
+    &sensor_dev_attr_line_card_1_up_temp.dev_attr.attr,
+    &sensor_dev_attr_line_card_2_up_temp.dev_attr.attr,
+    &sensor_dev_attr_line_card_3_up_temp.dev_attr.attr,
+    &sensor_dev_attr_line_card_4_up_temp.dev_attr.attr,
+    &sensor_dev_attr_line_card_5_up_temp.dev_attr.attr,
+    &sensor_dev_attr_line_card_6_up_temp.dev_attr.attr,
+    &sensor_dev_attr_line_card_7_up_temp.dev_attr.attr,
+    &sensor_dev_attr_line_card_8_up_temp.dev_attr.attr,
+    &sensor_dev_attr_line_card_1_dn_temp.dev_attr.attr,
+    &sensor_dev_attr_line_card_2_dn_temp.dev_attr.attr,
+    &sensor_dev_attr_line_card_3_dn_temp.dev_attr.attr,
+    &sensor_dev_attr_line_card_4_dn_temp.dev_attr.attr,
+    &sensor_dev_attr_line_card_5_dn_temp.dev_attr.attr,
+    &sensor_dev_attr_line_card_6_dn_temp.dev_attr.attr,
+    &sensor_dev_attr_line_card_7_dn_temp.dev_attr.attr,
+    &sensor_dev_attr_line_card_8_dn_temp.dev_attr.attr,
+    &sensor_dev_attr_nct7511_temp.dev_attr.attr,
+    &sensor_dev_attr_left_bot_sb_temp.dev_attr.attr,
+    &sensor_dev_attr_ctr_top_sb_temp.dev_attr.attr,
+    &sensor_dev_attr_ctr_sb_temp.dev_attr.attr,
+    &sensor_dev_attr_left_top_cb_temp.dev_attr.attr,
+    &sensor_dev_attr_ctr_cb_temp.dev_attr.attr,
+    &sensor_dev_attr_right_bot_cb_temp.dev_attr.attr,
+    &sensor_dev_attr_left_bot_cb_temp.dev_attr.attr,
+    &sensor_dev_attr_io_board_temp.dev_attr.attr,
     NULL
 };
-
-static struct attribute *ESC600_Sensor_attributes[] =
+static struct attribute *ESC600_FAN_attributes[] =
 {
-#ifdef ESC_600_STAT_WANTED
-    &sensor_dev_attr_sensor_status.dev_attr.attr,
-#endif /*ESC_600_STAT_WANTED*/
-#ifdef ESC_600_ALARM_WANTED
-    &sensor_dev_attr_switch_alarm.dev_attr.attr,
-#endif /*ESC_600_ALARM_WANTED*/
-    &sensor_dev_attr_switch_button.dev_attr.attr,
-#ifdef ESC_600_BMC_WANTED
-    &sensor_dev_attr_sensor_temp.dev_attr.attr,
-    &sensor_dev_attr_module_temp.dev_attr.attr,
-    &sensor_dev_attr_mac_temp.dev_attr.attr,
-#endif /*ESC_600_BMC_WANTED*/
-    NULL
-}; 
-
-#ifdef ESC_600_INT_WANTED
-static struct attribute *ESC600_INT_attributes[] =
-{
-    &sensor_dev_attr_sensor_int.dev_attr.attr,
-    &sensor_dev_attr_switch_int.dev_attr.attr,
-    &sensor_dev_attr_sfp_int.dev_attr.attr,
-    &sensor_dev_attr_psu_int.dev_attr.attr,
+    &sensor_dev_attr_fanctrl_mode.dev_attr.attr,
+    &sensor_dev_attr_fanctrl_rpm.dev_attr.attr,
+    &sensor_dev_attr_fan1_stat.dev_attr.attr,         
+    &sensor_dev_attr_fan2_stat.dev_attr.attr,         
+    &sensor_dev_attr_fan3_stat.dev_attr.attr,         
+    &sensor_dev_attr_fan4_stat.dev_attr.attr,         
+    &sensor_dev_attr_fan1_present.dev_attr.attr,      
+    &sensor_dev_attr_fan2_present.dev_attr.attr,      
+    &sensor_dev_attr_fan3_present.dev_attr.attr,      
+    &sensor_dev_attr_fan4_present.dev_attr.attr,      
+    &sensor_dev_attr_fan1_power.dev_attr.attr,        
+    &sensor_dev_attr_fan2_power.dev_attr.attr,        
+    &sensor_dev_attr_fan3_power.dev_attr.attr,        
+    &sensor_dev_attr_fan4_power.dev_attr.attr,        
+    &sensor_dev_attr_fan1_direct.dev_attr.attr,       
+    &sensor_dev_attr_fan2_direct.dev_attr.attr,       
+    &sensor_dev_attr_fan3_direct.dev_attr.attr,       
+    &sensor_dev_attr_fan4_direct.dev_attr.attr,       
+    &sensor_dev_attr_fan1_rpm.dev_attr.attr,         
+    &sensor_dev_attr_fan2_rpm.dev_attr.attr,         
+    &sensor_dev_attr_fan3_rpm.dev_attr.attr,         
+    &sensor_dev_attr_fan4_rpm.dev_attr.attr,   
     NULL
 };
-#endif
-
-static struct attribute *ESC600_Module_attributes[] =
+static struct attribute *ESC600_POWER_attributes[] =
 {
-    &sensor_dev_attr_module_reset.dev_attr.attr,
-    &sensor_dev_attr_module_insert.dev_attr.attr,
-    &sensor_dev_attr_module_power.dev_attr.attr,
-    &sensor_dev_attr_module_enable.dev_attr.attr,
-    &sensor_dev_attr_module_12v_status.dev_attr.attr,
+    &sensor_dev_attr_psu1_good.dev_attr.attr,          
+    &sensor_dev_attr_psu2_good.dev_attr.attr,          
+    &sensor_dev_attr_psu3_good.dev_attr.attr,          
+    &sensor_dev_attr_psu4_good.dev_attr.attr,          
+    &sensor_dev_attr_psu1_prnt.dev_attr.attr,       
+    &sensor_dev_attr_psu2_prnt.dev_attr.attr,       
+    &sensor_dev_attr_psu3_prnt.dev_attr.attr,       
+    &sensor_dev_attr_psu4_prnt.dev_attr.attr,       
+    &sensor_dev_attr_psu1_vin.dev_attr.attr,           
+    &sensor_dev_attr_psu2_vin.dev_attr.attr,           
+    &sensor_dev_attr_psu3_vin.dev_attr.attr,           
+    &sensor_dev_attr_psu4_vin.dev_attr.attr,           
+    &sensor_dev_attr_psu1_iin.dev_attr.attr,           
+    &sensor_dev_attr_psu2_iin.dev_attr.attr,           
+    &sensor_dev_attr_psu3_iin.dev_attr.attr,           
+    &sensor_dev_attr_psu4_iin.dev_attr.attr,           
+    &sensor_dev_attr_psu1_vout.dev_attr.attr,          
+    &sensor_dev_attr_psu2_vout.dev_attr.attr,          
+    &sensor_dev_attr_psu3_vout.dev_attr.attr,          
+    &sensor_dev_attr_psu4_vout.dev_attr.attr,          
+    &sensor_dev_attr_psu1_iout.dev_attr.attr,          
+    &sensor_dev_attr_psu2_iout.dev_attr.attr,          
+    &sensor_dev_attr_psu3_iout.dev_attr.attr,          
+    &sensor_dev_attr_psu4_iout.dev_attr.attr,          
+    &sensor_dev_attr_psu1_temp.dev_attr.attr,          
+    &sensor_dev_attr_psu2_temp.dev_attr.attr,          
+    &sensor_dev_attr_psu3_temp.dev_attr.attr,          
+    &sensor_dev_attr_psu4_temp.dev_attr.attr,          
+    &sensor_dev_attr_psu1_fan_speed.dev_attr.attr,          
+    &sensor_dev_attr_psu2_fan_speed.dev_attr.attr,          
+    &sensor_dev_attr_psu3_fan_speed.dev_attr.attr,          
+    &sensor_dev_attr_psu4_fan_speed.dev_attr.attr,          
+    &sensor_dev_attr_psu1_pout.dev_attr.attr,          
+    &sensor_dev_attr_psu2_pout.dev_attr.attr,          
+    &sensor_dev_attr_psu3_pout.dev_attr.attr,          
+    &sensor_dev_attr_psu4_pout.dev_attr.attr,          
+    &sensor_dev_attr_psu1_pin.dev_attr.attr,           
+    &sensor_dev_attr_psu2_pin.dev_attr.attr,           
+    &sensor_dev_attr_psu3_pin.dev_attr.attr,           
+    &sensor_dev_attr_psu4_pin.dev_attr.attr,           
+    &sensor_dev_attr_psu1_mfr_model.dev_attr.attr,
+    &sensor_dev_attr_psu2_mfr_model.dev_attr.attr,
+    &sensor_dev_attr_psu3_mfr_model.dev_attr.attr,
+    &sensor_dev_attr_psu4_mfr_model.dev_attr.attr,
+    &sensor_dev_attr_psu1_mfr_iout_max.dev_attr.attr,
+    &sensor_dev_attr_psu2_mfr_iout_max.dev_attr.attr,
+    &sensor_dev_attr_psu3_mfr_iout_max.dev_attr.attr,
+    &sensor_dev_attr_psu4_mfr_iout_max.dev_attr.attr,
+    &sensor_dev_attr_psu1_vmode.dev_attr.attr,       
+    &sensor_dev_attr_psu2_vmode.dev_attr.attr,       
+    &sensor_dev_attr_psu3_vmode.dev_attr.attr,       
+    &sensor_dev_attr_psu4_vmode.dev_attr.attr,       
+    &sensor_dev_attr_dc_6e_p0_vout.dev_attr.attr,      
+    &sensor_dev_attr_dc_70_p0_vout.dev_attr.attr,      
+    &sensor_dev_attr_dc_70_p1_vout.dev_attr.attr,      
+    &sensor_dev_attr_dc_6e_p0_iout.dev_attr.attr,      
+    &sensor_dev_attr_dc_70_p0_iout.dev_attr.attr,      
+    &sensor_dev_attr_dc_70_p1_iout.dev_attr.attr,      
+    &sensor_dev_attr_dc_6e_p0_pout.dev_attr.attr,      
+    &sensor_dev_attr_dc_70_p0_pout.dev_attr.attr,      
+    &sensor_dev_attr_dc_70_p1_pout.dev_attr.attr,      
+    &sensor_dev_attr_card_1_dc_11_p0_vout.dev_attr.attr,
+    &sensor_dev_attr_card_2_dc_11_p0_vout.dev_attr.attr,
+    &sensor_dev_attr_card_3_dc_11_p0_vout.dev_attr.attr,
+    &sensor_dev_attr_card_4_dc_11_p0_vout.dev_attr.attr,
+    &sensor_dev_attr_card_5_dc_11_p0_vout.dev_attr.attr,
+    &sensor_dev_attr_card_6_dc_11_p0_vout.dev_attr.attr,
+    &sensor_dev_attr_card_7_dc_11_p0_vout.dev_attr.attr,
+    &sensor_dev_attr_card_8_dc_11_p0_vout.dev_attr.attr,
+    &sensor_dev_attr_card_1_dc_11_p1_vout.dev_attr.attr,
+    &sensor_dev_attr_card_2_dc_11_p1_vout.dev_attr.attr,
+    &sensor_dev_attr_card_3_dc_11_p1_vout.dev_attr.attr,
+    &sensor_dev_attr_card_4_dc_11_p1_vout.dev_attr.attr,
+    &sensor_dev_attr_card_5_dc_11_p1_vout.dev_attr.attr,
+    &sensor_dev_attr_card_6_dc_11_p1_vout.dev_attr.attr,
+    &sensor_dev_attr_card_7_dc_11_p1_vout.dev_attr.attr,
+    &sensor_dev_attr_card_8_dc_11_p1_vout.dev_attr.attr,
+    &sensor_dev_attr_card_1_dc_12_p0_vout.dev_attr.attr,
+    &sensor_dev_attr_card_2_dc_12_p0_vout.dev_attr.attr,
+    &sensor_dev_attr_card_3_dc_12_p0_vout.dev_attr.attr,
+    &sensor_dev_attr_card_4_dc_12_p0_vout.dev_attr.attr,
+    &sensor_dev_attr_card_5_dc_12_p0_vout.dev_attr.attr,
+    &sensor_dev_attr_card_6_dc_12_p0_vout.dev_attr.attr,
+    &sensor_dev_attr_card_7_dc_12_p0_vout.dev_attr.attr,
+    &sensor_dev_attr_card_8_dc_12_p0_vout.dev_attr.attr,
+    &sensor_dev_attr_card_1_dc_12_p1_vout.dev_attr.attr,
+    &sensor_dev_attr_card_2_dc_12_p1_vout.dev_attr.attr,
+    &sensor_dev_attr_card_3_dc_12_p1_vout.dev_attr.attr,
+    &sensor_dev_attr_card_4_dc_12_p1_vout.dev_attr.attr,
+    &sensor_dev_attr_card_5_dc_12_p1_vout.dev_attr.attr,
+    &sensor_dev_attr_card_6_dc_12_p1_vout.dev_attr.attr,
+    &sensor_dev_attr_card_7_dc_12_p1_vout.dev_attr.attr,
+    &sensor_dev_attr_card_8_dc_12_p1_vout.dev_attr.attr,
+    &sensor_dev_attr_card_1_dc_13_p0_vout.dev_attr.attr,
+    &sensor_dev_attr_card_2_dc_13_p0_vout.dev_attr.attr,
+    &sensor_dev_attr_card_3_dc_13_p0_vout.dev_attr.attr,
+    &sensor_dev_attr_card_4_dc_13_p0_vout.dev_attr.attr,
+    &sensor_dev_attr_card_5_dc_13_p0_vout.dev_attr.attr,
+    &sensor_dev_attr_card_6_dc_13_p0_vout.dev_attr.attr,
+    &sensor_dev_attr_card_7_dc_13_p0_vout.dev_attr.attr,
+    &sensor_dev_attr_card_8_dc_13_p0_vout.dev_attr.attr,
+    &sensor_dev_attr_card_1_dc_13_p1_vout.dev_attr.attr,
+    &sensor_dev_attr_card_2_dc_13_p1_vout.dev_attr.attr,
+    &sensor_dev_attr_card_3_dc_13_p1_vout.dev_attr.attr,
+    &sensor_dev_attr_card_4_dc_13_p1_vout.dev_attr.attr,
+    &sensor_dev_attr_card_5_dc_13_p1_vout.dev_attr.attr,
+    &sensor_dev_attr_card_6_dc_13_p1_vout.dev_attr.attr,
+    &sensor_dev_attr_card_7_dc_13_p1_vout.dev_attr.attr,
+    &sensor_dev_attr_card_8_dc_13_p1_vout.dev_attr.attr,
+    &sensor_dev_attr_card_1_dc_11_p0_iout.dev_attr.attr,
+    &sensor_dev_attr_card_2_dc_11_p0_iout.dev_attr.attr,
+    &sensor_dev_attr_card_3_dc_11_p0_iout.dev_attr.attr,
+    &sensor_dev_attr_card_4_dc_11_p0_iout.dev_attr.attr,
+    &sensor_dev_attr_card_5_dc_11_p0_iout.dev_attr.attr,
+    &sensor_dev_attr_card_6_dc_11_p0_iout.dev_attr.attr,
+    &sensor_dev_attr_card_7_dc_11_p0_iout.dev_attr.attr,
+    &sensor_dev_attr_card_8_dc_11_p0_iout.dev_attr.attr,
+    &sensor_dev_attr_card_1_dc_11_p1_iout.dev_attr.attr,
+    &sensor_dev_attr_card_2_dc_11_p1_iout.dev_attr.attr,
+    &sensor_dev_attr_card_3_dc_11_p1_iout.dev_attr.attr,
+    &sensor_dev_attr_card_4_dc_11_p1_iout.dev_attr.attr,
+    &sensor_dev_attr_card_5_dc_11_p1_iout.dev_attr.attr,
+    &sensor_dev_attr_card_6_dc_11_p1_iout.dev_attr.attr,
+    &sensor_dev_attr_card_7_dc_11_p1_iout.dev_attr.attr,
+    &sensor_dev_attr_card_8_dc_11_p1_iout.dev_attr.attr,
+    &sensor_dev_attr_card_1_dc_12_p0_iout.dev_attr.attr,
+    &sensor_dev_attr_card_2_dc_12_p0_iout.dev_attr.attr,
+    &sensor_dev_attr_card_3_dc_12_p0_iout.dev_attr.attr,
+    &sensor_dev_attr_card_4_dc_12_p0_iout.dev_attr.attr,
+    &sensor_dev_attr_card_5_dc_12_p0_iout.dev_attr.attr,
+    &sensor_dev_attr_card_6_dc_12_p0_iout.dev_attr.attr,
+    &sensor_dev_attr_card_7_dc_12_p0_iout.dev_attr.attr,
+    &sensor_dev_attr_card_8_dc_12_p0_iout.dev_attr.attr,
+    &sensor_dev_attr_card_1_dc_12_p1_iout.dev_attr.attr,
+    &sensor_dev_attr_card_2_dc_12_p1_iout.dev_attr.attr,
+    &sensor_dev_attr_card_3_dc_12_p1_iout.dev_attr.attr,
+    &sensor_dev_attr_card_4_dc_12_p1_iout.dev_attr.attr,
+    &sensor_dev_attr_card_5_dc_12_p1_iout.dev_attr.attr,
+    &sensor_dev_attr_card_6_dc_12_p1_iout.dev_attr.attr,
+    &sensor_dev_attr_card_7_dc_12_p1_iout.dev_attr.attr,
+    &sensor_dev_attr_card_8_dc_12_p1_iout.dev_attr.attr,
+    &sensor_dev_attr_card_1_dc_13_p0_iout.dev_attr.attr,
+    &sensor_dev_attr_card_2_dc_13_p0_iout.dev_attr.attr,
+    &sensor_dev_attr_card_3_dc_13_p0_iout.dev_attr.attr,
+    &sensor_dev_attr_card_4_dc_13_p0_iout.dev_attr.attr,
+    &sensor_dev_attr_card_5_dc_13_p0_iout.dev_attr.attr,
+    &sensor_dev_attr_card_6_dc_13_p0_iout.dev_attr.attr,
+    &sensor_dev_attr_card_7_dc_13_p0_iout.dev_attr.attr,
+    &sensor_dev_attr_card_8_dc_13_p0_iout.dev_attr.attr,
+    &sensor_dev_attr_card_1_dc_13_p1_iout.dev_attr.attr,
+    &sensor_dev_attr_card_2_dc_13_p1_iout.dev_attr.attr,
+    &sensor_dev_attr_card_3_dc_13_p1_iout.dev_attr.attr,
+    &sensor_dev_attr_card_4_dc_13_p1_iout.dev_attr.attr,
+    &sensor_dev_attr_card_5_dc_13_p1_iout.dev_attr.attr,
+    &sensor_dev_attr_card_6_dc_13_p1_iout.dev_attr.attr,
+    &sensor_dev_attr_card_7_dc_13_p1_iout.dev_attr.attr,
+    &sensor_dev_attr_card_8_dc_13_p1_iout.dev_attr.attr,
     NULL
 };
 /* end of sysfs attributes for hwmon */
@@ -645,77 +1092,27 @@ static const struct attribute_group ESC600_SYS_group =
     .attrs = ESC600_SYS_attributes,
 };
 
-static const struct attribute_group ESC600_PSU_group =
-{
-    .name  = "ESC600_PSU",
-    .attrs = ESC600_PSU_attributes,
-};
-
-#ifdef ESC_600_JTAG_WANTED
-static const struct attribute_group ESC600_JTAG_group =
-{
-    .name  = "ESC600_JTAG",
-    .attrs = ESC600_JTAG_attributes,
-};
-#endif
-
-static const struct attribute_group ESC600_SFP_group =
-{
-    .name  = "ESC600_SFP",
-    .attrs = ESC600_SFP_attributes,
-};
-
-static const struct attribute_group ESC600_MASK_group =
-{
-    .name  = "ESC600_MASK",
-    .attrs = ESC600_Mask_attributes,
-};
-
-static const struct attribute_group ESC600_FAN_group =
-{
-    .name  = "ESC600_FAN",
-    .attrs = ESC600_Fan_attributes,
-};
-
-#ifdef USB_CTRL_WANTED
-static const struct attribute_group ESC600_USB_group =
-{
-    .name  = "ESC600_USB",
-    .attrs = ESC600_USB_attributes,
-};
-#endif /*USB_CTRL_WANTED*/
-
-#ifdef LED_CTRL_WANTED
 static const struct attribute_group ESC600_LED_group =
 {
     .name  = "ESC600_LED",
     .attrs = ESC600_LED_attributes,
 };
-#endif /*LED_CTRL_WANTED*/
 
-static const struct attribute_group ESC600_Reset_group =
+static const struct attribute_group ESC600_THERMAL_group =
 {
-    .name  = "ESC600_Reset",
-    .attrs = ESC600_Reset_attributes,
+    .name  = "ESC600_THERMAL",
+    .attrs = ESC600_THERMAL_attributes,
 };
 
-static const struct attribute_group ESC600_Sensor_group =
+static const struct attribute_group ESC600_FAN_group =
 {
-    .name  = "ESC600_Sensor",
-    .attrs = ESC600_Sensor_attributes,
+    .name  = "ESC600_FAN",
+    .attrs = ESC600_FAN_attributes,
 };
 
-#ifdef ESC_600_INT_WANTED
-static const struct attribute_group ESC600_INT_group =
+static const struct attribute_group ESC600_POWER_group =
 {
-    .name  = "ESC600_INT",
-    .attrs = ESC600_INT_attributes,
-};
-#endif
-
-static const struct attribute_group ESC600_Module_group =
-{
-    .name  = "ESC600_Module",
-    .attrs = ESC600_Module_attributes,
+    .name  = "ESC600_POWER",
+    .attrs = ESC600_POWER_attributes,
 };
 /* end of struct attribute_group */

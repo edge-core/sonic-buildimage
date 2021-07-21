@@ -6,11 +6,10 @@ import logging
 from multiprocessing import Process, Lock
 import time
 import subprocess
-#import BaldEagleSdk_v2_14_18 as BE214
-#import BaldEagleSdk_v2_12_00_20190715_cameo_gearbox as BE212
+# import BaldEagleSdk_v2_18 as BE218
+
 from importlib import import_module
-BE214 = import_module('esc600-128q.BaldEagleSdk_v2_14_18')
-BE212 = import_module('esc600-128q.BaldEagleSdk_v2_12_00_20190715_cameo_gearbox')
+BE218 = import_module('esc600-128q.BaldEagleSdk_v2_18')
 
 gMaxThreadNum=4
 lock1 = Lock()
@@ -34,7 +33,21 @@ def set_attr_value(attr_path,input_val):
     cmd = "echo %d > %s" %(input_val,attr_path)
     logging.debug(cmd)
     run_command(cmd)
+	
+def get_attr_value(attr_path):
+    retval = 'ERR'
+    if not os.path.isfile(attr_path):
+        return retval
+    try:
+        with open(attr_path, 'r') as fd:
+            retval = fd.read()
+    except Exception as error:
+        logging.error("Unable to open ", attr_path, " file !")
 
+    retval = retval.rstrip('\r\n')
+    fd.close()
+    return retval
+	
 def card_type_detect(card):
     
     sup_card_typed = ['Inphi 100G','Credo 100G','Inphi 400G','Credo 400G']  
@@ -72,45 +85,29 @@ def card_reset(card):
     return True;
     
 def card_power_isgood(card):
-    filepath = "/sys/class/hwmon/hwmon2/device/ESC600_Module/module_power"    
+    filepath = "/sys/class/hwmon/hwmon2/device/ESC600_SYS/module_%d_power" % card
     logging.debug(filepath)
-    status = False
     if os.path.exists(filepath):
-        with open(filepath) as fh:
-            for line in fh:
-                get_str = line.strip()
-                modulestr = "Module %d is power good" %(card)
-                val = get_str.find(modulestr);                        
-                if val != -1:
-                    logging.debug(modulestr)
-                    status = True
-                    return True,status
-            status = False
-            return True,status
-    
-    return False,status
+        val = get_attr_value(filepath)
+        if val == '1':
+            return True, True
+        else:
+            return True, False
+    return False, False
 
 def card_12v_status(card):
-    filepath = "/sys/class/hwmon/hwmon2/device/ESC600_Module/module_12v_status"    
+    filepath = "/sys/class/hwmon/hwmon2/device/ESC600_SYS/module_%d_power" % card
     logging.debug(filepath)
-    status = False
     if os.path.exists(filepath):
-        with open(filepath) as fh:
-            for line in fh:
-                get_str = line.strip()                             
-                modulestr = "Module %d 12V is enable" %(card)
-                val = get_str.find(modulestr);                        
-                if val != -1:
-                    logging.debug(modulestr)
-                    status = True
-                    return True,status
-            status = False
-            return True,status
-        
-    return False,status      
+        val = get_attr_value(filepath)
+        if val == '1':
+            return True, True
+        else:
+            return True, False
+    return False, False   
 
 def light_led(act,card):    
-    led_loc = ['switch_led_4_1', 'switch_led_4_2', 'switch_led_4_3', 'switch_led_4_4', 'switch_led_5_1','switch_led_5_2','switch_led_5_3','switch_led_5_4']    
+    led_loc = ['led_4_1', 'led_4_2', 'led_4_3', 'led_4_4', 'led_5_1','led_5_2','led_5_3','led_5_4']    
     value = 0
     lock2.acquire()
     filepath = '/sys/class/hwmon/hwmon2/device/ESC600_LED/%s'%led_loc[card-1]
@@ -138,30 +135,22 @@ def light_led(act,card):
         lock2.release()
         
 def card_inserted(card):            
-    filepath = "/sys/class/hwmon/hwmon2/device/ESC600_Module/module_insert"
+    filepath = "/sys/class/hwmon/hwmon2/device/ESC600_SYS/module_%d_present" % card
     logging.debug(filepath)
-    status = False
     if os.path.exists(filepath):
-        with open(filepath) as fh:
-            for line in fh:
-                get_str = line.strip()
-                modulestr = "Module %d is present" %(card)
-                val = get_str.find(modulestr);                        
-                if val != -1:    
-                    logging.debug(modulestr)
-                    status = True
-                    return True,status
-            status = True
-            return True,status
-        
-    return False,status
+        val = get_attr_value(filepath)
+        if val == '1':
+            return True, True
+        else:
+            return True, False
+    return False, False
         
 def job(mdio):           
     if mdio < 0 or mdio > 3:
         logging.error("MDIO [%d] out of range" % mdio) 
         return False
     CardStatus = ['NA','NA']
- 
+    FirstInitFlag = True
     while(1):   
         for i in range(2):
             card = mdio*2+i+1  
@@ -214,15 +203,18 @@ def job(mdio):
         for i in range(2):
             card = mdio*2+i+1
             if CardStatus[i]=='Initializing' :
-                init_status = False
+                if FirstInitFlag:
+                    BE218.cameo_fw_load_2_card(card)
+                    FirstInitFlag = False
+                init_status = False                
                 card_type = card_type_detect(card)
                 if card_type == 'Credo 100G':                    
                     card_reset(card)
-                    init_status = BE212.Cameo_credo100G(card)
+                    init_status = BE218.cameo_main_100G(card)
                     time.sleep(1)                     
                 elif card_type == 'Credo 400G':                    
                     card_reset(card)
-                    init_status = BE214.Cameo_credo400G(card)
+                    init_status = BE218.cameo_main_400G(card)
                     time.sleep(1)                     
                 logging.info( "Card [%d] [%s] %s" %(card,CardStatus[i],card_type) )
                 if init_status==True:                            

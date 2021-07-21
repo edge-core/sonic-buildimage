@@ -16,7 +16,7 @@ def set_attr_value(attr_path,input_val):
     cmd=''
     if not os.path.isfile(attr_path):
         return
-    cmd = "echo 0x%x > %s" %(input_val,attr_path)
+    cmd = "echo %s > %s" %(input_val,attr_path)
     run_command(cmd)
 
     
@@ -46,20 +46,18 @@ def main(card,power):
         print "Error: %s <on/off> -c <card>" %sys.argv[0]
         sys.exit(0)
     
-    filePath = '/sys/class/hwmon/hwmon2/device/ESC600_Module/module_enable'
+    filePath = '/sys/class/hwmon/hwmon2/device/ESC600_SYS/module_%d_enable'%card
     
-    card = card -1
+
     if os.path.exists(filePath):
         retval = get_attr_value(filePath)
         if retval == 'ERR':
             print "Fail to get value."
-            sys.exit(0)
-        value = int(retval[-4:],16)              
+            sys.exit(0)                   
         if power == 'on':
-            value = value | (0x1 << card)
+            value = '1'
         elif power == 'off':
-            value = value ^ (0x1 << card)
-            
+            value = '0'            
         #print "0x%x" %(value) 
         set_attr_value(filePath,value)
 

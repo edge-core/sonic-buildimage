@@ -11,5 +11,5 @@ setup(
 
        packages=['esc600-128q'],
        package_dir={'esc600-128q': 'esc600-128q/credo_baldeagle/python_wheel'},
-       package_data={'esc600-128q': 'esc600-128q/credo_baldeagle/python_wheel/*.pyc'}
+       package_data={'esc600-128q': 'esc600-128q/credo_baldeagle/python_wheel/*.py'}
     )

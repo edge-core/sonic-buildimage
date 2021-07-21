@@ -1,0 +1,36 @@
+#!/bin/bash
+
+kernel_version=$(uname -r)
+
+for i in $(seq 1 10);
+do
+    if [ -e /lib/modules/${kernel_version}/modules.dep ];then
+        wisko=$(cat /lib/modules/${kernel_version}/modules.dep | grep wistron)
+        ipdko=$(cat /lib/modules/${kernel_version}/modules.dep | grep ipd)
+        if [ "$wisko" == "" ] || [ "$ipdko" == "" ];then
+            depmod -a
+        else
+            if [ ! -e /lib/modules/${kernel_version}/modules.dep.bin ];then
+                depmod -a
+            else
+                break
+            fi
+        fi
+
+        echo "depmod -a"
+        sleep 1
+    else
+        sleep 1
+    fi
+done
+
+systemctl enable platform-modules-sw-to3200k.service
+systemctl start platform-modules-sw-to3200k.service
+systemctl enable to3200k-platform.service
+systemctl start to3200k-platform.service
+systemctl enable to3200k-led.service
+systemctl start to3200k-led.service
+systemctl enable to3200k-pld.service
+systemctl start to3200k-pld.service
+
+/usr/local/bin/platform_api_mgnt.sh install
