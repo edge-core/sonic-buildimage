@@ -28,6 +28,8 @@ parameters:
     - innovium
     - mellanox
     - nephos
+    - centec-arm64
+    - marvell-armhf
 
 stages:
 - stage: Build
