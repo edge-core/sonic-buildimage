@@ -6,3 +6,4 @@
 0006-fix-compiling-warning-about-token-dereference.patch
 0007-Add-support-for-TACACS-source-address.patch
 0008-do-not-create-or-modify-local-user-if-there-is-no-pr.patch
+0009-fix-compile-error-strncpy.patch
