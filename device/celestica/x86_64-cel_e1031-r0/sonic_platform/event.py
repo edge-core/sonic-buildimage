@@ -1,7 +1,7 @@
 try:
     import time
     import select
-    from .helper import APIHelper
+    from .common import Common
     from sonic_py_common.logger import Logger
 except ImportError as e:
     raise ImportError(repr(e) + " - required module not found")
@@ -16,12 +16,12 @@ class SfpEvent:
     GPIO_SUS7 = '/sys/devices/platform/hlx-ich.0/sci_int_gpio_sus7'
 
     def __init__(self, sfp_list):
-        self._api_helper = APIHelper()
+        self._api_common = Common()
         self._sfp_list = sfp_list
         self._logger = Logger()
-        
+
         # clear interrupt
-        self._api_helper.read_one_line_file(self.INT_PATH)
+        self._api_common.read_one_line_file(self.INT_PATH)
 
     def get_sfp_event(self, timeout):
         epoll = select.epoll()
@@ -37,7 +37,7 @@ class SfpEvent:
             events = epoll.poll(timeout=timeout_sec if timeout != 0 else -1)
             if events:
                 # Read the QSFP ABS interrupt & status registers
-                port_changes = self._api_helper.read_one_line_file(
+                port_changes = self._api_common.read_one_line_file(
                     self.INT_PATH)
                 changes = int(port_changes, 16)
                 for sfp in self._sfp_list:
@@ -48,7 +48,8 @@ class SfpEvent:
                     if change == 1:
                         time.sleep(self.DELAY)
                         port_status = sfp.get_presence()
-                        port_dict[str(sfp.port_num)] = '1' if port_status else '0'
+                        port_dict[str(sfp.port_num)
+                                  ] = '1' if port_status else '0'
 
                 return port_dict
         except Exception as e:
