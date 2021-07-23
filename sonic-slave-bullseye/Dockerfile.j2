@@ -72,6 +72,7 @@ RUN apt-get update && apt-get install -y \
         libzmq5 \
         libzmq3-dev \
         jq \
+        cron \
 # For quagga build
         libreadline-dev \
         texlive-latex-base \
@@ -398,7 +399,7 @@ RUN pip3 install setuptools==49.6.00
 RUN pip3 install wheel==0.35.1
 
 # For building sonic-utilities
-RUN pip3 install fastentrypoints
+RUN pip3 install fastentrypoints mock
 
 # For running Python unit tests
 RUN pip3 install pytest-runner==5.2
