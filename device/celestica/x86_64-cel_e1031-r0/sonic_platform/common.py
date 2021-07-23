@@ -29,7 +29,18 @@ class Common:
 
     def __init__(self, conf=None):
         self._main_conf = conf
-        (self.platform, self.hwsku) = device_info.get_platform_and_hwsku()
+        self.platform = None
+        self.hwsku = None
+
+    def get_platform(self):
+        (self.platform, self.hwsku) = device_info.get_platform_and_hwsku(
+        ) if not self.platform else (self.platform, self.hwsku)
+        return self.platform
+
+    def get_hwsku(self):
+        (self.platform, self.hwsku) = device_info.get_platform_and_hwsku(
+        ) if not self.hwsku else (self.platform, self.hwsku)
+        return self.hwsku
 
     def run_command(self, command):
         status = False
@@ -38,7 +49,7 @@ class Common:
             p = subprocess.Popen(
                 command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             raw_data, err = p.communicate()
-            if err == '':
+            if p.returncode == 0:
                 status, output = True, raw_data.strip()
         except Exception:
             pass
@@ -152,10 +163,28 @@ class Common:
         status, output = self.run_command(cmd)
         return output if status else None
 
+    def set_reg(self, path, reg_addr, value):
+        cmd = "echo {0} {1} > {2}".format(reg_addr, value, path)
+        status, output = self.run_command(cmd)
+        return output if status else None
+
     def read_txt_file(self, path):
-        with open(path, 'r') as f:
-            output = f.readline()
-        return output.strip('\n')
+        try:
+            with open(path, 'r') as f:
+                output = f.readline()
+            return output.strip('\n')
+        except Exception:
+            pass
+        return ''
+
+    def read_one_line_file(self, file_path):
+        try:
+            with open(file_path, 'r') as fd:
+                data = fd.readline()
+                return data.strip()
+        except IOError:
+            pass
+        return ''
 
     def write_txt_file(self, file_path, value):
         try:

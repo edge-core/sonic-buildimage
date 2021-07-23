@@ -4,114 +4,107 @@
 # Watchdog contains an implementation of SONiC Platform Base API
 #
 #############################################################################
-import fcntl
-import os
-import array
 
 try:
+    import os
+    import time
     from sonic_platform_base.watchdog_base import WatchdogBase
+    from .common import Common
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
-""" ioctl constants """
-IO_WRITE = 0x40000000
-IO_READ = 0x80000000
-IO_READ_WRITE = 0xC0000000
-IO_SIZE_INT = 0x00040000
-IO_SIZE_40 = 0x00280000
-IO_TYPE_WATCHDOG = ord('W') << 8
 
-WDR_INT = IO_READ | IO_SIZE_INT | IO_TYPE_WATCHDOG
-WDR_40 = IO_READ | IO_SIZE_40 | IO_TYPE_WATCHDOG
-WDWR_INT = IO_READ_WRITE | IO_SIZE_INT | IO_TYPE_WATCHDOG
-
-""" Watchdog ioctl commands """
-WDIOC_GETSUPPORT = 0 | WDR_40
-WDIOC_GETSTATUS = 1 | WDR_INT
-WDIOC_GETBOOTSTATUS = 2 | WDR_INT
-WDIOC_GETTEMP = 3 | WDR_INT
-WDIOC_SETOPTIONS = 4 | WDR_INT
-WDIOC_KEEPALIVE = 5 | WDR_INT
-WDIOC_SETTIMEOUT = 6 | WDWR_INT
-WDIOC_GETTIMEOUT = 7 | WDR_INT
-WDIOC_SETPRETIMEOUT = 8 | WDWR_INT
-WDIOC_GETPRETIMEOUT = 9 | WDR_INT
-WDIOC_GETTIMELEFT = 10 | WDR_INT
-
-""" Watchdog status constants """
-WDIOS_DISABLECARD = 0x0001
-WDIOS_ENABLECARD = 0x0002
-
+PLATFORM_CPLD_PATH = '/sys/devices/platform/e1031.smc/'
+SETREG_FILE = 'setreg'
+GETREG_FILE = 'getreg'
 WDT_COMMON_ERROR = -1
-WD_MAIN_IDENTITY = "iTCO_wdt"
-WDT_SYSFS_PATH = "/sys/class/watchdog/"
+MMC_VERSION_REG = "0x100"
+
+# watchdog infomation for cpld v06
+V06_MMC_VERSION = 0x05
+V06_WDT_WIDTH = '0x110'
+V06_WDT_WIDTH_SELECTOR = {
+    30: '0x1',
+    60: '0x2',
+    180: '0x3'
+}
+
+V06_CPLD_WDT_INFO = {
+    'wdt_en_reg': '0x111',
+    'wdt_en_cmd': '0x0',
+    'wdt_dis_cmd': '0x1'
+}
+
+# watchdog infomation
+WDT_TIMER_L_BIT_REG = '0x117'
+WDT_TIMER_M_BIT_REG = '0x118'
+WDT_TIMER_H_BIT_REG = '0x119'
+WDT_KEEP_ALVIVE_REG = '0x11a'
+
+CPLD_WDT_INFO = {
+    'wdt_en_reg': '0x116',
+    'wdt_en_cmd': '0x1',
+    'wdt_dis_cmd': '0x0'
+}
 
 
 class Watchdog(WatchdogBase):
 
     def __init__(self):
-        WatchdogBase.__init__(self)
+        # Init api_common
+        self._api_common = Common()
 
-        self.watchdog, self.wdt_main_dev_name = self._get_wdt()
-        self.status_path = "/sys/class/watchdog/%s/status" % self.wdt_main_dev_name
-        self.state_path = "/sys/class/watchdog/%s/state" % self.wdt_main_dev_name
-        self.timeout_path = "/sys/class/watchdog/%s/timeout" % self.wdt_main_dev_name
+        # Init cpld reg path
+        self.setreg_path = os.path.join(PLATFORM_CPLD_PATH, SETREG_FILE)
+        self.getreg_path = os.path.join(PLATFORM_CPLD_PATH, GETREG_FILE)
+
+        self.mmc_v = self._get_mmc_version()
+        self.cpld_info = V06_CPLD_WDT_INFO if self.mmc_v <= V06_MMC_VERSION else CPLD_WDT_INFO
+
         # Set default value
         self._disable()
         self.armed = False
-        self.timeout = self._gettimeout(self.timeout_path)
+        self.timeout = 0
 
-    def _is_wd_main(self, dev):
-        """
-        Checks watchdog identity
-        """
-        identity = self._read_file(
-            "{}/{}/identity".format(WDT_SYSFS_PATH, dev))
-        return identity == WD_MAIN_IDENTITY
+    def _get_mmc_version(self):
+        hex_str_v = self._api_common.get_reg(self.getreg_path, MMC_VERSION_REG)
+        return int(hex_str_v, 16)
 
-    def _get_wdt(self):
-        """
-        Retrieves watchdog device
-        """
-        wdt_main_dev_list = [dev for dev in os.listdir(
-            "/dev/") if dev.startswith("watchdog") and self._is_wd_main(dev)]
-        if not wdt_main_dev_list:
-            return None
-        wdt_main_dev_name = wdt_main_dev_list[0]
-        watchdog_device_path = "/dev/{}".format(wdt_main_dev_name)
-        watchdog = os.open(watchdog_device_path, os.O_RDWR)
-        return watchdog, wdt_main_dev_name
+    def _get_level_hex(self, sub_hex):
+        sub_hex_str = sub_hex.replace("x", "0")
+        return hex(int(sub_hex_str, 16))
 
-    def _read_file(self, file_path):
-        """
-        Read text file
-        """
-        try:
-            with open(file_path, "r") as fd:
-                txt = fd.read()
-        except IOError:
-            return WDT_COMMON_ERROR
-        return txt.strip()
+    def _seconds_to_lmh_hex(self, seconds):
+        ms = seconds*1000  # calculate timeout in ms format
+        hex_str = hex(ms)
+        l = self._get_level_hex(hex_str[-2:])
+        m = self._get_level_hex(hex_str[-4:-2])
+        h = self._get_level_hex(hex_str[-6:-4])
+        return (l, m, h)
 
     def _enable(self):
         """
         Turn on the watchdog timer
         """
-        req = array.array('h', [WDIOS_ENABLECARD])
-        fcntl.ioctl(self.watchdog, WDIOC_SETOPTIONS, req, False)
+        return self._api_common.set_reg(self.setreg_path, self.cpld_info['wdt_en_reg'], self.cpld_info['wdt_en_cmd'])
 
     def _disable(self):
         """
         Turn off the watchdog timer
         """
-        req = array.array('h', [WDIOS_DISABLECARD])
-        fcntl.ioctl(self.watchdog, WDIOC_SETOPTIONS, req, False)
+        return self._api_common.set_reg(self.setreg_path, self.cpld_info['wdt_en_reg'], self.cpld_info['wdt_dis_cmd'])
 
     def _keepalive(self):
         """
         Keep alive watchdog timer
         """
-        fcntl.ioctl(self.watchdog, WDIOC_KEEPALIVE)
+        if self.mmc_v <= V06_MMC_VERSION:
+            self._disable()
+            self._enable()
+
+        else:
+            self._api_common.set_reg(
+                self.setreg_path, WDT_KEEP_ALVIVE_REG, self.cpld_info['wdt_en_cmd'])
 
     def _settimeout(self, seconds):
         """
@@ -119,29 +112,23 @@ class Watchdog(WatchdogBase):
         @param seconds - timeout in seconds
         @return is the actual set timeout
         """
-        req = array.array('I', [seconds])
-        fcntl.ioctl(self.watchdog, WDIOC_SETTIMEOUT, req, True)
-        return int(req[0])
 
-    def _gettimeout(self, timeout_path):
-        """
-        Get watchdog timeout
-        @return watchdog timeout
-        """
-        req = array.array('I', [0])
-        fcntl.ioctl(self.watchdog, WDIOC_GETTIMEOUT, req, True)
+        if self.mmc_v <= V06_MMC_VERSION:
+            timeout_hex = V06_WDT_WIDTH_SELECTOR.get(seconds, '0x2')
+            seconds = 60 if timeout_hex == '0x2' else seconds
+            self._api_common.set_reg(
+                self.setreg_path, V06_WDT_WIDTH, timeout_hex)
 
-        return int(req[0])
+        else:
+            (l, m, h) = self._seconds_to_lmh_hex(seconds)
+            self._api_common.set_reg(
+                self.setreg_path, WDT_TIMER_H_BIT_REG, h)  # set high bit
+            self._api_common.set_reg(
+                self.setreg_path, WDT_TIMER_M_BIT_REG, m)  # set med bit
+            self._api_common.set_reg(
+                self.setreg_path, WDT_TIMER_L_BIT_REG, l)  # set low bit
 
-    def _gettimeleft(self):
-        """
-        Get time left before watchdog timer expires
-        @return time left in seconds
-        """
-        req = array.array('I', [0])
-        fcntl.ioctl(self.watchdog, WDIOC_GETTIMELEFT, req, True)
-
-        return int(req[0])
+        return seconds
 
     #################################################################
 
@@ -157,22 +144,25 @@ class Watchdog(WatchdogBase):
             An integer specifying the *actual* number of seconds the watchdog
             was armed with. On failure returns -1.
         """
-
         ret = WDT_COMMON_ERROR
-        if seconds < 0:
+
+        if seconds < 0 or seconds > 180:
             return ret
 
         try:
             if self.timeout != seconds:
                 self.timeout = self._settimeout(seconds)
+
             if self.armed:
                 self._keepalive()
             else:
                 self._enable()
                 self.armed = True
+
             ret = self.timeout
+            self.arm_timestamp = time.time()
         except IOError as e:
-            pass
+            print("Error: unable to enable wdt due to : {}".format(e))
 
         return ret
 
@@ -183,14 +173,12 @@ class Watchdog(WatchdogBase):
             A boolean, True if watchdog is disarmed successfully, False if not
         """
         disarmed = False
-        if self.is_armed():
-            try:
-                self._disable()
-                self.armed = False
-                disarmed = True
-            except IOError:
-                pass
-
+        try:
+            self._disable()
+            self.armed = False
+            disarmed = True
+        except IOError as e:
+            print("Error: unable to disable wdt due to : {}".format(e))
         return disarmed
 
     def is_armed(self):
@@ -199,7 +187,6 @@ class Watchdog(WatchdogBase):
         Returns:
             A boolean, True if watchdog is armed, False if not
         """
-
         return self.armed
 
     def get_remaining_time(self):
@@ -214,16 +201,6 @@ class Watchdog(WatchdogBase):
         timeleft = WDT_COMMON_ERROR
 
         if self.armed:
-            try:
-                timeleft = self._gettimeleft()
-            except IOError:
-                pass
+            timeleft = int(self.timeout - (time.time() - self.arm_timestamp))
 
         return timeleft
-
-    def __del__(self):
-        """
-        Close watchdog
-        """
-
-        os.close(self.watchdog)
