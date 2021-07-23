@@ -29,7 +29,7 @@ index 4cee36ec..0baa69ab 100644
 +        message(WARNING "Can't create a static Python module")
      else()
 -        message(WARNING "Sysrepo supports Python 2.x and Python 3.x")
-+        set(GEN_PYTHON_VERSION 2 3)
++        set(GEN_PYTHON_VERSION 3)
 +        foreach(CUR_PYTHON_VERSION ${GEN_PYTHON_VERSION})
 +            message(STATUS "Python version ${CUR_PYTHON_VERSION} was selected")
 +
@@ -99,7 +99,7 @@ index 994b1234..5d18b8bf 100644
 -swig_link_libraries(${PYTHON_SWIG_BINDING} ${PYTHON_LIBRARIES} libyang-cpp)
 +swig_link_libraries(${PYTHON_SWIG_TARGET} ${PYTHON_LIBRARIES} libyang-cpp)
 +
-+set_target_properties(_${PYTHON_SWIG_TARGET} PROPERTIES OUTPUT_NAME "_yang${PYTHON_EXT_SUFFIX}" SUFFIX "")
++set_target_properties(_${PYTHON_SWIG_TARGET} PROPERTIES OUTPUT_NAME "_yang")
  
  # Generate header with SWIG run-time functions
  execute_process(COMMAND ${SWIG_EXECUTABLE} -python -external-runtime ${CMAKE_CURRENT_BINARY_DIR}/swigpyrun.h)

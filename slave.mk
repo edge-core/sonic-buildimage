@@ -63,6 +63,13 @@ IMAGE_DISTRO := bullseye
 IMAGE_DISTRO_DEBS_PATH = $(TARGET_PATH)/debs/$(IMAGE_DISTRO)
 IMAGE_DISTRO_FILES_PATH = $(TARGET_PATH)/files/$(IMAGE_DISTRO)
 
+# Python 2 packages will not be available in Bullseye
+ifeq ($(BLDENV),bullseye)
+ENABLE_PY2_MODULES = n
+else
+ENABLE_PY2_MODULES = y
+endif
+
 export BUILD_NUMBER
 export BUILD_TIMESTAMP
 export SONIC_IMAGE_VERSION
@@ -640,7 +647,7 @@ $(addprefix $(PYTHON_WHEELS_PATH)/, $(SONIC_PYTHON_WHEELS)) : $(PYTHON_WHEELS_PA
 		# apply series of patches if exist
 		if [ -f ../$(notdir $($*_SRC_PATH)).patch/series ]; then QUILT_PATCHES=../$(notdir $($*_SRC_PATH)).patch quilt push -a; fi
 		# Use pip instead of later setup.py to install dependencies into user home, but uninstall self
-		pip$($*_PYTHON_VERSION) install . && pip$($*_PYTHON_VERSION) uninstall --yes `python setup.py --name`
+		pip$($*_PYTHON_VERSION) install . && pip$($*_PYTHON_VERSION) uninstall --yes `python$($*_PYTHON_VERSION) setup.py --name`
 		if [ ! "$($*_TEST)" = "n" ]; then python$($*_PYTHON_VERSION) setup.py test $(LOG); fi
 		python$($*_PYTHON_VERSION) setup.py bdist_wheel $(LOG)
 		# clean up

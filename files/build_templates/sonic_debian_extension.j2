@@ -102,25 +102,19 @@ sudo mkdir -p $FILESYSTEM_ROOT_USR_LIB_SYSTEMD_SYSTEM
 sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/ifupdown2_*.deb || \
     sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
 
-# Install ipables  (and its dependencies via 'apt-get -y install -f')
-sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/iptables_*.deb || \
-    sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
-
-# Install a more recent version of ntp  (and its dependencies via 'apt-get -y install -f')
+# Install a patched version of ntp  (and its dependencies via 'apt-get -y install -f')
 sudo dpkg --root=$FILESYSTEM_ROOT --force-confdef --force-confold -i $debs_path/ntp_*.deb || \
     sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y \
     -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -f
 
 # Install dependencies for SONiC config engine
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install \
-    python-dev     \
     python3-dev
 
 # Install j2cli for handling jinja template
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install "j2cli==0.3.10"
 
 # Install Python client for Redis
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip2 install "redis==3.5.3"
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install "redis==3.5.3"
 
 # Install redis-dump-load Python 3 package
@@ -130,17 +124,10 @@ sudo cp {{redis_dump_load_py3_wheel_path}} $FILESYSTEM_ROOT/$REDIS_DUMP_LOAD_PY3
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install $REDIS_DUMP_LOAD_PY3_WHEEL_NAME
 sudo rm -rf $FILESYSTEM_ROOT/$REDIS_DUMP_LOAD_PY3_WHEEL_NAME
 
-# Install redis-dump-load Python 2 package
-REDIS_DUMP_LOAD_PY2_WHEEL_NAME=$(basename {{redis_dump_load_py2_wheel_path}})
-sudo cp {{redis_dump_load_py2_wheel_path}} $FILESYSTEM_ROOT/$REDIS_DUMP_LOAD_PY2_WHEEL_NAME
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip2 install $REDIS_DUMP_LOAD_PY2_WHEEL_NAME
-sudo rm -rf $FILESYSTEM_ROOT/$REDIS_DUMP_LOAD_PY2_WHEEL_NAME
-
 # Install Python module for psutil
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install psutil
 
 # Install Python module for ipaddr
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip2 install ipaddr
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install ipaddr
 
 # Install Python module for grpcio and grpcio-toole
@@ -153,18 +140,6 @@ SWSSSDK_PY3_WHEEL_NAME=$(basename {{swsssdk_py3_wheel_path}})
 sudo cp {{swsssdk_py3_wheel_path}} $FILESYSTEM_ROOT/$SWSSSDK_PY3_WHEEL_NAME
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install $SWSSSDK_PY3_WHEEL_NAME
 sudo rm -rf $FILESYSTEM_ROOT/$SWSSSDK_PY3_WHEEL_NAME
-
-# Install SwSS SDK Python 2 package
-SWSSSDK_PY2_WHEEL_NAME=$(basename {{swsssdk_py2_wheel_path}})
-sudo cp {{swsssdk_py2_wheel_path}} $FILESYSTEM_ROOT/$SWSSSDK_PY2_WHEEL_NAME
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip2 install $SWSSSDK_PY2_WHEEL_NAME
-sudo rm -rf $FILESYSTEM_ROOT/$SWSSSDK_PY2_WHEEL_NAME
-
-# Install sonic-py-common Python 2 package
-SONIC_PY_COMMON_PY2_WHEEL_NAME=$(basename {{sonic_py_common_py2_wheel_path}})
-sudo cp {{sonic_py_common_py2_wheel_path}} $FILESYSTEM_ROOT/$SONIC_PY_COMMON_PY2_WHEEL_NAME
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip2 install $SONIC_PY_COMMON_PY2_WHEEL_NAME
-sudo rm -rf $FILESYSTEM_ROOT/$SONIC_PY_COMMON_PY2_WHEEL_NAME
 
 # Install sonic-py-common Python 3 package
 SONIC_PY_COMMON_PY3_WHEEL_NAME=$(basename {{sonic_py_common_py3_wheel_path}})
@@ -180,7 +155,6 @@ fi
 # Install sonic-yang-models Python 3 package, install dependencies
 sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/libyang_*.deb
 sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/libyang-cpp_*.deb
-sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/python2-yang_*.deb
 sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/python3-yang_*.deb
 SONIC_YANG_MODEL_PY3_WHEEL_NAME=$(basename {{sonic_yang_models_py3_wheel_path}})
 sudo cp {{sonic_yang_models_py3_wheel_path}} $FILESYSTEM_ROOT/$SONIC_YANG_MODEL_PY3_WHEEL_NAME
@@ -192,12 +166,6 @@ SONIC_YANG_MGMT_PY3_WHEEL_NAME=$(basename {{sonic_yang_mgmt_py3_wheel_path}})
 sudo cp {{sonic_yang_mgmt_py3_wheel_path}} $FILESYSTEM_ROOT/$SONIC_YANG_MGMT_PY3_WHEEL_NAME
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install $SONIC_YANG_MGMT_PY3_WHEEL_NAME
 sudo rm -rf $FILESYSTEM_ROOT/$SONIC_YANG_MGMT_PY3_WHEEL_NAME
-
-# Install SONiC config engine Python 2 package
-CONFIG_ENGINE_PY2_WHEEL_NAME=$(basename {{config_engine_py2_wheel_path}})
-sudo cp {{config_engine_py2_wheel_path}} $FILESYSTEM_ROOT/$CONFIG_ENGINE_PY2_WHEEL_NAME
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip2 install $CONFIG_ENGINE_PY2_WHEEL_NAME
-sudo rm -rf $FILESYSTEM_ROOT/$CONFIG_ENGINE_PY2_WHEEL_NAME
 
 # For sonic-config-engine Python 3 package
 # Install pyangbind here, outside sonic-config-engine dependencies, as pyangbind causes enum34 to be installed.
@@ -214,12 +182,6 @@ sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install $CONFI
 sudo rm -rf $FILESYSTEM_ROOT/$CONFIG_ENGINE_PY3_WHEEL_NAME
 
 
-# Install sonic-platform-common Python 2 package
-PLATFORM_COMMON_PY2_WHEEL_NAME=$(basename {{platform_common_py2_wheel_path}})
-sudo cp {{platform_common_py2_wheel_path}} $FILESYSTEM_ROOT/$PLATFORM_COMMON_PY2_WHEEL_NAME
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip2 install $PLATFORM_COMMON_PY2_WHEEL_NAME
-sudo rm -rf $FILESYSTEM_ROOT/$PLATFORM_COMMON_PY2_WHEEL_NAME
-
 # Install sonic-platform-common Python 3 package
 PLATFORM_COMMON_PY3_WHEEL_NAME=$(basename {{platform_common_py3_wheel_path}})
 sudo cp {{platform_common_py3_wheel_path}} $FILESYSTEM_ROOT/$PLATFORM_COMMON_PY3_WHEEL_NAME
@@ -227,12 +189,6 @@ sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install $PLATF
 sudo rm -rf $FILESYSTEM_ROOT/$PLATFORM_COMMON_PY3_WHEEL_NAME
 
 {% if pddf_support == "y" %}
-# Install pddf-platform-api-base Python 2 package
-PLATFORM_PDDF_COMMON_PY2_WHEEL_NAME=$(basename {{pddf_platform_api_base_py2_wheel_path}})
-sudo cp {{pddf_platform_api_base_py2_wheel_path}} $FILESYSTEM_ROOT/$PLATFORM_PDDF_COMMON_PY2_WHEEL_NAME
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip2 install $PLATFORM_PDDF_COMMON_PY2_WHEEL_NAME
-sudo rm -rf $FILESYSTEM_ROOT/$PLATFORM_PDDF_COMMON_PY2_WHEEL_NAME
-
 # Install pddf-platform-api-base Python 3 package
 PLATFORM_PDDF_COMMON_PY3_WHEEL_NAME=$(basename {{pddf_platform_api_base_py3_wheel_path}})
 sudo cp {{pddf_platform_api_base_py3_wheel_path}} $FILESYSTEM_ROOT/$PLATFORM_PDDF_COMMON_PY3_WHEEL_NAME
@@ -242,7 +198,6 @@ sudo rm -rf $FILESYSTEM_ROOT/$PLATFORM_PDDF_COMMON_PY3_WHEEL_NAME
 
 {# Barefoot platform vendors' sonic_platform packages import the Python 'thrift' library #}
 {% if sonic_asic_platform == "barefoot" %}
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip2 install thrift==0.13.0
 sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip3 install thrift==0.13.0
 {% endif %}
 
@@ -875,12 +830,6 @@ sudo cp $files_path/$MLNX_ONIE_FW_UPDATE $FILESYSTEM_ROOT/usr/bin/$MLNX_ONIE_FW_
 sudo cp $files_path/$MLNX_SSD_FW_UPDATE $FILESYSTEM_ROOT/usr/bin/$MLNX_SSD_FW_UPDATE
 j2 platform/mellanox/mlnx-fw-upgrade.j2 | sudo tee $FILESYSTEM_ROOT/usr/bin/mlnx-fw-upgrade.sh
 sudo chmod 755 $FILESYSTEM_ROOT/usr/bin/mlnx-fw-upgrade.sh
-
-# Install mlnx-sonic-platform Python 2 package
-MLNX_SONIC_PLATFORM_PY2_WHEEL_NAME=$(basename {{mlnx_platform_api_py2_wheel_path}})
-sudo cp {{mlnx_platform_api_py2_wheel_path}} $FILESYSTEM_ROOT/$MLNX_SONIC_PLATFORM_PY2_WHEEL_NAME
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT pip2 install $MLNX_SONIC_PLATFORM_PY2_WHEEL_NAME
-sudo rm -rf $FILESYSTEM_ROOT/$MLNX_SONIC_PLATFORM_PY2_WHEEL_NAME
 
 # Install mlnx-sonic-platform Python 3 package
 MLNX_SONIC_PLATFORM_PY3_WHEEL_NAME=$(basename {{mlnx_platform_api_py3_wheel_path}})

@@ -11,7 +11,6 @@ $(DOCKER_SONIC_VS)_DEPENDS += $(SWSS) \
                               $(SONIC_DEVICE_DATA) \
                               $(LIBYANG) \
                               $(LIBYANG_CPP) \
-                              $(LIBYANG_PY2) \
                               $(LIBYANG_PY3) \
                               $(SONIC_UTILITIES_DATA) \
                               $(SONIC_HOST_SERVICES_DATA)
