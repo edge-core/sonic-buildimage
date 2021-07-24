@@ -17,6 +17,10 @@ include $(PLATFORM_PATH)/platform-modules-ragile.mk
 include $(PLATFORM_PATH)/docker-syncd-brcm.mk
 include $(PLATFORM_PATH)/docker-syncd-brcm-rpc.mk
 include $(PLATFORM_PATH)/docker-saiserver-brcm.mk
+ifeq ($(INCLUDE_PDE), y)
+include $(PLATFORM_PATH)/docker-pde.mk
+include $(PLATFORM_PATH)/sonic-pde-tests.mk
+endif
 include $(PLATFORM_PATH)/one-image.mk
 include $(PLATFORM_PATH)/raw-image.mk
 include $(PLATFORM_PATH)/one-aboot.mk

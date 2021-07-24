@@ -93,6 +93,16 @@ function preStartAction()
             docker cp /tmp/dump.rdb database$DEV:/var/lib/redis/
         fi
     fi
+{%- elif docker_container_name == "pde" %}
+    if [[ $(/bin/systemctl status swss | grep -c running) -gt 0 ]]; then
+        echo "Stopping SWSS before starting PDE"
+        systemctl stop swss
+    fi
+
+    if [[ $(/bin/systemctl status watchdog-control.service | grep -c running) -gt 0 ]]; then
+        echo "Stopping watchdog-control.service before starting PDE"
+        systemctl stop watchdog-control.service
+    fi   
 {%- elif docker_container_name == "snmp" %}
     $SONIC_DB_CLI STATE_DB HSET 'DEVICE_METADATA|localhost' chassis_serial_number $(decode-syseeprom -s)
 {%- else %}
