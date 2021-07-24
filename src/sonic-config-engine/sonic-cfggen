@@ -17,15 +17,6 @@ See usage string for detail description for arguments.
 
 from __future__ import print_function
 
-# monkey patch re.compile to do lazy regular expression compilation.
-# This is done to improve import time of jinja2, yaml, natsort modules, because they
-# do many regexp compilation at import time, so it will speed up sonic-cfggen invocations
-# that do not require template generation or yaml loading. sonic-cfggen is used in so many places
-# during system boot up that importing jinja2, yaml, natsort every time
-# without lazy regular expression compilation affect boot up time.
-# FIXME: remove this once sonic-cfggen and templates dependencies are replaced with a faster approach
-import lazy_re
-
 import argparse
 import contextlib
 import jinja2

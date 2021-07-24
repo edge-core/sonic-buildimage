@@ -40,7 +40,6 @@ else:
 # Common modules for python2 and python3
 py_modules = [
     'config_samples',
-    'lazy_re',
     'minigraph',
     'openconfig_acl',
     'portconfig',
