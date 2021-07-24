@@ -21,8 +21,7 @@
 
 try:
     import commands
-    import getopt
-    import sys
+    import getopt, sys
     import logging
     import logging.config
     import logging.handlers
