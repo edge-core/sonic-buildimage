@@ -87,16 +87,17 @@ int dhcp_devman_setup_dual_tor_mode(const char *name);
 int dhcp_devman_start_capture(size_t snaplen, struct event_base *base);
 
 /**
- * @code dhcp_devman_get_status(check_type, context);
+ * @code dhcp_devman_get_status(check_type, context, type);
  *
  * @brief collects DHCP relay status info.
  *
  * @param check_type        Type of validation
  * @param context           pointer to device (interface) context
+ * @param type              DHCP type
  *
  * @return DHCP_MON_STATUS_HEALTHY, DHCP_MON_STATUS_UNHEALTHY, or DHCP_MON_STATUS_INDETERMINATE
  */
-dhcp_mon_status_t dhcp_devman_get_status(dhcp_mon_check_t check_type, dhcp_device_context_t *context);
+dhcp_mon_status_t dhcp_devman_get_status(dhcp_mon_check_t check_type, dhcp_device_context_t *context, dhcp_type_t type);
 
 /**
  * @code dhcp_devman_update_snapshot(context);
@@ -118,5 +119,17 @@ void dhcp_devman_update_snapshot(dhcp_device_context_t *context);
  * @return none
  */
 void dhcp_devman_print_status(dhcp_device_context_t *context, dhcp_counters_type_t type);
+
+/**
+ * @code dhcp_devman_active_types(dhcpv4, dhcpv6);
+ *
+ * @brief update local variables with active protocols
+ *
+ * @param dhcpv4       flag indicating dhcpv4 is enabled
+ * @param dhcpv6       flag indicating dhcpv6 is enabled
+ *
+ * @return none
+ */
+void dhcp_devman_active_types(bool dhcpv4, bool dhcpv6);
 
 #endif /* DHCP_DEVMAN_H_ */

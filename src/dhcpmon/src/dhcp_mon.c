@@ -12,16 +12,24 @@
 #include <sys/syscall.h>
 #include <syslog.h>
 #include <assert.h>
+#include <stdbool.h>
 
 #include "dhcp_mon.h"
 #include "dhcp_devman.h"
+
+/** DHCP device/interface state counters */
+typedef struct
+{
+    int v4_count;                               /** count in the number of DHCPv4 unhealthy checks */
+    int v6_count;                               /** count in the number of DHCPv6 unhealthy checks */
+} dhcp_mon_count_t;
 
 /** DHCP device/interface state */
 typedef struct
 {
     dhcp_mon_check_t check_type;                /** check type */
     dhcp_device_context_t* (*get_context)();    /** functor to a device context accessor function */
-    int count;                                  /** count in the number of unhealthy checks */
+    dhcp_mon_count_t counters;                  /** count in the number of unhealthy checks */
     const char *msg;                            /** message to be printed if unhealthy state is determined */
 } dhcp_mon_state_t;
 
@@ -29,6 +37,10 @@ typedef struct
 static int window_interval_sec = 18;
 /** dhcp_unhealthy_max_count max count of consecutive unhealthy statuses before reporting to syslog */
 static int dhcp_unhealthy_max_count = 10;
+/** DHCP versions flags */
+static bool dhcpv4_enabled;
+static bool dhcpv6_enabled;
+
 /** libevent base struct */
 static struct event_base *base;
 /** libevent timeout event struct */
@@ -45,13 +57,15 @@ static dhcp_mon_state_t state_data[] = {
     [0] = {
         .check_type = DHCP_MON_CHECK_POSITIVE,
         .get_context = dhcp_devman_get_agg_dev,
-        .count = 0,
+        .counters.v4_count = 0,
+        .counters.v6_count = 0,
         .msg = "dhcpmon detected disparity in DHCP Relay behavior. Duration: %d (sec) for vlan: '%s'\n"
     },
     [1] = {
         .check_type = DHCP_MON_CHECK_NEGATIVE,
         .get_context = dhcp_devman_get_mgmt_dev,
-        .count = 0,
+        .counters.v4_count = 0,
+        .counters.v6_count = 0,
         .msg = "dhcpmon detected DHCP packets traveling through mgmt interface (please check BGP routes.)"
                " Duration: %d (sec) for intf: '%s'\n"
     }
@@ -78,36 +92,89 @@ static void signal_callback(evutil_socket_t fd, short event, void *arg)
 }
 
 /**
- * @code check_dhcp_relay_health(state_data);
+ * @code check_dhcp_relay_health(state_data, dhcp_type);
  *
  * @brief check DHCP relay overall health
  *
  * @param state_data        pointer to dhcpmon state data
  *
+ * @param type              DHCP type
+ *
  * @return none
  */
-static void check_dhcp_relay_health(dhcp_mon_state_t *state_data)
+static void check_dhcp_relay_health(dhcp_mon_state_t *state_data, dhcp_type_t type)
 {
     dhcp_device_context_t *context = state_data->get_context();
-    dhcp_mon_status_t dhcp_mon_status = dhcp_devman_get_status(state_data->check_type, context);
+    dhcp_mon_status_t dhcp_mon_status = dhcp_devman_get_status(state_data->check_type, context, type);
 
     switch (dhcp_mon_status)
     {
     case DHCP_MON_STATUS_UNHEALTHY:
-        if (++state_data->count > dhcp_unhealthy_max_count) {
-            syslog(LOG_ALERT, state_data->msg, state_data->count * window_interval_sec, context->intf);
-            dhcp_devman_print_status(context, DHCP_COUNTERS_SNAPSHOT);
-            dhcp_devman_print_status(context, DHCP_COUNTERS_CURRENT);
+        switch (type)
+        {
+        case DHCPv4_TYPE:
+            if (++state_data->counters.v4_count > dhcp_unhealthy_max_count) {
+                syslog(LOG_ALERT, state_data->msg, state_data->counters.v4_count * window_interval_sec, context->intf);
+                dhcp_devman_print_status(context, DHCP_COUNTERS_SNAPSHOT);
+                dhcp_devman_print_status(context, DHCP_COUNTERS_CURRENT);
+            }
+            break;
+        case DHCPv6_TYPE:
+            if (++state_data->counters.v6_count > dhcp_unhealthy_max_count) {
+                syslog(LOG_ALERT, state_data->msg, state_data->counters.v6_count * window_interval_sec, context->intf);
+                dhcp_devman_print_status(context, DHCP_COUNTERS_SNAPSHOT);
+                dhcp_devman_print_status(context, DHCP_COUNTERS_CURRENT);
+            }
+            break;
+
+        default:
+            syslog(LOG_ERR, "Unknown DHCP type %d\n", type);
+            break;
         }
         break;
+
     case DHCP_MON_STATUS_HEALTHY:
-        state_data->count = 0;
-        break;
-    case DHCP_MON_STATUS_INDETERMINATE:
-        if (state_data->count) {
-            state_data->count++;
+        switch (type)
+        {
+        case DHCPv4_TYPE:
+            state_data->counters.v4_count = 0;
+            break;
+        case DHCPv6_TYPE:
+            state_data->counters.v6_count = 0;
+            break;
+        default:
+            syslog(LOG_ERR, "Unknown DHCP type %d\n", type);
+            break;
         }
         break;
+
+    case DHCP_MON_STATUS_INDETERMINATE:
+        switch (type)
+        {
+        case DHCPv4_TYPE:
+            if (state_data->counters.v4_count) {
+                if (++state_data->counters.v4_count > dhcp_unhealthy_max_count) {
+                    syslog(LOG_ALERT, state_data->msg, state_data->counters.v4_count * window_interval_sec, context->intf);
+                    dhcp_devman_print_status(context, DHCP_COUNTERS_SNAPSHOT);
+                    dhcp_devman_print_status(context, DHCP_COUNTERS_CURRENT);
+                }
+            }
+            break;
+        case DHCPv6_TYPE:
+            if (state_data->counters.v6_count) {
+                if (++state_data->counters.v6_count > dhcp_unhealthy_max_count) {
+                    syslog(LOG_ALERT, state_data->msg, state_data->counters.v6_count * window_interval_sec, context->intf);
+                    dhcp_devman_print_status(context, DHCP_COUNTERS_SNAPSHOT);
+                    dhcp_devman_print_status(context, DHCP_COUNTERS_CURRENT);
+                }
+            }
+            break;
+        default:
+            syslog(LOG_ERR, "Unknown DHCP type %d\n", type);
+            break;
+        }
+        break;
+
     default:
         syslog(LOG_ERR, "DHCP Relay returned unknown status %d\n", dhcp_mon_status);
         break;
@@ -128,7 +195,12 @@ static void check_dhcp_relay_health(dhcp_mon_state_t *state_data)
 static void timeout_callback(evutil_socket_t fd, short event, void *arg)
 {
     for (uint8_t i = 0; i < sizeof(state_data) / sizeof(*state_data); i++) {
-        check_dhcp_relay_health(&state_data[i]);
+        if (dhcpv4_enabled) {
+            check_dhcp_relay_health(&state_data[i], DHCPv4_TYPE);
+        }
+        if (dhcpv6_enabled) {
+            check_dhcp_relay_health(&state_data[i], DHCPv6_TYPE);
+        }
     }
 
     dhcp_devman_update_snapshot(NULL);
@@ -141,13 +213,17 @@ static void timeout_callback(evutil_socket_t fd, short event, void *arg)
  * seconds. It also writes to syslog when dhcp relay has been unhealthy for consecutive max_count checks.
  *
  */
-int dhcp_mon_init(int window_sec, int max_count)
+int dhcp_mon_init(int window_sec, int max_count, bool dhcpv4, bool dhcpv6)
 {
     int rv = -1;
 
     do {
         window_interval_sec = window_sec;
         dhcp_unhealthy_max_count = max_count;
+        dhcpv4_enabled = dhcpv4;
+        dhcpv6_enabled = dhcpv6;
+
+        dhcp_devman_active_types(dhcpv4, dhcpv6);
 
         base = event_base_new();
         if (base == NULL) {
