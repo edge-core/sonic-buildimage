@@ -45,6 +45,12 @@ def test_bgpd_main_conf_defaults():
              "bgpd.main.conf.j2/defaults.json",
              "bgpd.main.conf.j2/defaults.conf")
 
+def test_bgpd_main_conf_voq_chassis():
+    run_test("VOQ bgpd.main.conf.j2",
+             "bgpd/bgpd.main.conf.j2",
+             "bgpd.main.conf.j2/voq_chassis.json",
+             "bgpd.main.conf.j2/voq_chassis.conf")
+
 def test_tsa_isolate():
     run_test("tsa/bgpd.tsa.isolate.conf.j2",
              "bgpd/tsa/bgpd.tsa.isolate.conf.j2",
