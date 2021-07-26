@@ -6,15 +6,11 @@ MAIN_TARGET = $(KDUMP_TOOLS)
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# Remove any stale files
-	rm -rf ./makedumpfile_$(KDUMP_TOOLS_VERSION_BASE).orig.tar.gz ./makedumpfile_$(KDUMP_TOOLS_VERSION).debian.tar.xz
-	rm -rf ./makedumpfile-$(KDUMP_TOOLS_VERSION_BASE)
+	rm -rf ./kdump-tools-$(KDUMP_TOOLS_VERSION)*
 
-	# Get makedumpfile release
-	wget http://deb.debian.org/debian/pool/main/m/makedumpfile/makedumpfile_$(KDUMP_TOOLS_VERSION_BASE).orig.tar.gz
-	wget http://deb.debian.org/debian/pool/main/m/makedumpfile/makedumpfile_$(KDUMP_TOOLS_VERSION).debian.tar.xz
-	tar -f makedumpfile_$(KDUMP_TOOLS_VERSION_BASE).orig.tar.gz -x
-	pushd ./makedumpfile-$(KDUMP_TOOLS_VERSION_BASE)
-	tar -f ../makedumpfile_$(KDUMP_TOOLS_VERSION).debian.tar.xz -x
+	# Get kdump-tools release
+	dget https://deb.debian.org/debian/pool/main/k/kdump-tools/kdump-tools_$(KDUMP_TOOLS_VERSION).dsc
+	pushd ./kdump-tools-$(KDUMP_TOOLS_VERSION)
 
 	git init
 	git add -f *
@@ -25,7 +21,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	stg import -s ../patch/series
 
 	# Build source and Debian packages
-	dpkg-buildpackage -rfakeroot -b -us -uc -Tbinary-indep -j$(SONIC_CONFIG_MAKE_JOBS) --admindir $(SONIC_DPKG_ADMINDIR)
+	dpkg-buildpackage -rfakeroot -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS) --admindir $(SONIC_DPKG_ADMINDIR)
 	popd
 
 	# Move the newly-built .deb packages to the destination directory
