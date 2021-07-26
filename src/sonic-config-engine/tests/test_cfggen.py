@@ -31,6 +31,7 @@ class TestCfgGen(TestCase):
         self.ecmp_graph = os.path.join(self.test_dir, 'fg-ecmp-sample-minigraph.xml')
         self.sample_resource_graph = os.path.join(self.test_dir, 'sample-graph-resource-type.xml')
         self.sample_subintf_graph = os.path.join(self.test_dir, 'sample-graph-subintf.xml')
+        self.voq_port_config = os.path.join(self.test_dir, 'voq-sample-port-config.ini')
         # To ensure that mock config_db data is used for unit-test cases
         os.environ["CFGGEN_UNIT_TESTING"] = "2"
 
@@ -778,11 +779,44 @@ class TestCfgGen(TestCase):
             }
         )
 
-    def test_minigraph_voq_inband_interface(self):
+    def test_minigraph_voq_inband_interface_vlan(self):
         argument = "-m {} --var-json VOQ_INBAND_INTERFACE".format(self.sample_graph_voq)
+        output = self.run_script(argument)
+        output_dict = utils.to_dict(output.strip())
         self.assertDictEqual(
-            json.loads(self.run_script(argument)),
-            { 'Vlan3094': {'inband_type': 'Vlan'},
-              'Vlan3094|1.1.1.1/24': {}
+            output_dict['Vlan3094'],
+            {'inband_type': 'Vlan'}
+        )
+        self.assertDictEqual(
+            output_dict['Vlan3094|1.1.1.1/24'],
+            {}
+        )
+
+    def test_minigraph_voq_inband_interface_port(self):
+        argument = "-m {} --var-json VOQ_INBAND_INTERFACE".format(self.sample_graph_voq)
+        output = self.run_script(argument)
+        output_dict = utils.to_dict(output.strip())
+        self.assertDictEqual(
+            output_dict['Ethernet-IB0'],
+            {'inband_type': 'port'}
+        )
+        self.assertDictEqual(
+            output_dict['Ethernet-IB0|2.2.2.2/32'],
+            {}
+        )
+
+    def test_minigraph_voq_inband_port(self):
+        argument = "-m {} -p {} --var-json PORT".format(self.sample_graph_voq, self.voq_port_config)
+        output = self.run_script(argument)
+        output_dict = utils.to_dict(output.strip())
+        self.assertDictEqual(
+            output_dict['Ethernet-IB0'],
+            {'lanes': '133', 
+            'alias': 'Recycle0', 
+            'description': 'Recycle0', 
+            'mtu': '9100', 
+            'tpid': '0x8100', 
+            'pfc_asym': 'off', 
+            'admin_status': 'up'
             }
         )
