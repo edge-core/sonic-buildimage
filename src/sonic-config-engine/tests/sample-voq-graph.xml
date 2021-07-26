@@ -48,6 +48,11 @@
           <Type>Vlan</Type>
           <a:PrefixStr>1.1.1.1/24</a:PrefixStr>
         </a:VoqInbandInterface>
+        <a:VoqInbandInterface>
+          <Name>Ethernet-IB0</Name>
+          <Type>port</Type>
+          <a:PrefixStr>2.2.2.2/32</a:PrefixStr>
+        </a:VoqInbandInterface>
       </VoqInbandInterfaces>
       <DataAcls/>
       <AclInterfaces/>

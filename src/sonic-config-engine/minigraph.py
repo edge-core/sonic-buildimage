@@ -1488,6 +1488,11 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
             # make all neighbors connected ports to 'admin_up'
             ports[port]['admin_status'] = 'up'
 
+    # bring up the inband voq interfaces
+    for inband_port in voq_inband_intfs:
+        if inband_port in ports.keys():
+            ports[inband_port]['admin_status'] = 'up'
+
     results['PORT'] = ports
     results['CONSOLE_PORT'] = console_ports
 
