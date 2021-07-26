@@ -9,6 +9,8 @@
 #include <syslog.h>
 #include <sys/queue.h>
 #include <stdlib.h>
+#include <arpa/inet.h>
+#include <stdbool.h>
 
 #include "dhcp_devman.h"
 
@@ -35,7 +37,8 @@ static uint32_t dhcp_num_mgmt_intf = 0;
 
 /** On Device  vlan interface IP address corresponding vlan downlink IP
  *  This IP is used to filter Offer/Ack packet coming from DHCP server */
-static in_addr_t vlan_ip = 0;
+static in_addr_t v4_vlan_ip = 0;
+static struct in6_addr v6_vlan_ip = {0};
 
 /* Device loopback interface ip, which will be used as the giaddr in dual tor setup. */
 static in_addr_t loopback_ip = 0;
@@ -136,7 +139,8 @@ int dhcp_devman_add_intf(const char *name, char intf_type)
 
         rv = dhcp_device_init(&dev->dev_context, dev->name, dev->is_uplink);
         if (rv == 0 && intf_type == 'd') {
-            rv = dhcp_device_get_ip(dev->dev_context, &vlan_ip);
+            rv = dhcp_device_get_ipv4(dev->dev_context, &v4_vlan_ip);
+            rv = dhcp_device_get_ipv6(dev->dev_context, &v6_vlan_ip);
 
             dhcp_device_context_t *agg_dev = dhcp_device_get_aggregate_context();
 
@@ -174,7 +178,7 @@ int dhcp_devman_setup_dual_tor_mode(const char *name)
     }
 
     if (initialize_intf_mac_and_ip_addr(&loopback_intf_context) == 0 &&
-        dhcp_device_get_ip(&loopback_intf_context, &loopback_ip) == 0) {
+        dhcp_device_get_ipv4(&loopback_intf_context, &loopback_ip) == 0) {
             dual_tor_mode = 1;
     } else {
         syslog(LOG_ALERT, "failed to retrieve ip addr for loopback interface (%s)", name);
@@ -197,11 +201,13 @@ int dhcp_devman_start_capture(size_t snaplen, struct event_base *base)
 
     if ((dhcp_num_south_intf == 1) && (dhcp_num_north_intf >= 1)) {
         LIST_FOREACH(int_ptr, &intfs, entry) {
-            rv = dhcp_device_start_capture(int_ptr->dev_context, snaplen, base, dual_tor_mode ? loopback_ip : vlan_ip);
+            rv = dhcp_device_start_capture(int_ptr->dev_context, snaplen, base, dual_tor_mode ? loopback_ip : v4_vlan_ip, v6_vlan_ip);
             if (rv == 0) {
+                char ipv6_addr[INET6_ADDRSTRLEN];
+                inet_ntop(AF_INET6, &int_ptr->dev_context->ipv6, ipv6_addr, sizeof(ipv6_addr));
                 syslog(LOG_INFO,
-                       "Capturing DHCP packets on interface %s, ip: 0x%08x, mac [%02x:%02x:%02x:%02x:%02x:%02x] \n",
-                       int_ptr->name, int_ptr->dev_context->ip, int_ptr->dev_context->mac[0],
+                       "Capturing DHCP packets on interface %s, ipv4: 0x%08x, ipv6: %s, mac [%02x:%02x:%02x:%02x:%02x:%02x] \n",
+                       int_ptr->name, int_ptr->dev_context->ipv4, ipv6_addr, int_ptr->dev_context->mac[0],
                        int_ptr->dev_context->mac[1], int_ptr->dev_context->mac[2], int_ptr->dev_context->mac[3],
                        int_ptr->dev_context->mac[4], int_ptr->dev_context->mac[5]);
             }
@@ -219,13 +225,13 @@ int dhcp_devman_start_capture(size_t snaplen, struct event_base *base)
 }
 
 /**
- * @code dhcp_devman_get_status(check_type, context);
+ * @code dhcp_devman_get_status(check_type, context, type);
  *
  * @brief collects DHCP relay status info.
  */
-dhcp_mon_status_t dhcp_devman_get_status(dhcp_mon_check_t check_type, dhcp_device_context_t *context)
+dhcp_mon_status_t dhcp_devman_get_status(dhcp_mon_check_t check_type, dhcp_device_context_t *context, dhcp_type_t type)
 {
-    return dhcp_device_get_status(check_type, context);
+    return dhcp_device_get_status(check_type, context, type);
 }
 
 /**
@@ -266,4 +272,14 @@ void dhcp_devman_print_status(dhcp_device_context_t *context, dhcp_counters_type
     } else {
         dhcp_device_print_status(context, type);
     }
+}
+
+/**
+ * @code dhcp_devman_active_types(dhcpv4, dhcpv6);
+ *
+ * @brief update local variables with active protocols
+ */
+void dhcp_devman_active_types(bool dhcpv4, bool dhcpv6)
+{
+    dhcp_device_active_types(dhcpv4, dhcpv6);
 }

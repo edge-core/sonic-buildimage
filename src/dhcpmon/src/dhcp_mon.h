@@ -17,10 +17,12 @@
  *
  * @param window_sec time interval between health checks
  * @param max_count max count of consecutive unhealthy statuses before reporting to syslog
+ * @param dhcpv4    flag indicating dhcpv4 is enabled
+ * @param dhcpv6    flag indicating dhcpv6 is enabled
  *
  * @return 0 upon success, otherwise upon failure
  */
-int dhcp_mon_init(int window_sec, int max_count);
+int dhcp_mon_init(int window_sec, int max_count, bool dhcpv4, bool dhcpv6);
 
 /**
  * @code dhcp_mon_shutdown();
