@@ -98,7 +98,7 @@ libgdbm-compat4==1.18.1-4
 libgdbm6==1.18.1-4
 libglib2.0-0==2.58.3-2+deb10u3
 libgpm2==1.20.7-5
-libgssapi-krb5-2==1.17-3+deb10u1
+libgssapi-krb5-2==1.17-3+deb10u2
 libhavege1==1.9.1-7
 libhiredis0.14==0.14.0-3~bpo9+1
 libhogweed4==3.4.1-1+deb10u1
@@ -109,12 +109,12 @@ libiptc0==1.8.2-4
 libisc-export1100==1:9.11.5.P4+dfsg-5.1+deb10u5
 libjq1==1.5+dfsg-2+b1
 libjson-c3==0.12.1+ds-2+deb10u1
-libk5crypto3==1.17-3+deb10u1
+libk5crypto3==1.17-3+deb10u2
 libkeyutils1==1.6-6
 libklibc==2.0.6-1+deb10u1
 libkmod2==26-1
-libkrb5-3==1.17-3+deb10u1
-libkrb5support0==1.17-3+deb10u1
+libkrb5-3==1.17-3+deb10u2
+libkrb5support0==1.17-3+deb10u2
 libksba8==1.3.5-2
 libldap-2.4-2==2.4.47+dfsg-3+deb10u6
 libldap-common==2.4.47+dfsg-3+deb10u6
@@ -243,7 +243,7 @@ sonic-utilities-data==1.0-1
 sqlite3==3.27.2-3+deb10u1
 squashfs-tools==1:4.3-12
 sudo==1.8.27-1+deb10u3
-sx-kernel==1.mlnx.4.4.3216
+sx-kernel==1.mlnx.4.4.3222
 sysfsutils==2.1.0+repack-5
 systemd==247.3-5~bpo10+2
 systemd-sonic-generator==1.0.0

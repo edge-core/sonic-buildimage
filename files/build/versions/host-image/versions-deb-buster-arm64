@@ -2,8 +2,12 @@ icu-devtools==63.1-6+deb10u1
 libc-dev-bin==2.28-10
 libc6-dev==2.28-10
 libcryptsetup12==2:2.3.5-1~bpo10+1
+libgssapi-krb5-2==1.17-3+deb10u1
 libicu-dev==63.1-6+deb10u1
 libicu63==63.1-6+deb10u1
+libk5crypto3==1.17-3+deb10u1
+libkrb5-3==1.17-3+deb10u1
+libkrb5support0==1.17-3+deb10u1
 libxml2==2.9.4+dfsg1-7+deb10u2
 libxml2-dev==2.9.4+dfsg1-7+deb10u2
 libxslt1-dev==1.1.32-2.2~deb10u1

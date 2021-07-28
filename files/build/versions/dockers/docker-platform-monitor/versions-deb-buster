@@ -1,5 +1,5 @@
-applibs==1.mlnx.4.4.3216
-applibs-dev==1.mlnx.4.4.3216
+applibs==1.mlnx.4.4.3222
+applibs-dev==1.mlnx.4.4.3222
 dmidecode==3.2-1
 ethtool==1:5.9-1
 fancontrol==1:3.5.0-3
@@ -67,7 +67,7 @@ openssh-client==1:7.9p1-10+deb10u2
 psmisc==23.2-1
 python==2.7.16-1
 python-minimal==2.7.16-1
-python-sdk-api==1.mlnx.4.4.3216
+python-sdk-api==1.mlnx.4.4.3222
 python-smbus==4.1-1
 python-swsscommon==1.0.0
 python2==2.7.16-1
@@ -82,12 +82,12 @@ sensord-dbgsym==1:3.5.0-3
 smartmontools==6.6-1
 sshpass==1.06-1
 strace==4.26-0.2
-sx-complib==1.mlnx.4.4.3216
-sx-complib-dev==1.mlnx.4.4.3216
-sx-gen-utils==1.mlnx.4.4.3216
-sx-gen-utils-dev==1.mlnx.4.4.3216
-sxd-libs==1.mlnx.4.4.3216
-sxd-libs-dev==1.mlnx.4.4.3216
+sx-complib==1.mlnx.4.4.3222
+sx-complib-dev==1.mlnx.4.4.3222
+sx-gen-utils==1.mlnx.4.4.3222
+sx-gen-utils-dev==1.mlnx.4.4.3222
+sxd-libs==1.mlnx.4.4.3222
+sxd-libs-dev==1.mlnx.4.4.3222
 ucf==3.0038+nmu1
 udev==241-7~deb10u8
 vim==2:8.1.0875-5
