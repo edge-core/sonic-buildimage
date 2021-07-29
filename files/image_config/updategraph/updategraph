@@ -66,7 +66,7 @@ fi
 . /etc/sonic/updategraph.conf
 
 check_system_warm_boot
-copy_list="minigraph.xml snmp.yml acl.json config_db.json frr"
+copy_list="minigraph.xml snmp.yml acl.json port_config.json config_db.json frr"
 if [ -f /tmp/pending_config_migration ]; then
     copy_config_files_and_directories $copy_list
     if [ x"${WARM_BOOT}" == x"true" ]; then
