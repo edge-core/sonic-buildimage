@@ -1,7 +1,7 @@
 {% set default_cable = '5m' %}
 {% set ingress_lossless_pool_size =  '53379072' %}
-{% set ingress_lossy_pool_size =  '1540096' %}
-{% set egress_lossless_pool_size =  '60817408' %}
+{% set ingress_lossless_xoff_size  =  '1540096' %}
+{% set egress_lossless_pool_size =  '60817392' %}
 {% set egress_lossy_pool_size =  '53379072' %}
 
 {%- macro generate_port_lists(PORT_ALL) %}
@@ -16,13 +16,7 @@
         "ingress_lossless_pool": {
             {%- if dynamic_mode is not defined %}
             "size": "{{ ingress_lossless_pool_size }}",
-            {%- endif %}
-            "type": "ingress",
-            "mode": "dynamic"
-        },
-        "ingress_lossy_pool": {
-            {%- if dynamic_mode is not defined %}
-            "size": "{{ ingress_lossy_pool_size }}",
+            "xoff": "{{ ingress_lossless_xoff_size }}",
             {%- endif %}
             "type": "ingress",
             "mode": "dynamic"
@@ -47,7 +41,7 @@
             "dynamic_th":"7"
         },
         "ingress_lossy_profile": {
-            "pool":"[BUFFER_POOL|ingress_lossy_pool]",
+            "pool":"[BUFFER_POOL|ingress_lossless_pool]",
             "size":"0",
             "dynamic_th":"3"
         },
@@ -73,7 +67,7 @@
     "BUFFER_PORT_INGRESS_PROFILE_LIST": {
 {% for port in port_names.split(',') %}
         "{{ port }}": {
-            "profile_list" : "[BUFFER_PROFILE|ingress_lossless_profile],[BUFFER_PROFILE|ingress_lossy_profile]"
+            "profile_list" : "[BUFFER_PROFILE|ingress_lossless_profile]"
         }{% if not loop.last %},{% endif %}
 
 {% endfor %}
