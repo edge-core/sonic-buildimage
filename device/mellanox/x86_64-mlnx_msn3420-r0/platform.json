@@ -955,7 +955,7 @@
             "lanes": "192,193,194,195",
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G,1G]": ["etp49"],
-                "2x50G[40G,25G,10G,1G]": ["etp49a", "etp49b"],
+                "2x50G[25G,10G,1G]": ["etp49a", "etp49b"],
                 "4x25G[10G,1G]": ["etp49a", "etp49b", "etp49c", "etp49d"]
             }
         },
@@ -964,7 +964,7 @@
             "lanes": "196,197,198,199",
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G,1G]": ["etp50"],
-                "2x50G[40G,25G,10G,1G]": ["etp50a", "etp50b"],
+                "2x50G[25G,10G,1G]": ["etp50a", "etp50b"],
                 "4x25G[10G,1G]": ["etp50a", "etp50b", "etp50c", "etp50d"]
             }
         },
@@ -973,7 +973,7 @@
             "lanes": "200,201,202,203",
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G,1G]": ["etp51"],
-                "2x50G[40G,25G,10G,1G]": ["etp51a", "etp51b"],
+                "2x50G[25G,10G,1G]": ["etp51a", "etp51b"],
                 "4x25G[10G,1G]": ["etp51a", "etp51b", "etp51c", "etp51d"]
             }
         },
@@ -982,7 +982,7 @@
             "lanes": "204,205,206,207",
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G,1G]": ["etp52"],
-                "2x50G[40G,25G,10G,1G]": ["etp52a", "etp52b"],
+                "2x50G[25G,10G,1G]": ["etp52a", "etp52b"],
                 "4x25G[10G,1G]": ["etp52a", "etp52b", "etp52c", "etp52d"]
             }
         },
@@ -991,7 +991,7 @@
             "lanes": "208,209,210,211",
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G,1G]": ["etp53"],
-                "2x50G[40G,25G,10G,1G]": ["etp53a", "etp53b"],
+                "2x50G[25G,10G,1G]": ["etp53a", "etp53b"],
                 "4x25G[10G,1G]": ["etp53a", "etp53b", "etp53c", "etp53d"]
             }
         },
@@ -1000,7 +1000,7 @@
             "lanes": "212,213,214,215",
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G,1G]": ["etp54"],
-                "2x50G[40G,25G,10G,1G]": ["etp54a", "etp54b"],
+                "2x50G[25G,10G,1G]": ["etp54a", "etp54b"],
                 "4x25G[10G,1G]": ["etp54a", "etp54b", "etp54c", "etp54d"]
             }
         },
@@ -1009,7 +1009,7 @@
             "lanes": "216,217,218,219",
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G,1G]": ["etp55"],
-                "2x50G[40G,25G,10G,1G]": ["etp55a", "etp55b"],
+                "2x50G[25G,10G,1G]": ["etp55a", "etp55b"],
                 "4x25G[10G,1G]": ["etp55a", "etp55b", "etp55c", "etp55d"]
             }
         },
@@ -1018,7 +1018,7 @@
             "lanes": "220,221,222,223",
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G,1G]": ["etp56"],
-                "2x50G[40G,25G,10G,1G]": ["etp56a", "etp56b"],
+                "2x50G[25G,10G,1G]": ["etp56a", "etp56b"],
                 "4x25G[10G,1G]": ["etp56a", "etp56b", "etp56c", "etp56d"]
             }
         },
@@ -1027,7 +1027,7 @@
             "lanes": "224,225,226,227",
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G,1G]": ["etp57"],
-                "2x50G[40G,25G,10G,1G]": ["etp57a", "etp57b"],
+                "2x50G[25G,10G,1G]": ["etp57a", "etp57b"],
                 "4x25G[10G,1G]": ["etp57a", "etp57b", "etp57c", "etp57d"]
             }
         },
@@ -1036,7 +1036,7 @@
             "lanes": "228,229,230,231",
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G,1G]": ["etp58"],
-                "2x50G[40G,25G,10G,1G]": ["etp58a", "etp58b"],
+                "2x50G[25G,10G,1G]": ["etp58a", "etp58b"],
                 "4x25G[10G,1G]": ["etp58a", "etp58b", "etp58c", "etp58d"]
             }
         },
@@ -1045,7 +1045,7 @@
             "lanes": "232,233,234,235",
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G,1G]": ["etp59"],
-                "2x50G[40G,25G,10G,1G]": ["etp59a", "etp59b"],
+                "2x50G[25G,10G,1G]": ["etp59a", "etp59b"],
                 "4x25G[10G,1G]": ["etp59a", "etp59b", "etp59c", "etp59d"]
             }
         },
@@ -1054,7 +1054,7 @@
             "lanes": "236,237,238,239",
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G,1G]": ["etp60"],
-                "2x50G[40G,25G,10G,1G]": ["etp60a", "etp60b"],
+                "2x50G[25G,10G,1G]": ["etp60a", "etp60b"],
                 "4x25G[10G,1G]": ["etp60a", "etp60b", "etp60c", "etp60d"]
             }
         }

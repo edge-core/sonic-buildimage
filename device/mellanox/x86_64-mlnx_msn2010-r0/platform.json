@@ -380,7 +380,7 @@
             "lanes": "72,73,74,75",
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp19"],
-                "2x50G[40G,25G,10G]": ["etp19a", "etp19b"],
+                "2x50G[25G,10G]": ["etp19a", "etp19b"],
                 "4x25G[10G]": ["etp19a", "etp19b", "etp19c", "etp19d"]
             }
         },
@@ -389,7 +389,7 @@
             "lanes": "76,77,78,79",
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp20"],
-                "2x50G[40G,25G,10G]": ["etp20a", "etp20b"],
+                "2x50G[25G,10G]": ["etp20a", "etp20b"],
                 "4x25G[10G]": ["etp20a", "etp20b", "etp20c", "etp20d"]
             }
         },
@@ -398,7 +398,7 @@
             "lanes": "80,81,82,83",
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp21"],
-                "2x50G[40G,25G,10G]": ["etp21a", "etp21b"],
+                "2x50G[25G,10G]": ["etp21a", "etp21b"],
                 "4x25G[10G]": ["etp21a", "etp21b", "etp21c", "etp21d"]
             }
         },
@@ -407,7 +407,7 @@
             "lanes": "84,85,86,87",
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp22"],
-                "2x50G[40G,25G,10G]": ["etp22a", "etp22b"],
+                "2x50G[25G,10G]": ["etp22a", "etp22b"],
                 "4x25G[10G]": ["etp22a", "etp22b", "etp22c", "etp22d"]
             }
         }
