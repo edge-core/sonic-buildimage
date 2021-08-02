@@ -16,11 +16,6 @@ reload_minigraph()
         acl-loader update full /etc/sonic/acl.json
     fi
     config qos reload
-    if [ -r /etc/sonic/old_config/${TACACS_JSON_BACKUP} ]; then
-        sonic-cfggen -j /etc/sonic/old_config/${TACACS_JSON_BACKUP} --write-to-db
-    else
-        echo "Missing tacacs json to restore tacacs credentials"
-    fi
     DEVICE_TYPE=`sonic-cfggen -m -v DEVICE_METADATA.localhost.type`
     if [[ "${DEVICE_TYPE}" != "MgmtToRRouter" && "${DEVICE_TYPE}" != "EPMS" ]]; then
         pfcwd start_default
@@ -29,6 +24,17 @@ reload_minigraph()
     if [[ -x /usr/bin/db_migrator.py ]]; then
         # Set latest version number
         /usr/bin/db_migrator.py -o set_version
+    fi
+}
+
+function apply_tacacs()
+{
+    if [ -r /etc/sonic/old_config/${TACACS_JSON_BACKUP} ]; then
+        sonic-cfggen -j /etc/sonic/old_config/${TACACS_JSON_BACKUP} --write-to-db
+        echo "Applied tacacs json to restore tacacs credentials"
+        config save -y
+    else
+        echo "Missing tacacs json to restore tacacs credentials"
     fi
 }
 
@@ -57,6 +63,11 @@ function check_system_warm_boot()
     fi
 }
 
+
+if [ "$1" = "apply_tacacs" ]; then
+    apply_tacacs
+    exit 0
+fi
 
 if [ ! -f /etc/sonic/updategraph.conf ]; then
     echo "No updategraph.conf found, generating a default one."

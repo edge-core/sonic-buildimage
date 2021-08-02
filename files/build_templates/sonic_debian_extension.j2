@@ -235,6 +235,13 @@ sudo bash -c "echo '{ \"DEVICE_METADATA\": { \"localhost\": { \"default_bgp_stat
 \"{{crm_res}}_threshold_type\": \"percentage\", \"{{crm_res}}_low_threshold\": \"70\", \"{{crm_res}}_high_threshold\": \"85\"{% if not loop.last %}, {% endif %}
 {%- endfor %} } } }' >> $FILESYSTEM_ROOT/etc/sonic/init_cfg.json"
 
+# Add delayed tacacs application service
+sudo cp files/build_templates/tacacs-config.timer $FILESYSTEM_ROOT/etc/systemd/system/
+sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable tacacs-config.timer
+
+sudo cp files/build_templates/tacacs-config.service $FILESYSTEM_ROOT/etc/systemd/system/
+sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable tacacs-config.service
+
 # Copy SNMP configuration files
 sudo cp $IMAGE_CONFIGS/snmp/snmp.yml $FILESYSTEM_ROOT/etc/sonic/
 
