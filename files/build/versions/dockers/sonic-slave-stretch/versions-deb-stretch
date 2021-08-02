@@ -911,7 +911,7 @@ libslang2-dev==2.3.1-5
 libslf4j-java==1.7.22-1
 libsm-dev==2:1.2.2-1+b3
 libsm6==2:1.2.2-1+b3
-libsndfile1==1.0.27-3+deb9u1
+libsndfile1==1.0.27-3+deb9u2
 libsnmp-base==5.7.3+dfsg-1.7+deb9u3
 libsnmp-dev==5.7.3+dfsg-1.7+deb9u3
 libsnmp30==5.7.3+dfsg-1.7+deb9u3
