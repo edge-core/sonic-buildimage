@@ -414,6 +414,9 @@ start() {
         -v /var/run/docker-syncd$DEV:/var/run/sswsyncd \
 {%- endif %}
 {%- endif %}
+{%- if docker_container_name == "pmon" %}
+    -v /usr/share/sonic/firmware:/usr/share/sonic/firmware:rw \
+{%- endif %}
 {%- if docker_container_name == "swss" %}
         -e ASIC_VENDOR=$ASIC_VENDOR \
 {%- endif -%}
