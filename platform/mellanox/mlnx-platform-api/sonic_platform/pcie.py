@@ -26,7 +26,7 @@ class Pcie(PcieUtil):
             id_conf = item_conf["id"]
             dev_conf = item_conf["dev"]
             fn_conf = item_conf["fn"]
-            bus_conf = self._device_id_to_bus_map.get(id_conf)
+            bus_conf = self._device_id_to_bus_map.get(str(id_conf))
             if bus_conf and self.check_pcie_sysfs(bus=int(bus_conf, base=16), device=int(dev_conf, base=16),
                                                   func=int(fn_conf, base=16)):
                 item_conf["result"] = "Passed"
