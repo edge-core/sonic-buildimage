@@ -38,9 +38,9 @@ struct CSM;
 struct System;
 
 #define CONNECT_INTERVAL_SEC        1
-#define CONNECT_TIMEOUT_MSEC         100
+#define CONNECT_TIMEOUT_MSEC        100
 #define HEARTBEAT_TIMEOUT_SEC       15
-#define TRANSIT_INTERVAL_SEC       1
+#define TRANSIT_INTERVAL_SEC        1
 #define EPOLL_TIMEOUT_MSEC          100
 
 int scheduler_prepare_session(struct CSM*);
@@ -56,5 +56,6 @@ int scheduler_csm_read_callback(struct CSM* csm);
 int iccp_get_server_sock_fd();
 int scheduler_server_accept();
 int iccp_receive_signal_handler(struct System* sys);
+void scheduler_csm_socket_cleanup(struct CSM* csm, int location);
 
 #endif /* SCHEDULER_H_ */

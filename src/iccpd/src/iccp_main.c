@@ -134,6 +134,7 @@ void iccpd_signal_handler(int sig)
     if (err == -1 && errno == EINTR)
         goto retry;
 
+    SYSTEM_INCR_WARMBOOT_COUNTER(sys);
     return;
 }
 

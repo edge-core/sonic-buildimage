@@ -28,8 +28,23 @@
 #include "../include/port.h"
 #include "../include/system.h"
 #include "../include/iccp_csm.h"
-#include "../include/iccp_netlink.h"
+#include "../include/mlacp_link_handler.h"
 #include "../include/scheduler.h"
+#include "../include/iccp_netlink.h"
+#include "../include/iccp_ifm.h"
+
+
+static int vlan_node_compare(const struct VLAN_ID *p_vlan_node1, const struct VLAN_ID *p_vlan_node2)
+{
+    if (p_vlan_node1->vid < p_vlan_node2->vid)
+        return -1;
+
+    if (p_vlan_node1->vid > p_vlan_node2->vid)
+        return 1;
+
+    return 0;
+}
+RB_GENERATE(vlan_rb_tree, VLAN_ID, vlan_entry, vlan_node_compare);
 
 void local_if_init(struct LocalInterface* local_if)
 {
@@ -46,11 +61,14 @@ void local_if_init(struct LocalInterface* local_if)
     local_if->is_peer_link = 0;
     local_if->is_arp_accept = 0;
     local_if->l3_mode = 0;
+    local_if->master_ifindex = 0;
     local_if->state = PORT_STATE_DOWN;
     local_if->prefixlen = 32;
     local_if->csm = NULL;
     local_if->isolate_to_peer_link = 0;
-    LIST_INIT(&local_if->vlan_list);
+    local_if->is_l3_proto_enabled = false;
+    local_if->vlan_count = 0;
+    RB_INIT(vlan_rb_tree, &local_if->vlan_tree);
 
     return;
 }
@@ -64,7 +82,7 @@ void vlan_info_init(struct VLAN_ID* vlan)
     return;
 }
 
-struct LocalInterface* local_if_create(int ifindex, char* ifname, int type)
+struct LocalInterface* local_if_create(int ifindex, char* ifname, int type, uint8_t state)
 {
     struct System* sys = NULL;
     struct LocalInterface* local_if = NULL;
@@ -77,11 +95,10 @@ struct LocalInterface* local_if_create(int ifindex, char* ifname, int type)
     if (!(sys = system_get_instance()))
         return NULL;
 
-    if (ifindex < 0)
-        return NULL;
-
-    if ((local_if = local_if_find_by_ifindex(ifindex)))
-        return local_if;
+    if (ifindex > 0) {
+        if ((local_if = local_if_find_by_ifindex(ifindex)))
+            return local_if;
+    }
 
     if (!(local_if = (struct LocalInterface*)malloc(sizeof(struct LocalInterface))))
     {
@@ -91,7 +108,10 @@ struct LocalInterface* local_if_create(int ifindex, char* ifname, int type)
 
     local_if_init(local_if);
     local_if->ifindex = ifindex;
-    local_if->type = type;
+    local_if->type  = type;
+    local_if->state = state;
+
+    local_if->po_down_time = 0;
 
     if (local_if->type == IF_T_PORT_CHANNEL)
     {
@@ -107,6 +127,7 @@ struct LocalInterface* local_if_create(int ifindex, char* ifname, int type)
             return NULL;
 
         local_if->po_id =  atoi(&ifname[i]);
+        local_if->po_active = (state == PORT_STATE_UP) ? 1 : 0;
     }
 
     if (ifname)
@@ -121,7 +142,10 @@ struct LocalInterface* local_if_create(int ifindex, char* ifname, int type)
             break;
 
         case IF_T_VLAN:
-            /* do nothing currently. */
+            if(is_unique_ip_configured(local_if->name))
+            {
+                local_if->is_l3_proto_enabled = true;
+            }
             break;
 
         case IF_T_VXLAN:
@@ -142,6 +166,9 @@ struct LocalInterface* local_if_create(int ifindex, char* ifname, int type)
 
     LIST_INSERT_HEAD(&(sys->lif_list), local_if, system_next);
 
+    //if there is pending vlan membership for this interface move to system lif
+    move_pending_vlan_mbr_to_lif(sys, local_if);
+
     /*Check the intf is peer-link? Only support PortChannel and Ethernet currently*/
     /*When set peer-link, the local-if is probably not created*/
     LIST_FOREACH(csm, &(sys->csm_list), next)
@@ -150,6 +177,7 @@ struct LocalInterface* local_if_create(int ifindex, char* ifname, int type)
         {
             local_if->is_peer_link = 1;
             csm->peer_link_if = local_if;
+            set_peerlink_learn_kernel(csm, 0, 3);
             break;
         }
         /*check the intf is bind with csm*/
@@ -217,24 +245,40 @@ struct LocalInterface* local_if_find_by_po_id(int po_id)
     return NULL;
 }
 
-static void local_if_vlan_remove(struct LocalInterface *lif_vlan)
+ void local_if_vlan_remove(struct LocalInterface *lif_vlan)
 {
     struct System *sys = NULL;
     struct LocalInterface *lif = NULL;
     struct VLAN_ID *vlan = NULL;
+    int vid = 0;
+    struct VLAN_ID vlan_key = { 0 };
+
+    if (!lif_vlan || lif_vlan->type != IF_T_VLAN)
+    {
+        return;
+    }
+
+    sscanf(lif_vlan->name, "Vlan%d", &vid);
+    memset(&vlan_key, 0, sizeof(struct VLAN_ID));
+    vlan_key.vid = vid;
+
 
     if ((sys = system_get_instance()) != NULL)
     {
         LIST_FOREACH(lif, &(sys->lif_list), system_next)
         {
-            LIST_FOREACH(vlan, &(lif->vlan_list), port_next)
-            {
-                if (lif_vlan != vlan->vlan_itf)
-                    continue;
+            if (lif->type == IF_T_VLAN)
+                continue;
 
+            //delink this vlan (lif_vlan) interface from all associated lifs
+            //in scenario where vlan membership delete comes later when compared
+            //to vlan interface delete from kernel
+            vlan = RB_FIND(vlan_rb_tree, &(lif->vlan_tree), &vlan_key);
+            if (vlan)
+            {
                 vlan->vlan_itf = NULL;
             }
-        }
+       }
     }
 
     return;
@@ -279,6 +323,7 @@ void local_if_destroy(char *ifname)
 {
     struct LocalInterface* lif = NULL;
     struct CSM *csm = NULL;
+    struct CSM *peer_ifname_csm = NULL;
     struct System *sys = NULL;
 
     if (!(sys = system_get_instance()))
@@ -297,21 +342,27 @@ void local_if_destroy(char *ifname)
     else
         local_if_remove(lif);
 
-    csm = lif->csm;
-    if (csm && csm->peer_link_if && strcmp(csm->peer_link_if->name, ifname) == 0)
+    //handle peer_link del case
+    if ( (peer_ifname_csm = system_get_csm_by_peer_ifname(ifname)) != NULL )
     {
         /*if the peerlink interface is not created, peer connection can not establish*/
-        scheduler_session_disconnect_handler(csm);
+        scheduler_session_disconnect_handler(peer_ifname_csm);
+
+        // The function above calls iccp_csm_status_reset, which sets csm->Peer_link_if to NULL,
+        // accessing the peer_link_if cause crash due to null pointer access.
+#if 0
         csm->peer_link_if->is_peer_link = 0;
         csm->peer_link_if = NULL;
+#endif
     }
 
+    csm = lif->csm;
     if (csm && MLACP(csm).current_state == MLACP_STATE_EXCHANGE)
         goto to_mlacp_purge;
     else
         goto to_sys_purge;
 
- to_sys_purge:
+to_sys_purge:
     /* sys purge */
     LIST_REMOVE(lif, system_next);
     if (lif->csm)
@@ -319,7 +370,7 @@ void local_if_destroy(char *ifname)
     LIST_INSERT_HEAD(&(sys->lif_purge_list), lif, system_purge_next);
     return;
 
- to_mlacp_purge:
+to_mlacp_purge:
     /* sys & mlacp purge */
     LIST_REMOVE(lif, system_next);
     LIST_REMOVE(lif, mlacp_next);
@@ -336,8 +387,11 @@ int local_if_is_l3_mode(struct LocalInterface* local_if)
     if (local_if == NULL)
         return 0;
 
-    if (local_if->ipv4_addr != 0 || memcmp(local_if->ipv6_addr, addr_null, 16) != 0)
+    if ((local_if->ipv4_addr != 0)
+            || (memcmp(local_if->ipv6_addr, addr_null, 16) != 0)
+            || (local_if->master_ifindex != 0)) {
         ret = 1;
+    }
 
     return ret;
 }
@@ -361,6 +415,25 @@ void local_if_change_flag_clear(void)
     return;
 }
 
+
+static void local_if_mlacp_purge_del(struct LocalInterface* lif)
+{
+    struct CSM* csm;
+    struct LocalInterface *lif_purge;
+
+    if (lif && lif->csm)
+    {
+        LIST_FOREACH(lif_purge, &(MLACP(lif->csm).lif_purge_list), mlacp_purge_next)
+        {
+            if (lif_purge == lif)
+            {
+                LIST_REMOVE(lif, mlacp_purge_next);
+                break;
+            }
+        }
+    }
+}
+
 void local_if_purge_clear(void)
 {
     struct System* sys = NULL;
@@ -375,8 +448,7 @@ void local_if_purge_clear(void)
         lif = LIST_FIRST(&(sys->lif_purge_list));
         ICCPD_LOG_DEBUG(__FUNCTION__, "Purge %s", lif->name);
         LIST_REMOVE(lif, system_purge_next);
-        if (lif->mlacp_purge_next.le_next != 0 && lif->mlacp_purge_next.le_prev != 0)
-            LIST_REMOVE(lif, mlacp_purge_next);
+        local_if_mlacp_purge_del(lif);
         local_if_del_all_vlan(lif);
         free(lif);
     }
@@ -470,17 +542,15 @@ struct PeerInterface* peer_if_find_by_name(struct CSM* csm, char* name)
 
 void peer_if_del_all_vlan(struct PeerInterface* pif)
 {
-    struct VLAN_ID *pvlan = NULL;
+    struct VLAN_ID *vlan = NULL;
+    struct VLAN_ID* vlan_temp = NULL;
 
-    while (!LIST_EMPTY(&(pif->vlan_list)))
+    ICCPD_LOG_NOTICE(__FUNCTION__, "Remove all VLANs from peer intf %s", pif->name);
+    RB_FOREACH_SAFE(vlan, vlan_rb_tree, &(pif->vlan_tree), vlan_temp)
     {
-        pvlan = LIST_FIRST(&(pif->vlan_list));
-        ICCPD_LOG_DEBUG(__FUNCTION__, "Remove peer intf %s from VLAN %d",
-                        pif->name, pvlan->vid);
-        LIST_REMOVE(pvlan, port_next);
-        free(pvlan);
+        VLAN_RB_REMOVE(vlan_rb_tree, &(pif->vlan_tree), vlan);
+        free(vlan);
     }
-
     return;
 }
 
@@ -497,73 +567,86 @@ void peer_if_destroy(struct PeerInterface* pif)
     return;
 }
 
-int local_if_add_vlan(struct LocalInterface* local_if, uint16_t vid)
+int local_if_add_vlan(struct LocalInterface* local_if,  uint16_t vid)
 {
     struct VLAN_ID *vlan = NULL;
+    struct VLAN_ID vlan_key = { 0 };
     char vlan_name[16] = "";
 
     sprintf(vlan_name, "Vlan%d", vid);
 
-    /* traverse 1 time */
-    LIST_FOREACH(vlan, &(local_if->vlan_list), port_next)
-    {
-        if (vlan->vid == vid)
-            break;
-    }
+    memset(&vlan_key, 0, sizeof(struct VLAN_ID));
+    vlan_key.vid = vid;
 
+    vlan = RB_FIND(vlan_rb_tree, &(local_if->vlan_tree), &vlan_key);
+    
     if (!vlan)
     {
         vlan = (struct VLAN_ID*)malloc(sizeof(struct VLAN_ID));
         if (!vlan)
             return MCLAG_ERROR;
 
-        ICCPD_LOG_DEBUG(__FUNCTION__, "Add %s to VLAN %d", local_if->name, vid);
+        vlan_info_init(vlan);
+        vlan->vid = vid;
+        vlan->vlan_itf = local_if_find_by_name(vlan_name);
+
+        if (vlan->vlan_itf == NULL) {
+            ICCPD_LOG_DEBUG(__FUNCTION__, "vlan_itf %s not present", vlan_name);
+        }
+        local_if->vlan_count +=1;
+        ICCPD_LOG_DEBUG(__FUNCTION__, "Add %s to VLAN %d vlan count %d", local_if->name, vid, local_if->vlan_count);
         local_if->port_config_sync = 1;
-        LIST_INSERT_HEAD(&(local_if->vlan_list), vlan, port_next);
+        RB_INSERT(vlan_rb_tree, &(local_if->vlan_tree), vlan);
     }
 
-    vlan_info_init(vlan);
-    vlan->vid = vid;
     vlan->vlan_removed = 0;
-    vlan->vlan_itf = local_if_find_by_name(vlan_name);
 
-    update_if_ipmac_on_standby(local_if);
-
+//    update_if_ipmac_on_standby(local_if, 5);
+    if (vlan->vlan_itf)
+    {
+        if (local_if->is_peer_link)
+        {
+            update_vlan_if_mac_on_standby(vlan->vlan_itf, 1);
+        }
+    }
+    else 
+    {
+        ICCPD_LOG_WARN(__FUNCTION__, "skip VLAN MAC update for vlan %d interface %s ", vid, local_if->name);
+    }
     return 0;
 }
 
 void local_if_del_vlan(struct LocalInterface* local_if, uint16_t vid)
 {
     struct VLAN_ID *vlan = NULL;
+    struct VLAN_ID vlan_key = { 0 };
 
-    /* traverse 1 time */
-    LIST_FOREACH(vlan, &(local_if->vlan_list), port_next)
-    {
-        if (vlan->vid == vid)
-            break;
-    }
+    memset(&vlan_key, 0, sizeof(struct VLAN_ID));
+    vlan_key.vid = vid;
 
+    vlan = RB_FIND(vlan_rb_tree, &(local_if->vlan_tree), &vlan_key);
+ 
     if (vlan != NULL)
     {
-        LIST_REMOVE(vlan, port_next);
+        VLAN_RB_REMOVE(vlan_rb_tree, &(local_if->vlan_tree), vlan);
         free(vlan);
         local_if->port_config_sync = 1;
+        local_if->vlan_count -=1;
+        ICCPD_LOG_DEBUG(__FUNCTION__, "Remove %s from VLAN %d, count %d", local_if->name, vid, local_if->vlan_count);
     }
-
-    ICCPD_LOG_DEBUG(__FUNCTION__, "Remove %s from VLAN %d", local_if->name, vid);
-
     return;
 }
 
 void local_if_del_all_vlan(struct LocalInterface* lif)
 {
     struct VLAN_ID* vlan = NULL;
+    struct VLAN_ID* vlan_temp = NULL;
 
-    while (!LIST_EMPTY(&(lif->vlan_list)))
+    ICCPD_LOG_NOTICE(__FUNCTION__, "Remove all VLANs from %s", lif->name);
+    RB_FOREACH_SAFE(vlan, vlan_rb_tree, &(lif->vlan_tree), vlan_temp)
     {
-        vlan = LIST_FIRST(&(lif->vlan_list));
-        ICCPD_LOG_DEBUG(__FUNCTION__, "Remove %s from VLAN %d", lif->name, vlan->vid);
-        LIST_REMOVE(vlan, port_next);
+        VLAN_RB_REMOVE(vlan_rb_tree, &(lif->vlan_tree), vlan);
+        lif->vlan_count -=1;
         free(vlan);
     }
 
@@ -574,34 +657,30 @@ void local_if_del_all_vlan(struct LocalInterface* lif)
 int peer_if_add_vlan(struct PeerInterface* peer_if, uint16_t vlan_id)
 {
     struct VLAN_ID *peer_vlan = NULL;
+    struct VLAN_ID vlan_key = { 0 };
     char vlan_name[16] = "";
 
     sprintf(vlan_name, "Vlan%d", vlan_id);
 
-    /* traverse 1 time */
-    LIST_FOREACH(peer_vlan, &(peer_if->vlan_list), port_next)
-    {
-        if (peer_vlan->vid == vlan_id)
-        {
-            ICCPD_LOG_DEBUG(__FUNCTION__, "Update VLAN ID %d for peer intf %s", peer_vlan->vid, peer_if->name);
-            break;
-        }
-    }
+    memset(&vlan_key, 0, sizeof(struct VLAN_ID));
+    vlan_key.vid = vlan_id;
 
+    peer_vlan = RB_FIND(vlan_rb_tree, &(peer_if->vlan_tree), &vlan_key);
+ 
     if (!peer_vlan)
     {
         peer_vlan = (struct VLAN_ID*)malloc(sizeof(struct VLAN_ID));
         if (!peer_vlan)
             return MCLAG_ERROR;
 
-        ICCPD_LOG_DEBUG(__FUNCTION__, "Add peer intf %s to VLAN %d", peer_if->name, vlan_id);
-        LIST_INSERT_HEAD(&(peer_if->vlan_list), peer_vlan, port_next);
+        vlan_info_init(peer_vlan);
+        peer_vlan->vid = vlan_id;
+
+        ICCPD_LOG_DEBUG(__FUNCTION__, "add VLAN ID = %d from peer's %s", vlan_id, peer_if->name);
+        RB_INSERT(vlan_rb_tree, &(peer_if->vlan_tree), peer_vlan);
     }
 
-    vlan_info_init(peer_vlan);
-    peer_vlan->vid = vlan_id;
     peer_vlan->vlan_removed = 0;
-
     return 0;
 }
 
@@ -610,14 +689,15 @@ int peer_if_clean_unused_vlan(struct PeerInterface* peer_if)
 {
     struct VLAN_ID *peer_vlan = NULL;
     struct VLAN_ID *peer_vlan_next = NULL;
+    struct VLAN_ID *vlan_temp = NULL;
 
     /* traverse 1 time */
-    LIST_FOREACH(peer_vlan_next, &(peer_if->vlan_list), port_next)
+    RB_FOREACH_SAFE(peer_vlan_next, vlan_rb_tree, &(peer_if->vlan_tree), vlan_temp)
     {
         if (peer_vlan != NULL)
         {
             ICCPD_LOG_DEBUG(__FUNCTION__, "Remove peer intf %s from VLAN %d", peer_if->name, peer_vlan->vid);
-            LIST_REMOVE(peer_vlan, port_next);
+            VLAN_RB_REMOVE(vlan_rb_tree, &(peer_if->vlan_tree), peer_vlan);
             free(peer_vlan);
             peer_vlan = NULL;
 
@@ -629,7 +709,7 @@ int peer_if_clean_unused_vlan(struct PeerInterface* peer_if)
     if (peer_vlan != NULL)
     {
         ICCPD_LOG_DEBUG(__FUNCTION__, "Remove peer intf %s from VLAN %d", peer_if->name, peer_vlan->vid);
-        LIST_REMOVE(peer_vlan, port_next);
+        VLAN_RB_REMOVE(vlan_rb_tree, &(peer_if->vlan_tree), peer_vlan);
         free(peer_vlan);
     }
 
@@ -660,9 +740,32 @@ int set_sys_arp_accept_flag(char* ifname, int flag)
         memset(cmd, 0, 64);
         snprintf(cmd, 63, "echo %d > /proc/sys/net/ipv4/conf/%s/arp_accept", flag, ifname);
         if (system(cmd))
-            ICCPD_LOG_WARN(__func__, "Failed to execute cmd = %s", flag, cmd);
+            ICCPD_LOG_WARN(__func__, "Failed to execute cmd = %s", cmd);
     }
 
     fclose(file_ptr);
     return result;
+}
+
+int local_if_l3_proto_enabled(const char* ifname)
+{
+    struct System* sys = NULL;
+    struct LocalInterface* local_if = NULL;
+
+    if (!ifname)
+        return 0;
+
+    if (!(sys = system_get_instance()))
+        return 0;
+
+    LIST_FOREACH(local_if, &(sys->lif_list), system_next)
+    {
+        if (strcmp(local_if->name, ifname) == 0)
+        {
+            if (local_if->is_l3_proto_enabled)
+                return 1;
+        }
+    }
+
+    return 0;
 }

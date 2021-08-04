@@ -36,10 +36,10 @@ typedef enum
 
 typedef struct cli_param_queue
 {
-    char              ifname[16];
+    char ifname[16];
     cli_queue_type_et type;
-    int               param;
-    int               itf_add;
+    int param;
+    int itf_add;
     LIST_ENTRY(cli_param_queue) cli_queue_next;
 } cli_param_queue_st;
 
@@ -50,18 +50,21 @@ typedef struct cli_param_queue
 #define MCLAG_INTF_STR  "mclag_interface"
 #define SYSTEM_MAC_STR  "system_mac"
 
-int set_mc_lag_id(struct CSM* csm, uint16_t domain);
-int set_peer_link(int mid, const char* ifname);
-int set_local_address(int mid, const char* addr);
-int set_peer_address(int mid, const char* addr);
-int unset_mc_lag_id(struct CSM* csm, uint16_t domain);
+int set_mc_lag_id(struct CSM *csm, uint16_t domain);
+int set_peer_link(int mid, const char *ifname);
+int set_local_address(int mid, const char *addr);
+int set_peer_address(int mid, const char *addr);
+int unset_mc_lag_id(struct CSM *csm, uint16_t domain);
 int unset_peer_link(int mid);
 int unset_local_address(int mid);
 int unset_peer_address(int mid);
 
-int iccp_cli_attach_mclag_domain_to_port_channel(int domain, const char* ifname);
-int iccp_cli_detach_mclag_domain_to_port_channel(const char* ifname);
-int set_local_system_id(const char* mac);
-int unset_local_system_id( );
+int iccp_cli_attach_mclag_domain_to_port_channel(int domain, const char *ifname);
+int iccp_cli_detach_mclag_domain_to_port_channel(const char *ifname);
+int set_local_system_id(const char *mac);
+int unset_local_system_id();
+
+int set_keepalive_time(int mid, int keepalive_time);
+int set_session_timeout(int mid, int session_timeout_val);
 
 #endif

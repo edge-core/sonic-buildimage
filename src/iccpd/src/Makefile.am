@@ -17,6 +17,7 @@ iccpd_SOURCES = \
 	    mlacp_link_handler.c \
 	    mlacp_sync_prepare.c mlacp_sync_update.c\
 	    mlacp_fsm.c \
-	    iccp_netlink.c
+	    iccp_netlink.c \
+            openbsd_tree.c
 iccpd_CFLAGS = $(DBGFLAGS) $(AM_CFLAGS) $(CFLAGS_COMMON)
 iccpd_LDADD = -lnl-genl-3 -lnl-route-3 -lnl-3 -lpthread

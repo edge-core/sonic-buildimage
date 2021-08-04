@@ -48,6 +48,14 @@
 *
 ******************************************************/
 
+//this needs to be fine tuned 
+#define PEER_SOCK_SND_BUF_LEN  (6 * 1024 * 1024)
+#define PEER_SOCK_RCV_BUF_LEN  (6 * 1024 * 1024)
+#define RECV_RETRY_INTERVAL_USEC    100000
+#define RECV_RETRY_MAX              10
+
+extern int mlacp_prepare_for_warm_reboot(struct CSM* csm, char* buf, size_t max_buf_size);
+
 static int session_conn_thread_lock(pthread_mutex_t *conn_mutex)
 {
     return 1; /*pthread_mutex_lock(conn_mutex);*/
@@ -71,10 +79,10 @@ static void heartbeat_check(struct CSM *csm)
         return;
     }
 
-    if ( (time(NULL) - csm->heartbeat_update_time) > HEARTBEAT_TIMEOUT_SEC)
+    if ( (time(NULL) - csm->heartbeat_update_time) > csm->session_timeout)
     {
         /* hearbeat timeout*/
-        ICCPD_LOG_WARN(__FUNCTION__, "iccpd connection timeout (heartbeat)");
+        ICCPD_LOG_WARN("ICCP_FSM", "iccpd connection timeout (heartbeat)");
         scheduler_session_disconnect_handler(csm);
     }
 
@@ -106,15 +114,13 @@ static int scheduler_transit_fsm()
         iccp_csm_transit(csm);
         app_csm_transit(csm);
         mlacp_fsm_transit(csm);
-
-        if (MLACP(csm).current_state == MLACP_STATE_EXCHANGE && (time(NULL) - sys->csm_trans_time) >= 60)
-        {
-            iccp_get_fdb_change_from_syncd();
-            sys->csm_trans_time = time(NULL);
-        }
     }
 
-    local_if_change_flag_clear();
+    //lif->changed flag is marked for state change for lif, for active node when
+    //it is in STAGE2 where it receiving cfg sync from peer if there is any po
+    //state change that change is not sent and this clear clears the marking and
+    //thus remote state is not updated; so commenting this out
+    //local_if_change_flag_clear();
     local_if_purge_clear();
 
     return 1;
@@ -131,6 +137,9 @@ int scheduler_csm_read_callback(struct CSM* csm)
     size_t data_len = 0;
     size_t pos = 0;
     int recv_len = 0, len = 0, retval;
+    int num_retry = 0;
+    int total_retry_time = 0;
+    int total_data_len = 0;
 
     if (csm->sock_fd <= 0)
         return MCLAG_ERROR;
@@ -138,6 +147,7 @@ int scheduler_csm_read_callback(struct CSM* csm)
     memset(peer_msg, 0, CSM_BUFFER_SIZE);
 
     recv_len = 0;
+    errno = 0;
 
     while (recv_len != sizeof(LDPHdr))
     {
@@ -145,38 +155,92 @@ int scheduler_csm_read_callback(struct CSM* csm)
         if (len == -1)
         {
             perror("recv(). Error");
+            ICCPD_LOG_WARN("ICCP_FSM", "Peer disconnect for header read error[%s] len = -1 till now received len  = %d ", strerror(errno), recv_len);
+            SYSTEM_INCR_HDR_READ_SOCK_ERR_COUNTER(system_get_instance());
             goto recv_err;
         }
         else if (len == 0)
         {
-            ICCPD_LOG_WARN(__FUNCTION__, "Peer disconnect for receive error");
+            ICCPD_LOG_WARN("ICCP_FSM", "Peer disconnect for header read error[%s] len = 0, till now received len = %d ",strerror(errno), recv_len);
+            SYSTEM_INCR_HDR_READ_SOCK_ZERO_LEN_COUNTER(system_get_instance());
             goto recv_err;
         }
         recv_len += len;
         /*usleep(100);*/
     }
 
-    data_len = ntohs(ldp_hdr->msg_len) - MSG_L_INCLUD_U_BIT_MSG_T_L_FIELDS;
+    if (ntohs(ldp_hdr->msg_len) >= MSG_L_INCLUD_U_BIT_MSG_T_L_FIELDS)
+    {
+        data_len = ntohs(ldp_hdr->msg_len) - MSG_L_INCLUD_U_BIT_MSG_T_L_FIELDS;
+    }
+    else
+    {
+        ICCPD_LOG_ERR("ICCP_FSM", "Peer disconnect for invalid data error; length[%d] msg_type[0x%x] ", ntohs(ldp_hdr->msg_len),  ntohs(ldp_hdr->msg_type));
+        SYSTEM_INCR_INVALID_PEER_MSG_COUNTER(system_get_instance());
+        goto recv_err;
+    }
+    total_data_len = data_len;
     pos = 0;
 
     while (data_len > 0)
     {
-        recv_len = recv(csm->sock_fd, &data[pos], data_len, 0);
+        /* When consecutive CCP session flaps happen, recv() call got stuck.
+         * Change recv() to non-blocking with retry mechanism. If max
+         * retry reaches, attempt one more retry after waiting for one KA
+         * interval before bringing down the session.
+         */
+        recv_len = recv(csm->sock_fd, &data[pos], data_len, MSG_DONTWAIT);
         if (recv_len == -1)
         {
-            perror("continue recv(). Error");
-            goto recv_err;
+            if ((errno == EAGAIN) || (errno == EWOULDBLOCK))
+            {
+                ICCPD_LOG_NOTICE(
+                    "ICCP_FSM", "Non-blocking recv total/pending len %d/%d, errno %d, num_retry %d",
+                    total_data_len, data_len, errno, num_retry);
+                ++num_retry;
+                if (num_retry > RECV_RETRY_MAX)
+                {
+                    ICCPD_LOG_ERR(
+                        "ICCP_FSM", "Non-blocking recv() retry failed, total/pending len %d/%d",
+                        total_data_len, data_len);
+                    SYSTEM_INCR_RX_RETRY_FAIL_COUNTER(system_get_instance());
+                    goto recv_err;
+                }
+                else
+                {
+                    if (num_retry == RECV_RETRY_MAX)
+                        usleep((csm->session_timeout * 1000000) - total_retry_time);
+                    else
+                    {
+                        total_retry_time += (num_retry * RECV_RETRY_INTERVAL_USEC);
+                        usleep(num_retry * RECV_RETRY_INTERVAL_USEC);
+                    }
+                    recv_len = 0;
+                }
+            }
+            else
+            {
+                perror("continue recv() Error");
+                ICCPD_LOG_WARN("ICCP_FSM", "Peer data read error; recv_len:%d data_len:%d, errno %d",
+                               recv_len, data_len, errno);
+                SYSTEM_INCR_TLV_READ_SOCK_ERR_COUNTER(system_get_instance());
+                goto recv_err;
+            }
         }
         else if (recv_len == 0)
         {
-            ICCPD_LOG_WARN(__FUNCTION__, "Peer disconnect for read error");
+            ICCPD_LOG_WARN("ICCP_FSM", "Peer disconnect for data read error; recv_len:%d data_len:%d ", recv_len, data_len);
+            SYSTEM_INCR_TLV_READ_SOCK_ZERO_LEN_COUNTER(system_get_instance());
             goto recv_err;
         }
         data_len -= recv_len;
         pos += recv_len;
         /*usleep(100);*/
     }
-
+    if (num_retry > 0)
+    {
+        SYSTEM_SET_RETRY_COUNTER(system_get_instance(), num_retry);
+    }
     retval = iccp_csm_init_msg(&msg, peer_msg, ntohs(ldp_hdr->msg_len) + MSG_L_INCLUD_U_BIT_MSG_T_L_FIELDS);
     if (retval == 0)
     {
@@ -224,21 +288,21 @@ int scheduler_server_accept()
         if (!csm)
         {
             /* can't find csm with peer ip*/
-            ICCPD_LOG_INFO(__FUNCTION__, "csm null with peer ip [%s]", inet_ntoa(client_addr.sin_addr));
+            ICCPD_LOG_NOTICE("ICCP_FSM", "csm null with peer ip [%s]", inet_ntoa(client_addr.sin_addr));
             goto reject_client;
         }
 
         if (csm->sock_fd > 0)
         {
             /* peer already connected*/
-            ICCPD_LOG_INFO(__FUNCTION__, "csm sock is connected with peer ip [%s]", inet_ntoa(client_addr.sin_addr));
+            ICCPD_LOG_NOTICE("ICCP_FSM", "csm sock is connected with peer ip [%s]", inet_ntoa(client_addr.sin_addr));
             goto reject_client;
         }
 
         if ((ret = scheduler_check_csm_config(csm)) < 0)
         {
             /* csm config error*/
-            ICCPD_LOG_INFO(__FUNCTION__, "csm config error with peer ip [%s]", inet_ntoa(client_addr.sin_addr));
+            ICCPD_LOG_NOTICE("ICCP_FSM", "csm config error with peer ip [%s]", inet_ntoa(client_addr.sin_addr));
             goto reject_client;
         }
     }
@@ -257,6 +321,8 @@ int scheduler_server_accept()
 
     struct epoll_event event;
     int err;
+    int send_buf_len = PEER_SOCK_SND_BUF_LEN;
+    int recv_buf_len = PEER_SOCK_RCV_BUF_LEN;
     event.data.fd = new_fd;
     event.events = EPOLLIN;
     err = epoll_ctl(sys->epoll_fd, EPOLL_CTL_ADD, new_fd, &event);
@@ -267,6 +333,14 @@ int scheduler_server_accept()
     }
 
     csm->sock_fd = new_fd;
+    if (setsockopt(csm->sock_fd, SOL_SOCKET, SO_SNDBUF, &send_buf_len, sizeof(send_buf_len)) == -1)
+    {
+        ICCPD_LOG_ERR(__FUNCTION__, "Set socket send buf option failed. Error");
+    }
+    if (setsockopt(csm->sock_fd, SOL_SOCKET, SO_RCVBUF, &recv_buf_len, sizeof(recv_buf_len)) == -1)
+    {
+        ICCPD_LOG_ERR(__FUNCTION__, "Set socket recv buf option failed. Error");
+    }
     csm->current_state = ICCP_NONEXISTENT;
     FD_SET(new_fd, &(sys->readfd));
     sys->readfd_count++;
@@ -293,6 +367,8 @@ void iccp_get_start_type(struct System* sys)
     if (strstr(g_csm_buf, "SONIC_BOOT_TYPE=warm"))
         sys->warmboot_start = WARM_REBOOT;
 
+    ICCPD_LOG_DEBUG("ICCP_FSM", "Start ICCP: warm reboot %s",
+        (sys->warmboot_start == WARM_REBOOT)? "yes" : "no");
     return;
 }
 
@@ -309,8 +385,10 @@ void scheduler_init()
     iccp_sys_local_if_list_get_init();
     iccp_sys_local_if_list_get_addr();
     /*Interfaces must be created before this func called*/
+    //no need to create iccpd config from startup file, it will be done through
+    //cli
     iccp_config_from_file(sys->config_file_path);
-
+    
     /*Get kernel ARP info */
     iccp_neigh_get_init();
 
@@ -331,7 +409,6 @@ void scheduler_init()
     return;
 }
 
-extern int mlacp_prepare_for_warm_reboot(struct CSM* csm, char* buf, size_t max_buf_size);
 void mlacp_sync_send_warmboot_flag()
 {
     struct System* sys = NULL;
@@ -350,7 +427,7 @@ void mlacp_sync_send_warmboot_flag()
             iccp_csm_send(csm, g_csm_buf, msg_len);
         }
     }
-
+    ICCPD_LOG_DEBUG("ICCP_FSM", "Send warmboot flag to peer. Start warmboot");
     return;
 }
 
@@ -542,12 +619,23 @@ void session_client_conn_handler(struct CSM *csm)
         /* Conn OK*/
         struct epoll_event event;
         int err;
+        int send_buf_len = PEER_SOCK_SND_BUF_LEN;
+        int recv_buf_len = PEER_SOCK_RCV_BUF_LEN;
         event.data.fd = connFd;
         event.events = EPOLLIN;
         err = epoll_ctl(sys->epoll_fd, EPOLL_CTL_ADD, connFd, &event);
         if (err)
             goto conn_fail;
         csm->sock_fd = connFd;
+        if (setsockopt(csm->sock_fd, SOL_SOCKET, SO_SNDBUF, &send_buf_len, sizeof(send_buf_len)) == -1)
+        {
+            ICCPD_LOG_ERR(__FUNCTION__, "Set socket send buf option failed. Error");
+        }
+        if (setsockopt(csm->sock_fd, SOL_SOCKET, SO_RCVBUF, &recv_buf_len, sizeof(recv_buf_len)) == -1)
+        {
+            ICCPD_LOG_ERR(__FUNCTION__, "Set socket recv buf option failed. Error");
+        }
+
         FD_SET(connFd, &(sys->readfd));
         sys->readfd_count++;
         ICCPD_LOG_INFO(__FUNCTION__, "Connect to server %s sucess .", csm->peer_ip);
@@ -707,6 +795,7 @@ int scheduler_check_csm_config(struct CSM* csm)
         {
             lif->is_peer_link = 1;
             csm->peer_link_if = lif;
+            set_peerlink_learn_kernel(csm, 0, 2);
         }
     }
 
@@ -742,32 +831,66 @@ int scheduler_unregister_sock_read_event_callback(struct CSM* csm)
 void scheduler_session_disconnect_handler(struct CSM* csm)
 {
     struct System* sys = NULL;
+    struct If_info * cif = NULL;
 
     if ((sys = system_get_instance()) == NULL )
         return;
 
-    struct epoll_event event;
-
     if (csm == NULL)
         return;
+
+    ICCPD_LOG_NOTICE("ICCP_FSM", "scheduler session disconnect handler");
 
     session_conn_thread_lock(&csm->conn_mutex);
     scheduler_unregister_sock_read_event_callback(csm);
     if (csm->sock_fd > 0)
     {
-        event.data.fd = csm->sock_fd;
-        event.events = EPOLLIN;
-        epoll_ctl(sys->epoll_fd, EPOLL_CTL_DEL, csm->sock_fd, &event);
-
-        close(csm->sock_fd);
-        csm->sock_fd = -1;
+        scheduler_csm_socket_cleanup(csm, 1);
     }
 
     mlacp_peer_disconn_handler(csm);
     MLACP(csm).current_state = MLACP_STATE_INIT;
     iccp_csm_status_reset(csm, 0);
+
     time(&csm->connTimePrev);
     session_conn_thread_unlock(&csm->conn_mutex);
 
     return;
 }
+
+void scheduler_csm_socket_cleanup(struct CSM* csm, int location)
+{
+    struct System* sys;
+    struct epoll_event event;
+
+    sys = system_get_instance();
+    if (sys == NULL)
+        return;
+
+    if (csm == NULL)
+        return;
+
+    if (csm->sock_fd <= 0)
+        return
+
+    event.data.fd = csm->sock_fd;
+    event.events = EPOLLIN;
+    if (epoll_ctl(sys->epoll_fd, EPOLL_CTL_DEL, csm->sock_fd, &event) != 0)
+    {
+        ICCPD_LOG_ERR("ICCP_FSM", "CSM socket %d epoll del error %d, location %d",
+                      csm->sock_fd, errno, location);
+    }
+    if (close(csm->sock_fd) != 0)
+    {
+        ICCPD_LOG_ERR("ICCP_FSM", "CSM socket %d close error %d, location %d",
+                      csm->sock_fd, errno, location);
+        SYSTEM_INCR_SOCKET_CLOSE_ERR_COUNTER(system_get_instance());
+    }
+    else
+    {
+        ICCPD_LOG_NOTICE("ICCP_FSM", "CSM socket %d close, location %d",
+                         csm->sock_fd, location);
+    }
+    csm->sock_fd = -1;
+}
+

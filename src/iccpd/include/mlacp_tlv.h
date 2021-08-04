@@ -28,6 +28,9 @@
 
 #include "../include/msg_format.h"
 #include "../include/port.h"
+#include "../include/openbsd_tree.h"
+#include "../include/mlacp_tlv.h"
+
 
 #define MLACP_SYSCONF_NODEID_MSB_MASK       0x80
 #define MLACP_SYSCONF_NODEID_NODEID_MASK    0x70
@@ -349,8 +352,9 @@ struct mLACPVLANInfoTLV
 /* Mac entry Information TLV*/
 struct mLACPMACData
 {
-    uint8_t         type;/*add or del*/
-    char     mac_str[ETHER_ADDR_STR_LEN];
+    uint8_t     type;/*add or del*/
+    uint8_t     mac_type;
+    uint8_t     mac_addr[ETHER_ADDR_LEN];
     uint16_t vid;
     /*Current if name that set in chip*/
     char     ifname[MAX_L_PORT_NAME];
@@ -366,17 +370,24 @@ struct mLACPMACInfoTLV
     struct mLACPMACData MacEntry[0];
 } __attribute__ ((packed));
 
+#define NEIGH_LOCAL   1
+#define NEIGH_REMOTE  2
+
 struct ARPMsg
 {
-    uint8_t     op_type;
-    char     ifname[MAX_L_PORT_NAME];
-    uint32_t    ipv4_addr;
-    uint8_t     mac_addr[ETHER_ADDR_LEN];
+    uint8_t op_type;
+    uint8_t flag;
+    uint8_t learn_flag;       /*Loacl or Remote*/
+    char ifname[MAX_L_PORT_NAME];
+    uint32_t ipv4_addr;         // net order
+    uint8_t mac_addr[ETHER_ADDR_LEN];
 };
 
 struct NDISCMsg
 {
     uint8_t op_type;
+    uint8_t flag;
+    uint8_t learn_flag;       /*Loacl or Remote*/
     char ifname[MAX_L_PORT_NAME];
     uint32_t ipv6_addr[4];
     uint8_t mac_addr[ETHER_ADDR_LEN];
@@ -387,7 +398,7 @@ struct NDISCMsg
  */
 struct mLACPARPInfoTLV
 {
-    ICCParameter    icc_parameter;
+    ICCParameter icc_parameter;
     /* Local Interface ID */
     uint16_t num_of_entry;
     struct ARPMsg ArpEntry[0];
@@ -432,11 +443,50 @@ struct mLACPWarmbootTLV
     uint8_t         warmboot;
 } __attribute__ ((packed));
 
+/*
+ * NOS: interface up ack message
+ * ACK is sent by MLAG peer after processing MLAG interface up notification.
+ * The ack indicates that port-isolation is applied on the MLAG peer node
+ */
+typedef uint8_t PORT_ISOLATION_STATE_e;
+enum PORT_ISOLATION_STATE_e
+{
+    PORT_ISOLATION_STATE_DISABLE = 0,
+    PORT_ISOLATION_STATE_ENABLE = 1
+};
+
+typedef uint8_t IF_UP_ACK_TYPE_e;
+enum IF_UP_ACK_TYPE_e
+{
+    IF_UP_ACK_TYPE_PHY_PORT = 0,
+    IF_UP_ACK_TYPE_PORT_CHANNEL = 1
+};
+
+struct mLACPIfUpAckTLV {
+    ICCParameter    icc_parameter;
+    uint8_t         if_type;
+    uint8_t         port_isolation_state;
+    uint16_t        if_id;                   /* LAG: agg_id */
+}__attribute__ ((packed));
+
 enum NEIGH_OP_TYPE
 {
-    NEIGH_SYNC_LIF,
-    NEIGH_SYNC_ADD,
-    NEIGH_SYNC_DEL,
+    NEIGH_SYNC_LIF = 0,
+    NEIGH_SYNC_ADD = 1,
+    NEIGH_SYNC_DEL = 2,
+};
+
+enum NEIGH_FLAG
+{
+    NEIGH_SYNC_FLAG_ACK = 1,
+    NEIGH_SYNC_FLAG_SELF_LL = 2,
+    NEIGH_SYNC_FLAG_SELF_IP = 4,
+};
+
+enum NEIGH_SYNC_DIR
+{
+    NEIGH_SYNC_CLIENT_IP = 1,
+    NEIGH_SYNC_SELF_IP = 2,
 };
 
 enum MAC_AGE_TYPE
@@ -456,20 +506,30 @@ enum MAC_TYPE
 {
     MAC_TYPE_STATIC     = 1,
     MAC_TYPE_DYNAMIC    = 2,
+    MAC_TYPE_DYNAMIC_LOCAL = 3,  /* Used while sending MAC to Syncd to program with aging enabled. */
 };
 
 struct MACMsg
 {
+    RB_ENTRY(MACMsg) mac_entry_rb;
+    uint16_t    vid;
+    uint8_t     mac_addr[ETHER_ADDR_LEN];
     uint8_t     op_type;    /*add or del*/
     uint8_t     fdb_type;   /*static or dynamic*/
-    char     mac_str[ETHER_ADDR_STR_LEN];
-    uint16_t vid;
+
     /*Current if name that set in chip*/
     char     ifname[MAX_L_PORT_NAME];
     /*if we set the mac to peer-link, origin_ifname store the
        original if name that learned from chip*/
     char     origin_ifname[MAX_L_PORT_NAME];
     uint8_t age_flag;/*local or peer is age?*/
+    uint8_t pending_local_del;
+    uint8_t add_to_syncd;
+
+    TAILQ_ENTRY(MACMsg) tail;     // entry into mac_msg_list
 };
+
+RB_HEAD(mac_rb_tree, MACMsg);
+RB_PROTOTYPE(mac_rb_tree, MACMsg, mac_entry_rb, MACMsg_compare);
 
 #endif /* MLACP_TLV_H_ */

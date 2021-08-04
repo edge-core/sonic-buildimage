@@ -25,8 +25,16 @@
 #define PORT_H_
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <time.h>
 #include <sys/queue.h>
+
+#include "../include/openbsd_tree.h"
+
+#ifndef INET_ADDRSTRLEN
+#define INET_ADDRSTRLEN 16
+#endif /* INET_ADDRSTRLEN */
+
 
 #define ETHER_ADDR_LEN 6
 #define ETHER_ADDR_STR_LEN 18
@@ -47,9 +55,10 @@
 #define IF_T_UNKNOW        -1
 #define IF_T_PORT           0
 #define IF_T_PORT_CHANNEL   1
-#define IF_T_VLAN         2
-#define IF_T_VXLAN       3
-#define IF_T_BRIDGE      4
+#define IF_T_VLAN           2
+#define IF_T_VXLAN          3
+#define IF_T_BRIDGE         4
+
 typedef struct
 {
     char *ifname;
@@ -62,13 +71,37 @@ struct If_info
     LIST_ENTRY(If_info) csm_next;
 };
 
+struct Unq_ip_If_info
+{
+    char name[MAX_L_PORT_NAME];
+    LIST_ENTRY(Unq_ip_If_info) if_next;
+};
+
 struct VLAN_ID
 {
     uint16_t vid;
     uint16_t vlan_removed;
     struct LocalInterface* vlan_itf; /* loacl vlan interface */
-    LIST_ENTRY(VLAN_ID) port_next;
+    RB_ENTRY(VLAN_ID) vlan_entry;
 };
+
+RB_HEAD(vlan_rb_tree, VLAN_ID);
+RB_PROTOTYPE(vlan_rb_tree, VLAN_ID, vlan_rb_tree, vlan_node_compare);
+
+struct PendingVlanMbrIf
+{
+    char name[MAX_L_PORT_NAME];
+    struct vlan_rb_tree vlan_tree;
+    LIST_ENTRY(PendingVlanMbrIf) if_next;
+};
+
+#define VLAN_RB_REMOVE(name, head, elm) do {  \
+    RB_REMOVE(name, head, elm);              \
+    (elm)->vlan_entry.rbt_parent = NULL;   \
+    (elm)->vlan_entry.rbt_left = NULL;     \
+    (elm)->vlan_entry.rbt_right = NULL;    \
+} while (0)
+
 
 struct PeerInterface
 {
@@ -88,7 +121,7 @@ struct PeerInterface
     struct CSM* csm;
 
     LIST_ENTRY(PeerInterface) mlacp_next;
-    LIST_HEAD(peer_vlan_list, VLAN_ID) vlan_list;
+    struct vlan_rb_tree vlan_tree;
 };
 
 struct LocalInterface
@@ -104,6 +137,8 @@ struct LocalInterface
     uint8_t prefixlen;
     uint32_t ipv6_addr[4];
     uint8_t prefixlen_v6;
+    uint32_t ipv6_ll_addr[4];
+    uint8_t ll_prefixlen_v6;
 
     uint8_t l3_mode;
     uint8_t l3_mac_addr[ETHER_ADDR_LEN];
@@ -115,12 +150,18 @@ struct LocalInterface
     int mlacp_state;    /* Record mlacp state */
     uint8_t isolate_to_peer_link;
 
+    time_t po_down_time;
+
     struct CSM* csm;
 
     uint8_t changed;
     uint8_t port_config_sync;
+    bool is_traffic_disable;   /* Disable traffic tx/rx  */
+    bool is_l3_proto_enabled;  /* Enable L3 Protocol support */
+    uint32_t vlan_count;
+    uint32_t master_ifindex;   /* VRF ifindex*/
 
-    LIST_HEAD(local_vlan_list, VLAN_ID) vlan_list;
+    struct vlan_rb_tree vlan_tree;
 
     LIST_ENTRY(LocalInterface) system_next;
     LIST_ENTRY(LocalInterface) system_purge_next;
@@ -128,7 +169,7 @@ struct LocalInterface
     LIST_ENTRY(LocalInterface) mlacp_purge_next;
 };
 
-struct LocalInterface* local_if_create(int ifindex, char* ifname, int type);
+struct LocalInterface* local_if_create(int ifindex, char* ifname, int type, uint8_t state);
 struct LocalInterface* local_if_find_by_name(const char* ifname);
 struct LocalInterface* local_if_find_by_ifindex(int ifindex);
 struct LocalInterface* local_if_find_by_po_id(int po_id);
@@ -141,7 +182,6 @@ int local_if_is_l3_mode(struct LocalInterface* local_if);
 void local_if_init(struct LocalInterface*);
 void local_if_finalize(struct LocalInterface*);
 
-void ether_mac_set_addr_with_if_name(char *name, uint8_t* mac);
 struct PeerInterface* peer_if_create(struct CSM* csm, int peer_if_number, int type);
 struct PeerInterface* peer_if_find_by_name(struct CSM* csm, char* name);
 

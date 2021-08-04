@@ -20,7 +20,7 @@
  *
  *  Maintainer: jianjun, grace Li from nephos
  */
-
+#include <pthread.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
@@ -29,6 +29,7 @@
 #include "../include/scheduler.h"
 #include "../include/msg_format.h"
 #include "../include/iccp_csm.h"
+#include "../include/iccp_cli.h"
 #include "../include/mlacp_link_handler.h"
 /*****************************************
 * Define
@@ -121,6 +122,8 @@ void iccp_csm_init(struct CSM* csm)
     memset(csm->peer_ip, 0, INET_ADDRSTRLEN);
     memset(csm->iccp_info.sender_name, 0, MAX_L_ICC_SENDER_NAME);
     csm->iccp_info.icc_rg_id = 0x0;
+    csm->keepalive_time      = CONNECT_INTERVAL_SEC; 
+    csm->session_timeout     = HEARTBEAT_TIMEOUT_SEC;
 }
 
 /* Connection State Machine instance status reset */
@@ -141,6 +144,8 @@ void iccp_csm_status_reset(struct CSM* csm, int all)
     csm->heartbeat_update_time = 0;
     csm->peer_warm_reboot_time = 0;
     csm->warm_reboot_disconn_time = 0;
+    csm->peer_link_learning_retry_time = 0;
+    csm->peer_link_learning_enable = 0;
     csm->role_type = STP_ROLE_NONE;
     csm->sock_read_event_ptr = NULL;
     csm->peer_link_if = NULL;
@@ -165,6 +170,9 @@ void iccp_csm_finalize(struct CSM* csm)
 {
     struct If_info * cif = NULL;
     struct System* sys = NULL;
+    struct LocalInterface* lifp = NULL;
+    struct LocalInterface* local_if = NULL;
+    struct LocalInterface* local_if_next = NULL;
 
     if (csm == NULL)
         return;
@@ -176,21 +184,40 @@ void iccp_csm_finalize(struct CSM* csm)
     if (sys->warmboot_exit != WARM_REBOOT)
     {
         /*Enable peer link port MAC learning*/
-        if (csm->peer_link_if)
+        if (csm->peer_link_if) {
             set_peerlink_mlag_port_learn(csm->peer_link_if, 1);
+            set_peerlink_learn_kernel(csm, 1, 1);
+        }
     }
 
     /* Disconnect from peer */
     scheduler_session_disconnect_handler(csm);
 
+    //Delete all MCLAG interfaces
+    local_if = LIST_FIRST(&(MLACP(csm).lif_list));
+    while (local_if != NULL)
+    {
+        local_if_next =  LIST_NEXT(local_if,mlacp_next);
+        iccp_cli_detach_mclag_domain_to_port_channel(local_if->name);
+        local_if = local_if_next;
+    }
+
     /* Release all Connection State Machine instance */
     app_csm_finalize(csm);
 
-    LIST_FOREACH(cif, &(csm->if_bind_list), csm_next)
+    LIST_FOREACH(lifp, &(MLACP(csm).lif_list), mlacp_next)
     {
-        LIST_REMOVE(cif, csm_next);
+        ICCPD_LOG_NOTICE(__FUNCTION__, "Resetting CSM pointer for %s", lifp->name);
+        lifp->csm = NULL;
     }
 
+    while (!LIST_EMPTY(&(csm->if_bind_list)))
+    {
+        cif = LIST_FIRST(&(csm->if_bind_list));
+        LIST_REMOVE(cif,csm_next);
+        free(cif);
+    }
+            
     /* Release iccp_csm */
     pthread_mutex_destroy(&(csm->conn_mutex));
     iccp_csm_msg_list_finalize(csm);
@@ -219,6 +246,8 @@ int iccp_csm_send(struct CSM* csm, char* buf, int msg_len)
 {
     LDPHdr* ldp_hdr = (LDPHdr*)buf;
     ICCParameter* param = NULL;
+    ssize_t rc;
+    uint16_t tlv_type;
 
     if (csm == NULL || buf == NULL || csm->sock_fd <= 0 || msg_len <= 0)
         return MCLAG_ERROR;
@@ -228,7 +257,7 @@ int iccp_csm_send(struct CSM* csm, char* buf, int msg_len)
     else
         param = (struct ICCParameter*)&buf[sizeof(ICCHdr)];
 
-    /*ICCPD_LOG_DEBUG(__FUNCTION__, "Send(%d): len=[%d] msg_type=[%s (0x%X, 0x%X)]", csm->sock_fd, msg_len, get_tlv_type_string(param->type), ldp_hdr->msg_type, param->type);*/
+    ICCPD_LOG_DEBUG(__FUNCTION__, "Send(%d): len=[%d] msg_type=[%s (0x%X, 0x%X)]", csm->sock_fd, msg_len, get_tlv_type_string(ntohs(param->type)), ldp_hdr->msg_type, ntohs(param->type));
     csm->msg_log.msg[csm->msg_log.end_index].msg_id = ntohl(ldp_hdr->msg_id);
     csm->msg_log.msg[csm->msg_log.end_index].type = ntohs(ldp_hdr->msg_type);
     csm->msg_log.msg[csm->msg_log.end_index].tlv = ntohs(param->type);
@@ -236,7 +265,20 @@ int iccp_csm_send(struct CSM* csm, char* buf, int msg_len)
     if (csm->msg_log.end_index >= 128)
         csm->msg_log.end_index = 0;
 
-    return write(csm->sock_fd, buf, msg_len);
+    tlv_type = ntohs(param->type);
+    rc = write(csm->sock_fd, buf, msg_len);
+    if ((rc <= 0) || (rc != msg_len))
+    {
+        MLACP_SET_ICCP_TX_DBG_COUNTER(
+            csm, tlv_type, ICCP_DBG_CNTR_STS_ERR);
+        ICCPD_LOG_ERR("ICCP_FSM", "Failed to write msg %s/0x%x, msg_len:%d, rc %d Error:%s ", get_tlv_type_string(tlv_type), tlv_type, msg_len, rc, strerror(errno));
+    }
+    else
+    {
+        MLACP_SET_ICCP_TX_DBG_COUNTER(
+            csm, tlv_type, ICCP_DBG_CNTR_STS_OK);
+    }
+    return (rc);
 }
 
 /* Connection State Machine Transition */
@@ -776,8 +818,34 @@ int iccp_csm_init_msg(struct Msg** msg, char* data, int len)
     return MCLAG_ERROR;
 }
 
+/* MAC Message initialization */
+int iccp_csm_init_mac_msg(struct MACMsg **mac_msg, char* data, int len)
+{
+    struct MACMsg* iccp_mac_msg = NULL;
+
+    if (mac_msg == NULL)
+        return -2;
+
+    if (data == NULL || len <= 0)
+        return MCLAG_ERROR;
+
+    iccp_mac_msg = (struct MACMsg*)malloc(sizeof(struct MACMsg));
+    if (iccp_mac_msg == NULL)
+       return -3;
+
+    memset(iccp_mac_msg, 0, sizeof(struct MACMsg));
+    memcpy(iccp_mac_msg, data, len);
+
+    *mac_msg = iccp_mac_msg;
+
+    return 0;
+}
+
+
 void iccp_csm_stp_role_count(struct CSM *csm)
 {
+    struct If_info * cif = NULL;
+
     /* decide the role, lower ip to be active & socket client*/
     if (csm->role_type == STP_ROLE_NONE)
     {
@@ -786,12 +854,18 @@ void iccp_csm_stp_role_count(struct CSM *csm)
             /* Active*/
             ICCPD_LOG_INFO(__FUNCTION__, "Role: [Active]");
             csm->role_type = STP_ROLE_ACTIVE;
+            /* Send ICCP role update and system ID */
+            mlacp_link_set_iccp_role(csm->mlag_id, true, MLACP(csm).system_id);
         }
         else
         {
             /* Standby*/
             ICCPD_LOG_INFO(__FUNCTION__, "Role [Standby]");
             csm->role_type = STP_ROLE_STANDBY;
+            /* Send ICCP role update */
+            mlacp_link_set_iccp_role(csm->mlag_id, false, NULL);
+            /*Set Bridge MAC to MY MAC*/
+            mlacp_fix_bridge_mac(csm);
         }
     }
 }

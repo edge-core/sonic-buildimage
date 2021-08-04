@@ -32,7 +32,7 @@
 typedef enum _iccpd_log_level_t
 {
     CRITICAL_LOG_LEVEL       = 0,
-    ERR_LOG_LEVEL          = 1,
+    ERR_LOG_LEVEL            = 1,
     WARN_LOG_LEVEL           = 2,
     NOTICE_LOG_LEVEL         = 3,
     INFO_LOG_LEVEL           = 4,

@@ -52,10 +52,8 @@ int unset_mc_lag_id( struct CSM *csm, uint16_t id)
     if (!csm)
         return MCLAG_ERROR;
 
-    /* Mlag-ID, RG-ID, MLACP-ID*/
-    csm->mlag_id = 0;
-    csm->iccp_info.icc_rg_id = 0;
-    csm->app_csm.mlacp.id = 0;
+    /* Remove ICCP info from STATE_DB */
+    mlacp_link_del_iccp_info(csm->mlag_id);
 
     iccp_csm_finalize(csm);
 
@@ -73,7 +71,9 @@ int set_peer_link(int mid, const char* ifname)
 
     len = strlen(ifname);
 
-    if (strncmp(ifname, FRONT_PANEL_PORT_PREFIX, strlen(FRONT_PANEL_PORT_PREFIX)) != 0 && strncmp(ifname, PORTCHANNEL_PREFIX, strlen(PORTCHANNEL_PREFIX)) != 0 && strncmp(ifname, VXLAN_TUNNEL_PREFIX, strlen(VXLAN_TUNNEL_PREFIX)) != 0)
+    if (strncmp(ifname, FRONT_PANEL_PORT_PREFIX, strlen(FRONT_PANEL_PORT_PREFIX)) != 0
+        && strncmp(ifname, PORTCHANNEL_PREFIX, strlen(PORTCHANNEL_PREFIX)) != 0
+        && strncmp(ifname, VXLAN_TUNNEL_PREFIX, strlen(VXLAN_TUNNEL_PREFIX)) != 0)
     {
         ICCPD_LOG_ERR(__FUNCTION__, "Peer-link is %s, must be Ethernet or PortChannel or VTTNL(Vxlan tunnel)", ifname);
         return MCLAG_ERROR;
@@ -83,8 +83,11 @@ int set_peer_link(int mid, const char* ifname)
     if (csm == NULL)
         return MCLAG_ERROR;
 
-    if (len > IFNAMSIZ)
+    if (len > MAX_L_PORT_NAME)
+    {
+        ICCPD_LOG_ERR(__FUNCTION__, "Peer-link %s, Strlen %d greater than MAX:%d ", ifname, len, MAX_L_PORT_NAME);
         return MCLAG_ERROR;
+    }
 
     if (strlen(csm->peer_itf_name) > 0)
     {
@@ -114,7 +117,7 @@ int set_peer_link(int mid, const char* ifname)
                        csm->mlag_id, ifname);
     }
 
-    memset(csm->peer_itf_name, 0, IFNAMSIZ);
+    memset(csm->peer_itf_name, 0, MAX_L_PORT_NAME);
     memcpy(csm->peer_itf_name, ifname, len);
 
     /* update peer-link link handler*/
@@ -128,6 +131,8 @@ int set_peer_link(int mid, const char* ifname)
 
         if (lif->type == IF_T_PORT_CHANNEL)
             iccp_get_port_member_list(lif);
+
+        set_peerlink_learn_kernel(csm, 0, 4);
     }
 
     /*disconnect the link for mac and arp sync up*/
@@ -147,15 +152,17 @@ int unset_peer_link(int mid)
     if (MLACP(csm).current_state == MLACP_STATE_EXCHANGE)
     {
         /*must be enabled mac learn*/
-        if (csm->peer_link_if)
+        if (csm->peer_link_if) {
             set_peerlink_mlag_port_learn(csm->peer_link_if, 1);
+            set_peerlink_learn_kernel(csm, 1, 5);
+        }
     }
 
     /* update peer-link link handler*/
     scheduler_session_disconnect_handler(csm);
 
     /* clean peer-link*/
-    memset(csm->peer_itf_name, 0, IFNAMSIZ);
+    memset(csm->peer_itf_name, 0, MAX_L_PORT_NAME);
     if (csm->peer_link_if)
     {
         csm->peer_link_if->is_peer_link = 0;
@@ -282,6 +289,42 @@ int unset_peer_address(int mid)
     return 0;
 }
 
+int set_keepalive_time(int mid, int keepalive_time)
+{
+    struct CSM* csm = NULL;
+    size_t len = 0;
+
+    csm = system_get_csm_by_mlacp_id(mid);
+    if (csm == NULL)
+        return MCLAG_ERROR;
+
+    ICCPD_LOG_DEBUG(__FUNCTION__, "Set keepalive_time : %d", keepalive_time);
+
+    if (csm->keepalive_time != keepalive_time)
+    {
+        csm->keepalive_time = keepalive_time;
+        //reset heartbeat send time to send keepalive immediately
+        csm->heartbeat_send_time = 0;
+    }
+    return 0;
+}
+
+int set_session_timeout(int mid, int session_timeout_val)
+{
+    struct CSM* csm = NULL;
+    size_t len = 0;
+
+    csm = system_get_csm_by_mlacp_id(mid);
+    if (csm == NULL)
+        return MCLAG_ERROR;
+
+    ICCPD_LOG_DEBUG(__FUNCTION__, "Set session timeout : %d", session_timeout_val);
+
+    csm->session_timeout = session_timeout_val;
+    return 0;
+}
+
+
 int iccp_cli_attach_mclag_domain_to_port_channel( int domain, const char* ifname)
 {
     struct CSM* csm = NULL;
@@ -352,17 +395,30 @@ int iccp_cli_detach_mclag_domain_to_port_channel( const char* ifname)
         || lif_po->po_id <= 0
         || lif_po->csm == NULL)
     {
+        if (lif_po)
+        {
+            ICCPD_LOG_DEBUG(__FUNCTION__, "CSM already detached for ifname = %s", lif_po->name);
+        }
         return MCLAG_ERROR;
     }
 
     /* find csm*/
     csm = lif_po->csm;
 
+    if(!csm)
+    {
+        ICCPD_LOG_WARN(__FUNCTION__, "unexpected condition!!!; lif->csm not found!; Detach mclag from ifname = %s", lif_po->name);
+        return 0;
+    }
+
     ICCPD_LOG_DEBUG(__FUNCTION__, "Detach mclag id = %d from ifname = %s",
                     csm->mlag_id, lif_po->name);
 
+    //if it is standby node change back the mac to its original system mac
+    recover_if_ipmac_on_standby(lif_po, 1);
+
     /* process link state handler before detaching it.*/
-    mlacp_mlag_link_del_handler(csm, lif_po);
+    mlacp_mlag_intf_detach_handler(csm, lif_po);
 
     unbind_poid = lif_po->po_id;
     mlacp_unbind_local_if(lif_po);
@@ -377,6 +433,7 @@ int iccp_cli_detach_mclag_domain_to_port_channel( const char* ifname)
         if (strcmp(ifname, cif->name) == 0)
             LIST_REMOVE(cif, csm_next);
     }
+
     return 0;
 }
 

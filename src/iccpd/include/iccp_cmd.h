@@ -26,4 +26,7 @@
 
 int iccp_config_from_file(char *config_default_dir);
 
+int set_mc_lag_by_id(uint16_t mid);
+int unset_mc_lag_by_id(uint16_t mid);
+
 #endif /* ICCP_CMD_H_ */
