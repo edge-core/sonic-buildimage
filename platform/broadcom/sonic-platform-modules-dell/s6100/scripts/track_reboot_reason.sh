@@ -131,7 +131,29 @@ _is_unknown_reset(){
         mb_poweron_reason=$(cat $MAILBOX_POWERON_REASON)
         echo "Unknown POR: $curr_poweron_reason RST: $curr_reset_reason MBR: $mb_poweron_reason" > $REBOOT_CAUSE_FILE
     fi
-    
+
+}
+
+_is_software_reboot(){
+    SMF_STATUS=`io_rd_wr.py --set --val 06 --offset 210; io_rd_wr.py --set --val 0B --offset 211; io_rd_wr.py --get --offset 212`
+    SMF_STATUS=$(echo "$SMF_STATUS" | awk '{print $NF}')
+
+    CPLD_STATUS=`io_rd_wr.py --get --offset 0x131`
+    CPLD_STATUS=$(echo "$CPLD_STATUS" | awk '{print $NF}')
+
+    if [[ $SMF_STATUS == "aa" ]]; then
+        if [[ $CPLD_STATUS != "40" ]]; then
+            # Cold reset happened; Resetting the registers
+            io_rd_wr.py --set --val ff --offset 0x131
+            io_rd_wr.py --set --val 06 --offset 210; io_rd_wr.py --set --val 0B --offset 211; io_rd_wr.py --set --val ff --offset 213
+            echo 0x88 > $MAILBOX_POWERON_REASON
+        else
+            io_rd_wr.py --set --val 06 --offset 210; io_rd_wr.py --set --val 0B --offset 211; io_rd_wr.py --set --val ff --offset 213
+            echo 0xaa > $MAILBOX_POWERON_REASON
+        fi
+    else
+        echo 0xaa > $MAILBOX_POWERON_REASON
+    fi
 }
 
 update_mailbox_register(){
@@ -162,7 +184,7 @@ update_mailbox_register(){
            && [[ $SMF_FPGA_VERSION_MAJOR -ge 1 ]] && [[ $SMF_FPGA_VERSION_MINOR -ge 4 ]]; then
 
             if [[ $reason = "cc" ]]; then
-                echo 0xaa > $MAILBOX_POWERON_REASON
+                _is_software_reboot
             elif [[ $SMF_RESET = "11" ]]; then
                 echo 0xee > $MAILBOX_POWERON_REASON
             elif [[ $SMF_RESET = "33" ]]; then
@@ -185,7 +207,7 @@ update_mailbox_register(){
             elif [[ $is_wd_reboot = 1 ]] && [[ $reason != "cc" ]]; then
                 echo 0xdd > $MAILBOX_POWERON_REASON
             elif [[ $reason = "cc" ]]; then
-                echo 0xaa > $MAILBOX_POWERON_REASON
+                _is_software_reboot
             else
                 _is_unknown_reset $is_thermal_reboot
                 echo 0x99 > $MAILBOX_POWERON_REASON

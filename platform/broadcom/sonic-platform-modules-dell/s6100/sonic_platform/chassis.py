@@ -99,6 +99,7 @@ class Chassis(ChassisBase):
     def _get_reboot_reason_smf_register(self):
         # In S6100, mb_poweron_reason register will
         # Returns 0xaa or 0xcc on software reload
+        # Returns 0x88 on cold-reboot happened during software reload
         # Returns 0xff or 0xbb on power-cycle
         # Returns 0xdd on Watchdog
         # Returns 0xee on Thermal Shutdown
@@ -257,6 +258,8 @@ class Chassis(ChassisBase):
             return (ChassisBase.REBOOT_CAUSE_POWER_LOSS, None)
         elif ((smf_mb_reg_reason == 0xaa) or (smf_mb_reg_reason == 0xcc)):
             return (ChassisBase.REBOOT_CAUSE_NON_HARDWARE, None)
+        elif (smf_mb_reg_reason == 0x88):
+            return (ChassisBase.REBOOT_CAUSE_HARDWARE_OTHER, "CPU Reset")
         elif (smf_mb_reg_reason == 0xdd):
             return (ChassisBase.REBOOT_CAUSE_WATCHDOG, None)
         elif (smf_mb_reg_reason == 0xee):

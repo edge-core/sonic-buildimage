@@ -10,6 +10,7 @@ s6100/scripts/platform_reboot_override usr/share/sonic/device/x86_64-dell_s6100_
 s6100/scripts/fast-reboot_plugin usr/share/sonic/device/x86_64-dell_s6100_c2538-r0
 s6100/scripts/track_reboot_reason.sh usr/share/sonic/device/x86_64-dell_s6100_c2538-r0
 s6100/scripts/warm-reboot_plugin usr/share/sonic/device/x86_64-dell_s6100_c2538-r0
+s6100/scripts/reboot_plugin usr/share/sonic/device/x86_64-dell_s6100_c2538-r0
 s6100/scripts/ssd-fw-upgrade usr/share/sonic/device/x86_64-dell_s6100_c2538-r0
 s6100/scripts/override.conf /etc/systemd/system/systemd-reboot.service.d
 common/dell_lpc_mon.sh usr/local/bin
