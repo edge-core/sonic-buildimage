@@ -37,6 +37,8 @@ int do_one_neigh_request(struct nlmsghdr *n);
 
 void iccp_from_netlink_port_state_handler( char * ifname, int state);
 
-void iccp_parse_if_vlan_info_from_netlink(struct nlmsghdr *n);
+void vlan_mbrship_change_handler(unsigned int vlan_id, char *mbr_if_name, int add_flag);
+void del_all_pending_vlan_mbr_ifs(struct System *sys);
+void move_pending_vlan_mbr_to_lif(struct System *sys, struct LocalInterface* lif);
 #endif // LACP_IFM_H
 

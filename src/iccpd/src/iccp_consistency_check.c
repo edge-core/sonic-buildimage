@@ -112,13 +112,9 @@ static int iccp_check_interface_vlan(char* ifname)
     if (peer_if == NULL)
         return -4;
 
-    LIST_FOREACH(local_vlan, &(local_if->vlan_list), port_next)
+    RB_FOREACH (local_vlan, vlan_rb_tree, &(local_if->vlan_tree))
     {
-        LIST_FOREACH(peer_vlan, &(peer_if->vlan_list), port_next)
-        {
-            if (peer_vlan->vid == local_vlan->vid)
-                break;
-        }
+        peer_vlan = RB_FIND(vlan_rb_tree, &(peer_if->vlan_tree), local_vlan);
 
         if (peer_vlan == NULL)
         {
@@ -126,14 +122,9 @@ static int iccp_check_interface_vlan(char* ifname)
         }
     }
 
-    LIST_FOREACH(peer_vlan, &(peer_if->vlan_list), port_next)
+    RB_FOREACH (peer_vlan, vlan_rb_tree, &(peer_if->vlan_tree))
     {
-
-        LIST_FOREACH(local_vlan, &(local_if->vlan_list), port_next)
-        {
-            if (peer_vlan->vid == local_vlan->vid)
-                break;
-        }
+        local_vlan = RB_FIND(vlan_rb_tree, &(local_if->vlan_tree), peer_vlan);
 
         if (local_vlan == NULL)
         {

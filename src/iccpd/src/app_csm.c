@@ -239,7 +239,7 @@ int mlacp_bind_local_if(struct CSM* csm, struct LocalInterface* lif)
         if (lif_po->type == IF_T_PORT_CHANNEL && lif_po->po_id == lif->po_id)
         {
             /*if join a po member, may swss restart, reset portchannel ip mac  to mclagsyncd*/
-            update_if_ipmac_on_standby(lif_po);
+            update_if_ipmac_on_standby(lif_po, 1);
             return 0;
         }
     }

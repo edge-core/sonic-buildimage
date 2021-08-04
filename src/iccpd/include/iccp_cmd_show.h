@@ -33,4 +33,6 @@ extern int iccp_ndisc_dump(char * *buf, int *num, int mclag_id);
 extern int iccp_mac_dump(char * *buf, int *num, int mclag_id);
 extern int iccp_local_if_dump(char * *buf, int *num, int mclag_id);
 extern int iccp_peer_if_dump(char * *buf, int *num, int mclag_id);
+extern int iccp_cmd_dbg_counter_dump(char * *buf, int *data_len, int mclag_id);
+extern int iccp_unique_ip_if_dump(char * *buf, int *num, int mclag_id);
 #endif

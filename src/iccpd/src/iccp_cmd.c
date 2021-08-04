@@ -55,6 +55,21 @@ int set_mc_lag_by_id(uint16_t mid)
     return ret;
 }
 
+int unset_mc_lag_by_id(uint16_t mid)
+{
+    int ret = 0;
+    struct CSM* csm = NULL;
+
+    csm = system_get_csm_by_mlacp_id(mid);
+    if (csm)
+    {
+        ret = unset_mc_lag_id(csm, mid);
+        return ret;
+    }
+
+    return MCLAG_ERROR;
+}
+
 #define CONFIG_LINE_LEN  512
 
 int iccp_config_from_command(char * line)

@@ -35,7 +35,7 @@ static uint32_t _iccpd_log_level_map[] =
     LOG_WARNING,
     LOG_NOTICE,
     LOG_INFO,
-    LOG_DEBUG,
+    LOG_DEBUG
 };
 
 char* log_level_to_string(int level)
@@ -100,7 +100,7 @@ void log_finalize()
     /*do nothing*/
 }
 
-void write_log(const int level, const char* tag, const char* format, ...)
+void write_log(int level, const char* tag, const char* format, ...)
 {
     struct LoggerConfig* config = logger_get_configuration();
     char buf[LOGBUF_SIZE];
