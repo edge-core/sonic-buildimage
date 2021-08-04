@@ -1,5 +1,5 @@
 [Unit]
-Description=gbsyncd service
+Description={{docker_container_name}} service
 Requires=database.service updategraph.service
 ConditionPathExists=!/usr/share/sonic/hwsku/gearbox_config.json
 After=database.service updategraph.service
@@ -12,6 +12,8 @@ Before=ntp-config.service
 [Service]
 User=root
 Environment=sonic_asic_platform={{ sonic_asic_platform }}
+Environment=gbsyncd_platform={{ docker_container_name }}
+ExecCondition=/usr/bin/gbsyncd-platform.sh
 ExecStartPre=/usr/local/bin/gbsyncd.sh start
 ExecStart=/usr/local/bin/gbsyncd.sh wait
 ExecStop=/usr/local/bin/gbsyncd.sh stop

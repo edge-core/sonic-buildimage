@@ -27,4 +27,3 @@ $(DOCKER_GBSYNCD_BASE)_CONTAINER_NAME = gbsyncd
 $(DOCKER_GBSYNCD_BASE)_RUN_OPT += --net=host --privileged -t
 $(DOCKER_GBSYNCD_BASE)_RUN_OPT += -v /host/machine.conf:/etc/machine.conf
 $(DOCKER_GBSYNCD_BASE)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
-

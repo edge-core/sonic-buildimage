@@ -21,10 +21,10 @@ function stopplatform2() {
 OP=$1
 DEV=$2
 
-SERVICE="gbsyncd"
+SERVICE="$gbsyncd_platform"
 PEER="swss"
-DEBUGLOG="/tmp/swss-gbsyncd-debug$DEV.log"
-LOCKFILE="/tmp/swss-gbsyncd-lock$DEV"
+DEBUGLOG="/tmp/swss-$SERVICE-debug$DEV.log"
+LOCKFILE="/tmp/swss-$SERVICE-lock$DEV"
 NAMESPACE_PREFIX="asic"
 if [ "$DEV" ]; then
     NET_NS="$NAMESPACE_PREFIX$DEV" #name of the network namespace
