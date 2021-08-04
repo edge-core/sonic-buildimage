@@ -25,5 +25,6 @@ s6100/systemd/platform-modules-s6100.service etc/systemd/system
 s6100/systemd/s6100-lpc-monitor.service etc/systemd/system
 s6100/systemd/s6100-reboot-cause.service etc/systemd/system
 s6100/systemd/s6100-i2c-enumerate.service etc/systemd/system
+s6100/scripts/s6100_serial_getty_monitor etc/monit/conf.d
 common/fw-updater usr/local/bin
 common/onie_mode_set usr/local/bin
