@@ -17,6 +17,7 @@ pr:
     include:
       - master
       - 202012
+      - bullseye
   paths:
     exclude:
       - .github
