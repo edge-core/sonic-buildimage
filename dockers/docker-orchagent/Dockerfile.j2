@@ -24,9 +24,11 @@ RUN apt-get update &&       \
         python3-dev
 
 {% if ( CONFIGURED_ARCH == "armhf" or CONFIGURED_ARCH == "arm64" ) %}
-# Fix for gcc/python not found in arm docker
+# Fix for gcc/python/iputils-ping not found in arm docker
 RUN apt-get install -f -y python2.7 python2.7-dev
-RUN apt-get install -y gcc-8
+RUN apt-get install -y   \
+        gcc-8            \
+        iputils-ping
 {% endif %}
 {% if CONFIGURED_ARCH == "armhf" %}
 RUN ln -s -f /usr/bin/gcc-8 /usr/bin/arm-linux-gnueabihf-gcc
