@@ -879,6 +879,36 @@
                 "polling_interval": "0"
             }
         },
+
+        "SFLOW_COLLECTOR": {
+            "collector1": {
+                "collector_ip": "10.100.12.13",
+                "collector_port": "6343"
+            },
+            "collector2": {
+                "collector_ip": "10.144.1.2"
+            }
+        },
+
+        "SFLOW_SESSION": {
+            "Ethernet0": {
+                "admin_state": "down",
+                "sample_rate": "40000"
+            },
+            "Ethernet16": {
+                "admin_state": "up",
+                "sample_rate": "32768"
+            }
+        },
+
+        "SFLOW" : {
+            "global": {
+                "admin_state": "up",
+                "polling_interval": "20",
+                "agent_id": "Ethernet0"
+            }
+        },
+
         "AAA": {
             "authentication": {
                 "login": "local" 
@@ -1012,6 +1042,7 @@
                 "trap_group": "queue1_group1"
             }
         }
+
     },
 
     "SAMPLE_CONFIG_DB_UNKNOWN": {
