@@ -19,7 +19,7 @@ endif
 $(DOCKER_SYNCD_BFN_RPC)_CONTAINER_NAME = syncd
 $(DOCKER_SYNCD_BFN_RPC)_VERSION = 1.0.0-rpc
 $(DOCKER_SYNCD_BFN_RPC)_PACKAGE_NAME = syncd
-$(DOCKER_SYNCD_BFN_RPC)_RUN_OPT += --net=host --privileged -t
+$(DOCKER_SYNCD_BFN_RPC)_RUN_OPT += --privileged -t
 $(DOCKER_SYNCD_BFN_RPC)_RUN_OPT += -v /host/machine.conf:/etc/machine.conf
 $(DOCKER_SYNCD_BFN_RPC)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
 $(DOCKER_SYNCD_BFN_RPC)_RUN_OPT += -v /host/warmboot:/var/warmboot

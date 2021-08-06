@@ -9,7 +9,7 @@ SONIC_DOCKER_IMAGES += $(DOCKER_SAISERVER_MLNX)
 SONIC_STRETCH_DOCKERS += $(DOCKER_SAISERVER_MLNX)
 
 $(DOCKER_SAISERVER_MLNX)_CONTAINER_NAME = saiserver
-$(DOCKER_SAISERVER_MLNX)_RUN_OPT += --net=host --privileged -t
+$(DOCKER_SAISERVER_MLNX)_RUN_OPT += --privileged -t
 $(DOCKER_SAISERVER_MLNX)_RUN_OPT += -v /host/machine.conf:/etc/machine.conf
 $(DOCKER_SAISERVER_MLNX)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
 $(DOCKER_SYNCD_BASE)_RUN_OPT += --tmpfs /run/criu

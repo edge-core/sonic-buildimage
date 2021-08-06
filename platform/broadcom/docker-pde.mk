@@ -28,7 +28,7 @@ SONIC_DOCKER_DBG_IMAGES += $(DOCKER_PDE_DBG)
 SONIC_INSTALL_DOCKER_DBG_IMAGES += $(DOCKER_PDE_DBG)
 
 $(DOCKER_PDE)_CONTAINER_NAME = pde
-$(DOCKER_PDE)_RUN_OPT += --net=host --privileged -t
+$(DOCKER_PDE)_RUN_OPT += --privileged -t
 $(DOCKER_PDE)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
 $(DOCKER_PDE)_RUN_OPT += -v /host/machine.conf:/host/machine.conf:ro
 $(DOCKER_PDE)_RUN_OPT += -v /usr/lib/python2.7/dist-packages:/usr/share/sonic/classes:ro
