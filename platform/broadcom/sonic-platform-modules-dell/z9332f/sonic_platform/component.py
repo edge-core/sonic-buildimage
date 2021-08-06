@@ -70,12 +70,12 @@ class Component(ComponentBase):
          ],
 
         ['Switch CPLD 1',
-         'Used for managing QSFP28/SFP port transceivers ',
+         'Used for managing QSFP-DD/QSFP28/SFP port transceivers ',
          get_cpld1_version
          ],
 
         ['Switch CPLD 2',
-         'Used for managing QSFP28/SFP port transceivers',
+         'Used for managing QSFP-DD/QSFP28/SFP port transceivers',
          get_cpld2_version
          ]
 
