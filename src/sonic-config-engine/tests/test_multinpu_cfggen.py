@@ -393,14 +393,14 @@ class TestMultiNpuCfgGen(TestCase):
             output['CABLE_LENGTH'],
             {
                 'AZURE': {
-                    'Ethernet8': '300m',
+                    'Ethernet8': '0m',
                     'Ethernet0': '300m',
                     'Ethernet4': '300m',
                     'Ethernet-BP4': '5m',
                     'Ethernet-BP0': '5m',
                     'Ethernet-BP12': '5m',
                     'Ethernet-BP8': '5m',
-                    'Ethernet12': '300m'
+                    'Ethernet12': '0m'
                 }
             }
         )
