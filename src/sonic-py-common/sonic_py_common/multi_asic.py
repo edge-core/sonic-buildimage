@@ -3,9 +3,7 @@ import os
 import subprocess
 
 from natsort import natsorted
-from swsssdk import ConfigDBConnector
-from swsssdk import SonicDBConfig
-from swsssdk import SonicV2Connector
+from swsscommon import swsscommon
 
 from .device_info import CONTAINER_PLATFORM_PATH
 from .device_info import HOST_DEVICE_PATH
@@ -39,8 +37,7 @@ def connect_config_db_for_ns(namespace=DEFAULT_NAMESPACE):
     Returns:
       handle to the config_db for a namespace
     """
-    SonicDBConfig.load_sonic_global_db_config()
-    config_db = ConfigDBConnector(namespace=namespace)
+    config_db = swsscommon.ConfigDBConnector(namespace=namespace)
     config_db.connect()
     return config_db
 
@@ -58,8 +55,7 @@ def connect_to_all_dbs_for_ns(namespace=DEFAULT_NAMESPACE):
     Returns:
         handle to all the dbs for a namespaces
     """
-    SonicDBConfig.load_sonic_global_db_config()
-    db = SonicV2Connector(namespace=namespace)
+    db = swsscommon.SonicV2Connector(namespace=namespace)
     for db_id in db.get_db_list():
         db.connect(db_id)
     return db
