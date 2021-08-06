@@ -31,7 +31,6 @@ max_vp_lags.0=0
 tdma_intr_enable=1
 tdma_timeout_usec.0=5000000
 parity_correction.0=1
-mmu_lossless.0=0
 bcm_num_cos=10
 default_cpu_tx_queue=7
 pktdma_poll_mode_channel_bitmap=1
