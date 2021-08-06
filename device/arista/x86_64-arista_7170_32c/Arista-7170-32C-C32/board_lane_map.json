@@ -5,7 +5,7 @@
         {
             "connector": 1,
             "device_id": 0,
-            "mac_block": 14,
+            "mac_block": 7,
             "media_type": "copper",
             "lane0": {
                 "mac_ch": 0,
@@ -59,7 +59,7 @@
         {
             "connector": 2,
             "device_id": 0,
-            "mac_block": 12,
+            "mac_block": 6,
             "media_type": "copper",
             "lane0": {
                 "mac_ch": 0,
@@ -113,7 +113,7 @@
         {
             "connector": 3,
             "device_id": 0,
-            "mac_block": 10,
+            "mac_block": 5,
             "media_type": "copper",
             "lane0": {
                 "mac_ch": 0,
@@ -167,7 +167,7 @@
         {
             "connector": 4,
             "device_id": 0,
-            "mac_block": 8,
+            "mac_block": 4,
             "media_type": "copper",
             "lane0": {
                 "mac_ch": 0,
@@ -221,7 +221,7 @@
         {
             "connector": 5,
             "device_id": 0,
-            "mac_block": 6,
+            "mac_block": 3,
             "media_type": "copper",
             "lane0": {
                 "mac_ch": 0,
@@ -275,7 +275,7 @@
         {
             "connector": 6,
             "device_id": 0,
-            "mac_block": 4,
+            "mac_block": 2,
             "media_type": "copper",
             "lane0": {
                 "mac_ch": 0,
@@ -329,7 +329,7 @@
         {
             "connector": 7,
             "device_id": 0,
-            "mac_block": 2,
+            "mac_block": 1,
             "media_type": "copper",
             "lane0": {
                 "mac_ch": 0,
@@ -437,7 +437,7 @@
         {
             "connector": 9,
             "device_id": 0,
-            "mac_block": 62,
+            "mac_block": 31,
             "media_type": "copper",
             "lane0": {
                 "mac_ch": 0,
@@ -491,7 +491,7 @@
         {
             "connector": 10,
             "device_id": 0,
-            "mac_block": 60,
+            "mac_block": 30,
             "media_type": "copper",
             "lane0": {
                 "mac_ch": 0,
@@ -545,7 +545,7 @@
         {
             "connector": 11,
             "device_id": 0,
-            "mac_block": 58,
+            "mac_block": 29,
             "media_type": "copper",
             "lane0": {
                 "mac_ch": 0,
@@ -599,7 +599,7 @@
         {
             "connector": 12,
             "device_id": 0,
-            "mac_block": 56,
+            "mac_block": 28,
             "media_type": "copper",
             "lane0": {
                 "mac_ch": 0,
@@ -653,7 +653,7 @@
         {
             "connector": 13,
             "device_id": 0,
-            "mac_block": 54,
+            "mac_block": 27,
             "media_type": "copper",
             "lane0": {
                 "mac_ch": 0,
@@ -707,7 +707,7 @@
         {
             "connector": 14,
             "device_id": 0,
-            "mac_block": 52,
+            "mac_block": 26,
             "media_type": "copper",
             "lane0": {
                 "mac_ch": 0,
@@ -761,7 +761,7 @@
         {
             "connector": 15,
             "device_id": 0,
-            "mac_block": 50,
+            "mac_block": 25,
             "media_type": "copper",
             "lane0": {
                 "mac_ch": 0,
@@ -815,7 +815,7 @@
         {
             "connector": 16,
             "device_id": 0,
-            "mac_block": 48,
+            "mac_block": 24,
             "media_type": "copper",
             "lane0": {
                 "mac_ch": 0,
@@ -869,7 +869,7 @@
         {
             "connector": 17,
             "device_id": 0,
-            "mac_block": 46,
+            "mac_block": 23,
             "media_type": "copper",
             "lane0": {
                 "mac_ch": 0,
@@ -923,7 +923,7 @@
         {
             "connector": 18,
             "device_id": 0,
-            "mac_block": 44,
+            "mac_block": 22,
             "media_type": "copper",
             "lane0": {
                 "mac_ch": 0,
@@ -977,7 +977,7 @@
         {
             "connector": 19,
             "device_id": 0,
-            "mac_block": 42,
+            "mac_block": 21,
             "media_type": "copper",
             "lane0": {
                 "mac_ch": 0,
@@ -1031,7 +1031,7 @@
         {
             "connector": 20,
             "device_id": 0,
-            "mac_block": 40,
+            "mac_block": 20,
             "media_type": "copper",
             "lane0": {
                 "mac_ch": 0,
@@ -1085,7 +1085,7 @@
         {
             "connector": 21,
             "device_id": 0,
-            "mac_block": 38,
+            "mac_block": 19,
             "media_type": "copper",
             "lane0": {
                 "mac_ch": 0,
@@ -1139,7 +1139,7 @@
         {
             "connector": 22,
             "device_id": 0,
-            "mac_block": 36,
+            "mac_block": 18,
             "media_type": "copper",
             "lane0": {
                 "mac_ch": 0,
@@ -1193,7 +1193,7 @@
         {
             "connector": 23,
             "device_id": 0,
-            "mac_block": 34,
+            "mac_block": 17,
             "media_type": "copper",
             "lane0": {
                 "mac_ch": 0,
@@ -1247,7 +1247,7 @@
         {
             "connector": 24,
             "device_id": 0,
-            "mac_block": 32,
+            "mac_block": 16,
             "media_type": "copper",
             "lane0": {
                 "mac_ch": 0,
@@ -1301,7 +1301,7 @@
         {
             "connector": 25,
             "device_id": 0,
-            "mac_block": 30,
+            "mac_block": 15,
             "media_type": "copper",
             "lane0": {
                 "mac_ch": 0,
@@ -1355,7 +1355,7 @@
         {
             "connector": 26,
             "device_id": 0,
-            "mac_block": 28,
+            "mac_block": 14,
             "media_type": "copper",
             "lane0": {
                 "mac_ch": 0,
@@ -1409,7 +1409,7 @@
         {
             "connector": 27,
             "device_id": 0,
-            "mac_block": 26,
+            "mac_block": 13,
             "media_type": "copper",
             "lane0": {
                 "mac_ch": 0,
@@ -1463,7 +1463,7 @@
         {
             "connector": 28,
             "device_id": 0,
-            "mac_block": 24,
+            "mac_block": 12,
             "media_type": "copper",
             "lane0": {
                 "mac_ch": 0,
@@ -1517,7 +1517,7 @@
         {
             "connector": 29,
             "device_id": 0,
-            "mac_block": 22,
+            "mac_block": 11,
             "media_type": "copper",
             "lane0": {
                 "mac_ch": 0,
@@ -1571,7 +1571,7 @@
         {
             "connector": 30,
             "device_id": 0,
-            "mac_block": 20,
+            "mac_block": 10,
             "media_type": "copper",
             "lane0": {
                 "mac_ch": 0,
@@ -1625,7 +1625,7 @@
         {
             "connector": 31,
             "device_id": 0,
-            "mac_block": 18,
+            "mac_block": 9,
             "media_type": "copper",
             "lane0": {
                 "mac_ch": 0,
@@ -1679,7 +1679,7 @@
         {
             "connector": 32,
             "device_id": 0,
-            "mac_block": 16,
+            "mac_block": 8,
             "media_type": "copper",
             "lane0": {
                 "mac_ch": 0,
