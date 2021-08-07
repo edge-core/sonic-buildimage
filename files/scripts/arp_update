@@ -14,8 +14,9 @@ while /bin/true; do
   ARP_UPDATE_VARS=$(sonic-cfggen -d -t ${ARP_UPDATE_VARS_FILE})
   INTERFACE=$(echo $ARP_UPDATE_VARS | jq -r '.interface')
   PC_INTERFACE=$(echo $ARP_UPDATE_VARS | jq -r '.pc_interface')
+  VLAN_SUB_INTERFACE=$(echo $ARP_UPDATE_VARS | jq -r '.vlan_sub_interface')
 
-  ALL_INTERFACE="$INTERFACE $PC_INTERFACE"
+  ALL_INTERFACE="$INTERFACE $PC_INTERFACE $VLAN_SUB_INTERFACE"
   for intf in $ALL_INTERFACE; do
       ping6cmd="ping6 -I $intf -n -q -i 0 -c 1 -W 0 ff02::1 >/dev/null"
       intf_up=$(ip link show $intf | grep "state UP")
