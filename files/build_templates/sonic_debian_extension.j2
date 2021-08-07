@@ -710,7 +710,7 @@ sudo LANG=C chroot $FILESYSTEM_ROOT /usr/local/bin/generate_shutdown_order.py
 {% if include_kubernetes == "y" %}
 ## Pull in kubernetes docker images
 echo "pulling universal k8s images ..."
-sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT docker pull k8s.gcr.io/pause:${K8s_GCR_IO_PAUSE_VERSION}
+sudo https_proxy=$https_proxy LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS pull k8s.gcr.io/pause:${K8s_GCR_IO_PAUSE_VERSION}
 echo "docker images pull complete"
 {% endif %}
 
