@@ -33,10 +33,10 @@ dependent_startup=true
 command=/usr/local/bin/chassisd
 priority=3
 autostart=false
-autorestart=false
+autorestart=unexpected
 stdout_logfile=syslog
 stderr_logfile=syslog
-startsecs=0
+startsecs=10
 dependent_startup=true
 dependent_startup_wait_for=rsyslogd:running
 {% endif %}
@@ -72,10 +72,10 @@ dependent_startup_wait_for=rsyslogd:running
 command={% if API_VERSION == 3 and 'ledd' not in python2_daemons %}python3 {% else %} python2 {% endif %}/usr/local/bin/ledd
 priority=5
 autostart=false
-autorestart=false
+autorestart=unexpected
 stdout_logfile=syslog
 stderr_logfile=syslog
-startsecs=0
+startsecs=10
 dependent_startup=true
 dependent_startup_wait_for=rsyslogd:running
 {% endif %}
@@ -89,10 +89,10 @@ command={% if API_VERSION == 3 and 'xcvrd' not in python2_daemons %}python3 {% e
 {% endif %}
 priority=6
 autostart=false
-autorestart=false
+autorestart=unexpected
 stdout_logfile=syslog
 stderr_logfile=syslog
-startsecs=0
+startsecs=10
 dependent_startup=true
 dependent_startup_wait_for=rsyslogd:running
 {% endif %}
@@ -102,10 +102,10 @@ dependent_startup_wait_for=rsyslogd:running
 command={% if API_VERSION == 3 and 'psud' not in python2_daemons %}python3 {% else %} python2 {% endif %}/usr/local/bin/psud
 priority=7
 autostart=false
-autorestart=false
+autorestart=unexpected
 stdout_logfile=syslog
 stderr_logfile=syslog
-startsecs=0
+startsecs=10
 dependent_startup=true
 dependent_startup_wait_for=rsyslogd:running
 {% endif %}
