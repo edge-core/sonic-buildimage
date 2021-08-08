@@ -8,7 +8,7 @@ flask==2.0.1
 grpcio==1.39.0
 grpcio-tools==1.20.0
 idna==3.2
-importlib-metadata==4.6.1
+importlib-metadata==4.6.3
 inflection==0.5.1
 isodate==0.6.0
 itsdangerous==2.0.1

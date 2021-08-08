@@ -1,6 +1,6 @@
 alabaster==0.7.8
 babel==2.3.4
-bitarray==2.2.2
+bitarray==2.2.4
 chardet==2.3.0
 cryptography==1.7.1
 devscripts==2.17.6+deb9u2
@@ -29,7 +29,7 @@ pytz==2016.7
 pyxdg==0.25
 pyyaml==5.3.1
 redis==3.5.3
-regex==2021.7.6
+regex==2021.8.3
 roman==2.0.0
 secretstorage==2.3.1
 six==1.10.0
