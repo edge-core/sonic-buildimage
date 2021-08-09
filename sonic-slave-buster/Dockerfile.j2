@@ -325,6 +325,8 @@ RUN apt-get update && apt-get install -y \
         libgtest-dev \
         libgcc-8-dev
 
+RUN apt-get -y build-dep openssh
+
 # Build fix for ARMHF buster libsairedis
 {%- if CONFIGURED_ARCH == "armhf" %}
        # Install doxygen build dependency packages
