@@ -5,7 +5,7 @@ class MockConfigDb(object):
     STATE_DB = None
     CONFIG_DB = None
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         pass
 
     @staticmethod

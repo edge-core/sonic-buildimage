@@ -10,7 +10,7 @@ from swsscommon import swsscommon
 from parameterized import parameterized
 from unittest import TestCase, mock
 from tests.hostcfgd.test_radius_vectors import HOSTCFGD_TEST_RADIUS_VECTOR
-from tests.hostcfgd.mock_configdb import MockConfigDb
+from tests.common.mock_configdb import MockConfigDb
 
 
 swsscommon.ConfigDBConnector = MockConfigDb
