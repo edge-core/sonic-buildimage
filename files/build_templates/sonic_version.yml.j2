@@ -8,6 +8,12 @@ kernel_version: '{{ kernel_version }}'
 {% endif -%}
 asic_type: {{ asic_type }}
 commit_id: '{{ commit_id }}'
+branch: '{{ branch }}'
+{% if release is defined and release != '' -%}
+release: '{{ release }}'
+{% else -%}
+release: 'none'
+{% endif -%}
 build_date: {{ build_date }}
 build_number: {{ build_number }}
 built_by: {{ built_by }}
