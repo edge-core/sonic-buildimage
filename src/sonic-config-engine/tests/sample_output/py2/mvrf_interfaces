@@ -17,6 +17,7 @@ auto lo
 iface lo inet loopback
    address 127.0.0.1
    netmask 255.255.0.0
+   scope host
    post-up ip addr del 127.0.0.1/8 dev lo
 
 # The management network interface

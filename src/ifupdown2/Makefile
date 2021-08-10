@@ -13,6 +13,14 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	tar -z -f $(IFUPDOWN2_VERSION).tar.gz -x
 	pushd ./ifupdown2-$(IFUPDOWN2_VERSION)
 
+	git init
+	git add -f *
+	git commit -m "unmodified ifupdown2 source"
+
+	# Apply patch series
+	stg init
+	stg import -s ../patch/series
+
 	# Build source and Debian packages
 	dpkg-buildpackage -rfakeroot -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS) --admindir $(SONIC_DPKG_ADMINDIR)
 	popd
