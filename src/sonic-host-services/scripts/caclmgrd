@@ -706,11 +706,12 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
         # Set up STATE_DB connector to monitor the change in MUX_CABLE_TABLE
         state_db_connector = None
         subscribe_mux_cable = None
+        state_db_id = swsscommon.SonicDBConfig.getDbId("STATE_DB")
+
         if self.DualToR:
             self.log_info("Dual ToR mode")
 
             # set up state_db connector
-            state_db_id = swsscommon.SonicDBConfig.getDbId("STATE_DB")
             state_db_connector = swsscommon.DBConnector("STATE_DB", 0)
             subscribe_mux_cable = swsscommon.SubscriberStateTable(state_db_connector, self.MUX_CABLE_TABLE)
             sel.addSelectable(subscribe_mux_cable)
