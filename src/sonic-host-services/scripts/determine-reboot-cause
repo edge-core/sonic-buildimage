@@ -62,7 +62,7 @@ def parse_warmfast_reboot_from_proc_cmdline():
 
 
 def find_software_reboot_cause_from_reboot_cause_file():
-    software_reboot_cause = None
+    software_reboot_cause = REBOOT_CAUSE_UNKNOWN
     if os.path.isfile(REBOOT_CAUSE_FILE):
         with open(REBOOT_CAUSE_FILE) as cause_file:
             software_reboot_cause = cause_file.readline().rstrip('\n')
