@@ -52,6 +52,7 @@ if [[ "$1" == "init" ]]; then
     fi
 
     install_python_api_package
+    monit reload
 
 elif [[ "$1" == "deinit" ]]; then
     /usr/local/bin/s6100_i2c_enumeration.sh deinit
