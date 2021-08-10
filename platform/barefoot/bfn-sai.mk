@@ -1,4 +1,4 @@
-BFN_SAI = bfnsdk_20210324_deb10.deb
+BFN_SAI = bfnsdk_20210805_sai.1.7.1_deb10.deb
 $(BFN_SAI)_URL = "https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/$(BFN_SAI)"
 
 $(BFN_SAI)_DEPENDS += $(LIBNL_GENL3_DEV)
