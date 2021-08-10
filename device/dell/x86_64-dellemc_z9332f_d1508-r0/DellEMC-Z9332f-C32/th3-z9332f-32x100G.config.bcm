@@ -1,3 +1,4 @@
+sai_tunnel_global_sip_mask_enable=1
 core_clock_frequency=1325
 dpr_clock_frequency=1000
 device_clock_frequency=1325

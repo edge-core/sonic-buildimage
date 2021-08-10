@@ -235,6 +235,7 @@ sai_preinit_cmd_file
 sai_preinit_warmboot_cmd_file
 sai_postinit_cmd_file
 sai_postinit_warmboot_cmd_file
+sai_tunnel_global_sip_mask_enable
 help_cli_enable
 memlist_enable
 serdes_lane_config_dfe
