@@ -338,6 +338,8 @@ RUN apt-get update && apt-get install -y \
         libsystemd-dev \
         pkg-config
 
+RUN apt-get -y build-dep openssh
+
 # Build fix for ARMHF bullseye libsairedis
 {%- if CONFIGURED_ARCH == "armhf" %}
        # Install doxygen build dependency packages
