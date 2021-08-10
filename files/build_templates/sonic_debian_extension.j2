@@ -69,7 +69,7 @@ sudo bash -c "echo \"DOCKER_OPTS=\"--storage-driver=overlay2\"\" >> $FILESYSTEM_
 sudo mkdir -p "$FILESYSTEM_ROOT/$DOCKER_CTL_DIR"
 sudo cp $DOCKER_SCRIPTS_DIR/docker "$FILESYSTEM_ROOT/$DOCKER_CTL_SCRIPT"
 if [ $MULTIARCH_QEMU_ENVIRON == y ]; then
-    SONIC_NATIVE_DOCKERD_FOR_DOCKERFS=" -H unix:///dockerfs/var/run/docker.sock "
+    DOCKER_HOST="unix:///dockerfs/var/run/docker.sock"
     SONIC_NATIVE_DOCKERD_FOR_DOCKERFS_PID="cat `pwd`/dockerfs/var/run/docker.pid"
 else
     sudo chroot $FILESYSTEM_ROOT $DOCKER_CTL_SCRIPT start
@@ -668,7 +668,7 @@ trap_push clean_proc
 sudo mount proc /proc -t proc
 sudo mkdir $FILESYSTEM_ROOT/target
 sudo mount --bind target $FILESYSTEM_ROOT/target
-sudo chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS info
+sudo LANG=C DOCKER_HOST="$DOCKER_HOST" chroot $FILESYSTEM_ROOT docker info
 
 {% for docker_installation_target in installer_images.strip().split() -%}
 {% set pkgname, docker_build_path, machine, image = docker_installation_target.split('|') %}
@@ -676,10 +676,10 @@ sudo chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS info
 {% set imagefilename = imagefilepath.split('/')|last -%}
 {% set imagename = imagefilename.split('.')|first -%}
 if [[ -z "{{machine}}" || -n "{{machine}}" && $TARGET_MACHINE == "{{machine}}" ]]; then
-sudo LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS load -i {{imagefilepath}}
-sudo LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS tag {{imagename}}:latest {{imagename}}:"${SONIC_IMAGE_VERSION}"
+sudo LANG=C DOCKER_HOST="$DOCKER_HOST" chroot $FILESYSTEM_ROOT docker load -i {{imagefilepath}}
+sudo LANG=C DOCKER_HOST="$DOCKER_HOST" chroot $FILESYSTEM_ROOT docker tag {{imagename}}:latest {{imagename}}:"${SONIC_IMAGE_VERSION}"
 # Check if manifest exists for {{imagename}} and it is a valid JSON
-sudo LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS inspect {{imagename}}:latest \
+sudo LANG=C DOCKER_HOST="$DOCKER_HOST" chroot $FILESYSTEM_ROOT docker inspect {{imagename}}:latest \
     | jq '.[0].Config.Labels["com.azure.sonic.manifest"]' -r > /tmp/manifest.json
 jq -e . /tmp/manifest.json || {
     >&2 echo "docker image {{imagename}} has no manifest or manifest is not a valid JSON"
@@ -687,8 +687,8 @@ jq -e . /tmp/manifest.json || {
 }
 {% if imagename.endswith('-dbg') %}
 {% set imagebasename = imagename.replace('-dbg', '') -%}
-sudo LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS tag {{imagename}}:latest {{imagebasename}}:"${SONIC_IMAGE_VERSION}"
-sudo LANG=C chroot $FILESYSTEM_ROOT docker $SONIC_NATIVE_DOCKERD_FOR_DOCKERFS tag {{imagename}}:latest {{imagebasename}}:latest
+sudo LANG=C DOCKER_HOST="$DOCKER_HOST" chroot $FILESYSTEM_ROOT docker tag {{imagename}}:latest {{imagebasename}}:"${SONIC_IMAGE_VERSION}"
+sudo LANG=C DOCKER_HOST="$DOCKER_HOST" chroot $FILESYSTEM_ROOT docker tag {{imagename}}:latest {{imagebasename}}:latest
 {% endif %}
 fi
 {% endfor %}
@@ -705,7 +705,7 @@ fi
 sudo cp $BUILD_TEMPLATES/docker_image_ctl.j2 $FILESYSTEM_ROOT_USR_SHARE_SONIC_TEMPLATES/docker_image_ctl.j2
 
 # Generate shutdown order
-sudo LANG=C chroot $FILESYSTEM_ROOT /usr/local/bin/generate_shutdown_order.py
+sudo LANG=C DOCKER_HOST="$DOCKER_HOST" chroot $FILESYSTEM_ROOT /usr/local/bin/generate_shutdown_order.py
 
 {% if include_kubernetes == "y" %}
 ## Pull in kubernetes docker images
@@ -727,13 +727,13 @@ echo "docker images pull complete"
 
 {% for package in sonic_packages.strip().split() -%}
 {% set name, repo, version, set_owner, enabled = package.split('|') -%}
-sudo LANG=C chroot $FILESYSTEM_ROOT sonic-package-manager repository add {{ name }} {{ repo }}
-sudo LANG=C chroot $FILESYSTEM_ROOT sonic-package-manager install {{ name }}=={{ version }} {{ get_install_options(set_owner, enabled) }}
+sudo LANG=C DOCKER_HOST="$DOCKER_HOST" chroot $FILESYSTEM_ROOT sonic-package-manager repository add {{ name }} {{ repo }}
+sudo LANG=C DOCKER_HOST="$DOCKER_HOST" chroot $FILESYSTEM_ROOT sonic-package-manager install {{ name }}=={{ version }} {{ get_install_options(set_owner, enabled) }}
 {% endfor -%}
 
 {% for package in sonic_local_packages.strip().split() -%}
 {% set name, path, set_owner, enabled = package.split('|') -%}
-sudo LANG=C chroot $FILESYSTEM_ROOT sonic-package-manager install --from-tarball {{ path }} {{ get_install_options(set_owner, enabled) }}
+sudo LANG=C DOCKER_HOST="$DOCKER_HOST" chroot $FILESYSTEM_ROOT sonic-package-manager install --from-tarball {{ path }} {{ get_install_options(set_owner, enabled) }}
 {% endfor -%}
 
 sudo umount $FILESYSTEM_ROOT/target
