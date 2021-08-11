@@ -1,3 +1,6 @@
+# Disable Counting ACL Drop towards interface RX_DRP counter
+sai_adjust_acl_drop_in_rx_drop=1
+
 portmap_1=1:100                                       
 portmap_2=5:100                                       
 portmap_3=9:100                                       

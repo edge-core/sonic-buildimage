@@ -1,3 +1,6 @@
+# Disable Counting ACL Drop towards interface RX_DRP counter
+sai_adjust_acl_drop_in_rx_drop=1
+
 bcm56340_4x10=1
 bcm56340_config=1
 dport_map_direct=0

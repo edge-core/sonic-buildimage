@@ -4,6 +4,9 @@ dpr_clock_frequency=1000
 device_clock_frequency=1325
 port_flex_enable=1
 
+# Disable Counting ACL Drop towards interface RX_DRP counter
+sai_adjust_acl_drop_in_rx_drop=1
+
 #firmware load method, use fast load
 load_firmware=0x2
 
