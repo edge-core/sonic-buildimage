@@ -22,9 +22,11 @@ class Psu(PsuBase):
 
     # { PSU-ID: { Sensor-Name: Sensor-ID } }
     SENSOR_MAPPING = { 1: { "State": 0x31, "Current": 0x39,
-                            "Power": 0x37, "Voltage": 0x38 },
+                            "Power": 0x37, "Voltage": 0x38,
+                            "Temperature": 0xc },
                        2: { "State": 0x32, "Current": 0x3F,
-                            "Power": 0x3D, "Voltage": 0x3E } }
+                            "Power": 0x3D, "Voltage": 0x3E,
+                            "Temperature": 0xd } }
     # ( PSU-ID: FRU-ID }
     FRU_MAPPING = { 1: 1, 2: 2 }
 
@@ -37,6 +39,7 @@ class Psu(PsuBase):
         self.voltage_sensor = IpmiSensor(self.SENSOR_MAPPING[self.index]["Voltage"])
         self.current_sensor = IpmiSensor(self.SENSOR_MAPPING[self.index]["Current"])
         self.power_sensor = IpmiSensor(self.SENSOR_MAPPING[self.index]["Power"])
+        self.temp_sensor = IpmiSensor(self.SENSOR_MAPPING[self.index ]["Temperature"])
         self.fru = IpmiFru(self.FRU_MAPPING[self.index])
 
         self._fan_list.append(Fan(fan_index=self.index, psu_fan=True,
@@ -112,6 +115,56 @@ class Psu(PsuBase):
             voltage = 0
 
         return float(voltage)
+
+    def get_voltage_low_threshold(self):
+        """
+        Returns PSU low threshold in Volts
+        """
+
+        is_valid, low_threshold = self.voltage_sensor.get_threshold("LowerCritical")
+        if not is_valid:
+            low_threshold = 11.6
+        low_threshold = "{:.2f}".format(low_threshold)
+
+        return float(low_threshold)
+
+    def get_voltage_high_threshold(self):
+        """
+        Returns PSU high threshold in Volts
+        """
+
+        is_valid, high_threshold = self.voltage_sensor.get_threshold("UpperCritical")
+        if not is_valid:
+            high_threshold = 12.8
+        high_threshold = "{:.2f}".format(high_threshold)
+
+        return float(high_threshold)
+
+    def get_temperature(self):
+        """
+        Retrieves current temperature reading from thermal
+
+        Returns:
+            A float number of current temperature in Celsius up to
+            nearest thousandth of one degree Celsius, e.g. 30.125
+        """
+        is_valid, temperature = self.temp_sensor.get_reading()
+        if not is_valid:
+            temperature = 0
+
+        return float(temperature)
+
+    def get_temperature_high_threshold(self):
+        """
+        Returns the high temperature threshold for PSU in Celsius
+        """
+
+        is_valid, high_threshold = self.temp_sensor.get_threshold("UpperCritical")
+        if not is_valid:
+            high_threshold = 105
+        high_threshold = "{:.2f}".format(high_threshold)
+
+        return float(high_threshold)
 
     def get_current(self):
         """
