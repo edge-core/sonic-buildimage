@@ -5,11 +5,11 @@
 {%-     if 'dualtor' in switch_subtype.lower() %}
 {%-         set IPinIP_sock = 'sai_tunnel_support=1
                                host_as_route_disable=1
-                               sai_adjust_acl_drop_in_rx_drop=1
                                l3_ecmp_levels=2' -%}
 {%-     endif %}
 {%- endif %}
 {# The following is the common soc properties that used to be named "th2-a7260cx3-64-112x50G+8x100G.config.bcm" #}
+sai_adjust_acl_drop_in_rx_drop=1
 PHY_AN_ALLOW_PLL_CHANGE=1
 arl_clean_timeout_usec=15000000
 asf_mem_profile=2

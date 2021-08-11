@@ -10,6 +10,9 @@ ipv6_lpm_128b_enable=1
 l2_mem_entries=32768
 l3_mem_entries=16384
 
+# Disable Counting ACL Drop towards interface RX_DRP counter
+sai_adjust_acl_drop_in_rx_drop=1
+
 # From old config file
 os=unix
 higig2_hdr_mode=1
