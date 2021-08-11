@@ -1,5 +1,8 @@
 # Arista 7060CX-32S
 
+# Disable Counting ACL Drop towards interface RX_DRP counter
+sai_adjust_acl_drop_in_rx_drop=1
+
 phy_an_allow_pll_change=1
 arl_clean_timeout_usec=15000000
 asf_mem_profile=2
