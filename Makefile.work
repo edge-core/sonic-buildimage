@@ -47,12 +47,13 @@ SHELL = /bin/bash
 USER := $(shell id -un)
 PWD := $(shell pwd)
 USER_LC := $(shell echo $(USER) | tr A-Z a-z)
+DOCKER_MACHINE := $(shell docker run --rm debian:buster uname -m)
 
 comma := ,
 
-ifeq ($(shell uname -m), aarch64)
+ifeq ($(DOCKER_MACHINE), aarch64)
 COMPILE_HOST_ARCH := arm64
-else ifeq ($(shell uname -m), armv7l)
+else ifeq ($(shell echo $(DOCKER_MACHINE) | grep -qE "armv7l|armv8l" && echo y),y)
 COMPILE_HOST_ARCH := armhf
 else
 COMPILE_HOST_ARCH := amd64
@@ -286,7 +287,7 @@ SONIC_BUILD_INSTRUCTION :=  make \
 .DEFAULT_GOAL :=  all
 
 %::
-ifneq (,$(filter $(CONFIGURED_ARCH), armhf arm64))
+ifeq ($(MULTIARCH_QEMU_ENVIRON), y)
 	@$(DOCKER_MULTIARCH_CHECK)
 ifneq ($(BLDENV), )
 	@$(DOCKER_SERVICE_MULTIARCH_CHECK)
@@ -361,7 +362,7 @@ reset :
 	    if [ $$ans == y ]; then
 	        echo "Resetting local repository. Please wait...";
 	        $(DOCKER_RUN) $(SLAVE_IMAGE):$(SLAVE_TAG) sudo rm -rf fsroot;
-	        if [[ "$(CONFIGURED_ARCH)" == "armhf" || "$(CONFIGURED_ARCH)" ==  "arm64" ]]; then
+	        if [ "$(MULTIARCH_QEMU_ENVIRON)" == y ] && [[ "$(CONFIGURED_ARCH)" == "armhf" || "$(CONFIGURED_ARCH)" ==  "arm64" ]]; then
 	            echo "Stopping march $(CONFIGURED_ARCH) docker"
 	            sudo kill -9 `sudo cat /var/run/march/docker.pid` || true
 	            sudo rm -f /var/run/march/docker.pid || true
