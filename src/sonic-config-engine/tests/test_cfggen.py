@@ -10,6 +10,7 @@ class TestCfgGen(TestCase):
         self.sample_graph = os.path.join(self.test_dir, 'sample_graph.xml')
         self.sample_graph_t0 = os.path.join(self.test_dir, 't0-sample-graph.xml')
         self.sample_graph_simple = os.path.join(self.test_dir, 'simple-sample-graph.xml')
+        self.sample_graph_simple_case = os.path.join(self.test_dir, 'simple-sample-graph-case.xml')
         self.sample_graph_metadata = os.path.join(self.test_dir, 'simple-sample-graph-metadata.xml')
         self.sample_graph_pc_test = os.path.join(self.test_dir, 'pc-test-graph.xml')
         self.sample_graph_bgp_speaker = os.path.join(self.test_dir, 't0-sample-bgp-speaker.xml')
@@ -333,3 +334,12 @@ class TestCfgGen(TestCase):
         argument = '-m "' + self.sample_graph_simple + '" -p "' + self.port_config + '" -v "BGP_MONITORS"'
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "{'10.20.30.40': {'rrclient': 0, 'name': 'BGPMonitor', 'local_addr': '10.1.0.32', 'nhopself': 0, 'holdtime': '10', 'asn': '0', 'keepalive': '3'}}")
+
+    def test_minigraph_dhcp(self):
+        argument = '-m "' + self.sample_graph_simple_case + '" -p "' + self.port_config + '" -v DHCP'
+        output = self.run_script(argument)
+        self.assertEqual(
+            output.strip(),
+            "{'Vlan1000': {'dhcpv6_option|rfc6939_support': 'true', 'dhcpv6_servers': ['fc02:2000::1', 'fc02:2000::2']}, 'Vlan2000': {'dhcpv6_option|rfc6939_support': 'false', 'dhcpv6_servers': ['fc02:2000::3', 'fc02:2000::4']}}"
+        )
+        

@@ -235,6 +235,29 @@ def parse_dpg(dpg, hname):
                 vlan_attributes['alias'] = vintfname
             vlans[sonic_vlan_name] = vlan_attributes
 
+        dhcp = child.find(str(QName(ns, "Dhcp")))
+        dhcp_table = {}
+
+        if dhcp is not None:
+            for vintf in dhcp.findall(str(QName(ns, "VlanInterface"))):
+                vintfname = vintf.find(str(QName(ns, "Name"))).text
+
+                dhcp_attributes = {}
+
+                dhcp_node = vintf.find(str(QName(ns, "Dhcpv6Relays")))
+                if dhcp_node is not None and dhcp_node.text is not None:
+                    dhcpservers = dhcp_node.text
+                    vdhcpserver_list = dhcpservers.split(';')
+                    dhcp_attributes['dhcpv6_servers'] = vdhcpserver_list
+
+                option_linklayer_addr = vintf.find(str(QName(ns, "Dhcpv6OptionRfc6939")))
+                if option_linklayer_addr is not None and option_linklayer_addr.text == "true":
+                    dhcp_attributes['dhcpv6_option|rfc6939_support'] = "true"
+                elif option_linklayer_addr is not None and option_linklayer_addr.text == "false":
+                    dhcp_attributes['dhcpv6_option|rfc6939_support'] = "false"
+
+                dhcp_table[vintfname] = dhcp_attributes
+                
         aclintfs = child.find(str(QName(ns, "AclInterfaces")))
         acls = {}
         for aclintf in aclintfs.findall(str(QName(ns, "AclInterface"))):
@@ -320,7 +343,7 @@ def parse_dpg(dpg, hname):
                 except:
                     print >> sys.stderr, "Warning: Ignoring Control Plane ACL %s without type" % aclname
 
-        return intfs, lo_intfs, mgmt_intf, vlans, vlan_members, pcs, pc_members, acls
+        return intfs, lo_intfs, mgmt_intf, vlans, vlan_members, dhcp_table, pcs, pc_members, acls
     return None, None, None, None, None, None, None
 
 
@@ -532,6 +555,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
     pc_intfs = None
     vlans = None
     vlan_members = None
+    dhcp_table = None
     pcs = None
     mgmt_intf = None
     lo_intf = None
@@ -569,7 +593,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
     port_alias_map.update(alias_map)
     for child in root:
         if child.tag == str(QName(ns, "DpgDec")):
-            (intfs, lo_intfs, mgmt_intf, vlans, vlan_members, pcs, pc_members, acls) = parse_dpg(child, hostname)
+            (intfs, lo_intfs, mgmt_intf, vlans, vlan_members, dhcp_table, pcs, pc_members, acls) = parse_dpg(child, hostname)
         elif child.tag == str(QName(ns, "CpgDec")):
             (bgp_sessions, bgp_asn, bgp_peers_with_range, bgp_monitors) = parse_cpg(child, hostname)
         elif child.tag == str(QName(ns, "PngDec")):
@@ -743,7 +767,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
     results['DEVICE_NEIGHBOR_METADATA'] = { key:devices[key] for key in devices if key.lower() != hostname.lower() }
     results['SYSLOG_SERVER'] = dict((item, {}) for item in syslog_servers)
     results['DHCP_SERVER'] = dict((item, {}) for item in dhcp_servers)
-    results['DHCPv6_SERVER'] = dict((item, {}) for item in dhcpv6_servers)
+    results['DHCP'] = dhcp_table
     results['NTP_SERVER'] = dict((item, {}) for item in ntp_servers)
     results['TACPLUS_SERVER'] = dict((item, {'priority': '1', 'tcp_port': '49'}) for item in tacacs_servers)
 
