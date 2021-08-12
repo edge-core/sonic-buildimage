@@ -147,7 +147,18 @@ start)
         sleep 0.1
         done
 
-        /bin/sh /usr/local/bin/platform_api_mgnt.sh init
+	bus_en=8
+	sleep 1
+	cfg_r=`i2cget -y -f 8 0x60 0xD1`
+	((cfg_w=$cfg_r+$bus_en))	
+	i2cset -y -f 8 0x60 0xD1 $cfg_w
+	sleep 1
+	cfg_r=`i2cget -y -f 9 0x20 0xD1`
+	((cfg_w=$cfg_r+$bus_en))	
+	i2cset -y -f 9 0x20 0xD1 $cfg_w
+	sleep 1
+
+	/bin/sh /usr/local/bin/platform_api_mgnt.sh init
 
         echo "done."
         ;;
