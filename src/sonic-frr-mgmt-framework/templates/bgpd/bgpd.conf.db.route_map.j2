@@ -25,7 +25,7 @@ route-map {{rm_key[0]}} {{rm_val['route_operation']}} {{rm_key[1]}}
  match source-vrf {{rm_val['match_src_vrf']}}
 {% endif %}
 {# ---------------match ip/ipv6-Start-------------------------- #}
-{% set ip_str = {'ipv4':'ip', 'ipv6':'ipv6' } %}
+{% set ip_str = {'IPv4':'ip', 'IPv6':'ipv6' } %}
 {% if PREFIX_SET is defined and PREFIX_SET|length > 0 %}
 {% if 'match_prefix_set' in rm_val %}
 {% for pfx_key, pfx_val in PREFIX_SET.items() %}
