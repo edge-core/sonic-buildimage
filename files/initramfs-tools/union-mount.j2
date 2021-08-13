@@ -16,6 +16,7 @@ logs_inram=false
 secureboot=false
 bootloader=generic
 in_kdump=false
+varlog_size=0
 
 # Extract kernel parameters
 for x in $(cat /proc/cmdline); do
@@ -28,6 +29,9 @@ for x in $(cat /proc/cmdline); do
             ;;
         logs_inram=on)
             logs_inram=true
+            ;;
+        varlog_size=*)
+            varlog_size="${x#varlog_size=}"
             ;;
         secure_boot_enable=[y1])
             secureboot=true
@@ -44,22 +48,31 @@ done
 
 set_tmpfs_log_partition_size()
 {
-  varlogsize=128
+    if [ $varlog_size -gt 0 ]; then
+        # Use the varlog_size passed in from command line
+        varlogsize=$varlog_size
+    else
+        varlogsize=128
 
-  # set varlogsize to existing var-log.ext4 size
-  if [ -f ${rootmnt}/host/disk-img/var-log.ext4 ]; then
-    varlogsize=$(ls -l ${rootmnt}/host/disk-img/var-log.ext4 | awk '{print $5}')
-    varlogsize=$(($varlogsize/1024/1024))
-  fi
+        # set varlogsize to existing var-log.ext4 size
+        if [ -f ${rootmnt}/host/disk-img/var-log.ext4 ]; then
+            varlogsize=$(ls -l ${rootmnt}/host/disk-img/var-log.ext4 | awk '{print $5}')
+            varlogsize=$(($varlogsize/1024/1024))
+        fi
+    fi
 
-  # make sure varlogsize is between 5% to 10% of total memory size
-  memkb=$(grep MemTotal /proc/meminfo | awk '{print $2}')
-  memmb=$(($memkb/1024))
-  minsize=$(($memmb*5/100))
-  maxsize=$(($memmb*10/100))
+    # make sure varlogsize is between 5% to 10% of total memory size
+    memkb=$(grep MemTotal /proc/meminfo | awk '{print $2}')
+    memmb=$(($memkb/1024))
+    minsize=$(($memmb*5/100))
+    maxsize=$(($memmb*10/100))
 
-  [ $minsize -ge $varlogsize ] && varlogsize=$minsize
-  [ $maxsize -le $varlogsize ] && varlogsize=$maxsize
+    if [ $minsize -ge $varlogsize ]; then
+        varlogsize=$minsize
+    fi
+    if [ $maxsize -le $varlogsize ]; then
+        varlogsize=$maxsize
+    fi
 }
 
 remove_not_in_allowlist_files()
@@ -151,16 +164,25 @@ mount --bind ${rootmnt}/host/$image_dir/boot ${rootmnt}/boot
 
 ## Mount loop device or tmpfs for /var/log
 if $logs_inram; then
-  # NOTE: some platforms, when reaching initramfs stage, have a small
-  #       limit of mounting tmpfs partition, potentially due to amount
-  #       of RAM available in this stage. e.g. Arista 7050-qx32[s] and 7060-cx32s
-  set_tmpfs_log_partition_size
-  mount -t tmpfs -o rw,nosuid,nodev,size=${varlogsize}M tmpfs ${rootmnt}/var/log
-  [ -f ${rootmnt}/host/disk-img/var-log.ext4 ] && rm -rf ${rootmnt}/host/disk-img/var-log.ext4
+    # NOTE: some platforms, when reaching initramfs stage, have a small
+    #       limit of mounting tmpfs partition, potentially due to amount
+    #       of RAM available in this stage. Therefore limiting the size
+    #       set for tmpfs partitions.
+    #
+    #       Another reason for using tmpfs /var/log partition is:
+    #       Some platforms have a small flash and therefore the log partition takes valuable space.
+    #       To improve the longevity of these devices storing the logs in memory will permit more
+    #       SONiC image growth before being bottlenecked.
+    set_tmpfs_log_partition_size
+    mount -t tmpfs -o rw,nosuid,nodev,size=${varlogsize}M tmpfs ${rootmnt}/var/log
+    if [ -f ${rootmnt}/host/disk-img/var-log.ext4 ]; then
+        rm -rf ${rootmnt}/host/disk-img/var-log.ext4
+    fi
 else
-  [ -f ${rootmnt}/host/disk-img/var-log.ext4 ] && fsck.ext4 -v -p ${rootmnt}/host/disk-img/var-log.ext4 2>&1 \
-                                                  | gzip -c >> /tmp/fsck.log.gz
-  [ -f ${rootmnt}/host/disk-img/var-log.ext4 ] && mount -t ext4 -o loop,rw ${rootmnt}/host/disk-img/var-log.ext4 ${rootmnt}/var/log
+    if [ -f ${rootmnt}/host/disk-img/var-log.ext4 ]; then
+        fsck.ext4 -v -p ${rootmnt}/host/disk-img/var-log.ext4 2>&1 | gzip -c >> /tmp/fsck.log.gz
+        mount -t ext4 -o loop,rw ${rootmnt}/host/disk-img/var-log.ext4 ${rootmnt}/var/log
+    fi
 fi
 
 ## fscklog file: /tmp will be lost when overlayfs is mounted
