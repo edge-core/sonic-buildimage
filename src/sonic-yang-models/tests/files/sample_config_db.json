@@ -983,6 +983,15 @@
             }
         },
         "BGP_NEIGHBOR": {
+            "10.0.0.1": {
+                "asn": "65200",
+                "holdtime": "180",
+                "keepalive": "60",
+                "local_addr": "10.0.0.2",
+                "name":"PEER1",
+                "nhopself":"0",
+                "rrclient":"0"
+            },
             "default|192.168.1.1": {
             }
         },

@@ -48,7 +48,60 @@ module sonic-bgp-neighbor {
 
     container sonic-bgp-neighbor {
         container BGP_NEIGHBOR {
+            list BGP_NEIGHBOR_TEMPLATE_LIST {
+                description "This list is to support template based BGP neighbor configuration handled by bgpcfgd";
+                key "neighbor";
+
+                leaf neighbor {
+                    type inet:ip-address;
+                    description "BGP Neighbor address";
+                }
+
+                leaf asn {
+                    type uint32 {
+                        range "1..4294967295";
+                    }
+                    description "Peer AS number";
+                }
+
+                leaf holdtime {
+                    type uint16;
+                    description "Hold time";
+                }
+
+                leaf keepalive {
+                    type uint16;
+                    description "Keepalive interval";
+                }
+
+                leaf local_addr {
+                    type inet:ip-address;
+                    description "Local source address or interface name to use for connection.";
+                }
+
+                leaf name {
+                    type string;
+                    description "Peer description";
+                }
+
+                leaf nhopself {
+                    type uint8 {
+                        range "0..1";
+                    }
+                    description "Nexthop is self, no nexthop calculation";
+                }
+
+                leaf rrclient {
+                    type uint8 {
+                        range "0..1";
+                    }
+                    description "Route reflector client";
+                }
+            }
+
             list BGP_NEIGHBOR_LIST {
+                description "This list is to support generic BGP neighbor configuration handled by frrcfgd and 
+                frr_mgmt_framework_config field should be set to true in DEVICE_METADATA talbe for accepting the generic BGP table configurations.";
                 key "vrf_name neighbor";
 
                 leaf vrf_name {
