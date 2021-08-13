@@ -4,7 +4,7 @@ FROM multiarch/debian-debootstrap:armhf-buster
 {% elif CONFIGURED_ARCH == "arm64" and MULTIARCH_QEMU_ENVIRON == "y" %}
 FROM multiarch/debian-debootstrap:arm64-buster
 {% else %}
-FROM debian:buster
+FROM {{DOCKER_BASE_ARCH}}/debian:buster
 {% endif %}
 
 # Clean documentation in FROM image

@@ -4,7 +4,7 @@ FROM multiarch/debian-debootstrap:armhf-stretch
 {% elif CONFIGURED_ARCH == "arm64" and MULTIARCH_QEMU_ENVIRON == "y" %}
 FROM multiarch/debian-debootstrap:arm64-stretch
 {% else %}
-FROM debian:stretch
+FROM {{DOCKER_BASE_ARCH}}/debian:stretch
 {% endif %}
 
 # Clean documentation in FROM image
