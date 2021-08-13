@@ -37,7 +37,7 @@ while /bin/true; do
       eval `eval $ipcmd`
 
       # send ipv6 multicast pings to Vlan interfaces to get/refresh link-local addrs
-      ping6cmd="ping6 -I $vlan -n -q -i 0 -c 1 -W 0 ff02::1 >/dev/null"
+      ping6cmd="timeout 1 ping6 -I $vlan -n -q -i 0 -c 1 -W 0 ff02::1 >/dev/null"
       eval $ping6cmd
 
       # generate a list of ndisc6 commands (exclude link-local addrs since it is done above):
