@@ -222,98 +222,98 @@ dport_map_port_16=128
 #FC0
 portmap_1=1:100
 portmap_2=2:25:i
-portmap_3=3:25:i
+portmap_3=3:25:50:i
 portmap_4=4:25:i
 
 #FC1
 portmap_5=5:100
 portmap_6=6:25:i
-portmap_7=7:25:i
+portmap_7=7:25:50:i
 portmap_8=8:25:i
 
 #FC2
 portmap_9=9:100
 portmap_10=10:25:i
-portmap_11=11:25:i
+portmap_11=11:25:50:i
 portmap_12=12:25:i
 
 #FC3
 portmap_13=13:100
 portmap_14=14:25:i
-portmap_15=15:25:i
+portmap_15=15:25:50:i
 portmap_16=16:25:i
 
 #FC4
 portmap_17=17:100
 portmap_18=18:25:i
-portmap_19=19:25:i
+portmap_19=19:25:50:i
 portmap_20=20:25:i
 
 #FC5
 portmap_21=21:100
 portmap_22=22:25:i
-portmap_23=23:25:i
+portmap_23=23:25:50:i
 portmap_24=24:25:i
 
 #FC6
 portmap_25=25:100
 portmap_26=26:25:i
-portmap_27=27:25:i
+portmap_27=27:25:50:i
 portmap_28=28:25:i
 
 #FC7
 portmap_29=29:100
 portmap_30=30:25:i
-portmap_31=31:25:i
+portmap_31=31:25:50:i
 portmap_32=32:25:i
 
 # Tile-1
 #FC8
 portmap_34=33:100
 portmap_35=34:25:i
-portmap_36=35:25:i
+portmap_36=35:25:50:i
 portmap_37=36:25:i
 
 #FC9
 portmap_38=37:100
 portmap_39=38:25:i
-portmap_40=39:25:i
+portmap_40=39:25:50:i
 portmap_41=40:25:i
 
 #FC10
 portmap_42=41:100
 portmap_43=42:25:i
-portmap_44=43:25:i
+portmap_44=43:25:50:i
 portmap_45=44:25:i
 
 #FC11
 portmap_46=45:100
 portmap_47=46:25:i
-portmap_48=47:25:i
+portmap_48=47:25:50:i
 portmap_49=48:25:i
 
 #FC12
 portmap_50=49:100
 portmap_51=50:25:i
-portmap_52=51:25:i
+portmap_52=51:25:50:i
 portmap_53=52:25:i
 
 #FC13
 portmap_54=53:100
 portmap_55=54:25:i
-portmap_56=55:25:i
+portmap_56=55:25:50:i
 portmap_57=56:25:i
 
 #FC14
 portmap_58=57:100
 portmap_59=58:25:i
-portmap_60=59:25:i
+portmap_60=59:25:50:i
 portmap_61=60:25:i
 
 #FC15
 portmap_62=61:100
 portmap_63=62:25:i
-portmap_64=63:25:i
+portmap_64=63:25:50:i
 portmap_65=64:25:i
 
 #TSC-E Management port 1
@@ -324,49 +324,49 @@ portmap_65=64:25:i
 #FC16
 portmap_68=65:100
 portmap_69=66:25:i
-portmap_70=67:25:i
+portmap_70=67:25:50:i
 portmap_71=68:25:i
 
 #FC17
 portmap_72=69:100
 portmap_73=70:25:i
-portmap_74=71:25:i
+portmap_74=71:25:50:i
 portmap_75=72:25:i
 
 #FC18
 portmap_76=73:100
 portmap_77=74:25:i
-portmap_78=75:25:i
+portmap_78=75:25:50:i
 portmap_79=76:25:i
 
 #FC19
 portmap_80=77:100
 portmap_81=78:25:i
-portmap_82=79:25:i
+portmap_82=79:25:50:i
 portmap_83=80:25:i
 
 #FC20
 portmap_84=81:100
 portmap_85=82:25:i
-portmap_86=83:25:i
+portmap_86=83:25:50:i
 portmap_87=84:25:i
 
 #FC21
 portmap_88=85:100
 portmap_89=86:25:i
-portmap_90=87:25:i
+portmap_90=87:25:50:i
 portmap_91=88:25:i
 
 #FC22
 portmap_92=89:100
 portmap_93=90:25:i
-portmap_94=91:25:i
+portmap_94=91:25:50:i
 portmap_95=92:25:i
 
 #FC23
 portmap_96=93:100
 portmap_97=94:25:i
-portmap_98=95:25:i
+portmap_98=95:25:50:i
 portmap_99=96:25:i
 
 #TSC-E Management port 2
@@ -377,49 +377,49 @@ portmap_99=96:25:i
 #FC24
 portmap_102=97:100
 portmap_103=98:25:i
-portmap_104=99:25:i
+portmap_104=99:25:50:i
 portmap_105=100:25:i
 
 #FC25
 portmap_106=101:100
 portmap_107=102:25:i
-portmap_108=103:25:i
+portmap_108=103:25:50:i
 portmap_109=104:25:i
 
 #FC26
 portmap_110=105:100
 portmap_111=106:25:i
-portmap_112=107:25:i
+portmap_112=107:25:50:i
 portmap_113=108:25:i
 
 #FC27
 portmap_114=109:100
 portmap_115=110:25:i
-portmap_116=111:25:i
+portmap_116=111:25:50:i
 portmap_117=112:25:i
 
 #FC28
 portmap_118=113:100
 portmap_119=114:25:i
-portmap_120=115:25:i
+portmap_120=115:25:50:i
 portmap_121=116:25:i
 
 #FC29
 portmap_122=117:100
 portmap_123=118:25:i
-portmap_124=119:25:i
+portmap_124=119:25:50:i
 portmap_125=120:25:i
 
 #FC30
 portmap_126=121:100
 portmap_127=122:25:i
-portmap_128=123:25:i
+portmap_128=123:25:50:i
 portmap_129=124:25:i
 
 #FC31
 portmap_130=125:100
 portmap_131=126:25:i
-portmap_132=127:25:i
+portmap_132=127:25:50:i
 portmap_133=128:25:i
 
 
