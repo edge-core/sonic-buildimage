@@ -591,12 +591,16 @@ write_platform_specific_cmdline() {
 
     if [ $flash_size -ge 28000 ]; then
         varlog_size=4096
-    elif [ $flash_size -ge 3700 ]; then
+    elif [ $flash_size -gt 3700 ]; then
         varlog_size=400
-    elif [ $flash_size -le 2000 ]; then
-        # enable docker_inram for switches with less than 2G of flash
-        cmdline_add docker_inram=on
+    else
+        varlog_size=256
         cmdline_add logs_inram=on
+        if [ $flash_size -le 2000 ]; then
+            # enable docker_inram for switches with less than 2G of flash
+            varlog_size=128
+            cmdline_add docker_inram=on
+        fi
     fi
 
     cmdline_add "varlog_size=$varlog_size"
