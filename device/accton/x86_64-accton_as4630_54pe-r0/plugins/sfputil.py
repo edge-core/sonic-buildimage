@@ -50,7 +50,7 @@ class SfpUtil(SfpUtilBase):
 
     @property
     def qsfp_ports(self):
-        return list(range(self.PORT_START, self.PORTS_IN_BLOCK + 1))
+        return list(range(self.QSFP_START, self.PORTS_IN_BLOCK + 1))
 
     @property
     def port_to_eeprom_mapping(self):
@@ -147,7 +147,25 @@ class SfpUtil(SfpUtilBase):
                 time.sleep(0.01)
 
     def reset(self, port_num):
-        raise NotImplementedError
+        if not port_num in self.qsfp_ports:
+            return False
+
+        path = self.BASE_CPLD_PATH + "module_reset_" + str(port_num)
+        self.__port_to_mod_rst = path
+        try:
+            reg_file = open(self.__port_to_mod_rst, 'r+', buffering=0)
+        except IOError as e:
+            print( "Error: unable to open file: %s" % str(e))
+            return False
+
+        #toggle reset
+        reg_file.seek(0)
+        reg_file.write('1')
+        time.sleep(1)
+        reg_file.seek(0)
+        reg_file.write('0')
+        reg_file.close()
+        return True
 
     @property
     def _get_presence_bitmap(self):
