@@ -93,7 +93,6 @@ I2C_ADAPTER_PATH = "/sys/class/i2c-adapter"
 class Thermal(ThermalBase):
     """Platform-specific Thermal class"""
 
-    THERMAL_NAME_LIST = []
     MAINBOARD_SS_PATH = "/sys/class/i2c-adapter/i2c-11/11-001a/hwmon/hwmon2"
     CPUBOARD_SS_PATH = "/sys/class/i2c-adapter/i2c-3/3-001a/hwmon/hwmon1"
     SS_CONFIG_PATH = "/usr/share/sonic/device/x86_64-cel_e1031-r0/sensors.conf"
@@ -110,9 +109,12 @@ class Thermal(ThermalBase):
 
         self.name = self.get_name()
         self.postion = self._thermal_info["postion"]
+        self.minimum_thermal = self.get_temperature()
+        self.maximum_thermal = self.get_temperature()
 
     def _get_hwmon_path(self):
-        hwmon_path = os.path.join(I2C_ADAPTER_PATH, self._thermal_info["i2c_path"])
+        hwmon_path = os.path.join(
+            I2C_ADAPTER_PATH, self._thermal_info["i2c_path"])
         hwmon_dir = os.listdir(hwmon_path)[0]
         return os.path.join(hwmon_path, hwmon_dir)
 
@@ -125,6 +127,17 @@ class Thermal(ThermalBase):
     def _set_threshold(self, file_name, temperature):
         temp_file_path = os.path.join(self._hwmon_path, file_name)
         return self._api_common.write_txt_file(temp_file_path, str(temperature))
+
+    def _get_threshold(self, file_name):
+        temp_file_path = os.path.join(self._hwmon_path, file_name)
+        data = self._api_common.read_txt_file(temp_file_path)
+        if data:
+            try:
+                threshold = float(data)
+                return round(threshold/1000, 3)
+            except Exception:
+                pass
+        return None
 
     def get_temperature(self):
         """
@@ -144,7 +157,8 @@ class Thermal(ThermalBase):
             up to nearest thousandth of one degree Celsius, e.g. 30.125
         """
         max_crit_key = '{}_max'.format(self._airflow)
-        return self._thermal_info.get(max_crit_key, None)
+        high_threshold_file = "temp{}_max".format(self._ss_index)
+        return self._get_threshold(high_threshold_file) or self._thermal_info.get(max_crit_key, None)
 
     def get_low_threshold(self):
         """
@@ -153,7 +167,7 @@ class Thermal(ThermalBase):
             A float number, the low threshold temperature of thermal in Celsius
             up to nearest thousandth of one degree Celsius, e.g. 30.125
         """
-        return 0.0
+        return 0.001
 
     def set_high_threshold(self, temperature):
         """
@@ -166,8 +180,8 @@ class Thermal(ThermalBase):
         """
         temp_file = "temp{}_max".format(self._ss_index)
         is_set = self._set_threshold(temp_file, int(temperature*1000))
-        file_set = False
-        if is_set:
+        file_set = True
+        if is_set and self._api_common.is_host():
             try:
                 with open(self.SS_CONFIG_PATH, 'r+') as f:
                     content = f.readlines()
@@ -215,7 +229,35 @@ class Thermal(ThermalBase):
             A float number, the low critical threshold temperature of thermal in Celsius
             up to nearest thousandth of one degree Celsius, e.g. 30.125
         """
-        return 0.0
+        return 0.001
+
+    def get_minimum_recorded(self):
+        """
+        Retrieves the minimum recorded temperature of thermal
+        Returns:
+            A float number, the minimum recorded temperature of thermal in Celsius
+            up to nearest thousandth of one degree Celsius, e.g. 30.125
+        """
+        tmp = self.get_temperature()
+        if tmp < self.minimum_thermal:
+            self.minimum_thermal = tmp
+        return self.minimum_thermal
+
+    def get_maximum_recorded(self):
+        """
+        Retrieves the maximum recorded temperature of thermal
+        Returns:
+            A float number, the maximum recorded temperature of thermal in Celsius
+            up to nearest thousandth of one degree Celsius, e.g. 30.125
+        """
+        tmp = self.get_temperature()
+        if tmp > self.maximum_thermal:
+            self.maximum_thermal = tmp
+        return self.maximum_thermal
+
+    ##############################################################
+    ###################### Device methods ########################
+    ##############################################################
 
     def get_name(self):
         """
@@ -267,3 +309,21 @@ class Thermal(ThermalBase):
 
         raw_txt = self._api_common.read_txt_file(fault_file_path)
         return int(raw_txt) == 0
+
+    def is_replaceable(self):
+        """
+        Retrieves whether thermal module is replaceable
+        Returns:
+            A boolean value, True if replaceable, False if not
+        """
+        return False
+
+    def get_position_in_parent(self):
+        """
+        Retrieves the thermal position information
+        Returns:
+            A int value, 0 represent ASIC thermal, 1 represent CPU thermal info
+        """
+        if self.postion == "cpu":
+            return 1
+        return 0

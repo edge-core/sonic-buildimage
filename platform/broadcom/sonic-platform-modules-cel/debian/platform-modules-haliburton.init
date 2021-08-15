@@ -53,12 +53,11 @@ start)
         echo max6699 0x1a > /sys/bus/i2c/devices/i2c-3/new_device
         echo max6699 0x1a > /sys/bus/i2c/devices/i2c-11/new_device
 
-        ## TODO: fix dps200 driver cause kernel panic issue
-        # https://github.com/Azure/sonic-buildimage/issues/6602
-
         # Attach PSUs
-        # echo dps200 0x5a > /sys/bus/i2c/devices/i2c-12/new_device
-        # echo dps200 0x5b > /sys/bus/i2c/devices/i2c-13/new_device
+        echo dps200 0x5a > /sys/bus/i2c/devices/i2c-12/new_device
+        echo 24c02 0x52 > /sys/bus/i2c/devices/i2c-12/new_device
+        echo dps200 0x5b > /sys/bus/i2c/devices/i2c-13/new_device
+        echo 24c02 0x53 > /sys/bus/i2c/devices/i2c-13/new_device
 
         # Attach fans
         echo emc2305 0x4d > /sys/bus/i2c/devices/i2c-23/new_device
