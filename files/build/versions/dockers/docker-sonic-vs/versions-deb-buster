@@ -27,7 +27,7 @@ libboost-program-options1.71.0==1.71.0-6~bpo10+1
 libboost-system1.71.0==1.71.0-6~bpo10+1
 libboost-thread1.71.0==1.71.0-6~bpo10+1
 libbsd0==0.9.1-2+deb10u1
-libc-ares2==1.14.0-1
+libc-ares2==1.14.0-1+deb10u1
 libdevmapper1.02.1==2:1.02.155-3
 libdouble-conversion1==3.1.0-3
 libedit2==3.1-20181209-1

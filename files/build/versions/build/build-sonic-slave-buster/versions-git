@@ -8,7 +8,7 @@ https://github.com/sflow/sflowtool==4be2a17b36a3b9796c280b117b8b786323a84ae8
 https://github.com/thom311/libnl==5f395029ad01f05448cd1c7e0ddd8085d758c98a
 https://salsa.debian.org/debian/libteam.git==f8808df228b00873926b5e7b998ad8b61368d4c5
 https://salsa.debian.org/dhcp-team/isc-dhcp.git==d0d58776805d720029619ea06df5c57706eecd5a
-https://salsa.debian.org/kernel-team/ethtool/==0162cee667f191c0a7a8024c1750b2356ff8dd53
+https://salsa.debian.org/kernel-team/ethtool/==b1c2659044f2fd15fc62d33b4aade456c30e42ca
 https://salsa.debian.org/kernel-team/initramfs-tools.git==40e544e13611c1b2690eb99a8096fc16c1b9c74e
 https://salsa.debian.org/sk-guest/monit.git==c9da7ebb1f35dfba17b50b5969a6e75e29cbec0d
-https://salsa.debian.org/ssh-team/openssh.git==d57879aa12227e73fb8aaec57262f65a4900af27
+https://salsa.debian.org/ssh-team/openssh.git==7aabb1875cc0d2136db332c1541fed39b39923cd

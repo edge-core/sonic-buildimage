@@ -19,7 +19,7 @@ python-apt==1.8.4.3
 pyyaml==5.4.1
 redis==3.5.3
 scandir==1.10.0
-singledispatch==3.6.2
+singledispatch==3.7.0
 six==1.16.0
 thrift==0.13.0
 typing==3.10.0.0
