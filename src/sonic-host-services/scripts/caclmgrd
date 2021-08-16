@@ -56,6 +56,9 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
     ACL_TABLE = "ACL_TABLE"
     ACL_RULE = "ACL_RULE"
 
+    DEVICE_METADATA_TABLE = "DEVICE_METADATA"
+    MUX_CABLE_TABLE = "MUX_CABLE_TABLE"
+
     ACL_TABLE_TYPE_CTRLPLANE = "CTRLPLANE"
 
     # To specify a port range instead of a single port, use iptables format:
@@ -85,6 +88,8 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
 
     UPDATE_DELAY_SECS = 0.5
 
+    DualToR = False
+
     def __init__(self, log_identifier):
         super(ControlPlaneAclManager, self).__init__(log_identifier)
 
@@ -108,6 +113,10 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
         self.namespace_mgmt_ipv6 = self.get_namespace_mgmt_ipv6(self.iptables_cmd_ns_prefix[DEFAULT_NAMESPACE], DEFAULT_NAMESPACE)
         self.namespace_docker_mgmt_ip = {}
         self.namespace_docker_mgmt_ipv6 = {}
+
+        metadata = self.config_db_map[DEFAULT_NAMESPACE].get_table(self.DEVICE_METADATA_TABLE)
+        if 'subtype' in metadata['localhost'] and metadata['localhost']['subtype'] == 'DualToR':
+            self.DualToR = True
 
         namespaces = device_info.get_all_namespaces()
         for front_asic_namespace in namespaces['front_ns']:
@@ -320,6 +329,77 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
         else:
             return False
 
+    def setup_dhcp_chain(self, namespace):
+        all_chains = self.get_chain_list(self.iptables_cmd_ns_prefix[namespace], [""])
+        dhcp_chain_exist = "DHCP" in all_chains
+
+        iptables_cmds = []
+        if dhcp_chain_exist:
+            iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -F DHCP")
+            self.log_info("DHCP chain exists, flush")
+        else:
+            iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -N DHCP")
+            self.log_info("DHCP chain does not exist, create")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -A DHCP -j RETURN")
+
+        self.log_info("Issuing the following iptables commands for DHCP chain:")
+        for cmd in iptables_cmds:
+            self.log_info("  " + cmd)
+
+        self.run_commands(iptables_cmds)
+
+    def get_chain_list(self, iptable_ns_cmd_prefix, exclude_list):
+        command = iptable_ns_cmd_prefix + "iptables -L -v -n | grep Chain | awk '{print $2}'"
+        chain_list = self.run_commands([command]).splitlines()
+
+        for chain in exclude_list:
+            if chain in chain_list:
+                chain_list.remove(chain)
+
+        return chain_list
+
+    def dhcp_acl_rule(self, iptable_ns_cmd_prefix, op, intf):
+        '''
+            sample: iptables --insert/delete/check DHCP -m physdev --physdev-in Ethernet4 -j DROP
+        '''
+        return iptable_ns_cmd_prefix + 'iptables --{} DHCP -m physdev --physdev-in {} -j DROP'.format(op, intf)
+
+    def update_dhcp_chain(self, op, intf):
+        for namespace in list(self.config_db_map.keys()):
+            check_cmd = self.dhcp_acl_rule(self.iptables_cmd_ns_prefix[namespace], "check", intf)
+            update_cmd = self.dhcp_acl_rule(self.iptables_cmd_ns_prefix[namespace], op, intf)
+
+            execute = 0
+            ret = subprocess.call(check_cmd, shell=True) # ret==0 indicates the rule exists
+
+            if op == "insert" and ret == 1:
+                execute = 1
+            if op == "delete" and ret == 0:
+                execute = 1
+
+            if execute == 1:
+                self.run_commands([update_cmd])
+                self.log_info("Update DHCP chain: {}".format(update_cmd))
+
+    def update_dhcp_acl(self, key, op, data):
+        if "status" not in data:
+            self.log_warning("Unexpected update in MUX_CABLE_TABLE")
+            return
+
+        intf = key
+        status = data["status"]
+
+        if status == "active":
+            self.update_dhcp_chain("delete", intf)
+        elif status == "standby":
+            self.update_dhcp_chain("insert", intf)
+        elif status == "unknown":
+            self.update_dhcp_chain("delete", intf)
+        elif status == "error":
+            self.log_warning("Cable status shows error")
+        else:
+            self.log_warning("Unexpected cable status")
+
     def get_acl_rules_and_translate_to_iptables_commands(self, namespace):
         """
         Retrieves current ACL tables and rules from Config DB, translates
@@ -338,11 +418,12 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
         iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -P FORWARD ACCEPT")
         iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -P OUTPUT ACCEPT")
 
-        # Add iptables command to flush the current rules
-        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -F")
-
-        # Add iptables command to delete all non-default chains
-        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -X")
+        # Add iptables command to flush the current rules and delete all non-default chains
+        chain_list = self.get_chain_list(self.iptables_cmd_ns_prefix[namespace], ["DHCP"] if self.DualToR else [""])
+        for chain in chain_list:
+            iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -F " + chain)
+            if chain not in ["INPUT", "FORWARD", "OUTPUT"]:
+                iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -X " + chain)
 
         # Add same set of commands for ip6tables
         iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -P INPUT ACCEPT")
@@ -383,6 +464,10 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
         iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -A INPUT -p icmpv6 --icmpv6-type neighbor-advertisement -j ACCEPT")
         iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -A INPUT -p icmpv6 --icmpv6-type router-solicitation -j ACCEPT")
         iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -A INPUT -p icmpv6 --icmpv6-type router-advertisement -j ACCEPT")
+
+        # Add iptables commands to link the DCHP chain to block dhcp packets based on ingress interfaces
+        if self.DualToR:
+            iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -A INPUT -p udp --dport 67 -j DHCP")
 
         # Add iptables/ip6tables commands to allow all incoming IPv4 DHCP packets
         iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -A INPUT -p udp --dport 67:68 -j ACCEPT")
@@ -618,9 +703,27 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
         
         # Create the Select object
         sel = swsscommon.Select()
+
+        # Set up STATE_DB connector to monitor the change in MUX_CABLE_TABLE
+        state_db_connector = None
+        subscribe_mux_cable = None
+        state_db_id = swsscommon.SonicDBConfig.getDbId("STATE_DB")
+
+        if self.DualToR:
+            self.log_info("Dual ToR mode")
+
+            # set up state_db connector
+            state_db_connector = swsscommon.DBConnector("STATE_DB", 0)
+            subscribe_mux_cable = swsscommon.SubscriberStateTable(state_db_connector, self.MUX_CABLE_TABLE)
+            sel.addSelectable(subscribe_mux_cable)
+
+            # create DHCP chain
+            for namespace in list(self.config_db_map.keys()):
+                self.setup_dhcp_chain(namespace)
+
         # Map of Namespace <--> susbcriber table's object
         config_db_subscriber_table_map = {}
-        
+
         # Loop through all asic namespaces (if present) and host namespace (DEFAULT_NAMESPACE)
         for namespace in list(self.config_db_map.keys()):
             # Unconditionally update control plane ACLs once at start on given namespace
@@ -642,10 +745,8 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
         # Get the ACL rule table seprator
         acl_rule_table_seprator = subscribe_acl_rule_table.getTableNameSeparator()
 
-        # Loop on select to see if any event happen on config db of any namespace
+        # Loop on select to see if any event happen on state db or config db of any namespace
         while True:
-            ctrl_plane_acl_notification = set()
-
             (state, selectableObj) = sel.select(SELECT_TIMEOUT_MS)
             # Continue if select is timeout or selectable object is not return
             if state != swsscommon.Select.OBJECT:
@@ -654,8 +755,21 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
             # Get the redisselect object from selectable object
             redisSelectObj = swsscommon.CastSelectableToRedisSelectObj(selectableObj)
 
-            # Get the corresponding namespace from redisselect db connector object
+            # Get the corresponding namespace and db_id from redisselect
             namespace = redisSelectObj.getDbConnector().getNamespace()
+            db_id = redisSelectObj.getDbConnector().getDbId()
+
+            if db_id == state_db_id:
+                if self.DualToR:
+                    while True:
+                        key, op, fvs = subscribe_mux_cable.pop()
+                        if not key:
+                            break
+                        self.log_info("mux cable update : '%s'" % str((key, op, fvs)))
+                        self.update_dhcp_acl(key, op, dict(fvs))
+                continue
+
+            ctrl_plane_acl_notification = set()
 
             # Pop data of both Subscriber Table object of namespace that got config db acl table event
             for table in config_db_subscriber_table_map[namespace]:
