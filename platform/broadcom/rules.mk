@@ -1,5 +1,6 @@
 include $(PLATFORM_PATH)/sai-modules.mk
 include $(PLATFORM_PATH)/sai.mk
+include $(PLATFORM_PATH)/platform-modules-nokia.mk
 include $(PLATFORM_PATH)/platform-modules-dell.mk
 include $(PLATFORM_PATH)/platform-modules-arista.mk
 include $(PLATFORM_PATH)/platform-modules-ingrasys.mk
