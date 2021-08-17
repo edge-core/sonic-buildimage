@@ -18,7 +18,7 @@ serdes_lane_config_dfe=on
 #serdes_fec_enable=1
 serdes_if_type_ce=14
 pbmp_gport_stack.0=0x0000000000000000000000000000000000000000000000000000000000000000
-pbmp_xport_xe=0x88888888888888882222222222222222
+pbmp_xport_xe=0x888888888888888c2222222222222222
 
 ptp_ts_pll_fref=50000000
 ptp_bs_fref_0=50000000
@@ -40,6 +40,7 @@ portmap_49.0=49:100
 portmap_53.0=53:100
 portmap_57.0=57:100
 portmap_61.0=61:100
+
 portmap_67.0=65:100
 portmap_71.0=69:100
 portmap_75.0=73:100
@@ -56,7 +57,7 @@ portmap_115.0=113:100
 portmap_119.0=117:100
 portmap_123.0=121:100
 portmap_127.0=125:100
-#portmap_66.0=129:10:m
+portmap_66.0=129:10:m
 #portmap_130.0=128:10:m
 
 #wc0 lane swap
@@ -189,7 +190,7 @@ phy_chain_rx_lane_map_physical{125.0}=0x3210
 
 #MC lane swap
 phy_chain_tx_lane_map_physical{129.0}=0x3210
-phy_chain_rx_lane_map_physical{129.0}=0x3210
+phy_chain_rx_lane_map_physical{129.0}=0x0231
 
 
 #wc0 P/N flip
@@ -513,7 +514,7 @@ phy_chain_tx_polarity_flip_physical{128.0}=0x0
 phy_chain_rx_polarity_flip_physical{128.0}=0x0
 
 #MC P/N flip
-phy_chain_tx_polarity_flip_physical{129.0}=0x0
+phy_chain_tx_polarity_flip_physical{129.0}=0x1
 phy_chain_rx_polarity_flip_physical{129.0}=0x0
 phy_chain_tx_polarity_flip_physical{130.0}=0x0
 phy_chain_rx_polarity_flip_physical{130.0}=0x0
@@ -554,7 +555,7 @@ dport_map_port_115=29
 dport_map_port_119=30
 dport_map_port_123=31
 dport_map_port_127=32
-#dport_map_port_66=33
+dport_map_port_66=33
 #dport_map_port_130=34
 
 # configuration for 100G optical module
