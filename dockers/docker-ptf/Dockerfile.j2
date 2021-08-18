@@ -3,21 +3,12 @@ FROM multiarch/debian-debootstrap:armhf-stretch
 {% elif CONFIGURED_ARCH == "arm64" and MULTIARCH_QEMU_ENVIRON == "y" %}
 FROM multiarch/debian-debootstrap:arm64-stretch
 {% else %}
-FROM debian:stretch
+FROM debian:buster
 {% endif %}
 
 MAINTAINER Pavel Shirshov
 
-## Remove retired jessie-updates repo
-RUN sed -i '/deb http:\/\/deb.debian.org\/debian jessie-updates main/d' /etc/apt/sources.list
-
-## Copy dependencies
-COPY \
-{% for deb in docker_ptf_debs.split(' ') -%}
-debs/{{ deb }}{{' '}}
-{%- endfor -%}
-debs/
-
+RUN echo "deb [arch=amd64] http://debian-archive.trafficmanager.net/debian buster-backports main" >> /etc/apt/sources.list
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -47,7 +38,7 @@ RUN sed --in-place 's/httpredir.debian.org/debian-archive.trafficmanager.net/' /
         cmake               \
         libqt5core5a        \
         libqt5network5      \
-        libboost-atomic1.62.0 \
+        libboost-atomic1.71.0 \
         less                \
         git                 \
         iputils-ping        \
@@ -67,12 +58,6 @@ RUN sed --in-place 's/httpredir.debian.org/debian-archive.trafficmanager.net/' /
         arping              \
         bridge-utils        \
         libteam-utils
-
-
-RUN dpkg -i \
-{% for deb in docker_ptf_debs.split(' ') -%}
-debs/{{ deb }}{{' '}}
-{%- endfor %}
 
 # Install all python modules from pypi. python-scapy is exception, ptf debian package requires python-scapy
 # TODO: Clean up this step
