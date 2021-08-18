@@ -296,10 +296,6 @@ def main():
                                 'localhost': {'namespace_id': namespace_id}
                              }
                           })
-    # Load the database config for the namespace from global database json
-    if args.namespace is not None:
-        SonicDBConfig.load_sonic_global_db_config(namespace=args.namespace)
-
     if hwsku is not None:
         hardware_data = {'DEVICE_METADATA': {'localhost': {
             'hwsku': hwsku
@@ -359,6 +355,7 @@ def main():
         if args.namespace is None:
             configdb = ConfigDBPipeConnector(use_unix_socket_path=use_unix_sock, **db_kwargs)
         else:
+            SonicDBConfig.load_sonic_global_db_config(namespace=args.namespace)
             configdb = ConfigDBPipeConnector(use_unix_socket_path=use_unix_sock, namespace=args.namespace, **db_kwargs)
 
         configdb.connect()
@@ -426,6 +423,7 @@ def main():
         if args.namespace is None:
             configdb = ConfigDBPipeConnector(use_unix_socket_path=True, **db_kwargs)
         else:
+            SonicDBConfig.load_sonic_global_db_config(namespace=args.namespace)
             configdb = ConfigDBPipeConnector(use_unix_socket_path=True, namespace=args.namespace, **db_kwargs)
 
         configdb.connect(False)
