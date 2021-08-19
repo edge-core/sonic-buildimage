@@ -40,3 +40,9 @@ check program diskCheck with path "/usr/local/bin/disk_check.py"
 
 check program container_checker with path "/usr/bin/container_checker"
     if status != 0 for 5 times within 5 cycles then alert repeat every 1 cycles
+
+# vnet_route_check.py: tool that verifies VNET routes consistancy between SONiC and vendor SDK DBs.
+check program vnetRouteCheck with path "/usr/local/bin/vnet_route_check.py"
+    every 5 cycles
+    if status != 0 for 3 cycle then alert repeat every 1 cycles
+
