@@ -799,6 +799,9 @@ class Sfp(SfpBase):
         Returns: 
             A boolean, True if tx_disable is set successfully, False if not
         """
+        if self.sfp_type == COPPER_TYPE:
+            return False
+        
         if smbus_present == 0:  # if called from sfputil outside of pmon
             cmdstatus, register = cmd.getstatusoutput('sudo i2cget -y 0 0x41 0x5')
             if cmdstatus:
@@ -888,7 +891,7 @@ class Sfp(SfpBase):
         sfputil_helper = SfpUtilHelper()
         sfputil_helper.read_porttab_mappings(
             self.__get_path_to_port_config_file())
-        name = sfputil_helper.logical[self.index] or "Unknown"
+        name = sfputil_helper.logical[self.index-1] or "Unknown"
         return name
 
     def get_presence(self):
