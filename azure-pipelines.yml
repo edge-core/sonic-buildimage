@@ -69,7 +69,7 @@ stages:
         source: specific
         project: build
         pipeline: 9
-        artifacts: sonic-swss-common.amd64.ubuntu20_04
+        artifact: sonic-swss-common.amd64.ubuntu20_04
         runVersion: 'latestFromBranch'
         runBranch: 'refs/heads/master'
       displayName: "Download sonic swss common deb packages"
@@ -81,8 +81,8 @@ stages:
 
     - script: |
         set -x
-        sudo dpkg -i --force-confask,confnew ../sonic-swss-common.amd64.ubuntu20_04/libswsscommon_1.0.0_amd64.deb
-        sudo dpkg -i ../sonic-swss-common.amd64.ubuntu20_04/python3-swsscommon_1.0.0_amd64.deb
+        sudo dpkg -i --force-confask,confnew ../libswsscommon_1.0.0_amd64.deb
+        sudo dpkg -i ../python3-swsscommon_1.0.0_amd64.deb
         sudo docker load -i ../target/docker-sonic-vs.gz
         docker tag docker-sonic-vs:latest docker-sonic-vs:$(Build.BuildNumber)
         username=$(id -un)
