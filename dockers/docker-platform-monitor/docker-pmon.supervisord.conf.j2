@@ -150,7 +150,7 @@ dependent_startup_wait_for=rsyslogd:running
 
 {% if not skip_pcied %}
 [program:pcied]
-command=/usr/local/bin/pcied
+command={% if API_VERSION == 3 and 'pcied' not in python2_daemons %}python3 {% else %} python2 {% endif %}/usr/local/bin/pcied
 priority=10
 autostart=false
 autorestart=unexpected
