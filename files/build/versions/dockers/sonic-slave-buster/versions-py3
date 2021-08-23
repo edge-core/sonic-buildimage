@@ -3,7 +3,7 @@ asn1crypto==0.24.0
 atomicwrites==1.1.5
 attrs==18.2.0
 babel==2.6.0
-bitarray==2.3.0
+bitarray==2.3.1
 certifi==2018.8.24
 chardet==3.0.4
 cov-core==1.15.0
@@ -58,7 +58,7 @@ pytz==2019.1
 pyxdg==0.25
 pyyaml==5.4.1
 redis==3.5.3
-regex==2021.8.3
+regex==2021.8.21
 requests==2.21.0
 roman==2.0.0
 secretstorage==2.3.1

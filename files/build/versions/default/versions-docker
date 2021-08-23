@@ -28,10 +28,10 @@ amd64:docker-syncd-vs==
 amd64:docker-teamd==
 arm64:docker-base-buster==
 arm64:docker-config-engine-buster==
-arm64:multiarch/debian-debootstrap:arm64-buster==sha256:0670f807ca958a0442099b34acad64675d9d80de0869da5faf2ca6f0f5381463
-arm64:multiarch/debian-debootstrap:arm64-stretch==sha256:99a1f5d698a7c7ecde811004bf2efe395a590c54a9e1231c729da3a1bdaeaed6
+arm64:multiarch/debian-debootstrap:arm64-buster==sha256:1bc791ccf8170c4943a47b96a3d2c94721130525c875a1d2fdbff52c660f54a1
+arm64:multiarch/debian-debootstrap:arm64-stretch==sha256:b4aa76ce99876db67ae2f3ead89ffac424b4d1d07b7ae6369530ae9f5e745915
 armhf:docker-base-buster==
 armhf:docker-config-engine-buster==
-armhf:multiarch/debian-debootstrap:armhf-buster==sha256:b025061867a5af54f20e7fb7c615a9fc521f491c67af12f9c4545341bcefa0ba
-armhf:multiarch/debian-debootstrap:armhf-stretch==sha256:7a971bae16a7a2986d99ca0c45a1acaab3f1bdb4e80dfc4bded8645f4b1a000f
+armhf:multiarch/debian-debootstrap:armhf-buster==sha256:79f0455cf5169e9c5b4de81f92c3d669c020b58bb0e5da6c8e0f9a0fed8d666c
+armhf:multiarch/debian-debootstrap:armhf-stretch==sha256:b63f0c90d9f918b3a2311dc61944593e1f43eba1218fe90abbdb044f87b97ff9
 multiarch/debian-debootstrap:armhf-buster==
