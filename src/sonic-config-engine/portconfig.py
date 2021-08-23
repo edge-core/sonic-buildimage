@@ -261,9 +261,9 @@ def parse_platform_json_file(hwsku_json_file, platform_json_file):
     port_dict = readJson(platform_json_file)
     hwsku_dict = readJson(hwsku_json_file)
 
-    if not port_dict:
+    if port_dict is None:
         raise Exception("port_dict is none")
-    if not hwsku_dict:
+    if hwsku_dict is None:
         raise Exception("hwsku_dict is none")
 
     if INTF_KEY not in port_dict or INTF_KEY not in  hwsku_dict:
@@ -285,8 +285,8 @@ def parse_platform_json_file(hwsku_json_file, platform_json_file):
 
         ports.update(child_ports)
 
-    if not ports:
-        raise Exception("Ports dictionary is empty")
+    if ports is None:
+        raise Exception("Ports dictionary is None")
 
     for i in ports.keys():
         port_alias_map[ports[i]["alias"]]= i

@@ -2,11 +2,17 @@ import ast
 import json
 import os
 import subprocess
+import sys
 
 import tests.common_utils as utils
 
 from unittest import TestCase
+from portconfig import get_port_config, INTF_KEY
 
+if sys.version_info.major == 3:
+    from unittest import mock
+else:
+    import mock
 
 # Global Variable
 PLATFORM_OUTPUT_FILE = "platform_output.json"
@@ -85,3 +91,10 @@ class TestCfgGenPlatformJson(TestCase):
         output_dict = ast.literal_eval(output.strip())
         expected = ast.literal_eval(json.dumps(fh_data))
         self.assertDictEqual(output_dict, expected)
+
+    @mock.patch('portconfig.readJson', mock.MagicMock(return_value={INTF_KEY:{}}))
+    @mock.patch('os.path.isfile', mock.MagicMock(return_value=True))
+    def test_platform_json_no_interfaces(self):
+        (ports, _, _) = get_port_config(port_config_file=self.platform_json)
+        self.assertNotEqual(ports, None)
+        self.assertEqual(ports, {})
