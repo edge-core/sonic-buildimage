@@ -1,1 +1,4 @@
-../x86_64-mlnx_msn2700-r0/platform_wait
+#!/bin/bash
+
+declare -r EXIT_SUCCESS="0"
+exit "${EXIT_SUCCESS}"
