@@ -67,24 +67,27 @@
 Following is the instruction on how to build an [(ONIE)](https://github.com/opencomputeproject/onie) compatible network operating system (NOS) installer image for network switches, and also how to build docker images running inside the NOS. Note that SONiC image are build per ASIC platform. Switches using the same ASIC platform share a common image. For a list of supported switches and ASIC, please refer to this [list](https://github.com/Azure/SONiC/wiki/Supported-Devices-and-Platforms)
 
 # Hardware
-Any server can be a build image server. We are using a server with 1T hard disk. The OS is Ubuntu 16.04.
+
+Any server can be a build image server as long as it has:
+
+  * Multiple cores to increase build speed
+  * Plenty of RAM (less than 8 GiB is likely to cause issues)
+  * 300G of free disk space
+
+A good choice of OS for building SONiC is currently Ubuntu 20.04.
 
 ## Prerequisites
 
-Install pip and jinja in host build machine, execute below commands if j2/j2cli is not available:
+ * Install pip and jinja in host build machine, execute below commands if j2/j2cli is not available:
 
-    sudo apt-get install -y python-pip
-    sudo python2 -m pip install -U pip==9.0.3
-    sudo pip install --force-reinstall --upgrade jinja2>=2.10
-    sudo pip install j2cli
+```
+sudo apt install -y python3-pip
+sudo pip3 install j2cli
+```
 
-Configure your system to allow running the 'docker' command without 'sudo':
-    Add current user to the docker group
-	 `sudo gpasswd -a ${USER} docker`
-    Log out and log back in so that your group membership is re-evaluated
-
-## SAI Version
-Please refer to [SONiC roadmap](https://github.com/Azure/SONiC/wiki/Sonic-Roadmap-Planning) on the SAI version for each SONiC release.
+ * Install [Docker](https://docs.docker.com/engine/install/) and configure your system to allow running the 'docker' command without 'sudo':
+    * Add current user to the docker group: `sudo gpasswd -a ${USER} docker`
+    * Log out and log back in so that your group membership is re-evaluated
 
 ## Clone or fetch the code repository with all git submodules
 To clone the code repository recursively, assuming git version 1.9 or newer:
@@ -110,8 +113,22 @@ To build SONiC installer image and docker images, run the following commands:
     # Execute make configure once to configure ASIC
     make configure PLATFORM=[ASIC_VENDOR]
 
-    # Build SONiC image
-    make all
+    # Build SONiC image with 4 jobs in parallel.
+    # Note: You can set this higher, but 4 is a good number for most cases
+    # and is well-tested.
+    make SONIC_BUILD_JOBS=4 all
+
+ The supported ASIC vendors are:
+
+- PLATFORM=broadcom
+- PLATFORM=marvell
+- PLATFORM=mellanox
+- PLATFORM=cavium
+- PLATFORM=centec
+- PLATFORM=nephos
+- PLATFORM=innovium
+- PLATFORM=p4
+- PLATFORM=vs
 
 ## Usage for ARM Architecture
 To build Arm32 bit for (ARMHF) platform
@@ -147,7 +164,7 @@ To build Arm64 bit for platform
 
  **NOTE**:
 
-- Recommend reserving 50G free space to build one platform.
+- Recommend reserving at least 100G free space to build one platform with a single job. The build process will use more disk if you are setting `SONIC_BUILD_JOBS` to more than 1.
 - If Docker's workspace folder, `/var/lib/docker`, resides on a partition without sufficient free space, you may encounter an error like the following during a Docker container build job:
 
     `/usr/bin/tar: /path/to/sonic-buildimage/<some_file>: Cannot write: No space left on device`
@@ -156,17 +173,7 @@ To build Arm64 bit for platform
 - Use `http_proxy=[your_proxy] https_proxy=[your_proxy] no_proxy=[your_no_proxy] make` to enable http(s) proxy in the build process.
 - Add your user account to `docker` group and use your user account to make. `root` or `sudo` are not supported.
 
-The SONiC installer contains all docker images needed. SONiC uses one image for all devices of a same ASIC vendor. The supported ASIC vendors are:
-
-- PLATFORM=broadcom
-- PLATFORM=marvell
-- PLATFORM=mellanox
-- PLATFORM=cavium
-- PLATFORM=centec
-- PLATFORM=nephos
-- PLATFORM=innovium
-- PLATFORM=p4
-- PLATFORM=vs
+The SONiC installer contains all docker images needed. SONiC uses one image for all devices of a same ASIC vendor.
 
 For Broadcom ASIC, we build ONIE and EOS image. EOS image is used for Arista devices, ONIE image is used for all other Broadcom ASIC based devices.
 
@@ -197,6 +204,9 @@ It is recommended to use clean targets to clean all packages that are built toge
 
 ## Build debug dockers and debug SONiC installer image:
 SONiC build system supports building dockers and ONIE-image with debug tools and debug symbols, to help with live & core debugging. For details refer to [(SONiC Buildimage Guide)](https://github.com/Azure/sonic-buildimage/blob/master/README.buildsystem.md).
+
+## SAI Version
+Please refer to [SONiC roadmap](https://github.com/Azure/SONiC/wiki/Sonic-Roadmap-Planning) on the SAI version for each SONiC release.
 
 ## Notes:
 - If you are running make for the first time, a sonic-slave-${USER} docker image will be built automatically.
