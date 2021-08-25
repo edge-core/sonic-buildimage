@@ -13,12 +13,32 @@ sys.path.append('../cli/config/plugins/')
 import dhcp_relay
 
 config_vlan_add_dhcp_relay_output="""\
-Added DHCP relay destination address 192.0.0.100 to Vlan1000
+Added DHCP relay destination addresses ['192.0.0.100'] to Vlan1000
+Restarting DHCP relay service...
+"""
+
+config_vlan_add_dhcpv6_relay_output="""\
+Added DHCP relay destination addresses ['fc02:2000::1'] to Vlan1000
+Restarting DHCP relay service...
+"""
+
+config_vlan_add_multiple_dhcpv6_relay_output="""\
+Added DHCP relay destination addresses ['fc02:2000::1', 'fc02:2000::2', 'fc02:2000::3'] to Vlan1000
 Restarting DHCP relay service...
 """
 
 config_vlan_del_dhcp_relay_output="""\
-Removed DHCP relay destination address 192.0.0.100 from Vlan1000
+Removed DHCP relay destination addresses ('192.0.0.100',) from Vlan1000
+Restarting DHCP relay service...
+"""
+
+config_vlan_del_dhcpv6_relay_output="""\
+Removed DHCP relay destination addresses ('fc02:2000::1',) from Vlan1000
+Restarting DHCP relay service...
+"""
+
+config_vlan_del_multiple_dhcpv6_relay_output="""\
+Removed DHCP relay destination addresses ('fc02:2000::1', 'fc02:2000::2', 'fc02:2000::3') from Vlan1000
 Restarting DHCP relay service...
 """
 
@@ -54,17 +74,27 @@ class TestConfigVlanDhcpRelay(object):
             assert "Error: Vlan4096 doesn't exist" in result.output
             assert mock_run_command.call_count == 0
 
-    def test_config_vlan_add_dhcp_relay_with_invalid_ip(self):
+    def test_config_vlan_add_dhcp_relay_with_invalid_ip(self, mock_cfgdb):
         runner = CliRunner()
+        db = Db()
+        db.cfgdb = mock_cfgdb
 
         with mock.patch('utilities_common.cli.run_command') as mock_run_command:
             result = runner.invoke(dhcp_relay.vlan_dhcp_relay.commands["add"],
-                                   ["1000", "192.0.0.1000"])
+                                   ["1000", "192.0.0.1000"], obj=db)
             print(result.exit_code)
             print(result.output)
             # traceback.print_tb(result.exc_info[2])
             assert result.exit_code != 0
             assert "Error: 192.0.0.1000 is invalid IP address" in result.output
+            assert mock_run_command.call_count == 0
+
+            result = runner.invoke(dhcp_relay.vlan_dhcp_relay.commands["add"],
+                                   ["1000", "192.0.0."], obj=db)
+            print(result.exit_code)
+            print(result.output)
+            assert result.exit_code != 0
+            assert "Error: 192.0.0. is invalid IP address" in result.output
             assert mock_run_command.call_count == 0
 
     def test_config_vlan_add_dhcp_relay_with_exist_ip(self, mock_cfgdb):
@@ -107,6 +137,64 @@ class TestConfigVlanDhcpRelay(object):
             print(result.output)
             assert result.exit_code == 0
             assert result.output == config_vlan_del_dhcp_relay_output
+            assert mock_run_command.call_count == 3
+            db.cfgdb.set_entry.assert_called_once_with('VLAN', 'Vlan1000', {'dhcp_servers': ['192.0.0.1']})
+
+    def test_config_vlan_add_del_dhcpv6_relay_dest(self, mock_cfgdb):
+        runner = CliRunner()
+        db = Db()
+        db.cfgdb = mock_cfgdb
+
+        # add new relay dest
+        with mock.patch("utilities_common.cli.run_command") as mock_run_command:
+            result = runner.invoke(dhcp_relay.vlan_dhcp_relay.commands["add"],
+                                   ["1000", "fc02:2000::1"], obj=db)
+            print(result.exit_code)
+            print(result.output)
+            assert result.exit_code == 0
+            assert result.output == config_vlan_add_dhcpv6_relay_output
+            assert mock_run_command.call_count == 3
+            db.cfgdb.set_entry.assert_called_once_with('VLAN', 'Vlan1000', {'dhcp_servers': ['192.0.0.1'], 'dhcpv6_servers': ['fc02:2000::1']})
+
+        db.cfgdb.set_entry.reset_mock()
+
+        # del relay dest
+        with mock.patch("utilities_common.cli.run_command") as mock_run_command:
+            result = runner.invoke(dhcp_relay.vlan_dhcp_relay.commands["del"],
+                                   ["1000", "fc02:2000::1"], obj=db)
+            print(result.exit_code)
+            print(result.output)
+            assert result.exit_code == 0
+            assert result.output == config_vlan_del_dhcpv6_relay_output
+            assert mock_run_command.call_count == 3
+            db.cfgdb.set_entry.assert_called_once_with('VLAN', 'Vlan1000', {'dhcp_servers': ['192.0.0.1']})
+
+    def test_config_vlan_add_del_multiple_dhcpv6_relay_dest(self, mock_cfgdb):
+        runner = CliRunner()
+        db = Db()
+        db.cfgdb = mock_cfgdb
+
+        # add new relay dest
+        with mock.patch("utilities_common.cli.run_command") as mock_run_command:
+            result = runner.invoke(dhcp_relay.vlan_dhcp_relay.commands["add"],
+                                   ["1000", "fc02:2000::1", "fc02:2000::2", "fc02:2000::3"], obj=db)
+            print(result.exit_code)
+            print(result.output)
+            assert result.exit_code == 0
+            assert result.output == config_vlan_add_multiple_dhcpv6_relay_output
+            assert mock_run_command.call_count == 3
+            db.cfgdb.set_entry.assert_called_once_with('VLAN', 'Vlan1000', {'dhcp_servers': ['192.0.0.1'], 'dhcpv6_servers': ['fc02:2000::1', 'fc02:2000::2', 'fc02:2000::3']})
+
+        db.cfgdb.set_entry.reset_mock()
+
+        # del relay dest
+        with mock.patch("utilities_common.cli.run_command") as mock_run_command:
+            result = runner.invoke(dhcp_relay.vlan_dhcp_relay.commands["del"],
+                                   ["1000", "fc02:2000::1", "fc02:2000::2", "fc02:2000::3"], obj=db)
+            print(result.exit_code)
+            print(result.output)
+            assert result.exit_code == 0
+            assert result.output == config_vlan_del_multiple_dhcpv6_relay_output
             assert mock_run_command.call_count == 3
             db.cfgdb.set_entry.assert_called_once_with('VLAN', 'Vlan1000', {'dhcp_servers': ['192.0.0.1']})
 
