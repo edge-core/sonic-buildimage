@@ -9,8 +9,9 @@ def get_dhcp_helper_address(ctx, vlan):
         return ""
 
     dhcp_helpers = vlan_config.get('dhcp_servers', [])
+    dhcpv6_helpers = vlan_config.get('dhcpv6_servers', [])
 
-    return '\n'.join(natsorted(dhcp_helpers))
+    return '\n'.join(natsorted(dhcp_helpers) + natsorted(dhcpv6_helpers))
 
 
 vlan.VlanBrief.register_column('DHCP Helper Address', get_dhcp_helper_address)
