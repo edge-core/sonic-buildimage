@@ -36,7 +36,7 @@ stages:
   variables:
     CACHE_MODE: rcache
     ${{ if eq(variables['Build.SourceBranchName'], '202012') }}:
-      VERSION_CONTROL_OPTIONS: 'SONIC_VERSION_CONTROL_COMPONENTS=deb,py2,py3,web'
+      VERSION_CONTROL_OPTIONS: 'SONIC_VERSION_CONTROL_COMPONENTS=deb,py2,py3,web,git,docker'
   jobs:
   - template: .azure-pipelines/azure-pipelines-build.yml
     parameters:
