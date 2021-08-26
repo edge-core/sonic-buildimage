@@ -39,7 +39,8 @@ get_clone_path(){
     done
 
     # if not specific clone path, get default clone path
-    [ -z $clone_PATH ] && clone_PATH=`echo $URL | rev | awk -F/ '{print$1}' | rev | awk -F. '{print$1}'`
+    # 1. trim tail slash sign. 2. trim all charactors before the last slash. 3.trim tail '.git'
+    [ -z $clone_PATH ] && clone_PATH=`echo $URL | sed 's/\/$//' | awk -F/ '{print$NF}' | awk -F. '{print$1}'`
 }
 
 main(){
@@ -62,7 +63,8 @@ main(){
     # control version or record version file
     if [[ $ENABLE_VERSION_CONTROL_GIT == "y" ]];then
         # control version
-        [ ! -z $commit ] && $REAL_COMMAND reset --hard $commit &> /dev/null
+        [ -n $commit ] && echo "git reset --hard $commit" >> ${new_version_file}.log
+        [ -n $commit ] && $REAL_COMMAND reset --hard $commit &> ${new_version_file}.log
     else
         # record version file
         echo "$URL==$commit_latest" >> $new_version_file
