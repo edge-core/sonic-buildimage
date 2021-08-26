@@ -17,6 +17,9 @@ l3_alpm_enable=2
 ipv6_lpm_128b_enable=1
 mmu_lossless=0
 
+# Disable Counting ACL Drop towards interface RX_DRP counter
+sai_adjust_acl_drop_in_rx_drop=1
+
 ###################################################################################
 # Celestica Customize for SeaStone
 ###################################################################################
