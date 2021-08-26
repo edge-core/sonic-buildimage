@@ -182,7 +182,17 @@ program_console_speed()
         CONSOLE_SPEED=$speed
     fi
 
-    sed -i "s|\-\-keep\-baud .* %I| $CONSOLE_SPEED %I|g" /lib/systemd/system/serial-getty@.service
+    # Set correct baud rate in getty service
+    # First boot will find keep-baud argument with multiple baud rates as per Debian convention
+    # Subsequent boots may have new baud rate without finding keep-baud argument
+    grep agetty /lib/systemd/system/serial-getty@.service |grep keep-baud
+    if [ $? = 0 ]; then
+        sed -i "s|\-\-keep\-baud .* %I| $CONSOLE_SPEED %I|g" /lib/systemd/system/serial-getty@.service
+    else
+        sed -i "s|u' .* %I|u' $CONSOLE_SPEED %I|g" /lib/systemd/system/serial-getty@.service
+    fi
+
+    # Reload systemd config
     systemctl daemon-reload
 }
 
