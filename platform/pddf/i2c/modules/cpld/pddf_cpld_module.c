@@ -115,7 +115,7 @@ static ssize_t do_device_operation(struct device *dev, struct device_attribute *
 			strcpy(board_info.type, device_ptr->dev_type);
 
 			/*pddf_dbg(KERN_ERR "Creating a client %s on 0x%x, platform_data 0x%x\n", board_info.type, board_info.addr, board_info.platform_data);*/
-			client_ptr = i2c_new_device(adapter, &board_info);
+			client_ptr = i2c_new_client_device(adapter, &board_info);
 
 			if (client_ptr != NULL) {
 				i2c_put_adapter(adapter);

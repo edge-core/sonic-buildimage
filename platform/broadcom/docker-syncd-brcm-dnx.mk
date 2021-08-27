@@ -46,3 +46,5 @@ $(DOCKER_SYNCD_DNX_BASE)_RUN_OPT += -v /host/warmboot:/var/warmboot
 $(DOCKER_SYNCD_DNX_BASE)_BASE_IMAGE_FILES += bcmcmd:/usr/bin/bcmcmd
 $(DOCKER_SYNCD_DNX_BASE)_BASE_IMAGE_FILES += bcmsh:/usr/bin/bcmsh
 $(DOCKER_SYNCD_DNX_BASE)_BASE_IMAGE_FILES += bcm_common:/usr/bin/bcm_common
+
+SONIC_BUSTER_DOCKERS += $(DOCKER_SYNCD_DNX_BASE)

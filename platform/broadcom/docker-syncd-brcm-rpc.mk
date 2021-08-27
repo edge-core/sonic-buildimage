@@ -28,3 +28,5 @@ $(DOCKER_SYNCD_BRCM_RPC)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
 $(DOCKER_SYNCD_BRCM_RPC)_BASE_IMAGE_FILES += bcmcmd:/usr/bin/bcmcmd
 $(DOCKER_SYNCD_BRCM_RPC)_BASE_IMAGE_FILES += bcmsh:/usr/bin/bcmsh
 $(DOCKER_SYNCD_BRCM_RPC)_MACHINE = broadcom
+
+SONIC_BUSTER_DOCKERS += $(DOCKER_SYNCD_BRCM_RPC)
