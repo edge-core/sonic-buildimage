@@ -43,7 +43,7 @@ parameters:
   default: sonicdev
 
 variables:
-- ${{ if eq(variables['Build.SourceBranchName'], '202012' }}:
+- ${{ if eq(variables['Build.SourceBranchName'], '202012') }}:
   - name: BUILD_OPTIONS
     value: 'SONIC_VERSION_CONTROL_COMPONENTS=deb,py2,py3,web,git,docker'
 
