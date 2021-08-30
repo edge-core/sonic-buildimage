@@ -477,7 +477,6 @@ write_platform_specific_cmdline() {
     if [ "$platform" = "crow" ]; then
         # Assuming sid=Clearlake
         aboot_machine=arista_7050_qx32s
-        flash_size=3700
         cmdline_add modprobe.blacklist=radeon,sp5100_tco
     fi
     if [ "$sid" = "Upperlake" ] || [ "$sid" = "UpperlakeES" ]; then
@@ -591,7 +590,7 @@ write_platform_specific_cmdline() {
 
     if [ $flash_size -ge 28000 ]; then
         varlog_size=4096
-    elif [ $flash_size -gt 3700 ]; then
+    elif [ $flash_size -gt 4000 ]; then
         varlog_size=400
     else
         varlog_size=256
