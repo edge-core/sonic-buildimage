@@ -940,8 +940,8 @@ libsoup-gnome2.4-1==2.64.2-2
 libsoup2.4-1==2.64.2-2
 libsqlite3-0==3.27.2-3+deb10u1
 libssh2-1==1.8.0-2.1
-libssl-dev==1.1.1d-0+deb10u6
-libssl1.1==1.1.1d-0+deb10u6
+libssl-dev==1.1.1d-0+deb10u7
+libssl1.1==1.1.1d-0+deb10u7
 libstdc++-8-dev==8.3.0-6
 libstemmer0d==0+svn585-1+b2
 libstrictures-perl==2.000005-1
@@ -1197,7 +1197,7 @@ opensp==1.5.2-13+b1
 openssh-client==1:7.9p1-10+deb10u2
 openssh-server==1:7.9p1-10+deb10u2
 openssh-sftp-server==1:7.9p1-10+deb10u2
-openssl==1.1.1d-0+deb10u6
+openssl==1.1.1d-0+deb10u7
 packagekit==1.1.12-5
 packagekit-tools==1.1.12-5
 pango1.0-tools==1.42.4-8~deb10u1

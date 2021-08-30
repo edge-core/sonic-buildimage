@@ -60,7 +60,7 @@ iputils-ping==3:20180629-2+deb10u2
 isc-dhcp-client==4.4.1-2+deb10u1
 jq==1.5+dfsg-2+b1
 kdump-tools==1:1.6.1-1
-kernel-mft-dkms-modules-4.19.0-12-2-amd64==4.16.0
+kernel-mft-dkms-modules-4.19.0-12-2-amd64==4.17.0
 kexec-tools==1:2.0.18-1
 klibc-utils==2.0.6-1+deb10u1
 kmod==26-1
@@ -163,7 +163,7 @@ libsasl2-2==2.1.27+dfsg-1+deb10u1
 libsasl2-modules-db==2.1.27+dfsg-1+deb10u1
 libsqlite3-0==3.27.2-3+deb10u1
 libssh2-1==1.8.0-2.1
-libssl1.1==1.1.1d-0+deb10u6
+libssl1.1==1.1.1d-0+deb10u7
 libswsscommon==1.0.0
 libsysfs2==2.1.0+repack-5
 libsystemd0==247.3-6~bpo10+1
@@ -186,8 +186,8 @@ lsb-base==10.2019051400
 lsb-release==10.2019051400
 makedev==2.3.1-94
 makedumpfile==1:1.6.5-1
-mft==4.16.0-105
-mft-oem==4.16.0-105
+mft==4.17.0-106
+mft-oem==4.17.0-106
 mime-support==3.62
 monit==1:5.20.0-6
 mtd-utils==1:2.0.1-1
@@ -203,7 +203,7 @@ opennsl-modules==4.3.0.10-2
 openssh-client==1:7.9p1-10+deb10u2
 openssh-server==1:7.9p1-10+deb10u2
 openssh-sftp-server==1:7.9p1-10+deb10u2
-openssl==1.1.1d-0+deb10u6
+openssl==1.1.1d-0+deb10u7
 pciutils==1:3.5.2-1
 perl==5.28.1-6+deb10u1
 perl-modules-5.28==5.28.1-6+deb10u1

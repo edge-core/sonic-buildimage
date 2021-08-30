@@ -1034,8 +1034,8 @@ libsqlite3-0==3.27.2-3+deb10u1
 libsratom-0-0==0.6.0~dfsg0-1
 libssh-gcrypt-4==0.8.7-1+deb10u1
 libssh2-1==1.8.0-2.1
-libssl-dev==1.1.1d-0+deb10u6
-libssl1.1==1.1.1d-0+deb10u6
+libssl-dev==1.1.1d-0+deb10u7
+libssl1.1==1.1.1d-0+deb10u7
 libstdc++-8-dev==8.3.0-6
 libstemmer0d==0+svn585-1+b2
 libstrictures-perl==2.000005-1
@@ -1346,7 +1346,7 @@ opensp==1.5.2-13+b1
 openssh-client==1:7.9p1-10+deb10u2
 openssh-server==1:7.9p1-10+deb10u2
 openssh-sftp-server==1:7.9p1-10+deb10u2
-openssl==1.1.1d-0+deb10u6
+openssl==1.1.1d-0+deb10u7
 ovmf==0~20181115.85588389-3+deb10u3
 packagekit==1.1.12-5
 packagekit-tools==1.1.12-5
