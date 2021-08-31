@@ -523,3 +523,4 @@ serdes_lane_config_media_type_24=copper
 
 sai_preinit_cmd_file=/usr/share/sonic/hwsku/sai_preinit_cmd.soc
 sai_postinit_cmd_file=/usr/share/sonic/hwsku/sai_postinit_cmd.soc
+led_fw_path=/usr/share/sonic/hwsku/
