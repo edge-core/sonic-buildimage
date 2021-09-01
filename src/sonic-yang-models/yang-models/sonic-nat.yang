@@ -7,9 +7,10 @@ module sonic-nat {
         prefix inet;
     }
 
-    import sonic-acl {
-        prefix sacl;
-    }
+    // Comment sonic-acl import here until libyang back-links issue is resolved for ACL_TABLE leaf reference.
+    // import sonic-acl {
+    //     prefix sacl;
+    // }
 
     import sonic-types {
         prefix stypes;
