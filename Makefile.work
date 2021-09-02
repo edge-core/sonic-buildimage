@@ -280,6 +280,7 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            SONIC_ENABLE_IMAGE_SIGNATURE=$(ENABLE_IMAGE_SIGNATURE) \
                            ENABLE_HOST_SERVICE_ON_START=$(ENABLE_HOST_SERVICE_ON_START) \
                            SLAVE_DIR=$(SLAVE_DIR) \
+                           BUILD_MULTIASIC_KVM=$(BUILD_MULTIASIC_KVM) \
                            $(SONIC_OVERRIDE_BUILD_VARS)
 
 .PHONY: sonic-slave-build sonic-slave-bash init reset

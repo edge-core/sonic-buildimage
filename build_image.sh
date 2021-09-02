@@ -25,6 +25,47 @@ fi
 
 IMAGE_VERSION="${SONIC_IMAGE_VERSION}"
 
+generate_kvm_image()
+{
+    NUM_ASIC=$1
+    if [ $NUM_ASIC == 4 ]; then 
+         KVM_IMAGE=$OUTPUT_KVM_4ASIC_IMAGE
+         RECOVERY_ISO=$onie_recovery_kvm_4asic_image
+    elif [ $NUM_ASIC == 6 ]; then
+         KVM_IMAGE=$OUTPUT_KVM_6ASIC_IMAGE
+         RECOVERY_ISO=$onie_recovery_kvm_6asic_image
+    else 
+         KVM_IMAGE=$OUTPUT_KVM_IMAGE
+         RECOVERY_ISO=$onie_recovery_image
+         NUM_ASIC=1
+    fi
+
+    echo "Build $NUM_ASIC-asic KVM image"
+    KVM_IMAGE_DISK=${KVM_IMAGE%.gz}
+    sudo rm -f $KVM_IMAGE_DISK $KVM_IMAGE_DISK.gz
+
+    SONIC_USERNAME=$USERNAME PASSWD=$PASSWORD sudo -E ./scripts/build_kvm_image.sh $KVM_IMAGE_DISK $RECOVERY_ISO $OUTPUT_ONIE_IMAGE $KVM_IMAGE_DISK_SIZE
+
+    if [ $? -ne 0 ]; then
+        echo "Error : build kvm image failed"
+        exit 1
+    fi
+
+    [ -r $KVM_IMAGE_DISK ] || {
+        echo "Error : $KVM_IMAGE_DISK not generated!"
+        exit 1
+    }
+
+    gzip $KVM_IMAGE_DISK
+
+    [ -r $KVM_IMAGE_DISK.gz ] || {
+        echo "Error : gzip $KVM_IMAGE_DISK failed!"
+        exit 1
+    }
+
+    echo "The compressed kvm image is in $KVM_IMAGE_DISK.gz"
+}
+
 generate_onie_installer_image()
 {
     # Copy platform-specific ONIE installer config files where onie-mk-demo.sh expects them
@@ -93,32 +134,16 @@ elif [ "$IMAGE_TYPE" = "raw" ]; then
 
 elif [ "$IMAGE_TYPE" = "kvm" ]; then
 
-    echo "Build KVM image"
-    KVM_IMAGE_DISK=${OUTPUT_KVM_IMAGE%.gz}
-    sudo rm -f $KVM_IMAGE_DISK $KVM_IMAGE_DISK.gz
-
     generate_onie_installer_image
-
-    SONIC_USERNAME=$USERNAME PASSWD=$PASSWORD sudo -E ./scripts/build_kvm_image.sh $KVM_IMAGE_DISK $onie_recovery_image $OUTPUT_ONIE_IMAGE $KVM_IMAGE_DISK_SIZE
-
-    if [ $? -ne 0 ]; then
-        echo "Error : build kvm image failed"
-        exit 1
+    # Generate single asic KVM image
+    generate_kvm_image
+    if [ "$BUILD_MULTIASIC_KVM" == "y" ]; then
+        # Genrate 4-asic KVM image
+        generate_kvm_image 4
+        # Generate 6-asic KVM image
+        generate_kvm_image 6
     fi
 
-    [ -r $KVM_IMAGE_DISK ] || {
-        echo "Error : $KVM_IMAGE_DISK not generated!"
-        exit 1
-    }
-
-    gzip $KVM_IMAGE_DISK
-
-    [ -r $KVM_IMAGE_DISK.gz ] || {
-        echo "Error : gzip $KVM_IMAGE_DISK failed!"
-        exit 1
-    }
-
-    echo "The compressed kvm image is in $KVM_IMAGE_DISK.gz"
 
 ## Use 'aboot' as target machine category which includes Aboot as bootloader
 elif [ "$IMAGE_TYPE" = "aboot" ]; then
