@@ -179,6 +179,13 @@ module sonic-portchannel {
 		    }
 		    default "0";
 		}
+		leaf mpls {
+			description "Enable/disable MPLS routing for the portchannel interface";
+                        type enumeration {
+				enum enable;
+				enum disable;
+			}
+		}
             } /* end of list PORTCHANNEL_INTERFACE_LIST */
 
             list PORTCHANNEL_INTERFACE_IPPREFIX_LIST {
