@@ -68,6 +68,13 @@ module sonic-interface {
 					}
                                         default "0";
 				}
+				leaf mpls {
+					description "Enable/disable MPLS routing for the interface";
+					type enumeration {
+						enum enable;
+						enum disable;
+					}
+				}
 			}
 			/* end of INTERFACE_LIST */
 
