@@ -28,8 +28,6 @@ RUN apt-get install -yf kmod
 COPY ["files/dsserve", "files/bcmcmd", "start.sh", "bcmsh", "/usr/bin/"]
 RUN chmod +x /usr/bin/dsserve /usr/bin/bcmcmd
 
-COPY ["profile.ini", "portmap.ini", "/etc/sai/"]
-
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 
 ## Clean up
