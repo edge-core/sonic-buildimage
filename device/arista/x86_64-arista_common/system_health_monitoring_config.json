@@ -3,6 +3,7 @@
     "devices_to_ignore": [
         "asic",
         "psu.temperature",
+        "psu.voltage",
         "PSU2 Fan",
         "PSU1 Fan"
     ],
