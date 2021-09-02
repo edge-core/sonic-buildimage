@@ -23,6 +23,10 @@ module sonic-flex_counter {
                 }
             }
 
+            typedef flex_delay_status {
+                type boolean;
+            }
+
             description "FLEX_COUNTER_TABLE part of config_db.json";
 
             /* below are in alphabetical order */
@@ -32,12 +36,18 @@ module sonic-flex_counter {
                 leaf FLEX_COUNTER_STATUS {
                     type flex_status;
                 }
+                leaf FLEX_COUNTER_DELAY_STATUS {
+                    type flex_delay_status;
+                }
             }
 
             container DEBUG_COUNTER {
                 /* DEBUG_COUNTER_FLEX_COUNTER_GROUP */
                 leaf FLEX_COUNTER_STATUS {
                     type flex_status;
+                }
+                leaf FLEX_COUNTER_DELAY_STATUS {
+                    type flex_delay_status;
                 }
             }
 
@@ -46,12 +56,18 @@ module sonic-flex_counter {
                 leaf FLEX_COUNTER_STATUS {
                     type flex_status;
                 }
+                leaf FLEX_COUNTER_DELAY_STATUS {
+                    type flex_delay_status;
+                }
             }
 
             container PG_DROP {
                 /* PG_DROP_STAT_COUNTER_FLEX_COUNTER_GROUP */
                 leaf FLEX_COUNTER_STATUS {
                     type flex_status;
+                }
+                leaf FLEX_COUNTER_DELAY_STATUS {
+                    type flex_delay_status;
                 }
             }
 
@@ -60,12 +76,18 @@ module sonic-flex_counter {
                 leaf FLEX_COUNTER_STATUS {
                     type flex_status;
                 }
+                leaf FLEX_COUNTER_DELAY_STATUS {
+                    type flex_delay_status;
+                }
             }
 
             container PORT {
                 /* PORT_STAT_COUNTER_FLEX_COUNTER_GROUP */
                 leaf FLEX_COUNTER_STATUS {
                     type flex_status;
+                }
+                leaf FLEX_COUNTER_DELAY_STATUS {
+                    type flex_delay_status;
                 }
             }
 
@@ -74,12 +96,18 @@ module sonic-flex_counter {
                 leaf FLEX_COUNTER_STATUS {
                     type flex_status;
                 }
+                leaf FLEX_COUNTER_DELAY_STATUS {
+                    type flex_delay_status;
+                }
             }
 
             container PORT_BUFFER_DROP {
                 /* PORT_BUFFER_DROP_COUNTER_FLEX_COUNTER_GROUP */
                 leaf FLEX_COUNTER_STATUS {
                     type flex_status;
+                }
+                leaf FLEX_COUNTER_DELAY_STATUS {
+                    type flex_delay_status;
                 }
             }
 
@@ -88,12 +116,18 @@ module sonic-flex_counter {
                 leaf FLEX_COUNTER_STATUS {
                     type flex_status;
                 }
+                leaf FLEX_COUNTER_DELAY_STATUS {
+                    type flex_delay_status;
+                }
             }
 
             container QUEUE_WATERMARK {
                 /* QUEUE_WATERMARK_STAT_COUNTER_FLEX_COUNTER_GROUP */
                 leaf FLEX_COUNTER_STATUS {
                     type flex_status;
+                }
+                leaf FLEX_COUNTER_DELAY_STATUS {
+                    type flex_delay_status;
                 }
             }
 
@@ -102,12 +136,18 @@ module sonic-flex_counter {
                 leaf FLEX_COUNTER_STATUS {
                     type flex_status;
                 }
+                leaf FLEX_COUNTER_DELAY_STATUS {
+                    type flex_delay_status;
+                }
             }
 
             container RIF_RATES {
                 /* RIF_RATE_COUNTER_FLEX_COUNTER_GROUP */
                 leaf FLEX_COUNTER_STATUS {
                     type flex_status;
+                }
+                leaf FLEX_COUNTER_DELAY_STATUS {
+                    type flex_delay_status;
                 }
             }
 
