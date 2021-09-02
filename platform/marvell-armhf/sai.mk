@@ -1,6 +1,6 @@
 # Marvell SAI
 
-export MRVL_SAI_VERSION = 1.7.1-1
+export MRVL_SAI_VERSION = 1.7.1-2
 export MRVL_SAI = mrvllibsai_$(PLATFORM_ARCH)_$(MRVL_SAI_VERSION).deb
 
 $(MRVL_SAI)_SRC_PATH = $(PLATFORM_PATH)/sai
