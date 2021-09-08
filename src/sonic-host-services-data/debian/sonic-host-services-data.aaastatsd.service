@@ -12,3 +12,6 @@ Restart=on-failure
 RestartSec=10
 TimeoutStopSec=3
 
+[Install]
+WantedBy=sonic.target
+
