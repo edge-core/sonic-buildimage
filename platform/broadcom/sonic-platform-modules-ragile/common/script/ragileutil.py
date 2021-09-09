@@ -1413,7 +1413,7 @@ def fac_fans_setmac_tlv(ret):
     print("\n*******************************\n")
 
     util_show_fanse2(fans)
-    if getInputCheck("check input correctly or not（Yes/No):") == True:
+    if getInputCheck("check input correctly or not(Yes/No):") == True:
         for fan in fans:
             log_debug("ouput fan")
             fac_fan_setmac(fan)
