@@ -110,11 +110,11 @@ class Chassis(ChassisBase):
             34: 2,
             }
 
-    reboot_reason_dict = { 0x11: (ChassisBase.REBOOT_CAUSE_HARDWARE_OTHER, "Power on reset"),
+    reboot_reason_dict = { 0x11: (ChassisBase.REBOOT_CAUSE_POWER_LOSS, "Power on reset"),
                            0x22: (ChassisBase.REBOOT_CAUSE_HARDWARE_OTHER, "Soft-set CPU warm reset"),
                            0x33: (ChassisBase.REBOOT_CAUSE_HARDWARE_OTHER, "Soft-set CPU cold reset"),
                            0x66: (ChassisBase.REBOOT_CAUSE_WATCHDOG, "GPIO watchdog reset"),
-                           0x77: (ChassisBase.REBOOT_CAUSE_HARDWARE_OTHER, "Power cycle reset"),
+                           0x77: (ChassisBase.REBOOT_CAUSE_POWER_LOSS, "Power cycle reset"),
                            0x88: (ChassisBase.REBOOT_CAUSE_WATCHDOG, "CPLD watchdog reset")
                         }
 
