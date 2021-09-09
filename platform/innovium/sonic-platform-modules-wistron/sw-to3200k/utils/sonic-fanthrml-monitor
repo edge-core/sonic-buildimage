@@ -291,43 +291,43 @@ do_thermal_update()
         thermal_val=$(echo $ipmi_val | awk '{printf $29}')
         thermal_val=$( printf "%d" 0x$thermal_val )
         thermal_val=`expr $thermal_val \* 1000`
-        echo $thermal_val > /sys/bus/i2c/devices/0-004f/temp1_input
+        echo $thermal_val > /sys/bus/i2c/devices/0-0049/temp1_input
 
         #lm75_2
         thermal_val=$(echo $ipmi_val | awk '{printf $30}')
         thermal_val=$( printf "%d" 0x$thermal_val )
         thermal_val=`expr $thermal_val \* 1000`
-        echo $thermal_val > /sys/bus/i2c/devices/0-0049/temp1_input
+        echo $thermal_val > /sys/bus/i2c/devices/0-004a/temp1_input
 
         #lm75_3
         thermal_val=$(echo $ipmi_val | awk '{printf $31}')
         thermal_val=$( printf "%d" 0x$thermal_val )
         thermal_val=`expr $thermal_val \* 1000`
-        echo $thermal_val > /sys/bus/i2c/devices/0-004a/temp1_input
+        echo $thermal_val > /sys/bus/i2c/devices/0-004b/temp1_input
 
         #lm75_4
         thermal_val=$(echo $ipmi_val | awk '{printf $32}')
         thermal_val=$( printf "%d" 0x$thermal_val )
         thermal_val=`expr $thermal_val \* 1000`
-        echo $thermal_val > /sys/bus/i2c/devices/0-004b/temp1_input
-
-        #lm75_5
-        thermal_val=$(echo $ipmi_val | awk '{printf $32}')
-        thermal_val=$( printf "%d" 0x$thermal_val )
-        thermal_val=`expr $thermal_val \* 1000`
         echo $thermal_val > /sys/bus/i2c/devices/0-004c/temp1_input
 
-        #lm75_6
+        #lm75_5
         thermal_val=$(echo $ipmi_val | awk '{printf $33}')
         thermal_val=$( printf "%d" 0x$thermal_val )
         thermal_val=`expr $thermal_val \* 1000`
         echo $thermal_val > /sys/bus/i2c/devices/0-004d/temp1_input
 
-        #lm75_7
+        #lm75_6
         thermal_val=$(echo $ipmi_val | awk '{printf $34}')
         thermal_val=$( printf "%d" 0x$thermal_val )
         thermal_val=`expr $thermal_val \* 1000`
         echo $thermal_val > /sys/bus/i2c/devices/0-004e/temp1_input
+
+        #lm75_7
+        thermal_val=$(echo $ipmi_val | awk '{printf $35}')
+        thermal_val=$( printf "%d" 0x$thermal_val )
+        thermal_val=`expr $thermal_val \* 1000`
+        echo $thermal_val > /sys/bus/i2c/devices/0-004f/temp1_input
     fi
 }
 
