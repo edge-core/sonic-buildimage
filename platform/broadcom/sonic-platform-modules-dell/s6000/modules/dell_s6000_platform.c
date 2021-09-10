@@ -47,8 +47,10 @@ static struct i2c_mux_gpio_platform_data s6000_mux_platform_data = {
     .base_nr            = S6000_MUX_BASE_NR,
     .values             = s6000_mux_values,
     .n_values           = ARRAY_SIZE(s6000_mux_values),
+#if 0
     .gpios              = s6000_mux_gpios,
     .n_gpios            = ARRAY_SIZE(s6000_mux_gpios),
+#endif
     .idle               = 0,
 };
 
@@ -1223,7 +1225,7 @@ static int __init cpld_probe(struct platform_device *pdev)
     }
 
     for (i = 0; i < CPLD_DEVICE_NUM; i++) {
-        pdata[i].client = i2c_new_dummy(parent, pdata[i].reg_addr);
+        pdata[i].client = i2c_new_dummy_device(parent, pdata[i].reg_addr);
         if (!pdata[i].client) {
             printk(KERN_WARNING "Fail to create dummy i2c client for addr %d\n", pdata[i].reg_addr);
             goto error;

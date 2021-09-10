@@ -13,7 +13,7 @@ include /usr/share/dpkg/pkg-info.mk
 
 export INSTALL_MOD_DIR:=extra
 
-PYTHON         ?= python2
+PYTHON         ?= python3
 
 PACKAGE_PRE_NAME := sonic-platform-juniper
 KVERSION   ?= $(shell uname -r)

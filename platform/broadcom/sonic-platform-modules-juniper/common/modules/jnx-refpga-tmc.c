@@ -529,7 +529,7 @@ static int jnx_refpga_tmc_probe(struct platform_device *pdev)
 		return -ENODEV;
 	}
 
-	tmc_membase = devm_ioremap_nocache(dev, res->start, resource_size(res));
+	tmc_membase = devm_ioremap(dev, res->start, resource_size(res));
 	if (!tmc_membase) {
 		dev_err(dev, "ioremap failed\n");
 		return -ENOMEM;

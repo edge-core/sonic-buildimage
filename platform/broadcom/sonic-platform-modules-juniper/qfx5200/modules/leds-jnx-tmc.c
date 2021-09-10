@@ -121,7 +121,7 @@ static int jnx_tmc_leds_init(struct device *dev, struct tmc_led_data *ild,
 		return -ENODEV;
 	}
 
-	addr = devm_ioremap_nocache(dev, res->start, resource_size(res));
+	addr = devm_ioremap(dev, res->start, resource_size(res));
 	if (!addr) {
 		dev_err(dev, "ioremap failed\n");
 		return -ENOMEM;

@@ -609,7 +609,7 @@ static int tmc_gpio_probe(struct platform_device *pdev)
 	dev_info(dev, "TMC GPIO resource 0x%llx, %llu\n",
 		 res->start, resource_size(res));
 
-	chip->base = devm_ioremap_nocache(dev, res->start, resource_size(res));
+	chip->base = devm_ioremap(dev, res->start, resource_size(res));
 	if (!chip->base)
 		return -ENOMEM;
 

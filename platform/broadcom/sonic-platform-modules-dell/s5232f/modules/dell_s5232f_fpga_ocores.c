@@ -971,7 +971,7 @@ static int map_bars(struct fpgapci_dev *fpgapci, struct pci_dev *dev)
 
 		/* map the device memory or IO region into kernel virtual
 		 * address space */
-		fpgapci->bar[i] = ioremap_nocache (bar_start + FPGALOGIC_I2C_BASE, I2C_PCI_MAX_BUS * FPGALOGIC_CH_OFFSET);
+		fpgapci->bar[i] = ioremap (bar_start + FPGALOGIC_I2C_BASE, I2C_PCI_MAX_BUS * FPGALOGIC_CH_OFFSET);
 
 		if (!fpgapci->bar[i]) {
 			PRINT ( "Could not map BAR #%d.\n", i);
@@ -985,7 +985,7 @@ static int map_bars(struct fpgapci_dev *fpgapci, struct pci_dev *dev)
 		{
 
             fpga_phys_addr = bar_start;
-            fpga_ctl_addr = ioremap_nocache (bar_start, FPGA_CTL_REG_SIZE);
+            fpga_ctl_addr = ioremap (bar_start, FPGA_CTL_REG_SIZE);
             fpga_base_addr = fpgapci->bar[i];
 		}
 

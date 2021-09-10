@@ -1029,7 +1029,7 @@ static int tmc_i2c_probe(struct platform_device *pdev)
 	dev_info(dev, "Tmc I2C Accel resource 0x%llx, %llu\n",
 		res->start, resource_size(res));
 
-	tmc->membase = devm_ioremap_nocache(dev, res->start,
+	tmc->membase = devm_ioremap(dev, res->start,
 						 resource_size(res));
 	if (!tmc->membase)
 		return -ENOMEM;
@@ -1041,7 +1041,7 @@ static int tmc_i2c_probe(struct platform_device *pdev)
 	dev_info(dev, "Tmc I2C Mem resource 0x%llx, %llu\n",
 		 res->start, resource_size(res));
 
-	tmc->dpmbase = devm_ioremap_nocache(dev, res->start,
+	tmc->dpmbase = devm_ioremap(dev, res->start,
 						 resource_size(res));
 	if (!tmc->dpmbase)
 		return -ENOMEM;

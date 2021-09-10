@@ -1,6 +1,6 @@
 include $(PLATFORM_PATH)/sai-modules.mk
 include $(PLATFORM_PATH)/sai.mk
-#include $(PLATFORM_PATH)/platform-modules-nokia.mk
+include $(PLATFORM_PATH)/platform-modules-nokia.mk
 #include $(PLATFORM_PATH)/platform-modules-dell.mk
 #include $(PLATFORM_PATH)/platform-modules-arista.mk
 #include $(PLATFORM_PATH)/platform-modules-ingrasys.mk
@@ -11,7 +11,7 @@ include $(PLATFORM_PATH)/sai.mk
 #include $(PLATFORM_PATH)/platform-modules-delta.mk
 #include $(PLATFORM_PATH)/platform-modules-quanta.mk
 ##include $(PLATFORM_PATH)/platform-modules-mitac.mk
-#include $(PLATFORM_PATH)/platform-modules-juniper.mk
+include $(PLATFORM_PATH)/platform-modules-juniper.mk
 #include $(PLATFORM_PATH)/platform-modules-brcm-xlr-gts.mk
 #include $(PLATFORM_PATH)/platform-modules-ruijie.mk
 #include $(PLATFORM_PATH)/platform-modules-ragile.mk

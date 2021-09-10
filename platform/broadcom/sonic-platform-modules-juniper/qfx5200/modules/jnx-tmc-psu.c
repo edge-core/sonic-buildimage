@@ -109,7 +109,7 @@ static int tmc_psu_probe(struct platform_device *pdev)
 		return -ENODEV;
 	}
 	
-	addr = devm_ioremap_nocache(dev, res->start, resource_size(res));
+	addr = devm_ioremap(dev, res->start, resource_size(res));
 	if (!addr) {
 		dev_err(dev, "ioremap failed\n");
 		return -ENOMEM;
