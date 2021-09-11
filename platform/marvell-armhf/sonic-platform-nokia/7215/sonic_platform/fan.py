@@ -336,10 +336,10 @@ class Fan(FanBase):
         """
 
         if self.is_psu_fan:
-            return False
+            return None
 
         if smbus_present == 0:
-            return False
+            return None
         else:
             bus = smbus.SMBus(0)
             DEVICE_ADDRESS = 0x41
@@ -368,7 +368,7 @@ class Fan(FanBase):
             (off) to 100 (full speed)
         """
         speed = 0
-     
+
         fan_duty = self._get_i2c_register(self.set_fan_speed_reg)
         if (fan_duty != 'ERR'):
             dutyspeed = int(fan_duty)
@@ -380,9 +380,5 @@ class Fan(FanBase):
                 speed = 50
             elif dutyspeed == 255:
                 speed = 100
- 
+
         return speed
-         
-
-
-    
