@@ -51,13 +51,7 @@ class Eeprom(eeprom_tlvinfo.TlvInfoDecoder):
                 tlv = eeprom[tlv_index:tlv_index + 2
                              + eeprom[tlv_index + 1]]
                 code = "0x%02X" % tlv[0]
-
-                if tlv[0] == self._TLV_CODE_VENDOR_EXT:
-                    value = str((tlv[2] << 24) | (tlv[3] << 16) |
-                                (tlv[4] << 8) | tlv[5])
-                    value += tlv[6:6 + tlv[1]].decode('ascii')
-                else:
-                    name, value = self.decoder(None, tlv)
+                name, value = self.decoder(None, tlv)
 
                 self.eeprom_tlv_dict[code] = value
                 if eeprom[tlv_index] == self._TLV_CODE_CRC_32:
