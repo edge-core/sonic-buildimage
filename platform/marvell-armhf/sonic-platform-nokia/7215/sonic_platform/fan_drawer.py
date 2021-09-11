@@ -54,7 +54,7 @@ class NokiaFanDrawer(FanDrawerBase):
         return 'intake'
 
     def set_status_led(self, color):
-        return True
+        return self._fan_list[0].set_status_led(color)
 
     def get_status_led(self, color):
         return self._fan_list[0].get_status_led()

@@ -33,9 +33,12 @@ class Thermal(ThermalBase):
                     "CPU Core")
 
     def __init__(self, thermal_index):
+        ThermalBase.__init__(self)
         self.index = thermal_index + 1
         self.is_psu_thermal = False
         self.dependency = None
+        self._minimum = None
+        self._maximum = None
         self.thermal_high_threshold_file = None
         # PCB temperature sensors
         if self.index < 3:
@@ -163,6 +166,10 @@ class Thermal(ThermalBase):
             self.thermal_temperature_file)
         if (thermal_temperature != 'ERR'):
             thermal_temperature = float(thermal_temperature) / 1000
+            if self._minimum is None or self._minimum > thermal_temperature:
+                self._minimum = thermal_temperature
+            if self._maximum is None or self._maximum < thermal_temperature:
+                self._maximum = thermal_temperature
         else:
             thermal_temperature = 0
 
@@ -225,6 +232,14 @@ class Thermal(ThermalBase):
             thermal_high_crit_threshold = 0.0
 
         return float("{:.3f}".format(thermal_high_crit_threshold))
+
+    def get_minimum_recorded(self):
+        self.get_temperature()
+        return self._minimum
+
+    def get_maximum_recorded(self):
+        self.get_temperature()
+        return self._maximum
 
     def get_position_in_parent(self):
         """
