@@ -726,7 +726,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp1"],
                 "1x10G[100G,50G,40G,25G]": ["etp1"],
-                "2x50G[40G,25G,10G]": ["etp1a", "etp1b"]
+                "2x50G[25G,10G]": ["etp1a", "etp1b"]
             }
         },
         "Ethernet4": {
@@ -735,7 +735,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp2"],
                 "1x10G[100G,50G,40G,25G]": ["etp2"],
-                "2x50G[40G,25G,10G]": ["etp2a", "etp2b"]
+                "2x50G[25G,10G]": ["etp2a", "etp2b"]
             }
         },
         "Ethernet8": {
@@ -744,7 +744,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp3"],
                 "1x10G[100G,50G,40G,25G]": ["etp3"],
-                "2x50G[40G,25G,10G]": ["etp3a", "etp3b"]
+                "2x50G[25G,10G]": ["etp3a", "etp3b"]
             }
         },
         "Ethernet12": {
@@ -753,7 +753,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp4"],
                 "1x10G[100G,50G,40G,25G]": ["etp4"],
-                "2x50G[40G,25G,10G]": ["etp4a", "etp4b"]
+                "2x50G[25G,10G]": ["etp4a", "etp4b"]
             }
         },
         "Ethernet16": {
@@ -762,7 +762,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp5"],
                 "1x10G[100G,50G,40G,25G]": ["etp5"],
-                "2x50G[40G,25G,10G]": ["etp5a", "etp5b"]
+                "2x50G[25G,10G]": ["etp5a", "etp5b"]
             }
         },
         "Ethernet20": {
@@ -771,7 +771,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp6"],
                 "1x10G[100G,50G,40G,25G]": ["etp6"],
-                "2x50G[40G,25G,10G]": ["etp6a", "etp6b"]
+                "2x50G[25G,10G]": ["etp6a", "etp6b"]
             }
         },
         "Ethernet24": {
@@ -780,7 +780,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp7"],
                 "1x10G[100G,50G,40G,25G]": ["etp7"],
-                "2x50G[40G,25G,10G]": ["etp7a", "etp7b"]
+                "2x50G[25G,10G]": ["etp7a", "etp7b"]
             }
         },
         "Ethernet28": {
@@ -789,7 +789,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp8"],
                 "1x10G[100G,50G,40G,25G]": ["etp8"],
-                "2x50G[40G,25G,10G]": ["etp8a", "etp8b"]
+                "2x50G[25G,10G]": ["etp8a", "etp8b"]
             }
         },
         "Ethernet32": {
@@ -798,7 +798,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp9"],
                 "1x10G[100G,50G,40G,25G]": ["etp9"],
-                "2x50G[40G,25G,10G]": ["etp9a", "etp9b"]
+                "2x50G[25G,10G]": ["etp9a", "etp9b"]
             }
         },
         "Ethernet36": {
@@ -807,7 +807,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp10"],
                 "1x10G[100G,50G,40G,25G]": ["etp10"],
-                "2x50G[40G,25G,10G]": ["etp10a", "etp10b"]
+                "2x50G[25G,10G]": ["etp10a", "etp10b"]
             }
         },
         "Ethernet40": {
@@ -816,7 +816,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp11"],
                 "1x10G[100G,50G,40G,25G]": ["etp11"],
-                "2x50G[40G,25G,10G]": ["etp11a", "etp11b"]
+                "2x50G[25G,10G]": ["etp11a", "etp11b"]
             }
         },
         "Ethernet44": {
@@ -825,7 +825,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp12"],
                 "1x10G[100G,50G,40G,25G]": ["etp12"],
-                "2x50G[40G,25G,10G]": ["etp12a", "etp12b"]
+                "2x50G[25G,10G]": ["etp12a", "etp12b"]
             }
         },
         "Ethernet48": {
@@ -834,7 +834,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp13"],
                 "1x10G[100G,50G,40G,25G]": ["etp13"],
-                "2x50G[40G,25G,10G]": ["etp13a", "etp13b"]
+                "2x50G[25G,10G]": ["etp13a", "etp13b"]
             }
         },
         "Ethernet52": {
@@ -843,7 +843,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp14"],
                 "1x10G[100G,50G,40G,25G]": ["etp14"],
-                "2x50G[40G,25G,10G]": ["etp14a", "etp14b"]
+                "2x50G[25G,10G]": ["etp14a", "etp14b"]
             }
         },
         "Ethernet56": {
@@ -852,7 +852,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp15"],
                 "1x10G[100G,50G,40G,25G]": ["etp15"],
-                "2x50G[40G,25G,10G]": ["etp15a", "etp15b"]
+                "2x50G[25G,10G]": ["etp15a", "etp15b"]
             }
         },
         "Ethernet60": {
@@ -861,7 +861,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp16"],
                 "1x10G[100G,50G,40G,25G]": ["etp16"],
-                "2x50G[40G,25G,10G]": ["etp16a", "etp16b"]
+                "2x50G[25G,10G]": ["etp16a", "etp16b"]
             }
         },
         "Ethernet64": {
@@ -870,7 +870,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp17"],
                 "1x10G[100G,50G,40G,25G]": ["etp17"],
-                "2x50G[40G,25G,10G]": ["etp17a", "etp17b"]
+                "2x50G[25G,10G]": ["etp17a", "etp17b"]
             }
         },
         "Ethernet68": {
@@ -879,7 +879,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp18"],
                 "1x10G[100G,50G,40G,25G]": ["etp18"],
-                "2x50G[40G,25G,10G]": ["etp18a", "etp18b"]
+                "2x50G[25G,10G]": ["etp18a", "etp18b"]
             }
         },
         "Ethernet72": {
@@ -888,7 +888,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp19"],
                 "1x10G[100G,50G,40G,25G]": ["etp19"],
-                "2x50G[40G,25G,10G]": ["etp19a", "etp19b"]
+                "2x50G[25G,10G]": ["etp19a", "etp19b"]
             }
         },
         "Ethernet76": {
@@ -897,7 +897,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp20"],
                 "1x10G[100G,50G,40G,25G]": ["etp20"],
-                "2x50G[40G,25G,10G]": ["etp20a", "etp20b"]
+                "2x50G[25G,10G]": ["etp20a", "etp20b"]
             }
         },
         "Ethernet80": {
@@ -906,7 +906,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp21"],
                 "1x10G[100G,50G,40G,25G]": ["etp21"],
-                "2x50G[40G,25G,10G]": ["etp21a", "etp21b"]
+                "2x50G[25G,10G]": ["etp21a", "etp21b"]
             }
         },
         "Ethernet84": {
@@ -915,7 +915,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp22"],
                 "1x10G[100G,50G,40G,25G]": ["etp22"],
-                "2x50G[40G,25G,10G]": ["etp22a", "etp22b"]
+                "2x50G[25G,10G]": ["etp22a", "etp22b"]
             }
         },
         "Ethernet88": {
@@ -924,7 +924,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp23"],
                 "1x10G[100G,50G,40G,25G]": ["etp23"],
-                "2x50G[40G,25G,10G]": ["etp23a", "etp23b"]
+                "2x50G[25G,10G]": ["etp23a", "etp23b"]
             }
         },
         "Ethernet92": {
@@ -933,7 +933,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp24"],
                 "1x10G[100G,50G,40G,25G]": ["etp24"],
-                "2x50G[40G,25G,10G]": ["etp24a", "etp24b"]
+                "2x50G[25G,10G]": ["etp24a", "etp24b"]
             }
         },
         "Ethernet96": {
@@ -942,7 +942,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp25"],
                 "1x10G[100G,50G,40G,25G]": ["etp25"],
-                "2x50G[40G,25G,10G]": ["etp25a", "etp25b"]
+                "2x50G[25G,10G]": ["etp25a", "etp25b"]
             }
         },
         "Ethernet100": {
@@ -951,7 +951,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp26"],
                 "1x10G[100G,50G,40G,25G]": ["etp26"],
-                "2x50G[40G,25G,10G]": ["etp26a", "etp26b"]
+                "2x50G[25G,10G]": ["etp26a", "etp26b"]
             }
         },
         "Ethernet104": {
@@ -960,7 +960,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp27"],
                 "1x10G[100G,50G,40G,25G]": ["etp27"],
-                "2x50G[40G,25G,10G]": ["etp27a", "etp27b"]
+                "2x50G[25G,10G]": ["etp27a", "etp27b"]
             }
         },
         "Ethernet108": {
@@ -969,7 +969,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp28"],
                 "1x10G[100G,50G,40G,25G]": ["etp28"],
-                "2x50G[40G,25G,10G]": ["etp28a", "etp28b"]
+                "2x50G[25G,10G]": ["etp28a", "etp28b"]
             }
         },
         "Ethernet112": {
@@ -978,7 +978,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp29"],
                 "1x10G[100G,50G,40G,25G]": ["etp29"],
-                "2x50G[40G,25G,10G]": ["etp29a", "etp29b"]
+                "2x50G[25G,10G]": ["etp29a", "etp29b"]
             }
         },
         "Ethernet116": {
@@ -987,7 +987,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp30"],
                 "1x10G[100G,50G,40G,25G]": ["etp30"],
-                "2x50G[40G,25G,10G]": ["etp30a", "etp30b"]
+                "2x50G[25G,10G]": ["etp30a", "etp30b"]
             }
         },
         "Ethernet120": {
@@ -996,7 +996,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp31"],
                 "1x10G[100G,50G,40G,25G]": ["etp31"],
-                "2x50G[40G,25G,10G]": ["etp31a", "etp31b"]
+                "2x50G[25G,10G]": ["etp31a", "etp31b"]
             }
         },
         "Ethernet124": {
@@ -1005,7 +1005,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp32"],
                 "1x10G[100G,50G,40G,25G]": ["etp32"],
-                "2x50G[40G,25G,10G]": ["etp32a", "etp32b"]
+                "2x50G[25G,10G]": ["etp32a", "etp32b"]
             }
         },
         "Ethernet128": {
@@ -1014,7 +1014,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp33"],
                 "1x10G[100G,50G,40G,25G]": ["etp33"],
-                "2x50G[40G,25G,10G]": ["etp33a", "etp33b"]
+                "2x50G[25G,10G]": ["etp33a", "etp33b"]
             }
         },
         "Ethernet132": {
@@ -1023,7 +1023,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp34"],
                 "1x10G[100G,50G,40G,25G]": ["etp34"],
-                "2x50G[40G,25G,10G]": ["etp34a", "etp34b"]
+                "2x50G[25G,10G]": ["etp34a", "etp34b"]
             }
         },
         "Ethernet136": {
@@ -1032,7 +1032,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp35"],
                 "1x10G[100G,50G,40G,25G]": ["etp35"],
-                "2x50G[40G,25G,10G]": ["etp35a", "etp35b"]
+                "2x50G[25G,10G]": ["etp35a", "etp35b"]
             }
         },
         "Ethernet140": {
@@ -1041,7 +1041,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp36"],
                 "1x10G[100G,50G,40G,25G]": ["etp36"],
-                "2x50G[40G,25G,10G]": ["etp36a", "etp36b"]
+                "2x50G[25G,10G]": ["etp36a", "etp36b"]
             }
         },
         "Ethernet144": {
@@ -1050,7 +1050,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp37"],
                 "1x10G[100G,50G,40G,25G]": ["etp37"],
-                "2x50G[40G,25G,10G]": ["etp37a", "etp37b"]
+                "2x50G[25G,10G]": ["etp37a", "etp37b"]
             }
         },
         "Ethernet148": {
@@ -1059,7 +1059,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp38"],
                 "1x10G[100G,50G,40G,25G]": ["etp38"],
-                "2x50G[40G,25G,10G]": ["etp38a", "etp38b"]
+                "2x50G[25G,10G]": ["etp38a", "etp38b"]
             }
         },
         "Ethernet152": {
@@ -1068,7 +1068,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp39"],
                 "1x10G[100G,50G,40G,25G]": ["etp39"],
-                "2x50G[40G,25G,10G]": ["etp39a", "etp39b"]
+                "2x50G[25G,10G]": ["etp39a", "etp39b"]
             }
         },
         "Ethernet156": {
@@ -1077,7 +1077,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp40"],
                 "1x10G[100G,50G,40G,25G]": ["etp40"],
-                "2x50G[40G,25G,10G]": ["etp40a", "etp40b"]
+                "2x50G[25G,10G]": ["etp40a", "etp40b"]
             }
         },
         "Ethernet160": {
@@ -1086,7 +1086,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp41"],
                 "1x10G[100G,50G,40G,25G]": ["etp41"],
-                "2x50G[40G,25G,10G]": ["etp41a", "etp41b"]
+                "2x50G[25G,10G]": ["etp41a", "etp41b"]
             }
         },
         "Ethernet164": {
@@ -1095,7 +1095,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp42"],
                 "1x10G[100G,50G,40G,25G]": ["etp42"],
-                "2x50G[40G,25G,10G]": ["etp42a", "etp42b"]
+                "2x50G[25G,10G]": ["etp42a", "etp42b"]
             }
         },
         "Ethernet168": {
@@ -1104,7 +1104,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp43"],
                 "1x10G[100G,50G,40G,25G]": ["etp43"],
-                "2x50G[40G,25G,10G]": ["etp43a", "etp43b"]
+                "2x50G[25G,10G]": ["etp43a", "etp43b"]
             }
         },
         "Ethernet172": {
@@ -1113,7 +1113,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp44"],
                 "1x10G[100G,50G,40G,25G]": ["etp44"],
-                "2x50G[40G,25G,10G]": ["etp44a", "etp44b"]
+                "2x50G[25G,10G]": ["etp44a", "etp44b"]
             }
         },
         "Ethernet176": {
@@ -1122,7 +1122,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp45"],
                 "1x10G[100G,50G,40G,25G]": ["etp45"],
-                "2x50G[40G,25G,10G]": ["etp45a", "etp45b"]
+                "2x50G[25G,10G]": ["etp45a", "etp45b"]
             }
         },
         "Ethernet180": {
@@ -1131,7 +1131,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp46"],
                 "1x10G[100G,50G,40G,25G]": ["etp46"],
-                "2x50G[40G,25G,10G]": ["etp46a", "etp46b"]
+                "2x50G[25G,10G]": ["etp46a", "etp46b"]
             }
         },
         "Ethernet184": {
@@ -1140,7 +1140,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp47"],
                 "1x10G[100G,50G,40G,25G]": ["etp47"],
-                "2x50G[40G,25G,10G]": ["etp47a", "etp47b"]
+                "2x50G[25G,10G]": ["etp47a", "etp47b"]
             }
         },
         "Ethernet188": {
@@ -1149,7 +1149,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp48"],
                 "1x10G[100G,50G,40G,25G]": ["etp48"],
-                "2x50G[40G,25G,10G]": ["etp48a", "etp48b"]
+                "2x50G[25G,10G]": ["etp48a", "etp48b"]
             }
         },
         "Ethernet192": {
@@ -1158,7 +1158,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp49"],
                 "1x10G[100G,50G,40G,25G]": ["etp49"],
-                "2x50G[40G,25G,10G]": ["etp49a", "etp49b"]
+                "2x50G[25G,10G]": ["etp49a", "etp49b"]
             }
         },
         "Ethernet196": {
@@ -1167,7 +1167,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp50"],
                 "1x10G[100G,50G,40G,25G]": ["etp50"],
-                "2x50G[40G,25G,10G]": ["etp50a", "etp50b"]
+                "2x50G[25G,10G]": ["etp50a", "etp50b"]
             }
         },
         "Ethernet200": {
@@ -1176,7 +1176,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp51"],
                 "1x10G[100G,50G,40G,25G]": ["etp51"],
-                "2x50G[40G,25G,10G]": ["etp51a", "etp51b"]
+                "2x50G[25G,10G]": ["etp51a", "etp51b"]
             }
         },
         "Ethernet204": {
@@ -1185,7 +1185,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp52"],
                 "1x10G[100G,50G,40G,25G]": ["etp52"],
-                "2x50G[40G,25G,10G]": ["etp52a", "etp52b"]
+                "2x50G[25G,10G]": ["etp52a", "etp52b"]
             }
         },
         "Ethernet208": {
@@ -1194,7 +1194,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp53"],
                 "1x10G[100G,50G,40G,25G]": ["etp53"],
-                "2x50G[40G,25G,10G]": ["etp53a", "etp53b"]
+                "2x50G[25G,10G]": ["etp53a", "etp53b"]
             }
         },
         "Ethernet212": {
@@ -1203,7 +1203,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp54"],
                 "1x10G[100G,50G,40G,25G]": ["etp54"],
-                "2x50G[40G,25G,10G]": ["etp54a", "etp54b"]
+                "2x50G[25G,10G]": ["etp54a", "etp54b"]
             }
         },
         "Ethernet216": {
@@ -1212,7 +1212,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp55"],
                 "1x10G[100G,50G,40G,25G]": ["etp55"],
-                "2x50G[40G,25G,10G]": ["etp55a", "etp55b"]
+                "2x50G[25G,10G]": ["etp55a", "etp55b"]
             }
         },
         "Ethernet220": {
@@ -1221,7 +1221,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp56"],
                 "1x10G[100G,50G,40G,25G]": ["etp56"],
-                "2x50G[40G,25G,10G]": ["etp56a", "etp56b"]
+                "2x50G[25G,10G]": ["etp56a", "etp56b"]
             }
         },
         "Ethernet224": {
@@ -1230,7 +1230,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp57"],
                 "1x10G[100G,50G,40G,25G]": ["etp57"],
-                "2x50G[40G,25G,10G]": ["etp57a", "etp57b"]
+                "2x50G[25G,10G]": ["etp57a", "etp57b"]
             }
         },
         "Ethernet228": {
@@ -1239,7 +1239,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp58"],
                 "1x10G[100G,50G,40G,25G]": ["etp58"],
-                "2x50G[40G,25G,10G]": ["etp58a", "etp58b"]
+                "2x50G[25G,10G]": ["etp58a", "etp58b"]
             }
         },
         "Ethernet232": {
@@ -1248,7 +1248,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp59"],
                 "1x10G[100G,50G,40G,25G]": ["etp59"],
-                "2x50G[40G,25G,10G]": ["etp59a", "etp59b"]
+                "2x50G[25G,10G]": ["etp59a", "etp59b"]
             }
         },
         "Ethernet236": {
@@ -1257,7 +1257,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp60"],
                 "1x10G[100G,50G,40G,25G]": ["etp60"],
-                "2x50G[40G,25G,10G]": ["etp60a", "etp60b"]
+                "2x50G[25G,10G]": ["etp60a", "etp60b"]
             }
         },
         "Ethernet240": {
@@ -1266,7 +1266,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp61"],
                 "1x10G[100G,50G,40G,25G]": ["etp61"],
-                "2x50G[40G,25G,10G]": ["etp61a", "etp61b"]
+                "2x50G[25G,10G]": ["etp61a", "etp61b"]
             }
         },
         "Ethernet244": {
@@ -1275,7 +1275,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp62"],
                 "1x10G[100G,50G,40G,25G]": ["etp62"],
-                "2x50G[40G,25G,10G]": ["etp62a", "etp62b"]
+                "2x50G[25G,10G]": ["etp62a", "etp62b"]
             }
         },
         "Ethernet248": {
@@ -1284,7 +1284,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp63"],
                 "1x10G[100G,50G,40G,25G]": ["etp63"],
-                "2x50G[40G,25G,10G]": ["etp63a", "etp63b"]
+                "2x50G[25G,10G]": ["etp63a", "etp63b"]
             }
         },
         "Ethernet252": {
@@ -1293,7 +1293,7 @@
             "breakout_modes": {
                 "1x100G[50G,40G,25G,10G]": ["etp64"],
                 "1x10G[100G,50G,40G,25G]": ["etp64"],
-                "2x50G[40G,25G,10G]": ["etp64a", "etp64b"]
+                "2x50G[25G,10G]": ["etp64a", "etp64b"]
             }
         }
     }
