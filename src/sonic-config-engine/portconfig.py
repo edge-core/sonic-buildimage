@@ -205,7 +205,6 @@ def gen_port_config(ports, parent_intf_id, index, alias_list, lanes, k,  offset)
                 raise Exception('Regex return for speed is None...')
 
             ports[intf_name]['index'] = index.split(",")[alias_position]
-            ports[intf_name]['admin_status'] = "up"
 
             parent_intf_id += step
             alias_position += 1
