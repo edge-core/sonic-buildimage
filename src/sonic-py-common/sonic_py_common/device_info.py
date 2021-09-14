@@ -29,6 +29,7 @@ HWSKU_JSON_FILE = 'hwsku.json'
 NPU_NAME_PREFIX = "asic"
 NAMESPACE_PATH_GLOB = "/run/netns/*"
 ASIC_CONF_FILENAME = "asic.conf"
+PLATFORM_ENV_CONF_FILENAME = "platform_env.conf"
 FRONTEND_ASIC_SUB_ROLE = "FrontEnd"
 BACKEND_ASIC_SUB_ROLE = "BackEnd"
 
@@ -160,6 +161,29 @@ def get_asic_conf_file_path():
     for asic_conf_file_path in asic_conf_path_candidates:
         if os.path.isfile(asic_conf_file_path):
             return asic_conf_file_path
+
+    return None
+
+
+def get_platform_env_conf_file_path():
+    """
+    Retrieves the path to the PLATFORM ENV conguration file on the device
+
+    Returns:
+        A string containing the path to the PLATFORM ENV conguration file on success,
+        None on failure
+    """
+    platform_env_conf_path_candidates = []
+
+    platform_env_conf_path_candidates.append(os.path.join(CONTAINER_PLATFORM_PATH, PLATFORM_ENV_CONF_FILENAME))
+
+    platform = get_platform()
+    if platform:
+        platform_env_conf_path_candidates.append(os.path.join(HOST_DEVICE_PATH, platform, PLATFORM_ENV_CONF_FILENAME))
+
+    for platform_env_conf_file_path in platform_env_conf_path_candidates:
+        if os.path.isfile(platform_env_conf_file_path):
+            return platform_env_conf_file_path
 
     return None
 
@@ -373,6 +397,22 @@ def is_multi_npu():
     num_npus = get_num_npus()
     return (num_npus > 1)
 
+
+def is_supervisor():
+    platform_env_conf_file_path = get_platform_env_conf_file_path()
+    if platform_env_conf_file_path is None:
+        return False
+    with open(platform_env_conf_file_path) as platform_env_conf_file:
+        for line in platform_env_conf_file:
+            tokens = line.split('=')
+            if len(tokens) < 2:
+               continue
+            if tokens[0].lower() == 'supervisor':
+                val = tokens[1].strip()
+                if val == '1':
+                    return True
+        return False
+ 
 
 def get_npu_id_from_name(npu_name):
     if npu_name.startswith(NPU_NAME_PREFIX):
