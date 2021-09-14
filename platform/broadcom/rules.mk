@@ -7,7 +7,7 @@ include $(PLATFORM_PATH)/platform-modules-nokia.mk
 #include $(PLATFORM_PATH)/platform-modules-accton.mk
 #include $(PLATFORM_PATH)/platform-modules-alphanetworks.mk
 #include $(PLATFORM_PATH)/platform-modules-inventec.mk
-#include $(PLATFORM_PATH)/platform-modules-cel.mk
+include $(PLATFORM_PATH)/platform-modules-cel.mk
 #include $(PLATFORM_PATH)/platform-modules-delta.mk
 #include $(PLATFORM_PATH)/platform-modules-quanta.mk
 ##include $(PLATFORM_PATH)/platform-modules-mitac.mk

@@ -1870,7 +1870,7 @@ static struct i2c_adapter * seastone2_i2c_init(struct platform_device *pdev,
     if (!new_data) {
         printk(KERN_ALERT "Cannot alloc i2c data for %s",
                fpga_i2c_bus_dev[portid].calling_name);
-        kzfree(new_adapter);
+        kfree_sensitive(new_adapter);
         return NULL;
     }
 
@@ -1889,8 +1889,8 @@ static struct i2c_adapter * seastone2_i2c_init(struct platform_device *pdev,
     error = i2c_add_numbered_adapter(new_adapter);
     if (error < 0) {
         printk(KERN_ALERT "Cannot add i2c adapter %s", new_data->pca9548.calling_name);
-        kzfree(new_adapter);
-        kzfree(new_data);
+        kfree_sensitive(new_adapter);
+        kfree_sensitive(new_data);
         return NULL;
     }
 
@@ -1936,7 +1936,7 @@ static int seastone2_drv_probe(struct platform_device *pdev)
 
     fpga = kobject_create_and_add("FPGA", &pdev->dev.kobj);
     if (!fpga) {
-        kzfree(fpga_data);
+        kfree_sensitive(fpga_data);
         return -ENOMEM;
     }
 
@@ -1944,7 +1944,7 @@ static int seastone2_drv_probe(struct platform_device *pdev)
     if (ret != 0) {
         printk(KERN_ERR "Cannot create FPGA sysfs attributes\n");
         kobject_put(fpga);
-        kzfree(fpga_data);
+        kfree_sensitive(fpga_data);
         return ret;
     }
 
@@ -1952,7 +1952,7 @@ static int seastone2_drv_probe(struct platform_device *pdev)
     if (!cpld1) {
         sysfs_remove_group(fpga, &fpga_attr_grp);
         kobject_put(fpga);
-        kzfree(fpga_data);
+        kfree_sensitive(fpga_data);
         return -ENOMEM;
     }
     ret = sysfs_create_group(cpld1, &cpld1_attr_grp);
@@ -1961,7 +1961,7 @@ static int seastone2_drv_probe(struct platform_device *pdev)
         kobject_put(cpld1);
         sysfs_remove_group(fpga, &fpga_attr_grp);
         kobject_put(fpga);
-        kzfree(fpga_data);
+        kfree_sensitive(fpga_data);
         return ret;
     }
 
@@ -1971,7 +1971,7 @@ static int seastone2_drv_probe(struct platform_device *pdev)
         kobject_put(cpld1);
         sysfs_remove_group(fpga, &fpga_attr_grp);
         kobject_put(fpga);
-        kzfree(fpga_data);
+        kfree_sensitive(fpga_data);
         return -ENOMEM;
     }
     ret = sysfs_create_group(cpld2, &cpld2_attr_grp);
@@ -1982,7 +1982,7 @@ static int seastone2_drv_probe(struct platform_device *pdev)
         kobject_put(cpld1);
         sysfs_remove_group(fpga, &fpga_attr_grp);
         kobject_put(fpga);
-        kzfree(fpga_data);
+        kfree_sensitive(fpga_data);
         return ret;
     }
 
@@ -1995,7 +1995,7 @@ static int seastone2_drv_probe(struct platform_device *pdev)
         kobject_put(cpld1);
         sysfs_remove_group(fpga, &fpga_attr_grp);
         kobject_put(fpga);
-        kzfree(fpga_data);
+        kfree_sensitive(fpga_data);
         return PTR_ERR(sff_dev);
     }
 
@@ -2009,7 +2009,7 @@ static int seastone2_drv_probe(struct platform_device *pdev)
         kobject_put(cpld1);
         sysfs_remove_group(fpga, &fpga_attr_grp);
         kobject_put(fpga);
-        kzfree(fpga_data);
+        kfree_sensitive(fpga_data);
         return ret;
     }
 
@@ -2023,7 +2023,7 @@ static int seastone2_drv_probe(struct platform_device *pdev)
         kobject_put(cpld1);
         sysfs_remove_group(fpga, &fpga_attr_grp);
         kobject_put(fpga);
-        kzfree(fpga_data);
+        kfree_sensitive(fpga_data);
         return ret;
     }
 
@@ -2040,9 +2040,9 @@ static int seastone2_drv_probe(struct platform_device *pdev)
             sff_data = dev_get_drvdata(fpga_data->sff_devices[portid_count]);
             BUG_ON(sff_data == NULL);
             if ( sff_data->port_type == QSFP ) {
-                fpga_data->sff_i2c_clients[portid_count] = i2c_new_device(i2c_adap, &sff8436_eeprom_info[0]);
+                fpga_data->sff_i2c_clients[portid_count] = i2c_new_client_device(i2c_adap, &sff8436_eeprom_info[0]);
             } else {
-                fpga_data->sff_i2c_clients[portid_count] = i2c_new_device(i2c_adap, &sff8436_eeprom_info[1]);
+                fpga_data->sff_i2c_clients[portid_count] = i2c_new_client_device(i2c_adap, &sff8436_eeprom_info[1]);
             }
             sff_data = NULL;
             sysfs_create_link(&fpga_data->sff_devices[portid_count]->kobj,

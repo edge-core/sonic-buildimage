@@ -15,12 +15,10 @@ override_dh_auto_build:
 		make -C $(KERNEL_SRC)/build M=$(MOD_SRC_DIR)/$${mod}/modules; \
 		if [ $$mod = "seastone2" ]; then \
 			cd services/platform_api; \
-			python2.7 setup.py bdist_wheel -d $(MOD_SRC_DIR)/$${mod}/modules; \
 			python3 setup.py bdist_wheel -d $(MOD_SRC_DIR)/$${mod}/modules; \
 			continue; \
 		fi; \
 		cd $(MOD_SRC_DIR)/$${mod}; \
-		python2.7 setup.py bdist_wheel -d $(MOD_SRC_DIR)/$${mod}/modules; \
 		python3 setup.py bdist_wheel -d $(MOD_SRC_DIR)/$${mod}/modules; \
 	done)
 

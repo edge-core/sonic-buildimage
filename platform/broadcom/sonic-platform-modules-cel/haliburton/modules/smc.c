@@ -17,6 +17,7 @@
 #include <linux/interrupt.h>
 #include <linux/io.h>
 #include <linux/ioport.h>
+#include <linux/kdev_t.h>
 #include <linux/kernel.h>
 #include <linux/leds.h>
 #include <linux/module.h>

@@ -18,6 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <linux/io.h>
 #include <linux/leds.h>
 #include <linux/module.h>
 #include <linux/platform_device.h>
