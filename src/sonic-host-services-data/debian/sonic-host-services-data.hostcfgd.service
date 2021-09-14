@@ -9,6 +9,3 @@ After=sonic.target
 Type=simple
 ExecStart=/usr/local/bin/hostcfgd
 
-[Install]
-WantedBy=sonic.target
-
