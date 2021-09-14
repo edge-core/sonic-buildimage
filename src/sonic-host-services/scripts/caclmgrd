@@ -378,27 +378,27 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
                 execute = 1
 
             if execute == 1:
-                self.run_commands([update_cmd])
+                subprocess.call(update_cmd, shell=True)
                 self.log_info("Update DHCP chain: {}".format(update_cmd))
 
     def update_dhcp_acl(self, key, op, data):
-        if "status" not in data:
+        if "state" not in data:
             self.log_warning("Unexpected update in MUX_CABLE_TABLE")
             return
 
         intf = key
-        status = data["status"]
+        state = data["state"]
 
-        if status == "active":
+        if state == "active":
             self.update_dhcp_chain("delete", intf)
-        elif status == "standby":
+        elif state == "standby":
             self.update_dhcp_chain("insert", intf)
-        elif status == "unknown":
+        elif state == "unknown":
             self.update_dhcp_chain("delete", intf)
-        elif status == "error":
-            self.log_warning("Cable status shows error")
+        elif state == "error":
+            self.log_warning("Cable state shows error")
         else:
-            self.log_warning("Unexpected cable status")
+            self.log_warning("Unexpected cable state")
 
     def get_acl_rules_and_translate_to_iptables_commands(self, namespace):
         """
