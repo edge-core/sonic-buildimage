@@ -9,7 +9,7 @@ import syslog
 
 import jinja2
 from sonic_py_common import device_info
-from swsssdk import ConfigDBConnector
+from swsscommon.swsscommon import ConfigDBConnector
 
 # FILE
 PAM_AUTH_CONF = "/etc/pam.d/common-auth-sonic"

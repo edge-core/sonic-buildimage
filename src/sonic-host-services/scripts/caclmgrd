@@ -20,7 +20,6 @@ try:
 
     from sonic_py_common import daemon_base, device_info
     from swsscommon import swsscommon
-    from swsssdk import SonicDBConfig, ConfigDBConnector
 except ImportError as err:
     raise ImportError("%s - required module not found" % str(err))
 
@@ -103,10 +102,10 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
         self.lock[DEFAULT_NAMESPACE] = threading.Lock()
         self.num_changes[DEFAULT_NAMESPACE] = 0
 
-        SonicDBConfig.load_sonic_global_db_config()
+        swsscommon.SonicDBConfig.load_sonic_global_db_config()
         self.config_db_map = {}
         self.iptables_cmd_ns_prefix = {}
-        self.config_db_map[DEFAULT_NAMESPACE] = ConfigDBConnector(use_unix_socket_path=True, namespace=DEFAULT_NAMESPACE)
+        self.config_db_map[DEFAULT_NAMESPACE] = swsscommon.ConfigDBConnector(use_unix_socket_path=True, namespace=DEFAULT_NAMESPACE)
         self.config_db_map[DEFAULT_NAMESPACE].connect()
         self.iptables_cmd_ns_prefix[DEFAULT_NAMESPACE] = ""
         self.namespace_mgmt_ip = self.get_namespace_mgmt_ip(self.iptables_cmd_ns_prefix[DEFAULT_NAMESPACE], DEFAULT_NAMESPACE)
@@ -124,7 +123,7 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
             self.lock[front_asic_namespace] = threading.Lock()
             self.num_changes[front_asic_namespace] = 0
 
-            self.config_db_map[front_asic_namespace] = ConfigDBConnector(use_unix_socket_path=True, namespace=front_asic_namespace)
+            self.config_db_map[front_asic_namespace] = swsscommon.ConfigDBConnector(use_unix_socket_path=True, namespace=front_asic_namespace)
             self.config_db_map[front_asic_namespace].connect()
             self.iptables_cmd_ns_prefix[front_asic_namespace] = "ip netns exec " + front_asic_namespace + " "
             self.namespace_docker_mgmt_ip[front_asic_namespace] = self.get_namespace_mgmt_ip(self.iptables_cmd_ns_prefix[front_asic_namespace],
