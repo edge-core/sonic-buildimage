@@ -176,7 +176,8 @@ sudo mkdir -p $FILESYSTEM_ROOT/etc/systemd/system/syslog.socket.d
 sudo cp $IMAGE_CONFIGS/syslog/override.conf $FILESYSTEM_ROOT/etc/systemd/system/syslog.socket.d/override.conf
 sudo cp $IMAGE_CONFIGS/syslog/host_umount.sh $FILESYSTEM_ROOT/usr/bin/
 
-# Copy logrotate.d configuration files
+# Copy logrotate.conf and logrotate.d configuration files
+sudo cp -f $IMAGE_CONFIGS/logrotate/logrotate.conf $FILESYSTEM_ROOT/etc/logrotate.conf
 sudo cp -f $IMAGE_CONFIGS/logrotate/logrotate.d/* $FILESYSTEM_ROOT/etc/logrotate.d/
 
 # Copy systemd-journald configuration files
