@@ -109,6 +109,11 @@ fi
 
 /usr/bin/configdb-load.sh
 
+if [ "$HWSKU" = "brcm_gearbox_vs" ]; then
+    supervisorctl start gbsyncd
+    supervisorctl start gearsyncd
+fi
+
 supervisorctl start syncd
 
 supervisorctl start portsyncd
