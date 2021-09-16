@@ -713,6 +713,7 @@ class Sfp(SfpBase):
         Retrieves transceiver bulk status of this SFP
         """
         tx_bias_list = []
+        tx_power_list = []
         rx_power_list = []
         transceiver_dom_dict = {}
         transceiver_dom_dict = dict.fromkeys(dom_dict_keys, 'N/A')
@@ -751,7 +752,7 @@ class Sfp(SfpBase):
         rx_power_list = self.get_rx_power()
 
         if self.sfp_type == 'QSFP_DD':
-            if tx_bias_list is not None:
+            if tx_bias_list:
                 transceiver_dom_dict['tx1bias'] = tx_bias_list[0]
                 transceiver_dom_dict['tx2bias'] = tx_bias_list[1]
                 transceiver_dom_dict['tx3bias'] = tx_bias_list[2]
@@ -762,17 +763,17 @@ class Sfp(SfpBase):
                 transceiver_dom_dict['tx8bias'] = tx_bias_list[7]
 
         elif self.sfp_type == 'QSFP':
-            if tx_bias_list is not None:
+            if tx_bias_list:
                 transceiver_dom_dict['tx1bias'] = tx_bias_list[0]
                 transceiver_dom_dict['tx2bias'] = tx_bias_list[1]
                 transceiver_dom_dict['tx3bias'] = tx_bias_list[2]
                 transceiver_dom_dict['tx4bias'] = tx_bias_list[3]
         else:
-            if tx_bias_list is not None:
+            if tx_bias_list:
                transceiver_dom_dict['tx1bias'] = tx_bias_list[0]
 
         if self.sfp_type == 'QSFP_DD':
-            if rx_power_list is not None:
+            if rx_power_list:
                 transceiver_dom_dict['rx1power'] = rx_power_list[0]
                 transceiver_dom_dict['rx2power'] = rx_power_list[1]
                 transceiver_dom_dict['rx3power'] = rx_power_list[2]
@@ -783,17 +784,17 @@ class Sfp(SfpBase):
                 transceiver_dom_dict['rx8power'] = rx_power_list[7]
 
         elif self.sfp_type == 'QSFP':
-            if rx_power_list is not None:
+            if rx_power_list:
                 transceiver_dom_dict['rx1power'] = rx_power_list[0]
                 transceiver_dom_dict['rx2power'] = rx_power_list[1]
                 transceiver_dom_dict['rx3power'] = rx_power_list[2]
                 transceiver_dom_dict['rx4power'] = rx_power_list[3]
         else:
-            if rx_power_list is not None:
+            if rx_power_list:
                 transceiver_dom_dict['rx1power'] = rx_power_list[0]
 
         if self.sfp_type == 'QSFP_DD':
-            if tx_power_list is not None:
+            if tx_power_list:
                 transceiver_dom_dict['tx1power'] = tx_power_list[0]
                 transceiver_dom_dict['tx2power'] = tx_power_list[1]
                 transceiver_dom_dict['tx3power'] = tx_power_list[2]
@@ -803,14 +804,14 @@ class Sfp(SfpBase):
                 transceiver_dom_dict['tx7power'] = tx_power_list[6]
                 transceiver_dom_dict['tx8power'] = tx_power_list[7]
         elif self.sfp_type == 'QSFP':
-            if tx_power_list is not None:
+            if tx_power_list:
                 transceiver_dom_dict['tx1power'] = tx_power_list[0]
                 transceiver_dom_dict['tx2power'] = tx_power_list[1]
                 transceiver_dom_dict['tx3power'] = tx_power_list[2]
                 transceiver_dom_dict['tx4power'] = tx_power_list[3]
         else:
-             if tx_power_list is not None:
-                 transceiver_dom_dict['tx1power'] = tx_power_list[0]
+            if tx_power_list:
+                transceiver_dom_dict['tx1power'] = tx_power_list[0]
         transceiver_dom_dict['rx_los'] = rx_los
         transceiver_dom_dict['tx_fault'] = tx_fault
         transceiver_dom_dict['reset_status'] = reset_state
