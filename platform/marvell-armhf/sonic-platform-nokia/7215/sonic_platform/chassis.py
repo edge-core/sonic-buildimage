@@ -27,6 +27,11 @@ try:
 except ImportError as e:
     smbus_present = 0
 
+if sys.version_info[0] < 3:
+    import commands as cmd
+else:
+    import subprocess as cmd
+
 MAX_SELECT_DELAY = 3600
 COPPER_PORT_START = 1
 COPPER_PORT_END = 48
@@ -278,6 +283,9 @@ class Chassis(ChassisBase):
         from .thermal_manager import ThermalManager
         return ThermalManager
 
+    def initizalize_system_led(self):
+        return True
+
     def set_status_led(self, color):
         """
         Sets the state of the system LED
@@ -306,17 +314,18 @@ class Chassis(ChassisBase):
             return False
 
         # Write sys led
-        if smbus_present == 0:
-            sonic_logger.log_warning("PMON LED SET -> smbus present = 0")
+        if smbus_present == 0:  # called from host (e.g. 'show system-health')
+            cmdstatus, value = cmd.getstatusoutput('sudo i2cset -y 0 0x41 0x7 %d' % value)
+            if cmdstatus:
+                sonic_logger.log_warning("  System LED set %s failed" % value)
+                return False
         else:
             bus = smbus.SMBus(0)
             DEVICE_ADDRESS = 0x41
             DEVICEREG = 0x7
             bus.write_byte_data(DEVICE_ADDRESS, DEVICEREG, value)
-            sonic_logger.log_info("  System LED set O.K.  ")
-            return True
 
-        return False
+        return True
 
     def get_status_led(self):
         """
@@ -327,29 +336,29 @@ class Chassis(ChassisBase):
             specified.
         """
         # Read sys led
-        if smbus_present == 0:
-            sonic_logger.log_warning("PMON LED GET -> smbus present = 0")
-            return False
+        if smbus_present == 0:  # called from host
+            cmdstatus, value = cmd.getstatusoutput('sudo i2cget -y 0 0x41 0x7')
+            value = int(value, 16)
         else:
             bus = smbus.SMBus(0)
             DEVICE_ADDRESS = 0x41
             DEVICE_REG = 0x7
             value = bus.read_byte_data(DEVICE_ADDRESS, DEVICE_REG)
 
-            if value == 0x00:
-                color = 'off'
-            elif value == 0x01:
-                color = 'amber'
-            elif value == 0x02:
-                color = 'green'
-            elif value == 0x03:
-                color = 'amber_blink'
-            elif value == 0x04:
-                color = 'green_blink'
-            else:
-                return False
+        if value == 0x00:
+            color = 'off'
+        elif value == 0x01:
+            color = 'amber'
+        elif value == 0x02:
+            color = 'green'
+        elif value == 0x03:
+            color = 'amber_blink'
+        elif value == 0x04:
+            color = 'green_blink'
+        else:
+            return None
 
-            return color
+        return color
 
     def get_watchdog(self):
         """
