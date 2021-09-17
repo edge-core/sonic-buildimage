@@ -48,6 +48,10 @@ class Fan(FanBase):
                                            is_discrete=True)
             self.speed_sensor = IpmiSensor(self.FAN_SENSOR_MAPPING[self.index]["Speed"])
             self.fan_dir_raw_cmd = "0x3a 0x0a {}".format(fantray_index)
+            if self.fanindex == 1:
+                self.max_speed = 24700
+            else:
+                self.max_speed = 29700
         else:
             self.dependency = dependency
             self.fanindex = fan_index
@@ -55,7 +59,7 @@ class Fan(FanBase):
                                            is_discrete=True)
             self.speed_sensor = IpmiSensor(self.PSU_FAN_SENSOR_MAPPING[self.fanindex]["Speed"])
             self.fan_dir_raw_cmd = "0x3a 0x0a {}".format(7+(fan_index-1))
-        self.max_speed = 23500
+            self.max_speed = 26500
 
     def get_name(self):
         """
