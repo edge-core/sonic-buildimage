@@ -1364,10 +1364,10 @@ python3.5-dbg==3.5.3-1+deb9u4
 python3.5-dev==3.5.3-1+deb9u4
 python3.5-minimal==3.5.3-1+deb9u4
 qdbus==4:4.8.7+dfsg-11+deb9u1
-qemu-kvm==1:2.8+dfsg-6+deb9u14
-qemu-system-common==1:2.8+dfsg-6+deb9u14
-qemu-system-x86==1:2.8+dfsg-6+deb9u14
-qemu-utils==1:2.8+dfsg-6+deb9u14
+qemu-kvm==1:2.8+dfsg-6+deb9u16
+qemu-system-common==1:2.8+dfsg-6+deb9u16
+qemu-system-x86==1:2.8+dfsg-6+deb9u16
+qemu-utils==1:2.8+dfsg-6+deb9u16
 qt-at-spi==0.4.0-5
 qt4-linguist-tools==4:4.8.7+dfsg-11+deb9u1
 qt4-qmake==4:4.8.7+dfsg-11+deb9u1

@@ -1331,7 +1331,7 @@ shared-mime-info==1.8-1+deb9u1
 software-properties-common==0.96.20.2-1+deb9u1
 sphinx-common==1.4.9-2
 sphinx-rtd-theme-common==0.1.9-1
-squashfs-tools==1:4.3-3+deb9u1
+squashfs-tools==1:4.3-3+deb9u2
 stgit==0.17.1-1
 strace==4.15-2
 sudo==1.8.19p1-2.1+deb9u3

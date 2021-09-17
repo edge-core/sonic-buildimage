@@ -15,4 +15,5 @@ libxslt1.1==1.1.32-2.2~deb10u1
 linux-image-4.19.0-12-2-armmp==4.19.152-1
 linux-libc-dev==4.19.194-3
 mrvlprestera==1.0
+squashfs-tools==1:4.3-12
 zlib1g-dev==1:1.2.11.dfsg-1

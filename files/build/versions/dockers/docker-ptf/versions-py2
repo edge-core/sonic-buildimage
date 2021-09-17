@@ -6,7 +6,7 @@ click==7.1.2
 contextlib2==0.6.0.post1
 cryptography==3.3.2
 decorator==4.4.2
-dpkt==1.9.7.1
+dpkt==1.9.7.2
 enum34==1.1.6
 exabgp==3.4.17
 flask==1.0
@@ -41,7 +41,7 @@ pycparser==2.20
 pygments==2.5.2
 pylibpcap==0.6.4
 pynacl==1.4.0
-pyro4==4.80
+pyro4==4.81
 pysubnettree==0.26
 pyyaml==5.4.1
 rpyc==4.1.5

@@ -51,7 +51,7 @@ ifmetric==0.3-5
 ifupdown2==1.2.8-1
 initramfs-tools==0.133
 initramfs-tools-core==0.133
-innovium-platform-driver==0.11.1
+innovium-platform-driver==0.107.1
 ipmitool==1.8.18-6+deb10u1
 iproute2==4.20.0-2+deb10u1
 iptables==1.8.2-4
@@ -241,9 +241,9 @@ sonic-device-data==1.0-1
 sonic-host-services-data==1.0-1
 sonic-utilities-data==1.0-1
 sqlite3==3.27.2-3+deb10u1
-squashfs-tools==1:4.3-12
+squashfs-tools==1:4.3-12+deb10u1
 sudo==1.8.27-1+deb10u3
-sx-kernel==1.mlnx.4.4.3222
+sx-kernel==1.mlnx.4.4.3326
 sysfsutils==2.1.0+repack-5
 systemd==247.3-6~bpo10+1
 systemd-sonic-generator==1.0.0
