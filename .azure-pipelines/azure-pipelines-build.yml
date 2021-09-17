@@ -104,6 +104,11 @@ jobs:
               make $BUILD_OPTIONS INSTALL_DEBUG_TOOLS=y target/sonic-vs.img.gz && mv target/sonic-vs.img.gz target/sonic-vs-dbg.img.gz
             fi
             make $BUILD_OPTIONS target/docker-sonic-vs.gz target/sonic-vs.img.gz target/docker-ptf.gz
+            if [ $(Build.Reason) != 'PullRequest' ];then
+              gzip -kd target/sonic-vs.img.gz
+              SONIC_RUN_CMDS="qemu-img convert target/sonic-vs.img -O vhdx -o subformat=dynamic target/sonic-vs.vhdx" make sonic-slave-run
+              rm target/sonic-vs.img
+            fi
           else
             if [ $(dbg_image) == yes ]; then
               make  $BUILD_OPTIONS INSTALL_DEBUG_TOOLS=y target/sonic-$(GROUP_NAME).bin && \
