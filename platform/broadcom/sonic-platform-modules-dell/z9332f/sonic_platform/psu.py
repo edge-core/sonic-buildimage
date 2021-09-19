@@ -87,6 +87,19 @@ class Psu(PsuBase):
         """
         return self.fru.get_board_serial()
 
+    def get_revision(self):
+        """
+        Retrieves the hardware revision of the device
+
+        Returns:
+            string: Revision value of device
+        """
+        serial = self.fru.get_board_serial()
+        if serial != "NA" and len(serial) == 23:
+            return serial[-3:]
+        else:
+            return "NA"
+
     def get_status(self):
         """
         Retrieves the operational status of the PSU
@@ -188,6 +201,20 @@ class Psu(PsuBase):
             e.g. 302.6
         """
         is_valid, power = self.power_sensor.get_reading()
+        if not is_valid:
+            return None
+
+        return float(power)
+
+    def get_maximum_supplied_power(self):
+        """
+        Retrieves the maximum supplied power by PSU
+
+        Returns:
+            A float number, the maximum power output in Watts.
+            e.g. 1200.1
+        """
+        is_valid, power = self.power_sensor.get_threshold("UpperCritical")
         if not is_valid:
             return None
 
