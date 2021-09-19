@@ -3,7 +3,7 @@ https://github.com/daveolson53/libnss-tacplus.git==19008ab68d9d504aa58eb34d5f564
 https://github.com/jeroennijhof/pam_tacplus.git==56b57a2f1640eb0be342bd4ca01b90318569c8c5
 https://github.com/jpirko/libteam.git==69a7494bb77dc10bb27076add07b380dbd778592
 https://github.com/Mellanox/libpsample.git==62bb27d9a49424e45191eee81df7ce0d8c74e774
-https://github.com/sflow/host-sflow==fb5be7f35e63e3e5e30d02068787d02f33437bf6
+https://github.com/sflow/host-sflow==1392bd591de05fb5aa09afa39a96f2ba4e8ed7ef
 https://github.com/sflow/sflowtool==4be2a17b36a3b9796c280b117b8b786323a84ae8
 https://github.com/thom311/libnl==5f395029ad01f05448cd1c7e0ddd8085d758c98a
 https://salsa.debian.org/debian/libteam.git==f8808df228b00873926b5e7b998ad8b61368d4c5

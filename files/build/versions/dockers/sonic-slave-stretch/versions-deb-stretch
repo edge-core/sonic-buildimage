@@ -501,7 +501,7 @@ libglu1-mesa-dev==9.0.0-2.1
 libgmp-dev==2:6.1.2+dfsg-1
 libgmp10==2:6.1.2+dfsg-1
 libgmpxx4ldbl==2:6.1.2+dfsg-1
-libgnutls30==3.5.8-5+deb9u5
+libgnutls30==3.5.8-5+deb9u6
 libgomp1==6.3.0-18+deb9u1
 libgoogle-perftools4==2.5-2.2
 libgpgme11==1.8.0-3+b2
@@ -1405,7 +1405,7 @@ shared-mime-info==1.8-1+deb9u1
 software-properties-common==0.96.20.2-1+deb9u1
 sphinx-common==1.4.9-2
 sphinx-rtd-theme-common==0.1.9-1
-squashfs-tools==1:4.3-3+deb9u1
+squashfs-tools==1:4.3-3+deb9u2
 stgit==0.17.1-1
 strace==4.15-2
 sudo==1.8.19p1-2.1+deb9u3

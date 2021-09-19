@@ -1586,7 +1586,7 @@ shellcheck==0.5.0-3
 software-properties-common==0.96.20.2-2
 sphinx-common==1.8.4-1
 sphinx-rtd-theme-common==0.4.3+dfsg-1
-squashfs-tools==1:4.3-12
+squashfs-tools==1:4.3-12+deb10u1
 stgit==0.18-1
 strace==4.26-0.2
 sudo==1.8.27-1+deb10u3

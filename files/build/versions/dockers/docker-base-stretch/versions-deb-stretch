@@ -11,7 +11,7 @@ libfastjson4==0.99.8-1~bpo9+1
 libffi6==3.2.1-6
 libgdbm3==1.8.3-14
 libgmp10==2:6.1.2+dfsg-1
-libgnutls30==3.5.8-5+deb9u5
+libgnutls30==3.5.8-5+deb9u6
 libgssapi-krb5-2==1.15-1+deb9u2
 libhogweed4==3.3-1+b2
 libidn2-0==0.16-1+deb9u1
