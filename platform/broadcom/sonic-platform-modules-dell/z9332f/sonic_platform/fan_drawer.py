@@ -103,3 +103,13 @@ class FanDrawer(FanDrawerBase):
         # Fan tray status LED controlled by BMC
         # Return True to avoid thermalctld alarm
         return True
+
+    def get_maximum_consumed_power(self):
+        """
+        Retrives the maximum power drawn by Fan Drawer
+
+        Returns:
+            A float, with value of the maximum consumable power of the
+            component.
+        """
+        return 36.0
