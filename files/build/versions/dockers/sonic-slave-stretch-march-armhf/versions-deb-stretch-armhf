@@ -884,7 +884,7 @@ libsoup2.4-1==2.56.0-2+deb9u2
 libsqlite3-0==3.16.2-5+deb9u3
 libssh2-1==1.7.0-1+deb9u1
 libssl-dev==1.1.0l-1~deb9u3
-libssl1.0.2==1.0.2u-1~deb9u4
+libssl1.0.2==1.0.2u-1~deb9u5
 libssl1.1==1.1.0l-1~deb9u3
 libstax-java==1.2.0-3
 libstdc++-6-dev==6.3.0-18+deb9u1

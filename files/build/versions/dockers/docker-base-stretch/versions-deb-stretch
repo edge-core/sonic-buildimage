@@ -13,7 +13,7 @@ libgdbm3==1.8.3-14
 libgmp10==2:6.1.2+dfsg-1
 libgnutls30==3.5.8-5+deb9u6
 libgssapi-krb5-2==1.15-1+deb9u2
-libhogweed4==3.3-1+b2
+libhogweed4==3.3-1+deb9u1
 libidn2-0==0.16-1+deb9u1
 libjansson4==2.9-1
 libjq1==1.5+dfsg-1.3
@@ -25,6 +25,7 @@ libldap-2.4-2==2.4.44+dfsg-5+deb9u8
 libldap-common==2.4.44+dfsg-5+deb9u8
 liblognorm5==2.0.3-1~bpo9+1
 libncurses5==6.0+20161126-1+deb9u2
+libnettle6==3.3-1+deb9u1
 libnghttp2-14==1.18.1-1+deb9u1
 libonig4==6.1.3-2+deb9u2
 libp11-kit0==0.23.3-2+deb9u1
@@ -43,7 +44,7 @@ libsasl2-modules-db==2.1.27~101-g0780600+dfsg-3+deb9u1
 libsodium18==1.0.11-2
 libsqlite3-0==3.16.2-5+deb9u3
 libssh2-1==1.7.0-1+deb9u1
-libssl1.0.2==1.0.2u-1~deb9u4
+libssl1.0.2==1.0.2u-1~deb9u5
 libssl1.1==1.1.0l-1~deb9u3
 libtasn1-6==4.10-1.1+deb9u1
 libunistring0==0.9.6+really0.9.3-0.1
