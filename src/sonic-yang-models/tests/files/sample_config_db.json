@@ -879,7 +879,18 @@
                 "polling_interval": "0"
             }
         },
-
+        "PFC_WD": {
+            "Ethernet9": {
+               "action": "drop",
+               "detection_time": "100",
+               "restoration_time": "400"
+            }
+        },
+        "PFC_WD": {
+            "GLOBAL": {
+                "POLL_INTERVAL": "100"
+            }
+        },
         "SFLOW_COLLECTOR": {
             "collector1": {
                 "collector_ip": "10.100.12.13",
@@ -908,7 +919,6 @@
                 "agent_id": "Ethernet0"
             }
         },
-
         "AAA": {
             "authentication": {
                 "login": "local" 
@@ -925,7 +935,6 @@
                 "timeout": "10"
             }
         },
-
         "NAT_BINDINGS": {
             "bind1": {
                 "nat_pool": "pool1",

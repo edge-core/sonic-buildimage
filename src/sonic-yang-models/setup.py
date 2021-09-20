@@ -62,6 +62,7 @@ setup(
                          './yang-models/sonic-nat.yang',
                          './yang-models/sonic-port.yang',
                          './yang-models/sonic-portchannel.yang',
+                         './yang-models/sonic-pfcwd.yang',
                          './yang-models/sonic-route-common.yang',
                          './yang-models/sonic-route-map.yang',
                          './yang-models/sonic-routing-policy-sets.yang',

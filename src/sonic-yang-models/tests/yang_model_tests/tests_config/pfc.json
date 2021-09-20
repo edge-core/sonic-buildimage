@@ -1,0 +1,199 @@
+{
+    "PFC_WDOG_WITH_CORRECT_ACTION_DROP_VALUE": {
+        "sonic-port:sonic-port": {
+            "sonic-port:PORT": {
+                "PORT_LIST": [
+                {
+                    "admin_status": "up",
+                    "alias": "eth0",
+                    "description": "Ethernet4",
+                    "lanes": "65",
+                    "mtu": "9000",
+                    "name": "Ethernet4",
+                    "tpid": "0x8100",
+                    "speed": "25000"
+                }
+                ]
+            }
+        },
+        "sonic-pfcwd:sonic-pfcwd": {
+            "sonic-pfcwd:PFC_WD": {
+                "PFC_WD_LIST": [
+                    {
+                        "ifname": "Ethernet4",
+                        "action": "drop",
+                        "detection_time": 300,
+                        "restoration_time": 3000
+                    }
+                ]
+            }
+        }
+    },
+    "PFC_WDOG_WITH_CORRECT_ACTION_FORWARD_VALUE": {
+        "sonic-port:sonic-port": {
+            "sonic-port:PORT": {
+                "PORT_LIST": [
+                {
+                    "admin_status": "up",
+                    "alias": "eth0",
+                    "description": "Ethernet4",
+                    "lanes": "65",
+                    "mtu": "9000",
+                    "name": "Ethernet4",
+                    "tpid": "0x8100",
+                    "speed": "25000"
+                }
+                ]
+            }
+        },
+        "sonic-pfcwd:sonic-pfcwd": {
+            "sonic-pfcwd:PFC_WD": {
+                "PFC_WD_LIST": [
+                    {
+                        "ifname": "Ethernet4",
+                        "action": "forward",
+                        "detection_time": 300,
+                        "restoration_time": 3000
+                    }
+                ]
+            }
+        }
+    },
+    "PFC_WDOG_WITH_CORRECT_ACTION_ALERT_VALUE": {
+        "sonic-port:sonic-port": {
+            "sonic-port:PORT": {
+                "PORT_LIST": [
+                {
+                    "admin_status": "up",
+                    "alias": "eth0",
+                    "description": "Ethernet4",
+                    "lanes": "65",
+                    "mtu": "9000",
+                    "name": "Ethernet4",
+                    "tpid": "0x8100",
+                    "speed": "25000"
+                }
+                ]
+            }
+        },
+
+        "sonic-pfcwd:sonic-pfcwd": {
+            "sonic-pfcwd:PFC_WD": {
+                "PFC_WD_LIST": [
+                    {
+                        "ifname": "Ethernet4",
+                        "action": "alert",
+                        "detection_time": 300,
+                        "restoration_time": 3000
+                    }
+                ]
+            }
+        }
+    },
+    "PFC_WDOG_WITH_WRONG_ACTION_VALUE": {
+        "sonic-pfcwd:sonic-pfcwd": {
+            "sonic-pfcwd:PFC_WD": {
+                "PFC_WD_LIST": [
+                    {
+                        "ifname": "Ethernet4",
+                        "action": "wrong",
+                        "detection_time": 300,
+                        "restoration_time": 3000
+                    }
+                ]
+            }
+        }
+    },
+    "PFC_WDOG_WITH_CORRECT_POLL_INTERVAL_VALUE": {
+        "sonic-pfcwd:sonic-pfcwd": {
+            "sonic-pfcwd:PFC_WD": {
+                "PFC_WD_LIST": [
+                    {
+                        "ifname": "GLOBAL",
+                        "POLL_INTERVAL": 101
+                    }
+                ]
+            }
+        }
+    },
+    "PFC_WDOG_WITH_WRONG_POLL_INTERVAL_LOW_VALUE": {
+        "sonic-pfcwd:sonic-pfcwd": {
+            "sonic-pfcwd:PFC_WD": {
+                "PFC_WD_LIST": [
+                    {
+                        "ifname": "GLOBAL",
+                        "POLL_INTERVAL":99
+                    }
+                ]
+            }
+        }
+    },
+    "PFC_WDOG_WITH_WRONG_POLL_INTERVAL_HIGH_VALUE": {
+        "sonic-pfcwd:sonic-pfcwd": {
+            "sonic-pfcwd:PFC_WD": {
+                "PFC_WD_LIST": [
+                    {
+                        "ifname": "GLOBAL",
+                        "POLL_INTERVAL": 3001
+                    }
+                ]
+            }
+        }
+    },
+    "PFC_WDOG_WITH_WRONG_DETECTION_TIME_LOW_VALUE": {
+        "sonic-pfcwd:sonic-pfcwd": {
+            "sonic-pfcwd:PFC_WD": {
+                "PFC_WD_LIST": [
+                    {
+                        "ifname": "Ethernet4",
+                        "action": "drop",
+                        "detection_time": 99,
+                        "restoration_time": 3000
+                    }
+                ]
+            }
+        }
+    },
+    "PFC_WDOG_WITH_WRONG_DETECTION_TIME_HIGH_VALUE": {
+        "sonic-pfcwd:sonic-pfcwd": {
+            "sonic-pfcwd:PFC_WD": {
+                "PFC_WD_LIST": [
+                    {
+                        "ifname": "Ethernet4",
+                        "action": "wrong",
+                        "detection_time": 5001,
+                        "restoration_time": 3000
+                    }
+                ]
+            }
+        }
+    },
+    "PFC_WDOG_WITH_WRONG_RESTORATION_TIME_LOW_VALUE": {
+        "sonic-pfcwd:sonic-pfcwd": {
+            "sonic-pfcwd:PFC_WD": {
+                "PFC_WD_LIST": [
+                    {
+                        "ifname": "Ethernet4",
+                        "action": "drop",
+                        "detection_time": 99,
+                        "restoration_time": 3000
+                    }
+                ]
+            }
+        }
+    },
+    "PFC_WDOG_WITH_WRONG_RESTORATION_TIME_HIGH_VALUE": {
+        "sonic-pfcwd:sonic-pfcwd": {
+            "sonic-pfcwd:PFC_WD": {
+                "PFC_WD_LIST": [
+                    {
+                        "ifname": "Ethernet4",
+                        "action": "wrong",
+                        "detection_time": 60001,
+                        "restoration_time": 3000
+                    }
+                ]
+            }
+        }
+    }
+}
