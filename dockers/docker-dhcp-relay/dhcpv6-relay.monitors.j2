@@ -70,7 +70,7 @@ stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=
 {%- if relay_for_ipv4.flag %}isc-dhcpv4-relay-{{ vlan_name }}:running {% endif %}
-{% if relay_for_ipv6.flag %}isc-dhcpv6-relay-{{ vlan_name }}:running{% endif %}
+{% if relay_for_ipv6.flag %}dhcp6relay:running{% endif %}
 
 
 {% set _dummy = relay_for_ipv4.update({'flag': False}) %}

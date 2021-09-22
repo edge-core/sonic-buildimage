@@ -4,13 +4,13 @@
 #include "relay.h"
 
 /**
- * @code                void deinitialize_swss()
+ * @code                void initialize_swss()
  * 
  * @brief               initialize DB tables and start SWSS listening thread
  *
  * @return              none
  */
-void initialize_swss(std::vector<relay_config> *vlans, swss::DBConnector *db);
+void initialize_swss(std::vector<relay_config> *vlans);
 
 /**
  * @code                void deinitialize_swss()
@@ -35,7 +35,7 @@ void get_dhcp(std::vector<relay_config> *vlans);
  * 
  * @brief               main thread for handling SWSS notification
  *
- * @param context       list of vlans/argument config that contains strings of server and option
+ * @param vlans         list of vlans/argument config that contains strings of server and option
  *
  * @return              none
  */
@@ -47,7 +47,7 @@ void handleSwssNotification(std::vector<relay_config> *vlans);
  * @brief                   handles DHCPv6 relay configuration change notification
  *
  * @param ipHelpersTable    DHCP table
- * @param context           list of vlans/argument config that contains strings of server and option
+ * @param vlans             list of vlans/argument config that contains strings of server and option
  *
  * @return                  none
  */

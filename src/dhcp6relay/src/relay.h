@@ -49,7 +49,6 @@ struct relay_config {
     std::vector<std::string> servers;
     std::vector<sockaddr_in6> servers_sock;
     bool is_option_79;
-    std::string counterVlan;
 };
 
 
@@ -91,17 +90,15 @@ struct linklayer_addr_option  {
 int sock_open(int ifindex, const struct sock_fprog *fprog);
 
 /**
- * @code                prepare_socket(int *local_sock, arg_config *config);
+ * @code                prepare_socket(int *local_sock);
  * 
  * @brief               prepare L3 socket for sending
  *
  * @param local_sock    pointer to socket to be prepared
- * @param config        argument config that contains strings of server and interface addresses
- * @param index         interface id
  *
  * @return              none
  */
-void prepare_socket(int *local_sock, relay_config *config, int index);
+void prepare_socket(int *local_sock);
 
 /**
  * @code                        prepare_relay_config(relay_config *interface_config, int local_sock, int filter);
@@ -114,7 +111,7 @@ void prepare_socket(int *local_sock, relay_config *config, int index);
  *
  * @return                      none
  */
-void prepare_relay_config(relay_config *interface_config, int local_sock, int filter);
+void prepare_relay_config(relay_config *interface_config, int *local_sock, int filter);
 
 /**
  * @code                relay_forward(uint8_t *buffer, const struct dhcpv6_msg *msg, uint16_t msg_length);
