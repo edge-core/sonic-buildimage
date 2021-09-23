@@ -586,6 +586,7 @@ def parse_dpg(dpg, hname):
             acl_intfs = []
             is_mirror = False
             is_mirror_v6 = False
+            is_mirror_dscp = False
 
             # TODO: Ensure that acl_intfs will only ever contain front-panel interfaces (e.g.,
             # maybe we should explicity ignore management and loopback interfaces?) because we
@@ -608,8 +609,10 @@ def parse_dpg(dpg, hname):
                     # Give a warning if trying to attach ACL to a LAG member interface, correct way is to attach ACL to the LAG interface
                     if port_alias_map[member] in intfs_inpc:
                         print("Warning: ACL " + aclname + " is attached to a LAG member interface " + port_alias_map[member] + ", instead of LAG interface", file=sys.stderr)
-                elif member.lower().startswith('erspan') or member.lower().startswith('egress_erspan'):
-                    if member.lower().startswith('erspanv6') or member.lower().startswith('egress_erspanv6'):
+                elif member.lower().startswith('erspan') or member.lower().startswith('egress_erspan') or member.lower().startswith('erspan_dscp'):
+                    if 'dscp' in member.lower():
+                        is_mirror_dscp = True
+                    elif member.lower().startswith('erspanv6') or member.lower().startswith('egress_erspanv6'):
                         is_mirror_v6 = True
                     else:
                         is_mirror = True
@@ -629,7 +632,7 @@ def parse_dpg(dpg, hname):
             # are binded then do not classify as Control plane.
             # For multi-asic platforms it's possible there is no
             # interface are binded to everflow in host namespace.
-            if acl_intfs or is_mirror_v6 or is_mirror:
+            if acl_intfs or is_mirror_v6 or is_mirror or is_mirror_dscp:
                 # Remove duplications
                 dedup_intfs = []
                 for intf in acl_intfs:
@@ -643,6 +646,8 @@ def parse_dpg(dpg, hname):
                     acls[aclname]['type'] = 'MIRROR'
                 elif is_mirror_v6:
                     acls[aclname]['type'] = 'MIRRORV6'
+                elif is_mirror_dscp:
+                    acls[aclname]['type'] = 'MIRROR_DSCP'
                 else:
                     acls[aclname]['type'] = 'L3V6' if  'v6' in aclname.lower() else 'L3'
             else:
@@ -1037,7 +1042,7 @@ def filter_acl_table_bindings(acls, neighbors, port_channels, sub_role):
         # Control Plane ACL has no Interface associated and
         # Data Plane ACL Interface are attached via minigraph
         # AclInterface.
-        if group_type != 'MIRROR' and group_type != 'MIRRORV6':
+        if group_type != 'MIRROR' and group_type != 'MIRRORV6' and group_type != 'MIRROR_DSCP':
             continue
 
         # Filters out back-panel ports from the binding list for Everflow (Mirror)
