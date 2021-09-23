@@ -1,4 +1,4 @@
-https://chromium.googlesource.com/chromium/tools/depot_tools.git==cf9d64363b627bc156be3166aed94affb5cae6b1
+https://chromium.googlesource.com/chromium/tools/depot_tools.git==eff810e93d23a0ad00fe36e577324b67612b3ec4
 https://github.com/aristanetworks/swi-tools.git==2ec0a0579b81edd3ff1c1288d73de309819ada0c
 https://github.com/CESNET/libyang.git==6f74fd18e5ace7d8f1ae6c1c1c2b7442dc263b22
 https://github.com/daveolson53/libnss-tacplus.git==19008ab68d9d504aa58eb34d5f564755a1613b8b
@@ -8,7 +8,7 @@ https://github.com/lguohan/gnxi.git==53901aba9ead82be21f1408a601b6266dcf1e3e4
 https://github.com/Marvell-switching/mrvl-prestera.git==3f379dc8c48ebb77f074b0512d3dae1a5aa95111
 https://github.com/Mellanox/libpsample.git==62bb27d9a49424e45191eee81df7ce0d8c74e774
 https://github.com/p4lang/scapy-vxlan.git==2ee0a8b89222b407d446c332a64812f2ca1a1c22
-https://github.com/sflow/host-sflow==1392bd591de05fb5aa09afa39a96f2ba4e8ed7ef
+https://github.com/sflow/host-sflow==c143452072f2eb46edf966a96b147a646a169038
 https://github.com/sflow/sflowtool==4be2a17b36a3b9796c280b117b8b786323a84ae8
 https://github.com/thom311/libnl==5f395029ad01f05448cd1c7e0ddd8085d758c98a
 https://salsa.debian.org/debian/libteam.git==f8808df228b00873926b5e7b998ad8b61368d4c5
