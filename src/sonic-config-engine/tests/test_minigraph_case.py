@@ -1,7 +1,7 @@
 from unittest import TestCase
 import subprocess
 import os
-
+import minigraph
 class TestCfgGenCaseInsensitive(TestCase):
 
     def setUp(self):
@@ -125,3 +125,16 @@ class TestCfgGenCaseInsensitive(TestCase):
         argument = '-m "' + self.sample_graph + '" -p "' + self.port_config + '" -v "NTP_SERVER"'
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "{'10.0.10.1': {}, '10.0.10.2': {}}")
+
+    def test_minigraph_mirror_dscp(self):
+        result = minigraph.parse_xml(self.sample_graph, port_config_file=self.port_config)
+        self.assertTrue('EVERFLOW_DSCP' in result['ACL_TABLE'])
+        everflow_dscp_entry = result['ACL_TABLE']['EVERFLOW_DSCP']
+        
+        self.assertEqual(everflow_dscp_entry['type'], 'MIRROR_DSCP')
+        self.assertEqual(everflow_dscp_entry['stage'], 'ingress')
+        expected_ports = ['PortChannel01', 'Ethernet12', 'Ethernet8', 'Ethernet0']
+        self.assertEqual(
+            everflow_dscp_entry['ports'].sort(),
+            expected_ports.sort()
+        )

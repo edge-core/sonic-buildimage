@@ -244,6 +244,7 @@ def parse_dpg(dpg, hname):
             acl_intfs = []
             is_mirror = False
             is_mirror_v6 = False
+            is_mirror_dscp = False
 
             # TODO: Ensure that acl_intfs will only ever contain front-panel interfaces (e.g.,
             # maybe we should explicity ignore management and loopback interfaces?) because we
@@ -263,7 +264,9 @@ def parse_dpg(dpg, hname):
                     if port_alias_map[member] in intfs_inpc:
                         print >> sys.stderr, "Warning: ACL " + aclname + " is attached to a LAG member interface " + port_alias_map[member] + ", instead of LAG interface"
                 elif member.lower().startswith('erspan'):
-                    if member.lower().startswith('erspanv6'):
+                    if 'dscp' in member.lower():
+                        is_mirror_dscp = True
+                    elif member.lower().startswith('erspanv6'):
                         is_mirror_v6 = True
                     else:
                         is_mirror = True
@@ -285,6 +288,8 @@ def parse_dpg(dpg, hname):
                     acls[aclname]['type'] = 'MIRROR'
                 elif is_mirror_v6:
                     acls[aclname]['type'] = 'MIRRORV6'
+                elif is_mirror_dscp:
+                    acls[aclname]['type'] = 'MIRROR_DSCP'
                 else:
                     acls[aclname]['type'] = 'L3V6' if  'v6' in aclname.lower() else 'L3'
             else:
@@ -488,7 +493,7 @@ def filter_acl_mirror_table_bindings(acls, neighbors, port_channels):
     for acl_table, group_params in acls.iteritems():
         group_type = group_params.get('type', None)
 
-        if group_type != 'MIRROR' and group_type != 'MIRRORV6':
+        if group_type != 'MIRROR' and group_type != 'MIRRORV6' and group_type != 'MIRROR_DSCP':
             continue
 
         active_ports = [ port for port in group_params.get('ports', []) if port in neighbors.keys() or port in port_channels ]
