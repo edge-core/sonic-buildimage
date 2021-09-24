@@ -1,0 +1,51 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+schedules:
+- cron: "0 18 * * Sun,Wed,Fri"
+  displayName: "Alternate day build"
+  branches:
+    include:
+    - master
+  always: true
+
+trigger: none
+pr: none
+
+stages:
+- stage: Build
+  pool: sonicbld
+  variables:
+    CACHE_MODE: wcache
+    ${{ if eq(variables['Build.SourceBranchName'], '202012') }}:
+      VERSION_CONTROL_OPTIONS: 'SONIC_VERSION_CONTROL_COMPONENTS=deb,py2,py3,web'
+  jobs:
+  - template: azure-pipelines-build.yml
+    parameters:
+      buildOptions: 'USERNAME=admin SONIC_BUILD_JOBS=$(nproc) BUILD_MULTIASIC_KVM=y ${{ variables.VERSION_CONTROL_OPTIONS }}'
+      jobGroups:
+      - name: vs
+
+- stage: Test
+  variables:
+  - name: inventory
+    value: veos_vtb
+  - name: testbed_file
+    value: vtestbed.csv
+
+  jobs:
+  - job:
+    pool: sonictest
+    displayName: "kvmtest-multi-asic-t1-lag"
+    timeoutInMinutes: 240
+
+    steps:
+    - template: run-test-template.yml
+      parameters:
+        dut: vlab-08
+        tbname: vms-kvm-four-asic-t1-lag
+        ptf_name: ptf_vms6-4
+        tbtype: multi-asic-t1-lag
+        image: sonic-4asic-vs.img.gz

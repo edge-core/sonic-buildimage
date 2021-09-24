@@ -7,6 +7,13 @@ parameters:
   type: string
 - name: ptf_name
   type: string
+- name: image
+  type: string
+  default: sonic-vs.img.gz
+  values:
+  - sonic-vs.img.gz
+  - sonic-4asic-vs.img.gz
+  - sonic-6asic-vs.img.gz
 
 steps:
 - checkout: self
@@ -21,7 +28,7 @@ steps:
 - script: |
     set -x
     sudo mkdir -p /data/sonic-vm/images
-    sudo cp -v ../target/sonic-vs.img.gz /data/sonic-vm/images/sonic-vs.img.gz
+    sudo cp -v ../target/${{ parameters.image}} /data/sonic-vm/images/sonic-vs.img.gz
     sudo gzip -fd /data/sonic-vm/images/sonic-vs.img.gz
     username=$(id -un)
     sudo chown -R $username.$username /data/sonic-vm
