@@ -143,7 +143,8 @@ function postStartAction()
           sleep 1;
         done
         if [[ ("$BOOT_TYPE" == "warm" || "$BOOT_TYPE" == "fastfast") && -f $WARM_DIR/dump.rdb ]]; then
-            rm -f $WARM_DIR/dump.rdb
+            # retain the dump file from last boot for debugging purposes
+            mv $WARM_DIR/dump.rdb $WARM_DIR/dump.rdb.old
         else
             # If there is a config_db.json dump file, load it.
             if [ -r /etc/sonic/config_db$DEV.json ]; then
