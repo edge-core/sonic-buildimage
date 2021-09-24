@@ -486,6 +486,10 @@ EXPOSE 22
 RUN git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git /usr/share/depot_tools
 ENV PATH /usr/share/depot_tools:$PATH
 
+# Install dependencies for dhcp relay test 
+RUN pip3 install parameterized==0.8.1
+RUN pip3 install pyfakefs
+
 # Install docker engine 17.03.2~ce-0 inside docker and enable experimental feature
 RUN apt-get update
 RUN apt-get install -y \
