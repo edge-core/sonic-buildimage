@@ -57,7 +57,8 @@ RUN sed --in-place 's/httpredir.debian.org/debian-archive.trafficmanager.net/' /
         ntpdate             \
         arping              \
         bridge-utils        \
-        libteam-utils
+        libteam-utils       \
+        gdb
 
 # Install all python modules from pypi. python-scapy is exception, ptf debian package requires python-scapy
 # TODO: Clean up this step
@@ -106,6 +107,7 @@ RUN rm -rf /debs \
     && pip install pyaml   \
     && pip install pybrctl pyro4 rpyc yabgp \
     && pip install unittest-xml-reporting \
+    && pip install pyrasite \
     && mkdir -p /opt       \
     && cd /opt             \
     && wget https://raw.githubusercontent.com/p4lang/ptf/master/ptf_nn/ptf_nn_agent.py

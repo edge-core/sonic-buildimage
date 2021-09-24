@@ -82,3 +82,7 @@ files/build/tmp
 dockers/**/buildinfo
 platform/**/buildinfo
 sonic-slave*/**/buildinfo
+
+# Dev tools
+.vscode/
+.idea/
