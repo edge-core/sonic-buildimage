@@ -9,6 +9,7 @@ $(SONIC_ONE_IMAGE)_INSTALLS += $(SYSTEMD_SONIC_GENERATOR)
 $(SONIC_ONE_IMAGE)_INSTALLS += $(FLASHROM)
 $(SONIC_ONE_IMAGE)_LAZY_INSTALLS += $(DELL_S6000_PLATFORM_MODULE) \
                                $(DELL_Z9264F_PLATFORM_MODULE) \
+                               $(DELL_S5224F_PLATFORM_MODULE) \
                                $(DELL_S5232F_PLATFORM_MODULE) \
                                $(DELL_S5248F_PLATFORM_MODULE) \
                                $(DELL_Z9332F_PLATFORM_MODULE) \
