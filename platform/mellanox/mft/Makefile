@@ -35,6 +35,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	wget -O $(MFT_TGZ) http://www.mellanox.com/downloads/MFT/$(MFT_TGZ)
 	tar xzf $(MFT_TGZ)
 
+ifeq ($(DISTRO), bullseye)
 	pushd $(MFT_NAME)/SDEBS
 
 	# put a lock here because dpkg does not allow installing packages in parallel
@@ -62,6 +63,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	popd
 
 	rm -rf $(DKMS_TMP)
+endif
 
 	# fix timestamp because we do not actually build tools, only kernel
 	touch $(MFT_NAME)/DEBS/*.deb
