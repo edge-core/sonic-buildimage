@@ -27,7 +27,7 @@ try:
     import logging
     import logging.config
     import time  # this is only being used as part of the example
-    import commands
+    import subprocess
 except ImportError as e:
     raise ImportError('%s - required module not found' % str(e))
 
@@ -41,25 +41,25 @@ global log_level
 
 def my_log(txt):
     if DEBUG == True:
-        print "[ACCTON DBG]: "+txt
+        print("[ACCTON DBG]: "+txt)
     return
 
 def log_os_system(cmd, show):
     logging.info('Run :'+cmd)
     status = 1
     output = ""
-    status, output = commands.getstatusoutput(cmd)
+    status, output = subprocess.getstatusoutput(cmd)
     if DEBUG == True:
         my_log (cmd +" , result:" + str(status))
     else:
         if show:
-            print "ACC: " + str(cmd) + " , result:"+ str(status)
+            print("ACC: " + str(cmd) + " , result:"+ str(status))
     #my_log ("cmd:" + cmd)
     #my_log ("      output:"+output)
     if status:
         logging.info('Failed :'+cmd)
         if show:
-            print('Failed :'+cmd)
+            print(('Failed :'+cmd))
     return  status, output
 
       
@@ -120,7 +120,7 @@ class accton_as7716xb_drv_handler(object):
 
     def manage_ipmi_qsfp(self):        
         logging.debug ("drv hanlder-manage_ipmi_qsfp")
-        print "drv hanlder"
+        print("drv hanlder")
         #Handle QSFP case
         ipmi_cmd = self.IPMI_CMD_QSFP + " 0x10 > " +self.QSFP_PRESENT_FILE
         log_os_system(ipmi_cmd, 0)
@@ -129,7 +129,7 @@ class accton_as7716xb_drv_handler(object):
         try:
             check_file = open(file_path)
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)   
+            print("Error: unable to open file: %s" % str(e))   
         line = check_file.readline()
         pres_line= line.rstrip().replace(" ","")
         while line:
@@ -158,7 +158,7 @@ class accton_as7716xb_drv_handler(object):
                 try:
                     check_file = open(file_path)
                 except IOError as e:
-                    print "Error: unable to open file: %s" % str(e)
+                    print("Error: unable to open file: %s" % str(e))
                 line = check_file.readline()
                 str_line= line.rstrip().replace(" ","")
                 while line:
@@ -170,7 +170,7 @@ class accton_as7716xb_drv_handler(object):
                 try:
                     check_file = open(file_path)
                 except IOError as e:
-                    print "Error: unable to open file: %s" % str(e)
+                    print("Error: unable to open file: %s" % str(e))
                 line = check_file.readline()
                 str_line+= line.rstrip().replace(" ","")
                 
@@ -209,7 +209,7 @@ class accton_as7716xb_drv_handler(object):
         try:
             check_file = open(file_path)
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
         line = check_file.readline()
         str_line= line.rstrip().replace(" ","")
         while line:
@@ -244,7 +244,7 @@ class accton_as7716xb_drv_handler(object):
         try:
             check_file = open(file_path)
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)   
+            print("Error: unable to open file: %s" % str(e))   
         line = check_file.readline()
         str_line= line.rstrip().replace(" ","")
         while line:
@@ -293,7 +293,7 @@ class accton_as7716xb_drv_handler(object):
             try:
                 check_file = open(file_path)
             except IOError as e:
-                print "Error: unable to open file: %s" % str(e)   
+                print("Error: unable to open file: %s" % str(e))   
             line = check_file.readline()
             str_line= line.rstrip().replace(" ","")
             while line:
@@ -366,7 +366,7 @@ class accton_as7716xb_drv_handler(object):
         try:
             check_file = open(file_path)
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
         line = check_file.readline()
         str_line= line.rstrip().replace(" ","")
         while line:
@@ -379,7 +379,7 @@ class accton_as7716xb_drv_handler(object):
         try:
             check_file = open(file_path)
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)
+            print("Error: unable to open file: %s" % str(e))
         line = check_file.readline()
         str_line+= line.rstrip().replace(" ","")
         while line:
@@ -401,11 +401,11 @@ def main(argv):
         try:
             opts, args = getopt.getopt(argv,'hdl:',['lfile='])
         except getopt.GetoptError:
-            print 'Usage: %s [-d] [-l <log_file>]' % sys.argv[0]
+            print('Usage: %s [-d] [-l <log_file>]' % sys.argv[0])
             return 0
         for opt, arg in opts:
             if opt == '-h':
-                print 'Usage: %s [-d] [-l <log_file>]' % sys.argv[0]
+                print('Usage: %s [-d] [-l <log_file>]' % sys.argv[0])
                 return 0
             elif opt in ('-d', '--debug'):
                 log_level = logging.DEBUG

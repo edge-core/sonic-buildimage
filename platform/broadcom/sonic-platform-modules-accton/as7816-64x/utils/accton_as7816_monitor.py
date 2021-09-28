@@ -136,11 +136,11 @@ def main(argv):
         try:
             opts, args = getopt.getopt(argv,'hdl:',['lfile='])
         except getopt.GetoptError:
-            print 'Usage: %s [-d] [-l <log_file>]' % sys.argv[0]
+            print('Usage: %s [-d] [-l <log_file>]' % sys.argv[0])
             return 0
         for opt, arg in opts:
             if opt == '-h':
-                print 'Usage: %s [-d] [-l <log_file>]' % sys.argv[0]
+                print('Usage: %s [-d] [-l <log_file>]' % sys.argv[0])
                 return 0
             elif opt in ('-d', '--debug'):
                 log_level = logging.DEBUG

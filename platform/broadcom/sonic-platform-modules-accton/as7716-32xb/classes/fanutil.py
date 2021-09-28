@@ -202,7 +202,7 @@ class FanUtil(object):
         try:
             val_file = open(self.FAN_DUTY_PATH)
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)          
+            print("Error: unable to open file: %s" % str(e))          
             return False
 
         content = val_file.readline().rstrip()
@@ -221,7 +221,7 @@ class FanUtil(object):
         try:
             fan_file = open(self.FAN_DUTY_PATH, 'r+')
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)          
+            print("Error: unable to open file: %s" % str(e))          
             return False
         #val = ((val + 1 ) * 625 +75 ) / 100
         fan_file.write(str(val))
@@ -237,7 +237,7 @@ class FanUtil(object):
     def get_fan_status(self, fan_num):
         if fan_num < self.FAN_NUM_1_IDX or fan_num > self.FAN_NUM_ON_MAIN_BROAD:
             logging.debug('GET. Parameter error. fan_num, %d', fan_num)
-            print "fan %d return none" %fan_num
+            print("fan %d return none" %fan_num)
             return None
 
         if self.get_fan_fault(fan_num) is not None and self.get_fan_fault(fan_num) > 0:

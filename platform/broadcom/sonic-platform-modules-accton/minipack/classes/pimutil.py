@@ -176,9 +176,9 @@ def show_qsfp_present_status(pim_num):
      interrupt = fpga_io(dom_base[pim_num]+dom["qsfp_present_intr"])
      mask = fpga_io(dom_base[pim_num]+dom["qsfp_present_intr_mask"])
 
-     print
+     print()
      print("    (0x48)      (0x50)      (0x58)")
-     print("    0x%08X  0x%08X  0x%08X" %(status, interrupt, mask))
+     print(("    0x%08X  0x%08X  0x%08X" %(status, interrupt, mask)))
      print("    Status      Interrupt   Mask")
      for row in range(8):
          output_str = str()
@@ -188,11 +188,11 @@ def show_qsfp_present_status(pim_num):
          interrupt_right = bool(interrupt & (0x2 << row*2))
          mask_left = bool(mask & (0x1 << row*2))
          mask_right = bool(mask & (0x2 << row*2))
-         print("%2d:  %d  %d         %d  %d       %d %d" % \
+         print(("%2d:  %d  %d         %d  %d       %d %d" % \
                  (row*2+1, status_left, status_right, \
                         interrupt_left, interrupt_right, \
-                        mask_left, mask_right))
-         print
+                        mask_left, mask_right)))
+         print()
 
 
 
@@ -319,13 +319,13 @@ class PimUtil(object):
         elif timeout > 0:
             timeout = timeout / float(1000) # Convert to secs
         else:
-            print "get_transceiver_change_event:Invalid timeout value", timeout
+            print("get_transceiver_change_event:Invalid timeout value", timeout)
             return False, {}
 
         end_time = start_time + timeout
         if start_time > end_time:
-            print 'get_transceiver_change_event:' \
-                       'time wrap / invalid timeout value', timeout
+            print('get_transceiver_change_event:' \
+                       'time wrap / invalid timeout value', timeout)
 
             return False, {} # Time wrap or possibly incorrect timeout
 
@@ -361,7 +361,7 @@ class PimUtil(object):
                     if timeout > 0:
                         time.sleep(timeout)
                     return True, {}
-        print "get_evt_change_event: Should not reach here."
+        print("get_evt_change_event: Should not reach here.")
         return False, {}
 
 
@@ -382,7 +382,7 @@ class PimUtil(object):
         elif color==0:
             led_val = (led_val & ( ~ 0x8000)) | 0x4000 #amber
         else:
-            print "Set RGB control to Green1"
+            print("Set RGB control to Green1")
             led_val = led_val & (~ 0x4000)
             led_val = led_val & (~ 0xfff)
             led_val = led_val | 0x0f0 #B.G.R Birghtness, set to Green
@@ -547,30 +547,30 @@ class PimUtil(object):
         elif color==0x1C:
             color=4 #green
 
-        print "color=%d, control=%d"%(color, control)         
+        print("color=%d, control=%d"%(color, control))         
         return color, control
         
 def main(argv):
     init_resources()    
     pim=PimUtil()
-    print "Test Board ID"
+    print("Test Board ID")
     for x in range(0,8):
         val=pim.get_pim_board_id(x)
-        print "pim=%d"%x
+        print("pim=%d"%x)
         if val==0:
-            print "100G board"
+            print("100G board")
         else:
-            print "400G board"
+            print("400G board")
     
-    print "Test pim presence"
+    print("Test pim presence")
     for x in range(0,8):
         pres=pim.get_pim_presence(x)
-        print "pim=%d, presence=%d"%(x, pres)   
+        print("pim=%d, presence=%d"%(x, pres))   
         
-    print "Test pim status"
+    print("Test pim status")
     for x in range(0,8):
         power_status=pim.get_pim_status(x)
-        print "pim=%d power_status=0x%x"%(x, power_status)
+        print("pim=%d power_status=0x%x"%(x, power_status))
     
     release_resources()
 

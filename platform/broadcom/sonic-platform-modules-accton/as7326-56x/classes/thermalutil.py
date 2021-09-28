@@ -27,7 +27,7 @@ try:
     import time
     import logging
     import glob
-    import commands
+    import subprocess
     from collections import namedtuple
 except ImportError as e:
     raise ImportError('%s - required module not found' % str(e))
@@ -37,14 +37,14 @@ def log_os_system(cmd, show):
     logging.info('Run :'+cmd)
     status = 1
     output = ""
-    status, output = commands.getstatusoutput(cmd)
+    status, output = subprocess.getstatusoutput(cmd)
     if show:
-        print "ACC: " + str(cmd) + " , result:"+ str(status)
+        print("ACC: " + str(cmd) + " , result:"+ str(status))
    
     if status:
         logging.info('Failed :'+cmd)
         if show:
-            print('Failed :'+cmd)
+            print(('Failed :'+cmd))
     return  status, output
 
 
@@ -116,7 +116,7 @@ class ThermalUtil(object):
             try:
                 check_file = open(file_path)
             except IOError as e:
-                print "Error: unable to open file: %s" % str(e) 
+                print("Error: unable to open file: %s" % str(e)) 
                 return 0  
             file_str = check_file.read()
             search_str="average current temperature is"

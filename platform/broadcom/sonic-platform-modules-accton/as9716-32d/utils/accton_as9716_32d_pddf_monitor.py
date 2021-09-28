@@ -178,7 +178,7 @@ class switch(object):
 def as9716_32d_set_fan_speed(pwm):
 
     if pwm < 0 or pwm > 100:
-        print("Error: Wrong duty cycle value %d" % (pwm))
+        print(("Error: Wrong duty cycle value %d" % (pwm)))
         return -1
     platform_chassis.get_fan(0).set_speed(pwm)
     time.sleep(1)
@@ -477,11 +477,11 @@ def main(argv):
         try:
             opts, args = getopt.getopt(argv, 'hdlt:', ['lfile='])
         except getopt.GetoptError:
-            print("Usage: %s [-d] [-l <log_file>]" % sys.argv[0])
+            print(("Usage: %s [-d] [-l <log_file>]" % sys.argv[0]))
             return 0
         for opt, arg in opts:
             if opt == '-h':
-                print("Usage: %s [-d] [-l <log_file>]" % sys.argv[0])
+                print(("Usage: %s [-d] [-l <log_file>]" % sys.argv[0]))
                 return 0
             elif opt in ('-d', '--debug'):
                 log_level = logging.DEBUG

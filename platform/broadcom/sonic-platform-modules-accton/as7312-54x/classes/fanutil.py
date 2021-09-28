@@ -179,7 +179,7 @@ class FanUtil(object):
             with open(self.FAN_DUTY_PATH) as val_file:
                 content = val_file.readline().rstrip()
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)          
+            print("Error: unable to open file: %s" % str(e))          
             return False
         return int(content)
 
@@ -188,7 +188,7 @@ class FanUtil(object):
             with open(self.FAN_DUTY_PATH, 'r+') as val_file:
                 val_file.write(str(val))
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)          
+            print("Error: unable to open file: %s" % str(e))          
             return False
         return True
 

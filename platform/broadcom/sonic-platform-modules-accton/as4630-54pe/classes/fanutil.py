@@ -20,9 +20,7 @@
 # ------------------------------------------------------------------
 
 try:
-    import time
     import logging
-    from collections import namedtuple
 except ImportError as e:
     raise ImportError('%s - required module not found' % str(e))
    
@@ -82,24 +80,24 @@ class FanUtil(object):
        
         device_path = self.get_fan_device_path(fan_num, node_num)
        
-            try:
-                val_file = open(device_path, 'r')
-            except IOError as e:
-                logging.error('GET. unable to open file: %s', str(e))
-                return None
+        try:
+            val_file = open(device_path, 'r')
+        except IOError as e:
+            logging.error('GET. unable to open file: %s', str(e))
+            return None
 
-            content = val_file.readline().rstrip()
-            if content == '':
-                logging.debug('GET. content is NULL. device_path:%s', device_path)
-                return None
+        content = val_file.readline().rstrip()
+        if content == '':
+            logging.debug('GET. content is NULL. device_path:%s', device_path)
+            return None
 
-            try:
-                val_file.close()
-            except:
-                logging.debug('GET. unable to close file. device_path:%s', device_path)
-                return None      
-              
-            return int(content)
+        try:
+            val_file.close()
+        except IOError as e:
+            logging.debug('GET. unable to close file: %s. device_path:%s', str(e), device_path)
+            return None      
+          
+        return int(content)
             
     def _set_fan_node_val(self, fan_num, node_num, val):
         if fan_num < self.FAN_NUM_1_IDX or fan_num > self.FAN_NUM_ON_MAIN_BROAD:
@@ -125,9 +123,9 @@ class FanUtil(object):
         val_file.write(content)
 
         try:
-		    val_file.close()
-        except:
-            logging.debug('GET. unable to close file. device_path:%s', device_path)
+            val_file.close()
+        except IOError as e:
+            logging.debug('GET. unable to close file: %s. device_path:%s', str(e), device_path)
             return None
 
         return True
@@ -158,7 +156,7 @@ class FanUtil(object):
         try:
             val_file = open(self.FAN_DUTY_PATH)
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)          
+            print("Error: unable to open file: %s" % str(e))          
             return False
 
         content = val_file.readline().rstrip()
@@ -170,7 +168,7 @@ class FanUtil(object):
         try:
             fan_file = open(self.FAN_DUTY_PATH, 'r+')
         except IOError as e:
-            print "Error: unable to open file: %s" % str(e)          
+            print("Error: unable to open file: %s" % str(e))          
             return False
 
         fan_file.write(str(val))

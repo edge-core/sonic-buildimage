@@ -223,11 +223,11 @@ def main(argv):
         try:
             opts, args = getopt.getopt(argv, 'hdlt:', ['lfile='])
         except getopt.GetoptError:
-            print 'Usage: %s [-d] [-l <log_file>]' % sys.argv[0]
+            print('Usage: %s [-d] [-l <log_file>]' % sys.argv[0])
             return 0
         for opt, arg in opts:
             if opt == '-h':
-                print 'Usage: %s [-d] [-l <log_file>]' % sys.argv[0]
+                print('Usage: %s [-d] [-l <log_file>]' % sys.argv[0])
                 return 0
             elif opt in ('-d', '--debug'):
                 log_level = logging.DEBUG
@@ -236,7 +236,7 @@ def main(argv):
 
         if sys.argv[1] == '-t':
             if len(sys.argv) != 5:
-                print "temp test, need input three temp"
+                print("temp test, need input three temp")
                 return 0
 
             i = 0
@@ -245,11 +245,11 @@ def main(argv):
                 i = i + 1
             test_temp = 1
             log_level = logging.DEBUG
-            print test_temp_list
+            print(test_temp_list)
 
     fan = FanUtil()
     fan.set_fan_duty_cycle(50)
-    print "set default fan speed to 50%"
+    print("set default fan speed to 50%")
     monitor = device_monitor(log_file, log_level)
     # Loop forever, doing something useful hopefully:
     while True:

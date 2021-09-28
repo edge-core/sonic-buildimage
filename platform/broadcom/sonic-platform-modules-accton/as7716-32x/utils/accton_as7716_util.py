@@ -30,7 +30,7 @@ command:
     set         : change board setting with fan|led|sfp
 """
 
-import commands
+import subprocess
 import getopt
 import sys
 import logging
@@ -149,8 +149,8 @@ logging.basicConfig(level=logging.INFO)
 
 
 if DEBUG == True:
-    print sys.argv[0]
-    print 'ARGV      :', sys.argv[1:]
+    print(sys.argv[0])
+    print('ARGV      :', sys.argv[1:])
 
 
 def main():
@@ -166,9 +166,9 @@ def main():
                                                        'force',
                                                           ])
     if DEBUG == True:
-        print options
-        print args
-        print len(sys.argv)
+        print(options)
+        print(args)
+        print(len(sys.argv))
 
     for opt, arg in options:
         if opt in ('-h', '--help'):
@@ -208,28 +208,28 @@ def main():
     return 0
 
 def show_help():
-    print __doc__ % {'scriptName' : sys.argv[0].split("/")[-1]}
+    print(__doc__ % {'scriptName' : sys.argv[0].split("/")[-1]})
     sys.exit(0)
 
 def  show_set_help():
     cmd =  sys.argv[0].split("/")[-1]+ " "  + args[0]
-    print  cmd +" [led|sfp|fan]"
-    print  "    use \""+ cmd + " led 0-4 \"  to set led color"
-    print  "    use \""+ cmd + " fan 0-100\" to set fan duty percetage"
-    print  "    use \""+ cmd + " sfp 1-32 {0|1}\" to set sfp# tx_disable"
+    print(cmd +" [led|sfp|fan]")
+    print("    use \""+ cmd + " led 0-4 \"  to set led color")
+    print("    use \""+ cmd + " fan 0-100\" to set fan duty percetage")
+    print("    use \""+ cmd + " sfp 1-32 {0|1}\" to set sfp# tx_disable")
     sys.exit(0)
 
 def dis_i2c_ir3570a(addr):
     cmd = "i2cset -y 0 0x%x 0xE5 0x01" % addr
-    status, output = commands.getstatusoutput(cmd)
+    status, output = subprocess.getstatusoutput(cmd)
     cmd = "i2cset -y 0 0x%x 0x12 0x02" % addr
-    status, output = commands.getstatusoutput(cmd)
+    status, output = subprocess.getstatusoutput(cmd)
     return status
 
 def ir3570_check():
     cmd = "i2cdump -y 0 0x42 s 0x9a"
     try:
-        status, output = commands.getstatusoutput(cmd)
+        status, output = subprocess.getstatusoutput(cmd)
         lines = output.split('\n')
         hn = re.findall(r'\w+', lines[-1])
         version = int(hn[1], 16)
@@ -238,32 +238,32 @@ def ir3570_check():
         else:
             ret = 0
     except Exception as e:
-        print "Error on ir3570_check() e:" + str(e)
+        print("Error on ir3570_check() e:" + str(e))
         return -1
     return ret
 
 def  show_eeprom_help():
     cmd =  sys.argv[0].split("/")[-1]+ " "  + args[0]
-    print  "    use \""+ cmd + " 1-32 \" to dump sfp# eeprom"
+    print("    use \""+ cmd + " 1-32 \" to dump sfp# eeprom")
     sys.exit(0)
 
 def my_log(txt):
     if DEBUG == True:
-        print "[ACCTON DBG]: "+txt
+        print("[ACCTON DBG]: "+txt)
     return
 
 def log_os_system(cmd, show):
     logging.info('Run :'+cmd)
     status = 1
     output = ""
-    status, output = commands.getstatusoutput(cmd)
+    status, output = subprocess.getstatusoutput(cmd)
     my_log (cmd +"with result:" + str(status))
     my_log ("cmd:" + cmd)
     my_log ("      output:"+output)
     if status:
         logging.info('Failed :'+cmd)
         if show:
-            print('Failed :'+cmd)
+            print(('Failed :'+cmd))
     return  status, output
 
 def driver_inserted():
@@ -341,19 +341,19 @@ def device_install():
         
         status, output = log_os_system(mknod[i], 1)        
         if status:
-            print output
+            print(output)
             if FORCE == 0:
                 return status
     
     for i in range(0,len(sfp_map)):
         status, output =log_os_system("echo optoe1 0x50 > /sys/bus/i2c/devices/i2c-"+str(sfp_map[i])+"/new_device", 1)
         if status:
-            print output
+            print(output)
             if FORCE == 0:
                 return status
         status, output =log_os_system("echo port"+str(i)+" > /sys/bus/i2c/devices/"+str(sfp_map[i])+"-0050/port_name", 1)
         if status:
-            print output
+            print(output)
             if FORCE == 0:
                 return status
     return
@@ -371,7 +371,7 @@ def device_uninstall():
         target = "/sys/bus/i2c/devices/i2c-"+str(sfp_map[i])+"/delete_device"
         status, output =log_os_system("echo 0x50 > "+ target, 1)
         if status:
-            print output
+            print(output)
             if FORCE == 0:
                 return status
 
@@ -387,7 +387,7 @@ def device_uninstall():
         temp[-1] = temp[-1].replace('new_device', 'delete_device')
         status, output = log_os_system(" ".join(temp), 1)
         if status:
-            print output
+            print(output)
             if FORCE == 0:
                 return status
 
@@ -397,7 +397,7 @@ def system_ready():
     if driver_inserted() == False:        
         return False
     if not device_exist():
-        print "not device_exist()"
+        print("not device_exist()")
         return False
     return True
 
@@ -408,7 +408,7 @@ def do_install():
             if FORCE == 0:
                 return  status
     else:
-        print PROJECT_NAME.upper()+" drivers detected...."
+        print(PROJECT_NAME.upper()+" drivers detected....")
 
     ir3570_check()
 
@@ -418,23 +418,23 @@ def do_install():
             if FORCE == 0:
                 return  status
     else:
-        print PROJECT_NAME.upper()+" devices detected...."
+        print(PROJECT_NAME.upper()+" devices detected....")
     return
 
 def do_uninstall():
     if not device_exist():
-        print PROJECT_NAME.upper() +" has no device installed...."
+        print(PROJECT_NAME.upper() +" has no device installed....")
     else:
-        print "Removing device...."
+        print("Removing device....")
         status = device_uninstall()
         if status:
             if FORCE == 0:
                 return  status
 
     if driver_inserted()== False :
-        print PROJECT_NAME.upper() +" has no driver installed...."
+        print(PROJECT_NAME.upper() +" has no driver installed....")
     else:
-        print "Removing installed driver...."
+        print("Removing installed driver....")
         status = driver_uninstall()
         if status:
             if FORCE == 0:
@@ -487,11 +487,11 @@ def devices_info():
     #show dict all in the order
     if DEBUG == True:
         for i in sorted(ALL_DEVICE.keys()):
-            print(i+": ")
+            print((i+": "))
             for j in sorted(ALL_DEVICE[i].keys()):
-                print("   "+j)
+                print(("   "+j))
                 for k in (ALL_DEVICE[i][j]):
-                    print("   "+"   "+k)
+                    print(("   "+"   "+k))
     return
 
 def show_eeprom(index):
@@ -514,15 +514,15 @@ def show_eeprom(index):
     else:
         log = 'Failed : no hexdump cmd!!'
         logging.info(log)
-        print log
+        print(log)
         return 1
 
-    print node + ":"
+    print(node + ":")
     ret, log = log_os_system("cat "+node+"| "+hex_cmd+" -C", 1)
     if ret==0:
-        print  log
+        print(log)
     else:
-        print "**********device no found**********"
+        print("**********device no found**********")
     return
 
 def set_device(args):
@@ -556,10 +556,10 @@ def set_device(args):
         node = node.replace(node.split("/")[-1], 'fan1_duty_cycle_percentage')
         ret, log = log_os_system("cat "+ node, 1)
         if ret==0:
-            print ("Previous fan duty: " + log.strip() +"%")
+            print(("Previous fan duty: " + log.strip() +"%"))
         ret, log = log_os_system("echo "+args[1]+" >"+node, 1)
         if ret==0:
-            print ("Current fan duty: " + args[1] +"%")
+            print(("Current fan duty: " + args[1] +"%"))
         return ret
     elif args[0]=='sfp':
         if int(args[1])> DEVICE_NO[args[0]] or int(args[1])==0:
@@ -599,25 +599,25 @@ def device_traversal():
         devices_info()
     for i in sorted(ALL_DEVICE.keys()):
         print("============================================")
-        print(i.upper()+": ")
+        print((i.upper()+": "))
         print("============================================")
 
-        for j in sorted(ALL_DEVICE[i].keys(), key=get_value):
-            print "   "+j+":",
+        for j in sorted(list(ALL_DEVICE[i].keys()), key=get_value):
+            print("   "+j+":", end=' ')
             for k in (ALL_DEVICE[i][j]):
                 ret, log = log_os_system("cat "+k, 0)
                 func = k.split("/")[-1].strip()
                 func = re.sub(j+'_','',func,1)
                 func = re.sub(i.lower()+'_','',func,1)
                 if ret==0:
-                    print func+"="+log+" ",
+                    print(func+"="+log+" ", end=' ')
                 else:
-                    print func+"="+"X"+" ",
-            print
+                    print(func+"="+"X"+" ", end=' ')
+            print()
             print("----------------------------------------------------------------")
 
 
-        print
+        print()
     return
 
 def device_exist():

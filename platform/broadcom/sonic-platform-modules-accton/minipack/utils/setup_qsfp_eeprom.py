@@ -21,13 +21,9 @@
 # ------------------------------------------------------------------
 
 try:
-    import os
     import getopt
     import sys
     import subprocess
-    import click
-    import imp
-    import commands
     import logging
     import logging.config
     import logging.handlers
@@ -72,14 +68,14 @@ PIM_MAX=8
 
 def my_log(txt):
     if DEBUG == True:
-        print "[ACCTON DBG]: "+txt
+        print("[ACCTON DBG]: "+txt)
     return
 
 def log_os_system(cmd):
     logging.info('Run :'+cmd)
     status = 1
     output = ""
-    status, output = commands.getstatusoutput(cmd)
+    status, output = subprocess.getstatusoutput(cmd)
     if status:
         logging.info('Failed :'+cmd)
     return  status, output
@@ -123,7 +119,7 @@ def qsfp_eeprom_sys(pim_idx, i2c_bus_order, create):
             status, output =log_os_system(
                 "echo optoe1 0x50 > /sys/bus/i2c/devices/i2c-"+str(bus)+"/new_device")
             if status:
-                print output
+                print(output)
                 return 1
             status, output =log_os_system(
                 "echo port"+str(k+1)+" > /sys/bus/i2c/devices/"+str(bus)+"-0050/port_name")
@@ -131,13 +127,13 @@ def qsfp_eeprom_sys(pim_idx, i2c_bus_order, create):
             status, output =log_os_system(
                 "ln -s -f /sys/bus/i2c/devices/"+str(bus)+"-0050/eeprom" + " /usr/local/bin/minipack_qsfp/port" + str(k) + "_eeprom")
             if status:
-                print output
+                print(output)
                 return 1
         else:        
             status, output =log_os_system(
                 "echo 0x50 > /sys/bus/i2c/devices/i2c-"+str(bus)+"/delete_device")
             if status:
-                print output
+                print(output)
    
         k=k+1
 
@@ -146,7 +142,7 @@ def qsfp_eeprom_sys(pim_idx, i2c_bus_order, create):
 def check_pca_active( i2c_addr, bus):
     cmd = "i2cget -y -f %d 0x%x 0x0"
     cmd =  cmd %(bus, i2c_addr)
-    status, output = commands.getstatusoutput(cmd)
+    status, output = subprocess.getstatusoutput(cmd)
     return status
 
 def set_pim_port_use_bus(pim_idx):
@@ -178,11 +174,11 @@ def device_remove():
         #if ret==0:
         
         cmdm= cmd1 % (0x72, bus)        
-        status, output = commands.getstatusoutput(cmdm)
-        print "Remove %d-0072 i2c device"%bus
+        status, output = subprocess.getstatusoutput(cmdm)
+        print("Remove %d-0072 i2c device"%bus)
         cmdm= cmd1 % (0x71, bus)
-        status, output = commands.getstatusoutput(cmdm)
-        print "Remove %d-0071 i2c device"%bus
+        status, output = subprocess.getstatusoutput(cmdm)
+        print("Remove %d-0071 i2c device"%bus)
 
     cmd="rm -f /usr/local/bin/minipack_qsfp/port*"
     status, output=log_os_system(cmd)
@@ -262,7 +258,7 @@ class device_monitor(object):
                         pim_state[pim_idx]=self.PIM_STATE_INSERT
                         logging.info("pim_state[%d] PIM_STATE_INSERT", pim_idx);
                     else:
-                        print "retry check 100 times for check pca addr"
+                        print("retry check 100 times for check pca addr")
                         del_pim_port_use_bus(pim_idx)
             else:
                 if pim_state[pim_idx]==self.PIM_STATE_INSERT:                    
@@ -280,11 +276,11 @@ def main(argv):
         try:
             opts, args = getopt.getopt(argv,'hdlr',['lfile='])
         except getopt.GetoptError:
-            print 'A:Usage: %s [-d] [-l <log_file>]' % sys.argv[0]
+            print('A:Usage: %s [-d] [-l <log_file>]' % sys.argv[0])
             return 0
         for opt, arg in opts:
             if opt == '-h':
-                print 'B:Usage: %s [-d] [-l <log_file>]' % sys.argv[0]
+                print('B:Usage: %s [-d] [-l <log_file>]' % sys.argv[0])
                 return 0
             elif opt in ('-d', '--debug'):
                 log_level = logging.DEBUG
@@ -305,7 +301,7 @@ def main(argv):
         time.sleep(0.5)
         if status==0:
             cpu_pca_i2c_ready=1
-            print "Make sure CPU pca i2c device is ready"
+            print("Make sure CPU pca i2c device is ready")
             break
     
     while True:

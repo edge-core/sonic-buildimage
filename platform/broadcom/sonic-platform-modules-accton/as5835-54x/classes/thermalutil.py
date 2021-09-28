@@ -26,7 +26,7 @@ try:
     import time
     import logging
     import glob
-    import commands
+    import subprocess
     from collections import namedtuple
 except ImportError as e:
     raise ImportError('%s - required module not found' % str(e))
@@ -83,7 +83,7 @@ class ThermalUtil(object):
             return int(content)
             
         else:
-            print "No such device_path=%s"%device_path
+            print("No such device_path=%s"%device_path)
             return 0
 
     def get_num_thermals(self):
@@ -115,10 +115,10 @@ class ThermalUtil(object):
 
 def main():
     thermal = ThermalUtil()
-    print "termal1=%d" %thermal._get_thermal_val(1)
-    print "termal2=%d" %thermal._get_thermal_val(2)
-    print "termal3=%d" %thermal._get_thermal_val(3)
-    print "termal4=%d" %thermal._get_thermal_val(4)   
+    print("termal1=%d" %thermal._get_thermal_val(1))
+    print("termal2=%d" %thermal._get_thermal_val(2))
+    print("termal3=%d" %thermal._get_thermal_val(3))
+    print("termal4=%d" %thermal._get_thermal_val(4))   
 #
 #    print 'get_size_node_map : %d' % thermal.get_size_node_map()
 #    print 'get_size_path_map : %d' % thermal.get_size_path_map()
