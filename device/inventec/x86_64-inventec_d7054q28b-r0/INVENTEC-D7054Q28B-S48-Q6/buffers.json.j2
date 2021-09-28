@@ -86,7 +86,7 @@
     },
     "BUFFER_PROFILE": {
         "ingress_lossless_profile": {
-            "pool":"[BUFFER_POOL|ingress_lossless_pool]",
+            "pool":"ingress_lossless_pool",
             "xon":"18432",
             "xoff":"40560",
             "size":"41808",
@@ -94,35 +94,35 @@
             "xon_offset":"2496"
         },
         "ingress_lossy_profile": {
-            "pool":"[BUFFER_POOL|ingress_lossless_pool]",
+            "pool":"ingress_lossless_pool",
             "size":"0",
             "dynamic_th":"3"
         },
         "egress_lossless_profile": {
-            "pool":"[BUFFER_POOL|egress_lossless_pool]",
+            "pool":"egress_lossless_pool",
             "size":"0",
             "static_th":"6000000"
         },
         "egress_lossy_profile": {
-            "pool":"[BUFFER_POOL|egress_lossy_pool]",
+            "pool":"egress_lossy_pool",
             "size":"1518",
             "dynamic_th":"3"
         }
     },
     "BUFFER_PG": {
         "{{ port_names }}|3-4": {
-            "profile" : "[BUFFER_PROFILE|ingress_lossless_profile]"
+            "profile" : "ingress_lossless_profile"
         },
         "{{ port_names }}|0-1": {
-            "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
+            "profile" : "ingress_lossy_profile"
         }
     },
     "BUFFER_QUEUE": {
         "{{ port_names }}|3-4": {
-            "profile" : "[BUFFER_PROFILE|egress_lossless_profile]"
+            "profile" : "egress_lossless_profile"
         },
         "{{ port_names }}|0-1": {
-            "profile" : "[BUFFER_PROFILE|egress_lossy_profile]"
+            "profile" : "egress_lossy_profile"
         }
     }
 }

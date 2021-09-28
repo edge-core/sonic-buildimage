@@ -133,7 +133,7 @@ def
     "BUFFER_PG": {
 {% for port in PORT_ACTIVE %}
         "{{ port }}|0": {
-            "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
+            "profile" : "ingress_lossy_profile"
         }{% if not loop.last %},{% endif %}
 
 {% endfor %}
@@ -146,17 +146,17 @@ def
     "BUFFER_QUEUE": {
 {% for port in PORT_ACTIVE %}
         "{{ port }}|3-4": {
-            "profile" : "[BUFFER_PROFILE|egress_lossless_profile]"
+            "profile" : "egress_lossless_profile"
         },
 {% endfor %}
 {% for port in PORT_ACTIVE %}
         "{{ port }}|0-2": {
-            "profile" : "[BUFFER_PROFILE|egress_lossy_profile]"
+            "profile" : "egress_lossy_profile"
         },
 {% endfor %}
 {% for port in PORT_ACTIVE %}
         "{{ port }}|5-6": {
-            "profile" : "[BUFFER_PROFILE|egress_lossy_profile]"
+            "profile" : "egress_lossy_profile"
         }{% if not loop.last %},{% endif %}
 
 {% endfor %}

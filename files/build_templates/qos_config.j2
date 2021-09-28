@@ -178,15 +178,15 @@
 {% for port in PORT_ACTIVE %}
         "{{ port }}": {
 {% if 'type' in DEVICE_METADATA['localhost'] and DEVICE_METADATA['localhost']['type'] in backend_device_types and 'storage_device' in DEVICE_METADATA['localhost'] and DEVICE_METADATA['localhost']['storage_device'] == 'true' %}
-            "dot1p_to_tc_map" : "[DOT1P_TO_TC_MAP|AZURE]",
+            "dot1p_to_tc_map" : "AZURE",
 {% else %}
-            "dscp_to_tc_map"  : "[DSCP_TO_TC_MAP|AZURE]",
+            "dscp_to_tc_map"  : "AZURE",
 {% endif %}
-            "tc_to_queue_map" : "[TC_TO_QUEUE_MAP|AZURE]",
-            "tc_to_pg_map"    : "[TC_TO_PRIORITY_GROUP_MAP|AZURE]",
-            "pfc_to_queue_map": "[MAP_PFC_PRIORITY_TO_QUEUE|AZURE]",
+            "tc_to_queue_map" : "AZURE",
+            "tc_to_pg_map"    : "AZURE",
+            "pfc_to_queue_map": "AZURE",
 {% if asic_type in pfc_to_pg_map_supported_asics %}
-            "pfc_to_pg_map"   : "[PFC_PRIORITY_TO_PRIORITY_GROUP_MAP|AZURE]",
+            "pfc_to_pg_map"   : "AZURE",
 {% endif %}
             "pfc_enable"      : "3,4"
         }{% if not loop.last %},{% endif %}
@@ -217,39 +217,39 @@
     "QUEUE": {
 {% for port in PORT_ACTIVE %}
         "{{ port }}|3": {
-            "scheduler"   : "[SCHEDULER|scheduler.1]",
-            "wred_profile": "[WRED_PROFILE|AZURE_LOSSLESS]"
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         },
 {% endfor %}
 {% for port in PORT_ACTIVE %}
         "{{ port }}|4": {
-            "scheduler"   : "[SCHEDULER|scheduler.1]",
-            "wred_profile": "[WRED_PROFILE|AZURE_LOSSLESS]"
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         },
 {% endfor %}
 {% for port in PORT_ACTIVE %}
         "{{ port }}|0": {
-            "scheduler": "[SCHEDULER|scheduler.0]"
+            "scheduler": "scheduler.0"
         },
 {% endfor %}
 {% for port in PORT_ACTIVE %}
         "{{ port }}|1": {
-            "scheduler": "[SCHEDULER|scheduler.0]"
+            "scheduler": "scheduler.0"
         },
 {% endfor %}
 {% for port in PORT_ACTIVE %}
         "{{ port }}|2": {
-            "scheduler": "[SCHEDULER|scheduler.0]"
+            "scheduler": "scheduler.0"
         },
 {% endfor %}
 {% for port in PORT_ACTIVE %}
         "{{ port }}|5": {
-            "scheduler": "[SCHEDULER|scheduler.0]"
+            "scheduler": "scheduler.0"
         },
 {% endfor %}
 {% for port in PORT_ACTIVE %}
         "{{ port }}|6": {
-            "scheduler": "[SCHEDULER|scheduler.0]"
+            "scheduler": "scheduler.0"
         }{% if not loop.last %},{% endif %}
 
 {% endfor %}

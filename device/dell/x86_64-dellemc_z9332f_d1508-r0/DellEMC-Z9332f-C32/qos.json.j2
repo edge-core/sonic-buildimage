@@ -175,50 +175,50 @@
     },
     "PORT_QOS_MAP": {
         "{{ port_names_active }}": {
-            "dscp_to_tc_map"  : "[DSCP_TO_TC_MAP|DEFAULT]",
-            "tc_to_queue_map" : "[TC_TO_QUEUE_MAP|DEFAULT]",
-            "tc_to_pg_map"    : "[TC_TO_PRIORITY_GROUP_MAP|DEFAULT]"
+            "dscp_to_tc_map"  : "DEFAULT",
+            "tc_to_queue_map" : "DEFAULT",
+            "tc_to_pg_map"    : "DEFAULT"
         }
     },
     "QUEUE": {
 {% for port in PORT_ACTIVE %}
         "{{ port }}|0": {
-            "scheduler"   : "[SCHEDULER|scheduler.0]"
+            "scheduler"   : "scheduler.0"
         },
 {% endfor %}
 {% for port in PORT_ACTIVE %}
         "{{ port }}|1": {
-            "scheduler"   : "[SCHEDULER|scheduler.1]"
+            "scheduler"   : "scheduler.1"
         },
 {% endfor %}
 {% for port in PORT_ACTIVE %}
         "{{ port }}|2": {
-            "scheduler": "[SCHEDULER|scheduler.2]"
+            "scheduler": "scheduler.2"
         },
 {% endfor %}
 {% for port in PORT_ACTIVE %}
         "{{ port }}|3": {
-            "scheduler": "[SCHEDULER|scheduler.3]"
+            "scheduler": "scheduler.3"
         },
 {% endfor %}
 {% for port in PORT_ACTIVE %}
         "{{ port }}|4": {
-            "scheduler": "[SCHEDULER|scheduler.4]"
+            "scheduler": "scheduler.4"
         },
 {% endfor %}
 {% for port in PORT_ACTIVE %}
         "{{ port }}|5": {
-            "scheduler": "[SCHEDULER|scheduler.5]"
+            "scheduler": "scheduler.5"
         },
 {% endfor %}
 {% for port in PORT_ACTIVE %}
         "{{ port }}|6": {
-            "scheduler": "[SCHEDULER|scheduler.6]"
+            "scheduler": "scheduler.6"
         },
 {% endfor %}
 {% for port in PORT_ACTIVE %}
         "{{ port }}|7": {
-            "scheduler": "[SCHEDULER|scheduler.7]"
+            "scheduler": "scheduler.7"
         }{% if not loop.last %},{% endif %}
 {% endfor %}
     }

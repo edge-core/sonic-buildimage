@@ -36,27 +36,27 @@
     },
     "BUFFER_PROFILE": {
         "ingress_lossless_profile": {
-            "pool":"[BUFFER_POOL|ingress_lossless_pool]",
+            "pool":"ingress_lossless_pool",
             "size":"0",
             "dynamic_th":"7"
         },
         "ingress_lossy_profile": {
-            "pool":"[BUFFER_POOL|ingress_lossless_pool]",
+            "pool":"ingress_lossless_pool",
             "size":"0",
             "dynamic_th":"3"
         },
         "egress_lossless_profile": {
-            "pool":"[BUFFER_POOL|egress_lossless_pool]",
+            "pool":"egress_lossless_pool",
             "size":"0",
             "dynamic_th":"7"
         },
         "egress_lossy_profile": {
-            "pool":"[BUFFER_POOL|egress_lossy_pool]",
+            "pool":"egress_lossy_pool",
             "size":"9216",
             "dynamic_th":"7"
         },
         "q_lossy_profile": {
-            "pool":"[BUFFER_POOL|egress_lossy_pool]",
+            "pool":"egress_lossy_pool",
             "size":"0",
             "dynamic_th":"3"
         }
@@ -67,7 +67,7 @@
     "BUFFER_PORT_INGRESS_PROFILE_LIST": {
 {% for port in port_names.split(',') %}
         "{{ port }}": {
-            "profile_list" : "[BUFFER_PROFILE|ingress_lossless_profile]"
+            "profile_list" : "ingress_lossless_profile"
         }{% if not loop.last %},{% endif %}
 
 {% endfor %}
@@ -75,7 +75,7 @@
     "BUFFER_PORT_EGRESS_PROFILE_LIST": {
 {% for port in port_names.split(',') %}
         "{{ port }}": {
-            "profile_list" : "[BUFFER_PROFILE|egress_lossless_profile],[BUFFER_PROFILE|egress_lossy_profile]"
+            "profile_list" : "egress_lossless_profile,egress_lossy_profile"
         }{% if not loop.last %},{% endif %}
 
 {% endfor %}
@@ -86,17 +86,17 @@
     "BUFFER_QUEUE": {
 {% for port in port_names.split(',') %}
         "{{ port }}|3-4": {
-            "profile" : "[BUFFER_PROFILE|egress_lossless_profile]"
+            "profile" : "egress_lossless_profile"
         },
 {% endfor %}
 {% for port in port_names.split(',') %}
         "{{ port }}|0-2": {
-            "profile" : "[BUFFER_PROFILE|q_lossy_profile]"
+            "profile" : "q_lossy_profile"
         },
 {% endfor %}
 {% for port in port_names.split(',') %}
         "{{ port }}|5-6": {
-            "profile" : "[BUFFER_PROFILE|q_lossy_profile]"
+            "profile" : "q_lossy_profile"
         }{% if not loop.last %},{% endif %}
 
 {% endfor %}

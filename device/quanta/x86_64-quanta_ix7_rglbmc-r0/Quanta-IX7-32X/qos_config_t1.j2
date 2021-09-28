@@ -161,12 +161,12 @@
     "PORT_QOS_MAP": {
 {% for port in PORT_ACTIVE %}
         "{{ port }}": {
-            "dscp_to_tc_map"  : "[DSCP_TO_TC_MAP|AZURE]",
-            "tc_to_queue_map" : "[TC_TO_QUEUE_MAP|AZURE]",
-            "tc_to_pg_map"    : "[TC_TO_PRIORITY_GROUP_MAP|AZURE]",
-            "pfc_to_queue_map": "[MAP_PFC_PRIORITY_TO_QUEUE|AZURE]",
+            "dscp_to_tc_map"  : "AZURE",
+            "tc_to_queue_map" : "AZURE",
+            "tc_to_pg_map"    : "AZURE",
+            "pfc_to_queue_map": "AZURE",
 {% if asic_type in pfc_to_pg_map_supported_asics %}
-            "pfc_to_pg_map"   : "[PFC_PRIORITY_TO_PRIORITY_GROUP_MAP|AZURE]",
+            "pfc_to_pg_map"   : "AZURE",
 {% endif %}
             "pfc_enable"      : "3,4"
         }{% if not loop.last %},{% endif %}

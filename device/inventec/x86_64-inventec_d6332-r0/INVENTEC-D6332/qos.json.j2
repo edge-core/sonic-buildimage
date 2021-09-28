@@ -125,10 +125,10 @@
     },
     "PORT_QOS_MAP": {
         "{{ PORT_ALL|join(',') }}": {
-            "dscp_to_tc_map"  : "[DSCP_TO_TC_MAP|AZURE]",
-            "tc_to_queue_map" : "[TC_TO_QUEUE_MAP|AZURE]",
-            "tc_to_pg_map"    : "[TC_TO_PRIORITY_GROUP_MAP|AZURE]",
-            "pfc_to_queue_map": "[MAP_PFC_PRIORITY_TO_QUEUE|AZURE]",
+            "dscp_to_tc_map"  : "AZURE",
+            "tc_to_queue_map" : "AZURE",
+            "tc_to_pg_map"    : "AZURE",
+            "pfc_to_queue_map": "AZURE",
             "pfc_enable": "3,4"
         }
     },
@@ -148,14 +148,14 @@
     },
     "QUEUE": {
         "{{ PORT_ALL|join(',') }}|3-4" : {
-            "scheduler"     :   "[SCHEDULER|scheduler.0]",
-            "wred_profile"  :   "[WRED_PROFILE|AZURE_LOSSLESS]"
+            "scheduler"     :   "scheduler.0",
+            "wred_profile"  :   "AZURE_LOSSLESS"
         },
         "{{ PORT_ALL|join(',') }}|0" : {
-            "scheduler"     :   "[SCHEDULER|scheduler.1]"
+            "scheduler"     :   "scheduler.1"
         },
         "{{ PORT_ALL|join(',') }}|1" : {
-            "scheduler"     :   "[SCHEDULER|scheduler.2]"
+            "scheduler"     :   "scheduler.2"
         }
     }
 }
