@@ -879,6 +879,13 @@
                 "polling_interval": "0"
             }
         },
+
+        "WARM_RESTART": {
+            "bgp": {
+                "bgp_timer": "500"
+            }
+        },
+
         "PFC_WD": {
             "Ethernet9": {
                "action": "drop",

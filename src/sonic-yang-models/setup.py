@@ -73,6 +73,7 @@ setup(
                          './yang-models/sonic-versions.yang',
                          './yang-models/sonic-vlan.yang',
                          './yang-models/sonic-vrf.yang',
+                         './yang-models/sonic-warm-restart.yang',
                          './yang-models/sonic-lldp.yang',
                          './yang-models/sonic_yang_tree']),
     ],
