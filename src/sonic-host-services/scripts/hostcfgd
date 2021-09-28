@@ -180,6 +180,7 @@ class FeatureHandler(object):
             disable = feature.state in ("always_disabled", "disabled")
         elif cached_feature.state in ("always_enabled", "always_disabled"):
             disable = feature.state == "always_disabled"
+            enable = feature.state == "always_enabled"
         elif cached_feature.state in ("enabled", "disabled"):
             enable = feature.state == "enabled"
             disable = feature.state == "disabled"

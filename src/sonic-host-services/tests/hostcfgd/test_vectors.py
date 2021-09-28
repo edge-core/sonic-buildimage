@@ -146,6 +146,15 @@ HOSTCFGD_TEST_VECTOR = [
                         "state": "enabled",
                         "status": "enabled"
                     },
+                    "sflow": {
+                        "auto_restart": "enabled",
+                        "has_global_scope": "True",
+                        "has_per_asic_scope": "False",
+                        "has_timer": "False",
+                        "high_mem_alert": "disabled",
+                        "set_owner": "local",
+                        "state": "always_enabled"
+                    },
                 },
             },
             "expected_config_db": {
@@ -178,6 +187,15 @@ HOSTCFGD_TEST_VECTOR = [
                         "state": "enabled",
                         "status": "enabled"
                     },
+                    "sflow": {
+                        "auto_restart": "enabled",
+                        "has_global_scope": "True",
+                        "has_per_asic_scope": "False",
+                        "has_timer": "False",
+                        "high_mem_alert": "disabled",
+                        "set_owner": "local",
+                        "state": "always_enabled"
+                    },
                 },
             },
             "expected_subprocess_calls": [
@@ -188,6 +206,9 @@ HOSTCFGD_TEST_VECTOR = [
                 call("sudo systemctl unmask telemetry.timer", shell=True),
                 call("sudo systemctl enable telemetry.timer", shell=True),
                 call("sudo systemctl start telemetry.timer", shell=True),
+                call("sudo systemctl unmask sflow.service", shell=True),
+                call("sudo systemctl enable sflow.service", shell=True),
+                call("sudo systemctl start sflow.service", shell=True),
             ],
             "popen_attributes": {
                 'communicate.return_value': ('output', 'error')
