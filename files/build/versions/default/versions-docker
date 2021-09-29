@@ -1,8 +1,7 @@
-amd64:amd64/debian:buster==sha256:df7d71b9a1ce0fa0b774f52ac7a0d966b483f0650185cc3594ff7d367d5c6a55
+amd64:amd64/debian:buster==sha256:2d3ea67549bcf9c6fd5ae9323237def50d9ed39ca118217b4f4cc8df8541fa77
 amd64:amd64/debian:stretch==sha256:b8cd84cc98da3fdd374607006327f4fad25c3190ad0f713b28f3bee58cf01919
-amd64:debian:buster==sha256:cdb5ae50fedfda0bc2f9e4d303683ab6096c84db9e97b0bbfea0653549aeb3f8
-amd64:debian:jessie==sha256:32ad5050caffb2c7e969dac873bce2c370015c2256ff984b70c1c08b3a2816a0
-amd64:debian:stretch==sha256:74ca5bc3c547829123c1aaf69151bc8a50b9d8b006997e206ce0ef631ad3d0af
+amd64:debian:buster==sha256:f4b36c72b25772bd4f83e939d9b17dfe804977e455338d29266e845c106c7e02
+amd64:debian:stretch==sha256:69b306996a84b9d143876d47ad77643367f0329f67f3056a1da8125315a0d637
 amd64:docker-base-buster==
 amd64:docker-base-stretch==
 amd64:docker-config-engine-buster==
@@ -30,10 +29,10 @@ amd64:docker-syncd-vs==
 amd64:docker-teamd==
 arm64:docker-base-buster==
 arm64:docker-config-engine-buster==
-arm64:multiarch/debian-debootstrap:arm64-buster==sha256:c117f3478dadec02b4628a81bc621fdefec2c301df57df760833d823184f9faa
-arm64:multiarch/debian-debootstrap:arm64-stretch==sha256:57b07ff1d3c1b0da78ff9fb26ef5040c5239e7c4361f4404005487e27924b796
+arm64:multiarch/debian-debootstrap:arm64-buster==sha256:2affdd4aed32efc2087f552b125844cf3e6ef84dd283c893e1a5f42d2c65b12a
+arm64:multiarch/debian-debootstrap:arm64-stretch==sha256:c76e5386ef50035aaef9e9daea28928014dc8359c5829bb2854d12eb0fcd705f
 armhf:docker-base-buster==
 armhf:docker-config-engine-buster==
-armhf:multiarch/debian-debootstrap:armhf-buster==sha256:c25c19b90282273db12807f7b0c528a6858db272fc8162b7b0b2d7e77fafda62
-armhf:multiarch/debian-debootstrap:armhf-stretch==sha256:d26753fd0d7f3cec5dac9a0432fd28b2ffb8fa46ebb6b97143768552c11035b2
+armhf:multiarch/debian-debootstrap:armhf-buster==sha256:ea75b798b2a15d3511307b754e73f1e90e9b5515417bafdc303ce09c86bd4173
+armhf:multiarch/debian-debootstrap:armhf-stretch==sha256:172911bb03322441b508e653d7654f0099a2fa6da248621bfd02dbc75b973497
 multiarch/debian-debootstrap:armhf-buster==

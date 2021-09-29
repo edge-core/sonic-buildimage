@@ -16,4 +16,5 @@ linux-image-4.19.0-12-2-arm64-unsigned==4.19.152-1
 linux-libc-dev==4.19.194-3
 squashfs-tools==1:4.3-12
 tsingma-bsp==1.0
+tzdata==2021a-0+deb10u2
 zlib1g-dev==1:1.2.11.dfsg-1

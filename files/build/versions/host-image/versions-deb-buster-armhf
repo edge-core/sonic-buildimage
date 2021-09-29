@@ -16,4 +16,5 @@ linux-image-4.19.0-12-2-armmp==4.19.152-1
 linux-libc-dev==4.19.194-3
 mrvlprestera==1.0
 squashfs-tools==1:4.3-12
+tzdata==2021a-0+deb10u2
 zlib1g-dev==1:1.2.11.dfsg-1
