@@ -1227,7 +1227,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None):
         'config': {
             'client_auth': 'true',
             'allow_insecure': 'false',
-            'log_level': 'trace'
+            'log_level': 'info'
         },
         'certs': {
             'server_crt': '/etc/sonic/credentials/restapiserver.crt',
