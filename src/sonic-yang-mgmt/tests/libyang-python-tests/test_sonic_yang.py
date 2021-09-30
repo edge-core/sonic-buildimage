@@ -341,10 +341,8 @@ class Test_SonicYang(object):
         else:
             print("Xlate and Rev Xlate failed")
             # print for better debugging, in case of failure.
-            print("syc.jIn: {}".format({t:syc.jIn[t].keys() \
-                for t in syc.jIn.keys()}))
-            print("syc.revXlateJson: {}".format({t:syc.revXlateJson[t].keys() \
-                for t in syc.revXlateJson.keys()}))
+            from jsondiff import diff
+            print(diff(syc.jIn, syc.revXlateJson, syntax='symmetric'))
             # make it fail
             assert False == True
 

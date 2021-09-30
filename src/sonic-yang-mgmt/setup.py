@@ -26,12 +26,14 @@ setup(
     long_description=readme + '\n\n',
     install_requires = [
         'xmltodict==0.12.0',
-        'ijson==2.6.1'
+        'ijson==2.6.1',
+        'jsondiff>=1.2.0',
     ],
     tests_require = [
         'pytest>3',
         'xmltodict==0.12.0',
-        'ijson==2.6.1'
+        'ijson==2.6.1',
+        'jsondiff>=1.2.0'
     ],
     setup_requires = [
         'pytest-runner',

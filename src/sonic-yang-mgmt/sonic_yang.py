@@ -36,6 +36,9 @@ class SonicYang(SonicYangExtMixin):
         self.revXlateJson = dict()
         # below dict store the input config tables which have no YANG models
         self.tablesWithOutYang = dict()
+        # below dict will store preProcessed yang objects, which may be needed by
+        # all yang modules, such as grouping.
+        self.preProcessedYang = dict()
 
         try:
             self.ctx = ly.Context(yang_dir)

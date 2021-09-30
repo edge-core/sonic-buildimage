@@ -44,7 +44,6 @@ class SonicYangExtMixin:
             self._loadJsonYangModel()
             # create a map from config DB table to yang container
             self._createDBTableToModuleMap()
-
         except Exception as e:
             self.sysLog(msg="Yang Models Load failed:{}".format(str(e)), \
                 debug=syslog.LOG_ERR, doPrint=True)
@@ -71,6 +70,70 @@ class SonicYangExtMixin:
 
         return
 
+    def _preProcessYangGrouping(self, moduleName, module):
+        '''
+            PreProcess Grouping Section of YANG models, and store it in
+            self.preProcessedYang['grouping'] as
+            {'<moduleName>':
+                {'<groupingName>':
+                    [<List of Leafs>]
+                }
+            }
+
+            Parameters:
+                moduleName (str): name of yang module.
+                module (dict): json format of yang module.
+
+            Returns:
+                void
+        '''
+        try:
+            # create grouping dict
+            if self.preProcessedYang.get('grouping') is None:
+                self.preProcessedYang['grouping'] = dict()
+            self.preProcessedYang['grouping'][moduleName] = dict()
+
+            # get groupings from yang module
+            groupings = module['grouping']
+
+            # if grouping is a dict, make it a list for common processing
+            if isinstance(groupings, dict):
+                groupings = [groupings]
+
+            for grouping in groupings:
+                gName = grouping["@name"]
+                gLeaf = grouping["leaf"]
+                self.preProcessedYang['grouping'][moduleName][gName] = gLeaf
+
+        except Exception as e:
+            self.sysLog(msg="_preProcessYangGrouping failed:{}".format(str(e)), \
+                debug=syslog.LOG_ERR, doPrint=True)
+            raise e
+        return
+
+    # preProcesss Generic Yang Objects
+    def _preProcessYang(self, moduleName, module):
+        '''
+            PreProcess Generic Section of YANG models by calling
+            _preProcessYang<SectionName> methods.
+
+            Parameters:
+                moduleName (str): name of yang module.
+                module (dict): json format of yang module.
+
+            Returns:
+                void
+        '''
+        try:
+            # preProcesss Grouping
+            if module.get('grouping') is not None:
+                self._preProcessYangGrouping(moduleName, module)
+        except Exception as e:
+            self.sysLog(msg="_preProcessYang failed:{}".format(str(e)), \
+                debug=syslog.LOG_ERR, doPrint=True)
+            raise e
+        return
+
     """
     Create a map from config DB tables to container in yang model
     This module name and topLevelContainer are fetched considering YANG models are
@@ -82,6 +145,8 @@ class SonicYangExtMixin:
         for j in self.yJson:
             # get module name
             moduleName = j['module']['@name']
+            # preProcesss Generic Yang Objects
+            self._preProcessYang(moduleName, j['module'])
             # get top level container
             topLevelContainer = j['module'].get('container')
             # if top level container is none, this is common yang files, which may
@@ -104,14 +169,16 @@ class SonicYangExtMixin:
                     self.confDbYangMap[c['@name']] = {
                         "module" : moduleName,
                         "topLevelContainer": topLevelContainer['@name'],
-                        "container": c
+                        "container": c,
+                        "yangModule": j['module']
                         }
             # container is a dict
             else:
                 self.confDbYangMap[container['@name']] = {
                     "module" : moduleName,
                     "topLevelContainer": topLevelContainer['@name'],
-                    "container": container
+                    "container": container,
+                    "yangModule": j['module']
                     }
         return
 
@@ -201,13 +268,87 @@ class SonicYangExtMixin:
 
         return
 
-    """
-    create a dict to map each key under primary key with a dict yang model.
-    This is done to improve performance of mapping from values of TABLEs in
-    config DB to leaf in YANG LIST.
-    """
-    def _createLeafDict(self, model):
+    def _findYangModuleFromPrefix(self, prefix, module):
+        '''
+            Find yang module name from prefix used in given yang module.
 
+            Parameters:
+                prefix (str): prefix used in given yang module.
+                module (dict): json format of yang module.
+
+            Returns:
+                 (str): module name or None
+        '''
+        try:
+            # get imports
+            yangImports = module.get("import");
+            if yangImports is None:
+                return None
+            # make a list
+            if isinstance(yangImports, dict):
+                yangImports = [yangImports]
+            # find module for given prefix
+            for yImport in yangImports:
+                if yImport['prefix']['@value'] == prefix:
+                    return yImport['@module']
+        except Exception as e:
+            self.sysLog(msg="_findYangModuleFromPrefix failed:{}".format(str(e)), \
+                debug=syslog.LOG_ERR, doPrint=True)
+            raise e
+        return None
+
+    def _fillLeafDictUses(self, uses_s, table, leafDict):
+        '''
+            Find the leaf(s) in a grouping which maps to given uses statement,
+            then fill leafDict with leaf(s) information.
+
+            Parameters:
+                uses_s (str): uses statement in yang module.
+                table (str): config DB table, this table is being translated.
+                leafDict (dict): dict with leaf(s) information for List\Container
+                    corresponding to config DB table.
+
+            Returns:
+                 (void)
+        '''
+        try:
+            # make a list
+            if isinstance(uses_s, dict):
+                uses_s = [uses_s]
+            # find yang module for current table
+            table_module = self.confDbYangMap[table]['yangModule']
+            # uses Example: "@name": "bgpcmn:sonic-bgp-cmn"
+            for uses in uses_s:
+                # Assume ':'  means reference to another module
+                if ':' in uses['@name']:
+                    prefix = uses['@name'].split(':')[0].strip()
+                    uses_module = self._findYangModuleFromPrefix(prefix, table_module)
+                else:
+                    uses_module = table_module
+                grouping = uses['@name'].split(':')[-1].strip()
+                leafs = self.preProcessedYang['grouping'][uses_module][grouping]
+                self._fillLeafDict(leafs, leafDict)
+        except Exception as e:
+            self.sysLog(msg="_fillLeafDictUses failed:{}".format(str(e)), \
+                debug=syslog.LOG_ERR, doPrint=True)
+            raise e
+
+        return
+
+    def _createLeafDict(self, model, table):
+        '''
+            create a dict to map each key under primary key with a leaf in yang model.
+            This is done to improve performance of mapping from values of TABLEs in
+            config DB to leaf in YANG LIST.
+
+            Parameters:
+                module (dict): json format of yang module.
+                table (str): config DB table, this table is being translated.
+
+            Returns:
+                 leafDict (dict): dict with leaf(s) information for List\Container
+                    corresponding to config DB table.
+        '''
         leafDict = dict()
         #Iterate over leaf, choices and leaf-list.
         self._fillLeafDict(model.get('leaf'), leafDict)
@@ -222,6 +363,10 @@ class SonicYangExtMixin:
 
         # leaf-lists
         self._fillLeafDict(model.get('leaf-list'), leafDict, True)
+
+        # uses should map to grouping,
+        if model.get('uses') is not None:
+            self._fillLeafDictUses(model.get('uses'), table, leafDict)
 
         return leafDict
 
@@ -245,7 +390,7 @@ class SonicYangExtMixin:
             elif 'leafref' in type:
                 vValue = val
             #TODO: find type in sonic-head, as of now, all are enumeration
-            elif 'head:' in type:
+            elif 'stypes:' in type:
                 vValue = val
             else:
                 vValue = val
@@ -275,7 +420,7 @@ class SonicYangExtMixin:
         #create a dict to map each key under primary key with a dict yang model.
         #This is done to improve performance of mapping from values of TABLEs in
         #config DB to leaf in YANG LIST.
-        leafDict = self._createLeafDict(model)
+        leafDict = self._createLeafDict(model, table)
 
         # get keys from YANG model list itself
         listKeys = model['key']['@value']
@@ -380,7 +525,7 @@ class SonicYangExtMixin:
                 self._xlateContainerInContainer(modelContainer, yang, configC, table)
 
         ## Handle other leaves in container,
-        leafDict = self._createLeafDict(model)
+        leafDict = self._createLeafDict(model, table)
         vKeys = list(configC.keys())
         for vKey in vKeys:
             #vkey must be a leaf\leaf-list\choice in container
@@ -494,7 +639,7 @@ class SonicYangExtMixin:
         # create a dict to map each key under primary key with a dict yang model.
         # This is done to improve performance of mapping from values of TABLEs in
         # config DB to leaf in YANG LIST.
-        leafDict = self._createLeafDict(model)
+        leafDict = self._createLeafDict(model, table)
 
         # list with name <NAME>_LIST should be removed,
         if "_LIST" in model['@name']:
@@ -559,7 +704,7 @@ class SonicYangExtMixin:
                 self._revXlateContainerInContainer(modelContainer, yang, config, table)
 
         ## Handle other leaves in container,
-        leafDict = self._createLeafDict(model)
+        leafDict = self._createLeafDict(model, table)
         for vKey in yang:
             #vkey must be a leaf\leaf-list\choice in container
             if leafDict.get(vKey):

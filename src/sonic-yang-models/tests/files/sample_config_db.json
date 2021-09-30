@@ -928,7 +928,7 @@
         },
         "AAA": {
             "authentication": {
-                "login": "local" 
+                "login": "local"
             }
         },
         "TACPLUS": {
@@ -1009,6 +1009,10 @@
                 "rrclient":"0"
             },
             "default|192.168.1.1": {
+                "local_asn": "65200",
+                "asn": "65100",
+                "name": "bgp peer 65100",
+                "ebgp_multihop_ttl": "3"
             }
         },
         "BGP_NEIGHBOR_AF": {
@@ -1043,7 +1047,7 @@
         },
         "PREFIX_SET": {
             "prefix1": {
-            } 
+            }
         },
         "PREFIX": {
             "prefix1|1|10.0.0.0/8|8..16": {
@@ -1093,5 +1097,5 @@
             "Error": "This Table is for testing, This Table does not have YANG models."
         }
     }
-    
+
 }
