@@ -102,7 +102,9 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
         self.lock[DEFAULT_NAMESPACE] = threading.Lock()
         self.num_changes[DEFAULT_NAMESPACE] = 0
 
-        swsscommon.SonicDBConfig.load_sonic_global_db_config()
+        if device_info.is_multi_npu():
+            swsscommon.SonicDBConfig.load_sonic_global_db_config()
+
         self.config_db_map = {}
         self.iptables_cmd_ns_prefix = {}
         self.config_db_map[DEFAULT_NAMESPACE] = swsscommon.ConfigDBConnector(use_unix_socket_path=True, namespace=DEFAULT_NAMESPACE)
