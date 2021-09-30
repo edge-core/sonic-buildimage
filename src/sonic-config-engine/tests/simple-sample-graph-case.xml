@@ -175,6 +175,11 @@
           <InAcl>SNMP_ACL</InAcl>
           <Type>SNMP</Type>
         </AclInterface>
+        <AclInterface>
+          <AttachTo>ERSPAN_DSCP</AttachTo>
+          <InAcl>Everflow_dscp</InAcl>
+          <Type>Everflow_dscp</Type>
+        </AclInterface>
       </AclInterfaces>
       <DownstreamSummaries/>
       <DownstreamSummarySet xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
