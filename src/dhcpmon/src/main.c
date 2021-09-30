@@ -16,6 +16,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 #include "dhcp_mon.h"
 #include "dhcp_devman.h"
@@ -41,7 +42,8 @@ static const uint32_t dhcpmon_default_unhealthy_max_count = 10;
 static void usage(const char *prog)
 {
     printf("Usage: %s -id <south interface> {-iu <north interface>}+ -im <mgmt interface> [-u <loopback interface>]"
-            "[-w <snapshot window in sec>] [-c <unhealthy status count>] [-s <snap length>] [-d]\n", prog);
+            "[-w <snapshot window in sec>] [-c <unhealthy status count>] [-s <snap length>]"
+            "[-4 <DHCPv4 monitoring>] [-6 <DHCPv4 monitoring>] [-d]\n", prog);
     printf("where\n");
     printf("\tsouth interface: is a vlan interface,\n");
     printf("\tnorth interface: is a TOR-T1 interface,\n");
@@ -112,6 +114,8 @@ int main(int argc, char **argv)
     int max_unhealthy_count = dhcpmon_default_unhealthy_max_count;
     size_t snaplen = dhcpmon_default_snaplen;
     int make_daemon = 0;
+    bool dhcpv4_enabled = false;
+    bool dhcpv6_enabled = false;
 
     setlogmask(LOG_UPTO(LOG_INFO));
     openlog(basename(argv[0]), LOG_CONS | LOG_PID | LOG_NDELAY, LOG_DAEMON);
@@ -155,6 +159,14 @@ int main(int argc, char **argv)
             max_unhealthy_count = atoi(argv[i + 1]);
             i += 2;
             break;
+        case '4':
+            dhcpv4_enabled = true;
+            i++;
+            break;
+        case '6':
+            dhcpv6_enabled = true;
+            i++;
+            break;
         default:
             fprintf(stderr, "%s: %c: Unknown option\n", basename(argv[0]), argv[i][1]);
             usage(basename(argv[0]));
@@ -165,7 +177,11 @@ int main(int argc, char **argv)
         dhcpmon_daemonize();
     }
 
-    if ((dhcp_mon_init(window_interval, max_unhealthy_count) == 0) &&
+    if (!dhcpv4_enabled && !dhcpv6_enabled) {
+        dhcpv4_enabled = true;
+    }
+
+    if ((dhcp_mon_init(window_interval, max_unhealthy_count, dhcpv4_enabled, dhcpv6_enabled) == 0) &&
         (dhcp_mon_start(snaplen) == 0)) {
 
         rv = EXIT_SUCCESS;
