@@ -102,6 +102,7 @@ class TestCfgGenCaseInsensitive(TestCase):
                    'Vlan1000': {
                        'alias': 'ab1',
                        'dhcp_servers': ['192.0.0.1', '192.0.0.2'],
+                       'dhcpv6_servers': ['fc02:2000::1', 'fc02:2000::2'],
                        'vlanid': '1000',
                        'mac': '00:aa:bb:cc:dd:ee',
                        'members': ['Ethernet8']
@@ -109,6 +110,7 @@ class TestCfgGenCaseInsensitive(TestCase):
                    'Vlan2000': {
                        'alias': 'ab2',
                        'dhcp_servers': ['192.0.0.1'],
+                       'dhcpv6_servers': ['fc02:2000::3', 'fc02:2000::4'],
                        'members': ['Ethernet4'],
                        'vlanid': '2000'
                        }
@@ -357,3 +359,27 @@ class TestCfgGenCaseInsensitive(TestCase):
             utils.to_dict(output.strip()),
             expected_table
         )
+    
+    def test_dhcp_table(self):
+        argument = '-m "' + self.sample_graph + '" -p "' + self.port_config + '" -v "DHCP_RELAY"'
+        expected = {
+                   'Vlan1000': {
+                       'dhcpv6_servers': [
+                           "fc02:2000::1",
+                           "fc02:2000::2"
+                       ]
+                    },
+                    'Vlan2000': {
+                       'dhcpv6_servers': [
+                           "fc02:2000::3",
+                           "fc02:2000::4"
+                       ]
+                    }
+        }
+        output = self.run_script(argument)
+        self.assertEqual(
+            utils.to_dict(output.strip()),
+            expected
+        )
+        
+    
