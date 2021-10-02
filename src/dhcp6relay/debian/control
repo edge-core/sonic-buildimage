@@ -1,0 +1,17 @@
+Source: sonic-dhcp6relay
+Section: devel
+Priority: optional
+Maintainer: Kelly Yeh <kellyyeh@microsoft.com>
+Build-Depends: debhelper (>= 8.0.0),
+               dh-systemd
+Standards-Version: 3.9.3
+Homepage: https://github.com/Azure/sonic-buildimage
+XS-Go-Import-Path: github.com/Azure/sonic-buildimage
+
+Package: sonic-dhcp6relay
+Architecture: any
+Built-Using: ${misc:Built-Using}
+Depends: libevent-2.1-6,
+        libboost-thread1.71.0,
+        libboost-system1.71.0
+Description: SONiC DHCPv6 Relay
