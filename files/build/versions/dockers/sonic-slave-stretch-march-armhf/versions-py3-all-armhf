@@ -29,7 +29,7 @@ pytz==2016.7
 pyxdg==0.25
 pyyaml==5.3.1
 redis==3.5.3
-regex==2021.9.24
+regex==2021.9.30
 roman==2.0.0
 secretstorage==2.3.1
 six==1.10.0

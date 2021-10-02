@@ -51,7 +51,7 @@ cpp==4:6.3.0-4
 cpp-6==6.3.0-18+deb9u1
 cppcheck==1.76.1-1
 cron==3.0pl1-128+deb9u1
-curl==7.52.1-5+deb9u15
+curl==7.52.1-5+deb9u16
 dbus==1.10.32-0+deb9u1
 dconf-gsettings-backend==0.26.0-2+b1
 dconf-service==0.26.0-2+b1
@@ -165,7 +165,7 @@ junit==3.8.2-8
 junit4==4.12-4+deb9u1
 kernel-wedge==2.96
 kmod==23-2
-krb5-locales==1.15-1+deb9u2
+krb5-locales==1.15-1+deb9u1
 less==481-2.1
 libalgorithm-diff-perl==1.19.03-1
 libalgorithm-diff-xs-perl==0.04-4+b2
@@ -357,10 +357,10 @@ libcryptsetup4==2:1.7.3-4
 libcups2==2.2.1-8+deb9u6
 libcupsfilters1==1.11.6-3+deb9u1
 libcupsimage2==2.2.1-8+deb9u6
-libcurl3==7.52.1-5+deb9u15
-libcurl3-gnutls==7.52.1-5+deb9u15
-libcurl3-nss==7.52.1-5+deb9u15
-libcurl4-nss-dev==7.52.1-5+deb9u15
+libcurl3==7.52.1-5+deb9u16
+libcurl3-gnutls==7.52.1-5+deb9u16
+libcurl3-nss==7.52.1-5+deb9u16
+libcurl4-nss-dev==7.52.1-5+deb9u16
 libdaemon-dev==0.14-6
 libdaemon0==0.14-6
 libdata-optlist-perl==0.110-1
@@ -480,7 +480,7 @@ libgraphite2-3==1.3.10-1
 libgs9==9.26a~dfsg-0+deb9u7
 libgs9-common==9.26a~dfsg-0+deb9u7
 libgsasl7==1.8.0-8+b2
-libgssapi-krb5-2==1.15-1+deb9u2
+libgssapi-krb5-2==1.15-1+deb9u3
 libgstreamer1.0-0==1.10.4-1
 libgtest-dev==1.8.0-6
 libgtk-3-0==3.22.11-1
@@ -589,12 +589,12 @@ libjudydebian1==1.0.5-5
 libjxr-tools==1.1-6+b1
 libjxr0==1.1-6+b1
 libjzlib-java==1.1.3-1
-libk5crypto3==1.15-1+deb9u2
+libk5crypto3==1.15-1+deb9u3
 libkeyutils1==1.5.9-9
 libkmod2==23-2
 libkpathsea6==2016.20160513.41080.dfsg-2+deb9u1
-libkrb5-3==1.15-1+deb9u2
-libkrb5support0==1.15-1+deb9u2
+libkrb5-3==1.15-1+deb9u3
+libkrb5support0==1.15-1+deb9u3
 libksba8==1.3.5-2
 libkyotocabinet16v5==1.2.76-4.2+b1
 liblcms2-2==2.8-4+deb9u1
@@ -882,7 +882,7 @@ libsoup2.4-1==2.56.0-2+deb9u2
 libsqlite3-0==3.16.2-5+deb9u3
 libssh2-1==1.7.0-1+deb9u1
 libssl-dev==1.1.0l-1~deb9u4
-libssl1.0.2==1.0.2u-1~deb9u5
+libssl1.0.2==1.0.2u-1~deb9u6
 libssl1.1==1.1.0l-1~deb9u4
 libstax-java==1.2.0-3
 libstdc++-6-dev==6.3.0-18+deb9u1

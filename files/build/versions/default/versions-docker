@@ -1,7 +1,7 @@
 amd64:amd64/debian:buster==sha256:2d3ea67549bcf9c6fd5ae9323237def50d9ed39ca118217b4f4cc8df8541fa77
-amd64:amd64/debian:stretch==sha256:b8cd84cc98da3fdd374607006327f4fad25c3190ad0f713b28f3bee58cf01919
-amd64:debian:buster==sha256:f4b36c72b25772bd4f83e939d9b17dfe804977e455338d29266e845c106c7e02
-amd64:debian:stretch==sha256:69b306996a84b9d143876d47ad77643367f0329f67f3056a1da8125315a0d637
+amd64:amd64/debian:stretch==sha256:4cb539063de2a9b219a55efe892ba203be9bd5668cab78dad443b5ccfc751e6d
+amd64:debian:buster==sha256:9b0a8c03b28d4fd2b57cc44e4a3d06b01d4237c8874015a1749837d517c38612
+amd64:debian:stretch==sha256:c1274c24446b98394e1594ceefac1012e1b39b752586ca993fe3c3bea6f6d20f
 amd64:docker-base-buster==
 amd64:docker-base-stretch==
 amd64:docker-config-engine-buster==
