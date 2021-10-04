@@ -46,7 +46,7 @@ THERMAL_ZONE_GEARBOX_PATH = "/var/run/hw-management/thermal/mlxsw-gearbox{}/"
 THERMAL_ZONE_MODE = "thermal_zone_mode"
 THERMAL_ZONE_POLICY = "thermal_zone_policy"
 THERMAL_ZONE_TEMPERATURE = "thermal_zone_temp"
-THERMAL_ZONE_NORMAL_TEMPERATURE = "temp_trip_norm"
+THERMAL_ZONE_NORMAL_TEMPERATURE = "temp_trip_high"
 
 MODULE_TEMPERATURE_FAULT_PATH = "/var/run/hw-management/thermal/module{}_temp_fault"
 
