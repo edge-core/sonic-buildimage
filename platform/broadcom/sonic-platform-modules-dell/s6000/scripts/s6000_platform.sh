@@ -11,6 +11,57 @@
 # Short-Description: Setup S6000 board.
 ### END INIT INFO
 
+
+check_speed()
+{
+    if [ $1 == 1 ];
+    then
+        echo "2.5GT/s"
+    else
+        echo "5GT/s"
+    fi
+}
+
+change_pcie_speed()
+{
+    echo "---------Change Dell S6000 PCIe link speed-------"
+    dev_array=(00\:01.0 01\:00.0
+               00\:02.0 02\:00.0)
+
+    speed=$1
+
+    for dev in "${dev_array[@]}"
+    do
+        if [ ! -e "/sys/bus/pci/devices/$dev" ]; then
+            dev="0000:$dev"
+        fi
+
+        if [ ! -e "/sys/bus/pci/devices/$dev" ]; then
+            echo "Error: device $dev not found"
+            return
+        fi
+
+        lc=$(setpci -s $dev CAP_EXP+0c.L)
+        ls=$(setpci -s $dev CAP_EXP+12.W)
+        cur_speed=$(("0x$ls" & 0xF))
+
+        echo "Device:" $dev "Current link speed:" $(check_speed "$cur_speed")
+
+        lc2=$(setpci -s $dev CAP_EXP+30.L)
+        lc2n=$(printf "%08x" $((("0x$lc2" & 0xFFFFFFF0) | $speed)))
+
+        setpci -s $dev CAP_EXP+30.L=$lc2n
+        lc=$(setpci -s $dev CAP_EXP+10.L)
+        lcn=$(printf "%08x" $(("0x$lc" | 0x20)))
+
+        setpci -s $dev CAP_EXP+10.L=$lcn
+        sleep 0.1
+        ls=$(setpci -s $dev CAP_EXP+12.W)
+        link_sp=$(("0x$ls" & 0xF))
+        echo "New link speed:" $(check_speed "$link_sp")
+    done
+}
+
 add_i2c_devices() {
 
     echo 24c02 0x50 > /sys/class/i2c-adapter/i2c-1/new_device
@@ -77,9 +128,9 @@ switch_board_qsfp_lpmode() {
 install_python_api_package() {
     device="/usr/share/sonic/device"
     platform=$(/usr/local/bin/sonic-cfggen -H -v DEVICE_METADATA.localhost.platform)
-
     rv=$(pip install $device/$platform/sonic_platform-1.0-py2-none-any.whl)
     rv=$(pip3 install $device/$platform/sonic_platform-1.0-py3-none-any.whl)
+
 }
 
 remove_python_api_package() {
@@ -103,7 +154,8 @@ if [[ "$1" == "init" ]]; then
         modprobe i2c_mux_gpio
         modprobe dell_s6000_platform
         install_python_api_package
-
+        #Use 1 for PCIe Gen1, 2 for PCIe Gen2
+        change_pcie_speed 1
         add_i2c_devices
 
         /usr/local/bin/set-fan-speed 15000
