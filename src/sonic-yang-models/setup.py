@@ -53,6 +53,7 @@ setup(
                          './yang-models/sonic-device_neighbor.yang',
                          './yang-models/sonic-extension.yang',
                          './yang-models/sonic-flex_counter.yang',
+                         './yang-models/sonic-feature.yang',
                          './yang-models/sonic-interface.yang',
                          './yang-models/sonic-loopback-interface.yang',
                          './yang-models/sonic-mgmt_interface.yang',

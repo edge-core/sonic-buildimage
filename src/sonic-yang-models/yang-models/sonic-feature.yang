@@ -1,0 +1,72 @@
+module sonic-feature{
+
+    yang-version 1.1;
+
+    namespace "http://github.com/Azure/sonic-feature";
+    prefix feature;
+
+    import sonic-types {
+        prefix stypes;
+    }
+
+    description "Feature Table yang Module for SONiC OS";
+
+    container sonic-feature {
+
+        container FEATURE {
+
+            description "feature table in config_db.json";
+
+            list FEATURE_LIST {
+
+                key "name";
+
+                leaf name {
+                    description "feature name in Feature table";
+                    type string {
+                        length 1..32;
+                    }
+                }
+
+                leaf state {
+                    description "state of the feature";
+                    type stypes:feature_state;
+                    default "enabled";
+                }
+
+                leaf auto_restart {
+                    type stypes:feature_state;
+                    default "enabled";
+                }
+
+                leaf has_timer {
+                    description "This configuration identicates if there is
+                                timer associated to this feature";
+                    type boolean;
+                    default false;
+                }
+
+                leaf has_global_scope {
+                    description "This configuration identicates there will only one service
+                                spawned for the device";
+                    type boolean;
+                    default false;
+                }
+
+                leaf has_per_asic_scope {
+                    description "This configuration identicates there will only one service
+                                spawned per asic";
+                    type boolean;
+                    default false;
+                }
+
+                leaf high_mem_alert {
+                    description "This configuration controls the trigger to generate
+                                alert on high memory utilization";
+                    type stypes:feature_state;
+                    default "disabled";
+                }
+            }
+        }
+    }
+}

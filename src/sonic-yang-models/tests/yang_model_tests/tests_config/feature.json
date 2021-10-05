@@ -1,0 +1,66 @@
+{
+    "FEATURE_WITH_CORRECT_VALUES": {
+        "sonic-feature:sonic-feature": {
+            "sonic-feature:FEATURE": {
+                "FEATURE_LIST": [
+                    {
+                        "name": "database",
+                        "state": "always_enabled",
+                        "auto_restart": "always_enabled",
+                        "has_timer": "false",
+                        "has_global_scope": "true",
+                        "has_per_asic_scope": "true"
+                    },
+                    {
+                        "name": "swss",
+                        "state": "always_enabled",
+                        "auto_restart": "always_enabled",
+                        "has_timer": "false",
+                        "has_global_scope": "false",
+                        "has_per_asic_scope": "true"
+                    },
+                    {
+                        "name": "syncd",
+                        "state": "always_enabled",
+                        "auto_restart": "always_enabled",
+                        "has_timer": "false",
+                        "has_global_scope": "false",
+                        "has_per_asic_scope": "true"
+                    },
+                    {
+                        "name": "snmp",
+                        "state": "enabled",
+                        "auto_restart": "enabled",
+                        "has_timer": "false",
+                        "has_global_scope": "true",
+                        "has_per_asic_scope": "false"
+                    },
+                    {
+                        "name": "lldp",
+                        "state": "disabled",
+                        "auto_restart": "disabled",
+                        "has_timer": "false",
+                        "has_global_scope": "false",
+                        "has_per_asic_scope": "true"
+                    }
+                ]
+            }
+        }
+    },
+    "FEATURE_WITH_INVALID_STATE": {
+        "sonic-feature:sonic-feature": {
+            "sonic-feature:FEATURE": {
+                "FEATURE_LIST": [
+                    {
+                        "name": "database",
+                        "state": "dontcare",
+                        "auto_restart": "always_enabled",
+                        "has_timer": "false",
+                        "has_global_scope": "true",
+                        "has_per_asic_scope": "true"
+                    }
+                ]
+            }
+        }
+    }
+}

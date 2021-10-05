@@ -1,0 +1,10 @@
+{
+    "FEATURE_WITH_CORRECT_VALUES": {
+        "desc": "CONFIG FEATURE TABLE WITH ALL THE CORRECT VALUES"
+    },
+    "FEATURE_WITH_INVALID_STATE" : {
+        "desc": "Referring invalid feature state.",
+        "eStrKey": "Pattern",
+        "eStr": ["enabled|disabled|always_enabled"]
+    }
+}

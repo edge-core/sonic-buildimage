@@ -160,6 +160,11 @@ module sonic-types {
         }
     }
 
+    typedef feature_state {
+        type string {
+            pattern "enabled|disabled|always_enabled";
+        }
+    }
     typedef meter_type {
         type enumeration {
             enum packets; 

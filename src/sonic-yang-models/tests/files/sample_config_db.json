@@ -1088,8 +1088,57 @@
                 "mode": "TRANSMIT",
                 "enabled": "true"
             }
+        },
+        "FEATURE": {
+            "bgp": {
+                "auto_restart": "enabled",
+                "has_global_scope": "false",
+                "has_per_asic_scope": "true",
+                "has_timer": "false",
+                "high_mem_alert": "disabled",
+                "state": "enabled"
+            },
+            "database": {
+                "auto_restart": "always_enabled",
+                "has_global_scope": "true",
+                "has_per_asic_scope": "true",
+                "has_timer": "false",
+                "high_mem_alert": "disabled",
+                "state": "always_enabled"
+            },
+            "snmp": {
+                "auto_restart": "enabled",
+                "has_global_scope": "true",
+                "has_per_asic_scope": "false",
+                "has_timer": "true",
+                "high_mem_alert": "disabled",
+                "state": "enabled"
+            },
+            "swss": {
+                "auto_restart": "enabled",
+                "has_global_scope": "false",
+                "has_per_asic_scope": "true",
+                "has_timer": "false",
+                "high_mem_alert": "disabled",
+                "state": "enabled"
+            },
+            "syncd": {
+                "auto_restart": "enabled",
+                "has_global_scope": "false",
+                "has_per_asic_scope": "true",
+                "has_timer": "false",
+                "high_mem_alert": "disabled",
+                "state": "enabled"
+            },
+            "lldp": {
+                "auto_restart": "enabled",
+                "has_global_scope": "false",
+                "has_per_asic_scope": "true",
+                "has_timer": "false",
+                "high_mem_alert": "disabled",
+                "state": "enabled"
+            }
         }
-
     },
 
     "SAMPLE_CONFIG_DB_UNKNOWN": {
