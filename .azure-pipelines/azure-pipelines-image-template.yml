@@ -26,7 +26,7 @@ jobs:
     jobVariables: ${{ parameters.jobVariables }}
     preSteps:
       - template: cleanup.yml
-      - ${{ parameters. preSteps }}
+      - ${{ parameters.preSteps }}
       - script: |
           if [ -n "$(CACHE_MODE)" ] && echo $(PLATFORM_AZP) | grep -E -q "^(vs|broadcom|mellanox)$"; then
             CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=$(CACHE_MODE) SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/$(PLATFORM_AZP)"
@@ -36,6 +36,7 @@ jobs:
         displayName: "Set cache options"
       - checkout: self
         submodules: recursive
+        condition: eq(variables.SKIP_CHECKOUT, '') 
         displayName: 'Checkout code'
       - script: |
           BRANCH_NAME=$(Build.SourceBranchName)
