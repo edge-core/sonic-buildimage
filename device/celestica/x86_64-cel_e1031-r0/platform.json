@@ -92,9 +92,6 @@
         ],
         "sfps": [
             {
-                "name": "Ethernet54"
-            },
-            {
                 "name": "Ethernet0"
             },
             {
@@ -255,6 +252,9 @@
             },
             {
                 "name": "Ethernet53"
+            },
+            {
+                "name": "Ethernet54"
             }
         ]
     },
