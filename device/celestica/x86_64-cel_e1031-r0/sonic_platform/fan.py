@@ -145,7 +145,7 @@ class Fan(FanBase):
             0   : when PWM mode is use
             pwm : when pwm mode is not use
         """
-        target = NULL_VAL
+        target = 0
         if not self.is_psu_fan:
             chip = self.emc2305_chip_mapping[self.fan_index]
             device = chip['device']
