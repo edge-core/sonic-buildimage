@@ -330,3 +330,6 @@ RUN add-apt-repository \
 RUN apt-get update
 RUN apt-get install -y docker-ce=17.03.2~ce-0~debian-jessie
 RUN echo "DOCKER_OPTS=\"--experimental --storage-driver=vfs\"" >> /etc/default/docker
+
+# Remove the stale cert and refresh the certs
+RUN apt-get install --reinstall ca-certificates && rm -f /etc/ssl/certs/DST_Root_CA_X3.pem && rm -f /usr/share/ca-certificates/mozilla/DST_Root_CA_X3.crt && update-ca-certificates
