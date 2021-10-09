@@ -960,7 +960,7 @@ libtext-wrapi18n-perl==0.06-7.1
 libthai-data==0.1.26-1
 libthai0==0.1.26-1
 libtie-ixhash-perl==1.23-2
-libtiff5==4.0.8-2+deb9u6
+libtiff5==4.0.8-2+deb9u7
 libtimedate-perl==2.3000-2+deb9u1
 libtinfo-dev==6.0+20161126-1+deb9u2
 libtinyxml2-4==4.0.1-1

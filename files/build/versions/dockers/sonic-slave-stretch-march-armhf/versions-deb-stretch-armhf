@@ -165,7 +165,7 @@ junit==3.8.2-8
 junit4==4.12-4+deb9u1
 kernel-wedge==2.96
 kmod==23-2
-krb5-locales==1.15-1+deb9u1
+krb5-locales==1.15-1+deb9u3
 less==481-2.1
 libalgorithm-diff-perl==1.19.03-1
 libalgorithm-diff-xs-perl==0.04-4+b2
@@ -884,7 +884,7 @@ libsoup2.4-1==2.56.0-2+deb9u2
 libsqlite3-0==3.16.2-5+deb9u3
 libssh2-1==1.7.0-1+deb9u1
 libssl-dev==1.1.0l-1~deb9u4
-libssl1.0.2==1.0.2u-1~deb9u5
+libssl1.0.2==1.0.2u-1~deb9u6
 libssl1.1==1.1.0l-1~deb9u4
 libstax-java==1.2.0-3
 libstdc++-6-dev==6.3.0-18+deb9u1
@@ -917,7 +917,7 @@ libtext-wrapi18n-perl==0.06-7.1
 libthai-data==0.1.26-1
 libthai0==0.1.26-1
 libtie-ixhash-perl==1.23-2
-libtiff5==4.0.8-2+deb9u6
+libtiff5==4.0.8-2+deb9u7
 libtimedate-perl==2.3000-2+deb9u1
 libtinfo-dev==6.0+20161126-1+deb9u2
 libtinyxml2-4==4.0.1-1

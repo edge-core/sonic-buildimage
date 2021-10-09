@@ -36,7 +36,7 @@ gnupg-agent==2.1.18-8~deb9u4
 gnupg-l10n==2.1.18-8~deb9u4
 guile-2.0-libs==2.0.13+1-4
 hping3==3.a2.ds2-7
-krb5-locales==1.15-1+deb9u1
+krb5-locales==1.15-1+deb9u3
 less==481-2.1
 libalgorithm-diff-perl==1.19.03-1
 libalgorithm-diff-xs-perl==0.04-4+b2
