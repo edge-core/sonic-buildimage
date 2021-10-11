@@ -265,6 +265,10 @@ sudo rm -rf $FILESYSTEM_ROOT/$SONIC_UTILITIES_PY3_WHEEL_NAME
 sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/sonic-utilities-data_*.deb || \
     sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
 
+# Install customized bash version to patch bash plugin support.
+sudo dpkg --root=$FILESYSTEM_ROOT -i target/debs/bash_*.deb || \
+    sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
+
 # sonic-utilities-data installs bash-completion as a dependency. However, it is disabled by default
 # in bash.bashrc, so we copy a version of the file with it enabled here.
 sudo cp -f $IMAGE_CONFIGS/bash/bash.bashrc $FILESYSTEM_ROOT/etc/
