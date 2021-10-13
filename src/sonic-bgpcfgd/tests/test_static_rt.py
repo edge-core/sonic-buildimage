@@ -71,6 +71,60 @@ def test_set():
         ]
     )
 
+def test_set_nhportchannel():
+    mgr = constructor()
+    set_del_test(
+        mgr,
+        "SET",
+        ("10.1.0.0/24", {
+            "nexthop": "PortChannel0001",
+        }),
+        True,
+        [
+            "ip route 10.1.0.0/24 PortChannel0001",
+            "router bgp 65100",
+            " address-family ipv4",
+            "  redistribute static",
+            " address-family ipv6",
+            "  redistribute static"
+        ]
+    )
+
+    set_del_test(
+        mgr,
+        "DEL",
+        ("10.1.0.0/24",),
+        True,
+        [
+            "no ip route 10.1.0.0/24 PortChannel0001",
+            "router bgp 65100",
+            " address-family ipv4",
+            "  no redistribute static",
+            " address-family ipv6",
+            "  no redistribute static"
+        ]
+    )
+
+def test_set_several_nhportchannels():
+    mgr = constructor()
+    set_del_test(
+        mgr,
+        "SET",
+        ("10.1.0.0/24", {
+            "nexthop": "PortChannel0003,PortChannel0004",
+        }),
+        True,
+        [
+            "ip route 10.1.0.0/24 PortChannel0003",
+            "ip route 10.1.0.0/24 PortChannel0004",
+            "router bgp 65100",
+            " address-family ipv4",
+            "  redistribute static",
+            " address-family ipv6",
+            "  redistribute static"
+        ]
+    )
+
 def test_set_nhvrf():
     mgr = constructor()
     set_del_test(
