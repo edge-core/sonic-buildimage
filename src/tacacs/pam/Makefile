@@ -20,6 +20,9 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	git apply ../0004-management-vrf-support.patch
 	git apply ../0005-pam-Modify-parsing-of-IP-address-and-port-number-to-.patch
 	git apply ../0006-Add-support-for-source-ip-address.patch
+	git apply ../0007-Fix-memory-leak-when-parse-configuration.patch
+	git apply ../0008-Extract-tacacs-support-functions-into-library.patch
+	git apply ../0009-Add-setting-flag-for-authorization-and-accounting.patch
 
 	dpkg-buildpackage -rfakeroot -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS) --admindir $(SONIC_DPKG_ADMINDIR)
 	popd
