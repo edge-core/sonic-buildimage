@@ -1,7 +1,7 @@
 [Unit]
 Description=Reboot cause determination service
-Requires=rc-local.service
-After=rc-local.service
+Requires=rc-local.service database.service
+After=rc-local.service database.service
 
 [Service]
 Type=simple
