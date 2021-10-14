@@ -1,28 +1,25 @@
 {# Append DHCPv6 agents #}
-{% if VLAN and vlan_name in VLAN and 'dhcpv6_servers' in VLAN[vlan_name] and VLAN[vlan_name]['dhcpv6_servers']|length > 0 %}
-{% for dhcpv6_server in VLAN[vlan_name]['dhcpv6_servers'] %}
+{# Create a program entry for each DHCPv6 relay agent instance #}
+{% for vlan_name in vlan_list %}
+{% if VLAN and vlan_name in VLAN and 'dhcpv6_servers' in VLAN[vlan_name] %}
 {% if dhcpv6_server | ipv6 %}
 {% set _dummy = relay_for_ipv6.update({'flag': True}) %}
 {% endif %}
-{% endfor %}
 {% if relay_for_ipv6.flag %}
 {% set _dummy = relay_for_ipv6.update({'flag': False}) %}
+{% endif %}
 [program:isc-dhcpv6-relay-{{ vlan_name }}]
-{# We treat this VLAN as a downstream interface (-l), as we only want to listen for requests #}
+{# We treat this VLAN as a downstream interface (-id), as we only want to listen for requests #}
 command=/usr/sbin/dhcrelay -d -6 --name-alias-map-file /tmp/port-name-alias-map.txt -l {{ vlan_name }}
-{#- We treat all other interfaces as upstream interfaces (-u), as we only want to listen for replies #}
-{%- for dhcpv6_server in VLAN[vlan_name]['dhcpv6_servers'] %}
-{%- if dhcpv6_server | ipv6 %}
-{%- for (name, prefix) in VLAN_INTERFACE|pfx_filter %}
-{%- if prefix | ipv6 and name != vlan_name %} -u {{ dhcpv6_server }}%%{{ name }} {% endif -%}
+{#- We treat all other interfaces as upstream interfaces (-iu), as we only want to listen for replies #}
+{% for (name, prefix) in VLAN_INTERFACE %}
+{% if prefix | ipv6 and name != vlan_name %} -u {{ dhcpv6_server }}%%{{ name }} {% endif -%}
 {% endfor %}
-{% for (name, prefix) in INTERFACE|pfx_filter %}
-{% if prefix | ipv6 %} -u {{ dhcpv6_server }}%%{{ name }} {% endif -%}
+{% for (name, prefix) in INTERFACE %}
+{% if prefix | ipv4 %} -iu {{ name }}{% endif -%}
 {% endfor %}
-{% for (name, prefix) in PORTCHANNEL_INTERFACE|pfx_filter %}
-{% if prefix | ipv6 %} -u {{ dhcpv6_server }}%%{{ name }} {% endif -%}
-{% endfor %}
-{% endif -%}
+{% for (name, prefix) in PORTCHANNEL_INTERFACE %}
+{% if prefix | ipv4 %} -iu {{ name }} {% endif -%}
 {% endfor %}
 
 priority=3
@@ -30,8 +27,6 @@ autostart=false
 autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
-dependent_startup=true
-dependent_startup_wait_for=start:exited
 
 {% endif %}
-{% endif %}
+{% endfor %}
