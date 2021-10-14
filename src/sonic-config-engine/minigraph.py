@@ -224,6 +224,12 @@ def parse_dpg(dpg, hname):
                 vdhcpserver_list = vintfdhcpservers.split(';')
                 vlan_attributes['dhcp_servers'] = vdhcpserver_list
 
+            vintf_node = vintf.find(str(QName(ns, "Dhcpv6Relays")))
+            if vintf_node is not None and vintf_node.text is not None:
+                vintfdhcpservers = vintf_node.text
+                vdhcpserver_list = vintfdhcpservers.split(';')
+                vlan_attributes['dhcpv6_servers'] = vdhcpserver_list
+
             sonic_vlan_name = "Vlan%s" % vlanid
             if sonic_vlan_name != vintfname:
                 vlan_attributes['alias'] = vintfname
@@ -393,6 +399,7 @@ def parse_cpg(cpg, hname):
 def parse_meta(meta, hname):
     syslog_servers = []
     dhcp_servers = []
+    dhcpv6_servers = []
     ntp_servers = []
     tacacs_servers = []
     mgmt_routes = []
@@ -420,7 +427,7 @@ def parse_meta(meta, hname):
                     erspan_dst = value_group
                 elif name == "DeploymentId":
                     deployment_id = value
-    return syslog_servers, dhcp_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id
+    return syslog_servers, dhcp_servers, dhcpv6_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id
 
 
 def parse_linkmeta(meta, hname):
@@ -538,6 +545,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
     console_ports = {}
     syslog_servers = []
     dhcp_servers = []
+    dhcpv6_servers = []
     ntp_servers = []
     tacacs_servers = []
     mgmt_routes = []
@@ -569,7 +577,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
         elif child.tag == str(QName(ns, "UngDec")):
             (u_neighbors, u_devices, _, _, _, _, _, _) = parse_png(child, hostname)
         elif child.tag == str(QName(ns, "MetadataDeclaration")):
-            (syslog_servers, dhcp_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id) = parse_meta(child, hostname)
+            (syslog_servers, dhcp_servers, dhcpv6_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id) = parse_meta(child, hostname)
         elif child.tag == str(QName(ns, "LinkMetadataDeclaration")):
             linkmetas = parse_linkmeta(child, hostname)
         elif child.tag == str(QName(ns, "DeviceInfos")):
@@ -735,6 +743,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
     results['DEVICE_NEIGHBOR_METADATA'] = { key:devices[key] for key in devices if key.lower() != hostname.lower() }
     results['SYSLOG_SERVER'] = dict((item, {}) for item in syslog_servers)
     results['DHCP_SERVER'] = dict((item, {}) for item in dhcp_servers)
+    results['DHCPv6_SERVER'] = dict((item, {}) for item in dhcpv6_servers)
     results['NTP_SERVER'] = dict((item, {}) for item in ntp_servers)
     results['TACPLUS_SERVER'] = dict((item, {'priority': '1', 'tcp_port': '49'}) for item in tacacs_servers)
 
