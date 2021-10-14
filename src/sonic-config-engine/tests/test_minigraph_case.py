@@ -73,7 +73,7 @@ class TestCfgGenCaseInsensitive(TestCase):
     def test_minigraph_vlans(self):
         argument = '-m "' + self.sample_graph + '" -p "' + self.port_config + '" -v VLAN'
         output = self.run_script(argument)
-        self.assertEqual(output.strip(), "{'Vlan1000': {'alias': 'ab1', 'dhcp_servers': ['192.0.0.1', '192.0.0.2'], 'vlanid': '1000'}}")
+        self.assertEqual(output.strip(), "{'Vlan1000': {'alias': 'ab1', 'dhcp_servers': ['192.0.0.1', '192.0.0.2'], 'vlanid': '1000', 'dhcpv6_servers': ['fc02:2000::1', 'fc02:2000::2']}}")
 
     def test_minigraph_vlan_members(self):
         argument = '-m "' + self.sample_graph + '" -p "' + self.port_config + '" -v VLAN_MEMBER'
@@ -140,27 +140,11 @@ class TestCfgGenCaseInsensitive(TestCase):
         )
     
     def test_dhcp_table(self):
-        argument = '-m "' + self.sample_graph + '" -p "' + self.port_config + '" -v "DHCP"'
-        expected = {
-                   'Vlan1000': {
-                       'dhcpv6_servers': [
-                           "fc02:2000::1",
-                           "fc02:2000::2"
-                       ],
-                       'dhcpv6_option|rfc6939_support': 'true'
-                    },
-                   'Vlan2000': {
-                       'dhcpv6_servers': [
-                           "fc02:2000::3",
-                           "fc02:2000::4"
-                       ],
-                       'dhcpv6_option|rfc6939_support': 'false'
-                    }
-        }
+        argument = '-m "' + self.sample_graph + '" -p "' + self.port_config + '" -v "DHCP_RELAY"'
         output = self.run_script(argument)
         self.assertEqual(
             output.strip(),
-            "{'Vlan1000': {'dhcpv6_option|rfc6939_support': 'true', 'dhcpv6_servers': ['fc02:2000::1', 'fc02:2000::2']}, 'Vlan2000': {'dhcpv6_option|rfc6939_support': 'false', 'dhcpv6_servers': ['fc02:2000::3', 'fc02:2000::4']}}" 
+            "{'Vlan1000': {'dhcpv6_servers': ['fc02:2000::1', 'fc02:2000::2']}}" 
         )
         
     
