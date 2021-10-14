@@ -2,10 +2,12 @@
 Description=Update CoPP configuration
 Requires=updategraph.service
 After=updategraph.service
+BindsTo=sonic.target
+After=sonic.target
 
 [Service]
 Type=oneshot
 ExecStart=/usr/bin/copp-config.sh
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=sonic.target
