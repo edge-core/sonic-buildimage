@@ -44,7 +44,7 @@ stages:
         path: s/platform/cisco-8000
         displayName: 'Checkout cisco-8000'
       - script: |
-          cisco_ref=(cat platform/checkout/cisco-8000.ini | grep '^ref=' | cut -d= -f2)
+          cisco_ref=$(cat platform/checkout/cisco-8000.ini | grep '^ref=' | cut -d= -f2)
           echo "The cisco 8000 release version is $cisco_ref"
           echo "##vso[task.setvariable variable=cisco.ref]$cisco_ref"
         displayName: 'Export cisco release version'
