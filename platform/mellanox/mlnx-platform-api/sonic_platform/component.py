@@ -405,10 +405,6 @@ class Component(ComponentBase):
             if name_list[1] != self.image_ext_name:
                 print("ERROR: Extend name of file {} is wrong. Image for {} should have extend name {}".format(image_path, self.name, self.image_ext_name))
                 return False
-        else:
-            if name_list[1]:
-                print("ERROR: Extend name of file {} is wrong. Image for {} shouldn't have extension".format(image_path, self.name))
-                return False
 
         return True
 
