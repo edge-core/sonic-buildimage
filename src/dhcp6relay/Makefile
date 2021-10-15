@@ -4,7 +4,7 @@ CP := cp
 MKDIR := mkdir
 CC := g++
 MV := mv
-LIBS := -levent -lhiredis -lswsscommon -pthread -lboost_thread -lboost_system -I $(PWD)/../sonic-swss-common/common
+LIBS := -levent -lswsscommon -pthread -lboost_thread -lboost_system -I $(PWD)/../sonic-swss-common/common
 CFLAGS  = -g -Wall -std=gnu11
 PWD := $(shell pwd)
 

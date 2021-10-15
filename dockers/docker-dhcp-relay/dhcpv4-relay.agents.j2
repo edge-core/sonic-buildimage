@@ -2,6 +2,13 @@
 {# Create a program entry for each DHCP relay agent instance #}
 {% for vlan_name in vlan_list %}
 {% if VLAN and vlan_name in VLAN and VLAN[vlan_name]['dhcp_servers'] %}
+{% for dhcp_server in VLAN[vlan_name]['dhcp_servers'] %}
+{% if dhcp_server | ipv4 %}
+{% set _dummy = relay_for_ipv4.update({'flag': True}) %}
+{% endif %}
+{% endfor %}
+{% if relay_for_ipv4.flag %}
+{% set _dummy = relay_for_ipv4.update({'flag': False}) %}
 [program:isc-dhcpv4-relay-{{ vlan_name }}]
 {# We treat this VLAN as a downstream interface (-id), as we only want to listen for requests #}
 command=/usr/sbin/dhcrelay -d -m discard -a %%h:%%p %%P --name-alias-map-file /tmp/port-name-alias-map.txt -id {{ vlan_name }}
@@ -23,5 +30,6 @@ autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
 
+{% endif %}
 {% endif %}
 {% endfor %}

@@ -255,4 +255,15 @@ void dhcp_device_print_status(dhcp_device_context_t *context, dhcp_counters_type
  * @return none
  */
 void dhcp_device_active_types(bool dhcpv4, bool dhcpv6);
+
+/**
+ * @code dhcp_device_init_mgmt_intf(mgmt_intf_context);
+ *
+ * @brief assign context address of mgmt interface
+ *
+ * @param mgmt_intf_context       MGMT interface context struct address
+ *
+ * @return none
+ */
+void dhcp_device_init_mgmt_intf(dhcp_device_context_t *mgmt_intf_context);
 #endif /* DHCP_DEVICE_H_ */

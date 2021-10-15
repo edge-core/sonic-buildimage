@@ -7,7 +7,7 @@ rm -f /var/run/rsyslogd.pid
 supervisorctl start rsyslogd
 
 # If our supervisor config has entries in the "isc-dhcp-relay" group...
-if [ $(supervisorctl status | grep -c "^isc-dhcp-relay:") -gt 0 ]; then
+if [ $(supervisorctl status | grep -c "^dhcp-relay:") -gt 0 ]; then
     # Wait for all interfaces to come up and be assigned IPv4 addresses before
     # starting the DHCP relay agent(s). If an interface the relay should listen
     # on is down, the relay agent will not start. If an interface the relay
@@ -17,7 +17,7 @@ if [ $(supervisorctl status | grep -c "^isc-dhcp-relay:") -gt 0 ]; then
     /usr/bin/wait_for_intf.sh
 
     # Start all DHCP relay agent(s)
-    supervisorctl start isc-dhcp-relay:*
+    supervisorctl start dhcp-relay:*
 fi
 
 # If our supervisor config has entries in the "dhcpmon" group...

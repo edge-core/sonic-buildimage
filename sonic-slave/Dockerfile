@@ -242,7 +242,11 @@ RUN apt-get update && apt-get install -y \
         qemu-kvm \
         libvirt-bin \
 # For DHCP Monitor tool
-        libevent-dev
+        libevent-dev \
+# For DHCPv6 Relay
+        libboost-dev \
+        libboost-thread1.55.0 \
+        libboost-system1.55.0
 
 # For linux build
 RUN apt-get -y build-dep linux

@@ -342,4 +342,4 @@ class TestCfgGen(TestCase):
             output.strip(),
             "{'Vlan1000': {'dhcpv6_servers': ['fc02:2000::1', 'fc02:2000::2']}}"
         )
-        
+

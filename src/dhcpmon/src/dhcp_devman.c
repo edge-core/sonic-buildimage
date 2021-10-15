@@ -148,6 +148,9 @@ int dhcp_devman_add_intf(const char *name, char intf_type)
             strncpy(agg_dev->intf + sizeof(AGG_DEV_PREFIX) - 1, name, sizeof(agg_dev->intf) - sizeof(AGG_DEV_PREFIX));
             agg_dev->intf[sizeof(agg_dev->intf) - 1] = '\0';
         }
+        else if (rv == 0 && intf_type == 'm') {
+            dhcp_device_init_mgmt_intf(dev->dev_context);
+        }
 
         LIST_INSERT_HEAD(&intfs, dev, entry);
     }

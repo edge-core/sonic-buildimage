@@ -11,7 +11,7 @@ XS-Go-Import-Path: github.com/Azure/sonic-buildimage
 Package: sonic-dhcp6relay
 Architecture: any
 Built-Using: ${misc:Built-Using}
-Depends: libevent-2.1-6,
-        libboost-thread1.71.0,
-        libboost-system1.71.0
+Depends: libevent-2.0-5,
+        libboost-thread1.55.0,
+        libboost-system1.55.0
 Description: SONiC DHCPv6 Relay

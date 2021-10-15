@@ -45,11 +45,11 @@ struct relay_config {
     int filter;
     sockaddr_in6 link_address;
     swss::DBConnector *db;
+    swss::Table *table;
     std::string interface;
     std::vector<std::string> servers;
     std::vector<sockaddr_in6> servers_sock;
     bool is_option_79;
-    std::string counterVlan;
 };
 
 
@@ -91,7 +91,7 @@ struct linklayer_addr_option  {
 int sock_open(int ifindex, const struct sock_fprog *fprog);
 
 /**
- * @code                prepare_socket(int *local_sock, arg_config *config);
+ * @code                prepare_socket(int *local_sock);
  * 
  * @brief               prepare L3 socket for sending
  *
@@ -101,10 +101,10 @@ int sock_open(int ifindex, const struct sock_fprog *fprog);
  *
  * @return              none
  */
-void prepare_socket(int *local_sock, relay_config *config, int index);
+void prepare_socket(int *local_sock);
 
 /**
- * @code                        prepare_relay_config(relay_config *interface_config, int local_sock, int filter);
+ * @code                        prepare_relay_config(relay_config *interface_config, int *local_sock, int filter);
  * 
  * @brief                       prepare for specified relay interface config: server and link address
  *
@@ -114,7 +114,7 @@ void prepare_socket(int *local_sock, relay_config *config, int index);
  *
  * @return                      none
  */
-void prepare_relay_config(relay_config *interface_config, int local_sock, int filter);
+void prepare_relay_config(relay_config *interface_config, int *local_sock, int filter);
 
 /**
  * @code                relay_forward(uint8_t *buffer, const struct dhcpv6_msg *msg, uint16_t msg_length);
@@ -211,16 +211,16 @@ void signal_callback(evutil_socket_t fd, short event, void *arg);
 void shutdown();
 
 /**
- * @code                void initialize_counter(swss::DBConnector *db, std::string counterVlan);
+ * @code                void initialize_counter(swss::Table *table, std::string counterVlan)
  *
  * @brief               initialize the counter by each Vlan
  *
- * @param swss::DBConnector *db     state_db connector
+ * @param swss::Table *table     DHCPv6_COUNTER table
  * @param counterVlan   counter table with interface name
  * 
  * @return              none
  */
-void initialize_counter(swss::DBConnector *db, std::string counterVlan);
+void initialize_counter(swss::Table *table, std::string counterVlan);
 
 /**
  * @code                void update_counter(swss::DBConnector *db, std::string CounterVlan, uint8_t msg_type);
