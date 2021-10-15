@@ -351,7 +351,7 @@ class Component(ComponentBase):
             return FW_AUTO_ERR_IMAGE
 
         if boot_action in default_supported_boot:
-            if self.install_firmware(image_path):
+            if self.update_firmware(image_path):
                 # Successful update
                 return FW_AUTO_INSTALLED
             # Failed update (unknown reason)
@@ -520,7 +520,7 @@ class ComponentSSD(Component):
             return FW_AUTO_ERR_UKNOWN
 
         if boot_action in supported_boot:
-            if self.install_firmware(image_path):
+            if self.update_firmware(image_path):
                 # Successful update
                 return FW_AUTO_INSTALLED
             # Failed update (unknown reason)
