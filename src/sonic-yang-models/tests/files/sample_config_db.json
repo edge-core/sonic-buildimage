@@ -1138,6 +1138,56 @@
                 "high_mem_alert": "disabled",
                 "state": "enabled"
             }
+        },
+
+        "SCHEDULER": {
+            "TEST@0": {
+                "cbs": "256",
+                "cir": "1250000",
+                "meter_type": "bytes",
+                "pbs": "1024",
+                "pir": "25000000",
+                "type": "DWRR",
+                "weight": "20"
+            },
+
+            "TEST@1": {
+                "cbs": "1024",
+                "cir": "1280000",
+                "meter_type": "bytes",
+                "pbs": "2048",
+                "pir": "2560000",
+                "type": "STRICT"
+            }
+        },
+
+        "WRED_PROFILE": {
+            "Wred1": {
+                "ecn": "ecn_all",
+                "green_drop_probability": "50",
+                "green_max_threshold": "2048000",
+                "green_min_threshold": "1024000",
+                "wred_green_enable": "true",
+                "yellow_drop_probability": "50",
+                "yellow_max_threshold": "2048000",
+                "yellow_min_threshold": "1024000",
+                "wred_yellow_enable": "true",
+                "red_drop_probability": "50",
+                "red_max_threshold": "2048000",
+                "red_min_threshold": "1024000",
+                "wred_red_enable": "true"
+            }
+        },
+
+        "QUEUE": {
+            "Ethernet0|0": {
+                "scheduler": "TEST@0",
+                "wred_profile": "Wred1"
+            },
+            "Ethernet0|1": {
+                "scheduler": "TEST@1",
+                "wred_profile": "Wred1"
+            }
         }
     },
 
@@ -1146,5 +1196,4 @@
             "Error": "This Table is for testing, This Table does not have YANG models."
         }
     }
-
 }
