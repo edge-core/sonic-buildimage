@@ -20,7 +20,6 @@
         <Multihop>1</Multihop>
         <HoldTime>180</HoldTime>
         <KeepAliveTime>60</KeepAliveTime>
-        <VoQChassisInternal>false</VoQChassisInternal>
       </BGPSession>
       <BGPSession>
         <StartRouter>switch-t0</StartRouter>
@@ -68,7 +67,7 @@
         <Multihop>1</Multihop>
         <HoldTime>180</HoldTime>
         <KeepAliveTime>60</KeepAliveTime>
-        <VoQChassisInternal>true</VoQChassisInternal>
+        <ChassisInternal>voq</ChassisInternal>
       </BGPSession>
     </PeeringSessions>
     <Routers xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">

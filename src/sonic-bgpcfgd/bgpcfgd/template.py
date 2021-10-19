@@ -75,7 +75,7 @@ class TemplateFabric(object):
             return None
         else:
             try:
-                prefix = netaddr.IPNetwork(str(value))
+                prefix = netaddr.IPNetwork(str(value).strip())
             except (netaddr.NotRegisteredError, netaddr.AddrFormatError, netaddr.AddrConversionError):
                 return None
         return str(getattr(prefix, attr))

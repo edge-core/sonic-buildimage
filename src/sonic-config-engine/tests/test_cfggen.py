@@ -32,6 +32,8 @@ class TestCfgGen(TestCase):
         self.sample_resource_graph = os.path.join(self.test_dir, 'sample-graph-resource-type.xml')
         self.sample_subintf_graph = os.path.join(self.test_dir, 'sample-graph-subintf.xml')
         self.voq_port_config = os.path.join(self.test_dir, 'voq-sample-port-config.ini')
+        self.packet_chassis_graph = os.path.join(self.test_dir, 'sample-chassis-packet-lc-graph.xml')
+        self.packet_chassis_port_ini = os.path.join(self.test_dir, 'sample-chassis-packet-lc-port-config.ini')
         # To ensure that mock config_db data is used for unit-test cases
         os.environ["CFGGEN_UNIT_TESTING"] = "2"
 
@@ -831,5 +833,28 @@ class TestCfgGen(TestCase):
                 "'Vlan2000': {'dhcpv6_servers': ['fc02:2000::3', 'fc02:2000::4']}}"
             )
         )
-        
-        
+       
+    def test_minigraph_bgp_packet_chassis_peer(self):
+        argument = '-m "' + self.packet_chassis_graph + '" -p "' + self.packet_chassis_port_ini + '" -n "' + "asic1" + '" -v "BGP_INTERNAL_NEIGHBOR[\'8.0.0.1\']"'
+        output = self.run_script(argument)
+        self.assertEqual(
+            utils.to_dict(output.strip()),
+            utils.to_dict("{'rrclient': 0, 'name': 'str2-8808-lc0-ASIC1', 'local_addr': '8.0.0.3', 'nhopself': 0, 'admin_status': 'up', 'holdtime': '0', 'asn': '65100', 'keepalive': '0'}")
+        )
+
+    def test_minigraph_bgp_packet_chassis_static_route(self):
+        argument = '-m "' + self.packet_chassis_graph + '" -p "' + self.packet_chassis_port_ini + '" -n "' + "asic1" + '" -v "STATIC_ROUTE"'
+        output = self.run_script(argument)
+        self.assertEqual(
+            utils.to_dict(output.strip()),
+            utils.to_dict("{'8.0.0.1/32': {'nexthop': '192.168.1.2,192.168.2.2'}}")
+        )
+
+    def test_minigraph_bgp_packet_chassis_vlan_subintf(self):
+        argument = '-m "' + self.packet_chassis_graph + '" -p "' + self.packet_chassis_port_ini + '" -n "' + "asic1" + '" -v "VLAN_SUB_INTERFACE"'
+        output = self.run_script(argument)
+        self.assertEqual(
+            utils.to_dict(output.strip()),
+            utils.to_dict("{('PortChannel32.2', '192.168.1.4/24'): {}, 'PortChannel32.2': {'admin_status': 'up'}, ('PortChannel33.2', '192.168.2.4/24'): {}, 'PortChannel33.2': {'admin_status': 'up'}}")
+        )
+

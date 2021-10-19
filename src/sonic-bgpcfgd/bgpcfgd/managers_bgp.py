@@ -125,6 +125,9 @@ class BGPPeerMgrBase(Manager):
         if self.check_deployment_id:
             deps.append(("CONFIG_DB", swsscommon.CFG_DEVICE_METADATA_TABLE_NAME, "localhost/deployment_id"))
 
+        if self.peer_type == 'internal':    
+            deps.append(("CONFIG_DB", swsscommon.CFG_LOOPBACK_INTERFACE_TABLE_NAME, "Loopback4096"))
+
         super(BGPPeerMgrBase, self).__init__(
             common_objs,
             deps,
@@ -160,11 +163,17 @@ class BGPPeerMgrBase(Manager):
         print_data = vrf, nbr, data
         bgp_asn = self.directory.get_slot("CONFIG_DB", swsscommon.CFG_DEVICE_METADATA_TABLE_NAME)["localhost"]["bgp_asn"]
         #
-        lo0_ipv4 = self.get_lo0_ipv4()
+        lo0_ipv4 = self.get_lo_ipv4("Loopback0|")
         if lo0_ipv4 is None:
             log_warn("Loopback0 ipv4 address is not presented yet")
             return False
         #
+        if self.peer_type == 'internal':
+            lo4096_ipv4 = self.get_lo_ipv4("Loopback4096|")
+            if lo4096_ipv4 is None:
+                log_warn("Loopback4096 ipv4 address is not presented yet")
+                return False
+
         if "local_addr" not in data:
             log_warn("Peer %s. Missing attribute 'local_addr'" % nbr)
         else:
@@ -299,15 +308,15 @@ class BGPPeerMgrBase(Manager):
         self.cfg_mgr.push(cmd)
         return True
 
-    def get_lo0_ipv4(self):
+    def get_lo_ipv4(self, loopback_str):
         """
         Extract Loopback0 ipv4 address from the Directory
         :return: ipv4 address for Loopback0, None if nothing found
         """
         loopback0_ipv4 = None
         for loopback in self.directory.get_slot("CONFIG_DB", swsscommon.CFG_LOOPBACK_INTERFACE_TABLE_NAME).keys():
-            if loopback.startswith("Loopback0|"):
-                loopback0_prefix_str = loopback.replace("Loopback0|", "")
+            if loopback.startswith(loopback_str):
+                loopback0_prefix_str = loopback.replace(loopback_str, "")
                 loopback0_ip_str = loopback0_prefix_str[:loopback0_prefix_str.find('/')]
                 if TemplateFabric.is_ipv4(loopback0_ip_str):
                     loopback0_ipv4 = loopback0_ip_str
