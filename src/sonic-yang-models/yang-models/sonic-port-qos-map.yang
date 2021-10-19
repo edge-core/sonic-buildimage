@@ -1,0 +1,110 @@
+module sonic-port-qos-map {
+
+    yang-version 1.1;
+
+    namespace "http://github.com/Azure/sonic-port-qos-map";
+
+    prefix pqm;
+
+    import sonic-port {
+        prefix prt;
+    }
+
+    import sonic-tc-priority-group-map {
+        prefix tpgm;
+    }
+
+    import sonic-tc-queue-map {
+        prefix tqm;
+    }
+
+    import sonic-pfc-priority-queue-map {
+        prefix ppqm;
+    }
+
+    import sonic-pfc-priority-priority-group-map {
+        prefix pppgm;
+    }
+
+    import sonic-dscp-tc-map {
+        prefix dtm;
+    }
+
+    import sonic-dot1p-tc-map {
+        prefix dot1ptm;
+    }
+
+    organization
+        "SONiC";
+
+    contact
+        "SONiC";
+
+    description
+        "SONIC PORT_QOS_MAP";
+
+    revision 2019-05-15 {
+        description
+            "Initial revision.";
+    }
+
+    container sonic-port-qos-map {
+
+        container PORT_QOS_MAP {
+            list PORT_QOS_MAP_LIST {
+
+                key "ifname";
+
+                leaf ifname {
+                     type leafref {
+                         path "/prt:sonic-port/prt:PORT/prt:PORT_LIST/prt:name";
+                     }
+                     description
+                        "Reference of port on which QOS MAPS to be configured.";
+                }
+
+                leaf tc_to_pg_map {
+                    type leafref {
+                        path "/tpgm:sonic-tc-priority-group-map/tpgm:TC_TO_PRIORITY_GROUP_MAP/tpgm:TC_TO_PRIORITY_GROUP_MAP_LIST/tpgm:name";
+                    }
+                }
+
+                leaf tc_to_queue_map {
+                    type leafref {
+                        path "/tqm:sonic-tc-queue-map/tqm:TC_TO_QUEUE_MAP/tqm:TC_TO_QUEUE_MAP_LIST/tqm:name";
+                    }
+                }
+
+                leaf pfc_enable {
+                    type string {
+                        pattern "[0-7](,[0-7])?";
+                    }
+                }
+
+                leaf pfc_to_queue_map {
+                    type leafref {
+                        path "/ppqm:sonic-pfc-priority-queue-map/ppqm:MAP_PFC_PRIORITY_TO_QUEUE/ppqm:MAP_PFC_PRIORITY_TO_QUEUE_LIST/ppqm:name";
+                    }
+                }
+               
+                leaf pfc_to_pg_map {
+                    type leafref {
+                        path "/pppgm:sonic-pfc-priority-priority-group-map/pppgm:PFC_PRIORITY_TO_PRIORITY_GROUP_MAP/pppgm:PFC_PRIORITY_TO_PRIORITY_GROUP_MAP_LIST/pppgm:name";
+                    }
+                }
+
+                leaf dscp_to_tc_map {
+                    type leafref {
+                        path "/dtm:sonic-dscp-tc-map/dtm:DSCP_TO_TC_MAP/dtm:DSCP_TO_TC_MAP_LIST/dtm:name";
+                    }
+                }
+
+                leaf dot1p_to_tc_map {
+                    type leafref {
+                        path "/dot1ptm:sonic-dot1p-tc-map/dot1ptm:DOT1P_TO_TC_MAP/dot1ptm:DOT1P_TO_TC_MAP_LIST/dot1ptm:name";
+                    }
+                }
+            }
+        }
+    }
+}
