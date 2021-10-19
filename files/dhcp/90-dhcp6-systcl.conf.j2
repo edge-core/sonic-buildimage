@@ -5,3 +5,5 @@ net.ipv6.conf.eth0.accept_ra = 0
 net.ipv6.conf.eth0.accept_ra_defrtr = 1
 net.ipv6.conf.eth0.accept_ra = 1
 {% endif %}
+{# socket memory allocation size = (default value)20480 * 2 #}
+net.core.optmem_max=40960

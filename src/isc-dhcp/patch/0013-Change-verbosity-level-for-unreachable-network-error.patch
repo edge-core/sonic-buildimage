@@ -1,0 +1,20 @@
+diff --git a/common/socket.c b/common/socket.c
+index da9f501..fa2a49c 100644
+--- a/common/socket.c
++++ b/common/socket.c
+@@ -975,7 +975,14 @@ ssize_t send_packet6(struct interface_info *interface,
+ 
+ 	result = sendmsg(interface->wfdesc, &m, 0);
+ 	if (result < 0) {
+-		log_error("send_packet6: %m");
++		/* 'Network is unreachable' should log as INFO,
++		since not all up link interfaces have routes to the DHCP servers. */
++		if (errno == 101) {
++			log_info("send_packet6: %m");
++		}
++		else {
++			log_error("send_packet6: %m");
++		}
+ 	}
+ 	return result;
+ }
