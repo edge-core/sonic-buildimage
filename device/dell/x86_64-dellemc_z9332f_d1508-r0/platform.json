@@ -19,6 +19,12 @@
             },
             {
                 "name": "Switch CPLD 2"
+            },
+            {
+                "name": "SSD"
+            },
+            {
+                "name": "PCIe"
             }
         ],
         "fans": [
