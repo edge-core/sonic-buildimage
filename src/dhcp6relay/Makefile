@@ -4,8 +4,8 @@ CP := cp
 MKDIR := mkdir
 CC := g++
 MV := mv
-LIBS := -levent -lhiredis -lswsscommon -pthread -lboost_thread -lboost_system -I $(PWD)/../sonic-swss-common/common
-CFLAGS  = -g -Wall -std=gnu11
+LIBS := -levent -lhiredis -lswsscommon -pthread -lboost_thread -lboost_system
+CFLAGS  = -g -Wall -std=c++17 -fPIC -I $(PWD)/../sonic-swss-common/common
 PWD := $(shell pwd)
 
 ifneq ($(MAKECMDGOALS),clean)
