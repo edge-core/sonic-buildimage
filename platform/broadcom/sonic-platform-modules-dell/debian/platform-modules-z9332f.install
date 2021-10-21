@@ -9,3 +9,4 @@ common/platform_reboot usr/share/sonic/device/x86_64-dellemc_z9332f_d1508-r0
 common/pcisysfs.py usr/bin
 common/fw-updater usr/local/bin
 common/onie_mode_set usr/local/bin
+common/onie_stage_fwpkg usr/local/bin
