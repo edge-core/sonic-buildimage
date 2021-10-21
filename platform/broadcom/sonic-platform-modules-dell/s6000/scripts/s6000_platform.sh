@@ -148,6 +148,10 @@ remove_python_api_package() {
 # read SONiC immutable variables
 [ -f /etc/sonic/sonic-environment ] && . /etc/sonic/sonic-environment
 
+if [ ! -e /etc/sonic/sfp_lock ]; then
+    touch /etc/sonic/sfp_lock
+fi
+
 if [[ "$1" == "init" ]]; then
         depmod -a
         modprobe nvram
