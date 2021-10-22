@@ -30,3 +30,7 @@ wait_until_iface_ready PortChannel03 10.0.0.60/31
 wait_until_iface_ready PortChannel04 10.0.0.62/31
 wait_until_iface_ready PortChannel01 10.0.0.56/31
 
+# Wait 10 seconds for the rest of interfaces to get added/populated.
+# dhcrelay listens on each of the interfaces (in addition to the port
+# channels and vlan interfaces)
+sleep 10
