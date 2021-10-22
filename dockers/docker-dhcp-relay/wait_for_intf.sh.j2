@@ -38,3 +38,8 @@ wait_until_iface_ready {{ name }} {{ prefix }}
 wait_until_iface_ready {{ name }} {{ prefix }}
 {% endif %}
 {% endfor %}
+
+# Wait 10 seconds for the rest of interfaces to get added/populated.
+# dhcrelay listens on each of the interfaces (in addition to the port
+# channels and vlan interfaces)
+sleep 10
