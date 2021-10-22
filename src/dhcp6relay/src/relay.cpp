@@ -593,7 +593,6 @@ void relay_relay_forw(int sock, const uint8_t *msg, int32_t len, const ip6_hdr *
 void callback(evutil_socket_t fd, short event, void *arg) {
     struct relay_config *config = (struct relay_config *)(arg);
     static uint8_t message_buffer[4096];
-    std::string counterVlan = counter_table;
     int32_t len = recv(config->filter, message_buffer, 4096, 0);
     if (len <= 0) {
         syslog(LOG_WARNING, "recv: Failed to receive data at filter socket: %s\n", strerror(errno));
@@ -601,7 +600,7 @@ void callback(evutil_socket_t fd, short event, void *arg) {
     }
 
     char* ptr = (char *)message_buffer;
-    const uint8_t *current_position = (uint8_t *)ptr; 
+    const uint8_t *current_position = (uint8_t *)ptr;
     const uint8_t *tmp = NULL;
     const uint8_t *prev = NULL;
 
@@ -623,7 +622,7 @@ void callback(evutil_socket_t fd, short event, void *arg) {
             prev = current_position;
         }
         while (ext_header->ip6e_nxt != IPPROTO_UDP);
-    }  
+    }
 
     auto udp_header = parse_udp(current_position, &tmp);
     current_position = tmp;
