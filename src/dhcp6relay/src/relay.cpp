@@ -515,14 +515,16 @@ void relay_client(int sock, const uint8_t *msg, int32_t len, const ip6_hdr *ip_h
 void callback(evutil_socket_t fd, short event, void *arg) {
     struct relay_config *config = (struct relay_config *)arg;
     static uint8_t message_buffer[4096];
-    uint32_t len = recv(config->filter, message_buffer, 4096, 0);
+    int32_t len = recv(config->filter, message_buffer, 4096, 0);
     if (len <= 0) {
-        syslog(LOG_WARNING, "recv: Failed to receive data at filter socket\n");
+        syslog(LOG_WARNING, "recv: Failed to receive data at filter socket: %s\n", strerror(errno));
+        return;
     }
 
     char* ptr = (char *)message_buffer;
-    const uint8_t *current_position = (uint8_t *)ptr; 
+    const uint8_t *current_position = (uint8_t *)ptr;
     const uint8_t *tmp = NULL;
+    const uint8_t *prev = NULL;
 
     auto ether_header = parse_ether_frame(current_position, &tmp);
     current_position = tmp;
@@ -530,14 +532,19 @@ void callback(evutil_socket_t fd, short event, void *arg) {
     auto ip_header = parse_ip6_hdr(current_position, &tmp);
     current_position = tmp;
 
+    prev = current_position;
     if (ip_header->ip6_ctlun.ip6_un1.ip6_un1_nxt != IPPROTO_UDP) {
         const struct ip6_ext *ext_header;
         do {
             ext_header = (const struct ip6_ext *)current_position;
             current_position += ext_header->ip6e_len;
+            if((current_position == prev) || (current_position >= (uint8_t *)ptr + sizeof(message_buffer))) {
+                return;
+            }
+            prev = current_position;
         }
         while (ext_header->ip6e_nxt != IPPROTO_UDP);
-    }  
+    }
 
     auto udp_header = parse_udp(current_position, &tmp);
     current_position = tmp;
