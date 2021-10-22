@@ -5,6 +5,8 @@ SHELL = /bin/bash
 MAIN_TARGET = bash_$(BASH_VERSION_FULL)_$(CONFIGURED_ARCH).deb
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
+	# Quilt store applied patches info in .pc folder, if this folder not clean, quilt can't apply patches correctly.
+	rm -rf .pc
 	rm -rf bash-$(BASH_VERSION_MAJOR)
 
 	dget -u https://launchpad.net/debian/+archive/primary/+sourcefiles/bash/$(BASH_VERSION_FULL)/bash_$(BASH_VERSION_FULL).dsc
