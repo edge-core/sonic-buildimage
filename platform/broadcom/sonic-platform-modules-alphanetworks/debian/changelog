@@ -1,6 +1,6 @@
 sonic-alphanetworks-platform-modules (1.0) unstable; urgency=low
 
-  * Add support for SNH60A0-320FV2 and SNH60B0_640F.
+  * Add support for SNH60A0-320FV2, SNH60B0_640F, and SNJ60D0_320F.
 
- -- Alphanetworks <Jun_Tseng@alphanetworks.com>  Tue, 19 Dec 2017 09:35:58 +0800
+ -- Alphanetworks <Jun_Tseng@alphanetworks.com>  Tue, 14 Sep 2021 14:50:08 +0800
 

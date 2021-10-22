@@ -15,3 +15,8 @@ Architecture: amd64
 Depends: linux-image-4.19.0-12-2-amd64-unsigned
 Description: kernel modules for platform devices such as fan, led, sfp
 
+Package: sonic-platform-alphanetworks-snj60d0-320f
+Architecture: amd64
+Depends: linux-image-4.19.0-12-2-amd64-unsigned
+Description: kernel modules for platform devices such as fan, led, sfp
+
