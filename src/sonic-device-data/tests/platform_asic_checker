@@ -29,11 +29,16 @@ def main(argv):
 
     # Load all the valid platforms as strings
     platforms = set()
-    with os.scandir(args.platform_folder) as it:
+    it = os.scandir(args.platform_folder)
+    try:
         for entry in it:
             p = entry.path
             if entry.is_dir() and os.path.isfile(os.path.join(p, 'rules.mk')):
                 platforms.add(entry.name)
+    finally:
+        # os.scandir().close() is only available in python 3.6 and later
+        if callable(getattr(it, "close", None)):
+            it.close()
     # dnx platform is special broadcom platform, add it manually
     platforms.add('broadcom-dnx')
 
