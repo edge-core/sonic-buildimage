@@ -1,7 +1,1 @@
-{
-        "skip_ledd": true,
-        "skip_xcvrd": true,
-        "skip_psud": true,
-        "skip_pcied": true,
-        "skip_thermalctld": true
-}
+../x86_64-mlnx_msn2700_simx-r0/pmon_daemon_control.json

@@ -41,6 +41,7 @@ dependent_startup=true
 dependent_startup_wait_for=rsyslogd:running
 {% endif %}
 
+{% if not skip_chassis_db_init %}
 [program:chassis_db_init]
 command=/usr/local/bin/chassis_db_init
 priority=3
@@ -51,6 +52,7 @@ stderr_logfile=syslog
 startsecs=10
 dependent_startup=true
 dependent_startup_wait_for=rsyslogd:running
+{% endif %}
 
 {% if not skip_sensors and HAVE_SENSORS_CONF == 1 %}
 [program:lm-sensors]
