@@ -53,7 +53,7 @@ if [[ "$SYSTEM_WARM_START" == "true" ]] || [[ "$SWSS_WARM_START" == "true" ]]; t
   fi
 fi
 
-SWSSCONFIG_ARGS="00-copp.config.json ipinip.json ports.json switch.json "
+SWSSCONFIG_ARGS="00-copp.config.json 01-copp-dhcpv6.config.json ipinip.json ports.json switch.json "
 
 for file in $SWSSCONFIG_ARGS; do
     swssconfig /etc/swss/config.d/$file
