@@ -76,6 +76,18 @@ function stop_control_plane_assistant()
     fi
 }
 
+function load_dhcpv6_copp_rules()
+{
+    KEY="COPP_TABLE:trap.group.dhcpv6"
+    RULE=$(redis-cli -n 0 keys "${KEY}")
+    if [[ -n "${RULE}" ]]; then
+        debug "${KEY} already exist, skip reloading..."
+    else
+        debug "${KEY} not found, reloading..."
+        docker exec -t swss swssconfig /etc/swss/config.d/01-copp-dhcpv6.config.json
+    fi
+}
+
 
 wait_for_database_service
 
@@ -107,4 +119,5 @@ if [[ -n "${list}" ]]; then
     debug "Some components didn't finish reconcile: ${list} ..."
 fi
 
+load_dhcpv6_copp_rules
 finalize_warm_boot
