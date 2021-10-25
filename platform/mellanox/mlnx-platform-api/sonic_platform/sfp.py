@@ -36,6 +36,7 @@ try:
     from sonic_platform_base.sonic_sfp.qsfp_dd import qsfp_dd_Dom
     from sonic_py_common.logger import Logger
     from . import utils
+    from .device_data import DeviceDataManager
 
 except ImportError as e:
     raise ImportError (str(e) + "- required module not found")
@@ -354,9 +355,25 @@ class SdkHandleContext(object):
         deinitialize_sdk_handle(self.sdk_handle)
 
 
+class SfpCapability:
+    def __init__(self):
+        self.dom_supported = False
+        self.dom_temp_supported = False
+        self.dom_volt_supported = False
+        self.dom_rx_power_supported = False
+        self.dom_tx_bias_power_supported = False
+        self.dom_tx_power_supported = False
+        self.dom_tx_disable_supported = False
+        self.dom_thresholds_supported = False
+        self.dom_rx_tx_power_bias_supported = False
+        self.calibration = 0
+        self.qsfp_page3_available = False
+        self.second_application_list = False
+        
+
 class SFP(SfpBase):
     """Platform-specific SFP class"""
-
+    shared_sdk_handle = None
     SFP_MLNX_ERROR_DESCRIPTION_LONGRANGE_NON_MLNX_CABLE = 'Long range for non-Mellanox cable or module'
     SFP_MLNX_ERROR_DESCRIPTION_ENFORCE_PART_NUMBER_LIST = 'Enforce part number list'
     SFP_MLNX_ERROR_DESCRIPTION_PMD_TYPE_NOT_ENABLED = 'PMD type not enabled'
@@ -369,24 +386,240 @@ class SFP(SfpBase):
     SFP_MLNX_ERROR_BIT_PCIE_POWER_SLOT_EXCEEDED = 0x00080000
     SFP_MLNX_ERROR_BIT_RESERVED = 0x80000000
 
-    def __init__(self, sfp_index, sfp_type, sdk_handle_getter, platform):
-        SfpBase.__init__(self)
-        self.index = sfp_index + 1
-        self.sfp_eeprom_path = "qsfp{}".format(self.index)
-        self.sfp_status_path = "qsfp{}_status".format(self.index)
-        self._detect_sfp_type(sfp_type)
-        self.dom_tx_disable_supported = False
-        self._dom_capability_detect()
-        self.sdk_handle_getter = sdk_handle_getter
-        self.sdk_index = sfp_index
+    def __init__(self, sfp_index, slot_id=0, linecard_port_count=0, lc_name=None):
+        super(SFP, self).__init__()
+        
+        if slot_id == 0: # For non-modular chassis
+            self.index = sfp_index + 1
+            self.sdk_index = sfp_index
 
-        # initialize SFP thermal list
-        from .thermal import initialize_sfp_thermals
-        initialize_sfp_thermals(platform, self._thermal_list, self.index)
+            from .thermal import initialize_sfp_thermal
+            self._thermal_list = initialize_sfp_thermal(sfp_index)
+        else: # For modular chassis
+            # (slot_id % MAX_LC_CONUNT - 1) * MAX_PORT_COUNT + (sfp_index + 1) * (MAX_PORT_COUNT / LC_PORT_COUNT)
+            max_linecard_count = DeviceDataManager.get_linecard_count()
+            max_linecard_port_count = DeviceDataManager.get_linecard_max_port_count()
+            self.index = (slot_id % max_linecard_count - 1) * max_linecard_port_count + sfp_index * (max_linecard_port_count / linecard_port_count) + 1
+            self.sdk_index = sfp_index
 
+            from .thermal import initialize_linecard_sfp_thermal
+            self._thermal_list = initialize_linecard_sfp_thermal(lc_name, slot_id, sfp_index)
+
+        self.slot_id = slot_id
+        self._sfp_type = None
+        self._sfp_capability = None
+        
     @property
     def sdk_handle(self):
-        return self.sdk_handle_getter()
+        if not SFP.shared_sdk_handle:
+            SFP.shared_sdk_handle = initialize_sdk_handle()
+            if not SFP.shared_sdk_handle:
+                logger.log_error('Failed to open SDK handle')
+        return SFP.shared_sdk_handle
+
+    @property
+    def sfp_type(self):
+        if not self._sfp_type:
+            eeprom_raw = []
+            eeprom_raw = self._read_eeprom_specific_bytes(XCVR_TYPE_OFFSET, XCVR_TYPE_WIDTH)
+            if eeprom_raw:
+                if eeprom_raw[0] in SFP_TYPE_CODE_LIST:
+                    self._sfp_type = SFP_TYPE
+                elif eeprom_raw[0] in QSFP_TYPE_CODE_LIST:
+                    self._sfp_type = QSFP_TYPE
+                elif eeprom_raw[0] in QSFP_DD_TYPE_CODE_LIST:
+                    self._sfp_type = QSFP_DD_TYPE
+
+            # we don't regonize this identifier value, treat the xSFP module as the default type
+        if not self._sfp_type:
+            raise RuntimeError("Failed to detect SFP type for SFP {}".format(self.index))
+        else:
+            return self._sfp_type
+
+    def _dom_capability_detect(self):
+        if self._sfp_capability:
+            return
+
+        self._sfp_capability = SfpCapability()
+        if not self.get_presence():
+            return
+
+        if self.sfp_type == QSFP_TYPE:
+            self._sfp_capability.calibration = 1
+            sfpi_obj = sff8436InterfaceId()
+            if sfpi_obj is None:
+                self._sfp_capability.dom_supported = False
+            offset = 128
+
+            # QSFP capability byte parse, through this byte can know whether it support tx_power or not.
+            # TODO: in the future when decided to migrate to support SFF-8636 instead of SFF-8436,
+            # need to add more code for determining the capability and version compliance
+            # in SFF-8636 dom capability definitions evolving with the versions.
+            qsfp_dom_capability_raw = self._read_eeprom_specific_bytes((offset + XCVR_DOM_CAPABILITY_OFFSET), XCVR_DOM_CAPABILITY_WIDTH)
+            if qsfp_dom_capability_raw is not None:
+                qsfp_version_compliance_raw = self._read_eeprom_specific_bytes(QSFP_VERSION_COMPLIANCE_OFFSET, QSFP_VERSION_COMPLIANCE_WIDTH)
+                qsfp_version_compliance = int(qsfp_version_compliance_raw[0], 16)
+                dom_capability = sfpi_obj.parse_dom_capability(qsfp_dom_capability_raw, 0)
+                if qsfp_version_compliance >= 0x08:
+                    self._sfp_capability.dom_temp_supported = dom_capability['data']['Temp_support']['value'] == 'On'
+                    self._sfp_capability.dom_volt_supported = dom_capability['data']['Voltage_support']['value'] == 'On'
+                    self._sfp_capability.dom_rx_power_supported = dom_capability['data']['Rx_power_support']['value'] == 'On'
+                    self._sfp_capability.dom_tx_power_supported = dom_capability['data']['Tx_power_support']['value'] == 'On'
+                else:
+                    self._sfp_capability.dom_temp_supported = True
+                    self._sfp_capability.dom_volt_supported = True
+                    self._sfp_capability.dom_rx_power_supported = dom_capability['data']['Rx_power_support']['value'] == 'On'
+                    self._sfp_capability.dom_tx_power_supported = True
+                self._sfp_capability.dom_supported = True
+                self._sfp_capability.calibration = 1
+                sfpd_obj = sff8436Dom()
+                if sfpd_obj is None:
+                    return None
+                qsfp_option_value_raw = self._read_eeprom_specific_bytes(QSFP_OPTION_VALUE_OFFSET, QSFP_OPTION_VALUE_WIDTH)
+                if qsfp_option_value_raw is not None:
+                    optional_capability = sfpd_obj.parse_option_params(qsfp_option_value_raw, 0)
+                    self._sfp_capability.dom_tx_disable_supported = optional_capability['data']['TxDisable']['value'] == 'On'
+                dom_status_indicator = sfpd_obj.parse_dom_status_indicator(qsfp_version_compliance_raw, 1)
+                self._sfp_capability.qsfp_page3_available = dom_status_indicator['data']['FlatMem']['value'] == 'Off'
+            else:
+                self._sfp_capability.dom_supported = False
+                self._sfp_capability.dom_temp_supported = False
+                self._sfp_capability.dom_volt_supported = False
+                self._sfp_capability.dom_rx_power_supported = False
+                self._sfp_capability.dom_tx_power_supported = False
+                self._sfp_capability.calibration = 0
+                self._sfp_capability.qsfp_page3_available = False
+
+        elif self.sfp_type == QSFP_DD_TYPE:
+            sfpi_obj = qsfp_dd_InterfaceId()
+            if sfpi_obj is None:
+                self._sfp_capability.dom_supported = False
+
+            offset = 0
+            # two types of QSFP-DD cable types supported: Copper and Optical.
+            qsfp_dom_capability_raw = self._read_eeprom_specific_bytes((offset + XCVR_DOM_CAPABILITY_OFFSET_QSFP_DD), XCVR_DOM_CAPABILITY_WIDTH_QSFP_DD)
+            if qsfp_dom_capability_raw is not None:
+                self._sfp_capability.dom_temp_supported = True
+                self._sfp_capability.dom_volt_supported = True
+                dom_capability = sfpi_obj.parse_dom_capability(qsfp_dom_capability_raw, 0)
+                if dom_capability['data']['Flat_MEM']['value'] == 'Off':
+                    self._sfp_capability.dom_supported = True
+                    self._sfp_capability.second_application_list = True
+                    self._sfp_capability.dom_rx_power_supported = True
+                    self._sfp_capability.dom_tx_power_supported = True
+                    self._sfp_capability.dom_tx_bias_power_supported = True
+                    self._sfp_capability.dom_thresholds_supported = True
+                    self._sfp_capability.dom_rx_tx_power_bias_supported = True
+                else:
+                    self._sfp_capability.dom_supported = False
+                    self._sfp_capability.second_application_list = False
+                    self._sfp_capability.dom_rx_power_supported = False
+                    self._sfp_capability.dom_tx_power_supported = False
+                    self._sfp_capability.dom_tx_bias_power_supported = False
+                    self._sfp_capability.dom_thresholds_supported = False
+                    self._sfp_capability.dom_rx_tx_power_bias_supported = False
+            else:
+                self._sfp_capability.dom_supported = False
+                self._sfp_capability.dom_temp_supported = False
+                self._sfp_capability.dom_volt_supported = False
+                self._sfp_capability.dom_rx_power_supported = False
+                self._sfp_capability.dom_tx_power_supported = False
+                self._sfp_capability.dom_tx_bias_power_supported = False
+                self._sfp_capability.dom_thresholds_supported = False
+                self._sfp_capability.dom_rx_tx_power_bias_supported = False
+
+        elif self.sfp_type == SFP_TYPE:
+            sfpi_obj = sff8472InterfaceId()
+            if sfpi_obj is None:
+                return None
+            sfp_dom_capability_raw = self._read_eeprom_specific_bytes(XCVR_DOM_CAPABILITY_OFFSET, XCVR_DOM_CAPABILITY_WIDTH)
+            if sfp_dom_capability_raw is not None:
+                sfp_dom_capability = int(sfp_dom_capability_raw[0], 16)
+                self._sfp_capability.dom_supported = (sfp_dom_capability & 0x40 != 0)
+                if self._sfp_capability.dom_supported:
+                    self._sfp_capability.dom_temp_supported = True
+                    self._sfp_capability.dom_volt_supported = True
+                    self._sfp_capability.dom_rx_power_supported = True
+                    self._sfp_capability.dom_tx_power_supported = True
+                    if sfp_dom_capability & 0x20 != 0:
+                        self._sfp_capability.calibration = 1
+                    elif sfp_dom_capability & 0x10 != 0:
+                        self._sfp_capability.calibration = 2
+                    else:
+                        self._sfp_capability.calibration = 0
+                else:
+                    self._sfp_capability.dom_temp_supported = False
+                    self._sfp_capability.dom_volt_supported = False
+                    self._sfp_capability.dom_rx_power_supported = False
+                    self._sfp_capability.dom_tx_power_supported = False
+                    self._sfp_capability.calibration = 0
+                self._sfp_capability.dom_tx_disable_supported = (int(sfp_dom_capability_raw[1], 16) & 0x40 != 0)
+        else:
+            self._sfp_capability.dom_supported = False
+            self._sfp_capability.dom_temp_supported = False
+            self._sfp_capability.dom_volt_supported = False
+            self._sfp_capability.dom_rx_power_supported = False
+            self._sfp_capability.dom_tx_power_supported = False
+
+    @property
+    @utils.pre_initialize(_dom_capability_detect)
+    def dom_supported(self):
+        return self._sfp_capability.dom_supported
+
+    @property
+    @utils.pre_initialize(_dom_capability_detect)
+    def dom_temp_supported(self):
+        return self._sfp_capability.dom_temp_supported
+
+    @property
+    @utils.pre_initialize(_dom_capability_detect)
+    def dom_volt_supported(self):
+        return self._sfp_capability.dom_volt_supported
+
+    @property
+    @utils.pre_initialize(_dom_capability_detect)
+    def dom_rx_power_supported(self):
+        return self._sfp_capability.dom_rx_power_supported
+
+    @property
+    @utils.pre_initialize(_dom_capability_detect)
+    def dom_tx_power_supported(self):
+        return self._sfp_capability.dom_tx_power_supported
+
+    @property
+    @utils.pre_initialize(_dom_capability_detect)
+    def calibration(self):
+        return self._sfp_capability.calibration
+
+    @property
+    @utils.pre_initialize(_dom_capability_detect)
+    def dom_tx_bias_power_supported(self):
+        return self._sfp_capability.dom_tx_bias_power_supported
+
+    @property
+    @utils.pre_initialize(_dom_capability_detect)
+    def dom_tx_disable_supported(self):
+        return self._sfp_capability.dom_tx_disable_supported
+
+    @property
+    @utils.pre_initialize(_dom_capability_detect)
+    def qsfp_page3_available(self):
+        return self._sfp_capability.qsfp_page3_available
+
+    @property
+    @utils.pre_initialize(_dom_capability_detect)
+    def second_application_list(self):
+        return self._sfp_capability.second_application_list
+
+    @property
+    @utils.pre_initialize(_dom_capability_detect)
+    def dom_thresholds_supported(self):
+        return self._sfp_capability.dom_thresholds_supported
+
+    @property
+    @utils.pre_initialize(_dom_capability_detect)
+    def dom_rx_tx_power_bias_supported(self):
+        return self._sfp_capability.dom_rx_tx_power_bias_supported
 
     def reinit(self):
 
@@ -394,8 +627,8 @@ class SFP(SfpBase):
         Re-initialize this SFP object when a new SFP inserted
         :return: 
         """
-        self._detect_sfp_type(self.sfp_type)
-        self._dom_capability_detect()
+        self._sfp_type = None
+        self._sfp_capability = None
 
     def get_presence(self):
         """
@@ -423,11 +656,10 @@ class SFP(SfpBase):
 
         return presence
 
-
     # Read out any bytes from any offset
     def _read_eeprom_specific_bytes(self, offset, num_bytes):
         eeprom_raw = []
-        ethtool_cmd = "ethtool -m sfp{} hex on offset {} length {} 2>/dev/null".format(self.index, offset, num_bytes)
+        ethtool_cmd = "ethtool -m sfp{} hex on offset {} length {}".format(self.index, offset, num_bytes)
         try:
             output = subprocess.check_output(ethtool_cmd, 
                                              shell=True, 
@@ -442,158 +674,6 @@ class SFP(SfpBase):
             return None
 
         return eeprom_raw
-
-
-    def _detect_sfp_type(self, sfp_type):
-        eeprom_raw = []
-        eeprom_raw = self._read_eeprom_specific_bytes(XCVR_TYPE_OFFSET, XCVR_TYPE_WIDTH)
-        if eeprom_raw:
-            if eeprom_raw[0] in SFP_TYPE_CODE_LIST:
-                self.sfp_type = SFP_TYPE
-            elif eeprom_raw[0] in QSFP_TYPE_CODE_LIST:
-                self.sfp_type = QSFP_TYPE
-            elif eeprom_raw[0] in QSFP_DD_TYPE_CODE_LIST:
-                self.sfp_type = QSFP_DD_TYPE
-            else:
-                # we don't regonize this identifier value, treat the xSFP module as the default type
-                self.sfp_type = sfp_type
-                logger.log_info("Identifier value of {} module {} is {} which isn't regonized and will be treated as default type ({})".format(
-                    sfp_type, self.index, eeprom_raw[0], sfp_type
-                ))
-        else:
-            # eeprom_raw being None indicates the module is not present.
-            # in this case we treat it as the default type according to the SKU
-            self.sfp_type = sfp_type
-
-
-    def _dom_capability_detect(self):
-        if not self.get_presence():
-            self.dom_supported = False
-            self.dom_temp_supported = False
-            self.dom_volt_supported = False
-            self.dom_rx_power_supported = False
-            self.dom_tx_bias_power_supported = False
-            self.dom_tx_power_supported = False
-            self.calibration = 0
-            return
-
-        if self.sfp_type == QSFP_TYPE:
-            self.calibration = 1
-            sfpi_obj = sff8436InterfaceId()
-            if sfpi_obj is None:
-                self.dom_supported = False
-            offset = 128
-
-            # QSFP capability byte parse, through this byte can know whether it support tx_power or not.
-            # TODO: in the future when decided to migrate to support SFF-8636 instead of SFF-8436,
-            # need to add more code for determining the capability and version compliance
-            # in SFF-8636 dom capability definitions evolving with the versions.
-            qsfp_dom_capability_raw = self._read_eeprom_specific_bytes((offset + XCVR_DOM_CAPABILITY_OFFSET), XCVR_DOM_CAPABILITY_WIDTH)
-            if qsfp_dom_capability_raw is not None:
-                qsfp_version_compliance_raw = self._read_eeprom_specific_bytes(QSFP_VERSION_COMPLIANCE_OFFSET, QSFP_VERSION_COMPLIANCE_WIDTH)
-                qsfp_version_compliance = int(qsfp_version_compliance_raw[0], 16)
-                dom_capability = sfpi_obj.parse_dom_capability(qsfp_dom_capability_raw, 0)
-                if qsfp_version_compliance >= 0x08:
-                    self.dom_temp_supported = dom_capability['data']['Temp_support']['value'] == 'On'
-                    self.dom_volt_supported = dom_capability['data']['Voltage_support']['value'] == 'On'
-                    self.dom_rx_power_supported = dom_capability['data']['Rx_power_support']['value'] == 'On'
-                    self.dom_tx_power_supported = dom_capability['data']['Tx_power_support']['value'] == 'On'
-                else:
-                    self.dom_temp_supported = True
-                    self.dom_volt_supported = True
-                    self.dom_rx_power_supported = dom_capability['data']['Rx_power_support']['value'] == 'On'
-                    self.dom_tx_power_supported = True
-                self.dom_supported = True
-                self.calibration = 1
-                sfpd_obj = sff8436Dom()
-                if sfpd_obj is None:
-                    return None
-                qsfp_option_value_raw = self._read_eeprom_specific_bytes(QSFP_OPTION_VALUE_OFFSET, QSFP_OPTION_VALUE_WIDTH)
-                if qsfp_option_value_raw is not None:
-                    optional_capability = sfpd_obj.parse_option_params(qsfp_option_value_raw, 0)
-                    self.dom_tx_disable_supported = optional_capability['data']['TxDisable']['value'] == 'On'
-                dom_status_indicator = sfpd_obj.parse_dom_status_indicator(qsfp_version_compliance_raw, 1)
-                self.qsfp_page3_available = dom_status_indicator['data']['FlatMem']['value'] == 'Off'
-            else:
-                self.dom_supported = False
-                self.dom_temp_supported = False
-                self.dom_volt_supported = False
-                self.dom_rx_power_supported = False
-                self.dom_tx_power_supported = False
-                self.calibration = 0
-                self.qsfp_page3_available = False
-
-        elif self.sfp_type == QSFP_DD_TYPE:
-            sfpi_obj = qsfp_dd_InterfaceId()
-            if sfpi_obj is None:
-                self.dom_supported = False
-
-            offset = 0
-            # two types of QSFP-DD cable types supported: Copper and Optical.
-            qsfp_dom_capability_raw = self._read_eeprom_specific_bytes((offset + XCVR_DOM_CAPABILITY_OFFSET_QSFP_DD), XCVR_DOM_CAPABILITY_WIDTH_QSFP_DD)
-            if qsfp_dom_capability_raw is not None:
-                self.dom_temp_supported = True
-                self.dom_volt_supported = True
-                dom_capability = sfpi_obj.parse_dom_capability(qsfp_dom_capability_raw, 0)
-                if dom_capability['data']['Flat_MEM']['value'] == 'Off':
-                    self.dom_supported = True
-                    self.second_application_list = True
-                    self.dom_rx_power_supported = True
-                    self.dom_tx_power_supported = True
-                    self.dom_tx_bias_power_supported = True
-                    self.dom_thresholds_supported = True
-                    self.dom_rx_tx_power_bias_supported = True
-                else:
-                    self.dom_supported = False
-                    self.second_application_list = False
-                    self.dom_rx_power_supported = False
-                    self.dom_tx_power_supported = False
-                    self.dom_tx_bias_power_supported = False
-                    self.dom_thresholds_supported = False
-                    self.dom_rx_tx_power_bias_supported = False
-            else:
-                self.dom_supported = False
-                self.dom_temp_supported = False
-                self.dom_volt_supported = False
-                self.dom_rx_power_supported = False
-                self.dom_tx_power_supported = False
-                self.dom_tx_bias_power_supported = False
-                self.dom_thresholds_supported = False
-                self.dom_rx_tx_power_bias_supported = False
-
-        elif self.sfp_type == SFP_TYPE:
-            sfpi_obj = sff8472InterfaceId()
-            if sfpi_obj is None:
-                return None
-            sfp_dom_capability_raw = self._read_eeprom_specific_bytes(XCVR_DOM_CAPABILITY_OFFSET, XCVR_DOM_CAPABILITY_WIDTH)
-            if sfp_dom_capability_raw is not None:
-                sfp_dom_capability = int(sfp_dom_capability_raw[0], 16)
-                self.dom_supported = (sfp_dom_capability & 0x40 != 0)
-                if self.dom_supported:
-                    self.dom_temp_supported = True
-                    self.dom_volt_supported = True
-                    self.dom_rx_power_supported = True
-                    self.dom_tx_power_supported = True
-                    if sfp_dom_capability & 0x20 != 0:
-                        self.calibration = 1
-                    elif sfp_dom_capability & 0x10 != 0:
-                        self.calibration = 2
-                    else:
-                        self.calibration = 0
-                else:
-                    self.dom_temp_supported = False
-                    self.dom_volt_supported = False
-                    self.dom_rx_power_supported = False
-                    self.dom_tx_power_supported = False
-                    self.calibration = 0
-                self.dom_tx_disable_supported = (int(sfp_dom_capability_raw[1], 16) & 0x40 != 0)
-        else:
-            self.dom_supported = False
-            self.dom_temp_supported = False
-            self.dom_volt_supported = False
-            self.dom_rx_power_supported = False
-            self.dom_tx_power_supported = False
-
 
     def _convert_string_to_num(self, value_str):
         if "-inf" in value_str:
@@ -614,7 +694,6 @@ class SFP(SfpBase):
             return float(t_str)
         else:
             return 'N/A'
-
 
     def get_transceiver_info(self):
         """
@@ -706,9 +785,7 @@ class SFP(SfpBase):
         elif self.sfp_type == QSFP_TYPE:
             offset = 128
             vendor_rev_width = XCVR_HW_REV_WIDTH_QSFP
-            cable_length_width = XCVR_CABLE_LENGTH_WIDTH_QSFP
             interface_info_bulk_width = XCVR_INTFACE_BULK_WIDTH_QSFP
-            sfp_type = 'QSFP'
 
             sfpi_obj = sff8436InterfaceId()
             if sfpi_obj is None:
@@ -833,9 +910,7 @@ class SFP(SfpBase):
         else:
             offset = 0
             vendor_rev_width = XCVR_HW_REV_WIDTH_SFP
-            cable_length_width = XCVR_CABLE_LENGTH_WIDTH_SFP
             interface_info_bulk_width = XCVR_INTFACE_BULK_WIDTH_SFP
-            sfp_type = 'SFP'
 
             sfpi_obj = sff8472InterfaceId()
             if sfpi_obj is None:
@@ -1527,13 +1602,13 @@ class SFP(SfpBase):
 
 
     @classmethod
-    def mgmt_phy_mod_pwr_attr_get(cls, power_attr_type, sdk_handle, sdk_index):
+    def mgmt_phy_mod_pwr_attr_get(cls, power_attr_type, sdk_handle, sdk_index, slot_id):
         sx_mgmt_phy_mod_pwr_attr_p = new_sx_mgmt_phy_mod_pwr_attr_t_p()
         sx_mgmt_phy_mod_pwr_attr = sx_mgmt_phy_mod_pwr_attr_t()
         sx_mgmt_phy_mod_pwr_attr.power_attr_type = power_attr_type
         sx_mgmt_phy_mod_pwr_attr_t_p_assign(sx_mgmt_phy_mod_pwr_attr_p, sx_mgmt_phy_mod_pwr_attr)
         module_id_info = sx_mgmt_module_id_info_t()
-        module_id_info.slot_id = 0
+        module_id_info.slot_id = slot_id
         module_id_info.module_id = sdk_index
         try:
             rc = sx_mgmt_phy_module_pwr_attr_get(sdk_handle, module_id_info, sx_mgmt_phy_mod_pwr_attr_p)
@@ -1558,30 +1633,31 @@ class SFP(SfpBase):
             # call class level method to avoid initialize the whole sonic platform API
             get_lpmode_code = 'from sonic_platform import sfp;\n' \
                               'with sfp.SdkHandleContext() as sdk_handle:' \
-                              'print(sfp.SFP._get_lpmode(sdk_handle, {}))'.format(self.sdk_index)
+                              'print(sfp.SFP._get_lpmode(sdk_handle, {}, {}))'.format(self.sdk_index, self.slot_id)
             lpm_cmd = "docker exec pmon python3 -c \"{}\"".format(get_lpmode_code)
             try:
                 output = subprocess.check_output(lpm_cmd, shell=True, universal_newlines=True)
                 return 'True' in output
             except subprocess.CalledProcessError as e:
-                print("Error! Unable to get LPM for {}, rc = {}, err msg: {}".format(self.index, e.returncode, e.output))
+                print("Error! Unable to get LPM for {}, rc = {}, err msg: {}".format(self.sdk_index, e.returncode, e.output))
                 return False
         else:
-            return self._get_lpmode(self.sdk_handle, self.sdk_index)
+            return self._get_lpmode(self.sdk_handle, self.sdk_index, self.slot_id)
 
     
     @classmethod
-    def _get_lpmode(cls, sdk_handle, sdk_index):
+    def _get_lpmode(cls, sdk_handle, sdk_index, slot_id):
         """Class level method to get low power mode. 
 
         Args:
             sdk_handle: SDK handle
             sdk_index (integer): SDK port index
+            slot_id (integer): Slot ID
 
         Returns:
             [boolean]: True if low power mode is on else off
         """
-        _, oper_pwr_mode = cls.mgmt_phy_mod_pwr_attr_get(SX_MGMT_PHY_MOD_PWR_ATTR_PWR_MODE_E, sdk_handle, sdk_index)
+        _, oper_pwr_mode = cls.mgmt_phy_mod_pwr_attr_get(SX_MGMT_PHY_MOD_PWR_ATTR_PWR_MODE_E, sdk_handle, sdk_index, slot_id)
         return oper_pwr_mode == SX_MGMT_PHY_MOD_PWR_MODE_LOW_E
 
 
@@ -1759,7 +1835,7 @@ class SFP(SfpBase):
                 if sfpd_obj is None:
                     return None
 
-                if dom_tx_bias_power_supported:
+                if self.dom_tx_bias_power_supported:
                     dom_tx_bias_raw = self._read_eeprom_specific_bytes((offset + QSFP_DD_TX_BIAS_OFFSET), QSFP_DD_TX_BIAS_WIDTH)
                     if dom_tx_bias_raw is not None:
                         dom_tx_bias_data = sfpd_obj.parse_dom_tx_bias(dom_tx_bias_raw, 0)
@@ -1961,28 +2037,28 @@ class SFP(SfpBase):
             # call class level method to avoid initialize the whole sonic platform API
             reset_code = 'from sonic_platform import sfp;\n' \
                          'with sfp.SdkHandleContext() as sdk_handle:' \
-                         'print(sfp.SFP._reset(sdk_handle, {}))' \
-                         .format(self.sdk_index)
+                         'print(sfp.SFP._reset(sdk_handle, {}, {}))' \
+                         .format(self.sdk_index, self.slot_id)
             reset_cmd = "docker exec pmon python3 -c \"{}\"".format(reset_code)
 
             try:
                 output = subprocess.check_output(reset_cmd, shell=True, universal_newlines=True)
                 return 'True' in output
             except subprocess.CalledProcessError as e:
-                print("Error! Unable to set LPM for {}, rc = {}, err msg: {}".format(self.index, e.returncode, e.output))
+                print("Error! Unable to set LPM for {}, rc = {}, err msg: {}".format(self.sdk_index, e.returncode, e.output))
                 return False
         else:
-            return self._reset(self.sdk_handle, self.sdk_index)
+            return self._reset(self.sdk_handle, self.sdk_index, self.slot_id)
 
 
     @classmethod
-    def _reset(cls, sdk_handle, sdk_index):
+    def _reset(cls, sdk_handle, sdk_index, slot_id):
         module_id_info = sx_mgmt_module_id_info_t()
-        module_id_info.slot_id = 0
+        module_id_info.slot_id = slot_id
         module_id_info.module_id = sdk_index
         rc = sx_mgmt_phy_module_reset(sdk_handle, module_id_info)
         if rc != SX_STATUS_SUCCESS:
-            logger.log_error("Error occurred when resetting SFP module {}, error code {}".format(sdk_index, rc))
+            logger.log_error("Error occurred when resetting SFP module {}, slot {}, error code {}".format(sdk_index, slot_id, rc))
 
         return rc == SX_STATUS_SUCCESS
 
@@ -2046,10 +2122,7 @@ class SFP(SfpBase):
         delete_sx_port_admin_state_t_p(admin_state_p)
         delete_sx_port_module_state_t_p(module_state_p)
 
-        if admin_state == SX_PORT_ADMIN_STATUS_UP:
-            return True
-        else:
-            return False
+        return admin_state == SX_PORT_ADMIN_STATUS_UP
 
 
     @classmethod
@@ -2062,7 +2135,7 @@ class SFP(SfpBase):
 
 
     @classmethod
-    def get_logical_ports(cls, sdk_handle, sdk_index):
+    def get_logical_ports(cls, sdk_handle, sdk_index, slot_id):
         # Get all the ports related to the sfp, if port admin status is up, put it to list
         port_attributes_list = new_sx_port_attributes_t_arr(SX_PORT_ATTR_ARR_SIZE)
         port_cnt_p = new_uint32_t_p()
@@ -2078,6 +2151,7 @@ class SFP(SfpBase):
             if not cls.is_nve(int(port_attributes.log_port)) \
                and not cls.is_cpu(int(port_attributes.log_port)) \
                and port_attributes.port_mapping.module_port == sdk_index \
+               and port_attributes.port_mapping.slot == slot_id \
                and cls.is_port_admin_status_up(sdk_handle, port_attributes.log_port):
                 log_port_list.append(port_attributes.log_port)
 
@@ -2087,7 +2161,7 @@ class SFP(SfpBase):
 
 
     @classmethod
-    def mgmt_phy_mod_pwr_attr_set(cls, sdk_handle, sdk_index, power_attr_type, admin_pwr_mode):
+    def mgmt_phy_mod_pwr_attr_set(cls, sdk_handle, sdk_index, slot_id, power_attr_type, admin_pwr_mode):
         result = False
         sx_mgmt_phy_mod_pwr_attr = sx_mgmt_phy_mod_pwr_attr_t()
         sx_mgmt_phy_mod_pwr_mode_attr = sx_mgmt_phy_mod_pwr_mode_attr_t()
@@ -2097,12 +2171,12 @@ class SFP(SfpBase):
         sx_mgmt_phy_mod_pwr_attr_p = new_sx_mgmt_phy_mod_pwr_attr_t_p()
         sx_mgmt_phy_mod_pwr_attr_t_p_assign(sx_mgmt_phy_mod_pwr_attr_p, sx_mgmt_phy_mod_pwr_attr)
         module_id_info = sx_mgmt_module_id_info_t()
-        module_id_info.slot_id = 0
+        module_id_info.slot_id = slot_id
         module_id_info.module_id = sdk_index
         try:
             rc = sx_mgmt_phy_module_pwr_attr_set(sdk_handle, SX_ACCESS_CMD_SET, module_id_info, sx_mgmt_phy_mod_pwr_attr_p)
             if SX_STATUS_SUCCESS != rc:
-                logger.log_error("Error occurred when setting power mode for SFP module {}, error code {}".format(sdk_index, rc))
+                logger.log_error("Error occurred when setting power mode for SFP module {}, slot {}, error code {}".format(sdk_index, slot_id, rc))
                 result = False
             else:
                 result = True
@@ -2113,10 +2187,10 @@ class SFP(SfpBase):
 
 
     @classmethod
-    def _set_lpmode_raw(cls, sdk_handle, sdk_index, ports, attr_type, power_mode):
+    def _set_lpmode_raw(cls, sdk_handle, sdk_index, slot_id, ports, attr_type, power_mode):
         result = False
         # Check if the module already works in the same mode
-        admin_pwr_mode, oper_pwr_mode = cls.mgmt_phy_mod_pwr_attr_get(attr_type, sdk_handle, sdk_index)
+        admin_pwr_mode, oper_pwr_mode = cls.mgmt_phy_mod_pwr_attr_get(attr_type, sdk_handle, sdk_index, slot_id)
         if (power_mode == SX_MGMT_PHY_MOD_PWR_MODE_LOW_E and oper_pwr_mode == SX_MGMT_PHY_MOD_PWR_MODE_LOW_E) \
            or (power_mode == SX_MGMT_PHY_MOD_PWR_MODE_AUTO_E and admin_pwr_mode == SX_MGMT_PHY_MOD_PWR_MODE_AUTO_E):
             return True
@@ -2125,7 +2199,7 @@ class SFP(SfpBase):
             for port in ports:
                 cls.set_port_admin_status_by_log_port(sdk_handle, port, SX_PORT_ADMIN_STATUS_DOWN)
             # Set the desired power mode
-            result = cls.mgmt_phy_mod_pwr_attr_set(sdk_handle, sdk_index, attr_type, power_mode)
+            result = cls.mgmt_phy_mod_pwr_attr_set(sdk_handle, sdk_index, slot_id, attr_type, power_mode)
         finally:
             # Bring the port up
             for port in ports:
@@ -2150,8 +2224,8 @@ class SFP(SfpBase):
             # call class level method to avoid initialize the whole sonic platform API
             set_lpmode_code = 'from sonic_platform import sfp;\n' \
                               'with sfp.SdkHandleContext() as sdk_handle:' \
-                              'print(sfp.SFP._set_lpmode({}, sdk_handle, {}))' \
-                              .format('True' if lpmode else 'False', self.sdk_index)
+                              'print(sfp.SFP._set_lpmode({}, sdk_handle, {}, {}))' \
+                              .format('True' if lpmode else 'False', self.sdk_index, self.slot_id)
             lpm_cmd = "docker exec pmon python3 -c \"{}\"".format(set_lpmode_code)
 
             # Set LPM
@@ -2159,22 +2233,23 @@ class SFP(SfpBase):
                 output = subprocess.check_output(lpm_cmd, shell=True, universal_newlines=True)
                 return 'True' in output
             except subprocess.CalledProcessError as e:
-                print("Error! Unable to set LPM for {}, rc = {}, err msg: {}".format(self.index, e.returncode, e.output))
+                print("Error! Unable to set LPM for {}, rc = {}, err msg: {}".format(self.sdk_index, e.returncode, e.output))
                 return False
         else:
-            return self._set_lpmode(lpmode, self.sdk_handle, self.sdk_index)
+            return self._set_lpmode(lpmode, self.sdk_handle, self.sdk_index, self.slot_id)
 
     
     @classmethod
-    def _set_lpmode(cls, lpmode, sdk_handle, sdk_index):
-        log_port_list = cls.get_logical_ports(sdk_handle, sdk_index)
+    def _set_lpmode(cls, lpmode, sdk_handle, sdk_index, slot_id):
+        log_port_list = cls.get_logical_ports(sdk_handle, sdk_index, slot_id)
         sdk_lpmode = SX_MGMT_PHY_MOD_PWR_MODE_LOW_E if lpmode else SX_MGMT_PHY_MOD_PWR_MODE_AUTO_E
         cls._set_lpmode_raw(sdk_handle, 
                             sdk_index, 
+                            slot_id,
                             log_port_list, 
                             SX_MGMT_PHY_MOD_PWR_ATTR_PWR_MODE_E, 
                             sdk_lpmode)
-        logger.log_info("{} low power mode for module {}".format("Enabled" if lpmode else "Disabled", sdk_index))
+        logger.log_info("{} low power mode for module {}, slot {}".format("Enabled" if lpmode else "Disabled", sdk_index, slot_id))
         return True
 
 

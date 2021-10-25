@@ -15,10 +15,9 @@
 # limitations under the License.
 #
 import os
-import select
 import sys
 
-from mock import MagicMock
+from mock import MagicMock, patch
 
 test_path = os.path.dirname(os.path.abspath(__file__))
 modules_path = os.path.dirname(test_path)
@@ -30,8 +29,8 @@ class TestSfpEvent(object):
     @classmethod
     def setup_class(cls):
         os.environ["MLNX_PLATFORM_API_UNIT_TESTING"] = "1"
-        select.select = MagicMock(return_value=([99], None, None))
 
+    @patch('select.select', MagicMock(return_value=([99], None, None)))
     def test_check_sfp_status(self):
         from sonic_platform.sfp_event import SDK_SFP_STATE_IN, SDK_SFP_STATE_OUT, SDK_SFP_STATE_ERR
         from sonic_platform.sfp_event import SDK_ERRORS_TO_ERROR_BITS, SDK_ERRORS_TO_DESCRIPTION, SDK_SFP_BLOCKING_ERRORS

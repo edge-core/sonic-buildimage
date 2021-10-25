@@ -25,406 +25,241 @@
 try:
     from sonic_platform_base.thermal_base import ThermalBase
     from sonic_py_common.logger import Logger
-    from os import listdir
-    from os.path import isfile, join
-    import io
-    import os.path
+    import copy
+    import os
+    import glob
+
+    from .device_data import DeviceDataManager
+    from . import utils
 except ImportError as e:
     raise ImportError (str(e) + "- required module not found")
 
 # Global logger class instance
 logger = Logger()
 
-THERMAL_DEV_CATEGORY_CPU_CORE = "cpu_core"
-THERMAL_DEV_CATEGORY_CPU_PACK = "cpu_pack"
-THERMAL_DEV_CATEGORY_MODULE = "module"
-THERMAL_DEV_CATEGORY_PSU = "psu"
-THERMAL_DEV_CATEGORY_GEARBOX = "gearbox"
-THERMAL_DEV_CATEGORY_AMBIENT = "ambient"
+"""
+The most important information for creating a Thermal object is 3 sysfs files: temperature file, high threshold file and 
+high critical threshold file. There is no common naming rule for thermal objects on Nvidia platform. There are two types 
+of thermal object: single and indexable:
+    1. Single. Such as asic, port_amb...
+    2. Indexablt. Such as cpu_core0, cpu_core1, psu1_temp, psu2_temp
 
-THERMAL_DEV_ASIC_AMBIENT = "asic_amb"
-THERMAL_DEV_FAN_AMBIENT = "fan_amb"
-THERMAL_DEV_PORT_AMBIENT = "port_amb"
-THERMAL_DEV_COMEX_AMBIENT = "comex_amb"
-THERMAL_DEV_BOARD_AMBIENT = "board_amb"
+Thermal objects can be created according to a pre-defined naming rule. The naming rules contains following fields
 
-THERMAL_API_GET_TEMPERATURE = "get_temperature"
-THERMAL_API_GET_HIGH_THRESHOLD = "get_high_threshold"
-THERMAL_API_GET_HIGH_CRITICAL_THRESHOLD = "get_high_critical_threshold"
-
-THERMAL_API_INVALID_HIGH_THRESHOLD = 0.0
-
-HW_MGMT_THERMAL_ROOT = "/var/run/hw-management/thermal/"
-
-THERMAL_ZONE_ASIC_PATH = "/var/run/hw-management/thermal/mlxsw/"
-THERMAL_ZONE_MODULE_PATH = "/var/run/hw-management/thermal/mlxsw-module{}/"
-THERMAL_ZONE_GEARBOX_PATH = "/var/run/hw-management/thermal/mlxsw-gearbox{}/"
-THERMAL_ZONE_MODE = "thermal_zone_mode"
-THERMAL_ZONE_POLICY = "thermal_zone_policy"
-THERMAL_ZONE_TEMPERATURE = "thermal_zone_temp"
-THERMAL_ZONE_NORMAL_TEMPERATURE = "temp_trip_high"
-
-MODULE_TEMPERATURE_FAULT_PATH = "/var/run/hw-management/thermal/module{}_temp_fault"
-
-thermal_api_handler_asic = {
-    THERMAL_API_GET_TEMPERATURE: 'asic',
-    THERMAL_API_GET_HIGH_THRESHOLD: 'mlxsw/temp_trip_hot',
-    THERMAL_API_GET_HIGH_CRITICAL_THRESHOLD: 'mlxsw/temp_trip_crit'
-}
-
-thermal_api_handler_cpu_core = {
-    THERMAL_API_GET_TEMPERATURE:"cpu_core{}",
-    THERMAL_API_GET_HIGH_THRESHOLD:"cpu_core{}_max",
-    THERMAL_API_GET_HIGH_CRITICAL_THRESHOLD:"cpu_core{}_crit"
-}
-thermal_api_handler_cpu_pack = {
-    THERMAL_API_GET_TEMPERATURE:"cpu_pack",
-    THERMAL_API_GET_HIGH_THRESHOLD:"cpu_pack_max",
-    THERMAL_API_GET_HIGH_CRITICAL_THRESHOLD:"cpu_pack_crit"
-}
-thermal_api_handler_module = {
-    THERMAL_API_GET_TEMPERATURE:"module{}_temp_input",
-    THERMAL_API_GET_HIGH_THRESHOLD:"module{}_temp_crit",
-    THERMAL_API_GET_HIGH_CRITICAL_THRESHOLD:"module{}_temp_emergency"
-}
-thermal_api_handler_psu = {
-    THERMAL_API_GET_TEMPERATURE:"psu{}_temp",
-    THERMAL_API_GET_HIGH_THRESHOLD:"psu{}_temp_max",
-    THERMAL_API_GET_HIGH_CRITICAL_THRESHOLD:None
-}
-thermal_api_handler_gearbox = {
-    THERMAL_API_GET_TEMPERATURE:"gearbox{}_temp_input",
-    THERMAL_API_GET_HIGH_THRESHOLD:"mlxsw-gearbox{}/temp_trip_hot",
-    THERMAL_API_GET_HIGH_CRITICAL_THRESHOLD:"mlxsw-gearbox{}/temp_trip_crit"
-}
-thermal_ambient_apis = {
-    THERMAL_DEV_ASIC_AMBIENT : thermal_api_handler_asic,
-    THERMAL_DEV_PORT_AMBIENT : "port_amb",
-    THERMAL_DEV_FAN_AMBIENT : "fan_amb",
-    THERMAL_DEV_COMEX_AMBIENT : "comex_amb",
-    THERMAL_DEV_BOARD_AMBIENT : "board_amb"
-}
-thermal_ambient_name = {
-    THERMAL_DEV_ASIC_AMBIENT : 'ASIC',
-    THERMAL_DEV_PORT_AMBIENT : "Ambient Port Side Temp",
-    THERMAL_DEV_FAN_AMBIENT : "Ambient Fan Side Temp",
-    THERMAL_DEV_COMEX_AMBIENT : "Ambient COMEX Temp",
-    THERMAL_DEV_BOARD_AMBIENT : "Ambient Board Temp"
-}
-thermal_api_handlers = {
-    THERMAL_DEV_CATEGORY_CPU_CORE : thermal_api_handler_cpu_core, 
-    THERMAL_DEV_CATEGORY_CPU_PACK : thermal_api_handler_cpu_pack,
-    THERMAL_DEV_CATEGORY_MODULE : thermal_api_handler_module,
-    THERMAL_DEV_CATEGORY_PSU : thermal_api_handler_psu,
-    THERMAL_DEV_CATEGORY_GEARBOX : thermal_api_handler_gearbox
-}
-thermal_name = {
-    THERMAL_DEV_CATEGORY_CPU_CORE : "CPU Core {} Temp", 
-    THERMAL_DEV_CATEGORY_CPU_PACK : "CPU Pack Temp",
-    THERMAL_DEV_CATEGORY_MODULE : "xSFP module {} Temp",
-    THERMAL_DEV_CATEGORY_PSU : "PSU-{} Temp",
-    THERMAL_DEV_CATEGORY_GEARBOX : "Gearbox {} Temp"
-}
-
-thermal_device_categories_all = [
-    THERMAL_DEV_CATEGORY_AMBIENT,
-    THERMAL_DEV_CATEGORY_CPU_PACK,
-    THERMAL_DEV_CATEGORY_CPU_CORE,
-    THERMAL_DEV_CATEGORY_GEARBOX,
-]
-
-thermal_device_categories_singleton = [
-    THERMAL_DEV_CATEGORY_CPU_PACK,
-    THERMAL_DEV_CATEGORY_AMBIENT
-]
-thermal_api_names = [
-    THERMAL_API_GET_TEMPERATURE,
-    THERMAL_API_GET_HIGH_THRESHOLD
-]
-
-platform_dict_thermal = {'x86_64-mlnx_msn2700-r0': 0, 'x86_64-mlnx_lssn2700-r0': 0, 'x86_64-mlnx_msn2740-r0': 3,
-                         'x86_64-mlnx_msn2100-r0': 1, 'x86_64-mlnx_msn2410-r0': 2, 'x86_64-mlnx_msn2010-r0': 4,
-                         'x86_64-mlnx_msn3420-r0': 9, 'x86_64-mlnx_msn3700-r0': 5, 'x86_64-mlnx_msn3700c-r0': 6,
-                         'x86_64-mlnx_msn3800-r0': 7, 'x86_64-mlnx_msn4600-r0': 12, 'x86_64-mlnx_msn4600c-r0': 9,
-                         'x86_64-mlnx_msn4700-r0': 8, 'x86_64-mlnx_msn4410-r0': 8}
-thermal_profile_list = [
-    # 0 2700
+Field Name                Mandatory   Default   Description
+name                      M                     Thermal object name template
+temperature               M                     Temperature file name
+high_threshold            O           None      High threshold file name
+high_critical_threshold   O           None      High critical threshold file name
+type                      O           single    Thermal object type
+start_index               O           1         Thermal object start index, only used by indexable thermal object
+"""
+THERMAL_NAMING_RULE = {
+    "sfp thermals":
     {
-        THERMAL_DEV_CATEGORY_CPU_CORE:(0, 2),
-        THERMAL_DEV_CATEGORY_MODULE:(1, 32),
-        THERMAL_DEV_CATEGORY_PSU:(1, 2),
-        THERMAL_DEV_CATEGORY_CPU_PACK:(0,1),
-        THERMAL_DEV_CATEGORY_GEARBOX:(0,0),
-        THERMAL_DEV_CATEGORY_AMBIENT:(0,
-            [
-                THERMAL_DEV_ASIC_AMBIENT,
-                THERMAL_DEV_PORT_AMBIENT,
-                THERMAL_DEV_FAN_AMBIENT
-            ]
-        )
+        "name": "xSFP module {} Temp",
+        "temperature": "module{}_temp_input",
+        "high_threshold": "module{}_temp_crit",
+        "high_critical_threshold": "module{}_temp_emergency",
+        "type": "indexable"
     },
-    # 1 2100
+    "psu thermals": 
     {
-        THERMAL_DEV_CATEGORY_CPU_CORE:(0, 4),
-        THERMAL_DEV_CATEGORY_MODULE:(1, 16),
-        THERMAL_DEV_CATEGORY_PSU:(0, 0),
-        THERMAL_DEV_CATEGORY_CPU_PACK:(0,0),
-        THERMAL_DEV_CATEGORY_GEARBOX:(0,0),
-        THERMAL_DEV_CATEGORY_AMBIENT:(0,
-            [
-                THERMAL_DEV_ASIC_AMBIENT,
-                THERMAL_DEV_PORT_AMBIENT,
-                THERMAL_DEV_FAN_AMBIENT,
-            ]
-        )
+        "name": "PSU-{} Temp",
+        "temperature": "psu{}_temp",
+        "high_threshold": "psu{}_temp_max",
+        "type": "indexable"
     },
-    # 2 2410
-    {
-        THERMAL_DEV_CATEGORY_CPU_CORE:(0, 2),
-        THERMAL_DEV_CATEGORY_MODULE:(1, 56),
-        THERMAL_DEV_CATEGORY_PSU:(1, 2),
-        THERMAL_DEV_CATEGORY_CPU_PACK:(0,1),
-        THERMAL_DEV_CATEGORY_GEARBOX:(0,0),
-        THERMAL_DEV_CATEGORY_AMBIENT:(0,
-            [
-                THERMAL_DEV_ASIC_AMBIENT,
-                THERMAL_DEV_PORT_AMBIENT,
-                THERMAL_DEV_FAN_AMBIENT,
-            ]
-        )
-    },
-    # 3 2740
-    {
-        THERMAL_DEV_CATEGORY_CPU_CORE:(0, 4),
-        THERMAL_DEV_CATEGORY_MODULE:(1, 32),
-        THERMAL_DEV_CATEGORY_PSU:(1, 2),
-        THERMAL_DEV_CATEGORY_CPU_PACK:(0,0),
-        THERMAL_DEV_CATEGORY_GEARBOX:(0,0),
-        THERMAL_DEV_CATEGORY_AMBIENT:(0,
-            [
-                THERMAL_DEV_ASIC_AMBIENT,
-                THERMAL_DEV_PORT_AMBIENT,
-                THERMAL_DEV_FAN_AMBIENT,
-            ]
-        )
-    },
-    # 4 2010
-    {
-        THERMAL_DEV_CATEGORY_CPU_CORE:(0, 4),
-        THERMAL_DEV_CATEGORY_MODULE:(1, 22),
-        THERMAL_DEV_CATEGORY_PSU:(0, 0),
-        THERMAL_DEV_CATEGORY_CPU_PACK:(0,0),
-        THERMAL_DEV_CATEGORY_GEARBOX:(0,0),
-        THERMAL_DEV_CATEGORY_AMBIENT:(0,
-            [
-                THERMAL_DEV_ASIC_AMBIENT,
-                THERMAL_DEV_PORT_AMBIENT,
-                THERMAL_DEV_FAN_AMBIENT,
-            ]
-        )
-    },
-    # 5 3700
-    {
-        THERMAL_DEV_CATEGORY_CPU_CORE:(0, 4),
-        THERMAL_DEV_CATEGORY_MODULE:(1, 32),
-        THERMAL_DEV_CATEGORY_PSU:(1, 2),
-        THERMAL_DEV_CATEGORY_CPU_PACK:(0,1),
-        THERMAL_DEV_CATEGORY_GEARBOX:(0,0),
-        THERMAL_DEV_CATEGORY_AMBIENT:(0,
-            [
-                THERMAL_DEV_ASIC_AMBIENT,
-                THERMAL_DEV_COMEX_AMBIENT,
-                THERMAL_DEV_PORT_AMBIENT,
-                THERMAL_DEV_FAN_AMBIENT
-            ]
-        )
-    },
-    # 6 3700c
-    {
-        THERMAL_DEV_CATEGORY_CPU_CORE:(0, 2),
-        THERMAL_DEV_CATEGORY_MODULE:(1, 32),
-        THERMAL_DEV_CATEGORY_PSU:(1, 2),
-        THERMAL_DEV_CATEGORY_CPU_PACK:(0,1),
-        THERMAL_DEV_CATEGORY_GEARBOX:(0,0),
-        THERMAL_DEV_CATEGORY_AMBIENT:(0,
-            [
-                THERMAL_DEV_ASIC_AMBIENT,
-                THERMAL_DEV_COMEX_AMBIENT,
-                THERMAL_DEV_PORT_AMBIENT,
-                THERMAL_DEV_FAN_AMBIENT
-            ]
-        )
-    },
-    # 7 3800
-    {
-        THERMAL_DEV_CATEGORY_CPU_CORE:(0, 4),
-        THERMAL_DEV_CATEGORY_MODULE:(1, 64),
-        THERMAL_DEV_CATEGORY_PSU:(1, 2),
-        THERMAL_DEV_CATEGORY_CPU_PACK:(0,1),
-        THERMAL_DEV_CATEGORY_GEARBOX:(1,32),
-        THERMAL_DEV_CATEGORY_AMBIENT:(0,
-            [
-                THERMAL_DEV_ASIC_AMBIENT,
-                THERMAL_DEV_COMEX_AMBIENT,
-                THERMAL_DEV_PORT_AMBIENT,
-                THERMAL_DEV_FAN_AMBIENT
-            ]
-        )
-    },
-    # 8 4700
-    {
-        THERMAL_DEV_CATEGORY_CPU_CORE:(0, 4),
-        THERMAL_DEV_CATEGORY_MODULE:(1, 32),
-        THERMAL_DEV_CATEGORY_PSU:(1, 2),
-        THERMAL_DEV_CATEGORY_CPU_PACK:(0,1),
-        THERMAL_DEV_CATEGORY_GEARBOX:(0,0),
-        THERMAL_DEV_CATEGORY_AMBIENT:(0,
-            [
-                THERMAL_DEV_ASIC_AMBIENT,
-                THERMAL_DEV_COMEX_AMBIENT,
-                THERMAL_DEV_PORT_AMBIENT,
-                THERMAL_DEV_FAN_AMBIENT
-            ]
-        )
-    },
-    # 9 3420
-    {
-        THERMAL_DEV_CATEGORY_CPU_CORE:(0, 2),
-        THERMAL_DEV_CATEGORY_MODULE:(1, 60),
-        THERMAL_DEV_CATEGORY_PSU:(1, 2),
-        THERMAL_DEV_CATEGORY_CPU_PACK:(0,1),
-        THERMAL_DEV_CATEGORY_GEARBOX:(0,0),
-        THERMAL_DEV_CATEGORY_AMBIENT:(0,
-            [
-                THERMAL_DEV_ASIC_AMBIENT,
-                THERMAL_DEV_COMEX_AMBIENT,
-                THERMAL_DEV_PORT_AMBIENT,
-                THERMAL_DEV_FAN_AMBIENT
-            ]
-        )
-    },
-    # 10 4600C
-    {
-        THERMAL_DEV_CATEGORY_CPU_CORE:(0, 4),
-        THERMAL_DEV_CATEGORY_MODULE:(1, 64),
-        THERMAL_DEV_CATEGORY_PSU:(1, 2),
-        THERMAL_DEV_CATEGORY_CPU_PACK:(0,1),
-        THERMAL_DEV_CATEGORY_GEARBOX:(0,0),
-        THERMAL_DEV_CATEGORY_AMBIENT:(0,
-            [
-                THERMAL_DEV_ASIC_AMBIENT,
-                THERMAL_DEV_COMEX_AMBIENT,
-                THERMAL_DEV_PORT_AMBIENT,
-                THERMAL_DEV_FAN_AMBIENT
-            ]
-        )
-    },
-    # 11 4410
-    {
-        THERMAL_DEV_CATEGORY_CPU_CORE:(0, 4),
-        THERMAL_DEV_CATEGORY_MODULE:(1, 32),
-        THERMAL_DEV_CATEGORY_PSU:(1, 2),
-        THERMAL_DEV_CATEGORY_CPU_PACK:(0,1),
-        THERMAL_DEV_CATEGORY_GEARBOX:(0,0),
-        THERMAL_DEV_CATEGORY_AMBIENT:(0,
-            [
-                THERMAL_DEV_ASIC_AMBIENT,
-                THERMAL_DEV_COMEX_AMBIENT,
-                THERMAL_DEV_PORT_AMBIENT,
-                THERMAL_DEV_FAN_AMBIENT
-            ]
-        )
-    },
-    # 12 4600
-    {
-        THERMAL_DEV_CATEGORY_CPU_CORE:(0, 4),
-        THERMAL_DEV_CATEGORY_MODULE:(1, 64),
-        THERMAL_DEV_CATEGORY_PSU:(1, 2),
-        THERMAL_DEV_CATEGORY_CPU_PACK:(0,1),
-        THERMAL_DEV_CATEGORY_GEARBOX:(0,0),
-        THERMAL_DEV_CATEGORY_AMBIENT:(0,
-            [
-                THERMAL_DEV_ASIC_AMBIENT,
-                THERMAL_DEV_COMEX_AMBIENT,
-                THERMAL_DEV_PORT_AMBIENT,
-                THERMAL_DEV_FAN_AMBIENT
-            ]
-        )
+    "chassis thermals": [
+        {
+            "name": "ASIC",
+            "temperature": "asic",
+            "high_threshold": "mlxsw/temp_trip_hot",
+            "high_critical_threshold": "mlxsw/temp_trip_crit"
+        },
+        {
+            "name": "Ambient Port Side Temp",
+            "temperature": "port_amb"
+        },
+        {
+            "name": "Ambient Fan Side Temp",
+            "temperature": "fan_amb"
+        },
+        {
+            "name": "Ambient COMEX Temp",
+            "temperature": "comex_amb"
+        },
+        {
+            "name": "CPU Pack Temp",
+            "temperature": "cpu_pack",
+            "high_threshold": "cpu_pack_max",
+            "high_critical_threshold": "cpu_pack_crit"
+        },
+        {
+            "name": "CPU Core {} Temp",
+            "temperature": "cpu_core{}",
+            "high_threshold": "cpu_core{}_max",
+            "high_critical_threshold": "cpu_core{}_crit",
+            "type": "indexable",
+            "start_index": 0
+        },
+        {
+            "name": "Gearbox {} Temp",
+            "temperature": "gearbox{}_temp_input",
+            "high_threshold": "mlxsw-gearbox{}/temp_trip_hot",
+            "high_critical_threshold": "mlxsw-gearbox{}/temp_trip_crit",
+            "type": "indexable"
+        }
+    ],
+    'linecard thermals': {
+        "name": "Gearbox {} Temp",
+        "temperature": "gearbox{}_temp_input",
+        "high_threshold": "mlxsw-gearbox{}/temp_trip_hot",
+        "high_critical_threshold": "mlxsw-gearbox{}/temp_trip_crit",
+        "type": "indexable"
     }
-]
+}
 
-def initialize_psu_thermals(platform, thermal_list, psu_index, dependency):
-    tp_index = platform_dict_thermal[platform]
-    thermal_profile = thermal_profile_list[tp_index]
-    _, count = thermal_profile[THERMAL_DEV_CATEGORY_PSU]
-    if count == 0:
-        return
-    thermal = Thermal(THERMAL_DEV_CATEGORY_PSU, psu_index, True, 1, dependency)
-    thermal_list.append(thermal)
+CHASSIS_THERMAL_SYSFS_FOLDER = '/run/hw-management/thermal'
+THERMAL_ZONE_FOLDER_WILDCARD = '/run/hw-management/thermal/mlxsw*'
+THERMAL_ZONE_POLICY_FILE = 'thermal_zone_policy'
+THERMAL_ZONE_MODE_FILE = 'thermal_zone_mode'
+THERMAL_ZONE_TEMP_FILE = 'thermal_zone_temp'
+THERMAL_ZONE_THRESHOLD_FILE = 'temp_trip_high'
+MODULE_TEMP_FAULT_WILDCARRD = '/run/hw-management/thermal/module*_temp_fault'
+MAX_AMBIENT_TEMP = 120
 
 
-def initialize_sfp_thermals(platform, thermal_list, sfp_index):
-    thermal = Thermal(THERMAL_DEV_CATEGORY_MODULE, sfp_index, True, 1)
-    thermal_list.append(thermal)
-
-    
-def initialize_chassis_thermals(platform, thermal_list):
-    # create thermal objects for all categories of sensors
-    tp_index = platform_dict_thermal[platform]
-    thermal_profile = thermal_profile_list[tp_index]
-    Thermal.thermal_profile = thermal_profile
+def initialize_chassis_thermals():
+    thermal_list = []
+    rules = THERMAL_NAMING_RULE['chassis thermals']
     position = 1
-    for category in thermal_device_categories_all:
-        if category == THERMAL_DEV_CATEGORY_AMBIENT:
-            count, ambient_list = thermal_profile[category]
-            for ambient in ambient_list:
-                thermal = Thermal(category, ambient, True, position)
-                thermal_list.append(thermal),
+    for rule in rules:
+        if 'type' in rule and rule['type'] == 'indexable':
+            count = 0
+            if 'Gearbox' in rule['name']:
+                count = DeviceDataManager.get_gearbox_count('/run/hw-management/config')
+            elif 'CPU Core' in rule['name']:
+                count = DeviceDataManager.get_cpu_thermal_count()
+            if count == 0:
+                logger.log_debug('Failed to get thermal object count for {}'.format(rule['name']))
+                continue
+
+            for index in range(count):
+                thermal_list.append(create_indexable_thermal(rule, index, CHASSIS_THERMAL_SYSFS_FOLDER, position))
                 position += 1
         else:
-            start, count = 0, 0
-            if category in thermal_profile:
-                start, count = thermal_profile[category]
-                if count == 0:
-                    continue
-            if count == 1:
-                thermal = Thermal(category, 0, False, position)
-                thermal_list.append(thermal)
+            thermal_object = create_single_thermal(rule, CHASSIS_THERMAL_SYSFS_FOLDER, position)
+            if thermal_object:
+                thermal_list.append(thermal_object)
                 position += 1
-            else:
-                for index in range(count):
-                    thermal = Thermal(category, start + index, True, position)
-                    thermal_list.append(thermal)
-                    position += 1
+    return thermal_list
 
+
+def initialize_psu_thermal(psu_index, presence_cb):
+    """Initialize PSU thermal object
+
+    Args:
+        psu_index (int): PSU index, 0-based
+        presence_cb (function): A callback function to indicate if the thermal is present. When removing a PSU, the related
+            thermal sysfs files will be removed from system, presence_cb is used to check such situation and avoid printing 
+            error logs.
+
+    Returns:
+        [list]: A list of thermal objects
+    """
+    return [create_indexable_thermal(THERMAL_NAMING_RULE['psu thermals'], psu_index, CHASSIS_THERMAL_SYSFS_FOLDER, 1, presence_cb)]
+
+
+def initialize_sfp_thermal(sfp_index):
+    return [create_indexable_thermal(THERMAL_NAMING_RULE['sfp thermals'], sfp_index, CHASSIS_THERMAL_SYSFS_FOLDER, 1)]
+
+
+def initialize_linecard_thermals(lc_name, lc_index):
+    thermal_list = []
+    rule = THERMAL_NAMING_RULE['linecard thermals']
+    rule = copy.deepcopy(rule)
+    rule['name'] = '{} {}'.format(lc_name, rule['name'])
+    sysfs_folder = '/run/hw-management/lc{}/thermal'.format(lc_index)
+    count = DeviceDataManager.get_gearbox_count('/run/hw-management/lc{}/config'.format(lc_index))
+    for index in range(count):
+        thermal_list.append(create_indexable_thermal(rule, index, sysfs_folder, index + 1))
+    return thermal_list
+
+
+def initialize_linecard_sfp_thermal(lc_name, lc_index, sfp_index):
+    rule = THERMAL_NAMING_RULE['sfp thermals']
+    rule = copy.deepcopy(rule)
+    rule['name'] = '{} {}'.format(lc_name, rule['name'])
+    sysfs_folder = '/run/hw-management/lc{}/thermal'.format(lc_index)
+    return [create_indexable_thermal(rule, sfp_index, sysfs_folder, 1)]
+
+
+def create_indexable_thermal(rule, index, sysfs_folder, position, presence_cb=None):
+    index += rule.get('start_index', 1)
+    name = rule['name'].format(index)
+    temp_file = os.path.join(sysfs_folder, rule['temperature'].format(index))
+    _check_thermal_sysfs_existence(temp_file)
+    if 'high_threshold' in rule:
+        high_th_file = os.path.join(sysfs_folder, rule['high_threshold'].format(index))
+        _check_thermal_sysfs_existence(high_th_file)
+    else:
+        high_th_file = None
+    if 'high_critical_threshold' in rule:
+        high_crit_th_file = os.path.join(sysfs_folder, rule['high_critical_threshold'].format(index))
+        _check_thermal_sysfs_existence(high_crit_th_file)
+    else:
+        high_crit_th_file = None
+    if not presence_cb:
+        return Thermal(name, temp_file, high_th_file, high_crit_th_file, position)
+    else:
+        return RemovableThermal(name, temp_file, high_th_file, high_crit_th_file, position, presence_cb)
+
+
+def create_single_thermal(rule, sysfs_folder, position, presence_cb=None):
+    temp_file = rule['temperature']
+    thermal_capability = DeviceDataManager.get_thermal_capability()
+    if thermal_capability:
+        if not thermal_capability.get(temp_file, True):
+            return None
+
+    temp_file = os.path.join(sysfs_folder, temp_file)
+    _check_thermal_sysfs_existence(temp_file)
+    if 'high_threshold' in rule:
+        high_th_file = os.path.join(sysfs_folder, rule['high_threshold'])
+        _check_thermal_sysfs_existence(high_th_file)
+    else:
+        high_th_file = None
+    if 'high_critical_threshold' in rule:
+        high_crit_th_file = os.path.join(sysfs_folder, rule['high_critical_threshold'])
+        _check_thermal_sysfs_existence(high_crit_th_file)
+    else:
+        high_crit_th_file = None
+    name = rule['name']
+    if not presence_cb:
+        return Thermal(name, temp_file, high_th_file, high_crit_th_file, position)
+    else:
+        return RemovableThermal(name, temp_file, high_th_file, high_crit_th_file, position, presence_cb)
+
+
+def _check_thermal_sysfs_existence(file_path):
+    if not os.path.exists(file_path):
+        logger.log_error('Thermal sysfs {} does not exist'.format(file_path))
 
 
 class Thermal(ThermalBase):
-    thermal_profile = None
     thermal_algorithm_status = False
 
-    def __init__(self, category, index, has_index, position, dependency = None):
+    def __init__(self, name, temp_file, high_th_file, high_crit_th_file, position):
         """
         index should be a string for category ambient and int for other categories
         """
         super(Thermal, self).__init__()
-        if category == THERMAL_DEV_CATEGORY_AMBIENT:
-            self.name = thermal_ambient_name[index]
-            self.index = index
-        elif has_index:
-            self.name = thermal_name[category].format(index)
-            self.index = index
-        else:
-            self.name = thermal_name[category]
-            self.index = 0
-
-        self.category = category
+        self.name = name
         self.position = position
-        self.temperature = self._get_file_from_api(THERMAL_API_GET_TEMPERATURE)
-        self.high_threshold = self._get_file_from_api(THERMAL_API_GET_HIGH_THRESHOLD)
-        self.high_critical_threshold = self._get_file_from_api(THERMAL_API_GET_HIGH_CRITICAL_THRESHOLD)
-        self.dependency = dependency
-
+        self.temperature = temp_file
+        self.high_threshold = high_th_file
+        self.high_critical_threshold = high_crit_th_file
 
     def get_name(self):
         """
@@ -435,45 +270,6 @@ class Thermal(ThermalBase):
         """
         return self.name
 
-
-    @classmethod
-    def _read_generic_file(cls, filename, len):
-        """
-        Read a generic file, returns the contents of the file
-        """
-        result = None
-        try:
-            with open(filename, 'r') as fileobj:
-                result = fileobj.read().strip()
-        except Exception as e:
-            logger.log_info("Fail to read file {} due to {}".format(filename, repr(e)))
-        return result
-
-
-    def _get_file_from_api(self, api_name):
-        if self.category == THERMAL_DEV_CATEGORY_AMBIENT:
-            handler = thermal_ambient_apis[self.index]
-            if isinstance(handler, str):
-                if api_name == THERMAL_API_GET_TEMPERATURE:
-                    filename = thermal_ambient_apis[self.index]
-                else:
-                    return None
-            elif isinstance(handler, dict):
-                filename = handler[api_name]
-            else:
-                return None
-        else:
-            handler = thermal_api_handlers[self.category][api_name]
-            if self.category in thermal_device_categories_singleton:
-                filename = handler
-            else:
-                if handler:
-                    filename = handler.format(self.index)
-                else:
-                    return None
-        return join(HW_MGMT_THERMAL_ROOT, filename)
-
-
     def get_temperature(self):
         """
         Retrieves current temperature reading from thermal
@@ -482,19 +278,8 @@ class Thermal(ThermalBase):
             A float number of current temperature in Celsius up to nearest thousandth
             of one degree Celsius, e.g. 30.125 
         """
-        if self.dependency:
-            status, hint = self.dependency()
-            if not status:
-                logger.log_debug("get_temperature for {} failed due to {}".format(self.name, hint))
-                return None
-        value_str = self._read_generic_file(self.temperature, 0)
-        if value_str is None:
-            return None
-        value_float = float(value_str)
-        if self.category == THERMAL_DEV_CATEGORY_MODULE and value_float == THERMAL_API_INVALID_HIGH_THRESHOLD:
-            return None
-        return value_float / 1000.0
-
+        value = utils.read_float_from_file(self.temperature, None, log_func=logger.log_info)
+        return value / 1000.0 if (value is not None and value != 0) else None
 
     def get_high_threshold(self):
         """
@@ -506,19 +291,8 @@ class Thermal(ThermalBase):
         """
         if self.high_threshold is None:
             return None
-        if self.dependency:
-            status, hint = self.dependency()
-            if not status:
-                logger.log_debug("get_high_threshold for {} failed due to {}".format(self.name, hint))
-                return None
-        value_str = self._read_generic_file(self.high_threshold, 0)
-        if value_str is None:
-            return None
-        value_float = float(value_str)
-        if self.category == THERMAL_DEV_CATEGORY_MODULE and value_float == THERMAL_API_INVALID_HIGH_THRESHOLD:
-            return None
-        return value_float / 1000.0
-
+        value = utils.read_float_from_file(self.high_threshold, None, log_func=logger.log_info)
+        return value / 1000.0 if (value is not None and value != 0) else None
 
     def get_high_critical_threshold(self):
         """
@@ -530,18 +304,8 @@ class Thermal(ThermalBase):
         """
         if self.high_critical_threshold is None:
             return None
-        if self.dependency:
-            status, hint = self.dependency()
-            if not status:
-                logger.log_debug("get_high_critical_threshold for {} failed due to {}".format(self.name, hint))
-                return None
-        value_str = self._read_generic_file(self.high_critical_threshold, 0)
-        if value_str is None:
-            return None
-        value_float = float(value_str)
-        if self.category == THERMAL_DEV_CATEGORY_MODULE and value_float == THERMAL_API_INVALID_HIGH_THRESHOLD:
-            return None
-        return value_float / 1000.0
+        value = utils.read_float_from_file(self.high_critical_threshold, None, log_func=logger.log_info)
+        return value / 1000.0 if (value is not None and value != 0) else None
 
     def get_position_in_parent(self):
         """
@@ -560,20 +324,6 @@ class Thermal(ThermalBase):
         return False
 
     @classmethod
-    def _write_generic_file(cls, filename, content):
-        """
-        Generic functions to write content to a specified file path if 
-        the content has changed.
-        """
-        try:
-            with open(filename, 'w+') as file_obj:
-                origin_content = file_obj.read()
-                if origin_content != content:
-                    file_obj.write(content)
-        except Exception as e:
-            logger.log_info("Fail to write file {} due to {}".format(filename, repr(e)))
-
-    @classmethod
     def set_thermal_algorithm_status(cls, status, force=True):
         """
         Enable/disable kernel thermal algorithm.
@@ -589,31 +339,18 @@ class Thermal(ThermalBase):
         Returns:
             True if thermal algorithm status changed.
         """
-        if not cls.thermal_profile:
-            raise Exception("Fail to get thermal profile for this switch")
-
         if not force and cls.thermal_algorithm_status == status:
             return False
 
         cls.thermal_algorithm_status = status
-        content = "enabled" if status else "disabled"
+        mode = "enabled" if status else "disabled"
         policy = "step_wise" if status else "user_space"
-        cls._write_generic_file(join(THERMAL_ZONE_ASIC_PATH, THERMAL_ZONE_MODE), content)
-        cls._write_generic_file(join(THERMAL_ZONE_ASIC_PATH, THERMAL_ZONE_POLICY), policy)
-
-        if THERMAL_DEV_CATEGORY_MODULE in cls.thermal_profile:
-            start, count = cls.thermal_profile[THERMAL_DEV_CATEGORY_MODULE]
-            if count != 0:
-                for index in range(count):
-                    cls._write_generic_file(join(THERMAL_ZONE_MODULE_PATH.format(start + index), THERMAL_ZONE_MODE), content)
-                    cls._write_generic_file(join(THERMAL_ZONE_MODULE_PATH.format(start + index), THERMAL_ZONE_POLICY), policy)
-
-        if THERMAL_DEV_CATEGORY_GEARBOX in cls.thermal_profile:
-            start, count = cls.thermal_profile[THERMAL_DEV_CATEGORY_GEARBOX]
-            if count != 0:
-                for index in range(count):
-                    cls._write_generic_file(join(THERMAL_ZONE_GEARBOX_PATH.format(start + index), THERMAL_ZONE_MODE), content)
-                    cls._write_generic_file(join(THERMAL_ZONE_GEARBOX_PATH.format(start + index), THERMAL_ZONE_POLICY), policy)
+        for thermal_zone_folder in glob.iglob(THERMAL_ZONE_FOLDER_WILDCARD):
+            policy_file = os.path.join(thermal_zone_folder, THERMAL_ZONE_POLICY_FILE)
+            utils.write_file(policy_file, policy)
+            mode_file = os.path.join(thermal_zone_folder, THERMAL_ZONE_MODE_FILE)
+            utils.write_file(mode_file, mode)
+        
         return True
 
     @classmethod
@@ -624,64 +361,91 @@ class Thermal(ThermalBase):
         Returns:
             True if all thermal zones current temperature less or equal than normal temperature
         """
-        if not cls.thermal_profile:
-            raise Exception("Fail to get thermal profile for this switch")
-
-        if not cls._check_thermal_zone_temperature(THERMAL_ZONE_ASIC_PATH):
-            return False
-
-        if THERMAL_DEV_CATEGORY_MODULE in cls.thermal_profile:
-            start, count = cls.thermal_profile[THERMAL_DEV_CATEGORY_MODULE]
-            if count != 0:
-                for index in range(count):
-                    if not cls._check_thermal_zone_temperature(THERMAL_ZONE_MODULE_PATH.format(start + index)):
-                        return False
-
-        if THERMAL_DEV_CATEGORY_GEARBOX in cls.thermal_profile:
-            start, count = cls.thermal_profile[THERMAL_DEV_CATEGORY_GEARBOX]
-            if count != 0:
-                for index in range(count):
-                    if not cls._check_thermal_zone_temperature(THERMAL_ZONE_GEARBOX_PATH.format(start + index)):
-                        return False
+        for thermal_zone_folder in glob.iglob(THERMAL_ZONE_FOLDER_WILDCARD):
+            if not cls._check_thermal_zone_temperature(thermal_zone_folder):
+                return False
 
         return True
 
     @classmethod
     def _check_thermal_zone_temperature(cls, thermal_zone_path):
-        normal_temp_path = join(thermal_zone_path, THERMAL_ZONE_NORMAL_TEMPERATURE)
-        current_temp_path = join(thermal_zone_path, THERMAL_ZONE_TEMPERATURE)
-        normal = None
-        current = None
-        try:    
-            with open(normal_temp_path, 'r') as file_obj:
-                normal = float(file_obj.read())
+        threshold_path = os.path.join(thermal_zone_path, THERMAL_ZONE_THRESHOLD_FILE)
+        current_temp_path = os.path.join(thermal_zone_path, THERMAL_ZONE_TEMP_FILE)
 
-            with open(current_temp_path, 'r') as file_obj:
-                current = float(file_obj.read())
-
-            return current <= normal
+        try:
+            threshold = utils.read_int_from_file(threshold_path, raise_exception=True)
+            current = utils.read_int_from_file(current_temp_path, raise_exception=True)    
+            return current <= threshold
         except Exception as e:
             logger.log_info("Fail to check thermal zone temperature for file {} due to {}".format(thermal_zone_path, repr(e)))
+            return False
 
     @classmethod
     def check_module_temperature_trustable(cls):
-        if not cls.thermal_profile:
-            raise Exception("Fail to get thermal profile for this switch")
-
-        start, count = cls.thermal_profile[THERMAL_DEV_CATEGORY_MODULE]
-        for index in range(count):
-            fault_file_path = MODULE_TEMPERATURE_FAULT_PATH.format(index + start)
-            fault = cls._read_generic_file(fault_file_path, 0)
-            if fault.strip() != '0':
+        for file_path in glob.iglob(MODULE_TEMP_FAULT_WILDCARRD):
+            fault = utils.read_int_from_file(file_path)
+            if fault != 0:
                 return 'untrust'
         return 'trust'
 
     @classmethod
     def get_min_amb_temperature(cls):
-        fan_ambient_path = join(HW_MGMT_THERMAL_ROOT, THERMAL_DEV_FAN_AMBIENT)
-        port_ambient_path = join(HW_MGMT_THERMAL_ROOT, THERMAL_DEV_PORT_AMBIENT)
+        fan_ambient_path = os.path.join(CHASSIS_THERMAL_SYSFS_FOLDER, 'fan_amb')
+        port_ambient_path = os.path.join(CHASSIS_THERMAL_SYSFS_FOLDER, 'port_amb')
 
-        # if there is any exception, let it raise
-        fan_ambient_temp = int(cls._read_generic_file(fan_ambient_path, 0))
-        port_ambient_temp = int(cls._read_generic_file(port_ambient_path, 0))
-        return fan_ambient_temp if fan_ambient_temp < port_ambient_temp else port_ambient_temp
+        try:
+            fan_ambient_temp = utils.read_int_from_file(fan_ambient_path, raise_exception=True)
+            port_ambient_temp = utils.read_int_from_file(port_ambient_path, raise_exception=True)
+            return fan_ambient_temp if fan_ambient_temp < port_ambient_temp else port_ambient_temp
+        except Exception as e:
+            # Can't get ambient temperature, return maximum
+            logger.log_error('Failed to get minimum ambient temperature, use pessimistic instead')
+            return MAX_AMBIENT_TEMP
+
+
+class RemovableThermal(Thermal):
+    def __init__(self, name, temp_file, high_th_file, high_crit_th_file, position, presence_cb):
+        super(RemovableThermal, self).__init__(name, temp_file, high_th_file, high_crit_th_file, position)
+        self.presence_cb = presence_cb
+
+    def get_temperature(self):
+        """
+        Retrieves current temperature reading from thermal
+
+        Returns:
+            A float number of current temperature in Celsius up to nearest thousandth
+            of one degree Celsius, e.g. 30.125 
+        """
+        status, hint = self.presence_cb()
+        if not status:
+            logger.log_debug("get_temperature for {} failed due to {}".format(self.name, hint))
+            return None
+        return super(RemovableThermal, self).get_temperature()
+
+    def get_high_threshold(self):
+        """
+        Retrieves the high threshold temperature of thermal
+
+        Returns:
+            A float number, the high threshold temperature of thermal in Celsius
+            up to nearest thousandth of one degree Celsius, e.g. 30.125
+        """
+        status, hint = self.presence_cb()
+        if not status:
+            logger.log_debug("get_high_threshold for {} failed due to {}".format(self.name, hint))
+            return None
+        return super(RemovableThermal, self).get_high_threshold()
+
+    def get_high_critical_threshold(self):
+        """
+        Retrieves the high critical threshold temperature of thermal
+
+        Returns:
+            A float number, the high critical threshold temperature of thermal in Celsius
+            up to nearest thousandth of one degree Celsius, e.g. 30.125
+        """
+        status, hint = self.presence_cb()
+        if not status:
+            logger.log_debug("get_high_critical_threshold for {} failed due to {}".format(self.name, hint))
+            return None
+        return super(RemovableThermal, self).get_high_critical_threshold()

@@ -23,14 +23,19 @@ import sys, errno
 import os
 import time
 import select
-if 'MLNX_PLATFORM_API_UNIT_TESTING' not in os.environ:
-    from python_sdk_api.sx_api import *
-else:
-    from mock import MagicMock
-    class MockSxFd(object):
-        fd = 99
-    new_sx_fd_t_p = MagicMock(return_value=MockSxFd())
-    new_sx_user_channel_t_p = MagicMock()
+
+from .device_data import DeviceDataManager
+try:
+    if 'PLATFORM_API_UNIT_TESTING' not in os.environ:
+        from python_sdk_api.sx_api import *
+    else:
+        from mock import MagicMock
+        class MockSxFd(object):
+            fd = 99
+        new_sx_fd_t_p = MagicMock(return_value=MockSxFd())
+        new_sx_user_channel_t_p = MagicMock()
+except KeyError:
+    pass
 from sonic_py_common.logger import Logger
 from .sfp import SFP
 
@@ -253,6 +258,7 @@ class sfp_event:
 
         try:
             read, _, _ = select.select([self.rx_fd_p.fd], [], [], timeout)
+            print(read)
         except select.error as err:
             rc, msg = err
             if rc == errno.EAGAIN or rc == errno.EINTR:
@@ -263,6 +269,7 @@ class sfp_event:
         for fd in read:
             if fd == self.rx_fd_p.fd:
                 success, port_list, module_state, error_type = self.on_pmpe(self.rx_fd_p)
+                print('success = ', success)
                 if not success:
                     logger.log_error("failed to read from {}".format(fd))
                     break
@@ -339,6 +346,7 @@ class sfp_event:
             module_state = pmpe_t.module_state
             error_type = pmpe_t.error_type
             module_id = pmpe_t.module_id
+            slot_id = pmpe_t.slot_id # For non-modular chassis, it should return 0
 
             if module_state == SDK_SFP_STATE_ERR:
                 logger.log_error("Receive PMPE error event on module {}: status {} error type {}".format(module_id, module_state, error_type))
@@ -352,12 +360,15 @@ class sfp_event:
                 logical_port = sx_port_log_id_t_arr_getitem(logical_port_list, i)
                 rc = sx_api_port_device_get(self.handle, 1 , 0, port_attributes_list,  port_cnt_p)
                 port_cnt = uint32_t_p_value(port_cnt_p)
-
+                x = 0 # x is the port index within a LC
                 for i in range(port_cnt):
                     port_attributes = sx_port_attributes_t_arr_getitem(port_attributes_list,i)
                     if port_attributes.log_port == logical_port:
-                        label_port = port_attributes.port_mapping.module_port
+                        label_port = slot_id * DeviceDataManager.get_linecard_max_port_count() + x + 1
                         break
+
+                    if port_attributes.port_mapping.slot_id == slot_id:
+                        x += 1
 
                 if label_port is not None:
                     label_port_list.append(label_port)

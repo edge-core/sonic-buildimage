@@ -27,18 +27,21 @@ import os
 try:
     from sonic_platform_base.fan_drawer_base import FanDrawerBase
     from sonic_platform_base.fan_base import FanBase
+    from sonic_py_common.logger import Logger
     from .led import FanLed, SharedLed
-    from .utils import read_int_from_file
+    from . import utils
 except ImportError as e:
     raise ImportError (str(e) + "- required module not found")
 
+# Global logger class instance
+logger = Logger()
+
 
 class MellanoxFanDrawer(FanDrawerBase):
-    def __init__(self, index, fan_data):
+    def __init__(self, index):
         from .fan import FAN_PATH
         super(MellanoxFanDrawer, self).__init__()
         self._index = index + 1
-        self._fan_data = fan_data
         self._presence_path = os.path.join(FAN_PATH, 'fan{}_status'.format(self._index))
         self._led = None
 
@@ -49,33 +52,25 @@ class MellanoxFanDrawer(FanDrawerBase):
         return self._led
 
     def get_presence(self):
-        if not self._fan_data['hot_swappable']:
-            return True
-
-        status = 0
-        try:
-            with open(self._presence_path, 'r') as presence_status:
-                status = int(presence_status.read())
-        except (ValueError, IOError) as e:
-            status = 0
-
-        return status == 1
+        return utils.read_int_from_file(self._presence_path) == 1
 
     def get_direction(self):
-        if not self._fan_data['support_fan_direction'] or not self.get_presence():
+        if not self.get_presence():
             return FanBase.FAN_DIRECTION_NOT_APPLICABLE
         
         try:
             from .fan import FAN_DIR, FAN_DIR_VALUE_INTAKE, FAN_DIR_VALUE_EXHAUST
-            fan_dir = read_int_from_file(FAN_DIR.format(self._index), raise_exception=True)
+            fan_dir = utils.read_int_from_file(FAN_DIR.format(self._index), raise_exception=True)
             if fan_dir == FAN_DIR_VALUE_INTAKE:
                 return FanBase.FAN_DIRECTION_INTAKE
             elif fan_dir == FAN_DIR_VALUE_EXHAUST:
                 return FanBase.FAN_DIRECTION_EXHAUST
             else:
-                raise RuntimeError("Got wrong value {} for fan direction {}".format(fan_dir, self._index))
+                logger.log_error("Got wrong value {} for fan direction {}".format(fan_dir, self._index))
+                return FanBase.FAN_DIRECTION_NOT_APPLICABLE
         except (ValueError, IOError) as e:
-            raise RuntimeError("Failed to read fan direction status to {}".format(repr(e)))
+            logger.log_error("Failed to read fan direction status to {}".format(repr(e)))
+            return FanBase.FAN_DIRECTION_NOT_APPLICABLE
 
     def set_status_led(self, color):
         """
@@ -113,12 +108,12 @@ class MellanoxFanDrawer(FanDrawerBase):
         Returns:
             bool: True if it is replaceable.
         """
-        return self._fan_data['hot_swappable']
+        return True
 
 
 class RealDrawer(MellanoxFanDrawer):
-    def __init__(self, index, fan_data):
-        super(RealDrawer, self).__init__(index, fan_data)
+    def __init__(self, index):
+        super(RealDrawer, self).__init__(index)
         self._name = 'drawer{}'.format(self._index)
         self._led = SharedLed(FanLed(self._index))
 
@@ -127,9 +122,15 @@ class RealDrawer(MellanoxFanDrawer):
 
     
 class VirtualDrawer(MellanoxFanDrawer):
-    def __init__(self, index, fan_data):
-        super(VirtualDrawer, self).__init__(index, fan_data)
+    def __init__(self, index):
+        super(VirtualDrawer, self).__init__(index)
         self._led = SharedLed(FanLed(None))
 
     def get_name(self):
         return 'N/A'
+
+    def get_presence(self):
+        return True
+
+    def is_replaceable(self):
+        return False

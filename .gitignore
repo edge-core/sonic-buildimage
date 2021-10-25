@@ -83,6 +83,13 @@ dockers/**/buildinfo
 platform/**/buildinfo
 sonic-slave*/**/buildinfo
 
+# pytest coverage files
+.coverage
+coverage.xml
+test-results.xml
+htmlcov/
+
 # Dev tools
 .vscode/
 .idea/
+

@@ -166,19 +166,19 @@ class ThermalRecoverAction(ThermalPolicyActionBase):
 class ChangeMinCoolingLevelAction(ThermalPolicyActionBase):
     UNKNOWN_SKU_COOLING_LEVEL = 6
     def execute(self, thermal_info_dict):
-        from .device_data import DEVICE_DATA
+        from .device_data import DeviceDataManager
         from .fan import Fan
         from .thermal_infos import ChassisInfo
         from .thermal_conditions import MinCoolingLevelChangeCondition
         from .thermal_conditions import UpdateCoolingLevelToMinCondition
 
-        chassis = thermal_info_dict[ChassisInfo.INFO_NAME].get_chassis()
-        if chassis.platform_name not in DEVICE_DATA or 'thermal' not in DEVICE_DATA[chassis.platform_name] or 'minimum_table' not in DEVICE_DATA[chassis.platform_name]['thermal']:
+        minimum_table = DeviceDataManager.get_minimum_table()
+        if not minimum_table:
             Fan.min_cooling_level = ChangeMinCoolingLevelAction.UNKNOWN_SKU_COOLING_LEVEL
         else:
             trust_state = MinCoolingLevelChangeCondition.trust_state
             temperature = MinCoolingLevelChangeCondition.temperature
-            minimum_table = DEVICE_DATA[chassis.platform_name]['thermal']['minimum_table']['unk_{}'.format(trust_state)]
+            minimum_table = minimum_table['unk_{}'.format(trust_state)]
 
             for key, cooling_level in minimum_table.items():
                 temp_range = key.split(':')

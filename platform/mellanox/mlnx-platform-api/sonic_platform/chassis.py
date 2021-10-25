@@ -24,21 +24,17 @@
 
 try:
     from sonic_platform_base.chassis_base import ChassisBase
-    from sonic_platform_base.component_base import ComponentBase
-    from sonic_py_common import device_info
     from sonic_py_common.logger import Logger
-    from os import listdir
-    from os.path import isfile, join
-    import sys
-    import io
-    import re
-    import syslog
+    import os
+    from functools import reduce
+
+    from . import utils
+    from .device_data import DeviceDataManager
+    from .sfp import SFP, deinitialize_sdk_handle
 except ImportError as e:
     raise ImportError (str(e) + "- required module not found")
 
 MAX_SELECT_DELAY = 3600
-
-MLNX_NUM_PSU = 2
 
 DMI_FILE = '/sys/firmware/dmi/entries/2-0/raw'
 DMI_HEADER_LEN = 15
@@ -57,14 +53,7 @@ DMI_TABLE_MAP = {
                     DMI_LOC: 5
                 }
 
-EEPROM_CACHE_ROOT = '/var/cache/sonic/decode-syseeprom'
-EEPROM_CACHE_FILE = 'syseeprom_cache'
-
 HWMGMT_SYSTEM_ROOT = '/var/run/hw-management/system/'
-
-MST_DEVICE_NAME_PATTERN = '/dev/mst/mt[0-9]*_pciconf0'
-MST_DEVICE_RE_PATTERN = '/dev/mst/mt([0-9]*)_pciconf0'
-SPECTRUM1_CHIP_ID = '52100'
 
 #reboot cause related definitions
 REBOOT_CAUSE_ROOT = HWMGMT_SYSTEM_ROOT
@@ -74,14 +63,6 @@ REBOOT_CAUSE_FILE_LENGTH = 1
 # Global logger class instance
 logger = Logger()
 
-# magic code defnition for port number, qsfp port position of each Platform
-# port_position_tuple = (PORT_START, QSFP_PORT_START, PORT_END, PORT_IN_BLOCK, EEPROM_OFFSET)
-platform_dict_port = {'x86_64-mlnx_msn2010-r0': 3, 'x86_64-mlnx_msn2100-r0': 1, 'x86_64-mlnx_msn2410-r0': 2,
-                      'x86_64-mlnx_msn2700-r0': 0, 'x86_64-mlnx_lssn2700': 0, 'x86_64-mlnx_msn2740-r0': 0,
-                      'x86_64-mlnx_msn3420-r0': 5, 'x86_64-mlnx_msn3700-r0': 0, 'x86_64-mlnx_msn3700c-r0': 0,
-                      'x86_64-mlnx_msn3800-r0': 4, 'x86_64-mlnx_msn4600-r0': 4, 'x86_64-mlnx_msn4600c-r0': 4,
-                      'x86_64-mlnx_msn4700-r0': 0, 'x86_64-mlnx_msn4410-r0': 0}
-port_position_tuple_list = [(0, 0, 31, 32, 1), (0, 0, 15, 16, 1), (0, 48, 55, 56, 1), (0, 18, 21, 22, 1), (0, 0, 63, 64, 1), (0, 48, 59, 60, 1)]
 
 class Chassis(ChassisBase):
     """Platform-specific Chassis class"""
@@ -91,12 +72,6 @@ class Chassis(ChassisBase):
 
     def __init__(self):
         super(Chassis, self).__init__()
-
-        self.name = "Undefined"
-        self.model = "Undefined"
-
-        # Initialize Platform name
-        self.platform_name = device_info.get_platform()
 
         # Initialize DMI data
         self.dmi_data = None
@@ -130,165 +105,161 @@ class Chassis(ChassisBase):
         #    - False: All SFP modules have not been created
         #    - True: All SFP modules have been created
         #
-        self.sfp_module_partial_initialized = False
-        self.sfp_module_full_initialized = False
-        self.sfp_event_initialized = False
+        self.sfp_initialized_count = 0
+        self.sfp_event = None
         self.reboot_cause_initialized = False
-        self.sdk_handle = None
-        self.deinitialize_sdk_handle = None
         logger.log_info("Chassis loaded successfully")
 
-
     def __del__(self):
-        if self.sfp_event_initialized:
+        if self.sfp_event:
             self.sfp_event.deinitialize()
 
-        if self.deinitialize_sdk_handle:
-            self.deinitialize_sdk_handle(self.sdk_handle)
-
+        if SFP.shared_sdk_handle:
+            deinitialize_sdk_handle(SFP.shared_sdk_handle)
+        
+    ##############################################
+    # PSU methods
+    ##############################################
 
     def initialize_psu(self):
-        from sonic_platform.psu import Psu
-        # Initialize PSU list
-        self.psu_module = Psu
-        for index in range(MLNX_NUM_PSU):
-            psu = Psu(index, self.platform_name)
-            self._psu_list.append(psu)
+        if not self._psu_list:
+            from .psu import Psu, FixedPsu
+            psu_count = DeviceDataManager.get_psu_count()
+            hot_swapable = DeviceDataManager.is_psu_hotswapable()
 
+            # Initialize PSU list
+            for index in range(psu_count):
+                if hot_swapable:
+                    psu = Psu(index)
+                else:
+                    psu = FixedPsu(index)
+                self._psu_list.append(psu)
+
+    def get_num_psus(self):
+        """
+        Retrieves the number of power supply units available on this chassis
+
+        Returns:
+            An integer, the number of power supply units available on this
+            chassis
+        """
+        self.initialize_psu()
+        return len(self._psu_list)
+
+    def get_all_psus(self):
+        """
+        Retrieves all power supply units available on this chassis
+
+        Returns:
+            A list of objects derived from PsuBase representing all power
+            supply units available on this chassis
+        """
+        self.initialize_psu()
+        return self._psu_list
+
+    def get_psu(self, index):
+        """
+        Retrieves power supply unit represented by (0-based) index <index>
+
+        Args:
+            index: An integer, the index (0-based) of the power supply unit to
+            retrieve
+
+        Returns:
+            An object dervied from PsuBase representing the specified power
+            supply unit
+        """
+        self.initialize_psu()
+        return super(Chassis, self).get_psu(index)
+
+    ##############################################
+    # Fan methods
+    ##############################################
 
     def initialize_fan(self):
-        from .device_data import DEVICE_DATA
-        from sonic_platform.fan import Fan
-        from .fan_drawer import RealDrawer, VirtualDrawer
+        if not self._fan_drawer_list:
+            from .fan import Fan
+            from .fan_drawer import RealDrawer, VirtualDrawer
 
-        fan_data = DEVICE_DATA[self.platform_name]['fans']
-        drawer_num = fan_data['drawer_num']
-        drawer_type = fan_data['drawer_type']
-        fan_num_per_drawer = fan_data['fan_num_per_drawer']
-        drawer_ctor = RealDrawer if drawer_type == 'real' else VirtualDrawer
-        fan_index = 0
-        for drawer_index in range(drawer_num):
-            drawer = drawer_ctor(drawer_index, fan_data)
-            self._fan_drawer_list.append(drawer)
-            for index in range(fan_num_per_drawer):
-                fan = Fan(fan_index, drawer, index + 1)
-                fan_index += 1
-                drawer._fan_list.append(fan)
+            hot_swapable = DeviceDataManager.is_fan_hotswapable()
+            drawer_num = DeviceDataManager.get_fan_drawer_count()
+            fan_num = DeviceDataManager.get_fan_count()
+            fan_num_per_drawer = fan_num // drawer_num
+            drawer_ctor = RealDrawer if hot_swapable else VirtualDrawer
+            fan_index = 0
+            for drawer_index in range(drawer_num):
+                drawer = drawer_ctor(drawer_index)
+                self._fan_drawer_list.append(drawer)
+                for index in range(fan_num_per_drawer):
+                    fan = Fan(fan_index, drawer, index + 1)
+                    fan_index += 1
+                    drawer._fan_list.append(fan)
 
-
-    def initialize_single_sfp(self, index):
-        if not self._sfp_list[index]:
-            if index >= self.QSFP_PORT_START and index < self.PORTS_IN_BLOCK:
-                sfp_module = self.sfp_module(index, 'QSFP', self.get_sdk_handle, self.platform_name)
-            else:
-                sfp_module = self.sfp_module(index, 'SFP', self.get_sdk_handle, self.platform_name)
-
-            self._sfp_list[index] = sfp_module
-
-
-    def initialize_sfp(self, index=None):
-        from sonic_platform.sfp import SFP
-
-        self.sfp_module = SFP
-
-        # Initialize SFP list
-        port_position_tuple = self._get_port_position_tuple_by_platform_name()
-        self.PORT_START = port_position_tuple[0]
-        self.QSFP_PORT_START = port_position_tuple[1]
-        self.PORT_END = port_position_tuple[2]
-        self.PORTS_IN_BLOCK = port_position_tuple[3]
-
-        if index is not None:
-            if not self.sfp_module_partial_initialized:
-                if index >= self.PORT_START and index < self.PORT_END:
-                    self._sfp_list = list([None]*(self.PORT_END + 1))
-                else:
-                    raise IndexError("{} is not a valid index of SPF modules. Valid index range:[{}, {}]".format(
-                        index, self.PORT_START + 1, self.PORT_END + 1))
-                self.sfp_module_partial_initialized = True
-        else:
-            if not self.sfp_module_partial_initialized:
-                self._sfp_list = list([None]*(self.PORT_END + 1))
-                self.sfp_module_partial_initialized = True
-            for index in range(self.PORT_START, self.PORT_END + 1):
-                self.initialize_single_sfp(index)
-
-            self.sfp_module_full_initialized = True
-
-
-    def get_sdk_handle(self):
-        if not self.sdk_handle:
-            from sonic_platform.sfp import initialize_sdk_handle, deinitialize_sdk_handle
-            self.sdk_handle = initialize_sdk_handle()
-            if self.sdk_handle is None:
-                logger.log_error('Failed to open SDK handle')
-            else:
-                self.deinitialize_sdk_handle = deinitialize_sdk_handle
-        return self.sdk_handle
-
-
-    def initialize_thermals(self):
-        from sonic_platform.thermal import initialize_chassis_thermals
-        # Initialize thermals
-        initialize_chassis_thermals(self.platform_name, self._thermal_list)
-
-
-    def initialize_eeprom(self):
-        from .eeprom import Eeprom
-        # Initialize EEPROM
-        self._eeprom = Eeprom()
-        # Get chassis name and model from eeprom
-        self.name = self._eeprom.get_product_name()
-        self.model = self._eeprom.get_part_number()
-
-
-    def initialize_components(self):
-        # Initialize component list
-        from sonic_platform.component import ComponentONIE, ComponentSSD, ComponentBIOS, ComponentCPLD
-        self._component_list.append(ComponentONIE())
-        self._component_list.append(ComponentSSD())
-        self._component_list.append(ComponentBIOS())
-        self._component_list.extend(ComponentCPLD.get_component_list())
-
-    def initizalize_system_led(self):
-        from .led import SystemLed
-        Chassis._led = SystemLed()
-
-
-    def get_name(self):
+    def get_num_fan_drawers(self):
         """
-        Retrieves the name of the device
+        Retrieves the number of fan drawers available on this chassis
 
         Returns:
-            string: The name of the device
+            An integer, the number of fan drawers available on this chassis
         """
-        return self.name
+        return DeviceDataManager.get_fan_drawer_count()
 
-
-    def get_model(self):
+    def get_all_fan_drawers(self):
         """
-        Retrieves the model number (or part number) of the device
+        Retrieves all fan drawers available on this chassis
 
         Returns:
-            string: Model/part number of device
+            A list of objects derived from FanDrawerBase representing all fan
+            drawers available on this chassis
         """
-        return self.model
+        self.initialize_fan()
+        return self._fan_drawer_list
 
-    def get_revision(self):
+    def get_fan_drawer(self, index):
         """
-        Retrieves the hardware revision of the device
-        
+        Retrieves fan drawers represented by (0-based) index <index>
+
+        Args:
+            index: An integer, the index (0-based) of the fan drawer to
+            retrieve
+
         Returns:
-            string: Revision value of device
+            An object dervied from FanDrawerBase representing the specified fan
+            drawer
         """
-        if self.dmi_data is None:
-            self.dmi_data = self._parse_dmi(DMI_FILE)
+        self.initialize_fan()
+        return super(Chassis, self).get_fan_drawer(index)
 
-        return self.dmi_data.get(DMI_VERSION, "N/A")
-        
     ##############################################
     # SFP methods
     ##############################################
+
+    def initialize_single_sfp(self, index):
+        sfp_count = self.get_num_sfps()
+        if index < sfp_count:
+            if not self._sfp_list:
+                self._sfp_list = [None] * sfp_count
+            
+            if not self._sfp_list[index]:
+                from .sfp import SFP
+                self._sfp_list[index] = SFP(index)
+                self.sfp_initialized_count += 1
+
+    def initialize_sfp(self):
+        if not self._sfp_list:
+            from .sfp import SFP
+            sfp_count = self.get_num_sfps()
+            for index in range(sfp_count):
+                sfp_module = SFP(index)
+                self._sfp_list.append(sfp_module)
+            self.sfp_initialized_count = sfp_count
+        elif self.sfp_initialized_count != len(self._sfp_list):
+            from .sfp import SFP
+            for index in range(len(self._sfp_list)):
+                if self._sfp_list[index] is None:
+                    self._sfp_list[index] = SFP(index)
+            self.sfp_initialized_count = len(self._sfp_list)
+
     def get_num_sfps(self):
         """
         Retrieves the number of sfps available on this chassis
@@ -296,23 +267,18 @@ class Chassis(ChassisBase):
         Returns:
             An integer, the number of sfps available on this chassis
         """
-        if not self.sfp_module_full_initialized:
-            self.initialize_sfp()
-        return len(self._sfp_list)
-
+        return DeviceDataManager.get_sfp_count()
 
     def get_all_sfps(self):
         """
         Retrieves all sfps available on this chassis
 
         Returns:
-            A list of objects derived from SfpBase representing all sfps 
+            A list of objects derived from SfpBase representing all sfps
             available on this chassis
         """
-        if not self.sfp_module_full_initialized:
-            self.initialize_sfp()
+        self.initialize_sfp()
         return self._sfp_list
-
 
     def get_sfp(self, index):
         """
@@ -327,44 +293,298 @@ class Chassis(ChassisBase):
         Returns:
             An object dervied from SfpBase representing the specified sfp
         """
-        sfp = None
-        index -= 1
+        index = index - 1
+        self.initialize_single_sfp(index)
+        return super(Chassis, self).get_sfp(index)
+        
+    def get_change_event(self, timeout=0):
+        """
+        Returns a nested dictionary containing all devices which have
+        experienced a change at chassis level
 
-        try:
-            if not self.sfp_module_partial_initialized:
-                self.initialize_sfp(index)
+        Args:
+            timeout: Timeout in milliseconds (optional). If timeout == 0,
+                this method will block until a change is detected.
 
-            sfp = self._sfp_list[index]
-            if not sfp:
-                self.initialize_single_sfp(index)
-                sfp = self._sfp_list[index]
-        except IndexError:
-            sys.stderr.write("SFP index {} out of range (0-{})\n".format(
-                             index, len(self._sfp_list)-1))
+        Returns:
+            (bool, dict):
+                - True if call successful, False if not;
+                - A nested dictionary where key is a device type,
+                  value is a dictionary with key:value pairs in the format of
+                  {'device_id':'device_event'}, 
+                  where device_id is the device ID for this device and
+                        device_event,
+                             status='1' represents device inserted,
+                             status='0' represents device removed.
+                  Ex. {'fan':{'0':'0', '2':'1'}, 'sfp':{'11':'0'}}
+                      indicates that fan 0 has been removed, fan 2
+                      has been inserted and sfp 11 has been removed.
+        """
+        self.initialize_sfp()
+        # Initialize SFP event first
+        if not self.sfp_event:
+            from .sfp_event import sfp_event
+            self.sfp_event = sfp_event()
+            self.sfp_event.initialize()
 
-        return sfp
+        wait_for_ever = (timeout == 0)
+        port_dict = {}
+        error_dict = {}
+        if wait_for_ever:
+            timeout = MAX_SELECT_DELAY
+            while True:
+                status = self.sfp_event.check_sfp_status(port_dict, error_dict, timeout)
+                if bool(port_dict):
+                    break
+        else:
+            status = self.sfp_event.check_sfp_status(port_dict, error_dict, timeout)
 
+        if status:
+            self.reinit_sfps(port_dict)
+            result_dict = {'sfp':port_dict}
+            if error_dict:
+                result_dict['sfp_error'] = error_dict
+            return True, result_dict
+        else:
+            return True, {'sfp':{}}
 
-    def _extract_num_of_fans_and_fan_drawers(self):
-        num_of_fan = 0
-        num_of_drawer = 0
-        for f in listdir(self.fan_path):
-            if isfile(join(self.fan_path, f)):
-                match_obj = re.match('fan(\d+)_speed_get', f)
-                if match_obj != None:
-                    if int(match_obj.group(1)) > num_of_fan:
-                        num_of_fan = int(match_obj.group(1))
-                else:
-                    match_obj = re.match('fan(\d+)_status', f)
-                    if match_obj != None and int(match_obj.group(1)) > num_of_drawer:
-                        num_of_drawer = int(match_obj.group(1))
+    def reinit_sfps(self, port_dict):
+        """
+        Re-initialize SFP if there is any newly inserted SFPs
+        :param port_dict: SFP event data
+        :return:
+        """
+        from . import sfp
+        for index, status in port_dict.items():
+            if status == sfp.SFP_STATUS_INSERTED:
+                try:
+                    self._sfp_list[index - 1].reinit()
+                except Exception as e:
+                    logger.log_error("Fail to re-initialize SFP {} - {}".format(index, repr(e)))
 
-        return num_of_fan, num_of_drawer
+    def _show_capabilities(self):
+        """
+        This function is for debug purpose
+        Some features require a xSFP module to support some capabilities but it's unrealistic to
+        check those modules one by one.
+        So this function is introduce to show some capabilities of all xSFP modules mounted on the device.
+        """
+        self.initialize_sfp()
+        for s in self._sfp_list:
+            try:
+                print("index {} tx disable {} dom {} calibration {} temp {} volt {} power (tx {} rx {})".format(s.index,
+                    s.dom_tx_disable_supported,
+                    s.dom_supported,
+                    s.calibration,
+                    s.dom_temp_supported,
+                    s.dom_volt_supported,
+                    s.dom_rx_power_supported,
+                    s.dom_tx_power_supported
+                    ))
+            except:
+                print("fail to retrieve capabilities for module index {}".format(s.index))
 
-    def _get_port_position_tuple_by_platform_name(self):
-        position_tuple = port_position_tuple_list[platform_dict_port[self.platform_name]]
-        return position_tuple
+    ##############################################
+    # THERMAL methods
+    ##############################################
 
+    def initialize_thermals(self):
+        if not self._thermal_list:
+            from .thermal import initialize_chassis_thermals
+            # Initialize thermals
+            self._thermal_list = initialize_chassis_thermals()
+
+    def get_num_thermals(self):
+        """
+        Retrieves the number of thermals available on this chassis
+
+        Returns:
+            An integer, the number of thermals available on this chassis
+        """
+        self.initialize_thermals()
+        return len(self._thermal_list)
+
+    def get_all_thermals(self):
+        """
+        Retrieves all thermals available on this chassis
+
+        Returns:
+            A list of objects derived from ThermalBase representing all thermals
+            available on this chassis
+        """
+        self.initialize_thermals()
+        return self._thermal_list
+
+    def get_thermal(self, index):
+        """
+        Retrieves thermal unit represented by (0-based) index <index>
+
+        Args:
+            index: An integer, the index (0-based) of the thermal to
+            retrieve
+
+        Returns:
+            An object dervied from ThermalBase representing the specified thermal
+        """
+        self.initialize_thermals()
+        return super(Chassis, self).get_thermal(index)
+
+    ##############################################
+    # EEPROM methods
+    ##############################################
+
+    def initialize_eeprom(self):
+        if not self._eeprom:
+            from .eeprom import Eeprom
+            # Initialize EEPROM
+            self._eeprom = Eeprom()
+
+    def get_eeprom(self):
+        """
+        Retreives eeprom device on this chassis
+
+        Returns:
+            An object derived from WatchdogBase representing the hardware
+            eeprom device
+        """
+        self.initialize_eeprom()
+        return self._eeprom
+
+    def get_name(self):
+        """
+        Retrieves the name of the device
+
+        Returns:
+            string: The name of the device
+        """
+        self.initialize_eeprom()
+        return self._eeprom.get_product_name()
+
+    def get_model(self):
+        """
+        Retrieves the model number (or part number) of the device
+
+        Returns:
+            string: Model/part number of device
+        """
+        self.initialize_eeprom()
+        return self._eeprom.get_part_number()
+
+    def get_base_mac(self):
+        """
+        Retrieves the base MAC address for the chassis
+
+        Returns:
+            A string containing the MAC address in the format
+            'XX:XX:XX:XX:XX:XX'
+        """
+        self.initialize_eeprom()
+        return self._eeprom.get_base_mac()
+
+    def get_serial(self):
+        """
+        Retrieves the hardware serial number for the chassis
+
+        Returns:
+            A string containing the hardware serial number for this chassis.
+        """
+        self.initialize_eeprom()
+        return self._eeprom.get_serial_number()
+
+    def get_system_eeprom_info(self):
+        """
+        Retrieves the full content of system EEPROM information for the chassis
+
+        Returns:
+            A dictionary where keys are the type code defined in
+            OCP ONIE TlvInfo EEPROM format and values are their corresponding
+            values.
+        """
+        self.initialize_eeprom()
+        return self._eeprom.get_system_eeprom_info()
+
+    ##############################################
+    # Component methods
+    ##############################################
+
+    def initialize_components(self):
+        if not utils.is_host():
+            return
+        if not self._component_list:
+            # Initialize component list
+            from .component import ComponentONIE, ComponentSSD, ComponentBIOS, ComponentCPLD
+            self._component_list.append(ComponentONIE())
+            self._component_list.append(ComponentSSD())
+            self._component_list.append(ComponentBIOS())
+            self._component_list.extend(ComponentCPLD.get_component_list())
+
+    def get_num_components(self):
+        """
+        Retrieves the number of components available on this chassis
+
+        Returns:
+            An integer, the number of components available on this chassis
+        """
+        self.initialize_components()
+        return len(self._component_list)
+
+    def get_all_components(self):
+        """
+        Retrieves all components available on this chassis
+
+        Returns:
+            A list of objects derived from ComponentBase representing all components
+            available on this chassis
+        """
+        self.initialize_components()
+        return self._component_list
+
+    def get_component(self, index):
+        """
+        Retrieves component represented by (0-based) index <index>
+
+        Args:
+            index: An integer, the index (0-based) of the component to retrieve
+
+        Returns:
+            An object dervied from ComponentBase representing the specified component
+        """
+        self.initialize_components()
+        return super(Chassis, self).get_component(index)
+
+    ##############################################
+    # System LED methods
+    ##############################################
+
+    def initizalize_system_led(self):
+        if not Chassis._led:
+            from .led import SystemLed
+            Chassis._led = SystemLed()
+
+    def set_status_led(self, color):
+        """
+        Sets the state of the system LED
+
+        Args:
+            color: A string representing the color with which to set the
+                   system LED
+
+        Returns:
+            bool: True if system LED state is set successfully, False if not
+        """
+        self.initizalize_system_led()
+        return False if not Chassis._led else Chassis._led.set_status(color)
+
+    def get_status_led(self):
+        """
+        Gets the state of the system LED
+
+        Returns:
+            A string, one of the valid LED color strings which could be vendor
+            specified.
+        """
+        self.initizalize_system_led()
+        return None if not Chassis._led else Chassis._led.get_status()
 
     def get_watchdog(self):
         """
@@ -383,61 +603,25 @@ class Chassis(ChassisBase):
         """
         try:
             if self._watchdog is None:
-                from sonic_platform.watchdog import get_watchdog
+                from .watchdog import get_watchdog
                 self._watchdog = get_watchdog()
         except Exception as e:
             logger.log_info("Fail to load watchdog due to {}".format(repr(e)))
 
         return self._watchdog
 
-
-    def get_base_mac(self):
+    
+    def get_revision(self):
         """
-        Retrieves the base MAC address for the chassis
-
+        Retrieves the hardware revision of the device
+        
         Returns:
-            A string containing the MAC address in the format
-            'XX:XX:XX:XX:XX:XX'
+            string: Revision value of device
         """
-        return self._eeprom.get_base_mac()
+        if self.dmi_data is None:
+            self.dmi_data = self._parse_dmi(DMI_FILE)
 
-
-    def get_serial(self):
-        """
-        Retrieves the hardware serial number for the chassis
-
-        Returns:
-            A string containing the hardware serial number for this chassis.
-        """
-        return self._eeprom.get_serial_number()
-
-
-    def get_system_eeprom_info(self):
-        """
-        Retrieves the full content of system EEPROM information for the chassis
-
-        Returns:
-            A dictionary where keys are the type code defined in
-            OCP ONIE TlvInfo EEPROM format and values are their corresponding
-            values.
-        """
-        return self._eeprom.get_system_eeprom_info()
-
-
-    def _read_generic_file(self, filename, len):
-        """
-        Read a generic file, returns the contents of the file
-        """
-        result = ''
-        try:
-            fileobj = io.open(filename)
-            result = fileobj.read(len)
-            fileobj.close()
-            return result
-        except Exception as e:
-            logger.log_info("Fail to read file {} due to {}".format(filename, repr(e)))
-            return '0'
-
+        return self.dmi_data.get(DMI_VERSION, "N/A")
 
     def _parse_dmi(self, filename):
         """
@@ -448,9 +632,8 @@ class Chassis(ChassisBase):
         """
         result = {}
         try:
-            fileobj = open(filename, "rb")
-            data = fileobj.read()
-            fileobj.close()
+            with open(filename, "rb") as fileobj:
+                data = fileobj.read()
 
             body = data[DMI_HEADER_LEN:]
             records = body.split(b'\x00')
@@ -463,15 +646,13 @@ class Chassis(ChassisBase):
 
         return result
 
-
     def _verify_reboot_cause(self, filename):
         '''
         Open and read the reboot cause file in 
         /var/run/hwmanagement/system (which is defined as REBOOT_CAUSE_ROOT)
         If a reboot cause file doesn't exists, returns '0'.
         '''
-        return bool(int(self._read_generic_file(join(REBOOT_CAUSE_ROOT, filename), REBOOT_CAUSE_FILE_LENGTH).rstrip('\n')))
-
+        return bool(utils.read_int_from_file(os.path.join(REBOOT_CAUSE_ROOT, filename), log_func=None))
 
     def initialize_reboot_cause(self):
         self.reboot_major_cause_dict = {
@@ -497,7 +678,6 @@ class Chassis(ChassisBase):
         }
         self.reboot_by_software = 'reset_sw_reset'
         self.reboot_cause_initialized = True
-
 
     def get_reboot_cause(self):
         """
@@ -529,125 +709,9 @@ class Chassis(ChassisBase):
 
         return self.REBOOT_CAUSE_NON_HARDWARE, ''
 
-
-    def _show_capabilities(self):
-        """
-        This function is for debug purpose
-        Some features require a xSFP module to support some capabilities but it's unrealistic to
-        check those modules one by one.
-        So this function is introduce to show some capabilities of all xSFP modules mounted on the device.
-        """
-        for s in self._sfp_list:
-            try:
-                print("index {} tx disable {} dom {} calibration {} temp {} volt {} power (tx {} rx {})".format(s.index,
-                    s.dom_tx_disable_supported,
-                    s.dom_supported,
-                    s.calibration,
-                    s.dom_temp_supported,
-                    s.dom_volt_supported,
-                    s.dom_rx_power_supported,
-                    s.dom_tx_power_supported
-                    ))
-            except:
-                print("fail to retrieve capabilities for module index {}".format(s.index))
-
-
-    def get_change_event(self, timeout=0):
-        """
-        Returns a nested dictionary containing all devices which have
-        experienced a change at chassis level
-
-        Args:
-            timeout: Timeout in milliseconds (optional). If timeout == 0,
-                this method will block until a change is detected.
-
-        Returns:
-            (bool, dict):
-                - True if call successful, False if not;
-                - A nested dictionary where key is a device type,
-                  value is a dictionary with key:value pairs in the format of
-                  {'device_id':'device_event'}, 
-                  where device_id is the device ID for this device and
-                        device_event,
-                             status='1' represents device inserted,
-                             status='0' represents device removed.
-                  Ex. {'fan':{'0':'0', '2':'1'}, 'sfp':{'11':'0'}}
-                      indicates that fan 0 has been removed, fan 2
-                      has been inserted and sfp 11 has been removed.
-        """
-        # Initialize SFP event first
-        if not self.sfp_event_initialized:
-            from sonic_platform.sfp_event import sfp_event
-            self.sfp_event = sfp_event()
-            self.sfp_event.initialize()
-            self.MAX_SELECT_EVENT_RETURNED = self.PORT_END
-            self.sfp_event_initialized = True
-
-        wait_for_ever = (timeout == 0)
-        port_dict = {}
-        error_dict = {}
-        if wait_for_ever:
-            timeout = MAX_SELECT_DELAY
-            while True:
-                status = self.sfp_event.check_sfp_status(port_dict, error_dict, timeout)
-                if bool(port_dict):
-                    break
-        else:
-            status = self.sfp_event.check_sfp_status(port_dict, error_dict, timeout)
-
-        if status:
-            self.reinit_sfps(port_dict)
-            result_dict = {'sfp':port_dict}
-            if error_dict:
-                result_dict['sfp_error'] = error_dict
-            return True, result_dict
-        else:
-            return True, {'sfp':{}}
-
-    def reinit_sfps(self, port_dict):
-        """
-        Re-initialize SFP if there is any newly inserted SFPs
-        :param port_dict: SFP event data
-        :return:
-        """
-        # SFP not initialize yet, do nothing
-        if not self.sfp_module_full_initialized:
-            return
-
-        from . import sfp
-        for index, status in port_dict.items():
-            if status == sfp.SFP_STATUS_INSERTED:
-                try:
-                    self.get_sfp(index).reinit()
-                except Exception as e:
-                    logger.log_error("Fail to re-initialize SFP {} - {}".format(index, repr(e)))
-
     def get_thermal_manager(self):
         from .thermal_manager import ThermalManager
         return ThermalManager
-
-    def set_status_led(self, color):
-        """
-        Sets the state of the system LED
-
-        Args:
-            color: A string representing the color with which to set the
-                   system LED
-
-        Returns:
-            bool: True if system LED state is set successfully, False if not
-        """
-        return False if not Chassis._led else Chassis._led.set_status(color)
-
-    def get_status_led(self):
-        """
-        Gets the state of the system LED
-
-        Returns:
-            A string, one of the valid LED color strings which could be vendor
-            specified.
-        """
-        return None if not Chassis._led else Chassis._led.get_status()
 
     def get_position_in_parent(self):
         """
@@ -665,3 +729,141 @@ class Chassis(ChassisBase):
             bool: True if it is replaceable.
         """
         return False
+
+
+class ModularChassis(Chassis):
+    def __init__(self):
+        super(ModularChassis, self).__init__()
+        self.module_initialized_count = 0
+
+    def is_modular_chassis(self):
+        """
+        Retrieves whether the sonic instance is part of modular chassis
+
+        Returns:
+            A bool value, should return False by default or for fixed-platforms.
+            Should return True for supervisor-cards, line-cards etc running as part
+            of modular-chassis.
+        """
+        return True
+
+    ##############################################
+    # Module methods
+    ##############################################
+    def initialize_single_module(self, index):
+        count = self.get_num_modules()
+        if index < count:
+            if not self._module_list:
+                self._module_list = [None] * count
+            
+            if not self._module_list[index]:
+                from .module import Module
+                self._module_list[index] = Module(index + 1)
+                self.module_initialized_count += 1
+
+    def initialize_modules(self):
+        if not self._module_list:
+            from .module import Module
+            count = self.get_num_modules()
+            for index in range(1, count + 1):
+                self._module_list.append(Module(index))
+            self.module_initialized_count = count
+        elif self.module_initialized_count != len(self._module_list):
+            from .module import Module
+            for index in range(len(self._module_list)):
+                if self._module_list[index] is None:
+                    self._module_list[index] = Module(index + 1)
+            self.module_initialized_count = len(self._module_list)
+
+    def get_num_modules(self):
+        """
+        Retrieves the number of modules available on this chassis
+
+        Returns:
+            An integer, the number of modules available on this chassis
+        """
+        return DeviceDataManager.get_linecard_count()
+
+    def get_all_modules(self):
+        """
+        Retrieves all modules available on this chassis
+
+        Returns:
+            A list of objects derived from ModuleBase representing all
+            modules available on this chassis
+        """
+        self.initialize_modules()
+        return self._module_list
+
+    def get_module(self, index):
+        """
+        Retrieves module represented by (0-based) index <index>
+
+        Args:
+            index: An integer, the index (0-based) of the module to
+            retrieve
+
+        Returns:
+            An object dervied from ModuleBase representing the specified
+            module
+        """
+        self.initialize_single_module(index)
+        return super(ModularChassis, self).get_module(index)
+
+    @utils.default_return(-1)
+    def get_module_index(self, module_name):
+        """
+        Retrieves module index from the module name
+
+        Args:
+            module_name: A string, prefixed by SUPERVISOR, LINE-CARD or FABRIC-CARD
+            Ex. SUPERVISOR0, LINE-CARD1, FABRIC-CARD5
+
+        Returns:
+            An integer, the index of the ModuleBase object in the module_list
+        """
+        return int(module_name[len('LINE-CARD')-1:])
+
+    ##############################################
+    # SFP methods
+    ##############################################
+
+    def get_num_sfps(self):
+        """
+        Retrieves the number of sfps available on this chassis
+
+        Returns:
+            An integer, the number of sfps available on this chassis
+        """
+        return reduce(lambda x, y: x + y, (x.get_num_sfps() for x in self.get_all_modules()))
+
+    def get_all_sfps(self):
+        """
+        Retrieves all sfps available on this chassis
+
+        Returns:
+            A list of objects derived from SfpBase representing all sfps
+            available on this chassis
+        """
+        return reduce(lambda x, y: x + y, (x.get_all_sfps() for x in self.get_all_modules()))
+
+    def get_sfp(self, index):
+        """
+        Retrieves sfp represented by (1-based) index <index>
+
+        Args:
+            index: An integer, the index (1-based) of the sfp to retrieve.
+                   The index should be the sequence of a physical port in a chassis,
+                   starting from 1.
+                   For example, 1 for Ethernet0, 2 for Ethernet4 and so on.
+
+        Returns:
+            An object dervied from SfpBase representing the specified sfp
+        """
+        sfp_index = index % DeviceDataManager.get_linecard_max_port_count() - 1
+        slot_id = int((index - sfp_index - 1) / 16) + 1
+        module = self.get_module(slot_id - 1)
+        if not module:
+            return None
+
+        return module.get_sfp(sfp_index - 1)
