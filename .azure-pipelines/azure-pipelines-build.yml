@@ -64,7 +64,7 @@ jobs:
             platform_rpc: centec
 
         - name: centec-arm64
-          pool: sonicbld_8c
+          pool: sonicbld-arm64
           timeoutInMinutes: 2880
           variables:
             PLATFORM_ARCH: arm64
