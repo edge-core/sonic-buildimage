@@ -2,13 +2,13 @@ azure-common==1.1.27
 azure-nspkg==3.0.2
 azure-storage==0.36.0
 bitarray==1.5.3
-certifi==2021.5.30
-cffi==1.14.6
-charset-normalizer==2.0.6
+certifi==2021.10.8
+cffi==1.15.0
+charset-normalizer==2.0.7
 click==7.0
 cryptography==35.0.0
 docker==4.3.1
-idna==3.2
+idna==3.3
 ijson==2.6.1
 ipaddress==1.0.23
 j2cli==0.3.10
@@ -31,7 +31,7 @@ pycparser==2.20
 python-dateutil==2.8.2
 pyyaml==5.4.1
 redis==3.5.3
-regex==2021.9.30
+regex==2021.10.23
 requests==2.26.0
 scapy==2.4.4
 six==1.16.0

@@ -98,10 +98,9 @@ libgdbm-compat4==1.18.1-4
 libgdbm6==1.18.1-4
 libglib2.0-0==2.58.3-2+deb10u3
 libgpm2==1.20.7-5
-libgssapi-krb5-2==1.17-3+deb10u2
+libgssapi-krb5-2==1.17-3+deb10u3
 libhavege1==1.9.1-7
 libhiredis0.14==0.14.0-3~bpo9+1
-libhogweed4==3.4.1-1+deb10u1
 libi2c0==4.1-1
 libip4tc0==1.8.2-4
 libip6tc0==1.8.2-4
@@ -109,12 +108,12 @@ libiptc0==1.8.2-4
 libisc-export1100==1:9.11.5.P4+dfsg-5.1+deb10u5
 libjq1==1.5+dfsg-2+b1
 libjson-c3==0.12.1+ds-2+deb10u1
-libk5crypto3==1.17-3+deb10u2
+libk5crypto3==1.17-3+deb10u3
 libkeyutils1==1.6-6
 libklibc==2.0.6-1+deb10u1
 libkmod2==26-1
-libkrb5-3==1.17-3+deb10u2
-libkrb5support0==1.17-3+deb10u2
+libkrb5-3==1.17-3+deb10u3
+libkrb5support0==1.17-3+deb10u3
 libksba8==1.3.5-2
 libldap-2.4-2==2.4.47+dfsg-3+deb10u6
 libldap-common==2.4.47+dfsg-3+deb10u6
@@ -127,7 +126,6 @@ libmpdec2==2.4.2-2
 libncurses6==6.1+20181013-2+deb10u2
 libnet1==1.1.6+dfsg-3.1
 libnetfilter-conntrack3==1.0.7-1
-libnettle6==3.4.1-1+deb10u1
 libnfnetlink0==1.0.1-3+b1
 libnftnl11==1.1.2-2
 libnghttp2-14==1.36.0-2+deb10u1
@@ -210,7 +208,7 @@ perl-modules-5.28==5.28.1-6+deb10u1
 picocom==3.1-2
 pinentry-curses==1.1.0-2
 procps==2:3.3.15-2
-psmisc==23.2-1
+psmisc==23.2-1+deb10u1
 python==2.7.16-1
 python-apt==1.8.4.3
 python-apt-common==1.8.4.3
@@ -241,7 +239,7 @@ sonic-device-data==1.0-1
 sonic-host-services-data==1.0-1
 sonic-utilities-data==1.0-1
 sqlite3==3.27.2-3+deb10u1
-squashfs-tools==1:4.3-12+deb10u1
+squashfs-tools==1:4.3-12+deb10u2
 sudo==1.8.27-1+deb10u3
 sx-kernel==1.mlnx.4.4.3326
 sysfsutils==2.1.0+repack-5

@@ -76,7 +76,7 @@ openssh-client==1:7.9p1-10+deb10u2
 openssh-server==1:7.9p1-10+deb10u2
 openssh-sftp-server==1:7.9p1-10+deb10u2
 pinentry-curses==1.1.0-2
-psmisc==23.2-1
+psmisc==23.2-1+deb10u1
 python==2.7.16-1
 python-minimal==2.7.16-1
 python-ply==3.11-3

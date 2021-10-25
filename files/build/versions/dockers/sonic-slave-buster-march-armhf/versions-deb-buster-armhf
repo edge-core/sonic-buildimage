@@ -1294,7 +1294,7 @@ netbase==5.6
 netpbm==2:10.0-15.3+b2
 nettle-dev==3.4.1-1+deb10u1
 nftables==0.9.0-2
-nodejs==14.18.0-deb-1nodesource1
+nodejs==14.18.1-deb-1nodesource1
 ocl-icd-libopencl1==2.2.12-2
 openjdk-11-jdk==11.0.12+7-2~deb10u1
 openjdk-11-jdk-headless==11.0.12+7-2~deb10u1
