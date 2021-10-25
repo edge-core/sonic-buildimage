@@ -64,6 +64,28 @@ VAR_LOG_SIZE=4096
 
 [ -r platforms/$onie_platform ] && . platforms/$onie_platform
 
+# Verify image platform is inside devices list
+if [ "$install_env" = "onie" ]; then
+    if ! grep -Fxq "$onie_platform" platforms_asic; then
+        echo "The image you're trying to install is of a different ASIC type as the running platform's ASIC"
+        while true; do
+            read -r -p "Do you still wish to install this image? [y/n]: " input
+            case $input in
+                [Yy])
+                    echo "Force installing..."
+                    break
+                    ;;
+                [Nn])
+                    echo "Exited installation!"
+                    exit 1
+                    ;;
+                *)
+                    echo "Error: Invalid input"
+                    ;;
+            esac
+        done
+    fi
+fi
 
 # If running in ONIE
 if [ "$install_env" = "onie" ]; then
