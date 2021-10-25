@@ -312,6 +312,25 @@ static ssize_t get_modsel(struct device *dev, struct device_attribute *devattr, 
     return sprintf(buf, "0x%08x\n", data);
 }
 
+static ssize_t set_modsel(struct device *dev, struct device_attribute *devattr, const char *buf, size_t count)
+{
+    int err;
+    unsigned long data = 0;
+    struct cpld_platform_data *pdata = dev->platform_data;
+
+    err = kstrtoul(buf, 16, &data);
+    if (err)
+	return err;
+
+    dell_i2c_smbus_write_byte_data(pdata[slave_cpld].client, 0x0, (u8)(data & 0xff));
+    dell_i2c_smbus_write_byte_data(pdata[slave_cpld].client, 0x1, (u8)((data >> 8) & 0xff));
+    dell_i2c_smbus_write_byte_data(pdata[master_cpld].client, 0xa, (u8)((data >> 16) & 0xff));
+    dell_i2c_smbus_write_byte_data(pdata[master_cpld].client, 0xb, (u8)((data >> 24) & 0xff));
+
+    msleep(2); // As per HW spec
+    return count;
+}
+
 static ssize_t get_lpmode(struct device *dev, struct device_attribute *devattr, char *buf)
 {
     int ret;
@@ -1128,7 +1147,7 @@ static ssize_t get_reboot_reason(struct device *dev,
     return sprintf(buf, "0x%x\n", data);
 }
 
-static DEVICE_ATTR(qsfp_modsel, S_IRUGO, get_modsel, NULL);
+static DEVICE_ATTR(qsfp_modsel, S_IRUGO | S_IWUSR, get_modsel, set_modsel);
 static DEVICE_ATTR(qsfp_modprs, S_IRUGO, get_modprs, NULL);
 static DEVICE_ATTR(qsfp_lpmode, S_IRUGO | S_IWUSR, get_lpmode, set_lpmode);
 static DEVICE_ATTR(qsfp_reset,  S_IRUGO | S_IWUSR, get_reset, set_reset);
