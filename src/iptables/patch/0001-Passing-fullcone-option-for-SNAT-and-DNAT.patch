@@ -1,16 +1,17 @@
-From 92f5aee7372748845f11b7a10d880f968769e860 Mon Sep 17 00:00:00 2001
+From 386bb8378bc67b7dfc3db5d5f28a01620b4231cf Mon Sep 17 00:00:00 2001
 From: Kiran Kella <kiran.kella@broadcom.com>
 Date: Wed, 7 Aug 2019 07:22:42 -0700
-Subject: [PATCH] Passing fullcone option for SNAT and DNAT
+Subject: [PATCH] From 92f5aee7372748845f11b7a10d880f968769e860 Mon Sep 17
+ 00:00:00 2001 Subject: [PATCH] Passing fullcone option for SNAT and DNAT
 
 ---
- extensions/libipt_DNAT.c       | 22 +++++++++++++++++++++-
- extensions/libipt_MASQUERADE.c | 21 ++++++++++++++++++++-
- extensions/libipt_SNAT.c       | 22 +++++++++++++++++++++-
- 3 files changed, 62 insertions(+), 3 deletions(-)
+ extensions/libipt_DNAT.c       | 37 ++++++++++++++++++++++++++++++++--
+ extensions/libipt_MASQUERADE.c | 22 +++++++++++++++++++-
+ extensions/libipt_SNAT.c       | 22 +++++++++++++++++++-
+ 3 files changed, 77 insertions(+), 4 deletions(-)
 
 diff --git a/extensions/libipt_DNAT.c b/extensions/libipt_DNAT.c
-index 4907a2e..543421c 100644
+index 4907a2e..95e3446 100644
 --- a/extensions/libipt_DNAT.c
 +++ b/extensions/libipt_DNAT.c
 @@ -8,14 +8,20 @@
@@ -19,7 +20,7 @@ index 4907a2e..543421c 100644
  
 +/* Temporarily defining here, need to be picked up from the
 + * new kernel header linux/netfilter/nf_nat.h */
-+#define NF_NAT_RANGE_FULLCONE  (1 << 6)
++#define NF_NAT_RANGE_FULLCONE  (1 << 10)
 +
  enum {
  	O_TO_DEST = 0,
@@ -151,7 +152,7 @@ index 4907a2e..543421c 100644
  	return 1;
  }
 diff --git a/extensions/libipt_MASQUERADE.c b/extensions/libipt_MASQUERADE.c
-index 90bf606..169457d 100644
+index 90bf606..b3ed1e6 100644
 --- a/extensions/libipt_MASQUERADE.c
 +++ b/extensions/libipt_MASQUERADE.c
 @@ -8,10 +8,15 @@
@@ -160,7 +161,7 @@ index 90bf606..169457d 100644
  
 +/* Temporarily defining here, need to be picked up from the
 + * new kernel header linux/netfilter/nf_nat.h */
-+#define NF_NAT_RANGE_FULLCONE  (1 << 6)
++#define NF_NAT_RANGE_FULLCONE  (1 << 10)
 +
  enum {
  	O_TO_PORTS = 0,
@@ -229,7 +230,7 @@ index 90bf606..169457d 100644
  }
  
 diff --git a/extensions/libipt_SNAT.c b/extensions/libipt_SNAT.c
-index e92d811..ad42b8c 100644
+index e92d811..8704004 100644
 --- a/extensions/libipt_SNAT.c
 +++ b/extensions/libipt_SNAT.c
 @@ -8,16 +8,22 @@
@@ -238,7 +239,7 @@ index e92d811..ad42b8c 100644
  
 +/* Temporarily defining here, need to be picked up from the
 + * new kernel header linux/netfilter/nf_nat.h */
-+#define NF_NAT_RANGE_FULLCONE  (1 << 6)
++#define NF_NAT_RANGE_FULLCONE  (1 << 10)
 +
  enum {
  	O_TO_SRC = 0,
@@ -319,3 +320,6 @@ index e92d811..ad42b8c 100644
  	}
  
  	return 1;
+-- 
+2.27.0
+
