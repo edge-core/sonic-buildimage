@@ -1,7 +1,7 @@
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/i2c.h>
-#include <linux/platform_data/pca954x.h>
+#include "../../pca954x/ctc-pca954x.h"
 #include <linux/device.h>
 #include <linux/kdev_t.h>
 #include <linux/leds.h>
@@ -95,7 +95,7 @@ static struct pca954x_platform_data i2c_dev_pca9548_platform_data = {
     .num_modes = PCA9548_CHANNEL_NUM,
 };
 static struct i2c_board_info i2c_dev_pca9548 = {
-    I2C_BOARD_INFO("pca9548", 0x70),
+    I2C_BOARD_INFO("ctc_pca9548", 0x70),
     .platform_data = &i2c_dev_pca9548_platform_data,
 };
 static struct i2c_client  *i2c_client_pca9548x     = NULL;
@@ -110,7 +110,7 @@ static int e582_48x6q_init_i2c_pca9548(void)
     }
 
     /* install i2c-mux */
-    i2c_client_pca9548x = i2c_new_device(i2c_adp_master, &i2c_dev_pca9548);
+    i2c_client_pca9548x = i2c_new_client_device(i2c_adp_master, &i2c_dev_pca9548);
     if(IS_INVALID_PTR(i2c_client_pca9548x))
     {
         i2c_client_pca9548x = NULL;
@@ -150,7 +150,7 @@ static int e582_48x6q_init_i2c_adt7470(void)
         return -1;
     }
     
-    i2c_client_adt7470 = i2c_new_device(i2c_adp_adt7470, &i2c_dev_adt7470);
+    i2c_client_adt7470 = i2c_new_client_device(i2c_adp_adt7470, &i2c_dev_adt7470);
     if(IS_INVALID_PTR(i2c_client_adt7470)){
         i2c_client_adt7470 = NULL;
         printk(KERN_CRIT "install e582_48x6q board adt7470 failed\n");
@@ -206,14 +206,14 @@ static int e582_48x6q_init_i2c_psu(void)
         return -1;
     }
     
-    i2c_client_psu1 = i2c_new_device(i2c_adp_psu1, &i2c_dev_psu1);
+    i2c_client_psu1 = i2c_new_client_device(i2c_adp_psu1, &i2c_dev_psu1);
     if(IS_INVALID_PTR(i2c_client_psu1)){
         i2c_client_psu1 = NULL;
         printk(KERN_CRIT "create e582_48x6q board i2c client psu1 failed\n");
         return -1;
     }
 
-    i2c_client_psu2 = i2c_new_device(i2c_adp_psu2, &i2c_dev_psu2);
+    i2c_client_psu2 = i2c_new_client_device(i2c_adp_psu2, &i2c_dev_psu2);
     if(IS_INVALID_PTR(i2c_client_psu2)){
         i2c_client_psu2 = NULL;
         printk(KERN_CRIT "create e582_48x6q board i2c client psu2 failed\n");
@@ -265,7 +265,7 @@ static int e582_48x6q_init_i2c_epld(void)
          return -1;
     }
     
-    i2c_client_epld = i2c_new_device(i2c_adp_master, &i2c_dev_epld);
+    i2c_client_epld = i2c_new_client_device(i2c_adp_master, &i2c_dev_epld);
     if(IS_INVALID_PTR(i2c_client_epld))
     {
         i2c_client_epld = NULL;
@@ -317,7 +317,7 @@ static int e582_48x6q_init_i2c_gpio(void)
          return -1;
     }
     
-    i2c_client_gpio0 = i2c_new_device(i2c_adp_master, &i2c_dev_gpio0);
+    i2c_client_gpio0 = i2c_new_client_device(i2c_adp_master, &i2c_dev_gpio0);
     if(IS_INVALID_PTR(i2c_client_gpio0))
     {
         i2c_client_gpio0 = NULL;
@@ -325,7 +325,7 @@ static int e582_48x6q_init_i2c_gpio(void)
         return -1;
     }
 
-    i2c_client_gpio1 = i2c_new_device(i2c_adp_master, &i2c_dev_gpio1);
+    i2c_client_gpio1 = i2c_new_client_device(i2c_adp_master, &i2c_dev_gpio1);
     if(IS_INVALID_PTR(i2c_client_gpio1))
     {
         i2c_client_gpio1 = NULL;
@@ -333,7 +333,7 @@ static int e582_48x6q_init_i2c_gpio(void)
         return -1;
     }
 
-    i2c_client_gpio2 = i2c_new_device(i2c_adp_master, &i2c_dev_gpio2);
+    i2c_client_gpio2 = i2c_new_client_device(i2c_adp_master, &i2c_dev_gpio2);
     if(IS_INVALID_PTR(i2c_client_gpio2))
     {
         i2c_client_gpio2 = NULL;
@@ -341,7 +341,7 @@ static int e582_48x6q_init_i2c_gpio(void)
         return -1;
     }
 
-    i2c_client_gpio3 = i2c_new_device(i2c_adp_master, &i2c_dev_gpio3);
+    i2c_client_gpio3 = i2c_new_client_device(i2c_adp_master, &i2c_dev_gpio3);
     if(IS_INVALID_PTR(i2c_client_gpio3))
     {
         i2c_client_gpio3 = NULL;
@@ -349,7 +349,7 @@ static int e582_48x6q_init_i2c_gpio(void)
         return -1;
     }
 
-    i2c_client_gpio4 = i2c_new_device(i2c_adp_master, &i2c_dev_gpio4);
+    i2c_client_gpio4 = i2c_new_client_device(i2c_adp_master, &i2c_dev_gpio4);
     if(IS_INVALID_PTR(i2c_client_gpio4))
     {
         i2c_client_gpio4 = NULL;

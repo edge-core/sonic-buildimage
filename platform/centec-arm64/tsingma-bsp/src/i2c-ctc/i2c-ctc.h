@@ -1,4 +1,5 @@
-/* Author: Wangyb <wangyb@centecnetworks.com>
+/*
+ * Author: Wangyb <wangyb@centecnetworks.com>
  *
  * Copyright 2005-2018, Centec Networks (Suzhou) Co., Ltd.
  *
@@ -71,7 +72,6 @@
 #define CTC_IC_INTR_GEN_CALL	0x800
 
 #define CTC_IC_INTR_DEFAULT_MASK		(CTC_IC_INTR_RX_FULL | \
-					 CTC_IC_INTR_TX_EMPTY | \
 					 CTC_IC_INTR_TX_ABRT | \
 					 CTC_IC_INTR_STOP_DET)
 
@@ -112,7 +112,7 @@
 					 CTC_IC_TX_ABRT_TXDATA_NOACK | \
 					 CTC_IC_TX_ABRT_GCALL_NOACK)
 
-#define CTC_CMD_READ		0x0100
+#define CTC_CMD_READ   	0x0100
 #define CTC_STOP		0x0200
 #define CTC_RESTART		0x0400
 
@@ -124,6 +124,38 @@
 
 #define CTC_IC_STATUS_MA		0x0020
 #define CTC_IC_STATUS_TFE		0x0004
+
+#define CTC_IC_DEFAULT_FUNCTIONALITY (I2C_FUNC_I2C |			\
+					I2C_FUNC_SMBUS_BYTE |		\
+					I2C_FUNC_SMBUS_BYTE_DATA |	\
+					I2C_FUNC_SMBUS_WORD_DATA |	\
+					I2C_FUNC_SMBUS_BLOCK_DATA |	\
+					I2C_FUNC_SMBUS_I2C_BLOCK)
+
+#define CTC_IC_INTR_MASTER_MASK		(CTC_IC_INTR_DEFAULT_MASK | \
+					 CTC_IC_INTR_TX_EMPTY)
+
+#define CTC_IC_INTR_SLAVE_MASK		(CTC_IC_INTR_DEFAULT_MASK | \
+					CTC_IC_INTR_RX_DONE | \
+					CTC_IC_INTR_RX_UNDER | \
+					CTC_IC_INTR_RD_REQ)
+
+#define CTC_IC_CON_STOP_DET_IFADDRESSED		0x80
+#define CTC_IC_CON_TX_EMPTY_CTRL	0x100
+#define CTC_IC_CON_RX_FIFO_FULL_HLD_CTRL	0x200
+
+#define CTC_IC_SAR	0x8
+
+#define CTC_IC_STATUS_SLAVE_ACTIVITY	BIT(6)
+
+#define CTC_IC_BUS_CLEAR_EN 	0xb0
+#define CTC_IC_BUS_CLEAR_THRD   0xb4
+
+/*
+ * operation modes
+ */
+#define CTC_IC_MASTER		0
+#define CTC_IC_SLAVE		1
 
 enum xfer_type_e {
 	CTC_IC_INTERRUPT_TRANSFER,
@@ -159,4 +191,15 @@ struct ctc_i2c_dev {
 	u32 clk_freq;
 	u32 sda_hold_time;
 	u32 xfer_type;
+	u32 mode;
+	u32 slave_cfg;
+	void (*disable) (struct ctc_i2c_dev * dev);
+	void (*disable_int) (struct ctc_i2c_dev * dev);
+	int (*init) (struct ctc_i2c_dev * dev);
+	struct i2c_client *slave;
+	struct regmap *regmap_base;
+	u32 soc_ver;
+#define CTC_REV_TM_1_0 0x0
+#define CTC_REV_TM_1_1 0x1
+	u32 i2c_num;
 };

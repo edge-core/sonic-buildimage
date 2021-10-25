@@ -643,7 +643,7 @@ clean_proc() {
     sudo umount /proc || true
 }
 trap_push clean_proc
-sudo mount proc /proc -t proc
+sudo mount proc /proc -t proc || true
 sudo mkdir $FILESYSTEM_ROOT/target
 sudo mount --bind target $FILESYSTEM_ROOT/target
 sudo LANG=C DOCKER_HOST="$DOCKER_HOST" chroot $FILESYSTEM_ROOT docker info

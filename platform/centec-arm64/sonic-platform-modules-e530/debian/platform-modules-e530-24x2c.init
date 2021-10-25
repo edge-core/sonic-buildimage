@@ -17,10 +17,6 @@ function install_python_api_package()
     device="/usr/share/sonic/device"
     platform=$(/usr/local/bin/sonic-cfggen -H -v DEVICE_METADATA.localhost.platform)
 
-    rv=$(pip2 show sonic-platform > /dev/null 2>/dev/null)
-    if [ $? -ne 0 ]; then
-        rv=$(pip2 install $device/$platform/sonic_platform-1.0-py2-none-any.whl)
-    fi
     rv=$(pip3 show sonic-platform > /dev/null 2>/dev/null)
     if [ $? -ne 0 ]; then
         rv=$(pip3 install $device/$platform/sonic_platform-1.0-py3-none-any.whl)
@@ -34,6 +30,7 @@ function load_kernel_modules()
         ifconfig eth0 hw ether $hwaddr
     fi
     depmod -a
+    modprobe ctc-i2c-mux-pca954x
     modprobe centec_e530_24x2c_platform
     modprobe fan-ctc5236
     modprobe dal
@@ -48,6 +45,7 @@ function remove_kernel_modules()
     modprobe -r dal
     modprobe -r fan-ctc5236
     modprobe -r centec_e530_24x2c_platform
+    modprobe -r ctc-i2c-mux-pca954x
 }
 
 case "$1" in

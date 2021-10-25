@@ -111,7 +111,7 @@ enum type_mode {
 	TYPE_MAX
 };
 
-static int ctc_reg_read(struct ctc_qspi *ctc_qspi, u32 reg, u32 *value)
+static int ctc_reg_read(struct ctc_qspi *ctc_qspi, u32 reg, u32 * value)
 {
 	*value = readl(ctc_qspi->regs + reg);
 	return *value;
@@ -169,12 +169,12 @@ static noinline int ctc_write_tx_buf(struct ctc_qspi *ctc_qspi, u8 offset,
 	return 0;
 }
 
-static noinline int check_buf_ok(u8 *buf, int i)
+static noinline int check_buf_ok(u8 * buf, int i)
 {
 	return buf && (buf + i);
 }
 
-static noinline int fill_tx_entry(struct ctc_qspi *ctc_qspi, u8 *buf, int i,
+static noinline int fill_tx_entry(struct ctc_qspi *ctc_qspi, u8 * buf, int i,
 				  u8 off)
 {
 	ctc_qspi->tx_entry |= buf[i] << (off % 4) * 8;
@@ -182,12 +182,12 @@ static noinline int fill_tx_entry(struct ctc_qspi *ctc_qspi, u8 *buf, int i,
 	return 0;
 }
 
-static noinline void update_offset(u8 *offset, u8 off)
+static noinline void update_offset(u8 * offset, u8 off)
 {
 	*offset = off;
 }
 
-static void ctc_fill_tx_buf(struct ctc_qspi *ctc_qspi, u8 *offset, u8 *buf,
+static void ctc_fill_tx_buf(struct ctc_qspi *ctc_qspi, u8 * offset, u8 * buf,
 			    u32 len)
 {
 
@@ -195,8 +195,9 @@ static void ctc_fill_tx_buf(struct ctc_qspi *ctc_qspi, u8 *offset, u8 *buf,
 	u8 off = *offset;
 
 	while (i < len) {
-		if (check_buf_ok(buf, i))
+		if (check_buf_ok(buf, i)) {
 			fill_tx_entry(ctc_qspi, buf, i, off);
+		}
 
 		if (off % 4 == 0) {
 			ctc_write_tx_buf(ctc_qspi, off, ctc_qspi->tx_entry);
@@ -210,7 +211,7 @@ static void ctc_fill_tx_buf(struct ctc_qspi *ctc_qspi, u8 *offset, u8 *buf,
 
 }
 
-static void ctc_fill_pp_buf(struct ctc_qspi *ctc_qspi, u32 *offset, u8 *buf,
+static void ctc_fill_pp_buf(struct ctc_qspi *ctc_qspi, u32 * offset, u8 * buf,
 			    u32 len)
 {
 	u32 i = 0, j = 0;
@@ -218,8 +219,9 @@ static void ctc_fill_pp_buf(struct ctc_qspi *ctc_qspi, u32 *offset, u8 *buf,
 
 	while (i < len) {
 		for (j = 0; j < 4; j++) {
-			if (buf && (buf + i))
+			if (buf && (buf + i)) {
 				ctc_qspi->tx_entry |= buf[i + j] << (j % 4) * 8;
+			}
 		}
 		ctc_write_tx_buf(ctc_qspi, off, ctc_qspi->tx_entry);
 		ctc_qspi->tx_entry = 0;
@@ -303,15 +305,17 @@ static void ctc_qspi_pio_ctrl(struct ctc_qspi *ctc_qspi)
 {
 	u32 ctrl = 0;
 
-	ctrl = CTRL_IDLE_CYCLE(ctc_qspi->idlecycle) |
-	       CTRL_PRE_CYCLE(ctc_qspi->precycle) |
-	       CTRL_POST_CYCLE(ctc_qspi->postcycle) |
-	       CTRL_SCLK_DEFAULT(ctc_qspi->sclkdef) |
-	       CTRL_SOUT3_DEFAULT(ctc_qspi->sout3def) |
-	       CTRL_SOUT2_DEFAULT(ctc_qspi->sout2def) |
-	       CTRL_SOUT1_DEFAULT(ctc_qspi->sout1def) |
-	       CTRL_CS(ctc_qspi->cs_select) |
-	       CTRL_DIV_SCLK(ctc_qspi->clkdiv);
+	ctrl =
+	    CTRL_IDLE_CYCLE(ctc_qspi->idlecycle) | CTRL_PRE_CYCLE(ctc_qspi->
+								  precycle)
+	    | CTRL_POST_CYCLE(ctc_qspi->
+			      postcycle) | CTRL_SCLK_DEFAULT(ctc_qspi->sclkdef)
+	    | CTRL_SOUT3_DEFAULT(ctc_qspi->
+				 sout3def) | CTRL_SOUT2_DEFAULT(ctc_qspi->
+								sout2def)
+	    | CTRL_SOUT1_DEFAULT(ctc_qspi->sout1def) | CTRL_CS(ctc_qspi->
+							       cs_select)
+	    | CTRL_DIV_SCLK(ctc_qspi->clkdiv);
 
 	ctc_reg_write_mask(ctc_qspi, PIO_CTRL(ctc_qspi->qspi_mode), ctrl,
 			   0xffffffff);
@@ -321,15 +325,17 @@ static void ctc_qspi_pp_ctrl(struct ctc_qspi *ctc_qspi)
 {
 	u32 ctrl = 0;
 
-	ctrl = CTRL_IDLE_CYCLE(ctc_qspi->idlecycle) |
-	       CTRL_PRE_CYCLE(ctc_qspi->precycle) |
-	       CTRL_POST_CYCLE(ctc_qspi->postcycle) |
-	       CTRL_SCLK_DEFAULT(ctc_qspi->sclkdef) |
-	       CTRL_SOUT3_DEFAULT(ctc_qspi->sout3def) |
-	       CTRL_SOUT2_DEFAULT(ctc_qspi->sout2def) |
-	       CTRL_SOUT1_DEFAULT(ctc_qspi->sout1def) |
-	       CTRL_CS(ctc_qspi->cs_select) |
-	       CTRL_DIV_SCLK(ctc_qspi->clkdiv);
+	ctrl =
+	    CTRL_IDLE_CYCLE(ctc_qspi->idlecycle) | CTRL_PRE_CYCLE(ctc_qspi->
+								  precycle)
+	    | CTRL_POST_CYCLE(ctc_qspi->
+			      postcycle) | CTRL_SCLK_DEFAULT(ctc_qspi->sclkdef)
+	    | CTRL_SOUT3_DEFAULT(ctc_qspi->
+				 sout3def) | CTRL_SOUT2_DEFAULT(ctc_qspi->
+								sout2def)
+	    | CTRL_SOUT1_DEFAULT(ctc_qspi->sout1def) | CTRL_CS(ctc_qspi->
+							       cs_select)
+	    | CTRL_DIV_SCLK(ctc_qspi->clkdiv);
 
 	ctc_reg_write_mask(ctc_qspi, PP_CTRL, ctrl, 0xffffffff);
 }
@@ -343,18 +349,17 @@ static u32 ctc_pp_conf(u8 lanes, u32 len)
 	return (lanes << 16) | (cycle);
 }
 
-static int ctc_read_rx_buf(struct ctc_qspi *ctc_qspi, u8 offset, u8 *value)
+static int ctc_read_rx_buf(struct ctc_qspi *ctc_qspi, u8 offset, u8 * value)
 {
 	*value = readb(ctc_qspi->regs + CTC_QSPI_RX_BUFF + offset);
 
 	return 0;
 }
 
-static void ctc_extra_rx_buf(struct ctc_qspi *ctc_qspi, u8 offset, u8 *buf,
+static void ctc_extra_rx_buf(struct ctc_qspi *ctc_qspi, u8 offset, u8 * buf,
 			     u8 len)
 {
 	int i = 0;
-
 	while (i < len) {
 		ctc_read_rx_buf(ctc_qspi, offset, &buf[i++]);
 		offset--;
@@ -523,11 +528,13 @@ int ctc_qspi_adjust_op_size(struct spi_mem *mem, struct spi_mem_op *op)
 {
 	//max data transfer size = tx buffer size - (cmd - addr -dummy )
 	if (op->data.dir == SPI_MEM_DATA_IN) {
-		if (op->data.nbytes > CTC_QSPI_RX_BUFFER_SIZE - 6)
+		if (op->data.nbytes > CTC_QSPI_RX_BUFFER_SIZE - 6) {
 			op->data.nbytes = CTC_QSPI_RX_BUFFER_SIZE - 6;
+		}
 	} else {
-		if (op->data.nbytes > CTC_QSPI_TX_BUFFER_SIZE)
+		if (op->data.nbytes > CTC_QSPI_TX_BUFFER_SIZE) {
 			op->data.nbytes = CTC_QSPI_TX_BUFFER_SIZE;
+		}
 	}
 
 	return 0;
@@ -558,7 +565,7 @@ static int ctc_qspi_probe(struct platform_device *pdev)
 		return -ENOMEM;
 
 	master->mode_bits =
-	    SPI_MODE_3 | SPI_MODE_1 | SPI_TX_DUAL | SPI_RX_DUAL | SPI_TX_QUAD |
+	    SPI_MODE_3 | SPI_MODE_0 | SPI_TX_DUAL | SPI_RX_DUAL | SPI_TX_QUAD |
 	    SPI_RX_QUAD;
 	master->setup = ctc_qspi_setup;
 	master->transfer_one_message = ctc_qspi_start_transfer_one;

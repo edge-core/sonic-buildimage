@@ -157,6 +157,7 @@
 	non-removable;
 	no-sd;
 	no-sdio;
+	cap-mmc-hw-reset;
 	voltage-ranges = <3300 3300>;	
 	status = "okay";
 };
@@ -187,7 +188,7 @@
 
 
 &pinctrl {
-	spi {
+	spi0 {
 		spi_pin: spi_pin {
 			status = "disabled";
 			ctc,pins = <0 0 PIN_FUNC_SPI>,

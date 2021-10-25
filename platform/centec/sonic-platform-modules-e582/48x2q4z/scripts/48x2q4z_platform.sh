@@ -25,12 +25,13 @@ if [ "$1" == "init" ]; then
     modprobe i2c-dev
     modprobe i2c-mux
     modprobe i2c-smbus
-    modprobe i2c-mux-pca954x force_deselect_on_exit=1
+    modprobe ctc-i2c-mux-pca954x force_deselect_on_exit=1
         i2cset -y 0 0x58 0x8 0x3f
     modprobe lm77
     modprobe tun
     modprobe dal
-    modprobe centec_at24c64
+    modprobe at24
+    echo 24c64 0x57 > /sys/bus/i2c/devices/i2c-0/new_device
     modprobe centec_e582_48x2q4z_platform
         i2cset -y 15 0x21 0x18 0x0
         i2cset -y 15 0x21 0x19 0x0
@@ -69,9 +70,9 @@ elif [ "$1" == "deinit" ]; then
     kill -9 $(pidof platform_monitor) > /dev/null 2>&1
     rm -rf /usr/bin/platform_monitor
     modprobe -r centec_e582_48x2q4z_platform
-    modprobe -r centec_at24c64
+    modprobe -r at24
     modprobe -r dal
-    modprobe -r i2c-mux-pca954x
+    modprobe -r ctc-i2c-mux-pca954x
     modprobe -r i2c-dev
 else
      echo "e582-48x2q4z_platform : Invalid option !"

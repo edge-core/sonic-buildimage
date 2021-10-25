@@ -25,11 +25,18 @@
 #include <linux/spinlock.h>
 #include "gpio-ctcapb.h"
 #include <linux/slab.h>
+#include <linux/delay.h>
 #include "gpiolib.h"
+#include "../include/sysctl.h"
+#include <linux/mfd/syscon.h>
+#include <linux/regmap.h>
+#include "gpiolib-acpi.h"
 
 #define DWAPB_MAX_PORTS		2
 
 struct ctcapb_gpio;
+
+static u32 soc_v;
 
 struct ctcapb_gpio_port {
 	bool is_registered;
@@ -45,14 +52,15 @@ struct ctcapb_gpio {
 	unsigned int nr_ports;
 	struct GpioSoc_regs *regs;
 	struct ctcapb_gpio_port *ports;
+	struct regmap *regmap_base;
 };
 
-static void clrsetbits(unsigned __iomem *addr, u32 clr, u32 set)
+static void clrsetbits(unsigned __iomem * addr, u32 clr, u32 set)
 {
 	writel((readl(addr) & ~(clr)) | (set), addr);
 }
 
-static int ctcapb_gpio_to_irq(struct gpio_chip *gc, unsigned int offset)
+static int ctcapb_gpio_to_irq(struct gpio_chip *gc, unsigned offset)
 {
 	struct ctcapb_gpio_port *port = gpiochip_get_data(gc);
 
@@ -123,6 +131,20 @@ static void ctcapb_irq_unmask(struct irq_data *d)
 	ctcapb_irq_enable(d);
 }
 
+#if 0
+static void ctcapb_irq_disable(struct irq_data *d)
+{
+	struct irq_chip_generic *igc = irq_data_get_irq_chip_data(d);
+	struct ctcapb_gpio_port *port = igc->private;
+	struct gpio_chip *gc = &port->gc;
+	unsigned long flags;
+
+	spin_lock_irqsave(&gc->bgpio_lock, flags);
+	clrsetbits(&port->regs->GpioIntrEn, ~BIT(d->hwirq), 0);
+	spin_unlock_irqrestore(&gc->bgpio_lock, flags);
+}
+#endif
+
 static int ctcapb_irq_reqres(struct irq_data *d)
 {
 	struct irq_chip_generic *igc = irq_data_get_irq_chip_data(d);
@@ -152,7 +174,7 @@ static int ctcapb_irq_set_type(struct irq_data *d, u32 type)
 	struct ctcapb_gpio_port *port = igc->private;
 	struct gpio_chip *gc = &port->gc;
 	int bit = d->hwirq;
-	unsigned long level, polarity, flags;
+	unsigned long level, polarity, flags, datactl, outctl;
 
 	if (type & ~(IRQ_TYPE_EDGE_RISING | IRQ_TYPE_EDGE_FALLING |
 		     IRQ_TYPE_LEVEL_HIGH | IRQ_TYPE_LEVEL_LOW))
@@ -162,6 +184,21 @@ static int ctcapb_irq_set_type(struct irq_data *d, u32 type)
 	level = readl(&port->regs->GpioIntrLevel);
 	polarity = readl(&port->regs->GpioIntrPolarity);
 
+	if (!soc_v) {
+		datactl = readl(&port->regs->GpioDataCtl);
+		outctl = readl(&port->regs->GpioOutCtl);
+
+		datactl &= ~BIT(bit);
+		outctl |= BIT(bit);
+
+		writel(datactl, &port->regs->GpioDataCtl);
+		writel(outctl, &port->regs->GpioOutCtl);
+
+		udelay(10);
+
+		outctl &= ~BIT(bit);
+		writel(outctl, &port->regs->GpioOutCtl);
+	}
 	switch (type) {
 	case IRQ_TYPE_EDGE_BOTH:
 		level &= ~BIT(bit);
@@ -195,7 +232,7 @@ static int ctcapb_irq_set_type(struct irq_data *d, u32 type)
 }
 
 static int ctcapb_gpio_set_debounce(struct gpio_chip *gc,
-				    unsigned int offset, unsigned int debounce)
+				    unsigned offset, unsigned debounce)
 {
 	struct ctcapb_gpio_port *port = gpiochip_get_data(gc);
 	unsigned long flags, val_deb;
@@ -445,7 +482,8 @@ static struct ctcapb_platform_data *ctcapb_gpio_get_pdata(struct device *dev)
 		}
 
 		if (dev->of_node && fwnode_property_read_bool(fwnode,
-				"interrupt-controller")) {
+							      "interrupt-controller"))
+		{
 			pp->irq = irq_of_parse_and_map(to_of_node(fwnode), 0);
 			if (!pp->irq)
 				dev_warn(dev, "no irq for port%d\n", pp->idx);
@@ -461,12 +499,42 @@ static struct ctcapb_platform_data *ctcapb_gpio_get_pdata(struct device *dev)
 	return pdata;
 }
 
+int ctc_bgpio_dir_out(struct gpio_chip *gc, unsigned int gpio, int val)
+{
+	unsigned long mask;
+
+	if (gc->be_bits)
+		mask = BIT(gc->bgpio_bits - 1 - gpio);
+	else
+		mask = BIT(gpio);
+
+	if (soc_v) {
+		return 0;
+	} else {
+		if (val)
+			gc->bgpio_data |= mask;
+		else
+			gc->bgpio_data &= ~mask;
+
+		gc->write_reg(gc->reg_set, gc->bgpio_data);
+
+		if (gc->be_bits)
+			gc->bgpio_dir |= BIT(gc->bgpio_bits - 1 - gpio);
+		else
+			gc->bgpio_dir |= BIT(gpio);
+
+		gc->write_reg(gc->reg_dir_out, gc->bgpio_dir);
+
+		return 0;
+	}
+}
+
 static int ctcapb_gpio_probe(struct platform_device *pdev)
 {
 	unsigned int i;
 	struct resource *res;
 	struct ctcapb_gpio *gpio;
-	int err;
+	int err, val;
 	struct device *dev = &pdev->dev;
 	struct ctcapb_platform_data *pdata = dev_get_platdata(dev);
 
@@ -491,6 +559,18 @@ static int ctcapb_gpio_probe(struct platform_device *pdev)
 	if (!gpio->ports)
 		return -ENOMEM;
 
+	gpio->regmap_base =
+	    syscon_regmap_lookup_by_phandle(pdev->dev.of_node, "ctc,sysctrl");
+	if (IS_ERR(gpio->regmap_base))
+		return PTR_ERR(gpio->regmap_base);
+
+	regmap_read(gpio->regmap_base,
+		    offsetof(struct SysCtl_regs, SysCtlSysRev), &val);
+
+	soc_v = val;
+
+	printk("soc version = 0x%x\n", soc_v);
+
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	gpio->regs =
 	    (struct GpioSoc_regs *)devm_ioremap_resource(&pdev->dev, res);
@@ -508,8 +588,9 @@ static int ctcapb_gpio_probe(struct platform_device *pdev)
 
 out_unregister:
 	ctcapb_gpio_unregister(gpio);
-	for (i = 0; i < gpio->nr_ports; i++)
+	for (i = 0; i < gpio->nr_ports; i++) {
 		ctcapb_irq_teardown(&gpio->ports[i]);
+	}
 
 	return err;
 }
@@ -520,8 +601,9 @@ static int ctcapb_gpio_remove(struct platform_device *pdev)
 	struct ctcapb_gpio *gpio = platform_get_drvdata(pdev);
 
 	ctcapb_gpio_unregister(gpio);
-	for (i = 0; i < gpio->nr_ports; i++)
+	for (i = 0; i < gpio->nr_ports; i++) {
 		ctcapb_irq_teardown(&gpio->ports[i]);
+	}
 
 	return 0;
 }

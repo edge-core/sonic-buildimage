@@ -39,7 +39,7 @@ struct SysCtl_regs {
 	u32 SysWarm1ResetEnCtl;	/* 0x0000005c */
 	u32 SysWdt0ResetEnCtl;	/* 0x00000060 */
 	u32 SysWdt1ResetEnCtl;	/* 0x00000064 */
-	u32 SysCtlReserved;	/* 0x00000068 */
+	u32 SysCtlSysRev;	/* 0x00000068 */
 	u32 SysEnClkCfg;	/* 0x0000006c */
 	u32 SysPllSocCfg0;	/* 0x00000070 */
 	u32 SysPllSocCfg1;	/* 0x00000074 */
@@ -114,7 +114,7 @@ struct SysCtl_regs {
 	u32 SysGpioMultiCtl;	/* 0x000001a0 */
 	u32 rsv105;
 	u32 SysGpioHsMultiCtl[2];	/* 0x000001a8 */
-	u32 rsv108;
+	u32 SysPcieMemCtl;	/* 0x000001b0 */
 	u32 rsv109;
 	u32 SysPcieStatus[2];	/* 0x000001b8 */
 	u32 SysMsixStatus[8];	/* 0x000001c0 */
@@ -223,15 +223,12 @@ struct SysCtl_regs {
 	u32 DebugAhbRespCnt;	/* 0x000006a0 */
 	u32 DebugGicRespCnt;	/* 0x000006a4 */
 	u32 DebugMemPtrCfg;	/* 0x000006a8 */
-	u32 rsv427;
-	u32 rsv428;
-	u32 rsv429;
-	u32 rsv430;
-	u32 rsv431;
-	u32 rsv432;
-	u32 rsv433;
-	u32 rsv434;
-	u32 rsv435;
+	u32 SysDdrEccCtl;	/* 0x000006ac */
+	u32 SysDdrInitStartAddr[2];	/* 0x000006b0 */
+	u32 SysDdrInitLastAddr[2];	/* 0x000006b8 */
+	u32 SysDdrInitData[2];	/* 0x000006c0 */
+	u32 SysDdrInitMode;	/* 0x000006c8 */
+	u32 SysDdrInitCtl;	/* 0x000006cc */
 	u32 rsv436;
 	u32 rsv437;
 	u32 rsv438;
@@ -288,9 +285,14 @@ struct SysCtl_regs {
 	u32 SupMiscInfo1;	/* 0x000007b4 */
 	u32 SupMiscInfo2;	/* 0x000007b8 */
 	u32 SupMiscInfo3;	/* 0x000007bc */
+	u32 SysBusDbgEn[2];	/* 0x000007c0 */
+	u32 SysApbErrLog;	/* 0x000007c8 */
+	u32 MshClkPadSchmitEn;	/* 0x000007cc */
+	u32 SysI2C0DebugStatus;	/* 0x000007d0 */
+	u32 SysI2C1DebugStatus;	/* 0x000007d4 */
 };
 
-/* ############################################################################
+/* ################################################################################
  * # SysResetCtl Definition
  */
 #define SYS_RESET_CTL_W0_CFG_NIC_RESET                               BIT(9)
@@ -347,7 +349,7 @@ struct SysCtl_regs {
 #define SYS_RESET_CTL_W0_CFG_CPU_MEM_RESET_MASK                      0x00000100
 #define SYS_RESET_CTL_W0_LOG_CPU_MEM_RESET_MASK                      0x01000000
 
-/* ############################################################################
+/* ################################################################################
  * # SysResetAutoEn Definition
  */
 #define SYS_RESET_AUTO_EN_W0_CFG_CPU1_CORE_RESET_AUTO_EN             BIT(3)
@@ -382,14 +384,14 @@ struct SysCtl_regs {
 #define SYS_RESET_AUTO_EN_W0_CFG_CPU1_COLD_RESET_AUTO_EN_MASK        0x00000002
 #define SYS_RESET_AUTO_EN_W0_CFG_CPU0_CORE_RESET_AUTO_EN_MASK        0x00000004
 
-/* ############################################################################
+/* ################################################################################
  * # SysGicResetCtl Definition
  */
 #define SYS_GIC_RESET_CTL_W0_CFG_GIC_RESET                           BIT(0)
 
 #define SYS_GIC_RESET_CTL_W0_CFG_GIC_RESET_MASK                      0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # SysWdtResetCtl Definition
  */
 #define SYS_WDT_RESET_CTL_W0_LOG_WDT1_RESET                          BIT(5)
@@ -402,14 +404,14 @@ struct SysCtl_regs {
 #define SYS_WDT_RESET_CTL_W0_LOG_WDT0_RESET_MASK                     0x00000010
 #define SYS_WDT_RESET_CTL_W0_CFG_WDT1_RESET_MASK                     0x00000002
 
-/* ############################################################################
+/* ################################################################################
  * # SysDmaResetCtl Definition
  */
 #define SYS_DMA_RESET_CTL_W0_CFG_CPU_DMA_RESET                       BIT(0)
 
 #define SYS_DMA_RESET_CTL_W0_CFG_CPU_DMA_RESET_MASK                  0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # SysDdrResetCtl Definition
  */
 #define SYS_DDR_RESET_CTL_W0_CFG_DDR_MC_RESET                        BIT(2)
@@ -420,27 +422,29 @@ struct SysCtl_regs {
 #define SYS_DDR_RESET_CTL_W0_CFG_DDR_CFG_RESET_MASK                  0x00000001
 #define SYS_DDR_RESET_CTL_W0_CFG_DDR_AXI_RESET_MASK                  0x00000002
 
-/* ############################################################################
+/* ################################################################################
  * # SysPcieResetCtl Definition
  */
 #define SYS_PCIE_RESET_CTL_W0_CFG_PIPE_RESET                         BIT(1)
 #define SYS_PCIE_RESET_CTL_W0_CFG_PHY_REG_RESET                      BIT(3)
 #define SYS_PCIE_RESET_CTL_W0_CFG_PCIE_RESET                         BIT(0)
 #define SYS_PCIE_RESET_CTL_W0_CFG_PCIE_POR                           BIT(2)
+#define SYS_PCIE_RESET_CTL_W0_CFG_PCIE_SUP_RESET                	 BIT(4)
 
 #define SYS_PCIE_RESET_CTL_W0_CFG_PIPE_RESET_MASK                    0x00000002
 #define SYS_PCIE_RESET_CTL_W0_CFG_PHY_REG_RESET_MASK                 0x00000008
 #define SYS_PCIE_RESET_CTL_W0_CFG_PCIE_RESET_MASK                    0x00000001
 #define SYS_PCIE_RESET_CTL_W0_CFG_PCIE_POR_MASK                      0x00000004
+#define SYS_PCIE_RESET_CTL_W0_CFG_PCIE_SUP_RESET_MASK                0x00000010
 
-/* ############################################################################
+/* ################################################################################
  * # SysMacResetCtl Definition
  */
 #define SYS_MAC_RESET_CTL_W0_CFG_CPU_MAC_RESET                       BIT(0)
 
 #define SYS_MAC_RESET_CTL_W0_CFG_CPU_MAC_RESET_MASK                  0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # SysMshResetCtl Definition
  */
 #define SYS_MSH_RESET_CTL_W0_CFG_MSH_C_TX_RESET                      BIT(3)
@@ -459,7 +463,7 @@ struct SysCtl_regs {
 #define SYS_MSH_RESET_CTL_W0_CFG_MSH_AXI_RESET_MASK                  0x00000001
 #define SYS_MSH_RESET_CTL_W0_CFG_MSH_TM_RESET_MASK                   0x00000020
 
-/* ############################################################################
+/* ################################################################################
  * # SysUsbResetCtl Definition
  */
 #define SYS_USB_RESET_CTL_W0_CFG_USB_INTF_RESET                      BIT(0)
@@ -478,21 +482,21 @@ struct SysCtl_regs {
 #define SYS_USB_RESET_CTL_W0_CFG_USB_AUX_RESET_MASK                  0x00000002
 #define SYS_USB_RESET_CTL_W0_CFG_USB_PHY_PWR_ON_RESET_MASK           0x00000010
 
-/* ############################################################################
+/* ################################################################################
  * # SysSpiResetCtl Definition
  */
 #define SYS_SPI_RESET_CTL_W0_CFG_SPI_RESET                           BIT(0)
 
 #define SYS_SPI_RESET_CTL_W0_CFG_SPI_RESET_MASK                      0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # SysQspiResetCtl Definition
  */
 #define SYS_QSPI_RESET_CTL_W0_CFG_QSPI_RESET                         BIT(0)
 
 #define SYS_QSPI_RESET_CTL_W0_CFG_QSPI_RESET_MASK                    0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # SysAxiSupResetCtl Definition
  */
 #define SYS_AXI_SUP_RESET_CTL_W0_CFG_SWITCH_CORE_RESET               BIT(1)
@@ -503,14 +507,14 @@ struct SysCtl_regs {
 #define SYS_AXI_SUP_RESET_CTL_W0_CFG_SWITCH_SUP_RESET_MASK           0x00000004
 #define SYS_AXI_SUP_RESET_CTL_W0_CFG_AXI_SUP_RESET_MASK              0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # SysGpioResetCtl Definition
  */
 #define SYS_GPIO_RESET_CTL_W0_CFG_GPIO_RESET                         BIT(0)
 
 #define SYS_GPIO_RESET_CTL_W0_CFG_GPIO_RESET_MASK                    0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # SysI2CResetCtl Definition
  */
 #define SYS_I2_C_RESET_CTL_W0_CFG_I2_C0_RESET                        BIT(0)
@@ -519,21 +523,21 @@ struct SysCtl_regs {
 #define SYS_I2_C_RESET_CTL_W0_CFG_I2_C0_RESET_MASK                   0x00000001
 #define SYS_I2_C_RESET_CTL_W0_CFG_I2_C1_RESET_MASK                   0x00000002
 
-/* ############################################################################
+/* ################################################################################
  * # SysMdioSocResetCtl Definition
  */
 #define SYS_MDIO_SOC_RESET_CTL_W0_CFG_MDIO_SOC_RESET                 BIT(0)
 
 #define SYS_MDIO_SOC_RESET_CTL_W0_CFG_MDIO_SOC_RESET_MASK            0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # SysTimerResetCtl Definition
  */
 #define SYS_TIMER_RESET_CTL_W0_CFG_TIMER_RESET                       BIT(0)
 
 #define SYS_TIMER_RESET_CTL_W0_CFG_TIMER_RESET_MASK                  0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # SysUartResetCtl Definition
  */
 #define SYS_UART_RESET_CTL_W0_CFG_UART1_RESET                        BIT(1)
@@ -544,14 +548,14 @@ struct SysCtl_regs {
 #define SYS_UART_RESET_CTL_W0_CFG_UART2_RESET_MASK                   0x00000004
 #define SYS_UART_RESET_CTL_W0_CFG_UART0_RESET_MASK                   0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # SysTraceResetCtl Definition
  */
 #define SYS_TRACE_RESET_CTL_W0_CFG_TRACE_RESET                       BIT(0)
 
 #define SYS_TRACE_RESET_CTL_W0_CFG_TRACE_RESET_MASK                  0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # SysDbg0ResetEnCtl Definition
  */
 #define SYS_DBG0_RESET_EN_CTL_W0_DBG0_RST_EN_CPU_L2                  BIT(4)
@@ -580,7 +584,7 @@ struct SysCtl_regs {
 #define SYS_DBG0_RESET_EN_CTL_W0_DBG0_RST_EN_JTAG_POT_MASK           0x00000040
 #define SYS_DBG0_RESET_EN_CTL_W0_DBG0_RST_EN_CPU_APB_MASK            0x00000020
 
-/* ############################################################################
+/* ################################################################################
  * # SysDbg1ResetEnCtl Definition
  */
 #define SYS_DBG1_RESET_EN_CTL_W0_DBG1_RST_EN_CPU1_CORE               BIT(3)
@@ -609,7 +613,7 @@ struct SysCtl_regs {
 #define SYS_DBG1_RESET_EN_CTL_W0_DBG1_RST_EN_WDT1_MASK               0x00000400
 #define SYS_DBG1_RESET_EN_CTL_W0_DBG1_RST_EN_NIC_MASK                0x00000800
 
-/* ############################################################################
+/* ################################################################################
  * # SysWarm0ResetEnCtl Definition
  */
 #define SYS_WARM0_RESET_EN_CTL_W0_WARM0_RST_EN_CPU1_COLD             BIT(1)
@@ -638,7 +642,7 @@ struct SysCtl_regs {
 #define SYS_WARM0_RESET_EN_CTL_W0_WARM0_RST_EN_NIC_MASK              0x00000800
 #define SYS_WARM0_RESET_EN_CTL_W0_WARM0_RST_EN_CPU1_CORE_MASK        0x00000008
 
-/* ############################################################################
+/* ################################################################################
  * # SysWarm1ResetEnCtl Definition
  */
 #define SYS_WARM1_RESET_EN_CTL_W0_WARM1_RST_EN_CPU_MEM               BIT(8)
@@ -667,7 +671,7 @@ struct SysCtl_regs {
 #define SYS_WARM1_RESET_EN_CTL_W0_WARM1_RST_EN_JTAG_POT_MASK         0x00000040
 #define SYS_WARM1_RESET_EN_CTL_W0_WARM1_RST_EN_CPU0_CORE_MASK        0x00000004
 
-/* ############################################################################
+/* ################################################################################
  * # SysWdt0ResetEnCtl Definition
  */
 #define SYS_WDT0_RESET_EN_CTL_W0_WDT0_RST_EN_CPU_L2                  BIT(4)
@@ -696,7 +700,7 @@ struct SysCtl_regs {
 #define SYS_WDT0_RESET_EN_CTL_W0_WDT0_RST_EN_CPU0_COLD_MASK          0x00000001
 #define SYS_WDT0_RESET_EN_CTL_W0_WDT0_RST_EN_NIC_MASK                0x00000800
 
-/* ############################################################################
+/* ################################################################################
  * # SysWdt1ResetEnCtl Definition
  */
 #define SYS_WDT1_RESET_EN_CTL_W0_WDT1_RST_EN_CPU_L2                  BIT(4)
@@ -725,14 +729,16 @@ struct SysCtl_regs {
 #define SYS_WDT1_RESET_EN_CTL_W0_WDT1_RST_EN_CPU0_CORE_MASK          0x00000004
 #define SYS_WDT1_RESET_EN_CTL_W0_WDT1_RST_EN_NIC_MASK                0x00000800
 
-/* ############################################################################
- * # SysCtlReserved Definition
+/* ################################################################################
+ * # SysCtlSysRev Definition
  */
-#define SYS_CTL_RESERVED_W0_RESERVED                                 BIT(0)
+#define SYS_CTL_RESERVED_W0_RESERVED                             	 BIT(4)
+#define SYS_CTL_RESERVED_W0_SYS_REV                           		 BIT(0)
 
-#define SYS_CTL_RESERVED_W0_RESERVED_MASK                            0xffffffff
+#define SYS_CTL_RESERVED_W0_RESERVED_MASK                            0xfffffff0
+#define SYS_CTL_RESERVED_W0_SYS_REV_MASK                             0x0000000f
 
-/* ############################################################################
+/* ################################################################################
  * # SysEnClkCfg Definition
  */
 #define SYS_EN_CLK_CFG_W0_CFG_EN_CLK_MSH                             BIT(2)
@@ -763,7 +769,7 @@ struct SysCtl_regs {
 #define SYS_EN_CLK_CFG_W0_CFG_EN_CLK_AXI_SUP_MASK                    0x00000200
 #define SYS_EN_CLK_CFG_W0_CFG_EN_CLK_QSPI_MASK                       0x00000800
 
-/* ############################################################################
+/* ################################################################################
  * # SysPllSocCfg0 Definition
  */
 #define SYS_PLL_SOC_CFG0_W0_PLL_SOC_POST_DIV                         BIT(12)
@@ -782,7 +788,7 @@ struct SysCtl_regs {
 #define SYS_PLL_SOC_CFG0_W0_PLL_SOC_RESET_MASK                       0x00000001
 #define SYS_PLL_SOC_CFG0_W0_PLL_SOC_PLL_PWD_MASK                     0x00000008
 
-/* ############################################################################
+/* ################################################################################
  * # SysPllSocCfg1 Definition
  */
 #define SYS_PLL_SOC_CFG1_W0_PLL_SOC_BYPASS                           BIT(24)
@@ -799,7 +805,7 @@ struct SysCtl_regs {
 #define SYS_PLL_SOC_CFG1_W0_MON_PLL_SOC_LOCK_MASK                    0x10000000
 #define SYS_PLL_SOC_CFG1_W0_PLL_SOC_SIC_MASK                         0x00001f00
 
-/* ############################################################################
+/* ################################################################################
  * # SysPllDdrCfg0 Definition
  */
 #define SYS_PLL_DDR_CFG0_W0_PLL_DDR_DCO_BYPASS                       BIT(1)
@@ -818,7 +824,7 @@ struct SysCtl_regs {
 #define SYS_PLL_DDR_CFG0_W0_PLL_DDR_MULT_INT_MASK                    0x0ff00000
 #define SYS_PLL_DDR_CFG0_W0_PLL_DDR_POST_DIV_MASK                    0x0003f000
 
-/* ############################################################################
+/* ################################################################################
  * # SysPllDdrCfg1 Definition
  */
 #define SYS_PLL_DDR_CFG1_W0_PLL_DDR_SLOCK                            BIT(16)
@@ -835,7 +841,7 @@ struct SysCtl_regs {
 #define SYS_PLL_DDR_CFG1_W0_PLL_DDR_SIP_MASK                         0x0000001f
 #define SYS_PLL_DDR_CFG1_W0_PLL_DDR_SGAIN_MASK                       0x00700000
 
-/* ############################################################################
+/* ################################################################################
  * # SysClkSelCfg Definition
  */
 #define SYS_CLK_SEL_CFG_W0_RELEASE_DIV_CLK                           BIT(1)
@@ -844,7 +850,7 @@ struct SysCtl_regs {
 #define SYS_CLK_SEL_CFG_W0_RELEASE_DIV_CLK_MASK                      0x00000002
 #define SYS_CLK_SEL_CFG_W0_SUP_CLOCK_SEL_MASK                        0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # SysClkDivCfg Definition
  */
 #define SYS_CLK_DIV_CFG_W0_CFG_DIV_AHB_CNT                           BIT(8)
@@ -857,7 +863,7 @@ struct SysCtl_regs {
 #define SYS_CLK_DIV_CFG_W0_CFG_DIV_CST_CNT_MASK                      0x000000ff
 #define SYS_CLK_DIV_CFG_W0_CFG_DIV_MSH_CNT_MASK                      0xff000000
 
-/* ############################################################################
+/* ################################################################################
  * # SysClkPeriCfg Definition
  */
 #define SYS_CLK_PERI_CFG_W0_CFG_DIV_USB_PHY_CNT                      BIT(16)
@@ -876,7 +882,7 @@ struct SysCtl_regs {
 #define SYS_CLK_PERI_CFG_W1_CFG_DIV_MSH_TM_CNT_MASK                  0x000007ff
 #define SYS_CLK_PERI_CFG_W1_CFG_DIV_MDIO_SOC_CNT_MASK                0x07ff0000
 
-/* ############################################################################
+/* ################################################################################
  * # SysDbgCreditCtl Definition
  */
 #define SYS_DBG_CREDIT_CTL_W0_DBG_CREDIT_CNT                         BIT(8)
@@ -889,14 +895,14 @@ struct SysCtl_regs {
 #define SYS_DBG_CREDIT_CTL_W0_DBG_CREDIT_OK_MASK                     0x00001000
 #define SYS_DBG_CREDIT_CTL_W0_CFG_DBG_CREDIT_THRD_MASK               0x00000070
 
-/* ############################################################################
+/* ################################################################################
  * # SysI2CMultiCtl Definition
  */
 #define SYS_I2_C_MULTI_CTL_W0_CFG_I2_C_SLAVE_EN                      BIT(0)
 
 #define SYS_I2_C_MULTI_CTL_W0_CFG_I2_C_SLAVE_EN_MASK                 0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # BootStrapPin Definition
  */
 #define BOOT_STRAP_PIN_W0_BOOT_STRAP_LOG                             BIT(0)
@@ -905,7 +911,7 @@ struct SysCtl_regs {
 #define BOOT_STRAP_PIN_W0_BOOT_STRAP_LOG_MASK                        0x00000007
 #define BOOT_STRAP_PIN_W0_CPU_SPEED_LOG_MASK                         0x00000010
 
-/* ############################################################################
+/* ################################################################################
  * # SysCntValue Definition
  */
 #define SYS_CNT_VALUE_W0_SYS_CNT_VALUE_READ_31_0                     BIT(0)
@@ -914,7 +920,7 @@ struct SysCtl_regs {
 #define SYS_CNT_VALUE_W0_SYS_CNT_VALUE_READ_31_0_MASK                0x00000001
 #define SYS_CNT_VALUE_W1_SYS_CNT_VALUE_READ_63_32_MASK               0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # SysCntLog Definition
  */
 #define SYS_CNT_LOG_W0_SYS_CNT_HALT_READ                             BIT(1)
@@ -927,14 +933,14 @@ struct SysCtl_regs {
 #define SYS_CNT_LOG_W0_SYS_CNT_DIV_READ_MASK                         0x03ff0000
 #define SYS_CNT_LOG_W0_SYS_CNT_EN_READ_MASK                          0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # SysCoreGicAddrBase Definition
  */
 #define SYS_CORE_GIC_ADDR_BASE_W0_CFG_GIC_REG_BASE                   BIT(0)
 
 #define SYS_CORE_GIC_ADDR_BASE_W0_CFG_GIC_REG_BASE_MASK              0x00ffffff
 
-/* ############################################################################
+/* ################################################################################
  * # SysCorePmCfg Definition
  */
 #define SYS_CORE_PM_CFG_W0_LOG_L2_Q_ACCEPTN                          BIT(1)
@@ -949,7 +955,7 @@ struct SysCtl_regs {
 #define SYS_CORE_PM_CFG_W0_CFG_L2_Q_REQN_MASK                        0x00000100
 #define SYS_CORE_PM_CFG_W0_LOG_L2_Q_ACTIVE_MASK                      0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # SysCoreStatus Definition
  */
 #define SYS_CORE_STATUS_W0_CORE_STANDBY_WFI_L2                       BIT(7)
@@ -976,39 +982,39 @@ struct SysCtl_regs {
 #define SYS_CORE_STATUS_W0_CFG_CORE0_EVENT_RAW_MASK                  0x00040000
 #define SYS_CORE_STATUS_W0_CFG_CORE1_EVENT_RAW_MASK                  0x00080000
 
-/* ############################################################################
+/* ################################################################################
  * # SysCorePmuEvent0 Definition
  */
 #define SYS_CORE_PMU_EVENT0_W0_CORE0_PMU_EVENT                       BIT(0)
 
 #define SYS_CORE_PMU_EVENT0_W0_CORE0_PMU_EVENT_MASK                  0x3fffffff
 
-/* ############################################################################
+/* ################################################################################
  * # SysCorePmuEvent1 Definition
  */
 #define SYS_CORE_PMU_EVENT1_W0_CORE1_PMU_EVENT                       BIT(0)
 
 #define SYS_CORE_PMU_EVENT1_W0_CORE1_PMU_EVENT_MASK                  0x3fffffff
 
-/* ############################################################################
+/* ################################################################################
  * # SysRstVecBar0 Definition
  */
 #define SYS_RST_VEC_BAR0_W0_CFG_RV_BAR_ADDR0_31_0                    BIT(0)
 #define SYS_RST_VEC_BAR0_W1_CFG_RV_BAR_ADDR0_39_32                   BIT(0)
 
-#define SYS_RST_VEC_BAR0_W0_CFG_RV_BAR_ADDR0_31_0_MASK               0x00000001
-#define SYS_RST_VEC_BAR0_W1_CFG_RV_BAR_ADDR0_39_32_MASK              0x00000001
+#define SYS_RST_VEC_BAR0_W0_CFG_RV_BAR_ADDR0_31_0_MASK               0xffffffff
+#define SYS_RST_VEC_BAR0_W1_CFG_RV_BAR_ADDR0_39_32_MASK              0x000000ff
 
-/* ############################################################################
+/* ################################################################################
  * # SysRstVecBar1 Definition
  */
 #define SYS_RST_VEC_BAR1_W0_CFG_RV_BAR_ADDR1_31_0                    BIT(0)
 #define SYS_RST_VEC_BAR1_W1_CFG_RV_BAR_ADDR1_39_32                   BIT(0)
 
-#define SYS_RST_VEC_BAR1_W0_CFG_RV_BAR_ADDR1_31_0_MASK               0x00000001
-#define SYS_RST_VEC_BAR1_W1_CFG_RV_BAR_ADDR1_39_32_MASK              0x00000001
+#define SYS_RST_VEC_BAR1_W0_CFG_RV_BAR_ADDR1_31_0_MASK               0xffffffff
+#define SYS_RST_VEC_BAR1_W1_CFG_RV_BAR_ADDR1_39_32_MASK              0x000000ff
 
-/* ############################################################################
+/* ################################################################################
  * # SysGicCfg Definition
  */
 #define SYS_GIC_CFG_W0_CFG_GIC_LEGACY_IRQ_BAR                        BIT(4)
@@ -1021,7 +1027,7 @@ struct SysCtl_regs {
 #define SYS_GIC_CFG_W0_CFG_GIC_LEGACY_FIQ_BAR_MASK                   0x00000003
 #define SYS_GIC_CFG_W0_CFG_GIC_RA_USER_MASK                          0x00000100
 
-/* ############################################################################
+/* ################################################################################
  * # SysGicStatus Definition
  */
 #define SYS_GIC_STATUS_W0_GIC_FIQ_OUT_LOG                            BIT(0)
@@ -1030,7 +1036,7 @@ struct SysCtl_regs {
 #define SYS_GIC_STATUS_W0_GIC_FIQ_OUT_LOG_MASK                       0x00000003
 #define SYS_GIC_STATUS_W0_GIC_IRQ_OUT_LOG_MASK                       0x0000000c
 
-/* ############################################################################
+/* ################################################################################
  * # SysMemCtl Definition
  */
 #define SYS_MEM_CTL_W0_CFG_RAM_MUX_EN                                BIT(0)
@@ -1043,7 +1049,7 @@ struct SysCtl_regs {
 #define SYS_MEM_CTL_W0_CFG_SYS_DBG_EN_MASK                           0x00000010
 #define SYS_MEM_CTL_W0_CFG_RAM_REMAP_MASK                            0x00000002
 
-/* ############################################################################
+/* ################################################################################
  * # SysDmaMapCfg Definition
  */
 #define SYS_DMA_MAP_CFG_W0_CFG_CPU_DMA_WR_MAP_LOW                    BIT(0)
@@ -1056,7 +1062,7 @@ struct SysCtl_regs {
 #define SYS_DMA_MAP_CFG_W0_CFG_CPU_DMA_RD_MAP_HIGH_MASK              0x0f000000
 #define SYS_DMA_MAP_CFG_W0_CFG_CPU_DMA_RD_MAP_LOW_MASK               0x00000f00
 
-/* ############################################################################
+/* ################################################################################
  * # SysDmaAbortCfg Definition
  */
 #define SYS_DMA_ABORT_CFG_W0_DMA_ABORT_LEVEL_EN                      BIT(4)
@@ -1065,7 +1071,7 @@ struct SysCtl_regs {
 #define SYS_DMA_ABORT_CFG_W0_DMA_ABORT_LEVEL_EN_MASK                 0x00000010
 #define SYS_DMA_ABORT_CFG_W0_DMA_ABORT_STATUS_MASK                   0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # SysCstCfg Definition
  */
 #define SYS_CST_CFG_W0_CFG_CST_PIU_TP_CTL                            BIT(4)
@@ -1078,21 +1084,21 @@ struct SysCtl_regs {
 #define SYS_CST_CFG_W0_CFG_CST_INSTANCE_ID_MASK                      0x0000000f
 #define SYS_CST_CFG_W0_CFG_CST_DEVICE_EN_MASK                        0x00000020
 
-/* ############################################################################
+/* ################################################################################
  * # SysCstTargetIdCfg Definition
  */
 #define SYS_CST_TARGET_ID_CFG_W0_CFG_CST_TARGET_ID                   BIT(0)
 
 #define SYS_CST_TARGET_ID_CFG_W0_CFG_CST_TARGET_ID_MASK              0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # SysCstMemMapIdCfg Definition
  */
 #define SYS_CST_MEM_MAP_ID_CFG_W0_CFG_CST_MEM_MAP_TARGET_ID          BIT(0)
 
 #define SYS_CST_MEM_MAP_ID_CFG_W0_CFG_CST_MEM_MAP_TARGET_ID_MASK     0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # SysQspiBootCfg0 Definition
  */
 #define SYS_QSPI_BOOT_CFG0_W0_QSPI_BOOT_EN_CPHA                      BIT(4)
@@ -1115,7 +1121,7 @@ struct SysCtl_regs {
 #define SYS_QSPI_BOOT_CFG0_W0_QSPI_BOOT_EN_CPOL_MASK                 0x00000020
 #define SYS_QSPI_BOOT_CFG0_W0_QSPI_BOOT_CLK_DIV_MASK                 0x00ff0000
 
-/* ############################################################################
+/* ################################################################################
  * # SysQspiBootCfg1 Definition
  */
 #define SYS_QSPI_BOOT_CFG1_W0_QSPI_BOOT_CMD_CODE                     BIT(24)
@@ -1130,7 +1136,7 @@ struct SysCtl_regs {
 #define SYS_QSPI_BOOT_CFG1_W0_QSPI_BOOT_ADDR_MODE_MASK               0x00000700
 #define SYS_QSPI_BOOT_CFG1_W0_QSPI_BOOT_ADDR_CYCLE_MASK              0x0000003f
 
-/* ############################################################################
+/* ################################################################################
  * # SysQspiBootCfg2 Definition
  */
 #define SYS_QSPI_BOOT_CFG2_W0_QSPI_BOOT_DUMMY_MODE                   BIT(8)
@@ -1139,14 +1145,14 @@ struct SysCtl_regs {
 #define SYS_QSPI_BOOT_CFG2_W0_QSPI_BOOT_DUMMY_MODE_MASK              0x00000700
 #define SYS_QSPI_BOOT_CFG2_W0_QSPI_BOOT_DUMMY_CYCLE_MASK             0x0000003f
 
-/* ############################################################################
+/* ################################################################################
  * # SysQspiBootCfg3 Definition
  */
 #define SYS_QSPI_BOOT_CFG3_W0_QSPI_BOOT_DUMMY_CODE                   BIT(0)
 
 #define SYS_QSPI_BOOT_CFG3_W0_QSPI_BOOT_DUMMY_CODE_MASK              0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # SysDdrCfg Definition
  */
 #define SYS_DDR_CFG_W0_DDR_RESET_CK_E_LATCH_BAR                      BIT(0)
@@ -1154,14 +1160,18 @@ struct SysCtl_regs {
 #define SYS_DDR_CFG_W0_DDR_PHY_IDDQ                                  BIT(4)
 #define SYS_DDR_CFG_W0_DDR_VDD_ON                                    BIT(2)
 #define SYS_DDR_CFG_W0_DDR_PWR_OFF_PHY                               BIT(1)
+#define SYS_DDR_CFG_W0_DDR_INTF2_ADDR_TRANS_EN                       BIT(5)
+#define SYS_DDR_CFG_W0_DDR_INTF3_ADDR_TRANS_EN                     	 BIT(6)
 
 #define SYS_DDR_CFG_W0_DDR_RESET_CK_E_LATCH_BAR_MASK                 0x00000001
 #define SYS_DDR_CFG_W0_DDR_FORCE_STA_CK_STP1_MASK                    0x00000008
 #define SYS_DDR_CFG_W0_DDR_PHY_IDDQ_MASK                             0x00000010
 #define SYS_DDR_CFG_W0_DDR_VDD_ON_MASK                               0x00000004
 #define SYS_DDR_CFG_W0_DDR_PWR_OFF_PHY_MASK                          0x00000002
+#define SYS_DDR_CFG_W0_DDR_INTF2_ADDR_TRANS_EN_MASK                  0x00000020
+#define SYS_DDR_CFG_W0_DDR_INTF3_ADDR_TRANS_EN_MASK                  0x00000040
 
-/* ############################################################################
+/* ################################################################################
  * # SysSpiSelCfg Definition
  */
 #define SYS_SPI_SEL_CFG_W0_SSP_SLAVE_SEL                             BIT(0)
@@ -1170,7 +1180,7 @@ struct SysCtl_regs {
 #define SYS_SPI_SEL_CFG_W0_SSP_SLAVE_SEL_MASK                        0x00000003
 #define SYS_SPI_SEL_CFG_W0_SSP_CS_CFG_CTL_MASK                       0x000000f0
 
-/* ############################################################################
+/* ################################################################################
  * # SysMdioSocCfg Definition
  */
 #define SYS_MDIO_SOC_CFG_W0_CFG_EN_CLK_MDIO_SOC                      BIT(4)
@@ -1181,35 +1191,35 @@ struct SysCtl_regs {
 #define SYS_MDIO_SOC_CFG_W0_CFG_INV_MDIO_SOC_MASK                    0x00000001
 #define SYS_MDIO_SOC_CFG_W0_CFG_EN_CLK_MDIO_SOC_REG_MASK             0x00000020
 
-/* ############################################################################
+/* ################################################################################
  * # SysWdt0Cnt Definition
  */
 #define SYS_WDT0_CNT_W0_CFG_WDT0_DIV_CNT                             BIT(0)
 
 #define SYS_WDT0_CNT_W0_CFG_WDT0_DIV_CNT_MASK                        0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # SysWdt0Rev Definition
  */
 #define SYS_WDT0_REV_W0_CFG_WDT0_ECO_REV                             BIT(0)
 
 #define SYS_WDT0_REV_W0_CFG_WDT0_ECO_REV_MASK                        0x0000000f
 
-/* ############################################################################
+/* ################################################################################
  * # SysWdt1Cnt Definition
  */
 #define SYS_WDT1_CNT_W0_CFG_WDT1_DIV_CNT                             BIT(0)
 
 #define SYS_WDT1_CNT_W0_CFG_WDT1_DIV_CNT_MASK                        0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # SysWdt1Rev Definition
  */
 #define SYS_WDT1_REV_W0_CFG_WDT1_ECO_REV                             BIT(0)
 
 #define SYS_WDT1_REV_W0_CFG_WDT1_ECO_REV_MASK                        0x0000000f
 
-/* ############################################################################
+/* ################################################################################
  * # SysMshCfg Definition
  */
 #define SYS_MSH_CFG_W0_CFG_MSH_CARD_DETECT_IN_EN                     BIT(4)
@@ -1236,7 +1246,7 @@ struct SysCtl_regs {
 #define SYS_MSH_CFG_W0_MSH_INTF_AT_DLL_MASTER_BYPASS_MASK            0x00000001
 #define SYS_MSH_CFG_W0_CFG_MSH_CARD_WRITE_PROT_IN_EN_MASK            0x00000040
 
-/* ############################################################################
+/* ################################################################################
  * # SysMshStatus Definition
  */
 #define SYS_MSH_STATUS_W0_MON_MSH_C_RESET_DONE                       BIT(2)
@@ -1251,7 +1261,7 @@ struct SysCtl_regs {
 #define SYS_MSH_STATUS_W0_MON_MSH_AT_DLL_LOCK_MASK                   0x00000010
 #define SYS_MSH_STATUS_W0_MON_MSH_RX_DLL_LOCK_MASK                   0x00000020
 
-/* ############################################################################
+/* ################################################################################
  * # SysUsbCfg0 Definition
  */
 #define SYS_USB_CFG0_W0_USB_PHY_TX_PRE_EMP_AMP_TUNE                  BIT(2)
@@ -1284,7 +1294,7 @@ struct SysCtl_regs {
 #define SYS_USB_CFG0_W0_USB_PHY_TX_PRE_EMP_PULSE_TUNE_MASK           0x00000080
 #define SYS_USB_CFG0_W0_USB_PHY_SQ_RX_TUNE_MASK                      0x00007000
 
-/* ############################################################################
+/* ################################################################################
  * # SysUsbCfg1 Definition
  */
 #define SYS_USB_CFG1_W0_USB_INTF_AUTOPPD_ON_OVERCUR_EN               BIT(1)
@@ -1309,7 +1319,7 @@ struct SysCtl_regs {
 #define SYS_USB_CFG1_W0_USB_INTF_SIM_MODE_MASK                       0x00008000
 #define SYS_USB_CFG1_W0_USB_INTF_HUBSETUP_MIN_MASK                   0x00000004
 
-/* ############################################################################
+/* ################################################################################
  * # SysUsbCfg2 Definition
  */
 #define SYS_USB_CFG2_W0_USB_PHY_PLL_P_TUNE                           BIT(8)
@@ -1326,7 +1336,7 @@ struct SysCtl_regs {
 #define SYS_USB_CFG2_W0_USB_PHY_OTG_TUNE_MASK                        0x00000007
 #define SYS_USB_CFG2_W0_USB_PHY_VDAT_REF_TUNE_MASK                   0x00003000
 
-/* ############################################################################
+/* ################################################################################
  * # SysUsbStatus Definition
  */
 #define SYS_USB_STATUS_W0_USB_INTF_EHCI_LPSMC_STATE                  BIT(0)
@@ -1345,14 +1355,14 @@ struct SysCtl_regs {
 #define SYS_USB_STATUS_W0_USB_INTF_OHCI_GLOBALSUSPEND_MASK           0x00020000
 #define SYS_USB_STATUS_W0_USB_INTF_OHCI_RMTWKP_MASK                  0x00080000
 
-/* ############################################################################
+/* ################################################################################
  * # SysPcieBaseCfg Definition
  */
 #define SYS_PCIE_BASE_CFG_W0_PCIE_BASE_CFG                           BIT(0)
 
 #define SYS_PCIE_BASE_CFG_W0_PCIE_BASE_CFG_MASK                      0x000fffff
 
-/* ############################################################################
+/* ################################################################################
  * # SysRegCfg Definition
  */
 #define SYS_REG_CFG_W0_EN_CLK_GLOBAL_SYS                             BIT(0)
@@ -1361,7 +1371,7 @@ struct SysCtl_regs {
 #define SYS_REG_CFG_W0_EN_CLK_GLOBAL_SYS_MASK                        0x00000001
 #define SYS_REG_CFG_W0_CFG_SOC_ACC_DIR_EN_MASK                       0x00000002
 
-/* ############################################################################
+/* ################################################################################
  * # SysInitCtl Definition
  */
 #define SYS_INIT_CTL_W0_CPU_MEM_INIT_DONE                            BIT(1)
@@ -1374,7 +1384,7 @@ struct SysCtl_regs {
 #define SYS_INIT_CTL_W1_CFG_INIT_START_PTR_MASK                      0x00007fff
 #define SYS_INIT_CTL_W1_CFG_INIT_END_PTR_MASK                        0x7fff0000
 
-/* ############################################################################
+/* ################################################################################
  * # SysPllSupCfg0 Definition
  */
 #define SYS_PLL_SUP_CFG0_W0_PLL_SUP_PLL_PWD                          BIT(3)
@@ -1393,7 +1403,7 @@ struct SysCtl_regs {
 #define SYS_PLL_SUP_CFG0_W0_PLL_SUP_DCO_BYPASS_MASK                  0x00000002
 #define SYS_PLL_SUP_CFG0_W0_PLL_SUP_POST_DIV_MASK                    0x0003f000
 
-/* ############################################################################
+/* ################################################################################
  * # SysPllSupCfg1 Definition
  */
 #define SYS_PLL_SUP_CFG1_W0_MON_PLL_SUP_LOCK                         BIT(28)
@@ -1410,14 +1420,14 @@ struct SysCtl_regs {
 #define SYS_PLL_SUP_CFG1_W0_PLL_SUP_SLOCK_MASK                       0x00010000
 #define SYS_PLL_SUP_CFG1_W0_PLL_SUP_BYPASS_MASK                      0x01000000
 
-/* ############################################################################
+/* ################################################################################
  * # SysApbProcTimer Definition
  */
 #define SYS_APB_PROC_TIMER_W0_CFG_APB_PROC_TIMER                     BIT(0)
 
 #define SYS_APB_PROC_TIMER_W0_CFG_APB_PROC_TIMER_MASK                0x0000ffff
 
-/* ############################################################################
+/* ################################################################################
  * # SysUsbTest Definition
  */
 #define SYS_USB_TEST_W0_USB_PHY_TEST_DATA_IN                         BIT(8)
@@ -1432,7 +1442,7 @@ struct SysCtl_regs {
 #define SYS_USB_TEST_W1_USB_PHY_TEST_CLK_MASK                        0x00010000
 #define SYS_USB_TEST_W1_USB_PHY_TEST_DATA_OUT_MASK                   0x0000000f
 
-/* ############################################################################
+/* ################################################################################
  * # SysGpioMultiCtl Definition
  */
 #define SYS_GPIO_MULTI_CTL_W0_CFG_GPIO14_SEL                         BIT(28)
@@ -1469,7 +1479,7 @@ struct SysCtl_regs {
 #define SYS_GPIO_MULTI_CTL_W0_CFG_GPIO12_SEL_MASK                    0x03000000
 #define SYS_GPIO_MULTI_CTL_W0_CFG_GPIO4_SEL_MASK                     0x00000300
 
-/* ############################################################################
+/* ################################################################################
  * # SysGpioHsMultiCtl Definition
  */
 #define SYS_GPIO_HS_MULTI_CTL_W0_CFG_GPIO_HS13_SEL                   BIT(26)
@@ -1510,7 +1520,22 @@ struct SysCtl_regs {
 #define SYS_GPIO_HS_MULTI_CTL_W1_CFG_GPIO_HS17_SEL_MASK              0x0000000c
 #define SYS_GPIO_HS_MULTI_CTL_W1_CFG_GPIO_HS16_SEL_MASK              0x00000003
 
-/* ############################################################################
+/* ################################################################################
+ * # SysPcieMemCtl Definition 
+ */
+#define SYS_PCIE_MEM_CTL_W0_CFG_AXI4_LITE_BYTE	                 	 BIT(4)
+#define SYS_PCIE_MEM_CTL_W0_CFG_AXI4_LITE_MASK                  	 BIT(0)
+#define SYS_PCIE_MEM_CTL_W0_CFG_AXI4_LITE_PROT                       BIT(8)
+#define SYS_PCIE_MEM_CTL_W0_LOG_AXI4_LITE_RD_RESP                    BIT(16)
+#define SYS_PCIE_MEM_CTL_W0_LOG_AXI4_LITE_WR_RESP                    BIT(20)
+
+#define SYS_PCIE_MEM_CTL_W0_CFG_AXI4_LITE_BYTE_MASK                  0x00000030
+#define SYS_PCIE_MEM_CTL_W0_CFG_AXI4_LITE_MASK_MASK                  0x0000000f
+#define SYS_PCIE_MEM_CTL_W0_CFG_AXI4_LITE_PROT_MASK                  0x00000700
+#define SYS_PCIE_MEM_CTL_W0_LOG_AXI4_LITE_RD_RESP_MASK               0x00030000
+#define SYS_PCIE_MEM_CTL_W0_LOG_AXI4_LITE_WR_RESP_MASK               0x00300000
+
+/* ################################################################################
  * # SysPcieStatus Definition
  */
 #define SYS_PCIE_STATUS_W0_PCIE_LTSSM_LOG_31_0                       BIT(0)
@@ -1519,7 +1544,7 @@ struct SysCtl_regs {
 #define SYS_PCIE_STATUS_W0_PCIE_LTSSM_LOG_31_0_MASK                  0x00000001
 #define SYS_PCIE_STATUS_W1_PCIE_LTSSM_LOG_63_32_MASK                 0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # SysMsixStatus Definition
  */
 #define SYS_MSIX_STATUS_W0_MSIX_STATUS0                              BIT(0)
@@ -1540,7 +1565,7 @@ struct SysCtl_regs {
 #define SYS_MSIX_STATUS_W6_MSIX_STATUS6_MASK                         0xffffffff
 #define SYS_MSIX_STATUS_W7_MSIX_STATUS7_MASK                         0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # SysMsixMask Definition
  */
 #define SYS_MSIX_MASK_W0_MSIX_MASK0                                  BIT(0)
@@ -1561,35 +1586,35 @@ struct SysCtl_regs {
 #define SYS_MSIX_MASK_W6_MSIX_MASK6_MASK                             0xffffffff
 #define SYS_MSIX_MASK_W7_MSIX_MASK7_MASK                             0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # SysMsixAddr Definition
  */
 #define SYS_MSIX_ADDR_W0_MSIX_ADDR                                   BIT(0)
 
 #define SYS_MSIX_ADDR_W0_MSIX_ADDR_MASK                              0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # SysMsixVecCtl Definition
  */
 #define SYS_MSIX_VEC_CTL_W0_MSIX_VEC_EN                              BIT(0)
 
 #define SYS_MSIX_VEC_CTL_W0_MSIX_VEC_EN_MASK                         0x000000ff
 
-/* ############################################################################
+/* ################################################################################
  * # SysMsixAddrEn Definition
  */
 #define SYS_MSIX_ADDR_EN_W0_MSIX_ADDR_EN                             BIT(0)
 
 #define SYS_MSIX_ADDR_EN_W0_MSIX_ADDR_EN_MASK                        0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # SysMsixIntrLog Definition
  */
 #define SYS_MSIX_INTR_LOG_W0_MSIX_INTR_LOG                           BIT(0)
 
 #define SYS_MSIX_INTR_LOG_W0_MSIX_INTR_LOG_MASK                      0x000000ff
 
-/* ############################################################################
+/* ################################################################################
  * # SysDebugCtl Definition
  */
 #define SYS_DEBUG_CTL_W0_DEBUG_INIT_PCIE                             BIT(4)
@@ -1622,7 +1647,7 @@ struct SysCtl_regs {
 #define SYS_DEBUG_CTL_W0_DEBUG_INIT_SUP_MASK                         0x00000040
 #define SYS_DEBUG_CTL_W0_DEBUG_INIT_QSPI_MASK                        0x00000020
 
-/* ############################################################################
+/* ################################################################################
  * # SysMsixPending Definition
  */
 #define SYS_MSIX_PENDING_W0_MSIX_PENDING0                            BIT(0)
@@ -1643,7 +1668,7 @@ struct SysCtl_regs {
 #define SYS_MSIX_PENDING_W6_MSIX_PENDING6_MASK                       0xffffffff
 #define SYS_MSIX_PENDING_W7_MSIX_PENDING7_MASK                       0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # SysPwmCtl Definition
  */
 #define SYS_PWM_CTL_W0_CFG_PWM0_EN                                   BIT(31)
@@ -1672,7 +1697,7 @@ struct SysCtl_regs {
 #define SYS_PWM_CTL_W6_CFG_PWM3_PERIOD_CYCLE_MASK                    0x00ffffff
 #define SYS_PWM_CTL_W7_CFG_PWM3_DUTY_CYCLE_MASK                      0x00ffffff
 
-/* ############################################################################
+/* ################################################################################
  * # SysTachLog Definition
  */
 #define SYS_TACH_LOG_W0_TACH0_PERIOD_CYCLE                           BIT(0)
@@ -1693,7 +1718,7 @@ struct SysCtl_regs {
 #define SYS_TACH_LOG_W6_TACH3_PERIOD_CYCLE_MASK                      0x00ffffff
 #define SYS_TACH_LOG_W7_TACH3_DUTY_CYCLE_MASK                        0x00ffffff
 
-/* ############################################################################
+/* ################################################################################
  * # MonAxiCpuCurInfo Definition
  */
 #define MON_AXI_CPU_CUR_INFO_W0_MON_AXI_CPU_CUR_INFO_31_0            BIT(0)
@@ -1726,7 +1751,7 @@ struct SysCtl_regs {
 #define MON_AXI_CPU_CUR_INFO_W12_MON_AXI_CPU_CUR_INFO_415_384_MASK   0x00000001
 #define MON_AXI_CPU_CUR_INFO_W13_MON_AXI_CPU_CUR_INFO_427_416_MASK   0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # MonAxiCpuLogInfo Definition
  */
 #define MON_AXI_CPU_LOG_INFO_W0_MON_AXI_CPU_LOG_INFO_31_0            BIT(0)
@@ -1759,7 +1784,7 @@ struct SysCtl_regs {
 #define MON_AXI_CPU_LOG_INFO_W12_MON_AXI_CPU_LOG_INFO_415_384_MASK   0x00000001
 #define MON_AXI_CPU_LOG_INFO_W13_MON_AXI_CPU_LOG_INFO_427_416_MASK   0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # MonAxiDdr0CurInfo Definition
  */
 #define MON_AXI_DDR0_CUR_INFO_W0_MON_AXI_DDR0_CUR_INFO_31_0          BIT(0)
@@ -1792,7 +1817,7 @@ struct SysCtl_regs {
 #define MON_AXI_DDR0_CUR_INFO_W12_MON_AXI_DDR0_CUR_INFO_415_384_MASK 0x00000001
 #define MON_AXI_DDR0_CUR_INFO_W13_MON_AXI_DDR0_CUR_INFO_427_416_MASK 0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # MonAxiDdr0LogInfo Definition
  */
 #define MON_AXI_DDR0_LOG_INFO_W0_MON_AXI_DDR0_LOG_INFO_31_0          BIT(0)
@@ -1825,7 +1850,7 @@ struct SysCtl_regs {
 #define MON_AXI_DDR0_LOG_INFO_W12_MON_AXI_DDR0_LOG_INFO_415_384_MASK 0x00000001
 #define MON_AXI_DDR0_LOG_INFO_W13_MON_AXI_DDR0_LOG_INFO_427_416_MASK 0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # MonAxiDdr1CurInfo Definition
  */
 #define MON_AXI_DDR1_CUR_INFO_W0_MON_AXI_DDR1_CUR_INFO_31_0          BIT(0)
@@ -1850,7 +1875,7 @@ struct SysCtl_regs {
 #define MON_AXI_DDR1_CUR_INFO_W8_MON_AXI_DDR1_CUR_INFO_287_256_MASK  0x00000001
 #define MON_AXI_DDR1_CUR_INFO_W9_MON_AXI_DDR1_CUR_INFO_299_288_MASK  0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # MonAxiDdr1LogInfo Definition
  */
 #define MON_AXI_DDR1_LOG_INFO_W0_MON_AXI_DDR1_LOG_INFO_31_0          BIT(0)
@@ -1875,7 +1900,7 @@ struct SysCtl_regs {
 #define MON_AXI_DDR1_LOG_INFO_W8_MON_AXI_DDR1_LOG_INFO_287_256_MASK  0x00000001
 #define MON_AXI_DDR1_LOG_INFO_W9_MON_AXI_DDR1_LOG_INFO_299_288_MASK  0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # MonAxiMemCurInfo Definition
  */
 #define MON_AXI_MEM_CUR_INFO_W0_MON_AXI_MEM_CUR_INFO_31_0            BIT(0)
@@ -1900,7 +1925,7 @@ struct SysCtl_regs {
 #define MON_AXI_MEM_CUR_INFO_W8_MON_AXI_MEM_CUR_INFO_287_256_MASK    0x00000001
 #define MON_AXI_MEM_CUR_INFO_W9_MON_AXI_MEM_CUR_INFO_303_288_MASK    0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # MonAxiMemLogInfo Definition
  */
 #define MON_AXI_MEM_LOG_INFO_W0_MON_AXI_MEM_LOG_INFO_31_0            BIT(0)
@@ -1925,7 +1950,7 @@ struct SysCtl_regs {
 #define MON_AXI_MEM_LOG_INFO_W8_MON_AXI_MEM_LOG_INFO_287_256_MASK    0x00000001
 #define MON_AXI_MEM_LOG_INFO_W9_MON_AXI_MEM_LOG_INFO_303_288_MASK    0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # MonAxiMshCurInfo Definition
  */
 #define MON_AXI_MSH_CUR_INFO_W0_MON_AXI_MSH_CUR_INFO_31_0            BIT(0)
@@ -1948,7 +1973,7 @@ struct SysCtl_regs {
 #define MON_AXI_MSH_CUR_INFO_W7_MON_AXI_MSH_CUR_INFO_255_224_MASK    0x00000001
 #define MON_AXI_MSH_CUR_INFO_W8_MON_AXI_MSH_CUR_INFO_275_256_MASK    0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # MonAxiMshLogInfo Definition
  */
 #define MON_AXI_MSH_LOG_INFO_W0_MON_AXI_MSH_LOG_INFO_31_0            BIT(0)
@@ -1973,7 +1998,7 @@ struct SysCtl_regs {
 #define MON_AXI_MSH_LOG_INFO_W8_MON_AXI_MSH_LOG_INFO_275_256_MASK    0x00000001
 #define MON_AXI_MSH_LOG_INFO_W8_MON_AXI_MSH_LOG_WD_ID_MASK           0x0f000000
 
-/* ############################################################################
+/* ################################################################################
  * # MonAxiPcieCurInfo Definition
  */
 #define MON_AXI_PCIE_CUR_INFO_W0_MON_AXI_PCIE_CUR_INFO_31_0          BIT(0)
@@ -1998,7 +2023,7 @@ struct SysCtl_regs {
 #define MON_AXI_PCIE_CUR_INFO_W8_MON_AXI_PCIE_CUR_INFO_287_256_MASK  0x00000001
 #define MON_AXI_PCIE_CUR_INFO_W9_MON_AXI_PCIE_CUR_INFO_291_288_MASK  0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # MonAxiPcieLogInfo Definition
  */
 #define MON_AXI_PCIE_LOG_INFO_W0_MON_AXI_PCIE_LOG_INFO_31_0          BIT(0)
@@ -2023,7 +2048,7 @@ struct SysCtl_regs {
 #define MON_AXI_PCIE_LOG_INFO_W8_MON_AXI_PCIE_LOG_INFO_287_256_MASK  0x00000001
 #define MON_AXI_PCIE_LOG_INFO_W9_MON_AXI_PCIE_LOG_INFO_291_288_MASK  0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # MonAxiQspiCurInfo Definition
  */
 #define MON_AXI_QSPI_CUR_INFO_W0_MON_AXI_QSPI_CUR_INFO_31_0          BIT(0)
@@ -2042,7 +2067,7 @@ struct SysCtl_regs {
 #define MON_AXI_QSPI_CUR_INFO_W5_MON_AXI_QSPI_CUR_INFO_191_160_MASK  0x00000001
 #define MON_AXI_QSPI_CUR_INFO_W6_MON_AXI_QSPI_CUR_INFO_223_192_MASK  0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # MonAxiQspiLogInfo Definition
  */
 #define MON_AXI_QSPI_LOG_INFO_W0_MON_AXI_QSPI_LOG_INFO_31_0          BIT(0)
@@ -2063,7 +2088,7 @@ struct SysCtl_regs {
 #define MON_AXI_QSPI_LOG_INFO_W6_MON_AXI_QSPI_LOG_INFO_223_192_MASK  0x00000001
 #define MON_AXI_QSPI_LOG_INFO_W7_MON_AXI_QSPI_LOG_WD_ID_MASK         0x000003ff
 
-/* ############################################################################
+/* ################################################################################
  * # MonAxiSupCurInfo Definition
  */
 #define MON_AXI_SUP_CUR_INFO_W0_MON_AXI_SUP_CUR_INFO_31_0            BIT(0)
@@ -2084,7 +2109,7 @@ struct SysCtl_regs {
 #define MON_AXI_SUP_CUR_INFO_W6_MON_AXI_SUP_CUR_INFO_223_192_MASK    0x00000001
 #define MON_AXI_SUP_CUR_INFO_W7_MON_AXI_SUP_CUR_INFO_231_224_MASK    0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # MonAxiSupLogInfo Definition
  */
 #define MON_AXI_SUP_LOG_INFO_W0_MON_AXI_SUP_LOG_INFO_31_0            BIT(0)
@@ -2105,7 +2130,7 @@ struct SysCtl_regs {
 #define MON_AXI_SUP_LOG_INFO_W6_MON_AXI_SUP_LOG_INFO_223_192_MASK    0x00000001
 #define MON_AXI_SUP_LOG_INFO_W7_MON_AXI_SUP_LOG_INFO_231_224_MASK    0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # MonSysApbCurInfo Definition
  */
 #define MON_SYS_APB_CUR_INFO_W0_MON_SYS_APB_CUR_ADDR                 BIT(0)
@@ -2126,7 +2151,7 @@ struct SysCtl_regs {
 #define MON_SYS_APB_CUR_INFO_W3_MON_SYS_APB_CUR_SEL_MASK             0x00000010
 #define MON_SYS_APB_CUR_INFO_W3_MON_SYS_APB_CUR_SLV_ERR_MASK         0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # MonSysApbLogInfo Definition
  */
 #define MON_SYS_APB_LOG_INFO_W0_MON_SYS_APB_LOG_ADDR                 BIT(0)
@@ -2149,7 +2174,7 @@ struct SysCtl_regs {
 #define MON_SYS_APB_LOG_INFO_W3_MON_SYS_APB_LOG_SLV_ERR_MASK         0x00000001
 #define MON_SYS_APB_LOG_INFO_W3_MON_SYS_APB_LOG_WRITE_MASK           0x00000004
 
-/* ############################################################################
+/* ################################################################################
  * # MonSecApbCurInfo Definition
  */
 #define MON_SEC_APB_CUR_INFO_W0_MON_SEC_APB_CUR_ADDR                 BIT(0)
@@ -2170,7 +2195,7 @@ struct SysCtl_regs {
 #define MON_SEC_APB_CUR_INFO_W3_MON_SEC_APB_CUR_ENABLE_MASK          0x00000008
 #define MON_SEC_APB_CUR_INFO_W3_MON_SEC_APB_CUR_SEL_MASK             0x00000010
 
-/* ############################################################################
+/* ################################################################################
  * # MonSecApbLogInfo Definition
  */
 #define MON_SEC_APB_LOG_INFO_W0_MON_SEC_APB_LOG_ADDR                 BIT(0)
@@ -2193,7 +2218,7 @@ struct SysCtl_regs {
 #define MON_SEC_APB_LOG_INFO_W3_MON_SEC_APB_LOG_SEL_MASK             0x00000010
 #define MON_SEC_APB_LOG_INFO_W3_MON_SEC_APB_ERR_CNT_MASK             0x0000ff00
 
-/* ############################################################################
+/* ################################################################################
  * # DebugCpuCnt Definition
  */
 #define DEBUG_CPU_CNT_W0_MON_CPU_WA_LOG_CNT                          BIT(8)
@@ -2212,7 +2237,7 @@ struct SysCtl_regs {
 #define DEBUG_CPU_CNT_W1_MON_CPU_WR_RESP_ERROR_CNT_MASK              0xff000000
 #define DEBUG_CPU_CNT_W1_MON_CPU_RD_RESP_ERROR_CNT_MASK              0x00ff0000
 
-/* ############################################################################
+/* ################################################################################
  * # DebugMemCnt Definition
  */
 #define DEBUG_MEM_CNT_W0_MON_MEM_WA_LOG_CNT                          BIT(8)
@@ -2227,7 +2252,7 @@ struct SysCtl_regs {
 #define DEBUG_MEM_CNT_W1_MON_MEM_WR_OUT_CNT_MASK                     0x00001f00
 #define DEBUG_MEM_CNT_W1_MON_MEM_RD_OUT_CNT_MASK                     0x0000001f
 
-/* ############################################################################
+/* ################################################################################
  * # DebugDdrCnt Definition
  */
 #define DEBUG_DDR_CNT_W0_MON_DDR0_WA_LOG_CNT                         BIT(8)
@@ -2260,7 +2285,7 @@ struct SysCtl_regs {
 #define DEBUG_DDR_CNT_W3_MON_DDR1_RD_OUT_CNT_MASK                    0x0000001f
 #define DEBUG_DDR_CNT_W3_MON_DDR1_WR_RESP_ERROR_CNT_MASK             0xff000000
 
-/* ############################################################################
+/* ################################################################################
  * # DebugMshCnt Definition
  */
 #define DEBUG_MSH_CNT_W0_MON_MSH_WD_LOG_CNT                          BIT(16)
@@ -2275,7 +2300,7 @@ struct SysCtl_regs {
 #define DEBUG_MSH_CNT_W1_MON_MSH_RD_OUT_CNT_MASK                     0x0000001f
 #define DEBUG_MSH_CNT_W1_MON_MSH_WR_OUT_CNT_MASK                     0x00001f00
 
-/* ############################################################################
+/* ################################################################################
  * # DebugPcieCnt Definition
  */
 #define DEBUG_PCIE_CNT_W0_MON_PCIE_WD_LOG_CNT                        BIT(16)
@@ -2294,7 +2319,7 @@ struct SysCtl_regs {
 #define DEBUG_PCIE_CNT_W1_MON_PCIE_WR_RESP_ERROR_CNT_MASK            0xff000000
 #define DEBUG_PCIE_CNT_W1_MON_PCIE_RD_RESP_ERROR_CNT_MASK            0x00ff0000
 
-/* ############################################################################
+/* ################################################################################
  * # DebugQspiCnt Definition
  */
 #define DEBUG_QSPI_CNT_W0_MON_QSPI_WD_LOG_CNT                        BIT(16)
@@ -2309,7 +2334,7 @@ struct SysCtl_regs {
 #define DEBUG_QSPI_CNT_W1_MON_QSPI_RD_OUT_CNT_MASK                   0x0000001f
 #define DEBUG_QSPI_CNT_W1_MON_QSPI_WR_OUT_CNT_MASK                   0x00001f00
 
-/* ############################################################################
+/* ################################################################################
  * # DebugSupCnt Definition
  */
 #define DEBUG_SUP_CNT_W0_MON_SUP_WD_LOG_CNT                          BIT(16)
@@ -2328,7 +2353,7 @@ struct SysCtl_regs {
 #define DEBUG_SUP_CNT_W1_MON_SUP_WR_RESP_ERROR_CNT_MASK              0xff000000
 #define DEBUG_SUP_CNT_W1_MON_SUP_RD_OUT_CNT_MASK                     0x0000001f
 
-/* ############################################################################
+/* ################################################################################
  * # SysSpiVecLog Definition
  */
 #define SYS_SPI_VEC_LOG_W0_SPI_VEC_LOG_31_0                          BIT(0)
@@ -2343,7 +2368,7 @@ struct SysCtl_regs {
 #define SYS_SPI_VEC_LOG_W3_SPI_VEC_LOG_127_96_MASK                   0x00000001
 #define SYS_SPI_VEC_LOG_W4_SPI_VEC_LOG_159_128_MASK                  0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # DebugAhbRespCnt Definition
  */
 #define DEBUG_AHB_RESP_CNT_W0_MON_MSH_CFG_RESP_ERROR_CNT             BIT(8)
@@ -2354,7 +2379,7 @@ struct SysCtl_regs {
 #define DEBUG_AHB_RESP_CNT_W0_MON_DDR_CFG_RESP_ERROR_CNT_MASK        0x000000ff
 #define DEBUG_AHB_RESP_CNT_W0_MON_USB_CFG_RESP_ERROR_CNT_MASK        0x00ff0000
 
-/* ############################################################################
+/* ################################################################################
  * # DebugGicRespCnt Definition
  */
 #define DEBUG_GIC_RESP_CNT_W0_MON_GIC_RD_RESP_ERROR_CNT              BIT(0)
@@ -2363,7 +2388,70 @@ struct SysCtl_regs {
 #define DEBUG_GIC_RESP_CNT_W0_MON_GIC_RD_RESP_ERROR_CNT_MASK         0x000000ff
 #define DEBUG_GIC_RESP_CNT_W0_MON_GIC_WR_RESP_ERROR_CNT_MASK         0x0000ff00
 
-/* ############################################################################
+/* ################################################################################ 
+ * # SysDdrEccCtl Definition 
+ */
+#define SYS_DDR_ECC_CTL_W0_DDR_ECC_CLEAR_EN                      	 BIT(0)
+#define SYS_DDR_ECC_CTL_W0_DDR_ECC_ONE_BIT_ERR_CNT                   BIT(8)
+#define SYS_DDR_ECC_CTL_W0_DDR_ECC_TWO_BIT_ERR_CNT               	 BIT(12)
+
+#define SYS_DDR_ECC_CTL_W0_DDR_ECC_CLEAR_EN_MASK                     0x00000001
+#define SYS_DDR_ECC_CTL_W0_DDR_ECC_ONE_BIT_ERR_CNT_MASK              0x00000f00
+#define SYS_DDR_ECC_CTL_W0_DDR_ECC_TWO_BIT_ERR_CNT_MASK              0x0000f000
+
+/* ################################################################################ 
+ * # SysDdrInitStartAddr Definition
+ */
+#define SYS_DDR_INIT_START_ADDR_W0_CFG_INIT_START_ADDR0          	 BIT(0)
+#define SYS_DDR_INIT_START_ADDR_W1_CFG_INIT_START_ADDR1          	 BIT(0)
+
+#define SYS_DDR_INIT_START_ADDR_W0_CFG_INIT_START_ADDR0_MASK         0xffffffff
+#define SYS_DDR_INIT_START_ADDR_W1_CFG_INIT_START_ADDR1_MASK         0x0000000f
+
+/* ################################################################################ 
+ * # SysDdrInitLastAddr Definition 
+ */
+#define SYS_DDR_INIT_LAST_ADDR_W0_CFG_INIT_LAST_ADDR0           	 BIT(0)
+#define SYS_DDR_INIT_LAST_ADDR_W1_CFG_INIT_LAST_ADDR1            	 BIT(0)
+
+#define SYS_DDR_INIT_LAST_ADDR_W0_CFG_INIT_LAST_ADDR0_MASK           0xffffffff
+#define SYS_DDR_INIT_LAST_ADDR_W1_CFG_INIT_LAST_ADDR1_MASK           0x0000000f
+
+/* ################################################################################ 
+ * # SysDdrInitData Definition
+ */
+#define SYS_DDR_INIT_DATA_W0_CFG_INIT_WR_DATA0                   	 BIT(0)
+#define SYS_DDR_INIT_DATA_W1_CFG_INIT_WR_DATA1                       BIT(0)
+
+#define SYS_DDR_INIT_DATA_W0_CFG_INIT_WR_DATA0_MASK                  0xffffffff
+#define SYS_DDR_INIT_DATA_W1_CFG_INIT_WR_DATA1_MASK                  0xffffffff
+
+/* ################################################################################ 
+ * # SysDdrInitMode Definition */
+#define SYS_DDR_INIT_MODE_W0_CFG_INIT_AXI_CRITICAL                   BIT(0)
+#define SYS_DDR_INIT_MODE_W0_CFG_INIT_AXI_LEN                    	 BIT(8)
+#define SYS_DDR_INIT_MODE_W0_CFG_INIT_AXI_QOS                        BIT(4)
+#define SYS_DDR_INIT_MODE_W0_CFG_INIT_AXI_STRB                       BIT(16)
+#define SYS_DDR_INIT_MODE_W0_CFG_INIT_AXI_THRD                   	 BIT(24)
+
+#define SYS_DDR_INIT_MODE_W0_CFG_INIT_AXI_CRITICAL_MASK              0x00000001
+#define SYS_DDR_INIT_MODE_W0_CFG_INIT_AXI_LEN_MASK                   0x0000ff00
+#define SYS_DDR_INIT_MODE_W0_CFG_INIT_AXI_QOS_MASK                   0x000000f0
+#define SYS_DDR_INIT_MODE_W0_CFG_INIT_AXI_STRB_MASK                  0x00ff0000
+#define SYS_DDR_INIT_MODE_W0_CFG_INIT_AXI_THRD_MASK                  0x0f000000
+
+/* ################################################################################ 
+ * # SysDdrInitCtl Definition 
+ */
+#define SYS_DDR_INIT_CTL_W0_CFG_DDR_INIT_EN                          BIT(0)
+#define SYS_DDR_INIT_CTL_W0_LOG_DDR_INIT_DONE                  	     BIT(4)
+#define SYS_DDR_INIT_CTL_W0_LOG_DDR_INIT_RESP                        BIT(8)
+
+#define SYS_DDR_INIT_CTL_W0_CFG_DDR_INIT_EN_MASK                     0x00000001
+#define SYS_DDR_INIT_CTL_W0_LOG_DDR_INIT_DONE_MASK                   0x00000010
+#define SYS_DDR_INIT_CTL_W0_LOG_DDR_INIT_RESP_MASK                   0x00000300
+
+/* ################################################################################
  * # DebugMemPtrCfg Definition
  */
 #define DEBUG_MEM_PTR_CFG_W0_CFG_DBG_START_PTR                       BIT(0)
@@ -2372,63 +2460,63 @@ struct SysCtl_regs {
 #define DEBUG_MEM_PTR_CFG_W0_CFG_DBG_START_PTR_MASK                  0x00003fff
 #define DEBUG_MEM_PTR_CFG_W0_CFG_DBG_END_PTR_MASK                    0x3fff0000
 
-/* ############################################################################
+/* ################################################################################
  * # Grant0IntMask Definition
  */
 #define GRANT0_INT_MASK_W0_GRANT0_INT_MASK                           BIT(0)
 
 #define GRANT0_INT_MASK_W0_GRANT0_INT_MASK_MASK                      0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # Grant0IntCtl Definition
  */
 #define GRANT0_INT_CTL_W0_GRANT0_INT_CTL                             BIT(0)
 
 #define GRANT0_INT_CTL_W0_GRANT0_INT_CTL_MASK                        0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # Grant1IntMask Definition
  */
 #define GRANT1_INT_MASK_W0_GRANT1_INT_MASK                           BIT(0)
 
 #define GRANT1_INT_MASK_W0_GRANT1_INT_MASK_MASK                      0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # Grant1IntCtl Definition
  */
 #define GRANT1_INT_CTL_W0_GRANT1_INT_CTL                             BIT(0)
 
 #define GRANT1_INT_CTL_W0_GRANT1_INT_CTL_MASK                        0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # Grant2IntMask Definition
  */
 #define GRANT2_INT_MASK_W0_GRANT2_INT_MASK                           BIT(0)
 
 #define GRANT2_INT_MASK_W0_GRANT2_INT_MASK_MASK                      0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # Grant2IntCtl Definition
  */
 #define GRANT2_INT_CTL_W0_GRANT2_INT_CTL                             BIT(0)
 
 #define GRANT2_INT_CTL_W0_GRANT2_INT_CTL_MASK                        0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # Grant3IntMask Definition
  */
 #define GRANT3_INT_MASK_W0_GRANT3_INT_MASK                           BIT(0)
 
 #define GRANT3_INT_MASK_W0_GRANT3_INT_MASK_MASK                      0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # Grant3IntCtl Definition
  */
 #define GRANT3_INT_CTL_W0_GRANT3_INT_CTL                             BIT(0)
 
 #define GRANT3_INT_CTL_W0_GRANT3_INT_CTL_MASK                        0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # SysIntrIntCtl Definition
  */
 #define SYS_INTR_INT_CTL_W0_SYS_INTR_INT_CTL_31_0                    BIT(0)
@@ -2437,7 +2525,7 @@ struct SysCtl_regs {
 #define SYS_INTR_INT_CTL_W0_SYS_INTR_INT_CTL_31_0_MASK               0x00000001
 #define SYS_INTR_INT_CTL_W1_SYS_INTR_INT_CTL_63_32_MASK              0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # SupIntrIntCtl Definition
  */
 #define SUP_INTR_INT_CTL_W0_SUP_INTR_INT_CTL_31_0                    BIT(0)
@@ -2446,119 +2534,119 @@ struct SysCtl_regs {
 #define SUP_INTR_INT_CTL_W0_SUP_INTR_INT_CTL_31_0_MASK               0x00000001
 #define SUP_INTR_INT_CTL_W1_SUP_INTR_INT_CTL_63_32_MASK              0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # SysMiscInfo0 Definition
  */
 #define SYS_MISC_INFO0_W0_SYS_MISC_INFO0                             BIT(0)
 
 #define SYS_MISC_INFO0_W0_SYS_MISC_INFO0_MASK                        0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # SysMiscInfo1 Definition
  */
 #define SYS_MISC_INFO1_W0_SYS_MISC_INFO1                             BIT(0)
 
 #define SYS_MISC_INFO1_W0_SYS_MISC_INFO1_MASK                        0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # SysMiscInfo2 Definition
  */
 #define SYS_MISC_INFO2_W0_SYS_MISC_INFO2                             BIT(0)
 
 #define SYS_MISC_INFO2_W0_SYS_MISC_INFO2_MASK                        0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # SysMiscInfo3 Definition
  */
 #define SYS_MISC_INFO3_W0_SYS_MISC_INFO3                             BIT(0)
 
 #define SYS_MISC_INFO3_W0_SYS_MISC_INFO3_MASK                        0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # CommonInfo0 Definition
  */
 #define COMMON_INFO0_W0_COMMON_INFO0                                 BIT(0)
 
 #define COMMON_INFO0_W0_COMMON_INFO0_MASK                            0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # CommonInfo1 Definition
  */
 #define COMMON_INFO1_W0_COMMON_INFO1                                 BIT(0)
 
 #define COMMON_INFO1_W0_COMMON_INFO1_MASK                            0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # CommonInfo2 Definition
  */
 #define COMMON_INFO2_W0_COMMON_INFO2                                 BIT(0)
 
 #define COMMON_INFO2_W0_COMMON_INFO2_MASK                            0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # CommonInfo3 Definition
  */
 #define COMMON_INFO3_W0_COMMON_INFO3                                 BIT(0)
 
 #define COMMON_INFO3_W0_COMMON_INFO3_MASK                            0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # Grant0ExtMask Definition
  */
 #define GRANT0_EXT_MASK_W0_GRANT0_EXT_MASK                           BIT(0)
 
 #define GRANT0_EXT_MASK_W0_GRANT0_EXT_MASK_MASK                      0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # Grant0ExtCtl Definition
  */
 #define GRANT0_EXT_CTL_W0_GRANT0_EXT_CTL                             BIT(0)
 
 #define GRANT0_EXT_CTL_W0_GRANT0_EXT_CTL_MASK                        0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # Grant1ExtMask Definition
  */
 #define GRANT1_EXT_MASK_W0_GRANT1_EXT_MASK                           BIT(0)
 
 #define GRANT1_EXT_MASK_W0_GRANT1_EXT_MASK_MASK                      0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # Grant1ExtCtl Definition
  */
 #define GRANT1_EXT_CTL_W0_GRANT1_EXT_CTL                             BIT(0)
 
 #define GRANT1_EXT_CTL_W0_GRANT1_EXT_CTL_MASK                        0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # Grant2ExtMask Definition
  */
 #define GRANT2_EXT_MASK_W0_GRANT2_EXT_MASK                           BIT(0)
 
 #define GRANT2_EXT_MASK_W0_GRANT2_EXT_MASK_MASK                      0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # Grant2ExtCtl Definition
  */
 #define GRANT2_EXT_CTL_W0_GRANT2_EXT_CTL                             BIT(0)
 
 #define GRANT2_EXT_CTL_W0_GRANT2_EXT_CTL_MASK                        0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # Grant3ExtMask Definition
  */
 #define GRANT3_EXT_MASK_W0_GRANT3_EXT_MASK                           BIT(0)
 
 #define GRANT3_EXT_MASK_W0_GRANT3_EXT_MASK_MASK                      0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # Grant3ExtCtl Definition
  */
 #define GRANT3_EXT_CTL_W0_GRANT3_EXT_CTL                             BIT(0)
 
 #define GRANT3_EXT_CTL_W0_GRANT3_EXT_CTL_MASK                        0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # SysIntrExtCtl Definition
  */
 #define SYS_INTR_EXT_CTL_W0_SYS_INTR_EXT_CTL_31_0                    BIT(0)
@@ -2567,7 +2655,7 @@ struct SysCtl_regs {
 #define SYS_INTR_EXT_CTL_W0_SYS_INTR_EXT_CTL_31_0_MASK               0x00000001
 #define SYS_INTR_EXT_CTL_W1_SYS_INTR_EXT_CTL_63_32_MASK              0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # SupIntrExtCtl Definition
  */
 #define SUP_INTR_EXT_CTL_W0_SUP_INTR_EXT_CTL_31_0                    BIT(0)
@@ -2576,33 +2664,110 @@ struct SysCtl_regs {
 #define SUP_INTR_EXT_CTL_W0_SUP_INTR_EXT_CTL_31_0_MASK               0x00000001
 #define SUP_INTR_EXT_CTL_W1_SUP_INTR_EXT_CTL_63_32_MASK              0x00000001
 
-/* ############################################################################
+/* ################################################################################
  * # SupMiscInfo0 Definition
  */
 #define SUP_MISC_INFO0_W0_SUP_MISC_INFO0                             BIT(0)
 
 #define SUP_MISC_INFO0_W0_SUP_MISC_INFO0_MASK                        0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # SupMiscInfo1 Definition
  */
 #define SUP_MISC_INFO1_W0_SUP_MISC_INFO1                             BIT(0)
 
 #define SUP_MISC_INFO1_W0_SUP_MISC_INFO1_MASK                        0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # SupMiscInfo2 Definition
  */
 #define SUP_MISC_INFO2_W0_SUP_MISC_INFO2                             BIT(0)
 
 #define SUP_MISC_INFO2_W0_SUP_MISC_INFO2_MASK                        0xffffffff
 
-/* ############################################################################
+/* ################################################################################
  * # SupMiscInfo3 Definition
  */
 #define SUP_MISC_INFO3_W0_SUP_MISC_INFO3                             BIT(0)
 
 #define SUP_MISC_INFO3_W0_SUP_MISC_INFO3_MASK                        0xffffffff
+
+/* ################################################################################ 
+ * # SysBusDbgEn Definition
+ */
+#define SYS_BUS_DBG_EN_W0_CFG_DBG_EN_VEC0                            BIT(0)
+#define SYS_BUS_DBG_EN_W1_CFG_DBG_EN_VEC1                            BIT(0)
+
+#define SYS_BUS_DBG_EN_W0_CFG_DBG_EN_VEC0_MASK                       0xffffffff
+#define SYS_BUS_DBG_EN_W1_CFG_DBG_EN_VEC1_MASK                       0x001fffff
+
+/* ################################################################################ 
+ * # SysApbErrLog Definition 
+ */
+#define SYS_APB_ERR_LOG_W0_APB_SYS_ERR_LOG                           BIT(0)
+
+#define SYS_APB_ERR_LOG_W0_APB_SYS_ERR_LOG_MASK                      0x00000fff
+
+/* ################################################################################ 
+ * # MshClkPadSchmitEn Definition 
+ */
+#define MSH_CLK_PAD_SCHMIT_EN_W0_MSH_CLK_PAD_SCHMIT_EN               BIT(0)
+
+#define MSH_CLK_PAD_SCHMIT_EN_W0_MSH_CLK_PAD_SCHMIT_EN_MASK          0x00000001
+
+/* ################################################################################ 
+ * # SysI2C0DebugStatus Definition 
+ */
+#define SYS_I2_C0_DEBUG_STATUS_W0_DBG_I2_C0_ADDR10_BIT               BIT(6)
+#define SYS_I2_C0_DEBUG_STATUS_W0_DBG_I2_C0_ADDR_PROC                BIT(0)
+#define SYS_I2_C0_DEBUG_STATUS_W0_DBG_I2_C0_DATA_PROC                BIT(1)
+#define SYS_I2_C0_DEBUG_STATUS_W0_DBG_I2_C0_MASTER_ACT               BIT(7)
+#define SYS_I2_C0_DEBUG_STATUS_W0_DBG_I2_C0_MASTER_STATE             BIT(8)
+#define SYS_I2_C0_DEBUG_STATUS_W0_DBG_I2_C0_RD_PROC                  BIT(2)
+#define SYS_I2_C0_DEBUG_STATUS_W0_DBG_I2_C0_SLAVE_ACT                BIT(20)
+#define SYS_I2_C0_DEBUG_STATUS_W0_DBG_I2_C0_SLAVE_STATE              BIT(16)
+#define SYS_I2_C0_DEBUG_STATUS_W0_DBG_I2_C0_START_GEN                BIT(4)
+#define SYS_I2_C0_DEBUG_STATUS_W0_DBG_I2_C0_STOP_GEN                 BIT(5)
+#define SYS_I2_C0_DEBUG_STATUS_W0_DBG_I2_C0_WR_PROC                  BIT(3)
+
+#define SYS_I2_C0_DEBUG_STATUS_W0_DBG_I2_C0_ADDR10_BIT_MASK          0x00000040
+#define SYS_I2_C0_DEBUG_STATUS_W0_DBG_I2_C0_ADDR_PROC_MASK           0x00000001
+#define SYS_I2_C0_DEBUG_STATUS_W0_DBG_I2_C0_DATA_PROC_MASK           0x00000002
+#define SYS_I2_C0_DEBUG_STATUS_W0_DBG_I2_C0_MASTER_ACT_MASK          0x00000080
+#define SYS_I2_C0_DEBUG_STATUS_W0_DBG_I2_C0_MASTER_STATE_MASK        0x00001f00
+#define SYS_I2_C0_DEBUG_STATUS_W0_DBG_I2_C0_RD_PROC_MASK             0x00000004
+#define SYS_I2_C0_DEBUG_STATUS_W0_DBG_I2_C0_SLAVE_ACT_MASK           0x00100000
+#define SYS_I2_C0_DEBUG_STATUS_W0_DBG_I2_C0_SLAVE_STATE_MASK         0x000f0000
+#define SYS_I2_C0_DEBUG_STATUS_W0_DBG_I2_C0_START_GEN_MASK           0x00000010
+#define SYS_I2_C0_DEBUG_STATUS_W0_DBG_I2_C0_STOP_GEN_MASK            0x00000020
+#define SYS_I2_C0_DEBUG_STATUS_W0_DBG_I2_C0_WR_PROC_MASK             0x00000008
+
+/* ################################################################################
+ * # SysI2C1DebugStatus Definition 
+ */
+#define SYS_I2_C1_DEBUG_STATUS_W0_DBG_I2_C1_ADDR10_BIT               BIT(6)
+#define SYS_I2_C1_DEBUG_STATUS_W0_DBG_I2_C1_ADDR_PROC                BIT(0)
+#define SYS_I2_C1_DEBUG_STATUS_W0_DBG_I2_C1_DATA_PROC                BIT(1)
+#define SYS_I2_C1_DEBUG_STATUS_W0_DBG_I2_C1_MASTER_ACT               BIT(7)
+#define SYS_I2_C1_DEBUG_STATUS_W0_DBG_I2_C1_MASTER_STATE        	 BIT(8)
+#define SYS_I2_C1_DEBUG_STATUS_W0_DBG_I2_C1_RD_PROC                  BIT(2)
+#define SYS_I2_C1_DEBUG_STATUS_W0_DBG_I2_C1_SLAVE_ACT                BIT(20)
+#define SYS_I2_C1_DEBUG_STATUS_W0_DBG_I2_C1_SLAVE_STATE              BIT(16)
+#define SYS_I2_C1_DEBUG_STATUS_W0_DBG_I2_C1_START_GEN                BIT(4)
+#define SYS_I2_C1_DEBUG_STATUS_W0_DBG_I2_C1_STOP_GEN                 BIT(5)
+#define SYS_I2_C1_DEBUG_STATUS_W0_DBG_I2_C1_WR_PROC                  BIT(3)
+
+#define SYS_I2_C1_DEBUG_STATUS_W0_DBG_I2_C1_ADDR10_BIT_MASK          0x00000040
+#define SYS_I2_C1_DEBUG_STATUS_W0_DBG_I2_C1_ADDR_PROC_MASK           0x00000001
+#define SYS_I2_C1_DEBUG_STATUS_W0_DBG_I2_C1_DATA_PROC_MASK           0x00000002
+#define SYS_I2_C1_DEBUG_STATUS_W0_DBG_I2_C1_MASTER_ACT_MASK          0x00000080
+#define SYS_I2_C1_DEBUG_STATUS_W0_DBG_I2_C1_MASTER_STATE_MASK        0x00001f00
+#define SYS_I2_C1_DEBUG_STATUS_W0_DBG_I2_C1_RD_PROC_MASK             0x00000004
+#define SYS_I2_C1_DEBUG_STATUS_W0_DBG_I2_C1_SLAVE_ACT_MASK           0x00100000
+#define SYS_I2_C1_DEBUG_STATUS_W0_DBG_I2_C1_SLAVE_STATE_MASK         0x000f0000
+#define SYS_I2_C1_DEBUG_STATUS_W0_DBG_I2_C1_START_GEN_MASK           0x00000010
+#define SYS_I2_C1_DEBUG_STATUS_W0_DBG_I2_C1_STOP_GEN_MASK            0x00000020
+#define SYS_I2_C1_DEBUG_STATUS_W0_DBG_I2_C1_WR_PROC_MASK             0x00000008
 
 struct SysCtl_mems {
 	u32 SysApbMem0[3];	/* 0x0000fe00 */
@@ -2671,7 +2836,7 @@ struct SysCtl_mems {
 	u32 SecApbMem15_rsv3;
 };
 
-/* ############################################################################
+/* ################################################################################
  * # SysApbMem Definition
  */
 #define SYS_APB_MEM_W0_ADDR                                          BIT(0)
@@ -2684,7 +2849,7 @@ struct SysCtl_mems {
 #define SYS_APB_MEM_W2_WR_EN_MASK                                    0x00000001
 #define SYS_APB_MEM_W2_SLV_ERR_MASK                                  0x00000002
 
-/* ############################################################################
+/* ################################################################################
  * # SecApbMem Definition
  */
 #define SEC_APB_MEM_W0_ADDR                                          BIT(0)
@@ -2696,6 +2861,13 @@ struct SysCtl_mems {
 #define SEC_APB_MEM_W1_DATA_MASK                                     0xffffffff
 #define SEC_APB_MEM_W2_WR_EN_MASK                                    0x00000001
 #define SEC_APB_MEM_W2_SLV_ERR_MASK                                  0x00000002
+
+/* ################################################################################ 
+ * # SysPcieMem Definition 
+ */
+#define SYS_PCIE_MEM_W0_DATA_BIT                                     BIT(0)
+
+#define SYS_PCIE_MEM_W0_DATA_MASK                                    0xffffffff
 
 /* Bootmode setting values */
 #define ROM_QSPI_MODE		0x00000000

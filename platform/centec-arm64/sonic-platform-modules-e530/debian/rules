@@ -24,6 +24,7 @@ CLASSES_DIR := classes
 CONF_DIR := conf
 KDAL_DIR := ../../centec/centec-dal/
 FAN_DIR := fan
+PCA954X_DIR := pca954x
 
 %:
 	dh $@
@@ -41,10 +42,12 @@ build:
 	(for mod in $(FAN_DIR); do \
 		make modules -C $(KERNEL_SRC)/build M=$(MOD_SRC_DIR)/$${mod}/; \
 	done)
+	(for mod in $(PCA954X_DIR); do \
+		make modules -C $(KERNEL_SRC)/build M=$(MOD_SRC_DIR)/$${mod}/; \
+	done)
 	(for mod in $(MODULE_DIRS); do \
 		make modules -C $(KERNEL_SRC)/build M=$(MOD_SRC_DIR)/$${mod}/modules; \
 		cd $${mod}; \
-		python2.7 setup.py bdist_wheel -d $(MOD_SRC_DIR)/$${mod}/modules; \
 		python3 setup.py bdist_wheel -d $(MOD_SRC_DIR)/$${mod}/modules; \
 		cd -; \
 	done)
@@ -73,6 +76,7 @@ binary-indep:
 		cp $(MOD_SRC_DIR)/$${mod}/$(MODULE_DIR)/*.ko debian/$(PACKAGE_PRE_NAME)-$${mod}/$(KERNEL_SRC)/$(INSTALL_MOD_DIR); \
 		cp $(MOD_SRC_DIR)/$(KDAL_DIR)/*.ko debian/$(PACKAGE_PRE_NAME)-$${mod}/$(KERNEL_SRC)/$(INSTALL_MOD_DIR); \
 		cp $(MOD_SRC_DIR)/$(FAN_DIR)/*.ko debian/$(PACKAGE_PRE_NAME)-$${mod}/$(KERNEL_SRC)/$(INSTALL_MOD_DIR); \
+		cp $(MOD_SRC_DIR)/$(PCA954X_DIR)/*.ko debian/$(PACKAGE_PRE_NAME)-$${mod}/$(KERNEL_SRC)/$(INSTALL_MOD_DIR); \
 		cp $(MOD_SRC_DIR)/$${mod}/$(SERVICE_DIR)/*.service debian/$(PACKAGE_PRE_NAME)-$${mod}/lib/systemd/system/; \
 	done)
 	# Resuming debhelper scripts

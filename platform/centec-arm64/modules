@@ -10,7 +10,6 @@ rtc-sd2405
 ctc5236_switch
 ctc5236_mdio
 ctcmac
-ctcmac_test
 ctc5236-mc
 ctc_wdt
 ehci-ctc
@@ -20,3 +19,4 @@ pwm-ctc
 ext4
 overlay
 squashfs
+mars

@@ -1176,7 +1176,12 @@ dal_alloc_dma_pool(int lchip, int size)
     if (use_high_memory)
     {
         dma_phy_base[lchip] = virt_to_bus(high_memory);
-        dma_virt_base[lchip] = ioremap_nocache(dma_phy_base[lchip], size);
+        /*
+         * ioremap has provided non-cached semantics by default
+         * since the Linux 2.6 days, so remove the additional
+         * ioremap_nocache interface.
+         */
+        dma_virt_base[lchip] = ioremap(dma_phy_base[lchip], size);
     }
     else
     {
@@ -1205,7 +1210,12 @@ dal_alloc_dma_pool(int lchip, int size)
     /* Get DMA memory from kernel */
     dma_virt_base[lchip] = _dal_pgalloc(size);
     dma_phy_base[lchip] = virt_to_bus(dma_virt_base[lchip]);
-    //dma_virt_base [lchip]= ioremap_nocache(dma_phy_base[lchip], size);
+    /*
+     * ioremap has provided non-cached semantics by default
+     * since the Linux 2.6 days, so remove the additional
+     * ioremap_nocache interface.
+     */
+    //dma_virt_base [lchip]= ioremap(dma_phy_base[lchip], size);
 #endif
     }
 }
@@ -1943,7 +1953,12 @@ int linux_dal_pcie_probe(struct pci_dev* pdev, const struct pci_device_id* id)
     }
 
     dev->phys_address = pci_resource_start(pdev, bar);
-    dev->logic_address = (uintptr)ioremap_nocache(dev->phys_address,
+    /*
+     * ioremap has provided non-cached semantics by default
+     * since the Linux 2.6 days, so remove the additional
+     * ioremap_nocache interface.
+     */
+    dev->logic_address = (uintptr)ioremap(dev->phys_address,
                                                 pci_resource_len(dev->pci_dev, bar));
 
     /*0: little endian 1: big endian*/

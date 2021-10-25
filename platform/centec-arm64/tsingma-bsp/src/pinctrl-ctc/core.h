@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0-only */
 /*
  * Core private header for the pin control subsystem
  *
@@ -5,8 +6,6 @@
  * Written on behalf of Linaro for ST-Ericsson
  *
  * Author: Linus Walleij <linus.walleij@linaro.org>
- *
- * License terms: GNU General Public License (GPL) version 2
  */
 
 #include <linux/kref.h>
@@ -218,7 +217,7 @@ int pinctrl_generic_add_group(struct pinctrl_dev *pctldev, const char *name,
 int pinctrl_generic_remove_group(struct pinctrl_dev *pctldev,
 				 unsigned int group_selector);
 
-#endif	/* CONFIG_GENERIC_PINCTRL_GROUPS */
+#endif /* CONFIG_GENERIC_PINCTRL_GROUPS */
 
 struct pinctrl_dev *get_pinctrl_dev_from_devname(const char *dev_name);
 struct pinctrl_dev *get_pinctrl_dev_from_of_node(struct device_node *np);
@@ -233,13 +232,12 @@ static inline struct pin_desc *pin_desc_get(struct pinctrl_dev *pctldev,
 	return radix_tree_lookup(&pctldev->pin_desc_tree, pin);
 }
 
-extern struct pinctrl_gpio_range *
-pinctrl_find_gpio_range_from_pin_nolock(struct pinctrl_dev *pctldev,
-					unsigned int pin);
-
-int pinctrl_register_map(const struct pinctrl_map *maps, unsigned num_maps,
-			 bool dup);
-void pinctrl_unregister_map(const struct pinctrl_map *map);
+extern struct pinctrl_gpio_range *pinctrl_find_gpio_range_from_pin_nolock(struct
+									  pinctrl_dev
+									  *pctldev,
+									  unsigned
+									  int
+									  pin);
 
 extern int pinctrl_force_sleep(struct pinctrl_dev *pctldev);
 extern int pinctrl_force_default(struct pinctrl_dev *pctldev);

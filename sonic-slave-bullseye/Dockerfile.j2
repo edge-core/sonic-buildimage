@@ -3,7 +3,9 @@ FROM multiarch/qemu-user-static:x86_64-arm-5.0.0-2 as qemu
 FROM multiarch/debian-debootstrap:armhf-bullseye
 COPY --from=qemu /usr/bin/qemu-arm-static /usr/bin
 {%- elif CONFIGURED_ARCH == "arm64" and MULTIARCH_QEMU_ENVIRON == "y" %}
+FROM multiarch/qemu-user-static:x86_64-aarch64-5.2.0-2 as qemu
 FROM multiarch/debian-debootstrap:arm64-bullseye
+COPY --from=qemu /usr/bin/qemu-aarch64-static /usr/bin
 {%- else -%}
 FROM debian:bullseye
 {%- endif %}
@@ -350,6 +352,11 @@ RUN apt-get update && apt-get install -y \
         pkg-config
 
 RUN apt-get -y build-dep openssh
+
+# Build fix for ARM64 and ARMHF /etc/debian_version
+{%- if CONFIGURED_ARCH == "armhf" or CONFIGURED_ARCH == "arm64" %}
+RUN apt upgrade -y base-files
+{%- endif %}
 
 # Build fix for ARMHF bullseye libsairedis
 {%- if CONFIGURED_ARCH == "armhf" %}

@@ -1,3 +1,4 @@
+/*
 /* drivers/char/watchdog/ctc-wdt.c
  *
  * Watchdog driver for CTC TSINGMA, based on ARM SP805 watchdog module
@@ -289,6 +290,12 @@ static int ctc_wdt_probe(struct amba_device *adev, const struct amba_id *id)
 							   "ctc,sysctrl");
 	if (IS_ERR(wdt->regmap_base))
 		return PTR_ERR(wdt->regmap_base);
+
+	/* reset wdt module */
+	regmap_write(wdt->regmap_base,
+		     offsetof(struct SysCtl_regs, SysWdtResetCtl), 0x3);
+	regmap_write(wdt->regmap_base,
+		     offsetof(struct SysCtl_regs, SysWdtResetCtl), 0x0);
 
 	/*
 	 * TsingMa SoC wdt reference clock  is obtained by clockSub frequency

@@ -1,4 +1,5 @@
-/* Centec cpu_mac Ethernet Driver -- cpu_mac controller implementation
+/*
+ * Centec CpuMac Ethernet Driver -- CpuMac controller implementation
  * Provides Bus interface for MIIM regs
  *
  * Author: liuht <liuht@centecnetworks.com>
@@ -10,6 +11,7 @@
  * under  the terms of  the GNU General  Public License as published by the
  * Free Software Foundation;  either version 2 of the  License, or (at your
  * option) any later version.
+ *
  */
 
 #include <linux/kernel.h>
@@ -44,7 +46,7 @@
 
 struct ctc_mdio_priv {
 	void __iomem *map;
-	struct mdio_soc_regs *mdio_reg;
+	struct MdioSoc_regs *mdio_reg;
 };
 
 static int ctc_mdio_write(struct mii_bus *bus, int mii_id, int reg, u16 value)
@@ -57,14 +59,15 @@ static int ctc_mdio_write(struct mii_bus *bus, int mii_id, int reg, u16 value)
 	cmd = CTCMAC_MDIO_CMD_REGAD(reg) | CTCMAC_MDIO_CMD_PHYAD(mii_id)
 	    | CTCMAC_MDIO_CMD_OPCODE(1) | CTCMAC_MDIO_CMD_DATA(value);
 
-	writel(cmd, &priv->mdio_reg->mdio_soc_cmd_0[0]);
-	writel(1, &priv->mdio_reg->mdio_soc_cmd_0[1]);
+	writel(cmd, &priv->mdio_reg->MdioSocCmd0[0]);
+	writel(1, &priv->mdio_reg->MdioSocCmd0[1]);
 
-	ret = readl_poll_timeout(&priv->mdio_reg->mdio_soc_status_0,
+	ret = readl_poll_timeout(&priv->mdio_reg->MdioSocStatus0,
 				 tmp, tmp & CTCMAC_MDIO_STAT(1), 1000, 10000);
 
-	if (ret < 0)
+	if (ret < 0) {
 		return -1;
+	}
 
 	return 0;
 }
@@ -80,18 +83,18 @@ static int ctc_mdio_read(struct mii_bus *bus, int mii_id, int reg)
 	cmd = CTCMAC_MDIO_CMD_REGAD(reg) | CTCMAC_MDIO_CMD_PHYAD(mii_id)
 	    | CTCMAC_MDIO_CMD_OPCODE(2);
 
-	writel(cmd, &priv->mdio_reg->mdio_soc_cmd_0[0]);
-	writel(1, &priv->mdio_reg->mdio_soc_cmd_0[1]);
+	writel(cmd, &priv->mdio_reg->MdioSocCmd0[0]);
+	writel(1, &priv->mdio_reg->MdioSocCmd0[1]);
 
-	ret = readl_poll_timeout(&priv->mdio_reg->mdio_soc_status_0,
+	ret = readl_poll_timeout(&priv->mdio_reg->MdioSocStatus0,
 				 status, status & CTCMAC_MDIO_STAT(1), 1000,
 				 10000);
 	if (ret < 0) {
-		pr_err("ctc_mdio_read1\n");
+		printk(KERN_ERR "ctc_mdio_read1\n");
 		return -1;
 	}
 
-	value = (readl(&priv->mdio_reg->mdio_soc_status_0) & 0xffff);
+	value = (readl(&priv->mdio_reg->MdioSocStatus0) & 0xffff);
 
 	return value;
 }
@@ -100,7 +103,7 @@ static int ctc_mdio_reset(struct mii_bus *bus)
 {
 	struct ctc_mdio_priv *priv = (struct ctc_mdio_priv *)bus->priv;
 
-	writel(0x91f, &priv->mdio_reg->mdio_soc_cfg_0);
+	writel(0x91f, &priv->mdio_reg->MdioSocCfg0);
 
 	return 0;
 }
@@ -146,7 +149,7 @@ static int ctc_mdio_probe(struct platform_device *pdev)
 		pr_err("of iomap fail %d!\n", err);
 		goto error;
 	}
-	priv->mdio_reg = (struct mdio_soc_regs *)priv->map;
+	priv->mdio_reg = (struct MdioSoc_regs *)priv->map;
 	new_bus->parent = &pdev->dev;
 	platform_set_drvdata(pdev, new_bus);
 
