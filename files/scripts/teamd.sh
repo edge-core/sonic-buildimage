@@ -3,7 +3,7 @@
 function debug()
 {
     /usr/bin/logger $1
-    /bin/echo `date` "- $1" >> ${DEBUGLOG}
+    /bin/echo `date` "- $1" >> ${DEBUG_LOG}
 }
 
 function check_warm_boot()
@@ -69,13 +69,13 @@ stop() {
         # Send USR1 signal to all teamd instances to stop them
         # It will prepare teamd for warm-reboot
         # Note: We must send USR1 signal before syncd, because it will send the last packet through CPU port
-        docker exec -i ${SERVICE}$DEV pkill -USR1 ${SERVICE} > /dev/null || [ $? == 1 ]
+        docker exec -i ${SERVICE}$DEV pkill -USR1 -f ${TEAMD_CMD} > /dev/null || [ $? == 1 ]
     elif [[ x"$FAST_BOOT" == x"true" ]]; then
         # Kill teamd processes inside of teamd container with SIGUSR2 to allow them to send last LACP frames
         # We call `docker kill teamd` to ensure the container stops as quickly as possible,
         # Note: teamd must be killed before syncd, because it will send the last packet through CPU port
-        docker exec -i ${SERVICE}$DEV pkill -USR2 ${SERVICE} || [ $? == 1 ]
-        while docker exec -i ${SERVICE}$DEV pgrep ${SERVICE} > /dev/null; do
+        docker exec -i ${SERVICE}$DEV pkill -USR2 -f ${TEAMD_CMD} || [ $? == 1 ]
+        while docker exec -i ${SERVICE}$DEV pgrep -f ${TEAMD_CMD} > /dev/null; do
             sleep 0.05
         done
         docker kill ${SERVICE}$DEV  &> /dev/null || debug "Docker ${SERVICE}$DEV is not running ($?) ..."
@@ -88,7 +88,8 @@ stop() {
 DEV=$2
 
 SERVICE="teamd"
-DEBUGLOG="/tmp/teamd-debug$DEV.log"
+TEAMD_CMD="/usr/bin/teamd"
+DEBUG_LOG="/tmp/teamd-debug$DEV.log"
 NAMESPACE_PREFIX="asic"
 if [ "$DEV" ]; then
     NET_NS="$NAMESPACE_PREFIX$DEV" #name of the network namespace
