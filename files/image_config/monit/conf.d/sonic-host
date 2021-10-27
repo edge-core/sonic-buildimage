@@ -24,6 +24,6 @@ check process rsyslog with pidfile /var/run/rsyslogd.pid
 # Check if /etc & /home are writable. If not, make them writable.
 # Raise syslog error message, in case of underlying issues
 #
-check program diskCheck with path "/usr/local/bin/disk_check.py"
+check program diskCheck with path "/usr/bin/disk_check.py"
     if status != 0 then alert
 
