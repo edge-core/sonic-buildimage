@@ -7,6 +7,7 @@
 ########################################################################
 
 try:
+    import os
     import sys
     from sonic_platform_base.psu_base import PsuBase
     from sonic_py_common import logger
@@ -38,6 +39,34 @@ class Psu(PsuBase):
 
         # PSU eeprom
         self.eeprom = Eeprom(is_psu=True, psu_index=self.index)
+
+    def _write_sysfs_file(self, sysfs_file, value):
+        rv = 'ERR'
+
+        if (not os.path.isfile(sysfs_file)):
+            return rv
+        try:
+            with open(sysfs_file, 'w') as fd:
+                rv = fd.write(str(value))
+        except Exception as e:
+            rv = 'ERR'
+
+        return rv
+
+    def _read_sysfs_file(self, sysfs_file):
+        rv = 'ERR'
+
+        if (not os.path.isfile(sysfs_file)):
+            return rv
+        try:
+            with open(sysfs_file, 'r') as fd:
+                rv = fd.read()
+        except Exception as e:
+            rv = 'ERR'
+
+        rv = rv.rstrip('\r\n')
+        rv = rv.lstrip(" ")
+        return rv
 
     def get_name(self):
         """
@@ -242,7 +271,20 @@ class Psu(PsuBase):
         Returns:
             A string, one of the predefined STATUS_LED_COLOR_* strings.
         """
-        return self._psu_master_led_color
+        if (not os.path.isfile("/sys/class/gpio/psuLedGreen/value") or
+            not os.path.isfile("/sys/class/gpio/psuLedAmber/value")):
+            return None
+
+        green = self._read_sysfs_file("/sys/class/gpio/psuLedGreen/value")
+        amber = self._read_sysfs_file("/sys/class/gpio/psuLedAmber/value")
+        if green == "ERR" or amber == "ERR":
+            return None
+        if green == "1":
+            return self.STATUS_LED_COLOR_GREEN
+        elif amber == "1":
+            return self.STATUS_LED_COLOR_AMBER
+        else:
+            return None
 
     def set_status_master_led(self, color):
         """
@@ -252,5 +294,22 @@ class Psu(PsuBase):
             bool: True if status LED state is set successfully, False if
                   not
         """
-        self._psu_master_led_color = color
+        if (not os.path.isfile("/sys/class/gpio/psuLedGreen/value") or
+            not os.path.isfile("/sys/class/gpio/psuLedAmber/value")):
+            return False
+
+        if color == self.STATUS_LED_COLOR_GREEN:
+            rvg = self._write_sysfs_file("/sys/class/gpio/psuLedGreen/value", 1)
+            if rvg != "ERR":
+                rva = self._write_sysfs_file("/sys/class/gpio/psuLedAmber/value", 0)
+        elif color == self.STATUS_LED_COLOR_AMBER:
+            rvg = self._write_sysfs_file("/sys/class/gpio/psuLedGreen/value", 0)
+            if rvg != "ERR":
+                rva = self._write_sysfs_file("/sys/class/gpio/psuLedAmber/value", 1)
+        else:
+            return False
+
+        if rvg == "ERR" or rva == "ERR":
+            return False
+
         return True
