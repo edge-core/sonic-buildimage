@@ -37,7 +37,7 @@ stderr_logfile=syslog
 {% if VLAN and vlan_name in VLAN and VLAN[vlan_name]['dhcp_servers'] %}
 {% set _dummy = ipv4_num_relays.update({'count': ipv4_num_relays.count + 1}) %}
 {% endif %}
-{% if VLAN and vlan_name in VLAN and 'dhcpv6_servers' in VLAN[vlan_name] %}
+{% if DHCP_RELAY and vlan_name in DHCP_RELAY and 'dhcpv6_servers' in DHCP_RELAY[vlan_name] %}
 {% set _dummy = ipv6_num_relays.update({'count': ipv6_num_relays.count + 1}) %}
 {% endif %}
 {% endfor %}

@@ -8,7 +8,7 @@ programs=
 isc-dhcpv4-relay-{{ vlan_name }}
 {%- endif %}
 {# Append DHCPv6 agents #}
-{% if VLAN and vlan_name in VLAN and 'dhcpv6_servers' in VLAN[vlan_name] %}
+{% if DHCP_RELAY and vlan_name in DHCP_RELAY and 'dhcpv6_servers' in DHCP_RELAY[vlan_name] %}
 {% if add_preceding_comma.flag %},{% endif %}
 {% set _dummy = add_preceding_comma.update({'flag': True}) %}
 dhcp6relay

@@ -6,7 +6,7 @@ programs=
 {% if VLAN and vlan_name in VLAN and VLAN[vlan_name]['dhcp_servers'] %}
 {% set _dummy = monitor_instance.update({'flag': True}) %}
 {%- endif %}
-{% if VLAN and vlan_name in VLAN and 'dhcpv6_servers' in VLAN[vlan_name] %}
+{% if DHCP_RELAY and vlan_name in DHCP_RELAY and 'dhcpv6_servers' in DHCP_RELAY[vlan_name] %}
 {% set _dummy = monitor_instance.update({'flag': True}) %}
 {% endif %}
 {% if monitor_instance.flag %}
@@ -31,17 +31,13 @@ dhcpmon-{{ vlan_name }}
 {% endfor %}
 {% endif %}
 {# Check DHCPv6 agents #}
-{% if VLAN and vlan_name in VLAN and 'dhcpv6_servers' in VLAN[vlan_name] %}
-{% for dhcpv6_server in VLAN[vlan_name]['dhcpv6_servers'] %}
+{% if DHCP_RELAY and vlan_name in DHCP_RELAY and 'dhcpv6_servers' in DHCP_RELAY[vlan_name] %}
+{% for dhcpv6_server in DHCP_RELAY[vlan_name]['dhcpv6_servers'] %}
 {% if dhcpv6_server | ipv6 %}
 {% set _dummy = relay_for_ipv6.update({'flag': True}) %}
 {% endif %}
 {% endfor %}
 {% endif %}
-{% if relay_for_ipv4.flag %}
-{% set _dummy = relay_for_ipv4.update({'flag': False}) %}
-{% if relay_for_ipv6.flag %}
-{% set _dummy = relay_for_ipv6.update({'flag': False}) %}
 [program:dhcpmon-{{ vlan_name }}]
 {# We treat this VLAN as a downstream interface (-id), as we only want to listen for requests #}
 command=/usr/sbin/dhcpmon -id {{ vlan_name }}
@@ -62,6 +58,10 @@ command=/usr/sbin/dhcpmon -id {{ vlan_name }}
 {% endif %}
 {% if relay_for_ipv4.flag %} -4{% endif %}
 {% if relay_for_ipv6.flag %} -6{% endif %}
+{% if relay_for_ipv4.flag %}
+{% set _dummy = relay_for_ipv4.update({'flag': False}) %}
+{% if relay_for_ipv6.flag %}
+{% set _dummy = relay_for_ipv6.update({'flag': False}) %}
 
 priority=4
 autostart=false
