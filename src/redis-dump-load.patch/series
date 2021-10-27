@@ -1,3 +1,2 @@
 0001-Use-pipelines-when-dumping-52.patch
 0002-Fix-setup.py-for-test-and-bdist_wheel.patch
-0003-use-redis-3.5.3.patch

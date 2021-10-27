@@ -85,8 +85,7 @@ setup(
                          './yang-models/sonic-tc-queue-map.yang',
                          './yang-models/sonic-pfc-priority-queue-map.yang',
                          './yang-models/sonic-pfc-priority-priority-group-map.yang',
-                         './yang-models/sonic-port-qos-map.yang',
-                         './yang-models/sonic_yang_tree']),
+                         './yang-models/sonic-port-qos-map.yang']),
     ],
     zip_safe=False,
 )
