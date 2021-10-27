@@ -182,7 +182,10 @@ define GET_MOD_DEP_SHA
 	$(eval $(1)_DEP_FILES_MISSING := $(filter-out $(wildcard $($(1)_DEP_MOD_SHA_FILES)),$($(1)_DEP_MOD_SHA_FILES)) )
 	$(if $($(1)_DEP_FILES_MISSING), $(warning "[ DPKG ] Dependecy file(s) are not found for $(1) : $($(1)_DEP_FILES_MISSING)))
 
-	$(eval $(1)_DEP_MOD_SHA := $(shell git hash-object  $($(1)_DEP_MOD_SHA_FILES) \
+	# Include package dependencies hash values into package hash calculation
+	$(eval $(1)_DEP_PKGS_SHA := $(foreach dfile,$(1)_MOD_DEP_PKGS,$(dfile)_DEP_MOD_SHA $(dfile)_MOD_HASH))
+
+	$(eval $(1)_DEP_MOD_SHA := $(shell bash -c "git hash-object  $($(1)_DEP_MOD_SHA_FILES) && echo $($(1)_DEP_PKGS_SHA)" \
                             | sha1sum | awk '{print substr($$1,0,23);}'))
 endef
 
