@@ -34,6 +34,48 @@ for intf_pid in $(ls -1 /var/run/dhclient*.Ethernet*.pid 2> /dev/null); do
     [ -f ${intf_pid} ] && kill `cat ${intf_pid}` && rm -f ${intf_pid}
 done
 
+
+# Setup eth1 if we connect to a remote chassis DB.
+PLATFORM=${PLATFORM:-`sonic-cfggen -H -v DEVICE_METADATA.localhost.platform`}
+CHASSISDB_CONF="/usr/share/sonic/device/$PLATFORM/chassisdb.conf"
+[ -f $CHASSISDB_CONF ] && source $CHASSISDB_CONF
+
+ASIC_CONF="/usr/share/sonic/device/$PLATFORM/asic.conf"
+[ -f $ASIC_CONF ] && source $ASIC_CONF
+
+if [[ -n "$midplane_subnet" && ($NUM_ASIC -gt 1) ]]; then
+    for asic_id in `seq 0 $((NUM_ASIC - 1))`; do
+       NET_NS="asic$asic_id"
+
+       PIDS=`ip netns pids "$NET_NS" 2>/dev/null`
+       if [ "$?" -ne "0" ]; then # namespace doesn't exist
+          continue
+       fi
+
+       # Use /16 for loopback interface
+       ip netns exec $NET_NS ip addr add 127.0.0.1/16 dev lo
+       ip netns exec $NET_NS ip addr del 127.0.0.1/8 dev lo
+
+       # Create eth1 in database instance
+       ip link add name ns-eth1 link eth1-midplane type ipvlan mode l2
+       ip link set dev ns-eth1 netns $NET_NS
+       ip netns exec $NET_NS ip link set ns-eth1 name eth1
+
+       # Configure IP address and enable eth1
+       lc_slot_id=$(python3 -c 'import sonic_platform.platform; platform_chassis = sonic_platform.platform.Platform().get_chassis(); print(platform_chassis.get_my_slot())' 2>/dev/null)
+       lc_ip_address=`echo $midplane_subnet | awk -F. '{print $1 "." $2}'`.$lc_slot_id.$((asic_id + 10))
+       lc_subnet_mask=${midplane_subnet#*/}
+       ip netns exec $NET_NS ip addr add $lc_ip_address/$lc_subnet_mask dev eth1
+       ip netns exec $NET_NS ip link set dev eth1 up
+
+       # Allow localnet routing on the new interfaces if midplane is using a
+       # subnet in the 127/8 range.
+       if [[ "${midplane_subnet#127}" != "$midplane_subnet" ]]; then
+          ip netns exec $NET_NS bash -c "echo 1 > /proc/sys/net/ipv4/conf/eth1/route_localnet"
+       fi
+    done
+fi
+
 # Read sysctl conf files again
 sysctl -p /etc/sysctl.d/90-dhcp6-systcl.conf
 
