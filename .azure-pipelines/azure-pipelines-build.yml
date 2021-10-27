@@ -78,8 +78,8 @@ jobs:
             dbg_image: yes
 
         - name: marvell-armhf
-          pool: sonicbld_8c
-          timeoutInMinutes: 2160
+          pool: sonicbld-armhf
+          timeoutInMinutes: 2880
           variables:
             PLATFORM_ARCH: armhf
 
