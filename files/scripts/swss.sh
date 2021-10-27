@@ -1,16 +1,16 @@
 #!/bin/bash
 
+DEV=$2
+
+SERVICE="swss"
+PEER="syncd"
+DEBUGLOG="/tmp/swss-syncd-debug$DEV.log"
+LOCKFILE="/tmp/swss-syncd-lock$DEV"
+NAMESPACE_PREFIX="asic"
+ETC_SONIC_PATH="/etc/sonic/"
+
 DEPENDENT="radv"
 MULTI_INST_DEPENDENT="teamd"
-
-# Update dependent list based on other packages requirements
-if [[ -f /etc/sonic/${SERVICE}_dependent ]]; then
-    DEPENDENT="${DEPENDENT} $(cat /etc/sonic/${SERVICE}_dependent)"
-fi
-
-if [[ -f /etc/sonic/${SERVICE}_multi_inst_dependent ]]; then
-    MULTI_INST_DEPENDENT="${MULTI_INST_DEPENDENT} cat /etc/sonic/${SERVICE}_multi_inst_dependent"
-fi
 
 . /usr/local/bin/asic_status.sh
 
@@ -18,6 +18,18 @@ function debug()
 {
     /usr/bin/logger $1
     /bin/echo `date` "- $1" >> ${DEBUGLOG}
+}
+
+function read_dependent_services()
+{
+    # Update dependent list based on other packages requirements
+    if [[ -f ${ETC_SONIC_PATH}/${SERVICE}_dependent ]]; then
+        DEPENDENT="${DEPENDENT} $(cat ${ETC_SONIC_PATH}/${SERVICE}_dependent)"
+    fi
+
+    if [[ -f ${ETC_SONIC_PATH}/${SERVICE}_multi_inst_dependent ]]; then
+        MULTI_INST_DEPENDENT="${MULTI_INST_DEPENDENT} cat ${ETC_SONIC_PATH}/${SERVICE}_multi_inst_dependent"
+    fi
 }
 
 function lock_service_state_change()
@@ -270,13 +282,6 @@ stop() {
     stop_peer_and_dependent_services
 }
 
-DEV=$2
-
-SERVICE="swss"
-PEER="syncd"
-DEBUGLOG="/tmp/swss-syncd-debug$DEV.log"
-LOCKFILE="/tmp/swss-syncd-lock$DEV"
-NAMESPACE_PREFIX="asic"
 if [ "$DEV" ]; then
     NET_NS="$NAMESPACE_PREFIX$DEV" #name of the network namespace
     SONIC_DB_CLI="sonic-db-cli -n $NET_NS"
@@ -284,6 +289,8 @@ else
     NET_NS=""
     SONIC_DB_CLI="sonic-db-cli"
 fi
+
+read_dependent_services
 
 case "$1" in
     start|wait|stop)
