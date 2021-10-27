@@ -5,7 +5,6 @@
 
 import os
 import sys
-import time
 
 try:
     from sonic_platform_base.sfp_base import SfpBase
@@ -795,28 +794,22 @@ class Sfp(SfpBase):
         Reset SFP.
         Returns:
             A boolean, True if successful, False if not
-        """        
-        if self.sfp_type == COPPER_TYPE:
-            return False
-
-        self.tx_disable(True)
-        time.sleep(1)
-        self.tx_disable(False)
-        
-        return True
+        """
+        # RJ45 and SFP ports not resettable
+        return False
 
     def tx_disable(self, tx_disable):
         """
-        Disable SFP TX 
+        Disable SFP TX
         Args:
             tx_disable : A Boolean, True to enable tx_disable mode, False to disable
                          tx_disable mode.
-        Returns: 
+        Returns:
             A boolean, True if tx_disable is set successfully, False if not
         """
         if self.sfp_type == COPPER_TYPE:
             return False
-        
+
         if smbus_present == 0:  # if called from sfputil outside of pmon
             cmdstatus, register = cmd.getstatusoutput('sudo i2cget -y 0 0x41 0x5')
             if cmdstatus:
@@ -834,8 +827,8 @@ class Sfp(SfpBase):
         if tx_disable == True:
             setbits = register | mask
         else:
-            setbits = register & ~mask   
-  
+            setbits = register & ~mask
+
         if smbus_present == 0:  # if called from sfputil outside of pmon
             cmdstatus, output = cmd.getstatusoutput('sudo i2cset -y -m 0x0f 0 0x41 0x5 %d' % setbits)
             if cmdstatus:
@@ -846,7 +839,7 @@ class Sfp(SfpBase):
             DEVICE_ADDRESS = 0x41
             DEVICE_REG = 0x5
             bus.write_byte_data(DEVICE_ADDRESS, DEVICE_REG, setbits)
-                        
+
         return True
 
     def tx_disable_channel(self, channel, disable):
