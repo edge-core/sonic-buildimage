@@ -16,6 +16,7 @@
 try:
     from sonic_platform_base.sonic_eeprom.eeprom_base import EepromDecoder
     from sonic_platform_base.sonic_eeprom.eeprom_tlvinfo import TlvInfoDecoder
+    from sonic_py_common import logger
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -26,6 +27,8 @@ psu_eeprom_format = [
     ('Part Number', 's', 14), ('burn', 'x', 40),
     ('Serial Number', 's', 11)
     ]
+
+sonic_logger = logger.Logger('eeprom')
 
 
 class Eeprom(TlvInfoDecoder):
@@ -51,7 +54,7 @@ class Eeprom(TlvInfoDecoder):
                 self.index = psu_index
                 self.start_offset = 18
                 self.eeprom_path = self.I2C_DIR \
-                    + "i2c-1/1-005{}/eeprom".format(self.index)
+                    + "i2c-1/1-005{}/eeprom".format(self.index - 1)
                 self.format = psu_eeprom_format
 
                 # Decode device eeprom as per specified format
@@ -79,6 +82,7 @@ class Eeprom(TlvInfoDecoder):
             # Read System EEPROM as per ONIE TlvInfo EEPROM format.
             self.eeprom_data = self.read_eeprom()
         except Exception as e:
+            sonic_logger.log_warning("Unable to read system eeprom")
             self.base_mac = 'NA'
             self.serial_number = 'NA'
             self.part_number = 'NA'
@@ -88,6 +92,7 @@ class Eeprom(TlvInfoDecoder):
         else:
             eeprom = self.eeprom_data
             if not self.is_valid_tlvinfo_header(eeprom):
+                sonic_logger.log_warning("Invalid system eeprom TLV header")
                 self.base_mac = 'NA'
                 self.serial_number = 'NA'
                 self.part_number = 'NA'
@@ -144,10 +149,12 @@ class Eeprom(TlvInfoDecoder):
                 # Read Fan/PSU EEPROM as per the specified format.
                 self.eeprom_data = EepromDecoder.read_eeprom(self)
             except Exception as e:
+                sonic_logger.log_warning("Unable to read device eeprom for PSU#{}".format(self.index))
                 return
 
             # Bail out if PSU eeprom unavailable
             if self.eeprom_data[0] == 255:
+                sonic_logger.log_warning("Uninitialized device eeprom for PSU#{}".format(self.index))
                 return
 
             (valid, data) = self._get_eeprom_field("Model")
@@ -164,6 +171,7 @@ class Eeprom(TlvInfoDecoder):
                 if valid:
                     self.serial_number = data.decode()
             except Exception as e:
+                sonic_logger.log_warning("Unable to read serial# of PSU#{}".format(self.index))
                 return
 
         # Fan device eeproms use ONIE TLV format
@@ -172,10 +180,12 @@ class Eeprom(TlvInfoDecoder):
                 # Read Fan EEPROM as per ONIE TlvInfo EEPROM format.
                 self.eeprom_data = self.read_eeprom()
             except Exception as e:
+                sonic_logger.log_warning("Unable to read device eeprom for Fan#{}".format(self.index))
                 return
 
             eeprom = self.eeprom_data
             if not self.is_valid_tlvinfo_header(eeprom):
+                sonic_logger.log_warning("Invalid device eeprom TLV header for Fan#{}".format(self.index))
                 return
 
             total_length = (eeprom[9] << 8) | eeprom[10]
