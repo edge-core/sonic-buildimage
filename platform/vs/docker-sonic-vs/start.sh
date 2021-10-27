@@ -27,17 +27,18 @@ popd
 
 [ -d /etc/sonic ] || mkdir -p /etc/sonic
 
-if [[ -f /usr/share/sonic/virtual_chassis/default_config.json ]]; then
-    CHASS_CFG="-j /usr/share/sonic/virtual_chassis/default_config.json"
-fi
-
 # Note: libswsscommon requires a dabase_config file in /var/run/redis/sonic-db/
 # Prepare this file before any dependent application, such as sonic-cfggen
 mkdir -p /var/run/redis/sonic-db
 cp /etc/default/sonic-db/database_config.json /var/run/redis/sonic-db/
 
 SYSTEM_MAC_ADDRESS=$(ip link show eth0 | grep ether | awk '{print $2}')
-sonic-cfggen -t /usr/share/sonic/templates/init_cfg.json.j2 -a "{\"system_mac\": \"$SYSTEM_MAC_ADDRESS\"}" $CHASS_CFG > /etc/sonic/init_cfg.json
+sonic-cfggen -t /usr/share/sonic/templates/init_cfg.json.j2 -a "{\"system_mac\": \"$SYSTEM_MAC_ADDRESS\"}" > /etc/sonic/init_cfg.json
+
+if [[ -f /usr/share/sonic/virtual_chassis/default_config.json ]]; then
+    sonic-cfggen -j /etc/sonic/init_cfg.json -j /usr/share/sonic/virtual_chassis/default_config.json --print-data > /tmp/init_cfg.json
+    mv /tmp/init_cfg.json /etc/sonic/init_cfg.json
+fi
 
 if [ -f /etc/sonic/config_db.json ]; then
     sonic-cfggen -j /etc/sonic/init_cfg.json -j /etc/sonic/config_db.json --print-data > /tmp/config_db.json
