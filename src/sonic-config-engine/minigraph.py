@@ -1459,6 +1459,9 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
         del results['PORTCHANNEL_INTERFACE']
         is_storage_device = True
         results['VLAN_SUB_INTERFACE'] = vlan_sub_intfs
+        # storage backend T0 have all vlan members tagged
+        for vlan in vlan_members:
+            vlan_members[vlan]["tagging_mode"] = "tagged"
     elif current_device['type'] in backend_device_types and (resource_type is None or 'Storage' in resource_type):
         del results['INTERFACE']
         del results['PORTCHANNEL_INTERFACE']
@@ -1484,6 +1487,9 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
                 sub_intf = pc_intf + VLAN_SUB_INTERFACE_SEPARATOR + VLAN_SUB_INTERFACE_VLAN_ID
                 vlan_sub_intfs[sub_intf] = {"admin_status" : "up"}
         results['VLAN_SUB_INTERFACE'] = vlan_sub_intfs
+        # storage backend T0 have all vlan members tagged
+        for vlan in vlan_members:
+            vlan_members[vlan]["tagging_mode"] = "tagged"
     elif resource_type is not None and 'Storage' in resource_type:
         is_storage_device = True
 
