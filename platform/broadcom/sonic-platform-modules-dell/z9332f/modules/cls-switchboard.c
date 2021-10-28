@@ -21,14 +21,14 @@
 #include <linux/interrupt.h>
 #include <linux/i2c.h>
 #include <linux/platform_device.h>
-#include <linux/platform_data/pca954x.h>
 #include "cls-i2c-ocore.h"
+#include "cls-pca954x.h"
 
-#define MOD_VERSION "2.1.0-1"
+#define MOD_VERSION "2.2.0"
 #define DRV_NAME "cls-switchboard"
 
-#define I2C_MUX_CHANNEL(_ch, _adap_id, _deselect) \
-	[_ch] = { .adap_id = _adap_id, .deselect_on_exit = _deselect }
+#define I2C_MUX_CHANNEL(_ch, _adap_id) \
+	[_ch] = { .adap_id = _adap_id }
 
 #define FPGA_PCIE_DEVICE_ID	0x7021
 #define MMIO_BAR		0
@@ -72,47 +72,47 @@ struct switchbrd_priv {
 // NOTE:  Silverstone i2c channel mapping is very wierd!!!
 /* PCA9548 channel config on MASTER BUS 3 */
 static struct pca954x_platform_mode i2c_mux_70_modes[] = {
-	I2C_MUX_CHANNEL(5, I2C_BUS_OFS + 23, true),
-	I2C_MUX_CHANNEL(6, I2C_BUS_OFS + 26, true),
-	I2C_MUX_CHANNEL(0, I2C_BUS_OFS + 27, true),
-	I2C_MUX_CHANNEL(7, I2C_BUS_OFS + 28, true),
-	I2C_MUX_CHANNEL(2, I2C_BUS_OFS + 29, true),
-	I2C_MUX_CHANNEL(4, I2C_BUS_OFS + 30, true),
-	I2C_MUX_CHANNEL(3, I2C_BUS_OFS + 31, true),
-	I2C_MUX_CHANNEL(1, I2C_BUS_OFS + 32, true),
+	I2C_MUX_CHANNEL(5, I2C_BUS_OFS + 23),
+	I2C_MUX_CHANNEL(6, I2C_BUS_OFS + 26),
+	I2C_MUX_CHANNEL(0, I2C_BUS_OFS + 27),
+	I2C_MUX_CHANNEL(7, I2C_BUS_OFS + 28),
+	I2C_MUX_CHANNEL(2, I2C_BUS_OFS + 29),
+	I2C_MUX_CHANNEL(4, I2C_BUS_OFS + 30),
+	I2C_MUX_CHANNEL(3, I2C_BUS_OFS + 31),
+	I2C_MUX_CHANNEL(1, I2C_BUS_OFS + 32),
 };
 
 static struct pca954x_platform_mode i2c_mux_71_modes[] = {
-	I2C_MUX_CHANNEL(2, I2C_BUS_OFS +  1, true),
-	I2C_MUX_CHANNEL(3, I2C_BUS_OFS +  2, true),
-	I2C_MUX_CHANNEL(0, I2C_BUS_OFS +  3, true),
-	I2C_MUX_CHANNEL(1, I2C_BUS_OFS +  4, true),
-	I2C_MUX_CHANNEL(6, I2C_BUS_OFS +  5, true),
-	I2C_MUX_CHANNEL(5, I2C_BUS_OFS +  6, true),
-	I2C_MUX_CHANNEL(7, I2C_BUS_OFS + 15, true),
-	I2C_MUX_CHANNEL(4, I2C_BUS_OFS +  8, true),
+	I2C_MUX_CHANNEL(2, I2C_BUS_OFS +  1),
+	I2C_MUX_CHANNEL(3, I2C_BUS_OFS +  2),
+	I2C_MUX_CHANNEL(0, I2C_BUS_OFS +  3),
+	I2C_MUX_CHANNEL(1, I2C_BUS_OFS +  4),
+	I2C_MUX_CHANNEL(6, I2C_BUS_OFS +  5),
+	I2C_MUX_CHANNEL(5, I2C_BUS_OFS +  6),
+	I2C_MUX_CHANNEL(7, I2C_BUS_OFS + 15),
+	I2C_MUX_CHANNEL(4, I2C_BUS_OFS +  8),
 };
 
 static struct pca954x_platform_mode i2c_mux_72_modes[] = {
-	I2C_MUX_CHANNEL(1, I2C_BUS_OFS + 17, true),
-	I2C_MUX_CHANNEL(7, I2C_BUS_OFS + 18, true),
-	I2C_MUX_CHANNEL(4, I2C_BUS_OFS + 19, true),
-	I2C_MUX_CHANNEL(0, I2C_BUS_OFS + 20, true),
-	I2C_MUX_CHANNEL(5, I2C_BUS_OFS + 21, true),
-	I2C_MUX_CHANNEL(2, I2C_BUS_OFS + 22, true),
-	I2C_MUX_CHANNEL(3, I2C_BUS_OFS + 25, true),
-	I2C_MUX_CHANNEL(6, I2C_BUS_OFS + 24, true),
+	I2C_MUX_CHANNEL(1, I2C_BUS_OFS + 17),
+	I2C_MUX_CHANNEL(7, I2C_BUS_OFS + 18),
+	I2C_MUX_CHANNEL(4, I2C_BUS_OFS + 19),
+	I2C_MUX_CHANNEL(0, I2C_BUS_OFS + 20),
+	I2C_MUX_CHANNEL(5, I2C_BUS_OFS + 21),
+	I2C_MUX_CHANNEL(2, I2C_BUS_OFS + 22),
+	I2C_MUX_CHANNEL(3, I2C_BUS_OFS + 25),
+	I2C_MUX_CHANNEL(6, I2C_BUS_OFS + 24),
 };
 
 static struct pca954x_platform_mode i2c_mux_73_modes[] = {
-	I2C_MUX_CHANNEL(4, I2C_BUS_OFS +  9, true),
-	I2C_MUX_CHANNEL(3, I2C_BUS_OFS + 10, true),
-	I2C_MUX_CHANNEL(6, I2C_BUS_OFS + 11, true),
-	I2C_MUX_CHANNEL(2, I2C_BUS_OFS + 12, true),
-	I2C_MUX_CHANNEL(1, I2C_BUS_OFS + 13, true),
-	I2C_MUX_CHANNEL(5, I2C_BUS_OFS + 14, true),
-	I2C_MUX_CHANNEL(7, I2C_BUS_OFS +  7, true),
-	I2C_MUX_CHANNEL(0, I2C_BUS_OFS + 16, true),
+	I2C_MUX_CHANNEL(4, I2C_BUS_OFS +  9),
+	I2C_MUX_CHANNEL(3, I2C_BUS_OFS + 10),
+	I2C_MUX_CHANNEL(6, I2C_BUS_OFS + 11),
+	I2C_MUX_CHANNEL(2, I2C_BUS_OFS + 12),
+	I2C_MUX_CHANNEL(1, I2C_BUS_OFS + 13),
+	I2C_MUX_CHANNEL(5, I2C_BUS_OFS + 14),
+	I2C_MUX_CHANNEL(7, I2C_BUS_OFS +  7),
+	I2C_MUX_CHANNEL(0, I2C_BUS_OFS + 16),
 };
 
 static struct pca954x_platform_data om_muxes[] = {
@@ -137,19 +137,19 @@ static struct pca954x_platform_data om_muxes[] = {
 /* Optical Module bus 3 i2c muxes info */
 static struct i2c_board_info i2c_info_3[] = {
 	{
-		I2C_BOARD_INFO("pca9548", 0x70),
+		I2C_BOARD_INFO("cls_pca9548", 0x70),
 		.platform_data = &om_muxes[0],
 	},
 	{
-		I2C_BOARD_INFO("pca9548", 0x71),
+		I2C_BOARD_INFO("cls_pca9548", 0x71),
 		.platform_data = &om_muxes[1],
 	},
 	{
-		I2C_BOARD_INFO("pca9548", 0x72),
+		I2C_BOARD_INFO("cls_pca9548", 0x72),
 		.platform_data = &om_muxes[2],
 	},
 	{
-		I2C_BOARD_INFO("pca9548", 0x73),
+		I2C_BOARD_INFO("cls_pca9548", 0x73),
 		.platform_data = &om_muxes[3],
 	},
 };
