@@ -1,12 +1,12 @@
-BRCM_SAI = libsaibcm_5.0.0.6-1_amd64.deb
-$(BRCM_SAI)_URL = "https://sonicstorage.blob.core.windows.net/packages/bcmsai/5.0/master/libsaibcm_5.0.0.6-1_amd64.deb?sv=2015-04-05&sr=b&sig=HA%2FwgMr%2BHnb6zzFCQDfO1WF%2Bf6PBSmIzH13728LTNz4%3D&se=2035-03-31T20%3A45%3A36Z&sp=r"
-BRCM_SAI_DEV = libsaibcm-dev_5.0.0.6-1_amd64.deb
+BRCM_SAI = libsaibcm_5.0.0.11_amd64.deb
+$(BRCM_SAI)_URL = "https://sonicstorage.blob.core.windows.net/packages/bcmsai/5.0/master/libsaibcm_5.0.0.11_amd64.deb?sv=2020-04-08&st=2021-10-11T23%3A05%3A48Z&se=2026-01-13T00%3A05%3A00Z&sr=b&sp=r&sig=ibf4R3MH4eb9IVdf%2F8iN6tvYjxroPaxRub7oIGdRxSI%3D"
+BRCM_SAI_DEV = libsaibcm-dev_5.0.0.11_amd64.deb
 $(eval $(call add_derived_package,$(BRCM_SAI),$(BRCM_SAI_DEV)))
-$(BRCM_SAI_DEV)_URL = "https://sonicstorage.blob.core.windows.net/packages/bcmsai/5.0/master/libsaibcm-dev_5.0.0.6-1_amd64.deb?sv=2015-04-05&sr=b&sig=z634%2BUk14EY5VjEE4tjhvDSP2hiK8s1EJAxjvidl44I%3D&se=2035-03-31T20%3A46%3A17Z&sp=r"
+$(BRCM_SAI_DEV)_URL = "https://sonicstorage.blob.core.windows.net/packages/bcmsai/5.0/master/libsaibcm-dev_5.0.0.11_amd64.deb?sv=2020-04-08&st=2021-10-11T23%3A06%3A45Z&se=2026-01-13T00%3A06%3A00Z&sr=b&sp=r&sig=LXhLM8%2Bfu%2B9ywI49nSrs4TBy1w5CY0e6CRyv1dLwJnI%3D"
 
 # SAI module for DNX Asic family
-BRCM_DNX_SAI = libsaibcm_dnx_5.0.0.6-1_amd64.deb
-$(BRCM_DNX_SAI)_URL = "https://sonicstorage.blob.core.windows.net/packages/bcmsai/5.0/master/libsaibcm_dnx_5.0.0.6-1_amd64.deb?sv=2015-04-05&sr=b&sig=mDcpzWUcTSzNBM6vPPYNuMQ6D%2BTKQAC9k%2Fv0%2Bnz3L%2BM%3D&se=2035-03-31T20%3A46%3A44Z&sp=r"
+BRCM_DNX_SAI = libsaibcm_dnx_5.0.0.11_amd64.deb
+$(BRCM_DNX_SAI)_URL = "https://sonicstorage.blob.core.windows.net/packages/bcmsai/5.0/master/libsaibcm_dnx_5.0.0.11_amd64.deb?sv=2020-04-08&st=2021-10-11T23%3A07%3A43Z&se=2026-01-13T00%3A07%3A00Z&sr=b&sp=r&sig=p1kqeugBvmdeggplqYk%2FY2nHTkwrTg6KTeNUYotfDyc%3D"
 
 SONIC_ONLINE_DEBS += $(BRCM_SAI)
 SONIC_ONLINE_DEBS += $(BRCM_DNX_SAI)
