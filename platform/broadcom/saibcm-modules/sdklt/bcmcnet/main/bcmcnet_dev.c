@@ -4,7 +4,7 @@
  *
  */
 /*
- * $Copyright: Copyright 2018-2020 Broadcom. All rights reserved.
+ * $Copyright: Copyright 2018-2021 Broadcom. All rights reserved.
  * The term 'Broadcom' refers to Broadcom Inc. and/or its subsidiaries.
  * 
  * This program is free software; you can redistribute it and/or
@@ -110,6 +110,9 @@ bcn_tx_queues_free(struct pdma_dev *dev)
             if (!txq) {
                 continue;
             }
+            if (txq->sem) {
+                sal_sem_destroy(txq->sem);
+            }
             sal_free(txq);
             ctrl->grp[gi].tx_queue[qi] = NULL;
             if (dev->mode == DEV_MODE_HNET && ctrl->grp[gi].vnet_txq[qi]) {
@@ -140,6 +143,10 @@ bcn_tx_queues_alloc(struct pdma_dev *dev)
             txq->group_id = gi;
             txq->chan_id = qi + gi * dev->grp_queues;
             txq->ctrl = ctrl;
+            txq->sem = sal_sem_create("bcmcnetTxMutexSem", SAL_SEM_BINARY, 0);
+            if (!txq->sem) {
+                goto error;
+            }
             ctrl->grp[gi].tx_queue[qi] = txq;
             if (dev->mode == DEV_MODE_HNET) {
                 vtxq = sal_alloc(sizeof(*vtxq), "bcmcnetVnetTxQueue");
@@ -610,6 +617,10 @@ bcmcnet_pdma_lq_to_pq(struct pdma_dev *dev, int queue, int dir, int *chan)
     struct pdma_rx_queue *rxq = NULL;
     struct pdma_tx_queue *txq = NULL;
 
+    if ((uint32_t)queue >= NUM_Q_MAX) {
+        return SHR_E_PARAM;
+    }
+
     if (dir == PDMA_Q_RX) {
         rxq = (struct pdma_rx_queue *)ctrl->rx_queue[queue];
         if (rxq->state & PDMA_RX_QUEUE_USED) {
@@ -664,8 +675,13 @@ bcmcnet_pdma_rx_queue_start(struct pdma_dev *dev, int queue)
     struct pdma_hw *hw = (struct pdma_hw *)ctrl->hw;
     struct pdma_rx_queue *rxq = NULL;
 
+    if ((uint32_t)queue >= NUM_Q_MAX) {
+        return SHR_E_PARAM;
+    }
+
     rxq = (struct pdma_rx_queue *)ctrl->rx_queue[queue];
     rxq->state |= PDMA_RX_QUEUE_ACTIVE;
+    rxq->state &= ~PDMA_RX_QUEUE_XOFF;
 
     return hw->hdls.chan_start(hw, rxq->chan_id);
 }
@@ -680,8 +696,13 @@ bcmcnet_pdma_rx_queue_stop(struct pdma_dev *dev, int queue)
     struct pdma_hw *hw = (struct pdma_hw *)ctrl->hw;
     struct pdma_rx_queue *rxq = NULL;
 
+    if ((uint32_t)queue >= NUM_Q_MAX) {
+        return SHR_E_PARAM;
+    }
+
     rxq = (struct pdma_rx_queue *)ctrl->rx_queue[queue];
     rxq->state &= ~PDMA_RX_QUEUE_ACTIVE;
+    rxq->state |= PDMA_RX_QUEUE_XOFF;
 
     return hw->hdls.chan_stop(hw, rxq->chan_id);
 }
@@ -696,8 +717,13 @@ bcmcnet_pdma_tx_queue_start(struct pdma_dev *dev, int queue)
     struct pdma_hw *hw = (struct pdma_hw *)ctrl->hw;
     struct pdma_tx_queue *txq = NULL;
 
+    if ((uint32_t)queue >= NUM_Q_MAX) {
+        return SHR_E_PARAM;
+    }
+
     txq = (struct pdma_tx_queue *)ctrl->tx_queue[queue];
     txq->state |= PDMA_TX_QUEUE_ACTIVE;
+    txq->state &= ~PDMA_TX_QUEUE_XOFF;
 
     return dev->flags & PDMA_CHAIN_MODE ? SHR_E_NONE :
            hw->hdls.chan_start(hw, txq->chan_id);
@@ -713,8 +739,13 @@ bcmcnet_pdma_tx_queue_stop(struct pdma_dev *dev, int queue)
     struct pdma_hw *hw = (struct pdma_hw *)ctrl->hw;
     struct pdma_tx_queue *txq = NULL;
 
+    if ((uint32_t)queue >= NUM_Q_MAX) {
+        return SHR_E_PARAM;
+    }
+
     txq = (struct pdma_tx_queue *)ctrl->tx_queue[queue];
     txq->state &= ~PDMA_TX_QUEUE_ACTIVE;
+    txq->state |= PDMA_TX_QUEUE_XOFF;
 
     return hw->hdls.chan_stop(hw, txq->chan_id);
 }
@@ -728,6 +759,10 @@ bcmcnet_pdma_rx_queue_intr_enable(struct pdma_dev *dev, int queue)
     struct dev_ctrl *ctrl = &dev->ctrl;
     struct pdma_hw *hw = (struct pdma_hw *)ctrl->hw;
     struct pdma_rx_queue *rxq = NULL;
+
+    if ((uint32_t)queue >= NUM_Q_MAX) {
+        return SHR_E_PARAM;
+    }
 
     rxq = (struct pdma_rx_queue *)ctrl->rx_queue[queue];
 
@@ -744,6 +779,10 @@ bcmcnet_pdma_rx_queue_intr_disable(struct pdma_dev *dev, int queue)
     struct pdma_hw *hw = (struct pdma_hw *)ctrl->hw;
     struct pdma_rx_queue *rxq = NULL;
 
+    if ((uint32_t)queue >= NUM_Q_MAX) {
+        return SHR_E_PARAM;
+    }
+
     rxq = (struct pdma_rx_queue *)ctrl->rx_queue[queue];
 
     return hw->hdls.chan_intr_disable(hw, rxq->chan_id);
@@ -758,6 +797,10 @@ bcmcnet_pdma_rx_queue_intr_ack(struct pdma_dev *dev, int queue)
     struct dev_ctrl *ctrl = &dev->ctrl;
     struct pdma_hw *hw = (struct pdma_hw *)ctrl->hw;
     struct pdma_rx_queue *rxq = NULL;
+
+    if ((uint32_t)queue >= NUM_Q_MAX) {
+        return SHR_E_PARAM;
+    }
 
     rxq = (struct pdma_rx_queue *)ctrl->rx_queue[queue];
 
@@ -774,6 +817,10 @@ bcmcnet_pdma_rx_queue_intr_query(struct pdma_dev *dev, int queue)
     struct pdma_hw *hw = (struct pdma_hw *)ctrl->hw;
     struct pdma_rx_queue *rxq = NULL;
 
+    if ((uint32_t)queue >= NUM_Q_MAX) {
+        return SHR_E_PARAM;
+    }
+
     rxq = (struct pdma_rx_queue *)ctrl->rx_queue[queue];
 
     return hw->hdls.chan_intr_query(hw, rxq->chan_id);
@@ -788,6 +835,10 @@ bcmcnet_pdma_rx_queue_intr_check(struct pdma_dev *dev, int queue)
     struct dev_ctrl *ctrl = &dev->ctrl;
     struct pdma_hw *hw = (struct pdma_hw *)ctrl->hw;
     struct pdma_rx_queue *rxq = NULL;
+
+    if ((uint32_t)queue >= NUM_Q_MAX) {
+        return SHR_E_PARAM;
+    }
 
     rxq = (struct pdma_rx_queue *)ctrl->rx_queue[queue];
 
@@ -987,7 +1038,8 @@ bcmcnet_pdma_rx_queue_int_coalesce(struct pdma_dev *dev, int queue, int count, i
     struct pdma_hw *hw = (struct pdma_hw *)ctrl->hw;
     struct pdma_rx_queue *rxq = NULL;
 
-    if ((uint32_t)queue >= ctrl->nb_rxq) {
+    if ((uint32_t)queue >= NUM_Q_MAX ||
+        (uint32_t)queue >= ctrl->nb_rxq) {
         return SHR_E_PARAM;
     }
 
@@ -1008,7 +1060,8 @@ bcmcnet_pdma_tx_queue_int_coalesce(struct pdma_dev *dev, int queue, int count, i
     struct pdma_hw *hw = (struct pdma_hw *)ctrl->hw;
     struct pdma_tx_queue *txq = NULL;
 
-    if ((uint32_t)queue >= ctrl->nb_txq) {
+    if ((uint32_t)queue >= NUM_Q_MAX ||
+        (uint32_t)queue >= ctrl->nb_txq) {
         return SHR_E_PARAM;
     }
 
@@ -1029,7 +1082,8 @@ bcmcnet_pdma_rx_queue_reg_dump(struct pdma_dev *dev, int queue)
     struct pdma_hw *hw = (struct pdma_hw *)ctrl->hw;
     struct pdma_rx_queue *rxq = NULL;
 
-    if ((uint32_t)queue >= ctrl->nb_rxq) {
+    if ((uint32_t)queue >= NUM_Q_MAX ||
+        (uint32_t)queue >= ctrl->nb_rxq) {
         return SHR_E_PARAM;
     }
 
@@ -1048,7 +1102,8 @@ bcmcnet_pdma_tx_queue_reg_dump(struct pdma_dev *dev, int queue)
     struct pdma_hw *hw = (struct pdma_hw *)ctrl->hw;
     struct pdma_tx_queue *txq = NULL;
 
-    if ((uint32_t)queue >= ctrl->nb_txq) {
+    if ((uint32_t)queue >= NUM_Q_MAX ||
+        (uint32_t)queue >= ctrl->nb_txq) {
         return SHR_E_PARAM;
     }
 

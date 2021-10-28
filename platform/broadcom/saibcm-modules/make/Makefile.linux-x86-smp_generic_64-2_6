@@ -69,4 +69,9 @@ endif
 export SYSTEM_INTERFACE
 endif
 
+ifneq (, $(EDKHOST))
+# Default open source target build
+OPENSRC_BUILD ?= x86_64
+endif
+
 include ${SDK}/make/Makefile.linux-x86-common-2_6

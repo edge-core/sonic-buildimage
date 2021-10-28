@@ -2,7 +2,7 @@
 #
 # Linux KNET Callback module.
 #
-# $Copyright: Copyright 2018-2020 Broadcom. All rights reserved.
+# $Copyright: Copyright 2018-2021 Broadcom. All rights reserved.
 # The term 'Broadcom' refers to Broadcom Inc. and/or its subsidiaries.
 # 
 # This program is free software; you can redistribute it and/or
@@ -17,6 +17,24 @@
 # A copy of the GNU General Public License version 2 (GPLv2) can
 # be found in the LICENSES folder.$
 #
+
+ifdef KPMD
+
+BCMPKTDIR = $(SDK)/bcmpkt
+KPMDDIR = $(SDK)/linux/knetcb
+SHRDIR = $(SDK)/shr
+
+.PHONY: mklinks rmlinks
+
+knetcb: mklinks
+	$(MAKE) all
+
+# SDK make helper for stand-alone PMD kernel module
+include $(SDK)/make/kpmd.mk
+
+distclean: rmlinks
+
+endif #KPMD
 
 include Kbuild
 

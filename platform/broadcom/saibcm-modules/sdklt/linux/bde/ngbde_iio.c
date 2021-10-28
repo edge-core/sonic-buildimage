@@ -5,7 +5,7 @@
  *
  */
 /*
- * $Copyright: Copyright 2018-2020 Broadcom. All rights reserved.
+ * $Copyright: Copyright 2018-2021 Broadcom. All rights reserved.
  * The term 'Broadcom' refers to Broadcom Inc. and/or its subsidiaries.
  * 
  * This program is free software; you can redistribute it and/or
@@ -91,53 +91,4 @@ ngbde_iio_read32(void *devh, uint32_t offs)
         return NGBDE_IOREAD32(sd->iio_mem + offs);
     }
     return 0;
-}
-
-void *
-ngbde_paxb_map(void *devh, phys_addr_t addr, phys_addr_t size)
-{
-    struct ngbde_dev_s *sd = (struct ngbde_dev_s *)devh;
-
-    if (sd->paxb_mem) {
-        if (addr == sd->paxb_win.addr && size == sd->paxb_win.size) {
-            /* Already mapped */
-            return sd->paxb_mem;
-        }
-        iounmap(sd->paxb_mem);
-    }
-
-    sd->paxb_mem = ioremap_nocache(addr, size);
-
-    if (sd->paxb_mem) {
-        /* Save mapped resources */
-        sd->paxb_win.addr = addr;
-        sd->paxb_win.size = size;
-    }
-
-    return sd->paxb_mem;
-}
-
-void
-ngbde_paxb_unmap(void *devh)
-{
-    struct ngbde_dev_s *sd = (struct ngbde_dev_s *)devh;
-
-    if (sd->paxb_mem) {
-        iounmap(sd->paxb_mem);
-        sd->paxb_mem = NULL;
-    }
-}
-
-void
-ngbde_paxb_cleanup(void)
-{
-    struct ngbde_dev_s *swdev, *sd;
-    unsigned int num_swdev, idx;
-
-    ngbde_swdev_get_all(&swdev, &num_swdev);
-
-    for (idx = 0; idx < num_swdev; idx++) {
-        sd = ngbde_swdev_get(idx);
-        ngbde_paxb_unmap(sd);
-    }
 }

@@ -328,16 +328,50 @@ strip_tag_filter_cb(uint8_t * pkt, int size, int dev_no, void *meta,
     return 0;
 }
 
+#ifdef BCM_DNX_SUPPORT
 static int
 knet_filter_cb(uint8_t * pkt, int size, int dev_no, void *meta,
                      int chan, kcom_filter_t *kf)
 {
     /* check for filter callback handler */
-    #ifdef PSAMPLE_SUPPORT
+#ifdef PSAMPLE_SUPPORT
+    if (strncmp(kf->desc, PSAMPLE_CB_NAME, strlen(PSAMPLE_CB_NAME)) == 0) {
+        return psample_filter_cb (pkt, size, dev_no, meta, chan, kf);
+    }
+#endif
+    return strip_tag_filter_cb (pkt, size, dev_no, meta, chan, kf);
+}
+
+static int
+knet_netif_create_cb(int unit, kcom_netif_t *netif, uint16 spa, struct net_device *dev)
+{
+    int retv = 0;
+#ifdef PSAMPLE_SUPPORT
+    retv = psample_netif_create_cb(unit, netif, spa, dev);
+#endif
+    return retv;
+}
+
+static int
+knet_netif_destroy_cb(int unit, kcom_netif_t *netif, uint16 spa, struct net_device *dev)
+{
+    int retv = 0;
+#ifdef PSAMPLE_SUPPORT
+    retv = psample_netif_destroy_cb(unit, netif, spa, dev);
+#endif
+    return retv;
+}
+#else
+static int
+knet_filter_cb(uint8_t * pkt, int size, int dev_no, void *meta,
+                     int chan, kcom_filter_t *kf)
+{
+    /* check for filter callback handler */
+#ifdef PSAMPLE_SUPPORT
     if (strncmp(kf->desc, PSAMPLE_CB_NAME, KCOM_FILTER_DESC_MAX) == 0) {
         return psample_filter_cb (pkt, size, dev_no, meta, chan, kf);
     }
-    #endif
+#endif
     return strip_tag_filter_cb (pkt, size, dev_no, meta, chan, kf);
 }
 
@@ -360,6 +394,7 @@ knet_netif_destroy_cb(int unit, kcom_netif_t *netif, struct net_device *dev)
 #endif
     return retv;
 }
+#endif
 
 /*
  * Get statistics.
@@ -395,7 +430,6 @@ _cleanup(void)
 #ifdef PSAMPLE_SUPPORT
     psample_cleanup();
 #endif
-
     return 0;
 }
 
@@ -411,11 +445,9 @@ _init(void)
         bkn_tx_skb_cb_register(strip_tag_tx_cb);
     }
 
-    #ifdef PSAMPLE_SUPPORT
+#ifdef PSAMPLE_SUPPORT
     psample_init();
-    #endif
-
-
+#endif
     bkn_filter_cb_register(knet_filter_cb);
     bkn_netif_create_cb_register(knet_netif_create_cb);
     bkn_netif_destroy_cb_register(knet_netif_destroy_cb);

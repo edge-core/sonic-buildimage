@@ -1,4 +1,4 @@
-/*! \file bcm56990_b0_pdma_attach.c
+/*! \file bcm56995_a0_pdma_attach.c
  *
  * Initialize PDMA driver resources.
  *
@@ -25,13 +25,13 @@
 #include <bcmcnet/bcmcnet_cmicx.h>
 
 int
-bcm56990_b0_cnet_pdma_attach(struct pdma_dev *dev)
+bcm56995_a0_cnet_pdma_attach(struct pdma_dev *dev)
 {
     return bcmcnet_cmicx_pdma_driver_attach(dev);
 }
 
 int
-bcm56990_b0_cnet_pdma_detach(struct pdma_dev *dev)
+bcm56995_a0_cnet_pdma_detach(struct pdma_dev *dev)
 {
     return bcmcnet_cmicx_pdma_driver_detach(dev);
 }

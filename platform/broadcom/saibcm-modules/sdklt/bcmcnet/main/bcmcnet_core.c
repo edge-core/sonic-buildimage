@@ -4,7 +4,7 @@
  *
  */
 /*
- * $Copyright: Copyright 2018-2020 Broadcom. All rights reserved.
+ * $Copyright: Copyright 2018-2021 Broadcom. All rights reserved.
  * The term 'Broadcom' refers to Broadcom Inc. and/or its subsidiaries.
  * 
  * This program is free software; you can redistribute it and/or
@@ -151,11 +151,33 @@ bcmcnet_pdma_dev_stop(struct pdma_dev *dev)
 int
 bcmcnet_pdma_dev_suspend(struct pdma_dev *dev)
 {
+    struct dev_ctrl *ctrl = &dev->ctrl;
+    uint32_t qi;
+    int rv;
+
     if (!dev->attached) {
         return SHR_E_UNAVAIL;
     }
 
-    return dev->ops->dev_suspend(dev);
+    rv = dev->ops->dev_suspend(dev);
+    if (SHR_FAILURE(rv)) {
+        return rv;
+    }
+
+    dev->suspended = true;
+
+    if (dev->flags & PDMA_ABORT) {
+        /* Abort all the Tx queues */
+        for (qi = 0; qi < ctrl->nb_txq; qi++) {
+            dev->ops->tx_queue_stop(dev, qi);
+        }
+        /* Abort all the Rx queues */
+        for (qi = 0; qi < ctrl->nb_rxq; qi++) {
+            dev->ops->rx_queue_stop(dev, qi);;
+        }
+    }
+
+    return SHR_E_NONE;
 }
 
 /*!
@@ -164,11 +186,46 @@ bcmcnet_pdma_dev_suspend(struct pdma_dev *dev)
 int
 bcmcnet_pdma_dev_resume(struct pdma_dev *dev)
 {
+    struct dev_ctrl *ctrl = &dev->ctrl;
+    uint32_t qi;
+    int rv;
+
     if (!dev->attached) {
         return SHR_E_UNAVAIL;
     }
 
-    return dev->ops->dev_resume(dev);
+    if (dev->flags & PDMA_ABORT) {
+        /*
+         * H/W configuration of Packet DMA is gone in the FFB apply phase,
+         * so we need to program it again.
+         */
+        dev->ops->dev_config(dev, ctrl->bm_rxq, ctrl->bm_txq);
+
+        /* Restart all the Rx queues */
+        for (qi = 0; qi < ctrl->nb_rxq; qi++) {
+            dev->ops->rx_queue_release(dev, qi);
+            dev->ops->rx_queue_setup(dev, qi);
+            dev->ops->rx_queue_intr_enable(dev, qi);
+            dev->ops->rx_queue_start(dev, qi);
+        }
+        /* Restart all the Tx queues */
+        for (qi = 0; qi < ctrl->nb_txq; qi++) {
+            dev->ops->tx_queue_release(dev, qi);
+            dev->ops->tx_queue_setup(dev, qi);
+            dev->ops->tx_queue_intr_enable(dev, qi);
+            dev->ops->tx_queue_start(dev, qi);
+        }
+        dev->flags &= ~PDMA_ABORT;
+    }
+
+    rv = dev->ops->dev_resume(dev);
+    if (SHR_FAILURE(rv)) {
+        return rv;
+    }
+
+    dev->suspended = false;
+
+    return rv;
 }
 
 /*!
@@ -614,7 +671,7 @@ bcmcnet_group_intr_ack(struct pdma_dev *dev, int group)
 /*!
  * Check interrupt for a queue group
  */
-int
+bool
 bcmcnet_group_intr_check(struct pdma_dev *dev, int group)
 {
     struct dev_ctrl *ctrl = &dev->ctrl;
@@ -623,14 +680,14 @@ bcmcnet_group_intr_check(struct pdma_dev *dev, int group)
     int i;
 
     if (!dev->ops) {
-        return SHR_E_INTERNAL;
+        return false;
     }
 
     for (i = 0; i < dev->grp_queues; i++) {
         if (1 << i & grp->bm_rxq) {
             dev->ops->dev_pq_to_lq(dev, i + group * dev->grp_queues, &queue, &dir);
             if (dev->ops->rx_queue_intr_check(dev, queue)) {
-                return TRUE;
+                return true;
             }
         }
     }
@@ -639,12 +696,12 @@ bcmcnet_group_intr_check(struct pdma_dev *dev, int group)
         if (1 << i & grp->bm_txq) {
             dev->ops->dev_pq_to_lq(dev, i + group * dev->grp_queues, &queue, &dir);
             if (dev->ops->tx_queue_intr_check(dev, queue)) {
-                return TRUE;
+                return true;
             }
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 /*!
@@ -653,6 +710,10 @@ bcmcnet_group_intr_check(struct pdma_dev *dev, int group)
 int
 bcmcnet_rx_queue_poll(struct pdma_dev *dev, int queue, int budget)
 {
+    if (dev->started == 0) {
+        return SHR_E_NONE;
+    }
+
     if (!dev->ops || !dev->ops->rx_queue_poll) {
         return SHR_E_INTERNAL;
     }
@@ -666,6 +727,10 @@ bcmcnet_rx_queue_poll(struct pdma_dev *dev, int queue, int budget)
 int
 bcmcnet_tx_queue_poll(struct pdma_dev *dev, int queue, int budget)
 {
+    if (dev->started == 0) {
+        return SHR_E_NONE;
+    }
+
     if (!dev->ops || !dev->ops->tx_queue_poll) {
         return SHR_E_INTERNAL;
     }
@@ -679,6 +744,10 @@ bcmcnet_tx_queue_poll(struct pdma_dev *dev, int queue, int budget)
 int
 bcmcnet_queue_poll(struct pdma_dev *dev, struct intr_handle *hdl, int budget)
 {
+    if (dev->started == 0) {
+        return SHR_E_NONE;
+    }
+
     if (hdl->dir == PDMA_Q_RX) {
         return bcmcnet_rx_queue_poll(dev, hdl->queue, budget);
     } else {
@@ -692,6 +761,10 @@ bcmcnet_queue_poll(struct pdma_dev *dev, struct intr_handle *hdl, int budget)
 int
 bcmcnet_group_poll(struct pdma_dev *dev, int group, int budget)
 {
+    if (dev->started == 0) {
+        return SHR_E_NONE;
+    }
+
     if (!dev->ops || !dev->ops->group_poll) {
         return SHR_E_INTERNAL;
     }

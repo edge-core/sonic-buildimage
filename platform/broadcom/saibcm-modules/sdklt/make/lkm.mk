@@ -1,5 +1,5 @@
 #
-# $Copyright: Copyright 2018-2020 Broadcom. All rights reserved.
+# $Copyright: Copyright 2018-2021 Broadcom. All rights reserved.
 # The term 'Broadcom' refers to Broadcom Inc. and/or its subsidiaries.
 # 
 # This program is free software; you can redistribute it and/or
@@ -35,42 +35,39 @@ ifneq ($(LKM_BLDDIR),)
 # Note that the KBUILD_OUTPUT variable cannot be used to redirect the
 # output as we want it.
 #
-MDIR = $(LKM_BLDDIR)
-MSRCS = $(patsubst %.o,%.c,$($(MOD_NAME)-y))
+MDIR := $(LKM_BLDDIR)
+MSRCS := $(patsubst %.o,%.c,$($(MOD_NAME)-y))
 MSRCS += Makefile Kbuild
-BSRCS = $(addprefix $(PWD)/,$(MSRCS))
+BSRCS := $(addprefix $(PWD)/,$(MSRCS))
 else
 #
 # Build in current directory by default.
 #
-MDIR = $(PWD)
+MDIR := $(PWD)
 endif
 
-all:
+all: mlinks
 	$(Q)echo Building kernel module $(MOD_NAME)
-ifneq ($(LKM_BLDDIR),)
-ifneq ($(LKM_BLDDIR),$(PWD))
+	$(MAKE) -C $(KDIR) M=$(MDIR)
+
+clean:: mlinks
+	$(Q)echo Cleaning kernel module $(MOD_NAME)
+	$(MAKE) -C $(KDIR) M=$(MDIR) clean
+ifneq ($(MDIR),$(PWD))
+	rm -rf $(MDIR)
+endif
+
+mlinks:
+ifneq ($(MDIR),$(PWD))
 	$(Q)mkdir -p $(MDIR)
 	(cd $(MDIR); \
-	 rm -rf *.c Makefile Kbuild; \
+	 rm -rf $(MSRCS); \
 	 for f in $(BSRCS); do \
 	     ln -s $$f; \
 	 done)
 endif
-endif
-	$(MAKE) -C $(KDIR) M=$(MDIR)
 
-clean::
-	$(Q)echo Cleaning kernel module $(MOD_NAME)
-	$(MAKE) -C $(KDIR) M=$(MDIR) clean
-ifneq ($(LKM_BLDDIR),)
-ifneq ($(LKM_BLDDIR),$(PWD))
-# Remove all files except for Makefile (needed by 'make clean')
-	rm -f $(LKM_BLDDIR)/*[cdors]
-endif
-endif
-
-.PHONY: all clean
+.PHONY: all mlinks clean
 
 # Standard documentation targets
 -include $(SDK)/make/doc.mk

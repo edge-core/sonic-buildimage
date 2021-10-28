@@ -4,7 +4,7 @@
  *
  */
 /*
- * $Copyright: Copyright 2018-2020 Broadcom. All rights reserved.
+ * $Copyright: Copyright 2018-2021 Broadcom. All rights reserved.
  * The term 'Broadcom' refers to Broadcom Inc. and/or its subsidiaries.
  * 
  * This program is free software; you can redistribute it and/or
@@ -380,6 +380,9 @@ proc_pkt_stats_show(struct seq_file *m, void *v)
         }
         seq_printf(m, "rx_dropped:     %llu\n", (unsigned long long)stats->rx_dropped);
         seq_printf(m, "rx_errors:      %llu\n", (unsigned long long)stats->rx_errors);
+        seq_printf(m, "rx_head_errors: %llu\n", (unsigned long long)stats->rx_head_errors);
+        seq_printf(m, "rx_data_errors: %llu\n", (unsigned long long)stats->rx_data_errors);
+        seq_printf(m, "rx_cell_errors: %llu\n", (unsigned long long)stats->rx_cell_errors);
         seq_printf(m, "rx_nomems:      %llu\n", (unsigned long long)stats->rx_nomems);
         seq_printf(m, "tx_packets:     %llu\n", (unsigned long long)stats->tx_packets);
         seq_printf(m, "tx_bytes:       %llu\n", (unsigned long long)stats->tx_bytes);

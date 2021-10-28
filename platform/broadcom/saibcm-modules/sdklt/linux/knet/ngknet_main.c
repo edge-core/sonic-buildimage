@@ -4,7 +4,7 @@
  *
  */
 /*
- * $Copyright: Copyright 2018-2020 Broadcom. All rights reserved.
+ * $Copyright: Copyright 2018-2021 Broadcom. All rights reserved.
  * The term 'Broadcom' refers to Broadcom Inc. and/or its subsidiaries.
  * 
  * This program is free software; you can redistribute it and/or
@@ -193,7 +193,7 @@ struct ngknet_intr_handle {
     int napi_pending;
 };
 
-static struct ngknet_intr_handle priv_hdl[NUM_PDMA_DEV_MAX][NUM_QUE_MAX];
+static struct ngknet_intr_handle priv_hdl[NUM_PDMA_DEV_MAX][NUM_Q_MAX];
 
 /*!
  * Dump packet content for debug
@@ -236,23 +236,40 @@ ngknet_pkt_stats(struct pdma_dev *pdev, int dir)
     static struct timeval tv0[2], tv1[2];
     static uint32_t pkts[2] = {0}, prts[2] = {0};
     static uint64_t intrs = 0;
+    uint32_t iv_time;
+    uint32_t pps;
+    uint32_t boudary;
+
+    if (rx_rate_limit == -1 || rx_rate_limit >= 100000) {
+        /* Dump every 100K packets */
+        boudary = 100000;
+    } else if (rx_rate_limit >= 10000) {
+        /* Dump every 10K packets */
+        boudary = 10000;
+    } else {
+        /* Dump every 1K packets */
+        boudary = 1000;
+    }
 
     if (pkts[dir] == 0) {
         kal_time_val_get(&tv0[dir]);
         intrs = pdev->stats.intrs;
     }
-    if (++pkts[dir] >= 100000) {
-        uint32_t iv_time;
-        uint32_t pps;
+    if (++pkts[dir] >= boudary) {
         kal_time_val_get(&tv1[dir]);
         iv_time = (tv1[dir].tv_sec - tv0[dir].tv_sec) * 1000000 +
                   (tv1[dir].tv_usec - tv0[dir].tv_usec);
-        pps = 100000 * 1000 / (iv_time / 1000);
+        pps = boudary * 1000 / (iv_time / 1000);
         prts[dir]++;
-        if (pps <= 100000 || prts[dir] * 100000 >= pps) {
-            printk(KERN_CRIT "%s -- limit: %d pps, 100K pkts time: %d usec, rate: %d pps, intrs: %llu\n",
+        /* pdev->stats.intrs is reset and re-count from 0. */
+        if (intrs > pdev->stats.intrs) {
+            intrs = 0;
+        }
+        if (pps <= boudary || prts[dir] * boudary >= pps) {
+            printk(KERN_CRIT "%s - limit: %d pps, %dK pkts time: %d usec, "
+                             "rate: %d pps, intrs: %llu\n",
                    dir == PDMA_Q_RX ? "Rx" : "Tx",
-                   dir == PDMA_Q_RX ? rx_rate_limit : -1,
+                   dir == PDMA_Q_RX ? rx_rate_limit : -1, (boudary / 1000),
                    iv_time, pps, pdev->stats.intrs - intrs);
             prts[dir] = 0;
         }
@@ -357,12 +374,15 @@ ngknet_rx_frame_process(struct net_device *ndev, struct sk_buff **oskb)
         skb_pull(skb, PKT_HDR_SIZE + meta_len);
     }
 
+    /* Check to ensure ngknet_callback_desc struct fits in sk_buff->cb */
+    BUILD_BUG_ON(sizeof(struct ngknet_callback_desc) > sizeof(skb->cb));
+
     /* Optional callback handle */
     if (dev->cbc->rx_cb) {
         struct ngknet_callback_desc *cbd = NGKNET_SKB_CB(skb);
         cbd->dev_no = dev->dev_no;
         cbd->dev_id = dev->pdma_dev.dev_id;
-        cbd->type_str = drv_ops[dev->pdma_dev.dev_type]->drv_desc;
+        cbd->type_str = dev->type_str;
         cbd->priv = priv;
         if (priv->flags & NGKNET_NETIF_F_RCPU_ENCAP) {
             cbd->pmd = skb->data + PKT_HDR_SIZE;
@@ -409,7 +429,7 @@ ngknet_netif_recv(struct net_device *ndev, struct sk_buff *skb)
     struct pkt_hdr *pkh = (struct pkt_hdr *)skb->data;
     struct napi_struct *napi = NULL;
     uint16_t proto;
-    int chan, gi, qi;
+    int chan_id, gi, qi, skb_len;
     int rv;
 
     /* Handle one incoming packet */
@@ -449,19 +469,26 @@ ngknet_netif_recv(struct net_device *ndev, struct sk_buff *skb)
 
     skb_record_rx_queue(skb, pkh->queue_id);
 
-    bcmcnet_pdma_dev_queue_to_chan(pdev, pkh->queue_id, PDMA_Q_RX, &chan);
-    gi = chan / pdev->grp_queues;
+    rv = bcmcnet_pdma_dev_queue_to_chan(pdev, pkh->queue_id, PDMA_Q_RX, &chan_id);
+    if (SHR_FAILURE(rv)) {
+        return rv;
+    }
+
+    gi = chan_id / pdev->grp_queues;
     if (pdev->flags & PDMA_GROUP_INTR) {
         napi = (struct napi_struct *)pdev->ctrl.grp[gi].intr_hdl[0].priv;
     } else {
         qi = pkh->queue_id;
         napi = (struct napi_struct *)pdev->ctrl.grp[gi].intr_hdl[qi].priv;
     }
+
+    /* FIXME: File CSP on KASAN warning on use-after-free in ngknet_netif_recv */
+    skb_len = skb->len;    
     napi_gro_receive(napi, skb);
 
     /* Update accounting */
     priv->stats.rx_packets++;
-    priv->stats.rx_bytes += skb->len;
+    priv->stats.rx_bytes += skb_len;
 
     /* Rate limit */
     if (rx_rate_limit >= 0) {
@@ -499,6 +526,8 @@ ngknet_frame_recv(struct pdma_dev *pdev, int queue, void *buf)
     if (debug & DBG_LVL_PDMP) {
         ngknet_pkt_dump(skb->data, skb->len);
     }
+
+    DBG_NDEV(("Valid virtual network devices: %ld.\n", (long)dev->vdev[0]));
 
     /* Go through the filters */
     rv = ngknet_rx_pkt_filter(dev, skb, &ndev, &mndev, &mskb);
@@ -640,7 +669,7 @@ ngknet_tx_frame_process(struct net_device *ndev, struct sk_buff **oskb)
     struct pkt_hdr *pkh = (struct pkt_hdr *)skb->data;
     struct sk_buff *nskb = NULL;
     char *data = NULL;
-    uint32_t copy_len, meta_len, data_len, pkt_len, tag_len;
+    uint32_t copy_len, meta_len, data_len, pkt_len, tag_len, pad_len;
     uint16_t tpid;
 
     /* Set up packet header */
@@ -649,13 +678,13 @@ ngknet_tx_frame_process(struct net_device *ndev, struct sk_buff **oskb)
         data_len = pkh->attrs & PDMA_TX_HDR_COOKED ?
                    pkh->data_len - ETH_FCS_LEN : ntohs(rch->data_len);
         pkt_len = PKT_HDR_SIZE + rch->meta_len + data_len;
-        if (skb->len != pkt_len || skb->len < (PKT_HDR_SIZE + 14)) {
-            DBG_WARN(("Tx drop: Invalid RCPU encapsulation\n"));
-            return SHR_E_FAIL;
+        if (skb->len != pkt_len || skb->len < (PKT_HDR_SIZE + ETH_HLEN)) {
+            DBG_WARN(("Tx drop: Invalid packet length\n"));
+            return SHR_E_PARAM;
         }
         if (dev->rcpu_ctrl.pkt_sig && dev->rcpu_ctrl.pkt_sig != ntohs(rch->pkt_sig)) {
-            DBG_WARN(("Tx drop: Invalid RCPU signature\n"));
-            return SHR_E_FAIL;
+            DBG_WARN(("Tx drop: Invalid packet signature\n"));
+            return SHR_E_PARAM;
         }
         if (pkh->attrs & PDMA_TX_HDR_COOKED) {
             /* Resumed packet */
@@ -675,6 +704,9 @@ ngknet_tx_frame_process(struct net_device *ndev, struct sk_buff **oskb)
         }
         if (rch->flags & RCPU_FLAG_BIND_QUE) {
             pkh->attrs |= PDMA_TX_BIND_QUE;
+        }
+        if (rch->flags & RCPU_FLAG_NO_PAD) {
+            pkh->attrs |= PDMA_TX_NO_PAD;
         }
     } else {
         /* Non-RCPU encapsulation packet */
@@ -756,7 +788,7 @@ ngknet_tx_frame_process(struct net_device *ndev, struct sk_buff **oskb)
         struct ngknet_callback_desc *cbd = NGKNET_SKB_CB(skb);
         cbd->dev_no = dev->dev_no;
         cbd->dev_id = dev->pdma_dev.dev_id;
-        cbd->type_str = drv_ops[dev->pdma_dev.dev_type]->drv_desc;
+        cbd->type_str = dev->type_str;
         cbd->priv = priv;
         cbd->pmd = skb->data + PKT_HDR_SIZE;
         cbd->pmd_len = pkh->meta_len;
@@ -773,9 +805,10 @@ ngknet_tx_frame_process(struct net_device *ndev, struct sk_buff **oskb)
     }
 
     /* Pad packet if needed */
-    if (pkh->data_len < (64 + tag_len)) {
-        pkh->data_len = 64 + tag_len;
-        if (skb_padto(skb, PKT_HDR_SIZE + pkh->meta_len + pkh->data_len - ETH_FCS_LEN)) {
+    pad_len = ETH_ZLEN + ETH_FCS_LEN + tag_len;
+    if (pkh->data_len < pad_len && !(pkh->attrs & PDMA_TX_NO_PAD)) {
+        pkh->data_len = pad_len;
+        if (skb_padto(skb, PKT_HDR_SIZE + pkh->meta_len + pkh->data_len)) {
             if (!nskb) {
                 *oskb = NULL;
             }
@@ -847,10 +880,13 @@ ngknet_tx_resume(struct pdma_dev *pdev, int queue)
  */
 static void
 ngknet_intr_enable(struct pdma_dev *pdev, int cmc, int chan,
-                   uint32_t reg, uint32_t mask)
+                   uint32_t reg, uint32_t val)
 {
-    pdev->ctrl.grp[cmc].irq_mask |= mask;
-    ngbde_kapi_intr_mask_write(pdev->unit, 0, reg, pdev->ctrl.grp[cmc].irq_mask);
+    if (val) {
+        ngbde_kapi_iio_write32(pdev->unit, reg, val);
+    } else {
+        ngbde_kapi_intr_mask_write(pdev->unit, 0, reg, pdev->ctrl.grp[cmc].irq_mask);
+    }
 }
 
 /*!
@@ -858,10 +894,13 @@ ngknet_intr_enable(struct pdma_dev *pdev, int cmc, int chan,
  */
 static void
 ngknet_intr_disable(struct pdma_dev *pdev, int cmc, int chan,
-                    uint32_t reg, uint32_t mask)
+                    uint32_t reg, uint32_t val)
 {
-    pdev->ctrl.grp[cmc].irq_mask &= ~mask;
-    ngbde_kapi_intr_mask_write(pdev->unit, 0, reg, pdev->ctrl.grp[cmc].irq_mask);
+    if (val) {
+        ngbde_kapi_iio_write32(pdev->unit, reg, val);
+    } else {
+        ngbde_kapi_intr_mask_write(pdev->unit, 0, reg, pdev->ctrl.grp[cmc].irq_mask);
+    }
 }
 
 /*!
@@ -1277,23 +1316,22 @@ ngknet_start_xmit(struct sk_buff *skb, struct net_device *ndev)
 
     rv = pdev->pkt_xmit(pdev, queue, skb);
 
-    if (rv == SHR_E_UNAVAIL) {
-        DBG_WARN(("Tx drop: DMA device not ready\n"));
+    if (rv == SHR_E_BUSY) {
+        DBG_WARN(("Tx suspend: DMA device is busy and temporarily "
+                  "unavailable.\n"));
+        priv->stats.tx_fifo_errors++;
+        if (skb != bskb) {
+            dev_kfree_skb_any(skb);
+        }
+        return NETDEV_TX_BUSY;
+    } else if (rv != SHR_E_NONE) {
+        DBG_WARN(("Tx drop: DMA device not ready or not supported.\n"));
         priv->stats.tx_dropped++;
         if (skb != bskb) {
             dev_kfree_skb_any(skb);
         }
         dev_kfree_skb_any(bskb);
         return NETDEV_TX_OK;
-    }
-
-    if (rv == SHR_E_BUSY) {
-        DBG_WARN(("Tx suspend: No DMA resources\n"));
-        priv->stats.tx_fifo_errors++;
-        if (skb != bskb) {
-            dev_kfree_skb_any(skb);
-        }
-        return NETDEV_TX_BUSY;
     } else {
         if (skb != bskb) {
             dev_kfree_skb_any(bskb);
@@ -1351,7 +1389,7 @@ ngknet_change_mtu(struct net_device *ndev, int new_mtu)
 {
     int frame_size = new_mtu + ETH_HLEN + VLAN_HLEN + ETH_FCS_LEN;
 
-    if (frame_size < 68 || frame_size > rx_buffer_size) {
+    if (frame_size < (ETH_ZLEN + ETH_FCS_LEN) || frame_size > rx_buffer_size) {
         return -EINVAL;
     }
 
@@ -1536,7 +1574,7 @@ ngknet_ndev_init(ngknet_netif_t *netif, struct net_device **nd)
         return SHR_E_PARAM;
     }
 
-    ndev = alloc_etherdev_mq(sizeof(struct ngknet_private), NUM_QUE_MAX);
+    ndev = alloc_etherdev_mq(sizeof(struct ngknet_private), NUM_Q_MAX);
     if (!ndev) {
         DBG_WARN(("Error allocating network device.\n"));
         return SHR_E_MEMORY;
@@ -1592,6 +1630,22 @@ ngknet_ndev_init(ngknet_netif_t *netif, struct net_device **nd)
     *nd = ndev;
 
     DBG_VERB(("Created network device %s.\n", ndev->name));
+
+    return SHR_E_NONE;
+}
+
+static int
+ngknet_dev_remove(int dn);
+
+static int
+ngknet_bde_event_handler(int kdev, int event, void *data)
+{
+    DBG_VERB(("%s: callback from BDE with kdev(%d) event(%d).\n",
+              __FUNCTION__, kdev, event));
+
+    if (event == NGBDE_EVENT_DEV_REMOVE) {
+        ngknet_dev_remove(kdev);
+    }
 
     return SHR_E_NONE;
 }
@@ -1678,6 +1732,9 @@ ngknet_dev_info_get(int dn)
     }
 
     dev->dev_no = dn;
+    strlcpy(dev->type_str,
+            drv_ops[dev->pdma_dev.dev_type]->drv_desc,
+            sizeof(dev->type_str));
 
     return SHR_E_NONE;
 }
@@ -1728,6 +1785,11 @@ ngknet_dev_probe(int dn, ngknet_netif_t *netif)
             DBG_WARN(("Too long network device name: %s.\n", base_dev_name));
             return SHR_E_PARAM;
         }
+    }
+
+    if (netif->chan >= NUM_Q_MAX) {
+        DBG_WARN(("Exceed max number of queues : %d.\n", netif->chan));
+        return SHR_E_PARAM;
     }
 
     rv = ngknet_ndev_init(netif, &ndev);
@@ -1810,6 +1872,9 @@ ngknet_dev_probe(int dn, ngknet_netif_t *netif)
     DBG_NDEV(("MAC: %pM\n", ndev->dev_addr));
     DBG_NDEV(("Running with NAPI enabled\n"));
 
+    /* Register handler for BDE events. */
+    ngbde_kapi_knet_connect(dn, ngknet_bde_event_handler, dev);
+
     return SHR_E_NONE;
 }
 
@@ -1835,6 +1900,7 @@ ngknet_dev_remove(int dn)
     int rv;
 
     if (!(dev->flags & NGKNET_DEV_ACTIVE)) {
+        ngbde_kapi_knet_disconnect(dn);
         return SHR_E_NONE;
     }
 
@@ -1873,7 +1939,7 @@ ngknet_dev_remove(int dn)
     unregister_netdev(ndev);
     free_netdev(ndev);
 
-    for (qi = 0; qi < NUM_QUE_MAX; qi++) {
+    for (qi = 0; qi < NUM_Q_MAX; qi++) {
         dev->bdev[qi] = NULL;
     }
 
@@ -1899,6 +1965,7 @@ ngknet_dev_remove(int dn)
     if (SHR_FAILURE(rv)) {
         DBG_WARN(("Detach DMA driver failed.\n"));
     }
+    ngbde_kapi_knet_disconnect(dn);
 
     return rv;
 }
@@ -1935,6 +2002,11 @@ ngknet_netif_create(struct ngknet_dev *dev, ngknet_netif_t *netif)
             DBG_WARN(("Too long network device name: %s.\n", base_dev_name));
             return SHR_E_PARAM;
         }
+    }
+
+    if (netif->chan >= NUM_Q_MAX) {
+        DBG_WARN(("Exceed max number of queues : %d.\n", netif->chan));
+        return SHR_E_PARAM;
     }
 
     rv = ngknet_ndev_init(netif, &ndev);
@@ -2262,6 +2334,7 @@ ngknet_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
             }
             if (!strcasecmp(dev_cfg->type_str, drv_ops[dt]->drv_desc)) {
                 pdev->dev_type = dt;
+                strlcpy(dev->var_str, dev_cfg->var_str, sizeof(dev->var_str));
                 break;
             }
         }
@@ -2288,6 +2361,10 @@ ngknet_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
         if (SHR_FAILURE((int)ioc.rc)) {
             break;
         }
+        if (dev->cbc->dev_init_cb) {
+            dev->cbc->dev_init_cb(dev);
+        }
+
         if (kal_copy_to_user((void *)(unsigned long)ioc.op.data.buf, dev_cfg,
                              ioc.op.data.len, sizeof(*dev_cfg))) {
             return -EFAULT;
@@ -2380,7 +2457,13 @@ ngknet_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
         if (rx_rate_limit >= 0) {
             ngknet_rx_rate_limit_stop(dev);
         }
-        ioc.rc = bcmcnet_pdma_dev_suspend(pdev);
+        if (ioc.iarg[0]) {
+            /* Graceful suspend */
+            ioc.rc = bcmcnet_pdma_dev_suspend(pdev);
+        } else {
+            pdev->flags |= PDMA_ABORT;
+            ioc.rc = bcmcnet_pdma_dev_suspend(pdev);
+        }
         break;
     case NGKNET_DEV_RESUME:
         DBG_CMD(("NGKNET_DEV_RESUME\n"));

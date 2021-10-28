@@ -4,7 +4,7 @@
  *
  */
 /*
- * $Copyright: Copyright 2018-2020 Broadcom. All rights reserved.
+ * $Copyright: Copyright 2018-2021 Broadcom. All rights reserved.
  * The term 'Broadcom' refers to Broadcom Inc. and/or its subsidiaries.
  * 
  * This program is free software; you can redistribute it and/or
@@ -68,6 +68,12 @@
  * Device description
  */
 struct ngknet_dev {
+    /*! Device type string */
+    char type_str[NGKNET_DEV_NAME_MAX];
+
+    /*! Device type string */
+    char var_str[NGKNET_DEV_NAME_MAX];
+
     /*! Base address for PCI register access */
     volatile void *base_addr;
 
@@ -86,11 +92,11 @@ struct ngknet_dev {
     /*! Device number (from BDE) */
     int dev_no;
 
-    /*! Vitual network devices, 0 is reserved */
+    /*! Virtual network devices, 0 is reserved for valid number of devices. */
     struct net_device *vdev[NUM_VDEV_MAX + 1];
 
-    /*! Vitual network devices bound to queue */
-    struct net_device *bdev[NUM_QUE_MAX];
+    /*! Virtual network devices bound to queue */
+    struct net_device *bdev[NUM_Q_MAX];
 
     /*! Filter list */
     struct list_head filt_list;
@@ -191,6 +197,9 @@ struct ngknet_private {
 
     /*! HW timestamp Tx type */
     int hwts_tx_type;
+
+    /*! Matched callback filter */
+    struct ngknet_filter_s *filt_cb;
 };
 
 /*!

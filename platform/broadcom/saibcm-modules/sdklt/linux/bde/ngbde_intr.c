@@ -4,7 +4,7 @@
  *
  */
 /*
- * $Copyright: Copyright 2018-2020 Broadcom. All rights reserved.
+ * $Copyright: Copyright 2018-2021 Broadcom. All rights reserved.
  * The term 'Broadcom' refers to Broadcom Inc. and/or its subsidiaries.
  * 
  * This program is free software; you can redistribute it and/or
@@ -96,9 +96,12 @@ ngbde_user_isr(ngbde_intr_ctrl_t *ic)
         kmask = ir->kmask;
 
         stat = NGBDE_IOREAD32(&ic->iomem[ir->status_reg]);
-        mask = NGBDE_IOREAD32(&ic->iomem[ir->mask_reg]);
-
-        if (stat & mask & ~kmask) {
+        if (!ir->status_is_masked) {
+            /* Get enabled interrupts by applying mask register */
+            mask = NGBDE_IOREAD32(&ic->iomem[ir->mask_reg]);
+            stat &= mask;
+        }
+        if (stat & ~kmask) {
             active_interrupts = 1;
             break;
         }
@@ -119,7 +122,13 @@ ngbde_user_isr(ngbde_intr_ctrl_t *ic)
         if (kmask == 0xffffffff) {
             /* Kernel driver owns all interrupts in this register */
             continue;
-        } else if (kmask) {
+        }
+        if (ir->mask_w1tc) {
+            /* Clear all interrupt bits which are not in kmask */
+            NGBDE_IOWRITE32(~kmask, &ic->iomem[ir->mask_reg]);
+            continue;
+        }
+        if (kmask) {
             /* Synchronized write */
             struct ngbde_dev_s *sd = ngbde_swdev_get(ic->kdev);
             if (ngbde_intr_shared_write32(sd, ic, ir->mask_reg, 0, ~kmask) < 0) {
@@ -160,6 +169,25 @@ ngbde_kernel_isr(ngbde_intr_ctrl_t *ic)
 }
 
 /*!
+ * \brief Interrupt handler for kernel driver.
+ *
+ * Typically used by the EDK driver.
+ *
+ * \param [in] ic Interrupt control information.
+ *
+ * \retval 1 One or more kernel mode interrupts occurred.
+ * \retval 0 No kernel mode interrupts occurred.
+ */
+static int
+ngbde_kernel_isr2(ngbde_intr_ctrl_t *ic)
+{
+    if (ic->isr2_func) {
+        return ic->isr2_func(ic->isr2_data);
+    }
+    return 0;
+}
+
+/*!
  * \brief Acknowledge interrupt
  *
  * \param [in] data Interrupt control information
@@ -174,9 +202,9 @@ ngbde_intr_ack(ngbde_intr_ctrl_t *ic)
 
     if (sd->use_msi) {
         if (ar->flags & NGBDE_INTR_ACK_F_PAXB) {
-            NGBDE_IOWRITE32(ar->ack_val, &sd->paxb_mem[ar->ack_reg]);
+            ngbde_paxb_write32(sd, ar->ack_reg, ar->ack_val);
         } else {
-            NGBDE_IOWRITE32(ar->ack_val, &sd->pio_mem[ar->ack_reg]);
+            ngbde_pio_write32(sd, ar->ack_reg, ar->ack_val);
         }
     }
 
@@ -203,6 +231,9 @@ ngbde_isr(int irq_num, void *data)
 
     ngbde_intr_ack(ic);
 
+    if (ngbde_kernel_isr2(ic)) {
+        rv = IRQ_HANDLED;
+    }
     if (ngbde_user_isr(ic)) {
         rv = IRQ_HANDLED;
     }

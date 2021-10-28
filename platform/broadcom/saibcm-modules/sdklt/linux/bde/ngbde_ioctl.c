@@ -4,7 +4,7 @@
  *
  */
 /*
- * $Copyright: Copyright 2018-2020 Broadcom. All rights reserved.
+ * $Copyright: Copyright 2018-2021 Broadcom. All rights reserved.
  * The term 'Broadcom' refers to Broadcom Inc. and/or its subsidiaries.
  * 
  * This program is free software; you can redistribute it and/or
@@ -157,6 +157,14 @@ ngbde_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
         ireg.status_reg = ioc.op.irq_reg_add.status_reg;
         ireg.mask_reg = ioc.op.irq_reg_add.mask_reg;
         ireg.kmask = ioc.op.irq_reg_add.kmask;
+        ireg.status_is_masked = false;
+        if (ioc.op.irq_reg_add.flags & NGBDE_DEV_IRQ_REG_F_MASKED) {
+            ireg.status_is_masked = true;
+        }
+        ireg.mask_w1tc = false;
+        if (ioc.op.irq_reg_add.flags & NGBDE_DEV_IRQ_REG_F_W1TC) {
+            ireg.mask_w1tc = true;
+        }
         if (ngbde_intr_reg_add(ioc.devid, irq_num, &ireg) < 0) {
             printk(KERN_WARNING
                    "%s: Unable to add interrupt register\n",

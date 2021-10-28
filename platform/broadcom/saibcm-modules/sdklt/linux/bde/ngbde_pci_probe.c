@@ -4,7 +4,7 @@
  *
  */
 /*
- * $Copyright: Copyright 2018-2020 Broadcom. All rights reserved.
+ * $Copyright: Copyright 2018-2021 Broadcom. All rights reserved.
  * The term 'Broadcom' refers to Broadcom Inc. and/or its subsidiaries.
  * 
  * This program is free software; you can redistribute it and/or
@@ -52,6 +52,7 @@ static struct pci_device_id pci_id_table[] = {
     { BROADCOM_VENDOR_ID, 0xb684, PCI_ANY_ID, PCI_ANY_ID },
     { 0, 0, 0, 0 }
 };
+MODULE_DEVICE_TABLE(pci, pci_id_table);
 
 static int
 pci_probe(struct pci_dev *pci_dev, const struct pci_device_id *ent)
@@ -169,6 +170,10 @@ pci_remove(struct pci_dev* pci_dev)
 
     ngbde_swdev_get_all(&swdev, &num_swdev);
     for (idx = 0; idx < num_swdev; idx++) {
+        if (swdev[idx].knet_func) {
+            swdev[idx].knet_func(idx, NGBDE_EVENT_DEV_REMOVE,
+                                 swdev->knet_data);
+        }
         if (swdev[idx].bus_no == bus_no &&
             swdev[idx].slot_no == slot_no) {
             if (swdev[idx].inactive) {

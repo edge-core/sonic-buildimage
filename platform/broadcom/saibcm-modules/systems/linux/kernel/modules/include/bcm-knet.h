@@ -84,6 +84,9 @@ typedef int
 (*knet_hw_tstamp_ptp_clock_index_cb_f)(int dev_no);
 
 typedef int
+(*knet_hw_tstamp_rx_pre_process_cb_f)(int dev_no, uint8_t *pkt, uint32_t sspa, int *pkt_offset);
+
+typedef int
 (*knet_hw_tstamp_rx_time_upscale_cb_f)(int dev_no, int phys_port, struct sk_buff *skb, uint32_t *meta, uint64_t *ts);
 
 typedef int
@@ -136,6 +139,12 @@ bkn_hw_tstamp_ptp_clock_index_cb_register(knet_hw_tstamp_ptp_clock_index_cb_f hw
 
 extern int
 bkn_hw_tstamp_ptp_clock_index_cb_unregister(knet_hw_tstamp_ptp_clock_index_cb_f hw_tstamp_ptp_clock_index_cb);
+
+extern int
+bkn_hw_tstamp_rx_pre_process_cb_register(knet_hw_tstamp_rx_pre_process_cb_f hw_tstamp_rx_pre_process_cb);
+
+extern int
+bkn_hw_tstamp_rx_pre_process_cb_unregister(knet_hw_tstamp_rx_pre_process_cb_f hw_tstamp_rx_pre_process_cb);
 
 extern int
 bkn_hw_tstamp_rx_time_upscale_cb_register(knet_hw_tstamp_rx_time_upscale_cb_f hw_tstamp_rx_time_upscale_cb);

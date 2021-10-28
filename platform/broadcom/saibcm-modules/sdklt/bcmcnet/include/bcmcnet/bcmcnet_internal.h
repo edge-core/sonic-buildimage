@@ -4,7 +4,7 @@
  *
  */
 /*
- * $Copyright: Copyright 2018-2020 Broadcom. All rights reserved.
+ * $Copyright: Copyright 2018-2021 Broadcom. All rights reserved.
  * The term 'Broadcom' refers to Broadcom Inc. and/or its subsidiaries.
  * 
  * This program is free software; you can redistribute it and/or
@@ -30,6 +30,9 @@
 
 /*! CMICX name */
 #define CMICX_DEV_NAME      "cmicx"
+
+/*! CMICR name */
+#define CMICR_DEV_NAME      "cmicr"
 
 /*!
  * \brief Allocate descriptor ring buffer.
@@ -83,10 +86,11 @@ typedef void (*rx_buf_dma_f)(struct pdma_dev *dev, struct pdma_rx_queue *rxq,
  * \param [in] rxq Pointer to Rx queue struture.
  * \param [in] pbuf Pointer to packet buffer structure.
  *
- * \retval Ture Buffer is available or FALSE.
+ * \retval true Buffer is available.
+ * \retval false Buffer is not available.
  */
-typedef int (*rx_buf_avail_f)(struct pdma_dev *dev, struct pdma_rx_queue *rxq,
-                              struct pdma_rx_buf *pbuf);
+typedef bool (*rx_buf_avail_f)(struct pdma_dev *dev, struct pdma_rx_queue *rxq,
+                               struct pdma_rx_buf *pbuf);
 
 /*!
  * \brief Get Rx packet buffer.

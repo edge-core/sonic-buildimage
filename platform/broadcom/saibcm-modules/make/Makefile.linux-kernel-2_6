@@ -40,6 +40,11 @@ FEATURE_EXCLUDE_LIST = $(sort $(_FEATURE_EXCLUDE_LIST))
 # Conditionally Replaces DEFAULT var
 ifeq ($(origin CC),default)
 CC	= $(LSRUN) $(CROSS_COMPILE)gcc
+else
+# If using CLANG then revert the CC to default gcc tool
+ifeq ($(USE_CLANG),1)
+CC	= $(LSRUN) $(CROSS_COMPILE)gcc
+endif
 endif
 
 ifeq ($(origin CXX),default)

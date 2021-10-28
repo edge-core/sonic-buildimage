@@ -4,7 +4,7 @@
  *
  */
 /*
- * $Copyright: Copyright 2018-2020 Broadcom. All rights reserved.
+ * $Copyright: Copyright 2018-2021 Broadcom. All rights reserved.
  * The term 'Broadcom' refers to Broadcom Inc. and/or its subsidiaries.
  * 
  * This program is free software; you can redistribute it and/or
@@ -32,10 +32,10 @@
 #define NUM_GRP_MAX         4
 
 /*! Maximum number of queues supported each group */
-#define NUM_Q_PER_GRP       8
+#define NUM_Q_PER_GRP       16
 
 /*! Maximum number of queues supported each device */
-#define NUM_QUE_MAX         (NUM_GRP_MAX * NUM_Q_PER_GRP)
+#define NUM_Q_MAX           (NUM_GRP_MAX * NUM_Q_PER_GRP)
 
 /*! Maximum length of jumbo frame */
 #define JUMBO_FRAME_LEN_MAX 0xffff
@@ -113,13 +113,13 @@ typedef struct bcmcnet_dev_info {
     uint32_t nb_desc_dflt;
 
     /*! Rx buffer size per queue */
-    uint32_t rx_buf_size[NUM_QUE_MAX];
+    uint32_t rx_buf_size[NUM_Q_MAX];
 
     /*! Number of Rx descriptors per queue */
-    uint32_t nb_rx_desc[NUM_QUE_MAX];
+    uint32_t nb_rx_desc[NUM_Q_MAX];
 
     /*! Number of Tx descriptors per queue */
-    uint32_t nb_tx_desc[NUM_QUE_MAX];
+    uint32_t nb_tx_desc[NUM_Q_MAX];
 } bcmcnet_dev_info_t;
 
 /*!
@@ -169,43 +169,43 @@ typedef struct bcmcnet_dev_stats {
     uint64_t intrs;
 
     /*! Number of successfully received packets per queue */
-    uint64_t rxq_packets[NUM_QUE_MAX];
+    uint64_t rxq_packets[NUM_Q_MAX];
 
     /*! Number of successfully received bytes per queue */
-    uint64_t rxq_bytes[NUM_QUE_MAX];
+    uint64_t rxq_bytes[NUM_Q_MAX];
 
     /*! Number of dropped packets per queue */
-    uint64_t rxq_dropped[NUM_QUE_MAX];
+    uint64_t rxq_dropped[NUM_Q_MAX];
 
     /*! Number of erroneous received packets per queue */
-    uint64_t rxq_errors[NUM_QUE_MAX];
+    uint64_t rxq_errors[NUM_Q_MAX];
 
     /*! Number of error head packets per queue */
-    uint64_t rxq_head_errors[NUM_QUE_MAX];
+    uint64_t rxq_head_errors[NUM_Q_MAX];
 
     /*! Number of error data packets per queue */
-    uint64_t rxq_data_errors[NUM_QUE_MAX];
+    uint64_t rxq_data_errors[NUM_Q_MAX];
 
     /*! Number of error cell packets per queue */
-    uint64_t rxq_cell_errors[NUM_QUE_MAX];
+    uint64_t rxq_cell_errors[NUM_Q_MAX];
 
     /*! Number of RX pktbuf allocation failures per queue */
-    uint64_t rxq_nomems[NUM_QUE_MAX];
+    uint64_t rxq_nomems[NUM_Q_MAX];
 
     /*! Number of successfully transmitted bytes per queue */
-    uint64_t txq_packets[NUM_QUE_MAX];
+    uint64_t txq_packets[NUM_Q_MAX];
 
     /*! Number of successfully transmitted bytes per queue */
-    uint64_t txq_bytes[NUM_QUE_MAX];
+    uint64_t txq_bytes[NUM_Q_MAX];
 
     /*! Number of dropped packets per queue */
-    uint64_t txq_dropped[NUM_QUE_MAX];
+    uint64_t txq_dropped[NUM_Q_MAX];
 
     /*! Number of failed transmitted packets per queue */
-    uint64_t txq_errors[NUM_QUE_MAX];
+    uint64_t txq_errors[NUM_Q_MAX];
 
     /*! Number of suspended transmission per queue */
-    uint64_t txq_xoffs[NUM_QUE_MAX];
+    uint64_t txq_xoffs[NUM_Q_MAX];
 } bcmcnet_dev_stats_t;
 
 /*!
@@ -247,16 +247,16 @@ typedef enum dev_mode_e {
  */
 typedef struct vnet_sync_s {
     /*! Rx ring address */
-    uint64_t rx_ring_addr[NUM_QUE_MAX];
+    uint64_t rx_ring_addr[NUM_Q_MAX];
 
     /*! Rx ring size */
-    uint32_t rx_ring_size[NUM_QUE_MAX];
+    uint32_t rx_ring_size[NUM_Q_MAX];
 
     /*! Tx ring address */
-    uint64_t tx_ring_addr[NUM_QUE_MAX];
+    uint64_t tx_ring_addr[NUM_Q_MAX];
 
     /*! Tx ring size */
-    uint32_t tx_ring_size[NUM_QUE_MAX];
+    uint32_t tx_ring_size[NUM_Q_MAX];
 } vnet_sync_t;
 
 #endif /* BCMCNET_TYPES_H */

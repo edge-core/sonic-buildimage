@@ -131,7 +131,9 @@ basename_flags = -D"KBUILD_BASENAME=KBUILD_STR($(call name-fix,$(basetarget)))"
 modname_flags  = $(if $(filter 1,$(words $(modname))),\
                  -D"KBUILD_MODNAME=KBUILD_STR($(call name-fix,$(modname)))")
 
-KFLAG_INCLD = $(TOOLCHAIN_BASE_DIR)/lib/gcc/$(TARGET_ARCHITECTURE)/4.9.2/include
+CROSS_GCC_VER ?= $(shell $(TOOLCHAIN_BIN_DIR)/$(CROSS_COMPILE)gcc -dumpversion)
+
+KFLAG_INCLD = $(TOOLCHAIN_BASE_DIR)/lib/gcc/$(TARGET_ARCHITECTURE)/$(CROSS_GCC_VER)/include
 
 ifeq (,$(KFLAGS))
 KFLAGS := -D__LINUX_ARM_ARCH__=8 -D__KERNEL__ -DPTRS_ARE_64BITS -DLONGS_ARE_64BITS -nostdinc -isystem $(KFLAG_INCLD) -I$(LINUX_INCLUDE) -include $(LINUX_INCLUDE)/generated/autoconf.h -I$(KERNDIR)/arch/arm64/include -I$(KERNDIR)/arch/arm64/include/generated -I$(KERNDIR)/arch/arm64/include/generated/asm -I$(KERNDIR)/include/uapi -I$(KERNDIR)/include/generated/uapi -I$(KERNDIR)/arch/arm64/include/uapi -Wall -Wstrict-prototypes -Wno-trigraphs -Os -fno-strict-aliasing -fno-common -fno-pic -pipe -ffreestanding -fomit-frame-pointer -g -fno-stack-protector -Wdeclaration-after-statement -Wno-pointer-sign 
@@ -154,6 +156,14 @@ LTSW_ADD_CPPFLAGS += -DBCMDRD_CONFIG_MEMMAP_DIRECT=1
 endif
 
 export SYSTEM_INTERFACE
+endif
+
+ifneq (, $(EDKHOST))
+ifeq (BE,$(ENDIAN_MODE))
+OPENSRC_BUILD ?= linaro_arm64_be
+else
+OPENSRC_BUILD ?= linaro_arm64_le
+endif
 endif
 
 ifneq ($(targetplat),user)

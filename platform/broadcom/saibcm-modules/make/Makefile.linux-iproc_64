@@ -40,11 +40,11 @@ endif
 ifeq (BE,$(ENDIAN_MODE))
 #We've never actually built a 64 BE executable.  Just here for any future
 #customer requirements.
-TOOLCHAIN_BASE_DIR ?= /projects/ntsw-tools/linux/iproc_ldks/xldk51-be/XLDK64
+TOOLCHAIN_BASE_DIR ?= /projects/ntsw-tools/linux/iproc_ldks/xldk61-be/XLDK64
 TARGET_ARCHITECTURE ?= aarch64_be-broadcom-linux-uclibc
 KERNDIR ?= $(TOOLCHAIN_BASE_DIR)/kernel/linux
 else
-TOOLCHAIN_BASE_DIR ?= /projects/ntsw-tools/linux/iproc_ldks/xldk51/XLDK64
+TOOLCHAIN_BASE_DIR ?= /projects/ntsw-tools/linux/iproc_ldks/xldk61/XLDK64
 TARGET_ARCHITECTURE ?= aarch64-broadcom-linux-uclibc
 KERNDIR ?= $(TOOLCHAIN_BASE_DIR)/kernel/linux
 endif
@@ -78,12 +78,24 @@ CFLAGS += -DPTRS_ARE_64BITS -DLONGS_ARE_64BITS
 CFLAGS += -DPHYS_ADDRS_ARE_64BITS
 CFLAGS += -fno-aggressive-loop-optimizations -fno-strict-overflow
 CFLAGS += -Wno-error=maybe-uninitialized
+CFLAGS += -Wno-error=unused-function
 CFLAGS += -Wno-error=array-bounds
+CFLAGS += -Wno-error=format-overflow
 CFLAGS += -fgnu89-inline
-ifeq "$(shell expr `echo $(CROSS_GCC_VER) | cut -f1 -d.` \>= 7)" "1"
-    CFLAGS += -Wno-error=bool-operation
+ifeq "$(shell expr `echo $(CROSS_GCC_VER) | cut -f1 -d.` \>= 8)" "1"
+    CFLAGS += -Wno-stringop-overflow
+    CFLAGS += -Wno-stringop-truncation
+    CFLAGS += -Wno-error=restrict
 endif
-
+ifeq "$(shell expr `echo $(CROSS_GCC_VER) | cut -f1 -d.` \>= 9)" "1"
+	CFLAGS += -Wno-address-of-packed-member
+endif
+ifeq "$(shell expr `echo $(CROSS_GCC_VER) | cut -f1 -d.` \== 10)" "1"
+	#There might be a bug in GCC10 that cannot detect initialization correctly.
+	CFLAGS += -Wno-error=uninitialized
+	CFLAGS += -Wno-error=format-overflow
+	CFLAGS += -fcommon
+endif
 
 CFGFLAGS += -D$(ENDIAN) -DIPROC_CMICD
 CFGFLAGS += -DBCM_PLATFORM_STRING=\"IPROC_CMICD\"
@@ -109,7 +121,7 @@ modname_flags  = $(if $(filter 1,$(words $(modname))),\
 KFLAG_INCLD ?= $(LD_LIBRARY_PATH)/gcc/$(TARGET_ARCHITECTURE)/$(CROSS_GCC_VER)/include
 
 ifeq (,$(KFLAGS))
-KFLAGS := -D__LINUX_ARM_ARCH__=8 -D__KERNEL__ -DPTRS_ARE_64BITS -DLONGS_ARE_64BITS -nostdinc -isystem $(KFLAG_INCLD) -I$(LINUX_INCLUDE) -include $(LINUX_INCLUDE)/generated/autoconf.h -I$(KERNDIR)/arch/arm64/include -I$(KERNDIR)/arch/arm64/include/generated -I$(KERNDIR)/arch/arm64/include/generated/uapi -I$(KERNDIR)/arch/arm64/include/generated/asm -I$(KERNDIR)/include/uapi -I$(KERNDIR)/include/generated/uapi -I$(KERNDIR)/arch/arm64/include/uapi  -Wall -Wstrict-prototypes -Wno-trigraphs -Os -fno-strict-aliasing -fno-common -fno-pic -pipe -ffreestanding -fomit-frame-pointer -g -fno-stack-protector -Wdeclaration-after-statement -Wno-pointer-sign -mcmodel=large
+KFLAGS := -D__LINUX_ARM_ARCH__=8 -D__KERNEL__ -DPTRS_ARE_64BITS -DLONGS_ARE_64BITS -nostdinc -isystem $(KFLAG_INCLD) -I$(LINUX_INCLUDE) -include $(LINUX_INCLUDE)/generated/autoconf.h -I$(KERNDIR)/arch/arm64/include -I$(KERNDIR)/arch/arm64/include/generated -I$(KERNDIR)/arch/arm64/include/generated/uapi -I$(KERNDIR)/arch/arm64/include/generated/asm -I$(KERNDIR)/include/uapi -I$(KERNDIR)/include/generated/uapi -I$(KERNDIR)/arch/arm64/include/uapi  -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fno-pic -pipe -ffreestanding -fomit-frame-pointer -g -fno-stack-protector -Wdeclaration-after-statement -Wno-pointer-sign -mcmodel=large
 endif
 
 ifneq ($(targetplat),user)

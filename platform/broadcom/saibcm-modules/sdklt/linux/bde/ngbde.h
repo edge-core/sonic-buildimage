@@ -4,7 +4,7 @@
  *
  */
 /*
- * $Copyright: Copyright 2018-2020 Broadcom. All rights reserved.
+ * $Copyright: Copyright 2018-2021 Broadcom. All rights reserved.
  * The term 'Broadcom' refers to Broadcom Inc. and/or its subsidiaries.
  * 
  * This program is free software; you can redistribute it and/or
@@ -116,8 +116,14 @@ typedef struct ngbde_irq_reg_s {
     /*! Interrupt status register corresponding to the mask register. */
     uint32_t status_reg;
 
+    /*! Interrupt status register is a bitwise AND of mask and raw status. */
+    bool status_is_masked;
+
     /*! Shared interrupt mask register. */
     uint32_t mask_reg;
+
+    /*! Mask register is of type "write 1 to clear". */
+    bool mask_w1tc;
 
     /*! Mask identifying the register bits owned by the kernel mode driver. */
     uint32_t kmask;
@@ -212,6 +218,12 @@ typedef struct ngbde_intr_ctrl_s {
 
     /*! Context for primary interrupt handler. */
     void *isr_data;
+
+    /*! Secondary interrupt handler. */
+    ngbde_isr_f isr2_func;
+
+    /*! Context for secondary interrupt handler. */
+    void *isr2_data;
 
 } ngbde_intr_ctrl_t;
 
@@ -366,6 +378,13 @@ struct ngbde_dev_s {
 
     /*! DMA memory pools. */
     struct ngbde_dmapool_s dmapool[NGBDE_NUM_DMAPOOL_MAX];
+
+    /*! KNET handler. */
+    knet_func_f knet_func;
+
+    /*! Context for KNET handler. */
+    void *knet_data;
+
 };
 
 /*!
@@ -816,6 +835,35 @@ ngbde_paxb_unmap(void *devh);
  */
 extern void
 ngbde_paxb_cleanup(void);
+
+/*!
+ * \brief Write a memory-mapped PCI bridge register.
+ *
+ * Write a 32-bit register using I/O memory previously mapped via \ref
+ * ngbde_paxb_map.
+ *
+ * \param [in] devh Device handle (\ref ngbde_dev_s).
+ * \param [in] offs Register address offset.
+ * \param [in] val Value to write to register.
+ *
+ * \return Nothing.
+ */
+extern void
+ngbde_paxb_write32(void *devh, uint32_t offs, uint32_t val);
+
+/*!
+ * \brief Read a memory-mapped PCI bridge register.
+ *
+ * Read a 32-bit register using I/O memory previously mapped via \ref
+ * ngbde_paxb_map.
+ *
+ * \param [in] devh Device handle (\ref ngbde_dev_s).
+ * \param [in] offs Register address offset.
+ *
+ * \return Value read from register.
+ */
+extern uint32_t
+ngbde_paxb_read32(void *devh, uint32_t offs);
 
 /*!
  * \brief Probe for Broadcom switch devices on IPROC internal bus.

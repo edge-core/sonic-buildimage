@@ -4,7 +4,7 @@
  *
  */
 /*
- * $Copyright: Copyright 2018-2020 Broadcom. All rights reserved.
+ * $Copyright: Copyright 2018-2021 Broadcom. All rights reserved.
  * The term 'Broadcom' refers to Broadcom Inc. and/or its subsidiaries.
  * 
  * This program is free software; you can redistribute it and/or
@@ -50,6 +50,9 @@
 #include "ngknet_extra.h"
 #include "ngknet_callback.h"
 
+/*! Defalut Rx tick for Rx rate limit control. */
+#define NGKNET_EXTRA_RATE_LIMIT_DEFAULT_RX_TICK 10
+
 static struct ngknet_rl_ctrl rl_ctrl;
 
 int
@@ -72,7 +75,7 @@ ngknet_filter_create(struct ngknet_dev *dev, ngknet_filter_t *filter)
     case NGKNET_FILTER_DEST_T_NULL:
     case NGKNET_FILTER_DEST_T_NETIF:
     case NGKNET_FILTER_DEST_T_VNET:
-    case NGKNET_FILTER_DEST_T_CB:  /* SDKLT-26907: support NGKNET_FILTER_DEST_T_CB */
+    case NGKNET_FILTER_DEST_T_CB:
         break;
     default:
         return SHR_E_UNAVAIL;
@@ -260,10 +263,13 @@ ngknet_rx_pkt_filter(struct ngknet_dev *dev, struct sk_buff *skb, struct net_dev
     unsigned long flags;
     int wsize;
     int chan_id;
-    int idx, match = 0, match_cb = 0;
+    int rv, idx, match = 0, match_cb = 0;
 
-    bcmcnet_pdma_dev_queue_to_chan(&dev->pdma_dev, pkb->pkh.queue_id,
-                                   PDMA_Q_RX, &chan_id);
+    rv = bcmcnet_pdma_dev_queue_to_chan(&dev->pdma_dev, pkb->pkh.queue_id,
+                                        PDMA_Q_RX, &chan_id);
+    if (SHR_FAILURE(rv)) {
+        return rv;
+    }
 
     spin_lock_irqsave(&dev->lock, flags);
 
@@ -317,6 +323,26 @@ ngknet_rx_pkt_filter(struct ngknet_dev *dev, struct sk_buff *skb, struct net_dev
 
     if (match) {
         fc->hits++;
+        if (filt->dest_type == NGKNET_FILTER_DEST_T_CB) {
+            struct ngknet_callback_desc *cbd = NGKNET_SKB_CB(skb);
+            struct pkt_hdr *pkh = (struct pkt_hdr *)skb->data;
+            if (!dev->cbc->filter_cb) {
+                spin_unlock_irqrestore(&dev->lock, flags);
+                return SHR_E_UNAVAIL;
+            }
+            cbd->dev_no = dev->dev_no;
+            cbd->dev_id = dev->pdma_dev.dev_id;
+            cbd->type_str = dev->type_str;
+            cbd->pmd = skb->data + PKT_HDR_SIZE;
+            cbd->pmd_len = pkh->meta_len;
+            cbd->pkt_len = pkh->data_len;
+            cbd->filt = filt;
+            skb = dev->cbc->filter_cb(skb, &filt);
+            if (!skb || !filt) {
+                spin_unlock_irqrestore(&dev->lock, flags);
+                return SHR_E_UNAVAIL;
+            }
+        }
         switch (filt->dest_type) {
         case NGKNET_FILTER_DEST_T_NETIF:
             if (filt->dest_id == 0) {
@@ -369,8 +395,8 @@ ngknet_rx_pkt_filter(struct ngknet_dev *dev, struct sk_buff *skb, struct net_dev
         NGKNET_SKB_CB(skb)->filt = filt;
         
         /* Add callback filter if matched */
-        if (match_cb) {
-            NGKNET_SKB_CB(skb)->filt_cb = filt_cb;
+        if (priv) {
+            priv->filt_cb = match_cb? filt_cb : NULL;
         }
     }
 
@@ -431,7 +457,7 @@ void
 ngknet_rx_rate_limit_init(struct ngknet_dev *devs)
 {
     sal_memset(&rl_ctrl, 0, sizeof(rl_ctrl));
-    rl_ctrl.rx_ticks = 10;
+    rl_ctrl.rx_ticks = NGKNET_EXTRA_RATE_LIMIT_DEFAULT_RX_TICK;
     setup_timer(&rl_ctrl.timer, ngknet_rl_process, (timer_context_t)&rl_ctrl);
     spin_lock_init(&rl_ctrl.lock);
     rl_ctrl.devs = devs;
@@ -479,6 +505,13 @@ void
 ngknet_rx_rate_limit(struct ngknet_dev *dev, int limit)
 {
     unsigned long flags;
+
+    /* To support lower rate, we should use smaller tick (larger interval). */
+    if (limit < 1000) {
+        rl_ctrl.rx_ticks = (limit + 99) / 100;
+    } else {
+        rl_ctrl.rx_ticks = NGKNET_EXTRA_RATE_LIMIT_DEFAULT_RX_TICK;
+    }
 
     spin_lock_irqsave(&rl_ctrl.lock, flags);
     if ((++rl_ctrl.rx_pkts + rl_ctrl.rx_overruns > limit / rl_ctrl.rx_ticks) &&

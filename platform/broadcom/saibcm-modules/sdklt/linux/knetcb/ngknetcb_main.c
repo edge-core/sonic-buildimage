@@ -73,20 +73,23 @@ strip_vlan_tag(struct sk_buff *skb)
  * -1 = Unsupported type
  */
 static int
-get_tag_status(uint32_t dev_type, void *meta)
+get_tag_status(uint32_t dev_type, uint32_t variant, void *meta)
 {
     uint32_t  *valptr;
     uint32_t  fd_index;
     uint32_t  outer_l2_hdr;
     int tag_status = -1;
+    uint32_t  match_id_minbit = 1;
+    uint32_t  outer_tag_match = 0x10;
  
     if ((dev_type == 0xb880) || (dev_type == 0xb780))
     {
         /* Field BCM_PKTIO_RXPMD_MATCH_ID_LO has tag status in RX PMD */
         fd_index = 2;
         valptr = (uint32_t *)meta;
-        outer_l2_hdr = (valptr[fd_index] >> ((dev_type == 0xb780) ? 2 : 1) & 0xFF);
-
+        match_id_minbit = (dev_type == 0xb780) ? 2 : 1;        
+        outer_l2_hdr = (valptr[fd_index] >> match_id_minbit & 0xFF);
+        outer_tag_match = ((dev_type == 0xb780 && variant == 1) ? 0x8 : 0x10);
         if (outer_l2_hdr & 0x1) {
 #ifdef KNET_CB_DEBUG
             if (debug & 0x1) {
@@ -102,7 +105,7 @@ get_tag_status(uint32_t dev_type, void *meta)
 #endif
                 tag_status = 0;
             }
-            if (outer_l2_hdr & 0x10) {
+            if (outer_l2_hdr & outer_tag_match) {
 #ifdef KNET_CB_DEBUG
                 if (debug & 0x1) {
                     printk("  Outer Tagged\n");
@@ -122,7 +125,7 @@ get_tag_status(uint32_t dev_type, void *meta)
 #ifdef KNET_CB_DEBUG
                 if (debug & 0x1) {
                     printk("  Inner Tagged\n");
-                }
+        }
 #endif
                 tag_status = 1;
             }
@@ -188,7 +191,7 @@ dump_buffer(uint8_t * data, int size)
             buffer_ptr = buffer;
             printk(KERN_INFO "%04X  %s\n", addr, buffer);
             addr = i + 1;
-        }
+    }
     }
 }
 
@@ -205,9 +208,9 @@ static void
 show_mac(uint8_t *pkt)
 {
     if (debug & 0x1) {
-        printk("DMAC=%02X:%02X:%02X:%02X:%02X:%02X\n",
-               pkt[0], pkt[1], pkt[2], pkt[3], pkt[4], pkt[5]);
-    }
+    printk("DMAC=%02X:%02X:%02X:%02X:%02X:%02X\n",
+           pkt[0], pkt[1], pkt[2], pkt[3], pkt[4], pkt[5]);
+}
 }
 #endif
 
@@ -231,10 +234,10 @@ strip_tag_rx_cb(struct sk_buff *skb)
                cbd->dev_no, cbd->dev_id, cbd->type_str, rcpu_mode ? "yes" : "no");
         printk(KERN_INFO "                  pkt_len=%4d; pmd_len=%2d; SKB len: %4d\n",
                cbd->pkt_len, cbd->pmd_len, skb->len);
-        if (cbd->filt) {
+    if (cbd->filt) {
             printk(KERN_INFO "Filter user data: 0x%08x\n",
                    *(uint32_t *) cbd->filt->user_data);
-        }
+    }
         printk(KERN_INFO "Before SKB (%d bytes):\n", skb->len);
         dump_buffer(skb->data, skb->len);
         printk("rx_cb for dev %d: id 0x%x, %s\n", cbd->dev_no, cbd->dev_id, cbd->type_str);
@@ -256,7 +259,7 @@ strip_tag_rx_cb(struct sk_buff *skb)
 
     if ((!rcpu_mode) && (cbd->filt)) {
         if (FILTER_TAG_ORIGINAL == cbd->filt->user_data[0]) {
-            tag_status = get_tag_status(cbd->dev_id, (void *)cbd->pmd);
+            tag_status = get_tag_status(cbd->dev_id, cbd->filt->user_data[1],(void *)cbd->pmd);
             if (tag_status < 0) {
                 strip_stats.skipped++;
                 goto _strip_tag_rx_cb_exit;
@@ -266,6 +269,10 @@ strip_tag_rx_cb(struct sk_buff *skb)
                 strip_stats.stripped++;
                 strip_vlan_tag(skb);
             }
+        }
+        if (FILTER_TAG_STRIP == cbd->filt->user_data[0]) {
+            strip_stats.stripped++;
+            strip_vlan_tag(skb);
         }
     }
 _strip_tag_rx_cb_exit:
@@ -288,7 +295,7 @@ strip_tag_tx_cb(struct sk_buff *skb)
     struct ngknet_callback_desc *cbd = NGKNET_SKB_CB(skb);
 
     if (debug & 0x1) {
-        printk("tx_cb for dev %d: %s\n", cbd->dev_no, cbd->type_str);
+    printk("tx_cb for dev %d: %s\n", cbd->dev_no, cbd->type_str);
     }
     show_pmd(cbd->pmd, cbd->pmd_len);
     show_mac(cbd->pmd + cbd->pmd_len);

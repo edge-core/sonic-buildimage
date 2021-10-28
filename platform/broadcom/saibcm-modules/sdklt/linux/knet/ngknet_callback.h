@@ -4,7 +4,7 @@
  *
  */
 /*
- * $Copyright: Copyright 2018-2020 Broadcom. All rights reserved.
+ * $Copyright: Copyright 2018-2021 Broadcom. All rights reserved.
  * The term 'Broadcom' refers to Broadcom Inc. and/or its subsidiaries.
  * 
  * This program is free software; you can redistribute it and/or
@@ -53,12 +53,13 @@ struct ngknet_callback_desc {
 
     /*! Packet data length */
     int pkt_len;
-    
-    /*! Matched callback filter */
-    struct ngknet_filter_s *filt_cb;
 };
 
 #define NGKNET_SKB_CB(_skb) ((struct ngknet_callback_desc *)_skb->cb)
+
+/*! TX/RX callback init */
+typedef void
+(*ngknet_dev_init_cb_f)(const struct ngknet_dev *dev);
 
 /*! Handle Rx packet */
 typedef struct sk_buff *
@@ -67,6 +68,10 @@ typedef struct sk_buff *
 /*! Handle Tx packet */
 typedef struct sk_buff *
 (*ngknet_tx_cb_f)(struct sk_buff *skb);
+
+/*! Handle Filter callback */
+typedef struct sk_buff *
+(*ngknet_filter_cb_f)(struct sk_buff *skb, ngknet_filter_t **filt);
 
 /*! PTP Rx/Tx config set */
 typedef int
@@ -96,11 +101,17 @@ typedef int
  * \brief NGKNET callback control.
  */
 struct ngknet_callback_ctrl {
+    /*! Handle TX/RX callback initialization. */
+    ngknet_dev_init_cb_f dev_init_cb;
+
     /*! Handle Rx packet */
     ngknet_rx_cb_f rx_cb;
 
     /*! Handle Tx packet */
     ngknet_tx_cb_f tx_cb;
+
+    /*! Handle filter callback */
+    ngknet_filter_cb_f filter_cb;
 
     /*! PTP Rx config set */
     ngknet_ptp_config_set_cb_f ptp_rx_config_set_cb;
@@ -141,6 +152,36 @@ extern int
 ngknet_callback_control_get(struct ngknet_callback_ctrl **cbc);
 
 /*!
+ * \brief Register TX/RX callback device initialization callback function.
+ *
+ * The device initialization callback allows an external module to
+ * perform device-specific initialization in preparation for Tx and Rx
+ * packet processing.
+ *
+ * \param [in] dev_init_cb TX/RX callback device initialization callback
+ *        function.
+ *
+ * \retval SHR_E_NONE No errors.
+ */
+extern int
+ngknet_dev_init_cb_register(ngknet_dev_init_cb_f dev_init_cb);
+
+/*!
+ * \brief Unegister TX/RX callback device initialization callback function.
+ *
+ * The device initialization callback allows an external module to
+ * perform device-specific initialization in preparation for Tx and Rx
+ * packet processing.
+ *
+ * \param [in] dev_init_cb TX/RX callback device initialization callback
+ *        function.
+ *
+ * \retval SHR_E_NONE No errors.
+ */
+extern int
+ngknet_dev_init_cb_unregister(ngknet_dev_init_cb_f dev_init_cb);
+
+/*!
  * \brief Register Rx callback.
  *
  * \param [in] rx_cb Rx callback function.
@@ -179,6 +220,26 @@ ngknet_tx_cb_register(ngknet_tx_cb_f tx_cb);
  */
 extern int
 ngknet_tx_cb_unregister(ngknet_tx_cb_f tx_cb);
+
+/*!
+ * \brief Register filter callback.
+ *
+ * \param [in] filter_cb Filter callback function.
+ *
+ * \retval SHR_E_NONE No errors.
+ */
+extern int
+ngknet_filter_cb_register(ngknet_filter_cb_f filter_cb);
+
+/*!
+ * \brief Unregister filter callback.
+ *
+ * \param [in] filter_cb Filter callback function.
+ *
+ * \retval SHR_E_NONE No errors.
+ */
+extern int
+ngknet_filter_cb_unregister(ngknet_filter_cb_f filter_cb);
 
 /*!
  * \brief Register PTP Rx config set callback.

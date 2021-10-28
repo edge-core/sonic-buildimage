@@ -4,7 +4,7 @@
  *
  */
 /*
- * $Copyright: Copyright 2018-2020 Broadcom. All rights reserved.
+ * $Copyright: Copyright 2018-2021 Broadcom. All rights reserved.
  * The term 'Broadcom' refers to Broadcom Inc. and/or its subsidiaries.
  * 
  * This program is free software; you can redistribute it and/or
@@ -108,6 +108,24 @@ ngbde_kapi_dma_virt_to_bus(int kdev, void *vaddr)
 EXPORT_SYMBOL(ngbde_kapi_dma_virt_to_bus);
 /*! \endcond */
 
+void *
+ngbde_kapi_dma_alloc(size_t size)
+{
+    return ngbde_pgmem_alloc(size, GFP_KERNEL | GFP_DMA32);
+}
+/*! \cond */
+EXPORT_SYMBOL(ngbde_kapi_dma_alloc);
+/*! \endcond */
+
+int
+ngbde_kapi_dma_free(void *ptr)
+{
+    return ngbde_pgmem_free(ptr);
+}
+/*! \cond */
+EXPORT_SYMBOL(ngbde_kapi_dma_free);
+/*! \endcond */
+
 void
 ngbde_kapi_pio_write32(int kdev, uint32_t offs, uint32_t val)
 {
@@ -152,6 +170,98 @@ ngbde_kapi_pio_membase(int kdev)
 }
 /*! \cond */
 EXPORT_SYMBOL(ngbde_kapi_pio_membase);
+/*! \endcond */
+
+void
+ngbde_kapi_iio_write32(int kdev, uint32_t offs, uint32_t val)
+{
+    struct ngbde_dev_s *sd;
+
+    sd = ngbde_swdev_get(kdev);
+    if (sd) {
+        return ngbde_iio_write32(sd, offs, val);
+    }
+}
+/*! \cond */
+EXPORT_SYMBOL(ngbde_kapi_iio_write32);
+/*! \endcond */
+
+uint32_t
+ngbde_kapi_iio_read32(int kdev, uint32_t offs)
+{
+    struct ngbde_dev_s *sd;
+
+    sd = ngbde_swdev_get(kdev);
+    if (sd) {
+        return ngbde_iio_read32(sd, offs);
+    }
+
+    return (uint32_t)-1;
+}
+/*! \cond */
+EXPORT_SYMBOL(ngbde_kapi_iio_read32);
+/*! \endcond */
+
+void *
+ngbde_kapi_iio_membase(int kdev)
+{
+    struct ngbde_dev_s *sd;
+
+    sd = ngbde_swdev_get(kdev);
+    if (!sd) {
+        return NULL;
+    }
+
+    return sd->iio_mem;
+}
+/*! \cond */
+EXPORT_SYMBOL(ngbde_kapi_iio_membase);
+/*! \endcond */
+
+void
+ngbde_kapi_paxb_write32(int kdev, uint32_t offs, uint32_t val)
+{
+    struct ngbde_dev_s *sd;
+
+    sd = ngbde_swdev_get(kdev);
+    if (sd) {
+        return ngbde_paxb_write32(sd, offs, val);
+    }
+}
+/*! \cond */
+EXPORT_SYMBOL(ngbde_kapi_paxb_write32);
+/*! \endcond */
+
+uint32_t
+ngbde_kapi_paxb_read32(int kdev, uint32_t offs)
+{
+    struct ngbde_dev_s *sd;
+
+    sd = ngbde_swdev_get(kdev);
+    if (sd) {
+        return ngbde_paxb_read32(sd, offs);
+    }
+
+    return (uint32_t)-1;
+}
+/*! \cond */
+EXPORT_SYMBOL(ngbde_kapi_paxb_read32);
+/*! \endcond */
+
+void *
+ngbde_kapi_paxb_membase(int kdev)
+{
+    struct ngbde_dev_s *sd;
+
+    sd = ngbde_swdev_get(kdev);
+    if (!sd) {
+        return NULL;
+    }
+
+    return sd->paxb_mem;
+}
+/*! \cond */
+EXPORT_SYMBOL(ngbde_kapi_paxb_membase);
 /*! \endcond */
 
 int
@@ -206,6 +316,57 @@ EXPORT_SYMBOL(ngbde_kapi_intr_disconnect);
 /*! \endcond */
 
 int
+ngbde_kapi_intr2_connect(int kdev, unsigned int irq_num,
+                         int (*isr_func)(void *), void *isr_data)
+{
+    struct ngbde_dev_s *sd;
+    struct ngbde_intr_ctrl_s *ic;
+
+    sd = ngbde_swdev_get(kdev);
+    if (!sd) {
+        return -1;
+    }
+
+    if (irq_num >= NGBDE_NUM_IRQS_MAX) {
+        return -1;
+    }
+
+    ic = &sd->intr_ctrl[irq_num];
+    ic->isr2_func = isr_func;
+    ic->isr2_data = isr_data;
+
+    return 0;
+}
+/*! \cond */
+EXPORT_SYMBOL(ngbde_kapi_intr2_connect);
+/*! \endcond */
+
+int
+ngbde_kapi_intr2_disconnect(int kdev, unsigned int irq_num)
+{
+    struct ngbde_dev_s *sd;
+    struct ngbde_intr_ctrl_s *ic;
+
+    sd = ngbde_swdev_get(kdev);
+    if (!sd) {
+        return -1;
+    }
+
+    if (irq_num >= NGBDE_NUM_IRQS_MAX) {
+        return -1;
+    }
+
+    ic = &sd->intr_ctrl[irq_num];
+    ic->isr2_func = NULL;
+    ic->isr2_data = NULL;
+
+    return 0;
+}
+/*! \cond */
+EXPORT_SYMBOL(ngbde_kapi_intr2_disconnect);
+/*! \endcond */
+
+int
 ngbde_kapi_intr_mask_write(int kdev, unsigned int irq_num,
                            uint32_t status_reg, uint32_t mask_val)
 {
@@ -214,3 +375,40 @@ ngbde_kapi_intr_mask_write(int kdev, unsigned int irq_num,
 /*! \cond */
 EXPORT_SYMBOL(ngbde_kapi_intr_mask_write);
 /*! \endcond */
+
+int
+ngbde_kapi_knet_connect(int kdev, knet_func_f knet_func, void *knet_data)
+{
+    struct ngbde_dev_s *sd;
+
+    sd = ngbde_swdev_get(kdev);
+    if (!sd) {
+        return -1;
+    }
+    sd->knet_func = knet_func;
+    sd->knet_data = knet_data;
+
+    return 0;
+}
+/*! \cond */
+EXPORT_SYMBOL(ngbde_kapi_knet_connect);
+/*! \endcond */
+
+int
+ngbde_kapi_knet_disconnect(int kdev)
+{
+    struct ngbde_dev_s *sd;
+
+    sd = ngbde_swdev_get(kdev);
+    if (!sd) {
+        return -1;
+    }
+    sd->knet_func = NULL;
+    sd->knet_data = NULL;
+
+    return 0;
+}
+/*! \cond */
+EXPORT_SYMBOL(ngbde_kapi_knet_disconnect);
+/*! \endcond */
+

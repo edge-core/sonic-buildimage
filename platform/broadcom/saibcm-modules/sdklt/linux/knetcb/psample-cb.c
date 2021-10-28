@@ -302,7 +302,7 @@ psample_rx_cb(struct sk_buff *skb)
     cbd = NGKNET_SKB_CB(skb);
     netif = cbd->priv;
     filt_src = cbd->filt;
-    filt = cbd->filt_cb;
+    filt = netif->filt_cb;
 
     if (!cbd || !netif || !filt_src) {
         printk("%s: cbd(0x%p) or priv(0x%p) or filter src(0x%p) is NULL\n", 
@@ -429,8 +429,9 @@ psample_rx_cb(struct sk_buff *skb)
 PSAMPLE_FILTER_CB_PKT_HANDLED:
     /* if sample reason only, consume pkt. else pass through */
     rv = psample_meta_sample_reason(skb->data, cbd->pmd);
-    if (rv) {
+    if (PSAMPLE_PKT_HANDLED == rv) {
         g_psample_stats.pkts_f_handled++;
+        dev_kfree_skb_any(skb);
         return NULL;
     }
     g_psample_stats.pkts_f_pass_through++;
@@ -462,8 +463,12 @@ psample_netif_create_cb(struct net_device *dev)
 
     psample_netif->dev = dev;
     psample_netif->id = netif->id;
-    /* FIXME: port is not saved in ngknet_private, need to get from metadata?? */
-    //psample_netif->port = netif->port;
+    /*Application has encoded the port in netif user data 0 & 1 */
+    if (netif->type == NGKNET_NETIF_T_PORT)
+    {
+        psample_netif->port = netif->user_data[0];
+        psample_netif->port |= netif->user_data[1] << 8;
+    }
     psample_netif->vlan = netif->vlan;
     psample_netif->sample_rate = PSAMPLE_RATE_DFLT;
     psample_netif->sample_size = PSAMPLE_SIZE_DFLT;

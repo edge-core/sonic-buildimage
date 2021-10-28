@@ -4,7 +4,7 @@
  *
  */
 /*
- * $Copyright: Copyright 2018-2020 Broadcom. All rights reserved.
+ * $Copyright: Copyright 2018-2021 Broadcom. All rights reserved.
  * The term 'Broadcom' refers to Broadcom Inc. and/or its subsidiaries.
  * 
  * This program is free software; you can redistribute it and/or
@@ -25,13 +25,6 @@
 
 #include <shr/shr_error.h>
 #include <ngknet_linux.h>
-
-#ifndef TRUE
-#define TRUE                1
-#endif
-#ifndef FALSE
-#define FALSE               0
-#endif
 
 /*! Memorry barrier */
 #define MEMORY_BARRIER      smp_mb()

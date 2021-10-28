@@ -4,7 +4,7 @@
  *
  */
 /*
- * $Copyright: Copyright 2018-2020 Broadcom. All rights reserved.
+ * $Copyright: Copyright 2018-2021 Broadcom. All rights reserved.
  * The term 'Broadcom' refers to Broadcom Inc. and/or its subsidiaries.
  * 
  * This program is free software; you can redistribute it and/or
@@ -104,36 +104,6 @@ cmicx_pdma_intr_disable(struct pdma_hw *hw, int cmc, int chan, uint32_t mask)
 }
 
 /*!
- * Release Packet DMA credits to EP.
- */
-static int
-cmicx_pdma_credits_release(struct pdma_hw *hw)
-{
-    int credits;
-    uint32_t val;
-
-    /*
-     * Since only 6 bits of iproc_cmic_to_ep_credits[5:0] are being used,
-     * so we have to set the max credits value twice in order to release
-     * 64 credits to EP.
-     * Only do this once when HW is initialized.
-     */
-    hw->hdls.reg_rd32(hw, CMICX_EPINTF_RELEASE_CREDITS, &val);
-    if (!val) {
-        credits = 63;
-        hw->hdls.reg_wr32(hw, CMICX_EPINTF_MAX_CREDITS, (0x1 << 8) | credits);
-        hw->hdls.reg_wr32(hw, CMICX_EPINTF_RELEASE_CREDITS, 1);
-
-        hw->hdls.reg_wr32(hw, CMICX_EPINTF_RELEASE_CREDITS, 0);
-        credits = 1;
-        hw->hdls.reg_wr32(hw, CMICX_EPINTF_MAX_CREDITS, (0x1 << 8) | credits);
-        hw->hdls.reg_wr32(hw, CMICX_EPINTF_RELEASE_CREDITS, 1);
-    }
-
-    return SHR_E_NONE;
-}
-
-/*!
  * Initialize HW
  */
 static int
@@ -147,9 +117,6 @@ cmicx_pdma_hw_init(struct pdma_hw *hw)
         mode = DEV_MODE_VNET;
         hw->dev->mode = DEV_MODE_UNET;
     }
-
-    /* Release Packet DMA credits to EP. */
-    cmicx_pdma_credits_release(hw);
 
     hw->info.name = CMICX_DEV_NAME;
     hw->info.dev_id = hw->dev->dev_id;
@@ -240,12 +207,13 @@ cmicx_pdma_hw_config(struct pdma_hw *hw)
         hw->hdls.reg_wr32(hw, CMICX_PDMA_CTRL(grp, que), val);
     }
 
+    hw->hdls.reg_rd32(hw, CMICX_TOP_CONFIG, &val);
     if (ip_if_hdr_endian == 1) {
-        hw->hdls.reg_rd32(hw, CMICX_TOP_CONFIG, &val);
         val |= 0x80;
-        hw->hdls.reg_wr32(hw, CMICX_TOP_CONFIG, val);
+    } else {
+        val &= ~0x80;
     }
-
+    hw->hdls.reg_wr32(hw, CMICX_TOP_CONFIG, val);
     return SHR_E_NONE;
 }
 

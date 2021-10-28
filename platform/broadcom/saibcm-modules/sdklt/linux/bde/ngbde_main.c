@@ -4,7 +4,7 @@
  *
  */
 /*
- * $Copyright: Copyright 2018-2020 Broadcom. All rights reserved.
+ * $Copyright: Copyright 2018-2021 Broadcom. All rights reserved.
  * The term 'Broadcom' refers to Broadcom Inc. and/or its subsidiaries.
  * 
  * This program is free software; you can redistribute it and/or
@@ -240,7 +240,7 @@ static struct file_operations fops = {
  * \return Nothing.
  */
 void __exit
-cleanup_module(void)
+ngbde_exit_module(void)
 {
     ngbde_intr_cleanup();
     ngbde_iio_cleanup();
@@ -260,7 +260,7 @@ cleanup_module(void)
  * \return Nothing.
  */
 int __init
-init_module(void)
+ngbde_init_module(void)
 {
     int rv;
 
@@ -295,3 +295,6 @@ init_module(void)
     printk(KERN_INFO "Broadcom NGBDE loaded successfully\n");
     return 0;
 }
+
+module_exit(ngbde_exit_module);
+module_init(ngbde_init_module);

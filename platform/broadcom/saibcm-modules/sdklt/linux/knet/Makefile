@@ -2,7 +2,7 @@
 #
 # Linux KNET module.
 #
-# $Copyright: Copyright 2018-2020 Broadcom. All rights reserved.
+# $Copyright: Copyright 2018-2021 Broadcom. All rights reserved.
 # The term 'Broadcom' refers to Broadcom Inc. and/or its subsidiaries.
 # 
 # This program is free software; you can redistribute it and/or
@@ -75,9 +75,12 @@ mklinks:
 	-ln -s $(SRCIDIR)/bcmcnet_rxtx.h $(DSTIDIR) $(R)
 	-ln -s $(SRCIDIR)/bcmcnet_cmicd.h $(DSTIDIR) $(R)
 	-ln -s $(SRCIDIR)/bcmcnet_cmicx.h $(DSTIDIR) $(R)
+	-ln -s $(SRCIDIR)/bcmcnet_cmicr.h $(DSTIDIR) $(R)
+	-ln -s $(SRCIDIR)/bcmcnet_cmicr_acc.h $(DSTIDIR) $(R)
 	-ln -s $(CNETDIR)/chip/*/*attach.c $(KNETDIR) $(R)
 	-ln -s $(CNETDIR)/hmi/cmicd/*.c $(KNETDIR) $(R)
 	-ln -s $(CNETDIR)/hmi/cmicx/*.c $(KNETDIR) $(R)
+	-ln -s $(CNETDIR)/hmi/cmicr/*.c $(KNETDIR) $(R)
 	-ln -s $(CNETDIR)/main/bcmcnet_core.c $(KNETDIR) $(R)
 	-ln -s $(CNETDIR)/main/bcmcnet_dev.c $(KNETDIR) $(R)
 	-ln -s $(CNETDIR)/main/bcmcnet_rxtx.c $(KNETDIR) $(R)

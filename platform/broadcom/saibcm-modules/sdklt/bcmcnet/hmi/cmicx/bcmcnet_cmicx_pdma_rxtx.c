@@ -38,7 +38,7 @@
  *
  */
 /*
- * $Copyright: Copyright 2018-2020 Broadcom. All rights reserved.
+ * $Copyright: Copyright 2018-2021 Broadcom. All rights reserved.
  * The term 'Broadcom' refers to Broadcom Inc. and/or its subsidiaries.
  * 
  * This program is free software; you can redistribute it and/or
@@ -394,17 +394,26 @@ cmicx_pdma_rx_ring_refill(struct pdma_hw *hw, struct pdma_rx_queue *rxq)
     int unused = cmicx_pdma_rx_ring_unused(rxq);
     dma_addr_t addr;
     uint32_t halt;
+    int retry;
     int rv;
 
     for (halt = rxq->halt; halt < rxq->halt + unused; halt++) {
         pbuf = &rxq->pbuf[halt % rxq->nb_desc];
         /* Allocate a new pktbuf */
         if (!bm->rx_buf_avail(dev, rxq, pbuf)) {
-            rv = bm->rx_buf_alloc(dev, rxq, pbuf);
-            if (SHR_FAILURE(rv)) {
-                rxq->halt = halt % rxq->nb_desc;
+            retry = 5000000;
+            do {
+                rv = bm->rx_buf_alloc(dev, rxq, pbuf);
+                if (SHR_SUCCESS(rv)) {
+                    break;
+                }
                 rxq->stats.nomems++;
-                goto fail;
+                sal_usleep(1);
+            } while (retry--);
+            if (retry <= 0) {
+                CNET_PR("Fatal error: Rx buffer has not been allocated for 5 seconds\n");
+                rxq->halt = halt % rxq->nb_desc;
+                return rv;
             }
         }
         /* Setup the new descriptor */
@@ -425,11 +434,6 @@ cmicx_pdma_rx_ring_refill(struct pdma_hw *hw, struct pdma_rx_queue *rxq)
     sal_spinlock_unlock(rxq->lock);
 
     return SHR_E_NONE;
-
-fail:
-    CNET_PR("RX: Failed to allocate mem\n");
-
-    return SHR_E_MEMORY;
 }
 
 /*!
@@ -453,6 +457,7 @@ cmicx_pdma_rx_ring_clean(struct pdma_hw *hw, struct pdma_rx_queue *rxq, int budg
     dma_addr_t addr;
     uint32_t stat, curr;
     int len, done = 0;
+    int retry;
     int rv;
 
     curr = rxq->curr;
@@ -478,7 +483,7 @@ cmicx_pdma_rx_ring_clean(struct pdma_hw *hw, struct pdma_rx_queue *rxq, int budg
         pkh = bm->rx_buf_get(dev, rxq, pbuf, len);
         if (!pkh) {
             rxq->stats.nomems++;
-            goto fail;
+            return SHR_E_MEMORY;
         }
 
         /* Setup packet header */
@@ -520,10 +525,18 @@ cmicx_pdma_rx_ring_clean(struct pdma_hw *hw, struct pdma_rx_queue *rxq, int budg
         /* Setup the new descriptor */
         if (!(rxq->state & PDMA_RX_BATCH_REFILL)) {
             if (!bm->rx_buf_avail(dev, rxq, pbuf)) {
-                rv = bm->rx_buf_alloc(dev, rxq, pbuf);
-                if (SHR_FAILURE(rv)) {
+                retry = 5000000;
+                do {
+                    rv = bm->rx_buf_alloc(dev, rxq, pbuf);
+                    if (SHR_SUCCESS(rv)) {
+                        break;
+                    }
                     rxq->stats.nomems++;
-                    goto fail;
+                    sal_usleep(1);
+                } while (retry--);
+                if (retry <= 0) {
+                    CNET_PR("Fatal error: Rx buffer has not been allocated for 5 seconds\n");
+                    return done;
                 }
             }
             bm->rx_buf_dma(dev, rxq, pbuf, &addr);
@@ -588,11 +601,6 @@ cmicx_pdma_rx_ring_clean(struct pdma_hw *hw, struct pdma_rx_queue *rxq, int budg
             dev->xnet_wake(dev);
         }
     }
-
-    return done;
-
-fail:
-    CNET_PR("RX: Failed to allocate mem\n");
 
     return done;
 }
@@ -699,7 +707,9 @@ cmicx_pdma_tx_ring_clean(struct pdma_hw *hw, struct pdma_tx_queue *txq, int budg
 
     /* Resume Tx if any */
     sal_spinlock_lock(txq->lock);
-    if (cmicx_pdma_tx_ring_unused(txq) && txq->state & PDMA_TX_QUEUE_XOFF) {
+    if (txq->state & PDMA_TX_QUEUE_XOFF &&
+        txq->state & PDMA_TX_QUEUE_ACTIVE &&
+        cmicx_pdma_tx_ring_unused(txq)) {
         txq->state &= ~PDMA_TX_QUEUE_XOFF;
         sal_spinlock_unlock(txq->lock);
         if (dev->tx_resume) {
@@ -839,14 +849,14 @@ cmicx_pdma_pkt_xmit(struct pdma_hw *hw, struct pdma_tx_queue *txq, void *buf)
     int retry = 5000000;
     int rv;
 
-    if (!(txq->state & PDMA_TX_QUEUE_ACTIVE)) {
-        return SHR_E_UNAVAIL;
-    }
-
     if (dev->tx_suspend) {
         sal_spinlock_lock(txq->mutex);
     } else {
-        sal_sem_take(txq->sem, SAL_SEM_FOREVER);
+        rv = sal_sem_take(txq->sem, BCMCNET_TX_RSRC_WAIT_USEC);
+        if (rv == -1) {
+            CNET_PR("Timeout waiting for Tx resources\n");
+            return SHR_E_TIMEOUT;
+        }
     }
 
     /* Check Tx resource */
@@ -955,7 +965,8 @@ cmicx_pdma_pkt_xmit(struct pdma_hw *hw, struct pdma_tx_queue *txq, void *buf)
             /* In polling mode, must wait till the ring is available */
             do {
                 cmicx_pdma_tx_ring_clean(hw, txq, txq->free_thresh);
-                if (!(txq->state & PDMA_TX_QUEUE_XOFF)) {
+                if (!(txq->state & PDMA_TX_QUEUE_XOFF) ||
+                    !(txq->state & PDMA_TX_QUEUE_ACTIVE)) {
                     break;
                 }
                 sal_usleep(1);

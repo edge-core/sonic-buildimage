@@ -4,7 +4,7 @@
  *
  */
 /*
- * $Copyright: Copyright 2018-2020 Broadcom. All rights reserved.
+ * $Copyright: Copyright 2018-2021 Broadcom. All rights reserved.
  * The term 'Broadcom' refers to Broadcom Inc. and/or its subsidiaries.
  * 
  * This program is free software; you can redistribute it and/or
@@ -23,10 +23,15 @@
 #ifndef BCMCNET_RXTX_H
 #define BCMCNET_RXTX_H
 
-/*! Default descriptor number in each ring */
+/*! Default timeout value (us) to wait for Tx resource. */
+#ifndef BCMCNET_TX_RSRC_WAIT_USEC
+#define BCMCNET_TX_RSRC_WAIT_USEC 1000000
+#endif
+
+/*! Default descriptor number in each ring. */
 #define NUM_RING_DESC       64
 
-/*! Maximum number of packets to be handled in one poll call */
+/*! Maximum number of packets to be handled in one poll call. */
 #define NUM_RXTX_BUDGET     64
 
 /*!

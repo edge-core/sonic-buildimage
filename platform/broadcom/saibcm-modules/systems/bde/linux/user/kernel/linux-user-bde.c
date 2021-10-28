@@ -385,7 +385,7 @@ static int
 _cmicx_edk_interrupt_check(bde_ctrl_t *ctrl, int d)
 {
     bde_inst_resource_t *res;
-    uint32 stat, mask = 0, bitmap = 0;
+    uint32 stat, mask = 0, bitmap = 0, reg;
     int idx;
 
     res = &_bde_inst_resource[ctrl->inst];
@@ -403,14 +403,36 @@ _cmicx_edk_interrupt_check(bde_ctrl_t *ctrl, int d)
             }
             bitmap = (bitmap >> 1);
         }
-        if (mask)
+        if (mask) {
+            /* Explicitly reading status to clear the interrupt status on read
+             * as it is clear that it is EDK's interrupt */
+            IPROC_READ(d, ctrl->intr_regs.intc_intr_raw_status_base +
+                (res->edk_irqs.sw_intr_intrc_offset * 4), stat);
+            if (stat == res->edk_irqs.sw_intr_intrc_mask) {
+                IPROC_READ(d, ctrl->intr_regs.intc_intr_status_base +
+                    (res->edk_irqs.sw_intr_intrc_offset * 4), stat);
+            }
+            /* Disable SWI and return */
+            reg = ctrl->intr_regs.intc_intr_enable_base +
+                (res->edk_irqs.sw_intr_intrc_offset * 4);
+            IPROC_READ(d, reg, stat);
+            stat &= ~res->edk_irqs.sw_intr_intrc_mask;
+            IPROC_WRITE(d, reg, stat);
             return 1;
+        }
     }
 
-    /* EDK uses timer interrupt as watchdog to indicate the the firmware has crashed */
+    /* EDK uses timer interrupt as watchdog to indicate the
+     * firmware has crashed */
     IPROC_READ(d, ctrl->intr_regs.intc_intr_raw_status_base +
         (res->edk_irqs.timer_intrc_offset * 4), stat);
     if (stat & res->edk_irqs.timer_intrc_mask) {
+        /* Disable WD timer interrupt and return */
+        reg = ctrl->intr_regs.intc_intr_enable_base +
+            (res->edk_irqs.timer_intrc_offset * 4);
+        IPROC_READ(d, reg, stat);
+        stat &= ~res->edk_irqs.timer_intrc_mask;
+        IPROC_WRITE(d, reg, stat);
         return 1;
     }
     return 0;
@@ -422,8 +444,19 @@ _cmicx_interrupt_prepare(bde_ctrl_t *ctrl)
 {
     int d, ind, ret = 0;
     uint32 stat, iena, mask, fmask;
+    uint32 intrs = 0;
 
     d = (((uint8 *)ctrl - (uint8 *)_devices) / sizeof (bde_ctrl_t));
+
+#ifdef BDE_EDK_SUPPORT
+    /* Check for interrupts meant for EDK and return without wasting time */
+    if (ctrl->edk_irq_enabled) {
+        ret = _cmicx_edk_interrupt_check(ctrl, d);
+        if (ret) {
+            return ret;
+        }
+    }
+#endif
 
     if (ctrl->dev_type & BDE_PCI_DEV_TYPE) {
         IPROC_READ(d, ctrl->intr_regs.intc_intr_clear_mode_0, stat);
@@ -444,7 +477,8 @@ _cmicx_interrupt_prepare(bde_ctrl_t *ctrl)
             IPROC_READ(d, ctrl->intr_regs.intc_intr_status_base + 4 * INTC_PDMA_INTR_REG_IND, stat);
             IPROC_READ(d, ctrl->intr_regs.intc_intr_enable_base + 4 * INTC_PDMA_INTR_REG_IND, iena);
         }
-        if (stat & iena) {
+        intrs = stat & iena;
+        if (intrs && (intrs == (intrs & fmask))) {
             if (ctrl->dev_type & BDE_AXI_DEV_TYPE) {
                 IHOST_WRITE_INTR(d, ihost_intr_enable_base + INTC_PDMA_INTR_REG_IND +
                     HX5_IHOST_IRQ_MASK_OFFSET, ~0);
@@ -488,13 +522,9 @@ _cmicx_interrupt_prepare(bde_ctrl_t *ctrl)
      * So as to avoid getting new interrupts until the user level driver
      * enumerates the interrupts to be serviced
      */
-#ifdef BDE_EDK_SUPPORT
-    if (ctrl->edk_irq_enabled)
-        ret = _cmicx_edk_interrupt_check(ctrl, d);
-#endif
 
     for (ind = 0; ind < INTC_INTR_REG_NUM; ind++) {
-        if (fmask && ind == INTC_PDMA_INTR_REG_IND) {
+        if (fmask && (intrs == (intrs & fmask)) && ind == INTC_PDMA_INTR_REG_IND) {
             continue;
         }
         if (ctrl->dev_type & BDE_AXI_DEV_TYPE) {
@@ -1005,13 +1035,13 @@ _devices_init(int d)
         case BCM88474H_DEVICE_ID:
         case BCM88476_DEVICE_ID:
         case BCM88477_DEVICE_ID:
+        case BCM88479_DEVICE_ID:
         case BCM88270_DEVICE_ID:
         case BCM88272_DEVICE_ID:
         case BCM88273_DEVICE_ID:
         case BCM88274_DEVICE_ID:
         case BCM88278_DEVICE_ID:
         case BCM88279_DEVICE_ID:
-        case BCM8206_DEVICE_ID:
         case BCM88950_DEVICE_ID:
         case BCM88953_DEVICE_ID:
         case BCM88954_DEVICE_ID:
@@ -1092,6 +1122,7 @@ _devices_init(int d)
           case J2C_2ND_DEVICE_ID:
           case Q2A_DEVICE_ID:
           case Q2U_DEVICE_ID:
+          case Q2N_DEVICE_ID:
           case J2P_DEVICE_ID:
 #endif
 #ifdef BCM_DNXF_SUPPORT
@@ -1303,13 +1334,16 @@ _dma_resource_get(unsigned inst_id, phys_addr_t *cpu_pbase, phys_addr_t *dma_pba
     unsigned int dma_size = 0, dma_offset = 0;
     bde_inst_resource_t *res;
 
+    spin_lock(&bde_resource_lock);
     if (inst_id >= user_bde->num_devices(BDE_ALL_DEVICES)) {
         gprintk("ERROR: requested DMA resources for an instance number out of range: %u\n", inst_id);
+        spin_unlock(&bde_resource_lock);
         return -1;
     }
     res = &_bde_inst_resource[inst_id];
     dma_size = res->dma_size;
     dma_offset = res->dma_offset;
+    spin_unlock(&bde_resource_lock);
 
     *cpu_pbase = _dma_pool.cpu_pbase + dma_offset * ONE_MB;
     *dma_pbase = _dma_pool.dma_pbase + dma_offset * ONE_MB;
@@ -1339,7 +1373,7 @@ _instance_validate(unsigned int inst_id, unsigned int dmasize, linux_bde_device_
     }
 
     if (res->is_active == 0) {
-        /* FIXME SDK-225233 check that the devices are not used by another active instance */
+        /* FIXME SDK-250746 check that the devices are not used by another active instance */
         return LUBDE_SUCCESS;
     }
 
@@ -1432,7 +1466,6 @@ _instance_attach(unsigned int inst_id, unsigned int dma_size, linux_bde_device_b
     res->is_active = 1;
     res->dma_offset = dma_offset;
     res->dma_size = dma_size;
-#ifdef SAI_FIXUP    /* SDK-240875 */
     /* skip instance 0, WQ for instance 0 has been initialized in user_bde init, see _init() */
     if (inst_id != 0) {
         init_waitqueue_head(&res->intr_wq);
@@ -1440,8 +1473,7 @@ _instance_attach(unsigned int inst_id, unsigned int dma_size, linux_bde_device_b
         atomic_set(&res->intr, 0);
         atomic_set(&res->edk_intr, 0);
     }
-#endif
-    memcpy(*lkbde_get_inst_devs(inst_id), inst_devices, sizeof(linux_bde_device_bitmap_t)); /* SDK-225233 */
+    memcpy(*lkbde_get_inst_devs(inst_id), inst_devices, sizeof(linux_bde_device_bitmap_t));
 
     /* store the resource/instance index in _bde_inst_resource for every device in the instance */
     for (i = 0; i < user_bde->num_devices(BDE_ALL_DEVICES); i++) {
@@ -1596,6 +1628,18 @@ _ioctl(unsigned int cmd, unsigned long arg)
     case LUBDE_ENABLE_INTERRUPTS:
         if (!VALID_DEVICE(io.dev)) {
             return -EINVAL;
+        }
+        /*
+         * Disable interrupt in case already enabled
+         * This is to handle the use case where userspace
+         * application gets killed abruptly.
+         */
+        if (_devices[io.dev].enabled) {
+            if (debug >= 1) {
+                gprintk("Interrupts already enabled, disable to cleanup\n");
+            }
+            user_bde->interrupt_disconnect(io.dev);
+            _devices[io.dev].enabled = 0;
         }
         if (_devices[io.dev].dev_type & BDE_SWITCH_DEV_TYPE) {
             if (_devices[io.dev].isr && !_devices[io.dev].enabled) {
@@ -1757,7 +1801,12 @@ _ioctl(unsigned int cmd, unsigned long arg)
     case LUBDE_SEM_OP:
         return -EINVAL;
     case LUBDE_WRITE_IRQ_MASK:
-        io.rc = lkbde_irq_mask_set(io.dev, io.d0, io.d1, 0);
+        /* CMICx device */
+        if (_devices[io.dev].isr == (isr_f)_cmicx_interrupt) {
+            io.rc = lkbde_irq_mask_set(io.dev + LKBDE_IPROC_REG, io.d0, io.d1, 0);
+        } else {
+            io.rc = lkbde_irq_mask_set(io.dev, io.d0, io.d1, 0);
+        }
         break;
     case LUBDE_SPI_READ_REG:
         if (user_bde->spi_read(io.dev, io.d0, io.dx.buf, io.d1) == -1) {

@@ -1,3 +1,9 @@
+opennsl (6.0.0.10) unstable; urgency=medium
+
+  * Update to Broadcom SAI 6.0.0.10
+
+ -- Vineet Mittal <vineetmittal@microsoft.com>  Fri, 21 Oct 2021 18:36:38 +0000
+
 opennsl (5.0.0.4) unstable; urgency=medium
 
   * Update to Broadcom SAI 5.0.0.4

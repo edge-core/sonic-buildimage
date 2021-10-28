@@ -4,7 +4,7 @@
  *
  */
 /*
- * $Copyright: Copyright 2018-2020 Broadcom. All rights reserved.
+ * $Copyright: Copyright 2018-2021 Broadcom. All rights reserved.
  * The term 'Broadcom' refers to Broadcom Inc. and/or its subsidiaries.
  * 
  * This program is free software; you can redistribute it and/or
@@ -109,7 +109,7 @@ bcmcnet_rx_buf_dma(struct pdma_dev *dev, struct pdma_rx_queue *rxq,
 /*!
  * Check Rx buffer
  */
-static int
+static bool
 bcmcnet_rx_buf_avail(struct pdma_dev *dev, struct pdma_rx_queue *rxq,
                      struct pdma_rx_buf *pbuf)
 {
@@ -117,7 +117,7 @@ bcmcnet_rx_buf_avail(struct pdma_dev *dev, struct pdma_rx_queue *rxq,
         pbuf->skb = NULL;
     }
 
-    return pbuf->dma != 0;
+    return (pbuf->dma != 0);
 }
 
 /*!
@@ -184,6 +184,10 @@ bcmcnet_rx_buf_put(struct pdma_dev *dev, struct pdma_rx_queue *rxq,
         dev_kfree_skb_any(pbuf->skb);
     } else {
         skb = pbuf->skb;
+        if (pbuf->pkb != (struct pkt_buf *)skb->data) {
+            dev_kfree_skb_any(skb);
+            return SHR_E_NONE;
+        }
         dma = dma_map_single(kdev->dev, &pbuf->pkb->data + pbuf->adj,
                              rxq->buf_size, DMA_FROM_DEVICE);
         if (unlikely(dma_mapping_error(kdev->dev, dma))) {

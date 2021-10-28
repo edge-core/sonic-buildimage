@@ -4,7 +4,7 @@
  *
  */
 /*
- * $Copyright: Copyright 2018-2020 Broadcom. All rights reserved.
+ * $Copyright: Copyright 2018-2021 Broadcom. All rights reserved.
  * The term 'Broadcom' refers to Broadcom Inc. and/or its subsidiaries.
  * 
  * This program is free software; you can redistribute it and/or
@@ -97,11 +97,6 @@ bcn_tx_ring_free(struct pdma_tx_queue *txq)
     struct dev_ctrl *ctrl = txq->ctrl;
     struct pdma_buf_mngr *bm = (struct pdma_buf_mngr *)ctrl->buf_mngr;
 
-    if (txq->sem) {
-        sal_sem_destroy(txq->sem);
-        txq->sem = NULL;
-    }
-
     if (txq->mutex) {
         sal_spinlock_destroy(txq->mutex);
         txq->mutex = NULL;
@@ -155,11 +150,6 @@ bcn_tx_ring_alloc(struct pdma_tx_queue *txq)
 
     txq->mutex = sal_spinlock_create("bcmcnetTxMutexLock");
     if (!txq->mutex) {
-        goto cleanup;
-    }
-
-    txq->sem = sal_sem_create("bcmcnetTxMutexSem", SAL_SEM_BINARY, 0);
-    if (!txq->sem) {
         goto cleanup;
     }
 
@@ -546,8 +536,8 @@ bcmcnet_pdma_tx_queue_xmit(struct pdma_dev *dev, int queue, void *buf)
     struct pdma_tx_queue *txq = NULL;
 
     txq = (struct pdma_tx_queue *)ctrl->tx_queue[queue];
-    if (!txq || !(txq->state & PDMA_TX_QUEUE_ACTIVE)) {
-        return SHR_E_UNAVAIL;
+    if (!txq || (!(txq->state & PDMA_TX_QUEUE_ACTIVE) && !dev->suspended)) {
+        return SHR_E_DISABLED;
     }
 
     return hw->dops.pkt_xmit(hw, txq, buf);

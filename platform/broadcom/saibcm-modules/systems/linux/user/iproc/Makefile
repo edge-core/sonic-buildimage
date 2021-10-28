@@ -55,7 +55,7 @@ endif
 
 export SDK
 
-override kernel_version=4_14
+override kernel_version=5_4
 platform=iproc
 
 IPROC_BUILD=1

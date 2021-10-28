@@ -9,7 +9,7 @@
  *
  */
 /*
- * $Copyright: Copyright 2018-2020 Broadcom. All rights reserved.
+ * $Copyright: Copyright 2018-2021 Broadcom. All rights reserved.
  * The term 'Broadcom' refers to Broadcom Inc. and/or its subsidiaries.
  * 
  * This program is free software; you can redistribute it and/or
@@ -225,6 +225,21 @@ struct ngbde_ioc_intr_ctrl_s {
     __u32 cmd;
 };
 
+/*!
+ * \name Interrupt register access flags.
+ * \anchor NGBDE_DEV_IRQ_REG_F_xxx
+ */
+
+/*! \{ */
+
+/*! IRQ register is of type "write 1 to clear". */
+#define NGBDE_DEV_IRQ_REG_F_W1TC        (1 << 0)
+
+/*! IRQ status register is a bitwise AND of mask and raw status. */
+#define NGBDE_DEV_IRQ_REG_F_MASKED      (1 << 1)
+
+/*! \} */
+
 /*! Add interrupt register information. */
 struct ngbde_ioc_irq_reg_add_s {
 
@@ -240,7 +255,7 @@ struct ngbde_ioc_irq_reg_add_s {
     /*! Interrupt mask for interrupts handled by the kernel. */
     __u32 kmask;
 
-    /*! Reserved for future use. */
+    /*! Flags for special handling (\ref NGBDE_DEV_IRQ_REG_F_xxx). */
     __u32 flags;
 };
 

@@ -1,6 +1,6 @@
-/*! \file ngbde_pio.c
+/*! \file ngbde_paxb.c
  *
- * API for managing and accessing memory-mapped I/O for switch
+ * API for managing and accessing memory-mapped I/O for PCI-AXI bridge
  * registers.
  *
  */
@@ -24,45 +24,42 @@
 #include <ngbde.h>
 
 void *
-ngbde_pio_map(void *devh, phys_addr_t addr, phys_addr_t size)
+ngbde_paxb_map(void *devh, phys_addr_t addr, phys_addr_t size)
 {
     struct ngbde_dev_s *sd = (struct ngbde_dev_s *)devh;
 
-    if (sd->pio_mem) {
-        if (addr == sd->pio_win.addr && size == sd->pio_win.size) {
+    if (sd->paxb_mem) {
+        if (addr == sd->paxb_win.addr && size == sd->paxb_win.size) {
             /* Already mapped */
-            return sd->pio_mem;
+            return sd->paxb_mem;
         }
-        ngbde_pio_unmap(devh);
+        iounmap(sd->paxb_mem);
     }
 
-    sd->pio_mem = ioremap_nocache(addr, size);
+    sd->paxb_mem = ioremap_nocache(addr, size);
 
-    if (sd->pio_mem) {
+    if (sd->paxb_mem) {
         /* Save mapped resources */
-        sd->pio_win.addr = addr;
-        sd->pio_win.size = size;
-    } else {
-        printk(KERN_WARNING "%s: Unable to map address 0x%08lu\n",
-               MOD_NAME, (unsigned long)addr);
+        sd->paxb_win.addr = addr;
+        sd->paxb_win.size = size;
     }
 
-    return sd->pio_mem;
+    return sd->paxb_mem;
 }
 
 void
-ngbde_pio_unmap(void *devh)
+ngbde_paxb_unmap(void *devh)
 {
     struct ngbde_dev_s *sd = (struct ngbde_dev_s *)devh;
 
-    if (sd->pio_mem) {
-        iounmap(sd->pio_mem);
-        sd->pio_mem = NULL;
+    if (sd->paxb_mem) {
+        iounmap(sd->paxb_mem);
+        sd->paxb_mem = NULL;
     }
 }
 
 void
-ngbde_pio_cleanup(void)
+ngbde_paxb_cleanup(void)
 {
     struct ngbde_dev_s *swdev, *sd;
     unsigned int num_swdev, idx;
@@ -71,27 +68,27 @@ ngbde_pio_cleanup(void)
 
     for (idx = 0; idx < num_swdev; idx++) {
         sd = ngbde_swdev_get(idx);
-        ngbde_pio_unmap(sd);
+        ngbde_paxb_unmap(sd);
     }
 }
 
 void
-ngbde_pio_write32(void *devh, uint32_t offs, uint32_t val)
+ngbde_paxb_write32(void *devh, uint32_t offs, uint32_t val)
 {
     struct ngbde_dev_s *sd = (struct ngbde_dev_s *)devh;
 
-    if (sd->pio_mem) {
-        NGBDE_IOWRITE32(val, sd->pio_mem + offs);
+    if (sd->paxb_mem) {
+        NGBDE_IOWRITE32(val, sd->paxb_mem + offs);
     }
 }
 
 uint32_t
-ngbde_pio_read32(void *devh, uint32_t offs)
+ngbde_paxb_read32(void *devh, uint32_t offs)
 {
     struct ngbde_dev_s *sd = (struct ngbde_dev_s *)devh;
 
-    if (sd->pio_mem) {
-        return NGBDE_IOREAD32(sd->pio_mem + offs);
+    if (sd->paxb_mem) {
+        return NGBDE_IOREAD32(sd->paxb_mem + offs);
     }
     return 0;
 }
