@@ -68,7 +68,6 @@ override_dh_auto_build:
 		elif [ $$mod = "n3248pxe" ]; then \
 			cp $(COMMON_DIR)/ipmihelper.py $(MOD_SRC_DIR)/$${mod}/sonic_platform/ipmihelper.py; \
 			cd $(MOD_SRC_DIR)/$${mod}; \
-			python2.7 setup.py bdist_wheel -d $(MOD_SRC_DIR)/$${mod}/modules; \
 			python3 setup.py bdist_wheel -d $(MOD_SRC_DIR)/$${mod}/modules; \
 			cd $(MOD_SRC_DIR); \
 		fi; \

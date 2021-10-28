@@ -1052,7 +1052,7 @@ static int __init cpld_probe(struct platform_device *pdev)
         return -ENODEV;
     }
     for (i = 0; i < CPLD_DEVICE_NUM; i++) {
-        pdata[i].client = i2c_new_dummy(parent, pdata[i].reg_addr);
+        pdata[i].client = i2c_new_dummy_device(parent, pdata[i].reg_addr);
         if (!pdata[i].client) {
             printk(KERN_WARNING "Fail to create dummy i2c client for addr %d\n", pdata[i].reg_addr);
             goto error;
@@ -1135,7 +1135,7 @@ static int __init dell_n3248pxe_platform_init(void)
     }
 
     sys_i2c_adap = i2c_get_adapter(sys_i2c_bus);
-    mux_i2c_cli = i2c_new_device(sys_i2c_adap, sys_board_mux);
+    mux_i2c_cli = i2c_new_client_device(sys_i2c_adap, sys_board_mux);
     if (!mux_i2c_cli) 
         return PTR_ERR_OR_ZERO(mux_i2c_cli);
 
