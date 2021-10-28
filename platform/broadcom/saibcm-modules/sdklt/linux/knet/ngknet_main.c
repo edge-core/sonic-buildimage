@@ -66,6 +66,7 @@
 #include <linux/uaccess.h>
 #include <linux/module.h>
 #include <linux/netdevice.h>
+#include <linux/ethtool.h>
 #include <linux/etherdevice.h>
 #include <linux/skbuff.h>
 #include <linux/if.h>
