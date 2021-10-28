@@ -56,14 +56,14 @@ switch_board_qsfp_mux() {
 switch_board_qsfp() {
         case $1 in
         "new_device")
-                        for ((i=4;i<=35;i++));
+                        for ((i=10;i<=41;i++));
                         do
                             echo optoe3 0x50 > /sys/bus/i2c/devices/i2c-$i/$1
                         done
                         ;;
  
         "delete_device")
-                        for ((i=4;i<=35;i++));
+                        for ((i=10;i<=41;i++));
                         do
                             echo 0x50 > /sys/bus/i2c/devices/i2c-$i/$1
                         done
@@ -112,7 +112,7 @@ switch_board_modsel() {
 
 #This enables the led control for CPU and default states 
 switch_board_led_default() {
-	/usr/sbin/i2cset -y 37 0x0d 0x62 0xd0
+	/usr/sbin/i2cset -y 5 0x0d 0x62 0xd0
 }
 
 # Readout firmware version of the system and
@@ -135,15 +135,15 @@ platform_firmware_versions() {
 	echo "BMC: $r" >> $FIRMWARE_VERSION_FILE
 
 	#BaseBoard CPLD 0x0d on i2c bus 5 ( physical FPGA I2C-5)
-	ver=`/usr/sbin/i2cget -y 37 0x0d 0x0`
+	ver=`/usr/sbin/i2cget -y 5 0x0d 0x0`
 	echo "Baseboard CPLD: $((ver))" >> $FIRMWARE_VERSION_FILE
 
 	#Switch CPLD 1 0x30 on i2c bus 4 ( physical FPGA I2C-4)
-	ver=`/usr/sbin/i2cget -y 36 0x30 0x0`
+	ver=`/usr/sbin/i2cget -y 4 0x30 0x0`
 	echo "Switch CPLD 1: $((ver))" >> $FIRMWARE_VERSION_FILE
 
 	#Switch CPLD 1 0x30 on i2c bus 4 ( physical FPGA I2C-4)
-	ver=`/usr/sbin/i2cget -y 36 0x31 0x0`
+	ver=`/usr/sbin/i2cget -y 4 0x31 0x0`
 	echo "Switch CPLD 2: $((ver))" >> $FIRMWARE_VERSION_FILE
 }
 
@@ -151,16 +151,10 @@ install_python_api_package() {
     device="/usr/share/sonic/device"
     platform=$(/usr/local/bin/sonic-cfggen -H -v DEVICE_METADATA.localhost.platform)
 
-    rv=$(pip install $device/$platform/sonic_platform-1.0-py2-none-any.whl)
     rv=$(pip3 install $device/$platform/sonic_platform-1.0-py3-none-any.whl)
 }
 
 remove_python_api_package() {
-    rv=$(pip show sonic-platform > /dev/null 2>/dev/null)
-    if [ $? -eq 0 ]; then
-        rv=$(pip uninstall -y sonic-platform > /dev/null 2>/dev/null)
-    fi
-
     rv=$(pip3 show sonic-platform > /dev/null 2>/dev/null)
     if [ $? -eq 0 ]; then
         rv=$(pip3 uninstall -y sonic-platform > /dev/null 2>/dev/null)
@@ -176,7 +170,7 @@ get_reboot_cause() {
     if [[ ! -e $REBOOT_REASON_FILE ]]; then
         echo "0" > $REBOOT_REASON_FILE
     else
-        /usr/sbin/i2cget -y 37 0x0d 0x06  > $REBOOT_REASON_FILE
+        /usr/sbin/i2cget -y 5 0x0d 0x06  > $REBOOT_REASON_FILE
     fi
 }
 
@@ -185,7 +179,7 @@ init_devnum
 
 if [ "$1" == "init" ]; then
     modprobe i2c-dev
-    modprobe i2c-mux-pca954x force_deselect_on_exit=1
+    modprobe cls-i2c-mux-pca954x
     modprobe ipmi_devintf
     modprobe ipmi_si kipmid_max_busy_us=1000
     modprobe cls-i2c-ocore
@@ -201,14 +195,20 @@ if [ "$1" == "init" ]; then
     platform_firmware_versions
     get_reboot_cause
     echo 1000 > /sys/module/ipmi_si/parameters/kipmid_max_busy_us
+    # Set the PCA9548 mux behavior
+    echo -2 > /sys/bus/i2c/drivers/cls_pca954x/3-0070/idle_state
+    echo -2 > /sys/bus/i2c/drivers/cls_pca954x/3-0071/idle_state
+    echo -2 > /sys/bus/i2c/drivers/cls_pca954x/3-0072/idle_state
+    echo -2 > /sys/bus/i2c/drivers/cls_pca954x/3-0073/idle_state
 
 elif [ "$1" == "deinit" ]; then
     sys_eeprom "delete_device"
     switch_board_qsfp "delete_device"
     switch_board_sfp "delete_device"
-    modprobe -r i2c-mux-pca954x
+    modprobe -r cls-i2c-mux-pca954x
     modprobe -r i2c-dev
     modprobe -r ipmi_devintf
+    modprobe -r acpi_ipmi
     modprobe -r ipmi_si
     modprobe -r cls-i2c-ocore
     modprobe -r cls-switchboard 

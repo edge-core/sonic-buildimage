@@ -140,17 +140,10 @@ init_switch_port_led() {
 install_python_api_package() {
     device="/usr/share/sonic/device"
     platform=$(/usr/local/bin/sonic-cfggen -H -v DEVICE_METADATA.localhost.platform)
-
-    rv=$(pip install $device/$platform/sonic_platform-1.0-py2-none-any.whl)
     rv=$(pip3 install $device/$platform/sonic_platform-1.0-py3-none-any.whl)
 }
 
 remove_python_api_package() {
-    rv=$(pip show sonic-platform > /dev/null 2>/dev/null)
-    if [ $? -eq 0 ]; then
-        rv=$(pip uninstall -y sonic-platform > /dev/null 2>/dev/null)
-    fi
-
     rv=$(pip3 show sonic-platform > /dev/null 2>/dev/null)
     if [ $? -eq 0 ]; then
         rv=$(pip3 uninstall -y sonic-platform > /dev/null 2>/dev/null)
@@ -218,7 +211,7 @@ init_devnum
 
 if [ "$1" == "init" ]; then
     modprobe i2c-dev
-    modprobe i2c-mux-pca954x force_deselect_on_exit=1
+    modprobe i2c-mux-pca954x
     modprobe ipmi_devintf
     modprobe ipmi_si
     modprobe i2c_ocores
@@ -233,7 +226,15 @@ if [ "$1" == "init" ]; then
     install_python_api_package
     /usr/bin/port_irq_enable.py
     platform_firmware_versions
-
+    echo -2 > /sys/bus/i2c/drivers/pca954x/603-0074/idle_state
+    echo -2 > /sys/bus/i2c/drivers/pca954x/604-0074/idle_state
+    echo -2 > /sys/bus/i2c/drivers/pca954x/605-0074/idle_state
+    echo -2 > /sys/bus/i2c/drivers/pca954x/606-0074/idle_state
+    echo -2 > /sys/bus/i2c/drivers/pca954x/607-0074/idle_state
+    echo -2 > /sys/bus/i2c/drivers/pca954x/608-0074/idle_state
+    echo -2 > /sys/bus/i2c/drivers/pca954x/609-0074/idle_state
+    echo -2 > /sys/bus/i2c/drivers/pca954x/610-0074/idle_state
+    echo -2 > /sys/bus/i2c/drivers/pca954x/611-0074/idle_state
 
 elif [ "$1" == "deinit" ]; then
     sys_eeprom "delete_device"
@@ -242,6 +243,11 @@ elif [ "$1" == "deinit" ]; then
     switch_board_sfp "delete_device"
     modprobe -r i2c-mux-pca954x
     modprobe -r i2c-dev
+    modprobe -r acpi_ipmi
+    modprobe -r ipmi_devintf
+    modprobe -r ipmi_si
+    modprobe -r i2c_ocores
+    modprobe -r dell_z9264f_fpga_ocores
     remove_python_api_package
 else
      echo "z9264f_platform : Invalid option !"

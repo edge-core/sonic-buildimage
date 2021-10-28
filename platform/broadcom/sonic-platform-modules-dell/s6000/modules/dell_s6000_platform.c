@@ -10,6 +10,8 @@
 #include <linux/i2c/sff-8436.h>
 #include <linux/delay.h>
 #include <linux/gpio.h>
+#include <linux/gpio/machine.h>
+#include <linux/gpio_keys.h>
 #include <linux/nvram.h>
 
 #define S6000_MUX_BASE_NR   10
@@ -47,17 +49,23 @@ static struct i2c_mux_gpio_platform_data s6000_mux_platform_data = {
     .base_nr            = S6000_MUX_BASE_NR,
     .values             = s6000_mux_values,
     .n_values           = ARRAY_SIZE(s6000_mux_values),
-#if 0
-    .gpios              = s6000_mux_gpios,
-    .n_gpios            = ARRAY_SIZE(s6000_mux_gpios),
-#endif
     .idle               = 0,
+};
+
+static struct gpiod_lookup_table dell_gpio_desc = {
+	.dev_id = "i2c-mux-gpio",
+	.table = {
+                GPIO_LOOKUP_IDX("sch_gpio.3168", 1, "mux", 0, GPIO_ACTIVE_HIGH ),
+                GPIO_LOOKUP_IDX("sch_gpio.3168", 2, "mux", 1, GPIO_ACTIVE_HIGH ),
+		{ },
+	},
 };
 
 static struct platform_device s6000_mux = {
     .name               = "i2c-mux-gpio",
     .id                 = 0,
     .dev                = {
+                .init_name = "i2c-mux-gpio",
                 .platform_data   = &s6000_mux_platform_data,
                 .release          = device_release
     },
@@ -1295,7 +1303,6 @@ static int __init dell_s6000_platform_init(void)
     bool gpio_allocated = false;
 
     printk("dell_s6000_platform module initialization\n");
-
     ret = gpio_request(GPIO_I2C_MUX_PIN, "gpio10");
     if(ret < 0) {
         printk(KERN_WARNING "Failed to request gpio 10");
@@ -1315,6 +1322,7 @@ static int __init dell_s6000_platform_init(void)
         goto error_gpio_init;
     }
 
+    gpiod_add_lookup_table(&dell_gpio_desc);
     ret = platform_driver_register(&cpld_driver);
     if (ret) {
         printk(KERN_WARNING "Fail to register cpld driver\n");
@@ -1382,7 +1390,7 @@ error_gpio_init:
 static void __exit dell_s6000_platform_exit(void)
 {
     int i;
-
+    gpiod_remove_lookup_table(&dell_gpio_desc);
     for (i = 0; i < MUX_CHANNEL_NUM; i++)
         platform_device_unregister(&s6000_qsfp_mux[i]);
     platform_device_unregister(&s6000_cpld);

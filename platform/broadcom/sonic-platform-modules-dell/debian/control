@@ -7,22 +7,22 @@ Standards-Version: 3.9.3
 
 Package: platform-modules-s6000
 Architecture: amd64
-Depends: linux-image-4.19.0-12-2-amd64-unsigned
+Depends: linux-image-5.10.0-8-2-amd64-unsigned
 Description: kernel modules for platform devices such as fan, led, sfp
 
 Package: platform-modules-z9100
 Architecture: amd64
-Depends: linux-image-4.19.0-12-2-amd64-unsigned
+Depends: linux-image-5.10.0-8-2-amd64-unsigned
 Description: kernel modules for platform devices such as fan, led, sfp
 
 Package: platform-modules-s6100
 Architecture: amd64
-Depends: linux-image-4.19.0-12-2-amd64-unsigned
+Depends: linux-image-5.10.0-8-2-amd64-unsigned
 Description: kernel modules for platform devices such as fan, led, sfp
 
 Package: platform-modules-z9264f
 Architecture: amd64
-Depends: linux-image-4.19.0-12-2-amd64-unsigned
+Depends: linux-image-5.10.0-8-2-amd64-unsigned
 Description: kernel modules for platform devices such as fan, led, sfp
 
 Package: platform-modules-s5212f
@@ -37,12 +37,12 @@ Description: kernel modules for platform devices such as fan, led, sfp
 
 Package: platform-modules-s5232f
 Architecture: amd64
-Depends: linux-image-4.19.0-12-2-amd64-unsigned
+Depends: linux-image-5.10.0-8-2-amd64-unsigned
 Description: kernel modules for platform devices such as fan, led, sfp
 
 Package: platform-modules-s5248f
 Architecture: amd64
-Depends: linux-image-4.19.0-12-2-amd64-unsigned
+Depends: linux-image-5.10.0-8-2-amd64-unsigned
 Description: kernel modules for platform devices such as fan, led, sfp
 
 Package: platform-modules-n3248te
@@ -52,7 +52,7 @@ Description: kernel modules for platform devices such as fan, led, sfp
 
 Package: platform-modules-z9332f
 Architecture: amd64
-Depends: linux-image-4.19.0-12-2-amd64-unsigned
+Depends: linux-image-5.10.0-8-2-amd64-unsigned
 Description: kernel modules for platform devices such as fan, led, sfp
 
 Package: platform-modules-n3248pxe

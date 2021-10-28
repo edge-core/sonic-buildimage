@@ -194,9 +194,10 @@ elif [ "$1" == "deinit" ]; then
 
     modprobe -r i2c-mux-pca954x
     modprobe -r i2c-dev
-    remove_python_api_package
+    modprobe -r acpi_ipmi
     modprobe -r ipmi_devintf
     modprobe -r ipmi_si
+    remove_python_api_package
 else
      echo "s5224f_platform : Invalid option !"
 fi

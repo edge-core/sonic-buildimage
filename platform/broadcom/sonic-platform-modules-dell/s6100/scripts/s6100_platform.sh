@@ -5,17 +5,10 @@
 install_python_api_package() {
     device="/usr/share/sonic/device"
     platform=$(/usr/local/bin/sonic-cfggen -H -v DEVICE_METADATA.localhost.platform)
-
-    rv=$(pip install $device/$platform/sonic_platform-1.0-py2-none-any.whl)
     rv=$(pip3 install $device/$platform/sonic_platform-1.0-py3-none-any.whl)
 }
 
 remove_python_api_package() {
-    rv=$(pip show sonic-platform > /dev/null 2>/dev/null)
-    if [ $? -eq 0 ]; then
-        rv=$(pip uninstall -y sonic-platform > /dev/null 2>/dev/null)
-    fi
-
     rv=$(pip3 show sonic-platform > /dev/null 2>/dev/null)
     if [ $? -eq 0 ]; then
         rv=$(pip3 uninstall -y sonic-platform > /dev/null 2>/dev/null)
@@ -27,7 +20,7 @@ if [[ "$1" == "init" ]]; then
 
     pericom="/sys/bus/pci/devices/0000:08:00.0"
     modprobe i2c-dev
-    modprobe i2c-mux-pca954x force_deselect_on_exit=1
+    modprobe i2c-mux-pca954x
     modprobe dell_ich
     modprobe dell_s6100_iom_cpld
     modprobe dell_s6100_lpc
@@ -52,6 +45,17 @@ if [[ "$1" == "init" ]]; then
     else
         systemctl start s6100-i2c-enumerate.service
     fi
+
+    echo -2 > /sys/bus/i2c/drivers/pca954x/0-0070/idle_state
+    echo -2 > /sys/bus/i2c/drivers/pca954x/4-0071/idle_state
+    echo -2 > /sys/bus/i2c/drivers/pca954x/6-0071/idle_state
+    echo -2 > /sys/bus/i2c/drivers/pca954x/6-0072/idle_state
+    echo -2 > /sys/bus/i2c/drivers/pca954x/7-0071/idle_state
+    echo -2 > /sys/bus/i2c/drivers/pca954x/7-0072/idle_state
+    echo -2 > /sys/bus/i2c/drivers/pca954x/8-0071/idle_state
+    echo -2 > /sys/bus/i2c/drivers/pca954x/8-0072/idle_state
+    echo -2 > /sys/bus/i2c/drivers/pca954x/9-0071/idle_state
+    echo -2 > /sys/bus/i2c/drivers/pca954x/9-0072/idle_state
 
     install_python_api_package
     monit reload
