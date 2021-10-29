@@ -14,6 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
+# Set KVERSION correctly depending on build environment
+ifeq ($(BLDENV), buster)
+KVERSION = 5.10.0-0.bpo.9-amd64
+endif
+
 include $(PLATFORM_PATH)/sdk.mk
 include $(PLATFORM_PATH)/fw.mk
 include $(PLATFORM_PATH)/mft.mk
