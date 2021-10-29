@@ -26,8 +26,7 @@ setup(
         'dbus-python',
         'Jinja2>=2.10',
         'PyGObject',
-        'sonic-py-common',
-        'systemd-python',
+        'sonic-py-common'
     ],
     setup_requires = [
         'pytest-runner',
@@ -37,7 +36,8 @@ setup(
         'parameterized',
         'pytest',
         'pyfakefs',
-        'sonic-py-common'
+        'sonic-py-common',
+        'deepdiff'
     ],
     classifiers = [
         'Development Status :: 3 - Alpha',
