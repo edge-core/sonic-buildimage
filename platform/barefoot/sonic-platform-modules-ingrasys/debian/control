@@ -2,7 +2,7 @@ Source: platform-driver
 Section: unknown
 Priority: optional
 Maintainer: Wade He <wade.ce.he@ingrasys.com>
-Build-Depends: debhelper (>= 9), dh-systemd
+Build-Depends: debhelper (>= 9)
 Standards-Version: 1.0.0
 
 Package: sonic-platform-ingrasys-s9180-32x

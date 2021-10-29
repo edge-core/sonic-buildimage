@@ -1316,8 +1316,11 @@ static pci_ers_result_t bf_pci_mmio_enabled(struct pci_dev *dev) {
   struct bf_pci_dev *bfdev = pci_get_drvdata(dev);
 
   printk(KERN_ERR "BF pci_mmio_enabled invoked after pci error\n");
-  pci_cleanup_aer_uncorrect_error_status(dev);
-
+  #if KERNEL_VERSION(5, 8, 0) <= LINUX_VERSION_CODE
+  	pci_aer_clear_nonfatal_status(dev);
+  #else
+  	pci_cleanup_aer_uncorrect_error_status(dev);
+  #endif
   if (bfdev) {
     /* send a signal to the user space program of the error */
     int minor = bfdev->info.minor;

@@ -25,7 +25,7 @@
 *******************************************************************************/
 #include <linux/types.h>
 #include "bf_fpga_i2c_priv_porting.h"
-#include <bf_fpga_ioctl.h>
+#include "../bf_fpga_ioctl.h"
 #include "bf_fpga_i2c_priv.h"
 #include "bf_fpga_i2c.h"
 #include "bf_fpga_i2c_reg.h"
