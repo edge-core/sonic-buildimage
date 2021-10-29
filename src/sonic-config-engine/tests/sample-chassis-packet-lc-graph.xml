@@ -105,7 +105,7 @@
       <MplsInterfaces/>
       <MplsTeInterfaces/>
       <RsvpInterfaces/>
-      <Hostname>str2-88</Hostname>
+      <Hostname>str2-8808-lc2-1</Hostname>
       <PortChannelInterfaces>
       </PortChannelInterfaces>
       <IPInterfaces>
@@ -114,7 +114,18 @@
           <AttachTo>Eth1/1/47</AttachTo>
           <Prefix>27.1.1.1/24</Prefix>
         </IPInterface>
-      </IPInterfaces>
+        </IPInterfaces>
+       <VlanInterfaces>
+       </VlanInterfaces>
+      <IPNextHops>
+	   <IPNextHop>
+	    <ElementType>IPNextHop</ElementType>
+	    <Name i:nil="true"/>
+	    <AttachTo>8.0.0.1/32</AttachTo>
+	    <Address>192.168.1.2,192.168.2.2</Address>
+	    <Type>StaticRoute</Type>
+        </IPNextHop>
+      </IPNextHops>
       <DataAcls/>
       <AclInterfaces>
       </AclInterfaces>

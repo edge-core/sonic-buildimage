@@ -19,7 +19,7 @@
   exit-address-family
   address-family ipv6
 {% if CONFIG_DB__DEVICE_METADATA['localhost']['switch_type'] == 'chassis-packet' %}
-    neighbor INTERNAL_PEER_V4 update-source {{ get_ipv6_loopback_address(CONFIG_DB__LOOPBACK_INTERFACE, "Loopback4096") | ip }}
+    neighbor INTERNAL_PEER_V6 update-source {{ get_ipv6_loopback_address(CONFIG_DB__LOOPBACK_INTERFACE, "Loopback4096") | ip }}
 {% elif CONFIG_DB__DEVICE_METADATA['localhost']['sub_role'] == 'BackEnd' %}
     neighbor INTERNAL_PEER_V6 route-reflector-client
 {% endif %}

@@ -279,7 +279,7 @@ def parse_png(png, hname, dpg_ecmp_content = None):
 
                     mux_cable_ports[intf_name] = "true"
 
-        if (len(dpg_ecmp_content)):
+        if dpg_ecmp_content and (len(dpg_ecmp_content)):
             for version, content in dpg_ecmp_content.items():  # version is ipv4 or ipv6
                 fine_grained_content = formulate_fine_grained_ecmp(version, content, port_device_map, port_alias_map)  # port_alias_map
                 FG_NHG_MEMBER.update(fine_grained_content['FG_NHG_MEMBER'])
