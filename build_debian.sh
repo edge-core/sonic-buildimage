@@ -269,6 +269,7 @@ fi
 ## Note: parted is needed for partprobe in install.sh
 ## Note: ca-certificates is needed for easy_install
 ## Note: don't install python-apt by pip, older than Debian repo one
+## Note: fdisk and gpg are needed by fwutil
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install      \
     file                    \
     ifmetric                \
@@ -321,6 +322,8 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     libprotobuf23           \
     libgrpc++               \
     haveged                 \
+    fdisk                   \
+    gpg                     \
     jq
 
 if [[ $CONFIGURED_ARCH == amd64 ]]; then
