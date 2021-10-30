@@ -54,8 +54,7 @@ setup(
                          './yang-models/sonic-portchannel.yang',
                          './yang-models/sonic-types.yang',
                          './yang-models/sonic-versions.yang',
-                         './yang-models/sonic-vlan.yang',
-                         './yang-models/sonic_yang_tree']),
+                         './yang-models/sonic-vlan.yang']),
     ],
     zip_safe=False,
 )
