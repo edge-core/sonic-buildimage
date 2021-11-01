@@ -177,7 +177,8 @@ endef
 # call:
 #     generate_manifest some_docker.gz, version_suffix
 define generate_manifest
-    $(eval export version=$($(1).gz_VERSION)$(2))
+    $(eval export version=$($(1).gz_VERSION))
+    $(eval export version_suffix=$(2))
     $(eval export name=$($(1).gz_CONTAINER_NAME))
     $(eval export package_name=$($(1).gz_PACKAGE_NAME))
     $(eval export asic_service=$(shell [ -f files/build_templates/per_namespace/$(name).service.j2 ] && echo true || echo false))

@@ -820,7 +820,7 @@ $(addprefix $(TARGET_PATH)/, $(DOCKER_DBG_IMAGES)) : $(TARGET_PATH)/%-$(DBG_IMAG
 		$(eval export $(subst -,_,$(notdir $($*.gz_PATH)))_dbg_pkgs=$(shell printf "$(subst $(SPACE),\n,$(call expand,$($*.gz_DBG_APT_PACKAGES),RDEPENDS))\n" | awk '!a[$$0]++'))
 		./build_debug_docker_j2.sh $* $(subst -,_,$(notdir $($*.gz_PATH)))_dbg_debs $(subst -,_,$(notdir $($*.gz_PATH)))_image_dbgs > $($*.gz_PATH)/Dockerfile-dbg.j2
 		j2 $($*.gz_PATH)/Dockerfile-dbg.j2 > $($*.gz_PATH)/Dockerfile-dbg
-		$(call generate_manifest,$*,-dbg)
+		$(call generate_manifest,$*,dbg)
 		# Prepare docker build info
 		PACKAGE_URL_PREFIX=$(PACKAGE_URL_PREFIX) \
 		SONIC_ENFORCE_VERSIONS=$(SONIC_ENFORCE_VERSIONS) \
