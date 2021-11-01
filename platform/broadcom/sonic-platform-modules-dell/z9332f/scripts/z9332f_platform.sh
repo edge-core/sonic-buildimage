@@ -205,14 +205,15 @@ elif [ "$1" == "deinit" ]; then
     sys_eeprom "delete_device"
     switch_board_qsfp "delete_device"
     switch_board_sfp "delete_device"
-    modprobe -r cls-i2c-mux-pca954x
-    modprobe -r i2c-dev
-    modprobe -r ipmi_devintf
+
+    modprobe -r mc24lc64t
+    modprobe -r cls-switchboard
+    modprobe -r cls-i2c-ocore
     modprobe -r acpi_ipmi
     modprobe -r ipmi_si
-    modprobe -r cls-i2c-ocore
-    modprobe -r cls-switchboard 
-    modprobe -r mc24lc64t 
+    modprobe -r ipmi_devintf
+    modprobe -r cls-i2c-mux-pca954x
+    modprobe -r i2c-dev
     remove_python_api_package
 else
      echo "z9332f_platform : Invalid option !"
