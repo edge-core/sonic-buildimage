@@ -1,8 +1,35 @@
 import functools
 import subprocess
+from sonic_py_common.logger import Logger
+
+logger = Logger()
 
 # flags to indicate whether this process is running in docker or host
 _is_host = None
+
+
+def read_from_file(file_path, target_type, default='', raise_exception=False, log_func=logger.log_error):
+    """
+    Read content from file and convert to target type
+    :param file_path: File path
+    :param target_type: target type
+    :param default: Default return value if any exception occur
+    :param raise_exception: Raise exception to caller if True else just return default value
+    :param log_func: function to log the error
+    :return: String content of the file
+    """
+    try:
+        with open(file_path, 'r') as f:
+            value = target_type(f.read().strip())
+    except (ValueError, IOError) as e:
+        if log_func:
+            log_func('Failed to read from file {} - {}'.format(file_path, repr(e)))
+        if not raise_exception:
+            value = default
+        else:
+            raise e
+
+    return value
 
 
 def read_str_from_file(file_path, default='', raise_exception=False):
@@ -45,6 +72,28 @@ def read_int_from_file(file_path, default=0, raise_exception=False):
     return value
 
 
+def _key_value_converter(content):
+    ret = {}
+    for line in content.splitlines():
+        k,v = line.split(':')
+        ret[k.strip()] = v.strip()
+    return ret
+
+
+def read_key_value_file(file_path, default={}, raise_exception=False, log_func=logger.log_error):
+    """Read file content and parse the content to a dict. The file content should like:
+       key1:value1
+       key2:value2
+
+    Args:
+        file_path (str): file path
+        default (dict, optional): default return value. Defaults to {}.
+        raise_exception (bool, optional): If exception should be raised or hiden. Defaults to False.
+        log_func (optional): logger function.. Defaults to logger.log_error.
+    """
+    return read_from_file(file_path=file_path, target_type=_key_value_converter, default=default, raise_exception=raise_exception, log_func=log_func)
+
+
 def write_file(file_path, content, raise_exception=False):
     """
     Write the given value to a file
@@ -72,13 +121,13 @@ def is_host():
     global _is_host
     if _is_host is not None:
         return _is_host
-        
+
     _is_host = False
     try:
-        proc = subprocess.Popen("docker --version 2>/dev/null", 
-                                stdout=subprocess.PIPE, 
-                                shell=True, 
-                                stderr=subprocess.STDOUT, 
+        proc = subprocess.Popen("docker --version 2>/dev/null",
+                                stdout=subprocess.PIPE,
+                                shell=True,
+                                stderr=subprocess.STDOUT,
                                 universal_newlines=True)
         stdout = proc.communicate()[0]
         proc.wait()

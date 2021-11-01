@@ -13,6 +13,7 @@ try:
     from sonic_platform.fan import Fan
     from .led import PsuLed, SharedLed, ComponentFaultyIndicator
     from .device_data import DEVICE_DATA
+    from .vpd_parser import VpdParser
 except ImportError as e:
     raise ImportError (str(e) + "- required module not found")
 
@@ -31,7 +32,7 @@ SN_VPD_FIELD = "SN_VPD_FIELD"
 PN_VPD_FIELD = "PN_VPD_FIELD"
 REV_VPD_FIELD = "REV_VPD_FIELD"
 
-# in most platforms the file psuX_curr, psuX_volt and psuX_power contain current, voltage and power data respectively. 
+# in most platforms the file psuX_curr, psuX_volt and psuX_power contain current, voltage and power data respectively.
 # but there are exceptions which will be handled by the following dictionary
 
 platform_dict_psu = {'x86_64-mlnx_msn3420-r0': 1, 'x86_64-mlnx_msn3700-r0': 1, 'x86_64-mlnx_msn3700c-r0': 1,
@@ -88,30 +89,10 @@ class Psu(PsuBase):
         self.psu_data = DEVICE_DATA[platform]['psus']
         psu_vpd = filemap[PSU_VPD]
 
-        self.model = "N/A"
-        self.serial = "N/A"
-        self.rev = "N/A"
-
         if psu_vpd is not None:
-            self.psu_vpd = os.path.join(self.psu_path, psu_vpd.format(self.index))
-            self.vpd_data = self._read_vpd_file(self.psu_vpd)
-
-            if PN_VPD_FIELD in self.vpd_data:
-                self.model = self.vpd_data[PN_VPD_FIELD]
-            else:
-                logger.log_error("Fail to read PSU{} model number: No key {} in VPD {}".format(self.index, PN_VPD_FIELD, self.psu_vpd))
-
-            if SN_VPD_FIELD in self.vpd_data:
-                self.serial = self.vpd_data[SN_VPD_FIELD]
-            else:
-                logger.log_error("Fail to read PSU{} serial number: No key {} in VPD {}".format(self.index, SN_VPD_FIELD, self.psu_vpd))
-
-            if REV_VPD_FIELD in self.vpd_data:
-                self.rev = self.vpd_data[REV_VPD_FIELD]
-            else:
-                logger.log_error("Fail to read PSU{} serial number: No key {} in VPD {}".format(self.index, REV_VPD_FIELD, self.psu_vpd))
-
-        else: 
+            self.vpd_parser = VpdParser(os.path.join(self.psu_path, psu_vpd.format(self.index)))
+        else:
+            self.vpd_parser = None
             logger.log_info("Not reading PSU{} VPD data: Platform is fixed".format(self.index))
 
         if not self.psu_data['hot_swappable']:
@@ -162,24 +143,6 @@ class Psu(PsuBase):
         return self._name
 
 
-    def _read_vpd_file(self, filename):
-        """
-        Read a vpd file parsed from eeprom with keys and values.
-        Returns a dictionary.
-        """
-        result = {}
-        try:
-            if not os.path.exists(filename):
-                return result
-            with open(filename, 'r') as fileobj:
-                for line in fileobj.readlines():
-                    key, val = line.split(":")
-                    result[key.strip()] = val.strip()
-        except Exception as e:
-            logger.log_error("Fail to read VPD file {} due to {}".format(filename, repr(e)))
-        return result
-
-
     def _read_generic_file(self, filename, len):
         """
         Read a generic file, returns the contents of the file
@@ -202,7 +165,7 @@ class Psu(PsuBase):
         Returns:
             string: Model/part number of device
         """
-        return self.model
+        return 'N/A' if self.vpd_parser is None else self.vpd_parser.get_model()
 
 
     def get_serial(self):
@@ -212,7 +175,7 @@ class Psu(PsuBase):
         Returns:
             string: Serial number of device
         """
-        return self.serial
+        return 'N/A' if self.vpd_parser is None else self.vpd_parser.get_serial()
 
 
     def get_revision(self):
@@ -222,7 +185,7 @@ class Psu(PsuBase):
         Returns:
             string: Revision value of device
         """
-        return self.rev
+        return 'N/A' if self.vpd_parser is None else self.vpd_parser.get_revision()
 
 
     def get_powergood_status(self):
@@ -256,8 +219,8 @@ class Psu(PsuBase):
         Retrieves current PSU voltage output
 
         Returns:
-            A float number, the output voltage in volts, 
-            e.g. 12.1 
+            A float number, the output voltage in volts,
+            e.g. 12.1
         """
         if self.psu_voltage is not None and self.get_powergood_status():
             voltage = self._read_generic_file(self.psu_voltage, 0)
@@ -327,7 +290,7 @@ class Psu(PsuBase):
         Gets the power available status
 
         Returns:
-            True if power is present and power on. 
+            True if power is present and power on.
             False and "absence of PSU" if power is not present.
             False and "absence of power" if power is present but not power on.
         """
@@ -366,7 +329,7 @@ class Psu(PsuBase):
 
         Returns:
             A float number of current temperature in Celsius up to nearest thousandth
-            of one degree Celsius, e.g. 30.125 
+            of one degree Celsius, e.g. 30.125
         """
         if self.psu_temp is not None and self.get_powergood_status():
             try:
@@ -374,7 +337,7 @@ class Psu(PsuBase):
                 return float(temp) / 1000
             except Exception as e:
                 logger.log_info("Fail to get temperature for PSU {} due to - {}".format(self._name, repr(e)))
-        
+
         return None
 
     def get_temperature_high_threshold(self):
@@ -391,7 +354,7 @@ class Psu(PsuBase):
                 return float(temp_threshold) / 1000
             except Exception as e:
                 logger.log_info("Fail to get temperature threshold for PSU {} due to - {}".format(self._name, repr(e)))
-        
+
         return None
 
     def get_voltage_high_threshold(self):
@@ -399,8 +362,8 @@ class Psu(PsuBase):
         Retrieves the high threshold PSU voltage output
 
         Returns:
-            A float number, the high threshold output voltage in volts, 
-            e.g. 12.1 
+            A float number, the high threshold output voltage in volts,
+            e.g. 12.1
         """
         # hw-management doesn't expose those sysfs for now
         raise NotImplementedError
@@ -410,8 +373,8 @@ class Psu(PsuBase):
         Retrieves the low threshold PSU voltage output
 
         Returns:
-            A float number, the low threshold output voltage in volts, 
-            e.g. 12.1 
+            A float number, the low threshold output voltage in volts,
+            e.g. 12.1
         """
         # hw-management doesn't expose those sysfs for now
         raise NotImplementedError
