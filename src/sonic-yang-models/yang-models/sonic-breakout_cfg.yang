@@ -26,6 +26,7 @@ module sonic-breakout_cfg {
 
                 key "port";
 
+
                 /*
                  * This is leaf instead of a leafref towards port, because this
                  * table will contains Parent ports and their current breakout-mode,
@@ -40,14 +41,9 @@ module sonic-breakout_cfg {
                 }
 
                 leaf brkout_mode {
+                    description "break_mode for port, it is verifed using platform.json";
                     type string {
                         length 1..64;
-                        /*
-                         * Below allowed patterns are based on most used Platforms,
-                         * Add any other breakout-mode to allow Dynamic Port
-                         * Breakout to that breakout-mode.
-                         */
-                        pattern '1x100G\[40G\]|2x50G|4x25G\[10G\]|2x25G\(2\)\+1x50G\(2\)|1x50G\(2\)\+2x25G\(2\)|1x400G|2x200G|4x100G|8x50G|1x200G\[100G,50G,40G,25G,10G,1G\]|2x100G\[50G,40G,25G,10G,1G\]|4x50G\[40G,25G,10G,1G\]|1x25G\[10G\]|1x100G\[50G,40G,25G,10G\]|2x50G\[40G,25G,10G\]|4x25G\[10G\]|1x25G\[10G,1G\]|1x100G\[50G,40G,25G,10G,1G\]|2x50G\[40G,25G,10G,1G\]|4x25G\[10G,1G\]|1x400G\[200G,100G,50G,40G,25G,10G,1G\]|2x200G\[100G,50G,40G,25G,10G,1G\]|4x100G\[50G,40G,25G,10G,1G\]';
                     }
                 }
             }
