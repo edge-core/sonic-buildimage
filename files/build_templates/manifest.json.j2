@@ -1,3 +1,11 @@
+{%- if version_suffix %}
+{#- append build metadata suffix to the version #}
+{%- if '+' in version %}
+{%- set version = version + '.' + version_suffix %}
+{%- else %}
+{%- set version = version + '+' + version_suffix %}
+{%- endif %}
+{%- endif %}
 {
     "version": "1.0.0",
     "package": {
