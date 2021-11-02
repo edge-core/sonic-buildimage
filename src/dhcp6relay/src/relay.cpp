@@ -682,16 +682,16 @@ void dhcp6relay_stop()
 void loop_relay(std::vector<relay_config> *vlans, swss::DBConnector *db) {
     std::vector<int> sockets;
     
-    for(std::size_t i = 0; i<vlans->size(); i++) {
-        struct relay_config config = vlans->at(i);
+    for(relay_config &vlan : *vlans) {
+        relay_config *config = &vlan;
         int filter = 0;
         int local_sock = 0; 
-        const char *ifname = config.interface.c_str();
+        const char *ifname = config->interface.c_str();
         int index = if_nametoindex(ifname);
-        config.db = db;
+        config->db = db;
 
         std::string counterVlan = counter_table;
-        initialize_counter(config.db, counterVlan.append(config.interface));
+        initialize_counter(config->db, counterVlan.append(config->interface));
 
         filter = sock_open(index, &ether_relay_fprog);
 
@@ -699,7 +699,7 @@ void loop_relay(std::vector<relay_config> *vlans, swss::DBConnector *db) {
         sockets.push_back(filter);
         sockets.push_back(local_sock);
 
-        prepare_relay_config(&config, &local_sock, filter);
+        prepare_relay_config(config, &local_sock, filter);
 
         evutil_make_listen_socket_reuseable(filter);
         evutil_make_socket_nonblocking(filter);
@@ -712,8 +712,8 @@ void loop_relay(std::vector<relay_config> *vlans, swss::DBConnector *db) {
             syslog(LOG_ERR, "libevent: Failed to create base\n");
         }
 
-        listen_event = event_new(base, filter, EV_READ|EV_PERSIST, callback, (void *)&config);
-        server_listen_event = event_new(base, local_sock, EV_READ|EV_PERSIST, server_callback, (void *)&config);
+        listen_event = event_new(base, filter, EV_READ|EV_PERSIST, callback, config);
+        server_listen_event = event_new(base, local_sock, EV_READ|EV_PERSIST, server_callback, config);
         if (listen_event == NULL || server_listen_event == NULL) {
             syslog(LOG_ERR, "libevent: Failed to create libevent\n");
         }
