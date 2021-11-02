@@ -176,6 +176,7 @@ COPY ["buffermgrd.sh", "/usr/bin/"]
 COPY ["platform.json", "/usr/share/sonic/device/x86_64-kvm_x86_64-r0/"]
 COPY ["hwsku.json", "/usr/share/sonic/device/x86_64-kvm_x86_64-r0/Force10-S6000/"]
 COPY ["hwsku.json", "/usr/share/sonic/device/x86_64-kvm_x86_64-r0/brcm_gearbox_vs/"]
+COPY ["hwsku.json", "/usr/share/sonic/device/x86_64-kvm_x86_64-r0/Mellanox-SN2700/"]
 
 # Workaround the tcpdump issue
 RUN mv /usr/sbin/tcpdump /usr/bin/tcpdump

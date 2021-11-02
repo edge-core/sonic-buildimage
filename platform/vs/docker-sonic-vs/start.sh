@@ -54,7 +54,12 @@ else
 fi
 sonic-cfggen -t /usr/share/sonic/templates/copp_cfg.j2 > /etc/sonic/copp_cfg.json
 
+#To be removed once swss migrates to HWSKU
 if [ "$fake_platform" == "mellanox" ]; then
+    cp /usr/share/sonic/hwsku/sai_mlnx.profile /usr/share/sonic/hwsku/sai.profile
+fi
+
+if [ "$HWSKU" == "Mellanox-SN2700" ]; then
     cp /usr/share/sonic/hwsku/sai_mlnx.profile /usr/share/sonic/hwsku/sai.profile
 fi
 

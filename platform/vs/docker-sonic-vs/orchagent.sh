@@ -1,9 +1,14 @@
 #!/usr/bin/env bash
 
-if [[ -z "$fake_platform"  ]]; then
-    export platform=vs
-else
+#This is required since we have platform based checks in orchagent
+#fakeplatform to be removed once swss migrates to hw-sku
+
+if [ "$HWSKU" == "Mellanox-SN2700" ]; then
+    export platform="mellanox"
+elif  [ -n "$fake_platform"  ]; then
     export platform=$fake_platform
+else
+    export platform=vs
 fi
 
 SWSS_VARS_FILE=/usr/share/sonic/templates/swss_vars.j2
