@@ -46,7 +46,7 @@ DEFAULT_SELECT_TIMEOUT = 1000
 
 
 def safe_eval(val, default_value=False):
-    """ Safely evaluate the boolean expression, without raising an exception """
+    """ Safely evaluate the expression, without raising an exception """
     try:
         ret = ast.literal_eval(val)
     except ValueError:
