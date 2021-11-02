@@ -85,7 +85,7 @@ class MarkDhcpPacket(object):
         self.run_command("sudo ebtables -A INPUT -i {} -j mark --mark-set {}".format(intf, mark))
 
     def update_mark_in_state_db(self, intf, mark):
-        self.state_db.set(self.state_db.STATE_DB, 'DHCP_PACKET_MARK', intf, mark)
+        self.state_db.set(self.state_db.STATE_DB, 'DHCP_PACKET_MARK|' + intf, 'mark', mark)
 
     def apply_marks(self):
         """
