@@ -1,4 +1,5 @@
-FROM docker-config-engine-stretch
+{% from "dockers/dockerfile-macros.j2" import install_debian_packages %}
+FROM docker-config-engine-buster
 
 ARG docker_container_name
 
@@ -15,7 +16,7 @@ debs/{{ deb }}{{' '}}
 {%- endfor -%}
 debs/
 
-RUN apt-get -y install libpcap-dev libxml2-dev python-dev swig libsensors4-dev libatomic1 libjemalloc1 liblua5.1-0 lua-bitop lua-cjson nfs-common
+RUN apt-get -y install libpcap-dev libxml2-dev python-dev swig libsensors4-dev libatomic1 liblua5.1-0 lua-bitop lua-cjson nfs-common
 
 RUN dpkg -i \
 {% for deb in docker_syncd_mrvl_debs.split(' ') -%}

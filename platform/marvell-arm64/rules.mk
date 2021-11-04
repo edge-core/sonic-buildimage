@@ -6,8 +6,6 @@ include $(PLATFORM_PATH)/docker-saiserver-mrvl.mk
 include $(PLATFORM_PATH)/libsaithrift-dev.mk
 include $(PLATFORM_PATH)/one-image.mk
 include $(PLATFORM_PATH)/linux-kernel-arm64.mk
-INCLUDE_SYSTEM_TELEMETRY = ""
-
 
 SONIC_ALL += $(SONIC_ONE_IMAGE) \
              $(DOCKER_FPM) 	\
