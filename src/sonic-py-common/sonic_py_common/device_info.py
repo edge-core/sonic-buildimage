@@ -492,6 +492,14 @@ def get_system_mac(namespace=None):
         else:
             profile_cmd = "false"
         hw_mac_entry_cmds = ["sudo decode-syseeprom -m", profile_cmd, "ip link show eth0 | grep ether | awk '{print $2}'"]
+    elif (version_info['asic_type'] == 'cisco-8000'):
+        # Try to get valid MAC from profile.ini first, else fetch it from syseeprom or eth0
+        platform = get_platform()
+        if namespace is not None:
+            profile_cmd = 'cat ' + HOST_DEVICE_PATH + '/' + platform + '/profile.ini | grep ' + namespace + 'switchMacAddress | cut -f2 -d='
+        else:
+            profile_cmd = "false"
+        hw_mac_entry_cmds = [profile_cmd, "sudo decode-syseeprom -m", "ip link show eth0 | grep ether | awk '{print $2}'"]
     else:
         mac_address_cmd = "cat /sys/class/net/eth0/address"
         if namespace is not None:

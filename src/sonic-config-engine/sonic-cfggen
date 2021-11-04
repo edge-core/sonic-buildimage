@@ -29,7 +29,7 @@ import yaml
 from collections import OrderedDict
 from config_samples import generate_sample_config, get_available_config
 from functools import partial
-from minigraph import minigraph_encoder, parse_xml, parse_device_desc_xml, parse_asic_sub_role
+from minigraph import minigraph_encoder, parse_xml, parse_device_desc_xml, parse_asic_sub_role, parse_asic_switch_type
 from portconfig import get_port_config, get_breakout_mode
 from redis_bcc import RedisBytecodeCache
 from sonic_py_common.multi_asic import get_asic_id_from_name, get_asic_device_id
@@ -363,13 +363,17 @@ def main():
 
 
     # the minigraph file must be provided to get the mac address for backend asics
+    # or switch_type chassis_packet
     if args.platform_info:
         asic_role = None
+        switch_type = None
         if asic_name is not None:
             if args.minigraph is not None:
                 asic_role = parse_asic_sub_role(args.minigraph, asic_name)
+                switch_type = parse_asic_switch_type(args.minigraph, asic_name)
 
-            if asic_role is not None and asic_role.lower() == "backend":
+            if ((switch_type is not None and switch_type.lower() == "chassis-packet") or
+                (asic_role is not None and asic_role.lower() == "backend")):
                 mac = device_info.get_system_mac(namespace=asic_name)
             else:
                 mac = device_info.get_system_mac()
