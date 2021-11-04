@@ -220,6 +220,9 @@
                 "dhcp_servers": [
                     "10.222.72.116"
                 ],
+                "dhcpv6_servers": [
+                    "2a04:5555:41::11"
+                ],
                 "vlanid": "111",
                 "mtu": "9216",
                 "admin_status": "up"
@@ -228,6 +231,9 @@
                 "description": "pvlan",
                 "dhcp_servers": [
                     "10.222.72.116"
+                ],
+                "dhcpv6_servers": [
+                    "2a04:5555:41::11"
                 ],
                 "vlanid": "777",
                 "mtu": "9216",
@@ -1139,7 +1145,20 @@
                 "state": "enabled"
             }
         },
-
+        "DHCP_RELAY": {
+            "Vlan111": {
+                "dhcpv6_servers": [
+                    "2a04:5555:41::11"
+                ],
+                "rfc6939_support": "true"
+            },
+            "Vlan777": {
+                "dhcpv6_servers": [
+                    "2a04:5555:41::11"
+                ],
+                "rfc6939_support": "true"
+            }
+        },
         "SCHEDULER": {
             "TEST@0": {
                 "cbs": "256",

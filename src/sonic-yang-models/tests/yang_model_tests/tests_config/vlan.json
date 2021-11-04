@@ -33,6 +33,23 @@
             }
         }
     },
+    "DHCPV6_SERVER_INCORRECT_FORMAT": {
+        "sonic-vlan:sonic-vlan": {
+            "sonic-vlan:VLAN": {
+                "VLAN_LIST": [
+                    {
+                        "admin_status": "up",
+                        "description": "v6server_vlan",
+                        "dhcpv6_servers": [
+                            "2001:1:2"
+                        ],
+                        "mtu": "9216",
+                        "name": "Vlan500"
+                    }
+                ]
+            }
+        }
+    },
     "TAGGING_MODE_WRONG_VALUE": {
         "sonic-port:sonic-port": {
             "sonic-port:PORT": {
@@ -363,6 +380,118 @@
                     {
                         "name": "Vlan100",
                         "nat_zone": "2"
+                    }
+                ]
+            }
+        }
+    },
+    "DHCP_SERVER_VALID_FORMAT": {
+        "sonic-port:sonic-port": {
+            "sonic-port:PORT": {
+                "PORT_LIST": [
+                    {
+                        "admin_status": "up",
+                        "alias": "eth0",
+                        "description": "Ethernet0",
+                        "mtu": 9000,
+                        "lanes": "1",
+                        "name": "Ethernet0",
+                        "speed": 25000
+                    }
+                ]
+            }
+        },
+        "sonic-vlan:sonic-vlan": {
+            "sonic-vlan:VLAN": {
+                "VLAN_LIST": [
+                    {
+                        "admin_status": "up",
+                        "description": "server_vlan",
+                        "dhcp_servers": [
+                            "10.186.72.10"
+                        ],
+                        "mtu": "9216",
+                        "name": "Vlan300"
+                    }
+                ]
+            },
+            "sonic-vlan:VLAN_MEMBER": {
+                "VLAN_MEMBER_LIST": [
+                    {
+                        "port": "Ethernet0",
+                        "tagging_mode": "tagged",
+                        "name": "Vlan300"
+                    }
+                ]
+            },
+            "sonic-vlan:VLAN_INTERFACE": {
+                "VLAN_INTERFACE_IPPREFIX_LIST": [
+                    {
+                        "family": "IPv4",
+                        "ip-prefix": "20.0.0.1/24",
+                        "scope": "global",
+                        "name": "Vlan300"
+                    }
+                ],
+                "VLAN_INTERFACE_LIST": [
+                    {
+                        "name": "Vlan300"
+                    }
+                ]
+            }
+        }
+    },
+    "DHCPV6_SERVER_VALID_FORMAT": {
+        "sonic-port:sonic-port": {
+            "sonic-port:PORT": {
+                "PORT_LIST": [
+                    {
+                        "admin_status": "up",
+                        "alias": "eth0",
+                        "description": "Ethernet0",
+                        "mtu": 9000,
+                        "lanes": "1",
+                        "name": "Ethernet0",
+                        "speed": 25000
+                    }
+                ]
+            }
+        },
+        "sonic-vlan:sonic-vlan": {
+            "sonic-vlan:VLAN": {
+                "VLAN_LIST": [
+                    {
+                        "admin_status": "up",
+                        "description": "v6server_vlan",
+                        "dhcpv6_servers": [
+                            "2001:1::2"
+                        ],
+                        "mtu": "9216",
+                        "name": "Vlan400"
+                    }
+                ]
+            },
+            "sonic-vlan:VLAN_MEMBER": {
+                "VLAN_MEMBER_LIST": [
+                    {
+                        "port": "Ethernet0",
+                        "tagging_mode": "tagged",
+                        "name": "Vlan400"
+                    }
+                ]
+            },
+            "sonic-vlan:VLAN_INTERFACE": {
+                "VLAN_INTERFACE_IPPREFIX_LIST": [
+                    {
+                        "family": "IPv6",
+                        "ip-prefix": "2002::1/64",
+                        "scope": "global",
+                        "name": "Vlan400"
+                    }
+                ],
+                "VLAN_INTERFACE_LIST": [
+                    {
+                        "name": "Vlan400"
                     }
                 ]
             }
