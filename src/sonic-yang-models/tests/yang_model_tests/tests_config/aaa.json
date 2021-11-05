@@ -16,7 +16,7 @@
         "sonic-system-aaa:sonic-system-aaa": {
             "sonic-system-aaa:AAA": {
                 "AAA_LIST": [{
-                        "type": "authorization"
+                        "type": "unknowntype"
                 }]
             }
         }
@@ -28,6 +28,28 @@
                 "AAA_LIST": [{
                         "type": "authentication",
                         "failthrough": "enable"
+                }]
+            }
+        }
+    },
+
+    "AAA_AUTHORIZATION_TEST": {
+        "sonic-system-aaa:sonic-system-aaa": {
+            "sonic-system-aaa:AAA": {
+                "AAA_LIST": [{
+                        "type": "authorization",
+                        "login": "tacacs+"
+                }]
+            }
+        }
+    },
+
+    "AAA_ACCOUNTING_TEST": {
+        "sonic-system-aaa:sonic-system-aaa": {
+            "sonic-system-aaa:AAA": {
+                "AAA_LIST": [{
+                        "type": "accounting",
+                        "login": "tacacs+"
                 }]
             }
         }

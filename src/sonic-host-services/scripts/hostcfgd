@@ -429,8 +429,14 @@ class Iptables(object):
 
 class AaaCfg(object):
     def __init__(self):
-        self.auth_default = {
+        self.authentication_default = {
             'login': 'local',
+        }
+        self.authorization_default = {
+            'login': 'local',
+        }
+        self.accounting_default = {
+            'login': 'disable',
         }
         self.tacplus_global_default = {
             'auth_type': TACPLUS_SERVER_AUTH_TYPE_DEFAULT,
@@ -451,7 +457,9 @@ class AaaCfg(object):
         self.radius_global = {}
         self.radius_servers = {}
 
-        self.auth = {}
+        self.authentication = {}
+        self.authorization = {}
+        self.accounting = {}
         self.debug = False
         self.trace = False
 
@@ -475,11 +483,15 @@ class AaaCfg(object):
 
     def aaa_update(self, key, data, modify_conf=True):
         if key == 'authentication':
-            self.auth = data
+            self.authentication = data
             if 'failthrough' in data:
-                self.auth['failthrough'] = is_true(data['failthrough'])
+                self.authentication['failthrough'] = is_true(data['failthrough'])
             if 'debug' in data:
                 self.debug = is_true(data['debug'])
+        if key == 'authorization':
+            self.authorization = data
+        if key == 'accounting':
+            self.accounting = data
         if modify_conf:
             self.modify_conf_file()
 
@@ -628,8 +640,12 @@ class AaaCfg(object):
             os.system(cmd)
 
     def modify_conf_file(self):
-        auth = self.auth_default.copy()
-        auth.update(self.auth)
+        authentication = self.authentication_default.copy()
+        authentication.update(self.authentication)
+        authorization = self.authorization_default.copy()
+        authorization.update(self.authorization)
+        accounting = self.accounting_default.copy()
+        accounting.update(self.accounting)
         tacplus_global = self.tacplus_global_default.copy()
         tacplus_global.update(self.tacplus_global)
         if 'src_ip' in tacplus_global:
@@ -688,10 +704,10 @@ class AaaCfg(object):
         env = jinja2.Environment(loader=jinja2.FileSystemLoader('/'), trim_blocks=True)
         env.filters['sub'] = sub
         template = env.get_template(template_file)
-        if 'radius' in auth['login']:
-            pam_conf = template.render(debug=self.debug, trace=self.trace, auth=auth, servers=radsrvs_conf)
+        if 'radius' in authentication['login']:
+            pam_conf = template.render(debug=self.debug, trace=self.trace, auth=authentication, servers=radsrvs_conf)
         else:
-            pam_conf = template.render(auth=auth, src_ip=src_ip, servers=servers_conf)
+            pam_conf = template.render(auth=authentication, src_ip=src_ip, servers=servers_conf)
 
         # Use rename(), which is atomic (on the same fs) to avoid empty file
         with open(PAM_AUTH_CONF + ".tmp", 'w') as f:
@@ -710,11 +726,11 @@ class AaaCfg(object):
             self.modify_single_file(ETC_PAMD_LOGIN, [ "'/^@include/s/common-auth-sonic$/common-auth/'" ])
 
         # Add tacplus/radius in nsswitch.conf if TACACS+/RADIUS enable
-        if 'tacacs+' in auth['login']:
+        if 'tacacs+' in authentication['login']:
             if os.path.isfile(NSS_CONF):
                 self.modify_single_file(NSS_CONF, [ "'/^passwd/s/ radius//'" ])
                 self.modify_single_file(NSS_CONF, [ "'/tacplus/b'", "'/^passwd/s/compat/tacplus &/'", "'/^passwd/s/files/tacplus &/'" ])
-        elif 'radius' in auth['login']:
+        elif 'radius' in authentication['login']:
             if os.path.isfile(NSS_CONF):
                 self.modify_single_file(NSS_CONF, [ "'/^passwd/s/tacplus //'" ])
                 self.modify_single_file(NSS_CONF, [ "'/radius/b'", "'/^passwd/s/compat/& radius/'", "'/^passwd/s/files/& radius/'" ])
@@ -723,10 +739,33 @@ class AaaCfg(object):
                 self.modify_single_file(NSS_CONF, [ "'/^passwd/s/tacplus //g'" ])
                 self.modify_single_file(NSS_CONF, [ "'/^passwd/s/ radius//'" ])
 
+        # Add tacplus authorization configration in nsswitch.conf
+        tacacs_authorization_conf = None
+        local_authorization_conf = None
+        if 'tacacs+' in authorization['login']:
+            tacacs_authorization_conf = "on"
+        if 'local' in authorization['login']:
+            local_authorization_conf = "on"
+
+        # Add tacplus accounting configration in nsswitch.conf
+        tacacs_accounting_conf = None
+        local_accounting_conf = None
+        if 'tacacs+' in accounting['login']:
+            tacacs_accounting_conf = "on"
+        if 'local' in accounting['login']:
+            local_accounting_conf = "on"
+
         # Set tacacs+ server in nss-tacplus conf
         template_file = os.path.abspath(NSS_TACPLUS_CONF_TEMPLATE)
         template = env.get_template(template_file)
-        nss_tacplus_conf = template.render(debug=self.debug, src_ip=src_ip, servers=servers_conf)
+        nss_tacplus_conf = template.render(
+                                        debug=self.debug,
+                                        src_ip=src_ip,
+                                        servers=servers_conf,
+                                        local_accounting=local_accounting_conf,
+                                        tacacs_accounting=tacacs_accounting_conf,
+                                        local_authorization=local_authorization_conf,
+                                        tacacs_authorization=tacacs_authorization_conf)
         with open(NSS_TACPLUS_CONF, 'w') as f:
             f.write(nss_tacplus_conf)
 
@@ -752,7 +791,7 @@ class AaaCfg(object):
                     f.write(pam_radius_auth_conf)
 
         # Start the statistics service. Only RADIUS implemented
-        if ('radius' in auth['login']) and ('statistics' in radius_global) and\
+        if ('radius' in authentication['login']) and ('statistics' in radius_global) and \
                 radius_global['statistics']:
             cmd = 'service aaastatsd start'
         else:

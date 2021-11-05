@@ -9,5 +9,11 @@
     "AAA_TEST_WRONG_FAILTHROUGH": {
         "desc": "Configure a wrong failthrough in AAA table.",
         "eStrKey": "InvalidValue"
+    },
+    "AAA_AUTHORIZATION_TEST": {
+        "desc": "Configure an authorization type in AAA table."
+    },
+    "AAA_ACCOUNTING_TEST": {
+        "desc": "Configure an accounting type in AAA table."
     }
 }

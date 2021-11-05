@@ -3,6 +3,10 @@ module sonic-system-aaa {
     prefix ssys;
     yang-version 1.1;
 
+    revision 2021-10-12 {
+        description "Add AAA authorization/accounting support.";
+    }
+
     revision 2021-04-15 {
         description "Initial revision.";
     }
@@ -15,13 +19,15 @@ module sonic-system-aaa {
                 leaf type {
                     type enumeration {
                         enum authentication;
+                        enum authorization;
+                        enum accounting;
                     }
-                    description "AAA type authentication";
+                    description "AAA type authentication/authorization/accounting";
                 }
 
                 leaf login {
                     type string;
-                    description "AAA authentication methods - local/tacacs+";
+                    description "AAA authentication/authorization/accounting methods - local/tacacs+/disable";
                     default "local";
                 }
 
