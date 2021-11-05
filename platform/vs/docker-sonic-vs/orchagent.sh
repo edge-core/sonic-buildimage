@@ -1,12 +1,9 @@
 #!/usr/bin/env bash
 
 #This is required since we have platform based checks in orchagent
-#fakeplatform to be removed once swss migrates to hw-sku
 
 if [ "$HWSKU" == "Mellanox-SN2700" ]; then
     export platform="mellanox"
-elif  [ -n "$fake_platform"  ]; then
-    export platform=$fake_platform
 else
     export platform=vs
 fi
