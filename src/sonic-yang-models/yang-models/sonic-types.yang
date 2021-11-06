@@ -129,7 +129,7 @@ module sonic-types {
             enum UDP;
         }
     }
-    
+
     typedef interface_type {
         type enumeration {
             enum CR;
@@ -151,6 +151,7 @@ module sonic-types {
             enum XAUI;
             enum XFI;
             enum XGMII;
+            enum none;
         }
     }
 
@@ -162,7 +163,7 @@ module sonic-types {
 
     typedef meter_type {
         type enumeration {
-            enum packets; 
+            enum packets;
             enum bytes;
         }
     }
@@ -178,5 +179,5 @@ module sonic-types {
             enum deny;
             enum transit;
         }
-    }        
+    }
 }
