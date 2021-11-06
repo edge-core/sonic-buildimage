@@ -1,3 +1,8 @@
+{% if yang_model_type == "cvl" %}
+/* this is sonic cvl yang model */
+{% else %}
+/* this is sonic py yang model */
+{% endif %}
 module sonic-acl {
 
 	yang-version 1.1;
