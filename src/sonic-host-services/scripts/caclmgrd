@@ -359,16 +359,20 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
 
         return chain_list
 
-    def dhcp_acl_rule(self, iptable_ns_cmd_prefix, op, intf):
+    def dhcp_acl_rule(self, iptable_ns_cmd_prefix, op, intf, mark):
         '''
             sample: iptables --insert/delete/check DHCP -m physdev --physdev-in Ethernet4 -j DROP
+            sample: iptables --insert/delete/check DHCP -m mark --mark 0x67004 -j DROP
         '''
-        return iptable_ns_cmd_prefix + 'iptables --{} DHCP -m physdev --physdev-in {} -j DROP'.format(op, intf)
+        if mark is None:
+            return iptable_ns_cmd_prefix + 'iptables --{} DHCP -m physdev --physdev-in {} -j DROP'.format(op, intf)
+        else:
+            return iptable_ns_cmd_prefix + 'iptables --{} DHCP -m mark --mark {} -j DROP'.format(op, mark)
 
-    def update_dhcp_chain(self, op, intf):
+    def update_dhcp_chain(self, op, intf, mark):
         for namespace in list(self.config_db_map.keys()):
-            check_cmd = self.dhcp_acl_rule(self.iptables_cmd_ns_prefix[namespace], "check", intf)
-            update_cmd = self.dhcp_acl_rule(self.iptables_cmd_ns_prefix[namespace], op, intf)
+            check_cmd = self.dhcp_acl_rule(self.iptables_cmd_ns_prefix[namespace], "check", intf, mark)
+            update_cmd = self.dhcp_acl_rule(self.iptables_cmd_ns_prefix[namespace], op, intf, mark)
 
             execute = 0
             ret = subprocess.call(check_cmd, shell=True) # ret==0 indicates the rule exists
@@ -382,7 +386,7 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
                 subprocess.call(update_cmd, shell=True)
                 self.log_info("Update DHCP chain: {}".format(update_cmd))
 
-    def update_dhcp_acl(self, key, op, data):
+    def update_dhcp_acl(self, key, op, data, mark):
         if "state" not in data:
             self.log_warning("Unexpected update in MUX_CABLE_TABLE")
             return
@@ -391,15 +395,32 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
         state = data["state"]
 
         if state == "active":
-            self.update_dhcp_chain("delete", intf)
+            self.update_dhcp_chain("delete", intf, mark)
         elif state == "standby":
-            self.update_dhcp_chain("insert", intf)
+            self.update_dhcp_chain("insert", intf, mark)
         elif state == "unknown":
-            self.update_dhcp_chain("delete", intf)
+            self.update_dhcp_chain("delete", intf, mark)
         elif state == "error":
             self.log_warning("Cable state shows error")
         else:
             self.log_warning("Unexpected cable state")
+
+    def update_dhcp_acl_for_mark_change(self, key, pre_mark, cur_mark):
+        for namespace in list(self.config_db_map.keys()):
+            check_cmd = self.dhcp_acl_rule(self.iptables_cmd_ns_prefix[namespace], "check", key, pre_mark)
+
+            ret = subprocess.call(check_cmd, shell=True) # ret==0 indicates the rule exists
+
+            '''update only when the rule with  pre_mark exists'''
+            if ret == 0:
+                delete_cmd = self.dhcp_acl_rule(self.iptables_cmd_ns_prefix[namespace], "delete", key, pre_mark)
+                insert_cmd = self.dhcp_acl_rule(self.iptables_cmd_ns_prefix[namespace], "insert", key, cur_mark)
+
+                subprocess.call(delete_cmd, shell=True)
+                self.log_info("Update DHCP chain: {}".format(delete_cmd))
+                subprocess.call(insert_cmd, shell=True)
+                self.log_info("Update DHCP chain: {}".format(insert_cmd))
+
 
     def get_acl_rules_and_translate_to_iptables_commands(self, namespace):
         """
@@ -708,15 +729,21 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
         # Set up STATE_DB connector to monitor the change in MUX_CABLE_TABLE
         state_db_connector = None
         subscribe_mux_cable = None
+        subscribe_dhcp_packet_mark = None
         state_db_id = swsscommon.SonicDBConfig.getDbId("STATE_DB")
+        dhcp_packet_mark_tbl = {}
 
         if self.DualToR:
             self.log_info("Dual ToR mode")
 
             # set up state_db connector
             state_db_connector = swsscommon.DBConnector("STATE_DB", 0)
+
             subscribe_mux_cable = swsscommon.SubscriberStateTable(state_db_connector, self.MUX_CABLE_TABLE)
             sel.addSelectable(subscribe_mux_cable)
+
+            subscribe_dhcp_packet_mark = swsscommon.SubscriberStateTable(state_db_connector, "DHCP_PACKET_MARK")
+            sel.addSelectable(subscribe_dhcp_packet_mark)
 
             # create DHCP chain
             for namespace in list(self.config_db_map.keys()):
@@ -762,12 +789,28 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
 
             if db_id == state_db_id:
                 if self.DualToR:
+                    '''dhcp packet mark update'''
+                    while True:
+                        key, op, fvs = subscribe_dhcp_packet_mark.pop()
+                        if not key:
+                            break
+                        self.log_info("dhcp packet mark update : '%s'" % str((key, op, fvs)))
+
+                        '''initial value is None'''
+                        pre_mark = None if key not in dhcp_packet_mark_tbl else dhcp_packet_mark_tbl[key]
+                        cur_mark = None if op == 'DEL' else dict(fvs)['mark']
+                        dhcp_packet_mark_tbl[key] = cur_mark
+                        self.update_dhcp_acl_for_mark_change(key, pre_mark, cur_mark)
+
+                    '''mux cable update'''
                     while True:
                         key, op, fvs = subscribe_mux_cable.pop()
                         if not key:
                             break
                         self.log_info("mux cable update : '%s'" % str((key, op, fvs)))
-                        self.update_dhcp_acl(key, op, dict(fvs))
+
+                        mark = None if key not in dhcp_packet_mark_tbl else dhcp_packet_mark_tbl[key]
+                        self.update_dhcp_acl(key, op, dict(fvs), mark)
                 continue
 
             ctrl_plane_acl_notification = set()
