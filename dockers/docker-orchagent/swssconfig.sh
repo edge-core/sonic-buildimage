@@ -23,6 +23,12 @@ function fast_reboot {
         mv -f /default_routes.json /default_routes.json.1
       fi
 
+      if [[ -f /media_config.json ]];
+      then
+        swssconfig /media_config.json
+        mv -f /media_config.json /media_config.json.1
+      fi
+
       ;;
     *)
       ;;
