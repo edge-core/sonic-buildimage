@@ -238,3 +238,4 @@ buf.map.egress_pool1.ingress_pool
 buf.map.egress_pool2.ingress_pool
 sai_adjust_acl_drop_in_rx_drop
 sai_verify_incoming_chksum
+l3_alpm_hit_skip

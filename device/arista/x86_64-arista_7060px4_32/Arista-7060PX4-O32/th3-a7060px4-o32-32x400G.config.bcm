@@ -1,5 +1,7 @@
 # Disable Counting ACL Drop towards interface RX_DRP counter
 sai_adjust_acl_drop_in_rx_drop=1
+# disables bcmALPMDH (ALPM distributed hitbit) thread.  This thread is purely for debug purpose
+l3_alpm_hit_skip=1
 arl_clean_timeout_usec=15000000
 asf_mem_profile.0=2
 bcm_num_cos.0=8
