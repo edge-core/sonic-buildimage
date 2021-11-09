@@ -301,3 +301,4 @@ ifa_enable
 port_gmii_mode
 phy_force_firmware_load
 phy_pcs_repeater
+l3_alpm_hit_skip

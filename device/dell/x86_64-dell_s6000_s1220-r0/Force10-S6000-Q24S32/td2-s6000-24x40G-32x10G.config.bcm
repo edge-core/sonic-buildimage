@@ -10,6 +10,9 @@ ipv6_lpm_128b_enable=1
 l2_mem_entries=32768
 l3_mem_entries=16384
 
+# disables bcmALPMDH (ALPM distributed hitbit) thread.  This thread is purely for debug purpose
+l3_alpm_hit_skip=1
+
 # Disable Counting ACL Drop towards interface RX_DRP counter
 sai_adjust_acl_drop_in_rx_drop=1
 
