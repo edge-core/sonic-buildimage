@@ -116,34 +116,6 @@ std::string toString(uint16_t count) {
 }
 
 /**
- * @code                bool is_addr_gua(in6_addr addr);
- *
- * @brief               check if address is global
- *
- * @param addr         ipv6 address
- * 
- * @return              bool
- */
-bool is_addr_gua(in6_addr addr) {
-    auto masked = addr.__in6_u.__u6_addr8[0] & 0xe0;
-    return (masked ^ 0x20) == 0x00;
-}
-
-/**
- * @code                is_addr_link_local(in6_addr addr);
- *
- * @brief               check if address is link_local
- *
- * @param addr         ipv6 address
- * 
- * @return              bool
- */
-bool is_addr_link_local(in6_addr addr)  {
-    auto masked = ntohs(addr.__in6_u.__u6_addr16[0]) & 0xffc0;
-    return (masked ^ 0xfe80) == 0x0000;
-}
-
-/**
  * @code                const struct ether_header *parse_ether_frame(const uint8_t *buffer, const uint8_t **out_end);
  *
  * @brief               parse through ethernet frame
@@ -355,11 +327,11 @@ void prepare_relay_config(relay_config *interface_config, int *local_sock, int f
     while (ifa_tmp) {
         if (ifa_tmp->ifa_addr->sa_family == AF_INET6) {
             struct sockaddr_in6 *in6 = (struct sockaddr_in6*) ifa_tmp->ifa_addr;
-            if((strcmp(ifa_tmp->ifa_name, interface_config->interface.c_str()) == 0) && is_addr_gua(in6->sin6_addr)) {    
+            if((strcmp(ifa_tmp->ifa_name, interface_config->interface.c_str()) == 0) && !IN6_IS_ADDR_LINKLOCAL(&in6->sin6_addr)) {    
                 non_link_local = *in6;
                 break;
             }
-            if((strcmp(ifa_tmp->ifa_name, interface_config->interface.c_str()) == 0) && is_addr_link_local(in6->sin6_addr)) {    
+            if((strcmp(ifa_tmp->ifa_name, interface_config->interface.c_str()) == 0) && IN6_IS_ADDR_LINKLOCAL(&in6->sin6_addr)) {    
                 link_local = *in6;
             }   
         }
@@ -367,7 +339,7 @@ void prepare_relay_config(relay_config *interface_config, int *local_sock, int f
     }
     freeifaddrs(ifa); 
     
-    if(is_addr_gua(non_link_local.sin6_addr)) {
+    if(!IN6_IS_ADDR_LINKLOCAL(&non_link_local.sin6_addr)) {
         interface_config->link_address = non_link_local;
     }
     else {
@@ -376,33 +348,63 @@ void prepare_relay_config(relay_config *interface_config, int *local_sock, int f
 }
 
 /**
- * @code                prepare_socket(int *local_sock);
+ * @code                prepare_socket(int *local_sock, int *server_sock, relay_config *config, int index);
  * 
  * @brief               prepare L3 socket for sending
  *
- * @param local_sock    pointer to socket to be prepared
+ * @param local_sock    pointer to socket binded to global address for relaying client message to server and listening for server message
+ * @param server_sock       pointer to socket binded to link_local address for relaying server message to client
+ * @param index         scope id of interface
  *
  * @return              none
  */
-void prepare_socket(int *local_sock) {
-    int flag = 1;
+void prepare_socket(int *local_sock, int *server_sock, relay_config *config, int index) {
+    struct ifaddrs *ifa, *ifa_tmp;
     sockaddr_in6 addr;
+    sockaddr_in6 ll_addr;
     memset(&addr, 0, sizeof(addr));
-    addr.sin6_family = AF_INET6;
-    addr.sin6_addr = in6addr_any;
-    addr.sin6_port = htons(RELAY_PORT);
+    memset(&ll_addr, 0, sizeof(ll_addr));
 
     if ((*local_sock = socket(AF_INET6, SOCK_DGRAM, 0)) == -1) {
         syslog(LOG_ERR, "socket: Failed to create socket\n");
     }
 
-    if((setsockopt(*local_sock, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(flag))) == -1) {
-		syslog(LOG_ERR, "setsockopt: Unable to set socket option\n");
-	}
+    if ((*server_sock= socket(AF_INET6, SOCK_DGRAM, 0)) == -1) {
+        syslog(LOG_ERR, "socket: Failed to create socket\n");
+    }
+
+    
+    if (getifaddrs(&ifa) == -1) {
+        syslog(LOG_WARNING, "getifaddrs: Unable to get network interfaces\n");
+        exit(1);
+    }
+
+    ifa_tmp = ifa;
+    while (ifa_tmp) {
+        if (ifa_tmp->ifa_addr->sa_family == AF_INET6) {
+            struct sockaddr_in6 *in6 = (struct sockaddr_in6*) ifa_tmp->ifa_addr;
+            if((strcmp(ifa_tmp->ifa_name, config->interface.c_str()) == 0) && !IN6_IS_ADDR_LINKLOCAL(&in6->sin6_addr)) {   
+                in6->sin6_family = AF_INET6;
+                in6->sin6_port = htons(RELAY_PORT);
+                addr = *in6;
+            }
+            if((strcmp(ifa_tmp->ifa_name, config->interface.c_str()) == 0) && IN6_IS_ADDR_LINKLOCAL(&in6->sin6_addr)) {   
+                in6->sin6_family = AF_INET6;
+                in6->sin6_port = htons(RELAY_PORT);
+                ll_addr = *in6;
+            }
+        }
+        ifa_tmp = ifa_tmp->ifa_next;
+    }
+    freeifaddrs(ifa); 
     
     if (bind(*local_sock, (sockaddr *)&addr, sizeof(addr)) == -1) {
         syslog(LOG_ERR, "bind: Failed to bind to socket\n");
-    }    
+    } 
+
+    if (bind(*server_sock, (sockaddr *)&ll_addr, sizeof(addr)) == -1) {
+        syslog(LOG_ERR, "bind: Failed to bind to socket\n");
+    }       
 }
 
 
@@ -584,7 +586,7 @@ void server_callback(evutil_socket_t fd, short event, void *arg) {
     std::string counterVlan = counter_table;
     update_counter(counterVlan.append(config->interface), msg->msg_type);
     if (msg->msg_type == DHCPv6_MESSAGE_TYPE_RELAY_REPL) {
-        relay_relay_reply(config->local_sock, message_buffer, data, config);
+        relay_relay_reply(config->server_sock, message_buffer, data, config);
     }
 }
 
@@ -680,11 +682,16 @@ void dhcp6relay_stop()
  */
 void loop_relay(std::vector<relay_config> *vlans) {
     std::vector<int> sockets;
+    base = event_base_new();
+    if(base == NULL) {
+        syslog(LOG_ERR, "libevent: Failed to create base\n");
+    }
 
     for(relay_config &vlan : *vlans) {
         relay_config *config = &vlan;
         int filter = 0;
         int local_sock = 0; 
+        int server_sock = 0;
         const char *ifname = config->interface.c_str();
         int index = if_nametoindex(ifname);
 
@@ -692,10 +699,14 @@ void loop_relay(std::vector<relay_config> *vlans) {
         initialize_counter(counterVlan.append(config->interface));
 
         filter = sock_open(index, &ether_relay_fprog);
+        prepare_socket(&local_sock, &server_sock, config, index);
 
-        prepare_socket(&local_sock);
+        config->local_sock = local_sock;
+        config->server_sock = server_sock;
+        
         sockets.push_back(filter);
         sockets.push_back(local_sock);
+        sockets.push_back(server_sock);
 
         prepare_relay_config(config, &local_sock, filter);
 
@@ -704,11 +715,6 @@ void loop_relay(std::vector<relay_config> *vlans) {
 
         evutil_make_listen_socket_reuseable(local_sock);
         evutil_make_socket_nonblocking(local_sock);
-
-        base = event_base_new();
-        if(base == NULL) {
-            syslog(LOG_ERR, "libevent: Failed to create base\n");
-        }
 
         listen_event = event_new(base, filter, EV_READ|EV_PERSIST, callback, config);
         server_listen_event = event_new(base, local_sock, EV_READ|EV_PERSIST, server_callback, config);
