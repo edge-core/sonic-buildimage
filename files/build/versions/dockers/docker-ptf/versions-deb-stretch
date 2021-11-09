@@ -12,7 +12,7 @@ cmake==3.7.2-1
 cmake-data==3.7.2-1
 cpp==4:6.3.0-4
 cpp-6==6.3.0-18+deb9u1
-cron==3.0pl1-128+deb9u1
+cron==3.0pl1-128+deb9u2
 curl==7.52.1-5+deb9u16
 dbus==1.10.32-0+deb9u1
 dirmngr==2.1.18-8~deb9u4
@@ -61,6 +61,7 @@ libdevmapper1.02.1==2:1.02.137-2
 libdouble-conversion1==2.0.1-4
 libdpkg-perl==1.18.25
 libedit2==3.1-20160903-3
+libelf1==0.168-1+deb9u1
 liberror-perl==0.17024-1
 libestr0==0.1.10-2
 libevent-2.0-5==2.0.21-stable-3
@@ -227,6 +228,7 @@ tcpdump==4.9.3-1~deb9u2
 telnet==0.17-41
 tmux==2.3-4
 traceroute==1:2.1.0-2
+tzdata==2021a-0+deb9u2
 ucf==3.0036
 unzip==6.0-21+deb9u2
 vim==2:8.0.0197-4+deb9u3

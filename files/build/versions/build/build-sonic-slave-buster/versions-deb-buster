@@ -1,8 +1,8 @@
 applibs==1.mlnx.4.4.3326
 applibs-dev==1.mlnx.4.4.3326
 bfnplatform==1.0.0
-innovium-sai==0.107.1
-innovium-sai-headers==0.107.1
+innovium-sai==0.107.2
+innovium-sai-headers==0.107.2
 iproute2-dev==1.mlnx.4.4.3326
 isc-dhcp-relay==4.4.1-2
 kernel-mft-dkms==4.17.0-106
@@ -18,7 +18,7 @@ libnl-nf-3-200==3.5.0-1
 libnl-nf-3-dev==3.5.0-1
 libnl-route-3-200==3.5.0-1
 libnl-route-3-dev==3.5.0-1
-libsaibcm==4.3.5.1-5
+libsaibcm==4.3.5.1-6
 libsaimetadata==1.0.0
 libsaimetadata-dev==1.0.0
 libsairedis==1.0.0

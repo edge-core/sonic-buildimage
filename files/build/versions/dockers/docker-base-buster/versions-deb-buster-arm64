@@ -1,6 +1,0 @@
-iproute2==4.20.0-2+deb10u1
-libcap2==1:2.25-2
-libcap2-bin==1:2.25-2
-libelf1==0.176-1.1
-libmnl0==1.0.4-2
-libxtables12==1.8.2-4

@@ -1,7 +1,7 @@
 gdb==8.2.1-2+b3
 gdbserver==8.2.1-2+b3
-innovium-sai==0.107.1
-innovium-sai-headers==0.107.1
+innovium-sai==0.107.2
+innovium-sai-headers==0.107.2
 libbabeltrace1==1.5.6-2+deb10u1
 libbsd0==0.9.1-2+deb10u1
 libdw1==0.176-1.1

@@ -1,8 +1,8 @@
-https://chromium.googlesource.com/chromium/tools/depot_tools.git==7a6ff9824d74a90f7d9a6811b00a35598c8cf3ef
-https://github.com/aristanetworks/swi-tools.git==2ec0a0579b81edd3ff1c1288d73de309819ada0c
+https://chromium.googlesource.com/chromium/tools/depot_tools.git==266129cba38431d1ee2278d6d9790168c0762909
+https://github.com/aristanetworks/swi-tools.git==e938746c694e4eaa4cf4126981382c9c8372db24
 https://github.com/CESNET/libyang.git==320f34305dd9c7d14af5f13bec18e477b37f5db8
 https://github.com/daveolson53/libnss-tacplus.git==19008ab68d9d504aa58eb34d5f564755a1613b8b
-https://github.com/jeroennijhof/pam_tacplus.git==669b189583e6ceaa2f318a585638cf234aece11a
+https://github.com/jeroennijhof/pam_tacplus.git==b46399ad1798a0047c2fec975b09c213feb8d68a
 https://github.com/jpirko/libteam.git==69a7494bb77dc10bb27076add07b380dbd778592
 https://github.com/lguohan/gnxi.git==53901aba9ead82be21f1408a601b6266dcf1e3e4
 https://github.com/Marvell-switching/mrvl-prestera.git==21a100e01b2ab00229da35dd178d9b294c66303f
@@ -13,7 +13,7 @@ https://github.com/sflow/sflowtool==4be2a17b36a3b9796c280b117b8b786323a84ae8
 https://github.com/thom311/libnl==5f395029ad01f05448cd1c7e0ddd8085d758c98a
 https://salsa.debian.org/debian/libteam.git==f8808df228b00873926b5e7b998ad8b61368d4c5
 https://salsa.debian.org/dhcp-team/isc-dhcp.git==d0d58776805d720029619ea06df5c57706eecd5a
-https://salsa.debian.org/kernel-team/ethtool/==4985ed2e4ddeb9f9529e4c8195fb594309c5f1a8
+https://salsa.debian.org/kernel-team/ethtool/==04d2fb902191a12d78c0db715714b7d5da9246c7
 https://salsa.debian.org/kernel-team/initramfs-tools.git==40e544e13611c1b2690eb99a8096fc16c1b9c74e
 https://salsa.debian.org/sk-guest/monit.git==c9da7ebb1f35dfba17b50b5969a6e75e29cbec0d
-https://salsa.debian.org/ssh-team/openssh.git==1789bc497438cff6a14dcb8e41eefb9166f812ce
+https://salsa.debian.org/ssh-team/openssh.git==51161829bf022786f56f062edcaf56a9b9a8f394

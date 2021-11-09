@@ -27,11 +27,11 @@ psutil==5.8.0
 ptyprocess==0.7.0
 pyang==2.5.0
 pyangbind==0.8.1
-pycparser==2.20
+pycparser==2.21
 python-dateutil==2.8.2
 pyyaml==5.4.1
 redis==3.5.3
-regex==2021.10.23
+regex==2021.11.2
 requests==2.26.0
 scapy==2.4.4
 six==1.16.0
