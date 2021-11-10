@@ -51,27 +51,7 @@
 {%- if feature in ["lldp", "pmon", "radv", "snmp", "telemetry"] %}
             "set_owner": "kube", {% else %}
             "set_owner": "local", {% endif %} {% endif %}
-            "high_mem_alert": "disabled",
-{%- if feature in ["bgp", "swss", "pmon", "nat", "teamd", "dhcp_relay", "sflow", "l2mcd", "udld", "stp", "snmp", "lldp", "radv", "iccpd", "syncd", "vrrp", "mgmt-framework", "tam"] %}
-            "check_up_status" : "false"
-{%- else %}
-            "check_up_status" : "false"
-{%- endif %}
-        }{% if not loop.last %},{% endif -%}
-{% endfor %}
-    },
-{%- set host_features = [("caclmgrd", false),
-                        ("cron", false),
-                        ("docker", false),
-                        ("hostcfgd", false)] %}
-    "HOST_FEATURE": {
-{%- for host_feature, check_up_status in host_features %}
-        "{{host_feature}}": {
-{%- if host_feature in ["caclmgrd", "hostcfgd"] %}
-            "check_up_status" : "false"
-{%- else %}
-            "check_up_status" : "false"
-{%- endif %}
+            "high_mem_alert": "disabled"
         }{% if not loop.last %},{% endif -%}
 {% endfor %}
     }

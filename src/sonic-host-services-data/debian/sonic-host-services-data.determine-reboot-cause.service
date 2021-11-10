@@ -6,7 +6,6 @@ After=rc-local.service database.service
 [Service]
 Type=simple
 ExecStart=/usr/local/bin/determine-reboot-cause
-RemainAfterExit=yes
 
 [Install]
 WantedBy=multi-user.target
