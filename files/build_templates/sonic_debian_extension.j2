@@ -390,6 +390,14 @@ echo "ntp.service" | sudo tee -a $GENERATED_SERVICE_FILE
 sudo LANG=C cp $IMAGE_CONFIGS/warmboot-finalizer/finalize-warmboot.sh $FILESYSTEM_ROOT/usr/local/bin/finalize-warmboot.sh
 sudo LANG=C cp $IMAGE_CONFIGS/warmboot-finalizer/warmboot-finalizer.service $FILESYSTEM_ROOT_USR_LIB_SYSTEMD_SYSTEM
 echo "warmboot-finalizer.service" | sudo tee -a $GENERATED_SERVICE_FILE
+sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable warmboot-finalizer.service
+
+# Copy sysmonitor files
+sudo LANG=C cp $IMAGE_CONFIGS/sysmonitor/sysmonitor.py $FILESYSTEM_ROOT/usr/local/bin/sysmonitor.py
+sudo LANG=C cp $IMAGE_CONFIGS/sysmonitor/sysmonitor.service $FILESYSTEM_ROOT_USR_LIB_SYSTEMD_SYSTEM
+echo "sysmonitor.service" | sudo tee -a $GENERATED_SERVICE_FILE
+sudo LANG=C chroot $FILESYSTEM_ROOT systemctl enable sysmonitor.service
+
 
 # Copy watchdog-control files
 sudo LANG=C cp $IMAGE_CONFIGS/watchdog-control/watchdog-control.sh $FILESYSTEM_ROOT/usr/local/bin/watchdog-control.sh

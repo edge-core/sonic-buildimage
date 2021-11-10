@@ -1,0 +1,17 @@
+[Unit]
+Description=Watchdog service for system services and app readiness
+Requires=database.service
+After=database.service
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+
+[Service]
+Type=forking
+Restart=always
+ExecStart=/usr/local/bin/sysmonitor.py --daemon
+ExecReload=/bin/kill -HUP $MAINPID
+
+[Install]
+WantedBy=multi-user.target
+

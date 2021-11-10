@@ -66,6 +66,37 @@ module sonic-feature{
                     type stypes:feature_state;
                     default "disabled";
                 }
+                
+                leaf check_up_status {
+                    description "This configuration controls the system ready tool to check
+                                the app ready/up status";
+                    type boolean;
+                    default false;
+                }
+            }
+        }
+        container HOST_FEATURE {
+
+            description "host feature table in config_db.json";
+
+            list HOST_FEATURE_LIST {
+
+                key "name";
+
+                leaf name {
+                    description "host feature name in Host Feature table
+                                Example - caclmgrd, hostcfgd";
+                    type string {
+                        length 1..32;
+                    }
+                }
+
+                leaf check_up_status {
+                    description "This configuration controls the system ready tool to check
+                                the app ready/up status";
+                    type boolean;
+                    default false;
+                }
             }
         }
     }
