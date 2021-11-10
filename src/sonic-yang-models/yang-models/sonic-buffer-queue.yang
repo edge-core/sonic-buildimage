@@ -1,0 +1,66 @@
+module sonic-buffer-queue {
+    namespace "http://github.com/Azure/sonic-buffer-queue";
+    prefix bqueue;
+
+    import sonic-extension {
+        prefix sonic-ext;
+    }
+
+    import sonic-port {
+        prefix prt;
+    }
+
+    import sonic-buffer-profile {
+        prefix bpf;
+    }
+
+    organization
+        "SONiC";
+
+    contact
+        "SONiC";
+
+    description
+        "SONIC BUFFER QUEUE";
+
+    revision 2021-07-01 {
+        description
+            "Initial revision.";
+    }
+
+
+    container sonic-buffer-queue {
+
+        container BUFFER_QUEUE {
+
+            list BUFFER_QUEUE_LIST {
+                key "port qindex";
+
+                leaf port {
+                    type leafref {
+                        path "/prt:sonic-port/prt:PORT/prt:PORT_LIST/prt:name";
+                    }
+                }
+
+                leaf qindex {
+                    type string {
+                        pattern "(1[0-5]|[0-9])((-)(1[0-5]|[0-9]))?"{
+                            error-message "Invalid Q-index";
+                            error-app-tag qindex-invalid;
+                        }
+                    }
+                    description "Egress Queue Index for a port";
+                }
+
+                leaf profile {
+                    default 0;
+                    type leafref {
+                        path "/bpf:sonic-buffer-profile/bpf:BUFFER_PROFILE/bpf:BUFFER_PROFILE_LIST/bpf:name";
+                    }
+                    description "Buffer Profile associated with Priority Queue for a port";
+                }
+
+            }
+        }
+    }
+}

@@ -1,0 +1,157 @@
+{
+    "BUFFER_POOL_CORRECT_TYPE_INGRESS_VALUE": {
+        "sonic-buffer-pool:sonic-buffer-pool": {
+            "sonic-buffer-pool:BUFFER_POOL": {
+                "BUFFER_POOL_LIST": [
+                {
+                    "name": "Ethernet4",
+                    "mode": "static",
+                    "size": "12766208",
+                    "type": "ingress"
+                }
+                ]
+            }
+        }
+    },
+    "BUFFER_POOL_CORRECT_TYPE_EGRESS_VALUE": {
+        "sonic-buffer-pool:sonic-buffer-pool": {
+            "sonic-buffer-pool:BUFFER_POOL": {
+                "BUFFER_POOL_LIST": [
+                {
+                    "name": "Ethernet4",
+                    "mode": "static",
+                    "size": "12766208",
+                    "type": "egress"
+                }
+                ]
+            }
+        }
+    },
+    "BUFFER_POOL_WRONG_TYPE_VALUE": {
+        "sonic-buffer-pool:sonic-buffer-pool": {
+            "sonic-buffer-pool:BUFFER_POOL": {
+                "BUFFER_POOL_LIST": [
+                {
+                    "name": "Ethernet4",
+                    "mode": "static",
+                    "size": "12766208",
+                    "type": "wrong"
+                }
+                ]
+            }
+        }
+    },
+    "BUFFER_POOL_MANDATORY_TYPE_VALUE": {
+        "sonic-buffer-pool:sonic-buffer-pool": {
+            "sonic-buffer-pool:BUFFER_POOL": {
+                "BUFFER_POOL_LIST": [
+                {
+                    "name": "Ethernet4",
+                    "mode": "static",
+                    "size": "12766208"
+                }
+                ]
+            }
+        }
+    },
+    "BUFFER_POOL_CORRECT_MODE_STATIC_VALUE": {
+        "sonic-buffer-pool:sonic-buffer-pool": {
+            "sonic-buffer-pool:BUFFER_POOL": {
+                "BUFFER_POOL_LIST": [
+                {
+                    "name": "Ethernet4",
+                    "mode": "static",
+                    "size": "12766208",
+                    "type": "ingress"
+                }
+                ]
+            }
+        }
+    },
+    "BUFFER_POOL_CORRECT_MODE_DYNAMIC_VALUE": {
+        "sonic-buffer-pool:sonic-buffer-pool": {
+            "sonic-buffer-pool:BUFFER_POOL": {
+                "BUFFER_POOL_LIST": [
+                {
+                    "name": "Ethernet4",
+                    "mode": "dynamic",
+                    "size": "12766208",
+                    "type": "ingress"
+                }
+                ]
+            }
+        }
+    },
+    "BUFFER_POOL_WRONG_MODE_VALUE": {
+        "sonic-buffer-pool:sonic-buffer-pool": {
+            "sonic-buffer-pool:BUFFER_POOL": {
+                "BUFFER_POOL_LIST": [
+                {
+                    "name": "Ethernet4",
+                    "mode": "wrong",
+                    "size": "12766208",
+                    "type": "ingress"
+                }
+                ]
+            }
+        }
+    },
+    "BUFFER_POOL_CORRECT_XOFF_VALUE": {
+        "sonic-buffer-pool:sonic-buffer-pool": {
+            "sonic-buffer-pool:BUFFER_POOL": {
+                "BUFFER_POOL_LIST": [
+                {
+                    "name": "Ethernet4",
+                    "mode": "static",
+                    "xoff": "300",
+                    "size": "12766208",
+                    "type": "ingress"
+                }
+                ]
+            }
+        }
+    },
+    "BUFFER_POOL_WRONG_XOFF_VALUE": {
+        "sonic-buffer-pool:sonic-buffer-pool": {
+            "sonic-buffer-pool:BUFFER_POOL": {
+                "BUFFER_POOL_LIST": [
+                {
+                    "name": "Ethernet4",
+                    "mode": "static",
+                    "xoff": "wrong",
+                    "size": "12766208",
+                    "type": "ingress"
+                }
+                ]
+            }
+        }
+    },
+    "BUFFER_POOL_CORRECT_SIZE_VALUE": {
+        "sonic-buffer-pool:sonic-buffer-pool": {
+            "sonic-buffer-pool:BUFFER_POOL": {
+                "BUFFER_POOL_LIST": [
+                {
+                    "name": "Ethernet4",
+                    "mode": "static",
+                    "size": "12766208",
+                    "type": "ingress"
+                }
+                ]
+            }
+        }
+    },
+    "BUFFER_POOL_WRONG_SIZE_VALUE": {
+        "sonic-buffer-pool:sonic-buffer-pool": {
+            "sonic-buffer-pool:BUFFER_POOL": {
+                "BUFFER_POOL_LIST": [
+                {
+                    "name": "Ethernet4",
+                    "mode": "static",
+                    "size": "wrong",
+                    "type": "ingress"
+                }
+                ]
+            }
+        }
+    }
+}

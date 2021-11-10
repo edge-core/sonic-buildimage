@@ -4,6 +4,75 @@
                 "Vrf_blue": {
                 }
         },
+        "BUFFER_POOL": {
+            "ingress_lossy_pool": {
+               "mode": "static",
+               "size": "33004032",
+               "type": "ingress"
+            },
+            "ingress_lossless_pool": {
+               "mode": "static",
+               "size": "33004032",
+               "xoff": "196608",
+               "type": "ingress"
+            },
+            "egress_lossless_pool": {
+               "mode": "static",
+               "size": "33004032",
+               "xoff": "196608",
+               "type": "egress"
+            },
+            "egress_lossy_pool": {
+                "size": "12766208",
+                "type": "egress",
+                "mode": "dynamic"
+            }
+        },
+        "BUFFER_PROFILE": {
+            "pg_lossless_100000_300m_profile": {
+                "dynamic_th": "1",
+                "pool": "ingress_lossless_pool",
+                "size": "9427",
+                "xoff": "50176",
+                "xon": "0",
+                "xon_offset": "3584"
+            },
+            "ingress_lossy_profile": {
+                "pool":"ingress_lossy_pool",
+                "size":"1518",
+                "dynamic_th":"3"
+            },
+            "egress_lossless_profile": {
+                "pool":"egress_lossless_pool",
+                "size":"1518",
+                "dynamic_th":"3"
+            },
+            "egress_lossy_profile": {
+                "pool":"egress_lossy_pool",
+                "size":"1518",
+                "dynamic_th":"3"
+            }
+        },
+        "BUFFER_PG": {
+            "Ethernet9|3-4": {
+                "profile": "pg_lossless_100000_300m_profile"
+            }
+        },
+        "BUFFER_QUEUE": {
+            "Ethernet10|4": {
+                "profile": "egress_lossy_profile"
+            }
+        },
+        "BUFFER_PORT_INGRESS_PROFILE_LIST": {
+            "Ethernet9": {
+                "profile_list": ["ingress_lossy_profile"]
+            }
+        },
+        "BUFFER_PORT_EGRESS_PROFILE_LIST": {
+            "Ethernet9": {
+                "profile_list": ["egress_lossless_profile", "egress_lossy_profile"]
+            }
+        },
         "PORTCHANNEL": {
             "PortChannel0003": {
                 "admin_status": "up",
@@ -291,9 +360,9 @@
             "global": {
                 "vrf": "mgmt",
                 "src_intf": [
-		    "eth0",
-		    "Loopback0"
-		]
+                    "eth0",
+                    "Loopback0"
+                ]
             }
         },
         "NTP_SERVER": {

@@ -1,0 +1,62 @@
+module sonic-buffer-pool {
+    namespace "http://github.com/Azure/sonic-buffer-pool";
+    prefix bpl;
+
+    organization
+        "SONiC";
+
+    contact
+        "SONiC";
+
+    description
+        "SONIC BUFFER POOL";
+
+    revision 2021-07-01 {
+        description
+            "Initial revision.";
+    }
+
+    container sonic-buffer-pool {
+
+        container BUFFER_POOL {
+
+            list BUFFER_POOL_LIST {
+                key "name";
+
+                leaf name {
+                    type string;
+                    description "Buffer Pool name";
+                }
+
+                leaf type {
+                    mandatory true;
+                    type enumeration {
+                        enum ingress;
+                        enum egress;
+                    }
+                    description "Buffer Pool Type";
+                }
+
+                leaf mode {
+                    mandatory true;
+                    type enumeration {
+                        enum static;
+                        enum dynamic;
+                    }
+                    description "Buffer Pool Mode";
+                }
+
+                leaf size {
+                    type uint64;
+                    description "Buffer Pool Size (in Bytes)";
+                }
+
+                leaf xoff {
+                    default 0;
+                    type uint64;
+                    description "Buffer Pool Xoff Threshold (in Bytes)";
+                }
+            }
+        }
+    }
+}
