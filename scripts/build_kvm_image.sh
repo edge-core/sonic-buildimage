@@ -59,7 +59,11 @@ free -m
 if [[ "$vs_build_prepare_mem" == "yes" ]]; then
     # Force o.s. to drop cache and compact memory so that KVM can get 2G memory
     bash -c 'echo 1 > /proc/sys/vm/drop_caches'
-    bash -c 'echo 1 > /proc/sys/vm/compact_memory'
+    # Not all kernels support compact_memory
+    if [[ -w '/proc/sys/vm/compact_memory' ]]
+    then	    
+        bash -c 'echo 1 > /proc/sys/vm/compact_memory'
+    fi
     free -m
 fi
 
