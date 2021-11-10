@@ -802,7 +802,7 @@
                 ]
             }
         },
-        "Ethernet125": {
+        "Ethernet128": {
             "index": "33",
             "lanes": "129",
             "breakout_modes": {
@@ -811,7 +811,7 @@
                 ]
             }
         },
-        "Ethernet126": {
+        "Ethernet129": {
             "index": "34",
             "lanes": "131",
             "breakout_modes": {

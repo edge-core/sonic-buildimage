@@ -96,10 +96,10 @@
         "Ethernet124": {
             "default_brkout_mode": "1x100G[50G,40G,25G,10G]"
         },
-        "Ethernet125": {
+        "Ethernet128": {
             "default_brkout_mode": "1x10G"
         },
-        "Ethernet126": {
+        "Ethernet129": {
             "default_brkout_mode": "1x10G"
         }
     }
