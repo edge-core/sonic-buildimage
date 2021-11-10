@@ -1,7 +1,7 @@
 [Unit]
 Description=MUX Cable Container
-Requires=database.service updategraph.service pmon.service swss.service
-After=pmon.service swss.service
+Requires=database.service updategraph.service swss.service
+After=swss.service
 BindsTo=sonic.target
 After=sonic.target
 StartLimitIntervalSec=1200
