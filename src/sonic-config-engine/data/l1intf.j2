@@ -1,8 +1,15 @@
 {
     "DEVICE_METADATA": {
         "localhost" : {
-        "hwsku" : "{{ DEVICE_METADATA.localhost.hwsku }}"
-    }
+            "hwsku" : "{{ DEVICE_METADATA.localhost.hwsku }}"
+        }
+    },
+    "FLEX_COUNTER_TABLE": {
+        "ACL": {
+            "FLEX_COUNTER_STATUS": "disable",
+            "FLEX_COUNTER_DELAY_STATUS": "true",
+            "POLL_INTERVAL": "10000"
+        }
     },
     {% set ns = {'firstPrinted': False} -%}
     "PORT": {

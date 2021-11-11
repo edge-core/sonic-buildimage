@@ -10,6 +10,16 @@ if sys.version_info.major == 3:
 else:
     UNICODE_TYPE = unicode
 
+def generate_common_config(data):
+    data['FLEX_COUNTER_TABLE'] = {
+        'ACL': {
+            'FLEX_COUNTER_STATUS': 'disable',
+            'FLEX_COUNTER_DELAY_STATUS': 'true',
+            'POLL_INTERVAL': '10000'
+        }
+    }
+    return data
+
 # The following config generation methods exits:
 #    't1': generate_t1_sample_config,
 #    'l2': generate_l2_config,
@@ -160,5 +170,6 @@ def get_available_config():
     return list(_sample_generators.keys())
 
 def generate_sample_config(data, setting_name):
+    data = generate_common_config(data)
     return _sample_generators[setting_name.lower()](data)
 
