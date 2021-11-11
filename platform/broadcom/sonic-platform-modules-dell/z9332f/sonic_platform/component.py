@@ -50,9 +50,10 @@ def get_cpld2_version():
 def get_ssd_version():
     val = 'NA'
     try:
-        ssd_ver = subprocess.check_output(['ssdutil','-v'], text=True)
-    except Exception:
-        return val
+        ssd_ver = subprocess.check_output(['ssdutil', '-v'],
+                                          stderr=subprocess.STDOUT, text=True)
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        pass
     else:
         version = re.search(r'Firmware\s*:(.*)',ssd_ver)
         if version:
@@ -63,9 +64,10 @@ def get_ssd_version():
 def get_pciephy_version():
     val = 'NA'
     try:
-        pcie_ver = subprocess.check_output('bcmcmd "pciephy fw version"', shell=True, text=True)
-    except Exception:
-        return val
+        pcie_ver = subprocess.check_output(['bcmcmd', 'pciephy fw version'],
+                                           stderr=subprocess.STDOUT, text=True)
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        pass
     else:
         version = re.search(r'PCIe FW loader version:\s(.*)', pcie_ver)
         if version:
