@@ -23,6 +23,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	git apply ../0007-Fix-memory-leak-when-parse-configuration.patch
 	git apply ../0008-Extract-tacacs-support-functions-into-library.patch
 	git apply ../0009-Add-setting-flag-for-authorization-and-accounting.patch
+	git apply ../0010-handle-bad-password-set-by-sshd.patch
 
 	dpkg-buildpackage -rfakeroot -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS) --admindir $(SONIC_DPKG_ADMINDIR)
 	popd
