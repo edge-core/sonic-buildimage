@@ -151,6 +151,16 @@ module sonic-flex_counter {
                 }
             }
 
+            container ACL {
+                /* ACL_STAT_COUNTER_FLEX_COUNTER_GROUP */
+                leaf FLEX_COUNTER_STATUS {
+                    type flex_status;
+                }
+                leaf FLEX_COUNTER_DELAY_STATUS {
+                    type flex_delay_status;
+                }
+            }
+
         }
         /* end of container FLEX_COUNTER_TABLE */
     }

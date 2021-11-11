@@ -31,6 +31,9 @@
                 },
                 "QUEUE_WATERMARK": {
                     "FLEX_COUNTER_STATUS": "enable"
+                },
+                "ACL": {
+                    "FLEX_COUNTER_STATUS": "enable"
                 }
             }
         }
