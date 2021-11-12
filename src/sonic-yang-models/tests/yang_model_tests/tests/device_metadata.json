@@ -33,6 +33,9 @@
 	"desc": "DEVICE_METADATA_TYPE_INCORRECT_PATTERN pattern failure.",
 	"eStrKey" : "Pattern"
     },
+    "DEVICE_METADATA_TYPE_CORRECT_PATTERN": {
+        "desc": "DEVICE_METADATA correct value for Type field"
+    },
     "DEVICE_METADATA_CORRECT_BUFFER_MODEL_PATTERN": {
         "desc": "DEVICE_METADATA correct value for BUFFER_MODEL field"
     },
