@@ -23,8 +23,8 @@ https://deb.nodesource.com/node_14.x/dists/buster/Release==0f8fa9349b31d86f70668
 https://deb.nodesource.com/setup_10.x==6742c0148159980e8f6e886df1f8bbe1
 https://deb.nodesource.com/setup_14.x==871f5a56bb7bdb1bccf8f066e77399e0
 https://download.docker.com/linux/debian/gpg==1afae06b34a13c1b3d9cb61a26285a15
-https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnplatform_20210805_sai.1.7.1_deb10.deb==8ba915f8843cf57982825f304b629cb3
-https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnsdk_20210805_sai.1.7.1_deb10.deb==4d1e991a943a2e16be2c1db9bb3c02d6
+https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnplatform_20211112_sai.1.7.1_deb10.deb==c17beb440e2ae8d3271d78de0eede9db
+https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnsdk_20211112_sai.1.7.1_deb10.deb==688c587d2cfb39e5d1e7148b02f13fec
 https://github.com/CentecNetworks/sonic-binaries/raw/master/amd64/libsai_1.6.3-1_amd64.deb==e7a41e5cf06b44ae3ed615d553de40d3
 https://github.com/CentecNetworks/sonic-binaries/raw/master/arm64/sai/libsai_1.6.3-1_arm64.deb==4121f09fbc5319cd488b832d72287f93
 https://github.com/CumulusNetworks/ifupdown2/archive/1.2.8-1.tar.gz==12f45e90d23178e96cf70f68dc9455e6
