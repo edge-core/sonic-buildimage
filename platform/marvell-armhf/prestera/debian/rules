@@ -21,6 +21,7 @@ build:
 	rm -rf mrvl-prestera || true
 	git clone -b ${MRVL_PRESTERA_SRC_TAG} ${MRVL_PRESTERA_SRC_URL}
 	sed "s/KVERSION/${KVERSION}/g" /sonic/platform/marvell-armhf/prestera/debian/mrvlprestera.install.template > /sonic/platform/marvell-armhf/prestera/debian/mrvlprestera.install
+	sed -i "s/4,11,0)/4,11,0) \&\& LINUX_VERSION_CODE < KERNEL_VERSION(5,8,0)/g" /sonic/platform/marvell-armhf/prestera/mrvl-prestera/cpssEnabler/linuxNoKernelModule/drivers/dmaDriver.c
 
 	make modules -C $(KERNEL_SRC)/build M=$(MOD_SRC_DIR)/$(MODULE_DIR)/
 

@@ -1,5 +1,5 @@
 {%- if CONFIGURED_ARCH == "armhf" and MULTIARCH_QEMU_ENVIRON == "y" %}
-FROM multiarch/qemu-user-static:x86_64-arm-5.0.0-2 as qemu
+FROM multiarch/qemu-user-static:x86_64-arm-5.2.0-2 as qemu
 FROM multiarch/debian-debootstrap:armhf-bullseye
 COPY --from=qemu /usr/bin/qemu-arm-static /usr/bin
 {%- elif CONFIGURED_ARCH == "arm64" and MULTIARCH_QEMU_ENVIRON == "y" %}
@@ -378,6 +378,7 @@ RUN apt upgrade -y base-files
        RUN apt-get install --reinstall -y aspell-en
 
        # workaround because of https://bugs.launchpad.net/qemu/+bug/1805913, just disable aspell
+       # Issue now being tracked here - https://gitlab.com/qemu-project/qemu/-/issues/263
        RUN cp /bin/true /usr/bin/aspell
 {%- endif %}
 
