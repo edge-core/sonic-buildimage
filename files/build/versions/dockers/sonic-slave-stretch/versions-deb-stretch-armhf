@@ -19,11 +19,6 @@ libicu-dev==57.1-6+deb9u5
 libicu57==57.1-6+deb9u5
 libjbig2dec0==0.13-4.1+deb9u1
 libnghttp2-14==1.18.1-1+deb9u2
-libpython3.5==3.5.3-1+deb9u5
-libpython3.5-dbg==3.5.3-1+deb9u5
-libpython3.5-dev==3.5.3-1+deb9u5
-libpython3.5-minimal==3.5.3-1+deb9u5
-libpython3.5-stdlib==3.5.3-1+deb9u5
 libtext-charwidth-perl==0.04-7+b6
 libwayland-bin==1.12.0-1+deb9u1
 libwayland-dev==1.12.0-1+deb9u1
@@ -33,7 +28,3 @@ nodejs==10.24.1-1nodesource1
 python-babel==2.3.4+dfsg.1-2+deb9u1
 python-babel-localedata==2.3.4+dfsg.1-2+deb9u1
 python3-babel==2.3.4+dfsg.1-2+deb9u1
-python3.5==3.5.3-1+deb9u5
-python3.5-dbg==3.5.3-1+deb9u5
-python3.5-dev==3.5.3-1+deb9u5
-python3.5-minimal==3.5.3-1+deb9u5

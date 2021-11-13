@@ -11,6 +11,7 @@ amd64:docker-dhcp-relay==
 amd64:docker-fpm-frr==
 amd64:docker-gbsyncd-vs==
 amd64:docker-lldp==
+amd64:docker-mux==
 amd64:docker-nat==
 amd64:docker-orchagent==
 amd64:docker-platform-monitor==

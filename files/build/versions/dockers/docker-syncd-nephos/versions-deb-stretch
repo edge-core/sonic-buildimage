@@ -11,9 +11,9 @@ libgpm2==1.20.4-6.2+b1
 libicu57==57.1-6+deb9u5
 libmpdec2==2.4.2-1
 libpopt0==1.16-10+b2
-libpython3.5==3.5.3-1+deb9u4
-libpython3.5-minimal==3.5.3-1+deb9u4
-libpython3.5-stdlib==3.5.3-1+deb9u4
+libpython3.5==3.5.3-1+deb9u5
+libpython3.5-minimal==3.5.3-1+deb9u5
+libpython3.5-stdlib==3.5.3-1+deb9u5
 libsaimetadata==1.0.0
 libsaimetadata-dbg==1.0.0
 libsainps==1.5.0

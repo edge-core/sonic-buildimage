@@ -31,7 +31,7 @@ https://github.com/CumulusNetworks/ifupdown2/archive/1.2.8-1.tar.gz==12f45e90d23
 https://github.com/Innovium/SONiC/raw/master/debian/202012/ipd.deb==d1b2262ddb4171aae2ff3c3e7dbf52f7
 https://github.com/Innovium/SONiC/raw/master/debian/202012/isai.deb==3f495ebff53f8d419a55b6315dfa5200
 https://github.com/Innovium/SONiC/raw/master/debian/202012/saihdr.deb==0f72c8abff5b8ca3f144f7bde88bebc0
-https://github.com/Marvell-switching/sonic-marvell-binaries/raw/master/armhf/sai-plugin/mrvllibsai_armhf_1.7.1-5.deb==d1b76b7faea901027ac0ce852bce1da0
+https://github.com/Marvell-switching/sonic-marvell-binaries/raw/master/armhf/sai-plugin/mrvllibsai_armhf_1.7.1-6.deb==95c35d71a138c8cad4116d592cdd6a82
 https://github.com/nanomsg/nanomsg/archive/1.0.0.tar.gz==6f56ef28c93cee644e8c4aaaef7cfb55
 https://github.com/NephosInc/SONiC/raw/master/sai/libsainps-dev_3.0.0_sai_1.5.0_06a67d_amd64.deb==64931041f82533e2a05e003ed9d878c8
 https://github.com/NephosInc/SONiC/raw/master/sai/libsainps_3.0.0_sai_1.5.0_06a67d_amd64.deb==385b84051259ebb2580522a990cca161

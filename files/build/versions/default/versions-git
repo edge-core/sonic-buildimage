@@ -1,6 +1,6 @@
-https://chromium.googlesource.com/chromium/tools/depot_tools.git==266129cba38431d1ee2278d6d9790168c0762909
+https://chromium.googlesource.com/chromium/tools/depot_tools.git==08a95d8392e2249bd1c0a0b9f37cc12afb7c31e0
 https://github.com/aristanetworks/swi-tools.git==e938746c694e4eaa4cf4126981382c9c8372db24
-https://github.com/CESNET/libyang.git==320f34305dd9c7d14af5f13bec18e477b37f5db8
+https://github.com/CESNET/libyang.git==25ede0234ab1cde50e7e7f7efde1a2f43bc80fdc
 https://github.com/daveolson53/libnss-tacplus.git==19008ab68d9d504aa58eb34d5f564755a1613b8b
 https://github.com/jeroennijhof/pam_tacplus.git==b46399ad1798a0047c2fec975b09c213feb8d68a
 https://github.com/jpirko/libteam.git==69a7494bb77dc10bb27076add07b380dbd778592
