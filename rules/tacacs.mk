@@ -29,6 +29,19 @@ $(LIBNSS_TACPLUS)_RDEPENDS += $(LIBTAC2)
 $(LIBNSS_TACPLUS)_SRC_PATH = $(SRC_PATH)/tacacs/nss
 SONIC_MAKE_DEBS += $(LIBNSS_TACPLUS)
 
+
+# bash-tacplus packages
+BASH_TACPLUS_VERSION = 1.0.0
+
+export BASH_TACPLUS_VERSION
+
+BASH_TACPLUS = bash-tacplus_$(BASH_TACPLUS_VERSION)_$(CONFIGURED_ARCH).deb
+$(BASH_TACPLUS)_DEPENDS += $(LIBTAC_DEV)
+$(BASH_TACPLUS)_RDEPENDS += $(LIBTAC2)
+$(BASH_TACPLUS)_SRC_PATH = $(SRC_PATH)/tacacs/bash_tacplus
+SONIC_DPKG_DEBS += $(BASH_TACPLUS)
+
+
 # The .c, .cpp, .h & .hpp files under src/{$DBG_SRC_ARCHIVE list}
 # are archived into debug one image to facilitate debugging.
 #

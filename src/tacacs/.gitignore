@@ -1,5 +1,6 @@
 *
 !.gitignore
+!bash_tacplus/*
 nsm/*
 !nsm/Makefile
 !nsm/*.patch

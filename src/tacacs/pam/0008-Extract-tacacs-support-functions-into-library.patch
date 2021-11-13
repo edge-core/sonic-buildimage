@@ -1,21 +1,21 @@
-From d820001f60e0a9f5e5df83b1edb229be5212e0b5 Mon Sep 17 00:00:00 2001
+From 81a8b6135cb0c97a291195b04375d0ca33943621 Mon Sep 17 00:00:00 2001
 From: liuh-80 <58683130+liuh-80@users.noreply.github.com>
 Date: Tue, 12 Oct 2021 10:09:10 +0800
-Subject: [PATCH 3/4] Extract tacacs support functions into library.
+Subject: [PATCH] Extract tacacs support functions into library.
 
 ---
  Makefile.am         |  16 ++-
  configure.ac        |   3 +-
  libtacsupport.pc.in |  11 ++
  pam_tacplus.c       |   3 -
- pam_tacplus.h       |   6 --
- support.c           | 255 ++++++++++++++++++++++++++------------------
+ pam_tacplus.h       |   6 -
+ support.c           | 288 ++++++++++++++++++++++++++++----------------
  support.h           |  14 +++
- 7 files changed, 194 insertions(+), 114 deletions(-)
+ 7 files changed, 222 insertions(+), 119 deletions(-)
  create mode 100644 libtacsupport.pc.in
 
 diff --git a/Makefile.am b/Makefile.am
-index c90c582..2ac9ea0 100644
+index c90c582..b22c78b 100644
 --- a/Makefile.am
 +++ b/Makefile.am
 @@ -20,7 +20,7 @@ libtac/include/tacplus.h \
@@ -61,7 +61,7 @@ index c90c582..2ac9ea0 100644
 +pkgconfig_DATA = libtac.pc libtacsupport.pc 
  
 diff --git a/configure.ac b/configure.ac
-index f67e2ba..0f917a8 100644
+index f67e2ba..e2e3fa9 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -95,6 +95,7 @@ AM_CONDITIONAL(DOC, test "x$enable_doc" != "xno")
@@ -75,7 +75,7 @@ index f67e2ba..0f917a8 100644
  AC_OUTPUT
 diff --git a/libtacsupport.pc.in b/libtacsupport.pc.in
 new file mode 100644
-index 0000000..1f12fe0
+index 0000000..9698094
 --- /dev/null
 +++ b/libtacsupport.pc.in
 @@ -0,0 +1,11 @@
@@ -122,21 +122,47 @@ index bc71b54..e7b30f7 100644
  #define PAM_TAC_VMAJ 1
  #define PAM_TAC_VMIN 3
 diff --git a/support.c b/support.c
-index e22fa31..5b6e1fa 100644
+index 2f77bc8..5f43b1a 100644
 --- a/support.c
 +++ b/support.c
-@@ -29,6 +29,7 @@
+@@ -29,7 +29,11 @@
  
  #include <stdlib.h>
  #include <string.h>
 +#include <ctype.h> /* isspace() */
  
++/* tacacs config file splitter */
++#define CONFIG_FILE_SPLITTER " ,\t\n\r\f"
++
  /* tacacs server information */
  tacplus_server_t tac_srv[TAC_PLUS_MAXSERVERS];
-@@ -236,9 +237,160 @@ void set_source_ip(const char *tac_source_ip) {
+ struct addrinfo tac_srv_addr[TAC_PLUS_MAXSERVERS];
+@@ -234,11 +238,182 @@ void set_source_ip(const char *tac_source_ip) {
+         freeaddrinfo(source_address);
+         _pam_log(LOG_DEBUG, "source ip is set");
      }
- }
- 
++}
++
++/*
++ * Reset configuration variables.
++ * This method need to be called before parse config, otherwise the server list will grow with each call.
++ */
++int reset_config_variables () {
++    memset(tac_srv, 0, sizeof(tacplus_server_t) * TAC_PLUS_MAXSERVERS);
++    tac_srv_no = 0;
++
++    tac_service[0] = 0;
++    tac_protocol[0] = 0;
++    tac_prompt[0] = 0;
++    tac_login[0] = 0;
++    tac_source_ip[0] = 0;
++
++    if (tac_source_addr != NULL) {
++        /* reset source address */
++        tac_source_addr = NULL;
++    }
++}
++
 +/*
 + * Parse one arguments.
 + * Use this method for both:
@@ -254,7 +280,6 @@ index e22fa31..5b6e1fa 100644
 +    return ctrl;
 +}    /* _pam_parse_arg */
 +
-+
 +/*
 + * Parse config file.
 + */
@@ -263,15 +288,13 @@ index e22fa31..5b6e1fa 100644
 +    char line_buffer[256];
 +    int ctrl = 0;
 +
++    /* otherwise the list will grow with each call */
++    reset_config_variables();
++
 +    config_file = fopen(file, "r");
 +    if(config_file == NULL) {
 +        _pam_log(LOG_ERR, "Failed to open config file %s: %m", file);
 +        return 0;
-+    }
-+
-+    if (tac_source_addr != NULL) {
-+        /* reset source address */
-+        tac_source_addr = NULL;
 +    }
 +
 +    char current_secret[256];
@@ -279,14 +302,17 @@ index e22fa31..5b6e1fa 100644
 +    while (fgets(line_buffer, sizeof line_buffer, config_file)) {
 +        if(*line_buffer == '#' || isspace(*line_buffer))
 +            continue; /* skip comments and blank line. */
-+        strtok(line_buffer, " \t\n\r\f");
-+        ctrl |= _pam_parse_arg(line_buffer, current_secret, sizeof(current_secret));
++        char* config_item = strtok(line_buffer, CONFIG_FILE_SPLITTER);
++        while (config_item != NULL) {
++            ctrl |= _pam_parse_arg(config_item, current_secret, sizeof(current_secret));
++            config_item = strtok(NULL, CONFIG_FILE_SPLITTER);
++        }
 +    }
 +
 +    fclose(config_file);
 +    return ctrl;
-+}
-+
+ }
+ 
  int _pam_parse (int argc, const char **argv) {
      int ctrl = 0;
 -    const char *current_secret = NULL;
@@ -295,7 +321,20 @@ index e22fa31..5b6e1fa 100644
  
      /* otherwise the list will grow with each call */
      memset(tac_srv, 0, sizeof(tacplus_server_t) * TAC_PLUS_MAXSERVERS);
-@@ -256,106 +408,7 @@ int _pam_parse (int argc, const char **argv) {
+@@ -248,114 +423,15 @@ int _pam_parse (int argc, const char **argv) {
+     tac_protocol[0] = 0;
+     tac_prompt[0] = 0;
+     tac_login[0] = 0;
+-    tac_source_ip[0] = 0;
+-
+-    if (tac_source_addr != NULL) {
+-        /* reset source address */
+-        tac_source_addr = NULL;
++    tac_source_ip[0] = 0;
++
++    if (tac_source_addr != NULL) {
++        /* reset source address */
++        tac_source_addr = NULL;
      }
  
      for (ctrl = 0; argc-- > 0; ++argv) {
@@ -404,7 +443,7 @@ index e22fa31..5b6e1fa 100644
  
      if (ctrl & PAM_TAC_DEBUG) {
 diff --git a/support.h b/support.h
-index 6bcb07f..569172e 100644
+index 6bcb07f..27f66de 100644
 --- a/support.h
 +++ b/support.h
 @@ -26,6 +26,14 @@
