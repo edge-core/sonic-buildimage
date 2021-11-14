@@ -1,4 +1,4 @@
-https://chromium.googlesource.com/chromium/tools/depot_tools.git==08a95d8392e2249bd1c0a0b9f37cc12afb7c31e0
+https://chromium.googlesource.com/chromium/tools/depot_tools.git==3fca89bbc87dda9d7fcb72cda23af4aa313d90d9
 https://github.com/aristanetworks/swi-tools.git==e938746c694e4eaa4cf4126981382c9c8372db24
 https://github.com/CESNET/libyang.git==25ede0234ab1cde50e7e7f7efde1a2f43bc80fdc
 https://github.com/daveolson53/libnss-tacplus.git==19008ab68d9d504aa58eb34d5f564755a1613b8b
@@ -16,4 +16,4 @@ https://salsa.debian.org/dhcp-team/isc-dhcp.git==d0d58776805d720029619ea06df5c57
 https://salsa.debian.org/kernel-team/ethtool/==04d2fb902191a12d78c0db715714b7d5da9246c7
 https://salsa.debian.org/kernel-team/initramfs-tools.git==40e544e13611c1b2690eb99a8096fc16c1b9c74e
 https://salsa.debian.org/sk-guest/monit.git==c9da7ebb1f35dfba17b50b5969a6e75e29cbec0d
-https://salsa.debian.org/ssh-team/openssh.git==51161829bf022786f56f062edcaf56a9b9a8f394
+https://salsa.debian.org/ssh-team/openssh.git==703df87d44ddf3248fc0ed9f2add56f0e13e2b40

@@ -51,7 +51,7 @@ cpio==2.11+dfsg-6
 cpp==4:6.3.0-4
 cpp-6==6.3.0-18+deb9u1
 cppcheck==1.76.1-1
-cron==3.0pl1-128+deb9u1
+cron==3.0pl1-128+deb9u2
 curl==7.52.1-5+deb9u16
 dbus==1.10.32-0+deb9u1
 dconf-gsettings-backend==0.26.0-2+b1
@@ -153,7 +153,7 @@ gtk-update-icon-cache==3.22.11-1
 guile-2.0-libs==2.0.13+1-4
 hicolor-icon-theme==0.15-1
 icc-profiles-free==2.0.1+dfsg-1
-icu-devtools==57.1-6+deb9u4
+icu-devtools==57.1-6+deb9u5
 imagemagick==8:6.9.7.4+dfsg-11+deb9u13
 imagemagick-6-common==8:6.9.7.4+dfsg-11+deb9u13
 imagemagick-6.q16==8:6.9.7.4+dfsg-11+deb9u13
@@ -171,7 +171,7 @@ junit==3.8.2-8
 junit4==4.12-4+deb9u1
 kernel-wedge==2.96
 kmod==23-2
-krb5-locales==1.15-1+deb9u1
+krb5-locales==1.15-1+deb9u3
 less==481-2.1
 lib32asan3==6.3.0-18+deb9u1
 lib32atomic1==6.3.0-18+deb9u1
@@ -380,9 +380,9 @@ libcommons-validator-java==1:1.5.1-1
 libconvert-binhex-perl==1.125-1
 libcroco3==0.6.11-3
 libcryptsetup4==2:1.7.3-4
-libcups2==2.2.1-8+deb9u6
+libcups2==2.2.1-8+deb9u7
 libcupsfilters1==1.11.6-3+deb9u1
-libcupsimage2==2.2.1-8+deb9u6
+libcupsimage2==2.2.1-8+deb9u7
 libcurl3==7.52.1-5+deb9u16
 libcurl3-gnutls==7.52.1-5+deb9u16
 libcurl3-nss==7.52.1-5+deb9u16
@@ -419,15 +419,16 @@ libdrm-intel1==2.4.74-1
 libdrm-nouveau2==2.4.74-1
 libdrm-radeon1==2.4.74-1
 libdrm2==2.4.74-1
-libdw-dev==0.168-1
-libdw1==0.168-1
+libdw-dev==0.168-1+deb9u1
+libdw1==0.168-1+deb9u1
 libeasymock-java==3.4+ds-1
 libeatmydata1==105-5
 libeclipse-aether-java==1.0.2-1
 libedit-dev==3.1-20160903-3
 libedit2==3.1-20160903-3
 libegl1-mesa==13.0.6-1+b2
-libelf-dev==0.168-1
+libelf-dev==0.168-1+deb9u1
+libelf1==0.168-1+deb9u1
 libemail-valid-perl==1.202-1
 libencode-locale-perl==1.05-1
 libepoxy0==1.3.1-2
@@ -550,8 +551,8 @@ libibverbs-dev==1.2.1-2
 libibverbs1==1.2.1-2
 libice-dev==2:1.0.9-2
 libice6==2:1.0.9-2
-libicu-dev==57.1-6+deb9u4
-libicu57==57.1-6+deb9u4
+libicu-dev==57.1-6+deb9u5
+libicu57==57.1-6+deb9u5
 libidn2-0==0.16-1+deb9u1
 libijs-0.35==0.35-12
 libilmbase12==2.2.0-12
@@ -589,7 +590,7 @@ libjansson4==2.9-1
 libjaxen-java==1.1.6-1+deb9u1
 libjaxp1.3-java==1.3.05-2
 libjbig0==2.1-3.1+b2
-libjbig2dec0==0.13-4.1
+libjbig2dec0==0.13-4.1+deb9u1
 libjdom1-java==1.1.3-1+deb9u1
 libjemalloc-dev==3.6.0-9.1
 libjemalloc1==3.6.0-9.1
@@ -715,7 +716,7 @@ libnfnetlink-dev==1.0.1-3
 libnfnetlink0==1.0.1-3
 libnftnl-dev==1.0.7-1
 libnftnl4==1.0.7-1
-libnghttp2-14==1.18.1-1+deb9u1
+libnghttp2-14==1.18.1-1+deb9u2
 libnih-dbus1==1.0.3-8
 libnih1==1.0.3-8
 libnl-3-200==3.2.27-2
@@ -896,7 +897,7 @@ libsasl2-modules==2.1.27~101-g0780600+dfsg-3+deb9u1
 libsasl2-modules-db==2.1.27~101-g0780600+dfsg-3+deb9u1
 libsaxon-java==1:6.5.5-10
 libscalar-list-utils-perl==1:1.47-1
-libsdl1.2debian==1.2.15+dfsg1-4
+libsdl1.2debian==1.2.15+dfsg1-4+deb9u1
 libseccomp2==2.3.1-2.1+deb9u1
 libselinux1-dev==2.6-3+b3
 libsensors4==1:3.4.0-4
@@ -1248,8 +1249,8 @@ python-apt==1.4.3
 python-apt-common==1.4.3
 python-astroid==1.4.9-1
 python-attr==16.3.0-1
-python-babel==2.3.4+dfsg.1-2
-python-babel-localedata==2.3.4+dfsg.1-2
+python-babel==2.3.4+dfsg.1-2+deb9u1
+python-babel-localedata==2.3.4+dfsg.1-2+deb9u1
 python-backports.functools-lru-cache==1.3-1
 python-bs4==4.5.3-1
 python-cffi-backend==1.9.1-2
@@ -1326,7 +1327,7 @@ python3-all==3.5.3-1
 python3-all-dbg==3.5.3-1
 python3-all-dev==3.5.3-1
 python3-apt==1.4.3
-python3-babel==2.3.4+dfsg.1-2
+python3-babel==2.3.4+dfsg.1-2+deb9u1
 python3-cffi-backend==1.9.1-2
 python3-chardet==2.3.0-2
 python3-crypto==2.6.1-7
