@@ -24,6 +24,7 @@
 }
 
 /var/log/auth.log
+/var/log/arista.log
 /var/log/cron.log
 /var/log/syslog
 /var/log/teamd.log
