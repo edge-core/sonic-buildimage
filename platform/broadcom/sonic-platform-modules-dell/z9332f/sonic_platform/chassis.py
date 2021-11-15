@@ -59,17 +59,17 @@ class Chassis(ChassisBase):
     SYSLED_COLOR_TO_REG = {
        "green": 0xd0,
        "yellow": 0xe0,
-       "flash_green": 0xd2,
-       "flash_yellow": 0xe2
+       "flashing green": 0xd2,
+       "flashing yellow": 0xe2
        }
 
     REG_TO_SYSLED_COLOR = {
         0xd0 : "green",
         0xe0 : "yellow",
-        0xd2 : "flash_green",
-        0xd1 : "flash_green",
-        0xe2 : "flash_yellow",
-        0xe1 : "flash_yellow"
+        0xd2 : "flashing green",
+        0xd1 : "flashing green",
+        0xe2 : "flashing yellow",
+        0xe1 : "flashing yellow"
         }
 
     _global_port_pres_dict = {}

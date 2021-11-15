@@ -1,6 +1,10 @@
 {
     "chassis": {
         "name": "S6100-ON",
+        "status_led": {
+            "controllable": true,
+            "colors": ["amber", "blinking amber", "green", "blinking green"]
+        },
         "components": [
             {
                 "name": "BIOS"
@@ -14,48 +18,84 @@
         ],
         "fans": [
             {
-                "name": "FanTray1-Fan1"
+                "name": "FanTray1-Fan1",
+                "speed": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FanTray2-Fan1"
+                "name": "FanTray2-Fan1",
+                "speed": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FanTray3-Fan1"
+                "name": "FanTray3-Fan1",
+                "speed": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FanTray4-Fan1"
+                "name": "FanTray4-Fan1",
+                "speed": {
+                    "controllable": false
+                }
             }
         ],
         "fan_drawers":[
             {
                 "name": "FanTray1",
+                "status_led": {
+                    "controllable": false
+                },
                 "fans": [
                     {
-                        "name": "FanTray1-Fan1"
+                        "name": "FanTray1-Fan1",
+                        "speed": {
+                            "controllable": false
+                        }
                     }
                 ]
             },
             {
                 "name": "FanTray2",
+                "status_led": {
+                    "controllable": false
+                },
                 "fans": [
                     {
-                        "name": "FanTray2-Fan1"
+                        "name": "FanTray2-Fan1",
+                        "speed": {
+                            "controllable": false
+                        }
                     }
                 ]
             },
             {
                 "name": "FanTray3",
+                "status_led": {
+                    "controllable": false
+                },
                 "fans": [
                     {
-                        "name": "FanTray3-Fan1"
+                        "name": "FanTray3-Fan1",
+                        "speed": {
+                            "controllable": false
+                        }
                     }
                 ]
             },
             {
                 "name": "FanTray4",
+                "status_led": {
+                    "controllable": false
+                },
                 "fans": [
                     {
-                        "name": "FanTray4-Fan1"
+                        "name": "FanTray4-Fan1",
+                        "speed": {
+                            "controllable": false
+                        }
                     }
                 ]
             }
@@ -63,51 +103,73 @@
         "psus": [
             {
                 "name": "PSU1",
+                "status_led": {
+                    "controllable": false
+                },
                 "fans": [
                     {
-                        "name": "PSU1 Fan"
+                        "name": "PSU1 Fan",
+                        "speed": {
+                            "controllable": false
+                        }
                     }
                 ]
             },
             {
                 "name": "PSU2",
+                "status_led": {
+                    "controllable": false
+                },
                 "fans": [
                     {
-                        "name": "PSU2 Fan"
+                        "name": "PSU2 Fan",
+                        "speed": {
+                            "controllable": false
+                        }
                     }
                 ]
             }
         ],
         "thermals": [
             {
-                "name": "CPU On-board"
+                "name": "CPU On-board",
+                "controllable": false
             },
             {
-                "name": "ASIC On-board Front"
+                "name": "ASIC On-board Front",
+                "controllable": false
             },
             {
-                "name": "System Front"
+                "name": "System Front",
+                "controllable": false
             },
             {
-                "name": "ASIC On-board Rear"
+                "name": "ASIC On-board Rear",
+                "controllable": false
             },
             {
-                "name": "Front GE board"
+                "name": "Front GE board",
+                "controllable": false
             },
             {
-                "name": "Front SFP+ board"
+                "name": "Front SFP+ board",
+                "controllable": false
             },
             {
-                "name": "CPU Core 0"
+                "name": "CPU Core 0",
+                "controllable": false
             },
             {
-                "name": "CPU Core 1"
+                "name": "CPU Core 1",
+                "controllable": false
             },
             {
-                "name": "CPU Core 2"
+                "name": "CPU Core 2",
+                "controllable": false
             },
             {
-                "name": "CPU Core 3"
+                "name": "CPU Core 3",
+                "controllable": false
             }
         ],
         "modules": [

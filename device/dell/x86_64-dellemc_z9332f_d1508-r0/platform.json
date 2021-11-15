@@ -1,6 +1,10 @@
 {
     "chassis": {
         "name": "Z9332F-ON",
+        "status_led": {
+            "controllable": true,
+            "colors": ["green", "flashing green", "yellow", "flashing yellow"]
+        },
         "components": [
             {
                 "name": "BIOS"
@@ -29,123 +33,228 @@
         ],
         "fans": [
             {
-                "name": "FanTray1-Fan1"
+                "name": "FanTray1-Fan1",
+                "speed": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FanTray1-Fan2"
+                "name": "FanTray1-Fan2",
+                "speed": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FanTray2-Fan1"
+                "name": "FanTray2-Fan1",
+                "speed": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FanTray2-Fan2"
+                "name": "FanTray2-Fan2",
+                "speed": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FanTray3-Fan1"
+                "name": "FanTray3-Fan1",
+                "speed": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FanTray3-Fan2"
+                "name": "FanTray3-Fan2",
+                "speed": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FanTray4-Fan1"
+                "name": "FanTray4-Fan1",
+                "speed": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FanTray4-Fan2"
+                "name": "FanTray4-Fan2",
+                "speed": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FanTray5-Fan1"
+                "name": "FanTray5-Fan1",
+                "speed": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FanTray5-Fan2"
+                "name": "FanTray5-Fan2",
+                "speed": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FanTray6-Fan1"
+                "name": "FanTray6-Fan1",
+                "speed": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FanTray6-Fan2"
+                "name": "FanTray6-Fan2",
+                "speed": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FanTray7-Fan1"
+                "name": "FanTray7-Fan1",
+                "speed": {
+                    "controllable": false
+                }
             },
             {
-                "name": "FanTray7-Fan2"
+                "name": "FanTray7-Fan2",
+                "speed": {
+                    "controllable": false
+                }
             }
         ],
         "fan_drawers":[
             {
                 "name": "FanTray1",
+                "status_led": {
+                    "controllable": false
+                },
                 "fans": [
                     {
-                        "name": "FanTray1-Fan1"
+                        "name": "FanTray1-Fan1",
+                        "speed": {
+                            "controllable": false
+                        }
                     },
                     {
-                        "name": "FanTray1-Fan2"
+                        "name": "FanTray1-Fan2",
+                        "speed": {
+                            "controllable": false
+                        }
                     }
                 ]
             },
             {
                 "name": "FanTray2",
+                "status_led": {
+                    "controllable": false
+                },
                 "fans": [
                     {
-                        "name": "FanTray2-Fan1"
+                        "name": "FanTray2-Fan1",
+                        "speed": {
+                            "controllable": false
+                        }
                     },
                     {
-                        "name": "FanTray2-Fan2"
+                        "name": "FanTray2-Fan2",
+                        "speed": {
+                            "controllable": false
+                        }
                     }
                 ]
             },
             {
                 "name": "FanTray3",
+                "status_led": {
+                    "controllable": false
+                },
                 "fans": [
                     {
-                        "name": "FanTray3-Fan1"
+                        "name": "FanTray3-Fan1",
+                        "speed": {
+                            "controllable": false
+                        }
                     },
                     {
-                        "name": "FanTray3-Fan2"
+                        "name": "FanTray3-Fan2",
+                        "speed": {
+                            "controllable": false
+                        }
                     }
                 ]
             },
             {
                 "name": "FanTray4",
+                "status_led": {
+                    "controllable": false
+                },
                 "fans": [
                     {
-                        "name": "FanTray4-Fan1"
+                        "name": "FanTray4-Fan1",
+                        "speed": {
+                            "controllable": false
+                        }
                     },
                     {
-                        "name": "FanTray4-Fan2"
+                        "name": "FanTray4-Fan2",
+                        "speed": {
+                            "controllable": false
+                        }
                     }
                 ]
             },
-                        {
+            {
                 "name": "FanTray5",
+                "status_led": {
+                    "controllable": false
+                },
                 "fans": [
                     {
-                        "name": "FanTray5-Fan1"
+                        "name": "FanTray5-Fan1",
+                        "speed": {
+                            "controllable": false
+                        }
                     },
                     {
-                        "name": "FanTray5-Fan2"
+                        "name": "FanTray5-Fan2",
+                        "speed": {
+                            "controllable": false
+                        }
                     }
                 ]
             },
             {
                 "name": "FanTray6",
+                "status_led": {
+                    "controllable": false
+                },
                 "fans": [
                     {
-                        "name": "FanTray6-Fan1"
+                        "name": "FanTray6-Fan1",
+                        "speed": {
+                            "controllable": false
+                        }
                     },
                     {
-                        "name": "FanTray6-Fan2"
+                        "name": "FanTray6-Fan2",
+                        "speed": {
+                            "controllable": false
+                        }
                     }
                 ]
             },
             {
                 "name": "FanTray7",
+                "status_led": {
+                    "controllable": false
+                },
                 "fans": [
                     {
-                        "name": "FanTray7-Fan1"
+                        "name": "FanTray7-Fan1",
+                        "speed": {
+                            "controllable": false
+                        }
                     },
                     {
-                        "name": "FanTray7-Fan2"
+                        "name": "FanTray7-Fan2",
+                        "speed": {
+                            "controllable": false
+                        }
                     }
                 ]
             }
@@ -153,63 +262,89 @@
         "psus": [
             {
                 "name": "PSU1",
+                "status_led": {
+                    "controllable": false
+                },
                 "fans": [
                     {
-                        "name": "PSU1 Fan"
+                        "name": "PSU1 Fan",
+                        "speed": {
+                            "controllable": false
+                        }
                     }
                 ]
             },
             {
                 "name": "PSU2",
+                "status_led": {
+                    "controllable": false
+                },
                 "fans": [
                     {
-                        "name": "PSU2 Fan"
+                        "name": "PSU2 Fan",
+                        "speed": {
+                            "controllable": false
+                        }
                     }
                 ]
             }
         ],
         "thermals": [
             {
-                "name": "CPU On-board"
+                "name": "CPU On-board",
+                "controllable": false
             },
             {
-                "name": "Baseboard U3"
+                "name": "Baseboard U3",
+                "controllable": false
             },
             {
-                "name": "SW Internal"
+                "name": "SW Internal",
+                "controllable": false
             },
             {
-                "name": "Fan U52"
+                "name": "Fan U52",
+                "controllable": false
             },
             {
-                "name": "Fan U17"
+                "name": "Fan U17",
+                "controllable": false
             },
             {
-                "name": "SW U52"
+                "name": "SW U52",
+                "controllable": false
             },
             {
-                "name": "SW U16"
+                "name": "SW U16",
+                "controllable": false
             },
             {
-                "name": "PSU1 Inlet"
+                "name": "PSU1 Inlet",
+                "controllable": false
             },
             {
-                "name": "PSU1 Hotspot"
+                "name": "PSU1 Hotspot",
+                "controllable": false
             },
             {
-                "name": "PSU2 Inlet"
+                "name": "PSU2 Inlet",
+                "controllable": false
             },
             {
-                "name": "PSU2 Hotspot"
+                "name": "PSU2 Hotspot",
+                "controllable": false
             },
             {
-                "name": "SW U04"
+                "name": "SW U04",
+                "controllable": false
             },
             {
-                "name": "SW U14"
+                "name": "SW U14",
+                "controllable": false
             },
             {
-                "name": "SW U4403"
+                "name": "SW U4403",
+                "controllable": false
             }
         ],
         "modules": [],
