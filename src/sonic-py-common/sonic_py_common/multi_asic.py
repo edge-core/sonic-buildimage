@@ -9,6 +9,7 @@ from .device_info import CONTAINER_PLATFORM_PATH
 from .device_info import HOST_DEVICE_PATH
 from .device_info import get_platform
 from .device_info import is_supervisor
+from .device_info import is_chassis
 
 ASIC_NAME_PREFIX = 'asic'
 NAMESPACE_PATH_GLOB = '/run/netns/*'
@@ -410,7 +411,7 @@ def get_back_end_interface_set(namespace=None):
 
 def is_bgp_session_internal(bgp_neigh_ip, namespace=None):
 
-    if not is_multi_asic():
+    if not is_multi_asic() and not is_chassis():
         return False
 
     ns_list = get_namespace_list(namespace)
@@ -418,7 +419,15 @@ def is_bgp_session_internal(bgp_neigh_ip, namespace=None):
     for ns in ns_list:
 
         config_db = connect_config_db_for_ns(ns)
-        bgp_sessions = config_db.get_entry(BGP_INTERNAL_NEIGH_CFG_DB_TABLE, bgp_neigh_ip)
+        bgp_sessions = config_db.get_entry(
+            BGP_INTERNAL_NEIGH_CFG_DB_TABLE, bgp_neigh_ip
+        )
+        if bgp_sessions:
+            return True
+
+        bgp_sessions = config_db.get_entry(
+            'BGP_VOQ_CHASSIS_NEIGHBOR', bgp_neigh_ip
+        )
         if bgp_sessions:
             return True
 
