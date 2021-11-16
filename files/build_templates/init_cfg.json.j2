@@ -61,5 +61,26 @@
             "high_mem_alert": "disabled"
         }{% if not loop.last %},{% endif -%}
 {% endfor %}
+    },
+    "AUTO_TECHSUPPORT": {
+        "GLOBAL": {
+{%- if enable_auto_tech_support == "y" %}
+            "state" : "enabled", {% else %}
+            "state" : "disabled", {% endif %}
+            "rate_limit_interval" : "180",
+            "max_techsupport_limit" : "10.0",
+            "max_core_limit" : "5.0",
+            "since" : "2 days ago"
+        }
+    },
+    "AUTO_TECHSUPPORT_FEATURE": {
+{%- for feature, _, _, _ in features %}
+        "{{feature}}": {
+{%- if enable_auto_tech_support == "y" %}
+            "state" : "enabled", {% else %}
+            "state" : "disabled", {% endif %}
+            "rate_limit_interval" : "600"
+        }{%if not loop.last %},{% endif -%}
+{% endfor %} 
     }
 }
