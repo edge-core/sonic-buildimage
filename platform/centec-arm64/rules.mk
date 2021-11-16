@@ -1,6 +1,7 @@
 include $(PLATFORM_PATH)/sai.mk
 include $(PLATFORM_PATH)/docker-syncd-centec.mk
 include $(PLATFORM_PATH)/docker-syncd-centec-rpc.mk
+include $(PLATFORM_PATH)/docker-saiserver-centec.mk
 include $(PLATFORM_PATH)/one-image.mk
 include $(PLATFORM_PATH)/libsaithrift-dev.mk
 include $(PLATFORM_PATH)/tsingma-bsp.mk

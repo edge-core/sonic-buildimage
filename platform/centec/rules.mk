@@ -4,6 +4,7 @@ include $(PLATFORM_PATH)/platform-modules-centec-v682.mk
 include $(PLATFORM_PATH)/sdk.mk
 include $(PLATFORM_PATH)/docker-syncd-centec.mk
 include $(PLATFORM_PATH)/docker-syncd-centec-rpc.mk
+include $(PLATFORM_PATH)/docker-saiserver-centec.mk
 include $(PLATFORM_PATH)/one-image.mk
 include $(PLATFORM_PATH)/libsaithrift-dev.mk
 
