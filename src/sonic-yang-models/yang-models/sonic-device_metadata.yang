@@ -113,6 +113,14 @@ module sonic-device_metadata {
                         otherwise, sonic-bgpcfgd handles the FRR configurations based on the predefined templates.";
                     default "false";
                 }
+
+                leaf synchronous_mode {
+                    type enumeration {
+                        enum enable;
+                        enum disable;
+                    }
+                    default enable;
+                }
             }
             /* end of container localhost */
         }
