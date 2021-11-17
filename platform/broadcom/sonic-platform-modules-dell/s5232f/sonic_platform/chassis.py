@@ -118,6 +118,7 @@ class Chassis(ChassisBase):
                 if(presence and self._global_port_pres_dict[port_num] == '0'):
                     self._global_port_pres_dict[port_num] = '1'
                     port_dict[port_num] = '1'
+                    self.get_sfp(port_num)._initialize_media(delay=True)
                 elif(not presence and
                         self._global_port_pres_dict[port_num] == '1'):
                     self._global_port_pres_dict[port_num] = '0'
