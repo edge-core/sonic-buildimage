@@ -47,7 +47,7 @@ class TestCfgGen(TestCase):
         except OSError:
             pass
 
-    def run_script(self, argument, check_stderr=False):
+    def run_script(self, argument, check_stderr=False, verbose=False):
         print('\n    Running sonic-cfggen ' + argument)
         if check_stderr:
             output = subprocess.check_output(self.script_file + ' ' + argument, stderr=subprocess.STDOUT, shell=True)
@@ -62,6 +62,8 @@ class TestCfgGen(TestCase):
             print('    Output: ' + output.strip())
         else:
             print('    Output: ({0} lines, {1} bytes)'.format(linecount + 1, len(output)))
+            if verbose == True:
+                print('    Output: ' + output.strip())
         return output
 
     def test_dummy_run(self):
@@ -201,7 +203,7 @@ class TestCfgGen(TestCase):
     # more robust by adding better parsing logic.
     def test_minigraph_acl(self):
         argument = '-m "' + self.sample_graph_t0 + '" -p "' + self.port_config + '" -v ACL_TABLE'
-        output = self.run_script(argument, True)
+        output = self.run_script(argument, True, True)
         self.assertEqual(
             utils.to_dict(output.strip().replace("Warning: Ignoring Control Plane ACL NTP_ACL without type\n", '')),
             utils.to_dict(
