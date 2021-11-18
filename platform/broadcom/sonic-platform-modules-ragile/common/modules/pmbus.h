@@ -130,26 +130,26 @@ enum pmbus_regs {
 	PMBUS_MFR_DATE			= 0x9D,
 	PMBUS_MFR_SERIAL		= 0x9E,
 
-/*
- * Virtual registers.
- * Useful to support attributes which are not supported by standard PMBus
- * registers but exist as manufacturer specific registers on individual chips.
- * Must be mapped to real registers in device specific code.
- *
- * Semantics:
- * Virtual registers are all word size.
- * READ registers are read-only; writes are either ignored or return an error.
- * RESET registers are read/write. Reading reset registers returns zero
- * (used for detection), writing any value causes the associated history to be
- * reset.
- * Virtual registers have to be handled in device specific driver code. Chip
- * driver code returns non-negative register values if a virtual register is
- * supported, or a negative error code if not. The chip driver may return
- * -ENODATA or any other error code in this case, though an error code other
- * than -ENODATA is handled more efficiently and thus preferred. Either case,
- * the calling PMBus core code will abort if the chip driver returns an error
- * code when reading or writing virtual registers.
- */
+	/*
+	 * Virtual registers.
+	 * Useful to support attributes which are not supported by standard PMBus
+	 * registers but exist as manufacturer specific registers on individual chips.
+	 * Must be mapped to real registers in device specific code.
+	 *
+	 * Semantics:
+	 * Virtual registers are all word size.
+	 * READ registers are read-only; writes are either ignored or return an error.
+	 * RESET registers are read/write. Reading reset registers returns zero
+	 * (used for detection), writing any value causes the associated history to be
+	 * reset.
+	 * Virtual registers have to be handled in device specific driver code. Chip
+	 * driver code returns non-negative register values if a virtual register is
+	 * supported, or a negative error code if not. The chip driver may return
+	 * -ENODATA or any other error code in this case, though an error code other
+	 * than -ENODATA is handled more efficiently and thus preferred. Either case,
+	 * the calling PMBus core code will abort if the chip driver returns an error
+	 * code when reading or writing virtual registers.
+	 */
 	PMBUS_VIRT_BASE			= 0x100,
 	PMBUS_VIRT_READ_TEMP_AVG,
 	PMBUS_VIRT_READ_TEMP_MIN,
@@ -190,6 +190,33 @@ enum pmbus_regs {
 	PMBUS_VIRT_VMON_UV_FAULT_LIMIT,
 	PMBUS_VIRT_VMON_OV_FAULT_LIMIT,
 	PMBUS_VIRT_STATUS_VMON,
+
+	/*
+	 * RPM and PWM Fan control
+	 *
+	 * Drivers wanting to expose PWM control must define the behaviour of
+	 * PMBUS_VIRT_PWM_[1-4] and PMBUS_VIRT_PWM_ENABLE_[1-4] in the
+	 * {read,write}_word_data callback.
+	 *
+	 * pmbus core provides a default implementation for
+	 * PMBUS_VIRT_FAN_TARGET_[1-4].
+	 *
+	 * TARGET, PWM and PWM_ENABLE members must be defined sequentially;
+	 * pmbus core uses the difference between the provided register and
+	 * it's _1 counterpart to calculate the FAN/PWM ID.
+	 */
+	PMBUS_VIRT_FAN_TARGET_1,
+	PMBUS_VIRT_FAN_TARGET_2,
+	PMBUS_VIRT_FAN_TARGET_3,
+	PMBUS_VIRT_FAN_TARGET_4,
+	PMBUS_VIRT_PWM_1,
+	PMBUS_VIRT_PWM_2,
+	PMBUS_VIRT_PWM_3,
+	PMBUS_VIRT_PWM_4,
+	PMBUS_VIRT_PWM_ENABLE_1,
+	PMBUS_VIRT_PWM_ENABLE_2,
+	PMBUS_VIRT_PWM_ENABLE_3,
+	PMBUS_VIRT_PWM_ENABLE_4,
 };
 
 /*
@@ -222,6 +249,8 @@ enum pmbus_regs {
 #define PB_FAN_1_PULSE_MASK		(BIT(4) | BIT(5))
 #define PB_FAN_1_RPM			BIT(6)
 #define PB_FAN_1_INSTALLED		BIT(7)
+
+enum pmbus_fan_mode { percent = 0, rpm };
 
 /*
  * STATUS_BYTE, STATUS_WORD (lower)
@@ -313,6 +342,7 @@ enum pmbus_sensor_classes {
 	PSC_POWER,
 	PSC_TEMPERATURE,
 	PSC_FAN,
+	PSC_PWM,
 	PSC_NUM_CLASSES		/* Number of power sensor classes */
 };
 
@@ -339,6 +369,10 @@ enum pmbus_sensor_classes {
 #define PMBUS_HAVE_STATUS_FAN34	BIT(17)
 #define PMBUS_HAVE_VMON		BIT(18)
 #define PMBUS_HAVE_STATUS_VMON	BIT(19)
+#define PMBUS_HAVE_PWM12	BIT(20)
+#define PMBUS_HAVE_PWM34	BIT(21)
+
+#define PMBUS_PAGE_VIRTUAL	BIT(31)
 
 enum pmbus_data_format { linear = 0, direct, vid };
 enum vrm_version { vr11 = 0, vr12, vr13 };
@@ -370,7 +404,7 @@ struct pmbus_driver_info {
 	int (*read_byte_data)(struct i2c_client *client, int page, int reg);
 	int (*read_word_data)(struct i2c_client *client, int page, int reg);
 	int (*write_word_data)(struct i2c_client *client, int page, int reg,
-			       u16 word);
+			u16 word);
 	int (*write_byte)(struct i2c_client *client, int page, u8 value);
 	/*
 	 * The identify function determines supported PMBus functionality.
@@ -404,21 +438,29 @@ extern const struct regulator_ops pmbus_regulator_ops;
 /* Function declarations */
 
 void pmbus_clear_cache(struct i2c_client *client);
-int pmbus_set_page(struct i2c_client *client, u8 page);
-int pmbus_read_word_data(struct i2c_client *client, u8 page, u8 reg);
-int pmbus_write_word_data(struct i2c_client *client, u8 page, u8 reg, u16 word);
+int pmbus_set_page(struct i2c_client *client, int page);
+int pmbus_read_word_data(struct i2c_client *client, int page, u8 reg);
+int pmbus_write_word_data(struct i2c_client *client, int page, u8 reg, u16 word);
 int pmbus_read_byte_data(struct i2c_client *client, int page, u8 reg);
 int pmbus_write_byte(struct i2c_client *client, int page, u8 value);
 int pmbus_write_byte_data(struct i2c_client *client, int page, u8 reg,
-			  u8 value);
+		u8 value);
 int pmbus_update_byte_data(struct i2c_client *client, int page, u8 reg,
-			   u8 mask, u8 value);
+		u8 mask, u8 value);
 void pmbus_clear_faults(struct i2c_client *client);
 bool pmbus_check_byte_register(struct i2c_client *client, int page, int reg);
 bool pmbus_check_word_register(struct i2c_client *client, int page, int reg);
 int pmbus_do_probe(struct i2c_client *client, const struct i2c_device_id *id,
-		   struct pmbus_driver_info *info);
+		struct pmbus_driver_info *info);
 int pmbus_do_remove(struct i2c_client *client);
 const struct pmbus_driver_info *pmbus_get_driver_info(struct i2c_client
-						      *client);
+		*client);
+int pmbus_get_fan_rate_device(struct i2c_client *client, int page, int id,
+		enum pmbus_fan_mode mode);
+int pmbus_get_fan_rate_cached(struct i2c_client *client, int page, int id,
+		enum pmbus_fan_mode mode);
+int pmbus_update_fan(struct i2c_client *client, int page, int id,
+		u8 config, u8 mask, u16 command);
+struct dentry *pmbus_get_debugfs_dir(struct i2c_client *client);
+
 #endif /* PMBUS_H */

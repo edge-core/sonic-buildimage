@@ -31,6 +31,8 @@ from ragileutil import (
     get_sysfs_value,
     strtoint,
     rgi2cset,
+    io_rd,
+    rgsysset,
 )
 
 
@@ -666,7 +668,7 @@ class FanControl(object):
             logger.error(str(e))
         return False
 
-    # device error algorithm    Tmac-Tin >= 50, or Tmac-Tin <= -50
+    # device error algorithm    Tmac-Tin≥50℃, or Tmac-Tin≤-50℃
     def check_dev_err(self):
         try:
             if (self.mac_aver - self.intemp) >= MONITOR_CONST.MAC_UP_TEMP or (

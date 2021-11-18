@@ -211,6 +211,8 @@ MONITOR_INTERVAL = 60
 MONITOR_MAC_SOURCE_SYSFS = (0)
 MONITOR_MAC_SOURCE_PATH = None  # sysfs path
 
+
+# default MAC AVS parameters
 MAC_AVS_PARAM = {
     0x72: 0x0384,
     0x73: 0x037E,
@@ -302,7 +304,7 @@ fanloc = {"name": "fanset", "location": "0-0032/fan_speed_set"}
 
 ####================================Adaption-Area================================
 #### RAGILE_COMMON common configuration head
-#### "platform"   specific configuration head
+#### “platform”    specific configuration head
 ####
 PCA9548START = 11
 PCA9548BUSEND = 74

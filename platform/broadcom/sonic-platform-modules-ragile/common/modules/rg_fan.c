@@ -78,7 +78,7 @@ typedef enum dfd_dev_info_type_e {
 } dfd_dev_tlv_type_t;
 
 typedef struct dfd_dev_head_info_s {
-	uint8_t ver;     /* define E2PROM version,default is 0x01  */
+	uint8_t ver;     /* define E2PROM version，default is 0x01  */
 	uint8_t flag;    /* flag is 0x7E in new version E2PROM */
 	uint8_t hw_ver;  /* consists of main version and revise version */
 	uint8_t type;    /* HW type */

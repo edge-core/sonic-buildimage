@@ -382,7 +382,7 @@ def getInputSetmac(val):
 
 
 class fan_tlv(object):
-    VERSION = 0x01  # E2PROM Version, start from 0x01
+    VERSION = 0x01  # E2PROM Version，start from 0x01
     FLAG = 0x7E  # New E2PROM version flag is 0x7E
     HW_VER = 0x01  # compose by master version and fixed version
     TYPE = 0xF1  # hw type defination
@@ -1043,7 +1043,7 @@ def util_setmac(eth, mac):
     log_debug(ifconfigcmd)
     ret, status = os_system(ifconfigcmd)
     if ret:
-        raise SETMACException("software set  Internet cardMAC error")
+        raise SETMACException("software set  Internet card MAC error")
     index = 0
     for item in macs:
         cmd = "ethtool -E %s magic %s offset %d value 0x%s" % (eth, magic, index, item)
@@ -1051,7 +1051,7 @@ def util_setmac(eth, mac):
         index += 1
         ret, log = os_system(cmd)
         if ret != 0:
-            raise SETMACException(" set hardware Internet card MAC error")
+            raise SETMACException("set hardware Internet card MAC error")
     # get value after setting
     cmd_t = "ethtool -e eth0 offset 0 length 6"
     ret, log = os_system(cmd_t)
@@ -1224,13 +1224,15 @@ def rgpcird(pcibus, slot, fn, bar, offset):
     s = result[::-1]
     val = 0
     for i in range(0, len(s)):
-        val = val << 8 | ord(s[i])
+        val = val << 8 | s[i]
     return "0x%08x" % val
 
 
 def rgpciwr(pcibus, slot, fn, bar, offset, data):
     """write pci register"""
     ret = inttostr(data, 4)
+    ret = str.encode(ret)
+    ret = ret.strip(b'\xc2')
     filename = "/sys/bus/pci/devices/0000:%02x:%02x.%x/resource%d" % (
         int(pcibus),
         int(slot),
@@ -1245,7 +1247,7 @@ def rgpciwr(pcibus, slot, fn, bar, offset, data):
     s = result[::-1]
     val = 0
     for i in range(0, len(s)):
-        val = val << 8 | ord(s[i])
+        val = val << 8 | s[i]
     data.close()
 
 
@@ -1293,12 +1295,13 @@ def fan_setmac():
 
 def checkfansninput(fan_sn, fansntemp):
     if fan_sn in fansntemp:
-        RJPRINTERR("exist same Serial Number, please input again")
+        RJPRINTERR("exist same Serial Number，please input again")
         return False
     if len(fan_sn) != 13:
-        RJPRINTERR("Serial Number length incorrect, please input again")
+        RJPRINTERR("Serial Number length incorrect，please input again")
         return False
     return True
+
 
 # check hw version
 def checkfanhwinput(hw):
@@ -1413,7 +1416,7 @@ def fac_fans_setmac_tlv(ret):
     print("\n*******************************\n")
 
     util_show_fanse2(fans)
-    if getInputCheck("check input correctly or not(Yes/No):") == True:
+    if getInputCheck("check input correctly or not（Yes/No):") == True:
         for fan in fans:
             log_debug("ouput fan")
             fac_fan_setmac(fan)
@@ -2051,30 +2054,27 @@ def get_version_config_info(attr_key, file_name=None):
     return None
 
 
-def io_rd(reg_addr, len=1):
-    u"""io read"""
+def io_rd(reg_addr, size=1):
+    path = "/dev/port"
+    ret = ""
+    fd = None
     try:
-        regaddr = 0
-        if type(reg_addr) == int:
-            regaddr = reg_addr
-        else:
-            regaddr = int(reg_addr, 16)
-        devfile = "/dev/port"
-        fd = os.open(devfile, os.O_RDWR | os.O_CREAT)
-        os.lseek(fd, regaddr, os.SEEK_SET)
-        str = os.read(fd, len)
-        return "".join(["%02x" % ord(item) for item in str])
-    except ValueError:
-        return None
+        reg_addr = int(reg_addr)
+        fd = os.open(path, os.O_RDWR|os.O_CREAT)
+        for i in range(size):
+            os.lseek(fd, reg_addr+i, os.SEEK_SET)
+            ret+="{:02x}".format(ord(os.read(fd, 1).decode('latin-1')))
+        return ret
     except Exception as e:
-        print(e)
+        print(str(e))
         return None
     finally:
-        os.close(fd)
+        if fd: os.close(fd)
 
 
 def io_wr(reg_addr, reg_data):
     u"""io write"""
+    fd = None
     try:
         regdata = 0
         regaddr = 0
@@ -2089,7 +2089,7 @@ def io_wr(reg_addr, reg_data):
         devfile = "/dev/port"
         fd = os.open(devfile, os.O_RDWR | os.O_CREAT)
         os.lseek(fd, regaddr, os.SEEK_SET)
-        os.write(fd, chr(regdata))
+        os.write(fd, regdata.to_bytes(2, 'little'))
         return True
     except ValueError as e:
         print(e)
@@ -2098,4 +2098,4 @@ def io_wr(reg_addr, reg_data):
         print(e)
         return False
     finally:
-        os.close(fd)
+        if fd: os.close(fd)

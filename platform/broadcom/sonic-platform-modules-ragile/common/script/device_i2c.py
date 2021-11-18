@@ -5,7 +5,7 @@ import click
 import os
 import time
 from ragileconfig import GLOBALCONFIG, GLOBALINITPARAM, GLOBALINITCOMMAND, MAC_LED_RESET, STARTMODULE, i2ccheck_params
-from ragileutil import rgpciwr, os_system, rgi2cset
+from ragileutil import rgpciwr, os_system, rgi2cset, io_wr
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
@@ -154,7 +154,7 @@ def add_dev(name, bus, loc):
     if name == "lm75":
         time.sleep(0.1)
     pdevpath = "/sys/bus/i2c/devices/i2c-%d/" % (bus)
-    for i in range(1, 100):#wait for mother-bus generation, maximum wait time is 10s
+    for i in range(1, 100):#wait for mother-bus generation，maximum wait time is 10s
         if os.path.exists(pdevpath) == True:
             break
         time.sleep(0.1)
@@ -240,13 +240,16 @@ def adddrivers():
 
 def otherinit():
     for index in GLOBALINITPARAM:
-        # write_sysfs_value(index["loc"], index["value"])
-        ret, _ = rgi2cset(
-            index.get("bus"),
-            index.get("devaddr"),
-            index.get("offset"),
-            index.get("val")
-        )
+        index_type = index.get("type", None)
+        if index_type == "io":
+            ret = io_wr(index.get("offset"), index.get("val"))
+        else:
+            ret, _ = rgi2cset(
+                index.get("bus"),
+                index.get("devaddr"),
+                index.get("offset"),
+                index.get("val")
+            )
         if not ret:
             click.echo("%%DEVICE_I2C-INIT: init param %s failed." % index.get("name"))
 
