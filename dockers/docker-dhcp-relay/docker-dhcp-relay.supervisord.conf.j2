@@ -39,9 +39,11 @@ stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=rsyslogd:running
 
+{% block dhcp_relay_block %}
 {# If our configuration has VLANs... #}
 {% if VLAN_INTERFACE %}
 {# Count how many VLANs require a DHCP relay agent... #}
+{% set v6_vlan_list = [] %}
 {% set ipv4_num_relays = { 'count': 0 } %}
 {% set ipv6_num_relays = { 'count': 0 } %}
 {% for vlan_name in VLAN_INTERFACE %}
@@ -56,15 +58,15 @@ dependent_startup_wait_for=rsyslogd:running
 {% if ipv4_num_relays.count > 0 or ipv6_num_relays.count > 0 %}
 {% include 'dhcp-relay.programs.j2' %}
 
-
 {# Create a program entry for each DHCP relay agent instance #}
-{% set relay_for_ipv4 = { 'flag': False } %}
-{% set relay_for_ipv6 = { 'flag': False } %}
-{% for vlan_name in VLAN_INTERFACE %}
+{% if ipv4_num_relays.count > 0 %}
 {% include 'dhcpv4-relay.agents.j2' %}
+{% endif %}
+{% if ipv6_num_relays.count > 0 %}
 {% include 'dhcpv6-relay.agents.j2' %}
-{% endfor %}
+{% endif %}
 
 {% include 'dhcpv6-relay.monitors.j2' %}
 {% endif %}
 {% endif %}
+{% endblock %}
