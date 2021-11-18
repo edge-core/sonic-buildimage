@@ -33,3 +33,6 @@
 
 # src
 /src/initramfs-tools/                   @qiluo-msft
+
+# yang
+/src/sonic-yang-models/                 @praveen-li @dgsudharsan @rathnasabapathyv @venkatmahalingam @qiluo-msft
