@@ -13,6 +13,9 @@ l3_mem_entries=16384
 # Disable Counting ACL Drop towards interface RX_DRP counter
 sai_adjust_acl_drop_in_rx_drop=1
 
+# disables bcmALPMDH (ALPM distributed hitbit) thread.  This thread is purely for debug purpose
+l3_alpm_hit_skip=1
+
 # From old config file
 os=unix
 higig2_hdr_mode=1
