@@ -105,13 +105,11 @@ class TestCfgGenCaseInsensitive(TestCase):
                        'dhcpv6_servers': ['fc02:2000::1', 'fc02:2000::2'],
                        'vlanid': '1000',
                        'mac': '00:aa:bb:cc:dd:ee',
-                       'members': ['Ethernet8']
                        },
                    'Vlan2000': {
                        'alias': 'ab2',
                        'dhcp_servers': ['192.0.0.1'],
                        'dhcpv6_servers': ['fc02:2000::3', 'fc02:2000::4'],
-                       'members': ['Ethernet4'],
                        'vlanid': '2000'
                        }
                    }
