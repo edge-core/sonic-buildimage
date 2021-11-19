@@ -19,7 +19,7 @@ struct event *ev_sigint;
 struct event *ev_sigterm;
 static std::string counter_table = "DHCPv6_COUNTER_TABLE|";
 swss::DBConnector state_db(6, "localhost", 6379, 0);
-swss::RedisClient m_applDbRedisClient(&state_db);
+swss::RedisClient m_stateDbRedisClient(&state_db);
 
 /* DHCPv6 filter */
 /* sudo tcpdump -dd "ip6 dst ff02::1:2 && udp dst port 547" */
@@ -50,7 +50,8 @@ const struct sock_fprog ether_relay_fprog = {
 
 /* DHCPv6 Counter */
 uint64_t counters[DHCPv6_MESSAGE_TYPE_COUNT];
-std::map<int, std::string> counterMap = {{1, "Solicit"},
+std::map<int, std::string> counterMap = {{0, "Unknown"},
+                                      {1, "Solicit"},
                                       {2, "Advertise"},
                                       {3, "Request"},
                                       {4, "Confirm"},
@@ -72,17 +73,18 @@ std::map<int, std::string> counterMap = {{1, "Solicit"},
  * @return              none
  */
 void initialize_counter(std::string counterVlan) {
-    m_applDbRedisClient.hset(counterVlan, "Solicit", toString(counters[DHCPv6_MESSAGE_TYPE_SOLICIT]));
-    m_applDbRedisClient.hset(counterVlan, "Advertise", toString(counters[DHCPv6_MESSAGE_TYPE_ADVERTISE]));
-    m_applDbRedisClient.hset(counterVlan, "Request", toString(counters[DHCPv6_MESSAGE_TYPE_REQUEST]));
-    m_applDbRedisClient.hset(counterVlan, "Confirm", toString(counters[DHCPv6_MESSAGE_TYPE_CONFIRM]));
-    m_applDbRedisClient.hset(counterVlan, "Renew", toString(counters[DHCPv6_MESSAGE_TYPE_RENEW]));
-    m_applDbRedisClient.hset(counterVlan, "Rebind", toString(counters[DHCPv6_MESSAGE_TYPE_REBIND]));
-    m_applDbRedisClient.hset(counterVlan, "Reply", toString(counters[DHCPv6_MESSAGE_TYPE_REPLY]));
-    m_applDbRedisClient.hset(counterVlan, "Release", toString(counters[DHCPv6_MESSAGE_TYPE_RELEASE]));
-    m_applDbRedisClient.hset(counterVlan, "Decline", toString(counters[DHCPv6_MESSAGE_TYPE_DECLINE]));
-    m_applDbRedisClient.hset(counterVlan, "Relay-Forward", toString(counters[DHCPv6_MESSAGE_TYPE_RELAY_FORW]));
-    m_applDbRedisClient.hset(counterVlan, "Relay-Reply", toString(counters[DHCPv6_MESSAGE_TYPE_RELAY_REPL]));
+    m_stateDbRedisClient.hset(counterVlan, "Unknown", toString(counters[DHCPv6_MESSAGE_TYPE_UNKNOWN]));
+    m_stateDbRedisClient.hset(counterVlan, "Solicit", toString(counters[DHCPv6_MESSAGE_TYPE_SOLICIT]));
+    m_stateDbRedisClient.hset(counterVlan, "Advertise", toString(counters[DHCPv6_MESSAGE_TYPE_ADVERTISE]));
+    m_stateDbRedisClient.hset(counterVlan, "Request", toString(counters[DHCPv6_MESSAGE_TYPE_REQUEST]));
+    m_stateDbRedisClient.hset(counterVlan, "Confirm", toString(counters[DHCPv6_MESSAGE_TYPE_CONFIRM]));
+    m_stateDbRedisClient.hset(counterVlan, "Renew", toString(counters[DHCPv6_MESSAGE_TYPE_RENEW]));
+    m_stateDbRedisClient.hset(counterVlan, "Rebind", toString(counters[DHCPv6_MESSAGE_TYPE_REBIND]));
+    m_stateDbRedisClient.hset(counterVlan, "Reply", toString(counters[DHCPv6_MESSAGE_TYPE_REPLY]));
+    m_stateDbRedisClient.hset(counterVlan, "Release", toString(counters[DHCPv6_MESSAGE_TYPE_RELEASE]));
+    m_stateDbRedisClient.hset(counterVlan, "Decline", toString(counters[DHCPv6_MESSAGE_TYPE_DECLINE]));
+    m_stateDbRedisClient.hset(counterVlan, "Relay-Forward", toString(counters[DHCPv6_MESSAGE_TYPE_RELAY_FORW]));
+    m_stateDbRedisClient.hset(counterVlan, "Relay-Reply", toString(counters[DHCPv6_MESSAGE_TYPE_RELAY_REPL]));
 }
 
 /**
@@ -96,7 +98,7 @@ void initialize_counter(std::string counterVlan) {
  * @return              none
  */
 void update_counter(std::string counterVlan, uint8_t msg_type) {
-    m_applDbRedisClient.hset(counterVlan, counterMap.find(msg_type)->second, toString(counters[msg_type]));
+    m_stateDbRedisClient.hset(counterVlan, counterMap.find(msg_type)->second, toString(counters[msg_type]));
 }
 
 /**
@@ -207,19 +209,26 @@ const struct dhcpv6_option *parse_dhcpv6_opt(const uint8_t *buffer, const uint8_
 }
 
 /**
- * @code                            void send_udp(int sock, uint8_t *buffer, struct sockaddr_in6 target, uint32_t n);
+ * @code                            void send_udp(int sock, uint8_t *buffer, struct sockaddr_in6 target, uint32_t n, relay_config *config, uint8_t msg_type);
  *
  * @brief                           send udp packet
  *
  * @param *buffer                   message buffer
  * @param sockaddr_in6 target       target socket
  * @param n                         length of message
+ * @param relay_config *config      pointer to relay_config
+ * @param uint8_t msg_type          message type of dhcpv6 option of relayed message
  * 
  * @return dhcpv6_option   end of dhcpv6 message option
  */
-void send_udp(int sock, uint8_t *buffer, struct sockaddr_in6 target, uint32_t n) {    
+void send_udp(int sock, uint8_t *buffer, struct sockaddr_in6 target, uint32_t n, relay_config *config, uint8_t msg_type) {
+    std::string counterVlan = counter_table;
     if(sendto(sock, buffer, n, 0, (const struct sockaddr *)&target, sizeof(target)) == -1)
         syslog(LOG_ERR, "sendto: Failed to send to target address\n");
+    else {
+        counters[msg_type]++;
+        update_counter(counterVlan.append(config->interface), msg_type);
+    }
 }
 
 /**
@@ -452,7 +461,7 @@ void relay_client(int sock, const uint8_t *msg, int32_t len, const ip6_hdr *ip_h
     current_buffer_position += dhcp_message_length + sizeof(dhcpv6_option);
 
     for(auto server: config->servers_sock) {
-        send_udp(sock, buffer, server, current_buffer_position - buffer);
+        send_udp(sock, buffer, server, current_buffer_position - buffer, config, new_message.msg_type);
     }
 }
 
@@ -470,6 +479,7 @@ void relay_client(int sock, const uint8_t *msg, int32_t len, const ip6_hdr *ip_h
  */
  void relay_relay_reply(int sock, const uint8_t *msg, int32_t len, relay_config *configs) {
     static uint8_t buffer[4096];
+    uint8_t type = 0;
     char ifname[configs->interface.size()];
     struct sockaddr_in6 target_addr;
     auto current_buffer_position = buffer;
@@ -477,6 +487,9 @@ void relay_client(int sock, const uint8_t *msg, int32_t len, const ip6_hdr *ip_h
     const uint8_t *tmp = NULL;
     auto dhcp_relay_header = parse_dhcpv6_relay(msg);
     current_position += sizeof(struct dhcpv6_relay_msg);
+
+    auto position = current_position + sizeof(struct dhcpv6_option);
+    auto dhcpv6msg = parse_dhcpv6_hdr(position);
     
     while ((current_position - msg) != len) {
         auto option = parse_dhcpv6_opt(current_position, &tmp);
@@ -485,6 +498,7 @@ void relay_client(int sock, const uint8_t *msg, int32_t len, const ip6_hdr *ip_h
             case OPTION_RELAY_MSG:
                 memcpy(current_buffer_position, ((uint8_t *)option) + sizeof(struct dhcpv6_option), ntohs(option->option_length));
                 current_buffer_position += ntohs(option->option_length);
+                type = dhcpv6msg->msg_type;;
                 break;
             default:
                 break;
@@ -498,7 +512,7 @@ void relay_client(int sock, const uint8_t *msg, int32_t len, const ip6_hdr *ip_h
     target_addr.sin6_port = htons(CLIENT_PORT);
     target_addr.sin6_scope_id = if_nametoindex(ifname);
 
-    send_udp(sock, buffer, target_addr, current_buffer_position - buffer);
+    send_udp(sock, buffer, target_addr, current_buffer_position - buffer, configs, type);
 } 
 
 
