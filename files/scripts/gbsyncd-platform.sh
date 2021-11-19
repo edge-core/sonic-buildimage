@@ -8,13 +8,16 @@ DEVPATH="/usr/share/sonic/device"
 CONFIGFILE="${DEVPATH}/${PLATFORM}/gbsyncd.ini"
 
 if [ ! -f "$CONFIGFILE" ]; then
+    if [ gbsyncd = "$SERVICE" ]; then
+       exit 0
+    fi
     exit 1
 fi
 
 while IFS="=" read -r key value; do
     case "$key" in
         platform)
-            if [[ "$value" = "$SERVICE"* ]]; then
+            if [ "$value" = "$SERVICE" ]; then
                 exit 0
             fi
             ;;
