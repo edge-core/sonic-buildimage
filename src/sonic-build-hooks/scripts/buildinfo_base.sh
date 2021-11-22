@@ -82,8 +82,8 @@ download_packages()
                 local filename=$(echo $url | awk -F"/" '{print $NF}' | cut -d? -f1 | cut -d# -f1)
                 [ -f $WEB_VERSION_FILE ] && version=$(grep "^${url}=" $WEB_VERSION_FILE | awk -F"==" '{print $NF}')
                 if [ -z "$version" ]; then
-                    echo "Failed to verify the package: $url, the version is not specified" 2>&1
-                    exit 1
+                    echo "Warning: Failed to verify the package: $url, the version is not specified" 1>&2
+                    continue
                 fi
 
                 local version_filename="${filename}-${version}"
