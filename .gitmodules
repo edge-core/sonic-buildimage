@@ -35,6 +35,7 @@
 [submodule "src/sonic-utilities"]
 	path = src/sonic-utilities
 	url = https://github.com/Azure/sonic-utilities
+	branch = 202012
 [submodule "platform/broadcom/sonic-platform-modules-arista"]
 	path = platform/broadcom/sonic-platform-modules-arista
 	url = https://github.com/aristanetworks/sonic
