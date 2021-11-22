@@ -192,24 +192,28 @@ class FixedPsu(PsuBase):
 class Psu(FixedPsu):
     """Platform-specific Psu class"""
     PSU_CURRENT = "power/psu{}_curr"
-    PSU_VOLTAGE = "power/psu{}_volt"
-    PSU_VOLTAGE1 = "power/psu{}_volt_out2"
     PSU_POWER = "power/psu{}_power"
     PSU_VPD = "eeprom/psu{}_vpd"
+
     shared_led = None
 
     def __init__(self, psu_index):
         super(Psu, self).__init__(psu_index)
 
-        psu_voltage = os.path.join(PSU_PATH, self.PSU_VOLTAGE1.format(self.index))
+        psu_voltage_out2 = os.path.join(PSU_PATH, "power/psu{}_volt_out2".format(self.index))
+        psu_voltage = os.path.join(PSU_PATH, "power/psu{}_volt".format(self.index))
         # Workaround for psu voltage sysfs file as the file name differs among platforms
-        if os.path.exists(psu_voltage):
-            self.psu_voltage = os.path.join(PSU_PATH, self.PSU_VOLTAGE1.format(self.index))
+        if os.path.exists(psu_voltage_out2):
+            self.psu_voltage = psu_voltage_out2
         else:
-            self.psu_voltage = os.path.join(PSU_PATH, self.PSU_VOLTAGE.format(self.index))
+            self.psu_voltage = psu_voltage
+        self.psu_voltage_min = self.psu_voltage + "_min"
+        self.psu_voltage_max = self.psu_voltage + "_max"
+        self.psu_voltage_capability = self.psu_voltage + "_capability"
 
         self.psu_current = os.path.join(PSU_PATH, self.PSU_CURRENT.format(self.index))
         self.psu_power = os.path.join(PSU_PATH, self.PSU_POWER.format(self.index))
+        self.psu_power_max = self.psu_power + "_max"
         self.psu_presence = os.path.join(PSU_PATH, "thermal/psu{}_status".format(self.index))
 
         self.psu_temp = os.path.join(PSU_PATH, 'thermal/psu{}_temp'.format(self.index))
@@ -355,3 +359,57 @@ class Psu(FixedPsu):
             return float(temp_threshold) / 1000
 
         return None
+
+    def get_voltage_high_threshold(self):
+        """
+        Retrieves the high threshold PSU voltage output
+
+        Returns:
+            A float number, the high threshold output voltage in volts,
+            e.g. 12.1
+
+        Notes:
+            The thresholds of voltage are not supported on all platforms.
+            So we have to check capability first.
+        """
+        if self.psu_voltage_capability and self.psu_voltage_max and self.get_powergood_status():
+            capability = utils.read_str_from_file(self.psu_voltage_capability)
+            if 'max' in capability:
+                max_voltage = utils.read_int_from_file(self.psu_voltage_max, log_func=logger.log_info)
+                return float(max_voltage) / 1000
+
+        return None
+
+    def get_voltage_low_threshold(self):
+        """
+        Retrieves the low threshold PSU voltage output
+
+        Returns:
+            A float number, the low threshold output voltage in volts,
+            e.g. 12.1
+
+        Notes:
+            The thresholds of voltage are not supported on all platforms.
+            So we have to check capability first.
+        """
+        if self.psu_voltage_capability and self.psu_voltage_min and self.get_powergood_status():
+            capability = utils.read_str_from_file(self.psu_voltage_capability)
+            if 'min' in capability:
+                min_voltage = utils.read_int_from_file(self.psu_voltage_min, log_func=logger.log_info)
+                return float(min_voltage) / 1000
+
+        return None
+
+    def get_maximum_supplied_power(self):
+        """
+        Retrieves the maximum supplied power by PSU
+
+        Returns:
+            A float number, the maximum power output in Watts.
+            e.g. 1200.1
+        """
+        if self.psu_power_max and self.get_powergood_status():
+            power_max = utils.read_int_from_file(self.psu_power_max, log_func=logger.log_info)
+            return float(power_max) / 1000000
+        else:
+            return None
