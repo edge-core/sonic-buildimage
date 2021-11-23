@@ -381,3 +381,62 @@ HOSTCFGD_TEST_VECTOR = [
         }
     ]
 ]
+
+HOSTCFG_DAEMON_CFG_DB = {
+    "FEATURE": {
+        "dhcp_relay": {
+            "auto_restart": "enabled",
+            "has_global_scope": "True",
+            "has_per_asic_scope": "False",
+            "has_timer": "False",
+            "high_mem_alert": "disabled",
+            "set_owner": "kube",
+            "state": "{% if not (DEVICE_METADATA is defined and DEVICE_METADATA['localhost'] is defined and DEVICE_METADATA['localhost']['type'] is defined and DEVICE_METADATA['localhost']['type'] != 'ToRRouter') %}enabled{% else %}disabled{% endif %}"
+        },
+        "mux": {
+            "auto_restart": "enabled",
+            "has_global_scope": "True",
+            "has_per_asic_scope": "False",
+            "has_timer": "False",
+            "high_mem_alert": "disabled",
+            "set_owner": "local",
+            "state": "{% if 'subtype' in DEVICE_METADATA['localhost'] and DEVICE_METADATA['localhost']['subtype'] == 'DualToR' %}enabled{% else %}always_disabled{% endif %}"
+        },
+        "telemetry": {
+            "auto_restart": "enabled",
+            "has_global_scope": "True",
+            "has_per_asic_scope": "False",
+            "has_timer": "True",
+            "high_mem_alert": "disabled",
+            "set_owner": "kube",
+            "state": "enabled",
+            "status": "enabled"
+        },
+    },
+    "KDUMP": {
+        "config": {
+
+        }
+    },
+    "NTP": {
+        "global": {
+            "vrf": "default",
+            "src_intf": "eth0;Loopback0"
+        }
+    },
+    "NTP_SERVER": {
+        "0.debian.pool.ntp.org": {}
+    },
+    "LOOPBACK_INTERFACE": {
+        "Loopback0|10.184.8.233/32": {
+            "scope": "global",
+            "family": "IPv4"
+        }
+    },
+    "DEVICE_METADATA": {
+        "localhost": {
+            "subtype": "DualToR",
+            "type": "ToRRouter",
+        }
+    }
+}
