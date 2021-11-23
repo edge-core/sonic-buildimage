@@ -61,5 +61,25 @@
             "key": "sonic-acl:services",
             "value": ["SNMP"]
         }
+    },
+    "ACL_TABLE_CUSTOM_TABLE_TYPE": {
+        "desc": "ACL_TABLE LOAD TABLE TYPE SUCCESSFULLY."
+    },
+    "ACL_TABLE_CUSTOM_TABLE_TYPE_NO_MATCHES": {
+        "desc": "ACL_TABLE LOAD TABLE TYPE WITH NO MATCHES.",
+        "eStrKey": "MinElements"
+    },
+    "ACL_TABLE_CUSTOM_TABLE_TYPE_NO_BIND_POINT_TYPES": {
+        "desc": "ACL_TABLE LOAD TABLE TYPE WITH NO BIND POINT TYPES.",
+        "eStrKey": "MinElements"
+    },
+    "ACL_TABLE_CUSTOM_TABLE_TYPE_NO_ACTIONS": {
+        "desc": "ACL_TABLE LOAD TABLE TYPE SUCCESSFULLY WITH NO ACTIONS.",
+        "eStrKey" : "Verify",
+        "verify": {
+            "xpath": "/sonic-acl:sonic-acl/ACL_TABLE_TYPE/ACL_TABLE_TYPE_LIST[ACL_TABLE_TYPE_NAME='CUSTOM_L3']/ACL_TABLE_TYPE_NAME",
+            "key": "sonic-acl:actions",
+            "value": [""]
+        }
     }
 }
