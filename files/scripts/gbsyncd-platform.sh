@@ -7,17 +7,17 @@ PLATFORM=${PLATFORM:-`sonic-cfggen -H -v DEVICE_METADATA.localhost.platform`}
 DEVPATH="/usr/share/sonic/device"
 CONFIGFILE="${DEVPATH}/${PLATFORM}/gbsyncd.ini"
 
+# Skip checking the service for vs
+[ "$sonic_asic_platform" = vs ] && exit 0
+
 if [ ! -f "$CONFIGFILE" ]; then
-    if [ gbsyncd = "$SERVICE" ]; then
-       exit 0
-    fi
     exit 1
 fi
 
 while IFS="=" read -r key value; do
     case "$key" in
         platform)
-            if [ "$value" = "$SERVICE" ]; then
+            if [[ "$value" = "$SERVICE"* ]]; then
                 exit 0
             fi
             ;;
