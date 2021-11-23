@@ -155,6 +155,42 @@ module sonic-types {
         }
     }
 
+    typedef oper-status {
+        type enumeration {
+            enum unknown;
+            enum up;
+            enum down;
+        }
+        description "Operational status of an entity such as Port, MCLAG etc";
+    }
+
+    typedef mode-status {
+        type enumeration {
+            enum enable;
+            enum disable;
+        }
+        description
+            "This type can be used where toggle functionality required.
+            For ex. IPv6-link-local-only, Dhcp-replay-link-select, SNMP traps etc";
+    }
+
+    typedef dhcp-relay-policy-action {
+        type enumeration {
+            enum discard;
+            enum append;
+            enum replace;
+        }
+        description "DHCP relay policy action value";
+    }
+
+    typedef percentage {
+        type uint8 {
+            range "0..100";
+        }
+        description
+            "Integer indicating a percentage value";
+    }
+
     typedef tpid_type {
         type string {
             pattern "0x8100|0x9100|0x9200|0x88a8|0x88A8";
@@ -185,4 +221,27 @@ module sonic-types {
             enum transit;
         }
     }
+
+
+
+    /* Required for CVL */
+    {% if yang_model_type == "cvl" %}
+    container operation {
+        description
+            "This definition is used internally by CVL and
+            is not exposed in NBI. Leaf 'operation' allows
+            evaluation of must expression for
+            CREATE/UPDATE/DELETE operation.";
+
+        leaf operation {
+            type enumeration {
+                enum NOP;
+                enum CREATE;
+                enum UPDATE;
+                enum DELETE;
+            }
+        }
+    }
+    {% else %}
+    {% endif %}
 }

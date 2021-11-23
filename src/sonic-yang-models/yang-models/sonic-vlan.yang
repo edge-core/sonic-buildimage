@@ -11,12 +11,10 @@ module sonic-vlan {
 
 	import sonic-types {
 		prefix stypes;
-		revision-date 2019-07-01;
 	}
 
 	import sonic-extension {
 		prefix ext;
-		revision-date 2019-07-01;
 	}
 
 	import sonic-port {

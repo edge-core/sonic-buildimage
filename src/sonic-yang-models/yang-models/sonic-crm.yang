@@ -7,7 +7,6 @@ module sonic-crm {
 
     import sonic-types {
         prefix stypes;
-        revision-date 2019-07-01;
     }
 
     description "CRM YANG Module for SONiC OS";

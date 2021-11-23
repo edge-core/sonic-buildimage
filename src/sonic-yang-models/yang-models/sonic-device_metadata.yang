@@ -15,7 +15,6 @@ module sonic-device_metadata {
 
     import sonic-types {
         prefix stypes;
-        revision-date 2019-07-01;
     }
 
     description "DEVICE_METADATA YANG Module for SONiC OS";

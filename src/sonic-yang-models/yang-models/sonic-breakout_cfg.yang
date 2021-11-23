@@ -7,7 +7,6 @@ module sonic-breakout_cfg {
 
     import sonic-extension {
         prefix ext;
-        revision-date 2019-07-01;
     }
 
     description "BREAKOUT_CFG YANG Module for SONiC OS";
