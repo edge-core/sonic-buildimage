@@ -108,9 +108,9 @@ def test_psu_info():
 
     psu_list[0].powergood = False
     psu_info.collect(chassis)
-    assert len(psu_info.get_absence_psus()) == 1
-    assert len(psu_info.get_presence_psus()) == 0
-    assert psu_info.is_status_changed()
+    assert len(psu_info.get_absence_psus()) == 0
+    assert len(psu_info.get_presence_psus()) == 1
+    assert not psu_info.is_status_changed()
 
 
 def test_fan_policy(thermal_manager):
@@ -351,12 +351,12 @@ def test_load_control_thermal_algo_action():
     json_str = '{\"status\": \"false\"}'
     json_obj = json.loads(json_str)
     action.load_from_json(json_obj)
-    assert not action.status 
+    assert not action.status
 
     json_str = '{\"status\": \"true\"}'
     json_obj = json.loads(json_str)
     action.load_from_json(json_obj)
-    assert action.status 
+    assert action.status
 
     json_str = '{\"status\": \"invalid\"}'
     json_obj = json.loads(json_str)
@@ -455,7 +455,7 @@ def test_load_policy_with_same_conditions():
 
     with pytest.raises(Exception):
         MockThermalManager.load(os.path.join(test_path, 'policy_with_same_conditions.json'))
-    
+
 def test_dynamic_minimum_table_data():
     from sonic_platform.device_data import DEVICE_DATA
     for platform, platform_data in DEVICE_DATA.items():
@@ -480,7 +480,7 @@ def check_minimum_table_data(platform, minimum_table):
         for item in data_list:
             cooling_level = item[0]
             range_str = item[1]
-            
+
             ranges = range_str.split(':')
             low = int(ranges[0])
             high = int(ranges[1])
