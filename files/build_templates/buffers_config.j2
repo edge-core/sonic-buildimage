@@ -96,7 +96,9 @@ def
 {%- set PORT_ALL  = [] %}
 
 {%- if PORT is not defined %}
-    {%- if defs.generate_port_lists(PORT_ALL) %} {% endif %}
+    {%- if defs.generate_port_lists is defined %}
+        {%- if defs.generate_port_lists(PORT_ALL) %} {% endif %}
+    {%- endif %}
 {%- else %}
     {%- for port in PORT %}
         {%- if PORT_ALL.append(port) %}{%- endif %}
@@ -104,11 +106,17 @@ def
 {%- endif %}
 
 {%- set PORT_ACTIVE  = [] %}
+{%- set PORT_INACTIVE  = [] %}
 {%- if DEVICE_NEIGHBOR is not defined %}
     {%- set PORT_ACTIVE = PORT_ALL %}
 {%- else %}
     {%- for port in DEVICE_NEIGHBOR.keys() %}
         {%- if PORT_ACTIVE.append(port) %}{%- endif %}
+    {%- endfor %}
+    {%- for port in PORT_ALL %}
+        {%- if port not in DEVICE_NEIGHBOR.keys() %}
+            {%- if PORT_INACTIVE.append(port) %}{%- endif %}
+        {%- endif %}
     {%- endfor %}
 {%- endif %}
 
@@ -117,6 +125,12 @@ def
     {%- if port_names_list_active.append(port) %}{%- endif %}
 {%- endfor %}
 {%- set port_names_active  = port_names_list_active  | join(',') %}
+
+{%- set port_names_list_inactive  = [] %}
+{%- for port in PORT_INACTIVE %}
+    {%- if port_names_list_inactive.append(port) %}{%- endif %}
+{%- endfor %}
+{%- set port_names_inactive  = port_names_list_inactive  | join(',') %}
 
 {
     "CABLE_LENGTH": {
@@ -131,14 +145,22 @@ def
 
 {% if defs.generate_buffer_pool_and_profiles is defined %}
 {{ defs.generate_buffer_pool_and_profiles() }}
+{% elif defs.generate_buffer_pool_and_profiles_with_inactive_ports is defined %}
+{{ defs.generate_buffer_pool_and_profiles_with_inactive_ports(port_names_inactive) }}
 {% endif %}
 
+
+{%- if port_names_active|length > 0 or port_names_inactive|length > 0 -%}
 {%- if defs.generate_profile_lists is defined %}
 {{ defs.generate_profile_lists(port_names_active) }},
+{% elif defs.generate_profile_lists_with_inactive_ports is defined %}
+{{ defs.generate_profile_lists_with_inactive_ports(port_names_active, port_names_inactive) }},
 {% endif %}
 
 {%- if defs.generate_pg_profils is defined %}
 {{ defs.generate_pg_profils(port_names_active) }}
+{% elif defs.generate_pg_profiles_with_inactive_ports is defined %}
+{{ defs.generate_pg_profiles_with_inactive_ports(port_names_active, port_names_inactive) }},
 {% else %}
     "BUFFER_PG": {
 {% for port in PORT_ACTIVE %}
@@ -157,6 +179,8 @@ def
 
 {% if defs.generate_queue_buffers is defined %}
 {{ defs.generate_queue_buffers(port_names_active) }}
+{% elif defs.generate_queue_buffers_with_inactive_ports is defined %}
+{{ defs.generate_queue_buffers_with_inactive_ports(port_names_active, port_names_inactive) }}
 {% else %}
     "BUFFER_QUEUE": {
 {% for port in PORT_ACTIVE %}
@@ -177,8 +201,11 @@ def
 {% endfor %}
     }
 {% endif %}
-{% if dynamic_mode is defined %}
+{%- if dynamic_mode is defined -%}
    ,
+{%- endif -%}
+{%- endif -%}
+{% if dynamic_mode is defined %}
     "DEFAULT_LOSSLESS_BUFFER_PARAMETER": {
         "AZURE": {
             "default_dynamic_th": "0"
