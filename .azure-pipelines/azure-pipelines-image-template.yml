@@ -52,9 +52,12 @@ jobs:
         displayName: Copy Artifacts
         condition: always()
       - publish:  $(Build.ArtifactStagingDirectory)
-        condition: always()
         artifact: 'sonic-buildimage.$(GROUP_NAME)$(GROUP_EXTNAME)'
         displayName: "Archive sonic image"
+      - publish:  $(Build.ArtifactStagingDirectory)
+        condition: failed()
+        artifact: 'sonic-buildimage.$(GROUP_NAME)$(GROUP_EXTNAME)$(System.JobAttempt)'
+        displayName: "Archive failed sonic image"
       - ${{ parameters.postSteps }}
       - template: cleanup.yml
     jobGroups: ${{ parameters.jobGroups }}
