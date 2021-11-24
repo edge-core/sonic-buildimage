@@ -124,6 +124,7 @@
 	    <AttachTo>8.0.0.1/32</AttachTo>
 	    <Address>192.168.1.2,192.168.2.2</Address>
 	    <Type>StaticRoute</Type>
+        <Advertise>false</Advertise>
         </IPNextHop>
       </IPNextHops>
       <DataAcls/>
@@ -213,7 +214,8 @@
 	  <Name i:nil="true"/>
 	  <AttachTo>8.0.0.1/32</AttachTo>
 	  <Address>192.168.1.2,192.168.2.2</Address>
-	  <Type>StaticRoute</Type>
+      <Type>StaticRoute</Type>
+      <Advertise>false</Advertise>
         </IPNextHop>
       </IPNextHops>
     </DeviceDataPlaneInfo>

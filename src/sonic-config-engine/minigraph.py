@@ -512,7 +512,8 @@ def parse_dpg(dpg, hname):
                 elif ipnh.find(str(QName(ns, "Type"))).text == 'StaticRoute':
                     prefix = ipnh.find(str(QName(ns, "AttachTo"))).text
                     nexthop = ipnh.find(str(QName(ns, "Address"))).text
-                    static_routes[prefix] = {'nexthop': nexthop }
+                    advertise = ipnh.find(str(QName(ns, "Advertise"))).text
+                    static_routes[prefix] = {'nexthop': nexthop, 'advertise': advertise}
 
             if port_nhipv4_map and port_nhipv6_map:
                 subnet_check_ip = list(port_nhipv4_map.values())[0]

@@ -27,6 +27,8 @@ class StaticRouteMgr(Manager):
 
     OP_DELETE = 'DELETE'
     OP_ADD = 'ADD'
+    ROUTE_ADVERTISE_ENABLE_TAG = '1'
+    ROUTE_ADVERTISE_DISABLE_TAG = '2'
 
     def set_handler(self, key, data):
         vrf, ip_prefix = self.split_key(key)
@@ -38,11 +40,12 @@ class StaticRouteMgr(Manager):
         intf_list   = arg_list(data['ifname']) if 'ifname' in data else None
         dist_list   = arg_list(data['distance']) if 'distance' in data else None
         nh_vrf_list = arg_list(data['nexthop-vrf']) if 'nexthop-vrf' in data else None
+        route_tag   = self.ROUTE_ADVERTISE_DISABLE_TAG if 'advertise' in data and data['advertise'] == "false" else self.ROUTE_ADVERTISE_ENABLE_TAG 
 
         try:
             ip_nh_set = IpNextHopSet(is_ipv6, bkh_list, nh_list, intf_list, dist_list, nh_vrf_list)
-            cur_nh_set = self.static_routes.get(vrf, {}).get(ip_prefix, IpNextHopSet(is_ipv6))
-            cmd_list = self.static_route_commands(ip_nh_set, cur_nh_set, ip_prefix, vrf)
+            cur_nh_set, cur_route_tag = self.static_routes.get(vrf, {}).get(ip_prefix, (IpNextHopSet(is_ipv6), route_tag))
+            cmd_list = self.static_route_commands(ip_nh_set, cur_nh_set, ip_prefix, vrf, route_tag, cur_route_tag)
         except Exception as exc:
             log_crit("Got an exception %s: Traceback: %s" % (str(exc), traceback.format_exc()))
             return False
@@ -60,7 +63,7 @@ class StaticRouteMgr(Manager):
         else:
             log_debug("Nothing to update for static route {}".format(key))
 
-        self.static_routes.setdefault(vrf, {})[ip_prefix] = ip_nh_set
+        self.static_routes.setdefault(vrf, {})[ip_prefix] = (ip_nh_set, route_tag)
 
         return True
 
@@ -70,8 +73,8 @@ class StaticRouteMgr(Manager):
         is_ipv6 = TemplateFabric.is_ipv6(ip_prefix)
 
         ip_nh_set = IpNextHopSet(is_ipv6)
-        cur_nh_set = self.static_routes.get(vrf, {}).get(ip_prefix, IpNextHopSet(is_ipv6))
-        cmd_list = self.static_route_commands(ip_nh_set, cur_nh_set, ip_prefix, vrf)
+        cur_nh_set, route_tag = self.static_routes.get(vrf, {}).get(ip_prefix, (IpNextHopSet(is_ipv6), self.ROUTE_ADVERTISE_DISABLE_TAG))
+        cmd_list = self.static_route_commands(ip_nh_set, cur_nh_set, ip_prefix, vrf, route_tag, route_tag)
 
         # Disable redistribution of static routes when it is the last one to delete
         if self.static_routes.get(vrf, {}).keys() == {ip_prefix}:
@@ -99,36 +102,47 @@ class StaticRouteMgr(Manager):
         else:
             return tuple(key.split('|', 1))
 
-    def static_route_commands(self, ip_nh_set, cur_nh_set, ip_prefix, vrf):
-        diff_set = ip_nh_set.symmetric_difference(cur_nh_set)
-
+    def static_route_commands(self, ip_nh_set, cur_nh_set, ip_prefix, vrf, route_tag, cur_route_tag):
         op_cmd_list = {}
-        for ip_nh in diff_set:
-            if ip_nh in cur_nh_set:
-                op = self.OP_DELETE
-            else:
-                op = self.OP_ADD
+        if route_tag != cur_route_tag:
+            for ip_nh in cur_nh_set:
+                op_cmds = op_cmd_list.setdefault(self.OP_DELETE, [])
+                op_cmds.append(self.generate_command(self.OP_DELETE, ip_nh, ip_prefix, vrf, cur_route_tag))
+            for ip_nh in ip_nh_set:
+                op_cmds = op_cmd_list.setdefault(self.OP_ADD, [])
+                op_cmds.append(self.generate_command(self.OP_ADD, ip_nh, ip_prefix, vrf, route_tag))
+        else:
+            diff_set = ip_nh_set.symmetric_difference(cur_nh_set)
 
-            op_cmds = op_cmd_list.setdefault(op, [])
-            op_cmds.append(self.generate_command(op, ip_nh, ip_prefix, vrf))
+            for ip_nh in diff_set:
+                if ip_nh in cur_nh_set:
+                    op = self.OP_DELETE
+                else:
+                    op = self.OP_ADD
+
+                op_cmds = op_cmd_list.setdefault(op, [])
+                op_cmds.append(self.generate_command(op, ip_nh, ip_prefix, vrf, route_tag))
 
         cmd_list = op_cmd_list.get(self.OP_DELETE, [])
         cmd_list += op_cmd_list.get(self.OP_ADD, [])
 
         return cmd_list
 
-    def generate_command(self, op, ip_nh, ip_prefix, vrf):
-        return '{}{} route {}{}{}'.format(
+    def generate_command(self, op, ip_nh, ip_prefix, vrf, route_tag):
+        return '{}{} route {}{}{}{}'.format(
             'no ' if op == self.OP_DELETE else '',
             'ipv6' if ip_nh.af == socket.AF_INET6 else 'ip',
             ip_prefix,
             ip_nh,
-            ' vrf {}'.format(vrf) if vrf != 'default' else ''
+            ' vrf {}'.format(vrf) if vrf != 'default' else '',
+            ' tag {}'.format(route_tag)
         )
 
     def enable_redistribution_command(self, vrf):
         log_debug("Enabling static route redistribution")
         cmd_list = []
+        cmd_list.append("route-map STATIC_ROUTE_FILTER permit 10")
+        cmd_list.append(" match tag %s" % self.ROUTE_ADVERTISE_ENABLE_TAG)
         bgp_asn = self.directory.get_slot("CONFIG_DB", swsscommon.CFG_DEVICE_METADATA_TABLE_NAME)["localhost"]["bgp_asn"]
         if vrf == 'default':
             cmd_list.append("router bgp %s" % bgp_asn)
@@ -136,7 +150,7 @@ class StaticRouteMgr(Manager):
             cmd_list.append("router bgp %s vrf %s" % (bgp_asn, vrf))
         for af in ["ipv4", "ipv6"]:
             cmd_list.append(" address-family %s" % af)
-            cmd_list.append("  redistribute static")
+            cmd_list.append("  redistribute static route-map STATIC_ROUTE_FILTER")
         return cmd_list
 
     def disable_redistribution_command(self, vrf):
@@ -149,7 +163,8 @@ class StaticRouteMgr(Manager):
             cmd_list.append("router bgp %s vrf %s" % (bgp_asn, vrf))
         for af in ["ipv4", "ipv6"]:
             cmd_list.append(" address-family %s" % af)
-            cmd_list.append("  no redistribute static")
+            cmd_list.append("  no redistribute static route-map STATIC_ROUTE_FILTER")
+        cmd_list.append("no route-map STATIC_ROUTE_FILTER")
         return cmd_list
 
     def on_bgp_asn_change(self):
