@@ -69,6 +69,4 @@ class TestCfgGen(TestCase):
     def test_zebra_frr(self):
         self.assertTrue(*self.run_case('zebra/zebra.conf.j2', 'zebra_frr.conf'))
 
-    def test_staticd_frr(self):
-        self.assertTrue(*self.run_case('staticd/staticd.conf.j2', 'staticd_frr.conf'))
 
