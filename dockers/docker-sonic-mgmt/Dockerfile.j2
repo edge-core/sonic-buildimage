@@ -89,7 +89,8 @@ RUN pip install cffi==1.10.0 \
     && rm -fr nanomsg-1.0.0 \
     && rm -f 1.0.0.tar.gz  \
     && pip install nnpy    \
-    && pip install dpkt
+    && pip install dpkt    \
+    && pip install scapy==2.4.5 --upgrade
 
 # Install docker-ce-cli
 RUN apt-get update                  \
