@@ -81,12 +81,6 @@ def test_common_functions():
              "common/functions.conf.json",
              "common/functions.conf")
 
-def test_staticd_default_route():
-    run_test("staticd.default_route.conf.j2",
-             "staticd/staticd.default_route.conf.j2",
-             "staticd/staticd.default_route.conf.json",
-             "staticd/staticd.default_route.conf")
-
 def test_staticd_loopback_route():
     run_test("staticd.loopback_route.conf.j2",
              "staticd/staticd.loopback_route.conf.j2",
