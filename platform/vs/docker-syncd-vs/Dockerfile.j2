@@ -9,7 +9,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update
 
-RUN apt-get install -f -y iproute2 libcap2-bin
+RUN apt-get install -f -y libcap2-bin
 
 COPY \
 {% for deb in docker_syncd_vs_debs.split(' ') -%}
@@ -20,7 +20,7 @@ debs/
 RUN dpkg -i \
 {% for deb in docker_syncd_vs_debs.split(' ') -%}
 debs/{{ deb }}{{' '}}
-{%- endfor %}
+{%- endfor %} || apt-get install -f -y
 
 COPY ["start.sh", "/usr/bin/"]
 

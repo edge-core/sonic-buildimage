@@ -356,6 +356,12 @@ RUN apt-get update && apt-get install -y \
         libsystemd-dev \
         pkg-config
 
+# For iproute2
+RUN apt-get install -y -t buster-backports \
+        libbpf-dev \
+        dwz \
+        debhelper
+
 RUN apt-get -y build-dep openssh
 
 # Build fix for ARMHF buster libsairedis

@@ -3,7 +3,8 @@
 DOCKER_SYNCD_PLATFORM_CODE = vs
 include $(PLATFORM_PATH)/../template/docker-syncd-base.mk
 
-$(DOCKER_SYNCD_BASE)_DEPENDS += $(SYNCD_VS)
+$(DOCKER_SYNCD_BASE)_DEPENDS += $(SYNCD_VS) \
+                                $(IPROUTE2)
 
 $(DOCKER_SYNCD_BASE)_DBG_DEPENDS += $(SYNCD_VS_DBG) \
                                 $(LIBSWSSCOMMON_DBG) \
