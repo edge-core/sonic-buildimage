@@ -24,6 +24,11 @@
         "desc": "Referring non-existing BGP neighbor table.",
         "eStrKey" : "LeafRef"
     },
+    "BGP_NEIGHBOR_NEG_INVALID_ADMIN_STATUS": {
+        "desc": "Incorrect admin status.",
+        "eStrKey": "InvalidValue",
+        "eStr": ["admin_status"]
+    },
     "BGP_NEIGHBOR_NEG_INVALID_NAME": {
         "desc": "Incorrect neighbor name.",
         "eStrKey": "InvalidValue",

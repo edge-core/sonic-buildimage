@@ -7,6 +7,10 @@ module sonic-bgp-neighbor {
         prefix inet;
     }
 
+    import sonic-types {
+        prefix stypes;
+    }
+
     import sonic-bgp-common {
         prefix bgpcmn;
     }
@@ -96,6 +100,11 @@ module sonic-bgp-neighbor {
                         range "0..1";
                     }
                     description "Route reflector client";
+                }
+
+                leaf admin_status {
+                    type stypes:admin_status;
+                    description "Admin status of BGP peer";
                 }
             }
 

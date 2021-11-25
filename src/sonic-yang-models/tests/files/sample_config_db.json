@@ -1087,7 +1087,8 @@
                 "local_addr": "10.0.0.2",
                 "name":"PEER1",
                 "nhopself":"0",
-                "rrclient":"0"
+                "rrclient":"0",
+                "admin_status":"up"
             },
             "default|192.168.1.1": {
                 "local_asn": "65200",

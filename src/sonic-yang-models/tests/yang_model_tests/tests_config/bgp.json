@@ -133,6 +133,19 @@
         },
         "sonic-bgp-neighbor:sonic-bgp-neighbor": {
             "sonic-bgp-neighbor:BGP_NEIGHBOR": {
+                "BGP_NEIGHBOR_TEMPLATE_LIST": [
+                {
+                    "neighbor": "10.0.0.1",
+                    "asn": "65200",
+                    "holdtime": "180",
+                    "keepalive": "60",
+                    "local_addr": "10.0.0.2",
+                    "name":"PEER1",
+                    "nhopself":"0",
+                    "rrclient":"0",
+                    "admin_status":"up"
+                }
+                ],
                 "BGP_NEIGHBOR_LIST": [
                 {
                     "vrf_name": "default",
@@ -431,6 +444,29 @@
                     "admin_status": true,
                     "send_default_route": true
                 }]}
+        }
+    },
+
+    "BGP_NEIGHBOR_NEG_INVALID_ADMIN_STATUS": {
+        "sonic-bgp-global:sonic-bgp-global": {
+            "sonic-bgp-global:BGP_GLOBALS": {
+                "BGP_GLOBALS_LIST": [
+                    {
+                        "vrf_name": "default",
+                        "local_asn": 65001
+                    }
+                ]
+            }
+        },
+        "sonic-bgp-neighbor:sonic-bgp-neighbor": {
+            "sonic-bgp-neighbor:BGP_NEIGHBOR": {
+                "BGP_NEIGHBOR_TEMPLATE_LIST": [
+                    {
+                        "neighbor": "11.12.13.14",
+                        "admin_status": "right"
+                    }
+                ]
+            }
         }
     },
 
