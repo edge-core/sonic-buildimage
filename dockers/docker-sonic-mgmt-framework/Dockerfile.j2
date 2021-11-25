@@ -36,8 +36,4 @@ RUN apt-get remove -y g++ python3-dev
 RUN apt-get clean -y; apt-get autoclean -y; apt-get autoremove -y
 RUN rm -rf /debs
 
-## TODO: symbolic links will be removed when AAA improvements get merged
-RUN ln -sf /host_etc/passwd /etc/passwd	
-RUN ln -sf /host_etc/group /etc/group
-
 ENTRYPOINT ["/usr/local/bin/supervisord"]
