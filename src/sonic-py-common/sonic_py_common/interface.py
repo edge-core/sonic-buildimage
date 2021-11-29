@@ -14,7 +14,9 @@ SONIC_INTERFACE_PREFIXES = {
     "Vlan": "Vlan",
     "Loopback": "Loopback",
     "Ethernet-Backplane": "Ethernet-BP",
-    "Ethernet-Inband": "Ethernet-IB"
+    "Ethernet-Inband": "Ethernet-IB",
+    "Ethernet-SubPort": "Eth",
+    "PortChannel-SubPort": "Po"
 }
 
 VLAN_SUB_INTERFACE_SEPARATOR = '.'
@@ -55,6 +57,18 @@ def inband_prefix():
     """
     return SONIC_INTERFACE_PREFIXES["Ethernet-Inband"]
 
+def physical_subinterface_prefix():
+    """
+    Retrieves the SONIC Subinterface name prefix.
+    """
+    return SONIC_INTERFACE_PREFIXES["Ethernet-SubPort"]
+
+def portchannel_subinterface_prefix():
+    """
+    Retrieves the SONIC Subinterface name prefix.
+    """
+    return SONIC_INTERFACE_PREFIXES["PortChannel-SubPort"]
+
 def get_interface_table_name(interface_name):
     """Get table name by interface_name prefix
     """
@@ -70,6 +84,9 @@ def get_interface_table_name(interface_name):
         return "VLAN_INTERFACE"
     elif interface_name.startswith(loopback_prefix()):
         return "LOOPBACK_INTERFACE"
+    elif VLAN_SUB_INTERFACE_SEPARATOR in interface_name:
+        if interface_name.startswith(physical_subinterface_prefix()) or interface_name.startswith(portchannel_subinterface_prefix()):
+            return "VLAN_SUB_INTERFACE"
     else:
         return ""
 
@@ -88,5 +105,47 @@ def get_port_table_name(interface_name):
         return "VLAN_INTERFACE"
     elif interface_name.startswith(loopback_prefix()):
         return "LOOPBACK_INTERFACE"
+    elif VLAN_SUB_INTERFACE_SEPARATOR in interface_name:
+        if interface_name.startswith(physical_subinterface_prefix()) or interface_name.startswith(portchannel_subinterface_prefix()):
+            return "VLAN_SUB_INTERFACE"
     else:
         return ""
+
+def get_subintf_longname(intf):
+    if intf is None:
+       return None
+    sub_intf_sep_idx = intf.find(VLAN_SUB_INTERFACE_SEPARATOR)
+    if sub_intf_sep_idx == -1:
+        return str(intf)
+    parent_intf = intf[:sub_intf_sep_idx]
+    sub_intf_idx = intf[(sub_intf_sep_idx+1):]
+    if intf.startswith("Eth"):
+        intf_index=intf[len("Eth"):sub_intf_sep_idx]
+        return "Ethernet"+intf_index+VLAN_SUB_INTERFACE_SEPARATOR+sub_intf_idx
+    elif intf.startswith("Po"):
+        intf_index=intf[len("Po"):sub_intf_sep_idx]
+        return "PortChannel"+intf_index+VLAN_SUB_INTERFACE_SEPARATOR+sub_intf_idx
+    else:
+        return str(intf)
+
+def get_intf_longname(intf):
+    if intf is None:
+       return None
+
+    if VLAN_SUB_INTERFACE_SEPARATOR in intf:
+       return get_subintf_longname(intf)
+    else:
+        if intf.startswith("Eth"):
+           if intf.startswith("Ethernet"):
+              return intf
+           intf_index=intf[len("Eth"):len(intf)]
+           return "Ethernet"+intf_index
+        elif intf.startswith("Po"):
+             if intf.startswith("PortChannel"):
+                return intf
+             intf_index=intf[len("Po"):len(intf)]
+             return "PortChannel"+intf_index
+        else:
+             return intf
+
+
