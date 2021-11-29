@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 
-import os
 import subprocess
-import sys
-import time
 
 from sonic_py_common import logger
 from swsscommon import swsscommon
 
 log = logger.Logger('mark_dhcp_packet')
+
 
 class MarkDhcpPacket(object):
     """
@@ -38,7 +36,9 @@ class MarkDhcpPacket(object):
         Initializes the connector during the first call
         """
         if self.state_db_connector is None:
-            self.state_db_connector = swsscommon.SonicV2Connector(host='127.0.0.1')
+            self.state_db_connector = swsscommon.SonicV2Connector(
+                                                    host='127.0.0.1'
+                                                )
             self.state_db_connector.connect(self.state_db_connector.STATE_DB)
 
         return self.state_db_connector
@@ -51,7 +51,8 @@ class MarkDhcpPacket(object):
         localhost_key = self.config_db.get_keys('DEVICE_METADATA')[0]
         metadata = self.config_db.get_entry('DEVICE_METADATA', localhost_key)
 
-        return 'subtype' in metadata and 'dualtor' in metadata['subtype'].lower()
+        return 'subtype' in metadata and \
+               'dualtor' in metadata['subtype'].lower()
 
     def get_mux_intfs(self):
         """
@@ -82,10 +83,16 @@ class MarkDhcpPacket(object):
         self.run_command("sudo ebtables -F INPUT")
 
     def apply_mark_in_ebtables(self, intf, mark):
-        self.run_command("sudo ebtables -A INPUT -i {} -j mark --mark-set {}".format(intf, mark))
+        self.run_command("sudo ebtables -A INPUT -i {} -j mark --mark-set {}"
+                         .format(intf, mark))
 
     def update_mark_in_state_db(self, intf, mark):
-        self.state_db.set(self.state_db.STATE_DB, 'DHCP_PACKET_MARK|' + intf, 'mark', mark)
+        self.state_db.set(
+            self.state_db.STATE_DB,
+            'DHCP_PACKET_MARK|' + intf,
+            'mark',
+            mark
+        )
 
     def apply_marks(self):
         """
@@ -102,6 +109,7 @@ class MarkDhcpPacket(object):
             self.update_mark_in_state_db(intf, mark)
 
         log.log_info("Finish marking dhcp packets in ebtables.")
+
 
 if __name__ == '__main__':
     mark_dhcp_packet = MarkDhcpPacket()
