@@ -5,7 +5,7 @@
             "buffer_model": "traditional"
         }
     },
-{% set features = ["swss", "bgp", "teamd", "nat", "database"] %}
+{% set features = ["swss", "bgp", "teamd", "nat", "database", "lldp", "dhcp_relay", "macsec"] %}
     "FEATURE": {
 {% for feature in features %}
         "{{ feature }}": {

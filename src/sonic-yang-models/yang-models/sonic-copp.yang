@@ -43,13 +43,13 @@ module sonic-copp {
 					type stypes:copp_packet_action;
 					description "Trap action";
 				}
-				
+
 				leaf meter_type {
 					mandatory true;
 					type stypes:meter_type;
 					description "Policer meter type";
 				}
-				
+
 				leaf mode {
 					mandatory true;
 					type enumeration {
@@ -59,7 +59,7 @@ module sonic-copp {
 					}
 					description "Policer mode";
 				}
-				
+
 				leaf color {
 					type enumeration {
 						enum blind;
@@ -74,7 +74,7 @@ module sonic-copp {
 					default 0;
 					description
 						"Committed information rate for the dual-rate token
-						bucket policer.  This value represents the rate at which 
+						bucket policer.  This value represents the rate at which
 						tokens are added to the primary bucket.";
 				}
 
@@ -118,13 +118,13 @@ module sonic-copp {
 						"Excess burst size for the dual-rate token bucket policer.
 						This value represents the depth of the secondary bucket.";
 				}
-				
+
 				leaf green_action {
 					type stypes:copp_packet_action;
 					default "forward";
 					description "Green action";
 				}
-				
+
 				leaf yellow_action {
 					when "((current()/../mode = 'sr_tcm') or (current()/../mode = 'tr_tcm'))";
 					type stypes:copp_packet_action;
@@ -162,6 +162,11 @@ module sonic-copp {
 						path "/sonic-copp/COPP_GROUP/COPP_GROUP_LIST/name";
 					}
 					description "reference to CoPP group";
+				}
+
+				leaf always_enabled {
+					type boolean;
+					description "field that indicates whether the trap should be always installed";
 				}
 			}
 			/* end of list COPP_TRAP_LIST */
