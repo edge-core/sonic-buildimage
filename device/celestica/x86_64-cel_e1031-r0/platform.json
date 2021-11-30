@@ -1,6 +1,10 @@
 {
     "chassis": {
         "name": "Celestica-E1031-T48S4",
+        "status_led": {
+            "controllable": true,
+            "colors": ["green", "amber","off"]
+        },
         "components": [
             {
                 "name": "SMC_CPLD"
@@ -14,37 +18,100 @@
         ],
         "fans": [
             {
-                "name": "FAN-1"
+                "name": "FAN-1",
+                "speed": {
+                    "controllable": false
+                },
+                "status_led": {
+                    "controllable": true,
+                    "colors": ["green", "amber","off"]
+                }
             },
             {
-                "name": "FAN-2"
+                "name": "FAN-2",
+                "speed": {
+                    "controllable": false
+                },
+                "status_led": {
+                    "controllable": true,
+                    "colors": ["green", "amber","off"]
+                }
             },
             {
-                "name": "FAN-3"
+                "name": "FAN-3",
+                "speed": {
+                    "controllable": false
+                },
+                "status_led": {
+                    "controllable": true,
+                    "colors": ["green", "amber","off"]
+                }
             }
         ],
         "fan_drawers": [
             {
                 "name": "Drawer1",
+                "speed": {
+                    "controllable": false
+                },
+                "status_led": {
+                    "controllable": true,
+                    "colors": ["green", "amber","off"]
+                },
                 "fans": [
                     {
-                        "name": "FAN-1"
+                        "name": "FAN-1",
+                        "speed": {
+                            "controllable": false
+                        },
+                        "status_led": {
+                            "controllable": true,
+                            "colors": ["green", "amber","off"]
+                        }
                     }
                 ]
             },
             {
                 "name": "Drawer2",
+                "speed": {
+                    "controllable": false
+                },
+                "status_led": {
+                    "controllable": true,
+                    "colors": ["green", "amber","off"]
+                },
                 "fans": [
                     {
-                        "name": "FAN-2"
+                        "name": "FAN-2",
+                        "speed": {
+                            "controllable": false
+                        },
+                        "status_led": {
+                            "controllable": true,
+                            "colors": ["green", "amber","off"]
+                        }
                     }
                 ]
             },
             {
                 "name": "Drawer3",
+                "speed": {
+                    "controllable": false
+                },
+                "status_led": {
+                    "controllable": true,
+                    "colors": ["green", "amber","off"]
+                },
                 "fans": [
                     {
-                        "name": "FAN-3"
+                        "name": "FAN-3",
+                        "speed": {
+                            "controllable": false
+                        },
+                        "status_led": {
+                            "controllable": true,
+                            "colors": ["green", "amber","off"]
+                        }
                     }
                 ]
             }
@@ -54,40 +121,79 @@
                 "name": "PSU-R",
                 "fans": [
                     {
-                        "name": "PSU-1 FAN-1"
+                        "name": "PSU-1 FAN-1",
+                        "speed": {
+                            "controllable": false
+                        },
+                        "status_led": {
+                            "controllable": false
+                        }
                     }
-                ]
+                ],
+                "status_led": {
+                    "controllable": false
+                }
             },
             {
                 "name": "PSU-L",
                 "fans": [
                     {
-                        "name": "PSU-2 FAN-1"
+                        "name": "PSU-2 FAN-1",
+                        "speed": {
+                            "controllable": false
+                        },
+                        "status_led": {
+                            "controllable": false
+                        }
                     }
-                ]
+                ],
+                "status_led": {
+                    "controllable": false
+                }
             }
         ],
         "thermals": [
             {
-                "name": "Inlet ambient sensor (Rear to Front)"
+                "name": "Inlet ambient sensor (Rear to Front)",
+                "controllable": false,
+                "low-threshold": false,
+                "low-crit-threshold": false
             },
             {
-                "name": "Helix shutdown sensor (Rear to Front)"
+                "name": "Helix shutdown sensor (Rear to Front)",
+                "controllable": false,
+                "low-threshold": false,
+                "low-crit-threshold": false
             },
             {
-                "name": "Inlet ambient sensor (Front to Rear, right)"
+                "name": "Inlet ambient sensor (Front to Rear, right)",
+                "controllable": false,
+                "low-threshold": false,
+                "low-crit-threshold": false
             },
             {
-                "name": "Helix shutdown sensor (Front to Rear)"
+                "name": "Helix shutdown sensor (Front to Rear)",
+                "controllable": false,
+                "low-threshold": false,
+                "low-crit-threshold": false
             },
             {
-                "name": "Inlet ambient sensor (Front to Rear, left)"
+                "name": "Inlet ambient sensor (Front to Rear, left)",
+                "controllable": false,
+                "low-threshold": false,
+                "low-crit-threshold": false
             },
             {
-                "name": "CPU errata sensor (Front to Rear)"
+                "name": "CPU errata sensor (Front to Rear)",
+                "controllable": false,
+                "low-threshold": false,
+                "low-crit-threshold": false
             },
             {
-                "name": "CPU errata sensor (Rear to Front)"
+                "name": "CPU errata sensor (Rear to Front)",
+                "controllable": false,
+                "low-threshold": false,
+                "low-crit-threshold": false
             }
         ],
         "sfps": [
