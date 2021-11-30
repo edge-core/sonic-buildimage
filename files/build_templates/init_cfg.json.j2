@@ -12,7 +12,7 @@
 {%- for crm_res in ["ipv4_route", "ipv6_route", "ipv4_nexthop", "ipv6_nexthop", "ipv4_neighbor",
                     "ipv6_neighbor", "nexthop_group_member", "nexthop_group", "acl_table",
                     "acl_group", "acl_entry", "acl_counter", "fdb_entry", "snat_entry", "dnat_entry",
-                    "ipmc_entry", "mpls_inseg", "mpls_nexthop"] %}
+                    "ipmc_entry", "mpls_inseg", "mpls_nexthop", "srv6_my_sid_entry", "srv6_nexthop"] %}
             "{{crm_res}}_threshold_type": "percentage",
             "{{crm_res}}_low_threshold": "70",
             "{{crm_res}}_high_threshold": "85"{% if not loop.last %},{% endif -%}
