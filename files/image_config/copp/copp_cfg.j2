@@ -13,7 +13,7 @@
 		    "trap_priority":"4",
 		    "queue": "4"
 	    },
-	    "queue4_group2": {            
+	    "queue4_group2": {
 		    "trap_action":"copy",
 		    "trap_priority":"4",
 		    "queue": "4",
@@ -69,11 +69,13 @@
 	    },
 	    "lacp": {
 		    "trap_ids": "lacp",
-		    "trap_group": "queue4_group1"
+		    "trap_group": "queue4_group1",
+		    "always_enabled": "true"
 	    },
 	    "arp": {
 		    "trap_ids": "arp_req,arp_resp,neigh_discovery",
-		    "trap_group": "queue4_group2"
+		    "trap_group": "queue4_group2",
+		    "always_enabled": "true"
 	    },
 	    "lldp": {
 		    "trap_ids": "lldp",
@@ -85,11 +87,13 @@
 	    },
 	    "udld": {
 		    "trap_ids": "udld",
-		    "trap_group": "queue4_group3"
+		    "trap_group": "queue4_group3",
+		    "always_enabled": "true"
 	    },
 	    "ip2me": {
 		    "trap_ids": "ip2me",
-		    "trap_group": "queue1_group1"
+		    "trap_group": "queue1_group1",
+		    "always_enabled": "true"
 	    },
 	    "nat": {
 		    "trap_ids": "src_nat_miss,dest_nat_miss",
