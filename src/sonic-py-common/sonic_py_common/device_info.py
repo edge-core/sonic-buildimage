@@ -351,7 +351,8 @@ def get_platform_info():
 
     hw_info_dict['platform'] = get_platform()
     hw_info_dict['hwsku'] = get_hwsku()
-    hw_info_dict['asic_type'] = version_info['asic_type']
+    if version_info:
+        hw_info_dict['asic_type'] = version_info.get('asic_type')
     hw_info_dict['asic_count'] = get_num_asics()
 
     try:
