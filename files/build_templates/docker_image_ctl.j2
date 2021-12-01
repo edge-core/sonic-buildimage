@@ -36,8 +36,11 @@ function updateSyslogConf()
         TARGET_IP=$(docker network inspect bridge --format={{ "'{{(index .IPAM.Config 0).Gateway}}'" }})
         CONTAINER_NAME="$DOCKERNAME"
         TMP_FILE="/tmp/rsyslog.$CONTAINER_NAME.conf"
-
+        {%- if docker_container_name == "database" %} 
+        python -c "import jinja2, os; paths=['/usr/share/sonic/templates']; loader = jinja2.FileSystemLoader(paths); env = jinja2.Environment(loader=loader, trim_blocks=True); template_file='/usr/share/sonic/templates/rsyslog-container.conf.j2'; template = env.get_template(os.path.basename(template_file)); data=template.render({\"target_ip\":\"$TARGET_IP\",\"container_name\":\"$CONTAINER_NAME\"}); print(data)" > $TMP_FILE
+        {%- else %}
         sonic-cfggen -t /usr/share/sonic/templates/rsyslog-container.conf.j2 -a "{\"target_ip\": \"$TARGET_IP\", \"container_name\": \"$CONTAINER_NAME\" }"  > $TMP_FILE
+        {%- endif %}
         docker cp $TMP_FILE ${DOCKERNAME}:/etc/rsyslog.conf
         rm -rf $TMP_FILE
     fi
