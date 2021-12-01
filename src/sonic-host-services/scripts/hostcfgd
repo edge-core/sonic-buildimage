@@ -100,6 +100,18 @@ def obfuscate(data):
     else:
         return data
 
+def get_pid(procname):
+    for dirname in os.listdir('/proc'):
+        if dirname == 'curproc':
+            continue
+        try:
+            with open('/proc/{}/cmdline'.format(dirname), mode='r') as fd:
+                content = fd.read()
+        except Exception as ex:
+            continue
+        if procname in content:
+            return dirname
+    return ""
 
 class Feature(object):
     """ Represents a feature configuration from CONFIG_DB data. """
@@ -534,6 +546,18 @@ class AaaCfg(object):
         if modify_conf:
             self.modify_conf_file()
 
+    def notify_audisp_tacplus_reload_config(self):
+        pid = get_pid("/sbin/audisp-tacplus")
+        syslog.syslog(syslog.LOG_INFO, "Found audisp-tacplus PID: {}".format(pid))
+        if pid == "":
+            return
+
+        # audisp-tacplus will reload TACACS+ config when receive SIGHUP
+        try:
+            os.kill(int(pid), signal.SIGHUP)
+        except Exception as ex:
+            syslog.syslog(syslog.LOG_WARNING, "Send SIGHUP to audisp-tacplus failed with exception: {}".format(ex))
+
     def handle_radius_source_intf_ip_chg(self, key):
         modify_conf=False
         if 'src_intf' in self.radius_global:
@@ -768,6 +792,9 @@ class AaaCfg(object):
                                         tacacs_authorization=tacacs_authorization_conf)
         with open(NSS_TACPLUS_CONF, 'w') as f:
             f.write(nss_tacplus_conf)
+
+        # Notify auditd plugin to reload tacacs config.
+        self.notify_audisp_tacplus_reload_config()
 
         # Set debug in nss-radius conf
         template_file = os.path.abspath(NSS_RADIUS_CONF_TEMPLATE)

@@ -354,7 +354,10 @@ RUN apt-get update && apt-get install -y \
         libdbus-1-dev \
         libgirepository1.0-dev \
         libsystemd-dev \
-        pkg-config
+        pkg-config \
+# For audisp-tacplus
+        libauparse-dev \
+        auditd
 
 # For iproute2
 RUN apt-get install -y -t buster-backports \

@@ -295,7 +295,10 @@ RUN apt-get update && apt-get install -y \
         libxml2-utils \
         xsltproc \
         python-lxml \
-        libexpat1-dev
+        libexpat1-dev \
+# For audisp-tacplus
+        libauparse-dev \
+        auditd
 
 # Install dependencies for dhcp relay test 
 RUN pip3 install parameterized==0.8.1
