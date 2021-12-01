@@ -4,6 +4,7 @@ dependencies = [
     'natsort',
     'sonic_py_common',
     'swsssdk>=2.0.1',
+    'docker'
 ]
 
 setup(
