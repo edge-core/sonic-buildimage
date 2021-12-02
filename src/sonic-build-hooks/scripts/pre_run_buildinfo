@@ -10,6 +10,7 @@ mkdir -p $LOG_PATH
 [ -d $PRE_VERSION_PATH ] && rm -rf $PRE_VERSION_PATH
 collect_version_files $PRE_VERSION_PATH
 symlink_build_hooks
+set_reproducible_mirrors
 
 chmod -R a+rw $BUILDINFO_PATH
 
