@@ -320,7 +320,8 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     python-is-python3       \
     cron                    \
     libprotobuf23           \
-    libgrpc++               \
+    libgrpc++1              \
+    libgrpc10               \
     haveged                 \
     fdisk                   \
     gpg                     \
