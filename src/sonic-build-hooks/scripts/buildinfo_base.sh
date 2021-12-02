@@ -11,6 +11,7 @@ POST_VERSION_PATH=$BUILDINFO_PATH/post-versions
 VERSION_DEB_PREFERENCE=$BUILDINFO_PATH/versions/01-versions-deb
 WEB_VERSION_FILE=$VERSION_PATH/versions-web
 BUILD_WEB_VERSION_FILE=$BUILD_VERSION_PATH/versions-web
+REPR_MIRROR_URL_PATTERN='http:\/\/packages.trafficmanager.net\/debian'
 
 . $BUILDINFO_PATH/config/buildinfo.config
 
@@ -57,6 +58,22 @@ check_if_url_exist()
     else
         echo n
     fi
+}
+
+# Enable or disable the reproducible mirrors
+set_reproducible_mirrors()
+{
+    # Remove the charater # in front of the line if matched
+    local expression="s/^#\(.*$REPR_MIRROR_URL_PATTERN\)/\1/"
+    if [ "$1" = "-d" ]; then
+        # Add the charater # in front of the line if match
+        expression="s/^deb.*$REPR_MIRROR_URL_PATTERN/#\0/"
+    fi
+
+    local mirrors="/etc/apt/sources.list $(ls /etc/apt/sources.list.d/)"
+    for mirror in $mirrors; do
+        sed -i "$expression" "$mirror"
+    done
 }
 
 download_packages()
