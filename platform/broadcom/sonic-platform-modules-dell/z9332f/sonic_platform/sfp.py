@@ -19,8 +19,6 @@ try:
 except ImportError as err:
     raise ImportError(str(err) + "- required module not found")
 
-QSFP_DD_MODULE_ENC_OFFSET = 3
-QSFP_DD_MODULE_ENC_WIDTH = 1
 QSFP_INFO_OFFSET = 128
 SFP_INFO_OFFSET = 0
 QSFP_DD_PAGE0 = 0
@@ -205,11 +203,7 @@ class Sfp(SfpOptoeBase):
         lpmode_state = False
         try:
             if self.sfp_type == 'QSFP_DD':
-                lpmode = self.read_eeprom(QSFP_DD_MODULE_ENC_OFFSET, QSFP_DD_MODULE_ENC_WIDTH)
-                if lpmode is not None:
-                    if int(lpmode[0])>>1 == 1:
-                        return True
-                return False
+                return SfpOptoeBase.get_lpmode(self)
             else:
                 # Port offset starts with 0x4000
                 port_offset = 16384 + ((self.index-1) * 16)
@@ -265,12 +259,7 @@ class Sfp(SfpOptoeBase):
         """
         try:
             if self.sfp_type == 'QSFP_DD':
-                if lpmode is True:
-                    write_val = 0x10
-                else:
-                    write_val = 0x0
-
-                self.write_eeprom(26, 1, bytearray([write_val]))
+                return SfpOptoeBase.set_lpmode(self, lpmode)
             else:
                 # Port offset starts with 0x4000
                 port_offset = 16384 + ((self.index-1) * 16)
