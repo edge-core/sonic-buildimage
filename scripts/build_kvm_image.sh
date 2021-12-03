@@ -4,7 +4,7 @@
 #
 #  SPDX-License-Identifier:     GPL-2.0
 
-MEM=3072
+MEM=4096
 DISK=$1
 ONIE_RECOVERY_ISO=$2
 INSTALLER=$3
