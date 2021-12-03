@@ -45,7 +45,7 @@ dependent_startup_wait_for=rsyslogd:running
 {%- set vlan_v6 = namespace(count=0) -%}
 {%- if DEVICE_METADATA.localhost.deployment_id != "8" -%}
   {%- if DEVICE_METADATA.localhost.type -%}
-    {%- if "ToRRouter" in DEVICE_METADATA.localhost.type and DEVICE_METADATA.localhost.type != "MgmtToRRouter" -%}
+    {%- if "ToRRouter" in DEVICE_METADATA.localhost.type or DEVICE_METADATA.localhost.type == "EPMS" -%}
       {%- if VLAN_INTERFACE -%}
         {%- for (name, prefix) in VLAN_INTERFACE|pfx_filter -%}
           {# If this VLAN has an IPv6 address... #}
