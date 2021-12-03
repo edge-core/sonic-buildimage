@@ -15,8 +15,9 @@
 # limitations under the License.
 #
 import os
-from sonic_py_common.logger import Logger
+import time
 
+from sonic_py_common.logger import Logger
 from . import utils
 
 logger = Logger()
@@ -88,10 +89,13 @@ class Led(object):
                 return False
 
         if Led.STATUS_LED_COLOR_GREEN_BLINK == color:
+            self._trigger_blink(self.get_green_led_trigger())
             return self._set_led_blink_status(self.get_green_led_delay_on_path(), self.get_green_led_delay_off_path(), Led.LED_BLINK)
         elif Led.STATUS_LED_COLOR_RED_BLINK == color:
+            self._trigger_blink(self.get_red_led_trigger())
             return self._set_led_blink_status(self.get_red_led_delay_on_path(), self.get_red_led_delay_off_path(), Led.LED_BLINK)
         elif Led.STATUS_LED_COLOR_ORANGE_BLINK == color:
+            self._trigger_blink(self.get_orange_led_trigger())
             return self._set_led_blink_status(self.get_orange_led_delay_on_path(), self.get_orange_led_delay_off_path(), Led.LED_BLINK)
         else:
             return False
@@ -99,18 +103,46 @@ class Led(object):
     def _stop_blink(self, led_cap_list):
         try:
             if Led.STATUS_LED_COLOR_GREEN_BLINK in led_cap_list:
-                self._set_led_blink_status(self.get_green_led_delay_on_path(), self.get_green_led_delay_off_path(), Led.LED_OFF)
+                self._untrigger_blink(self.get_green_led_trigger())
             if Led.STATUS_LED_COLOR_RED_BLINK in led_cap_list:
-                self._set_led_blink_status(self.get_red_led_delay_on_path(), self.get_red_led_delay_off_path(), Led.LED_OFF)
+                self._untrigger_blink(self.get_red_led_trigger())
             if Led.STATUS_LED_COLOR_ORANGE_BLINK in led_cap_list:
-                self._set_led_blink_status(self.get_orange_led_delay_on_path(), self.get_orange_led_delay_off_path(), Led.LED_OFF)
+                self._untrigger_blink(self.get_orange_led_trigger())
         except Exception as e:
             return
 
+    def _trigger_blink(self, blink_trigger_file):
+        utils.write_file(blink_trigger_file, 'timer')
+
+    def _untrigger_blink(self, blink_trigger_file):
+        utils.write_file(blink_trigger_file, 'none')
+
     def _set_led_blink_status(self, delay_on_file, delay_off_file, value):
+        if not self._wait_files_ready((delay_on_file, delay_off_file)):
+            return False
+
         utils.write_file(delay_on_file, value)
         utils.write_file(delay_off_file, value)
         return True
+
+    def _wait_files_ready(self, file_list):
+        """delay_off and delay_on sysfs will be available only if _trigger_blink is called. And once
+           _trigger_blink is called, driver might need time to prepare delay_off and delay_on. So,
+           need wait a few seconds here to make sure the sysfs is ready
+
+        Args:
+            file_list (list of str): files to be checked
+        """
+        wait_time = 5.0
+        initial_sleep = 0.01
+        while wait_time > 0:
+            if all([os.path.exists(x) for x in file_list]):
+                return True
+            time.sleep(initial_sleep)
+            wait_time -= initial_sleep
+            initial_sleep = initial_sleep * 2
+
+        return False
 
     def get_status(self):
         led_cap_list = self.get_capability()
