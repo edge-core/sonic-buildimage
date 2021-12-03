@@ -6,7 +6,7 @@ supervisorctl start rsyslogd
 
 # Router advertiser should only run on ToR (T0) devices
 DEVICE_ROLE=$(sonic-cfggen -d -v "DEVICE_METADATA.localhost.type")
-if [ "$DEVICE_ROLE" != "ToRRouter" ]; then
+if [ "$DEVICE_ROLE" != "ToRRouter" || "$DEVICE_ROLE" != "MgmtToRRouter" || "$DEVICE_ROLE" != "EPMS"]; then
     echo "Device role is not ToRRouter. Not starting router advertiser process."
     exit 0
 fi
