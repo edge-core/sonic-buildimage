@@ -23,6 +23,7 @@ pr:
     - sonic-slave-stretch
     - sonic-slave-buster
     - sonic-slave-bullseye
+    - src/sonic-build-hooks
 
 parameters:
 - name: 'arches'
