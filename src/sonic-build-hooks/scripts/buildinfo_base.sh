@@ -71,7 +71,7 @@ set_reproducible_mirrors()
         expression="s/^deb.*$REPR_MIRROR_URL_PATTERN/#\0/"
     fi
 
-    local mirrors="/etc/apt/sources.list $(ls /etc/apt/sources.list.d/)"
+    local mirrors="/etc/apt/sources.list $(find /etc/apt/sources.list.d/ -type f)"
     for mirror in $mirrors; do
         sed -i "$expression" "$mirror"
     done
