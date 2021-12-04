@@ -31,7 +31,7 @@ resources:
     endpoint: build
 
 stages:
-- stage: Build
+- stage: BuildVS
   pool: sonicbld
   variables:
     CACHE_MODE: rcache
@@ -43,10 +43,29 @@ stages:
       buildOptions: 'USERNAME=admin SONIC_BUILD_JOBS=$(nproc) ${{ variables.VERSION_CONTROL_OPTIONS }}'
       jobGroups:
       - name: vs
+
+- stage: Build
+  pool: sonicbld
+  dependsOn: []
+  variables:
+    CACHE_MODE: rcache
+    ${{ if eq(variables['Build.SourceBranchName'], '202012') }}:
+      VERSION_CONTROL_OPTIONS: 'SONIC_VERSION_CONTROL_COMPONENTS=deb,py2,py3,web,git,docker'
+  jobs:
+  - template: .azure-pipelines/azure-pipelines-build.yml
+    parameters:
+      buildOptions: 'USERNAME=admin SONIC_BUILD_JOBS=$(nproc) ${{ variables.VERSION_CONTROL_OPTIONS }}'
+      jobGroups:
       - name: broadcom
       - name: mellanox
+      - name: marvell-armhf
+        pool: sonicbld-armhf
+        timeoutInMinutes: 1200
+        variables:
+          PLATFORM_ARCH: armhf
 
 - stage: Test
+  dependsOn: BuildVS
   variables:
   - name: inventory
     value: veos_vtb
