@@ -34,6 +34,18 @@ ipv6 prefix-list LOCAL_VLAN_IPV6_PREFIX seq {{ loop.index * 5 }} permit {{ prefi
 {% set multi_asic = True %}
 {% endif %}
 {% if multi_asic is defined or DEVICE_METADATA['localhost']['switch_type'] == 'voq' or DEVICE_METADATA['localhost']['switch_type'] == 'chassis-packet' %}
+ip prefix-list V4_P2P_IP permit 0.0.0.0/0 ge 31 le 31
+!
+ipv6 prefix-list V6_P2P_IP permit ::/0 ge 126 le 126
+!
+route-map V4_CONNECTED_ROUTES permit 10
+  match ip address prefix-list V4_P2P_IP
+  call HIDE_INTERNAL
+!
+route-map V6_CONNECTED_ROUTES permit 10
+  match ipv6 address prefix-list V6_P2P_IP
+  call HIDE_INTERNAL
+!
 route-map HIDE_INTERNAL permit 10
   set community no-export
 {% if constants.bgp.peers is defined and constants.bgp.peers.internal is defined and constants.bgp.peers.internal.community is defined %}
@@ -71,7 +83,7 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
 !
 {# advertise loopback #}
   network {{ get_ipv4_loopback_address(LOOPBACK_INTERFACE, "Loopback0") | ip }}/32
-{% if multi_asic is defined or DEVICE_METADATA['localhost']['switch_type'] == 'voq' or DEVICE_METADATA['localhost']['switch_type'] == 'chassis-packet' %}
+{% if ((multi_asic is defined and DEVICE_METADATA['localhost']['switch_type'] != 'chassis-packet') or (DEVICE_METADATA['localhost']['switch_type'] == 'voq')) %}
   network {{ get_ipv4_loopback_address(LOOPBACK_INTERFACE, "Loopback4096") | ip }}/32 route-map HIDE_INTERNAL
 {% endif %}
 !
@@ -80,7 +92,7 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
     network {{ get_ipv6_loopback_address(LOOPBACK_INTERFACE, "Loopback0") | ip }}/64
   exit-address-family
 {% endif %}
-{% if multi_asic is defined or DEVICE_METADATA['localhost']['switch_type'] == 'voq' or DEVICE_METADATA['localhost']['switch_type'] == 'chassis-packet' %}
+{% if ((multi_asic is defined and DEVICE_METADATA['localhost']['switch_type'] != 'chassis-packet') or (DEVICE_METADATA['localhost']['switch_type'] == 'voq')) %}
 {% if get_ipv6_loopback_address(LOOPBACK_INTERFACE, "Loopback4096") != 'None' %}
   address-family ipv6
     network {{ get_ipv6_loopback_address(LOOPBACK_INTERFACE, "Loopback4096") | ip }}/128 route-map HIDE_INTERNAL
@@ -104,10 +116,10 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
 !
 {% if DEVICE_METADATA['localhost']['sub_role'] == 'FrontEnd' or DEVICE_METADATA['localhost']['switch_type'] == 'voq' or DEVICE_METADATA['localhost']['switch_type'] == 'chassis-packet' %}
   address-family ipv4
-    redistribute connected route-map HIDE_INTERNAL
+    redistribute connected route-map V4_CONNECTED_ROUTES
   exit-address-family
   address-family ipv6
-    redistribute connected route-map HIDE_INTERNAL
+    redistribute connected route-map V6_CONNECTED_ROUTES
   exit-address-family
 {% endif %}
 !
