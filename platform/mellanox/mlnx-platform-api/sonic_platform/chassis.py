@@ -63,7 +63,6 @@ REBOOT_CAUSE_FILE_LENGTH = 1
 # Global logger class instance
 logger = Logger()
 
-
 class Chassis(ChassisBase):
     """Platform-specific Chassis class"""
 

@@ -109,6 +109,14 @@ THERMAL_NAMING_RULE = {
             "high_threshold": "mlxsw-gearbox{}/temp_trip_hot",
             "high_critical_threshold": "mlxsw-gearbox{}/temp_trip_crit",
             "type": "indexable"
+        },
+        {
+            "name": "Ambient CPU Board Temp",
+            "temperature": "cpu_amb"
+        },
+        {
+            "name": "Ambient Switch Board Temp",
+            "temperature": "swb_amb"
         }
     ],
     'linecard thermals': {
