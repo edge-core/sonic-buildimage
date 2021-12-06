@@ -1310,7 +1310,29 @@
                 "scheduler": "TEST@1",
                 "wred_profile": "Wred1"
             }
-         },		
+        },
+
+        "DSCP_TO_FC_MAP": {
+            "Dscp_to_fc_map1": {
+               "1": "1",
+               "2": "2"
+            },
+            "Dscp_to_fc_map2": {
+               "3": "3",
+               "4": "4"
+             }
+        },
+
+        "EXP_TO_FC_MAP": {
+            "Exp_to_fc_map1": {
+               "1": "1",
+               "2": "2"
+            },
+            "Exp_to_fc_map2": {
+               "3": "3",
+               "4": "4"
+             }
+        },
 
         "DSCP_TO_TC_MAP": {
            "Dscp_to_tc_map1": { 
