@@ -153,6 +153,13 @@ DEVICE_DATA = {
         'sfp': {
             'max_port_per_line_card': 16
         }
+    },
+    'x86_64-nvidia_sn2201-r0': {
+        'thermal': {
+            "capability": {
+                "comex_amb": False
+            }
+        }
     }
 }
 
