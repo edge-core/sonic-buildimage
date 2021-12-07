@@ -14,6 +14,7 @@ s6100/scripts/soft-reboot_plugin usr/share/sonic/device/x86_64-dell_s6100_c2538-
 s6100/scripts/reboot_plugin usr/share/sonic/device/x86_64-dell_s6100_c2538-r0
 s6100/scripts/ssd-fw-upgrade usr/share/sonic/device/x86_64-dell_s6100_c2538-r0
 s6100/scripts/override.conf /etc/systemd/system/systemd-reboot.service.d
+s6100/scripts/platform_fw_au_reboot_handle usr/share/sonic/device/x86_64-dell_s6100_c2538-r0
 common/dell_lpc_mon.sh usr/local/bin
 s6100/scripts/s6100_ssd_mon.sh usr/local/bin
 s6100/scripts/s6100_ssd_upgrade_status.sh usr/local/bin
