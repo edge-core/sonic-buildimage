@@ -230,7 +230,7 @@ MAKEFLAGS += -j $(SONIC_BUILD_JOBS)
 export SONIC_CONFIG_MAKE_JOBS
 
 ifeq ($(CONFIGURED_PLATFORM),vs)
-export BUILD_MULTIASIC_KVM=$(BUILD_MULTIASIC_KVM)
+export BUILD_MULTIASIC_KVM
 endif
 
 ###############################################################################
