@@ -16,7 +16,7 @@ pr:
   branches:
     include:
       - master
-      - 202012
+      - 202111
       - bullseye
   paths:
     exclude:
