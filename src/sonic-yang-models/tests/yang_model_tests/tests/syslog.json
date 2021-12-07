@@ -1,0 +1,18 @@
+{
+    "SYSLOG_SERVER_TEST": {
+        "desc": "Load syslog server table with ipv4 address as syslog servers."
+    },
+    "SYSLOG_SERVER_1_NEG_TEST": {
+        "desc": "Load syslog server table with empty address as syslog server.",
+        "eStrKey": "InvalidValue"
+    },
+    "SYSLOG_SERVER_INVALID_IPADDR_TEST": {
+        "desc": "Load syslog server table with invalid ipv4 address as syslog server.",
+        "eStrKey": "InvalidValue"
+    },
+    "SYSLOG_SERVER_INVALID_IPV6_ADDR_TEST": {
+        "desc": "Load syslog server table with invalid ipv6 address as syslog server.",
+        "eStrKey": "InvalidValue"
+    }
+
+}
