@@ -1,0 +1,52 @@
+{
+    "SYSLOG_SERVER_TEST": {
+        "sonic-syslog:sonic-syslog": {
+            "sonic-syslog:SYSLOG_SERVER": {
+                "SYSLOG_SERVER_LIST": [
+                    {
+                        "server_address": "1111::22"
+                    },
+                    {
+                        "server_address": "20.1.1.1"
+                    },
+                    {
+                        "server_address" : "1001:0ab8:0001:0000:0000:0abc:d012:0102"
+                    }
+                ]
+            }
+        }
+    },
+    "SYSLOG_SERVER_1_NEG_TEST": {
+        "sonic-syslog:sonic-syslog": {
+            "sonic-syslog:SYSLOG_SERVER": {
+                "SYSLOG_SERVER_LIST": [
+                    {
+                        "server_address": ""
+                    }
+                ]
+            }
+        }
+    },
+    "SYSLOG_SERVER_INVALID_IPADDR_TEST" : {
+        "sonic-syslog:sonic-syslog": {
+            "sonic-syslog:SYSLOG_SERVER": {
+                "SYSLOG_SERVER_LIST": [
+                    {
+                        "server_address": "1111.22.33.1"
+                    }
+                ]
+            }
+        }
+    },
+    "SYSLOG_SERVER_INVALID_IPV6_ADDR_TEST" : {
+        "sonic-syslog:sonic-syslog": {
+            "sonic-syslog:SYSLOG_SERVER": {
+                "SYSLOG_SERVER_LIST": [
+                    {
+                        "server_address": "1111::22.33.1"
+                    }
+                ]
+            }
+        }
+    }
+}

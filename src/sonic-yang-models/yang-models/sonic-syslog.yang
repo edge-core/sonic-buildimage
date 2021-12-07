@@ -1,0 +1,30 @@
+module sonic-syslog {
+
+    yang-version 1.1;
+
+    namespace "http://github.com/Azure/sonic-system-syslog";
+    prefix syslog;
+
+    import ietf-inet-types {
+        prefix inet;
+    }
+
+    container sonic-syslog {
+
+        container SYSLOG_SERVER {
+
+            description "SYSLOG SERVER part of config_db.json";
+
+            list SYSLOG_SERVER_LIST {
+
+                key "server_address";
+
+                leaf server_address {
+                    description "syslog server ip address";
+                    type inet:ip-address;
+                }
+            } /* end of list SYSLOG_SERVER_LIST */ 
+
+        } /* end of container SYSLOG_SERVER */
+    }
+}
