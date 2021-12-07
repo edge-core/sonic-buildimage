@@ -354,3 +354,10 @@ RUN pip install m2crypto==0.36.0
 
 # Install swi tools
 RUN python -m pip install git+https://github.com/aristanetworks/swi-tools.git@d51761ec0bb93c73039233f3c01ed48235ffad00
+
+# Install Bazel build system (amd64 and arm64 architectures are supported using this method)
+# TODO(PINS): Remove once pre-build Bazel binaries are available for armhf (armv7l)
+{%- if CONFIGURED_ARCH == "amd64" or CONFIGURED_ARCH == "arm64" %}
+ARG bazelisk_url=https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-{{ CONFIGURED_ARCH }}
+RUN curl -fsSL -o /usr/local/bin/bazel ${bazelisk_url} && chmod 755 /usr/local/bin/bazel
+{% endif -%}
