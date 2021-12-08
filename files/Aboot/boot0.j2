@@ -507,6 +507,10 @@ write_platform_specific_cmdline() {
         flash_size=28000
         cmdline_add hugepages=128
     fi
+    if [ "$sid" = "Woodleaf" ]; then
+        aboot_machine=arista_7170b_64c
+        cmdline_add hugepages=128
+    fi
     if [ "$sid" = "Lodoga" ]; then
         aboot_machine=arista_7050cx3_32s
     fi
