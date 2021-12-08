@@ -21,6 +21,7 @@ pr:
     - sonic-slave-jessie
     - sonic-slave-stretch
     - sonic-slave-buster
+    - src/sonic-build-hooks
 
 parameters:
 - name: 'arches'
