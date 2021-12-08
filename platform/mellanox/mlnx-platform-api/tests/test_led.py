@@ -62,7 +62,9 @@ class TestLed:
         assert obj.set_status_led(Led.STATUS_LED_COLOR_GREEN) is True
         assert obj.get_status_led() == Led.STATUS_LED_COLOR_GREEN
         mock_file_content[physical_led.get_green_led_path()] = Led.LED_OFF
-        assert obj.set_status_led(Led.STATUS_LED_COLOR_ORANGE) is False
+        assert obj.set_status_led(Led.STATUS_LED_COLOR_ORANGE) is True
+        assert obj.get_status_led() == Led.STATUS_LED_COLOR_RED
+        mock_file_content[physical_led.get_orange_led_path()] = Led.LED_OFF
 
         assert obj.set_status_led(Led.STATUS_LED_COLOR_RED_BLINK)
         assert obj.get_status_led() == Led.STATUS_LED_COLOR_RED_BLINK
@@ -85,7 +87,7 @@ class TestLed:
             led.get_green_led_path(): Led.LED_ON,
             led.get_red_led_path(): Led.LED_OFF,
             led.get_orange_led_path(): Led.LED_OFF,
-            led.get_led_cap_path(): 'none green green_blink red red_blink',
+            led.get_led_cap_path(): 'none green green_blink red red_blink orange',
             led.get_green_led_delay_off_path(): Led.LED_OFF,
             led.get_green_led_delay_on_path(): Led.LED_OFF,
             led.get_red_led_delay_off_path(): Led.LED_OFF,
