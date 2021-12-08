@@ -101,11 +101,25 @@ class Thermal(ThermalBase):
         try:
             with open(sysfs_file, 'r') as fd:
                 rv = fd.read()
-        except:
+        except Exception:
             rv = 'ERR'
 
         rv = rv.rstrip('\r\n')
         rv = rv.lstrip(" ")
+        return rv
+
+    def _write_sysfs_file(self, sysfs_file, value):
+        rv = 'ERR'
+
+        if (not os.path.isfile(sysfs_file)):
+            return rv
+
+        try:
+            with open(sysfs_file, 'w') as fd:
+                rv = fd.write(str(value))
+        except Exception as e:
+            rv = 'ERR'
+
         return rv
 
     def _get_sysfs_path(self):
@@ -243,18 +257,28 @@ class Thermal(ThermalBase):
 
         return thermal_low_threshold / 1000.0
 
-    def set_high_threshold(self, temperature):
+    def set_high_threshold(self, temperature, force=False):
         """
         Sets the high threshold temperature of thermal
 
         Args :
             temperature: A float number up to nearest thousandth of one
             degree Celsius, e.g. 30.125
+            force (optional): A boolean, True if set threshold. Only to
+            be used via thermal Manager.
         Returns:
             A boolean, True if threshold is set successfully, False if
             not
         """
         # Thermal threshold values are pre-defined based on HW.
+        # Only to be used by Thermal Manager
+        if force and self.index <= 3 and (80 <= temperature <=85):
+            high_threshold = temperature * 1000
+            result = self._write_sysfs_file(self.thermal_high_threshold_file,
+                                            high_threshold)
+            if result != 'ERR':
+                return True
+
         return False
 
     def set_low_threshold(self, temperature):

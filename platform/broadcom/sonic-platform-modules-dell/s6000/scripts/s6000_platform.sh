@@ -125,6 +125,26 @@ switch_board_qsfp_lpmode() {
     echo $value > /sys/bus/platform/devices/dell-s6000-cpld.0/qsfp_lpmode
 }
 
+set_max6620_dynamic_reg() {
+    DEVICE1=/sys/class/i2c-adapter/i2c-11/11-0029/hwmon/hwmon*/fan1_div
+    DEVICE2=/sys/class/i2c-adapter/i2c-11/11-002a/hwmon/hwmon*/fan1_div
+
+    # Retry three times
+    for count in `seq 1 3`; do
+        if [ -w $DEVICE1 -o -w $DEVICE2 ]; then
+            for i in `seq 1 4`; do
+                echo $1 > /sys/class/i2c-adapter/i2c-11/11-0029/hwmon/hwmon*/fan${i}_div
+            done
+            for i in `seq 1 2`; do
+                echo $1 > /sys/class/i2c-adapter/i2c-11/11-002a/hwmon/hwmon*/fan${i}_div
+            done
+            return
+        fi
+        # Sleep for 3 seconds to wait for device tree to be ready
+        sleep 3
+    done
+}
+
 install_python_api_package() {
     device="/usr/share/sonic/device"
     platform=$(/usr/local/bin/sonic-cfggen -H -v DEVICE_METADATA.localhost.platform)
@@ -154,7 +174,7 @@ if [[ "$1" == "init" ]]; then
         #Use 1 for PCIe Gen1, 2 for PCIe Gen2
         change_pcie_speed 1
         add_i2c_devices
-
+        set_max6620_dynamic_reg 4
         /usr/local/bin/set-fan-speed 15000
         switch_board_qsfp_lpmode "disable"
         /usr/local/bin/reset-qsfp
