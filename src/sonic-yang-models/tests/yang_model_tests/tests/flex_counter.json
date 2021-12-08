@@ -1,5 +1,10 @@
 {
     "FLEX_COUNTER_TABLE_WITH_CORRECT_USED_VALUE": {
-	"desc": "FLEX_COUNTER_TABLE_WITH_CORRECT_USED_VALUE no failure."
+        "desc": "FLEX_COUNTER_TABLE_WITH_CORRECT_USED_VALUE no failure."
+    },
+    "FLEX_COUNTER_TABLE_WITH_INVALID_POLL_INTERVAL": {
+        "desc": "Out of range poll interval.",
+        "eStrKey": "Range",
+        "eStr": "100..4294967295"
     }
 }

@@ -921,25 +921,31 @@
                 "FLEX_COUNTER_STATUS": "enable"
             },
             "PG_WATERMARK": {
-                "FLEX_COUNTER_STATUS": "enable"
+                "FLEX_COUNTER_STATUS": "enable",
+                "POLL_INTERVAL": "10000"
             },
             "PORT": {
-                "FLEX_COUNTER_STATUS": "enable"
+                "FLEX_COUNTER_STATUS": "enable",
+                "POLL_INTERVAL": "1000"
             },
             "PORT_RATES": {
                 "FLEX_COUNTER_STATUS": "enable"
             },
             "PORT_BUFFER_DROP": {
-                "FLEX_COUNTER_STATUS": "enable"
+                "FLEX_COUNTER_STATUS": "enable",
+                "POLL_INTERVAL": "60000"
             },
             "BUFFER_POOL_WATERMARK": {
-                "FLEX_COUNTER_STATUS": "enable"
+                "FLEX_COUNTER_STATUS": "enable",
+                "POLL_INTERVAL": "10000"
             },
             "QUEUE": {
-                "FLEX_COUNTER_STATUS": "enable"
+                "FLEX_COUNTER_STATUS": "enable",
+                "POLL_INTERVAL": "10000"
             },
             "QUEUE_WATERMARK": {
-                "FLEX_COUNTER_STATUS": "enable"
+                "FLEX_COUNTER_STATUS": "enable",
+                "POLL_INTERVAL": "10000"
             },
             "DEBUG_COUNTER": {
                 "FLEX_COUNTER_STATUS": "enable"
@@ -1008,13 +1014,13 @@
         },
         "AAA": {
             "authentication": {
-                "login": "local" 
+                "login": "local"
             },
             "authorization": {
-                "login": "local" 
+                "login": "local"
             },
             "accounting": {
-                "login": "local" 
+                "login": "local"
             }
         },
         "TACPLUS": {
@@ -1340,73 +1346,73 @@
         },
 
         "DSCP_TO_TC_MAP": {
-           "Dscp_to_tc_map1": { 
+           "Dscp_to_tc_map1": {
               "1": "1",
               "2": "2"
-            }, 
-           "Dscp_to_tc_map2": { 
+            },
+           "Dscp_to_tc_map2": {
               "3": "3",
               "4": "4"
             }
         },
 
         "DOT1P_TO_TC_MAP": {
-           "Dot1p_to_tc_map1": { 
+           "Dot1p_to_tc_map1": {
               "1": "1",
               "2": "2"
-            }, 
-           "Dot1p_to_tc_map2": { 
+            },
+           "Dot1p_to_tc_map2": {
               "3": "3",
               "4": "4"
             }
         },
 
         "TC_TO_PRIORITY_GROUP_MAP": {
-           "tc_to_pg_map1": { 
+           "tc_to_pg_map1": {
               "1": "1",
               "2": "2"
-            }, 
-           "tc_to_pg_map2": { 
+            },
+           "tc_to_pg_map2": {
               "3": "3",
               "4": "4"
             }
         },
 
         "TC_TO_QUEUE_MAP": {
-           "tc_to_q_map1": { 
+           "tc_to_q_map1": {
               "1": "1",
               "2": "2"
-            }, 
-           "tc_to_q_map2": { 
+            },
+           "tc_to_q_map2": {
               "3": "3",
               "4": "4"
             }
         },
 
         "MAP_PFC_PRIORITY_TO_QUEUE": {
-           "pfc_prio_to_q_map1": { 
+           "pfc_prio_to_q_map1": {
               "1": "1",
               "2": "2"
-           }, 
-           "pfc_prio_to_q_map2": { 
+           },
+           "pfc_prio_to_q_map2": {
               "3": "3",
               "4": "4"
             }
         },
 
         "PFC_PRIORITY_TO_PRIORITY_GROUP_MAP": {
-           "pfc_prio_to_pg_map1": { 
+           "pfc_prio_to_pg_map1": {
               "1": "1",
               "2": "2"
-            }, 
-            "pfc_prio_to_pg_map2": { 
+            },
+            "pfc_prio_to_pg_map2": {
               "3": "3",
               "4": "4"
             }
         },
 
         "PORT_QOS_MAP": {
-           "Ethernet0": { 
+           "Ethernet0": {
               "dot1p_to_tc_map" : "Dot1p_to_tc_map1",
               "dscp_to_tc_map": "Dscp_to_tc_map1",
 	          "tc_to_queue_map": "tc_to_q_map1",
@@ -1414,8 +1420,8 @@
 	          "pfc_to_queue_map": "pfc_prio_to_q_map1",
 	          "pfc_to_pg_map"   : "pfc_prio_to_pg_map1",
 	          "pfc_enable"      : "3,4"
-            }, 
-            "Ethernet4": { 
+            },
+            "Ethernet4": {
               "dot1p_to_tc_map" : "Dot1p_to_tc_map2",
               "dscp_to_tc_map": "Dscp_to_tc_map2",
 	          "tc_to_queue_map": "tc_to_q_map2",
