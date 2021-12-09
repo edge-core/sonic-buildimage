@@ -30,8 +30,8 @@ DOCKERS_PATH = dockers
 BLDENV = $(shell lsb_release -cs)
 DEBS_PATH = $(TARGET_PATH)/debs/$(BLDENV)
 FILES_PATH = $(TARGET_PATH)/files/$(BLDENV)
-PYTHON_DEBS_PATH = $(TARGET_PATH)/python-debs
-PYTHON_WHEELS_PATH = $(TARGET_PATH)/python-wheels
+PYTHON_DEBS_PATH = $(TARGET_PATH)/python-debs/$(BLDENV)
+PYTHON_WHEELS_PATH = $(TARGET_PATH)/python-wheels/$(BLDENV)
 PROJECT_ROOT = $(shell pwd)
 JESSIE_DEBS_PATH = $(TARGET_PATH)/debs/jessie
 JESSIE_FILES_PATH = $(TARGET_PATH)/files/jessie
@@ -978,6 +978,7 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
         $(addprefix $(PYTHON_WHEELS_PATH)/,$(SONIC_PLATFORM_COMMON_PY3)) \
         $(addprefix $(PYTHON_WHEELS_PATH)/,$(REDIS_DUMP_LOAD_PY2)) \
         $(addprefix $(PYTHON_WHEELS_PATH)/,$(SONIC_PLATFORM_API_PY2)) \
+        $(addprefix $(PYTHON_WHEELS_PATH)/,$(SONIC_PLATFORM_API_PY3)) \
         $(if $(findstring y,$(PDDF_SUPPORT)),$(addprefix $(PYTHON_WHEELS_PATH)/,$(PDDF_PLATFORM_API_BASE_PY2))) \
         $(if $(findstring y,$(PDDF_SUPPORT)),$(addprefix $(PYTHON_WHEELS_PATH)/,$(PDDF_PLATFORM_API_BASE_PY3))) \
         $(addprefix $(PYTHON_WHEELS_PATH)/,$(SONIC_YANG_MODELS_PY3)) \
