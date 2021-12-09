@@ -90,6 +90,7 @@ setup(
                          './yang-models/sonic-buffer-port-egress-profile-list.yang',
                          './yang-models/sonic-buffer-profile.yang',
                          './yang-models/sonic-buffer-queue.yang',
+                         './yang-models/sonic-cable-length.yang',
                          './yang-models/sonic-copp.yang',
                          './yang-models/sonic-crm.yang',
                          './yang-models/sonic-device_metadata.yang',

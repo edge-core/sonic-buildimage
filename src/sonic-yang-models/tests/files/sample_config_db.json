@@ -377,6 +377,12 @@
             "20.1.1.1": {},
             "2001:aa:aa::aa": {}
         },
+        "CABLE_LENGTH": {
+            "AZURE": {
+                "Ethernet0": "5m",
+                "Ethernet1": "5m"
+            }
+        },
         "PORT": {
             "Ethernet0": {
                 "alias": "Eth1/1",

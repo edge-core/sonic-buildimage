@@ -8,14 +8,17 @@ from json import dump, dumps, loads
 from xmltodict import parse
 from glob import glob
 
-Type_1_list_maps_model = ['DSCP_TO_TC_MAP_LIST',
+Type_1_list_maps_model = [
+    'DSCP_TO_TC_MAP_LIST',
     'DOT1P_TO_TC_MAP_LIST',
     'TC_TO_PRIORITY_GROUP_MAP_LIST',
     'TC_TO_QUEUE_MAP_LIST',
     'MAP_PFC_PRIORITY_TO_QUEUE_LIST',
     'PFC_PRIORITY_TO_PRIORITY_GROUP_MAP_LIST',
     'DSCP_TO_FC_MAP_LIST',
-    'EXP_TO_FC_MAP_LIST']
+    'EXP_TO_FC_MAP_LIST',
+    'CABLE_LENGTH_LIST'
+]
 
 """
 This is the Exception thrown out of all public function of this class.
