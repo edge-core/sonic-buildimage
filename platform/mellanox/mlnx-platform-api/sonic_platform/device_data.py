@@ -160,6 +160,8 @@ DEVICE_DATA = {
                 "comex_amb": False
             }
         }
+    },
+    'x86_64-nvidia_sn5600-r0': {
     }
 }
 
