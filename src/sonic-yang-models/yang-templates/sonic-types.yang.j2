@@ -222,6 +222,11 @@ module sonic-types {
         }
     }
 
+    typedef mac-addr-and-mask {
+        type string {
+            pattern "[0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5}|[0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5}/[0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5}";
+        }
+    }
 
 
     /* Required for CVL */

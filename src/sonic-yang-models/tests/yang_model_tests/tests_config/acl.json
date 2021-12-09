@@ -657,5 +657,123 @@
                 ]
             }
         }
+    },
+    "ACL_TABLE_L2_ACL_FIELDS": {
+        "sonic-acl:sonic-acl": {
+            "sonic-acl:ACL_RULE": {
+                "ACL_RULE_LIST": [
+                    {
+                        "ACL_TABLE_NAME": "L2ACL",
+                        "SRC_MAC": "00:00:AB:CD:EF:00/FF:FF:FF:00:00:00",
+                        "DST_MAC": "00:00:AB:CD:EF:FF/FF:FF:FF:FF:FF:FF",
+                        "ETHER_TYPE": "0x0800",
+                        "PCP": "5/5",
+                        "DEI": "0",
+                        "PACKET_ACTION": "FORWARD",
+                        "PRIORITY": 999980,
+                        "RULE_NAME": "Rule_20"
+                    }
+                ]
+            },
+            "sonic-acl:ACL_TABLE": {
+                "ACL_TABLE_LIST": [
+                    {
+                        "ACL_TABLE_NAME": "L2ACL",
+                        "policy_desc": "L2ACL Test",
+                        "ports": [ "" ],
+                        "stage": "INGRESS",
+                        "type": "L2"
+                    }
+                ]
+            }
+        }
+    },
+    "ACL_TABLE_L3_RULE_WITH_L2_FIELDS": {
+        "sonic-acl:sonic-acl": {
+            "sonic-acl:ACL_RULE": {
+                "ACL_RULE_LIST": [
+                    {
+                        "ACL_TABLE_NAME": "L3ACL-MAC-FIELDS",
+                        "SRC_MAC": "00:00:AB:CD:EF:00/FF:FF:FF:00:00:00",
+                        "DST_MAC": "00:00:AB:CD:EF:FF/FF:FF:FF:FF:FF:FF",
+                        "ETHER_TYPE": "0x0800",
+                        "PCP": "5/5",
+                        "DEI": "0",
+                        "PACKET_ACTION": "FORWARD",
+                        "PRIORITY": 999980,
+                        "RULE_NAME": "Rule_20"
+                    }
+                ]
+            },
+            "sonic-acl:ACL_TABLE": {
+                "ACL_TABLE_LIST": [
+                    {
+                        "ACL_TABLE_NAME": "L3ACL-MAC-FIELDS",
+                        "policy_desc": "L2ACL Test",
+                        "ports": [ "" ],
+                        "stage": "INGRESS",
+                        "type": "L3"
+                    }
+                ]
+            }
+        }
+    },
+    "ACL_RULE_L2_INVALID_MAC": {
+        "sonic-acl:sonic-acl": {
+            "sonic-acl:ACL_RULE": {
+                "ACL_RULE_LIST": [
+                    {
+                        "ACL_TABLE_NAME": "L2ACL_INVALID_MAC",
+                        "SRC_MAC": "00.00.AB.CD.EF.00/FF.FF.FF.00.00.00",
+                        "DST_MAC": "00.00.AB.CD.EF.FF/FF.FF.FF.FF.FF.FF",
+                        "ETHER_TYPE": "0x0800",
+                        "PCP": "5/5",
+                        "DEI": "0",
+                        "PACKET_ACTION": "FORWARD",
+                        "PRIORITY": 999980,
+                        "RULE_NAME": "Rule_20"
+                    }
+                ]
+            },
+            "sonic-acl:ACL_TABLE": {
+                "ACL_TABLE_LIST": [
+                    {
+                        "ACL_TABLE_NAME": "L2ACL_INVALID_MAC",
+                        "policy_desc": "L2ACL Test",
+                        "ports": [ "" ],
+                        "stage": "INGRESS",
+                        "type": "L2"
+                    }
+                ]
+            }
+        }
+    },
+    "ACL_RULE_L2_INVALID_ETHER": {
+        "sonic-acl:sonic-acl": {
+            "sonic-acl:ACL_RULE": {
+                "ACL_RULE_LIST": [
+                    {
+                        "ACL_TABLE_NAME": "L2ACL_INVALID_ETHER",
+                        "SRC_MAC": "00.00.AB.CD.EF.00/FF.FF.FF.00.00.00",
+                        "DST_MAC": "00.00.AB.CD.EF.FF/FF.FF.FF.FF.FF.FF",
+                        "ETHER_TYPE": "64",
+                        "PACKET_ACTION": "FORWARD",
+                        "PRIORITY": 999980,
+                        "RULE_NAME": "Rule_20"
+                    }
+                ]
+            },
+            "sonic-acl:ACL_TABLE": {
+                "ACL_TABLE_LIST": [
+                    {
+                        "ACL_TABLE_NAME": "L2ACL_INVALID_ETHER",
+                        "policy_desc": "L2ACL Test",
+                        "ports": [ "" ],
+                        "stage": "INGRESS",
+                        "type": "L2"
+                    }
+                ]
+            }
+        }
     }
 }
