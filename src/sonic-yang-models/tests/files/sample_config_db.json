@@ -280,7 +280,9 @@
                 "hostname": "asw.dc",
                 "bgp_asn": "64850",
                 "hwsku": "Stone",
-                "buffer_model": "dynamic"
+                "buffer_model": "dynamic",
+                "cloudtype": "Public",
+                "region": "usfoo"
             }
         },
         "VLAN": {

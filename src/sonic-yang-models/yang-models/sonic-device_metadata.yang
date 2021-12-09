@@ -120,6 +120,14 @@ module sonic-device_metadata {
                     }
                     default enable;
                 }
+
+                leaf cloudtype {
+                    type string;
+                }
+
+                leaf region {
+                    type string;
+                }
             }
             /* end of container localhost */
         }
