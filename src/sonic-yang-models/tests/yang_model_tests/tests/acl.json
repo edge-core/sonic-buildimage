@@ -81,5 +81,21 @@
             "key": "sonic-acl:actions",
             "value": [""]
         }
+    },
+    "ACL_TABLE_L2_ACL_FIELDS": {
+        "desc": "Configure L2 ACL with proper rule fields"
+    },
+    "ACL_TABLE_L3_RULE_WITH_L2_FIELDS": {
+        "desc": "Configure L2 Address in L3 ACL.",
+        "eStrKey" : "When",
+        "eStr": ["type"]
+    },
+    "ACL_RULE_L2_INVALID_MAC": {
+        "desc": "Configure invalid MAC address format.",
+        "eStrKey" : "Pattern"
+    },
+    "ACL_RULE_L2_INVALID_ETHER": {
+        "desc": "Configure invalid MAC address format.",
+        "eStrKey" : "Pattern"
     }
 }

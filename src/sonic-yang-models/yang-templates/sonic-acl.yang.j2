@@ -75,8 +75,16 @@ module sonic-acl {
 					}
 				}
 
-				choice ip_prefix {
-
+				choice src_dst_address {
+					case l2_src_dst_address {
+						when "(/acl:sonic-acl/acl:ACL_TABLE/acl:ACL_TABLE_LIST[ACL_TABLE_NAME=current()/acl:ACL_TABLE_NAME]/acl:type = 'L2')";
+						leaf SRC_MAC {
+                            type stypes:mac-addr-and-mask;
+						}
+						leaf DST_MAC {
+                            type stypes:mac-addr-and-mask;
+						}
+					}
 					case ip4_prefix {
 						when "boolean(IP_TYPE[.='ANY' or .='IP' or .='IPV4' or .='IPv4ANY' or .='ARP'])";
 						leaf SRC_IP {
@@ -144,7 +152,7 @@ module sonic-acl {
 
 				leaf ETHER_TYPE {
 					type string {
-						pattern "(0x88CC|0x8100|0x8915|0x0806|0x0800|0x86DD|0x8847)";
+					    pattern "0x0[6-9a-fA-F][0-9a-fA-F]{2}|0x[1-9a-fA-F][0-9a-fA-F]{3}";
 					}
 				}
 
@@ -219,6 +227,26 @@ module sonic-acl {
 
 				leaf INNER_L4_DST_PORT {
 					type uint16;
+				}
+
+				leaf VLAN_ID {
+					type uint16 {
+						range 1..4094;
+					}
+				}
+
+				leaf PCP {
+					when "(/acl:sonic-acl/acl:ACL_TABLE/acl:ACL_TABLE_LIST[ACL_TABLE_NAME=current()/../acl:ACL_TABLE_NAME]/acl:type = 'L2')";
+					type string {
+						pattern "[0-7]|[0-7]/[0-7]";
+					}
+				}
+
+				leaf DEI {
+					when "(/acl:sonic-acl/acl:ACL_TABLE/acl:ACL_TABLE_LIST[ACL_TABLE_NAME=current()/../acl:ACL_TABLE_NAME]/acl:type = 'L2')";
+					type uint8 {
+						range "0..1";
+					}
 				}
 			}
 			/* end of ACL_RULE_LIST */
