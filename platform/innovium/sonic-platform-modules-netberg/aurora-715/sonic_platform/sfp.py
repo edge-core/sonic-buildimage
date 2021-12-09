@@ -475,7 +475,7 @@ class Sfp(SfpBase):
         keys                       |Value Format   |Information
         ---------------------------|---------------|----------------------------
         type                       |1*255VCHAR     |type of SFP
-        hardware_rev               |1*255VCHAR     |hardware version of SFP
+        vendor_rev                 |1*255VCHAR     |vendor revision of SFP
         serial                     |1*255VCHAR     |serial number of the SFP
         manufacturer               |1*255VCHAR     |SFP vendor name
         model                      |1*255VCHAR     |SFP model name
@@ -491,7 +491,7 @@ class Sfp(SfpBase):
         ========================================================================
          """
         transceiver_info_dict_keys = [
-            'type',                      'hardware_rev',
+            'type',                      'vendor_rev',
             'serial',                 'manufacturer',
             'model',                 'connector',
             'encoding',                  'ext_identifier',
@@ -571,7 +571,7 @@ class Sfp(SfpBase):
         transceiver_info_dict['type'] = sfp_interface_bulk_data['data']['type']['value']
         transceiver_info_dict['manufacturer'] = sfp_vendor_name_data['data']['Vendor Name']['value']
         transceiver_info_dict['model'] = sfp_vendor_pn_data['data']['Vendor PN']['value']
-        transceiver_info_dict['hardware_rev'] = sfp_vendor_rev_data['data']['Vendor Rev']['value']
+        transceiver_info_dict['vendor_rev'] = sfp_vendor_rev_data['data']['Vendor Rev']['value']
         transceiver_info_dict['serial'] = sfp_vendor_sn_data['data']['Vendor SN']['value']
         transceiver_info_dict['vendor_oui'] = sfp_vendor_oui_data['data']['Vendor OUI']['value']
         transceiver_info_dict['vendor_date'] = sfp_vendor_date_data[
