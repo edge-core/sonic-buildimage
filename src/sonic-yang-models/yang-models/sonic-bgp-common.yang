@@ -3,6 +3,10 @@ module sonic-bgp-common {
     prefix bgpcmn;
     yang-version 1.1;
 
+    import sonic-types {
+        prefix stypes;
+    }
+    
     import ietf-inet-types {
         prefix inet;
     }
@@ -314,7 +318,7 @@ module sonic-bgp-common {
         }
 
         leaf admin_status {
-            type boolean;
+            type stypes:admin_status;
             description "To enable BGP peer";
         }
 
@@ -338,7 +342,7 @@ module sonic-bgp-common {
         }
 
         leaf admin_status {
-            type boolean;
+            type stypes:admin_status;
             description "Indicates address family active/inactive status";
         }
 
