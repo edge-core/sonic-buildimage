@@ -3,14 +3,13 @@ import json
 import os
 import shutil
 import subprocess
-import pytest
 
+from unittest import TestCase
 import tests.common_utils as utils
 
 
-class TestJ2Files():
-    @classmethod
-    def setup_class(self):
+class TestJ2Files(TestCase):
+    def setUp(self):
         self.test_dir = os.path.dirname(os.path.realpath(__file__))
         self.script_file = utils.PYTHON_INTERPRETTER + ' ' + os.path.join(self.test_dir, '..', 'sonic-cfggen')
         self.simple_minigraph = os.path.join(self.test_dir, 'simple-sample-graph.xml')
@@ -22,6 +21,7 @@ class TestJ2Files():
         self.t0_7050cx3_port_config = os.path.join(self.test_dir, 't0_7050cx3_d48c8_port_config.ini')
         self.t1_mlnx_minigraph = os.path.join(self.test_dir, 't1-sample-graph-mlnx.xml')
         self.mlnx_port_config = os.path.join(self.test_dir, 'sample-port-config-mlnx.ini')
+        self.dell6100_t0_minigraph = os.path.join(self.test_dir, 'sample-dell-6100-t0-minigraph.xml')
         self.arista7050_t0_minigraph = os.path.join(self.test_dir, 'sample-arista-7050-t0-minigraph.xml')
         self.multi_asic_minigraph = os.path.join(self.test_dir, 'multi_npu_data', 'sample-minigraph.xml')
         self.multi_asic_port_config = os.path.join(self.test_dir, 'multi_npu_data', 'sample_port_config-0.ini')
@@ -222,14 +222,7 @@ class TestJ2Files():
         sample_output_file = os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, 'qos-dell6100.json')
         assert filecmp.cmp(sample_output_file, self.output_file)
 
-    @pytest.mark.parametrize('sku_information',
-                             [('dell', 'x86_64-dell_s6100_c2538-r0', 'Force10-S6100', 'sample-dell-6100-t0-minigraph.xml', 'buffers.json.j2', 'buffers-dell6100.json'),
-                              ('mellanox', 'x86_64-mlnx_msn2700-r0', 'Mellanox-SN2700-D48C8', 'sample-mellanox-2700-t0-minigraph.xml', 'buffers.json.j2', 'buffers-mellanox2700.json'),
-                              ('mellanox', 'x86_64-mlnx_msn2410-r0', 'ACS-MSN2410', 'sample-mellanox-2410-t1-minigraph.xml', 'buffers.json.j2', 'buffers-mellanox2410.json'),
-                              ('mellanox', 'x86_64-mlnx_msn2410-r0', 'ACS-MSN2410', 'sample-mellanox-2410-t1-minigraph.xml', 'buffers_dynamic.json.j2', 'buffers-mellanox2410-dynamic.json')
-                             ])
-    def test_buffers_render_template(self, sku_information):
-        vendor, platform, sku, minigraph, buffer_template, expected = sku_information
+    def _test_buffers_render_template(self, vendor, platform, sku, minigraph, buffer_template, expected):
         dir_path = os.path.join(self.test_dir, '..', '..', '..', 'device', vendor, platform, sku)
         buffers_file = os.path.join(dir_path, buffer_template)
         port_config_ini_file = os.path.join(dir_path, 'port_config.ini')
@@ -248,6 +241,18 @@ class TestJ2Files():
 
         sample_output_file = os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, expected)
         assert filecmp.cmp(sample_output_file, self.output_file)
+
+    def test_buffers_dell6100_render_template(self):
+        self._test_buffers_render_template('dell', 'x86_64-dell_s6100_c2538-r0', 'Force10-S6100', 'sample-dell-6100-t0-minigraph.xml', 'buffers.json.j2', 'buffers-dell6100.json')
+
+    def test_buffers_mellanox2700_render_template(self):
+        self._test_buffers_render_template('mellanox', 'x86_64-mlnx_msn2700-r0', 'Mellanox-SN2700-D48C8', 'sample-mellanox-2700-t0-minigraph.xml', 'buffers.json.j2', 'buffers-mellanox2700.json')
+
+    def test_buffers_mellanox2410_render_template(self):
+        self._test_buffers_render_template('mellanox', 'x86_64-mlnx_msn2410-r0', 'ACS-MSN2410', 'sample-mellanox-2410-t1-minigraph.xml', 'buffers.json.j2', 'buffers-mellanox2410.json')
+
+    def test_buffers_mellanox2410_dynamic_render_template(self):
+        self._test_buffers_render_template('mellanox', 'x86_64-mlnx_msn2410-r0', 'ACS-MSN2410', 'sample-mellanox-2410-t1-minigraph.xml', 'buffers_dynamic.json.j2', 'buffers-mellanox2410-dynamic.json')
 
     def test_ipinip_multi_asic(self):
         ipinip_file = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-orchagent', 'ipinip.json.j2')
