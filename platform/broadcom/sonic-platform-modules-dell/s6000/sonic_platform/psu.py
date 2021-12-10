@@ -26,6 +26,7 @@ class Psu(PsuBase):
     I2C_DIR = "/sys/class/i2c-adapter/"
 
     def __init__(self, psu_index):
+        PsuBase.__init__(self)
         # PSU is 1-based in DellEMC platforms
         self.index = psu_index + 1
         self.psu_presence_reg = "psu{}_prs".format(psu_index)
@@ -52,11 +53,7 @@ class Psu(PsuBase):
 
         self.eeprom = Eeprom(is_psu=True, psu_index=self.index)
 
-        # Overriding _fan_list class variable defined in PsuBase, to
-        # make it unique per Psu object
-        self._fan_list = []
-
-        self._fan_list.append(Fan(self.index, psu_fan=True, dependency=self))
+        self._fan_list.append(Fan(psu_index=self.index, psu_fan=True, dependency=self))
 
     def _get_cpld_register(self, reg_name):
         # On successful read, returns the value read from given
@@ -109,9 +106,9 @@ class Psu(PsuBase):
         power_reg = glob.glob(self.psu_power_reg)
 
         if len(voltage_reg) and len(current_reg) and len(power_reg):
-            self.psu_voltage_reg = voltage_reg_path[0]
-            self.psu_current_reg = current_reg_path[0]
-            self.psu_power_reg = power_reg_path[0]
+            self.psu_voltage_reg = voltage_reg[0]
+            self.psu_current_reg = current_reg[0]
+            self.psu_power_reg = power_reg[0]
             self.is_driver_initialized = True
 
     def get_name(self):

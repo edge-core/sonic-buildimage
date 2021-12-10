@@ -51,6 +51,7 @@ class Module(ModuleBase):
       }
 
     def __init__(self, module_index):
+        ModuleBase.__init__(self)
         # Modules are 1-based in DellEMC platforms
         self.index = module_index + 1
         self.port_start = (self.index - 1) * 16
@@ -60,11 +61,6 @@ class Module(ModuleBase):
 
         self.iom_status_reg = "iom_status"
         self.iom_presence_reg = "iom_presence"
-
-        # Overriding _component_list and _sfp_list class variables defined in
-        # ModuleBase, to make them unique per Module object
-        self._component_list = []
-        self._sfp_list = []
 
         component = Component(is_module=True, iom_index=self.index,
                               i2c_line=self.port_i2c_line)

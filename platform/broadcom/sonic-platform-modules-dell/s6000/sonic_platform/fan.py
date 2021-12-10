@@ -27,31 +27,40 @@ class Fan(FanBase):
 
     CPLD_DIR = "/sys/devices/platform/dell-s6000-cpld.0/"
     I2C_DIR = "/sys/class/i2c-adapter/"
+    FAN_DEV_MAPPING = {
+        1: {1: ("i2c-11/11-002a", 1), 2: ("i2c-11/11-002a", 2)},
+        2: {1: ("i2c-11/11-0029", 3), 2: ("i2c-11/11-0029", 4)},
+        3: {1: ("i2c-11/11-0029", 1), 2: ("i2c-11/11-0029", 2)}
+    }
 
-    def __init__(self, fan_index, psu_fan=False, dependency=None):
+    def __init__(self, fantray_index=1, fan_index=1,
+                 psu_index=1, psu_fan=False, dependency=None):
         self.is_psu_fan = psu_fan
         self.is_driver_initialized = True
 
         if not self.is_psu_fan:
             # Fan is 1-based in DellEMC platforms
-            self.index = fan_index + 1
-            self.fan_presence_reg = "fan_prs"
-            self.fan_led_reg = "fan{}_led".format(fan_index)
-            self.get_fan_speed_reg = self.I2C_DIR + "i2c-11/11-0029/" +\
-                    "fan{}_input".format(self.index)
-            self.set_fan_speed_reg = self.I2C_DIR + "i2c-11/11-0029/" +\
-                    "fan{}_target".format(self.index)
-            self.eeprom = Eeprom(is_fan=True, fan_index=self.index)
-            self.max_fan_speed = MAX_S6000_FAN_SPEED
-            self.supported_led_color = ['off', 'green', 'amber']
-        else:
+            self.fantray_index = fantray_index
             self.index = fan_index
+
+            self.fan_presence_reg = "fan_prs"
+            self.get_fan_speed_reg = self.I2C_DIR +\
+                    "{}/fan{}_input".format(*self.FAN_DEV_MAPPING[fantray_index][fan_index])
+            self.set_fan_speed_reg = self.I2C_DIR +\
+                    "{}/fan{}_target".format(*self.FAN_DEV_MAPPING[fantray_index][fan_index])
+            self.max_fan_speed = MAX_S6000_FAN_SPEED
+
+            # FanTray EEPROM
+            self.eeprom = Eeprom(is_fantray=True, fantray_index=self.fantray_index)
+        else:
+            self.psu_index = psu_index
+            self.index = 1
             self.dependency = dependency
             self.set_fan_speed_reg = self.I2C_DIR +\
-                    "i2c-1/1-005{}/fan1_target".format(10 - self.index)
+                    "i2c-1/1-005{}/fan1_target".format(10 - self.psu_index)
 
             hwmon_dir = self.I2C_DIR +\
-                    "i2c-1/1-005{}/hwmon/".format(10 - self.index)
+                    "i2c-1/1-005{}/hwmon/".format(10 - self.psu_index)
             try:
                 hwmon_node = os.listdir(hwmon_dir)[0]
             except OSError:
@@ -73,29 +82,11 @@ class Fan(FanBase):
         try:
            with open(cpld_reg_file, 'r') as fd:
                 rv = fd.read()
-        except:
+        except IOError:
             rv = 'ERR'
 
         rv = rv.rstrip('\r\n')
         rv = rv.lstrip(" ")
-        return rv
-
-    def _set_cpld_register(self, reg_name, value):
-        # On successful write, returns the value will be written on
-        # reg_name and on failure returns 'ERR'
-        rv = 'ERR'
-        cpld_reg_file = self.CPLD_DIR + reg_name
-
-        if (not os.path.isfile(cpld_reg_file)):
-            print "open error"
-            return rv
-
-        try:
-           with open(cpld_reg_file, 'w') as fd:
-                rv = fd.write(str(value))
-        except:
-            rv = 'ERR'
-
         return rv
 
     def _get_i2c_register(self, reg_file):
@@ -117,7 +108,7 @@ class Fan(FanBase):
         try:
             with open(reg_file, 'r') as fd:
                 rv = fd.read()
-        except:
+        except IOError:
             rv = 'ERR'
 
         rv = rv.rstrip('\r\n')
@@ -135,7 +126,7 @@ class Fan(FanBase):
         try:
             with open(reg_file, 'w') as fd:
                 rv = fd.write(str(value))
-        except:
+        except IOError:
             rv = 'ERR'
 
         return rv
@@ -155,9 +146,9 @@ class Fan(FanBase):
             string: The name of the Fan
         """
         if not self.is_psu_fan:
-            return "Fan{}".format(self.index)
+            return "FanTray{}-Fan{}".format(self.fantray_index, self.index)
         else:
-            return "PSU{} Fan".format(self.index)
+            return "PSU{} Fan".format(self.psu_index)
 
     def get_presence(self):
         """
@@ -185,10 +176,7 @@ class Fan(FanBase):
         Returns:
             string: Part number of Fan
         """
-        if not self.is_psu_fan:
-            return self.eeprom.get_part_number()
-        else:
-            return 'NA'
+        return 'NA'
 
     def get_serial(self):
         """
@@ -197,11 +185,7 @@ class Fan(FanBase):
         Returns:
             string: Serial number of Fan
         """
-        # Sample Serial number format "US-01234D-54321-25A-0123-A00"
-        if not self.is_psu_fan:
-            return self.eeprom.get_serial_number()
-        else:
-            return 'NA'
+        return 'NA'
 
     def get_status(self):
         """
@@ -213,7 +197,7 @@ class Fan(FanBase):
         status = False
         fan_speed = self._get_i2c_register(self.get_fan_speed_reg)
         if (fan_speed != 'ERR'):
-            if (int(fan_speed) > 14000):
+            if (int(fan_speed) > 1000):
                 status = True
 
         return status
@@ -298,16 +282,9 @@ class Fan(FanBase):
         Returns:
             bool: True if set success, False if fail.
         """
-        if self.is_psu_fan or (color not in self.supported_led_color):
-            return False
-        if(color == self.STATUS_LED_COLOR_AMBER):
-            color = 'yellow'
-
-        rv = self._set_cpld_register(self.fan_led_reg ,color)
-        if (rv != 'ERR'):
-            return True
-        else:
-            return False
+        # No LED available for FanTray and PSU Fan
+        # Return True to avoid thermalctld alarm.
+        return True
 
     def get_status_led(self):
         """
@@ -316,18 +293,8 @@ class Fan(FanBase):
         Returns:
             A string, one of the predefined STATUS_LED_COLOR_* strings.
         """
-        if self.is_psu_fan:
-            # No LED available for PSU Fan
-            return None
-
-        fan_led = self._get_cpld_register(self.fan_led_reg)
-        if (fan_led != 'ERR'):
-            if (fan_led == 'yellow'):
-                return self.STATUS_LED_COLOR_AMBER
-            else:
-                return fan_led
-        else:
-            return self.STATUS_LED_COLOR_OFF
+        # No LED available for FanTray and PSU Fan
+        return None
 
     def get_target_speed(self):
         """
@@ -337,4 +304,5 @@ class Fan(FanBase):
             An integer, the percentage of full fan speed, in the range 0
             (off) to 100 (full speed)
         """
-        return 79
+        # Fan speeds are controlled by fancontrol.sh
+        return self.get_speed()

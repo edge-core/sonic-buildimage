@@ -96,7 +96,7 @@ class Thermal(ThermalBase):
         try:
             with open(sysfs_file, 'r') as fd:
                 rv = fd.read()
-        except:
+        except IOError:
             rv = 'ERR'
 
         rv = rv.rstrip('\r\n')

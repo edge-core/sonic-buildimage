@@ -10,21 +10,21 @@
 try:
     import os
     import time
-    import datetime
-    import struct
     import subprocess
+    import struct
     from sonic_platform_base.chassis_base import ChassisBase
-    from sonic_platform.sfp import Sfp
+    from sonic_platform.component import Component
     from sonic_platform.eeprom import Eeprom, EepromS6000
     from sonic_platform.fan import Fan
     from sonic_platform.psu import Psu
+    from sonic_platform.sfp import Sfp
     from sonic_platform.thermal import Thermal
-    from sonic_platform.component import Component
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
 
-MAX_S6000_FAN = 3
+MAX_S6000_FANTRAY = 3
+MAX_S6000_FAN_PER_FANTRAY = 2
 MAX_S6000_PSU = 2
 MAX_S6000_THERMAL = 10
 MAX_S6000_COMPONENT = 4
@@ -76,9 +76,10 @@ class Chassis(ChassisBase):
         else:
             self._eeprom = EepromS6000()
 
-        for i in range(MAX_S6000_FAN):
-            fan = Fan(i)
-            self._fan_list.append(fan)
+        for i in range(1, MAX_S6000_FANTRAY+1):
+            for j in range(1, MAX_S6000_FAN_PER_FANTRAY+1):
+                fan = Fan(fantray_index=i, fan_index=j)
+                self._fan_list.append(fan)
 
         for i in range(MAX_S6000_PSU):
             psu = Psu(i)
@@ -102,7 +103,7 @@ class Chassis(ChassisBase):
         try:
             with open(mb_reg_file, 'r') as fd:
                 rv = fd.read()
-        except Exception as error:
+        except IOError:
             rv = 'ERR'
 
         rv = rv.rstrip('\r\n')

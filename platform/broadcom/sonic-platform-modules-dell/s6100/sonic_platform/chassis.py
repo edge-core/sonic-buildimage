@@ -10,17 +10,15 @@
 
 try:
     import os
-    from sonic_platform_base.platform_base import PlatformBase
+    import time
     from sonic_platform_base.chassis_base import ChassisBase
-    from sonic_platform.sfp import Sfp
-    from sonic_platform.psu import Psu
+    from sonic_platform.component import Component
+    from sonic_platform.eeprom import Eeprom
     from sonic_platform.fan import Fan
     from sonic_platform.module import Module
+    from sonic_platform.psu import Psu
     from sonic_platform.thermal import Thermal
-    from sonic_platform.component import Component
     from sonic_platform.watchdog import Watchdog
-    from eeprom import Eeprom
-    import time
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -65,7 +63,7 @@ class Chassis(ChassisBase):
             self._module_list.append(module)
             self._sfp_list.extend(module._sfp_list)
 
-        for i in range(MAX_S6100_FAN):
+        for i in range(1, MAX_S6100_FAN+1):
             fan = Fan(i)
             self._fan_list.append(fan)
 

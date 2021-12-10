@@ -73,6 +73,10 @@ class Eeprom(eeprom_tlvinfo.TlvInfoDecoder):
 
                 tlv_index += ord(eeprom[tlv_index+1]) + 2
 
+            if self.is_module:
+                # In S6100, individual modules doesn't have MAC address
+                mac_code = "0x%02X" % self._TLV_CODE_MAC_BASE
+                self.eeprom_tlv_dict[mac_code] = '00:00:00:00:00:00'
 
     def serial_number_str(self):
         (is_valid, results) = self.get_tlv_field(
