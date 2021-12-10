@@ -71,6 +71,8 @@ kvm_log=$(mktemp)
 trap on_exit EXIT
 trap on_error ERR
 
+echo "Installing SONiC"
+
 /usr/bin/kvm -m $MEM \
     -name "onie" \
     -boot "order=cd,once=d" -cdrom "$ONIE_RECOVERY_ISO" \
@@ -80,6 +82,34 @@ trap on_error ERR
     -vga std \
     -drive file=$DISK,media=disk,if=virtio,index=0 \
     -drive file=$INSTALLER_DISK,if=virtio,index=1 \
+    -serial telnet:127.0.0.1:$KVM_PORT,server > $kvm_log 2>&1 &
+
+kvm_pid=$!
+
+sleep 2.0
+
+[ -d "/proc/$kvm_pid" ] || {
+        echo "ERROR: kvm died."
+        cat $kvm_log
+        exit 1
+}
+
+echo "to kill kvm:  sudo kill $kvm_pid"
+
+./install_sonic.py
+
+kill $kvm_pid
+
+echo "Booting up SONiC"
+
+/usr/bin/kvm -m $MEM \
+    -name "onie" \
+    -device e1000,netdev=onienet \
+    -netdev user,id=onienet,hostfwd=:0.0.0.0:3041-:22 \
+    -vnc 0.0.0.0:0 \
+    -vga std \
+    -snapshot \
+    -drive file=$DISK,media=disk,if=virtio,index=0 \
     -serial telnet:127.0.0.1:$KVM_PORT,server > $kvm_log 2>&1 &
 
 kvm_pid=$!

@@ -15,11 +15,6 @@ def main():
 
     args = parser.parse_args()
 
-    KEY_UP = '\x1b[A'
-    KEY_DOWN = '\x1b[B'
-    KEY_RIGHT = '\x1b[C'
-    KEY_LEFT = '\x1b[D'
-
     login_prompt = 'sonic login:'
     passwd_prompt = 'Password:'
     cmd_prompt = "{}@sonic:~\$ $".format(args.u)
@@ -37,22 +32,19 @@ def main():
                 raise
             time.sleep(1)
 
-    # select ONIE embed
+    # select default SONiC Image
     p.expect(grub_selection)
-    p.sendline(KEY_DOWN)
+    p.sendline()
 
-    # install sonic image
+    # bootup sonic image
     while True:
-        i = p.expect([login_prompt, passwd_prompt, grub_selection, cmd_prompt])
+        i = p.expect([login_prompt, passwd_prompt, cmd_prompt])
         if i == 0:
             # send user name
             p.sendline(args.u)
         elif i == 1:
             # send password
             p.sendline(args.P)
-        elif i == 2:
-            # select onie install
-            p.sendline()
         else:
             break
 
