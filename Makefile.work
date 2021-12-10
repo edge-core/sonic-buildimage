@@ -197,6 +197,11 @@ endif
     SONIC_NATIVE_DOCKERD_FOR_MUTLIARCH := dockerd  --experimental=true --storage-driver=vfs \
         --data-root=$(DOCKER_DATA_ROOT_FOR_MULTIARCH) --exec-root=/var/run/march/docker/ \
         -H unix:///var/run/march/docker.sock -p /var/run/march/docker.pid
+
+ifneq ($(DOCKER_CONFIG_FILE_FOR_MULTIARCH),)
+    SONIC_NATIVE_DOCKERD_FOR_MUTLIARCH += --config-file=$(DOCKER_CONFIG_FILE_FOR_MULTIARCH)
+endif
+
     DOCKER_RUN += -v /var/run/march/docker.sock:/var/run/docker.sock
     DOCKER_RUN += -v /var/run/march/docker.pid:/var/run/docker.pid
     DOCKER_RUN += -v /var/run/march/docker:/var/run/docker
