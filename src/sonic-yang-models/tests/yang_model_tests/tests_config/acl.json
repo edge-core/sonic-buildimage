@@ -432,6 +432,20 @@
             }
         }
     },
+    "ACL_TABLE_CTRLPLANE_REQUIRES_SERVICES": {
+        "sonic-acl:sonic-acl": {
+            "sonic-acl:ACL_TABLE": {
+                "ACL_TABLE_LIST": [
+                    {
+                        "ACL_TABLE_NAME": "NO-NSW-PACL-V4",
+                        "policy_desc": "Filter IPv4",
+                        "stage": "ingress",
+                        "type": "CTRLPLANE"
+                    }
+                ]
+            }
+        }
+    },
     "ACL_TABLE_UNDEFINED_TABLE_TYPE": {
         "sonic-acl:sonic-acl": {
             "sonic-acl:ACL_TABLE": {
