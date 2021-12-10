@@ -1224,7 +1224,8 @@
                 "has_per_asic_scope": "true",
                 "has_timer": "false",
                 "high_mem_alert": "disabled",
-                "state": "enabled"
+                "state": "enabled",
+                "set_owner": "local"
             },
             "database": {
                 "auto_restart": "always_enabled",
@@ -1232,7 +1233,8 @@
                 "has_per_asic_scope": "true",
                 "has_timer": "false",
                 "high_mem_alert": "disabled",
-                "state": "always_enabled"
+                "state": "always_enabled",
+                "set_owner": "local"
             },
             "snmp": {
                 "auto_restart": "enabled",
@@ -1240,7 +1242,8 @@
                 "has_per_asic_scope": "false",
                 "has_timer": "true",
                 "high_mem_alert": "disabled",
-                "state": "enabled"
+                "state": "enabled",
+                "set_owner": "kube"
             },
             "swss": {
                 "auto_restart": "enabled",
@@ -1248,7 +1251,8 @@
                 "has_per_asic_scope": "true",
                 "has_timer": "false",
                 "high_mem_alert": "disabled",
-                "state": "enabled"
+                "state": "enabled",
+                "set_owner": "local"
             },
             "syncd": {
                 "auto_restart": "enabled",
@@ -1256,7 +1260,8 @@
                 "has_per_asic_scope": "true",
                 "has_timer": "false",
                 "high_mem_alert": "disabled",
-                "state": "enabled"
+                "state": "enabled",
+                "set_owner": "local"
             },
             "lldp": {
                 "auto_restart": "enabled",
@@ -1264,7 +1269,8 @@
                 "has_per_asic_scope": "true",
                 "has_timer": "false",
                 "high_mem_alert": "disabled",
-                "state": "enabled"
+                "state": "enabled",
+                "set_owner": "kube"
             }
         },
         "DHCP_RELAY": {

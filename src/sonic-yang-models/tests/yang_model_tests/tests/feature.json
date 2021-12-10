@@ -5,6 +5,14 @@
     "FEATURE_WITH_INVALID_STATE" : {
         "desc": "Referring invalid feature state.",
         "eStrKey": "Pattern",
-        "eStr": ["enabled|disabled|always_enabled"]
+        "eStr": ["enabled|disabled|always_enabled|always_disabled"]
+    },
+    "FEATURE_WITH_INVALID_OWNER" : {
+        "desc": "Referring invalid feature set_owner field.",
+        "eStrKey": "Pattern",
+        "eStr": ["kube|local"]
+    },
+    "FEATURE_WITH_NO_OWNER" : {
+        "desc": "Config feature table without set_owner"
     }
 }

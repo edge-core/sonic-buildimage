@@ -5,11 +5,22 @@ module sonic-feature{
     namespace "http://github.com/Azure/sonic-feature";
     prefix feature;
 
-    import sonic-types {
-        prefix stypes;
+    description "Feature Table yang Module for SONiC";
+    
+    typedef feature-state {
+        description "configuration to set the feature running state";
+        type string {
+            pattern "enabled|disabled|always_enabled|always_disabled";
+        }
     }
 
-    description "Feature Table yang Module for SONiC OS";
+    typedef feature-owner {
+        description "configuration to set if the container is controlled
+                     by kubernetes or locally";
+        type string {
+            pattern "kube|local";
+        }
+    }
 
     container sonic-feature {
 
@@ -30,12 +41,12 @@ module sonic-feature{
 
                 leaf state {
                     description "state of the feature";
-                    type stypes:feature_state;
+                    type feature-state;
                     default "enabled";
                 }
 
                 leaf auto_restart {
-                    type stypes:feature_state;
+                    type feature-state;
                     default "enabled";
                 }
 
@@ -63,8 +74,15 @@ module sonic-feature{
                 leaf high_mem_alert {
                     description "This configuration controls the trigger to generate
                                 alert on high memory utilization";
-                    type stypes:feature_state;
+                    type feature-state;
                     default "disabled";
+                }
+
+                leaf set_owner {
+                    description " This configuration set the feature owner is
+                                kubernetes or local";
+                    type feature-owner;
+                    default "local";
                 }
             }
         }
