@@ -44,6 +44,11 @@
         "eStrKey" : "Mandatory",
         "eStr": ["ACL_TABLE"]
     },
+    "ACL_TABLE_CTRLPLANE_REQUIRES_SERVICES": {
+        "desc": "ACL_TABLE CTRLPLANE type requires services presence.",
+        "eStrKey" : "Must",
+        "eStr": ["CTRLPLANE", "services"]
+    },
     "ACL_TABLE_DEFAULT_VALUE_STAGE": {
         "desc": "ACL_TABLE DEFAULT VALUE FOR STAGE FIELD.",
         "eStrKey" : "Verify",

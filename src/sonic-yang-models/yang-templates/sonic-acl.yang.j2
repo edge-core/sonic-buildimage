@@ -320,6 +320,9 @@ module sonic-acl {
 					type string;
 				}
 
+				/* Validating 'services' exist if ACL type is 'CTRLPLANE' */
+				must "(not(type = 'CTRLPLANE')) or (boolean(services))";
+
 				leaf-list ports {
 					/* union of leafref is allowed in YANG 1.1 */
 					type union {
