@@ -3,7 +3,8 @@
         "localhost": {
             "bgp_asn": "55555",
             "sub_role": "FrontEnd",
-            "switch_type": "chassis-packet"
+            "switch_type": "chassis-packet",
+            "type": "SpineRouter"
         }
     },
     "LOOPBACK_INTERFACE": {

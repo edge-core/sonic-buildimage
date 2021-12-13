@@ -3,7 +3,8 @@
         "localhost": {
             "bgp_asn": "55555",
             "sub_role": "",
-            "switch_type": "voq"
+            "switch_type": "voq",
+            "type": "SpineRouter"
         }
     },
     "LOOPBACK_INTERFACE": {
