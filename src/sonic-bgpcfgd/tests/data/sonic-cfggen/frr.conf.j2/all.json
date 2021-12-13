@@ -3,7 +3,8 @@
         "localhost": {
             "bgp_asn": "55555",
             "hostname": "test_hostname",
-            "sub_role": "FrontEnd"
+            "sub_role": "FrontEnd",
+            "type": "ToRRouter"
         }
     },
     "INTERFACE": {
