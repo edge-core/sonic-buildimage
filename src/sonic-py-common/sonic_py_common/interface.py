@@ -15,6 +15,7 @@ SONIC_INTERFACE_PREFIXES = {
     "Loopback": "Loopback",
     "Ethernet-Backplane": "Ethernet-BP",
     "Ethernet-Inband": "Ethernet-IB",
+    "Ethernet-Recirc": "Ethernet-Rec",
     "Ethernet-SubPort": "Eth",
     "PortChannel-SubPort": "Po"
 }
@@ -56,6 +57,12 @@ def inband_prefix():
     Retrieves the SONIC recycle port inband interface name prefix.
     """
     return SONIC_INTERFACE_PREFIXES["Ethernet-Inband"]
+
+def recirc_prefix():
+    """
+    Retrieves the SONIC recirculation port interface name prefix.
+    """
+    return SONIC_INTERFACE_PREFIXES["Ethernet-Recirc"]
 
 def physical_subinterface_prefix():
     """
