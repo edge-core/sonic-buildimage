@@ -85,6 +85,14 @@ RUN rm -rf /debs \
     && make install \
     && cd  .. \
     && rm -fr sflowtool \
+    && git clone https://github.com/dyninc/OpenBFDD.git \
+    && cd OpenBFDD \
+    && ./autogen.sh \
+    && ./configure \
+    && make \
+    && make install \
+    && cd  .. \
+    && rm -fr OpenBFDD \
     && wget https://github.com/nanomsg/nanomsg/archive/1.0.0.tar.gz \
     && tar xvfz 1.0.0.tar.gz \
     && cd nanomsg-1.0.0    \
