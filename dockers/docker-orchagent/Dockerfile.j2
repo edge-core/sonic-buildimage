@@ -68,7 +68,7 @@ RUN apt-get purge -y          \
 COPY ["files/arp_update", "/usr/bin"]
 COPY ["arp_update.conf", "files/arp_update_vars.j2", "/usr/share/sonic/templates/"]
 COPY ["ndppd.conf", "/usr/share/sonic/templates/"]
-COPY ["enable_counters.py", "/usr/bin"]
+COPY ["enable_counters.py", "tunnel_packet_handler.py", "/usr/bin/"]
 COPY ["docker-init.sh", "orchagent.sh", "swssconfig.sh", "buffermgrd.sh", "/usr/bin/"]
 COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
 COPY ["files/supervisor-proc-exit-listener", "/usr/bin"]
