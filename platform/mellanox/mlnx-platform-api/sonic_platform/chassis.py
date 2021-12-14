@@ -84,7 +84,7 @@ class Chassis(ChassisBase):
 
         # Initialize DMI data
         self.dmi_data = None
-        
+
         # move the initialization of each components to their dedicated initializer
         # which will be called from platform
         #
@@ -261,7 +261,7 @@ class Chassis(ChassisBase):
     def get_revision(self):
         """
         Retrieves the hardware revision of the device
-        
+
         Returns:
             string: Revision value of device
         """
@@ -269,7 +269,7 @@ class Chassis(ChassisBase):
             self.dmi_data = self._parse_dmi(DMI_FILE)
 
         return self.dmi_data.get(DMI_VERSION, "N/A")
-        
+
     ##############################################
     # SFP methods
     ##############################################
@@ -290,7 +290,7 @@ class Chassis(ChassisBase):
         Retrieves all sfps available on this chassis
 
         Returns:
-            A list of objects derived from SfpBase representing all sfps 
+            A list of objects derived from SfpBase representing all sfps
             available on this chassis
         """
         if not self.sfp_module_full_initialized:
@@ -361,7 +361,7 @@ class Chassis(ChassisBase):
         Note:
             We overload this method to ensure that watchdog is only initialized
             when it is referenced. Currently, only one daemon can open the watchdog.
-            To initialize watchdog in the constructor causes multiple daemon 
+            To initialize watchdog in the constructor causes multiple daemon
             try opening watchdog when loading and constructing a chassis object
             and fail. By doing so we can eliminate that risk.
         """
@@ -450,7 +450,7 @@ class Chassis(ChassisBase):
 
     def _verify_reboot_cause(self, filename):
         '''
-        Open and read the reboot cause file in 
+        Open and read the reboot cause file in
         /var/run/hwmanagement/system (which is defined as REBOOT_CAUSE_ROOT)
         If a reboot cause file doesn't exists, returns '0'.
         '''
@@ -550,7 +550,7 @@ class Chassis(ChassisBase):
                 - True if call successful, False if not;
                 - A nested dictionary where key is a device type,
                   value is a dictionary with key:value pairs in the format of
-                  {'device_id':'device_event'}, 
+                  {'device_id':'device_event'},
                   where device_id is the device ID for this device and
                         device_event,
                              status='1' represents device inserted,
@@ -594,10 +594,6 @@ class Chassis(ChassisBase):
         :param port_dict: SFP event data
         :return:
         """
-        # SFP not initialize yet, do nothing
-        if not self.sfp_module_full_initialized:
-            return
-
         from . import sfp
         for index, status in port_dict.items():
             if status == sfp.SFP_STATUS_INSERTED:

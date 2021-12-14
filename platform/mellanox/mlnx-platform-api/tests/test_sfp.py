@@ -1,7 +1,7 @@
 import os
 import sys
 import pytest
-from mock import MagicMock
+from mock import MagicMock, patch
 from .mock_platform import MockFan
 
 test_path = os.path.dirname(os.path.abspath(__file__))
@@ -11,7 +11,7 @@ sys.path.insert(0, modules_path)
 os.environ["PLATFORM_API_UNIT_TESTING"] = "1"
 
 from sonic_py_common import device_info
-from sonic_platform.sfp import SFP, SX_PORT_MODULE_STATUS_INITIALIZING, SX_PORT_MODULE_STATUS_PLUGGED, SX_PORT_MODULE_STATUS_UNPLUGGED, SX_PORT_MODULE_STATUS_PLUGGED_WITH_ERROR, SX_PORT_MODULE_STATUS_PLUGGED_DISABLED
+from sonic_platform.sfp import SFP, SX_PORT_MODULE_STATUS_INITIALIZING, SX_PORT_MODULE_STATUS_PLUGGED, SX_PORT_MODULE_STATUS_UNPLUGGED, SX_PORT_MODULE_STATUS_PLUGGED_WITH_ERROR, SX_PORT_MODULE_STATUS_PLUGGED_DISABLED, SFP_STATUS_INSERTED
 
 from sonic_platform.chassis import Chassis
 
@@ -123,3 +123,16 @@ def test_sfp_get_error_status():
         description = sfp.get_error_description()
 
         assert description == expected_description
+
+
+@patch('sonic_platform.sfp.SFP.reinit')
+def test_reinit_sfps(mock_reinit_sfps):
+    port_dict = {}
+    chassis = Chassis()
+    chassis.reinit_sfps(port_dict)
+    assert not mock_reinit_sfps.called
+
+    port_dict = {1: SFP_STATUS_INSERTED}
+    chassis.reinit_sfps(port_dict)
+    assert mock_reinit_sfps.called
+    assert chassis._sfp_list[0] is not None
