@@ -1,5 +1,5 @@
 {
-    "LOOPBACK_IPPREFIX_PORT_MUST_CONDITION_FALSE": {
+    "LOOPBACK_IPPREFIX_PORT_FOR_NON_EXIST_INTERFACE": {
         "sonic-loopback-interface:sonic-loopback-interface": {
             "sonic-loopback-interface:LOOPBACK_INTERFACE": {
                 "LOOPBACK_INTERFACE_IPPREFIX_LIST": [
