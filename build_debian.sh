@@ -327,6 +327,9 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     jq                      \
     auditd
 
+# Change auditd log file path to fix auditd can't startup issue.
+sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "sudo sed -i 's/^\s*log_file\s*=.*/log_file = \/var\/log\/audit.log/g' /etc/audit/auditd.conf"
+
 if [[ $CONFIGURED_ARCH == amd64 ]]; then
 ## Pre-install the fundamental packages for amd64 (x86)
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install      \
