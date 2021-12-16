@@ -973,13 +973,22 @@
                 "polling_interval": "0"
             }
         },
-
         "WARM_RESTART": {
             "bgp": {
                 "bgp_timer": "500"
             }
         },
-
+        "PORT_STORM_CONTROL": {
+            "Ethernet0|broadcast": {
+                "kbps": "10000"
+            },
+            "Ethernet0|unknown-multicast": {
+                "kbps": "30000"
+            },
+            "Ethernet0|unknown-unicast": {
+                "kbps": "20000"
+            }
+        },
         "PFC_WD": {
             "Ethernet9": {
                "action": "drop",
