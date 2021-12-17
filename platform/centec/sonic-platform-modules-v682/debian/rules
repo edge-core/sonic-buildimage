@@ -17,7 +17,7 @@ PACKAGE_PRE_NAME := platform-modules-v682
 KVERSION   ?= $(shell uname -r)
 KERNEL_SRC :=  /lib/modules/$(KVERSION)
 MOD_SRC_DIR:= $(shell pwd)
-MODULE_DIRS:= 48y8c-d
+MODULE_DIRS:= 48y8c-d 48y8c 48x8c
 MODULE_DIR := modules
 SERVICE_DIR := service
 CLASSES_DIR := classes
@@ -41,7 +41,6 @@ build:
 	(for mod in $(MODULE_DIRS); do \
 		make modules -C $(KERNEL_SRC)/build M=$(MOD_SRC_DIR)/$${mod}/modules; \
 		cd $${mod}; \
-		python2.7 setup.py bdist_wheel -d $(MOD_SRC_DIR)/$${mod}/modules; \
 		python3 setup.py bdist_wheel -d $(MOD_SRC_DIR)/$${mod}/modules; \
 		cd -; \
 	done)

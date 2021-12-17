@@ -1,10 +1,10 @@
-#!/usr/bin/python2
+#!/usr/bin/env python
 
 import os
 import sys
 import time
 
-susi4_lib = '/usr/local/lib/python2.7/dist-packages/'
+susi4_lib = '/usr/local/lib/python3.9/dist-packages/'
 if not susi4_lib in os.environ.setdefault('LD_LIBRARY_PATH', ''):
     os.environ['LD_LIBRARY_PATH'] += (':' + susi4_lib)
     try:
