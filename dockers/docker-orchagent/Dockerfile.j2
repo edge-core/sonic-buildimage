@@ -21,6 +21,7 @@ RUN apt-get update &&       \
         libelf1             \
         libmnl0             \
         bridge-utils        \
+        pciutils            \
         conntrack
 
 {% if ( CONFIGURED_ARCH == "armhf" or CONFIGURED_ARCH == "arm64" ) %}
