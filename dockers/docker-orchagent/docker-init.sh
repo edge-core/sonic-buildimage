@@ -17,6 +17,11 @@ SUBTYPE=$(sonic-cfggen -d -v "DEVICE_METADATA['localhost']['subtype']")
 
 chmod +x /usr/bin/wait_for_link.sh
 
+# Executed platform specific initialization tasks.
+if [ -x /usr/share/sonic/platform/platform-init ]; then
+    /usr/share/sonic/platform/platform-init
+fi
+
 # Executed HWSKU specific initialization tasks.
 if [ -x /usr/share/sonic/hwsku/hwsku-init ]; then
     /usr/share/sonic/hwsku/hwsku-init
