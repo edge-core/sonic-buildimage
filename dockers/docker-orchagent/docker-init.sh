@@ -17,6 +17,11 @@ CFGGEN_PARAMS=" \
 "
 VLAN=$(sonic-cfggen $CFGGEN_PARAMS)
 
+# Executed platform specific initialization tasks.
+if [ -x /usr/share/sonic/platform/platform-init ]; then
+    /usr/share/sonic/platform/platform-init
+fi
+
 # Executed HWSKU specific initialization tasks.
 if [ -x /usr/share/sonic/hwsku/hwsku-init ]; then
     /usr/share/sonic/hwsku/hwsku-init
