@@ -39,7 +39,8 @@ CUR_BRKOUT_MODE = "brkout_mode"
 INTF_KEY = "interfaces"
 OPTIONAL_HWSKU_ATTRIBUTES = ["fec", "autoneg"]
 
-BRKOUT_PATTERN = r'(\d{1,3})x(\d{1,3}G)(\[(\d{1,3}G,?)*\])?(\((\d{1,3})\))?'
+BRKOUT_PATTERN = r'(\d{1,6})x(\d{1,6}G?)(\[(\d{1,6}G?,?)*\])?(\((\d{1,6})\))?'
+BRKOUT_PATTERN_GROUPS = 6
 
 #
 # Helper Functions
@@ -172,85 +173,156 @@ def parse_port_config_file(port_config_file):
                 port_alias_asic_map[data['alias']] = data['asic_port_name'].strip()
     return (ports, port_alias_map, port_alias_asic_map)
 
-# Generate configs (i.e. alias, lanes, speed, index) for port
-def gen_port_config(ports, parent_intf_id, index, alias_list, lanes, k,  offset):
-    if k is not None:
-        num_lane_used, speed, alt_speed, _, _ , assigned_lane = k[0], k[1], k[2], k[3], k[4], k[5]
+class BreakoutCfg(object):
 
-        # In case of symmetric mode
-        if assigned_lane is None:
-            assigned_lane = len(lanes.split(","))
+    class BreakoutModeEntry:
+        def __init__(self, num_ports, default_speed, supported_speed, num_assigned_lanes=None):
+            self.num_ports = int(num_ports)
+            self.default_speed = self._speed_to_int(default_speed)
+            self.supported_speed = set((self.default_speed, ))
+            self._parse_supported_speed(supported_speed)
+            self.num_assigned_lanes = self._parse_num_assigned_lanes(num_assigned_lanes)
 
-        parent_intf_id = int(offset)+int(parent_intf_id)
-        alias_position = 0 + int(offset)//int(num_lane_used)
-        lanes_start = 0 + int(offset)
+        @classmethod
+        def _speed_to_int(cls, speed):
+            try:
+                if speed.endswith('G'):
+                    return int(speed.replace('G', '')) * 1000
 
-        step = int(assigned_lane)//int(num_lane_used)
-        for i in range(0,int(assigned_lane), step):
-            intf_name = PORT_STR + str(parent_intf_id)
-            ports[intf_name] = {}
-            ports[intf_name]['alias'] = alias_list[alias_position]
-            ports[intf_name]['lanes'] = ','.join(lanes.split(",")[lanes_start:lanes_start+step])
-            if speed:
-                speed_pat = re.search("^((\d+)G|\d+)$", speed.upper())
-                if speed_pat is None:
-                    raise Exception('{} speed is not Supported...'.format(speed))
-                speed_G, speed_orig = speed_pat.group(2), speed_pat.group(1)
-                if speed_G:
-                    conv_speed = int(speed_G)*1000
-                else:
-                    conv_speed = int(speed_orig)
-                ports[intf_name]['speed'] = str(conv_speed)
+                return int(speed)
+            except ValueError:
+                raise RuntimeError("Unsupported speed format '{}'".format(speed))
+
+        def _parse_supported_speed(self, speed):
+            if not speed:
+                return
+
+            if not speed.startswith('[') and not speed.endswith(']'):
+                raise RuntimeError("Unsupported port breakout format!")
+
+            for s in speed[1:-1].split(','):
+                self.supported_speed.add(self._speed_to_int(s.strip()))
+
+        def _parse_num_assigned_lanes(self, num_assigned_lanes):
+            if not num_assigned_lanes:
+                return
+
+            if isinstance(num_assigned_lanes, int):
+                return num_assigned_lanes
+
+            if not num_assigned_lanes.startswith('(') and not num_assigned_lanes.endswith(')'):
+                raise RuntimeError("Unsupported port breakout format!")
+
+            return int(num_assigned_lanes[1:-1])
+
+        def __eq__(self, other):
+            if isinstance(other, BreakoutCfg.BreakoutModeEntry):
+                if self.num_ports != other.num_ports:
+                    return False
+                if self.supported_speed != other.supported_speed:
+                    return False
+                if self.num_assigned_lanes != other.num_assigned_lanes:
+                    return False
+                return True
             else:
-                raise Exception('Regex return for speed is None...')
+                return False
 
-            ports[intf_name]['index'] = index.split(",")[alias_position]
+        def __ne__(self, other):
+            return not self == other
 
-            parent_intf_id += step
-            alias_position += 1
-            lanes_start += step
+        def __hash__(self):
+            return hash((self.num_ports, tuple(self.supported_speed), self.num_assigned_lanes))
 
-        offset = int(assigned_lane) + int(offset)
-        return offset
-    else:
-        raise Exception('Regex return for k is None...')
+    def __init__(self, name, bmode, properties):
+        self._interface_base_id = int(name.replace(PORT_STR, ''))
+        self._properties = properties
+        self._lanes = properties ['lanes'].split(',')
+        self._indexes = properties ['index'].split(',')
+        self._breakout_mode_entry = self._str_to_entries(bmode)
+        self._breakout_capabilities = None
+
+        # Find specified breakout mode in port breakout mode capabilities
+        for supported_mode in self._properties['breakout_modes']:
+            if self._breakout_mode_entry == self._str_to_entries(supported_mode):
+                self._breakout_capabilities = self._properties['breakout_modes'][supported_mode]
+                break
+
+        if not self._breakout_capabilities:
+            raise RuntimeError("Unsupported breakout mode {}!".format(bmode))
+
+    def _re_group_to_entry(self, group):
+        if len(group) != BRKOUT_PATTERN_GROUPS:
+            raise RuntimeError("Unsupported breakout mode format!")
+
+        num_ports, default_speed, supported_speed, _, num_assigned_lanes, _ = group
+        if not num_assigned_lanes:
+            num_assigned_lanes = len(self._lanes)
+
+        return BreakoutCfg.BreakoutModeEntry(num_ports, default_speed, supported_speed, num_assigned_lanes)
+
+    def _str_to_entries(self, bmode):
+        """
+        Example of match_list for some breakout_mode using regex
+            Breakout Mode -------> Match_list
+            -----------------------------
+            2x25G(2)+1x50G(2) ---> [('2', '25G', None, '(2)', '2'), ('1', '50G', None, '(2)', '2')]
+            1x50G(2)+2x25G(2) ---> [('1', '50G', None, '(2)', '2'), ('2', '25G', None, '(2)', '2')]
+            1x100G[40G] ---------> [('1', '100G', '[40G]', None, None)]
+            2x50G ---------------> [('2', '50G', None, None, None)]
+        """
+
+        try:
+            groups_list = [re.match(BRKOUT_PATTERN, i).groups() for i in bmode.split("+")]
+        except Exception:
+            raise RuntimeError('Breakout mode "{}" validation failed!'.format(bmode))
+
+        return [self._re_group_to_entry(group) for group in groups_list]
+
+    def get_config(self):
+        # Ensure that we have corret number of configured lanes
+        lanes_used = 0
+        for entry in self._breakout_mode_entry:
+            lanes_used += entry.num_assigned_lanes
+
+        if lanes_used > len(self._lanes):
+            raise RuntimeError("Assigned lines count is more that available!")
+
+        ports = {}
+
+        lane_id = 0
+        alias_id = 0
+
+        for entry in self._breakout_mode_entry:
+            lanes_per_port = entry.num_assigned_lanes // entry.num_ports
+
+            for port in range(entry.num_ports):
+                interface_name = PORT_STR + str(self._interface_base_id + lane_id)
+
+                lanes = self._lanes[lane_id:lane_id + lanes_per_port]
+
+                ports[interface_name] = {
+                    'alias': self._breakout_capabilities[alias_id],
+                    'lanes': ','.join(lanes),
+                    'speed': str(entry.default_speed),
+                    'index': self._indexes[lane_id]
+                }
+
+                lane_id += lanes_per_port
+                alias_id += 1
+
+        return ports
+
 
 """
 Given a port and breakout mode, this method returns
 the list of child ports using platform_json file
 """
 def get_child_ports(interface, breakout_mode, platform_json_file):
-    child_ports = {}
-
     port_dict = readJson(platform_json_file)
 
-    index = port_dict[INTF_KEY][interface]['index']
-    alias_list = port_dict[INTF_KEY][interface]['breakout_modes'][breakout_mode]
-    lanes = port_dict[INTF_KEY][interface]['lanes']
+    mode_handler = BreakoutCfg(interface, breakout_mode, port_dict[INTF_KEY][interface])
 
-    """
-    Example of match_list for some breakout_mode using regex
-        Breakout Mode -------> Match_list
-        -----------------------------
-        2x25G(2)+1x50G(2) ---> [('2', '25G', None, '(2)', '2'), ('1', '50G', None, '(2)', '2')]
-        1x50G(2)+2x25G(2) ---> [('1', '50G', None, '(2)', '2'), ('2', '25G', None, '(2)', '2')]
-        1x100G[40G] ---------> [('1', '100G', '[40G]', None, None)]
-        2x50G ---------------> [('2', '50G', None, None, None)]
-    """
-    # Asymmetric breakout mode
-    if re.search("\+",breakout_mode) is not None:
-        breakout_parts = breakout_mode.split("+")
-        match_list = [re.match(BRKOUT_PATTERN, i).groups() for i in breakout_parts]
-
-    # Symmetric breakout mode
-    else:
-        match_list = [re.match(BRKOUT_PATTERN, breakout_mode).groups()]
-
-    offset = 0
-    parent_intf_id = int(re.search("Ethernet(\d+)", interface).group(1))
-    for k in match_list:
-        offset = gen_port_config(child_ports, parent_intf_id, index, alias_list, lanes, k, offset)
-    return child_ports
+    return mode_handler.get_config()
 
 def parse_platform_json_file(hwsku_json_file, platform_json_file):
     ports = {}
