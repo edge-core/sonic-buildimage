@@ -31,6 +31,10 @@
         "desc": "PFC_WDOG_WITH_WRONG_DETECTION_TIME_HIGH_VALUE",
         "eStr": "range"
     },
+    "PFC_WDOG_WITH_INVALID_DETECTION_TIME": {
+        "desc": "PFC_WDOG_WITH_INVALID_DETECTION_TIME",
+        "eStr": ["detection_time must be greater than or equal to POLL_INTERVAL"]
+    },
     "PFC_WDOG_WITH_WRONG_RESTORATION_TIME_LOW_VALUE": {
         "desc": "PFC_WDOG_WITH_WRONG_RESTORATION_TIME_LOW_VALUE",
         "eStr": "range"
@@ -38,5 +42,9 @@
     "PFC_WDOG_WITH_WRONG_RESTORATION_TIME_HIGH_VALUE": {
         "desc": "PFC_WDOG_WITH_WRONG_RESTORATION_TIME_HIGH_VALUE",
         "eStr": "range"
+    },
+    "PFC_WDOG_WITH_INVALID_RESTORATION_TIME": {
+        "desc": "PFC_WDOG_WITH_INVALID_RESTORATION_TIME",
+        "eStr": ["restoration_time must be greater than or equal to POLL_INTERVAL"]
     }
 }

@@ -105,36 +105,102 @@
         }
     },
     "PFC_WDOG_WITH_CORRECT_POLL_INTERVAL_VALUE": {
+        "sonic-port:sonic-port": {
+            "sonic-port:PORT": {
+                "PORT_LIST": [
+                {
+                    "admin_status": "up",
+                    "alias": "eth0",
+                    "description": "Ethernet4",
+                    "lanes": "65",
+                    "mtu": "9000",
+                    "name": "Ethernet4",
+                    "tpid": "0x8100",
+                    "speed": "25000"
+                }
+                ]
+            }
+        },
         "sonic-pfcwd:sonic-pfcwd": {
             "sonic-pfcwd:PFC_WD": {
                 "PFC_WD_LIST": [
                     {
                         "ifname": "GLOBAL",
                         "POLL_INTERVAL": 101
+                    },
+                    {
+                        "ifname": "Ethernet4",
+                        "action": "drop",
+                        "detection_time": 101,
+                        "restoration_time": 3000
                     }
                 ]
             }
         }
     },
     "PFC_WDOG_WITH_WRONG_POLL_INTERVAL_LOW_VALUE": {
+        "sonic-port:sonic-port": {
+            "sonic-port:PORT": {
+                "PORT_LIST": [
+                {
+                    "admin_status": "up",
+                    "alias": "eth0",
+                    "description": "Ethernet4",
+                    "lanes": "65",
+                    "mtu": "9000",
+                    "name": "Ethernet4",
+                    "tpid": "0x8100",
+                    "speed": "25000"
+                }
+                ]
+            }
+        },
         "sonic-pfcwd:sonic-pfcwd": {
             "sonic-pfcwd:PFC_WD": {
                 "PFC_WD_LIST": [
                     {
                         "ifname": "GLOBAL",
                         "POLL_INTERVAL":99
+                    },
+                    {
+                        "ifname": "Ethernet4",
+                        "action": "drop",
+                        "detection_time": 100,
+                        "restoration_time": 3000
                     }
                 ]
             }
         }
     },
     "PFC_WDOG_WITH_WRONG_POLL_INTERVAL_HIGH_VALUE": {
+        "sonic-port:sonic-port": {
+            "sonic-port:PORT": {
+                "PORT_LIST": [
+                {
+                    "admin_status": "up",
+                    "alias": "eth0",
+                    "description": "Ethernet4",
+                    "lanes": "65",
+                    "mtu": "9000",
+                    "name": "Ethernet4",
+                    "tpid": "0x8100",
+                    "speed": "25000"
+                }
+                ]
+            }
+        },
         "sonic-pfcwd:sonic-pfcwd": {
             "sonic-pfcwd:PFC_WD": {
                 "PFC_WD_LIST": [
                     {
                         "ifname": "GLOBAL",
                         "POLL_INTERVAL": 3001
+                    },
+                    {
+                        "ifname": "Ethernet4",
+                        "action": "drop",
+                        "detection_time": 3001,
+                        "restoration_time": 3001
                     }
                 ]
             }
@@ -160,9 +226,43 @@
                 "PFC_WD_LIST": [
                     {
                         "ifname": "Ethernet4",
-                        "action": "wrong",
+                        "action": "drop",
                         "detection_time": 5001,
                         "restoration_time": 3000
+                    }
+                ]
+            }
+        }
+    },
+    "PFC_WDOG_WITH_INVALID_DETECTION_TIME": {
+        "sonic-port:sonic-port": {
+            "sonic-port:PORT": {
+                "PORT_LIST": [
+                {
+                    "admin_status": "up",
+                    "alias": "eth0",
+                    "description": "Ethernet4",
+                    "lanes": "65",
+                    "mtu": "9000",
+                    "name": "Ethernet4",
+                    "tpid": "0x8100",
+                    "speed": "25000"
+                }
+                ]
+            }
+        },
+        "sonic-pfcwd:sonic-pfcwd": {
+            "sonic-pfcwd:PFC_WD": {
+                "PFC_WD_LIST": [
+                    {
+                        "ifname": "GLOBAL",
+                        "POLL_INTERVAL": 1000
+                    },
+                    {
+                        "ifname": "Ethernet4",
+                        "action": "drop",
+                        "detection_time": 999,
+                        "restoration_time": 1000
                     }
                 ]
             }
@@ -188,9 +288,43 @@
                 "PFC_WD_LIST": [
                     {
                         "ifname": "Ethernet4",
-                        "action": "wrong",
+                        "action": "drop",
                         "detection_time": 60001,
                         "restoration_time": 3000
+                    }
+                ]
+            }
+        }
+    },
+    "PFC_WDOG_WITH_INVALID_RESTORATION_TIME": {
+        "sonic-port:sonic-port": {
+            "sonic-port:PORT": {
+                "PORT_LIST": [
+                {
+                    "admin_status": "up",
+                    "alias": "eth0",
+                    "description": "Ethernet4",
+                    "lanes": "65",
+                    "mtu": "9000",
+                    "name": "Ethernet4",
+                    "tpid": "0x8100",
+                    "speed": "25000"
+                }
+                ]
+            }
+        },
+        "sonic-pfcwd:sonic-pfcwd": {
+            "sonic-pfcwd:PFC_WD": {
+                "PFC_WD_LIST": [
+                    {
+                        "ifname": "GLOBAL",
+                        "POLL_INTERVAL": 1000
+                    },
+                    {
+                        "ifname": "Ethernet4",
+                        "action": "drop",
+                        "detection_time": 1000,
+                        "restoration_time": 999
                     }
                 ]
             }
