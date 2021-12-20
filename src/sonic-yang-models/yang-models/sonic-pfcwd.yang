@@ -51,6 +51,9 @@ module sonic-pfcwd {
                 }
                 leaf detection_time {
                     must "../ifname != 'GLOBAL'";
+                    must "(not(boolean(current()/../../PFC_WD_LIST[ifname='GLOBAL'])) or (current() >= current()/../../PFC_WD_LIST[ifname='GLOBAL']/POLL_INTERVAL))" {
+                        error-message "detection_time must be greater than or equal to POLL_INTERVAL";
+                    }
                     type uint32 {
                         range 100..5000;
                     }
@@ -59,6 +62,9 @@ module sonic-pfcwd {
                 }
                 leaf restoration_time {
                     must "../ifname != 'GLOBAL'";
+                    must "(not(boolean(current()/../../PFC_WD_LIST[ifname='GLOBAL'])) or (current() >= current()/../../PFC_WD_LIST[ifname='GLOBAL']/POLL_INTERVAL))" {
+                        error-message "restoration_time must be greater than or equal to POLL_INTERVAL";
+                    }
                     type uint32 {
                         range 100..60000;
                     }
