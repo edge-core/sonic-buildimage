@@ -819,5 +819,106 @@
     "pfc_asym": "off",
     "speed": "50000",
     "tpid": "0x8100"
+  },
+  "Ethernet128": {
+    "index": "33",
+    "lanes": "128,129,130,131",
+    "description": "Eth33",
+    "tpid": "0x8100",
+    "mtu": "9100",
+    "alias": "Eth33",
+    "pfc_asym": "off",
+    "speed": "40000"
+  },
+  "Ethernet132": {
+    "index": "34",
+    "lanes": "132,133,134,135",
+    "description": "Eth34",
+    "tpid": "0x8100",
+    "mtu": "9100",
+    "alias": "Eth34",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet136": {
+    "index": "35",
+    "lanes": "136",
+    "description": "Eth35/1",
+    "tpid": "0x8100",
+    "mtu": "9100",
+    "alias": "Eth35/1",
+    "pfc_asym": "off",
+    "speed": "10000"
+  },
+  "Ethernet137": {
+    "index": "35",
+    "lanes": "137",
+    "description": "Eth35/2",
+    "tpid": "0x8100",
+    "mtu": "9100",
+    "alias": "Eth35/2",
+    "pfc_asym": "off",
+    "speed": "10000"
+  },
+  "Ethernet138": {
+    "index": "35",
+    "lanes": "138",
+    "description": "Eth35/3",
+    "tpid": "0x8100",
+    "mtu": "9100",
+    "alias": "Eth35/3",
+    "pfc_asym": "off",
+    "speed": "10000"
+  },
+  "Ethernet139": {
+    "index": "35",
+    "lanes": "139",
+    "description": "Eth35/4",
+    "tpid": "0x8100",
+    "mtu": "9100",
+    "alias": "Eth35/4",
+    "pfc_asym": "off",
+    "speed": "10000"
+  },
+  "Ethernet140": {
+    "index": "36",
+    "lanes": "140",
+    "description": "Eth36/1",
+    "tpid": "0x8100",
+    "mtu": "9100",
+    "alias": "Eth36/1",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet141": {
+    "index": "36",
+    "lanes": "141",
+    "description": "Eth36/2",
+    "tpid": "0x8100",
+    "mtu": "9100",
+    "alias": "Eth36/2",
+    "pfc_asym": "off",
+    "speed": "25000"
+  },
+  "Ethernet142": {
+    "index": "36",
+    "lanes": "142,143",
+    "description": "Eth36/3",
+    "tpid": "0x8100",
+    "mtu": "9100",
+    "alias": "Eth36/3",
+    "pfc_asym": "off",
+    "speed": "50000"
+  },
+  "Ethernet144": {
+    "index": "37",
+    "lanes": "144,145,146,147",
+    "description": "Eth37",
+    "tpid": "0x8100",
+    "mtu": "9100",
+    "alias": "Eth37",
+    "pfc_asym": "off",
+    "speed": "100000",
+    "fec": "rs"
   }
 }
