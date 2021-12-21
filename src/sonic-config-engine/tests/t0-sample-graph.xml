@@ -549,6 +549,21 @@
       </a:LinkMetadata>
     </Link>
   </LinkMetadataDeclaration>
+<MetadataDeclaration>
+ <Devices xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
+  <a:DeviceMetadata>
+   <a:Name>switch-t0</a:Name>
+   <a:Properties>
+    <a:DeviceProperty>
+     <a:Name>DeploymentId</a:Name>
+     <a:Reference i:nil="true"/>
+     <a:Value>1</a:Value>
+    </a:DeviceProperty>
+  </a:Properties>
+  </a:DeviceMetadata>
+ </Devices>
+ <Properties xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
+</MetadataDeclaration>
   <Hostname>switch-t0</Hostname>
   <HwSku>Force10-S6000</HwSku>
 </DeviceMiniGraph>
