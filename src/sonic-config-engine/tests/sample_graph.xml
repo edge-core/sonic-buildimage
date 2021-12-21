@@ -124,6 +124,21 @@
       </Device>
     </Devices>
   </PngDec>
+<MetadataDeclaration>
+ <Devices xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
+  <a:DeviceMetadata>
+   <a:Name>OCPSCH01040DDLF</a:Name>
+   <a:Properties>
+    <a:DeviceProperty>
+     <a:Name>DeploymentId</a:Name>
+     <a:Reference i:nil="true"/>
+     <a:Value>1</a:Value>
+    </a:DeviceProperty>
+  </a:Properties>
+  </a:DeviceMetadata>
+ </Devices>
+ <Properties xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
+</MetadataDeclaration>
   <Hostname>OCPSCH01040DDLF</Hostname>
   <HwSku>Force10-Z9100</HwSku>
 </DeviceMiniGraph>
