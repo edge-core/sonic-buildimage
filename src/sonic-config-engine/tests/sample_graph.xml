@@ -111,7 +111,7 @@
       <DeviceLinkBase i:type="DeviceInterfaceLink">
         <Bandwidth>40000</Bandwidth>
         <ElementType>DeviceInterfaceLink</ElementType>
-        <EndDevice>OCPCH01040DDLF</EndDevice>
+        <EndDevice>OCPSCH01040DDLF</EndDevice>
         <EndPort>Ethernet1</EndPort>
         <StartDevice>OCPSCH0104002MS</StartDevice>
         <StartPort>Ethernet12</StartPort>
