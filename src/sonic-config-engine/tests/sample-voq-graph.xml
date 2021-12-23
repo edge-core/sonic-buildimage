@@ -109,7 +109,7 @@
     <a:DeviceProperty>
      <a:Name>SyslogResources</a:Name>
      <a:Value>
-      10.0.10.5;10.0.10.6;
+      10.0.10.5;10.0.10.6
      </a:Value>
     </a:DeviceProperty>
     <a:DeviceProperty>
