@@ -18,9 +18,9 @@ stages:
 - stage: Build
   pool: sonicbld
   variables:
-    CACHE_MODE: wcache
-    ${{ if eq(variables['Build.SourceBranchName'], '202012') }}:
-      VERSION_CONTROL_OPTIONS: 'SONIC_VERSION_CONTROL_COMPONENTS=deb,py2,py3,web'
+  - template: azure-pipelines-repd-build-variables.yml
+  - name: CACHE_MODE
+    value: wcache
   jobs:
   - template: azure-pipelines-build.yml
     parameters:
