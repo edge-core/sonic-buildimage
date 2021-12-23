@@ -11,7 +11,11 @@ schedules:
   displayName: Daily Build
   branches:
     include:
-    - 202012
+    - 20????
+    exclude:
+    - 200???
+    - 201???
+    - 202006
   always: true
 
 resources:

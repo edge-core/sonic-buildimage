@@ -18,7 +18,9 @@ stages:
 - stage: Build
   pool: sonicbld
   variables:
-    CACHE_MODE: cache
+  - name: CACHE_MODE
+    value: cache
+  - template: azure-pipelines-repd-build-variables.yml
   jobs:
   - template: azure-pipelines-build.yml
     parameters:
