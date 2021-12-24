@@ -36,7 +36,7 @@ libefivar1==37-2+deb10u1
 libfreetype6==2.9.1-3+deb10u2
 libfuse2==2.9.9-1+deb10u1
 libglib2.0-0==2.58.3-2+deb10u3
-libicu63==63.1-6+deb10u1
+libicu63==63.1-6+deb10u2
 libip4tc0==1.8.2-4
 libip6tc0==1.8.2-4
 libiptc0==1.8.2-4

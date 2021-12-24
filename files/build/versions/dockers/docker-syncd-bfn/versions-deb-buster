@@ -6,7 +6,7 @@ libc6-dev==2.28-10
 libcurl3-gnutls==7.64.0-4+deb10u2
 libcurl4-gnutls-dev==7.64.0-4+deb10u2
 libgoogle-perftools4==2.7-1
-libicu63==63.1-6+deb10u1
+libicu63==63.1-6+deb10u2
 liblzma-dev==5.2.4-1
 libpcap-dev==1.8.1-6
 libpcap0.8==1.8.1-6

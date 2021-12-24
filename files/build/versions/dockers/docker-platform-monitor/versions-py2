@@ -12,9 +12,9 @@ markupsafe==1.1.1
 natsort==6.2.1
 netaddr==0.8.0
 pathlib2==2.3.6
-pyang==2.5.0
+pyang==2.5.2
 pyangbind==0.6.0
-python-sdk-api==4.4.3326
+python-sdk-api==4.4.3360
 pyyaml==5.4.1
 redis==3.5.3
 redis-dump-load==1.1

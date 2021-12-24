@@ -114,7 +114,7 @@ linux-compiler-gcc-8-arm==4.19.208-1
 llvm-6.0==1:6.0.1-10
 llvm-6.0-dev==1:6.0.1-10
 llvm-6.0-runtime==1:6.0.1-10
-nodejs==14.18.1-deb-1nodesource1
+nodejs==14.18.2-deb-1nodesource1
 ps2eps==1.68+binaryfree-2
 rdfind==1.4.1-1
 sassc==3.5.0-1

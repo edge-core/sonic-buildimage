@@ -22,7 +22,7 @@ libffi-dev==3.2.1-9
 libgcc-8-dev==8.3.0-6
 libglib2.0-0==2.58.3-2+deb10u3
 libgomp1==8.3.0-6
-libicu63==63.1-6+deb10u1
+libicu63==63.1-6+deb10u2
 libisl19==0.20-2
 libitm1==8.3.0-6
 libjsoncpp1==1.7.4-3

@@ -6,7 +6,7 @@ importlib-resources==3.3.1
 jsonschema==2.6.0
 natsort==6.2.1
 netaddr==0.8.0
-pyang==2.5.0
+pyang==2.5.2
 pyangbind==0.6.0
 redis==3.5.3
 sairedis==1.0

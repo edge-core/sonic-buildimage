@@ -1,3 +1,3 @@
 jsonschema==2.6.0
-python_sdk_api==4.4.3326
+python_sdk_api==4.4.3360
 thrift==0.13.0

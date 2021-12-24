@@ -4,4 +4,4 @@ libdrm-freedreno1==2.4.97-1
 libdrm-tegra0==2.4.97-1
 libtext-iconv-perl==1.7-5+b6
 libxslt1-dev==1.1.32-2.2~deb10u1
-nodejs==14.18.1-deb-1nodesource1
+nodejs==14.18.2-deb-1nodesource1

@@ -10,5 +10,5 @@ libtext-charwidth-perl==0.04-7+b6
 libwayland-bin==1.12.0-1+deb9u1
 libwayland-dev==1.12.0-1+deb9u1
 libxslt1-dev==1.1.29-2.1+deb9u2
-linux-compiler-gcc-6-arm==4.9.272-2
+linux-compiler-gcc-6-arm==4.9.290-1
 nodejs==10.24.1-1nodesource1

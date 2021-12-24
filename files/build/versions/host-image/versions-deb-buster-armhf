@@ -1,10 +1,10 @@
-icu-devtools==63.1-6+deb10u1
+icu-devtools==63.1-6+deb10u2
 libc-dev-bin==2.28-10
 libc6-dev==2.28-10
 libcryptsetup12==2:2.3.5-1~bpo10+1
 libdns-export1104==1:9.11.5.P4+dfsg-5.1+deb10u5
-libicu-dev==63.1-6+deb10u1
-libicu63==63.1-6+deb10u1
+libicu-dev==63.1-6+deb10u2
+libicu63==63.1-6+deb10u2
 libisc-export1100==1:9.11.5.P4+dfsg-5.1+deb10u5
 libxml2==2.9.4+dfsg1-7+deb10u2
 libxml2-dev==2.9.4+dfsg1-7+deb10u2

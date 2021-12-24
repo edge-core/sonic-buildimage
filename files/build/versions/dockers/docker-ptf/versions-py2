@@ -25,12 +25,12 @@ markupsafe==1.1.1
 netaddr==0.8.0
 nnpy==1.4.2
 oslo.config==2.1.0
-paramiko==2.8.0
+paramiko==2.8.1
 pathlib2==2.3.6
 pbr==2.0.0
 pexpect==4.8.0
 pickleshare==0.7.5
-plumbum==1.7.0
+plumbum==1.7.2
 prompt-toolkit==1.0.18
 protobuf==3.6.1
 ptf==0.9.1

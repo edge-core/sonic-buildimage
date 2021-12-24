@@ -10,7 +10,7 @@ libexpat1==2.2.0-2+deb9u3
 libfastjson4==0.99.8-1~bpo9+1
 libffi6==3.2.1-6
 libgdbm3==1.8.3-14
-libgmp10==2:6.1.2+dfsg-1
+libgmp10==2:6.1.2+dfsg-1+deb9u1
 libgnutls30==3.5.8-5+deb9u6
 libgssapi-krb5-2==1.15-1+deb9u3
 libhogweed4==3.3-1+deb9u1
@@ -42,7 +42,7 @@ libsasl2-2==2.1.27~101-g0780600+dfsg-3+deb9u1
 libsasl2-modules-db==2.1.27~101-g0780600+dfsg-3+deb9u1
 libsodium18==1.0.11-2
 libsqlite3-0==3.16.2-5+deb9u3
-libssh2-1==1.7.0-1+deb9u1
+libssh2-1==1.7.0-1+deb9u2
 libssl1.0.2==1.0.2u-1~deb9u6
 libssl1.1==1.1.0l-1~deb9u4
 libtasn1-6==4.10-1.1+deb9u1
