@@ -25,7 +25,7 @@ markupsafe==1.1.1
 netaddr==0.8.0
 nnpy==1.4.2
 oslo.config==2.1.0
-paramiko==2.8.1
+paramiko==2.9.1
 pathlib2==2.3.6
 pbr==2.0.0
 pexpect==4.8.0
@@ -41,7 +41,7 @@ pycparser==2.21
 pygments==2.5.2
 pylibpcap==0.6.4
 pynacl==1.4.0
-pyro4==4.81
+pyro4==4.82
 pysubnettree==0.26
 pyyaml==5.4.1
 rpyc==4.1.5
