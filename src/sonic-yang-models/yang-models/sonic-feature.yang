@@ -13,9 +13,7 @@ module sonic-feature{
 
     typedef feature-state {
         description "configuration to set the feature running state";
-        type string {
-            pattern "enabled|disabled|always_enabled|always_disabled";
-        }
+        type string;
     }
 
     typedef feature-owner {
