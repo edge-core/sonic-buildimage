@@ -1,6 +1,6 @@
 {
     "chassis": {
-        "name": "MSN4800",
+        "name": "SN4800",
         "components": [
             {
                 "name": "ONIE"

@@ -1,6 +1,6 @@
 {
     "chassis": {
-        "MSN4800": {
+        "SN4800": {
             "component": {
                 "ONIE": { },
                 "SSD": { },
