@@ -1280,6 +1280,15 @@
                 "high_mem_alert": "disabled",
                 "state": "enabled",
                 "set_owner": "kube"
+            },
+            "dhcp_relay": {
+                "auto_restart": "enabled",
+                "has_global_scope": "false",
+                "has_per_asic_scope": "true",
+                "has_timer": "false",
+                "high_mem_alert": "disabled",
+                "state": "{% if not (DEVICE_METADATA is defined and DEVICE_METADATA['localhost'] is defined and DEVICE_METADATA['localhost']['type'] is defined and DEVICE_METADATA['localhost']['type'] != 'ToRRouter') %}enabled{% else %}disabled{% endif %}",
+                "set_owner": "kube"
             }
         },
         "DHCP_RELAY": {

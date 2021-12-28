@@ -47,23 +47,15 @@
                         "has_global_scope": "false",
                         "has_per_asic_scope": "true",
                         "set_owner": "kube"
-                    }
-                ]
-            }
-        }
-    },
-    "FEATURE_WITH_INVALID_STATE": {
-        "sonic-feature:sonic-feature": {
-            "sonic-feature:FEATURE": {
-                "FEATURE_LIST": [
+                    },
                     {
-                        "name": "database",
-                        "state": "dontcare",
-                        "auto_restart": "always_enabled",
+                        "name": "dhcp_relay",
+                        "state": "{% if not (DEVICE_METADATA is defined and DEVICE_METADATA['localhost'] is defined and DEVICE_METADATA['localhost']['type'] is defined and DEVICE_METADATA['localhost']['type'] != 'ToRRouter') %}enabled{% else %}disabled{% endif %}",
+                        "auto_restart": "disabled",
                         "has_timer": "false",
-                        "has_global_scope": "true",
+                        "has_global_scope": "false",
                         "has_per_asic_scope": "true",
-                        "set_owner": "local"
+                        "set_owner": "kube"
                     }
                 ]
             }
