@@ -44,6 +44,7 @@
 	'x86_64-nvidia_sn4800_simx-r0':'MELLANOX-SPECTRUM-3',
         'x86_64-nvidia_sn2201-r0':'MELLANOX-SPECTRUM',
         'x86_64-nvidia_sn5600-r0':'MELLANOX-SPECTRUM-4',
+        'x86_64-nvidia_sn5600_simx-r0':'MELLANOX-SPECTRUM-4',
         'vs-platform':'vs'
     }
 %}
@@ -72,6 +73,16 @@
     {
         "ASIC_TABLE:MELLANOX-SPECTRUM-3": {
             "cell_size": "144",
+            "pipeline_latency": "19",
+            "mac_phy_delay": "0.8",
+            "peer_response_time": "3.8"
+        },
+        "OP": "SET"
+    }
+{% elif asic_type == 'MELLANOX-SPECTRUM-4' %}
+    {
+        "ASIC_TABLE:MELLANOX-SPECTRUM-4": {
+            "cell_size": "192",
             "pipeline_latency": "19",
             "mac_phy_delay": "0.8",
             "peer_response_time": "3.8"
