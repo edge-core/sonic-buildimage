@@ -5,6 +5,7 @@
             "controllable": true,
             "colors": ["green", "flashing green", "yellow", "flashing yellow"]
         },
+        "thermal_manager" : false,
         "components": [
             {
                 "name": "BIOS"
@@ -36,84 +37,126 @@
                 "name": "FanTray1-Fan1",
                 "speed": {
                     "controllable": false
+                },
+                "status_led": {
+                    "available": false
                 }
             },
             {
                 "name": "FanTray1-Fan2",
                 "speed": {
                     "controllable": false
+                },
+                "status_led": {
+                    "available": false
                 }
             },
             {
                 "name": "FanTray2-Fan1",
                 "speed": {
                     "controllable": false
+                },
+                "status_led": {
+                    "available": false
                 }
             },
             {
                 "name": "FanTray2-Fan2",
                 "speed": {
                     "controllable": false
+                },
+                "status_led": {
+                    "available": false
                 }
             },
             {
                 "name": "FanTray3-Fan1",
                 "speed": {
                     "controllable": false
+                },
+                "status_led": {
+                    "available": false
                 }
             },
             {
                 "name": "FanTray3-Fan2",
                 "speed": {
                     "controllable": false
+                },
+                "status_led": {
+                    "available": false
                 }
             },
             {
                 "name": "FanTray4-Fan1",
                 "speed": {
                     "controllable": false
+                },
+                "status_led": {
+                    "available": false
                 }
             },
             {
                 "name": "FanTray4-Fan2",
                 "speed": {
                     "controllable": false
+                },
+                "status_led": {
+                    "available": false
                 }
             },
             {
                 "name": "FanTray5-Fan1",
                 "speed": {
                     "controllable": false
+                },
+                "status_led": {
+                    "available": false
                 }
             },
             {
                 "name": "FanTray5-Fan2",
                 "speed": {
                     "controllable": false
+                },
+                "status_led": {
+                    "available": false
                 }
             },
             {
                 "name": "FanTray6-Fan1",
                 "speed": {
                     "controllable": false
+                },
+                "status_led": {
+                    "available": false
                 }
             },
             {
                 "name": "FanTray6-Fan2",
                 "speed": {
                     "controllable": false
+                },
+                "status_led": {
+                    "available": false
                 }
             },
             {
                 "name": "FanTray7-Fan1",
                 "speed": {
                     "controllable": false
+                },
+                "status_led": {
+                    "available": false
                 }
             },
             {
                 "name": "FanTray7-Fan2",
                 "speed": {
                     "controllable": false
+                },
+                "status_led": {
+                    "available": false
                 }
             }
         ],
@@ -128,12 +171,18 @@
                         "name": "FanTray1-Fan1",
                         "speed": {
                             "controllable": false
+                        },
+                        "status_led": {
+                            "available": false
                         }
                     },
                     {
                         "name": "FanTray1-Fan2",
                         "speed": {
                             "controllable": false
+                        },
+                        "status_led": {
+                            "available": false
                         }
                     }
                 ]
@@ -148,12 +197,18 @@
                         "name": "FanTray2-Fan1",
                         "speed": {
                             "controllable": false
+                        },
+                        "status_led": {
+                            "available": false
                         }
                     },
                     {
                         "name": "FanTray2-Fan2",
                         "speed": {
                             "controllable": false
+                        },
+                        "status_led": {
+                            "available": false
                         }
                     }
                 ]
@@ -168,12 +223,18 @@
                         "name": "FanTray3-Fan1",
                         "speed": {
                             "controllable": false
+                        },
+                        "status_led": {
+                            "available": false
                         }
                     },
                     {
                         "name": "FanTray3-Fan2",
                         "speed": {
                             "controllable": false
+                        },
+                        "status_led": {
+                            "available": false
                         }
                     }
                 ]
@@ -188,12 +249,18 @@
                         "name": "FanTray4-Fan1",
                         "speed": {
                             "controllable": false
+                        },
+                        "status_led": {
+                            "available": false
                         }
                     },
                     {
                         "name": "FanTray4-Fan2",
                         "speed": {
                             "controllable": false
+                        },
+                        "status_led": {
+                            "available": false
                         }
                     }
                 ]
@@ -208,12 +275,18 @@
                         "name": "FanTray5-Fan1",
                         "speed": {
                             "controllable": false
+                        },
+                        "status_led": {
+                            "available": false
                         }
                     },
                     {
                         "name": "FanTray5-Fan2",
                         "speed": {
                             "controllable": false
+                        },
+                        "status_led": {
+                            "available": false
                         }
                     }
                 ]
@@ -228,12 +301,18 @@
                         "name": "FanTray6-Fan1",
                         "speed": {
                             "controllable": false
+                        },
+                        "status_led": {
+                            "available": false
                         }
                     },
                     {
                         "name": "FanTray6-Fan2",
                         "speed": {
                             "controllable": false
+                        },
+                        "status_led": {
+                            "available": false
                         }
                     }
                 ]
@@ -248,12 +327,18 @@
                         "name": "FanTray7-Fan1",
                         "speed": {
                             "controllable": false
+                        },
+                        "status_led": {
+                            "available": false
                         }
                     },
                     {
                         "name": "FanTray7-Fan2",
                         "speed": {
                             "controllable": false
+                        },
+                        "status_led": {
+                            "available": false
                         }
                     }
                 ]
@@ -270,6 +355,9 @@
                         "name": "PSU1 Fan",
                         "speed": {
                             "controllable": false
+                        },
+                        "status_led": {
+                            "available": false
                         }
                     }
                 ]
@@ -284,6 +372,9 @@
                         "name": "PSU2 Fan",
                         "speed": {
                             "controllable": false
+                        },
+                        "status_led": {
+                            "available": false
                         }
                     }
                 ]
@@ -292,59 +383,122 @@
         "thermals": [
             {
                 "name": "CPU On-board",
-                "controllable": false
+                "controllable": false,
+                "low-crit-threshold": false,
+                "high-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "Baseboard U3",
-                "controllable": false
+                "controllable": false,
+                "low-crit-threshold": false,
+                "high-threshold": false,
+                "high-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "SW Internal",
-                "controllable": false
+                "controllable": false,
+                "low-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "Fan U52",
-                "controllable": false
+                "controllable": false,
+                "low-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "Fan U17",
-                "controllable": false
+                "controllable": false,
+                "low-crit-threshold": false,
+                "high-threshold": false,
+                "high-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "SW U52",
-                "controllable": false
+                "controllable": false,
+                "low-crit-threshold": false,
+                "high-threshold": false,
+                "high-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "SW U16",
-                "controllable": false
+                "controllable": false,
+                "low-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "PSU1 Inlet",
-                "controllable": false
+                "controllable": false,
+                "low-crit-threshold": false,
+                "high-threshold": false,
+                "high-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "PSU1 Hotspot",
-                "controllable": false
+                "controllable": false,
+                "low-crit-threshold": false,
+                "high-threshold": false,
+                "high-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "PSU2 Inlet",
-                "controllable": false
+                "controllable": false,
+                "low-crit-threshold": false,
+                "high-threshold": false,
+                "high-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "PSU2 Hotspot",
-                "controllable": false
+                "controllable": false,
+                "low-crit-threshold": false,
+                "high-threshold": false,
+                "high-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "SW U04",
-                "controllable": false
+                "controllable": false,
+                "low-crit-threshold": false,
+                "high-threshold": false,
+                "high-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "SW U14",
-                "controllable": false
+                "controllable": false,
+                "low-crit-threshold": false,
+                "high-threshold": false,
+                "high-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "SW U4403",
-                "controllable": false
+                "controllable": false,
+                "low-crit-threshold": false,
+                "high-threshold": false,
+                "high-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             }
         ],
         "modules": [],

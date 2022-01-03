@@ -25,6 +25,9 @@
                 "speed": {
                     "controllable": true,
                     "minimum": 40
+                },
+                "status_led": {
+                    "available": false
                 }
             },
             {
@@ -32,6 +35,9 @@
                 "speed": {
                     "controllable": true,
                     "minimum": 40
+                },
+                "status_led": {
+                    "available": false
                 }
             },
             {
@@ -39,6 +45,9 @@
                 "speed": {
                     "controllable": true,
                     "minimum": 40
+                },
+                "status_led": {
+                    "available": false
                 }
             },
             {
@@ -46,6 +55,9 @@
                 "speed": {
                     "controllable": true,
                     "minimum": 40
+                },
+                "status_led": {
+                    "available": false
                 }
             },
             {
@@ -53,6 +65,9 @@
                 "speed": {
                     "controllable": true,
                     "minimum": 40
+                },
+                "status_led": {
+                    "available": false
                 }
             },
             {
@@ -60,6 +75,9 @@
                 "speed": {
                     "controllable": true,
                     "minimum": 40
+                },
+                "status_led": {
+                    "available": false
                 }
             }
         ],
@@ -76,6 +94,9 @@
                         "speed": {
                             "controllable": true,
                             "minimum": 40
+                        },
+                        "status_led": {
+                            "available": false
                         }
                     },
                     {
@@ -83,6 +104,9 @@
                         "speed": {
                             "controllable": true,
                             "minimum": 40
+                        },
+                        "status_led": {
+                            "available": false
                         }
                     }
                 ]
@@ -99,6 +123,9 @@
                         "speed": {
                             "controllable": true,
                             "minimum": 40
+                        },
+                        "status_led": {
+                            "available": false
                         }
                     },
                     {
@@ -106,6 +133,9 @@
                         "speed": {
                             "controllable": true,
                             "minimum": 40
+                        },
+                        "status_led": {
+                            "available": false
                         }
                     }
                 ]
@@ -122,6 +152,9 @@
                         "speed": {
                             "controllable": true,
                             "minimum": 40
+                        },
+                        "status_led": {
+                            "available": false
                         }
                     },
                     {
@@ -129,6 +162,9 @@
                         "speed": {
                             "controllable": true,
                             "minimum": 40
+                        },
+                        "status_led": {
+                            "available": false
                         }
                     }
                 ]
@@ -146,17 +182,28 @@
                         "speed": {
                             "controllable": true,
                             "minimum": 40
+                        },
+                        "status_led": {
+                            "available": false
                         }
                     }
                 ],
                 "thermals": [
                     {
                         "name": "PSU1-Sensor 1",
-                        "controllable": false
+                        "controllable": false,
+                        "low-crit-threshold": false,
+                        "high-crit-threshold": false,
+                        "minimum-recorded": false,
+                        "maximum-recorded": false
                     },
                     {
                         "name": "PSU1-Sensor 2",
-                        "controllable": false
+                        "controllable": false,
+                        "low-crit-threshold": false,
+                        "high-crit-threshold": false,
+                        "minimum-recorded": false,
+                        "maximum-recorded": false
                     }
                 ]
             },
@@ -171,17 +218,28 @@
                         "speed": {
                             "controllable": true,
                             "minimum": 40
+                        },
+                        "status_led": {
+                            "available": false
                         }
                     }
                 ],
                 "thermals": [
                     {
                         "name": "PSU2-Sensor 1",
-                        "controllable": false
+                        "controllable": false,
+                        "low-crit-threshold": false,
+                        "high-crit-threshold": false,
+                        "minimum-recorded": false,
+                        "maximum-recorded": false
                     },
                     {
                         "name": "PSU2-Sensor 2",
-                        "controllable": false
+                        "controllable": false,
+                        "low-crit-threshold": false,
+                        "high-crit-threshold": false,
+                        "minimum-recorded": false,
+                        "maximum-recorded": false
                     }
                 ]
             }
@@ -189,27 +247,51 @@
         "thermals": [
             {
                 "name": "ASIC On-board",
-                "controllable": false
+                "controllable": false,
+                "low-crit-threshold": false,
+                "high-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "NIC",
-                "controllable": false
+                "controllable": false,
+                "low-crit-threshold": false,
+                "high-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "System Front",
-                "controllable": false
+                "controllable": false,
+                "low-crit-threshold": false,
+                "high-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "DIMM",
-                "controllable": false
+                "controllable": false,
+                "low-crit-threshold": false,
+                "high-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "CPU Core 0",
-                "controllable": false
+                "controllable": false,
+                "low-crit-threshold": false,
+                "high-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "CPU Core 1",
-                "controllable": false
+                "controllable": false,
+                "low-crit-threshold": false,
+                "high-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             }
         ],
         "modules": [],

@@ -5,6 +5,7 @@
             "controllable": true,
             "colors": ["amber", "blinking amber", "green", "blinking green"]
         },
+        "thermal_manager" : false,
         "components": [
             {
                 "name": "BIOS"
@@ -21,24 +22,36 @@
                 "name": "FanTray1-Fan1",
                 "speed": {
                     "controllable": false
+                },
+                "status_led": {
+                    "available": false
                 }
             },
             {
                 "name": "FanTray2-Fan1",
                 "speed": {
                     "controllable": false
+                },
+                "status_led": {
+                    "available": false
                 }
             },
             {
                 "name": "FanTray3-Fan1",
                 "speed": {
                     "controllable": false
+                },
+                "status_led": {
+                    "available": false
                 }
             },
             {
                 "name": "FanTray4-Fan1",
                 "speed": {
                     "controllable": false
+                },
+                "status_led": {
+                    "available": false
                 }
             }
         ],
@@ -53,6 +66,9 @@
                         "name": "FanTray1-Fan1",
                         "speed": {
                             "controllable": false
+                        },
+                        "status_led": {
+                            "available": false
                         }
                     }
                 ]
@@ -67,6 +83,9 @@
                         "name": "FanTray2-Fan1",
                         "speed": {
                             "controllable": false
+                        },
+                        "status_led": {
+                            "available": false
                         }
                     }
                 ]
@@ -81,6 +100,9 @@
                         "name": "FanTray3-Fan1",
                         "speed": {
                             "controllable": false
+                        },
+                        "status_led": {
+                            "available": false
                         }
                     }
                 ]
@@ -95,6 +117,9 @@
                         "name": "FanTray4-Fan1",
                         "speed": {
                             "controllable": false
+                        },
+                        "status_led": {
+                            "available": false
                         }
                     }
                 ]
@@ -111,6 +136,9 @@
                         "name": "PSU1 Fan",
                         "speed": {
                             "controllable": false
+                        },
+                        "status_led": {
+                            "available": false
                         }
                     }
                 ]
@@ -125,6 +153,9 @@
                         "name": "PSU2 Fan",
                         "speed": {
                             "controllable": false
+                        },
+                        "status_led": {
+                            "available": false
                         }
                     }
                 ]
@@ -133,43 +164,77 @@
         "thermals": [
             {
                 "name": "CPU On-board",
-                "controllable": false
+                "controllable": false,
+                "low-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "ASIC On-board Front",
-                "controllable": false
+                "controllable": false,
+                "low-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "System Front",
-                "controllable": false
+                "controllable": false,
+                "low-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "ASIC On-board Rear",
-                "controllable": false
+                "controllable": false,
+                "low-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "Front GE board",
-                "controllable": false
+                "controllable": false,
+                "low-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "Front SFP+ board",
-                "controllable": false
+                "controllable": false,
+                "low-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "CPU Core 0",
-                "controllable": false
+                "controllable": false,
+                "low-crit-threshold": false,
+                "high-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "CPU Core 1",
-                "controllable": false
+                "controllable": false,
+                "low-crit-threshold": false,
+                "high-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "CPU Core 2",
-                "controllable": false
+                "controllable": false,
+                "low-crit-threshold": false,
+                "high-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             },
             {
                 "name": "CPU Core 3",
-                "controllable": false
+                "controllable": false,
+                "low-crit-threshold": false,
+                "high-crit-threshold": false,
+                "minimum-recorded": false,
+                "maximum-recorded": false
             }
         ],
         "modules": [
