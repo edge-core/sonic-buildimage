@@ -8,7 +8,7 @@
 
 try:
     import json
-    from . import pddfparse
+    from . import pddfapi
     from sonic_platform_base.platform_base import PlatformBase
     from sonic_platform.chassis import Chassis
 except ImportError as e:
@@ -24,7 +24,7 @@ class PddfPlatform(PlatformBase):
 
     def __init__(self):
         # Initialize the JSON data
-        self.pddf_data = pddfparse.PddfParse()
+        self.pddf_data = pddfapi.PddfApi()
         with open('/usr/share/sonic/platform/pddf/pd-plugin.json') as pd:
             self.pddf_plugin_data = json.load(pd)
 

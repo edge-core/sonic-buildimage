@@ -1,5 +1,5 @@
 
-MPATH       := $($(PDDF_PLATFORM_API_BASE_PY2)_SRC_PATH)
+MPATH       := $($(PDDF_PLATFORM_API_BASE_PY3)_SRC_PATH)
 DEP_FILES   := $(SONIC_COMMON_FILES_LIST) platform/pddf/platform-api-pddf-base.mk platform/pddf/platform-api-pddf-base.dep
 DEP_FILES   += $(SONIC_COMMON_BASE_FILES_LIST)
 DEP_FILES   += $(shell git ls-files $(MPATH))
