@@ -34,11 +34,13 @@ class Psu(PsuBase):
             self.psu_voltage_reg = "in30_input"
             self.psu_current_reg = "curr602_input"
             self.psu_power_reg = "power2_input"
+            self.psu_maxpower_reg = "power2_max"
             self.psu_temperature_reg = "temp14_input"
         elif self.index == 2:
             self.psu_voltage_reg = "in32_input"
             self.psu_current_reg = "curr702_input"
             self.psu_power_reg = "power4_input"
+            self.psu_maxpower_reg = "power4_max"
             self.psu_temperature_reg = "temp15_input"
 
         # Passing True to specify it is a PSU fan
@@ -124,6 +126,19 @@ class Psu(PsuBase):
 
         return psu_serialno
 
+    def get_revision(self):
+        """
+        Retrieves the hardware revision of the device
+
+        Returns:
+            string: Revision value of device
+        """
+        serial = self.get_serial()
+        if serial != "NA" and len(serial) == 28:
+            return serial[-3:]
+        else:
+            return "NA"
+
     def get_status(self):
         """
         Retrieves the operational status of the PSU
@@ -194,6 +209,24 @@ class Psu(PsuBase):
             psu_power = 0.0
 
         return psu_power
+
+    def get_maximum_supplied_power(self):
+        """
+        Retrieves the maximum supplied power by PSU
+
+        Returns:
+            A float number, the maximum power output in Watts.
+            e.g. 1200.1
+        """
+        psu_maxpower = self._get_pmc_register(self.psu_maxpower_reg)
+        if (psu_maxpower != 'ERR') and self.get_presence():
+            # Converting the value returned by driver which is in
+            # microwatts to watts
+            psu_maxpower = float(psu_maxpower) / 1000000
+        else:
+            psu_maxpower = 0.0
+
+        return psu_maxpower
 
     def get_powergood_status(self):
         """

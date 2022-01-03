@@ -11,10 +11,13 @@
                 "name": "BIOS"
             },
             {
+                "name": "FPGA"
+            },
+            {
                 "name": "CPLD"
             },
             {
-                "name": "FPGA"
+                "name": "SSD"
             }
         ],
         "fans": [

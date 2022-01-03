@@ -231,6 +231,15 @@ class Chassis(ChassisBase):
         """
         return self._eeprom.get_base_mac()
 
+    def get_revision(self):
+        """
+        Retrieves the hardware revision of the device
+
+        Returns:
+            string: Revision value of device
+        """
+        return self._eeprom.get_revision()
+
     def get_system_eeprom_info(self):
         """
         Retrieves the full content of system EEPROM information for the

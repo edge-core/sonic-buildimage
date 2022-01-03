@@ -105,6 +105,7 @@ class Eeprom(TlvInfoDecoder):
                 self.part_number = 'NA'
                 self.model_str = 'NA'
                 self.serial = 'NA'
+                self.revision = 'NA'
                 return
 
             total_length = (eeprom[9] << 8) | (eeprom[10])
@@ -142,6 +143,8 @@ class Eeprom(TlvInfoDecoder):
                                 "0x%X" % (self._TLV_CODE_PRODUCT_NAME), 'NA')
             self.serial = self.eeprom_tlv_dict.get(
                                 "0x%X" % (self._TLV_CODE_SERVICE_TAG), 'NA')
+            self.revision = self.eeprom_tlv_dict.get(
+                                "0x%X" % (self._TLV_CODE_LABEL_REVISION), 'NA')
 
     def _load_device_eeprom(self):
         """
@@ -154,6 +157,7 @@ class Eeprom(TlvInfoDecoder):
         except:
             self.serial_number = 'NA'
             self.part_number = 'NA'
+            self.revision = 'NA'
             if self.is_psu_eeprom:
                 self.psu_type = 'NA'
             else:
@@ -167,9 +171,13 @@ class Eeprom(TlvInfoDecoder):
                                       + "-" + ppid[16:])
                 (valid, data) = self._get_eeprom_field("DPN Rev")
                 if valid:
+                    self.revision = data
                     self.serial_number += "-" + data
+                else:
+                    self.revision = 'NA'
             else:
                 self.serial_number = 'NA'
+                self.revision = 'NA'
 
             (valid, data) = self._get_eeprom_field("Part Number")
             if valid:
@@ -218,6 +226,12 @@ class Eeprom(TlvInfoDecoder):
         Returns the part number.
         """
         return self.part_number
+
+    def get_revision(self):
+        """
+        Returns the hardware revision.
+        """
+        return self.revision
 
     def airflow_fan_type(self):
         """
@@ -449,7 +463,7 @@ class EepromS6000(EepromDecoder):
         (valid, data) = self._get_eeprom_field(self.eeprom_data,
                                                self._BLK_CODE_MFG, "Part Number")
         if valid:
-            return data
+            return data.rstrip('\x00')
         else:
             return 'NA'
 
@@ -470,6 +484,17 @@ class EepromS6000(EepromDecoder):
         """
         (valid, data) = self._get_eeprom_field(self.eeprom_data,
                                                self._BLK_CODE_MFG, "PPID")
+        if valid:
+            return data
+        else:
+            return 'NA'
+
+    def get_revision(self):
+        """
+        Returns the hardware revision.
+        """
+        (valid, data) = self._get_eeprom_field(self.eeprom_data,
+                                               self._BLK_CODE_MFG, "DPN Rev")
         if valid:
             return data
         else:

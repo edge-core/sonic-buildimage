@@ -198,3 +198,48 @@ class Module(ModuleBase):
                   ‘0x26’:’01’, ‘0x27’:’REV01’, ‘0x28’:’AG9064-C2358-16G’}
         """
         return self._eeprom.system_eeprom_info()
+
+    def get_description(self):
+        """
+        Retrieves the platform vendor's product description of the module
+
+        Returns:
+            A string, providing the vendor's product description of the module.
+        """
+        return self._eeprom.modelstr()
+
+    def get_slot(self):
+        """
+        Retrieves the platform vendor's slot number of the module
+
+        Returns:
+            An integer, indicating the slot number in the chassis
+        """
+        return self.index
+
+    def get_oper_status(self):
+        """
+        Retrieves the operational status of the module
+
+        Returns:
+            A string, the operational status of the module from one of the
+            predefined status values: MODULE_STATUS_EMPTY, MODULE_STATUS_OFFLINE,
+            MODULE_STATUS_FAULT, MODULE_STATUS_PRESENT or MODULE_STATUS_ONLINE
+        """
+        if self.get_presence():
+            if self.get_status():
+                return self.MODULE_STATUS_ONLINE
+            else:
+                return self.MODULE_STATUS_PRESENT
+        else:
+            return self.MODULE_STATUS_EMPTY
+
+    def get_maximum_consumed_power(self):
+        """
+        Retrives the maximum power drawn by this module
+
+        Returns:
+            A float, with value of the maximum consumable power of the
+            module.
+        """
+        return 97.23

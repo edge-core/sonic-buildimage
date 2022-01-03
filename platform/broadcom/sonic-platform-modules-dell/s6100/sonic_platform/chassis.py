@@ -10,16 +10,16 @@
 
 try:
     import os
+    import re
+    import time
     from sonic_platform_base.chassis_base import ChassisBase
-    from sonic_platform.sfp import Sfp
-    from sonic_platform.psu import Psu
+    from sonic_platform.component import Component
+    from sonic_platform.eeprom import Eeprom
     from sonic_platform.fan_drawer import FanDrawer
     from sonic_platform.module import Module
+    from sonic_platform.psu import Psu
     from sonic_platform.thermal import Thermal
-    from sonic_platform.component import Component
     from sonic_platform.watchdog import Watchdog, WatchdogTCO
-    from sonic_platform.eeprom import Eeprom
-    import time
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -235,6 +235,15 @@ class Chassis(ChassisBase):
         """
         return self._eeprom.base_mac_addr()
 
+    def get_revision(self):
+        """
+        Retrieves the hardware revision of the device
+
+        Returns:
+            string: Revision value of device
+        """
+        return self._eeprom.revision_str()
+
     def get_system_eeprom_info(self):
         """
         Retrieves the full content of system EEPROM information for the chassis
@@ -244,6 +253,19 @@ class Chassis(ChassisBase):
             values.
         """
         return self._eeprom.system_eeprom_info()
+
+    def get_module_index(self, module_name):
+        """
+        Retrieves module index from the module name
+
+        Args:
+            module_name: A string, prefixed by SUPERVISOR, LINE-CARD or FABRIC-CARD
+            Ex. SUPERVISOR0, LINE-CARD1, FABRIC-CARD5
+        Returns:
+            An integer, the index of the ModuleBase object in the module_list
+        """
+        module_index = re.match(r'IOM([1-4])', module_name).group(1)
+        return int(module_index) - 1
 
     def get_reboot_cause(self):
         """

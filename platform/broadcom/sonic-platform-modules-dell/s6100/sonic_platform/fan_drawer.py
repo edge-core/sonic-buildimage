@@ -159,3 +159,13 @@ class FanDrawer(FanDrawerBase):
                 return self.STATUS_LED_COLOR_AMBER
         else:
             return self.STATUS_LED_COLOR_OFF
+
+    def get_maximum_consumed_power(self):
+        """
+        Retrives the maximum power drawn by Fan Drawer
+
+        Returns:
+            A float, with value of the maximum consumable power of the
+            component.
+        """
+        return 54.0

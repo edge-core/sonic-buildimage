@@ -123,7 +123,7 @@ class Eeprom(eeprom_tlvinfo.TlvInfoDecoder):
 
     def revision_str(self):
         (is_valid, results) = self.get_tlv_field(
-                    self.eeprom_data, self._TLV_CODE_DEVICE_VERSION)
+                    self.eeprom_data, self._TLV_CODE_LABEL_REVISION)
         if not is_valid:
             return "N/A"
 
