@@ -38,6 +38,7 @@ dhcpmon-{{ vlan_name }}
 {% endif %}
 {% endfor %}
 {% endif %}
+{% if relay_for_ipv4.flag or relay_for_ipv6.flag %}
 [program:dhcpmon-{{ vlan_name }}]
 {# We treat this VLAN as a downstream interface (-id), as we only want to listen for requests #}
 command=/usr/sbin/dhcpmon -id {{ vlan_name }}
@@ -58,10 +59,6 @@ command=/usr/sbin/dhcpmon -id {{ vlan_name }}
 {% endif %}
 {% if relay_for_ipv4.flag %} -4{% endif %}
 {% if relay_for_ipv6.flag %} -6{% endif %}
-{% if relay_for_ipv4.flag %}
-{% set _dummy = relay_for_ipv4.update({'flag': False}) %}
-{% if relay_for_ipv6.flag %}
-{% set _dummy = relay_for_ipv6.update({'flag': False}) %}
 
 priority=4
 autostart=false
@@ -72,6 +69,5 @@ stderr_logfile=syslog
 
 {% set _dummy = relay_for_ipv4.update({'flag': False}) %}
 {% set _dummy = relay_for_ipv6.update({'flag': False}) %}
-{% endif %}
 {% endif %}
 {% endfor %}
