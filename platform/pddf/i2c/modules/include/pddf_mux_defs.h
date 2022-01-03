@@ -20,8 +20,6 @@
 #ifndef __PAL_MUX_DEFS_H__
 #define __PAL_MUX_DEFS_H__
 
-#include <linux/platform_data/pca954x.h>
-
 /* MUX CLIENT DATA - PLATFORM DATA FOR PSU CLIENT */
 typedef struct MUX_DATA
 {

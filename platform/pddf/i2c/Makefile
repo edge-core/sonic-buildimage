@@ -1,1 +1,1 @@
-subdir-m := modules
+obj-m := modules/

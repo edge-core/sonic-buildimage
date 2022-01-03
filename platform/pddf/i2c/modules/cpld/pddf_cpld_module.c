@@ -37,7 +37,7 @@ EXPORT_SYMBOL(pddf_cpld_data);
 
 static ssize_t do_device_operation(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
 static ssize_t store_pddf_cpld_data(struct device *dev, struct device_attribute *da, const char *buf, size_t count);
-ssize_t show_pddf_cpld_data(struct device *dev, struct device_attribute *da, char *buf);
+static ssize_t show_pddf_cpld_data(struct device *dev, struct device_attribute *da, char *buf);
 
 extern void *get_device_table(char *name);
 extern void delete_device_table(char *name);
@@ -77,9 +77,8 @@ static ssize_t store_pddf_cpld_data(struct device *dev, struct device_attribute 
 
     return count;
 }
-EXPORT_SYMBOL(store_pddf_cpld_data);
 
-ssize_t show_pddf_cpld_data(struct device *dev, struct device_attribute *da, char *buf)
+static ssize_t show_pddf_cpld_data(struct device *dev, struct device_attribute *da, char *buf)
 {
     int ret = 0;
     PDDF_ATTR *ptr = (PDDF_ATTR *)da;
@@ -91,7 +90,6 @@ ssize_t show_pddf_cpld_data(struct device *dev, struct device_attribute *da, cha
 
     return ret;
 }
-EXPORT_SYMBOL(show_pddf_cpld_data);
 
 static ssize_t do_device_operation(struct device *dev, struct device_attribute *da, const char *buf, size_t count)
 {
@@ -100,6 +98,7 @@ static ssize_t do_device_operation(struct device *dev, struct device_attribute *
 	struct i2c_adapter *adapter;
 	static struct i2c_board_info board_info;
 	struct i2c_client *client_ptr;
+	char *pddf_cpld_name = NULL;
 
 	if (strncmp(buf, "add", strlen(buf)-1)==0)
 	{
@@ -107,17 +106,19 @@ static ssize_t do_device_operation(struct device *dev, struct device_attribute *
 		
 		if (strncmp(device_ptr->dev_type, "i2c_cpld", strlen("i2c_cpld"))==0)
 		{
+			pddf_cpld_name = (char *)kzalloc(CPLD_CLIENT_NAME_LEN, GFP_KERNEL);
+			if (pddf_cpld_name != NULL) strcpy(pddf_cpld_name, device_ptr->i2c_name);
+
 			board_info = (struct i2c_board_info) {
-				.platform_data = (void *)NULL,
+				.platform_data = (void *)pddf_cpld_name,
 			};
 
 			board_info.addr = device_ptr->dev_addr;
 			strcpy(board_info.type, device_ptr->dev_type);
 
-			/*pddf_dbg(KERN_ERR "Creating a client %s on 0x%x, platform_data 0x%x\n", board_info.type, board_info.addr, board_info.platform_data);*/
 			client_ptr = i2c_new_client_device(adapter, &board_info);
 
-			if (client_ptr != NULL) {
+			if (!IS_ERR(client_ptr)) {
 				i2c_put_adapter(adapter);
 				pddf_dbg(CPLD, KERN_ERR "Created %s client: 0x%p\n", device_ptr->i2c_name, (void *)client_ptr);
 				add_device_table(device_ptr->i2c_name, (void*)client_ptr);
@@ -152,8 +153,12 @@ static ssize_t do_device_operation(struct device *dev, struct device_attribute *
 	{
 		printk(KERN_ERR "PDDF_ERROR: %s: Invalid value for dev_ops %s", __FUNCTION__, buf);
 	}
+	goto clear_data;
 
 free_data:
+	if (board_info.platform_data)
+	    kfree(board_info.platform_data);
+clear_data:
 	/*TODO: free the device_ptr->data is dynamically allocated*/
 	memset(device_ptr, 0 , sizeof(NEW_DEV_ATTR));
 

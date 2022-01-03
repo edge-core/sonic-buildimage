@@ -30,8 +30,57 @@ static struct mutex	 list_lock;
 
 struct cpld_client_node {
 	struct i2c_client *client;
+	char name[CPLD_CLIENT_NAME_LEN];
 	struct list_head   list;
 };
+
+int board_i2c_cpld_read_new(unsigned short cpld_addr, char *name, u8 reg)
+{
+	struct list_head   *list_node = NULL;
+	struct cpld_client_node *cpld_node = NULL;
+	int ret = -EPERM;
+
+	mutex_lock(&list_lock);
+
+	list_for_each(list_node, &cpld_client_list)
+	{
+		cpld_node = list_entry(list_node, struct cpld_client_node, list);
+
+		if ((cpld_node->client->addr == cpld_addr) && (strncmp(cpld_node->name, name, strlen(name)) == 0)) {
+			ret = i2c_smbus_read_byte_data(cpld_node->client, reg);
+			break;
+		}
+	}
+
+	mutex_unlock(&list_lock);
+
+	return ret;
+}
+EXPORT_SYMBOL(board_i2c_cpld_read_new);
+
+int board_i2c_cpld_write_new(unsigned short cpld_addr, char *name, u8 reg, u8 value)
+{
+	struct list_head   *list_node = NULL;
+	struct cpld_client_node *cpld_node = NULL;
+	int ret = -EIO;
+
+	mutex_lock(&list_lock);
+
+	list_for_each(list_node, &cpld_client_list)
+	{
+		cpld_node = list_entry(list_node, struct cpld_client_node, list);
+
+		if ((cpld_node->client->addr == cpld_addr) && (strncmp(cpld_node->name, name, strlen(name)) == 0)){
+			ret = i2c_smbus_write_byte_data(cpld_node->client, reg, value);
+			break;
+		}
+	}
+
+	mutex_unlock(&list_lock);
+
+	return ret;
+}
+EXPORT_SYMBOL(board_i2c_cpld_write_new);
 
 int board_i2c_cpld_read(unsigned short cpld_addr, u8 reg)
 {
@@ -128,7 +177,9 @@ static void board_i2c_cpld_add_client(struct i2c_client *client)
 	}
 	
 	node->client = client;
-	
+	strcpy(node->name, (char *)client->dev.platform_data);
+	dev_dbg(&client->dev, "Adding %s to the cpld client list\n", node->name);
+
 	mutex_lock(&list_lock);
 	list_add(&node->list, &cpld_client_list);
 	mutex_unlock(&list_lock);
@@ -188,8 +239,14 @@ exit:
 
 static int board_i2c_cpld_remove(struct i2c_client *client)
 {
-    sysfs_remove_group(&client->dev.kobj, &cpld_attribute_group);
+	/* Platform data is just a char string */
+	char *platdata = (char *)client->dev.platform_data;
+	sysfs_remove_group(&client->dev.kobj, &cpld_attribute_group);
 	board_i2c_cpld_remove_client(client);
+	if (platdata)
+	{
+	    kfree(platdata);
+	}
 	
 	return 0;
 }

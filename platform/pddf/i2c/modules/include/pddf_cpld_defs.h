@@ -20,6 +20,7 @@
 #ifndef __PDDF_CPLD_DEFS_H__
 #define __PDDF_CPLD_DEFS_H__
 
+#define CPLD_CLIENT_NAME_LEN 32
 /* CPLD DATA - DATA FOR CPLD CLIENT READ/WRITE*/
 typedef struct CPLD_DATA
 {

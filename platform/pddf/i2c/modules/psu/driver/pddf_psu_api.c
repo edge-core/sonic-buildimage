@@ -89,20 +89,20 @@ int psu_update_hw(struct device *dev, struct psu_attr_info *info, PSU_DATA_ATTR 
     {
         status = (sysfs_attr_data->pre_set)(client, udata, info);
         if (status!=0)
-            printk(KERN_ERR "%s: pre_set function fails for %s attribute\n", __FUNCTION__, udata->aname);
+            dev_warn(&client->dev, "%s: pre_set function fails for %s attribute. ret %d\n", __FUNCTION__, udata->aname, status);
     }
     if (sysfs_attr_data->do_set != NULL)
     {
         status = (sysfs_attr_data->do_set)(client, udata, info);
         if (status!=0)
-            printk(KERN_ERR "%s: do_set function fails for %s attribute\n", __FUNCTION__, udata->aname);
+            dev_warn(&client->dev, "%s: do_set function fails for %s attribute. ret %d\n", __FUNCTION__, udata->aname, status);
 
     }
     if (sysfs_attr_data->post_set != NULL)
     {
         status = (sysfs_attr_data->post_set)(client, udata, info);
         if (status!=0)
-            printk(KERN_ERR "%s: post_set function fails for %s attribute\n", __FUNCTION__, udata->aname);
+            dev_warn(&client->dev, "%s: post_set function fails for %s attribute. ret %d\n", __FUNCTION__, udata->aname, status);
     }
 
     mutex_unlock(&info->update_lock);
@@ -128,20 +128,20 @@ int psu_update_attr(struct device *dev, struct psu_attr_info *data, PSU_DATA_ATT
         {
             status = (sysfs_attr_data->pre_get)(client, udata, data);
             if (status!=0)
-                printk(KERN_ERR "%s: pre_get function fails for %s attribute\n", __FUNCTION__, udata->aname);
+                dev_warn(&client->dev, "%s: pre_get function fails for %s attribute. ret %d\n", __FUNCTION__, udata->aname, status);
         }
         if (sysfs_attr_data->do_get != NULL)
         {
             status = (sysfs_attr_data->do_get)(client, udata, data);
             if (status!=0)
-                printk(KERN_ERR "%s: do_get function fails for %s attribute\n", __FUNCTION__, udata->aname);
+                dev_warn(&client->dev, "%s: do_get function fails for %s attribute. ret %d\n", __FUNCTION__, udata->aname, status);
 
         }
         if (sysfs_attr_data->post_get != NULL)
         {
             status = (sysfs_attr_data->post_get)(client, udata, data);
             if (status!=0)
-                printk(KERN_ERR "%s: post_get function fails for %s attribute\n", __FUNCTION__, udata->aname);
+                dev_warn(&client->dev, "%s: post_get function fails for %s attribute. ret %d\n", __FUNCTION__, udata->aname, status);
         }
 
         data->last_updated = jiffies;

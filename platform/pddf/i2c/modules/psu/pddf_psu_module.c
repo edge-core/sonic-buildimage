@@ -160,9 +160,9 @@ static ssize_t do_device_operation(struct device *dev, struct device_attribute *
         board_info = i2c_get_psu_board_info(pdata, cdata);
 
         /* Populate the platform data for psu */
-        client_ptr = i2c_new_device(adapter, board_info);
+        client_ptr = i2c_new_client_device(adapter, board_info);
         
-        if(client_ptr != NULL)
+        if(!IS_ERR(client_ptr))
         {
             i2c_put_adapter(adapter);
             pddf_dbg(PSU, KERN_ERR "Created a %s client: 0x%p\n", cdata->i2c_name , (void *)client_ptr);

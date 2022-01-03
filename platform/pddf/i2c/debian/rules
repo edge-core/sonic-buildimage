@@ -18,7 +18,7 @@ PACKAGE_PRE_NAME := sonic-platform-pddf
 KVERSION   ?= $(shell uname -r)
 KERNEL_SRC :=  /lib/modules/$(KVERSION)
 MOD_SRC_DIR:= $(shell pwd)
-MODULE_DIRS:= client cpld cpld/driver cpldmux cpldmux/driver fan fan/driver fan/vendor_api mux gpio led psu psu/driver sysstatus xcvr xcvr/driver
+MODULE_DIRS:= client cpld cpld/driver cpldmux cpldmux/driver fan fan/driver mux gpio led psu psu/driver sysstatus xcvr xcvr/driver
 MODULE_DIR:= modules
 UTILS_DIR := utils
 SERVICE_DIR := service
@@ -35,8 +35,10 @@ clean:
 	make -C $(KERNEL_SRC)/build M=$(MOD_SRC_DIR) clean
 
 build:
+	set -e; \
 	make modules -C $(KERNEL_SRC)/build M=$(MOD_SRC_DIR); \
 	$(PYTHON) $(MOD_SRC_DIR)/setup.py build; \
+	set +e
 
 binary: binary-arch binary-indep
 	# Nothing to do
@@ -50,11 +52,15 @@ binary-indep:
 	dh_installdirs -p$(PACKAGE_PRE_NAME) $(KERNEL_SRC)/$(INSTALL_MOD_DIR); \
 	dh_installdirs -p$(PACKAGE_PRE_NAME) usr/local/bin; \
 	# Custom package commands
+	set -e; \
 	(for mod in $(MODULE_DIRS); do \
 			cp $(MOD_SRC_DIR)/$(MODULE_DIR)/$${mod}/*.ko debian/$(PACKAGE_PRE_NAME)/$(KERNEL_SRC)/$(INSTALL_MOD_DIR); \
 	done) ; \
+	# Need to take a backup of symvers file for compilation of custom modules in various platforms
+	cp $(MOD_SRC_DIR)/Module.symvers $(MOD_SRC_DIR)/Module.symvers.PDDF; \
 	cp -r $(MOD_SRC_DIR)/$(UTILS_DIR)/* debian/$(PACKAGE_PRE_NAME)/usr/local/bin/; \
-	$(PYTHON) $(MOD_SRC_DIR)/setup.py install --root=$(MOD_SRC_DIR)/debian/$(PACKAGE_PRE_NAME) --install-layout=deb;
+	$(PYTHON) $(MOD_SRC_DIR)/setup.py install --root=$(MOD_SRC_DIR)/debian/$(PACKAGE_PRE_NAME) --install-layout=deb; \
+	set +e
 
 	# Resuming debhelper scripts
 	dh_testroot

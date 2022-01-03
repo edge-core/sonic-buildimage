@@ -56,72 +56,49 @@ static const struct attribute_group pddf_mux_client_data_group = {
 	.attrs = mux_attributes,
 };
 
-struct i2c_board_info *i2c_get_mux_board_info(MUX_DATA* mdata, NEW_DEV_ATTR *device_data)
-{
-	static struct i2c_board_info board_info;
-	static struct pca954x_platform_mode platform_modes[8];
-	static struct pca954x_platform_data mux_platform_data;
-	int num_modes, i;
-
-	if (strncmp(device_data->dev_type, "pca9548", strlen("pca9548")) == 0)
-		num_modes = 8;
-	else if (strncmp(device_data->dev_type, "pca9546", strlen("pca9546")) == 0)
-		num_modes = 6;
-	else
-	{
-		printk(KERN_ERR "%s: Unknown type of mux device\n", __FUNCTION__);
-		return NULL;
-	}
-	
-	for(i = 0; i < num_modes; i++) {
-		platform_modes[i] = (struct pca954x_platform_mode) {
-			.adap_id = (mdata->virt_bus + i),
-			.deselect_on_exit = 1,
-		};
-	}
-
-	mux_platform_data = (struct pca954x_platform_data) {
-		.modes = platform_modes,
-		.num_modes = num_modes,
-	};
-	
-	board_info = (struct i2c_board_info) {
-		.platform_data = &mux_platform_data,
-	};
-
-	board_info.addr = device_data->dev_addr;
-	strcpy(board_info.type, device_data->dev_type);
-
-	return &board_info;
-}
-
-
 static ssize_t do_device_operation(struct device *dev, struct device_attribute *da, const char *buf, size_t count)
 {
 	PDDF_ATTR *ptr = (PDDF_ATTR *)da;
 	MUX_DATA *mux_ptr = (MUX_DATA *)(ptr->addr);
 	NEW_DEV_ATTR *device_ptr = (NEW_DEV_ATTR *)(ptr->data);
 	struct i2c_adapter *adapter;
-	struct i2c_board_info *board_info;
+	static struct i2c_board_info board_info;
 	struct i2c_client *client_ptr;
 
 	if (strncmp(buf, "add", strlen(buf)-1)==0)
 	{
-		adapter = i2c_get_adapter(device_ptr->parent_bus);
-		board_info = i2c_get_mux_board_info(mux_ptr, device_ptr);
-
-		client_ptr = i2c_new_device(adapter, board_info);
-
-		if (client_ptr != NULL)
+		/* Supported types are pca_9540, pca_9542, pca_9543, pca_9544, pca_9545, pca_9546, pca_9547, pca_9548,
+		 * pca_9846, pca_9847, pca_9848, pca_9849
+		 */
+		if ( (strncmp(device_ptr->dev_type, "pca954", 6) == 0) ||
+				(strncmp(device_ptr->dev_type, "pca984", 6) == 0) )
 		{
-			i2c_put_adapter(adapter);
-			pddf_dbg(MUX, KERN_ERR "Created %s client: 0x%p\n", device_ptr->i2c_name, (void *)client_ptr);
-			add_device_table(device_ptr->i2c_name, (void*)client_ptr);
+			adapter = i2c_get_adapter(device_ptr->parent_bus);
+			board_info = (struct i2c_board_info) {
+				.platform_data = NULL,
+			};
+
+			board_info.addr = device_ptr->dev_addr;
+			strcpy(board_info.type, device_ptr->dev_type);
+
+
+			client_ptr = i2c_new_client_device(adapter, &board_info);
+
+			if (!IS_ERR(client_ptr))
+			{
+				i2c_put_adapter(adapter);
+				pddf_dbg(MUX, KERN_ERR "Created %s client: 0x%p\n", device_ptr->i2c_name, (void *)client_ptr);
+				add_device_table(device_ptr->i2c_name, (void*)client_ptr);
+			}
+			else
+			{
+				i2c_put_adapter(adapter);
+				goto free_data;
+			}
 		}
-		else 
+		else
 		{
-			i2c_put_adapter(adapter);
-			goto free_data;
+			printk(KERN_ERR "%s: Unknown type of mux device %s\n", __FUNCTION__, device_ptr->dev_type);
 		}
 	}
 	else if (strncmp(buf, "delete", strlen(buf)-1)==0)

@@ -20,7 +20,6 @@
 #include <linux/slab.h>
 #include <linux/list.h>
 #include <linux/dmi.h>
-#include <linux/platform_data/pca954x.h>
 #include <linux/i2c-mux.h>
 #include <linux/platform_device.h>
 #include "pddf_client_defs.h"

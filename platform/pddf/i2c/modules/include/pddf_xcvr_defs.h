@@ -115,7 +115,7 @@ enum xcvr_sysfs_attributes {
     XCVR_ATTR_MAX
 };
 
-extern int board_i2c_cpld_read(unsigned short cpld_addr, u8 reg);
-extern int board_i2c_cpld_write(unsigned short cpld_addr, u8 reg, u8 value);
+extern int board_i2c_cpld_read_new(unsigned short cpld_addr, char *name, u8 reg);
+extern int board_i2c_cpld_write_new(unsigned short cpld_addr, char *name, u8 reg, u8 value);
 
 #endif 

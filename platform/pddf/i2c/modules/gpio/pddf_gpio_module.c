@@ -119,10 +119,10 @@ static ssize_t do_device_operation(struct device *dev, struct device_attribute *
         board_info = i2c_get_gpio_board_info(gpio_ptr, device_ptr);
 
         /*pddf_dbg(KERN_ERR "Creating a client %s on 0x%x, platform_data 0x%x\n", board_info->type, board_info->addr, board_info->platform_data);*/
-        client_ptr = i2c_new_device(adapter, board_info);
+        client_ptr = i2c_new_client_device(adapter, board_info);
 
         i2c_put_adapter(adapter);
-        if (client_ptr != NULL)
+        if (!IS_ERR(client_ptr))
         {
             pddf_dbg(GPIO, KERN_ERR "Created %s client: 0x%p\n", device_ptr->i2c_name, (void *)client_ptr);
             add_device_table(device_ptr->i2c_name, (void*)client_ptr);

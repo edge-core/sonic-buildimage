@@ -129,8 +129,8 @@ static ssize_t do_device_operation(struct device *dev, struct device_attribute *
             board_info.addr = cdata->dev_addr;
             strcpy(board_info.type, cdata->dev_type);
 
-            client_ptr = i2c_new_device(adapter, &board_info); 
-            if (client_ptr != NULL) {
+            client_ptr = i2c_new_client_device(adapter, &board_info);
+            if (!IS_ERR(client_ptr)) {
                 i2c_put_adapter(adapter);
                 pddf_dbg(XCVR, KERN_ERR "Created a %s client: 0x%p\n", cdata->i2c_name, (void *)client_ptr);
                 add_device_table(cdata->i2c_name, (void*)client_ptr);
@@ -152,8 +152,8 @@ static ssize_t do_device_operation(struct device *dev, struct device_attribute *
             board_info.addr = cdata->dev_addr;
             strcpy(board_info.type, cdata->dev_type);
 
-            client_ptr = i2c_new_device(adapter, &board_info);
-            if(client_ptr != NULL) {
+            client_ptr = i2c_new_client_device(adapter, &board_info);
+            if(!IS_ERR(client_ptr)) {
                 i2c_put_adapter(adapter);
                 pddf_dbg(XCVR, KERN_ERR "Created %s, type:%s client: 0x%p\n", cdata->i2c_name, cdata->dev_type, (void *)client_ptr);
                 add_device_table(cdata->i2c_name, (void*)client_ptr);

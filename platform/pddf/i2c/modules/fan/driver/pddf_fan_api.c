@@ -64,20 +64,20 @@ int fan_update_hw(struct device *dev, struct fan_attr_info *info, FAN_DATA_ATTR 
 	{
 		status = (sysfs_attr_data->pre_set)(client, udata, info);
 		if (status!=0)
-			printk(KERN_ERR "%s: pre_set function fails for %s attribute\n", __FUNCTION__, udata->aname);
+			dev_warn(&client->dev, "%s: pre_set function fails for %s attribute. ret %d\n", __FUNCTION__, udata->aname, status);
 	}
 	if (sysfs_attr_data->do_set != NULL)
 	{
 		status = (sysfs_attr_data->do_set)(client, udata, info);
 		if (status!=0)
-			printk(KERN_ERR "%s: do_set function fails for %s attribute\n", __FUNCTION__, udata->aname);
+			dev_warn(&client->dev, "%s: do_set function fails for %s attribute. ret %d\n", __FUNCTION__, udata->aname, status);
 
 	}
 	if (sysfs_attr_data->post_set != NULL)
 	{
 		status = (sysfs_attr_data->post_set)(client, udata, info);
 		if (status!=0)
-			printk(KERN_ERR "%s: post_set function fails for %s attribute\n", __FUNCTION__, udata->aname);
+			dev_warn(&client->dev, "%s: post_set function fails for %s attribute. ret %d\n", __FUNCTION__, udata->aname, status);
 	}
 
     mutex_unlock(&info->update_lock);
@@ -104,20 +104,20 @@ int fan_update_attr(struct device *dev, struct fan_attr_info *info, FAN_DATA_ATT
 		{
 			status = (sysfs_attr_data->pre_get)(client, udata, info);
 			if (status!=0)
-				printk(KERN_ERR "%s: pre_get function fails for %s attribute\n", __FUNCTION__, udata->aname);
+				dev_warn(&client->dev, "%s: pre_get function fails for %s attribute. ret %d\n", __FUNCTION__, udata->aname, status);
 		}
 		if (sysfs_attr_data->do_get != NULL)
 		{
 			status = (sysfs_attr_data->do_get)(client, udata, info);
 			if (status!=0)
-                printk(KERN_ERR "%s: do_get function fails for %s attribute\n", __FUNCTION__, udata->aname);
+				dev_warn(&client->dev, "%s: do_get function fails for %s attribute. ret %d\n", __FUNCTION__, udata->aname, status);
 
 		}
 		if (sysfs_attr_data->post_get != NULL)
 		{
 			status = (sysfs_attr_data->post_get)(client, udata, info);
 			if (status!=0)
-                printk(KERN_ERR "%s: post_get function fails for %s attribute\n", __FUNCTION__, udata->aname);
+				dev_warn(&client->dev, "%s: post_get function fails for %s attribute.ret %d\n", __FUNCTION__, udata->aname, status);
 		}
 
 		
@@ -346,7 +346,10 @@ int sonic_i2c_get_fan_present_default(void *client, FAN_DATA_ATTR *udata, void *
 	    val = i2c_smbus_read_byte_data((struct i2c_client *)client, udata->offset);
     }
 	
-    painfo->val.intval = ((val & udata->mask) == udata->cmpval);
+	if (val < 0)
+		status = val;
+	else
+		painfo->val.intval = ((val & udata->mask) == udata->cmpval);
     
 
     return status;
@@ -355,7 +358,7 @@ int sonic_i2c_get_fan_present_default(void *client, FAN_DATA_ATTR *udata, void *
 int sonic_i2c_get_fan_rpm_default(void *client, FAN_DATA_ATTR *udata, void *info)
 {
     int status = 0;
-	uint32_t val = 0;
+	int val = 0;
     struct fan_attr_info *painfo = (struct fan_attr_info *)info;
 
     if (strcmp(udata->devtype, "cpld") == 0)
@@ -375,10 +378,15 @@ int sonic_i2c_get_fan_rpm_default(void *client, FAN_DATA_ATTR *udata, void *info
         }
     }
 
-	if (udata->is_divisor)
-		painfo->val.intval = udata->mult / (val >> 3);
+	if (val < 0)
+		status = val;
 	else
-		painfo->val.intval = udata->mult * val;
+	{
+		if (udata->is_divisor)
+			painfo->val.intval = udata->mult / (val >> 3);
+		else
+			painfo->val.intval = udata->mult * val;
+	}
 
 	return status;
 }
@@ -471,7 +479,7 @@ int sonic_i2c_set_fan_pwm_default(struct i2c_client *client, FAN_DATA_ATTR *udat
 int sonic_i2c_get_fan_pwm_default(void *client, FAN_DATA_ATTR *udata, void *info)
 {
     int status = 0;
-	uint32_t val = 0;
+	int val = 0;
     struct fan_attr_info *painfo = (struct fan_attr_info *)info;
 
     if (strcmp(udata->devtype, "cpld") == 0)
@@ -491,15 +499,20 @@ int sonic_i2c_get_fan_pwm_default(void *client, FAN_DATA_ATTR *udata, void *info
         }
     }
 
-	val = val & udata->mask;
-	painfo->val.intval = val;
+	if (val < 0)
+		status = val;
+	else
+	{
+		val = val & udata->mask;
+		painfo->val.intval = val;
+	}
     return status;
 }
 
 int sonic_i2c_get_fan_fault_default(void *client, FAN_DATA_ATTR *udata, void *info)
 {
     int status = 0;
-	uint32_t val = 0;
+	int val = 0;
     struct fan_attr_info *painfo = (struct fan_attr_info *)info;
 
 	/*Assuming fan fault to be denoted by 1 byte only*/
@@ -512,8 +525,10 @@ int sonic_i2c_get_fan_fault_default(void *client, FAN_DATA_ATTR *udata, void *in
 	    val = i2c_smbus_read_byte_data((struct i2c_client *)client, udata->offset);
     }
 
-	val = val & udata->mask;
-	painfo->val.intval = val;
+	if (val < 0)
+		status = val;
+	else
+		painfo->val.intval = ((val & udata->mask) == udata->cmpval);
     return status;
 }
 
