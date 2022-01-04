@@ -11,10 +11,10 @@ schedules:
   displayName: Daily Build
   branches:
     include:
-    - 20????
+    - 20*
     exclude:
-    - 200???
-    - 201???
+    - 200*
+    - 201*
     - 202006
   always: true
 
