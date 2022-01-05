@@ -18,6 +18,12 @@ DPKG_INSTALLTION_LOCK_FILE=/tmp/.dpkg_installation.lock
 
 URL_PREFIX=$(echo "${PACKAGE_URL_PREFIX}" | sed -E "s#(//[^/]*/).*#\1#")
 
+if [ $USER != 'root' ] && [ -n $(which sudo) ];then
+    SUDO=sudo
+else
+    SUDO=''
+fi
+
 log_err()
 {
     echo "$1" >> $LOG_PATH/error.log
@@ -73,7 +79,7 @@ set_reproducible_mirrors()
 
     local mirrors="/etc/apt/sources.list $(find /etc/apt/sources.list.d/ -type f)"
     for mirror in $mirrors; do
-        sed -i "$expression" "$mirror"
+        $SUDO sed -i "$expression" "$mirror"
     done
 }
 
@@ -162,7 +168,7 @@ run_pip_command()
             install=y
         elif [[ "$para" == *.whl ]]; then
             package_name=$(echo $para | cut -d- -f1 | tr _ .)
-            sed "/^${package_name}==/d" -i $tmp_version_file
+            $SUDO sed "/^${package_name}==/d" -i $tmp_version_file
         fi
     done
 
