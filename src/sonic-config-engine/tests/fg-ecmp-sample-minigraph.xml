@@ -230,6 +230,17 @@
                <Tag>1000</Tag>
                <Subnets>192.168.0.0/21</Subnets>
             </VlanInterface>
+            <VlanInterface>
+               <Name>Vlan31</Name>
+               <AttachTo>etp26</AttachTo>
+               <NoDhcpRelay>False</NoDhcpRelay>
+               <StaticDHCPRelay>0.0.0.0/0</StaticDHCPRelay>
+               <Type i:nil="true" />
+               <DhcpRelays>200.200.0.48</DhcpRelays>
+               <VlanID>31</VlanID>
+               <Tag>31</Tag>
+               <Subnets>200.200.0.0/21</Subnets>
+            </VlanInterface>
          </VlanInterfaces>
          <IPInterfaces>
             <IPInterface>
