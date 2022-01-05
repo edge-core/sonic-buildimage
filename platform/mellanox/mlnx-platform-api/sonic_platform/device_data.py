@@ -157,7 +157,9 @@ DEVICE_DATA = {
     'x86_64-nvidia_sn2201-r0': {
         'thermal': {
             "capability": {
-                "comex_amb": False
+                "comex_amb": False,
+                "cpu_amb": True,
+                "swb_amb": True
             }
         }
     },

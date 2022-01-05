@@ -112,11 +112,13 @@ THERMAL_NAMING_RULE = {
         },
         {
             "name": "Ambient CPU Board Temp",
-            "temperature": "cpu_amb"
+            "temperature": "cpu_amb",
+            "default_present": False
         },
         {
             "name": "Ambient Switch Board Temp",
-            "temperature": "swb_amb"
+            "temperature": "swb_amb",
+            "default_present": False
         }
     ],
     'linecard thermals': {
@@ -226,10 +228,14 @@ def create_indexable_thermal(rule, index, sysfs_folder, position, presence_cb=No
 
 def create_single_thermal(rule, sysfs_folder, position, presence_cb=None):
     temp_file = rule['temperature']
+    default_present = rule.get('default_present', True)
     thermal_capability = DeviceDataManager.get_thermal_capability()
+
     if thermal_capability:
-        if not thermal_capability.get(temp_file, True):
+        if not thermal_capability.get(temp_file, default_present):
             return None
+    elif not default_present:
+        return None
 
     temp_file = os.path.join(sysfs_folder, temp_file)
     _check_thermal_sysfs_existence(temp_file)
