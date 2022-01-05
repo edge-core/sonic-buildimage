@@ -23,3 +23,5 @@ $(DOCKER_SYNCD_CENTEC_RPC)_RUN_OPT += --privileged -t
 $(DOCKER_SYNCD_CENTEC_RPC)_RUN_OPT += -v /host/machine.conf:/etc/machine.conf
 $(DOCKER_SYNCD_CENTEC_RPC)_RUN_OPT += -v /var/run/docker-syncd:/var/run/sswsyncd
 $(DOCKER_SYNCD_CENTEC_RPC)_RUN_OPT += -v /etc/sonic:/etc/sonic:ro
+
+SONIC_BUSTER_DOCKERS += $(DOCKER_SYNCD_CENTEC_RPC)
