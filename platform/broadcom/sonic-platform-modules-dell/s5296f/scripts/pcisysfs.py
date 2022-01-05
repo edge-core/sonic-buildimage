@@ -20,23 +20,23 @@ from os import *
 from mmap import *
 
 def usage():
-   	''' This is the Usage Method '''
+    ''' This is the Usage Method '''
 
-   	print '\t\t pcisysfs.py  --get --offset <offset> --res <resource>'
-   	print '\t\t pcisysfs.py --set --val <val>  --offset <offset> --res <resource>'
-        sys.exit(1)
+    print('\t\t pcisysfs.py  --get --offset <offset> --res <resource>')
+    print('\t\t pcisysfs.py --set --val <val>  --offset <offset> --res <resource>')
+    sys.exit(1)
 
 def pci_mem_read(mm,offset):
     mm.seek(offset)
     read_data_stream=mm.read(4)
-    print ""
+    print("")
     reg_val=struct.unpack('I',read_data_stream)
-    print "reg_val read:%x"%reg_val
+    print("reg_val read:%x"%reg_val)
     return reg_val
 
 def pci_mem_write(mm,offset,data):
     mm.seek(offset)
-    print "data to write:%x"%data
+    print("data to write:%x"%data)
     mm.write(struct.pack('I',data))
 
 def pci_set_value(resource,val,offset):
@@ -63,7 +63,7 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv, "hgsv:" , \
         ["val=","res=","offset=","help", "get", "set"])
-	
+
     except getopt.GetoptError:
         usage()
 

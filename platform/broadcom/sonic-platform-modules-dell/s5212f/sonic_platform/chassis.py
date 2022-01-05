@@ -303,15 +303,15 @@ class Chassis(ChassisBase):
             return (self.REBOOT_CAUSE_NON_HARDWARE, None)
 
         if reboot_cause & 0x1:
-            return (self.REBOOT_CAUSE_POWER_LOSS, None)
+            return (self.REBOOT_CAUSE_POWER_LOSS, "Power on reset")
         elif reboot_cause & 0x2:
             return (self.REBOOT_CAUSE_NON_HARDWARE, None)
         elif reboot_cause & 0x4:
             return (self.REBOOT_CAUSE_HARDWARE_OTHER, "PSU Shutdown")
         elif reboot_cause & 0x8:
-            return (self.REBOOT_CAUSE_THERMAL_OVERLOAD_CPU, None)
+            return (self.REBOOT_CAUSE_THERMAL_OVERLOAD_CPU, "Thermal overload")
         elif reboot_cause & 0x10:
-            return (self.REBOOT_CAUSE_WATCHDOG, None)
+            return (self.REBOOT_CAUSE_WATCHDOG, "Watchdog reset")
         elif reboot_cause & 0x20:
             return (self.REBOOT_CAUSE_HARDWARE_OTHER, "BMC Shutdown")
         elif reboot_cause & 0x40:
