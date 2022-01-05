@@ -1,4 +1,32 @@
 {
+    "VALID_VLAN": {
+        "sonic-vlan:sonic-vlan": {
+            "sonic-vlan:VLAN": {
+                "VLAN_LIST": [
+                    {
+                        "admin_status": "up",
+                        "alias": "first_vlan",
+                        "description": "server_vlan",
+                        "dhcp_servers": [
+                            "10.186.72.56"
+                        ],
+                        "mtu": "9100",
+                        "name": "Vlan100"
+                    },
+                    {
+                        "admin_status": "up",
+                        "alias": "second_vlan",
+                        "description": "server_vlan",
+                        "dhcp_servers": [
+                            "10.186.72.66"
+                        ],
+                        "mtu": "9100",
+                        "name": "Vlan200"
+                    }
+                ]
+            }
+        }
+    },
     "INCORRECT_VLAN_NAME": {
         "sonic-vlan:sonic-vlan": {
             "sonic-vlan:VLAN": {

@@ -155,6 +155,10 @@ module sonic-vlan {
 					}
 				}
 
+				leaf alias {
+					type string;
+				}
+
 				leaf description {
 					type string {
 						length 1..255;
