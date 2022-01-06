@@ -180,11 +180,6 @@
           <AttachTo>fortyGigE0/4</AttachTo>
           <SubInterface/>
         </PortChannel>
-        <PortChannel>
-          <Name>PortChannel1001</Name>
-          <AttachTo>fortyGigE0/1;fortyGigE0/2</AttachTo>
-          <SubInterface/>
-        </PortChannel>
       </PortChannelInterfaces>
       <VlanInterfaces>
         <VlanInterface>
@@ -285,26 +280,6 @@
         <FlowControl>true</FlowControl>
         <StartDevice>switch-t0</StartDevice>
         <StartPort>fortyGigE0/8</StartPort>
-        <Validate>true</Validate>
-      </DeviceLinkBase>
-      <DeviceLinkBase i:type="DeviceInterfaceLink">
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <Bandwidth>10000</Bandwidth>
-        <EndDevice>switch-t0</EndDevice>
-        <EndPort>fortyGigE0/1</EndPort>
-        <FlowControl>true</FlowControl>
-        <StartDevice>ARISTA05T1</StartDevice>
-        <StartPort>Ethernet1/32</StartPort>
-        <Validate>true</Validate>
-      </DeviceLinkBase>
-      <DeviceLinkBase i:type="DeviceInterfaceLink">
-        <ElementType>DeviceInterfaceLink</ElementType>
-        <Bandwidth>10000</Bandwidth>
-        <EndDevice>switch-t0</EndDevice>
-        <EndPort>fortyGigE0/2</EndPort>
-        <FlowControl>true</FlowControl>
-        <StartDevice>ARISTA06T1</StartDevice>
-        <StartPort>Ethernet1/33</StartPort>
         <Validate>true</Validate>
       </DeviceLinkBase>
       <DeviceLinkBase i:type="DeviceMgmtLink">
