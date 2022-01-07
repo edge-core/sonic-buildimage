@@ -3,7 +3,8 @@
         "SWITCH_TABLE:switch": {
             "ecmp_hash_seed": "11",
             "lag_hash_seed": "11",
-            "fdb_aging_time": "600"
+            "fdb_aging_time": "600",
+            "ordered_ecmp": "true"
         },
         "OP": "SET"
     }

@@ -20,7 +20,12 @@
         "SWITCH_TABLE:switch": {
             "ecmp_hash_seed": "{{ hash_seed_value }}",
             "lag_hash_seed": "{{ hash_seed_value }}",
-            "fdb_aging_time": "600"
+            "fdb_aging_time": "600",
+{% if DEVICE_METADATA.localhost.type and "LeafRouter" in DEVICE_METADATA.localhost.type %}
+            "ordered_ecmp": "true"
+{% else %}
+            "ordered_ecmp": "false"
+{% endif %}
         },
         "OP": "SET"
     }
