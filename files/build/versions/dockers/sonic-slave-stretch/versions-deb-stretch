@@ -890,7 +890,7 @@ librrd8==1.6.0-1+b2
 librsvg2-2==2.40.21-0+deb9u1
 librsvg2-common==2.40.21-0+deb9u1
 librtmp1==2.4+20151223.gitfa8646d.1-1+b1
-libruby2.3==2.3.3-1+deb9u10
+libruby2.3==2.3.3-1+deb9u11
 libsasl2-2==2.1.27~101-g0780600+dfsg-3+deb9u1
 libsasl2-modules==2.1.27~101-g0780600+dfsg-3+deb9u1
 libsasl2-modules-db==2.1.27~101-g0780600+dfsg-3+deb9u1
@@ -1280,7 +1280,7 @@ python-jinja2==2.8-1
 python-keyring==10.1-1
 python-keyrings.alt==1.3-1
 python-lazy-object-proxy==1.2.2-1
-python-lxml==3.7.1-1+deb9u4
+python-lxml==3.7.1-1+deb9u5
 python-markupsafe==0.23-3
 python-minimal==2.7.13-2
 python-nose2==0.6.5-2
@@ -1395,8 +1395,8 @@ ruby-net-telnet==0.1.1-2
 ruby-power-assert==0.3.0-1
 ruby-setup==3.4.1-9
 ruby-test-unit==3.1.7-2
-ruby2.3==2.3.3-1+deb9u10
-ruby2.3-dev==2.3.3-1+deb9u10
+ruby2.3==2.3.3-1+deb9u11
+ruby2.3-dev==2.3.3-1+deb9u11
 rubygems-integration==1.11
 seabios==1.10.2-1
 sgml-base==1.29

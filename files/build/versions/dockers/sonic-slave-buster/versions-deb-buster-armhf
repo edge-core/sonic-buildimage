@@ -11,6 +11,8 @@ libdevel-caller-perl==2.06-2+b1
 libdevel-lexalias-perl==0.05-2+b1
 libdevel-stacktrace-perl==2.0300-1
 libdist-checkconflicts-perl==0.11-1
+libdjvulibre-text==3.5.27.1-10+deb10u1
+libdjvulibre21==3.5.27.1-10+deb10u1
 libdrm-etnaviv1==2.4.97-1
 libdrm-exynos1==2.4.97-1
 libdrm-freedreno1==2.4.97-1
