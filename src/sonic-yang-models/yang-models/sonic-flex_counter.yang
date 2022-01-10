@@ -5,6 +5,10 @@ module sonic-flex_counter {
     namespace "http://github.com/Azure/sonic-flex_counter";
     prefix flex_counter;
 
+    import sonic-types {
+        prefix stypes;
+    }
+
     description "FLEX COUNTER YANG Module for SONiC OS";
 
     revision 2020-04-10 {
@@ -24,7 +28,7 @@ module sonic-flex_counter {
             }
 
             typedef flex_delay_status {
-                type boolean;
+                type stypes:boolean_type;
             }
 
             typedef poll_interval {

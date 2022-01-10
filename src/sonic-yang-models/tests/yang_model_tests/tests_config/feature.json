@@ -7,9 +7,9 @@
                         "name": "database",
                         "state": "always_enabled",
                         "auto_restart": "always_enabled",
-                        "has_timer": "false",
-                        "has_global_scope": "true",
-                        "has_per_asic_scope": "true",
+                        "has_timer": "False",
+                        "has_global_scope": "True",
+                        "has_per_asic_scope": "True",
                         "set_owner": "local"
                     },
                     {
@@ -97,6 +97,22 @@
                         "has_timer": "false",
                         "has_global_scope": "false",
                         "has_per_asic_scope": "true"
+                    }
+                ]
+            }
+        }
+    },
+    "FEATURE_WITH_INVALID_BOOLEAN_TYPE": {
+        "sonic-feature:sonic-feature": {
+            "sonic-feature:FEATURE": {
+                "FEATURE_LIST": [
+                    {
+                        "name": "database",
+                        "state": "always_enabled",
+                        "auto_restart": "always_enabled",
+                        "has_timer": "FALSE",
+                        "has_global_scope": "TRUE",
+                        "has_per_asic_scope": "TRUE"
                     }
                 ]
             }

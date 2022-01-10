@@ -1214,9 +1214,9 @@
         "FEATURE": {
             "bgp": {
                 "auto_restart": "enabled",
-                "has_global_scope": "false",
-                "has_per_asic_scope": "true",
-                "has_timer": "false",
+                "has_global_scope": "False",
+                "has_per_asic_scope": "True",
+                "has_timer": "False",
                 "high_mem_alert": "disabled",
                 "state": "enabled",
                 "set_owner": "local"
@@ -1329,7 +1329,7 @@
                 "scheduler": "TEST@1",
                 "wred_profile": "Wred1"
             }
-         },		
+         },
 
         "DSCP_TO_TC_MAP": {
            "Dscp_to_tc_map1": {

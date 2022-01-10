@@ -7,6 +7,11 @@
         "eStrKey": "Pattern",
         "eStr": ["enabled|disabled|always_enabled|always_disabled"]
     },
+    "FEATURE_WITH_INVALID_BOOLEAN_TYPE" : {
+        "desc": "Referring invalid feature boolean types.",
+        "eStrKey": "Pattern",
+        "eStr": ["false|true|False|True"]
+    },
     "FEATURE_WITH_INVALID_OWNER" : {
         "desc": "Referring invalid feature set_owner field.",
         "eStrKey": "Pattern",

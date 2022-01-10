@@ -5,8 +5,12 @@ module sonic-feature{
     namespace "http://github.com/Azure/sonic-feature";
     prefix feature;
 
+    import sonic-types {
+        prefix stypes;
+    }
+
     description "Feature Table yang Module for SONiC";
-    
+
     typedef feature-state {
         description "configuration to set the feature running state";
         type string {
@@ -53,22 +57,22 @@ module sonic-feature{
                 leaf has_timer {
                     description "This configuration identicates if there is
                                 timer associated to this feature";
-                    type boolean;
-                    default false;
+                    type stypes:boolean_type;
+                    default "false";
                 }
 
                 leaf has_global_scope {
                     description "This configuration identicates there will only one service
                                 spawned for the device";
-                    type boolean;
-                    default false;
+                    type stypes:boolean_type;
+                    default "false";
                 }
 
                 leaf has_per_asic_scope {
                     description "This configuration identicates there will only one service
                                 spawned per asic";
-                    type boolean;
-                    default false;
+                    type stypes:boolean_type;
+                    default "false";
                 }
 
                 leaf high_mem_alert {

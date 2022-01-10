@@ -217,6 +217,12 @@ module sonic-types {
         }
     }
 
+    typedef boolean_type {
+        type string {
+            pattern "false|true|False|True";
+        }
+    }
+
     typedef mac-addr-and-mask {
         type string {
             pattern "[0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5}|[0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5}/[0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5}";
