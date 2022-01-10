@@ -56,9 +56,7 @@ module sonic-device_metadata {
                 }
 
                 leaf hostname {
-                    type string {
-                        length 1..255;
-                    }
+                    type stypes:hostname;
                 }
 
                 leaf platform {
@@ -127,6 +125,20 @@ module sonic-device_metadata {
 
                 leaf region {
                     type string;
+                }
+
+                leaf subtype {
+                    type string {
+                        pattern "DualToR";
+                    }
+                }
+
+                leaf peer_switch {
+                    type stypes:hostname;
+                }
+
+                leaf storage_device {
+                    type boolean;
                 }
             }
             /* end of container localhost */

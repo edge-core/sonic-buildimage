@@ -159,5 +159,59 @@
                 }
             }
         }
+    },
+    "DEVICE_METADATA_VALID_SUBTYPE": {
+        "sonic-device_metadata:sonic-device_metadata": {
+            "sonic-device_metadata:DEVICE_METADATA": {
+                "sonic-device_metadata:localhost": {
+                    "subtype": "DualToR"
+                }
+            }
+        }
+    },
+    "DEVICE_METADATA_INVALID_SUBTYPE": {
+        "sonic-device_metadata:sonic-device_metadata": {
+            "sonic-device_metadata:DEVICE_METADATA": {
+                "sonic-device_metadata:localhost": {
+                    "subtype": "FakeSubtype"
+                }
+            }
+        }
+    },
+    "DEVICE_METADATA_VALID_PEER_SWITCH": {
+        "sonic-device_metadata:sonic-device_metadata": {
+            "sonic-device_metadata:DEVICE_METADATA": {
+                "sonic-device_metadata:localhost": {
+                    "peer_switch": "peer_01_hostname"
+                }
+            }
+        }
+    },
+    "DEVICE_METADATA_INVALID_PEER_SWITCH": {
+        "sonic-device_metadata:sonic-device_metadata": {
+            "sonic-device_metadata:DEVICE_METADATA": {
+                "sonic-device_metadata:localhost": {
+                    "peer_switch": "this_super_duper_long_hostname_is_too_long_according_to_RFC_1035"
+                }
+            }
+        }
+    },
+    "DEVICE_METADATA_VALID_STORAGE_DEVICE": {
+        "sonic-device_metadata:sonic-device_metadata": {
+            "sonic-device_metadata:DEVICE_METADATA": {
+                "sonic-device_metadata:localhost": {
+                    "storage_device": "true"
+                }
+            }
+        }
+    },
+    "DEVICE_METADATA_INVALID_STORAGE_DEVICE": {
+        "sonic-device_metadata:sonic-device_metadata": {
+            "sonic-device_metadata:DEVICE_METADATA": {
+                "sonic-device_metadata:localhost": {
+                    "storage_device": "yes"
+                }
+            }
+        }
     }
 }

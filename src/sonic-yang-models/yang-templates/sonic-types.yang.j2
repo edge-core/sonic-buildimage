@@ -229,9 +229,14 @@ module sonic-types {
         }
     }
 
+    typedef hostname {
+        type string {
+            length 1..63;
+        }
+    }
 
-    /* Required for CVL */
     {% if yang_model_type == "cvl" %}
+    /* Required for CVL */
     container operation {
         description
             "This definition is used internally by CVL and

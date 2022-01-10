@@ -138,6 +138,10 @@ module sonic-port{
 					type stypes:tpid_type;
 				}
 
+				leaf mux_cable {
+					type boolean;
+				}
+
 			} /* end of list PORT_LIST */
 
 		} /* end of container PORT */

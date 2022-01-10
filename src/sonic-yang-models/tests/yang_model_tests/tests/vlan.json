@@ -56,5 +56,23 @@
     },
     "DHCPV6_SERVER_VALID_FORMAT": {
         "desc": "Add dhcpv6_server in correct format."
+    },
+    "INVALID_VLAN_MAC": {
+        "desc": "VLAN with invalid MAC address",
+        "eStrKey": "Pattern"
+    },
+    "VLAN_INTERFACE_VALID_GRAT_ARP": {
+        "desc": "VLAN_INTERFACE with valid grat_arp value"
+    },
+    "VLAN_INTERFACE_VALID_PROXY_ARP": {
+        "desc": "VLAN_INTERFACE with valid proxy_arp value"
+    },
+    "VLAN_INTERFACE_INVALID_GRAT_ARP": {
+        "desc": "VLAN_INTERFACE with invalid grat_arp value",
+        "eStrKey": "Pattern"
+    },
+    "VLAN_INTERFACE_INVALID_PROXY_ARP": {
+        "desc": "VLAN_INTERFACE with invalid proxy_arp value",
+        "eStrKey": "Pattern"
     }
 }

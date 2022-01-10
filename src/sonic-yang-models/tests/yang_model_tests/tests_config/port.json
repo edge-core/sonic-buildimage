@@ -275,5 +275,44 @@
                 ]
             }
         }
+    },
+    
+    "PORT_VALID_MUX_CABLE_TEST": {
+        "sonic-port:sonic-port": {
+            "sonic-port:PORT": {
+                "PORT_LIST": [
+                    {
+                        "name": "Ethernet8",
+                        "alias": "eth8",
+                        "lanes": "65",
+                        "speed": 50000,
+                        "mux_cable": "true"
+                    },
+                    {
+                        "name": "Ethernet12",
+                        "alias": "eth12",
+                        "lanes": "6",
+                        "speed": 50000,
+                        "mux_cable": "false"
+                    }
+                ]
+            }
+        }
+    },
+
+    "PORT_INVALID_MUX_CABLE_TEST": {
+        "sonic-port:sonic-port": {
+            "sonic-port:PORT": {
+                "PORT_LIST": [
+                    {
+                        "name": "Ethernet8",
+                        "alias": "eth8",
+                        "lanes": "65",
+                        "speed": 50000,
+                        "mux_cable": "enabled"
+                    }
+                ]
+            }
+        }
     }
 }
