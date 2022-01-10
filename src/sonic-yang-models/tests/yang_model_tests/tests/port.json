@@ -66,5 +66,12 @@
         "desc": "PORT_INVALID_TPID_TEST invalid tpid value failure.",
         "eStrKey" : "Pattern",
         "eStr": ["0x8100|0x9100|0x9200|0x88a8|0x88A8"]
+     },
+     "PORT_VALID_MUX_CABLE_TEST": {
+         "desc": "PORT_VALID_MUX_CABLE_TEST no failure."
+     },
+     "PORT_INVALID_MUX_CABLE_TEST": {
+         "desc": "PORT_INVALID_MUX_CABLE_TEST non-boolean values, expect fail",
+         "eStrKey": "InvalidValue"
      }
 }

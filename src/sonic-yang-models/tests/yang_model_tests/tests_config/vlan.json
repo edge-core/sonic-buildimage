@@ -21,7 +21,8 @@
                             "10.186.72.66"
                         ],
                         "mtu": "9100",
-                        "name": "Vlan200"
+                        "name": "Vlan200",
+                        "mac": "00:aa:bb:cc:dd:ee"
                     }
                 ]
             }
@@ -520,6 +521,95 @@
                 "VLAN_INTERFACE_LIST": [
                     {
                         "name": "Vlan400"
+                    }
+                ]
+            }
+        }
+    },
+    "INVALID_VLAN_MAC": {
+        "sonic-vlan:sonic-vlan": {
+            "sonic-vlan:VLAN": {
+                "VLAN_LIST": [
+                    {
+                        "admin_status": "up",
+                        "name": "Vlan1000",
+                        "mac": "12345678"
+                    }
+                ]
+            }
+        }
+    },
+    "VLAN_INTERFACE_VALID_GRAT_ARP": {
+        "sonic-vlan:sonic-vlan": {
+            "sonic-vlan:VLAN": {
+                "VLAN_LIST": [
+                    {
+                        "name": "Vlan1000"
+                    },
+                    {
+                        "name": "Vlan2000"
+                    }
+                ]
+            },
+            "sonic-vlan:VLAN_INTERFACE": {
+                "VLAN_INTERFACE_LIST": [
+                    {
+                        "name": "Vlan1000",
+                        "grat_arp": "enabled"
+                    },
+                    {
+                        "name": "Vlan2000",
+                        "grat_arp": "disabled"
+                    }
+                ]
+            }
+        }
+    },
+    "VLAN_INTERFACE_VALID_PROXY_ARP": {
+        "sonic-vlan:sonic-vlan": {
+            "sonic-vlan:VLAN": {
+                "VLAN_LIST": [
+                    {
+                        "name": "Vlan1000"
+                    },
+                    {
+                        "name": "Vlan2000"
+                    }
+                ]
+            },
+            "sonic-vlan:VLAN_INTERFACE": {
+                "VLAN_INTERFACE_LIST": [
+                    {
+                        "name": "Vlan1000",
+                        "proxy_arp": "enabled"
+                    },
+                    {
+                        "name": "Vlan2000",
+                        "proxy_arp": "disabled"
+                    }
+                ]
+            }
+        }
+    },
+    "VLAN_INTERFACE_INVALID_GRAT_ARP": {
+        "sonic-vlan:sonic-vlan": {
+            "sonic-vlan:VLAN_INTERFACE": {
+                "VLAN_INTERFACE_LIST": [
+                    {
+                        "name": "Vlan1000",
+                        "grat_arp": "true"
+                    }
+                ]
+            }
+        }
+    },
+    "VLAN_INTERFACE_INVALID_PROXY_ARP": {
+        "sonic-vlan:sonic-vlan": {
+            "sonic-vlan:VLAN_INTERFACE": {
+                "VLAN_INTERFACE_LIST": [
+                    {
+                        "name": "Vlan1000",
+                        "proxy_arp": "true"
                     }
                 ]
             }
