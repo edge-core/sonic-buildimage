@@ -1,0 +1,29 @@
+{
+    "VLAN_SUB_INTERFACE_MUST_CONDITION_TRUE_TEST": {
+        "desc": "Configure valid vlan sub interface must condition true."
+    },
+    "VLAN_SUB_INTERFACE_MUST_CONDITION_FALSE_TEST": {
+        "desc": "Configure vlan sub interface must condition false.",
+        "eStrKey": "Must"
+    },
+    "VLAN_SUB_INTERFACE_IP_PREFIX_PORT_NON_EXISTING_LEAF_TEST": {
+        "desc": "Configure ip prefix vlan sub interface with non-existing reference.",
+        "eStrKey": "LeafRef"
+    },
+    "VLAN_SUB_INTERFACE_INVALID_VLAN_ID_TEST": {
+        "desc": "Configure vlan sub interface with invalid vlan id.",
+        "eStrKey": "Pattern"
+    },
+    "VLAN_SUB_INTERFACE_INVALID_VLAN_ID_WITH_LEADING_ZERO_TEST": {
+        "desc": "Configure vlan sub interface with invalid vlan id with leading zeros.",
+        "eStrKey": "Pattern"
+    },
+    "VLAN_SUB_INTERFACE_IP_PREFIX_EMPTY_STRING_TEST": {
+        "desc": "Configure ip prefix vlan sub interface with empty ip prefx.",
+        "eStrKey": "InvalidValue"
+    },
+    "VLAN_SUB_INTERFACE_INVALID_NAME_TEST": {
+        "desc": "Configure invalid vlan sub interface name with no separator.",
+        "eStrKey": "Pattern"
+    }
+}

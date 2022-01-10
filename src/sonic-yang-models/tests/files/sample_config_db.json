@@ -688,6 +688,15 @@
                 "speed": "11100",
                 "tpid": "0x8100",
                 "admin_status": "up"
+            },
+            "Ethernet120": {
+                "alias": "Eth31/1",
+                "lanes": "121,122",
+                "description": "",
+                "fec": "fc",
+                "speed": "11100",
+                "tpid": "0x8100",
+                "admin_status": "up"
             }
         },
         "ACL_TABLE": {
@@ -844,6 +853,13 @@
                 "scope": "global",
                 "family": "IPv4"
             }
+        },
+        "VLAN_SUB_INTERFACE": {
+            "Ethernet120.10": {
+                "admin_status": "up"
+            },
+            "Ethernet120.10|10.0.1.56/31": {},
+            "Ethernet120.10|fc00::1:71/126": {}
         },
         "VLAN_MEMBER": {
             "Vlan111|Ethernet0": {
