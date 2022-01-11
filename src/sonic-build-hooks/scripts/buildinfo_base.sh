@@ -18,7 +18,7 @@ DPKG_INSTALLTION_LOCK_FILE=/tmp/.dpkg_installation.lock
 
 URL_PREFIX=$(echo "${PACKAGE_URL_PREFIX}" | sed -E "s#(//[^/]*/).*#\1#")
 
-if [ $USER != 'root' ] && [ -n $(which sudo) ];then
+if [ "$(whoami)" != "root" ] && [ -n "$(which sudo)" ];then
     SUDO=sudo
 else
     SUDO=''
