@@ -1,0 +1,25 @@
+# docker image for sonic config engine
+
+DOCKER_CONFIG_ENGINE_BULLSEYE = docker-config-engine-bullseye.gz
+$(DOCKER_CONFIG_ENGINE_BULLSEYE)_PATH = $(DOCKERS_PATH)/docker-config-engine-bullseye
+
+$(DOCKER_CONFIG_ENGINE_BULLSEYE)_DEPENDS += $(LIBSWSSCOMMON) \
+                                          $(LIBYANG) \
+                                          $(LIBYANG_CPP) \
+                                          $(LIBYANG_PY3) \
+                                          $(PYTHON3_SWSSCOMMON)
+$(DOCKER_CONFIG_ENGINE_BULLSEYE)_PYTHON_WHEELS += $(SWSSSDK_PY3)
+$(DOCKER_CONFIG_ENGINE_BULLSEYE)_PYTHON_WHEELS += $(SONIC_PY_COMMON_PY3) \
+                                                $(SONIC_YANG_MGMT_PY3) \
+                                                $(SONIC_YANG_MODELS_PY3)
+$(DOCKER_CONFIG_ENGINE_BULLSEYE)_PYTHON_WHEELS += $(SONIC_CONFIG_ENGINE_PY3)
+$(DOCKER_CONFIG_ENGINE_BULLSEYE)_LOAD_DOCKERS += $(DOCKER_BASE_BULLSEYE)
+$(DOCKER_CONFIG_ENGINE_BULLSEYE)_FILES += $(SWSS_VARS_TEMPLATE)
+$(DOCKER_CONFIG_ENGINE_BULLSEYE)_FILES += $($(SONIC_CTRMGRD)_CONTAINER_SCRIPT)
+
+$(DOCKER_CONFIG_ENGINE_BULLSEYE)_DBG_DEPENDS = $($(DOCKER_BASE_BULLSEYE)_DBG_DEPENDS) \
+                                             $(LIBSWSSCOMMON_DBG) \
+                                             $(LIBHIREDIS_DBG)
+$(DOCKER_CONFIG_ENGINE_BULLSEYE)_DBG_IMAGE_PACKAGES = $($(DOCKER_BASE_BULLSEYE)_DBG_IMAGE_PACKAGES)
+
+SONIC_DOCKER_IMAGES += $(DOCKER_CONFIG_ENGINE_BULLSEYE)
