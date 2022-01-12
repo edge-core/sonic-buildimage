@@ -3,6 +3,10 @@ module sonic-system-aaa {
     prefix ssys;
     yang-version 1.1;
 
+    import sonic-types {
+        prefix stypes;
+    }
+
     revision 2021-10-12 {
         description "Add AAA authorization/accounting support.";
     }
@@ -32,17 +36,28 @@ module sonic-system-aaa {
                 }
 
                 leaf failthrough {
-                    type boolean;
+                    type stypes:boolean_type;
                     description "When set to true, authentication is attempted on next configured server/local in the list upon failure.";
-                    default false;
+                    default False;
+                }
+
+                leaf fallback {
+                    type stypes:boolean_type;
+                    description "Allow AAA fallback";
+                    default False;
                 }
                 
                 leaf debug {
-                    type boolean;
+                    type stypes:boolean_type;
                     description "Enable/disable AAA debugging";
-                    default false;
+                    default False;
                 }
 
+                leaf trace {
+                    type stypes:boolean_type;
+                    description "AAA packet trace";
+                    default False;
+                }
             }
         }
     }
