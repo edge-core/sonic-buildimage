@@ -8,7 +8,8 @@
     },
     "AAA_TEST_WRONG_FAILTHROUGH": {
         "desc": "Configure a wrong failthrough in AAA table.",
-        "eStrKey": "InvalidValue"
+        "eStrKey": "Pattern",
+        "eStr": ["false|true|False|True"]
     },
     "AAA_AUTHORIZATION_TEST": {
         "desc": "Configure an authorization type in AAA table."

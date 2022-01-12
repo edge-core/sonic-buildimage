@@ -5,8 +5,10 @@
                 "AAA_LIST": [{
                         "type": "authentication",
                         "login": "tacacs+,local",
-                        "failthrough": "true",
-                        "debug": "true"
+                        "failthrough": "True",
+                        "fallback": "True",
+                        "trace": "True",
+                        "debug": "True"
                 }]
             }
         }
