@@ -33,7 +33,7 @@
             "i2c-ismt",
             "i2c-i801",
             "i2c_dev",
-            "i2c_mux_pca954x force_deselect_on_exit=1",
+            "i2c_mux_pca954x",
             "optoe"
         ],
         "pddf_kos":
