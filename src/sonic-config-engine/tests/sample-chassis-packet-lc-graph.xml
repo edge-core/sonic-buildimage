@@ -121,8 +121,9 @@
 	   <IPNextHop>
 	    <ElementType>IPNextHop</ElementType>
 	    <Name i:nil="true"/>
-	    <AttachTo>8.0.0.1/32</AttachTo>
+	    <AssociatedTo>8.0.0.1/32</AssociatedTo>
 	    <Address>192.168.1.2,192.168.2.2</Address>
+	    <AttachTo>PortChannel40,PortChannel50</AttachTo>
 	    <Type>StaticRoute</Type>
         <Advertise>false</Advertise>
         </IPNextHop>
@@ -212,8 +213,9 @@
 	<IPNextHop>
 	  <ElementType>IPNextHop</ElementType>
 	  <Name i:nil="true"/>
-	  <AttachTo>8.0.0.1/32</AttachTo>
-	  <Address>192.168.1.2,192.168.2.2</Address>
+	    <AssociatedTo>8.0.0.1/32</AssociatedTo>
+	    <Address>192.168.1.2,192.168.2.2</Address>
+	    <AttachTo>PortChannel40,PortChannel50</AttachTo>
       <Type>StaticRoute</Type>
       <Advertise>false</Advertise>
         </IPNextHop>
