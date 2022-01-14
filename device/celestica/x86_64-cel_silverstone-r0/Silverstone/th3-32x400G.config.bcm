@@ -1,3 +1,6 @@
+# The following 2 SOC properties are needed to prevent FDB Events during Warmboot due to TH3 is SW Managed MACs
+l2xmsg_shadow_hit_bits=0
+l2xmsg_no_cb_during_table_rebuild=1
 
 pbmp_xport_xe.0=0x8111181111c1111811118111181111c111182222
 ccm_dma_enable=0

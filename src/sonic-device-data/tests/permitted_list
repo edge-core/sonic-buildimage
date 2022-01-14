@@ -239,3 +239,5 @@ buf.map.egress_pool2.ingress_pool
 sai_adjust_acl_drop_in_rx_drop
 sai_verify_incoming_chksum
 l3_alpm_hit_skip
+l2xmsg_shadow_hit_bits
+l2xmsg_no_cb_during_table_rebuild
