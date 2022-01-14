@@ -61,6 +61,12 @@
     "DEVICE_METADATA_CORRECT_CLOUDTYPE_REGION_CONFIG": {
         "desc": "Verifying cloudtype and region configuration."
     },
+    "DEVICE_METADATA_DOWNSTREAM_SUBROLE_CONFIG": {
+        "desc": "Verifying downstream subrole configuration."
+    },
+    "DEVICE_METADATA_RESOURCE_TYPE_CONFIG": {
+        "desc": "Verifying resource type configuration."
+    },
 	"DEVICE_METADATA_VALID_SUBTYPE": {
 		"desc": "Verifying valid subtype value"
 	},

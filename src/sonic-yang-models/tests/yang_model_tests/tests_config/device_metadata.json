@@ -160,6 +160,24 @@
             }
         }
     },
+    "DEVICE_METADATA_DOWNSTREAM_SUBROLE_CONFIG": {
+        "sonic-device_metadata:sonic-device_metadata": {
+            "sonic-device_metadata:DEVICE_METADATA": {
+                "sonic-device_metadata:localhost": {
+                    "downstream_subrole": "downstream_subrole_y"
+                }
+            }
+        }
+    },
+    "DEVICE_METADATA_RESOURCE_TYPE_CONFIG": {
+        "sonic-device_metadata:sonic-device_metadata": {
+            "sonic-device_metadata:DEVICE_METADATA": {
+                "sonic-device_metadata:localhost": {
+                    "resource_type": "resource_type_x"
+                }
+            }
+        }
+    },
     "DEVICE_METADATA_VALID_SUBTYPE": {
         "sonic-device_metadata:sonic-device_metadata": {
             "sonic-device_metadata:DEVICE_METADATA": {
