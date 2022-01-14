@@ -1,0 +1,12 @@
+[Unit]
+Description=Update logrotate configuration
+Requires=updategraph.service
+After=updategraph.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/logrotate-config.sh
+
+[Install]
+WantedBy=multi-user.target
+
