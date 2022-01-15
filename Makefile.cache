@@ -68,6 +68,7 @@
 # Run the 'touch cache.skip.common' command in the base directory to exclude the common files from caching
 SONIC_COMMON_FILES_LIST :=  $(if $(wildcard cache.skip.common),, .platform slave.mk rules/functions Makefile.cache)
 SONIC_COMMON_FLAGS_LIST :=  $(CONFIGURED_PLATFORM) \
+                            $(CONFIGURED_ARCH) \
                             $(BLDENV) \
                             $(SONIC_DEBUGGING_ON) \
                             $(SONIC_PROFILING_ON) $(SONIC_ENABLE_SYNCD_RPC)
