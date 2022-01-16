@@ -38,9 +38,14 @@ class SfpEvent:
 
         for index in range(self.num_sfp):
             port_num = index + 1
-            port_name = "QSFP{}".format(port_num)
-            port_type = "qsfp"
-            sysfs_prs_file = "{}_modprs".format(port_type)
+            if port_num <= 32:
+                port_name = "QSFP{}".format(port_num)
+                port_type = "qsfp"
+                sysfs_prs_file = "{}_modprs".format(port_type)
+            else:
+                port_name = "SFP{}".format(port_num - 32)
+                port_type = "sfp"
+                sysfs_prs_file = "{}_modabs".format(port_type)
 
             sfp_info_obj[index] = {}
             sfp_info_obj[index]['intmask_sysfs'] = self.PATH_INTMASK_SYSFS.format(
