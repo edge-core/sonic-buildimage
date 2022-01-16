@@ -159,10 +159,11 @@ def driver_check():
 kos = [
 'modprobe i2c_dev',
 'modprobe i2c_mux_pca954x',
+'modprobe i2c_ismt',
+'modprobe i2c_i801',
 'modprobe optoe',
 'modprobe ym2651y',
 'modprobe accton_as7315_27xb_fan',
-'modprobe at24_as7315_27xb',
 'modprobe x86-64-accton-as7315_27xb-cpld',
 'modprobe x86-64-accton-as7315_27xb-led',
 'modprobe x86-64-accton-as7315_27xb-psu' ]
@@ -227,12 +228,13 @@ mknod =[
 'echo as7315_cpld1  0x63 > /sys/bus/i2c/devices/i2c-8/new_device',
 'echo as7315_cpld2  0x64 > /sys/bus/i2c/devices/i2c-7/new_device',
 
-'echo 24cxb04  0x57 > /sys/bus/i2c/devices/i2c-4/new_device',
+'echo 24c32 0x57 > /sys/bus/i2c/devices/i2c-4/new_device',
 'echo as7315_27xb_psu2  0x50 > /sys/bus/i2c/devices/i2c-12/new_device',
 'echo ym2401  0x58 > /sys/bus/i2c/devices/i2c-12/new_device',
 'echo as7315_27xb_psu1  0x53 > /sys/bus/i2c/devices/i2c-13/new_device',
 'echo ym2401  0x5b > /sys/bus/i2c/devices/i2c-13/new_device',
-'echo as7315_fan  0x66 > /sys/bus/i2c/devices/i2c-50/new_device',
+'echo as7315_fan  0x66 > /sys/bus/i2c/devices/i2c-50/new_device', # for R0A, R0B HW
+'echo as7315_fan  0x66 > /sys/bus/i2c/devices/i2c-9/new_device', # for R0C HW and later
 'echo lm75  0x49 > /sys/bus/i2c/devices/i2c-51/new_device',
 'echo lm75  0x4a > /sys/bus/i2c/devices/i2c-52/new_device',
 'echo lm75  0x4c > /sys/bus/i2c/devices/i2c-53/new_device',

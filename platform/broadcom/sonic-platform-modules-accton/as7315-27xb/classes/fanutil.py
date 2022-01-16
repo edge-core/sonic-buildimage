@@ -27,6 +27,7 @@ try:
     import time
     import logging
     from collections import namedtuple
+    import subprocess
 except ImportError as e:
     raise ImportError('%s - required module not found' % str(e))
 
@@ -44,8 +45,11 @@ class FanUtil(object):
     #FAN_NODE_DUTY_IDX_OF_MAP = 4
     #FANR_NODE_FAULT_IDX_OF_MAP = 5
 
-    BASE_VAL_PATH = '/sys/bus/i2c/devices/50-0066/{0}'
-    FAN_DUTY_PATH = '/sys/bus/i2c/devices/50-0066/fan{0}_pwm'
+    I2CADDR_CANDIDATES = ((9, 66), # for R0C HW and later
+                         (50, 66)) # for R0A, R0B HW
+    PATH_PREFIX = '/sys/bus/i2c/devices/{}-00{}/'
+    BASE_VAL_PATH = '{0}'
+    FAN_DUTY_PATH = 'fan{0}_pwm'
 
     #logfile = ''
     #loglevel = self.logger.INFO
@@ -59,6 +63,21 @@ class FanUtil(object):
     node_postfix = ["fault", "direction"]
     def _get_fan_to_device_node(self, fan_num, node_num):
         return "fan{0}_{1}".format(fan_num, self.node_postfix[node_num-1])
+    
+    def _get_fan_i2c_bus_addr(self):
+        cmd_template = 'i2cget -f -y {} 0x{} 0'
+        for bus_no, dev_addr in self.I2CADDR_CANDIDATES:
+            cmd = cmd_template.format(bus_no, dev_addr)
+            if subprocess.getstatusoutput(cmd)[0] == 0:
+                return bus_no, dev_addr
+        raise IOError('Unable to reach fan CPLD via I2C')
+
+    def _init_fnode_basepath(self):
+        '''format BASE_VAL_PATH and FAN_DUTY_PATH '''
+        bus, addr = self._get_fan_i2c_bus_addr()
+        self.PATH_PREFIX = self.PATH_PREFIX.format(bus, addr)
+        self.BASE_VAL_PATH = self.PATH_PREFIX + self.BASE_VAL_PATH
+        self.FAN_DUTY_PATH = self.PATH_PREFIX + self.FAN_DUTY_PATH
 
     def _get_fan_node_val(self, fan_num, node_num):
         if fan_num < self.FAN_NUM_1_IDX or fan_num > self.FAN_TOTAL_NUM:
@@ -84,7 +103,7 @@ class FanUtil(object):
             return None
 
         try:
-		    val_file.close()
+            val_file.close()
         except:
             self.logger.debug('GET. unable to close file. device_path:%s', device_path)
             return None
@@ -115,7 +134,7 @@ class FanUtil(object):
         val_file.write(content)
 
         try:
-		    val_file.close()
+            val_file.close()
         except:
             self.logger.debug('GET. unable to close file. device_path:%s', device_path)
             return None
@@ -128,6 +147,7 @@ class FanUtil(object):
         ch.setLevel(log_level)
         self.logger.addHandler(ch)
 
+        self._init_fnode_basepath()
         fan_path = self.BASE_VAL_PATH 
         for fan_num in range(self.FAN_NUM_1_IDX, self.FAN_TOTAL_NUM+1):
             for node_num in range(1, self.FAN_NODE_NUM+1):
