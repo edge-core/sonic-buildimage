@@ -1,5 +1,5 @@
 {
-    "port_num": 32,
+    "port_num": 33,
     "eeprom_path": "/sys/bus/i2c/devices/i2c-{0}/{0}-0050/eeprom",
     "port_i2c_mapping": [
         2,
@@ -33,12 +33,13 @@
         30,
         31,
         32,
-        33
+        33,
+        34
     ],
     "get_presence": {
         "output_source": "sysfs_value",
-        "sysfs_path": "/sys/devices/platform/switchboard/SFF/{}/qsfp_modprs",
-        "argument": "$ref:_port_name",
+        "sysfs_path": "/sys/devices/platform/switchboard/SFF/{}",
+        "argument": "$ref:_presence_file",
         "output_translator": "False if '{}' == '1' else True"
     },
     "get_lpmode": {
@@ -101,6 +102,42 @@
         "QSFP29",
         "QSFP30",
         "QSFP31",
-        "QSFP32"
+        "QSFP32",
+        "SFP1"
+    ],
+    "_presence_file": [
+      "QSFP1/qsfp_modprs",
+      "QSFP2/qsfp_modprs",
+      "QSFP3/qsfp_modprs",
+      "QSFP4/qsfp_modprs",
+      "QSFP5/qsfp_modprs",
+      "QSFP6/qsfp_modprs",
+      "QSFP7/qsfp_modprs",
+      "QSFP8/qsfp_modprs",
+      "QSFP9/qsfp_modprs",
+      "QSFP10/qsfp_modprs",
+      "QSFP11/qsfp_modprs",
+      "QSFP12/qsfp_modprs",
+      "QSFP13/qsfp_modprs",
+      "QSFP14/qsfp_modprs",
+      "QSFP15/qsfp_modprs",
+      "QSFP16/qsfp_modprs",
+      "QSFP17/qsfp_modprs",
+      "QSFP18/qsfp_modprs",
+      "QSFP19/qsfp_modprs",
+      "QSFP20/qsfp_modprs",
+      "QSFP21/qsfp_modprs",
+      "QSFP22/qsfp_modprs",
+      "QSFP23/qsfp_modprs",
+      "QSFP24/qsfp_modprs",
+      "QSFP25/qsfp_modprs",
+      "QSFP26/qsfp_modprs",
+      "QSFP27/qsfp_modprs",
+      "QSFP28/qsfp_modprs",
+      "QSFP29/qsfp_modprs",
+      "QSFP30/qsfp_modprs",
+      "QSFP31/qsfp_modprs",
+      "QSFP32/qsfp_modprs",
+      "SFP1/sfp_modabs"
     ]
 }
