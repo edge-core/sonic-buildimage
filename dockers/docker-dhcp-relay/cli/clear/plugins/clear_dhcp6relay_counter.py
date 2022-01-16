@@ -1,6 +1,7 @@
 import sys
 import click
-from show.plugins.dhcprelay import DHCPv6_Counter
+import importlib
+importlib.import_module('show.plugins.dhcp-relay')
 
 import utilities_common.cli as clicommon
 
