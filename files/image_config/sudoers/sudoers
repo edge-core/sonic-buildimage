@@ -46,6 +46,10 @@ Cmnd_Alias      READ_ONLY_CMDS = /bin/cat /var/log/syslog*, \
 
 
 Cmnd_Alias      PASSWD_CMDS = /usr/local/bin/config tacacs passkey *, \
+                              /usr/local/bin/config radius passkey *, \
+                              /usr/local/bin/config snmp community add *, \
+                              /usr/local/bin/config snmp community del *, \
+                              /usr/local/bin/config snmp community replace * *, \
                               /usr/sbin/chpasswd *
 
 # User privilege specification
