@@ -18,10 +18,9 @@
                 "name": "counter-rotating-fan-5"
             }
         ],
-        "fan_drawers":[
+        "fan_drawers": [
             {
-                "name": "fantray",
-                "num_fans" : 5,
+                "name": "fantray-1",
                 "fans": [
                     {
                         "name": "counter-rotating-fan-1"
@@ -110,100 +109,100 @@
         ],
         "sfps": [
             {
-                "name": "Ethernet0"
+                "name": "sfp1"
             },
             {
-                "name": "Ethernet4"
+                "name": "sfp2"
             },
             {
-                "name": "Ethernet8"
+                "name": "sfp3"
             },
             {
-                "name": "Ethernet12"
+                "name": "sfp4"
             },
             {
-                "name": "Ethernet16"
+                "name": "sfp5"
             },
             {
-                "name": "Ethernet20"
+                "name": "sfp6"
             },
             {
-                "name": "Ethernet24"
+                "name": "sfp7"
             },
             {
-                "name": "Ethernet28"
+                "name": "sfp8"
             },
             {
-                "name": "Ethernet32"
+                "name": "sfp9"
             },
             {
-                "name": "Ethernet36"
+                "name": "sfp10"
             },
             {
-                "name": "Ethernet40"
+                "name": "sfp11"
             },
             {
-                "name": "Ethernet44"
+                "name": "sfp12"
             },
             {
-                "name": "Ethernet48"
+                "name": "sfp13"
             },
             {
-                "name": "Ethernet52"
+                "name": "sfp14"
             },
             {
-                "name": "Ethernet56"
+                "name": "sfp15"
             },
             {
-                "name": "Ethernet60"
+                "name": "sfp16"
             },
             {
-                "name": "Ethernet64"
+                "name": "sfp17"
             },
             {
-                "name": "Ethernet68"
+                "name": "sfp18"
             },
             {
-                "name": "Ethernet72"
+                "name": "sfp19"
             },
             {
-                "name": "Ethernet76"
+                "name": "sfp20"
             },
             {
-                "name": "Ethernet80"
+                "name": "sfp21"
             },
             {
-                "name": "Ethernet84"
+                "name": "sfp22"
             },
             {
-                "name": "Ethernet88"
+                "name": "sfp23"
             },
             {
-                "name": "Ethernet92"
+                "name": "sfp24"
             },
             {
-                "name": "Ethernet96"
+                "name": "sfp25"
             },
             {
-                "name": "Ethernet100"
+                "name": "sfp26"
             },
             {
-                "name": "Ethernet104"
+                "name": "sfp27"
             },
             {
-                "name": "Ethernet108"
+                "name": "sfp28"
             },
             {
-                "name": "Ethernet112"
+                "name": "sfp29"
             },
             {
-                "name": "Ethernet116"
+                "name": "sfp30"
             },
             {
-                "name": "Ethernet120"
+                "name": "sfp31"
             },
             {
-                "name": "Ethernet124"
+                "name": "sfp32"
             }
         ]
     },
