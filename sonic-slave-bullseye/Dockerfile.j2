@@ -323,22 +323,22 @@ RUN apt-get update && apt-get install -y \
 # For kdump-tools
         libbz2-dev \
 # For linkmgrd
-        libboost1.74-dev \
-        libboost-program-options1.74-dev \
-        libboost-system1.74-dev \
-        libboost-thread1.74-dev \
-        libboost-atomic1.74-dev \
-        libboost-chrono1.74-dev \
-        libboost-container1.74-dev \
-        libboost-context1.74-dev \
-        libboost-contract1.74-dev \
-        libboost-coroutine1.74-dev \
-        libboost-date-time1.74-dev \
-        libboost-fiber1.74-dev \
-        libboost-filesystem1.74-dev \
-        libboost-graph-parallel1.74-dev \
-        libboost-log1.74-dev \
-        libboost-regex1.74-dev \
+        libboost-dev \
+        libboost-program-options-dev \
+        libboost-system-dev \
+        libboost-thread-dev \
+        libboost-atomic-dev \
+        libboost-chrono-dev \
+        libboost-container-dev \
+        libboost-context-dev \
+        libboost-contract-dev \
+        libboost-coroutine-dev \
+        libboost-date-time-dev \
+        libboost-fiber-dev \
+        libboost-filesystem-dev \
+        libboost-graph-parallel-dev \
+        libboost-log-dev \
+        libboost-regex-dev \
         googletest \
         libgtest-dev \
         libgcc-10-dev \
@@ -480,6 +480,10 @@ EXPOSE 22
 # Install depot-tools (for git-retry)
 RUN git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git /usr/share/depot_tools
 ENV PATH /usr/share/depot_tools:$PATH
+
+# Install dependencies for dhcp relay test
+RUN pip3 install parameterized==0.8.1
+RUN pip3 install pyfakefs
 
 # Install docker engine 20.10 inside docker and enable experimental feature
 RUN apt-get update

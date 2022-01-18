@@ -7,16 +7,16 @@ DERIVED_TARGETS = $(ISC_DHCP_RELAY_DBG)
 
 $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# Remove any stale files
-	rm -rf ./isc-dhcp
+	rm -rf ./isc-dhcp-$(ISC_DHCP_VERSION)
 
-	# Clone isc-dhcp repo
-	git clone https://salsa.debian.org/dhcp-team/isc-dhcp.git
-	pushd ./isc-dhcp
+	# Get isc-dhcp release, debian files
+	dget http://deb.debian.org/debian/pool/main/i/isc-dhcp/isc-dhcp_$(ISC_DHCP_VERSION_FULL).dsc
+	pushd ./isc-dhcp-$(ISC_DHCP_VERSION)
 
-	# Reset HEAD to the commit of the proper tag
-	# NOTE: Using "git checkout <tag_name>" here detaches our HEAD,
-	# which stg doesn't like, so we use this method instead
-	git reset --hard debian/$(ISC_DHCP_VERSION_FULL)
+	# Create a git repository here for stg to apply patches
+	git init
+	git add -f *
+	git commit -qm "initial commit"
 
 	# Apply patches
 	stg init
