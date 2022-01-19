@@ -27,8 +27,7 @@
             ],
             "actions": [
                 {
-                    "type": "thermal_control.control",
-                    "status": "false"
+                    "type": "thermal.recover"
                 },
                 {
                     "type": "fan.all.set_speed",
@@ -45,8 +44,7 @@
             ],
             "actions": [
                 {
-                    "type": "thermal_control.control",
-                    "status": "false"
+                    "type": "thermal.recover"
                 },
                 {
                     "type": "fan.all.set_speed",
@@ -66,8 +64,7 @@
             ],
             "actions": [
                 {
-                    "type": "thermal_control.control",
-                    "status": "true"
+                    "type": "thermal.recover"
                 }
             ]
         }
