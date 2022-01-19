@@ -16,6 +16,7 @@ try:
 
     from .led import SharedLed, ComponentFaultyIndicator
     from .utils import read_int_from_file, read_str_from_file, write_file
+    from .thermal import Thermal
 except ImportError as e:
     raise ImportError (str(e) + "- required module not found")
 
@@ -29,7 +30,6 @@ LED_PATH = "/var/run/hw-management/led/"
 CONFIG_PATH = "/var/run/hw-management/config"
 # fan_dir isn't supported on Spectrum 1. It is supported on Spectrum 2 and later switches
 FAN_DIR = "/var/run/hw-management/system/fan_dir"
-COOLING_STATE_PATH = "/var/run/hw-management/thermal/cooling_cur_state"
 
 # Platforms with unplugable FANs:
 # 1. don't have fanX_status and should be treated as always present
@@ -42,9 +42,6 @@ class Fan(FanBase):
     """Platform-specific Fan class"""
 
     STATUS_LED_COLOR_ORANGE = "orange"
-    min_cooling_level = 2
-    MIN_VALID_COOLING_LEVEL = 1
-    MAX_VALID_COOLING_LEVEL = 10
 
     # Fan drawer leds
     fan_drawer_leds = {}
@@ -119,7 +116,7 @@ class Fan(FanBase):
             depending on fan direction
 
         Notes:
-            What Mellanox calls forward: 
+            What Mellanox calls forward:
             Air flows from fans side to QSFP side, for example: MSN2700-CS2F
             which means intake in community
             What Mellanox calls reverse:
@@ -213,7 +210,7 @@ class Fan(FanBase):
         if self.is_psu_fan:
             try:
                 # Get PSU fan target speed according to current system cooling level
-                cooling_level = self.get_cooling_level()
+                cooling_level = Thermal.get_cooling_level()
                 return int(self.PSU_FAN_SPEED[cooling_level], 16)
             except Exception:
                 return self.get_speed()
@@ -230,7 +227,7 @@ class Fan(FanBase):
                    in the range 0 (off) to 100 (full speed)
 
         Returns:
-            bool: True if set success, False if fail. 
+            bool: True if set success, False if fail.
         """
         status = True
 
@@ -254,18 +251,13 @@ class Fan(FanBase):
                 return False
 
         try:
-            cooling_level = int(speed / 10)
-            if cooling_level < self.min_cooling_level:
-                cooling_level = self.min_cooling_level
-                speed = self.min_cooling_level * 10
-            self.set_cooling_level(cooling_level, cooling_level)
             pwm = int(round(PWM_MAX*speed/100.0))
             write_file(os.path.join(FAN_PATH, self.fan_speed_set_path), pwm, raise_exception=True)
         except (ValueError, IOError):
             status = False
 
         return status
-    
+
     def _get_led_capability(self):
         cap_list = None
         try:
@@ -274,7 +266,7 @@ class Fan(FanBase):
                     cap_list = caps.split()
         except (ValueError, IOError):
             status = 0
-        
+
         return cap_list
 
     def set_status_led(self, color):
@@ -296,7 +288,7 @@ class Fan(FanBase):
                    fan module status LED
 
         Returns:
-            bool: True if set success, False if fail. 
+            bool: True if set success, False if fail.
         """
         led_cap_list = self._get_led_capability()
         if led_cap_list is None:
@@ -340,38 +332,3 @@ class Fan(FanBase):
         """
         # The tolerance value is fixed as 50% for all the Mellanox platform
         return 50
-
-    @classmethod
-    def set_cooling_level(cls, level, cur_state):
-        """
-        Change cooling level. The input level should be an integer value [1, 10].
-        1 means 10%, 2 means 20%, 10 means 100%.
-        """
-        if not isinstance(level, int):
-            raise RuntimeError("Failed to set cooling level, input parameter must be integer")
-
-        if level < cls.MIN_VALID_COOLING_LEVEL or level > cls.MAX_VALID_COOLING_LEVEL:
-            raise RuntimeError("Failed to set cooling level, level value must be in range [{}, {}], got {}".format(
-                cls.MIN_VALID_COOLING_LEVEL,
-                cls.MAX_VALID_COOLING_LEVEL,
-                level
-                ))
-
-        try:
-            # Reset FAN cooling level vector. According to low level team,
-            # if we need set cooling level to X, we need first write a (10+X) 
-            # to cooling_cur_state file to reset the cooling level vector.
-            write_file(COOLING_STATE_PATH, level + 10, raise_exception=True)
-
-            # We need set cooling level after resetting the cooling level vector 
-            write_file(COOLING_STATE_PATH, cur_state, raise_exception=True)
-        except (ValueError, IOError) as e:
-            raise RuntimeError("Failed to set cooling level - {}".format(e))
-
-    @classmethod
-    def get_cooling_level(cls):
-        try:
-            return read_int_from_file(COOLING_STATE_PATH, raise_exception=True)
-        except (ValueError, IOError) as e:
-            raise RuntimeError("Failed to get cooling level - {}".format(e))
-
