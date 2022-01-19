@@ -16,3 +16,7 @@ libxslt1-dev==1.1.29-2.1+deb9u2
 libzzip-0-13==0.13.62-3.2~deb9u2
 linux-compiler-gcc-6-arm==4.9.290-1
 nodejs==10.24.1-1nodesource1
+vim==2:8.0.0197-4+deb9u4
+vim-common==2:8.0.0197-4+deb9u4
+vim-runtime==2:8.0.0197-4+deb9u4
+xxd==2:8.0.0197-4+deb9u4

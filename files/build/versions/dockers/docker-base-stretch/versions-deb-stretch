@@ -66,6 +66,6 @@ readline-common==7.0-3
 redis-tools==5:6.0.6-1~bpo10+1
 rsyslog==8.1901.0-1~bpo9+1
 socat==1.7.3.1-2+deb9u1
-vim-common==2:8.0.0197-4+deb9u3
-vim-tiny==2:8.0.0197-4+deb9u3
-xxd==2:8.0.0197-4+deb9u3
+vim-common==2:8.0.0197-4+deb9u4
+vim-tiny==2:8.0.0197-4+deb9u4
+xxd==2:8.0.0197-4+deb9u4

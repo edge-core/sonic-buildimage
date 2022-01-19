@@ -129,7 +129,7 @@ gem2deb-test-runner==0.33.1
 geoip-database==20170512-1
 gettext==0.19.8.1-2+deb9u1
 gettext-base==0.19.8.1-2+deb9u1
-ghostscript==9.26a~dfsg-0+deb9u7
+ghostscript==9.26a~dfsg-0+deb9u8
 gir1.2-glib-2.0==1.50.0-1+b1
 gir1.2-packagekitglib-1.0==1.1.5-2+deb9u2
 git==1:2.11.0-3+deb9u7
@@ -507,8 +507,8 @@ libgoogle-perftools4==2.5-2.2
 libgpgme11==1.8.0-3+b2
 libgpm2==1.20.4-6.2+b1
 libgraphite2-3==1.3.10-1
-libgs9==9.26a~dfsg-0+deb9u7
-libgs9-common==9.26a~dfsg-0+deb9u7
+libgs9==9.26a~dfsg-0+deb9u8
+libgs9-common==9.26a~dfsg-0+deb9u8
 libgsasl7==1.8.0-8+b2
 libgssapi-krb5-2==1.15-1+deb9u3
 libgstreamer1.0-0==1.10.4-1
@@ -867,7 +867,7 @@ libqt5opengl5-dev==5.7.1+dfsg-3+deb9u3
 libqt5printsupport5==5.7.1+dfsg-3+deb9u3
 libqt5sql5==5.7.1+dfsg-3+deb9u3
 libqt5sql5-sqlite==5.7.1+dfsg-3+deb9u3
-libqt5svg5==5.7.1~20161021-2.1
+libqt5svg5==5.7.1~20161021-2.1+deb9u1
 libqt5test5==5.7.1+dfsg-3+deb9u3
 libqt5widgets5==5.7.1+dfsg-3+deb9u3
 libqt5xml5==5.7.1+dfsg-3+deb9u3

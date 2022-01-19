@@ -229,12 +229,12 @@ tmux==2.3-4
 traceroute==1:2.1.0-2
 ucf==3.0036
 unzip==6.0-21+deb9u2
-vim==2:8.0.0197-4+deb9u3
-vim-common==2:8.0.0197-4+deb9u3
-vim-runtime==2:8.0.0197-4+deb9u3
+vim==2:8.0.0197-4+deb9u4
+vim-common==2:8.0.0197-4+deb9u4
+vim-runtime==2:8.0.0197-4+deb9u4
 wget==1.18-5+deb9u3
 xauth==1:1.0.9-1+b2
 xdg-user-dirs==0.15-2+b1
 xml-core==0.17
-xxd==2:8.0.0197-4+deb9u3
+xxd==2:8.0.0197-4+deb9u4
 xz-utils==5.2.2-1.2+b1
