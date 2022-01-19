@@ -327,6 +327,8 @@ sudo chmod 755 $FILESYSTEM_ROOT/usr/bin/memory_checker
 sudo cp $IMAGE_CONFIGS/monit/restart_service $FILESYSTEM_ROOT/usr/bin/
 sudo chmod 755 $FILESYSTEM_ROOT/usr/bin/restart_service
 
+# Install custom-built smartmontools
+sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/smartmontools_*.deb
 
 # Install custom-built openssh sshd
 sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/openssh-server_*.deb
