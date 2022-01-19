@@ -18,7 +18,7 @@ import os
 import sys
 import pytest
 import json
-from mock import MagicMock
+from mock import MagicMock, patch
 from .mock_platform import MockChassis, MockFan, MockFanDrawer, MockPsu
 
 test_path = os.path.dirname(os.path.abspath(__file__))
@@ -27,22 +27,8 @@ sys.path.insert(0, modules_path)
 
 from sonic_platform.thermal_manager import ThermalManager
 from sonic_platform.thermal_infos import FanInfo, PsuInfo
-from sonic_platform.fan import Fan
-from sonic_platform.thermal import Thermal
+from sonic_platform.thermal import Thermal, MAX_COOLING_LEVEL
 from sonic_platform.device_data import DeviceDataManager
-
-
-@pytest.fixture(scope='module', autouse=True)
-def configure_mocks():
-    check_thermal_zone_temperature = Thermal.check_thermal_zone_temperature
-    set_thermal_algorithm_status = Thermal.set_thermal_algorithm_status
-    Thermal.check_thermal_zone_temperature = MagicMock()
-    Thermal.set_thermal_algorithm_status = MagicMock()
-
-    yield
-
-    Thermal.check_thermal_zone_temperature = check_thermal_zone_temperature
-    Thermal.set_thermal_algorithm_status = set_thermal_algorithm_status
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -113,51 +99,60 @@ def test_psu_info():
     assert not psu_info.is_status_changed()
 
 
-def test_fan_policy(thermal_manager):
+@patch('sonic_platform.thermal.Thermal.monitor_asic_themal_zone', MagicMock())
+@patch('sonic_platform.thermal.Thermal.get_cooling_level', MagicMock(return_value=6))
+@patch('sonic_platform.thermal.Thermal.get_min_allowed_cooling_level_by_thermal_zone', MagicMock(return_value=2))
+@patch('sonic_platform.thermal.Thermal.set_cooling_state')
+@patch('sonic_platform.thermal.Thermal.set_cooling_level')
+def test_fan_policy(mock_set_cooling_level, mock_set_cooling_state, thermal_manager):
+    print('In test_fan_policy')
+    from sonic_platform.thermal import MIN_COOLING_LEVEL_FOR_NORMAL
     chassis = MockChassis()
     chassis.make_fan_absence()
     chassis.get_all_fan_drawers()[0].get_all_fans().append(MockFan())
+    chassis.platform_name = 'some_platform'
     thermal_manager.run_policy(chassis)
 
+    mock_set_cooling_level.assert_called_with(MAX_COOLING_LEVEL)
+    mock_set_cooling_state.assert_called_with(MAX_COOLING_LEVEL)
+
+    Thermal.expect_cooling_level = None
     fan_list = chassis.get_all_fan_drawers()[0].get_all_fans()
-    assert fan_list[1].speed == 100
-    Thermal.set_thermal_algorithm_status.assert_called_with(False, False)
-
     fan_list[0].presence = True
-    Thermal.check_thermal_zone_temperature = MagicMock(return_value=True)
     thermal_manager.run_policy(chassis)
-    Thermal.set_thermal_algorithm_status.assert_called_with(True, False)
-    assert Thermal.check_thermal_zone_temperature.call_count == 2
-    assert fan_list[0].speed == 60
-    assert fan_list[1].speed == 60
+    mock_set_cooling_level.assert_called_with(6)
+    mock_set_cooling_state.assert_called_with(6)
 
+    Thermal.expect_cooling_level = None
     fan_list[0].status = False
     thermal_manager.run_policy(chassis)
-    Thermal.set_thermal_algorithm_status.assert_called_with(False, False)
+    mock_set_cooling_level.assert_called_with(MAX_COOLING_LEVEL)
 
+    Thermal.expect_cooling_level = None
     fan_list[0].status = True
-    Thermal.check_thermal_zone_temperature = MagicMock(return_value=False)
     thermal_manager.run_policy(chassis)
-    Thermal.set_thermal_algorithm_status.assert_called_with(True, False)
-    assert Thermal.check_thermal_zone_temperature.call_count == 2
-    assert fan_list[0].speed == 100
-    assert fan_list[1].speed == 100
+    mock_set_cooling_level.assert_called_with(6)
+    mock_set_cooling_state.assert_called_with(6)
 
 
-def test_psu_policy(thermal_manager):
+@patch('sonic_platform.thermal.Thermal.monitor_asic_themal_zone', MagicMock())
+@patch('sonic_platform.thermal.Thermal.get_min_allowed_cooling_level_by_thermal_zone', MagicMock(return_value=2))
+@patch('sonic_platform.thermal.Thermal.get_cooling_level', MagicMock(return_value=6))
+@patch('sonic_platform.thermal.Thermal.set_cooling_state')
+@patch('sonic_platform.thermal.Thermal.set_cooling_level')
+def test_psu_policy(mock_set_cooling_level, mock_set_cooling_state, thermal_manager):
     chassis = MockChassis()
     chassis.make_psu_absence()
-    chassis.fan_list.append(MockFan())
+    chassis.platform_name = 'some_platform'
     thermal_manager.run_policy(chassis)
-
-    fan_list = chassis.get_all_fans()
-    assert fan_list[0].speed == 100
-    Thermal.set_thermal_algorithm_status.assert_called_with(False, False)
+    mock_set_cooling_level.assert_called_with(MAX_COOLING_LEVEL)
+    mock_set_cooling_state.assert_called_with(MAX_COOLING_LEVEL)
 
     psu_list = chassis.get_all_psus()
     psu_list[0].presence = True
     thermal_manager.run_policy(chassis)
-    Thermal.set_thermal_algorithm_status.assert_called_with(True, False)
+    mock_set_cooling_level.assert_called_with(6)
+    mock_set_cooling_state.assert_called_with(6)
 
 
 def test_any_fan_absence_condition():
@@ -328,6 +323,7 @@ def test_load_set_fan_speed_action():
         action.load_from_json(json_obj)
 
 
+@patch('sonic_platform.thermal.Thermal.set_cooling_level', MagicMock())
 def test_execute_set_fan_speed_action():
     chassis = MockChassis()
     chassis.get_all_fan_drawers().append(MockFanDrawer())
@@ -337,84 +333,13 @@ def test_execute_set_fan_speed_action():
     fan_info = FanInfo()
     fan_info.collect(chassis)
 
+    Thermal.expect_cooling_level = None
     from sonic_platform.thermal_actions import SetAllFanSpeedAction
     action = SetAllFanSpeedAction()
-    action.speed = 99
+    action.speed = 20
     action.execute({'fan_info': fan_info})
-    assert fan_list[0].speed == 99
-    assert fan_list[1].speed == 99
+    assert Thermal.expect_cooling_level == 2
 
-
-def test_load_control_thermal_algo_action():
-    from sonic_platform.thermal_actions import ControlThermalAlgoAction
-    action = ControlThermalAlgoAction()
-    json_str = '{\"status\": \"false\"}'
-    json_obj = json.loads(json_str)
-    action.load_from_json(json_obj)
-    assert not action.status
-
-    json_str = '{\"status\": \"true\"}'
-    json_obj = json.loads(json_str)
-    action.load_from_json(json_obj)
-    assert action.status
-
-    json_str = '{\"status\": \"invalid\"}'
-    json_obj = json.loads(json_str)
-    with pytest.raises(ValueError):
-        action.load_from_json(json_obj)
-
-    json_str = '{\"invalid\": \"true\"}'
-    json_obj = json.loads(json_str)
-    with pytest.raises(ValueError):
-        action.load_from_json(json_obj)
-
-def test_load_check_and_set_speed_action():
-    from sonic_platform.thermal_actions import CheckAndSetAllFanSpeedAction
-    action = CheckAndSetAllFanSpeedAction()
-    json_str = '{\"speed\": \"40\"}'
-    json_obj = json.loads(json_str)
-    action.load_from_json(json_obj)
-    assert action.speed == 40
-
-    json_str = '{\"speed\": \"-1\"}'
-    json_obj = json.loads(json_str)
-    with pytest.raises(ValueError):
-        action.load_from_json(json_obj)
-
-    json_str = '{\"speed\": \"101\"}'
-    json_obj = json.loads(json_str)
-    with pytest.raises(ValueError):
-        action.load_from_json(json_obj)
-
-    json_str = '{\"invalid\": \"60\"}'
-    json_obj = json.loads(json_str)
-    with pytest.raises(ValueError):
-        action.load_from_json(json_obj)
-
-def test_execute_check_and_set_fan_speed_action():
-    chassis = MockChassis()
-    chassis.get_all_fan_drawers().append(MockFanDrawer())
-    fan_list = chassis.get_all_fan_drawers()[0].get_all_fans()
-    fan_list.append(MockFan())
-    fan_list.append(MockFan())
-    fan_info = FanInfo()
-    fan_info.collect(chassis)
-    Thermal.check_thermal_zone_temperature = MagicMock(return_value=True)
-
-    from sonic_platform.thermal_actions import CheckAndSetAllFanSpeedAction
-    action = CheckAndSetAllFanSpeedAction()
-    action.speed = 99
-    action.execute({'fan_info': fan_info})
-    assert fan_list[0].speed == 99
-    assert fan_list[1].speed == 99
-
-    Thermal.check_thermal_zone_temperature = MagicMock(return_value=False)
-    fan_list[0].speed = 100
-    fan_list[1].speed = 100
-    action.speed = 60
-    action.execute({'fan_info': fan_info})
-    assert fan_list[0].speed == 100
-    assert fan_list[1].speed == 100
 
 def test_load_duplicate_condition():
     from sonic_platform_base.sonic_thermal_control.thermal_policy import ThermalPolicy
@@ -497,54 +422,89 @@ def check_minimum_table_data(platform, minimum_table):
                 assert cooling_level > previous_cooling_level
             previous_cooling_level = cooling_level
 
-def test_dynamic_minimum_policy(thermal_manager):
-    from sonic_platform.thermal_conditions import MinCoolingLevelChangeCondition
-    from sonic_platform.thermal_actions import ChangeMinCoolingLevelAction
-    from sonic_platform.thermal_infos import ChassisInfo, FanInfo
-    from sonic_platform.thermal import Thermal
-    from sonic_platform.fan import Fan
-    ThermalManager.initialize()
-    assert 'DynamicMinCoolingLevelPolicy' in thermal_manager._policy_dict
-    policy = thermal_manager._policy_dict['DynamicMinCoolingLevelPolicy']
-    assert MinCoolingLevelChangeCondition in policy.conditions
-    assert ChangeMinCoolingLevelAction in policy.actions
-
-    condition = policy.conditions[MinCoolingLevelChangeCondition]
-    action = policy.actions[ChangeMinCoolingLevelAction]
-    Thermal.check_module_temperature_trustable = MagicMock(return_value='trust')
-    Thermal.get_min_amb_temperature = MagicMock(return_value=35001)
-    assert condition.is_match(None)
-    assert MinCoolingLevelChangeCondition.trust_state == 'trust'
-    assert MinCoolingLevelChangeCondition.temperature == 35
-    assert not condition.is_match(None)
-
-    Thermal.check_module_temperature_trustable = MagicMock(return_value='untrust')
-    assert condition.is_match(None)
-    assert MinCoolingLevelChangeCondition.trust_state == 'untrust'
-
-    Thermal.get_min_amb_temperature = MagicMock(return_value=25999)
-    assert condition.is_match(None)
-    assert MinCoolingLevelChangeCondition.temperature == 25
-
+@patch('sonic_platform.thermal.Thermal.monitor_asic_themal_zone', MagicMock())
+@patch('sonic_platform.device_data.DeviceDataManager.get_platform_name')
+@patch('sonic_platform.thermal.Thermal.get_min_allowed_cooling_level_by_thermal_zone')
+@patch('sonic_platform.thermal.Thermal.get_min_amb_temperature')
+@patch('sonic_platform.thermal.Thermal.check_module_temperature_trustable')
+def test_thermal_recover_policy(mock_check_trustable, mock_get_min_amb, moc_get_min_allowed, mock_platform_name):
+    from sonic_platform.thermal_infos import ChassisInfo
+    from sonic_platform.thermal_actions import ThermalRecoverAction
     chassis = MockChassis()
+    mock_platform_name.return_value = 'invalid'
     info = ChassisInfo()
     info._chassis = chassis
-    fan_info = FanInfo()
+    thermal_info_dict = {ChassisInfo.INFO_NAME: info}
 
-    thermal_info_dict = {
-        ChassisInfo.INFO_NAME: info,
-        FanInfo.INFO_NAME: fan_info
-    }
-    DeviceDataManager.get_platform_name = MagicMock(return_value=None)
-    Fan.get_cooling_level = MagicMock(return_value=5)
-    Fan.set_cooling_level = MagicMock()
+    Thermal.expect_cooling_level = None
+    action = ThermalRecoverAction()
+    moc_get_min_allowed.return_value = 2
     action.execute(thermal_info_dict)
-    assert Fan.min_cooling_level == 6
-    Fan.set_cooling_level.assert_called_with(6, 6)
-    Fan.set_cooling_level.call_count = 0
+    assert Thermal.expect_cooling_level == 6
+    Thermal.last_set_cooling_level = Thermal.expect_cooling_level
 
-    DeviceDataManager.get_platform_name = MagicMock(return_value='x86_64-mlnx_msn2700-r0')
-    print('Before execute')
+    Thermal.expect_cooling_level = None
+    mock_platform_name.return_value = 'x86_64-mlnx_msn2700-r0'
+    mock_check_trustable.return_value = 'trust'
+    mock_get_min_amb.return_value = 29999
+    moc_get_min_allowed.return_value = None
     action.execute(thermal_info_dict)
-    assert Fan.min_cooling_level == 3
-    Fan.set_cooling_level.assert_called_with(3, 5)
+    assert Thermal.expect_cooling_level is None
+
+    moc_get_min_allowed.return_value = 4
+    action.execute(thermal_info_dict)
+    assert Thermal.expect_cooling_level == 4
+    Thermal.last_set_cooling_level = Thermal.expect_cooling_level
+
+    mock_check_trustable.return_value = 'untrust'
+    mock_get_min_amb.return_value = 31001
+    action.execute(thermal_info_dict)
+    assert Thermal.expect_cooling_level == 5
+
+
+@patch('sonic_platform.thermal.Thermal.set_cooling_state')
+@patch('sonic_platform.utils.read_int_from_file')
+def test_monitor_asic_themal_zone(mock_read_int, mock_set_cooling_state):
+    mock_read_int.side_effect = [111000, 105000]
+    Thermal.monitor_asic_themal_zone()
+    assert Thermal.expect_cooling_state == MAX_COOLING_LEVEL
+    Thermal.commit_cooling_level({})
+    mock_set_cooling_state.assert_called_with(MAX_COOLING_LEVEL)
+    mock_read_int.reset()
+    mock_read_int.side_effect = [104000, 105000]
+    Thermal.monitor_asic_themal_zone()
+    assert Thermal.expect_cooling_state is None
+
+
+def test_set_expect_cooling_level():
+    Thermal.set_expect_cooling_level(5)
+    assert Thermal.expect_cooling_level == 5
+
+    Thermal.set_expect_cooling_level(3)
+    assert Thermal.expect_cooling_level == 5
+
+    Thermal.set_expect_cooling_level(10)
+    assert Thermal.expect_cooling_level == 10
+
+
+@patch('sonic_platform.thermal.Thermal.commit_cooling_level', MagicMock())
+@patch('sonic_platform.thermal_conditions.AnyFanFaultCondition.is_match')
+@patch('sonic_platform.thermal_manager.ThermalManager._collect_thermal_information')
+@patch('sonic_platform.thermal.Thermal.set_expect_cooling_level')
+def test_run_policy(mock_expect, mock_collect_info, mock_match, thermal_manager):
+    chassis = MockChassis()
+    mock_collect_info.side_effect = Exception('')
+    thermal_manager.run_policy(chassis)
+    mock_expect.assert_called_with(MAX_COOLING_LEVEL)
+
+    mock_collect_info.side_effect = None
+    mock_expect.reset_mock()
+    mock_match.side_effect = Exception('')
+    thermal_manager.run_policy(chassis)
+    mock_expect.assert_called_with(MAX_COOLING_LEVEL)
+
+    thermal_manager.stop()
+    mock_expect.reset_mock()
+    thermal_manager.run_policy(chassis)
+    assert mock_expect.call_count == 0
+

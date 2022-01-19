@@ -42,3 +42,14 @@ def auto_recover_mock():
     utils.read_str_from_file = origin_read_str_from_file
     utils.write_file = origin_write_file
     utils.read_float_from_file = origin_read_float_from_file
+
+
+@pytest.fixture(scope='function', autouse=True)
+def auto_reset_cooling_level():
+    from sonic_platform.thermal import Thermal
+    yield
+    Thermal.expect_cooling_level = None
+    Thermal.expect_cooling_state = None
+    Thermal.last_set_cooling_level = None
+    Thermal.last_set_cooling_state = None
+    Thermal.last_set_psu_cooling_level = None
