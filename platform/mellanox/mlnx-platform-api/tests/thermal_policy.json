@@ -24,10 +24,6 @@
             ],
             "actions": [
                 {
-                    "type": "thermal_control.control",
-                    "status": "false"
-                },
-                {
                     "type": "fan.all.set_speed",
                     "speed": "100"
                 }
@@ -42,10 +38,6 @@
             ],
             "actions": [
                 {
-                    "type": "thermal_control.control",
-                    "status": "false"
-                },
-                {
                     "type": "fan.all.set_speed",
                     "speed": "100"
                 }
@@ -59,10 +51,6 @@
                 }
             ],
             "actions": [
-                {
-                    "type": "thermal_control.control",
-                    "status": "false"
-                },
                 {
                     "type": "fan.all.set_speed",
                     "speed": "100"
@@ -84,12 +72,7 @@
             ],
             "actions": [
                 {
-                    "type": "thermal_control.control",
-                    "status": "true"
-                },
-                {
-                    "type": "fan.all.check_and_set_speed",
-                    "speed": "60"
+                    "type": "thermal.recover"
                 }
             ]
         }
