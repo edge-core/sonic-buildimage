@@ -49,7 +49,7 @@ class SonicYangExtMixin:
             self.yangFiles = [f.split('/')[-1] for f in self.yangFiles]
             self.yangFiles = [f.split('.')[0] for f in self.yangFiles]
             self.sysLog(syslog.LOG_DEBUG,'Loaded below Yang Models')
-            self.sysLog(syslog.LOG_DEBUG,self.yangFiles)
+            self.sysLog(syslog.LOG_DEBUG,str(self.yangFiles))
 
             # load json for each yang model
             self._loadJsonYangModel()
