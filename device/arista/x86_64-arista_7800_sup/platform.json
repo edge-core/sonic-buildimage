@@ -1,0 +1,12 @@
+{
+    "chassis": {
+        "name": "DCS-7800A-SUP1A",
+        "components": [],
+        "fans": [],
+        "fan_drawers": [],
+        "psus": [],
+        "thermals": [],
+        "sfps": []
+    },
+    "interfaces": {}
+}
