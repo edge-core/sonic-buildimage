@@ -138,6 +138,22 @@
     "BGP_NEIGHBOR_NEG_INVALID_HOPS": {
         "desc": "Invalid TTL hops for unnumbered interface neigbhor.",
         "eStrKey" : "Pattern"
+    },
+    "BGP_MONITORS_ALL_VALID": {
+        "desc": "Configure BGP monitor table."
+    },
+    "BGP_MONITORS_NEG_INVALID_ADMIN_STATUS": {
+        "desc": "Incorrect admin status.",
+        "eStrKey": "InvalidValue",
+        "eStr": ["admin_status"]
+    },
+    "BGP_MONITORS_NEG_INVALID_NAME": {
+        "desc": "Incorrect monitor name.",
+        "eStr": ["Invalid BGP monitor name"]
+    },
+    "BGP_MONITORS_NEG_INVALID_ASN": {
+        "desc": "Invalid local AS number.",
+        "eStrKey" : "InvalidValue"
     }
 
 }

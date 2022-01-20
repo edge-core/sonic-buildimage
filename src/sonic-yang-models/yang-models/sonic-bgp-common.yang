@@ -531,4 +531,51 @@ module sonic-bgp-common {
         }
     }
 
+    grouping sonic-bgp-cmn-neigh {
+        leaf asn {
+            type uint32 {
+                range "1..4294967295";
+            }
+            description "Peer AS number";
+        }
+
+        leaf holdtime {
+            type uint16;
+            description "Hold time";
+        }
+
+        leaf keepalive {
+            type uint16;
+            description "Keepalive interval";
+        }
+
+        leaf local_addr {
+            type inet:ip-address;
+            description "Local source address or interface name to use for connection.";
+        }
+
+        leaf name {
+            type string;
+            description "Peer description";
+        }
+
+        leaf nhopself {
+            type uint8 {
+                range "0..1";
+            }
+            description "Nexthop is self, no nexthop calculation";
+        }
+
+        leaf rrclient {
+            type uint8 {
+                range "0..1";
+            }
+            description "Route reflector client";
+        }
+
+        leaf admin_status {
+            type stypes:admin_status;
+            description "Admin status of BGP peer";
+        }
+    }
 }
