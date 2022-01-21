@@ -382,7 +382,7 @@ if [ -f $FIRST_BOOT_FILE ]; then
     ebtables_config
 
     # Kdump tools configuration
-    sed -i -e "s/__PLATFORM__/$platform/g" /etc/default/kdump-tools
+    [ -f /etc/default/kdump-tools ] && sed -i -e "s/__PLATFORM__/$platform/g" /etc/default/kdump-tools
 
     firsttime_exit
 fi
