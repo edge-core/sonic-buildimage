@@ -789,5 +789,36 @@
                 ]
             }
         }
+    },
+    "ACL_PACKET_ACTION_VALIDATE_VALUE_ACCEPT": {
+        "sonic-acl:sonic-acl": {
+            "sonic-acl:ACL_RULE": {
+                "ACL_RULE_LIST": [
+                    {
+                        "ACL_TABLE_NAME": "SNMP_ACL",
+                        "DST_IP": "10.186.72.0/26",
+                        "IP_TYPE": "IPv4ANY",
+                        "PACKET_ACTION": "ACCEPT",
+                        "PRIORITY": 999980,
+                        "RULE_NAME": "Rule_20",
+                        "SRC_IP": "10.176.0.0/15"
+                    }
+                ]
+            },
+
+            "sonic-acl:ACL_TABLE": {
+                "ACL_TABLE_LIST": [
+                    {
+                        "ACL_TABLE_NAME": "SNMP_ACL",
+                        "policy_desc": "SNMP_ACL",
+                        "services": [
+                            "SNMP"
+                        ],
+                        "stage": "ingress",
+                        "type": "CTRLPLANE"
+                    }
+                ]
+            }
+        }
     }
 }
