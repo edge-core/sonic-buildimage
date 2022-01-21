@@ -97,7 +97,7 @@ generate_device_list()
 
     for d in `find -L ./device  -maxdepth 2 -mindepth 2 -type d`; do
         if [ -f $d/platform_asic ]; then
-            if [ "$CONFIGURED_PLATFORM" = "generic" ] || grep -Fxq "$CONFIGURED_PLATFORM" $d/platform_asic; then
+            if [ "$TARGET_MACHINE" = "generic" ] || grep -Fxq "$TARGET_MACHINE" $d/platform_asic; then
                 echo "${d##*/}" >> "$platforms_asic";
             fi;
         fi;
