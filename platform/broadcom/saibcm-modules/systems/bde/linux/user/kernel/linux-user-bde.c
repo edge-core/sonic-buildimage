@@ -71,6 +71,7 @@ MODULE_LICENSE("GPL");
 /* CMICX defines */
 #define INTC_INTR_REG_NUM               (8)
 #define PAXB_INTRCLR_DELAY_REG_NUM      (16)
+
 /*
 TODO:HX5
 The INTR base address values are changed for HX5,
@@ -109,6 +110,29 @@ be made.
 #define INTC_INTR_STATUS_BASE           (INTC_INTR_STATUS_REG0)
 #define INTC_INTR_RAW_STATUS_BASE       (INTC_INTR_RAW_STATUS_REG0)
 
+/** CMICX Gen2 defines*/
+#define CMICX_GEN2_INTC_INTR_REG_NUM               (10)
+#define CMICX_GEN2_PAXB_0_PAXB_IC_INTRCLR_0       (0x0292C3A0)
+#define CMICX_GEN2_PAXB_0_PAXB_IC_INTRCLR_1       (0x0292C3A4)
+#define CMICX_GEN2_PAXB_0_PAXB_IC_INTRCLR_MODE_0  (0x0292C3A8)
+#define CMICX_GEN2_PAXB_0_PAXB_IC_INTRCLR_MODE_1  (0x0292C3AC)
+#define CMICX_GEN2_PAXB_0_PAXB_INTR_STATUS             (0x0292CF38)
+#define CMICX_GEN2_PAXB_0_PAXB_IC_INTR_PACING_CTRL     (0x0292C398)
+#define CMICX_GEN2_PAXB_0_PAXB_INTRCLR_DELAY_UNIT      (0x0292C39c)
+#define CMICX_GEN2_PAXB_0_PAXB_IC_INTRCLR_DELAY_REG0   (0x0292C3b0)
+#define CMICX_GEN2_PAXB_0_PAXB_IC_INTRCLR_DELAY_BASE     (CMICX_GEN2_PAXB_0_PAXB_IC_INTRCLR_DELAY_REG0)
+#define CMICX_GEN2_PAXB_0_PCIE_ERROR_STATUS            (0x0292C024)
+#define CMICX_GEN2_PAXB_0_INTC_INTR_ENABLE_REG0          (0x0292D100)
+#define CMICX_GEN2_PAXB_0_INTC_INTR_STATUS_REG0          (0x0292D1A0)
+#define CMICX_GEN2_PAXB_0_INTC_INTR_RAW_STATUS_REG0      (0x0292D178)
+#define CMICX_GEN2_PAXB_0_INTC_INTR_ENABLE_BASE           (CMICX_GEN2_PAXB_0_INTC_INTR_ENABLE_REG0)
+#define CMICX_GEN2_PAXB_0_INTC_INTR_STATUS_BASE           (CMICX_GEN2_PAXB_0_INTC_INTR_STATUS_REG0)
+#define CMICX_GEN2_PAXB_0_INTC_INTR_RAW_STATUS_BASE       (CMICX_GEN2_PAXB_0_INTC_INTR_RAW_STATUS_REG0)
+#define CMICX_GEN2_INTC_PDMA_INTR_REG_IND_0             5
+#define CMICX_GEN2_INTC_PDMA_INTR_REG_IND_1             6
+
+
+
 #define HX5_INTC_INTR_ENABLE_REG0          (0x102310f0)
 #define HX5_INTC_INTR_STATUS_REG0          (0x10231190)
 #define HX5_INTC_INTR_RAW_STATUS_REG0      (0x10231140)
@@ -116,8 +140,6 @@ be made.
 #define HX5_INTC_INTR_ENABLE_BASE          (HX5_INTC_INTR_ENABLE_REG0)
 #define HX5_INTC_INTR_STATUS_BASE          (HX5_INTC_INTR_STATUS_REG0)
 #define HX5_INTC_INTR_RAW_STATUS_BASE      (HX5_INTC_INTR_RAW_STATUS_REG0)
-
-#define IOREMAP(addr, size)                ioremap(addr, size)
 
 #define HX5_IHOST_GICD_ISENABLERN_0        (0x10781100)
 #define HX5_IHOST_GICD_ISENABLERN_1        (0x10781104)
@@ -205,6 +227,7 @@ typedef struct _intr_regs_s {
     uint32 intc_intr_clear_delay_unit;
     uint32 intc_intr_clear_delay_base;
     uint32 intc_intr_pcie_err_status;
+    uint32 intc_intr_nof_regs;
 } _intr_regs_t;
 
 typedef struct bde_ctrl_s {
@@ -351,7 +374,7 @@ dump_interrupt_regs(bde_ctrl_t *ctrl , int dev)
     if (debug >= 2) {
         gprintk("Interrupt timeout count = %lu\n", intr_timeout_count);
         gprintk("Interrupt count = %lu\n", intr_count);
-        for (ind = 0; ind < INTC_INTR_REG_NUM; ind++) {
+        for (ind = 0; ind < ctrl->intr_regs.intc_intr_nof_regs; ind++) {
             IPROC_READ(dev, ctrl->intr_regs.intc_intr_status_base + 4 * ind, val);
             gprintk("INTC_INTR_STATUS_REG_%d = 0x%x\n", ind, val);
             IPROC_READ(dev, ctrl->intr_regs.intc_intr_raw_status_base + 4 * ind, val);
@@ -375,7 +398,7 @@ dump_interrupt_regs(bde_ctrl_t *ctrl , int dev)
         }
     }
     /* Clear interrupt enable registers */
-    for (ind = 0; ind < INTC_INTR_REG_NUM; ind++) {
+    for (ind = 0; ind < ctrl->intr_regs.intc_intr_nof_regs; ind++) {
         IPROC_WRITE(dev, ctrl->intr_regs.intc_intr_enable_base + 4 * ind, 0);
     }
 }
@@ -579,6 +602,85 @@ _cmicx_interrupt(bde_ctrl_t *ctrl)
 #endif
     }
 }
+
+#ifdef NEED_CMICX_GEN2_INTERRUPT
+static void
+_cmicx_gen2_interrupt(bde_ctrl_t *ctrl)
+{
+    int d, ind ;
+    uint32 stat, iena, mask, fmask;
+    int active_interrupts = 0;
+    bde_inst_resource_t *res;
+
+    intr_count++;
+    d = (((uint8 *)ctrl - (uint8 *)_devices) / sizeof (bde_ctrl_t));
+    res = &_bde_inst_resource[ctrl->inst];
+
+    /** Get MSI clear mode, auto clear or SW clear, must be configure same for 64 MSI/MSIx vectors */
+    IPROC_READ(d, ctrl->intr_regs.intc_intr_clear_mode_0, stat);
+    /* Clear MSI interrupts immediately to prevent spurious interrupts */
+    if (stat == 0) {
+        IPROC_WRITE(d, ctrl->intr_regs.intc_intr_clear_0, 0xFFFFFFFF);
+        IPROC_WRITE(d, ctrl->intr_regs.intc_intr_clear_1, 0xFFFFFFFF);
+    }
+
+    lkbde_irq_mask_get(d, &mask, &fmask);
+    for (ind = 0; ind < CMICX_GEN2_INTC_INTR_REG_NUM; ind++) {
+        IPROC_READ(d, ctrl->intr_regs.intc_intr_status_base + 4 * ind, stat);
+        if (stat == 0) {
+            continue;
+        }
+
+        if (fmask) {
+            /** Packet DMA 8 - 31 bits on IPROC_IRQ_BASE5 */
+            if ((ind == CMICX_GEN2_INTC_PDMA_INTR_REG_IND_0) && !(stat & 0xFF)) {
+                continue;
+            } else if ((ind == CMICX_GEN2_INTC_PDMA_INTR_REG_IND_1) && !(stat & 0xFFFFFF00)) {
+                /** Packet DMA 0 - 7 bits on IPROC_IRQ_BASE6 */
+                continue;
+            }
+        }
+        IPROC_READ(d, ctrl->intr_regs.intc_intr_enable_base + 4 * ind, iena);
+        if (stat & iena) {
+            active_interrupts = 1;
+            break;
+        }
+    }
+
+    /* No active interrupts to service */
+    if (!active_interrupts) {
+        return;
+    }
+
+    /* Disable all interrupts.. Re-enable unserviced interrupts later
+     * So as to avoid getting new interrupts until the user level driver
+     * enumerates the interrupts to be serviced
+     */
+    for (ind = 0; ind < CMICX_GEN2_INTC_INTR_REG_NUM; ind++) {
+        if (fmask) {
+            /** TODO? change by KNET */
+            if (ind == CMICX_GEN2_INTC_PDMA_INTR_REG_IND_0) {
+                IPROC_READ(d, ctrl->intr_regs.intc_intr_enable_base + 4 * ind, iena);
+                IPROC_WRITE(d, ctrl->intr_regs.intc_intr_enable_base + (4 * ind), iena & ((fmask & 0xFFFFFF) << 8));
+                continue;
+            } else if (ind == CMICX_GEN2_INTC_PDMA_INTR_REG_IND_1) {
+                IPROC_READ(d, ctrl->intr_regs.intc_intr_enable_base + 4 * ind, iena);
+                IPROC_WRITE(d, ctrl->intr_regs.intc_intr_enable_base + (4 * ind), iena & ((fmask & 0xFF) << 24));
+                continue;
+            }
+        }
+        IPROC_WRITE(d, ctrl->intr_regs.intc_intr_enable_base + (4 * ind), 0);
+    }
+
+    /* Notify */
+    atomic_set(&res->intr, 1);
+#ifdef BDE_LINUX_NON_INTERRUPTIBLE
+    wake_up(&res->intr_wq);
+#else
+    wake_up_interruptible(&res->intr_wq);
+#endif
+}
+#endif /* NEED_CMICX_GEN2_INTERRUPT */
 
 static void
 _cmicm_interrupt(bde_ctrl_t *ctrl)
@@ -925,9 +1027,9 @@ _intr_mode_str(void *isr)
 }
 
 static void
-_intr_regs_init(bde_ctrl_t *ctrl, int hx5_intr)
+_intr_regs_init(bde_ctrl_t *ctrl, int flag)
 {
-    if (hx5_intr) {
+    if (flag == 1) {
         ctrl->intr_regs.intc_intr_status_base = HX5_INTC_INTR_STATUS_BASE;
         ctrl->intr_regs.intc_intr_enable_base = HX5_INTC_INTR_ENABLE_BASE;
         ctrl->intr_regs.intc_intr_raw_status_base = HX5_INTC_INTR_RAW_STATUS_BASE;
@@ -940,7 +1042,21 @@ _intr_regs_init(bde_ctrl_t *ctrl, int hx5_intr)
         ctrl->intr_regs.intc_intr_clear_delay_unit = HX5_PAXB_0_PAXB_INTRCLR_DELAY_UNIT;
         ctrl->intr_regs.intc_intr_clear_delay_base = HX5_PAXB_0_PAXB_IC_INTRCLR_DELAY_BASE;
         ctrl->intr_regs.intc_intr_pcie_err_status = HX5_PAXB_0_PCIE_ERROR_STATUS;
-
+        ctrl->intr_regs.intc_intr_nof_regs = INTC_INTR_REG_NUM;
+    } else if (flag == 2){
+        ctrl->intr_regs.intc_intr_status_base = CMICX_GEN2_PAXB_0_INTC_INTR_STATUS_BASE;
+        ctrl->intr_regs.intc_intr_raw_status_base = CMICX_GEN2_PAXB_0_INTC_INTR_RAW_STATUS_BASE;
+        ctrl->intr_regs.intc_intr_enable_base = CMICX_GEN2_PAXB_0_INTC_INTR_ENABLE_BASE;
+        ctrl->intr_regs.intc_intr_clear_0 = CMICX_GEN2_PAXB_0_PAXB_IC_INTRCLR_0;
+        ctrl->intr_regs.intc_intr_clear_1 = CMICX_GEN2_PAXB_0_PAXB_IC_INTRCLR_1;
+        ctrl->intr_regs.intc_intr_clear_mode_0 = CMICX_GEN2_PAXB_0_PAXB_IC_INTRCLR_MODE_0;
+        ctrl->intr_regs.intc_intr_clear_mode_1 = CMICX_GEN2_PAXB_0_PAXB_IC_INTRCLR_MODE_1;
+        ctrl->intr_regs.intc_intr_status = CMICX_GEN2_PAXB_0_PAXB_INTR_STATUS;
+        ctrl->intr_regs.intc_intr_pacing_ctrl = CMICX_GEN2_PAXB_0_PAXB_IC_INTR_PACING_CTRL;
+        ctrl->intr_regs.intc_intr_clear_delay_unit = CMICX_GEN2_PAXB_0_PAXB_INTRCLR_DELAY_UNIT;
+        ctrl->intr_regs.intc_intr_clear_delay_base = CMICX_GEN2_PAXB_0_PAXB_IC_INTRCLR_DELAY_BASE;
+        ctrl->intr_regs.intc_intr_pcie_err_status = CMICX_GEN2_PAXB_0_PCIE_ERROR_STATUS;
+        ctrl->intr_regs.intc_intr_nof_regs = CMICX_GEN2_INTC_INTR_REG_NUM;
     } else {
         ctrl->intr_regs.intc_intr_status_base = INTC_INTR_STATUS_BASE;
         ctrl->intr_regs.intc_intr_raw_status_base = INTC_INTR_RAW_STATUS_BASE;
@@ -954,7 +1070,7 @@ _intr_regs_init(bde_ctrl_t *ctrl, int hx5_intr)
         ctrl->intr_regs.intc_intr_clear_delay_unit = PAXB_0_PAXB_INTRCLR_DELAY_UNIT;
         ctrl->intr_regs.intc_intr_clear_delay_base = PAXB_0_PAXB_IC_INTRCLR_DELAY_BASE;
         ctrl->intr_regs.intc_intr_pcie_err_status = PAXB_0_PCIE_ERROR_STATUS;
-
+        ctrl->intr_regs.intc_intr_nof_regs = INTC_INTR_REG_NUM;
     }
 }
 
@@ -1074,11 +1190,11 @@ _devices_init(int d)
             ctrl->isr = (isr_f)_cmicx_interrupt;
             if (ctrl->dev_type & BDE_AXI_DEV_TYPE) {
                 if (!ihost_intr_enable_base) {
-                    ihost_intr_enable_base = (uint32_t *)IOREMAP(HX5_IHOST_GICD_ISENABLERN_1,
+                    ihost_intr_enable_base = (uint32_t *)ioremap(HX5_IHOST_GICD_ISENABLERN_1,
                                                                  HX5_IHOST_INTR_MAP_NUM);
                 }
                 if (!ihost_intr_status_base) {
-                    ihost_intr_status_base = (uint32_t *)IOREMAP(HX5_INTC_INTR_RAW_STATUS_REG0,
+                    ihost_intr_status_base = (uint32_t *)ioremap(HX5_INTC_INTR_RAW_STATUS_REG0,
                                                                  HX5_IHOST_INTR_STATUS_MAP_NUM);
                 }
             }
@@ -1131,6 +1247,7 @@ _devices_init(int d)
             ctrl->isr = (isr_f)_cmicx_interrupt;
             _intr_regs_init(ctrl, 0);
             break;
+
         }
 #endif /* defined(BCM_DNXF_SUPPORT) || defined(BCM_DNX_SUPPORT) */
 
@@ -1867,7 +1984,7 @@ _ioctl(unsigned int cmd, unsigned long arg)
             return -EINVAL;
         }
         if (_devices[io.dev].dev_type & BDE_AXI_DEV_TYPE) {
-            mapaddr = IOREMAP(io.d0, sizeof(uint32_t));
+            mapaddr = ioremap(io.d0, sizeof(uint32_t));
             if (mapaddr == NULL) {
                 io.rc = LUBDE_FAIL;
                 return -1;
@@ -1920,12 +2037,12 @@ static char _modname[] = LINUX_USER_BDE_NAME;
 
 static gmodule_t _gmodule = 
 {
-    name: LINUX_USER_BDE_NAME, 
-    major: LINUX_USER_BDE_MAJOR, 
-    init: _init, 
-    cleanup: _cleanup, 
-    pprint: _pprint, 
-    ioctl: _ioctl,
+    .name = LINUX_USER_BDE_NAME, 
+    .major = LINUX_USER_BDE_MAJOR, 
+    .init = _init, 
+    .cleanup = _cleanup, 
+    .pprint = _pprint, 
+    .ioctl = _ioctl,
 }; 
 
 gmodule_t*

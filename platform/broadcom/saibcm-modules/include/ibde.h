@@ -182,6 +182,10 @@ typedef struct ibde_s {
         uint32 addr,   /* The address to access in the internal device address space */
         uint32 value); /* the value to be written. */
 
+    /* 64 bit read/write */
+    uint64  (*read64)(int d, uint32 addr);
+    void    (*write64)(int d, uint32 addr, uint64 data);
+
 } ibde_t;
 
 

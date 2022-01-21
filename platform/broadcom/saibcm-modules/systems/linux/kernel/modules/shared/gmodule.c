@@ -41,16 +41,6 @@
 static gmodule_t* _gmodule = NULL;
 
 
-/* Allow DEVFS Support on 2.4 Kernels */
-#if defined(LKM_2_4) && defined(CONFIG_DEVFS_FS)
-#define GMODULE_CONFIG_DEVFS_FS
-#endif
-
-
-#ifdef GMODULE_CONFIG_DEVFS_FS
-devfs_handle_t devfs_handle = NULL;
-#endif
-
 /* FIXME: support dynamic debugging */
 
 static int _dbg_enable = 0;
@@ -149,24 +139,14 @@ static int _gmodule_proc_release(struct inode * inode, struct file * file) {
     return single_release(inode, file);
 }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,6,0)
-struct file_operations _gmodule_proc_fops = {
-    owner:      THIS_MODULE,
-    open:       _gmodule_proc_open,
-    read:       seq_read,
-    llseek:     seq_lseek,
-    write:      _gmodule_proc_write,
-    release:    _gmodule_proc_release,
-};
-#else
 struct proc_ops _gmodule_proc_fops = {
-    proc_open:       _gmodule_proc_open,
-    proc_read:       seq_read,
-    proc_lseek:      seq_lseek,
-    proc_write:      _gmodule_proc_write,
-    proc_release:    _gmodule_proc_release,
+    PROC_OWNER(THIS_MODULE)
+    .proc_open =       _gmodule_proc_open,
+    .proc_read =       seq_read,
+    .proc_lseek =      seq_lseek,
+    .proc_write =      _gmodule_proc_write,
+    .proc_release =    _gmodule_proc_release,
 };
-#endif
 #else
 int
 gmodule_vpprintf(char** page_ptr, const char* fmt, va_list args)
@@ -281,7 +261,6 @@ _gmodule_release(struct inode *inode, struct file *filp)
     return 0;
 }
 
-#if defined(HAVE_UNLOCKED_IOCTL) || LINUX_VERSION_CODE >= KERNEL_VERSION(5,9,0)
 static long
 _gmodule_unlocked_ioctl(struct file *filp,
                         unsigned int cmd, unsigned long arg)
@@ -292,20 +271,7 @@ _gmodule_unlocked_ioctl(struct file *filp,
 	return -1;
     }
 }
-#else
-static int 
-_gmodule_ioctl(struct inode *inode, struct file *filp,
-	       unsigned int cmd, unsigned long arg)
-{
-    if(_gmodule->ioctl) {
-	return _gmodule->ioctl(cmd, arg);
-    } else {
-	return -1;
-    }
-}
-#endif
 
-#ifdef HAVE_COMPAT_IOCTL
 static long
 _gmodule_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
@@ -315,7 +281,6 @@ _gmodule_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 	return -1;
     }
 }
-#endif
 
 
 static int
@@ -344,17 +309,11 @@ _gmodule_mmap(struct file *filp, struct vm_area_struct *vma)
 /* FILE OPERATIONS */
 
 struct file_operations _gmodule_fops = {
-#if defined(HAVE_UNLOCKED_IOCTL) || LINUX_VERSION_CODE >= KERNEL_VERSION(5,9,0)
-    unlocked_ioctl: _gmodule_unlocked_ioctl,
-#else
-    ioctl:      _gmodule_ioctl,
-#endif
-    open:       _gmodule_open,
-    release:    _gmodule_release,
-    mmap:       _gmodule_mmap,
-#ifdef HAVE_COMPAT_IOCTL
-    compat_ioctl: _gmodule_compat_ioctl,
-#endif
+    .unlocked_ioctl = _gmodule_unlocked_ioctl,
+    .open =       _gmodule_open,
+    .release =    _gmodule_release,
+    .mmap =       _gmodule_mmap,
+    .compat_ioctl = _gmodule_compat_ioctl,
 };
 
 
@@ -374,11 +333,7 @@ cleanup_module(void)
     }
   
     /* Finally, remove ourselves from the universe */
-#ifdef GMODULE_CONFIG_DEVFS_FS
-    if(devfs_handle) devfs_unregister(devfs_handle);
-#else
     unregister_chrdev(_gmodule->major, _gmodule->name);
-#endif
 }
 
 int __init
@@ -392,21 +347,6 @@ init_module(void)
 
 
     /* Register ourselves */
-#ifdef GMODULE_CONFIG_DEVFS_FS
-    devfs_handle = devfs_register(NULL, 
-				  _gmodule->name, 
-				  DEVFS_FL_NONE, 
-				  _gmodule->major,
-				  _gmodule->minor, 
-				  S_IFCHR | S_IRUGO | S_IWUGO,
-				  &_gmodule_fops, 
-				  NULL);
-    if(!devfs_handle) {
-	printk(KERN_WARNING "%s: can't register device with devfs", 
-	       _gmodule->name);
-    }
-    rc = 0;
-#else
     rc = register_chrdev(_gmodule->major, 
 			 _gmodule->name, 
 			 &_gmodule_fops);
@@ -419,17 +359,12 @@ init_module(void)
     if(_gmodule->major == 0) {
 	_gmodule->major = rc;
     }
-#endif
 
     /* Specific module Initialization */
     if(_gmodule->init) {
 	int rc;
 	if((rc = _gmodule->init()) < 0) {
-#ifdef GMODULE_CONFIG_DEVFS_FS
-            if(devfs_handle) devfs_unregister(devfs_handle);
-#else
             unregister_chrdev(_gmodule->major, _gmodule->name);
-#endif
 	    return rc;
 	}
     }

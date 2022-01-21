@@ -166,14 +166,6 @@ MODULE_PARM_DESC(spifreq,
 #endif
 
 
-/* Compatibility */
-#ifdef LKM_2_4
-#define _ISR_RET void
-#define _ISR_PARAMS(_i,_d,_r) int _i, void *_d, struct pt_regs *_r
-#define IRQ_NONE
-#define IRQ_HANDLED
-#define SYNC_IRQ(_i) synchronize_irq()
-#else /* LKM_2_6 */
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,30))
 #define _ISR_RET irqreturn_t
 #else
@@ -207,7 +199,6 @@ char * strtok(char * s,const char * ct)
 }
 LKM_EXPORT_SYM(___strtok);
 LKM_EXPORT_SYM(strtok);
-#endif /* LKM_2_x */
 
 /* PCIe capabilities */
 #ifndef PCI_CAP_ID_EXP
@@ -585,7 +576,7 @@ _eb_device_create(resource_size_t paddr, int irq, int rd_hw, int wr_hw)
     }
 
     /* Map in the device */
-    ctrl->bde_dev.base_address = (sal_vaddr_t)IOREMAP(paddr, 0x10000);
+    ctrl->bde_dev.base_address = (sal_vaddr_t)ioremap(paddr, 0x10000);
     ctrl->iowin[0].addr = paddr;
     ctrl->iowin[0].size = 0x10000;
 
@@ -622,7 +613,7 @@ sand_device_create(void)
     ctrl->pci_device = NULL; /* No PCI bus */
 
     /* Map in the device */ /* FIX_ME: not realy map anything */
-    ctrl->bde_dev.base_address = (sal_vaddr_t)IOREMAP(0x40000000, 0x100000);
+    ctrl->bde_dev.base_address = (sal_vaddr_t)ioremap(0x40000000, 0x100000);
     ctrl->iowin[0].addr = 0x40000000;
     ctrl->iowin[0].size = 0x100000;
 
@@ -636,17 +627,17 @@ sand_device_create(void)
 
     /* Map CPU regs */
 #ifdef __DUNE_WRX_BCM_CPU__
-    cpu_address = IOREMAP(0x18000000, 0x4000000);
+    cpu_address = ioremap(0x18000000, 0x4000000);
 #elif defined(__DUNE_GTO_BCM_CPU__)
-    cpu_address = IOREMAP(0xe0000000, 0x100000);
+    cpu_address = ioremap(0xe0000000, 0x100000);
 #endif
 
-    if ((ctrl->bde_dev.device == PCP_PCI_DEVICE_ID)) {
+    if (ctrl->bde_dev.device == PCP_PCI_DEVICE_ID) {
         ctrl->bde_dev.device = GEDI_DEVICE_ID;
         ctrl->bde_dev.rev = GEDI_REV_ID;
     }
 
-    if ((ctrl->bde_dev.device == ACP_PCI_DEVICE_ID)) {
+    if (ctrl->bde_dev.device == ACP_PCI_DEVICE_ID) {
         ctrl->dev_type |= BDE_PCI_DEV_TYPE | BDE_SWITCH_DEV_TYPE;
     }
 
@@ -724,7 +715,7 @@ iproc_cmicd_probe(struct platform_device *pldev)
     ctrl->pci_device = NULL; /* No PCI bus */
 
     /* Map CMIC block in the AXI memory space into CPU address space */
-    ctrl->bde_dev.base_address = (sal_vaddr_t)IOREMAP(memres->start, size);
+    ctrl->bde_dev.base_address = (sal_vaddr_t)ioremap(memres->start, size);
     if (!ctrl->bde_dev.base_address) {
         gprintk("Error mapping iProc CMIC registers");
         return -1;
@@ -735,7 +726,7 @@ iproc_cmicd_probe(struct platform_device *pldev)
 #ifdef CONFIG_OF
     if (of_find_compatible_node(NULL, NULL, IPROC_CMICX_COMPATIBLE)) {
         uint32 *icfg_chip_id;
-        icfg_chip_id = (uint32 *)IOREMAP(ICFG_CHIP_ID_REG, 2 * sizeof(uint32));
+        icfg_chip_id = (uint32 *)ioremap(ICFG_CHIP_ID_REG, 2 * sizeof(uint32));
         if (icfg_chip_id == NULL) {
             gprintk("Error mapping ICFG_CHIP_ID_REG\n");
             return -1;
@@ -746,12 +737,12 @@ iproc_cmicd_probe(struct platform_device *pldev)
         /* Map GICD block in the AXI memory space into CPU address space */
         memres = iproc_platform_get_resource(pldev, IORESOURCE_MEM, 1);
         if (memres) {
-            ctrl->bde_dev.base_address1 = (sal_vaddr_t)IOREMAP(memres->start, memres->end - memres->start + 1);
+            ctrl->bde_dev.base_address1 = (sal_vaddr_t)ioremap(memres->start, memres->end - memres->start + 1);
             ctrl->iowin[1].addr = memres->start;
             ctrl->iowin[1].size = memres->end - memres->start + 1;
         } else {
             /* Use default address if not available in DTB */
-            ctrl->bde_dev.base_address1 = (sal_vaddr_t)IOREMAP(IHOST_GICD_REG_ADDR, IHOST_GICD_REG_REMAP_LEN);
+            ctrl->bde_dev.base_address1 = (sal_vaddr_t)ioremap(IHOST_GICD_REG_ADDR, IHOST_GICD_REG_REMAP_LEN);
             ctrl->iowin[1].addr = IHOST_GICD_REG_ADDR;
             ctrl->iowin[1].size = IHOST_GICD_REG_REMAP_LEN;
         }
@@ -914,7 +905,7 @@ iproc_has_cmicd(void)
     void *iproc_cca_base;
 
     /* Read ChipcommonA chip id register to identify current SOC */
-    iproc_cca_base = IOREMAP(IPROC_CHIPCOMMONA_BASE, 0x3000);
+    iproc_cca_base = ioremap(IPROC_CHIPCOMMONA_BASE, 0x3000);
     if (iproc_cca_base == NULL) {
         gprintk("iproc_has_cmicd: ioremap of ChipcommonA registers failed");
         return 0;
@@ -969,12 +960,12 @@ iproc_cmicd_get_memregion(struct resource *res_mem)
     uint8_t size_type = 0;
     bool is_compident_a = 1; /* 1: CompidentA; o/w: CompidentB */
 
-    erom_ptr_oft = IOREMAP(IPROC_CHIPCOMMONA_EROM_PTR_OFFSET, 0x100);
+    erom_ptr_oft = ioremap(IPROC_CHIPCOMMONA_EROM_PTR_OFFSET, 0x100);
 
     erom_phy_addr = readl((uint32 *)(erom_ptr_oft));
     iounmap(erom_ptr_oft);
 
-    erom_base = IOREMAP(erom_phy_addr, EROM_MAX_SIZE);
+    erom_base = ioremap(erom_phy_addr, EROM_MAX_SIZE);
 
     while (1) {
         word = readl((uint32 *)(erom_base + i));
@@ -1071,7 +1062,7 @@ _ics_bde_create(void)
 
         /* Map in the device */
         paddr = BCM_ICS_CMIC_BASE;
-        ctrl->bde_dev.base_address = (sal_vaddr_t)IOREMAP(paddr, 0x10000);
+        ctrl->bde_dev.base_address = (sal_vaddr_t)ioremap(paddr, 0x10000);
         ctrl->iowin[0].addr = paddr;
         ctrl->iowin[0].size = 0x10000;
 
@@ -1662,6 +1653,21 @@ static const struct pci_device_id _id_table[] = {
     { BROADCOM_VENDOR_ID, BCM8884D_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM8884E_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
     { BROADCOM_VENDOR_ID, BCM8884F_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88831_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88832_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88833_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88834_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88835_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88836_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88837_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88838_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM88839_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM8883A_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM8883B_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM8883C_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM8883D_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM8883E_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
+    { BROADCOM_VENDOR_ID, BCM8883F_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
 #endif /* BCM_DNX_SUPPORT */
 #ifdef BCM_DFE_SUPPORT
     { BROADCOM_VENDOR_ID, BCM88770_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID },
@@ -2072,7 +2078,7 @@ _plx_las_bar_get(struct pci_dev *dev)
     void           *local_config_addr;
     int             bar = -1;
 
-    local_config_addr = IOREMAP(pci_resource_start(dev, PLX_MMAP_PCIBAR0),
+    local_config_addr = ioremap(pci_resource_start(dev, PLX_MMAP_PCIBAR0),
                                 pci_resource_len(dev, PLX_MMAP_PCIBAR0));
     if (local_config_addr) {
         uint32          las_remap_reg;        
@@ -2578,7 +2584,7 @@ _pci_probe(struct pci_dev *dev, const struct pci_device_id *ent)
              * system performance. This change significantly reduces the
              * number of PCI retries from other devices on the PCI bus.
              */
-            void * _mc_vbase = IOREMAP(BCM4704_MEMC_BASE, 0x1000);
+            void * _mc_vbase = ioremap(BCM4704_MEMC_BASE, 0x1000);
             int priorinv = 0x80;
             static int done = 0;
             if (!done) {
@@ -2726,7 +2732,7 @@ _pci_probe(struct pci_dev *dev, const struct pci_device_id *ent)
         break;
     }
 
-    ctrl->bde_dev.base_address = (sal_vaddr_t)IOREMAP(paddr, bar_len);
+    ctrl->bde_dev.base_address = (sal_vaddr_t)ioremap(paddr, bar_len);
     ctrl->iowin[0].addr = paddr;
     ctrl->iowin[0].size = bar_len;
 
@@ -2749,7 +2755,7 @@ _pci_probe(struct pci_dev *dev, const struct pci_device_id *ent)
         ) {
         paddr = pci_resource_start(dev, 0);
         bar_len = pci_resource_len(dev, 0);
-        ctrl->bde_dev.base_address1 = (sal_vaddr_t)IOREMAP(paddr, bar_len);
+        ctrl->bde_dev.base_address1 = (sal_vaddr_t)ioremap(paddr, bar_len);
         ctrl->iowin[1].addr = paddr;
         ctrl->iowin[1].size = PAGE_ALIGN(bar_len);
         if (debug >= 3) {
@@ -2959,7 +2965,7 @@ map_local_bus(uint64_t addr, uint32_t size)
     ctrl->pci_device = NULL; /* No PCI bus */
 
     /* Map in the device */
-    ctrl->bde_dev.base_address = (sal_vaddr_t)IOREMAP(addr, size);
+    ctrl->bde_dev.base_address = (sal_vaddr_t)ioremap(addr, size);
     ctrl->iowin[0].addr = addr;
     ctrl->iowin[0].size = size;
 
@@ -3424,12 +3430,12 @@ _bde_mmap(struct file *filp, struct vm_area_struct *vma)
 static char _modname[] = LINUX_KERNEL_BDE_NAME;
 
 static gmodule_t _gmodule = {
-    name: LINUX_KERNEL_BDE_NAME,
-    major: LINUX_KERNEL_BDE_MAJOR,
-    init: _init,
-    cleanup: _cleanup,
-    pprint: _pprint,
-    mmap: _bde_mmap,
+    .name = LINUX_KERNEL_BDE_NAME,
+    .major = LINUX_KERNEL_BDE_MAJOR,
+    .init = _init,
+    .cleanup = _cleanup,
+    .pprint = _pprint,
+    .mmap = _bde_mmap,
 };
 
 gmodule_t *
@@ -3906,7 +3912,7 @@ _iproc_ihost_read(int d, uint32_t addr)
 {
     uint32_t *mapaddr;
     uint32_t reg_val;
-    mapaddr = IOREMAP(addr, sizeof(uint32_t));
+    mapaddr = ioremap(addr, sizeof(uint32_t));
     if (mapaddr == NULL) {
         return -1;
     }
@@ -3919,7 +3925,7 @@ static int
 _iproc_ihost_write(int d, uint32_t addr, uint32_t data)
 {
     uint32_t *mapaddr;
-    mapaddr = IOREMAP(addr, sizeof(uint32_t));
+    mapaddr = ioremap(addr, sizeof(uint32_t));
     if (mapaddr == NULL) {
         return -1;
     }
@@ -4219,7 +4225,7 @@ lkbde_cpu_pci_register(int d)
     if (ctrl->bde_dev.base_address) {
         iounmap((void *)ctrl->bde_dev.base_address);
     }
-    ctrl->bde_dev.base_address = (sal_vaddr_t)IOREMAP(ctrl->iowin[0].addr, 0x1000000);
+    ctrl->bde_dev.base_address = (sal_vaddr_t)ioremap(ctrl->iowin[0].addr, 0x1000000);
 
     if (debug >= 1) {
         gprintk("%s, %s(): info:\n", __FILE__, __FUNCTION__);
@@ -4271,29 +4277,29 @@ LKM_EXPORT_SYM(lkbde_mem_read);
 #endif /* BCM_SAND_SUPPORT */
 
 static ibde_t _ibde = {
-    name: _name,
-    num_devices: _num_devices,
-    get_dev: _get_dev,
-    get_dev_type: _get_dev_type,
-    pci_conf_read: _pci_conf_read,
-    pci_conf_write: _pci_conf_write,
-    pci_bus_features: _pci_bus_features,
-    read: _read,
-    write: _write,
-    salloc: _salloc,
-    sfree: _sfree,
-    sinval: _sinval,
-    sflush: _sflush,
-    interrupt_connect: _interrupt_connect,
-    interrupt_disconnect: _interrupt_disconnect,
-    l2p: _l2p,
-    p2l: _p2l,
+    .name = _name,
+    .num_devices = _num_devices,
+    .get_dev = _get_dev,
+    .get_dev_type = _get_dev_type,
+    .pci_conf_read = _pci_conf_read,
+    .pci_conf_write = _pci_conf_write,
+    .pci_bus_features = _pci_bus_features,
+    .read = _read,
+    .write = _write,
+    .salloc = _salloc,
+    .sfree = _sfree,
+    .sinval = _sinval,
+    .sflush = _sflush,
+    .interrupt_connect = _interrupt_connect,
+    .interrupt_disconnect = _interrupt_disconnect,
+    .l2p = _l2p,
+    .p2l = _p2l,
 
     NULL,
     NULL,
-    iproc_read: _iproc_read,
-    iproc_write: _iproc_write,
-    get_cmic_ver: _get_cmic_ver,
+    .iproc_read = _iproc_read,
+    .iproc_write = _iproc_write,
+    .get_cmic_ver = _get_cmic_ver,
 };
 
 /*

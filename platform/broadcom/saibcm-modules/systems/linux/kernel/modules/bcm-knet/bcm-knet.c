@@ -5477,6 +5477,12 @@ bkn_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
     bkn_switch_info_t *sinfo;
     struct hwtstamp_config config;
 
+    DBG_PTP(("bkn_ioctl: module_initialized:%d\n", module_initialized));
+
+    if (!module_initialized) {
+        return -EINVAL;
+    }
+
     if (!dev)
         return -EINVAL;
 
@@ -6608,6 +6614,12 @@ static const struct net_device_ops bkn_netdev_ops = {
 static void
 bkn_get_drvinfo(struct net_device *dev, struct ethtool_drvinfo *drvinfo)
 {
+    DBG_PTP(("bkn_get_drv_info: module_initialized:%d\n", module_initialized));
+
+    if (!module_initialized) {
+        return;
+    }
+
     strlcpy(drvinfo->driver, "bcm-knet", sizeof(drvinfo->driver));
     snprintf(drvinfo->version, sizeof(drvinfo->version), "%d", KCOM_VERSION);
     strlcpy(drvinfo->fw_version, "N/A", sizeof(drvinfo->fw_version));
@@ -6621,6 +6633,12 @@ bkn_get_ts_info(struct net_device *dev, struct ethtool_ts_info *info)
     bkn_priv_t *priv;
     bkn_switch_info_t *sinfo;
 
+    DBG_PTP(("bkn_get_ts_info: module_initialized:%d\n", module_initialized));
+
+    if (!module_initialized) {
+        return -EINVAL;
+    }
+
     if (!dev)
         return -EINVAL;
 
@@ -6630,6 +6648,9 @@ bkn_get_ts_info(struct net_device *dev, struct ethtool_ts_info *info)
         return -EINVAL;
 
     sinfo = priv->sinfo;
+
+    if (!sinfo)
+        return -EINVAL;
 
     switch (sinfo->dcb_type) {
     case 28: /* dpp */
@@ -6734,6 +6755,7 @@ bkn_init_ndev(u8 *mac, char *name)
         dev->mtu = rx_buffer_size;
     }
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,10,0))
+    dev->min_mtu = 68;
     dev->max_mtu = rx_buffer_size;
 #endif
 
@@ -6885,24 +6907,14 @@ bkn_proc_link_write(struct file *file, const char *buf,
     return count;
 }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,6,0)
-struct file_operations bkn_proc_link_file_ops = {
-    owner:      THIS_MODULE,
-    open:       bkn_proc_link_open,
-    read:       seq_read,
-    llseek:     seq_lseek,
-    write:      bkn_proc_link_write,
-    release:    single_release,
-};
-#else
 struct proc_ops bkn_proc_link_file_ops = {
-    proc_open:       bkn_proc_link_open,
-    proc_read:       seq_read,
-    proc_lseek:     seq_lseek,
-    proc_write:      bkn_proc_link_write,
-    proc_release:    single_release,
+    PROC_OWNER(THIS_MODULE)
+    .proc_open =       bkn_proc_link_open,
+    .proc_read =       seq_read,
+    .proc_lseek =      seq_lseek,
+    .proc_write =      bkn_proc_link_write,
+    .proc_release =    single_release,
 };
-#endif
 
 /*
  * Device Rate Control Proc Read Entry
@@ -7005,24 +7017,14 @@ bkn_proc_rate_write(struct file *file, const char *buf,
     return count;
 }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,6,0)
-struct file_operations bkn_proc_rate_file_ops = {
-    owner:      THIS_MODULE,
-    open:       bkn_proc_rate_open,
-    read:       seq_read,
-    llseek:     seq_lseek,
-    write:      bkn_proc_rate_write,
-    release:    single_release,
-};
-#else
 struct proc_ops bkn_proc_rate_file_ops = {
-    proc_open:       bkn_proc_rate_open,
-    proc_read:       seq_read,
-    proc_lseek:     seq_lseek,
-    proc_write:      bkn_proc_rate_write,
-    proc_release:    single_release,
+    PROC_OWNER(THIS_MODULE)
+    .proc_open =       bkn_proc_rate_open,
+    .proc_read =       seq_read,
+    .proc_lseek =      seq_lseek,
+    .proc_write =      bkn_proc_rate_write,
+    .proc_release =    single_release,
 };
-#endif
 
 /*
  * Driver DMA Proc Entry
@@ -7265,22 +7267,13 @@ bkn_seq_dma_open(struct inode *inode, struct file *file)
     return seq_open(file, &bkn_seq_dma_ops);
 };
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,6,0)
-static struct file_operations bkn_seq_dma_file_ops = {
-    .owner   = THIS_MODULE,
-    .open    = bkn_seq_dma_open,
-    .read    = seq_read,
-    .llseek  = seq_lseek,
-    .release = seq_release
-};
-#else
 static struct proc_ops bkn_seq_dma_file_ops = {
+    PROC_OWNER(THIS_MODULE)
     .proc_open    = bkn_seq_dma_open,
     .proc_read    = seq_read,
-    .proc_lseek  = seq_lseek,
+    .proc_lseek   = seq_lseek,
     .proc_release = seq_release
 };
-#endif
 
 /*
  * Device Debug Control Proc Write Entry
@@ -7411,24 +7404,14 @@ static int bkn_proc_debug_open(struct inode * inode, struct file * file)
     return single_open(file, bkn_proc_debug_show, NULL);
 }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,6,0)
-struct file_operations bkn_proc_debug_file_ops = {
-    owner:      THIS_MODULE,
-    open:       bkn_proc_debug_open,
-    read:       seq_read,
-    llseek:     seq_lseek,
-    write:      bkn_proc_debug_write,
-    release:    single_release,
-};
-#else
 struct proc_ops bkn_proc_debug_file_ops = {
-    proc_open:       bkn_proc_debug_open,
-    proc_read:       seq_read,
-    proc_lseek:     seq_lseek,
-    proc_write:      bkn_proc_debug_write,
-    proc_release:    single_release,
+    PROC_OWNER(THIS_MODULE)
+    .proc_open =       bkn_proc_debug_open,
+    .proc_read =       seq_read,
+    .proc_lseek =      seq_lseek,
+    .proc_write =      bkn_proc_debug_write,
+    .proc_release =    single_release,
 };
-#endif
 
 /*
  * Device Statistics Proc Entry
@@ -7550,24 +7533,14 @@ bkn_proc_stats_write(struct file *file, const char *buf,
     return count;
 }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,6,0)
-struct file_operations bkn_proc_stats_file_ops = {
-    owner:      THIS_MODULE,
-    open:       bkn_proc_stats_open,
-    read:       seq_read,
-    llseek:     seq_lseek,
-    write:      bkn_proc_stats_write,
-    release:    single_release,
-};
-#else
 struct proc_ops bkn_proc_stats_file_ops = {
-    proc_open:       bkn_proc_stats_open,
-    proc_read:       seq_read,
-    proc_lseek:     seq_lseek,
-    proc_write:      bkn_proc_stats_write,
-    proc_release:    single_release,
+    PROC_OWNER(THIS_MODULE)
+    .proc_open =       bkn_proc_stats_open,
+    .proc_read =       seq_read,
+    .proc_lseek =      seq_lseek,
+    .proc_write =      bkn_proc_stats_write,
+    .proc_release =    single_release,
 };
-#endif
 
 
 /*
@@ -7737,24 +7710,14 @@ bkn_proc_dstats_write(struct file *file, const char *buf,
     return count;
 }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,6,0)
-struct file_operations bkn_proc_dstats_file_ops = {
-    owner:      THIS_MODULE,
-    open:       bkn_proc_dstats_open,
-    read:       seq_read,
-    llseek:     seq_lseek,
-    write:      bkn_proc_dstats_write,
-    release:    single_release,
-};
-#else
 struct proc_ops bkn_proc_dstats_file_ops = {
-    proc_open:       bkn_proc_dstats_open,
-    proc_read:       seq_read,
-    proc_lseek:     seq_lseek,
-    proc_write:      bkn_proc_dstats_write,
-    proc_release:    single_release,
+    PROC_OWNER(THIS_MODULE)
+    .proc_open =       bkn_proc_dstats_open,
+    .proc_read =       seq_read,
+    .proc_lseek =      seq_lseek,
+    .proc_write =      bkn_proc_dstats_write,
+    .proc_release =    single_release,
 };
-#endif
 
 /*
  * PTP Statistics Proc Entry
@@ -7779,16 +7742,15 @@ bkn_proc_ptp_stats_show(struct seq_file *m, void *v)
                 if (priv->tx_hwts || priv->rx_hwts) {
                     if (!print_hdr_done) {
                         seq_printf(m, "PTP message stats (unit %d):\n", unit);
-                        seq_printf(m, "=============================\n\n");
-                        seq_printf(m, "  %-10s| %-8s| %-8s| %-8s| %-12s| %-12s\n",
-                                      "intf", "tx_hwts", "rx_hwts", "phc_type", "tx_pkts", "rx_pkts");
+                        seq_printf(m, "  %-10s| %8s| %12s| %12s| %8s| %8s\n",
+                                      "intf", "phc_type", "tx_pkts", "rx_pkts", "tx_hwts", "rx_hwts");
                         seq_printf(m, "======================================================================\n");
                         print_hdr_done = 1;
                     }
-                    seq_printf(m, "  %-10s| %8d| %8d| %-8s| %12d| %12d\n",
-                                  dev->name, priv->tx_hwts, priv->rx_hwts,
-                                  (priv->tx_hwts & HWTSTAMP_TX_ONESTEP_SYNC ? "1-step": "2-step"),
-                                  priv->ptp_stats_tx, priv->ptp_stats_rx);
+                    seq_printf(m, "  %-10s| %8s| %12d| %12d| %8d| %8d\n",
+                                  dev->name, (priv->tx_hwts & HWTSTAMP_TX_ONESTEP_SYNC ? "1-step": "2-step"),
+                                  priv->ptp_stats_tx, priv->ptp_stats_rx,
+                                  priv->tx_hwts, priv->rx_hwts);
                 }
             }
         }
@@ -7856,13 +7818,13 @@ bkn_proc_ptp_stats_write(struct file *file, const char *buf, size_t count, loff_
     return count;
 }
 
-struct file_operations bkn_proc_ptp_stats_file_ops = {
-    owner:      THIS_MODULE,
-    open:       bkn_proc_ptp_stats_open,
-    read:       seq_read,
-    llseek:     seq_lseek,
-    write:      bkn_proc_ptp_stats_write,
-    release:    single_release,
+struct proc_ops bkn_proc_ptp_stats_file_ops = {
+    PROC_OWNER(THIS_MODULE)
+    .proc_open =       bkn_proc_ptp_stats_open,
+    .proc_read =       seq_read,
+    .proc_lseek =      seq_lseek,
+    .proc_write =      bkn_proc_ptp_stats_write,
+    .proc_release =    single_release,
 };
 
 

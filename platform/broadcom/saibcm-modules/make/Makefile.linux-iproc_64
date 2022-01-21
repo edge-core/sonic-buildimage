@@ -41,12 +41,14 @@ ifeq (BE,$(ENDIAN_MODE))
 #We've never actually built a 64 BE executable.  Just here for any future
 #customer requirements.
 TOOLCHAIN_BASE_DIR ?= /projects/ntsw-tools/linux/iproc_ldks/xldk61-be/XLDK64
+KERN_BASE_DIR ?= $(TOOLCHAIN_BASE_DIR)
 TARGET_ARCHITECTURE ?= aarch64_be-broadcom-linux-uclibc
-KERNDIR ?= $(TOOLCHAIN_BASE_DIR)/kernel/linux
+KERNDIR ?= $(KERN_BASE_DIR)/kernel/linux
 else
-TOOLCHAIN_BASE_DIR ?= /projects/ntsw-tools/linux/iproc_ldks/xldk61/XLDK64
+TOOLCHAIN_BASE_DIR ?= /projects/ntsw-tools/linux/iproc_ldks/XLDK_GCC10/XLDK64
+KERN_BASE_DIR ?= /projects/ntsw-tools/linux/iproc_ldks/xldk61/XLDK64
 TARGET_ARCHITECTURE ?= aarch64-broadcom-linux-uclibc
-KERNDIR ?= $(TOOLCHAIN_BASE_DIR)/kernel/linux
+KERNDIR ?= $(KERN_BASE_DIR)/kernel/linux
 endif
 
 ifeq (,$(CROSS_COMPILE))
