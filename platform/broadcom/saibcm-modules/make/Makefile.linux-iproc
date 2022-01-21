@@ -42,12 +42,14 @@ ifeq (BE,$(ENDIAN_MODE))
 #request for BE support but don't currently mainstream it.  So a 5.1.0 version
 #has not been built.  Continue using 5.0.3 for any BE support
 TOOLCHAIN_BASE_DIR ?= /projects/ntsw-tools/linux/iproc_ldks/xldk61-be/XLDK32
+KERN_BASE_DIR ?= $(TOOLCHAIN_BASE_DIR)
 TARGET_ARCHITECTURE:=armeb-broadcom-linux-uclibcgnueabi
 KERNDIR ?= $(TOOLCHAIN_BASE_DIR)/kernel/linux
 else
-TOOLCHAIN_BASE_DIR ?= /projects/ntsw-tools/linux/iproc_ldks/xldk61/XLDK32
+TOOLCHAIN_BASE_DIR ?= /projects/ntsw-tools/linux/iproc_ldks/XLDK_GCC10/XLDK32
+KERN_BASE_DIR ?= /projects/ntsw-tools/linux/iproc_ldks/xldk61/XLDK32
 TARGET_ARCHITECTURE:= arm-broadcom-linux-uclibcgnueabi
-KERNDIR ?= $(TOOLCHAIN_BASE_DIR)/kernel/linux
+KERNDIR ?= $(KERN_BASE_DIR)/kernel/linux
 endif
 
 ifeq (,$(CROSS_COMPILE))

@@ -716,7 +716,7 @@ _edk_mpool_alloc(int dev_id, size_t size)
     dma_pbase = pbase;
 
 #ifdef REMAP_DMA_NONCACHED
-    _dma_vbase = IOREMAP(dma_pbase, size);
+    _dma_vbase = ioremap(dma_pbase, size);
 #endif
     _edk_dma_pool[dev_id].cpu_pbase = cpu_pbase;
     _edk_dma_pool[dev_id].dma_pbase = dma_pbase;
@@ -1044,7 +1044,7 @@ void _dma_per_device_init(int dev_index)
                 gprintk("remapping DMA buffer pool from physical:0x%lx original kernel_virt:0x%lx\n",
                     (unsigned long)_dma_pbase, (unsigned long)_dma_vbase);
             }
-            _dma_vbase = IOREMAP(_dma_pbase, _dma_mem_size);
+            _dma_vbase = ioremap(_dma_pbase, _dma_mem_size);
         }
 
         if (dma_debug >= 1) {
@@ -1270,13 +1270,8 @@ _sinval(int d, void *ptr, int length)
 #if defined(dma_cache_wback_inv)
      dma_cache_wback_inv((unsigned long)ptr, length);
 #else
-#if defined(IPROC_CMICD) || defined(BCM958525)
     /* FIXME: need proper function to replace dma_cache_sync */
     dma_sync_single_for_cpu(NULL, (unsigned long)ptr, length, DMA_BIDIRECTIONAL);
-#else
-    // TODO: This needs to be verified
-    dma_sync_single_for_device(NULL, ptr, length, DMA_BIDIRECTIONAL);
-#endif
 #endif
     return 0;
 }
@@ -1287,13 +1282,8 @@ _sflush(int d, void *ptr, int length)
 #if defined(dma_cache_wback_inv)
     dma_cache_wback_inv((unsigned long)ptr, length);
 #else
-#if defined(IPROC_CMICD) || defined(BCM958525)
     /* FIXME: need proper function to replace dma_cache_sync */
     dma_sync_single_for_cpu(NULL, (unsigned long)ptr, length, DMA_BIDIRECTIONAL);
-#else
-    // TODO: This needs to be verified
-    dma_sync_single_for_device(NULL, ptr, length, DMA_BIDIRECTIONAL);
-#endif
 #endif
 
     return 0;

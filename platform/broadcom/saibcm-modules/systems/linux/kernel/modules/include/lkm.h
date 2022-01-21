@@ -42,8 +42,8 @@
 
 #include <linux/init.h>
 #include <linux/version.h>
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
-#include <linux/config.h>
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0)
+#error Kernel too old
 #endif
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,32)
 /* The version kconfig.h became available in. */
@@ -63,11 +63,7 @@
 #include <linux/module.h>
 
 /* Helper defines for multi-version kernel  support */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
-#define LKM_2_4
-#else
 #define LKM_2_6
-#endif
 
 #include <linux/kernel.h>   /* printk() */
 #include <linux/fs.h>       /* everything... */
@@ -96,23 +92,10 @@
 
 /* Compatibility Macros */
 
-#ifdef LKM_2_4
-
-#include <linux/compatmac.h>
-#include <linux/wrapper.h>
-#define LKM_MOD_PARAM(n,ot,nt,d) MODULE_PARM(n,ot)
-#define LKM_MOD_PARAM_ARRAY(n,ot,nt,c,d) MODULE_PARM(n,ot)
-#define LKM_EXPORT_SYM(s)
-#define _free_netdev kfree
-
-#else /* LKM_2_6 */
-
 #define LKM_MOD_PARAM(n,ot,nt,d) module_param(n,nt,d)
 #define LKM_MOD_PARAM_ARRAY(n,ot,nt,c,d) module_param_array(n,nt,c,d)
 #define LKM_EXPORT_SYM(s) EXPORT_SYMBOL(s)
 #define _free_netdev free_netdev
-
-#endif /* LKM_2_x */
 
 #ifndef list_for_each_safe
 #define list_for_each_safe(l,t,i) t = 0; list_for_each((l),(i))
@@ -160,6 +143,18 @@
 
 #ifdef CONFIG_BCM98245
 #define CONFIG_BMW
+#endif
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,5,0)
+#define PROC_OWNER(_m)
+#else
+#define PROC_OWNER(_m) .owner = _m,
+#define proc_ops file_operations
+#define proc_open open
+#define proc_read read
+#define proc_write write
+#define proc_lseek llseek
+#define proc_release release
 #endif
 
 #if PROC_INTERFACE_KERN_VER_3_10

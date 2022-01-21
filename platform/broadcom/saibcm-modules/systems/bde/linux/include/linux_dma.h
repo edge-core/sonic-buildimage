@@ -45,13 +45,6 @@
 #define KMALLOC(size, flags)    kmalloc(size, flags)
 #endif
 
-#if defined(CONFIG_IDT_79EB334) || defined(CONFIG_BCM4702)
-/* ioremap is broken in kernel */
-#define IOREMAP(addr, size) ((void *)KSEG1ADDR(addr))
-#else
-#define IOREMAP(addr, size) ioremap(addr, size)
-#endif
-
 #if defined (__mips__)
 #if defined(CONFIG_NONCOHERENT_IO) || defined(CONFIG_DMA_NONCOHERENT)
 /* Use flush/invalidate for cached memory */
