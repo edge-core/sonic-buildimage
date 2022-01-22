@@ -1,5 +1,4 @@
 binutils-arm-linux-gnueabihf==2.31.1-16
-ghostscript==9.27~dfsg-2+deb10u5
 libalgorithm-c3-perl==0.10-1
 libclang-6.0-dev==1:6.0.1-10
 libclang-7-dev==1:7.0.1-8+deb10u2
@@ -12,8 +11,6 @@ libdevel-caller-perl==2.06-2+b1
 libdevel-lexalias-perl==0.05-2+b1
 libdevel-stacktrace-perl==2.0300-1
 libdist-checkconflicts-perl==0.11-1
-libdjvulibre-text==3.5.27.1-10+deb10u1
-libdjvulibre21==3.5.27.1-10+deb10u1
 libdrm-etnaviv1==2.4.97-1
 libdrm-exynos1==2.4.97-1
 libdrm-freedreno1==2.4.97-1
@@ -23,8 +20,6 @@ libemail-date-format-perl==1.005-1
 libeval-closure-perl==0.14-1
 libexception-class-perl==1.44-1
 libgles2-mesa-dev==18.3.6-2+deb10u1
-libgs9==9.27~dfsg-2+deb10u5
-libgs9-common==9.27~dfsg-2+deb10u5
 libipc-shareable-perl==0.61-2
 libjargs-java==1.0.0-4
 liblog-dispatch-perl==2.68-1
@@ -121,7 +116,6 @@ llvm-6.0-dev==1:6.0.1-10
 llvm-6.0-runtime==1:6.0.1-10
 nodejs==14.18.3-deb-1nodesource1
 ps2eps==1.68+binaryfree-2
-python-lxml==4.3.2-1+deb10u4
 rdfind==1.4.1-1
 sassc==3.5.0-1
 texlive-extra-utils==2018.20190227-2
