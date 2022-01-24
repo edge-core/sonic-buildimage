@@ -29,6 +29,7 @@ include $(PLATFORM_PATH)/mlnx-ffb.mk
 include $(PLATFORM_PATH)/issu-version.mk
 include $(PLATFORM_PATH)/mlnx-onie-fw-update.mk
 include $(PLATFORM_PATH)/mlnx-ssd-fw-update.mk
+include $(PLATFORM_PATH)/install-pending-fw.mk
 
 SONIC_ALL += $(SONIC_ONE_IMAGE) \
              $(DOCKER_FPM)
