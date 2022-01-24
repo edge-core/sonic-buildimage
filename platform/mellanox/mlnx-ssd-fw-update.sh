@@ -48,6 +48,7 @@ ARG_IMAGE_VAL=""
 ARG_QUERY_FLAG=$FALSE
 ARG_YES_FLAG=$FALSE
 ARG_POWER_CYCLE_FLAG=$FALSE
+ARG_FORCE_POWER_CYCLE_FLAG=$FALSE
 ARG_HELP_FLAG=$FALSE
 ARG_VERSION_FLAG=$FALSE
 ARG_PACKAGE_INFO_FLAG=$FALSE
@@ -178,6 +179,10 @@ function check_usage() {
             ARG_POWER_CYCLE_FLAG=$TRUE
             shift # past argument
             ;;
+        --no-power-cycle)
+            ARG_FORCE_NO_POWER_CYCLE_FLAG=$TRUE
+            shift # past argument
+            ;;
         *)
             LOG_MSG "Error: false usage given."
             usage
@@ -197,6 +202,7 @@ function check_usage() {
           ("$ARG_UPDATE_FLAG" == "$TRUE" && "$ARG_IMAGE_FLAG" == "$FALSE") ||
           ("$ARG_PACKAGE_INFO_FLAG" == "$TRUE" && "$ARG_IMAGE_FLAG" == "$FALSE") ||
           ("$ARG_POWER_CYCLE_FLAG" == "$TRUE" && "$ARG_UPDATE_FLAG" == "$FALSE") ||
+          ("$ARG_FORCE_NO_POWER_CYCLE_FLAG" == "$TRUE" && "$ARG_POWER_CYCLE_FLAG" == "$TRUE") ||
           ("$ARG_UPDATE_FLAG" == "$TRUE" && "$ARG_PACKAGE_INFO_FLAG" == "$TRUE") ]]; then
 
         LOG_MSG "Error: false usage given."
@@ -213,6 +219,7 @@ function check_usage() {
     LOG_MSG "ARG_VERSION_FLAG          = ${ARG_VERSION_FLAG}"           ${DEBUG_MSG}
     LOG_MSG "ARG_PACKAGE_INFO_FLAG     = ${ARG_PACKAGE_INFO_FLAG}"      ${DEBUG_MSG}
     LOG_MSG "ARG_POWER_CYCLE_FLAG      = ${ARG_POWER_CYCLE_FLAG}"       ${DEBUG_MSG}
+    LOG_MSG "ARG_FORCE_NO_POWER_CYCLE_FLAG      = ${ARG_FORCE_NO_POWER_CYCLE_FLAG}"       ${DEBUG_MSG}
 
 }
 
@@ -280,12 +287,12 @@ function get_ssd_info() {
 #=
 function check_tool_dependencies() {
     LOG_MSG "func: ${FUNCNAME[0]}()" ${DEBUG_MSG}
-   	for i in "${!DEPENDECIES[@]}"
-	do
-		if [ ! -x "$(command -v ${DEPENDECIES[$i]})" ]; then
-			LOG_MSG_AND_EXIT "Error: This tool require the following utils to be installed ${DEPENDECIES[$i]}"
-		fi
-	done
+    for i in "${!DEPENDECIES[@]}"
+    do
+        if [ ! -x "$(command -v ${DEPENDECIES[$i]})" ]; then
+            LOG_MSG_AND_EXIT "Error: This tool require the following utils to be installed ${DEPENDECIES[$i]}"
+        fi
+    done
 }
 
 #==============================================================================#
@@ -673,7 +680,12 @@ elif [ $ARG_UPDATE_FLAG == $TRUE ]; then
                 if [ ! -f $ssd_script_path ]; then
                     LOG_MSG_AND_EXIT "Error: fail to call upgrade script ($ssd_script_path)!"
                 fi
-                ( 
+                (
+                    if [[ "yes" == "$power_policy" && $ARG_FORCE_NO_POWER_CYCLE_FLAG == $TRUE ]]; then
+                        # If a power cycle is required and we are not power cycling automatically lock the file system for safety
+                        LOG_MSG "Immediate power cycle is required but override flag has been given. Locking file system as read only to protect system integrity."
+                        echo u > /proc/sysrq-trigger
+                    fi
                     cd "${extraction_path}/${section}" > /dev/null 2>&1 || exit
                     /bin/bash "$ssd_script_path" "${extraction_path}/${section}"
                     #cd - > /dev/null 2>&1 || exit
@@ -684,6 +696,11 @@ elif [ $ARG_UPDATE_FLAG == $TRUE ]; then
                     LOG_MSG "SSD FW update completed successfully."
 
                     if [[ "yes" == "$power_policy" || $ARG_POWER_CYCLE_FLAG == $TRUE ]]; then
+
+                        if [[ $ARG_FORCE_NO_POWER_CYCLE_FLAG == $TRUE ]]; then
+                            LOG_MSG_AND_EXIT "An IMMEDIATE power cycle is REQUIRED to upgrade the SSD. Please perform a cold reboot as soon as possible."
+                        fi
+                        
                         LOG_MSG "Execute power cycle..."
                         sleep 1
                         sync

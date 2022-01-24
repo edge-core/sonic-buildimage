@@ -3,6 +3,7 @@
 declare -r EXIT_SUCCESS="0"
 declare -r EXIT_ERROR="1"
 
+declare -r PENDING_COMPONENT_FW="/usr/bin/install-pending-fw.py"
 declare -r FW_UPGRADE_SCRIPT="/usr/bin/mlnx-fw-upgrade.sh"
 declare -r SYSFS_PWR_CYCLE="/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/pwr_cycle"
 
@@ -39,5 +40,7 @@ if [[ "${EXIT_CODE}" != "${EXIT_SUCCESS}" ]]; then
         exit "${EXIT_ERROR}"
     fi
 fi
+
+${PENDING_COMPONENT_FW}
 
 SafePwrCycle
