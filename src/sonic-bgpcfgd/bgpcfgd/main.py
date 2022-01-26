@@ -9,6 +9,7 @@ from swsscommon import swsscommon
 from .config import ConfigMgr
 from .directory import Directory
 from .log import log_notice, log_crit
+from .managers_advertise_rt import AdvertiseRouteMgr
 from .managers_allow_list import BGPAllowListMgr
 from .managers_bbr import BBRMgr
 from .managers_bgp import BGPPeerMgrBase
@@ -57,6 +58,8 @@ def do_work():
         BBRMgr(common_objs, "CONFIG_DB", "BGP_BBR"),
         # Static Route Managers
         StaticRouteMgr(common_objs, "CONFIG_DB", "STATIC_ROUTE"),
+        # Route Advertisement Managers
+        AdvertiseRouteMgr(common_objs, "STATE_DB", swsscommon.STATE_ADVERTISE_NETWORK_TABLE_NAME),
     ]
     runner = Runner(common_objs['cfg_mgr'])
     for mgr in managers:
