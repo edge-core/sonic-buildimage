@@ -226,9 +226,11 @@ void send_udp(int sock, uint8_t *buffer, struct sockaddr_in6 target, uint32_t n,
     std::string counterVlan = counter_table;
     if(sendto(sock, buffer, n, 0, (const struct sockaddr *)&target, sizeof(target)) == -1)
         syslog(LOG_ERR, "sendto: Failed to send to target address\n");
-    else {
+    else if (counterMap.find(msg_type) != counterMap.end()) {
         counters[msg_type]++;
         update_counter(config->db, counterVlan.append(config->interface), msg_type);
+    } else {
+        syslog(LOG_WARNING, "unexpected message type %d(0x%x)\n", msg_type, msg_type);
     }
 }
 
@@ -518,10 +520,9 @@ void relay_relay_forw(int sock, const uint8_t *msg, int32_t len, const ip6_hdr *
  *
  * @return              none
  */
- void relay_relay_reply(int sock, const uint8_t *msg, int32_t len, relay_config *configs) {
+ void relay_relay_reply(int sock, const uint8_t *msg, int32_t len, relay_config *config) {
     static uint8_t buffer[4096];
     uint8_t type = 0;
-    char ifname[configs->interface.size()];
     struct sockaddr_in6 target_addr;
     auto current_buffer_position = buffer;
     auto current_position = msg;
@@ -546,14 +547,13 @@ void relay_relay_forw(int sock, const uint8_t *msg, int32_t len, const ip6_hdr *
         }
     }
 
-    strcpy(ifname, configs->interface.c_str());
     memcpy(&target_addr.sin6_addr, &dhcp_relay_header->peer_address, sizeof(struct in6_addr));
     target_addr.sin6_family = AF_INET6;
     target_addr.sin6_flowinfo = 0;
     target_addr.sin6_port = htons(CLIENT_PORT);
-    target_addr.sin6_scope_id = if_nametoindex(ifname);
+    target_addr.sin6_scope_id = if_nametoindex(config->interface.c_str());
 
-    send_udp(sock, buffer, target_addr, current_buffer_position - buffer, configs, type);
+    send_udp(sock, buffer, target_addr, current_buffer_position - buffer, config, type);
 } 
 
 
@@ -758,8 +758,7 @@ void loop_relay(std::vector<relay_config> *vlans, swss::DBConnector *db) {
         int filter = 0;
         int local_sock = 0; 
         int server_sock = 0;
-        const char *ifname = config->interface.c_str();
-        int index = if_nametoindex(ifname);
+        int index = if_nametoindex(config->interface.c_str());
         config->db = db;
 
         std::string counterVlan = counter_table;

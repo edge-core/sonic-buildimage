@@ -119,6 +119,7 @@ void processRelayNotification(std::deque<swss::KeyOpFieldsValuesTuple> &entries,
         relay_config intf;
         intf.is_option_79 = true;
         intf.interface = vlan;
+        intf.db = nullptr;
         for (auto &fieldValue: fieldValues) {
             std::string f = fvField(fieldValue);
             std::string v = fvValue(fieldValue);
