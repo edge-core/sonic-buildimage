@@ -257,7 +257,7 @@ class sfp_event:
         found = 0
 
         try:
-            read, _, _ = select.select([self.rx_fd_p.fd], [], [], timeout)
+            read, _, _ = select.select([self.rx_fd_p.fd], [], [], float(timeout) / 1000)
             print(read)
         except select.error as err:
             rc, msg = err
