@@ -93,6 +93,16 @@
                 "tpid": "0x9200",
                 "mtu": "9100",
                 "lacp_key": "auto"
+            },
+            "PortChannel2": {
+                "admin_status": "up",
+                "min_links": "1",
+                "members": [
+                    "Ethernet12"
+                ],
+                "tpid": "0x9200",
+                "mtu": "9100",
+                "lacp_key": "auto"
             }
         },
         "PORTCHANNEL_INTERFACE": {
@@ -103,7 +113,8 @@
         },
         "PORTCHANNEL_MEMBER": {
             "PortChannel0003|Ethernet1": {},
-            "PortChannel0004|Ethernet2": {}
+            "PortChannel0004|Ethernet2": {},
+            "PortChannel2|Ethernet12": {}
         },
         "VLAN_INTERFACE": {
             "Vlan111": {
@@ -309,7 +320,17 @@
                 "vlanid": "777",
                 "mtu": "9216",
                 "admin_status": "up"
+            },
+            "Vlan12": {
+                "description": "mclag session ve",
+                "dhcp_servers": [
+                    "12.1.1.1"
+                ],
+                "vlanid": "12",
+                "mtu": "9216",
+                "admin_status": "up"
             }
+
         },
         "DEVICE_NEIGHBOR": {
             "Ethernet112": {
@@ -909,6 +930,9 @@
             },
             "Vlan111|PortChannel0003": {
                 "tagging_mode": "untagged"
+            },
+            "Vlan12|PortChannel2": {
+                "tagging_mode": "tagged"
             }
         },
         "LOOPBACK_INTERFACE": {
@@ -1197,6 +1221,7 @@
                 "trap_group": "queue1_group1"
             }
         },
+
         "AUTO_TECHSUPPORT": {
             "GLOBAL": {
                 "state" : "enabled",
@@ -1331,7 +1356,6 @@
                 "type": "DWRR",
                 "weight": "20"
             },
-
             "TEST@1": {
                 "cbs": "1024",
                 "cir": "1280000",
@@ -1480,6 +1504,28 @@
             }
         },
 
+        
+        "MCLAG_DOMAIN": {
+            "123": {
+                "source_ip": "12.1.1.1",
+                "peer_ip": "12.1.1.2",
+                "peer_link": "PortChannel2",
+                "keepalive_interval": "1",
+                "session_timeout": "30"
+            }
+        },
+        "MCLAG_INTERFACE": {
+            "123|PortChannel0004": {
+                "if_type": "PortChannel"
+            }
+        },
+        "MCLAG_UNIQUE_IP": {
+            "Vlan12": {
+                "unique_ip": "enable"
+            }
+        },
+
+
         "MIRROR_SESSION": {
             "erspan": {
                 "dscp": "10",
@@ -1498,6 +1544,7 @@
                     "Ethernet3",
                     "Ethernet4"
                 ]
+
             }
         }
     },
