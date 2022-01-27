@@ -367,7 +367,7 @@ class sfp_event:
                         label_port = slot_id * DeviceDataManager.get_linecard_max_port_count() + x + 1
                         break
 
-                    if port_attributes.port_mapping.slot_id == slot_id:
+                    if port_attributes.port_mapping.slot == slot_id:
                         x += 1
 
                 if label_port is not None:
