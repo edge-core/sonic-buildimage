@@ -18,7 +18,7 @@ SYSLOG_IDENTIFIER = 'healthd'
 
 class HealthDaemon(DaemonBase):
     """
-    A daemon that run as a service to perform system health checker with a configurable interval. Also set system LED 
+    A daemon that run as a service to perform system health checker with a configurable interval. Also set system LED
     according to the check result and store the check result to redis.
     """
     SYSTEM_HEALTH_TABLE_NAME = 'SYSTEM_HEALTH_INFO'
@@ -35,7 +35,7 @@ class HealthDaemon(DaemonBase):
     def deinit(self):
         """
         Destructor. Remove all entries in $SYSTEM_HEALTH_TABLE_NAME table.
-        :return: 
+        :return:
         """
         self._clear_system_health_table()
 
@@ -64,7 +64,7 @@ class HealthDaemon(DaemonBase):
     def run(self):
         """
         Check system health in an infinite loop.
-        :return: 
+        :return:
         """
         self.log_notice("Starting up...")
 
@@ -76,9 +76,8 @@ class HealthDaemon(DaemonBase):
                 self.log_warning("System health configuration file not found, exit...")
                 return
             while 1:
-                state, stat = manager.check(chassis)
-                if state == HealthCheckerManager.STATE_RUNNING:
-                    self._process_stat(chassis, manager.config, stat)
+                stat = manager.check(chassis)
+                self._process_stat(chassis, manager.config, stat)
 
                 if self.stop_event.wait(manager.config.interval):
                     break

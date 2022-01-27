@@ -439,26 +439,14 @@ def test_config():
 @patch('health_checker.user_defined_checker.UserDefinedChecker.get_info')
 @patch('health_checker.service_checker.ServiceChecker.get_info')
 @patch('health_checker.hardware_checker.HardwareChecker.get_info')
-@patch('health_checker.utils.get_uptime')
-def test_manager(mock_uptime, mock_hw_info, mock_service_info, mock_udc_info):
+def test_manager(mock_hw_info, mock_service_info, mock_udc_info):
     chassis = MagicMock()
     chassis.set_status_led = MagicMock()
 
     manager = HealthCheckerManager()
     manager.config.user_defined_checkers = ['some check']
-    assert manager._state == HealthCheckerManager.STATE_BOOTING
     assert len(manager._checkers) == 2
 
-    mock_uptime.return_value = 200
-    assert manager._is_system_booting()
-    state, stat = manager.check(chassis)
-    assert state == HealthCheckerManager.STATE_BOOTING
-    assert len(stat) == 0
-    chassis.set_status_led.assert_called_with('orange_blink')
-
-    mock_uptime.return_value = 500
-    assert not manager._is_system_booting()
-    assert manager._state == HealthCheckerManager.STATE_RUNNING
     mock_hw_info.return_value = {
         'ASIC': {
             'type': 'ASIC',
@@ -485,8 +473,7 @@ def test_manager(mock_uptime, mock_hw_info, mock_service_info, mock_udc_info):
             'status': 'OK'
         }
     }
-    state, stat = manager.check(chassis)
-    assert state == HealthCheckerManager.STATE_RUNNING
+    stat = manager.check(chassis)
     assert 'Services' in stat
     assert stat['Services']['snmp:snmpd']['status'] == 'OK'
 
@@ -500,7 +487,7 @@ def test_manager(mock_uptime, mock_hw_info, mock_service_info, mock_udc_info):
     mock_hw_info.side_effect = RuntimeError()
     mock_service_info.side_effect = RuntimeError()
     mock_udc_info.side_effect = RuntimeError()
-    state, stat = manager.check(chassis)
+    stat = manager.check(chassis)
     assert 'Internal' in stat
     assert stat['Internal']['ServiceChecker']['status'] == 'Not OK'
     assert stat['Internal']['HardwareChecker']['status'] == 'Not OK'
@@ -518,6 +505,3 @@ def test_utils():
 
     output = utils.run_command('ls')
     assert output
-
-    uptime = utils.get_uptime()
-    assert uptime > 0

@@ -218,7 +218,7 @@ class ServiceChecker(HealthChecker):
         output = utils.run_command(ServiceChecker.CHECK_CMD)
         lines = output.splitlines()
         if not lines or len(lines) < ServiceChecker.MIN_CHECK_CMD_LINES:
-            self.set_object_not_ok('Service', 'monit', 'output of \"monit summary -B\" is invalid or incompatible')
+            self.set_object_not_ok('Service', 'monit', 'monit service is not ready')
             return
 
         status_begin = lines[1].find('Status')

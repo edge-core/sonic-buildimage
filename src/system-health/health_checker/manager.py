@@ -1,4 +1,3 @@
-from . import utils
 from .config import Config
 from .health_checker import HealthChecker
 from .service_checker import ServiceChecker
@@ -10,14 +9,10 @@ class HealthCheckerManager(object):
     """
     Manage all system health checkers and system health configuration.
     """
-    STATE_BOOTING = 'booting'
-    STATE_RUNNING = 'running'
     boot_timeout = None
 
     def __init__(self):
         self._checkers = []
-        self._state = self.STATE_BOOTING
-
         self.config = Config()
         self.initialize()
 
@@ -33,17 +28,11 @@ class HealthCheckerManager(object):
         """
         Load new configuration if any and perform the system health check for all existing checkers.
         :param chassis: A chassis object.
-        :return: A tuple. The first element indicate the status of the checker; the second element is a dictionary that
-        contains the status for all objects that was checked.
+        :return: A dictionary that contains the status for all objects that was checked.
         """
         HealthChecker.summary = HealthChecker.STATUS_OK
         stats = {}
         self.config.load_config()
-        # check state first to avoid user change boot timeout in configuration file
-        # after finishing system boot
-        if self._state == self.STATE_BOOTING and self._is_system_booting():
-            self._set_system_led(chassis, self.config, 'booting')
-            return self._state, stats
 
         for checker in self._checkers:
             self._do_check(checker, stats)
@@ -56,7 +45,7 @@ class HealthCheckerManager(object):
         led_status = 'normal' if HealthChecker.summary == HealthChecker.STATUS_OK else 'fault'
         self._set_system_led(chassis, self.config, led_status)
 
-        return self._state, stats
+        return stats
 
     def _do_check(self, checker, stats):
         """
@@ -85,15 +74,6 @@ class HealthCheckerManager(object):
                 stats['Internal'] = entry
             else:
                 stats['Internal'].update(entry)
-
-    def _is_system_booting(self):
-        uptime = utils.get_uptime()
-        if not self.boot_timeout:
-            self.boot_timeout = self.config.get_bootup_timeout()
-        booting = uptime < self.boot_timeout
-        if not booting:
-            self._state = self.STATE_RUNNING
-        return booting
 
     def _set_system_led(self, chassis, config, status):
         try:
