@@ -1147,6 +1147,18 @@
             "default|ipv4_unicast|21.0.0.0/8": {
             }
         },
+        "BGP_MONITORS": {
+            "5.6.7.8": {
+                "admin_status": "up",
+                "asn": "65000",
+                "holdtime": "180",
+                "keepalive": "60",
+                "local_addr": "10.0.0.11",
+                "name": "BGPMonitor",
+                "nhopself": "0",
+                "rrclient": "0"
+            }
+        },
         "BGP_NEIGHBOR": {
             "10.0.0.1": {
                 "asn": "65200",
