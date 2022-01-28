@@ -533,14 +533,17 @@ void relay_relay_forw(int sock, const uint8_t *msg, int32_t len, const ip6_hdr *
     auto position = current_position + sizeof(struct dhcpv6_option);
     auto dhcpv6msg = parse_dhcpv6_hdr(position);
 
-    while ((current_position - msg) != len) {
+    while ((current_position - msg) < len) {
         auto option = parse_dhcpv6_opt(current_position, &tmp);
         current_position = tmp;
+        if (current_position - msg > len || ntohs(option->option_length) > sizeof(buffer) - (current_buffer_position - buffer)) {
+            break;
+        }
         switch (ntohs(option->option_code)) {
             case OPTION_RELAY_MSG:
                 memcpy(current_buffer_position, ((uint8_t *)option) + sizeof(struct dhcpv6_option), ntohs(option->option_length));
                 current_buffer_position += ntohs(option->option_length);
-                type = dhcpv6msg->msg_type;;
+                type = dhcpv6msg->msg_type;
                 break;
             default:
                 break;
