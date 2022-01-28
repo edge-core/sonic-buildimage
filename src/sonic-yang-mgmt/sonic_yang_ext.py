@@ -330,11 +330,11 @@ class SonicYangExtMixin:
                 # Assume ':'  means reference to another module
                 if ':' in uses['@name']:
                     prefix = uses['@name'].split(':')[0].strip()
-                    uses_module = self._findYangModuleFromPrefix(prefix, table_module)
+                    uses_module_name = self._findYangModuleFromPrefix(prefix, table_module)
                 else:
-                    uses_module = table_module
+                    uses_module_name = table_module['@name']
                 grouping = uses['@name'].split(':')[-1].strip()
-                leafs = self.preProcessedYang['grouping'][uses_module][grouping]
+                leafs = self.preProcessedYang['grouping'][uses_module_name][grouping]
                 self._fillLeafDict(leafs, leafDict)
         except Exception as e:
             self.sysLog(msg="_fillLeafDictUses failed:{}".format(str(e)), \

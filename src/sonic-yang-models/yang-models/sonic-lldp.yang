@@ -28,6 +28,7 @@ module sonic-lldp {
     grouping lldp_mode_config {
         leaf enabled {
             type boolean;
+            default true;
             description
                 "Enable/Disable LLDP";
         }
@@ -99,24 +100,7 @@ module sonic-lldp {
                         "Suppress sending of System Capabilities TLV in LLDP frames";
                 }
 
-                leaf enabled {
-                    type boolean;
-                    default true;
-                    description
-                        "Enable/Disable LLDP";
-                }
-
-                leaf mode {
-                    type enumeration {
-                        enum RECEIVE;
-                        enum TRANSMIT;
-                    }
-
-                    description
-                        "RX/TX mode for LLDP frames";
-                }
-
-                //uses lldp_mode_config;
+                uses lldp_mode_config;
             }
         }
 
@@ -132,23 +116,7 @@ module sonic-lldp {
                         "Reference of port on which LLDP to be configured.";
                 }
 
-                leaf enabled {
-                    type boolean;
-                    default true;
-                    description
-                        "Enable/Disable LLDP";
-                }
-
-                leaf mode {
-                    type enumeration {
-                        enum RECEIVE;
-                        enum TRANSMIT;
-                    }
-
-                    description
-                        "RX/TX mode for LLDP frames";
-                }
-                //uses lldp_mode_config;
+                uses lldp_mode_config;
             }
         }
     }
