@@ -8,6 +8,7 @@ CFGGEN_PARAMS=" \
     -d \
     -y /etc/sonic/constants.yml \
     -t /usr/share/sonic/templates/switch.json.j2,/etc/swss/config.d/switch.json \
+    -t /usr/share/sonic/templates/vxlan.json.j2,/etc/swss/config.d/vxlan.json \
     -t /usr/share/sonic/templates/ipinip.json.j2,/etc/swss/config.d/ipinip.json \
     -t /usr/share/sonic/templates/ports.json.j2,/etc/swss/config.d/ports.json \
     -t /usr/share/sonic/templates/vlan_vars.j2 \
