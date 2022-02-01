@@ -469,6 +469,46 @@ void relay_client(int sock, const uint8_t *msg, int32_t len, const ip6_hdr *ip_h
 }
 
 /**
+ * @code                 relay_relay_forw(int sock, const uint8_t *msg, int32_t len, const ip6_hdr *ip_hdr, relay_config *config)
+ *
+ * @brief                construct a relay-forward message encapsulated relay-forward message
+ *
+ * @param sock           L3 socket for sending data to servers
+ * @param msg            pointer to dhcpv6 message header position
+ * @param len            size of data received
+ * @param ip_hdr         pointer to IPv6 header
+ * @param config         pointer to the relay interface config
+ *
+ * @return none
+ */
+void relay_relay_forw(int sock, const uint8_t *msg, int32_t len, const ip6_hdr *ip_hdr, relay_config *config) {
+    static uint8_t buffer[4096];
+    dhcpv6_relay_msg new_message;
+    auto current_buffer_position = buffer;
+    auto dhcp_relay_header = parse_dhcpv6_relay(msg);
+
+    if (dhcp_relay_header->hop_count >= HOP_LIMIT)
+        return;
+
+    new_message.msg_type = DHCPv6_MESSAGE_TYPE_RELAY_FORW;
+    memcpy(&new_message.peer_address, &ip_hdr->ip6_src, sizeof(in6_addr));
+    new_message.hop_count = dhcp_relay_header->hop_count + 1;
+
+    memset(&new_message.link_address, 0, sizeof(in6_addr));
+
+    memcpy(current_buffer_position, &new_message, sizeof(dhcpv6_relay_msg));
+    current_buffer_position += sizeof(dhcpv6_relay_msg);
+
+    auto dhcp_message_length = len;
+    relay_forward(current_buffer_position, parse_dhcpv6_hdr(msg), dhcp_message_length);
+    current_buffer_position += dhcp_message_length + sizeof(dhcpv6_option);
+
+    for(auto server: config->servers_sock) {
+        send_udp(sock, buffer, server, current_buffer_position - buffer, config, new_message.msg_type);
+    }
+}
+
+/**
  * @code                relay_relay_reply(int sock, const uint8_t *msg, int32_t len, relay_config *configs);
  * 
  * @brief               relay and unwrap a relay-reply message
@@ -573,7 +613,18 @@ void callback(evutil_socket_t fd, short event, void *arg) {
     std::string counterVlan = counter_table;
     update_counter(config->db, counterVlan.append(config->interface), msg->msg_type);
 
-    relay_client(config->local_sock, current_position, ntohs(udp_header->len) - sizeof(udphdr), ip_header, ether_header, config);
+    switch (msg->msg_type) {
+        case DHCPv6_MESSAGE_TYPE_RELAY_FORW:
+        {
+            relay_relay_forw(config->local_sock, current_position, ntohs(udp_header->len) - sizeof(udphdr), ip_header, config);
+            break;
+        }
+        default:
+        {
+            relay_client(config->local_sock, current_position, ntohs(udp_header->len) - sizeof(udphdr), ip_header, ether_header, config);
+            break;
+        }
+    }
 }
 
 /**
