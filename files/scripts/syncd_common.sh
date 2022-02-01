@@ -48,6 +48,15 @@ function check_warm_boot()
     fi
 }
 
+function check_fast_boot()
+{
+    if [[ $($SONIC_DB_CLI STATE_DB GET "FAST_REBOOT|system") == "1" ]]; then
+        FAST_BOOT="true"
+    else
+        FAST_BOOT="false"
+    fi
+}
+
 function wait_for_database_service()
 {
     # Wait for redis server start before database clean
@@ -140,10 +149,14 @@ stop() {
 
     lock_service_state_change
     check_warm_boot
+    check_fast_boot
     debug "Warm boot flag: ${SERVICE}$DEV ${WARM_BOOT}."
+    debug "Fast boot flag: ${SERVICE}$DEV ${FAST_BOOT}."
 
     if [[ x"$WARM_BOOT" == x"true" ]]; then
         TYPE=warm
+    elif [[ x"$FAST_BOOT" == x"true" ]]; then
+        TYPE=fast
     else
         TYPE=cold
     fi
