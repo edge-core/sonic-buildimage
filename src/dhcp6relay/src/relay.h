@@ -15,7 +15,7 @@
 
 #define RELAY_PORT 547
 #define CLIENT_PORT 546
-#define HOP_LIMIT 32
+#define HOP_LIMIT 8     //HOP_LIMIT reduced from 32 to 8 as stated in RFC8415
 
 #define lengthof(A) (sizeof (A) / sizeof (A)[0])
 
@@ -145,6 +145,21 @@ void relay_forward(uint8_t *buffer, const struct dhcpv6_msg *msg, uint16_t msg_l
  * @return none
  */
 void relay_client(int sock, const uint8_t *msg, int32_t len, const ip6_hdr *ip_hdr, const ether_header *ether_hdr, relay_config *config);
+
+/**
+ * @code                 relay_relay_forw(int sock, const uint8_t *msg, int32_t len, const ip6_hdr *ip_hdr, relay_config *config)
+ *
+ * @brief                construct a relay-forward message encapsulated relay-forward message
+ *
+ * @param sock           L3 socket for sending data to servers
+ * @param msg            pointer to dhcpv6 message header position
+ * @param len            size of data received
+ * @param ip_hdr         pointer to IPv6 header
+ * @param config         pointer to the relay interface config
+ *
+ * @return none
+ */
+void relay_relay_forw(int sock, const uint8_t *msg, int32_t len, const ip6_hdr *ip_hdr, relay_config *config);
 
 /**
  * @code                relay_relay_reply(int sock, const uint8_t *msg, int32_t len, relay_config *configs);
