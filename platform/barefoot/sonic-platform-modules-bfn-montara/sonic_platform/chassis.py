@@ -10,7 +10,6 @@ try:
     from sonic_platform.fan_drawer import fan_drawer_list_get
     from sonic_platform.thermal import thermal_list_get
     from eeprom import Eeprom
-    from sonic_platform.thermal_manager import ThermalManager
 
     from sonic_platform.platform_thrift_client import pltfm_mgr_ready
     from sonic_platform.platform_thrift_client import thrift_try
@@ -41,8 +40,6 @@ class Chassis(ChassisBase):
         self.__thermals = None
         self.__psu_list = None
         self.__sfp_list = None
-        self.__thermal_mngr = None
-        self.__polling_thermal_time = 30
 
         self.ready = False
         self.phy_port_cur_state = {}
@@ -113,16 +110,6 @@ class Chassis(ChassisBase):
     @_sfp_list.setter
     def _sfp_list(self, value):
         pass
-
-    @property
-    def _thermal_mngr(self):
-        if self.__thermal_mngr is None:
-            self.__thermal_mngr = ThermalManager(self.__polling_thermal_time)
-        return self.__thermal_mngr
-
-    @_thermal_mngr.setter
-    def _thermal_mngr(self, value):
-        self.__thermal_mngr = ThermalManager(value)
 
     def __update_port_info(self):
         def qsfp_max_port_get(client):
@@ -346,10 +333,3 @@ class Chassis(ChassisBase):
             specified.
         """
         return self.system_led
-
-    def get_thermal_manager(self):
-        return self._thermal_mngr
-
-    def __del__(self):
-        if self.__thermal_mngr is not None:
-            self.__thermal_mngr.stop()
