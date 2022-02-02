@@ -34,7 +34,8 @@ class TestDhcpRelayHelper(object):
             fs.create_file(DBCONFIG_PATH) 
         MockConfigDb.set_config_db(test_data["config_db"])
         runner = CliRunner()
-        table = MockConfigDb.get_table(self, "DHCP_RELAY")
+        config_db = MockConfigDb()
+        table = config_db.get_table("DHCP_RELAY")
         result = show.get_data(table, "Vlan1000")
         assert result == expected_table
 
