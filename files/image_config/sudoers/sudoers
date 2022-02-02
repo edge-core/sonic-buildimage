@@ -64,6 +64,9 @@ ALL     ALL=NOPASSWD: READ_ONLY_CMDS
 # Prevent password related command into syslog
 Defaults!PASSWD_CMDS !syslog
 
+# Make sure sudo password prompt times out after 5 mins
+Defaults passwd_timeout=5
+
 # See sudoers(5) for more information on "#include" directives:
 
 #includedir /etc/sudoers.d
