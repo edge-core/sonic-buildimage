@@ -55,4 +55,4 @@ if [ -x /usr/lib/command-not-found -o -x /usr/share/command-not-found/command-no
 fi
 
 # Automatically log out console ttyS* sessions after 15 minutes of inactivity
-tty | grep ttyS >/dev/null && TMOUT=900
+tty | egrep -q '^/dev/ttyS[[:digit:]]+$' && TMOUT=900
