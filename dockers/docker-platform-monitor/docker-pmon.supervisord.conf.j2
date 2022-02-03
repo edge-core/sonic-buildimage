@@ -97,10 +97,29 @@ dependent_startup=true
 dependent_startup_wait_for=rsyslogd:running
 {% endif %}
 
+{% if 'subtype' in DEVICE_METADATA['localhost'] and DEVICE_METADATA['localhost']['subtype'] == 'DualToR' %}
+{% if not skip_ycabled %}
+[program:ycabled]
+{% if delay_ycabled %}
+command=bash -c "sleep 30 && nice -n -20 python3 /usr/local/bin/ycabled"
+{% else %}
+command=nice -n -20 python3 /usr/local/bin/ycabled
+{% endif %}
+priority=7
+autostart=false
+autorestart=unexpected
+stdout_logfile=syslog
+stderr_logfile=syslog
+startsecs=10
+dependent_startup=true
+dependent_startup_wait_for=rsyslogd:running
+{% endif %}
+{% endif %}
+
 {% if not skip_psud %}
 [program:psud]
 command={% if API_VERSION == 3 and 'psud' not in python2_daemons %}python3 {% else %} python2 {% endif %}/usr/local/bin/psud
-priority=7
+priority=8
 autostart=false
 autorestart=unexpected
 stdout_logfile=syslog
@@ -113,7 +132,7 @@ dependent_startup_wait_for=rsyslogd:running
 {% if not skip_syseepromd %}
 [program:syseepromd]
 command={% if API_VERSION == 3 and 'syseepromd' not in python2_daemons %}python3 {% else %} python2 {% endif %}/usr/local/bin/syseepromd
-priority=8
+priority=9
 autostart=false
 autorestart=unexpected
 stdout_logfile=syslog
@@ -126,7 +145,7 @@ dependent_startup_wait_for=rsyslogd:running
 {% if not skip_thermalctld %}
 [program:thermalctld]
 command={% if API_VERSION == 3 and 'thermalctld' not in python2_daemons %}python3 {% else %} python2 {% endif %}/usr/local/bin/thermalctld
-priority=9
+priority=10
 autostart=false
 autorestart=unexpected
 stdout_logfile=syslog
@@ -140,7 +159,7 @@ dependent_startup_wait_for=rsyslogd:running
 {% if not skip_pcied %}
 [program:pcied]
 command={% if API_VERSION == 3 and 'pcied' not in python2_daemons %}python3 {% else %} python2 {% endif %}/usr/local/bin/pcied
-priority=10
+priority=11
 autostart=false
 autorestart=unexpected
 stdout_logfile=syslog
