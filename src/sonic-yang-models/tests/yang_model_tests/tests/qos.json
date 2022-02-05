@@ -35,6 +35,10 @@
         "eStr": ["pir must be greater than or equal to cir"]
     },
 
+    "SCHEDULER_VALID_NAME": {
+        "desc": "Configure SCHEDULER table."
+    },
+
     "WRED_PROFILE_EMPTY": {
         "desc": "Configure Empty WRED profile."
     },
