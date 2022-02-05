@@ -116,7 +116,45 @@
             }
         }
     },
-
+   
+    "SCHEDULER_VALID_NAME": {
+        "sonic-scheduler:sonic-scheduler":{
+            "sonic-scheduler:SCHEDULER": {
+                "SCHEDULER_LIST": [
+                {
+                    "name":"scheduler.0",
+                     "cbs": 256,
+                     "cir": 1250000,
+                     "meter_type": "bytes",
+                     "pbs": 1024,
+                     "pir": 25000000,
+                     "type": "DWRR",
+                     "weight": 10
+                },
+                {
+                    "name":"scheduler.1",
+                    "cbs": 1024,
+                    "cir": 1280000,
+                    "meter_type": "bytes",
+                    "pbs": 2048,
+                    "pir": 2560000,
+                    "type": "STRICT", 
+                    "priority": 0
+                },
+                {
+                    "name":"scheduler.2",
+                    "cbs": 256,
+                    "cir": 1250000,
+                    "meter_type": "bytes",
+                    "pbs": 1024,
+                    "pir": 25000000,
+                    "type": "WRR",
+                    "weight": 20
+                }
+                ]
+            }
+        }
+    },
 
     "WRED_PROFILE_EMPTY": {
         "sonic-wred-profile:sonic-wred-profile":{

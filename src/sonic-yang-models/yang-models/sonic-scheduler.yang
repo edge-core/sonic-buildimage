@@ -31,14 +31,7 @@ module sonic-scheduler {
                 key "name";
 
                 leaf name {
-
-                    type string {
-                        pattern "[a-zA-Z0-9]{1}([-a-zA-Z0-9_]{0,31})|[a-zA-Z0-9]{1}([-a-zA-Z0-9_]{0,31})([@]{1})([0-9]{1,3})";
-                        length 1..36 {
-                            error-message "Invalid length for scheduler name.";
-                            error-app-tag scheduler-name-invalid-length;
-                        }
-                    }
+                    type string; 
                     description "Scheduler name";
                 }
 
