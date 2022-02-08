@@ -2,7 +2,7 @@
     "options": [
     {
         "key": "midplane_subnet",
-        "stringval": "10.0.5.0"
+        "stringval": "10.6.0.0/16"
     },
     {
         "key": "midplane_monitor",
