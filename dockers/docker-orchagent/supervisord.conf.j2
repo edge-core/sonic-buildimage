@@ -49,6 +49,9 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=rsyslogd:running
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/gearsyncd-asan.log"
+{% endif %}
 {%- endif %}
 
 {% if is_fabric_asic == 0 %}
@@ -61,6 +64,9 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=rsyslogd:running
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/portsyncd-asan.log"
+{% endif %}
 {%- endif %}
 
 [program:orchagent]
@@ -72,6 +78,9 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for={{ orchagent_dependent_startup_wait_for }}
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/orchagent-asan.log"
+{% endif %}
 
 [program:swssconfig]
 command=/usr/bin/swssconfig.sh
@@ -84,6 +93,9 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=orchagent:running
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/swssconfig-asan.log"
+{% endif %}
 
 {% if is_fabric_asic == 0 %}
 [program:restore_neighbors]
@@ -111,6 +123,9 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=orchagent:running
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/coppmgrd-asan.log"
+{% endif %}
 {%- endif %}
 
 {% if is_fabric_asic == 0 %}
@@ -123,6 +138,9 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/neighsyncd-asan.log"
+{% endif %}
 {%- endif %}
 
 {% if is_fabric_asic == 0 %}
@@ -135,6 +153,9 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/vlanmgrd-asan.log"
+{% endif %}
 {%- endif %}
 
 {% if is_fabric_asic == 0 %}
@@ -147,6 +168,9 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/intfmgrd-asan.log"
+{% endif %}
 {%- endif %}
 
 {% if is_fabric_asic == 0 %}
@@ -159,6 +183,9 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/portmgrd-asan.log"
+{% endif %}
 {%- endif %}
 
 {% if is_fabric_asic == 0 %}
@@ -171,6 +198,9 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/buffermgrd-asan.log"
+{% endif %}
 {%- endif %}
 
 {% if is_fabric_asic == 0 %}
@@ -183,6 +213,9 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/vrfmgrd-asan.log"
+{% endif %}
 {%- endif %}
 
 {% if is_fabric_asic == 0 %}
@@ -195,6 +228,9 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/nbrmgrd-asan.log"
+{% endif %}
 {%- endif %}
 
 {% if is_fabric_asic == 0 %}
@@ -207,6 +243,9 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/vxlanmgrd-asan.log"
+{% endif %}
 {%- endif %}
 
 {% if is_fabric_asic == 0 %}
@@ -219,6 +258,9 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/tunnelmgrd-asan.log"
+{% endif %}
 {%- endif %}
 
 [program:enable_counters]
@@ -241,6 +283,9 @@ stdout_logfile=syslog
 stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/fdbsyncd-asan.log"
+{% endif %}
 {%- endif %}
 
 {% if is_fabric_asic == 0 %}

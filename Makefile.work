@@ -295,6 +295,7 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            SLAVE_DIR=$(SLAVE_DIR) \
                            ENABLE_AUTO_TECH_SUPPORT=$(ENABLE_AUTO_TECH_SUPPORT) \
                            BUILD_MULTIASIC_KVM=$(BUILD_MULTIASIC_KVM) \
+                           ENABLE_ASAN=$(ENABLE_ASAN) \
                            $(SONIC_OVERRIDE_BUILD_VARS)
 
 .PHONY: sonic-slave-build sonic-slave-bash init reset

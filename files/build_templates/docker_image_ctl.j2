@@ -302,6 +302,10 @@ start() {
     if [ ! -f /etc/sonic/zero_profiles.json ] && [ -f /usr/share/sonic/templates/zero_profiles.j2 ]; then
         sonic-cfggen -d -t /usr/share/sonic/device/$PLATFORM/zero_profiles.j2 > /etc/sonic/zero_profiles.json
     fi
+
+    {%- if enable_asan == "y" %}
+    mkdir -p /var/log/asan
+    {%- endif %}
     {%- endif %}
 
     # In Multi ASIC platforms the global database config file database_global.json will exist.
@@ -425,6 +429,9 @@ start() {
 {%- endif %}
 {%- if docker_container_name == "swss" %}
         -e ASIC_VENDOR={{ sonic_asic_platform }} \
+{%- if enable_asan == "y" %}
+        -v /var/log/asan/:/var/log/asan \
+{%- endif -%}
 {%- endif -%}
 {%- if docker_container_name == "bgp" %}
         -v /etc/sonic/frr/$DEV:/etc/frr:rw \
@@ -485,6 +492,8 @@ stop() {
     fi
     {%- elif docker_container_name == "teamd" %}
     # Longer timeout of 60 sec to wait for Portchannels to be cleaned.
+    /usr/local/bin/container stop -t 60 $DOCKERNAME
+    {%- elif docker_container_name == "swss" and enable_asan == "y" %}
     /usr/local/bin/container stop -t 60 $DOCKERNAME
     {%- else %}
     /usr/local/bin/container stop $DOCKERNAME

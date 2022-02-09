@@ -208,3 +208,6 @@ BUILD_MULTIASIC_KVM = n
 
 # INCLUDE_MUX - build docker-mux for dual ToR (Gemini)
 INCLUDE_MUX = y
+
+# ENABLE_ASAN - enable address sanitizer
+ENABLE_ASAN ?= n
