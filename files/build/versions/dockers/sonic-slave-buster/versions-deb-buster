@@ -795,7 +795,7 @@ libnorm1==1.5.8+dfsg2-1
 libnpth0==1.6-1
 libnspr4==2:4.20-1
 libnss-systemd==241-7~deb10u8
-libnss3==2:3.42.1-1+deb10u4
+libnss3==2:3.42.1-1+deb10u5
 libnuma-dev==2.0.12-1
 libnuma1==2.0.12-1
 libnumber-compare-perl==0.03-1
@@ -1336,10 +1336,10 @@ netpbm==2:10.0-15.3+b2
 nettle-dev==3.4.1-1+deb10u1
 nftables==0.9.0-2
 ocl-icd-libopencl1==2.2.12-2
-openjdk-11-jdk==11.0.13+8-1~deb10u1
-openjdk-11-jdk-headless==11.0.13+8-1~deb10u1
-openjdk-11-jre==11.0.13+8-1~deb10u1
-openjdk-11-jre-headless==11.0.13+8-1~deb10u1
+openjdk-11-jdk==11.0.14+9-1~deb10u1
+openjdk-11-jdk-headless==11.0.14+9-1~deb10u1
+openjdk-11-jre==11.0.14+9-1~deb10u1
+openjdk-11-jre-headless==11.0.14+9-1~deb10u1
 openmpi-bin==3.1.3-11
 openmpi-common==3.1.3-11
 opensp==1.5.2-13+b1

@@ -23,6 +23,7 @@ libunwind8==1.2.1-10~deb10u1
 lsof==4.91+dfsg-1
 openssh-client==1:7.9p1-10+deb10u2
 sonic-dhcp6relay==1.0.0-0
+sonic-dhcp6relay-dbgsym==1.0.0-0
 sonic-dhcpmon==1.0.0-0
 sshpass==1.06-1
 strace==4.26-0.2

@@ -64,8 +64,8 @@ libedit2==3.1-20160903-3
 liberror-perl==0.17024-1
 libestr0==0.1.10-2
 libevent-2.0-5==2.0.21-stable-3
-libexpat1==2.2.0-2+deb9u3
-libexpat1-dev==2.2.0-2+deb9u3
+libexpat1==2.2.0-2+deb9u4
+libexpat1-dev==2.2.0-2+deb9u4
 libfakeroot==1.21-3.1
 libfastjson4==0.99.4-1
 libffi-dev==3.2.1-6

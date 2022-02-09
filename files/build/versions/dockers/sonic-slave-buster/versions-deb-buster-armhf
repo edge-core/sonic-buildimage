@@ -31,6 +31,10 @@ libmro-compat-perl==0.13-1
 libnamespace-autoclean-perl==0.28-1
 libpadwalker-perl==2.3-1+b1
 libparams-validationcompiler-perl==0.30-1
+libpolkit-agent-1-0==0.105-25+deb10u1
+libpolkit-backend-1-0==0.105-25+deb10u1
+libpolkit-gobject-1-0==0.105-25+deb10u1
+libruby2.5==2.5.5-3+deb10u4
 librust-aho-corasick-dev==0.6.9-1
 librust-ansi-term-dev==0.11.0-1
 librust-atty-dev==0.2.11-1
@@ -114,9 +118,13 @@ linux-compiler-gcc-8-arm==4.19.208-1
 llvm-6.0==1:6.0.1-10
 llvm-6.0-dev==1:6.0.1-10
 llvm-6.0-runtime==1:6.0.1-10
-nodejs==14.18.3-deb-1nodesource1
+nodejs==14.19.0-deb-1nodesource1
+policykit-1==0.105-25+deb10u1
 ps2eps==1.68+binaryfree-2
 rdfind==1.4.1-1
+ruby2.5==2.5.5-3+deb10u4
+ruby2.5-dev==2.5.5-3+deb10u4
+ruby2.5-doc==2.5.5-3+deb10u4
 sassc==3.5.0-1
 texlive-extra-utils==2018.20190227-2
 texlive-font-utils==2018.20190227-2
