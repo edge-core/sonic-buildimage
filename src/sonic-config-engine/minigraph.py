@@ -37,6 +37,7 @@ chassis_backend_role = 'ChassisBackendRouter'
 
 backend_device_types = ['BackEndToRRouter', 'BackEndLeafRouter']
 console_device_types = ['MgmtTsToR']
+dhcp_server_enabled_device_types = ['BmcMgmtToRRouter']
 VLAN_SUB_INTERFACE_SEPARATOR = '.'
 VLAN_SUB_INTERFACE_VLAN_ID = '10'
 
@@ -1683,6 +1684,10 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
             'enabled' : 'yes' if current_device['type'] in console_device_types else 'no'
         }
     }
+
+    # Enable DHCP Server feature for specific device type
+    if current_device['type'] in dhcp_server_enabled_device_types:
+        results['DEVICE_METADATA']['localhost']['dhcp_server'] = 'enabled'
 
     return results
 
