@@ -54,6 +54,16 @@
             }
         }
     },
+    "DEVICE_METADATA_TYPE_NOT_PROVISIONED_PATTERN": {
+        "sonic-device_metadata:sonic-device_metadata": {
+            "sonic-device_metadata:DEVICE_METADATA": {
+                "sonic-device_metadata:localhost": {
+                    "bgp_asn": "65002",
+                    "type": "not-provisioned"
+                }
+            }
+        }
+    },
     "DEVICE_METADATA_DEFAULT_SYNCHRONOUS_MODE": {
         "sonic-device_metadata:sonic-device_metadata": {
             "sonic-device_metadata:DEVICE_METADATA": {
