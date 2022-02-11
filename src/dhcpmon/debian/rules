@@ -1,7 +1,15 @@
 #!/usr/bin/make -f
 
+export DEB_BUILD_MAINT_OPTIONS=hardening=+all
+
 DEB_CFLAGS_APPEND=-std=gnu11
 export DEB_CFLAGS_APPEND
 
 %:
 	dh $@ --parallel
+
+override_dh_strip:
+	dh_strip --dbg-package=sonic-dhcpmon-dbg
+
+override_dh_auto_install:
+	dh_auto_install --destdir=debian/sonic-dhcpmon

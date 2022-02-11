@@ -1,4 +1,12 @@
 #!/usr/bin/make -f
 
+export DEB_BUILD_MAINT_OPTIONS=hardening=+all
+
 %:
 	dh $@ --parallel
+
+override_dh_strip:
+	dh_strip --dbg-package=sonic-dhcp6relay-dbg
+
+override_dh_auto_install:
+	dh_auto_install --destdir=debian/sonic-dhcp6relay

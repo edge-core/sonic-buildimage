@@ -10,6 +10,16 @@ XS-Go-Import-Path: github.com/Azure/sonic-buildimage
 
 Package: sonic-dhcpmon
 Architecture: any
+Section: devel
+Priority: optional
 Built-Using: ${misc:Built-Using}
 Depends: libevent-2.0-5
 Description: SONiC DHCP Monitor
+
+Package: sonic-dhcpmon-dbg
+Architecture: any
+Section: debug
+Priority: extra
+Built-Using: ${misc:Built-Using}
+Depends: libevent-2.0-5
+Description: SONiC DHCP Monitor debug symbols
