@@ -5,7 +5,7 @@ MKDIR := mkdir
 CC := g++
 MV := mv
 LIBS := -levent -lhiredis -lswsscommon -pthread -lboost_thread -lboost_system
-CFLAGS  = -g -Wall -std=c++17 -fPIC -I $(PWD)/../sonic-swss-common/common
+CFLAGS += -Wall -std=c++17 -fPIE -I$(PWD)/../sonic-swss-common/common
 PWD := $(shell pwd)
 
 ifneq ($(MAKECMDGOALS),clean)
@@ -21,7 +21,7 @@ all: sonic-dhcp6relay
 sonic-dhcp6relay: $(OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: G++ Linker'
-	$(CC) -o $(DHCP6RELAY_TARGET) $(OBJS) $(LIBS) 
+	$(CC) $(LDFLAGS) -o $(DHCP6RELAY_TARGET) $(OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
