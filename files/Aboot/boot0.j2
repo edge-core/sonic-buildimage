@@ -277,6 +277,7 @@ platform_specific() {
         aboot_machine=arista_7050_qx32s
         flash_size=3700
         echo "modprobe.blacklist=radeon,sp5100_tco" >>/tmp/append
+        echo "sdhci.append_quirks2=0x40" >> /tmp/append
     fi
     if [ "$sid" = "Upperlake" ] || [ "$sid" = "UpperlakeES" ]; then
         aboot_machine=arista_7060_cx32s
@@ -352,6 +353,8 @@ platform_specific() {
     echo "varlog_size=$varlog_size" >>/tmp/append
     # disable deterministic interface naming
     echo "net.ifnames=0" >>/tmp/append
+    # increase kernel log circular buffer size
+    echo "log_buf_len=1M" >>/tmp/append
 }
 
 get_uuid_for() {
