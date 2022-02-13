@@ -609,6 +609,7 @@ $(SONIC_INSTALL_DEBS) : $(DEBS_PATH)/%-install : .platform $$(addsuffix -install
 		if mkdir $(DEBS_PATH)/dpkg_lock &> /dev/null; then
 			{ sudo DEBIAN_FRONTEND=noninteractive dpkg -i $(DEBS_PATH)/$* $(LOG) && rm -d $(DEBS_PATH)/dpkg_lock && break; } || { rm -d $(DEBS_PATH)/dpkg_lock && sudo lsof /var/lib/dpkg/lock-frontend && ps aux && exit 1 ; }
 		fi
+		sleep 10
 	done
 	$(FOOTER)
 
