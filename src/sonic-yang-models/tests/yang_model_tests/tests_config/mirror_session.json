@@ -442,5 +442,56 @@
                 ]
             }
         }
+    },
+    "MIRROR_ERSPAN_ENTRY_WITH_VALID_POLICER": {
+        "sonic-policer:sonic-policer": {
+            "sonic-policer:POLICER": {
+                "POLICER_LIST": [
+                    {
+                        "name": "erspan_policer",
+                        "meter_type":"packets",
+                        "mode":"tr_tcm",
+                        "color": "aware",
+                        "cir":"5000",
+                        "cbs":"5000",
+                        "pir":"15000",
+                        "pbs":"15000",
+                        "red_packet_action":"drop"
+                    }
+                ]
+            }
+        },
+        "sonic-mirror-session:sonic-mirror-session": {
+            "MIRROR_SESSION": {
+                "MIRROR_SESSION_LIST": [
+                    {
+                        "name": "erspan",
+                        "type": "ERSPAN",
+                        "dst_ip": "11.1.1.1",
+                        "src_ip": "10.1.1.1",
+                        "gre_type": "0x1234",
+                        "dscp": "10",
+                        "policer": "erspan_policer"
+                    }
+                ]
+            }
+        }
+    },
+    "MIRROR_ERSPAN_ENTRY_WITH_INVALID_POLICER": {
+        "sonic-mirror-session:sonic-mirror-session": {
+            "MIRROR_SESSION": {
+                "MIRROR_SESSION_LIST": [
+                    {
+                        "name": "erspan",
+                        "type": "ERSPAN",
+                        "dst_ip": "11.1.1.1",
+                        "src_ip": "10.1.1.1",
+                        "gre_type": "0x1234",
+                        "dscp": "10",
+                        "policer": "erspan_policer2"
+                    }
+                ]
+            }
+        }
     }
 }

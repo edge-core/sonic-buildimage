@@ -17,6 +17,10 @@ module sonic-mirror-session {
         prefix lag;
     }
 
+    import sonic-policer {
+        prefix policer;
+    }
+
     description
         "SONiC Mirror session yang model";
 
@@ -173,6 +177,14 @@ module sonic-mirror-session {
                            RX: Captures frames ingressing on source port.
                            TX: Captures frames egressing on source port.
                            BOTH: Captures frames ingressing or egressing on source port.";
+                }
+
+                leaf policer {
+                    type leafref {
+                        path "/policer:sonic-policer/policer:POLICER/policer:POLICER_LIST/policer:name";
+                    }
+                    description
+                        "Policer to be applied for the mirrored traffic.";
                 }
             }
         }

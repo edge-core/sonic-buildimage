@@ -204,7 +204,23 @@ module sonic-types {
         }
     }
 
-    typedef copp_packet_action {
+    typedef policer_mode {
+        type enumeration {
+            enum sr_tcm;
+            enum tr_tcm;
+            enum storm;
+        }
+    }
+
+    typedef policer_color_source {
+        type enumeration {
+	    enum aware;
+	    enum blind;
+        }
+    }
+
+
+    typedef policer_packet_action {
         type enumeration {
             enum drop;
             enum forward;
