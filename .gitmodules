@@ -100,3 +100,6 @@
 [submodule "src/sonic-p4rt/sonic-pins"]
 	path = src/sonic-p4rt/sonic-pins
 	url = https://github.com/Azure/sonic-pins.git
+[submodule "src/thrift_0_14_1/thrift"]
+	path = src/thrift_0_14_1/thrift
+	url = https://github.com/apache/thrift.git
