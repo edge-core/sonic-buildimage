@@ -36,14 +36,17 @@
     "DEVICE_METADATA_TYPE_CORRECT_PATTERN": {
         "desc": "DEVICE_METADATA correct value for Type field"
     },
-	"DEVICE_METADATA_DEFAULT_SYNCHRONOUS_MODE": {
-	"desc": "DEVICE_METADATA DEFAULT VALUE FOR SYNCHRONOUS MODE.",
-	"eStrKey" : "Verify",
-	"verify": {
-	    "xpath": "/sonic-device_metadata:sonic-device_metadata/DEVICE_METADATA/localhost/hostname",
-	    "key": "sonic-device_metadata:synchronous_mode",
-	    "value": "enable"
-	}
+    "DEVICE_METADATA_TYPE_NOT_PROVISIONED_PATTERN": {
+        "desc": "DEVICE_METADATA value as not-provisioned for Type field"
+    },
+    "DEVICE_METADATA_DEFAULT_SYNCHRONOUS_MODE": {
+        "desc": "DEVICE_METADATA DEFAULT VALUE FOR SYNCHRONOUS MODE.",
+        "eStrKey" : "Verify",
+        "verify": {
+            "xpath": "/sonic-device_metadata:sonic-device_metadata/DEVICE_METADATA/localhost/hostname",
+            "key": "sonic-device_metadata:synchronous_mode",
+            "value": "enable"
+        }
     },
     "DEVICE_METADATA_CORRECT_BUFFER_MODEL_PATTERN": {
         "desc": "DEVICE_METADATA correct value for BUFFER_MODEL field"
