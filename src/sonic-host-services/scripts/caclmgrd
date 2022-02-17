@@ -501,9 +501,7 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
         # Add iptables/ip6tables commands to allow all incoming BGP traffic
         # TODO: Determine BGP ACLs based on configured device sessions, and remove this blanket acceptance
         iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -A INPUT -p tcp --dport 179 -j ACCEPT")
-        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -A INPUT -p tcp --sport 179 -j ACCEPT")
         iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -A INPUT -p tcp --dport 179 -j ACCEPT")
-        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -A INPUT -p tcp --sport 179 -j ACCEPT")
 
         # Get current ACL tables and rules from Config DB
         self._tables_db_info = self.config_db_map[namespace].get_table(self.ACL_TABLE)
