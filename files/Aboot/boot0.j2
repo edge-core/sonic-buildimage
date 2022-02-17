@@ -576,6 +576,7 @@ write_platform_specific_cmdline() {
     if in_array "$platform" "crow" "magpie"; then
         cmdline_add amd_iommu=off
         cmdline_add modprobe.blacklist=snd_hda_intel,hdaudio
+        cmdline_add sdhci.append_quirks2=0x40
         read_system_eeprom
     fi
     if in_array "$platform" "woodpecker"; then
@@ -602,8 +603,8 @@ write_platform_specific_cmdline() {
     fi
 
     cmdline_add "varlog_size=$varlog_size"
-
     cmdline_add "sonic.mode=$sonic_mode"
+    cmdline_add log_buf_len=1M
 }
 
 write_image_specific_cmdline() {
