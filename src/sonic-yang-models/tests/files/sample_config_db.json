@@ -1540,7 +1540,7 @@
             }
         },
 
-        
+
         "MCLAG_DOMAIN": {
             "123": {
                 "source_ip": "12.1.1.1",
@@ -1584,6 +1584,8 @@
 
             }
         },
+
+
         "POLICER": {
             "everflow_static_policer": {
                 "meter_type": "bytes",
@@ -1592,8 +1594,23 @@
                 "cbs": "12500000",
                 "color": "aware",
                 "red_packet_action": "drop"
-           }
+            }
+        },
+
+
+        "NVGRE_TUNNEL": {
+            "tunnel_1": {
+                "src_ip": "10.0.0.1"
+            }
+        },
+        "NVGRE_TUNNEL_MAP": {
+            "tunnel_1|Vlan111": {
+                "vlan_id": "111",
+                "vsid": "5000"
+            }
         }
+
+
     },
     "SAMPLE_CONFIG_DB_UNKNOWN": {
         "UNKNOWN_TABLE": {
