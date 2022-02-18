@@ -24,7 +24,8 @@ $(SYNCD)_DEPENDS += $(BFN_SAI) $(BFN_INGRASYS_PLATFORM) $(BFN_PLATFORM)
 $(SYNCD)_UNINSTALLS += $(BFN_SAI)
 
 ifeq ($(ENABLE_SYNCD_RPC),y)
-$(SYNCD)_DEPENDS += $(LIBSAITHRIFT_DEV)
+$(SYNCD)_DEPENDS := $(filter-out $(LIBTHRIFT_DEV),$($(SYNCD)_DEPENDS))
+$(SYNCD)_DEPENDS += $(LIBSAITHRIFT_DEV) $(LIBTHRIFT_0_14_1_DEV)
 endif
 
 # Runtime dependency on sai is set only for syncd

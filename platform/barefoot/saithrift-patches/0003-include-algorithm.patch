@@ -1,0 +1,24 @@
+From b468a7aa00843be9c5ead478bd074784c04b4ba2 Mon Sep 17 00:00:00 2001
+From: Myron Sosyak <myronx.sosyak@intel.com>
+Date: Thu, 27 Jan 2022 17:26:40 +0000
+Subject: [PATCH 3/4] include algorithm
+
+---
+ test/saithrift/src/saiserver.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/test/saithrift/src/saiserver.cpp b/test/saithrift/src/saiserver.cpp
+index 846c3f1..7120b26 100644
+--- a/test/saithrift/src/saiserver.cpp
++++ b/test/saithrift/src/saiserver.cpp
+@@ -5,6 +5,7 @@
+ #include <unistd.h>
+ #include <sys/queue.h>
+ #include <sys/types.h>
++#include <algorithm>
+ #include <fstream>
+ #include <sstream>
+ #include <set>
+--
+2.20.1
+
