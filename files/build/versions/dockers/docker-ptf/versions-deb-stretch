@@ -131,10 +131,10 @@ libproxy1v5==0.4.14-2+deb9u2
 libpsl5==0.17.0-3
 libpython-dev==2.7.13-2
 libpython-stdlib==2.7.13-2
-libpython2.7==2.7.13-2+deb9u5
-libpython2.7-dev==2.7.13-2+deb9u5
-libpython2.7-minimal==2.7.13-2+deb9u5
-libpython2.7-stdlib==2.7.13-2+deb9u5
+libpython2.7==2.7.13-2+deb9u6
+libpython2.7-dev==2.7.13-2+deb9u6
+libpython2.7-minimal==2.7.13-2+deb9u6
+libpython2.7-stdlib==2.7.13-2+deb9u6
 libqt5core5a==5.7.1+dfsg-3+deb9u3
 libqt5dbus5==5.7.1+dfsg-3+deb9u3
 libqt5network5==5.7.1+dfsg-3+deb9u3
@@ -209,9 +209,9 @@ python-saithrift==0.9.4
 python-scapy==2.3.3-1
 python-six==1.10.0-3
 python-thrift==0.11.0-4
-python2.7==2.7.13-2+deb9u5
-python2.7-dev==2.7.13-2+deb9u5
-python2.7-minimal==2.7.13-2+deb9u5
+python2.7==2.7.13-2+deb9u6
+python2.7-dev==2.7.13-2+deb9u6
+python2.7-minimal==2.7.13-2+deb9u6
 qttranslations5-l10n==5.7.1~20161021-1
 readline-common==7.0-3
 rename==0.20-4

@@ -20,4 +20,3 @@ libxslt1-dev==1.1.29-2.1+deb9u2
 linux-compiler-gcc-6-arm==4.9.290-1
 nodejs==10.24.1-1nodesource1
 policykit-1==0.105-18+deb9u2
-xterm==327-2+deb9u3

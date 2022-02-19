@@ -26,7 +26,7 @@ netaddr==0.8.0
 nnpy==1.4.2
 oslo.config==2.1.0
 paramiko==2.9.2
-pathlib2==2.3.6
+pathlib2==2.3.7.post1
 pbr==2.0.0
 pexpect==4.8.0
 pickleshare==0.7.5

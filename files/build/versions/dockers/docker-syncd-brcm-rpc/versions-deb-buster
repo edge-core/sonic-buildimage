@@ -17,7 +17,7 @@ libboost-atomic1.71.0==1.71.0-6~bpo10+1
 libcc1-0==8.3.0-6
 libdouble-conversion1==3.1.0-3
 libdpkg-perl==1.19.7
-libexpat1-dev==2.2.6-2+deb10u1
+libexpat1-dev==2.2.6-2+deb10u2
 libffi-dev==3.2.1-9
 libgcc-8-dev==8.3.0-6
 libglib2.0-0==2.58.3-2+deb10u3

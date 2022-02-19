@@ -25,6 +25,7 @@ openssh-client==1:7.9p1-10+deb10u2
 sonic-dhcp6relay==1.0.0-0
 sonic-dhcp6relay-dbgsym==1.0.0-0
 sonic-dhcpmon==1.0.0-0
+sonic-dhcpmon-dbgsym==1.0.0-0
 sshpass==1.06-1
 strace==4.26-0.2
 vim==2:8.1.0875-5
