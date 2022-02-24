@@ -30,6 +30,7 @@
 
 {%- set pfc_to_pg_map_supported_asics = ['mellanox', 'barefoot', 'marvell'] -%}
 {%- set backend_device_types = ['BackEndToRRouter', 'BackEndLeafRouter'] -%}
+{%- set apollo_resource_types = ['DL-NPU-Apollo'] -%}
 
 
 {
@@ -156,6 +157,22 @@
         }
     },
 {% endif %}
+{% if 'resource_type' in DEVICE_METADATA['localhost'] and DEVICE_METADATA['localhost']['resource_type'] in apollo_resource_types %}
+    "SCHEDULER": {
+        "scheduler.0": {
+            "type"  : "DWRR",
+            "weight": "1"
+        },
+        "scheduler.1": {
+            "type"  : "DWRR",
+            "weight": "1"
+        },
+        "scheduler.2": {
+            "type"  : "DWRR",
+            "weight": "100"
+        }
+    },
+{% else %}
     "SCHEDULER": {
         "scheduler.0": {
             "type"  : "DWRR",
@@ -166,6 +183,7 @@
             "weight": "15"
         }
     },
+{% endif %}
 {% if asic_type in pfc_to_pg_map_supported_asics  %}
     "PFC_PRIORITY_TO_PRIORITY_GROUP_MAP": {
         "AZURE": {
@@ -221,12 +239,21 @@
             "wred_profile": "AZURE_LOSSLESS"
         },
 {% endfor %}
+{% if 'resource_type' in DEVICE_METADATA['localhost'] and DEVICE_METADATA['localhost']['resource_type'] in apollo_resource_types %}
+{% for port in PORT_ACTIVE %}
+        "{{ port }}|4": {
+            "scheduler"   : "scheduler.2",
+            "wred_profile": "AZURE_LOSSLESS"
+        },
+{% endfor %}
+{% else %}
 {% for port in PORT_ACTIVE %}
         "{{ port }}|4": {
             "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
 {% endfor %}
+{% endif %}
 {% for port in PORT_ACTIVE %}
         "{{ port }}|0": {
             "scheduler": "scheduler.0"
