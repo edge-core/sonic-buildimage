@@ -51,6 +51,8 @@ class ServiceChecker(HealthChecker):
 
         self.need_save_cache = False
 
+        self.config_db = None
+
         self.load_critical_process_cache()
 
     def get_expected_running_containers(self, feature_table):
@@ -248,9 +250,10 @@ class ServiceChecker(HealthChecker):
         Args:
             config (config.Config): Health checker configuration.
         """
-        config_db = swsscommon.ConfigDBConnector()
-        config_db.connect()
-        feature_table = config_db.get_table("FEATURE")
+        if not self.config_db:
+            self.config_db = swsscommon.ConfigDBConnector()
+            self.config_db.connect()
+        feature_table = self.config_db.get_table("FEATURE")
         expected_running_containers, self.container_feature_dict = self.get_expected_running_containers(feature_table)
         current_running_containers = self.get_current_running_containers()
 
