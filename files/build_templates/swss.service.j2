@@ -8,7 +8,6 @@ Requires=nps-modules-4.9.0-14-amd64.service
 {% endif %}
 After=database.service updategraph.service
 After=interfaces-config.service
-After=pmon.service
 Before=ntp-config.service
 StartLimitIntervalSec=1200
 StartLimitBurst=3

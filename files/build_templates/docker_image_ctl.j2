@@ -5,17 +5,6 @@ function getMountPoint()
     echo $1 | python -c "import sys, json, os; mnts = [x for x in json.load(sys.stdin)[0]['Mounts'] if x['Destination'] == '/usr/share/sonic/hwsku']; print '' if len(mnts) == 0 else os.path.basename(mnts[0]['Source'])" 2>/dev/null
 }
 
-function isPlatformReset()
-{
-    output=$(python -c "import sonic_platform.platform; p = sonic_platform.platform.Platform(); c = p.get_chassis(); hw_rc_major, hw_rc_minor = c.get_reboot_cause(); print(hw_rc_major)" 2>/dev/null)
-
-    if [[ "${output}" != "Non-Hardware" ]]; then
-        return 0
-    else
-        return 1
-    fi
-}
-
 function getBootType()
 {
     # same code snippet in files/scripts/syncd.sh
@@ -32,9 +21,6 @@ function getBootType()
     *)
         TYPE='cold'
     esac
-    if isPlatformReset; then
-        TYPE='cold'
-    fi
     echo "${TYPE}"
 }
 
@@ -73,7 +59,7 @@ function postStartAction()
         fi
 
         if [[ "$BOOT_TYPE" == "fast" ]]; then
-            # set the FAST_REBOOT|system key to expire in 3 minutes
+            # set the key to expire in 3 minutes
             redis-cli -n 6 SET "FAST_REBOOT|system" "1" "EX" "180"
         fi
 
