@@ -41,7 +41,7 @@ def get_expected_running_containers():
 
     expected_running_containers = set()
     always_running_containers = set()
-
+    
     for container_name in feature_table.keys():
         if feature_table[container_name]["state"] not in ["disabled", "always_disabled"]:
             if multi_asic.is_multi_asic():
@@ -51,13 +51,19 @@ def get_expected_running_containers():
                     num_asics = multi_asic.get_num_asics()
                     for asic_id in range(num_asics):
                         expected_running_containers.add(container_name + str(asic_id))
-            elif feature_table[container_name]["state"] == 'always_enabled':
-                always_running_containers.add(container_name)
             else:
                 expected_running_containers.add(container_name)
-
+        if feature_table[container_name]["state"] == 'always_enabled':
+            if multi_asic.is_multi_asic():
+                if feature_table[container_name]["has_global_scope"] == "True":
+                    always_running_containers.add(container_name)
+                if feature_table[container_name]["has_per_asic_scope"] == "True":
+                    num_asics = multi_asic.get_num_asics()
+                    for asic_id in range(num_asics):
+                        always_running_containers.add(container_name + str(asic_id))
+            else:
+                always_running_containers.add(container_name)
     return expected_running_containers, always_running_containers
-
 
 def get_current_running_from_DB(always_running_containers):
     """
