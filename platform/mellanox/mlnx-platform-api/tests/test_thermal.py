@@ -238,6 +238,32 @@ class TestThermal:
         mock_file_content[os.path.join('thermal_zone1', THERMAL_ZONE_TEMP_FILE)] = 81000
         assert Thermal.get_min_allowed_cooling_level_by_thermal_zone() is None
 
+    @mock.patch('glob.iglob', mock.MagicMock(return_value=['thermal_zone1', 'thermal_zone2']))
+    @mock.patch('sonic_platform.utils.read_int_from_file')
+    def test_no_sensor_thermal_zone(self, mock_read_file):
+        from sonic_platform.thermal import Thermal, THERMAL_ZONE_TEMP_FILE, THERMAL_ZONE_HIGH_THRESHOLD, THERMAL_ZONE_NORMAL_THRESHOLD, MIN_COOLING_LEVEL_FOR_HIGH, MIN_COOLING_LEVEL_FOR_NORMAL
+
+        mock_file_content = {}
+        def mock_read_int_from_file(file_path, **kwargs):
+            return mock_file_content[file_path]
+
+        mock_read_file.side_effect = mock_read_int_from_file
+        mock_file_content[os.path.join('thermal_zone1', THERMAL_ZONE_NORMAL_THRESHOLD)] = 0
+        mock_file_content[os.path.join('thermal_zone1', THERMAL_ZONE_HIGH_THRESHOLD)] = 0
+        mock_file_content[os.path.join('thermal_zone1', THERMAL_ZONE_TEMP_FILE)] = 0
+        mock_file_content[os.path.join('thermal_zone2', THERMAL_ZONE_NORMAL_THRESHOLD)] = 75000
+        mock_file_content[os.path.join('thermal_zone2', THERMAL_ZONE_HIGH_THRESHOLD)] = 85000
+        mock_file_content[os.path.join('thermal_zone2', THERMAL_ZONE_TEMP_FILE)] = 24000
+        assert Thermal.get_min_allowed_cooling_level_by_thermal_zone() == MIN_COOLING_LEVEL_FOR_NORMAL
+
+        mock_file_content[os.path.join('thermal_zone2', THERMAL_ZONE_TEMP_FILE)] = 71000
+        assert Thermal.get_min_allowed_cooling_level_by_thermal_zone() == MIN_COOLING_LEVEL_FOR_HIGH
+
+        mock_file_content[os.path.join('thermal_zone2', THERMAL_ZONE_TEMP_FILE)] = 79000
+        assert Thermal.get_min_allowed_cooling_level_by_thermal_zone() == MIN_COOLING_LEVEL_FOR_HIGH
+
+        mock_file_content[os.path.join('thermal_zone2', THERMAL_ZONE_TEMP_FILE)] = 81000
+        assert Thermal.get_min_allowed_cooling_level_by_thermal_zone() is None
 
     def test_check_module_temperature_trustable(self):
         from sonic_platform.thermal import Thermal

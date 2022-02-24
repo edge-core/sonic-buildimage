@@ -400,9 +400,14 @@ class Thermal(ThermalBase):
         thermal_zone_present = False
         try:
             for thermal_zone_folder in glob.iglob(THERMAL_ZONE_FOLDER_WILDCARD):
+                current = utils.read_int_from_file(os.path.join(thermal_zone_folder, THERMAL_ZONE_TEMP_FILE))
+                if current == 0:
+                    # Temperature value 0 means that this thermal zone has no
+                    # sensor and it should be ignored in this loop
+                    continue
+
                 thermal_zone_present = True
                 normal_thresh = utils.read_int_from_file(os.path.join(thermal_zone_folder, THERMAL_ZONE_NORMAL_THRESHOLD))
-                current = utils.read_int_from_file(os.path.join(thermal_zone_folder, THERMAL_ZONE_TEMP_FILE))
                 if current < normal_thresh - THERMAL_ZONE_HYSTERESIS:
                     continue
 
