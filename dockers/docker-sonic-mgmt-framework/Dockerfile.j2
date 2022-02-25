@@ -15,7 +15,7 @@ RUN pip3 install connexion==2.7.0 \
                  certifi==2017.4.17 \
                  python-dateutil==2.6.0 \
                  six==1.11.0 \
-                 urllib3==1.21.1
+                 urllib3==1.26.5
 
 COPY \
 {% for deb in docker_sonic_mgmt_framework_debs.split(' ') -%}
