@@ -43,7 +43,6 @@ jobs:
           [ -n "$SYSTEM_PULLREQUEST_PULLREQUESTID" ] && BRANCH_NAME="$SYSTEM_PULLREQUEST_TARGETBRANCH-$SYSTEM_PULLREQUEST_PULLREQUESTNUMBER"
           git checkout -b $BRANCH_NAME
           sudo modprobe overlay
-          pip3 install MarkupSafe==2.0.1 --force-reinstall
           sudo apt-get install -y acl
           sudo bash -c "echo 1 > /proc/sys/vm/compact_memory"
           ENABLE_DOCKER_BASE_PULL=y make PLATFORM=$(PLATFORM_AZP) PLATFORM_ARCH=$(PLATFORM_ARCH) $(BUILD_OPTIONS) configure

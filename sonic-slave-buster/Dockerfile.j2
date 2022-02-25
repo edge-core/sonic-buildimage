@@ -465,6 +465,11 @@ RUN pip3 uninstall -y enum34
 
 # For templating
 RUN pip2 install j2cli==0.3.10
+# Note: Jinja2 depends on MarkupSafe, however markupsafe 2.1.0 breaks Jinja2 2.10
+# Debian buster dist-packages include python3-markupsafe (1.1.0-1) and python3-jinja2 (2.10-2)
+# If not pinning the versions, any requirement like `MarkupSafe>=2.0` will pull latest into site-packages and mess up.
+RUN pip3 install MarkupSafe==2.0.1
+RUN pip3 install Jinja2==3.0.3
 
 # For sonic-mgmt-framework
 RUN pip2 install "PyYAML==5.4.1"
