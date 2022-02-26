@@ -7,4 +7,6 @@ kick_date=`date -u`
 echo "last watchdog kick $kick_date" > /var/log/nokia-watchdog-last.log
 rm -f /sys/firmware/efi/efivars/dump-*
 sync
+echo "Rebooting all Linecards"
+python3 -c 'import sonic_platform.platform; platform_chassis = sonic_platform.platform.Platform().get_chassis(); platform_chassis.reboot_imms()'
 /sbin/reboot
