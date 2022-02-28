@@ -18,7 +18,8 @@ RUN pip3 install crc16          \
         psutil                  \
         scapy==2.4.4            \
         scapy_helper            \
-        pysubnettree
+        pysubnettree            \
+        xmlrunner
 
 COPY \
 {% for deb in docker_ptf_sai_debs.split(' ') -%}
