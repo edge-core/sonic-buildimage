@@ -6,8 +6,11 @@ from os import path
 RNDADDENTROPY=0x40085203
 
 def avail():
-  with open("/proc/sys/kernel/random/entropy_avail", mode='r') as avail:
-      return int(avail.read())
+    if path.exists("/proc/sys/kernel/random/entropy_avail"):
+        with open("/proc/sys/kernel/random/entropy_avail", mode='r') as avail:
+            return int(avail.read())
+    else:
+        return int(2048)
 
 if path.exists("/proc/sys/kernel/random/entropy_avail"):
     while 1:
