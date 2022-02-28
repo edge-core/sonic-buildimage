@@ -20,6 +20,7 @@ try:
     from sonic_platform.psu import Psu
     from sonic_platform.thermal import Thermal
     from sonic_platform.watchdog import Watchdog, WatchdogTCO
+    from sonic_platform.sfp import Sfp
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -75,6 +76,15 @@ class Chassis(ChassisBase):
             module = Module(i)
             self._module_list.append(module)
             self._sfp_list.extend(module._sfp_list)
+
+        #SFP ports
+        sfp_port = 11
+        for index in range(64,66):
+             eeprom_path = "/sys/bus/i2c/devices/i2c-{0}/{0}-0050/eeprom".format(sfp_port)
+             sfp_control = ""
+             sfp_node = Sfp(index, 'SFP', eeprom_path, sfp_control, index)
+             self._sfp_list.append(sfp_node)
+             sfp_port = sfp_port + 1
 
         for i in range(MAX_S6100_FANTRAY):
             fandrawer = FanDrawer(i)
