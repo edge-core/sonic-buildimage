@@ -131,7 +131,6 @@ def
     {%- if port_names_list_inactive.append(port) %}{%- endif %}
 {%- endfor %}
 {%- set port_names_inactive  = port_names_list_inactive  | join(',') %}
-
 {
     "CABLE_LENGTH": {
         "AZURE": {
