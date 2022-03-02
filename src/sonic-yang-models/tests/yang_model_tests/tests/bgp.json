@@ -154,6 +154,9 @@
     "BGP_MONITORS_NEG_INVALID_ASN": {
         "desc": "Invalid local AS number.",
         "eStrKey" : "InvalidValue"
+    },
+    "BGP_PEERRANGE_ALL_VALID": {
+        "desc": "Configure BGP peer range table."
     }
 
 }

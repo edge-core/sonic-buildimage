@@ -1402,6 +1402,24 @@
                 ]
             }
         }
+    },
+
+    "BGP_PEERRANGE_ALL_VALID": {
+        "sonic-bgp-peerrange:sonic-bgp-peerrange": {
+            "sonic-bgp-peerrange:BGP_PEER_RANGE": {
+                "BGP_PEER_RANGE_LIST": [
+                    {
+                        "peer_range_name": "BGPSLBPassive",
+                        "name": "BGPSLBPassive",
+                        "src_address": "10.1.0.32",
+                        "peer_asn": "65200",
+                        "ip_range": [
+                            "10.255.0.0/25"
+                        ]
+                    }
+                ]
+            }
+        }
     }
 }
 
