@@ -93,6 +93,13 @@
     "DEVICE_METADATA_INVALID_STORAGE_DEVICE": {
         "desc": "Verifying invalid storage device value",
         "eStrKey": "InvalidValue"
-    }
+    },
+    "DEVICE_METADATA_INCORRECT_VOQ_CONFIG": {
+        "desc": "Verifying incorrect switch_type configuration.",
+	"eStrKey": "Pattern"
+    },
+    "DEVICE_METADATA_CORRECT_VOQ_CONFIG": {
+        "desc": "Verifying VOQ configuration."
+     }
 
 }

@@ -293,7 +293,11 @@
                 "hwsku": "Stone",
                 "buffer_model": "dynamic",
                 "cloudtype": "Public",
-                "region": "usfoo"
+                "region": "usfoo",
+                "asic_name": "Asic0",
+                "switch_id": "2",
+                "switch_type": "voq",
+                "max_cores": "8"
             }
         },
         "VLAN": {

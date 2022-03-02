@@ -250,5 +250,29 @@
                 }
             }
         }
+    },
+    "DEVICE_METADATA_INCORRECT_VOQ_CONFIG": {
+        "sonic-device_metadata:sonic-device_metadata": {
+            "sonic-device_metadata:DEVICE_METADATA": {
+                "sonic-device_metadata:localhost": {
+                    "asic_name": "Asic0",
+                    "switch_id": "2",
+                    "switch_type": "incorrect_pattern",
+                    "max_cores": "8"
+                }
+            }
+        }
+    },
+    "DEVICE_METADATA_CORRECT_VOQ_CONFIG": {
+        "sonic-device_metadata:sonic-device_metadata": {
+            "sonic-device_metadata:DEVICE_METADATA": {
+                "sonic-device_metadata:localhost": {
+                    "asic_name": "Asic0",
+                    "switch_id": "2",
+                    "switch_type": "voq",
+                    "max_cores": "8"
+                }
+            }
+        }
     }
 }
