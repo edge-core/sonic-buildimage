@@ -359,9 +359,18 @@ class PddfParse():
         ret = self.runcmd(cmd)
         if ret != 0:
             return create_ret.append(ret)
-        self.create_device(dev['i2c']['dev_attr'], "pddf/devices/mux", ops)
+        cmd = "echo %s > /sys/kernel/pddf/devices/mux/virt_bus" % (dev['i2c']['dev_attr']['virt_bus'])
+        ret = self.runcmd(cmd)
+        if ret != 0:
+            return create_ret.append(ret)
         cmd = "echo 'add' > /sys/kernel/pddf/devices/mux/dev_ops"
         ret = self.runcmd(cmd)
+        # Check if the dev_attr array contain idle_state
+        if 'idle_state' in dev['i2c']['dev_attr']:
+            cmd = "echo {} > /sys/bus/i2c/devices/{}-00{:02x}/idle_state".format(dev['i2c']['dev_attr']['idle_state'],
+                    int(dev['i2c']['topo_info']['parent_bus'],0), int(dev['i2c']['topo_info']['dev_addr'],0))
+            ret = self.runcmd(cmd)
+
         return create_ret.append(ret)
 
     def create_xcvr_i2c_device(self, dev, ops):
