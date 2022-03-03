@@ -34,7 +34,7 @@
             "i2c-ismt",
             "i2c-i801",
             "i2c_dev",
-            "i2c_mux_pca954x force_deselect_on_exit=1",
+            "i2c_mux_pca954x",
             "optoe"
         ],
         "pddf_kos":
@@ -116,7 +116,7 @@
 		"i2c":
 		{ 
 			"topo_info": { "parent_bus":"0x1", "dev_addr":"0x76", "dev_type":"pca9548"},
-			"dev_attr": { "virt_bus":"0x2"},
+			"dev_attr": { "virt_bus":"0x2", "idle_state":"-2"},
 			"channel":
 			[
 				{ "chn":"0", "dev":"FAN-CTRL" },
@@ -137,7 +137,7 @@
 		"i2c":
 		{
 			"topo_info": { "parent_bus":"0x0", "dev_addr":"0x71", "dev_type":"pca9548"},
-			"dev_attr": { "virt_bus":"0xa"},
+			"dev_attr": { "virt_bus":"0xa", "idle_state":"-2"},
 			"channel":
 			[
 				{ "chn":"0", "dev":"PSU2" },
@@ -402,7 +402,7 @@
 		"i2c":
 		{
 			"topo_info": { "parent_bus":"0x0", "dev_addr":"0x72", "dev_type":"pca9548"},
-			"dev_attr": { "virt_bus":"0x12"},
+			"dev_attr": { "virt_bus":"0x12", "idle_state":"-2"},
 			"channel":
 			[
 				{ "chn":"0", "dev":"PORT9" },
@@ -423,7 +423,7 @@
 		"i2c":
 		{
 			"topo_info": { "parent_bus":"0x0", "dev_addr":"0x73", "dev_type":"pca9548"},
-			"dev_attr": { "virt_bus":"0x1a"},
+			"dev_attr": { "virt_bus":"0x1a", "idle_state":"-2"},
 			"channel":
 			[
 				{ "chn":"0", "dev":"PORT6" },
@@ -444,7 +444,7 @@
 		"i2c":
 		{
 			"topo_info": { "parent_bus":"0x0", "dev_addr":"0x74", "dev_type":"pca9548"},
-			"dev_attr": { "virt_bus":"0x22"},
+			"dev_attr": { "virt_bus":"0x22", "idle_state":"-2"},
 			"channel":
 			[
 				{ "chn":"0", "dev":"PORT17" },
@@ -465,7 +465,7 @@
 		"i2c":
 		{
 			"topo_info": { "parent_bus":"0x0", "dev_addr":"0x75", "dev_type":"pca9548"},
-			"dev_attr": { "virt_bus":"0x2a"},
+			"dev_attr": { "virt_bus":"0x2a", "idle_state":"-2"},
 			"channel":
 			[
 				{ "chn":"0", "dev":"PORT29" },
