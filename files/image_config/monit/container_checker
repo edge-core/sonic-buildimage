@@ -20,7 +20,7 @@ import docker
 import sys
 
 import swsssdk
-from sonic_py_common import multi_asic
+from sonic_py_common import multi_asic, device_info
 from swsscommon import swsscommon
 
 
@@ -63,6 +63,8 @@ def get_expected_running_containers():
                         always_running_containers.add(container_name + str(asic_id))
             else:
                 always_running_containers.add(container_name)
+    if device_info.is_supervisor():
+        always_running_containers.add("database-chassis")
     return expected_running_containers, always_running_containers
 
 def get_current_running_from_DB(always_running_containers):
