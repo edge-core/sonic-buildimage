@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #############################################################################
-# DELLEMC S5248F
+# DELLEMC N3248TE
 #
 # Module contains an implementation of SONiC Platform Base API and
 # provides the platform information
@@ -16,6 +16,9 @@ try:
 
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
+
+SFP_PORT_START = 49
+SFP_PORT_END = 54
 
 class Sfp(SfpOptoeBase):
     """
