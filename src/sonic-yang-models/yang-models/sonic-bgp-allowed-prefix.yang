@@ -1,0 +1,102 @@
+module sonic-bgp-allowed-prefix {
+    namespace "http://github.com/Azure/sonic-bgp-allowed-prefix";
+    prefix bgppre;
+    yang-version 1.1;
+
+    import sonic-bgp-common {
+        prefix bgpcmn;
+    }
+
+    import ietf-inet-types {
+        prefix inet;
+    }
+
+    import sonic-routing-policy-sets {
+        prefix rpolsets;
+    }
+
+    organization
+        "SONiC";
+
+    contact
+        "SONiC";
+
+    description
+        "SONIC BGP Allowed Prefix";
+
+    revision 2022-02-26 {
+        description
+            "Initial revision.";
+    }
+
+    container sonic-bgp-allowed-prefix {
+        container BGP_ALLOWED_PREFIXES {
+            list BGP_ALLOWED_PREFIXES_COM_LIST {
+                key "deployment id community";
+
+                leaf deployment {
+                    type string {
+                        pattern "DEPLOYMENT_ID";
+                    }
+                    description "BGP allowed prefix list key type";
+                }
+
+                leaf id {
+                    type uint32;
+                    description "BGP allowed prefix list deployment id";
+                }
+
+                leaf community {
+                    type string;
+                    description "BGP allowed prefix list deployment community";
+                }
+
+                leaf default_action {
+                    type rpolsets:routing-policy-action-type;
+                    description "Permit/Deny action for BGP allow prefix list";
+                }
+
+                leaf-list prefixes_v4 {
+                    type inet:ipv4-prefix;
+                    description "BGP V4 allowed prefix list";
+                }
+
+                leaf-list prefixes_v6 {
+                    type inet:ipv6-prefix;
+                    description "BGP V6 allowed prefix list";
+                }
+            }
+
+            list BGP_ALLOWED_PREFIXES_LIST {
+                key "deployment id";
+
+                leaf deployment {
+                    type string {
+                        pattern "DEPLOYMENT_ID";
+                    }
+                    description "BGP allowed prefix list key type";
+                }
+
+                leaf id {
+                    type uint32;
+                    description "BGP allowed prefix list deployment id";
+                }
+
+                leaf default_action {
+                    type rpolsets:routing-policy-action-type;
+                    description "Permit/Deny action for BGP allow prefix list";
+                }
+
+                leaf-list prefixes_v4 {
+                    type inet:ipv4-prefix;
+                    description "BGP V4 allowed prefix list";
+                }
+
+                leaf-list prefixes_v6 {
+                    type inet:ipv6-prefix;
+                    description "BGP V6 allowed prefix list";
+                }
+            }
+        }
+    }
+}

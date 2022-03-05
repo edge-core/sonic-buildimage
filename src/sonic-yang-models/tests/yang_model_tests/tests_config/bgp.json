@@ -1420,6 +1420,177 @@
                 ]
             }
         }
+    },
+
+    "BGP_ALLOWED_PREFIXES_COM_LIST_ALL_VALID": {
+        "sonic-bgp-allowed-prefix:sonic-bgp-allowed-prefix": {
+            "sonic-bgp-allowed-prefix:BGP_ALLOWED_PREFIXES": {
+                "BGP_ALLOWED_PREFIXES_COM_LIST": [
+                    {
+                        "deployment": "DEPLOYMENT_ID",
+                        "id": "4",
+                        "community": "123:123",
+                        "default_action": "permit",
+                        "prefixes_v4": ["10.0.0.0/24", "10.1.0.0/24"],
+                        "prefixes_v6": ["fc00:f0::/64", "fc00:a0::/64"]
+                    },
+                    {
+                        "deployment": "DEPLOYMENT_ID",
+                        "id": "5",
+                        "community": "456:456",
+                        "default_action": "permit",
+                        "prefixes_v4": ["10.10.0.0/24", "10.11.0.0/24"],
+                        "prefixes_v6": ["fc00:f1::/64", "fc00:a1::/64"]
+                    }
+                ]
+            }
+        }
+    },
+    "BGP_ALLOWED_PREFIXES_COM_LIST_INVALID_DEPLOYMENT": {
+        "sonic-bgp-allowed-prefix:sonic-bgp-allowed-prefix": {
+            "sonic-bgp-allowed-prefix:BGP_ALLOWED_PREFIXES": {
+                "BGP_ALLOWED_PREFIXES_COM_LIST": [
+                    {
+                        "deployment": "DEPLOYMENTID",
+                        "id": "4",
+                        "community": "123:123",
+                        "default_action": "permitall",
+                        "prefixes_v4": ["10.0.0.0/24", "10.1.0.0/24"],
+                        "prefixes_v6": ["fc00:f0::/64", "fc00:a0::/64"]
+                    }
+                ]
+            }
+        }
+    },
+    "BGP_ALLOWED_PREFIXES_COM_LIST_INVALID_DEFAULT_ACTION": {
+        "sonic-bgp-allowed-prefix:sonic-bgp-allowed-prefix": {
+            "sonic-bgp-allowed-prefix:BGP_ALLOWED_PREFIXES": {
+                "BGP_ALLOWED_PREFIXES_COM_LIST": [
+                    {
+                        "deployment": "DEPLOYMENT_ID",
+                        "id": "4",
+                        "community": "123:123",
+                        "default_action": "permitall",
+                        "prefixes_v4": ["10.0.0.0/24", "10.1.0.0/24"],
+                        "prefixes_v6": ["fc00:f0::/64", "fc00:a0::/64"]
+                    }
+                ]
+            }
+        }
+    },
+    "BGP_ALLOWED_PREFIXES_COM_LIST_INVALID_PREFIXES_IPV4": {
+        "sonic-bgp-allowed-prefix:sonic-bgp-allowed-prefix": {
+            "sonic-bgp-allowed-prefix:BGP_ALLOWED_PREFIXES": {
+                "BGP_ALLOWED_PREFIXES_COM_LIST": [
+                    {
+                        "deployment": "DEPLOYMENT_ID",
+                        "id": "4",
+                        "community": "123:123",
+                        "default_action": "permit",
+                        "prefixes_v4": ["10.0.0.0/48", "10.1.0.0/24"],
+                        "prefixes_v6": ["fc00:f0::/64", "fc00:a0::/64"]
+                    }
+                ]
+            }
+        }
+    },
+    "BGP_ALLOWED_PREFIXES_COM_LIST_INVALID_PREFIXES_IPV6": {
+        "sonic-bgp-allowed-prefix:sonic-bgp-allowed-prefix": {
+            "sonic-bgp-allowed-prefix:BGP_ALLOWED_PREFIXES": {
+                "BGP_ALLOWED_PREFIXES_COM_LIST": [
+                    {
+                        "deployment": "DEPLOYMENT_ID",
+                        "id": "4",
+                        "community": "123:123",
+                        "default_action": "permit",
+                        "prefixes_v4": ["10.0.0.0/24", "10.1.0.0./24"],
+                        "prefixes_v6": ["fc00:f0::/129", "fc00:a0::/64"]
+                    }
+                ]
+            }
+        }
+    },
+    "BGP_ALLOWED_PREFIXES_LIST_ALL_VALID": {
+        "sonic-bgp-allowed-prefix:sonic-bgp-allowed-prefix": {
+            "sonic-bgp-allowed-prefix:BGP_ALLOWED_PREFIXES": {
+                "BGP_ALLOWED_PREFIXES_LIST": [
+                    {
+                        "deployment": "DEPLOYMENT_ID",
+                        "id": "4",
+                        "default_action": "permit",
+                        "prefixes_v4": ["10.0.0.0/24", "10.1.0.0/24"],
+                        "prefixes_v6": ["fc00:f0::/64", "fc00:a0::/64"]
+                    },
+                    {
+                        "deployment": "DEPLOYMENT_ID",
+                        "id": "5",
+                        "default_action": "permit",
+                        "prefixes_v4": ["10.10.0.0/24", "10.11.0.0/24"],
+                        "prefixes_v6": ["fc00:f1::/64", "fc00:a1::/64"]
+                    }
+                ]
+            }
+        }
+    },
+    "BGP_ALLOWED_PREFIXES_LIST_INVALID_DEPLOYMENT": {
+        "sonic-bgp-allowed-prefix:sonic-bgp-allowed-prefix": {
+            "sonic-bgp-allowed-prefix:BGP_ALLOWED_PREFIXES": {
+                "BGP_ALLOWED_PREFIXES_LIST": [
+                    {
+                        "deployment": "DEPLOYMENTID",
+                        "id": "4",
+                        "default_action": "permitall",
+                        "prefixes_v4": ["10.0.0.0/24", "10.1.0.0/24"],
+                        "prefixes_v6": ["fc00:f0::/64", "fc00:a0::/64"]
+                    }
+                ]
+            }
+        }
+    },
+    "BGP_ALLOWED_PREFIXES_LIST_INVALID_DEFAULT_ACTION": {
+        "sonic-bgp-allowed-prefix:sonic-bgp-allowed-prefix": {
+            "sonic-bgp-allowed-prefix:BGP_ALLOWED_PREFIXES": {
+                "BGP_ALLOWED_PREFIXES_LIST": [
+                    {
+                        "deployment": "DEPLOYMENT_ID",
+                        "id": "4",
+                        "default_action": "permitall",
+                        "prefixes_v4": ["10.0.0.0/24", "10.1.0.0/24"],
+                        "prefixes_v6": ["fc00:f0::/64", "fc00:a0::/64"]
+                    }
+                ]
+            }
+        }
+    },
+    "BGP_ALLOWED_PREFIXES_LIST_INVALID_PREFIXES_IPV4": {
+        "sonic-bgp-allowed-prefix:sonic-bgp-allowed-prefix": {
+            "sonic-bgp-allowed-prefix:BGP_ALLOWED_PREFIXES": {
+                "BGP_ALLOWED_PREFIXES_LIST": [
+                    {
+                        "deployment": "DEPLOYMENT_ID",
+                        "id": "4",
+                        "default_action": "permit",
+                        "prefixes_v4": ["10.0.0.0/48", "10.1.0.0/24"],
+                        "prefixes_v6": ["fc00:f0::/64", "fc00:a0::/64"]
+                    }
+                ]
+            }
+        }
+    },
+    "BGP_ALLOWED_PREFIXES_LIST_INVALID_PREFIXES_IPV6": {
+        "sonic-bgp-allowed-prefix:sonic-bgp-allowed-prefix": {
+            "sonic-bgp-allowed-prefix:BGP_ALLOWED_PREFIXES": {
+                "BGP_ALLOWED_PREFIXES_LIST": [
+                    {
+                        "deployment": "DEPLOYMENT_ID",
+                        "id": "4",
+                        "default_action": "permit",
+                        "prefixes_v4": ["10.0.0.0/24", "10.1.0.0./24"],
+                        "prefixes_v6": ["fc00:f0::/129", "fc00:a0::/64"]
+                    }
+                ]
+            }
+        }
     }
 }
 

@@ -1216,6 +1216,14 @@
                 "peer_group": "PG1"
             }
         },
+        "BGP_ALLOWED_PREFIXES" :{
+            "DEPLOYMENT_ID|4|123:123": {
+                "default_action": "permit"
+            },
+            "DEPLOYMENT_ID|5": {
+                "default_action": "permit"
+            }
+        },
         "ROUTE_MAP_SET": {
             "map1": {
             }
