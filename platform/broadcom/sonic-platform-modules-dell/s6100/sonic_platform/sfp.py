@@ -419,6 +419,9 @@ class Sfp(SfpBase):
         """
         Retrieves the presence of the sfp
         """
+        if self.index > 64:
+            return False
+
         presence_ctrl = self.sfp_control + 'qsfp_modprs'
         try:
             reg_file = open(presence_ctrl)
@@ -474,6 +477,9 @@ class Sfp(SfpBase):
         """
         Retrieves the reset status of SFP
         """
+        if self.index > 64:
+            return False
+
         reset_status = None
         reset_ctrl = self.sfp_control + 'qsfp_reset'
         try:
@@ -612,6 +618,9 @@ class Sfp(SfpBase):
         """
         Retrieves the lpmode (low power mode) status of this SFP
         """
+        if self.index > 64:
+            return False
+
         lpmode_ctrl = self.sfp_control + 'qsfp_lpmode'
         try:
             reg_file = open(lpmode_ctrl, "r+")
@@ -727,6 +736,9 @@ class Sfp(SfpBase):
         """
         Reset SFP and return all user module settings to their default srate.
         """
+        if self.index > 64:
+            return False
+
         reset_ctrl = self.sfp_control + 'qsfp_reset'
         try:
             # Open reset_ctrl in both read & write mode
@@ -776,6 +788,9 @@ class Sfp(SfpBase):
         """
         Sets the lpmode (low power mode) of SFP
         """
+        if self.index > 64:
+            return False
+
         lpmode_ctrl = self.sfp_control + 'qsfp_lpmode'
         try:
             reg_file = open(lpmode_ctrl, "r+")
