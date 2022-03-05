@@ -10,8 +10,11 @@ CFGGEN_PARAMS=" \
     -t /usr/share/sonic/templates/ports.json.j2,/etc/swss/config.d/ports.json \
     -t /usr/share/sonic/templates/vlan_vars.j2 \
     -t /usr/share/sonic/templates/ndppd.conf.j2,/etc/ndppd.conf \
+    -t /usr/share/sonic/templates/wait_for_link.sh.j2,/usr/bin/wait_for_link.sh \
 "
 VLAN=$(sonic-cfggen $CFGGEN_PARAMS)
+
+chmod +x /usr/bin/wait_for_link.sh
 
 # Executed HWSKU specific initialization tasks.
 if [ -x /usr/share/sonic/hwsku/hwsku-init ]; then
