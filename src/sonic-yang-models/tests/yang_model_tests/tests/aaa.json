@@ -6,6 +6,10 @@
         "desc": "Configure a wrong type in AAA table.",
         "eStrKey": "InvalidValue"
     },
+    "AAA_TEST_WRONG_LOGIN": {
+        "desc": "Configure a wrong type in AAA table.",
+        "eStr": ["Invalid login choice"]
+    },
     "AAA_TEST_WRONG_FAILTHROUGH": {
         "desc": "Configure a wrong failthrough in AAA table.",
         "eStrKey": "Pattern",
