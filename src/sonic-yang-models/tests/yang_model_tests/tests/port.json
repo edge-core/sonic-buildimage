@@ -73,5 +73,13 @@
      "PORT_INVALID_MUX_CABLE_TEST": {
          "desc": "PORT_INVALID_MUX_CABLE_TEST non-boolean values, expect fail",
          "eStrKey": "InvalidValue"
+     },
+     "PORT_VALID_MULTIASIC_TEST": {
+         "desc": "PORT_VALID_MULTIASIC_TEST no failure."
+     },
+     "PORT_INVALID_MULTIASIC_TEST": {
+         "desc": "PORT_INVALID_MULTIASIC_TEST invalid role pattern, expect fail",
+         "eStrKey": "Pattern"
      }
+
 }

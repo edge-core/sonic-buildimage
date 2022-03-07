@@ -420,7 +420,10 @@
                 "description": "",
                 "speed": "11100",
                 "tpid": "0x8100",
-                "admin_status": "up"
+                "admin_status": "up",
+                "index": "0",
+                "asic_port_name": "Eth0-ASIC1",
+                "role": "Ext"
             },
             "Ethernet1": {
                 "alias": "Eth1/2",

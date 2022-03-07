@@ -314,5 +314,76 @@
                 ]
             }
         }
+    },
+    
+    "PORT_VALID_MULTIASIC_TEST": {
+        "sonic-port:sonic-port": {
+            "sonic-port:PORT": {
+                "PORT_LIST": [
+                    {
+                        "name": "Ethernet8",
+                        "alias": "eth8",
+                        "lanes": "65",
+                        "speed": 50000,
+                        "index": "0",
+                        "asic_port_name": "Eth8-ASIC1",
+                        "role": "Ext"
+                    },
+                    {
+                        "name": "Ethernet9",
+                        "alias": "eth9",
+                        "lanes": "66",
+                        "speed": 50000,
+                        "index": "1",
+                        "asic_port_name": "Eth9-ASIC1"
+                    },
+                    {
+                        "name": "Ethernet10",
+                        "alias": "eth10",
+                        "lanes": "67",
+                        "speed": 50000,
+                        "index": "2",
+                        "asic_port_name": "Eth10-ASIC1",
+                        "role": "Int"
+                    },
+                    {
+                        "name": "Ethernet11",
+                        "alias": "eth11",
+                        "lanes": "68",
+                        "speed": 50000,
+                        "index": "3",
+                        "asic_port_name": "Eth11-ASIC1",
+                        "role": "Inb"
+                    },
+                    {
+                        "name": "Ethernet12",
+                        "alias": "eth12",
+                        "lanes": "69",
+                        "speed": 50000,
+                        "index": "4",
+                        "asic_port_name": "Eth12-ASIC1",
+                        "role": "Rec"
+                    }
+                ]
+            }
+        }
+    },
+
+    "PORT_INVALID_MULTIASIC_TEST": {
+        "sonic-port:sonic-port": {
+            "sonic-port:PORT": {
+                "PORT_LIST": [
+                    {
+                        "name": "Ethernet8",
+                        "alias": "eth8",
+                        "lanes": "65",
+                        "speed": 50000,
+                        "index": "0",
+                        "asic_port_name": "Eth8-ASIC1",
+                        "role": "Invalid"
+                    }
+                ]
+            }
+        }
     }
 }
