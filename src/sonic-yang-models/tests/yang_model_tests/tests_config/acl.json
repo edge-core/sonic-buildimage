@@ -820,5 +820,75 @@
                 ]
             }
         }
+    },
+    "ACL_RULE_WITH_INVALID_MIRROR_INGRESS_ACTION": {
+        "sonic-acl:sonic-acl": {
+            "sonic-acl:ACL_RULE": {
+                "ACL_RULE_LIST": [
+                    {
+                        "ACL_TABLE_NAME": "EVERFLOW_DSCP",
+                        "MIRROR_INGRESS_ACTION": "mirror_session_dscp",
+                        "PRIORITY": 9999,
+                        "RULE_NAME": "Rule_20",
+                        "DSCP": "10"
+                    }
+                ]
+            },
+            "sonic-acl:ACL_TABLE": {
+                "ACL_TABLE_LIST": [
+                    {
+                        "ACL_TABLE_NAME": "EVERFLOW_DSCP",
+                        "policy_desc": "EVERFLOW_DSCP",
+                        "ports": [
+			    ""
+                        ],
+                        "stage": "ingress",
+                        "type": "MIRROR_DSCP"
+                    }
+                ]
+            }
+        }
+    },
+    "ACL_RULE_WITH_VALID_MIRROR_INGRESS_ACTION": {
+        "sonic-acl:sonic-acl": {
+            "sonic-acl:ACL_RULE": {
+                "ACL_RULE_LIST": [
+                    {
+                        "ACL_TABLE_NAME": "EVERFLOW_DSCP",
+                        "MIRROR_INGRESS_ACTION": "mirror_session_dscp",
+                        "PRIORITY": 9999,
+                        "RULE_NAME": "Rule_20",
+                        "DSCP": "10"
+                    }
+                ]
+            },
+            "sonic-acl:ACL_TABLE": {
+                "ACL_TABLE_LIST": [
+                    {
+                        "ACL_TABLE_NAME": "EVERFLOW_DSCP",
+                        "policy_desc": "EVERFLOW_DSCP",
+                        "ports": [
+			    ""
+                        ],
+                        "stage": "ingress",
+                        "type": "MIRROR_DSCP"
+                    }
+                ]
+            }
+        },
+        "sonic-mirror-session:sonic-mirror-session": {
+            "sonic-mirror-session:MIRROR_SESSION": {
+                "MIRROR_SESSION_LIST": [
+                    {
+                        "name":"mirror_session_dscp",
+                        "type": "ERSPAN",
+                        "dst_ip": "11.1.1.1",
+                        "src_ip": "10.1.1.1",
+                        "gre_type": "0x1234",
+                        "dscp": "10"
+                    }
+                ]
+            }
+        }
     }
 }
