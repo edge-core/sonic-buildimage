@@ -1,14 +1,14 @@
 attrs==21.4.0
 certifi==2017.4.17
 charset-normalizer==2.0.12
-click==8.0.3
+click==8.0.4
 clickclick==20.10.2
 connexion==2.7.0
 flask==2.0.3
 grpcio==1.44.0
 grpcio-tools==1.20.0
 idna==3.3
-importlib-metadata==4.11.1
+importlib-metadata==4.11.2
 importlib-resources==5.4.0
 inflection==0.5.1
 itsdangerous==2.1.0

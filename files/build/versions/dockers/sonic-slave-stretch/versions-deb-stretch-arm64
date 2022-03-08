@@ -1,16 +1,8 @@
 docker-ce==18.06.3~ce~3-0~debian
-expat==2.2.0-2+deb9u4
 libdrm-freedreno1==2.4.74-1
 libdrm-tegra0==2.4.74-1
-libexpat1==2.2.0-2+deb9u4
-libexpat1-dev==2.2.0-2+deb9u4
-liblog4j1.2-java==1.2.17-7+deb9u2
-libpolkit-agent-1-0==0.105-18+deb9u2
-libpolkit-backend-1-0==0.105-18+deb9u2
-libpolkit-gobject-1-0==0.105-18+deb9u2
 libtext-charwidth-perl==0.04-7+b3
 libtext-iconv-perl==1.7-5+b3
 libunicode-utf8-perl==0.60-1+b2
 libxslt1-dev==1.1.29-2.1+deb9u2
 nodejs==10.24.1-1nodesource1
-policykit-1==0.105-18+deb9u2

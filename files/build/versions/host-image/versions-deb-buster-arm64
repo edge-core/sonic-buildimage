@@ -6,6 +6,8 @@ libdns-export1104==1:9.11.5.P4+dfsg-5.1+deb10u5
 libicu-dev==63.1-6+deb10u2
 libicu63==63.1-6+deb10u2
 libisc-export1100==1:9.11.5.P4+dfsg-5.1+deb10u5
+libsasl2-2==2.1.27+dfsg-1+deb10u1
+libsasl2-modules-db==2.1.27+dfsg-1+deb10u1
 libxml2==2.9.4+dfsg1-7+deb10u2
 libxml2-dev==2.9.4+dfsg1-7+deb10u2
 libxslt1-dev==1.1.32-2.2~deb10u1

@@ -2,7 +2,7 @@ dmsetup==2:1.02.155-3
 keyutils==1.6-6
 libdevmapper1.02.1==2:1.02.155-3
 libevent-2.1-6==2.1.8-stable-4
-libexpat1-dev==2.2.6-2+deb10u2
+libexpat1-dev==2.2.6-2+deb10u3
 libnfsidmap2==0.25-5.1
 libpcap-dev==1.8.1-6
 libpcap0.8==1.8.1-6

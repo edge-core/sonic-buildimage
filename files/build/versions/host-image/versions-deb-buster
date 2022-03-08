@@ -9,7 +9,7 @@ busybox==1:1.30.1-4
 ca-certificates==20200601~deb10u2
 cgroup-tools==0.41-8.1
 conntrack==1:1.4.5-2
-containerd.io==1.4.12-1
+containerd.io==1.4.13-1
 cpio==2.12+dfsg-9
 cron==3.0pl1-134+deb10u1
 curl==7.64.0-4+deb10u2
@@ -87,7 +87,7 @@ libefiboot1==37-2+deb10u1
 libefivar1==37-2+deb10u1
 libelf1==0.176-1.1
 libestr0==0.1.10-2.1
-libexpat1==2.2.6-2+deb10u2
+libexpat1==2.2.6-2+deb10u3
 libfastjson4==0.99.8-2
 libffi-dev==3.2.1-9
 libfreeipmi17==1.6.3-1.1
@@ -157,8 +157,8 @@ libpython3.7-minimal==3.7.3-2+deb10u3
 libpython3.7-stdlib==3.7.3-2+deb10u3
 libreadline7==7.0-5
 librtmp1==2.4+20151223.gitfa8646d.1-2
-libsasl2-2==2.1.27+dfsg-1+deb10u1
-libsasl2-modules-db==2.1.27+dfsg-1+deb10u1
+libsasl2-2==2.1.27+dfsg-1+deb10u2
+libsasl2-modules-db==2.1.27+dfsg-1+deb10u2
 libsqlite3-0==3.27.2-3+deb10u1
 libssh2-1==1.8.0-2.1
 libssl1.1==1.1.1d-0+deb10u7
