@@ -23,6 +23,7 @@ class TestCfgGen(TestCase):
         self.sample_graph_metadata = os.path.join(self.test_dir, 'simple-sample-graph-metadata.xml')
         self.sample_graph_pc_test = os.path.join(self.test_dir, 'pc-test-graph.xml')
         self.sample_graph_bgp_speaker = os.path.join(self.test_dir, 't0-sample-bgp-speaker.xml')
+        self.sample_graph_deployment_id = os.path.join(self.test_dir, 't0-sample-deployment-id.xml')
         self.sample_graph_voq = os.path.join(self.test_dir, 'sample-voq-graph.xml')
         self.sample_device_desc = os.path.join(self.test_dir, 'device.xml')
         self.port_config = os.path.join(self.test_dir, 't0-sample-port-config.ini')
@@ -497,6 +498,11 @@ class TestCfgGen(TestCase):
         argument = '-m "' + self.sample_graph_bgp_speaker + '" -p "' + self.port_config + '" -v "DEVICE_METADATA[\'localhost\'][\'deployment_id\']"'
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "1")
+
+    def test_minigraph_deployment_id_null(self):
+        argument = '-m "' + self.sample_graph_deployment_id + '" -p "' + self.port_config + '" -v "DEVICE_METADATA[\'localhost\']"'
+        output = self.run_script(argument)
+        self.assertNotIn('deployment_id', output.strip())
 
     def test_minigraph_ethernet_interfaces(self, **kwargs):
         graph_file = kwargs.get('graph_file', self.sample_graph_simple)
