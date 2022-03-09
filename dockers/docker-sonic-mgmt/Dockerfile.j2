@@ -177,7 +177,6 @@ RUN python -m virtualenv --system-site-packages env-201811
 RUN env-201811/bin/pip install cryptography==3.3.2 ansible==2.0.0.2
 
 RUN python3 -m venv env-python3
-RUN env-python3/bin/pip3 install cryptography==3.3.2 azure-kusto-data azure-kusto-ingest defusedxml pytest aiohttp
 
 # NOTE: There is an ordering dependency for pycryptodome. Leaving this at
 #       the end until we figure that out.
@@ -186,3 +185,69 @@ RUN pip install pycryptodome==3.9.8
 # Install allure-pytest library
 RUN pip install --upgrade setuptools \
     && pip install allure-pytest==2.8.22
+
+# Activating a virtualenv. The virtualenv automatically works for RUN, ENV and CMD.
+ENV VIRTUAL_ENV=env-python3
+ARG BACKUP_OF_PATH="$PATH"
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+ENV LANG=C.UTF-8 LC_ALL=C.UTF-8 PYTHONIOENCODING=UTF-8
+
+RUN python3 -m pip install --upgrade --ignore-installed pip setuptools==58.4.0
+
+RUN python3 -m pip install setuptools-rust \
+                            aiohttp \
+                            defusedxml \
+                            azure-kusto-ingest \
+                            azure-kusto-data \
+                            cffi \
+                            contextlib2==0.6.0.post1 \
+                            cryptography==3.3.2 \
+                            "future>=0.16.0" \
+                            gitpython \
+                            ipaddr \
+                            ipython==5.4.1 \
+                            ixnetwork-restpy==1.0.64 \
+                            ixnetwork-open-traffic-generator==0.0.79 \
+                            snappi[ixnetwork,convergence]==0.5.11 \
+                            jinja2==2.7.2 \
+                            jsonpatch \
+                            lxml \
+                            natsort \
+                            netaddr \
+                            netmiko==2.4.2 \
+                            paramiko==2.7.1 \
+                            passlib \
+                            pexpect \
+                            prettytable \
+                            psutil \
+                            pyasn1==0.4.8 \
+                            pyfiglet \
+                            pylint==1.8.1 \
+                            pyro4 \
+                            pysnmp==4.4.12 \
+                            pytest-repeat \
+                            pytest-html \
+                            pytest-xdist==1.28.0 \
+                            pytest \
+                            redis \
+                            requests \
+                            rpyc \
+                            six \
+                            tabulate \
+                            textfsm \
+                            virtualenv \
+                            wheel==0.33.6 \
+                            pysubnettree \
+                            nnpy \
+                            dpkt \
+                            pycryptodome==3.9.8 \
+                            ansible==2.8.12 \
+                            pytest-ansible \
+                            allure-pytest==2.8.22 \
+                            retry \
+                            thrift==0.11.0 \
+                            ptf
+
+# Deactivating a virtualenv.
+ENV PATH="$BACKUP_OF_PATH"
