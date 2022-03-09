@@ -64,8 +64,8 @@ libedit2==3.1-20160903-3
 liberror-perl==0.17024-1
 libestr0==0.1.10-2
 libevent-2.0-5==2.0.21-stable-3
-libexpat1==2.2.0-2+deb9u4
-libexpat1-dev==2.2.0-2+deb9u4
+libexpat1==2.2.0-2+deb9u5
+libexpat1-dev==2.2.0-2+deb9u5
 libfakeroot==1.21-3.1
 libfastjson4==0.99.4-1
 libffi-dev==3.2.1-6
@@ -141,9 +141,9 @@ libqt5network5==5.7.1+dfsg-3+deb9u3
 libquadmath0==6.3.0-18+deb9u1
 libreadline7==7.0-3
 librtmp1==2.4+20151223.gitfa8646d.1-1+b1
-libsasl2-2==2.1.27~101-g0780600+dfsg-3+deb9u1
-libsasl2-modules==2.1.27~101-g0780600+dfsg-3+deb9u1
-libsasl2-modules-db==2.1.27~101-g0780600+dfsg-3+deb9u1
+libsasl2-2==2.1.27~101-g0780600+dfsg-3+deb9u2
+libsasl2-modules==2.1.27~101-g0780600+dfsg-3+deb9u2
+libsasl2-modules-db==2.1.27~101-g0780600+dfsg-3+deb9u2
 libseccomp2==2.3.1-2.1+deb9u1
 libsigsegv2==2.10-5
 libsqlite3-0==3.16.2-5+deb9u3
@@ -171,7 +171,7 @@ libxdmcp6==1:1.1.2-3
 libxext6==2:1.3.3-1+b2
 libxml2==2.9.4+dfsg1-2.2+deb9u5
 libxmuu1==2:1.1.2-2
-linux-libc-dev==4.9.290-1
+linux-libc-dev==4.9.303-1
 logrotate==3.11.0-0.1
 lsof==4.89+dfsg-0.1
 m4==1.4.18-1

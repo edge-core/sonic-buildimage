@@ -6,13 +6,9 @@ libdrm-tegra0==2.4.74-1
 libegl1-mesa-dev==13.0.6-1+b2
 libgles2-mesa==13.0.6-1+b2
 libgles2-mesa-dev==13.0.6-1+b2
-libsasl2-2==2.1.27~101-g0780600+dfsg-3+deb9u2
-libsasl2-modules==2.1.27~101-g0780600+dfsg-3+deb9u2
-libsasl2-modules-db==2.1.27~101-g0780600+dfsg-3+deb9u2
 libtext-charwidth-perl==0.04-7+b6
-libtiff5==4.0.8-2+deb9u8
 libwayland-bin==1.12.0-1+deb9u1
 libwayland-dev==1.12.0-1+deb9u1
 libxslt1-dev==1.1.29-2.1+deb9u2
-linux-compiler-gcc-6-arm==4.9.290-1
+linux-compiler-gcc-6-arm==4.9.303-1
 nodejs==10.24.1-1nodesource1
