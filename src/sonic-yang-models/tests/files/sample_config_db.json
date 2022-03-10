@@ -302,7 +302,8 @@
                 "asic_name": "Asic0",
                 "switch_id": "2",
                 "switch_type": "voq",
-                "max_cores": "8"
+                "max_cores": "8",
+                "sub_role": "FrondEnd"
             }
         },
         "VLAN": {
