@@ -23,6 +23,7 @@ class TestJ2Files(TestCase):
         self.mlnx_port_config = os.path.join(self.test_dir, 'sample-port-config-mlnx.ini')
         self.dell6100_t0_minigraph = os.path.join(self.test_dir, 'sample-dell-6100-t0-minigraph.xml')
         self.arista7050_t0_minigraph = os.path.join(self.test_dir, 'sample-arista-7050-t0-minigraph.xml')
+        self.arista7800r3_48cq2_lc_t2_minigraph = os.path.join(self.test_dir, 'sample-arista-7800r3-48cq2-lc-t2-minigraph.xml')
         self.multi_asic_minigraph = os.path.join(self.test_dir, 'multi_npu_data', 'sample-minigraph.xml')
         self.multi_asic_port_config = os.path.join(self.test_dir, 'multi_npu_data', 'sample_port_config-0.ini')
         self.dell9332_t1_minigraph = os.path.join(self.test_dir, 'sample-dell-9332-t1-minigraph.xml')
@@ -211,6 +212,30 @@ class TestJ2Files(TestCase):
 
         sample_output_file = os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, 'qos-arista7050.json')
         assert utils.cmp(sample_output_file, self.output_file)
+
+    def test_qos_and_buffer_arista7800r3_48cq2_lc_render_template(self):
+        arista_dir_path = os.path.join(self.test_dir, '..', '..', '..', 'device', 'arista', 'x86_64-arista_7800r3_48cq2_lc', 'Arista-7800R3-48CQ2-C48')
+        qos_file = os.path.join(arista_dir_path, 'qos.json.j2')
+        buffer_file = os.path.join(arista_dir_path, 'buffers.json.j2')
+        port_config_ini_file = os.path.join(arista_dir_path, 'port_config.ini')
+
+        # copy qos_config.j2 and buffer_config.j2 to the Arista 7800r3_48cq2_lc directory to have all templates in one directory
+        qos_config_file = os.path.join(self.test_dir, '..', '..', '..', 'files', 'build_templates', 'qos_config.j2')
+        shutil.copy2(qos_config_file, arista_dir_path)
+        buffer_config_file = os.path.join(self.test_dir, '..', '..', '..', 'files', 'build_templates', 'buffers_config.j2')
+        shutil.copy2(buffer_config_file, arista_dir_path)
+
+        for template_file, cfg_file, sample_output_file in [(qos_file, 'qos_config.j2', 'qos-arista7800r3-48cq2-lc.json'),
+                                                            (buffer_file, 'buffers_config.j2', 'buffer-arista7800r3-48cq2-lc.json') ]:
+            argument = '-m ' + self.arista7800r3_48cq2_lc_t2_minigraph + ' -p ' + port_config_ini_file + ' -t ' + template_file + ' > ' + self.output_file
+            self.run_script(argument)
+
+            # cleanup
+            cfg_file_new = os.path.join(arista_dir_path, cfg_file)
+            os.remove(cfg_file_new)
+
+            sample_output_file = os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, sample_output_file)
+            assert filecmp.cmp(sample_output_file, self.output_file)
 
     def test_qos_dell9332_render_template(self):
         dell_dir_path = os.path.join(self.test_dir, '..', '..', '..', 'device', 'dell', 'x86_64-dellemc_z9332f_d1508-r0', 'DellEMC-Z9332f-O32')
