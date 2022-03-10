@@ -19,6 +19,7 @@ try:
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
+NUM_COMPONENT = 2
 class Chassis(ChassisBase):
     """
     Platform-specific Chassis class
@@ -44,6 +45,7 @@ class Chassis(ChassisBase):
         self.ready = False
         self.phy_port_cur_state = {}
         self.qsfp_interval = self.QSFP_CHECK_INTERVAL
+        self.__initialize_components()
 
     @property
     def _eeprom(self):
@@ -127,6 +129,12 @@ class Chassis(ChassisBase):
                 self.QSFP_PORT_END -= 1
             self.PORT_END = self.QSFP_PORT_END
             self.PORTS_IN_BLOCK = self.QSFP_PORT_END
+
+    def __initialize_components(self):
+        from sonic_platform.component import Components
+        for index in range(0, NUM_COMPONENT):
+            component = Components(index)
+            self._component_list.append(component)
 
     def get_name(self):
         """

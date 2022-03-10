@@ -1,6 +1,14 @@
 {
     "chassis": {
         "name": "Newport",
+        "components": [
+            {
+                "name": "BIOS"
+            },
+            {
+                "name": "BMC"
+            }
+        ],
         "fans": [
             {
                 "name": "counter-rotating-fan-1"
