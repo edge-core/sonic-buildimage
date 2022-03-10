@@ -18,6 +18,7 @@ setuptools.setup(
         'jinja2>=2.10',
         'netaddr==0.8.0',
         'pyyaml==5.4.1',
+        'ipaddress==1.0.23'
     ],
     setup_requires = [
         'pytest-runner',
