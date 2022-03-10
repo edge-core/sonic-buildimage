@@ -15,7 +15,7 @@ setuptools.setup(name='sonic-bgpcfgd',
               'bgpmon = bgpmon.bgpmon:main',
           ]
       },
-      install_requires=['jinja2>=2.10', 'netaddr', 'pyyaml'],
+      install_requires=['jinja2>=2.10', 'netaddr', 'pyyaml', 'ipaddress==1.0.23'],
       setup_requires=['pytest-runner'],
       tests_require=['pytest', 'pytest-cov'],
 )
