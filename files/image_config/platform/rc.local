@@ -232,9 +232,8 @@ if [ ! -e /host/machine.conf ]; then
     fi
 
     umount /mnt/onie-boot
+    migrate_nos_configuration
 fi
-
-migrate_nos_configuration
 
 . /host/machine.conf
 

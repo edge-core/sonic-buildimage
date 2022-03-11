@@ -1,8 +1,23 @@
 #!/bin/bash
 
-### DellEMC S6100 I2C MUX Enumeration script
+### DellEMC S6100 Platform Startup script
 
 source dell_i2c_utils.sh
+
+install_python_api_package() {
+    device="/usr/share/sonic/device"
+    platform=$(/usr/local/bin/sonic-cfggen -H -v DEVICE_METADATA.localhost.platform)
+
+    rv=$(pip3 install $device/$platform/sonic_platform-1.0-py3-none-any.whl)
+}
+
+remove_python_api_package() {
+
+    rv=$(pip3 show sonic-platform > /dev/null 2>/dev/null)
+    if [ $? -eq 0 ]; then
+        rv=$(pip3 uninstall -y sonic-platform > /dev/null 2>/dev/null)
+    fi
+}
 
 init_devnum() {
     found=0
@@ -292,6 +307,9 @@ if [[ "$1" == "init" ]]; then
     switch_board_qsfp_lpmode "disable"
     /usr/local/bin/s6100_bitbang_reset.sh
     xcvr_presence_interrupts "enable"
+
+    install_python_api_package
+    monit reload
 elif [[ "$1" == "deinit" ]]; then
     xcvr_presence_interrupts "disable"
     switch_board_sfp "delete_device"
@@ -302,4 +320,6 @@ elif [[ "$1" == "deinit" ]]; then
     switch_board_qsfp "delete_device"
     switch_board_qsfp_mux "delete_device"
     cpu_board_mux "delete_device"
+
+    remove_python_api_package
 fi
