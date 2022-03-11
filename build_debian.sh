@@ -67,6 +67,9 @@ mkdir -p $FILESYSTEM_ROOT/$PLATFORM_DIR
 mkdir -p $FILESYSTEM_ROOT/$PLATFORM_DIR/x86_64-grub
 touch $FILESYSTEM_ROOT/$PLATFORM_DIR/firsttime
 
+## ensure proc is mounted
+sudo mount proc /proc -t proc || true
+
 ## make / as a mountpoint in chroot env, needed by dockerd
 pushd $FILESYSTEM_ROOT
 sudo mount --bind . .
