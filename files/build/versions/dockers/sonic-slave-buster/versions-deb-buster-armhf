@@ -1,4 +1,5 @@
 binutils-arm-linux-gnueabihf==2.31.1-16
+containerd.io==1.5.10-1
 libclang-6.0-dev==1:6.0.1-10
 libclang-7-dev==1:7.0.1-8+deb10u2
 libclang-common-6.0-dev==1:6.0.1-10
@@ -99,7 +100,9 @@ libunicode-linebreak-perl==0.0.20190101-1
 libxapian-dev==1.4.11-1
 libxslt1-dev==1.1.32-2.2~deb10u1
 libyaml-tiny-perl==1.73-1
-linux-compiler-gcc-8-arm==4.19.208-1
+linux-compiler-gcc-8-arm==4.19.232-1
+linux-kbuild-4.19==4.19.232-1
+linux-libc-dev==4.19.232-1
 llvm-6.0==1:6.0.1-10
 llvm-6.0-dev==1:6.0.1-10
 llvm-6.0-runtime==1:6.0.1-10

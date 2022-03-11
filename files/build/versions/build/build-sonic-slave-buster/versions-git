@@ -3,9 +3,9 @@ https://github.com/daveolson53/libnss-tacplus.git==19008ab68d9d504aa58eb34d5f564
 https://github.com/jeroennijhof/pam_tacplus.git==b8e07ac27c11b86779ae9698fcafee0c89fc83f5
 https://github.com/jpirko/libteam.git==69a7494bb77dc10bb27076add07b380dbd778592
 https://github.com/Mellanox/libpsample.git==62bb27d9a49424e45191eee81df7ce0d8c74e774
-https://github.com/sflow/host-sflow==0b9ceab2ed6060654ffcad82a8272cafd915003c
+https://github.com/sflow/host-sflow==40861df030db8ba2097122698ba9ac9efe3408f4
 https://github.com/sflow/sflowtool==4be2a17b36a3b9796c280b117b8b786323a84ae8
-https://github.com/thom311/libnl==3bf0a9c211b5e22d805632541d1e5c07e6134922
+https://github.com/thom311/libnl==ed76b9ac92d47e59f54d4dec97d426902859b7cc
 https://salsa.debian.org/debian/libteam.git==f8808df228b00873926b5e7b998ad8b61368d4c5
 https://salsa.debian.org/dhcp-team/isc-dhcp.git==b13135d7f6e61724e7b9a54b53e4e8b916ff21aa
 https://salsa.debian.org/kernel-team/ethtool/==2533ffaac6fd59cece2ffb49d67b9f00b7b902f7

@@ -54,7 +54,7 @@ libtsan0==8.3.0-6
 libubsan1==8.3.0-6
 libuv1==1.24.1-1+deb10u1
 libxml2==2.9.4+dfsg1-7+deb10u2
-linux-libc-dev==4.19.208-1
+linux-libc-dev==4.19.232-1
 make==4.2.1-1.2
 patch==2.7.6-3+deb10u1
 python==2.7.16-1

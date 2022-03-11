@@ -7,5 +7,5 @@ libxml2==2.9.4+dfsg1-7+deb10u2
 libxml2-dev==2.9.4+dfsg1-7+deb10u2
 libxslt1-dev==1.1.32-2.2~deb10u1
 libxslt1.1==1.1.32-2.2~deb10u1
-linux-libc-dev==4.19.208-1
+linux-libc-dev==4.19.232-1
 zlib1g-dev==1:1.2.11.dfsg-1

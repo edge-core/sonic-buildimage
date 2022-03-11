@@ -13,7 +13,7 @@ libxml2-dev==2.9.4+dfsg1-7+deb10u2
 libxslt1-dev==1.1.32-2.2~deb10u1
 libxslt1.1==1.1.32-2.2~deb10u1
 linux-image-4.19.0-12-2-armmp==4.19.152-1
-linux-libc-dev==4.19.208-1
+linux-libc-dev==4.19.232-1
 mrvlprestera==1.0
 squashfs-tools==1:4.3-12+deb10u1
 tzdata==2021a-0+deb10u3

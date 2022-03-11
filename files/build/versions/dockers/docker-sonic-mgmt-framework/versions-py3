@@ -11,7 +11,7 @@ idna==3.3
 importlib-metadata==4.11.2
 importlib-resources==5.4.0
 inflection==0.5.1
-itsdangerous==2.1.0
+itsdangerous==2.1.1
 jsonschema==4.4.0
 openapi-schema-validator==0.2.3
 openapi-spec-validator==0.4.0
