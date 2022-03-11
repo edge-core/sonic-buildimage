@@ -304,7 +304,7 @@ class Iface(object):
         """
         pass
 
-    def pltfm_mgr_chss_mgmt_bmc_get(self):
+    def pltfm_mgr_chss_mgmt_bmc_ver_get(self):
         pass
 
 
@@ -1543,18 +1543,18 @@ class Client(Iface):
             raise result.ouch
         raise TApplicationException(TApplicationException.MISSING_RESULT, "pltfm_mgr_sensor_info_get failed: unknown result")
 
-    def pltfm_mgr_chss_mgmt_bmc_get(self):
-        self.send_pltfm_mgr_chss_mgmt_bmc_get()
-        return self.recv_pltfm_mgr_chss_mgmt_bmc_get()
+    def pltfm_mgr_chss_mgmt_bmc_ver_get(self):
+        self.send_pltfm_mgr_chss_mgmt_bmc_ver_get()
+        return self.recv_pltfm_mgr_chss_mgmt_bmc_ver_get()
 
-    def send_pltfm_mgr_chss_mgmt_bmc_get(self):
-        self._oprot.writeMessageBegin('pltfm_mgr_chss_mgmt_bmc_get', TMessageType.CALL, self._seqid)
-        args = pltfm_mgr_chss_mgmt_bmc_get_args()
+    def send_pltfm_mgr_chss_mgmt_bmc_ver_get(self):
+        self._oprot.writeMessageBegin('pltfm_mgr_chss_mgmt_bmc_ver_get', TMessageType.CALL, self._seqid)
+        args = pltfm_mgr_chss_mgmt_bmc_ver_get_args()
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
 
-    def recv_pltfm_mgr_chss_mgmt_bmc_get(self):
+    def recv_pltfm_mgr_chss_mgmt_bmc_ver_get(self):
         iprot = self._iprot
         (fname, mtype, rseqid) = iprot.readMessageBegin()
         if mtype == TMessageType.EXCEPTION:
@@ -1562,14 +1562,14 @@ class Client(Iface):
             x.read(iprot)
             iprot.readMessageEnd()
             raise x
-        result = pltfm_mgr_chss_mgmt_bmc_get_result()
+        result = pltfm_mgr_chss_mgmt_bmc_ver_get_result()
         result.read(iprot)
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
         if result.ouch is not None:
             raise result.ouch
-        raise TApplicationException(TApplicationException.MISSING_RESULT, "pltfm_mgr_chss_mgmt_bmc_get failed: unknown result")
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "pltfm_mgr_chss_mgmt_bmc_ver_get failed: unknown result")
 
 
 class Processor(Iface, TProcessor):
@@ -1612,7 +1612,7 @@ class Processor(Iface, TProcessor):
         self._processMap["pltfm_mgr_qsfp_pwr_override_set"] = Processor.process_pltfm_mgr_qsfp_pwr_override_set
         self._processMap["pltfm_mgr_qsfp_lpmode_set"] = Processor.process_pltfm_mgr_qsfp_lpmode_set
         self._processMap["pltfm_mgr_sensor_info_get"] = Processor.process_pltfm_mgr_sensor_info_get
-        self._processMap["pltfm_mgr_chss_mgmt_bmc_get"] = Processor.process_pltfm_mgr_chss_mgmt_bmc_get
+        self._processMap["pltfm_mgr_chss_mgmt_bmc_ver_get"] = Processor.process_pltfm_mgr_chss_mgmt_bmc_ver_get
         self._on_message_begin = None
 
     def on_message_begin(self, func):
@@ -2568,13 +2568,13 @@ class Processor(Iface, TProcessor):
         oprot.writeMessageEnd()
         oprot.trans.flush()
 
-    def process_pltfm_mgr_chss_mgmt_bmc_get(self, seqid, iprot, oprot):
-        args = pltfm_mgr_chss_mgmt_bmc_get_args()
+    def process_pltfm_mgr_chss_mgmt_bmc_ver_get(self, seqid, iprot, oprot):
+        args = pltfm_mgr_chss_mgmt_bmc_ver_get_args()
         args.read(iprot)
         iprot.readMessageEnd()
-        result = pltfm_mgr_chss_mgmt_bmc_get_result()
+        result = pltfm_mgr_chss_mgmt_bmc_ver_get_result()
         try:
-            result.success = self._handler.pltfm_mgr_chss_mgmt_bmc_get()
+            result.success = self._handler.pltfm_mgr_chss_mgmt_bmc_ver_get()
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -2589,7 +2589,7 @@ class Processor(Iface, TProcessor):
             logging.exception('Unexpected exception in handler')
             msg_type = TMessageType.EXCEPTION
             result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
-        oprot.writeMessageBegin("pltfm_mgr_chss_mgmt_bmc_get", msg_type, seqid)
+        oprot.writeMessageBegin("pltfm_mgr_chss_mgmt_bmc_ver_get", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -7613,7 +7613,7 @@ pltfm_mgr_sensor_info_get_result.thrift_spec = (
 )
 
 
-class pltfm_mgr_chss_mgmt_bmc_get_args(object):
+class pltfm_mgr_chss_mgmt_bmc_ver_get_args(object):
 
 
     def read(self, iprot):
@@ -7634,7 +7634,7 @@ class pltfm_mgr_chss_mgmt_bmc_get_args(object):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
-        oprot.writeStructBegin('pltfm_mgr_chss_mgmt_bmc_get_args')
+        oprot.writeStructBegin('pltfm_mgr_chss_mgmt_bmc_ver_get_args')
         oprot.writeFieldStop()
         oprot.writeStructEnd()
 
@@ -7651,12 +7651,12 @@ class pltfm_mgr_chss_mgmt_bmc_get_args(object):
 
     def __ne__(self, other):
         return not (self == other)
-all_structs.append(pltfm_mgr_chss_mgmt_bmc_get_args)
-pltfm_mgr_chss_mgmt_bmc_get_args.thrift_spec = (
+all_structs.append(pltfm_mgr_chss_mgmt_bmc_ver_get_args)
+pltfm_mgr_chss_mgmt_bmc_ver_get_args.thrift_spec = (
 )
 
 
-class pltfm_mgr_chss_mgmt_bmc_get_result(object):
+class pltfm_mgr_chss_mgmt_bmc_ver_get_result(object):
     """
     Attributes:
      - success
@@ -7697,7 +7697,7 @@ class pltfm_mgr_chss_mgmt_bmc_get_result(object):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
-        oprot.writeStructBegin('pltfm_mgr_chss_mgmt_bmc_get_result')
+        oprot.writeStructBegin('pltfm_mgr_chss_mgmt_bmc_ver_get_result')
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.STRING, 0)
             oprot.writeString(self.success.encode('utf-8') if sys.version_info[0] == 2 else self.success)
@@ -7722,8 +7722,8 @@ class pltfm_mgr_chss_mgmt_bmc_get_result(object):
 
     def __ne__(self, other):
         return not (self == other)
-all_structs.append(pltfm_mgr_chss_mgmt_bmc_get_result)
-pltfm_mgr_chss_mgmt_bmc_get_result.thrift_spec = (
+all_structs.append(pltfm_mgr_chss_mgmt_bmc_ver_get_result)
+pltfm_mgr_chss_mgmt_bmc_ver_get_result.thrift_spec = (
     (0, TType.STRING, 'success', 'UTF8', None, ),  # 0
     (1, TType.STRUCT, 'ouch', [InvalidPltfmMgrOperation, None], None, ),  # 1
 )
