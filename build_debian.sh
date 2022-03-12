@@ -577,6 +577,9 @@ sudo LANG=C chroot $FILESYSTEM_ROOT bash -c 'rm -rf /usr/share/doc/* /usr/share/
 ## Clean up proxy
 [ -n "$http_proxy" ] && sudo rm -f $FILESYSTEM_ROOT/etc/apt/apt.conf.d/01proxy
 
+## Clean up pip cache
+sudo LANG=C chroot $FILESYSTEM_ROOT pip3 cache purge
+
 ## Umount all
 echo '[INFO] Umount all'
 ## Display all process details access /proc
