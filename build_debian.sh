@@ -562,6 +562,9 @@ if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
     fi
 fi
 
+# Collect host image version files before cleanup
+scripts/collect_host_image_version_files.sh $TARGET_PATH $FILESYSTEM_ROOT
+
 # Remove GCC
 sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y remove gcc
 
@@ -593,7 +596,6 @@ sudo rm -f $ONIE_INSTALLER_PAYLOAD $FILESYSTEM_SQUASHFS
 ## Note: -x to skip directories on different file systems, such as /proc
 sudo du -hsx $FILESYSTEM_ROOT
 sudo mkdir -p $FILESYSTEM_ROOT/var/lib/docker
-scripts/collect_host_image_version_files.sh $TARGET_PATH $FILESYSTEM_ROOT
 sudo mksquashfs $FILESYSTEM_ROOT $FILESYSTEM_SQUASHFS -comp zstd -b 1M -e boot -e var/lib/docker -e $PLATFORM_DIR
 
 # Ensure admin gid is 1000
