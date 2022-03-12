@@ -21,7 +21,6 @@ RUN apt-get update && apt-get install -y build-essential \
                                          python \
                                          python-dev \
                                          python-scapy \
-                                         python-setuptools \
                                          python-pip \
                                          python3-pip \
                                          python3-venv \
@@ -33,6 +32,7 @@ RUN apt-get update && apt-get install -y build-essential \
                                          telnet \
                                          vim
 
+RUN pip install setuptools==44.1.1
 RUN pip install cffi==1.10.0 \
                 contextlib2==0.6.0.post1 \
                 cryptography==3.3.2 \
@@ -74,6 +74,7 @@ RUN pip install cffi==1.10.0 \
                 virtualenv \
                 retry \
                 thrift==0.11.0 \
+                allure-pytest==2.8.22 \
     && git clone https://github.com/p4lang/scapy-vxlan.git \
     && cd scapy-vxlan \
     && python setup.py install \
@@ -181,10 +182,6 @@ RUN python3 -m venv env-python3
 # NOTE: There is an ordering dependency for pycryptodome. Leaving this at
 #       the end until we figure that out.
 RUN pip install pycryptodome==3.9.8
-
-# Install allure-pytest library
-RUN pip install --upgrade setuptools \
-    && pip install allure-pytest==2.8.22
 
 # Activating a virtualenv. The virtualenv automatically works for RUN, ENV and CMD.
 ENV VIRTUAL_ENV=env-python3
