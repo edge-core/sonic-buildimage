@@ -32,7 +32,7 @@ def get_expected_running_containers():
               value of field 'has_global_scope', the number of ASICs and the value of field
               'has_per_asic_scope'.
               If the device has single ASIC, the container name was put into the list.
-    @return:  A set which contains the expected running containers and a set that has 
+    @return:  A set which contains the expected running containers and a set that has
               containers marked as "always_enabled".
     """
     config_db = swsssdk.ConfigDBConnector()
@@ -82,7 +82,7 @@ def get_current_running_from_DB(always_running_containers):
     state_db = swsscommon.DBConnector("STATE_DB", 0)
     tbl = swsscommon.Table(state_db, "FEATURE")
     if not tbl.getKeys():
-        return False, None
+        return running_containers
 
     for name in tbl.getKeys():
         data = dict(tbl.get(name)[1])
@@ -101,7 +101,7 @@ def get_current_running_from_DB(always_running_containers):
             print("Failed to get container '{}'. Error: '{}'".format(name, err))
             pass
 
-    return True, running_containers
+    return running_containers
 
 
 def get_current_running_from_dockers():
@@ -128,13 +128,12 @@ def get_current_running_containers(always_running_containers):
     """
     @summary: This function will get the list of currently running containers.
               If available in STATE-DB, get from DB else from list of dockers.
-              
+
     @return:  A set of currently running containers.
     """
 
-    ret, current_running_containers = get_current_running_from_DB(always_running_containers)
-    if not ret:
-        current_running_containers = get_current_running_from_dockers()
+    current_running_containers = get_current_running_from_DB(always_running_containers)
+    current_running_containers.update(get_current_running_from_dockers())
     return current_running_containers
 
 

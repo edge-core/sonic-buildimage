@@ -35,6 +35,7 @@ hostcfgd.ConfigDBConnector = MockConfigDb
 hostcfgd.SubscriberStateTable = MockSubscriberStateTable
 hostcfgd.Select = MockSelect
 hostcfgd.DBConnector = MockDBConnector
+hostcfgd.Table = mock.Mock()
 
 class TestHostcfgdTACACS(TestCase):
     """
@@ -44,7 +45,7 @@ class TestHostcfgdTACACS(TestCase):
         return subprocess.check_output('diff -uR {} {} || true'.format(file1, file2), shell=True)
 
     """
-        Check different config 
+        Check different config
     """
     def check_config(self, test_name, test_data, config_name):
         t_path = templates_path

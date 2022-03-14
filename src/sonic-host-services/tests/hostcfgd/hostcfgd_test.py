@@ -27,20 +27,23 @@ hostcfgd.ConfigDBConnector = MockConfigDb
 hostcfgd.SubscriberStateTable = MockSubscriberStateTable
 hostcfgd.Select = MockSelect
 hostcfgd.DBConnector = MockDBConnector
+hostcfgd.Table = mock.Mock()
 
 
 class TestHostcfgd(TestCase):
     """
         Test hostcfd daemon - feature
     """
-    def __verify_table(self, table, expected_table):
+    def __verify_table(self, table, feature_state_table, expected_table):
         """
             verify config db tables
 
-            Compares Config DB table (FEATURE) with expected output table
+            Compares Config DB table (FEATURE) with expected output table.
+            Verifies that State DB table (FEATURE) is updated.
 
             Args:
                 table(dict): Current Config Db table
+                feature_state_table(Mock): Mocked State DB FEATURE table
                 expected_table(dict): Expected Config Db table
 
             Returns:
@@ -48,6 +51,19 @@ class TestHostcfgd(TestCase):
         """
         ddiff = DeepDiff(table, expected_table, ignore_order=True)
         print('DIFF:', ddiff)
+
+        def get_state(cfg_state):
+            """ Translates CONFIG DB state field into STATE DB state field """
+            if cfg_state == 'always_disabled':
+                return 'disabled'
+            elif cfg_state == 'always_enabled':
+                return 'enabled'
+            else:
+                return cfg_state
+
+        feature_state_table.set.assert_has_calls([
+            mock.call(feature, [('state', get_state(table[feature]['state']))]) for feature in table
+        ])
         return True if not ddiff else False
 
     def __verify_fs(self, table):
@@ -93,6 +109,7 @@ class TestHostcfgd(TestCase):
         fs.add_real_paths(swsscommon_package.__path__)  # add real path of swsscommon for database_config.json
         fs.create_dir(hostcfgd.FeatureHandler.SYSTEMD_SYSTEM_DIR)
         MockConfigDb.set_config_db(test_data['config_db'])
+        feature_state_table_mock = mock.Mock()
         with mock.patch('hostcfgd.subprocess') as mocked_subprocess:
             popen_mock = mock.Mock()
             attrs = test_data['popen_attributes']
@@ -102,7 +119,7 @@ class TestHostcfgd(TestCase):
             # Initialize Feature Handler
             device_config = {}
             device_config['DEVICE_METADATA'] = MockConfigDb.CONFIG_DB['DEVICE_METADATA']
-            feature_handler = hostcfgd.FeatureHandler(MockConfigDb(), device_config)
+            feature_handler = hostcfgd.FeatureHandler(MockConfigDb(), feature_state_table_mock, device_config)
 
             # sync the state field and Handle Feature Updates
             feature_handler.sync_state_field()
@@ -113,6 +130,7 @@ class TestHostcfgd(TestCase):
             # Verify if the updates are properly updated
             assert self.__verify_table(
                 MockConfigDb.get_config_db()['FEATURE'],
+                feature_state_table_mock,
                 test_data['expected_config_db']['FEATURE']
             ), 'Test failed for test data: {0}'.format(test_data)
             mocked_subprocess.check_call.assert_has_calls(test_data['expected_subprocess_calls'], any_order=True)
