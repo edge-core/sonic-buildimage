@@ -132,7 +132,7 @@ case "${ROOT}" in
         ;;
     *)
         ## Mount the raw partition again
-        mount ${ROOT} ${rootmnt}/host
+        mount -t ext4 ${ROOT} ${rootmnt}/host
         ;;
 esac
 
