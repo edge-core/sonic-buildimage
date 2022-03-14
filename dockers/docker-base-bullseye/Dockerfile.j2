@@ -1,10 +1,11 @@
+{% set prefix = DEFAULT_CONTAINER_REGISTRY %}
 {% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python_wheels, copy_files %}
 {% if CONFIGURED_ARCH == "armhf" and MULTIARCH_QEMU_ENVIRON == "y" %}
-FROM multiarch/debian-debootstrap:armhf-bullseye
+FROM {{ prefix }}multiarch/debian-debootstrap:armhf-bullseye
 {% elif CONFIGURED_ARCH == "arm64" and MULTIARCH_QEMU_ENVIRON == "y" %}
-FROM multiarch/debian-debootstrap:arm64-bullseye
+FROM {{ prefix }}multiarch/debian-debootstrap:arm64-bullseye
 {% else %}
-FROM {{DOCKER_BASE_ARCH}}/debian:bullseye
+FROM {{ prefix }}{{DOCKER_BASE_ARCH}}/debian:bullseye
 {% endif %}
 
 # Clean documentation in FROM image

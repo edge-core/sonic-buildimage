@@ -1,13 +1,14 @@
+{% set prefix = DEFAULT_CONTAINER_REGISTRY %}
 {%- if CONFIGURED_ARCH == "armhf" and MULTIARCH_QEMU_ENVIRON == "y" %}
-FROM multiarch/qemu-user-static:x86_64-arm-6.1.0-8 as qemu
-FROM multiarch/debian-debootstrap:armhf-bullseye
+FROM {{ prefix }}multiarch/qemu-user-static:x86_64-arm-6.1.0-8 as qemu
+FROM {{ prefix }}multiarch/debian-debootstrap:armhf-bullseye
 COPY --from=qemu /usr/bin/qemu-arm-static /usr/bin
 {%- elif CONFIGURED_ARCH == "arm64" and MULTIARCH_QEMU_ENVIRON == "y" %}
-FROM multiarch/qemu-user-static:x86_64-aarch64-6.1.0-8 as qemu
-FROM multiarch/debian-debootstrap:arm64-bullseye
+FROM {{ prefix }}multiarch/qemu-user-static:x86_64-aarch64-6.1.0-8 as qemu
+FROM {{ prefix }}multiarch/debian-debootstrap:arm64-bullseye
 COPY --from=qemu /usr/bin/qemu-aarch64-static /usr/bin
 {%- else -%}
-FROM debian:bullseye
+FROM {{ prefix }}debian:bullseye
 {%- endif %}
 
 MAINTAINER gulv@microsoft.com
