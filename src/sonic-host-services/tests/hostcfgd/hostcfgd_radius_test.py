@@ -36,6 +36,7 @@ hostcfgd.ConfigDBConnector = MockConfigDb
 hostcfgd.SubscriberStateTable = MockSubscriberStateTable
 hostcfgd.Select = MockSelect
 hostcfgd.DBConnector = MockDBConnector
+hostcfgd.Table = mock.Mock()
 
 
 class TestHostcfgdRADIUS(TestCase):
