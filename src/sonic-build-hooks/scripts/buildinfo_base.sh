@@ -12,6 +12,7 @@ VERSION_DEB_PREFERENCE=$BUILDINFO_PATH/versions/01-versions-deb
 WEB_VERSION_FILE=$VERSION_PATH/versions-web
 BUILD_WEB_VERSION_FILE=$BUILD_VERSION_PATH/versions-web
 REPR_MIRROR_URL_PATTERN='http:\/\/packages.trafficmanager.net\/debian'
+DPKG_INSTALLTION_LOCK_FILE=/tmp/.dpkg_installation.lock
 
 . $BUILDINFO_PATH/config/buildinfo.config
 
@@ -174,6 +175,79 @@ run_pip_command()
     local result=$?
     rm $tmp_version_file
     return $result
+}
+
+# Check if the command is to install the debian packages
+# The apt/apt-get command format: apt/apt-get [options] {update|install}
+check_apt_install()
+{
+    for para in "$@"
+    do
+        if [[ "$para" == -* ]]; then
+            continue
+        fi
+
+        if [[ "$para" == "install"  ]]; then
+            echo y
+        fi
+
+        break
+    done
+}
+
+# Print warning message if a debian package version not specified when debian version control enabled.
+check_apt_version()
+{
+    VERSION_FILE="/usr/local/share/buildinfo/versions/versions-deb"
+    local install=$(check_apt_install "$@")
+    if [ "$ENABLE_VERSION_CONTROL_DEB" == "y" ] && [ "$install" == "y" ]; then
+        for para in "$@"
+        do
+            if [[ "$para" == -* ]]; then
+                continue
+            fi
+
+            if [[ "$para" == *=* ]]; then
+                continue
+            else
+                package=$para
+                if ! grep -q "^${package}=" $VERSION_FILE; then
+                    echo "Warning: the version of the package ${package} is not specified." 1>&2
+                fi
+            fi
+        done
+    fi
+}
+
+acquire_apt_installation_lock()
+{
+    local result=n
+    local wait_in_second=10
+    local count=60
+    local info="$1"
+    for ((i=1; i<=$count; i++)); do
+        if [ -f $DPKG_INSTALLTION_LOCK_FILE ]; then
+            local lock_info=$(cat $DPKG_INSTALLTION_LOCK_FILE || true)
+            echo "Waiting dpkg lock for $wait_in_second, $i/$count, info: $lock_info" 1>&2
+            sleep $wait_in_second
+        else
+            # Create file in an atomic operation
+            if (set -o noclobber; echo "$info">$DPKG_INSTALLTION_LOCK_FILE) &>/dev/null; then
+                result=y
+                break
+            else
+                echo "Failed to creat lock, Waiting dpkg lock for $wait_in_second, $i/$count, info: $lock_info" 1>&2
+                sleep $wait_in_second
+            fi
+        fi
+    done
+
+    echo $result
+}
+
+release_apt_installation_lock()
+{
+    rm -f $DPKG_INSTALLTION_LOCK_FILE
 }
 
 ENABLE_VERSION_CONTROL_DEB=$(check_version_control "deb")
