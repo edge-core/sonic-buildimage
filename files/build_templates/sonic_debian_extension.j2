@@ -653,6 +653,11 @@ clean_proc() {
 }
 trap_push clean_proc
 sudo mount proc /proc -t proc || true
+if [[ $CONFIGURED_ARCH == armhf ]]; then
+    # A workaround to fix the armhf build hung issue, caused by sonic-platform-nokia-7215_1.0_armhf.deb post installation script 
+    ps -eo pid,cmd | grep python | grep "/etc/entropy.py" | awk '{print $1}' | xargs sudo kill -9 2>/dev/null || true
+fi
+
 sudo mkdir $FILESYSTEM_ROOT/target
 sudo mount --bind target $FILESYSTEM_ROOT/target
 sudo LANG=C DOCKER_HOST="$DOCKER_HOST" chroot $FILESYSTEM_ROOT docker info
