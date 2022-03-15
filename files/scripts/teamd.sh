@@ -93,13 +93,17 @@ stop() {
         # We call `docker kill teamd` to ensure the container stops as quickly as possible,
         # Note: teamd must be killed before syncd, because it will send the last packet through CPU port
         docker exec -i ${SERVICE}$DEV pkill -USR2 -f ${TEAMD_CMD} || [ $? == 1 ]
+    fi
+
+    if [[ x"$WARM_BOOT" == x"true" ]] || [[ x"$FAST_BOOT" == x"true" ]]; then
         while docker exec -i ${SERVICE}$DEV pgrep -f ${TEAMD_CMD} > /dev/null; do
             sleep 0.05
         done
         docker kill ${SERVICE}$DEV  &> /dev/null || debug "Docker ${SERVICE}$DEV is not running ($?) ..."
+    else
+        /usr/bin/${SERVICE}.sh stop $DEV
     fi
 
-    /usr/bin/${SERVICE}.sh stop $DEV
     debug "Stopped ${SERVICE}$DEV service..."
 }
 
