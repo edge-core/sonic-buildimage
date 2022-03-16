@@ -139,6 +139,11 @@ elif [ "$install_env" = "sonic" ]; then
             rm -rf $f
         fi
     done
+
+    demo_dev=$(findmnt -n -o SOURCE --target /host)
+
+    # Don't reserve any blocks just for root
+    tune2fs -m 0 -r 0 $demo_dev
 fi
 
 # Create target directory or clean it up if exists

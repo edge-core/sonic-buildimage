@@ -102,7 +102,7 @@ RUN apt-get -y purge   \
 RUN apt-get clean -y                     && \
     apt-get autoclean -y                 && \
     apt-get autoremove -y                && \
-    rm -rf /var/lib/apt/lists/* /tmp/*
+    rm -rf /var/lib/apt/lists/* /tmp/* ~/.cache
 
 COPY ["etc/rsyslog.conf", "/etc/rsyslog.conf"]
 COPY ["etc/rsyslog.d/*", "/etc/rsyslog.d/"]
