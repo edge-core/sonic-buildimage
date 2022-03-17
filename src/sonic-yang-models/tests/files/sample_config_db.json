@@ -150,7 +150,8 @@
             "V4-ACL-TABLE|DEFAULT_DENY": {
                 "PACKET_ACTION": "DROP",
                 "IP_TYPE": "IPv4ANY",
-                "PRIORITY": "0"
+                "PRIORITY": "0",
+                "ETHER_TYPE": "2048"
             },
             "V4-ACL-TABLE|Rule_20": {
                 "PACKET_ACTION": "FORWARD",
