@@ -194,3 +194,6 @@ REGISTRY_SERVER ?= sonicdev-microsoft.azurecr.io
 
 # INCLUDE_MUX - build docker-mux for dual ToR (Gemini)
 INCLUDE_MUX = y
+
+# reset default container registry from dockerhub to other
+DEFAULT_CONTAINER_REGISTRY ?=
