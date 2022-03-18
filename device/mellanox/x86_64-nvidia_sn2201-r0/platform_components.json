@@ -1,0 +1,12 @@
+{
+    "chassis": {
+        "SN2201": {
+            "component": {
+                "ONIE": { },
+                "SSD": { },
+                "CPLD1": { },
+                "CPLD2": { }
+            }
+        }
+    }
+}
