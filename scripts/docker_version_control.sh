@@ -16,6 +16,8 @@ mkdir -p target/versions/default
 . src/sonic-build-hooks/buildinfo/config/buildinfo.config
 
 image_tag=`grep "^FROM " $DOCKERFILE | awk '{print$2}'`
+image_tag_noprefix=$image_tag
+[ -n "$DEFAULT_CONTAINER_REGISTRY" ] && image_tag_noprefix=$(echo $image_tag | sed "s#$DEFAULT_CONTAINER_REGISTRY##")
 image=`echo $image_tag | cut -f1 -d:`
 tag=`echo $image_tag | cut -f2 -d:`
 
@@ -25,7 +27,7 @@ if [[ ",$SONIC_VERSION_CONTROL_COMPONENTS," == *,all,* ]] || [[ ",$SONIC_VERSION
         exit 0
     fi
     if [ -f $version_file ];then
-        hash_value=`grep "${ARCH}:${image_tag}" $version_file | awk -F== '{print$2}'`
+        hash_value=`grep "${ARCH}:${image_tag_noprefix}" $version_file | awk -F== '{print$2}'`
     fi
     if [ -z $hash_value ];then
         hash_value=unknown
@@ -43,5 +45,5 @@ else
     fi
 fi
 if [[ "$hash_value" != "unknown" ]];then
-    echo -e "${ARCH}:${image_tag}==$hash_value" >> $new_version_file
+    echo -e "${ARCH}:${image_tag_noprefix}==$hash_value" >> $new_version_file
 fi
