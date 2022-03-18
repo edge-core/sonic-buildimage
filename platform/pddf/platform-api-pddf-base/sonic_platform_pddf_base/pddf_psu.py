@@ -20,6 +20,7 @@
 try:
     from sonic_platform_base.psu_base import PsuBase
     from sonic_platform.fan import Fan
+    from sonic_platform.thermal import Thermal
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
@@ -44,6 +45,11 @@ class PddfPsu(PsuBase):
         for psu_fan_idx in range(self.num_psu_fans):
             psu_fan = Fan(0, psu_fan_idx, pddf_data, pddf_plugin_data, True, self.psu_index)
             self._fan_list.append(psu_fan)
+
+        self.num_psu_thermals = 1 # Fixing it 1 for now
+        for psu_thermal_idx in range(self.num_psu_thermals):
+            psu_thermal = Thermal(psu_thermal_idx, pddf_data, pddf_plugin_data, True, self.psu_index)
+            self._thermal_list.append(psu_thermal)
 
     def get_num_fans(self):
         """

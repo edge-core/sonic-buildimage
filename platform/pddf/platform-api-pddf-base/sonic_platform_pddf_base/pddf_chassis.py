@@ -10,7 +10,7 @@ try:
     from sonic_platform_base.chassis_base import ChassisBase
     from sonic_platform.sfp import Sfp
     from sonic_platform.psu import Psu
-    from sonic_platform.fan import Fan
+    from sonic_platform.fan_drawer import FanDrawer
     from sonic_platform.thermal import Thermal
     from sonic_platform.eeprom import Eeprom
 except ImportError as e:
@@ -52,9 +52,9 @@ class PddfChassis(ChassisBase):
 
         # FANs
         for i in range(self.platform_inventory['num_fantrays']):
-            for j in range(self.platform_inventory['num_fans_pertray']):
-                fan = Fan(i, j, self.pddf_obj, self.plugin_data)
-                self._fan_list.append(fan)
+            fandrawer = FanDrawer(i, self.pddf_obj, self.plugin_data)
+            self._fan_drawer_list.append(fandrawer)
+            self._fan_list.extend(fandrawer._fan_list)
 
         # PSUs
         for i in range(self.platform_inventory['num_psus']):
