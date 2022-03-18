@@ -166,14 +166,14 @@ class device_monitor(object):
               
         thermal = ThermalUtil()
         fan = FanUtil()
-        fan_dir=fan.get_fan_dir(1)            
-        if fan_dir > 1:
-            fan_dri=1 #something wrong, set fan_dir to default val
-        if fan_dir < 0:
-            fan_dri=1 #something wrong, set fan_dir to default val
+        #fan_dir=fan.get_fan_dir(1)            
+        #if fan_dir > 1:
+        #    fan_dri=1 #something wrong, set fan_dir to default val
+        #if fan_dir < 0:
+        #    fan_dri=1 #something wrong, set fan_dir to default val
         ori_pwm=fan.get_fan_duty_cycle()
         new_pwm=0  
-        logging.debug('fan_dir=%d, ori_pwm=%d', fan_dir, ori_pwm)
+        #logging.debug('fan_dir=%d, ori_pwm=%d', fan_dir, ori_pwm)
         logging.debug('test_temp=%d', test_temp)
         if test_temp==0: 
             temp1 = thermal._get_thermal_val(1)

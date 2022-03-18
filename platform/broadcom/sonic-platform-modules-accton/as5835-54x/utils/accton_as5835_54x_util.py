@@ -48,8 +48,8 @@ FORCE = 0
 
 
 if DEBUG == True:
-    print((sys.argv[0]))
-    print(("ARGV      :", sys.argv[1:]))
+    print(sys.argv[0])
+    print("ARGV      :", sys.argv[1:])
 
 
 def main():
@@ -67,7 +67,7 @@ def main():
     if DEBUG == True:
         print(options)
         print(args)
-        print((len(sys.argv)))
+        print(len(sys.argv))
 
     for opt, arg in options:
         if opt in ('-h', '--help'):
@@ -96,13 +96,13 @@ def main():
     return 0
 
 def show_help():
-    print((__doc__ % {'scriptName' : sys.argv[0].split("/")[-1]}))
+    print(__doc__ % {'scriptName' : sys.argv[0].split("/")[-1]})
     sys.exit(0)
 
 
 def my_log(txt):
     if DEBUG == True:
-        print(("[Debug]"+txt))
+        print("[Debug]"+txt)
     return
 
 def log_os_system(cmd, show):
@@ -113,7 +113,7 @@ def log_os_system(cmd, show):
     if status:
         logging.info('Failed :'+cmd)
         if show:
-            print(('Failed :'+cmd))
+            print('Failed :'+cmd)
     return  status, output
 
 def driver_check():
@@ -295,6 +295,10 @@ def device_install():
 
     for i in range(49, 55): #Set qsfp port to normal state
         log_os_system("echo 0 > /sys/bus/i2c/devices/3-0062/module_reset_" + str(i), 1)
+    for i in range(1, 39): #Set disable tx_disable to sfp port
+        log_os_system("echo 0 > /sys/bus/i2c/devices/3-0061/module_tx_disable_" + str(i), 1)
+    for i in range(39, 49): #Set disable tx_disable to sfp port
+        log_os_system("echo 0 > /sys/bus/i2c/devices/3-0062/module_tx_disable_" + str(i), 1)
 
     for i in range(0,len(sfp_map)):
         if i < qsfp_start:
@@ -358,31 +362,29 @@ def do_sonic_platform_install():
         if os.path.exists(SONIC_PLATFORM_BSP_WHL_PKG_PY3): 
             status, output = log_os_system("pip3 install "+ SONIC_PLATFORM_BSP_WHL_PKG_PY3, 1)
             if status:
-                print(("Error: Failed to install {}".format(PLATFORM_API2_WHL_FILE_PY3) ))
+                print("Error: Failed to install {}".format(PLATFORM_API2_WHL_FILE_PY3) )
                 return status
             else:
-                print(("Successfully installed {} package".format(PLATFORM_API2_WHL_FILE_PY3) ))
+                print("Successfully installed {} package".format(PLATFORM_API2_WHL_FILE_PY3) )
         else:
-            print(('{} is not found'.format(PLATFORM_API2_WHL_FILE_PY3)))
+            print('{} is not found'.format(PLATFORM_API2_WHL_FILE_PY3))
     else:        
-        print(('{} has installed'.format(PLATFORM_API2_WHL_FILE_PY3)))
+        print('{} has installed'.format(PLATFORM_API2_WHL_FILE_PY3))
      
     return 
      
 def do_sonic_platform_clean():
     status, output = log_os_system("pip3 show sonic-platform > /dev/null 2>&1", 0)   
     if status:
-        print(('{} does not install, not need to uninstall'.format(PLATFORM_API2_WHL_FILE_PY3)))
+        print('{} does not install, not need to uninstall'.format(PLATFORM_API2_WHL_FILE_PY3))
         
     else:        
         status, output = log_os_system("pip3 uninstall sonic-platform -y", 0)
         if status:
-            print(('Error: Failed to uninstall {}'.format(PLATFORM_API2_WHL_FILE_PY3)))
+            print('Error: Failed to uninstall {}'.format(PLATFORM_API2_WHL_FILE_PY3))
             return status
         else:
-            print(('{} is uninstalled'.format(PLATFORM_API2_WHL_FILE_PY3)))
-
-    return
+            print('{} is uninstalled'.format(PLATFORM_API2_WHL_FILE_PY3))
 
 def do_install():
     print("Checking system....")
@@ -393,7 +395,7 @@ def do_install():
             if FORCE == 0:
                 return  status
     else:
-        print((PROJECT_NAME.upper()+" drivers detected...."))
+        print(PROJECT_NAME.upper()+" drivers detected....")
     if not device_exist():
         print("No device, installing....")
         status = device_install()
@@ -401,7 +403,7 @@ def do_install():
             if FORCE == 0:
                 return  status
     else:
-        print((PROJECT_NAME.upper()+" devices detected...."))
+        print(PROJECT_NAME.upper()+" devices detected....")
 
     do_sonic_platform_install()
 
@@ -410,7 +412,7 @@ def do_install():
 def do_uninstall():
     print("Checking system....")
     if not device_exist():
-        print((PROJECT_NAME.upper() +" has no device installed...."))
+        print(PROJECT_NAME.upper() +" has no device installed....")
     else:
         print("Removing device....")
         status = device_uninstall()
@@ -419,7 +421,7 @@ def do_uninstall():
                 return  status
 
     if driver_check()== False :
-        print((PROJECT_NAME.upper() +" has no driver installed...."))
+        print(PROJECT_NAME.upper() +" has no driver installed....")
     else:
         print("Removing installed driver....")
         status = driver_uninstall()

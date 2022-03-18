@@ -598,7 +598,6 @@ static u8 is_fan_fault(struct as4630_54pe_cpld_data *data, enum fan_id id)
     return ret;
 }
 
-
 static ssize_t fan_show_value(struct device *dev, struct device_attribute *da,
                               char *buf)
 {
