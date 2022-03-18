@@ -1,9 +1,10 @@
+{% set prefix = DEFAULT_CONTAINER_REGISTRY %}
 {% if CONFIGURED_ARCH == "armhf" and MULTIARCH_QEMU_ENVIRON == "y" %}
-FROM multiarch/debian-debootstrap:armhf-stretch
+FROM {{ prefix }}multiarch/debian-debootstrap:armhf-stretch
 {% elif CONFIGURED_ARCH == "arm64" and MULTIARCH_QEMU_ENVIRON == "y" %}
-FROM multiarch/debian-debootstrap:arm64-stretch
+FROM {{ prefix }}multiarch/debian-debootstrap:arm64-stretch
 {% else %}
-FROM debian:stretch
+FROM {{ prefix }}debian:stretch
 {% endif %}
 
 MAINTAINER Pavel Shirshov

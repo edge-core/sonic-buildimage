@@ -1,9 +1,10 @@
+{% set prefix = DEFAULT_CONTAINER_REGISTRY %}
 {% if CONFIGURED_ARCH == "armhf" and MULTIARCH_QEMU_ENVIRON == "y" %}
-FROM multiarch/debian-debootstrap:armhf-jessie
+FROM {{ prefix }}multiarch/debian-debootstrap:armhf-jessie
 {% elif CONFIGURED_ARCH == "arm64" and MULTIARCH_QEMU_ENVIRON == "y" %}
-FROM multiarch/debian-debootstrap:arm64-jessie
+FROM {{ prefix }}multiarch/debian-debootstrap:arm64-jessie
 {% else %}
-FROM debian:jessie
+FROM {{ prefix }}debian:jessie
 {% endif %}
 
 ## Remove retired jessie-updates repo
