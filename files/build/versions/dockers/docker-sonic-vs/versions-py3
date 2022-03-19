@@ -12,5 +12,5 @@ pyroute2==0.5.14
 requests==2.27.1
 scapy==2.4.4
 tabulate==0.8.9
-urllib3==1.26.8
+urllib3==1.26.9
 xmltodict==0.12.0

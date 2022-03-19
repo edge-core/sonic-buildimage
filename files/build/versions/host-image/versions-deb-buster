@@ -87,7 +87,7 @@ libefiboot1==37-2+deb10u1
 libefivar1==37-2+deb10u1
 libelf1==0.176-1.1
 libestr0==0.1.10-2.1
-libexpat1==2.2.6-2+deb10u3
+libexpat1==2.2.6-2+deb10u4
 libfastjson4==0.99.8-2
 libffi-dev==3.2.1-9
 libfreeipmi17==1.6.3-1.1
@@ -161,7 +161,7 @@ libsasl2-2==2.1.27+dfsg-1+deb10u2
 libsasl2-modules-db==2.1.27+dfsg-1+deb10u2
 libsqlite3-0==3.27.2-3+deb10u1
 libssh2-1==1.8.0-2.1
-libssl1.1==1.1.1d-0+deb10u7
+libssl1.1==1.1.1d-0+deb10u8
 libswsscommon==1.0.0
 libsysfs2==2.1.0+repack-5
 libsystemd0==247.3-6~bpo10+1
@@ -201,7 +201,7 @@ opennsl-modules==4.3.0.10-2
 openssh-client==1:7.9p1-10+deb10u2
 openssh-server==1:7.9p1-10+deb10u2
 openssh-sftp-server==1:7.9p1-10+deb10u2
-openssl==1.1.1d-0+deb10u7
+openssl==1.1.1d-0+deb10u8
 pciutils==1:3.5.2-1
 perl==5.28.1-6+deb10u1
 perl-modules-5.28==5.28.1-6+deb10u1

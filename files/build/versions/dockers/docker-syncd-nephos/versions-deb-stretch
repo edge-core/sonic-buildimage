@@ -25,5 +25,5 @@ sshpass==1.06-1
 strace==4.15-2
 syncd==1.0.0
 syncd-dbg==1.0.0
-vim==2:8.0.0197-4+deb9u4
-vim-runtime==2:8.0.0197-4+deb9u4
+vim==2:8.0.0197-4+deb9u5
+vim-runtime==2:8.0.0197-4+deb9u5
