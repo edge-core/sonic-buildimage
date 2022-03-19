@@ -213,6 +213,10 @@ check_apt_version()
                 continue
             fi
 
+            if [ "$para" == "install" ]; then
+                continue
+            fi
+
             if [[ "$para" == *=* ]]; then
                 continue
             else
