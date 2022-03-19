@@ -632,11 +632,8 @@ if [ $MULTIARCH_QEMU_ENVIRON == y ]; then
 fi
 
 {% if installer_images.strip() -%}
-clean_proc() {
-    sudo umount /proc || true
-}
-trap_push clean_proc
-sudo mount proc /proc -t proc
+## ensure proc is mounted
+sudo mount proc /proc -t proc || true
 if [[ $CONFIGURED_ARCH == armhf ]]; then
     # A workaround to fix the armhf build hung issue, caused by sonic-platform-nokia-7215_1.0_armhf.deb post installation script 
     ps -eo pid,cmd | grep python | grep "/etc/entropy.py" | awk '{print $1}' | xargs sudo kill -9 2>/dev/null || true
@@ -673,7 +670,6 @@ if [ $MULTIARCH_QEMU_ENVIRON == y ]; then
 else
     sudo chroot $FILESYSTEM_ROOT service docker stop
 fi
-sudo umount /proc || true
 sudo rm $FILESYSTEM_ROOT/etc/init.d/docker
 
 sudo bash -c "echo { > $FILESYSTEM_ROOT_USR_SHARE_SONIC_TEMPLATES/ctr_image_names.json"
