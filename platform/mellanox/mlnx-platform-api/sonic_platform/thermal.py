@@ -142,7 +142,7 @@ thermal_api_names = [
 platform_dict_thermal = {'x86_64-mlnx_msn2700-r0': 0, 'x86_64-mlnx_lssn2700-r0': 0, 'x86_64-mlnx_msn2740-r0': 3,
                          'x86_64-mlnx_msn2100-r0': 1, 'x86_64-mlnx_msn2410-r0': 2, 'x86_64-mlnx_msn2010-r0': 4,
                          'x86_64-mlnx_msn3420-r0': 9, 'x86_64-mlnx_msn3700-r0': 5, 'x86_64-mlnx_msn3700c-r0': 6,
-                         'x86_64-mlnx_msn3800-r0': 7, 'x86_64-mlnx_msn4600-r0': 12, 'x86_64-mlnx_msn4600c-r0': 9,
+                         'x86_64-mlnx_msn3800-r0': 7, 'x86_64-mlnx_msn4600-r0': 12, 'x86_64-mlnx_msn4600c-r0': 10,
                          'x86_64-mlnx_msn4700-r0': 8, 'x86_64-mlnx_msn4410-r0': 8}
 thermal_profile_list = [
     # 0 2700
