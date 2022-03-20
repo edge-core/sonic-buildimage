@@ -200,16 +200,10 @@ class Psu(FixedPsu):
     def __init__(self, psu_index):
         super(Psu, self).__init__(psu_index)
 
-        psu_voltage_out2 = os.path.join(PSU_PATH, "power/psu{}_volt_out2".format(self.index))
-        psu_voltage = os.path.join(PSU_PATH, "power/psu{}_volt".format(self.index))
-        # Workaround for psu voltage sysfs file as the file name differs among platforms
-        if os.path.exists(psu_voltage_out2):
-            self.psu_voltage = psu_voltage_out2
-        else:
-            self.psu_voltage = psu_voltage
-        self.psu_voltage_min = self.psu_voltage + "_min"
-        self.psu_voltage_max = self.psu_voltage + "_max"
-        self.psu_voltage_capability = self.psu_voltage + "_capability"
+        self._psu_voltage = None
+        self._psu_voltage_min = None
+        self._psu_voltage_max = None
+        self._psu_voltage_capability = None
 
         self.psu_current = os.path.join(PSU_PATH, self.PSU_CURRENT.format(self.index))
         self.psu_power = os.path.join(PSU_PATH, self.PSU_POWER.format(self.index))
@@ -227,6 +221,47 @@ class Psu(FixedPsu):
         # initialize thermal for PSU
         from .thermal import initialize_psu_thermal
         self._thermal_list = initialize_psu_thermal(psu_index, self.get_power_available_status)
+
+    @property
+    def psu_voltage(self):
+        if not self._psu_voltage:
+            psu_voltage_out = os.path.join(PSU_PATH, "power/psu{}_volt_out2".format(self.index))
+            if os.path.exists(psu_voltage_out):
+                self._psu_voltage = psu_voltage_out
+            else:
+                psu_voltage_out = os.path.join(PSU_PATH, "power/psu{}_volt".format(self.index))
+                if os.path.exists(psu_voltage_out):
+                    self._psu_voltage = psu_voltage_out
+        
+        return self._psu_voltage
+
+    @property
+    def psu_voltage_min(self):
+        if not self._psu_voltage_min:
+            psu_voltage = self.psu_voltage
+            if psu_voltage:
+                self._psu_voltage_min = psu_voltage + "_min"
+
+        return self._psu_voltage_min
+
+    @property
+    def psu_voltage_max(self):
+        if not self._psu_voltage_max:
+            psu_voltage = self.psu_voltage
+            if psu_voltage:
+                self._psu_voltage_max = psu_voltage + "_max"
+
+        return self._psu_voltage_max
+
+    @property
+    def psu_voltage_capability(self):
+        if not self._psu_voltage_capability:
+            psu_voltage = self.psu_voltage
+            if psu_voltage:
+                self._psu_voltage_capability = psu_voltage + "_capability"
+
+        return self._psu_voltage_capability
+
 
     def get_model(self):
         """
@@ -272,7 +307,7 @@ class Psu(FixedPsu):
             A float number, the output voltage in volts, 
             e.g. 12.1 
         """
-        if self.get_powergood_status():
+        if self.get_powergood_status() and self.psu_voltage:
             # TODO: should we put log_func=None here? If not do this, when a PSU is back to power, some PSU related
             # sysfs may not ready, read_int_from_file would encounter exception and log an error.
             voltage = utils.read_int_from_file(self.psu_voltage, log_func=logger.log_info)
