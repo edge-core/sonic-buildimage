@@ -20,6 +20,20 @@ schedules:
 
 pool: sonicbld
 
+parameters:
+- name: 'jobFilters'
+  type: object
+  default:
+  - vs
+  - barefoot
+  - broadcom
+  - centec
+  - centec-arm64
+  - generic
+  - innovium
+  - marvell-armhf
+  - mellanox
+
 stages:
 - stage: Build
   variables:
@@ -28,6 +42,7 @@ stages:
   jobs:
   - template: azure-pipelines-build.yml
     parameters:
+      jobFilters: ${{ parameters.jobFilters }}
       buildOptions: '${{ variables.VERSION_CONTROL_OPTIONS }} SONIC_BUILD_JOBS=$(nproc) ENABLE_IMAGE_SIGNATURE=y'
       preSteps:
       - script: |
