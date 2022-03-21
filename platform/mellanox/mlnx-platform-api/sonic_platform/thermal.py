@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2021 NVIDIA CORPORATION & AFFILIATES.
+# Copyright (c) 2019-2022 NVIDIA CORPORATION & AFFILIATES.
 # Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -524,7 +524,7 @@ class Thermal(ThermalBase):
         else:
             cls.expect_cooling_state = None
 
-
+        
 class RemovableThermal(Thermal):
     def __init__(self, name, temp_file, high_th_file, high_crit_th_file, position, presence_cb):
         super(RemovableThermal, self).__init__(name, temp_file, high_th_file, high_crit_th_file, position)

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020-2021 NVIDIA CORPORATION & AFFILIATES.
+# Copyright (c) 2020-2022 NVIDIA CORPORATION & AFFILIATES.
 # Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -148,7 +148,8 @@ DEVICE_DATA = {
         'thermal': {
             "capability": {
                 "comex_amb": False
-            }
+            },
+            'cpu_threshold': (80, 95)  # min=80, max=95
         },
         'sfp': {
             'max_port_per_line_card': 16
@@ -263,3 +264,20 @@ class DeviceDataManager:
         if not sfp_data:
             return 0
         return sfp_data.get('max_port_per_line_card', 0)
+
+    @classmethod
+    def is_cpu_thermal_control_supported(cls):
+        return cls.get_cpu_thermal_threshold() != (None, None)
+
+    @classmethod
+    @utils.read_only_cache()
+    def get_cpu_thermal_threshold(cls):
+        platform_data = DEVICE_DATA.get(cls.get_platform_name(), None)
+        if not platform_data:
+            return None, None
+
+        thermal_data = platform_data.get('thermal', None)
+        if not thermal_data:
+            return None, None
+
+        return thermal_data.get('cpu_threshold', (None, None))
