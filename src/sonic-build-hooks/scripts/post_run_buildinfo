@@ -2,8 +2,6 @@
 
 . /usr/local/share/buildinfo/scripts/buildinfo_base.sh
 
-[ -d $POST_VERSION_PATH ] && rm -rf $POST_VERSION_PATH
-
 # Collect the version files
 collect_version_files $POST_VERSION_PATH
 
