@@ -1,14 +1,26 @@
 #!/bin/bash
 
+. /usr/local/share/buildinfo/scripts/buildinfo_base.sh
+
 TARGET_PATH=$1
+[ -z "$TARGET_PATH" ] && TARGET_PATH=$POST_VERSION_PATH
 ARCH=$(dpkg --print-architecture)
 DIST=$(grep VERSION_CODENAME /etc/os-release | cut -d= -f2)
 ([ -z "$DIST" ] && grep -q jessie /etc/os-release) && DIST=jessie
 
 mkdir -p $TARGET_PATH
 chmod a+rw $TARGET_PATH
-dpkg-query -W -f '${Package}==${Version}\n' > "${TARGET_PATH}/versions-deb-${DIST}-${ARCH}"
-([ -x "/usr/local/bin/pip2" ] || [ -x "/usr/bin/pip2" ]) && pip2 freeze > "${TARGET_PATH}/versions-py2-${DIST}-${ARCH}"
-([ -x "/usr/local/bin/pip3" ] || [ -x "/usr/bin/pip3" ]) && pip3 freeze > "${TARGET_PATH}/versions-py3-${DIST}-${ARCH}"
+
+dpkg-query -W -f '${Package}==${Version}\n' >> "${TARGET_PATH}/versions-deb-${DIST}-${ARCH}"
+([ -x "/usr/local/bin/pip2" ] || [ -x "/usr/bin/pip2" ]) && pip2 freeze >> "${TARGET_PATH}/versions-py2-${DIST}-${ARCH}"
+([ -x "/usr/local/bin/pip3" ] || [ -x "/usr/bin/pip3" ]) && pip3 freeze >> "${TARGET_PATH}/versions-py3-${DIST}-${ARCH}"
+
+## Add the the packages purged
+[ -f $POST_VERSION_PATH/purge-versions-deb ] && cat $POST_VERSION_PATH/purge-versions-deb >> "${TARGET_PATH}/versions-deb-${DIST}-${ARCH}"
+
+## Print the unique and sorted result
+sort -u "${TARGET_PATH}/versions-deb-${DIST}-${ARCH}" -o "${TARGET_PATH}/versions-deb-${DIST}-${ARCH}"
+sort -u "${TARGET_PATH}/versions-py2-${DIST}-${ARCH}" -o "${TARGET_PATH}/versions-py2-${DIST}-${ARCH}"
+sort -u "${TARGET_PATH}/versions-py3-${DIST}-${ARCH}" -o "${TARGET_PATH}/versions-py3-${DIST}-${ARCH}"
 
 exit 0
