@@ -38,6 +38,7 @@ jobs:
   pool: ${{ parameters.pool }}
   steps:
   - template: cleanup.yml
+  - template: template-clean-sonic-slave.yml
   - checkout: self
     clean: true
     submodules: recursive
@@ -66,16 +67,6 @@ jobs:
 
       if [ x"$(Build.SourceBranchName)" == x"202012" ]; then
         BUILD_OPTIONS = 'SONIC_VERSION_CONTROL_COMPONENTS=deb,py2,py3,web,git,docker'
-      fi
-
-      containers=$(docker container ls | grep "sonic-slave" | awk '{ print $1 }')
-      if [ ! -z "$containers" ]; then
-        docker container kill $containers || true
-        sleep 5
-      fi
-      images=$(docker images 'sonic-slave-*' -a -q)
-      if [ ! -z "$images" ]; then
-        docker rmi -f $images
       fi
 
       tmpfile=$(mktemp)
