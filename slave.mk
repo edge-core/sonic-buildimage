@@ -816,7 +816,7 @@ $(addprefix $(TARGET_PATH)/, $(DOCKER_IMAGES)) : $(TARGET_PATH)/%.gz : .platform
 
 	# Load the target deb from DPKG cache
 	$(call LOAD_CACHE,$*.gz,$@)
-
+	$(eval $*_CACHE_LOADED:=$($*.gz_CACHE_LOADED))
 	# Skip building the target if it is already loaded from cache
 	if [ -z '$($*.gz_CACHE_LOADED)' ] ; then
 
@@ -890,7 +890,7 @@ $(addprefix $(TARGET_PATH)/, $(DOCKER_DBG_IMAGES)) : $(TARGET_PATH)/%-$(DBG_IMAG
 
 	# Load the target deb from DPKG cache
 	$(call LOAD_CACHE,$*-$(DBG_IMAGE_MARK).gz,$@)
-
+	$(eval $*_CACHE_LOADED:=$($*-$(DBG_IMAGE_MARK).gz_CACHE_LOADED))
 	# Skip building the target if it is already loaded from cache
 	if [ -z '$($*-$(DBG_IMAGE_MARK).gz_CACHE_LOADED)' ] ; then
 
