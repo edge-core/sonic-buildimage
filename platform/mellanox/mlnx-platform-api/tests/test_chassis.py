@@ -38,7 +38,7 @@ class TestChassis:
         2. Fan drawer related API
         3. SFP related API (Except modular chassis SFP related API)
         4. Reboot cause related API
-    
+
     Thermal, Eeprom, Watchdog, Component, System LED related API will be tested in seperate class
     """
     @classmethod
@@ -166,7 +166,6 @@ class TestChassis:
     @mock.patch('sonic_platform.sfp_event.sfp_event.check_sfp_status', MagicMock())
     @mock.patch('sonic_platform.sfp_event.sfp_event.__init__', MagicMock(return_value=None))
     @mock.patch('sonic_platform.sfp_event.sfp_event.initialize', MagicMock())
-    @mock.patch('sonic_platform.sfp.SFP.reinit', MagicMock())
     @mock.patch('sonic_platform.device_data.DeviceDataManager.get_sfp_count', MagicMock(return_value=3))
     def test_change_event(self):
         from sonic_platform.sfp_event import sfp_event
@@ -185,7 +184,6 @@ class TestChassis:
         assert status is True
         assert 'sfp' in event_dict and event_dict['sfp'][1] == '1'
         assert len(chassis._sfp_list) == 3
-        assert SFP.reinit.call_count == 1
 
         # Call get_change_event with timeout=1.0
         return_port_dict = {}

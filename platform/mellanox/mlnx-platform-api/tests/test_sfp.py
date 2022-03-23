@@ -49,7 +49,7 @@ class TestSfp:
         assert sfp.sdk_index == 1
         assert sfp.index == 5
 
-    @mock.patch('sonic_platform.sfp.SFP._read_eeprom_specific_bytes', mock.MagicMock(return_value=None))
+    @mock.patch('sonic_platform.sfp.SFP.read_eeprom', mock.MagicMock(return_value=None))
     @mock.patch('sonic_platform.sfp.SFP._get_error_code')
     @mock.patch('sonic_platform.chassis.Chassis.get_num_sfps', mock.MagicMock(return_value=2))
     def test_sfp_get_error_status(self, mock_get_error_code):

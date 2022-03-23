@@ -74,7 +74,7 @@ class Chassis(ChassisBase):
 
         # Initialize DMI data
         self.dmi_data = None
-        
+
         # move the initialization of each components to their dedicated initializer
         # which will be called from platform
         #
@@ -115,7 +115,7 @@ class Chassis(ChassisBase):
 
         if SFP.shared_sdk_handle:
             deinitialize_sdk_handle(SFP.shared_sdk_handle)
-        
+
     ##############################################
     # PSU methods
     ##############################################
@@ -238,7 +238,7 @@ class Chassis(ChassisBase):
         if index < sfp_count:
             if not self._sfp_list:
                 self._sfp_list = [None] * sfp_count
-            
+
             if not self._sfp_list[index]:
                 from .sfp import SFP
                 self._sfp_list[index] = SFP(index)
@@ -295,7 +295,7 @@ class Chassis(ChassisBase):
         index = index - 1
         self.initialize_single_sfp(index)
         return super(Chassis, self).get_sfp(index)
-        
+
     def get_change_event(self, timeout=0):
         """
         Returns a nested dictionary containing all devices which have
@@ -310,7 +310,7 @@ class Chassis(ChassisBase):
                 - True if call successful, False if not;
                 - A nested dictionary where key is a device type,
                   value is a dictionary with key:value pairs in the format of
-                  {'device_id':'device_event'}, 
+                  {'device_id':'device_event'},
                   where device_id is the device ID for this device and
                         device_event,
                              status='1' represents device inserted,
@@ -596,7 +596,7 @@ class Chassis(ChassisBase):
         Note:
             We overload this method to ensure that watchdog is only initialized
             when it is referenced. Currently, only one daemon can open the watchdog.
-            To initialize watchdog in the constructor causes multiple daemon 
+            To initialize watchdog in the constructor causes multiple daemon
             try opening watchdog when loading and constructing a chassis object
             and fail. By doing so we can eliminate that risk.
         """
@@ -609,11 +609,11 @@ class Chassis(ChassisBase):
 
         return self._watchdog
 
-    
+
     def get_revision(self):
         """
         Retrieves the hardware revision of the device
-        
+
         Returns:
             string: Revision value of device
         """
@@ -647,7 +647,7 @@ class Chassis(ChassisBase):
 
     def _verify_reboot_cause(self, filename):
         '''
-        Open and read the reboot cause file in 
+        Open and read the reboot cause file in
         /var/run/hwmanagement/system (which is defined as REBOOT_CAUSE_ROOT)
         If a reboot cause file doesn't exists, returns '0'.
         '''
@@ -754,7 +754,7 @@ class ModularChassis(Chassis):
         if index < count:
             if not self._module_list:
                 self._module_list = [None] * count
-            
+
             if not self._module_list[index]:
                 from .module import Module
                 self._module_list[index] = Module(index + 1)
