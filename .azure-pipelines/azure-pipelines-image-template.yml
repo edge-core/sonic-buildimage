@@ -28,7 +28,7 @@ jobs:
       - template: cleanup.yml
       - ${{ parameters.preSteps }}
       - script: |
-          if [ -n "$(CACHE_MODE)" ] && echo $(PLATFORM_AZP) | grep -E -q "^(vs|broadcom|mellanox)$"; then
+          if [ -n "$(CACHE_MODE)" ] && echo $(PLATFORM_AZP) | grep -E -q "^(vs|broadcom|mellanox|marvell-armhf)$"; then
             CACHE_OPTIONS="SONIC_DPKG_CACHE_METHOD=$(CACHE_MODE) SONIC_DPKG_CACHE_SOURCE=/nfs/dpkg_cache/$(PLATFORM_AZP)"
             BUILD_OPTIONS="$(BUILD_OPTIONS) $CACHE_OPTIONS"
             echo "##vso[task.setvariable variable=BUILD_OPTIONS]$BUILD_OPTIONS"

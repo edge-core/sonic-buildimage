@@ -31,25 +31,41 @@ resources:
     name: Azure/sonic-mgmt
     endpoint: build
 
+variables:
+- template: .azure-pipelines/azure-pipelines-repd-build-variables.yml
+- name: CACHE_MODE
+  value: rcache 
+
 stages:
-- stage: Build
+- stage: BuildVS
   pool: sonicbld
-  variables:
-  - template: .azure-pipelines/azure-pipelines-repd-build-variables.yml
-  - name: CACHE_MODE
-    value: rcache
   jobs:
   - template: .azure-pipelines/azure-pipelines-build.yml
     parameters:
       buildOptions: 'USERNAME=admin SONIC_BUILD_JOBS=$(nproc) ${{ variables.VERSION_CONTROL_OPTIONS }}'
       jobGroups:
       - name: vs
+
+- stage: Build
+  pool: sonicbld
+  dependsOn: []
+  jobs:
+  - template: .azure-pipelines/azure-pipelines-build.yml
+    parameters:
+      buildOptions: 'USERNAME=admin SONIC_BUILD_JOBS=$(nproc) ${{ variables.VERSION_CONTROL_OPTIONS }}'
+      jobGroups:
       - name: broadcom
         variables:
           swi_image: yes
       - name: mellanox
+      - name: marvell-armhf
+        pool: sonicbld-armhf
+        timeoutInMinutes: 1200
+        variables:
+          PLATFORM_ARCH: armhf
 
 - stage: Test
+  dependsOn: BuildVS
   variables:
   - name: inventory
     value: veos_vtb
