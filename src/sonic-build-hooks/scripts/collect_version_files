@@ -20,7 +20,11 @@ dpkg-query -W -f '${Package}==${Version}\n' >> "${TARGET_PATH}/versions-deb-${DI
 
 ## Print the unique and sorted result
 sort -u "${TARGET_PATH}/versions-deb-${DIST}-${ARCH}" -o "${TARGET_PATH}/versions-deb-${DIST}-${ARCH}"
-sort -u "${TARGET_PATH}/versions-py2-${DIST}-${ARCH}" -o "${TARGET_PATH}/versions-py2-${DIST}-${ARCH}"
-sort -u "${TARGET_PATH}/versions-py3-${DIST}-${ARCH}" -o "${TARGET_PATH}/versions-py3-${DIST}-${ARCH}"
+if [ -e "${TARGET_PATH}/versions-py2-${DIST}-${ARCH}" ]; then
+    sort -u "${TARGET_PATH}/versions-py2-${DIST}-${ARCH}" -o "${TARGET_PATH}/versions-py2-${DIST}-${ARCH}"
+fi
+if [ -e "${TARGET_PATH}/versions-py3-${DIST}-${ARCH}" ]; then
+    sort -u "${TARGET_PATH}/versions-py3-${DIST}-${ARCH}" -o "${TARGET_PATH}/versions-py3-${DIST}-${ARCH}"
+fi
 
 exit 0
