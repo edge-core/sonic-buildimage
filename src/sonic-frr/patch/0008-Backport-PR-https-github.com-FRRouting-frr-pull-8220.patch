@@ -1,0 +1,168 @@
+From 3bafb068b9e54690c263ddf8e8c8c15e2efb5fe1 Mon Sep 17 00:00:00 2001
+From: Abhishek Dosi <abdosi@microsoft.com>
+Date: Tue, 22 Mar 2022 17:35:34 +0000
+Subject: [PATCH] Backport PR: https://github.com/FRRouting/frr/pull/8220 to
+ FRR 7.2
+
+Signed-off-by: Abhishek Dosi <abdosi@microsoft.com>
+---
+ bgpd/bgp_io.c     | 40 +++++++++++++++++++---------------------
+ bgpd/bgp_packet.c | 32 ++++++++++++++++++++++++++++++++
+ bgpd/bgp_packet.h |  4 ++++
+ 3 files changed, 55 insertions(+), 21 deletions(-)
+
+diff --git a/bgpd/bgp_io.c b/bgpd/bgp_io.c
+index c2d06a4b5..8d99d3067 100644
+--- a/bgpd/bgp_io.c
++++ b/bgpd/bgp_io.c
+@@ -43,7 +43,7 @@
+ 
+ /* forward declarations */
+ static uint16_t bgp_write(struct peer *);
+-static uint16_t bgp_read(struct peer *);
++static uint16_t bgp_read(struct peer *peer, int *code_p);
+ static int bgp_process_writes(struct thread *);
+ static int bgp_process_reads(struct thread *);
+ static bool validate_header(struct peer *);
+@@ -174,6 +174,7 @@ static int bgp_process_reads(struct thread *thread)
+ 	bool fatal = false;		// whether fatal error occurred
+ 	bool added_pkt = false;		// whether we pushed onto ->ibuf
+ 	/* clang-format on */
++	int code;
+ 
+ 	peer = THREAD_ARG(thread);
+ 
+@@ -183,7 +184,7 @@ static int bgp_process_reads(struct thread *thread)
+ 	struct frr_pthread *fpt = bgp_pth_io;
+ 
+ 	frr_with_mutex(&peer->io_mtx) {
+-		status = bgp_read(peer);
++		status = bgp_read(peer, &code);
+ 	}
+ 
+ 	/* error checking phase */
+@@ -196,6 +197,12 @@ static int bgp_process_reads(struct thread *thread)
+ 		/* problem; tear down session */
+ 		more = false;
+ 		fatal = true;
++
++		/* Handle the error in the main pthread, include the
++		 * specific state change from 'bgp_read'.
++		 */
++		thread_add_event(bm->master, bgp_packet_process_error,
++				 peer, code, NULL);
+ 	}
+ 
+ 	while (more) {
+@@ -381,7 +388,7 @@ done : {
+  *
+  * @return status flag (see top-of-file)
+  */
+-static uint16_t bgp_read(struct peer *peer)
++static uint16_t bgp_read(struct peer *peer, int *code_p)
+ {
+ 	size_t readsize; // how many bytes we want to read
+ 	ssize_t nbytes;  // how many bytes we actually read
+@@ -394,37 +401,28 @@ static uint16_t bgp_read(struct peer *peer)
+ 	/* EAGAIN or EWOULDBLOCK; come back later */
+ 	if (nbytes < 0 && ERRNO_IO_RETRY(errno)) {
+ 		SET_FLAG(status, BGP_IO_TRANS_ERR);
+-		/* Fatal error; tear down session */
+ 	} else if (nbytes < 0) {
++		/* Fatal error; tear down session */
+ 		flog_err(EC_BGP_UPDATE_RCV,
+ 			 "%s [Error] bgp_read_packet error: %s", peer->host,
+ 			 safe_strerror(errno));
+ 
+-		if (peer->status == Established) {
+-			if (CHECK_FLAG(peer->sflags, PEER_STATUS_NSF_MODE)) {
+-				peer->last_reset = PEER_DOWN_NSF_CLOSE_SESSION;
+-				SET_FLAG(peer->sflags, PEER_STATUS_NSF_WAIT);
+-			} else
+-				peer->last_reset = PEER_DOWN_CLOSE_SESSION;
+-		}
++		/* Handle the error in the main pthread. */
++		if (code_p)
++			*code_p = TCP_fatal_error;
+ 
+-		BGP_EVENT_ADD(peer, TCP_fatal_error);
+ 		SET_FLAG(status, BGP_IO_FATAL_ERR);
+-		/* Received EOF / TCP session closed */
++
+ 	} else if (nbytes == 0) {
++		/* Received EOF / TCP session closed */
+ 		if (bgp_debug_neighbor_events(peer))
+ 			zlog_debug("%s [Event] BGP connection closed fd %d",
+ 				   peer->host, peer->fd);
+ 
+-		if (peer->status == Established) {
+-			if (CHECK_FLAG(peer->sflags, PEER_STATUS_NSF_MODE)) {
+-				peer->last_reset = PEER_DOWN_NSF_CLOSE_SESSION;
+-				SET_FLAG(peer->sflags, PEER_STATUS_NSF_WAIT);
+-			} else
+-				peer->last_reset = PEER_DOWN_CLOSE_SESSION;
+-		}
++		/* Handle the error in the main pthread. */
++		if (code_p)
++			*code_p = TCP_connection_closed;
+ 
+-		BGP_EVENT_ADD(peer, TCP_connection_closed);
+ 		SET_FLAG(status, BGP_IO_FATAL_ERR);
+ 	} else {
+ 		assert(ringbuf_put(peer->ibuf_work, ibw, nbytes)
+diff --git a/bgpd/bgp_packet.c b/bgpd/bgp_packet.c
+index c7c1780c2..1eb9fc5c4 100644
+--- a/bgpd/bgp_packet.c
++++ b/bgpd/bgp_packet.c
+@@ -2366,3 +2366,35 @@ int bgp_process_packet(struct thread *thread)
+ 
+ 	return 0;
+ }
++
++/*
++ * Task callback to handle socket error encountered in the io pthread. We avoid
++ * having the io pthread try to enqueue fsm events or mess with the peer
++ * struct.
++ */
++int bgp_packet_process_error(struct thread *thread)
++{
++	struct peer *peer;
++	int code;
++
++	peer = THREAD_ARG(thread);
++	code = THREAD_VAL(thread);
++
++	if (bgp_debug_neighbor_events(peer))
++		zlog_debug("%s [Event] BGP error %d on fd %d",
++			   peer->host, peer->fd, code);
++
++	/* Closed connection or error on the socket */
++
++    if (peer->status == Established) {
++        if (CHECK_FLAG(peer->sflags, PEER_STATUS_NSF_MODE)) {
++            peer->last_reset = PEER_DOWN_NSF_CLOSE_SESSION;
++            SET_FLAG(peer->sflags, PEER_STATUS_NSF_WAIT);
++        } else
++            peer->last_reset = PEER_DOWN_CLOSE_SESSION;
++    }
++
++	bgp_event_update(peer, code);
++
++	return 0;
++}
+diff --git a/bgpd/bgp_packet.h b/bgpd/bgp_packet.h
+index fc6fc66a4..d0a3ff99f 100644
+--- a/bgpd/bgp_packet.h
++++ b/bgpd/bgp_packet.h
+@@ -73,4 +73,8 @@ extern int bgp_packet_set_size(struct stream *s);
+ extern int bgp_generate_updgrp_packets(struct thread *);
+ extern int bgp_process_packet(struct thread *);
+ 
++
++/* Task callback to handle socket error encountered in the io pthread */
++int bgp_packet_process_error(struct thread *thread);
++
+ #endif /* _QUAGGA_BGP_PACKET_H */
+-- 
+2.17.1
+
