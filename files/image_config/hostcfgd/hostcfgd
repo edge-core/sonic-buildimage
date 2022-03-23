@@ -17,6 +17,10 @@ PAM_AUTH_CONF_TEMPLATE = "/usr/share/sonic/templates/common-auth-sonic.j2"
 NSS_TACPLUS_CONF = "/etc/tacplus_nss.conf"
 NSS_TACPLUS_CONF_TEMPLATE = "/usr/share/sonic/templates/tacplus_nss.conf.j2"
 NSS_CONF = "/etc/nsswitch.conf"
+PAM_LIMITS_CONF_TEMPLATE = "/usr/share/sonic/templates/pam_limits.j2"
+LIMITS_CONF_TEMPLATE = "/usr/share/sonic/templates/limits.conf.j2"
+PAM_LIMITS_CONF = "/etc/pam.d/pam-limits-conf"
+LIMITS_CONF = "/etc/security/limits.conf"
 
 # TACACS+
 TACPLUS_SERVER_PASSKEY_DEFAULT = ""
@@ -232,6 +236,63 @@ class AaaCfg(object):
         syslog.syslog(syslog.LOG_INFO, 'pam.d files updated auth={} global={}'.
                 format(auth, tacplus_global))
 
+class PamLimitsCfg(object):
+    """
+    PamLimit Config Daemon
+    1) The pam_limits PAM module sets limits on the system resources that can be obtained in a user-session.
+    2) Purpose of this daemon is to render pam_limits config file.
+    """
+    def __init__(self, config_db):
+        self.config_db = config_db
+        self.hwsku = ""
+        self.type = ""
+
+    # Load config from ConfigDb and render config file/
+    def update_config_file(self):
+        device_metadata = self.config_db.get_table('DEVICE_METADATA')
+        if "localhost" not in device_metadata:
+            return
+
+        self.read_localhost_config(device_metadata["localhost"])
+        self.render_conf_file()
+
+    # Read localhost config
+    def read_localhost_config(self, localhost):
+        if "hwsku" in localhost:
+            self.hwsku = localhost["hwsku"]
+        else:
+            self.hwsku = ""
+
+        if "type" in localhost:
+            self.type = localhost["type"]
+        else:
+            self.type = ""
+
+    # Render pam_limits config files
+    def render_conf_file(self):
+        env = jinja2.Environment(loader=jinja2.FileSystemLoader('/'), trim_blocks=True)
+        env.filters['sub'] = sub
+
+        try:
+            template_file = os.path.abspath(PAM_LIMITS_CONF_TEMPLATE)
+            template = env.get_template(template_file)
+            pam_limits_conf = template.render(
+                                        hwsku=self.hwsku,
+                                        type=self.type)
+            with open(PAM_LIMITS_CONF, 'w') as f:
+                f.write(pam_limits_conf)
+
+            template_file = os.path.abspath(LIMITS_CONF_TEMPLATE)
+            template = env.get_template(template_file)
+            limits_conf = template.render(
+                                        hwsku=self.hwsku,
+                                        type=self.type)
+            with open(LIMITS_CONF, 'w') as f:
+                f.write(limits_conf)
+        except Exception as e:
+            syslog.syslog(syslog.LOG_ERR,
+                    "modify pam_limits config file failed with exception: {}"
+                    .format(e))
 
 class HostConfigDaemon:
     def __init__(self):
@@ -241,6 +302,10 @@ class HostConfigDaemon:
 
         self.aaacfg = AaaCfg(self.config_db)
         self.iptables = Iptables()
+
+        # Initialize PamLimitsCfg
+        self.pamLimitsCfg = PamLimitsCfg(self.config_db)
+        self.pamLimitsCfg.update_config_file()
 
 
     def timer_load(self):
