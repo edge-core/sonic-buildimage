@@ -33,7 +33,7 @@ class Fan(FanBase):
 
     def __init__(self, fan_index, fan_drawer, psu_fan=False, dependency=None):
         self.is_psu_fan = psu_fan
-        ADT7473_DIR = "/sys/bus/i2c/devices/0-002e/"
+        ADT7473_DIR = "/sys/bus/i2c/devices/0-002e/hwmon/hwmon1/"
 
         if not self.is_psu_fan:
             # Fan is 1-based in Nokia platforms

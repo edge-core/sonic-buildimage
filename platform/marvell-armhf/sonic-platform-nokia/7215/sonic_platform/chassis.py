@@ -201,6 +201,22 @@ class Chassis(ChassisBase):
         """
         return self._eeprom.serial_number_str()
 
+    def get_revision(self):
+        """
+        Retrieves the hardware revision of the chassis
+
+        Returns:
+            string: Revision value of chassis
+        """
+        if smbus_present == 0:  # called from host
+            cmdstatus, value = cmd.getstatusoutput('sudo i2cget -y 0 0x41 0x0')
+        else:
+            bus = smbus.SMBus(0)
+            DEVICE_ADDRESS = 0x41
+            DEVICE_REG = 0x0
+            value = bus.read_byte_data(DEVICE_ADDRESS, DEVICE_REG)
+        return str(value)
+
     def get_system_eeprom_info(self):
         """
         Retrieves the full content of system EEPROM information for the

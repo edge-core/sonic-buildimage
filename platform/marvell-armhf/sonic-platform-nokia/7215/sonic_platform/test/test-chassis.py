@@ -21,6 +21,8 @@ def main():
 
     print("  Chassis serial: {}".format(chassis.get_serial()))
 
+    print("  Chassis revision: {}".format(chassis.get_revision()))
+
     print("  Chassis status: {}".format(chassis.get_status()))
 
     print("  Chassis base_mac: {}".format(chassis.get_base_mac()))

@@ -114,7 +114,6 @@ class Psu(PsuBase):
         """
         return self.eeprom.modelstr()
 
-
     def get_serial(self):
         """
         Retrieves the serial number of the PSU
@@ -124,6 +123,14 @@ class Psu(PsuBase):
         """
         return self.eeprom.serial_number_str()
 
+    def get_revision(self):
+        """
+        Retrieves the HW revision of the PSU
+
+        Returns:
+            string: HW revision of PSU
+        """
+        return self.eeprom.part_number_str()
 
     def get_part_number(self):
         """

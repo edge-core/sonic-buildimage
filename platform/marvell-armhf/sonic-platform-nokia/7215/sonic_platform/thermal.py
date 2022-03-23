@@ -22,9 +22,9 @@ class Thermal(ThermalBase):
     I2C_CLASS_DIR = "/sys/class/i2c-adapter/"
     I2C_DEV_MAPPING = (['i2c-0/0-004a/hwmon/', 1],
                        ['i2c-0/0-004b/hwmon/', 1],
-                       ['i2c-0/0-002e/', 1],
-                       ['i2c-0/0-002e/', 2],
-                       ['i2c-0/0-002e/', 3])
+                       ['i2c-0/0-002e/hwmon/', 1],
+                       ['i2c-0/0-002e/hwmon/', 2],
+                       ['i2c-0/0-002e/hwmon/', 3])
 
     HWMON_CLASS_DIR = "/sys/class/hwmon/"
 
@@ -55,7 +55,8 @@ class Thermal(ThermalBase):
             sensor_index = self.I2C_DEV_MAPPING[self.index - 1][1]
             sensor_max_suffix = "max"
             sensor_crit_suffix = "crit"
-            self.SENSOR_DIR = i2c_path
+            hwmon_node = os.listdir(i2c_path)[0]
+            self.SENSOR_DIR = i2c_path + hwmon_node + '/'
 
         # Armada 38x SOC temperature sensor
         else:
