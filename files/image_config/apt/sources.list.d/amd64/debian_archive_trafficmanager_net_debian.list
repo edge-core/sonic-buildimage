@@ -1,3 +1,0 @@
-deb [arch=amd64] http://debian-archive.trafficmanager.net/debian/ buster main contrib non-free
-deb [arch=amd64] http://debian-archive.trafficmanager.net/debian-security/ buster/updates main contrib non-free
-deb [arch=amd64] http://debian-archive.trafficmanager.net/debian/ buster-backports main contrib non-free
