@@ -69,6 +69,9 @@ module sonic-acl {
 					type stypes:packet_action;
 				}
 
+				/* Validating 'PACKET_ACTION' exist if ACL type is 'CTRLPLANE' */
+				must "(not(../../ACL_TABLE/ACL_TABLE_LIST[ACL_TABLE_NAME=current()/ACL_TABLE_NAME]/type = 'CTRLPLANE')) or (boolean(PACKET_ACTION))";
+
 				leaf MIRROR_INGRESS_ACTION {
 					type leafref {
 						path "/sms:sonic-mirror-session/sms:MIRROR_SESSION/sms:MIRROR_SESSION_LIST/sms:name";
@@ -86,6 +89,7 @@ module sonic-acl {
 				}
 
 				leaf PRIORITY {
+					mandatory true;
 					type uint32 {
 						range 0..999999;
 					}

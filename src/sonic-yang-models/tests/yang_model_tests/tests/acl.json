@@ -4,6 +4,16 @@
         "eStrKey" : "InvalidValue",
         "eStr": ["PACKET_ACTION"]
     },
+    "ACL_RULE_FOR_CTRLPLANE_ACL_REQUIRES_PACKET_ACTION": {
+        "desc": "ACL_RULE for CTRLPLANE ACLs require PACKET_ACTION.",
+        "eStrKey" : "Must",
+        "eStr": ["CTRLPLANE", "PACKET_ACTION"]
+    },
+    "ACL_RULE_MANDATORY_PRIORITY": {
+        "desc": "ACL_RULE MANDATORY PRIORITY field.",
+        "eStrKey" : "Mandatory",
+        "eStr": ["ACL_RULE", "PRIORITY"]
+    },
     "ACL_TABLE_EMPTY_PORTS": {
         "desc": "Configure ACL_TABLE with empty ports."
     },

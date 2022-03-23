@@ -211,6 +211,63 @@
             }
         }
     },
+    "ACL_RULE_FOR_CTRLPLANE_ACL_REQUIRES_PACKET_ACTION": {
+        "sonic-acl:sonic-acl": {
+            "sonic-acl:ACL_RULE": {
+                "ACL_RULE_LIST": [
+                    {
+                        "ACL_TABLE_NAME": "MGMT_ONLY",
+                        "DST_IP": "10.186.72.0/26",
+                        "IP_TYPE": "IPv4ANY",
+                        "PRIORITY": 999980,
+                        "RULE_NAME": "Rule_20",
+                        "SRC_IP": "10.176.0.0/15"
+                    }
+                ]
+            },
+            "sonic-acl:ACL_TABLE": {
+                "ACL_TABLE_LIST": [
+                    {
+                        "ACL_TABLE_NAME": "MGMT_ONLY",
+                        "policy_desc": "Filter IPv4",
+                        "services": [
+                            "SNMP"
+                        ],
+                        "stage": "EGRESS",
+                        "type": "CTRLPLANE"
+                    }
+                ]
+            }
+        }
+    },
+    "ACL_RULE_MANDATORY_PRIORITY": {
+        "sonic-acl:sonic-acl": {
+            "sonic-acl:ACL_RULE": {
+                "ACL_RULE_LIST": [
+                    {
+                        "ACL_TABLE_NAME": "EVERFLOW",
+                        "DST_IP": "10.186.72.0/26",
+                        "IP_TYPE": "IPv4ANY",
+                        "RULE_NAME": "Rule_20",
+                        "SRC_IP": "10.176.0.0/15"
+                    }
+                ]
+            },
+            "sonic-acl:ACL_TABLE": {
+                "ACL_TABLE_LIST": [
+                    {
+                        "ACL_TABLE_NAME": "EVERFLOW",
+                        "policy_desc": "Filter IPv4",
+                        "services": [
+                            "SNMP"
+                        ],
+                        "stage": "EGRESS",
+                        "type": "MIRROR"
+                    }
+                ]
+            }
+        }
+    },
     "ACL_RULE_WITH_NON_EXIST_ACL_TABLE": {
         "sonic-acl:sonic-acl": {
             "sonic-acl:ACL_RULE": {
