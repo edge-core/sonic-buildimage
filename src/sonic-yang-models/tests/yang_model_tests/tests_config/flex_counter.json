@@ -46,6 +46,10 @@
                 "FLOW_CNT_TRAP": {
                     "FLEX_COUNTER_STATUS": "enable",
                     "POLL_INTERVAL": 10000
+                },
+                "FLOW_CNT_ROUTE": {
+                    "FLEX_COUNTER_STATUS": "enable",
+                    "POLL_INTERVAL": 10000
                 }
             }
         }
@@ -97,7 +101,76 @@
                 "FLOW_CNT_TRAP": {
                     "FLEX_COUNTER_STATUS": "enable",
                     "POLL_INTERVAL": 99
+                },
+                "FLOW_CNT_ROUTE": {
+                    "FLEX_COUNTER_STATUS": "enable",
+                    "POLL_INTERVAL": 99
                 }
+            }
+        }
+    },
+    "FLOW_COUNTER_ROUTE_PATTERN_TABLE_WITH_VRF": {
+        "sonic-vrf:sonic-vrf":{
+            "sonic-vrf:VRF": {
+                "VRF_LIST": [
+                    {
+                        "name":"Vrf1"
+                    }
+                ]
+            }
+        },
+        "sonic-flex_counter:sonic-flex_counter": {
+            "sonic-flex_counter:FLOW_COUNTER_ROUTE_PATTERN": {
+                "FLOW_COUNTER_ROUTE_PATTERN_VRF_LIST": [
+                    {
+                        "vrf_name": "Vrf1",
+                        "ip_prefix": "1.1.1.0/24",
+                        "max_match_count": 30
+                    },
+                    {
+                        "vrf_name": "Vrf1",
+                        "ip_prefix": "2000::/64",
+                        "max_match_count": 30
+                    }
+                ]
+            }
+        }
+    },
+    "FLOW_COUNTER_ROUTE_PATTERN_TABLE_WITH_DEFAULT_VRF": {
+        "sonic-flex_counter:sonic-flex_counter": {
+            "sonic-flex_counter:FLOW_COUNTER_ROUTE_PATTERN": {
+                "FLOW_COUNTER_ROUTE_PATTERN_LIST": [
+                    {
+                        "ip_prefix": "1.1.1.0/24",
+                        "max_match_count": 30
+                    },
+                    {
+                        "ip_prefix": "2000::/64",
+                        "max_match_count": 30
+                    }
+                ]
+            }
+        }
+    },
+    "FLOW_COUNTER_ROUTE_PATTERN_TABLE_WITH_INVALID_MAX_MATCH_COUNT": {
+        "sonic-vrf:sonic-vrf":{
+            "sonic-vrf:VRF": {
+                "VRF_LIST": [
+                    {
+                        "name":"Vrf1"
+                    }
+                ]
+            }
+        },
+        "sonic-flex_counter:sonic-flex_counter": {
+            "sonic-flex_counter:FLOW_COUNTER_ROUTE_PATTERN": {
+                "FLOW_COUNTER_ROUTE_PATTERN_VRF_LIST": [
+                    {
+                        "vrf_name": "Vrf1",
+                        "ip_prefix": "1.1.1.0/24",
+                        "max_match_count": 0
+                    }
+                ]
             }
         }
     }

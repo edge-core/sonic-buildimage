@@ -1021,6 +1021,21 @@
             },
             "DEBUG_COUNTER": {
                 "FLEX_COUNTER_STATUS": "enable"
+            },
+            "FLOW_CNT_ROUTE": {
+                "FLEX_COUNTER_STATUS": "enable",
+                "POLL_INTERVAL": "10000"
+            }
+        },
+        "FLOW_COUNTER_ROUTE_PATTERN": {
+            "1.1.1.0/24": {
+                "max_match_count": "30"
+            },
+            "2000::/64": {
+                "max_match_count": "30"
+            },
+            "Vnet1|2.2.2.0/24": {
+                "max_match_count": "30"
             }
         },
         "CRM": {
