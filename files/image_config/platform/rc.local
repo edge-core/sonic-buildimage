@@ -225,10 +225,9 @@ if [ ! -e /host/machine.conf ]; then
         grub_installation_needed="TRUE"
     fi
 
+    migrate_nos_configuration
     umount /mnt/onie-boot
 fi
-
-migrate_nos_configuration
 
 . /host/machine.conf
 
