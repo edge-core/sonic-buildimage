@@ -352,6 +352,10 @@ sudo mkdir -p $FILESYSTEM_ROOT/etc/systemd/system/syslog.socket.d
 sudo cp $IMAGE_CONFIGS/syslog/override.conf $FILESYSTEM_ROOT/etc/systemd/system/syslog.socket.d/override.conf
 sudo cp $IMAGE_CONFIGS/syslog/host_umount.sh $FILESYSTEM_ROOT/usr/bin/
 
+# Copy haveged override file
+sudo mkdir -p $FILESYSTEM_ROOT/etc/systemd/system/
+sudo cp $IMAGE_CONFIGS/haveged/haveged.service $FILESYSTEM_ROOT_ETC/systemd/system/haveged.service
+
 # Copy system-health files
 sudo LANG=C cp $IMAGE_CONFIGS/system-health/system-health.service $FILESYSTEM_ROOT_USR_LIB_SYSTEMD_SYSTEM
 echo "system-health.service" | sudo tee -a $GENERATED_SERVICE_FILE
