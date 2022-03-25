@@ -7,7 +7,7 @@ libboost-atomic1.71.0==1.71.0-6~bpo10+1
 libboost-system1.71.0==1.71.0-6~bpo10+1
 libboost-thread1.71.0==1.71.0-6~bpo10+1
 libbsd0==0.9.1-2+deb10u1
-libdns-export1104==1:9.11.5.P4+dfsg-5.1+deb10u6
+libdns-export1104==1:9.11.5.P4+dfsg-5.1+deb10u7
 libdw1==0.176-1.1
 libedit2==3.1-20181209-1
 libevent-2.1-6==2.1.8-stable-4
@@ -15,9 +15,9 @@ libexplain51==1.4.D001-8
 libglib2.0-0==2.58.3-2+deb10u3
 libgpm2==1.20.7-5
 libipt2==2.0-2
-libirs-export161==1:9.11.5.P4+dfsg-5.1+deb10u6
-libisc-export1100==1:9.11.5.P4+dfsg-5.1+deb10u6
-libisccfg-export163==1:9.11.5.P4+dfsg-5.1+deb10u6
+libirs-export161==1:9.11.5.P4+dfsg-5.1+deb10u7
+libisc-export1100==1:9.11.5.P4+dfsg-5.1+deb10u7
+libisccfg-export163==1:9.11.5.P4+dfsg-5.1+deb10u7
 libpopt0==1.16-12
 libunwind8==1.2.1-10~deb10u1
 lsof==4.91+dfsg-1

@@ -1,17 +1,8 @@
 docker-ce==18.06.3~ce~3-0~debian
 libdrm-freedreno1==2.4.74-1
 libdrm-tegra0==2.4.74-1
-libflac8==1.3.2-2+deb9u2
-libssl-dev==1.1.0l-1~deb9u5
-libssl1.0.2==1.0.2u-1~deb9u7
-libssl1.1==1.1.0l-1~deb9u5
 libtext-charwidth-perl==0.04-7+b3
 libtext-iconv-perl==1.7-5+b3
 libunicode-utf8-perl==0.60-1+b2
 libxslt1-dev==1.1.29-2.1+deb9u2
 nodejs==10.24.1-1nodesource1
-openssl==1.1.0l-1~deb9u5
-vim==2:8.0.0197-4+deb9u5
-vim-common==2:8.0.0197-4+deb9u5
-vim-runtime==2:8.0.0197-4+deb9u5
-xxd==2:8.0.0197-4+deb9u5

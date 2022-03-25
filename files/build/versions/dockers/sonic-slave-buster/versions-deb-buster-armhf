@@ -1,6 +1,5 @@
 binutils-arm-linux-gnueabihf==2.31.1-16
 containerd.io==1.5.10-1
-expat==2.2.6-2+deb10u4
 libclang-6.0-dev==1:6.0.1-10
 libclang-7-dev==1:7.0.1-8+deb10u2
 libclang-common-6.0-dev==1:6.0.1-10
@@ -13,8 +12,6 @@ libdrm-omap1==2.4.97-1
 libdrm-tegra0==2.4.97-1
 libemail-date-format-perl==1.005-1
 libexception-class-perl==1.44-1
-libexpat1==2.2.6-2+deb10u4
-libexpat1-dev==2.2.6-2+deb10u4
 libgles2-mesa-dev==18.3.6-2+deb10u1
 libipc-shareable-perl==0.61-2
 libjargs-java==1.0.0-4
@@ -111,7 +108,7 @@ linux-libc-dev==4.19.232-1
 llvm-6.0==1:6.0.1-10
 llvm-6.0-dev==1:6.0.1-10
 llvm-6.0-runtime==1:6.0.1-10
-nodejs==14.19.0-deb-1nodesource1
+nodejs==14.19.1-deb-1nodesource1
 openssl==1.1.1d-0+deb10u8
 ps2eps==1.68+binaryfree-2
 rdfind==1.4.1-1

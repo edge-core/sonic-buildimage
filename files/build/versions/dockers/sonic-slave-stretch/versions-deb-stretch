@@ -22,7 +22,7 @@ autopoint==0.19.8.1-2+deb9u1
 autotools-dev==20161112.1
 bash-completion==1:2.1-4.3
 bc==1.06.95-9+b3
-bind9-host==1:9.10.3.dfsg.P4-12.3+deb9u10
+bind9-host==1:9.10.3.dfsg.P4-12.3+deb9u12
 binfmt-support==2.1.6-2
 binutils==2.28-5
 bison==2:3.0.4.dfsg-1+b1
@@ -78,7 +78,7 @@ distro-info-data==0.36
 dkms==2.3-2
 dmeventd==2:1.02.137-2
 dmsetup==2:1.02.137-2
-dnsutils==1:9.10.3.dfsg.P4-12.3+deb9u10
+dnsutils==1:9.10.3.dfsg.P4-12.3+deb9u12
 docbook-xml==4.5-8
 docbook-xsl==1.79.1+dfsg-2
 docker-ce==5:18.09.5~3-0~debian-stretch
@@ -227,8 +227,8 @@ libbabeltrace-ctf1==1.5.1-1
 libbabeltrace-dev==1.5.1-1
 libbabeltrace1==1.5.1-1
 libbatik-java==1.8-4+deb9u2
-libbind-export-dev==1:9.10.3.dfsg.P4-12.3+deb9u10
-libbind9-140==1:9.10.3.dfsg.P4-12.3+deb9u10
+libbind-export-dev==1:9.10.3.dfsg.P4-12.3+deb9u12
+libbind9-140==1:9.10.3.dfsg.P4-12.3+deb9u12
 libbison-dev==2:3.0.4.dfsg-1+b1
 libbit-vector-perl==7.4-1+b2
 libbluetooth3==5.43-2+deb9u5
@@ -405,8 +405,8 @@ libdigest-hmac-perl==1.03+dfsg-1
 libdistro-info-perl==0.14
 libdjvulibre-text==3.5.27.1-7+deb9u2
 libdjvulibre21==3.5.27.1-7+deb9u2
-libdns-export162==1:9.10.3.dfsg.P4-12.3+deb9u10
-libdns162==1:9.10.3.dfsg.P4-12.3+deb9u10
+libdns-export162==1:9.10.3.dfsg.P4-12.3+deb9u12
+libdns162==1:9.10.3.dfsg.P4-12.3+deb9u12
 libdom4j-java==1.6.1+dfsg.3-2+deb9u1
 libdouble-conversion1==2.0.1-4
 libdoxia-core-java==1.1.4-6
@@ -463,7 +463,7 @@ libfile-mimeinfo-perl==0.27-1
 libfile-stripnondeterminism-perl==0.034-1
 libfile-which-perl==1.21-1
 libfl-dev==2.6.1-1.3
-libflac8==1.3.2-2+deb9u1
+libflac8==1.3.2-2+deb9u2
 libfont-afm-perl==1.20-2
 libfontbox-java==1:1.8.12-1
 libfontconfig1==2.11.0-6.7+b1
@@ -573,13 +573,13 @@ libipc-run-perl==0.94-1+deb9u1
 libipc-system-simple-perl==1.25-3
 libiptc-dev==1.6.0+snapshot20161117-6
 libiptc0==1.6.0+snapshot20161117-6
-libirs-export141==1:9.10.3.dfsg.P4-12.3+deb9u10
-libisc-export160==1:9.10.3.dfsg.P4-12.3+deb9u10
-libisc160==1:9.10.3.dfsg.P4-12.3+deb9u10
-libisccc-export140==1:9.10.3.dfsg.P4-12.3+deb9u10
-libisccc140==1:9.10.3.dfsg.P4-12.3+deb9u10
-libisccfg-export140==1:9.10.3.dfsg.P4-12.3+deb9u10
-libisccfg140==1:9.10.3.dfsg.P4-12.3+deb9u10
+libirs-export141==1:9.10.3.dfsg.P4-12.3+deb9u12
+libisc-export160==1:9.10.3.dfsg.P4-12.3+deb9u12
+libisc160==1:9.10.3.dfsg.P4-12.3+deb9u12
+libisccc-export140==1:9.10.3.dfsg.P4-12.3+deb9u12
+libisccc140==1:9.10.3.dfsg.P4-12.3+deb9u12
+libisccfg-export140==1:9.10.3.dfsg.P4-12.3+deb9u12
+libisccfg140==1:9.10.3.dfsg.P4-12.3+deb9u12
 libisl15==0.18-1
 libisorelax-java==20041111-9
 libitext1-java==1.4-6
@@ -651,7 +651,7 @@ liblvm2app2.2==2.02.168-2
 liblvm2cmd2.02==2.02.168-2
 liblwp-mediatypes-perl==6.02-1
 liblwp-protocol-https-perl==6.06-2
-liblwres141==1:9.10.3.dfsg.P4-12.3+deb9u10
+liblwres141==1:9.10.3.dfsg.P4-12.3+deb9u12
 liblzo2-2==2.08-1.2+b2
 liblzo2-dev==2.08-1.2+b2
 libmagic-mgc==1:5.30-1+deb9u3
@@ -925,9 +925,9 @@ libsoup2.4-1==2.56.0-2+deb9u2
 libspice-server1==0.12.8-2.1+deb9u4
 libsqlite3-0==3.16.2-5+deb9u3
 libssh2-1==1.7.0-1+deb9u2
-libssl-dev==1.1.0l-1~deb9u4
-libssl1.0.2==1.0.2u-1~deb9u6
-libssl1.1==1.1.0l-1~deb9u4
+libssl-dev==1.1.0l-1~deb9u5
+libssl1.0.2==1.0.2u-1~deb9u7
+libssl1.1==1.1.0l-1~deb9u5
 libstax-java==1.2.0-3
 libstdc++-6-dev==6.3.0-18+deb9u1
 libstrictures-perl==2.000003-1
@@ -984,7 +984,7 @@ libusb-1.0-0==2:1.0.21-1
 libusb-1.0-0-dev==2:1.0.21-1
 libusb-1.0-doc==2:1.0.21-1
 libusb-dev==2:0.1.12-30
-libusbredirparser1==0.7.1-1
+libusbredirparser1==0.7.1-1+deb9u1
 libutempter0==1.1.6-3
 libuv1==1.34.2-1~bpo9+1
 libvariable-magic-perl==0.61-1
@@ -1180,7 +1180,7 @@ opensp==1.5.2-13+b1
 openssh-client==1:7.4p1-10+deb9u7
 openssh-server==1:7.4p1-10+deb9u7
 openssh-sftp-server==1:7.4p1-10+deb9u7
-openssl==1.1.0l-1~deb9u4
+openssl==1.1.0l-1~deb9u5
 packagekit==1.1.5-2+deb9u2
 packagekit-tools==1.1.5-2+deb9u2
 patch==2.7.5-1+deb9u2
@@ -1288,6 +1288,7 @@ python-openssl==16.2.0-1
 python-pam==0.4.2-13.2
 python-parse==1.6.6-0.1
 python-pil==4.0.0-4+deb9u4
+python-pip==9.0.1-2+deb9u2
 python-pip-whl==9.0.1-2+deb9u2
 python-pkg-resources==33.1.1-1
 python-py==1.4.32-3
@@ -1346,6 +1347,7 @@ python3-magic==1:5.30-1+deb9u3
 python3-markupsafe==0.23-3
 python3-minimal==3.5.3-1
 python3-pil==4.0.0-4+deb9u4
+python3-pip==9.0.1-2+deb9u2
 python3-pkg-resources==33.1.1-1
 python3-pyasn1==0.1.9-2
 python3-pycurl==7.43.0-2
@@ -1448,9 +1450,9 @@ ucf==3.0036
 unattended-upgrades==0.93.1+nmu1
 unzip==6.0-21+deb9u2
 velocity==1.7-5+deb9u1
-vim==2:8.0.0197-4+deb9u4
-vim-common==2:8.0.0197-4+deb9u4
-vim-runtime==2:8.0.0197-4+deb9u4
+vim==2:8.0.0197-4+deb9u5
+vim-common==2:8.0.0197-4+deb9u5
+vim-runtime==2:8.0.0197-4+deb9u5
 wdiff==1.2.2-2
 wget==1.18-5+deb9u3
 x11-common==1:7.7+19
@@ -1478,7 +1480,7 @@ xorg-sgml-doctools==1:1.11-1
 xsltproc==1.1.29-2.1+deb9u2
 xterm==327-2+deb9u3
 xtrans-dev==1.3.5-1
-xxd==2:8.0.0197-4+deb9u4
+xxd==2:8.0.0197-4+deb9u5
 xz-utils==5.2.2-1.2+b1
 zip==3.0-11+b1
 zlib1g-dev==1:1.2.8.dfsg-5

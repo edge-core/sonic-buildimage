@@ -2,7 +2,6 @@ applibs==1.mlnx.4.5.1208
 applibs-dev==1.mlnx.4.5.1208
 gdb==8.2.1-2+b3
 gdbserver==8.2.1-2+b3
-iproute2==1.mlnx.4.5.1208
 iproute2-dev==1.mlnx.4.5.1208
 libbabeltrace1==1.5.6-2+deb10u1
 libbsd0==0.9.1-2+deb10u1
@@ -33,12 +32,14 @@ libswsscommon-dbg==1.0.0
 libunwind8==1.2.1-10~deb10u1
 libxml2==2.9.4+dfsg1-7+deb10u2
 linux-libc-dev==4.19.232-1
-mft==4.18.1-16
+mft==4.18.0-106
 mlnx-sai==1.mlnx.SAIRel1.20.2.6
 openssh-client==1:7.9p1-10+deb10u2
 python==2.7.16-1
 python-dev==2.7.16-1
 python-minimal==2.7.16-1
+python-pip==18.1-5
+python-pip-whl==18.1-5
 python-pkg-resources==40.8.0-1
 python-sdk-api==1.mlnx.4.5.1208
 python-setuptools==40.8.0-1

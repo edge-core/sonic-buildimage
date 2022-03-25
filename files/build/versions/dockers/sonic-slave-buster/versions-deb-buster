@@ -24,7 +24,7 @@ autopoint==0.19.8.1-9
 autotools-dev==20180224.1
 bash-completion==1:2.8-6
 bc==1.07.1-2+b1
-bind9-host==1:9.11.5.P4+dfsg-5.1+deb10u6
+bind9-host==1:9.11.5.P4+dfsg-5.1+deb10u7
 binfmt-support==2.2.0-2
 binutils==2.31.1-16
 binutils-common==2.31.1-16
@@ -87,7 +87,7 @@ distro-info-data==0.41+deb10u4
 dkms==2.6.1-4
 dmeventd==2:1.02.155-3
 dmsetup==2:1.02.155-3
-dnsutils==1:9.11.5.P4+dfsg-5.1+deb10u6
+dnsutils==1:9.11.5.P4+dfsg-5.1+deb10u7
 docker-ce==5:18.09.5~3-0~debian-buster
 docker-ce-cli==5:18.09.5~3-0~debian-buster
 docutils-common==0.14+dfsg-4
@@ -105,7 +105,7 @@ equivs==2.2.0
 exim4-base==4.92-8+deb10u6
 exim4-config==4.92-8+deb10u6
 exim4-daemon-light==4.92-8+deb10u6
-expat==2.2.6-2+deb10u3
+expat==2.2.6-2+deb10u4
 exuberant-ctags==1:5.9~svn20110310-12
 fakeroot==1.23-1
 file==1:5.35-4+deb10u2
@@ -274,8 +274,8 @@ libbabeltrace-dev==1.5.6-2+deb10u1
 libbabeltrace1==1.5.6-2+deb10u1
 libbatik-java==1.10-2+deb10u1
 libbdplus0==0.1.2-3
-libbind-export-dev==1:9.11.5.P4+dfsg-5.1+deb10u6
-libbind9-161==1:9.11.5.P4+dfsg-5.1+deb10u6
+libbind-export-dev==1:9.11.5.P4+dfsg-5.1+deb10u7
+libbind9-161==1:9.11.5.P4+dfsg-5.1+deb10u7
 libbinutils==2.31.1-16
 libbison-dev==2:3.3.2.dfsg-1
 libbit-vector-perl==7.4-1+b5
@@ -429,8 +429,8 @@ libdist-checkconflicts-perl==0.11-1
 libdistro-info-perl==0.21
 libdjvulibre-text==3.5.27.1-10+deb10u1
 libdjvulibre21==3.5.27.1-10+deb10u1
-libdns-export1104==1:9.11.5.P4+dfsg-5.1+deb10u6
-libdns1104==1:9.11.5.P4+dfsg-5.1+deb10u6
+libdns-export1104==1:9.11.5.P4+dfsg-5.1+deb10u7
+libdns1104==1:9.11.5.P4+dfsg-5.1+deb10u7
 libdom4j-java==2.1.1-2
 libdouble-conversion1==3.1.0-3
 libdoxia-core-java==1.7-2
@@ -472,8 +472,8 @@ libevent-dev==2.1.8-stable-4
 libevent-extra-2.1-6==2.1.8-stable-4
 libevent-openssl-2.1-6==2.1.8-stable-4
 libevent-pthreads-2.1-6==2.1.8-stable-4
-libexpat1==2.2.6-2+deb10u3
-libexpat1-dev==2.2.6-2+deb10u3
+libexpat1==2.2.6-2+deb10u4
+libexpat1-dev==2.2.6-2+deb10u4
 libexplain-dev==1.4.D001-8
 libexplain51==1.4.D001-8
 libexporter-tiny-perl==1.002001-1
@@ -641,14 +641,14 @@ libipc-system-simple-perl==1.25-4
 libipt2==2.0-2
 libiptc-dev==1.8.2-4
 libiptc0==1.8.2-4
-libirs-export161==1:9.11.5.P4+dfsg-5.1+deb10u6
-libirs161==1:9.11.5.P4+dfsg-5.1+deb10u6
-libisc-export1100==1:9.11.5.P4+dfsg-5.1+deb10u6
-libisc1100==1:9.11.5.P4+dfsg-5.1+deb10u6
-libisccc-export161==1:9.11.5.P4+dfsg-5.1+deb10u6
-libisccc161==1:9.11.5.P4+dfsg-5.1+deb10u6
-libisccfg-export163==1:9.11.5.P4+dfsg-5.1+deb10u6
-libisccfg163==1:9.11.5.P4+dfsg-5.1+deb10u6
+libirs-export161==1:9.11.5.P4+dfsg-5.1+deb10u7
+libirs161==1:9.11.5.P4+dfsg-5.1+deb10u7
+libisc-export1100==1:9.11.5.P4+dfsg-5.1+deb10u7
+libisc1100==1:9.11.5.P4+dfsg-5.1+deb10u7
+libisccc-export161==1:9.11.5.P4+dfsg-5.1+deb10u7
+libisccc161==1:9.11.5.P4+dfsg-5.1+deb10u7
+libisccfg-export163==1:9.11.5.P4+dfsg-5.1+deb10u7
+libisccfg163==1:9.11.5.P4+dfsg-5.1+deb10u7
 libisl19==0.20-2
 libitext1-java==1.4-7
 libitm1==8.3.0-6
@@ -727,7 +727,7 @@ liblua5.1-0-dev==5.1.5-8.1+b2
 liblvm2cmd2.03==2.03.02-3
 liblwp-mediatypes-perl==6.02-1
 liblwp-protocol-https-perl==6.07-2
-liblwres161==1:9.11.5.P4+dfsg-5.1+deb10u6
+liblwres161==1:9.11.5.P4+dfsg-5.1+deb10u7
 liblzma-dev==5.2.4-1
 liblzo2-2==2.10-0.1
 liblzo2-dev==2.10-0.1
@@ -1498,6 +1498,7 @@ python-parse==1.6.6-0.1
 python-pathlib2==2.3.3-1
 python-pbr==4.2.0-5
 python-pil==5.4.1-2+deb10u3
+python-pip==18.1-5
 python-pip-whl==18.1-5
 python-pkg-resources==40.8.0-1
 python-pluggy==0.8.0-1
@@ -1581,6 +1582,7 @@ python3-olefile==0.46-1
 python3-packaging==19.0-1
 python3-pbr==4.2.0-5
 python3-pil==5.4.1-2+deb10u3
+python3-pip==18.1-5
 python3-pkg-resources==40.8.0-1
 python3-pluggy==0.8.0-1
 python3-py==1.7.0-2
