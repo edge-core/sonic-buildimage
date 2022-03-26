@@ -30,6 +30,8 @@ VERSION = "1.0"
 
 SYSLOG_IDENTIFIER = "lldpmgrd"
 PORT_INIT_TIMEOUT = 300
+FAILED_CMD_TIMEOUT = 6
+RETRY_LIMIT = 5
 
 
 class LldpManager(daemon_base.DaemonBase):
@@ -41,7 +43,8 @@ class LldpManager(daemon_base.DaemonBase):
         state_db: Handle to Redis State database via swsscommon lib
         config_db: Handle to Redis Config database via swsscommon lib
         pending_cmds: Dictionary where key is port name, value is pending
-                      LLDP configuration command to run
+                      LLDP configuration command to run 
+                      and the last timestamp that this command was failed (used for retry mechanism)
     """
     REDIS_TIMEOUT_MS = 0
 
@@ -58,6 +61,11 @@ class LldpManager(daemon_base.DaemonBase):
                                               self.REDIS_TIMEOUT_MS,
                                               False)
 
+        # Open a handle to the State database
+        self.state_db = swsscommon.DBConnector("STATE_DB",
+                                              self.REDIS_TIMEOUT_MS,
+                                              False)
+        
         self.pending_cmds = {}
         self.hostname = "None"
         self.mgmt_ip = "None"
@@ -66,6 +74,7 @@ class LldpManager(daemon_base.DaemonBase):
         self.port_table = swsscommon.Table(self.config_db, swsscommon.CFG_PORT_TABLE_NAME)
         self.mgmt_table = swsscommon.Table(self.config_db, swsscommon.CFG_MGMT_INTERFACE_TABLE_NAME)
         self.app_port_table = swsscommon.Table(self.appl_db, swsscommon.APP_PORT_TABLE_NAME)
+        self.state_port_table = swsscommon.Table(self.state_db, swsscommon.STATE_PORT_TABLE_NAME)
 
     def update_hostname(self, hostname):
         cmd = "lldpcli configure system hostname {0}".format(hostname)
@@ -99,32 +108,25 @@ class LldpManager(daemon_base.DaemonBase):
 
     def is_port_up(self, port_name):
         """
-        Determine if a port is up or down by looking into the oper-status for the port in
-        PORT TABLE in the Application DB
+        Determine if a port is up or down by looking into the netdev_oper_status for the port in
+        PORT TABLE in the State DB
         """
         # Retrieve all entires for this port from the Port table
-        (status, fvp) = self.app_port_table.get(port_name)
+        (status, fvp) = self.state_port_table.get(port_name)
         if status:
             # Convert list of tuples to a dictionary
             port_table_dict = dict(fvp)
 
             # Get the oper-status for the port
-            if "oper_status" in port_table_dict:
-                port_oper_status = port_table_dict.get("oper_status")
-                self.log_info("Port name {} oper status: {}".format(port_name, port_oper_status))
+            if "netdev_oper_status" in port_table_dict:
+                port_oper_status = port_table_dict.get("netdev_oper_status")
                 return port_oper_status == "up"
             else:
                 return False
         else:
-            # Retrieve PortInitDone entry from the Port table
-            (init_status, init_fvp) = self.port_table.get("PortInitDone")
-            # The initialization procedure is done, but don't have this port entry
-            if init_status:
-                self.log_error("Port '{}' not found in {} table in App DB".format(
-                    port_name, swsscommon.APP_PORT_TABLE_NAME))
             return False
 
-    def generate_pending_lldp_config_cmd_for_port(self, port_name):
+    def generate_pending_lldp_config_cmd_for_port(self, port_name, port_table_dict):
         """
         For port `port_name`, look up the description and alias in the Config database,
         then form the appropriate lldpcli configuration command and run it.
@@ -135,27 +137,16 @@ class LldpManager(daemon_base.DaemonBase):
         # asic-to-asic communication in VOQ based chassis system. We do not configure LLDP on these.
         if port_name.startswith(inband_prefix()):
             return
-
-        # Retrieve all entires for this port from the Port table
-        (status, fvp) = self.port_table.get(port_name)
-        if status:
-            # Convert list of tuples to a dictionary
-            port_table_dict = dict(fvp)
-
-            # Get the port alias. If None or empty string, use port name instead
-            port_alias = port_table_dict.get("alias")
-            if not port_alias:
-                self.log_info("Unable to retrieve port alias for port '{}'. Using port name instead.".format(port_name))
-                port_alias = port_name
-
-            # Get the port description. If None or empty string, we'll skip this configuration
-            port_desc = port_table_dict.get("description")
-
-        else:
-            self.log_error("Port '{}' not found in {} table in Config DB. Using port name instead of port alias.".format(
-                port_name, swsscommon.CFG_PORT_TABLE_NAME))
+ 
+        # Get the port alias. If None or empty string, use port name instead
+        port_alias = port_table_dict.get("alias")
+        if not port_alias:
+            self.log_info("Unable to retrieve port alias for port '{}'. Using port name instead.".format(port_name))
             port_alias = port_name
-
+        
+        # Get the port description. If None or empty string, we'll skip this configuration
+        port_desc = port_table_dict.get("description")
+        
         lldpcli_cmd = "lldpcli configure ports {0} lldp portidsubtype local {1}".format(port_name, port_alias)
 
         # if there is a description available, also configure that
@@ -166,17 +157,25 @@ class LldpManager(daemon_base.DaemonBase):
 
         # Add the command to our dictionary of pending commands, overwriting any
         # previous pending command for this port
-        self.pending_cmds[port_name] = lldpcli_cmd
+        self.pending_cmds[port_name] = { 'cmd': lldpcli_cmd, 'failed_count': 0}
 
     def process_pending_cmds(self):
         # List of port names (keys of elements) to delete from self.pending_cmds
         to_delete = []
 
-        for (port_name, cmd) in self.pending_cmds.items():
+        for (port_name, port_item) in self.pending_cmds.items():
+            cmd = port_item['cmd']
+
+            # check if linux port is up
+            if not self.is_port_up(port_name):
+                self.log_info("port %s is not up, continue"%port_name)
+                continue
+                
+            if 'failed_timestamp' in port_item and time.time()-port_item['failed_timestamp']<FAILED_CMD_TIMEOUT:
+                continue
+
             self.log_debug("Running command: '{}'".format(cmd))
-
             rc, stderr = run_cmd(self, cmd)
-
             # If the command succeeds, add the port name to our to_delete list.
             # We will delete this command from self.pending_cmds below.
             # If the command fails, log a message, but don't delete the command
@@ -185,8 +184,15 @@ class LldpManager(daemon_base.DaemonBase):
             if rc == 0:
                 to_delete.append(port_name)
             else:
-                self.log_warning("Command failed '{}': {}".format(cmd, stderr))
-
+                if port_item['failed_count'] >= RETRY_LIMIT:
+                    self.log_error("Command failed '{}': {} - command was failed {} times, disabling retry".format(cmd, stderr, RETRY_LIMIT+1))
+                    # not retrying again
+                    to_delete.append(port_name)
+                else:
+                    self.pending_cmds[port_name]['failed_count'] += 1
+                    self.pending_cmds[port_name]['failed_timestamp'] = time.time()
+                    self.log_info("Command failed '{}': {} - cmd failed {} times, retrying again".format(cmd, stderr, self.pending_cmds[port_name]['failed_count']))
+                    
         # Delete all successful commands from self.pending_cmds
         for port_name in to_delete:
             self.pending_cmds.pop(port_name, None)
@@ -268,10 +274,6 @@ class LldpManager(daemon_base.DaemonBase):
 
         sel = swsscommon.Select()
 
-        # Subscribe to PORT table notifications in the Config DB
-        sst_confdb = swsscommon.SubscriberStateTable(self.config_db, swsscommon.CFG_PORT_TABLE_NAME)
-        sel.addSelectable(sst_confdb)
-
         # Subscribe to PORT table notifications in the App DB
         sst_appdb = swsscommon.SubscriberStateTable(self.appl_db, swsscommon.APP_PORT_TABLE_NAME)
         sel.addSelectable(sst_appdb)
@@ -289,17 +291,6 @@ class LldpManager(daemon_base.DaemonBase):
             (state, c) = sel.select(SELECT_TIMEOUT_MS)
 
             if state == swsscommon.Select.OBJECT:
-                (key, op, fvp) = sst_confdb.pop()
-                if fvp:
-                    fvp_dict = dict(fvp)
-
-                    # handle config change
-                    if ("alias" in fvp_dict or "description" in fvp_dict) and (op in ["SET", "DEL"]):
-                        if self.is_port_up(key):
-                            self.generate_pending_lldp_config_cmd_for_port(key)
-                        else:
-                            self.pending_cmds.pop(key, None)
-
                 (key, op, fvp) = sst_mgmt_ip_confdb.pop()
                 if key:
                     self.lldp_process_mgmt_info_change(op, dict(fvp), key)
@@ -310,15 +301,16 @@ class LldpManager(daemon_base.DaemonBase):
 
                 (key, op, fvp) = sst_appdb.pop()
                 if (key != "PortInitDone") and (key != "PortConfigDone"):
-                    if fvp:
-                        fvp_dict = dict(fvp)
-
-                        # handle port status change
-                        if "oper_status" in fvp_dict:
-                            if "up" in fvp_dict.get("oper_status"):
-                                self.generate_pending_lldp_config_cmd_for_port(key)
+                    if op == "SET":
+                        if fvp:
+                            if "up" in dict(fvp).get("oper_status",""):
+                                self.generate_pending_lldp_config_cmd_for_port(key, dict(fvp))
                             else:
                                 self.pending_cmds.pop(key, None)
+                    elif op == "DEL":
+                        self.pending_cmds.pop(key, None)
+                    else:
+                        self.log_error("unknown operation")
 
                 elif key == "PortInitDone":
                     port_init_done = True
