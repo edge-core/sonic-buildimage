@@ -14,9 +14,9 @@ libasan5==8.3.0-6
 libbabeltrace1==1.5.6-2+deb10u1
 libbinutils==2.31.1-16
 libbsd0==0.9.1-2+deb10u1
-libc-dev-bin==2.28-10
-libc-l10n==2.28-10
-libc6-dev==2.28-10
+libc-dev-bin==2.28-10+deb10u1
+libc-l10n==2.28-10+deb10u1
+libc6-dev==2.28-10+deb10u1
 libcc1-0==8.3.0-6
 libdw1==0.176-1.1
 libedit2==3.1-20181209-1
@@ -30,7 +30,7 @@ libipt2==2.0-2
 libisl19==0.20-2
 libitm1==8.3.0-6
 liblsan0==8.3.0-6
-libmariadb3==1:10.3.31-0+deb10u1
+libmariadb3==1:10.3.34-0+deb10u1
 libmpc3==1.1.0-1
 libmpfr6==4.0.2-1
 libmpx2==8.3.0-6
@@ -47,10 +47,10 @@ libsnmp30-dbg==5.7.3+dfsg-5
 libtsan0==8.3.0-6
 libubsan1==8.3.0-6
 libunwind8==1.2.1-10~deb10u1
-linux-libc-dev==4.19.232-1
-locales==2.28-10
+linux-libc-dev==4.19.235-1
+locales==2.28-10+deb10u1
 make==4.2.1-1.2
-mariadb-common==1:10.3.31-0+deb10u1
+mariadb-common==1:10.3.34-0+deb10u1
 mysql-common==5.8+1.0.5
 openssh-client==1:7.9p1-10+deb10u2
 python3-dev==3.7.3-1
@@ -61,5 +61,5 @@ snmpd==5.7.3+dfsg-5
 snmpd-dbgsym==5.7.3+dfsg-5
 sshpass==1.06-1
 strace==4.26-0.2
-vim==2:8.1.0875-5
-vim-runtime==2:8.1.0875-5
+vim==2:8.1.0875-5+deb10u2
+vim-runtime==2:8.1.0875-5+deb10u2

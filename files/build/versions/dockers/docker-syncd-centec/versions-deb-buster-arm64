@@ -4,9 +4,9 @@ libdevmapper1.02.1==2:1.02.155-3
 libevent-2.1-6==2.1.8-stable-4
 libexpat1-dev==2.2.6-2+deb10u4
 libnfsidmap2==0.25-5.1
-libpcap-dev==1.8.1-6
-libpcap0.8==1.8.1-6
-libpcap0.8-dev==1.8.1-6
+libpcap-dev==1.8.1-6+deb10u1
+libpcap0.8==1.8.1-6+deb10u1
+libpcap0.8-dev==1.8.1-6+deb10u1
 libpython-dev==2.7.16-1
 libpython-stdlib==2.7.16-1
 libpython2-dev==2.7.16-1

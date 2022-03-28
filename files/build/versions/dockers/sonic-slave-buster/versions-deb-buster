@@ -1104,7 +1104,7 @@ libthai-data==0.1.28-2
 libthai0==0.1.28-2
 libtheora0==1.1.1+dfsg.1-15
 libtie-ixhash-perl==1.23-2
-libtiff5==4.1.0+git191117-2~deb10u3
+libtiff5==4.1.0+git191117-2~deb10u4
 libtimedate-perl==2.3000-2+deb10u1
 libtinyxml2-6a==7.0.0+dfsg-1
 libtinyxml2-dev==7.0.0+dfsg-1

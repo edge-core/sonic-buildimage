@@ -15,5 +15,5 @@ sonic-mgmt-common==1.0.0
 sonic-telemetry==0.1
 sshpass==1.06-1
 strace==4.26-0.2
-vim==2:8.1.0875-5
-vim-runtime==2:8.1.0875-5
+vim==2:8.1.0875-5+deb10u2
+vim-runtime==2:8.1.0875-5+deb10u2

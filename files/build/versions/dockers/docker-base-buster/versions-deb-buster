@@ -42,7 +42,7 @@ libsasl2-modules-db==2.1.27+dfsg-1+deb10u2
 libsodium23==1.0.17-1
 libsqlite3-0==3.27.2-3+deb10u1
 libssh2-1==1.8.0-2.1
-libssl1.1==1.1.1d-0+deb10u8
+libssl1.1==1.1.1n-0+deb10u1
 libwrap0==7.6.q-28
 libzmq5==4.3.1-4+deb10u2
 lsb-base==10.2019051400
@@ -50,7 +50,7 @@ lua-bitop==1.0.2-5
 lua-cjson==2.1.0+dfsg-2.1
 mime-support==3.62
 net-tools==1.60+git20180626.aebd88e-1
-openssl==1.1.1d-0+deb10u8
+openssl==1.1.1n-0+deb10u1
 perl==5.28.1-6+deb10u1
 perl-modules-5.28==5.28.1-6+deb10u1
 procps==2:3.3.15-2
@@ -64,8 +64,8 @@ python3.7==3.7.3-2+deb10u3
 python3.7-minimal==3.7.3-2+deb10u3
 readline-common==7.0-5
 redis-tools==5:6.0.6-1~bpo10+1
-rsyslog==8.1901.0-1
+rsyslog==8.1901.0-1+deb10u1
 socat==1.7.3.1-2+deb9u1
-vim-common==2:8.1.0875-5
-vim-tiny==2:8.1.0875-5
-xxd==2:8.1.0875-5
+vim-common==2:8.1.0875-5+deb10u2
+vim-tiny==2:8.1.0875-5+deb10u2
+xxd==2:8.1.0875-5+deb10u2

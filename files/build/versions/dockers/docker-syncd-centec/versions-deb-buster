@@ -18,5 +18,5 @@ openssh-client==1:7.9p1-10+deb10u2
 sshpass==1.06-1
 strace==4.26-0.2
 syncd==1.0.0
-vim==2:8.1.0875-5
-vim-runtime==2:8.1.0875-5
+vim==2:8.1.0875-5+deb10u2
+vim-runtime==2:8.1.0875-5+deb10u2

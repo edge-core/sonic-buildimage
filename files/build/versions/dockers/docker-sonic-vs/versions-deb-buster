@@ -41,8 +41,8 @@ libboost-system1.71.0==1.71.0-6~bpo10+1
 libboost-thread1.71.0==1.71.0-6~bpo10+1
 libbsd0==0.9.1-2+deb10u1
 libc-ares2==1.14.0-1+deb10u1
-libc-dev-bin==2.28-10
-libc6-dev==2.28-10
+libc-dev-bin==2.28-10+deb10u1
+libc6-dev==2.28-10+deb10u1
 libcc1-0==8.3.0-6
 libdevmapper1.02.1==2:1.02.155-3
 libdouble-conversion1==3.1.0-3
@@ -55,8 +55,9 @@ libfreetype6==2.9.1-3+deb10u2
 libfuse2==2.9.9-1+deb10u1
 libgcc-8-dev==8.3.0-6
 libglib2.0-0==2.58.3-2+deb10u3
+libgmp10==2:6.1.2+dfsg-4+deb10u1
 libgomp1==8.3.0-6
-libicu63==63.1-6+deb10u2
+libicu63==63.1-6+deb10u3
 libip4tc0==1.8.2-4
 libip6tc0==1.8.2-4
 libiptc0==1.8.2-4
@@ -74,7 +75,7 @@ libnetfilter-conntrack3==1.0.7-1
 libnfnetlink0==1.0.1-3+b1
 libnftnl11==1.1.2-2
 libnpth0==1.6-1
-libpcap0.8==1.8.1-6
+libpcap0.8==1.8.1-6+deb10u1
 libpcre2-16-0==10.32-5
 libpng16-16==1.6.36-6
 libpopt0==1.16-12
@@ -95,7 +96,7 @@ libquadmath0==8.3.0-6
 libsaimetadata==1.0.0
 libsairedis==1.0.0
 libsaivs==1.0.0
-libssl-dev==1.1.1d-0+deb10u8
+libssl-dev==1.1.1n-0+deb10u1
 libstdc++-8-dev==8.3.0-6
 libteam-utils==1.30-1
 libteam5==1.30-1
@@ -106,7 +107,7 @@ libunwind8==1.2.1-10~deb10u1
 libyang==1.0.73
 libyang-cpp==1.0.73
 libyang1==1.0.184-2
-linux-libc-dev==4.19.232-1
+linux-libc-dev==4.19.235-1
 logrotate==3.14.0-4
 make==4.2.1-1.2
 ndisc6==1.0.4-1

@@ -15,8 +15,9 @@ gcc-8==8.3.0-6
 libapt-inst2.0==1.8.2.3
 libasan5==8.3.0-6
 libbinutils==2.31.1-16
-libc-dev-bin==2.28-10
-libc6-dev==2.28-10
+libc-dev-bin==2.28-10+deb10u1
+libc6==2.28-10+deb10u1
+libc6-dev==2.28-10+deb10u1
 libcc1-0==8.3.0-6
 libdpkg-perl==1.19.7
 libexpat1-dev==2.2.6-2+deb10u4
@@ -42,7 +43,7 @@ libstdc++-8-dev==8.3.0-6
 libswsscommon==1.0.0
 libtsan0==8.3.0-6
 libubsan1==8.3.0-6
-linux-libc-dev==4.19.232-1
+linux-libc-dev==4.19.235-1
 make==4.2.1-1.2
 patch==2.7.6-3+deb10u1
 python3-dev==3.7.3-1

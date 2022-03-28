@@ -14,8 +14,8 @@ libasan5==8.3.0-6
 libbabeltrace1==1.5.6-2+deb10u1
 libbinutils==2.31.1-16
 libbsd0==0.9.1-2+deb10u1
-libc-dev-bin==2.28-10
-libc6-dev==2.28-10
+libc-dev-bin==2.28-10+deb10u1
+libc6-dev==2.28-10+deb10u1
 libcc1-0==8.3.0-6
 libdw1==0.176-1.1
 libedit2==3.1-20181209-1
@@ -24,7 +24,7 @@ libgcc-8-dev==8.3.0-6
 libglib2.0-0==2.58.3-2+deb10u3
 libgomp1==8.3.0-6
 libgpm2==1.20.7-5
-libicu63==63.1-6+deb10u2
+libicu63==63.1-6+deb10u3
 libipt2==2.0-2
 libisl19==0.20-2
 libitm1==8.3.0-6
@@ -48,9 +48,9 @@ libstdc++-8-dev==8.3.0-6
 libtsan0==8.3.0-6
 libubsan1==8.3.0-6
 libunwind8==1.2.1-10~deb10u1
-libxml2==2.9.4+dfsg1-7+deb10u2
+libxml2==2.9.4+dfsg1-7+deb10u3
 libyang==1.0.73
-linux-libc-dev==4.19.232-1
+linux-libc-dev==4.19.235-1
 openssh-client==1:7.9p1-10+deb10u2
 python==2.7.16-1
 python-dev==2.7.16-1
@@ -70,5 +70,5 @@ sonic-mgmt-framework==1.0-01
 sonic-mgmt-framework-dbg==1.0-01
 sshpass==1.06-1
 strace==4.26-0.2
-vim==2:8.1.0875-5
-vim-runtime==2:8.1.0875-5
+vim==2:8.1.0875-5+deb10u2
+vim-runtime==2:8.1.0875-5+deb10u2
