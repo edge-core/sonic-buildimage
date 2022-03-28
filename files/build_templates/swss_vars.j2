@@ -1,5 +1,8 @@
 {
     "asic_type": "{{ asic_type }}",
+    {% if asic_subtype is defined and asic_subtype != '' -%}
+    "asic_subtype": "{{ asic_subtype }}",
+    {% endif -%}
     "asic_id": "{{ DEVICE_METADATA.localhost.asic_id }}",
     "mac": "{{ DEVICE_METADATA.localhost.mac }}",
     "resource_type": "{{ DEVICE_METADATA.localhost.resource_type }}",
