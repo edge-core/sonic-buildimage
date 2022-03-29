@@ -10,6 +10,10 @@ sudo dpkg -i --force-overwrite $SLAVE_DIR/buildinfo/sonic-build-hooks_*.deb > /d
 # Enable the build hooks
 symlink_build_hooks
 
+# Enable reproducible mirrors
+set_reproducible_mirrors
+apt-get update > /dev/null 2>&1
+
 # Build the slave running config
 cp -rf $SLAVE_DIR/buildinfo/* /usr/local/share/buildinfo/
 . /usr/local/share/buildinfo/scripts/buildinfo_base.sh
