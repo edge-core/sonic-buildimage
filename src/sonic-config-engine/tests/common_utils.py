@@ -1,4 +1,6 @@
 import json
+import filecmp
+import os
 import re
 import sys
 
@@ -30,4 +32,15 @@ def liststr_to_dict(liststr):
     list_obj["list"] = sorted(list_obj["list"])
 
     return list_obj
+
+def cmp(file1, file2):
+    """ compare files """
+    try:
+        with open(file1, 'r') as f:
+            obj1 = json.load(f)
+        with open(file2, 'r') as f:
+            obj2 = json.load(f)
+        return obj1 == obj2
+    except:
+        return filecmp.cmp(file1, file2)
 
