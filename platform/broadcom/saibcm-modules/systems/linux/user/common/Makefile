@@ -69,7 +69,11 @@ kernel-override=linux-$(platform)
 ifdef BLDCONFIG
 KERN_BLDROOT=${SDK}/${SDKBUILD}/${BLDCONFIG}/$(kernel-override)$(bldroot_suffix)
 else
+ifdef SDK_OUTDIR
+KERN_BLDROOT=${SDK_OUTDIR}/${SDKBUILD}/$(kernel-override)$(bldroot_suffix)
+else
 KERN_BLDROOT=${SDK}/${SDKBUILD}/$(kernel-override)$(bldroot_suffix)
+endif
 endif
 
 ifeq (,$(kernel_version))
