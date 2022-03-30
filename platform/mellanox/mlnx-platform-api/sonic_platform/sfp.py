@@ -121,6 +121,13 @@ CPU_MASK = PORT_TYPE_MASK & (PORT_TYPE_CPU << PORT_TYPE_OFFSET)
 # parameters for SFP presence
 SFP_STATUS_INSERTED = '1'
 
+# SFP constants
+SFP_PAGE_SIZE = 256
+SFP_UPPER_PAGE_OFFSET = 128
+SFP_VENDOR_PAGE_START = 640
+
+BYTES_IN_DWORD = 4
+
 # Global logger class instance
 logger = Logger()
 
@@ -146,6 +153,72 @@ def deinitialize_sdk_handle(sdk_handle):
          logger.log_warning("Sdk handle is none")
          return False
 
+class MlxregManager:
+    def __init__(self, mst_pci_device, slot_id, sdk_index):
+        self.mst_pci_device = mst_pci_device
+        self.slot_id = slot_id
+        self.sdk_index = sdk_index
+
+    def construct_dword(self, write_buffer):
+        if len(write_buffer) == 0:
+            return None
+
+        used_bytes_in_dword = len(write_buffer) % BYTES_IN_DWORD
+
+        res = "dword[0]=0x"
+        for idx, x in enumerate(write_buffer):
+            word = hex(x)[2:]
+
+            if (idx > 0) and (idx % BYTES_IN_DWORD) == 0:
+                res += ",dword[{}]=0x".format(str((idx + 1)//BYTES_IN_DWORD))
+            res += word.zfill(2)
+
+        if used_bytes_in_dword > 0:
+            res += (BYTES_IN_DWORD - used_bytes_in_dword) * "00"
+        return res
+
+    def write_mlxreg_eeprom(self, num_bytes, dword, device_address, page):
+        if not dword:
+            return False
+
+        try:
+            cmd = "mlxreg -d /dev/mst/{} --reg_name MCIA --indexes \
+                    slot_index={},module={},device_address={},page_number={},i2c_device_address=0x50,size={},bank_number=0 \
+                    --set {} -y".format(self.mst_pci_device, self.slot_id, self.sdk_index, device_address, page, num_bytes, dword)
+            subprocess.check_call(cmd, shell=True, universal_newlines=True, stdout=subprocess.DEVNULL)
+        except subprocess.CalledProcessError as e:
+            logger.log_error("Error! Unable to write data for {} port, page {} offset {}, rc = {}, err msg: {}".format(self.sdk_index, page, device_address, e.returncode, e.output))
+            return False
+        return True
+
+    def read_mlxred_eeprom(self, offset, page, num_bytes):
+        try:
+            cmd = "mlxreg -d /dev/mst/{} --reg_name MCIA --indexes \
+                    slot_index={},module={},device_address={},page_number={},i2c_device_address=0x50,size={},bank_number=0 \
+                    --get".format(self.mst_pci_device, self.slot_id, self.sdk_index, offset, page, num_bytes)
+            result = subprocess.check_output(cmd, universal_newlines=True, shell=True)
+        except subprocess.CalledProcessError as e:
+            logger.log_error("Error! Unable to write data for {} port, page {} offset {}, rc = {}, err msg: {}".format(self.sdk_index, page, device_address, e.returncode, e.output))
+            return None
+        return result
+
+    def parse_mlxreg_read_output(self, read_output, num_bytes):
+        res = ""
+        dword_num = num_bytes // BYTES_IN_DWORD
+        used_bytes_in_dword = num_bytes % BYTES_IN_DWORD
+        arr = [value for value in read_output.split('\n') if value[0:5] == "dword"]
+        for i in range(dword_num):
+            dword = arr[i].split()[2]
+            res += dword[2:]
+
+        if used_bytes_in_dword > 0:
+            # Cut needed info and insert into final hex string
+            # Example: 3 bytes : 0x12345600
+            #                      ^    ^
+            dword = arr[dword_num].split()[2]
+            res += dword[2 : 2 + used_bytes_in_dword * 2]
+
+        return bytearray.fromhex(res) if res else None
 
 class SdkHandleContext(object):
     def __init__(self):
@@ -194,6 +267,16 @@ class SFP(SfpOptoeBase):
             self._thermal_list = initialize_linecard_sfp_thermal(lc_name, slot_id, sfp_index)
 
         self.slot_id = slot_id
+        self.mst_pci_device = self.get_mst_pci_device()
+
+    # get MST PCI device name
+    def get_mst_pci_device(self):
+        device_name = None
+        try:
+            device_name = subprocess.check_output("ls /dev/mst/ | grep pciconf", universal_newlines=True, shell=True).strip()
+        except subprocess.CalledProcessError as e:
+            logger.log_error("Failed to find mst PCI device rc={} err.msg={}".format(e.returncode, e.output))
+        return device_name
 
     @property
     def sdk_handle(self):
@@ -222,7 +305,11 @@ class SFP(SfpOptoeBase):
         return eeprom_raw is not None
 
     # Read out any bytes from any offset
-    def read_eeprom(self, offset, num_bytes):
+    def _read_eeprom_specific_bytes(self, offset, num_bytes):
+        if offset + num_bytes > SFP_VENDOR_PAGE_START:
+            logger.log_error("Error mismatch between page size and bytes to read (offset: {} num_bytes: {}) ".format(offset, num_bytes))
+            return None
+
         eeprom_raw = []
         ethtool_cmd = "ethtool -m sfp{} hex on offset {} length {}".format(self.index, offset, num_bytes)
         try:
@@ -240,6 +327,81 @@ class SFP(SfpOptoeBase):
 
         eeprom_raw = list(map(lambda h: int(h, base=16), eeprom_raw))
         return bytearray(eeprom_raw)
+
+    # read eeprom specfic bytes beginning from offset with size as num_bytes
+    def read_eeprom(self, offset, num_bytes):
+        """
+        Read eeprom specfic bytes beginning from a random offset with size as num_bytes
+        Returns:
+            bytearray, if raw sequence of bytes are read correctly from the offset of size num_bytes
+            None, if the read_eeprom fails
+        Example:
+            mlxreg -d /dev/mst/mt52100_pciconf0 --reg_name MCIA --indexes slot_index=0,module=1,device_address=148,page_number=0,i2c_device_address=0x50,size=16,bank_number=0 -g
+            Sending access register...
+            Field Name            | Data
+            ===================================
+            status                | 0x00000000
+            slot_index            | 0x00000000
+            module                | 0x00000001
+            l                     | 0x00000000
+            device_address        | 0x00000094
+            page_number           | 0x00000000
+            i2c_device_address    | 0x00000050
+            size                  | 0x00000010
+            bank_number           | 0x00000000
+            dword[0]              | 0x43726564
+            dword[1]              | 0x6f202020
+            dword[2]              | 0x20202020
+            dword[3]              | 0x20202020
+            dword[4]              | 0x00000000
+            dword[5]              | 0x00000000
+            ....
+        16 bytes to read from dword -> 0x437265646f2020202020202020202020 -> Credo
+        """
+        # recalculate offset and page. Use 'ethtool' if there is no need to read vendor pages
+        if offset < SFP_VENDOR_PAGE_START:
+            return self._read_eeprom_specific_bytes(offset, num_bytes)
+        else:
+            page = (offset - SFP_PAGE_SIZE) // SFP_UPPER_PAGE_OFFSET + 1
+            # calculate offset per page
+            device_address = (offset - SFP_PAGE_SIZE) % SFP_UPPER_PAGE_OFFSET + SFP_UPPER_PAGE_OFFSET
+
+        if not self.mst_pci_device:
+            return None
+
+        mlxreg_mngr = MlxregManager(self.mst_pci_device, self.slot_id, self.sdk_index)
+        read_output = mlxreg_mngr.read_mlxred_eeprom(device_address, page, num_bytes)
+        return mlxreg_mngr.parse_mlxreg_read_output(read_output, num_bytes)
+
+    # write eeprom specfic bytes beginning from offset with size as num_bytes
+    def write_eeprom(self, offset, num_bytes, write_buffer):
+        """
+        write eeprom specfic bytes beginning from a random offset with size as num_bytes
+        and write_buffer as the required bytes
+        Returns:
+            Boolean, true if the write succeeded and false if it did not succeed.
+        Example:
+            mlxreg -d /dev/mst/mt52100_pciconf0 --reg_name MCIA --indexes slot_index=0,module=1,device_address=154,page_number=5,i2c_device_address=0x50,size=1,bank_number=0 --set dword[0]=0x01000000 -y
+        """
+        if num_bytes != len(write_buffer):
+            logger.log_error("Error mismatch between buffer length and number of bytes to be written")
+            return False
+
+        # recalculate offset and page
+        if offset < SFP_PAGE_SIZE:
+            page = 0
+            device_address = offset
+        else:
+            page = (offset - SFP_PAGE_SIZE) // SFP_UPPER_PAGE_OFFSET + 1
+            # calculate offset per page
+            device_address = (offset - SFP_PAGE_SIZE) % SFP_UPPER_PAGE_OFFSET + SFP_UPPER_PAGE_OFFSET
+
+        if not self.mst_pci_device:
+            return False
+
+        mlxreg_mngr = MlxregManager(self.mst_pci_device, self.slot_id, self.sdk_index)
+        dword = mlxreg_mngr.construct_dword(write_buffer)
+        return mlxreg_mngr.write_mlxreg_eeprom(num_bytes, dword, device_address, page)
 
     @classmethod
     def mgmt_phy_mod_pwr_attr_get(cls, power_attr_type, sdk_handle, sdk_index, slot_id):
