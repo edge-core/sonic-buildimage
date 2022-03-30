@@ -81,6 +81,10 @@ jobs:
 
       docker tag $SLAVE_BASE_IMAGE:$SLAVE_BASE_TAG $REGISTRY_SERVER/$SLAVE_BASE_IMAGE_UPLOAD:latest
       docker tag $SLAVE_BASE_IMAGE:$SLAVE_BASE_TAG $REGISTRY_SERVER/$SLAVE_BASE_IMAGE_UPLOAD:$SLAVE_BASE_TAG
+      if [ "$SLAVE_BASE_IMAGE_UPLOAD" != "$SLAVE_DIR" ]; then
+        docker tag $SLAVE_BASE_IMAGE:$SLAVE_BASE_TAG $REGISTRY_SERVER/$SLAVE_DIR:latest-${{ parameters.arch }}
+        docker tag $SLAVE_BASE_IMAGE:$SLAVE_BASE_TAG $REGISTRY_SERVER/$SLAVE_DIR:$SLAVE_BASE_TAG
+      fi
       set +x
       echo "##vso[task.setvariable variable=VARIABLE_SLAVE_BASE_IMAGE]$SLAVE_BASE_IMAGE_UPLOAD"
       echo "##vso[task.setvariable variable=VARIABLE_SLAVE_BASE_TAG]$SLAVE_BASE_TAG"
@@ -89,6 +93,7 @@ jobs:
     displayName: Build sonic-slave-${{ parameters.dist }}-${{ parameters.arch }}
 
   - task: Docker@2
+    condition: ne(variables['Build.Reason'], 'PullRequest')
     displayName: Upload image
     inputs:
       containerRegistry: ${{ parameters.registry_conn }}
@@ -97,3 +102,13 @@ jobs:
       tags: |
         $(VARIABLE_SLAVE_BASE_TAG)
         latest
+  - ${{ if ne(parameters.arch, 'amd64') }}:
+    - task: Docker@2
+      condition: ne(variables['Build.Reason'], 'PullRequest')
+      displayName: Upload image ${{ parameters.dist }}
+      inputs:
+        containerRegistry: ${{ parameters.registry_conn }}
+        repository: "sonic-slave-${{ parameters.dist }}"
+        command: push
+        tags: |
+          $(VARIABLE_SLAVE_BASE_TAG) 
