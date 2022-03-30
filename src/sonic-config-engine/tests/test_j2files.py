@@ -104,21 +104,6 @@ class TestJ2Files(TestCase):
         self.run_script(argument)
         self.assertTrue(utils.cmp(expected_mgmt_ipv6, self.output_file))
 
-    def test_bgpd_quagga(self):
-        conf_template = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-fpm-quagga', 'bgpd.conf.j2')
-        argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -t ' + conf_template + ' > ' + self.output_file
-        self.run_script(argument)
-        original_filename = os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, 'bgpd_quagga.conf')
-        r = filecmp.cmp(original_filename, self.output_file)
-        diff_output = self.run_diff(original_filename, self.output_file) if not r else ""
-        self.assertTrue(r, "Diff:\n" + diff_output)
-
-    def test_zebra_quagga(self):
-        conf_template = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-fpm-quagga', 'zebra.conf.j2')
-        argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -t ' + conf_template + ' > ' + self.output_file
-        self.run_script(argument)
-        self.assertTrue(filecmp.cmp(os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, 'zebra_quagga.conf'), self.output_file))
-
     def test_ipinip(self):
         ipinip_file = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-orchagent', 'ipinip.json.j2')
         argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -t ' + ipinip_file + ' > ' + self.output_file

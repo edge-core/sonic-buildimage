@@ -16,10 +16,6 @@
 [submodule "src/p4-hlir/p4-hlir"]
 	path = platform/p4/p4-hlir/p4-hlir
 	url = https://github.com/p4lang/p4-hlir
-[submodule "quagga"]
-	path = src/sonic-quagga
-	url = https://github.com/Azure/sonic-quagga
-	branch = debian/0.99.24.1
 [submodule "sonic-dbsyncd"]
 	path = src/sonic-dbsyncd
 	url = https://github.com/Azure/sonic-dbsyncd
