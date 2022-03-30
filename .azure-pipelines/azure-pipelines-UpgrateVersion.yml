@@ -18,6 +18,14 @@ schedules:
     - 202006
   always: true
 
+resources:
+  repositories:
+  - repository: buildimage
+    type: github
+    name: Azure/sonic-buildimage
+    ref: master
+    endpoint: build
+
 pool: sonicbld
 
 parameters:
@@ -45,17 +53,7 @@ stages:
       jobFilters: ${{ parameters.jobFilters }}
       buildOptions: '${{ variables.VERSION_CONTROL_OPTIONS }} SONIC_BUILD_JOBS=$(nproc) ENABLE_IMAGE_SIGNATURE=y'
       preSteps:
-      - script: |
-          containers=$(docker container ls | grep "sonic-slave" | awk '{ print $1 }')
-          if [ ! -z "$containers" ]; then
-            docker container kill $containers || true
-            sleep 5
-          fi
-          images=$(docker images 'sonic-slave-*' -a -q)
-          if [ ! -z "$images" ]; then
-            docker rmi -f $images
-          fi
-        displayName: 'Cleanup sonic slave'
+      - template: .azure-pipelines/template-clean-sonic-slave.yml@buildimage
 - stage: UpgradeVersions
   jobs:
   - job: UpgradeVersions
