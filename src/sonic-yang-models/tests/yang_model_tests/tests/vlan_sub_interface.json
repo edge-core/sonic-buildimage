@@ -2,8 +2,26 @@
     "VLAN_SUB_INTERFACE_MUST_CONDITION_TRUE_TEST": {
         "desc": "Configure valid vlan sub interface must condition true."
     },
+    "VLAN_SUB_INTERFACE_SHORT_NAME_FORMAT_MUST_CONDITION_TRUE_TEST": {
+        "desc": "Configure valid short name format vlan sub interface must condition true."
+    },
     "VLAN_SUB_INTERFACE_MUST_CONDITION_FALSE_TEST": {
         "desc": "Configure vlan sub interface must condition false.",
+        "eStrKey": "Must"
+    },
+    "VLAN_SUB_INTERFACE_SHORT_NAME_FORMAT_MUST_CONDITION_FALSE_TEST": {
+        "desc": "Configure short name format vlan sub interface must condition false.",
+        "eStrKey": "Must"
+    },
+    "VLAN_SUB_INTERFACE_PO_SHORT_NAME_FORMAT_MUST_CONDITION_TRUE_TEST": {
+        "desc": "Configure valid portchannel short name format vlan sub interface  must condition true."
+    },
+    "VLAN_SUB_INTERFACE_PO_MUST_CONDITION_FALSE_TEST": {
+        "desc": "Configure portchannel long name format vlan sub interface must condition false.",
+        "eStrKey": "Must"
+    },
+    "VLAN_SUB_INTERFACE_PO_SHORT_NAME_FORMAT_MUST_CONDITION_FALSE_TEST": {
+        "desc": "Configure portchannel short name format vlan sub interface must condition false.",
         "eStrKey": "Must"
     },
     "VLAN_SUB_INTERFACE_IP_PREFIX_PORT_NON_EXISTING_LEAF_TEST": {
