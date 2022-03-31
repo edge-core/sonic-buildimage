@@ -14,6 +14,10 @@ symlink_build_hooks
 cp -rf $SLAVE_DIR/buildinfo/* /usr/local/share/buildinfo/
 . /usr/local/share/buildinfo/scripts/buildinfo_base.sh
 
+# Enable reproducible mirrors
+set_reproducible_mirrors
+apt-get update > /dev/null 2>&1
+
 # Build the slave version config
 [ -d /usr/local/share/buildinfo/versions ] && rm -rf /usr/local/share/buildinfo/versions
 scripts/versions_manager.py generate -t "/usr/local/share/buildinfo/versions" -n "build-${SLAVE_DIR}" -d "$DISTRO" -a "$ARCH"
