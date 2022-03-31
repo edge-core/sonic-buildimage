@@ -22,6 +22,14 @@ schedules:
     - 202012
   always: true
 
+resources:
+  repositories:
+  - repository: buildimage
+    type: github
+    name: Azure/sonic-buildimage
+    ref: master
+    endpoint: build
+
 pool: sonicbld
 
 parameters:
