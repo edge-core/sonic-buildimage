@@ -3,6 +3,13 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 # Build and push sonic-slave-[buster|jessie|stretch] images for amd64/armhf/arm64
+resources:
+  repositories:
+  - repository: buildimage
+    type: github
+    name: Azure/sonic-buildimage
+    ref: master
+    endpoint: build
 
 parameters:
 - name: arch
@@ -38,7 +45,7 @@ jobs:
   pool: ${{ parameters.pool }}
   steps:
   - template: cleanup.yml
-  - template: template-clean-sonic-slave.yml
+  - template: .azure-pipelines/template-clean-sonic-slave.yml@buildimage
   - checkout: self
     clean: true
     submodules: recursive

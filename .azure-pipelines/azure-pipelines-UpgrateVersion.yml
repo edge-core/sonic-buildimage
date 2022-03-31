@@ -18,6 +18,14 @@ schedules:
     - 202006
   always: true
 
+resources:
+  repositories:
+  - repository: buildimage
+    type: github
+    name: Azure/sonic-buildimage
+    ref: master
+    endpoint: build
+
 pool: sonicbld
 
 parameters:
@@ -45,7 +53,7 @@ stages:
       jobFilters: ${{ parameters.jobFilters }}
       buildOptions: '${{ variables.VERSION_CONTROL_OPTIONS }} SONIC_BUILD_JOBS=$(nproc) ENABLE_IMAGE_SIGNATURE=y'
       preSteps:
-      - template: template-clean-sonic-slave.yml
+      - template: .azure-pipelines/template-clean-sonic-slave.yml@buildimage
 - stage: UpgradeVersions
   jobs:
   - job: UpgradeVersions
