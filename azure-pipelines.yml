@@ -31,6 +31,20 @@ resources:
     type: github
     name: Azure/sonic-mgmt
     endpoint: build
+  - repository: buildimage
+    type: github
+    name: Azure/sonic-buildimage
+    endpoint: build
+    ref: master
+
+variables:
+- template: .azure-pipelines/azure-pipelines-repd-build-variables.yml
+- ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
+  - template: .azure-pipelines/template-variables.yml
+- ${{ else }}:
+  - template: .azure-pipelines/template-variables.yml@buildimage
+- name: CACHE_MODE
+  value: rcache
 
 stages:
 - stage: Build

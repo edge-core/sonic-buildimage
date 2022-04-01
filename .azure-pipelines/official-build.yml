@@ -19,8 +19,19 @@ schedules:
     - 201911
     - 201811
 
+resources:
+  repositories:
+  - repository: buildimage
+    type: github
+    name: Azure/sonic-buildimage
+    ref: master
+    endpoint: build
+
 trigger: none
 pr: none
+
+variables:
+- template: .azure-pipelines/template-variables.yml@buildimage
 
 stages:
 - stage: Build
