@@ -1,8 +1,7 @@
 # Marvell SAI
 
-export MRVL_SAI_VERSION = 1.8.1-1
+export MRVL_SAI_VERSION = 1.9.1-1
 export MRVL_SAI = mrvllibsai_$(MRVL_SAI_VERSION)_$(PLATFORM_ARCH).deb
-export MRVL_SAI_PACKAGE = mrvllibsai_$(PLATFORM_ARCH)_$(MRVL_SAI_VERSION).deb
 
 $(MRVL_SAI)_SRC_PATH = $(PLATFORM_PATH)/sai
 $(eval $(call add_conflict_package,$(MRVL_SAI),$(LIBSAIVS_DEV)))
