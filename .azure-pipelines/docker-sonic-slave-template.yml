@@ -3,14 +3,6 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 # Build and push sonic-slave-[buster|jessie|stretch] images for amd64/armhf/arm64
-resources:
-  repositories:
-  - repository: buildimage
-    type: github
-    name: Azure/sonic-buildimage
-    ref: master
-    endpoint: build
-
 parameters:
 - name: arch
   type: string

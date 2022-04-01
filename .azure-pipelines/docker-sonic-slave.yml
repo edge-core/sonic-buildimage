@@ -3,6 +3,13 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 # Build and push sonic-slave-[buster|jessie|stretch] images for amd64/armhf/arm64
+resources:
+  repositories:
+  - repository: buildimage
+    type: github
+    name: Azure/sonic-buildimage
+    ref: master
+    endpoint: build
 
 schedules:
 - cron: "0 8 * * *"
@@ -53,7 +60,14 @@ stages:
   - ${{ each dist in parameters.dists }}:
     - ${{ if endswith(variables['Build.DefinitionName'], dist) }}:
       - ${{ each arch in parameters.arches }}:
+        ${{ if eq(variables['System.PullRequest.TargetBranch'], 'master') }}:
         - template: docker-sonic-slave-template.yml
+          parameters:
+            pool: sonicbld
+            arch: ${{ arch }}
+            dist: ${{ dist }}
+        ${{ else }}:
+        - template: .azure-pipelines/docker-sonic-slave-template.yml@buildimage
           parameters:
             pool: sonicbld
             arch: ${{ arch }}
