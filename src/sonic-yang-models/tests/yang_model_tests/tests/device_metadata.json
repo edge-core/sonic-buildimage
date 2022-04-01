@@ -103,6 +103,13 @@
     },
     "DEVICE_METADATA_VALID_SUB_ROLE_CONFIG": {
         "desc": "Verifying valid sub_role configuration."
+    },
+    "DEVICE_METADATA_VALID_DHCP_SERVER": {
+        "desc": "Verifying dhcp_server configuration."
+    },
+    "DEVICE_METADATA_INVALID_DHCP_SERVER": {
+        "desc": "Verifying invalid dhcp_server configuration.",
+        "eStrKey": "InvalidValue"
     }
 
 }
