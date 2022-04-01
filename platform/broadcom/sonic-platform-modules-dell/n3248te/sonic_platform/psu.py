@@ -38,7 +38,8 @@ class Psu(PsuBase):
         cpld_dir = "/sys/devices/platform/dell-n3248te-cpld.0/"
         cpld_reg_file = cpld_dir + '/' + reg_name
         try:
-            rv = open(cpld_reg_file, 'r').read()
+            with open(cpld_reg_file, 'r') as fd:
+                rv = fd.read()
         except IOError : return 'ERR'
         return rv.strip('\r\n').lstrip(' ')
 
@@ -46,7 +47,8 @@ class Psu(PsuBase):
         try :
             dps_dir = self.dps_hwmon + '/' + os.listdir(self.dps_hwmon)[0]
             dps_reg_file = dps_dir + '/' + reg_name
-            rv = open(dps_reg_file, 'r').read()
+            with open(dps_reg_file, 'r') as fd:
+                rv = fd.read()
         except (IOError, OSError) : return 'ERR'
         return rv
 

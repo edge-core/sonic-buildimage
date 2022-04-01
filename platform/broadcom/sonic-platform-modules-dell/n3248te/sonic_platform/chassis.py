@@ -118,7 +118,8 @@ class Chassis(ChassisBase):
         # reg name and on failure rethrns 'ERR'
         cpld_reg_file = self.CPLD_DIR + '/' + reg_name
         try:
-            rv = open(cpld_reg_file, 'r').read()
+            with open(cpld_reg_file, 'r') as fd:
+                rv = fd.read()
         except IOError : return 'ERR'
         return rv.strip('\r\n').lstrip(' ')
 

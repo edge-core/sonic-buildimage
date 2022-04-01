@@ -47,7 +47,8 @@ class Fan(FanBase):
         cpld_dir = "/sys/devices/platform/dell-n3248te-cpld.0/"
         cpld_reg_file = cpld_dir + '/' + reg_name
         try:
-            buf = open(cpld_reg_file, 'r').read()
+            with open(cpld_reg_file, 'r')as fd:
+                buf = fd.read()
         except (IOError, AttributeError):
             return 'ERR'
         return buf.strip('\r\n').lstrip(' ')
@@ -228,7 +229,26 @@ class Fan(FanBase):
         Returns:
             bool: True if set success, False if fail.
         """
-        # Fan tray status LED controlled by HW
-        # Return True to avoid thermalctld alarm
+        # N3248TE has led only on FanTray and not available for seperate fans
         return True
+
+    def get_status_led(self):
+        """
+        Gets the current system LED color
+
+        Returns:
+            A string that represents the supported color
+        """
+
+        return None
+
+    def get_target_speed(self):
+        """
+        Retrieves the target (expected) speed of the fan
+        Returns:
+            An integer, the percentage of full fan speed, in the range 0 (off)
+                 to 100 (full speed)
+        """
+        # Return current speed to avoid false thermalctld alarm.
+        return self.get_speed()
 
