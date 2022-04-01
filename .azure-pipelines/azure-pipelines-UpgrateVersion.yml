@@ -42,8 +42,11 @@ parameters:
 stages:
 - stage: Build
   variables:
-    CACHE_MODE: none
-    VERSION_CONTROL_OPTIONS: 'SONIC_VERSION_CONTROL_COMPONENTS='
+    - name: CACHE_MODE
+      value: none
+    - name: VERSION_CONTROL_OPTIONS
+      value: 'SONIC_VERSION_CONTROL_COMPONENTS='
+    - template: .azure-pipelines/template-variables.yml@buildimage
   jobs:
   - template: azure-pipelines-build.yml
     parameters:
