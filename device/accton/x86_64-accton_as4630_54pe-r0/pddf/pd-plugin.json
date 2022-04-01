@@ -1,4 +1,16 @@
 {
+    "XCVR":
+    {
+        "xcvr_present":
+        {
+           "i2c":
+           {
+               "valmap-SFP28": {"1":true, "0":false },
+               "valmap-QSFP28": {"1":true, "0":false}
+           }
+        }
+    },
+
     "PSU":
     {
         "psu_present": 
@@ -46,9 +58,9 @@
             }
         },
         
-        "duty_cycle_to_pwm": "lambda dc: ((dc*100.0)/625 - 1)",
+        "duty_cycle_to_pwm": "lambda dc: ((dc*100.0)/625)",
 
-        "pwm_to_duty_cycle": "lambda pwm: (((pwm+1)*625.0)/100)"
+        "pwm_to_duty_cycle": "lambda pwm: ((pwm*625.0)/100)"
     }
 
 }

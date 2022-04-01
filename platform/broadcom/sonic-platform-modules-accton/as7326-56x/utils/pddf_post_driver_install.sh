@@ -20,4 +20,4 @@ ir3570_check()
 
 ir3570_check
 
-echo "AS7726 post PDDF driver install completed"
+echo "AS7326 post PDDF driver install completed"

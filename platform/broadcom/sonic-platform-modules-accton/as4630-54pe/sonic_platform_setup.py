@@ -1,23 +1,14 @@
 from setuptools import setup
 
-DEVICE_NAME = 'accton'
-HW_SKU = 'x86_64-accton_as4630_54pe-r0'  
-
 setup(
     name='sonic-platform',
     version='1.0',
-    description='SONiC platform API implementation on Accton Platforms',
+    description='SONiC platform API implementation on Accton Platforms using PDDF',
     license='Apache 2.0',
     author='SONiC Team',
     author_email='linuxnetdev@microsoft.com',
     url='https://github.com/Azure/sonic-buildimage',
-    maintainer='Jostar Yang',
-    maintainer_email='jostar_yang@edge-core.com',
-    packages=[
-        'sonic_platform',
-    ],
-    package_dir={
-        'sonic_platform': '../../../../device/{}/{}/sonic_platform'.format(DEVICE_NAME, HW_SKU)},
+    packages=['sonic_platform'],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Plugins',
