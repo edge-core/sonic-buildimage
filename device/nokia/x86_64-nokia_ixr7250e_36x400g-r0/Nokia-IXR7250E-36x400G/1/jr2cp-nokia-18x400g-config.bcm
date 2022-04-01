@@ -1553,7 +1553,9 @@ ucode_port_18.BCM8885X=CDGE0:core_0.18
 
 
 ucode_port_19.BCM8885X=RCY0:core_0.19
-ucode_port_20.BCM8885X=OLP:core_1.20
+ucode_port_20.BCM8885X=RCY1:core_1.20
+ucode_port_21.BCM8885X=OLP:core_1.21
+
 
 
 serdes_lane_config_dfe_1.BCM8885X=on
