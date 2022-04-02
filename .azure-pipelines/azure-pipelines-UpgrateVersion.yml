@@ -73,14 +73,14 @@ stages:
         default_platform=broadcom
         artifacts=$(find $(Pipeline.Workspace) -maxdepth 1 -type d -name 'sonic-buildimage.*' | grep -v "sonic-buildimage.${default_platform}")
         echo "artifacts$artifacts"
-        cp -r $(Pipeline.Workspace)/sonic-buildimage.${default_platform}/versions target/
+        cp -r $(Pipeline.Workspace)/sonic-buildimage.${default_platform}/target/versions target/
         make freeze FREEZE_VERSION_OPTIONS=-r
         find files/build/versions 
         ordered_artifacts=$(echo "$artifacts" | grep -v -E "arm64|armhf" && echo "$artifacts" | grep -E "arm64|armhf")
         for artifact in $ordered_artifacts
         do
           rm -rf target/versions
-          cp -r $artifact/versions target/
+          cp -r $artifact/target/versions target/
           OPTIONS="-a -d"
           [[ "$artifact" == *arm64* || "$artifact" == *armhf* ]] && OPTIONS="-d"
           make freeze FREEZE_VERSION_OPTIONS="$OPTIONS"
