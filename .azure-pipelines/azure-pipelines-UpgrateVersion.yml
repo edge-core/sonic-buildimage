@@ -6,14 +6,6 @@
 trigger: none
 pr: none
 
-resources:
-  repositories:
-  - repository: buildimage
-    type: github
-    name: Azure/sonic-buildimage
-    ref: master
-    endpoint: build
-
 schedules:
 - cron: "0 0 * * *"
   displayName: Daily Build
