@@ -44,11 +44,11 @@ class TestJ2Files(TestCase):
 
     def test_interfaces(self):
         interfaces_template = os.path.join(self.test_dir, '..', '..', '..', 'files', 'image_config', 'interfaces', 'interfaces.j2')
-        argument = '-m ' + self.t0_minigraph + ' -a \'{\"hwaddr\":\"e4:1d:2d:a5:f3:ad\"}\' -t ' + interfaces_template + ' > ' + self.output_file
+        argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -a \'{\"hwaddr\":\"e4:1d:2d:a5:f3:ad\"}\' -t ' + interfaces_template + ' > ' + self.output_file
         self.run_script(argument)
         self.assertTrue(utils.cmp(os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, 'interfaces'), self.output_file))
 
-        argument = '-m ' + self.t0_mvrf_minigraph + ' -a \'{\"hwaddr\":\"e4:1d:2d:a5:f3:ad\"}\' -t ' + interfaces_template + ' > ' + self.output_file
+        argument = '-m ' + self.t0_mvrf_minigraph + ' -p ' + self.t0_port_config + ' -a \'{\"hwaddr\":\"e4:1d:2d:a5:f3:ad\"}\' -t ' + interfaces_template + ' > ' + self.output_file
         self.run_script(argument)
         self.assertTrue(utils.cmp(os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, 'mvrf_interfaces'), self.output_file))
 
@@ -326,16 +326,18 @@ class TestJ2Files(TestCase):
         test_list = {
             "t1": {
                 "graph": self.t1_mlnx_minigraph,
+                "port_config": self.mlnx_port_config,
                 "output": "t1-switch.json"
             },
             "t0": {
                 "graph": self.t0_minigraph,
+                "port_config": self.t0_port_config,
                 "output": "t0-switch.json"
             },
         }
         for _, v in test_list.items():
-            argument = " -m {} -y {} -t {} > {}".format(
-                v["graph"], constants_yml, switch_template, self.output_file
+            argument = " -m {} -p {} -y {} -t {} > {}".format(
+                v["graph"], v["port_config"], constants_yml, switch_template, self.output_file
             )
             sample_output_file = os.path.join(
                 self.test_dir, 'sample_output', v["output"]

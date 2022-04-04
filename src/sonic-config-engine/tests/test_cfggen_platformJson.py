@@ -49,7 +49,7 @@ class TestCfgGenPlatformJson(TestCase):
         self.assertEqual(output, '')
 
     def test_print_data(self):
-        argument = '-m "' + self.platform_sample_graph + '" --print-data'
+        argument = '-m "' + self.platform_sample_graph + '" -p "' + self.platform_json + '" --print-data'
         output = self.run_script(argument)
         self.assertTrue(len(output.strip()) > 0)
 
