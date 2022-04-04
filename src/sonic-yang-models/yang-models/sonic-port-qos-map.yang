@@ -81,6 +81,14 @@ module sonic-port-qos-map {
                     }
                 }
 
+                leaf pfcwd_sw_enable {
+                    type string {
+                        pattern "[0-7](,[0-7])?";
+                    }
+                    description
+                        "Specify the queue(s) on which software pfc watchdog are enabled.";
+                }
+
                 leaf pfc_to_queue_map {
                     type leafref {
                         path "/ppqm:sonic-pfc-priority-queue-map/ppqm:MAP_PFC_PRIORITY_TO_QUEUE/ppqm:MAP_PFC_PRIORITY_TO_QUEUE_LIST/ppqm:name";

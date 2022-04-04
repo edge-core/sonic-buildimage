@@ -621,7 +621,8 @@
                         "pfc_to_pg_map": "map1",
                         "dscp_to_tc_map": "map1",
                         "dot1p_to_tc_map": "map1",
-                        "pfc_enable": "3,4"
+                        "pfc_enable": "3,4",
+                        "pfcwd_sw_enable" : "3,4"
                     }
                 ]
             }
@@ -657,7 +658,8 @@
                         "pfc_to_pg_map": "map2",
                         "dscp_to_tc_map": "map2",
                         "dot1p_to_tc_map": "map2",
-                        "pfc_enable": "3,4"
+                        "pfc_enable": "3,4",
+                        "pfcwd_sw_enable" : "3,4"
                     }
                 ]
             }
@@ -714,7 +716,8 @@
                 "PORT_QOS_MAP_LIST": [
                     {
                         "ifname": "Ethernet4",
-                        "pfc_enable": "8"
+                        "pfc_enable": "8",
+                        "pfcwd_sw_enable" : "8"
                     }
                 ]
             }
