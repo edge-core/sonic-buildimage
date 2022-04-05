@@ -1,16 +1,4 @@
 {
-    "TC_TO_PRIORITY_GROUP_MAP": {
-        "AZURE": {
-            "0": "0",
-            "1": "0",
-            "2": "0",
-            "3": "3",
-            "4": "4",
-            "5": "0",
-            "6": "0",
-            "7": "7"
-        }
-    },
     "MAP_PFC_PRIORITY_TO_QUEUE": {
         "AZURE": {
             "0": "0",
@@ -39,11 +27,11 @@
         "AZURE": {
             "0" : "1",
             "1" : "1",
-            "2" : "1",
+            "2" : "2",
             "3" : "3",
             "4" : "4",
-            "5" : "2",
-            "6" : "1",
+            "5" : "1",
+            "6" : "6",
             "7" : "1",
             "8" : "0",
             "9" : "1",
@@ -85,7 +73,7 @@
             "45": "1",
             "46": "5",
             "47": "1",
-            "48": "6",
+            "48": "7",
             "49": "1",
             "50": "1",
             "51": "1",
@@ -103,18 +91,26 @@
             "63": "1"
         }
     },
+    "TC_TO_PRIORITY_GROUP_MAP": {
+        "AZURE": {
+            "0": "0",
+            "1": "0",
+            "2": "2",
+            "3": "3",
+            "4": "4",
+            "5": "0",
+            "6": "6",
+            "7": "7"
+        }
+    },
     "SCHEDULER": {
         "scheduler.0": {
             "type"  : "DWRR",
-            "weight": "1"
+            "weight": "14"
         },
         "scheduler.1": {
             "type"  : "DWRR",
-            "weight": "1"
-        },
-        "scheduler.2": {
-            "type"  : "DWRR",
-            "weight": "100"
+            "weight": "15"
         }
     },
     "PORT_QOS_MAP": {
@@ -126,7 +122,7 @@
             "pfc_enable"      : "3,4",
             "pfcwd_sw_enable" : "3,4"
         },
-        "Ethernet8": {
+        "Ethernet4": {
             "dscp_to_tc_map"  : "AZURE",
             "tc_to_queue_map" : "AZURE",
             "tc_to_pg_map"    : "AZURE",
@@ -142,39 +138,7 @@
             "pfc_enable"      : "3,4",
             "pfcwd_sw_enable" : "3,4"
         },
-        "Ethernet24": {
-            "dscp_to_tc_map"  : "AZURE",
-            "tc_to_queue_map" : "AZURE",
-            "tc_to_pg_map"    : "AZURE",
-            "pfc_to_queue_map": "AZURE",
-            "pfc_enable"      : "3,4",
-            "pfcwd_sw_enable" : "3,4"
-        },
-        "Ethernet32": {
-            "dscp_to_tc_map"  : "AZURE",
-            "tc_to_queue_map" : "AZURE",
-            "tc_to_pg_map"    : "AZURE",
-            "pfc_to_queue_map": "AZURE",
-            "pfc_enable"      : "3,4",
-            "pfcwd_sw_enable" : "3,4"
-        },
-        "Ethernet40": {
-            "dscp_to_tc_map"  : "AZURE",
-            "tc_to_queue_map" : "AZURE",
-            "tc_to_pg_map"    : "AZURE",
-            "pfc_to_queue_map": "AZURE",
-            "pfc_enable"      : "3,4",
-            "pfcwd_sw_enable" : "3,4"
-        },
-        "Ethernet48": {
-            "dscp_to_tc_map"  : "AZURE",
-            "tc_to_queue_map" : "AZURE",
-            "tc_to_pg_map"    : "AZURE",
-            "pfc_to_queue_map": "AZURE",
-            "pfc_enable"      : "3,4",
-            "pfcwd_sw_enable" : "3,4"
-        },
-        "Ethernet56": {
+        "Ethernet20": {
             "dscp_to_tc_map"  : "AZURE",
             "tc_to_queue_map" : "AZURE",
             "tc_to_pg_map"    : "AZURE",
@@ -190,7 +154,7 @@
             "pfc_enable"      : "3,4",
             "pfcwd_sw_enable" : "3,4"
         },
-        "Ethernet72": {
+        "Ethernet68": {
             "dscp_to_tc_map"  : "AZURE",
             "tc_to_queue_map" : "AZURE",
             "tc_to_pg_map"    : "AZURE",
@@ -206,47 +170,7 @@
             "pfc_enable"      : "3,4",
             "pfcwd_sw_enable" : "3,4"
         },
-        "Ethernet88": {
-            "dscp_to_tc_map"  : "AZURE",
-            "tc_to_queue_map" : "AZURE",
-            "tc_to_pg_map"    : "AZURE",
-            "pfc_to_queue_map": "AZURE",
-            "pfc_enable"      : "3,4",
-            "pfcwd_sw_enable" : "3,4"
-        },
-        "Ethernet96": {
-            "dscp_to_tc_map"  : "AZURE",
-            "tc_to_queue_map" : "AZURE",
-            "tc_to_pg_map"    : "AZURE",
-            "pfc_to_queue_map": "AZURE",
-            "pfc_enable"      : "3,4",
-            "pfcwd_sw_enable" : "3,4"
-        },
-        "Ethernet104": {
-            "dscp_to_tc_map"  : "AZURE",
-            "tc_to_queue_map" : "AZURE",
-            "tc_to_pg_map"    : "AZURE",
-            "pfc_to_queue_map": "AZURE",
-            "pfc_enable"      : "3,4",
-            "pfcwd_sw_enable" : "3,4"
-        },
-        "Ethernet112": {
-            "dscp_to_tc_map"  : "AZURE",
-            "tc_to_queue_map" : "AZURE",
-            "tc_to_pg_map"    : "AZURE",
-            "pfc_to_queue_map": "AZURE",
-            "pfc_enable"      : "3,4",
-            "pfcwd_sw_enable" : "3,4"
-        },
-        "Ethernet120": {
-            "dscp_to_tc_map"  : "AZURE",
-            "tc_to_queue_map" : "AZURE",
-            "tc_to_pg_map"    : "AZURE",
-            "pfc_to_queue_map": "AZURE",
-            "pfc_enable"      : "3,4",
-            "pfcwd_sw_enable" : "3,4"
-        },
-        "Ethernet128": {
+        "Ethernet84": {
             "dscp_to_tc_map"  : "AZURE",
             "tc_to_queue_map" : "AZURE",
             "tc_to_pg_map"    : "AZURE",
@@ -259,7 +183,7 @@
             "tc_to_queue_map" : "AZURE",
             "tc_to_pg_map"    : "AZURE",
             "pfc_to_queue_map": "AZURE",
-            "pfc_enable"      : "3,4",
+            "pfc_enable"      : "2,3,4,6",
             "pfcwd_sw_enable" : "3,4"
         },
         "Ethernet144": {
@@ -267,7 +191,15 @@
             "tc_to_queue_map" : "AZURE",
             "tc_to_pg_map"    : "AZURE",
             "pfc_to_queue_map": "AZURE",
-            "pfc_enable"      : "3,4",
+            "pfc_enable"      : "2,3,4,6",
+            "pfcwd_sw_enable" : "3,4"
+        },
+        "Ethernet148": {
+            "dscp_to_tc_map"  : "AZURE",
+            "tc_to_queue_map" : "AZURE",
+            "tc_to_pg_map"    : "AZURE",
+            "pfc_to_queue_map": "AZURE",
+            "pfc_enable"      : "2,3,4,6",
             "pfcwd_sw_enable" : "3,4"
         },
         "Ethernet152": {
@@ -275,15 +207,15 @@
             "tc_to_queue_map" : "AZURE",
             "tc_to_pg_map"    : "AZURE",
             "pfc_to_queue_map": "AZURE",
-            "pfc_enable"      : "3,4",
+            "pfc_enable"      : "2,3,4,6",
             "pfcwd_sw_enable" : "3,4"
         },
-        "Ethernet160": {
+        "Ethernet156": {
             "dscp_to_tc_map"  : "AZURE",
             "tc_to_queue_map" : "AZURE",
             "tc_to_pg_map"    : "AZURE",
             "pfc_to_queue_map": "AZURE",
-            "pfc_enable"      : "3,4",
+            "pfc_enable"      : "2,3,4,6",
             "pfcwd_sw_enable" : "3,4"
         },
         "Ethernet168": {
@@ -291,7 +223,7 @@
             "tc_to_queue_map" : "AZURE",
             "tc_to_pg_map"    : "AZURE",
             "pfc_to_queue_map": "AZURE",
-            "pfc_enable"      : "3,4",
+            "pfc_enable"      : "2,3,4,6",
             "pfcwd_sw_enable" : "3,4"
         },
         "Ethernet176": {
@@ -299,7 +231,15 @@
             "tc_to_queue_map" : "AZURE",
             "tc_to_pg_map"    : "AZURE",
             "pfc_to_queue_map": "AZURE",
-            "pfc_enable"      : "3,4",
+            "pfc_enable"      : "2,3,4,6",
+            "pfcwd_sw_enable" : "3,4"
+        },
+        "Ethernet180": {
+            "dscp_to_tc_map"  : "AZURE",
+            "tc_to_queue_map" : "AZURE",
+            "tc_to_pg_map"    : "AZURE",
+            "pfc_to_queue_map": "AZURE",
+            "pfc_enable"      : "2,3,4,6",
             "pfcwd_sw_enable" : "3,4"
         },
         "Ethernet184": {
@@ -307,15 +247,15 @@
             "tc_to_queue_map" : "AZURE",
             "tc_to_pg_map"    : "AZURE",
             "pfc_to_queue_map": "AZURE",
-            "pfc_enable"      : "3,4",
+            "pfc_enable"      : "2,3,4,6",
             "pfcwd_sw_enable" : "3,4"
         },
-        "Ethernet192": {
+        "Ethernet188": {
             "dscp_to_tc_map"  : "AZURE",
             "tc_to_queue_map" : "AZURE",
             "tc_to_pg_map"    : "AZURE",
             "pfc_to_queue_map": "AZURE",
-            "pfc_enable"      : "3,4",
+            "pfc_enable"      : "2,3,4,6",
             "pfcwd_sw_enable" : "3,4"
         },
         "Ethernet200": {
@@ -323,7 +263,7 @@
             "tc_to_queue_map" : "AZURE",
             "tc_to_pg_map"    : "AZURE",
             "pfc_to_queue_map": "AZURE",
-            "pfc_enable"      : "3,4",
+            "pfc_enable"      : "2,3,4,6",
             "pfcwd_sw_enable" : "3,4"
         },
         "Ethernet208": {
@@ -331,7 +271,15 @@
             "tc_to_queue_map" : "AZURE",
             "tc_to_pg_map"    : "AZURE",
             "pfc_to_queue_map": "AZURE",
-            "pfc_enable"      : "3,4",
+            "pfc_enable"      : "2,3,4,6",
+            "pfcwd_sw_enable" : "3,4"
+        },
+        "Ethernet212": {
+            "dscp_to_tc_map"  : "AZURE",
+            "tc_to_queue_map" : "AZURE",
+            "tc_to_pg_map"    : "AZURE",
+            "pfc_to_queue_map": "AZURE",
+            "pfc_enable"      : "2,3,4,6",
             "pfcwd_sw_enable" : "3,4"
         },
         "Ethernet216": {
@@ -339,15 +287,15 @@
             "tc_to_queue_map" : "AZURE",
             "tc_to_pg_map"    : "AZURE",
             "pfc_to_queue_map": "AZURE",
-            "pfc_enable"      : "3,4",
+            "pfc_enable"      : "2,3,4,6",
             "pfcwd_sw_enable" : "3,4"
         },
-        "Ethernet224": {
+        "Ethernet220": {
             "dscp_to_tc_map"  : "AZURE",
             "tc_to_queue_map" : "AZURE",
             "tc_to_pg_map"    : "AZURE",
             "pfc_to_queue_map": "AZURE",
-            "pfc_enable"      : "3,4",
+            "pfc_enable"      : "2,3,4,6",
             "pfcwd_sw_enable" : "3,4"
         },
         "Ethernet232": {
@@ -355,7 +303,7 @@
             "tc_to_queue_map" : "AZURE",
             "tc_to_pg_map"    : "AZURE",
             "pfc_to_queue_map": "AZURE",
-            "pfc_enable"      : "3,4",
+            "pfc_enable"      : "2,3,4,6",
             "pfcwd_sw_enable" : "3,4"
         },
         "Ethernet240": {
@@ -363,7 +311,15 @@
             "tc_to_queue_map" : "AZURE",
             "tc_to_pg_map"    : "AZURE",
             "pfc_to_queue_map": "AZURE",
-            "pfc_enable"      : "3,4",
+            "pfc_enable"      : "2,3,4,6",
+            "pfcwd_sw_enable" : "3,4"
+        },
+        "Ethernet244": {
+            "dscp_to_tc_map"  : "AZURE",
+            "tc_to_queue_map" : "AZURE",
+            "tc_to_pg_map"    : "AZURE",
+            "pfc_to_queue_map": "AZURE",
+            "pfc_enable"      : "2,3,4,6",
             "pfcwd_sw_enable" : "3,4"
         },
         "Ethernet248": {
@@ -371,7 +327,15 @@
             "tc_to_queue_map" : "AZURE",
             "tc_to_pg_map"    : "AZURE",
             "pfc_to_queue_map": "AZURE",
-            "pfc_enable"      : "3,4",
+            "pfc_enable"      : "2,3,4,6",
+            "pfcwd_sw_enable" : "3,4"
+        },
+        "Ethernet252": {
+            "dscp_to_tc_map"  : "AZURE",
+            "tc_to_queue_map" : "AZURE",
+            "tc_to_pg_map"    : "AZURE",
+            "pfc_to_queue_map": "AZURE",
+            "pfc_enable"      : "2,3,4,6",
             "pfcwd_sw_enable" : "3,4"
         }
     },
@@ -397,7 +361,7 @@
             "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
-        "Ethernet8|3": {
+        "Ethernet4|3": {
             "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
@@ -405,23 +369,7 @@
             "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
-        "Ethernet24|3": {
-            "scheduler"   : "scheduler.1",
-            "wred_profile": "AZURE_LOSSLESS"
-        },
-        "Ethernet32|3": {
-            "scheduler"   : "scheduler.1",
-            "wred_profile": "AZURE_LOSSLESS"
-        },
-        "Ethernet40|3": {
-            "scheduler"   : "scheduler.1",
-            "wred_profile": "AZURE_LOSSLESS"
-        },
-        "Ethernet48|3": {
-            "scheduler"   : "scheduler.1",
-            "wred_profile": "AZURE_LOSSLESS"
-        },
-        "Ethernet56|3": {
+        "Ethernet20|3": {
             "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
@@ -429,7 +377,7 @@
             "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
-        "Ethernet72|3": {
+        "Ethernet68|3": {
             "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
@@ -437,27 +385,7 @@
             "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
-        "Ethernet88|3": {
-            "scheduler"   : "scheduler.1",
-            "wred_profile": "AZURE_LOSSLESS"
-        },
-        "Ethernet96|3": {
-            "scheduler"   : "scheduler.1",
-            "wred_profile": "AZURE_LOSSLESS"
-        },
-        "Ethernet104|3": {
-            "scheduler"   : "scheduler.1",
-            "wred_profile": "AZURE_LOSSLESS"
-        },
-        "Ethernet112|3": {
-            "scheduler"   : "scheduler.1",
-            "wred_profile": "AZURE_LOSSLESS"
-        },
-        "Ethernet120|3": {
-            "scheduler"   : "scheduler.1",
-            "wred_profile": "AZURE_LOSSLESS"
-        },
-        "Ethernet128|3": {
+        "Ethernet84|3": {
             "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
@@ -469,11 +397,15 @@
             "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
+        "Ethernet148|3": {
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
+        },
         "Ethernet152|3": {
             "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
-        "Ethernet160|3": {
+        "Ethernet156|3": {
             "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
@@ -485,11 +417,15 @@
             "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
+        "Ethernet180|3": {
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
+        },
         "Ethernet184|3": {
             "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
-        "Ethernet192|3": {
+        "Ethernet188|3": {
             "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
@@ -501,11 +437,15 @@
             "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
+        "Ethernet212|3": {
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
+        },
         "Ethernet216|3": {
             "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
-        "Ethernet224|3": {
+        "Ethernet220|3": {
             "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
@@ -517,187 +457,152 @@
             "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
+        "Ethernet244|3": {
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
+        },
         "Ethernet248|3": {
             "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
-        "Ethernet0|4": {
-            "scheduler"   : "scheduler.2",
+        "Ethernet252|3": {
+            "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
-        "Ethernet8|4": {
-            "scheduler"   : "scheduler.2",
+        "Ethernet0|4": {
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
+        },
+        "Ethernet4|4": {
+            "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet16|4": {
-            "scheduler"   : "scheduler.2",
+            "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
-        "Ethernet24|4": {
-            "scheduler"   : "scheduler.2",
-            "wred_profile": "AZURE_LOSSLESS"
-        },
-        "Ethernet32|4": {
-            "scheduler"   : "scheduler.2",
-            "wred_profile": "AZURE_LOSSLESS"
-        },
-        "Ethernet40|4": {
-            "scheduler"   : "scheduler.2",
-            "wred_profile": "AZURE_LOSSLESS"
-        },
-        "Ethernet48|4": {
-            "scheduler"   : "scheduler.2",
-            "wred_profile": "AZURE_LOSSLESS"
-        },
-        "Ethernet56|4": {
-            "scheduler"   : "scheduler.2",
+        "Ethernet20|4": {
+            "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet64|4": {
-            "scheduler"   : "scheduler.2",
+            "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
-        "Ethernet72|4": {
-            "scheduler"   : "scheduler.2",
+        "Ethernet68|4": {
+            "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet80|4": {
-            "scheduler"   : "scheduler.2",
+            "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
-        "Ethernet88|4": {
-            "scheduler"   : "scheduler.2",
-            "wred_profile": "AZURE_LOSSLESS"
-        },
-        "Ethernet96|4": {
-            "scheduler"   : "scheduler.2",
-            "wred_profile": "AZURE_LOSSLESS"
-        },
-        "Ethernet104|4": {
-            "scheduler"   : "scheduler.2",
-            "wred_profile": "AZURE_LOSSLESS"
-        },
-        "Ethernet112|4": {
-            "scheduler"   : "scheduler.2",
-            "wred_profile": "AZURE_LOSSLESS"
-        },
-        "Ethernet120|4": {
-            "scheduler"   : "scheduler.2",
-            "wred_profile": "AZURE_LOSSLESS"
-        },
-        "Ethernet128|4": {
-            "scheduler"   : "scheduler.2",
+        "Ethernet84|4": {
+            "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet136|4": {
-            "scheduler"   : "scheduler.2",
+            "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet144|4": {
-            "scheduler"   : "scheduler.2",
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
+        },
+        "Ethernet148|4": {
+            "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet152|4": {
-            "scheduler"   : "scheduler.2",
+            "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
-        "Ethernet160|4": {
-            "scheduler"   : "scheduler.2",
+        "Ethernet156|4": {
+            "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet168|4": {
-            "scheduler"   : "scheduler.2",
+            "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet176|4": {
-            "scheduler"   : "scheduler.2",
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
+        },
+        "Ethernet180|4": {
+            "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet184|4": {
-            "scheduler"   : "scheduler.2",
+            "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
-        "Ethernet192|4": {
-            "scheduler"   : "scheduler.2",
+        "Ethernet188|4": {
+            "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet200|4": {
-            "scheduler"   : "scheduler.2",
+            "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet208|4": {
-            "scheduler"   : "scheduler.2",
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
+        },
+        "Ethernet212|4": {
+            "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet216|4": {
-            "scheduler"   : "scheduler.2",
+            "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
-        "Ethernet224|4": {
-            "scheduler"   : "scheduler.2",
+        "Ethernet220|4": {
+            "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet232|4": {
-            "scheduler"   : "scheduler.2",
+            "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet240|4": {
-            "scheduler"   : "scheduler.2",
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
+        },
+        "Ethernet244|4": {
+            "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet248|4": {
-            "scheduler"   : "scheduler.2",
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
+        },
+        "Ethernet252|4": {
+            "scheduler"   : "scheduler.1",
             "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet0|0": {
             "scheduler": "scheduler.0"
         },
-        "Ethernet8|0": {
+        "Ethernet4|0": {
             "scheduler": "scheduler.0"
         },
         "Ethernet16|0": {
             "scheduler": "scheduler.0"
         },
-        "Ethernet24|0": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet32|0": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet40|0": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet48|0": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet56|0": {
+        "Ethernet20|0": {
             "scheduler": "scheduler.0"
         },
         "Ethernet64|0": {
             "scheduler": "scheduler.0"
         },
-        "Ethernet72|0": {
+        "Ethernet68|0": {
             "scheduler": "scheduler.0"
         },
         "Ethernet80|0": {
             "scheduler": "scheduler.0"
         },
-        "Ethernet88|0": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet96|0": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet104|0": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet112|0": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet120|0": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet128|0": {
+        "Ethernet84|0": {
             "scheduler": "scheduler.0"
         },
         "Ethernet136|0": {
@@ -706,10 +611,13 @@
         "Ethernet144|0": {
             "scheduler": "scheduler.0"
         },
+        "Ethernet148|0": {
+            "scheduler": "scheduler.0"
+        },
         "Ethernet152|0": {
             "scheduler": "scheduler.0"
         },
-        "Ethernet160|0": {
+        "Ethernet156|0": {
             "scheduler": "scheduler.0"
         },
         "Ethernet168|0": {
@@ -718,10 +626,13 @@
         "Ethernet176|0": {
             "scheduler": "scheduler.0"
         },
+        "Ethernet180|0": {
+            "scheduler": "scheduler.0"
+        },
         "Ethernet184|0": {
             "scheduler": "scheduler.0"
         },
-        "Ethernet192|0": {
+        "Ethernet188|0": {
             "scheduler": "scheduler.0"
         },
         "Ethernet200|0": {
@@ -730,10 +641,13 @@
         "Ethernet208|0": {
             "scheduler": "scheduler.0"
         },
+        "Ethernet212|0": {
+            "scheduler": "scheduler.0"
+        },
         "Ethernet216|0": {
             "scheduler": "scheduler.0"
         },
-        "Ethernet224|0": {
+        "Ethernet220|0": {
             "scheduler": "scheduler.0"
         },
         "Ethernet232|0": {
@@ -742,58 +656,37 @@
         "Ethernet240|0": {
             "scheduler": "scheduler.0"
         },
+        "Ethernet244|0": {
+            "scheduler": "scheduler.0"
+        },
         "Ethernet248|0": {
+            "scheduler": "scheduler.0"
+        },
+        "Ethernet252|0": {
             "scheduler": "scheduler.0"
         },
         "Ethernet0|1": {
             "scheduler": "scheduler.0"
         },
-        "Ethernet8|1": {
+        "Ethernet4|1": {
             "scheduler": "scheduler.0"
         },
         "Ethernet16|1": {
             "scheduler": "scheduler.0"
         },
-        "Ethernet24|1": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet32|1": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet40|1": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet48|1": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet56|1": {
+        "Ethernet20|1": {
             "scheduler": "scheduler.0"
         },
         "Ethernet64|1": {
             "scheduler": "scheduler.0"
         },
-        "Ethernet72|1": {
+        "Ethernet68|1": {
             "scheduler": "scheduler.0"
         },
         "Ethernet80|1": {
             "scheduler": "scheduler.0"
         },
-        "Ethernet88|1": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet96|1": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet104|1": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet112|1": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet120|1": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet128|1": {
+        "Ethernet84|1": {
             "scheduler": "scheduler.0"
         },
         "Ethernet136|1": {
@@ -802,10 +695,13 @@
         "Ethernet144|1": {
             "scheduler": "scheduler.0"
         },
+        "Ethernet148|1": {
+            "scheduler": "scheduler.0"
+        },
         "Ethernet152|1": {
             "scheduler": "scheduler.0"
         },
-        "Ethernet160|1": {
+        "Ethernet156|1": {
             "scheduler": "scheduler.0"
         },
         "Ethernet168|1": {
@@ -814,10 +710,13 @@
         "Ethernet176|1": {
             "scheduler": "scheduler.0"
         },
+        "Ethernet180|1": {
+            "scheduler": "scheduler.0"
+        },
         "Ethernet184|1": {
             "scheduler": "scheduler.0"
         },
-        "Ethernet192|1": {
+        "Ethernet188|1": {
             "scheduler": "scheduler.0"
         },
         "Ethernet200|1": {
@@ -826,10 +725,13 @@
         "Ethernet208|1": {
             "scheduler": "scheduler.0"
         },
+        "Ethernet212|1": {
+            "scheduler": "scheduler.0"
+        },
         "Ethernet216|1": {
             "scheduler": "scheduler.0"
         },
-        "Ethernet224|1": {
+        "Ethernet220|1": {
             "scheduler": "scheduler.0"
         },
         "Ethernet232|1": {
@@ -838,154 +740,141 @@
         "Ethernet240|1": {
             "scheduler": "scheduler.0"
         },
+        "Ethernet244|1": {
+            "scheduler": "scheduler.0"
+        },
         "Ethernet248|1": {
+            "scheduler": "scheduler.0"
+        },
+        "Ethernet252|1": {
             "scheduler": "scheduler.0"
         },
         "Ethernet0|2": {
             "scheduler": "scheduler.0"
         },
-        "Ethernet8|2": {
+        "Ethernet4|2": {
             "scheduler": "scheduler.0"
         },
         "Ethernet16|2": {
             "scheduler": "scheduler.0"
         },
-        "Ethernet24|2": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet32|2": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet40|2": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet48|2": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet56|2": {
+        "Ethernet20|2": {
             "scheduler": "scheduler.0"
         },
         "Ethernet64|2": {
             "scheduler": "scheduler.0"
         },
-        "Ethernet72|2": {
+        "Ethernet68|2": {
             "scheduler": "scheduler.0"
         },
         "Ethernet80|2": {
             "scheduler": "scheduler.0"
         },
-        "Ethernet88|2": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet96|2": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet104|2": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet112|2": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet120|2": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet128|2": {
+        "Ethernet84|2": {
             "scheduler": "scheduler.0"
         },
         "Ethernet136|2": {
-            "scheduler": "scheduler.0"
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet144|2": {
-            "scheduler": "scheduler.0"
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
+        },
+        "Ethernet148|2": {
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet152|2": {
-            "scheduler": "scheduler.0"
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         },
-        "Ethernet160|2": {
-            "scheduler": "scheduler.0"
+        "Ethernet156|2": {
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet168|2": {
-            "scheduler": "scheduler.0"
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet176|2": {
-            "scheduler": "scheduler.0"
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
+        },
+        "Ethernet180|2": {
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet184|2": {
-            "scheduler": "scheduler.0"
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         },
-        "Ethernet192|2": {
-            "scheduler": "scheduler.0"
+        "Ethernet188|2": {
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet200|2": {
-            "scheduler": "scheduler.0"
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet208|2": {
-            "scheduler": "scheduler.0"
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
+        },
+        "Ethernet212|2": {
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet216|2": {
-            "scheduler": "scheduler.0"
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         },
-        "Ethernet224|2": {
-            "scheduler": "scheduler.0"
+        "Ethernet220|2": {
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet232|2": {
-            "scheduler": "scheduler.0"
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet240|2": {
-            "scheduler": "scheduler.0"
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
+        },
+        "Ethernet244|2": {
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet248|2": {
-            "scheduler": "scheduler.0"
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
+        },
+        "Ethernet252|2": {
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet0|5": {
             "scheduler": "scheduler.0"
         },
-        "Ethernet8|5": {
+        "Ethernet4|5": {
             "scheduler": "scheduler.0"
         },
         "Ethernet16|5": {
             "scheduler": "scheduler.0"
         },
-        "Ethernet24|5": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet32|5": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet40|5": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet48|5": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet56|5": {
+        "Ethernet20|5": {
             "scheduler": "scheduler.0"
         },
         "Ethernet64|5": {
             "scheduler": "scheduler.0"
         },
-        "Ethernet72|5": {
+        "Ethernet68|5": {
             "scheduler": "scheduler.0"
         },
         "Ethernet80|5": {
             "scheduler": "scheduler.0"
         },
-        "Ethernet88|5": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet96|5": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet104|5": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet112|5": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet120|5": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet128|5": {
+        "Ethernet84|5": {
             "scheduler": "scheduler.0"
         },
         "Ethernet136|5": {
@@ -994,10 +883,13 @@
         "Ethernet144|5": {
             "scheduler": "scheduler.0"
         },
+        "Ethernet148|5": {
+            "scheduler": "scheduler.0"
+        },
         "Ethernet152|5": {
             "scheduler": "scheduler.0"
         },
-        "Ethernet160|5": {
+        "Ethernet156|5": {
             "scheduler": "scheduler.0"
         },
         "Ethernet168|5": {
@@ -1006,10 +898,13 @@
         "Ethernet176|5": {
             "scheduler": "scheduler.0"
         },
+        "Ethernet180|5": {
+            "scheduler": "scheduler.0"
+        },
         "Ethernet184|5": {
             "scheduler": "scheduler.0"
         },
-        "Ethernet192|5": {
+        "Ethernet188|5": {
             "scheduler": "scheduler.0"
         },
         "Ethernet200|5": {
@@ -1018,10 +913,13 @@
         "Ethernet208|5": {
             "scheduler": "scheduler.0"
         },
+        "Ethernet212|5": {
+            "scheduler": "scheduler.0"
+        },
         "Ethernet216|5": {
             "scheduler": "scheduler.0"
         },
-        "Ethernet224|5": {
+        "Ethernet220|5": {
             "scheduler": "scheduler.0"
         },
         "Ethernet232|5": {
@@ -1030,104 +928,118 @@
         "Ethernet240|5": {
             "scheduler": "scheduler.0"
         },
+        "Ethernet244|5": {
+            "scheduler": "scheduler.0"
+        },
         "Ethernet248|5": {
+            "scheduler": "scheduler.0"
+        },
+        "Ethernet252|5": {
             "scheduler": "scheduler.0"
         },
         "Ethernet0|6": {
             "scheduler": "scheduler.0"
         },
-        "Ethernet8|6": {
+        "Ethernet4|6": {
             "scheduler": "scheduler.0"
         },
         "Ethernet16|6": {
             "scheduler": "scheduler.0"
         },
-        "Ethernet24|6": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet32|6": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet40|6": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet48|6": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet56|6": {
+        "Ethernet20|6": {
             "scheduler": "scheduler.0"
         },
         "Ethernet64|6": {
             "scheduler": "scheduler.0"
         },
-        "Ethernet72|6": {
+        "Ethernet68|6": {
             "scheduler": "scheduler.0"
         },
         "Ethernet80|6": {
             "scheduler": "scheduler.0"
         },
-        "Ethernet88|6": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet96|6": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet104|6": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet112|6": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet120|6": {
-            "scheduler": "scheduler.0"
-        },
-        "Ethernet128|6": {
+        "Ethernet84|6": {
             "scheduler": "scheduler.0"
         },
         "Ethernet136|6": {
-            "scheduler": "scheduler.0"
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet144|6": {
-            "scheduler": "scheduler.0"
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
+        },
+        "Ethernet148|6": {
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet152|6": {
-            "scheduler": "scheduler.0"
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         },
-        "Ethernet160|6": {
-            "scheduler": "scheduler.0"
+        "Ethernet156|6": {
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet168|6": {
-            "scheduler": "scheduler.0"
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet176|6": {
-            "scheduler": "scheduler.0"
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
+        },
+        "Ethernet180|6": {
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet184|6": {
-            "scheduler": "scheduler.0"
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         },
-        "Ethernet192|6": {
-            "scheduler": "scheduler.0"
+        "Ethernet188|6": {
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet200|6": {
-            "scheduler": "scheduler.0"
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet208|6": {
-            "scheduler": "scheduler.0"
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
+        },
+        "Ethernet212|6": {
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet216|6": {
-            "scheduler": "scheduler.0"
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         },
-        "Ethernet224|6": {
-            "scheduler": "scheduler.0"
+        "Ethernet220|6": {
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet232|6": {
-            "scheduler": "scheduler.0"
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet240|6": {
-            "scheduler": "scheduler.0"
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
+        },
+        "Ethernet244|6": {
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         },
         "Ethernet248|6": {
-            "scheduler": "scheduler.0"
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
+        },
+        "Ethernet252|6": {
+            "scheduler"   : "scheduler.1",
+            "wred_profile": "AZURE_LOSSLESS"
         }
     }
 }
