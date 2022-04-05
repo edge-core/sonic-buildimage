@@ -1,11 +1,7 @@
 try:
     import os
     import sys
-    import errno
     import datetime
-    import logging
-    import logging.config
-    import yaml
     import re
 
     sys.path.append(os.path.dirname(__file__))
@@ -17,6 +13,7 @@ try:
 
     from sonic_platform_base.sonic_eeprom import eeprom_base
     from sonic_platform_base.sonic_eeprom import eeprom_tlvinfo
+    from platform_utils import file_create
 
     from platform_thrift_client import thrift_try
 except ImportError as e:
@@ -45,18 +42,8 @@ _EEPROM_STATUS = "/var/run/platform/eeprom/status"
 
 class Eeprom(eeprom_tlvinfo.TlvInfoDecoder):
     def __init__(self):
-        with open(os.path.dirname(__file__) + "/logging.conf", 'r') as f:
-            config_dict = yaml.load(f, yaml.SafeLoader)
-            logging.config.dictConfig(config_dict)
-
-        if not os.path.exists(os.path.dirname(_EEPROM_SYMLINK)):
-            try:
-                os.makedirs(os.path.dirname(_EEPROM_SYMLINK))
-            except OSError as e:
-                if e.errno != errno.EEXIST:
-                    raise
-
-        open(_EEPROM_SYMLINK, 'a').close()
+        file_create(_EEPROM_SYMLINK, '646')
+        file_create(_EEPROM_STATUS, '646')
         with open(_EEPROM_STATUS, 'w') as f:
             f.write("initializing..")
 
@@ -152,3 +139,4 @@ class Eeprom(eeprom_tlvinfo.TlvInfoDecoder):
 
     def revision_str(self):
         return self.__tlv_get(self._TLV_CODE_LABEL_REVISION)
+
