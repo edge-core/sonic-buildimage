@@ -40,7 +40,7 @@ jobs:
   - ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
     - template: template-clean-sonic-slave.yml
   - ${{ else }}:
-    - template: .azure-pipelines/template-variables.yml@buildimage
+    - template: '/.azure-pipelines/template-clean-sonic-slave.yml@buildimage'
   - checkout: self
     clean: true
     submodules: recursive
@@ -103,7 +103,8 @@ jobs:
       command: push
       tags: |
         $(VARIABLE_SLAVE_BASE_TAG)
-        latest
+        ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
+          latest
   - ${{ if ne(parameters.arch, 'amd64') }}:
     - task: Docker@2
       condition: ne(variables['Build.Reason'], 'PullRequest')
