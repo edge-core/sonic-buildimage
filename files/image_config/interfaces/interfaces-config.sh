@@ -1,6 +1,8 @@
 #!/bin/bash
 
-ifdown --force eth0
+if [[ $(ifquery --running eth0) ]]; then
+    ifdown --force eth0
+fi
 
 # Check if ZTP DHCP policy has been installed
 if [ -e /etc/network/ifupdown2/policy.d/ztp_dhcp.json ]; then
