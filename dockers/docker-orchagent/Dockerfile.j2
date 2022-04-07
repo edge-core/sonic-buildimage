@@ -39,7 +39,6 @@ RUN ln -s -f /usr/bin/gcc-8 /usr/bin/aarch64-linux-gnu-gcc
 
 # Dependencies of restore_neighbors.py
 RUN pip3 install \
-         scapy==2.4.4 \
          pyroute2==0.5.14 \
          netifaces==0.10.9
 
@@ -55,6 +54,14 @@ RUN apt-get remove -y gcc-8
 # Install locally-built Debian packages and implicitly install their dependencies
 {{ install_debian_packages(docker_orchagent_debs.split(' ')) }}
 {%- endif %}
+
+{% if docker_orchagent_whls.strip() -%}
+# Copy locally-built Python wheel dependencies
+{{ copy_files("python-wheels/", docker_orchagent_whls.split(' '), "/python-wheels/") }}
+
+# Install locally-built Python wheel dependencies
+{{ install_python_wheels(docker_orchagent_whls.split(' ')) }}
+{% endif %}
 
 # Clean up
 RUN apt-get purge -y          \
