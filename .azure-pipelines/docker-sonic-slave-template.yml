@@ -101,10 +101,13 @@ jobs:
       containerRegistry: ${{ parameters.registry_conn }}
       repository: $(VARIABLE_SLAVE_BASE_IMAGE)
       command: push
-      tags: |
-        $(VARIABLE_SLAVE_BASE_TAG)
-        ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
+      ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
+        tags: |
+          $(VARIABLE_SLAVE_BASE_TAG)
           latest
+      ${{ else }}:
+        tags: |
+          $(VARIABLE_SLAVE_BASE_TAG)
   - ${{ if ne(parameters.arch, 'amd64') }}:
     - task: Docker@2
       condition: ne(variables['Build.Reason'], 'PullRequest')
