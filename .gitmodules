@@ -62,6 +62,9 @@
 [submodule "src/redis-dump-load"]
 	path = src/redis-dump-load
 	url = https://github.com/p/redis-dump-load.git
+[submodule "src/scapy"]
+	path = src/scapy
+	url = https://github.com/secdev/scapy.git
 [submodule "platform/mellanox/mlnx-sai/SAI-Implementation"]
 	path = platform/mellanox/mlnx-sai/SAI-Implementation
 	url = https://github.com/Mellanox/SAI-Implementation
