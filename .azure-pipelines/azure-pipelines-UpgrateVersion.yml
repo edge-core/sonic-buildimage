@@ -38,7 +38,6 @@ parameters:
   - centec
   - centec-arm64
   - generic
-  - innovium
   - marvell-armhf
   - mellanox
 
