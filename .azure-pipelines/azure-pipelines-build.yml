@@ -50,6 +50,7 @@ jobs:
             swi_image: yes
 
         - name: broadcom
+          timeoutInMinutes: 1440
           variables:
             dbg_image: yes
             swi_image: yes
