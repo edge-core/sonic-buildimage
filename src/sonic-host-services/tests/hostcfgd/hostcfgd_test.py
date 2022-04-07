@@ -8,8 +8,7 @@ from sonic_py_common.general import load_module_from_source
 from unittest import TestCase, mock
 
 from .test_vectors import HOSTCFGD_TEST_VECTOR, HOSTCFG_DAEMON_CFG_DB
-from tests.common.mock_configdb import MockConfigDb, MockSubscriberStateTable
-from tests.common.mock_configdb import MockSelect, MockDBConnector
+from tests.common.mock_configdb import MockConfigDb, MockDBConnector
 
 from pyfakefs.fake_filesystem_unittest import patchfs
 from deepdiff import DeepDiff
@@ -24,8 +23,6 @@ sys.path.insert(0, modules_path)
 hostcfgd_path = os.path.join(scripts_path, 'hostcfgd')
 hostcfgd = load_module_from_source('hostcfgd', hostcfgd_path)
 hostcfgd.ConfigDBConnector = MockConfigDb
-hostcfgd.SubscriberStateTable = MockSubscriberStateTable
-hostcfgd.Select = MockSelect
 hostcfgd.DBConnector = MockDBConnector
 hostcfgd.Table = mock.Mock()
 
@@ -122,8 +119,8 @@ class TestHostcfgd(TestCase):
             feature_handler = hostcfgd.FeatureHandler(MockConfigDb(), feature_state_table_mock, device_config)
 
             # sync the state field and Handle Feature Updates
-            feature_handler.sync_state_field()
             features = MockConfigDb.CONFIG_DB['FEATURE']
+            feature_handler.sync_state_field(features)
             for key, fvs in features.items():
                 feature_handler.handle(key, 'SET', fvs)
 
@@ -227,7 +224,7 @@ class TestHostcfgdDaemon(TestCase):
     @patchfs
     def test_feature_events(self, fs):
         fs.create_dir(hostcfgd.FeatureHandler.SYSTEMD_SYSTEM_DIR)
-        MockSelect.event_queue = [('FEATURE', 'dhcp_relay'),
+        MockConfigDb.event_queue = [('FEATURE', 'dhcp_relay'),
                                 ('FEATURE', 'mux'),
                                 ('FEATURE', 'telemetry')]
         daemon = hostcfgd.HostConfigDaemon()
@@ -258,7 +255,7 @@ class TestHostcfgdDaemon(TestCase):
 
             # Change the state to disabled
             MockConfigDb.CONFIG_DB['FEATURE']['telemetry']['state'] = 'disabled'
-            MockSelect.event_queue = [('FEATURE', 'telemetry')]
+            MockConfigDb.event_queue = [('FEATURE', 'telemetry')]
             try:
                 daemon.start()
             except TimeoutError:
@@ -273,7 +270,7 @@ class TestHostcfgdDaemon(TestCase):
 
     def test_loopback_events(self):
         MockConfigDb.set_config_db(HOSTCFG_DAEMON_CFG_DB)
-        MockSelect.event_queue = [('NTP', 'global'),
+        MockConfigDb.event_queue = [('NTP', 'global'),
                                   ('NTP_SERVER', '0.debian.pool.ntp.org'),
                                   ('LOOPBACK_INTERFACE', 'Loopback0|10.184.8.233/32')]
         daemon = hostcfgd.HostConfigDaemon()
@@ -296,8 +293,7 @@ class TestHostcfgdDaemon(TestCase):
         MockConfigDb.set_config_db(HOSTCFG_DAEMON_CFG_DB)
         daemon = hostcfgd.HostConfigDaemon()
         daemon.register_callbacks()
-        assert MockConfigDb.CONFIG_DB['KDUMP']['config']
-        MockSelect.event_queue = [('KDUMP', 'config')]
+        MockConfigDb.event_queue = [('KDUMP', 'config')]
         with mock.patch('hostcfgd.subprocess') as mocked_subprocess:
             popen_mock = mock.Mock()
             attrs = {'communicate.return_value': ('output', 'error')}

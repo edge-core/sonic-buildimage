@@ -10,8 +10,7 @@ from swsscommon import swsscommon
 from parameterized import parameterized
 from unittest import TestCase, mock
 from tests.hostcfgd.test_radius_vectors import HOSTCFGD_TEST_RADIUS_VECTOR
-from tests.common.mock_configdb import MockConfigDb, MockSubscriberStateTable
-from tests.common.mock_configdb import MockSelect, MockDBConnector
+from tests.common.mock_configdb import MockConfigDb, MockDBConnector
 
 
 test_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -33,11 +32,8 @@ sys.modules['hostcfgd'] = hostcfgd
 
 # Mock swsscommon classes
 hostcfgd.ConfigDBConnector = MockConfigDb
-hostcfgd.SubscriberStateTable = MockSubscriberStateTable
-hostcfgd.Select = MockSelect
 hostcfgd.DBConnector = MockDBConnector
 hostcfgd.Table = mock.Mock()
-
 
 class TestHostcfgdRADIUS(TestCase):
     """
