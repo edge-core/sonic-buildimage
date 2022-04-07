@@ -364,5 +364,20 @@ class Test_SonicYang(object):
 
         return
 
+    def test_special_json_with_yang(self, sonic_yang_data):
+        # in this test, we validate unusual json config and check if
+        # loadData works successfully
+        test_file = sonic_yang_data['test_file']
+        syc = sonic_yang_data['syc']
+
+        # read config
+        jIn = self.readIjsonInput(test_file, 'SAMPLE_CONFIG_DB_SPECIAL_CASE')
+        jIn = json.loads(jIn)
+
+        # load config and create Data tree
+        syc.loadData(jIn)
+
+        return
+
     def teardown_class(self):
         pass

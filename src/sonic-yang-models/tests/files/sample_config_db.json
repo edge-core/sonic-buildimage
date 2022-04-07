@@ -304,7 +304,7 @@
                 "switch_id": "2",
                 "switch_type": "voq",
                 "max_cores": "8",
-                "sub_role": "FrondEnd",
+                "sub_role": "FrontEnd",
                 "dhcp_server": "disabled"
             }
         },
@@ -1693,6 +1693,12 @@
     "SAMPLE_CONFIG_DB_UNKNOWN": {
         "UNKNOWN_TABLE": {
             "Error": "This Table is for testing, This Table does not have YANG models."
+        }
+    },
+    "SAMPLE_CONFIG_DB_SPECIAL_CASE": {
+        "TACPLUS": {
+            "global": {
+            }
         }
     }
 }
