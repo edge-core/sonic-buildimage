@@ -44,8 +44,8 @@ class Thermal(ThermalBase):
         if self.index < 3:
             i2c_path = self.I2C_CLASS_DIR + self.I2C_DEV_MAPPING[self.index - 1][0]
             sensor_index = self.I2C_DEV_MAPPING[self.index - 1][1]
-            sensor_max_suffix = "max"
-            sensor_crit_suffix = None
+            sensor_high_suffix = "max"
+            sensor_high_crit_suffix = None
             hwmon_node = os.listdir(i2c_path)[0]
             self.SENSOR_DIR = i2c_path + hwmon_node + '/'
 
@@ -53,8 +53,8 @@ class Thermal(ThermalBase):
         elif self.index < 6:
             i2c_path = self.I2C_CLASS_DIR + self.I2C_DEV_MAPPING[self.index - 1][0]
             sensor_index = self.I2C_DEV_MAPPING[self.index - 1][1]
-            sensor_max_suffix = "max"
-            sensor_crit_suffix = "crit"
+            sensor_high_suffix = "crit"
+            sensor_high_crit_suffix = None
             hwmon_node = os.listdir(i2c_path)[0]
             self.SENSOR_DIR = i2c_path + hwmon_node + '/'
 
@@ -62,8 +62,8 @@ class Thermal(ThermalBase):
         else:
             dev_path = self.HWMON_CLASS_DIR
             sensor_index = 1
-            sensor_max_suffix = None
-            sensor_crit_suffix = None
+            sensor_high_suffix = None
+            sensor_high_crit_suffix = None
             hwmon_node = os.listdir(dev_path)[0]
             self.SENSOR_DIR = dev_path + hwmon_node + '/'
 
@@ -72,16 +72,16 @@ class Thermal(ThermalBase):
             + "temp{}_input".format(sensor_index)
 
         # sysfs file for high threshold value if supported for this sensor
-        if sensor_max_suffix:
+        if sensor_high_suffix:
             self.thermal_high_threshold_file = self.SENSOR_DIR \
-                + "temp{}_{}".format(sensor_index, sensor_max_suffix)
+                + "temp{}_{}".format(sensor_index, sensor_high_suffix)
         else:
             self.thermal_high_threshold_file = None
 
         # sysfs file for crit high threshold value if supported for this sensor
-        if sensor_crit_suffix:
+        if sensor_high_crit_suffix:
             self.thermal_high_crit_threshold_file = self.SENSOR_DIR \
-                + "temp{}_{}".format(sensor_index, sensor_crit_suffix)
+                + "temp{}_{}".format(sensor_index, sensor_high_crit_suffix)
         else:
             self.thermal_high_crit_threshold_file = None
 

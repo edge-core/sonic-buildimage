@@ -30,7 +30,7 @@ def main():
                 high_thresh = "NA"
 
             print("        Low Threshold(C): {}, High Threshold(C): {}".format(low_thresh,
-                                                                                 high_thresh))
+                                                                               high_thresh))
 
             try:
                 crit_low_thresh = thermal.get_low_critical_threshold()
