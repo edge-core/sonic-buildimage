@@ -1,0 +1,4 @@
+libnl-3-200==3.5.0-1
+libnl-route-3-200==3.5.0-1
+libsnmp-base==5.9+dfsg-3+b1
+linux-headers-5.10.0-8-2-arm64==5.10.46-4

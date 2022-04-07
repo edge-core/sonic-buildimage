@@ -1,0 +1,8 @@
+binutils-aarch64-linux-gnu==2.31.1-16
+libpython2.7==2.7.16-2+deb10u1
+libpython2.7-dev==2.7.16-2+deb10u1
+libpython2.7-minimal==2.7.16-2+deb10u1
+libpython2.7-stdlib==2.7.16-2+deb10u1
+python2.7==2.7.16-2+deb10u1
+python2.7-dev==2.7.16-2+deb10u1
+python2.7-minimal==2.7.16-2+deb10u1
