@@ -60,7 +60,7 @@ stages:
   - ${{ each dist in parameters.dists }}:
     - ${{ if endswith(variables['Build.DefinitionName'], dist) }}:
       - ${{ each arch in parameters.arches }}:
-        - ${{ if eq(variables[''Build.Reason], 'PullRequest') }}:
+        - ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
           - template: docker-sonic-slave-template.yml
             parameters:
               pool: sonicbld
