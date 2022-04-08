@@ -3,7 +3,7 @@
 {% set hash_seed = 0 %}
 {% set hash_seed_offset = 0 %}
 {% if DEVICE_METADATA.localhost.type %}
-{% if "ToRRouter" in DEVICE_METADATA.localhost.type %}
+{% if "ToRRouter" in DEVICE_METADATA.localhost.type or DEVICE_METADATA.localhost.type in ["EPMS", "MgmtTsToR"] %}
 {% set hash_seed = 0 %}
 {% elif "LeafRouter" in DEVICE_METADATA.localhost.type %}
 {% set hash_seed = 10 %}
