@@ -24,7 +24,6 @@ stderr_logfile=syslog
 {# Count how many VLANs require a DHCP relay agent... #}
 {% set ipv4_num_relays = { 'count': 0 } %}
 {% set ipv6_num_relays = { 'count': 0 } %}
-{% set d = namespace(vlan_list=[]) %}
 {% for (name, prefix) in VLAN_INTERFACE %}
 {% if name not in d.vlan_list %}
 {% set d.vlan_list = d.vlan_list + [name] %}
@@ -51,6 +50,6 @@ stderr_logfile=syslog
 {% include 'dhcpv4-relay.agents.j2' %}
 {% include 'dhcpv6-relay.agents.j2' %}
 
-{% include 'dhcpv6-relay.monitors.j2' %}
+{% include 'dhcp-relay.monitors.j2' %}
 {% endif %}
 {% endif %}
