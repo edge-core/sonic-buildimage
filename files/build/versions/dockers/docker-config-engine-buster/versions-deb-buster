@@ -16,7 +16,6 @@ libapt-inst2.0==1.8.2.3
 libasan5==8.3.0-6
 libbinutils==2.31.1-16
 libc-dev-bin==2.28-10+deb10u1
-libc6==2.28-10+deb10u1
 libc6-dev==2.28-10+deb10u1
 libcc1-0==8.3.0-6
 libdpkg-perl==1.19.7

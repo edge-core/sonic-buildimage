@@ -325,3 +325,4 @@ vim-common==2:8.1.0875-5+deb10u2
 vim-runtime==2:8.1.0875-5+deb10u2
 xxd==2:8.1.0875-5+deb10u2
 xz-utils==5.2.4-1
+zlib1g==1:1.2.11.dfsg-1+deb10u1

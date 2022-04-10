@@ -12,6 +12,6 @@ psutil==5.9.0
 pyroute2==0.5.14
 python-arptable==0.0.2
 tabulate==0.8.9
-websocket-client==1.3.1
+websocket-client==1.3.2
 xmltodict==0.12.0
 zipp==1.2.0

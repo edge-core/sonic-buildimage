@@ -72,7 +72,7 @@ libffi-dev==3.2.1-6
 libffi6==3.2.1-6
 libfile-fcntllock-perl==0.22-3+b2
 libfribidi0==0.19.7-1+deb9u1
-libgc1c2==1:7.4.2-8
+libgc1c2==1:7.4.2-8+deb9u1
 libgcc-6-dev==6.3.0-18+deb9u1
 libgdbm3==1.8.3-14
 libglib2.0-0==2.50.3-2+deb9u2
@@ -227,6 +227,7 @@ tcpdump==4.9.3-1~deb9u2
 telnet==0.17-41
 tmux==2.3-4
 traceroute==1:2.1.0-2
+tzdata==2021a-0+deb9u3
 ucf==3.0036
 unzip==6.0-21+deb9u2
 vim==2:8.0.0197-4+deb9u5
@@ -238,3 +239,4 @@ xdg-user-dirs==0.15-2+b1
 xml-core==0.17
 xxd==2:8.0.0197-4+deb9u5
 xz-utils==5.2.2-1.2+b1
+zlib1g==1:1.2.8.dfsg-5+deb9u1
