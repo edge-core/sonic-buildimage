@@ -247,6 +247,19 @@ def _get_jinja2_env(paths):
 
     return env
 
+def _must_field_by_yang(data, table, must_fields):
+    """
+    Check if table contains must field based on yang definition
+    """
+    if table not in data:
+        return
+
+    for must_field in must_fields:
+        for _, fields in data[table].items():
+            if must_field not in fields:
+                print(must_field, 'is a must field in', table, file=sys.stderr)
+                sys.exit(1)
+
 def main():
     parser=argparse.ArgumentParser(description="Render configuration file from minigraph data and jinja2 template.")
     group = parser.add_mutually_exclusive_group()
@@ -335,6 +348,8 @@ def main():
                 deep_update(data, parse_xml(minigraph, platform, asic_name=asic_name))
         else:
             deep_update(data, parse_xml(minigraph, port_config_file=args.port_config, asic_name=asic_name, hwsku_config_file=args.hwsku_config))
+        # check if minigraph parser has speed and lanes in PORT table
+        _must_field_by_yang(data, 'PORT', ['speed', 'lanes'])
 
     if args.device_description is not None:
         deep_update(data, parse_device_desc_xml(args.device_description))
