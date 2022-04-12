@@ -59,8 +59,6 @@ command=/usr/sbin/dhcpmon -id {{ vlan_name }}
 {% if prefix | ipv4 %} -im {{ name }}{% endif -%}
 {% endfor %}
 {% endif %}
-{% if relay_for_ipv4.flag %} -4{% endif %}
-{% if relay_for_ipv6.flag %} -6{% endif %}
 
 priority=4
 autostart=false
