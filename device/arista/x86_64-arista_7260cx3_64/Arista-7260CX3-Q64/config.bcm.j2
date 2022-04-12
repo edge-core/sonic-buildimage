@@ -12,6 +12,7 @@
 {%-         set switch_subtype = DEVICE_METADATA['localhost']['subtype'] -%}
 {%-         if 'dualtor' in switch_subtype.lower() %}
 {%-             set IPinIP_sock = 'sai_tunnel_support=1
+                                   sai_tunnel_underlay_route_mode=1
                                    host_as_route_disable=1
                                    l3_ecmp_levels=2' -%}
 {%-         endif %}
