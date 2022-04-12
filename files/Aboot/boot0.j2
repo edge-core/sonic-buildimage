@@ -355,9 +355,6 @@ extract_image() {
     local rootdev="$(echo $mountstr | cut -f1 -d' ')"
     rootfs_type="$(echo $mountstr | cut -d' ' -f3)"
 
-    ## Don't reserve any blocks just for root
-    tune2fs -m 0 -r 0 $rootdev
-
     info "Extracting $dockerfs from swi"
     ## Unpacking dockerfs delayed
     ## 1. when disk is vfat as it does not support symbolic link

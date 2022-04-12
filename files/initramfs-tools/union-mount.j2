@@ -133,6 +133,7 @@ case "${ROOT}" in
     *)
         ## Mount the raw partition again
         mount -t ext4 ${ROOT} ${rootmnt}/host
+        tune2fs -m 0 -r 0 ${ROOT}
         ;;
 esac
 
