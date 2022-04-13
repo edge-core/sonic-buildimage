@@ -163,6 +163,10 @@ run_pip_command()
         elif [[ "$para" == *.whl ]]; then
             package_name=$(echo $para | cut -d- -f1 | tr _ .)
             sed "/^${package_name}==/d" -i $tmp_version_file
+        elif [[ "$para" == *==* ]]; then
+            # fix pip package constraint conflict issue
+            package_name=$(echo $para | cut -d= -f1)
+            sed "/^${package_name}==/d" -i $tmp_version_file
         fi
     done
 
