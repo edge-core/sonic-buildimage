@@ -119,8 +119,7 @@ RUN rm -rf /debs \
     && pip install pyrasite \
     && mkdir -p /opt       \
     && cd /opt             \
-    && wget https://raw.githubusercontent.com/p4lang/ptf/master/ptf_nn/ptf_nn_agent.py \
-    && pip install --upgrade --ignore-installed scapy==2.4.5
+    && wget https://raw.githubusercontent.com/p4lang/ptf/master/ptf_nn/ptf_nn_agent.py
 
 ## Adjust sshd settings
 RUN mkdir /var/run/sshd \
