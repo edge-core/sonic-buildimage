@@ -31,6 +31,9 @@ RUN apt-get update && \
         libxml2     \
         python-pip  \
         python-dev \
+{%- if ENABLE_ASAN == "y" %}
+        libasan5 \
+{%- endif %}
         python-setuptools
 
 RUN pip2 install --upgrade pip
@@ -58,8 +61,12 @@ RUN apt-get clean -y && \
     apt-get autoremove -y && \
     rm -rf /debs
 
-COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
+COPY ["supervisord.conf.j2", "/usr/share/sonic/templates/"]
 COPY ["files/supervisor-proc-exit-listener", "/usr/bin"]
 COPY ["critical_processes", "/etc/supervisor/"]
+
+RUN mkdir -p /etc/supervisor/conf.d/
+RUN sonic-cfggen -a "{\"ENABLE_ASAN\":\"{{ENABLE_ASAN}}\"}" -t /usr/share/sonic/templates/supervisord.conf.j2 > /etc/supervisor/conf.d/supervisord.conf
+RUN rm -f /usr/share/sonic/templates/supervisord.conf.j2
 
 ENTRYPOINT ["/usr/local/bin/supervisord"]

@@ -435,9 +435,9 @@ start() {
 {%- endif %}
 {%- if docker_container_name == "swss" %}
         -e ASIC_VENDOR={{ sonic_asic_platform }} \
-{%- if enable_asan == "y" %}
-        -v /var/log/asan/:/var/log/asan \
 {%- endif -%}
+{%- if docker_container_name in ["swss", "syncd"] and enable_asan == "y" %}
+        -v /var/log/asan/:/var/log/asan \
 {%- endif -%}
 {%- if docker_container_name == "bgp" %}
         -v /etc/sonic/frr/$DEV:/etc/frr:rw \
@@ -499,7 +499,7 @@ stop() {
     {%- elif docker_container_name == "teamd" %}
     # Longer timeout of 60 sec to wait for Portchannels to be cleaned.
     /usr/local/bin/container stop -t 60 $DOCKERNAME
-    {%- elif docker_container_name == "swss" and enable_asan == "y" %}
+    {%- elif docker_container_name in ["swss", "syncd"] and enable_asan == "y" %}
     /usr/local/bin/container stop -t 60 $DOCKERNAME
     {%- else %}
     /usr/local/bin/container stop $DOCKERNAME

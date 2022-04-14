@@ -26,4 +26,6 @@ built_by: {{ built_by }}
 {{ name }}: {{ version }}
 {% endfor -%}
 {% endif -%}
-
+{% if ENABLE_ASAN == "y" -%}
+asan: 'yes'
+{% endif -%}
