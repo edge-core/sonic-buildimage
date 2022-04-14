@@ -1,4 +1,89 @@
 {
+    "chassis": {
+        "name": "Mavericks",
+        "fans": [
+            {
+                "name": "counter-rotating-fan-1"
+            },
+            {
+                "name": "counter-rotating-fan-2"
+            },
+            {
+                "name": "counter-rotating-fan-3"
+            },
+            {
+                "name": "counter-rotating-fan-4"
+            },
+            {
+                "name": "counter-rotating-fan-5"
+            },
+            {
+                "name": "counter-rotating-fan-6"
+            },
+            {
+                "name": "counter-rotating-fan-7"
+            },
+            {
+                "name": "counter-rotating-fan-8"
+            },
+            {
+                "name": "counter-rotating-fan-9"
+            },
+            {
+                "name": "counter-rotating-fan-10"
+            }
+        ],
+        "fan_drawers": [
+            {
+                "name": "fantray-1",
+                "fans": [
+                    {
+                        "name": "counter-rotating-fan-1"
+                    },
+                    {
+                        "name": "counter-rotating-fan-2"
+                    },
+                    {
+                        "name": "counter-rotating-fan-3"
+                    },
+                    {
+                        "name": "counter-rotating-fan-4"
+                    },
+                    {
+                        "name": "counter-rotating-fan-5"
+                    }
+                ]
+            },
+            {
+                "name": "fantray-2",
+                "fans": [
+                    {
+                        "name": "counter-rotating-fan-6"
+                    },
+                    {
+                        "name": "counter-rotating-fan-7"
+                    },
+                    {
+                        "name": "counter-rotating-fan-8"
+                    },
+                    {
+                        "name": "counter-rotating-fan-9"
+                    },
+                    {
+                        "name": "counter-rotating-fan-10"
+                    }
+                ]
+            }
+        ]
+    },
+    "psus": [
+        {
+            "name": "psu-1"
+        },
+        {
+            "name": "psu-2"
+        }
+    ],
     "interfaces": {
         "Ethernet0": {
             "index": "1,1,1,1",

@@ -1,6 +1,14 @@
 {
     "chassis": {
         "name": "Wedge100BF-32X-O-AC-F-BF",
+        "components": [
+            {
+                "name": "BIOS"
+            },
+            {
+                "name": "BMC"
+            }
+        ],
         "fans": [
             {
                 "name": "counter-rotating-fan-1"
@@ -18,10 +26,9 @@
                 "name": "counter-rotating-fan-5"
             }
         ],
-        "fan_drawers":[
+        "fan_drawers": [
             {
-                "name": "fantray",
-                "num_fans" : 5,
+                "name": "fantray-1",
                 "fans": [
                     {
                         "name": "counter-rotating-fan-1"
@@ -51,43 +58,49 @@
         ],
         "thermals": [
             {
-                "name": "com_e_driver-i2c-4-33:memory-temp"
-            },
-            {
                 "name": "com_e_driver-i2c-4-33:cpu-temp"
             },
             {
-                "name": "pfe1100-i2c-7-59:temp1"
+                "name": "com_e_driver-i2c-4-33:memory-temp"
             },
             {
-                "name": "pfe1100-i2c-7-59:temp2"
+                "name": "psu_driver-i2c-7-59:psu2-temp1"
             },
             {
-                "name": "pfe1100-i2c-7-5a:temp1"
+                "name": "psu_driver-i2c-7-59:psu2-temp2"
             },
             {
-                "name": "pfe1100-i2c-7-5a:temp2"
+                "name": "psu_driver-i2c-7-5a:psu1-temp1"
             },
             {
-                "name": "tmp75-i2c-3-48:outlet-middle-temp"
+                "name": "psu_driver-i2c-7-5a:psu1-temp2"
             },
             {
-                "name": "tmp75-i2c-3-49:inlet-middle-temp"
+                "name": "tmp75-i2c-3-48:chip-temp"
             },
             {
-                "name": "tmp75-i2c-3-4a:inlet-left-temp"
+                "name": "tmp75-i2c-3-49:exhaust2-temp"
             },
             {
-                "name": "tmp75-i2c-3-4b:switch-temp"
+                "name": "tmp75-i2c-3-4a:exhaust-temp"
             },
             {
-                "name": "tmp75-i2c-3-4c:inlet-right-temp"
+                "name": "tmp75-i2c-3-4b:intake-temp"
+            },
+            {
+                "name": "tmp75-i2c-3-4c:tofino-temp"
+            },
+            {
+                "name": "tmp75-i2c-3-4d:intake2-temp"
             },
             {
                 "name": "tmp75-i2c-8-48:outlet-right-temp"
             },
             {
                 "name": "tmp75-i2c-8-49:outlet-left-temp"
+            },
+            {
+                "name": "pch_haswell-virtual-0:temp1"
             },
             {
                 "name": "coretemp-isa-0000:package-id-0"
@@ -103,107 +116,104 @@
             },
             {
                 "name": "coretemp-isa-0000:core-3"
-            },
-            {
-                "name": "pch_haswell-virtual-0:temp1"
             }
         ],
         "sfps": [
             {
-                "name": "Ethernet0"
+                "name": "sfp1"
             },
             {
-                "name": "Ethernet4"
+                "name": "sfp2"
             },
             {
-                "name": "Ethernet8"
+                "name": "sfp3"
             },
             {
-                "name": "Ethernet12"
+                "name": "sfp4"
             },
             {
-                "name": "Ethernet16"
+                "name": "sfp5"
             },
             {
-                "name": "Ethernet20"
+                "name": "sfp6"
             },
             {
-                "name": "Ethernet24"
+                "name": "sfp7"
             },
             {
-                "name": "Ethernet28"
+                "name": "sfp8"
             },
             {
-                "name": "Ethernet32"
+                "name": "sfp9"
             },
             {
-                "name": "Ethernet36"
+                "name": "sfp10"
             },
             {
-                "name": "Ethernet40"
+                "name": "sfp11"
             },
             {
-                "name": "Ethernet44"
+                "name": "sfp12"
             },
             {
-                "name": "Ethernet48"
+                "name": "sfp13"
             },
             {
-                "name": "Ethernet52"
+                "name": "sfp14"
             },
             {
-                "name": "Ethernet56"
+                "name": "sfp15"
             },
             {
-                "name": "Ethernet60"
+                "name": "sfp16"
             },
             {
-                "name": "Ethernet64"
+                "name": "sfp17"
             },
             {
-                "name": "Ethernet68"
+                "name": "sfp18"
             },
             {
-                "name": "Ethernet72"
+                "name": "sfp19"
             },
             {
-                "name": "Ethernet76"
+                "name": "sfp20"
             },
             {
-                "name": "Ethernet80"
+                "name": "sfp21"
             },
             {
-                "name": "Ethernet84"
+                "name": "sfp22"
             },
             {
-                "name": "Ethernet88"
+                "name": "sfp23"
             },
             {
-                "name": "Ethernet92"
+                "name": "sfp24"
             },
             {
-                "name": "Ethernet96"
+                "name": "sfp25"
             },
             {
-                "name": "Ethernet100"
+                "name": "sfp26"
             },
             {
-                "name": "Ethernet104"
+                "name": "sfp27"
             },
             {
-                "name": "Ethernet108"
+                "name": "sfp28"
             },
             {
-                "name": "Ethernet112"
+                "name": "sfp29"
             },
             {
-                "name": "Ethernet116"
+                "name": "sfp30"
             },
             {
-                "name": "Ethernet120"
+                "name": "sfp31"
             },
             {
-                "name": "Ethernet124"
+                "name": "sfp32"
             }
         ]
     },

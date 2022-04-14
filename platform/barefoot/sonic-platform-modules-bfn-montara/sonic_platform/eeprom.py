@@ -1,11 +1,7 @@
 try:
     import os
     import sys
-    import errno
     import datetime
-    import logging
-    import logging.config
-    import yaml
     import re
 
     sys.path.append(os.path.dirname(__file__))
@@ -17,6 +13,7 @@ try:
 
     from sonic_platform_base.sonic_eeprom import eeprom_base
     from sonic_platform_base.sonic_eeprom import eeprom_tlvinfo
+    from platform_utils import file_create
 
     from platform_thrift_client import thrift_try
 except ImportError as e:
@@ -24,38 +21,29 @@ except ImportError as e:
 
 
 _platform_eeprom_map = {
-	"prod_name"         : ("Product Name",                "0x21", 12),
-	"odm_pcba_part_num" : ("Part Number",                 "0x22", 13),
-	"prod_ser_num"      : ("Serial Number",               "0x23", 12),
-	"ext_mac_addr"      : ("Extended MAC Address Base",   "0x24", 12),
-	"sys_mfg_date"      : ("System Manufacturing Date",   "0x25",  4),
-	"prod_ver"          : ("Product Version",             "0x26",  1),
-	"ext_mac_addr_size" : ("Extende MAC Address Size",    "0x2A",  2),
-	"sys_mfger"         : ("Manufacturer",                "0x2B",  8)
+    "prod_name"         : ("Product Name",                "0x21", 12),
+    "odm_pcba_part_num" : ("Part Number",                 "0x22", 13),
+    "prod_ser_num"      : ("Serial Number",               "0x23", 12),
+    "ext_mac_addr"      : ("Extended MAC Address Base",   "0x24", 12),
+    "sys_mfg_date"      : ("System Manufacturing Date",   "0x25",  4),
+    "prod_ver"          : ("Product Version",             "0x26",  1),
+    "ext_mac_addr_size" : ("Extende MAC Address Size",    "0x2A",  2),
+    "sys_mfger"         : ("Manufacturer",                "0x2B",  8)
 }
 
-_product_dict = { "Montara"   : "Wedge100BF-32X-O-AC-F-BF",
-                 "Lower MAV" : "Wedge100BF-65X-O-AC-F-BF",
-                 "Upper MAV" : "Wedge100BF-65X-O-AC-F-BF"
-               }
+_product_dict = {
+    "Montara"   : "Wedge100BF-32X-O-AC-F-BF",
+    "Lower MAV" : "Wedge100BF-65X-O-AC-F-BF",
+    "Upper MAV" : "Wedge100BF-65X-O-AC-F-BF"
+}
 
 _EEPROM_SYMLINK = "/var/run/platform/eeprom/syseeprom"
 _EEPROM_STATUS = "/var/run/platform/eeprom/status"
 
 class Eeprom(eeprom_tlvinfo.TlvInfoDecoder):
     def __init__(self):
-        with open(os.path.dirname(__file__) + "/logging.conf", 'r') as f:
-            config_dict = yaml.load(f, yaml.SafeLoader)
-            logging.config.dictConfig(config_dict)
-
-        if not os.path.exists(os.path.dirname(_EEPROM_SYMLINK)):
-            try:
-                os.makedirs(os.path.dirname(_EEPROM_SYMLINK))
-            except OSError as e:
-                if e.errno != errno.EEXIST:
-                    raise
-
-        open(_EEPROM_SYMLINK, 'a').close()
+        file_create(_EEPROM_SYMLINK, '646')
+        file_create(_EEPROM_STATUS, '646')
         with open(_EEPROM_STATUS, 'w') as f:
             f.write("initializing..")
 
@@ -148,3 +136,7 @@ class Eeprom(eeprom_tlvinfo.TlvInfoDecoder):
 
     def modelstr(self):
         return self.__tlv_get(self._TLV_CODE_PRODUCT_NAME)
+
+    def revision_str(self):
+        return self.__tlv_get(self._TLV_CODE_LABEL_REVISION)
+
