@@ -24,8 +24,10 @@
 
 try:
     import os
+    import time
     from sonic_platform_base.psu_base import PsuBase
     from sonic_py_common.logger import Logger
+    from .device_data import DeviceDataManager
     from .led import PsuLed, SharedLed, ComponentFaultyIndicator
     from . import utils
     from .vpd_parser import VpdParser
@@ -411,6 +413,7 @@ class Psu(FixedPsu):
             capability = utils.read_str_from_file(self.psu_voltage_capability)
             if 'max' in capability:
                 max_voltage = utils.read_int_from_file(self.psu_voltage_max, log_func=logger.log_info)
+                max_voltage = InvalidPsuVolWA.run(self, max_voltage, self.psu_voltage_max)
                 return float(max_voltage) / 1000
 
         return None
@@ -431,6 +434,7 @@ class Psu(FixedPsu):
             capability = utils.read_str_from_file(self.psu_voltage_capability)
             if 'min' in capability:
                 min_voltage = utils.read_int_from_file(self.psu_voltage_min, log_func=logger.log_info)
+                min_voltage = InvalidPsuVolWA.run(self, min_voltage, self.psu_voltage_min)
                 return float(min_voltage) / 1000
 
         return None
@@ -448,3 +452,69 @@ class Psu(FixedPsu):
             return float(power_max) / 1000000
         else:
             return None
+
+
+class InvalidPsuVolWA:
+    """This class is created as a workaround for a known hardware issue that the PSU voltage threshold could be a 
+       invalid value 127998. Once we read a voltage threshold value equal to 127998, we should do following:
+           1. Check the PSU vendor, it should be Delta
+           2. Generate a temp sensor configuration file which contains a few set commands. Those set commands are the WA provided by low level team.
+           3. Call "sensors -s -c <tmp_conf_file>"
+           4. Wait for it to take effect
+        
+        This issue is found on 3700, 3700c, 3800, 4600c
+    """
+
+    INVALID_VOLTAGE_VALUE = 127998
+    EXPECT_VENDOR_NAME = 'DELTA'
+    EXPECT_CAPACITY = '1100'
+    EXPECT_PLATFORMS = ['x86_64-mlnx_msn3700-r0', 'x86_64-mlnx_msn3700c-r0', 'x86_64-mlnx_msn3800-r0', 'x86_64-mlnx_msn4600c-r0']
+    MFR_FIELD = 'MFR_NAME'
+    CAPACITY_FIELD = 'CAPACITY'
+    WAIT_TIME = 5
+
+    @classmethod
+    def run(cls, psu, threshold_value, threshold_file):
+        if threshold_value != cls.INVALID_VOLTAGE_VALUE:
+            # If the threshold value is not an invalid value, just return
+            return threshold_value
+
+        platform_name = DeviceDataManager.get_platform_name()
+        # Apply the WA to specified platforms
+        if platform_name not in cls.EXPECT_PLATFORMS:
+            # It is unlikely to go to this branch, so we log a warning here
+            logger.log_warning('PSU {} threshold file {} value {}, but platform is {}'.format(psu.index, threshold_file, threshold_value, platform_name))
+            return threshold_value
+
+        # Check PSU vendor, make sure it is DELTA
+        vendor_name = psu.vpd_parser.get_entry_value(cls.MFR_FIELD)
+        if vendor_name != 'N/A' and vendor_name != cls.EXPECT_VENDOR_NAME:
+            # It is unlikely to go to this branch, so we log a warning here
+            logger.log_warning('PSU {} threshold file {} value {}, but its vendor is {}'.format(psu.index, threshold_file, threshold_value, vendor_name))
+            return threshold_value
+
+        # Check PSU version, make sure it is 1100
+        capacity = psu.vpd_parser.get_entry_value(cls.CAPACITY_FIELD)
+        if capacity != 'N/A' and capacity != cls.EXPECT_CAPACITY:
+            logger.log_warning('PSU {} threshold file {} value {}, but its capacity is {}'.format(psu.index, threshold_file, threshold_value, capacity))
+            return threshold_value
+
+        # Run a sensor -s command to triger hardware to get the real threashold value
+        utils.run_command('sensor -s')
+
+        # Wait for the threshold value change
+        return cls.wait_set_done(threshold_file)
+
+    @classmethod
+    def wait_set_done(cls, threshold_file):
+        wait_time = cls.WAIT_TIME
+        while wait_time > 0:
+            value = utils.read_int_from_file(threshold_file, log_func=logger.log_info)
+            if value != cls.INVALID_VOLTAGE_VALUE:
+                return value
+
+            wait_time -= 1
+            time.sleep(1)
+
+        logger.log_error('sensor -s does not recover PSU threshold sensor after {} seconds'.format(cls.WAIT_TIME))
+        return None

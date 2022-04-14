@@ -116,3 +116,40 @@ class TestPsu:
         assert psu.get_model() == 'MTEF-PSF-AC-C'
         assert psu.get_serial() == 'MT1946X07684'
         assert psu.get_revision() == 'A3'
+
+        assert psu.vpd_parser.get_entry_value('MFR_NAME') == 'DELTA'
+
+    @mock.patch('sonic_platform.utils.read_int_from_file', mock.MagicMock(return_value=9999))
+    @mock.patch('sonic_platform.utils.run_command')
+    @mock.patch('sonic_platform.device_data.DeviceDataManager.get_platform_name')
+    @mock.patch('sonic_platform.vpd_parser.VpdParser.get_entry_value')
+    def test_psu_workaround(self, mock_get_entry_value, mock_get_platform_name, mock_run_command):
+        from sonic_platform.psu import InvalidPsuVolWA
+        psu = Psu(0)
+        # Threshold value is not InvalidPsuVolWA.INVALID_VOLTAGE_VALUE
+        assert InvalidPsuVolWA.run(psu, 9999, '') == 9999
+
+        # Platform name is not in InvalidPsuVolWA.EXPECT_PLATFORMS
+        mock_get_platform_name.return_value = 'some platform'
+        assert InvalidPsuVolWA.run(psu, InvalidPsuVolWA.INVALID_VOLTAGE_VALUE, '') == InvalidPsuVolWA.INVALID_VOLTAGE_VALUE
+
+        # PSU vendor is not InvalidPsuVolWA.EXPECT_VENDOR_NAME
+        vpd_info = {
+            InvalidPsuVolWA.MFR_FIELD: 'some psu',
+            InvalidPsuVolWA.CAPACITY_FIELD: 'some capacity'
+        }
+        def get_entry_value(key):
+            return vpd_info[key]
+
+        mock_get_entry_value.side_effect = get_entry_value
+        mock_get_platform_name.return_value = 'x86_64-mlnx_msn3700-r0'
+        assert InvalidPsuVolWA.run(psu, InvalidPsuVolWA.INVALID_VOLTAGE_VALUE, '') == InvalidPsuVolWA.INVALID_VOLTAGE_VALUE
+
+        # PSU capacity is not InvalidPsuVolWA.EXPECT_CAPACITY
+        vpd_info[InvalidPsuVolWA.MFR_FIELD] = InvalidPsuVolWA.EXPECT_VENDOR_NAME
+        assert InvalidPsuVolWA.run(psu, InvalidPsuVolWA.INVALID_VOLTAGE_VALUE, '') == InvalidPsuVolWA.INVALID_VOLTAGE_VALUE
+
+        # Normal
+        vpd_info[InvalidPsuVolWA.CAPACITY_FIELD] = InvalidPsuVolWA.EXPECT_CAPACITY
+        assert InvalidPsuVolWA.run(psu, InvalidPsuVolWA.INVALID_VOLTAGE_VALUE, '') == 9999
+        mock_run_command.assert_called_with('sensor -s')
