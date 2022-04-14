@@ -194,3 +194,16 @@ def default_return(return_value, log_func=logger.log_debug):
                 return return_value
         return _impl
     return wrapper
+
+
+def run_command(command):
+    """
+    Utility function to run an shell command and return the output.
+    :param command: Shell command string.
+    :return: Output of the shell command.
+    """
+    try:
+        process = subprocess.Popen(command, shell=True, universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        return process.communicate()[0].strip()
+    except Exception:
+        return None

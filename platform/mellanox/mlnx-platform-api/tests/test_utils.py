@@ -116,3 +116,7 @@ class TestUtils:
         
         assert func() == 100
         assert mock_log.call_count == 1
+
+    def test_run_command(self):
+        output = utils.run_command('ls')
+        assert output
