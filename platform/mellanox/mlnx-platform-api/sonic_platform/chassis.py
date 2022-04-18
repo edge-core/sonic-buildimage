@@ -657,24 +657,23 @@ class Chassis(ChassisBase):
         self.reboot_major_cause_dict = {
             'reset_main_pwr_fail'       :   self.REBOOT_CAUSE_POWER_LOSS,
             'reset_aux_pwr_or_ref'      :   self.REBOOT_CAUSE_POWER_LOSS,
+            'reset_comex_pwr_fail'      :   self.REBOOT_CAUSE_POWER_LOSS,
             'reset_asic_thermal'        :   self.REBOOT_CAUSE_THERMAL_OVERLOAD_ASIC,
+            'reset_comex_thermal'       :   self.REBOOT_CAUSE_THERMAL_OVERLOAD_CPU,
             'reset_hotswap_or_wd'       :   self.REBOOT_CAUSE_WATCHDOG,
+            'reset_comex_wd'            :   self.REBOOT_CAUSE_WATCHDOG,
             'reset_swb_wd'              :   self.REBOOT_CAUSE_WATCHDOG,
-            'reset_sff_wd'              :   self.REBOOT_CAUSE_WATCHDOG
+            'reset_sff_wd'              :   self.REBOOT_CAUSE_WATCHDOG,
+            'reset_hotswap_or_halt'     :   self.REBOOT_CAUSE_HARDWARE_OTHER,
+            'reset_voltmon_upgrade_fail':   self.REBOOT_CAUSE_HARDWARE_OTHER,
+            'reset_reload_bios'         :   self.REBOOT_CAUSE_HARDWARE_BIOS,
+            'reset_from_comex'          :   self.REBOOT_CAUSE_HARDWARE_CPU,
+            'reset_fw_reset'            :   self.REBOOT_CAUSE_HARDWARE_RESET_FROM_ASIC,
+            'reset_from_asic'           :   self.REBOOT_CAUSE_HARDWARE_RESET_FROM_ASIC,
+            'reset_long_pb'             :   self.REBOOT_CAUSE_HARDWARE_BUTTON,
+            'reset_short_pb'            :   self.REBOOT_CAUSE_HARDWARE_BUTTON
         }
-        self.reboot_minor_cause_dict = {
-            'reset_fw_reset'            :   "Reset by ASIC firmware",
-            'reset_long_pb'             :   "Reset by long press on power button",
-            'reset_short_pb'            :   "Reset by short press on power button",
-            'reset_comex_thermal'       :   "ComEx thermal shutdown",
-            'reset_comex_pwr_fail'      :   "ComEx power fail",
-            'reset_comex_wd'            :   "Reset requested from ComEx",
-            'reset_from_asic'           :   "Reset requested from ASIC",
-            'reset_reload_bios'         :   "Reset caused by BIOS reload",
-            'reset_hotswap_or_halt'     :   "Reset caused by hotswap or halt",
-            'reset_from_comex'          :   "Reset from ComEx",
-            'reset_voltmon_upgrade_fail':   "Reset due to voltage monitor devices upgrade failure"
-        }
+        self.reboot_minor_cause_dict = {}
         self.reboot_by_software = 'reset_sw_reset'
         self.reboot_cause_initialized = True
 
