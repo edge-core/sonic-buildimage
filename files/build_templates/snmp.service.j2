@@ -10,8 +10,8 @@ StartLimitIntervalSec=1200
 StartLimitBurst=3
 
 [Service]
-ExecStartPre=/usr/bin/{{docker_container_name}}.sh start
-ExecStart=/usr/bin/{{docker_container_name}}.sh wait
-ExecStop=/usr/bin/{{docker_container_name}}.sh stop
+ExecStartPre=/usr/local/bin/{{docker_container_name}}.sh start
+ExecStart=/usr/local/bin/{{docker_container_name}}.sh wait
+ExecStop=/usr/local/bin/{{docker_container_name}}.sh stop
 Restart=always
 RestartSec=30
