@@ -2,33 +2,39 @@ jobs:
 - job: Build
   timeoutInMinutes: 120
   pool: sonicbld
+  variables:
+  - template: template-variables.yml
   steps:
   - checkout: self
     clean: true
     submodules: recursive
   - script: |
       set -ex
-      case $(Build.SourceBranchName) in
-        202012 | 202106)
-          bldenv=buster
-          ;;
-        *)
-          bldenv=bullseye
-          ;;
-      esac
-      BLDENV=$bldenv make -f Makefile.work configure PLATFORM=vs ENABLE_DOCKER_BASE_PULL=y
-      echo "##vso[task.setvariable variable=bldenv;]$bldenv"
+      branch=$(Build.SourceBranchName)
+      # DIST_MASTER is set in variable.
+      BRANCH=DIST_${branch^^}
+      bldenvs=${!BRANCH}
+      [ "$bldenvs" == "" ] && bldenvs="$(COMMON_LIB_BUILD_ENVS)"
+      for bldenv in $bldenvs
+      do
+        BLDENV=$bldenv make -f Makefile.work configure PLATFORM=vs ENABLE_DOCKER_BASE_PULL=y
+      done
+      set +x
+      echo "##vso[task.setvariable variable=bldenvs;]$bldenvs"
     displayName: Make configure
   - script: |
       set -ex
-      LIBNL3_VERSION_BASE=$(grep "LIBNL3_VERSION_BASE =" rules/libnl3.mk | awk '{print$3}')
-      LIBNL3_VERSION=$(grep "LIBNL3_VERSION =" rules/libnl3.mk | awk '{print$3}' | sed -e "s/(//" -e "s/)//" -e "s/\\$//" -e "s/LIBNL3_VERSION_BASE/$LIBNL3_VERSION_BASE/")
-      BLDENV=$(bldenv) make -f Makefile.work target/debs/$(bldenv)/libnl-3-200_${LIBNL3_VERSION}_amd64.deb ENABLE_DOCKER_BASE_PULL=y
+      for bldenv in $(bldenvs)
+      do
+        LIBNL3_VERSION_BASE=$(grep "LIBNL3_VERSION_BASE =" rules/libnl3.mk | awk '{print$3}')
+        LIBNL3_VERSION=$(grep "LIBNL3_VERSION =" rules/libnl3.mk | awk '{print$3}' | sed -e "s/(//" -e "s/)//" -e "s/\\$//" -e "s/LIBNL3_VERSION_BASE/$LIBNL3_VERSION_BASE/")
+        SONIC_BUILD_JOBS=$(nproc) BLDENV=$bldenv make -f Makefile.work target/debs/$bldenv/libnl-3-200_${LIBNL3_VERSION}_amd64.deb ENABLE_DOCKER_BASE_PULL=y
 
-      LIBYANG_VERSION_BASE=$(grep "LIBYANG_VERSION_BASE =" rules/libyang.mk | awk '{print$3}')
-      LIBYANG_VERSION=$(grep "LIBYANG_VERSION =" rules/libyang.mk | awk '{print$3}' | sed -e "s/\\$//" -e "s/(//" -e "s/)//" -e "s/LIBYANG_VERSION_BASE/$LIBYANG_VERSION_BASE/")
-      BLDENV=$(bldenv) make -f Makefile.work target/debs/$(bldenv)/libyang_${LIBYANG_VERSION}_amd64.deb
-      find target -name *.deb | xargs -i cp {} $(Build.ArtifactStagingDirectory)
+        LIBYANG_VERSION_BASE=$(grep "LIBYANG_VERSION_BASE =" rules/libyang.mk | awk '{print$3}')
+        LIBYANG_VERSION=$(grep "LIBYANG_VERSION =" rules/libyang.mk | awk '{print$3}' | sed -e "s/\\$//" -e "s/(//" -e "s/)//" -e "s/LIBYANG_VERSION_BASE/$LIBYANG_VERSION_BASE/")
+        SONIC_BUILD_JOBS=$(nproc) BLDENV=$bldenv make -f Makefile.work target/debs/$bldenv/libyang_${LIBYANG_VERSION}_amd64.deb
+      done
+      mv target $(Build.ArtifactStagingDirectory)
     displayName: Make common lib packages
   - publish: $(Build.ArtifactStagingDirectory)
     artifact: common-lib

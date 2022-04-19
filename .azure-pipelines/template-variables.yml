@@ -1,2 +1,3 @@
 variables:
   DEFAULT_CONTAINER_REGISTRY: 'publicmirror.azurecr.io'
+  COMMON_LIB_BUILD_ENVS: 'bullseye'
