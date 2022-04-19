@@ -180,6 +180,13 @@ K8s_GCR_IO_PAUSE_VERSION = 3.4.1
 # The relative path is build root folder.
 SONIC_ENABLE_IMAGE_SIGNATURE ?= n
 
+# SONIC_ENABLE_SECUREBOOT_SIGNATURE - enable SONiC kernel signing to support UEFI secureboot
+# To support UEFI secureboot chain of trust requires EFI kernel to be signed as a PE binary
+#     SIGNING_KEY =
+#     SIGNING_CERT =
+# The absolute path should be provided.
+SONIC_ENABLE_SECUREBOOT_SIGNATURE ?= n
+
 # PACKAGE_URL_PREFIX - the package url prefix
 PACKAGE_URL_PREFIX ?= https://packages.trafficmanager.net/public/packages
 

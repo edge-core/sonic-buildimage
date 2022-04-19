@@ -188,6 +188,17 @@ ifneq ($(SONIC_DPKG_CACHE_SOURCE),)
 	DOCKER_RUN += -v "$(SONIC_DPKG_CACHE_SOURCE):/dpkg_cache:rw"
 endif
 
+ifeq ($(SONIC_ENABLE_SECUREBOOT_SIGNATURE), y)
+ifneq ($(SIGNING_KEY),)
+	DOCKER_SIGNING_SOURCE := $(shell dirname $(SIGNING_KEY))
+	DOCKER_RUN += -v "$(DOCKER_SIGNING_SOURCE):$(DOCKER_SIGNING_SOURCE):ro"
+endif
+ifneq ($(SIGNING_CERT),)
+	DOCKER_SIGNING_SOURCE := $(shell dirname $(SIGNING_CERT))
+	DOCKER_RUN += -v "$(DOCKER_SIGNING_SOURCE):$(DOCKER_SIGNING_SOURCE):ro"
+endif
+endif
+
 ifeq ($(SONIC_CONFIG_USE_NATIVE_DOCKERD_FOR_BUILD), y)
 ifneq ($(MULTIARCH_QEMU_ENVIRON), y)
     DOCKER_RUN += -v /var/run/docker.sock:/var/run/docker.sock
@@ -290,6 +301,7 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            EXTRA_DOCKER_TARGETS=$(EXTRA_DOCKER_TARGETS) \
                            BUILD_LOG_TIMESTAMP=$(BUILD_LOG_TIMESTAMP) \
                            SONIC_ENABLE_IMAGE_SIGNATURE=$(ENABLE_IMAGE_SIGNATURE) \
+                           SONIC_ENABLE_SECUREBOOT_SIGNATURE=$(SONIC_ENABLE_SECUREBOOT_SIGNATURE) \
                            SONIC_DEFAULT_CONTAINER_REGISTRY=$(DEFAULT_CONTAINER_REGISTRY) \
                            ENABLE_HOST_SERVICE_ON_START=$(ENABLE_HOST_SERVICE_ON_START) \
                            SLAVE_DIR=$(SLAVE_DIR) \
