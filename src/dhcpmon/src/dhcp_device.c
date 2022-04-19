@@ -75,6 +75,15 @@ static bool dhcpv6_enabled;
 #define OP_JSET     (BPF_JMP | BPF_JSET | BPF_K)    /** bpf jset */
 #define OP_LDXB     (BPF_LDX | BPF_B    | BPF_MSH)  /** bpf ldxb */
 
+#define BOUND_CHECK(offset)                                            \
+    if (buffer_sz < offset)                                            \
+    {                                                                  \
+        syslog(LOG_WARNING, "read_callback(%s): read length (%ld) is " \
+                            "too small to capture DHCP options",       \
+                            context->intf, buffer_sz);                 \
+        return;                                                        \
+    }
+
 /** Berkeley Packet Filter program for "udp and (port 546 or port 547 or port 67 or port 68)".
  * This program is obtained using the following command tcpdump:
  * `tcpdump -dd "udp and (port 546 or port 547 or port 67 or port 68)"`
@@ -325,7 +334,7 @@ static void read_callback(int fd, short event, void *arg)
                 }
             }
         }
-        else if (!is_ipv4 && dhcpv6_enabled && (buffer_sz > UDPv6_START_OFFSET + sizeof(struct udphdr) + DHCPv6_TYPE_LENGTH)) {
+        else if (!is_ipv4 && dhcpv6_enabled && (buffer_sz > DHCPv6_START_OFFSET + DHCPv6_TYPE_LENGTH)) {
             const u_char* dhcp_header = context->buffer + dhcp_option_offset;
             dhcp_packet_direction_t dir = (ethhdr->ether_shost[0] == context->mac[0] &&
                                            ethhdr->ether_shost[1] == context->mac[1] &&
@@ -342,17 +351,21 @@ static void read_callback(int fd, short event, void *arg)
             {
                 // Get to DHCPv6_OPTION_RELAY_MSG from all options
                 offset += DHCPv6_RELAY_MSG_OPTIONS_OFFSET;
+                BOUND_CHECK(DHCPv6_START_OFFSET + offset);
                 option = htons(*((uint16_t*)(&(dhcp_header[offset]))));
 
                 while (option != DHCPv6_OPTION_RELAY_MSG)
                 {
                     // Add to offset the option length and get the next option ID
+                    BOUND_CHECK(DHCPv6_START_OFFSET + offset + DHCPv6_OPTION_LENGTH);
                     current_option_len = htons(*((uint16_t*)(&(dhcp_header[offset + DHCPv6_OPTION_LENGTH]))));
                     offset += DHCPv6_OPTION_LENGTH + DHCPv6_OPTION_LEN_LENGTH + current_option_len;
+                    BOUND_CHECK(DHCPv6_START_OFFSET + offset);
                     option = htons(*((uint16_t*)(&(dhcp_header[offset]))));
                 }
                 // Set the offset to DHCP-relay-message data
                 offset += DHCPv6_OPTION_LENGTH + DHCPv6_OPTION_LEN_LENGTH;
+                BOUND_CHECK(DHCPv6_START_OFFSET + offset);
             }
             handle_dhcpv6_option(context, dhcp_header[offset], dir);
         } else {
