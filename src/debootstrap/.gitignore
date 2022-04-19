@@ -1,0 +1,3 @@
+debootstrap*.udeb
+debootstrap*.dsc
+debootstrap-*/
