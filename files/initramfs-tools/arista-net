@@ -47,7 +47,9 @@ arista_net_rename() {
     local new_name="$2"
     local from_name="$3"
     devname=$(arista_net_devname "$device_path" "$from_name")
-    [ -n "$devname" ] && ip link set "$devname" name "$new_name"
+    if [ -n "$devname" ]; then
+        ip link set "$devname" name "$new_name"
+    fi
 }
 
 # Sets the MAC address to the value passed by Aboot through /proc/cmdline
