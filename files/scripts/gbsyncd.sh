@@ -3,7 +3,11 @@
 . /usr/local/bin/syncd_common.sh
 
 function startplatform() {
-    :
+    # Add gbsyncd to FEATURE table, if not in. It did have same config as syncd.
+    if [ -z $($SONIC_DB_CLI CONFIG_DB HGET 'FEATURE|gbsyncd' state) ]; then
+        local CMD="local r=redis.call('DUMP', KEYS[1]); redis.call('RESTORE', KEYS[2], 0, r)"
+        $SONIC_DB_CLI CONFIG_DB EVAL "$CMD" 2 'FEATURE|syncd' 'FEATURE|gbsyncd'
+    fi
 }
 
 function waitplatform() {

@@ -112,11 +112,13 @@ start_peer_and_dependent_services() {
     check_warm_boot
 
     if [[ x"$WARM_BOOT" != x"true" ]]; then
-        if [[ ! -z $DEV ]]; then
-            /bin/systemctl start ${PEER}@$DEV
-        else
-           /bin/systemctl start ${PEER}
-        fi
+        for peer in ${PEER}; do
+            if [[ ! -z $DEV ]]; then
+                /bin/systemctl start ${peer}@$DEV
+            else
+               /bin/systemctl start ${peer}
+            fi
+        done
         for dep in ${DEPENDENT}; do
             /bin/systemctl start ${dep}
         done
@@ -143,11 +145,13 @@ stop_peer_and_dependent_services() {
         for dep in ${DEPENDENT}; do
             /bin/systemctl stop ${dep}
         done
-        if [[ ! -z $DEV ]]; then
-            /bin/systemctl stop ${PEER}@$DEV
-        else
-            /bin/systemctl stop ${PEER}
-        fi
+        for peer in ${PEER}; do
+            if [[ ! -z $DEV ]]; then
+                /bin/systemctl stop ${peer}@$DEV
+            else
+                /bin/systemctl stop ${peer}
+            fi
+        done
     fi
 }
 
@@ -207,11 +211,18 @@ wait() {
     # NOTE: This assumes Docker containers share the same names as their
     # corresponding services
     for SECS in {1..60}; do
-        if [[ ! -z $DEV ]]; then
-            RUNNING=$(docker inspect -f '{{.State.Running}}' ${PEER}$DEV)
-        else
-            RUNNING=$(docker inspect -f '{{.State.Running}}' ${PEER})
-        fi
+        ALL_PEERS_RUNNING=true
+        for peer in ${PEER}; do
+            if [[ ! -z $DEV ]]; then
+                RUNNING=$(docker inspect -f '{{.State.Running}}' ${peer}$DEV)
+            else
+                RUNNING=$(docker inspect -f '{{.State.Running}}' ${peer})
+            fi
+            if [[ x"$RUNNING" != x"true" ]]; then
+                ALL_PEERS_RUNNING=false
+                break
+            fi
+        done
         ALL_DEPS_RUNNING=true
         for dep in ${MULTI_INST_DEPENDENT}; do
             if [[ ! -z $DEV ]]; then
@@ -225,7 +236,7 @@ wait() {
             fi
         done
 
-        if [[ x"$RUNNING" == x"true" && x"$ALL_DEPS_RUNNING" == x"true" ]]; then
+        if [[ x"$ALL_PEERS_RUNNING" == x"true" && x"$ALL_DEPS_RUNNING" == x"true" ]]; then
             break
         else
             sleep 1
@@ -243,7 +254,7 @@ wait() {
     done
 
     if [[ ! -z $DEV ]]; then
-        /usr/bin/docker-wait-any -s ${SERVICE}$DEV -d ${PEER}$DEV ${ALL_DEPS}
+        /usr/bin/docker-wait-any -s ${SERVICE}$DEV -d `printf "%s$DEV " ${PEER}` ${ALL_DEPS}
     else
         /usr/bin/docker-wait-any -s ${SERVICE} -d ${PEER} ${ALL_DEPS}
     fi
@@ -283,6 +294,17 @@ stop() {
     stop_peer_and_dependent_services
 }
 
+function check_peer_gbsyncd()
+{
+    PLATFORM=`$SONIC_DB_CLI CONFIG_DB hget 'DEVICE_METADATA|localhost' platform`
+    HWSKU=`$SONIC_DB_CLI CONFIG_DB hget 'DEVICE_METADATA|localhost' hwsku`
+    GEARBOX_CONFIG=/usr/share/sonic/device/$PLATFORM/$HWSKU/$DEV/gearbox_config.json
+
+    if [ -f $GEARBOX_CONFIG ]; then
+        PEER="$PEER gbsyncd"
+    fi
+}
+
 if [ "$DEV" ]; then
     NET_NS="$NAMESPACE_PREFIX$DEV" #name of the network namespace
     SONIC_DB_CLI="sonic-db-cli -n $NET_NS"
@@ -291,6 +313,7 @@ else
     SONIC_DB_CLI="sonic-db-cli"
 fi
 
+check_peer_gbsyncd
 read_dependent_services
 
 case "$1" in
