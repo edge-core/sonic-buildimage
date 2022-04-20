@@ -11,7 +11,7 @@ enlighten==1.10.2
 filelock==3.6.0
 idna==3.3
 jsonpatch==1.32
-jsonpointer==2.2
+jsonpointer==2.3
 m2crypto==0.38.0
 netifaces==0.10.9
 pexpect==4.8.0

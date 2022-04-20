@@ -1,10 +1,12 @@
 bfnplatform==1.0.0
 bfnsdk==1.0.0
+libbsd0==0.9.1-2+deb10u1
 libc-ares2==1.14.0-1+deb10u1
 libc-dev-bin==2.28-10+deb10u1
 libc6-dev==2.28-10+deb10u1
 libcurl3-gnutls==7.64.0-4+deb10u2
 libcurl4-gnutls-dev==7.64.0-4+deb10u2
+libedit2==3.1-20181209-1
 libgoogle-perftools4==2.7-1
 libicu63==63.1-6+deb10u3
 liblzma-dev==5.2.4-1

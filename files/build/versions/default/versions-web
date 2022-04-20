@@ -30,8 +30,8 @@ https://deb.nodesource.com/node_14.x/dists/buster/Release==3084d51335d332e66f0d8
 https://deb.nodesource.com/setup_10.x==6742c0148159980e8f6e886df1f8bbe1
 https://deb.nodesource.com/setup_14.x==e678ff76caf1620bc1cc5162517a8f4b
 https://download.docker.com/linux/debian/gpg==1afae06b34a13c1b3d9cb61a26285a15
-https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnplatform_20211117_sai_1.9.1_deb10.deb==0ae1168e236c7e4a332a897946a83198
-https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnsdk_20211117_sai_1.9.1_deb10.deb==58c859ff4366688fac4f3bf0bd3ae4bd
+https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnplatform_20220408_sai_1.9.1_deb10.deb==890a53ca1374dfcf8c12091d74fd2ef8
+https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnsdk_20220408_sai_1.9.1_deb10.deb==a54c351ee84ddb63837085272a1c4eae
 https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64==4ea37edbea9fc2b88bdb5bbc2855be04
 https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-arm64==913165e7536ebd338a3614b27e480d87
 https://github.com/CentecNetworks/sonic-binaries/raw/master/amd64/sai/libsai_1.9.1-0_amd64.deb==08e1a82bd42ca1cba08fd6deec43c02a
@@ -39,7 +39,7 @@ https://github.com/CentecNetworks/sonic-binaries/raw/master/amd64/third_party/ad
 https://github.com/CentecNetworks/sonic-binaries/raw/master/amd64/third_party/advantech/libSUSI-4.00.so.1==393a94b0abba146777e276e1febe0cb0
 https://github.com/CentecNetworks/sonic-binaries/raw/master/arm64/sai/libsai_1.9.1-0_arm64.deb==c354c766cc763a5af621a88637b9e126
 https://github.com/CumulusNetworks/ifupdown2/archive/3.0.0-1.tar.gz==755459b3a58fbc11625336846cea7420
-https://github.com/Marvell-switching/sonic-marvell-binaries/raw/master/armhf/sai-plugin/mrvllibsai_1.9.1-1_armhf.deb==6dad7c1022ef8cbe1db57077afcd386e
+https://github.com/Marvell-switching/sonic-marvell-binaries/raw/master/armhf/sai-plugin/mrvllibsai_1.9.1-2_armhf.deb==41989b6336eaca539d81981ce82df2d4
 https://github.com/nanomsg/nanomsg/archive/1.0.0.tar.gz==6f56ef28c93cee644e8c4aaaef7cfb55
 https://launchpad.net/debian/+archive/primary/+sourcefiles/bash/5.1-2/bash_5.1-2.debian.tar.xz==9d0cbd5f463f461c840c95f62a64d61b
 https://launchpad.net/debian/+archive/primary/+sourcefiles/bash/5.1-2/bash_5.1-2.dsc==be44c5a9fc12fb567a486f54b842dd9e

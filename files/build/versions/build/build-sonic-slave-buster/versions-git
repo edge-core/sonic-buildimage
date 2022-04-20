@@ -3,7 +3,7 @@ https://github.com/jpirko/libteam.git==69a7494bb77dc10bb27076add07b380dbd778592
 https://github.com/Mellanox/libpsample.git==62bb27d9a49424e45191eee81df7ce0d8c74e774
 https://github.com/sflow/host-sflow==2b8771aa7284d3b34cfc43fccba67649d30d0c64
 https://github.com/sflow/sflowtool==4be2a17b36a3b9796c280b117b8b786323a84ae8
-https://github.com/thom311/libnl==855c02f332f0f79f6396318beee00cce7d4bbe4e
+https://github.com/thom311/libnl==39e4d8dc123db149db329f352af1154af7b46852
 https://salsa.debian.org/debian/libteam.git==f8808df228b00873926b5e7b998ad8b61368d4c5
 https://salsa.debian.org/dhcp-team/isc-dhcp.git==b13135d7f6e61724e7b9a54b53e4e8b916ff21aa
-https://salsa.debian.org/kernel-team/ethtool/==2533ffaac6fd59cece2ffb49d67b9f00b7b902f7
+https://salsa.debian.org/kernel-team/ethtool/==0d5304a5be80cc74bed8ed78002bf5df0d49f412

@@ -22,9 +22,9 @@ ipaddr==2.2.0
 ipaddress==1.0.23
 j2cli==0.3.10
 jinja2==3.1.1
-jsondiff==1.3.1
+jsondiff==2.0.0
 jsonpatch==1.32
-jsonpointer==2.2
+jsonpointer==2.3
 jsonschema==2.6.0
 lxml==4.6.3
 m2crypto==0.38.0
@@ -45,7 +45,7 @@ pyangbind==0.8.1
 pycairo==1.21.0
 pycparser==2.21
 pygments==2.11.2
-pygobject==3.42.0
+pygobject==3.42.1
 pyroute2==0.5.19
 python-apt==2.2.1
 python-dateutil==2.8.2

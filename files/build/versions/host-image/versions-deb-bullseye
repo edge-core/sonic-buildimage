@@ -65,10 +65,11 @@ gpgconf==2.2.27-2+deb11u1
 gpgsm==2.2.27-2+deb11u1
 grub-common==2.04-20
 grub2-common==2.04-20
+gzip==1.10-4+deb11u1
 haveged==1.9.14-1
 hdparm==9.60+ds-1
 hping3==3.a2.ds2-10
-hw-management==1.mlnx.7.0020.1300
+hw-management==1.mlnx.7.0020.2004
 i2c-tools==4.2-1+b1
 ifmetric==0.3-5
 ifupdown2==3.0.0-1
@@ -188,6 +189,7 @@ libksba8==1.5.0-3
 libldap-2.4-2==2.4.57+dfsg-3
 liblognorm5==2.0.5-1.1
 liblsan0==10.2.1-6
+liblzma5==5.2.5-2.1~deb11u1
 liblzo2-2==2.10-2
 libmagic-mgc==1:5.39-3
 libmagic1==1:5.39-3
@@ -312,7 +314,7 @@ ndisc6==1.0.4-2
 net-tools==1.60+git20181103.0eebece-1
 netbase==6.3
 netfilter-persistent==1.0.15
-ntp==1:4.2.8p15+dfsg-1+deb10u2
+ntp==1:4.2.8p15+dfsg-1
 ntpstat==0.0.0.1-2+b1
 opennsl-modules==6.1.0.3
 openssh-client==1:8.4p1-5
