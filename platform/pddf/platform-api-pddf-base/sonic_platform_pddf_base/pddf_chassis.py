@@ -96,11 +96,11 @@ class PddfChassis(ChassisBase):
         """
         return self._eeprom.part_number_str()
 
-    def get_serial(self):
+    def get_service_tag(self):
         """
-        Retrieves the serial number of the chassis (Service tag)
+        Retrieves the service tag of the chassis
         Returns:
-            string: Serial number of chassis
+            string: Sevice tag of chassis
         """
         return self._eeprom.serial_str()
 
@@ -123,7 +123,7 @@ class PddfChassis(ChassisBase):
         """
         return self._eeprom.base_mac_addr()
 
-    def get_serial_number(self):
+    def get_serial(self):
         """
         Retrieves the hardware serial number for the chassis
 

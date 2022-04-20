@@ -150,7 +150,7 @@ class PddfFan(FanBase):
             if output['status'].isalpha():
                 return 0
             else:
-                speed = int(output['status'])
+                speed = int(float(output['status']))
 
             max_speed = int(self.plugin_data['PSU']['PSU_FAN_MAX_SPEED'])
             speed_percentage = round((speed*100)/max_speed)
