@@ -1,37 +1,37 @@
 {
     "DEV_META_DEV_NEIGH_VERSION_TABLE": {
-	"desc": "DEVICE_METADATA DEVICE_NEIGHBOR VERSION TABLE."
+        "desc": "DEVICE_METADATA DEVICE_NEIGHBOR VERSION TABLE."
     },
     "DEVICE_METADATA_DEFAULT_BGP_STATUS": {
-	"desc": "DEVICE_METADATA DEFAULT VALUE FOR BGP_STATUS FIELD.",
-	"eStrKey" : "Verify",
-	"verify": {
-	    "xpath": "/sonic-device_metadata:sonic-device_metadata/DEVICE_METADATA/localhost/hostname",
-	    "key": "sonic-device_metadata:default_bgp_status",
-	    "value": "up"
-	}
+        "desc": "DEVICE_METADATA DEFAULT VALUE FOR BGP_STATUS FIELD.",
+        "eStrKey" : "Verify",
+        "verify": {
+            "xpath": "/sonic-device_metadata:sonic-device_metadata/DEVICE_METADATA/localhost/hostname",
+            "key": "sonic-device_metadata:default_bgp_status",
+            "value": "up"
+        }
     },
     "DEVICE_METADATA_DEFAULT_DOCKER_ROUTING_CONFIG_MODE": {
-	"desc": "DEVICE_METADATA DEFAULT VALUE FOR DOCKER_ROUTING_CONFIG_MODE FIELD.",
-	"eStrKey" : "Verify",
-	"verify": {
-	    "xpath": "/sonic-device_metadata:sonic-device_metadata/DEVICE_METADATA/localhost/hostname",
-	    "key": "sonic-device_metadata:docker_routing_config_mode",
-	    "value": "unified"
-	}
+        "desc": "DEVICE_METADATA DEFAULT VALUE FOR DOCKER_ROUTING_CONFIG_MODE FIELD.",
+        "eStrKey" : "Verify",
+        "verify": {
+        "xpath": "/sonic-device_metadata:sonic-device_metadata/DEVICE_METADATA/localhost/hostname",
+            "key": "sonic-device_metadata:docker_routing_config_mode",
+            "value": "unified"
+        }
     },
     "DEVICE_METADATA_DEFAULT_PFCWD_STATUS": {
-	"desc": "DEVICE_METADATA DEFAULT VALUE FOR PFCWD FIELD.",
-	"eStrKey" : "Verify",
-	"verify": {
-	    "xpath": "/sonic-device_metadata:sonic-device_metadata/DEVICE_METADATA/localhost/hostname",
-	    "key": "sonic-device_metadata:default_pfcwd_status",
-	    "value": "disable"
-	}
+        "desc": "DEVICE_METADATA DEFAULT VALUE FOR PFCWD FIELD.",
+        "eStrKey" : "Verify",
+        "verify": {
+            "xpath": "/sonic-device_metadata:sonic-device_metadata/DEVICE_METADATA/localhost/hostname",
+            "key": "sonic-device_metadata:default_pfcwd_status",
+            "value": "disable"
+        }
     },
     "DEVICE_METADATA_TYPE_INCORRECT_PATTERN": {
-	"desc": "DEVICE_METADATA_TYPE_INCORRECT_PATTERN pattern failure.",
-	"eStrKey" : "Pattern"
+        "desc": "DEVICE_METADATA_TYPE_INCORRECT_PATTERN pattern failure.",
+        "eStrKey" : "Pattern"
     },
     "DEVICE_METADATA_TYPE_CORRECT_PATTERN": {
         "desc": "DEVICE_METADATA correct value for Type field"
@@ -73,26 +73,29 @@
     "DEVICE_METADATA_RESOURCE_TYPE_CONFIG": {
         "desc": "Verifying resource type configuration."
     },
-	"DEVICE_METADATA_VALID_SUBTYPE": {
-		"desc": "Verifying valid subtype value"
-	},
-	"DEVICE_METADATA_INVALID_SUBTYPE": {
-		"desc": "Verifying invalid subtype value",
-		"eStrKey": "Pattern"
-	},
-	"DEVICE_METADATA_VALID_PEER_SWITCH": {
-		"desc": "Verifying valid peer switch hostname"
-	},
-	"DEVICE_METADATA_INVALID_PEER_SWITCH": {
-		"desc": "Verifying test fails with hostname that is too long",
-		"eStrKey": "Range"
-	},
-	"DEVICE_METADATA_VALID_STORAGE_DEVICE": {
-		"desc": "Verifying valid storage device value"
-	},
-	"DEVICE_METADATA_INVALID_STORAGE_DEVICE": {
-		"desc": "Verifying invalid storage device value",
-		"eStrKey": "InvalidValue"
+    "DEVICE_METADATA_VALID_CLUSTER": {
+        "desc": "Verifying valid cluster configuration."
+    },
+    "DEVICE_METADATA_VALID_SUBTYPE": {
+        "desc": "Verifying valid subtype value"
+    },
+    "DEVICE_METADATA_INVALID_SUBTYPE": {
+        "desc": "Verifying invalid subtype value",
+        "eStrKey": "Pattern"
+    },
+    "DEVICE_METADATA_VALID_PEER_SWITCH": {
+        "desc": "Verifying valid peer switch hostname"
+    },
+    "DEVICE_METADATA_INVALID_PEER_SWITCH": {
+        "desc": "Verifying test fails with hostname that is too long",
+        "eStrKey": "Range"
+    },
+    "DEVICE_METADATA_VALID_STORAGE_DEVICE": {
+        "desc": "Verifying valid storage device value"
+    },
+    "DEVICE_METADATA_INVALID_STORAGE_DEVICE": {
+        "desc": "Verifying invalid storage device value",
+	      "eStrKey": "InvalidValue"
     },
     "DEVICE_METADATA_VALID_DHCP_SERVER": {
         "desc": "Verifying dhcp_server configuration."
