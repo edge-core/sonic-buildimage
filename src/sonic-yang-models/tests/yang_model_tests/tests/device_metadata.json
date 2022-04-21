@@ -93,6 +93,13 @@
 	"DEVICE_METADATA_INVALID_STORAGE_DEVICE": {
 		"desc": "Verifying invalid storage device value",
 		"eStrKey": "InvalidValue"
-	}
+    },
+    "DEVICE_METADATA_VALID_DHCP_SERVER": {
+        "desc": "Verifying dhcp_server configuration."
+    },
+    "DEVICE_METADATA_INVALID_DHCP_SERVER": {
+        "desc": "Verifying invalid dhcp_server configuration.",
+        "eStrKey": "InvalidValue"
+    }
 
 }

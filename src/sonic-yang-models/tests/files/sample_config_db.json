@@ -283,7 +283,8 @@
                 "hwsku": "Stone",
                 "buffer_model": "dynamic",
                 "cloudtype": "Public",
-                "region": "usfoo"
+                "region": "usfoo",
+                "dhcp_server": "disabled"
             }
         },
         "VLAN": {
