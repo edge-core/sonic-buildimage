@@ -66,6 +66,9 @@ RUN apt-get install -y net-tools \
                        gir1.2-glib-2.0 \
                        libdbus-1-3 \
                        libgirepository-1.0-1 \
+                       {%- if ENABLE_ASAN == "y" %}
+                       libasan5 \
+                       {%- endif %}
                        libsystemd0
 
 # Install redis-server
@@ -160,7 +163,7 @@ RUN sed -ri 's/^(save .*$)/# \1/g;                                              
 
 COPY ["50-default.conf", "/etc/rsyslog.d/"]
 COPY ["start.sh", "orchagent.sh", "files/update_chassisdb_config", "/usr/bin/"]
-COPY ["supervisord.conf", "/etc/supervisor/conf.d/"]
+COPY ["supervisord.conf.j2", "/usr/share/sonic/templates/"]
 COPY ["files/configdb-load.sh", "/usr/bin/"]
 COPY ["files/arp_update", "/usr/bin/"]
 COPY ["files/buffers_config.j2", "files/qos_config.j2", "files/arp_update_vars.j2", "files/copp_cfg.j2", "/usr/share/sonic/templates/"]
@@ -178,6 +181,10 @@ COPY ["platform.json", "/usr/share/sonic/device/x86_64-kvm_x86_64-r0/"]
 COPY ["hwsku.json", "/usr/share/sonic/device/x86_64-kvm_x86_64-r0/Force10-S6000/"]
 COPY ["hwsku.json", "/usr/share/sonic/device/x86_64-kvm_x86_64-r0/brcm_gearbox_vs/"]
 COPY ["hwsku.json", "/usr/share/sonic/device/x86_64-kvm_x86_64-r0/Mellanox-SN2700/"]
+
+RUN mkdir -p /etc/supervisor/conf.d/
+RUN sonic-cfggen -a "{\"ENABLE_ASAN\":\"{{ENABLE_ASAN}}\"}" -t /usr/share/sonic/templates/supervisord.conf.j2 > /etc/supervisor/conf.d/supervisord.conf
+RUN rm -f /usr/share/sonic/templates/supervisord.conf.j2
 
 # Workaround the tcpdump issue
 RUN mv /usr/sbin/tcpdump /usr/bin/tcpdump

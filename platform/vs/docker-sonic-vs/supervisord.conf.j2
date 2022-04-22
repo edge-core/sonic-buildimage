@@ -42,6 +42,9 @@ autostart=false
 autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/syncd-asan.log"
+{% endif %}
 
 [program:gbsyncd]
 command=/usr/bin/syncd -s -p /usr/share/sonic/hwsku/pai.profile -x /usr/share/sonic/hwsku/context_config.json -g 1
@@ -67,6 +70,9 @@ autostart=false
 autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/portsyncd-asan.log"
+{% endif %}
 
 [program:orchagent]
 command=/usr/bin/orchagent.sh
@@ -75,6 +81,9 @@ autostart=false
 autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/orchagent-asan.log"
+{% endif %}
 
 [program:coppmgrd]
 command=/usr/bin/coppmgrd
@@ -83,6 +92,9 @@ autostart=false
 autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/coppmgrd-asan.log"
+{% endif %}
 
 [program:neighsyncd]
 command=/usr/bin/neighsyncd
@@ -91,6 +103,9 @@ autostart=false
 autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/neighsyncd-asan.log"
+{% endif %}
 
 [program:teamsyncd]
 command=/usr/bin/teamsyncd
@@ -99,6 +114,9 @@ autostart=false
 autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/teamsyncd-asan.log"
+{% endif %}
 
 [program:vlanmgrd]
 command=/usr/bin/vlanmgrd
@@ -107,6 +125,9 @@ autostart=false
 autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/vlanmgrd-asan.log"
+{% endif %}
 
 [program:intfmgrd]
 command=/usr/bin/intfmgrd
@@ -115,6 +136,9 @@ autostart=false
 autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/intfmgrd-asan.log"
+{% endif %}
 
 [program:portmgrd]
 command=/usr/bin/portmgrd
@@ -123,6 +147,9 @@ autostart=false
 autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/portmgrd-asan.log"
+{% endif %}
 
 [program:teammgrd]
 command=/usr/bin/teammgrd
@@ -131,6 +158,9 @@ autostart=false
 autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/teammgrd-asan.log"
+{% endif %}
 
 [program:zebra]
 command=/usr/lib/frr/zebra -A 127.0.0.1 -s 90000000 -M fpm
@@ -163,6 +193,9 @@ autostart=false
 autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/fpmsyncd-asan.log"
+{% endif %}
 
 [program:arp_update]
 command=/usr/bin/arp_update
@@ -179,6 +212,9 @@ autostart=false
 autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/buffermgrd-asan.log"
+{% endif %}
 
 [program:vrfmgrd]
 command=/usr/bin/vrfmgrd
@@ -187,6 +223,9 @@ autostart=false
 autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/vrfmgrd-asan.log"
+{% endif %}
 
 [program:restore_neighbors]
 command=/usr/bin/restore_neighbors.py
@@ -205,6 +244,9 @@ autostart=false
 autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/nbrmgrd-asan.log"
+{% endif %}
 
 [program:vxlanmgrd]
 command=/usr/bin/vxlanmgrd
@@ -213,6 +255,9 @@ autostart=false
 autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/vxlanmgrd-asan.log"
+{% endif %}
 
 [program:sflowmgrd]
 command=/usr/bin/sflowmgrd
@@ -221,6 +266,9 @@ autostart=false
 autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/sflowmgrd-asan.log"
+{% endif %}
 
 [program:natmgrd]
 command=/usr/bin/natmgrd
@@ -229,6 +277,9 @@ autostart=false
 autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/natmgrd-asan.log"
+{% endif %}
 
 [program:natsyncd]
 command=/usr/bin/natsyncd
@@ -237,6 +288,9 @@ autostart=false
 autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/natsyncd-asan.log"
+{% endif %}
 
 [program:fdbsyncd]
 command=/usr/bin/fdbsyncd
@@ -245,6 +299,9 @@ autostart=false
 autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/fdbsyncd-asan.log"
+{% endif %}
 
 [program:tunnelmgrd]
 command=/usr/bin/tunnelmgrd
@@ -253,3 +310,6 @@ autostart=false
 autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
+{% if ENABLE_ASAN == "y" %}
+environment=ASAN_OPTIONS="log_path=/var/log/asan/tunnelmgrd-asan.log"
+{% endif %}
