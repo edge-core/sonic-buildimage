@@ -1,6 +1,6 @@
 grpcio==1.39.0
 grpcio-tools==1.39.0
 jsonschema==2.6.0
-protobuf==3.20.0
+protobuf==3.20.1
 python_sdk_api==4.5.1208
 thrift==0.13.0

@@ -742,7 +742,8 @@ liblua5.3-0==5.3.3-1.1+b1
 liblvm2cmd2.03==2.03.11-2.1
 liblwp-mediatypes-perl==6.04-1
 liblwp-protocol-https-perl==6.10-1
-liblzma-dev==5.2.5-2
+liblzma-dev==5.2.5-2.1~deb11u1
+liblzma5==5.2.5-2.1~deb11u1
 liblzo2-2==2.10-2
 liblzo2-dev==2.10-2
 libmagic-mgc==1:5.39-3
@@ -1687,7 +1688,7 @@ xorg-sgml-doctools==1:1.11-1.1
 xsltproc==1.1.34-4
 xtrans-dev==1.4.0-1
 xxd==2:8.2.2434-3+deb11u1
-xz-utils==5.2.5-2
+xz-utils==5.2.5-2.1~deb11u1
 zip==3.0-12
 zlib1g==1:1.2.11.dfsg-2+deb11u1
 zlib1g-dev==1:1.2.11.dfsg-2+deb11u1

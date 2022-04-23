@@ -395,6 +395,6 @@ x11proto-xext-dev==2020.1-1
 xorg-sgml-doctools==1:1.11-1.1
 xtrans-dev==1.4.0-1
 xxd==2:8.2.2434-3+deb11u1
-xz-utils==5.2.5-2
+xz-utils==5.2.5-2.1~deb11u1
 zlib1g==1:1.2.11.dfsg-2+deb11u1
 zlib1g-dev==1:1.2.11.dfsg-2+deb11u1

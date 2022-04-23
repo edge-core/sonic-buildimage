@@ -3,9 +3,7 @@ contextlib2==0.6.0.post1
 functools32==3.2.3.post2
 future==0.18.2
 importlib-resources==3.3.1
-ipaddress==1.0.23
 jsonschema==2.6.0
-lxml==4.6.3
 natsort==6.2.1
 netaddr==0.8.0
 pyang==2.5.3

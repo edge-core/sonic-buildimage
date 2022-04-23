@@ -8,6 +8,7 @@ faketime==0.9.8-9
 gir1.2-nautilus-3.0==3.38.2-1+deb11u1
 gir1.2-poppler-0.18==20.09.0-3.1
 gir1.2-rsvg-2.0==2.50.3+dfsg-1
+gzip==1.10-4+deb11u1
 libalgorithm-c3-perl==0.11-1
 libc-bin==2.31-13+deb11u3
 libclang-11-dev==1:11.0.1-2

@@ -9,6 +9,7 @@ gcc-10-arm-linux-gnueabihf==10.2.1-6cross1
 gcc-10-arm-linux-gnueabihf-base==10.2.1-6cross1
 gcc-10-cross-base==10.2.1-6cross1
 gcc-arm-linux-gnueabihf==4:10.2.1-1
+gzip==1.10-4+deb11u1
 libasan6-armhf-cross==10.2.1-6cross1
 libatomic1-armhf-cross==10.2.1-6cross1
 libc-bin==2.31-13+deb11u3

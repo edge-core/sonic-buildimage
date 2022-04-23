@@ -9,7 +9,8 @@ libcurl4-gnutls-dev==7.64.0-4+deb10u2
 libedit2==3.1-20181209-1
 libgoogle-perftools4==2.7-1
 libicu63==63.1-6+deb10u3
-liblzma-dev==5.2.4-1
+liblzma-dev==5.2.4-1+deb10u1
+liblzma5==5.2.4-1+deb10u1
 libpcap-dev==1.8.1-6+deb10u1
 libpcap0.8==1.8.1-6+deb10u1
 libpcap0.8-dev==1.8.1-6+deb10u1

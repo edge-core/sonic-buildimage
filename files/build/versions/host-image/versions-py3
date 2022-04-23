@@ -37,7 +37,7 @@ pddf-platform==1.0
 pexpect==4.8.0
 prefixed==0.3.2
 prettyprinter==0.18.0
-protobuf==3.20.0
+protobuf==3.20.1
 psutil==5.9.0
 ptyprocess==0.7.0
 pyang==2.5.3

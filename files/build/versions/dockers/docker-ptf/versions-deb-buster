@@ -43,6 +43,7 @@ gpg-wks-client==2.2.12-1+deb10u1
 gpg-wks-server==2.2.12-1+deb10u1
 gpgconf==2.2.12-1+deb10u1
 gpgsm==2.2.12-1+deb10u1
+gzip==1.9-3+deb10u1
 hping3==3.a2.ds2-7
 krb5-locales==1.17-3+deb10u3
 less==487-0.1+b1
@@ -118,6 +119,7 @@ liblockfile-bin==1.14-1.1
 liblockfile1==1.14-1.1
 liblognorm5==2.0.5-1
 liblsan0==8.3.0-6
+liblzma5==5.2.4-1+deb10u1
 libmagic-mgc==1:5.35-4+deb10u2
 libmagic1==1:5.35-4+deb10u2
 libmpc3==1.1.0-1
@@ -255,5 +257,5 @@ wget==1.20.1-1.1
 xauth==1:1.0.10-1
 xdg-user-dirs==0.17-2
 xxd==2:8.1.0875-5+deb10u2
-xz-utils==5.2.4-1
+xz-utils==5.2.4-1+deb10u1
 zlib1g==1:1.2.11.dfsg-1+deb10u1
