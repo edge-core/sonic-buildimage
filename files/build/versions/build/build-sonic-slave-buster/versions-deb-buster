@@ -1,6 +1,5 @@
 applibs==1.mlnx.4.5.1208
 applibs-dev==1.mlnx.4.5.1208
-bfnplatform==1.0.0
 iproute2-dev==1.mlnx.4.5.1208
 isc-dhcp-relay==4.4.1-2
 kernel-mft-dkms==4.17.2-12

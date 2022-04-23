@@ -35,6 +35,7 @@ gnupg==2.1.18-8~deb9u4
 gnupg-agent==2.1.18-8~deb9u4
 gnupg-l10n==2.1.18-8~deb9u4
 guile-2.0-libs==2.0.13+1-4
+gzip==1.6-5+deb9u1
 hping3==3.a2.ds2-7
 krb5-locales==1.15-1+deb9u3
 less==481-2.1
@@ -72,7 +73,7 @@ libfastjson4==0.99.4-1
 libffi-dev==3.2.1-6
 libffi6==3.2.1-6
 libfile-fcntllock-perl==0.22-3+b2
-libfribidi0==0.19.7-1+deb9u1
+libfribidi0==0.19.7-1+deb9u2
 libgc1c2==1:7.4.2-8+deb9u1
 libgcc-6-dev==6.3.0-18+deb9u1
 libgdbm3==1.8.3-14
@@ -106,6 +107,7 @@ liblogging-stdlog0==1.0.5-2+b2
 liblognorm5==2.0.1-1.1+b1
 liblsan0==6.3.0-18+deb9u1
 libltdl7==2.4.6-2
+liblzma5==5.2.2-1.2+deb9u1
 liblzo2-2==2.08-1.2+b2
 libmagic-mgc==1:5.30-1+deb9u3
 libmagic1==1:5.30-1+deb9u3
@@ -179,7 +181,7 @@ libxau6==1:1.0.8-1
 libxcb1==1.12-1
 libxdmcp6==1:1.1.2-3
 libxext6==2:1.3.3-1+b2
-libxml2==2.9.4+dfsg1-2.2+deb9u5
+libxml2==2.9.4+dfsg1-2.2+deb9u6
 libxmuu1==2:1.1.2-2
 linux-libc-dev==4.9.303-1
 logrotate==3.11.0-0.1
@@ -248,5 +250,5 @@ xauth==1:1.0.9-1+b2
 xdg-user-dirs==0.15-2+b1
 xml-core==0.17
 xxd==2:8.0.0197-4+deb9u5
-xz-utils==5.2.2-1.2+b1
+xz-utils==5.2.2-1.2+deb9u1
 zlib1g==1:1.2.8.dfsg-5+deb9u1

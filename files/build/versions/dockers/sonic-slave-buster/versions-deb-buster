@@ -333,6 +333,7 @@ libbz2-dev==1.0.6-9.2~deb10u1
 libc-ares-dev==1.14.0-1+deb10u1
 libc-ares2==1.14.0-1+deb10u1
 libc-dev-bin==2.28-10+deb10u1
+libc6==2.28-10+deb10u1
 libc6-dbg==2.28-10+deb10u1
 libc6-dev==2.28-10+deb10u1
 libc6-dev-i386==2.28-10+deb10u1
@@ -551,6 +552,7 @@ libglx-mesa0==18.3.6-2+deb10u1
 libglx0==1.1.0-1
 libgme0==0.6.2-1
 libgmp-dev==2:6.1.2+dfsg-4+deb10u1
+libgmp10==2:6.1.2+dfsg-4+deb10u1
 libgmpxx4ldbl==2:6.1.2+dfsg-4+deb10u1
 libgnutls-dane0==3.6.7-4+deb10u7
 libgnutls-openssl27==3.6.7-4+deb10u7
@@ -730,7 +732,8 @@ liblvm2cmd2.03==2.03.02-3
 liblwp-mediatypes-perl==6.02-1
 liblwp-protocol-https-perl==6.07-2
 liblwres161==1:9.11.5.P4+dfsg-5.1+deb10u7
-liblzma-dev==5.2.4-1
+liblzma-dev==5.2.4-1+deb10u1
+liblzma5==5.2.4-1+deb10u1
 liblzo2-2==2.10-0.1
 liblzo2-dev==2.10-0.1
 libmagic-mgc==1:5.35-4+deb10u2
@@ -1498,6 +1501,7 @@ python-parse==1.6.6-0.1
 python-pathlib2==2.3.3-1
 python-pbr==4.2.0-5
 python-pil==5.4.1-2+deb10u3
+python-pip==18.1-5
 python-pip-whl==18.1-5
 python-pkg-resources==40.8.0-1
 python-pluggy==0.8.0-1
@@ -1583,6 +1587,7 @@ python3-olefile==0.46-1
 python3-packaging==19.0-1
 python3-pbr==4.2.0-5
 python3-pil==5.4.1-2+deb10u3
+python3-pip==18.1-5
 python3-pkg-resources==40.8.0-1
 python3-pluggy==0.8.0-1
 python3-py==1.7.0-2
@@ -1604,6 +1609,7 @@ python3-unidiff==0.5.4-1
 python3-urllib3==1.24.1-1
 python3-wheel==0.32.3-2
 python3-xdg==0.25-5
+python3-yaml==3.13-2
 python3.7==3.7.3-2+deb10u3
 python3.7-dbg==3.7.3-2+deb10u3
 python3.7-dev==3.7.3-2+deb10u3
@@ -1732,7 +1738,7 @@ xsltproc==1.1.32-2.2~deb10u1
 xterm==344-1+deb10u2
 xtrans-dev==1.3.5-1
 xxd==2:8.1.0875-5+deb10u2
-xz-utils==5.2.4-1
+xz-utils==5.2.4-1+deb10u1
 zip==3.0-11+b1
 zlib1g==1:1.2.11.dfsg-1+deb10u1
 zlib1g-dev==1:1.2.11.dfsg-1+deb10u1

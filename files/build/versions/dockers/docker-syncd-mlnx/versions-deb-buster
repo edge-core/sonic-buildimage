@@ -40,6 +40,8 @@ openssh-client==1:7.9p1-10+deb10u2
 python==2.7.16-1
 python-dev==2.7.16-1
 python-minimal==2.7.16-1
+python-pip==18.1-5
+python-pip-whl==18.1-5
 python-pkg-resources==40.8.0-1
 python-sdk-api==1.mlnx.4.5.1208
 python-setuptools==40.8.0-1
