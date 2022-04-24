@@ -25,6 +25,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	# Disable php perl and few other packages as they need additional packages to be installed
 	patch -p1 < ../patch/0001-Remove-unneeded-packages.patch
 	patch -p1 < ../patch/0002-Remove-minimist-packages.patch
+	patch -p1 < ../patch/0003-Remove-underscore-packages.patch
 	DEB_BUILD_OPTIONS=nocheck dpkg-buildpackage -d -rfakeroot -b -us -uc -j$(SONIC_CONFIG_MAKE_JOBS) --admindir $(SONIC_DPKG_ADMINDIR)
 	popd
 
