@@ -11,7 +11,7 @@ click-log==0.4.0
 colorful==0.5.4
 cryptography==36.0.2
 dbus-python==1.2.18
-docker==4.3.1
+docker==5.0.3
 docker-image-py==0.1.12
 enlighten==1.10.2
 filelock==3.6.0
