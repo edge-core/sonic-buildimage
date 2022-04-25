@@ -407,7 +407,8 @@ sudo sed -i 's/LOAD_KEXEC=true/LOAD_KEXEC=false/' $FILESYSTEM_ROOT/etc/default/k
 ## Remove sshd host keys, and will regenerate on first sshd start
 sudo rm -f $FILESYSTEM_ROOT/etc/ssh/ssh_host_*_key*
 sudo cp files/sshd/host-ssh-keygen.sh $FILESYSTEM_ROOT/usr/local/bin/
-sudo cp -f files/sshd/sshd.service $FILESYSTEM_ROOT/lib/systemd/system/ssh.service
+sudo mkdir $FILESYSTEM_ROOT/etc/systemd/system/ssh.service.d
+sudo cp files/sshd/override.conf $FILESYSTEM_ROOT/etc/systemd/system/ssh.service.d/override.conf
 # Config sshd
 # 1. Set 'UseDNS' to 'no'
 # 2. Configure sshd to close all SSH connetions after 15 minutes of inactivity

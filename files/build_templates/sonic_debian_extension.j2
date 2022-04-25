@@ -329,6 +329,11 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
 # Install custom-built openssh sshd
 sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/openssh-server_*.deb
 
+# Remove sshd host keys, and will regenerate on first sshd start. This needs to be
+# done again here because our custom version of sshd is being installed, which
+# will regenerate the sshd host keys.
+sudo rm -f $FILESYSTEM_ROOT/etc/ssh/ssh_host_*_key*
+
 {% if sonic_asic_platform == 'broadcom' %}
 # Install custom-built flashrom
 sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/flashrom_*.deb
