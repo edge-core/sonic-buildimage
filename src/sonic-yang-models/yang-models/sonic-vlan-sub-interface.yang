@@ -40,11 +40,11 @@ module sonic-vlan-sub-interface {
                 key "name";
 
                 leaf name {
-                    must "(substring-before(current(), '.') = /port:sonic-port/port:PORT/port:PORT_LIST/port:name) or " +
-                         "(starts-with(substring-before(current(), '.'), 'Eth') and " +
-                         "concat('Ethernet', substring-after(substring-before(current(), '.'), 'Eth')) = /port:sonic-port/port:PORT/port:PORT_LIST/port:name) or " +
-                         "(starts-with(substring-before(current(), '.'), 'Po') and " +
-                         "concat('PortChannel', substring-after(substring-before(current(), '.'), 'Po')) = /lag:sonic-portchannel/lag:PORTCHANNEL/lag:PORTCHANNEL_LIST/lag:name)"
+                    must "(string-length(current()) <= 15) and " +
+                         "((substring-before(current(), '.') = /port:sonic-port/port:PORT/port:PORT_LIST/port:name) or " +
+                         "(starts-with(substring-before(current(), '.'), 'Eth') and concat('Ethernet', substring-after(substring-before(current(), '.'), 'Eth')) = /port:sonic-port/port:PORT/port:PORT_LIST/port:name) or " +
+                         "(substring-before(current(), '.') = /lag:sonic-portchannel/lag:PORTCHANNEL/lag:PORTCHANNEL_LIST/lag:name) or " +
+                         "(starts-with(substring-before(current(), '.'), 'Po') and concat('PortChannel', substring-after(substring-before(current(), '.'), 'Po')) = /lag:sonic-portchannel/lag:PORTCHANNEL/lag:PORTCHANNEL_LIST/lag:name))"
                     {
                         error-message "Must condition not satisfied, please follow vlan sub interface naming convention";
                     }
