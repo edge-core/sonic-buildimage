@@ -172,6 +172,9 @@
         }
     },
 {% endif %}
+{% if generate_tc_to_dscp_map is defined %}
+    {{- generate_tc_to_dscp_map() }}
+{% endif %}
 {% if 'resource_type' in DEVICE_METADATA['localhost'] and DEVICE_METADATA['localhost']['resource_type'] in apollo_resource_types %}
     "SCHEDULER": {
         "scheduler.0": {
