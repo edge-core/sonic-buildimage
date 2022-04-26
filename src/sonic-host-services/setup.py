@@ -24,6 +24,7 @@ setup(
     ],
     install_requires = [
         'dbus-python',
+        'systemd-python',
         'Jinja2>=2.10',
         'PyGObject',
         'sonic-py-common'
