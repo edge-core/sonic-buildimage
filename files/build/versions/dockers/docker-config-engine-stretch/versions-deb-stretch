@@ -43,4 +43,4 @@ patch==2.7.5-1+deb9u2
 python-dev==2.7.13-2
 python-swsscommon==1.0.0
 python2.7-dev==2.7.13-2+deb9u6
-xz-utils==5.2.2-1.2+b1
+xz-utils==5.2.2-1.2+deb9u1

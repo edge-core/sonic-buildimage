@@ -33,5 +33,4 @@ syncd==1.0.0
 syncd-dbg==1.0.0
 vim==2:8.1.0875-5+deb10u2
 vim-runtime==2:8.1.0875-5+deb10u2
-zlib1g==1:1.2.11.dfsg-1+deb10u1
 zlib1g-dev==1:1.2.11.dfsg-1+deb10u1

@@ -57,6 +57,7 @@ gpgconf==2.2.12-1+deb10u1
 gpgsm==2.2.12-1+deb10u1
 grub-common==2.02+dfsg1-20+deb10u4
 grub2-common==2.02+dfsg1-20+deb10u4
+gzip==1.9-3+deb10u1
 haveged==1.9.1-7
 hdparm==9.58+ds-1
 hping3==3.a2.ds2-7
@@ -150,6 +151,7 @@ libldap-2.4-2==2.4.47+dfsg-3+deb10u6
 libldap-common==2.4.47+dfsg-3+deb10u6
 liblognorm5==2.0.5-1
 liblsan0==8.3.0-6
+liblzma5==5.2.4-1+deb10u1
 liblzo2-2==2.10-0.1
 libmagic-mgc==1:5.35-4+deb10u2
 libmagic1==1:5.35-4+deb10u2
@@ -324,5 +326,5 @@ vim==2:8.1.0875-5+deb10u2
 vim-common==2:8.1.0875-5+deb10u2
 vim-runtime==2:8.1.0875-5+deb10u2
 xxd==2:8.1.0875-5+deb10u2
-xz-utils==5.2.4-1
+xz-utils==5.2.4-1+deb10u1
 zlib1g==1:1.2.11.dfsg-1+deb10u1

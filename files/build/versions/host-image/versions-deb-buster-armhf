@@ -11,4 +11,5 @@ linux-image-4.19.0-12-2-armmp==4.19.152-1
 mrvlprestera==1.0
 pkg-config==0.29-6
 tzdata==2021a-0+deb10u4
+xz-utils==5.2.4-1
 zlib1g-dev==1:1.2.11.dfsg-1
