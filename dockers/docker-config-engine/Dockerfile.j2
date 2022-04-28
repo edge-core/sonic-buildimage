@@ -1,4 +1,4 @@
-FROM docker-base
+FROM docker-base-{{DOCKER_USERNAME}}:{{DOCKER_USERTAG}}
 
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive

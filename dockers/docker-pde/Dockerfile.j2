@@ -1,4 +1,4 @@
-FROM {{ docker_pde_load_image }}
+FROM docker-config-engine-buster-{{DOCKER_USERNAME}}:{{DOCKER_USERTAG}}
 
 ARG docker_container_name
 ENV PYTHONPATH=/usr/share/sonic/platform

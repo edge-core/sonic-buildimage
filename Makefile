@@ -40,6 +40,7 @@ endif
 ifeq ($(NOBULLSEYE), 0)
 	BLDENV=bullseye make -f Makefile.work $@
 endif
+	BLDENV=bullseye make -f Makefile.work docker-cleanup
 
 jessie:
 	@echo "+++ Making $@ +++"
@@ -83,7 +84,7 @@ $(PLATFORM_PATH):
 configure : $(PLATFORM_PATH)
 	$(call make_work, $@)
 
-clean reset showtag sonic-slave-build sonic-slave-bash :
+clean reset showtag docker-cleanup sonic-slave-build sonic-slave-bash :
 	$(call make_work, $@)
 
 # Freeze the versions, see more detail options: scripts/versions_manager.py freeze -h

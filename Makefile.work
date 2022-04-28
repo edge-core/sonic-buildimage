@@ -90,6 +90,7 @@ $(shell rm -f .screen)
 MAKEFLAGS += -B
 
 CONFIGURED_ARCH := $(shell [ -f .arch ] && cat .arch || echo $(PLATFORM_ARCH))
+CONFIGURED_PLATFORM = $(if $(PLATFORM),$(PLATFORM),$(shell cat .platform 2>/dev/null))
 ifeq ($(CONFIGURED_ARCH),)
     override CONFIGURED_ARCH = amd64
 endif
@@ -149,7 +150,9 @@ $(shell BUILD_SLAVE=y DEFAULT_CONTAINER_REGISTRY=$(DEFAULT_CONTAINER_REGISTRY) s
 
 # Add the versions in the tag, if the version change, need to rebuild the slave
 SLAVE_BASE_TAG = $(shell cat $(SLAVE_DIR)/Dockerfile $(SLAVE_DIR)/buildinfo/versions/versions-* src/sonic-build-hooks/hooks/* | sha1sum | awk '{print substr($$1,0,11);}')
-SLAVE_TAG = $(shell cat $(SLAVE_DIR)/Dockerfile.user $(SLAVE_DIR)/Dockerfile $(SLAVE_DIR)/buildinfo/versions/versions-* | sha1sum | awk '{print substr($$1,0,11);}')
+# Calculate the slave TAG based on $(USER)/$(PWD)/$(CONFIGURED_PLATFORM) to get unique SHA ID
+SLAVE_TAG = $(shell (cat $(SLAVE_DIR)/Dockerfile.user $(SLAVE_DIR)/Dockerfile $(SLAVE_DIR)/buildinfo/versions/versions-* .git/HEAD && echo $(USER)/$(PWD)/$(CONFIGURED_PLATFORM)) \
+			| sha1sum | awk '{print substr($$1,0,11);}')
 
 OVERLAY_MODULE_CHECK := \
     lsmod | grep -q "^overlay " &>/dev/null || \
@@ -158,6 +161,14 @@ OVERLAY_MODULE_CHECK := \
     (echo "ERROR: Module 'overlay' not loaded. Try running 'sudo modprobe overlay'."; exit 1)
 
 BUILD_TIMESTAMP := $(shell date +%Y%m%d\.%H%M%S)
+
+# Create separate Docker lockfiles for saving vs. loading an image.
+ifeq ($(DOCKER_LOCKDIR),)
+override DOCKER_LOCKDIR := /tmp/docklock
+endif
+DOCKER_LOCKFILE_SAVE := $(DOCKER_LOCKDIR)/docker_save.lock
+$(shell mkdir -m 0777 -p $(DOCKER_LOCKDIR))
+$(shell [ -f $(DOCKER_LOCKFILE_SAVE) ] || (touch $(DOCKER_LOCKFILE_SAVE) && chmod 0777 $(DOCKER_LOCKFILE_SAVE)))
 
 ifeq ($(DOCKER_BUILDER_MOUNT),)
 override DOCKER_BUILDER_MOUNT := "$(PWD):/sonic"
@@ -169,6 +180,7 @@ endif
 
 DOCKER_RUN := docker run --rm=true --privileged --init \
     -v $(DOCKER_BUILDER_MOUNT) \
+    -v "$(DOCKER_LOCKDIR):$(DOCKER_LOCKDIR)" \
     -w $(DOCKER_BUILDER_WORKDIR) \
     -e "http_proxy=$(http_proxy)" \
     -e "https_proxy=$(https_proxy)" \
@@ -197,6 +209,30 @@ ifneq ($(SIGNING_CERT),)
 	DOCKER_SIGNING_SOURCE := $(shell dirname $(SIGNING_CERT))
 	DOCKER_RUN += -v "$(DOCKER_SIGNING_SOURCE):$(DOCKER_SIGNING_SOURCE):ro"
 endif
+endif
+
+# User name and tag for "docker-*" images created by native dockerd mode.
+ifeq ($(strip $(SONIC_CONFIG_USE_NATIVE_DOCKERD_FOR_BUILD)),y)
+DOCKER_USERNAME = $(USER_LC)
+DOCKER_USERTAG = $(SLAVE_TAG)
+else
+DOCKER_USERNAME = sonic
+DOCKER_USERTAG = latest
+endif
+
+# Define canned sequence to clean up Docker image cache.
+#   - These are the remnants from building the runtime Docker images using native (host) Docker daemon.
+#   - Image naming convention differs on a shared build system vs. non-shared.
+# $(docker-image-cleanup)
+ifeq ($(SONIC_CONFIG_USE_NATIVE_DOCKERD_FOR_BUILD),y)
+define docker-image-cleanup
+    @for i in $(shell docker images --quiet --filter 'dangling=true') ; do (docker rmi -f $$i &> /dev/null || true) ; done
+    @for i in $(shell docker images --quiet docker-*$(DOCKER_USERNAME):$(DOCKER_USERTAG)) ; do (docker rmi -f $$i &> /dev/null || true) ; done
+endef
+else
+define docker-image-cleanup
+    @:
+endef
 endif
 
 ifeq ($(SONIC_CONFIG_USE_NATIVE_DOCKERD_FOR_BUILD), y)
@@ -274,6 +310,7 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            BUILD_NUMBER=$(BUILD_NUMBER) \
                            BUILD_TIMESTAMP=$(BUILD_TIMESTAMP) \
                            SONIC_IMAGE_VERSION=$(SONIC_IMAGE_VERSION) \
+                           SLAVE_TAG=$(SLAVE_TAG) \
                            ENABLE_DHCP_GRAPH_SERVICE=$(ENABLE_DHCP_GRAPH_SERVICE) \
                            ENABLE_ZTP=$(ENABLE_ZTP) \
                            INCLUDE_PDE=$(INCLUDE_PDE) \
@@ -298,6 +335,11 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            HTTP_PROXY=$(http_proxy) \
                            HTTPS_PROXY=$(https_proxy) \
                            NO_PROXY=$(no_proxy) \
+                           DOCKER_USERNAME=$(DOCKER_USERNAME) \
+                           DOCKER_USERTAG=$(DOCKER_USERTAG) \
+                           DOCKER_LOCKDIR=$(DOCKER_LOCKDIR) \
+                           DOCKER_LOCKFILE_SAVE=$(DOCKER_LOCKFILE_SAVE) \
+                           SONIC_CONFIG_USE_NATIVE_DOCKERD_FOR_BUILD=$(SONIC_CONFIG_USE_NATIVE_DOCKERD_FOR_BUILD) \
                            SONIC_INCLUDE_SYSTEM_TELEMETRY=$(INCLUDE_SYSTEM_TELEMETRY) \
                            INCLUDE_DHCP_RELAY=$(INCLUDE_DHCP_RELAY) \
                            SONIC_INCLUDE_RESTAPI=$(INCLUDE_RESTAPI) \
@@ -351,6 +393,9 @@ ifeq "$(KEEP_SLAVE_ON)" "yes"
 else
 	@$(DOCKER_RUN) $(SLAVE_IMAGE):$(SLAVE_TAG) bash -c "$(SONIC_BUILD_INSTRUCTION) $@; scripts/collect_build_version_files.sh \$$?"
 endif
+
+docker-cleanup:
+	$(docker-image-cleanup)
 
 sonic-build-hooks:
 	@pushd src/sonic-build-hooks; TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) make all; popd

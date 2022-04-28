@@ -29,7 +29,10 @@ DEFAULT_BUILD_LOG_TIMESTAMP = none
 # SONIC_USE_DOCKER_BUILDKIT = y
 
 # SONIC_CONFIG_USE_NATIVE_DOCKERD_FOR_BUILD - use native dockerd for build.
-# If set to y SONiC build container will use native dockerd instead of dind for faster build
+# If set to y SONiC build container will use native dockerd instead of dind for faster build.
+# Special handling of the docker image file names is needed to avoid conflicts with
+# other SONiC build jobs on the same server. This requires changes to the Dockerfile.j2 FROM statement
+# in the dockers/ and platform/ subdirs to use a variable reference instead of an explicit image name.
 # SONIC_CONFIG_USE_NATIVE_DOCKERD_FOR_BUILD = y
 
 # SONIC_CONFIG_ENABLE_COLORS - enable colored output in build system.

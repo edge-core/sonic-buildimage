@@ -1,4 +1,4 @@
-FROM docker-syncd-brcm-dnx
+FROM docker-syncd-brcm-dnx-{{DOCKER_USERNAME}}:{{DOCKER_USERTAG}}
 
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
