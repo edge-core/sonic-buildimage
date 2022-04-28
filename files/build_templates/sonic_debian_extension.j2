@@ -655,7 +655,7 @@ fi
 ## ensure proc is mounted
 sudo mount proc /proc -t proc || true
 if [[ $CONFIGURED_ARCH == armhf ]]; then
-    # A workaround to fix the armhf build hung issue, caused by sonic-platform-nokia-7215_1.0_armhf.deb post installation script 
+    # A workaround to fix the armhf build hung issue, caused by sonic-platform-nokia-7215_1.0_armhf.deb post installation script
     ps -eo pid,cmd | grep python | grep "/etc/entropy.py" | awk '{print $1}' | xargs sudo kill -9 2>/dev/null || true
 fi
 
@@ -772,6 +772,19 @@ if [ -f {{service}} ]; then
     {% endif %}
 
     echo "{{service}}" | sudo tee -a $GENERATED_SERVICE_FILE
+fi
+{% endfor %}
+{% for timer in installer_timers.split(' ') -%}
+if [ -f {{timer}} ]; then
+    sudo cp {{timer}} $FILESYSTEM_ROOT_USR_LIB_SYSTEMD_SYSTEM
+
+    {% if "@" in timer %}
+    MULTI_INSTANCE="{{timer}}"
+    SINGLE_INSTANCE=${MULTI_INSTANCE/"@"}
+    sudo cp $SINGLE_INSTANCE $FILESYSTEM_ROOT_USR_LIB_SYSTEMD_SYSTEM
+    {% endif %}
+
+    echo "{{timer}}" | sudo tee -a $GENERATED_SERVICE_FILE
 fi
 {% endfor %}
 if [ -f iccpd.service ]; then

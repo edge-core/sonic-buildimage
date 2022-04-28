@@ -29,7 +29,7 @@
     },
 {%- set features = [("bgp", "enabled", false, "enabled"),
                    ("database", "always_enabled", false, "always_enabled"),
-                   ("lldp", "enabled", false, "enabled"),
+                   ("lldp", "enabled", true, "enabled"),
                    ("pmon", "enabled", false, "enabled"),
                    ("radv", "enabled", false, "enabled"),
                    ("snmp", "enabled", true, "enabled"),
@@ -83,6 +83,6 @@
             "state" : "disabled", {% endif %}
             "rate_limit_interval" : "600"
         }{%if not loop.last %},{% endif -%}
-{% endfor %} 
+{% endfor %}
     }
 }
