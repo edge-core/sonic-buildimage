@@ -1,6 +1,6 @@
 # sonic-rest-api package
 
-RESTAPI = sonic-rest-api_1.0.1_amd64.deb
+RESTAPI = sonic-rest-api_1.0.1_$(CONFIGURED_ARCH).deb
 $(RESTAPI)_SRC_PATH = $(SRC_PATH)/sonic-restapi
 $(RESTAPI)_DEPENDS += $(LIBHIREDIS_DEV) $(LIBNL3_DEV) $(LIBNL_GENL3_DEV) \
                             $(LIBNL_ROUTE3_DEV) $(LIBSWSSCOMMON_DEV) $(LIBSWSSCOMMON)
