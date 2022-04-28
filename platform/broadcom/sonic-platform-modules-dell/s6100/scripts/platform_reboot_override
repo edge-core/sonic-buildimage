@@ -5,6 +5,7 @@ import subprocess
 import struct
 
 PORT_RES = '/dev/port'
+POWER_CYCLE = '/tmp/powercycle'
 
 
 def log_software_reboot():
@@ -28,5 +29,11 @@ def portio_reg_write(resource, offset, val):
 
 if __name__ == "__main__":
     log_software_reboot()
+    
+    # power-cycle the switch
+    if os.path.exists(POWER_CYCLE):
+        print "CPLD upgrade detected. Power-cycling the unit.."
+        os.system('io_rd_wr.py  --set --val 05 --offset 210; io_rd_wr.py  --set --val 00 --offset 211; io_rd_wr.py  --set --val 03 --offset 213')
+
     portio_reg_write(PORT_RES, 0xcf9, 0xe)
 
