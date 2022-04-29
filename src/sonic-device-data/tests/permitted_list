@@ -2,6 +2,7 @@ sai_trap_group_priority
 use_all_splithorizon_groups
 riot_enable
 sai_tunnel_support
+sai_tunnel_underlay_route_mode
 riot_overlay_l3_intf_mem_size
 riot_overlay_l3_egress_mem_size
 l3_ecmp_levels
