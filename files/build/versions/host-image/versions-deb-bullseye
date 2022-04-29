@@ -314,7 +314,7 @@ ndisc6==1.0.4-2
 net-tools==1.60+git20181103.0eebece-1
 netbase==6.3
 netfilter-persistent==1.0.15
-ntp==1:4.2.8p15+dfsg-1
+ntp==1:4.2.8p15+dfsg-1+deb10u2
 ntpstat==0.0.0.1-2+b1
 opennsl-modules==6.1.0.3
 openssh-client==1:8.4p1-5

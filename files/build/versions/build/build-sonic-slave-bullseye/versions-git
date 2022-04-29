@@ -1,11 +1,11 @@
 https://github.com/CESNET/libyang.git==ab1058892ecdee4ac1742601729b15af286fb95e
 https://github.com/daveolson53/audisp-tacplus.git==559c9f22edd4f2dea0ecedffb3ad9502b12a75b6
 https://github.com/daveolson53/libnss-tacplus.git==19008ab68d9d504aa58eb34d5f564755a1613b8b
-https://github.com/flashrom/flashrom.git==a8204dd34d90ac9ab2783e1dd486ec781d4c0dba
-https://github.com/FreeRADIUS/freeradius-server.git==bea8f84da27c366cab3aa0302fb38a251445da7d
+https://github.com/flashrom/flashrom.git==b899ab233fc3e49386bfa5b4f88901aafe4d066e
+https://github.com/FreeRADIUS/freeradius-server.git==9c84065ef1b01b557c88d7455d8cc662c749ddf6
 https://github.com/FreeRADIUS/pam_radius.git==5e67868520e90a489626928f28c0befa531bf7d2
 https://github.com/jeroennijhof/pam_tacplus.git==b8e07ac27c11b86779ae9698fcafee0c89fc83f5
-https://github.com/thom311/libnl==4d12b635e671e21d992b83e27280f841bda07899
-https://salsa.debian.org/kernel-team/initramfs-tools.git==6f2963f2925dcca069e57dd41db1f61a976df118
+https://github.com/thom311/libnl==2effffe7979dda638108fba26b763fa5acd6edac
+https://salsa.debian.org/kernel-team/initramfs-tools.git==9b3a06991f9f4a96efbd90faa2a096f7e059173f
 https://salsa.debian.org/sk-guest/monit.git==c9da7ebb1f35dfba17b50b5969a6e75e29cbec0d
 https://salsa.debian.org/ssh-team/openssh.git==de790f931452a2dcb4490d074d5a16ab8456a523

@@ -1685,6 +1685,7 @@ ruby2.5==2.5.5-3+deb10u4
 ruby2.5-dev==2.5.5-3+deb10u4
 ruby2.5-doc==2.5.5-3+deb10u4
 rubygems-integration==1.11+deb10u1
+sbsigntool==0.9.2-2
 seabios==1.12.0-1
 sensible-utils==0.0.12
 sgml-base==1.29
