@@ -661,8 +661,8 @@ class SonicYangExtMixin:
                 configC.keys()), debug=syslog.LOG_ERR, doPrint=True)
             self.sysLog(msg="exceptionList:{}".format(exceptionList), \
                 debug=syslog.LOG_ERR, doPrint=True)
-            raise(Exception("All Keys are not parsed in {}\n{}".format(table, \
-                configC.keys())))
+            raise(Exception("All Keys are not parsed in {}\n{}\nexceptionList:{}".format(table, \
+                configC.keys(), exceptionList)))
 
         return
 
