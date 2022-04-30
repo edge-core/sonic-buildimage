@@ -2,6 +2,7 @@ ca-certificates==20200601~deb9u2
 curl==7.52.1-5+deb9u16
 jq==1.5+dfsg-1.3
 less==481-2.1
+libatomic1==6.3.0-18+deb9u1
 libcurl3==7.52.1-5+deb9u16
 libdaemon0==0.14-6
 libdbus-1-3==1.10.32-0+deb9u1
@@ -13,9 +14,11 @@ libgdbm3==1.8.3-14
 libgmp10==2:6.1.2+dfsg-1+deb9u1
 libgnutls30==3.5.8-5+deb9u6
 libgssapi-krb5-2==1.15-1+deb9u3
+libhiredis0.14==0.14.0-3~bpo9+1
 libhogweed4==3.3-1+deb9u1
 libidn2-0==0.16-1+deb9u1
 libjansson4==2.9-1
+libjemalloc1==3.6.0-9.1
 libjq1==1.5+dfsg-1.3
 libk5crypto3==1.15-1+deb9u3
 libkeyutils1==1.5.9-9
@@ -24,6 +27,7 @@ libkrb5support0==1.15-1+deb9u3
 libldap-2.4-2==2.4.44+dfsg-5+deb9u8
 libldap-common==2.4.44+dfsg-5+deb9u8
 liblognorm5==2.0.3-1~bpo9+1
+liblua5.1-0==5.1.5-8.1+b2
 libncurses5==6.0+20161126-1+deb9u2
 libnghttp2-14==1.18.1-1+deb9u2
 libonig4==6.1.3-2+deb9u2
@@ -49,6 +53,7 @@ libtasn1-6==4.10-1.1+deb9u1
 libunistring0==0.9.6+really0.9.3-0.1
 libwrap0==7.6.q-26
 libzmq5==4.2.1-4+deb9u4
+lua-bitop==1.0.2-4
 lua-cjson==2.1.0+dfsg-2
 mime-support==3.60
 net-tools==1.60+git20161116.90da8a0-1
