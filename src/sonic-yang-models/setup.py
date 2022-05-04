@@ -82,6 +82,7 @@ setup(
                          './yang-models/sonic-bgp-common.yang',
                          './yang-models/sonic-bgp-global.yang',
                          './yang-models/sonic-bgp-monitor.yang',
+                         './yang-models/sonic-bgp-internal-neighbor.yang',
                          './yang-models/sonic-bgp-neighbor.yang',
                          './yang-models/sonic-bgp-peergroup.yang',
                          './yang-models/sonic-bgp-peerrange.yang',

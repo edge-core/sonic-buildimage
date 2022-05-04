@@ -103,18 +103,32 @@
                 "tpid": "0x9200",
                 "mtu": "9100",
                 "lacp_key": "auto"
+            },
+            "PortChannel42": {
+                "admin_status": "up",
+                "members": [
+                    "Ethernet-BP0",
+                    "Ethernet-BP4"
+                ],
+                "min_links": "2",
+                "mtu": "9100",
+                "tpid": "0x8100"
             }
         },
         "PORTCHANNEL_INTERFACE": {
                 "PortChannel0003": {
                     "nat_zone": "1"
                 },
-                "PortChannel0004": {"vrf_name": "Vrf_blue"}
+                "PortChannel0004": {"vrf_name": "Vrf_blue"},
+                "PortChannel42|10.1.0.1/31": {},
+                "PortChannel42|2603:10e2:400:1::2/126": {}
         },
         "PORTCHANNEL_MEMBER": {
             "PortChannel0003|Ethernet1": {},
             "PortChannel0004|Ethernet2": {},
-            "PortChannel2|Ethernet12": {}
+            "PortChannel2|Ethernet12": {},
+            "PortChannel42|Ethernet-BP0": {},
+            "PortChannel42|Ethernet-BP4": {}
         },
         "VLAN_INTERFACE": {
             "Vlan111": {
@@ -734,7 +748,33 @@
                 "speed": "11100",
                 "tpid": "0x8100",
                 "admin_status": "up"
-            }
+            },
+            "Ethernet-BP0": {
+                "admin_status": "up",
+                "alias": "Eth4-ASIC0",
+                "asic_port_name": "Eth4-ASIC0",
+                "description": "ASIC2:Eth0-ASIC2",
+                "index": "0",
+                "lanes": "17,18,19,20",
+                "mtu": "9100",
+                "pfc_asym": "off",
+                "role": "Int",
+                "speed": "40000",
+                "tpid": "0x8100"
+            },
+            "Ethernet-BP4": {
+                "admin_status": "up",
+                "alias": "Eth5-ASIC0",
+                "asic_port_name": "Eth5-ASIC0",
+                "description": "ASIC2:Eth1-ASIC2",
+                "index": "1",
+                "lanes": "21,22,23,24",
+                "mtu": "9100",
+                "pfc_asym": "off",
+                "role": "Int",
+                "speed": "40000",
+                "tpid": "0x8100"
+            } 
         },
         "ACL_TABLE": {
             "V4-ACL-TABLE": {
@@ -1704,8 +1744,30 @@
                 "send_sci": "true",
                 "rekey_period": "3600"
             }
-        }
+        },
 
+        "BGP_INTERNAL_NEIGHBOR": {
+            "10.1.0.0": {
+                "asn": "64850",
+                "holdtime": "180",
+                "keepalive": "60",
+                "local_addr": "10.1.0.1",
+                "name": "ASIC1",
+                "nhopself": "0",
+                "rrclient": "0",
+                "admin_status": "up"
+            },
+            "2603:10e2:400:1::1": {
+                "asn": "64850",
+                "holdtime": "180",
+                "keepalive": "60",
+                "local_addr": "2603:10e2:400:1::2",
+                "name": "ASIC0",
+                "nhopself": "0",
+                "rrclient": "0",
+                "admin_status": "up"
+            }
+        }
     },
     "SAMPLE_CONFIG_DB_UNKNOWN": {
         "UNKNOWN_TABLE": {
