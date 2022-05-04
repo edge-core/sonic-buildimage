@@ -24,6 +24,13 @@
         "eStrKey" : "Pattern",
         "eStr": ["on|off"]
     },
+    "PORT_VALID_SPEEDS_TEST_1": {
+        "desc": "PORT_VALID_SPEEDS_TEST_1 no failure."
+    },
+    "PORT_INVALID_SPEEDS_TEST_1": {
+        "desc": "PORT_INVALID_SPEEDS_TEST_1 InvalidValue condition failure.",
+        "eStr": ["pattern", "does not satisfy"]
+    },
     "PORT_VALID_ADVSPEEDS_TEST_1": {
         "desc": "PORT_VALID_ADVSPEEDS_TEST_1 no failure."
     },
