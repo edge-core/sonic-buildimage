@@ -76,6 +76,9 @@ class LldpManager(daemon_base.DaemonBase):
         self.app_port_table = swsscommon.Table(self.appl_db, swsscommon.APP_PORT_TABLE_NAME)
         self.state_port_table = swsscommon.Table(self.state_db, swsscommon.STATE_PORT_TABLE_NAME)
 
+        self.port_config_done = False
+        self.port_init_done = False
+
     def update_hostname(self, hostname):
         cmd = "lldpcli configure system hostname {0}".format(hostname)
         self.log_debug("Running command: '{}'".format(cmd))
@@ -247,6 +250,23 @@ class LldpManager(daemon_base.DaemonBase):
             self.log_info("Hostname changed old {0}, new {1}".format(self.hostname, hostname))
             self.update_hostname(hostname)
 
+    def lldp_process_port_table_event(self, key, op, fvp):
+        if (key != "PortInitDone") and (key != "PortConfigDone"):
+            if op == "SET":
+                if fvp:
+                    if "up" in dict(fvp).get("oper_status",""):
+                        self.generate_pending_lldp_config_cmd_for_port(key, dict(fvp))
+                    else:
+                        self.pending_cmds.pop(key, None)
+            elif op == "DEL":
+                self.pending_cmds.pop(key, None)
+            else:
+                self.log_error("unknown operation '{}'".format(op))
+        elif key == "PortInitDone":
+            self.port_init_done = True
+        elif key == "PortConfigDone":
+            self.port_config_done = True
+
     def run(self):
         """
         Subscribes to notifications of changes in the PORT table
@@ -267,8 +287,6 @@ class LldpManager(daemon_base.DaemonBase):
 
         # Daemon is paused on the configuration file to avoid lldp packets with wrong information
         # until all interfaces are well configured on lldpd
-        port_init_done = False
-        port_config_done = False
         resume_lldp_sent = False
         start_time = time.time()
 
@@ -288,34 +306,20 @@ class LldpManager(daemon_base.DaemonBase):
 
         # Listen for changes to the PORT table in the CONFIG_DB and APP_DB
         while True:
-            (state, c) = sel.select(SELECT_TIMEOUT_MS)
+            (state, selectableObj) = sel.select(SELECT_TIMEOUT_MS)
 
             if state == swsscommon.Select.OBJECT:
-                (key, op, fvp) = sst_mgmt_ip_confdb.pop()
-                if key:
+                if selectableObj.getFd() == sst_mgmt_ip_confdb.getFd():
+                    (key, op, fvp) = sst_mgmt_ip_confdb.pop()
                     self.lldp_process_mgmt_info_change(op, dict(fvp), key)
-
-                (key, op, fvp) = sst_device_confdb.pop()
-                if key:
+                elif selectableObj.getFd() == sst_device_confdb.getFd():
+                    (key, op, fvp) = sst_device_confdb.pop()
                     self.lldp_process_device_table_event(op, dict(fvp), key)
-
-                (key, op, fvp) = sst_appdb.pop()
-                if (key != "PortInitDone") and (key != "PortConfigDone"):
-                    if op == "SET":
-                        if fvp:
-                            if "up" in dict(fvp).get("oper_status",""):
-                                self.generate_pending_lldp_config_cmd_for_port(key, dict(fvp))
-                            else:
-                                self.pending_cmds.pop(key, None)
-                    elif op == "DEL":
-                        self.pending_cmds.pop(key, None)
-                    else:
-                        self.log_error("unknown operation")
-
-                elif key == "PortInitDone":
-                    port_init_done = True
-                elif key == "PortConfigDone":
-                    port_config_done = True
+                elif selectableObj.getFd() == sst_appdb.getFd():
+                    (key, op, fvp) = sst_appdb.pop()
+                    self.lldp_process_port_table_event(key, op, fvp)
+                else:
+                    self.log_error("Got unexpected selectable object")
 
             # Process all pending commands
             self.process_pending_cmds()
@@ -323,9 +327,9 @@ class LldpManager(daemon_base.DaemonBase):
             # Resume the daemon since all interfaces data updated and configured to the lldpd so no miss leading packets will be sent
             if not resume_lldp_sent:
                 if check_timeout(self, start_time):
-                    port_init_done = port_config_done = True
-            if port_init_done and port_config_done:
-                port_init_done = port_config_done = False
+                    self.port_init_done = self.port_config_done = True
+            if self.port_init_done and self.port_config_done:
+                self.port_init_done = self.port_config_done = False
                 rc, stderr = run_cmd(self, "lldpcli resume")
                 if rc != 0:
                     self.log_error("Failed to resume lldpd with command: 'lldpcli resume': {}".format(stderr))
