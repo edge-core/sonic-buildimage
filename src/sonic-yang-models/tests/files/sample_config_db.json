@@ -1729,6 +1729,28 @@
             }
         },
 
+        "BGP_VOQ_CHASSIS_NEIGHBOR": {
+            "10.0.0.1": {
+                "asn": "64850",
+                "holdtime": "180",
+                "keepalive": "60",
+                "local_addr": "10.0.0.2",
+                "name": "sonic-chassis-lc3",
+                "nhopself": "0",
+                "rrclient": "0",
+                "admin_status": "up"
+            },
+            "3333::3:6": {
+                "asn": "64850",
+                "holdtime": "180",
+                "keepalive": "60",
+                "local_addr": "3333::3:3",
+                "name": "sonic-chassis-lc3",
+                "nhopself": "0",
+                "rrclient": "0",
+                "admin_status": "up"
+            }
+        },
 
         "MACSEC_PROFILE": {
             "test": {

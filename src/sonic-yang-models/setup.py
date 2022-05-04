@@ -87,6 +87,7 @@ setup(
                          './yang-models/sonic-bgp-peergroup.yang',
                          './yang-models/sonic-bgp-peerrange.yang',
                          './yang-models/sonic-bgp-allowed-prefix.yang',
+                         './yang-models/sonic-bgp-voq-chassis-neighbor.yang',
                          './yang-models/sonic-breakout_cfg.yang',
                          './yang-models/sonic-buffer-pg.yang',
                          './yang-models/sonic-buffer-pool.yang',
