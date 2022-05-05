@@ -224,3 +224,8 @@ ENABLE_ASAN ?= n
 
 # reset default container registry from dockerhub to other
 DEFAULT_CONTAINER_REGISTRY ?=
+
+# ENABLE_FIPS_FEATURE - support FIPS feature, only for amd64 or arm64, armhf not supported yet
+# ENABLE_FIPS - support FIPS flag, if enabled, no additional config requred for the image to support FIPS
+ENABLE_FIPS_FEATURE ?= y
+ENABLE_FIPS ?= n

@@ -138,13 +138,25 @@ endif
 endif
 SLAVE_IMAGE = $(SLAVE_BASE_IMAGE)-$(USER_LC)
 
+# Support FIPS feature, armhf not supported yet
+ifeq ($(PLATFORM_ARCH),armhf)
+ENABLE_FIPS_FEATURE := n
+ENABLE_FIPS := n
+endif
+
+ifeq ($(ENABLE_FIPS_FEATURE), n)
+ifeq ($(ENABLE_FIPS), y)
+    $(error Cannot set fips config ENABLE_FIPS=y when ENABLE_FIPS_FEATURE=n)
+endif
+endif
+
 # Generate the version control build info
 $(shell SONIC_VERSION_CONTROL_COMPONENTS=$(SONIC_VERSION_CONTROL_COMPONENTS) \
     TRUSTED_GPG_URLS=$(TRUSTED_GPG_URLS) PACKAGE_URL_PREFIX=$(PACKAGE_URL_PREFIX) \
     scripts/generate_buildinfo_config.sh)
 
 # Generate the slave Dockerfile, and prepare build info for it
-$(shell CONFIGURED_ARCH=$(CONFIGURED_ARCH) MULTIARCH_QEMU_ENVIRON=$(MULTIARCH_QEMU_ENVIRON) DOCKER_EXTRA_OPTS=$(DOCKER_EXTRA_OPTS) DEFAULT_CONTAINER_REGISTRY=$(DEFAULT_CONTAINER_REGISTRY) j2 $(SLAVE_DIR)/Dockerfile.j2 > $(SLAVE_DIR)/Dockerfile)
+$(shell CONFIGURED_ARCH=$(CONFIGURED_ARCH) MULTIARCH_QEMU_ENVIRON=$(MULTIARCH_QEMU_ENVIRON) ENABLE_FIPS_FEATURE=$(ENABLE_FIPS_FEATURE) DOCKER_EXTRA_OPTS=$(DOCKER_EXTRA_OPTS) DEFAULT_CONTAINER_REGISTRY=$(DEFAULT_CONTAINER_REGISTRY) j2 $(SLAVE_DIR)/Dockerfile.j2 > $(SLAVE_DIR)/Dockerfile)
 $(shell CONFIGURED_ARCH=$(CONFIGURED_ARCH) MULTIARCH_QEMU_ENVIRON=$(MULTIARCH_QEMU_ENVIRON) j2 $(SLAVE_DIR)/Dockerfile.user.j2 > $(SLAVE_DIR)/Dockerfile.user)
 $(shell BUILD_SLAVE=y DEFAULT_CONTAINER_REGISTRY=$(DEFAULT_CONTAINER_REGISTRY) scripts/prepare_docker_buildinfo.sh $(SLAVE_BASE_IMAGE) $(SLAVE_DIR)/Dockerfile $(CONFIGURED_ARCH) "" $(BLDENV))
 
@@ -355,6 +367,8 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            ENABLE_AUTO_TECH_SUPPORT=$(ENABLE_AUTO_TECH_SUPPORT) \
                            BUILD_MULTIASIC_KVM=$(BUILD_MULTIASIC_KVM) \
                            ENABLE_ASAN=$(ENABLE_ASAN) \
+                           ENABLE_FIPS_FEATURE=$(ENABLE_FIPS_FEATURE) \
+                           ENABLE_FIPS=$(ENABLE_FIPS) \
                            $(SONIC_OVERRIDE_BUILD_VARS)
 
 .PHONY: sonic-slave-build sonic-slave-bash init reset

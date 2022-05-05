@@ -43,7 +43,9 @@ variables:
 - ${{ else }}:
   - template: .azure-pipelines/template-variables.yml@buildimage
 - name: CACHE_MODE
-  value: rcache 
+  value: rcache
+- name: ENABLE_FIPS
+  value: y
 
 stages:
 - stage: BuildVS

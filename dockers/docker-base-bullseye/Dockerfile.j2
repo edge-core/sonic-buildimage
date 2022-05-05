@@ -62,7 +62,8 @@ RUN apt-get update &&        \
 # for processing/handling json files in bash environment
         jq                   \
 # for sairedis zmq rpc channel
-        libzmq5
+        libzmq5              \
+        libwrap0
 
 # Upgrade pip via PyPI and uninstall the Debian version
 RUN pip3 install --upgrade pip
