@@ -72,7 +72,12 @@ def db_connect_configdb(namespace=None):
     """
     Connect to configdb
     """
-    config_db = swsscommon.ConfigDBConnector(use_unix_socket_path=True, namespace=namespace)
+    try:
+        if namespace is not None:
+            swsscommon.SonicDBConfig.load_sonic_global_db_config(namespace=namespace)
+        config_db = swsscommon.ConfigDBConnector(use_unix_socket_path=True, namespace=namespace)
+    except Exception as e:
+        return None
     if config_db is None:
         return None
     try:
