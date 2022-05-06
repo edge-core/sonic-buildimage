@@ -1,4 +1,4 @@
-SPATH:= $($(SONIC_PCIED_PY2)_SRC_PATH)
+SPATH:= $($(SONIC_PCIED_PY3)_SRC_PATH)
 DEP_FILES:= $(SONIC_COMMON_FILES_LIST) rules/sonic-pcied.mk rules/sonic-pcied.dep
 DEP_FILES+= $(SONIC_COMMON_BASE_FILES_LIST)
 SMDEP_FILES:= $(addprefix $(SPATH)/,$(shell cd $(SPATH) && git ls-files))
