@@ -40,11 +40,12 @@ CHASSIS_INFO_SERIAL_FIELD = 'serial'
 CHASSIS_INFO_MODEL_FIELD = 'model'
 CHASSIS_INFO_REV_FIELD = 'revision'
 
-
-def get_localhost_info(field):
+def get_localhost_info(field, config_db=None):
     try:
-        config_db = ConfigDBConnector()
-        config_db.connect()
+        # TODO: enforce caller to provide config_db explicitly and remove its default value
+        if not config_db:
+            config_db = ConfigDBConnector()
+            config_db.connect()
 
         metadata = config_db.get_table('DEVICE_METADATA')
 
@@ -81,10 +82,15 @@ def get_machine_info():
 
     return machine_vars
 
-
-def get_platform():
+def get_platform(**kwargs):
     """
     Retrieve the device's platform identifier
+
+    Args:
+        config_db: a connected ConfigDBConector object.
+            If explicit None provided, this function will not read ConfigDB. This is useful before SonicDBConfig initializing.
+            If not provided, this function may implicitly ready ConfigDB.
+            Otherwise, this function will use it to read ConfigDB
 
     Returns:
         A string containing the device's platform identifier
@@ -111,8 +117,13 @@ def get_platform():
     # container in SONiC, where the /host directory is not mounted. In this
     # case the value should already be populated in Config DB so we finally
     # try reading it from there.
-
-    return get_localhost_info('platform')
+    if 'config_db' in kwargs:
+        config_db = kwargs['config_db']
+        if config_db is None:
+            return None
+    else:
+        config_db = None
+    return get_localhost_info('platform', config_db=config_db)
 
 
 def get_hwsku():
@@ -144,21 +155,22 @@ def get_platform_and_hwsku():
 
 def get_asic_conf_file_path():
     """
-    Retrieves the path to the ASIC conguration file on the device
+    Retrieves the path to the ASIC configuration file on the device
 
     Returns:
-        A string containing the path to the ASIC conguration file on success,
+        A string containing the path to the ASIC configuration file on success,
         None on failure
     """
-    asic_conf_path_candidates = []
+    def asic_conf_path_candidates():
+        yield os.path.join(CONTAINER_PLATFORM_PATH, ASIC_CONF_FILENAME)
 
-    asic_conf_path_candidates.append(os.path.join(CONTAINER_PLATFORM_PATH, ASIC_CONF_FILENAME))
+        # Note: this function is critical for is_multi_asic() and SonicDBConfig initializing
+        #   No explicit reading ConfigDB
+        platform = get_platform(config_db=None)
+        if platform:
+            yield os.path.join(HOST_DEVICE_PATH, platform, ASIC_CONF_FILENAME)
 
-    platform = get_platform()
-    if platform:
-        asic_conf_path_candidates.append(os.path.join(HOST_DEVICE_PATH, platform, ASIC_CONF_FILENAME))
-
-    for asic_conf_file_path in asic_conf_path_candidates:
+    for asic_conf_file_path in asic_conf_path_candidates():
         if os.path.isfile(asic_conf_file_path):
             return asic_conf_file_path
 
@@ -167,10 +179,10 @@ def get_asic_conf_file_path():
 
 def get_platform_env_conf_file_path():
     """
-    Retrieves the path to the PLATFORM ENV conguration file on the device
+    Retrieves the path to the PLATFORM ENV configuration file on the device
 
     Returns:
-        A string containing the path to the PLATFORM ENV conguration file on success,
+        A string containing the path to the PLATFORM ENV configuration file on success,
         None on failure
     """
     platform_env_conf_path_candidates = []
@@ -339,7 +351,7 @@ def get_sonic_version_file():
 
 
 # Get hardware information
-def get_platform_info():
+def get_platform_info(config_db=None):
     """
     This function is used to get the HW info helper function
     """
@@ -356,8 +368,10 @@ def get_platform_info():
     hw_info_dict['asic_count'] = get_num_asics()
 
     try:
-        config_db = ConfigDBConnector()
-        config_db.connect()
+        # TODO: enforce caller to provide config_db explicitly and remove its default value
+        if not config_db:
+            config_db = ConfigDBConnector()
+            config_db.connect()
 
         metadata = config_db.get_table('DEVICE_METADATA')["localhost"]
         switch_type = metadata.get('switch_type')
@@ -462,7 +476,7 @@ def get_namespaces():
     return natsorted(ns_list)
 
 
-def get_all_namespaces():
+def get_all_namespaces(config_db=None):
     """
     In case of Multi-Asic platform, Each ASIC will have a linux network namespace created.
     So we loop through the databases in different namespaces and depending on the sub_role
@@ -476,8 +490,10 @@ def get_all_namespaces():
     if is_multi_npu():
         for npu in range(num_npus):
             namespace = "{}{}".format(NPU_NAME_PREFIX, npu)
-            config_db = ConfigDBConnector(use_unix_socket_path=True, namespace=namespace)
-            config_db.connect()
+            # TODO: enforce caller to provide config_db explicitly and remove its default value
+            if not config_db:
+                config_db = ConfigDBConnector(use_unix_socket_path=True, namespace=namespace)
+                config_db.connect()
 
             metadata = config_db.get_table('DEVICE_METADATA')
             if metadata['localhost']['sub_role'] == FRONTEND_ASIC_SUB_ROLE:
