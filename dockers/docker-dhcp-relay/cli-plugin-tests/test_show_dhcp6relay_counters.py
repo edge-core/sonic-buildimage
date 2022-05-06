@@ -32,6 +32,7 @@ expected_counts = """\
        Decline
  Relay-Forward
    Relay-Reply
+     Malformed
 
 """
 
