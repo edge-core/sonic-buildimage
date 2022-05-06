@@ -12,7 +12,7 @@ from swsscommon.swsscommon import SonicV2Connector
 DHCPv6_COUNTER_TABLE = 'DHCPv6_COUNTER_TABLE'
 
 # DHCPv6 Counter Messages
-messages = ["Unknown", "Solicit", "Advertise", "Request", "Confirm", "Renew", "Rebind", "Reply", "Release", "Decline", "Relay-Forward", "Relay-Reply"]
+messages = ["Unknown", "Solicit", "Advertise", "Request", "Confirm", "Renew", "Rebind", "Reply", "Release", "Decline", "Relay-Forward", "Relay-Reply", "Malformed"]
 
 # DHCP_RELAY Config Table
 DHCP_RELAY = 'DHCP_RELAY'
