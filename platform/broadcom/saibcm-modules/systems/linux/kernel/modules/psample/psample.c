@@ -202,6 +202,7 @@ void psample_group_put(struct psample_group *group)
 }
 EXPORT_SYMBOL_GPL(psample_group_put);
 
+#if IS_ENABLED(CONFIG_PSAMPLE) /* FIXUP:- Remove after GTS kernel is recompiled with change in CONFIG_PSAMPLE flag */
 void psample_sample_packet(struct psample_group *group, struct sk_buff *skb,
 			   u32 trunc_size, int in_ifindex, int out_ifindex,
 			   u32 sample_rate)
@@ -283,6 +284,7 @@ error:
 	nlmsg_free(nl_skb);
 }
 EXPORT_SYMBOL_GPL(psample_sample_packet);
+#endif
 
 static int __init psample_module_init(void)
 {

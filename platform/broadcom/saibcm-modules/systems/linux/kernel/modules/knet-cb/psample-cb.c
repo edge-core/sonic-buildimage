@@ -509,7 +509,7 @@ psample_filter_cb(uint8_t * pkt, int size, int dev_no, void *pkt_meta,
         /* setup skb to point to pkt */
         memcpy(skb->data, pkt, meta.trunc_size);
         skb_put(skb, meta.trunc_size);
-        skb->len = meta.trunc_size;
+        skb->len = size; /* SONIC-55684 */
         psample_pkt->skb = skb;
 
         spin_lock_irqsave(&g_psample_work.lock, flags);

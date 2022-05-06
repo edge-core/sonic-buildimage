@@ -196,9 +196,15 @@ sal_time_usecs(void)
     do_gettimeofday(&ltv);
     return (ltv.tv_sec * SECOND_USEC + ltv.tv_usec);
 #else
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,19,0)
     /* ktime_to_us and ktime_get_real_ns return 64-bit integets, but this */
     /* function is returning a 32-bit integer. This should be fine until 2038. */
     return ktime_to_us(ktime_get_real_ns());
+#else
+    struct timeval ltv;
+    do_gettimeofday(&ltv);
+    return (ltv.tv_sec * SECOND_USEC + ltv.tv_usec);
+#endif
 #endif
 }
     
