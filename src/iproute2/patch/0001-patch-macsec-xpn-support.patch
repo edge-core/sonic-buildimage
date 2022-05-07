@@ -182,11 +182,11 @@ index 18289ecd..1df19bf1 100644
  		print_bool(PRINT_JSON, "active", NULL, state);
  		print_string(PRINT_FP, NULL,
  			     " state %s,", state ? "on" : "off");
- 		print_key(sa_attr[MACSEC_SA_ATTR_KEYID]);
 +		if (sa_attr[MACSEC_SA_ATTR_SSCI]) {
 +			print_uint(PRINT_ANY, "ssci", " SSCI %u,",
 +				rta_getattr_u32(sa_attr[MACSEC_SA_ATTR_SSCI]));
 +		}
+ 		print_key(sa_attr[MACSEC_SA_ATTR_KEYID]);
  
  		print_txsa_stats(prefix, sa_attr[MACSEC_SA_ATTR_STATS]);
  		close_json_object();
