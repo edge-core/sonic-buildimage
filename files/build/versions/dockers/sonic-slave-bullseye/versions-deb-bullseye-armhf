@@ -44,11 +44,11 @@ libxapian-dev==1.4.18-3
 libxslt1-dev==1.1.34-4
 libxstring-perl==0.005-1+b1
 libyaml-tiny-perl==1.73-1
-linux-compiler-gcc-10-arm==5.10.106-1
-linux-headers-5.10.0-13-armmp==5.10.106-1
-linux-headers-armmp==5.10.106-1
+linux-compiler-gcc-10-arm==5.10.113-1
+linux-headers-5.10.0-14-armmp==5.10.113-1
+linux-headers-armmp==5.10.113-1
 mat2==0.12.1-2
-nodejs==14.19.1-deb-1nodesource1
+nodejs==14.19.2-deb-1nodesource1
 ps2eps==1.68+binaryfree-3
 python3-cairo==1.16.2-4+b2
 python3-gi-cairo==3.38.0-2

@@ -1,9 +1,9 @@
-https://github.com/CESNET/libyang.git==ab1058892ecdee4ac1742601729b15af286fb95e
+https://github.com/CESNET/libyang.git==87375f15159545a87a1e0de200f5d9d67e9091d7
 https://github.com/jpirko/libteam.git==69a7494bb77dc10bb27076add07b380dbd778592
 https://github.com/Mellanox/libpsample.git==62bb27d9a49424e45191eee81df7ce0d8c74e774
 https://github.com/sflow/host-sflow==2b8771aa7284d3b34cfc43fccba67649d30d0c64
 https://github.com/sflow/sflowtool==4be2a17b36a3b9796c280b117b8b786323a84ae8
-https://github.com/thom311/libnl==2effffe7979dda638108fba26b763fa5acd6edac
+https://github.com/thom311/libnl==9b0493646c20f3eecdf664e7e00c6c9162e04fba
 https://salsa.debian.org/debian/libteam.git==f8808df228b00873926b5e7b998ad8b61368d4c5
-https://salsa.debian.org/dhcp-team/isc-dhcp.git==b13135d7f6e61724e7b9a54b53e4e8b916ff21aa
+https://salsa.debian.org/dhcp-team/isc-dhcp.git==1c152ecfa0858a5b15aba37e88ca2c833c12ba48
 https://salsa.debian.org/kernel-team/ethtool/==0d5304a5be80cc74bed8ed78002bf5df0d49f412

@@ -25,10 +25,10 @@ https://deb.debian.org/debian/pool/main/k/kdump-tools/kdump-tools_1.6.8.4.dsc==f
 https://deb.debian.org/debian/pool/main/k/kdump-tools/kdump-tools_1.6.8.4.tar.xz==26bcae7c27b729d614a4a85e2a01cb64
 https://deb.nodesource.com/gpgkey/nodesource.gpg.key==003b51a89a133b5db4cca98b2dea3117
 https://deb.nodesource.com/node_10.x/dists/stretch/Release==22738118af583db3bfad39d6fcb4fa5a
-https://deb.nodesource.com/node_14.x/dists/bullseye/Release==ad9197eec608c47cc02b81031a99ccbb
-https://deb.nodesource.com/node_14.x/dists/buster/Release==3084d51335d332e66f0d81a42079516d
+https://deb.nodesource.com/node_14.x/dists/bullseye/Release==b2831c2287b24a4260b22b6f09c2f3e2
+https://deb.nodesource.com/node_14.x/dists/buster/Release==e93d234eac0e76155a7aa8283279a692
 https://deb.nodesource.com/setup_10.x==6742c0148159980e8f6e886df1f8bbe1
-https://deb.nodesource.com/setup_14.x==88aded33099764ca8f810f72f3c9a173
+https://deb.nodesource.com/setup_14.x==3fb63a2bd38414a2b249fa9b3dbbbc3e
 https://download.docker.com/linux/debian/gpg==1afae06b34a13c1b3d9cb61a26285a15
 https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnplatform_20220408_sai_1.9.1_deb10.deb==890a53ca1374dfcf8c12091d74fd2ef8
 https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnsdk_20220408_sai_1.9.1_deb10.deb==a54c351ee84ddb63837085272a1c4eae
