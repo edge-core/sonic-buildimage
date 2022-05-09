@@ -59,6 +59,8 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
 
     ACL_TABLE_TYPE_CTRLPLANE = "CTRLPLANE"
 
+    BFD_SESSION_TABLE = "BFD_SESSION_TABLE"
+
     # To specify a port range instead of a single port, use iptables format:
     # separate start and end ports with a colon, e.g., "1000:2000"
     ACL_SERVICES = {
@@ -87,6 +89,7 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
     UPDATE_DELAY_SECS = 0.5
 
     DualToR = False
+    bfdAllowed = False
 
     def __init__(self, log_identifier):
         super(ControlPlaneAclManager, self).__init__(log_identifier)
@@ -170,6 +173,7 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
                 self.log_error("Error running command '{}'".format(cmd))
             elif stdout:
                 return stdout.rstrip('\n')
+        return ""
 
     def parse_int_to_tcp_flags(self, hex_value):
         tcp_flags_str = ""
@@ -705,6 +709,13 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
                     self.update_thread[namespace] = None
                     return
 
+    def allow_bfd_protocol(self, namespace):
+        iptables_cmds = []
+        # Add iptables/ip6tables commands to allow all BFD singlehop and multihop sessions
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "iptables -I INPUT 2 -p udp -m multiport --dports 3784,4784 -j ACCEPT")
+        iptables_cmds.append(self.iptables_cmd_ns_prefix[namespace] + "ip6tables -I INPUT 2 -p udp -m multiport --dports 3784,4784 -j ACCEPT")
+        self.run_commands(iptables_cmds)
+
     def run(self):
         # Set select timeout to 1 second
         SELECT_TIMEOUT_MS = 1000
@@ -730,11 +741,11 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
         state_db_id = swsscommon.SonicDBConfig.getDbId("STATE_DB")
         dhcp_packet_mark_tbl = {}
 
+        # set up state_db connector
+        state_db_connector = swsscommon.DBConnector("STATE_DB", 0)
+
         if self.DualToR:
             self.log_info("Dual ToR mode")
-
-            # set up state_db connector
-            state_db_connector = swsscommon.DBConnector("STATE_DB", 0)
 
             subscribe_mux_cable = swsscommon.SubscriberStateTable(state_db_connector, self.MUX_CABLE_TABLE)
             sel.addSelectable(subscribe_mux_cable)
@@ -745,6 +756,10 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
             # create DHCP chain
             for namespace in list(self.config_db_map.keys()):
                 self.setup_dhcp_chain(namespace)
+
+        # This should be migrated from state_db BFD session table to feature_table in the future when feature table support gets added for BFD
+        subscribe_bfd_session = swsscommon.SubscriberStateTable(state_db_connector, self.BFD_SESSION_TABLE)
+        sel.addSelectable(subscribe_bfd_session)
 
         # Map of Namespace <--> susbcriber table's object
         config_db_subscriber_table_map = {}
@@ -785,6 +800,16 @@ class ControlPlaneAclManager(daemon_base.DaemonBase):
             db_id = redisSelectObj.getDbConnector().getDbId()
 
             if db_id == state_db_id:
+                while True:
+                    key, op, fvs = subscribe_bfd_session.pop()
+                    if not key:
+                        break
+
+                    if op == 'SET' and not self.bfdAllowed:
+                        self.allow_bfd_protocol(namespace)
+                        self.bfdAllowed = True
+                        sel.removeSelectable(subscribe_bfd_session)
+
                 if self.DualToR:
                     '''dhcp packet mark update'''
                     while True:
