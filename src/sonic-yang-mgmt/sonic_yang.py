@@ -44,7 +44,9 @@ class SonicYang(SonicYangExtMixin):
         # below dict will store preProcessed yang objects, which may be needed by
         # all yang modules, such as grouping.
         self.preProcessedYang = dict()
-
+        # element path for CONFIG DB. An example for this list could be:
+        # ['PORT', 'Ethernet0', 'speed']
+        self.elementPath = []
         try:
             self.ctx = ly.Context(yang_dir, sonic_yang_options)
         except Exception as e:
