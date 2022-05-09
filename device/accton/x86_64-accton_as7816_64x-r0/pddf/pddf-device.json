@@ -319,7 +319,7 @@
     "TEMP1" :
     {
         "dev_info": { "device_type":"TEMP_SENSOR", "device_name":"TEMP1", "device_parent":"MUX3"},
-        "dev_attr": { "display_name":"Temp_1"},
+        "dev_attr": { "display_name":"FB_1_temp(0x4D)"},
         "i2c":
         {
             "topo_info": { "parent_bus":"0x11", "dev_addr":"0x4D", "dev_type":"lm75"},
@@ -334,7 +334,7 @@
     "TEMP2" :
     {
         "dev_info": { "device_type":"TEMP_SENSOR", "device_name":"TEMP2", "device_parent":"MUX3"},
-        "dev_attr": { "display_name":"Temp_2"},
+        "dev_attr": { "display_name":"FB_2_temp(0x4E)"},
         "i2c":
         {
             "topo_info": { "parent_bus":"0x11", "dev_addr":"0x4E", "dev_type":"lm75"},
@@ -349,7 +349,7 @@
     "TEMP3" :
     {
         "dev_info": { "device_type":"TEMP_SENSOR", "device_name":"TEMP3", "device_parent":"MUX3"},
-        "dev_attr": { "display_name":"Temp_3"},
+        "dev_attr": { "display_name":"MB_MAC_temp(0x48)"},
         "i2c":
         {
             "topo_info": { "parent_bus":"0x12", "dev_addr":"0x48", "dev_type":"lm75"},
@@ -364,7 +364,7 @@
     "TEMP4" :
     {
         "dev_info": { "device_type":"TEMP_SENSOR", "device_name":"TEMP4", "device_parent":"MUX3"},
-        "dev_attr": { "display_name":"Temp_4"},
+        "dev_attr": { "display_name":"MB_RearCenter_temp(0x49)"},
         "i2c":
         {
             "topo_info": { "parent_bus":"0x12", "dev_addr":"0x49", "dev_type":"lm75"},
@@ -379,7 +379,7 @@
     "TEMP5" :
     {
         "dev_info": { "device_type":"TEMP_SENSOR", "device_name":"TEMP5", "device_parent":"MUX3"},
-        "dev_attr": { "display_name":"Temp_5"},
+        "dev_attr": { "display_name":"MB_RightCenter_temp(0x4A)"},
         "i2c":
         {
             "topo_info": { "parent_bus":"0x12", "dev_addr":"0x4A", "dev_type":"lm75"},
@@ -394,7 +394,7 @@
     "TEMP6" :
     {
         "dev_info": { "device_type":"TEMP_SENSOR", "device_name":"TEMP6", "device_parent":"MUX3"},
-        "dev_attr": { "display_name":"Temp_6"},
+        "dev_attr": { "display_name":"CpuBoard_temp(0x4B)"},
         "i2c":
         {
             "topo_info": { "parent_bus":"0x12", "dev_addr":"0x4B", "dev_type":"lm75"},

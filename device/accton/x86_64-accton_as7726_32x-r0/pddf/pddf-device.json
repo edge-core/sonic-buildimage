@@ -1789,6 +1789,7 @@
 	"TEMP1" :
 	{
 		"dev_info": { "device_type":"TEMP_SENSOR", "device_name":"TEMP1", "device_parent":"MUX7"},
+		"dev_attr": { "display_name":"FB_temp(0x4C)"},
 		"i2c":
 		{
 			"topo_info": { "parent_bus":"0x36", "dev_addr":"0x4c", "dev_type":"lm75"},
@@ -1804,6 +1805,7 @@
 	"TEMP2" :
 	{
 		"dev_info": { "device_type":"TEMP_SENSOR", "device_name":"TEMP2", "device_parent":"MUX7"},
+		"dev_attr": { "display_name":"MB_RearMAC_temp(0x48)"},
 		"i2c":
 		{
 			"topo_info": { "parent_bus":"0x37", "dev_addr":"0x48", "dev_type":"lm75"},
@@ -1819,6 +1821,7 @@
 	"TEMP3" :
 	{
 		"dev_info": { "device_type":"TEMP_SENSOR", "device_name":"TEMP3", "device_parent":"MUX7"},
+		"dev_attr": { "display_name":"MB_FrontMAC_temp(0x49)"},
 		"i2c":
 		{
 			"topo_info": { "parent_bus":"0x37", "dev_addr":"0x49", "dev_type":"lm75"},
@@ -1834,6 +1837,7 @@
 	"TEMP4" :
 	{
 		"dev_info": { "device_type":"TEMP_SENSOR", "device_name":"TEMP4", "device_parent":"MUX7"},
+		"dev_attr": { "display_name":"MB_LeftCenter_temp(0x4A)"},
 		"i2c":
 		{
 			"topo_info": { "parent_bus":"0x37", "dev_addr":"0x4a", "dev_type":"lm75"},
@@ -1849,6 +1853,7 @@
 	"TEMP5" :
 	{
 		"dev_info": { "device_type":"TEMP_SENSOR", "device_name":"TEMP5", "device_parent":"MUX7"},
+		"dev_attr": { "display_name":"CB_temp(0x4B)"},
 		"i2c":
 		{
 			"topo_info": { "parent_bus":"0x37", "dev_addr":"0x4b", "dev_type":"lm75"},
