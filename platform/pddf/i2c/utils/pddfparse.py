@@ -8,6 +8,7 @@ import subprocess
 import sys
 import time
 import unicodedata
+from sonic_py_common import device_info
 
 bmc_cache = {}
 cache = {}
@@ -33,7 +34,7 @@ color_map = {
 class PddfParse():
     def __init__(self):
         if not os.path.exists("/usr/share/sonic/platform"):
-            platform, hwsku = self.get_platform_and_hwsku()
+            platform, hwsku = device_info.get_platform_and_hwsku()
             os.symlink("/usr/share/sonic/device/"+platform, "/usr/share/sonic/platform")
 
         try:
@@ -47,30 +48,6 @@ class PddfParse():
         self.data_sysfs_obj = {}
         self.sysfs_obj = {}
 
-    # Returns platform and HW SKU
-    def get_platform_and_hwsku(self):
-        try:
-            proc = subprocess.Popen([SONIC_CFGGEN_PATH, '-H', '-v', PLATFORM_KEY],
-                                    stdout=subprocess.PIPE,
-                                    shell=False,
-                                    universal_newlines=True,
-                                    stderr=subprocess.STDOUT)
-            stdout = proc.communicate()[0]
-            proc.wait()
-            platform = stdout.rstrip('\n')
-
-            proc = subprocess.Popen([SONIC_CFGGEN_PATH, '-d', '-v', HWSKU_KEY],
-                                    stdout=subprocess.PIPE,
-                                    shell=False,
-                                    universal_newlines=True,
-                                    stderr=subprocess.STDOUT)
-            stdout = proc.communicate()[0]
-            proc.wait()
-            hwsku = stdout.rstrip('\n')
-        except OSError as e:
-            raise OSError("Cannot detect platform")
-
-        return (platform, hwsku)
 
     ###################################################################################################################
     #   GENERIC DEFS

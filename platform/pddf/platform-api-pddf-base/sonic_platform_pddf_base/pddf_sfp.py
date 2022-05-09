@@ -6,6 +6,7 @@
 
 try:
     from sonic_platform_base.sonic_xcvr.sfp_optoe_base import SfpOptoeBase
+    import time
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 

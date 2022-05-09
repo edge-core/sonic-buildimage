@@ -21,7 +21,7 @@ import os
 import shutil
 import subprocess
 import sys
-
+from sonic_py_common import device_info
 import pddfparse
 
 PLATFORM_ROOT_PATH = '/usr/share/sonic/device'
@@ -139,7 +139,7 @@ def driver_check():
 
 def get_path_to_device():
     # Get platform and hwsku
-    (platform, hwsku) = pddf_obj.get_platform_and_hwsku()
+    (platform, hwsku) = device_info.get_platform_and_hwsku()
 
     # Load platform module from source
     platform_path = "/".join([PLATFORM_ROOT_PATH, platform])
