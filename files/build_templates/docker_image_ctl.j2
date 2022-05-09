@@ -125,6 +125,34 @@ function setPlatformLagIdBoundaries()
         docker exec -i ${DOCKERNAME} $SONIC_DB_CLI CHASSIS_APP_DB SET "SYSTEM_LAG_ID_END" "$lag_id_end"
     fi
 }
+function waitForAllInstanceDatabaseConfigJsonFilesReady()
+{
+    if [ ! -z "$DEV" ]; then
+	cnt=0
+	SONIC_DB_GLOBAL_JSON="/var/run/redis/sonic-db/database_global.json"
+	if [ -f "$SONIC_DB_GLOBAL_JSON" ]; then
+            # Create a separate python script to get a list of location of all instance database_config.json file 
+            redis_database_cfg_list=`/usr/bin/python -c "import sys; import os; import json; f=open(sys.argv[1]); \
+            		    global_db_dir = os.path.dirname(sys.argv[1]); data=json.load(f); \
+                            print(\" \".join([os.path.normpath(global_db_dir+'/'+elem['include']) \
+                            for elem in data['INCLUDES'] if 'namespace' in elem])); f.close()" $SONIC_DB_GLOBAL_JSON`
+            for file  in $redis_database_cfg_list
+            do
+		while [ ! -f $file ]
+		do
+                    sleep 1
+                    cnt=$(( $cnt + 1))
+                    if [ $cnt -ge 60 ]; then
+			echo "Error: $file not found"
+			break
+                    fi
+		done
+            done
+	fi
+    fi
+}
+# delay a second to allow the file to be fully accessible
+sleep 1
 {%- endif %}
 
 function postStartAction()
@@ -161,6 +189,11 @@ function postStartAction()
         else
             # If there is a config_db.json dump file, load it.
             if [ -r /etc/sonic/config_db$DEV.json ]; then
+
+		# For multi-asic, all /var/run/redis$DEV/sonic-db/database_config.json need to ready
+                # for loading config with --write-to-db
+		waitForAllInstanceDatabaseConfigJsonFilesReady
+
                 if [ -r /etc/sonic/init_cfg.json ]; then
                     $SONIC_CFGGEN -j /etc/sonic/init_cfg.json -j /etc/sonic/config_db$DEV.json --write-to-db
                 else
