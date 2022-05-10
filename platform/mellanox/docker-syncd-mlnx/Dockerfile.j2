@@ -15,7 +15,7 @@
 ## limitations under the License.
 ##
 {% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python_wheels, copy_files %}
-FROM docker-config-engine-buster-{{DOCKER_USERNAME}}:{{DOCKER_USERTAG}}
+FROM docker-config-engine-bullseye-{{DOCKER_USERNAME}}:{{DOCKER_USERTAG}}
 
 ARG docker_container_name
 
@@ -29,14 +29,15 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y \
         libxml2     \
-        python-pip  \
-        python-dev \
+        python3-pip  \
+        python3-dev \
+        python-is-python3 \
 {%- if ENABLE_ASAN == "y" %}
         libasan5 \
 {%- endif %}
-        python-setuptools
+        python3-setuptools
 
-RUN pip2 install --upgrade pip
+RUN pip3 install --upgrade pip
 RUN apt-get purge -y python-pip
 
 {% if docker_syncd_mlnx_debs.strip() -%}

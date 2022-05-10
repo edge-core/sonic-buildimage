@@ -17,7 +17,7 @@
 # docker image for mlnx syncd
 
 DOCKER_SYNCD_PLATFORM_CODE = mlnx
-include $(PLATFORM_PATH)/../template/docker-syncd-base.mk
+include $(PLATFORM_PATH)/../template/docker-syncd-bullseye.mk
 
 $(DOCKER_SYNCD_BASE)_DEPENDS += $(SYNCD) $(PYTHON_SDK_API) $(MFT)
 

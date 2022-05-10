@@ -15,7 +15,7 @@
 ## limitations under the License.
 ##
 {% from "dockers/dockerfile-macros.j2" import install_debian_packages %}
-FROM docker-config-engine-buster-{{DOCKER_USERNAME}}:{{DOCKER_USERTAG}}
+FROM docker-config-engine-bullseye-{{DOCKER_USERNAME}}:{{DOCKER_USERTAG}}
 
 ARG docker_container_name
 RUN [ -f /etc/rsyslog.conf ] && sed -ri "s/%syslogtag%/$docker_container_name#%syslogtag%/;" /etc/rsyslog.conf
@@ -41,7 +41,7 @@ python-debs/{{ deb }}{{' '}}
 {%- endfor -%}
 debs/
 
-RUN apt-get install -y --no-install-recommends libxml2 iptables libbsd0 protobuf-c-compiler protobuf-compiler python-protobuf libprotobuf-c1 python-future python-ipaddr libnet1 pkg-config asciidoc xmlto
+RUN apt-get install -y --no-install-recommends libxml2 iptables libbsd0 protobuf-c-compiler protobuf-compiler python3-protobuf libprotobuf-c1 python3-future python3-ipaddr libnet1 pkg-config asciidoc xmlto
 
 {{ install_debian_packages(docker_saiserver_mlnx_debs.split(' ')) }}
 
