@@ -174,7 +174,7 @@ def main():
         os.makedirs(REBOOT_CAUSE_DIR)
 
     # Remove stale PREVIOUS_REBOOT_CAUSE_FILE if it exists
-    if os.path.exists(PREVIOUS_REBOOT_CAUSE_FILE):
+    if os.path.exists(PREVIOUS_REBOOT_CAUSE_FILE) or os.path.islink(PREVIOUS_REBOOT_CAUSE_FILE):
         os.remove(PREVIOUS_REBOOT_CAUSE_FILE)
 
     # This variable is kept for future-use purpose. When proc_cmd_line/vendor/software provides
