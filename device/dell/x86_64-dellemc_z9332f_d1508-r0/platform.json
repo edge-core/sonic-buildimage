@@ -30,6 +30,9 @@
             },
             {
                 "name": "PCIe"
+            },
+            {
+                "name": "ONIE"
             }
         ],
         "fans": [

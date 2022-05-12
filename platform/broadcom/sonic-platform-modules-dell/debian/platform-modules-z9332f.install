@@ -10,3 +10,4 @@ common/io_rd_wr.py usr/local/bin
 common/fw-updater usr/local/bin
 common/onie_mode_set usr/local/bin
 common/onie_stage_fwpkg usr/local/bin
+common/onie_version usr/local/bin
