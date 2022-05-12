@@ -190,3 +190,8 @@ fi
 if [ -f /tmp/fsck.log.gz ]; then
     mv /tmp/fsck.log.gz ${rootmnt}/var/log
 fi
+
+## ssd-fw-upgrade log file: /tmp will be lost when overlayfs is mounted
+if [ -f /tmp/ssd-fw-upgrade.log.gz ]; then
+    mv /tmp/ssd-fw-upgrade.log.gz ${rootmnt}/var/log
+fi

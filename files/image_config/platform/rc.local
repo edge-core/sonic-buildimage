@@ -114,6 +114,9 @@ migrate_nos_configuration()
         # remove nos-config-part from cmdline
         sed -r -i.bak "s/nos-config-part=[^[:space:]]+//" /host/grub/grub.cfg
 
+        # remove ssd-upgrader-part from cmdline
+        sed -r -i.bak "s/ssd-upgrader-part=[^[:space:]]+//" /host/grub/grub.cfg
+
         # Mount the previous NOS's partition
         NOS_DIR=/mnt/nos_migration
         MG_GZFILE=$NOS_DIR/minigraph.xml.gz.base64.txt
