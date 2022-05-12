@@ -2,10 +2,6 @@
     "BGP_VOQ_CHASSIS_NEIGHBOR_TEST" : {
         "desc": "Load bgp voq chassis neighbor"
     },
-    "BGP_VOQ_CHASSIS_WITH_INVALID_SWITCH_TYPE_TEST" : {
-        "desc": "Load bgp voq chassis on non voq chassis switch",
-        "eStr": ["Bgp voq neighbor are applicable only when switch_type is voq"]
-    },
     "BGP_VOQ_CHASSIS_ABSENT_LOCAL_ADDRESS_TEST" : {
         "desc": "Load bgp voq chassis with no local address",
         "eStrKey" : "Mandatory"
