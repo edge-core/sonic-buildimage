@@ -716,6 +716,11 @@
             <a:Reference i:nil="true"/>
             <a:Value>10.0.0.16</a:Value>
           </a:DeviceProperty>
+          <a:DeviceProperty>
+          <a:Name>SonicQosProfile</a:Name>
+          <a:Reference i:nil="true"/>
+          <a:Value>RDMA-CENTRIC</a:Value>
+          </a:DeviceProperty>
         </a:Properties>
       </a:DeviceMetadata>
     </Devices>

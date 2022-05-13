@@ -410,6 +410,7 @@ def parse_meta(meta, hname):
     mgmt_routes = []
     erspan_dst = []
     deployment_id = None
+    qos_profile = None
     device_metas = meta.find(str(QName(ns, "Devices")))
     for device in device_metas.findall(str(QName(ns1, "DeviceMetadata"))):
         if device.find(str(QName(ns1, "Name"))).text.lower() == hname.lower():
@@ -432,7 +433,9 @@ def parse_meta(meta, hname):
                     erspan_dst = value_group
                 elif name == "DeploymentId":
                     deployment_id = value
-    return syslog_servers, dhcp_servers, dhcpv6_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id
+                elif name == "SonicQosProfile":
+                    qos_profile = value
+    return syslog_servers, dhcp_servers, dhcpv6_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id, qos_profile
 
 
 def parse_linkmeta(meta, hname):
@@ -517,6 +520,31 @@ def filter_acl_mirror_table_bindings(acls, neighbors, port_channels):
 
     return acls
 
+def select_mmu_profiles(profile, platform, hwsku):
+    """
+        Select MMU files based on the device metadata attribute - SonicQosProfile
+        if no QosProfile exists in the minigraph, then no action is needed.
+        if a profile exists in the minigraph,
+            - create a dir path to search 1 level down from the base path.
+            - if no such dir path exists, no action is needed.
+            - if a dir path exists, check for the presence of each file from
+              the copy list in the dir path and copy it over to the base path.
+    """
+    if not profile:
+        return
+
+    files_to_copy = ['pg_profile_lookup.ini', 'qos.json.j2', 'buffers_defaults_t0.j2', 'buffers_defaults_t1.j2']
+
+    path = os.path.join('/usr/share/sonic/device', platform, hwsku)
+
+    dir_path = os.path.join(path, profile)
+    if os.path.exists(dir_path):
+        for file_item in files_to_copy:
+            file_in_dir = os.path.join(dir_path, file_item)
+            if os.path.isfile(file_in_dir):
+                base_file = os.path.join(path, file_item)
+                exec_cmd("sudo cp {} {}".format(file_in_dir, base_file))
+
 ###############################################################################
 #
 # Main functions
@@ -559,6 +587,7 @@ def parse_xml(filename, platform=None, port_config_file=None):
     bgp_peers_with_range = None
     deployment_id = None
     linkmetas = {}
+    qos_profile = []
 
     hwsku_qn = QName(ns, "HwSku")
     hostname_qn = QName(ns, "Hostname")
@@ -583,12 +612,13 @@ def parse_xml(filename, platform=None, port_config_file=None):
         elif child.tag == str(QName(ns, "UngDec")):
             (u_neighbors, u_devices, _, _, _, _, _, _) = parse_png(child, hostname)
         elif child.tag == str(QName(ns, "MetadataDeclaration")):
-            (syslog_servers, dhcp_servers, dhcpv6_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id) = parse_meta(child, hostname)
+            (syslog_servers, dhcp_servers, dhcpv6_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id, qos_profile) = parse_meta(child, hostname)
         elif child.tag == str(QName(ns, "LinkMetadataDeclaration")):
             linkmetas = parse_linkmeta(child, hostname)
         elif child.tag == str(QName(ns, "DeviceInfos")):
             (port_speeds_default, port_descriptions) = parse_deviceinfo(child, hwsku)
 
+    select_mmu_profiles(qos_profile, platform, hwsku)
     current_device = [devices[key] for key in devices if key.lower() == hostname.lower()][0]
     results = {}
     results['DEVICE_METADATA'] = {'localhost': {
