@@ -65,6 +65,14 @@ module sonic-port{
 					}
 				}
 
+				leaf link_training {
+					description "Port link training mode";
+
+					type string {
+						pattern "on|off";
+					}
+				}
+
 				leaf autoneg {
 					description "Port auto negotiation mode";
 

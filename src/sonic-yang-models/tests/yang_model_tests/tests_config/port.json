@@ -311,6 +311,57 @@
         }
     },
 
+    "PORT_VALID_LINK_TRAINING_TEST_1": {
+        "sonic-port:sonic-port": {
+            "sonic-port:PORT": {
+                "PORT_LIST": [
+                    {
+                        "name": "Ethernet8",
+                        "alias": "eth8",
+                        "lanes": "65",
+                        "speed": 25000,
+                        "tpid": "0x8100",
+                        "link_training": "on"
+                    }
+                ]
+            }
+        }
+    },
+
+    "PORT_VALID_LINK_TRAINING_TEST_2": {
+        "sonic-port:sonic-port": {
+            "sonic-port:PORT": {
+                "PORT_LIST": [
+                    {
+                        "name": "Ethernet8",
+                        "alias": "eth8",
+                        "lanes": "65",
+                        "speed": 25000,
+                        "tpid": "0x8100",
+                        "link_training": "off"
+                    }
+                ]
+            }
+        }
+    },
+
+    "PORT_INVALID_LINK_TRAINING_TEST": {
+        "sonic-port:sonic-port": {
+            "sonic-port:PORT": {
+                "PORT_LIST": [
+                    {
+                        "name": "Ethernet8",
+                        "alias": "eth8",
+                        "lanes": "65",
+                        "speed": 25000,
+                        "tpid": "0x8100",
+                        "link_training": 0
+                    }
+                ]
+            }
+        }
+    },
+
     "PORT_INVALID_TPID_TEST": {
         "sonic-port:sonic-port": {
             "sonic-port:PORT": {

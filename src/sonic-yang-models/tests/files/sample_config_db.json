@@ -438,7 +438,8 @@
                 "index": "0",
                 "asic_port_name": "Eth0-ASIC1",
                 "role": "Ext",
-                "macsec": "test"
+                "macsec": "test",
+                "link_training": "off"
             },
             "Ethernet1": {
                 "alias": "Eth1/2",
@@ -449,7 +450,8 @@
                 "admin_status": "up",
                 "autoneg": "on",
                 "adv_speeds": "100000,50000",
-                "adv_interface_types": "CR,CR4"
+                "adv_interface_types": "CR,CR4",
+                "link_training": "on"
             },
             "Ethernet2": {
                 "alias": "Eth1/3",

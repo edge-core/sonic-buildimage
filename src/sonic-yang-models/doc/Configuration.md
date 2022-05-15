@@ -1167,7 +1167,8 @@ optional attributes.
             "description": "fortyGigE1/1/1",
             "mtu": "9100",
             "alias": "fortyGigE1/1/1",
-            "speed": "40000"
+            "speed": "40000",
+            "link_training": "off"
         },
         "Ethernet1": {
             "index": "1",
@@ -1176,9 +1177,10 @@ optional attributes.
             "mtu": "9100",
             "alias": "fortyGigE1/1/2",
             "admin_status": "up",
-            "speed": "40000"
+            "speed": "40000",
+            "link_training": "on"
         },
-		"Ethernet63": {
+        "Ethernet63": {
             "index": "63",
             "lanes": "87,88",
             "description": "fortyGigE1/4/16",

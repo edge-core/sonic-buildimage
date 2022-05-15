@@ -69,6 +69,17 @@
         "desc": "PORT_INVALID_ADVTYPES_TEST_2 must condition failure.",
         "eStrKey" : "Must"
     },
+    "PORT_VALID_LINK_TRAINING_TEST_1": {
+        "desc": "PORT_VALID_LINK_TRAINING_TEST_1 no failure."
+    },
+    "PORT_VALID_LINK_TRAINING_TEST_2": {
+        "desc": "PORT_VALID_LINK_TRAINING_TEST_2 no failure."
+    },
+    "PORT_INVALID_LINK_TRAINING_TEST": {
+        "desc": "PORT_INVALID_LINK_TRAINING_TEST must condition failure.",
+        "eStrKey" : "Pattern",
+        "eStr": ["on|off"]
+    },
     "PORT_INVALID_TPID_TEST": {
         "desc": "PORT_INVALID_TPID_TEST invalid tpid value failure.",
         "eStrKey" : "Pattern",
