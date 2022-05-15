@@ -325,7 +325,7 @@ class TestCfgGen(TestCase):
         output = self.run_script(argument)
         self.assertEqual(
             utils.to_dict(output.strip()),
-            utils.to_dict("{'PortChannel01': {'admin_status': 'up', 'min_links': '1', 'members': ['Ethernet4'], 'mtu': '9100', 'tpid': '0x8100'}}")
+            utils.to_dict("{'PortChannel1': {'admin_status': 'up', 'min_links': '1', 'members': ['Ethernet4'], 'mtu': '9100', 'tpid': '0x8100'}}")
         )
 
     def test_minigraph_portchannel_with_more_member(self):
@@ -349,7 +349,7 @@ class TestCfgGen(TestCase):
         output = self.run_script(argument)
         self.assertEqual(
             utils.liststr_to_dict(output.strip()),
-            utils.liststr_to_dict("['PortChannel01', ('PortChannel01', '10.0.0.56/31'), ('PortChannel01', 'FC00::71/126')]")
+            utils.liststr_to_dict("['PortChannel1', ('PortChannel1', '10.0.0.56/31'), ('PortChannel1', 'FC00::71/126')]")
         )
 
     def test_minigraph_neighbors(self):
@@ -803,11 +803,11 @@ class TestCfgGen(TestCase):
                 self.assertEqual(
                     utils.to_dict(output.strip()),
                     utils.to_dict(
-                        "{('PortChannel01.10', '10.0.0.56/31'): {}, "
+                        "{('PortChannel1.10', '10.0.0.56/31'): {}, "
                         "'Ethernet0.10': {'admin_status': 'up'}, "
                         "('Ethernet0.10', '10.0.0.58/31'): {}, "
-                        "('PortChannel01.10', 'FC00::71/126'): {}, "
-                        "'PortChannel01.10': {'admin_status': 'up'}, "
+                        "('PortChannel1.10', 'FC00::71/126'): {}, "
+                        "'PortChannel1.10': {'admin_status': 'up'}, "
                         "('Ethernet0.10', 'FC00::75/126'): {}}"
                     )
                 )
