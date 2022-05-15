@@ -21,6 +21,3 @@ ExecStart=/usr/bin/{{docker_container_name}}.sh wait{% if multi_instance == 'tru
 ExecStop=/usr/bin/{{docker_container_name}}.sh stop{% if multi_instance == 'true' %} %i{% endif %}
 Restart=always
 RestartSec=30
-
-[Install]
-WantedBy=sonic.target
