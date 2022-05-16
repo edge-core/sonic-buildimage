@@ -48,7 +48,7 @@ jobs:
           ENABLE_DOCKER_BASE_PULL=y make PLATFORM=$(PLATFORM_AZP) PLATFORM_ARCH=$(PLATFORM_ARCH) $(BUILD_OPTIONS) configure
         displayName: 'Make configure'
     postSteps:
-      - script: cp target -r $(Build.ArtifactStagingDirectory)/
+      - script: mv target $(Build.ArtifactStagingDirectory)/
         displayName: Copy Artifacts
         condition: always()
       - publish:  $(Build.ArtifactStagingDirectory)
@@ -58,6 +58,10 @@ jobs:
         condition: failed()
         artifact: 'sonic-buildimage.$(GROUP_NAME)$(GROUP_EXTNAME)$(System.JobAttempt)'
         displayName: "Archive failed sonic image"
+      - template: trigger-publish-artifacts-build.yml
+        parameters:
+          artifactName: 'sonic-buildimage.$(GROUP_NAME)$(GROUP_EXTNAME)'
+          publishPrefix: '$(Build.DefinitionName)/$(Build.SourceBranchName)/$(GROUP_NAME)'
       - ${{ parameters.postSteps }}
       - template: cleanup.yml
     jobGroups: ${{ parameters.jobGroups }}
