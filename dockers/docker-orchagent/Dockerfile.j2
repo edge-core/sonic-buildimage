@@ -1,5 +1,5 @@
 {% from "dockers/dockerfile-macros.j2" import install_debian_packages, install_python_wheels, copy_files %}
-FROM docker-swss-layer-buster-{{DOCKER_USERNAME}}:{{DOCKER_USERTAG}}
+FROM docker-swss-layer-bullseye-{{DOCKER_USERNAME}}:{{DOCKER_USERTAG}}
 
 ARG docker_container_name
 RUN [ -f /etc/rsyslog.conf ] && sed -ri "s/%syslogtag%/$docker_container_name#%syslogtag%/;" /etc/rsyslog.conf
@@ -26,16 +26,9 @@ RUN apt-get update &&       \
 
 {% if ( CONFIGURED_ARCH == "armhf" or CONFIGURED_ARCH == "arm64" ) %}
 # Fix for gcc/python/iputils-ping not found in arm docker
-RUN apt-get install -f -y python2.7 python2.7-dev
 RUN apt-get install -y   \
-        gcc-8            \
+        gcc              \
         iputils-ping
-{% endif %}
-{% if CONFIGURED_ARCH == "armhf" %}
-RUN ln -s -f /usr/bin/gcc-8 /usr/bin/arm-linux-gnueabihf-gcc
-{% endif %}
-{% if CONFIGURED_ARCH == "arm64" %}
-RUN ln -s -f /usr/bin/gcc-8 /usr/bin/aarch64-linux-gnu-gcc
 {% endif %}
 
 # Dependencies of restore_neighbors.py
@@ -45,7 +38,7 @@ RUN pip3 install \
 
 {% if ( CONFIGURED_ARCH == "armhf" or CONFIGURED_ARCH == "arm64" ) %}
 # Remove installed gcc
-RUN apt-get remove -y gcc-8
+RUN apt-get remove -y gcc
 {% endif %}
 
 {% if docker_orchagent_debs.strip() -%}
