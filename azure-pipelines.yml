@@ -29,6 +29,7 @@ resources:
     type: github
     name: Azure/sonic-mgmt
     endpoint: build
+    ref: refs/heads/202012
 
 stages:
 - stage: BuildVS
