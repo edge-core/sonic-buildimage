@@ -48,7 +48,7 @@ info_dict_keys = ['type', 'hardware_rev', 'serial',
                   'encoding', 'ext_identifier', 'ext_rateselect_compliance',
                   'cable_type', 'cable_length', 'nominal_bit_rate',
                   'specification_compliance', 'vendor_date', 'vendor_oui',
-                  'application_advertisement']
+                  'type_abbrv_name', 'application_advertisement']
 
 dom_dict_keys = ['rx_los',       'tx_fault',   'reset_status',
                  'power_lpmode', 'tx_disable', 'tx_disable_channel',
@@ -91,6 +91,7 @@ sff8436_parser = {
  'nominal_bit_rate': [INFO_OFFSET,  0, 20, 'parse_sfp_info_bulk'],
  'specification_compliance':
                      [INFO_OFFSET,  0, 20, 'parse_sfp_info_bulk'],
+ 'type_abbrv_name': [INFO_OFFSET,  0, 20, 'parse_sfp_info_bulk'],
      'manufacturer': [INFO_OFFSET, 20, 16, 'parse_vendor_name'],
        'vendor_oui': [INFO_OFFSET,  37, 3, 'parse_vendor_oui'],
             'model': [INFO_OFFSET, 40, 16, 'parse_vendor_pn'],
@@ -198,6 +199,7 @@ class Sfp(SfpBase):
             ext_id = iface_data['data']['Extended Identifier']['value']
             rate_identifier = iface_data['data']['RateIdentifier']['value']
             identifier = iface_data['data']['type']['value']
+            type_abbrv_name = iface_data['data']['type_abbrv_name']['value']
             bit_rate = str(
                 iface_data['data']['Nominal Bit Rate(100Mbs)']['value'])
 
@@ -254,6 +256,7 @@ class Sfp(SfpBase):
             return transceiver_info_dict
 
         # Fill The Dictionary and return
+        transceiver_info_dict['type_abbrv_name'] = type_abbrv_name
         transceiver_info_dict['type'] = identifier
         transceiver_info_dict['hardware_rev'] = vendor_rev
         transceiver_info_dict['serial'] = vendor_sn
