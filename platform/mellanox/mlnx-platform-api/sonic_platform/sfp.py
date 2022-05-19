@@ -187,7 +187,7 @@ class MlxregManager:
                     --set {} -y".format(self.mst_pci_device, self.slot_id, self.sdk_index, device_address, page, num_bytes, dword)
             subprocess.check_call(cmd, shell=True, universal_newlines=True, stdout=subprocess.DEVNULL)
         except subprocess.CalledProcessError as e:
-            logger.log_error("Error! Unable to write data for {} port, page {} offset {}, rc = {}, err msg: {}".format(self.sdk_index, page, device_address, e.returncode, e.output))
+            logger.log_error("Error! Unable to write data dword={} for {} port, page {} offset {}, rc = {}, err msg: {}".format(dword, self.sdk_index, page, device_address, e.returncode, e.output))
             return False
         return True
 
@@ -198,11 +198,14 @@ class MlxregManager:
                     --get".format(self.mst_pci_device, self.slot_id, self.sdk_index, offset, page, num_bytes)
             result = subprocess.check_output(cmd, universal_newlines=True, shell=True)
         except subprocess.CalledProcessError as e:
-            logger.log_error("Error! Unable to write data for {} port, page {} offset {}, rc = {}, err msg: {}".format(self.sdk_index, page, device_address, e.returncode, e.output))
+            logger.log_error("Error! Unable to read data for {} port, page {} offset {}, rc = {}, err msg: {}".format(self.sdk_index, page, offset, e.returncode, e.output))
             return None
         return result
 
     def parse_mlxreg_read_output(self, read_output, num_bytes):
+        if not read_output:
+            return None
+
         res = ""
         dword_num = num_bytes // BYTES_IN_DWORD
         used_bytes_in_dword = num_bytes % BYTES_IN_DWORD
