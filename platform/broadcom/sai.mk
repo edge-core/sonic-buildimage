@@ -1,4 +1,4 @@
-LIBSAIBCM_VERSION = 7.1.0.0
+LIBSAIBCM_VERSION = 7.1.0.0-1
 LIBSAIBCM_BRANCH_NAME = REL_7.0
 LIBSAIBCM_URL_PREFIX = "https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/$(LIBSAIBCM_BRANCH_NAME)/$(LIBSAIBCM_VERSION)"
 

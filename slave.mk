@@ -2,7 +2,7 @@
 ## Presettings
 ###############################################################################
 
-# Select bash for commands
+# Select bash for commands 
 .ONESHELL:
 SHELL = /bin/bash
 .SHELLFLAGS += -e
