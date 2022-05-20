@@ -40,6 +40,7 @@ class BGPAllowListMgr(Manager):
         )
         self.key_re = re.compile(r"^DEPLOYMENT_ID\|\d+\|\S+$|^DEPLOYMENT_ID\|\d+$")
         self.enabled = self.__get_enabled()
+        self.prefix_match_tag = self.__get_routemap_tag()
         self.__load_constant_lists()
 
     def set_handler(self, key, data):
@@ -396,6 +397,8 @@ class BGPAllowListMgr(Manager):
         ]
         if not community_name.endswith(self.EMPTY_COMMUNITY):
             cmds.append(" match community %s" % community_name)
+        elif self.prefix_match_tag:
+            cmds.append(" set tag %s" % self.prefix_match_tag)
         return cmds
 
     def __update_default_route_map_entry(self, route_map_name, default_action_community):
@@ -611,6 +614,20 @@ class BGPAllowListMgr(Manager):
                 continue
             inside_name = result.group(1)
         return rm_2_call
+
+    def __get_routemap_tag(self):
+        """
+        Find if any user define tag is provided to be used when allow prefifx list is matched
+        :return: string: prefix mix tag if define in constants.yml else None
+        """
+        prefix_match_tag = None
+        if 'bgp' in self.constants and \
+           'allow_list' in self.constants["bgp"] and \
+           'prefix_match_tag' in \
+           self.constants["bgp"]["allow_list"]:
+           prefix_match_tag = \
+              self.constants["bgp"]["allow_list"]["prefix_match_tag"]
+        return prefix_match_tag
 
     @staticmethod
     def __get_peer_group_to_restart(deployment_id, pg_2_rm, rm_2_call):
