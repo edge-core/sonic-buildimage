@@ -20,10 +20,8 @@ steps:
     echo "##vso[task.setvariable variable=sonic_version]$sonic_version"
     echo "##vso[task.setvariable variable=latest_tag]$latest_tag"
     echo "##vso[task.setvariable variable=docker_tags]$docker_tags"
-  condition: ne(variables['Build.Reason'], 'PullRequest')
   displayName: 'Set trigger build variables'
 - task: TriggerBuild@4
-  condition: ne(variables['Build.Reason'], 'PullRequest')
   inputs:
     definitionIsInCurrentTeamProject: false
     teamProject: internal
