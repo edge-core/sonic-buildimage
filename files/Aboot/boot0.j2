@@ -558,6 +558,22 @@ write_platform_specific_cmdline() {
         aboot_machine=arista_7800r3_48cqm2_lc
         sonic_mode="$linecard_mode"
     fi
+    if [ "$sid" = "WolverineQCpu" ]; then
+        aboot_machine=arista_7800r3a_36d2_lc
+        sonic_mode="$linecard_mode"
+    fi
+    if [ "$sid" = "WolverineQCpuBk" ]; then
+        aboot_machine=arista_7800r3ak_36d2_lc
+        sonic_mode="$linecard_mode"
+    fi
+    if [ "$sid" = "WolverineQCpuMs" ]; then
+        aboot_machine=arista_7800r3a_36dm2_lc
+        sonic_mode="$linecard_mode"
+    fi
+    if [ "$sid" = "WolverineQCpuBkMs" ]; then
+        aboot_machine=arista_7800r3ak_36dm2_lc
+        sonic_mode="$linecard_mode"
+    fi
     if [ "$sid" = "OtterLake" ]; then
         aboot_machine=arista_7800_sup
         flash_size=30000
