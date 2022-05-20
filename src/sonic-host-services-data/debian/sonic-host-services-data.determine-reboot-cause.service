@@ -5,6 +5,7 @@ After=rc-local.service database.service
 
 [Service]
 Type=simple
+RemainAfterExit=yes
 ExecStart=/usr/local/bin/determine-reboot-cause
 
 [Install]

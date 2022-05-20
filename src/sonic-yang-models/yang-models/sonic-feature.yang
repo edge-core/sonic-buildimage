@@ -86,6 +86,13 @@ module sonic-feature{
                     type feature-owner;
                     default "local";
                 }
+
+                leaf check_up_status {
+                    description "This configuration controls the system ready tool to check
+                        the app ready/up status";
+                    type boolean;
+                    default false;
+                }
             }
         }
     }

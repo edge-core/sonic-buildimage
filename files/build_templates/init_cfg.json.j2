@@ -57,6 +57,12 @@
             "has_global_scope": {% if feature + '.service' in installer_services.split(' ') %}true{% else %}false{% endif %},
             "has_per_asic_scope": {% if feature + '@.service' in installer_services.split(' ') %}true{% else %}false{% endif %},
             "auto_restart": "{{autorestart}}",
+{# Set check_up_status to true here when app readiness will be marked in state db  #}
+{# For now, to support the infrastrucure, setting the check_up_status to false for bgp,swss,pmon  #}
+{# Once apps like bgp,synd supports app readiness, then bgp,syncd can set check_up_status to true #}
+{%- if feature in ["bgp", "swss", "pmon"] %}
+            "check_up_status" : "false",
+{%- endif %}
 {%- if include_kubernetes == "y" %}
 {%- if feature in ["lldp", "pmon", "radv", "snmp", "telemetry"] %}
             "set_owner": "kube", {% else %}

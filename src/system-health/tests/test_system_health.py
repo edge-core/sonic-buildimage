@@ -3,6 +3,7 @@
         1. test_user_defined_checker mocks the output of a user defined checker and verify class UserDefinedChecker
         2. test_service_checker mocks the output of monit service and verify class ServiceChecker
         3. test_hardware_checker mocks the hardware status data in db and verify class HardwareChecker
+        4. Mocks and tests the system ready status and verify class Sysmonitor
     And there are class that are not covered by unit test. These class will be covered by sonic-mgmt regression test.
         1. HealthDaemon
         2. HealthCheckerManager
@@ -30,6 +31,9 @@ from health_checker.health_checker import HealthChecker
 from health_checker.manager import HealthCheckerManager
 from health_checker.service_checker import ServiceChecker
 from health_checker.user_defined_checker import UserDefinedChecker
+from health_checker.sysmonitor import Sysmonitor
+from health_checker.sysmonitor import MonitorStateDbTask
+from health_checker.sysmonitor import MonitorSystemBusTask
 
 mock_supervisorctl_output = """
 snmpd                       RUNNING   pid 67, uptime 1:03:56
@@ -505,3 +509,214 @@ def test_utils():
 
     output = utils.run_command('ls')
     assert output
+
+
+@patch('swsscommon.swsscommon.ConfigDBConnector.connect', MagicMock())
+@patch('sonic_py_common.multi_asic.is_multi_asic', MagicMock(return_value=False))
+@patch('docker.DockerClient')
+@patch('health_checker.utils.run_command')
+@patch('swsscommon.swsscommon.ConfigDBConnector')
+def test_get_all_service_list(mock_config_db, mock_run, mock_docker_client):
+    mock_db_data = MagicMock()
+    mock_get_table = MagicMock()
+    mock_db_data.get_table = mock_get_table
+    mock_config_db.return_value = mock_db_data
+    mock_get_table.return_value = {
+        'radv': {
+            'state': 'enabled',
+            'has_global_scope': 'True',
+            'has_per_asic_scope': 'False',
+        },
+        'bgp': {
+            'state': 'enabled',
+            'has_global_scope': 'True',
+            'has_per_asic_scope': 'False',
+        },
+        'pmon': {
+            'state': 'disabled',
+            'has_global_scope': 'True',
+            'has_per_asic_scope': 'False',
+        }
+    }
+    sysmon = Sysmonitor()
+    print("mock get table:{}".format(mock_get_table.return_value))
+    result = sysmon.get_all_service_list()
+    print("result get all service list:{}".format(result))
+    assert 'radv.service' in result
+    assert 'pmon.service' not in result
+
+
+@patch('swsscommon.swsscommon.ConfigDBConnector.connect', MagicMock())
+@patch('sonic_py_common.multi_asic.is_multi_asic', MagicMock(return_value=False))
+@patch('docker.DockerClient')
+@patch('health_checker.utils.run_command')
+@patch('swsscommon.swsscommon.ConfigDBConnector')
+def test_get_app_ready_status(mock_config_db, mock_run, mock_docker_client):
+    mock_db_data = MagicMock()
+    mock_get_table = MagicMock()
+    mock_db_data.get_table = mock_get_table
+    mock_config_db.return_value = mock_db_data
+    mock_get_table.return_value = {
+        'radv': {
+            'state': 'enabled',
+            'has_global_scope': 'True',
+            'has_per_asic_scope': 'False',
+            'check_up_status': 'True'
+        },
+        'bgp': {
+            'state': 'enabled',
+            'has_global_scope': 'True',
+            'has_per_asic_scope': 'False',
+            'check_up_status': 'True'
+        },   
+        'snmp': {
+            'state': 'enabled',
+            'has_global_scope': 'True',
+            'has_per_asic_scope': 'False',
+            'check_up_status': 'False'
+        }
+    }
+
+    MockConnector.data.update({
+        'FEATURE|radv': {
+            'up_status': 'True',
+            'fail_reason': '-',
+            'update_time': '-'
+        },
+        'FEATURE|bgp': {
+            'up_status': 'False',
+            'fail_reason': 'some error',
+            'update_time': '-'
+        }})
+
+    sysmon = Sysmonitor()
+    result = sysmon.get_app_ready_status('radv')
+    print(result)
+    assert 'Up' in result
+    result = sysmon.get_app_ready_status('bgp')
+    print(result)
+    assert 'Down' in result
+    result = sysmon.get_app_ready_status('snmp')
+    print(result)
+    assert 'Up' in result
+
+
+mock_srv_props={
+'mock_radv.service':{'Type': 'simple', 'Result': 'success', 'Id': 'mock_radv.service', 'LoadState': 'loaded', 'ActiveState': 'active', 'SubState': 'running', 'UnitFileState': 'enabled'},
+'mock_bgp.service':{'Type': 'simple', 'Result': 'success', 'Id': 'mock_bgp.service', 'LoadState': 'loaded', 'ActiveState': 'inactive', 'SubState': 'dead', 'UnitFileState': 'enabled'}
+}
+
+@patch('health_checker.sysmonitor.Sysmonitor.get_all_service_list', MagicMock(return_value=['mock_snmp.service', 'mock_bgp.service', 'mock_ns.service']))
+@patch('health_checker.sysmonitor.Sysmonitor.run_systemctl_show', MagicMock(return_value=mock_srv_props['mock_bgp.service']))
+@patch('health_checker.sysmonitor.Sysmonitor.get_app_ready_status', MagicMock(return_value=('Down','-','-')))
+@patch('health_checker.sysmonitor.Sysmonitor.post_unit_status', MagicMock())
+def test_check_unit_status():
+    sysmon = Sysmonitor()
+    sysmon.check_unit_status('mock_bgp.service')
+    assert 'mock_bgp.service' in sysmon.dnsrvs_name
+
+
+
+@patch('health_checker.sysmonitor.Sysmonitor.run_systemctl_show', MagicMock(return_value=mock_srv_props['mock_radv.service']))
+@patch('health_checker.sysmonitor.Sysmonitor.get_app_ready_status', MagicMock(return_value=('Up','-','-')))
+@patch('health_checker.sysmonitor.Sysmonitor.post_unit_status', MagicMock())
+def test_get_unit_status_ok():
+    sysmon = Sysmonitor()
+    result = sysmon.get_unit_status('mock_radv.service')
+    print("get_unit_status:{}".format(result))
+    assert result == 'OK'
+
+
+@patch('health_checker.sysmonitor.Sysmonitor.run_systemctl_show', MagicMock(return_value=mock_srv_props['mock_bgp.service']))
+@patch('health_checker.sysmonitor.Sysmonitor.get_app_ready_status', MagicMock(return_value=('Up','-','-')))
+@patch('health_checker.sysmonitor.Sysmonitor.post_unit_status', MagicMock())
+def test_get_unit_status_not_ok():
+    sysmon = Sysmonitor()
+    result = sysmon.get_unit_status('mock_bgp.service')
+    print("get_unit_status:{}".format(result))
+    assert result == 'NOT OK'
+
+
+@patch('health_checker.sysmonitor.Sysmonitor.get_all_service_list', MagicMock(return_value=['mock_snmp.service', 'mock_ns.service']))
+@patch('health_checker.sysmonitor.Sysmonitor.get_unit_status', MagicMock(return_value= 'OK'))
+@patch('health_checker.sysmonitor.Sysmonitor.publish_system_status', MagicMock())
+@patch('health_checker.sysmonitor.Sysmonitor.post_unit_status', MagicMock())
+@patch('health_checker.sysmonitor.Sysmonitor.get_app_ready_status', MagicMock(return_value='Up'))
+def test_get_all_system_status_ok():
+    sysmon = Sysmonitor()
+    result = sysmon.get_all_system_status()
+    print("result:{}".format(result))
+    assert result == 'UP'
+
+
+@patch('health_checker.sysmonitor.Sysmonitor.get_all_service_list', MagicMock(return_value=['mock_snmp.service', 'mock_ns.service']))
+@patch('health_checker.sysmonitor.Sysmonitor.get_unit_status', MagicMock(return_value= 'NOT OK'))
+@patch('health_checker.sysmonitor.Sysmonitor.publish_system_status', MagicMock())
+@patch('health_checker.sysmonitor.Sysmonitor.post_unit_status', MagicMock())
+@patch('health_checker.sysmonitor.Sysmonitor.get_app_ready_status', MagicMock(return_value='Up'))
+def test_get_all_system_status_not_ok():
+    sysmon = Sysmonitor()
+    result = sysmon.get_all_system_status()
+    print("result:{}".format(result))
+    assert result == 'DOWN'
+    
+def test_post_unit_status():
+    sysmon = Sysmonitor()
+    sysmon.post_unit_status("mock_bgp", 'OK', 'Down', 'mock reason', '-') 
+    result = swsscommon.SonicV2Connector.get_all(MockConnector, 0, 'ALL_SERVICE_STATUS|mock_bgp')
+    print(result)
+    assert result['service_status'] == 'OK'
+    assert result['app_ready_status'] == 'Down'
+    assert result['fail_reason'] == 'mock reason'
+
+def test_post_system_status():
+    sysmon = Sysmonitor()
+    sysmon.post_system_status("UP") 
+    result = swsscommon.SonicV2Connector.get(MockConnector, 0, "SYSTEM_READY|SYSTEM_STATE", 'Status')
+    print("post system status result:{}".format(result))
+    assert result == "UP"
+
+@patch('health_checker.sysmonitor.Sysmonitor.publish_system_status', MagicMock())
+@patch('health_checker.sysmonitor.Sysmonitor.post_system_status', test_post_system_status())
+@patch('health_checker.sysmonitor.Sysmonitor.print_console_message', MagicMock())
+def test_publish_system_status():
+    sysmon = Sysmonitor()
+    sysmon.publish_system_status('UP')
+    result = swsscommon.SonicV2Connector.get(MockConnector, 0, "SYSTEM_READY|SYSTEM_STATE", 'Status')
+    assert result == "UP"
+
+@patch('health_checker.sysmonitor.Sysmonitor.get_all_system_status', test_get_all_system_status_ok())
+@patch('health_checker.sysmonitor.Sysmonitor.publish_system_status', test_publish_system_status())
+def test_update_system_status():
+    sysmon = Sysmonitor()
+    sysmon.update_system_status() 
+    result = swsscommon.SonicV2Connector.get(MockConnector, 0, "SYSTEM_READY|SYSTEM_STATE", 'Status')
+    assert result == "UP"
+
+from sonic_py_common.task_base import ProcessTaskBase
+import multiprocessing
+mpmgr = multiprocessing.Manager()
+
+myQ = mpmgr.Queue()
+def test_monitor_statedb_task():
+    sysmon = MonitorStateDbTask(myQ)
+    sysmon.SubscriberStateTable = MagicMock()
+    sysmon.task_run()
+    assert sysmon._task_process is not None
+    sysmon.task_stop()
+
+@patch('health_checker.sysmonitor.MonitorSystemBusTask.subscribe_sysbus', MagicMock())
+def test_monitor_sysbus_task():
+    sysmon = MonitorSystemBusTask(myQ)
+    sysmon.SubscriberStateTable = MagicMock()
+    sysmon.task_run()
+    assert sysmon._task_process is not None
+    sysmon.task_stop()
+
+@patch('health_checker.sysmonitor.MonitorSystemBusTask.subscribe_sysbus', MagicMock())
+@patch('health_checker.sysmonitor.MonitorStateDbTask.subscribe_statedb', MagicMock())
+def test_system_service():
+    sysmon = Sysmonitor()
+    sysmon.task_run()
+    assert sysmon._task_process is not None
+    sysmon.task_stop()

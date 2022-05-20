@@ -12,6 +12,8 @@ from sonic_py_common.daemon_base import DaemonBase
 from swsscommon.swsscommon import SonicV2Connector
 
 from health_checker.manager import HealthCheckerManager
+from health_checker.sysmonitor import Sysmonitor
+
 
 SYSLOG_IDENTIFIER = 'healthd'
 
@@ -75,6 +77,8 @@ class HealthDaemon(DaemonBase):
             if not manager.config.config_file_exists():
                 self.log_warning("System health configuration file not found, exit...")
                 return
+            sysmon = Sysmonitor()
+            sysmon.task_run()
             while 1:
                 stat = manager.check(chassis)
                 self._process_stat(chassis, manager.config, stat)
@@ -85,6 +89,7 @@ class HealthDaemon(DaemonBase):
             self.log_warning("sonic_platform package not installed. Cannot start system-health daemon")
 
         self.deinit()
+        sysmon.task_stop()
 
     def _process_stat(self, chassis, config, stat):
         from health_checker.health_checker import HealthChecker

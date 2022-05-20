@@ -22,3 +22,12 @@ class MockConnector(object):
 
     def get_all(self, db_id, key):
         return MockConnector.data[key]
+    
+    def set(self, db_id, key, field, value):
+        self.data[key] = {}
+        self.data[key][field] = value
+    
+    def hmset(self, db_id, key, fieldsvalues):
+        self.data[key] = {}
+        for field,value in fieldsvalues.items():
+            self.data[key][field] = value
