@@ -1,0 +1,27 @@
+From 75725ff405c65a6aba0b936bc2bee6f04aaaed74 Mon Sep 17 00:00:00 2001
+From: Stephen Sun <stephens@nvidia.com>
+Date: Thu, 12 May 2022 08:41:00 +0800
+Subject: [PATCH] Make SONiC system-health service service start after hw-mgmt
+ service
+
+Signed-off-by: Stephen Sun <stephens@nvidia.com>
+---
+ debian/hw-management.hw-management.service | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/debian/hw-management.hw-management.service b/debian/hw-management.hw-management.service
+index 1c25ffb..9d10a32 100755
+--- a/debian/hw-management.hw-management.service
++++ b/debian/hw-management.hw-management.service
+@@ -1,7 +1,7 @@
+ [Unit]
+ Description=Chassis HW management service of Mellanox systems
+ Documentation=man:hw-management.service(8)
+-Before=determine-reboot-cause.service
++Before=determine-reboot-cause.service system-health.service
+ 
+ [Service]
+ Type=oneshot
+-- 
+1.9.1
+
