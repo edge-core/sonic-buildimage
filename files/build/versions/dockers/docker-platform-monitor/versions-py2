@@ -18,7 +18,7 @@ pathlib2==2.3.7.post1
 protobuf==3.17.3
 pyang==2.5.3
 pyangbind==0.6.0
-python-sdk-api==4.5.1208
+python-sdk-api==4.5.2262
 pyyaml==5.4.1
 redis==3.5.3
 redis-dump-load==1.1

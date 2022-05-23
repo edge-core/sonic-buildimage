@@ -134,7 +134,7 @@ libselinux1-dev==2.8-1+b1
 libsepol1-dev==2.8-1
 libsm-dev==2:1.2.3-1
 libsm6==2:1.2.3-1
-libssl-dev==1.1.1n-0+deb10u1
+libssl-dev==1.1.1n-0+deb10u2
 libstdc++-8-dev==8.3.0-6
 libsystemd-dev==241-7~deb10u8
 libteam-utils==1.30-1

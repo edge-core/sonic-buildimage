@@ -3,7 +3,7 @@ http://deb.debian.org/debian/pool/main/n/ntp/ntp_4.2.8p15+dfsg.orig.tar.xz==c1c5
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0-3~bpo9+1.debian.tar.xz==ef340aedc6fd42c549cd503bffb498b2
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0-3~bpo9+1.dsc==be4ce11ef67268e59e4b6be587327c40
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0.orig.tar.gz==6d565680a4af0d2e261abbc3e3431b2b
-https://chrome-infra-packages.appspot.com/client?platform=linux-amd64&version=git_revision:8e9b0c80860d00dfe951f7ea37d74e210d376c13==26c9adbc3f71cbcfcf133edb38ad49aa
+https://chrome-infra-packages.appspot.com/client?platform=linux-amd64&version=git_revision:29b908616bc920e58bf384d1e47b91b6cf9188b8==c4189e12deb73c6034209c788c9eb133
 https://deb.debian.org/debian/pool/main/k/kdump-tools/kdump-tools_1.6.8.4.dsc==f96a03bb090ab03d484e5d232161fafe
 https://deb.debian.org/debian/pool/main/k/kdump-tools/kdump-tools_1.6.8.4.tar.xz==26bcae7c27b729d614a4a85e2a01cb64
 https://github.com/aristanetworks/sonic-firmware/raw/d227160f981f27df020ab50b9e0f16b1bd9166ea/phy/phy-credo_1.0_amd64.deb==525369d65ff7b40869d05adfc9027a8b
