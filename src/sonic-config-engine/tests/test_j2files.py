@@ -212,8 +212,8 @@ class TestJ2Files(TestCase):
         sample_output_file = os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, 'qos-arista7050.json')
         assert utils.cmp(sample_output_file, self.output_file), self.run_diff(sample_output_file, self.output_file)
 
-    def test_qos_and_buffer_arista7800r3_48cq2_lc_render_template(self):
-        arista_dir_path = os.path.join(self.test_dir, '..', '..', '..', 'device', 'arista', 'x86_64-arista_7800r3_48cq2_lc', 'Arista-7800R3-48CQ2-C48')
+    def do_test_qos_and_buffer_arista7800r3_48cq2_lc_render_template(self, platform, hwsku):
+        arista_dir_path = os.path.join(self.test_dir, '..', '..', '..', 'device', 'arista', platform, hwsku)
         qos_file = os.path.join(arista_dir_path, 'qos.json.j2')
         buffer_file = os.path.join(arista_dir_path, 'buffers.json.j2')
         port_config_ini_file = os.path.join(arista_dir_path, 'port_config.ini')
@@ -235,6 +235,12 @@ class TestJ2Files(TestCase):
 
             sample_output_file = os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, sample_output_file)
             assert utils.cmp(sample_output_file, self.output_file), self.run_diff(sample_output_file, self.output_file)
+
+    def test_qos_and_buffer_arista7800r3_48cq2_lc_render_template(self):
+        self.do_test_qos_and_buffer_arista7800r3_48cq2_lc_render_template('x86_64-arista_7800r3_48cq2_lc', 'Arista-7800R3-48CQ2-C48')
+
+    def test_qos_and_buffer_arista7800r3_48cqm2_lc_render_template(self):
+        self.do_test_qos_and_buffer_arista7800r3_48cq2_lc_render_template('x86_64-arista_7800r3_48cqm2_lc', 'Arista-7800R3-48CQM2-C48')
 
     def test_qos_dell9332_render_template(self):
         dell_dir_path = os.path.join(self.test_dir, '..', '..', '..', 'device', 'dell', 'x86_64-dellemc_z9332f_d1508-r0', 'DellEMC-Z9332f-O32')
