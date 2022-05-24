@@ -118,12 +118,8 @@ function preStartAction()
 
 function setPlatformLagIdBoundaries()
 {
-    CHASSIS_CONF=/usr/share/sonic/device/$PLATFORM/chassisdb.conf
-    if [ -f "$CHASSIS_CONF" ]; then
-        source $CHASSIS_CONF
-        docker exec -i ${DOCKERNAME} $SONIC_DB_CLI CHASSIS_APP_DB SET "SYSTEM_LAG_ID_START" "$lag_id_start"
-        docker exec -i ${DOCKERNAME} $SONIC_DB_CLI CHASSIS_APP_DB SET "SYSTEM_LAG_ID_END" "$lag_id_end"
-    fi
+    docker exec -i ${DOCKERNAME} $SONIC_DB_CLI CHASSIS_APP_DB SET "SYSTEM_LAG_ID_START" "$lag_id_start"
+    docker exec -i ${DOCKERNAME} $SONIC_DB_CLI CHASSIS_APP_DB SET "SYSTEM_LAG_ID_END" "$lag_id_end"
 }
 function waitForAllInstanceDatabaseConfigJsonFilesReady()
 {
@@ -158,6 +154,8 @@ sleep 1
 function postStartAction()
 {
 {%- if docker_container_name == "database" %}
+    CHASSISDB_CONF="/usr/share/sonic/device/$PLATFORM/chassisdb.conf"
+    [ -f $CHASSISDB_CONF ] && source $CHASSISDB_CONF
     if [ "$DEV" ]; then
         # Enable the forwarding on eth0 interface in namespace.
         SYSCTL_NET_CONFIG="/etc/sysctl.d/sysctl-net.conf"
@@ -165,6 +163,31 @@ function postStartAction()
                                                s/^net.ipv6.conf.eth0.forwarding=0/net.ipv6.conf.eth0.forwarding=1/" $SYSCTL_NET_CONFIG
         docker exec -i database$DEV sysctl --system -e
         link_namespace $DEV
+
+
+        if [[ -n "$midplane_subnet" ]]; then
+           # Use /16 for loopback interface
+           ip netns exec "$NET_NS" ip addr add 127.0.0.1/16 dev lo
+           ip netns exec "$NET_NS" ip addr del 127.0.0.1/8 dev lo
+
+           # Create eth1 in database instance
+           ip link add name ns-eth1"$NET_NS" link eth1-midplane type macvlan mode bridge
+           ip link set dev ns-eth1"$NET_NS" netns "$NET_NS"
+           ip netns exec "$NET_NS" ip link set ns-eth1"$NET_NS" name eth1
+
+           # Configure IP address and enable eth1
+           lc_slot_id=$(python3 -c 'import sonic_platform.platform; platform_chassis = sonic_platform.platform.Platform().get_chassis(); print(platform_chassis.get_my_slot())' 2>/dev/null)
+           lc_ip_address=`echo $midplane_subnet | awk -F. '{print $1 "." $2}'`.$lc_slot_id.$(($DEV + 10))
+           lc_subnet_mask=${midplane_subnet#*/}
+           ip netns exec "$NET_NS" ip addr add $lc_ip_address/$lc_subnet_mask dev eth1
+           ip netns exec "$NET_NS" ip link set dev eth1 up
+
+           # Allow localnet routing on the new interfaces if midplane is using a
+           # subnet in the 127/8 range.
+           if [[ "${midplane_subnet#127}" != "$midplane_subnet" ]]; then
+              ip netns exec "$NET_NS" bash -c "echo 1 > /proc/sys/net/ipv4/conf/eth1/route_localnet"
+           fi
+       fi
     fi
     # Setup ebtables configuration
     ebtables_config
@@ -180,7 +203,8 @@ function postStartAction()
         # then we catch python exception of file not valid
         # that comes to syslog which is unwanted so wait till database
         # config is ready and then ping
-        until [[ ($(docker exec -i database$DEV pgrep -x -c supervisord) -gt 0) && ($($SONIC_DB_CLI PING | grep -c PONG) -gt 0) ]]; do
+        until [[ ($(docker exec -i database$DEV pgrep -x -c supervisord) -gt 0) && ($($SONIC_DB_CLI PING | grep -c PONG) -gt 0) &&
+                 ($(docker exec -i database$DEV sonic-db-cli PING | grep -c PONG) -gt 0) ]]; do
           sleep 1;
         done
         if [[ ("$BOOT_TYPE" == "warm" || "$BOOT_TYPE" == "fastfast") && -f $WARM_DIR/dump.rdb ]]; then
@@ -222,7 +246,9 @@ function postStartAction()
                  ($(docker exec -i ${DOCKERNAME} $SONIC_DB_CLI CHASSIS_APP_DB PING | grep -c True) -gt 0) ]]; do
            sleep 1
         done
-        setPlatformLagIdBoundaries
+        if [[ -n "$lag_id_start" && -n "$lag_id_end" ]]; then
+           setPlatformLagIdBoundaries
+        fi
         REDIS_SOCK="/var/run/redis-chassis/redis_chassis.sock"
     fi
     chgrp -f redis $REDIS_SOCK && chmod -f 0760 $REDIS_SOCK

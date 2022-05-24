@@ -3,6 +3,7 @@ import swsssdk
 import redis
 import subprocess
 import time
+import syslog
 
 while(True):
     output = subprocess.Popen(['sonic-db-cli', 'PING'], stdout=subprocess.PIPE, text=True).communicate()[0]
@@ -24,5 +25,8 @@ for instname, v in instlists.items():
         if dbinst == instname:
             continue
 
-        r = redis.Redis(host=insthost, unix_socket_path=instsocket, db=dbid)
-        r.flushdb()
+        try:
+            r = redis.Redis(host=insthost, unix_socket_path=instsocket, db=dbid)
+            r.flushdb()
+        except (redis.exceptions.ConnectionError):
+           syslog.syslog(syslog.LOG_INFO,"flushdb:Redis Unix Socket connection error for path {} and dbaname {}".format(instsocket, dbname))
