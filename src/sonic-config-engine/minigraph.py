@@ -44,6 +44,8 @@ VLAN_SUB_INTERFACE_VLAN_ID = '10'
 FRONTEND_ASIC_SUB_ROLE = 'FrontEnd'
 BACKEND_ASIC_SUB_ROLE = 'BackEnd'
 
+dualtor_cable_types = ["active-active", "active-standby"]
+
 # Default Virtual Network Index (VNI) 
 vni_default = 8000
 
@@ -76,6 +78,7 @@ def get_peer_switch_info(link_metadata, devices):
 
     return peer_switch_table
 
+
 def parse_device(device):
     lo_prefix = None
     lo_prefix_v6 = None
@@ -85,6 +88,7 @@ def parse_device(device):
     name = None
     deployment_id = None
     cluster = None
+    d_subtype = None
 
     for node in device:
         if node.tag == str(QName(ns, "Address")):
@@ -103,11 +107,14 @@ def parse_device(device):
             d_type = node.text
         elif node.tag == str(QName(ns, "ClusterName")):
             cluster = node.text
+        elif node.tag == str(QName(ns, "SubType")):
+            d_subtype = node.text
 
     if d_type is None and str(QName(ns3, "type")) in device.attrib:
         d_type = device.attrib[str(QName(ns3, "type"))]
 
-    return (lo_prefix, lo_prefix_v6, mgmt_prefix, name, hwsku, d_type, deployment_id, cluster)
+    return (lo_prefix, lo_prefix_v6, mgmt_prefix, name, hwsku, d_type, deployment_id, cluster, d_subtype)
+
 
 def calculate_lcm_for_ecmp (nhdevices_bank_map, nhip_bank_map):
     banks_enumerated = {}
@@ -243,14 +250,16 @@ def parse_png(png, hname, dpg_ecmp_content = None):
 
         if child.tag == str(QName(ns, "Devices")):
             for device in child.findall(str(QName(ns, "Device"))):
-                (lo_prefix, lo_prefix_v6, mgmt_prefix, name, hwsku, d_type, deployment_id, cluster) = parse_device(device)
-                device_data = {'lo_addr': lo_prefix, 'type': d_type, 'mgmt_addr': mgmt_prefix, 'hwsku': hwsku }
+                (lo_prefix, lo_prefix_v6, mgmt_prefix, name, hwsku, d_type, deployment_id, cluster, d_subtype) = parse_device(device)
+                device_data = {'lo_addr': lo_prefix, 'type': d_type, 'mgmt_addr': mgmt_prefix, 'hwsku': hwsku}
                 if cluster:
                     device_data['cluster'] = cluster
                 if deployment_id:
                     device_data['deployment_id'] = deployment_id
                 if lo_prefix_v6:
                     device_data['lo_addr_v6'] = lo_prefix_v6
+                if d_subtype:
+                    device_data['subtype'] = d_subtype
                 devices[name] = device_data
 
         if child.tag == str(QName(ns, "DeviceInterfaceLinks")):
@@ -275,10 +284,11 @@ def parse_png(png, hname, dpg_ecmp_content = None):
             for link in child.findall(str(QName(ns, 'DeviceLinkBase'))):
                 if link.find(str(QName(ns, "ElementType"))).text == "LogicalLink":
                     intf_name = link.find(str(QName(ns, "EndPort"))).text
+                    start_device = link.find(str(QName(ns, "StartDevice"))).text
                     if intf_name in port_alias_map:
                         intf_name = port_alias_map[intf_name]
 
-                    mux_cable_ports[intf_name] = "true"
+                    mux_cable_ports[intf_name] = start_device
 
         if dpg_ecmp_content and (len(dpg_ecmp_content)):
             for version, content in dpg_ecmp_content.items():  # version is ipv4 or ipv6
@@ -373,7 +383,7 @@ def parse_asic_png(png, asic_name, hostname):
 
         if child.tag == str(QName(ns, "Devices")):
             for device in child.findall(str(QName(ns, "Device"))):
-                (lo_prefix, lo_prefix_v6, mgmt_prefix, name, hwsku, d_type, deployment_id, cluster) = parse_device(device)
+                (lo_prefix, lo_prefix_v6, mgmt_prefix, name, hwsku, d_type, deployment_id, cluster, _) = parse_device(device)
                 device_data = {'lo_addr': lo_prefix, 'type': d_type, 'mgmt_addr': mgmt_prefix, 'hwsku': hwsku }
                 if cluster:
                     device_data['cluster'] = cluster
@@ -1475,7 +1485,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
     # If connected to a smart cable, get the connection position
     for port_name, port in ports.items():
         if port_name in mux_cable_ports:
-            port['mux_cable'] = mux_cable_ports[port_name]
+            port['mux_cable'] = "true"
 
     # set port description if parsed from deviceinfo
     for port_name in port_descriptions:
@@ -1720,7 +1730,7 @@ def get_tunnel_entries(tunnel_intfs, lo_intfs, hostname):
 def get_mux_cable_entries(mux_cable_ports, neighbors, devices):
     mux_cable_table = {}
 
-    for intf in mux_cable_ports:
+    for intf, cable_name in mux_cable_ports.items():
         if intf in neighbors:
             entry = {}
             neighbor = neighbors[intf]['name']
@@ -1740,11 +1750,26 @@ def get_mux_cable_entries(mux_cable_ports, neighbors, devices):
             else:
                 print("Warning: no server IPv4 loopback found for {}, skipping mux cable table entry".format(neighbor))
 
+        if cable_name in devices:
+            cable_type = devices[cable_name].get('subtype')
+            if cable_type is None:
+                continue
+            if cable_type in dualtor_cable_types:
+                mux_cable_table[intf]['cable_type'] = cable_type
+                if cable_type == 'active-active':
+                    soc_ipv4 = devices[cable_name]['lo_addr'].split('/')[0]
+                    soc_ipv4_prefix = ipaddress.ip_network(UNICODE_TYPE(soc_ipv4))
+                    mux_cable_table[intf]['soc_ipv4'] = str(soc_ipv4_prefix)
+            else:
+                print("Warning: skip parsing device %s for mux cable entry, cable type %s not supported" % (cable_name, cable_type))
+        else:
+            print("Warning: skip parsing device %s for mux cable entry, device definition not found" % cable_name)
+
     return mux_cable_table
 
 def parse_device_desc_xml(filename):
     root = ET.parse(filename).getroot()
-    (lo_prefix, lo_prefix_v6, mgmt_prefix, hostname, hwsku, d_type, _, _) = parse_device(root)
+    (lo_prefix, lo_prefix_v6, mgmt_prefix, hostname, hwsku, d_type, _, _, _) = parse_device(root)
 
     results = {}
     results['DEVICE_METADATA'] = {'localhost': {

@@ -226,6 +226,21 @@ class TestCfgGenCaseInsensitive(TestCase):
                 'lo_addr_v6': 'fe80::0002/128',
                 'mgmt_addr': '10.0.0.2/32',
                 'type': 'Server'
+            },
+            'server1-SC': {
+                'hwsku': 'smartcable-sku',
+                'lo_addr': '0.0.0.0/0',
+                'lo_addr_v6': '::/0',
+                'mgmt_addr': '0.0.0.0/0',
+                'type': 'SmartCable'
+            },
+            'server2-SC': {
+                'hwsku': 'smartcable-sku',
+                'lo_addr': '10.10.10.3/32',
+                'lo_addr_v6': '::/0',
+                'mgmt_addr': '0.0.0.0/0',
+                'type': 'SmartCable',
+                'subtype': 'active-active'
             }
         }
         output = self.run_script(argument)
@@ -365,7 +380,9 @@ class TestCfgGenCaseInsensitive(TestCase):
             'Ethernet8': {
                 'state': 'auto',
                 'server_ipv4': '10.10.10.2/32',
-                'server_ipv6': 'fe80::2/128'
+                'server_ipv6': 'fe80::2/128',
+                'soc_ipv4': '10.10.10.3/32',
+                'cable_type': 'active-active'
             }
         }
 

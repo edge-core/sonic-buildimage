@@ -258,7 +258,7 @@
         <EndDevice>switch-t0</EndDevice>
         <EndPort>fortyGigE0/4</EndPort>
         <FlowControl>true</FlowControl>
-        <StartDevice>mux-cable</StartDevice>
+        <StartDevice>server1-SC</StartDevice>
         <StartPort>L</StartPort>
         <Validate>true</Validate>
       </DeviceLinkBase>
@@ -269,7 +269,7 @@
         <EndDevice>switch-t0</EndDevice>
         <EndPort>fortyGigE0/8</EndPort>
         <FlowControl>true</FlowControl>
-        <StartDevice>mux-cable</StartDevice>
+        <StartDevice>server2-SC</StartDevice>
         <StartPort>U</StartPort>
         <Validate>true</Validate>
       </DeviceLinkBase>
@@ -317,6 +317,24 @@
         </ManagementAddress> 
         <HwSku>Force10-S6000</HwSku>
       </Device>
+      <Device i:type="SmartCable">
+        <ElementType>SmartCable</ElementType>
+        <Address xmlns:d5p1="Microsoft.Search.Autopilot.NetMux">
+          <d5p1:IPPrefix>0.0.0.0/0</d5p1:IPPrefix>
+        </Address>
+        <AddressV6 xmlns:d5p1="Microsoft.Search.Autopilot.NetMux">
+          <d5p1:IPPrefix>::/0</d5p1:IPPrefix>
+        </AddressV6>
+        <ManagementAddress xmlns:d5p1="Microsoft.Search.Autopilot.NetMux">
+          <d5p1:IPPrefix>0.0.0.0/0</d5p1:IPPrefix>
+        </ManagementAddress>
+        <ManagementAddressV6 xmlns:d5p1="Microsoft.Search.Autopilot.NetMux">
+          <d5p1:IPPrefix>::/0</d5p1:IPPrefix>
+        </ManagementAddressV6>
+        <SerialNumber i:nil="true" />
+        <Hostname>server1-SC</Hostname>
+        <HwSku>smartcable-sku</HwSku>
+      </Device>
       <Device i:type="Server">
         <ElementType>Server</ElementType>
         <Address xmlns:d5p1="Microsoft.Search.Autopilot.NetMux">
@@ -330,6 +348,25 @@
         </ManagementAddress>
         <Hostname>server1</Hostname>
         <HwSku>server-sku</HwSku>
+      </Device>
+      <Device i:type="SmartCable">
+        <ElementType>SmartCable</ElementType>
+        <SubType>active-active</SubType>
+        <Address xmlns:d5p1="Microsoft.Search.Autopilot.NetMux">
+          <d5p1:IPPrefix>10.10.10.3/32</d5p1:IPPrefix>
+        </Address>
+        <AddressV6 xmlns:d5p1="Microsoft.Search.Autopilot.NetMux">
+          <d5p1:IPPrefix>::/0</d5p1:IPPrefix>
+        </AddressV6>
+        <ManagementAddress xmlns:d5p1="Microsoft.Search.Autopilot.NetMux">
+          <d5p1:IPPrefix>0.0.0.0/0</d5p1:IPPrefix>
+        </ManagementAddress>
+        <ManagementAddressV6 xmlns:d5p1="Microsoft.Search.Autopilot.NetMux">
+          <d5p1:IPPrefix>::/0</d5p1:IPPrefix>
+        </ManagementAddressV6>
+        <SerialNumber i:nil="true" />
+        <Hostname>server2-SC</Hostname>
+        <HwSku>smartcable-sku</HwSku>
       </Device>
       <Device i:type="Server">
         <ElementType>Server</ElementType>
