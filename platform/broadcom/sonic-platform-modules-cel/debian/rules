@@ -1,11 +1,12 @@
 #!/usr/bin/make -f
 
 export INSTALL_MOD_DIR:=extra
+export KBUILD_EXTRA_SYMBOLS := /sonic/platform/pddf/i2c/Module.symvers.PDDF 
 
 KVERSION   ?= $(shell uname -r)
 KERNEL_SRC :=  /lib/modules/$(KVERSION)
 MOD_SRC_DIR:= $(shell pwd)
-MODULE_DIRS:= dx010 haliburton silverstone seastone2
+MODULE_DIRS:= dx010 haliburton silverstone seastone2 belgite
 
 %:
 	dh $@
@@ -18,6 +19,17 @@ override_dh_auto_build:
 			python3 setup.py bdist_wheel -d $(MOD_SRC_DIR)/$${mod}/modules; \
 			continue; \
 		fi; \
+                if [ $$mod = "belgite" ]; then \
+                       cd $(MOD_SRC_DIR); \
+                       if [ -d $(MOD_SRC_DIR)/$${mod}/pddf ]; then \
+                               cd $(MOD_SRC_DIR)/$${mod}/pddf; \
+                               if [ -f sonic_platform_setup.py ]; then \
+                                       python3 sonic_platform_setup.py bdist_wheel -d $(MOD_SRC_DIR)/$${mod}/pddf; \
+                                       echo "Finished makig pddf whl package for $$mod"; \
+                               fi; \
+                       fi; \
+                       continue; \
+                fi; \
 		cd $(MOD_SRC_DIR)/$${mod}; \
 		python3 setup.py bdist_wheel -d $(MOD_SRC_DIR)/$${mod}/modules; \
 	done)
@@ -36,4 +48,7 @@ override_dh_clean:
 	dh_clean
 	(for mod in $(MODULE_DIRS); do \
 		make -C $(KERNEL_SRC)/build M=$(MOD_SRC_DIR)/$${mod}/modules clean; \
+		if [ -f $(MOD_SRC_DIR)/$${mod}/pddf/*.whl ]; then \
+                    rm -f $(MOD_SRC_DIR)/$${mod}/pddf/*.whl; \
+		fi; \
 	done)
