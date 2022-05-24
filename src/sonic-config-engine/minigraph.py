@@ -1540,6 +1540,12 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
         if inband_port in ports.keys():
             ports[inband_port]['admin_status'] = 'up'
 
+    # bring up the recirc port for voq chassis
+    for port, port_attributes in ports.items():
+        port_role = port_attributes.get('role', None)
+        if port_role == 'Rec':
+            ports[port]['admin_status'] = 'up'
+
     results['PORT'] = ports
     results['CONSOLE_PORT'] = console_ports
 
