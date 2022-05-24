@@ -116,6 +116,7 @@ class TestConfigMACsec(object):
         port_table = db.cfgdb.get_entry("PORT", "Ethernet0")
         assert port_table 
         assert port_table["macsec"] == "test"
+        assert port_table["admin_status"] == "up"
 
         result = runner.invoke(macsec.macsec.commands["profile"].commands["del"], ["test"], obj=db)
         assert result.exit_code != 0
@@ -123,7 +124,8 @@ class TestConfigMACsec(object):
         result = runner.invoke(macsec.macsec.commands["port"].commands["del"], ["Ethernet0"], obj=db)
         assert result.exit_code == 0, "exit code: {}, Exception: {}, Traceback: {}".format(result.exit_code, result.exception, result.exc_info)
         port_table = db.cfgdb.get_entry("PORT", "Ethernet0")
-        assert not port_table["macsec"]
+        assert "macsec" not in port_table or not port_table["macsec"]
+        assert port_table["admin_status"] == "up"
 
 
     def test_macsec_invalid_operation(self, mock_cfgdb):

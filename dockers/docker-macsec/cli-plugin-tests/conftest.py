@@ -9,6 +9,7 @@ def mock_cfgdb():
     CONFIG = {
         'PORT': {
             'Ethernet0': {
+                "admin_status": "up"
             }
         }
     }

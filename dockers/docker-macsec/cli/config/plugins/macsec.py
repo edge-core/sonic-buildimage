@@ -42,7 +42,13 @@ def add_port(db, port, profile):
     if len(profile_entry) == 0:
         ctx.fail("profile {} doesn't exist".format(profile))
 
-    db.cfgdb.set_entry("PORT", port, {'macsec': profile})
+    port_entry = db.cfgdb.get_entry('PORT', port)
+    if len(port_entry) == 0:
+        ctx.fail("port {} doesn't exist".format(port))
+
+    port_entry['macsec'] = profile
+
+    db.cfgdb.set_entry("PORT", port, port_entry)
 
 
 #
@@ -64,7 +70,13 @@ def del_port(db, port):
         if port is None:
             ctx.fail("cannot find port name for alias {}".format(alias))
 
-    db.cfgdb.set_entry("PORT", port, {'macsec': ""})
+    port_entry = db.cfgdb.get_entry('PORT', port)
+    if len(port_entry) == 0:
+        ctx.fail("port {} doesn't exist".format(port))
+
+    del port_entry['macsec']
+
+    db.cfgdb.set_entry("PORT", port, port_entry)
 
 
 #
