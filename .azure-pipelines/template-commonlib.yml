@@ -1,34 +1,53 @@
-jobs:
-- job: Build
-  timeoutInMinutes: 120
-  pool: sonicbld
-  steps:
-  - checkout: self
-    clean: true
-    submodules: recursive
-  - script: |
-      set -ex
-      case $(Build.SourceBranchName) in
-        202012 | 202106)
-          bldenv=buster
-          ;;
-        *)
-          bldenv=bullseye
-          ;;
-      esac
-      BLDENV=$bldenv make -f Makefile.work configure PLATFORM=vs ENABLE_DOCKER_BASE_PULL=y
-      echo "##vso[task.setvariable variable=bldenv;]$bldenv"
-    displayName: Make configure
-  - script: |
-      set -ex
-      LIBNL3_VERSION_BASE=$(grep "LIBNL3_VERSION_BASE =" rules/libnl3.mk | awk '{print$3}')
-      LIBNL3_VERSION=$(grep "LIBNL3_VERSION =" rules/libnl3.mk | awk '{print$3}' | sed -e "s/(//" -e "s/)//" -e "s/\\$//" -e "s/LIBNL3_VERSION_BASE/$LIBNL3_VERSION_BASE/")
-      BLDENV=$(bldenv) make -f Makefile.work target/debs/$(bldenv)/libnl-3-200_${LIBNL3_VERSION}_amd64.deb ENABLE_DOCKER_BASE_PULL=y
+parameters:
+- name: archs
+  type: object
+  default:
+    - amd64
+    - armhf
+    - arm64
 
-      LIBYANG_VERSION_BASE=$(grep "LIBYANG_VERSION_BASE =" rules/libyang.mk | awk '{print$3}')
-      LIBYANG_VERSION=$(grep "LIBYANG_VERSION =" rules/libyang.mk | awk '{print$3}' | sed -e "s/\\$//" -e "s/(//" -e "s/)//" -e "s/LIBYANG_VERSION_BASE/$LIBYANG_VERSION_BASE/")
-      BLDENV=$(bldenv) make -f Makefile.work target/debs/$(bldenv)/libyang_${LIBYANG_VERSION}_amd64.deb
-      find target -name *.deb | xargs -i cp {} $(Build.ArtifactStagingDirectory)
-    displayName: Make common lib packages
-  - publish: $(Build.ArtifactStagingDirectory)
-    artifact: common-lib
+jobs:
+- ${{ each arch in parameters.archs }}:
+  - job: Build_${{ arch }}
+    timeoutInMinutes: 120
+    ${{ if eq(arch,'amd64') }}:
+      pool: sonicbld
+    ${{ else }}:
+      pool: sonicbld-${{ arch }}
+    variables:
+      - template: template-variables.yml
+    steps:
+    - checkout: self
+      clean: true
+      submodules: recursive
+    - script: |
+        set -ex
+        branch=$(Build.SourceBranchName)
+        # replace all: '-' -> '_'
+        branch=${branch//-/_}
+        # replace all: 'a' -> 'A', DIST_MASTER is set in variable.
+        BRANCH=DIST_${branch^^}
+        # variable name is dynamic
+        bldenvs=${!BRANCH}
+        [ "$bldenvs" == "" ] && bldenvs="$(COMMON_LIB_BUILD_ENVS)"
+        for bldenv in $bldenvs
+        do
+          BLDENV=$bldenv make -f Makefile.work configure PLATFORM_ARCH=${{ arch }} PLATFORM=vs ENABLE_DOCKER_BASE_PULL=y
+        done
+        set +x
+        echo "##vso[task.setvariable variable=bldenvs;]$bldenvs"
+      displayName: Make configure
+    - script: |
+        set -ex
+        for bldenv in $(bldenvs)
+        do
+          SONIC_BUILD_JOBS=$(nproc) BLDENV=$bldenv make -f Makefile.work lib-packages ENABLE_DOCKER_BASE_PULL=y
+        done
+        mv target $(Build.ArtifactStagingDirectory)
+      displayName: Make common lib packages
+    - ${{ if eq(arch,'amd64') }}:
+      - publish: $(Build.ArtifactStagingDirectory)
+        artifact: common-lib
+    - ${{ else }}:
+      - publish: $(Build.ArtifactStagingDirectory)
+        artifact: common-lib.${{ arch }}
