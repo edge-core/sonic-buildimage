@@ -1,20 +1,20 @@
-From 71415ae851357025a99b8ead7edf5755a55b6fbb Mon Sep 17 00:00:00 2001
+From 4ab192df23362e64d1a11441fae82329388f103e Mon Sep 17 00:00:00 2001
 From: Pavel Shirshov <pavelsh@microsoft.com>
 Date: Mon, 16 Nov 2020 18:00:12 -0800
-Subject: [PATCH 1/5] Add support of bgp tcp DSCP value
+Subject: [PATCH 1/8] Add support of bgp tcp DSCP value
 
 ---
  bgpd/bgp_network.c | 11 ++++-------
  bgpd/bgp_vty.c     | 44 ++++++++++++++++++++++++++++++++++++++++++++
- bgpd/bgpd.c        |  2 +-
+ bgpd/bgpd.c        |  1 +
  bgpd/bgpd.h        |  3 +++
- 4 files changed, 52 insertions(+), 8 deletions(-)
+ 4 files changed, 52 insertions(+), 7 deletions(-)
 
 diff --git a/bgpd/bgp_network.c b/bgpd/bgp_network.c
-index cae11ae7b..f1d96664d 100644
+index 3fb7619ed..70c771683 100644
 --- a/bgpd/bgp_network.c
 +++ b/bgpd/bgp_network.c
-@@ -721,11 +721,9 @@ int bgp_connect(struct peer *peer)
+@@ -743,11 +743,9 @@ int bgp_connect(struct peer *peer)
  #ifdef IPTOS_PREC_INTERNETCONTROL
  	frr_with_privs(&bgpd_privs) {
  		if (sockunion_family(&peer->su) == AF_INET)
@@ -28,7 +28,7 @@ index cae11ae7b..f1d96664d 100644
  	}
  #endif
  
-@@ -801,10 +799,9 @@ static int bgp_listener(int sock, struct sockaddr *sa, socklen_t salen,
+@@ -824,10 +822,9 @@ static int bgp_listener(int sock, struct sockaddr *sa, socklen_t salen,
  
  #ifdef IPTOS_PREC_INTERNETCONTROL
  		if (sa->sa_family == AF_INET)
@@ -42,10 +42,10 @@ index cae11ae7b..f1d96664d 100644
  
  		sockopt_v6only(sa->sa_family, sock);
 diff --git a/bgpd/bgp_vty.c b/bgpd/bgp_vty.c
-index bb2f89f9e..33662b08e 100644
+index 4df2abef8..950d1d25c 100644
 --- a/bgpd/bgp_vty.c
 +++ b/bgpd/bgp_vty.c
-@@ -1330,6 +1330,42 @@ DEFUN (no_router_bgp,
+@@ -1558,6 +1558,42 @@ DEFUN (no_router_bgp,
  	return CMD_SUCCESS;
  }
  
@@ -88,7 +88,7 @@ index bb2f89f9e..33662b08e 100644
  
  /* BGP router-id.  */
  
-@@ -15549,6 +15585,10 @@ int bgp_config_write(struct vty *vty)
+@@ -17053,6 +17089,10 @@ int bgp_config_write(struct vty *vty)
  		if (CHECK_FLAG(bgp->flags, BGP_FLAG_NO_FAST_EXT_FAILOVER))
  			vty_out(vty, " no bgp fast-external-failover\n");
  
@@ -97,9 +97,9 @@ index bb2f89f9e..33662b08e 100644
 +			vty_out(vty, " bgp session-dscp %02X\n", bgp->tcp_dscp >> 2);
 +
  		/* BGP router ID. */
- 		if (bgp->router_id_static.s_addr != 0)
- 			vty_out(vty, " bgp router-id %s\n",
-@@ -16057,6 +16097,10 @@ void bgp_vty_init(void)
+ 		if (bgp->router_id_static.s_addr != INADDR_ANY)
+ 			vty_out(vty, " bgp router-id %pI4\n",
+@@ -17662,6 +17702,10 @@ void bgp_vty_init(void)
  	/* "no router bgp" commands. */
  	install_element(CONFIG_NODE, &no_router_bgp_cmd);
  
@@ -111,32 +111,31 @@ index bb2f89f9e..33662b08e 100644
  	install_element(BGP_NODE, &bgp_router_id_cmd);
  	install_element(BGP_NODE, &no_bgp_router_id_cmd);
 diff --git a/bgpd/bgpd.c b/bgpd/bgpd.c
-index cf9ff038d..0e8579843 100644
+index 7e528b219..005523544 100644
 --- a/bgpd/bgpd.c
 +++ b/bgpd/bgpd.c
-@@ -3069,7 +3069,7 @@ static struct bgp *bgp_create(as_t *as, const char *name,
- 
+@@ -3229,6 +3229,7 @@ static struct bgp *bgp_create(as_t *as, const char *name,
  	bgp->evpn_info = XCALLOC(MTYPE_BGP_EVPN_INFO,
  				 sizeof(struct bgp_evpn_info));
--
+ 
 +	bgp->tcp_dscp = IPTOS_PREC_INTERNETCONTROL;
  	bgp_evpn_init(bgp);
+ 	bgp_evpn_vrf_es_init(bgp);
  	bgp_pbr_init(bgp);
- 
 diff --git a/bgpd/bgpd.h b/bgpd/bgpd.h
-index 2aa069002..914f296e5 100644
+index 8b93c450e..e780d8a03 100644
 --- a/bgpd/bgpd.h
 +++ b/bgpd/bgpd.h
-@@ -678,6 +678,9 @@ struct bgp {
+@@ -743,6 +743,9 @@ struct bgp {
  	/* Weighted ECMP related config. */
  	enum bgp_link_bw_handling lb_handling;
  
 +	/* dscp value for tcp sessions */
 +	uint8_t tcp_dscp;
 +
- 	QOBJ_FIELDS
- };
- DECLARE_QOBJ_TYPE(bgp)
+ 	/* Process Queue for handling routes */
+ 	struct work_queue *process_queue;
+ 
 -- 
-2.29.2.windows.2
+2.12.2
 
