@@ -59,6 +59,8 @@ std::map<int, std::string> counterMap = {{DHCPv6_MESSAGE_TYPE_UNKNOWN, "Unknown"
                                       {DHCPv6_MESSAGE_TYPE_REPLY, "Reply"},
                                       {DHCPv6_MESSAGE_TYPE_RELEASE, "Release"},
                                       {DHCPv6_MESSAGE_TYPE_DECLINE, "Decline"},
+                                      {DHCPv6_MESSAGE_TYPE_RECONFIGURE, "Reconfigure"},
+                                      {DHCPv6_MESSAGE_TYPE_INFORMATION_REQUEST, "Information-Request"},
                                       {DHCPv6_MESSAGE_TYPE_RELAY_FORW, "Relay-Forward"},
                                       {DHCPv6_MESSAGE_TYPE_RELAY_REPL, "Relay-Reply"},
                                       {DHCPv6_MESSAGE_TYPE_MALFORMED, "Malformed"}};
@@ -84,6 +86,8 @@ void initialize_counter(swss::DBConnector *db, std::string counterVlan) {
     db->hset(counterVlan, "Reply", toString(counters[DHCPv6_MESSAGE_TYPE_REPLY]));
     db->hset(counterVlan, "Release", toString(counters[DHCPv6_MESSAGE_TYPE_RELEASE]));
     db->hset(counterVlan, "Decline", toString(counters[DHCPv6_MESSAGE_TYPE_DECLINE]));
+    db->hset(counterVlan, "Reconfigure", toString(counters[DHCPv6_MESSAGE_TYPE_RECONFIGURE]));
+    db->hset(counterVlan, "Information-Request", toString(counters[DHCPv6_MESSAGE_TYPE_INFORMATION_REQUEST]));
     db->hset(counterVlan, "Relay-Forward", toString(counters[DHCPv6_MESSAGE_TYPE_RELAY_FORW]));
     db->hset(counterVlan, "Relay-Reply", toString(counters[DHCPv6_MESSAGE_TYPE_RELAY_REPL]));
     db->hset(counterVlan, "Malformed", toString(counters[DHCPv6_MESSAGE_TYPE_MALFORMED]));
@@ -204,11 +208,12 @@ const struct dhcpv6_relay_msg *parse_dhcpv6_relay(const uint8_t *buffer) {
  * @return dhcpv6_option   end of dhcpv6 message option
  */
 const struct dhcpv6_option *parse_dhcpv6_opt(const uint8_t *buffer, const uint8_t **out_end) {
-    uint32_t size = 4; // option-code + option-len
-    size += ntohs(*(uint16_t *)(buffer + 2));
-    (*out_end) = buffer + size;
+    auto option = (const struct dhcpv6_option *)buffer;
+    uint8_t size = 4; // option-code + option-len
+    size += *(uint16_t *)(buffer);
+    (*out_end) =  buffer + size + ntohs(option->option_length);
 
-    return (const struct dhcpv6_option *)buffer;
+    return option;
 }
 
 /**
@@ -589,6 +594,7 @@ void relay_relay_forw(int sock, const uint8_t *msg, int32_t len, const ip6_hdr *
 void callback(evutil_socket_t fd, short event, void *arg) {
     struct relay_config *config = (struct relay_config *)arg;
     static uint8_t message_buffer[4096];
+    std::string counterVlan = counter_table;
     int32_t len = recv(config->filter, message_buffer, 4096, 0);
     if (len <= 0) {
         syslog(LOG_WARNING, "recv: Failed to receive data at filter socket: %s\n", strerror(errno));
@@ -626,10 +632,6 @@ void callback(evutil_socket_t fd, short event, void *arg) {
     auto msg = parse_dhcpv6_hdr(current_position);
     auto option_position = current_position + sizeof(struct dhcpv6_msg);
 
-    counters[msg->msg_type]++;
-    std::string counterVlan = counter_table;
-    update_counter(config->db, counterVlan.append(config->interface), msg->msg_type);
-
     switch (msg->msg_type) {
         case DHCPv6_MESSAGE_TYPE_RELAY_FORW:
         {
@@ -638,21 +640,25 @@ void callback(evutil_socket_t fd, short event, void *arg) {
         }
         case DHCPv6_MESSAGE_TYPE_SOLICIT:
         case DHCPv6_MESSAGE_TYPE_REQUEST: 
+        case DHCPv6_MESSAGE_TYPE_CONFIRM:
         case DHCPv6_MESSAGE_TYPE_RENEW:
         case DHCPv6_MESSAGE_TYPE_REBIND:
         case DHCPv6_MESSAGE_TYPE_RELEASE:
         case DHCPv6_MESSAGE_TYPE_DECLINE:
+        case DHCPv6_MESSAGE_TYPE_INFORMATION_REQUEST:
         {
             while (option_position - message_buffer < len) {
                 auto option = parse_dhcpv6_opt(option_position, &tmp);
                 option_position = tmp;
-                if(ntohs(option->option_code) > DHCPv6_OPTION_LIMIT) {
+                if (ntohs(option->option_code) > DHCPv6_OPTION_LIMIT) {
                     counters[DHCPv6_MESSAGE_TYPE_MALFORMED]++;
                     update_counter(config->db, counterVlan.append(config->interface), DHCPv6_MESSAGE_TYPE_MALFORMED);
                     syslog(LOG_WARNING, "DHCPv6 option is invalid or contains malformed payload\n");
                     return;
                 }
             }
+            counters[msg->msg_type]++;
+            update_counter(config->db, counterVlan.append(config->interface), msg->msg_type);
             relay_client(config->local_sock, current_position, ntohs(udp_header->len) - sizeof(udphdr), ip_header, ether_header, config);
             break;
         }
