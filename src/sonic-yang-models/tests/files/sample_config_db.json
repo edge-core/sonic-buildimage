@@ -1045,6 +1045,18 @@
                 "VERSION": "version_1_0_3"
             }
         },
+        "TELEMETRY": {
+            "certs": {
+                "ca_crt": "/etc/sonic/telemetry/dsmsroot.cer",
+		"server_crt": "/etc/sonic/telemetry/streamingtelemetryserver.cer",
+		"server_key": "/etc/sonic/telemetry/streamingtelemetryserver.key"
+            },
+	    "gnmi": {
+		"client_auth": "true",
+		"log_level": "2",
+		"port": "50051"
+	    }
+        },
         "FLEX_COUNTER_TABLE": {
             "PFCWD": {
                 "FLEX_COUNTER_STATUS": "enable"
@@ -1516,7 +1528,7 @@
                 "pir": "2560000",
                 "type": "STRICT"
             }
-        },
+	},
 
         "WRED_PROFILE": {
             "Wred1": {

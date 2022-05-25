@@ -44,7 +44,8 @@ Table of Contents
          * [Queue](#queue)  
          * [Tacplus Server](#tacplus-server)    
          * [TC to Priority group map](#tc-to-priority-group-map)  
-         * [TC to Queue map](#tc-to-queue-map)  
+         * [TC to Queue map](#tc-to-queue-map)    
+         * [Telemetry](#telemetry)  
          * [Versions](#versions)  
          * [VLAN](#vlan)   
          * [VLAN_MEMBER](#vlan_member)  
@@ -1353,6 +1354,25 @@ name as object key and member list as attribute.
     }
   }
 }  
+```
+
+### Telemetry
+
+```
+{
+    "TELEMETRY": {
+        "certs": {
+            "ca_crt": "/etc/sonic/telemetry/dsmsroot.cer",
+            "server_crt": "/etc/sonic/telemetry/streamingtelemetryserver.cer",
+            "server_key": "/etc/sonic/telemetry/streamingtelemetryserver.key"
+        },
+        "gnmi": {
+            "client_auth": "true",
+            "log_level": "2",
+            "port": "50051"
+        }
+    }
+}
 ```
 
 ### Versions
