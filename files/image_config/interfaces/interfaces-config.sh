@@ -49,6 +49,7 @@ CFGGEN_PARAMS=" \
     -d -j /tmp/ztp_input.json \
     -t /usr/share/sonic/templates/interfaces.j2,/etc/network/interfaces \
     -t /usr/share/sonic/templates/90-dhcp6-systcl.conf.j2,/etc/sysctl.d/90-dhcp6-systcl.conf \
+    -t /usr/share/sonic/templates/91-gc-thresh-sysctl.conf.j2,/etc/sysctl.d/91-gc-thresh-sysctl.conf \
     -t /usr/share/sonic/templates/dhclient.conf.j2,/etc/dhcp/dhclient.conf \
 "
 sonic-cfggen $CFGGEN_PARAMS
@@ -64,6 +65,7 @@ done
 
 # Read sysctl conf files again
 sysctl -p /etc/sysctl.d/90-dhcp6-systcl.conf
+sysctl -p /etc/sysctl.d/91-gc-thresh-sysctl.conf
 
 systemctl restart networking
 

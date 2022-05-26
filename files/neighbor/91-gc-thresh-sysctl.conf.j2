@@ -1,0 +1,22 @@
+{% if DEVICE_METADATA.get('localhost', {}).get('hwsku', '') in ["Accton-AS9726-32D", "Accton-AS9726-32D-100G"] %}
+net.ipv4.neigh.default.gc_thresh1=294912
+net.ipv6.neigh.default.gc_thresh1=147456
+net.ipv4.neigh.default.gc_thresh2=294912
+net.ipv6.neigh.default.gc_thresh2=147456
+net.ipv4.neigh.default.gc_thresh3=294912
+net.ipv6.neigh.default.gc_thresh3=147456
+{% elif DEVICE_METADATA.get('localhost', {}).get('hwsku', '') in ["Accton-AS4625-54P", "Accton-AS4625-54T"] %}
+net.ipv4.neigh.default.gc_thresh1=32768
+net.ipv6.neigh.default.gc_thresh1=16384
+net.ipv4.neigh.default.gc_thresh2=32768
+net.ipv6.neigh.default.gc_thresh2=16384
+net.ipv4.neigh.default.gc_thresh3=32768
+net.ipv6.neigh.default.gc_thresh3=16384
+{% else %}
+net.ipv4.neigh.default.gc_thresh1=16384
+net.ipv6.neigh.default.gc_thresh1=8192
+net.ipv4.neigh.default.gc_thresh2=16384
+net.ipv6.neigh.default.gc_thresh2=8192
+net.ipv4.neigh.default.gc_thresh3=16384
+net.ipv6.neigh.default.gc_thresh3=8192
+{% endif %}
