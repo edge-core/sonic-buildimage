@@ -24,6 +24,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	  url=$(FIPS_URL_PREFIX)/$$filename
 	  mkdir -p "$$(dirname $(DEST)/$$target)"
 	  wget -O "$(DEST)/$$target" "$$url"
+	  touch "$(DEST)/$$target"
 	done
 
 $(addprefix $(DEST)/, $(FIPS_DERIVED_TARGET)): $(DEST)/% : $(DEST)/$(MAIN_TARGET)
