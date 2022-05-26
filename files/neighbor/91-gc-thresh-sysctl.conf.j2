@@ -5,6 +5,34 @@ net.ipv4.neigh.default.gc_thresh2=294912
 net.ipv6.neigh.default.gc_thresh2=147456
 net.ipv4.neigh.default.gc_thresh3=294912
 net.ipv6.neigh.default.gc_thresh3=147456
+{% elif DEVICE_METADATA.get('localhost', {}).get('hwsku', '') in ["Accton-AS7816-64X"] %}
+net.ipv4.neigh.default.gc_thresh1=73728
+net.ipv6.neigh.default.gc_thresh1=36864
+net.ipv4.neigh.default.gc_thresh2=73728
+net.ipv6.neigh.default.gc_thresh2=36864
+net.ipv4.neigh.default.gc_thresh3=73728
+net.ipv6.neigh.default.gc_thresh3=36864
+{% elif DEVICE_METADATA.get('localhost', {}).get('hwsku', '') in ["Accton-AS7712-32X"] %}
+net.ipv4.neigh.default.gc_thresh1=40960
+net.ipv6.neigh.default.gc_thresh1=20480
+net.ipv4.neigh.default.gc_thresh2=40960
+net.ipv6.neigh.default.gc_thresh2=20480
+net.ipv4.neigh.default.gc_thresh3=40960
+net.ipv6.neigh.default.gc_thresh3=20480
+{% elif DEVICE_METADATA.get('localhost', {}).get('hwsku', '') in ["montara", "mavericks"] %}
+net.ipv4.neigh.default.gc_thresh1=65530
+net.ipv6.neigh.default.gc_thresh1=32761
+net.ipv4.neigh.default.gc_thresh2=65530
+net.ipv6.neigh.default.gc_thresh2=32761
+net.ipv4.neigh.default.gc_thresh3=65530
+net.ipv6.neigh.default.gc_thresh3=32761
+{% elif DEVICE_METADATA.get('localhost', {}).get('hwsku', '') in ["newport", "newport-100G"] %}
+net.ipv4.neigh.default.gc_thresh1=65523
+net.ipv6.neigh.default.gc_thresh1=65525
+net.ipv4.neigh.default.gc_thresh2=65523
+net.ipv6.neigh.default.gc_thresh2=65525
+net.ipv4.neigh.default.gc_thresh3=65523
+net.ipv6.neigh.default.gc_thresh3=65525
 {% elif DEVICE_METADATA.get('localhost', {}).get('hwsku', '') in ["Accton-AS4625-54P", "Accton-AS4625-54T"] %}
 net.ipv4.neigh.default.gc_thresh1=32768
 net.ipv6.neigh.default.gc_thresh1=16384
