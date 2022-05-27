@@ -308,7 +308,7 @@
     <Devices>
       <Device i:type="ToRRouter">
         <Hostname>switch-t0</Hostname>
-        <HwSku>Arista-7050QX-32S</HwSku>
+        <HwSku>Arista-7050-QX-32S</HwSku>
         <ClusterName>AAA00PrdStr00</ClusterName>
       </Device>
       <Device i:type="LeafRouter">
@@ -421,7 +421,7 @@
       </EthernetInterfaces>
       <FlowControl>true</FlowControl>
       <Height>0</Height>
-      <HwSku>Arista-7050QX-32S</HwSku>
+      <HwSku>Arista-7050-QX-32S</HwSku>
       <ManagementInterfaces xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
 	<a:ManagementInterface>
 	  <ElementType>DeviceInterface</ElementType>
@@ -451,5 +451,5 @@
     <Properties xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
   </MetadataDeclaration>
   <Hostname>switch-t0</Hostname>
-  <HwSku>Arista-7050QX-32S</HwSku>
+  <HwSku>Arista-7050-QX-32S</HwSku>
 </DeviceMiniGraph>
