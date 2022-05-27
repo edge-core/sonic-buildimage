@@ -302,6 +302,12 @@
                 "MIRROR_INGRESS_ACTION": "erspan",
                 "DSCP": "10",
                 "PRIORITY": "9999"
+            },
+            "DATAACL|RULE0": {
+                "PRIORITY": "999",
+                "PACKET_ACTION": "DROP",
+                "IP_TYPE": "IPv4ANY",
+                "SRC_IP": "1.1.1.1/32"
             }
         },
         "DEVICE_METADATA": {
@@ -816,6 +822,14 @@
                     "Ethernet24"
                 ],
                 "stage": "ingress"
+            },
+            "DATAACL": {
+                "stage": "INGRESS",
+                "type": "CUSTOM_L3",
+                "ports": [
+                    "Ethernet0",
+                    "PortChannel0003"
+                ]
             }
 
         },
@@ -1823,7 +1837,24 @@
                 "num_dumps": "3",
                 "memory": "0M-2G:256M,2G-4G:256M,4G-8G:384M,8G-:448M"
              }
-         }
+         },
+         "ACL_TABLE_TYPE": {
+             "CUSTOM_L3": {
+                 "matches": [
+                     "IN_PORTS",
+                     "OUT_PORTS",
+                     "SRC_IP"
+                 ],
+                 "actions": [
+                     "PACKET_ACTION",
+                     "MIRROR_INGRESS_ACTION"
+                 ],
+                 "bind_points": [
+                     "PORT",
+                     "LAG"
+                 ]
+             }
+        }
     },
     "SAMPLE_CONFIG_DB_UNKNOWN": {
         "UNKNOWN_TABLE": {
