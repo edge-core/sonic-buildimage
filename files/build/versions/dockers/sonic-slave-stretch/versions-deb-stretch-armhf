@@ -1,4 +1,6 @@
 docker-ce==18.06.3~ce~3-0~debian
+dpkg-dev==1.18.25
+libdpkg-perl==1.18.25
 libdrm-exynos1==2.4.74-1
 libdrm-freedreno1==2.4.74-1
 libdrm-omap1==2.4.74-1

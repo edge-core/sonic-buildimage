@@ -19,11 +19,11 @@ libsainps==1.5.0
 libsairedis==1.0.0
 libsairedis-dbg==1.0.0
 libswsscommon-dbg==1.0.0
-libxml2==2.9.4+dfsg1-2.2+deb9u6
+libxml2==2.9.4+dfsg1-2.2+deb9u7
 openssh-client==1:7.4p1-10+deb9u7
 sshpass==1.06-1
 strace==4.15-2
 syncd==1.0.0
 syncd-dbg==1.0.0
-vim==2:8.0.0197-4+deb9u5
-vim-runtime==2:8.0.0197-4+deb9u5
+vim==2:8.0.0197-4+deb9u6
+vim-runtime==2:8.0.0197-4+deb9u6

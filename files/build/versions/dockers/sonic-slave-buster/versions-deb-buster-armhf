@@ -1,9 +1,11 @@
 binutils-arm-linux-gnueabihf==2.31.1-16
+dpkg-dev==1.19.7
 libclang-6.0-dev==1:6.0.1-10
 libclang-7-dev==1:7.0.1-8+deb10u2
 libclang-common-6.0-dev==1:6.0.1-10
 libclang-dev==1:7.0-47
 libclass-data-inheritable-perl==0.08-3
+libdpkg-perl==1.19.7
 libdrm-etnaviv1==2.4.97-1
 libdrm-exynos1==2.4.97-1
 libdrm-freedreno1==2.4.97-1
@@ -103,7 +105,7 @@ linux-compiler-gcc-8-arm==4.19.235-1
 llvm-6.0==1:6.0.1-10
 llvm-6.0-dev==1:6.0.1-10
 llvm-6.0-runtime==1:6.0.1-10
-nodejs==14.19.1-deb-1nodesource1
+nodejs==14.19.3-deb-1nodesource1
 ps2eps==1.68+binaryfree-2
 rdfind==1.4.1-1
 sassc==3.5.0-1

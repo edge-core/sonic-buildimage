@@ -11,7 +11,7 @@ http://deb.debian.org/debian/pool/main/n/ntp/ntp_4.2.8p12+dfsg.orig.tar.xz==7104
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0-3~bpo9+1.debian.tar.xz==ef340aedc6fd42c549cd503bffb498b2
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0-3~bpo9+1.dsc==be4ce11ef67268e59e4b6be587327c40
 http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0.orig.tar.gz==6d565680a4af0d2e261abbc3e3431b2b
-https://chrome-infra-packages.appspot.com/client?platform=linux-amd64&version=git_revision:8e9b0c80860d00dfe951f7ea37d74e210d376c13==26c9adbc3f71cbcfcf133edb38ad49aa
+https://chrome-infra-packages.appspot.com/client?platform=linux-amd64&version=git_revision:29b908616bc920e58bf384d1e47b91b6cf9188b8==c4189e12deb73c6034209c788c9eb133
 https://github.com/aristanetworks/sonic-firmware/raw/6d0d1661d92a342acedb6839dba970ae5778b478/phy/phy-credo_1.0_amd64.deb==dd74acbb7bf979b01c1a89e2a628aaf3
 https://github.com/CumulusNetworks/ifupdown2/archive/1.2.8-1.tar.gz==12f45e90d23178e96cf70f68dc9455e6
 https://repo1.maven.org/maven2/io/swagger/swagger-codegen-cli/2.4.5/swagger-codegen-cli-2.4.5.jar==219f1453ff22482d9e080effbfa7fa81
