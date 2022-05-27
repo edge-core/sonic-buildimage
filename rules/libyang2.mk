@@ -20,19 +20,6 @@ $(eval $(call add_derived_package,$(LIBYANG2),$(LIBYANG2_DEV)))
 LIBYANG2_DBG = libyang2-dbgsym_$(LIBYANG2_FULLVERSION)_$(CONFIGURED_ARCH).deb
 $(eval $(call add_derived_package,$(LIBYANG2),$(LIBYANG2_DBG)))
 
-LIBYANG2_CPP = libyang2-cpp1_$(LIBYANG2_FULLVERSION)_$(CONFIGURED_ARCH).deb
-$(LIBYANG2_CPP)_DEPENDS += $(LIBYANG2)
-$(eval $(call add_derived_package,$(LIBYANG2),$(LIBYANG2_CPP)))
-
-LIBYANG2_CPP_DEV = libyang2-cpp-dev_$(LIBYANG2_FULLVERSION)_$(CONFIGURED_ARCH).deb
-$(eval $(call add_derived_package,$(LIBYANG2),$(LIBYANG2_CPP_DEV)))
-
-LIBYANG2_CPP_DBG = libyang2-cpp1-dbgsym_$(LIBYANG2_FULLVERSION)_$(CONFIGURED_ARCH).deb
-$(eval $(call add_derived_package,$(LIBYANG2),$(LIBYANG2_CPP_DBG)))
-
-YANG_TOOLS = yang-tools_$(LIBYANG2_FULLVERSION)_all.deb
-$(YANG_TOOLS)_DEPENDS += $(LIBYANG2)
-$(eval $(call add_derived_package,$(LIBYANG2),$(YANG_TOOLS)))
 
 LIBYANG2_TOOLS = libyang2-tools_$(LIBYANG2_FULLVERSION)_$(CONFIGURED_ARCH).deb
 $(eval $(call add_derived_package,$(LIBYANG2),$(LIBYANG2_TOOLS)))
@@ -40,4 +27,5 @@ $(eval $(call add_derived_package,$(LIBYANG2),$(LIBYANG2_TOOLS)))
 LIBYANG2_TOOLS_DBG = libyang2-tools-dbgsym_$(LIBYANG2_FULLVERSION)_$(CONFIGURED_ARCH).deb
 $(eval $(call add_derived_package,$(LIBYANG2),$(LIBYANG2_TOOLS_DBG)))
 
-export LIBYANG2 LIBYANG2_DBG LIBYANG2_DEV LIBYANG2_CPP LIBYANG2_CPP_DEV LIBYANG2_CPP_DBG YANG_TOOLS LIBYANG2_TOOLS LIBYANG2_TOOLS_DBG
+export LIBYANG2 LIBYANG2_DBG LIBYANG2_DEV LIBYANG2_TOOLS LIBYANG2_TOOLS_DBG
+
