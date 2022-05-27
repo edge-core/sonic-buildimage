@@ -33,7 +33,7 @@ RUN apt-get update && \
         python3-dev \
         python-is-python3 \
 {%- if ENABLE_ASAN == "y" %}
-        libasan5 \
+        libasan6 \
 {%- endif %}
         python3-setuptools
 
