@@ -30,6 +30,7 @@ class TestJ2Files(TestCase):
         self.radv_test_minigraph = os.path.join(self.test_dir, 'radv-test-sample-graph.xml')
         self.dell9332_t1_minigraph = os.path.join(self.test_dir, 'sample-dell-9332-t1-minigraph.xml')
         self.output_file = os.path.join(self.test_dir, 'output')
+        os.environ["CFGGEN_UNIT_TESTING"] = "2"
 
     def run_script(self, argument):
         print('CMD: sonic-cfggen ' + argument)
@@ -399,6 +400,7 @@ class TestJ2Files(TestCase):
         assert utils.cmp(expected, self.output_file), self.run_diff(expected, self.output_file)
 
     def tearDown(self):
+        os.environ["CFGGEN_UNIT_TESTING"] = ""
         try:
             os.remove(self.output_file)
         except OSError:
