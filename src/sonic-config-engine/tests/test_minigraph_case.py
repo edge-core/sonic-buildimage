@@ -369,6 +369,42 @@ class TestCfgGenCaseInsensitive(TestCase):
             expected_tunnel
         )
 
+        # Validate tunnel config is as before when tunnel_qos_remap = disabled
+        sample_graph_disabled_remap = os.path.join(self.test_dir, 'simple-sample-graph-case-remap-disabled.xml')
+        argument = '-m "' + sample_graph_disabled_remap + '" -p "' + self.port_config + '" -v "TUNNEL"'
+
+        output = self.run_script(argument)
+        self.assertEqual(
+            utils.to_dict(output.strip()),
+            expected_tunnel
+        )
+
+        # Validate extra config is generated when tunnel_qos_remap = enabled
+        sample_graph_enabled_remap = os.path.join(self.test_dir, 'simple-sample-graph-case-remap-enabled.xml')
+        argument = '-m "' + sample_graph_enabled_remap + '" -p "' + self.port_config + '" -v "TUNNEL"'
+        expected_tunnel = {
+            "MuxTunnel0": {
+                "tunnel_type": "IPINIP",
+                "src_ip": "25.1.1.10",
+                "dst_ip": "10.1.0.32",
+                "dscp_mode": "uniform",
+                "encap_ecn_mode": "standard",
+                "ecn_mode": "copy_from_outer",
+                "ttl_mode": "pipe",
+                "decap_dscp_to_tc_map": "AZURE_TUNNEL",
+                "decap_tc_to_pg_map": "AZURE_TUNNEL",
+                "encap_tc_to_dscp_map": "AZURE_TUNNEL",
+                "encap_tc_to_queue_map": "AZURE_TUNNEL"
+            }
+        }
+
+        output = self.run_script(argument)
+        self.assertEqual(
+            utils.to_dict(output.strip()),
+            expected_tunnel
+        )
+
+
     def test_minigraph_mux_cable_table(self):
         argument = '-m "' + self.sample_graph + '" -p "' + self.port_config + '" -v "MUX_CABLE"'
         expected_table = {

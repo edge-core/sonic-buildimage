@@ -66,7 +66,9 @@ class minigraph_encoder(json.JSONEncoder):
 
 def get_peer_switch_info(link_metadata, devices):
     peer_switch_table = {}
-    for data in link_metadata.values():
+    peer_switch_ip = None
+    mux_tunnel_name = None
+    for port, data in link_metadata.items():
         if "PeerSwitch" in data:
             peer_hostname = data["PeerSwitch"]
             peer_lo_addr_str = devices[peer_hostname]["lo_addr"]
@@ -75,8 +77,10 @@ def get_peer_switch_info(link_metadata, devices):
             peer_switch_table[peer_hostname] = {
                 'address_ipv4': str(peer_lo_addr.network_address) if peer_lo_addr else peer_lo_addr_str
             }
+            mux_tunnel_name = port
+            peer_switch_ip = peer_switch_table[peer_hostname]['address_ipv4']
 
-    return peer_switch_table
+    return peer_switch_table, mux_tunnel_name, peer_switch_ip
 
 
 def parse_device(device):
@@ -410,6 +414,8 @@ def parse_dpg(dpg, hname):
     mgmtintfs = None
     subintfs = None
     tunnelintfs = defaultdict(dict)
+    tunnelintfs_qos_remap_config = defaultdict(dict)
+
     for child in dpg:
         """ 
             In Multi-NPU platforms the acl intfs are defined only for the host not for individual asic.
@@ -717,6 +723,13 @@ def parse_dpg(dpg, hname):
                                        "ecn_mode": "EcnDecapsulationMode", 
                                        "dscp_mode": "DifferentiatedServicesCodePointMode", 
                                        "ttl_mode": "TtlMode"}
+
+            tunnel_qos_remap_table_key_to_mg_key_map = {
+                                       "decap_dscp_to_tc_map": "DecapDscpToTcMap",
+                                       "decap_tc_to_pg_map": "DecapTcToPgMap",
+                                       "encap_tc_to_queue_map": "EncapTcToQueueMap",
+                                       "encap_tc_to_dscp_map": "EncapTcToDscpMap"}
+
             for mg_tunnel in mg_tunnels.findall(str(QName(ns, "TunnelInterface"))):
                 tunnel_type = mg_tunnel.attrib["Type"]
                 tunnel_name = mg_tunnel.attrib["Name"]
@@ -728,9 +741,17 @@ def parse_dpg(dpg, hname):
                     # If the minigraph has the key, add the corresponding config DB key to the table
                     if mg_key in mg_tunnel.attrib:
                         tunnelintfs[tunnel_type][tunnel_name][table_key] = mg_tunnel.attrib[mg_key]
+                
+                tunnelintfs_qos_remap_config[tunnel_type][tunnel_name] = {
+                    "tunnel_type": mg_tunnel.attrib["Type"].upper(),
+                }
 
-        return intfs, lo_intfs, mvrf, mgmt_intf, voq_inband_intfs, vlans, vlan_members, dhcp_relay_table, pcs, pc_members, acls, vni, tunnelintfs, dpg_ecmp_content, static_routes
-    return None, None, None, None, None, None, None, None, None, None, None, None, None, None, None
+                for table_key, mg_key in tunnel_qos_remap_table_key_to_mg_key_map.items():
+                    if mg_key in mg_tunnel.attrib:
+                        tunnelintfs_qos_remap_config[tunnel_type][tunnel_name][table_key] = mg_tunnel.attrib[mg_key]
+
+        return intfs, lo_intfs, mvrf, mgmt_intf, voq_inband_intfs, vlans, vlan_members, dhcp_relay_table, pcs, pc_members, acls, vni, tunnelintfs, dpg_ecmp_content, static_routes, tunnelintfs_qos_remap_config
+    return None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None
 
 
 
@@ -907,6 +928,29 @@ def parse_meta(meta, hname):
                 elif name == "KubernetesServerIp":
                     kube_data["ip"] = value
     return syslog_servers, dhcp_servers, dhcpv6_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id, region, cloudtype, resource_type, downstream_subrole, switch_id, switch_type, max_cores, kube_data
+
+
+def parse_system_defaults(meta):
+    system_default_values = {}
+
+    system_defaults = meta.find(str(QName(ns1, "SystemDefaults")))
+    
+    if system_defaults is None:
+        return system_default_values
+    
+    for system_default in system_defaults.findall(str(QName(ns1, "SystemDefault"))):
+        name = system_default.find(str(QName(ns1, "Name"))).text
+        value = system_default.find(str(QName(ns1, "Value"))).text
+
+        # Tunnel Qos remapping 
+        if name == "TunnelQosRemapEnabled":
+            if value.lower() == "true":
+                status = "enabled"
+            else:
+                status = "disabled"
+            system_default_values["tunnel_qos_remap"] = {"status": status}
+
+    return system_default_values
 
 
 def parse_linkmeta(meta, hname):
@@ -1200,6 +1244,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
     vlan_intfs = None
     pc_intfs = None
     tunnel_intfs = None
+    tunnel_intfs_qos_remap_config = None
     vlans = None
     vlan_members = None
     dhcp_relay_table = None
@@ -1240,6 +1285,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
     local_devices = []
     kube_data = {}
     static_routes = {}
+    system_defaults = {}
 
     hwsku_qn = QName(ns, "HwSku")
     hostname_qn = QName(ns, "Hostname")
@@ -1262,7 +1308,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
     for child in root:
         if asic_name is None:
             if child.tag == str(QName(ns, "DpgDec")):
-                (intfs, lo_intfs, mvrf, mgmt_intf, voq_inband_intfs, vlans, vlan_members, dhcp_relay_table, pcs, pc_members, acls, vni, tunnel_intfs, dpg_ecmp_content, static_routes) = parse_dpg(child, hostname)
+                (intfs, lo_intfs, mvrf, mgmt_intf, voq_inband_intfs, vlans, vlan_members, dhcp_relay_table, pcs, pc_members, acls, vni, tunnel_intfs, dpg_ecmp_content, static_routes, tunnel_intfs_qos_remap_config) = parse_dpg(child, hostname)
             elif child.tag == str(QName(ns, "CpgDec")):
                 (bgp_sessions, bgp_internal_sessions, bgp_voq_chassis_sessions, bgp_asn, bgp_peers_with_range, bgp_monitors) = parse_cpg(child, hostname)
             elif child.tag == str(QName(ns, "PngDec")):
@@ -1275,9 +1321,11 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
                 linkmetas = parse_linkmeta(child, hostname)
             elif child.tag == str(QName(ns, "DeviceInfos")):
                 (port_speeds_default, port_descriptions, sys_ports) = parse_deviceinfo(child, hwsku)
+            elif child.tag == str(QName(ns, "SystemDefaultsDeclaration")):
+                system_defaults = parse_system_defaults(child)
         else:
             if child.tag == str(QName(ns, "DpgDec")):
-                (intfs, lo_intfs, mvrf, mgmt_intf, voq_inband_intfs, vlans, vlan_members, dhcp_relay_table, pcs, pc_members, acls, vni, tunnel_intfs, dpg_ecmp_content, static_routes) = parse_dpg(child, asic_name)
+                (intfs, lo_intfs, mvrf, mgmt_intf, voq_inband_intfs, vlans, vlan_members, dhcp_relay_table, pcs, pc_members, acls, vni, tunnel_intfs, dpg_ecmp_content, static_routes, tunnel_intfs_qos_remap_config) = parse_dpg(child, asic_name)
                 host_lo_intfs = parse_host_loopback(child, hostname)
             elif child.tag == str(QName(ns, "CpgDec")):
                 (bgp_sessions, bgp_internal_sessions, bgp_voq_chassis_sessions, bgp_asn, bgp_peers_with_range, bgp_monitors) = parse_cpg(child, asic_name, local_devices)
@@ -1289,6 +1337,8 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
                 linkmetas = parse_linkmeta(child, hostname)
             elif child.tag == str(QName(ns, "DeviceInfos")):
                 (port_speeds_default, port_descriptions, sys_ports) = parse_deviceinfo(child, hwsku)
+            elif child.tag == str(QName(ns, "SystemDefaultsDeclaration")):
+                system_defaults = parse_system_defaults(child)
 
     # set the host device type in asic metadata also
     device_type = [devices[key]['type'] for key in devices if key.lower() == hostname.lower()][0]
@@ -1324,8 +1374,11 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
                 'ip': kube_data.get('ip', '')
             }
         }
-
-    results['PEER_SWITCH'] = get_peer_switch_info(linkmetas, devices)
+    
+    if len(system_defaults) > 0:
+        results['SYSTEM_DEFAULTS'] = system_defaults
+    
+    results['PEER_SWITCH'], mux_tunnel_name, peer_switch_ip = get_peer_switch_info(linkmetas, devices)
 
     if bool(results['PEER_SWITCH']):
         results['DEVICE_METADATA']['localhost']['subtype'] = 'DualToR'
@@ -1625,7 +1678,8 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
     results['VLAN'] = vlans
     results['VLAN_MEMBER'] = vlan_members
 
-    results['TUNNEL'] = get_tunnel_entries(tunnel_intfs, lo_intfs, hostname)
+    # Add src_ip and qos remapping config into TUNNEL table if tunnel_qos_remap is enabled
+    results['TUNNEL'] = get_tunnel_entries(tunnel_intfs, tunnel_intfs_qos_remap_config, lo_intfs, system_defaults.get('tunnel_qos_remap', {}), mux_tunnel_name, peer_switch_ip)
 
     results['MUX_CABLE'] = get_mux_cable_entries(mux_cable_ports, neighbors, devices)
 
@@ -1717,7 +1771,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
 
     return results
 
-def get_tunnel_entries(tunnel_intfs, lo_intfs, hostname):
+def get_tunnel_entries(tunnel_intfs, tunnel_intfs_qos_remap_config, lo_intfs, tunnel_qos_remap, mux_tunnel_name, peer_switch_ip):
     lo_addr = ''
     # Use the first IPv4 loopback as the tunnel destination IP
     for addr in lo_intfs.keys():
@@ -1730,7 +1784,14 @@ def get_tunnel_entries(tunnel_intfs, lo_intfs, hostname):
     for type, tunnel_dict in tunnel_intfs.items():
         for tunnel_key, tunnel_attr in tunnel_dict.items():
             tunnel_attr['dst_ip'] = lo_addr
+
+            if (tunnel_qos_remap.get('status') == 'enabled') and (mux_tunnel_name == tunnel_key) and (peer_switch_ip is not None):
+                tunnel_attr['src_ip'] = peer_switch_ip
+                if tunnel_key in tunnel_intfs_qos_remap_config[type]:
+                    tunnel_attr.update(tunnel_intfs_qos_remap_config[type][tunnel_key].items())
+
             tunnels[tunnel_key] = tunnel_attr
+
     return tunnels
 
 def get_mux_cable_entries(mux_cable_ports, neighbors, devices):
@@ -1754,7 +1815,7 @@ def get_mux_cable_entries(mux_cable_ports, neighbors, devices):
                     entry['server_ipv6'] = str(server_ipv6_lo_prefix)
                 mux_cable_table[intf] = entry 
             else:
-                print("Warning: no server IPv4 loopback found for {}, skipping mux cable table entry".format(neighbor))
+                print("Warning: no server IPv4 loopback found for {}, skipping mux cable table entry".format(neighbor), file=sys.stderr)
 
         if cable_name in devices:
             cable_type = devices[cable_name].get('subtype')
@@ -1767,9 +1828,9 @@ def get_mux_cable_entries(mux_cable_ports, neighbors, devices):
                     soc_ipv4_prefix = ipaddress.ip_network(UNICODE_TYPE(soc_ipv4))
                     mux_cable_table[intf]['soc_ipv4'] = str(soc_ipv4_prefix)
             else:
-                print("Warning: skip parsing device %s for mux cable entry, cable type %s not supported" % (cable_name, cable_type))
+                print("Warning: skip parsing device %s for mux cable entry, cable type %s not supported" % (cable_name, cable_type), file=sys.stderr)
         else:
-            print("Warning: skip parsing device %s for mux cable entry, device definition not found" % cable_name)
+            print("Warning: skip parsing device %s for mux cable entry, device definition not found" % cable_name, file=sys.stderr)
 
     return mux_cable_table
 
