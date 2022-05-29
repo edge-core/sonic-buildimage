@@ -114,6 +114,7 @@ setup(
                          './yang-models/sonic-ntp.yang',
                          './yang-models/sonic-nat.yang',
                          './yang-models/sonic-nvgre-tunnel.yang',
+                         './yang-models/sonic-passwh.yang',
                          './yang-models/sonic-pbh.yang',
                          './yang-models/sonic-port.yang',
                          './yang-models/sonic-policer.yang',

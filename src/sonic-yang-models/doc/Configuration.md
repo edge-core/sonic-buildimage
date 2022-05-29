@@ -51,6 +51,7 @@ Table of Contents
          * [VLAN_MEMBER](#vlan_member)  
          * [Virtual router](#virtual-router)  
          * [WRED_PROFILE](#wred_profile)  
+         * [PASSWORD_HARDENING](#password_hardening)
    * [For Developers](#for-developers)  
       * [Generating Application Config by Jinja2 Template](#generating-application-config-by-jinja2-template)
       * [Incremental Configuration by Subscribing to ConfigDB](#incremental-configuration-by-subscribing-to-configdb)
@@ -1502,6 +1503,40 @@ The packet action could be:
         "wred_red_enable": "true", 
         "yellow_drop_probability": "5", 
         "red_drop_probability": "5"
+    }
+  }
+}
+```
+### PASSWORD_HARDENING
+
+Password Hardening, a user password is the key credential used in order to verify the user accessing the switch and acts as the first line of defense in regards to securing the switch. PASSWORD_HARDENING - support the enforce strong policies.
+
+-   state - Enable/Disable password hardening feature
+-   len_min - The minimum length of the PW should be subject to a user change.
+-   expiration - PW Age Change Once a PW change takes place - the DB record for said PW is updated with the new PW value and a fresh new age (=0).
+-   expiration_warning - The switch will provide a warning for PW change before and (this is to allow a sufficient warning for upgrading the PW which might be relevant to numerous switches).
+-   history_cnt - remember last passwords, and reject to use the old passw
+-   reject_user_passw_match - reject to set same username and passw
+-   PW classes -  are the type of characters the user is required to enter when setting/updating a PW.
+There are 4 classes
+    -   lower_class - Small characters - a-z
+    -   upper_class - Big characters - A-Z
+    -   digits_class -Numbers - 0-9
+    -   special_class - Special Characters `~!@#$%^&*()-_+=|[{}];:',<.>/? and white space
+```
+{
+"PASSW_HARDENING": {
+    "POLICIES": {
+        "state": "disabled",
+        "expiration": "180",
+        "expiration_warning": "15",
+        "history_cnt": "10",
+        "len_min": "8",
+        "reject_user_passw_match": "true",
+        "lower_class": "true",
+        "upper_class": "true",
+        "digits_class": "true",
+        "special_class": "true"
     }
   }
 }

@@ -91,5 +91,19 @@
             "rate_limit_interval" : "600"
         }{%if not loop.last %},{% endif -%}
 {% endfor %}
+    },
+    "PASSW_HARDENING": {
+        "POLICIES":{
+            "state": "disabled",
+            "expiration": "180",
+            "expiration_warning": "15",
+            "history_cnt": "10",
+            "len_min": "8",
+            "reject_user_passw_match": "true",
+            "lower_class": "true",
+            "upper_class": "true",
+            "digits_class": "true",
+            "special_class": "true"
+        }
     }
 }
