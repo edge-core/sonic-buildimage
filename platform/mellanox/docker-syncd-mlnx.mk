@@ -21,6 +21,10 @@ include $(PLATFORM_PATH)/../template/docker-syncd-bullseye.mk
 
 $(DOCKER_SYNCD_BASE)_DEPENDS += $(SYNCD) $(PYTHON_SDK_API) $(MFT)
 
+ifeq ($(ENABLE_ASAN), y)
+$(DOCKER_SYNCD_BASE)_DEPENDS += $(SYNCD_DBG)
+endif
+
 $(DOCKER_SYNCD_BASE)_FILES += $(ISSU_VERSION_FILE)
 
 $(DOCKER_SYNCD_BASE)_DBG_DEPENDS += $(SYNCD_DBG) \
