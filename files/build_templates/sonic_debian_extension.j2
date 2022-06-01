@@ -312,6 +312,10 @@ sudo dpkg --root=$FILESYSTEM_ROOT -i {{deb}} || sudo LANG=C DEBIAN_FRONTEND=noni
 {% endfor %}
 {% endif %}
 
+# Install sonic-db-cli
+sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/sonic-db-cli_*.deb || \
+    sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
+
 # Install custom-built monit package and SONiC configuration files
 sudo dpkg --root=$FILESYSTEM_ROOT -i $debs_path/monit_*.deb || \
     sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f
