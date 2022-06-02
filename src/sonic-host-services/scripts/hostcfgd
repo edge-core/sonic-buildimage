@@ -104,6 +104,7 @@ def obfuscate(data):
     else:
         return data
 
+
 def get_pid(procname):
     for dirname in os.listdir('/proc'):
         if dirname == 'curproc':
@@ -116,6 +117,7 @@ def get_pid(procname):
         if procname in content:
             return dirname
     return ""
+
 
 class Feature(object):
     """ Represents a feature configuration from CONFIG_DB data. """
@@ -182,10 +184,10 @@ class FeatureHandler(object):
         self._cached_config = {}
         self.is_multi_npu = device_info.is_multi_npu()
 
-    def handle(self, feature_name, op, feature_cfg):
+    def handler(self, feature_name, op, feature_cfg):
         if not feature_cfg:
             syslog.syslog(syslog.LOG_INFO, "Deregistering feature {}".format(feature_name))
-            self._cached_config.pop(feature_name)
+            self._cached_config.pop(feature_name, None)
             self._feature_state_table._del(feature_name)
             return
 
@@ -197,7 +199,11 @@ class FeatureHandler(object):
         # the next called self.update_feature_state will start it again. If it will fail
         # again the auto restart will kick-in. Another order may leave it in failed state
         # and not auto restart.
-        self.update_feature_auto_restart(feature, feature_name)
+        if self._cached_config[feature_name].auto_restart != feature.auto_restart:
+            syslog.syslog(syslog.LOG_INFO, "Auto-restart status of feature '{}' is changed from '{}' to '{}' ..."
+                          .format(feature_name, self._cached_config[feature_name].auto_restart, feature.auto_restart))
+            self.update_systemd_config(feature)
+            self._cached_config[feature_name].auto_restart = feature.auto_restart
 
         # Enable/disable the container service if the feature state was changed from its previous state.
         if self._cached_config[feature_name].state != feature.state:
@@ -220,7 +226,7 @@ class FeatureHandler(object):
             feature = Feature(feature_name, feature_table[feature_name], self._device_config)
 
             self._cached_config.setdefault(feature_name, feature)
-            self.update_feature_auto_restart(feature, feature_name)
+            self.update_systemd_config(feature)
             self.update_feature_state(feature)
             self.resync_feature_state(feature)
 
@@ -265,41 +271,45 @@ class FeatureHandler(object):
 
         return True
 
-    def update_feature_auto_restart(self, feature, feature_name):
-        dir_name = self.SYSTEMD_SERVICE_CONF_DIR.format(feature_name)
-        auto_restart_conf = os.path.join(dir_name, 'auto_restart.conf')
+    def update_systemd_config(self, feature_config):
+        """Updates `Restart=` field in feature's systemd configuration file
+        according to the value of `auto_restart` field in `FEATURE` table of `CONFIG_DB`.
 
-        write_conf = False
-        if not os.path.exists(auto_restart_conf):  # if the auto_restart_conf file is not found, set it
-            write_conf = True
+        Args:
+            feature: An object represents a feature's configuration in `FEATURE`
+            table of `CONFIG_DB`.
 
-        if self._cached_config[feature_name].auto_restart != feature.auto_restart:
-            write_conf = True
+        Returns:
+            None.
+        """
+        restart_field_str = "always" if "enabled" in feature_config.auto_restart else "no"
+        feature_systemd_config = "[Service]\nRestart={}\n".format(restart_field_str)
+        feature_names, feature_suffixes = self.get_multiasic_feature_instances(feature_config)
 
-        if not write_conf:
-            return
+        # On multi-ASIC device, creates systemd configuration file for each feature instance
+        # residing in difference namespace.
+        for feature_name in feature_names:
+            syslog.syslog(syslog.LOG_INFO, "Updating feature '{}' systemd config file related to auto-restart ..."
+                          .format(feature_name))
+            feature_systemd_config_dir_path = self.SYSTEMD_SERVICE_CONF_DIR.format(feature_name)
+            feature_systemd_config_file_path = os.path.join(feature_systemd_config_dir_path, 'auto_restart.conf')
 
-        self._cached_config[feature_name].auto_restart = feature.auto_restart # Update Cache
+            if not os.path.exists(feature_systemd_config_dir_path):
+                os.mkdir(feature_systemd_config_dir_path)
+            with open(feature_systemd_config_file_path, 'w') as feature_systemd_config_file_handler:
+                feature_systemd_config_file_handler.write(feature_systemd_config)
 
-        restart_config = "always" if feature.auto_restart == "enabled" else "no"
-        service_conf = "[Service]\nRestart={}\n".format(restart_config)
-        feature_names, feature_suffixes = self.get_feature_attribute(feature)
-
-        for name in feature_names:
-            dir_name = self.SYSTEMD_SERVICE_CONF_DIR.format(name)
-            auto_restart_conf = os.path.join(dir_name, 'auto_restart.conf')
-            if not os.path.exists(dir_name):
-                os.mkdir(dir_name)
-            with open(auto_restart_conf, 'w') as cfgfile:
-                cfgfile.write(service_conf)
+            syslog.syslog(syslog.LOG_INFO, "Feautre '{}' systemd config file related to auto-restart is updated!"
+                          .format(feature_name))
 
         try:
+            syslog.syslog(syslog.LOG_INFO, "Reloading systemd configuration files ...")
             run_cmd("sudo systemctl daemon-reload", raise_exception=True)
+            syslog.syslog(syslog.LOG_INFO, "Systemd configuration files are reloaded!")
         except Exception as err:
-            syslog.syslog(syslog.LOG_ERR, "Feature '{}' failed to configure auto_restart".format(feature.name))
-            return
+            syslog.syslog(syslog.LOG_ERR, "Failed to reload systemd configuration files!")
 
-    def get_feature_attribute(self, feature):
+    def get_multiasic_feature_instances(self, feature):
         # Create feature name suffix depending feature is running in host or namespace or in both
         feature_names = (
             ([feature.name] if feature.has_global_scope or not self.is_multi_npu else []) +
@@ -330,7 +340,7 @@ class FeatureHandler(object):
 
     def enable_feature(self, feature):
         cmds = []
-        feature_names, feature_suffixes = self.get_feature_attribute(feature)
+        feature_names, feature_suffixes = self.get_multiasic_feature_instances(feature)
         for feature_name in feature_names:
             # Check if it is already enabled, if yes skip the system call
             unit_file_state = self.get_systemd_unit_state("{}.{}".format(feature_name, feature_suffixes[-1]))
@@ -352,7 +362,7 @@ class FeatureHandler(object):
                     run_cmd(cmd, raise_exception=True)
                 except Exception as err:
                     syslog.syslog(syslog.LOG_ERR, "Feature '{}.{}' failed to be enabled and started"
-                                    .format(feature.name, feature_suffixes[-1]))
+                                  .format(feature.name, feature_suffixes[-1]))
                     self.set_feature_state(feature, self.FEATURE_STATE_FAILED)
                     return
 
@@ -360,7 +370,7 @@ class FeatureHandler(object):
 
     def disable_feature(self, feature):
         cmds = []
-        feature_names, feature_suffixes = self.get_feature_attribute(feature)
+        feature_names, feature_suffixes = self.get_multiasic_feature_instances(feature)
         for feature_name in feature_names:
             # Check if it is already disabled, if yes skip the system call
             unit_file_state = self.get_systemd_unit_state("{}.{}".format(feature_name, feature_suffixes[-1]))
@@ -377,7 +387,7 @@ class FeatureHandler(object):
                     run_cmd(cmd, raise_exception=True)
                 except Exception as err:
                     syslog.syslog(syslog.LOG_ERR, "Feature '{}.{}' failed to be stopped and disabled"
-                                    .format(feature.name, feature_suffixes[-1]))
+                                  .format(feature.name, feature_suffixes[-1]))
                     self.set_feature_state(feature, self.FEATURE_STATE_FAILED)
                     return
 
@@ -1212,7 +1222,7 @@ class HostConfigDaemon:
 
         self.config_db.subscribe('KDUMP', make_callback(self.kdump_handler))
         # Handle FEATURE updates before other tables
-        self.config_db.subscribe('FEATURE', make_callback(self.feature_handler.handle))
+        self.config_db.subscribe('FEATURE', make_callback(self.feature_handler.handler))
         # Handle AAA, TACACS and RADIUS related tables
         self.config_db.subscribe('AAA', make_callback(self.aaa_handler))
         self.config_db.subscribe('TACPLUS', make_callback(self.tacacs_global_handler))
