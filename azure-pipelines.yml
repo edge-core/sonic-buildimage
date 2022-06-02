@@ -7,7 +7,7 @@ trigger:
   branches:
     include:
       - master
-      - 202012
+      - 202205
   paths:
     exclude:
       - .github
@@ -16,7 +16,7 @@ pr:
   branches:
     include:
       - master
-      - 202012
+      - 202205
       - bullseye
   paths:
     exclude:
