@@ -49,7 +49,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y \
         apt-utils \
         default-jre-headless \
-        openssh-server \
         curl \
         wget \
         unzip \
@@ -333,6 +332,10 @@ RUN apt-get update && apt-get install -y \
         libgtest-dev \
         libgcc-8-dev
 
+# For openssh-server
+RUN apt-get -y install -t buster-backports \
+        openssh-server \
+        libfido2-dev
 RUN apt-get -y build-dep openssh
 
 # Build fix for ARMHF buster libsairedis
