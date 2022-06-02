@@ -181,6 +181,9 @@ if [ "$install_env" = "onie" ]; then
     fi
 fi
 
+extra_cmdline_linux=%%EXTRA_CMDLINE_LINUX%%
+echo "EXTRA_CMDLINE_LINUX=$extra_cmdline_linux"
+
 # Update Bootloader Menu with installed image
 bootloader_menu_config
 
