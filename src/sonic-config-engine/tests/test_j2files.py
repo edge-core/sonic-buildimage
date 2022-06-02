@@ -311,6 +311,58 @@ class TestJ2Files(TestCase):
         sample_output_file = os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, 'buffers-mellanox2410.json')
         assert filecmp.cmp(sample_output_file, self.output_file)
 
+    def test_qos_dscp_remapping_render_template(self):
+        if utils.PYvX_DIR != 'py3':
+            # Skip on python2 as the change will not be backported to previous version
+            return
+
+        dir_paths = [
+            '../../../device/arista/x86_64-arista_7050cx3_32s/Arista-7050CX3-32S-D48C8',
+            '../../../device/arista/x86_64-arista_7260cx3_64/Arista-7260CX3-D108C8',
+            '../../../device/arista/x86_64-arista_7260cx3_64/Arista-7260CX3-C64',
+            '../../../device/arista/x86_64-arista_7050cx3_32s/Arista-7050CX3-32S-D48C8',
+            '../../../device/arista/x86_64-arista_7260cx3_64/Arista-7260CX3-D108C8',
+            '../../../device/arista/x86_64-arista_7260cx3_64/Arista-7260CX3-C64'
+            ]
+        sample_outputs = [
+            'qos-arista7050cx3-dualtor.json',
+            'qos-arista7260-dualtor.json',
+            'qos-arista7260-t1.json',
+            'qos-arista7050cx3-dualtor-remap-disabled.json',
+            'qos-arista7260-dualtor-remap-disabled.json',
+            'qos-arista7260-t1-remap-disabled.json'
+        ]
+        sample_minigraph_files = [
+            'sample-arista-7050cx3-dualtor-minigraph.xml',
+            'sample-arista-7260-dualtor-minigraph.xml',
+            'sample-arista-7260-t1-minigraph.xml',
+            'sample-arista-7050cx3-dualtor-minigraph-remap-disabled.xml',
+            'sample-arista-7260-dualtor-minigraph-remap-disabled.xml',
+            'sample-arista-7260-t1-minigraph-remap-disabled.xml'
+        ]
+        for i, path in enumerate(dir_paths):
+            device_template_path = os.path.join(self.test_dir, path)
+            sample_output = sample_outputs[i]
+            sample_minigraph_file = os.path.join(self.test_dir,sample_minigraph_files[i])
+            qos_file = os.path.join(device_template_path, 'qos.json.j2')
+            port_config_ini_file = os.path.join(device_template_path, 'port_config.ini')
+            test_output = os.path.join(self.test_dir, 'output.json')
+
+            # copy qos_config.j2 to the target directory to have all templates in one directory
+            qos_config_file = os.path.join(self.test_dir, '..', '..', '..', 'files', 'build_templates', 'qos_config.j2')
+            shutil.copy2(qos_config_file, device_template_path)
+
+            argument = '-m ' + sample_minigraph_file + ' -p ' + port_config_ini_file + ' -t ' + qos_file + ' > ' + test_output
+            self.run_script(argument)
+
+            # cleanup
+            qos_config_file_new = os.path.join(device_template_path, 'qos_config.j2')
+            os.remove(qos_config_file_new)
+
+            sample_output_file = os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, sample_output)
+            assert utils.cmp(sample_output_file, test_output)
+            os.remove(test_output)
+
     def test_ipinip_multi_asic(self):
         ipinip_file = os.path.join(self.test_dir, '..', '..', '..', 'dockers', 'docker-orchagent', 'ipinip.json.j2')
         argument = '-m ' + self.multi_asic_minigraph + ' -p ' + self.multi_asic_port_config + ' -t ' + ipinip_file  +  ' -n asic0 '  + ' > ' + self.output_file
