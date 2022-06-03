@@ -13,7 +13,7 @@ import pytest
 
 from sonic_py_common import device_info
 
-from .mock_swsssdk import SonicV2Connector
+from .mock_swsscommon import SonicV2Connector
 
 # TODO: Remove this if/else block once we no longer support Python 2
 if sys.version_info.major == 3:

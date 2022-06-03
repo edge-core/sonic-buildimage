@@ -7,8 +7,7 @@ import subprocess
 import yaml
 from natsort import natsorted
 
-# TODO: Replace with swsscommon
-from swsssdk import ConfigDBConnector, SonicDBConfig, SonicV2Connector
+from swsscommon.swsscommon import ConfigDBConnector, SonicV2Connector
 
 USR_SHARE_SONIC_PATH = "/usr/share/sonic"
 HOST_DEVICE_PATH = USR_SHARE_SONIC_PATH + "/device"
@@ -485,7 +484,6 @@ def get_all_namespaces(config_db=None):
     front_ns = []
     back_ns = []
     num_npus = get_num_npus()
-    SonicDBConfig.load_sonic_global_db_config()
 
     if is_multi_npu():
         for npu in range(num_npus):
