@@ -1,0 +1,11 @@
+isc-dhcp-relay==4.4.1-2.3
+libboost-thread1.74.0==1.74.0-9
+libdns-export1110==1:9.11.19+dfsg-2.1
+libevent-2.1-7==2.1.12-stable-1
+libexplain51==1.4.D001-11
+libirs-export161==1:9.11.19+dfsg-2.1
+libisc-export1105==1:9.11.19+dfsg-2.1
+libisccfg-export163==1:9.11.19+dfsg-2.1
+lsof==4.93.2+dfsg-1.1
+sonic-dhcp6relay==1.0.0-0
+sonic-dhcpmon==1.0.0-0

@@ -1,0 +1,6 @@
+cffi==1.7.0
+nnpy==1.4.2
+ptf==0.9.1
+pycparser==2.21
+python-sdk-api==4.5.1500
+scapy==2.4.0
