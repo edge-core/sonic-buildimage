@@ -311,6 +311,49 @@ class TestJ2Files(TestCase):
         sample_output_file = os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, 'buffers-mellanox2410.json')
         assert filecmp.cmp(sample_output_file, self.output_file)
 
+    def _test_buffers_render_template(self, vendor, platform, sku, minigraph, buffer_template, expected):
+        dir_path = os.path.join(self.test_dir, '..', '..', '..', 'device', vendor, platform, sku)
+        buffers_file = os.path.join(dir_path, buffer_template)
+        port_config_ini_file = os.path.join(dir_path, 'port_config.ini')
+
+        # copy buffers_config.j2 to the SKU directory to have all templates in one directory
+        buffers_config_file = os.path.join(self.test_dir, '..', '..', '..', 'files', 'build_templates', 'buffers_config.j2')
+        shutil.copy2(buffers_config_file, dir_path)
+
+        minigraph = os.path.join(self.test_dir, minigraph)
+        argument = '-m ' + minigraph + ' -p ' + port_config_ini_file + ' -t ' + buffers_file + ' > ' + self.output_file
+        self.run_script(argument)
+
+        # cleanup
+        buffers_config_file_new = os.path.join(dir_path, 'buffers_config.j2')
+        os.remove(buffers_config_file_new)
+
+        sample_output_file = os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, expected)
+        assert utils.cmp(sample_output_file, self.output_file), self.run_diff(sample_output_file, self.output_file)
+
+    def test_extra_lossless_buffer_for_tunnel_remapping(self):
+        if utils.PYvX_DIR != 'py3':
+            # Skip on python2 as the change will not be backported to previous version
+            return
+          
+        TEST_DATA = [
+            # (vendor, platform, sku, minigraph, buffer_template, sample_output )
+            ('arista', 'x86_64-arista_7050cx3_32s', 'Arista-7050CX3-32S-D48C8', 'sample-arista-7050cx3-dualtor-minigraph.xml', 'buffers.json.j2', 'buffer-arista7050cx3-dualtor.json'),
+            ('arista', 'x86_64-arista_7050cx3_32s', 'Arista-7050CX3-32S-D48C8', 'sample-arista-7050cx3-dualtor-minigraph-remap-disabled.xml', 'buffers.json.j2', 'buffer-arista7050cx3-dualtor-remap-disabled.json'),
+            ('arista', 'x86_64-arista_7260cx3_64', 'Arista-7260CX3-D108C8', 'sample-arista-7260-dualtor-minigraph.xml', 'buffers.json.j2', 'buffer-arista7260-dualtor.json'),
+            ('arista', 'x86_64-arista_7260cx3_64', 'Arista-7260CX3-D108C8', 'sample-arista-7260-dualtor-minigraph-remap-disabled.xml', 'buffers.json.j2', 'buffer-arista7260-dualtor-remap-disabled.json'),
+            ('arista', 'x86_64-arista_7260cx3_64', 'Arista-7260CX3-C64', 'sample-arista-7260-t1-minigraph.xml', 'buffers.json.j2', 'buffer-arista7260-t1.json'),
+            ('arista', 'x86_64-arista_7260cx3_64', 'Arista-7260CX3-C64', 'sample-arista-7260-t1-minigraph-remap-disabled.xml', 'buffers.json.j2', 'buffer-arista7260-t1-remap-disabled.json')
+        ]
+
+        for test_data in TEST_DATA:
+            self._test_buffers_render_template(vendor=test_data[0],
+                                                platform=test_data[1],
+                                                sku=test_data[2],
+                                                minigraph=test_data[3],
+                                                buffer_template=test_data[4],
+                                                expected=test_data[5])
+
     def test_qos_dscp_remapping_render_template(self):
         if utils.PYvX_DIR != 'py3':
             # Skip on python2 as the change will not be backported to previous version
