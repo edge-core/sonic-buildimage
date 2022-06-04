@@ -6,7 +6,7 @@ programs=
 {% if VLAN and vlan_name in VLAN and 'dhcp_servers' in VLAN[vlan_name] and VLAN[vlan_name]['dhcp_servers']|length > 0 %}
 {% set _dummy = monitor_instance.update({'flag': True}) %}
 {%- endif %}
-{% if VLAN and vlan_name in VLAN and 'dhcpv6_servers' in VLAN[vlan_name] and VLAN[vlan_name]['dhcpv6_servers']|length > 0 %}
+{% if DHCP_RELAY and vlan_name in DHCP_RELAY and DHCP_RELAY[vlan_name]['dhcpv6_servers']|length > 0 %}
 {% set _dummy = monitor_instance.update({'flag': True}) %}
 {%- endif %}
 {% if monitor_instance.flag %}
@@ -31,7 +31,7 @@ dhcpmon-{{ vlan_name }}
 {% endfor %}
 {% endif %}
 {# Check DHCPv6 agents #}
-{% if VLAN and vlan_name in VLAN and 'dhcpv6_servers' in VLAN[vlan_name] and VLAN[vlan_name]['dhcpv6_servers']|length > 0 %}
+{% if DHCP_RELAY and vlan_name in DHCP_RELAY and DHCP_RELAY[vlan_name]['dhcpv6_servers']|length > 0 %}
 {% for dhcpv6_server in VLAN[vlan_name]['dhcpv6_servers'] %}
 {% if dhcpv6_server | ipv6 %}
 {% set _dummy = relay_for_ipv6.update({'flag': True}) %}
@@ -68,7 +68,6 @@ stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=
 {%- if relay_for_ipv4.flag %}isc-dhcpv4-relay-{{ vlan_name }}:running {% endif %}
-{% if relay_for_ipv6.flag %}dhcp6relay:running{% endif %}
 
 
 {% set _dummy = relay_for_ipv4.update({'flag': False}) %}
