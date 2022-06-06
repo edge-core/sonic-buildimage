@@ -128,13 +128,13 @@
 
     "BUFFER_POOL": {
         "ingress_lossless_pool": {
-            "size": "33329088",
+            "size": "33169344",
             "type": "ingress",
             "mode": "dynamic",
             "xoff": "7827456"
         },
         "egress_lossy_pool": {
-            "size": "26663272",
+            "size": "26535808",
             "type": "egress",
             "mode": "dynamic"
         },
