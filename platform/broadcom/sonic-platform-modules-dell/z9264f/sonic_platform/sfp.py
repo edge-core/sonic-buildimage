@@ -43,6 +43,7 @@ class Sfp(SfpOptoeBase):
     def __init__(self, index, sfp_type, eeprom_path):
         SfpOptoeBase.__init__(self)
         self.sfp_type = sfp_type
+        self.port_type = sfp_type
         self.index = index
         self.eeprom_path = eeprom_path
         self._initialize_media(delay=False)

@@ -127,11 +127,11 @@ class Chassis(ChassisBase):
         self.PORT_START = 1
         self.PORT_END = 56 
         self.PORTS_IN_BLOCK = (self.PORT_END + 1)
-        _sfp_port = range(49, self.PORTS_IN_BLOCK)
+        qsfp_port = range(49, self.PORTS_IN_BLOCK)
         eeprom_base = "/sys/class/i2c-adapter/i2c-{0}/{0}-0050/eeprom"
         for index in range(self.PORT_START, self.PORTS_IN_BLOCK):
             eeprom_path = eeprom_base.format(self._port_to_i2c_mapping[index])
-            port_type = 'QSFP' if index in _sfp_port else 'SFP'
+            port_type = 'QSFP' if index in qsfp_port else 'SFP'
             sfp_node = Sfp(index, port_type, eeprom_path)
             self._sfp_list.append(sfp_node)
 
