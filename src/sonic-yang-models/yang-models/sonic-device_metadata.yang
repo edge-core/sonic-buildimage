@@ -188,6 +188,12 @@ module sonic-device_metadata {
                     type stypes:admin_mode;
                     description "Indicate whether enable the embedded DHCP server.";
                 }
+
+                leaf bgp_adv_lo_prefix_as_128 {
+                    type boolean;
+                    description "Advertise Loopback0 interface IPv6 /128 subnet address as it is with set to true.
+                                 By default SONiC advertises /128 subnet prefix in Loopback0 as /64 subnet route";
+                }
             }
             /* end of container localhost */
         }

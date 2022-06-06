@@ -11,7 +11,12 @@
 ip prefix-list PL_LoopbackV4 permit {{ get_ipv4_loopback_address(LOOPBACK_INTERFACE, "Loopback0") | ip }}/32
 !
 {% if get_ipv6_loopback_address(LOOPBACK_INTERFACE, "Loopback0") != 'None' %}
+{% if ( ('localhost' in DEVICE_METADATA) and ('bgp_adv_lo_prefix_as_128' in  DEVICE_METADATA['localhost']) and 
+        (DEVICE_METADATA['localhost']['bgp_adv_lo_prefix_as_128'] == 'true') ) %}
+ipv6 prefix-list PL_LoopbackV6 permit {{ get_ipv6_loopback_address(LOOPBACK_INTERFACE, "Loopback0") | ip_network }}/128
+{% else %}
 ipv6 prefix-list PL_LoopbackV6 permit {{ get_ipv6_loopback_address(LOOPBACK_INTERFACE, "Loopback0") | replace('/128', '/64') | ip_network }}/64
+{% endif %}
 {% endif %}
 !
 {% if VLAN_INTERFACE is defined %}
@@ -89,7 +94,12 @@ router bgp {{ DEVICE_METADATA['localhost']['bgp_asn'] }}
 !
 {% if get_ipv6_loopback_address(LOOPBACK_INTERFACE, "Loopback0") != 'None' %}
   address-family ipv6
+{% if ( ('localhost' in DEVICE_METADATA) and ('bgp_adv_lo_prefix_as_128' in  DEVICE_METADATA['localhost']) and 
+        (DEVICE_METADATA['localhost']['bgp_adv_lo_prefix_as_128'] == 'true') ) %}
+    network {{ get_ipv6_loopback_address(LOOPBACK_INTERFACE, "Loopback0") | ip }}/128
+{% else %}
     network {{ get_ipv6_loopback_address(LOOPBACK_INTERFACE, "Loopback0") | ip }}/64
+{% endif %}
   exit-address-family
 {% endif %}
 {% if ((multi_asic is defined and DEVICE_METADATA['localhost']['switch_type'] != 'chassis-packet') or (DEVICE_METADATA['localhost']['switch_type'] == 'voq')) %}

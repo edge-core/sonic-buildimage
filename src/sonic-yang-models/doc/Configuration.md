@@ -775,6 +775,7 @@ instance is supported in SONiC.
         "bgp_asn": "65100",
         "deployment_id": "1",
         "type": "ToRRouter",
+        "bgp_adv_lo_prefix_as_128" : "true",
         "buffer_model": "traditional"
     }
   }
@@ -935,6 +936,9 @@ Loopback interface configuration lies in **LOOPBACK_INTERFACE** table
 and has similar schema with data plane interfaces. The loopback device
 name and loopback IP prefix act as multi-level key for loopback
 interface objects.
+By default SONiC advertises Loopback interface IPv6 /128 subnet address
+as prefix with /64 subnet. To overcome this set "bgp_adv_lo_prefix_as_128"
+to true in DEVICE_METADATA
 
 ```
 {

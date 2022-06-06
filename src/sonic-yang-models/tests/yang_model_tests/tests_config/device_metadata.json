@@ -311,5 +311,15 @@
                 }
             }
         }
+    },
+    "DEVICE_METADATA_ADVERTISE_LO_PREFIX_AS_128": {
+        "sonic-device_metadata:sonic-device_metadata": {
+            "sonic-device_metadata:DEVICE_METADATA": {
+                "sonic-device_metadata:localhost": {
+                    "bgp_asn": "65001",
+                    "bgp_adv_lo_prefix_as_128": "true"
+                }
+            }
+        }
     }
 }

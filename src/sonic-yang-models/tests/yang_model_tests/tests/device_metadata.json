@@ -113,6 +113,9 @@
     "DEVICE_METADATA_INVALID_DHCP_SERVER": {
         "desc": "Verifying invalid dhcp_server configuration.",
         "eStrKey": "InvalidValue"
+    },
+    "DEVICE_METADATA_ADVERTISE_LO_PREFIX_AS_128": {
+        "desc": "Verifying advertising lo prefix as /128."
     }
 
 }
