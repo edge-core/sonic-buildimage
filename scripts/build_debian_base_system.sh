@@ -48,11 +48,20 @@ fi
 ARCH=$(dpkg --print-architecture)
 DISTRO=$(grep CODENAME /etc/os-release | cut -d= -f2)
 if [ "$ARCH" != "$CONFIGURED_ARCH" ] || [ "$DISTRO" != "$IMAGE_DISTRO" ]; then
-    "Not support to build different ARCH/DISTRO ${CONFIGURED_ARCH}:${$IMAGE_DISTRO} in ${ARCH}:${DISTRO}."
+    "Not support to build different ARCH/DISTRO ${CONFIGURED_ARCH}:${IMAGE_DISTRO} in ${ARCH}:${DISTRO}."
     exit 1
 fi
 
-BASE_VERSIONS=files/build/versions/host-base-image/versions-deb-${IMAGE_DISTRO}
+# Generate the version files for the host base image
+TEMP_DIR=$(mktemp -d)
+./scripts/versions_manager.py generate -t $TEMP_DIR -n host-base-image -d $IMAGE_DISTRO -a $CONFIGURED_ARCH
+PACKAGES=$(sed -E 's/=(=[^=]*)$/\1/' $TEMP_DIR/version-deb)
+if [ -z "$PACKAGES" ]; then
+    echo "Not found host-base-image packages, please check the version files in files/build/versions/host-base-image" 2>&1
+    exit 1
+fi
+rm -rf $TEMP_DIR
+
 BASEIMAGE_TARBALLPATH=$TARGET/baseimage
 BASEIMAGE_TARBALL=$(realpath -e $TARGET)/baseimage.tgz
 
@@ -69,7 +78,6 @@ DEBOOTSTRAP_REQUIRED=$TARGET_DEBOOTSTRAP/required
 mkdir -p $ARCHIEVES
 mkdir -p $APTLIST
 mkdir -p $TARGET_DEBOOTSTRAP
-PACKAGES=$(sed -E 's/=(=[^=]*)$/\1/' $BASE_VERSIONS)
 URL_ARR=$(apt-get download --print-uris $PACKAGES | cut -d" " -f1 | tr -d "'")
 PACKAGE_ARR=($PACKAGES)
 LENGTH=${#PACKAGE_ARR[@]}
@@ -80,7 +88,7 @@ do
     encoded_packagename=$(urlencode $packagename)
     url=$(echo "$URL_ARR" | grep -i "/${packagename}_\|/${encoded_packagename}_")
     if [ -z "$url" ] || [[ $(echo "$url" | wc -l) -gt 1 ]]; then
-        echo "No found package or found multiple package for package $packagename, url: $url" 2>&1
+        echo "No found package or found multiple package for package $packagename, url: $url" 1>&2
         exit 1
     fi
     filename=$(basename "$url")
