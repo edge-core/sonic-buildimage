@@ -30,7 +30,6 @@ try:
 
     from . import utils
     from .device_data import DeviceDataManager
-    from .sfp import SFP, deinitialize_sdk_handle
 except ImportError as e:
     raise ImportError (str(e) + "- required module not found")
 
@@ -113,8 +112,10 @@ class Chassis(ChassisBase):
         if self.sfp_event:
             self.sfp_event.deinitialize()
 
-        if SFP.shared_sdk_handle:
-            deinitialize_sdk_handle(SFP.shared_sdk_handle)
+        if self._sfp_list:
+            from .sfp import SFP, deinitialize_sdk_handle
+            if SFP.shared_sdk_handle:
+                deinitialize_sdk_handle(SFP.shared_sdk_handle)
 
     ##############################################
     # PSU methods
