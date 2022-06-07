@@ -64,7 +64,7 @@ python3.7==3.7.3-2+deb10u3
 python3.7-minimal==3.7.3-2+deb10u3
 readline-common==7.0-5
 redis-tools==5:6.0.6-1~bpo10+1
-rsyslog==8.1901.0-1+deb10u1
+rsyslog==8.1901.0-1+deb10u2
 socat==1.7.3.1-2+deb9u1
 vim-common==2:8.1.0875-5+deb10u2
 vim-tiny==2:8.1.0875-5+deb10u2

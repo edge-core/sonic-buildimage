@@ -32,7 +32,7 @@ libcairo2==1.16.0-4+deb10u1
 libcc1-0==8.3.0-6
 libdatrie1==0.2.12-2
 libdbi1==0.9.0-5
-libdpkg-perl==1.19.7
+libdpkg-perl==1.19.8
 libdw1==0.176-1.1
 libedit2==3.1-20181209-1
 libexpat1-dev==2.2.6-2+deb10u4
