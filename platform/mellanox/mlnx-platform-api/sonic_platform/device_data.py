@@ -17,7 +17,6 @@
 
 import glob
 import os
-from sonic_py_common import device_info
 
 from . import utils
 
@@ -173,6 +172,7 @@ class DeviceDataManager:
     @classmethod
     @utils.read_only_cache()
     def get_platform_name(cls):
+        from sonic_py_common import device_info
         return device_info.get_platform()
 
     @classmethod
