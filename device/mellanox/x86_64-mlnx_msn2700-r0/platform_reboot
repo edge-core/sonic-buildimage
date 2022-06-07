@@ -5,7 +5,7 @@ declare -r EXIT_ERROR="1"
 
 declare -r PENDING_COMPONENT_FW="/usr/bin/install-pending-fw.py"
 declare -r FW_UPGRADE_SCRIPT="/usr/bin/mlnx-fw-upgrade.sh"
-declare -r SYSFS_PWR_CYCLE="/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/pwr_cycle"
+declare -r SYSFS_PWR_CYCLE="/var/run/hw-management/system/pwr_cycle"
 
 FORCE_REBOOT="no"
 
@@ -24,8 +24,6 @@ function SafePwrCycle() {
     sync ; sync
     umount -fa > /dev/null 2&>1
     echo 1 > $SYSFS_PWR_CYCLE
-    sleep 3
-    echo 0 > $SYSFS_PWR_CYCLE
 }
 
 ParseArguments "$@"
