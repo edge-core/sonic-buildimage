@@ -15,16 +15,20 @@
     {%- endfor %}
 {%- endmacro %}
 
+{%- import 'buffers_pool_sizes_t0.j2' as defs with context %}
+{%- set ingress_lossless_pool_size = defs.ingress_lossless_pool_size %}
+{%- set egress_lossy_pool_size = defs.egress_lossy_pool_size %}
+
 {%- macro generate_buffer_pool_and_profiles() %}
     "BUFFER_POOL": {
         "ingress_lossless_pool": {
-            "size": "33329088",
+            "size": "{{ ingress_lossless_pool_size }}",
             "type": "ingress",
             "mode": "dynamic",
             "xoff": "7827456"
         },
         "egress_lossy_pool": {
-            "size": "26663272",
+            "size": "{{ egress_lossy_pool_size }}",
             "type": "egress",
             "mode": "dynamic"
         },
