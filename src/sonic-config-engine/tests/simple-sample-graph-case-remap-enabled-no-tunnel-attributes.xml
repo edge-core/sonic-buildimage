@@ -127,7 +127,7 @@
         </PortChannel>
       </PortChannelInterfaces>
       <TunnelInterfaces>
-        <TunnelInterface Name="MuxTunnel0" Type="IPInIP" AttachTo="Loopback0" DifferentiatedServicesCodePointMode="pipe" EcnEncapsulationMode="standard" EcnDecapsulationMode="copy_from_outer" TtlMode="pipe" DecapDscpToTcMap="[DSCP_TO_TC_MAP|AZURE_TUNNEL]" DecapTcToPgMap="[TC_TO_PRIORITY_GROUP_MAP|AZURE_TUNNEL]" EncapTcToQueueMap="[TC_TO_QUEUE_MAP|AZURE_TUNNEL]" EncapTcToDscpMap="[TC_TO_DSCP_MAP|AZURE_TUNNEL]"/>
+        <TunnelInterface Name="MuxTunnel0" Type="IPInIP" AttachTo="Loopback0" DifferentiatedServicesCodePointMode="uniform" EcnEncapsulationMode="standard" EcnDecapsulationMode="copy_from_outer" TtlMode="pipe"/>
       </TunnelInterfaces>
       <VlanInterfaces>
         <VlanInterface>

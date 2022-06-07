@@ -371,17 +371,26 @@ class TestCfgGenCaseInsensitive(TestCase):
                 "tunnel_type": "IPINIP",
                 "src_ip": "25.1.1.10",
                 "dst_ip": "10.1.0.32",
-                "dscp_mode": "uniform",
+                "dscp_mode": "pipe",
                 "encap_ecn_mode": "standard",
                 "ecn_mode": "copy_from_outer",
                 "ttl_mode": "pipe",
-                "decap_dscp_to_tc_map": "AZURE_TUNNEL",
-                "decap_tc_to_pg_map": "AZURE_TUNNEL",
-                "encap_tc_to_dscp_map": "AZURE_TUNNEL",
-                "encap_tc_to_queue_map": "AZURE_TUNNEL"
+                "decap_dscp_to_tc_map": "[DSCP_TO_TC_MAP|AZURE_TUNNEL]",
+                "decap_tc_to_pg_map": "[TC_TO_PRIORITY_GROUP_MAP|AZURE_TUNNEL]",
+                "encap_tc_to_dscp_map": "[TC_TO_DSCP_MAP|AZURE_TUNNEL]",
+                "encap_tc_to_queue_map": "[TC_TO_QUEUE_MAP|AZURE_TUNNEL]"
             }
         }
 
+        output = self.run_script(argument)
+        self.assertEqual(
+            utils.to_dict(output.strip()),
+            expected_tunnel
+        )
+
+        # Validate extra config for mux tunnel is generated automatically when tunnel_qos_remap = enabled
+        sample_graph_enabled_remap = os.path.join(self.test_dir, 'simple-sample-graph-case-remap-enabled-no-tunnel-attributes.xml')
+        argument = '-m "' + sample_graph_enabled_remap + '" -p "' + self.port_config + '" -v "TUNNEL"'
         output = self.run_script(argument)
         self.assertEqual(
             utils.to_dict(output.strip()),

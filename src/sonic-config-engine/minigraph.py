@@ -1652,13 +1652,27 @@ def get_tunnel_entries(tunnel_intfs, tunnel_intfs_qos_remap_config, lo_intfs, tu
             break
 
     tunnels = {}
+
+    default_qos_map_for_mux_tunnel = {
+        "decap_dscp_to_tc_map": "[DSCP_TO_TC_MAP|AZURE_TUNNEL]",
+        "decap_tc_to_pg_map": "[TC_TO_PRIORITY_GROUP_MAP|AZURE_TUNNEL]",
+        "encap_tc_to_dscp_map": "[TC_TO_DSCP_MAP|AZURE_TUNNEL]",
+        "encap_tc_to_queue_map": "[TC_TO_QUEUE_MAP|AZURE_TUNNEL]"
+    }
+
     for type, tunnel_dict in tunnel_intfs.items():
         for tunnel_key, tunnel_attr in tunnel_dict.items():
             tunnel_attr['dst_ip'] = lo_addr
             if (tunnel_qos_remap.get('status') == 'enabled') and (mux_tunnel_name == tunnel_key) and (peer_switch_ip is not None):
                 tunnel_attr['src_ip'] = peer_switch_ip
+                # The DSCP mode must be pipe if remap is enabled
+                tunnel_attr['dscp_mode'] = "pipe"
                 if tunnel_key in tunnel_intfs_qos_remap_config[type]:
                     tunnel_attr.update(tunnel_intfs_qos_remap_config[type][tunnel_key].items())
+                # Use default value if qos remap attribute is missing
+                for k, v in default_qos_map_for_mux_tunnel.items():
+                    if k not in tunnel_attr:
+                        tunnel_attr[k] = v
 
             tunnels[tunnel_key] = tunnel_attr
     return tunnels
