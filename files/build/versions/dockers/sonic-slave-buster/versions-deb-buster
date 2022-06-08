@@ -31,7 +31,6 @@ binutils-common==2.31.1-16
 binutils-x86-64-linux-gnu==2.31.1-16
 bison==2:3.3.2.dfsg-1
 blt==2.5.3+dfsg-4
-bsd-mailx==8.1.2-0.20180807cvs-1
 bsdmainutils==11.1.2+b1
 build-essential==12.6
 byacc==20140715-1+b1
@@ -50,7 +49,7 @@ cmake==3.13.4-1
 cmake-data==3.13.4-1
 cmocka-doc==1.1.3-1
 comerr-dev==2.1-1.44.5-1+deb10u3
-containerd.io==1.6.4-1
+containerd.io==1.6.6-1
 cowbuilder==0.88
 cowdancer==0.88
 cpio==2.12+dfsg-9
@@ -178,6 +177,7 @@ gstreamer1.0-plugins-ugly==1.14.4-1+deb10u1
 gstreamer1.0-x==1.14.4-2+deb10u1
 gtk-update-icon-cache==3.24.5-1
 guile-2.0-libs==2.0.13+1-5.1
+guile-2.2-libs==2.2.4+1-2+deb10u1
 hicolor-icon-theme==0.17-2
 i965-va-driver==2.3.0+dfsg1-1
 ibverbs-providers==22.1-1
@@ -346,6 +346,7 @@ libcap-ng-dev==0.7.9-2
 libcapstone3==4.0.1+really+3.0.5-1
 libcapture-tiny-perl==0.48-1
 libcarp-clan-perl==6.07-1
+libcbor0==0.5.0+dfsg-2
 libcc1-0==8.3.0-6
 libcdi-api-java==1.2-2
 libcdio18==2.0.0-2
@@ -395,9 +396,9 @@ libconvert-binhex-perl==1.125-1
 libcroco3==0.6.12-3
 libcryptsetup12==2:2.1.0-5+deb10u2
 libcrystalhd3==1:0.0~git20110715.fdd2f19-13
-libcups2==2.2.10-6+deb10u5
+libcups2==2.2.10-6+deb10u6
 libcupsfilters1==1.21.6-5
-libcupsimage2==2.2.10-6+deb10u5
+libcupsimage2==2.2.10-6+deb10u6
 libcurl3-gnutls==7.64.0-4+deb10u2
 libcurl3-nss==7.64.0-4+deb10u2
 libcurl4==7.64.0-4+deb10u2
@@ -484,6 +485,8 @@ libfcgi-perl==0.78-2+b3
 libfdt1==1.4.7-4
 libffi-dev==3.2.1-9
 libfftw3-double3==3.3.8-2
+libfido2-1==1.5.0-2~bpo10+1
+libfido2-dev==1.5.0-2~bpo10+1
 libfile-basedir-perl==0.08-1
 libfile-chdir-perl==0.1008-1
 libfile-desktopentry-perl==0.22-1
@@ -565,6 +568,7 @@ libgraphite2-3==1.3.13-7
 libgraphite2-dev==1.3.13-7
 libgs9==9.27~dfsg-2+deb10u5
 libgs9-common==9.27~dfsg-2+deb10u5
+libgsasl7==1.8.0-8+b2
 libgsm1==1.0.18-2
 libgssapi-krb5-2==1.17-3+deb10u3
 libgssrpc4==1.17-3+deb10u3
@@ -700,6 +704,7 @@ libkrb5-3==1.17-3+deb10u3
 libkrb5-dev==1.17-3+deb10u3
 libkrb5support0==1.17-3+deb10u3
 libksba8==1.3.5-2
+libkyotocabinet16v5==1.2.76-4.2+b1
 liblab-gamut1==2.40.1-6+deb10u1
 liblcms2-2==2.9-3
 libldap-2.4-2==2.4.47+dfsg-3+deb10u7
@@ -712,8 +717,6 @@ libllvm6.0==1:6.0.1-10
 libllvm7==1:7.0.1-8+deb10u2
 liblmdb0==0.9.22-1
 liblocale-gettext-perl==1.07-3+b4
-liblockfile-bin==1.14-1.1
-liblockfile1==1.14-1.1
 liblog-any-adapter-screen-perl==0.140-1
 liblog-any-perl==1.707-1
 liblog4j1.2-java==1.2.17-8+deb10u2
@@ -738,6 +741,7 @@ libmagickcore-6.q16-6-extra==8:6.9.10.23+dfsg-2.1+deb10u1
 libmagickwand-6.q16-6==8:6.9.10.23+dfsg-2.1+deb10u1
 libmail-sendmail-perl==0.80-1
 libmailtools-perl==2.18-1
+libmailutils5==1:3.5-4
 libmariadb-dev==1:10.3.34-0+deb10u1
 libmariadb-dev-compat==1:10.3.34-0+deb10u1
 libmariadb3==1:10.3.34-0+deb10u1
@@ -815,6 +819,7 @@ libnpth0==1.6-1
 libnspr4==2:4.20-1
 libnss-systemd==241-7~deb10u8
 libnss3==2:3.42.1-1+deb10u5
+libntlm0==1.5-1+deb10u1
 libnuma-dev==2.0.12-1
 libnuma1==2.0.12-1
 libnumber-compare-perl==0.03-1
@@ -1338,6 +1343,8 @@ lvm2==2.03.02-3
 lynx==2.8.9rel.1-3+deb10u1
 lynx-common==2.8.9rel.1-3+deb10u1
 m4==1.4.18-2
+mailutils==1:3.5-4
+mailutils-common==1:3.5-4
 make==4.2.1-1.2
 man-db==2.8.5-2
 manpages==4.16-2
@@ -1365,9 +1372,9 @@ openjdk-11-jre-headless==11.0.15+10-1~deb10u1
 openmpi-bin==3.1.3-11
 openmpi-common==3.1.3-11
 opensp==1.5.2-13+b1
-openssh-client==1:7.9p1-10+deb10u2
-openssh-server==1:7.9p1-10+deb10u2
-openssh-sftp-server==1:7.9p1-10+deb10u2
+openssh-client==1:8.4p1-2~bpo10+1
+openssh-server==1:8.4p1-2~bpo10+1
+openssh-sftp-server==1:8.4p1-2~bpo10+1
 openssl==1.1.1n-0+deb10u2
 ovmf==0~20181115.85588389-3+deb10u3
 packagekit==1.1.12-5
@@ -1632,7 +1639,7 @@ rake==12.3.1-3+deb10u1
 readline-common==7.0-5
 rrdtool==1.7.1-2
 rsync==3.1.3-6
-rsyslog==8.1901.0-1+deb10u1
+rsyslog==8.1901.0-1+deb10u2
 ruby==1:2.5.1
 ruby-all-dev==1:2.5.1
 ruby-asciidoctor==1.5.8-1

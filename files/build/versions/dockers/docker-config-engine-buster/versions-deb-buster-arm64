@@ -1,7 +1,5 @@
 binutils-aarch64-linux-gnu==2.31.1-16
-dpkg-dev==1.19.7
 icu-devtools==63.1-6+deb10u3
-libdpkg-perl==1.19.7
 libglib2.0-0==2.58.3-2+deb10u3
 libicu-dev==63.1-6+deb10u3
 libicu63==63.1-6+deb10u3

@@ -3,7 +3,7 @@ build-essential==12.3
 bzip2==1.0.6-8.1
 cpp==4:6.3.0-4
 cpp-6==6.3.0-18+deb9u1
-dpkg-dev==1.18.25
+dpkg-dev==1.18.26
 g++==4:6.3.0-4
 g++-6==6.3.0-18+deb9u1
 gcc==4:6.3.0-4
@@ -14,7 +14,7 @@ libc-dev-bin==2.24-11+deb9u4
 libc6-dev==2.24-11+deb9u4
 libcc1-0==6.3.0-18+deb9u1
 libcilkrts5==6.3.0-18+deb9u1
-libdpkg-perl==1.18.25
+libdpkg-perl==1.18.26
 libexpat1-dev==2.2.0-2+deb9u5
 libgcc-6-dev==6.3.0-18+deb9u1
 libgomp1==6.3.0-18+deb9u1

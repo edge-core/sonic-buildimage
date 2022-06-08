@@ -5,10 +5,9 @@ https://github.com/jpirko/libteam.git==69a7494bb77dc10bb27076add07b380dbd778592
 https://github.com/Mellanox/libpsample.git==62bb27d9a49424e45191eee81df7ce0d8c74e774
 https://github.com/sflow/host-sflow==2b8771aa7284d3b34cfc43fccba67649d30d0c64
 https://github.com/sflow/sflowtool==4be2a17b36a3b9796c280b117b8b786323a84ae8
-https://github.com/thom311/libnl==e5dc111f8c9c646b1fca3f3aabaa00165952b89c
+https://github.com/thom311/libnl==44988e648cd5c9f912148e8b138776064797f49d
 https://salsa.debian.org/debian/libteam.git==f8808df228b00873926b5e7b998ad8b61368d4c5
-https://salsa.debian.org/dhcp-team/isc-dhcp.git==1c152ecfa0858a5b15aba37e88ca2c833c12ba48
-https://salsa.debian.org/kernel-team/ethtool/==0d5304a5be80cc74bed8ed78002bf5df0d49f412
+https://salsa.debian.org/dhcp-team/isc-dhcp.git==18ecb042065e51e088b7470566526cd00e297c14
+https://salsa.debian.org/kernel-team/ethtool/==38a3cce26a7fa6eb74228e3501b7ed19dced6d4b
 https://salsa.debian.org/kernel-team/initramfs-tools.git==40e544e13611c1b2690eb99a8096fc16c1b9c74e
 https://salsa.debian.org/sk-guest/monit.git==c9da7ebb1f35dfba17b50b5969a6e75e29cbec0d
-https://salsa.debian.org/ssh-team/openssh.git==de790f931452a2dcb4490d074d5a16ab8456a523

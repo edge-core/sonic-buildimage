@@ -16,6 +16,7 @@ libxslt1.1==1.1.32-2.2~deb10u1
 linux-image-4.19.0-12-2-arm64-unsigned==4.19.152-1
 openssl==1.1.1n-0+deb10u1
 pkg-config==0.29-6
+rsyslog==8.1901.0-1+deb10u1
 tsingma-bsp==1.0
 tzdata==2021a-0+deb10u4
 xz-utils==5.2.4-1

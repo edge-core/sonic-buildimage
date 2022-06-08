@@ -380,9 +380,9 @@ libcommons-validator-java==1:1.5.1-1
 libconvert-binhex-perl==1.125-1
 libcroco3==0.6.11-3
 libcryptsetup4==2:1.7.3-4
-libcups2==2.2.1-8+deb9u7
+libcups2==2.2.1-8+deb9u8
 libcupsfilters1==1.11.6-3+deb9u1
-libcupsimage2==2.2.1-8+deb9u7
+libcupsimage2==2.2.1-8+deb9u8
 libcurl3==7.52.1-5+deb9u16
 libcurl3-gnutls==7.52.1-5+deb9u16
 libcurl3-nss==7.52.1-5+deb9u16
@@ -492,10 +492,10 @@ libgl1-mesa-dri==13.0.6-1+b2
 libgl1-mesa-glx==13.0.6-1+b2
 libglapi-mesa==13.0.6-1+b2
 libglew2.0==2.0.0-3+b1
-libglib2.0-0==2.50.3-2+deb9u2
-libglib2.0-bin==2.50.3-2+deb9u2
-libglib2.0-data==2.50.3-2+deb9u2
-libglib2.0-dev==2.50.3-2+deb9u2
+libglib2.0-0==2.50.3-2+deb9u3
+libglib2.0-bin==2.50.3-2+deb9u3
+libglib2.0-data==2.50.3-2+deb9u3
+libglib2.0-dev==2.50.3-2+deb9u3
 libglu1-mesa==9.0.0-2.1
 libglu1-mesa-dev==9.0.0-2.1
 libgmp-dev==2:6.1.2+dfsg-1+deb9u1
@@ -595,7 +595,7 @@ libjemalloc-dev==3.6.0-9.1
 libjemalloc1==3.6.0-9.1
 libjetty9-java==9.2.30-0+deb9u2
 libjline-java==1.0-2
-libjpeg62-turbo==1:1.5.1-2+deb9u1
+libjpeg62-turbo==1:1.5.1-2+deb9u2
 libjs-bootstrap==3.3.7+dfsg-2+deb9u2
 libjs-jquery==3.1.1-2+deb9u2
 libjs-jquery-hotkeys==0~20130707+git2d51e3a9+dfsg-2
