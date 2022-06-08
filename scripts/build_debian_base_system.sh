@@ -21,7 +21,7 @@ generate_version_file()
     sudo LANG=C chroot $FILESYSTEM_ROOT /bin/bash -c "dpkg-query -W -f '\${Package}==\${Version}\n'" > $TARGET_BASEIMAGE_PATH/versions-deb-${IMAGE_DISTRO}-${CONFIGURED_ARCH}
 }
 
-if [ "$ENABLE_VERSION_CONTROL_DEB" != "y" ]; then
+if [ "$ENABLE_VERSION_CONTROL_DEB" != "y" ] || [ ! -d files/build/versions/host-base-image ]; then
     if [[ $CONFIGURED_ARCH == armhf || $CONFIGURED_ARCH == arm64 ]]; then
         if [ $MULTIARCH_QEMU_ENVIRON == "y" ]; then
             # qemu arm bin executable for cross-building
@@ -55,7 +55,7 @@ fi
 # Generate the version files for the host base image
 TEMP_DIR=$(mktemp -d)
 ./scripts/versions_manager.py generate -t $TEMP_DIR -n host-base-image -d $IMAGE_DISTRO -a $CONFIGURED_ARCH
-PACKAGES=$(sed -E 's/=(=[^=]*)$/\1/' $TEMP_DIR/version-deb)
+PACKAGES=$(sed -E 's/=(=[^=]*)$/\1/' $TEMP_DIR/versions-deb)
 if [ -z "$PACKAGES" ]; then
     echo "Not found host-base-image packages, please check the version files in files/build/versions/host-base-image" 2>&1
     exit 1
