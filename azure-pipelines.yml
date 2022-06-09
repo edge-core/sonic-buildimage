@@ -30,6 +30,17 @@ resources:
     name: Azure/sonic-mgmt
     endpoint: build
     ref: refs/heads/202012
+  - repository: buildimage
+    type: github
+    name: Azure/sonic-buildimage
+    endpoint: build
+    ref: master
+
+variables:
+- template: .azure-pipelines/azure-pipelines-repd-build-variables.yml@buildimage
+- template: .azure-pipelines/template-variables.yml@buildimage
+- name: CACHE_MODE
+  value: rcache 
 
 stages:
 - stage: BuildVS
