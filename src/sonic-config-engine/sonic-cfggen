@@ -32,7 +32,7 @@ from functools import partial
 from minigraph import minigraph_encoder, parse_xml, parse_device_desc_xml, parse_asic_sub_role, parse_asic_switch_type
 from portconfig import get_port_config, get_breakout_mode
 from redis_bcc import RedisBytecodeCache
-from sonic_py_common.multi_asic import get_asic_id_from_name, get_asic_device_id
+from sonic_py_common.multi_asic import get_asic_id_from_name, get_asic_device_id, is_multi_asic
 from sonic_py_common import device_info
 from swsscommon.swsscommon import SonicV2Connector, ConfigDBConnector, SonicDBConfig, ConfigDBPipeConnector
 
@@ -137,6 +137,13 @@ def ip_network(value):
     except:
         return "Invalid ip address %s" % value
     return r_v.network
+
+def load_namespace_config(asic_name):
+    if not SonicDBConfig.isInit():
+        if is_multi_asic():
+            SonicDBConfig.load_sonic_global_db_config(namespace=asic_name)
+        else:
+            SonicDBConfig.load_sonic_db_config()
 
 class FormatConverter:
     """Convert config DB based schema to legacy minigraph based schema for backward capability.
@@ -303,6 +310,7 @@ def main():
         deep_update(data, hardware_data)
         if args.port_config is None:
             args.port_config = device_info.get_path_to_port_config_file(hwsku)
+        load_namespace_config(asic_name)
         (ports, _, _) = get_port_config(hwsku, platform, args.port_config, asic_id)
         if ports is None:
             print('Failed to get port config', file=sys.stderr)
@@ -328,6 +336,7 @@ def main():
 
     if args.minigraph is not None:
         minigraph = args.minigraph
+        load_namespace_config(asic_name)
         if platform:
             if args.port_config is not None:
                 deep_update(data, parse_xml(minigraph, platform, args.port_config, asic_name=asic_name, hwsku_config_file=args.hwsku_config))
