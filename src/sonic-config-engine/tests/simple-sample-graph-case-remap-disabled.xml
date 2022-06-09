@@ -474,14 +474,6 @@
  </Devices>
  <Properties xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
 </MetadataDeclaration>
-<SystemDefaultsDeclaration>
-  <a:SystemDefaults xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
-    <a:SystemDefault>
-      <a:Name>TunnelQosRemapEnabled</a:Name>
-      <a:Value>False</a:Value>
-    </a:SystemDefault>
-  </a:SystemDefaults>
-</SystemDefaultsDeclaration>
   <DeviceInfos>
     <DeviceInfo>
       <EthernetInterfaces xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">

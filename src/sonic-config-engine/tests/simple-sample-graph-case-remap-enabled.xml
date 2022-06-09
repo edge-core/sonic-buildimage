@@ -469,19 +469,16 @@
      <a:Reference i:nil="true"/>
      <a:Value>Storage</a:Value>
     </a:DeviceProperty>
+    <a:DeviceProperty>
+     <a:Name>RedundancyType</a:Name>
+     <a:Reference i:nil="true"/>
+     <a:Value>Gemini</a:Value>
+    </a:DeviceProperty>
   </a:Properties>
   </a:DeviceMetadata>
  </Devices>
  <Properties xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
 </MetadataDeclaration>
-<SystemDefaultsDeclaration>
-  <a:SystemDefaults xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
-    <a:SystemDefault>
-      <a:Name>TunnelQosRemapEnabled</a:Name>
-      <a:Value>True</a:Value>
-    </a:SystemDefault>
-  </a:SystemDefaults>
-</SystemDefaultsDeclaration>
   <DeviceInfos>
     <DeviceInfo>
       <EthernetInterfaces xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
