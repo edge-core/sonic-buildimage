@@ -6,6 +6,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update
 
+RUN apt-get install iputils-ping
+
 {% if docker_swss_layer_bullseye_debs.strip() -%}
 # Copy locally-built Debian package dependencies
 {{ copy_files("debs/", docker_swss_layer_bullseye_debs.split(' '), "/debs/") }}
