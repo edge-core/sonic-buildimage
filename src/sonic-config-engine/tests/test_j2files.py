@@ -364,6 +364,37 @@ class TestJ2Files(TestCase):
             assert utils.cmp(sample_output_file, test_output)
             os.remove(test_output)
 
+    def test_config_brcm_render_template(self):
+        if utils.PYvX_DIR != 'py3':
+            #Skip on python2 as the change will not be backported to previous version
+            return
+
+        config_bcm_sample_outputs = [
+            'arista7050cx3-dualtor.config.bcm',
+            'arista7260-dualtor.config.bcm',
+            'arista7260-t1.config.bcm'
+        ]
+        sample_minigraph_files = [
+            'sample-arista-7050cx3-dualtor-minigraph.xml',
+            'sample-arista-7260-dualtor-minigraph.xml',
+            'sample-arista-7260-t1-minigraph.xml'
+        ]
+        for i, config in enumerate(config_bcm_sample_outputs):
+            device_template_path = os.path.join(self.test_dir, './data/j2_template')
+            config_sample_output = config_bcm_sample_outputs[i]
+            sample_minigraph_file = os.path.join(self.test_dir,sample_minigraph_files[i])
+            port_config_ini_file = os.path.join(device_template_path, 'port_config.ini')
+            config_bcm_file = os.path.join(device_template_path, 'config.bcm.j2')
+            config_test_output = os.path.join(self.test_dir, 'config_output.bcm')
+
+            argument = '-m ' + sample_minigraph_file + ' -p ' + port_config_ini_file + ' -t ' + config_bcm_file + ' > ' + config_test_output
+            self.run_script(argument)
+
+            #check output config.bcm
+            config_sample_output_file = os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, config_sample_output)
+            assert utils.cmp(config_sample_output_file, config_test_output)
+            os.remove(config_test_output)
+
     def _test_buffers_render_template(self, vendor, platform, sku, minigraph, buffer_template, expected):
         file_exist, dir_exist = self.create_machine_conf(platform, vendor)
         dir_path = os.path.join(self.test_dir, '..', '..', '..', 'device', vendor, platform, sku)
