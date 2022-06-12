@@ -1176,7 +1176,9 @@ optional attributes.
             "mtu": "9100",
             "alias": "fortyGigE1/1/1",
             "speed": "40000",
-            "link_training": "off"
+            "link_training": "off",
+            "laser_freq": "191300",
+            "tx_power": "-27.3"
         },
         "Ethernet1": {
             "index": "1",
@@ -1186,7 +1188,9 @@ optional attributes.
             "alias": "fortyGigE1/1/2",
             "admin_status": "up",
             "speed": "40000",
-            "link_training": "on"
+            "link_training": "on",
+            "laser_freq": "191300",
+            "tx_power": "-27.3"
         },
         "Ethernet63": {
             "index": "63",
@@ -1194,7 +1198,9 @@ optional attributes.
             "description": "fortyGigE1/4/16",
             "mtu": "9100",
             "alias": "fortyGigE1/4/16",
-            "speed": "40000"
+            "speed": "40000",
+            "laser_freq": "191300",
+            "tx_power": "-27.3"
         }
     }
 }

@@ -171,6 +171,18 @@ module sonic-port{
 					}
 				}
 
+				leaf tx_power {
+						description "Target output power(dBm) for the 400G ZR transceiver";
+						type decimal64 {
+							fraction-digits 1;
+						}
+				}
+
+				leaf laser_freq {
+						description "Target laser frequency(GHz) for the 400G ZR transceiver";
+						type int32;
+				}
+
 			} /* end of list PORT_LIST */
 
 		} /* end of container PORT */

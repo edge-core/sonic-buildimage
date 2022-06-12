@@ -446,7 +446,9 @@
                 "asic_port_name": "Eth0-ASIC1",
                 "role": "Ext",
                 "macsec": "test",
-                "link_training": "off"
+                "link_training": "off",
+                "laser_freq": "191600",
+                "tx_power": "-26.6"
             },
             "Ethernet1": {
                 "alias": "Eth1/2",
@@ -458,7 +460,9 @@
                 "autoneg": "on",
                 "adv_speeds": "100000,50000",
                 "adv_interface_types": "CR,CR4",
-                "link_training": "on"
+                "link_training": "on",
+                "laser_freq": "191300",
+                "tx_power": "-27.3"
             },
             "Ethernet2": {
                 "alias": "Eth1/3",
