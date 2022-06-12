@@ -311,6 +311,74 @@
         }
     },
 
+    "PORT_VALID_XCVR_FREQ_TEST": {
+        "sonic-port:sonic-port": {
+            "sonic-port:PORT": {
+                "PORT_LIST": [
+                    {
+                        "name": "Ethernet8",
+                        "alias": "eth8",
+                        "lanes": "65",
+                        "speed": 25000,
+                        "tpid": "0x8100",
+                        "laser_freq": 193100
+                    }
+                ]
+            }
+        }
+    },
+
+    "PORT_VALID_XCVR_TX_POWER_TEST": {
+        "sonic-port:sonic-port": {
+            "sonic-port:PORT": {
+                "PORT_LIST": [
+                    {
+                        "name": "Ethernet8",
+                        "alias": "eth8",
+                        "lanes": "65",
+                        "speed": 25000,
+                        "tpid": "0x8100",
+                        "tx_power": "27.3"
+                    }
+                ]
+            }
+        }
+    },
+
+    "PORT_INVALID_XCVR_FREQ_TEST": {
+        "sonic-port:sonic-port": {
+            "sonic-port:PORT": {
+                "PORT_LIST": [
+                    {
+                        "name": "Ethernet8",
+                        "alias": "eth8",
+                        "lanes": "65",
+                        "speed": 25000,
+                        "tpid": "0x8100",
+                        "laser_freq": "27.3"
+                    }
+                ]
+            }
+        }
+    },
+
+    "PORT_INVALID_XCVR_TX_POWER_TEST": {
+        "sonic-port:sonic-port": {
+            "sonic-port:PORT": {
+                "PORT_LIST": [
+                    {
+                        "name": "Ethernet8",
+                        "alias": "eth8",
+                        "lanes": "65",
+                        "speed": 25000,
+                        "tpid": "0x8100",
+                        "tx_power": "27/4"
+                    }
+                ]
+            }
+        }
+    },
+
     "PORT_VALID_LINK_TRAINING_TEST_1": {
         "sonic-port:sonic-port": {
             "sonic-port:PORT": {

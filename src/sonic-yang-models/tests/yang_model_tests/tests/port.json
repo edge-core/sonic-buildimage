@@ -69,6 +69,22 @@
         "desc": "PORT_INVALID_ADVTYPES_TEST_2 must condition failure.",
         "eStrKey" : "Must"
     },
+    "PORT_VALID_XCVR_FREQ_TEST": {
+        "desc": "PORT_VALID_XCVR_FREQ_TEST no failure"
+    },
+    "PORT_VALID_XCVR_TX_POWER_TEST": {
+        "desc": "PORT_VALID_XCVR_TX_POWER_TEST no failure"
+    },
+    "PORT_INVALID_XCVR_FREQ_TEST": {
+        "desc": "PORT_INVALID_XCVR_FREQ_TEST non-integer value, expect failure",
+        "eStrKey": "InvalidValue",
+        "eStr": ["laser_freq"]
+    },
+    "PORT_INVALID_XCVR_TX_POWER_TEST": {
+        "desc": "PORT_INVALID_XCVR_TX_POWER_TEST non-float value, expect failure",
+        "eStrKey": "InvalidValue",
+        "eStr": ["tx_power"]
+    },
     "PORT_VALID_LINK_TRAINING_TEST_1": {
         "desc": "PORT_VALID_LINK_TRAINING_TEST_1 no failure."
     },
