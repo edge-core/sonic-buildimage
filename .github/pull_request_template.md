@@ -31,6 +31,7 @@
 - [ ] 202012
 - [ ] 202106
 - [ ] 202111
+- [ ] 202205
 
 #### Description for the changelog
 <!--
