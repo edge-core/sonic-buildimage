@@ -28,12 +28,12 @@ IMAGE_VERSION="${SONIC_IMAGE_VERSION}"
 generate_onie_installer_image()
 {
     # Copy platform-specific ONIE installer config files where onie-mk-demo.sh expects them
-    rm -rf ./installer/x86_64/platforms/
-    mkdir -p ./installer/x86_64/platforms/
+    rm -rf ./installer/${TARGET_PLATFORM}/platforms/
+    mkdir -p ./installer/${TARGET_PLATFORM}/platforms/
     for VENDOR in `ls ./device`; do
-        for PLATFORM in `ls ./device/$VENDOR`; do
+        for PLATFORM in `ls ./device/$VENDOR | grep ^${TARGET_PLATFORM}`; do
             if [ -f ./device/$VENDOR/$PLATFORM/installer.conf ]; then
-                cp ./device/$VENDOR/$PLATFORM/installer.conf ./installer/x86_64/platforms/$PLATFORM
+                cp ./device/$VENDOR/$PLATFORM/installer.conf ./installer/${TARGET_PLATFORM}/platforms/$PLATFORM
             fi
 
         done
