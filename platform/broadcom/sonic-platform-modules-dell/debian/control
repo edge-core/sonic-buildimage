@@ -55,6 +55,11 @@ Architecture: amd64
 Depends: linux-image-5.10.0-12-2-amd64-unsigned
 Description: kernel modules for platform devices such as fan, led, sfp
 
+Package: platform-modules-z9432f
+Architecture: amd64
+Depends: linux-image-5.10.0-8-2-amd64-unsigned
+Description: kernel modules for platform devices such as fan, led, sfp
+
 Package: platform-modules-n3248pxe
 Architecture: amd64
 Depends: linux-image-5.10.0-12-2-amd64-unsigned
