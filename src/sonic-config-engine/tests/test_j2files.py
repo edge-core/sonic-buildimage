@@ -68,6 +68,20 @@ class TestJ2Files(TestCase):
         if not dir_exist:
             os.system('sudo rmdir /host')
 
+    def modify_cable_len(self, base_file, file_dir):
+        input_file = os.path.join(file_dir, base_file)
+        with open(input_file, 'r') as ifd:
+            object = json.load(ifd)
+            if 'CABLE_LENGTH' in object and 'AZURE' in object['CABLE_LENGTH']:
+                for key in object['CABLE_LENGTH']['AZURE']:
+                    object['CABLE_LENGTH']['AZURE'][key] = '300m'
+        prefix, extension = base_file.split('.')
+        output_file = '{}_300m.{}'.format(prefix, extension)
+        out_file_path = os.path.join(file_dir, output_file)
+        with open(out_file_path, 'w') as wfd:
+            json.dump(object, wfd, indent=4)
+        return output_file
+
     def test_interfaces(self):
         interfaces_template = os.path.join(self.test_dir, '..', '..', '..', 'files', 'image_config', 'interfaces', 'interfaces.j2')
         argument = '-m ' + self.t0_minigraph + ' -p ' + self.t0_port_config + ' -a \'{\"hwaddr\":\"e4:1d:2d:a5:f3:ad\"}\' -t ' + interfaces_template + ' > ' + self.output_file
@@ -405,7 +419,7 @@ class TestJ2Files(TestCase):
         buffers_config_file = os.path.join(self.test_dir, '..', '..', '..', 'files', 'build_templates', 'buffers_config.j2')
         shutil.copy2(buffers_config_file, dir_path)
 
-        minigraph = os.path.join(self.test_dir, minigraph)                              
+        minigraph = os.path.join(self.test_dir, minigraph)
         argument = '-m ' + minigraph + ' -p ' + port_config_ini_file + ' -t ' + buffers_file + ' > ' + self.output_file
         self.run_script(argument)
 
@@ -414,8 +428,21 @@ class TestJ2Files(TestCase):
         os.remove(buffers_config_file_new)
         self.remove_machine_conf(file_exist, dir_exist)
 
-        sample_output_file = os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR, expected)
-        assert utils.cmp(sample_output_file, self.output_file), self.run_diff(sample_output_file, self.output_file)
+        out_file_dir = os.path.join(self.test_dir, 'sample_output', utils.PYvX_DIR)
+        expected_files = [expected, self.modify_cable_len(expected, out_file_dir)]
+        match = False
+        diff = ''
+        for out_file in expected_files:
+            sample_output_file = os.path.join(out_file_dir, out_file)
+            if utils.cmp(sample_output_file, self.output_file):
+                match = True
+                break
+            else:
+                diff = diff + str(self.run_diff(sample_output_file, self.output_file))
+
+        os.remove(os.path.join(out_file_dir, expected_files[1]))
+
+        assert match, diff
 
     def test_buffers_dell6100_render_template(self):
         self._test_buffers_render_template('dell', 'x86_64-dell_s6100_c2538-r0', 'Force10-S6100', 'sample-dell-6100-t0-minigraph.xml', 'buffers.json.j2', 'buffers-dell6100.json')
