@@ -50,13 +50,13 @@ if [ $SSD_UPGRADE_STATUS1 == "2" ]; then
 
     echo "$0 `date` Upgraded to unknown version after first mp_64 upgrade." >> $SSD_UPGRADE_LOG
 
-elif [ $SSD_UPGRADE_STATUS2 == "2" ];then
+elif [ $SSD_MODEL == "3IE3" ] && [ $SSD_UPGRADE_STATUS2 == "2" ];then
     rm -rf $SSD_FW_UPGRADE/GPIO7_*
     touch $SSD_FW_UPGRADE/GPIO7_error
 
     echo "$0 `date` Upgraded to unknown version after second mp_64 upgrade." >> $SSD_UPGRADE_LOG
 
-elif [ $SSD_FW_VERSION == "s141002g" ] || [ $SSD_FW_VERSION == "s16425cg" ]; then
+elif [ $SSD_FW_VERSION == "s210506g" ] || [ $SSD_FW_VERSION == "s16425cg" ]; then
     # If SSD Firmware is upgraded
     GPIO_STATUS=$(echo "$iSMART_CMD" | grep GPIO | awk '{print $NF}')
 
@@ -75,11 +75,11 @@ elif [ $SSD_FW_VERSION == "s141002g" ] || [ $SSD_FW_VERSION == "s16425cg" ]; the
             systemctl start --no-block s6100-ssd-monitor.timer
 
             if [ $SSD_MODEL  == "3IE" ];then
-                echo "$0 `date` SSD FW upgraded from S141002C to S141002G in first mp_64." >> $SSD_UPGRADE_LOG
+                echo "$0 `date` SSD FW upgraded from S141002C to S210506G." >> $SSD_UPGRADE_LOG
             else
                 echo "$0 `date` SSD FW upgraded from S16425c1 to S16425cG in first mp_64." >> $SSD_UPGRADE_LOG
             fi
-        elif [ $SSD_UPGRADE_STATUS2 == "1" ]; then
+        elif [ $SSD_MODEL == "3IE3" ] && [ $SSD_UPGRADE_STATUS2 == "1" ]; then
             rm -rf $SSD_FW_UPGRADE/GPIO7_*
             touch $SSD_FW_UPGRADE/GPIO7_low
             logger -p user.crit -t DELL_S6100_SSD_MON "The SSD on this unit is faulty. Do not power-cycle/reboot this unit!"
@@ -104,7 +104,7 @@ else
 
         echo "$0 `date` SSD entered loader mode in first mp_64 upgrade." >> $SSD_UPGRADE_LOG
 
-        if [ $SSD_UPGRADE_STATUS2 == "0" ]; then
+        if [ $SSD_MODEL == "3IE3" ] && [ $SSD_UPGRADE_STATUS2 == "0" ]; then
             echo "$0 `date` SSD entered loader mode in first mp_64 and recovered back to older version in second mp_64." >> $SSD_UPGRADE_LOG
         fi
     fi
@@ -116,6 +116,3 @@ echo "$0 `date` SMF Register 2 = $SSD_UPGRADE_STATUS2" >> $SSD_UPGRADE_LOG
 echo "$SMART_CMD" >> $SSD_UPGRADE_LOG
 echo "$iSMART_CMD" >> $SSD_UPGRADE_LOG
 sync
-# Clearing the upgrade status
-io_rd_wr.py --set --val 06 --offset 210; io_rd_wr.py --set --val 09 --offset 211; io_rd_wr.py --set --val ff --offset 213
-io_rd_wr.py --set --val 06 --offset 210; io_rd_wr.py --set --val 0A --offset 211; io_rd_wr.py --set --val ff --offset 213
