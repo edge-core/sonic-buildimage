@@ -86,6 +86,10 @@
     "PORT_QOS_MAP_APPLY_MAPS": {
         "desc": "Configure qos maps on port."
     },
+
+    "PORT_QOS_MAP_APPLY_MAP_TO_GLOBAL": {
+        "desc": "Configure qos maps on switch level."
+    },
     
     "PORT_QOS_MAP_APPLY_NON_EXISTS_MAPS": {
         "desc": "Configure non exists qos maps on port.",
@@ -94,7 +98,7 @@
 
     "PORT_QOS_MAP_APPLY_NON_EXISTS_PORT": {
         "desc": "Configure port qos map entry on non exists port.",
-        "eStrKey": "LeafRef"
+        "eStr": "Invalid value"
     },
 
     "PORT_QOS_MAP_APPLY_INVALID_PFC": {

@@ -56,11 +56,16 @@ module sonic-port-qos-map {
                 key "ifname";
 
                 leaf ifname {
-                     type leafref {
-                         path "/prt:sonic-port/prt:PORT/prt:PORT_LIST/prt:name";
-                     }
-                     description
-                        "Reference of port on which QOS MAPS to be configured.";
+                    type union {
+                        type string {
+                            pattern "global";
+                        }
+                        type leafref {
+                            path "/prt:sonic-port/prt:PORT/prt:PORT_LIST/prt:name";
+                        }
+                    }
+                    description
+                        "Reference of port or global on which QOS MAPS to be configured.";
                 }
 
                 leaf tc_to_pg_map {

@@ -629,6 +629,39 @@
         }
     },
 
+    "PORT_QOS_MAP_APPLY_MAP_TO_GLOBAL": {
+        "sonic-dscp-tc-map:sonic-dscp-tc-map": {
+            "sonic-dscp-tc-map:DSCP_TO_TC_MAP": {
+                "DSCP_TO_TC_MAP_LIST": [
+                    {
+                        "name": "map1",
+                        "DSCP_TO_TC_MAP": [
+                            {
+                                "dscp": "1",
+                                "tc": "1"
+                            },
+                            {
+                                "dscp":"2",
+                                "tc":"2"
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+     
+        "sonic-port-qos-map:sonic-port-qos-map": {
+            "sonic-port-qos-map:PORT_QOS_MAP": {
+                "PORT_QOS_MAP_LIST": [
+                    {
+                        "ifname": "global",
+                        "dscp_to_tc_map": "map1"
+                    }
+                ]
+            }
+        }
+    },
+
     "PORT_QOS_MAP_APPLY_NON_EXISTS_MAPS": {
         "sonic-port:sonic-port": {
             "sonic-port:PORT": {
