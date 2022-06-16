@@ -556,6 +556,12 @@ write_platform_specific_cmdline() {
     if [ "$sid" = "SmartsvilleDDBkMs" ] || [ "$sid" = "SmartsvilleDDBkMsTpm" ]; then
         aboot_machine=arista_7280cr3mk_32d4
     fi
+    if [ "$sid" = "CatalinaP" ]; then
+        aboot_machine=arista_7060px5_64s
+    fi
+    if [ "$sid" = "CatalinaDD" ]; then
+        aboot_machine=arista_7060dx5_64s
+    fi
     if [ "$sid" = "Clearwater2" ]; then
         aboot_machine=arista_7800r3_48cq2_lc
         sonic_mode="$linecard_mode"
