@@ -91,10 +91,7 @@ class Fan(FanBase):
         Returns:
             String: Part number of FAN
         """
-        if self.is_psu_fan:
-            return None
-        else:
-            return self.fru.get_board_part_number()
+        return self.fru.get_board_part_number()
 
     def get_serial(self):
         """
@@ -102,10 +99,7 @@ class Fan(FanBase):
         Returns:
             String: Serial number of FAN
         """
-        if self.is_psu_fan:
-            return None
-        else:
-            return self.fru.get_board_serial()
+        return self.fru.get_board_serial()
 
     def get_presence(self):
         """
@@ -132,8 +126,12 @@ class Fan(FanBase):
         status = False
         is_valid, state = self.state_sensor.get_reading()
         if is_valid:
-            if not state > 1:
-                status = True
+            if self.is_psu_fan:
+                if not state > 1:
+                    status = True
+            else:
+                if state == 0x00:
+                    status = True
         return status
 
     def get_direction(self):
@@ -183,3 +181,48 @@ class Fan(FanBase):
         fan_speed = 0
         is_valid, fan_speed = self.speed_sensor.get_reading()
         return fan_speed if is_valid else None
+
+    def get_position_in_parent(self):
+        """
+        Retrieves 1-based relative physical position in parent device.
+        Returns:
+            integer: The 1-based relative physical position in parent
+            device or -1 if cannot determine the position
+        """
+        return self.fanindex
+
+    def is_replaceable(self):
+        """
+        Indicate whether Fan is replaceable.
+        Returns:
+            bool: True if it is replaceable.
+        """
+        return False
+
+    def get_speed_tolerance(self):
+        """
+        Retrieves the speed tolerance of the fan
+        Returns:
+            An integer, the percentage of variance from target speed which is
+            considered tolerable
+        """
+        if self.get_presence():
+            # The tolerance value is fixed as 20% for all the DellEMC platforms
+            tolerance = 20
+        else:
+            tolerance = 0
+
+        return tolerance
+
+    def set_status_led(self, color):
+        """
+        Set led to expected color
+        Args:
+           color: A string representing the color with which to set the
+                 fan status LED
+        Returns:
+            bool: True if set success, False if fail.
+        """
+        # Fan tray status LED controlled by HW
+        # Return True to avoid thermalctld alarm
+        return True
