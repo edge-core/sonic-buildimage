@@ -422,7 +422,7 @@ rm /files/etc/ssh/sshd_config/ClientAliveCountMax
 touch /files/etc/ssh/sshd_config/EmptyLineHack
 rename /files/etc/ssh/sshd_config/EmptyLineHack ""
 set /files/etc/ssh/sshd_config/ClientAliveInterval 900
-set /files/etc/ssh/sshd_config/ClientAliveCountMax 0
+set /files/etc/ssh/sshd_config/ClientAliveCountMax 1
 ins #comment before /files/etc/ssh/sshd_config/ClientAliveInterval
 set /files/etc/ssh/sshd_config/#comment[following-sibling::*[1][self::ClientAliveInterval]] "Close inactive client sessions after 15 minutes"
 save
