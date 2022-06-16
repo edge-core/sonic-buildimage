@@ -219,9 +219,9 @@ libaugeas0==1.8.0-1+deb9u1
 libauparse-dev==1:2.6.7-2
 libauparse0==1:2.6.7-2
 libauthen-sasl-perl==2.1600-1
-libavahi-client3==0.6.32-2
-libavahi-common-data==0.6.32-2
-libavahi-common3==0.6.32-2
+libavahi-client3==0.6.32-2+deb9u1
+libavahi-common-data==0.6.32-2+deb9u1
+libavahi-common3==0.6.32-2+deb9u1
 libavalon-framework-java==4.2.0-9
 libb-hooks-endofscope-perl==0.21-1
 libbabeltrace-ctf-dev==1.5.1-1
@@ -497,10 +497,10 @@ libgl1-mesa-dri==13.0.6-1+b2
 libgl1-mesa-glx==13.0.6-1+b2
 libglapi-mesa==13.0.6-1+b2
 libglew2.0==2.0.0-3+b1
-libglib2.0-0==2.50.3-2+deb9u2
-libglib2.0-bin==2.50.3-2+deb9u2
-libglib2.0-data==2.50.3-2+deb9u2
-libglib2.0-dev==2.50.3-2+deb9u2
+libglib2.0-0==2.50.3-2+deb9u3
+libglib2.0-bin==2.50.3-2+deb9u3
+libglib2.0-data==2.50.3-2+deb9u3
+libglib2.0-dev==2.50.3-2+deb9u3
 libglu1-mesa==9.0.0-2.1
 libglu1-mesa-dev==9.0.0-2.1
 libgmock-dev==1.8.0-10~bpo9+1

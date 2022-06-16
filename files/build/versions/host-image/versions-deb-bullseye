@@ -297,7 +297,7 @@ libyang==1.0.73
 libyang-cpp==1.0.73
 linux-base==4.6
 linux-image-5.10.0-12-2-amd64-unsigned==5.10.103-1
-linux-libc-dev==5.10.113-1
+linux-libc-dev==5.10.120-1
 locales==2.31-13+deb11u3
 logrotate==3.18.0-2
 lsb-release==11.1.0
