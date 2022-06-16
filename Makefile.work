@@ -137,6 +137,7 @@ MULTIARCH_QEMU_ENVIRON = y
 endif
 endif
 SLAVE_IMAGE = $(SLAVE_BASE_IMAGE)-$(USER_LC)
+DOCKER_ROOT = $(PWD)/fsroot.docker.$(BLDENV)
 
 # Support FIPS feature, armhf not supported yet
 ifeq ($(PLATFORM_ARCH),armhf)
@@ -181,6 +182,7 @@ endif
 DOCKER_LOCKFILE_SAVE := $(DOCKER_LOCKDIR)/docker_save.lock
 $(shell mkdir -m 0777 -p $(DOCKER_LOCKDIR))
 $(shell [ -f $(DOCKER_LOCKFILE_SAVE) ] || (touch $(DOCKER_LOCKFILE_SAVE) && chmod 0777 $(DOCKER_LOCKFILE_SAVE)))
+$(shell sudo rm -rf $(DOCKER_ROOT) && mkdir -p $(DOCKER_ROOT))
 
 ifeq ($(DOCKER_BUILDER_MOUNT),)
 override DOCKER_BUILDER_MOUNT := "$(PWD):/sonic"
@@ -199,6 +201,11 @@ DOCKER_RUN := docker run --rm=true --privileged --init \
     -e "no_proxy=$(no_proxy)" \
     -i$(shell { if [ -t 0 ]; then echo t; fi }) \
     $(SONIC_BUILDER_EXTRA_CMDLINE)
+
+# Mount the $(DOCKER_ROOT) to /var/lib/docker in the slave container, the overlay fs is not supported as dockerd root folder.
+ifneq ($(filter $(SONIC_SLAVE_DOCKER_DRIVER),overlay overlay2),)
+	DOCKER_RUN += -v $(DOCKER_ROOT):/var/lib/docker
+endif
 
 ifneq ($(DOCKER_BUILDER_USER_MOUNT),)
 	DOCKER_RUN += $(foreach mount,$(subst $(comma), ,$(DOCKER_BUILDER_USER_MOUNT)), $(addprefix -v , $(mount)))
@@ -376,6 +383,7 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            ENABLE_ASAN=$(ENABLE_ASAN) \
                            ENABLE_FIPS_FEATURE=$(ENABLE_FIPS_FEATURE) \
                            ENABLE_FIPS=$(ENABLE_FIPS) \
+                           SONIC_SLAVE_DOCKER_DRIVER=$(SONIC_SLAVE_DOCKER_DRIVER) \
                            $(SONIC_OVERRIDE_BUILD_VARS)
 
 .PHONY: sonic-slave-build sonic-slave-bash init reset
