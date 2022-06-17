@@ -281,6 +281,7 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     tcpdump                 \
     dbus                    \
     ntpstat                 \
+    openssh-server          \
     python                  \
     python-apt              \
     traceroute              \
@@ -321,10 +322,6 @@ sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y in
     cron                    \
     haveged                 \
     jq
-
-## Install openssh-server from buster-backports for required security patches
-sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -t buster-backports \
-    openssh-server
 
 if [[ $CONFIGURED_ARCH == amd64 ]]; then
 ## Pre-install the fundamental packages for amd64 (x86)
