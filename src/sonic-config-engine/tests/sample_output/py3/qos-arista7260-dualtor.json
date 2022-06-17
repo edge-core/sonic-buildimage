@@ -8,7 +8,7 @@
             "4": "4",
             "5": "0",
             "6": "6",
-            "7": "7",
+            "7": "0",
             "8": "0"
         },
         "AZURE_TUNNEL": {
@@ -217,6 +217,9 @@
         }
     },
     "PORT_QOS_MAP": {
+        "global": {
+            "dscp_to_tc_map"  : "[DSCP_TO_TC_MAP|AZURE]"
+        },
         "Ethernet0": {
             "dscp_to_tc_map"  : "[DSCP_TO_TC_MAP|AZURE]",
             "tc_to_queue_map" : "[TC_TO_QUEUE_MAP|AZURE]",

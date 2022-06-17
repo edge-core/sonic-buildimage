@@ -1,0 +1,20 @@
+{% if DEVICE_METADATA is defined and 'type' in DEVICE_METADATA['localhost'] and DEVICE_METADATA['localhost']['type'] == 'LeafRouter' %}
+{%- macro generate_pg_buffers_with_extra_lossy_pgs(port_names, port_names_require_no_extra_pg) %}
+    "BUFFER_PG": {
+{% for port in port_names.split(',') %}
+{% if port not in port_names_require_no_extra_pg.split(',') %}
+        "{{ port }}|2": {
+            "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
+        },
+        "{{ port }}|6": {
+            "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
+        },
+{% endif %}
+        "{{ port }}|0": {
+            "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
+        }{% if not loop.last %},{% endif %}
+
+{% endfor %}
+    },
+{% endmacro %}
+{% endif %}

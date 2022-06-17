@@ -214,6 +214,13 @@
     },
 {% endif %}
     "PORT_QOS_MAP": {
+{% if generate_global_dscp_to_tc_map is defined %}
+        {{- generate_global_dscp_to_tc_map() }}
+{% else %}
+        "global": {
+            "dscp_to_tc_map"  : "[DSCP_TO_TC_MAP|AZURE]"
+        }{% if PORT_ACTIVE %},{% endif %}
+{% endif %}
 {% for port in PORT_ACTIVE %}
         "{{ port }}": {
 {% if 'type' in DEVICE_METADATA['localhost'] and DEVICE_METADATA['localhost']['type'] in backend_device_types and 'storage_device' in DEVICE_METADATA['localhost'] and DEVICE_METADATA['localhost']['storage_device'] == 'true' %}

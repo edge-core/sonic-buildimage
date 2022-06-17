@@ -112,7 +112,19 @@
         "Ethernet0|0": {
             "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
         },
+        "Ethernet0|2": {
+            "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
+        },
+        "Ethernet0|6": {
+            "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
+        },
         "Ethernet4|0": {
+            "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
+        },
+        "Ethernet4|2": {
+            "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
+        },
+        "Ethernet4|6": {
             "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
         },
         "Ethernet144|0": {
@@ -124,7 +136,19 @@
         "Ethernet16|0": {
             "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
         },
+        "Ethernet16|2": {
+            "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
+        },
+        "Ethernet16|6": {
+            "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
+        },
         "Ethernet20|0": {
+            "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
+        },
+        "Ethernet20|2": {
+            "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
+        },
+        "Ethernet20|6": {
             "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
         },
         "Ethernet152|0": {
@@ -136,7 +160,19 @@
         "Ethernet64|0": {
             "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
         },
+        "Ethernet64|2": {
+            "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
+        },
+        "Ethernet64|6": {
+            "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
+        },
         "Ethernet68|0": {
+            "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
+        },
+        "Ethernet68|2": {
+            "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
+        },
+        "Ethernet68|6": {
             "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
         },
         "Ethernet168|0": {
@@ -148,7 +184,19 @@
         "Ethernet80|0": {
             "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
         },
+        "Ethernet80|2": {
+            "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
+        },
+        "Ethernet80|6": {
+            "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
+        },
         "Ethernet84|0": {
+            "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
+        },
+        "Ethernet84|2": {
+            "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
+        },
+        "Ethernet84|6": {
             "profile" : "[BUFFER_PROFILE|ingress_lossy_profile]"
         },
         "Ethernet180|0": {
