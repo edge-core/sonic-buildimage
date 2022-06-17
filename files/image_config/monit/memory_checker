@@ -25,6 +25,8 @@ import sys
 import syslog
 import re
 
+import docker
+
 
 def get_command_result(command):
     """Executes the command and return the resulting output.
@@ -86,12 +88,34 @@ def check_memory_usage(container_name, threshold_value):
             print("[{}]: Memory usage ({} Bytes) is larger than the threshold ({} Bytes)!"
                   .format(container_name, mem_usage_bytes, threshold_value))
             syslog.syslog(syslog.LOG_INFO, "[{}]: Memory usage ({} Bytes) is larger than the threshold ({} Bytes)!"
-                  .format(container_name, mem_usage_bytes, threshold_value))
+                          .format(container_name, mem_usage_bytes, threshold_value))
             sys.exit(3)
     else:
         syslog.syslog(syslog.LOG_ERR, "[memory_checker] Failed to retrieve memory value from '{}'"
                       .format(mem_usage))
         sys.exit(4)
+
+
+def get_running_container_names():
+    """Retrieves names of running containers by talking to the docker daemon.
+
+    Args:
+        None.
+
+    Returns:
+        running_container_names: A list indicates names of running containers.
+    """
+    try:
+        docker_client = docker.DockerClient(base_url='unix://var/run/docker.sock')
+        running_container_list = docker_client.containers.list(filters={"status": "running"})
+        running_container_names = [ container.name for container in running_container_list ]
+    except (docker.errors.APIError, docker.errors.DockerException) as err:
+        syslog.syslog(syslog.LOG_ERR,
+                      "Failed to retrieve the running container list from docker daemon! Error message is: '{}'"
+                      .format(err))
+        sys.exit(5)
+
+    return running_container_names
 
 
 def main():
@@ -104,7 +128,13 @@ def main():
     parser.add_argument("threshold_value", type=int, help="threshold value in bytes")
     args = parser.parse_args()
 
-    check_memory_usage(args.container_name, args.threshold_value)
+    running_container_names = get_running_container_names()
+    if args.container_name in running_container_names:
+        check_memory_usage(args.container_name, args.threshold_value)
+    else:
+        syslog.syslog(syslog.LOG_INFO,
+                      "[memory_checker] Exits without checking memory usage since container '{}' is not running!"
+                      .format(args.container_name))
 
 
 if __name__ == "__main__":
