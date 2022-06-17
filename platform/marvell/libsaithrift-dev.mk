@@ -12,7 +12,7 @@ PYTHON_SAITHRIFT = python-saithrift_$(SAI_VER)_amd64.deb
 $(eval $(call add_extra_package,$(LIBSAITHRIFT_DEV),$(PYTHON_SAITHRIFT)))
 
 SAISERVER = saiserver_$(SAI_VER)_amd64.deb
-$(SAISERVER)_RDEPENDS += $(LIBTHRIFT) $(BRCM_SAI)
+$(SAISERVER)_RDEPENDS += $(LIBTHRIFT) $(BRCM_XGS_SAI)
 $(eval $(call add_extra_package,$(LIBSAITHRIFT_DEV),$(SAISERVER)))
 
 SAISERVER_DBG = saiserver-dbg_$(SAI_VER)_amd64.deb
