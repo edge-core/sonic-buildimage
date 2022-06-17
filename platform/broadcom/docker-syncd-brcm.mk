@@ -1,5 +1,4 @@
 # docker image for brcm syncd
-th modified:   platform/broadcom/sai.mk
 
 DOCKER_SYNCD_PLATFORM_CODE = brcm
 include $(PLATFORM_PATH)/../template/docker-syncd-base.mk
