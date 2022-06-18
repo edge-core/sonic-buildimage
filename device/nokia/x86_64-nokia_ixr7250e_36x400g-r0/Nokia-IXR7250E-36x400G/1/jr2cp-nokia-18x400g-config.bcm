@@ -2054,3 +2054,6 @@ sai_recycle_port_lane_base=96
 appl_param_nof_ports_per_modid=64
 udh_exists=1
 modreg IPS_FORCE_LOCAL_OR_FABRIC FORCE_FABRIC=1
+
+xflow_macsec_secure_chan_to_num_secure_assoc_encrypt=2
+xflow_macsec_secure_chan_to_num_secure_assoc_decrypt=4

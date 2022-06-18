@@ -16,7 +16,8 @@
 	    "model": false,
 	    "serial": false,
 	    "base_mac": false,
-	    "system_eeprom_info": false
+	    "system_eeprom_info": false,
+            "reboot_other_modules": false
 	},
         "thermal_temperature": {
 	     "minimum": 0,
@@ -147,6 +148,10 @@
             },
             {
                 "name": "temp_5(fan)",
+		"controllable": false
+            },
+            {
+                "name": "temp_6(fan)",
 		"controllable": false
             },
             {

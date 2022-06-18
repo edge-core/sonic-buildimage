@@ -19,6 +19,14 @@
     {
         "intval": 1,
         "key": "disable_vfio"
-    }    
+    },
+    {
+        "key": "amd_pcon",
+        "intval": 1
+    },
+    {
+      "key": "enable_firmware_update",
+      "intval": 0
+    }
     ]
 }
