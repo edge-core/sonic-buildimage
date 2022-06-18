@@ -5,11 +5,13 @@ import click
 from tabulate import tabulate
 
 from swsscommon.swsscommon import SonicV2Connector
+from swsscommon.swsscommon import CounterTable, MacsecCounter
 
 
 DB_CONNECTOR = SonicV2Connector(use_unix_socket_path=False)
 DB_CONNECTOR.connect(DB_CONNECTOR.APPL_DB)
 DB_CONNECTOR.connect(DB_CONNECTOR.COUNTERS_DB)
+COUNTER_TABLE = CounterTable(DB_CONNECTOR.get_redis_client(DB_CONNECTOR.COUNTERS_DB))
 
 
 class MACsecAppMeta(object):
@@ -28,12 +30,8 @@ class MACsecAppMeta(object):
 
 class MACsecCounters(object):
     def __init__(self, *args) -> None:
-        key = ":".join(args)
-        counters_id = DB_CONNECTOR.get(
-            DB_CONNECTOR.COUNTERS_DB, self.__class__.get_counter_table_name(), key)
-        counter_key = "COUNTERS:" + counters_id
-        self.counters = DB_CONNECTOR.get_all(
-            DB_CONNECTOR.COUNTERS_DB, counter_key)
+        _, fvs = COUNTER_TABLE.get(MacsecCounter(), ":".join(args))
+        self.counters = dict(fvs)
 
 
 class MACsecSA(MACsecAppMeta, MACsecCounters):
@@ -61,10 +59,6 @@ class MACsecIngressSA(MACsecSA):
     def get_appl_table_name(cls) -> str:
         return "MACSEC_INGRESS_SA_TABLE"
 
-    @classmethod
-    def get_counter_table_name(cls) -> str:
-        return "COUNTERS_MACSEC_SA_RX_NAME_MAP"
-
     def get_header(self):
         return "MACsec Ingress SA ({})\n".format(self.an)
 
@@ -76,10 +70,6 @@ class MACsecEgressSA(MACsecSA):
     @classmethod
     def get_appl_table_name(cls) -> str:
         return "MACSEC_EGRESS_SA_TABLE"
-
-    @classmethod
-    def get_counter_table_name(cls) -> str:
-        return "COUNTERS_MACSEC_SA_TX_NAME_MAP"
 
     def get_header(self):
         return "MACsec Egress SA ({})\n".format(self.an)
