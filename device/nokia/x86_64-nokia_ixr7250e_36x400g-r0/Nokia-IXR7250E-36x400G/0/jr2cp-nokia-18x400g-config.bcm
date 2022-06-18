@@ -1641,9 +1641,9 @@ port_fec.18.BCM8885x=9
 
 serdes_tx_taps_1.BCM8885X=pam4:-8:128:-8:0:0:0
 serdes_tx_taps_2.BCM8885X=pam4:-8:128:-8:0:0:0
-serdes_tx_taps_3.BCM8885X=pam4:-8:132:-12:4:0:0
+serdes_tx_taps_3.BCM8885X=pam4:-12:128:-12:2:0:0
 serdes_tx_taps_4.BCM8885X=pam4:-8:128:-4:4:0:0
-serdes_tx_taps_5.BCM8885X=pam4:-8:128:-4:4:0:0
+serdes_tx_taps_5.BCM8885X=pam4:-4:152:0:0:0:0
 serdes_tx_taps_6.BCM8885X=pam4:-8:136:0:0:0:0
 serdes_tx_taps_7.BCM8885X=pam4:-8:132:-4:0:-4:0
 serdes_tx_taps_8.BCM8885X=pam4:-4:144:0:0:0:0
@@ -1651,7 +1651,7 @@ serdes_tx_taps_9.BCM8885X=pam4:-8:132:-4:2:-4:0
 serdes_tx_taps_10.BCM8885X=pam4:-4:144:0:0:0:0
 serdes_tx_taps_11.BCM8885X=pam4:-8:132:-4:0:-4:0
 serdes_tx_taps_12.BCM8885X=pam4:-4:144:0:0:0:0
-serdes_tx_taps_13.BCM8885X=pam4:-8:128:-8:4:0:0
+serdes_tx_taps_13.BCM8885X=pam4:-4:132:-4:0:0:0
 serdes_tx_taps_14.BCM8885X=pam4:-4:144:0:0:0:0
 serdes_tx_taps_15.BCM8885X=pam4:-8:128:-8:4:0:0
 serdes_tx_taps_16.BCM8885X=pam4:-8:136:-4:4:-4:0
@@ -2052,3 +2052,6 @@ sai_recycle_port_lane_base=96
 appl_param_nof_ports_per_modid=64
 udh_exists=1
 modreg IPS_FORCE_LOCAL_OR_FABRIC FORCE_FABRIC=1
+
+xflow_macsec_secure_chan_to_num_secure_assoc_encrypt=2
+xflow_macsec_secure_chan_to_num_secure_assoc_decrypt=4

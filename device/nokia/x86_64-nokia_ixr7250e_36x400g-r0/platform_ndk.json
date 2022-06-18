@@ -31,6 +31,14 @@
     { 
       "key": "update_asic_pvt",
       "intval": 10
+    },
+    {
+      "key": "amd_pcon",
+      "intval": 4
+    },
+    {
+      "key": "enable_firmware_update",
+      "intval": 0
     }
     ]
 }
