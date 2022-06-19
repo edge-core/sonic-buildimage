@@ -22,7 +22,7 @@ libbsd0==0.9.1-2+deb10u1
 libc-dev-bin==2.28-10+deb10u1
 libc6-dev==2.28-10+deb10u1
 libcc1-0==8.3.0-6
-libdpkg-perl==1.19.7
+libdpkg-perl==1.19.8
 libdw1==0.176-1.1
 libedit2==3.1-20181209-1
 libexpat1-dev==2.2.6-2+deb10u4

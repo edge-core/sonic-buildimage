@@ -1,5 +1,5 @@
 blessed==1.19.1
-certifi==2021.10.8
+certifi==2022.5.18.1
 charset-normalizer==2.0.12
 click==7.0
 click-log==0.4.0
@@ -8,7 +8,7 @@ dbus-python==1.2.18
 docker==5.0.3
 docker-image-py==0.1.12
 enlighten==1.10.2
-filelock==3.6.0
+filelock==3.7.1
 idna==3.3
 jsondiff==2.0.0
 jsonpatch==1.32
@@ -25,7 +25,7 @@ pygobject==3.42.1
 pyroute2==0.5.14
 requests==2.27.1
 scapy==2.4.4
-semantic-version==2.9.0
+semantic-version==2.10.0
 tabulate==0.8.2
 toposort==1.6
 urllib3==1.26.9

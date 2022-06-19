@@ -32,7 +32,7 @@ libsairedis==1.0.0
 libsairedis-dbg==1.0.0
 libswsscommon-dbg==1.0.0
 libunwind8==1.2.1-10~deb10u1
-libxml2==2.9.4+dfsg1-7+deb10u3
+libxml2==2.9.4+dfsg1-7+deb10u4
 linux-libc-dev==4.19.235-1
 mft==4.17.2-12
 mlnx-sai==1.mlnx.SAIRel1.20.2

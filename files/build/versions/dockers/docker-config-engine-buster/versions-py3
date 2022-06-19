@@ -9,6 +9,6 @@ pyangbind==0.8.1
 pyyaml==5.4.1
 redis==3.5.3
 redis-dump-load==1.1
-regex==2022.4.24
+regex==2022.6.2
 six==1.16.0
 xmltodict==0.12.0
