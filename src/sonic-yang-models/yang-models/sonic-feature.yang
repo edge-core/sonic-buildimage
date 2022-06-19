@@ -90,8 +90,8 @@ module sonic-feature{
                 leaf check_up_status {
                     description "This configuration controls the system ready tool to check
                         the app ready/up status";
-                    type boolean;
-                    default false;
+                    type stypes:boolean_type;
+                    default "false";
                 }
             }
         }
