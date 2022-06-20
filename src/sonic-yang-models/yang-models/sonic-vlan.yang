@@ -101,6 +101,11 @@ module sonic-vlan {
 						pattern "enabled|disabled";
 					}
 				}
+
+                leaf loopback_action {
+                    description "Packet action when a packet ingress and gets routed on the same IP interface";
+                    type stypes:loopback_action;
+                }
 			}
 			/* end of VLAN_INTERFACE_LIST */
 

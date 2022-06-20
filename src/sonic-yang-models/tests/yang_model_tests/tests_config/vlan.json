@@ -614,5 +614,17 @@
                 ]
             }
         }
+    },
+    "VLAN_INTERFACE_INVALID_LOOPBACK_ACTION": {
+        "sonic-vlan:sonic-vlan": {
+            "sonic-vlan:VLAN_INTERFACE": {
+                "VLAN_INTERFACE_LIST": [
+                    {
+                        "name": "Vlan1000",
+                        "loopback_action": "trap"
+                    }
+                ]
+            }
+        }
     }
 }

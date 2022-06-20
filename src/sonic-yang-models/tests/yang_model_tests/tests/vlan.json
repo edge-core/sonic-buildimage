@@ -74,5 +74,10 @@
     "VLAN_INTERFACE_INVALID_PROXY_ARP": {
         "desc": "VLAN_INTERFACE with invalid proxy_arp value",
         "eStrKey": "Pattern"
+    },
+    "VLAN_INTERFACE_INVALID_LOOPBACK_ACTION": {
+        "desc": "INCORRECT LOOPBACK ACTION IN VLAN_INTERFACE TABLE.",
+        "eStrKey" : "Pattern",
+        "eStr": ["drop|forward"]
     }
 }

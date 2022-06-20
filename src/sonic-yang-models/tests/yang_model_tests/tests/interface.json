@@ -17,5 +17,10 @@
     },
     "INTERFACE_VALID_NAT_ZONE_RANGE": {
         "desc": "Configure valid value for nat zone."
+    },
+    "INTERFACE_INVALID_LOOPBACK_ACTION": {
+        "desc": "INCORRECT LOOPBACK ACTION IN INTERFACE TABLE.",
+        "eStrKey" : "Pattern",
+        "eStr": ["drop|forward"]
     }
 }

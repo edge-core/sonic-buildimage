@@ -58,5 +58,10 @@
     },
     "PORTCHANNEL_INTERFACE_VALID_NAT_ZONE_RANGE": {
         "desc": "Configure valid value for nat zone."
+    },
+    "PORTCHANNEL_INTERFACE_INVALID_LOOPBACK_ACTION": {
+        "desc": "INCORRECT LOOPBACK ACTION IN PORTCHANNEL_INTERFACE TABLE.",
+        "eStrKey" : "Pattern",
+        "eStr": ["drop|forward"]
     }
 }
