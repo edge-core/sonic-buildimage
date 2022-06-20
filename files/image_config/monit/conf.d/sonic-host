@@ -46,3 +46,6 @@ check program vnetRouteCheck with path "/usr/local/bin/vnet_route_check.py"
     every 5 cycles
     if status != 0 for 3 cycle then alert repeat every 1 cycles
 
+# memory_check tool that verifies that memory usage does not cross the threshold or invokes techsupport.
+check program memory_check with path "/usr/local/bin/memory_threshold_check.py"
+    if status == 2 for 10 times within 20 cycles then exec "/usr/local/bin/memory_threshold_check_handler.py"
