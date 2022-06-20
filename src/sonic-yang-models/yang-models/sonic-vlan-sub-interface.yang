@@ -65,6 +65,11 @@ module sonic-vlan-sub-interface {
                         path "/vrf:sonic-vrf/vrf:VRF/vrf:VRF_LIST/vrf:name";
                     }
                 }
+
+                leaf loopback_action {
+                    description "Packet action when a packet ingress and gets routed on the same IP interface";
+                    type stypes:loopback_action;
+                }
             }
 
             list VLAN_SUB_INTERFACE_IPPREFIX_LIST {

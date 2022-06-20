@@ -50,5 +50,10 @@
     "VLAN_SUB_INTERFACE_INVALID_NAME_TEST": {
         "desc": "Configure invalid vlan sub interface name with no separator.",
         "eStrKey": "Pattern"
+    },
+    "VLAN_SUB_INTERFACE_INVALID_LOOPBACK_ACTION": {
+        "desc": "INCORRECT LOOPBACK ACTION IN VLAN_SUB_INTERFACE TABLE.",
+        "eStrKey" : "Pattern",
+        "eStr": ["drop|forward"]
     }
 }
