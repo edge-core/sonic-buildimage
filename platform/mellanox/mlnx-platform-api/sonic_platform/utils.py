@@ -16,7 +16,17 @@
 #
 import functools
 import subprocess
+import json
+import sys
+import os
+from sonic_py_common import device_info
 from sonic_py_common.logger import Logger
+
+HWSKU_JSON = 'hwsku.json'
+
+PORT_INDEX_KEY = "index"
+PORT_TYPE_KEY = "port_type"
+RJ45_PORT_TYPE = "RJ45"
 
 logger = Logger()
 
@@ -207,3 +217,50 @@ def run_command(command):
         return process.communicate()[0].strip()
     except Exception:
         return None
+
+
+def load_json_file(filename, log_func=logger.log_error):
+    # load 'platform.json' or 'hwsku.json' file
+    data = None
+    try:
+        with open(filename) as fp:
+            try:
+                data = json.load(fp)
+            except json.JSONDecodeError:
+                if log_func:
+                    log_func("failed to decode Json file.")
+        return data
+    except Exception as e:
+        if log_func:
+            log_func("error occurred while parsing json file: {}".format(sys.exc_info()[1]))
+        return None
+
+
+def extract_RJ45_ports_index():
+    # Cross check 'platform.json' and 'hwsku.json' to extract the RJ45 port index if exists.
+    hwsku_path = device_info.get_path_to_hwsku_dir()
+    platform_file = device_info.get_path_to_port_config_file()
+    platform_dict = load_json_file(platform_file)['interfaces']
+    hwsku_file = os.path.join(hwsku_path, HWSKU_JSON)
+    hwsku_dict = load_json_file(hwsku_file)['interfaces']
+    port_name_to_index_map_dict = {}
+    RJ45_port_index_list = []
+
+    # Compose a interface name to index mapping from 'platform.json'
+    for i, (key, value) in enumerate(platform_dict.items()):
+        if PORT_INDEX_KEY in value:
+            index_raw = value[PORT_INDEX_KEY]
+            # The index could be "1" or "1, 1, 1, 1"
+            index = index_raw.split(',')[0]
+            port_name_to_index_map_dict[key] = index
+
+    if not bool(port_name_to_index_map_dict):
+        return None
+
+    # Check if "port_type" specified as "RJ45", if yes, add the port index to the list.
+    for i, (key, value) in enumerate(hwsku_dict.items()):
+        if key in port_name_to_index_map_dict and PORT_TYPE_KEY in value and value[PORT_TYPE_KEY] == RJ45_PORT_TYPE:
+            RJ45_port_index_list.append(int(port_name_to_index_map_dict[key])-1)
+
+    return RJ45_port_index_list if bool(RJ45_port_index_list) else None
+

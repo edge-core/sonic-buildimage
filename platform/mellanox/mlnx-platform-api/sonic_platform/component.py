@@ -29,6 +29,7 @@ try:
     import glob
     import tempfile
     import subprocess
+    from sonic_py_common import device_info
     if sys.version_info[0] > 2:
         import configparser
     else:
@@ -136,7 +137,17 @@ class ONIEUpdater(object):
 
     ONIE_IMAGE_INFO_COMMAND = '/bin/bash {} -q -i'
 
+    # Upgrading fireware from ONIE is not supported from the beginning on some platforms, like SN2700.
+    # There is a logic to check the ONIE version in order to know whether it is supported.
+    # If it is not supported, we will not proceed and print some error message.
+    # For SN2201, upgrading fireware from ONIE is supported from day one so we do not need to check it.
+    PLATFORM_ALWAYS_SUPPORT_UPGRADE = ['x86_64-nvidia_sn2201-r0']
+
     BIOS_UPDATE_FILE_EXT = '.rom'
+    
+
+    def __init__(self):
+        self.platform = device_info.get_platform()
 
     def __add_prefix(self, image_path):
         if self.BIOS_UPDATE_FILE_EXT not in image_path:
@@ -336,6 +347,9 @@ class ONIEUpdater(object):
             raise
 
     def is_non_onie_firmware_update_supported(self):
+        if self.platform in self.PLATFORM_ALWAYS_SUPPORT_UPGRADE:
+            return True
+
         current_version = self.get_onie_version()
         _, _, major1, minor1, release1, _ = self.parse_onie_version(current_version)
         version1 = int("{}{}{}".format(major1, minor1, release1))
@@ -698,6 +712,37 @@ class ComponentBIOS(Component):
         self.__install_firmware(image_path)
 
 
+class ComponentBIOSSN2201(Component):
+    COMPONENT_NAME = 'BIOS'
+    COMPONENT_DESCRIPTION = 'BIOS - Basic Input/Output System'
+
+    BIOS_VERSION_COMMAND = 'dmidecode -t0'
+
+    def __init__(self):
+        super(ComponentBIOSSN2201, self).__init__()
+
+        self.name = self.COMPONENT_NAME
+        self.description = self.COMPONENT_DESCRIPTION
+
+    def get_firmware_version(self):
+        cmd = self.BIOS_VERSION_COMMAND
+
+        try:
+            output = subprocess.check_output(cmd.split(),
+                                             stderr=subprocess.STDOUT,
+                                             universal_newlines=True).rstrip('\n')
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError("Failed to get {} version: {}".format(self.name, str(e)))
+
+        match = re.search('Version: (.*)', output)
+        if match:
+            version = match.group(1)
+        else:
+            version = 'Unknown version'
+
+        return version
+
+
 class ComponentCPLD(Component):
     COMPONENT_NAME = 'CPLD{}'
     COMPONENT_DESCRIPTION = 'CPLD - Complex Programmable Logic Device'
@@ -744,7 +789,7 @@ class ComponentCPLD(Component):
 
         return mst_dev_list[0]
 
-    def __install_firmware(self, image_path):
+    def _install_firmware(self, image_path):
         if not self._check_file_validity(image_path):
             return False
 
@@ -830,9 +875,9 @@ class ComponentCPLD(Component):
                 burn_firmware = mpfa.get_metadata().get('firmware', 'burn')
 
                 print("INFO: Processing {} burn file: firmware install".format(self.name))
-                return self.__install_firmware(os.path.join(mpfa.get_path(), burn_firmware))
+                return self._install_firmware(os.path.join(mpfa.get_path(), burn_firmware))
         else:
-            return self.__install_firmware(image_path)
+            return self._install_firmware(image_path)
 
     def update_firmware(self, image_path):
         with MPFAManager(image_path) as mpfa:
@@ -845,11 +890,11 @@ class ComponentCPLD(Component):
             refresh_firmware = mpfa.get_metadata().get('firmware', 'refresh')
 
             print("INFO: Processing {} burn file: firmware install".format(self.name))
-            if not self.__install_firmware(os.path.join(mpfa.get_path(), burn_firmware)):
+            if not self._install_firmware(os.path.join(mpfa.get_path(), burn_firmware)):
                 return
 
             print("INFO: Processing {} refresh file: firmware update".format(self.name))
-            self.__install_firmware(os.path.join(mpfa.get_path(), refresh_firmware))
+            self._install_firmware(os.path.join(mpfa.get_path(), refresh_firmware))
 
     @classmethod
     def get_component_list(cls):
@@ -862,3 +907,19 @@ class ComponentCPLD(Component):
             component_list.append(cls(cpld_idx))
 
         return component_list
+
+
+class ComponentCPLDSN2201(ComponentCPLD):
+    CPLD_FIRMWARE_UPDATE_COMMAND = 'cpldupdate --gpio {} --uncustomized --print-progress'
+
+    def _install_firmware(self, image_path):
+        cmd = self.CPLD_FIRMWARE_UPDATE_COMMAND.format(image_path)
+
+        try:
+            print("INFO: Installing {} firmware update: path={}".format(self.name, image_path))
+            subprocess.check_call(cmd.split(), universal_newlines=True)
+        except subprocess.CalledProcessError as e:
+            print("ERROR: Failed to update {} firmware: {}".format(self.name, str(e)))
+            return False
+
+        return True

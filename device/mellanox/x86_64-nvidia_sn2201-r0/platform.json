@@ -91,9 +91,6 @@
                 "name": "Ambient CPU Board Temp"
             },
             {
-                "name": "Ambient Switch Board Temp"
-            },
-            {
                 "name": "CPU Pack Temp"
             },
             {

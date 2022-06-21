@@ -4,6 +4,7 @@
             "component": {
                 "ONIE": { },
                 "SSD": { },
+                "BIOS": { },
                 "CPLD1": { },
                 "CPLD2": { }
             }

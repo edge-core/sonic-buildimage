@@ -35,6 +35,7 @@ from sonic_platform.psu import FixedPsu, Psu
 
 class TestLed:
     @mock.patch('sonic_platform.led.Led._wait_files_ready', mock.MagicMock(return_value=True))
+    @mock.patch('sonic_platform.chassis.extract_RJ45_ports_index', mock.MagicMock(return_value=True))
     def test_chassis_led(self):
         chassis = Chassis()
         assert chassis._led is None

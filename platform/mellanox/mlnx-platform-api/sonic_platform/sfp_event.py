@@ -50,6 +50,7 @@ SDK_SFP_STATE_IN  = 0x1
 SDK_SFP_STATE_OUT = 0x2
 SDK_SFP_STATE_ERR = 0x3
 SDK_SFP_STATE_DIS = 0x4
+SDK_SFP_STATE_UNKNOWN = 0x5
 
 # SFP status used in this file only, will not expose to XCVRD
 # STATUS_ERROR will be mapped to different status according to the error code
@@ -134,13 +135,17 @@ class sfp_event:
     SX_OPEN_TIMEOUT = 5
     SELECT_TIMEOUT = 1
 
-    def __init__(self):
+    def __init__(self, rj45_port_list=None):
         self.swid = 0
         self.handle = None
 
         # Allocate SDK fd and user channel structures
         self.rx_fd_p = new_sx_fd_t_p()
         self.user_channel_p = new_sx_user_channel_t_p()
+        if rj45_port_list:
+            self.RJ45_port_set = set(rj45_port_list)
+        else:
+            self.RJ45_port_set = set()
 
     def initialize(self):
         swid_cnt_p = None
@@ -340,6 +345,7 @@ class sfp_event:
             status = False
         else:
             status = True
+            unknown = False
             pmpe_t = recv_info_p.event_info.pmpe
             port_list_size = pmpe_t.list_size
             logical_port_list = pmpe_t.log_port_list
@@ -354,8 +360,11 @@ class sfp_event:
                 logger.log_info("Receive PMPE disable event on module {}: status {}".format(module_id, module_state))
             elif module_state == SDK_SFP_STATE_IN or module_state == SDK_SFP_STATE_OUT:
                 logger.log_info("Receive PMPE plug in/out event on module {}: status {}".format(module_id, module_state))
+            elif module_state == SDK_SFP_STATE_UNKNOWN:
+                unknown = True
             else:
                 logger.log_error("Receive PMPE unknown event on module {}: status {}".format(module_id, module_state))
+
             for i in range(port_list_size):
                 logical_port = sx_port_log_id_t_arr_getitem(logical_port_list, i)
                 rc = sx_api_port_device_get(self.handle, 1 , 0, port_attributes_list,  port_cnt_p)
@@ -368,6 +377,14 @@ class sfp_event:
 
                 if label_port is not None:
                     label_port_list.append(label_port)
+
+            if unknown:
+                SFP_ports_with_unknown_event = set(label_port_list) - self.RJ45_port_set
+                if SFP_ports_with_unknown_event:
+                    logger.log_error("Receive PMPE unknown event on module {}: status {}".format(module_id, module_state))
+                else:
+                    # For RJ45 ports, we treat unknown as disconnect
+                    module_state = SDK_SFP_STATE_DIS
 
         delete_uint32_t_p(pkt_size_p)
         delete_uint8_t_arr(pkt)

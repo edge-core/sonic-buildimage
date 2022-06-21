@@ -32,6 +32,7 @@ import sonic_platform.chassis
 from sonic_platform.chassis import Chassis
 from sonic_platform.device_data import DeviceDataManager
 
+sonic_platform.chassis.extract_RJ45_ports_index = mock.MagicMock(return_value=[])
 
 class TestChassis:
     """Test class to test chassis.py. The test cases covers:

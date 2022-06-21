@@ -21,9 +21,8 @@
 #=  Global variable                                                            #
 #=
 #=====
-VERSION="1.5"
+VERSION="1.6"
 #=====
-SWITCH_SSD_DEV="/dev/sda"
 UTIL_TITLE="This is MLNX SSD firmware update utility to read and write SSD FW. Version ${VERSION}"
 DEPENDECIES=("smartctl" "sha256sum" "tar" "/bin/bash" "gpg" "sed" "realpath" "dirname")
 TRUE="0"
@@ -37,6 +36,7 @@ DEBUG_MSG="DEBUG"   # remove all instance after script is ready.
 #=====
 PKG_EXTRACTED=$FALSE
 LOGGER_UTIL=$FALSE
+SSD_DEV_NAME=""
 SSD_FW_VER=""
 SSD_DEVICE_MODEL=""
 SSD_SERIAL=""
@@ -230,7 +230,7 @@ function get_ssd_fw_version() {
     [ $1 ] || { LOG_MSG_AND_EXIT "Wrong usage - ${FUNCNAME[0]}()"; }
 
     local device_fw_version
-    device_fw_version=$(smartctl -i $SWITCH_SSD_DEV | grep -Po "Firmware Version: +\K[^,]+")
+    device_fw_version=$(smartctl -i $SSD_DEV_NAME | grep -Po "Firmware Version: +\K[^,]+")
     LOG_MSG "device_fw_version: $device_fw_version" ${DEBUG_MSG}
     eval $1='$device_fw_version'
 }
@@ -242,7 +242,7 @@ function get_ssd_device_model() {
     [ $1 ] || { LOG_MSG_AND_EXIT "Wrong usage - ${FUNCNAME[0]}()"; }
 
     local device_model_name
-    device_model_name=$(smartctl -i $SWITCH_SSD_DEV | grep -Po "Device Model: +\K[^,]+")
+    device_model_name=$(smartctl -i $SSD_DEV_NAME | grep -E "Device Model:|Model Number:" | awk '{$1=$2="";print $0}'| sed 's/^ *//g')
     LOG_MSG "device_model_name: $device_model_name" ${DEBUG_MSG}
     eval $1='$device_model_name'
 }
@@ -254,7 +254,7 @@ function get_ssd_size() {
     [ $1 ] || { LOG_MSG_AND_EXIT "Wrong usage - ${FUNCNAME[0]}()"; }
 
     local device_size
-    device_size=$(smartctl -i $SWITCH_SSD_DEV | grep -Po "User Capacity:.+bytes \[\K[^ ]+")
+    device_size=$(smartctl -i $SSD_DEV_NAME | grep -E "User Capacity:|Size/Capacity" | awk -F '\[|\]' '{print $2}' | awk '{print $1}')
     LOG_MSG "device_size: $device_size" ${DEBUG_MSG}
     eval $1='$device_size'
 }
@@ -266,16 +266,56 @@ function get_ssd_serial() {
     [ $1 ] || { LOG_MSG_AND_EXIT "Wrong usage - ${FUNCNAME[0]}()"; }
 
     local device_serial
-    device_serial=$(smartctl -i $SWITCH_SSD_DEV | grep -Po "Serial Number: +\K[^,]+")
+    device_serial=$(smartctl -i $SSD_DEV_NAME | grep -Po "Serial Number: +\K[^,]+")
     LOG_MSG "device_serial: $device_serial" ${DEBUG_MSG}
     eval $1='$device_serial'
 }
 
 #==============================================================================#
-#=  This function check if given argument is valid and return boolean result.  #
+# This function check SSD device name                                                 #
+#
+function get_ssd_device_name() {
+    [ $1 ] || { LOG_MSG_AND_EXIT "Wrong usage - ${FUNCNAME[0]}()"; }
+
+    non_rem_mount_disks=""
+    non_rem_mount_disks_count=0
+    mount_parts=$(cat /proc/partitions | grep -v "^major" | grep -v ram | awk '{{print $4}}')
+    for blk_dev_name in ${mount_parts}
+    do
+        blk_dev_link=$(find /sys/bus /sys/class /sys/block/ -name ${blk_dev_name})
+        for first_blk_dev_link in ${blk_dev_link}
+        do
+            if ls -l ${first_blk_dev_link} | grep -q virtual; then
+                continue
+            fi
+            if [ -e ${first_blk_dev_link}/removable ] ; then
+                if [ "0" = $(cat ${first_blk_dev_link}/removable) ] ; then
+                    let non_rem_mount_disks_count=${non_rem_mount_disks_count}+1
+                    if [ "1" == "${non_rem_mount_disks_count}" ] ; then
+                        non_rem_mount_disks="${blk_dev_name}"
+                    else
+                        non_rem_mount_disks="${non_rem_mount_disks} ${blk_dev_name}"
+                    fi
+                fi
+            fi
+            break
+        done
+    done
+    if [ "1" == "${non_rem_mount_disks_count}" ] ; then
+	device_name="/dev/${non_rem_mount_disks}"
+    else
+        $1="/dev/sda"
+    fi
+    LOG_MSG "device_name: $device_name" ${DEBUG_MSG}
+    eval $1='$device_name'
+}
+
+#==============================================================================#
+#=  This function check if given argument.                                     #
 #=
 function get_ssd_info() {
     LOG_MSG "func: ${FUNCNAME[0]}()" ${DEBUG_MSG}
+    get_ssd_device_name  SSD_DEV_NAME
     get_ssd_fw_version   SSD_FW_VER
     get_ssd_device_model SSD_DEVICE_MODEL
     get_ssd_serial       SSD_SERIAL

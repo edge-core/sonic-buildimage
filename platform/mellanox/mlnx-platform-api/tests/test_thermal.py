@@ -28,9 +28,11 @@ test_path = os.path.dirname(os.path.abspath(__file__))
 modules_path = os.path.dirname(test_path)
 sys.path.insert(0, modules_path)
 
+import sonic_platform.chassis
 from sonic_platform.chassis import Chassis
 from sonic_platform.device_data import DeviceDataManager
 
+sonic_platform.chassis.extract_RJ45_ports_index = mock.MagicMock(return_value=[])
 
 class TestThermal:
     @mock.patch('os.path.exists', mock.MagicMock(return_value=True))

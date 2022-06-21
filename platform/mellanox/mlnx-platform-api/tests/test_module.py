@@ -26,6 +26,7 @@ test_path = os.path.dirname(os.path.abspath(__file__))
 modules_path = os.path.dirname(test_path)
 sys.path.insert(0, modules_path)
 
+import sonic_platform.chassis
 from sonic_platform import utils
 from sonic_platform.chassis import ModularChassis
 from sonic_platform.device_data import DeviceDataManager
@@ -37,6 +38,7 @@ class TestModule:
     def setup_class(cls):
         DeviceDataManager.get_linecard_sfp_count = mock.MagicMock(return_value=2)
         DeviceDataManager.get_linecard_count = mock.MagicMock(return_value=2)
+        sonic_platform.chassis.extract_RJ45_ports_index = mock.MagicMock(return_value=[])
 
     def test_chassis_get_num_sfp(self):
         chassis = ModularChassis()

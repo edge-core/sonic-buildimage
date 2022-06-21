@@ -27,13 +27,16 @@ try:
     from sonic_py_common.logger import Logger
     import os
     from functools import reduce
-
+    from .utils import extract_RJ45_ports_index
     from . import utils
     from .device_data import DeviceDataManager
+    from .sfp import SFP, RJ45Port, deinitialize_sdk_handle
 except ImportError as e:
     raise ImportError (str(e) + "- required module not found")
 
 MAX_SELECT_DELAY = 3600
+
+RJ45_TYPE = "RJ45"
 
 DMI_FILE = '/sys/firmware/dmi/entries/2-0/raw'
 DMI_HEADER_LEN = 15
@@ -106,6 +109,10 @@ class Chassis(ChassisBase):
         self.sfp_initialized_count = 0
         self.sfp_event = None
         self.reboot_cause_initialized = False
+
+        # Build the RJ45 port list from platform.json and hwsku.json
+        self.RJ45_port_list = extract_RJ45_ports_index()
+
         logger.log_info("Chassis loaded successfully")
 
     def __del__(self):
@@ -242,7 +249,10 @@ class Chassis(ChassisBase):
 
             if not self._sfp_list[index]:
                 from .sfp import SFP
-                self._sfp_list[index] = SFP(index)
+                if self.RJ45_port_list and index in self.RJ45_port_list:
+                    self._sfp_list[index] = RJ45Port(index)
+                else:
+                    self._sfp_list[index] = SFP(index)
                 self.sfp_initialized_count += 1
 
     def initialize_sfp(self):
@@ -250,14 +260,20 @@ class Chassis(ChassisBase):
             from .sfp import SFP
             sfp_count = self.get_num_sfps()
             for index in range(sfp_count):
-                sfp_module = SFP(index)
+                if self.RJ45_port_list and index in self.RJ45_port_list:
+                    sfp_module = RJ45Port(index)
+                else:
+                    sfp_module = SFP(index)
                 self._sfp_list.append(sfp_module)
             self.sfp_initialized_count = sfp_count
         elif self.sfp_initialized_count != len(self._sfp_list):
             from .sfp import SFP
             for index in range(len(self._sfp_list)):
                 if self._sfp_list[index] is None:
-                    self._sfp_list[index] = SFP(index)
+                    if self.RJ45_port_list and index in self.RJ45_port_list:
+                        self._sfp_list[index] = RJ45Port(index)
+                    else:
+                        self._sfp_list[index] = SFP(index)
             self.sfp_initialized_count = len(self._sfp_list)
 
     def get_num_sfps(self):
@@ -324,7 +340,7 @@ class Chassis(ChassisBase):
         # Initialize SFP event first
         if not self.sfp_event:
             from .sfp_event import sfp_event
-            self.sfp_event = sfp_event()
+            self.sfp_event = sfp_event(self.RJ45_port_list)
             self.sfp_event.initialize()
 
         wait_for_ever = (timeout == 0)
@@ -340,7 +356,8 @@ class Chassis(ChassisBase):
             status = self.sfp_event.check_sfp_status(port_dict, error_dict, timeout)
 
         if status:
-            self.reinit_sfps(port_dict)
+            if port_dict:
+                self.reinit_sfps(port_dict)
             result_dict = {'sfp':port_dict}
             if error_dict:
                 result_dict['sfp_error'] = error_dict
@@ -515,8 +532,8 @@ class Chassis(ChassisBase):
             from .component import ComponentONIE, ComponentSSD, ComponentBIOS, ComponentCPLD
             self._component_list.append(ComponentONIE())
             self._component_list.append(ComponentSSD())
-            self._component_list.append(ComponentBIOS())
-            self._component_list.extend(ComponentCPLD.get_component_list())
+            self._component_list.append(DeviceDataManager.get_bios_component())
+            self._component_list.extend(DeviceDataManager.get_cpld_component_list())
 
     def get_num_components(self):
         """
