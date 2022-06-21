@@ -30,19 +30,27 @@ iface lo inet loopback
 {% block mgmt_interface %}
 
 # The management network interface
-auto eth0
+{% if MGMT_INTERFACE %}
+{% for (name, prefix) in MGMT_INTERFACE|pfx_filter|unique(attribute=0) %}
+auto {{ name }}
+{% endfor %}
+{% endif %}
 {% if (ZTP_DHCP_DISABLED is not defined) and (ZTP is defined) and (ZTP['mode'] is defined and ZTP['mode']['profile'] == 'active') %}
 
 
 # ZTP out-of-band interface
-allow-hotplug eth0
+{% if MGMT_INTERFACE %}
+{% for (name, prefix) in MGMT_INTERFACE|pfx_filter|unique(attribute=0) %}
+allow-hotplug {{ name }}
 {% if ZTP['mode']['ipv4'] == 'true' %}
-iface eth0 inet dhcp
+iface {{ name }} inet dhcp
 {% endif %}
 {% if ZTP['mode']['ipv6'] == 'true' %}
-iface eth0 inet6 dhcp
-    up sysctl net.ipv6.conf.eth0.accept_ra=1
-    down sysctl net.ipv6.conf.eth0.accept_ra=0
+iface {{ name }} inet6 dhcp
+    up sysctl net.ipv6.conf.{{ name }}.accept_ra=1
+    down sysctl net.ipv6.conf.{{ name }}.accept_ra=0
+{% endif %}
+{% endfor %}
 {% endif %}
 
 {% if ZTP['mode']['inband'] == 'true' %}
@@ -65,7 +73,7 @@ iface {{ port }} inet6 dhcp
 {% else %}
 {% if MGMT_INTERFACE %}
 {% for (name, prefix) in MGMT_INTERFACE|pfx_filter %}
-iface eth0 {{ 'inet' if prefix | ipv4 else 'inet6' }} static
+iface {{ name }} {{ 'inet' if prefix | ipv4 else 'inet6' }} static
     address {{ prefix | ip }}
     netmask {{ prefix | netmask if prefix | ipv4 else prefix | prefixlen }}
     network {{ prefix | network }}
@@ -77,15 +85,15 @@ iface eth0 {{ 'inet' if prefix | ipv4 else 'inet6' }} static
 {% endif %}
     ########## management network policy routing rules
     # management port up rules
-    up ip {{ '-4' if prefix | ipv4 else '-6' }} route add default via {{ MGMT_INTERFACE[(name, prefix)]['gwaddr'] }} dev eth0 table {{ vrf_table }} metric 201
-    up ip {{ '-4' if prefix | ipv4 else '-6' }} route add {{ prefix | network }}/{{ prefix | prefixlen }} dev eth0 table {{ vrf_table }}
+    up ip {{ '-4' if prefix | ipv4 else '-6' }} route add default via {{ MGMT_INTERFACE[(name, prefix)]['gwaddr'] }} dev {{ name }} table {{ vrf_table }} metric 201
+    up ip {{ '-4' if prefix | ipv4 else '-6' }} route add {{ prefix | network }}/{{ prefix | prefixlen }} dev {{ name }} table {{ vrf_table }}
     up ip {{ '-4' if prefix | ipv4 else '-6' }} rule add pref 32765 from {{ prefix | ip }}/{{ '32' if prefix | ipv4 else '128' }} table {{ vrf_table }}
 {% for route in MGMT_INTERFACE[(name, prefix)]['forced_mgmt_routes'] %}
     up ip rule add pref 32764 to {{ route }} table {{ vrf_table }}
 {% endfor %}
     # management port down rules
-    pre-down ip {{ '-4' if prefix | ipv4 else '-6' }} route delete default via {{ MGMT_INTERFACE[(name, prefix)]['gwaddr'] }} dev eth0 table {{ vrf_table }}
-    pre-down ip {{ '-4' if prefix | ipv4 else '-6' }} route delete {{ prefix | network }}/{{ prefix | prefixlen }} dev eth0 table {{ vrf_table }}
+    pre-down ip {{ '-4' if prefix | ipv4 else '-6' }} route delete default via {{ MGMT_INTERFACE[(name, prefix)]['gwaddr'] }} dev {{ name }} table {{ vrf_table }}
+    pre-down ip {{ '-4' if prefix | ipv4 else '-6' }} route delete {{ prefix | network }}/{{ prefix | prefixlen }} dev {{ name }} table {{ vrf_table }}
     pre-down ip {{ '-4' if prefix | ipv4 else '-6' }} rule delete pref 32765 from {{ prefix | ip }}/{{ '32' if prefix | ipv4 else '128' }} table {{ vrf_table }}
 {% for route in MGMT_INTERFACE[(name, prefix)]['forced_mgmt_routes'] %}
     pre-down ip rule delete pref 32764 to {{ route }} table {{ vrf_table }}
