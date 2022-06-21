@@ -158,8 +158,7 @@ DEVICE_DATA = {
         'thermal': {
             "capability": {
                 "comex_amb": False,
-                "cpu_amb": True,
-                "swb_amb": True
+                "cpu_amb": True
             }
         }
     },
@@ -281,3 +280,21 @@ class DeviceDataManager:
             return None, None
 
         return thermal_data.get('cpu_threshold', (None, None))
+
+    @classmethod
+    def get_bios_component(cls):
+        from .component import ComponentBIOS, ComponentBIOSSN2201
+        if cls.get_platform_name() in ['x86_64-nvidia_sn2201-r0']:
+            # For SN2201, special chass is required for handle BIOS
+            # Currently, only fetching BIOS version is supported
+            return ComponentBIOSSN2201()
+        return ComponentBIOS()
+
+    @classmethod
+    def get_cpld_component_list(cls):
+        from .component import ComponentCPLD, ComponentCPLDSN2201
+        if cls.get_platform_name() in ['x86_64-nvidia_sn2201-r0']:
+            # For SN2201, special chass is required for handle BIOS
+            # Currently, only fetching BIOS version is supported
+            return ComponentCPLDSN2201.get_component_list()
+        return ComponentCPLD.get_component_list()

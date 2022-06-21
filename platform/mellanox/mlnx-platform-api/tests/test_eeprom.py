@@ -30,11 +30,11 @@ sys.path.insert(0, modules_path)
 from sonic_platform.chassis import Chassis
 from sonic_platform.eeprom import Eeprom, EepromContentVisitor
 
-
 class TestEeprom:
     @patch('os.path.exists', MagicMock(return_value=True))
     @patch('os.path.islink', MagicMock(return_value=True))
     @patch('sonic_platform.eeprom.Eeprom.get_system_eeprom_info')
+    @patch('sonic_platform.chassis.extract_RJ45_ports_index', MagicMock(return_value=[]))
     def test_chassis_eeprom(self, mock_eeprom_info):
         mock_eeprom_info.return_value = {
             hex(Eeprom._TLV_CODE_PRODUCT_NAME): 'MSN3420',
@@ -102,7 +102,3 @@ class TestEeprom:
         v.visit_tlv('tlv3', Eeprom._TLV_CODE_VENDOR_EXT, 4, 'ext2')
         assert content[hex(Eeprom._TLV_CODE_PRODUCT_NAME)] == 'MSN3420'
         assert content[hex(Eeprom._TLV_CODE_VENDOR_EXT)] == ['ext1', 'ext2']
-
-
-
-        
