@@ -348,7 +348,12 @@ extract_image() {
 
     info "Extracting swi content"
     ## Unzip the image except boot0 and dockerfs archive
-    unzip -oq "$swipath" -x boot0 "$dockerfs" -d "$image_path"
+    unzip -oq "$swipath" -x boot0 "$dockerfs" "platform.tar.gz" -d "$image_path"
+
+    ## Extract the platform.tar.gz
+    info "Extracting platform.tar.gz"
+    mkdir -p "$image_path/platform"
+    unzip -oqp "$swipath" "platform.tar.gz" | tar xzf - -C "$image_path/platform" $TAR_EXTRA_OPTION
 
     ## detect rootfs type
     local mountstr="$(grep " $target_path " /proc/mounts)"
