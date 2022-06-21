@@ -1,12 +1,5 @@
 #!/bin/bash
 
-reload_minigraph()
-{
-    echo "Reloading minigraph..."
-    config load_minigraph -y -n 
-    config save -y
-}
-
 # read SONiC immutable variables
 [ -f /etc/sonic/sonic-environment ] && . /etc/sonic/sonic-environment
 
@@ -18,10 +11,8 @@ fi
 . /etc/sonic/updategraph.conf
 
 if [ "$enabled" = "reload_only" ]; then
-    reload_minigraph
-    sed -i "/enabled=/d" /etc/sonic/updategraph.conf
-    echo "enabled=false" >> /etc/sonic/updategraph.conf
-    exit 0
+    echo "reload_only will not be supported in file updategraph.conf"
+    exit 1
 fi
 
 if [ "$enabled" != "true" ]; then
