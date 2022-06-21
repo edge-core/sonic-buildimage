@@ -247,7 +247,7 @@ tcpdump==4.9.3-1~deb10u2
 telnet==0.17-41.2
 tmux==2.8-3
 traceroute==1:2.1.0-2
-tzdata==2021a-0+deb10u4
+tzdata==2021a-0+deb10u5
 ucf==3.0038+nmu1
 unzip==6.0-23+deb10u2
 vim==2:8.1.0875-5+deb10u2

@@ -51,7 +51,7 @@ cmake==3.18.4-2+deb11u1
 cmake-data==3.18.4-2+deb11u1
 cmocka-doc==1.1.5-2
 comerr-dev==2.1-1.46.2-2
-containerd.io==1.6.4-1
+containerd.io==1.6.6-1
 cowbuilder==0.89
 cowdancer==0.89
 cpio==2.13+dfsg-4
@@ -96,7 +96,7 @@ docbook-utils==0.6.14-3.4
 docbook-xml==4.5-9
 docker-ce==5:20.10.7~3-0~debian-bullseye
 docker-ce-cli==5:20.10.7~3-0~debian-bullseye
-docker-ce-rootless-extras==5:20.10.16~3-0~debian-bullseye
+docker-ce-rootless-extras==5:20.10.17~3-0~debian-bullseye
 docker-scan-plugin==0.17.0~debian-bullseye
 docutils-common==0.16+dfsg-4
 dosfstools==4.2-1
@@ -1319,12 +1319,12 @@ libzvbi0==0.2.35-18
 libzzip-0-13==0.13.62-3.3+deb11u1
 licensecheck==3.1.1-2
 lintian==2.104.0
-linux-compiler-gcc-10-x86==5.10.113-1
-linux-headers-5.10.0-14-amd64==5.10.113-1
-linux-headers-5.10.0-14-common==5.10.113-1
-linux-headers-amd64==5.10.113-1
-linux-kbuild-5.10==5.10.113-1
-linux-libc-dev==5.10.113-1
+linux-compiler-gcc-10-x86==5.10.120-1
+linux-headers-5.10.0-15-amd64==5.10.120-1
+linux-headers-5.10.0-15-common==5.10.120-1
+linux-headers-amd64==5.10.120-1
+linux-kbuild-5.10==5.10.120-1
+linux-libc-dev==5.10.120-1
 linuxdoc-tools==0.9.82-1
 llvm-11==1:11.0.1-2
 llvm-11-dev==1:11.0.1-2

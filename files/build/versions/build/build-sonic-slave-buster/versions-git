@@ -6,4 +6,4 @@ https://github.com/sflow/sflowtool==4be2a17b36a3b9796c280b117b8b786323a84ae8
 https://github.com/thom311/libnl==44988e648cd5c9f912148e8b138776064797f49d
 https://salsa.debian.org/debian/libteam.git==f8808df228b00873926b5e7b998ad8b61368d4c5
 https://salsa.debian.org/dhcp-team/isc-dhcp.git==18ecb042065e51e088b7470566526cd00e297c14
-https://salsa.debian.org/kernel-team/ethtool/==38a3cce26a7fa6eb74228e3501b7ed19dced6d4b
+https://salsa.debian.org/kernel-team/ethtool/==5ead2b58847600ea0ccd0aa76b5bedce678f17ee
