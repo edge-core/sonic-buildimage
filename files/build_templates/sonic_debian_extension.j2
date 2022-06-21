@@ -614,7 +614,9 @@ sudo LANG=C chroot $FILESYSTEM_ROOT depmod -a {{kversion}}
 sudo dpkg --root=$FILESYSTEM_ROOT -i {{deb}} || sudo LANG=C DEBIAN_FRONTEND=noninteractive chroot $FILESYSTEM_ROOT apt-get -y install -f --download-only
 
 sudo mkdir -p $FILESYSTEM_ROOT/$PLATFORM_DIR/{{dev}}
-sudo cp {{ deb }} $FILESYSTEM_ROOT/$PLATFORM_DIR/{{dev}}/
+sudo mkdir -p $FILESYSTEM_ROOT/$PLATFORM_DIR/common
+sudo cp {{ deb }} $FILESYSTEM_ROOT/$PLATFORM_DIR/common/
+sudo ln -sf "../common/{{ debfilename }}" "$FILESYSTEM_ROOT/$PLATFORM_DIR/{{dev}}/{{ debfilename }}"
 for f in $(find $FILESYSTEM_ROOT/var/cache/apt/archives -name "*.deb"); do
     sudo mv $f $FILESYSTEM_ROOT/$PLATFORM_DIR/{{dev}}/
 done
