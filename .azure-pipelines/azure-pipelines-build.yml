@@ -98,6 +98,7 @@ jobs:
             platform_rpc: nephos
 
     buildSteps:
+      - template: template-skipvstest.yml
       - bash: |
           set -ex
           if [ $(GROUP_NAME) == vs ]; then

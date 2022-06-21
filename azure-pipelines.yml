@@ -75,6 +75,7 @@ stages:
 
 - stage: Test
   dependsOn: BuildVS
+  condition: and(ne(stageDependencies.BuildVS.outputs['vs.SetVar.SKIP_VSTEST'], 'YES'), succeeded())
   variables:
   - name: inventory
     value: veos_vtb
