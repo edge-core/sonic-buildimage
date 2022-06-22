@@ -871,7 +871,7 @@ void scheduler_csm_socket_cleanup(struct CSM* csm, int location)
         return;
 
     if (csm->sock_fd <= 0)
-        return
+        return;
 
     event.data.fd = csm->sock_fd;
     event.events = EPOLLIN;
