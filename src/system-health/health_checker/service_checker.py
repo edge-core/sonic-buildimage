@@ -144,11 +144,11 @@ class ServiceChecker(HealthChecker):
         # Get container volumn folder
         container_folder = self._get_container_folder(container)
         if not container_folder:
-            logger.log_error('Failed to get container folder for {}'.format(container_folder))
+            logger.log_warning('Could not find MergedDir of container {}, was container stopped?'.format(container))
             return
 
         if not os.path.exists(container_folder):
-            logger.log_error('Container folder does not exist: {}'.format(container_folder))
+            logger.log_warning('MergedDir {} of container {} not found in filesystem, was container stopped?'.format(container_folder, container))
             return
 
         # Get critical_processes file path
