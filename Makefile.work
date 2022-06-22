@@ -79,7 +79,7 @@ SLAVE_DIR = sonic-slave-stretch
 else
 SLAVE_DIR = sonic-slave-jessie
 endif
-SLAVE_BASE_TAG = $(shell CONFIGURED_ARCH=$(CONFIGURED_ARCH) j2 $(SLAVE_DIR)/Dockerfile.j2 > $(SLAVE_DIR)/Dockerfile && sha1sum $(SLAVE_DIR)/Dockerfile | awk '{print substr($$1,0,11);}')
+SLAVE_BASE_TAG = $(shell CONFIGURED_ARCH=$(CONFIGURED_ARCH) DEFAULT_CONTAINER_REGISTRY=$(DEFAULT_CONTAINER_REGISTRY) j2 $(SLAVE_DIR)/Dockerfile.j2 > $(SLAVE_DIR)/Dockerfile && sha1sum $(SLAVE_DIR)/Dockerfile | awk '{print substr($$1,0,11);}')
 SLAVE_TAG = $(shell cat $(SLAVE_DIR)/Dockerfile.user $(SLAVE_DIR)/Dockerfile | sha1sum | awk '{print substr($$1,0,11);}')
 SLAVE_BASE_IMAGE = $(SLAVE_DIR)
 SLAVE_IMAGE = $(SLAVE_BASE_IMAGE)-$(USER_LC)
@@ -108,6 +108,10 @@ DOCKER_RUN := docker run --rm=true --privileged \
     -i$(shell { if [ -t 0 ]; then echo t; fi })
 
 include rules/config
+
+ifneq ($(DEFAULT_CONTAINER_REGISTRY),)
+override DEFAULT_CONTAINER_REGISTRY := $(DEFAULT_CONTAINER_REGISTRY)/
+endif
 
 ifeq ($(SONIC_CONFIG_USE_NATIVE_DOCKERD_FOR_BUILD), y)
     DOCKER_RUN += -v /var/run/docker.sock:/var/run/docker.sock
@@ -185,6 +189,7 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            SONIC_INCLUDE_SYSTEM_TELEMETRY=$(INCLUDE_SYSTEM_TELEMETRY) \
                            SONIC_INCLUDE_RESTAPI=$(INCLUDE_RESTAPI) \
                            EXTRA_JESSIE_TARGETS=$(EXTRA_JESSIE_TARGETS) \
+                           DEFAULT_CONTAINER_REGISTRY=$(DEFAULT_CONTAINER_REGISTRY) \
                            $(SONIC_OVERRIDE_BUILD_VARS)
 
 .PHONY: sonic-slave-build sonic-slave-bash init reset

@@ -85,6 +85,7 @@ list :
 ###############################################################################
 
 include $(RULES_PATH)/config
+export DEFAULT_CONTAINER_REGISTRY
 
 ifeq ($(SONIC_ENABLE_PFCWD_ON_START),y)
 ENABLE_PFCWD_ON_START = y
@@ -213,6 +214,7 @@ $(info "INCLUDE_RESTAPI"                 : "$(INCLUDE_RESTAPI)")
 $(info "INCLUDE_SFLOW"                   : "$(INCLUDE_SFLOW)")
 $(info "INCLUDE_NAT"                     : "$(INCLUDE_NAT)")
 $(info "INCLUDE_KUBERNETES"              : "$(INCLUDE_KUBERNETES)")
+$(info "DEFAULT_CONTAINER_REGISTRY"      : "$(DEFAULT_CONTAINER_REGISTRY)")
 $(info )
 
 ifeq ($(SONIC_USE_DOCKER_BUILDKIT),y)

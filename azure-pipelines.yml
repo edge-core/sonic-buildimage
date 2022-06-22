@@ -30,6 +30,14 @@ resources:
     type: github
     name: Azure/sonic-mgmt
     endpoint: build
+  - repository: buildimage
+    type: github
+    name: Azure/sonic-buildimage
+    endpoint: build
+    ref: master
+
+variables:
+- template: .azure-pipelines/template-variables.yml@buildimage
 
 stages:
 - stage: Build
