@@ -82,7 +82,7 @@
         "ingress_lossy_profile": {
             "pool":"ingress_lossless_pool",
             "size":"0",
-            "dynamic_th":"3"
+            "static_th":"32689152"
         },
         "egress_lossless_profile": {
             "pool":"egress_lossless_pool",
@@ -92,7 +92,7 @@
         "egress_lossy_profile": {
             "pool":"egress_lossy_pool",
             "size":"1792",
-            "dynamic_th":"-1"
+            "dynamic_th":"3"
         }
     },
     "BUFFER_PG": {
