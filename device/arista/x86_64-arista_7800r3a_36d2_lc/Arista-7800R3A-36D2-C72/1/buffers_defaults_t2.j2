@@ -2,7 +2,7 @@
 
 {%- macro generate_port_lists(PORT_ALL) %}
     {# Generate list of ports #}
-    {%- for port_idx in range(0,192,4) %}
+    {%- for port_idx in range(0,144,4) %}
         {%- if PORT_ALL.append("Ethernet%d" % (port_idx)) %}{%- endif %}
     {%- endfor %}
 {%- endmacro %}
@@ -13,7 +13,7 @@
             "size": "6441610000",
             "type": "both",
             "mode": "dynamic",
-            "xoff": "11678515"
+            "xoff": "11354112"
         }
     },
     "BUFFER_PROFILE": {
