@@ -186,6 +186,10 @@ RUN mkdir -p /etc/supervisor/conf.d/
 RUN sonic-cfggen -a "{\"ENABLE_ASAN\":\"{{ENABLE_ASAN}}\"}" -t /usr/share/sonic/templates/supervisord.conf.j2 > /etc/supervisor/conf.d/supervisord.conf
 RUN rm -f /usr/share/sonic/templates/supervisord.conf.j2
 
+{%- if ENABLE_ASAN == "y" %}
+RUN mkdir -p /var/log/asan
+{%- endif %}
+
 # Workaround the tcpdump issue
 RUN mv /usr/sbin/tcpdump /usr/bin/tcpdump
 
