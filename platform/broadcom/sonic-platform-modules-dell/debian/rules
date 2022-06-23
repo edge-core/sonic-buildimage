@@ -78,6 +78,9 @@ override_dh_auto_install:
 
 override_dh_usrlocal:
 
+override_dh_installmodules:
+	dh_installmodules --no-scripts;
+
 override_dh_clean:
 	dh_clean
 	set -e; \
