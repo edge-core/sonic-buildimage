@@ -1,4 +1,113 @@
 {
+    "SYSLOG_SERVER_VALID": {
+        "sonic-syslog:sonic-syslog": {
+            "sonic-syslog:SYSLOG_SERVER": {
+                "SYSLOG_SERVER_LIST": [
+                    {
+                        "server_address": "100.0.0.1",
+                        "source": "1.1.1.1",
+                        "port": "514",
+                        "vrf": "default"
+                    },
+                    {
+                        "server_address": "200.0.0.1",
+                        "source": "1.1.1.1",
+                        "port": "514",
+                        "vrf": "mgmt"
+                    },
+                    {
+                        "server_address" : "2000::1",
+                        "source": "1111::1111",
+                        "port": "514",
+                        "vrf": "Vrf-Data"
+                    }
+                ]
+            }
+        },
+        "sonic-mgmt_vrf:sonic-mgmt_vrf": {
+            "sonic-mgmt_vrf:MGMT_VRF_CONFIG": {
+                "sonic-mgmt_vrf:vrf_global": {
+                    "mgmtVrfEnabled": "true"
+                }
+            }
+        },
+        "sonic-vrf:sonic-vrf": {
+            "sonic-vrf:VRF": {
+                "VRF_LIST": [
+                    {
+                        "name": "Vrf-Data"
+                    }
+                ]
+            }
+        }
+    },
+    "SYSLOG_SERVER_INVALID_SOURCE": {
+        "sonic-syslog:sonic-syslog": {
+            "sonic-syslog:SYSLOG_SERVER": {
+                "SYSLOG_SERVER_LIST": [
+                    {
+                        "server_address": "100.0.0.1",
+                        "source": "invalid_value"
+                    }
+                ]
+            }
+        }
+    },
+    "SYSLOG_SERVER_SOURCE_IP_FAMILY_MISMATCH": {
+        "sonic-syslog:sonic-syslog": {
+            "sonic-syslog:SYSLOG_SERVER": {
+                "SYSLOG_SERVER_LIST": [
+                    {
+                        "server_address": "100.0.0.1",
+                        "source": "1111::1111"
+                    }
+                ]
+            }
+        }
+    },
+    "SYSLOG_SERVER_INVALID_PORT": {
+        "sonic-syslog:sonic-syslog": {
+            "sonic-syslog:SYSLOG_SERVER": {
+                "SYSLOG_SERVER_LIST": [
+                    {
+                        "server_address": "100.0.0.1",
+                        "port": "65536"
+                    }
+                ]
+            }
+        }
+    },
+    "SYSLOG_SERVER_INVALID_VRF": {
+        "sonic-syslog:sonic-syslog": {
+            "sonic-syslog:SYSLOG_SERVER": {
+                "SYSLOG_SERVER_LIST": [
+                    {
+                        "server_address": "100.0.0.1",
+                        "vrf": "invalid_value"
+                    }
+                ]
+            }
+        }
+    },
+    "SYSLOG_SERVER_DISABLED_MGMT_VRF": {
+        "sonic-syslog:sonic-syslog": {
+            "sonic-syslog:SYSLOG_SERVER": {
+                "SYSLOG_SERVER_LIST": [
+                    {
+                        "server_address": "100.0.0.1",
+                        "vrf": "mgmt"
+                    }
+                ]
+            }
+        },
+        "sonic-mgmt_vrf:sonic-mgmt_vrf": {
+            "sonic-mgmt_vrf:MGMT_VRF_CONFIG": {
+                "sonic-mgmt_vrf:vrf_global": {
+                    "mgmtVrfEnabled": "false"
+                }
+            }
+        }
+    },
     "SYSLOG_SERVER_TEST": {
         "sonic-syslog:sonic-syslog": {
             "sonic-syslog:SYSLOG_SERVER": {

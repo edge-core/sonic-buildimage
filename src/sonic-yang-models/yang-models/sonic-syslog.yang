@@ -9,22 +9,72 @@ module sonic-syslog {
         prefix inet;
     }
 
+    import sonic-mgmt_vrf {
+        prefix mvrf;
+    }
+
+    import sonic-vrf {
+        prefix vrf;
+    }
+
+    description "Syslog YANG Module for SONiC OS: remote syslog logging";
+
+    revision 2022-04-18 {
+        description "Initial revision.";
+    }
+
+    typedef vrf-device {
+        description "Represents syslog VRF device";
+        type enumeration {
+            enum default;
+            enum mgmt;
+        }
+    }
+
     container sonic-syslog {
 
         container SYSLOG_SERVER {
 
-            description "SYSLOG SERVER part of config_db.json";
+            description "SYSLOG_SERVER part of config_db.json";
 
             list SYSLOG_SERVER_LIST {
 
                 key "server_address";
 
                 leaf server_address {
-                    description "syslog server ip address";
+                    description "Syslog server IP address";
                     type inet:ip-address;
                 }
-            } /* end of list SYSLOG_SERVER_LIST */ 
 
-        } /* end of container SYSLOG_SERVER */
+                leaf source {
+                    description "Syslog source IP address";
+                    type inet:ip-address;
+                    must "(contains(current(), '.') and contains(../server_address, '.'))
+                    or (contains(current(), ':') and contains(../server_address, ':'))";
+                }
+
+                leaf port {
+                    description "Syslog server UDP port";
+                    type inet:port-number;
+                }
+
+                leaf vrf {
+                    description "Syslog VRF device";
+                    type union {
+                        type leafref {
+                            path "/vrf:sonic-vrf/vrf:VRF/vrf:VRF_LIST/vrf:name";
+                        }
+                        type vrf-device;
+                    }
+                    must "(current() != 'mgmt')
+                    or (/mvrf:sonic-mgmt_vrf/mvrf:MGMT_VRF_CONFIG/mvrf:vrf_global/mvrf:mgmtVrfEnabled = 'true')";
+                }
+
+            }
+            /* end of list SYSLOG_SERVER_LIST */
+        }
+        /* end of container SYSLOG_SERVER */
     }
+    /* end of container sonic-syslog */
 }
+/* end of module sonic-syslog */
