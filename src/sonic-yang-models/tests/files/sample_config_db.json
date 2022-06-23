@@ -1873,6 +1873,20 @@
                      "LAG"
                  ]
              }
+         },
+
+        "LOSSLESS_TRAFFIC_PATTERN": {
+            "AZURE": {
+                "mtu": "1024",
+                "small_packet_percentage": "100"
+            }
+        },
+
+        "DEFAULT_LOSSLESS_BUFFER_PARAMETER": {
+            "AZURE": {
+                "default_dynamic_th": "0",
+                "over_subscribe_ratio": "0"
+            }
         }
     },
     "SAMPLE_CONFIG_DB_UNKNOWN": {
