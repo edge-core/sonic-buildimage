@@ -314,3 +314,4 @@ phy_force_firmware_load
 phy_pcs_repeater
 l3_alpm_hit_skip
 phy_an_lt_msft
+system_ref_core_clock_khz
