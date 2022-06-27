@@ -995,3 +995,6 @@ serdes_tx_taps_33=nrz:-5:83:-22:0:0:0
 serdes_tx_taps_34=nrz:-5:83:-22:0:0:0
 serdes_tx_taps_35=nrz:-4:75:-21:0:0:0
 serdes_tx_taps_36=nrz:-8:89:-29:0:0:0
+
+xflow_macsec_secure_chan_to_num_secure_assoc_encrypt=2
+xflow_macsec_secure_chan_to_num_secure_assoc_decrypt=4
