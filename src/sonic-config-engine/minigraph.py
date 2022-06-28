@@ -87,6 +87,7 @@ def parse_device(device):
     lo_prefix = None
     lo_prefix_v6 = None
     mgmt_prefix = None
+    mgmt_prefix_v6 = None
     d_type = None   # don't shadow type()
     hwsku = None
     name = None
@@ -101,6 +102,8 @@ def parse_device(device):
             lo_prefix_v6 = node.find(str(QName(ns2, "IPPrefix"))).text
         elif node.tag == str(QName(ns, "ManagementAddress")):
             mgmt_prefix = node.find(str(QName(ns2, "IPPrefix"))).text
+        elif node.tag == str(QName(ns, "ManagementAddressV6")):
+            mgmt_prefix_v6 = node.find(str(QName(ns2, "IPPrefix"))).text
         elif node.tag == str(QName(ns, "Hostname")):
             name = node.text
         elif node.tag == str(QName(ns, "HwSku")):
@@ -117,7 +120,7 @@ def parse_device(device):
     if d_type is None and str(QName(ns3, "type")) in device.attrib:
         d_type = device.attrib[str(QName(ns3, "type"))]
 
-    return (lo_prefix, lo_prefix_v6, mgmt_prefix, name, hwsku, d_type, deployment_id, cluster, d_subtype)
+    return (lo_prefix, lo_prefix_v6, mgmt_prefix, mgmt_prefix_v6, name, hwsku, d_type, deployment_id, cluster, d_subtype)
 
 
 def calculate_lcm_for_ecmp (nhdevices_bank_map, nhip_bank_map):
@@ -254,7 +257,7 @@ def parse_png(png, hname, dpg_ecmp_content = None):
 
         if child.tag == str(QName(ns, "Devices")):
             for device in child.findall(str(QName(ns, "Device"))):
-                (lo_prefix, lo_prefix_v6, mgmt_prefix, name, hwsku, d_type, deployment_id, cluster, d_subtype) = parse_device(device)
+                (lo_prefix, lo_prefix_v6, mgmt_prefix, mgmt_prefix_v6, name, hwsku, d_type, deployment_id, cluster, d_subtype) = parse_device(device)
                 device_data = {'lo_addr': lo_prefix, 'type': d_type, 'mgmt_addr': mgmt_prefix, 'hwsku': hwsku}
                 if cluster:
                     device_data['cluster'] = cluster
@@ -387,7 +390,7 @@ def parse_asic_png(png, asic_name, hostname):
 
         if child.tag == str(QName(ns, "Devices")):
             for device in child.findall(str(QName(ns, "Device"))):
-                (lo_prefix, lo_prefix_v6, mgmt_prefix, name, hwsku, d_type, deployment_id, cluster, _) = parse_device(device)
+                (lo_prefix, lo_prefix_v6, mgmt_prefix, mgmt_prefix_v6, name, hwsku, d_type, deployment_id, cluster, _) = parse_device(device)
                 device_data = {'lo_addr': lo_prefix, 'type': d_type, 'mgmt_addr': mgmt_prefix, 'hwsku': hwsku }
                 if cluster:
                     device_data['cluster'] = cluster
@@ -1836,7 +1839,7 @@ def get_mux_cable_entries(mux_cable_ports, neighbors, devices):
 
 def parse_device_desc_xml(filename):
     root = ET.parse(filename).getroot()
-    (lo_prefix, lo_prefix_v6, mgmt_prefix, hostname, hwsku, d_type, _, _, _) = parse_device(root)
+    (lo_prefix, lo_prefix_v6, mgmt_prefix, mgmt_prefix_v6, hostname, hwsku, d_type, _, _, _) = parse_device(root)
 
     results = {}
     results['DEVICE_METADATA'] = {'localhost': {
@@ -1848,10 +1851,18 @@ def parse_device_desc_xml(filename):
     if lo_prefix_v6:
         results['LOOPBACK_INTERFACE'] = {('lo_v6', lo_prefix_v6): {}}
 
-    mgmt_intf = {}
-    mgmtipn = ipaddress.ip_network(UNICODE_TYPE(mgmt_prefix), False)
-    gwaddr = ipaddress.ip_address((next(mgmtipn.hosts())))
-    results['MGMT_INTERFACE'] = {('eth0', mgmt_prefix): {'gwaddr': gwaddr}}
+    results['MGMT_INTERFACE'] = {}
+    if mgmt_prefix:
+        mgmtipn = ipaddress.ip_network(UNICODE_TYPE(mgmt_prefix), False)
+        if mgmtipn != ipaddress.ip_network(u'0.0.0.0/0', False):
+            gwaddr = ipaddress.ip_address((next(mgmtipn.hosts())))
+            results['MGMT_INTERFACE'].update({('eth0', mgmt_prefix): {'gwaddr': gwaddr}})
+
+    if mgmt_prefix_v6:
+        mgmtipn_v6 = ipaddress.ip_network(UNICODE_TYPE(mgmt_prefix_v6), False)
+        if mgmtipn != ipaddress.ip_network(u'::/0', False):
+            gwaddr_v6 = ipaddress.ip_address((next(mgmtipn_v6.hosts())))
+            results['MGMT_INTERFACE'].update({('eth0', mgmt_prefix_v6): {'gwaddr': gwaddr_v6}})
 
     return results
 
