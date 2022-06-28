@@ -1,3 +1,4 @@
+{% set asan_extra_options = ':print_suppressions=0' %}
 [supervisord]
 logfile_maxbytes=1MB
 logfile_backups=2
@@ -43,7 +44,7 @@ autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/syncd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/syncd-asan.log{{ asan_extra_options }}"
 {% endif %}
 
 [program:gbsyncd]
@@ -71,7 +72,7 @@ autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/portsyncd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/portsyncd-asan.log{{ asan_extra_options }}"
 {% endif %}
 
 [program:orchagent]
@@ -82,7 +83,7 @@ autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/orchagent-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/orchagent-asan.log{{ asan_extra_options }}"
 {% endif %}
 
 [program:coppmgrd]
@@ -93,7 +94,7 @@ autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/coppmgrd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/coppmgrd-asan.log{{ asan_extra_options }}"
 {% endif %}
 
 [program:neighsyncd]
@@ -104,7 +105,7 @@ autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/neighsyncd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/neighsyncd-asan.log{{ asan_extra_options }}"
 {% endif %}
 
 [program:teamsyncd]
@@ -115,7 +116,7 @@ autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/teamsyncd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/teamsyncd-asan.log{{ asan_extra_options }}"
 {% endif %}
 
 [program:vlanmgrd]
@@ -126,7 +127,7 @@ autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/vlanmgrd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/vlanmgrd-asan.log{{ asan_extra_options }}"
 {% endif %}
 
 [program:intfmgrd]
@@ -137,7 +138,7 @@ autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/intfmgrd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/intfmgrd-asan.log{{ asan_extra_options }}"
 {% endif %}
 
 [program:portmgrd]
@@ -148,7 +149,7 @@ autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/portmgrd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/portmgrd-asan.log{{ asan_extra_options }}"
 {% endif %}
 
 [program:teammgrd]
@@ -159,7 +160,7 @@ autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/teammgrd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/teammgrd-asan.log{{ asan_extra_options }}"
 {% endif %}
 
 [program:zebra]
@@ -194,7 +195,7 @@ autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/fpmsyncd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/fpmsyncd-asan.log{{ asan_extra_options }}"
 {% endif %}
 
 [program:arp_update]
@@ -213,7 +214,7 @@ autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/buffermgrd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/buffermgrd-asan.log{{ asan_extra_options }}"
 {% endif %}
 
 [program:vrfmgrd]
@@ -224,7 +225,7 @@ autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/vrfmgrd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/vrfmgrd-asan.log{{ asan_extra_options }}"
 {% endif %}
 
 [program:restore_neighbors]
@@ -245,7 +246,7 @@ autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/nbrmgrd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/nbrmgrd-asan.log{{ asan_extra_options }}"
 {% endif %}
 
 [program:vxlanmgrd]
@@ -256,7 +257,7 @@ autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/vxlanmgrd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/vxlanmgrd-asan.log{{ asan_extra_options }}"
 {% endif %}
 
 [program:sflowmgrd]
@@ -267,7 +268,7 @@ autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/sflowmgrd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/sflowmgrd-asan.log{{ asan_extra_options }}"
 {% endif %}
 
 [program:natmgrd]
@@ -278,7 +279,7 @@ autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/natmgrd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/natmgrd-asan.log{{ asan_extra_options }}"
 {% endif %}
 
 [program:natsyncd]
@@ -289,7 +290,7 @@ autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/natsyncd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/natsyncd-asan.log{{ asan_extra_options }}"
 {% endif %}
 
 [program:fdbsyncd]
@@ -300,7 +301,7 @@ autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/fdbsyncd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/fdbsyncd-asan.log{{ asan_extra_options }}"
 {% endif %}
 
 [program:tunnelmgrd]
@@ -311,5 +312,5 @@ autorestart=false
 stdout_logfile=syslog
 stderr_logfile=syslog
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/tunnelmgrd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/tunnelmgrd-asan.log{{ asan_extra_options }}"
 {% endif %}
