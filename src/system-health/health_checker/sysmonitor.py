@@ -2,6 +2,7 @@
 
 import os
 import sys
+import time
 import glob
 import multiprocessing
 from datetime import datetime
@@ -145,12 +146,7 @@ class Sysmonitor(ProcessTaskBase):
             dir_list += [os.path.basename(i) for i in glob.glob('{}/*.service'.format(path))] 
 
         #add the enabled docker services from config db feature table
-        feature_table = self.config_db.get_table("FEATURE")
-        for srv in feature_table.keys():
-            if feature_table[srv]["state"] not in ["disabled", "always_disabled"]:
-                srvext = srv + ".service"
-                if srvext not in dir_list:
-                    dir_list.append(srvext)
+        self.get_service_from_feature_table(dir_list)
         
         self.config.load_config()
         if self.config and self.config.ignore_services:
@@ -161,6 +157,41 @@ class Sysmonitor(ProcessTaskBase):
         dir_list.sort()
         return dir_list
 
+    def get_service_from_feature_table(self, dir_list):
+        """Get service from CONFIG DB FEATURE table. During "config reload" command, filling FEATURE table
+           is not an atomic operation, sonic-cfggen do it with two steps:
+               1. Add an empty table entry to CONFIG DB
+               2. Add all fields to the table
+            
+            So, if system health read db on middle of step 1 and step 2, it might read invalid data. A retry
+            mechanism is here to avoid such issue.
+
+        Args:
+            dir_list (list): service list
+        """
+        max_retry = 3
+        retry_delay = 1
+        success = True
+
+        while max_retry > 0:
+            success = True
+            feature_table = self.config_db.get_table("FEATURE")
+            for srv, fields in feature_table.items():
+                if 'state' not in fields:
+                    success = False
+                    logger.log_warning("FEATURE table is not fully ready: {}, retrying".format(feature_table))
+                    break
+                if fields["state"] not in ["disabled", "always_disabled"]:
+                    srvext = srv + ".service"
+                    if srvext not in dir_list:
+                        dir_list.append(srvext)
+            if not success:
+                max_retry -= 1
+                time.sleep(retry_delay)
+            else:
+                break
+        if not success:
+            logger.log_error("FEATURE table is not fully ready: {}, max retry reached".format(feature_table))
 
     #Checks FEATURE table from config db for the service' check_up_status flag
     #if marked to true, then read the service up_status from FEATURE table of state db.

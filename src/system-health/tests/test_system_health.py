@@ -720,3 +720,23 @@ def test_system_service():
     sysmon.task_run()
     assert sysmon._task_process is not None
     sysmon.task_stop()
+
+
+def test_get_service_from_feature_table():
+    sysmon = Sysmonitor()
+    sysmon.config_db = MagicMock()
+    sysmon.config_db.get_table = MagicMock()
+    sysmon.config_db.get_table.side_effect = [
+        {
+            'bgp': {},
+            'swss': {}
+        },
+        {
+            'bgp': {'state': 'enabled'},
+            'swss': {'state': 'disabled'}
+        }
+    ]
+    dir_list = []
+    sysmon.get_service_from_feature_table(dir_list)
+    assert 'bgp.service' in dir_list
+    assert 'swss.service' not in dir_list
