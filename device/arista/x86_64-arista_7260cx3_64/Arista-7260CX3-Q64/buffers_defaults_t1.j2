@@ -49,8 +49,12 @@
     },
 {%- endmacro %}
 
-{% import 'buffers_extra_queues.j2' as defs with context %}
+{% import 'buffers_extra_queues.j2' as defs1 with context %}
+{% import 'buffers_extra_pgs.j2' as defs2 with context %}
 
 {%- macro generate_queue_buffers_with_extra_lossless_queues(port_names, port_names_require_extra_buffer) %}
-{{ defs.generate_queue_buffers_with_extra_lossless_queues(port_names, port_names_require_extra_buffer) }}
+{{ defs1.generate_queue_buffers_with_extra_lossless_queues(port_names, port_names_require_extra_buffer) }}
+{%- endmacro %}
+{%- macro generate_pg_buffers_with_extra_lossy_pgs(port_names, port_names_require_no_extra_pgs) %}
+{{ defs2.generate_pg_buffers_with_extra_lossy_pgs(port_names, port_names_require_no_extra_pgs) }}
 {%- endmacro %}
