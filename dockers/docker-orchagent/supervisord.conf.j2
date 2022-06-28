@@ -36,6 +36,7 @@ dependent_startup=true
 {% set orchagent_dependent_startup_wait_for = "rsyslogd:running" %}
 {%- endif %}
 {%- endif %}
+{% set asan_extra_options = ':print_suppressions=0' %}
 
 {% if is_fabric_asic == 0 %}
 [program:gearsyncd]
@@ -50,7 +51,7 @@ stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=rsyslogd:running
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/gearsyncd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/gearsyncd-asan.log{{ asan_extra_options }}"
 {% endif %}
 {%- endif %}
 
@@ -65,7 +66,7 @@ stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=rsyslogd:running
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/portsyncd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/portsyncd-asan.log{{ asan_extra_options }}"
 {% endif %}
 {%- endif %}
 
@@ -79,7 +80,7 @@ stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for={{ orchagent_dependent_startup_wait_for }}
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/orchagent-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/orchagent-asan.log{{ asan_extra_options }}"
 {% endif %}
 
 [program:swssconfig]
@@ -94,7 +95,7 @@ stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=orchagent:running
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/swssconfig-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/swssconfig-asan.log{{ asan_extra_options }}"
 {% endif %}
 
 {% if is_fabric_asic == 0 %}
@@ -124,7 +125,7 @@ stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=orchagent:running
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/coppmgrd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/coppmgrd-asan.log{{ asan_extra_options }}"
 {% endif %}
 {%- endif %}
 
@@ -139,7 +140,7 @@ stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/neighsyncd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/neighsyncd-asan.log{{ asan_extra_options }}"
 {% endif %}
 {%- endif %}
 
@@ -154,7 +155,7 @@ stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/vlanmgrd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/vlanmgrd-asan.log{{ asan_extra_options }}"
 {% endif %}
 {%- endif %}
 
@@ -169,7 +170,7 @@ stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/intfmgrd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/intfmgrd-asan.log{{ asan_extra_options }}"
 {% endif %}
 {%- endif %}
 
@@ -184,7 +185,7 @@ stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/portmgrd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/portmgrd-asan.log{{ asan_extra_options }}"
 {% endif %}
 {%- endif %}
 
@@ -199,7 +200,7 @@ stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/buffermgrd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/buffermgrd-asan.log{{ asan_extra_options }}"
 {% endif %}
 {%- endif %}
 
@@ -214,7 +215,7 @@ stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/vrfmgrd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/vrfmgrd-asan.log{{ asan_extra_options }}"
 {% endif %}
 {%- endif %}
 
@@ -229,7 +230,7 @@ stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/nbrmgrd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/nbrmgrd-asan.log{{ asan_extra_options }}"
 {% endif %}
 {%- endif %}
 
@@ -244,7 +245,7 @@ stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/vxlanmgrd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/vxlanmgrd-asan.log{{ asan_extra_options }}"
 {% endif %}
 {%- endif %}
 
@@ -259,7 +260,7 @@ stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/tunnelmgrd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/tunnelmgrd-asan.log{{ asan_extra_options }}"
 {% endif %}
 {%- endif %}
 
@@ -284,7 +285,7 @@ stderr_logfile=syslog
 dependent_startup=true
 dependent_startup_wait_for=swssconfig:exited
 {% if ENABLE_ASAN == "y" %}
-environment=ASAN_OPTIONS="log_path=/var/log/asan/fdbsyncd-asan.log"
+environment=ASAN_OPTIONS="log_path=/var/log/asan/fdbsyncd-asan.log{{ asan_extra_options }}"
 {% endif %}
 {%- endif %}
 
