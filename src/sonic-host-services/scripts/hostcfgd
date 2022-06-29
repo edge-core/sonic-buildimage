@@ -8,7 +8,7 @@ import sys
 import subprocess
 import syslog
 import signal
-
+import re
 import jinja2
 from sonic_py_common import device_info
 from swsscommon.swsscommon import ConfigDBConnector, DBConnector, Table
@@ -16,6 +16,8 @@ from swsscommon.swsscommon import ConfigDBConnector, DBConnector, Table
 # FILE
 PAM_AUTH_CONF = "/etc/pam.d/common-auth-sonic"
 PAM_AUTH_CONF_TEMPLATE = "/usr/share/sonic/templates/common-auth-sonic.j2"
+PAM_PASSWORD_CONF = "/etc/pam.d/common-password"
+PAM_PASSWORD_CONF_TEMPLATE = "/usr/share/sonic/templates/common-password.j2"
 NSS_TACPLUS_CONF = "/etc/tacplus_nss.conf"
 NSS_TACPLUS_CONF_TEMPLATE = "/usr/share/sonic/templates/tacplus_nss.conf.j2"
 NSS_RADIUS_CONF = "/etc/radius_nss.conf"
@@ -24,6 +26,16 @@ PAM_RADIUS_AUTH_CONF_TEMPLATE = "/usr/share/sonic/templates/pam_radius_auth.conf
 NSS_CONF = "/etc/nsswitch.conf"
 ETC_PAMD_SSHD = "/etc/pam.d/sshd"
 ETC_PAMD_LOGIN = "/etc/pam.d/login"
+ETC_LOGIN_DEF = "/etc/login.defs"
+
+# Linux login.def default values (password hardening disable)
+LINUX_DEFAULT_PASS_MAX_DAYS = 99999
+LINUX_DEFAULT_PASS_WARN_AGE = 7
+
+ACCOUNT_NAME = 0 # index of account name
+AGE_DICT = { 'MAX_DAYS': {'REGEX_DAYS': r'^PASS_MAX_DAYS[ \t]*(?P<max_days>\d*)', 'DAYS': 'max_days', 'CHAGE_FLAG': '-M '},
+            'WARN_DAYS': {'REGEX_DAYS': r'^PASS_WARN_AGE[ \t]*(?P<warn_days>\d*)', 'DAYS': 'warn_days', 'CHAGE_FLAG': '-W '}
+            }
 PAM_LIMITS_CONF_TEMPLATE = "/usr/share/sonic/templates/pam_limits.j2"
 LIMITS_CONF_TEMPLATE = "/usr/share/sonic/templates/limits.conf.j2"
 PAM_LIMITS_CONF = "/etc/pam.d/pam-limits-conf"
@@ -85,8 +97,10 @@ def run_cmd(cmd, log_err=True, raise_exception=False):
 def is_true(val):
     if val == 'True' or val == 'true':
         return True
-    else:
+    elif val == 'False' or val == 'false':
         return False
+    syslog.syslog(syslog.LOG_ERR, "Failed to get bool value, instead val= {}".format(val))
+    return False
 
 
 def is_vlan_sub_interface(ifname):
@@ -867,6 +881,189 @@ class AaaCfg(object):
                     .format(err.cmd, err.returncode, err.output))
 
 
+class PasswHardening(object):
+    def __init__(self):
+        self.passw_policies_default = {}
+        self.passw_policies = {}
+        
+        self.debug = False
+        self.trace = False
+
+    def load(self, policies_conf):
+        for row in policies_conf:
+            self.passw_policies_update(row, policies_conf[row], modify_conf=False)
+
+        self.modify_passw_conf_file()
+
+    def passw_policies_update(self, key, data, modify_conf=True):
+        syslog.syslog(syslog.LOG_DEBUG, "passw_policies_update - key: {}".format(key))
+        syslog.syslog(syslog.LOG_DEBUG, "passw_policies_update - data: {}".format(data))
+
+        if data == {}:
+            self.passw_policies = {}
+        else:
+            if 'reject_user_passw_match' in data:
+                data['reject_user_passw_match'] = is_true(data['reject_user_passw_match'])
+            if 'lower_class' in data:
+                data['lower_class'] = is_true(data['lower_class'])
+            if 'upper_class' in data:
+                data['upper_class'] = is_true(data['upper_class'])
+            if 'digits_class' in data:
+                data['digits_class'] = is_true(data['digits_class'])
+            if 'special_class' in data:
+                data['special_class'] = is_true(data['special_class'])
+
+            if key == 'POLICIES':
+                self.passw_policies = data
+
+        if modify_conf:
+            self.modify_passw_conf_file()
+
+    def modify_single_file_inplace(self, filename, operations=None):
+        if operations:
+            cmd = "sed -i {0} {1}".format(' -i '.join(operations), filename)
+            syslog.syslog(syslog.LOG_DEBUG, "modify_single_file_inplace: cmd - {}".format(cmd))
+            os.system(cmd)
+
+    def set_passw_hardening_policies(self, passw_policies):
+        # Password Hardening flow
+        # When feature is enabled, the passw_policies from CONFIG_DB will be set in the pam files /etc/pam.d/common-password and /etc/login.def.
+        # When the feature is disabled, the files above will be generate with the linux default (without secured passw_policies).
+        syslog.syslog(syslog.LOG_DEBUG, "modify_conf_file: passw_policies - {}".format(passw_policies))
+
+        template_passwh_file = os.path.abspath(PAM_PASSWORD_CONF_TEMPLATE)
+        env = jinja2.Environment(loader=jinja2.FileSystemLoader('/'), trim_blocks=True)
+        env.filters['sub'] = sub
+        template_passwh = env.get_template(template_passwh_file)
+
+        # Render common-password file with passw hardening policies if any. Other render without them.
+        pam_passwh_conf = template_passwh.render(debug=self.debug, passw_policies=passw_policies)
+
+        # Use rename(), which is atomic (on the same fs) to avoid empty file
+        with open(PAM_PASSWORD_CONF + ".tmp", 'w') as f:
+            f.write(pam_passwh_conf)
+        os.chmod(PAM_PASSWORD_CONF + ".tmp", 0o644)
+        os.rename(PAM_PASSWORD_CONF + ".tmp", PAM_PASSWORD_CONF)
+
+        # Age policy
+        # When feature disabled or age policy disabled, expiry days policy should be as linux default, other, accoriding CONFIG_DB.
+        curr_expiration = LINUX_DEFAULT_PASS_MAX_DAYS
+        curr_expiration_warning = LINUX_DEFAULT_PASS_WARN_AGE
+
+        if passw_policies:
+            if 'state' in passw_policies:
+                if passw_policies['state'] == 'enabled':
+                    if 'expiration' in passw_policies:
+                        if int(self.passw_policies['expiration']) != 0: # value '0' meaning age policy is disabled
+                            #  the logic is to modify the expiration time according the last updated modificatiion
+                            #
+                            curr_expiration = int(passw_policies['expiration'])
+
+                    if 'expiration_warning' in passw_policies:
+                        if int(self.passw_policies['expiration_warning']) != 0: # value '0' meaning age policy is disabled
+                            curr_expiration_warning = int(passw_policies['expiration_warning'])
+
+        if self.is_passwd_aging_expire_update(curr_expiration, 'MAX_DAYS'):
+            # Set aging policy for existing users
+            self.passwd_aging_expire_modify(curr_expiration, 'MAX_DAYS')
+
+            # Aging policy for new users
+            self.modify_single_file_inplace(ETC_LOGIN_DEF, ["\'/^PASS_MAX_DAYS/c\PASS_MAX_DAYS " +str(curr_expiration)+"\'"])
+
+        if self.is_passwd_aging_expire_update(curr_expiration_warning, 'WARN_DAYS'):
+            # Aging policy for existing users
+            self.passwd_aging_expire_modify(curr_expiration_warning, 'WARN_DAYS')
+
+            # Aging policy for new users
+            self.modify_single_file_inplace(ETC_LOGIN_DEF, ["\'/^PASS_WARN_AGE/c\PASS_WARN_AGE " +str(curr_expiration_warning)+"\'"])
+
+    def passwd_aging_expire_modify(self, curr_expiration, age_type):
+        normal_accounts = self.get_normal_accounts()
+        if not normal_accounts:
+            syslog.syslog(syslog.LOG_ERR,"failed, no normal users found in /etc/passwd")
+            return
+        chage_flag = AGE_DICT[age_type]['CHAGE_FLAG']
+        for normal_account in normal_accounts:
+            try:
+                chage_p_m = subprocess.Popen(('chage', chage_flag + str(curr_expiration), normal_account), stdout=subprocess.PIPE)
+                return_code_chage_p_m = chage_p_m.poll()
+                if return_code_chage_p_m != 0:
+                    syslog.syslog(syslog.LOG_ERR, "failed: return code - {}".format(return_code_chage_p_m))
+
+            except subprocess.CalledProcessError as e:
+                syslog.syslog(syslog.LOG_ERR, "{} - failed: return code - {}, output:\n{}".format(e.cmd, e.returncode, e.output))
+
+    def is_passwd_aging_expire_update(self, curr_expiration, age_type):
+        """ Function verify that the current age expiry policy values are equal from the old one
+            Return update_age_status 'True' value meaning that was a modification from the last time, and vice versa.
+        """
+        update_age_status = False
+        days_num = None
+        regex_days = AGE_DICT[age_type]['REGEX_DAYS']
+        days_type = AGE_DICT[age_type]['DAYS']
+        if os.path.exists(ETC_LOGIN_DEF):
+            with open(ETC_LOGIN_DEF, 'r') as f:
+                login_def_data = f.readlines()
+
+            for line in login_def_data:
+                m1 = re.match(regex_days, line)
+                if m1:
+                    days_num = int(m1.group(days_type))
+                    break
+
+        if curr_expiration != days_num:
+            update_age_status = True
+
+        return update_age_status
+
+    def get_normal_accounts(self):
+        # Get user list
+        try:
+            getent_out = subprocess.check_output(['getent', 'passwd']).decode('utf-8').split('\n')
+        except subprocess.CalledProcessError as err:
+            syslog.syslog(syslog.LOG_ERR, "{} - failed: return code - {}, output:\n{}".format(err.cmd, err.returncode, err.output))
+            return False
+
+        # Get range of normal users
+        REGEX_UID_MAX = r'^UID_MAX[ \t]*(?P<uid_max>\d*)'
+        REGEX_UID_MIN = r'^UID_MIN[ \t]*(?P<uid_min>\d*)'
+        uid_max = None
+        uid_min = None
+        if os.path.exists(ETC_LOGIN_DEF):
+            with open(ETC_LOGIN_DEF, 'r') as f:
+                login_def_data = f.readlines()
+
+            for line in login_def_data:
+                m1 = re.match(REGEX_UID_MAX, line)
+                m2 = re.match(REGEX_UID_MIN, line)
+                if m1:
+                    uid_max = int(m1.group("uid_max"))
+                if m2:
+                    uid_min = int(m2.group("uid_min"))
+
+        if not uid_max or not uid_min:
+            syslog.syslog(syslog.LOG_ERR,"failed, no UID_MAX/UID_MIN founded in login.def file")
+            return False
+
+        # Get normal user list
+        normal_accounts = []
+        for account in getent_out[0:-1]: # last item is always empty
+            account_spl = account.split(':')
+            account_number = int(account_spl[2])
+            if account_number >= uid_min and account_number <= uid_max:
+                normal_accounts.append(account_spl[ACCOUNT_NAME])
+
+        normal_accounts.append('root') # root is also a candidate to be age modify.
+        return normal_accounts
+
+    def modify_passw_conf_file(self):
+        passw_policies = self.passw_policies_default.copy()
+        passw_policies.update(self.passw_policies)
+        
+        # set new Password Hardening policies.
+        self.set_passw_hardening_policies(passw_policies)
+
+
 class KdumpCfg(object):
     def __init__(self, CfgDb):
         self.config_db = CfgDb
@@ -1090,6 +1287,9 @@ class HostConfigDaemon:
         self.hostname_cache=""
         self.aaacfg = AaaCfg()
 
+        # Initialize PasswHardening
+        self.passwcfg = PasswHardening()
+
         # Initialize PamLimitsCfg
         self.pamLimitsCfg = PamLimitsCfg(self.config_db)
         self.pamLimitsCfg.update_config_file()
@@ -1105,12 +1305,14 @@ class HostConfigDaemon:
         ntp_server = init_data['NTP_SERVER']
         ntp_global = init_data['NTP']
         kdump = init_data['KDUMP']
+        passwh = init_data['PASSW_HARDENING']
 
         self.feature_handler.sync_state_field(features)
         self.aaacfg.load(aaa, tacacs_global, tacacs_server, radius_global, radius_server)
         self.iptables.load(lpbk_table)
         self.ntpcfg.load(ntp_global, ntp_server)
         self.kdumpCfg.load(kdump)
+        self.passwcfg.load(passwh)
 
         dev_meta = self.config_db.get_table('DEVICE_METADATA')
         if 'localhost' in dev_meta:
@@ -1130,6 +1332,10 @@ class HostConfigDaemon:
     def aaa_handler(self, key, op, data):
         self.aaacfg.aaa_update(key, data)
         syslog.syslog(syslog.LOG_INFO, 'AAA Update: key: {}, op: {}, data: {}'.format(key, op, data))
+
+    def passwh_handler(self, key, op, data):
+        self.passwcfg.passw_policies_update(key, data)
+        syslog.syslog(syslog.LOG_INFO, 'PASSW_HARDENING Update: key: {}, op: {}, data: {}'.format(key, op, data))
 
     def tacacs_server_handler(self, key, op, data):
         self.aaacfg.tacacs_server_update(key, data)
@@ -1229,6 +1435,7 @@ class HostConfigDaemon:
         self.config_db.subscribe('TACPLUS_SERVER', make_callback(self.tacacs_server_handler))
         self.config_db.subscribe('RADIUS', make_callback(self.radius_global_handler))
         self.config_db.subscribe('RADIUS_SERVER', make_callback(self.radius_server_handler))
+        self.config_db.subscribe('PASSW_HARDENING', make_callback(self.passwh_handler))
         # Handle IPTables configuration
         self.config_db.subscribe('LOOPBACK_INTERFACE', make_callback(self.lpbk_handler))
         # Handle NTP & NTP_SERVER updates
