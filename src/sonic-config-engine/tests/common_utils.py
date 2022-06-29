@@ -61,6 +61,7 @@ class YangWrapper(object):
             parser.add_argument("-n", "--namespace", help="namespace name", nargs='?', const=None, default=None)
             parser.add_argument("-p", "--port-config", help="port config file, used with -m or -k", nargs='?', const=None)
             parser.add_argument("-S", "--hwsku-config", help="hwsku config file, used with -p and -m or -k", nargs='?', const=None)
+            parser.add_argument("-j", "--json", help="additional json file input, used with -p, -S and -m or -k", nargs='?', const=None)
             args, unknown = parser.parse_known_args(shlex.split(argument))
 
             print('\n    Validating yang schema')
@@ -73,6 +74,8 @@ class YangWrapper(object):
                 cmd += ' -p ' + args.port_config
             if args.namespace is not None:
                 cmd += ' -n ' + args.namespace
+            if args.json is not None:
+                cmd += ' -j ' + args.json
             cmd += ' --print-data'
             output = subprocess.check_output(cmd, shell=True).decode()
             try:

@@ -67,6 +67,21 @@
       <DownstreamSummarySet xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
     </DeviceDataPlaneInfo>
   </DpgDec>
+  <LinkMetadataDeclaration>
+    <Link xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
+      <a:LinkMetadata>
+        <a:Name i:nil="true"/>
+        <a:Properties>
+          <a:DeviceProperty>
+            <a:Name>MacSecEnabled</a:Name>
+            <a:Value>True</a:Value>
+          </a:DeviceProperty>
+        </a:Properties>
+        <a:Key>linecard-1:Ethernet1/1;ARISTA01-RH:Ethernet1/1</a:Key>
+      </a:LinkMetadata>
+    </Link>
+    <Properties xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
+  </LinkMetadataDeclaration>
   <PngDec>
     <DeviceInterfaceLinks/>
     <Devices>
@@ -144,6 +159,10 @@
       <a:Reference i:nil="true"/>
       <a:Value>16</a:Value>
     </a:DeviceProperty>
+    <a:DeviceProperty>
+      <a:Name>MacSecProfile</a:Name>
+      <a:Value>PrimaryKey="macsec-profile" FallbackKey="macsec-profile2" MacsecPolicy=""</a:Value>
+    </a:DeviceProperty>
   </a:Properties>
   </a:DeviceMetadata>
  </Devices>
@@ -157,44 +176,31 @@
           <AlternateSpeeds i:nil="true"/>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
-          <InterfaceName>fortyGigE0/0</InterfaceName>
+	  <InterfaceName>Ethernet1/1</InterfaceName>
           <InterfaceType i:nil="true"/>
           <MultiPortsInterface>false</MultiPortsInterface>
           <PortName>0</PortName>
           <Priority>0</Priority>
-          <Speed>10000</Speed>
+          <Speed>100000</Speed>
         </a:EthernetInterface>
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
-          <InterfaceName>fortyGigE0/4</InterfaceName>
+          <InterfaceName>Ethernet2/1</InterfaceName>
           <InterfaceType i:nil="true"/>
           <MultiPortsInterface>false</MultiPortsInterface>
           <PortName>0</PortName>
           <Priority>0</Priority>
-          <Speed>25000</Speed>
+          <Speed>100000</Speed>
         </a:EthernetInterface>
         <a:EthernetInterface>
           <ElementType>DeviceInterface</ElementType>
           <AlternateSpeeds i:nil="true"/>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
-          <InterfaceName>fortyGigE0/8</InterfaceName>
-          <InterfaceType i:nil="true"/>
-          <MultiPortsInterface>false</MultiPortsInterface>
-          <PortName>0</PortName>
-          <Priority>0</Priority>
-          <Speed>40000</Speed>
-          <Description>Interface description</Description>
-        </a:EthernetInterface>
-        <a:EthernetInterface>
-          <ElementType>DeviceInterface</ElementType>
-          <AlternateSpeeds i:nil="true"/>
-          <EnableFlowControl>true</EnableFlowControl>
-          <Index>1</Index>
-          <InterfaceName>fortyGigE0/12</InterfaceName>
+          <InterfaceName>Ethernet3/1</InterfaceName>
           <InterfaceType i:nil="true"/>
           <MultiPortsInterface>false</MultiPortsInterface>
           <PortName>0</PortName>
@@ -207,7 +213,20 @@
           <AlternateSpeeds i:nil="true"/>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
-          <InterfaceName>fortyGigE0/16</InterfaceName>
+          <InterfaceName>Ethernet4/1</InterfaceName>
+          <InterfaceType i:nil="true"/>
+          <MultiPortsInterface>false</MultiPortsInterface>
+          <PortName>0</PortName>
+          <Priority>0</Priority>
+          <Speed>100000</Speed>
+          <Description>Interface description</Description>
+        </a:EthernetInterface>
+        <a:EthernetInterface>
+          <ElementType>DeviceInterface</ElementType>
+          <AlternateSpeeds i:nil="true"/>
+          <EnableFlowControl>true</EnableFlowControl>
+          <Index>1</Index>
+          <InterfaceName>Ethernet5/1</InterfaceName>
           <InterfaceType i:nil="true"/>
           <MultiPortsInterface>false</MultiPortsInterface>
           <PortName>0</PortName>
@@ -219,7 +238,7 @@
           <AlternateSpeeds i:nil="true"/>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
-          <InterfaceName>fortyGigE0/20</InterfaceName>
+          <InterfaceName>Ethernet6/1</InterfaceName>
           <InterfaceType i:nil="true"/>
           <MultiPortsInterface>false</MultiPortsInterface>
           <PortName>0</PortName>
@@ -231,7 +250,7 @@
           <AlternateSpeeds i:nil="true"/>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
-          <InterfaceName>fortyGigE0/24</InterfaceName>
+          <InterfaceName>Ethernet7/1</InterfaceName>
           <InterfaceType i:nil="true"/>
           <MultiPortsInterface>false</MultiPortsInterface>
           <PortName>0</PortName>
@@ -243,7 +262,7 @@
           <AlternateSpeeds i:nil="true"/>
           <EnableFlowControl>true</EnableFlowControl>
           <Index>1</Index>
-          <InterfaceName>fortyGigE0/28</InterfaceName>
+          <InterfaceName>Ethernetr8/1</InterfaceName>
           <InterfaceType i:nil="true"/>
           <MultiPortsInterface>false</MultiPortsInterface>
           <PortName>0</PortName>
