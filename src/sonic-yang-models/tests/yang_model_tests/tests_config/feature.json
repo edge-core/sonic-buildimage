@@ -10,7 +10,8 @@
                         "has_timer": "False",
                         "has_global_scope": "True",
                         "has_per_asic_scope": "True",
-                        "set_owner": "local"
+                        "set_owner": "local",
+                        "check_up_status": "False"
                     },
                     {
                         "name": "swss",
@@ -19,7 +20,8 @@
                         "has_timer": "false",
                         "has_global_scope": "false",
                         "has_per_asic_scope": "true",
-                        "set_owner": "local"
+                        "set_owner": "local",
+                        "check_up_status": "false"
                     },
                     {
                         "name": "syncd",
@@ -28,7 +30,8 @@
                         "has_timer": "false",
                         "has_global_scope": "false",
                         "has_per_asic_scope": "true",
-                        "set_owner": "local"
+                        "set_owner": "local",
+                        "check_up_status": "false"
                     },
                     {
                         "name": "snmp",
@@ -37,7 +40,8 @@
                         "has_timer": "false",
                         "has_global_scope": "true",
                         "has_per_asic_scope": "false",
-                        "set_owner": "kube"
+                        "set_owner": "kube",
+                        "check_up_status": "false"
                     },
                     {
                         "name": "lldp",
@@ -46,7 +50,8 @@
                         "has_timer": "false",
                         "has_global_scope": "false",
                         "has_per_asic_scope": "true",
-                        "set_owner": "kube"
+                        "set_owner": "kube",
+                        "check_up_status": "false"
                     },
                     {
                         "name": "dhcp_relay",
@@ -55,7 +60,8 @@
                         "has_timer": "false",
                         "has_global_scope": "false",
                         "has_per_asic_scope": "true",
-                        "set_owner": "kube"
+                        "set_owner": "kube",
+                        "check_up_status": "false"
                     }
                 ]
             }
@@ -72,7 +78,8 @@
                         "has_timer": "false",
                         "has_global_scope": "false",
                         "has_per_asic_scope": "true",
-                        "set_owner": "invalid"
+                        "set_owner": "invalid",
+                        "check_up_status": "false"
                     }
                 ]
             }
@@ -88,7 +95,8 @@
                         "auto_restart": "disabled",
                         "has_timer": "false",
                         "has_global_scope": "false",
-                        "has_per_asic_scope": "true"
+                        "has_per_asic_scope": "true",
+                        "check_up_status": "false"
                     }
                 ]
             }
@@ -104,7 +112,8 @@
                         "auto_restart": "always_enabled",
                         "has_timer": "FALSE",
                         "has_global_scope": "TRUE",
-                        "has_per_asic_scope": "TRUE"
+                        "has_per_asic_scope": "TRUE",
+                        "check_up_status": "FALSE"
                     }
                 ]
             }

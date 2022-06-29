@@ -1465,7 +1465,8 @@
                 "has_timer": "False",
                 "high_mem_alert": "disabled",
                 "state": "enabled",
-                "set_owner": "local"
+                "set_owner": "local",
+                "check_up_status": "False"
             },
             "database": {
                 "auto_restart": "always_enabled",
@@ -1474,7 +1475,8 @@
                 "has_timer": "false",
                 "high_mem_alert": "disabled",
                 "state": "always_enabled",
-                "set_owner": "local"
+                "set_owner": "local",
+                "check_up_status": "false"
             },
             "snmp": {
                 "auto_restart": "enabled",
@@ -1483,7 +1485,8 @@
                 "has_timer": "true",
                 "high_mem_alert": "disabled",
                 "state": "enabled",
-                "set_owner": "kube"
+                "set_owner": "kube",
+                "check_up_status": "true"
             },
             "swss": {
                 "auto_restart": "enabled",
@@ -1492,7 +1495,8 @@
                 "has_timer": "false",
                 "high_mem_alert": "disabled",
                 "state": "enabled",
-                "set_owner": "local"
+                "set_owner": "local",
+                "check_up_status": "false"
             },
             "syncd": {
                 "auto_restart": "enabled",
@@ -1501,7 +1505,8 @@
                 "has_timer": "false",
                 "high_mem_alert": "disabled",
                 "state": "enabled",
-                "set_owner": "local"
+                "set_owner": "local",
+                "check_up_status": "false"
             },
             "lldp": {
                 "auto_restart": "enabled",
@@ -1510,7 +1515,8 @@
                 "has_timer": "false",
                 "high_mem_alert": "disabled",
                 "state": "enabled",
-                "set_owner": "kube"
+                "set_owner": "kube",
+                "check_up_status": "false"
             },
             "dhcp_relay": {
                 "auto_restart": "enabled",
@@ -1519,7 +1525,8 @@
                 "has_timer": "false",
                 "high_mem_alert": "disabled",
                 "state": "{% if not (DEVICE_METADATA is defined and DEVICE_METADATA['localhost'] is defined and DEVICE_METADATA['localhost']['type'] is defined and DEVICE_METADATA['localhost']['type'] != 'ToRRouter') %}enabled{% else %}disabled{% endif %}",
-                "set_owner": "kube"
+                "set_owner": "kube",
+                "check_up_status": "true"
             }
         },
         "DHCP_RELAY": {
