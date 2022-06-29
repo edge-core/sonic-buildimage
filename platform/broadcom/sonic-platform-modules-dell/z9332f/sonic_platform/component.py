@@ -388,9 +388,15 @@ class Component(ComponentBase):
         Args:
             image_path: A string, path to firmware image
 
+        Returns:
+            False if image not found.
+
         Raises:
             RuntimeError: update failed
         """
+        if not os.path.isfile(image_path):
+            return False
+
         valid, version = self._get_available_firmware_version(image_path)
         if valid:
             avail_ver = version.get(self.name)
