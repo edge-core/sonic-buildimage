@@ -192,7 +192,7 @@ class TunnelPacketHandler(object):
             peer_switch = self.config_db.get_keys(PEER_SWITCH_TABLE)[0]
             tunnel = self.config_db.get_keys(TUNNEL_TABLE)[0]
         except IndexError:
-            logger.log_warning('PEER_SWITCH or TUNNEL table'
+            logger.log_warning('PEER_SWITCH or TUNNEL table '
                                'not found in config DB')
             return None, None
 
