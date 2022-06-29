@@ -890,6 +890,7 @@ def parse_meta(meta, hname):
     switch_type = None
     max_cores = None
     kube_data = {}
+    macsec_profile = {}
     device_metas = meta.find(str(QName(ns, "Devices")))
     for device in device_metas.findall(str(QName(ns1, "DeviceMetadata"))):
         if device.find(str(QName(ns1, "Name"))).text.lower() == hname.lower():
@@ -930,7 +931,9 @@ def parse_meta(meta, hname):
                     kube_data["enable"] = value
                 elif name == "KubernetesServerIp":
                     kube_data["ip"] = value
-    return syslog_servers, dhcp_servers, dhcpv6_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id, region, cloudtype, resource_type, downstream_subrole, switch_id, switch_type, max_cores, kube_data
+                elif name == 'MacSecProfile':
+                    macsec_profile = parse_macsec_profile(value)
+    return syslog_servers, dhcp_servers, dhcpv6_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id, region, cloudtype, resource_type, downstream_subrole, switch_id, switch_type, max_cores, kube_data, macsec_profile
 
 
 def parse_system_defaults(meta):
@@ -979,6 +982,7 @@ def parse_linkmeta(meta, hname):
         upper_tor_hostname = ''
         lower_tor_hostname = ''
         auto_negotiation = None
+        macsec_enabled = False
 
         properties = linkmeta.find(str(QName(ns1, "Properties")))
         for device_property in properties.findall(str(QName(ns1, "DeviceProperty"))):
@@ -994,6 +998,8 @@ def parse_linkmeta(meta, hname):
                 lower_tor_hostname = value
             elif name == "AutoNegotiation":
                 auto_negotiation = value
+            elif name == "MacSecEnabled":
+                macsec_enabled = value
 
         linkmetas[port] = {}
         if fec_disabled:
@@ -1005,14 +1011,28 @@ def parse_linkmeta(meta, hname):
                 linkmetas[port]["PeerSwitch"] = upper_tor_hostname
         if auto_negotiation:
             linkmetas[port]["AutoNegotiation"] = auto_negotiation
+        if macsec_enabled:
+            linkmetas[port]["MacSecEnabled"] = macsec_enabled
     return linkmetas
 
+def parse_macsec_profile(val_string):
+    macsec_profile = {}
+    values = val_string.strip().split()
+    for val in values:
+        keys = val.strip().split('=')
+        if keys[0] == 'PrimaryKey':
+            macsec_profile['PrimaryKey'] = keys[1].strip('\"')
+        elif keys[0] == 'FallbackKey':
+            macsec_profile['FallbackKey'] = keys[1].strip('\"')
+
+    return macsec_profile
 
 def parse_asic_meta(meta, hname):
     sub_role = None
     switch_id = None
     switch_type = None
     max_cores = None
+    macsec_profile = {}
     device_metas = meta.find(str(QName(ns, "Devices")))
     for device in device_metas.findall(str(QName(ns1, "DeviceMetadata"))):
         if device.find(str(QName(ns1, "Name"))).text.lower() == hname.lower():
@@ -1028,7 +1048,10 @@ def parse_asic_meta(meta, hname):
                     switch_type = value
                 elif name == "MaxCores":
                     max_cores = value
-    return sub_role, switch_id, switch_type, max_cores
+                elif name == 'MacSecProfile':
+                    macsec_profile = parse_macsec_profile(value)
+
+    return sub_role, switch_id, switch_type, max_cores, macsec_profile
 
 def parse_deviceinfo(meta, hwsku):
     port_speeds = {}
@@ -1289,6 +1312,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
     kube_data = {}
     static_routes = {}
     system_defaults = {}
+    macsec_profile = {}
 
     hwsku_qn = QName(ns, "HwSku")
     hostname_qn = QName(ns, "Hostname")
@@ -1319,7 +1343,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
             elif child.tag == str(QName(ns, "UngDec")):
                 (u_neighbors, u_devices, _, _, _, _, _, _) = parse_png(child, hostname, None)
             elif child.tag == str(QName(ns, "MetadataDeclaration")):
-                (syslog_servers, dhcp_servers, dhcpv6_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id, region, cloudtype, resource_type, downstream_subrole, switch_id, switch_type, max_cores, kube_data) = parse_meta(child, hostname)
+                (syslog_servers, dhcp_servers, dhcpv6_servers, ntp_servers, tacacs_servers, mgmt_routes, erspan_dst, deployment_id, region, cloudtype, resource_type, downstream_subrole, switch_id, switch_type, max_cores, kube_data, macsec_profile) = parse_meta(child, hostname)
             elif child.tag == str(QName(ns, "LinkMetadataDeclaration")):
                 linkmetas = parse_linkmeta(child, hostname)
             elif child.tag == str(QName(ns, "DeviceInfos")):
@@ -1335,7 +1359,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
             elif child.tag == str(QName(ns, "PngDec")):
                 (neighbors, devices, port_speed_png) = parse_asic_png(child, asic_name, hostname)
             elif child.tag == str(QName(ns, "MetadataDeclaration")):
-                (sub_role, switch_id, switch_type, max_cores ) = parse_asic_meta(child, asic_name)
+                (sub_role, switch_id, switch_type, max_cores, macsec_profile) = parse_asic_meta(child, asic_name)
             elif child.tag == str(QName(ns, "LinkMetadataDeclaration")):
                 linkmetas = parse_linkmeta(child, hostname)
             elif child.tag == str(QName(ns, "DeviceInfos")):
@@ -1537,6 +1561,11 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
         autoneg = linkmetas.get(alias, {}).get('AutoNegotiation')
         if autoneg:
             port['autoneg'] = 'on' if autoneg.lower() == 'true' else 'off'
+
+        # If macsec is enabled on interface, and profile is valid, add the profile to port
+        macsec_enabled = linkmetas.get(alias, {}).get('MacSecEnabled')
+        if macsec_enabled and 'PrimaryKey' in macsec_profile:
+            port['macsec'] = macsec_profile['PrimaryKey']
 
     # If connected to a smart cable, get the connection position
     for port_name, port in ports.items():
@@ -1872,7 +1901,7 @@ def parse_asic_sub_role(filename, asic_name):
     root = ET.parse(filename).getroot()
     for child in root:
         if child.tag == str(QName(ns, "MetadataDeclaration")):
-            sub_role, _, _, _ = parse_asic_meta(child, asic_name)
+            sub_role, _, _, _, _= parse_asic_meta(child, asic_name)
             return sub_role
 
 def parse_asic_switch_type(filename, asic_name):
@@ -1880,7 +1909,7 @@ def parse_asic_switch_type(filename, asic_name):
         root = ET.parse(filename).getroot()
         for child in root:
             if child.tag == str(QName(ns, "MetadataDeclaration")):
-                _, _, switch_type, _ = parse_asic_meta(child, asic_name)
+                _, _, switch_type, _, _ = parse_asic_meta(child, asic_name)
                 return switch_type
     return None
 
