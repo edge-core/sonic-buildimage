@@ -537,6 +537,9 @@ write_platform_specific_cmdline() {
         aboot_machine=arista_7060dx4_32
         flash_size=28000
     fi
+    if in_array "$sid" "PikeIslandZ" "PikeIslandZ-F" "PikeIslandZ-2F" "PikeIslandZ-R" "PikeIslandZ-2R"; then
+        aboot_machine=arista_720dt_48s
+    fi
     if [ "$sid" = "BlackhawkT4O" ]; then
         aboot_machine=arista_7050px4_32s
     fi
@@ -625,6 +628,9 @@ write_platform_specific_cmdline() {
     if in_array "$platform" "lorikeet" "hedgehog"; then
         cmdline_add processor.max_cstate=1
         cmdline_add reassign_prefmem
+        read_system_eeprom
+    fi
+    if in_array "$platform" "prairieisland"; then
         read_system_eeprom
     fi
 
