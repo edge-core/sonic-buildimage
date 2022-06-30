@@ -129,5 +129,8 @@
     },
     "ACL_RULE_WITH_VALID_MIRROR_INGRESS_ACTION": {
         "desc": "Configure ACL_RULE with valid mirror action."
+    },
+    "ACL_RULE_VALID_TCP_FLAGS": {
+        "desc": "Configure ACL_RULE with valid TCP_FLAGS."
     }
 }
