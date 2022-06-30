@@ -1,3 +1,9 @@
+sonic-cel-platform-modules (0.2.3) unstable; urgency=low
+
+  * Add SilverstoneX and Midstone100x platform module.
+
+ -- Nicholas Wu <nicwu@celestica.com>  Mon, 18 Apr 2021 10:10:10 +0700
+
 sonic-cel-platform-modules (0.2.2) unstable; urgency=low
 
   * Remove I2c mux ininitialization in init-script.

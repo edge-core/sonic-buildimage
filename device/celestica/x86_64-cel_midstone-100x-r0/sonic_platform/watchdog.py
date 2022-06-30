@@ -6,9 +6,7 @@
 # Watchdog contains an implementation of SONiC Platform Base API
 #
 #############################################################################
-import ctypes
 import os
-import subprocess
 import time
 
 try:
@@ -17,21 +15,25 @@ try:
 except ImportError as e:
     raise ImportError(str(e) + "- required module not found")
 
-PLATFORM_CPLD_PATH = '/sys/devices/platform/dx010_cpld'
+PLATFORM_CPLD_PATH = '/sys/devices/platform/sys_cpld'
 GETREG_FILE = 'getreg'
 SETREG_FILE = 'setreg'
-WDT_ENABLE_REG = '0x141'
-WDT_TIMER_L_BIT_REG = '0x142'
-WDT_TIMER_M_BIT_REG = '0x143'
-WDT_TIMER_H_BIT_REG = '0x144'
-WDT_KEEP_ALVIVE_REG = '0x145'
+WDT_ENABLE_REG = '0xA187'
+WDT_SET_TIMER_L_BIT_REG = '0xA183'
+WDT_SET_TIMER_M_BIT_REG = '0xA182'
+WDT_SET_TIMER_H_BIT_REG = '0xA181'
+
+WDT_TIMER_L_BIT_REG = '0xA186'
+WDT_TIMER_M_BIT_REG = '0xA185'
+WDT_TIMER_H_BIT_REG = '0xA184'
+
+WDT_KEEP_ALVIVE_REG = '0xA188'
 ENABLE_CMD = '0x1'
 DISABLE_CMD = '0x0'
 WDT_COMMON_ERROR = -1
 
 
 class Watchdog(WatchdogBase):
-
     def __init__(self):
         # Init helper
         self._api_helper = APIHelper()
@@ -41,15 +43,21 @@ class Watchdog(WatchdogBase):
         self.getreg_path = os.path.join(PLATFORM_CPLD_PATH, GETREG_FILE)
 
         # Set default value
-        self._disable()
-        self.armed = False
+        #self._disable()
+        #self.armed = False
+        value = self._api_helper.get_cpld_reg_value(
+            self.getreg_path, WDT_ENABLE_REG)
+        hex_time = '{}'.format(value)
+        value = int(hex_time, 16)
+        self.armed = True if value else False
         self.timeout = self._gettimeout()
+        self.arm_timestamp = 0
 
     def _enable(self):
         """
         Turn on the watchdog timer
         """
-        # echo 0x141 0x1 > /sys/devices/platform/dx010_cpld/setreg
+        # echo 0xA187 0x1 > /sys/devices/platform/sys_cpld/setreg
         enable_val = '{} {}'.format(WDT_ENABLE_REG, ENABLE_CMD)
         return self._api_helper.write_txt_file(self.setreg_path, enable_val)
 
@@ -57,7 +65,7 @@ class Watchdog(WatchdogBase):
         """
         Turn off the watchdog timer
         """
-        # echo 0x141 0x0 > /sys/devices/platform/dx010_cpld/setreg
+        # echo 0xA187 0x0 > /sys/devices/platform/sys_cpld/setreg
         disable_val = '{} {}'.format(WDT_ENABLE_REG, DISABLE_CMD)
         return self._api_helper.write_txt_file(self.setreg_path, disable_val)
 
@@ -65,8 +73,15 @@ class Watchdog(WatchdogBase):
         """
         Keep alive watchdog timer
         """
-        # echo 0x145 0x1 > /sys/devices/platform/dx010_cpld/setreg
-        enable_val = '{} {}'.format(WDT_KEEP_ALVIVE_REG, ENABLE_CMD)
+
+        # echo 0xA188 > /sys/devices/platform/sys_cpld/getreg
+        # value = $(cat /sys/devices/platform/sys_cpld/getreg)
+        # echo 0xA188 (~ $value) & 0x01 > /sys/devices/platform/sys_cpld/setreg
+
+        value = self._api_helper.get_cpld_reg_value(
+            self.getreg_path, WDT_KEEP_ALVIVE_REG)
+        value = int(value, 16)
+        enable_val = '{} 0x{}'.format(WDT_KEEP_ALVIVE_REG, (~value) & 0x01)
         return self._api_helper.write_txt_file(self.setreg_path, enable_val)
 
     def _get_level_hex(self, sub_hex):
@@ -90,9 +105,9 @@ class Watchdog(WatchdogBase):
         # max = 0xffffff = 16777.215 seconds
 
         (l, m, h) = self._seconds_to_lmh_hex(seconds)
-        set_h_val = '{} {}'.format(WDT_TIMER_H_BIT_REG, h)
-        set_m_val = '{} {}'.format(WDT_TIMER_M_BIT_REG, m)
-        set_l_val = '{} {}'.format(WDT_TIMER_L_BIT_REG, l)
+        set_h_val = '{} {}'.format(WDT_SET_TIMER_H_BIT_REG, h)
+        set_m_val = '{} {}'.format(WDT_SET_TIMER_M_BIT_REG, m)
+        set_l_val = '{} {}'.format(WDT_SET_TIMER_L_BIT_REG, l)
 
         self._api_helper.write_txt_file(self.setreg_path, set_h_val)
         self._api_helper.write_txt_file(self.setreg_path, set_m_val)
@@ -107,17 +122,15 @@ class Watchdog(WatchdogBase):
         """
 
         h_bit = self._api_helper.get_cpld_reg_value(
-            self.getreg_path, WDT_TIMER_H_BIT_REG)
+            self.getreg_path, WDT_SET_TIMER_H_BIT_REG)
         m_bit = self._api_helper.get_cpld_reg_value(
-            self.getreg_path, WDT_TIMER_M_BIT_REG)
+            self.getreg_path, WDT_SET_TIMER_M_BIT_REG)
         l_bit = self._api_helper.get_cpld_reg_value(
-            self.getreg_path, WDT_TIMER_L_BIT_REG)
+            self.getreg_path, WDT_SET_TIMER_L_BIT_REG)
 
         hex_time = '0x{}{}{}'.format(h_bit[2:], m_bit[2:], l_bit[2:])
         ms = int(hex_time, 16)
         return int(float(ms)/1000)
-
-    #################################################################
 
     def arm(self, seconds):
         """
@@ -133,9 +146,7 @@ class Watchdog(WatchdogBase):
         """
 
         ret = WDT_COMMON_ERROR
-        if seconds < 0:
-            return ret
-        if seconds > 16778:
+        if seconds < 0 or seconds > int(0xffffff/1000):
             return ret
 
         try:
@@ -146,6 +157,7 @@ class Watchdog(WatchdogBase):
                 self._keepalive()
             else:
                 self._enable()
+                self._keepalive()
                 self.armed = True
 
             ret = self.timeout
@@ -178,7 +190,6 @@ class Watchdog(WatchdogBase):
         Returns:
             A boolean, True if watchdog is armed, False if not
         """
-
         return self.armed
 
     def get_remaining_time(self):
@@ -189,5 +200,13 @@ class Watchdog(WatchdogBase):
             An integer specifying the number of seconds remaining on thei
             watchdog timer. If the watchdog is not armed, returns -1.
         """
+        h_bit = self._api_helper.get_cpld_reg_value(
+            self.getreg_path, WDT_TIMER_H_BIT_REG)
+        m_bit = self._api_helper.get_cpld_reg_value(
+            self.getreg_path, WDT_TIMER_M_BIT_REG)
+        l_bit = self._api_helper.get_cpld_reg_value(
+            self.getreg_path, WDT_TIMER_L_BIT_REG)
 
-        return int(self.timeout - (time.time() - self.arm_timestamp)) if self.armed else WDT_COMMON_ERROR
+        hex_time = '0x{}{}{}'.format(h_bit[2:], m_bit[2:], l_bit[2:])
+        ms = int(hex_time, 16)
+        return int(float(ms)/1000) if self.armed else WDT_COMMON_ERROR
