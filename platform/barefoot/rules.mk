@@ -5,6 +5,7 @@ include $(PLATFORM_PATH)/platform-modules-accton.mk
 include $(PLATFORM_PATH)/platform-modules-bfn-newport.mk
 include $(PLATFORM_PATH)/platform-modules-wnc-osw1800.mk
 include $(PLATFORM_PATH)/platform-modules-ingrasys.mk
+include $(PLATFORM_PATH)/platform-modules-netberg.mk
 include $(PLATFORM_PATH)/bfn-sai.mk
 include $(PLATFORM_PATH)/docker-syncd-bfn.mk
 include $(PLATFORM_PATH)/docker-syncd-bfn-rpc.mk
