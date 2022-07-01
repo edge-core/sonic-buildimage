@@ -60,6 +60,7 @@ class minigraph_encoder(json.JSONEncoder):
 def parse_device(device):
     lo_prefix = None
     mgmt_prefix = None
+    mgmt_prefix_v6 = None
     d_type = None   # don't shadow type()
     hwsku = None
     name = None
@@ -70,6 +71,8 @@ def parse_device(device):
             lo_prefix = node.find(str(QName(ns2, "IPPrefix"))).text
         elif node.tag == str(QName(ns, "ManagementAddress")):
             mgmt_prefix = node.find(str(QName(ns2, "IPPrefix"))).text
+        elif node.tag == str(QName(ns, "ManagementAddressV6")):
+            mgmt_prefix_v6 = node.find(str(QName(ns2, "IPPrefix"))).text
         elif node.tag == str(QName(ns, "Hostname")):
             name = node.text
         elif node.tag == str(QName(ns, "HwSku")):
@@ -82,7 +85,8 @@ def parse_device(device):
     if d_type is None and str(QName(ns3, "type")) in device.attrib:
         d_type = device.attrib[str(QName(ns3, "type"))]
 
-    return (lo_prefix, mgmt_prefix, name, hwsku, d_type, deployment_id)
+    return (lo_prefix, mgmt_prefix, mgmt_prefix_v6, name, hwsku, d_type, deployment_id)
+
 
 def parse_png(png, hname):
     neighbors = {}
@@ -145,7 +149,7 @@ def parse_png(png, hname):
 
         if child.tag == str(QName(ns, "Devices")):
             for device in child.findall(str(QName(ns, "Device"))):
-                (lo_prefix, mgmt_prefix, name, hwsku, d_type, deployment_id) = parse_device(device)
+                (lo_prefix, mgmt_prefix, mgmt_prefix_v6, name, hwsku, d_type, deployment_id) = parse_device(device)
                 device_data = {'lo_addr': lo_prefix, 'type': d_type, 'mgmt_addr': mgmt_prefix, 'hwsku': hwsku }
                 if deployment_id:
                     device_data['deployment_id'] = deployment_id
@@ -257,7 +261,7 @@ def parse_asic_png(png, asic_name, hostname):
 
         if child.tag == str(QName(ns, "Devices")):
             for device in child.findall(str(QName(ns, "Device"))):
-                (lo_prefix, mgmt_prefix, name, hwsku, d_type, deployment_id) = parse_device(device)
+                (lo_prefix, mgmt_prefix, mgmt_prefix_v6, name, hwsku, d_type, deployment_id) = parse_device(device)
                 device_data = {'lo_addr': lo_prefix, 'type': d_type, 'mgmt_addr': mgmt_prefix, 'hwsku': hwsku }
                 if deployment_id:
                     device_data['deployment_id'] = deployment_id
@@ -1292,7 +1296,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None):
 
 def parse_device_desc_xml(filename):
     root = ET.parse(filename).getroot()
-    (lo_prefix, mgmt_prefix, hostname, hwsku, d_type, _) = parse_device(root)
+    (lo_prefix, mgmt_prefix, mgmt_prefix_v6, hostname, hwsku, d_type, _) = parse_device(root)
 
     results = {}
     results['DEVICE_METADATA'] = {'localhost': {
@@ -1302,10 +1306,18 @@ def parse_device_desc_xml(filename):
 
     results['LOOPBACK_INTERFACE'] = {('lo', lo_prefix): {}}
 
-    mgmt_intf = {}
-    mgmtipn = ipaddress.IPNetwork(mgmt_prefix)
-    gwaddr = ipaddress.IPAddress(int(mgmtipn.network) + 1)
-    results['MGMT_INTERFACE'] = {('eth0', mgmt_prefix): {'gwaddr': gwaddr}}
+    results['MGMT_INTERFACE'] = {}
+    if mgmt_prefix:
+        mgmtipn = ipaddress.IPNetwork(mgmt_prefix)
+        if mgmtipn != ipaddress.IPNetwork('0.0.0.0/0'):
+            gwaddr = ipaddress.IPAddress(int(mgmtipn.network) + 1)
+            results['MGMT_INTERFACE'].update({('eth0', mgmt_prefix): {'gwaddr': gwaddr}})
+
+    if mgmt_prefix_v6:
+        mgmtipn_v6 = ipaddress.IPNetwork(mgmt_prefix_v6)
+        if mgmtipn != ipaddress.IPNetwork('::/0'):
+            gwaddr_v6 = ipaddress.IPAddress(int(mgmtipn_v6.network) + 1)
+            results['MGMT_INTERFACE'].update({('eth0', mgmt_prefix_v6): {'gwaddr': gwaddr_v6}})
 
     return results
 
