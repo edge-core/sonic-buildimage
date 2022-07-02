@@ -649,6 +649,9 @@ class Chassis(ChassisBase):
         """
         result = {}
         try:
+            if not os.access(filename, os.R_OK):
+                return result
+
             with open(filename, "rb") as fileobj:
                 data = fileobj.read()
 
