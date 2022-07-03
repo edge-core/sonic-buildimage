@@ -25,8 +25,9 @@ test_path = os.path.dirname(os.path.abspath(__file__))
 modules_path = os.path.dirname(test_path)
 sys.path.insert(0, modules_path)
 
-from sonic_platform.sfp import SFP, SX_PORT_MODULE_STATUS_INITIALIZING, SX_PORT_MODULE_STATUS_PLUGGED, SX_PORT_MODULE_STATUS_UNPLUGGED, SX_PORT_MODULE_STATUS_PLUGGED_WITH_ERROR, SX_PORT_MODULE_STATUS_PLUGGED_DISABLED
+from sonic_platform.sfp import QSFP_TYPE, QSFP_DD_TYPE, SFP_TYPE, SFP, SX_PORT_MODULE_STATUS_INITIALIZING, SX_PORT_MODULE_STATUS_PLUGGED, SX_PORT_MODULE_STATUS_UNPLUGGED, SX_PORT_MODULE_STATUS_PLUGGED_WITH_ERROR, SX_PORT_MODULE_STATUS_PLUGGED_DISABLED
 from sonic_platform.chassis import Chassis
+
 
 class TestSfp:
     @mock.patch('sonic_platform.device_data.DeviceDataManager.get_linecard_count', mock.MagicMock(return_value=8))
@@ -80,3 +81,58 @@ class TestSfp:
             description = sfp.get_error_description()
 
             assert description == expected_description
+
+    def test_detect_sfp_type(self):
+        sfp = SFP(0)
+        assert sfp._sfp_type == None
+        sfp._read_eeprom_specific_bytes = mock.MagicMock(return_value = ['03'])
+        assert sfp.sfp_type == SFP_TYPE
+
+        sfp._sfp_type = None
+        sfp._read_eeprom_specific_bytes = mock.MagicMock(return_value = ['0d'])
+        assert sfp.sfp_type == QSFP_TYPE
+
+        sfp._sfp_type = None
+        sfp._read_eeprom_specific_bytes = mock.MagicMock(return_value = ['18'])
+        assert sfp.sfp_type == QSFP_DD_TYPE
+
+    def test_detect_dom_capability(self):
+        sfp = SFP(0)
+        sfp.get_presence = mock.MagicMock(return_value = True)
+
+        # QSFP postive flow
+        sfp._sfp_type = QSFP_TYPE
+        sfp._read_eeprom_specific_bytes = mock.MagicMock(return_value = ['19', '08', 'ff', '04'])
+        assert sfp.dom_supported == True
+        assert sfp._sfp_capability.dom_detect_finished == True
+
+        # QSFP negative flow
+        sfp._sfp_capability.dom_detect_finished = False
+        sfp._read_eeprom_specific_bytes = mock.MagicMock(return_value = None)
+        assert sfp.dom_supported == False
+        assert sfp._sfp_capability.dom_detect_finished == False
+
+        # SFP postive flow
+        sfp._sfp_type = SFP_TYPE
+        sfp._read_eeprom_specific_bytes = mock.MagicMock(return_value = ['ff', '00'])
+        assert sfp.dom_supported == True
+        assert sfp._sfp_capability.dom_detect_finished == True
+
+        # SFP negative flow
+        sfp._sfp_capability.dom_detect_finished = False
+        sfp._read_eeprom_specific_bytes = mock.MagicMock(return_value = None)
+        assert sfp.dom_supported == False
+        assert sfp._sfp_capability.dom_detect_finished == False
+
+        # QSFPDD postive flow
+        sfp._sfp_type = QSFP_DD_TYPE
+        sfp._read_eeprom_specific_bytes = mock.MagicMock(return_value = ['00'])
+        assert sfp.dom_supported == True
+        assert sfp._sfp_capability.dom_detect_finished == True
+
+        # QSFPDD negative flow
+        sfp._sfp_capability.dom_detect_finished = False
+        sfp._read_eeprom_specific_bytes = mock.MagicMock(return_value = None)
+        assert sfp.dom_supported == False
+        assert sfp._sfp_capability.dom_detect_finished == False
+
