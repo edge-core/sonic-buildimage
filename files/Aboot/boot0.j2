@@ -86,7 +86,7 @@ installer_image_path="$image_path/$installer_image"
 
 boot_config="$target_path/boot-config"
 
-cmdline_allowlist='crashkernel'
+cmdline_allowlist="crashkernel"
 
 # for backward compatibility with the sonic_upgrade= behavior
 install="${install:-${sonic_upgrade:-}}"
@@ -657,20 +657,54 @@ write_default_cmdline() {
     cmdline_clear
 
     if $in_aboot; then
-        # generate the default kernel parameters for the platform
+        # Generate the default kernel parameters for the platform
         cat /etc/cmdline | sed "/^\(${bootconfigvars// /\|}\|crashkernel\|loglevel\|ignore_loglevel\)\(\$\|=\)/d;/^\$/d" | cmdline_append
-    elif grep -q "$delimiter" /proc/cmdline; then
-        # we are on a recent sonic image using delimiter. extracting the part of the
+    elif grep -q "$delimiter" /proc/cmdline && ! grep -Eq "varlog_size=.* $delimiter" /proc/cmdline; then
+        # We are on a recent sonic image using delimiter. extracting the part of the
         # cmdline coming from aboot is trivial.
+        # The 2nd part of the condition ensures that the append bug is not present.
+        # When it is it should go through the last case of this if/else block to
+        # regenerate the aboot cmdline
         cat /proc/cmdline | sed -E "s/^(.*) $delimiter .*$/\1/" | tr ' ' '\n' | cmdline_append
-    else
-        # we are either on SONiC or EOS and the commandline doesn't have a delimiter
-        # for the Aboot part. Take an educated guess at a right delimiter.
-        # Subject to breakage if EOS or SONiC cmdline change.
+    elif grep -q "SWI=" /proc/cmdline; then
+        # We are in EOS and the cmdline doesn't have a delimiter for the aboot part
         cat /proc/cmdline | sed -E 's/^(.*) rw .*$/\1/' | tr ' ' '\n' | cmdline_append
+    else
+        # We are in SONiC and the cmdline doesn't have a delimiter for the aboot part.
+        # sid= should most of the time be the last parameter provided by Aboot
+        # Alternatively we are in SONiC and the cmdline-aboot-end delimiter was
+        # added after image specific parameters due to a BUG which is solved by the
+        # following statement.
+        cat /proc/cmdline | sed -E 's/^(.* sid=[^ ]+).*$/\1/' | tr ' ' '\n' | cmdline_append
     fi
 
     cmdline_add "$delimiter"
+}
+
+write_cmdline() {
+    # use extra parameters from kernel-params hook if the file exists
+    if [ -f "$target_path/$kernel_params" ]; then
+        if $secureboot && $debug; then
+            warn "Unsafe: Loading extra kernel parameters from $kernel_params"
+            cat "$target_path/$kernel_params" | cmdline_append
+        elif ! $secureboot; then
+            info "Loading extra kernel parameters from $kernel_params"
+            cat "$target_path/$kernel_params" | cmdline_append
+        fi
+    fi
+
+    # FIXME: sonic sometimes adds extra kernel parameters from user space
+    #        this is unsafe but some will be kept as part of the regular boot
+    if [ -f "$image_path/kernel-cmdline" ]; then
+        for field in $cmdline_allowlist; do
+           cat "$image_path/kernel-cmdline" | tr ' ' '\n' | grep -E "$field" | tail -n 1 | cmdline_append
+        done
+    fi
+
+    # FIXME: legacy configuration files used by fast-reboot and eos2sonic
+    #        these should be deprecated over time.
+    cmdline_echo > "$image_path/kernel-cmdline"
+    cmdline_echo | sed 's/ cmdline-aboot-end.*$//' > "$target_path/kernel-params-base"
 }
 
 write_common_configs() {
@@ -690,28 +724,14 @@ write_secureboot_configs() {
     cmdline_add aboot.secureboot=enabled
     # setting panic= has the side effect of disabling the initrd shell on error
     cmdline_add panic=0
+    write_cmdline
 }
 
 write_regular_configs() {
     write_common_configs
     cmdline_add "loop=$image_name/fs.squashfs"
     cmdline_add loopfstype=squashfs
-
-    # use extra parameters from kernel-params hook if the file exists
-    if [ -f "$target_path/$kernel_params" ]; then
-        cat "$target_path/$kernel_params" | cmdline_append
-    fi
-
-    # FIXME: sonic sometimes adds extra kernel parameters from user space
-    #        this is unsafe but some will be kept as part of the regular boot
-    if [ -f "$image_path/kernel-cmdline" ]; then
-        cat "$image_path/kernel-cmdline" | tr ' ' '\n' | grep -E "$cmdline_allowlist" | cmdline_append
-    fi
-
-    # FIXME: legacy configuration files used by fast-reboot and eos2sonic
-    #        these should be deprecated over time.
-    cmdline_echo > "$image_path/kernel-cmdline"
-    cmdline_echo | sed 's/ cmdline-aboot-end.*$//' > "$target_path/kernel-params-base"
+    write_cmdline
 }
 
 run_kexec() {
@@ -776,8 +796,8 @@ secureboot_boot() {
 
 regular_boot() {
     # boot uses the image installed on the flash
-    run_hooks pre-kexec
     write_regular_configs "$image_path"
+    run_hooks pre-kexec
     update_next_boot
     run_kexec
 }
