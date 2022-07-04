@@ -22,6 +22,7 @@ containerd.io==1.5.11-1
 cpio==2.13+dfsg-4
 cpp==4:10.2.1-1
 cpp-10==10.2.1-6
+cracklib-runtime==2.9.6-3.4
 cron==3.0pl1-137
 curl==7.74.0-1.3+deb11u1
 dbus==1.12.20-2
@@ -117,6 +118,7 @@ libcap2-bin==1:2.44-1
 libcbor0==0.5.0+dfsg-2
 libcc1-0==10.2.1-6
 libcgroup1==0.41-11
+libcrack2==2.9.6-3.4
 libcrypt-dev==1:4.4.18-4
 libcryptsetup12==2:2.3.7-1+deb11u1
 libctf-nobfd0==2.35.2-2
@@ -219,6 +221,7 @@ libnss-tacplus==1.0.4-1
 libonig5==6.9.6-1.1
 libopts25==1:5.18.16-4
 libpackagekit-glib2-18==1.2.2-2
+libpam-cracklib==1.4.0-9+deb11u1
 libpam-radius-auth==1.4.1-1
 libpam-tacplus==1.4.1-1
 libpcap0.8==1.10.0-2
@@ -259,7 +262,7 @@ libsm6==2:1.2.3-1
 libsqlite3-0==3.34.1-3
 libssh2-1==1.9.0-2
 libssl-dev==1.1.1k-1+deb11u1+fips
-libssl1.1==1.1.1n-0+deb11u2
+libssl1.1==1.1.1n-0+deb11u3
 libstdc++-10-dev==10.2.1-6
 libswsscommon==1.0.0
 libsysfs2==2.1.0+repack-7
@@ -321,7 +324,7 @@ opennsl-modules==7.1.0.0
 openssh-client==1:8.4p1-5+fips
 openssh-server==1:8.4p1-5+fips
 openssh-sftp-server==1:8.4p1-5+fips
-openssl==1.1.1n-0+deb11u2
+openssl==1.1.1n-0+deb11u3
 patch==2.7.6-7
 pci.ids==0.0~2021.02.08-1
 pciutils==1:3.7.0-5
@@ -391,6 +394,7 @@ uuid-dev==2.36.1-8+deb11u1
 vim==2:8.2.2434-3+deb11u1
 vim-common==2:8.2.2434-3+deb11u1
 vim-runtime==2:8.2.2434-3+deb11u1
+wamerican==2019.10.06-1
 x11-common==1:7.7+22
 x11proto-dev==2020.1-1
 x11proto-xext-dev==2020.1-1

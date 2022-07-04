@@ -24,6 +24,6 @@ https://sonicstorage.blob.core.windows.net/packages/debian/socat_1.7.4.1.orig.ta
 https://sonicstorage.blob.core.windows.net/packages/debian/thrift_0.11.0-4.debian.tar.xz?sv=2015-04-05&sr=b&sig=dj9uJ5YjUNupcmuxSX6%2F5IS9NqaGAyM9iF2h%2F2rROZA%3D&se=2156-02-02T17%3A19%3A34Z&sp=r==52ad383b97ad051f4d1d25b54aaad569
 https://sonicstorage.blob.core.windows.net/packages/debian/thrift_0.11.0-4.dsc?sv=2015-04-05&sr=b&sig=pWfg55owvQ2jZtZ6ylHp0OP8uZyfc9sxO6H%2BP4Ez7w4%3D&se=2156-02-02T17%3A20%3A05Z&sp=r==6917fe7b3ada9313be94713dd50fee7b
 https://sonicstorage.blob.core.windows.net/packages/debian/thrift_0.11.0.orig.tar.gz?sv=2015-04-05&sr=b&sig=%2BrAjWESiSNRCMN7NGqEqVGceLefpwwS%2FWPKEfJpPLSQ%3D&se=2156-02-02T17%3A17%3A20Z&sp=r==0be59730ebce071eceaf6bfdb8d3a20e
-https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0/7.1.0.0-1/libsaibcm-dev_7.1.0.0-1_amd64.deb==b0bf737bc08246b65b9c4cad2b4eb007
-https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0/7.1.0.0-1/libsaibcm_7.1.0.0-1_amd64.deb==1715d2c785b4db83a51a02bc126bab0b
 https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0/7.1.0.0-1/libsaibcm_dnx_7.1.0.0-1_amd64.deb==e84a66a741f04aebe7085b0ae970f4e3
+https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0/7.1.0.0-5/libsaibcm-dev_7.1.0.0-5_amd64.deb==e3712a4071becf90f5c7d4d1bf930b7b
+https://sonicstorage.blob.core.windows.net/public/sai/bcmsai/REL_7.0/7.1.0.0-5/libsaibcm_7.1.0.0-5_amd64.deb==8830dc77ffc8e65f0b14ca9397932518

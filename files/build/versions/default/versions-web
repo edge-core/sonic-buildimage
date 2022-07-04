@@ -25,7 +25,7 @@ http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0.orig.tar.gz==6d
 http://www.mellanox.com/downloads/MFT/mft-4.20.0-34-x86_64-deb.tgz==87ad9025d4fc0c3abb9272c3e93af496
 https://archive.apache.org/dist/thrift/0.14.1/thrift-0.14.1.tar.gz==c64434548438df2cb1e53fb27c600e85
 https://bootstrap.pypa.io/pip/2.7/get-pip.py==60e8267eb1b7bc71dc4843eb7bd294d3
-https://chrome-infra-packages.appspot.com/client?platform=linux-amd64&version=git_revision:673f5ee1931bc72a2b3d4ac712a7f7bc541f089b==e813a6e475d01264a4b855c13ff52805
+https://chrome-infra-packages.appspot.com/client?platform=linux-amd64&version=git_revision:2fe24264d5b4585ecd16ba8e9bb582d8f4b20875==e1557fb4a093dec95a2251d01f0d4cd3
 https://deb.debian.org/debian/pool/main/d/debootstrap/debootstrap_1.0.123.dsc==de6e9967da7c4992ffd1a72b815994f7
 https://deb.debian.org/debian/pool/main/d/debootstrap/debootstrap_1.0.123.tar.gz==b959c7ac01839e9b96a733d27b19e59e
 https://deb.debian.org/debian/pool/main/k/kdump-tools/kdump-tools_1.6.8.4.dsc==f96a03bb090ab03d484e5d232161fafe
@@ -39,8 +39,8 @@ https://deb.nodesource.com/setup_14.x==3fb63a2bd38414a2b249fa9b3dbbbc3e
 https://download.docker.com/linux/debian/gpg==1afae06b34a13c1b3d9cb61a26285a15
 https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnplatform_20220408_sai_1.9.1_deb10.deb==890a53ca1374dfcf8c12091d74fd2ef8
 https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnsdk_20220408_sai_1.9.1_deb10.deb==a54c351ee84ddb63837085272a1c4eae
-https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64==4ea37edbea9fc2b88bdb5bbc2855be04
-https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-arm64==913165e7536ebd338a3614b27e480d87
+https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64==bfd21cd7274888c066d39fe95b88a442
+https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-arm64==fd883cc3e0900a7137c49722e29576bf
 https://github.com/CentecNetworks/sonic-binaries/raw/master/amd64/sai/libsai_1.9.1-0_amd64.deb==08e1a82bd42ca1cba08fd6deec43c02a
 https://github.com/CentecNetworks/sonic-binaries/raw/master/amd64/third_party/advantech/_Susi4.so==5e1b8daef522c9da00af400abe25810b
 https://github.com/CentecNetworks/sonic-binaries/raw/master/amd64/third_party/advantech/libSUSI-4.00.so.1==393a94b0abba146777e276e1febe0cb0

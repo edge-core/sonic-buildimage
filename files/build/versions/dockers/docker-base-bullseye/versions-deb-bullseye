@@ -56,7 +56,7 @@ lua-bitop==1.0.2-5
 lua-cjson==2.1.0+dfsg-2.1
 media-types==4.0.0
 net-tools==1.60+git20181103.0eebece-1
-openssl==1.1.1n-0+deb11u2
+openssl==1.1.1n-0+deb11u3
 perl==5.32.1-4+deb11u2
 perl-modules-5.32==5.32.1-4+deb11u2
 procps==2:3.3.17-5
