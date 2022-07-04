@@ -21,7 +21,7 @@ http://http.debian.net/debian/pool/main/h/hiredis/hiredis_0.14.0.orig.tar.gz==6d
 http://www.mellanox.com/downloads/MFT/mft-4.18.0-106-x86_64-deb.tgz==83d169e43bc9fea43fa0d69a4f8c1398
 https://archive.apache.org/dist/thrift/0.14.1/thrift-0.14.1.tar.gz==c64434548438df2cb1e53fb27c600e85
 https://bootstrap.pypa.io/pip/2.7/get-pip.py==60e8267eb1b7bc71dc4843eb7bd294d3
-https://chrome-infra-packages.appspot.com/client?platform=linux-amd64&version=git_revision:673f5ee1931bc72a2b3d4ac712a7f7bc541f089b==e813a6e475d01264a4b855c13ff52805
+https://chrome-infra-packages.appspot.com/client?platform=linux-amd64&version=git_revision:2fe24264d5b4585ecd16ba8e9bb582d8f4b20875==e1557fb4a093dec95a2251d01f0d4cd3
 https://deb.debian.org/debian/pool/main/k/kdump-tools/kdump-tools_1.6.8.4.dsc==f96a03bb090ab03d484e5d232161fafe
 https://deb.debian.org/debian/pool/main/k/kdump-tools/kdump-tools_1.6.8.4.tar.xz==26bcae7c27b729d614a4a85e2a01cb64
 https://deb.nodesource.com/gpgkey/nodesource.gpg.key==003b51a89a133b5db4cca98b2dea3117
