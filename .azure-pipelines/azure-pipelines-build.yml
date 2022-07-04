@@ -30,6 +30,7 @@ jobs:
       BUILD_OPTIONS: ${{ parameters.buildOptions }}
       DOCKER_DATA_ROOT_FOR_MULTIARCH: /data/march/docker
       dbg_image: no
+      asan_image: no
       swi_image: no
       raw_image: no
       docker_syncd_rpc_image: no
@@ -42,6 +43,7 @@ jobs:
         - name: vs
           variables:
             dbg_image: yes
+            asan_image: yes
 
         - name: barefoot
           variables:
@@ -105,6 +107,10 @@ jobs:
             if [ $(dbg_image) == yes ]; then
               make $BUILD_OPTIONS INSTALL_DEBUG_TOOLS=y target/sonic-vs.img.gz
               mv target/sonic-vs.img.gz target/sonic-vs-dbg.img.gz
+            fi
+            if [ $(asan_image) == yes ]; then
+              make $BUILD_OPTIONS ENABLE_ASAN=y target/docker-sonic-vs.gz
+              mv target/docker-sonic-vs.gz target/docker-sonic-vs-asan.gz
             fi
             make $BUILD_OPTIONS target/docker-sonic-vs.gz target/sonic-vs.img.gz target/docker-ptf.gz
             if [ $(Build.Reason) != 'PullRequest' ];then
