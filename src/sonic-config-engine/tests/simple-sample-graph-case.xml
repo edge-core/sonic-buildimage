@@ -198,6 +198,62 @@
       <DownstreamSummaries/>
       <DownstreamSummarySet xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution"/>
     </DeviceDataPlaneInfo>
+		<DeviceDataPlaneInfo>
+			<IPSecTunnels />
+			<LoopbackIPInterfaces xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution">
+				<a:LoopbackIPInterface>
+					<ElementType>LoopbackInterface</ElementType>
+					<Name>HostIP</Name>
+					<AttachTo>Loopback0</AttachTo>
+					<a:Prefix xmlns:b="Microsoft.Search.Autopilot.NetMux">
+						<b:IPPrefix>10.10.10.2/32</b:IPPrefix>
+					</a:Prefix>
+					<a:PrefixStr>10.10.10.2/32</a:PrefixStr>
+				</a:LoopbackIPInterface>
+				<a:LoopbackIPInterface>
+					<ElementType>LoopbackInterface</ElementType>
+					<Name>HostIP1</Name>
+					<AttachTo>Loopback0</AttachTo>
+					<a:Prefix xmlns:b="Microsoft.Search.Autopilot.NetMux">
+						<b:IPPrefix>fe80::0002/128</b:IPPrefix>
+					</a:Prefix>
+					<a:PrefixStr>fe80::0002/128</a:PrefixStr>
+				</a:LoopbackIPInterface>
+				<a:LoopbackIPInterface>
+					<ElementType>LoopbackInterface</ElementType>
+					<Name>SoCHostIP0</Name>
+					<AttachTo>server2SOC</AttachTo>
+					<a:Prefix xmlns:b="Microsoft.Search.Autopilot.NetMux">
+						<b:IPPrefix>10.10.10.3/32</b:IPPrefix>
+					</a:Prefix>
+					<a:PrefixStr>10.10.10.3/32</a:PrefixStr>
+				</a:LoopbackIPInterface>
+				<a:LoopbackIPInterface>
+					<ElementType>LoopbackInterface</ElementType>
+					<Name>SoCHostIP1</Name>
+					<AttachTo>server2SOC</AttachTo>
+					<a:Prefix xmlns:b="Microsoft.Search.Autopilot.NetMux">
+						<b:IPPrefix>fe80::0003/128</b:IPPrefix>
+					</a:Prefix>
+					<a:PrefixStr>fe80::0003/128</a:PrefixStr>
+				</a:LoopbackIPInterface>
+			</LoopbackIPInterfaces>
+			<ManagementIPInterfaces xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution" />
+			<ManagementVIPInterfaces xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution" />
+			<MplsInterfaces />
+			<MplsTeInterfaces />
+			<RsvpInterfaces />
+			<Hostname>server2</Hostname>
+			<PortChannelInterfaces />
+			<SubInterfaces />
+			<VlanInterfaces />
+			<IPInterfaces />
+			<DataAcls />
+			<AclInterfaces />
+			<NatInterfaces xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution" />
+			<DownstreamSummaries />
+			<DownstreamSummarySet xmlns:a="http://schemas.datacontract.org/2004/07/Microsoft.Search.Autopilot.Evolution" />
+		</DeviceDataPlaneInfo>
   </DpgDec>
   <PngDec>
     <DeviceInterfaceLinks>
@@ -260,17 +316,6 @@
         <FlowControl>true</FlowControl>
         <StartDevice>server1-SC</StartDevice>
         <StartPort>L</StartPort>
-        <Validate>true</Validate>
-      </DeviceLinkBase>
-      <DeviceLinkBase i:type="LogicalLink">
-        <ElementType>LogicalLink</ElementType>
-        <Bandwidth>10000</Bandwidth>
-        <ChassisInternal>false</ChassisInternal>
-        <EndDevice>switch-t0</EndDevice>
-        <EndPort>fortyGigE0/8</EndPort>
-        <FlowControl>true</FlowControl>
-        <StartDevice>server2-SC</StartDevice>
-        <StartPort>U</StartPort>
         <Validate>true</Validate>
       </DeviceLinkBase>
       <DeviceLinkBase i:type="LogicalLink">
@@ -348,25 +393,6 @@
         </ManagementAddress>
         <Hostname>server1</Hostname>
         <HwSku>server-sku</HwSku>
-      </Device>
-      <Device i:type="SmartCable">
-        <ElementType>SmartCable</ElementType>
-        <SubType>active-active</SubType>
-        <Address xmlns:d5p1="Microsoft.Search.Autopilot.NetMux">
-          <d5p1:IPPrefix>10.10.10.3/32</d5p1:IPPrefix>
-        </Address>
-        <AddressV6 xmlns:d5p1="Microsoft.Search.Autopilot.NetMux">
-          <d5p1:IPPrefix>::/0</d5p1:IPPrefix>
-        </AddressV6>
-        <ManagementAddress xmlns:d5p1="Microsoft.Search.Autopilot.NetMux">
-          <d5p1:IPPrefix>0.0.0.0/0</d5p1:IPPrefix>
-        </ManagementAddress>
-        <ManagementAddressV6 xmlns:d5p1="Microsoft.Search.Autopilot.NetMux">
-          <d5p1:IPPrefix>::/0</d5p1:IPPrefix>
-        </ManagementAddressV6>
-        <SerialNumber i:nil="true" />
-        <Hostname>server2-SC</Hostname>
-        <HwSku>smartcable-sku</HwSku>
       </Device>
       <Device i:type="Server">
         <ElementType>Server</ElementType>
@@ -506,6 +532,11 @@
      <a:Reference i:nil="true"/>
      <a:Value>Storage</a:Value>
     </a:DeviceProperty>
+    <a:DeviceProperty>
+      <a:Name>RedundancyType</a:Name>
+      <a:Reference i:nil="true"/>
+      <a:Value>Mixed</a:Value>
+     </a:DeviceProperty>
   </a:Properties>
   </a:DeviceMetadata>
  </Devices>
