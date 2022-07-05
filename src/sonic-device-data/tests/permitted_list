@@ -314,3 +314,5 @@ phy_force_firmware_load
 phy_pcs_repeater
 l3_alpm_hit_skip
 phy_an_lt_msft
+xflow_macsec_secure_chan_to_num_secure_assoc_encrypt
+xflow_macsec_secure_chan_to_num_secure_assoc_decrypt
