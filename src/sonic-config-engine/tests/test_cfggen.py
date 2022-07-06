@@ -39,6 +39,7 @@ class TestCfgGen(TestCase):
         self.packet_chassis_graph = os.path.join(self.test_dir, 'sample-chassis-packet-lc-graph.xml')
         self.packet_chassis_port_ini = os.path.join(self.test_dir, 'sample-chassis-packet-lc-port-config.ini')
         self.macsec_profile = os.path.join(self.test_dir, 'macsec_profile.json')
+        self.sample_backend_graph = os.path.join(self.test_dir, 'sample-graph-storage-backend.xml')
         # To ensure that mock config_db data is used for unit-test cases
         os.environ["CFGGEN_UNIT_TESTING"] = "2"
 
@@ -710,20 +711,43 @@ class TestCfgGen(TestCase):
         output = self.run_script(argument)
         self.assertEqual(output.strip(), "")
 
-    def test_minigraph_sub_port_interfaces(self, check_stderr=True):
-        self.verify_sub_intf(check_stderr=check_stderr)
-
     def test_minigraph_sub_port_intf_resource_type_non_backend_tor(self, check_stderr=True):
         self.verify_sub_intf_non_backend_tor(graph_file=self.sample_resource_graph, check_stderr=check_stderr)
 
-    def test_minigraph_sub_port_intf_resource_type(self, check_stderr=True):
-        self.verify_sub_intf(graph_file=self.sample_resource_graph, check_stderr=check_stderr)
+    def test_minigraph_sub_port_intf_hwsku(self, check_stderr=True):
+        self.verify_sub_intf(graph_file=self.sample_backend_graph, check_stderr=check_stderr)
 
     def test_minigraph_sub_port_intf_sub(self, check_stderr=True):
         self.verify_sub_intf(graph_file=self.sample_subintf_graph, check_stderr=check_stderr)
 
     def test_minigraph_no_vlan_member(self, check_stderr=True):
         self.verify_no_vlan_member()
+
+    def test_minigraph_backend_acl_leaf(self, check_stderr=True):
+        try:
+            print('\n    Change device type to %s' % (BACKEND_LEAF_ROUTER))
+            if check_stderr:
+                output = subprocess.check_output("sed -i \'s/%s/%s/g\' %s" % (TOR_ROUTER, BACKEND_LEAF_ROUTER, self.sample_backend_graph), stderr=subprocess.STDOUT, shell=True)
+            else:
+                output = subprocess.check_output("sed -i \'s/%s/%s/g\' %s" % (TOR_ROUTER, BACKEND_LEAF_ROUTER, self.sample_backend_graph), shell=True)
+
+            self.test_jinja_expression(self.sample_backend_graph, self.port_config, BACKEND_LEAF_ROUTER)
+
+            # ACL_TABLE should contain EVERFLOW related entries
+            argument = '-m "' + self.sample_backend_graph + '" -p "' + self.port_config + '" -v "ACL_TABLE"'
+            output = self.run_script(argument)
+            sample_output = utils.to_dict(output.strip()).keys()
+            assert 'DATAACL' not in sample_output, sample_output
+            assert 'EVERFLOW' in sample_output, sample_output
+
+        finally:
+            print('\n    Change device type back to %s' % (TOR_ROUTER))
+            if check_stderr:
+                output = subprocess.check_output("sed -i \'s/%s/%s/g\' %s" % (BACKEND_LEAF_ROUTER, TOR_ROUTER, self.sample_backend_graph), stderr=subprocess.STDOUT, shell=True)
+            else:
+                output = subprocess.check_output("sed -i \'s/%s/%s/g\' %s" % (BACKEND_LEAF_ROUTER, TOR_ROUTER, self.sample_backend_graph), shell=True)
+
+            self.test_jinja_expression(self.sample_backend_graph, self.port_config, TOR_ROUTER)
 
     def test_minigraph_sub_port_no_vlan_member(self, check_stderr=True):
         try:
@@ -779,6 +803,13 @@ class TestCfgGen(TestCase):
             argument = '-m "' + graph_file + '" -p "' + self.port_config + '" -v "PORTCHANNEL_INTERFACE"'
             output = self.run_script(argument)
             self.assertEqual(output.strip(), "")
+
+            # ACL_TABLE should not contain EVERFLOW related entries
+            argument = '-m "' + graph_file + '" -p "' + self.port_config + '" -v "ACL_TABLE"'
+            output = self.run_script(argument)
+            sample_output = utils.to_dict(output.strip()).keys()
+            assert 'DATAACL' in sample_output, sample_output
+            assert 'EVERFLOW' not in sample_output, sample_output
 
             # All the other tables stay unchanged
             self.test_minigraph_vlans(graph_file=graph_file)
