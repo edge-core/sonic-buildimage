@@ -1,13 +1,17 @@
 from unittest import TestCase
 import subprocess
 import os
+import ipaddr as ipaddress
 import minigraph
+
 class TestCfgGenCaseInsensitive(TestCase):
 
     def setUp(self):
         self.test_dir = os.path.dirname(os.path.realpath(__file__))
         self.script_file = os.path.join(self.test_dir, '..', 'sonic-cfggen')
         self.sample_graph = os.path.join(self.test_dir, 'simple-sample-graph-case.xml')
+        self.sample_simple_device_desc = os.path.join(self.test_dir, 'simple-sample-device-desc.xml')
+        self.sample_simple_device_desc_ipv6_only = os.path.join(self.test_dir, 'simple-sample-device-desc-ipv6-only.xml')
         self.port_config = os.path.join(self.test_dir, 't0-sample-port-config.ini')
 
     def run_script(self, argument, check_stderr=False):
@@ -146,5 +150,20 @@ class TestCfgGenCaseInsensitive(TestCase):
             output.strip(),
             "{'Vlan1000': {'dhcpv6_servers': ['fc02:2000::1', 'fc02:2000::2']}}" 
         )
-        
-    
+
+    def test_parse_device_desc_xml_mgmt_interface(self):
+        # Regular device_desc.xml with both IPv4 and IPv6 mgmt address
+        result = minigraph.parse_device_desc_xml(self.sample_simple_device_desc)
+        mgmt_intf = result['MGMT_INTERFACE']
+        self.assertEqual(len(mgmt_intf.keys()), 2)
+        self.assertTrue(('eth0', '10.0.0.100/24') in mgmt_intf.keys())
+        self.assertTrue(('eth0', 'FC00:1::32/64') in mgmt_intf.keys())
+        self.assertTrue(ipaddress.IPAddress('10.0.0.1') == mgmt_intf[('eth0', '10.0.0.100/24')]['gwaddr'])
+        self.assertTrue(ipaddress.IPAddress('fc00:1::1') == mgmt_intf[('eth0', 'FC00:1::32/64')]['gwaddr'])
+
+        # Special device_desc.xml with IPv6 mgmt address only
+        result = minigraph.parse_device_desc_xml(self.sample_simple_device_desc_ipv6_only)
+        mgmt_intf = result['MGMT_INTERFACE']
+        self.assertEqual(len(mgmt_intf.keys()), 1)
+        self.assertTrue(('eth0', 'FC00:1::32/64') in mgmt_intf.keys())
+        self.assertTrue(ipaddress.IPAddress('fc00:1::1') == mgmt_intf[('eth0', 'FC00:1::32/64')]['gwaddr'])
