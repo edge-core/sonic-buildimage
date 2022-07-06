@@ -1,4 +1,4 @@
-charset-normalizer==2.0.12
+charset-normalizer==2.1.0
 click==7.0
 docker==5.0.3
 ijson==2.6.1
@@ -11,7 +11,7 @@ netifaces==0.11.0
 psutil==5.9.1
 pyroute2==0.5.14
 python-arptable==0.0.2
-tabulate==0.8.9
-websocket-client==1.3.2
+tabulate==0.8.10
+websocket-client==1.3.3
 xmltodict==0.12.0
 zipp==1.2.0

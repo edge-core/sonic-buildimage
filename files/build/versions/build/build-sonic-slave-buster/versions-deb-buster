@@ -1,8 +1,8 @@
 applibs==1.mlnx.4.5.2262
 applibs-dev==1.mlnx.4.5.2262
 bfnplatform==1.0.0
-innovium-sai==0.107.4
-innovium-sai-headers==0.107.4
+innovium-sai==0.107.5
+innovium-sai-headers==0.107.5
 iproute2-dev==1.mlnx.4.5.2262
 isc-dhcp-relay==4.4.1-2
 kernel-mft-dkms==4.18.0-106
