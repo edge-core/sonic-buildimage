@@ -1172,7 +1172,26 @@ def parse_spine_chassis_fe(results, vni, lo_intfs, phyport_intfs, pc_intfs, pc_m
 #
 ###############################################################################
 
-def filter_acl_table_bindings(acls, neighbors, port_channels, sub_role):
+def filter_acl_table_for_backend(acls, vlan_members):
+    filter_acls = {}
+    for acl_name, value in acls.items():
+        if 'everflow' not in acl_name.lower():
+            filter_acls[acl_name] = value
+
+    ports = set()
+    for vlan, member in vlan_members:
+        ports.add(member)
+    filter_acls['DATAACL'] = { 'policy_desc': 'DATAACL',
+                               'stage': 'ingress',
+                               'type': 'L3',
+                               'ports': list(ports)
+                             }
+    return filter_acls
+
+def filter_acl_table_bindings(acls, neighbors, port_channels, sub_role, device_type, is_storage_device, vlan_members):
+    if device_type == 'BackEndToRRouter' and is_storage_device:
+        return filter_acl_table_for_backend(acls, vlan_members)
+
     filter_acls = {}
     
     # If the asic role is BackEnd no ACL Table (Ctrl/Data/Everflow) is binded.
@@ -1741,7 +1760,7 @@ def parse_xml(filename, platform=None, port_config_file=None, asic_name=None, hw
     results['DHCP_RELAY'] = dhcp_relay_table
     results['NTP_SERVER'] = dict((item, {}) for item in ntp_servers)
     results['TACPLUS_SERVER'] = dict((item, {'priority': '1', 'tcp_port': '49'}) for item in tacacs_servers)
-    results['ACL_TABLE'] = filter_acl_table_bindings(acls, neighbors, pcs, sub_role)
+    results['ACL_TABLE'] = filter_acl_table_bindings(acls, neighbors, pcs, sub_role, current_device['type'], is_storage_device, vlan_members)
     results['FEATURE'] = {
         'telemetry': {
             'state': 'enabled'
