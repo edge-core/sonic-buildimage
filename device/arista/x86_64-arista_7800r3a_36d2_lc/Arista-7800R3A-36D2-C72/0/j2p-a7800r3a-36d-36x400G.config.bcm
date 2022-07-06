@@ -22,6 +22,9 @@ pmf_sexem3_stage=IPMF2
 # Jericho2-mode (description 0x1 used for Jericho 2 mode)
 system_headers_mode=1
 
+# HW mode to support 1024 16-member system wide LAGs
+trunk_group_max_members=16
+
 # Disable link-training
 port_init_cl72=0
 
