@@ -191,6 +191,15 @@ ifeq ($(SONIC_INCLUDE_MUX),y)
 INCLUDE_MUX = y
 endif
 
+ifeq ($(SONIC_INCLUDE_BOOTCHART),y)
+INCLUDE_BOOTCHART = y
+endif
+
+ifeq ($(SONIC_ENABLE_BOOTCHART),y)
+ENABLE_BOOTCHART = y
+endif
+
+
 ifeq ($(ENABLE_ASAN),y)
 	ifneq ($(CONFIGURED_ARCH),amd64)
 		@echo "Disabling SWSS address sanitizer due to incompatible CPU architecture: $(CONFIGURED_ARCH)"
@@ -243,7 +252,7 @@ endif
 
 DOCKER_IMAGE_REF = $*-$(DOCKER_USERNAME):$(DOCKER_USERTAG)
 DOCKER_DBG_IMAGE_REF = $*-$(DBG_IMAGE_MARK)-$(DOCKER_USERNAME):$(DOCKER_USERTAG)
-export DOCKER_USERNAME DOCKER_USERTAG 
+export DOCKER_USERNAME DOCKER_USERTAG
 
 ifeq ($(VS_PREPARE_MEM),)
 override VS_PREPARE_MEM := $(DEFAULT_VS_PREPARE_MEM)
@@ -335,6 +344,8 @@ $(info "INCLUDE_P4RT"                    : "$(INCLUDE_P4RT)")
 $(info "INCLUDE_KUBERNETES"              : "$(INCLUDE_KUBERNETES)")
 $(info "INCLUDE_MACSEC"                  : "$(INCLUDE_MACSEC)")
 $(info "INCLUDE_MUX"                     : "$(INCLUDE_MUX)")
+$(info "INCLUDE_BOOTCHART                : "$(INCLUDE_BOOTCHART)")
+$(info "ENABLE_BOOTCHART                 : "$(ENABLE_BOOTCHART)")
 $(info "ENABLE_FIPS_FEATURE"             : "$(ENABLE_FIPS_FEATURE)")
 $(info "TELEMETRY_WRITABLE"              : "$(TELEMETRY_WRITABLE)")
 $(info "ENABLE_AUTO_TECH_SUPPORT"        : "$(ENABLE_AUTO_TECH_SUPPORT)")
@@ -380,7 +391,7 @@ export vs_build_prepare_mem=$(VS_PREPARE_MEM)
 ##     docker-swss:latest <=SAVE/LOAD=> docker-swss-<user>:<tag>
 
 # $(call docker-image-save,from,to)
-# Sonic docker images are always created with username as extension. During the save operation, 
+# Sonic docker images are always created with username as extension. During the save operation,
 # it removes the username extension from docker image and saved them as compressed tar file for SONiC image generation.
 # The save operation is protected with lock for parallel build.
 #
@@ -404,7 +415,7 @@ define docker-image-save
 endef
 
 # $(call docker-image-load,from)
-# Sonic docker images are always created with username as extension. During the load operation, 
+# Sonic docker images are always created with username as extension. During the load operation,
 # it loads the docker image from compressed tar file and tag them with username as extension.
 # The load operation is protected with lock for parallel build.
 #
@@ -1152,6 +1163,8 @@ $(addprefix $(TARGET_PATH)/, $(SONIC_INSTALLERS)) : $(TARGET_PATH)/% : \
 		$(shell [[ ! -z '$($(component)_VERSION)' && ! -z '$($(component)_NAME)' ]] && \
 			echo $($(component)_NAME)==$($(component)_VERSION)))"
 	export include_mux="$(INCLUDE_MUX)"
+	export include_bootchart="$(INCLUDE_BOOTCHART)"
+	export enable_bootchart="$(ENABLE_BOOTCHART)"
 	$(foreach docker, $($*_DOCKERS),\
 		export docker_image="$(docker)"
 		export docker_image_name="$(basename $(docker))"

@@ -43,6 +43,12 @@
 #  * ENABLE_AUTO_TECH_SUPPORT: Enable the configuration for event-driven techsupport & coredump mgmt feature
 #  *                 Default: y
 #  *                 Values: y,n
+#  * INCLUDE_BOOTCHART: Install SONiC bootchart
+#  *                 Default: y
+#  *                 Values: y,n
+#  * ENABLE_BOOTCHART: Enable SONiC bootchart
+#  *                 Default: n
+#  *                 Values: y,n
 #
 ###############################################################################
 
@@ -381,6 +387,8 @@ SONIC_BUILD_INSTRUCTION :=  make \
                            ENABLE_AUTO_TECH_SUPPORT=$(ENABLE_AUTO_TECH_SUPPORT) \
                            BUILD_MULTIASIC_KVM=$(BUILD_MULTIASIC_KVM) \
                            ENABLE_ASAN=$(ENABLE_ASAN) \
+                           SONIC_INCLUDE_BOOTCHART=$(INCLUDE_BOOTCHART) \
+                           SONIC_ENABLE_BOOTCHART=$(ENABLE_BOOTCHART) \
                            ENABLE_FIPS_FEATURE=$(ENABLE_FIPS_FEATURE) \
                            ENABLE_FIPS=$(ENABLE_FIPS) \
                            SONIC_SLAVE_DOCKER_DRIVER=$(SONIC_SLAVE_DOCKER_DRIVER) \
