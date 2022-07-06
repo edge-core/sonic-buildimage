@@ -606,6 +606,34 @@ class TestJ2Files(TestCase):
         self.run_script(argument)
         assert utils.cmp(expected, self.output_file), self.run_diff(expected, self.output_file)
 
+    def test_backend_acl_template_render(self):
+        acl_template = os.path.join(
+            self.test_dir, '..', '..', '..', 'files', 'build_templates',
+            'backend_acl.j2'
+        )
+        test_list = {
+            'single_vlan': {
+                'input': 'single_vlan.json',
+                'output': 'acl_single_vlan.json'
+            },
+            'multi_vlan': {
+                'input': 'multi_vlan.json',
+                'output': 'acl_multi_vlan.json'
+            },
+        }
+        for _, v in test_list.items():
+            input_file = os.path.join(
+                self.test_dir, 'data', 'backend_acl', v['input']
+            )
+            argument = " -j {} -t {} > {}".format(
+                input_file, acl_template, self.output_file
+            )
+            sample_output_file = os.path.join(
+                self.test_dir, 'data', 'backend_acl', v['output']
+            )
+            self.run_script(argument)
+            assert utils.cmp(sample_output_file, self.output_file), self.run_diff(sample_output_file, self.output_file)
+
     def tearDown(self):
         os.environ["CFGGEN_UNIT_TESTING"] = ""
         try:
