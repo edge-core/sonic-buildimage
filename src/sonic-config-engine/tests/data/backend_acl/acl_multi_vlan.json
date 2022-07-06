@@ -1,0 +1,59 @@
+
+{
+        "acl": {
+                "acl-sets": {
+                        "acl-set": {
+                                "DATAACL": {
+                                        "acl-entries": {
+                                                "acl-entry": {
+                                                     "1": {
+                                                             "config": {
+                                                                     "sequence-id": 1
+                                                             },
+                                                             "actions": {
+                                                                     "config": {
+                                                                             "forwarding-action": "ACCEPT"
+                                                                     }
+                                                             },
+                                                             "l2": {
+                                                                     "config": {
+                                                                             "vlan_id": "1000"
+                                                                     }
+                                                             },
+                                                             "input_interface": {
+                                                                     "interface_ref": {
+                                                                             "config": {
+                                                                                     "interface": "Ethernet12,Ethernet16,Ethernet20,Ethernet24,Ethernet28,Ethernet32,Ethernet36,Ethernet40,Ethernet44,Ethernet48,Ethernet52,Ethernet56,Ethernet60,Ethernet64,Ethernet68,Ethernet72,Ethernet76"
+                                                                             }
+                                                                      }
+                                                             }
+
+                                                     },                                                     "2": {
+                                                             "config": {
+                                                                     "sequence-id": 2
+                                                             },
+                                                             "actions": {
+                                                                     "config": {
+                                                                             "forwarding-action": "ACCEPT"
+                                                                     }
+                                                             },
+                                                             "l2": {
+                                                                     "config": {
+                                                                             "vlan_id": "2000"
+                                                                     }
+                                                             },
+                                                             "input_interface": {
+                                                                     "interface_ref": {
+                                                                             "config": {
+                                                                                     "interface": "Ethernet4,Ethernet8"
+                                                                             }
+                                                                      }
+                                                             }
+
+                                                     }                                                 }
+                                        }
+                                }
+                        }
+                }
+        }
+}

@@ -497,6 +497,9 @@ then
 fi
 {% endif %}
 
+# Copy backend acl template
+sudo cp $BUILD_TEMPLATES/backend_acl.j2 $FILESYSTEM_ROOT_USR_SHARE_SONIC_TEMPLATES/
+
 # Copy hostname configuration scripts
 sudo cp $IMAGE_CONFIGS/hostname/hostname-config.service $FILESYSTEM_ROOT_USR_LIB_SYSTEMD_SYSTEM
 echo "hostname-config.service" | sudo tee -a $GENERATED_SERVICE_FILE
