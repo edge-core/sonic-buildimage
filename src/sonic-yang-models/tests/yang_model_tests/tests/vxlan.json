@@ -1,0 +1,17 @@
+{
+    "VXLAN_VALID_TEST": {
+        "desc": "Valid VXLAN Configuration."
+    },
+    "VXLAN_EVPN_NVO_WITHOUT_VTEP": {
+        "desc": "Configure EVPN_NVO without VXLAN_TUNNEL entry",
+	    "eStrKey" : "LeafRef"
+    },
+    "VXLAN_MAP_WITHOUT_VTEP": {
+        "desc": "Configure VXLAN_TUNNEL_MAP without VXLAN_TUNNEL entry",
+	    "eStrKey" : "LeafRef"
+    },
+    "VXLAN_MAP_OOR_VNI": {
+        "desc": "VNI Out of Range in VXLAN_TUNNEL_MAP TABLE",
+        "eStrKey": "Range"
+    }
+}

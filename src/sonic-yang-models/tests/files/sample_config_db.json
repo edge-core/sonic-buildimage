@@ -332,6 +332,12 @@
             }
         },
         "VLAN": {
+            "Vlan100": {
+                "description": "vxlan",
+                "vlanid": "100",
+                "mtu": "9216",
+                "admin_status": "up"
+            },
             "Vlan111": {
                 "description": "svlan",
                 "dhcp_servers": [
@@ -1703,7 +1709,22 @@
               "4": "4"
             }
         },
-
+        "VXLAN_TUNNEL": {
+            "vtep1": {
+                "src_ip": "1.2.3.4"
+            }
+        },
+        "VXLAN_EVPN_NVO": {
+            "nvo1": {
+                "source_vtep": "vtep1"
+            }
+        },
+        "VXLAN_TUNNEL_MAP": {
+            "vtep1|map_100_Vlan100": {
+                "vni" : "100",
+                "vlan": "Vlan100"
+            }
+        },
         "PORT_QOS_MAP": {
            "Ethernet0": {
               "dot1p_to_tc_map" : "Dot1p_to_tc_map1",

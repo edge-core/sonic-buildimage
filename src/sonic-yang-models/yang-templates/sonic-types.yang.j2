@@ -262,6 +262,14 @@ module sonic-types {
         }
     }
 
+    typedef vnid_type {
+        type uint32 {
+             range "1..16777215";
+        }
+        description
+            "VXLAN Network Identifier";
+    }
+
     {% if yang_model_type == "cvl" %}
     /* Required for CVL */
     container operation {

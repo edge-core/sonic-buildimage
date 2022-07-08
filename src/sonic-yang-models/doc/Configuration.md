@@ -49,6 +49,7 @@ Table of Contents
          * [Versions](#versions)  
          * [VLAN](#vlan)   
          * [VLAN_MEMBER](#vlan_member)  
+         * [VXLAN](#vxlan)   
          * [Virtual router](#virtual-router)  
          * [WRED_PROFILE](#wred_profile)  
          * [PASSWORD_HARDENING](#password_hardening)  
@@ -1456,6 +1457,37 @@ channel name as object key, and tagging mode as attributes.
 	"Vlan2000|PortChannel47": {
 		"tagging_mode": "tagged"
 	}
+  }
+}
+```
+
+### VXLAN
+
+VXLAN_TUNNEL holds the VTEP source ip configuration.  
+VXLAN_TUNNEL_MAP holds the vlan to vni and vni to vlan mapping configuration.  
+VXLAN_EVPN_NVO holds the VXLAN_TUNNEL object to be used for BGP-EVPN discovered tunnels.
+
+```
+{
+"VXLAN_TUNNEL": {
+        "vtep1": {
+            "src_ip": "10.10.10.10"
+        }
+  }
+"VXLAN_TUNNEL_MAP" : {
+        "vtep1|map_1000_Vlan100": {
+           "vni": "1000",
+           "vlan": "100"
+         },
+        "vtep1|testmap": {
+           "vni": "22000",
+           "vlan": "70"
+         },
+  }
+  "VXLAN_EVPN_NVO": {
+        "nvo1": {
+            "source_vtep": "vtep1"
+        }
   }
 }
 ```
