@@ -344,7 +344,7 @@ void prepare_relay_config(relay_config *interface_config, int *local_sock, int f
 
     ifa_tmp = ifa;
     while (ifa_tmp) {
-        if (ifa_tmp->ifa_addr->sa_family == AF_INET6) {
+        if (ifa_tmp->ifa_addr && ifa_tmp->ifa_addr->sa_family == AF_INET6) {
             struct sockaddr_in6 *in6 = (struct sockaddr_in6*) ifa_tmp->ifa_addr;
             if((strcmp(ifa_tmp->ifa_name, interface_config->interface.c_str()) == 0) && !IN6_IS_ADDR_LINKLOCAL(&in6->sin6_addr)) {    
                 non_link_local = *in6;
@@ -402,7 +402,7 @@ void prepare_socket(int *local_sock, int *server_sock, relay_config *config, int
         else {
             ifa_tmp = ifa;
             while (ifa_tmp) {
-                if ((ifa_tmp->ifa_addr->sa_family == AF_INET6) && (strcmp(ifa_tmp->ifa_name, config->interface.c_str()) == 0)) {
+                if (ifa_tmp->ifa_addr && (ifa_tmp->ifa_addr->sa_family == AF_INET6) && (strcmp(ifa_tmp->ifa_name, config->interface.c_str()) == 0)) {
                     struct sockaddr_in6 *in6 = (struct sockaddr_in6*) ifa_tmp->ifa_addr;
                     if(!IN6_IS_ADDR_LINKLOCAL(&in6->sin6_addr)) {  
                         bind_addr = true;
