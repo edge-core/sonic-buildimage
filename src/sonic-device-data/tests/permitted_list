@@ -313,6 +313,7 @@ port_gmii_mode
 phy_force_firmware_load
 phy_pcs_repeater
 l3_alpm_hit_skip
+sai_verify_incoming_chksum
 phy_an_lt_msft
 system_ref_core_clock_khz
 xflow_macsec_secure_chan_to_num_secure_assoc_encrypt
