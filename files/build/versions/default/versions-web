@@ -32,10 +32,10 @@ https://deb.debian.org/debian/pool/main/k/kdump-tools/kdump-tools_1.6.8.4.dsc==f
 https://deb.debian.org/debian/pool/main/k/kdump-tools/kdump-tools_1.6.8.4.tar.xz==26bcae7c27b729d614a4a85e2a01cb64
 https://deb.nodesource.com/gpgkey/nodesource.gpg.key==003b51a89a133b5db4cca98b2dea3117
 https://deb.nodesource.com/node_10.x/dists/stretch/Release==22738118af583db3bfad39d6fcb4fa5a
-https://deb.nodesource.com/node_14.x/dists/bullseye/Release==42c7518e62764ce594c0dc7dc593d20a
-https://deb.nodesource.com/node_14.x/dists/buster/Release==6b181b4ad151ab26c7c7738ec8534ed3
+https://deb.nodesource.com/node_14.x/dists/bullseye/Release==e5d99d3f369b50a7b0290811926de82a
+https://deb.nodesource.com/node_14.x/dists/buster/Release==2c6b9d29a3e20816e0ed35475d52e0d3
 https://deb.nodesource.com/setup_10.x==6742c0148159980e8f6e886df1f8bbe1
-https://deb.nodesource.com/setup_14.x==3fb63a2bd38414a2b249fa9b3dbbbc3e
+https://deb.nodesource.com/setup_14.x==badb28cf0604d9ff24c5fc3396b594d4
 https://download.docker.com/linux/debian/gpg==1afae06b34a13c1b3d9cb61a26285a15
 https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnplatform_20220408_sai_1.9.1_deb10.deb==890a53ca1374dfcf8c12091d74fd2ef8
 https://github.com/barefootnetworks/sonic-release-pkgs/raw/dev/bfnsdk_20220408_sai_1.9.1_deb10.deb==a54c351ee84ddb63837085272a1c4eae
@@ -46,7 +46,7 @@ https://github.com/CentecNetworks/sonic-binaries/raw/master/amd64/third_party/ad
 https://github.com/CentecNetworks/sonic-binaries/raw/master/amd64/third_party/advantech/libSUSI-4.00.so.1==393a94b0abba146777e276e1febe0cb0
 https://github.com/CentecNetworks/sonic-binaries/raw/master/arm64/sai/libsai_1.9.1-0_arm64.deb==c354c766cc763a5af621a88637b9e126
 https://github.com/CumulusNetworks/ifupdown2/archive/3.0.0-1.tar.gz==755459b3a58fbc11625336846cea7420
-https://github.com/Marvell-switching/sonic-marvell-binaries/raw/master/armhf/sai-plugin/mrvllibsai_1.9.1-2_armhf.deb==41989b6336eaca539d81981ce82df2d4
+https://github.com/Marvell-switching/sonic-marvell-binaries/raw/master/armhf/sai-plugin/mrvllibsai_1.10.2-1_armhf.deb==6d75ab5ec102247fd42aed43b4bf5da6
 https://github.com/nanomsg/nanomsg/archive/1.0.0.tar.gz==6f56ef28c93cee644e8c4aaaef7cfb55
 https://launchpad.net/debian/+archive/primary/+sourcefiles/bash/5.1-2/bash_5.1-2.debian.tar.xz==9d0cbd5f463f461c840c95f62a64d61b
 https://launchpad.net/debian/+archive/primary/+sourcefiles/bash/5.1-2/bash_5.1-2.dsc==be44c5a9fc12fb567a486f54b842dd9e

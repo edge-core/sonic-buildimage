@@ -1,7 +1,7 @@
 dmidecode==3.2-1
 gdb==8.2.1-2+b3
 gdbserver==8.2.1-2+b3
-hsflowd==2.0.34-1
+hsflowd==2.0.35-1
 libbabeltrace1==1.5.6-2+deb10u1
 libbsd0==0.9.1-2+deb10u1
 libdw1==0.176-1.1
