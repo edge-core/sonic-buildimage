@@ -5,7 +5,7 @@ import sys
 import traceback
 from sonic_py_common.logger import Logger
 from socket import if_nametoindex
-from swsssdk import SonicV2Connector, port_util
+from sonic_py_common import port_util
 from swsscommon import swsscommon
 
 SYSLOG_IDENTIFIER = 'port_index_mapper'
@@ -26,7 +26,7 @@ class PortIndexMapper(object):
                                               REDIS_TIMEOUT_MS,
                                               True)
 
-        self.state_db = SonicV2Connector(host='127.0.0.1', decode_responses=True)
+        self.state_db = swsscommon.SonicV2Connector(host='127.0.0.1', decode_responses=True)
         self.state_db.connect(self.state_db.STATE_DB, False)
         self.sel = swsscommon.Select()
         self.tbls = [swsscommon.SubscriberStateTable(self.appl_db, t)

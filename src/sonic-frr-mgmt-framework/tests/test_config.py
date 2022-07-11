@@ -2,9 +2,11 @@ import copy
 import re
 from unittest.mock import MagicMock, NonCallableMagicMock, patch
 
-swsssdk_module_mock = MagicMock(ConfigDBConnector = NonCallableMagicMock)
+swsscommon_module_mock = MagicMock(ConfigDBConnector = NonCallableMagicMock)
+# because can’t use dotted names directly in a call, have to create a dictionary and unpack it using **:
+mockmapping = {'swsscommon.swsscommon': swsscommon_module_mock}
 
-@patch.dict('sys.modules', swsssdk = swsssdk_module_mock)
+@patch.dict('sys.modules', **mockmapping)
 def test_contructor():
     from frrcfgd.frrcfgd import BGPConfigDaemon
     daemon = BGPConfigDaemon()
@@ -147,7 +149,7 @@ bgp_globals_data = [
                        conf_bgp_af_cmd('Vrf_red', 200, 'ipv6') + ['{}import vrf route-map test_map']),
 ]
 
-@patch.dict('sys.modules', swsssdk = swsssdk_module_mock)
+@patch.dict('sys.modules', **mockmapping)
 @patch('frrcfgd.frrcfgd.g_run_command')
 def data_set_del_test(test_data, run_cmd):
     from frrcfgd.frrcfgd import BGPConfigDaemon

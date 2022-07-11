@@ -12,7 +12,7 @@ import time
 from datetime import datetime
 from ipaddress import ip_interface
 
-from swsssdk import ConfigDBConnector, SonicV2Connector
+from swsscommon.swsscommon import ConfigDBConnector, SonicV2Connector
 from sonic_py_common import logger as log
 
 from pyroute2 import IPRoute

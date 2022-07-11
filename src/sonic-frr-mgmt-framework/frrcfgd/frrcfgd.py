@@ -5,7 +5,7 @@ import subprocess
 import time
 import syslog
 import os
-from swsssdk import ConfigDBConnector
+from swsscommon.swsscommon import ConfigDBConnector
 import socket
 import threading
 import queue
