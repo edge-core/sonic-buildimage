@@ -27,6 +27,11 @@
             "POLL_INTERVAL": "10000"
         }
     },
+    "BGP_DEVICE_GLOBAL": {
+        "STATE": {
+            "tsa_enabled": "false"
+        }
+    },
 {%- set features = [("bgp", "enabled", false, "enabled"),
                    ("database", "always_enabled", false, "always_enabled"),
                    ("lldp", "enabled", true, "enabled"),
