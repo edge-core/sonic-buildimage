@@ -50,6 +50,7 @@ gir1.2-packagekitglib-1.0==1.1.12-5
 gnupg==2.2.12-1+deb10u2
 gnupg-l10n==2.2.12-1+deb10u2
 gnupg-utils==2.2.12-1+deb10u2
+gnupg2==2.2.12-1+deb10u2
 gpg==2.2.12-1+deb10u2
 gpg-agent==2.2.12-1+deb10u2
 gpg-wks-client==2.2.12-1+deb10u2

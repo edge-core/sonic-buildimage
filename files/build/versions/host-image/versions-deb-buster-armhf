@@ -4,6 +4,7 @@ dpkg-dev==1.19.7
 gnupg==2.2.12-1+deb10u1
 gnupg-l10n==2.2.12-1+deb10u1
 gnupg-utils==2.2.12-1+deb10u1
+gnupg2==2.2.12-1+deb10u1
 gpg==2.2.12-1+deb10u1
 gpg-agent==2.2.12-1+deb10u1
 gpg-wks-client==2.2.12-1+deb10u1
